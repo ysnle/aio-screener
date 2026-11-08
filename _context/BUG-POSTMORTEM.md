@@ -39,6 +39,15 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2289 - v59.77 - 신용 20거래일 판정의 '부담 시작일'이 날마다 뒤로 밀림(10/30 → 11/3) (2026-11-08)
+
+- symptom/reproduction: 같은 하이일드 기록에서 11/2에는 부담 시작일이 10/30, 11/5에는 11/3으로 바뀌었다. 판정은 이어지는데 시작일만 움직였다.
+- root_cause: hyWidening20Record()가 지난 60거래일 래치를 다시 계산할 때 진입선을 '오늘의' 자체 기록 90백분위 하나로 적용했다. 기록이 쌓여 진입선이 34.0bp에서 34.9bp로 오르자 10/30(+34bp)이 과거로 거슬러 '진입 아님'이 됐다.
+- fix: 각 거래일은 그날까지의 기록으로 만든 진입선으로 판정한다(enterAt). 오늘 기준선 enterBp는 그대로 '기준까지' 계산에 쓴다.
+- violated_rule: 과거 판정은 그 시점에 알 수 있던 기준으로 다시 계산한다
+- prevention: P2289: scripts/ci-esm-core-unit-check.mjs 'v59.77 the HY latch keeps its 10/30 start through 11/5'
+- verification/residual: 공개 macro-history로 11/2·11/5 모두 시작일 2026-10-30.
+
 ## P2288 - v59.76 - 매크로 달러 장은 원/달러 20거래일 +1.5%를 '원화는 안정적', 성장·한국 장은 '원화가 약해져'로 씀 (2026-11-08)
 
 - symptom/reproduction: 11/6 기준 매크로 화면에서 같은 20거래일 원/달러 +1.5%를 달러·환율 장은 '원화는 안정적입니다', 성장·소비·한국 장은 '원화가 약해져 외국인 이탈을 봐야 합니다'로 반대로 읽었다. 금리와 환율 화면의 원화 분해는 '원화 고유 약세'로 읽었다.

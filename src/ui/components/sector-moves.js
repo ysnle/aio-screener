@@ -52,7 +52,7 @@ export function renderSectorMoves({ documentRef: doc, root, anchor = null, host 
   if (host) section.setAttribute('aria-labelledby', title.id);
   head.append(title, el(doc, 'span', `${md(model.session)} 종가, 미국 섹터 ETF ${model.rows.length === 11 ? '11개' : `${model.rows.length}/11개 확인`}`, 'briefing-h2-note sx-card__meta'));
   const top = model.rows[0], bottom = model.rows.at(-1);
-  const lead = el(doc, 'p', `${top.label}(${signedText(top.daily, 2)}%)${particle(top.label)} 가장 강했고 ${bottom.label}(${signedText(bottom.daily, 2)}%)${particle(bottom.label)} 가장 약했습니다. ${model.rows.length}개 중 ${model.upCount}개 섹터가 올랐습니다.`, 'home-sector-lead');
+  const lead = el(doc, 'p', `${top.label}(${signedText(top.daily, 2)}%)${particle(top.label)} 가장 강했고 ${bottom.label}(${signedText(bottom.daily, 2)}%)${particle(bottom.label)} 가장 약했습니다. 섹터 ETF ${model.rows.length}개 중 ${model.upCount}개가 올랐습니다.`, 'home-sector-lead');
   const max = Math.max(0.5, ...model.rows.map((row) => Math.abs(row.daily)));
   const list = el(doc, 'ul', null, 'home-sector-bars');
   for (const row of model.rows) {

@@ -293,12 +293,17 @@ export function hyWidening20Record(macroHistory, through = null) {
   }
   const last = changes.at(-1);
   if (!last) return null;
-  const record = changes.slice(-RECORD_FULL_YEAR).map((point) => point.value);
-  const p = record.length >= rule.recordMin ? quantile(record, rule.stress20dPct / 100) : null;
   const multiple = rule.stress20dMultiple * rule.widen20dBp;
-  const enterBp = Math.max(rule.widen20dBp, p == null ? multiple : Math.min(p, multiple));
+  // v59.77: each session is judged on the record it had then — today's line moved the start (10/30 → 11/3).
+  const enterAt = (end) => {
+    const record = changes.slice(Math.max(0, end - RECORD_FULL_YEAR), end).map((point) => point.value);
+    const p = record.length >= rule.recordMin ? quantile(record, rule.stress20dPct / 100) : null;
+    return Math.max(rule.widen20dBp, p == null ? multiple : Math.min(p, multiple));
+  };
+  const enterBp = enterAt(changes.length);
+  const from = Math.max(0, changes.length - rule.latchSessions);
   // P2287: released only when the five-session change is also under widenWatch5dBp (a spiked base is not an easing).
-  const latch = latchedState(changes.slice(-rule.latchSessions), (point) => point.value >= enterBp,
+  const latch = latchedState(changes.slice(from).map((point, i) => ({ ...point, enter: enterAt(from + i + 1) })), (point) => point.value >= point.enter,
     (point) => point.value < rule.widen20dBp && !(point.d5 != null && point.d5 >= rule.widenWatch5dBp));
   const rank = recordPercentile(changes.slice(-RECORD_FULL_YEAR), last.value);
   return { value: last.value, date: last.date, enterBp, pct: rank.pct, n: rank.n, highest: rank.highest, stress: latch.on, since: latch.since };

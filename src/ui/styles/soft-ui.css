@@ -561,6 +561,8 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
   .topbar .topbar-actions-right { grid-template-columns: auto minmax(0, 1fr) auto auto; }
   .topbar #topbar-live-badge { margin-inline-end: -4px; padding: 0 2px 0 8px !important; }
   .topbar #live-quote-ts { justify-self: start; text-align: left; padding: 2px 8px 2px 4px; line-height: 1.2; }
+  .topbar #live-quote-ts[data-compact]:not([data-compact=""])::after { white-space: nowrap; } 
+  .topbar .aio-cmd-trigger__key { display: none; } /* v59.77: no keyboard shortcut hint on phones; the freed width keeps '11/6 종가 기준' on one line */
   .topbar #topbar-help-btn { grid-column: 3; }
   .topbar #topbar-ai-btn { grid-column: 4; }
 }
