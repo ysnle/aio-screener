@@ -34,6 +34,12 @@ try {
   const { rawBytes, gzipBytes } = budget.bootModuleBudget;
   if (raw > rawBytes) failures.push(`boot module set is ${raw} raw bytes, budget ${rawBytes}`);
   if (gzip > gzipBytes) failures.push(`boot module set is ${gzip} gzip bytes, budget ${gzipBytes}`);
+  // v59.81 (hosting review 2026-11-08): the budget above was raised in 1 KB steps more than ten times in 14 days, so it
+  // never stopped growth. The ceiling is the owner's number: the budget may not exceed it, and boot bytes a feature needs
+  // come from moving another boot module behind its route (lazy), not from raising the ceiling.
+  const ceiling = budget.bootModuleCeiling || {};
+  if (!(ceiling.rawBytes > 0 && ceiling.gzipBytes > 0)) failures.push('architecture/boot-budget.json has no bootModuleCeiling rawBytes/gzipBytes');
+  else if (rawBytes > ceiling.rawBytes || gzipBytes > ceiling.gzipBytes) failures.push(`boot module budget ${rawBytes}/${gzipBytes} is above the owner ceiling ${ceiling.rawBytes}/${ceiling.gzipBytes}; make a boot module lazy instead`);
   // v59.70 (2nd batch A, P0): the classic boot scripts, minified one by one as the deploy ships them, had no byte budget.
   const classic = { rawBytes: 0, gzipBytes: 0, files: {} };
   for (const file of CLASSIC_BOOT_SCRIPTS) {

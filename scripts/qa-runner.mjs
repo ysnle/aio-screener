@@ -2,7 +2,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { freemem } from 'node:os';
 import { createHash } from 'node:crypto';
-import { createReadStream, createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, unlinkSync, rmSync } from 'node:fs';
+import { createReadStream, createWriteStream, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, renameSync, unlinkSync, rmSync } from 'node:fs';
 import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { StringDecoder } from 'node:string_decoder';
@@ -21,6 +21,22 @@ const reportPath = join(cacheDir, 'last-run.json');
 const sessionDir = join(cacheDir, 'sessions');
 const runsDir = join(cacheDir, 'runs');
 const failedBatchPath = join(cacheDir, 'failed-batch.json');
+const KEEP_RUNS = 150;
+/** Removes run reports (<runId>.json) and run directories (<runId>/) beyond the newest `keep`; run ids sort by time. */
+export function pruneRuns(dir, { keep = KEEP_RUNS, protect = [] } = {}) {
+  let names;
+  try { names = readdirSync(dir); } catch { return 0; }
+  const ids = [...new Set(names.filter((name) => /^\d{4}-\d{2}-\d{2}T/.test(name)).map((name) => name.replace(/\.json$/, '')))].sort();
+  const keepSet = new Set([...ids.slice(-keep), ...protect.filter(Boolean)]);
+  let removed = 0;
+  for (const id of ids) {
+    if (keepSet.has(id)) continue;
+    for (const target of [join(dir, `${id}.json`), join(dir, id)]) {
+      try { rmSync(target, { recursive: true, force: true }); removed += 1; } catch { /* a locked file stays for the next run */ }
+    }
+  }
+  return removed;
+}
 const verifiedTreePath = join(cacheDir, 'verified-tree.json');
 mkdirSync(cacheDir, { recursive: true });
 mkdirSync(sessionDir, { recursive: true });
@@ -927,6 +943,10 @@ for (const phase of phases) {
 
 try { rmSync(outputStagingDir, { recursive: true, force: true }); }
 catch (error) { console.error(`[qa] WARN could not clean failure-output staging (${error.code || 'cleanup-failed'})`); }
+// v59.81 (hosting review 2026-11-08): run reports and their evidence directories were never removed (1,930 runs,
+// 801 MB of the local QA cache). The newest KEEP_RUNS runs stay, and so does the run the preserved failed batch points
+// to (rerun-failed reads it); this run is the newest, so it is always kept.
+pruneRuns(runsDir, { keep: KEEP_RUNS, protect: [runId, (() => { try { return JSON.parse(readFileSync(failedBatchPath, 'utf8')).runId; } catch { return null; } })()] });
 
 const counts = results.reduce((acc, result) => ({ ...acc, [result.status]: (acc[result.status] || 0) + 1 }), {});
 // Codex audit F13 (2026-10-15): gate PASS and the operations-slo performance target are different facts (R701). A boot

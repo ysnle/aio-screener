@@ -59,6 +59,10 @@ check('v59.72 the producer publishes the rewritten reading', /text: softenReader
     && /HASHED_CHUNK_RE\.test\(reqUrl\.pathname\)\) \{\n\s+event\.respondWith\(\n\s+caches\.open\(CHUNK_CACHE\)/.test(sw)
     && sw.indexOf('HASHED_CHUNK_RE.test(reqUrl.pathname)') < sw.indexOf('const isVersionedShell'));
   check('v59.80 the chunk cache is bounded', /entries\.length > CHUNK_CACHE_MAX\) return caches\.delete\(CHUNK_CACHE\)/.test(sw));
+  check('v59.81 the freshness watchdog is not started twice per refresh', /workflow_run:\n\s+workflows: \['Deploy GitHub Pages', 'Deploy AI proxy'\]\n/.test(read('.github/workflows/data-watchdog.yml')));
+  const runner = read('scripts/qa-runner.mjs');
+  check('v59.81 qa-runner keeps only the newest runs and the failed batch it can rerun', /const KEEP_RUNS = 150;/.test(runner)
+    && /pruneRuns\(runsDir, \{ keep: KEEP_RUNS, protect: \[runId, /.test(runner) && /failedBatchPath, 'utf8'\)\)\.runId/.test(runner));
   check('v59.80 bundled chunks are named by content hash', /chunkNames: 'chunks\/\[name\]-\[hash\]'/.test(read('scripts/lib/pages-bundle-config.mjs')));
 }
 

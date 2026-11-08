@@ -182,6 +182,24 @@ try {
   if (offenders.length) fail(`P1718 Worker sources must not use redirect:'error' (TypeError on Workers): ${offenders.join(', ')}`);
 }
 
+// v59.81: event-briefs dispatch at :05/:25/:45 only, body {ref}, no KV receipt, skipped after a success within 15 min.
+{
+  const { dispatchEventBriefs, FAST_PLANE_WRITE_POLICY: policy } = await import('../worker/data-plane.js');
+  const puts = [];
+  const env = { GITHUB_DISPATCH_TOKEN: 'fixture', AIO_QUOTES_KV: { get: async () => { throw new Error('event briefs must not read KV'); }, put: async (key) => puts.push(key) } };
+  const calls = [];
+  const fetchImpl = async (url, init) => { calls.push({ url, init }); return init.method === 'POST' ? new Response(null, { status: 204 }) : Response.json({ workflow_runs: [] }); };
+  const offSlot = await dispatchEventBriefs({ env, scheduledTime: Date.parse('2026-10-01T13:20:00Z'), fetchImpl });
+  const slot = await dispatchEventBriefs({ env, scheduledTime: Date.parse('2026-10-01T13:25:00Z'), fetchImpl });
+  const recent = await dispatchEventBriefs({ env, scheduledTime: Date.parse('2026-10-01T13:45:00Z'), fetchImpl: async (url, init) => init.method === 'POST' ? new Response(null, { status: 204 })
+    : Response.json({ workflow_runs: [{ id: 3, head_branch: 'main', status: 'completed', conclusion: 'success', updated_at: '2026-10-01T13:38:00Z' }] }) });
+  const posts = calls.filter(call => call.init.method === 'POST');
+  if (offSlot.dispatched || !slot.dispatched || recent.dispatched || recent.reason !== 'recent-success' || puts.length
+      || posts.length !== 1 || !/\/actions\/workflows\/event-briefs\.yml\/dispatches$/.test(posts[0].url) || posts[0].init.body !== JSON.stringify({ ref: 'main' })
+      || policy.maxSuccessfulKvWritesPerDay >= policy.warningDailyTarget) fail(`v59.81 event-briefs dispatch contract regressed: ${JSON.stringify({ offSlot, slot, recent, puts })}`);
+  if (!/dispatchEventBriefs\(\{ env, scheduledTime/.test(worker)) fail('v59.81 the scheduled handler does not dispatch event briefs');
+}
+
 // Screener dispatch: refresh-screener at 07:25Z/22:25Z only (backup after the 06:53/21:53 crons), body {ref} (no inputs), own KV dedupe key.
 {
   const { dispatchRefreshScreener, dispatchRefreshData, SCREENER_DISPATCH_POLICY } = await import('../worker/data-plane.js');

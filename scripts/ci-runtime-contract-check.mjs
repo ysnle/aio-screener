@@ -980,9 +980,9 @@ check('EF-12 (v57.76 retired): the SPY TradingView fold, its OHLC fallback strip
 // v57.77: the KOSPI/KOSDAQ Stage/MACD/BB writer (analyzeKrIndex) and its refresh buttons were retired; the cards are drawn from completed KRX closes.
 check('EF-19 (v57.77 retired): the KR index Stage writer analyzeKrIndex and its refresh buttons stay deleted', !/data-action="analyzeKrIndex"/.test(html) && !/function analyzeKrIndex/.test(ui)); // text-pin-ok: retirement absence
 check('v59.70 (D5): the technical route no longer draws the 한국 지수 추세 cards (the 시장 상태 한국 board carries 코스피·코스닥)', !/renderKrIndexTrends/.test(read('src/ui/pages/analysis.js')));
-// P1134/R620: the codetabs fallback is declared in js/aio-data.js and consumed by the KR fetchers
-// that moved to js/aio-kr-data.js — assert both owners so removing either leg is caught.
-check('EF-19: _fetchYahooChartData proxy chain includes codetabs.com fallback (live network audit showed corsproxy.io/allorigins alone failing repeatedly for KR tickers)', /api\.codetabs\.com\/v1\/proxy/.test(krData + data));
+// v59.81 (hosting review 2026-11-08): codetabs answered 522 or nothing after ~20 s on 5 of 5 probes (KR and US
+// tickers), so after a Worker miss it only delayed the failure; it left the chain. allorigins stays as the last resort.
+check('EF-19 (v59.81 retired): the proxy chain no longer waits on codetabs.com', !/api\.codetabs\.com\/v1\/proxy/.test(krData + data + read('src/data/providers/proxy-transport.js')) && /api\.allorigins\.win\/raw/.test(read('src/data/providers/proxy-transport.js'))); // text-pin-ok: retirement absence
 check('headless tests cover Batch 2 efficacy fixes (EF-08/10/11/12/19; T874 retired with the carry composite, v58.19)', /_testV5241Batch2Efficacy/.test(tests) && /T875/.test(tests) && /T876/.test(tests) && /T877/.test(tests) && /T878/.test(tests));
 
 // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/15/16) structural gates

@@ -91,7 +91,8 @@ export function installProxyTransport(window = globalThis) {
       // Tier 2: 보조 프록시
       add('allorigins-raw', 'allorigins/raw', 2, 'https://api.allorigins.win/raw', function(u){ return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u); });
       add('allorigins-get', 'allorigins/get', 2, 'https://api.allorigins.win/get', function(u){ return 'https://api.allorigins.win/get?url='+encodeURIComponent(u); });
-      add('codetabs', 'codetabs.com', 2, 'https://api.codetabs.com/v1/proxy/', function(u){ return 'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u); });
+      // v59.81 (hosting review 2026-11-08): codetabs.com answered 522 or nothing after ~20 s on 5 of 5 probes (KR and US
+      // tickers), so after a Worker miss it only delayed the failure. allorigins stays as the last resort for public URLs.
       this.list = next;
     },
     state: function(p, url) {

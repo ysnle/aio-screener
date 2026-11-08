@@ -39,6 +39,15 @@ export const REFRESH_DISPATCH_POLICY = Object.freeze({ workflow: 'refresh-data.y
 // cron run is not repeated. refresh-screener has `workflow_dispatch: {}` with no inputs, so the body
 // is {ref} only; its receipt lives under its own KV key so the two dispatchers never dedupe each other.
 export const SCREENER_DISPATCH_POLICY = Object.freeze({ workflow: 'refresh-screener.yml', ref: 'main', slotTimesUtc: Object.freeze(['07:25', '22:25']), kvKey: 'scheduler:dispatch:screener', recentSuccessMs: 30 * 60000 });
+// v59.81 (hosting review 2026-11-08): event-briefs.yml's GitHub cron (:07/:27/:47) ran 28 of 504 slots in 7 days, so the
+// same 5-minute cron dispatches it at :05/:25/:45 when no run is active and none succeeded in the last 15 minutes. It
+// keeps no KV receipt (kvKey null): its three slots an hour would push the normal KV write bound past the 500 target.
+export const EVENT_BRIEFS_DISPATCH_POLICY = Object.freeze({ workflow: 'event-briefs.yml', ref: 'main', slotMinutes: Object.freeze([5, 25, 45]), kvKey: null, recentSuccessMs: 15 * 60000 });
+const EVENT_BRIEFS_DISPATCH = Object.freeze({
+  workflow: EVENT_BRIEFS_DISPATCH_POLICY.workflow, ref: EVENT_BRIEFS_DISPATCH_POLICY.ref, kvKey: null, recentSuccessMs: EVENT_BRIEFS_DISPATCH_POLICY.recentSuccessMs,
+  isSlot: at => EVENT_BRIEFS_DISPATCH_POLICY.slotMinutes.includes(at.getUTCMinutes()),
+  body: () => ({ ref: EVENT_BRIEFS_DISPATCH_POLICY.ref })
+});
 const REFRESH_DATA_DISPATCH = Object.freeze({
   workflow: REFRESH_DISPATCH_POLICY.workflow, ref: REFRESH_DISPATCH_POLICY.ref, kvKey: 'scheduler:dispatch', recentSuccessMs: 25 * 60000,
   isSlot: at => REFRESH_DISPATCH_POLICY.slotMinutes.includes(at.getUTCMinutes()),
@@ -58,6 +67,10 @@ export async function dispatchRefreshScreener(options = {}) {
   return dispatchWorkflow(REFRESH_SCREENER_DISPATCH, options);
 }
 
+export async function dispatchEventBriefs(options = {}) {
+  return dispatchWorkflow(EVENT_BRIEFS_DISPATCH, options);
+}
+
 async function dispatchWorkflow(policy, { env, scheduledTime = Date.now(), fetchImpl = fetch, timeoutMs = 8000 } = {}) {
   const at = new Date(scheduledTime);
   if (!Number.isFinite(at.getTime())) return { dispatched: false, reason: 'invalid-schedule-time' };
@@ -66,8 +79,10 @@ async function dispatchWorkflow(policy, { env, scheduledTime = Date.now(), fetch
   const finish = async result => {
     const receipt = { schemaVersion: 'refresh-dispatch-receipt.v1', observedAt, ...result, executionStatus: 'NOT_OBSERVED' };
     // P1595: the receipt contains no credentials/remote response text; 204 is acceptance, not execution.
-    try { await env?.AIO_QUOTES_KV?.put?.(policy.kvKey, JSON.stringify(receipt), { expirationTtl: KV_TTL_SECONDS }); }
-    catch { receipt.receiptStored = false; }
+    if (policy.kvKey) {
+      try { await env?.AIO_QUOTES_KV?.put?.(policy.kvKey, JSON.stringify(receipt), { expirationTtl: KV_TTL_SECONDS }); }
+      catch { receipt.receiptStored = false; }
+    }
     console.info('[refresh-dispatch]', JSON.stringify(receipt));
     return receipt;
   };
@@ -76,7 +91,7 @@ async function dispatchWorkflow(policy, { env, scheduledTime = Date.now(), fetch
   const repo = env?.GITHUB_DISPATCH_REPO || 'ysnle/aio-screener';
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)) return finish({ dispatched: false, reason: 'invalid-repository' });
   try {
-    const previous = await env?.AIO_QUOTES_KV?.get?.(policy.kvKey, 'json');
+    const previous = policy.kvKey ? await env?.AIO_QUOTES_KV?.get?.(policy.kvKey, 'json') : null;
     if (previous?.observedAt === observedAt) return { ...previous, dispatched: false, previousAccepted: previous.dispatched, reason: 'duplicate-slot' };
     const client = createHttpClient({ fetchImpl, defaultTimeoutMs: timeoutMs });
     const base = `https://api.github.com/repos/${repo}/actions/workflows/${policy.workflow}`;
@@ -337,5 +352,6 @@ export default {
     ctx.waitUntil(publishQuotes({ env }));
     ctx.waitUntil(dispatchRefreshData({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));
     ctx.waitUntil(dispatchRefreshScreener({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));
+    ctx.waitUntil(dispatchEventBriefs({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));
   }
 };

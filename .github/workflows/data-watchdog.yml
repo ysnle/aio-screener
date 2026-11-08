@@ -12,8 +12,10 @@ on:
   # v57.88 (automation audit): bot-dispatched Pages runs emit no workflow_run, so between pushes the watchdog ran every
   # 3-6 hours. Refresh market data (cron or Worker PAT dispatch) does emit it; Deploy AI proxy completion re-checks the
   # revision the Pages-triggered run saw mid-deploy.
+  # v59.81 (hosting review 2026-11-08): 'Refresh market data' left the list; every refresh that publishes ends in a Pages
+  # deploy, which already starts this check, so each refresh ran it twice (528 runs and 104 cancellations in 7 days).
   workflow_run:
-    workflows: ['Deploy GitHub Pages', 'Deploy AI proxy', 'Refresh market data']
+    workflows: ['Deploy GitHub Pages', 'Deploy AI proxy']
     types: [completed]
   workflow_dispatch:
     inputs:
