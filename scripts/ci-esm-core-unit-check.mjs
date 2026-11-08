@@ -7237,12 +7237,27 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     const brentLed = ms85.oilDivergence({ basis: 'futures', abnormal: false, diverges: false, brent20: -6.1, wti20: -1.1 });
     if (!brentLed.held || brentLed.kind !== 'brent-led') fail(`v59.85 a Brent fall WTI does not follow by half holds the WTI read as brent-led: ${JSON.stringify(brentLed)}`);
     const { creditReleaseText, verdictHorizonLine } = await load('src/domain/briefing/market-read.js');
-    const release = creditReleaseText({ hyBp: 348, hy5: 22, hy20: 33 });
+    const release = creditReleaseText({ hyBp: 348, hy5: 22, hy20: 33, latched: true });
     if (/450bp/.test(release) || !/\+15bp/.test(release) || !/\+25bp/.test(release) || !/중립$/.test(release)) fail(`v59.85 the HY release names only the unmet legs (5d < +15bp, 20d < +25bp): ${release}`);
+    const fast5 = creditReleaseText({ hyBp: 400, hy5: 40, hy20: 10 });
+    if (!/\+25bp 아래/.test(fast5) || /\+15bp|20거래일/.test(fast5)) fail(`v59.85 without the 20-session latch the five-session leg is creditState's +25bp: ${fast5}`);
     const stat = (value, d1) => ({ value, d1, date: '2026-11-06' });
     const upDay = verdictHorizonLine({ overall: '다소 부담', indexes: [['S&P 500', stat(100.3, 100)], ['나스닥 100', stat(101.4, 100)]] });
     if (!/^11\/6 지수는 올랐지만/.test(upDay?.text || '') || !/20거래일/.test(upDay.text) || !/나스닥 100 \+1\.4%/.test(upDay.detail)) fail(`v59.85 a burden verdict beside an up session names its horizon: ${JSON.stringify(upDay)}`);
     if (verdictHorizonLine({ overall: '혼조', indexes: [['S&P 500', stat(102, 100)]] }) || verdictHorizonLine({ overall: '다소 부담', indexes: [['S&P 500', stat(101, 100)], ['러셀 2000', stat(99, 100)]] }) || verdictHorizonLine({ overall: '다소 부담', indexes: [['S&P 500', stat(100.2, 100)]] })) fail('v59.85 the horizon line stays silent on 혼조, a split day, or a small move');
+    // Missing and stale inputs (Codex review #167): a month-over-month change needs the calendar month before; a direction
+    // from one published measure names that measure only; a stale core PCE series publishes no derived rows.
+    const { monthChangeAt } = await load('src/domain/macro/macro-read.js');
+    if (monthChangeAt([{ date: '2025-09-01', value: 100 }, { date: '2025-11-01', value: 101 }], '2025-11') !== null || Math.abs(monthChangeAt([{ date: '2025-10-01', value: 100 }, { date: '2025-11-01', value: 101 }], '2025-11-15') - 1) > 1e-9) fail('v59.85 a month-over-month change spans exactly one calendar month');
+    const pceMonths = Array.from({ length: 16 }, (_, i) => new Date(Date.UTC(2025, 6 + i, 1)).toISOString().slice(0, 10));
+    let pceLevel = 100; const pceObs = pceMonths.map((date, i) => { pceLevel *= 1 + (i >= 13 ? 0.006 : 0.0022); return [date, Number(pceLevel.toFixed(3))]; });
+    const { buildMacroChapters: chapters85 } = await load('src/domain/macro/macro-chapters.js');
+    const pceOnly = chapters85({ macroHistory: { series: { corePceIndex: { observations: pceObs } } } }).chapters.find((row) => row.id === 'inflation');
+    if (!pceOnly || /PCE·CPI/.test(pceOnly.mean || '') || !/다른 지표는 아직 확인되지 않았습니다/.test(pceOnly.mean || '')) fail(`v59.85 a PCE-only direction names core PCE alone: ${pceOnly?.mean}`);
+    const { buildMacroReleaseEvidence } = await load('src/ai/context/macro-release-evidence.js');
+    const staleRows = buildMacroReleaseEvidence({ macro: { corePce: 3.1, _asOf_corePce: pceObs.at(-1)[0] }, macroHistory: { series: { corePceIndex: { observations: pceObs, stale: true } } }, now: Date.parse('2026-12-01') }).map((row) => row.metric);
+    if (staleRows.some((metric) => /core_pce_(?:3m_ann|mom)/.test(metric))) fail(`v59.85 a stale core PCE series publishes no derived pace rows: ${staleRows}`);
+    if (!/revalidate: \(summary\) => validateMarketAnalysisText\([^)]*inflationDirection/.test(readFileSync(path.join(root, 'scripts/producer/market-narrative.mjs'), 'utf8'))) fail('v59.85 the retained reading is re-checked with the same inflation direction as a new one');
     const { buildChatMacroLines } = await load('src/ai/context/chat-macro-lines.js');
     const chat = buildChatMacroLines({ ctxId: 'macro', root: { _aioScreenBasisEvidence: () => [{ metric: 'macro.core_pce_yoy', value: 3.12, unit: 'percent', asOf: '2026-09-01', period: 'month', source: 'macro-release', evidenceId: 'mr:core_pce' }] }, timeLabel: 't' });
     if (!chat.some((line) => /근원 PCE 3\.12% \(2026-09 기준월, evidenceId=mr:core_pce\)/.test(line))) fail(`v59.85 the chat macro block cites the typed release row with its month and evidenceId: ${JSON.stringify(chat)}`);

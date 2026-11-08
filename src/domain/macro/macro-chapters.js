@@ -13,7 +13,7 @@ import { withTopicParticle } from '../content/korean-particle.js';
 import { oasDelta20Bp } from '../briefing/market-read.js';
 import { creditJudgement, creditReading, creditFlip } from '../briefing/credit-reading.js';
 import { dollarRiseBurden } from '../briefing/market-read.js';
-import { claimsTrend, coreInflationRead, sahmGap, yoySeries } from './macro-read.js';
+import { claimsTrend, coreInflationRead, monthChangeAt, monthIndex, monthOverMonth, sahmGap, yoySeries } from './macro-read.js';
 import { BRENT_WTI_SPREAD_HOLD_USD, MACRO_SIGNAL_RULES, oilDivergence, policyCycle } from './macro-signals.js';
 import { formatKstWhen, releaseAtMs } from '../briefing/schedule.js';
 import { volatilityChapter } from './volatility.js';
@@ -27,10 +27,6 @@ function series(macroHistory, id) {
 }
 // month-over-month only between calendar-adjacent months. Array neighbours across a skipped release
 // (October 2025, the shutdown month) printed a two-month change as '전월비'.
-const monthIndex = (date) => { const [y, m] = String(date).split('-').map(Number); return y * 12 + m; };
-function monthOverMonth(rows) {
-  return rows.slice(1).map((row, index) => (monthIndex(row.date) - monthIndex(rows[index].date) === 1 ? { date: row.date, value: (row.value / rows[index].value - 1) * 100 } : null)).filter(Boolean);
-}
 const lastMoM = (rows) => { const tail = rows.slice(-2); return tail.length === 2 ? monthOverMonth(tail).at(-1) || null : null; };
 const monthName = (date) => `${Number(String(date).slice(5, 7))}월`;
 const nextOf = (events, ids) => (events || []).find((event) => ids.includes(event.id)) || null;
@@ -80,7 +76,11 @@ function inflation(macroHistory, events) {
   const monthly = recent - before >= 0.08 ? '최근 두 달이 그 전 두 달보다 빨랐지만' : before - recent >= 0.08 ? '최근 두 달이 그 전 두 달보다 느렸지만' : '최근 넉 달 비슷했고';
   const d = core.direction;
   const pace = `근원 PCE 3개월 연율 ${three.toFixed(1)}%, 1년치 ${yoy.toFixed(1)}%`;
-  const turn = d.state === 'up' ? `근원 PCE·CPI의 3개월 속도가 모두 1년치보다 빨라 물가가 다시 빨라지고 있습니다`
+  // A direction from one published measure names that measure only (inflationDirection single): the other is not evidence.
+  const only = d.single ? [d.pce, d.cpi].find(Boolean) : null;
+  const turn = (d.state === 'up' || d.state === 'down') && only
+    ? `${only.name}의 3개월 연율 ${only.pace.toFixed(1)}%가 1년치(${only.yoy.toFixed(1)}%)보다 ${d.state === 'up' ? '빨라 물가가 다시 빨라지는 쪽' : '느려 물가가 내려오는 쪽'}입니다 — 다른 지표는 아직 확인되지 않았습니다`
+    : d.state === 'up' ? `근원 PCE·CPI의 3개월 속도가 모두 1년치보다 빨라 물가가 다시 빨라지고 있습니다`
     : d.state === 'down' ? `근원 PCE·CPI의 3개월 속도가 모두 1년치보다 느려 물가가 내려오는 중입니다`
       : d.state === 'mixed' ? `월간 속도는 ${monthly} 두 지표의 3개월 속도가 엇갈려(${d.text}) 재가속으로 보지 않습니다`
         // One measure past its step while the other is flat: name the one that moved — it is what the next release settles.
@@ -425,8 +425,9 @@ function growthKorea(macroHistory, history, events) {
   const output = lastMoM(series(macroHistory, 'industrialProduction'));
   // retail sales are nominal. With headline CPI +0.65% in the same month a +0.8% print is about +0.1%
   // in real terms — the release band's '과열' and this chapter's '꺾이지 않았습니다' were reading two different things.
-  const cpiSame = retail ? monthOverMonth(series(macroHistory, 'cpiIndex').slice(-3)).find((row) => row.date === retail.date) || null : null;
-  const realRetail = retail && cpiSame ? retail.value - cpiSame.value : null;
+  const cpiSameMoM = retail ? monthChangeAt(series(macroHistory, 'cpiIndex'), retail.date) : null;
+  const cpiSame = cpiSameMoM == null ? null : { date: retail.date, value: cpiSameMoM };
+  const realRetail = cpiSame ? retail.value - cpiSame.value : null;
   if (!kospi && !sentiment) return null;
   const korea = kospi && semis && Math.abs(kospi.pct - semis.pct) < 4 && Math.abs(semis.pct) >= 5 ? `코스피(${signed(kospi.pct, 1)})가 미국 반도체(SOXX ${signed(semis.pct, 1)})와 같은 폭으로 움직여, 한국은 AI 반도체 업황에 묶여 있습니다`
     : kospi ? `코스피는 20거래일 ${signed(kospi.pct, 1)}입니다` : '';

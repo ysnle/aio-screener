@@ -7,7 +7,7 @@
 // "Bad news is good news" holds only while inflation is the constraint: with core PCE above 2.5% a hot jobs report
 // delays cuts (a burden); once inflation is near target the same report is growth, read as good. Too cold is bad in
 // both regimes — a cut that arrives because earnings are falling does not lift stocks.
-import { seriesOf, yoySeries } from './macro-read.js';
+import { monthChangeAt, seriesOf, yoySeries } from './macro-read.js';
 import { releaseActuals } from '../market/macro-crossroads.js';
 import { policyCycle } from './macro-signals.js';
 
@@ -85,9 +85,8 @@ export function releaseZones(id, macroHistory, { actuals = null, regime = undefi
   // a nominal retail print in 과열 that is mostly price (same-month headline CPI) says so — +0.8%
   // with CPI +0.65% is about +0.1% real, not demand overheating.
   if (id === 'us-retail' && now?.label === '과열' && actual?.period) {
-    const cpi = seriesOf(macroHistory, 'cpiIndex');
-    const at = cpi.findIndex((row) => row.date.slice(0, 7) === String(actual.period).slice(0, 7));
-    const cpiMoM = at > 0 ? (cpi[at].value / cpi[at - 1].value - 1) * 100 : null;
+    // The previous calendar month only: with a month missing the change would span two months.
+    const cpiMoM = monthChangeAt(seriesOf(macroHistory, 'cpiIndex'), actual.period);
     if (cpiMoM != null && value - cpiMoM < spec.zones(inflationFirst, hiking)[2].below) now = { ...now, read: `명목으로는 과열 구간이지만 같은 달 소비자물가(+${cpiMoM.toFixed(2)}%)를 빼면 실질 약 ${value - cpiMoM >= 0 ? '+' : ''}${(value - cpiMoM).toFixed(1)}%라 수요 과열보다 가격 효과가 큽니다` };
   }
   return {

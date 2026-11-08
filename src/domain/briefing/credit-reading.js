@@ -51,9 +51,8 @@ export function creditReading(j, { cccTail = false, ccc20 = null, ig20 = null } 
 export function creditFlip(j) {
   if (!j || j.state === 'unknown') return null;
   const C = RULES.credit;
-  // the release legs are the axis's own (creditReleaseText): every leg still open, the
-  // five-session leg (+15bp) included — 'naming only the cause' left out the latch's 5-day condition, so a +24bp month with
-  // a +22bp week read as released while the axis held 부담.
-  if (j.state === 'burden') return `${creditReleaseText({ hyBp: j.hyBp, hy5: j.hy5, hy20: j.hy20 }).replace(/ 중립$/, '')} 부담을 풉니다.`;
+  // The release legs are the axis's own (creditReleaseText): every leg still open, with the latch's +15bp five-session
+  // leg only while the 20-session latch holds.
+  if (j.state === 'burden') return `${creditReleaseText({ hyBp: j.hyBp, hy5: j.hy5, hy20: j.hy20, latched: !!j.cause?.wide20 }).replace(/ 중립$/, '')} 부담을 풉니다.`;
   return `하이일드 ${C.stressAtBp / 100}% 이상, 5거래일 +${C.widen5dBp}bp, 20거래일 확대가 자체 기록 상위 ${100 - C.stress20dPct}% 중 하나면 부담으로 바꿉니다.`;
 }

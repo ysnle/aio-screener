@@ -53,6 +53,18 @@ function monthsBack(series, date, months) {
 }
 
 /** Year-over-year % for each month that has its exact 12-month comparator. */
+/** Month-over-month % changes, only between calendar-adjacent months (a skipped release is not a one-month change). */
+export const monthIndex = (date) => { const [y, m] = String(date).split('-').map(Number); return y * 12 + m; };
+export function monthOverMonth(rows = []) {
+  return rows.slice(1).map((row, index) => (monthIndex(row.date) - monthIndex(rows[index].date) === 1 ? { date: row.date, value: (row.value / rows[index].value - 1) * 100 } : null)).filter(Boolean);
+}
+/** The month-over-month change for one month ('YYYY-MM…'), or null when that month or the one before it is missing. */
+export function monthChangeAt(rows = [], month) {
+  const key = String(month || '').slice(0, 7);
+  const at = rows.findIndex((row) => String(row.date).slice(0, 7) === key);
+  return at > 0 ? monthOverMonth(rows.slice(at - 1, at + 1))[0]?.value ?? null : null;
+}
+
 export function yoySeries(series) {
   return series.map((row) => {
     const base = monthsBack(series, row.date, 12);
@@ -266,7 +278,7 @@ function inflationAxis({ macro, mh }) {
   const constraint = cycle.hiking ? '연준이 높은 금리를 더 오래 유지하거나 더 올릴 수 있는 조건입니다.' : '연준이 금리를 내리기 어려운 조건입니다.';
   const read = state === 'burden'
     ? (firedBy === 'level'
-      ? `근원 PCE 물가가 ${yoy.toFixed(1)}%로 연준 목표(${I.targetPct}%)보다 ${gap.toFixed(1)}%p 높아 수준 기준(${levelAt.toFixed(1)}%)을 넘었습니다${direction.dir === 'up' ? ' — 근원 PCE·CPI의 최근 3개월 속도도 함께 빨라 다시 오르는 중입니다' : reaccel.length ? ` — ${reaccel.map((row) => row.name).join('·')}의 최근 3개월 속도는 1년치보다 빠르지만 두 지표가 함께 가리키는 재가속은 아닙니다` : ''}. ${constraint}${mixedNote}`
+      ? `근원 PCE 물가가 ${yoy.toFixed(1)}%로 연준 목표(${I.targetPct}%)보다 ${gap.toFixed(1)}%p 높아 수준 기준(${levelAt.toFixed(1)}%)을 넘었습니다${direction.dir === 'up' && !direction.single ? ' — 근원 PCE·CPI의 최근 3개월 속도도 함께 빨라 다시 오르는 중입니다' : direction.dir === 'up' ? ` — ${reaccel[0]?.name || '근원 물가'}의 최근 3개월 속도도 빨라 다시 오르는 쪽입니다(다른 지표는 아직 확인되지 않음)` : reaccel.length ? ` — ${reaccel.map((row) => row.name).join('·')}의 최근 3개월 속도는 1년치보다 빠르지만 두 지표가 함께 가리키는 재가속은 아닙니다` : ''}. ${constraint}${mixedNote}`
       : `근원 PCE 물가가 ${yoy.toFixed(1)}%로 목표보다 ${gap.toFixed(1)}%p 높고, ${fired.name}${fired.month ? `(${fired.month})` : ''}의 최근 3개월 속도(연율 ${fired.pace.toFixed(1)}%)가 1년치(${fired.yoy.toFixed(1)}%)보다 ${fired.margin.toFixed(1)}%p 빨라 다시 오르고 있습니다 — 부담 판정은 이 재가속 때문입니다. ${constraint}${mixedNote}`)
     : state === 'favorable' ? `근원 PCE 물가가 ${yoy.toFixed(1)}%로 목표에 가깝고 오르는 속도가 줄고 있습니다 — ${cycle.hiking ? '추가 인상 압력이 줄어드는 조건입니다' : '금리 인하 여지가 생기는 조건입니다'}.`
       : state === 'unknown' ? '물가 자료를 기다리는 중입니다.'
@@ -555,7 +567,7 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
     // the latch. A held reading says it is held, since when, and what releases it (creditReleaseText, the axis's own words).
     : cause.wide20 ? (record20.value >= record20.enterBp
       ? `수준(${Math.round(hyBpNow)}bp)은 부담 구간이 아니지만 20거래일 ${signed(record20.value, 0, 'bp')} 확대가 ${record20.highest ? '지난 1년 중 가장 큰 폭' : `지난 1년 변화의 상위 ${Math.max(1, 100 - record20.pct)}%`}이라 부담입니다 — 수준보다 확대 속도가 먼저 경고합니다`
-      : `수준(${Math.round(hyBpNow)}bp)은 부담 구간이 아니지만 ${record20.since ? `${monthDay(record20.since)}에 시작된 ` : ''}확대 부담 판정이 이어지는 중입니다(20거래일 ${signed(record20.value, 0, 'bp')}) — ${creditReleaseText({ hyBp: hyBpNow, hy5: hy5 == null ? null : hy5 * 100, hy20: record20.value })}으로 바뀝니다`)
+      : `수준(${Math.round(hyBpNow)}bp)은 부담 구간이 아니지만 ${record20.since ? `${monthDay(record20.since)}에 시작된 ` : ''}확대 부담 판정이 이어지는 중입니다(20거래일 ${signed(record20.value, 0, 'bp')}) — ${creditReleaseText({ hyBp: hyBpNow, hy5: hy5 == null ? null : hy5 * 100, hy20: record20.value, latched: true })}으로 바뀝니다`)
       : '신용 지표가 부담입니다 — 수준과 5·20거래일 변화를 함께 확인합니다';
   const creditCalm = creditVerdict === 'favorable' ? '신용 시장은 안정적입니다'
     : creditVerdict === 'burden' ? burdenText

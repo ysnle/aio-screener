@@ -404,15 +404,16 @@ export function creditCause({ hyBp = null, hy5 = null, hy20Record = null } = {})
   return { level, fast5, wide20, primary };
 }
 
-// the one release condition of a credit 부담, naming only the legs still to clear. The 거시 credit
-// chapter said '하이일드가 4.5% 아래로 내려오고 20거래일 확대가 +25bp 아래로 줄면' while HY sat at 348bp (already under) and
-// left out five-session leg (latched until 5일 +15bp 미만), so a +24bp month read as released while the axis held.
-export function creditReleaseText({ hyBp = null, hy5 = null, hy20 = null } = {}) {
+// The one release condition of a credit 부담, naming only the legs still to clear. While the 20-session widening latch
+// holds (hy20Stress) it lets go only with the 20-session change under +25bp and five sessions under +15bp; without the
+// latch the 부담 comes from the level or a five-session widening of +25bp, so those are the legs (creditState).
+export function creditReleaseText({ hyBp = null, hy5 = null, hy20 = null, latched = false } = {}) {
   const C = RULES.credit;
   const legs = [];
+  const fiveLimit = latched ? C.widenWatch5dBp : C.widen5dBp;
   if (finite(hyBp) == null || hyBp >= C.stressAtBp) legs.push(`하이일드 스프레드가 ${C.stressAtBp}bp 아래로 내려오고`);
-  if (finite(hy5) == null || hy5 >= C.widenWatch5dBp) legs.push(`5거래일 확대가 +${C.widenWatch5dBp}bp 아래로 줄고${finite(hy5) != null ? `(지금 ${signed(hy5, 0, 'bp')})` : ''}`);
-  if (finite(hy20) == null || hy20 >= C.widen20dBp) legs.push(`20거래일 확대가 +${C.widen20dBp}bp 아래로 줄면${finite(hy20) != null ? `(지금 ${signed(hy20, 0, 'bp')})` : ''}`);
+  if (finite(hy5) == null || hy5 >= fiveLimit) legs.push(`5거래일 확대가 +${fiveLimit}bp 아래로 줄고${finite(hy5) != null ? `(지금 ${signed(hy5, 0, 'bp')})` : ''}`);
+  if (latched && (finite(hy20) == null || hy20 >= C.widen20dBp)) legs.push(`20거래일 확대가 +${C.widen20dBp}bp 아래로 줄면${finite(hy20) != null ? `(지금 ${signed(hy20, 0, 'bp')})` : ''}`);
   if (!legs.length) return '해제 조건은 모두 충족 — 다음 종가에서 중립으로 바뀜';
   const text = legs.join(' ').replace(/고(\([^)]*\))?$/, '면$1');
   return `${text} 중립`;
@@ -1478,7 +1479,7 @@ export function buildMarketRegime(input = {}) {
         // under the entry line the 부담 is the latch holding — '상위 12% … 드문 수준이라 부담' gave a reason
         // the 90th-percentile rule does not accept. It says it is held, since when, and the release legs still open.
         : stress20 ? (rec && hy20 != null && hy20 < rec.enterBp
-          ? `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래이고 20거래일 ${signed(hy20, 0, 'bp')}(${recordWord})은 진입선(+${fmt(rec.enterBp, 0)}bp) 아래지만, ${rec.since ? `${shortDate(rec.since)}에 시작된 ` : ''}확대 부담 판정이 이어지고 있습니다 — ${creditReleaseText({ hyBp, hy5, hy20 })}으로 바뀝니다.`
+          ? `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래이고 20거래일 ${signed(hy20, 0, 'bp')}(${recordWord})은 진입선(+${fmt(rec.enterBp, 0)}bp) 아래지만, ${rec.since ? `${shortDate(rec.since)}에 시작된 ` : ''}확대 부담 판정이 이어지고 있습니다 — ${creditReleaseText({ hyBp, hy5, hy20, latched: true })}으로 바뀝니다.`
           : `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래지만 20거래일 동안 ${signed(hy20, 0, 'bp')} 넓어졌습니다(${recordWord}${hy5 != null ? `, 최근 5일 ${signed(hy5, 0, 'bp')}` : ''}) — 확대 폭이 드문 수준이라 부담으로 봅니다.`)
         : `수준(${fmt(hyBp, 0)}bp)은 ${RULES.credit.stressAtBp}bp 아래지만 5일 동안 ${signed(hy5, 0, 'bp')} 빠르게 넓어졌습니다 — 수준보다 확대 속도가 부담입니다.`)
         : state === 'unknown' ? staleRead('신용 스프레드', alignments.hy)
@@ -1490,7 +1491,7 @@ export function buildMarketRegime(input = {}) {
     const dispersion = creditDispersion(input.macroHistory, basis);
     const dispersionText = dispersion && state !== 'burden' && state !== 'unknown' ? ` 다만 ${dispersion.text}` : '';
     const flip = state === 'unknown' ? null
-      : state === 'burden' ? `${creditReleaseText({ hyBp, hy5, hy20 })}, 그때 5일 확대도 멈추고 수준이 ${RULES.credit.tightBelowBp}bp 미만이면 바로 양호로 바뀜`
+      : state === 'burden' ? `${creditReleaseText({ hyBp, hy5, hy20, latched: !!c.hy20Stress })}, 그때 5일 확대도 멈추고 수준이 ${RULES.credit.tightBelowBp}bp 미만이면 바로 양호로 바뀜`
         : state === 'favorable' ? `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 이상, 5일 확대, 20거래일 +${RULES.credit.widen20dBp}bp 이상 확대 중 하나면 중립, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`
           : `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 미만에 5일 축소·보합, 20거래일 확대 +${RULES.credit.widen20dBp}bp 미만이면 양호, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`;
     axes.push(axis('credit', '신용과 위험선호', state, [

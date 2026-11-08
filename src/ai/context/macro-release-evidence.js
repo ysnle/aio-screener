@@ -68,7 +68,10 @@ export function buildMacroReleaseEvidence({ macro = null, macroHistory = null, n
   const corePce = seriesOf(macroHistory, 'corePceIndex');
   const last = corePce.at(-1);
   const corePceAsOf = day(macro._asOf_corePce);
-  if (last && (!isDay(corePceAsOf) || last.date.slice(0, 7) >= corePceAsOf.slice(0, 7)) && Date.parse(last.date) <= nowMs) {
+  // A series the producer could not refresh (series.stale) or a core PCE marked stale on the release block is not current
+  // evidence for its derived rows either.
+  const corePceFresh = macroHistory?.series?.corePceIndex?.stale !== true && usable('corePce');
+  if (last && corePceFresh && (!isDay(corePceAsOf) || last.date.slice(0, 7) >= corePceAsOf.slice(0, 7)) && Date.parse(last.date) <= nowMs) {
     const pace = annualised3m(corePce);
     if (pace) out.push(row({ metric: 'macro.core_pce_3m_ann', entity: 'US_CORE_PCE', label: `근원 PCE 3개월 연율 (${last.date.slice(0, 7)} 기준월)`, value: round(pace.value, 1), unit: 'percent', asOf: last.date, period: 'month', origin: macroHistory?.series?.corePceIndex?.id || 'FRED' }));
     const prev = monthBefore(corePce, last.date, 1);

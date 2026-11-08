@@ -229,13 +229,17 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // 2-year/real yield/breakeven/same-date 2s10s) join the close rows, so a macro number in an answer binds instead of being
   // stripped by the publication gate or answered "확인 필요".
   const readCloseBasisEvidence = createCloseBasisEvidenceReader(() => collectMarketInputs(root), { now: () => clock.now() });
-  // The release rows load after boot (boot budget); until then the readers return nothing and the close rows stand alone.
-  let macroRelease = null;
-  import('../ai/context/macro-release-evidence.js').then((mod) => {
-    macroRelease = { read: mod.createMacroReleaseEvidenceReader(() => ({ macro: root._aioServerMacro || null, macroHistory: root._aioMacroHistory || null }), { now: () => clock.now() }), render: mod.renderMacroReleaseEvidenceContext };
-  }).catch(() => {});
-  const readMacroReleaseEvidence = () => (macroRelease ? macroRelease.read() : []);
-  const renderMacroReleaseEvidenceContext = (rows) => (macroRelease && rows.length ? macroRelease.render(rows) : '');
+  // The release-row module arrives with the AI panel (src/app/chat-globals.js sets AIO.macroReleaseEvidence); only the
+  // AI reads it, so it stays out of the boot and post-boot sets. Until then the close rows stand alone.
+  let macroReader = null;
+  const macroModule = () => root.AIO?.macroReleaseEvidence || null;
+  const readMacroReleaseEvidence = () => {
+    const mod = macroModule();
+    if (!mod) return [];
+    macroReader ||= mod.createMacroReleaseEvidenceReader(() => ({ macro: root._aioServerMacro || null, macroHistory: root._aioMacroHistory || null }), { now: () => clock.now() });
+    return macroReader();
+  };
+  const renderMacroReleaseEvidenceContext = (rows) => (macroModule() && rows.length ? macroModule().renderMacroReleaseEvidenceContext(rows) : '');
   root._aioMacroReleaseEvidence = readMacroReleaseEvidence;
   root._aioScreenBasisEvidence = () => {
     const close = readCloseBasisEvidence();

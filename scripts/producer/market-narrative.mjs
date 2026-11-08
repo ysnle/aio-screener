@@ -488,7 +488,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     };
     const retainOrFallback = (reason) => {
       const carry = passingSentence ? { sentenceCandidate: passingSentence, largeMove, largeMoveDirection } : {};
-      const retained = retainVerifiedMarketAnalysis(previous, { reason, nowMs, revalidate: (summary) => validateMarketAnalysisText(summary, data, snapshot, { context: regimeContext, history: historyRows }) });
+      const retained = retainVerifiedMarketAnalysis(previous, { reason, nowMs, revalidate: (summary) => validateMarketAnalysisText(summary, data, snapshot, { context: regimeContext, history: historyRows, inflationDirection }) });
       if (retained) {
         console.warn(`[fetch-data] marketAnalysis retained previous verified analysis from ${retained.retained.from}`);
         return { ...retained, ...carry };
