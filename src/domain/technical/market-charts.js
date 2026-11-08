@@ -16,7 +16,7 @@ import { RULES } from '../rules/thresholds.js';
 import { rsiWilder } from './definitions.js';
 
 export const CHART_INDEXES = Object.freeze([['ndx', '나스닥100'], ['spx', 'S&P 500'], ['soxx', '반도체(SOXX)'], ['rut', '러셀2000'], ['kospi', '코스피'], ['kosdaq', '코스닥']]);
-// v59.85 (one trend vocabulary): the index cards say the words the stock table under them, the 종목 page and the stock
+// The index cards say the words the stock table under them, the 종목 page and the stock
 // chart say for the same position (bands.js classifyTrend). '단기 조정' and '하락 속 반등' were this screen's own words for
 // what every other screen calls 장기 추세 속 조정 and 장기 추세 아래 반등.
 export const TREND_WORDS = Object.freeze({ up: '상승 추세', pullback: '장기 추세 속 조정', breakdown: TREND_PHASE_LABELS.breakdown, rebound: '장기 추세 아래 반등', recovery: TREND_PHASE_LABELS.recovery, down: '하락 추세', unknown: '판단 보류' });
@@ -37,7 +37,7 @@ export function movingAverage(closes, n) {
   return out;
 }
 
-/** Wilder's 14-day RSI on closes. v59.85: the shared definition (definitions.rsiWilder) — one RSI on every screen. */
+/** Wilder's 14-day RSI on closes.the shared definition (definitions.rsiWilder) — one RSI on every screen. */
 export function rsiOf(closes, period = 14) {
   return rsiWilder((closes || []).map((row) => row.value), period);
 }
@@ -55,7 +55,7 @@ export function swingPointsOf(closes, span = SWING_SPAN) {
 }
 
 /**
- * The index card's trend key. v59.85: the shared classifier (bands.js classifyTrend) on the close's distance to the 50- and
+ * The index card's trend key.the shared classifier (bands.js classifyTrend) on the close's distance to the 50- and
  * 200-day lines, position only — the published index levels have no high/low for the ADR buffers. The 50-day slope is a
  * number in the card's fold, not a condition: the old rule turned a close above both rising-then-flat lines into 회복 시도.
  */

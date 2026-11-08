@@ -115,7 +115,7 @@ export function squeezeSpans(width, lookback = 125) {
 }
 
 /**
- * Trend areas and the trend chip. v59.85: the canonical trend (trend-state.js over bands.js classifyTrend — the words the
+ * Trend areas and the trend chip: the canonical trend (trend-state.js over bands.js classifyTrend — the words the
  * 종목 page and the screener use: 상승 추세 · 회복 시도 · 50일선 부근 · 장기 추세 속 조정 · 장기 추세 아래 반등 · 추세 이탈 ·
  * 하락 추세), held with a 3-bar hysteresis. Up-side states shade up, down-side states shade down, the turning states stay
  * unshaded. `current` stays the up/down/none direction the areas use; `trend` is the full reading for the chip.
@@ -177,7 +177,7 @@ export function chartVolumeProfile(bars, lookback = 130) {
 }
 
 /**
- * v59.85 relative volume (RVOL) for the last bar. Daily and longer bars: volume ÷ the average of the previous 50 bars
+ * Relative volume (RVOL) for the last bar. Daily and longer bars: volume ÷ the average of the previous 50 bars
  * (IBD/MarketSmith's 50-day average volume line). Intraday bars: volume ÷ the average volume of the same clock slot over
  * the previous 10 sessions (TradingView "RVOL at time") — a 09:30 bar is never compared with a lunchtime bar. Null when
  * the last bar or too few comparison bars carry volume.
@@ -306,14 +306,14 @@ export function layerFacts(layers, active, bars, price = (v) => v.toFixed(2)) {
     else push('trend', '추세 판단 보류', 'neutral', '50·200봉 이동평균을 계산할 기록이 부족합니다');
   }
   if (active.profile && layers.profile.available) {
-    // v59.85: where the close sits against the value area (70% of the window's volume) and its POC, the standard read.
+    // Where the close sits against the value area (70% of the window's volume) and its POC, the standard read.
     const p = layers.profile, where = profilePosition(p, close);
     const word = { poc: '최대 매물대(POC)', above: '매물대 위', below: '매물대 아래', inside: '매물대 안' }[where];
     if (word) push('profile', word, where === 'above' ? 'up' : where === 'below' ? 'down' : 'neutral',
       `POC ${price(p.poc.low)}~${price(p.poc.high)}(거래의 ${p.poc.share.toFixed(0)}%), 가치 영역 ${price(p.valueArea.low)}~${price(p.valueArea.high)}(${p.valueArea.share.toFixed(0)}%), 최근 ${p.sessions}봉`);
   }
   if (layers.rvol && layers.rvol.ratio >= 1.5) {
-    // v59.85: volume only speaks when it is unusual — 1.5× its own average or more (the breakout rule's multiple).
+    // Volume only speaks when it is unusual — 1.5× its own average or more (the breakout rule's multiple).
     push('rvol', `거래량 ${layers.rvol.ratio.toFixed(1)}배`, bars[n].close >= bars[n].open ? 'up' : 'down',
       layers.rvol.basis === 'time-of-day' ? `같은 시각 봉의 최근 ${layers.rvol.sample}거래일 평균 대비` : `직전 ${layers.rvol.sample}봉 평균 거래량 대비`);
   }

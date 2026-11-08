@@ -2,13 +2,13 @@
 import { formatScreenerPrice } from '../screener/market-scope.js';
 import { finiteNumber as finite } from '../shared/number.js';
 
-// v59.85 (chart review 2026-11-08): one volume profile for the chart overlay, the 거래 집중 가격대 table, the price-level map
+// One volume profile for the chart overlay, the 거래 집중 가격대 table, the price-level map
 // and the AI context. They used to be two estimates (32 rows on the chart, 24 in the table, a different missing-volume
 // rule), so the chart's 최대 매물대 and the table's first zone could name different prices on one screen.
 // Method (TradingView VRVP / Market Profile conventions): each bar's volume spread evenly over its low~high range across
 // `binCount` equal price rows; the point of control (POC) is the heaviest row; the value area is grown from the POC by
 // adding, each step, whichever side's next two rows hold more volume until it holds VALUE_AREA_SHARE of the total (the
-// CBOT rule). Bars without volume are left out — never counted as zero (P1626) — and the profile needs MIN_VOLUME_COVERAGE
+// CBOT rule). Bars without volume are left out — never counted as zero — and the profile needs MIN_VOLUME_COVERAGE
 // of the window to carry volume. An estimate from daily ranges, not traded-at-price volume.
 export const VOLUME_PROFILE_ROWS = 24;
 export const VALUE_AREA_SHARE = 0.7;

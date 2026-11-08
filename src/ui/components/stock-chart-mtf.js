@@ -1,4 +1,4 @@
-// v59.85 (chart review 2026-11-08): the multi-timeframe trend strip. One question a chart on a single interval cannot
+// The multi-timeframe trend strip. One question a chart on a single interval cannot
 // answer — is this move with or against the bigger trend? — answered with three short chips: the weekly, daily and
 // hourly trend in the one vocabulary (trend-state.js, the words the 종목 page and the screener use). The interval on
 // screen reads its own bars; the other two are fetched once per symbol and kept for five minutes, so switching interval
@@ -21,6 +21,8 @@ export function rememberBars(sym, id, bars) {
 }
 
 function barsFor(sym, id, load) {
+  const now = Date.now();
+  for (const [key, entry] of cache) if (now - entry.at >= TTL_MS) cache.delete(key); // expired series do not pile up
   const hit = cache.get(keyOf(sym, id));
   if (hit && Date.now() - hit.at < TTL_MS) return hit.bars;
   const bars = Promise.resolve().then(() => load(id)).then((list) => (Array.isArray(list) ? list : [])).catch(() => []);
@@ -56,7 +58,7 @@ export function renderTrendStrip({ doc, host, sym, active, bars = null, load, on
     const chip = chips[index];
     chip.textContent = `${frame.short} ${trend ? trend.label : list.length ? '판단 보류' : '—'}`;
     chip.className = `chart-chip is-${TONE[trend?.tone] || 'neutral'} stock-chart-mtf-chip`;
-    chip.title = trend ? trend.text : list.length ? '이 주기는 50·200봉 이동평균을 계산할 기록이 부족합니다' : '이 주기의 시세를 받지 못했습니다';
+    chip.title = trend ? trend.text : list.length ? '이 주기는 50·200개 봉의 이동평균을 계산할 기록이 부족합니다' : '이 주기의 시세를 받지 못했습니다';
     chip.dataset.trend = trend ? trend.phase || trend.id : '';
     return trend;
   }));

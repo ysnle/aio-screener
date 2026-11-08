@@ -1,4 +1,4 @@
-// v59.85 (chart review 2026-11-08, one trend vocabulary): the trend of a bar series in the words the screener row uses.
+// The trend of a bar series in the words the screener row uses.
 // The inputs bands.js classifyTrend reads from a screener row — distance to the 50- and 200-bar lines, the 20-bar
 // average daily range (ADR) and the five-bar return — are computed here from the bars themselves, so the stock chart's
 // chip and trend areas, the market candle cards, the multi-timeframe strip and the 기술적 분석 index cards all say the
@@ -40,11 +40,20 @@ function inputsAt(bars, i, sma50, sma200, positionOnly) {
  * that many bars before it replaces the old one, and the confirmed run is painted from its first bar), and the up/down
  * segments the chart shades. `positionOnly` is for closes without a high/low (published index levels).
  */
-export function trendStateSeries(bars, { confirm = 3, positionOnly = false, sma50 = null, sma200 = null } = {}) {
+/** The bar unit of a series: daily dates are 'day'; intraday epoch seconds are 'bar'; a weekly or monthly spacing is read from the dates. */
+export function barUnit(bars) {
+  const first = bars?.[0]?.time, second = bars?.[1]?.time;
+  if (typeof first === 'number') return 'bar';
+  const gap = typeof first === 'string' && typeof second === 'string' ? (Date.parse(bars.at(-1).time) - Date.parse(first)) / 86400000 / Math.max(1, bars.length - 1) : null;
+  return gap == null || !Number.isFinite(gap) ? 'day' : gap >= 20 ? 'month' : gap >= 5 ? 'week' : 'day';
+}
+
+export function trendStateSeries(bars, { confirm = 3, positionOnly = false, sma50 = null, sma200 = null, unit = null } = {}) {
   const list = Array.isArray(bars) ? bars : [];
   const closes = list.map((bar) => bar.close);
   const s50 = sma50 || smaSeries(closes, 50), s200 = sma200 || smaSeries(closes, 200);
-  const raw = list.map((_, i) => classifyTrend(inputsAt(list, i, s50, s200, positionOnly)));
+  const words = unit || barUnit(list);
+  const raw = list.map((_, i) => classifyTrend({ ...inputsAt(list, i, s50, s200, positionOnly), unit: words }));
   const keys = raw.map(trendKey);
   const states = keys.map(() => null);
   let current = null, candidate = null, run = 0;

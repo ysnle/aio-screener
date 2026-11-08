@@ -154,7 +154,7 @@ export function attachChartLayers({ doc, root, instance, layers, analysis = null
         }
       }));
     }
-    // Base: volume profile — horizontal rows on the right edge; v59.85 the 70% value area as a faint band and the point
+    // Base: volume profile — horizontal rows on the right edge;the 70% value area as a faint band and the point
     // of control (POC) as a line across the chart, the standard profile read (the table under the chart names the same rows).
     if (active.profile && layers.profile.available) {
       const { bins, poc, valueArea: va } = layers.profile;

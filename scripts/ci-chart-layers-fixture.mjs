@@ -71,6 +71,22 @@ assert.equal(trendRegimes(longBars.slice(0, 150)).trend, null, 'v59.85 under 200
   assert.equal(cross.classifyTrend({ s50: 6, s200: 2, positionOnly: true }).label, '회복 시도', 'v59.85 above both with the 50-day still under the 200-day is 회복 시도');
 }
 
+// v59.85 a weekly or intraday series names its own unit: 50·200-week lines are 주선, intraday lines 봉선 — never 일선.
+{
+  const { trendOfBars, barUnit } = await import('../src/domain/technical/trend-state.js');
+  const weekly = Array.from({ length: 300 }, (_, i) => ({ time: new Date(Date.UTC(2020, 0, 6 + 7 * i)).toISOString().slice(0, 10), open: 100 + i, high: 103 + i, low: 98 + i, close: 100 + i }));
+  assert.equal(barUnit(weekly), 'week', 'v59.85 weekly dates read as a weekly series');
+  const w = trendOfBars(weekly);
+  assert.ok(/50주선/.test(w.text) && !/일선|거래일|일평균/.test(`${w.label} ${w.text}`), `v59.85 weekly trend speaks in 주선: ${w.text}`);
+  const nearW = trendOfBars(weekly.map((b, i) => (i === 299 ? { ...b, close: b.close * 0.94 } : b)));
+  assert.ok(!/일선|거래일|일평균/.test(`${nearW.label} ${nearW.text}`), `v59.85 every weekly state avoids day words: ${nearW.label} ${nearW.text}`);
+  const hourly = longBars.map((b, i) => ({ ...b, time: 1_700_000_000 + i * 3600 }));
+  const h = trendOfBars(hourly);
+  assert.ok(/봉선/.test(h.text) && !/일선|거래일|일평균/.test(`${h.label} ${h.text}`), `v59.85 intraday trend speaks in 봉선: ${h.text}`);
+  const { bufferedTrend } = await import('../src/domain/technical/bands.js');
+  assert.match(bufferedTrend({ pctSma50: 5, pctSma200: 9, adrPct: 2, ret5d: 1 }).text, /50일선/, 'v59.85 the screener row keeps its daily words');
+}
+
 // v59.85 relative volume: daily = last ÷ the previous 50 bars' average; intraday = last ÷ the same clock slot's average
 // over the previous 10 sessions, so an opening bar is not compared with lunchtime bars.
 {

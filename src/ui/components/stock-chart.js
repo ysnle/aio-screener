@@ -34,7 +34,7 @@ const fullRow = (node) => { if (node?.style) node.style.gridColumn = '1 / -1'; r
 // v58.53 개편 v2 (5f): three reading cards under the chart — distance from the 50-day line, RSI 14 and the 60-session
 // volume-weighted average price — each computed from the same completed daily bars the chart draws (no other source).
 const signedPct = (value) => signedText(value, 1, '%');
-// v59.85: one RSI definition (definitions.rsiWilder); the name stays for existing importers.
+// One RSI definition (definitions.rsiWilder); the name stays for existing importers.
 export const wilderRsi = rsiWilder;
 export function sessionVwap(bars, sessions = 60) {
   const window = (bars || []).slice(-sessions);
@@ -53,7 +53,7 @@ function chartReadCards(doc, analysis, currency) {
     return box;
   };
   // v58.79 (chart review): direction first — swing structure, moving-average order and the 50-day slope, with any turn.
-  // v59.85 (one trend vocabulary): the word is the canonical trend the chip, the 종목 page and the screener say
+  // The word is the canonical trend the chip, the 종목 page and the screener say
   // (trend-state.js); the swing structure and the 50-day slope (trendRead) are its evidence, not a second verdict.
   const trend = trendRead(analysis);
   const canonical = trendOfBars(analysis.bars);
@@ -231,14 +231,14 @@ function setChartEmpty(doc, empty) {
   section?.toggleAttribute?.('data-chart-empty', empty);
 }
 
-// v59.85: the bars of one interval for the multi-timeframe strip (the same transforms the chart applies).
+// The bars of one interval for the multi-timeframe strip (the same transforms the chart applies).
 async function loadIntervalBars(root, sym, id) {
   const spec = intervalSpec(id);
   const payload = await Promise.resolve().then(() => root._aioFetchYahooChartData?.(sym, spec.range, spec.interval)).catch(() => null);
   if (!payload) return [];
   return spec.id === '1d' ? completedBars(barsFromYahoo(payload), payload).bars : intervalBars(payload, spec);
 }
-// v59.85: the weekly · daily · hourly trend chips under the interval buttons (stock-chart-mtf.js).
+// The weekly · daily · hourly trend chips under the interval buttons (stock-chart-mtf.js).
 function mountTrendStrip(doc, root, sym, active, bars) {
   let host = doc.getElementById('stock-chart-mtf');
   if (!host) {
@@ -264,7 +264,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   root.__aioStockChartInterval = spec.id;
   set('stock-chart-title', `${sym} ${spec.label}봉`);
   renderIntervalButtons(doc, root, sym, spec.id);
-  doc.getElementById('stock-chart-mtf')?.setAttribute('hidden', ''); // v59.85: shown again with the new chart's chips
+  doc.getElementById('stock-chart-mtf')?.setAttribute('hidden', ''); // Shown again with the new chart's chips
   // v58.79: the drawing row belongs to the daily chart; it is rebuilt once the daily bars are drawn.
   doc.getElementById('stock-chart-draw')?.remove();
   doc.querySelector('.stock-chart-draw-read')?.remove();
@@ -497,8 +497,8 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   if (profile.available) {
     const section = el(doc, 'section', null, 'chart-volume-profile');
     section.append(el(doc, 'h3', '거래 집중 가격대, 일봉 추정', 'briefing-h2'));
-    // v59.85: the same profile the chart draws (24 rows, 130 sessions), with its POC and 70% value area.
-    const money = (value) => (kr ? `${Math.round(value).toLocaleString('ko-KR')}원` : `$${value.toFixed(2)}`);
+    // The same profile the chart draws (24 rows, 130 sessions), with its POC and 70% value area.
+    const money = (value) => formatScreenerPrice(value, kr ? 'KRW' : payload?.meta?.currency || null);
     section.append(el(doc, 'p', `${profile.start}~${profile.end}, ${profile.sessions}거래일 · 최대 거래 가격대(POC) ${money(profile.poc.low)}~${money(profile.poc.high)}${profile.valueArea ? ` · 가치 영역(거래의 ${profile.valueArea.share.toFixed(0)}%) ${money(profile.valueArea.low)}~${money(profile.valueArea.high)}` : ''}`, 'theme-strength-basis'));
     const max = Math.max(...profile.zones.map(zone => zone.volume));
     for (const zone of profile.zones) {

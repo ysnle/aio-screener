@@ -49,7 +49,7 @@ export const recentDropText = (drop) => (drop ? `최근 5거래일 ${signed(drop
  * The 50·200-day trend with the buffers above. id: up (favourable) · up-shaken · near50 · pullback · rebound · down ·
  * unconfirmed (above both lines but the ADR or five-session input is missing, so the buffers cannot be tested).
  *
- * v59.85 (chart review 2026-11-08, one trend vocabulary): the numeric core every surface shares — the screener row
+ * The numeric core every surface shares — the screener row
  * (bufferedTrend), the stock chart's bars and the 기술적 분석 index cards (trend-state.js). Before, the index cards ran their
  * own classifier (market-charts trendOf: 단기 조정 · 추세 이탈 · 하락 속 반등) while the stock table under them and the 종목
  * page used this one (장기 추세 속 조정 · 하락 추세 · 장기 추세 아래 반등), and the chart's trend chips a third rule — so SPY
@@ -61,7 +61,30 @@ export const recentDropText = (drop) => (drop ? `최근 5거래일 ${signed(drop
  * `positionOnly` (closes without high/low, e.g. index levels) skips the ADR buffers instead of reading 'unconfirmed'.
  */
 export const TREND_PHASE_LABELS = Object.freeze({ recovery: '회복 시도', breakdown: '추세 이탈' });
-export function classifyTrend({ s50, s200, adr = null, drop = null, positionOnly = false } = {}) {
+/**
+ * The bar unit a trend is read on. The screener row and the daily chart are daily ('day', the words as written); the
+ * weekly chart and the multi-timeframe strip read 50·200-week lines, the intraday charts 50·200-bar lines, so their
+ * label and sentence name that unit instead of 일선 / 일평균 / 5거래일.
+ */
+export const TREND_UNITS = Object.freeze({
+  day: null,
+  week: Object.freeze({ line: '주선', range: '주평균 변동폭', recent: '최근 5주', week: '최근 5주' }),
+  month: Object.freeze({ line: '개월선', range: '월평균 변동폭', recent: '최근 5개월', week: '최근 5개월' }),
+  bar: Object.freeze({ line: '봉선', range: '봉 평균 변동폭', recent: '최근 5봉', week: '최근 5봉' })
+});
+function inUnit(trend, unit) {
+  const words = TREND_UNITS[unit];
+  if (!trend || !words) return trend;
+  const swap = (text) => String(text || '').replace(/(\d+)일선/g, `$1${words.line}`).replace(/(\d+)·(\d+)일선/g, `$1·$2${words.line}`)
+    .replace(/일평균 변동폭/g, words.range).replace(/최근 5거래일/g, words.recent).replace(/최근 한 주/g, words.week);
+  return { ...trend, label: swap(trend.label), text: swap(trend.text), unit };
+}
+
+export function classifyTrend({ unit = 'day', ...inputs } = {}) {
+  return inUnit(classifyTrendDaily(inputs), unit);
+}
+
+function classifyTrendDaily({ s50, s200, adr = null, drop = null, positionOnly = false } = {}) {
   if (s50 == null || s200 == null || !Number.isFinite(s50) || !Number.isFinite(s200)) return null;
   const line200 = s200 >= 0 ? `200일선 위(${signed(s200)})` : `200일선 아래(${signed(s200)})`;
   const hasAdr = adr != null && adr > 0;
