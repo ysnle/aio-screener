@@ -69,8 +69,6 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-      - name: Install dependencies
-        run: npm ci --no-audit --no-fund
       # v59.78 (automation audit 2026-11-08): a red code merge used to refuse every refresh release on top of it, so the
       # live data froze until the code was fixed (11/07 09:26-12:03Z and 13:25-16:45Z, 11/08 from 07:12Z). Now the code
       # under the refresh commit is either green (direct), still in CI (wait), or red: then the data rides on the newest
@@ -81,6 +79,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: node scripts/resolve-release-source.mjs --sha "${{ inputs.release_sha || github.sha }}" --wait-min 15 --github-output
+      # The preflight validates the tree Pages will ship too (the resolver above needs Node built-ins only, so the
+      # dependencies are installed after the overlay, from the code commit's own lockfile).
+      - name: Build the data overlay tree (preflight)
+        if: steps.release-source.outputs.release_mode == 'overlay'
+        run: |
+          set -euo pipefail
+          cp scripts/build-data-overlay.mjs "$RUNNER_TEMP/build-data-overlay.mjs"
+          node "$RUNNER_TEMP/build-data-overlay.mjs" --code-sha "${{ steps.release-source.outputs.code_sha }}" --data-sha "${{ inputs.release_sha || github.sha }}"
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
       - name: Run aggregate preflight
         env:
           AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa

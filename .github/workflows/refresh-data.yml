@@ -625,9 +625,10 @@ jobs:
     # nothing to hand over; the next news cycle, about an hour later, converges instead.
     if: ${{ !cancelled() && needs.cadence.outputs.mode != 'skip' }}
     runs-on: ubuntu-latest
-    # The driver gives up waiting after 12 min (AWAITING_CI_ATTESTATION) and the next cycle's converge
-    # finds the attested run and dispatches Pages (R606 self-heal), so a 30-minute hold bought nothing.
-    timeout-minutes: 15
+    # The driver gives up waiting after 30 min (AWAITING_CI_ATTESTATION) and the next cycle's converge
+    # finds the attested run and dispatches Pages (R606 self-heal). v59.78: the 30 min covers the reduced CI's
+    # up-to-15-minute wait for the code commit's push CI (resolve-release-source.mjs) plus its own ~10 min.
+    timeout-minutes: 35
     # Reads main/runs/artifacts and dispatches ci.yml / pages-deploy.yml; it never writes the repository.
     permissions:
       contents: read
@@ -659,7 +660,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -n "${{ needs.refresh.outputs.sha }}" ]; then
-            node scripts/ensure-live-convergence.mjs --await-sha "${{ needs.refresh.outputs.sha }}" --timeout-min 12
+            node scripts/ensure-live-convergence.mjs --await-sha "${{ needs.refresh.outputs.sha }}" --timeout-min 30
           else
             node scripts/ensure-live-convergence.mjs
           fi

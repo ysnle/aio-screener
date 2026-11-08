@@ -56,6 +56,15 @@ assert.match(ci, /resolve-release-source\.mjs --sha "\$EXPECTED_SHA" --verify-co
 assert.match(ci, /if: needs\.preflight\.outputs\.release_mode == 'overlay'[\s\S]*?build-data-overlay\.mjs/, 'v59.78 release-source contract');
 assert.match(pages, /if: steps\.release\.outputs\.code_sha != ''[\s\S]*?build-data-overlay\.mjs/, 'v59.78 release-source contract');
 assert.match(pages, /releaseMode:process\.env\.AIO_CODE_SHA\?'data-overlay':'direct'/, 'v59.78 release-source contract');
+// Codex review on PR #161: the preflight validates the overlay tree too, with the code commit's own dependencies.
+const preflightJob = ci.slice(ci.indexOf('  preflight:'), ci.indexOf('\n  contracts:'));
+assert.match(preflightJob, /resolve-release-source\.mjs[\s\S]*?if: steps\.release-source\.outputs\.release_mode == 'overlay'[\s\S]*?build-data-overlay\.mjs[\s\S]*?npm ci[\s\S]*?qa-runner\.mjs --group preflight/, 'v59.78 preflight runs on the overlay tree, after the resolver and before npm ci');
+// The Pages hand-off must outlast the reduced CI's wait for push CI (15 min) plus the run itself.
+for (const file of ['refresh-data.yml', 'refresh-screener.yml']) {
+  const text = readFileSync(new URL(`../.github/workflows/${file}`, import.meta.url), 'utf8');
+  const waits = [...text.matchAll(/ensure-live-convergence\.mjs --await-sha [^\n]*--timeout-min (\d+)/g)].map((match) => Number(match[1]));
+  assert.ok(waits.length > 0 && waits.every((minutes) => minutes >= 30), `v59.78 ${file} converge waits at least 30 min (${waits.join(',')})`);
+}
 assert.ok(!/':\(exclude\)public-data'/.test(ci), 'v59.78 the generated path list lives in build-data-overlay.mjs only');
 
 // v59.78: the data watchdog reports repository upkeep instead of going red on it; every other run still fails on it.
@@ -68,4 +77,4 @@ const pipeline = JSON.parse(readFileSync(new URL('../architecture/qa-pipeline.js
 const roles = Object.values(pipeline.groups).flatMap((group) => group.gates || []).filter((gate) => gate.watchdogRole).map((gate) => `${gate.id}:${gate.watchdogRole}`).sort();
 assert.deepEqual(roles, ['watchdog-browser-data-pin-drift:maintenance', 'watchdog-knowledge-lint:maintenance'], 'v59.78 only repository-upkeep twins are maintenance; data and live gates stay blocking');
 
-console.log('release source contract PASS: direct, treesame, wait, overlay, refuse decisions; overlay restamp; workflow wiring; watchdog maintenance roles');
+console.log('release source contract PASS: direct, treesame, wait, overlay, refuse decisions; overlay restamp; workflow wiring; preflight overlay; converge budget; watchdog maintenance roles');
