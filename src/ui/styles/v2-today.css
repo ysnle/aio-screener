@@ -367,7 +367,7 @@
 #page-home .home-index-times > span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
 #page-home .home-index-times > span:last-child { transform: translateX(-100%); }
 @media (max-width: 1100px) { #page-home .home-index-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 520px) { #page-home .home-index-grid { gap: 8px; } #page-home .home-index-card { padding: 10px 10px 8px; } #page-home .home-index-plot { height: 64px; grid-template-columns: minmax(0, 1fr) 46px; } #page-home .home-index-times { margin-right: 52px; } #page-home .home-index-times > span:nth-child(2), #page-home .home-index-times > span:nth-child(3) { display: none; } #page-home .home-index-head { flex-wrap: wrap; row-gap: 2px; } }
+@media (max-width: 520px) { #page-home .home-index-grid { gap: 8px; } #page-home .home-index-card { padding: 10px 10px 8px; } #page-home .home-index-plot { height: 64px; grid-template-columns: minmax(0, 1fr) 46px; } #page-home .home-index-times { margin-right: 52px; } #page-home .home-index-times > span:nth-child(2), #page-home .home-index-times > span:nth-child(3) { display: none; } #page-home .home-index-head { flex-wrap: wrap; row-gap: 2px; } #page-home .home-index-sym.is-generic { display: none; } }
 
 /* v58.80 (first-users F05): the AI panel takes 400px beside the page, so a 1440px window leaves the page about 800px while
    the viewport breakpoints above still drew two columns — the verdict and its flip list squeezed to one word per line and

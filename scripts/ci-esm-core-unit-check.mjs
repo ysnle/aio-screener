@@ -7163,6 +7163,12 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const spikeBase = hyWidening20Record(h, days[330]);
   if (easing?.stress !== false) fail(`v59.76 the HY latch lets go when the 20-session change is under 25bp and five sessions narrowed: ${JSON.stringify(easing)}`);
   if (!(spikeBase?.value < 25) || spikeBase.stress !== true) fail(`v59.76 the HY latch holds while HY widened 16bp in five sessions, even when a spiked base pulls the 20-session change under 25bp: ${JSON.stringify(spikeBase)}`);
+  // v59.77: the latch start is judged on each session's own record line, so it no longer moves when today's line rises.
+  const macroFile = JSON.parse(readFileSync(path.join(root, "public-data/macro-history.json"), "utf8"));
+  if ((macroFile.series?.hyOas?.observations || []).some(([date, value]) => date === '2026-10-30' && value === 3.44)) {
+    const starts = ['2026-11-02', '2026-11-05'].map((date) => hyWidening20Record(macroFile, date)?.since);
+    if (starts[0] !== '2026-10-30' || starts[1] !== '2026-10-30') fail(`v59.77 the HY latch keeps its 10/30 start through 11/5: ${JSON.stringify(starts)}`);
+  }
   const { wonMoveSentence } = await load('src/domain/macro/rates-fx.js');
   if (!/조금 약해졌습니다/.test(wonMoveSentence(1.5)) || /안정/.test(wonMoveSentence(1.5))) fail(`v59.76 a +1.5% 20-session won move is a mild weakening, never '안정적': ${wonMoveSentence(1.5)}`);
   if (!/보합권/.test(wonMoveSentence(0.3)) || !/환차손/.test(wonMoveSentence(2.4)) || !/강해졌습니다/.test(wonMoveSentence(-2.1))) fail('v59.76 the won sentence follows the 환율 axis edges (0.5% flat, 2% move)');

@@ -127,7 +127,9 @@ function card(doc, root, spec, model, failed) {
   node.addEventListener('click', () => root.aioOpenMarketChart?.(shown));
   const head = el(doc, 'div', null, 'home-index-head');
   const name = el(doc, 'span', null, 'home-index-name');
-  name.append(el(doc, 'strong', spec.label), ' ', el(doc, 'span', model ? spec.sym : close ? spec.closeSym || spec.sym : '', 'home-index-sym'));
+  const sym = model ? spec.sym : close ? spec.closeSym || spec.sym : '';
+  // v59.77: the generic '지수' tag folds away on phones so the day's change stays on the name's line.
+  name.append(el(doc, 'strong', spec.label), ' ', el(doc, 'span', sym, `home-index-sym${sym === '지수' ? ' is-generic' : ''}`));
   head.append(name);
   if (!model) {
     if (close) {

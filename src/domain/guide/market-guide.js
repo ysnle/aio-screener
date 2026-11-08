@@ -110,12 +110,12 @@ function stanceOf({ direction, leadPath, lessons }) {
   const robust = direction.robust;
   // The lead's own sentence for the robust choice only when the lead favours it; otherwise the tally sentence speaks.
   if (robust && leadPath?.favored?.includes(robust) && leadPath.choices?.[robust]) pursue.push(`${choiceName(robust)}: ${leadPath.choices[robust]}`);
-  else if (robust) pursue.push(`${choiceName(robust)}: 핵심 조건을 갖춘 시나리오 ${direction.live.length}개에 적힌 비용 비교를 셀 때 유리하다는 표시가 가장 많은 쪽입니다(확률이나 최소 비용의 증명은 아님).`);
+  else if (robust) pursue.push(`${choiceName(robust)}: 지금 핵심 조건이 맞는 시나리오 ${direction.live.length}개 가운데, 판단이 틀렸을 때 손해가 작은 쪽으로 가장 많이 꼽힙니다(맞을 확률을 뜻하지는 않습니다).`);
   else if (!robust) pursue.push('한 방향에 걸지 않기 — 나눠서, 다음 확인 조건을 붙여서 판단합니다.');
   if (leadPath?.firmer && !/없음/.test(leadPath.firmer)) pursue.push(`'${leadPath.short}'에서 강해지는 쪽(${leadPath.firmer})이 실제로 버티는지 테마·섹터에서 확인`);
   if (leadPath?.triggers?.[0]) pursue.push(`다음 확인 신호를 미리 적어 두기: ${leadPath.triggers[0].when} — ${leadPath.triggers[0].text}`);
   const costly = direction.tally.filter((row) => row.costlyIn.length && row.key !== robust);
-  for (const row of costly.slice(0, 2)) avoid.push(`${row.key === 'stage' ? '서두른 ' : ''}'${row.name}' — ${row.costlyIn.map((name) => `'${name}'`).join('·')}에서 비용이 크게 적혀 있습니다`);
+  for (const row of costly.slice(0, 2)) avoid.push(`${row.key === 'stage' ? '서두른 ' : ''}'${row.name}' — ${row.costlyIn.map((name) => `'${name}'`).join('·')} 시나리오로 가면 손해가 큰 선택입니다`);
   if (leadPath?.weaker && leadPath.weaker !== '—') avoid.push(`'${leadPath.short}'에서 약해지는 쪽(${leadPath.weaker})에 한 번에 몰기`);
   for (const lesson of lessons.filter((row) => row.kind === 'trap' && row.reason).slice(0, 2)) avoid.push(`${lesson.title}에 속기`);
   return { pursue: pursue.slice(0, 3), avoid: avoid.slice(0, 4) };
