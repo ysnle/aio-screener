@@ -26,7 +26,7 @@ import { isIsoDay } from '../../domain/shared/session-date.js';
 // readiness text. P810 adds a bounded native hero projection for total value and total P/L;
 // P830 transfers the Vault-backed nine-column holdings table. Prices, risk, AI workbench,
 // and chart surfaces remain separately legacy-owned.
-function renderPortfolioStatus(documentRef, state, surface, { pricesLoading = false } = {}) {
+export function renderPortfolioStatus(documentRef, state, surface, { pricesLoading = false } = {}) {
   const element = documentRef?.getElementById('pf-analysis-status');
   if (!element) return;
   const readState = surface?.readState || state?.readState || 'unavailable';
@@ -47,6 +47,12 @@ function renderPortfolioStatus(documentRef, state, surface, { pricesLoading = fa
   } else if (valuation === 'partial') {
     // v57.86 (live review): the hero shows no partial total, so the line says the totals wait (it said the holding was "left out").
     element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가, 가격 없음 ${(surface?.holdingCount ?? 0) - (surface?.valuedHoldingCount ?? 0)}종목이 있어 총자산과 손익은 모든 종목 가격을 받은 뒤 표시합니다${closeNote(surface)}`; // v57.81: same words as the row state
+  } else if (valuation === 'mixed-currency') {
+    // Each unit's own total, never one sum across units; the base currency setting adds them up.
+    const parts = (surface.currencySubtotals || []).map((row) => (row.value != null ? `${CURRENCY_WORD[row.currency] || row.currency} ${formatMoney(row.value, row.currency)}`
+      : `${CURRENCY_WORD[row.currency] || row.currency} ${row.valuedCount}/${row.holdingCount}종목 가격`));
+    const appFxCovers = (surface.currencySubtotals || []).every((row) => row.currency === 'USD' || row.currency === 'KRW');
+    element.textContent = `통화별 평가 ${parts.join(' · ')}, ${appFxCovers ? '기준 통화를 정하면 원/달러 종가로 합산합니다' : '기준 통화와 환율을 정하면 합산합니다'}${closeNote(surface)}`;
   } else if (valuation === 'unavailable' && readState === 'ready' && (surface?.holdingCount ?? 0) > 0) {
     // v57.81: every holding is on 가격 없음 (no quote and no close yet), so no total is shown rather than a partial one.
     element.textContent = `${surface.holdingCount}종목 모두 가격 없음, 가격을 받으면 총자산과 손익을 계산합니다`;
@@ -72,6 +78,9 @@ function renderPortfolioStatus(documentRef, state, surface, { pricesLoading = fa
 
 // P1407: the totals are in the surface's base currency (the same rule as the holdings table: an
 // undeclared single basis is shown as USD, and the currency note says it was assumed).
+const CURRENCY_WORD = Object.freeze({ USD: '달러', KRW: '원화', JPY: '엔화', EUR: '유로' });
+// The units the holdings are in; declaredCurrencies alone was empty and printed "통화 혼합()".
+export const heldCurrencyList = (surface) => [...new Set([...(surface?.declaredCurrencies || []), ...(surface?.heldCurrencies || [])])].join('/');
 export function formatMoney(value, currency = 'USD') {
   if (value == null) return '—';
   const code = String(currency || 'USD').trim().toUpperCase();
@@ -333,7 +342,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
       ? `통화 환산(${fxBasisLabel}) → ${surface.baseCurrency}`
       : surface.currencyState === 'mixed-without-conversion'
         ? surface.currencyHeldReason === 'unknown-unit' ? `시세 통화 미확인 ${surface.unknownCurrencyCount}종목 — 합계 보류`
-          : `통화 혼합(${(surface.declaredCurrencies || []).join('/')}) — 환산 없어 합계 보류`
+          : `통화 혼합(${heldCurrencyList(surface)}) — 환산 없어 합계 보류`
         : surface.currencyState === 'declared-single' ? `통화 ${surface.baseCurrency}`
           : '기준 통화를 따로 고르지 않아 종목의 시장 통화 그대로 계산';
   // E3/P1196: 원가/시세 불일치는 이제 두 갈래다 — 선언된 leg로 환산됐으면 P&L이 성립하고, 근거가

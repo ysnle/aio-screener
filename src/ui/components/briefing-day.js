@@ -2,6 +2,7 @@
 // equal-weight index read against the index) and the lead/major stories, each one sentence of what moved and one of why;
 // the reports behind a story, the smaller stories and the big moves nothing explains open in folds.
 import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { EVENT_BRIEFS } from '../../data/event-artifacts.js';
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
 import { oneSessionDay } from '../../domain/market-day/one-session.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -37,10 +38,13 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   if (!section) return;
   const day = root?.[MARKET_DAY.key] || null;
   if (root && !day) refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) renderBriefingDay({ documentRef: doc, root }); }).catch(() => {});
-  const account = buildDayAccount(oneSessionDay(day, root?._aioHistory)); // v59.70 (re-review 7·8)
+  // The event briefs tell which big moves were a company's own report (TEAM 11/6); they arrive on their own.
+  const briefs = root?.[EVENT_BRIEFS.key] || null;
+  if (root && !briefs) refreshSharedArtifact(root, EVENT_BRIEFS).then(({ changed }) => { if (changed) renderBriefingDay({ documentRef: doc, root }); }).catch(() => {});
+  const account = buildDayAccount(oneSessionDay(day, root?._aioHistory), { briefs }); // v59.70 (re-review 7·8)
   section.hidden = !account.available;
   if (!account.available) return;
-  const key = `${day.generatedAt}`;
+  const key = `${day.generatedAt}|${briefs?.generatedAt || ''}`;
   if (section.dataset.renderKey === key) return;
   section.dataset.renderKey = key;
   // v59.68: the page subtitle names the close once; the section heads carry no date of their own.
@@ -52,6 +56,11 @@ export function renderBriefingDay({ documentRef: doc, root }) {
     const list = el(doc, 'ul', null, 'briefing-day-more');
     for (const story of account.more) list.append(el(doc, 'li', `${story.title}: ${[story.line, ...story.why].filter(Boolean).join(' ')}`));
     folds.push(fold(doc, `그 밖에 움직인 것 ${account.more.length}건`, [list]));
+  }
+  if (account.reported.length) {
+    const list = el(doc, 'ul', null, 'briefing-day-more');
+    for (const row of account.reported) list.append(el(doc, 'li', `${String(row.label || '').includes('(') ? `${row.label} ${row.sym}` : `${row.label}(${row.sym})`} ${signedText(row.change, 1, '%')}${row.headline ? `, ${row.headline}` : ''}`));
+    folds.push(fold(doc, `실적 발표 뒤 움직임 ${account.reported.length}건`, [list]));
   }
   if (account.unexplained.length) {
     const list = el(doc, 'ul', null, 'briefing-day-more');

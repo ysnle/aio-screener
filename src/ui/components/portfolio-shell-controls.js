@@ -15,7 +15,10 @@ export function installPortfolioShellControls(window = globalThis, document = gl
         var tk = escHtml(p.ticker); // v59.42: a stored ticker is escaped (it was raw HTML in the option)
         // v59.45 (P27-IMPORT-01): an imported position without a readable cost shows '원가 미확인', not '$NaN'.
         var costNum = Number(p.cost);
-        return '<option value="' + tk + '">' + tk + ', ' + escHtml(p.qty) + '주 @ ' + (p.cost != null && p.cost !== '' && isFinite(costNum) ? '$' + costNum.toFixed(2) : '원가 미확인') + '</option>';
+        // A KRW cost read "@ $70000.00"; the cost keeps its own unit (declared, else the listing's).
+        var won = (p.costCurrency || p.currency) === 'KRW' || (!p.costCurrency && !p.currency && /\.\b(KS|KQ)\b$/i.test(String(p.ticker || '')));
+        var costText = won ? Math.round(costNum).toLocaleString('en-US') + '원' : '$' + costNum.toFixed(2);
+        return '<option value="' + tk + '">' + tk + ', ' + escHtml(p.qty) + '주 @ ' + (p.cost != null && p.cost !== '' && isFinite(costNum) ? costText : '원가 미확인') + '</option>';
       }).join('');
     if (current && positions.some(function(p){return p.ticker===current;})) sel.value = current;
   };

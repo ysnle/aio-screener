@@ -13,6 +13,8 @@ import { buildCloseSeries, closeSessionMarket } from './close-series.js';
 import { MARKET_WINDOWS } from './market-windows.js';
 import { countOpenSessionsBetween } from './market-calendar.js';
 import { oasDelta20Bp } from '../briefing/market-read.js';
+import { creditJudgement, creditReading } from '../briefing/credit-reading.js';
+import { vixBand } from '../sentiment/narrative.js';
 
 // v59.70 (owner 11/4): one week, the same window as the verdict table's 5거래일 전 / 5일 변화 columns. The bars, the lead
 // sentence and every badge below read STORY_SESSIONS; the move thresholds are sized to that window (they were set for 15).
@@ -134,9 +136,14 @@ function creditOf(macroHistory, from, to, sessions) {
   const ccc = oasWeek(macroHistory, 'cccOas', from, to, sessions);
   // v59.66: one widening line for every screen — +33bp read as '신용 불안은 아닙니다' here while 매크로 called it 경계 쪽.
   // v59.70: the five-session lines of the credit axis (RULES.credit.widen5dBp / widenWatch5dBp), matching the week of the table.
+  // The kind is the credit axis's own judgement (creditJudgement) on the story's last date, so
+  // the story never calls 'stress' what 시장 상태 and 매크로 call 중립, and its sentence is creditReading's.
   const C = RULES.credit;
-  const kind = hy.bp >= C.widen5dBp || hy.to * 100 >= C.stressAtBp ? 'stress' : hy.bp >= C.widenWatch5dBp ? 'widening' : ccc && ccc.bp >= STORY_RULE.cccTailBp ? 'weak-tail' : 'calm';
-  return { hy, ccc, kind };
+  const judgement = creditJudgement(macroHistory, hy.toDate || to || null);
+  const cccTail = !!(ccc && ccc.bp >= STORY_RULE.cccTailBp);
+  const kind = judgement?.state === 'burden' ? 'stress'
+    : (judgement?.hy20 != null && judgement.hy20 >= C.widen20dBp) || hy.bp >= C.widenWatch5dBp ? 'widening' : cccTail ? 'weak-tail' : 'calm';
+  return { hy, ccc, kind, judgement, cccTail };
 }
 
 const RATE_READ = Object.freeze({
@@ -238,10 +245,8 @@ function confirmations({ moves, rates, credit, macroHistory, history, asOf, star
     read: `${RATE_READ[rates.kind]}.${moves.tlt ? ` 장기 국채는 ${pctText(moves.tlt.pct)}입니다.` : ''}` });
   if (credit) {
     const tail = credit.ccc ? ` · CCC ${bpText(credit.ccc.bp)}` : '';
-    const read = credit.kind === 'stress' ? '스프레드가 크게 벌어졌습니다. 주가 조정이 신용 문제로 번질 수 있는 폭입니다.'
-      : credit.kind === 'widening' ? '스프레드가 경계 쪽으로 벌어지고 있습니다. 아직 위기 수준은 아니지만, 더 벌어지면 주가 조정이 신용 문제로 번질 수 있습니다.'
-      : credit.kind === 'weak-tail' ? '전체 하이일드는 조용하지만 가장 약한 CCC 등급이 먼저 벌어지고 있습니다. 가장 약한 기업의 조달 비용부터 오르는 모습이고, 이 확대가 하이일드 전체로 번지는지가 다음 관찰점입니다.'
-        : '주가가 움직여도 스프레드가 넓어지지 않아 신용 문제는 아닙니다.';
+    const read = credit.judgement ? creditReading(credit.judgement, { cccTail: credit.cccTail })
+      : credit.kind === 'widening' ? '스프레드가 경계 쪽으로 벌어지고 있습니다.' : '주가가 움직여도 스프레드가 넓어지지 않아 신용 문제는 아닙니다.';
     rows.push({ id: 'credit', label: '신용', value: `하이일드 ${credit.hy.from.toFixed(2)} → ${credit.hy.to.toFixed(2)}% (${bpText(credit.hy.bp)})${tail}`, read });
   }
   if (moves.wti) {
@@ -275,7 +280,8 @@ function confirmations({ moves, rates, credit, macroHistory, history, asOf, star
   }
   const vix = span(history, 'vix', start, asOf); const fg = span(history, 'fg', start, asOf);
   if (vix) rows.push({ id: 'mood', label: '심리', value: [`VIX ${vix.from.toFixed(1)} → ${vix.to.toFixed(1)}`, fg ? `공포·탐욕 ${Math.round(fg.from)} → ${Math.round(fg.to)}` : null].filter(Boolean).join(' · '),
-    read: vix.to >= 30 ? '공포 구간입니다. 투매 뒤 되돌림이 자주 나오는 자리입니다.' : vix.to >= 20 ? '경계 구간입니다.' : vix.to - vix.from >= 3 ? '불안이 커졌지만 공포 구간은 아닙니다.' : '조용한 편입니다.' });
+    // The band is narrative.vixBand (18/25/32, RULES.volatility); a 30/20 ladder here called 25.6 '경계' on its own edges.
+    read: vix.to >= RULES.volatility.calmBelow ? `VIX ${vix.to.toFixed(1)}는 ${vixBand(vix.to).label}입니다.` : vix.to - vix.from >= 3 ? `VIX가 ${(vix.to - vix.from).toFixed(1)} 올랐지만 ${vixBand(vix.to).label}입니다.` : '조용한 편입니다.' });
   return rows;
 }
 

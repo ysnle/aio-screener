@@ -35,7 +35,6 @@ export default {
       const tab = p.locator('#theme-strength-board .theme-strength-periods button', { hasText: '1일' });
       if (await tab.isEnabled()) await tab.click();
       const row = p.locator('#theme-strength-board .tsr-row').first();
-      await row.scrollIntoViewIfNeeded();
       await row.click();
       await p.waitForFunction(() => document.querySelector('#theme-strength-board .tsr-row')?.getAttribute('aria-expanded') === 'true', null, { timeout: 8000 });
       const members = await p.$$eval('#theme-strength-board .tsr-member-table tbody tr', (n) => n.length);
@@ -66,7 +65,6 @@ export default {
       const tiles = await p.$$eval('#sector-map .sector-map-tile', (n) => n.length);
       const tile = p.locator('#sector-map .sector-map-tile[data-sym]').first();
       const sym = await tile.getAttribute('data-sym');
-      await tile.scrollIntoViewIfNeeded();
       await tile.click();
       const detail = await visibleText(p, '#sector-map .sector-map-detail');
       if (!detail.startsWith(sym)) throw new Error(`tile detail did not name ${sym}: ${detail.slice(0, 80)}`);
@@ -83,7 +81,8 @@ export default {
       await p.locator('#rrg-quadrant-fold > summary').click();
       const t = p.locator(CHIP).first();
       const arg = await t.getAttribute('data-arg');
-      await t.scrollIntoViewIfNeeded();
+      // The fold repaints its chips once it opens; click() scrolls and retries on the re-resolved locator, where
+      // scrollIntoViewIfNeeded held the detached first paint.
       await t.click();
       await p.waitForFunction(() => { const el = document.querySelector('#theme-detail-panel'); return !!el && el.offsetParent !== null && el.innerText.trim().length > 100; }, null, { timeout: 15000 });
       return { themeId: arg, activePage: await activePage(p), panel: (await visibleText(p, '#theme-detail-panel')).slice(0, 120) };
@@ -100,7 +99,8 @@ export default {
       await p.waitForSelector('#theme-detail-panel', { state: 'visible' });
       const chip = p.locator('#theme-detail-panel [data-action="showTicker"][data-arg]:visible').first();
       const sym = await chip.getAttribute('data-arg');
-      await chip.scrollIntoViewIfNeeded();
+      // v59.84: the panel repaints once its rows arrive; scrollIntoViewIfNeeded failed on the detached first paint, while
+      // click() scrolls and retries on the re-resolved locator.
       await chip.click();
       await p.waitForFunction(() => document.querySelector('.page.active')?.id === 'page-ticker', null, { timeout: 15000 });
       return { symbol: sym, ...(await expectText(p, '#ticker-hero-name', { pattern: new RegExp(sym.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) })) };

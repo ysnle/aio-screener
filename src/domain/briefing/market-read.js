@@ -696,7 +696,8 @@ export function buildMarketRead(input = {}) {
   if (fg != null && fg < fearBelow && hyBp != null && c.hy20Stress) {
     add('fear-with-credit-widening', 80, `공포·탐욕 ${fmt(fg, 0)}(${fearGreedBand(fg).label})와 함께 하이일드 스프레드가 20거래일 ${signed(c.hy20, 0, 'bp')} 넓어졌습니다(${fmt(hyBp, 0)}bp${c.hy20Record?.pct != null ? `, ${hyRecordText(c.hy20Record)}` : ''}).`, 'risk', {
       reading: hyBp < RULES.credit.tightBelowBp ? '수준은 아직 낮지만 확대 폭이 드문 수준이라, 공포가 신용 시장으로 번지는 중인지 확인할 단계입니다.' : '수준도 경계선을 넘었고 확대 폭이 드문 수준이라, 공포가 신용 시장으로 번지는 중입니다.',
-      check: `하이일드 스프레드의 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄어드는지(현재 ${signed(c.hy20, 0, 'bp')}), ${hyBp < RULES.credit.tightBelowBp ? `수준이 ${RULES.credit.tightBelowBp}bp 위로 올라서는지(현재 ${fmt(hyBp, 0)}bp, 올라서면 양호 조건 상실)` : `수준이 ${RULES.credit.tightBelowBp}bp 아래로 내려오는지(현재 ${fmt(hyBp, 0)}bp, 내려와야 양호 조건 충족)`}` // v58.75 (persona review): "350bp를 넘는지" had no direction
+      // This branch is the 20-session 부담, so there is no 양호 condition left to lose.
+      check: `하이일드 스프레드의 20거래일 확대가 +${RULES.credit.widen20dBp}bp 아래로 줄어드는지(현재 ${signed(c.hy20, 0, 'bp')}), ${hyBp < RULES.credit.tightBelowBp ? `수준이 ${RULES.credit.tightBelowBp}bp 위로 올라서는지(현재 ${fmt(hyBp, 0)}bp, 지금 부담은 확대 속도에서 나옴)` : `수준이 ${RULES.credit.tightBelowBp}bp 아래로 내려오는지(현재 ${fmt(hyBp, 0)}bp, 내려와야 양호 조건 충족)`}` // v58.75 (persona review): "350bp를 넘는지" had no direction
     });
   } else if (fg != null && fg < fearBelow && hyBp != null && hyBp < RULES.credit.tightBelowBp && vix && vix.value < RULES.volatility.calmBelow) {
     const widening = hyWeek != null && hyWeek >= RULES.credit.widen5dBp / 2;
@@ -705,7 +706,7 @@ export function buildMarketRead(input = {}) {
       reading: widening || widening20
         ? `아직 ${RULES.credit.tightBelowBp}bp 아래지만 ${widening ? `5일 ${signed(hyWeek, 0, 'bp')}` : `20거래일 ${signed(c.hy20, 0, 'bp')}`} 확대됐습니다 — 공포가 신용으로 번지지 않았다고 말하려면 확대가 멈추는지 확인이 필요합니다.`
         : creditState({ hyBp, hy5: hyWeek, hy20: c.hy20, hy20Stress: c.hy20Stress }) === 'favorable' ? '공포가 아직 신용 시장으로 번지지 않았습니다.' : `아직 ${RULES.credit.tightBelowBp}bp 아래지만 5일 변화가 줄지 않아 신용 판정이 양호는 아닙니다 — 번지는지 확인할 단계입니다.`, /* v57.84: 'not spread' only when the shared credit verdict is 양호 */
-      check: `하이일드 스프레드가 ${RULES.credit.tightBelowBp}bp 위로 올라서는지(현재 ${fmt(hyBp, 0)}bp, 올라서면 양호 조건 상실), 5일 확대가 멈추는지(현재 ${hyWeek == null ? '—' : signed(hyWeek, 0, 'bp')})`
+      check: `하이일드 스프레드가 ${RULES.credit.tightBelowBp}bp 위로 올라서는지(현재 ${fmt(hyBp, 0)}bp${creditState({ hyBp, hy5: hyWeek, hy20: c.hy20, hy20Stress: c.hy20Stress }) === 'favorable' ? ', 올라서면 양호 조건 상실' : ''}), 5일 확대가 멈추는지(현재 ${hyWeek == null ? '—' : signed(hyWeek, 0, 'bp')})`
     });
   } else if (fg != null && fg > RULES.fearGreed.extremeGreedAbove && vix && vix.value < RULES.volatility.complacentBelow) {
     add('complacency', 60, `공포·탐욕 ${fmt(fg, 0)}(${fearGreedBand(fg).label})·VIX ${fmt(vix.value)}.`, 'risk', { reading: '낙관이 강하고 변동성 대비가 얇은 상태입니다.' });

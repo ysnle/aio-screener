@@ -211,6 +211,20 @@ assert.ok(core.includes('(?:headline:|market-analysis:'), 'P1651: whole citation
   assert.equal(strip('정상 [참고] (S&P 500) (node.js) 링크 [텍스트](https://a.b) 2.5%'), '정상 [참고] (S&P 500) (node.js) 링크 [텍스트](https://a.b) 2.5%', 'v57.83: ordinary brackets, parentheses and links are kept');
   assert.equal(strip('S&P 500 -1.21%([market.index.spx:75cea69c]); 헤드라인'), 'S&P 500 -1.21%; 헤드라인', 'v58.72: an id wrapped in parentheses leaves no empty "()"');
   assert.equal(strip('갈림길입니다 [[regime-context]]. 약해집니다 [[regime-context];].'), '갈림길입니다. 약해집니다.', 'v58.74: a doubled bracket around an id leaves no "[]" or "[;]"');
+  // v59.84 (live briefing 2026-11-08 "[; regime-context]"): every mix of ";"/"," separators and empty slots around ids is
+  // removed; enumerate the shapes instead of pinning one string.
+  for (const open of ['', '; ', ', ', ';; ']) for (const sep of [', ', '; ', ';', ' ; ; ']) for (const close of ['', ';', ' ,']) {
+    const input = `읽기입니다. [${open}market.index.spx:75cea69c${sep}regime-context${close}] 다음`;
+    assert.equal(strip(input), '읽기입니다. 다음', `v59.84: evidence list ${JSON.stringify(input)} leaves no residue`);
+  }
+  {
+    const data = JSON.parse(fs.readFileSync(new URL('../public-data/data.json', import.meta.url), 'utf8'));
+    const texts = [];
+    const walk = (o) => { if (typeof o === 'string') texts.push(o); else if (o && typeof o === 'object') Object.values(o).forEach(walk); };
+    walk(data.marketAnalysis || {});
+    const leaks = texts.map(strip).filter((t) => /\[[\s;,]*[a-z][a-z0-9]*(?:[-_.][a-z0-9]+)+[^\]\n]*\]/.test(t));
+    assert.deepEqual(leaks.map((t) => t.slice(0, 80)), [], 'v59.84: no evidence-id bracket survives the stripper in the shipped market reading');
+  }
   assert.ok(core.includes("window._aioStripEvidenceIds(txt)"), 'v57.83: the legacy analysis sink uses the native stripper (P1847)');
 }
 
@@ -252,7 +266,8 @@ mergeBackfillBars(kept, { '2026-10-09': { vix: 18.7, fieldMeta: { vix: { session
 assert.equal(kept[0].vix, 19.1, 'P1656: backfill does not overwrite completed-close evidence');
 
 // P1660: axis and macro-group folds teach (principle · reading · links) instead of listing sources.
-const { AXIS_DEEP_DIVES, MACRO_GROUP_DEEP_DIVES } = await import('../src/domain/content/axis-deep-dives.js');
+const { AXIS_DEEP_DIVES } = await import('../src/domain/content/axis-deep-dives.js');
+const { MACRO_GROUP_DEEP_DIVES } = await import('../src/domain/content/board-deep-dives.js');
 for (const id of ['trend', 'breadth', 'volatility', 'rates', 'credit', 'commodities']) assert.ok(AXIS_DEEP_DIVES[id]?.blocks.length === 3 && AXIS_DEEP_DIVES[id].related.length, `P1660: ${id} deep dive`);
 assert.ok(MACRO_GROUP_DEEP_DIVES.liquidity && MACRO_GROUP_DEEP_DIVES.growth && MACRO_GROUP_DEEP_DIVES['commodities-fx'], 'P1660: macro group deep dives');
 assert.ok(!/추가 근거와 출처/.test(fs.readFileSync(new URL('../src/ui/components/market-regime.js', import.meta.url), 'utf8')), 'P1660: no evidence-dump fold title');
@@ -266,7 +281,7 @@ assert.equal(stress.bands.find((b) => b.id === 'stress').horizons[21].hitRate, 1
 assert.equal(stress.bands.find((b) => b.id === 'calm').horizons[21].n, 39, 'P1661: no forward window past the last close');
 
 // P1663: sentiment cards and the breadth page share the deep-dive fold renderer.
-const { SENTIMENT_DEEP_DIVES } = await import('../src/domain/content/axis-deep-dives.js');
+const { SENTIMENT_DEEP_DIVES } = await import('../src/domain/content/board-deep-dives.js');
 for (const id of ['fg', 'term', 'hy', 'aaii', 'composite']) assert.ok(SENTIMENT_DEEP_DIVES[id]?.blocks.length >= 2, `P1663: ${id} deep dive`); // v59.70: pcr retired with its card
 // v58.53: 시장 상태 opens each axis into the design's three cards (원리 / 지금 읽기 / 한계) built from the same
 // axis-deep-dives blocks, and keeps the shared link renderer (deepDiveLinks) — still one source, no per-board copy.

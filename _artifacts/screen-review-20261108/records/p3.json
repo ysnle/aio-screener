@@ -1,0 +1,24 @@
+{
+ "version": "v59.84",
+ "date": "2026-11-08",
+ "r": null,
+ "status": null,
+ "qa": [],
+ "note": "v59.84 전 화면 점검 1단계: 정확성 S1 수정(증거 id 잔여, 실적 카드, M&A 짝짓기, 같은 날 보도, 통화 혼합 포트폴리오, 브리핑-실적 연결, 한국 재무 404).",
+ "p": {
+  "title": "소식 모음 게시물의 두 항목이 한 M&A로 짝지어져 'CRWD의 MSFT 인수 (약 42억 달러)'가 표시",
+  "symptom": "뉴스 시장 신호 '11/4 CRWD의 MSFT 인수 발표 (거래 규모 약 42억 달러)' — 행위자·대상이 뒤섞인 거짓 거래.",
+  "root_cause": "telegram-signals extractDeals가 게시물 앞 400자 전체에서 인수 단어와 티커 두 개를 찾아, '섹터별 소식 정리'의 서로 다른 항목(CRWD 제품 소식, MSFT 인수 소식)을 한 거래로 묶었다. mergeSignals가 이전 신호를 계속 이월했다.",
+  "fix": "인수·발표 단어와 티커 두 개가 한 줄(또는 글머리표 하나)에 있어야 거래로 읽는다. 첫 줄이 거래일 때만 게시물 전체에서 조건을 읽고, 깊은 항목은 그 줄에서만 읽는다. 새 규칙 표시(rule 2)가 없는 이전 거래 신호는 이월하지 않는다.",
+  "violated_rule": "관찰 ≠ 행위자(P2293 계열)",
+  "prevention": "ci-data-pipeline-contract-check v59.84: 소식 모음 fixture 0건, 깊은 항목 거래의 자기 줄 조건, 옛 규칙 거래 병합 시 제거",
+  "verification": "옛 코드는 소식 모음에서 거래 1건을 만들고 이월해 검사 실패, 새 코드 통과. 11/2 MRVL·LITE 거래도 옛 규칙 신호라 다음 갱신에서 빠진다(원 게시물이 다시 수집되면 새 규칙으로 다시 읽힘).",
+  "files": [
+   "scripts/lib/telegram-signals.mjs",
+   "scripts/ci-data-pipeline-contract-check.mjs"
+  ]
+ },
+ "changelog": [
+  "**M&A 신호 짝짓기 ({P}):** 여러 소식을 모은 게시물에서 다른 항목의 티커를 한 거래로 묶지 않는다. 'CRWD의 MSFT 인수' 같은 거짓 거래가 사라진다."
+ ]
+}

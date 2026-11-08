@@ -1078,6 +1078,17 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('v58.60 (live 2026-10-21) prompt section names never reach the reading: cited ids become bracket citations and a leaked reading is not reused',
     cleaned === '코스피는 10/21 종가 +3.29%[market.index.kospi:fbdb5f95], WTI는 -1.80%[regime-context], 장중 -3.37%였다.'
       && reusableMarketAnalysis(leakedPrevious, { metricEvidence: [{ evidenceId: 'a' }] }) === null, cleaned);
+  // v59.84 (recurrence analysis S2, live 11/8 "[; regime-context]"): the published reading carries no citation in its prose;
+  // each sentence keeps the ids it cited beside it, so no bracket shape can reach a screen.
+  {
+    const { buildStructuredMarketAnalysis: build } = await import('./lib/market-analysis-validate.mjs');
+    const cited = '11/6 종가 기준 반도체(SOXX) +3.51%입니다. [market.sector.semis:7d8b2a82; market.index.kospi:dcd2b65f; regime-context]\n반도체가 50일선을 되찾으면 해석은 약해집니다. [; regime-context] 세부 판단은 화면에서 합니다.';
+    const out = build({ data: {}, text: cited, model: 'x', status: 'verified', reason: null, metricEvidence: [{ evidenceId: 'market.sector.semis:7d8b2a82' }], newsEvidence: [], semantic: { ok: true, issues: [] } });
+    const texts = [out.summary, out.full, out.oneLine, ...out.claims.map((claim) => claim.text), ...(out.sentences || []).map((row) => row.text)];
+    check('v59.84 S2 the published reading has no citation bracket in any text field; each sentence keeps its own ids',
+      texts.every((text) => !/\[[^\]]*\]/.test(text || '')) && out.sentences?.[0]?.evidenceIds?.includes('market.sector.semis:7d8b2a82') && out.sentences?.[1]?.evidenceIds?.join() === 'regime-context',
+      JSON.stringify({ summary: out.summary, sentences: out.sentences }));
+  }
   // v58.65 (live 2026-10-22 23:22Z): a bare label in prose blocked the whole reading as prompt-label-leak.
   const bare = normalizePromptLabels('코스피 종가 변화는 METRIC_EVIDENCE de7c55ec로 확인된다. 흐름은 REGIME_CONTEXT 기준이고 MARKET_DRIVERS 순서다.');
   check('v58.65 (live 2026-10-22) a bare prompt label in prose becomes a citation or disappears, so it no longer blocks the reading',
@@ -2826,6 +2837,18 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && ts.extractDeals('마벨 $MRVL , 루멘텀 $LITE 인수 막바지 협상 발표 임박', meta).length === 0
       && ts.extractDeals('미즈호, $LITE $MRVL 의 인수 가능성 발표', meta).length === 0,
     JSON.stringify({ dealA, dealMerged }));
+  // v59.84 (live 2026-11-04 "CRWD의 MSFT 인수 발표 (약 42억 달러)"): a roundup's items are separate facts; tickers and the
+  // deal words of different bullets never pair, a deal deeper in a roundup keeps its own line's terms, and a deal kept
+  // under the old head-of-post rule is not carried forward.
+  const roundup = '미국 기업 섹터별 소식 정리 (실적 제외)\nAI · 클라우드 · 소프트웨어\n• 크라우드스트라이크 (CRWD) — Falcon 업데이트 발표\n• 마이크로소프트 (MSFT) — 스타트업 인수 발표, 약 42억 달러';
+  const nested = '섹터별 소식 정리\n• 크라우드스트라이크 (CRWD) — 신제품\n• $ADBE 의 $FIGM 인수 최종 계약 체결, 약 200억 달러\n• 기타 $9B 투자';
+  const roundUniverse = { ...meta.universe, symbols: new Set([...(meta.universe?.symbols || []), 'CRWD', 'MSFT']) };
+  const nestedDeal = ts.extractDeals(nested, meta)[0];
+  check('v59.84 a roundup never pairs two bullets into one deal; a nested deal reads its own line; old-rule deals are dropped on merge',
+    ts.extractDeals(roundup, { ...meta, universe: roundUniverse }).length === 0
+      && nestedDeal?.acquirer === 'ADBE' && nestedDeal.target === 'FIGM' && nestedDeal.valueUsd === 20e9 && nestedDeal.rule === ts.DEAL_RULE
+      && ts.mergeSignals([{ kind: 'deal', key: 'deal|CRWD|MSFT', acquirer: 'CRWD', target: 'MSFT', date: '2026-11-04' }], []).length === 0,
+    JSON.stringify({ roundup: ts.extractDeals(roundup, { ...meta, universe: roundUniverse }), nestedDeal }));
   check('v58.71 the producer extracts signals from fresh full text, keeps data posts in the lists, never republishes text, and seeds the window once',
     /extractPostSignals\(\{ id: post, text, datetime: date\.toISOString\(\), localDateKst: kstDate\(date\) \}, UNIVERSE\)/.test(fetchTelegram)
       && /scoreItem\(text, tags, \[\.\.\.tickers, \.\.\.roles\.listTickers, \.\.\.roles\.relatedTickers\], signals\.length > 0\)/.test(fetchTelegram)

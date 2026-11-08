@@ -34,7 +34,7 @@ import {
   parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, epsComparisonBasis, estimateAiCostUsd, AI_RATE_CARD,
   MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable, watchItem
 } from '../src/domain/briefing/event-briefs.js';
-import { readNumber } from '../src/domain/shared/number.js';
+import { readNumber, usdScaleWords } from '../src/domain/shared/number.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = resolve(ROOT, 'public-data/event-briefs.json');
@@ -236,7 +236,8 @@ export function provisionalBrief(row, mover, { source = null, sourceUrl = null }
   const vs = (actual, estimate) => (Number.isFinite(actual) && num(estimate) != null && num(estimate) !== 0 ? { value: num(estimate), surprisePct: surprisePct(actual, num(estimate)), source: source || 'Finnhub', basis: 'provider-consensus-reference', seenBeforeReportAt: row.estimateLastSeenAt || null } : null);
   if (revenueActual != null) {
     const estimate = vs(revenueActual, row.revenueEstimate);
-    figures.push({ metric: 'revenue', label: '매출', value: `$${(revenueActual / 1e9).toFixed(2)} billion`, text: '', ...(estimate ? { estimate } : {}) });
+    // v59.84: a sub-billion revenue (OKLO $1.86 million) printed "$0.00 billion" and read as zero revenue on 오늘.
+    figures.push({ metric: 'revenue', label: '매출', value: usdScaleWords(revenueActual), text: '', ...(estimate ? { estimate } : {}) });
   }
   if (epsActual != null) {
     const estimate = vs(epsActual, row.epsEstimate);

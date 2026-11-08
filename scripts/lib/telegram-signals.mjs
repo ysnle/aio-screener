@@ -299,23 +299,27 @@ export function extractRetailFlows(text, { postId } = {}) {
 // because no signal kind held a corporate action. A deal is kept only once announced (a definitive agreement), with its
 // two written tickers; a report that talks are "임박"/"협상 중" or a broker's "인수 가능성" is not one.
 const DEAL_WORD = /인수|합병|acquir|merger/i;
+export const DEAL_RULE = 2;
 const DEAL_DONE = /발표|최종\s*계약|계약(?:을)?\s*체결|인수한다|인수하기로|합의|announce|definitive agreement/i;
 const DEAL_RUMOR = /임박|협상|가능성|검토|추진|보도[:)]|설\s|\brumou?r|\btalks\b|\bnears?\b/i;
 export function extractDeals(text, { universe, date, postId } = {}) {
-  const raw = String(text || '');
-  const head = raw.slice(0, 400);
-  const title = raw.split(/\n/)[0] || '';
-  if (!DEAL_WORD.test(head) || !DEAL_DONE.test(head) || DEAL_RUMOR.test(title)) return [];
-  const tickers = writtenTickers(head, universe);
-  if (tickers.length !== 2) return [];
-  const [acquirer, target] = tickers;
+  const all = String(text || '');
+  // v59.84 (live 2026-11-04 "CRWD의 MSFT 인수 발표 (약 42억 달러)"): a sector roundup ("섹터별 소식 정리 … • 크라우드스트라이크
+  // (CRWD) — …") put two unrelated items' tickers and one item's "인수 … 발표" inside the first 400 characters. The deal
+  // words and both tickers must now sit in one line or bullet; only a post whose first line is the deal reads its terms
+  // (ratio, value, premium) from the whole post, a deal found deeper reads them from its own line.
+  const lines = all.slice(0, 1200).split(/\n|[•·▪◦]\s/).map((line) => line.trim()).filter(Boolean);
+  const at = lines.findIndex((line) => DEAL_WORD.test(line) && DEAL_DONE.test(line) && !DEAL_RUMOR.test(line) && writtenTickers(line, universe).length === 2);
+  if (at < 0 || DEAL_RUMOR.test(lines[0] || '')) return [];
+  const raw = at === 0 ? all : lines[at];
+  const [acquirer, target] = writtenTickers(lines[at], universe);
   const ratio = raw.match(/(?:1\s*주|주식)당[^\d\n]{0,24}(\d+(?:\.\d+)?)\s*주/)?.[1];
   const eok = raw.match(/(\d[\d,]*(?:\.\d+)?)\s*억\s*달러/)?.[1];
   const bn = raw.match(/\$\s?(\d+(?:\.\d+)?)\s*(?<![A-Za-z])(?:B|billion|bn)(?![A-Za-z])/i)?.[1];
   const valueUsd = eok ? num(eok) * 1e8 : bn ? num(bn) * 1e9 : null;
   const premium = raw.match(/(\d+(?:\.\d+)?)\s*%\s*(?:의\s*)?프리미엄|프리미엄[^\d\n]{0,8}(\d+(?:\.\d+)?)\s*%/);
   const payment = /주식\s*교환|all-stock|전액\s*주식/i.test(raw) ? 'stock' : /현금/.test(raw) ? 'cash' : null;
-  return [{ kind: 'deal', key: `deal|${acquirer}|${target}`, ticker: acquirer, tickers: [acquirer, target], acquirer, target, payment,
+  return [{ kind: 'deal', rule: DEAL_RULE, key: `deal|${acquirer}|${target}`, ticker: acquirer, tickers: [acquirer, target], acquirer, target, payment,
     ratio: ratio ? Number(ratio) : null, valueUsd: Number.isFinite(valueUsd) ? valueUsd : null, premiumPct: premium ? Number(premium[1] || premium[2]) : null, date: date || null, post: postId || null }];
 }
 
@@ -342,6 +346,8 @@ export function mergeSignals(previous = [], fresh = [], { sinceDate } = {}) {
   for (const signal of [...(Array.isArray(previous) ? previous : []), ...fresh]) {
     if (!signal?.key || !SIGNAL_LIMITS[signal.kind]) continue;
     if (sinceDate && String(signal.date || '') < sinceDate) continue;
+    // v59.84: a deal read before the one-line rule (no `rule`) may pair two items of a roundup; it is not carried forward.
+    if (signal.kind === 'deal' && signal.rule !== DEAL_RULE) continue;
     // One deal is told across several posts (terms in one, the premium in another): the terms add up, the first date stays.
     const before = signal.kind === 'deal' ? byKey.get(signal.key) : null;
     byKey.set(signal.key, before ? Object.fromEntries(Object.entries({ ...before, ...signal }).map(([k, v]) => [k, v ?? before[k] ?? null]).concat([['date', [before.date, signal.date].filter(Boolean).sort()[0] || null]])) : signal);

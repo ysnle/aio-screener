@@ -1,0 +1,21 @@
+{
+ "version": "v59.84",
+ "date": "2026-11-08",
+ "r": null,
+ "status": null,
+ "qa": [],
+ "note": "v59.84 구조 개편 S1: 한 사실은 한 판정자가 정하고 모든 화면은 그 판정을 읽는다.",
+ "p": {
+  "title": "참여가 넓어지는데 시나리오 전환 제목이 '약세 전환'으로만 읽힘",
+  "symptom": "주도주가 꺾인 사이 50일선 위 종목이 20거래일 36%→63%로 늘고 RSP가 SPX를 7%p 앞섰는데 전환 제목은 약세만 말했다.",
+  "root_cause": "regime-scenarios가 주도주 이탈만 보고 참여 폭 변화를 읽지 않았고, scenario-outlook은 같은 제목 문자열을 따로 들고 있었다.",
+  "fix": "participationShift(history)가 시장 폭 20행 변화와 주말 이월 행을 뺀 RSP−SPX 20거래일 차이를 계산하고, 넓어지면(+10%p) 전환 제목이 '주도주 이탈 → 순환 확인 중'이 된다. scenario-outlook은 모델의 transitionTitle을 읽는다.",
+  "violated_rule": "한 사실 한 소유자(데이터 일관성)",
+  "prevention": "ci-metric-consistency-check §8 순환 제목 검사 + 고정 입력 assert.",
+  "verification": "현재 데이터 26.8%p / 7.0%p / widening true; 옛 코드 실패.",
+  "files": ["src/domain/market/regime-scenarios.js", "src/domain/market/scenario-outlook.js", "scripts/ci-metric-consistency-check.mjs"]
+ },
+ "changelog": [
+  "**순환 전환 읽기 ({P}):** 주도주가 꺾여도 참여가 넓어지면 시나리오 전환을 '주도주 이탈 → 순환 확인 중'으로 읽는다."
+ ]
+}

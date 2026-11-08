@@ -15,7 +15,8 @@ export default {
       return r;
     }],
     ['종목 추가 → 입력 폼', async (p) => {
-      await p.click('#page-portfolio button[data-action="_aioTogglePortfolioEntry"]:text-is("종목 추가")');
+      // v59.84: an empty book hides the header row (portfolio-page.css data-pf-empty), so the visible entry is 첫 종목 추가.
+      await p.locator('#page-portfolio button[data-action="_aioTogglePortfolioEntry"]:visible').first().click();
       await p.waitForSelector('#pf-entry-section.is-open #pf-add-ticker', { state: 'visible', timeout: 8000 });
       return { formOpen: true };
     }],

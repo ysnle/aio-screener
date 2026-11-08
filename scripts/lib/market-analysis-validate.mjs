@@ -9,6 +9,7 @@ import { buildCloseSeries } from '../../src/domain/briefing/market-read.js';
 import { isConditionalNumericSentence } from '../../src/ai/response/publication.js';
 import { RULES } from '../../src/domain/rules/thresholds.js';
 import { readNumber } from '../../src/domain/shared/number.js';
+import { stripEvidenceIds } from '../../src/domain/briefing/evidence-text.js';
 
 const MARKET_ANALYSIS_QUOTE_DEFS = [
   { symbol: '^GSPC', metricId: 'market.spx', label: 'SPX', unit: 'index', aliases: ['S&P 500'] },
@@ -854,9 +855,31 @@ function _marketAnalysisOneLine(summary) {
   return String(summary || '').split(/\n+/).map(line => line.trim()).filter(Boolean)[0] || '';
 }
 
+// v59.84 (recurrence analysis S2): the reading's citations travel beside the prose, never inside it. The model cites ids in
+// brackets so the validator can check them; the published text is the reader's sentences only, and each sentence keeps
+// the ids it cited in `sentences`. Six fixes since X20 widened the browser's stripper for one more bracket shape
+// ("[; regime-context]" on 11/8); with no id left in the text there is nothing for a new shape to leak.
+const CITATION = /\[([^\]\n]*)\]/g;
+const CITED_ID = /[a-z][a-z0-9]*(?:[-_.][a-z0-9]+)+(?::[0-9a-f]{8})?|\b[0-9a-f]{8}\b|headline:[^\s;,\]]+|market-analysis:[^\s;,\]]+/g;
+export function citedSentences(text) {
+  const out = [];
+  for (const line of String(text || '').split(/\n+/)) {
+    // A citation follows its sentence's period ("…입니다. [a; b]"): the split keeps it with the sentence before.
+    for (const piece of line.split(/(?<=[.!?。](?:\s*\[[^\]\n]*\])?)\s+(?!\[)/)) {
+      const ids = [...piece.matchAll(CITATION)].flatMap((match) => match[1].match(CITED_ID) || []);
+      const clean = stripEvidenceIds(piece).trim();
+      if (clean) out.push({ text: clean, evidenceIds: [...new Set(ids)] });
+    }
+  }
+  return out;
+}
+export const plainReading = (text) => String(text || '').split(/\n/).map((line) => stripEvidenceIds(line).trim()).filter(Boolean).join('\n');
+
 export function buildStructuredMarketAnalysis({ data, text, model, status, reason, metricEvidence, newsEvidence, semantic }) {
   const evidenceIds = [...metricEvidence, ...newsEvidence].map(row => row.evidenceId);
-  const summary = _marketAnalysisSummary(text);
+  const cited = _marketAnalysisSummary(text);
+  const sentences = citedSentences(cited);
+  const summary = plainReading(cited);
   const oneLine = _marketAnalysisOneLine(summary);
   const claims = summary ? [{
     id: 'market-summary-1',
@@ -878,6 +901,7 @@ export function buildStructuredMarketAnalysis({ data, text, model, status, reaso
     watch: [{ label: status === 'verified' ? 'monitor cited evidence' : 'await validated market analysis', evidenceIds }],
     claims,
     evidenceIds,
+    sentences,
     generatedAt: new Date().toISOString(),
     model: model || 'none',
     validatorVersion: 'market-analysis-validator.v3',

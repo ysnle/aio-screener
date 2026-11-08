@@ -10,7 +10,7 @@ import { releaseZones } from '../../domain/macro/release-zones.js';
 import { releaseZoneBar } from './release-zone-bar.js';
 import { reactionRead, earningsCells } from '../../domain/briefing/reaction-read.js';
 import { el } from './dom.js';
-import { directionOf } from '../../domain/shared/number.js';
+import { directionOf, usdScaleWords } from '../../domain/shared/number.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, figureSurprise, koreanReleaseText, watchItem } from '../../domain/briefing/event-briefs.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
@@ -30,8 +30,12 @@ function whenText(brief) {
 const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
 // v59.70: the comparison is the domain's figureSurprise — the same reader the reaction read uses.
 const comparison = (figure, figures, provisional) => figureSurprise(figure, figures, { provisional });
+// A stored "$0.00 billion" is a rounding of a sub-billion amount, not a zero; the label stands alone and the
+// estimate comparison carries the line (OKLO 11/6 read "매출 0만 달러").
+const ZERO_AMOUNT = /^-?\$\s*0(?:\.0+)?\s*(?:(?<![A-Za-z])(?:billion|million|bn|mn)\b)?$/i;
 function figureText(figure, figures = [], provisional = false) {
-  const parts = [koreanReleaseText(`${figure.label} ${figure.value}`.trim())];
+  const value = ZERO_AMOUNT.test(String(figure.value || '').trim()) ? '' : figure.value;
+  const parts = [koreanReleaseText(`${figure.label} ${value || ''}`.trim())];
   const head = parts[0].slice(String(figure.label || '').length).trim();
   const text = figure.text ? koreanReleaseText(figure.text) : '';
   // A note that only restates the value ("표결 10대 2 · 성명은 10대 2 표결로 승인됐다") adds nothing; one with another number stays.
@@ -66,9 +70,9 @@ const seenText = (iso) => {
   const kst = new Date(ms + 9 * 3600000);
   return `, ${kst.getUTCMonth() + 1}/${kst.getUTCDate()} ${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')} KST 발표 전 마지막 확인`;
 };
-const estimateText = (row) => (row.metric === 'revenue' ? `매출 ${koreanReleaseText(`$${(row.estimate / 1e9).toFixed(1)} billion`)}` : `EPS $${row.estimate.toFixed(2)}`);
+const estimateText = (row) => (row.metric === 'revenue' ? `매출 ${koreanReleaseText(usdScaleWords(row.estimate, 1))}` : `EPS $${row.estimate.toFixed(2)}`);
 // The EPS basis travels with the number: after the provider's adjusted actual is stamped, "$2.10 (+1.1%)" alone misreads.
-const actualText = (row) => `${row.metric === 'revenue' ? '매출' : 'EPS'} ${koreanReleaseText(row.value)} (${signedOne(row.pct)}${row.note ? `, ${row.note.replace(/[()]/g, '')}` : ''})`;
+const actualText = (row) => `${row.metric === 'revenue' ? '매출' : 'EPS'}${ZERO_AMOUNT.test(String(row.value || '').trim()) ? '' : ` ${koreanReleaseText(row.value)}`} (${signedOne(row.pct)}${row.note ? `, ${row.note.replace(/[()]/g, '')}` : ''})`;
 function cellsNode(doc, cells) {
   const grid = el(doc, 'dl', null, 'event-brief__cells');
   const cell = (term, lines, direction = null) => {

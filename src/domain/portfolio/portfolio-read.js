@@ -60,7 +60,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   if (surface && surface.currencyState === 'mixed-without-conversion') {
     return { available: false, reason: surface.currencyHeldReason === 'unknown-unit'
       ? `시세 통화를 알 수 없는 보유가 ${surface.unknownCurrencyCount || 1}종목 있어 비중·회전·지수 대비를 한 통화로 만들 수 없습니다. 그 종목의 시세 통화를 입력하면 다시 표시됩니다.`
-      : `통화가 다른 보유가 섞여 있는데 환율이 선언되지 않아(${(surface.declaredCurrencies || []).join('/')}) 비중·회전·지수 대비를 한 통화로 만들 수 없습니다. 포트폴리오 설정에서 환율을 선언하면 다시 표시됩니다.` };
+      : `통화가 다른 보유가 섞여 있는데 환율이 선언되지 않아(${[...new Set([...(surface.declaredCurrencies || []), ...(surface.heldCurrencies || [])])].join('/')}) 비중·회전·지수 대비를 한 통화로 만들 수 없습니다. 포트폴리오 설정에서 환율을 선언하면 다시 표시됩니다.` };
   }
   const bySymbol = new Map((rows || []).map((row) => [String(row?.sym || '').toUpperCase(), row]));
   const holdings = (Array.isArray(surface?.rows) ? surface.rows : [])

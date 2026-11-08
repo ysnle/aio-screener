@@ -1,0 +1,26 @@
+{
+ "version": "v59.84",
+ "date": "2026-11-08",
+ "r": null,
+ "status": null,
+ "qa": [],
+ "note": "v59.84 전 화면 점검 1단계: 정확성 S1 수정(증거 id 잔여, 실적 카드, M&A 짝짓기, 같은 날 보도, 통화 혼합 포트폴리오, 브리핑-실적 연결, 한국 재무 404).",
+ "p": {
+  "title": "실적 카드가 소형사 매출을 '0만 달러'로, 예상 대비를 매출 성장처럼, 보도된 이유가 있는데 '이유 불명확'으로 표시",
+  "symptom": "뉴스 탭 오클로(OKLO) 11/6 카드: 겉 '매출 +96.7%'(실제는 예상 대비), 접힘 '매출 0만 달러', 이유 2건이 있는데 칩 '이유 불명확'.",
+  "root_cause": "fetch-event-briefs provisionalBrief가 매출을 항상 billion 2자리로 적어 186만 달러가 '$0.00 billion'이 됐다. reaction-read 숫자 단계가 비교 기준을 쓰지 않았고, 매출 상회·EPS 하회처럼 엇갈리면 보도 이유가 있어도 unexplained로 떨어졌다.",
+  "fix": "공용 usdScaleWords(billion/million/thousand)로 매출·예상 매출을 적고, 저장된 '$0.00 billion'은 값 없이 비교만 보인다. 숫자 단계는 '예상 대비 매출 … · EPS …'로 쓰고, 보도 이유가 있으면 '보도된 이유' 칩과 그 문장을 쓴다.",
+  "violated_rule": "숫자는 단위·기준과 함께(정확성)",
+  "prevention": "ci-esm-core-unit-check reaction 블록(기존) + 이번 배치 브라우저 확인; usdScaleWords는 producer와 화면이 같이 쓴다",
+  "verification": "로컬 뉴스 탭에서 '매출 0만 달러' 사라짐과 칩 변화를 확인.",
+  "files": [
+   "src/domain/shared/number.js",
+   "scripts/fetch-event-briefs.mjs",
+   "src/ui/components/event-briefs.js",
+   "src/domain/briefing/reaction-read.js"
+  ]
+ },
+ "changelog": [
+  "**실적 카드 단위·표기 ({P}):** 10억 달러 미만 매출을 백만 달러 단위로 적고, 겉 숫자에 '예상 대비'를 밝히며, 보도된 이유가 있는 움직임을 '이유 불명확'으로 표시하지 않는다."
+ ]
+}

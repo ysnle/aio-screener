@@ -451,7 +451,19 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     .map(([name, pct]) => Object.freeze({ name, pct, basis: sectorBasis }))
     .sort((a, b) => b.pct - a.pct);
   const sourceKind = rows.some((row) => row.sourceKind === 'live-quote') ? 'portfolio-state+live-quote' : rows.length ? 'portfolio-state' : cash != null ? 'portfolio-state:cash-only' : 'unavailable';
-  const valuationState = readState !== 'ready' ? 'unavailable' : rows.length === 0 ? (cash != null ? (cash > 0 ? 'cash-only' : 'empty') : cashHeld ? 'cash-only' : 'empty') : allRowsValued ? 'complete' : someRowsValued ? 'partial' : 'unavailable';
+  // Every row had a price and the table showed its
+  // P&L, but someRowsValued needs one unit, so the hero said "4종목 모두 가격 없음". A mix without a conversion is its own
+  // state: each currency is totalled alone (never summed across units) and the hero names those subtotals.
+  const unitOf = (row) => row.currency || row.listingCurrency || null;
+  const currencySubtotals = currencyState === 'mixed-without-conversion' && rows.some((row) => row.value != null && unitOf(row))
+    ? Object.freeze([...new Set(rows.map(unitOf).filter(Boolean))].map((currency) => {
+      const own = rows.filter((row) => unitOf(row) === currency);
+      const valued = own.filter((row) => row.value != null);
+      return Object.freeze({ currency, holdingCount: own.length, valuedCount: valued.length,
+        value: valued.length === own.length ? valued.reduce((sum, row) => sum + row.value, 0) : null });
+    }))
+    : null;
+  const valuationState = readState !== 'ready' ? 'unavailable' : rows.length === 0 ? (cash != null ? (cash > 0 ? 'cash-only' : 'empty') : cashHeld ? 'cash-only' : 'empty') : allRowsValued ? 'complete' : someRowsValued ? 'partial' : currencySubtotals ? 'mixed-currency' : 'unavailable';
   const hasCanonicalValue = valuationState === 'cash-only' || valuationState === 'complete' || (valuationState === 'empty' && totalAssets === 0);
   const decisionReadyQuoteCount = rows.filter((row) => row.sourceKind === 'live-quote' && row.quoteAllowedUse === 'decision').length;
   const snapshotFallbackBlocked = true;
@@ -474,6 +486,10 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
       : declaredCurrencies.length > 1 || effectiveCurrencies.length > 1 ? 'mixed' : 'unknown-unit',
     unknownCurrencyCount: unknownUnitRows,
     declaredCurrencies: Object.freeze(declaredCurrencies),
+    // The units the holdings are actually in (declared or the listing's), which a mix names; declaredCurrencies is
+    // empty when only costs or listings carry the unit, and the mix note read "통화 혼합()".
+    heldCurrencies: Object.freeze(effectiveCurrencies.slice()),
+    currencySubtotals,
     // P1449: 환산이 보류여도 "선언된" 통화는 참이므로 그대로 공개한다. 표기자(현금 hero·일간
     // 변동 등)가 합계 미성립과 무관하게 선언 통화로 기입할 수 있게 하는 표시용 라벨이며,
     // 미성립 합계를 만들어내는 근거로 쓰지 않는다(baseCurrency는 여전히 환산 성립 시에만 유효).

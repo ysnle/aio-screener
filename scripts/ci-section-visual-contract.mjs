@@ -105,6 +105,32 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
   const a = whyMovedLine(day, 'AAA'); const b = whyMovedLine(day, 'BBB');
   check('v59.70 S13 ① why-moved: a move with a same-day report names it', /^11\/3 \+4\.2% — /.test(a?.text || '') && /알파 급등, 신제품 발표/.test(a.text), a?.text);
   check('v59.70 S13 ① why-moved: a counted move without a report says so; an uncounted one has no line', /^11\/3 -6\.1% — 같은 날 이름이 나온 보도가 없습니다\.$/.test(b?.text || '') && whyMovedLine(day, 'CCC') === null, b?.text);
+  // v59.84 (live NVDA 11/6 +2.8% "같은 날 보도: …짐 크라머", a Saturday 11/7 column): a report after the session or an
+  // opinion column is not the move's reason; the evening before the session is 전날 보도.
+  const later = (title, at, extra = {}) => ({ facts: [
+    { id: 'stock:NVDA:2026-11-06', kind: 'stock-move', subjects: ['NVDA'], label: 'NVIDIA', date: '2026-11-06', change: 2.8, rank: 'major', materiality: 60, explainedBy: ['subject'] },
+    { id: 'headline:9', kind: 'headline', title: 'x', titleKo: title, subjects: ['NVDA'], rank: 'major', materiality: 46, at, date: at.slice(0, 10), ...extra }],
+  links: [{ from: 'headline:9', to: 'stock:NVDA:2026-11-06', basis: 'subject' }] });
+  const sat = whyMovedLine(later('엔비디아 공급 계약 확대', '2026-11-07T18:20:00.000Z'), 'NVDA')?.text || '';
+  const col = whyMovedLine(later('Nvidia 주주에게 강한 신호를 보내고 있는 짐 크라머', '2026-11-06T15:00:00.000Z'), 'NVDA')?.text || '';
+  const eve = whyMovedLine(later('엔비디아 공급 계약 확대', '2026-11-05T23:30:00.000Z'), 'NVDA')?.text || '';
+  // v59.84 (screen review TODAY-04): a big move on the first session after the company's own report is that report's
+  // reaction, not "이유가 확인되지 않은 큰 움직임"; a brief for another session or another name leaves it unexplained.
+  {
+    const { buildDayAccount } = await import(pathToFileURL(join(root, 'src/domain/briefing/day-account.js')).href);
+    const teamDay = { facts: [
+      { id: 'stock:TEAM:2026-11-06', kind: 'stock-move', subjects: ['TEAM'], label: 'Atlassian', date: '2026-11-06', change: -16.1, rank: 'major', materiality: 60 },
+      { id: 'stock:AXON:2026-11-06', kind: 'stock-move', subjects: ['AXON'], label: 'Axon', date: '2026-11-06', change: -9, rank: 'major', materiality: 50 }] };
+    const briefs = { briefs: [
+      { kind: 'earnings', symbol: 'TEAM', eventDate: '2026-11-05', headline: '아틀라시안 1분기: 매출 증가', reaction: { firstDate: '2026-11-06', firstPct: -16.2 } },
+      { kind: 'earnings', symbol: 'AXON', eventDate: '2026-10-01', headline: '이전 분기', reaction: { firstDate: '2026-10-02' } }] };
+    const told = buildDayAccount(teamDay, { briefs });
+    check('v59.84 day account: a move after the company report leaves the unexplained list and carries the brief headline',
+      told.unexplained.map((row) => row.sym).join() === 'AXON' && told.reported[0]?.sym === 'TEAM' && /아틀라시안/.test(told.reported[0]?.headline || '')
+        && buildDayAccount(teamDay).unexplained.length === 2, JSON.stringify({ unexplained: told.unexplained, reported: told.reported }));
+  }
+  check('v59.84 why-moved: a later report or an opinion column is never "같은 날 보도"; the evening before is 전날 보도',
+    !/보도:/.test(sat) && !/보도:/.test(col) && /전날 보도: 엔비디아 공급 계약 확대/.test(eve), JSON.stringify({ sat, col, eve }));
 }
 
 if (failures.length) {

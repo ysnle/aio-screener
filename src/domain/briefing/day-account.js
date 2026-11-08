@@ -38,7 +38,7 @@ const agrees = (fact, change) => {
   const up = UP_WORDS.test(text); const down = DOWN_WORDS.test(text);
   return !Number.isFinite(change) || up === down || (change >= 0 ? up : down);
 };
-const evidenceOf = (fact) => ({ title: fact.titleKo || fact.title, original: fact.titleKo ? fact.title : null, at: fact.at || null });
+const evidenceOf = (fact) => ({ title: fact.titleKo || fact.title, original: fact.titleKo ? fact.title : null, at: fact.at || null, date: fact.date || null });
 // v59.70 (owner D6): a story cites a report by its Korean title; an English one the producer could not translate
 // (titleKoFailed) is passed over, so the account never reads half in English.
 const HANGUL_PAIR = /[가-힣].*[가-힣]/;
@@ -76,9 +76,18 @@ function linkIndex(links) {
  * @param {object|null} day market-day.v1
  * @returns {{available:boolean, opening:string, coverage:object|null, stories:Array, more:Array, unexplained:Array, ahead:Array}}
  */
-export function buildDayAccount(day) {
+/** The company's own earnings brief whose first reaction session is `date` (event-briefs.v1 rows), else null. */
+export function reportFor(briefs, sym, date) {
+  const list = Array.isArray(briefs) ? briefs : Array.isArray(briefs?.briefs) ? briefs.briefs : [];
+  const want = String(sym || '').toUpperCase();
+  if (!want || !date) return null;
+  return list.find((brief) => brief?.kind === 'earnings' && String(brief.symbol || '').toUpperCase() === want
+    && (brief.reaction?.firstDate === date || (!brief.reaction?.firstDate && brief.eventDate === date))) || null;
+}
+
+export function buildDayAccount(day, { briefs = null } = {}) {
   const facts = Array.isArray(day?.facts) ? day.facts : [];
-  if (!facts.length) return { available: false, opening: '', coverage: null, stories: [], more: [], unexplained: [], ahead: [] };
+  if (!facts.length) return { available: false, opening: '', coverage: null, stories: [], more: [], unexplained: [], reported: [], ahead: [] };
   const byId = new Map(facts.map((fact) => [fact.id, fact]));
   const { out, into } = linkIndex(day.links);
   const claimed = new Map(); // fact id -> story id
@@ -171,8 +180,20 @@ export function buildDayAccount(day) {
   }
 
   // v59.70 (re-review N7): the same US → Korea order as 오늘's names, no third market.
-  const unexplained = usThenKorea(facts.filter((fact) => fact.kind === 'stock-move' && !(fact.explainedBy || []).length && !claimed.has(fact.id) && ['lead', 'major', 'minor'].includes(fact.rank)),
-    (fact) => String(fact.subjects?.[0] || ''), (a, b) => Math.abs(b.change) - Math.abs(a.change)).slice(0, 6).map((fact) => ({ sym: fact.subjects?.[0], label: fact.label, change: fact.change, rvol: Number.isFinite(fact.rvol) ? fact.rvol : null }));
+  // TEAM -16.1% sat under "이유가 확인되지 않은 큰 움직임" while 뉴스 carried its 8-K
+  // earnings brief (-16.2% on the first session). A move on the first session after the company's own report is that
+  // report's reaction: it leaves the unexplained list (before the cap of six) and is told with the brief's headline.
+  const unclaimed = usThenKorea(facts.filter((fact) => fact.kind === 'stock-move' && !(fact.explainedBy || []).length && !claimed.has(fact.id) && ['lead', 'major', 'minor'].includes(fact.rank)),
+    (fact) => String(fact.subjects?.[0] || ''), (a, b) => Math.abs(b.change) - Math.abs(a.change));
+  const reported = [];
+  const rowOf = (fact) => ({ sym: fact.subjects?.[0], label: fact.label, change: fact.change, rvol: Number.isFinite(fact.rvol) ? fact.rvol : null });
+  const unexplainedFacts = unclaimed.filter((fact) => {
+    const brief = reportFor(briefs, fact.subjects?.[0], fact.date);
+    if (!brief) return true;
+    reported.push({ ...rowOf(fact), headline: brief.headline || '', reportDate: brief.eventDate || null });
+    return false;
+  });
+  const unexplained = unexplainedFacts.slice(0, 6).map(rowOf);
   const ahead = facts.filter((fact) => fact.kind === 'upcoming' && ['lead', 'major'].includes(fact.rank))
     .sort((a, b) => String(a.date).localeCompare(String(b.date)) || byMateriality(a, b))
     .map((fact) => ({ date: fact.date, label: fact.label, why: fact.why || (fact.hour === 'amc' ? '장 마감 후 실적' : fact.hour === 'bmo' ? '장 시작 전 실적' : ''), rank: fact.rank }));
@@ -185,6 +206,7 @@ export function buildDayAccount(day) {
     stories: face,
     more: stories.filter((story) => !face.includes(story)).slice(0, 12),
     unexplained,
+    reported: reported.slice(0, 6),
     ahead,
     md
   };

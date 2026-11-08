@@ -5,7 +5,9 @@
 // through the compatibility layer (src/app/compatibility-globals.js), which installs it as the legacy global.
 const ID = '(?:[0-9a-f]{8}|[a-z][a-z0-9]*(?:[-_.][a-z0-9]+)+(?::[0-9a-f]{8})?)';
 const DOTTED = '[a-z][a-z0-9]*(?:\\.[a-z0-9_-]+){2,}';
-const ID_LIST = new RegExp(`[ \\t]*\\[\\s*${ID}(?:\\s*,\\s*${ID})*\\s*\\](?!\\()`, 'g');
+// ";" separates ids as often as ",", and a slot can be empty once an earlier id was dropped
+// ("[; regime-context]", "[a:1234abcd; ; b]") — live briefing 2026-11-08.
+const ID_LIST = new RegExp(`[ \\t]*\\[\\s*(?:[;,]\\s*)*${ID}(?:\\s*[;,]\\s*(?:${ID})?)*\\s*\\](?!\\()`, 'g');
 const DOTTED_LIST = new RegExp(`[ \\t]*\\(\\s*${DOTTED}(?:\\s*,\\s*${DOTTED})*\\s*\\)`, 'g');
 
 export function stripEvidenceIds(text) {

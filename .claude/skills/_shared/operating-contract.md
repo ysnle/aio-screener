@@ -18,6 +18,7 @@ Use this contract for every canonical AIO skill in `.claude/skills`, every comma
 4. Infer scope, completion, and evidence from the user request. User instructions override skill guidance. Carry authorized implementation through verification and related fixes; do not stop for redundant approval.
 5. Route dated market-value updates to `data-refresh`, supplied research to `integrate`, defects to `bug-fix`, and verification to `post-edit-qa` when specialized guidance is needed. These are task boundaries, not an automatic skill chain: the primary workflow can run its required tests directly.
 6. Search large ledgers by relevant term/ID; never load RULES, BUG, QA, or KNOWLEDGE in full by default.
+7. Before changing a code file, run `node scripts/prior-fixes.mjs <files>` and read the entries it lists (the post-edit hook prints them on the first edit too). If the change repeats one of their classes, fix the owner those entries name or close the class with a behaviour gate; do not add one more branch beside them (v59.84 recurrence analysis).
 
 ## Evidence Closeout
 

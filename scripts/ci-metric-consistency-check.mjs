@@ -176,6 +176,63 @@ check('v59.74 a displaced close replaces a carried placeholder in its own row', 
 const liveHeld = [{ date: '2026-11-02', ndx: 28384.85, fieldMeta: { ndx: { observedAt: '2026-11-02T14:30:00.000Z', valueBasis: 'previous-completed-close', observationRelation: 'carried-forward', sessionDate: '2026-10-30', carriedFrom: '2026-10-30', heldReason: 'session-already-recorded' } } }];
 mergeBackfillBars(liveHeld, { '2026-11-02': { date: '2026-11-02', ndx: 28102.4, fieldMeta: { ndx: metaAt('2026-11-02', 'latest-completed-close') } } }, ['ndx']);
 check('v59.74 the backfill bar replaces a carried placeholder stamped on its own row date', liveHeld[0].ndx === 28102.4 && liveHeld[0].fieldMeta.ndx.sessionDate === '2026-11-02', JSON.stringify(liveHeld[0]));
+// ── 8. v59.84 (screen review C1, recurrence analysis): one fact, one state. P1691/P1761/P2229/P2287 matched one pair of
+// screens at a time; this checks every reader of the same fact against its owner on the same close, at the 11/6 close
+// where the readers disagreed (HY 348bp with a 20-session record widening; 10-year -38bp with stocks down), and on today's
+// files. A reader may word the state differently but never call it another state.
+{
+  const { buildMarketRead } = await load('src/domain/briefing/market-read.js');
+  const { creditJudgement, creditReading } = await load('src/domain/briefing/credit-reading.js');
+  const { buildMacroRead } = await load('src/domain/macro/macro-read.js');
+  const { participationShift, ROTATION_TITLE, buildMarketScenarios } = await load('src/domain/market/regime-scenarios.js');
+  const { buildMarketInterpretation } = await load('src/domain/interpretation/market-interpretation.js');
+  const data = json('public-data/data.json');
+  const cut = (rows, day) => rows.filter((row) => String(row.date || '') <= day);
+  for (const day of ['2026-11-06', null]) {
+    const at = day ? cut(history, day) : history;
+    if (day && !at.some((row) => row.date === day)) continue; // the fixture close rolled out of the published window
+    const hyAt = oasDelta20Bp(macroHistory, 'hyOas', day);
+    const reg = buildMarketRegime({ history: at, macroHistory, credit: hyAt ? { hyBp: hyAt.level * 100, hyAsOf: hyAt.date } : {}, now: day ? Date.parse(`${day}T23:00:00Z`) : Date.now() });
+    const axis = (id) => (reg.axes || []).find((row) => row.id === id);
+    const tag = day || 'today';
+    const judgement = creditJudgement(macroHistory, hyAt?.date || null);
+    if (axis('credit') && judgement) {
+      check(`v59.84 [${tag}] the credit judgement every reader uses is the 시장 상태 credit axis state`, judgement.state === axis('credit').state, `${judgement.state} vs ${axis('credit').state}`);
+      const storyAt = buildMarketStory({ history: at, macroHistory, nowMs: day ? Date.parse(`${day}T23:00:00Z`) : Date.now() });
+      const storyCredit = storyAt.checks?.find((row) => row.id === 'credit');
+      const storyKind = storyAt.credit?.kind;
+      if (storyKind) check(`v59.84 [${tag}] 시장 이야기 credit is 'stress' exactly when the axis is 부담`, (storyKind === 'stress') === (judgement.state === 'burden'), `${storyKind} vs ${judgement.state}`);
+      if (storyCredit) check(`v59.84 [${tag}] 시장 이야기 credit sentence is the shared credit reading`, storyCredit.read === creditReading(storyAt.credit.judgement, { cccTail: storyAt.credit.cccTail }), storyCredit.read);
+      const reading = creditReading(judgement);
+      check(`v59.84 [${tag}] a 부담 from speed never reads as a level "폭"`, judgement.state !== 'burden' || judgement.cause.level || (!/크게 벌어졌|번질 수 있는 폭/.test(reading) && /부담 기준 [\d.]+% 아래/.test(reading)), reading);
+      const chaptersAt = buildMacroChapters({ macroHistory, history: at });
+      const creditChapter = (Array.isArray(chaptersAt) ? chaptersAt : chaptersAt?.chapters || []).find((chapter) => chapter.id === 'credit');
+      if (creditChapter && !day) check(`v59.84 [${tag}] 매크로 신용 장 state is the axis state`, creditChapter.state === axis('credit').state, `${creditChapter.state} vs ${axis('credit').state}`);
+      if (creditChapter && !day) check(`v59.84 [${tag}] 매크로 신용 장 flip offers no condition that already holds`, !(judgement.state === 'burden' && !judgement.cause.level && /% 아래로 내려오고/.test(creditChapter.flip || '')), creditChapter.flip);
+    }
+    const macroAt = buildMacroRead({ macro: data.macro || null, macroHistory, regime: reg, history: at });
+    const nodes = [...(macroAt?.chain?.nodes || []), ...(macroAt?.chain?.branches || [])];
+    for (const id of ['rates', 'credit']) {
+      const node = nodes.find((row) => row.id === id); const state = axis(id)?.state;
+      if (!node || !state || state === 'unknown' || node.held) continue;
+      const expected = state === 'neutral' ? 'flat' : state;
+      check(`v59.84 [${tag}] 매크로 연결 상자 ${id} node colours the axis state`, node.impact === expected, `${node.impact} vs axis ${state}`);
+    }
+    if (axis('rates')?.state !== 'favorable') check(`v59.84 [${tag}] 연결 상자 never says the discount rate is easing while the rates axis is not 양호`, !(macroAt?.chain?.links || []).some((line) => /할인율 부담이 줄고/.test(line)), (macroAt?.chain?.links || []).join(' / '));
+    const read = buildMarketRead({ history: at, macroHistory, credit: hyAt ? { hyBp: hyAt.level * 100, hyAsOf: hyAt.date } : {}, now: day ? Date.parse(`${day}T23:00:00Z`) : Date.now() });
+    const checks = JSON.stringify(read || {});
+    if (axis('credit')?.state !== 'favorable') check(`v59.84 [${tag}] no check offers "양호 조건 상실" while credit is not 양호`, !/양호 조건 상실/.test(checks), (checks.match(/[^"]{0,60}양호 조건 상실[^"]{0,20}/) || [''])[0]);
+    const shift = participationShift(at);
+    const scen = buildMarketScenarios({ history: at, macroHistory }, { regime: reg });
+    if (scen?.available && shift.widening && scen.leadership?.break) check(`v59.84 [${tag}] a leadership break with widening participation is read as rotation, not 동반 약세`, scen.transitionTitle === ROTATION_TITLE && scen.scenarios.every((item) => !item.transition || item.transition === ROTATION_TITLE), scen.transitionTitle);
+    if (day) {
+      check(`v59.84 [${tag}] fixture: participation widened at the 11/6 close (50일선 위 +26.8%p, 동일가중 +7.0%p)`, shift.widening && shift.breadthPp === 26.8 && shift.equalLeadPp === 7, JSON.stringify(shift));
+      check(`v59.84 [${tag}] fixture: the 11/6 credit is a 20-session 부담 below the level line`, judgement?.state === 'burden' && judgement.cause.wide20 && !judgement.cause.level, JSON.stringify(judgement?.cause));
+    }
+  }
+  void buildMarketInterpretation;
+}
+
 if (failures.length) {
   console.error(`[metric-consistency] ${failures.length} failure(s):\n- ${failures.join('\n- ')}`);
   process.exit(1);

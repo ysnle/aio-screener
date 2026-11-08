@@ -1,0 +1,25 @@
+{
+ "version": "v59.84",
+ "date": "2026-11-08",
+ "r": null,
+ "status": null,
+ "qa": [],
+ "note": "v59.84 전 화면 점검 1단계: 정확성 S1 수정(증거 id 잔여, 실적 카드, M&A 짝짓기, 같은 날 보도, 통화 혼합 포트폴리오, 브리핑-실적 연결, 한국 재무 404).",
+ "p": {
+  "title": "브리핑 '이유가 확인되지 않은 큰 움직임'에 실적 발표 다음 날 움직인 종목이 들어감",
+  "symptom": "TEAM -16.1%가 '관련 보도나 … 없는 움직임'으로 나왔는데 뉴스 탭에는 TEAM 8-K 실적 카드(첫 거래일 -16.2%)가 있었다.",
+  "root_cause": "buildDayAccount가 market-day 링크만 보고 event-briefs를 조인하지 않았다.",
+  "fix": "buildDayAccount(day, { briefs })가 첫 반응 거래일이 그 날인 회사 자신의 실적 brief가 있으면 그 움직임을 '실적 발표 뒤 움직임'으로 옮기고(6건 상한 전) 헤드라인을 붙인다. 브리핑이 event-briefs를 함께 읽는다.",
+  "violated_rule": "이미 가진 사건 데이터의 연결",
+  "prevention": "ci-section-visual-contract v59.84: TEAM fixture(다른 회차 brief는 연결하지 않음)",
+  "verification": "옛 코드에는 reported가 없어 실패, 새 코드 통과.",
+  "files": [
+   "src/domain/briefing/day-account.js",
+   "src/ui/components/briefing-day.js",
+   "scripts/ci-section-visual-contract.mjs"
+  ]
+ },
+ "changelog": [
+  "**브리핑과 실적 연결 ({P}):** 실적 발표 다음 거래일의 큰 움직임은 '이유 미확인'이 아니라 '실적 발표 뒤 움직임'으로 묶고 발표 제목을 붙인다."
+ ]
+}

@@ -1,0 +1,24 @@
+{
+ "version": "v59.84",
+ "date": "2026-11-08",
+ "r": null,
+ "status": null,
+ "qa": [],
+ "note": "v59.84 전 화면 점검 1단계: 정확성 S1 수정(증거 id 잔여, 실적 카드, M&A 짝짓기, 같은 날 보도, 통화 혼합 포트폴리오, 브리핑-실적 연결, 한국 재무 404).",
+ "p": {
+  "title": "종목 '같은 날 보도'에 움직인 다음 날 나온 칼럼이 원인처럼 붙음",
+  "symptom": "NVDA 11/6 +2.8% 옆에 11/7(토) Jim Cramer 칼럼이 '같은 날 보도'로 표시됐다.",
+  "root_cause": "why-moved report()가 한글 제목이 있는 첫 증거를 날짜 확인 없이 골랐고, 의견 칼럼도 걸러지지 않았다.",
+  "fix": "증거의 뉴욕 날짜가 움직인 날이면 '같은 날 보도', 전날이면 '전날 보도'로 쓰고 그 뒤 보도는 원인 자리에 쓰지 않는다. 의견 칼럼(Jim Cramer, Motley Fool 등)은 제외한다. day-account 증거에 date를 싣는다.",
+  "violated_rule": "숫자와 근거의 기준일 일치",
+  "prevention": "ci-section-visual-contract v59.84: 다음 날 보도·칼럼·전날 저녁 보도 fixture",
+  "verification": "옛 코드는 토요일 보도를 '같은 날 보도'로 써 실패, 새 코드 통과.",
+  "files": [
+   "src/domain/entity/why-moved.js",
+   "scripts/ci-section-visual-contract.mjs"
+  ]
+ },
+ "changelog": [
+  "**같은 날 보도 날짜 검사 ({P}):** 움직인 뒤에 나온 기사와 의견 칼럼을 그 움직임의 원인으로 붙이지 않는다. 전날 저녁 보도는 '전날 보도'로 적는다."
+ ]
+}

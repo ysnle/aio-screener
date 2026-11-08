@@ -556,7 +556,8 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
   // v58.74 (audit): with no breakeven move (node 'unknown') the line no longer reads it as '번지지 않음'.
   if (!oilHeld && nodes[0].dir === 'up' && nodes[1].dir !== 'up') links.push(fx.wtiHigh ? '유가가 1년 범위 상단에 있어 물가 부담 요인입니다.' : nodes[1].dir === 'unknown' ? `유가가 20일 동안 ${signed(wti20, 1, '%')} 올랐습니다 — 기대인플레이션으로 번지는지는 같은 날 값이 없어 보류합니다.` : `유가가 20일 동안 ${signed(wti20, 1, '%')} 올랐습니다 — 아직 기대인플레이션으로 크게 번지지는 않았습니다.`);
   if (nodes[3].dir === 'up') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 올랐습니다${real5 != null && bei5 != null && real5 > bei5 && real5 > 0 ? ' — 실질금리 우위는 5거래일 관측 기준이며(20일 전체 분해는 자료가 없음), 그 관측은 성장주 밸류에이션 부담 쪽과 같은 방향입니다' : ''}.`);
-  if (nodes[3].dir === 'down') links.push(`10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 내려 할인율 부담이 줄고 있습니다.`);
+  // A fall with stocks falling is the axis's growth-scare 중립, not a lighter discount rate.
+  if (nodes[3].dir === 'down') links.push(axisById.rates && axisById.rates.state !== 'favorable' ? axisById.rates.read : `10년물이 20일 동안 ${signed(tnx20, 0, 'bp')} 내려 할인율 부담이 줄고 있습니다.`);
   // Codex browser audit H15: when two neighbours on the textbook path moved in opposite directions, the arrow is
   // not working right now — say so as a question to check, instead of letting the drawn arrow imply it does.
   for (const [a, b] of [[0, 1], [1, 3]]) { // the policy node is a level against the target, not a move
@@ -571,7 +572,11 @@ function buildChain({ macro, regime, rateFx, oil = null, mh = null }) {
     { id: 'credit', label: '하이일드 스프레드', value: hy5 == null ? '—' : `5거래일 ${signed(hy5 * 100, 0, 'bp')}${cause.wide20 && finite(record20?.value) != null ? `, 20거래일 ${signed(record20.value, 0, 'bp')}` : ''}`, dir: dir(hy5 == null ? null : hy5 * 100, RULES.credit.widen5dBp, -RULES.credit.widen5dBp), effect: hy5 == null ? null : hy5 * 100 >= RULES.credit.widen5dBp ? '스프레드 확대 → 기업 자금 조달 비용 상승, 주식 위험 프리미엄 상승' : hy5 * 100 <= -RULES.credit.widen5dBp ? '스프레드 축소 → 자금 조달 여건 개선' : creditCalm }
   ];
   // Colour by effect on stocks: every node rising is a headwind except valuation, where a fall is.
-  const impact = (node) => node.dir === 'unknown' || node.dir === 'flat' ? node.dir : (node.id === 'valuation' ? node.dir === 'down' : node.dir === 'up') ? 'burden' : 'favorable';
+  // A node whose fact has a 시장 상태 axis takes that axis's state (rates, credit), so the chain
+  // never colours ▼유리 what the factor row above calls 중립; the arrow still shows the observed direction.
+  const AXIS_OF = { rates: 'rates', credit: 'credit' };
+  const fromAxis = (node) => { const state = axisById[AXIS_OF[node.id]]?.state; return state === 'burden' || state === 'favorable' ? state : state === 'neutral' ? 'flat' : null; };
+  const impact = (node) => fromAxis(node) || (node.dir === 'unknown' || node.dir === 'flat' ? node.dir : (node.id === 'valuation' ? node.dir === 'down' : node.dir === 'up') ? 'burden' : 'favorable');
   // P1599 (A04): the 'not causation' caveat is stated once, in the section lead above the chain; the legend keeps the thresholds.
   const legend = `▲▼ 기준(시장 상태와 같음): 유가 20일 +${RULES.oil.rise20dPct}% 이상 또는 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상 / ${RULES.oil.fall20dPct}% 이하, 기대인플레이션 5거래일 ±${RULES.breakeven.move5dBp}bp, 2년물 − 기준금리 ±${P.pricedMovePp}%p, 10년물 20일 ±${RULES.rates.move20dBp}bp, 달러 20일 ±${RULES.dollar.rise20dPct}%, 하이일드 스프레드 5거래일 ±${RULES.credit.widen5dBp}bp. 주황 테두리는 주식에 부담, 초록은 양호.`;
   return { nodes: nodes.map((node) => ({ ...node, impact: node.held ? 'unknown' : impact(node) })), links, branches: branches.map((node) => ({ ...node, impact: impact(node) })), legend };

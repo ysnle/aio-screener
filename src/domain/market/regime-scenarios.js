@@ -72,6 +72,26 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
 }
 
 export const TRANSITION_TITLE = '소수 주도 → 동반 약세 전환 확인 중';
+// The leaders broke while participation widened (50일선 위 36% → 63% in 20 sessions,
+// equal-weight +7%p over the S&P 500) — that is money leaving the leaders, not the market weakening together. The
+// transition is then read as rotation; the weakness card's id and met count are unchanged.
+export const ROTATION_TITLE = '주도주 이탈 → 순환 확인 중';
+export const PARTICIPATION_WIDEN_PP = 10;
+const PARTICIPATION_SESSIONS = 20;
+
+/** 50일선 위 비율의 20거래일 변화(%p)와 동일가중−S&P 500 20거래일 수익률 차(%p), 같은 기록의 행만. */
+export function participationShift(history = []) {
+  const rows = (Array.isArray(history) ? history : []).filter((row) => row && row.date).slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  const pick = (ok) => { const list = rows.filter(ok); return list.length > PARTICIPATION_SESSIONS ? [list[list.length - 1 - PARTICIPATION_SESSIONS], list[list.length - 1]] : null; };
+  const b = pick((row) => Number.isFinite(row.breadth50));
+  // A weekend or holiday row carries the previous close; it is not a session.
+  const sessions = rows.filter((row, i) => Number.isFinite(row.rsp) && Number.isFinite(row.spx) && row.rsp > 0 && row.spx > 0
+    && !(i > 0 && rows[i - 1].rsp === row.rsp && rows[i - 1].spx === row.spx));
+  const r = sessions.length > PARTICIPATION_SESSIONS ? [sessions[sessions.length - 1 - PARTICIPATION_SESSIONS], sessions[sessions.length - 1]] : null;
+  const breadthPp = b ? Math.round((b[1].breadth50 - b[0].breadth50) * 10) / 10 : null;
+  const equalLeadPp = r ? Math.round(((r[1].rsp / r[0].rsp) - (r[1].spx / r[0].spx)) * 1000) / 10 : null;
+  return { breadthPp, equalLeadPp, widening: breadthPp != null && equalLeadPp != null && breadthPp >= PARTICIPATION_WIDEN_PP && equalLeadPp > 0 };
+}
 
 const OBSERVE = Object.freeze({
   trend: '지수가 이동평균 위·아래로 마감하는지와 50일선 방향을 함께 확인합니다.',
@@ -110,6 +130,8 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
   const leadership = regime.leadership || { state: 'unknown', break: false };
   const leadersHolding = leadership.state === 'holding';
   const transition = !hold && !!leadership.break;
+  const participation = participationShift(input.history);
+  const transitionTitle = participation.widening ? ROTATION_TITLE : TRANSITION_TITLE;
   const scenarios = [
     { id: 'expansion', title: '고른 상승', confirmed: confirmed(byId.trend?.state === 'favorable' && byId.breadth?.state === 'favorable' && calmRisk),
       interpretation: '이 조건들이 함께 충족되면 지수의 상승 추세를 다수 종목의 참여가 뒷받침하는 흐름으로 읽습니다. 반등이 이어질지는 참여도와 자금 조달 여건의 다음 관측으로 확인합니다.',
@@ -130,8 +152,8 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
   ].map(item => ({ ...item, held: hold, status: hold ? '판단 보류' : item.confirmed ? '현재 조건 충족' : '관찰할 조건',
     facts, missing: missing.map(id => byId[id]?.title || (id === 'basis' ? '최신 종가 기록' : id)),
     // v57.81: an unconfirmed weakness card reads as the transition while the leadership break holds.
-    transition: item.id === 'weakness' && transition && !item.confirmed ? TRANSITION_TITLE : null }));
-  return { available: true, asOf: regime.asOf, held: hold, scenarios, leadership: { state: leadership.state, break: !!leadership.break, summary: leadership.summary || null, met: leadership.met ?? 0, total: leadership.confirmations?.length ?? 0, need: leadership.need ?? RULES.leadership.minConfirmations },
+    transition: item.id === 'weakness' && transition && !item.confirmed ? transitionTitle : null }));
+  return { available: true, asOf: regime.asOf, held: hold, scenarios, participation, transitionTitle, leadership: { state: leadership.state, break: !!leadership.break, summary: leadership.summary || null, met: leadership.met ?? 0, total: leadership.confirmations?.length ?? 0, need: leadership.need ?? RULES.leadership.minConfirmations },
     axes: regime.axes.map(axis => ({ id: axis.id, observe: OBSERVE[axis.id] || '', condition: axis.flip || null })),
     reason: hold ? (regime.staleBasis ? regime.holdReason : `${missing.map(id => byId[id]?.title || id).join(', ')}의 필요한 관측이 없어 현재 어느 흐름에 해당하는지 보류합니다.`) : null };
 }
@@ -144,7 +166,7 @@ export function renderMarketScenarioContext(input = {}, options = {}) {
 export function renderMarketScenarioModel(model) {
   if (!model?.available) return '';
   // v57.81: the leadership-break flag is stated before the cards, so the narrative cannot say the leaders are still leading.
-  const lead = model.leadership?.break ? `주도 영역 이탈(leadershipBreak): 예 — ${model.leadership.summary}. 소수 종목 주도 조건 미충족, '${TRANSITION_TITLE}'.\n`
+  const lead = model.leadership?.break ? `주도 영역 이탈(leadershipBreak): 예 — ${model.leadership.summary}. 소수 종목 주도 조건 미충족, '${model.transitionTitle || TRANSITION_TITLE}'.\n`
     : model.leadership?.state === 'weak' ? `주도 영역 이탈(leadershipBreak): 확산 미확인 — ${model.leadership.summary}. 주도주는 약해졌고 시장 전반 확인은 ${model.leadership.met}/${model.leadership.total}개. 소수 종목 주도 조건 미충족.\n`
     : model.leadership?.state === 'holding' ? '주도 영역 이탈(leadershipBreak): 아니오.\n' : '주도 영역 이탈(leadershipBreak): 확인 불가.\n';
   return `시장 화면과 같은 ${model.asOf} 확정 종가의 조건부 해석. 예측 확률·목표가가 아닙니다.${model.reason ? ` ${model.reason}` : ''}\n` + lead

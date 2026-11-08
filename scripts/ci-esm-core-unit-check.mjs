@@ -2948,6 +2948,25 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail(`P1175/P11-02 portfolio-surface: mixed currencies were summed into one complete valuation, got ${JSON.stringify(mixedCurrency)}`);
   }
   if (mixedCurrency.totalPnl !== null || mixedCurrency.sectorBreakdown.length !== 0) fail(`P1175/P11-02 portfolio-surface: a mixed-currency portfolio still produced derived percentages, got ${JSON.stringify(mixedCurrency)}`);
+  // v59.84 (screen review SCRPF-01/02): a priced US + KR book is not "모두 가격 없음". It is its own state with one total per
+  // unit (never one sum), the hero names those subtotals, and the mix names its units even when none were declared.
+  {
+    const undeclared = derivePortfolioSurface({
+      state: { readState: 'ready', holdingsKnown: true, status: 'current', cash: 0, cashKnown: true, holdings: [
+        { symbol: 'AAA', shares: 2, avgCost: 90, price: 100, listingCurrency: 'USD' },
+        { symbol: '005930.KS', shares: 1, avgCost: 60000, price: 70000, listingCurrency: 'KRW', costCurrency: 'KRW' }
+      ] },
+      liveData: {}, vix: null
+    });
+    const { renderPortfolioStatus, heldCurrencyList } = await import(pathToFileURL(path.join(root, 'src/ui/pages/portfolio.js')).href);
+    const line = (surface) => { const el = { textContent: '', hidden: false, setAttribute() {}, removeAttribute() {} }; renderPortfolioStatus({ getElementById: () => el }, {}, surface); return el.textContent; };
+    const heroMixed = line(mixedCurrency), heroUndeclared = line(undeclared);
+    if (mixedCurrency.valuationState !== 'mixed-currency' || mixedCurrency.currencySubtotals?.map((row) => `${row.currency}:${row.value}`).join(',') !== 'USD:100,KRW:70000'
+      || /모두 가격 없음/.test(heroMixed) || !/통화별 평가 달러 \$100.*원화/.test(heroMixed) || mixedCurrency.totalAssets !== null
+      || !/USD/.test(heldCurrencyList(undeclared)) || !/KRW/.test(heldCurrencyList(undeclared)) || /\(\)/.test(heroUndeclared)) {
+      fail(`v59.84 a priced mixed-currency book reads per-currency subtotals, never "모두 가격 없음" or "()": ${JSON.stringify({ state: mixedCurrency.valuationState, sub: mixedCurrency.currencySubtotals, heroMixed, heroUndeclared, held: undeclared.heldCurrencies })}`);
+    }
+  }
   const singleCurrency = derivePortfolioSurface({
     state: { readState: 'ready', holdingsKnown: true, status: 'current', cash: 50, cashKnown: true, baseCurrency: 'USD', holdings: [
       { symbol: 'AAA', shares: 1, avgCost: 90, price: 100, currency: 'USD' },

@@ -17,7 +17,7 @@
 // entry.json:
 //   { "version": "v56.80", "date": "2026-09-29",
 //     "p": { "id"?: 1322, "title", "symptom", "root_cause", "fix",
-//            "violated_rule", "prevention", "verification" },
+//            "violated_rule", "prevention", "verification", "files": ["src/…"] },
 //     "r": { "id"?: 667, "title", "rule", "validation" } | null,
 //     "qa": [ { "id": "QA-UX-05", "text", "verify_by", "done"?: true, "update"?: true } ],
 //     "qa_section": "short title",
@@ -144,6 +144,11 @@ function validateEntry(entry) {
     for (const key of ['title', 'symptom', 'root_cause', 'fix', 'violated_rule', 'prevention', 'verification']) {
       if (!nonEmpty(entry.p[key])) errors.push(`p.${key} is required`);
     }
+    // v59.84 (recurrence analysis S3): an entry names the files it changed, so scripts/prior-fixes.mjs can show it to the
+    // next change of the same file. Entries keyed only by prose were found by nobody.
+    if (!Array.isArray(entry.p.files) || !entry.p.files.length || !entry.p.files.every((file) => nonEmpty(file) && !/^[\\/]|^[A-Za-z]:/.test(file))) {
+      errors.push('p.files is required: the repo-relative paths the fix changed (e.g. ["src/domain/macro/macro-read.js"])');
+    }
     if (entry.p.id != null && !/^P?\d+$/.test(String(entry.p.id))) errors.push('p.id must be a number or "P<number>"');
   }
   if (entry.r != null) {
@@ -265,6 +270,7 @@ export function computeRecord(root, entry) {
       `- violated_rule: ${one(p.violated_rule)}`,
       `- prevention: ${one(p.prevention)}`,
       `- verification/residual: ${one(p.verification)}`,
+      `- files: ${p.files.map((file) => String(file).replace(/\\/g, '/')).join(', ')}`,
       '',
       '',
     ].join('\n');

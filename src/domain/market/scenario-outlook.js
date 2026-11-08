@@ -132,11 +132,14 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   };
   // v57.81: while the leadership break holds and weakness is not yet confirmed, the weakness card reads as the transition —
   // what confirms it, what refutes it and when it is checked next. Descriptive only; the met count stays weakness's own.
+  const shift = scenarios.participation || {};
+  const rotation = transition && shift.widening;
   const transitionGuide = transition ? {
-    title: TRANSITION_TITLE,
+    title: scenarios.transitionTitle || TRANSITION_TITLE,
     // v58.74 (audit): 10/23 met the old falsifier (NDX 5d -0.8%, 신고가 43 > 신저가 35) while NDX sat 2.9% under its
     // 50일선 and the break held; the falsifier now names the hold rule, and the lead no longer claims breadth weakened.
-    posture: `주도 영역(SOXX)이 꺾여, 소수 종목이 받치던 흐름이 동반 약세로 넘어가는지 확인하는 단계입니다. 확인: 추세가 부담으로 바뀌거나(S&P 500 200일선 이탈, 또는 하락하는 50일선 아래) 하이일드 스프레드 확대나 VIX 급등이 겹치면 동반 약세 쪽입니다. 반증: SOXX가 50일선(${RULES.leadership.proxyBufferPct}% 이내)을 되찾고 5거래일 낙폭도 ${RULES.leadership.proxyDrop5dPct}% 안이면 주도 영역 이탈이 풀려 소수 주도로 되돌아간 것으로 봅니다. 다음 확인: ${nextCheck ? `${shortDate(nextCheck)} ` : '다음 '}미국 확정 종가.`,
+    posture: rotation ? `주도 영역(SOXX)이 꺾였지만 50일선 위 종목 비율이 20거래일 ${shift.breadthPp > 0 ? '+' : ''}${shift.breadthPp}%p 늘고 동일가중 S&P 500이 지수보다 ${shift.equalLeadPp}%p 앞서, 돈이 대형 주도주에서 다른 종목으로 옮겨 가는 쪽입니다. 동반 약세로 보려면 참여 비율도 함께 줄어야 합니다. 반증: 50일선 위 비율이 다시 줄고 하이일드 스프레드 확대나 VIX 급등이 겹치면 동반 약세 쪽입니다. 다음 확인: ${nextCheck ? `${shortDate(nextCheck)} ` : '다음 '}미국 확정 종가.`
+      : `주도 영역(SOXX)이 꺾여, 소수 종목이 받치던 흐름이 동반 약세로 넘어가는지 확인하는 단계입니다. 확인: 추세가 부담으로 바뀌거나(S&P 500 200일선 이탈, 또는 하락하는 50일선 아래) 하이일드 스프레드 확대나 VIX 급등이 겹치면 동반 약세 쪽입니다. 반증: SOXX가 50일선(${RULES.leadership.proxyBufferPct}% 이내)을 되찾고 5거래일 낙폭도 ${RULES.leadership.proxyDrop5dPct}% 안이면 주도 영역 이탈이 풀려 소수 주도로 되돌아간 것으로 봅니다. 다음 확인: ${nextCheck ? `${shortDate(nextCheck)} ` : '다음 '}미국 확정 종가.`,
     check: ['SOXX가 50일선 위를 지키는지, 5거래일 낙폭이 줄어드는지', '신저가가 신고가보다 많은 날이 이어지는지', '러셀 2000이 200일선을 되찾는지', '하이일드 스프레드와 VIX가 함께 오르는지'],
     caution: ['하루 반등만으로 주도 영역이 회복됐다고 보지 않습니다.', '동반 약세 조건이 모두 갖춰지기 전까지는 전환을 확인하는 단계이지 확정이 아닙니다.'],
     leadershipBasis: `주도 영역 이탈 확인(${leadership.summary || ''}, 확인 ${leadership.met}/${leadership.confirmations?.length || 0})`,

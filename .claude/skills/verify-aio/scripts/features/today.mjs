@@ -8,10 +8,9 @@ export default {
     ['허브 탭 3개', (p) => expectTabs(p, ['요약', '브리핑', '뉴스'])],
     // Codex audit F12 → v58.79 (layout over captions): the close basis is the page date line and the tally the axis chips;
     // the hero line speaks only for a held verdict. Check what each must carry, not one wording.
-    ['요약 판정 (날짜 줄 종가 기준 · 판정어 · 축 칩)', async (p) => ({
+    ['요약 판정 (날짜 줄 종가 기준 · 판정어)', async (p) => ({
       ...(await expectText(p, '#home-date-label', { pattern: /미국 종가 기준/ })),
-      ...(await expectText(p, '#home-hero-total', { pattern: /^(?!판정 대기).+/ })),
-      chips: await p.locator('#home-hero-components > *').count()
+      ...(await expectText(p, '#home-hero-total', { pattern: /^(?!판정 대기).+/ }))
     })],
     // v58.80 F01 (P2089): the static shell requests the produced verdict first, preloads its one stylesheet, and leaves the
     // legacy scripts to the end of body, so the page and stylesheet win the first seconds. The served <head> is parsed, not the

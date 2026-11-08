@@ -6,7 +6,7 @@
 // against the S&P 500 close basis); an input that is stale or ahead of the basis is shown but
 // excluded from the state and the synthesis, and a missing input never reads as calm or stress.
 import { deepDiveFold } from './deep-dive.js';
-import { SENTIMENT_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
+import { SENTIMENT_DEEP_DIVES } from '../../domain/content/board-deep-dives.js';
 import { alignInput, alignMarketInputs, alignmentLabel, buildCloseSeries, creditState, isUsable, sessionPointBack } from '../../domain/briefing/market-read.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
 import { RULES } from '../../domain/rules/thresholds.js';

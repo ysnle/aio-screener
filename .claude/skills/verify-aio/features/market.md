@@ -13,7 +13,7 @@
 ## How to get to it (user POV)
 
 - Sidebar 시장 › 시장 상태.
-- Hub tabs 국면 판정 / 시장 폭 / 투자 심리.
+- Hub tabs 개요 / 시장 폭 / 투자 심리 (`src/ui/navigation/route-hubs.js`).
 - Deep links `#signal`, `#breadth`, `#sentiment`.
 
 ## Driving it with verify-aio
@@ -22,7 +22,7 @@ Preconditions:
 
 - Doctor OK.
 
-- **Open.** Click sidebar `시장 상태`. `page-signal` active; tabs exactly `국면 판정,시장 폭,투자 심리`.
+- **Open.** Click sidebar `시장 상태`. `page-signal` active; tabs exactly `개요,시장 폭,투자 심리`.
 - **Verdict.** `#regime-overall` real text; `#regime-basis` matches `/종가 기준/`.
 - **Reason.** `#regime-headline` ≥20 chars; ≥1 `#regime-conflicts li`.
 - **Boards.** ≥6 `#regime-board .regime-axis`; `#regime-board-kr` has children.

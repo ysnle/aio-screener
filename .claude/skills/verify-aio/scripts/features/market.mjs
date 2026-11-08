@@ -2,10 +2,10 @@
 import { openFromNav, tabTo, expectText, expectCount, expectTabs } from '../lib/drive.mjs';
 
 export default {
-  title: '시장 상태 (국면 판정 · 시장 폭 · 투자 심리)',
+  title: '시장 상태 (개요 · 시장 폭 · 투자 심리)',
   steps: [
-    ['nav 시장 상태 → 국면 판정', (p) => openFromNav(p, '시장 상태', 'page-signal')],
-    ['허브 탭 3개', (p) => expectTabs(p, ['국면 판정', '시장 폭', '투자 심리'])],
+    ['nav 시장 상태 → 개요', (p) => openFromNav(p, '시장 상태', 'page-signal')],
+    ['허브 탭 3개', (p) => expectTabs(p, ['개요', '시장 폭', '투자 심리'])],
     ['국면 판정 확정 (판정 대기 아님)', async (p) => ({
       ...(await expectText(p, '#regime-overall')),
       ...(await expectText(p, '#regime-basis', { pattern: /종가 기준/ }))

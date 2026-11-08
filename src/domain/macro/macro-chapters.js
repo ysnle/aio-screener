@@ -10,7 +10,8 @@ import { MARKET_WINDOWS, closeChange } from '../market/market-windows.js';
 import { rateDifferential, sessionPointBack, wonMoveSentence } from './rates-fx.js';
 import { RULES } from '../rules/thresholds.js';
 import { withTopicParticle } from '../content/korean-particle.js';
-import { creditState, hyWidening20Record, oasDelta20Bp } from '../briefing/market-read.js';
+import { oasDelta20Bp } from '../briefing/market-read.js';
+import { creditJudgement, creditReading, creditFlip } from '../briefing/credit-reading.js';
 import { formatKstWhen, releaseAtMs } from '../briefing/schedule.js';
 import { volatilityChapter } from './volatility.js';
 
@@ -333,16 +334,12 @@ function credit(macroHistory) {
   const ccc = ccc20 ? { to: ccc20.level, bp: ccc20.value } : null; const ig = ig20 ? { to: ig20.level, bp: ig20.value } : null;
   const fci = series(macroHistory, 'financialConditions').at(-1);
   const C = RULES.credit;
-  const record = hyWidening20Record(macroHistory);
-  const state = creditState({ hyBp: hy.to * 100, hy5: hy20.d5, hy20: hy.bp, hy20Stress: !!record?.stress });
-  const tail = ccc && ccc.bp >= C.stress20dMultiple * C.widen20dBp; // CCC +50bp in 20 sessions, the axis's 2 × widen20dBp
-  const widening = hy.bp >= C.widen20dBp;
-  const mean = state === 'burden' ? '스프레드가 크게 벌어졌습니다. 주가 조정이 신용 문제로 번질 수 있는 폭입니다.'
-    : widening ? `하이일드가 20거래일 동안 ${bp(hy.bp)} 벌어져 경계 쪽으로 움직이고 있습니다.${tail ? ' 가장 약한 CCC 등급이 더 빠르게 벌어져, 약한 기업부터 자금 조달이 어려워지는 모습입니다.' : ''}`
-    : tail ? '전체 하이일드는 조용하지만 가장 약한 CCC 등급이 먼저 벌어지고 있습니다. 가장 약한 기업의 조달 비용부터 오르는 모습이고, 이 확대가 하이일드 전체로 번지는지가 다음 관찰점입니다.'
-      : state === 'favorable' ? '주가가 움직여도 스프레드가 넓어지지 않아 신용 문제는 아닙니다.' : '스프레드 수준·방향이 경계선입니다.';
-  const flip = state === 'burden' ? `하이일드가 ${C.stressAtBp / 100}% 아래로 내려오고 20거래일 확대가 +${C.widen20dBp}bp 아래로 줄면 경계를 풉니다.`
-    : `하이일드 ${C.stressAtBp / 100}% 이상, 5거래일 +${C.widen5dBp}bp, 20거래일 확대가 자체 기록 상위 ${100 - C.stress20dPct}% 중 하나면 부담으로 바꿉니다.`;
+  // The judgement, its sentence and its flip are market-read's (creditJudgement/creditReading/creditFlip).
+  const judgement = creditJudgement(macroHistory);
+  const state = judgement?.state || 'unknown';
+  const tail = !!(ccc && ccc.bp >= C.stress20dMultiple * C.widen20dBp); // CCC +50bp in 20 sessions, the axis's 2 × widen20dBp
+  const mean = creditReading(judgement, { cccTail: tail });
+  const flip = creditFlip(judgement);
   return {
     id: 'credit', title: '신용 · 유동성 — 위기 신호 점검', question: '주가 조정이 신용 위기로 번질 위험', state,
     viz: { caption: '스프레드 20거래일 변화 (bp)', unit: 'bp', points: [ig ? { x: '투자등급', value: ig.bp } : null, { x: '하이일드', value: hy.bp }, bb20 ? { x: 'BB', value: bb20.value } : null, b20 ? { x: 'B', value: b20.value } : null, ccc ? { x: 'CCC', value: ccc.bp, hot: true } : null].filter(Boolean) },

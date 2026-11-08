@@ -70,3 +70,16 @@ export function surprisePct(actual, estimate) {
   if (a == null || e == null || e === 0) return null;
   return Math.round(((a - e) / Math.abs(e)) * 1000) / 10;
 }
+
+/**
+ * A dollar amount in the English release form at the
+ * scale that keeps its digits — billions from 1e9, millions below, thousands under a million. Null for no number.
+ */
+export function usdScaleWords(value, digits = 2) {
+  const n = readNumber(value);
+  if (n == null) return null;
+  const abs = Math.abs(n), sign = n < 0 ? '-' : '';
+  if (abs >= 1e9) return `${sign}$${(abs / 1e9).toFixed(digits)} billion`;
+  if (abs >= 1e6) return `${sign}$${(abs / 1e6).toFixed(digits)} million`;
+  return `${sign}$${(abs / 1e3).toFixed(digits)} thousand`;
+}

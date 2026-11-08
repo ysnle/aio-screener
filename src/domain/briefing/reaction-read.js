@@ -137,7 +137,8 @@ export function reactionRead(brief, { row = null, history = [] } = {}) {
   const side = (word, pct) => `${word} ${pct == null || Math.abs(pct) > 100 ? ({ beat: '상회', miss: '하회', inline: '부합' })[result[word === '매출' ? 'revenue' : 'eps']] || '' : pctText(pct)}`.trim();
   // The evidence strip: short facts in the order a reader weighs them; a fact with no data is left out.
   const steps = [
-    result.revenue || result.eps ? { id: 'numbers', value: [result.revenue && side('매출', result.revenuePct), result.eps && side('EPS', result.epsPct)].filter(Boolean).join(' · '), hit: down ? badNumbers : goodNumbers } : null,
+    // "매출 +96.7%" read as revenue growth; the strip names the comparison once.
+    result.revenue || result.eps ? { id: 'numbers', value: `예상 대비 ${[result.revenue && side('매출', result.revenuePct), result.eps && side('EPS', result.epsPct)].filter(Boolean).join(' · ')}`, hit: down ? badNumbers : goodNumbers } : null,
     guide && guide !== 'given' ? { id: 'guidance', value: guidanceLabel(brief), hit: down ? guide === 'weak' : guide === 'raised' } : null,
     runUp == null ? null : { id: 'run-up', value: `발표 전 3개월 ${pctText(runUp, 0)}`, hit: down && runUp >= RUN_UP_MIN },
     bench == null ? null : { id: 'market', value: `${benchName} ${pctText(bench)}`,
@@ -159,12 +160,15 @@ export function reactionRead(brief, { row = null, history = [] } = {}) {
   } else kind = pick('numbers') ? 'as-reported' : pick('guidance') ? 'guidance-up' : pick('market') ? 'with-market' : badNumbers ? 'relief' : 'unexplained';
   // The line is the report's own words when one names the cause, never a sentence written to explain it.
   const said = (brief.reasons?.points || [])[0]?.text || '';
-  const line = ['missed', 'guidance', 'spend', 'execution', 'management', 'priced-in', 'as-reported', 'guidance-up', 'relief'].includes(kind) ? said : '';
+  // A move the reports explain is not "이유 불명확" just because the numbers were mixed; the chip
+  // says the cause is the reports' and the line quotes them.
+  if (kind === 'unexplained' && said) kind = 'reported';
+  const line = ['missed', 'guidance', 'spend', 'execution', 'management', 'priced-in', 'as-reported', 'guidance-up', 'relief', 'reported'].includes(kind) ? said : '';
   return { move, down, kind, title: KIND_TITLE[kind], line, steps, runUp, bench };
 }
 
 const KIND_TITLE = Object.freeze({
   missed: '예상 하회', guidance: '가이던스 실망', spend: '비용·투자 부담', execution: '실행 차질', management: '경영진 신뢰 약화',
-  'with-market': '시장 동반', 'priced-in': '선반영', 'beat-fell': '호실적에도 하락', unexplained: '이유 불명확',
+  'with-market': '시장 동반', 'priced-in': '선반영', 'beat-fell': '호실적에도 하락', unexplained: '이유 불명확', reported: '보도된 이유',
   'as-reported': '호실적 반영', 'guidance-up': '가이던스 상향 반영', relief: '우려 대비 선방'
 });

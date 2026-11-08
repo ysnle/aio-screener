@@ -39,6 +39,126 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2305 - v59.84 - AI 해설 문장이 증거 id를 본문에 담아 내보내 화면마다 지우는 코드가 늘어남 (2026-11-08)
+
+- symptom/reproduction: 증거 id 잔여는 다섯 번째 재발이었다. 매번 새 구분자 꼴을 지우는 정규식을 클라이언트에 덧붙였다.
+- root_cause: 생산자가 '[id, id]'를 문장 안에 넣어 발행하고, 소비자가 각자 지웠다. 출처는 문장 속 문자열이었다.
+- fix: market-analysis-validate의 buildStructuredMarketAnalysis가 summary/full/oneLine/claims를 id 없는 문장으로 발행하고, 문장별 인용은 sentences[{text, ids}]에 담는다. 클라이언트 제거기는 이전 데이터가 빠질 때까지 남긴다.
+- violated_rule: 증거 id는 증거 저장소에만
+- prevention: ci-data-pipeline-contract-check 'S2': 발행된 본문에 id 괄호 0, sentences 인용이 원래 id를 모두 보존.
+- verification/residual: 새 코드 통과. 다음 생산 실행 뒤 data.json 확인 필요.
+- files: scripts/lib/market-analysis-validate.mjs, scripts/ci-data-pipeline-contract-check.mjs
+
+## P2304 - v59.84 - VIX 25.6이 화면마다 다른 구간 이름으로 읽힘 (2026-11-08)
+
+- symptom/reproduction: 오늘 VIX 카드와 시장 이야기는 30/20 사다리로 25.6을 '경계'라 했고, 투자 심리는 18/25/32 기준으로 다른 이름을 썼다.
+- root_cause: home-vix와 market-story가 RULES.volatility 대신 자기 숫자 사다리를 들고 있었다.
+- fix: 두 곳 모두 narrative.vixBand(RULES.volatility 18/25/32)를 쓴다.
+- violated_rule: 기준값은 RULES 한 곳(데이터 일관성)
+- prevention: ci-domain-parity-check: home-vix.js·market-story.js를 사본 목록에 넣고 'vix >= 15|20|30 ?'·'vp >= n ?' 사다리를 금지.
+- verification/residual: 새 코드 통과; 두 정규식은 옛 home-vix·market-story 사다리를 겨냥한다.
+- files: src/ui/components/home-vix.js, src/domain/market/market-story.js, scripts/ci-domain-parity-check.mjs
+
+## P2303 - v59.84 - 참여가 넓어지는데 시나리오 전환 제목이 '약세 전환'으로만 읽힘 (2026-11-08)
+
+- symptom/reproduction: 주도주가 꺾인 사이 50일선 위 종목이 20거래일 36%→63%로 늘고 RSP가 SPX를 7%p 앞섰는데 전환 제목은 약세만 말했다.
+- root_cause: regime-scenarios가 주도주 이탈만 보고 참여 폭 변화를 읽지 않았고, scenario-outlook은 같은 제목 문자열을 따로 들고 있었다.
+- fix: participationShift(history)가 시장 폭 20행 변화와 주말 이월 행을 뺀 RSP−SPX 20거래일 차이를 계산하고, 넓어지면(+10%p) 전환 제목이 '주도주 이탈 → 순환 확인 중'이 된다. scenario-outlook은 모델의 transitionTitle을 읽는다.
+- violated_rule: 한 사실 한 소유자(데이터 일관성)
+- prevention: ci-metric-consistency-check §8 순환 제목 검사 + 고정 입력 assert.
+- verification/residual: 현재 데이터 26.8%p / 7.0%p / widening true; 옛 코드 실패.
+- files: src/domain/market/regime-scenarios.js, src/domain/market/scenario-outlook.js, scripts/ci-metric-consistency-check.mjs
+
+## P2302 - v59.84 - 매크로 연결 고리가 금리·신용 축과 다른 색과 문장을 보임 (2026-11-08)
+
+- symptom/reproduction: 금리가 주식과 함께 내려간 날(성장 우려 중립) 연결 고리 노드는 '할인율 부담이 줄고'라며 우호 색을 칠했다.
+- root_cause: macro-read의 연결 고리가 방향만 보고 자체 영향을 정해, 같은 사실에 대한 시장 상태 축의 판정을 읽지 않았다.
+- fix: 연결 고리 노드 중 시장 상태 축이 있는 사실(금리, 신용)은 그 축의 상태를 쓰고(중립은 flat), 금리 하락 문장은 축이 우호가 아닐 때 축의 문장을 쓴다.
+- violated_rule: 한 사실 한 소유자(데이터 일관성)
+- prevention: ci-metric-consistency-check §8: 노드 영향 = 축 상태, 축이 우호가 아니면 '할인율 부담이 줄고' 금지.
+- verification/residual: 옛 코드에서 실패, 새 코드 통과.
+- files: src/domain/macro/macro-read.js, scripts/ci-metric-consistency-check.mjs
+
+## P2301 - v59.84 - 신용 스프레드 한 값이 시장 상태·매크로·시장 이야기에서 서로 다른 상태와 문장으로 읽힘 (2026-11-08)
+
+- symptom/reproduction: 11/6 하이일드 3.0%·20일 +30bp가 시장 상태 축에서는 '부담', 매크로 신용 장에서는 '양호 조건 상실', 시장 이야기에서는 수준만 보고 '안정'으로 읽혔다.
+- root_cause: 신용 판정이 market-read·macro-chapters·market-story 세 곳에서 따로 계산됐고, 문장도 각자 썼다. 고칠 때마다 한 곳만 바뀌어 같은 클래스가 반복됐다.
+- fix: credit-reading.js(market-read의 축 입력 creditState/creditCause/hyWidening20Record를 읽음)에 creditJudgement/creditReading/creditFlip을 두고 매크로 신용 장과 시장 이야기가 그 판정·문장·전환 조건을 그대로 쓴다. 부담이면 원인(수준/5일/20일)을 이름 붙이고, 이미 충족된 조건은 전환 조건에 다시 적지 않는다.
+- violated_rule: 한 사실 한 소유자(데이터 일관성)
+- prevention: ci-metric-consistency-check §8 '한 사실, 한 상태': 11/6과 오늘 데이터에서 축 상태·이야기 종류·문장·매크로 장 상태·전환 조건을 대조한다. 옛 코드에서 13개 검사 실패.
+- verification/residual: 옛 트리(git archive)에서 §8 실패, 새 코드 통과; 매크로·시장 화면 DOM 확인.
+- files: src/domain/briefing/credit-reading.js, src/domain/briefing/market-read.js, src/domain/macro/macro-chapters.js, src/domain/market/market-story.js, scripts/ci-metric-consistency-check.mjs
+
+## P2300 - v59.84 - 한국 종목을 열 때마다 없는 kr-fundamentals.json을 요청해 404 (2026-11-08)
+
+- symptom/reproduction: verify-aio 종목 드라이브가 세 폭 모두 '404 /public-data/kr-fundamentals.json'으로 실패했다.
+- root_cause: company-analysis가 산출물 생성이 비밀 키 미등록으로 막혀 있는데도(artifact-freshness blockedBy, 소유자 2026-10-14) 한국 종목마다 요청했다.
+- fix: artifact-freshness 계약에 blockedBy가 있으면 요청하지 않는다. 키가 등록돼 blockedBy를 지우면 자동으로 다시 요청한다.
+- violated_rule: 계약에 없는 산출물 요청 금지
+- prevention: verify-aio stock 드라이브 로컬 4xx 0
+- verification/residual: phase1 드라이브에서 stock 3개 폭 local 4xx 0.
+- files: src/ui/components/company-analysis.js
+
+## P2299 - v59.84 - 브리핑 '이유가 확인되지 않은 큰 움직임'에 실적 발표 다음 날 움직인 종목이 들어감 (2026-11-08)
+
+- symptom/reproduction: TEAM -16.1%가 '관련 보도나 … 없는 움직임'으로 나왔는데 뉴스 탭에는 TEAM 8-K 실적 카드(첫 거래일 -16.2%)가 있었다.
+- root_cause: buildDayAccount가 market-day 링크만 보고 event-briefs를 조인하지 않았다.
+- fix: buildDayAccount(day, { briefs })가 첫 반응 거래일이 그 날인 회사 자신의 실적 brief가 있으면 그 움직임을 '실적 발표 뒤 움직임'으로 옮기고(6건 상한 전) 헤드라인을 붙인다. 브리핑이 event-briefs를 함께 읽는다.
+- violated_rule: 이미 가진 사건 데이터의 연결
+- prevention: ci-section-visual-contract v59.84: TEAM fixture(다른 회차 brief는 연결하지 않음)
+- verification/residual: 옛 코드에는 reported가 없어 실패, 새 코드 통과.
+- files: src/domain/briefing/day-account.js, src/ui/components/briefing-day.js, scripts/ci-section-visual-contract.mjs
+
+## P2298 - v59.84 - 미국·한국 종목을 함께 담으면 포트폴리오가 '모두 가격 없음'·'통화 혼합()'·'$70000.00'으로 표시 (2026-11-08)
+
+- symptom/reproduction: 기준 통화 없이 NVDA·MSFT와 005930.KS를 담으면 히어로가 '4종목 모두 가격 없음'인데 표는 손익을 보였고, 통화 문구에 빈 괄호, 원화 원가가 '$70000.00'으로 나왔다.
+- root_cause: surface someRowsValued가 단일 단위를 요구해 환산 없는 혼합을 unavailable로 분류했고, 문구는 declaredCurrencies(원가·상장 통화만 있을 때 빈 목록)를 읽었으며, R:R 선택 목록은 '$'를 고정했다.
+- fix: 환산 없는 혼합에 값이 있으면 새 상태 'mixed-currency'와 통화별 소계(currencySubtotals, 단위끼리만 합산)를 낸다. 히어로는 '통화별 평가 달러 $X · 원화 Y원'과 합산 방법을 말한다. 통화 목록은 heldCurrencies를 함께 읽고, 원가는 자기 통화로 적는다.
+- violated_rule: P1175 단위 없는 합산 금지(유지) + 거짓 상태 문구 금지
+- prevention: ci-esm-core-unit-check v59.84: 혼합 장부의 상태·소계·히어로 문구·빈 괄호 검사
+- verification/residual: 옛 코드는 unavailable/'모두 가격 없음'으로 실패, 새 코드 통과; 총자산은 여전히 null.
+- files: src/domain/portfolio/surface.js, src/domain/portfolio/portfolio-read.js, src/ui/pages/portfolio.js, src/ui/components/portfolio-shell-controls.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2297 - v59.84 - 종목 '같은 날 보도'에 움직인 다음 날 나온 칼럼이 원인처럼 붙음 (2026-11-08)
+
+- symptom/reproduction: NVDA 11/6 +2.8% 옆에 11/7(토) Jim Cramer 칼럼이 '같은 날 보도'로 표시됐다.
+- root_cause: why-moved report()가 한글 제목이 있는 첫 증거를 날짜 확인 없이 골랐고, 의견 칼럼도 걸러지지 않았다.
+- fix: 증거의 뉴욕 날짜가 움직인 날이면 '같은 날 보도', 전날이면 '전날 보도'로 쓰고 그 뒤 보도는 원인 자리에 쓰지 않는다. 의견 칼럼(Jim Cramer, Motley Fool 등)은 제외한다. day-account 증거에 date를 싣는다.
+- violated_rule: 숫자와 근거의 기준일 일치
+- prevention: ci-section-visual-contract v59.84: 다음 날 보도·칼럼·전날 저녁 보도 fixture
+- verification/residual: 옛 코드는 토요일 보도를 '같은 날 보도'로 써 실패, 새 코드 통과.
+- files: src/domain/entity/why-moved.js, scripts/ci-section-visual-contract.mjs
+
+## P2296 - v59.84 - 소식 모음 게시물의 두 항목이 한 M&A로 짝지어져 'CRWD의 MSFT 인수 (약 42억 달러)'가 표시 (2026-11-08)
+
+- symptom/reproduction: 뉴스 시장 신호 '11/4 CRWD의 MSFT 인수 발표 (거래 규모 약 42억 달러)' — 행위자·대상이 뒤섞인 거짓 거래.
+- root_cause: telegram-signals extractDeals가 게시물 앞 400자 전체에서 인수 단어와 티커 두 개를 찾아, '섹터별 소식 정리'의 서로 다른 항목(CRWD 제품 소식, MSFT 인수 소식)을 한 거래로 묶었다. mergeSignals가 이전 신호를 계속 이월했다.
+- fix: 인수·발표 단어와 티커 두 개가 한 줄(또는 글머리표 하나)에 있어야 거래로 읽는다. 첫 줄이 거래일 때만 게시물 전체에서 조건을 읽고, 깊은 항목은 그 줄에서만 읽는다. 새 규칙 표시(rule 2)가 없는 이전 거래 신호는 이월하지 않는다.
+- violated_rule: 관찰 ≠ 행위자(P2293 계열)
+- prevention: ci-data-pipeline-contract-check v59.84: 소식 모음 fixture 0건, 깊은 항목 거래의 자기 줄 조건, 옛 규칙 거래 병합 시 제거
+- verification/residual: 옛 코드는 소식 모음에서 거래 1건을 만들고 이월해 검사 실패, 새 코드 통과. 11/2 MRVL·LITE 거래도 옛 규칙 신호라 다음 갱신에서 빠진다(원 게시물이 다시 수집되면 새 규칙으로 다시 읽힘).
+- files: scripts/lib/telegram-signals.mjs, scripts/ci-data-pipeline-contract-check.mjs
+
+## P2295 - v59.84 - 실적 카드가 소형사 매출을 '0만 달러'로, 예상 대비를 매출 성장처럼, 보도된 이유가 있는데 '이유 불명확'으로 표시 (2026-11-08)
+
+- symptom/reproduction: 뉴스 탭 오클로(OKLO) 11/6 카드: 겉 '매출 +96.7%'(실제는 예상 대비), 접힘 '매출 0만 달러', 이유 2건이 있는데 칩 '이유 불명확'.
+- root_cause: fetch-event-briefs provisionalBrief가 매출을 항상 billion 2자리로 적어 186만 달러가 '$0.00 billion'이 됐다. reaction-read 숫자 단계가 비교 기준을 쓰지 않았고, 매출 상회·EPS 하회처럼 엇갈리면 보도 이유가 있어도 unexplained로 떨어졌다.
+- fix: 공용 usdScaleWords(billion/million/thousand)로 매출·예상 매출을 적고, 저장된 '$0.00 billion'은 값 없이 비교만 보인다. 숫자 단계는 '예상 대비 매출 … · EPS …'로 쓰고, 보도 이유가 있으면 '보도된 이유' 칩과 그 문장을 쓴다.
+- violated_rule: 숫자는 단위·기준과 함께(정확성)
+- prevention: ci-esm-core-unit-check reaction 블록(기존) + 이번 배치 브라우저 확인; usdScaleWords는 producer와 화면이 같이 쓴다
+- verification/residual: 로컬 뉴스 탭에서 '매출 0만 달러' 사라짐과 칩 변화를 확인.
+- files: src/domain/shared/number.js, scripts/fetch-event-briefs.mjs, src/ui/components/event-briefs.js, src/domain/briefing/reaction-read.js
+
+## P2294 - v59.84 - 브리핑 AI 해설에 증거 id 잔여 '[; regime-context]'가 보임 (2026-11-08)
+
+- symptom/reproduction: 11/8 브리핑 AI 해설 문장 끝에 '[; regime-context]'가 그대로 렌더됐다(data.json marketAnalysis summary/full/claims).
+- root_cause: stripEvidenceIds의 ID_LIST가 쉼표 구분자와 id로 시작하는 목록만 허용해, 세미콜론 구분·빈 앞자리 '[; id]' 꼴을 남겼다.
+- fix: src/domain/briefing/evidence-text.js ID_LIST가 ';'·',' 혼합 구분자, 빈 슬롯, 앞뒤 구분자를 모두 받는다.
+- violated_rule: 증거 id는 증거 저장소에만(X20/P1847 계열 다섯 번째 재발)
+- prevention: ci-codex-structure-regression-fixture: 구분자·앞자리·뒷자리 조합 48가지 전수 + 실제 data.json marketAnalysis 전 문장에 id 괄호 0
+- verification/residual: 옛 코드에서 두 검사 모두 실패, 새 코드 통과; 브리핑 DOM에서 잔여 없음 확인.
+- files: src/domain/briefing/evidence-text.js, scripts/ci-codex-structure-regression-fixture.mjs
+
 ## P2293 - v59.79 - 가격·스프레드 관측을 매수 주체·선행 신호로 단정한 문장 (2026-11-08)
 
 - symptom/reproduction: 리서치 라이브러리의 FTD 레슨이 바닥 확인일을 '큰 자금이 다시 사기 시작했다는 흔적'이라고 읽었고, 시장 상태 신용 줄과 매크로 신용 장은 CCC 확대에 '위기 신호가 오면 여기서 시작됩니다'를, 경계 구간에 '더 벌어지면 … 신용 문제로 번집니다'를 붙였다.

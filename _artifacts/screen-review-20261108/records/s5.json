@@ -1,0 +1,21 @@
+{
+ "version": "v59.84",
+ "date": "2026-11-08",
+ "r": null,
+ "status": null,
+ "qa": [],
+ "note": "v59.84 구조 개편 S2: 증거 id는 문장 밖 구조에 담는다.",
+ "p": {
+  "title": "AI 해설 문장이 증거 id를 본문에 담아 내보내 화면마다 지우는 코드가 늘어남",
+  "symptom": "증거 id 잔여는 다섯 번째 재발이었다. 매번 새 구분자 꼴을 지우는 정규식을 클라이언트에 덧붙였다.",
+  "root_cause": "생산자가 '[id, id]'를 문장 안에 넣어 발행하고, 소비자가 각자 지웠다. 출처는 문장 속 문자열이었다.",
+  "fix": "market-analysis-validate의 buildStructuredMarketAnalysis가 summary/full/oneLine/claims를 id 없는 문장으로 발행하고, 문장별 인용은 sentences[{text, ids}]에 담는다. 클라이언트 제거기는 이전 데이터가 빠질 때까지 남긴다.",
+  "violated_rule": "증거 id는 증거 저장소에만",
+  "prevention": "ci-data-pipeline-contract-check 'S2': 발행된 본문에 id 괄호 0, sentences 인용이 원래 id를 모두 보존.",
+  "verification": "새 코드 통과. 다음 생산 실행 뒤 data.json 확인 필요.",
+  "files": ["scripts/lib/market-analysis-validate.mjs", "scripts/ci-data-pipeline-contract-check.mjs"]
+ },
+ "changelog": [
+  "**증거 id를 문장 밖으로 ({P}):** AI 해설은 id 없는 문장으로 발행되고 인용은 문장별 구조에 따로 담긴다. 화면이 지울 것이 남지 않는다."
+ ]
+}

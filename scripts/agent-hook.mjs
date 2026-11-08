@@ -153,12 +153,32 @@ if (mode === 'post-edit') {
       if (sites.length) controlWarnings.push(`${shown && !shown.startsWith('..') ? shown : file}:${sites.map((site) => `line ${site.line} ${site.code}`).join(', ')}`);
     } catch { /* unreadable target: nothing to report */ }
   }
+  // v59.84 (recurrence analysis S3): the first edit of a code file in a session shows the ledger entries that fixed it
+  // before (scripts/prior-fixes.mjs), so a change starts from the earlier fixes instead of adding one more branch.
+  let priorNote = '';
+  try {
+    const { priorFixes, priorFixesText } = await import('./prior-fixes.mjs');
+    const { tmpdir } = await import('node:os');
+    const { writeFileSync, mkdirSync } = await import('node:fs');
+    const seenDir = join(tmpdir(), 'aio-prior-fixes');
+    const seenFile = join(seenDir, `${String(input.session_id || 'session').replace(/[^\w-]/g, '')}.json`);
+    let seen = [];
+    try { seen = JSON.parse(readFileSync(seenFile, 'utf8')); } catch { seen = []; }
+    const fresh = editTargets.split('\n').filter(Boolean).map((target) => relative(root, resolve(root, target)).replace(/\\/g, '/'))
+      .filter((file) => /^(?:src|js|scripts)\/.+\.m?js$/.test(file) && !/^scripts\/ci-/.test(file) && !seen.includes(file));
+    if (fresh.length) {
+      priorNote = priorFixesText(priorFixes(fresh, { root, limit: 5 }));
+      mkdirSync(seenDir, { recursive: true });
+      writeFileSync(seenFile, JSON.stringify([...seen, ...fresh].slice(-500)));
+    }
+  } catch { /* advisory only: a missing ledger or tmpdir never blocks an edit */ }
   const messages = [];
+  if (priorNote) messages.push(`AIO prior fixes for the file you just edited — read them before adding a branch (node scripts/prior-fixes.mjs <file>): ${priorNote}`);
   if (controlWarnings.length) messages.push(`AIO control-character warning (same rule as ci-control-char-check; a regex \\b written through a shell heredoc becomes U+0008): ${controlWarnings.join('; ')}. Fix with the Edit tool, then node --check.`);
   if (touchesWorkspace || touchesVersion) messages.push('AIO closeout reminder: run qa-runner.mjs affected with the task session or explicit owned files after the edit batch. Intermediate edit state is allowed; reuse matching PASS evidence.');
   if (messages.length) emit({
     systemMessage: messages.join(' '),
-    ...(controlWarnings.length ? { hookSpecificOutput: { hookEventName: 'PostToolUse', additionalContext: messages[0] } } : {})
+    ...(controlWarnings.length || priorNote ? { hookSpecificOutput: { hookEventName: 'PostToolUse', additionalContext: messages.filter((text) => !/closeout reminder/.test(text)).join(' ') } } : {})
   });
   process.exit(0);
 }

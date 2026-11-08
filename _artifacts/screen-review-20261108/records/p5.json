@@ -1,0 +1,27 @@
+{
+ "version": "v59.84",
+ "date": "2026-11-08",
+ "r": null,
+ "status": null,
+ "qa": [],
+ "note": "v59.84 전 화면 점검 1단계: 정확성 S1 수정(증거 id 잔여, 실적 카드, M&A 짝짓기, 같은 날 보도, 통화 혼합 포트폴리오, 브리핑-실적 연결, 한국 재무 404).",
+ "p": {
+  "title": "미국·한국 종목을 함께 담으면 포트폴리오가 '모두 가격 없음'·'통화 혼합()'·'$70000.00'으로 표시",
+  "symptom": "기준 통화 없이 NVDA·MSFT와 005930.KS를 담으면 히어로가 '4종목 모두 가격 없음'인데 표는 손익을 보였고, 통화 문구에 빈 괄호, 원화 원가가 '$70000.00'으로 나왔다.",
+  "root_cause": "surface someRowsValued가 단일 단위를 요구해 환산 없는 혼합을 unavailable로 분류했고, 문구는 declaredCurrencies(원가·상장 통화만 있을 때 빈 목록)를 읽었으며, R:R 선택 목록은 '$'를 고정했다.",
+  "fix": "환산 없는 혼합에 값이 있으면 새 상태 'mixed-currency'와 통화별 소계(currencySubtotals, 단위끼리만 합산)를 낸다. 히어로는 '통화별 평가 달러 $X · 원화 Y원'과 합산 방법을 말한다. 통화 목록은 heldCurrencies를 함께 읽고, 원가는 자기 통화로 적는다.",
+  "violated_rule": "P1175 단위 없는 합산 금지(유지) + 거짓 상태 문구 금지",
+  "prevention": "ci-esm-core-unit-check v59.84: 혼합 장부의 상태·소계·히어로 문구·빈 괄호 검사",
+  "verification": "옛 코드는 unavailable/'모두 가격 없음'으로 실패, 새 코드 통과; 총자산은 여전히 null.",
+  "files": [
+   "src/domain/portfolio/surface.js",
+   "src/domain/portfolio/portfolio-read.js",
+   "src/ui/pages/portfolio.js",
+   "src/ui/components/portfolio-shell-controls.js",
+   "scripts/ci-esm-core-unit-check.mjs"
+  ]
+ },
+ "changelog": [
+  "**통화 혼합 포트폴리오 ({P}):** 미국·한국 종목을 함께 담으면 합계를 지어내지 않고 통화별 평가액을 보여 준다. 빈 괄호와 원화 원가의 달러 표기를 고쳤다."
+ ]
+}

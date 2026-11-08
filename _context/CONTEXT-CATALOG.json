@@ -7,7 +7,7 @@
     "targeted": "Search or read only when the task touches the named domain.",
     "explicitOnly": "Point-in-time evidence; never load by default or treat as current state."
   },
-  "documentCount": 80,
+  "documentCount": 81,
   "documents": [
     {
       "path": "_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md",
@@ -155,8 +155,8 @@
       "title": "결함 사후 분석 원장 (P 항목)",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 2715728,
-      "lines": 14356,
+      "bytes": 2729840,
+      "lines": 14476,
       "lastVerified": "2026-11-08",
       "autoRefresh": false
     },
@@ -784,6 +784,16 @@
       "readPolicy": "targeted",
       "bytes": 2346,
       "lines": 108,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/patch-comment-baseline.json",
+      "title": "patch-comment-baseline.json",
+      "kind": "machine-contract",
+      "readPolicy": "targeted",
+      "bytes": 22762,
+      "lines": 514,
       "lastVerified": null,
       "autoRefresh": false
     },

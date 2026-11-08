@@ -24,7 +24,7 @@ Preconditions:
 - Doctor OK; fresh browser context (empty storage, the driver default).
 
 - **Open.** Click sidebar `포트폴리오`. Empty state shown.
-- **Form.** Click `종목 추가`; `#pf-add-ticker` visible.
+- **Form.** Click the visible entry button (`첫 종목 추가` while the book is empty, since the header `종목 추가` row is hidden then); `#pf-add-ticker` visible.
 - **Reject.** `ZZZZQ` ×1 @10 → `검증되지 않은 티커` toast; storage has no `ZZZZQ`.
 - **Add.** `MSFT` ×3 @400 → toast `MSFT 포지션 추가 완료, 브라우저에 저장됨`; row shows `MSFT`.
 - **Stored.** `aio_portfolio_data` parses to a row `{ticker:'MSFT',qty:3,cost:400}`.

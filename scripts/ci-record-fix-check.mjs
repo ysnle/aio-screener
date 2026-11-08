@@ -80,6 +80,7 @@ const baseEntry = () => ({
     violated_rule: '{R} — fixture rule was violated.',
     prevention: 'QA-OPS-REC-99 — {P}/{R} record-fix gate.',
     verification: 'Fixture verification.',
+    files: ['src/domain/fixture.js'],
   },
   r: { title: 'Fixture rule title', rule: 'Fixture rule body for {R}.', validation: 'Fixture validation for {P}.' },
   qa: [
@@ -129,9 +130,10 @@ try {
 
   const pBlock = pm.slice(pm.indexOf(`## ${P} `));
   check('P entry heading matches `## P<n> - <version> - <title> (<date>)` (QA-OPS-REC-02)', new RegExp(`^## ${P} - v99\\.1 - fixture defect for the record-fix gate \\(2026-10-01\\)$`, 'm').test(pm));
-  const pOrder = ['symptom/reproduction', 'root_cause', 'fix', 'violated_rule', 'prevention', 'verification/residual'];
-  const pLines = pBlock.split('\n').slice(0, 10);
-  check('P entry has a blank line then the six ordered bullets and a trailing blank (QA-OPS-REC-02)', pLines[1] === '' && pOrder.every((key, i) => pLines[2 + i].startsWith(`- ${key}: `)) && pLines[8] === '' && pBlock.split('\n')[9].startsWith('## P'), JSON.stringify(pLines));
+  // v59.84 (S3): the seventh bullet names the changed files (scripts/prior-fixes.mjs reads it).
+  const pOrder = ['symptom/reproduction', 'root_cause', 'fix', 'violated_rule', 'prevention', 'verification/residual', 'files'];
+  const pLines = pBlock.split('\n').slice(0, 11);
+  check('P entry has a blank line then the seven ordered bullets and a trailing blank (QA-OPS-REC-02)', pLines[1] === '' && pOrder.every((key, i) => pLines[2 + i].startsWith(`- ${key}: `)) && pLines[9] === '' && pBlock.split('\n')[10].startsWith('## P'), JSON.stringify(pLines));
   check('duplicate-P-heading lint regex sees no duplicate headings (QA-OPS-REC-02)', (() => {
     const heads = [...pm.matchAll(/^##\s+(P\d+\s+-[^\r\n]+)$/gm)].map((m) => m[1]);
     return new Set(heads).size === heads.length;
@@ -236,6 +238,9 @@ try {
   rejected('{R} used while r is null', (e) => { e.r = null; }, /\{R\}/);
   rejected('control character in text', (e) => { e.p.fix = 'bad \u0080 char'; }, /control/);
   rejected('missing p field', (e) => { delete e.p.root_cause; }, /p\.root_cause/);
+  // v59.84 (S3): a defect entry names the files it changed; an entry without them, or with an absolute path, is refused.
+  rejected('missing p.files', (e) => { delete e.p.files; }, /p\.files is required/);
+  rejected('absolute p.files', (e) => { e.p.files = ['C:/Projects/AIO/src/x.js']; }, /p\.files is required/);
 
   // ── r:null, no status, no placeholder, existing QA section ────────────────
   {

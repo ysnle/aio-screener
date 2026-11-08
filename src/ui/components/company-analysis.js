@@ -8,6 +8,7 @@ import { parseFiscalHistory, requestFiscalHistory, dartLink } from './fiscal-rea
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
 import { KR_FUNDAMENTALS, krFundamentalPoints } from '../../domain/entity/kr-fundamentals.js';
+import { ARTIFACT_FRESHNESS } from '../../data/contracts/artifact-freshness.js';
 import { consensusView, peMultipleText } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
@@ -48,7 +49,9 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state,
   // P1654: Korean listings read OpenDART annual accounts (loaded once per TTL; re-render when a new copy arrives).
   // 2026-10-14 audit #5: the theme stage rows (scenario-state.json) are read here too, not only after 거시 opened them.
   refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,...host._aioCompanyArgs}); }).catch(() => {});
-  if (/\.K[SQ]$/.test(id)) refreshSharedArtifact(root, KR_FUNDAMENTALS).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,...host._aioCompanyArgs}); }).catch(() => {});
+  // Kr-fundamentals.json is not produced while its secret is not registered
+  // (artifact-freshness blockedBy, owner 2026-10-14), so every Korean listing asked for it and logged a 404.
+  if (/\.K[SQ]$/.test(id) && !ARTIFACT_FRESHNESS['kr-fundamentals.json']?.blockedBy) refreshSharedArtifact(root, KR_FUNDAMENTALS).then(({ changed }) => { if (changed && root?._currentTickerId === id) renderCompanyAnalysis({documentRef:doc,root,...host._aioCompanyArgs}); }).catch(() => {});
   requestFiscalHistory(root, () => {
     if (root?._currentTickerId === id && doc.getElementById('page-ticker')?.classList.contains('active')) renderCompanyAnalysis({documentRef:doc,root,...host._aioCompanyArgs});
   }, 'company');

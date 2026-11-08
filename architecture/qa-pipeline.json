@@ -1821,6 +1821,16 @@
           ]
         },
         {
+          "id": "patch-comment-ratchet",
+          "script": "scripts/ci-patch-comment-ratchet-check.mjs",
+          "inputs": [
+            "src/**",
+            "js/**",
+            "scripts/ci-patch-comment-ratchet-check.mjs",
+            "_context/patch-comment-baseline.json"
+          ]
+        },
+        {
           "id": "browser-data-fixture",
           "script": "scripts/ci-browser-data-fixture-check.mjs",
           "inputs": [
@@ -2811,6 +2821,9 @@
         "scripts/ci-assertion-trace-check.mjs",
         "scripts/ci-text-pin-ratchet-check.mjs",
         "_context/text-pin-baseline.json",
+        "scripts/ci-patch-comment-ratchet-check.mjs",
+        "_context/patch-comment-baseline.json",
+        "scripts/prior-fixes.mjs",
         "_context/rule-gap-manifest.json",
         "_context/open-item-baseline.json",
         "_context/assertion-trace-baseline.json",

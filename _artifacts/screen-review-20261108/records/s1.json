@@ -1,0 +1,21 @@
+{
+ "version": "v59.84",
+ "date": "2026-11-08",
+ "r": null,
+ "status": null,
+ "qa": [],
+ "note": "v59.84 구조 개편 S1: 한 사실은 한 판정자가 정하고 모든 화면은 그 판정을 읽는다.",
+ "p": {
+  "title": "신용 스프레드 한 값이 시장 상태·매크로·시장 이야기에서 서로 다른 상태와 문장으로 읽힘",
+  "symptom": "11/6 하이일드 3.0%·20일 +30bp가 시장 상태 축에서는 '부담', 매크로 신용 장에서는 '양호 조건 상실', 시장 이야기에서는 수준만 보고 '안정'으로 읽혔다.",
+  "root_cause": "신용 판정이 market-read·macro-chapters·market-story 세 곳에서 따로 계산됐고, 문장도 각자 썼다. 고칠 때마다 한 곳만 바뀌어 같은 클래스가 반복됐다.",
+  "fix": "credit-reading.js(market-read의 축 입력 creditState/creditCause/hyWidening20Record를 읽음)에 creditJudgement/creditReading/creditFlip을 두고 매크로 신용 장과 시장 이야기가 그 판정·문장·전환 조건을 그대로 쓴다. 부담이면 원인(수준/5일/20일)을 이름 붙이고, 이미 충족된 조건은 전환 조건에 다시 적지 않는다.",
+  "violated_rule": "한 사실 한 소유자(데이터 일관성)",
+  "prevention": "ci-metric-consistency-check §8 '한 사실, 한 상태': 11/6과 오늘 데이터에서 축 상태·이야기 종류·문장·매크로 장 상태·전환 조건을 대조한다. 옛 코드에서 13개 검사 실패.",
+  "verification": "옛 트리(git archive)에서 §8 실패, 새 코드 통과; 매크로·시장 화면 DOM 확인.",
+  "files": ["src/domain/briefing/credit-reading.js", "src/domain/briefing/market-read.js", "src/domain/macro/macro-chapters.js", "src/domain/market/market-story.js", "scripts/ci-metric-consistency-check.mjs"]
+ },
+ "changelog": [
+  "**신용 판정 한 곳으로 ({P}):** 하이일드 스프레드의 상태·문장·전환 조건을 시장 상태 축 하나가 정하고 매크로·시장 화면이 그대로 읽는다. 부담이면 원인(수준, 5일, 20일 확대)을 밝힌다."
+ ]
+}

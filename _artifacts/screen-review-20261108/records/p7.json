@@ -1,0 +1,23 @@
+{
+ "version": "v59.84",
+ "date": "2026-11-08",
+ "r": null,
+ "status": null,
+ "qa": [],
+ "note": "v59.84 전 화면 점검 1단계: 정확성 S1 수정(증거 id 잔여, 실적 카드, M&A 짝짓기, 같은 날 보도, 통화 혼합 포트폴리오, 브리핑-실적 연결, 한국 재무 404).",
+ "p": {
+  "title": "한국 종목을 열 때마다 없는 kr-fundamentals.json을 요청해 404",
+  "symptom": "verify-aio 종목 드라이브가 세 폭 모두 '404 /public-data/kr-fundamentals.json'으로 실패했다.",
+  "root_cause": "company-analysis가 산출물 생성이 비밀 키 미등록으로 막혀 있는데도(artifact-freshness blockedBy, 소유자 2026-10-14) 한국 종목마다 요청했다.",
+  "fix": "artifact-freshness 계약에 blockedBy가 있으면 요청하지 않는다. 키가 등록돼 blockedBy를 지우면 자동으로 다시 요청한다.",
+  "violated_rule": "계약에 없는 산출물 요청 금지",
+  "prevention": "verify-aio stock 드라이브 로컬 4xx 0",
+  "verification": "phase1 드라이브에서 stock 3개 폭 local 4xx 0.",
+  "files": [
+   "src/ui/components/company-analysis.js"
+  ]
+ },
+ "changelog": [
+  "**한국 재무 404 ({P}):** 생성이 막힌 한국 재무 파일을 요청하지 않는다."
+ ]
+}

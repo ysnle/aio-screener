@@ -1,0 +1,21 @@
+{
+ "version": "v59.84",
+ "date": "2026-11-08",
+ "r": null,
+ "status": null,
+ "qa": [],
+ "note": "v59.84 구조 개편 S1: 한 사실은 한 판정자가 정하고 모든 화면은 그 판정을 읽는다.",
+ "p": {
+  "title": "VIX 25.6이 화면마다 다른 구간 이름으로 읽힘",
+  "symptom": "오늘 VIX 카드와 시장 이야기는 30/20 사다리로 25.6을 '경계'라 했고, 투자 심리는 18/25/32 기준으로 다른 이름을 썼다.",
+  "root_cause": "home-vix와 market-story가 RULES.volatility 대신 자기 숫자 사다리를 들고 있었다.",
+  "fix": "두 곳 모두 narrative.vixBand(RULES.volatility 18/25/32)를 쓴다.",
+  "violated_rule": "기준값은 RULES 한 곳(데이터 일관성)",
+  "prevention": "ci-domain-parity-check: home-vix.js·market-story.js를 사본 목록에 넣고 'vix >= 15|20|30 ?'·'vp >= n ?' 사다리를 금지.",
+  "verification": "새 코드 통과; 두 정규식은 옛 home-vix·market-story 사다리를 겨냥한다.",
+  "files": ["src/ui/components/home-vix.js", "src/domain/market/market-story.js", "scripts/ci-domain-parity-check.mjs"]
+ },
+ "changelog": [
+  "**VIX 구간 하나 ({P}):** 오늘 VIX 카드와 시장 이야기도 투자 심리와 같은 18/25/32 구간을 쓴다."
+ ]
+}
