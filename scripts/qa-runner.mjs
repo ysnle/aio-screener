@@ -26,7 +26,7 @@ const KEEP_RUNS = 150;
 export function pruneRuns(dir, { keep = KEEP_RUNS, protect = [] } = {}) {
   let names;
   try { names = readdirSync(dir); } catch { return 0; }
-  const ids = [...new Set(names.filter((name) => /^\d{4}-\d{2}-\d{2}T/.test(name)).map((name) => name.replace(/\.json$/, '')))].sort();
+  const ids = [...new Set(names.filter((name) => /^\d.*-\d+-[a-z0-9]{6}(?:\.json)?$/.test(name)).map((name) => name.replace(/\.json$/, '')))].sort();
   const keepSet = new Set([...ids.slice(-keep), ...protect.filter(Boolean)]);
   let removed = 0;
   for (const id of ids) {
