@@ -241,6 +241,24 @@ try {
   if (!/dispatchRefreshScreener\(\{ env, scheduledTime: controller\?\.scheduledTime/.test(worker)) fail('scheduled() must dispatch refresh-screener');
 }
 
+// v59.85: a GitHub cron that stood down (scripts/cron-fallback-guard.mjs) ends 'success' with no work, so for the two workflows
+// whose cron is only the Worker's fallback it must not count as the recent success that skips the next slot; the screener's
+// crons still do the real work and keep counting.
+{
+  const { dispatchEventBriefs, dispatchRefreshData, dispatchRefreshScreener } = await import('../worker/data-plane.js');
+  const env = { GITHUB_DISPATCH_TOKEN: 'fixture', AIO_QUOTES_KV: { get: async () => null, put: async () => {} } };
+  const runsFetch = (runs) => async (_url, init) => init.method === 'POST' ? new Response(null, { status: 204 }) : Response.json({ workflow_runs: runs });
+  const run = (id, event, updatedAt) => ({ id, event, head_branch: 'main', status: 'completed', conclusion: 'success', updated_at: updatedAt });
+  // :05 dispatch succeeded at :06, the late :07 cron stood down at :13; the :25 slot must still dispatch.
+  const briefs = await dispatchEventBriefs({ env, scheduledTime: Date.parse('2026-10-01T13:25:00Z'), fetchImpl: runsFetch([run(2, 'schedule', '2026-10-01T13:13:00Z'), run(1, 'workflow_dispatch', '2026-10-01T13:06:00Z')]) });
+  const briefsDispatchCovered = await dispatchEventBriefs({ env, scheduledTime: Date.parse('2026-10-01T13:25:00Z'), fetchImpl: runsFetch([run(2, 'schedule', '2026-10-01T13:20:00Z'), run(1, 'workflow_dispatch', '2026-10-01T13:15:00Z')]) });
+  const data = await dispatchRefreshData({ env, scheduledTime: Date.parse('2026-10-01T13:50:00Z'), fetchImpl: runsFetch([run(4, 'schedule', '2026-10-01T13:40:00Z'), run(3, 'workflow_dispatch', '2026-10-01T13:22:00Z')]) });
+  const screener = await dispatchRefreshScreener({ env, scheduledTime: Date.parse('2026-10-01T22:25:00Z'), fetchImpl: runsFetch([run(5, 'schedule', '2026-10-01T22:15:00Z')]) });
+  if (!briefs.dispatched || briefsDispatchCovered.dispatched || briefsDispatchCovered.reason !== 'recent-success' || !data.dispatched || screener.dispatched || screener.reason !== 'recent-success') {
+    fail(`v59.85 a stood-down fallback cron must not suppress the next Worker slot: ${JSON.stringify({ briefs, briefsDispatchCovered, data, screener })}`);
+  }
+}
+
 // P1595: fallback dispatch coalesces healthy work, persists safe receipts and bounds stalled bodies.
 {
   const { dispatchRefreshData } = await import('../worker/data-plane.js');

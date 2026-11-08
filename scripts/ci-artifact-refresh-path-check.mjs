@@ -7,7 +7,8 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ARTIFACT_FRESHNESS, MANUAL_ARTIFACTS, freshnessLedgerPath, freshnessState } from '../src/data/contracts/artifact-freshness.js';
+import { ARTIFACT_FRESHNESS, MANUAL_ARTIFACTS, freshnessLedgerPath, freshnessState, livenessState, sessionLagState, artifactContractDrift } from '../src/data/contracts/artifact-freshness.js';
+import { workflowPublishes } from './lib/data-publish-sets.mjs';
 import { buildLedger } from './write-freshness-ledger.mjs';
 import { readArtifactFreshness } from '../src/data/freshness.js';
 
@@ -55,7 +56,8 @@ for (const [name, spec] of Object.entries(ARTIFACT_FRESHNESS)) {
   const workflowPath = `.github/workflows/${spec.workflow}`;
   if (!existsSync(join(root, workflowPath))) { check(`v59.70 ${name} workflow exists`, false, workflowPath); continue; }
   const text = (workflowText[spec.workflow] ||= read(workflowPath));
-  check(`v59.70 ${spec.workflow} stages public-data/${name}`, text.includes(`public-data/${name}`));
+  // v59.85: the publish set is the staged-path contract (scripts/lib/data-publish-sets.mjs), not the workflow text.
+  check(`v59.70 ${spec.workflow} stages public-data/${name}`, workflowPublishes(spec.workflow, `public-data/${name}`), 'add it to the workflow\'s set in scripts/lib/data-publish-sets.mjs');
   const hours = lineageMaxHours(name);
   check(`v59.70 ${name} staleAfterMinutes equals the lineage audit bound`, hours != null && hours * 60 === spec.staleAfterMinutes, `registry=${spec.staleAfterMinutes}m lineage=${hours == null ? 'missing' : `${hours * 60}m`}`);
   check(`v59.70 ${name} cadence is shorter than its stale bound`, spec.expectedEveryMinutes > 0 && spec.expectedEveryMinutes < spec.staleAfterMinutes);
@@ -72,7 +74,7 @@ for (const workflow of new Set(Object.values(ARTIFACT_FRESHNESS).filter((spec) =
   const markAt = text.indexOf('AIO_RUN_STARTED_AT=');
   check(`v59.70 ${workflow} marks the run start before its producers`, markAt > 0 && markAt < ledgerAt);
   check(`v59.70 ${workflow} writes its freshness ledger before recording the validated candidate`, ledgerAt > 0 && recordAt > ledgerAt);
-  check(`v59.70 ${workflow} stages its freshness ledger`, text.includes(`stage_if_exists ${freshnessLedgerPath(workflow)}`));
+  check(`v59.70 ${workflow} stages its freshness ledger`, workflowPublishes(workflow, freshnessLedgerPath(workflow)));
 }
 
 // 4. Exhaustive ledger fixture: written x skipUnchanged x same-except-volatile.
@@ -110,6 +112,23 @@ check('v59.70 readArtifactFreshness reads the workflow ledger the watchdog reads
   && readArtifactFreshness('kr-investor-flows.json', { root: fakeRoot, now }).blockedBy === null
   && readArtifactFreshness('event-briefs.json', { root: fakeRoot, now }).state === 'unknown'
   && readArtifactFreshness('not-registered.json', { root: fakeRoot, now }).state === 'unknown');
+
+// 5. v59.85: content currency. The grade is the worse of liveness (checkedAt) and session lag (basisSession), so a file
+// the pipeline rewrites every cycle with a two-sessions-old basis is not 'current'.
+{
+  const tue = Date.parse('2026-11-10T14:00:00Z'); // Tue 09:00 New York, US session 11/10 open; latest completed US 11/09
+  const row = (basis, minutesAgo = 5) => ({ checkedAt: new Date(tue - minutesAgo * 60000).toISOString(), expectedEveryMinutes: 360, staleAfterMinutes: 2880, basisSession: basis });
+  check('v59.85 session lag 0 is current', freshnessState(row({ US: '2026-11-09' }), tue) === 'current');
+  check('v59.85 session lag 1 inside 12 h of the latest close is current', freshnessState(row({ US: '2026-11-06' }), Date.parse('2026-11-10T02:00:00Z')) === 'current');
+  check('v59.85 session lag 1 past the 12 h grace is late even when just checked', freshnessState(row({ US: '2026-11-06' }), tue) === 'late' && livenessState(row({ US: '2026-11-06' }), tue) === 'current');
+  check('v59.85 session lag 2 is stale even when just checked', freshnessState(row({ US: '2026-11-05' }), tue) === 'stale' && sessionLagState(row({ US: '2026-11-05' }), tue).lagByMarket.US === 2);
+  check('v59.85 the worse market decides', freshnessState(row({ US: '2026-11-09', KR: '2026-11-05' }), tue) === 'stale');
+  check('v59.85 a weekend does not age a Friday basis', freshnessState(row({ US: '2026-11-06', KR: '2026-11-06' }), Date.parse('2026-11-08T14:00:00Z')) === 'current');
+  check('v59.85 an undatable row stays unknown', freshnessState({ basisSession: { US: '2026-11-09' } }, tue) === 'unknown');
+  check('v59.85 contract drift names an unresolved clock and basis', JSON.stringify(artifactContractDrift('history.json', { rows: [{ date: '2026-11-08' }] })) === JSON.stringify(['basis:US', 'basis:KR'])
+    && JSON.stringify(artifactContractDrift('history.json', [{ date: '2026-11-08' }])) === JSON.stringify(['clock', 'basis:US', 'basis:KR']));
+  check('v59.85 a market without an observation in the last history row is not contract drift', JSON.stringify(artifactContractDrift('history.json', { rows: [{ date: '2026-08-17', spx: 6400, kospi: null, fieldMeta: { spx: { sessionDate: '2026-08-14' } } }] })) === '[]');
+}
 
 if (errors.length) {
   console.error('Artifact refresh path check failed:');

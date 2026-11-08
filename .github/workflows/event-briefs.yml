@@ -2,12 +2,19 @@ name: Event briefs (FOMC and market-mover earnings)
 
 # v59.42 (owner audit 2026-10-28): scripts/fetch-event-briefs.mjs writes public-data/event-briefs.json from the Fed
 # statement, the SEC 8-K/6-K Ex.99 of the mover list and the DART 공정공시, summarised by the shared Worker AI. A run
-# without a new source document or a pending call summary makes no AI request and no commit. :07/:27/:47 keep clear of
-# refresh-data (:17/:47 is shared only with the cheap no-op path), data-watchdog (:23) and refresh-screener (:53).
+# without a new source document or a pending call summary makes no AI request and no commit. The data-plane Worker
+# dispatches it at :05/:25/:45 (v59.81); the :07/:27/:47 cron below is only the fallback and stands down when that
+# dispatch is live or succeeded (v59.85, scripts/cron-fallback-guard.mjs).
 on:
   schedule:
     - cron: '7,27,47 * * * *'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      retry:
+        description: "set by the run itself on a push collision (collision); empty otherwise"
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: write
@@ -31,12 +38,25 @@ jobs:
         with:
           node-version: '24'
 
+      # v59.85: the :07/:27/:47 cron is the fallback for the Worker's :05/:25/:45 dispatch (v59.81); it stands down when
+      # a dispatched run started inside 15 minutes is live or succeeded (GitHub mostly delivers the cron late). Fails open.
+      - name: Stand down a cron slot the Worker dispatch already covers
+        id: guard
+        if: ${{ github.event_name == 'schedule' }}
+        continue-on-error: true
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/cron-fallback-guard.mjs --workflow event-briefs.yml --window-min 15 --github-output
+
       # Once per KRX session after 16:10 KST (the script exits early otherwise); a failure keeps the previous file.
       - name: Refresh KOSPI/KOSDAQ weight proxies
+        if: steps.guard.outputs.covered != 'true'
         continue-on-error: true
         run: node scripts/fetch-kr-index-weights.mjs
 
       - name: Build event briefs
+        if: steps.guard.outputs.covered != 'true'
         env:
           SEC_USER_AGENT: ${{ vars.SEC_USER_AGENT }}
           AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
@@ -46,41 +66,12 @@ jobs:
           node scripts/fetch-event-briefs.mjs
 
       - name: Commit and dispatch CI
+        if: steps.guard.outputs.covered != 'true'
         id: commit
+        # v59.85: the shared publisher (set event-briefs). A file whose only change is generatedAt goes back to HEAD in the
+        # index and the worktree (event-briefs.json since v59.62, kr-index-weights.json now), so a re-check makes no commit
+        # and a push retry's rebase is never refused over a leftover modified file (run 42480198913 lost its briefs so).
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          git config user.name "aio-data-bot"
-          git config user.email "actions@github.com"
-          for f in public-data/event-briefs.json public-data/kr-index-weights.json; do
-            if [ -e "$f" ]; then git add -- "$f"; fi
-          done
-          # A run that only re-checked sources changes generatedAt alone; that file is not committed.
-          # v59.62: compare the parsed files without generatedAt. The file is one line since a9825f31 (10-31), so the
-          # old diff-line grep saw every real change on the generatedAt line and discarded it (briefs frozen at 10-31).
-          if ! git diff --staged --quiet -- public-data/event-briefs.json \
-            && node scripts/lib/json-same-except.mjs generatedAt "$(git rev-parse HEAD):public-data/event-briefs.json" public-data/event-briefs.json; then
-            git restore --staged -- public-data/event-briefs.json
-            echo "event-briefs.json: only the timestamp changed"
-          fi
-          if git diff --staged --quiet; then
-            echo "No event-brief or weight changes"
-            exit 0
-          fi
-          ts=$(date -u +"%Y-%m-%dT%H:%MZ")
-          git commit -m "data: event briefs ${ts}"
-          attempt=1
-          until git push; do
-            if [ "$attempt" -ge 5 ]; then
-              echo "::error::git push failed after 5 attempts"
-              exit 1
-            fi
-            git fetch origin main
-            git rebase origin/main
-            attempt=$((attempt + 1))
-            sleep $((attempt * 3 + RANDOM % 5))
-          done
-          final_sha="$(git rev-parse HEAD)"
-          gh workflow run ci.yml --ref main -f release_sha="$final_sha" -f origin="event-briefs"
-          echo "Dispatched CI for event-brief commit $final_sha"
+          DISPATCH_RETRY: ${{ inputs.retry }}
+        run: node scripts/publish-data-commit.mjs --set event-briefs --retry "${DISPATCH_RETRY:-}"

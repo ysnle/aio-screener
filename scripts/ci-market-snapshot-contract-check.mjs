@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { workflowPublishes } from './lib/data-publish-sets.mjs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createMarketSnapshot, TIER_0_INSTRUMENTS, validateInstrumentRegistry, validateMarketSnapshot, tier0Coverage } from '../src/data/contracts/market-snapshot.js';
@@ -346,7 +347,8 @@ if (!loaderSource.includes('snapshot_not_published') || !loaderSource.includes('
 const bridgeSource = fs.readFileSync(path.join(root, 'src/legacy/market-snapshot-bridge.js'), 'utf8');
 if (!bridgeSource.includes("policyKey: 'static_snapshot'") || !bridgeSource.includes('market-snapshot-fallback')) fail('legacy bridge does not preserve snapshot provenance');
 const refresh = fs.readFileSync(path.join(root, '.github/workflows/refresh-data.yml'), 'utf8');
-if (!refresh.includes('public-data/market-snapshot.json') || !refresh.includes('market-snapshot-status.json')) fail('refresh workflow does not publish snapshot artifacts');
+// v59.85: the staged set is the refresh-data publish set (scripts/lib/data-publish-sets.mjs).
+if (!refresh.includes('scripts/publish-data-commit.mjs --set refresh-data') || !workflowPublishes('refresh-data.yml', 'public-data/market-snapshot.json') || !workflowPublishes('refresh-data.yml', 'public-data/market-snapshot-status.json')) fail('refresh workflow does not publish snapshot artifacts');
 
 console.log(JSON.stringify({
   ok: true,

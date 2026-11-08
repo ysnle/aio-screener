@@ -15,7 +15,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import {
-  ARTIFACT_FRESHNESS, FRESHNESS_SCHEMA, freshnessLedgerPath, artifactProducedAt, artifactBasisSession, sameExceptVolatile,
+  ARTIFACT_FRESHNESS, FRESHNESS_SCHEMA, freshnessLedgerPath, artifactProducedAt, artifactBasisSession, artifactContractDrift, sameExceptVolatile,
 } from '../src/data/contracts/artifact-freshness.js';
 
 const arg = (name) => { const i = process.argv.indexOf(name); return i >= 0 ? process.argv[i + 1] : null; };
@@ -54,6 +54,10 @@ export function buildLedger({ workflow, runStartedMs, nowIso = new Date().toISOS
       basisSession: artifactBasisSession(file, payload),
       lastAttempt: { at: nowIso, status },
     };
+    // v59.85: a declared clock or basis path that no longer resolves is named on the row (and by the watchdog), not
+    // failed here: refusing the refresh over a registry path would freeze the data the registry describes.
+    const drift = artifactContractDrift(file, payload);
+    if (drift.length) artifacts[file].contractDrift = drift;
   }
   return { schemaVersion: FRESHNESS_SCHEMA, workflow, writtenAt: nowIso, artifacts };
 }
@@ -90,4 +94,7 @@ if (entryPath.endsWith('scripts/write-freshness-ledger.mjs')) {
   const counts = Object.values(ledger.artifacts).reduce((acc, row) => ({ ...acc, [row.lastAttempt.status]: (acc[row.lastAttempt.status] || 0) + 1 }), {});
   const kept = Object.entries(ledger.artifacts).filter(([, row]) => row.lastAttempt.status === 'unchanged').map(([file]) => file);
   console.log(`[freshness] ${ledgerPath} ${JSON.stringify(counts)}${kept.length ? ` timestamp-only (kept published bytes): ${kept.join(', ')}` : ''}`);
+  for (const [file, row] of Object.entries(ledger.artifacts)) {
+    if (row.contractDrift) console.log(`::warning::[freshness] ${file} no longer resolves ${row.contractDrift.join(', ')} from src/data/contracts/artifact-freshness.js; its producer changed shape`);
+  }
 }

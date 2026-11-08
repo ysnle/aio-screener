@@ -44,6 +44,7 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
+      actions: read # v59.85: the cron fallback guard lists this workflow's recent runs
     outputs:
       mode: ${{ steps.decide.outputs.mode }}
     steps:
@@ -54,8 +55,19 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             scripts/refresh-cadence.mjs
+            scripts/cron-fallback-guard.mjs
             src/domain/market/market-calendar.js
             public-data/data.json
+
+      - name: Stand down a cron slot the Worker dispatch already covers (v59.85)
+        id: guard
+        # Only the :17/:47 fallback cron; the daily-lane cron and every dispatch always proceed. Fails open.
+        if: ${{ github.event_name == 'schedule' && github.event.schedule != '33 7 * * *' }}
+        continue-on-error: true
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/cron-fallback-guard.mjs --workflow refresh-data.yml --window-min 20 --github-output
 
       - name: Decide refresh mode (full, news or skip)
         id: decide
@@ -63,6 +75,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_SCHEDULE: ${{ github.event.schedule }}
           DISPATCH_TRIGGER: ${{ inputs.trigger }}
+          CRON_COVERED: ${{ steps.guard.outputs.covered }}
         run: node scripts/refresh-cadence.mjs --github-output
 
   refresh:
@@ -79,7 +92,7 @@ jobs:
       group: refresh-data
       cancel-in-progress: false
     outputs:
-      sha: ${{ steps.dispatch.outputs.sha }}
+      sha: ${{ steps.commit.outputs.sha }}
     # Includes waiting for the dispatched CI run to produce its attestation
     # before handing the run id to Pages (see ensure-live-convergence.mjs).
     timeout-minutes: 45
@@ -448,161 +461,18 @@ jobs:
 
       - name: Commit refreshed public data if changed
         id: commit
-        # Publication stays deliberately fail-closed: every producer lane must have
-        # succeeded (or been legitimately skipped) before anything reaches main.
-        # Lane isolation above changes attribution and diagnostics, not this gate.
-        # P1160: this condition used to check ONLY the producer lanes, so the four validation
-        # gates above — including the step literally named "Fail-closed promotion candidate gate
-        # before push" — could fail and the commit still ran. Observed 2026-09-20: steps 10 and 11
-        # failed on an A1 CRITICAL freshness breach, and the bot pushed 85d05825 anyway, leaving
-        # main permanently red and Pages unable to deploy. The comment above claimed publication
-        # "stays deliberately fail-closed"; nothing enforced it. Now it does.
+        # Publication stays deliberately fail-closed: every producer lane must have succeeded (or been legitimately
+        # skipped) and every validation gate above must have passed before anything reaches main (P1160: the commit once
+        # ran after the promotion gate failed and left main red). v59.85: the staged set, the 50 MB stop, the rebase-and-
+        # retry loop (P564/R255), the collision re-run (2026-10-19 redesign), the post-rebase candidate check and the
+        # exact-SHA CI dispatch live in one tested publisher (scripts/publish-data-commit.mjs, set refresh-data in
+        # scripts/lib/data-publish-sets.mjs) shared with refresh-screener and event-briefs. Data commits must run CI: the
+        # message carries no [skip ci] (P572/R263), because the deploy job publishes them.
         if: ${{ !cancelled() && steps.fetch-market.outcome == 'success' && steps.fetch-telegram.outcome == 'success' && (steps.masters.outcome == 'success' || steps.masters.outcome == 'skipped' || steps.masters-restore.outcome == 'success') && steps.degradation-gate.outcome == 'success' && steps.continuity-gate.outcome == 'success' && steps.reconciliation-gate.outcome == 'success' && steps.promotion-gate.outcome == 'success' }}
-        # P564/R255: this used to `git push` once with no pull/rebase beforehand. main is also
-        # updated directly by humans (e.g. editing operator-note.json via the GitHub web UI)
-        # and by other sessions/workflows while this job's two fetch steps run for minutes —
-        # a real merge commit (34b9e1a) proved this race actually happens. A bare push that
-        # loses the race just fails outright with no retry, silently dropping that cycle's
-        # data refresh until the next scheduled run. Now rebase onto the latest main and retry
-        # a bounded number of times before giving up loudly.
-        # Pipeline redesign (2026-10-19): a rebase conflict, or a clean rebase whose tree no longer matches the validated
-        # candidate (a human commit touched a file this run produced, e.g. a version bump in the release manifests), used to
-        # end the run red and drop the cycle until the next slot. The candidate cannot be republished unvalidated, so the run
-        # now dispatches one immediate refresh from the new main (trigger=scheduler: automated, weekend rule, no 13F chain;
-        # retry=collision) and ends without publishing. A retry that collides again fails loudly instead of looping.
         env:
           GH_TOKEN: ${{ github.token }}
           DISPATCH_RETRY: ${{ inputs.retry }}
-        run: |
-          set -euo pipefail
-          git config user.name "aio-data-bot"
-          git config user.email "actions@github.com"
-          stage_if_exists() {
-            if [ -e "$1" ]; then
-              git add -- "$1"
-            fi
-          }
-          git add -- public-data/data.json public-data/history.json
-          stage_if_exists public-data/rotation-detail.json # v59.70 (R11): rotationHistory series split from data.json; same commit or live trails vanish
-          stage_if_exists public-data/macro-history.json # P1426: 거시 direction reads
-          stage_if_exists public-data/macro-calendar.json # P1654: FRED release schedule
-          stage_if_exists public-data/stress-outcomes.json # P1661: VIX-band forward outcomes
-          stage_if_exists public-data/today-verdict.json # v58.80 F01: first-paint verdict (build-scenario-state)
-          stage_if_exists public-data/scenario-outcomes.json # P1743: long-history branch/theme-stage outcomes (weekly)
-          stage_if_exists public-data/scenario-state.json # P1743: per-refresh branches, themes, transitions, scored releases
-          stage_if_exists public-data/market-day.json # v59.63: the last day's moves and events in one linked ledger (build-market-day)
-          stage_if_exists public-data/market-temperature.json # v57.54: per-market price temperature (4-hour throttle)
-          stage_if_exists public-data/official-references.json # P1734: page-verified official web references
-          stage_if_exists public-data/market-snapshot.json
-          stage_if_exists public-data/market-snapshot-status.json
-          stage_if_exists public-data/operations-status.json
-          stage_if_exists public-data/operations-slo-window.json # v59.27: rolling 7/30-day run evidence (6-hour throttle)
-          stage_if_exists public-data/freshness/refresh-data.json # v59.70: per-artifact producedAt/checkedAt ledger
-          stage_if_exists public-config.json
-          stage_if_exists public-data/reconciliation-status.json
-          stage_if_exists public-data/screener.json
-          stage_if_exists public-data/telegram-digest.json
-          stage_if_exists public-data/telegram-observed.json # P1683: lineage rows split out of the served digest
-          stage_if_exists public-data/atlas/index.json
-          stage_if_exists public-data/backtest-history.json
-          stage_if_exists public-data/score-backtest-history.json
-          stage_if_exists public-data/structural-data-research.json
-          stage_if_exists public-data/masters/filing-discovery.json
-          stage_if_exists public-data/masters/filings.json
-          stage_if_exists public-data/masters/manager-catalog.json
-          stage_if_exists public-data/masters/index.json
-          stage_if_exists public-data/masters/holdings.json
-          stage_if_exists public-data/masters/holdings-summary.json
-          stage_if_exists public-data/masters/history-index.json
-          stage_if_exists public-data/masters/history-holdings.json
-          stage_if_exists public-data/masters/issuer-aggregates.json
-          stage_if_exists public-data/masters/ticker-index-reference.json
-          stage_if_exists public-data/masters/cusip-ticker-map.json
-          stage_if_exists public-data/masters/managers-store.json # v59.82: rows on the masters-store branch
-          stage_if_exists public-data/objects/masters
-          stage_if_exists public-data/masters/history/managers
-          git add -- architecture/asset-manifest.json architecture/release-manifest.json architecture/public-readiness.json
-          node scripts/ci-masters-contract-check.mjs --staged
-          node scripts/verify-refresh-candidate.mjs --expect-staged "$RUNNER_TEMP/aio-refresh-data-candidate.json"
-          # GitHub warns at 50 MB and rejects a push containing a file over 100 MB. Fail before the commit,
-          # naming the file. P1757: sec-fundamentals.json (~67 MB) no longer lives on main (data-store branch),
-          # so no staged file is exempt.
-          # v57.89: the 13F manager row ledgers are written through scripts/lib/masters-manager-store.mjs, which splits any
-          # manager over 32 MiB into <id>.json + <id>.part-N.json (BlackRock 60.5 MB -> 31.9 + 25.8 MiB), so no producer
-          # writes a file near 50 MB by design; the v57.88 interim 95 MB ceiling is back to 50 MB, matching refresh-screener.
-          # The scheduled headroom check (ci-artifact-size-headroom-check.mjs) warns from 40 MiB, before this stop is reached.
-          oversized=""
-          while IFS= read -r -d '' staged; do
-            [ -f "$staged" ] || continue
-            bytes="$(stat -c %s -- "$staged")"
-            if [ "$bytes" -gt 52428800 ]; then oversized="$oversized $staged($((bytes / 1048576))MB)"; fi
-          done < <(git diff --staged --name-only -z --diff-filter=ACMR)
-          if [ -n "$oversized" ]; then
-            echo "::error::staged file(s) over the 50 MB publish limit:$oversized"
-            exit 1
-          fi
-          if git diff --staged --quiet; then
-            echo "No public-data changes to commit"
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          # v59.82 (hosting review option A): main's manifest must never name a tree the masters-store branch never held,
-          # so a changed manifest publishes the store first (lease-protected; its parent keeps the tree main named before).
-          if ! git diff --staged --quiet -- public-data/masters/managers-store.json; then
-            node scripts/masters-managers-store.mjs publish
-          fi
-          ts=$(date -u +"%Y-%m-%dT%H:%MZ")
-          # P572/R263: this commit message used to carry "[skip ci]". After P557/R248 moved
-          # GitHub Pages from legacy branch-deploy to the CI-gated deploy job, [skip ci]
-          # skipped that entire workflow — deploy included — so every 2-hourly data refresh
-          # landed in the repo but never reached the live site (confirmed live: data.json
-          # 13h+ stale while watchdog reported success). Data commits MUST run CI so the
-          # deploy job publishes them; validate gating them is a feature, not a cost.
-          git commit -m "data: refresh market and news data ${ts}"
-          collision_retry() {
-            reason="$1"
-            git rebase --abort >/dev/null 2>&1 || true
-            if [[ "${DISPATCH_RETRY:-}" == "collision" ]]; then
-              echo "::error::${reason} again on the collision retry — main is changing the files this refresh produces; not retrying further."
-              exit 1
-            fi
-            gh workflow run refresh-data.yml --ref main -f trigger=scheduler -f retry=collision
-            echo "::warning::${reason}; this cycle is re-run from the new main by a dispatched collision retry."
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "collision=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          }
-          node scripts/verify-refresh-candidate.mjs --expect-commit "$RUNNER_TEMP/aio-refresh-data-candidate.json"
-          attempt=1
-          max_attempts=5
-          until git push; do
-            if [ "$attempt" -ge "$max_attempts" ]; then
-              echo "::error::git push failed after ${max_attempts} attempts — main moved faster than this job could catch up."
-              exit 1
-            fi
-            echo "push rejected (attempt ${attempt}/${max_attempts}) — fetching latest main and rebasing"
-            git fetch origin main
-            # A conflicting concurrent edit cannot be resolved by retrying; leave no half-applied rebase behind.
-            git rebase origin/main || collision_retry "rebase conflict on $(git diff --name-only --diff-filter=U | tr '\n' ' ')"
-            node scripts/verify-refresh-candidate.mjs --expect-commit "$RUNNER_TEMP/aio-refresh-data-candidate.json" || collision_retry "the rebased tree no longer matches the validated candidate"
-            attempt=$((attempt + 1))
-            # Jitter so two producers that lost the same race do not retry in lockstep.
-            sleep $((attempt * 3 + RANDOM % 5))
-          done
-          echo "changed=true" >> "$GITHUB_OUTPUT"
-          echo "Pushed refreshed public-data files"
-
-      - name: Dispatch exact produced commit to CI
-        if: ${{ !cancelled() && steps.commit.outputs.changed == 'true' }}
-        id: dispatch
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          final_sha="$(git rev-parse HEAD)"
-          gh workflow run ci.yml --ref main -f release_sha="$final_sha" -f origin="refresh-data"
-          echo "sha=$final_sha" >> "$GITHUB_OUTPUT"
-          echo "Dispatched CI for exact refresh commit $final_sha"
+        run: node scripts/publish-data-commit.mjs --set refresh-data --candidate "$RUNNER_TEMP/aio-refresh-data-candidate.json" --retry "${DISPATCH_RETRY:-}"
 
       # v57.92 (audit W03): the marker was restored above but never written or saved, so after a quiet SEC day the
       # artifact clock alone kept the daily lane "due" on every 30-minute cycle. It is written only after the daily
