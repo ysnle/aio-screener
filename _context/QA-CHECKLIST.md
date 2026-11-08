@@ -1,8 +1,20 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-08
+last_verified: 2026-11-09
 confidence: medium
 ---
+
+## v59.85 Data publisher (v59.85) (2026-11-09)
+
+- [x] QA-DATA-PUBLISH-01: After a producing workflow's lost push race, the next data commit sits on top of the other commit and the runner's worktree edits survive (autostash). A conflict dispatches exactly one collision re-run. verify_by: node scripts/ci-publish-data-commit-check.mjs
+- [x] QA-DATA-FRESH-01: On a weekday after the US close, the live freshness ledger shows history.json and screener.json with a basisSession, and no row carries contractDrift. verify_by: node scripts/ci-external-pipeline-check.mjs (watchdog)
+- [x] QA-OPS-CRON-01: In a week of refresh-data runs, no schedule-event run starts a full cycle within 20 minutes of a successful Worker dispatch (its cadence reason reads cron-fallback-covered-by-scheduler-run). verify_by: Actions run list for refresh-data.yml, cadence job summary
+- [x] QA-AI-MACRO-RELEASE-ROWS: v59.85: 거시 질문의 CPI·PCE·고용·기준금리·2년물·실질금리·기대인플레·같은 날 2s10s가 source macro-release 근거 행으로 묶여 '[공식 발표]'와 기준월로 게시되고, DOMAIN 줄에 장중 ^TNX·날짜 없는 스냅샷 2s10s·장중 VIX가 없다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-AI-INFLATION-DIRECTION: v59.85: 시장 해석 프롬프트의 INFLATION_DIRECTION이 매크로 화면 물가 축의 방향(재가속·둔화·엇갈림·방향 보류)을 그대로 쓰고, CPI 전년비의 한 달 변화로 '오르는 중'을 단정하지 않는다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-MACRO-ONE-OWNER-READS: v59.85: 거시 장·체인·타일이 물가 방향(coreInflationRead), Sahm·청구, HY 해제 조건(creditReleaseText), 브렌트 주도 보류, 달러 부담, VIX 구간 이름, 성장 걱정을 각 소유 함수에서 읽어 같은 날 서로 다른 판정을 내지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-MACRO-POLICY-CYCLE-WORDING: v59.85: 인상 국면(마지막 목표금리 변경이 180일 안의 인상)에서 CPI·PCE·고용·소매 발표 밴드와 물가 축은 '인하 기대' 대신 '높은 금리가 더 오래 / 추가 인상 압력'으로 읽고, 소매판매 과열은 같은 달 CPI를 뺀 실질 값과 함께 말한다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-HOME-VERDICT-HORIZON: v59.85: 오늘 hero에서 판정이 부담(양호) 쪽인데 지수 카드의 마지막 세션이 반대로 0.5% 이상 움직였고 같은 쪽 움직임이 없으면, 기준 줄이 판정의 기간(50일선·20거래일)과 확인할 축을 말한다. 혼조·갈린 날·작은 움직임에는 비어 있다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-WEEK-AHEAD-RELEASE-CLOCK: v59.85: 주간 일정·오늘 '다음 일정'에서 FOMC는 KST 자정 뒤에도 발표(04:00 KST)까지 남고, CPI는 08:30 ET 발표 뒤 빠진다. 실적은 장 전·장 마감 후 대략 시각으로 거른다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 
 ## v59.83 저장소 이력 증가: 데이터 브랜치 보류, 스크린샷 차단 (2026-11-08)
 

@@ -1,9 +1,0 @@
-{
-  "p": null,
-  "r": null,
-  "qa": [],
-  "changelog": [
-    "**Data is published only from its target branch; the refresh-data cron window is the Worker cycle ({VERSION}):** `publish-data-commit.mjs` pushes to `refs/heads/main` by name, so a refresh run dispatched from a feature branch would have fast-forwarded that branch's code into main with its data. It now refuses a checkout that is not the target branch before staging. The refresh-data cron guard window is 30 minutes, the Worker's cycle, so an on-time :17/:47 cron (27 minutes after the previous dispatch) also stands down, while a cron after a missed Worker slot still runs."
-  ],
-  "note": "{VERSION}: one tested data publisher, session-lag freshness, cron fallback guard"
-}

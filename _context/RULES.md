@@ -1,6 +1,6 @@
 ---
 verified_by: local source review + ledger structure gates (ci-ledger-integrity, ci-record-fix, ci-workflow-compaction); live facts in CURRENT-STATE.md
-last_verified: 2026-11-07
+last_verified: 2026-11-09
 confidence: medium
 target_version: v57.79
 # 규칙 원장 — 원칙 18개(C1~C18)와 그 아래 R 규칙 (2026-10-31 v59.48 재구성)
@@ -11,6 +11,18 @@ target_version: v57.79
 ## 수신함 — 새 규칙은 여기 들어온다
 
 `node scripts/record-fix.mjs`는 새 규칙을 `## R<max+1>.` 헤딩으로 이 파일의 맨 위 `## R` 헤딩 바로 위에 넣는다. 그래서 이 수신함이 파일에서 첫 `## R` 헤딩을 가진다(가장 최근 규칙 하나는 앵커로 남긴다). 새 결함은 먼저 아래 원칙 중 어느 불변식을 어겼는지 보고, 그 원칙의 게이트에 케이스를 더해 막을 수 있으면 새 규칙을 만들지 않는다. 다음 정리 때 수신함 규칙을 해당 원칙 아래로 옮긴다. 핵심 규칙 색인은 수신함 바로 아래다.
+
+## R747. Freshness grades content by session lag, not only pipeline liveness (v59.85, P2312)
+
+**Rule**: freshnessState(row) is the worse of the liveness grade (checkedAt against cadence and stale bound) and the session-lag grade (basisSession against the exchange calendar: 0 current; 1 current inside 12 h of the latest close, late after; 2+ stale). An artifact declares a basis only for a real trading session it reflects. A declared path that no longer resolves is recorded as contractDrift and reported by the watchdog; it never blocks the refresh.
+
+**Validation**: scripts/ci-artifact-refresh-path-check.mjs section 5; scripts/ci-external-pipeline-check.mjs freshness-<workflow>-contract
+
+## R746. Data commits go through one tested publisher (v59.85, P2311)
+
+**Rule**: A workflow that commits public data runs `node scripts/publish-data-commit.mjs --set <id>`. The set's paths, timestamp-only rules, hooks and collision policy live in scripts/lib/data-publish-sets.mjs, and gates read the set rather than the workflow text. A file whose only change is a timestamp goes back to HEAD in both the index and the worktree.
+
+**Validation**: scripts/ci-publish-data-commit-check.mjs (workspace group); scripts/ci-artifact-refresh-path-check.mjs checks that each workflow named in the freshness registry publishes its file and ledger.
 
 ## R745. Credit spread changes and credit states come from market-read (v59.70, P2248)
 

@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-08
+last_verified: 2026-11-09
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -38,6 +38,146 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 <!-- ledger-class-report:end -->
 
 ---
+
+## P2319 - v59.85 - '다음 일정'이 미국 발표를 KST 날짜로만 걸러 FOMC는 발표 전에 빠지고 CPI는 발표 뒤에도 남았다 (2026-11-08)
+
+- symptom/reproduction: 시장 상태의 주간 일정과 오늘 hero의 '다음 일정'에서 FOMC(14:00 ET = 다음날 04:00 KST)가 KST 자정에 사라져 발표 4시간 전부터 목록에 없었고, CPI(22:30 KST)는 발표가 끝난 뒤에도 자정까지 '다음'으로 남았다. 실적도 장 전·장 마감 후 시각과 무관하게 KST 날짜로 걸렀다. 인상 국면인데 CPI·고용의 이유 문장은 '금리 인하 기대'로 쓰였다.
+- root_cause: weekAhead(market-story.js)가 ET 날짜인 발표 date를 KST 오늘 날짜와 비교했다. crossroads 이벤트에는 releaseAtMs로 만든 atMs가 이미 있었지만 읽지 않았다. 이유 문장은 정책 국면을 읽지 않았다.
+- fix: 발표 시각이 있는 항목은 atMs > now로 거른다(atMs가 없으면 releaseAtMs, 그것도 없으면 기존 날짜 규칙). 실적은 브리핑 일정과 같은 시각 표(schedule.js earningsFilterMs: 장 전 08:00 ET, 장 마감 후·시각 미정 16:05 ET)로 빠진다. CPI·PCE·고용의 이유 문장은 policyCycle을 읽어 인상 국면에서는 '추가 인상 압력'으로 말한다. 고용보고서의 고정 이유 문장은 국면과 무관한 표현('금리를 높게 둘 근거가 커져')으로 바꾼다.
+- violated_rule: 시각이 있는 일정은 그 시각으로 '다음'을 판정한다 — 독자의 날짜와 발표국의 날짜를 섞지 않는다.
+- prevention: 새 일정 종류를 주간 목록에 넣을 때는 발표 시각(ms)을 함께 실어 같은 ahead 규칙을 탄다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (v59.85 week-ahead releases follow their release clock)
+- files: src/domain/market/market-story.js, src/domain/briefing/schedule.js
+
+## P2318 - v59.85 - 오늘 hero가 '다소 부담'을 말하는 바로 아래 지수 카드는 당일 상승을 보여, 판정이 무슨 기간 기준인지 알 수 없었다 (2026-11-08)
+
+- symptom/reproduction: 11/6 종가 기준 판정은 '다소 부담'이었고 지수 카드는 나스닥 100 +1.4%, 러셀 2000 +0.9%, S&P 500 +0.3%를 보였다. 판정이 하루 등락이 아니라 50일선과 20거래일 흐름 기준이라는 말이 hero에 없어 둘이 모순처럼 읽혔다.
+- root_cause: v58.79에서 hero 아래 기준 줄을 판정 보류 때만 쓰도록 비웠고, 판정의 기간과 카드의 기간이 엇갈리는 날을 알아보는 규칙이 없었다.
+- fix: verdictHorizonLine(market-read.js)이 지수 카드의 마지막 세션(S&P 500·나스닥 100·러셀 2000)이 판정과 반대쪽으로 0.5% 이상 움직이고 같은 쪽으로 0.5% 이상 움직인 지수가 없을 때만 { text, detail }을 만든다. hero 기준 줄은 짧은 한 줄('11/6 지수는 올랐지만, 판정은 하루 등락이 아닌 50일선·20거래일 흐름 기준입니다.')이고, 지수별 등락·판정 축·확인할 축은 그 줄의 title에 둔다(숫자는 바로 아래 지수 카드에 있다). 혼조, 지수가 갈린 날, 작은 움직임에는 쓰지 않는다.
+- violated_rule: 한 화면의 두 숫자가 다른 기간이면 그 기간을 그 자리에서 말한다.
+- prevention: 판정 옆에 다른 기간의 숫자를 둘 때는 두 기간이 엇갈리는 경우의 문장을 같은 소유 함수에 둔다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (v59.85 horizon line)
+- files: src/domain/briefing/market-read.js, src/domain/rules/thresholds.js, src/ui/components/market-regime.js
+
+## P2317 - v59.85 - 연준이 9/17에 금리를 올린 뒤에도 물가·고용·소매 해석이 '인하 기대'로 쓰였고, 명목 소매판매를 수요 과열로 읽었다 (2026-11-08)
+
+- symptom/reproduction: 11/6 기준 CPI·PCE 발표 밴드가 '끈적함 · 인하 기대가 줄어듭니다', 물가 축이 '연준이 금리를 내리기 어려운 조건'이라고 썼다. 인상 국면에서 뜨거운 물가가 답하는 질문은 '얼마나 높게, 얼마나 오래'다. 실질 기준금리 0.8%가 중립 추정 1.2%보다 낮다는 사실도 정책 축에 없었다. 소매판매 +0.8%(명목)는 같은 달 CPI +0.65%를 빼면 실질 약 +0.1%인데 '과열'로만 읽혔다.
+- root_cause: 해석 문장이 인하 국면을 전제로 고정돼 있었고 정책 국면(fedTargetUpper의 마지막 변경)을 읽는 소유자가 없었다. 소매판매 밴드는 명목값만 받았다.
+- fix: policyCycle(macro-signals.js)이 180일 안의 마지막 목표금리 변경으로 인상/인하/동결을 정하고, 발표 밴드(release-zones.js)·물가 축·물가 장이 읽는다. 밴드 경계와 색은 그대로이고 문장만 국면을 따른다. 정책 축은 실질 기준금리가 중립보다 낮고 물가가 목표를 웃돌 때 '아직 긴축 구간이 아니다'를 말한다. 소매판매 측정명에 '(명목)'을 붙이고, 과열 구간이 같은 달 CPI로 대부분 설명되면 실질 값을 함께 말한다. 한국·성장 장의 소매판매 문장도 같은 실질 계산을 쓴다. 실질 소매판매의 CPI 전월비는 달력상 바로 전월이 있을 때만 계산한다(monthChangeAt; 결측 월이면 실질 추정 보류).
+- violated_rule: 해석은 지금의 정책 국면과 실질 기준에서 읽는다 — 명목값과 지난 국면의 문장을 현재 판단으로 쓰지 않는다.
+- prevention: 금리 경로를 말하는 새 해석 문장은 policyCycle을 읽어 인상·인하 국면 문장을 함께 둔다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (v59.85 policy cycle)
+- files: src/domain/macro/macro-chapters.js, src/domain/macro/macro-read.js, src/domain/macro/macro-signals.js, src/domain/macro/release-zones.js
+
+## P2316 - v59.85 - 거시 화면의 같은 개념(물가 방향·고용 경고·신용 해제·유가 기준·달러 부담·변동성 구간)을 화면마다 다른 규칙으로 판정했다 (2026-11-08)
+
+- symptom/reproduction: 11/6 종가 기준으로 물가 장(章)은 근원 CPI 3개월 연율 3.4%만 보고 '재가속'이라 했지만, 물가 축과 시나리오는 근원 PCE가 따라오지 않아 '방향 보류'였다. 고용 장의 경고선은 Sahm 규칙과 다른 임의 기준이었고, 신용 장은 HY가 진입선(+35bp) 아래로 내려온 뒤에도 해제 조건을 말하지 않았다. 유가 장은 WTI -1.1%만 읽어 브렌트 -6.1%를 놓쳤고, 원/달러 +1.5%를 DXY 0.0% 옆에서 '달러 강세'처럼 설명했다. VIX 구간 이름은 타일·장·축이 서로 달랐고, 금리 하락이 주가 -3% 이하와 함께 온 성장 걱정 구간에서도 금리 타일은 '할인율 부담 감소'로 읽혔다.
+- root_cause: 장(macro-chapters.js)·체인·타일·발표 밴드가 각자 지표를 다시 계산했다. 물가 방향(inflationDirection), Sahm 간격, 실업수당 추세, 신용 래치·해제, 브렌트/WTI 판정, 달러 부담, 성장 걱정 판정의 소유자가 있었지만 장과 타일이 그 소유자를 읽지 않았다.
+- fix: coreInflationRead(macro-read.js)가 PCE·CPI 한 쌍의 방향을 한 번 정하고 장·축·AI 프롬프트가 읽는다. 고용 장은 sahmGap·claimsTrend로 Sahm 0.5%p와 청구 +15% 선을 숫자로 말한다. creditReleaseText가 아직 못 채운 해제 조건만 '지금 값'과 함께 말하고, 래치가 이어지는 동안은 진입선 아래라도 '확대 부담 판정이 이어진다'고 쓴다. oilDivergence에 브렌트 주도(brent-led) 보류를 더해 국제 유가가 움직이고 WTI가 따라가지 않으면 WTI로 방향을 읽지 않는다. 달러 장은 dollarRiseBurden과 계산한 1년 위치(백분위)만을, 원화 문장은 DXY가 제자리일 때 '원화만 약해졌다'를 말한다. VIX 구간 이름은 RULES.volatility 한 표에서 나온다. 금리 축의 growthScare를 타일 제목과 뒤집힘 조건이 읽는다. 해제 조건의 5거래일 +15bp·20거래일 +25bp는 20일 래치가 켜진 동안만 쓰고, 래치가 없으면 creditState 경계(5거래일 +25bp)를 말한다. 지표 하나만 발표된 방향은 그 지표만 말한다. 근원 CPI 3개월 연율은 같은 달의 전년 대비와만 짝짓는다(1년 전 달이 없으면 전년 대비를 비우고 그 사실을 적는다). 물가 방향 행의 이름은 실제로 읽은 지표를 따른다('물가 방향 (근원 PCE만)'). 유가 장의 브렌트·WTI 비교는 oilCheckOf(마지막 공통 종가일)로 읽고, 공통일이 WTI 최신일보다 늦으면 그 날짜를 적는다.
+- violated_rule: 한 사실, 한 소유자 — 같은 지표의 판정은 한 함수가 내리고 화면들은 그 결과를 읽는다.
+- prevention: 거시 장이나 타일에 판정 문장을 더할 때는 macro-read/macro-signals/market-read의 소유 함수를 먼저 찾아 읽는다. 장 안에서 같은 지표의 문턱을 다시 쓰지 않는다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (v59.85 won-specific / policy cycle / brent-led / HY release legs)
+- files: src/domain/macro/macro-read.js, src/domain/macro/macro-chapters.js, src/domain/macro/macro-signals.js, src/domain/macro/rates-fx.js, src/domain/macro/volatility.js, src/domain/briefing/market-read.js, src/domain/briefing/credit-reading.js, src/domain/market/macro-crossroads.js
+
+## P2315 - v59.85 - 시장 해석 프롬프트가 CPI 한 달 변화로 '물가는 오르는 중'이라고 단정해 화면의 '방향 보류'와 어긋났다 (2026-11-08)
+
+- symptom/reproduction: 11/8 데이터에서 CPI 전년비가 직전 달보다 +0.3%p라 INFLATION_DIRECTION이 '물가는 오르는 중이다 — 물가 둔화라고 쓰지 마라'를 넣었다. 같은 프롬프트의 REGIME_CONTEXT와 매크로 화면은 근원 PCE·근원 CPI 3개월 속도 대 전년비로 '방향 보류'(PCE 뚜렷한 방향 없음, CPI 재가속)라고 판정했다.
+- root_cause: INFLATION_DIRECTION이 화면의 물가 방향 규칙(macro-signals inflationDirection)을 읽지 않고 cpiDelta 부호로 따로 방향을 정했다.
+- fix: market-narrative가 coreInflationRead(macro-read.js) 물가 축의 direction을 inflationDirectionLine에 넘기고, 줄은 그 상태(재가속·둔화·엇갈림·방향 보류)와 근거 문장을 그대로 쓴다. 방향이 없으면 수준만 쓰고 방향 추정을 막는다. 생성 문장 검사('물가 둔화' 모순)도 같은 방향을 쓰고(inflationEasingContradicts), 방향이 없을 때만 cpiDelta로 판단한다. 함께: 채팅 규칙의 '과거 리서치 사용 안 함'과 날짜 표기 참고 자료의 충돌을 '해석 틀에만 쓰고 수치는 현재 사실로 옮기지 않음'으로 정리, AI 인프라 프레임의 고정 5부 답변 구조를 범위 점검표로 바꿔 AnswerPlan의 '고정 템플릿 금지'와 맞춤, AI 인프라 런타임 줄을 날짜·evidenceId가 붙은 종가 행(HY는 bp)으로 교체, 조립 시각을 기기 시간대와 무관한 KST로 표기, 읽는 곳 없는 _liveSnap().macro(FEDFUNDS 월평균) 삭제, FOMC 녹취록 프롬프트를 스키마에 있는 필드 규칙으로 교체, LARGE_MOVE 예문 문체(-습니다) 통일. 이전 해설을 유지할 때의 재검증도 같은 물가 방향을 쓴다. 검증기는 프롬프트와 대칭으로, 물가 방향이 둔화·보류·엇갈림일 때 지표를 밝히지 않은 '물가 재가속' 단정(본문·하루 한 줄 모두)을 막는다. '근원 CPI는 재가속'처럼 지표를 밝힌 문장은 허용한다. 조건·시나리오 문장('물가 재가속 경로라면 …')은 현재 단정이 아니므로 통과한다(문장 단위 판정).
+- violated_rule: AI 프롬프트의 판정 문장은 화면과 같은 규칙 모듈에서 온다(one fact, one owner).
+- prevention: 프롬프트에 방향·국면 판정을 넣을 때는 도메인 판정 함수의 결과를 넘기고, 프롬프트 모듈 안에서 임계값을 다시 정하지 않는다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs (v59.85 INFLATION_DIRECTION follows the screen direction); node scripts/ci-data-pipeline-contract-check.mjs
+- files: scripts/producer/market-narrative.mjs, scripts/lib/market-analysis-prompt.mjs, scripts/lib/market-analysis-validate.mjs, scripts/lib/event-brief-prompts.mjs, scripts/fetch-event-briefs.mjs, js/aio-chat.js, js/aio-workspace.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2314 - v59.85 - AI 답변이 화면의 거시 숫자를 근거 행 없이 받아 지우거나 화면과 다른 금리·VIX를 썼다 (2026-11-08)
+
+- symptom/reproduction: 거시·금리 화면에서 'CPI 지금 몇이야?'를 물으면 모델은 DOMAIN 블록의 CPI 3.7%를 받았지만 근거 행(evidenceId)이 없어 '확인 필요'라고 하거나, 게시 게이트가 그 문장을 지웠다. 같은 프롬프트에 장중 ^TNX(관측 시각 없음), 날짜 확인 없는 스냅샷 2s10s, 장중 VIX가 확정 종가 Screen basis와 나란히 들어가 한 답에 10년물·VIX 값이 두 개씩 나올 수 있었다. MACRO_ANALYSIS 질문에는 '매크로/FX 근거가 없어 전달 경로를 만들지 않습니다'가 Screen basis 옆에 함께 들어갔다.
+- root_cause: 화면이 읽는 공식 발표(BLS·BEA·연준·재무부/FRED)가 타입 근거 행으로 발행되지 않았다. 확정 종가 행(close-basis, v57.48)만 있었고, 레거시 _fetchDomainContextForChat이 거시 숫자를 산문으로 따로 조립했다. analysis/evidence-inputs.js의 거시 정규식은 close.* 지표 ID와 status 'reference'를 받지 않아 거시 분석 입력이 늘 비었다.
+- fix: src/ai/context/macro-release-evidence.js가 data.json macro 블록과 macro-history(근원 PCE 3개월 연율·전월비, 달력 월 기준)를 source 'macro-release' 타입 참고 행으로 발행한다. 월간 행은 기준월, 일간 행은 관측일을 asOf로 갖고, 2s10s는 두 다리와 같은 날일 때만 bp로 낸다. bootstrap의 _aioScreenBasisEvidence가 종가 행과 함께 돌려주고 Screen basis 프롬프트에 블록을 붙인다. close-basis에 DXY·원/달러·WTI·금 20거래일 % 행을 더했다. 거시·외환채권 DOMAIN 줄(src/ai/context/chat-macro-lines.js, js/aio-chat.js에서 옮김)은 이 행만 날짜·evidenceId와 함께 인용하고, 공통 금리 줄은 질문 빌더가 한 번만 남긴다. 거시 분석 입력은 close-basis·macro-release 두 출처의 reference 행만 받는다. 세션 근거 고지는 공식 발표 행에도 붙지 않고, 렌더러는 '[공식 발표]'로 표시한다. 원본 시계열이 갱신 실패(series.stale)이거나 근원 PCE가 지연으로 표시되면 파생 3개월 연율·전월비 행도 내지 않는다. 행 모듈은 AI 패널과 함께(chat-globals) 불러 부팅·사후 지연 예산 밖에 둔다. 10년−2년 금리차 행도 금리차와 두 만기가 모두 현재 값일 때만 낸다. 답변 하단 근거 칸도 공식 발표 주장을 완료된 기록으로 본다: 종가·공식 발표만 인용한 답변은 기준(종가일·기준월)과 원천(완료된 종가 기록/공식 발표)을 적고 '확인 필요·미확인'으로 표시하지 않는다.
+- violated_rule: 화면과 AI가 같은 사실을 같은 값·같은 기준일로 말해야 한다(one fact, one owner).
+- prevention: 새 거시 지표를 AI에 넘길 때는 DOMAIN 산문이 아니라 macro-release-evidence.js 행으로 추가한다. 산문 블록은 행을 인용만 한다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs (v59.85 macro releases / CPI claim binds / macro analysis reads / DOMAIN lines / shared rates line)
+- files: src/ai/context/macro-release-evidence.js, src/ai/context/chat-macro-lines.js, src/ai/context/close-basis-evidence.js, src/ai/analysis/evidence-inputs.js, src/ai/analysis/macro-fx.js, src/ai/context/market-content.js, src/ai/response/renderer.js, src/ai/response/request-pipeline.js, src/app/bootstrap.js, src/app/chat-globals.js, js/aio-chat.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2313 - v59.85 - GitHub crons kept running beside the Worker dispatch, and a watchdog re-pin would have pushed every release onto the overlay (2026-11-09)
+
+- symptom/reproduction: On 11/08, refresh-data ran from its :17/:47 cron at 06:02, 13:26 and 14:27 UTC on top of the Worker's :20/:50 dispatches. The 14:20 dispatch and the 14:27 cron were two full cycles 7 minutes apart: two data commits, two CI runs, two Pages deploys for the same data. The second cycle's CI hit an unrelated clock flake and turned the producer red. Event-briefs' :07/:27/:47 cron also stayed beside the Worker's :05/:25/:45. Separately, the automatic browser-data re-pin (watchdog-browser.yml, GITHUB_TOKEN push) creates a commit that never gets push CI. Because the fixture was a code path, every later refresh release would have shipped as an overlay on the commit before it.
+- root_cause: v59.81 moved the primary schedule to the data-plane Worker, but the GitHub crons remained unconditional. The Worker skips when a run is live or recent; the crons had no equivalent check. The release-source resolver counts only push CI. architecture/browser-data-fixture.json was outside OVERLAY_GENERATED_PATHS, so a re-pin commit was 'the newest code' without push CI.
+- fix: scripts/cron-fallback-guard.mjs (pure decision plus --self-test) makes a schedule-event run stand down when a workflow_dispatch run of the same workflow started inside the window (refresh-data 20 minutes, event-briefs 15) and is live or succeeded. It still runs when the Worker missed its slot or its run failed, and a failed lookup fails open. refresh-cadence.mjs turns a covered cron into mode=skip; the daily-lane cron and every dispatch always proceed. The event-briefs retry input now exists for the collision re-run. architecture/browser-data-fixture.json is an overlay-generated path. The Worker's recent-success skip ignores schedule runs for these two workflows, because a cron that stood down also ends 'success' and would otherwise suppress the next Worker slot (Codex review on PR #164). The screener's crons still do the real work and keep counting.
+- violated_rule: v59.81 single-scheduler intent: one slot, one cycle.
+- prevention: The guard's self-test pins dispatch, live, success, failure, out-of-window, self and unavailable cases. ci-release-source-check.mjs asserts that the fixture is a generated path and that every publish-set path is one. ci-data-plane-contract-check.mjs pins that a stood-down cron does not suppress the next event-briefs or refresh-data slot, while a screener cron still does.
+- verification/residual: node scripts/cron-fallback-guard.mjs --self-test; node scripts/ci-release-source-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs; node scripts/ci-data-plane-contract-check.mjs
+- files: scripts/cron-fallback-guard.mjs, scripts/refresh-cadence.mjs, worker/data-plane.js, scripts/ci-data-plane-contract-check.mjs, scripts/build-data-overlay.mjs, scripts/ci-release-source-check.mjs, .github/workflows/refresh-data.yml, .github/workflows/event-briefs.yml
+
+## P2312 - v59.85 - The freshness grade measured pipeline liveness only; history.json's registry paths resolved nothing (2026-11-09)
+
+- symptom/reproduction: Every refresh-data ledger row for history.json carried producedAt null and basisSession null, so neither the watchdog nor the badge could date its content. A screener file rewritten each cycle from a two-sessions-old upstream still graded 'current', because the grade read checkedAt (when the pipeline last confirmed the file), not what the content was about. backtest-history declared its run date (weekend rows included) as a US session basis.
+- root_cause: freshnessState() graded checkedAt (falling back to producedAt) against the cadence and the stale bound. basisSession was recorded but never graded. history.json became { schemaVersion, fieldDictionary, rows }, but its registry entry still read '-1.date'. Nothing checked that a declared path resolved on the artifact.
+- fix: freshnessState() is now the worse of livenessState() (the previous rule) and sessionLagState(). sessionLagState() grades basisSession against the exchange calendars with observationSessionState: the latest session is current; one session behind is current inside 12 hours of that close and late after; two or more behind is stale. history.json reads rows.-1.cycleEnd and per-market basis from rows.-1.fieldMeta.{spx,kospi}.sessionDate. backtest-history declares no session basis. write-freshness-ledger.mjs records contractDrift (['clock'], ['basis:US']) when a present artifact no longer resolves a declared path; this is a warning, not a refusal, so a registry path cannot freeze data. The watchdog names it as freshness-<workflow>-contract. Drift is judged on the object that should hold the basis, not on the market's own entry: history.json drops fieldMeta.<field> on a null observation, so its basis tuples name rows.-1.fieldMeta as their holder, and a market without an observation that cycle is not reported as drift (Codex review on PR #164; all 420 stored rows are drift-free).
+- violated_rule: The v59.70 freshness contract ("every card refreshes itself, or says it does not"): a card built on stale content was shown as current.
+- prevention: R747: a freshness grade is the worse of liveness and session lag, and a declared clock or basis path that resolves nothing is named on the ledger row and by the watchdog. ci-artifact-refresh-path-check.mjs pins session lag 0, lag 1 inside and past the grace, lag 2, the worse market, the weekend case, the undatable row, and drift detection.
+- verification/residual: node scripts/ci-artifact-refresh-path-check.mjs; node scripts/qa-runner.mjs --group data --no-cache
+- files: src/data/contracts/artifact-freshness.js, scripts/write-freshness-ledger.mjs, scripts/ci-external-pipeline-check.mjs, scripts/ci-artifact-refresh-path-check.mjs, scripts/fetch-kr-index-weights.mjs, scripts/ci-event-briefs-check.mjs
+
+## P2311 - v59.85 - Four hand-written data commit loops drifted apart; event-briefs lost a cycle to a dirty-worktree rebase (2026-11-09)
+
+- symptom/reproduction: Run 42480198913 (event-briefs) lost that cycle's briefs: its push was rejected, and the retry's `git rebase` refused with "cannot rebase: You have unstaged changes". The refresh-screener extended shard had no collision retry, so a rebase conflict ended the run red. Event-briefs did not re-validate after a rebase. On Sunday 11/08, 12 of the 15 event-brief commits rewrote only generatedAt in kr-index-weights.json; each one meant a CI run and a Pages deploy.
+- root_cause: The commit/push logic was inline bash, copied into refresh-data, refresh-screener (core and extended) and event-briefs, each with its own staged-path list, 50 MB check, rebase loop and post-rebase validation. The copies diverged. `git restore --staged` unstaged a timestamp-only file but left it modified in the worktree. Only event-briefs.json had a timestamp-only filter. fetch-kr-index-weights.mjs compared asOf with today's KST date, not the latest KRX session, so every non-trading day refetched every 20 minutes. Gates checked the loops by grepping the workflow for `stage_if_exists public-data/<file>`, so they confirmed the text, not the behaviour.
+- fix: One tested publisher, scripts/publish-data-commit.mjs, now reads its sets from scripts/lib/data-publish-sets.mjs. Each set lists required paths, optional paths, timestamp-only rules, afterStage/beforeCommit/verifyCommit hooks, a collision policy and the CI origin. The publisher stages the set and puts timestamp-only files back to HEAD in both the index and the worktree. It refuses unparsable JSON and files over 50 MB, commits, verifies, and pushes. On rejection it runs `rebase --autostash`, verifies again, then retries (5 attempts); a conflict dispatches one collision re-run, and a second collision fails. It finishes by dispatching exact-SHA CI. All four workflow commit steps call it. kr-index-weights is due once per KRX session, 40 minutes after the close (latestCompletedKrSession). Eleven gates (artifact-refresh-path, data-continuity, data-pipeline, official-references, operations-slo-window, qa-pipeline, scenario-guidance, us-listings, operations-contract, market-snapshot, screener-extended) now assert against the publish sets instead of the workflow text. ci-release-source-check fails when a set commits a path that is not an overlay-generated path.
+- violated_rule: R255 (a lost push race must not drop the cycle) held in only two of the four loops.
+- prevention: R746: every producing workflow commits through scripts/publish-data-commit.mjs. ci-publish-data-commit-check.mjs drives the publisher against a throwaway bare remote (race with autostash, conflict, second collision, verify after rebase, timestamp-only, missing or unparsable output). It also fails when a publishing workflow keeps `until git push` or `stage_if_exists`.
+- verification/residual: node scripts/ci-publish-data-commit-check.mjs; node scripts/ci-event-briefs-check.mjs; node scripts/qa-runner.mjs contracts --no-cache
+- files: scripts/lib/data-publish-sets.mjs, scripts/publish-data-commit.mjs, scripts/ci-publish-data-commit-check.mjs, .github/workflows/refresh-data.yml, .github/workflows/refresh-screener.yml, .github/workflows/event-briefs.yml, architecture/qa-pipeline.json, scripts/ci-data-continuity-check.mjs, scripts/ci-data-pipeline-contract-check.mjs, scripts/ci-official-references-check.mjs, scripts/ci-operations-slo-window-check.mjs, scripts/ci-qa-pipeline-contract-check.mjs, scripts/ci-scenario-guidance-fixture.mjs, scripts/ci-us-listings-check.mjs, scripts/ci-operations-contract-check.mjs, scripts/ci-market-snapshot-contract-check.mjs, scripts/ci-screener-extended-contract-check.mjs
+
+## P2310 - v59.85 - 기업 이야기에 내부 코드·영문 항목명이 그대로 보임 (2026-11-08)
+
+- symptom/reproduction: AI 밸류체인 목록에 'semicap-foundry (TSMC …)' 같은 층 코드가 199개 이야기 589줄, 가이던스 표 항목에 'revenue'·'gross margin' 같은 영문이 881줄 보였다.
+- root_cause: 조사 지침이 층 값(aiChain.layer)과 목록 문장을 구분하지 않았고, 가이던스 항목 언어를 정하지 않았다. 계약 검사도 이를 보지 않았다.
+- fix: 전 이야기의 층 코드를 한국어 층 이름으로, 가이던스 항목을 한국어(EPS·EBITDA·ARR 같은 약어와 제품명은 유지)로 바꿨다.
+- violated_rule: 한국어 UI, 원시 키 노출 금지
+- prevention: ci-company-profile-contract-check: 목록 첫머리 층 코드, 한글 없는 영문 가이던스 항목에서 실패
+- verification/residual: 계약 검사 274건 통과, NVDA 화면에서 '장비·파운드리 (TSMC …)' 확인.
+- files: scripts/ci-company-profile-contract-check.mjs, public-data/company-profiles/
+
+## P2309 - v59.85 - 기업 이야기 첫 화면 실적이 4~12개월 전 회계연도 숫자 (2026-11-08)
+
+- symptom/reproduction: 274건 중 57건의 4개 숫자·사업부 막대가 조사일보다 120일 넘게 지난 기간(NVDA FY2026 1월 마감, AVGO FY2025 11월 마감)이었고, 같은 화면의 쟁점 문단은 최근 분기를 인용해 두 기간이 섞였다. '이 종목의 지금' 재무 칸도 287일 지난 연간 공시를 앞세웠다.
+- root_cause: 이야기 스키마가 earnings 기간을 정하지 않아 조사자마다 연간·분기·누적을 골랐고, 재무 칸은 SEC 연간 요약만 읽었다.
+- fix: 57건을 최근 발표 분기로 다시 조사(earnings.periodEnd·basis 추가, 미국 상장 51건 SEC 분기 매출과 일치 확인). 재무 칸은 회계연도 뒤로 끝난 최근 4개 분기가 있으면 최근 4개 분기 매출 성장·순이익률을 앞세우고 회계연도 성장·ROE(회계연도 표시)를 덧붙인다. 분기 기준 숫자는 '1년 전 같은 분기 대비'로 적는다.
+- violated_rule: 원천의 최신 보고서 우선, 한 화면 한 기준 시점
+- prevention: ci-company-profile-contract-check: 실적 기간 종료일이 조사일보다 150일(반기 240일) 넘게 앞서면 실패; periodEnd·basis 형식
+- verification/residual: 계약 검사 274건 통과, NVDA 재무 칸 '7/26까지 4개 분기' 칩과 '매출 +83.4%'(SEC 분기 합 3,030억 vs 1,652억 달러) 확인.
+- files: src/ui/components/stock-read.js, src/ui/components/company-story.js, scripts/ci-company-profile-contract-check.mjs, public-data/company-profiles/
+
+## P2308 - v59.85 - 기업 이야기의 '새 실적' 표시가 조사 1~3주 뒤 발표를 놓침 (2026-11-08)
+
+- symptom/reproduction: PG·STX·WDC·SMCI 이야기가 조사 뒤 새 분기 실적이 나왔는데도 최신으로 읽혔다(11/8 전수 점검에서 6건).
+- root_cause: storyFreshness가 이번 주 일정만 담는 실적 달력(earnings-calendar.json) 하나로 판정해, 지난 주 이전 발표 행이 사라지면 근거가 없었다.
+- fix: src/domain/entity/company-story.js storyFreshness가 달력, 실적 요약(event-briefs의 earnings eventDate), SEC 분기(sec-fiscal-history quarters의 periodEnd가 이야기 기간보다 15일 넘게 뒤) 세 기록을 함께 읽는다. storyPeriodEnd가 earnings.periodEnd 또는 기간 문구의 종료일을 준다. 종목 화면이 두 기록이 도착하면 이야기를 다시 그린다.
+- violated_rule: AGENTS Freshness — 주기 상대 신선도
+- prevention: ci-company-profile-contract-check: 실적 요약·SEC 분기로 늦은 판정, 기간 종료일 파싱(ended·~·제출일 혼동) 단언
+- verification/residual: 11/8 실데이터에서 옛 판정 stale 0건, 새 판정 6건(PG·STX·WDC·SMCI·삼성전자·SK하이닉스) — 모두 실제로 새 보고서가 있었다.
+- files: src/domain/entity/company-story.js, src/ui/components/company-story.js, src/ui/pages/entity.js, scripts/ci-company-profile-contract-check.mjs
+
+## P2307 - v59.85 - 차트의 매물대와 '거래 집중 가격대' 표가 다른 계산이라 최대 구간이 어긋날 수 있음 (2026-11-08)
+
+- symptom/reproduction: 차트 오른쪽 매물대는 32칸·거래량 90% 규칙, 자세히의 표와 가격 레벨 지도는 24칸·결측 1개면 전체 불가였다. 같은 종목에서 '최대 매물대' 칩과 표의 첫 구간 가격이 다를 수 있었고, 장중 봉에 결측이 하나만 있어도 표는 사라졌다.
+- root_cause: chart-layers.chartVolumeProfile이 buildVolumeByPrice를 다른 인자와 다른 결측 규칙으로 감싸, 매물대 정의가 두 벌이 됐다.
+- fix: chart-scenarios.buildVolumeByPrice 하나(24칸, 130봉, 거래량 없는 봉은 빼고 90% 이상일 때만)가 차트·표·가격 레벨·AI 문맥에 쓰이고, 표준 POC와 70% 가치 영역(CBOT 규칙)을 함께 낸다. 차트는 가치 영역 띠와 POC 선을 그리고 칩은 '매물대 위·안·아래·POC'로 말한다.
+- violated_rule: 한 사실은 한 소유자
+- prevention: ci-chart-scenarios-fixture: 가치 영역 계산 예시, POC = 첫 구간, 결측 봉 제외(0으로 세지 않음)·90% 미만 불가
+- verification/residual: qa-runner affected 통과, 헤드리스 화면에서 가치 영역 띠·POC 선 확인
+- files: src/domain/technical/chart-scenarios.js, src/domain/technical/chart-layers.js, src/ui/components/stock-chart-layers.js, src/ui/components/stock-chart.js, scripts/ci-chart-scenarios-fixture.mjs
+
+## P2306 - v59.85 - 같은 화면에서 같은 지수·종목의 추세가 세 가지 단어로 읽힘 (2026-11-08)
+
+- symptom/reproduction: 기술적 분석 화면에서 SPY가 지수 카드 '단기 조정', 시장 지수 캔들 칩 '하락 추세 7봉', 종목 표와 종목 화면 '장기 추세 속 조정'으로 동시에 읽혔다. 일봉 상태 배지는 종가가 200일선만 내줘도 '하락 추세 — 패턴 해당 없음'이라고 했다.
+- root_cause: 추세 분류기가 네 벌이었다: market-charts trendOf(50/200 위치+50일선 기울기, 7단어), chart-layers trendRegimes(종가>50·20>50·50 기울기, 3상태), chart-strategies trendRead(스윙 구조 투표), bands.js bufferedTrend(스크리너·종목·포트폴리오). v59.70이 종목 표만 bufferedTrend로 옮기고 지수 카드와 차트 칩은 남겼다.
+- fix: bands.js classifyTrend가 숫자 핵심(50·200선 거리, ADR 부근 띠, 5거래일 급락, 50/200 순서 phase: 회복 시도·추세 이탈)이고 bufferedTrend(행), trend-state.js trendStateSeries(봉, 3봉 확인), market-charts trendOf(지수 종가, 위치만)가 모두 그것을 읽는다. id·tone은 그대로라 id를 보는 소비자는 바뀌지 않는다. 상태 배지는 '200일선 아래 — 셋업 해당 없음'으로 사실만 말한다.
+- violated_rule: 한 사실은 한 소유자(v59.84 화면 간 단일 사실 게이트)
+- prevention: ci-metric-consistency-check §9: 오늘 파일의 지수 카드 단어 = 분류기 단어, 종목 표 단어 = 종목 화면 단어, 같은 숫자의 봉과 행이 한 단어; ci-chart-layers-fixture: 봉↔행 동등, phase가 id를 유지
+- verification/residual: qa-runner affected 통과, 헤드리스 화면에서 QQQ 캔들 칩과 나스닥100 지수 카드가 모두 '추세 이탈'
+- files: src/domain/technical/bands.js, src/domain/technical/trend-state.js, src/domain/technical/chart-layers.js, src/domain/technical/market-charts.js, src/domain/technical/chart-analysis.js, src/ui/components/stock-chart.js, scripts/ci-metric-consistency-check.mjs, scripts/ci-chart-layers-fixture.mjs, scripts/ci-esm-core-unit-check.mjs
 
 ## P2305 - v59.84 - AI 해설 문장이 증거 id를 본문에 담아 내보내 화면마다 지우는 코드가 늘어남 (2026-11-08)
 
