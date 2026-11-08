@@ -72,6 +72,11 @@ export function publish({ set: id, candidate = null, retry = '', branch = 'main'
   const env = { ...process.env, CANDIDATE: candidate || '' };
   const fail = (message) => { console.error(`::error::${message}`); return 1; };
 
+  // The push below names refs/heads/<branch> explicitly, so a run checked out on any other branch (a workflow_dispatch from
+  // a feature branch) would fast-forward that branch's code into <branch> together with its data. Refuse it up front.
+  const head = git(['symbolic-ref', '--short', '-q', 'HEAD']).stdout?.trim() || '';
+  if (head !== branch) return fail(`${id}: checked out ${head || 'a detached HEAD'}, not ${branch}; data is published only from ${branch}`);
+
   git(['config', 'user.name', 'aio-data-bot']);
   git(['config', 'user.email', 'actions@github.com']);
 
