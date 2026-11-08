@@ -10,11 +10,11 @@ import { MARKET_WINDOWS, closeChange } from '../market/market-windows.js';
 import { rateDifferential, sessionPointBack, wonMoveSentence } from './rates-fx.js';
 import { RULES } from '../rules/thresholds.js';
 import { withTopicParticle } from '../content/korean-particle.js';
-import { oasDelta20Bp } from '../briefing/market-read.js';
+import { oasDelta20Bp, oilCheckOf } from '../briefing/market-read.js';
 import { creditJudgement, creditReading, creditFlip } from '../briefing/credit-reading.js';
 import { dollarRiseBurden } from '../briefing/market-read.js';
 import { claimsTrend, coreInflationRead, monthChangeAt, monthIndex, monthOverMonth, sahmGap, yoySeries } from './macro-read.js';
-import { BRENT_WTI_SPREAD_HOLD_USD, MACRO_SIGNAL_RULES, oilDivergence, policyCycle } from './macro-signals.js';
+import { policyCycle } from './macro-signals.js';
 import { formatKstWhen, releaseAtMs } from '../briefing/schedule.js';
 import { volatilityChapter } from './volatility.js';
 
@@ -203,15 +203,18 @@ function rates(macroHistory, events, history = []) {
 function oil(history, macroHistory) {
   const wti = historySpan(history, 'wti');
   if (!wti) return null;
-  const brent = historySpan(history, 'brent');
+  // Brent is read against WTI on their last common close (oilCheckOf, the same check the 시장 and 거시 oil reads use): a
+  // missing Brent close must not pair one day's WTI with an older Brent.
+  const check = buildCloseSeries(history, 'brent').length ? oilCheckOf(history, closeBasis(history)) : null;
+  const brent = check && check.brent20 != null && check.wti20 != null ? { pct: check.brent20, wtiPct: check.wti20, to: check.brent, spread: check.spread, date: check.date } : null;
+  const wtiDate = buildCloseSeries(history, 'wti', { through: closeBasis(history) }).at(-1)?.date || null;
   const be = macroChange(macroHistory, 'breakeven10', splitThrough(macroHistory));
   const C = RULES.crossAsset; const O = RULES.oil;
   // one set of lines for one move — the 시장 상태 axis's (+10% / -5%) for a move that changes the
   // read, the cross-asset 5% for 'moved at all' — and the shared Brent/WTI rule decides which benchmark speaks. The chapter
   // used ±10% for the headline and 5% for 'moved', so WTI -7.3% read '움직이지 않았습니다' and '유가를 물가에 반영' together,
   // and Brent -6.1% beside WTI -1.1% was ignored.
-  const div = brent ? oilDivergence({ basis: 'futures', brent20: brent.pct, wti20: wti.pct, abnormal: Math.abs(brent.to - wti.to) > BRENT_WTI_SPREAD_HOLD_USD,
-    diverges: brent.pct >= O.rise20dPct && wti.pct < brent.pct * MACRO_SIGNAL_RULES.oilConfirmShare }) : { held: false, kind: null, text: null };
+  const div = brent ? { held: !!check.held, kind: check.kind, text: check.text } : { held: false, kind: null, text: null };
   const lead = !div.held ? { name: 'WTI', pct: wti.pct } : ['brent-led', 'brent-rise'].includes(div.kind) ? { name: '브렌트', pct: brent.pct } : null;
   const read = !lead ? `두 유가가 엇갈려 한쪽으로 읽지 않습니다 — ${String(div.text || '').replace(/^20거래일 /, '').replace(/\.$/, '')}`
     : lead.pct >= O.rise20dPct ? `유가(${lead.name} ${signed(lead.pct, 1)})가 크게 올라 다음 달 헤드라인 물가를 밀어 올리고 소비 여력은 줄입니다`
@@ -228,18 +231,20 @@ function oil(history, macroHistory) {
         : sameWay ? ` 기대인플레도 ${bp(be.bp)} 같은 쪽으로 움직여 채권시장이 유가를 물가에 반영하고 있습니다.`
           : ` 기대인플레는 반대로 ${bp(be.bp)} 움직여, 채권시장은 유가보다 다른 요인(성장 걱정 등)을 더 크게 봅니다.`;
   // Brent carries the seaborne/Middle East premium WTI does not; the two drifting apart says which supply story moved.
-  const gap = brent ? brent.pct - wti.pct : null;
+  // Both legs on the common close; when that is older than WTI's own last close, the comparison says which day it is.
+  const gap = brent ? brent.pct - brent.wtiPct : null;
+  const asOf = brent && wtiDate && brent.date !== wtiDate ? `${Number(brent.date.slice(5, 7))}/${Number(brent.date.slice(8, 10))} 종가 기준 ` : '';
   const spread = !lead || gap == null || Math.abs(gap) < C.oil20dPct ? ''
-    : gap < 0 ? ` 브렌트(${signed(brent.pct, 1)})가 WTI(${signed(wti.pct, 1)})보다 크게 내려, 중동·해상 운송 같은 해외 공급 위험의 값이 빠졌습니다.`
-      : ` 브렌트(${signed(brent.pct, 1)})가 WTI(${signed(wti.pct, 1)})보다 크게 올라, 중동·해상 운송 같은 해외 공급 위험의 값이 붙었습니다.`;
+    : gap < 0 ? ` ${asOf}브렌트(${signed(brent.pct, 1)})가 WTI(${signed(brent.wtiPct, 1)})보다 크게 내려, 중동·해상 운송 같은 해외 공급 위험의 값이 빠졌습니다.`
+      : ` ${asOf}브렌트(${signed(brent.pct, 1)})가 WTI(${signed(brent.wtiPct, 1)})보다 크게 올라, 중동·해상 운송 같은 해외 공급 위험의 값이 붙었습니다.`;
   return {
     id: 'oil', title: '유가 — 물가와 경기 사이', question: '유가가 보내는 물가 신호와 경기 신호',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: 'WTI', value: wti.pct, hot: !lead || lead.name === 'WTI' }, brent ? { x: '브렌트', value: brent.pct, hot: lead?.name === '브렌트' } : null].filter(Boolean) },
-    now: `WTI $${wti.to.toFixed(1)} (${signed(wti.pct, 1)})${brent ? ` · 브렌트 $${brent.to.toFixed(1)} (${signed(brent.pct, 1)})` : ''}`,
+    now: `WTI $${wti.to.toFixed(1)} (${signed(wti.pct, 1)})${brent ? ` · 브렌트 $${brent.to.toFixed(1)} (${signed(brent.pct, 1)}${asOf ? `, ${asOf.trim()}` : ''})` : ''}`,
     mean: `${read}.${inflation}${spread} 에너지 기업 이익은 유가를 따라가서, 유가가 크게 움직인 날은 에너지 업종이 같이 움직입니다.`,
     next: '매일 · 산유국 회의, 중동 정세, 미국 원유 재고(매주 수요일)',
     flip: `유가가 20거래일 +${O.rise20dPct}% 넘게 오르면서 기대인플레가 같이 오르면 물가 시나리오가, ${O.fall20dPct}% 넘게 내리면서 금리도 같이 내리면 경기 둔화 시나리오가 힘을 얻습니다.`,
-    detail: [['WTI 20거래일 전', `$${wti.from.toFixed(1)}`], ['브렌트', brent ? `$${brent.to.toFixed(1)}` : '—'], ['브렌트 − WTI', brent ? `$${(brent.to - wti.to).toFixed(1)}` : '—'], ['10년 기대인플레', be ? `${be.to.toFixed(2)}% (${bp(be.bp)})` : '—']]
+    detail: [['WTI 20거래일 전', `$${wti.from.toFixed(1)}`], ['브렌트', brent ? `$${brent.to.toFixed(1)}` : '—'], ['브렌트 − WTI (같은 날)', brent ? `$${brent.spread.toFixed(1)}${asOf ? ` (${asOf.replace(' 종가 기준 ', '')})` : ''}` : '—'], ['10년 기대인플레', be ? `${be.to.toFixed(2)}% (${bp(be.bp)})` : '—']]
   };
 }
 

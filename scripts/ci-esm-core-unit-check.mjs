@@ -7281,11 +7281,17 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     dxyRows.at(-1).dxy = 102.2;
     const dollar85 = chapters85({ history: dxyRows }).chapters.find((row) => row.id === 'dollar');
     if (!dollar85 || /범위 중간/.test(dollar85.mean) || !/1년 범위의 22% 위치로 상위 20%가 아니라/.test(dollar85.mean)) fail(`v59.85 the dollar sentence states only the computed range position: ${dollar85?.mean}`);
+    // Brent and WTI are compared on their last common close: a missing Brent print does not pair 11/6 WTI with 11/5 Brent.
+    const oilRows = dxyRows.slice(-50).map((row) => ({ date: row.date, wti: 90, brent: 95 }));
+    oilRows[oilRows.length - 1] = { date: oilRows.at(-1).date, wti: 75 };
+    const oil85 = chapters85({ history: oilRows }).chapters.find((row) => row.id === 'oil');
+    const oilGap = (oil85?.detail || []).find(([label]) => label === '브렌트 − WTI (같은 날)')?.[1] || '';
+    if (!/^\$5\.0 \(/.test(oilGap) || /엇갈려/.test(oil85.mean)) fail(`v59.85 the oil chapter compares Brent and WTI on one common close: ${oilGap} / ${oil85?.mean}`);
     // The validator blocks an unqualified 재가속 when the direction is slowing, split or held; a named measure is allowed.
     const v85 = await import(pathToFileURL(path.join(root, 'scripts/lib/market-analysis-validate.mjs')).href);
     const held = { state: 'flat' };
     if (!v85.inflationReaccelContradicts(held) || v85.inflationReaccelContradicts({ state: 'up' }) || v85.inflationReaccelContradicts(null)
-      || !v85.INFLATION_REACCEL_ASSERTION.test('물가가 재가속되고 있습니다') || v85.INFLATION_REACCEL_ASSERTION.test('근원 CPI는 재가속 신호를 보였습니다')
+      || !v85.assertsInflationReaccel('물가가 재가속되고 있습니다.') || v85.assertsInflationReaccel('근원 CPI는 재가속 신호를 보였습니다.') || v85.assertsInflationReaccel('물가 재가속 경로라면 금리 부담이 커질 수 있습니다.')
       || v85.marketSentenceRejectReason('물가가 다시 빨라지며 금리 부담이 커진 하루였다.', { inflationNotReaccelerating: true }) !== 'inflation-direction'
       || v85.marketSentenceRejectReason('물가가 다시 빨라지며 금리 부담이 커진 하루였다.', {}) === 'inflation-direction') fail('v59.85 the 재가속 assertion is blocked symmetrically with 둔화');
   }

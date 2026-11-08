@@ -590,6 +590,11 @@ export function inflationReaccelContradicts(direction = null) {
   return !!state && state !== 'unknown' && state !== 'up';
 }
 // An unqualified assertion: 물가/인플레이션 as the subject. A named measure ("근원 CPI는 재가속") says which one and is allowed.
+// A conditional or scenario sentence ("물가 재가속 경로라면 …", "재가속될 경우") describes a branch, not the present.
+const CONDITIONAL_SENTENCE = /(?:라면|다면|이면|으면|면\s|경우|시나리오|가능성|는지|ㄹ지|을지|할지|될지|위험이\s?있|수\s?있)/;
+/** True when a sentence asserts, unconditionally, that inflation is re-accelerating. */
+export const assertsInflationReaccel = (text) => String(text || '').split(/(?<=[.!?。])\s+|\n+/)
+  .some((sentence) => INFLATION_REACCEL_ASSERTION.test(sentence) && !CONDITIONAL_SENTENCE.test(sentence));
 export const INFLATION_REACCEL_ASSERTION = /(?:물가|인플레이션)(?:가|는|이|은)?\s?(?:다시\s?)?(?:재가속|가속|빨라지)(?:되고|하고|고)\s?있|(?:물가|인플레이션)\s?재가속\s?(?:경로|흐름|추세|국면|신호)|(?:물가|인플레이션)(?:가|는|이|은)?\s?(?:다시\s?)?재가속(?:됐|했|되었|하였)/;
 
 export function validateMarketAnalysisText(text, data, snapshot = null, { context = '', history = [], inflationDirection = null } = {}) {
@@ -707,7 +712,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   if (inflationRising && /물가\s?둔화\s?(?:경로|흐름|추세|신호)|물가(?:가|는)?\s?(?:둔화|안정|완화)(?:되고|하고)\s?있|인플레이션(?:이|은)?\s?(?:둔화|완화)(?:되고|하고)\s?있|디스인플레이션\s?(?:경로|흐름|진행)/.test(asserted)) {
     issues.push('inflation-direction-contradicts-evidence');
   }
-  if (inflationReaccelContradicts(inflationDirection) && INFLATION_REACCEL_ASSERTION.test(asserted)) issues.push('inflation-direction-contradicts-evidence');
+  if (inflationReaccelContradicts(inflationDirection) && assertsInflationReaccel(asserted)) issues.push('inflation-direction-contradicts-evidence');
   // Live 2026-10-21: core CPI is no longer read as headline CPI (analysisLevelsAfterLabels); it is checked against its own value.
   if (readNumber(macroNow.coreCpi) != null) {
     // v58.71 (pipeline audit; live 10/23 block): REGIME_CONTEXT also carries the 3-month annualised pace ("근원 CPI 3개월
