@@ -10,11 +10,11 @@
 details.lch-disc { margin: 5px 0; padding: 5px 7px; background: var(--gold-3); color: var(--text-muted); font-size: 12px; line-height: 1.45; } /* v59.15: the AI answer disclosure box (was an inline style) */
 #ai-panel-msgs .lch-disc-sum { cursor: pointer; font-size: 12px; line-height: 1.6; }
 #ai-panel-msgs .lch-disc-body { padding-top: 6px; font-size: 12px; overflow-wrap: anywhere; white-space: pre-line; }
-#ai-panel-msgs .lch-code { background: var(--white-a2); padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 0.88em; }
-#ai-panel-msgs .lch-row { margin: 6px 0; padding: 8px 10px; background: var(--surface-2); border-radius: 4px; border: 0.5px solid var(--border); }
+#ai-panel-msgs .lch-code { background: var(--white-a2); padding: 1px 5px; border-radius: var(--radius-inner); font-family: monospace; font-size: 0.88em; }
+#ai-panel-msgs .lch-row { margin: 6px 0; padding: 8px 10px; background: var(--surface-2); border-radius: var(--radius-inner); border: 0.5px solid var(--border); }
 #ai-panel-msgs .lch-row-cell { margin: 2px 0; }
 #ai-panel-msgs .lch-row-key { color: var(--text-muted); font-size: 0.9em; }
-#ai-panel-msgs .aio-search-sources { margin-top: 6px; padding: 8px;  border-radius: 0 4px 4px 0; font-size: 12px; min-width: 0; }
+#ai-panel-msgs .aio-search-sources { margin-top: 6px; padding: 8px;  border-radius: 0 var(--radius-inner) var(--radius-inner) 0; font-size: 12px; min-width: 0; }
 #ai-panel-msgs .lch-src-head { color: var(--text-secondary); font-weight: 600; margin-bottom: 3px; }
 #ai-panel-msgs .lch-src-note { color: var(--text-muted); margin-bottom: 4px; }
 #ai-panel-msgs .lch-src-link { color: var(--accent); text-decoration: underline; display: block; margin: 4px 0; overflow-wrap: anywhere; }

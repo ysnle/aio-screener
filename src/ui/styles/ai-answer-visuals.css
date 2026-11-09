@@ -1,6 +1,6 @@
 /* 2026-10-19 layout system: figures under an AI answer (src/ui/components/ai-answer-visuals.js), moved out of inline styles.
    The AI panel sits outside .page, so the old 12px text was never raised by index.html's [style*=font-size] rules and stays 12px. */
-.aio-answer-visual { margin: 10px 0 4px; padding: 10px 12px; border: 0.5px solid var(--border); border-radius: 8px; background: var(--surface-1); max-width: 600px; }
+.aio-answer-visual { margin: 10px 0 4px; padding: 10px 12px; border: 0.5px solid var(--border); border-radius: var(--radius-element); background: var(--surface-1); max-width: 600px; }
 .aav-head { font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
 .aav-caption { font-size: 12px; line-height: 1.5; color: var(--text-muted); margin-top: 6px; }
 .aav-plot { display: block; max-width: 100%; height: auto; }

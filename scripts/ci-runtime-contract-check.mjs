@@ -1746,9 +1746,19 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
   const radix = read('src/ui/styles/radix-colors.css');
   const [radixLight, radixDark] = radix.split('body.dark-theme {');
   const step = (block, value) => { const name = String(value || '').match(/var\(--([a-z]+-\d+)\)/)?.[1]; return name ? (block.match(new RegExp(`--${name}:(#[0-9a-f]{6});`)) || [])[1] : value; };
-  const lightAmber = step(radixLight, (html.match(/^  --data-amber:\s*([^;\s]+);/m) || [])[1]);
-  const lightOverride = step(radixLight, (html.match(/^  --data-amber:\s+([^;\s]+) !important;/m) || [])[1]);
-  const darkAmber = step(radixDark, (html.match(/--data-amber:([^;\s]+) !important; --data-yellow:/) || [])[1]);
+  // v59.88: one colour definition — --data-amber aliases the warning text role; light mixes step 11 with a quarter of
+  // step 12 (v59.70 #25), the dark block restates only the role (step 11).
+  const toHex = (rgb) => `#${rgb.map((c) => Math.round(c).toString(16).padStart(2, '0')).join('')}`;
+  const roleValue = (block, scale) => {
+    const mix = String(block || '').match(/--color-text-warning:\s*color-mix\(in srgb, var\(--([a-z]+-\d+)\) (\d+)%, var\(--([a-z]+-\d+)\)\)/);
+    if (mix) { const a = rgbOf(step(scale, `var(--${mix[1]})`)), b = rgbOf(step(scale, `var(--${mix[3]})`)), w = Number(mix[2]) / 100; return toHex(a.map((c, i) => c * w + b[i] * (1 - w))); }
+    return step(scale, (String(block || '').match(/--color-text-warning:\s*([^;\s]+);/) || [])[1]);
+  };
+  const lightBlock = (html.match(/^:root, body \{[\s\S]*?^\}/m) || [''])[0];
+  const darkBlock = (html.match(/^body\.dark-theme \{[\s\S]*?^\}/m) || [''])[0];
+  const lightAmber = roleValue(lightBlock, radixLight);
+  const lightOverride = /--data-amber: var\(--color-text-warning\)/.test(lightBlock) && !/--data-amber\s*:/.test(darkBlock) ? lightAmber : null;
+  const darkAmber = roleValue(darkBlock, radixDark);
   const hue = (hexValue) => { const [r, g, b] = rgbOf(hexValue).map((c) => c / 255); const max = Math.max(r, g, b), min = Math.min(r, g, b); if (max === min) return -1; const h = max === r ? ((g - b) / (max - min)) % 6 : max === g ? (b - r) / (max - min) + 2 : (r - g) / (max - min) + 4; return (h * 60 + 360) % 360; };
   const worst = (fg, bgs, ink, alphas) => Math.min(...bgs.flatMap((bg) => alphas.map((a) => ratio(rgbOf(fg), over(ink, a, rgbOf(bg))))));
   // Light: colored text sits on gold-1 cards; amber chips (amber-3) carry amber-12 text (owner 2026-10-23).

@@ -3,164 +3,139 @@
   "generatedBy": "scripts/ci-design-token-ratchet-check.mjs",
   "note": "Per-stylesheet literal radius, off-scale font-size and !important counts. Shrink only; never raise a count or add a file.",
   "totals": {
-    "radiusLiteral": 616,
-    "offScale": 102,
-    "important": 1317
+    "radiusLiteral": 37,
+    "offScale": 36,
+    "important": 1202
   },
   "counts": {
     "index.html": {
-      "radiusLiteral": 155,
+      "radiusLiteral": 0,
       "offScale": 3,
-      "important": 332
-    },
-    "src/ui/styles/ai-answer-visuals.css": {
-      "radiusLiteral": 1,
-      "offScale": 0,
-      "important": 0
+      "important": 217
     },
     "src/ui/styles/chart-quality.css": {
-      "radiusLiteral": 2,
+      "radiusLiteral": 0,
       "offScale": 1,
       "important": 3
     },
     "src/ui/styles/chat-sessions.css": {
-      "radiusLiteral": 9,
+      "radiusLiteral": 0,
       "offScale": 1,
       "important": 2
     },
     "src/ui/styles/company-analysis.css": {
-      "radiusLiteral": 4,
+      "radiusLiteral": 0,
       "offScale": 0,
       "important": 1
     },
     "src/ui/styles/company-story.css": {
-      "radiusLiteral": 15,
-      "offScale": 9,
+      "radiusLiteral": 7,
+      "offScale": 3,
       "important": 3
     },
     "src/ui/styles/entity-quality.css": {
-      "radiusLiteral": 5,
+      "radiusLiteral": 0,
       "offScale": 0,
       "important": 1
     },
-    "src/ui/styles/fiscal-quality.css": {
-      "radiusLiteral": 2,
-      "offScale": 0,
-      "important": 0
-    },
-    "src/ui/styles/guide-page.css": {
-      "radiusLiteral": 1,
-      "offScale": 0,
-      "important": 0
-    },
-    "src/ui/styles/legacy-chat.css": {
-      "radiusLiteral": 3,
-      "offScale": 0,
-      "important": 0
-    },
     "src/ui/styles/legacy-core.css": {
-      "radiusLiteral": 2,
+      "radiusLiteral": 0,
       "offScale": 0,
       "important": 1
     },
     "src/ui/styles/legacy-data.css": {
-      "radiusLiteral": 2,
+      "radiusLiteral": 0,
       "offScale": 0,
       "important": 1
     },
     "src/ui/styles/legacy-kr.css": {
-      "radiusLiteral": 8,
+      "radiusLiteral": 0,
       "offScale": 0,
       "important": 1
     },
-    "src/ui/styles/legacy-pages.css": {
-      "radiusLiteral": 8,
-      "offScale": 0,
-      "important": 0
-    },
     "src/ui/styles/legacy-ui.css": {
-      "radiusLiteral": 6,
+      "radiusLiteral": 0,
       "offScale": 0,
       "important": 4
     },
     "src/ui/styles/legacy-workspace.css": {
-      "radiusLiteral": 10,
+      "radiusLiteral": 0,
       "offScale": 0,
       "important": 3
     },
     "src/ui/styles/news-page.css": {
-      "radiusLiteral": 2,
+      "radiusLiteral": 1,
       "offScale": 0,
       "important": 0
     },
     "src/ui/styles/portfolio-page.css": {
-      "radiusLiteral": 10,
+      "radiusLiteral": 3,
       "offScale": 0,
       "important": 4
     },
     "src/ui/styles/regime-quality.css": {
-      "radiusLiteral": 39,
-      "offScale": 20,
+      "radiusLiteral": 2,
+      "offScale": 1,
       "important": 1
     },
     "src/ui/styles/responsive.css": {
-      "radiusLiteral": 31,
-      "offScale": 38,
+      "radiusLiteral": 9,
+      "offScale": 16,
       "important": 101
     },
     "src/ui/styles/screener-quality.css": {
-      "radiusLiteral": 7,
+      "radiusLiteral": 0,
       "offScale": 0,
       "important": 11
     },
     "src/ui/styles/shell-overlays.css": {
-      "radiusLiteral": 7,
-      "offScale": 4,
+      "radiusLiteral": 0,
+      "offScale": 2,
       "important": 2
     },
     "src/ui/styles/shell-static.css": {
-      "radiusLiteral": 81,
+      "radiusLiteral": 0,
       "offScale": 0,
       "important": 212
     },
     "src/ui/styles/soft-ui.css": {
-      "radiusLiteral": 10,
-      "offScale": 5,
+      "radiusLiteral": 5,
+      "offScale": 3,
       "important": 349
     },
     "src/ui/styles/themes-page.css": {
-      "radiusLiteral": 15,
-      "offScale": 1,
+      "radiusLiteral": 1,
+      "offScale": 0,
       "important": 1
     },
     "src/ui/styles/ui-states.css": {
-      "radiusLiteral": 4,
+      "radiusLiteral": 0,
       "offScale": 0,
       "important": 15
     },
     "src/ui/styles/v2-market.css": {
-      "radiusLiteral": 20,
-      "offScale": 9,
+      "radiusLiteral": 0,
+      "offScale": 3,
       "important": 87
     },
     "src/ui/styles/v2-research.css": {
-      "radiusLiteral": 71,
+      "radiusLiteral": 1,
       "offScale": 0,
       "important": 32
     },
     "src/ui/styles/v2-screener.css": {
-      "radiusLiteral": 4,
-      "offScale": 4,
+      "radiusLiteral": 3,
+      "offScale": 0,
       "important": 68
     },
     "src/ui/styles/v2-stock.css": {
-      "radiusLiteral": 46,
-      "offScale": 3,
+      "radiusLiteral": 2,
+      "offScale": 1,
       "important": 46
     },
     "src/ui/styles/v2-today.css": {
-      "radiusLiteral": 36,
-      "offScale": 4,
+      "radiusLiteral": 3,
+      "offScale": 2,
       "important": 36
     }
   }
