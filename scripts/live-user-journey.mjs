@@ -47,7 +47,8 @@ const errors = [];
 page.on('pageerror', (error) => errors.push(`pageerror ${error.message.slice(0, 200)}`));
 page.on('console', (message) => { if (message.type() === 'error') errors.push(`console ${message.text().slice(0, 200)}`); });
 // A console "Failed to load resource" line has no URL; the response itself names what failed.
-page.on('response', (response) => { if (response.status() >= 400) errors.push(`http ${response.status()} ${response.url().slice(0, 200)}`); });
+// js/aio-qa-audits.js loads only for automated browsers (navigator.webdriver) and is not deployed, so its 404 is this probe's own.
+page.on('response', (response) => { if (response.status() >= 400 && !/\/js\/aio-qa-audits\.js/.test(response.url())) errors.push(`http ${response.status()} ${response.url().slice(0, 200)}`); });
 // Short screens that are a stated state, not a missing render: the help index (folded sections), an ETF's or a Korean
 // listing's financials (no company filings / DART not connected).
 const STATED_SHORT = /ETF는 기업 재무 공시가 없습니다|한국 공시\(DART\)|판정 기준표, 시장 상태/;
