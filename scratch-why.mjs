@@ -1,0 +1,11 @@
+import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path';
+import * as esbuild from 'esbuild';
+import { esmBundleOptions, bootOutputs } from './scripts/lib/pages-bundle-config.mjs';
+const root = process.cwd(); const outdir = fs.mkdtempSync(path.join(os.tmpdir(), 'aio-bw-'));
+const build = await esbuild.build(esmBundleOptions({ absWorkingDir: root, outdir }));
+const boot = bootOutputs(build.metafile); const inBoot = new Set();
+for (const f of boot) for (const i of Object.keys(build.metafile.outputs[f].inputs)) inBoot.add(i);
+const importers = {};
+for (const [file, info] of Object.entries(build.metafile.inputs)) for (const im of info.imports) if (im.kind === 'import-statement' && inBoot.has(file)) (importers[im.path] ||= []).push(file);
+for (const t of process.argv.slice(2)) console.log(t, '<-', (importers[t] || []).join(', '));
+fs.rmSync(outdir, { recursive: true, force: true });
