@@ -3897,13 +3897,13 @@ function getDisplayTickers(item) {
     if (Array.isArray(t)) t.forEach(tk => {
       const bare = String(tk || '').replace(/^\$/, '');
       if (!bare) return;
-      if ((_TICKER_ROLE_ACRONYM.test(bare) || _TICKER_WORD_OVERLAP.has(bare)) && !text.includes('$' + bare) && !text.includes('(' + bare + ')')) return;
+      if (window._aioArticleSymbolAllowed && !window._aioArticleSymbolAllowed(bare, text)) return;
       merged.add(tk);
     });
   }
 
   // 2) 로컬 추출 — 항상 실행 (캐시 유무와 무관)
-  const local = extractTickers(item);
+  const local = typeof extractTickers === 'function' ? extractTickers(item) : []; // v59.88: installed with the module boot
   local.forEach(s => {
     const tk = s.startsWith('$') ? s : '$' + s;
     merged.add(tk);
@@ -3920,141 +3920,10 @@ function getDisplayTickers(item) {
   return result;
 }
 
-/* ── v30.12: 뉴스에서 관련 티커 추출 (오탐 방지 강화) ─────────── */
-// v30.12 P1: 일반 영단어와 충돌하는 짧은 티커 — 문맥 확인 필수
-// v39.2: 영단어와 완전히 겹치는 티커 — $접두사 또는 (TICKER) 형태만 허용, 문맥 검증 불가
-const _TICKER_WORD_OVERLAP = new Set([
-  'ARM','ON','IT','A','F','V','C','U','X','D','E','K','T',
-  'ALL','RUN','LOW','KEY','FAST','REAL','PLAY','FLEX','CAN',
-  'GE','HD','DE','BE','HAS',
-  // v48.20 (integrate): 신규 오탐 위험 티커 보강
-  'KEYS','TEL','TER','APH','CLS','JBL','ON','DELL','IT','AI'  // Keysight/TE Connectivity/Teradyne/Amphenol/Celestica/Jabil — 일반 영단어와 겹침
-]);
-// P1592 (F26): officer titles are also listed symbols ('Former FTX COO' opened CooperCompanies). A C?O
-// title or common agency acronym counts only as $TICKER or (TICKER), never as a bare word.
-const _TICKER_ROLE_ACRONYM = /^(?:C[A-Z]O|EVP|SVP|VP|GM|IPO|ETF|SEC|FDA|DOJ|FTC|NIH|EPA|ECB|IMF|GDP|CPI)$/;
-const _TICKER_AMBIGUOUS = new Set([
-  'AI','META','COST',
-  'SNOW','NET','PATH','APP','DASH','SHOP','SNAP','HOOD','SOFI','WOLF',
-  'COIN','RIOT','HUT','GOLD','VALE','LINK','DOT','MATIC','UNI',
-  'MS','BA','MP','PL','NU','NOW',
-  // v46.6: 신규 모호 티커 추가
-  'BEAM','OPEN','NEXT','SAIL','FIVE','PLUG','RUN','GRAB','BILL','SPOT',
-  // v48.20 (integrate): 리서치 자료 언급 신규 모호 티커
-  'FLEX','CELL','ARE','HOLD','RARE','REAL','TRUE','LIFE','BEST','SAFE',
-]);
-
-// v30.12: $접두사 또는 대문자 전체 단어 + 금융 문맥이면 티커로 인정
-function _isTickerContextValid(ticker, text) {
-  // $NVDA 형태는 무조건 티커
-  if (text.includes('$' + ticker)) return true;
-  // (NVDA) 형태는 무조건 티커
-  if (text.includes('(' + ticker + ')')) return true;
-  // 모호한 티커는 추가 문맥 확인
-  if (!_TICKER_AMBIGUOUS.has(ticker)) return true;
-  // 모호한 티커: 주변에 주가/시장 관련 단어가 있어야 인정
-  var lower = text.toLowerCase();
-  var tickerPos = text.indexOf(ticker);
-  if (tickerPos < 0) return false;
-  // 앞뒤 80자 범위에서 금융 문맥 확인
-  var start = Math.max(0, tickerPos - 80);
-  var end = Math.min(text.length, tickerPos + ticker.length + 80);
-  var context = lower.slice(start, end);
-  // v46.6: 금융 문맥 키워드 확장 (기존 23개 → 40개)
-  var finWords = ['stock','share price','share','earnings','rally','surge','ipo','m&a','analyst',
-    'quarterly','q1 ','q2 ','q3 ','q4 ','revenue','eps','dividend','buyback','market cap',
-    // v46.6 추가: 애널리스트/밸류에이션/실적 관련
-    'upgrade','downgrade','price target','valuation','pe ratio','p/e',
-    'guidance','outlook','margin','revenue growth','beat','miss',
-    'overweight','underweight','outperform','buy rating','sell rating',
-    '주가','주식','매출','실적','급등','급락','목표가','배당','시가총액',
-    '투자의견','상향','하향','매수','매도','비중확대'];
-  for (var i = 0; i < finWords.length; i++) {
-    if (context.includes(finWords[i])) return true;
-  }
-  return false;
-}
-
-// v39.2: RegExp 캐시 — extractTickers 성능 최적화 (800+ 티커 × 뉴스 80건)
-// v49.0 P182: 무한 성장 방지 → _aioLRU 600건 캡
-var _tickerRegexCache = (typeof window._aioLRU === 'function') ? window._aioLRU('tickerRegex', 600) : null;
-function _getTickerRegex(ticker) {
-  if (!_tickerRegexCache) {
-    return new RegExp('\\b' + ticker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b');
-  }
-  var cached = _tickerRegexCache.get(ticker);
-  if (cached === null || cached === undefined) {
-    cached = new RegExp('\\b' + ticker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b');
-    _tickerRegexCache.set(ticker, cached);
-  }
-  return cached;
-}
-
-function _aioNewsNameIsAttribution(lowerText, name) { if (!/[a-z]/.test(name) || name.length < 4) return false; var n = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); return new RegExp('(?:according to|says|said|by|from|at|via|per)\\s+' + n + '|' + n + "(?:'s)?\\s+(?:analysts?|strategists?|economists?|says|said|note|notes|sees|expects|upgrades?|downgrades?|raises|cuts|rates|initiates|reiterates)").test(lowerText); } // P1428: a broker cited as the source of a view ("..., Morgan Stanley says") is not the story's subject
-function extractTickers(item) {
-  var text = (item.title || '') + ' ' + (item.desc || '');
-  var found = new Set();
-
-  // 1) $TICKER 패턴 우선 매칭 (가장 확실)
-  var dollarMatches = text.match(/\$([A-Z]{1,5})\b/g);
-  if (dollarMatches) {
-    dollarMatches.forEach(function(m) {
-      var t = m.slice(1);
-      if (KNOWN_TICKERS.has(t) && found.size < 5) found.add(t);
-    });
-  }
-
-  // 2) KNOWN_TICKERS 매칭 (문맥 필터 적용)
-  if (typeof KNOWN_TICKERS !== 'undefined') {
-    KNOWN_TICKERS.forEach(function(ticker) {
-      if (found.has(ticker) || found.size >= 5) return;
-      // Every escaped ticker regex requires this literal substring. Reject
-      // absent symbols before touching the bounded regex LRU (universe > cache).
-      if (!text.includes(ticker)) return;
-      // 1~2자 티커(A, F, V, C, U 등)는 $접두사 없으면 건너뜀
-      if (ticker.length <= 2 && !text.includes('$' + ticker)) return;
-      // v39.2: 영단어와 완전히 겹치는 티커 — $접두사 또는 (TICKER) 형태만 허용
-      if (_TICKER_WORD_OVERLAP.has(ticker) || _TICKER_ROLE_ACRONYM.test(ticker)) {
-        if (!text.includes('$' + ticker) && !text.includes('(' + ticker + ')')) return;
-      }
-      var re = _getTickerRegex(ticker);
-      if (re.test(text) && _isTickerContextValid(ticker, text)) {
-        found.add(ticker);
-      }
-    });
-  }
-
-  // 3) 한국어 기업명·키워드 / 영문 별칭 → 티커 매핑
-  // P1550: 한글 별칭이 1~2음절이면 앞이 한글이 아니고 뒤가 한글이 아니거나 조사일 때만 인정한다('모델'의 '델'은 DELL이 아니다).
-  function _aioKrAliasInText(lowerText, alias) {
-    if (lowerText.indexOf(alias) < 0) return false;
-    if (alias.length >= 3 || !/^[가-힣]+$/.test(alias)) return true;
-    var esc = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return new RegExp('(?:^|[^가-힣])' + esc + '(?:$|[^가-힣]|(?:은|는|이|가|을|를|의|도|와|과|에|로|만)(?:$|[^가-힣]))').test(lowerText);
-  }
-  // P1449/R17: 영문 별칭은 단어 경계를 지킨다. plain includes는 "Artificial Intelligence"에서
-  // INTC(intel), "downside"에서 DIA(dow) 같은 부분 문자열 오판을 만들었다. 한글 별칭은 JS \b가
-  // 비ASCII 단어 경계를 인식하지 못하므로 기존 includes를 쓴다(한글 하위 문자열 오판은 관측된 급사 없음).
-  if (typeof KR_TICKER_MAP !== 'undefined' && found.size < 5) {
-    var lowerText = text.toLowerCase();
-    for (var krName in KR_TICKER_MAP) {
-      if (!KR_TICKER_MAP.hasOwnProperty(krName) || found.size >= 5) break;
-      var aliasLower = String(krName).toLowerCase();
-      if (/[^a-z0-9]/.test(aliasLower)) {
-        // 한글 별칭 — JS \b가 비ASCII 경계를 인식하지 못해 기존 includes 유지.
-        if (_aioKrAliasInText(lowerText, aliasLower) && !_aioNewsNameIsAttribution(lowerText, aliasLower)) found.add(KR_TICKER_MAP[krName]);
-        continue;
-      }
-      if (!lowerText.includes(aliasLower)) continue;
-      var aliasPattern = _getTickerRegex(aliasLower.replace(/[.*+?^${}()|[\]\\]/g, '$&'));
-      if (aliasLower.length <= 2 || !aliasPattern.test(lowerText)) continue;
-      if (_aioNewsNameIsAttribution(lowerText, aliasLower)) continue;
-      found.add(KR_TICKER_MAP[krName]);
-    }
-  }
-
-  return Array.from(found);
-}
+/* v59.88 (ADR-0003 S6): the article ticker reading (v30.12 word gates, P1428/P1449/P1550/P1592) is
+   src/domain/news/article-tickers.js; src/app/compatibility-globals.js installs window.extractTickers with the two lists
+   below, which this shell publishes once. */
+window._aioNewsSymbolLists = { knownTickers: KNOWN_TICKERS, nameMap: KR_TICKER_MAP };
 
 /* ── v21: 절대 시간 포맷 (HH:MM) ──────────────────────────────── */
 window._aioNewsLoadMore = function() {

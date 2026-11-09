@@ -28,6 +28,7 @@ import { withTimeout } from '../platform/with-timeout.js'; // v59.14 roadmap 11:
 import { bumpApiCounter, isQuotaExceeded } from '../data/api-quota.js';
 import { extractTickers } from '../ai/entity/extract-tickers.js';
 import { nicknameSymbol } from '../domain/ticker/nicknames.js';
+import { articleTickers, articleSymbolAllowed } from '../domain/news/article-tickers.js';
 import { restoreSidebar, toggleSidebar } from '../ui/components/sidebar-toggle.js';
 import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
@@ -112,6 +113,9 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._isQuotaExceeded = (providerKey) => isQuotaExceeded(providerKey, window);
   window._extractTickers = extractTickers;
   window._resolveTickerFromFuzzy = (word) => nicknameSymbol(word); // v59.88 (S6): the one nickname table (was js/aio-chat.js)
+  // v59.88 (S6): a news article's issuers (was js/aio-data.js extractTickers) over the shell's symbol list and name map.
+  window.extractTickers = (item) => articleTickers(item, window._aioNewsSymbolLists || {});
+  window._aioArticleSymbolAllowed = articleSymbolAllowed;
   window.toggleSidebar = () => toggleSidebar({ documentRef: document, root: window });
   if (document) restoreSidebar({ documentRef: document, root: window });
   window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => window.fetch(...args) });

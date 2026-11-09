@@ -173,6 +173,22 @@ export const cases = [
       assert.deepEqual(pick('원달러 환율'), []);
       for (const q of ['금일 시장', '마크롱 발언', '메타버스 관련주', '애플리케이션 시장']) assert.deepEqual(pick(q, false), [], q);
   } },
+  { id: 'S6-TICKER-02', name: 'v59.88 뉴스 기사 티커 읽기는 레거시 단어 관문을 그대로 지킨다 (P1428·P1449·P1550·P1592)', run: async ({ load }) => {
+      const { articleTickers } = await load('src/domain/news/article-tickers.js');
+      const lists = { knownTickers: new Set(['NVDA', 'COO', 'SNOW', 'ARM', 'MS', 'INTC']), nameMap: { 델: 'DELL', intel: 'INTC', 'morgan stanley': 'MS', 엔비디아: 'NVDA' } };
+      const read = (title) => articleTickers({ title }, lists);
+      assert.deepEqual(read('Former FTX COO joins'), []);
+      assert.deepEqual(read('$COO shares jump'), ['COO']);
+      assert.deepEqual(read('Snow storm hits; SNOW weather'), []);
+      assert.deepEqual(read('SNOW stock surges on revenue'), ['SNOW']);
+      assert.deepEqual(read('ARM designs a chip'), []);
+      assert.deepEqual(read('Arm Holdings (ARM) earnings beat'), ['ARM']);
+      assert.deepEqual(read('Artificial Intelligence boom'), []);
+      assert.deepEqual(read('모델 업데이트'), []);
+      assert.deepEqual(read('델이 서버 신제품을 발표'), ['DELL']);
+      assert.deepEqual(read('Markets wobble, Morgan Stanley says'), []);
+      assert.deepEqual(read('엔비디아 실적 발표'), ['NVDA']);
+  } },
   { id: 'P12-RESEARCH-01', name: '기업 1차 출처 계획에서 Nasdaq 기사는 1차 출처로 세지 않는다', run: async ({ load }) => {
       const { evaluateResearchEvidenceFloor } = await load('src/ai/research/evidence.js');
       const questionPlan = await researchPlan(load);

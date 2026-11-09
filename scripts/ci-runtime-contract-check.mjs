@@ -1709,11 +1709,15 @@ try {
 check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease without result evidence', macroScheduleResultDatesRemainEvidenceBound);
 // P1592 (frontend audit F26/F16/F31/F30): structural guards for the round-4~9 findings.
 {
-  const roleRe = data.match(/const _TICKER_ROLE_ACRONYM = (\/[^;]+\/);/)?.[1];
-  let roleGate = false;
-  try { const re = new Function(`return ${roleRe}`)(); roleGate = ['COO', 'CEO', 'CFO', 'SEC', 'FDA'].every((t) => re.test(t)) && !['NVDA', 'COST', 'CAT'].some((t) => re.test(t)); } catch (_) {}
+  // v59.88 (S6): the article reading is src/domain/news/article-tickers.js; js/aio-data.js getDisplayTickers gates cached tickers through it.
+  const { articleTickers, articleSymbolAllowed } = await import('../src/domain/news/article-tickers.js');
+  const knownTickers = new Set(['COO', 'CEO', 'SEC', 'FDA', 'NVDA', 'COST', 'CAT']);
+  const roleGate = ['COO', 'CEO', 'CFO', 'SEC', 'FDA'].every((t) => !articleSymbolAllowed(t, `Former FTX ${t} joins`) && articleSymbolAllowed(t, `(${t})`))
+    && ['NVDA', 'CAT'].every((t) => articleSymbolAllowed(t, `${t} rallies`))
+    && articleTickers({ title: 'Former FTX COO joins NVDA board' }, { knownTickers }).join() === 'NVDA'
+    && articleTickers({ title: '$COO shares jump' }, { knownTickers }).join() === 'COO';
   check('P1592/F26 officer titles and agency acronyms are not news tickers unless written as $TICKER/(TICKER), in local and cached paths',
-    roleGate && /_TICKER_WORD_OVERLAP\.has\(ticker\) \|\| _TICKER_ROLE_ACRONYM\.test\(ticker\)/.test(data) && /_TICKER_ROLE_ACRONYM\.test\(bare\)/.test(data));
+    roleGate && /_aioArticleSymbolAllowed\(bare, text\)/.test(data));
   // v59.51 (content audit): the position donut and sector card left 포트폴리오 (the holdings table's 주식 중 비중 and 보유 점검
   // carry the mix), so the native renderer no longer marks a canvas; pin that the legacy donut has no canvas to draw on.
   check('P1592/F16 v59.51 (content audit) the legacy cost-basis donut has no canvas left and the legacy sector mix stays retired',
