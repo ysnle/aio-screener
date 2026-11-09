@@ -279,7 +279,7 @@ function screenerSectorOf(bySymbol) {
 function renderCashBalances(documentRef, surface) {
   const balances = Array.isArray(surface?.cashBalances) ? surface.cashBalances : [];
   const amountOf = (code) => balances.find((row) => row.currency === code)?.amount;
-  // v59.92: a box being typed in or saved, or holding a refused amount (v58.80), is the reader's and is left alone.
+  // A box being typed in or saved, or holding a refused amount, is the reader's and is left alone.
   for (const [id, code] of [['pf-cash-krw-input', 'KRW'], ['pf-cash-usd-input', 'USD']]) paintCashBox(documentRef?.getElementById(id), amountOf(code));
   const conversion = surface?.cashConversion || {};
   const each = balances.filter((row) => row.amount > 0).map((row) => formatSurfaceMoney(row.amount, row.currency || conversion.target || surface.declaredBaseCurrency));

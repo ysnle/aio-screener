@@ -1,4 +1,4 @@
-// The 원화 · 달러 현금 boxes (v59.92). Two writers share each box: the reader typing and the portfolio render painting the
+// The 원화 · 달러 현금 boxes. Two writers share each box: the reader typing and the portfolio render painting the
 // stored balance. Which one owns a box is said on the box itself, in data-cash-entry, and only the save path writes it:
 //   'saving'  — set by the shell's change handler before any wait (src/app/compatibility-globals.js), so a render that
 //               lands while this module loads cannot refill the box;
@@ -18,11 +18,12 @@ export function paintCashBox(input, amount) {
   return true;
 }
 
-// typed: { value, badInput } as the box held them when the save was asked for (P2106). Settles the box's owner and
+// typed: { value, badInput } as the box held them when the save was asked for (a render may refill the box
+// before this runs). Settles the box's owner and
 // returns the number reader's result ({ ok, empty, value } or { ok: false, reason }).
 export function checkCashEntry(input, typed) {
   const currency = input?.dataset?.currency;
-  // -100 and 1e309 emptied the field to $0 without a word, and twenty digits were kept (v58.80).
+  // A negative, unreadable or too-large amount is refused beside the box, never saved as $0 or kept unbounded.
   const read = checkNumericField(input, { label: LABELS[currency] || `${currency} 현금`, min: 0, max: NUMERIC_LIMITS.cash[currency] ?? NUMERIC_LIMITS.amount, ...typed });
   if (read.ok) delete input.dataset.cashEntry;
   else input.dataset.cashEntry = 'refused';

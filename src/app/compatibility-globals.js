@@ -335,9 +335,8 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   // v58.80 run-5 (breaker #5): a refused ticker or currency is marked beside its field like a refused number, not only in a toast.
   const fieldRefusals = { ticker: '종목 목록에 없는 심볼입니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름으로 입력하세요.', currency: '3자리 통화 코드(예: USD, KRW)로 입력하거나 비워 두세요.' };
   window._aioMarkField = (id, refusal = '') => inputCheck().then(({ markField }) => markField(document.getElementById(id), refusal ? { ok: false, reason: fieldRefusals[refusal] || refusal } : { ok: true })).catch(() => null);
-  // v59.92: the box is marked as the save's before any wait, so a render queued by the previous save cannot refill it while
-  // the check loads; src/ui/panels/portfolio-cash-entry.js owns the marks and the check. P2106: the typed text is taken
-  // here too.
+  // The box is marked as the save's before any wait, so a render queued by the previous save cannot refill it while the
+  // check loads; src/ui/panels/portfolio-cash-entry.js owns the marks and the check. The typed text is taken here too.
   window._aioSaveCashBalance = (el) => {
     const currency = el?.dataset?.currency;
     if (!currency) return Promise.resolve();
