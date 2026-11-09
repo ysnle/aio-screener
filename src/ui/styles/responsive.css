@@ -351,12 +351,12 @@ body.dark-theme #page-screener .scr-screen-chip.active { color: var(--accent) !i
 body.dark-theme .aio-badge.is-amber,
 body.dark-theme .sp-neutral,
 body.dark-theme .btn-accent.--orange,
-body.dark-theme .scr-star.active { color: var(--text-secondary) !important; }
+body.dark-theme .scr-star.active { color: var(--text-secondary); }
 /* v57.55 review (5e): on a phone the screener's 관심·비교 + 백분위 columns took half the visible width before the symbol,
    and the sub-theme name column wrapped one word per line (rows 100–160px tall). Both tables already scroll sideways. */
 @media (max-width: 767px) {
-  #page-screener table [data-column-key="watchlist"] { min-width: 60px !important; padding: 6px 2px !important; }
-  #page-screener table [data-column-key="rank"] { min-width: 50px !important; padding: 6px 4px !important; }
+  #page-screener table [data-column-key="watchlist"] { min-width: 60px; padding: 6px 2px; }
+  #page-screener table [data-column-key="rank"] { min-width: 50px; padding: 6px 4px; }
   #page-screener .scr-row-actions { gap: 2px; }
   .theme-strength-table td:nth-child(2) { min-width: 150px; }
 }
@@ -720,7 +720,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
    wins (at (1,1,0) it lost to (1,2,0) and the read column was 4px wide on a phone). scripts/ci-phone-override-specificity-check.mjs */
 @media (max-width: 743px) { :is(#page-fxbond .fx-krw, #page-market-news .news-focus) :is(.fx-krw__body, .news-focus__body) { grid-template-columns: minmax(0, 1fr); } }
 #page-market-news .news-focus { background: var(--bg-card); border-radius: var(--radius-container); padding: 20px var(--sx-card-pad-x); margin: 0 0 16px; }
-#page-screener #scr-tab-evidence.is-empty { display: none !important; }
+#page-screener #scr-tab-evidence.is-empty { display: none; }
 
 /* v59.56 (screen review): on a phone the 투자 참고용 notice took ~130px above the page (three text lines, then the button on
    its own row). The button now sits beside the text, so the notice is as tall as its text. */

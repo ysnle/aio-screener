@@ -18,19 +18,19 @@
    under a slim sortable header; a tap opens the bottom sheet with everything else (가격, 3개월, 52주 위치, 전체 순위, 관심·비교).
    Another column preset keeps every column and scrolls sideways inside the table frame. */
 @media (max-width: 743px) {
-  #page-screener #screener-results-table { min-width: 0 !important; }
+  #page-screener #screener-results-table { min-width: 0; }
   #page-screener #screener-results-table[data-column-preset="overview"] { width: 100%; table-layout: auto; }
   #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key]:not([data-column-key="capOrder"], [data-column-key="sym"], [data-column-key="ret1m"], [data-column-key="rank"]) { display: none; }
   #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key] { min-width: 0 !important; }
   #page-screener #screener-results-table[data-column-preset="overview"] td.scr-column-cell { padding: 8px 6px !important; vertical-align: middle; }
   #page-screener #screener-results-table[data-column-preset="overview"] th.scr-column-header { padding: 0 4px !important; }
   #page-screener #screener-results-table[data-column-preset="overview"] .scr-sort-btn { min-height: 32px; padding: 4px 2px; font-size: 12px; }
-  #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key="capOrder"] { width: 30px; text-align: left !important; }
+  #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key="capOrder"] { width: 30px; text-align: left; }
   #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="capOrder"] { font-size: 12px; }
   #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="sym"] > div { display: flex; flex-direction: column; align-items: flex-start; gap: 0; min-width: 0; line-height: 1.3; }
   #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="sym"] .scr-sym-name { max-width: 46vw; font-size: 12px; line-height: 1.3; }
   #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="sym"] .scr-sym-code { font-size: 14px; line-height: 1.3; }
-  #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key="ret1m"] { width: 68px; text-align: right !important; }
+  #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key="ret1m"] { width: 68px; text-align: right; }
   #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key="rank"] { width: 48px; text-align: right !important; }
   #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="rank"] .scr-rank-value { font-size: 14px; }
   #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="rank"] .scr-rank-unranked { white-space: normal; font-size: 12px; }
