@@ -1,8 +1,0 @@
-{
-  "version": "v59.87",
-  "date": "2026-11-09",
-  "changelog": [
-    "**계층 경계 ratchet (ADR-0003 S0):** 공용 원시 함수 ratchet에 지표 세 개를 더했다. 로컬 HTML escape 사본(7), definitions.js 밖의 SMA/EMA/RSI 정의(6), domain·ui·ai 안의 './public-data/' 경로(60)다. 각 수치는 파일별로 줄어들기만 허용한다. 새 게이트는 만들지 않고, 이미 fetch·storage를 금지하는 architecture contract와 이 ratchet을 소유자로 썼다. 설계 문서는 architecture/adr-0003-layered-ownership.md다."
-  ],
-  "note": "ADR-0003 S0: layered single-owner ratchet metrics"
-}

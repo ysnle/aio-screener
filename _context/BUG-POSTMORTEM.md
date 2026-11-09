@@ -39,6 +39,36 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2327 - v59.87 - AI [주가 추이]가 종목 화면과 다른 계산으로 수익률·추세를 말함 (2026-11-09)
+
+- symptom/reproduction: 채팅의 [주가 추이]는 Yahoo 3개월 차트를 따로 받아 5/20/60봉 수익률, 3개월 범위 위치, 자체 단기 흐름 라벨(단기·중기 하락 추세 등)을 계산했다. 종목 화면은 스크리너 행(ret5d·ret1m·ret3m·52주 거리·bufferedTrend)을 읽으므로, 같은 종목의 수익률·위치·추세 문구가 화면과 AI에서 달라질 수 있었다.
+- root_cause: AI가 화면이 이미 계산한 사실을 읽지 않고 별도 데이터 경로(js/aio-chat.js _fetchTickerTrend)와 별도 판정 임계값을 가졌다. ADR-0003 규칙 5(AI는 화면과 같은 domain 결과를 인용) 위반.
+- fix: src/ai/context/stock-trend-line.js가 종목 화면과 같은 행(공개 스크리너 행 → 미국 상장 범위 밖이면 같은 on-demand 리더의 행)을 buildStockRead로 읽어 추세 라벨·5거래일/1개월/3개월 수익률·52주 위치·RSI·기준 종가일을 그대로 인용한다. _fetchTickerTrend는 위임만 하고 Yahoo 재조회·자체 라벨·AIO.stockTrendFor 브리지는 삭제했다. 범위 밖 한국 종목은 화면처럼 추이 줄을 내지 않는다.
+- violated_rule: ADR-0003 규칙 5 (AI context는 화면이 쓰는 같은 domain 함수나 근거 행을 읽는다)
+- prevention: ci-ai-evidence-contract-check.mjs screen-facts 섹션이 같은 행에서 화면(buildStockRead)과 AI 줄의 수치·라벨을 대조하고, _fetchTickerTrend 안의 Yahoo·fetchViaProxy·toFixed 재계산을 금지한다.
+- verification/residual: node scripts/ci-ai-evidence-contract-check.mjs; node scripts/qa-runner.mjs affected
+- files: src/ai/context/stock-trend-line.js, js/aio-chat.js, src/app/chat-globals.js, src/app/compatibility-globals.js, scripts/ci-ai-evidence-contract-check.mjs
+
+## P2326 - v59.87 - 포트폴리오의 한국 종목(6자리 코드)이 늘 '시세 대기'였다(정규화가 listingSymbol을 버림) (2026-11-09)
+
+- symptom/reproduction: 포트폴리오에 005930을 담으면 '오늘' 열이 계속 '시세 대기'였다. 시세 요청이 접미사 없는 005930으로 나가 Yahoo chart/005930이 404를 냈고(재시도 3회 포함 4번), 네이버가 시세를 돌려줘도 005930.KS 키로 저장돼 화면이 읽지 못했다.
+- root_cause: v59.54부터 런타임 리더(readPortfolio)가 저장된 코드의 상장 심볼(005930 → 005930.KS)을 한 번 풀어 listingSymbol로 넘긴다. 그런데 그 뒤의 normalizePortfolio가 필드를 하나씩 나열해 다시 만들면서 listingSymbol을 빠뜨렸다. 그래서 store와 화면의 행에는 원래 코드만 남았고, 시세 요청과 시세 조회가 모두 원래 코드를 썼다. P1181·P1194와 같은 종류로, 경계에서 선언된 필드가 사라진 결함이다. 이와 별개로 네이버 1차 소스는 결과가 3개 미만이면 통째로 버렸다. 그래서 보유 종목이 하나뿐일 때 지수 호출 하나만 실패해도 그 종목의 시세가 버려졌다.
+- fix: normalizePortfolio가 listingSymbol을 보존한다. 값이 없으면 null로 두고 거래소를 추정하지 않는다. 네이버가 돌려준 행은 개수와 상관없이 모두 받는다. 네이버가 성공해도 Yahoo 한국 그룹을 건너뛰지 않는다. 그래서 네이버가 놓친 종목도 묻고, 네이버 행에는 관측 시각이 없으므로 시각이 있는 Yahoo 행을 _aioSelectAtomicQuotes가 고를 수 있다.
+- violated_rule: 리더가 해석한 필드를 정규화·리듀서가 나열식으로 다시 만들 때는 그 필드를 함께 옮겨야 한다. 보존은 체인 전체를 지나는 테스트로 확인한다.
+- prevention: ci-esm-core-unit-check가 KR 보유 하나를 provider → normalize → reducer → surface로 통과시킨다. 그 행이 005930.KS를 유지하고 그 키의 시세로 평가되는지, 해석되지 않은 코드에 거래소를 붙이지 않는지 확인한다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (v59.87 portfolio listing symbol; 수정 전 실패, 수정 후 통과). 로컬 브라우저 재현: #portfolio에 005930을 추가하면 시세 요청이 005930에서 005930.KS로 바뀐다.
+- files: src/data/normalize/portfolio.js, js/aio-data.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2325 - v59.87 - 옛 기술 스냅샷의 ADR·VCP가 v59.59 이후 모든 브라우저에서 비어 있었다(AIO_ARCH 허용 목록 누락) (2026-11-09)
+
+- symptom/reproduction: calcTechnicalSnapshot의 adr20Pct가 늘 null이었고, VCP 단계는 늘 insufficient_data('데이터 부족')였다. 그래서 50일선 대비 ADR 배수(dist20Adr·dist50Adr)가 비고, AI 기술 문맥의 VCP 줄도 '데이터 부족'으로 나갔다.
+- root_cause: v59.59에서 _calcADRPercent와 _calcVCP를 window.AIO_ARCH.adrPctOf·vcpRead에 위임했다. 그런데 이 이름들은 bootstrap.js의 api 객체에만 추가됐고, 실제로 window.AIO_ARCH를 만드는 compatibility-facade.js의 손으로 쓴 허용 목록에는 들어가지 않았다. detectContractions·isBreakoutDay도 같은 상태였다. 한 API를 두 목록이 따로 관리하는 구조여서, 위임 코드가 'ESM이 없으면 null'로 조용히 떨어졌다.
+- fix: bootstrap.js가 legacy 스냅샷이 위임하는 기술 정의(detectContractions·isBreakoutDay·adrPctOf·vcpRead와 ADR-0003 S1의 smaLast·emaSeries·rsiWilder·atrWilder)를 legacyTechnical 한 묶음으로 내보내고, compatibility-facade.js는 그 묶음을 통째로 window.AIO_ARCH에 펼친다. 묶음에 넣은 이름은 허용 목록에서 빠질 수 없다.
+- violated_rule: 한 API는 한 곳에서 선언한다. 위임 대상이 없을 때 조용히 null로 떨어지는 경로는 실제 브라우저에서 위임이 성립하는지 테스트로 확인해야 한다.
+- prevention: legacy가 AIO_ARCH로 위임하는 순수 함수는 bootstrap의 legacyTechnical(또는 같은 방식의 묶음)에 넣는다. ci-esm-core-unit-check가 facade의 묶음 전달과, aio-core가 읽는 이름이 모두 묶음 안에 있는지 확인한다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (v59.87 facade forwards legacyTechnical; bootstrap group covers every name aio-core reads) + node scripts/ci-headless-tests.mjs T103
+- files: src/app/bootstrap.js, src/legacy/compatibility-facade.js, js/aio-core.js, scripts/ci-esm-core-unit-check.mjs
+
 ## P2324 - v59.86 - 시장 뉴스 타임라인 링크가 다크 모드에서 대비 1.85로 읽기 어려웠다 (2026-11-09)
 
 - symptom/reproduction: browser-contrast-focus가 #page-market-news 타임라인의 a.aio-inline-target 대비 1.85를 보고했다.

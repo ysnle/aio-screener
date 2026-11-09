@@ -1,8 +1,0 @@
-{
-  "version": "v59.87",
-  "date": "2026-11-09",
-  "changelog": [
-    "**공용 정의 단일화 (ADR-0003 S1):** 지표·표기·통계를 정의 하나씩으로 모았다. SMA/EMA/RSI/ATR은 src/domain/technical/definitions.js 하나(공포·탐욕 합성의 첫 값 시드 EMA는 `seed:'first'` 옵션)이고, 고전 aio-core의 _calcSMA·_calcEMAFull·_calcATR·_calcRSILast는 그 정의에 위임한다. HTML escape는 src/ui/html.js, 부호 붙은 수치 표기는 shared/number.js signedText(`plus:false` 선택), 평균·표준편차는 shared/number.js mean·stdev(모집단·표본 구분)다. RRG 사분면 판정·경계 문구는 rrg.js rrgQuadrantOf·RRG_BORDER_WORD·RRG_BORDER_LABEL이고, produced-rotation.js는 부트 청크 분할(+약 430 gzip B)을 피하려 같은 규칙을 풀어 쓰되 ci-esm-core-unit-check가 두 규칙이 같음을 검사한다. 화면 출력은 같다(작은따옴표 escape만 `&#39;`로 통일). 로컬 escape 사본 7→0, 로컬 지표 정의 6→2."
-  ],
-  "note": "ADR-0003 S1: one definition per indicator, escape, sign, stats and RRG quadrant"
-}

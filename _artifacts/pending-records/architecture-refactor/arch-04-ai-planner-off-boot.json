@@ -1,8 +1,0 @@
-{
-  "version": "v59.87",
-  "date": "2026-11-09",
-  "changelog": [
-    "**AI 질문 계획기를 부트에서 분리 (ADR-0003 S1):** ai/research/evidence.js와 ai/entity/chat-tickers.js가 회사 종목 필터(companyEntitySymbols) 하나를 쓰려고 question-planner를 정적으로 import해서, 계획기·intent taxonomy·research plan 전체가 첫 화면 부트에 실려 있었다. 필터를 entity 계층(src/ai/entity/company-symbols.js)으로 옮기고 계획기는 같은 이름을 다시 export한다. 부트 모듈 집합은 약 12.9 KB gzip(raw 약 35 KB) 줄었고, 세 모듈은 boot-budget.json lazyOnlyInputs로 묶어 다시 부트에 들어오지 못하게 했다. 동작은 같다(AI 패널을 열 때 계획기를 불러온다)."
-  ],
-  "note": "ADR-0003 S1: question planner, intent taxonomy and research plan off the boot set"
-}

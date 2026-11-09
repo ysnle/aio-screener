@@ -4,6 +4,12 @@ last_verified: 2026-11-09
 confidence: medium
 ---
 
+## v59.87 기술 지표 단일 정의 (2026-11-09)
+
+- [x] QA-LEGACY-TECH-FACADE: v59.87: calcTechnicalSnapshot의 ADR(adr20Pct)·RSI·ATR·SMA/EMA가 실제 window.AIO_ARCH를 거쳐 technical/definitions.js 값으로 채워진다(260봉 픽스처에서 null이 아니다). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-PORTFOLIO-KR-LISTING: v59.87: 6자리 코드로 저장된 한국 보유(005930)는 store와 화면 행에서 상장 심볼 005930.KS를 유지하고, 시세는 그 심볼로 요청하고 그 심볼로 읽는다. 해석되지 않은 코드에 거래소를 추정해 붙이지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-AI-SCREEN-FACTS-01: P2327: 채팅 [주가 추이]의 추세 라벨·5거래일/1개월/3개월 수익률·52주 위치·RSI·종가일이 같은 종목의 종목 화면 값과 같다(스크리너 행 → on-demand 행, 범위 밖 KR은 줄 없음). verify_by: node scripts/ci-ai-evidence-contract-check.mjs
+
 ## v59.86 라이브 실사용 점검 (2026-11-09)
 
 - [x] QA-FUND-TTM-REVENUE: v59.86: 1년 전 4개 분기의 매출이 모두 있으면 '최근 4개 분기' 매출 성장률이 나오고, 그중 순이익 공백은 이익 비교만 비운다. verify_by: node scripts/ci-esm-core-unit-check.mjs
