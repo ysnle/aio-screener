@@ -4,7 +4,7 @@
 // event signals, the RS line, the price-level map) is opt-in, so the default chart stays readable.
 // Pure functions on completed daily bars (the same bars chart-analysis.js reads): no DOM, no globals, no network.
 // Nothing here is an entry, stop or target (R724): each layer is a published, named calculation shown as a fact.
-import { emaSeries, smaSeries } from './definitions.js';
+import { emaSeries, rsiSeriesWilder, smaSeries } from './definitions.js';
 import { swingPoints } from './price-levels.js';
 import { buildVolumeByPrice, profilePosition } from './chart-scenarios.js';
 import { RULES } from '../rules/thresholds.js';
@@ -44,23 +44,8 @@ export function resolveLayers(stored) {
 
 const isNum = (value) => typeof value === 'number' && Number.isFinite(value);
 
-/** Wilder RSI per bar (null until period + 1 closes); the same smoothing as definitions.rsiWilder's last value. */
-export function rsiSeriesWilder(closes, period = 14) {
-  const out = closes.map(() => null);
-  if (!Array.isArray(closes) || closes.length <= period) return out;
-  let gain = 0, loss = 0;
-  for (let i = 1; i <= period; i++) { const d = closes[i] - closes[i - 1]; if (d >= 0) gain += d; else loss -= d; }
-  gain /= period; loss /= period;
-  const value = () => (loss === 0 ? (gain === 0 ? 50 : 100) : 100 - 100 / (1 + gain / loss));
-  out[period] = value();
-  for (let i = period + 1; i < closes.length; i++) {
-    const d = closes[i] - closes[i - 1];
-    gain = (gain * (period - 1) + Math.max(d, 0)) / period;
-    loss = (loss * (period - 1) + Math.max(-d, 0)) / period;
-    out[i] = value();
-  }
-  return out;
-}
+// The per-bar Wilder RSI lives in definitions.js with rsiWilder; re-exported for the pane's importers.
+export { rsiSeriesWilder };
 
 /** MACD(fast, slow, signal) per bar: line = EMA(fast) − EMA(slow), signal = EMA(signal) of the line, hist = line − signal. */
 export function macdSeries(closes, fast = 12, slow = 26, signal = 9) {

@@ -37,15 +37,21 @@ export const RRG_QUADRANT_READS = Object.freeze({
   Lagging: '시장 대비 상대가격이 50일 평균보다 낮고, 10거래일 전보다 그 격차가 커짐'
 });
 
+/** A settled zone near both 100 lines (recent-check.js 'Border'): the short word for chips and dots, the long one for
+ * legends and badges. */
+export const RRG_BORDER_WORD = '경계';
+export const RRG_BORDER_LABEL = '기준선 부근';
+
+/** The raw quadrant of a point: the 100/100 boundaries every reader shares (scatter dot, move, produced-row check). */
+export function rrgQuadrantOf(rsRatio, rsMom) {
+  return rsRatio >= 100 ? (rsMom >= 100 ? 'Leading' : 'Weakening') : (rsMom >= 100 ? 'Improving' : 'Lagging');
+}
+
 export function classifyRRG(rsRatio, rsMom) {
   const ratio = positive(rsRatio);
   const momentum = positive(rsMom);
   if (ratio == null || momentum == null) return Object.freeze({ rsRatio: null, rsMom: null, quadrant: 'unknown', reason: 'invalid_rotation', modelVersion: RRG_MODEL_VERSION });
-  const quadrant = ratio >= 100 && momentum >= 100 ? 'Leading'
-    : ratio < 100 && momentum >= 100 ? 'Improving'
-    : ratio >= 100 && momentum < 100 ? 'Weakening'
-    : 'Lagging';
-  return Object.freeze({ rsRatio: ratio, rsMom: momentum, quadrant, modelVersion: RRG_MODEL_VERSION });
+  return Object.freeze({ rsRatio: ratio, rsMom: momentum, quadrant: rrgQuadrantOf(ratio, momentum), modelVersion: RRG_MODEL_VERSION });
 }
 
 /**

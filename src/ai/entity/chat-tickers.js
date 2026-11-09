@@ -4,7 +4,7 @@
 // particle ("엔비디아는"). A demonstrative follow-up ("이 종목", "그 회사") reuses the previous turn's companies;
 // nothing else is inferred (P1339: no ticker guessing). companiesOnly drops index/FX/commodity nicknames, which the
 // unified panel answers from its market and domain blocks instead.
-import { companyEntitySymbols } from '../orchestrator/question-planner.js';
+import { companyEntitySymbols } from './company-symbols.js';
 
 const PARTICLES = ['에서는', '에서', '으로', '까지', '보다', '처럼', '이랑', '하고', '은', '는', '이', '가', '을', '를', '의', '와', '과', '도', '에', '로', '랑', '만'];
 const isMarketProxy = (sym) => /^\^|=X$|=F$|-USD$/.test(String(sym));

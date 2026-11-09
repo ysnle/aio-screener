@@ -59,6 +59,13 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const now = Date.parse('2026-10-01T00:34:00Z');
   const artifact = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', sourceKind: 'T3_PUBLIC_DELAYED', allowedUseCeiling: 'reference', decisionUse: false, latestCompletedSession: '2026-09-30', items: { XLK: { status: 'CURRENT', sessionDate: '2026-09-30', observedAt: '2026-09-30T20:00:00Z', fetchedAt: '2026-10-01T00:33:00Z', rsRatio: 101, rsMomentum: 102, quadrant: 'Leading', dailyPct: 1.2, weeklyPct: 3.5, alignedSessionCount: 60, performanceBasis: 'adjusted-close-total-return' } } };
   if (!selectProducedRotation(artifact, 'XLK', now)) fail('P1358 coherent producer rotation was lost');
+  // v59.87: the written-out quadrant rule of produced-rotation.js stays the rrgQuadrantOf of rrg.js (both sides of 100).
+  const { rrgQuadrantOf } = await load('src/domain/themes/rrg.js');
+  for (const [rs, mom] of [[101, 102], [101, 99], [99, 101], [99, 98], [100, 100], [100, 99.9], [99.9, 100]]) {
+    const quadrant = rrgQuadrantOf(rs, mom);
+    const item = { ...artifact.items.XLK, rsRatio: rs, rsMomentum: mom, quadrant };
+    if (!selectProducedRotation({ ...artifact, items: { XLK: item } }, 'XLK', now)) fail(`v59.87 produced-rotation quadrant rule differs from rrgQuadrantOf at ${rs}/${mom} (${quadrant})`);
+  }
   // P1366: an absent 1/5-session return keeps the valid coordinates; a non-numeric return does not.
   const partialReturn = selectProducedRotation({ ...artifact, items: { XLK: { ...artifact.items.XLK, dailyPct: null, weeklyPct: null } } }, 'XLK', now);
   if (!partialReturn || partialReturn.rsRatio !== 101 || partialReturn.dailyPct !== null) fail('P1366 missing optional return discarded valid RRG coordinates');
@@ -944,6 +951,24 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const fakeRoot = {};
   exposeArchitecture(fakeRoot, { version: 'test.v1', getState: () => ({}) });
   if (fakeRoot.AIO_ARCH?.version !== 'test.v1' || fakeRoot.AIO_ARCH?.status !== 'MIGRATION_IN_PROGRESS') fail('facade: exposeArchitecture did not expose the expected fields onto root.AIO_ARCH');
+}
+
+// v59.87 (legacy technical facade): the technical definitions legacy calcTechnicalSnapshot delegates to travel as one group. bootstrap listed
+// adrPctOf/vcpRead/detectContractions/isBreakoutDay but the facade allowlist never forwarded them, so the legacy ADR read
+// null and the VCP insufficient_data in every browser. Every name aio-core reads from AIO_ARCH for the snapshot must be in
+// bootstrap's legacyTechnical group, and the facade must forward the group whole.
+{
+  const marker = () => 0;
+  const techRoot = {};
+  exposeArchitecture(techRoot, { version: 'test.v1', legacyTechnical: Object.freeze({ adrPctOf: marker, rsiWilder: marker }) });
+  if (techRoot.AIO_ARCH?.adrPctOf !== marker || techRoot.AIO_ARCH?.rsiWilder !== marker) fail('v59.87 facade: exposeArchitecture does not forward api.legacyTechnical onto root.AIO_ARCH');
+  const coreSource = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
+  const bootSource = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  const group = bootSource.match(/legacyTechnical: Object\.freeze\(\{([\s\S]*?)\}\)/)?.[1] || '';
+  const grouped = new Set([...group.matchAll(/^\s*([A-Za-z_]\w*)\s*(?:,|:)/gm)].map((m) => m[1]));
+  const read = new Set([...coreSource.matchAll(/arch\.(adrPctOf|vcpRead|detectContractions|isBreakoutDay)\b/g), ...coreSource.matchAll(/_aioTechDef\('(\w+)'\)/g)].map((m) => m[1]));
+  const missing = [...read].filter((name) => !grouped.has(name));
+  if (!read.size || missing.length) fail(`v59.87 bootstrap legacyTechnical is missing names js/aio-core.js reads from AIO_ARCH: ${missing.join(', ') || '(none read)'}`);
 }
 
 // P1348: use the shipped compatibility registry, not a fixture alias map.

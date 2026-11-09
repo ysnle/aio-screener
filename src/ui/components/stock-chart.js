@@ -21,7 +21,7 @@ import { trendRead } from '../../domain/technical/chart-strategies.js';
 import { trendOfBars } from '../../domain/technical/trend-state.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { RULES } from '../../domain/rules/thresholds.js';
-import { rsiWilder } from '../../domain/technical/definitions.js';
+import { rsiWilder, smaLast } from '../../domain/technical/definitions.js';
 import { signedText } from '../../domain/shared/number.js';
 // v58.75: the bar helpers live in chart-bars.js so boot-time readers (AI visuals, compatibility globals) can import
 // them without pulling the chart module into the boot set; re-exported here for existing importers.
@@ -572,12 +572,10 @@ export function intervalBars(payload, spec) {
   return [...buckets.values()].sort((a, b) => (a.time > b.time ? 1 : a.time < b.time ? -1 : 0));
 }
 
-const smaOf = (values, n) => values.map((_, i) => i + 1 >= n ? values.slice(i + 1 - n, i + 1).reduce((sum, v) => sum + v, 0) / n : null);
-
 // 단기 = 종가>5>10>20, 장기 = 20>50>100>200 (owner 2026-10-12), on whatever bars are shown.
 export function intervalStructure(bars) {
   const closes = bars.map((bar) => bar.close);
-  const last = (n) => smaOf(closes, n).at(-1) ?? null;
+  const last = (n) => smaLast(closes, n);
   const order = (values) => ({ up: '정배열', down: '역배열', mixed: '혼조' })[maOrder(values)] ?? null;
   return { short: order([closes.at(-1), last(5), last(10), last(20)]), long: order([last(20), last(50), last(100), last(200)]) };
 }

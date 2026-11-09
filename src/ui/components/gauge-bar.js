@@ -6,10 +6,7 @@ import { signedText } from '../../domain/shared/number.js';
 const SVG = 'http://www.w3.org/2000/svg';
 
 // v59.70 (render hotfix): a value that rounds to zero prints without a sign — dxy20 0.03 read '+0.0%' (and -0.03 '-0.0').
-function signedNumber(value, digits) {
-  const text = Math.abs(value).toFixed(digits);
-  return `${value < 0 && Number(text) !== 0 ? '-' : ''}${text}`;
-}
+const signedNumber = (value, digits) => signedText(value, digits, '', { plus: false });
 
 export const TONE_WORD = Object.freeze({ favorable: '양호', neutral: '중립', burden: '부담' });
 

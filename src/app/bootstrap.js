@@ -50,7 +50,7 @@ import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
-import { detectContractions, isBreakoutDay, adrPctOf } from '../domain/technical/definitions.js';
+import { detectContractions, isBreakoutDay, adrPctOf, smaLast, emaSeries, rsiWilder, atrWilder } from '../domain/technical/definitions.js';
 // v59.59 (logic refactor): the producer's VCP read for the legacy snapshot, behind import() (boot budget). The snapshot is
 // built on a stock's detail, well after boot; before the module arrives the legacy read is 'insufficient_data'.
 let producerVcpRead = null;
@@ -1219,13 +1219,20 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,computeRelativeRotation
     ,classifyMovingAverageStructure
     ,deriveMultiTimeframeView
-    // v57.84 (owner decision): the one VCP contraction detector — legacy calcTechnicalSnapshot's _calcVCP delegates here.
-    ,detectContractions
-    // Audit 2026-10-17 (owner D6): the one breakout-day test — legacy _calcVCP reads it too.
-    ,isBreakoutDay
-    // v59.59 (logic refactor): the legacy snapshot's ADR and VCP stage read the producer's own functions.
-    ,adrPctOf
-    ,vcpRead: (...args) => (producerVcpRead ? producerVcpRead(...args) : null)
+    // The technical definitions legacy calcTechnicalSnapshot delegates to (js/aio-core.js _calc*, _calcADRPercent,
+    // _calcVCP), as one group compatibility-facade.js forwards whole onto window.AIO_ARCH: a name listed only here and not
+    // on the facade's allowlist reads as missing in the browser. detectContractions is the one VCP contraction detector,
+    // isBreakoutDay the one breakout-day test (owner D6), and the ADR and VCP stage are the producer's own functions.
+    ,legacyTechnical: Object.freeze({
+      detectContractions,
+      isBreakoutDay,
+      adrPctOf,
+      smaLast,
+      emaSeries,
+      rsiWilder,
+      atrWilder,
+      vcpRead: (...args) => (producerVcpRead ? producerVcpRead(...args) : null)
+    })
     ,computeNewsSentimentScore
     ,computeNewsRiskSignals
     ,MIN_NEWS_ANALYSIS_SAMPLE
