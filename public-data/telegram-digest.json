@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-09T03:21:44.266Z",
-  "attemptedAt": "2026-11-09T03:21:44.266Z",
-  "lastSuccessfulAt": "2026-11-09T03:21:44.266Z",
+  "generatedAt": "2026-11-09T04:21:46.870Z",
+  "attemptedAt": "2026-11-09T04:21:46.870Z",
+  "lastSuccessfulAt": "2026-11-09T04:21:46.870Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-26T03:21:36.817Z",
-  "until": "2026-11-09T03:21:36.817Z",
+  "since": "2026-10-26T04:21:39.378Z",
+  "until": "2026-11-09T04:21:39.378Z",
   "current24hWindow": {
     "start": "2026-11-07T23:00:00.000Z",
     "end": "2026-11-08T23:00:00.000Z",
@@ -80,9 +80,9 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 15,
+      "count": 14,
       "freshCount": 0,
-      "eligibleTextCount": 13,
+      "eligibleTextCount": 12,
       "selectedCount": 8,
       "error": "first page parsed no posts",
       "lastPostId": 26057
@@ -92,85 +92,86 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1325,
-      "freshCount": 38,
-      "eligibleTextCount": 1269,
+      "count": 1320,
+      "freshCount": 39,
+      "eligibleTextCount": 1265,
       "selectedCount": 130,
       "error": null,
-      "lastPostId": 68754
+      "lastPostId": 68758
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 227,
+      "count": 229,
       "freshCount": 39,
-      "eligibleTextCount": 227,
+      "eligibleTextCount": 229,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 21060
+      "lastPostId": 21062
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 706,
-      "freshCount": 36,
-      "eligibleTextCount": 705,
+      "count": 705,
+      "freshCount": 35,
+      "eligibleTextCount": 704,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 71799
+      "lastPostId": 71804
     }
   ],
-  "count": 2273,
-  "retainedItemCount": 449,
+  "count": 2268,
+  "retainedItemCount": 447,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2273,
-    "eligibleTextCount": 2214,
-    "mediaOnlyCount": 59,
-    "mediaAttachedCount": 591,
-    "photoPostCount": 505,
+    "observedCount": 2268,
+    "eligibleTextCount": 2210,
+    "mediaOnlyCount": 58,
+    "mediaAttachedCount": 596,
+    "photoPostCount": 510,
     "documentPostCount": 4,
     "imageOnlyCount": 3,
     "highSignalCount": 386,
-    "broadSignalCount": 847,
+    "broadSignalCount": 849,
     "selectedRawCount": 383,
     "selectedEligibleCount": 383,
     "selectedRawCoveragePct": 17.3,
-    "selectedOfObservedPct": 16.8,
+    "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "semi": 479,
+    "market-note": 810,
+    "japan": 72,
     "power": 286,
-    "market-note": 813,
-    "semi": 477,
     "healthcare": 75,
     "ai-policy": 99,
-    "equity": 118,
-    "macro": 338,
-    "earnings": 385,
+    "equity": 116,
+    "macro": 336,
+    "earnings": 383,
     "geo": 432,
     "credit": 95,
     "kr-market": 111,
     "flows": 65,
-    "japan": 70,
-    "media-only": 58,
+    "media-only": 57,
     "optical": 36,
     "crypto": 4
   },
   "tickerCounts": {
-    "NVDA": 132,
+    "AMD": 47,
+    "NVDA": 133,
+    "TSLA": 34,
     "TSM": 46,
     "MSFT": 54,
-    "TSLA": 33,
     "005930.KS": 47,
-    "GOOG": 106,
+    "GOOG": 104,
     "CAT": 4,
     "AMZN": 69,
     "MU": 35,
@@ -183,7 +184,6 @@
     "STX": 7,
     "AAPL": 22,
     "ORCL": 12,
-    "AMD": 46,
     "DB": 2,
     "BE": 11,
     "MRNA": 4,
@@ -255,24 +255,24 @@
     "CRM": 1
   },
   "themes": [
-    "Market Notes (813 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
-    "Semiconductors/Memory (477 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
+    "Market Notes (810 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Semiconductors/Memory (479 posts in 14-day research window): 2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000...",
     "Geopolitics (432 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 4일 트럼프·이란 군사 대응 · 트럼프 “어젯밤 이란의 군사시설을 성공적으로 타격했다” 발언 · 트럼프, 최근 이란이 건설한 대공방어시설을 공격...",
-    "Earnings/Corporate (385 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (338 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
+    "Earnings/Corporate (383 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (336 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
     "AI Power/Grid (286 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란...",
-    "Equity/Analyst (118 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (111 posts in 14-day research window): SharkNinja 2026년 3분기 실적 요약 실적 • 매출 $19.76억, YoY +21.2%, 환율 제외 +21.2% • 매출총이익 $11.70억, YoY +43.1% • 매출총이익률 59.2%, YoY..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 132,
+      "count": 133,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
     },
     {
       "key": "GOOG",
-      "count": 106,
+      "count": 104,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
     },
     {
@@ -291,6 +291,11 @@
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
     },
     {
+      "key": "AMD",
+      "count": 47,
+      "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
+    },
+    {
       "key": "005930.KS",
       "count": 47,
       "text": "앤스로픽 상장신고서(S-1)가 나왔습니다 진부한 얘기 말고 이들이 언급한 리스크 요인부터 짚어보겠습니다. 우선 매출 관련입니다 ① 매출 성장률은 시간이 지나면 하락할 것, 예상보다 크고 빠르게 떨어질 수..."
@@ -301,18 +306,13 @@
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 7일 🇺🇸 아메리카 • 연준 무살렘은 현재 인플레이션이 에너지 충격과 AI·데이터센터 투자에 따른 강한 수요의 영향을 받고 있다며, 물가를 적시에 2%로 복귀시켜야..."
     },
     {
-      "key": "AMD",
-      "count": 46,
-      "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
-    },
-    {
       "key": "MU",
       "count": 35,
       "text": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
       "key": "TSLA",
-      "count": 33,
+      "count": 34,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · 데이터센터 · 광통신 • 마이크론 (MU) — 장기화된 노동 분쟁으로 대만의 45억 달러 규모 메모리 반도체 공장 건설을 중단한 것으로 보도됨. 해당..."
     },
     {
@@ -333,7 +333,7 @@
       "topics": [
         "macro"
       ],
-      "count": 338,
+      "count": 336,
       "focus": "2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000..."
     },
     {
@@ -360,7 +360,7 @@
       "topics": [
         "semi"
       ],
-      "count": 477,
+      "count": 479,
       "focus": "2026년 11월 6일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 대규모 디레버리징이 시장 전반으로 확산되며 급락 마감. S&P500 -4.36%, 다우 -3.44%, 나스닥 -5.52%, 러셀2000..."
     },
     {
@@ -405,7 +405,7 @@
       "topics": [
         "equity"
       ],
-      "count": 118,
+      "count": 116,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -423,7 +423,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 385,
+      "count": 383,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -441,7 +441,7 @@
       "topics": [
         "japan"
       ],
-      "count": 70,
+      "count": 72,
       "focus": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
     },
     {
@@ -468,7 +468,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 813,
+      "count": 810,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -1769,6 +1769,90 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68758",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68758",
+      "datetime": "2026-11-09T04:06:44.000Z",
+      "localDateKst": "2026-11-09",
+      "tags": [
+        "semi"
+      ],
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "AMD"
+      ],
+      "summary": "AMD 반사이익? 오버나잇 1.5% 상승중"
+    },
+    {
+      "id": "insidertracking/68756",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68756",
+      "datetime": "2026-11-09T04:06:06.000Z",
+      "localDateKst": "2026-11-09",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아 오버나잇 4% 하락중. 잘 해결되길 바랍니다"
+    },
+    {
+      "id": "bornlupin/21061",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21061",
+      "datetime": "2026-11-09T03:47:23.000Z",
+      "localDateKst": "2026-11-09",
+      "tags": [
+        "semi",
+        "japan"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "TSLA"
+      ],
+      "summary": "생산량은 '라피더스의 40배'… 일론 머스크 반도체 공장, 장비 조달팀 극비 방일 일론 머스크의 테슬라와 스페이스X가 공동 추진하는 초대형 반도체 공장 프로젝트 '테라팹(Terafab)'이 본격적인 가동..."
+    },
+    {
+      "id": "HANAchina/71800",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71800",
+      "datetime": "2026-11-09T03:21:38.000Z",
+      "localDateKst": "2026-11-09",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 62,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 2,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": ">>반도체주 ‘투항식 매도’ 언제 끝나나? BofA “2027년 초 가능성…주가 조정은 펀더멘털 전환보다 6~9개월 선행” •BofA는 SOX 반도체지수가 올해 6월 고점 대비 38% 하락했으며, 현재 선행..."
+    },
+    {
       "id": "insidertracking/68753",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/68753",
@@ -2453,13 +2537,13 @@
         "power",
         "ai-policy"
       ],
-      "lead": 2,
       "score": 67,
       "hasText": true,
+      "summary": ">>Anthropic, 데이터센터 전력 공급 위해 34억달러 규모 가스발전 설비 구매 •FT에 따르면 Anthropic은 9월 말 텍사스주 샌안토니오에 본사를 둔 장비 공급업체 OnePWR...",
+      "lead": 2,
       "tickers": [
         "CAT"
-      ],
-      "summary": ">>Anthropic, 데이터센터 전력 공급 위해 34억달러 규모 가스발전 설비 구매 •FT에 따르면 Anthropic은 9월 말 텍사스주 샌안토니오에 본사를 둔 장비 공급업체 OnePWR..."
+      ]
     },
     {
       "id": "insidertracking/68694",
@@ -4754,11 +4838,10 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "트럼프, 국가안보팀과 회동…이란 전쟁 결정 \"곧\" 내릴 것 - Axios 도널드 트럼프 대통령은 중간선거가 끝남에 따라 목요일 국가안보 보좌관들과 회의를 가진 후, 이란과의 전면전을 재개할지 여부를 곧 결정할..."
+      "summary": "트럼프, 국가안보팀과 회동…이란 전쟁 결정 \"곧\" 내릴 것 - Axios 도널드 트럼프 대통령은 중간선거가 끝남에 따라 목요일 국가안보 보좌관들과 회의를 가진 후, 이란과의 전면전을 재개할지 여부를 곧 결정할...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21020",
@@ -6497,50 +6580,6 @@
       ]
     },
     {
-      "id": "insidertracking/68337",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68337",
-      "datetime": "2026-11-04T11:47:31.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "earnings"
-      ],
-      "score": 69,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "CVS Health 2026년 3분기 실적 요약 실적 • 매출 $1,084억, YoY +5.4%, 예상 $1,046.9억 상회 • 조정 EPS $2.09, YoY +31%, 예상 $1.65 상회 • 조정...",
-      "tickers": [
-        "CVS"
-      ]
-    },
-    {
-      "id": "insidertracking/68336",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68336",
-      "datetime": "2026-11-04T11:46:40.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "인텔이 코어 울트라 200 시리즈 모바일 프로세서 9종에 대한 일반 상용 주문 접수를 2027년 5월부터 중단하고, 같은 해 11월 최종 출하를 진행할 예정. 다만 해당 프로세서의 생산이 완전히 중단되는 것은...",
-      "tickers": [
-        "INTC"
-      ]
-    },
-    {
       "id": "HANAchina/71553",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71553",
@@ -7445,27 +7484,6 @@
         "documents": []
       },
       "summary": ">>AI 전력 공급에서 모든 산업의 전력 공급으로, 전력 슈퍼사이클은 시장에서 저평가 (모건스탠리) •모건스탠리는 전력 수요 증가 동력이 AI에서 산업 생산기지 이전과 에어컨 냉방 수요까지 확대되면서 세 가지...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/71456",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71456",
-      "datetime": "2026-11-03T03:08:04.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "semi"
-      ],
-      "score": 60,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 2,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "•중국 증시 오전 -1%대, 홍콩 강보합 •전일 주식 부양 페키지 발표 선반영, 반도체, 에너지 중심 매도세는 지속 •반면, 새로운 포지션 구축은 지속, 금일 건설장비, 외식•여행, 귀금속, 음식료 등...",
       "lead": 1,
       "tickers": []
     },
@@ -8501,26 +8519,6 @@
       ]
     },
     {
-      "id": "bornlupin/20863",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20863",
-      "datetime": "2026-10-28T06:18:40.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "semi"
-      ],
-      "score": 73,
-      "hasText": true,
-      "summary": "중국 CXMT, 낮은 수율에도 첨단 AI 메모리 생산 착수 예정 — 소식통 1. CXMT, HBM3E 수율 20~30%에도 생산 추진 - 중국 최대 DRAM 제조업체 CXMT(창신메모리)가 첨단 AI용...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "MU",
-        "005930.KS",
-        "000660.KS"
-      ]
-    },
-    {
       "id": "aetherjapanresearch/26057",
       "channel": "aetherjapanresearch",
       "url": "https://t.me/aetherjapanresearch/26057",
@@ -8971,13 +8969,13 @@
         "power",
         "ai-policy"
       ],
-      "lead": 2,
       "score": 67,
       "hasText": true,
+      "summary": ">>Anthropic, 데이터센터 전력 공급 위해 34억달러 규모 가스발전 설비 구매 •FT에 따르면 Anthropic은 9월 말 텍사스주 샌안토니오에 본사를 둔 장비 공급업체 OnePWR...",
+      "lead": 2,
       "tickers": [
         "CAT"
-      ],
-      "summary": ">>Anthropic, 데이터센터 전력 공급 위해 34억달러 규모 가스발전 설비 구매 •FT에 따르면 Anthropic은 9월 말 텍사스주 샌안토니오에 본사를 둔 장비 공급업체 OnePWR..."
+      ]
     },
     {
       "id": "insidertracking/68694",
