@@ -5337,14 +5337,13 @@ async function _aioFetchLiveQuotesOnce(requestedSymbols, attempt) {
   } catch(e) { _aioLog('warn', 'fetch', '모든 환율 API 실패: ' + e.message); }
 
   // ─── 2.5. 한국 시장: 네이버 파이낸스 1차 소스 (v36) ─────────────────
-  // 네이버 성공 시 Yahoo Korean 배치 스킵 → 요청 수 절감 + 데이터 정확도 향상
-  let _naverKrLoaded = false;
+  // Every row Naver returns is kept. A count threshold (">= 3") threw away a lone holding's quote whenever an index call
+  // failed, and skipping the Yahoo Korean groups after it left a symbol Naver missed unasked.
   try {
     const naverQuotes = await fetchKrNaverQuotes(_requestedQuoteSyms);
-    if (naverQuotes.length >= 3) {
+    if (naverQuotes.length) {
       allQuotes.push(...naverQuotes);
-      _naverKrLoaded = true;
-      console.log('[AIO] 한국 시세 네이버 1차 소스 성공:', naverQuotes.length + '개');
+      console.log('[AIO] 한국 시세 네이버 1차 소스:', naverQuotes.length + '개');
       // 네이버 데이터 즉시 반영 (체감 속도 향상)
       applyLiveQuotes(allQuotes);
     }
@@ -5501,16 +5500,9 @@ async function _aioFetchLiveQuotesOnce(requestedSymbols, attempt) {
   for (let gi = 0; gi < PRIORITY_SYMS.length; gi++) {
     const group = PRIORITY_SYMS[gi];
 
-    // v36: 네이버로 한국 데이터 이미 로드 완료 → Yahoo Korean 배치 스킵 (요청 절감)
-    if (_naverKrLoaded) {
-      const isKrGroup = group.every(function(s) {
-        return s.endsWith('.KS') || s.endsWith('.KQ') || s === '^KS11' || s === '^KQ11';
-      });
-      if (isKrGroup) {
-        console.log('[AIO] 네이버 데이터 사용 — Yahoo Korean 그룹 스킵 (group ' + gi + ')');
-        continue;
-      }
-    }
+    // Korean groups are asked too (the spark batch above already holds most of them, so this is rarely a new request):
+    // Naver rows carry no observation time, and _aioSelectAtomicQuotes, the one owner of the provider choice, prefers a
+    // row that does while keeping Naver's KR index previous close sticky.
 
     // 프록시 죽음 판정 후: 핵심 그룹 이후는 스킵
     if (groupFailStreak >= MAX_GROUP_FAILS && gi >= CRITICAL_GROUPS) {

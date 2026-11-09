@@ -1,0 +1,32 @@
+{
+  "version": "v59.87",
+  "date": "2026-11-09",
+  "p": {
+    "title": "포트폴리오의 한국 종목(6자리 코드)이 늘 '시세 대기'였다(정규화가 listingSymbol을 버림)",
+    "symptom": "포트폴리오에 005930을 담으면 '오늘' 열이 계속 '시세 대기'였다. 시세 요청이 접미사 없는 005930으로 나가 Yahoo chart/005930이 404를 냈고(재시도 3회 포함 4번), 네이버가 시세를 돌려줘도 005930.KS 키로 저장돼 화면이 읽지 못했다.",
+    "root_cause": "v59.54부터 런타임 리더(readPortfolio)가 저장된 코드의 상장 심볼(005930 → 005930.KS)을 한 번 풀어 listingSymbol로 넘긴다. 그런데 그 뒤의 normalizePortfolio가 필드를 하나씩 나열해 다시 만들면서 listingSymbol을 빠뜨렸다. 그래서 store와 화면의 행에는 원래 코드만 남았고, 시세 요청과 시세 조회가 모두 원래 코드를 썼다. P1181·P1194와 같은 종류로, 경계에서 선언된 필드가 사라진 결함이다. 이와 별개로 네이버 1차 소스는 결과가 3개 미만이면 통째로 버렸다. 그래서 보유 종목이 하나뿐일 때 지수 호출 하나만 실패해도 그 종목의 시세가 버려졌다.",
+    "fix": "normalizePortfolio가 listingSymbol을 보존한다. 값이 없으면 null로 두고 거래소를 추정하지 않는다. 네이버가 돌려준 행은 개수와 상관없이 모두 받는다. 네이버가 성공해도 Yahoo 한국 그룹을 건너뛰지 않는다. 그래서 네이버가 놓친 종목도 묻고, 네이버 행에는 관측 시각이 없으므로 시각이 있는 Yahoo 행을 _aioSelectAtomicQuotes가 고를 수 있다.",
+    "violated_rule": "리더가 해석한 필드를 정규화·리듀서가 나열식으로 다시 만들 때는 그 필드를 함께 옮겨야 한다. 보존은 체인 전체를 지나는 테스트로 확인한다.",
+    "prevention": "ci-esm-core-unit-check가 KR 보유 하나를 provider → normalize → reducer → surface로 통과시킨다. 그 행이 005930.KS를 유지하고 그 키의 시세로 평가되는지, 해석되지 않은 코드에 거래소를 붙이지 않는지 확인한다.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs (v59.87 portfolio listing symbol; 수정 전 실패, 수정 후 통과). 로컬 브라우저 재현: #portfolio에 005930을 추가하면 시세 요청이 005930에서 005930.KS로 바뀐다.",
+    "files": [
+      "src/data/normalize/portfolio.js",
+      "js/aio-data.js",
+      "scripts/ci-esm-core-unit-check.mjs"
+    ]
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-PORTFOLIO-KR-LISTING",
+      "text": "v59.87: 6자리 코드로 저장된 한국 보유(005930)는 store와 화면 행에서 상장 심볼 005930.KS를 유지하고, 시세는 그 심볼로 요청하고 그 심볼로 읽는다. 해석되지 않은 코드에 거래소를 추정해 붙이지 않는다.",
+      "verify_by": "node scripts/ci-esm-core-unit-check.mjs",
+      "done": true
+    }
+  ],
+  "qa_section": "포트폴리오 한국 종목 시세",
+  "changelog": [
+    "**포트폴리오 한국 종목 시세 ({P}):** 6자리 코드로 담은 한국 종목이 늘 '시세 대기'이던 문제를 고쳤다. 리더가 푼 상장 심볼(005930.KS)을 정규화 단계가 버리고 있었다. 이제 이 심볼을 끝까지 유지해, 시세 요청과 조회 모두 005930.KS를 쓴다. 네이버 시세도 3개 미만이면 버리던 기준을 없앴다. 네이버가 성공해도 Yahoo 한국 그룹을 건너뛰지 않으므로, 관측 시각이 있는 시세가 선택될 수 있다."
+  ],
+  "note": "{VERSION} portfolio KR listing symbol kept through normalize"
+}
