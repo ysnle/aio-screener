@@ -1,8 +1,8 @@
 {
  "schemaVersion": 1,
  "note": "Pinned browser-gate data (scripts/browser-data-fixture.mjs). Re-pin with `node scripts/browser-data-fixture.mjs pin` after a producer changes an artifact's structure; until then the drift gate reports in CI and fails the data watchdog.",
- "sha": "7126b0877a759d69327ee0b3a4040c9e3ca59597",
- "committedAt": "2026-11-09T16:27:26+00:00",
+ "sha": "db9b070520df07f74cf83135e966352a0f0a7bb1",
+ "committedAt": "2026-11-09T17:06:10+00:00",
  "schemaDepth": 3,
  "fileCount": 1051,
  "files": {
@@ -302,7 +302,7 @@
   "public-data/consensus-estimates.json": {"blob":"e5a27ed5d9ba5b87cf47ca8c83c480816dc37444","shape":"fd6dea1f22f6ff19"},
   "public-data/data.json": {"blob":"47de6c12ac55bcfe9af58e802e635779595ab55a","shape":"7e0282f4a428a317"},
   "public-data/earnings-calendar.json": {"blob":"093ab12a9787fcb51b8c5a77be6635d51fa95ebb","shape":"1bba1602ebe3937b"},
-  "public-data/event-briefs.json": {"blob":"a594c9f849629e899235bb1721b9a4f5a16a19b9","shape":"e58402e5b03a8d89"},
+  "public-data/event-briefs.json": {"blob":"d024ffbbcbb7086021250328b4b9cfc0aea7a352","shape":"e58402e5b03a8d89"},
   "public-data/factor-backtest-longrun.json": {"blob":"86401de11c84c72959e1687bab70c65deac473cc","shape":"eafefc450b01d57a"},
   "public-data/freshness/refresh-data.json": {"blob":"e3cc60ab68bcde84614363ab290cc717693619c3","shape":"38a94fc42900e451"},
   "public-data/freshness/refresh-screener.json": {"blob":"61de72e01c05501f6b3d7adc3f636229ea8b4b59","shape":"38a94fc42900e451"},
@@ -1026,7 +1026,7 @@
   "public-data/objects/masters/e742a4900a1c811d52f93669542b5f3582b7415fb7429388ec36a2162bef2b49.json": {"blob":"ea17771e4a0b58efb7da3ad34ae2cfe98554aada","shape":"57fba5493e1e5353"},
   "public-data/objects/masters/f0bf69e74cab5fd641603c843103a1235068cdb9498fb1c34b78b0d031f2ffb8.json": {"blob":"42770e02e8ef8890cdb4b0051acf2706db918d5c","shape":"57fba5493e1e5353"},
   "public-data/official-references.json": {"blob":"d8499cd2e32ab9497312bad776c1696855e72e9d","shape":"b4f9776efd0dcea2"},
-  "public-data/operations-status.json": {"blob":"4f2f008a7bc84d408e3c05d8f7bc628206c9a682","shape":"395eebde1054c4e0"},
+  "public-data/operations-status.json": {"blob":"c9fcb7e125e5b12f85a9705f9df51882085dbe70","shape":"395eebde1054c4e0"},
   "public-data/operator-note.json": {"blob":"63daa31b13dcdf173bd89fa82414f782e263e33a","shape":"d1ddeef71ce536da"},
   "public-data/principles/catalog.json": {"blob":"d1839900e0bf1a7b4f4349fd731bc61ee1bcc73d","shape":"a16885e4910711dc"},
   "public-data/principles/chapters.json": {"blob":"2b20d9073580c3ead5fb777afe5e0dfb8f11fe11","shape":"881e8756b123b9ea"},
