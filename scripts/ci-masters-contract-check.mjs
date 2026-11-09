@@ -94,7 +94,7 @@ for (const [label, source, marker] of [
   ['manager principles artifact', page, 'MANAGER_PRINCIPLES_URL'],
   ['capability error isolation', page, 'Promise.allSettled'],
   ['route abort signal', page, 'scope?.signal'],
-  ['shared artifact cache', page, 'loadJsonArtifact'],
+  ['shared artifact cache', page, 'loadArtifactUrl(root, '],
   ['pending state', mastersFormat, "status: 'PENDING'"] // v57.60: MASTER_REGISTRY moved to domain/masters/holdings-format.js
 ]) if (!source.includes(marker)) fail(`${label} missing marker: ${marker}`);
 

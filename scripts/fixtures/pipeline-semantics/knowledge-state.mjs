@@ -40,7 +40,7 @@ export const cases = [
   } },
   { id: 'P10-STATE-01', name: '행이 이미 있어도 재진입 때 TTL이 지난 기록을 다시 요청한다', run: async ({ load }) => {
       const { themeStageBlock } = await load('src/ui/knowledge/theme-stage-links.js');
-      const { SCENARIO_STATE } = await load('src/data/shared-artifacts.js');
+      const { SCENARIO_STATE } = await load('src/data/artifact-registry.js'); // v59.87 (S2): descriptors live in the registry
       let requests = 0;
       const el = () => ({ dataset: {}, textContent: '', append() {}, appendChild() {}, addEventListener() {} });
       const root = { THEME_MAP: [{ id: 'audit', nameKr: '감사 테마' }],

@@ -3,9 +3,10 @@ import { koreaMoveRecord } from '../../domain/briefing/market-read.js';
 import { heavyweightLine } from '../../domain/themes/group-strength.js';
 import { el } from './dom.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { buildKrInvestorFlowView, formatEok, KR_INVESTOR_FLOWS } from '../../domain/market/kr-investor-flows.js';
+import { buildKrInvestorFlowView, formatEok } from '../../domain/market/kr-investor-flows.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { dataState } from './data-state.js';
+import { KR_INVESTOR_FLOWS } from '../../data/artifact-registry.js';
 // v57.78 perf: an optional `store` supplies the native screener rows in place (same rule as scenario-outlook: a
 // non-empty native set wins, an empty one defers to the bridge, which owns the pre-publication fallback).
 function participationRows(root,store){

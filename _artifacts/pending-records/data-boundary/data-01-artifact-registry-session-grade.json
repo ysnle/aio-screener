@@ -1,0 +1,9 @@
+{
+  "version": "v59.87",
+  "date": "2026-11-09",
+  "changelog": [
+    "**데이터 경계 단일화 (ADR-0003 S2):** 브라우저가 읽는 public-data 아티팩트 78개의 위치와 읽기 예산(캐시 나이·크기·시간 제한)을 `src/data/artifact-registry.js` 한 표로 모았다. 화면은 파일 id로 `loadArtifact(root, id)`·`artifactUrl(id)`를 부르고, fetch 함수·캐시·예산은 data 계층이 쥔다. 없는 id는 오류로 멈춘다. 공유 설명자 19개(MARKET_DAY·SCENARIO_STATE·EARNINGS_CALENDAR 등)는 이 표에서만 정의한다. 실적 일정 설명자가 `event-artifacts.js`와 `theme-playbook-view.js`에 같은 키로 두 벌 있던 것을 지우고 `event-artifacts.js`를 없앴다. ui·domain의 './public-data/' 경로는 60→0(남은 1개는 AI 스레드 소관), src/data·src/app의 경로 문자열은 레지스트리 밖 0개다. 용어 검색 색인의 직접 fetch(`knowledge-search.js`·`glossary-bridge.js` 대체 경로)도 레지스트리 로더로 바꿨다. data 계층 두 곳(`data/contracts/screener.js`, `app/bootstrap.js`)이 `ai/time`을 거쳐 달력을 읽던 역방향 의존은 domain 달력 직접 import로 고쳤다.",
+    "**세션·신선도 판정 단일화 (ADR-0003 S3):** '최신 세션, 또는 그 종가 12시간 안의 한 세션 뒤는 최신, 그 뒤는 지연, 두 세션 뒤는 오래됨' 규칙을 `market-calendar.js` `sessionLagGrade` 하나로 만들고, 스크리너 팩터 판정(`isSessionCurrent`)과 아티팩트 신선도(`artifact-freshness.js` `sessionLagState`, 자체 12시간 상수 삭제 후 `FRESHNESS_POLICY.factorSession`)가 같이 쓴다. 여덟 곳에 복제된 `market === 'KR' ? latestCompletedKrSession : latestCompletedUsSession` 분기는 `latestCompletedSession(market, now)`로 바꿨다(남은 2곳: bootstrap의 requirePrevious 기본값 분기, 테마 스레드 소유 group-strength). 13F 기한 판정은 `domain/masters/filing-deadline.js`로, 시장 온도 지연 판정 `staleMarketIds`는 `domain/sentiment/market-temperature.js`로 옮겨 화면은 판정 결과만 그린다. 동작은 바꾸지 않았다: 이동 전(fed62e1) 설명자 값 전부와 525개 시점×2시장×16세션 판정, 13F 408건, 시장 온도 53건을 `scripts/ci-data-boundary-fixture.mjs`가 해시로 고정한다. 공용 원시 함수 ratchet에 `dataPathLiteral`(레지스트리 밖 data·app 경로 문자열)과 `sessionBranch`(KR/US 세션 분기 사본) 지표를 더했다."
+  ],
+  "note": "ADR-0003 S2+S3: artifact registry, one session-lag grade, data-boundary fixture"
+}

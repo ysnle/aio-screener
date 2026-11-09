@@ -3,15 +3,16 @@
 // scripts/build-knowledge-search-index.mjs and held equal by ci-knowledge-generated-parity-check), so a search
 // no longer pulls learning-core and the rest of the research modules into the route (S17~S19).
 import { normalize } from './glossary-bridge.js';
+import { artifactUrl, loadArtifact } from '../../data/artifact-registry.js';
 
-export const KNOWLEDGE_INDEX_URL = './public-data/knowledge/search-index.json';
+export const KNOWLEDGE_INDEX_URL = artifactUrl('knowledge/search-index.json');
 
 let cached = null;
 // One fetch per page; a failed load settles to an empty index so callers never wait on a dead promise.
-export function loadKnowledgeIndex(fetchFn = globalThis.fetch?.bind(globalThis)) {
+// Read through the data layer (src/data/artifact-registry.js), not a fetch of its own.
+export function loadKnowledgeIndex(root = globalThis) {
   if (cached) return cached;
-  if (typeof fetchFn !== 'function') return Promise.resolve({ entries: [] });
-  cached = fetchFn(KNOWLEDGE_INDEX_URL).then((response) => (response.ok ? response.json() : null)).catch(() => null)
+  cached = loadArtifact(root, 'knowledge/search-index.json').catch(() => null)
     .then((json) => (json && Array.isArray(json.entries) ? json : { entries: [] }));
   return cached;
 }

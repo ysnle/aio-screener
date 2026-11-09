@@ -3,8 +3,9 @@ import { renderSentimentBoard } from '../components/sentiment-board.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { subscribeToSlice } from '../../state/memoize.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
-import { MACRO_HISTORY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { renderMarketTemperature } from '../components/market-temperature.js';
+import { MACRO_HISTORY } from '../../data/artifact-registry.js';
 
 // P1396: the page is the five-card sentiment board (../components/sentiment-board.js).
 // P1412 (Codex structural review): the board's inputs come from one adapter, collectMarketInputs

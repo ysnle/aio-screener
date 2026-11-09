@@ -13,11 +13,10 @@ import { setStockSubject } from '../navigation/route-hubs.js';
 import { renderStockRead } from '../components/stock-read.js';
 import { renderTickerStart } from '../components/ticker-start.js';
 import { createTrendChart } from '../components/trend-chart.js';
-import { EARNINGS_CALENDAR, renderFiscalRead, requestFiscalHistory } from '../components/fiscal-read.js';
-import { EVENT_BRIEFS } from '../../data/event-artifacts.js';
+import { renderFiscalRead, requestFiscalHistory } from '../components/fiscal-read.js';
 import { buildEarningsSchedule } from '../../domain/fundamental/analysis-read.js';
 import { requestConsensusEstimates } from '../../data/consensus-estimates.js';
-import { refreshSharedArtifact, SCENARIO_STATE, MARKET_DAY } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { whyMovedLine } from '../../domain/entity/why-moved.js';
 import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
@@ -31,7 +30,7 @@ function storyRendererOr(onReady) {
   storyRendererLoad.then(onReady, () => {});
   return null;
 }
-import { requestCompanyStory, companyStoryFor, companySideArtifact, COMPANY_PROFILE_INDEX } from '../../data/company-profiles.js';
+import { requestCompanyStory, companyStoryFor, companySideArtifact } from '../../data/company-profiles.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { entityFundamentalsState } from '../../domain/content/data-state.js';
 import { renderDataState } from '../components/data-state.js';
@@ -39,6 +38,7 @@ import { finiteNumber as finite, signedText, usdKoreanText } from '../../domain/
 import { latestCompletedKrSession } from '../../domain/market/market-calendar.js';
 import { stockLensContext, renderStockContext, renderStockStrengths, installStockLensGlobal } from '../components/stock-lens-cards.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
+import { COMPANY_PROFILE_INDEX, EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY, SCENARIO_STATE } from '../../data/artifact-registry.js';
 
 // 2026-10-13 review S21: observation times read in Korean time, not "… 20:00:00 UTC".
 

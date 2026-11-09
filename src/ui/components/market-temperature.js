@@ -2,11 +2,12 @@
 // here for KOSPI, KOSDAQ and Nikkei. One visual (five component rank bars + the index with its extreme spells shaded),
 // a short reading with the past-spell evidence, and a fold with the method. D02: no average score and no band.
 // Hidden until the producer (scripts/build-market-temperature.mjs) has published.
-import { MARKET_TEMPERATURE, refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { TEMPERATURE_COMPONENTS, TEMPERATURE_MARKETS, TEMPERATURE_RULES } from '../../domain/sentiment/market-temperature.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { TEMPERATURE_COMPONENTS, TEMPERATURE_MARKETS, TEMPERATURE_RULES, staleMarketIds } from '../../domain/sentiment/market-temperature.js';
 import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
+import { MARKET_TEMPERATURE } from '../../data/artifact-registry.js';
 
 // A value that rounds to zero prints without a sign ('-0.0%' read as a fall).
 const pct = (value, digits = 1) => { if (!Number.isFinite(value)) return '—'; const text = Math.abs(value).toFixed(digits); return Number(text) === 0 ? `${text}%` : `${value > 0 ? '+' : '-'}${text}%`; };
@@ -22,20 +23,6 @@ export function temperatureStateLabel(market) {
   return '극단 요소 없음';
 }
 
-// v57.54 review: a market whose fetch failed keeps yesterday's body in the artifact (payload.retained), so the
-// "now" lead must not name it. A body more than a week behind the newest market is treated the same way.
-// v58.77 (pipeline audit DATA-03): when every fetch fails the artifact is left unchanged, so the markets agree with each
-// other and the comparison above flags none of them. An artifact not rewritten for two days (the producer runs every
-// refresh, weekends included), or a body more than ten calendar days old (past the longest Korean and Japanese holiday
-// breaks), is stale too.
-export function staleMarketIds(payload, markets, nowMs = Date.now()) {
-  const newest = Math.max(...markets.map((item) => Date.parse(item.asOf)).filter(Number.isFinite));
-  const retained = new Set(Array.isArray(payload?.retained) ? payload.retained : []);
-  const generated = Date.parse(payload?.generatedAt || '');
-  const artifactStale = Number.isFinite(generated) && nowMs - generated > 2 * 86400000;
-  return new Set(markets.filter((item) => artifactStale || retained.has(item.id) || newest - Date.parse(item.asOf) > 7 * 86400000
-    || nowMs - Date.parse(item.asOf) > 10 * 86400000).map((item) => item.id));
-}
 
 export function temperatureStateText(market, rules = TEMPERATURE_RULES) {
   const scores = (market.components || []).map((row) => row.score).filter(Number.isFinite);

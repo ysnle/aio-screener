@@ -3,7 +3,8 @@
 // revenue by the 10th, a month or more before the US quarterly results it feeds; the AI 공급망 흐름 block sets it under
 // the US price medians. Sums and changes come from the source's own amounts; a group with no company in the latest
 // month is left out, and companies on an older month never enter the latest month's sum.
-export const TW_MONTHLY_REVENUE = Object.freeze({ key: '_aioTwMonthlyRevenue', url: './public-data/tw-monthly-revenue.json', schemas: ['tw-monthly-revenue.v1'], maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 256 * 1024 });
+// The browser loads it through src/data/artifact-registry.js TW_MONTHLY_REVENUE.
+export const TW_MONTHLY_REVENUE_SCHEMA = 'tw-monthly-revenue.v1';
 // The month M figure is due by the 10th of M+1; past the 15th of M+2 the latest month is a month late.
 const LATE_AFTER_DAY = 15;
 
@@ -21,7 +22,7 @@ function monthsLate(month, nowMs) {
 /** States: loading · unavailable (fetch failed / schema / not ok) · pending (수집 전 marker) · ok. */
 export function buildTwRevenueView(artifact, { nowMs = Date.now(), loadState = 'loading' } = {}) {
   if (!artifact) return loadState === 'failed' ? { state: 'unavailable', reason: 'fetch-failed' } : { state: 'loading' };
-  if (artifact.schemaVersion !== TW_MONTHLY_REVENUE.schemas[0]) return { state: 'unavailable', reason: 'schema' };
+  if (artifact.schemaVersion !== TW_MONTHLY_REVENUE_SCHEMA) return { state: 'unavailable', reason: 'schema' };
   if (artifact.status === 'not-collected') return { state: 'pending', reason: artifact.reason || null };
   if (artifact.status !== 'ok' || !artifact.latestMonth) return { state: 'unavailable', reason: artifact.status || 'unknown' };
   const month = artifact.latestMonth;

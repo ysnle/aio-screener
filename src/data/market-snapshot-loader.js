@@ -1,6 +1,7 @@
 import { createMarketSnapshot, validateMarketSnapshot } from './contracts/market-snapshot.js';
+import { artifactUrl } from './artifact-registry.js';
 
-const DURABLE_SNAPSHOT_URL = './public-data/market-snapshot.json';
+const DURABLE_SNAPSHOT_URL = artifactUrl('market-snapshot.json');
 
 // P1532: the Worker publishes when Tier-0 coverage is complete and labels each quote's quality, but it does not refuse a
 // snapshot whose quotes are all stale (for example a provider returning old observations). Such a snapshot is no fresher

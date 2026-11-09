@@ -48,14 +48,3 @@ export function refreshSharedArtifact(root, { key, url, schemas, maxAgeMs = 60 *
     .finally(() => { entry.inFlight = null; });
   return entry.inFlight;
 }
-
-export const STRESS_OUTCOMES = Object.freeze({ key: '_aioStressOutcomes', url: './public-data/stress-outcomes.json', schemas: ['stress-outcomes.v1'], maxAgeMs: 12 * 60 * 60 * 1000, maxBytes: 256 * 1024 }); // P1661
-export const SCENARIO_OUTCOMES = Object.freeze({ key: '_aioScenarioOutcomes', url: './public-data/scenario-outcomes.json', schemas: ['scenario-outcomes.v1'], maxAgeMs: 12 * 60 * 60 * 1000, maxBytes: 256 * 1024 }); // P1743 weekly long-history analogs
-export const SCENARIO_STATE = Object.freeze({ key: '_aioScenarioState', url: './public-data/scenario-state.json', schemas: ['scenario-state.v1'], maxAgeMs: 30 * 60 * 1000, maxBytes: 1024 * 1024 }); // P1743 per-refresh branch/theme state, transitions, scored releases
-export const MARKET_TEMPERATURE = Object.freeze({ key: '_aioMarketTemperature', url: './public-data/market-temperature.json', schemas: ['market-temperature.v1'], maxAgeMs: 60 * 60 * 1000, maxBytes: 256 * 1024 }); // v57.54 per-market price temperature
-export const BIGTECH_CASHFLOW = Object.freeze({ key: '_aioBigtechCashflow', url: './public-data/bigtech-cashflow.json', schemas: ['bigtech-cashflow.v1'], maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 256 * 1024 }); // v59.56 SEC quarterly cash flow, big tech
-export const TREASURY_AUCTIONS = Object.freeze({ key: '_aioTreasuryAuctions', url: './public-data/treasury-auctions.json', schemas: ['treasury-auctions.v1'], maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 256 * 1024 }); // v59.57 TreasuryDirect note/bond auction results
-export const MARKET_DAY = Object.freeze({ key: '_aioMarketDay', url: './public-data/market-day.json', schemas: ['market-day.v1'], maxAgeMs: 30 * 60 * 1000, maxBytes: 512 * 1024 }); // v59.63 the last day's moves and events, linked and ranked (build-market-day)
-export const ROTATION_DETAIL = Object.freeze({ key: '_aioRotationDetail', url: './public-data/rotation-detail.json', schemas: ['rotation-detail.v1'], maxAgeMs: 30 * 60 * 1000, maxBytes: 1024 * 1024 }); // v59.70 (R11) rotationHistory series
-export const MACRO_HISTORY = Object.freeze({ key: '_aioMacroHistory', url: './public-data/macro-history.json', schemas: ['macro-history.v1'], maxAgeMs: 60 * 60 * 1000 });
-export const BREADTH_CONTRIBUTORS = Object.freeze({ key: '_aioBreadthContributors', url: './public-data/breadth-contributors.json', schemas: ['breadth-contributors.v1', 'breadth-contributors.v2'], maxAgeMs: 30 * 60 * 1000, maxBytes: 1024 * 1024 });

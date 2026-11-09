@@ -150,14 +150,12 @@ let knowledgeLoad = null;
 export function loadKnowledgeSearch(root = globalThis) {
   try { root.AIO?.loadGlossaryFull?.(); } catch (_) { /* the glossary rows are optional here */ }
   if (knowledgeLoad) return knowledgeLoad;
-  const fetchFn = root.fetch?.bind(root);
-  // Bundle E's loadKnowledgeIndex(fetchFn) fetches search-index.json once and settles to an empty index on failure (the
-  // command search then shows no research rows); the direct fetch below is for a knowledge-search.js without it.
+  // loadKnowledgeIndex(root) reads search-index.json once through the data layer and settles to an empty index on failure
+  // (the command search then shows no research rows). A ranker module that did not load is a failed load that a later
+  // query retries (it used to fall back to a direct fetch whose index nothing could search).
   const fetchIndex = (module) => (typeof module?.loadKnowledgeIndex === 'function'
-    ? module.loadKnowledgeIndex(fetchFn)
-    : fetchFn
-      ? fetchFn(module?.KNOWLEDGE_INDEX_URL || './public-data/knowledge/search-index.json').then((response) => (response.ok ? response.json() : Promise.reject(new Error(`search-index ${response.status}`))))
-      : Promise.reject(new Error('no fetch')));
+    ? module.loadKnowledgeIndex(root)
+    : Promise.reject(new Error('knowledge-search unavailable')));
   knowledgeLoad = import('./knowledge-search.js').catch(() => null).then((module) => Promise.all([
     Promise.resolve().then(() => fetchIndex(module)).then((json) => ({ json })).catch((error) => ({ error })), module
   ])).then(([loaded, module]) => {

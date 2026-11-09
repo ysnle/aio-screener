@@ -10,7 +10,7 @@ import { scenarioLead } from '../../domain/market/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { frameHead, markFrame, noteFold, setAsOf } from './section-frame.js';
-import { refreshSharedArtifact, SCENARIO_OUTCOMES, SCENARIO_STATE, BIGTECH_CASHFLOW, TREASURY_AUCTIONS } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { auctionLine, latestByTenor, AUCTION_METHOD } from '../../domain/macro/treasury-auctions.js';
 import { groupCashflowSentence } from '../../domain/fundamental/quarterly-cashflow.js';
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
@@ -18,6 +18,7 @@ import { krThemeLabel } from '../../domain/themes/kr-themes.js';
 import { el } from './dom.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
+import { BIGTECH_CASHFLOW, SCENARIO_OUTCOMES, SCENARIO_STATE, TREASURY_AUCTIONS } from '../../data/artifact-registry.js';
 
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 // Korean particles follow the last Hangul syllable of a quoted path name (quotes are skipped).

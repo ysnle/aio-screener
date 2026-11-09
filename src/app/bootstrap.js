@@ -58,7 +58,7 @@ import('../domain/screener/price-factors.js').then((module) => { producerVcpRead
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
-import { latestCompletedUsSession, latestCompletedKrSession } from '../ai/time/market-session.js';
+import { latestCompletedUsSession, latestCompletedKrSession } from '../domain/market/market-calendar.js';
 import { regimePulse } from '../domain/briefing/regime-pulse.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';

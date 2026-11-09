@@ -8,26 +8,26 @@ import { createKnowledgeLearningControls } from '../../ui/knowledge/learning-con
 import { createReferenceCurriculum } from '../../ui/knowledge/reference-curriculum.js';
 import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
-import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
+import { artifactFamilyUrl, artifactFetcher, artifactUrl, loadArtifactUrl } from '../../data/artifact-registry.js';
 import { createSuppliedMaterialBridge } from '../../ui/knowledge/supplied-material-bridge.js';
 import { createIntegratedFrameworkSpine } from '../../ui/knowledge/integrated-framework-spine.js';
 
 const REVIEWED_AT = '2026-08-18';
-const RESEARCH_URL = './public-data/atlas/source-packets.json';
-const CHAPTERS_URL = './public-data/principles/chapters.json';
-const LESSON_LIBRARY_URL = './public-data/principles/lesson-library.json';
-const NARRATIVE_URL = './public-data/principles/narrative-journey.json';
-const NODE_GUIDES_URL = './public-data/principles/node-guides.json';
-const KNOWLEDGE_CONCEPTS_URL = './public-data/knowledge/concepts.json';
-const KNOWLEDGE_ALIASES_URL = './public-data/knowledge/aliases.json';
-const CURRENT_OBSERVATIONS_URL = './public-data/knowledge/current-observations.json';
-const ROUTE_TARGETS_URL = './public-data/knowledge/route-targets.json';
-const KNOWLEDGE_STATUS_URL = './public-data/knowledge/status-summary.json';
-const REFERENCE_CURRICULUM_URL = './public-data/principles/reference-curriculum.json';
+const RESEARCH_URL = artifactUrl('atlas/source-packets.json');
+const CHAPTERS_URL = artifactUrl('principles/chapters.json');
+const LESSON_LIBRARY_URL = artifactUrl('principles/lesson-library.json');
+const NARRATIVE_URL = artifactUrl('principles/narrative-journey.json');
+const NODE_GUIDES_URL = artifactUrl('principles/node-guides.json');
+const KNOWLEDGE_CONCEPTS_URL = artifactUrl('knowledge/concepts.json');
+const KNOWLEDGE_ALIASES_URL = artifactUrl('knowledge/aliases.json');
+const CURRENT_OBSERVATIONS_URL = artifactUrl('knowledge/current-observations.json');
+const ROUTE_TARGETS_URL = artifactUrl('knowledge/route-targets.json');
+const KNOWLEDGE_STATUS_URL = artifactUrl('knowledge/status-summary.json');
+const REFERENCE_CURRICULUM_URL = artifactUrl('principles/reference-curriculum.json');
 
 
-const CATALOG_URL = './public-data/principles/catalog.json';
-const CONCEPT_STORIES_URL = './public-data/principles/concept-stories.json';
+const CATALOG_URL = artifactUrl('principles/catalog.json');
+const CONCEPT_STORIES_URL = artifactUrl('principles/concept-stories.json');
 
 // S17 (D8): the concept-map catalog (nodes, edges, lessons, paths) is educational reference copy. Its source is
 // content/research/principles/catalog.json; scripts/build-research-content.mjs composes it into CATALOG_URL and the
@@ -36,7 +36,7 @@ let CATALOG = Object.freeze({ nodes: [], edges: [], lessons: [], paths: [] });
 let NODE_BY_ID = new Map();
 let catalogLoad = null;
 export function loadPrinciplesCatalog(root = globalThis, { signal } = {}) {
-  catalogLoad ||= loadJsonArtifact(stableFetcher(root), CATALOG_URL, { signal }).then((catalog) => {
+  catalogLoad ||= loadArtifactUrl(root, CATALOG_URL, { signal }).then((catalog) => {
     if (!Array.isArray(catalog?.nodes) || !Array.isArray(catalog?.edges)) throw new Error('PRINCIPLES_CATALOG_INVALID');
     CATALOG = catalog;
     NODE_BY_ID = new Map(catalog.nodes.map((node) => [node.id, node]));
@@ -415,7 +415,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         const focusValue = action?.dataset.principlesValue;
         if (state.view === 'concept' && !state.conceptStories && !state.conceptStoriesLoading) {
           state.conceptStoriesLoading = true;
-          loadJsonArtifact(stableFetcher(root), CONCEPT_STORIES_URL, { signal: scope?.signal }).then((artifact) => { state.conceptStories = artifact.stories; render(); }).catch(() => {});
+          loadArtifactUrl(root, CONCEPT_STORIES_URL, { signal: scope?.signal }).then((artifact) => { state.conceptStories = artifact.stories; render(); }).catch(() => {});
         }
         const shell = renderConceptsPage(documentRef, {
           root,
@@ -564,7 +564,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
             });
           };
           const capabilityLoader = createKnowledgeCapabilityBatchLoader({
-            fetchFn: stableFetcher(root),
+            fetchFn: artifactFetcher(root),
             state,
             dataset: page.dataset,
             datasetMap,
@@ -610,7 +610,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
             state.loadingArticleIds.add(lessonId);
             render();
             try {
-              const article = await loadJsonArtifact(stableFetcher(root), `./public-data/knowledge/articles/principles/${encodeURIComponent(lessonId)}.json`, { signal: scope?.signal });
+              const article = await loadArtifactUrl(root, artifactFamilyUrl('knowledge-article', 'principles', lessonId), { signal: scope?.signal });
               if (article?.articleId !== `principles:${lessonId}` || article?.surface !== 'principles' || article?.lessonId !== lessonId) throw new Error(`article identity mismatch: ${lessonId}`);
               if (!isAlive()) return;
               state.knowledgeArticles = { articles: [...state.knowledgeArticles.articles, article] };

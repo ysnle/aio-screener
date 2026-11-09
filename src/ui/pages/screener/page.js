@@ -6,7 +6,7 @@ import { createSuppliedMaterialBridge } from '../../knowledge/supplied-material-
 import { renderKnowledgeArrival } from '../../components/knowledge-arrival.js';
 import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { subscribeToSlices } from '../../../state/memoize.js';
-import { refreshSharedArtifact, SCENARIO_STATE } from '../../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../../data/shared-artifacts.js';
 import { readUniverseScope } from '../../../data/screener-extended.js';
 import { mergeThemeAliases, SCREENER_COLUMN_REGISTRY } from './model.js';
 import { syncRankFilterLabels, installCustomConditions, createFiltersController } from './filters.js';
@@ -16,6 +16,7 @@ import { createInspectorController } from './inspector.js';
 import { createViewsController } from './views.js';
 import { createWorkbenchController } from './workbench.js';
 import { screenerRuntime } from './model.js';
+import { SCENARIO_STATE } from '../../../data/artifact-registry.js';
 
 export function createScreenerPage({ documentRef, store, root = globalThis, workbench = {}, onProfileChange, onUniverseScopeChange, onTicker, onWatchlistToggle, readWatchlist, readAliases, readLiveData } = {}) {
   // P1625: use the selected screen's declared order until the user selects another metric.

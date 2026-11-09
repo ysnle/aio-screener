@@ -41,7 +41,7 @@ const BUDGETS = [
   { id: 'screener-core', bytes: size('public-data/screener.json'), budget: 5_000_000 },
   // v58.75 (persona review): the stock page artifacts that grew this pass, at their client read caps — fiscal history (capital
   // columns on the latest two years + issuer SIC; src/ui/components/fiscal-read.js 1 MiB), the earnings calendar (six-week
-  // universe map; fiscal-read.js EARNINGS_CALENDAR 512 KiB) and consensus estimates (surprise history; 1 MiB).
+  // universe map; artifact-registry.js EARNINGS_CALENDAR 512 KiB) and consensus estimates (surprise history; 1 MiB).
   { id: 'sec-fiscal-history', bytes: size('public-data/sec-fiscal-history.json'), budget: 1_048_576 },
   // v59.48: the SEC runtime projection the screener and stock pages read; scripts/ci-sec-runtime-projection-check.mjs fails it
   // above 1 MiB, and before this row nothing warned at 90% (it reached the bound with no notice before recordDefaults).
@@ -49,9 +49,9 @@ const BUDGETS = [
   { id: 'earnings-calendar', bytes: size('public-data/earnings-calendar.json'), budget: 524_288 },
   { id: 'consensus-estimates', bytes: size('public-data/consensus-estimates.json'), budget: 1_048_576 },
   // v59.42: ~120 days of FOMC and mover briefs (~3-5 KB each) plus a release text while its call summary is pending;
-  // the client reads at most 1 MiB (src/data/event-artifacts.js EVENT_BRIEFS).
+  // the client reads at most 1 MiB (src/data/artifact-registry.js EVENT_BRIEFS).
   { id: 'event-briefs', bytes: size('public-data/event-briefs.json'), budget: 1_048_576 },
-  // v59.42: 50 top-name weight rows; the client reads at most 64 KiB (src/data/event-artifacts.js KR_INDEX_WEIGHTS).
+  // v59.42: 50 top-name weight rows; the client reads at most 64 KiB (src/data/artifact-registry.js KR_INDEX_WEIGHTS).
   { id: 'kr-index-weights', bytes: size('public-data/kr-index-weights.json'), budget: 65_536 }
 ];
 

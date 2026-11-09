@@ -1,13 +1,14 @@
 // P1661 (owner 2026-10-12, option 나): "what happened after days like today" replaces the retired composite score.
 // One visual (forward one-month result per VIX band, today's band marked), a short reading, and a fold that
 // teaches how to read the table and why the old score was dropped. Hidden until the producer has published.
-import { refreshSharedArtifact, STRESS_OUTCOMES } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { CLUSTER_GAP_SESSIONS, stressBandOf } from '../../domain/signal/stress-outcomes.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { el } from './dom.js';
 import { signedBar } from './signed-bar.js';
 import { signedText } from '../../domain/shared/number.js';
+import { STRESS_OUTCOMES } from '../../data/artifact-registry.js';
 
 const pct = (value, digits = 1) => (Number.isFinite(value) ? signedText(value, digits, '%') : '—');
 const Z10 = 1.2816; // standard normal 10th percentile

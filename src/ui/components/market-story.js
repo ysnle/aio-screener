@@ -3,14 +3,14 @@
 // confirmation and the earnings reactions. The week-ahead list owns the next release on this page; the 다음에 확인할 것
 // card below keeps the two price checks.
 import { buildMarketStory } from '../../domain/market/market-story.js';
-import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { EVENT_BRIEFS, EARNINGS_CALENDAR } from '../../data/event-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { signedFill, signedScale, signedTrack } from './signed-bar.js';
 import { frameHead, frameReading, markFrame } from './section-frame.js';
 import { openRouteSection } from './page-flow.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { el } from './dom.js';
 import { askRow } from './ask-row.js';
+import { EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY } from '../../data/artifact-registry.js';
 
 function ensure(root, artifact, rerender) {
   refreshSharedArtifact(root, artifact).then(({ changed } = {}) => { if (changed) rerender(); }).catch(() => {});

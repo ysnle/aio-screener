@@ -1,7 +1,8 @@
 // v58.79 (owner 2026-10-25): a research note or 산업 지도 domain names the themes it explains, each with the stage the
 // theme playbook gives it now (scenario-state.json, the same record the 테마와 섹터 screen reads). A theme opens its detail.
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { SCENARIO_STATE } from '../../data/artifact-registry.js';
 import { signedText } from '../../domain/shared/number.js';
-import { SCENARIO_STATE, refreshSharedArtifact } from '../../data/shared-artifacts.js';
 
 // The row's own stage label and 1-month return; no scenario module is imported, so the knowledge builders' import closure
 // stays the research corpus (v58.77 QA-01).
