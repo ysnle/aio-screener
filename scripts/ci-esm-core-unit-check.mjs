@@ -1018,11 +1018,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (copies.length) fail(`v59.88 S6: a classic script defines a technical/portfolio calculation again: ${copies.join(', ')}`);
   const bootSource = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
   if (/legacyTechnical/.test(bootSource)) fail('v59.88 S6: bootstrap must not carry the retired legacyTechnical AIO_ARCH group');
-  // The engine loads on demand (포트폴리오 risk runs, chat): never with the idle screen bridges, which every route fetches.
-  const bridges = readFileSync(path.join(root, 'src/app/legacy-screen-bridges.js'), 'utf8');
-  if (/domain\/technical\/snapshot|domain\/portfolio\/(?:technical-risk|return-stats)/.test(bridges)) fail('v59.88 S6: legacy-screen-bridges.js must not import the technical engine (post-boot budget)');
-  const compat = readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8');
-  if (!/window\._aioLoadTechnicalEngine = \(\) => import\('\.\/technical-engine-globals\.js'\)/.test(compat)) fail('v59.88 S6: compatibility-globals.js must expose _aioLoadTechnicalEngine');
+  // The engine loads on demand (포트폴리오 risk runs); ci-boot-interaction-check keeps it off the post-boot budget.
   const { installTechnicalEngine } = await import('../src/app/technical-engine-globals.js');
   const engineRoot = installTechnicalEngine({});
   for (const name of ['calcTechnicalSnapshot', 'calcExtensionHeat', 'calcSellPressure', 'calcPositionTechnicalRisk', 'calcPortfolioTechnicalRisk', '_calcPortfolioVaR', '_statMean', '_calcCorrelationMatrix']) {

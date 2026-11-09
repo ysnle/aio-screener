@@ -100,6 +100,7 @@ export function installLegacyScreenBridges(root, documentRef) {
     const detail = e && e.detail;
     const pageId = typeof detail === 'string' ? detail : detail && (detail.pageId || detail.id || detail.route);
     if (pageId === 'home') root._aioSchedulePublicReadiness(100);
+    if (pageId === 'portfolio') root._aioLoadTechnicalEngine?.().catch(() => {}); // warm the risk engine as 포트폴리오 opens
   });
   if (root._serverDataMeta) root._aioRenderPipelineStatus();
   root._aioSchedulePublicReadiness(1500);
