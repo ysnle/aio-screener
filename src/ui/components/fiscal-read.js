@@ -478,6 +478,9 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
       if (dart) host.append(dart);
     // v58.80 (first-users F03): on a slow phone NVDA read "SEC 공시 대상이 아니거나…" while the history file was still on its
     // way (undefined = not answered yet); run-2: a failed download is not "no record" either.
+    // An ETF has no company filings at all; "not covered or not collected yet" read as a gap in the data.
+    } else if (row && (row.sector === 'ETF' || row.index === 'ETF')) {
+      host.append(emptyState(doc, { title: 'ETF는 기업 재무 공시가 없습니다', reason: `${symbol}${row.name ? ` (${row.name})` : ''} — 지수를 따르는 상장지수펀드라 매출·이익 대신 가격 흐름과 추종 지수로 읽습니다.`, next: '가격 흐름과 이동평균은 차트 화면에서 확인합니다.', compact: true }));
     } else if (root?._aioSecFiscalHistory === undefined) host.append(emptyState(doc, { title: '재무 기록을 불러오는 중입니다', reason: `${symbol} — 공시 재무 파일이 도착하면 여기에 그립니다.`, compact: true }));
     else if (root?._aioSecFiscalHistoryFailed) host.append(emptyState(doc, { title: '재무 파일을 받지 못했습니다', reason: `${symbol} — 연결이 느리거나 끊겨 공시 재무 파일이 도착하지 않았습니다.`, next: '1분 뒤 이 화면을 다시 열면 다시 받습니다.', compact: true }));
     else host.append(emptyState(doc, { title: 'SEC 연간 재무 기록이 없습니다', reason: `${symbol} — SEC 공시 대상이 아니거나 아직 수집되지 않은 종목입니다.`, next: 'ETF는 사업회사 재무와 구분합니다.', compact: true }));
