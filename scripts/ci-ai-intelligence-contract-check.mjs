@@ -519,7 +519,7 @@ check('knowledge-concept-links-match-explicit-source-not-word-overlap', publishe
   return JSON.stringify(article.conceptIds) === JSON.stringify(expected) && article.conceptLinkStatus === (expected.length ? 'SOURCE_LINK' : 'UNMAPPED') && article.candidateConceptStatus === 'TEXT_CANDIDATE';
 }));
 check('knowledge-concept-coverage-reports-unmapped-truthfully', publishedKnowledgeIndex.counts.withConcepts === publishedKnowledgeIndex.articles.filter((article) => article.conceptIds.length).length && publishedKnowledgeIndex.counts.unmappedConcepts === publishedKnowledgeIndex.articles.filter((article) => !article.conceptIds.length).length);
-check('knowledge-loader-never-fetches-article-monolith', /AI_RETRIEVAL_INDEX_URL = '\.\/public-data\/knowledge\/ai-retrieval-index\.json'/.test(bootstrap) && !/articles\.json/.test(read('src/ai/retrieval/knowledge.js'))); // v59.87: the app injects the index loader
+check('knowledge-loader-never-fetches-article-monolith', /artifactUrl\('knowledge\/ai-retrieval-index\.json'\)/.test(bootstrap) && !/articles\.json/.test(read('src/ai/retrieval/knowledge.js'))); // v59.87: the app injects the index loader
 // v57.62: only the unified surface remains (per-page chatSend retired), so its knowledge block must be wrapped.
 check('knowledge-reference-is-wrapped-as-untrusted-data', /buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE', _uniKnowledge\.context/.test(chat));
 check('unified-chat-renders-native-claude-citations', /_uniCitationResult/.test(chat) && /engine:'claude'/.test(chat) && /_aioAIRequestCitations\(_uniRequestId\)/.test(chat));

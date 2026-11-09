@@ -23,6 +23,7 @@ import { createScreenerCommands } from './commands/screener.js';
 import { selectSentimentSummary } from '../state/selectors/sentiment.js';
 import { createEvidenceStore } from '../data/evidence-store.js';
 import { clearArtifactCache, loadJsonArtifact, stableFetcher } from '../data/artifact-cache.js';
+import { artifactUrl } from '../data/artifact-registry.js';
 import { createEvidence } from '../data/contracts/evidence.js';
 import { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } from '../data/selectors/evidence.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
@@ -195,8 +196,6 @@ function reducer(state, action) {
   if (action.type === 'route/changed') return { ...state, route: action.payload };
   return state;
 }
-
-const AI_RETRIEVAL_INDEX_URL = './public-data/knowledge/ai-retrieval-index.json'; // the AI knowledge index (S5: loaded by the app, not by src/ai)
 
 export function createAIOArchitecture({ root = globalThis, documentRef = root.document, now = () => Date.now(), fetchImpl = root.fetch } = {}) {
   root._aioFinancialSecurity = financialSecurity;
@@ -378,7 +377,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // S5 (ADR-0003): the AI retriever reads the index through the data layer's loader (revalidated: no-cache, and force so
     // the retriever's own retry after a failed or timed-out load really asks again).
     const knowledgeFetch = (url, init) => fetchImpl(url, { ...init, cache: 'no-cache' });
-    const loadIndex = ({ signal } = {}) => loadJsonArtifact(knowledgeFetch, AI_RETRIEVAL_INDEX_URL, { signal, force: true });
+    const loadIndex = ({ signal } = {}) => loadJsonArtifact(knowledgeFetch, artifactUrl('knowledge/ai-retrieval-index.json'), { signal, force: true });
     const knowledgeRetriever = createAIKnowledgeRetriever({ loadIndex, suppliedMaterials: loadSuppliedMaterials });
     aiOrchestrator = createAIAnswerOrchestrator({ root, now: () => clock.now(), knowledgeRetriever, beforeDispatch: () => root?.AIO?.ensureResearchCorpus?.() });
     return aiOrchestrator;
