@@ -1586,11 +1586,11 @@ function _formatSectorComparePrompt(sectorLabel, compareData) {
 
 // _extractTickers moved to src/ai/entity/extract-tickers.js (v59.14, roadmap item 11; window._extractTickers).
 
-// P1740: typed symbols + plan-resolved company names + nickname table (src/ai/entity/chat-tickers.js).
+// P1740: typed symbols + plan-resolved company names + nickname table — one resolver, src/ai/entity/chat-tickers.js (v59.88).
 function _aioResolveChatTickers(q, questionPlan, state, options) {
   var resolve = window.AIO && window.AIO.resolveChatTickers;
-  if (typeof resolve !== 'function') return _extractTickers(q);
-  return resolve({ query: q, questionPlan: questionPlan, state: state, companiesOnly: !!(options && options.companiesOnly), extract: _extractTickers, fuzzy: typeof _resolveTickerFromFuzzy === 'function' ? _resolveTickerFromFuzzy : null, root: window, ctxId: (options && options.ctxId) || '' }); // v58.75: the screen's company (chat-tickers.js screenSubjectTicker)
+  if (typeof resolve !== 'function') return [];
+  return resolve({ query: q, questionPlan: questionPlan, state: state, companiesOnly: !!(options && options.companiesOnly), root: window, ctxId: (options && options.ctxId) || '' }); // v58.75: the screen's company (chat-tickers.js screenSubjectTicker)
 }
 
 // S5 (ADR-0003): [주가 추이] is the 종목 page's own reading of the screener row (src/ai/context/stock-trend-line.js) — the
@@ -3292,53 +3292,8 @@ function _buildUserProfileContext() {
 
 window._buildUserProfileContext = _buildUserProfileContext;
 
-// v49.69 P369 R131: 약어/별명 fuzzy match 강화 — "엔비" / "퀄컴" / "테슬라" / 본드 / 환율 등
-function _resolveTickerFromFuzzy(input) {
-  if (!input || typeof input !== 'string') return null;
-  var q = String(input).trim().toLowerCase();
-  var fuzzyMap = {
-    '엔비': 'NVDA', '엔비디아': 'NVDA',
-    '애플': 'AAPL',
-    '구글': 'GOOGL', '알파벳': 'GOOGL',
-    '아마존': 'AMZN',
-    '마소': 'MSFT', '마이크로소프트': 'MSFT',
-    '테슬라': 'TSLA',
-    '메타': 'META', '페북': 'META', '페이스북': 'META',
-    '퀄컴': 'QCOM',
-    '인텔': 'INTC',
-    '브로드컴': 'AVGO',
-    '암드': 'AMD',
-    '팔란티어': 'PLTR', '팔란': 'PLTR',
-    '슈퍼마이크로': 'SMCI',
-    '넷플': 'NFLX', '넷플릭스': 'NFLX',
-    '디즈니': 'DIS',
-    '삼성전자': '005930.KS', '삼전': '005930.KS',
-    '하이닉스': '000660.KS',
-    '에코프로': '086520.KQ', '에코프로비엠': '247540.KQ',
-    '카카오': '035720.KS',
-    '네이버': '035420.KS',
-    'LG화학': '051910.KS',
-    '현대차': '005380.KS',
-    '코스피': '^KS11', 'kospi': '^KS11',
-    '코스닥': '^KQ11', 'kosdaq': '^KQ11',
-    '엔화': 'JPY=X', 'jpy': 'JPY=X',
-    '원화': 'KRW=X', '원달러': 'KRW=X',
-    '위안': 'CNY=X', '위안화': 'CNY=X',
-    '비트코인': 'BTC-USD', '코인': 'BTC-USD',
-    '이더리움': 'ETH-USD',
-    '금': 'GC=F', 'gold': 'GC=F',
-    '은': 'SI=F', 'silver': 'SI=F',
-    '유가': 'CL=F', 'wti': 'CL=F', '원유': 'CL=F',
-    '나스닥': '^IXIC', 'nasdaq': '^IXIC',
-    's&p': '^GSPC', '에스앤피': '^GSPC',
-    '다우': '^DJI', '다우존스': '^DJI',
-    '러셀': '^RUT', '러셀2000': '^RUT'
-  };
-  // P1543 (owner decision P1339: no ticker guessing): the table is a curated list of exact nicknames. The previous substring loop
-  // matched any word that merely contained a key, so "금일" (today) resolved to gold futures and "마크롱" to Microsoft.
-  return Object.prototype.hasOwnProperty.call(fuzzyMap, q) ? fuzzyMap[q] : null;
-}
-window._resolveTickerFromFuzzy = _resolveTickerFromFuzzy;
+// v59.88 (ADR-0003 S6): the nickname table (v49.69 P369 _resolveTickerFromFuzzy) is src/domain/ticker/nicknames.js;
+// window._resolveTickerFromFuzzy is its exact-word lookup, installed by src/app/compatibility-globals.js.
 
 // v49.69 P366 R130: 자동 페이지 이동 — 사용자 입력 의도 → 적합 페이지 자동 전환
 // "차트 보여줘" / "포트폴리오 분석" / "옵션 전략" 키워드 감지 → showPage 자동 호출 + 안내 메시지

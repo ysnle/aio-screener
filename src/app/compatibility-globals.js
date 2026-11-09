@@ -27,6 +27,8 @@ import { installSharedRoute } from '../data/providers/shared-ai-transport.js'; /
 import { withTimeout } from '../platform/with-timeout.js'; // v59.14 roadmap 11: helpers moved from js/aio-chat.js
 import { bumpApiCounter, isQuotaExceeded } from '../data/api-quota.js';
 import { extractTickers } from '../ai/entity/extract-tickers.js';
+import { nicknameSymbol } from '../domain/ticker/nicknames.js';
+import { articleTickers, articleSymbolAllowed } from '../domain/news/article-tickers.js';
 import { restoreSidebar, toggleSidebar } from '../ui/components/sidebar-toggle.js';
 import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
@@ -42,10 +44,7 @@ import { isListedUsSymbol, usListingSymbol } from '../data/us-listings.js';
 import { stripEvidenceIds } from '../domain/briefing/evidence-text.js';
 import { releaseAtMs, formatKstWhen } from '../domain/briefing/schedule.js';
 import { groupNewsStories, isNewsRevision, newsArticleKey, resolveNewsIssuers } from '../domain/news/stories.js';
-// Portfolio statistics/backtest is a native ESM module; importing it during
-// bootstrap keeps the classic regression surface available before lazy route
-// navigation while leaving the implementation out of aio-core.js.
-import { _statMean, _statStdDev, _calcDailyReturns, _quantileR7, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix } from '../domain/portfolio/return-stats.js';
+// The portfolio return statistics load on demand with the technical engine (technical-engine-globals.js).
 import { assessAccountPerformance } from '../domain/portfolio/risk.js';
 import { PORTFOLIO_ASSUMPTION_KEYS, EXPOSURE_PATHS, REBALANCE_POLICIES, normalizeCurrencyCode, normalizeAnnualRate, normalizeExposurePath, normalizeRebalancePolicy, readPortfolioAssumptions } from '../data/portfolio-assumptions.js';
 import { LEDGER_COVERAGE_INPUTS, appendLedgerTransaction, appendLedgerValuation, ledgerCoverageState, normalizeLedger, removeLedgerEntry as removeLedgerEntryFromLedger, setLedgerCoverage as setLedgerCoverageOnLedger, setLedgerFlowTiming as setLedgerFlowTimingOnLedger } from '../data/portfolio-ledger.js';
@@ -55,7 +54,7 @@ import { assembleRiskEstimateInput } from '../ui/panels/portfolio-risk-input.js'
 import { baseValueRows, baseValueNote } from '../ui/panels/portfolio-base-values.js';
 import { createDeclarationsStore } from '../data/portfolio-declarations-store.js';
 import { BACKUP_SECTIONS, backupReminder, buildPortfolioBackup, describeBackupCounts, parsePortfolioBackup } from '../data/portfolio-backup.js';
-import { readWatchlists, readWatchlistSymbols, toggleWatchlistSymbol, writeWatchlists } from '../data/watchlist-store.js';
+import { readWatchlists, readWatchlistSymbols, toggleWatchlistSymbol, writeWatchlists, readActiveWatchlistId, writeActiveWatchlistId, ensureTargetList } from '../data/watchlist-store.js';
 import { CASH_INPUT_CURRENCIES, PORTFOLIO_CASH_KEY, LEGACY_CASH_KEY, readCashBalances, setCashBalance, writeCashBalances } from '../data/portfolio-cash.js';
 import { appUsdKrwClose } from '../domain/portfolio/cash.js';
 import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker-symbol.js';
@@ -113,18 +112,14 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._bumpApiCounter = (providerKey) => bumpApiCounter(providerKey, window);
   window._isQuotaExceeded = (providerKey) => isQuotaExceeded(providerKey, window);
   window._extractTickers = extractTickers;
+  window._resolveTickerFromFuzzy = (word) => nicknameSymbol(word); // the one nickname table (was js/aio-chat.js)
+  // A news article's issuers (was js/aio-data.js extractTickers) over the shell's symbol list and name map.
+  window.extractTickers = (item) => articleTickers(item, window._aioNewsSymbolLists || {});
+  window._aioArticleSymbolAllowed = articleSymbolAllowed;
   window.toggleSidebar = () => toggleSidebar({ documentRef: document, root: window });
   if (document) restoreSidebar({ documentRef: document, root: window });
   window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => window.fetch(...args) });
   window._aioCompletedBars = completedBars; // v57.92 A04: the AI trend line reads completed sessions only, like the chart
-  window._statMean = _statMean;
-  window._statStdDev = _statStdDev;
-  window._calcDailyReturns = _calcDailyReturns;
-  window._quantileR7 = _quantileR7;
-  window._calcSharpe = _calcSharpe;
-  window._calcMaxDrawdown = _calcMaxDrawdown;
-  window._pearsonCorr = _pearsonCorr;
-  window._calcCorrelationMatrix = _calcCorrelationMatrix;
   // Legacy unification (2026-10-17): the chat's screener query engine moved here from js/aio-data.js. Every call reads
   // the canonical rows the native screener orchestrator ranked (no second ranking run) and the producer's factor date.
   const screenerState = (path) => { try { return window.AIO_ARCH?.getScreenerState?.(path) ?? null; } catch (_) { return null; } };
@@ -183,6 +178,9 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   // it spent 28.6 KB of each route's post-boot budget on an engine only 포트폴리오's run button uses.
   const backtestLab = () => import('../domain/portfolio/backtest.js').then((module) => { window.AIO.buildPortfolioBacktestLab = module.buildPortfolioBacktestLab; return module; });
   window._aioLoadBacktestLab = backtestLab;
+  // The holding technical engine and the return statistics load the same way: 포트폴리오's risk runs
+  // await this before their synchronous calls (src/app/technical-engine-globals.js).
+  window._aioLoadTechnicalEngine = () => import('./technical-engine-globals.js').then((module) => module.installTechnicalEngine(window));
   // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)의 단일 소유자 — 셸은 이 브리지를
   // 호출해 결과를 그대로 렌더한다.
   window._pfAssembleRiskEstimateInput = assembleRiskEstimateInput;
@@ -312,7 +310,14 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   // v58.80 (first-users F29): the screener star and 포트폴리오 관심 종목 share one store.
   window._aioWatchlistGet = () => readWatchlistSymbols(window.localStorage);
   // v59.42: the named lists' CRUD in js/aio-workspace.js reads and writes through the same store (one writer).
-  window._aioWatchlistStore = { read: () => readWatchlists(window.localStorage), write: (lists) => writeWatchlists(window.localStorage, lists) };
+  // The active list id and the default-target rule live in the store too (js/aio-workspace.js read the key raw).
+  window._aioWatchlistStore = {
+    read: () => readWatchlists(window.localStorage),
+    write: (lists) => writeWatchlists(window.localStorage, lists),
+    activeId: () => readActiveWatchlistId(window.localStorage),
+    setActiveId: (id) => writeActiveWatchlistId(window.localStorage, id),
+    ensureTarget: (lists, activeId) => ensureTargetList(lists, activeId)
+  };
   window._aioWLToggle = (sym) => {
     const result = toggleWatchlistSymbol(window.localStorage, sym);
     if (result.added && result.listName) window.showToast?.(`${sym}: "${result.listName}" 목록에 추가했습니다.`);

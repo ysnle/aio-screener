@@ -16,6 +16,7 @@ import { installGlossaryModal } from '../ui/knowledge/glossary-modal.js';
 import { bindRefreshProgress, createGlobalRefresh } from '../ui/components/refresh-progress.js';
 import { createEarningsCalendar } from '../ui/components/earnings-calendar.js';
 import { renderPortfolioBacktestLab, renderPortfolioBacktestStatus, varCertLabel } from '../ui/components/portfolio-backtest-lab.js';
+import { renderPipelineStatus, renderPublicReadiness } from '../ui/components/pipeline-status.js';
 
 export function installLegacyScreenBridges(root, documentRef) {
   // v59.70 (D5): the 한국 거시 기준일 badges (_aioRenderKrMacroFreshnessBadges) left with the 한국 거시 fold.
@@ -64,6 +65,45 @@ export function installLegacyScreenBridges(root, documentRef) {
   if (root._aioWatchlistPending && typeof root.refreshWatchlistUI === 'function') { root._aioWatchlistPending = false; root.refreshWatchlistUI(); }
   // v59.07 도움말: the chapter layout (guide.js runs it on mount; the headless T869 test calls this name).
   root._aioOrganizeGuideChapters = () => { const page = documentRef.getElementById('page-guide'); if (page) organizeGuideChapters(documentRef, page); };
+  // 오늘: the 데이터 파이프라인 상태 bar and the developer-mode 공개 준비 panel (src/ui/components/pipeline-status.js).
+  // The server data loader calls _aioRenderPipelineStatus after each data.json apply; a load before this install is
+  // painted now from the stored meta.
+  const staleDaysFallback = (d) => Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
+  root._aioRenderPipelineStatus = () => {
+    const meta = root._serverDataMeta || null;
+    let universeStale = false;
+    try { universeStale = root.AIO_ARCH?.getScreenerState?.('metadata.universeFreshnessStatus') === 'stale'; } catch (_) { universeStale = false; }
+    renderPipelineStatus({
+      documentRef, meta, universeStale,
+      fieldTs: root.DATA_SNAPSHOT?._fieldTs || null,
+      staleDays: typeof root._aioStaleDays === 'function' ? root._aioStaleDays : staleDaysFallback,
+      log: typeof root._aioLog === 'function' ? root._aioLog : null
+    });
+    if (meta) {
+      // The 스크리너 재무 팩터 coverage note reads the same meta.
+      root._aioScreenerFmpMeta = meta;
+      root._aioRenderScreenerFmpStatus?.(meta);
+      root._aioSchedulePublicReadiness(250);
+    }
+  };
+  root._aioRenderPublicReadiness = () => {
+    if (typeof root._aioBuildPublicShareReadiness !== 'function') return;
+    try { renderPublicReadiness({ documentRef, readiness: root._aioBuildPublicShareReadiness, pageText: root._aioPublicReadinessPageText, sourceText: root._aioPublicReadinessSourceText }); } catch (_) { /* a diagnostics panel never breaks a page */ }
+  };
+  let readinessTimer = 0;
+  root._aioSchedulePublicReadiness = (delay) => {
+    root.clearTimeout(readinessTimer);
+    readinessTimer = root.setTimeout(() => { readinessTimer = 0; root._aioRenderPublicReadiness(); }, Math.max(0, Number(delay) || 0));
+  };
+  root.addEventListener?.('aio:liveQuotes', () => root._aioSchedulePublicReadiness(250));
+  root.addEventListener?.('aio:pageShown', (e) => {
+    const detail = e && e.detail;
+    const pageId = typeof detail === 'string' ? detail : detail && (detail.pageId || detail.id || detail.route);
+    if (pageId === 'home') root._aioSchedulePublicReadiness(100);
+    if (pageId === 'portfolio') root._aioLoadTechnicalEngine?.().catch(() => {}); // warm the risk engine as 포트폴리오 opens
+  });
+  if (root._serverDataMeta) root._aioRenderPipelineStatus();
+  root._aioSchedulePublicReadiness(1500);
   // v59.08 스크리너: the 재무 팩터 coverage note (_aioRenderPipelineStatus calls it; the last meta is painted now).
   root._aioRenderScreenerFmpStatus = (meta) => renderScreenerFmpStatus(meta, at);
   if (root._aioScreenerFmpMeta) root._aioRenderScreenerFmpStatus(root._aioScreenerFmpMeta);

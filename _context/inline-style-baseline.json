@@ -3,53 +3,41 @@
   "generatedBy": "scripts/ci-inline-style-ratchet-check.mjs",
   "note": "Per-file inline style and sub-12px font-size counts. Shrink only; never raise a count or add a file.",
   "totals": {
-    "inline": 239,
-    "belowFloor": 287
+    "inline": 91,
+    "belowFloor": 39
   },
   "counts": {
     "index.html": {
-      "inline": 113,
-      "belowFloor": 238
+      "inline": 62,
+      "belowFloor": 33
     },
     "js/aio-chat.js": {
-      "inline": 7,
-      "belowFloor": 7
-    },
-    "js/aio-core.js": {
-      "inline": 17,
-      "belowFloor": 10
-    },
-    "js/aio-data.js": {
-      "inline": 9,
-      "belowFloor": 6
-    },
-    "js/aio-kr-data.js": {
-      "inline": 15,
+      "inline": 5,
       "belowFloor": 0
     },
-    "js/aio-pages.js": {
-      "inline": 18,
+    "js/aio-core.js": {
+      "inline": 3,
+      "belowFloor": 0
+    },
+    "js/aio-data.js": {
+      "inline": 2,
+      "belowFloor": 0
+    },
+    "js/aio-kr-data.js": {
+      "inline": 14,
       "belowFloor": 0
     },
     "js/aio-ui.js": {
-      "inline": 34,
-      "belowFloor": 7
+      "inline": 2,
+      "belowFloor": 0
     },
     "js/aio-workspace.js": {
-      "inline": 26,
-      "belowFloor": 6
-    },
-    "src/ui/components/sector-map.js": {
-      "inline": 0,
-      "belowFloor": 1
-    },
-    "src/ui/styles/regime-quality.css": {
-      "inline": 0,
-      "belowFloor": 5
+      "inline": 3,
+      "belowFloor": 0
     },
     "src/ui/styles/responsive.css": {
       "inline": 0,
-      "belowFloor": 7
+      "belowFloor": 6
     }
   }
 }

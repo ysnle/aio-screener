@@ -103,6 +103,11 @@ const LLM_MODELS = {
   luna: { id: 'gpt-6-luna', label: 'GPT-6 Luna', reasoningEffort: 'none' }, 'luna-low': { id: 'gpt-6-luna', label: 'GPT-6 Luna, 심층', reasoningEffort: 'low', thinking: true },
   'luna-medium': { id: 'gpt-6-luna', label: 'GPT-6 Luna, 분석', reasoningEffort: 'medium', thinking: true } // v57.61: analysis/decision/comparison/outlook; medium reasoning adds ~2-5k output tokens (~$0.002)
 };
+// A company the question names — typed or by name — through the one resolver (src/ai/entity/chat-tickers.js).
+function _aioQueryNamesCompany(query) {
+  var resolve = window.AIO && window.AIO.resolveChatTickers;
+  return typeof resolve === 'function' && resolve({ query: query, companiesOnly: true }).length > 0;
+}
 // v31.3: 질문 복잡도 감지 → 모델 자동 선택
 function _detectQueryComplexity(query, ctxId) {
   var q = query.toLowerCase();
@@ -116,7 +121,7 @@ function _detectQueryComplexity(query, ctxId) {
     var fundThinking = /DCF|밸류에이션.*모델|적정.*주가|내재.*가치|WACC|잔여.*이익|EV\/EBITDA.*비교|피어.*그룹|산업.*비교.*분석|sum.?of.?parts|comp.*analysis|intrinsic.*value|free.?cash.?flow.*model|종합.*기업.*분석|종합.*분석.*해줘|15개.*관점|심층.*분석/;
     if (fundThinking.test(q)) return 'luna-low';
     // v34.5: fundamental 컨텍스트에서 티커가 감지되면 기본적으로 sonnet 사용 (15개 관점 분석 품질 보장)
-    var hasTicker = typeof _extractTickers === 'function' && _extractTickers(query).length > 0;
+    var hasTicker = typeof _aioQueryNamesCompany === 'function' && _aioQueryNamesCompany(query);
     var fundSonnet = /재무.*분석|실적.*분석|매출.*성장|이익률|부채.*비율|경쟁.*우위|해자|moat|경영진|사업.*모델|revenue|earnings|margin|competitive|valuation|분석|어때|전망|투자|알려/;
     if (hasTicker || fundSonnet.test(q)) return 'luna-low';
     //  fall through to 범용 판단 (구조적 분석 포함)
@@ -126,7 +131,7 @@ function _detectQueryComplexity(query, ctxId) {
     var techThinking = /멀티.*타임프레임|다중.*시간|엘리어트.*파동|피보나치.*되돌림.*정밀|와이코프|wyckoff|elliott|intermarket.*analysis|상호.*시장.*분석|divergence.*종합|다이버전스.*종합/;
     if (techThinking.test(q)) return 'luna-low';
     // v34.5: 티커 감지 시 기본 Sonnet (비교 분석 포함)
-    var hasTicker = typeof _extractTickers === 'function' && _extractTickers(query).length > 0;
+    var hasTicker = typeof _aioQueryNamesCompany === 'function' && _aioQueryNamesCompany(query);
     var techSonnet = /진입.*시점|매수.*타이밍|손절.*설정|목표가|지지.*저항|추세.*분석|패턴.*분석|RSI|MACD|볼린저|이동평균|골든크로스|데드크로스|weinstein|stage.*분석|support|resistance|entry|stop.?loss|target|비교|vs|VS|분석|어때|전망/;
     if (hasTicker || techSonnet.test(q)) return 'luna-low';
   }

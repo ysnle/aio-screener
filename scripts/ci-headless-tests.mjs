@@ -257,6 +257,7 @@ async function main() {
       runResult = await page.evaluate(async ({ shardIndex, shardCount, groupIds }) => {
       // v58.80: the backtest engine loads on demand (idle warm-up); the synchronous suite reads it, so load it first.
       await window._aioLoadBacktestLab?.().catch(() => null);
+      await window._aioLoadTechnicalEngine?.().catch(() => null); // v59.88: the technical engine loads with 포트폴리오 and the chat
       await window.AIO.loadTests();
         return window.AIO.runTests({ shardIndex, shardCount, groupIds, progress: true });
       }, { shardIndex: SHARD_INDEX, shardCount: SHARD_COUNT, groupIds: GROUP_IDS });

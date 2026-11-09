@@ -898,6 +898,7 @@ async function refreshPortfolioRisk() {
   }
   if (!status('가격 데이터 요청 중...')) return;
   const riskEpoch = ++_pfRiskEpoch;
+  if (typeof _calcPortfolioVaR !== 'function') { try { await window._aioLoadTechnicalEngine?.(); } catch (_) {} } // the return statistics load with 포트폴리오's first run
   const riskHoldings = JSON.stringify(positions);
 
   const tickers = positions.map(function(p) { return p.ticker; });
@@ -1058,6 +1059,7 @@ function _escHtmlSafe(s){ return (typeof escHtml==='function') ? escHtml(String(
 async function refreshPortfolioTechnicalRisk() {
   var el = document.getElementById('pf-technical-risk');
   if (!el) return;
+  if (typeof calcPositionTechnicalRisk !== 'function') { try { await window._aioLoadTechnicalEngine?.(); } catch (_) {} } // the holding technical engine loads on demand
   var positions = getPortfolioData();
   if (!positions.length) {
     if (typeof renderPortfolioTechnicalRisk === 'function') renderPortfolioTechnicalRisk({ items: [] });
@@ -1291,8 +1293,6 @@ function importPortfolio(event) {
 // ══════════════════════════════════════════════════════════════════════
 // 다중 워치리스트 시스템 — localStorage CRUD + Live Price + SCREENER_DB 연동
 // ══════════════════════════════════════════════════════════════════════
-var WL_ACTIVE_KEY = 'aio_watchlist_active';
-
 // v59.42: one store — src/data/watchlist-store.js (window._aioWatchlistStore, installed at boot) reads and writes the
 // lists. This copy dropped a list with no tickers array on read, so the next save deleted it; the store repairs it.
 // Every caller is a user action or a render that waits for the same boot, so before it nothing is read or written.
@@ -1305,11 +1305,12 @@ function saveWatchlists(lists) {
   if (!ok) showToast(window._aioWatchlistStore ? '관심목록을 저장하지 못했습니다(브라우저 저장 공간 부족).' : '관심목록을 아직 불러오는 중입니다. 잠시 뒤 다시 시도하세요.');
   return ok;
 }
+// The active list id is the store's too (readActiveWatchlistId / writeActiveWatchlistId).
 function getActiveWatchlistId() {
-  return localStorage.getItem(WL_ACTIVE_KEY) || '';
+  return window._aioWatchlistStore ? window._aioWatchlistStore.activeId() : '';
 }
 function setActiveWatchlistId(id) { // v59.45: false when the write was refused (the restore reports it)
-  try { localStorage.setItem(WL_ACTIVE_KEY, id); return true; } catch(e) { return false; }
+  return !!(window._aioWatchlistStore && window._aioWatchlistStore.setActiveId(id));
 }
 
 function createWatchlist() {
@@ -1380,11 +1381,11 @@ function switchWatchlist() {
 // deleted) and clears the inputs only while they still show that request.
 function addToWatchlist(ticker, note, accepted, request) {
   var activeId = request ? request.listId : getActiveWatchlistId();
-  // v58.80 F16: a stock-page add with no chosen list goes to the first list (or a new one).
-  if (!activeId && ticker && !request) {
-    var wlAll = getWatchlists();
-    if (!wlAll.length) { wlAll.push({ id: 'wl_' + Date.now(), name: '관심 종목', tickers: [], createdAt: Date.now() }); saveWatchlists(wlAll); }
-    activeId = wlAll[0].id;
+  // A stock-page add with no chosen list goes to the first list (or a new one) — the store's rule.
+  if (!activeId && ticker && !request && window._aioWatchlistStore) {
+    var wlAll = getWatchlists(), wlCount = wlAll.length;
+    activeId = window._aioWatchlistStore.ensureTarget(wlAll, '').id;
+    if (wlAll.length !== wlCount) saveWatchlists(wlAll);
     setActiveWatchlistId(activeId);
     try { refreshWatchlistUI(); } catch (_) {}
   }
