@@ -897,6 +897,7 @@ async function refreshPortfolioRisk() {
     return;
   }
   if (!status('가격 데이터 요청 중...')) return;
+  try { await window._aioLoadTechnicalEngine?.(); } catch (_) {} // the return statistics load with 포트폴리오's first run
   const riskEpoch = ++_pfRiskEpoch;
   const riskHoldings = JSON.stringify(positions);
 
@@ -1058,6 +1059,7 @@ function _escHtmlSafe(s){ return (typeof escHtml==='function') ? escHtml(String(
 async function refreshPortfolioTechnicalRisk() {
   var el = document.getElementById('pf-technical-risk');
   if (!el) return;
+  try { await window._aioLoadTechnicalEngine(); } catch (_) {} // the holding technical engine loads on demand
   var positions = getPortfolioData();
   if (!positions.length) {
     if (typeof renderPortfolioTechnicalRisk === 'function') renderPortfolioTechnicalRisk({ items: [] });

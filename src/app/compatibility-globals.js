@@ -44,7 +44,7 @@ import { isListedUsSymbol, usListingSymbol } from '../data/us-listings.js';
 import { stripEvidenceIds } from '../domain/briefing/evidence-text.js';
 import { releaseAtMs, formatKstWhen } from '../domain/briefing/schedule.js';
 import { groupNewsStories, isNewsRevision, newsArticleKey, resolveNewsIssuers } from '../domain/news/stories.js';
-// The portfolio return statistics install with the lazy screen bridges (legacy-screen-bridges.js).
+// The portfolio return statistics load on demand with the technical engine (technical-engine-globals.js).
 import { assessAccountPerformance } from '../domain/portfolio/risk.js';
 import { PORTFOLIO_ASSUMPTION_KEYS, EXPOSURE_PATHS, REBALANCE_POLICIES, normalizeCurrencyCode, normalizeAnnualRate, normalizeExposurePath, normalizeRebalancePolicy, readPortfolioAssumptions } from '../data/portfolio-assumptions.js';
 import { LEDGER_COVERAGE_INPUTS, appendLedgerTransaction, appendLedgerValuation, ledgerCoverageState, normalizeLedger, removeLedgerEntry as removeLedgerEntryFromLedger, setLedgerCoverage as setLedgerCoverageOnLedger, setLedgerFlowTiming as setLedgerFlowTimingOnLedger } from '../data/portfolio-ledger.js';
@@ -178,6 +178,9 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   // it spent 28.6 KB of each route's post-boot budget on an engine only 포트폴리오's run button uses.
   const backtestLab = () => import('../domain/portfolio/backtest.js').then((module) => { window.AIO.buildPortfolioBacktestLab = module.buildPortfolioBacktestLab; return module; });
   window._aioLoadBacktestLab = backtestLab;
+  // The holding technical engine and the return statistics load the same way: 포트폴리오's risk runs and the chat's
+  // technical block await this before their synchronous calls (src/app/technical-engine-globals.js).
+  window._aioLoadTechnicalEngine = () => import('./technical-engine-globals.js').then((module) => module.installTechnicalEngine(window));
   // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)의 단일 소유자 — 셸은 이 브리지를
   // 호출해 결과를 그대로 렌더한다.
   window._pfAssembleRiskEstimateInput = assembleRiskEstimateInput;
