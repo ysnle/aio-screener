@@ -27,6 +27,7 @@ import { installSharedRoute } from '../data/providers/shared-ai-transport.js'; /
 import { withTimeout } from '../platform/with-timeout.js'; // v59.14 roadmap 11: helpers moved from js/aio-chat.js
 import { bumpApiCounter, isQuotaExceeded } from '../data/api-quota.js';
 import { extractTickers } from '../ai/entity/extract-tickers.js';
+import { nicknameSymbol } from '../domain/ticker/nicknames.js';
 import { restoreSidebar, toggleSidebar } from '../ui/components/sidebar-toggle.js';
 import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
 import { describeSharedConnection } from '../domain/connections/shared.js';
@@ -110,6 +111,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._bumpApiCounter = (providerKey) => bumpApiCounter(providerKey, window);
   window._isQuotaExceeded = (providerKey) => isQuotaExceeded(providerKey, window);
   window._extractTickers = extractTickers;
+  window._resolveTickerFromFuzzy = (word) => nicknameSymbol(word); // v59.88 (S6): the one nickname table (was js/aio-chat.js)
   window.toggleSidebar = () => toggleSidebar({ documentRef: document, root: window });
   if (document) restoreSidebar({ documentRef: document, root: window });
   window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => window.fetch(...args) });
