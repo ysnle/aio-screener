@@ -1,26 +1,26 @@
 /* Owner 2026-10-14: saved conversations in the AI panel (src/ui/components/chat-sessions.js). */
 #ai-panel .ai-session-controls { display: inline-flex; gap: 6px; margin-left: auto; }
 #ai-panel .ai-session-controls + .ai-ph-close { margin-left: 4px; }
-#ai-panel .ai-session-head-btn { background: transparent; border: 0.5px solid var(--border); color: var(--text-secondary); font-size: 12px; padding: 4px 9px; border-radius: 4px; cursor: pointer; min-height: 28px; }
+#ai-panel .ai-session-head-btn { background: transparent; border: 0.5px solid var(--border); color: var(--text-secondary); font-size: 12px; padding: 4px 9px; border-radius: var(--radius-inner); cursor: pointer; min-height: 28px; }
 #ai-panel .ai-session-head-btn:hover, #ai-panel .ai-session-head-btn[aria-expanded="true"] { color: var(--text-primary); border-color: var(--text-secondary); background: var(--bg-elevated); }
-#ai-panel .ai-session-consent { margin: 0 14px 8px; flex-shrink: 0; border: 0.5px solid var(--border);  border-radius: 8px; padding: 10px 12px; background: var(--bg-elevated); }
+#ai-panel .ai-session-consent { margin: 0 14px 8px; flex-shrink: 0; border: 0.5px solid var(--border);  border-radius: var(--radius-element); padding: 10px 12px; background: var(--bg-elevated); }
 #ai-panel .ai-session-consent-title { margin: 0 0 4px; font-weight: 700; font-size: 14px; color: var(--text-primary); }
 #ai-panel .ai-session-consent-body { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 #ai-panel .ai-session-actions { display: flex; gap: 8px; margin-top: 8px; }
-#ai-panel .ai-session-btn { background: transparent; border: 0.5px solid var(--border); color: var(--text-primary); font-size: 12px; padding: 6px 12px; border-radius: 8px; cursor: pointer; min-height: 32px; }
+#ai-panel .ai-session-btn { background: transparent; border: 0.5px solid var(--border); color: var(--text-primary); font-size: 12px; padding: 6px 12px; border-radius: var(--radius-element); cursor: pointer; min-height: 32px; }
 #ai-panel .ai-session-btn.is-primary { background: var(--text-primary); color: var(--bg-surface); border-color: var(--text-primary); }
 #ai-panel .ai-session-list { position: absolute; inset: 52px 0 0 0; background: var(--bg-surface); border-top: 0.5px solid var(--border); display: flex; flex-direction: column; z-index: 3; }
 #ai-panel .ai-session-list[hidden] { display: none; }
 #ai-panel .ai-session-list-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 0.5px solid var(--border-subtle); }
 #ai-panel .ai-session-list-title { margin: 0; font-size: 14px; color: var(--text-primary); }
 #ai-panel .ai-session-items { list-style: none; margin: 0; padding: 6px 8px; overflow-y: auto; flex: 1; }
-#ai-panel .ai-session-item { display: flex; align-items: center; gap: 6px; border-radius: 8px; }
+#ai-panel .ai-session-item { display: flex; align-items: center; gap: 6px; border-radius: var(--radius-element); }
 #ai-panel .ai-session-item.is-active { background: var(--bg-elevated); }
-#ai-panel .ai-session-open { flex: 1; min-width: 0; text-align: left; background: transparent; border: none; padding: 8px 8px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; border-radius: 8px; }
+#ai-panel .ai-session-open { flex: 1; min-width: 0; text-align: left; background: transparent; border: none; padding: 8px 8px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; border-radius: var(--radius-element); }
 #ai-panel .ai-session-open:hover { background: var(--bg-elevated); }
 #ai-panel .ai-session-title { font-size: 14px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #ai-panel .ai-session-meta { font-size: 12px; color: var(--text-muted); margin: 0; }
-#ai-panel .ai-session-delete { background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; padding: 6px 8px; border-radius: 4px; min-height: 32px; white-space: nowrap; }
+#ai-panel .ai-session-delete { background: transparent; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; padding: 6px 8px; border-radius: var(--radius-inner); min-height: 32px; white-space: nowrap; }
 #ai-panel .ai-session-delete:hover, #ai-panel .ai-session-delete[data-confirm="1"] { color: var(--data-red); }
 #ai-panel .ai-session-empty { padding: 18px 10px; font-size: 12px; color: var(--text-muted); }
 #ai-panel .ai-session-foot { border-top: 0.5px solid var(--border-subtle); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -53,10 +53,10 @@
 #ai-panel .ai-profile-options { display: flex; flex-wrap: wrap; gap: 6px; }
 #ai-panel .ai-profile-option { position: relative; display: inline-flex; }
 #ai-panel .ai-profile-option input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-#ai-panel .ai-profile-option span { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 12px; border: 0.5px solid var(--border); border-radius: 999px; font-size: 12px; color: var(--text-secondary); }
+#ai-panel .ai-profile-option span { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 12px; border: 0.5px solid var(--border); border-radius: var(--radius-full); font-size: 12px; color: var(--text-secondary); }
 #ai-panel .ai-profile-option input:checked + span { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-surface); }
 #ai-panel .ai-profile-option input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
-#ai-panel .ai-profile-text input { width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 0.5px solid var(--border); border-radius: 8px; background: var(--bg-surface); color: var(--text-primary); font-size: 14px; }
+#ai-panel .ai-profile-text input { width: 100%; box-sizing: border-box; min-height: 36px; padding: 6px 10px; border: 0.5px solid var(--border); border-radius: var(--radius-element); background: var(--bg-surface); color: var(--text-primary); font-size: 14px; }
 #ai-panel .ai-profile-status { margin: 0; }
 #ai-panel .ai-profile-form .ai-session-foot { position: sticky; bottom: 0; margin: 0 -14px; background: var(--bg-surface); }
 #ai-panel .ai-profile-form .ai-session-foot .ai-session-meta { flex: 1; }
@@ -67,7 +67,7 @@
   #ai-panel .ai-chips { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; max-height: none; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   #ai-panel .ai-chips::-webkit-scrollbar { display: none; }
   #ai-panel .ai-chip { flex: 0 0 auto; white-space: nowrap; max-width: 85%; overflow: hidden; text-overflow: ellipsis; }
-  #ai-panel[data-convo="1"] .ai-chips-toggle:not([hidden]) { display: flex; align-items: center; align-self: flex-start; flex-shrink: 0; margin: 4px 14px 0; min-height: 32px; padding: 4px 12px; background: transparent; border: 0.5px solid var(--border); border-radius: 999px; color: var(--text-secondary); font-size: 12px; cursor: pointer; }
+  #ai-panel[data-convo="1"] .ai-chips-toggle:not([hidden]) { display: flex; align-items: center; align-self: flex-start; flex-shrink: 0; margin: 4px 14px 0; min-height: 32px; padding: 4px 12px; background: transparent; border: 0.5px solid var(--border); border-radius: var(--radius-full); color: var(--text-secondary); font-size: 12px; cursor: pointer; }
   #ai-panel[data-convo="1"]:not([data-chips-open="1"]) .ai-chips { display: none; }
   #ai-panel[data-convo="1"][data-chips-open="1"] .ai-chips { flex-wrap: wrap; max-height: 40vh; overflow-y: auto; }
   #ai-panel[data-convo="1"][data-chips-open="1"] .ai-chip { white-space: normal; max-width: 100%; }

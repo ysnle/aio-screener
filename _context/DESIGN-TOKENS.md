@@ -56,5 +56,15 @@ Retired hues (`--data-cyan/magenta/purple/blue`, `--cyan`, …) alias the ink. B
 three places (`:root`, a v51.43 `:root !important` copy, and a 77-line `body.dark-theme` restatement) plus a light
 override in soft-ui.css; a full-page pixel comparison of eight routes in both themes showed no colour change.
 
+## Component states (astryx user-states, Button, Table, Toast)
+- Press: an enabled button, unselected segment or unselected hub tab paints `--color-overlay-pressed` over its resting
+  fill (a background-image wash, so the fill keeps its identity); buttons also settle to `scale(0.98)`. The selected
+  segment keeps its surface. Disabled buttons sit at opacity 0.5 and never take the wash.
+- Tables: header labels semibold in `--color-text-secondary`; row hover is a flat `--color-overlay-hover` wash only on
+  `(hover: hover)` pointers — no rounded pill, no stuck highlight after a tap.
+- Toast: inverted surface with container corners (it is a transient overlay, not a chip).
+- Every stylesheet's 4/8/12/999px corners now name their role (580 declarations); 13px text moved to 12px (66).
+
 ## Next
-- Retire the ivory-hairline layer that `soft-ui.css` repaints with `!important`, screen by screen.
+- Retire the ivory-hairline layer that `soft-ui.css` repaints with `!important`, screen by screen (1,202 flags left;
+  the ratchet keeps the number from growing).

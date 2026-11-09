@@ -28,7 +28,7 @@
 }
 
 /* ═══ 1. Shell ═══════════════════════════════════════════════════════════ */
-body { background: var(--bg-base) !important; font-family: var(--font-sans); color: var(--text-primary); }
+body { background: var(--bg-base); font-family: var(--font-sans); color: var(--text-primary); }
 .main, .content { background: var(--bg-base) !important; }
 
 .sidebar {
@@ -182,14 +182,13 @@ h2, .section-title, .widget-title, .aio-card-title, .section-header {
 details > summary { cursor: pointer; }
 .aio-section { border-color: transparent !important; }
 
-/* Tables: hairlines go, rows become soft pills on hover. */
+/* Tables (astryx Table): header label semibold in the secondary text role; rows keep a faint divider; hover is a flat
+   wash on hover-capable pointers only (a touch never leaves a stuck highlight). */
 .page table { border-collapse: separate; border-spacing: 0; }
-.page th { font-weight: 500 !important; color: var(--text-muted) !important; font-size: 12px !important; letter-spacing: 0 !important; text-transform: none !important; border-color: rgba(var(--ink-rgb), 0.06) !important; background: transparent !important; }
+.page th { font-weight: 600 !important; color: var(--color-text-secondary) !important; font-size: 12px !important; letter-spacing: 0 !important; text-transform: none !important; border-color: rgba(var(--ink-rgb), 0.06) !important; background: transparent !important; }
 .page td { border-color: rgba(var(--ink-rgb), 0.05) !important; }
 .page tbody tr {  }
-.page tbody tr:hover > td { background: var(--sx-ink-a03); }
-.page tbody tr:hover > td:first-child { border-top-left-radius: var(--radius-element); border-bottom-left-radius: var(--radius-element); }
-.page tbody tr:hover > td:last-child { border-top-right-radius: var(--radius-element); border-bottom-right-radius: var(--radius-element); }
+@media (hover: hover) { .page tbody tr:hover > td { background: var(--color-overlay-hover); } }
 
 /* v58.55: "이어서 볼 곳" links were white-space:nowrap (index.html), so a long label ran past the page edge when the
    column narrowed — CI caught it at 1024 beside the new iPad-landscape sidebar (sentiment, +9px with CI's CJK font).
@@ -284,6 +283,15 @@ details > summary { cursor: pointer; }
   
 }
 .sx-btn:hover { background: var(--sx-ink-a08); }
+/* Press feedback (astryx user-states DR1, Button): the pressed wash composes over the resting fill instead of replacing it,
+   and a button settles 2%. An unselected segment or tab takes the wash; the selected one keeps its raised surface (DR3).
+   A disabled control never responds (DR2). */
+:is(.sx-btn, .aio-btn-table, .aio-btn, .btn-ghost, #page-screener .scr-bar-button, .sx-seg > button:not([aria-pressed="true"], .is-active, [aria-current]),
+  .aio-hub-tab:not([aria-current="page"])):active:not(:disabled, [aria-disabled="true"]) {
+  background-image: linear-gradient(var(--color-overlay-pressed), var(--color-overlay-pressed)) !important;
+}
+:is(.sx-btn, .aio-btn-table, .aio-btn, #page-screener .scr-bar-button):active:not(:disabled, [aria-disabled="true"]) { transform: scale(0.98); }
+:is(.sx-btn, .aio-btn-table, .aio-btn, .btn-ghost):disabled { opacity: 0.5; cursor: not-allowed; }
 .sx-btn--primary { background: var(--text-primary); color: var(--bg-base); }
 .sx-btn--primary:hover { background: var(--text-primary); filter: brightness(1.15); }
 .sx-link { appearance: none; background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--text-secondary); cursor: pointer; text-decoration: none; }
@@ -332,7 +340,7 @@ details > summary { cursor: pointer; }
 .sx-factor__bar > span { display: block; height: 100%; border-radius: var(--radius-full); background: var(--text-primary); }
 .sx-sheet {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 260; max-height: 86vh; overflow-y: auto;
-  background: var(--bg-card); border-radius: var(--radius-container) 12px 0 0; padding: 10px 20px max(20px, env(safe-area-inset-bottom, 0px));
+  background: var(--bg-card); border-radius: var(--radius-container) var(--radius-container) 0 0; padding: 10px 20px max(20px, env(safe-area-inset-bottom, 0px));
   box-shadow: 0 -8px 40px var(--black-a3); transform: translateY(100%); transition:transform var(--dur-base) var(--ease-out);
 }
 .sx-sheet.is-open { transform: translateY(0); }
@@ -388,11 +396,11 @@ body:has(#ai-panel.open) #aio-first-visit-disclaimer:not(.is-inline) { display: 
   position: relative !important; left: auto !important; right: auto !important; bottom: auto !important; transform: none !important;
   width: auto !important; max-width: none; margin: 0 0 16px !important; padding: 8px 8px 8px var(--sx-card-pad-x) !important; z-index: auto !important;
   flex-direction: row !important; flex-wrap: wrap; align-items: center !important; gap: 10px 16px !important;
-  border: 0.5px solid var(--border-strong) !important; font-size: 13px !important;
+  border: 0.5px solid var(--border-strong) !important; font-size: 12px !important;
 }
 #aio-first-visit-disclaimer.is-inline .lu-dc-text { flex: 1 1 280px !important; min-width: 0; }
 /* v59.55: one line, shown until 확인 (localStorage); the page foot keeps the same words and reopens it. */
-#aio-first-visit-disclaimer.is-inline .lu-dc-title { display: inline; margin: 0 6px 0 0; font-size: 13px; }
+#aio-first-visit-disclaimer.is-inline .lu-dc-title { display: inline; margin: 0 6px 0 0; font-size: 12px; }
 #aio-first-visit-disclaimer.is-inline .lu-dc-btn { align-self: center; height: var(--size-element-md); min-height: var(--size-element-md); padding: 0 14px !important; font-size: 12px !important; }
 @media (pointer: coarse) { #aio-first-visit-disclaimer.is-inline .lu-dc-btn { height: 44px; min-height: 44px; } }
 body.aio-disclaimer-open .sidebar { padding-bottom: 16px !important; }
@@ -413,7 +421,7 @@ body.aio-disclaimer-open .sidebar { padding-bottom: 16px !important; }
 body #update-banner { padding: 12px 64px 12px 20px; }
 #scroll-top-btn { border: 0; background: var(--bg-card); box-shadow:none; color: var(--text-primary); }
 #scroll-top-btn:hover { background: var(--bg-card); box-shadow:none; }
-.aio-toast { border-radius: var(--radius-full) !important; box-shadow: var(--sx-float-shadow) !important; }
+.aio-toast { border-radius: var(--radius-container) !important; box-shadow: var(--sx-float-shadow) !important; }
 .sh-shell-confirm-modal-panel { border: 0 !important; border-radius: var(--radius-container) !important; box-shadow: var(--sx-float-shadow) !important; padding: 24px !important; }
 #aio-confirm-modal { background: var(--black-a5) !important; }
 #aio-confirm-modal button { border-radius: var(--radius-element) !important; border: 0 !important; height: var(--size-element-lg); padding: 0 18px !important; font-size: 12px !important; }
@@ -431,8 +439,8 @@ body #update-banner { padding: 12px 64px 12px 20px; }
 #ai-panel .ai-ph { border-bottom: 0.5px solid rgba(var(--ink-rgb), 0.06) !important; padding: 18px 20px !important; }
 #ai-panel .ai-ph-title { font-size: 14px !important; }
 #ai-panel .ai-bubble { border-radius: var(--radius-container) !important; border: 0 !important; }
-#ai-panel .ai-msg.user .ai-bubble { background: var(--text-primary) !important; color: var(--bg-base) !important; border-bottom-right-radius: 8px !important; }
-#ai-panel .ai-msg.ai .ai-bubble { background: var(--sx-ink-a03) !important; color: var(--text-primary) !important; border-bottom-left-radius: 8px !important; }
+#ai-panel .ai-msg.user .ai-bubble { background: var(--text-primary) !important; color: var(--bg-base) !important; border-bottom-right-radius: var(--radius-element) !important; }
+#ai-panel .ai-msg.ai .ai-bubble { background: var(--sx-ink-a03) !important; color: var(--text-primary) !important; border-bottom-left-radius: var(--radius-element) !important; }
 #ai-panel .ai-chip { border: 0 !important; border-radius: var(--radius-full) !important; background: var(--sx-ink-a06) !important; color: var(--text-primary) !important; }
 #ai-panel .ai-input-row {
   width: auto !important; margin: 4px 16px 16px; padding: 6px 6px 6px 4px !important; gap: 6px; align-items: center;
@@ -535,11 +543,11 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none !important; }
    only while the sidebar is collapsed (the way back); the drawer widths keep it. */
 /* One opaque fill on both halves, so the overlap where they meet (the bar's gap differs by width) leaves no seam. */
 .topbar { --tb-chip-bg: color-mix(in srgb, var(--text-primary) 7%, var(--bg-base)); }
-.topbar #topbar-live-badge { position: relative; border-radius: var(--radius-full) 0 0 999px !important; padding: 0 2px 0 10px !important; margin-inline-end: -8px; background: var(--tb-chip-bg) !important; }
+.topbar #topbar-live-badge { position: relative; border-radius: var(--radius-full) 0 0 var(--radius-full) !important; padding: 0 2px 0 10px !important; margin-inline-end: -8px; background: var(--tb-chip-bg) !important; }
 .topbar #topbar-live-badge .topbar-live-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .topbar #live-quote-ts {
   display: inline-flex; align-items: center; min-height: 26px; box-sizing: border-box; padding: 0 10px 0 6px;
-  border-radius: 0 999px 999px 0 !important; background: var(--tb-chip-bg); color: var(--text-secondary) !important; font-weight: 600;
+  border-radius: 0 var(--radius-full) var(--radius-full) 0 !important; background: var(--tb-chip-bg); color: var(--text-secondary) !important; font-weight: 600;
 }
 .topbar #live-quote-ts[data-compact]:not([data-compact=""]) { font-size: 0 !important; }
 .topbar #live-quote-ts[data-compact]:not([data-compact=""])::after { content: attr(data-compact); font-size: 12px; font-variant-numeric: tabular-nums; }
