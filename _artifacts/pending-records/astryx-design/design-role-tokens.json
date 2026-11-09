@@ -1,0 +1,19 @@
+{
+  "version": "v59.88",
+  "date": "2026-11-09",
+  "p": null,
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-DESIGN-TOKEN-RATCHET",
+      "text": "v59.88: 스타일시트마다 px로 직접 쓴 모서리, 12·14·18·28px 밖 글자 크기, !important 수가 기준선보다 늘지 않는다. 새 규칙은 --radius-inner/element/container/full과 --size-element-sm/md/lg 역할 토큰을 쓴다.",
+      "verify_by": "node scripts/ci-design-token-ratchet-check.mjs",
+      "done": true
+    }
+  ],
+  "qa_section": "디자인 토큰",
+  "changelog": [
+    "**디자인 역할 토큰·컨트롤 리듬·스크리너 표 밀도 (v59.88, astryx 원칙 채택):** meta/astryx(MIT) 디자인 원칙을 비교해 모양·높이·포커스·모션을 역할 토큰으로 정리했다(_context/DESIGN-TOKENS.md). 버튼·입력·select는 원형 대신 8px(element), 칩만 원형으로 남기고, 상단바·스크리너 필터 줄은 32px 한 높이로 맞췄다. 세그먼트 안쪽 모서리는 바깥과 동심이 되게 했고, 경고 배너에는 색과 함께 경고 아이콘을 넣었다. 스크리너 표는 1024px 이상에서 행 40px과 행 사이 헤어라인으로 한 화면에 5종목 대신 8종목을 보여 준다. 아이보리 팔레트와 글자 크기 4종은 그대로다. ci-design-token-ratchet이 모서리 리터럴(714→616)·비표준 글자 크기(107→102)·!important 수가 다시 늘지 않게 막는다."
+  ],
+  "note": "astryx-derived role tokens (shape, control rhythm, focus, motion), screener table density, design-token ratchet"
+}

@@ -7,7 +7,7 @@
     "targeted": "Search or read only when the task touches the named domain.",
     "explicitOnly": "Point-in-time evidence; never load by default or treat as current state."
   },
-  "documentCount": 81,
+  "documentCount": 83,
   "documents": [
     {
       "path": "_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md",
@@ -271,6 +271,16 @@
       "readPolicy": "explicit-only",
       "bytes": 19705,
       "lines": 105,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/DESIGN-TOKENS.md",
+      "title": "Design tokens — role vocabulary (v59.88)",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 2863,
+      "lines": 44,
       "lastVerified": null,
       "autoRefresh": false
     },
@@ -748,6 +758,16 @@
       "autoRefresh": false
     },
     {
+      "path": "_context/design-token-baseline.json",
+      "title": "design-token-baseline.json",
+      "kind": "machine-contract",
+      "readPolicy": "targeted",
+      "bytes": 3925,
+      "lines": 167,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
       "path": "_context/doc-freshness-baseline.json",
       "title": "doc-freshness-baseline.json",
       "kind": "machine-contract",
@@ -772,8 +792,8 @@
       "title": "inline-style-baseline.json",
       "kind": "machine-contract",
       "readPolicy": "targeted",
-      "bytes": 1162,
-      "lines": 55,
+      "bytes": 901,
+      "lines": 43,
       "lastVerified": null,
       "autoRefresh": false
     },
