@@ -7301,7 +7301,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     // A hedge in a later clause qualifies the consequence, not the 재가속 assertion; a hedge on the predicate or a leading
     // condition still makes the sentence a branch.
     if (!v85.assertsInflationReaccel('물가가 재가속되고 있어 금리가 더 오를 수 있습니다.')
-      || v85.assertsInflationReaccel('물가가 재가속되고 있는지 확인해야 합니다.') || v85.assertsInflationReaccel('물가가 재가속되고 있을 가능성이 있습니다.')
+      || v85.assertsInflationReaccel('물가가 재가속되고 있는지 확인해야 합니다.') || v85.assertsInflationReaccel('물가가 재가속되고 있을 가능성이 있습니다.') || v85.assertsInflationReaccel('물가가 재가속되고 있을 수 있습니다.')
       || v85.assertsInflationReaccel('CPI가 예상을 웃돌 경우 물가 재가속 신호로 읽힐 수 있습니다.')) fail('v59.86 the conditional marker must sit on the 재가속 predicate or a leading condition');
     // The trailing-year revenue growth needs the year-earlier quarters' revenue only: a derived Q4 without net income
     // blanks the income comparison, not the revenue growth (TSLA·PLTR·AVGO fell back to a ten-month-old fiscal year).

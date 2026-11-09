@@ -595,7 +595,7 @@ export function inflationReaccelContradicts(direction = null) {
 // opens the sentence before it ("CPI가 웃돌 경우 물가 재가속 신호…"). A hedge in a later clause ("물가가 재가속되고 있어 금리가
 // 더 오를 수 있습니다") qualifies the consequence, not the assertion, so it no longer excuses it.
 const CONDITIONAL_PREDICATE_TAIL = /^\S*(?:\s+\S+)?/;
-const CONDITIONAL_TAIL_MARKER = /(?:라면|다면|이면|으면|경우|시나리오|가능성|는지|ㄹ지|을지|할지|될지|위험)/;
+const CONDITIONAL_TAIL_MARKER = /(?:라면|다면|이면|으면|경우|시나리오|가능성|는지|ㄹ지|을지|할지|될지|위험|을\s*수(?:\s|$))/;
 const CONDITIONAL_LEAD_MARKER = /(?:라면|다면|이면|으면|면\s|경우|시나리오|만약|만일)/;
 function reaccelAssertedUnconditionally(sentence) {
   const match = INFLATION_REACCEL_ASSERTION.exec(sentence);
