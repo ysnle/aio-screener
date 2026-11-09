@@ -59,7 +59,7 @@ body { background: var(--bg-base); font-family: var(--font-sans); color: var(--t
 }
 .nav-item::before, .nav-item::after { display: none !important; }
 .nav-item .nav-icon { display: none !important; }
-.nav-item:hover { background: var(--sx-ink-a05) !important; }
+.nav-item:not(.active):hover { background: var(--sx-ink-a05) !important; } /* v59.90: hover leaves the active item on its a08 fill */
 .nav-item.active { background: var(--sx-ink-a08); font-weight: 600; color: var(--text-primary); }
 .nav-divider { display: none; }
 .sh-shell-sidebar-pad4 { padding: 0; }

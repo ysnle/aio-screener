@@ -113,7 +113,7 @@ canvas { max-width:100% !important; background:#fff !important; }
 .aio-audit-widget { display:none !important; }
 body.aio-dev-mode .aio-audit-widget { display:block !important; }
 .nav-item { border-radius: var(--radius-element) !important; }
-.nav-item:hover { background: rgba(var(--ink-rgb),0.05) !important; }
+.nav-item:not(.active):hover { background: rgba(var(--ink-rgb),0.05) !important; }
 .tg-live-feed { border-radius: var(--radius-element) !important; border-color: rgba(var(--ink-rgb),0.13) !important; background: transparent !important; box-shadow: none !important; }
 .tg-live-feed-hd { background: rgba(var(--ink-rgb),0.025) !important; border-bottom-color: rgba(var(--ink-rgb),0.08) !important; }
 .aio-source-badge,

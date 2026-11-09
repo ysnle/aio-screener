@@ -741,7 +741,7 @@ check('news and screener use 12-row progressive reveal instead of unbounded firs
 // v58.92: the 뉴스 chips and sort buttons run from src/ui/components/news-controls.js (moved from aio-data.js).
 const newsControlsProbe = await (async () => {
   const m = await import('../src/ui/components/news-controls.js');
-  const chip = () => ({ style: {} });
+  const chip = () => { const attrs = {}; return { style: {}, attrs, setAttribute: (k, v) => { attrs[k] = v; } }; };
   const chips = { 'news-country-chips': [chip(), chip()], 'news-topic-chips': [chip()] };
   const cls = () => { const set = new Set(); return { classList: { toggle: (c, on) => (on ? set.add(c) : set.delete(c)) }, has: (c) => set.has(c) }; };
   const buttons = { 'sort-time-btn': cls(), 'sort-score-btn': cls() };
@@ -754,11 +754,11 @@ const newsControlsProbe = await (async () => {
   m.filterNewsByTopic('macro', null, at);
   m.setNewsSortMode('score', null, at);
   const after = m.getNewsSurfaceControls();
-  const picked = chips['news-country-chips'][1].style.color; const cleared = chips['news-country-chips'][0].style.color;
+  const picked = chips['news-country-chips'][1].attrs['aria-pressed']; const cleared = chips['news-country-chips'][0].attrs['aria-pressed']; const inline = Object.keys(chips['news-country-chips'][1].style).length;
   m.filterNewsByTelegramOnly(null, at);
-  return { after, tg: m.getNewsSurfaceControls().countryFilter, reasons, fetches, picked, cleared, score: buttons['sort-score-btn'].has('active'), time: buttons['sort-time-btn'].has('active') };
+  return { inline, after, tg: m.getNewsSurfaceControls().countryFilter, reasons, fetches, picked, cleared, score: buttons['sort-score-btn'].has('active'), time: buttons['sort-time-btn'].has('active') };
 })();
-check('v58.92 news filter chips and sort buttons keep their state, chip colours and repaint reasons outside the legacy news pipeline', newsControlsProbe.after.countryFilter === 'us' && newsControlsProbe.after.topicFilter === 'macro' && newsControlsProbe.after.sortMode === 'score' && newsControlsProbe.tg === 'tg' && newsControlsProbe.fetches === 1 && newsControlsProbe.reasons.join() === 'news-topic-filter,news-sort,news-country-telegram' && newsControlsProbe.picked === 'var(--accent)' && newsControlsProbe.cleared === 'var(--text-secondary)' && newsControlsProbe.score && !newsControlsProbe.time); // v58.92
+check('v58.92 news filter chips and sort buttons keep their state, pressed chip (v59.90: aria-pressed, no inline colour) and repaint reasons outside the legacy news pipeline', newsControlsProbe.after.countryFilter === 'us' && newsControlsProbe.after.topicFilter === 'macro' && newsControlsProbe.after.sortMode === 'score' && newsControlsProbe.tg === 'tg' && newsControlsProbe.fetches === 1 && newsControlsProbe.reasons.join() === 'news-topic-filter,news-sort,news-country-telegram' && newsControlsProbe.picked === 'true' && newsControlsProbe.cleared === 'false' && newsControlsProbe.inline === 0 && newsControlsProbe.score && !newsControlsProbe.time); // v58.92
 const sectorViewProbe = await (async () => {
   const { setSectorPerfView } = await import('../src/ui/components/sector-perf-view.js');
   const cls = () => { const set = new Set(['active']); return { classList: { remove: (c) => set.delete(c), add: (c) => set.add(c) }, on: () => set.has('active') }; };
