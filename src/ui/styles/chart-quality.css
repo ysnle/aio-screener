@@ -9,7 +9,7 @@
 .chart-analysis-logic summary { font-size: 12px; cursor: pointer; color: var(--text-secondary); }
 #stock-chart-evidence { min-width: 0; overflow-wrap: anywhere; }
 @media (max-width: 1100px) {
-  .stock-chart-layout { grid-template-columns: minmax(0, 1fr) !important; }
+  .stock-chart-layout { grid-template-columns: minmax(0, 1fr); }
   #stock-chart-evidence { width: 100%; }
   .chart-scenarios { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .chart-scenarios > h3, .chart-scenarios > p { grid-column: 1 / -1; }

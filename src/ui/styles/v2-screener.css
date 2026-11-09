@@ -318,9 +318,9 @@ body:not(.aio-dev-mode) #page-screener .scr-dev-only { display: none; }
 #page-portfolio .pf-kpi-sub { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 #page-portfolio .pf-kpi-value.is-missing { color: var(--text-muted); }
 /* Holdings and 읽는 법 come straight after the hero (3g); the entry form, when opened, stays above them. */
-#page-portfolio #pf-main > #pf-entry-section { order: -8 !important; }
+#page-portfolio #pf-main > #pf-entry-section { order: -8; }
 /* No wrapper: T869 holds the DOM (keyboard/reader) order #pf-read → entry form → holdings; CSS order only moves them. */
-#page-portfolio #pf-main > #pf-holdings-table-section { order: -7 !important; }
+#page-portfolio #pf-main > #pf-holdings-table-section { order: -7; }
 #page-portfolio #pf-main > #pf-reading { order: -6 !important; margin: 0 0 16px; }
 #page-portfolio #pf-read { margin: 0 0 16px; padding: 22px 24px; border-radius: var(--radius-container); background: var(--bg-card); box-shadow:none; }
 #page-portfolio #pf-hero-stats { align-content: start; align-items: start; }
@@ -351,7 +351,7 @@ body:not(.aio-dev-mode) #page-screener .scr-dev-only { display: none; }
 #page-portfolio .pf-weight-cell { display: inline-flex; align-items: center; gap: 10px; min-width: 120px; }
 #page-portfolio .pf-weight-bar { flex: 1 1 auto; min-width: 48px; height: 6px; border-radius: var(--radius-full); background: var(--sx-ink-a07); overflow: hidden; }
 #page-portfolio .pf-weight-bar > span { display: block; height: 100%; border-radius: var(--radius-full); background: var(--text-primary); }
-#page-portfolio .pf-empty-state { padding: 36px 20px !important; text-align: center; }
+#page-portfolio .pf-empty-state { padding: 36px 20px; text-align: center; }
 #page-portfolio .pf-empty-state .pfp-empty-title, #page-portfolio .pf-empty-state strong, #page-portfolio .pf-empty-state b { font-size: 18px; font-weight: 700; color: var(--text-primary); }
 #page-portfolio #pf-holdings-table-section:has(.pf-empty-state) thead { display: none; }
 /* v58.56 (re-audit #11): the compact desktop table's row disclosure (상세) and memo mark exist only at ≥1280px. */

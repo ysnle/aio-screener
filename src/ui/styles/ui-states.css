@@ -28,7 +28,7 @@
 /* Disabled: one look everywhere — faded, no hover change, not-allowed cursor. */
 .page button:disabled, .page [role="button"][aria-disabled="true"], .topbar button:disabled, #ai-panel button:disabled,
 .aio-feedback button:disabled, .sx-btn:disabled, .sx-btn[aria-disabled="true"] {
-  opacity: 0.45 !important; cursor: not-allowed !important; filter: none !important;
+  opacity: 0.45 !important; cursor: not-allowed; filter: none;
 }
 .page .aio-btn-table:disabled:hover, .sx-btn:disabled:hover { background: var(--sx-ink-a06) !important; }
 /* The toggle pills (.news-sort-btn, also the 섹터 view and tail toggles): a disabled one keeps its rest fill, never the active one,
