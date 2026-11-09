@@ -43,7 +43,7 @@ js/*.js       호환 셸: 새 기능 금지, 지우는 방향으로만 수정
 ```
 
 의존 규칙(게이트로 강제):
-1. `src/ui`, `src/domain`, `src/ai`는 `fetch`, `localStorage/sessionStorage`, `'./public-data/'` 문자열을 갖지 않는다. 아티팩트는 `src/data/artifact-registry.js` 키로만 요청한다.
+1. `src/ui`, `src/domain`, `src/ai`는 `fetch`, `localStorage/sessionStorage`를 쓰지 않는다(이미 `ci-architecture-contract-check`가 막는다). `'./public-data/'` 경로도 갖지 않는다. 아티팩트는 `src/data/artifact-registry.js` 키로만 요청한다. 감사에서 본 위반은 직접 fetch가 아니었다. 경로 문자열을 들고 `loadJsonArtifact`를 부르는 우회 방식이었다.
 2. `src/domain`은 `src/ui`·`src/ai`·`src/app`을 import하지 않는다. `src/ui`는 `src/ai`를 import하지 않는다(AI 패널은 app이 조립한다).
 3. 한 관심사에는 정본 모듈이 하나다(아래 표). 다른 위치는 정본을 import하거나 위임하는 얇은 래퍼만 둔다.
 4. 임계값·판정 문구는 `src/domain`(임계값은 `domain/rules/thresholds.js`)에만 둔다. UI와 AI는 판정 결과를 받는다.
@@ -73,7 +73,7 @@ js/*.js       호환 셸: 새 기능 금지, 지우는 방향으로만 수정
 
 | 단계 | 내용 | 규모 | 위험 |
 |---|---|---|---|
-| S0 경계 게이트 | `ci-layer-boundary-check.mjs`: 규칙 1·2를 현재 위반 수 기준선으로 고정해 줄어들기만 허용(ratchet). 정본 표를 `architecture/canonical-owners.json`으로 기록 | 작음 | 낮음 |
+| S0 경계 게이트 | 새 게이트를 만들지 않고 기존 소유 게이트를 넓혔다. `ci-architecture-contract-check`는 이미 domain·ui·ai의 fetch·storage와 ui import를 금지하고 있다. `ci-shared-primitive-ratchet-check`에 `localEscape`·`localIndicator`·`publicDataPath` 지표를 더해 파일별로 줄어들기만 허용한다(v59.87, 측정값 7·6·60). 정본 표는 이 문서 §3이 정본이다 | 작음 | 낮음 |
 | S1 공용 원시 함수 | `ui/html.js`·`ui/format.js`·`domain/shared/stats.js` 정본화. RSI/SMA/EMA를 `definitions.js` 하나로, RRG를 `rrg.js` 하나로 | 중간(약 30파일) | 낮음~중간. RSI 시드 차이와 null·0 처리 차이는 동일성 테스트로 먼저 드러낸다 |
 | S2 데이터 경계 | `artifact-registry.js`, URL·설명자 이전, 직접 fetch 2곳 위임, `refreshSharedArtifact`를 `loadJsonArtifact` 위로 | 중간 | 낮음~중간 |
 | S3 신선도·세션 단일화 | 판정은 레지스트리 하나로, 배지 문구는 문구표 하나로. 세션 계산은 `market-calendar` | 중간 | 중간(사용자에게 보이는 상태 문구가 바뀔 수 있어 visual-state 테스트로 확인) |
