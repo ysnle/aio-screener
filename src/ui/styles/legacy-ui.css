@@ -21,10 +21,10 @@
 #pf-technical-risk .lu-pf-dn { color: var(--dir-down); }
 
 /* Refresh progress layer — appended to <body>, outside .page, so no inline font-size substring rule applied. */
-#aio-refresh-progress-layer { position: fixed; right: 14px; top: 58px; z-index: 99998; width: min(360px, calc(100vw - 28px)); background: var(--surface-2,var(--green-12)); border: 1px solid var(--border,var(--gold-12)); border-radius: 4px; box-shadow: 0 14px 34px var(--black-a5); padding: 10px 12px; color: var(--text-primary,var(--blue-3)); font-family: var(--font-sans,system-ui); }
+#aio-refresh-progress-layer { position: fixed; right: 14px; top: 58px; z-index: 99998; width: min(360px, calc(100vw - 28px)); background: var(--surface-2,var(--green-12)); border: 1px solid var(--border,var(--gold-12)); border-radius: var(--radius-inner); box-shadow: 0 14px 34px var(--black-a5); padding: 10px 12px; color: var(--text-primary,var(--blue-3)); font-family: var(--font-sans,system-ui); }
 #aio-refresh-progress-layer .lu-rp-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
 #aio-refresh-progress-title { font-size: 12px; font-weight: 800; }
-#aio-refresh-progress-layer .lu-rp-track { height: 4px; background: var(--surface-4,var(--gold-12)); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+#aio-refresh-progress-layer .lu-rp-track { height: 4px; background: var(--surface-4,var(--gold-12)); border-radius: var(--radius-inner); overflow: hidden; margin-bottom: 8px; }
 #aio-refresh-progress-bar { height: 100%; width: 0%; background: var(--data-cyan,var(--blue-5)); transition:width var(--dur-base) var(--ease-out); }
 #aio-refresh-progress-list { display: grid; gap: 4px; max-height: 190px; overflow: auto; }
 #aio-refresh-progress-layer .lu-rp-state { font-family: var(--font-mono,monospace); }
@@ -40,7 +40,7 @@
 #aio-refresh-progress-layer .lu-rp-state[data-tone="fail"] { color: var(--data-red); }
 
 /* Glossary modal (#glossary-modal, outside .page): index.html/responsive.css !important rules on the item, term and tag still win. */
-#glossary-cats .lu-gl-cat { padding: 5px 12px; border-radius: 4px; border: 0.5px solid var(--border); background: transparent; color: var(--text-primary); font-size: 12px; cursor: pointer; }
+#glossary-cats .lu-gl-cat { padding: 5px 12px; border-radius: var(--radius-inner); border: 0.5px solid var(--border); background: transparent; color: var(--text-primary); font-size: 12px; cursor: pointer; }
 #glossary-cats .lu-gl-cat[aria-pressed="true"] { border-color: var(--border-strong); background: var(--surface-5); }
 #glossary-body .lu-gl-scope { padding: 8px 0; color: var(--text-muted); font-size: 12px; }
 #glossary-body .lu-gl-empty { text-align: center; color: var(--text-muted); padding: 40px; }
@@ -48,13 +48,13 @@
 #glossary-body .lu-gl-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 #glossary-body .aio-glossary-term { font-weight: 600; color: var(--gold-11); font-size: 14px; }
 /* tag size comes from responsive.css `#glossary-body .aio-glossary-item > div:first-child > span:not(.aio-glossary-term)` (!important) */
-#glossary-body .lu-gl-tag { padding: 2px 8px; border-radius: 4px; background: var(--surface-3); }
+#glossary-body .lu-gl-tag { padding: 2px 8px; border-radius: var(--radius-inner); background: var(--surface-3); }
 #glossary-body .lu-gl-def { color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
 
 /* Loading watchdog fallback — its targets (#earnings-calendar-body, #last-fetch-time) sit inside .page, so old 10/11px rendered 12/13px. */
 .page .lu-ld { padding: 12px; text-align: center; color: var(--text-muted); font-size: var(--fs-sm); line-height: 1.6; }
 .page .lu-ld-hint { font-size: var(--fs-xs); }
-.page .lu-ld-btn { margin-top: 6px; padding: 4px 12px; font-size: var(--fs-xs); background: rgba(var(--ink-rgb),0.1); border: 0.5px solid rgba(var(--ink-rgb),0.3); color: var(--data-cyan); border-radius: 4px; cursor: pointer; }
+.page .lu-ld-btn { margin-top: 6px; padding: 4px 12px; font-size: var(--fs-xs); background: rgba(var(--ink-rgb),0.1); border: 0.5px solid rgba(var(--ink-rgb),0.3); color: var(--data-cyan); border-radius: var(--radius-inner); cursor: pointer; }
 
 /* was an inline 12px in #page-technical — the `.page` 12px substring rule (0,2,0, !important) outranked `.aio-btn-table` → 14px */
 
@@ -62,4 +62,4 @@
 #aio-first-visit-disclaimer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 190; background: var(--bg-elevated,var(--gold-3)); border-top: 0.5px solid var(--border,var(--gold-6)); box-shadow:none; padding: 10px 14px; padding: 10px max(14px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 12px; line-height: 1.6; color: var(--text-secondary,var(--gold-11)); }
 #aio-first-visit-disclaimer .lu-dc-text { flex: 1 1 200px; min-width: 0; }
 #aio-first-visit-disclaimer .lu-dc-title { color: var(--text-primary); }
-#aio-first-visit-disclaimer .lu-dc-btn { flex-shrink: 0; font-size: 12px; font-weight: 600; color: var(--text-primary,var(--gold-12)); background: var(--surface-2,var(--gold-4)); border: 0.5px solid var(--border,var(--gold-6)); border-radius: 8px; padding: 5px 12px; cursor: pointer; }
+#aio-first-visit-disclaimer .lu-dc-btn { flex-shrink: 0; font-size: 12px; font-weight: 600; color: var(--text-primary,var(--gold-12)); background: var(--surface-2,var(--gold-4)); border: 0.5px solid var(--border,var(--gold-6)); border-radius: var(--radius-element); padding: 5px 12px; cursor: pointer; }

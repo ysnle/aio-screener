@@ -18,11 +18,11 @@
 }
 .aio-hub-subject-pick:hover { background: var(--sx-ink-a08); }
 .page .aio-btn-table.primary:hover:not(:disabled), .page .aio-btn-table.is-primary:hover:not(:disabled) { filter: brightness(1.15); }
-.sx-row:focus-visible, .sx-link:focus-visible { outline: 2px solid var(--text-primary); outline-offset: -2px; border-radius: 8px; }
+.sx-row:focus-visible, .sx-link:focus-visible { outline: 2px solid var(--text-primary); outline-offset: -2px; border-radius: var(--radius-element); }
 /* The chart library's attribution link (lightweight-charts a#tv-attr-logo) stays, in the theme's text colour rather than the
    browser's link blue, with the same ring as every other link. */
 #tv-attr-logo { color: var(--text-secondary) !important; }
-#tv-attr-logo:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 4px; }
+#tv-attr-logo:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: var(--radius-inner); }
 .sx-link:active { color: var(--text-primary); text-decoration: underline; }
 
 /* Disabled: one look everywhere — faded, no hover change, not-allowed cursor. */
@@ -73,7 +73,7 @@ button[aria-busy="true"]::after {
    Error: one line and 다시 시도. */
 .aio-state { display: flex; flex-direction: column; gap: 8px; min-height: 48px; padding: 12px 0; box-sizing: border-box; }
 .aio-state.is-loading { opacity: 0; animation: aio-state-in 1ms linear 400ms forwards; }
-.aio-state__bar { display: block; height: 12px; border-radius: 999px; background: var(--sx-ink-a06); }
+.aio-state__bar { display: block; height: 12px; border-radius: var(--radius-full); background: var(--sx-ink-a06); }
 .aio-state__bar:nth-child(1) { width: 72%; }
 .aio-state__bar:nth-child(2) { width: 88%; }
 .aio-state__bar:nth-child(3) { width: 56%; }
@@ -107,7 +107,7 @@ dialog[open]::backdrop { animation: aio-fade-in var(--dur-base) var(--ease-out);
 }
 
 /* The shell's one line when a core file did not arrive (data-state.js installLoadFailureNotice). */
-.aio-load-failure { clear: both; max-width: 1400px; margin: 0 0 16px; padding: 10px 12px 10px var(--sx-card-pad-x); border-radius: 12px; background: var(--bg-card); min-height: 0; }
+.aio-load-failure { clear: both; max-width: 1400px; margin: 0 0 16px; padding: 10px 12px 10px var(--sx-card-pad-x); border-radius: var(--radius-container); background: var(--bg-card); min-height: 0; }
 
 /* Freshness badge (freshness-badge.js): the as-of chip with a state dot — current none, late amber, stale amber date chip,
    unknown muted; 참고 (a record lowered to reference use) leads in the burden colour. */

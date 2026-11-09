@@ -7,8 +7,8 @@
 #pf-sector-breakdown .pfp-basis { font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 6px; }
 #pf-sector-breakdown .pfp-sector-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
 #pf-sector-breakdown .pfp-sector-label { width: 64px; font-size: var(--fs-sm); color: var(--text-secondary); text-align: right; flex-shrink: 0; font-weight: 600; }
-#pf-sector-breakdown .pfp-sector-track { flex: 1; height: 14px; background: var(--surface-3); border-radius: 4px; overflow: hidden; }
-#pf-sector-breakdown .pfp-sector-fill { height: 100%; background: var(--text-secondary); border-radius: 4px; }
+#pf-sector-breakdown .pfp-sector-track { flex: 1; height: 14px; background: var(--surface-3); border-radius: var(--radius-inner); overflow: hidden; }
+#pf-sector-breakdown .pfp-sector-fill { height: 100%; background: var(--text-secondary); border-radius: var(--radius-inner); }
 #pf-sector-breakdown .pfp-sector-pct { width: 42px; font-size: var(--fs-base); font-family: var(--font-mono); color: var(--text-secondary); font-weight: 700; text-align: right; }
 #pf-sector-breakdown .pfp-sector-empty { font-size: var(--fs-base); color: var(--text-muted); padding: 4px 0; }
 
@@ -58,7 +58,7 @@
 #page-portfolio .pfp-base-blocked { font-size: var(--fs-base); color: var(--text-muted); padding: 8px 0; }
 #page-portfolio .pfp-base-excluded { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 4px; }
 /* v58.52 매매일지 · 복기 (src/ui/panels/portfolio-trade-journal.js) */
-#pf-trades .pf-trade-form, #pf-trades .pf-trade-rules, #pf-trades .pf-trade-fold { border: 0.5px solid var(--border-subtle); border-radius: 8px; padding: 10px 14px; margin: 10px 0; background: var(--bg-card, transparent); }
+#pf-trades .pf-trade-form, #pf-trades .pf-trade-rules, #pf-trades .pf-trade-fold { border: 0.5px solid var(--border-subtle); border-radius: var(--radius-element); padding: 10px 14px; margin: 10px 0; background: var(--bg-card, transparent); }
 #pf-trades summary { cursor: pointer; font-weight: 700; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; }
 /* first-users run-3 B19: a flex summary loses its marker, so "거래 기록하기" (open from the start) read as a heading and the
    first click closed it. Every journal fold says what a click does, like .aio-page-advanced-toggle. */
@@ -67,14 +67,14 @@
 @media (pointer: coarse) { #pf-trades summary { min-height: 44px; } }
 #pf-trades .pf-trade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 12px; margin: 10px 0; }
 #pf-trades .pf-trade-field { display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-sm, 12px); color: var(--text-muted); min-width: 0; }
-#pf-trades .pf-trade-field input, #pf-trades .pf-trade-field select, #pf-trades .pf-trade-field textarea { min-height: 36px; padding: 6px 8px; border: 0.5px solid var(--border-subtle); border-radius: 8px; background: var(--bg-input, var(--bg-card, transparent)); color: var(--text-primary); font: inherit; width: 100%; box-sizing: border-box; }
+#pf-trades .pf-trade-field input, #pf-trades .pf-trade-field select, #pf-trades .pf-trade-field textarea { min-height: 36px; padding: 6px 8px; border: 0.5px solid var(--border-subtle); border-radius: var(--radius-element); background: var(--bg-input, var(--bg-card, transparent)); color: var(--text-primary); font: inherit; width: 100%; box-sizing: border-box; }
 #pf-trades .pf-trade-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
 #pf-trades .pf-trade-actions button { min-height: 36px; padding: 6px 18px; }
 #pf-trades .pf-trade-block { margin: 14px 0; }
 #pf-trades .pf-trade-h3 { font-size: 14px; margin: 0 0 8px; color: var(--text-primary); }
 #pf-trades .pf-trade-h4 { font-size: 12px; margin: 12px 0 6px; color: var(--text-secondary); }
 #pf-trades .pf-trade-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-#pf-trades .pf-trade-card { border: 0.5px solid var(--border-subtle); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+#pf-trades .pf-trade-card { border: 0.5px solid var(--border-subtle); border-radius: var(--radius-element); padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 #pf-trades .pf-trade-card-label, #pf-trades .pf-trade-card-sub { font-size: 12px; color: var(--text-muted); }
 #pf-trades .pf-trade-card-value { font-size: 14px; color: var(--text-primary); overflow-wrap: anywhere; }
 #pf-trades .pf-trade-notes, #pf-trades .pf-trade-mirror, #pf-trades .pf-trade-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
@@ -104,7 +104,7 @@
 
 /* v58.80 (first-users bundle 6): a refused number says why beside its field (src/ui/components/input-check.js). */
 .input-check-error { display: block; margin-top: 4px; font-size: var(--fs-min); color: var(--data-red); line-height: 1.4; }
-.pf-crosstab-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-elevated); }
+.pf-crosstab-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-element); background: var(--bg-elevated); }
 input[aria-invalid="true"] { border-color: var(--data-red); }
 /* v58.80 (first-users run-4): "예: AAPL, 애플" and the optional-field hints were cut off in 80–90px boxes. */
 @media (min-width: 701px) { #pf-add-ticker { width: 140px; } #pf-add-target { width: 120px; } }
@@ -143,7 +143,7 @@ input[aria-invalid="true"] { border-color: var(--data-red); }
 #page-portfolio #pf-main > #pf-value-trend { order: -7 !important; }
 #page-portfolio #pf-main > #pf-read { order: -7 !important; }
 #page-portfolio #pf-main > #pf-exposure-bar { order: -7 !important; }
-#page-portfolio #pf-main > .pf-first { box-sizing: border-box; min-width: 0; max-width: 100%; margin: 0 0 16px; padding: 18px 20px; border-radius: 12px; background: var(--bg-card); }
+#page-portfolio #pf-main > .pf-first { box-sizing: border-box; min-width: 0; max-width: 100%; margin: 0 0 16px; padding: 18px 20px; border-radius: var(--radius-container); background: var(--bg-card); }
 #page-portfolio .pf-first-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
 #page-portfolio .pf-first-head .briefing-h2 { margin: 0; }
 #page-portfolio .pf-trend-body { min-height: 120px; }

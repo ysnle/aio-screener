@@ -46,7 +46,7 @@
    rectangles, a pill group, filled pills); all now read as outlined pills with the chosen one filled in ink. */
 .page :is(.news-sort-btn, .sector-map-tab, .stock-chart-intervals button, .regime-chart-selectors button) {
   display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-sans); font-size: 12px; line-height: 1.3; min-height: 32px; padding: 5px 13px;
-  border: 0.5px solid var(--border-strong); border-radius: 999px; background: transparent; color: var(--text-secondary);
+  border: 0.5px solid var(--border-strong); border-radius: var(--radius-full); background: transparent; color: var(--text-secondary);
   font-weight: 500; cursor: pointer; 
 }
 .page :is(.news-sort-btn, .sector-map-tab, .stock-chart-intervals button, .regime-chart-selectors button):hover { border-color: var(--text-secondary); color: var(--text-primary); }
@@ -56,7 +56,7 @@
 .page :is(.news-sort-btn, .sector-map-tab, .stock-chart-intervals button, .regime-chart-selectors button):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 #rrg-view-tabs, #sector-perf-view-tabs, #sector-perf-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
 /* The quadrant count beside those toggles is a reading, not a control: plain text, so it is not mistaken for a fourth button. */
-.regime-kr-participation { margin:24px 0; padding:24px; border:0.5px solid var(--border); border-radius:8px; font-size:14px; line-height:1.7; background:var(--bg-surface); color:var(--text-primary); }
+.regime-kr-participation { margin:24px 0; padding:24px; border:0.5px solid var(--border); border-radius:var(--radius-element); font-size:14px; line-height:1.7; background:var(--bg-surface); color:var(--text-primary); }
 /* v57.55 cleanup: one type scale — page 27 · section 18 (.briefing-h2) · card 16 · sub 14. This block used browser h2/h3 sizes (21px). */
 .regime-kr-participation > h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0 0 12px; }
 .regime-kr-participation > h3 { font-size: 14px; font-weight: 700; margin: 16px 0 6px; }
@@ -121,7 +121,7 @@
     transition:transform 250ms ease-out; visibility: hidden;
   }
   body.aio-navigation-open .sidebar { transform: translateX(0); visibility: visible; }
-  .aio-navigation-close { display: block; align-self: flex-end; margin: 8px; padding: 8px 12px; min-height: 44px; color: var(--text-primary); background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: 4px; }
+  .aio-navigation-close { display: block; align-self: flex-end; margin: 8px; padding: 8px 12px; min-height: 44px; color: var(--text-primary); background: var(--bg-surface); border: 0.5px solid var(--border); border-radius: var(--radius-inner); }
   .aio-navigation-backdrop { position: fixed; inset: 0; z-index: 300; border: 0; background: var(--black-a6); }
   body.aio-navigation-open .aio-navigation-backdrop { display: block; }
   #sidebar-toggle-btn { display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
@@ -369,11 +369,11 @@ body.dark-theme .scr-star.active { color: var(--text-secondary) !important; }
 @media (pointer: coarse) {
   .aio-term { padding: max(2px, calc(22px - 0.6em)) 16px; margin: 0 -16px; }
 }
-.aio-term-pop { position: fixed; z-index: 300; max-width: calc(100vw - 16px); box-sizing: border-box; padding: 12px 14px; border: 0.5px solid var(--border-strong, var(--border)); border-radius: 8px; background: var(--bg-elevated, var(--bg-card)); color: var(--text-primary); box-shadow:none; font-size: 12px; line-height: 1.6; }
+.aio-term-pop { position: fixed; z-index: 300; max-width: calc(100vw - 16px); box-sizing: border-box; padding: 12px 14px; border: 0.5px solid var(--border-strong, var(--border)); border-radius: var(--radius-element); background: var(--bg-elevated, var(--bg-card)); color: var(--text-primary); box-shadow:none; font-size: 12px; line-height: 1.6; }
 .aio-term-pop strong { display: block; margin-bottom: 4px; font-size: 14px; }
 .aio-term-pop p { margin: 0 0 8px; color: var(--text-secondary); }
 body.aio-popover-open #scroll-top-btn { display: none !important; }
-.aio-term-more { font: inherit; font-size: 12px; min-height: 28px; padding: 2px 10px; border: 0.5px solid var(--border); border-radius: 4px; background: transparent; color: var(--text-primary); cursor: pointer; }
+.aio-term-more { font: inherit; font-size: 12px; min-height: 28px; padding: 2px 10px; border: 0.5px solid var(--border); border-radius: var(--radius-inner); background: transparent; color: var(--text-primary); cursor: pointer; }
 
 /* v57.79 review: an empty portfolio (no holdings, no cash) collapses the hero strip to one empty-state line. */
 #pf-hero.is-empty { display: none !important; }
@@ -456,14 +456,14 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 .page svg.macro-quadrant { max-width: min(100%, 440px); margin-inline: auto; }
 /* v57.91 (desktop audit): the main 분석 button was a small pale 11px chip beside heavier quick picks; it is the primary
    action in ink. .btn-accent pins 11px with !important, hence the override here. */
-#page-ticker .btn-accent[data-action="tickerDirectSearchFromInput"] { background: var(--text-primary); color: var(--bg-base); border: 0.5px solid var(--text-primary); border-radius: 4px; font-size: 14px !important; font-weight: 600; padding: 8px 16px; }
+#page-ticker .btn-accent[data-action="tickerDirectSearchFromInput"] { background: var(--text-primary); color: var(--bg-base); border: 0.5px solid var(--text-primary); border-radius: var(--radius-inner); font-size: 14px !important; font-weight: 600; padding: 8px 16px; }
 /* v57.91 (desktop audit): the empty-portfolio storage notice ran as one ~850px grey line; its lines stop at 60ch, centred. */
 #page-portfolio .pf-empty-state td > div { max-width: 60ch; margin-inline: auto; }
 /* 2026-10-18 UI review (visual pass 2) */
 /* News country/topic filters join the one toggle style; the grey box around them goes (inline styles from the legacy
    writer, hence !important). Selection reads from aria-pressed, which src/ui/pages/news.js keeps in sync. */
 #news-filter-row { background: transparent !important; border: 0 !important; padding: 0 !important; gap: 8px 18px !important; }
-#news-filter-row .chip { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px !important; font-size: 12px !important; border: 0.5px solid var(--border-strong) !important; border-radius: 999px !important; background: transparent !important; color: var(--text-secondary) !important; }
+#news-filter-row .chip { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px !important; font-size: 12px !important; border: 0.5px solid var(--border-strong) !important; border-radius: var(--radius-full) !important; background: transparent !important; color: var(--text-secondary) !important; }
 #news-filter-row .chip:hover { color: var(--text-primary) !important; border-color: var(--text-secondary) !important; }
 #news-filter-row .chip[aria-pressed="true"] { background: var(--text-primary) !important; border-color: var(--text-primary) !important; color: var(--bg-card) !important; }
 #news-filter-row .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -534,10 +534,10 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 /* v59.55 (alignment pass, audit 3): every page-level fold is one card row — card surface, 14px/700 title on the text
    column, drawn chevron at the right. These were bare captions (테마 지도·AI 설비투자), a '펼치기' word box (한국 시장,
    포트폴리오 기록·도구) or a bordered '+' box (거시·금리 보조 섹션). */
-.page > details.sx-disclosure.sh-fold-mt16 { background: var(--bg-card); border-radius: 12px; margin: 16px 0 !important; }
+.page > details.sx-disclosure.sh-fold-mt16 { background: var(--bg-card); border-radius: var(--radius-container); margin: 16px 0 !important; }
 .page > details.sx-disclosure.sh-fold-mt16 > summary { padding: 14px var(--sx-card-pad-x); font-size: 14px; font-weight: 700; color: var(--text-primary); }
-#page-themes #themes-ai-chain:not([hidden]) { background: var(--bg-card); border-radius: 12px; padding: 20px var(--sx-card-pad-x); }
-.aio-page-advanced-toggle { border: 0 !important; border-radius: 12px !important; background: var(--bg-card) !important; }
+#page-themes #themes-ai-chain:not([hidden]) { background: var(--bg-card); border-radius: var(--radius-container); padding: 20px var(--sx-card-pad-x); }
+.aio-page-advanced-toggle { border: 0 !important; border-radius: var(--radius-container) !important; background: var(--bg-card) !important; }
 .aio-page-advanced-toggle > summary { padding: 14px 48px 14px var(--sx-card-pad-x); font-size: 14px; font-weight: 700; color: var(--text-primary); }
 .aio-page-advanced-toggle > summary:after {
   content: ''; right: calc(var(--sx-card-pad-x) + 3px); width: 7px; height: 7px; border: solid var(--text-muted); border-width: 0 1.5px 1.5px 0;
@@ -559,7 +559,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 }
 
 /* v59.55 (alignment pass, audits 2 and 4): text on the card text column on every screen. */
-#page-market-news #news-event-briefs { background: var(--bg-card); border-radius: 12px; padding: 20px var(--sx-card-pad-x) 12px; margin: 0 0 16px; }
+#page-market-news #news-event-briefs { background: var(--bg-card); border-radius: var(--radius-container); padding: 20px var(--sx-card-pad-x) 12px; margin: 0 0 16px; }
 #page-breadth .bb-group--participation > :is(h2, h3, p, .sx-card__head, .bb-group__head) { padding-inline: var(--sx-card-pad-x); }
 /* v59.70: two cards share a row instead of leaving a third column empty (the value row lost the put/call card); on a phone
    both rows stay one column, which the unscoped rule overrode for the chart row at 390px. */
@@ -600,28 +600,28 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 }
 #news-filter-fold[open] > summary::after, .breadth-more[open] > summary::after, #scr-weight-profiles[open] > summary::after, #scr-data-status[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
 /* The screener's data-status notes were the last 4px-radius outlined boxes; they take the soft tile like other notes. */
-.page :is(.sh-screener-data-status-panel, .sh-screener-readiness-note-panel) { border: 0; border-radius: 12px; background: var(--sx-ink-a03); padding: 10px var(--sx-card-pad-x); }
+.page :is(.sh-screener-data-status-panel, .sh-screener-readiness-note-panel) { border: 0; border-radius: var(--radius-container); background: var(--sx-ink-a03); padding: 10px var(--sx-card-pad-x); }
 #pf-holdings-table-section .sh-portfolio-holdings-table-row { padding-left: 0; padding-right: 0; }
 /* The tools fold is now an inset card, so a select with a long option no longer fits a phone row at its intrinsic width. */
 .sh-portfolio-calc-settings-row > div { min-width: 0; max-width: 100%; }
 .sh-portfolio-calc-settings-row select { max-width: 100%; }
 /* v59.55 (owner 11/1): 연결해서 보면 (market-synthesis.js), the closing card of every market screen. The chain is four
    steps with drawn arrows, the branches a three-up grid with a met/total meter, the stance two columns. */
-.page .mk-synth { margin-top: 16px; background: var(--bg-card); border-radius: 12px; padding: 20px var(--sx-card-pad-x); }
+.page .mk-synth { margin-top: 16px; background: var(--bg-card); border-radius: var(--radius-container); padding: 20px var(--sx-card-pad-x); }
 .page .mk-synth__more { display: inline-flex; margin-top: 14px; }
 .page .mk-synth__page { margin: 0 0 6px; font-size: 14px; line-height: 1.7; color: var(--text-primary); }
 .page .mk-synth__page b { font-weight: 700; margin-right: 4px; }
 .page .mk-synth__sub { margin: 18px 0 10px; font-size: 14px; font-weight: 700; color: var(--text-primary); }
 .page .mk-synth__chain { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 28px; }
-.page .mk-synth__step { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); }
+.page .mk-synth__step { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: var(--radius-container); background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); }
 .page .mk-synth__step:not(:last-child)::after { content: ''; position: absolute; right: -19px; top: 50%; width: 8px; height: 8px; border-top: 1.5px solid var(--text-muted); border-right: 1.5px solid var(--text-muted); transform: translateY(-50%) rotate(45deg); }
 .page .mk-synth__step-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
-.page .mk-synth__step-text { font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+.page .mk-synth__step-text { font-size: 12px; line-height: 1.6; color: var(--text-primary); }
 .page .mk-synth__branches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.page .mk-synth__branch { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 12px; border: 0.5px solid rgba(var(--ink-rgb), 0.12); }
+.page .mk-synth__branch { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: var(--radius-container); border: 0.5px solid rgba(var(--ink-rgb), 0.12); }
 .page .mk-synth__branch[data-role="중심"] { border-color: var(--text-primary); }
 .page .mk-synth__branch-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.page .mk-synth__role { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--sx-ink-a06, rgba(0, 0, 0, 0.06)); color: var(--text-secondary); }
+.page .mk-synth__role { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-full); background: var(--sx-ink-a06, rgba(0, 0, 0, 0.06)); color: var(--text-secondary); }
 .page .mk-synth__branch[data-role="중심"] .mk-synth__role { background: var(--text-primary); color: var(--bg-card); }
 .page .mk-synth__branch-name { font-size: 14px; line-height: 1.5; }
 .page .mk-synth__meter { display: flex; gap: 3px; }
@@ -632,10 +632,10 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 .page .mk-synth__branch-lines dt { font-weight: 700; color: var(--text-secondary); white-space: nowrap; }
 .page .mk-synth__branch-lines dd { margin: 0; color: var(--text-primary); }
 .page .mk-synth__stance { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; }
-.page .mk-synth__stance-title { margin: 0 0 6px; font-size: 13px; font-weight: 700; }
+.page .mk-synth__stance-title { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
 .page .mk-synth__stance-col.is-pursue .mk-synth__stance-title { color: var(--data-green, var(--text-primary)); }
 .page .mk-synth__stance-col.is-avoid .mk-synth__stance-title { color: var(--data-amber, var(--text-primary)); }
-.page .mk-synth__stance ul, .page .mk-synth__checks { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+.page .mk-synth__stance ul, .page .mk-synth__checks { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; line-height: 1.6; color: var(--text-primary); }
 @media (max-width: 1023px) {
   .page .mk-synth__chain { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .page .mk-synth__step:nth-child(2)::after { display: none; }
@@ -673,8 +673,8 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-macro .mx-ch__cap { font-size: 11px; color: var(--text-muted); }
 #page-macro .mx-ch__text { display: flex; flex-direction: column; gap: 6px; }
 #page-macro .mx-ch__now { margin: 0; font-size: 14px; font-weight: 700; line-height: 1.5; color: var(--text-primary); font-variant-numeric: tabular-nums; }
-#page-macro .mx-ch__mean { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-primary); }
-#page-macro .mx-ch__today { margin: 0; padding: 6px 10px; border-left: 3px solid rgba(var(--ink-rgb), 0.18); font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+#page-macro .mx-ch__mean { margin: 0; font-size: 12px; line-height: 1.7; color: var(--text-primary); }
+#page-macro .mx-ch__today { margin: 0; padding: 6px 10px; border-left: 3px solid rgba(var(--ink-rgb), 0.18); font-size: 12px; line-height: 1.6; color: var(--text-primary); }
 #page-macro .mx-ch__today.is-lead { border-left-color: var(--accent); }
 #page-macro .mx-ch__today strong { font-weight: 700; color: var(--text-secondary); }
 #page-macro .mx-ch__next { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 4px 10px; margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); font-size: 12px; line-height: 1.55; }
@@ -685,7 +685,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-macro .mx-ch__detail dt { color: var(--text-secondary); }
 #page-macro .mx-ch__detail dd { margin: 0; font-variant-numeric: tabular-nums; }
 /* v59.70 (X bookmarks #4): credit tiers inside their own recorded range (macro-chapters.js rangeBands). */
-#page-macro .mx-ch__range-line { margin: 6px 16px 0; font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+#page-macro .mx-ch__range-line { margin: 6px 16px 0; font-size: 12px; line-height: 1.6; color: var(--text-primary); }
 #page-macro .mx-ch__range { display: grid; gap: 8px; margin: 8px 16px 10px; }
 #page-macro .mx-ch__range-row { display: grid; grid-template-columns: 64px minmax(0, 1fr) 92px; align-items: center; gap: 10px; font-size: 12px; }
 #page-macro .mx-ch__range-label { color: var(--text-secondary); }
@@ -706,20 +706,20 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 :is(#page-fxbond .fx-krw__val, #page-market-news .news-focus__val) { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-primary); }
 :is(#page-fxbond .fx-krw__cap, #page-market-news .news-focus__cap) { font-size: 11px; color: var(--text-muted); }
 :is(#page-fxbond .fx-krw__now, #page-market-news .news-focus__now) { margin: 0 0 6px; font-size: 14px; font-weight: 700; line-height: 1.5; color: var(--text-primary); font-variant-numeric: tabular-nums; }
-:is(#page-fxbond .fx-krw__mean, #page-market-news .news-focus__mean) { margin: 0; font-size: 13px; line-height: 1.7; color: var(--text-primary); }
+:is(#page-fxbond .fx-krw__mean, #page-market-news .news-focus__mean) { margin: 0; font-size: 12px; line-height: 1.7; color: var(--text-primary); }
 #page-fxbond .fx-krw__more p { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 #page-market-news .news-focus__row { display: grid; grid-template-columns: 72px minmax(0, 1fr) 28px; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
-#page-market-news .news-focus__track { position: relative; display: block; height: 8px; border-radius: 999px; background: rgba(var(--ink-rgb), 0.05); }
-#page-market-news .news-focus__bar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: rgba(var(--ink-rgb), 0.22); }
+#page-market-news .news-focus__track { position: relative; display: block; height: 8px; border-radius: var(--radius-full); background: rgba(var(--ink-rgb), 0.05); }
+#page-market-news .news-focus__bar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--radius-full); background: rgba(var(--ink-rgb), 0.22); }
 #page-market-news .news-focus__bar.is-tied { background: var(--text-primary); }
 #page-market-news .news-focus__more { margin-top: 10px; }
-#page-market-news .news-focus__group-title { margin: 10px 0 4px; font-size: 13px; font-weight: 700; }
-#page-market-news .news-focus__titles { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.6; }
+#page-market-news .news-focus__group-title { margin: 10px 0 4px; font-size: 12px; font-weight: 700; }
+#page-market-news .news-focus__titles { margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.6; }
 #page-market-news .news-focus__check { margin: 4px 0 0; font-size: 12px; line-height: 1.55; color: var(--text-secondary); }
 /* v59.70 (screen review #1): the phone rule repeats the two-column rule's selector, so it has the same weight and, coming later,
    wins (at (1,1,0) it lost to (1,2,0) and the read column was 4px wide on a phone). scripts/ci-phone-override-specificity-check.mjs */
 @media (max-width: 743px) { :is(#page-fxbond .fx-krw, #page-market-news .news-focus) :is(.fx-krw__body, .news-focus__body) { grid-template-columns: minmax(0, 1fr); } }
-#page-market-news .news-focus { background: var(--bg-card); border-radius: 12px; padding: 20px var(--sx-card-pad-x); margin: 0 0 16px; }
+#page-market-news .news-focus { background: var(--bg-card); border-radius: var(--radius-container); padding: 20px var(--sx-card-pad-x); margin: 0 0 16px; }
 #page-screener #scr-tab-evidence.is-empty { display: none !important; }
 
 /* v59.56 (screen review): on a phone the 투자 참고용 notice took ~130px above the page (three text lines, then the button on
@@ -733,19 +733,19 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-charts .charts-lead { margin: 0 0 12px; font-size: 15px; line-height: 1.6; color: var(--text-primary); }
 #page-charts .charts-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 @media (min-width: 1024px) { #page-charts .charts-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-#page-charts .charts-card { background: var(--bg-card); border-radius: 12px; padding: 18px 20px; min-width: 0; }
+#page-charts .charts-card { background: var(--bg-card); border-radius: var(--radius-container); padding: 18px 20px; min-width: 0; }
 #page-charts .charts-card-conclusion { margin: 4px 0 8px; font-size: 14px; line-height: 1.6; color: var(--text-primary); }
-#page-charts .charts-trend { font-size: 13px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+#page-charts .charts-trend { font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
 #page-charts .charts-asof { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
 #page-charts .charts-trend.is-up, #page-charts .charts-trend.is-recovery { color: var(--dir-up); }
 #page-charts .charts-trend.is-breakdown, #page-charts .charts-trend.is-down { color: var(--dir-down); }
-#page-charts .charts-numbers { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 12px; margin: 8px 0 0; font-size: 13px; }
+#page-charts .charts-numbers { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 12px; margin: 8px 0 0; font-size: 12px; }
 #page-charts .charts-numbers dt { color: var(--text-secondary); }
 #page-charts .charts-numbers dd { margin: 0; font-variant-numeric: tabular-nums; }
-#page-charts .charts-open, #page-charts .charts-stock { min-height: 32px; padding: 4px 10px; border: 1px solid rgba(var(--ink-rgb), 0.18); border-radius: 8px; background: transparent; color: var(--text-primary); font: inherit; font-size: 13px; cursor: pointer; }
+#page-charts .charts-open, #page-charts .charts-stock { min-height: 32px; padding: 4px 10px; border: 1px solid rgba(var(--ink-rgb), 0.18); border-radius: var(--radius-element); background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; cursor: pointer; }
 #page-charts .charts-open { margin-top: 10px; }
 #page-charts .charts-table-wrap { overflow-x: auto; }
-#page-charts .charts-table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+#page-charts .charts-table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
 #page-charts .charts-table th, #page-charts .charts-table td { padding: 6px 8px; text-align: right; border-bottom: 1px solid rgba(var(--ink-rgb), 0.08); white-space: nowrap; }
 #page-charts .charts-table th:first-child, #page-charts .charts-table td:first-child, #page-charts .charts-table td:nth-child(2), #page-charts .charts-table th:nth-child(2) { text-align: left; }
 #page-charts .charts-stock-name { margin-left: 8px; color: var(--text-secondary); }
@@ -757,10 +757,10 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-briefing .briefing-day-story.is-lead { border-left-color: var(--accent); }
 #page-briefing .briefing-day-story__title { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-primary); }
 #page-briefing .briefing-day-story__line { margin: 0; font-size: 14px; line-height: 1.6; color: var(--text-primary); }
-#page-briefing .briefing-day-evidence { margin: 6px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
-#page-briefing .briefing-day-evidence-fold summary, #page-briefing .briefing-day-fold summary { font-size: 13px; cursor: pointer; color: var(--text-secondary); }
-#page-briefing .briefing-day-more { margin: 6px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.7; }
-#page-briefing .briefing-day-note, #page-briefing .briefing-day-coverage { margin: 8px 0 0; font-size: 13px; color: var(--text-secondary); }
+#page-briefing .briefing-day-evidence { margin: 6px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+#page-briefing .briefing-day-evidence-fold summary, #page-briefing .briefing-day-fold summary { font-size: 12px; cursor: pointer; color: var(--text-secondary); }
+#page-briefing .briefing-day-more { margin: 6px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.7; }
+#page-briefing .briefing-day-note, #page-briefing .briefing-day-coverage { margin: 8px 0 0; font-size: 12px; color: var(--text-secondary); }
 /* v59.66 시장 상태 지표를 같이 놓고 보면: two columns on wide screens, one on phones. */
 #page-signal .mk-cross__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 @media (min-width: 1024px) { #page-signal .mk-cross__list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -770,16 +770,16 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-signal .mk-cross__text { margin: 0; font-size: 14px; line-height: 1.6; color: var(--text-primary); }
 /* v59.67 홈 오늘의 핵심: three story lines, then the movers as chips. */
 #page-home .home-day__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-#page-home .home-day__basis { font-size: 13px; color: var(--text-secondary); }
+#page-home .home-day__basis { font-size: 12px; color: var(--text-secondary); }
 #page-home .home-day__stories { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
 #page-home .home-day__story { padding-left: 10px; border-left: 3px solid rgba(var(--ink-rgb), 0.18); font-size: 14px; line-height: 1.6; }
 #page-home .home-day__story.is-lead { border-left-color: var(--accent); }
 #page-home .home-day__title { margin-right: 6px; color: var(--text-primary); }
 #page-home .home-day__line { color: var(--text-primary); }
-#page-home .home-day__narr { margin: 10px 0 0; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+#page-home .home-day__narr { margin: 10px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 #page-home .home-day__stocks { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 12px 0 8px; }
-#page-home .home-day__stocks-label { font-size: 13px; color: var(--text-secondary); margin-right: 4px; }
-#page-home .home-day__stock { display: inline-flex; gap: 6px; min-height: 32px; align-items: center; padding: 4px 10px; border: 1px solid rgba(var(--ink-rgb), 0.18); border-radius: 8px; background: transparent; color: var(--text-primary); font: inherit; font-size: 13px; cursor: pointer; font-variant-numeric: tabular-nums; }
+#page-home .home-day__stocks-label { font-size: 12px; color: var(--text-secondary); margin-right: 4px; }
+#page-home .home-day__stock { display: inline-flex; gap: 6px; min-height: 32px; align-items: center; padding: 4px 10px; border: 1px solid rgba(var(--ink-rgb), 0.18); border-radius: var(--radius-element); background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; cursor: pointer; font-variant-numeric: tabular-nums; }
 #page-home .home-day__stock.is-up span { color: var(--dir-up); }
 #page-home .home-day__stock.is-down span { color: var(--dir-down); }
 #page-home .home-day__news { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; }
@@ -805,5 +805,5 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-signal .mk-cross__cell.is-now + .mk-cross__cell-label { fill: var(--text-primary); font-weight: 700; }
 #page-signal .mk-cross__axis { font-size: var(--fs-min); fill: var(--text-secondary); }
 #page-signal .mk-cross__dot { fill: var(--accent); stroke: var(--bg-card, var(--bg-surface)); stroke-width: 2; }
-#page-charts .charts-card-volume { margin: 2px 0 6px; font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
+#page-charts .charts-card-volume { margin: 2px 0 6px; font-size: 12px; line-height: 1.55; color: var(--text-secondary); }
 #page-home .home-day__stock-vol { margin-left: 4px; font-size: 12px; color: var(--text-secondary); }

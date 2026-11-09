@@ -1,0 +1,10 @@
+{
+  "version": "v59.88",
+  "date": "2026-11-09",
+  "p": null,
+  "r": null,
+  "changelog": [
+    "**색 역할 토큰 단일 정의 (v59.88, astryx 문법):** 같은 색 값이 index.html :root, v51.43 :root !important 사본, 77줄짜리 body.dark-theme 재선언, soft-ui.css 라이트 보정의 네 곳에 쓰여 있던 것을 `:root, body` 한 블록의 역할 토큰(--color-background-*, --color-text-*, --color-border-*, --color-text-success/warning/error, --color-data-up/down)으로 합쳤다. 다크 테마는 Radix 단계가 실제로 다른 역할 9개만 다시 적는다. 기존 이름은 별칭 한 줄씩이다. 8개 화면 라이트·다크 전체 화면 픽셀 비교에서 색 변화가 없었다."
+  ],
+  "note": "colour roles: one definition (:root, body) + 9-role dark block"
+}

@@ -2,7 +2,7 @@
    Inside .page an old inline 10/11px rendered 12/13px (index.html substring !important rules) → --fs-xs/--fs-sm. */
 
 /* Regime drift banner — in .content above the pages (not inside .page), so sizes are literal. Display stays inline (JS toggles it). */
-#aio-regime-drift-banner { margin: 0 0 10px 0; padding: 9px 12px; background: var(--red-3); border: 0.5px solid var(--red-7); border-radius: 4px; font-size: 12px; line-height: 1.55; color: var(--text-primary); }
+#aio-regime-drift-banner { margin: 0 0 10px 0; padding: 9px 12px; background: var(--red-3); border: 0.5px solid var(--red-7); border-radius: var(--radius-inner); font-size: 12px; line-height: 1.55; color: var(--text-primary); }
 #aio-regime-drift-banner .lco-drift-title { color: var(--red-11); }
 #aio-regime-drift-banner .lco-drift-why { color: var(--text-secondary); }
 /* Market-analysis sinks (#home-market-analysis, #briefing-ai-analysis — both in .page: old inline 11px rendered 13px) */
@@ -10,7 +10,7 @@
 .page [data-market-analysis-sink] .ai-analysis-retained { font-size: var(--fs-sm); font-weight: 600; color: var(--text-muted); }
 .page [data-market-analysis-sink] .ai-analysis-note { margin-top: 6px; font-size: var(--fs-sm); font-weight: 400; color: var(--text-muted); line-height: 1.6; }
 /* Source-health retry button in #snapshot-stale-warning (#page-home: old inline 11px rendered 13px) */
-#snapshot-stale-warning .lco-retry { font-size: var(--fs-sm); padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px; font-weight: 600; font-family: var(--font-mono);  }
+#snapshot-stale-warning .lco-retry { font-size: var(--fs-sm); padding: 2px 8px; border-radius: var(--radius-inner); cursor: pointer; margin-left: 8px; font-weight: 600; font-family: var(--font-mono);  }
 #snapshot-stale-warning .lco-retry-dead { background: var(--red-5); border: 0.5px solid var(--red-8); color: var(--red-12); }
 #snapshot-stale-warning .lco-retry-warn { background: var(--amber-3); border: 0.5px solid var(--amber-6); color: var(--amber-12); }
 /* v59.19: FRESHNESS_ENGINE.staleBadge (src/data/quality/freshness-engine.js) — the old inline style's colours; 11px rises to the --fs-min floor */
