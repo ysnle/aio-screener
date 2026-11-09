@@ -6,16 +6,11 @@
 // all-caps symbol the registries do not know stays an entity but carries verified:false.
 import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
 import { resolveRegisteredName } from '../../domain/ticker/resolve-name.js';
+// The nickname table and the non-ticker words are shared with the chat ticker resolver.
+import { COMPANY_NICKNAMES } from '../../domain/ticker/nicknames.js';
+import { NON_TICKER_ACRONYMS, isNonTickerWord } from '../../domain/ticker/question-words.js';
 
 export const AI_ENTITY_RESOLUTION_VERSION = 'ai-entity-resolution.v2';
-
-// Used when the page registry is absent (Node tests, early boot). The registry wins when present.
-const FALLBACK_NAMES = Object.freeze({
-  엔비디아: 'NVDA', nvidia: 'NVDA', 애플: 'AAPL', apple: 'AAPL', 마이크로소프트: 'MSFT', microsoft: 'MSFT',
-  테슬라: 'TSLA', tesla: 'TSLA', 아마존: 'AMZN', amazon: 'AMZN', 구글: 'GOOGL', 알파벳: 'GOOGL', alphabet: 'GOOGL',
-  메타: 'META', 브로드컴: 'AVGO', broadcom: 'AVGO', 팔란티어: 'PLTR', palantir: 'PLTR',
-  삼성전자: '005930.KS', sk하이닉스: '000660.KS', 현대차: '005380.KS'
-});
 
 // Sector and index words are topics, not company names; they keep prefix matching ('반도체주').
 const MARKET_TERMS = Object.freeze({
@@ -23,12 +18,6 @@ const MARKET_TERMS = Object.freeze({
   에스앤피: '^GSPC', 's&p': '^GSPC', sp500: '^GSPC', 달러인덱스: 'DX-Y.NYB', dxy: 'DX-Y.NYB',
   코스피: '^KS11', 코스닥: '^KQ11', krx: '^KS11'
 });
-
-const NON_TICKER_SYMBOLS = new Set([
-  'AI', 'API', 'SEC', 'FOMC', 'FED', 'PER', 'PBR', 'PSR', 'PEG', 'ROE', 'ROA', 'IT', 'IPO', 'ESG', 'CEO', 'CFO',
-  'RSI', 'MACD', 'CPI', 'PCE', 'NFP', 'GDP', 'VIX', 'ETF', 'FX', 'USD', 'KRW', 'JPY', 'EUR', 'US', 'KR', 'UK', 'EU',
-  'DCF', 'TAM', 'CAGR', 'FCF', 'EPS', 'EBIT', 'EBITDA', 'IV', 'GEX', 'ATM', 'OTM', 'HBM', 'GPU', 'CPU', 'OK'
-]);
 
 // Lowercase words that are also listed symbols ('now' = ServiceNow, 'all' = Allstate). A lowercase
 // token is a symbol only when it is a registry key and not one of these words.
@@ -60,8 +49,10 @@ function knownSymbol(symbol, root, entries) {
 
 // A Korean name matches a token that is the name itself or the name plus a particle.
 function koreanTokenMatches(token, name) {
-  if (!token.startsWith(name)) return false;
-  return KOREAN_PARTICLES.includes(token.slice(name.length));
+  const lowerToken = token.toLowerCase();
+  const lowerName = name.toLowerCase();
+  if (!lowerToken.startsWith(lowerName)) return false;
+  return KOREAN_PARTICLES.includes(lowerToken.slice(lowerName.length));
 }
 
 function englishPhraseMatches(lower, name) {
@@ -76,13 +67,14 @@ export function resolveEntities(query, { root = globalThis, route = null } = {})
   const found = new Map();
   const add = (symbol, alias = null, kind = 'ticker', verified = true) => {
     const normalized = text(symbol).toUpperCase();
-    if (!normalized || NON_TICKER_SYMBOLS.has(normalized) || found.has(normalized)) return;
+    if (!normalized || NON_TICKER_ACRONYMS.has(normalized) || found.has(normalized)) return;
     const isKr = /\.KS$|\.KQ$/.test(normalized) || /^\^(?:KS11|KQ11)$/i.test(normalized);
     found.set(normalized, Object.freeze({ symbol: normalized, alias: alias || normalized, kind, verified, market: isKr ? 'KR' : normalized.startsWith('^') ? 'INDEX' : 'US' }));
   };
-  const tokens = source.split(/[\s,;!?·/()\[\]"“”]+/).map((token) => token.replace(/^[.'’]+|[.'’]+$/g, '')).filter(Boolean);
+  const tokens = source.split(/[\s,;!?·/()\[\]"“”]+/).map((token) => token.replace(/^[.'’$]+|[.'’]+$/g, '')).filter(Boolean);
 
   // 1. Symbol-shaped tokens: KRX codes, Yahoo-style suffixes, BRK.B-style classes, index carets.
+  const glued = []; // a Latin run glued to Hangul ('SK하이닉스'): dropped below when the whole token is a company name
   for (const token of tokens) {
     // E01: a KRX code is exactly six digits (optionally .KS/.KQ), ending the token or followed by a Korean
     // particle — 0059300, 005930.KSXYZ and dates like 20261012 are not codes. Verified only when listed.
@@ -93,7 +85,8 @@ export function resolveEntities(query, { root = globalThis, route = null } = {})
     if (!shaped) continue;
     const raw = shaped[1];
     const upper = raw.toUpperCase();
-    if (NON_TICKER_SYMBOLS.has(upper)) continue;
+    if (isNonTickerWord(upper, source)) continue;
+    if (token.length > raw.length) glued.push([token, raw]);
     const confirmed = knownSymbol(upper, root, entries);
     if (raw === upper) {
       // Typed in capitals: a deliberate symbol. Unknown ones stay, marked unverified.
@@ -120,7 +113,7 @@ export function resolveEntities(query, { root = globalThis, route = null } = {})
       [entry?.en, entry?.kr, ...(Array.isArray(entry?.alt) ? entry.alt : [])].forEach((name) => consider(name, symbol));
     }
   }
-  Object.entries(FALLBACK_NAMES).forEach(([name, symbol]) => consider(name, symbol));
+  Object.entries(COMPANY_NICKNAMES).forEach(([name, symbol]) => consider(name, symbol));
   for (const [code, info] of Object.entries(krStockDb)) {
     if (info?.name && HANGUL.test(info.name) && tokens.some((token) => koreanTokenMatches(token, String(info.name).replace(/\s+/g, '')))) {
       nameMatches.push([info.name, normalizeTickerInput(code, { krStockDb, krToYahoo: root?.krTickerToYahoo })]);
@@ -129,6 +122,11 @@ export function resolveEntities(query, { root = globalThis, route = null } = {})
   for (const [name, symbol] of nameMatches) {
     const resolved = entries ? (resolveRegisteredName(symbol, entries) || symbol) : symbol;
     add(resolved, name, 'alias');
+  }
+  // 'SK하이닉스' and 'LG화학' named the company and also left an unverified symbol SK / LG from their prefix.
+  for (const [token, raw] of glued) {
+    const ghost = found.get(raw.toUpperCase());
+    if (ghost && ghost.kind === 'ticker' && ghost.alias === raw && nameMatches.some(([name]) => koreanTokenMatches(token, String(name).replace(/\s+/g, '')))) found.delete(ghost.symbol);
   }
 
   // 3. Sector / index topics.

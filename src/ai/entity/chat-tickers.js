@@ -4,7 +4,12 @@
 // particle ("엔비디아는"). A demonstrative follow-up ("이 종목", "그 회사") reuses the previous turn's companies;
 // nothing else is inferred (P1339: no ticker guessing). companiesOnly drops index/FX/commodity nicknames, which the
 // unified panel answers from its market and domain blocks instead.
+// This is the one question ticker resolver. The typed-symbol scan (extract-tickers.js) and the
+// nickname table (src/domain/ticker/nicknames.js) are imported, not handed in: the chat's own fuzzy map is gone, and a
+// nickname is read beside typed symbols and plan names instead of only when they found nothing ("암드 vs 엔비디아").
 import { companyEntitySymbols } from './company-symbols.js';
+import { extractTickers } from './extract-tickers.js';
+import { nicknameSymbol } from '../../domain/ticker/nicknames.js';
 
 const PARTICLES = ['에서는', '에서', '으로', '까지', '보다', '처럼', '이랑', '하고', '은', '는', '이', '가', '을', '를', '의', '와', '과', '도', '에', '로', '랑', '만'];
 const isMarketProxy = (sym) => /^\^|=X$|=F$|-USD$/.test(String(sym));
@@ -20,29 +25,37 @@ export function screenSubjectTicker(root, ctxId) {
   return String(value || '').trim().toUpperCase();
 }
 
-export function resolveChatTickers({ query = '', questionPlan = null, state = null, companiesOnly = false, extract = () => [], fuzzy = null, screenTicker = '', root = null, ctxId = '' } = {}) {
+// A Latin run glued to a Hangul name ('SK하이닉스', 'LG화학') is part of the name, not a typed symbol of its own.
+const gluedToName = (sym, words) => words.some((w) => /[가-힣]/.test(w) && w.length > sym.length && w.toUpperCase().startsWith(sym));
+
+function nicknameHits(text, companiesOnly) {
+  const hits = [];
+  for (const tok of text.split(/[\s,;.!?·…()[\]]+/)) {
+    if (!tok || tok.length < 2) continue;
+    let hit = nicknameSymbol(tok, { companiesOnly });
+    for (const p of PARTICLES) {
+      if (hit) break;
+      if (tok.length - p.length >= 2 && tok.endsWith(p)) hit = nicknameSymbol(tok.slice(0, -p.length), { companiesOnly });
+    }
+    if (hit) hits.push([tok, hit]);
+  }
+  return hits;
+}
+
+export function resolveChatTickers({ query = '', questionPlan = null, state = null, companiesOnly = false, screenTicker = '', root = null, ctxId = '' } = {}) {
   const text = String(query || '');
-  let tickers = [...(extract(text) || [])];
+  const nicknames = nicknameHits(text, companiesOnly);
   let named = [];
   try { named = questionPlan ? companyEntitySymbols(questionPlan) : []; } catch { named = []; }
+  const nameWords = [...nicknames.map(([tok]) => tok), ...(questionPlan?.entities?.entities || []).filter((e) => e?.kind === 'alias').map((e) => String(e.alias || ''))];
+  let tickers = extractTickers(text).filter((t) => !gluedToName(t, nameWords));
   // v59.45 (P11-ENTITY-01): the registry's spelling of a class share (BRK.B or BRK-B) replaces the typed one instead of
   // standing beside it as a second subject.
   const classKey = (sym) => String(sym).toUpperCase().replace(/[./]/g, '-');
   tickers = tickers.filter((t) => !named.some((n) => n !== t && classKey(n) === classKey(t)));
-  for (const sym of named) if (!tickers.includes(sym)) tickers.push(sym);
+  for (const sym of [...named, ...nicknames.map(([, hit]) => hit)]) if (!tickers.includes(sym)) tickers.push(sym);
   // A six-digit code is read as KOSPI by the legacy extractor; the registry's KOSDAQ listing wins.
   tickers = tickers.filter((t) => { const m = /^(\d{6})\.KS$/.exec(t); return !(m && tickers.includes(`${m[1]}.KQ`)); });
-  if (!tickers.length && typeof fuzzy === 'function') {
-    for (const tok of text.split(/[\s,;.!?·…()[\]]+/)) {
-      if (!tok || tok.length < 2) continue;
-      let hit = fuzzy(tok);
-      for (const p of PARTICLES) {
-        if (hit) break;
-        if (tok.length - p.length >= 2 && tok.endsWith(p)) hit = fuzzy(tok.slice(0, -p.length));
-      }
-      if (hit && !tickers.includes(hit)) tickers.push(hit);
-    }
-  }
   if (companiesOnly) tickers = tickers.filter((t) => !isMarketProxy(t));
   let source = tickers.length ? 'query' : '';
   const screen = String(screenTicker || (root ? screenSubjectTicker(root, ctxId) : '')).trim().toUpperCase();

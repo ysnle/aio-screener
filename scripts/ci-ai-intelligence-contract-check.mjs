@@ -727,25 +727,24 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   const named = companyEntitySymbols(namedPlan);
   check('P1740 plan-resolved company names feed chat data injection (no index/topic proxies)', named.includes('NVDA') && named.includes('005930.KS') && !named.some((s) => s.startsWith('^') || s === 'SMH'));
   const { resolveChatTickers } = await import('../src/ai/entity/chat-tickers.js');
-  const nick = { '하이닉스': '000660.KS', '나스닥': '^IXIC' };
-  const fuzzy = (tok) => nick[tok] || null;
+  // v59.88 (S6): the nickname table is src/domain/ticker/nicknames.js, imported by the resolver (no injected fuzzy map).
   const chatState = {};
   check('P1740 chat tickers: nickname with particle, market proxies dropped for companies, demonstrative follow-up only',
-    resolveChatTickers({ query: '하이닉스는 어때?', state: chatState, fuzzy }).join() === '000660.KS'
-    && resolveChatTickers({ query: '나스닥은?', companiesOnly: true, fuzzy }).length === 0
-    && resolveChatTickers({ query: '이 종목 밸류에이션은?', state: chatState, fuzzy }).join() === '000660.KS'
-    && resolveChatTickers({ query: '밸류에이션은?', state: chatState, fuzzy }).length === 0);
+    resolveChatTickers({ query: '하이닉스는 어때?', state: chatState }).join() === '000660.KS'
+    && resolveChatTickers({ query: '나스닥은?', companiesOnly: true }).length === 0
+    && resolveChatTickers({ query: '이 종목 밸류에이션은?', state: chatState }).join() === '000660.KS'
+    && resolveChatTickers({ query: '밸류에이션은?', state: chatState }).length === 0);
   // v58.75 (persona review): a question without its own company on 종목·재무·차트 reads the screen's company (observed state,
   // not a guess); a market question, a typed company and the previous turn's "그 종목" keep their own meaning.
   const screenState = () => ({ _lastChatTickers: ['AMD'] });
-  const onScreen = resolveChatTickers({ query: '투자 논지 점검', companiesOnly: true, screenTicker: 'NVDA', fuzzy });
+  const onScreen = resolveChatTickers({ query: '투자 논지 점검', companiesOnly: true, screenTicker: 'NVDA' });
   check('v58.75 chat tickers: screen company for company-less questions only',
     onScreen.join() === 'NVDA' && onScreen.source === 'screen'
-    && resolveChatTickers({ query: '이 종목 어때?', state: screenState(), companiesOnly: true, screenTicker: 'NVDA', fuzzy }).join() === 'NVDA'
-    && resolveChatTickers({ query: '그 종목 실적은?', state: screenState(), companiesOnly: true, screenTicker: 'NVDA', fuzzy }).join() === 'AMD'
-    && resolveChatTickers({ query: '시장 전체 흐름은?', companiesOnly: true, screenTicker: 'NVDA', fuzzy }).length === 0
-    && resolveChatTickers({ query: '하이닉스는?', companiesOnly: true, screenTicker: 'NVDA', fuzzy }).source === 'query'
-    && resolveChatTickers({ query: '추세 설명', companiesOnly: true, screenTicker: '^GSPC', fuzzy }).length === 0);
+    && resolveChatTickers({ query: '이 종목 어때?', state: screenState(), companiesOnly: true, screenTicker: 'NVDA' }).join() === 'NVDA'
+    && resolveChatTickers({ query: '그 종목 실적은?', state: screenState(), companiesOnly: true, screenTicker: 'NVDA' }).join() === 'AMD'
+    && resolveChatTickers({ query: '시장 전체 흐름은?', companiesOnly: true, screenTicker: 'NVDA' }).length === 0
+    && resolveChatTickers({ query: '하이닉스는?', companiesOnly: true, screenTicker: 'NVDA' }).source === 'query'
+    && resolveChatTickers({ query: '추세 설명', companiesOnly: true, screenTicker: '^GSPC' }).length === 0);
   // v58.75 (persona review): level questions read the chart's level map or say how to get one; theme/stock/portfolio
   // analysis answers follow criteria -> count met -> cause -> branches, and quick facts do not.
   // v58.75 boot budget: the blocks load lazily through buildQuestionDomainContext.loadBlocks (choosing-blocks.js).
@@ -827,8 +826,8 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     && choosing.answerHead('NVDA', null, 'x') === '보고 있는 NVDA 기준\n\nx' && choosing.answerHead('NVDA', { blocked: true }, 'x') === 'x'
     && /차트 화면 기준, 종가 10\/23, 사용한 근거/.test(badge) && /차트 지표/.test(badge) && !/뉴스/.test(badge)
     && screenSubjectTicker({ _aioChartSubject: 'amd' }, 'technical') === 'AMD' && screenSubjectTicker({ _currentTickerId: 'NVDA' }, 'ticker') === 'NVDA' && screenSubjectTicker({ _currentTickerId: 'NVDA' }, 'home') === ''
-    && resolveChatTickers({ query: '추세 설명', companiesOnly: true, root: { _aioChartSubject: '^GSPC' }, ctxId: 'technical', fuzzy }).screenProxy === '^GSPC'
-    && resolveChatTickers({ query: '투자 논지 점검', companiesOnly: true, root: { _currentTickerId: 'NVDA' }, ctxId: 'ticker', fuzzy }).source === 'screen');
+    && resolveChatTickers({ query: '추세 설명', companiesOnly: true, root: { _aioChartSubject: '^GSPC' }, ctxId: 'technical' }).screenProxy === '^GSPC'
+    && resolveChatTickers({ query: '투자 논지 점검', companiesOnly: true, root: { _currentTickerId: 'NVDA' }, ctxId: 'ticker' }).source === 'screen');
   check('P1740 topic words stay topics', companyEntitySymbols(createQuestionPlan({ query: '반도체 코스피 어때', route: 'home', root: {}, now: new Date('2026-10-13T03:00:00Z') })).length === 0);
   check('P1740 conditional thresholds are rules, observations are not',
     ['VIX가 20을 넘으면 변동성 국면으로 본다.', 'RSI 70 이상이면 과매수로 해석한다.', '10년물이 5%를 웃돌면 밸류에이션 부담이 커진다.'].every(answerPublication.isConditionalNumericSentence)

@@ -332,10 +332,9 @@ export function installServerDataLoader(window = globalThis) {
         // native slice에서 읽는다(src/data/page-completeness.js). P1186: 이 경로는 투영도 상태 기록도 하지 않는다.
         if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server data.json 적용: quotes ' + (d.quotes ? d.quotes.length : 0) + ', age ' + ageMin + 'min');
         _aioRenderServerDataAge();  // v50.24/WO-4: 나이 배지 갱신
-        try { if (typeof _aioRenderPipelineStatus === 'function') _aioRenderPipelineStatus(); } catch(_) {} // v51.65: 파이프라인 상태 배너
-        try { _aioRenderDataFreshness(); } catch(_) {} // v51.66: 신선도 타임스탬프 UI
-        try { _aioCheckManualFieldStaleness(); } catch(_) {} // v51.66: 수동 필드 staleness 경고
-        try { _aioUpdatePipelineStatusToggle(); } catch(_) {} // v52.15 P616: pill 개수 집계 → 1줄 요약+펼치기
+        // v51.65 → v59.88 (S6): one paint of the pipeline status bar — notices, stale hand-kept fields, the toggle summary
+        // (src/ui/components/pipeline-status.js, installed by the lazy screen bridges; before that the install paints it).
+        try { if (typeof window._aioRenderPipelineStatus === 'function') window._aioRenderPipelineStatus(); } catch(_) {}
         // v50.24/WO-4: 보이는 페이지 분석 텍스트도 새 데이터로 재생성 (숨은 페이지는 스킵)
         try { if (window.AIO && typeof window.AIO.refreshActivePageNarratives === 'function') window.AIO.refreshActivePageNarratives(); } catch(_) {}
         try {
