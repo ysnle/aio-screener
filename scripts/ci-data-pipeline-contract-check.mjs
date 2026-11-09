@@ -1987,6 +1987,21 @@ const rsiParityOk = await (async () => {
 })();
 check('server _rsi14 and client _calcRSILast are numerically equivalent (P584/R265 parity)', rsiParityOk, rsiParityDetail);
 
+// v59.87 (ADR-0003 S1, review of PR #170): without the shared SMA (ESM not loaded) _calcSMA is null, and _calcBB must
+// stay unknown instead of building a band around 0 (100 ×20 became 200/-200).
+const bbUnknownOk = await (async () => {
+  try {
+    const src = ['_aioTechDef', '_aioCleanNums', '_calcSMA', '_calcBB'].map((name) => extractFunctionSource(core, name));
+    if (src.some((part) => !part)) return false;
+    const make = (arch) => new Function('window', `${src.join('\n')}\nreturn _calcBB;`)(arch);
+    const { smaLast } = await import('../src/domain/technical/definitions.js');
+    const flat = Array(20).fill(100);
+    const withArch = make({ AIO_ARCH: { smaLast } })(flat, 20, 2);
+    return make({})(flat, 20, 2) === null && withArch && withArch.upper === 100 && withArch.lower === 100;
+  } catch { return false; }
+})();
+check('client _calcBB is unknown without the shared SMA and exact with it (v59.87)', bbUnknownOk);
+
 // FABLE-ARCH-DIAGNOSIS-2026-07-06.md Phase 3 [D-VCP]: server `_calcVCPServer` (fetch-data.mjs) and
 // client `_calcVCP` (aio-core.js) are two independently-maintained implementations of the same
 // pattern-recognition logic (parallel to the RSI case above) — currently in parameter parity, but

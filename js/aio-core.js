@@ -10742,10 +10742,8 @@ function _calcBB(closes, period, mult) {
   if (nums.length < period) return null;
   var slice = nums.slice(-period);
   var mid = _calcSMA(nums, period);
-  // v51.88 P578/R265: 분모 period(모집단 분산) — John Bollinger 원 정의이자 TA-Lib(ddof=0)·
-  //   TradingView 가 쓰는 표준. v51.47 이 "표본 분산 교정"으로 (period-1)로 바꿨지만, 명명된
-  //   방법론("Bollinger Bands")은 그 출처 정의를 따라야 한다(R265). n-1 은 밴드를 sqrt(20/19)
-  //   ≈ +2.6% 넓혀 %B·터치 신호를 표준 대비 미세하게 어긋나게 했다.
+  if (mid === null) return null; // no shared SMA (ESM not loaded): unknown, never a band around 0
+  // R265: population variance (÷ period), Bollinger's own definition and TA-Lib/TradingView's; n-1 widens the band ~2.6%.
   var variance = slice.reduce(function(s, v) { return s + Math.pow(v - mid, 2); }, 0) / period;
   var sd = Math.sqrt(variance);
   var upper = mid + mult * sd;
