@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-09T14:22:16.143Z",
-  "attemptedAt": "2026-11-09T14:22:16.143Z",
-  "lastSuccessfulAt": "2026-11-09T14:22:16.143Z",
+  "generatedAt": "2026-11-09T15:21:48.895Z",
+  "attemptedAt": "2026-11-09T15:21:48.895Z",
+  "lastSuccessfulAt": "2026-11-09T15:21:48.895Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-26T14:22:09.647Z",
-  "until": "2026-11-09T14:22:09.647Z",
+  "since": "2026-10-26T15:21:45.349Z",
+  "until": "2026-11-09T15:21:45.349Z",
   "current24hWindow": {
     "start": "2026-11-07T23:00:00.000Z",
     "end": "2026-11-08T23:00:00.000Z",
@@ -80,10 +80,10 @@
       "pages": 0,
       "reachedOlder": false,
       "reachedKnown": false,
-      "count": 2,
+      "count": 0,
       "freshCount": 0,
-      "eligibleTextCount": 2,
-      "selectedCount": 1,
+      "eligibleTextCount": 0,
+      "selectedCount": 0,
       "error": "first page parsed no posts",
       "lastPostId": 26057
     },
@@ -101,11 +101,11 @@
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 232,
-      "freshCount": 39,
+      "freshCount": 20,
       "eligibleTextCount": 232,
       "selectedCount": 126,
       "error": null,
@@ -113,59 +113,59 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 714,
-      "freshCount": 37,
-      "eligibleTextCount": 713,
+      "count": 712,
+      "freshCount": 18,
+      "eligibleTextCount": 711,
       "selectedCount": 121,
       "error": null,
       "lastPostId": 71840
     }
   ],
-  "count": 2252,
-  "retainedItemCount": 423,
+  "count": 2248,
+  "retainedItemCount": 399,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2252,
-    "eligibleTextCount": 2196,
+    "observedCount": 2248,
+    "eligibleTextCount": 2192,
     "mediaOnlyCount": 56,
     "mediaAttachedCount": 618,
     "photoPostCount": 528,
     "documentPostCount": 4,
     "imageOnlyCount": 3,
-    "highSignalCount": 386,
-    "broadSignalCount": 848,
-    "selectedRawCount": 376,
-    "selectedEligibleCount": 376,
+    "highSignalCount": 384,
+    "broadSignalCount": 846,
+    "selectedRawCount": 375,
+    "selectedEligibleCount": 375,
     "selectedRawCoveragePct": 17.1,
     "selectedOfObservedPct": 16.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 798,
-    "geo": 435,
-    "semi": 482,
+    "market-note": 797,
+    "geo": 434,
+    "semi": 480,
     "healthcare": 74,
     "macro": 335,
-    "equity": 111,
-    "earnings": 383,
-    "power": 287,
-    "ai-policy": 101,
+    "equity": 110,
+    "earnings": 381,
+    "power": 286,
+    "ai-policy": 100,
     "kr-market": 108,
     "japan": 72,
-    "credit": 91,
+    "credit": 89,
     "media-only": 55,
     "flows": 63,
     "optical": 35,
     "crypto": 4
   },
   "tickerCounts": {
-    "NVDA": 145,
+    "NVDA": 144,
     "LLY": 4,
     "META": 3,
     "GOOG": 108,
@@ -174,7 +174,7 @@
     "AAPL": 23,
     "PLTR": 27,
     "AMD": 45,
-    "AVGO": 17,
+    "AVGO": 16,
     "AMZN": 67,
     "2454.TW": 5,
     "NYT": 1,
@@ -254,19 +254,19 @@
     "FDX": 1
   },
   "themes": [
-    "Market Notes (798 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
-    "Semiconductors/Memory (482 posts in 14-day research window): 2026년 11월 9일 미국 증시 프리마켓 브리핑 엔비디아 CEO 젠슨 황의 혼외관계 인정 및 사과, 이사회 조사 착수 관련 보도가 전해지면서 엔비디아 주가는 야간거래에서 3% 이상 하락. 나스닥 선물도...",
-    "Geopolitics (435 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 9일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 루비오 미국 국무장관은 이란과의 협상이 생산적이지 않았으며 이란 측 요구 중 일부는 터무니없고 비현실적이라고...",
-    "Earnings/Corporate (383 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Market Notes (797 posts in 14-day research window): 2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며...",
+    "Semiconductors/Memory (480 posts in 14-day research window): 2026년 11월 9일 미국 증시 프리마켓 브리핑 엔비디아 CEO 젠슨 황의 혼외관계 인정 및 사과, 이사회 조사 착수 관련 보도가 전해지면서 엔비디아 주가는 야간거래에서 3% 이상 하락. 나스닥 선물도...",
+    "Geopolitics (434 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 9일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 루비오 미국 국무장관은 이란과의 협상이 생산적이지 않았으며 이란 측 요구 중 일부는 터무니없고 비현실적이라고...",
+    "Earnings/Corporate (381 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (335 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 · 로보틱스 • 엔비디아 (NVDA) — 엔비디아가 Rebellions·SK텔레콤과 NVIDIA NVLink Fusion을 활용한 소버린 AI 인프라 구축 협력을 발표. • 테라다인 (TER) — 데이터센터를 넘어 로보틱스·자동차·산업용 엣지 AI...",
-    "AI Power/Grid (287 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란...",
-    "Equity/Analyst (111 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "AI Power/Grid (286 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "Equity/Analyst (110 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (108 posts in 14-day research window): 맥도날드(MCD) Q3 2026 어닝콜 요약 > 긍정 요인: • 글로벌 매출 성장 및 높은 수익성 유지. 3분기 글로벌 동일매장 매출은 전년 대비 1.5%, 전체 시스템 매출은 고정환율 기준 4% 증가. 조정..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 145,
+      "count": 144,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 · 로보틱스 • 엔비디아 (NVDA) — 엔비디아가 Rebellions·SK텔레콤과 NVIDIA NVLink Fusion을 활용한 소버린 AI 인프라 구축 협력을 발표. • 테라다인 (TER) — 데이터센터를 넘어 로보틱스·자동차·산업용 엣지 AI..."
     },
     {
@@ -277,12 +277,12 @@
     {
       "key": "AMZN",
       "count": 67,
-      "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
+      "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
       "key": "MSFT",
       "count": 52,
-      "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
+      "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
       "key": "000660.KS",
@@ -341,7 +341,7 @@
       "topics": [
         "geo"
       ],
-      "count": 435,
+      "count": 434,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 9일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 루비오 미국 국무장관은 이란과의 협상이 생산적이지 않았으며 이란 측 요구 중 일부는 터무니없고 비현실적이라고..."
     },
     {
@@ -350,7 +350,7 @@
       "topics": [
         "credit"
       ],
-      "count": 91,
+      "count": 89,
       "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
     },
     {
@@ -359,7 +359,7 @@
       "topics": [
         "semi"
       ],
-      "count": 482,
+      "count": 480,
       "focus": "2026년 11월 9일 미국 증시 프리마켓 브리핑 엔비디아 CEO 젠슨 황의 혼외관계 인정 및 사과, 이사회 조사 착수 관련 보도가 전해지면서 엔비디아 주가는 야간거래에서 3% 이상 하락. 나스닥 선물도..."
     },
     {
@@ -377,8 +377,8 @@
       "topics": [
         "power"
       ],
-      "count": 287,
-      "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
+      "count": 286,
+      "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
       "id": "ai-policy",
@@ -386,7 +386,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 101,
+      "count": 100,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -404,7 +404,7 @@
       "topics": [
         "equity"
       ],
-      "count": 111,
+      "count": 110,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -422,7 +422,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 383,
+      "count": 381,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -467,7 +467,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 798,
+      "count": 797,
       "focus": "2026년 11월 6일 미국 증시 프리마켓 브리핑 현재 미국 지수선물은 혼조. 다우 선물 -0.96%, S&P500 선물 +0.02%, 나스닥100 선물 +0.77%, 러셀2000 선물 -0.35% 수준이며..."
     }
   ],
@@ -820,20 +820,17 @@
       "datetime": "2026-11-08T03:54:53.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "power",
-        "macro",
-        "geo",
-        "semi"
+        "power"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
+      ]
     },
     {
       "id": "insidertracking/68579",
@@ -1641,20 +1638,6 @@
       "tickers": []
     },
     {
-      "id": "aetherjapanresearch/26057",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/26057",
-      "datetime": "2026-10-26T15:08:26.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "semi"
-      ],
-      "score": 97,
-      "hasText": true,
-      "summary": "로이터) 중국에서는 AI 버블이 이미 터졌다 중국 증시에서 AI 관련주가 급락하며 사실상 버블 붕괴 국면에 진입했습니다. AI 및 반도체 대표 종목으로 구성된 STAR50 지수는 4개월도 채 되지 않아 40%...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/71608",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71608",
@@ -1724,6 +1707,20 @@
       "score": 93,
       "hasText": true,
       "summary": "모건스탠리, 민주당의 중간선거 압승이 금융시장에 미칠 영향 민주당의 미국 중간선거 압승은 재정정책의 변화와 AI 인프라 투자에 대한 규제 강화를 초래할 수 있지만, 모건스탠리는 미국 경제와 주식시장에 대한...",
+      "tickers": []
+    },
+    {
+      "id": "HANAchina/71618",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71618",
+      "datetime": "2026-11-05T22:18:51.000Z",
+      "localDateKst": "2026-11-06",
+      "tags": [
+        "market-note"
+      ],
+      "score": 92,
+      "hasText": true,
+      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프...",
       "tickers": []
     }
   ],
@@ -2264,14 +2261,14 @@
       "datetime": "2026-11-09T07:59:17.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>미국 당국자, 젠슨 황의 혼외정사 상대 여성이 중국 정보기관 소속 주장…중국 외교부 “근거 없는 억측” •중국 외교부 대변인은 젠슨황의 불륜 상대 여성이 중국 정보기관에서 근무한다는 주장에 대해 “중국...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>미국 당국자, 젠슨 황의 혼외정사 상대 여성이 중국 정보기관 소속 주장…중국 외교부 “근거 없는 억측” •중국 외교부 대변인은 젠슨황의 불륜 상대 여성이 중국 정보기관에서 근무한다는 주장에 대해 “중국..."
+      ]
     },
     {
       "id": "HANAchina/71814",
@@ -2284,11 +2281,11 @@
         "semi",
         "power"
       ],
-      "lead": 2,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>수요 예상 상회·주문 사상 최대, HBM 장비업체 TOWA 실적 전망 상향 •생성형 AI와 데이터센터 수요 증가로 첨단 로직칩 및 HBM 투자 열기가 높아지면서 반도체 장비 수요가 예상치를 크게 웃돌고..."
+      "summary": ">>수요 예상 상회·주문 사상 최대, HBM 장비업체 TOWA 실적 전망 상향 •생성형 AI와 데이터센터 수요 증가로 첨단 로직칩 및 HBM 투자 열기가 높아지면서 반도체 장비 수요가 예상치를 크게 웃돌고...",
+      "lead": 3,
+      "tickers": []
     },
     {
       "id": "insidertracking/68764",
@@ -2457,7 +2454,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
       "media": {
@@ -2466,8 +2462,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>반도체주 ‘투항식 매도’ 언제 끝나나? BofA “2027년 초 가능성…주가 조정은 펀더멘털 전환보다 6~9개월 선행” •BofA는 SOX 반도체지수가 올해 6월 고점 대비 38% 하락했으며, 현재 선행..."
+      "summary": ">>반도체주 ‘투항식 매도’ 언제 끝나나? BofA “2027년 초 가능성…주가 조정은 펀더멘털 전환보다 6~9개월 선행” •BofA는 SOX 반도체지수가 올해 6월 고점 대비 38% 하락했으며, 현재 선행...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68753",
@@ -3373,20 +3370,17 @@
       "datetime": "2026-11-08T03:54:53.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "power",
-        "macro",
-        "geo",
-        "semi"
+        "power"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
+      ]
     },
     {
       "id": "HANAchina/71747",
@@ -3428,7 +3422,7 @@
       "datetime": "2026-11-08T03:00:57.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "power"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
@@ -3438,10 +3432,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "코어위브(CoreWeave)의 마이클 인트레이터(Michael Intrator) CEO가 지나 히노호사(Gina Hinojosa) 텍사스 주지사 당선인에게 보낸 축하 및 협력 약속 서한 당선인 정책 지지 :...",
       "tickers": [
         "CRWV"
-      ],
-      "summary": "코어위브(CoreWeave)의 마이클 인트레이터(Michael Intrator) CEO가 지나 히노호사(Gina Hinojosa) 텍사스 주지사 당선인에게 보낸 축하 및 협력 약속 서한 당선인 정책 지지 :..."
+      ]
     },
     {
       "id": "bornlupin/21050",
@@ -3451,21 +3445,18 @@
       "localDateKst": "2026-11-08",
       "tags": [
         "power",
-        "semi",
-        "equity",
-        "healthcare"
+        "equity"
       ],
-      "lead": 1,
       "score": 88,
       "hasText": true,
+      "summary": "The Information) AI 데이터센터 건설 지연, 마이크로소프트, 아마존, 구글 3대 기업은 오히려 수혜 Microsoft(MSFT), Amazon(AMZN), Alphabet(GOOGL)은 오히려...",
       "tickers": [
         "NVDA",
         "MSFT",
         "GOOG",
         "AMZN",
         "GOOGL"
-      ],
-      "summary": "The Information) AI 데이터센터 건설 지연, 마이크로소프트, 아마존, 구글 3대 기업은 오히려 수혜 Microsoft(MSFT), Amazon(AMZN), Alphabet(GOOGL)은 오히려..."
+      ]
     },
     {
       "id": "HANAchina/71745",
@@ -3707,14 +3698,12 @@
       "datetime": "2026-11-07T13:24:46.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "earnings",
-        "power"
+        "earnings"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "위스트론·위윈, 역대 최강 10월 매출 기록고객사 수주 가시성 견조, AI 서버 비중 사상 최고치… 하반기 실적이 상반기 웃돌 것으로 전망 AI 인프라 수요 강세에 힘입어 위스트론(3231)과 자회사..."
+      "summary": "위스트론·위윈, 역대 최강 10월 매출 기록고객사 수주 가시성 견조, AI 서버 비중 사상 최고치… 하반기 실적이 상반기 웃돌 것으로 전망 AI 인프라 수요 강세에 힘입어 위스트론(3231)과 자회사...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68634",
@@ -3794,19 +3783,17 @@
       "datetime": "2026-11-07T11:53:21.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "power",
-        "healthcare"
+        "semi"
       ],
-      "lead": 1,
       "score": 72,
       "hasText": true,
+      "summary": "TSMC가 엔비디아를 위해 3D DRAM을 생산한다고? 윈본드 자오유쥔 회장의 견해 1. TSMC의 DRAM 시장 진출 가능성 낮아 최근 TSMC가 엔비디아를 위해 3D DRAM을 생산하고 첨단 메모리 시장에...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM",
         "005930.KS"
-      ],
-      "summary": "TSMC가 엔비디아를 위해 3D DRAM을 생산한다고? 윈본드 자오유쥔 회장의 견해 1. TSMC의 DRAM 시장 진출 가능성 낮아 최근 TSMC가 엔비디아를 위해 3D DRAM을 생산하고 첨단 메모리 시장에..."
+      ]
     },
     {
       "id": "insidertracking/68629",
@@ -4243,10 +4230,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "오라클(Oracle) 공식 계정 OCI(오라클 클라우드 인프라)의 AI 인프라에 대한 수요는 구세대 GPU를 포함해 여전히 강력하게 유지되고 있습니다. 최근 실적 발표에서 클레이(Clay)가 설명했듯이,...",
+      "lead": 1,
       "tickers": [
         "ORCL"
-      ],
-      "summary": "오라클(Oracle) 공식 계정 OCI(오라클 클라우드 인프라)의 AI 인프라에 대한 수요는 구세대 GPU를 포함해 여전히 강력하게 유지되고 있습니다. 최근 실적 발표에서 클레이(Clay)가 설명했듯이,..."
+      ]
     },
     {
       "id": "insidertracking/68602",
@@ -4272,7 +4260,6 @@
       "tags": [
         "power"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
       "media": {
@@ -4281,11 +4268,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "블룸에너지(Bloom Energy) 공식 계정 구글이 와이오밍주에 건설하는 첫 번째 데이터센터에는 블룸에너지의 연료전지 702MW 규모가 도입될 예정 입니다. 이 연료전지는 탄소 포집·저장(CCS) 기술과...",
+      "lead": 1,
       "tickers": [
         "GOOG",
         "BE"
-      ],
-      "summary": "블룸에너지(Bloom Energy) 공식 계정 구글이 와이오밍주에 건설하는 첫 번째 데이터센터에는 블룸에너지의 연료전지 702MW 규모가 도입될 예정 입니다. 이 연료전지는 탄소 포집·저장(CCS) 기술과..."
+      ]
     },
     {
       "id": "HANAchina/71683",
@@ -4308,13 +4296,14 @@
       "datetime": "2026-11-07T00:05:56.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
         "power",
         "equity",
-        "earnings"
+        "semi"
       ],
       "score": 85,
       "hasText": true,
+      "summary": "일론 머스크 인터뷰 - 제33회 배런 투자 컨퍼런스- 26년 11월 6일 테라팹·AI 데이터센터·SpaceX·스타링크·우주 AI 1. 테라팹(Terafab): 반도체 생산능력 30배 확대 머스크는 미국의...",
+      "lead": 2,
       "tickers": [
         "NVDA",
         "TSLA",
@@ -4324,8 +4313,7 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "일론 머스크 인터뷰 - 제33회 배런 투자 컨퍼런스- 26년 11월 6일 테라팹·AI 데이터센터·SpaceX·스타링크·우주 AI 1. 테라팹(Terafab): 반도체 생산능력 30배 확대 머스크는 미국의..."
+      ]
     },
     {
       "id": "HANAchina/71678",
@@ -4353,11 +4341,10 @@
       "localDateKst": "2026-11-07",
       "tags": [
         "macro",
-        "earnings",
         "semi",
-        "equity"
+        "equity",
+        "earnings"
       ],
-      "lead": 4,
       "score": 71,
       "hasText": true,
       "media": {
@@ -4366,12 +4353,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "다음주 일정 9일: 중국 10월 CPI, PPI, 엔비디아 AI데이 서울(~10일), 로켓랩, 제타, ASTS, HIMS 실적(장후), 앤트로픽 IPO 로드쇼 개시 예상 10일: 미국 10월 CPI, 중국...",
       "tickers": [
         "NVDA",
         "AMAT",
         "TSM"
-      ],
-      "summary": "다음주 일정 9일: 중국 10월 CPI, PPI, 엔비디아 AI데이 서울(~10일), 로켓랩, 제타, ASTS, HIMS 실적(장후), 앤트로픽 IPO 로드쇼 개시 예상 10일: 미국 10월 CPI, 중국..."
+      ]
     },
     {
       "id": "HANAchina/71675",
@@ -4694,17 +4681,16 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 67,
       "hasText": true,
+      "summary": "TSMC, 엔비디아 요청으로 3D D램 생산 검토 더 인포메이션(The Information)에 따르면, AI로 인한 메모리 공급 부족으로 칩 설계 업체들이 추가 공급처를 모색함에 따라 TSMC가 첨단 3D...",
       "tickers": [
         "NVDA",
         "MU",
         "TSM",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "TSMC, 엔비디아 요청으로 3D D램 생산 검토 더 인포메이션(The Information)에 따르면, AI로 인한 메모리 공급 부족으로 칩 설계 업체들이 추가 공급처를 모색함에 따라 TSMC가 첨단 3D..."
+      ]
     },
     {
       "id": "bornlupin/21037",
@@ -4713,13 +4699,12 @@
       "datetime": "2026-11-06T14:01:30.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "credit",
-        "power"
+        "credit"
       ],
       "score": 78,
       "hasText": true,
-      "tickers": [],
-      "summary": "모건스탠리: AI 투자 확대와 신용시장 리스크 분석 모건스탠리의 신용시장 전문가 댄 토스카노는 AI 인프라 투자 규모가 계속 확대되고 있지만, 현재 신용시장에서는 구조적인 자금조달 위기가 나타나지 않고 있다고..."
+      "summary": "모건스탠리: AI 투자 확대와 신용시장 리스크 분석 모건스탠리의 신용시장 전문가 댄 토스카노는 AI 인프라 투자 규모가 계속 확대되고 있지만, 현재 신용시장에서는 구조적인 자금조달 위기가 나타나지 않고 있다고...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21036",
@@ -4730,7 +4715,6 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -4739,8 +4723,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "미국 10월 고용보고서 비농업부문 신규 고용 +16만 5천 명 (예상 +6만 5천 명) 실업률 4.1% (예상 4.2%) 평균 시간당 임금 전년 대비 +3.1% (예상 +2.9%) 경제활동참가율 61.9%..."
+      "summary": "미국 10월 고용보고서 비농업부문 신규 고용 +16만 5천 명 (예상 +6만 5천 명) 실업률 4.1% (예상 4.2%) 평균 시간당 임금 전년 대비 +3.1% (예상 +2.9%) 경제활동참가율 61.9%...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68561",
@@ -4788,10 +4772,8 @@
       "datetime": "2026-11-06T13:17:10.000Z",
       "localDateKst": "2026-11-06",
       "tags": [
-        "semi",
-        "flows"
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -4800,8 +4782,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "Silicon Data, GPU 임대료 상승세 지속, AI 컴퓨팅 수요 여전히 견조 : 11월 5일 기준 GPU 시간당 임대료는 B300 $7.56, B200 $6.70, H200 $3.51, H100..."
+      "summary": "Silicon Data, GPU 임대료 상승세 지속, AI 컴퓨팅 수요 여전히 견조 : 11월 5일 기준 GPU 시간당 임대료는 B300 $7.56, B200 $6.70, H200 $3.51, H100...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21034",
@@ -8450,20 +8432,6 @@
         "MRVL",
         "LITE"
       ]
-    },
-    {
-      "id": "aetherjapanresearch/26057",
-      "channel": "aetherjapanresearch",
-      "url": "https://t.me/aetherjapanresearch/26057",
-      "datetime": "2026-10-26T15:08:26.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "semi"
-      ],
-      "score": 97,
-      "hasText": true,
-      "summary": "로이터) 중국에서는 AI 버블이 이미 터졌다 중국 증시에서 AI 관련주가 급락하며 사실상 버블 붕괴 국면에 진입했습니다. AI 및 반도체 대표 종목으로 구성된 STAR50 지수는 4개월도 채 되지 않아 40%...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -9012,20 +8980,17 @@
       "datetime": "2026-11-08T03:54:53.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "power",
-        "macro",
-        "geo",
-        "semi"
+        "power"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
+      ]
     },
     {
       "id": "HANAchina/71747",
@@ -9067,7 +9032,7 @@
       "datetime": "2026-11-08T03:00:57.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "power"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
@@ -9077,10 +9042,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "코어위브(CoreWeave)의 마이클 인트레이터(Michael Intrator) CEO가 지나 히노호사(Gina Hinojosa) 텍사스 주지사 당선인에게 보낸 축하 및 협력 약속 서한 당선인 정책 지지 :...",
       "tickers": [
         "CRWV"
-      ],
-      "summary": "코어위브(CoreWeave)의 마이클 인트레이터(Michael Intrator) CEO가 지나 히노호사(Gina Hinojosa) 텍사스 주지사 당선인에게 보낸 축하 및 협력 약속 서한 당선인 정책 지지 :..."
+      ]
     },
     {
       "id": "bornlupin/21050",
@@ -9090,21 +9055,18 @@
       "localDateKst": "2026-11-08",
       "tags": [
         "power",
-        "semi",
-        "equity",
-        "healthcare"
+        "equity"
       ],
-      "lead": 1,
       "score": 88,
       "hasText": true,
+      "summary": "The Information) AI 데이터센터 건설 지연, 마이크로소프트, 아마존, 구글 3대 기업은 오히려 수혜 Microsoft(MSFT), Amazon(AMZN), Alphabet(GOOGL)은 오히려...",
       "tickers": [
         "NVDA",
         "MSFT",
         "GOOG",
         "AMZN",
         "GOOGL"
-      ],
-      "summary": "The Information) AI 데이터센터 건설 지연, 마이크로소프트, 아마존, 구글 3대 기업은 오히려 수혜 Microsoft(MSFT), Amazon(AMZN), Alphabet(GOOGL)은 오히려..."
+      ]
     },
     {
       "id": "HANAchina/71745",
@@ -9249,10 +9211,10 @@
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
-    "pt": 24,
+    "pt": 20,
     "earnings": 53,
     "macro": 3,
-    "retail": 6
+    "retail": 5
   },
   "signals": [
     {
@@ -9534,62 +9496,6 @@
       "ratingAction": null,
       "date": "2026-10-27",
       "post": "insidertracking/67517"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|TSLA|-|2026-10-26",
-      "ticker": "TSLA",
-      "broker": null,
-      "ptFrom": 370,
-      "ptTo": 450,
-      "currency": "USD",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": "upgrade",
-      "date": "2026-10-26",
-      "post": "insidertracking/67382"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|BE|-|2026-10-26",
-      "ticker": "BE",
-      "broker": null,
-      "ptFrom": 308,
-      "ptTo": 316,
-      "currency": "USD",
-      "direction": "raise",
-      "rating": null,
-      "ratingAction": null,
-      "date": "2026-10-26",
-      "post": "insidertracking/67382"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|SOFI|-|2026-10-26",
-      "ticker": "SOFI",
-      "broker": null,
-      "ptFrom": null,
-      "ptTo": 20,
-      "currency": "USD",
-      "direction": "initiate",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-26",
-      "post": "insidertracking/67382"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|BE|Evercore|2026-10-26",
-      "ticker": "BE",
-      "broker": "Evercore",
-      "ptFrom": null,
-      "ptTo": 350,
-      "currency": "USD",
-      "direction": "set",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-26",
-      "post": "bornlupin/20827"
     },
     {
       "kind": "earnings",
@@ -10675,88 +10581,6 @@
       "inverseShare": 0,
       "top10Share": 63.81,
       "post": "insidertracking/67535"
-    },
-    {
-      "kind": "retail",
-      "key": "retail|순매수|2026-10-26",
-      "side": "buy",
-      "date": "2026-10-26",
-      "top": [
-        {
-          "rank": 1,
-          "name": "DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF",
-          "share": 65.06,
-          "leveraged": true,
-          "inverse": false
-        },
-        {
-          "rank": 2,
-          "name": "SPACE EXPLORATION TECHN-CL A",
-          "share": 4.79,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 3,
-          "name": "PROSHARES ULTRAPRO QQQ ETF",
-          "share": 4.77,
-          "leveraged": true,
-          "inverse": false
-        },
-        {
-          "rank": 4,
-          "name": "PROSHARES ULTRA QQQ ETF",
-          "share": 3.46,
-          "leveraged": true,
-          "inverse": false
-        },
-        {
-          "rank": 5,
-          "name": "INVESCO NASDAQ 100 ETF",
-          "share": 1.96,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 6,
-          "name": "INVESCO QQQ TRUST SRS 1 ETF",
-          "share": 1.93,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 7,
-          "name": "BLOOM ENERGY CORP CL A",
-          "share": 1.92,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 8,
-          "name": "SK HYNIX INC SPON ADS EACH REP 0.1 SHS WI",
-          "share": 1.55,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 9,
-          "name": "VANGUARD SP 500 ETF",
-          "share": 1.53,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 10,
-          "name": "J.P. MORGAN NASDAQ EQUITY PREMIUM INCOME ETF",
-          "share": 1.47,
-          "leveraged": false,
-          "inverse": false
-        }
-      ],
-      "leveragedLongShare": 74.93,
-      "inverseShare": 0.63,
-      "top10Share": 88.44,
-      "post": "insidertracking/67405"
     }
   ]
 }
