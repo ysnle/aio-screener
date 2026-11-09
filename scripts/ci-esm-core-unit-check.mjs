@@ -7303,5 +7303,11 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     if (!v85.assertsInflationReaccel('물가가 재가속되고 있어 금리가 더 오를 수 있습니다.')
       || v85.assertsInflationReaccel('물가가 재가속되고 있는지 확인해야 합니다.') || v85.assertsInflationReaccel('물가가 재가속되고 있을 가능성이 있습니다.')
       || v85.assertsInflationReaccel('CPI가 예상을 웃돌 경우 물가 재가속 신호로 읽힐 수 있습니다.')) fail('v59.86 the conditional marker must sit on the 재가속 predicate or a leading condition');
+    // The trailing-year revenue growth needs the year-earlier quarters' revenue only: a derived Q4 without net income
+    // blanks the income comparison, not the revenue growth (TSLA·PLTR·AVGO fell back to a ten-month-old fiscal year).
+    const { buildTrailingYearRead } = await import(pathToFileURL(path.join(root, 'src/domain/fundamental/analysis-read.js')).href);
+    const qEnds = ['2024-09-30', '2024-12-31', '2025-03-31', '2025-06-30', '2025-09-30', '2025-12-31', '2026-03-31', '2026-06-30'];
+    const ttm = buildTrailingYearRead(qEnds.map((periodEnd, index) => ({ periodEnd, revenue: index < 4 ? 100 : 120, netIncome: index === 1 ? null : 10 })));
+    if (!ttm || Math.abs(ttm.revenueYoy - 20) > 1e-9 || ttm.netIncomeYoy !== null || ttm.priorMargin !== null) fail(`v59.86 trailing-year revenue growth reads the year-earlier revenue alone: ${JSON.stringify(ttm)}`);
   }
 }

@@ -193,7 +193,7 @@ var SCREENER_DB = [
   { sym:'ESTC', name:'Elastic', sector:'Technology', index:'NYSE' },
   // ── 핀테크 / 결제 / 크립토 ──
   { sym:'HOOD', name:'Robinhood', sector:'Financials', index:'SP500' },
-  { sym:'MSTR', name:'MicroStrategy', sector:'Technology', index:'NASDAQ100' },
+  { sym:'MSTR', name:'Strategy (MicroStrategy)', sector:'Technology', index:'NASDAQ100' },
   // ── 전력 / 에너지 / 원전 ──
   { sym:'NRG', name:'NRG Energy', sector:'Utilities', index:'SP500' },
   { sym:'CCJ', name:'Cameco', sector:'Energy', index:'NYSE' },

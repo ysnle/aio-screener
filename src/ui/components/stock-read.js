@@ -150,6 +150,11 @@ function checkTile(doc, { name, tone = 'neutral', chip = null, stale = false, va
   if (detail) tile.append(el(doc, 'span', detail, 'v2-stock-check__detail'));
   return tile;
 }
+// A net margin past ±100% (MSTR's bitcoin mark-to-market, IONQ's warrant revaluation) is not a margin a reader can use:
+// '순이익률 -2760.3%' says the loss is 27.6 times revenue, so it is said that way.
+function marginText(margin) {
+  return Math.abs(margin) >= 100 ? `순${margin < 0 ? '손실' : '이익'}이 매출의 ${(Math.abs(margin) / 100).toFixed(1)}배` : `순이익률 ${margin.toFixed(1)}%`;
+}
 function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null, krCompany = null, quarters = '') {
   const facts = read.facts || {};
   const tone = (id) => read.points.find((point) => point.id === id)?.tone || 'neutral';
@@ -182,12 +187,12 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null, krC
       const through = `${Number(ttm.through.slice(5, 7))}/${Number(ttm.through.slice(8, 10))}`;
       tiles.push(checkTile(doc, { name: '재무', chip: `${through}까지 4개 분기`, stale,
         value: `매출 ${signedText(ttm.revenueYoy)}`,
-        detail: [ttm.margin != null ? `순이익률 ${ttm.margin.toFixed(1)}%` : null, growth != null ? `${fiscalYearLabel(fy) || 'FY'} 매출 ${signedText(growth)}` : null,
+        detail: [ttm.margin != null ? marginText(ttm.margin) : null, growth != null ? `${fiscalYearLabel(fy) || 'FY'} 매출 ${signedText(growth)}` : null,
           roe != null ? `${fiscalYearLabel(fy) || 'FY'} ROE ${roe.toFixed(1)}%${roe > 60 ? roeNote(margin) : ''}` : null].filter(Boolean).join(', ') }));
     } else if (growth != null || margin != null) {
       tiles.push(checkTile(doc, { name: '재무', chip: fy ? (fiscalYearLabel(fy) || 'SEC') : 'SEC', stale,
-        value: growth != null ? `매출 ${signedText(growth)}` : `순이익률 ${margin.toFixed(1)}%`,
-        detail: [growth != null && margin != null ? `순이익률 ${margin.toFixed(1)}%` : null, roe != null ? `ROE ${roe.toFixed(1)}%${roe > 60 ? roeNote(margin) : ''}` : null, fy ? `${fy} 마감` : null, ttmTurn(own, margin, fy)].filter(Boolean).join(', ') }));
+        value: growth != null ? `매출 ${signedText(growth)}` : marginText(margin),
+        detail: [growth != null && margin != null ? marginText(margin) : null, roe != null ? `ROE ${roe.toFixed(1)}%${roe > 60 ? roeNote(margin) : ''}` : null, fy ? `${fy} 마감` : null, ttmTurn(own, margin, fy)].filter(Boolean).join(', ') }));
     } else if (fundamentalsState === 'loading') tiles.push(checkTile(doc, { name: '재무', chip: DATA_STATE_CHIPS.loading, value: 'SEC 연간 공시', detail: dataStateText('loading', '공시 요약') }));
     // Review: only a loaded projection without this issuer is a confirmed absence; a failed or unknown load says so.
     // v58.80 (bundle 3): the chips are the shared state words (data-state.js).

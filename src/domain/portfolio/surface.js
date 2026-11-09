@@ -396,7 +396,13 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   const currencyState = conversion.applied ? 'converted-with-declared-rates'
     : currencyBasis === 'mixed' ? 'mixed-without-conversion'
       : currencyBasis === 'undeclared' ? 'undeclared-single-basis-assumed' : 'declared-single';
-  rows.forEach((row) => Object.freeze(row));
+  // The unit each row's value and cost are in after any conversion: a row's P&L is value − cost only when they match,
+  // and it prints in that unit (a won holding in an unconverted mix is not a dollar amount).
+  rows.forEach((row) => {
+    row.valueUnit = conversion.applied ? declaredBaseCurrency : row.currency || row.listingCurrency || null;
+    row.costUnit = costConversionApplied ? declaredBaseCurrency : costCurrencyOf(row);
+    Object.freeze(row);
+  });
   Object.freeze(rows);
 
   const allRowsValued = currencyCompatible && rows.length > 0 && rows.every((row) => row.value != null);
@@ -485,6 +491,10 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     currencyHeldReason: currencyState !== 'mixed-without-conversion' ? null
       : declaredCurrencies.length > 1 || effectiveCurrencies.length > 1 ? 'mixed' : 'unknown-unit',
     unknownCurrencyCount: unknownUnitRows,
+    // A USD/KRW mix with no base currency chosen: choosing one is all it takes, because the app's own USD/KRW close then
+    // converts it (no declared rate needed). The held sentences say that instead of asking for a rate declaration.
+    baseChoiceConverts: currencyState === 'mixed-without-conversion' && !declaredBaseCurrency && appCovers && unknownUnitRows === 0,
+    appFxDate: cashFx && cashFx.rate > 0 ? cashFx.date || null : null,
     declaredCurrencies: Object.freeze(declaredCurrencies),
     // The units the holdings are actually in (declared or the listing's), which a mix names; declaredCurrencies is
     // empty when only costs or listings carry the unit, and the mix note read "통화 혼합()".

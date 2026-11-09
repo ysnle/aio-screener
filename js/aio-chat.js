@@ -568,8 +568,8 @@ function _aioCreateEvidenceContext(title, focus) {
         lines.push('현재 종목이 미선택 상태입니다. 예: NVDA처럼 티커를 먼저 선택해야 종목별 분석이 가능합니다.');
         lines.push('HARD STOP: 시세 미수신 상태에서는 가격 인용·진입가·목표가 계산을 하지 않습니다.');
       }
-      // Codex browser audit H104: market pages hand the model the screen's own close-basis readings first. v57.48 #20: portfolio and research pages too.
-      if (/^(home|briefing|signal|breadth|sentiment|macro|fxbond|themes|market-news|portfolio|principles|atlas|masters|charts)$/.test(String(focus || ''))) {
+      // Codex browser audit H104: market pages hand the model the screen's own close-basis readings first. v57.48 #20: portfolio and research pages too; the single-symbol chart page as well, whose QQQ/SOXX comparisons cite the same closes.
+      if (/^(home|briefing|signal|breadth|sentiment|macro|fxbond|themes|market-news|portfolio|principles|atlas|masters|charts|technical)$/.test(String(focus || ''))) {
         var screenBasis = typeof window._aioScreenBasisContext === 'function' ? window._aioScreenBasisContext() : '';
         if (screenBasis) liveLines.push(screenBasis, 'Live or intraday values elsewhere in this context may differ from the screen basis; cite the screen basis for current facts, label any live value with its time, and never quote a truncated number.');
       }

@@ -342,7 +342,8 @@ function renderPortfolioSurface(documentRef, page, surface) {
       ? `통화 환산(${fxBasisLabel}) → ${surface.baseCurrency}`
       : surface.currencyState === 'mixed-without-conversion'
         ? surface.currencyHeldReason === 'unknown-unit' ? `시세 통화 미확인 ${surface.unknownCurrencyCount}종목 — 합계 보류`
-          : `통화 혼합(${heldCurrencyList(surface)}) — 환산 없어 합계 보류`
+          : surface.baseChoiceConverts ? `통화 혼합(${heldCurrencyList(surface)}) — 설정에서 기준 통화를 고르면 원/달러 종가로 합산`
+            : `통화 혼합(${heldCurrencyList(surface)}) — 환산 없어 합계 보류`
         : surface.currencyState === 'declared-single' ? `통화 ${surface.baseCurrency}`
           : '기준 통화를 따로 고르지 않아 종목의 시장 통화 그대로 계산';
   // E3/P1196: 원가/시세 불일치는 이제 두 갈래다 — 선언된 leg로 환산됐으면 P&L이 성립하고, 근거가
@@ -422,7 +423,8 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
   const rows = surface.rows.map((item, index) => {
     const holding = sourceHoldings[index];
     const { value, cost: costValue } = item;
-    const pnl = value != null && costValue != null ? value - costValue : null;
+    const sameUnit = !item.valueUnit || !item.costUnit || item.valueUnit === item.costUnit;
+    const pnl = value != null && costValue != null && sameUnit ? value - costValue : null;
     const pnlPct = pnl != null && costValue > 0 ? pnl / costValue * 100 : null;
     return { ...item, holding, costValue, pnl, pnlPct };
   });
@@ -521,8 +523,11 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     // and cost currency. Print the declared code instead, so a KRW/mixed row is not relabelled as USD.
     const baseCurrency = String(surface?.valuationCurrency || (surface?.currencyHeldReason === 'unknown-unit' ? '통화 미확인' : 'USD')).trim().toUpperCase();
     // Codex browser audit H49: the P&L column is summed in the base currency; its header names it.
+    // An unconverted mix has no one P&L unit: each row prints in its own (valueUnit), and the header says so.
+    const rowUnits = [...new Set(rows.map((entry) => entry.valueUnit).filter(Boolean))];
     const pnlHeader = documentRef.getElementById('pf-th-pnl');
-    if (pnlHeader) pnlHeader.textContent = `손익 (${baseCurrency})`;
+    if (pnlHeader) pnlHeader.textContent = rowUnits.length > 1 ? '손익 (보유 통화)' : `손익 (${baseCurrency})`;
+    const pnlCurrency = rowUnits.length > 1 ? String(rowData.valueUnit || '').toUpperCase() || baseCurrency : baseCurrency;
     const priceCurrency = String(holding?.currency || rowData.listingCurrency || '').trim().toUpperCase() || null;
     const costCurrency = String(holding?.costCurrency || holding?.currency || rowData.listingCurrency || '').trim().toUpperCase() || null;
     const money = (amount, currency) => (amount == null
@@ -541,7 +546,7 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     row.appendChild(priceCellNode);
     // v59.51 (first-users run-6 #9): a bare '—' read as a missing calculation; an empty cell names why it is empty.
     const heldText = avgCost == null ? '매수가 없음' : price == null ? '가격 없음' : '보류';
-    const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? heldText : `${pnl >= 0 ? '+' : '-'}${money(Math.abs(pnl), baseCurrency)}`, 'pfp-cell is-bold');
+    const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? heldText : `${pnl >= 0 ? '+' : '-'}${money(Math.abs(pnl), pnlCurrency)}`, 'pfp-cell is-bold');
     if (pnl == null) pnlCell.title = '손익 보류, 원가/시세 통화 불일치 또는 시세 미수신';
     pnlCell.style.color = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
     row.appendChild(pnlCell);
@@ -756,7 +761,7 @@ function renderPortfolioChecks(documentRef, root, surface) {
   host.replaceChildren(el('h2', '포트폴리오 점검', 'briefing-h2'));
   host.dataset.aioPortfolioChecksRenderer = 'native';
   // Audit 2026-10-14: an empty portfolio shows one empty state (the holdings table); a currency hold is still explained.
-  const currencyHold = { 'currency-unconverted': '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아, 비중을 한 통화로 맞출 수 없습니다. 포트폴리오 설정에서 기준 통화와 환율을 선언하세요.',
+  const currencyHold = { 'currency-unconverted': surface?.baseChoiceConverts ? '원화와 달러 종목이 섞여 있고 기준 통화를 고르지 않아 비중을 한 통화로 맞추지 않았습니다. 포트폴리오 설정에서 기준 통화를 고르면 원/달러 종가로 환산합니다.' : '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아, 비중을 한 통화로 맞출 수 없습니다. 포트폴리오 설정에서 기준 통화와 환율을 선언하세요.',
     'currency-unknown': '시세 통화를 알 수 없는 종목이 있어 비중을 한 통화로 맞출 수 없습니다. 그 종목의 시세 통화를 입력하세요.' }[result.reason];
   host.hidden = result.status !== 'current' && !currencyHold;
   if (result.status !== 'current') {

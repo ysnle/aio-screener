@@ -240,7 +240,7 @@ export function buildTrailingYearRead(quarters = []) {
     from: span[0].periodEnd, through: span[3].periodEnd, revenue, netIncome, margin: revenue > 0 ? netIncome / revenue * 100 : null,
     revenueYoy: priorRevenue > 0 ? (revenue / priorRevenue - 1) * 100 : null,
     netIncomeYoy: priorIncome > 0 ? (netIncome / priorIncome - 1) * 100 : null,
-    priorMargin: priorRevenue > 0 ? priorIncome / priorRevenue * 100 : null,
+    priorMargin: priorRevenue > 0 && priorIncome != null ? priorIncome / priorRevenue * 100 : null,
     hasDerived: span.some((q) => q.derived)
   };
 }

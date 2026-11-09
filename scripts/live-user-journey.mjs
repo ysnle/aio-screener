@@ -52,6 +52,9 @@ const flushErrors = (label) => {
 };
 
 async function open(hash, waitMs = 9000) {
+  // A hash-only goto keeps the same document (the SPA state, an open AI panel, a request still in flight), which is not how a
+  // reader arrives from a link; each step starts from a fresh load.
+  await page.goto('about:blank');
   await page.goto(`${BASE}/index.html#${hash}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForFunction(() => typeof window.showPage === 'function', null, { timeout: 60000 }).catch(() => {});
   await page.waitForTimeout(waitMs);
@@ -107,7 +110,18 @@ try {
       await page.waitForSelector('#ai-panel-inp', { state: 'visible', timeout: 15000 }).catch(() => {});
       const before = await page.evaluate(() => document.getElementById('ai-panel-msgs')?.children.length || 0);
       await page.fill('#ai-panel-inp', question).catch(() => problems.push(`chat ${hash}: input not fillable`));
-      await page.click('#ai-panel-btn').catch(() => problems.push(`chat ${hash}: send not clickable`));
+      const sent = await page.click('#ai-panel-btn', { timeout: 15000 }).then(() => true).catch(() => false);
+      if (!sent) {
+        const why = await page.evaluate(() => {
+          const button = document.getElementById('ai-panel-btn');
+          const rect = button?.getBoundingClientRect();
+          const top = rect ? document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2) : null;
+          return { exists: !!button, visible: !!button?.offsetParent, disabled: !!button?.disabled, text: button?.textContent?.trim(), coveredBy: top && top !== button ? `${top.tagName}#${top.id}.${top.className}` : null,
+            panel: document.getElementById('ai-panel')?.className, messages: document.getElementById('ai-panel-msgs')?.innerText?.slice(-400) };
+        });
+        problems.push(`chat ${hash}: send not clickable ${JSON.stringify(why)}`);
+        await page.evaluate(() => document.getElementById('ai-panel-btn')?.click());
+      }
       const started = Date.now();
       let answer = '';
       let last = '';
@@ -121,9 +135,11 @@ try {
             text: rows.map((row) => row.innerText.trim()).filter(Boolean).join('\n---\n') };
         }, before);
         answer = state.text;
-        stableFor = !state.loading && answer && answer === last ? stableFor + 1 : 0;
+        // a web-research step prints a holding line ("웹검색 중", "검증 중") before the answer: that is not the answer
+        const pending = /웹검색 중|검증 중|분석 중|답변 작성 중/.test(answer.split('\n---\n').at(-1) || '');
+        stableFor = !state.loading && !pending && answer && answer === last ? stableFor + 1 : 0;
         last = answer;
-        if (stableFor >= 2) break;
+        if (stableFor >= 3) break;
       }
       const seconds = Math.round((Date.now() - started) / 1000);
       if (!answer || answer.length < 80) problems.push(`chat ${hash}: answer ${answer.length} chars after ${seconds}s`);
@@ -157,7 +173,9 @@ try {
         await page.click('[data-action="addPortfolioPosition"]');
         await page.waitForTimeout(2500);
       }
-      await page.fill('#pf-cash-krw-input', '1000000').catch(() => {});
+      await page.evaluate(() => window._aioTogglePortfolioEntry?.(true));
+      await page.waitForTimeout(500);
+      await page.fill('#pf-cash-krw-input', '1000000').catch(() => problems.push('portfolio: cash field not fillable'));
       await page.dispatchEvent('#pf-cash-krw-input', 'change').catch(() => {});
       await page.fill('#pf-cash-usd-input', '2000').catch(() => {});
       await page.dispatchEvent('#pf-cash-usd-input', 'change').catch(() => {});
@@ -171,6 +189,14 @@ try {
         try { return JSON.stringify(window.AIO?.portfolio?.positions || window._aioPortfolioPositions || null); } catch (_) { return null; }
       });
       if (holdings) section('portfolio state', holdings);
+      // the mix is held until a base currency is chosen; choose KRW the way a Korean reader would and read it again
+      await page.evaluate(() => { const box = document.getElementById('pf-base-currency-input'); box?.closest('details')?.setAttribute('open', ''); });
+      await page.fill('#pf-base-currency-input', 'KRW').catch(() => problems.push('portfolio: base currency field not fillable'));
+      await page.dispatchEvent('#pf-base-currency-input', 'change').catch(() => {});
+      await page.waitForTimeout(6000);
+      const based = await visiblePageText(page);
+      writeFileSync(`${OUT}/portfolio-krw.txt`, based.text);
+      section('portfolio after choosing base currency KRW', based.text.slice(0, 9000));
       flushErrors('portfolio');
     }
   }
