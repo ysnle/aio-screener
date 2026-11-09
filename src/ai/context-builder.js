@@ -1,4 +1,4 @@
-import { evaluateEvidenceUse } from './policy.js';
+import { evaluateEvidenceUse } from './policy/evidence-use.js';
 import { createAIContextManifest } from './context/manifest.js';
 
 export function buildEvidenceContext({ evidenceStore, retriever = null, metrics = [] } = {}) {

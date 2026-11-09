@@ -84,7 +84,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 
 // P1353: refuse unsupported paid search before incrementing counters; personal-key cost stays separate.
 {
-  const { preparePaidWebSearch } = await load('src/ai/policies/budget.js');
+  const { preparePaidWebSearch } = await load('src/ai/policy/budget.js');
   const state = {};
   let refused = false, counters = 0;
   try { preparePaidWebSearch({ serverKey: true, state, bumpCounter: () => counters++ }); } catch (error) { refused = /월 예산.*유료 웹 검색/.test(error.message); }
@@ -3032,7 +3032,29 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail(`P1175/P11-02 portfolio-surface: an undeclared currency must keep single-basis behaviour and disclose the assumption, got ${JSON.stringify(undeclaredCurrency)}`);
   }
   const { normalizePortfolio } = await load('src/data/normalize/portfolio.js');
-  const normalizedCurrency = normalizePortfolio({ baseCurrency: 'usd', cashCurrency: 'KRW', holdings: [{ symbol: 'AAA', shares: 1, currency: 'krw', costCurrency: 'usd' }] });
+  {
+    // v59.87: the listing symbol the runtime reader resolves for a stored KR code survives the provider -> normalize ->
+    // reducer -> surface chain. normalizePortfolio dropped it, so the page asked the quote providers for the bare code
+    // (Yahoo chart/005930 -> 404) and read the quote under the wrong key ('시세 대기').
+    const { createPortfolioProvider } = await load('src/data/providers/portfolio.js');
+    const { createPortfolioOrchestrator } = await load('src/data/orchestrators/portfolio.js');
+    const { portfolioReducer } = await load('src/state/slices/portfolio.js');
+    let stored = null;
+    createPortfolioOrchestrator({
+      provider: createPortfolioProvider({ read: () => ({ readState: 'ready', holdingsKnown: true, holdings: [{ symbol: '005930', listingSymbol: '005930.KS', shares: 10, avgCost: 55000 }, { symbol: '999999', listingSymbol: null, shares: 1 }] }) }),
+      commands: { setData: (payload, meta) => { stored = portfolioReducer(undefined, { type: 'data/portfolio', payload, meta }); } },
+    }).sync();
+    const krNow = Date.parse('2026-09-12T15:00:00Z');
+    const krQuote = { price: 60000, currency: 'KRW', source: 'live:yahoo-proxy', sourceKind: 'LIVE', stale: true, observedAt: new Date(krNow - 20 * 60000).toISOString() };
+    const krSurface = derivePortfolioSurface({ state: stored, liveData: { '005930.KS': krQuote }, vix: null, now: krNow });
+    const kr = krSurface.rows.find((row) => row.symbol === '005930');
+    const unknown = krSurface.rows.find((row) => row.symbol === '999999');
+    if (stored?.holdings?.[0]?.listingSymbol !== '005930.KS' || kr?.listingSymbol !== '005930.KS' || kr?.value !== 600000) {
+      fail(`v59.87 portfolio listing symbol: a KR holding must keep 005930.KS from the reader to the surface and read that quote, got store=${JSON.stringify(stored?.holdings?.[0])} row=${JSON.stringify(kr)}`);
+    }
+    if (stored?.holdings?.[1]?.listingSymbol !== null || unknown?.listingSymbol !== '999999') fail('v59.87 portfolio listing symbol: an unresolved code is not given a guessed exchange');
+  }
+  const normalizedCurrency =normalizePortfolio({ baseCurrency: 'usd', cashCurrency: 'KRW', holdings: [{ symbol: 'AAA', shares: 1, currency: 'krw', costCurrency: 'usd' }] });
   if (normalizedCurrency.baseCurrency !== 'USD' || normalizedCurrency.cashCurrency !== 'KRW'
     || normalizedCurrency.holdings[0].currency !== 'KRW' || normalizedCurrency.holdings[0].costCurrency !== 'USD') {
     fail(`P1175/P11-02 normalize: the declared currency basis was dropped, got ${JSON.stringify(normalizedCurrency)}`);

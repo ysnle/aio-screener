@@ -1,3 +1,7 @@
+// S5 (ADR-0003): the RSI zone is the one RULES.technical.rsi band the stock summary, screener and briefing read.
+import { RULES } from '../../domain/rules/thresholds.js';
+
+const RSI = RULES.technical.rsi;
 export const AI_TECHNICAL_ENGINE_VERSION = 'technical-conditions.v1';
 
 function number(value, { min = -Infinity, max = Infinity } = {}) { return typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max ? value : null; }
@@ -13,7 +17,7 @@ export function buildTechnicalConditions({ symbol = null, indicators = {}, obser
   const conditions = [];
   if (price !== null && sma20 !== null) conditions.push(Object.freeze({ id: 'price-vs-sma20', status: price >= sma20 ? 'above' : 'below', value: price - sma20, unit: 'price-difference' }));
   if (price !== null && sma50 !== null) conditions.push(Object.freeze({ id: 'price-vs-sma50', status: price >= sma50 ? 'above' : 'below', value: price - sma50, unit: 'price-difference' }));
-  if (rsi14 !== null) conditions.push(Object.freeze({ id: 'rsi14-zone', status: rsi14 >= 70 ? 'overbought' : rsi14 <= 30 ? 'oversold' : 'neutral', value: rsi14, unit: 'rsi' }));
+  if (rsi14 !== null) conditions.push(Object.freeze({ id: 'rsi14-zone', status: rsi14 >= RSI.overbought ? 'overbought' : rsi14 <= RSI.oversold ? 'oversold' : 'neutral', value: rsi14, unit: 'rsi' }));
   if (macd !== null && signal !== null) conditions.push(Object.freeze({ id: 'macd-vs-signal', status: macd >= signal ? 'positive' : 'negative', value: macd - signal, unit: 'macd-difference' }));
   const traceable = Boolean(observedAt && source);
   return Object.freeze({

@@ -3,7 +3,7 @@ export { createCompatibilityEventAdapter } from './compatibility-events.js';
 import { installCompatibilityGlobals } from './compatibility-globals.js';
 import { createClock } from '../platform/clock.js';
 import * as financialSecurity from '../storage/financial-security.js';
-import * as aiBudgetPolicy from '../ai/policies/budget.js';
+import * as aiBudgetPolicy from '../ai/policy/budget.js';
 import { createHttpClient } from '../platform/http.js';
 import { createStore } from '../state/store.js';
 import { createInitialSentimentState, sentimentReducer, SENTIMENT_DATA_CLEAR, SENTIMENT_DATA_SET } from '../state/slices/sentiment.js';
@@ -22,7 +22,8 @@ import { createPortfolioCommands } from './commands/portfolio.js';
 import { createScreenerCommands } from './commands/screener.js';
 import { selectSentimentSummary } from '../state/selectors/sentiment.js';
 import { createEvidenceStore } from '../data/evidence-store.js';
-import { clearArtifactCache, stableFetcher } from '../data/artifact-cache.js';
+import { clearArtifactCache, loadJsonArtifact, stableFetcher } from '../data/artifact-cache.js';
+import { artifactUrl } from '../data/artifact-registry.js';
 import { createEvidence } from '../data/contracts/evidence.js';
 import { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } from '../data/selectors/evidence.js';
 import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
@@ -373,7 +374,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     import('../ai/orchestrator/answer-orchestrator.js'),
     import('../ai/retrieval/knowledge.js')
   ]).then(([{ createAIAnswerOrchestrator }, { createAIKnowledgeRetriever }]) => {
-    const knowledgeRetriever = createAIKnowledgeRetriever({ fetchImpl, suppliedMaterials: loadSuppliedMaterials });
+    // S5 (ADR-0003): the AI retriever reads the index through the data layer's loader (revalidated: no-cache, and force so
+    // the retriever's own retry after a failed or timed-out load really asks again).
+    const knowledgeFetch = (url, init) => fetchImpl(url, { ...init, cache: 'no-cache' });
+    const loadIndex = ({ signal } = {}) => loadJsonArtifact(knowledgeFetch, artifactUrl('knowledge/ai-retrieval-index.json'), { signal, force: true });
+    const knowledgeRetriever = createAIKnowledgeRetriever({ loadIndex, suppliedMaterials: loadSuppliedMaterials });
     aiOrchestrator = createAIAnswerOrchestrator({ root, now: () => clock.now(), knowledgeRetriever, beforeDispatch: () => root?.AIO?.ensureResearchCorpus?.() });
     return aiOrchestrator;
   }).catch((error) => { aiOrchestratorPending = null; throw error; }));
