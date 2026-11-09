@@ -1007,22 +1007,23 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (fakeRoot.AIO_ARCH?.version !== 'test.v1' || fakeRoot.AIO_ARCH?.status !== 'MIGRATION_IN_PROGRESS') fail('facade: exposeArchitecture did not expose the expected fields onto root.AIO_ARCH');
 }
 
-// v59.87 (legacy technical facade): the technical definitions legacy calcTechnicalSnapshot delegates to travel as one group. bootstrap listed
-// adrPctOf/vcpRead/detectContractions/isBreakoutDay but the facade allowlist never forwarded them, so the legacy ADR read
-// null and the VCP insufficient_data in every browser. Every name aio-core reads from AIO_ARCH for the snapshot must be in
-// bootstrap's legacyTechnical group, and the facade must forward the group whole.
+// v59.87 (legacy technical facade) → v59.88 (ADR-0003 S6): the legacy snapshot moved to src/domain/technical/snapshot.js,
+// which imports its definitions, VCP read and MA classifier directly, so the AIO_ARCH group that carried them is gone. No
+// classic script may define a technical calculation again (the copies drifted: ADR from the open, a VCP with no
+// extended stage, a filled high/low counted); the window names are the domain functions (legacy-screen-bridges.js).
 {
-  const marker = () => 0;
-  const techRoot = {};
-  exposeArchitecture(techRoot, { version: 'test.v1', legacyTechnical: Object.freeze({ adrPctOf: marker, rsiWilder: marker }) });
-  if (techRoot.AIO_ARCH?.adrPctOf !== marker || techRoot.AIO_ARCH?.rsiWilder !== marker) fail('v59.87 facade: exposeArchitecture does not forward api.legacyTechnical onto root.AIO_ARCH');
-  const coreSource = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
+  const classic = ['js/aio-core.js', 'js/aio-workspace.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-pages.js', 'js/aio-kr-data.js']
+    .map((file) => [file, readFileSync(path.join(root, file), 'utf8')]);
+  const copies = classic.flatMap(([file, text]) => [...text.matchAll(/^function (_calc(?:SMA|EMA|EMAFull|ATR|RSILast|RSISeries|MACD|BB|RVOL|ClosePosition|ADRPercent|CandleMetrics|RecentLevel|VCP|RSIDivergence|Fib|VolProfile|WeeklyContext|PortfolioVaR)|calcTechnicalSnapshot|calcExtensionHeat|calcSellPressure|calcPositionTechnicalRisk|calcPortfolioTechnicalRisk|_statMean)\(/gm)].map((m) => `${file}:${m[1]}`));
+  if (copies.length) fail(`v59.88 S6: a classic script defines a technical/portfolio calculation again: ${copies.join(', ')}`);
   const bootSource = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
-  const group = bootSource.match(/legacyTechnical: Object\.freeze\(\{([\s\S]*?)\}\)/)?.[1] || '';
-  const grouped = new Set([...group.matchAll(/^\s*([A-Za-z_]\w*)\s*(?:,|:)/gm)].map((m) => m[1]));
-  const read = new Set([...coreSource.matchAll(/arch\.(adrPctOf|vcpRead|detectContractions|isBreakoutDay)\b/g), ...coreSource.matchAll(/_aioTechDef\('(\w+)'\)/g)].map((m) => m[1]));
-  const missing = [...read].filter((name) => !grouped.has(name));
-  if (!read.size || missing.length) fail(`v59.87 bootstrap legacyTechnical is missing names js/aio-core.js reads from AIO_ARCH: ${missing.join(', ') || '(none read)'}`);
+  if (/legacyTechnical/.test(bootSource)) fail('v59.88 S6: bootstrap must not carry the retired legacyTechnical AIO_ARCH group');
+  // The engine loads on demand (포트폴리오 risk runs); ci-boot-interaction-check keeps it off the post-boot budget.
+  const { installTechnicalEngine } = await import('../src/app/technical-engine-globals.js');
+  const engineRoot = installTechnicalEngine({});
+  for (const name of ['calcTechnicalSnapshot', 'calcExtensionHeat', 'calcSellPressure', 'calcPositionTechnicalRisk', 'calcPortfolioTechnicalRisk', '_calcPortfolioVaR', '_statMean', '_calcCorrelationMatrix']) {
+    if (typeof engineRoot[name] !== 'function') fail(`v59.88 S6: technical-engine-globals.js must install ${name}`);
+  }
 }
 
 // P1348: use the shipped compatibility registry, not a fixture alias map.

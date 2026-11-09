@@ -9,6 +9,9 @@ import { computeNewsSentimentScore, computeNewsRiskSignals } from '../src/domain
 import { deriveTreasuryCurveEvidence } from '../src/domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk } from '../src/domain/portfolio/concentration.js';
 import { computeFactorRanks } from '../src/domain/screener/factor-ranks.js';
+import { technicalSnapshot, extensionHeat } from '../src/domain/technical/snapshot.js';
+import { sellPressure, positionTechnicalRisk, portfolioTechnicalRisk } from '../src/domain/portfolio/technical-risk.js';
+import { TECHNICAL_SNAPSHOT_SCENARIOS, POSITION_RISK_SCENARIOS } from './fixtures/technical-snapshot-scenarios.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fail = (message) => { throw new Error(`[domain-parity] ${message}`); };
@@ -390,4 +393,35 @@ for (const fixture of factorRanksGolden.fixtures) {
   if (oldVixEdges.length) fail(`P1564 a VIX comparison with a non-shared edge (15/20/30) remains (${oldVixEdges.length}): ${oldVixEdges.slice(0, 8).join(', ')}`);
 }
 
-console.log(JSON.stringify({ ok: true, inputVersion, models: { signal: signal.modelVersion }, tradingScoreParity: { fixtures: golden.fixtures.length, modelVersion: computeTradingScoreModel({}).modelVersion }, rrgParity: { fixtures: rrgGolden.fixtures.length }, stageParity: { fixtures: stageGolden.fixtures.length }, newsHeadlineBoundary: { fixtures: newsGolden.fixtures.length, legacyParityIntentionallyRetired: true }, macroCurveParity: { fixtures: macroCurveGolden.fixtures.length }, portfolioConcentrationParity: { fixtures: portfolioGolden.fixtures.length }, factorRanksParity: { fixtures: factorRanksGolden.fixtures.length } }));
+// ── REAL parity (v59.88, ADR-0003 S6): the technical snapshot and the holding technical risk vs the golden dump of the
+// legacy js/aio-core.js engine (scripts/dump-technical-snapshot-fixtures.mjs, run from the pre-extraction revision) ──
+const technicalGolden = JSON.parse(readFileSync(path.join(root, 'architecture/fixtures/technical-snapshot-golden.json'), 'utf8'));
+{
+  const strip = (value, nested = false) => (value && typeof value === 'object'
+    ? JSON.parse(JSON.stringify(value, function (k, v) { return k === 'raw' || (nested && k === 'snapshot' && this === value) ? undefined : v; }))
+    : value);
+  const diff = (a, b, at) => {
+    if (typeof a === 'number' && typeof b === 'number') return Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b)) ? null : `${at}: ${a} != ${b}`;
+    if (a === null || b === null || typeof a !== 'object' || typeof b !== 'object') return a === b ? null : `${at}: ${JSON.stringify(a)} != ${JSON.stringify(b)}`;
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    for (const key of keys) { const d = diff(a[key], b[key], `${at}.${key}`); if (d) return d; }
+    return null;
+  };
+  if (technicalGolden.fixtures.length !== TECHNICAL_SNAPSHOT_SCENARIOS.length || technicalGolden.positions.length !== POSITION_RISK_SCENARIOS.length) fail('technical-snapshot golden fixture does not match the scenario list — re-run scripts/dump-technical-snapshot-fixtures.mjs');
+  TECHNICAL_SNAPSHOT_SCENARIOS.forEach(({ name, ohlcv }, i) => {
+    const golden = technicalGolden.fixtures[i];
+    const snapshot = technicalSnapshot(ohlcv);
+    const d = diff(strip(snapshot), golden.snapshot, `${name}.snapshot`) || diff(strip(extensionHeat(snapshot), true), golden.extensionHeat, `${name}.extensionHeat`)
+      || diff(strip(sellPressure(snapshot, {}), true), golden.sellPressure, `${name}.sellPressure`);
+    if (d) fail(`TECHNICAL_SNAPSHOT_PARITY_MISMATCH:${d}`);
+  });
+  POSITION_RISK_SCENARIOS.forEach(({ name, positions, context }, i) => {
+    const golden = technicalGolden.positions[i];
+    const items = positions.map((p) => positionTechnicalRisk(p, p.ohlcv || [], context));
+    const d = diff(items.map((item) => strip(item, true)), golden.items, `${name}.items`)
+      || diff({ ...strip(portfolioTechnicalRisk(positions, items, context), true), items: undefined }, golden.portfolio, `${name}.portfolio`);
+    if (d) fail(`POSITION_TECHNICAL_RISK_PARITY_MISMATCH:${d}`);
+  });
+}
+
+console.log(JSON.stringify({ ok: true, inputVersion, models: { signal: signal.modelVersion }, tradingScoreParity: { fixtures: golden.fixtures.length, modelVersion: computeTradingScoreModel({}).modelVersion }, rrgParity: { fixtures: rrgGolden.fixtures.length }, stageParity: { fixtures: stageGolden.fixtures.length }, newsHeadlineBoundary: { fixtures: newsGolden.fixtures.length, legacyParityIntentionallyRetired: true }, macroCurveParity: { fixtures: macroCurveGolden.fixtures.length }, portfolioConcentrationParity: { fixtures: portfolioGolden.fixtures.length }, factorRanksParity: { fixtures: factorRanksGolden.fixtures.length }, technicalSnapshotParity: { fixtures: technicalGolden.fixtures.length, positions: technicalGolden.positions.length } }));

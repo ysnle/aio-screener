@@ -50,19 +50,15 @@ import { createCloseBasisEvidenceReader, closeBasisSubstituteFor, renderCloseBas
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
-import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
-import { detectContractions, isBreakoutDay, adrPctOf, smaLast, emaSeries, rsiWilder, atrWilder } from '../domain/technical/definitions.js';
-// v59.59 (logic refactor): the producer's VCP read for the legacy snapshot, behind import() (boot budget). The snapshot is
-// built on a stock's detail, well after boot; before the module arrives the legacy read is 'insufficient_data'.
-let producerVcpRead = null;
-import('../domain/screener/price-factors.js').then((module) => { producerVcpRead = module._calcVCPServer; }).catch(() => { /* the VCP stays unknown */ });
+// The legacy snapshot's technical definitions, VCP read and MA classifier left with it
+// (src/domain/technical/snapshot.js, installed by the lazy legacy-screen-bridges.js).
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
 import { latestCompletedUsSession, latestCompletedKrSession, latestCompletedSession } from '../domain/market/market-calendar.js';
 import { regimePulse } from '../domain/briefing/regime-pulse.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
-import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
+import { deriveConcentrationRisk } from '../domain/portfolio/concentration.js';
 import { computeFactorRanks } from '../domain/screener/factor-ranks.js';
 import { deriveFactorWeights } from '../domain/screener/factor-weights.js';
 import { captureScreenRun, createDefaultScreenDefinitions, replayScreenRun, runScreen } from '../domain/screener/screen-engine.js';
@@ -1219,25 +1215,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,setSignalScoreMode
     ,describeSignalScoreMode
     ,normalizeSignalScoreMode
-    // RM-03 item 2: same single-implementation pattern for RRG (index.html:calcLiveRS) and
-    // Weinstein/MTF (js/aio-core.js:calcTechnicalSnapshot, index.html:updateMTF).
+    // RM-03 item 2: same single-implementation pattern for RRG (index.html:calcLiveRS).
     ,computeRelativeRotation
-    ,classifyMovingAverageStructure
-    ,deriveMultiTimeframeView
-    // The technical definitions legacy calcTechnicalSnapshot delegates to (js/aio-core.js _calc*, _calcADRPercent,
-    // _calcVCP), as one group compatibility-facade.js forwards whole onto window.AIO_ARCH: a name listed only here and not
-    // on the facade's allowlist reads as missing in the browser. detectContractions is the one VCP contraction detector,
-    // isBreakoutDay the one breakout-day test (owner D6), and the ADR and VCP stage are the producer's own functions.
-    ,legacyTechnical: Object.freeze({
-      detectContractions,
-      isBreakoutDay,
-      adrPctOf,
-      smaLast,
-      emaSeries,
-      rsiWilder,
-      atrWilder,
-      vcpRead: (...args) => (producerVcpRead ? producerVcpRead(...args) : null)
-    })
     ,computeNewsSentimentScore
     ,computeNewsRiskSignals
     ,MIN_NEWS_ANALYSIS_SAMPLE
@@ -1250,14 +1229,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // js/aio-core.js's getUsTreasuryCurveEvidence wrapper calls this instead of keeping its own
     // copy of the multi-source fallback formula (R352/F-03).
     ,deriveTreasuryCurveEvidence
-    // RM-03 continued (2026-07-21, P758): concentration-risk slice of calcPortfolioTechnicalRisk/
-    // calcPositionTechnicalRisk. concentrationPenaltyForWeight is the single-implementation tier
-    // ladder js/aio-core.js's calcPositionTechnicalRisk now calls instead of its own copy;
-    // deriveConcentrationRisk is exposed for future portfolio-route native consumers (not yet
-    // wired to any UI — the portfolio orchestrator's data source is the encrypted Vault, a
-    // different shape than this slice's positions/OHLCV-derived risk model).
+    // RM-03 continued (2026-07-21, P758): concentration-risk slice of the holding technical risk
+    // (src/domain/portfolio/technical-risk.js imports concentrationPenaltyForWeight itself).
     ,deriveConcentrationRisk
-    ,concentrationPenaltyForWeight
     // RM-03 continued (2026-07-21, P759): the legacy screener ranking wrapper resolves its
     // existing profile/regime inputs and projects this pure model back onto SCREENER_DB; native
     // consumers can use the same implementation without importing legacy globals (R352/F-03).

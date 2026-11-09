@@ -149,10 +149,45 @@ export const cases = [
       const { resolveChatTickers } = await load('src/ai/entity/chat-tickers.js');
       const query = 'BRK.B 실적 분석';
       const root = { AIO_TICKER_NAME_REGISTRY: { entries: { 'BRK-B': { en: 'Berkshire Hathaway Class B' } } } };
-      const picked = resolveChatTickers({ query, questionPlan: { entities: resolveEntities(query, { root }) }, extract: extractTickers, companiesOnly: true });
+      const picked = resolveChatTickers({ query, questionPlan: { entities: resolveEntities(query, { root }) }, companiesOnly: true });
       assert.deepEqual([...picked], ['BRK-B']);
       assert.deepEqual(extractTickers('$BF.B 와 AAPL'), ['BF-B', 'AAPL']);
       assert.deepEqual(extractTickers('U.S. 경기와 IT-A 등급'), []);
+  } },
+  { id: 'S6-TICKER-01', name: 'v59.88 질문 티커는 한 해석기: 별명은 다른 종목과 함께 읽고, 한글 이름에 붙은 영문 접두는 티커가 아니다', run: async ({ load }) => {
+      const { resolveEntities } = await load('src/ai/entity/resolver.js');
+      const { resolveChatTickers } = await load('src/ai/entity/chat-tickers.js');
+      const root = { KR_STOCK_DB: { '000660': { name: 'SK하이닉스', market: 'KOSPI' }, '051910': { name: 'LG화학', market: 'KOSPI' } } };
+      const pick = (query, companiesOnly = true) => [...resolveChatTickers({ query, questionPlan: { entities: resolveEntities(query, { root }) }, companiesOnly })];
+      const planSymbols = (query) => resolveEntities(query, { root }).entities.map((e) => e.symbol);
+      assert.deepEqual(pick('암드 vs 엔비디아'), ['NVDA', 'AMD']);
+      assert.deepEqual(pick('SK하이닉스 전망'), ['000660.KS']);
+      assert.deepEqual(pick('LG화학 전망'), ['051910.KS']);
+      assert.deepEqual(planSymbols('SK하이닉스 전망'), ['000660.KS']);
+      assert.deepEqual(planSymbols('WTI 전망'), []);
+      assert.deepEqual(planSymbols('멀티에셋 PM의 관점'), []);
+      assert.deepEqual(planSymbols('$TSLA 숏'), ['TSLA']);
+      assert.deepEqual(pick('AMD주가 어때'), ['AMD']);
+      assert.deepEqual(pick('엔비는?'), ['NVDA']);
+      assert.deepEqual(pick('원달러 환율', false), ['KRW=X']);
+      assert.deepEqual(pick('원달러 환율'), []);
+      for (const q of ['금일 시장', '마크롱 발언', '메타버스 관련주', '애플리케이션 시장']) assert.deepEqual(pick(q, false), [], q);
+  } },
+  { id: 'S6-TICKER-02', name: 'v59.88 뉴스 기사 티커 읽기는 레거시 단어 관문을 그대로 지킨다 (P1428·P1449·P1550·P1592)', run: async ({ load }) => {
+      const { articleTickers } = await load('src/domain/news/article-tickers.js');
+      const lists = { knownTickers: new Set(['NVDA', 'COO', 'SNOW', 'ARM', 'MS', 'INTC']), nameMap: { 델: 'DELL', intel: 'INTC', 'morgan stanley': 'MS', 엔비디아: 'NVDA' } };
+      const read = (title) => articleTickers({ title }, lists);
+      assert.deepEqual(read('Former FTX COO joins'), []);
+      assert.deepEqual(read('$COO shares jump'), ['COO']);
+      assert.deepEqual(read('Snow storm hits; SNOW weather'), []);
+      assert.deepEqual(read('SNOW stock surges on revenue'), ['SNOW']);
+      assert.deepEqual(read('ARM designs a chip'), []);
+      assert.deepEqual(read('Arm Holdings (ARM) earnings beat'), ['ARM']);
+      assert.deepEqual(read('Artificial Intelligence boom'), []);
+      assert.deepEqual(read('모델 업데이트'), []);
+      assert.deepEqual(read('델이 서버 신제품을 발표'), ['DELL']);
+      assert.deepEqual(read('Markets wobble, Morgan Stanley says'), []);
+      assert.deepEqual(read('엔비디아 실적 발표'), ['NVDA']);
   } },
   { id: 'P12-RESEARCH-01', name: '기업 1차 출처 계획에서 Nasdaq 기사는 1차 출처로 세지 않는다', run: async ({ load }) => {
       const { evaluateResearchEvidenceFloor } = await load('src/ai/research/evidence.js');

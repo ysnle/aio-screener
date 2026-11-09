@@ -151,6 +151,19 @@ function _quantileR7(sorted, p) {
   return sorted[lo] + (h - lo) * (sorted[hi] - sorted[lo]);
 }
 
+// Historical-simulation VaR: the loss at the left-tail observation itself,
+// as a positive fraction, so interpolation never crosses the loss/gain boundary into a negative VaR. Under 10 finite
+// returns it is unknown.
+function _calcPortfolioVaR(returns, confidence) {
+  if (!returns || returns.length < 10) return null;
+  const conf = typeof confidence === 'number' ? confidence : 0.95;
+  const clean = returns.filter((v) => typeof v === 'number' && isFinite(v));
+  if (clean.length < 10) return null;
+  const sorted = clean.slice().sort((a, b) => a - b);
+  const tailCount = Math.max(1, Math.ceil(sorted.length * (1 - conf) - 1e-9));
+  return Math.max(0, -sorted[Math.min(sorted.length - 1, tailCount - 1)]);
+}
+
 function _calcSharpe(returns, rfRate) {
   if (!returns || returns.length < 10 || typeof rfRate !== 'number' || !isFinite(rfRate) || rfRate <= -1) return null;
   var clean = returns.filter(function(r) { return typeof r === 'number' && isFinite(r); });
@@ -270,6 +283,7 @@ export {
   _btVarOrderAudit,
   deriveVarStability,
   _quantileR7,
+  _calcPortfolioVaR,
   _calcSharpe,
   _calcMaxDrawdown,
   _pearsonCorr,

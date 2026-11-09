@@ -22,7 +22,9 @@ const versionNum = version.replace(/^v/, '');
 const html = read('index.html');
 const visibleHtml = html.replace(/<!--[\s\S]*?-->/g, '');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js') + String.fromCharCode(10) + read('src/data/quality/validation-stores.js') + String.fromCharCode(10) + read('src/data/quality/api-health.js') + String.fromCharCode(10) + read('src/app/score-entry-points.js')) /* P1329: audits live in the QA bundle; v59.17/v59.18: the validation stores and API health state moved to src; v59.41: the score entry points */;
-const data = read('js/aio-data.js') + String.fromCharCode(10) + read('src/data/providers/proxy-transport.js') /* v59.22: the relay transport moved to src */ + String.fromCharCode(10) + read('src/storage/news-cache.js') /* v59.31: the IndexedDB news cache moved to src */ + String.fromCharCode(10) + read('src/app/refresh-scheduler.js') /* v59.33: the refresh scheduler moved to src */ + String.fromCharCode(10) + read('src/data/server-data-loader.js') /* v59.34: the server data loader moved to src */ + String.fromCharCode(10) + read('src/data/public-readiness.js') /* v59.35: the public readiness model moved to src */ + String.fromCharCode(10) + read('src/app/boot-sequence.js') /* v59.36: the boot sequence moved to src */ + String.fromCharCode(10) + read('src/domain/news/selection.js') + String.fromCharCode(10) + read('src/domain/news/selection-keywords.js') /* v59.42: news scoring, keywords and selection moved to src */;
+// v59.88 (ADR-0003 S6): the technical snapshot is src/domain/technical/snapshot.js (moved from js/aio-core.js).
+const technicalSnapshotSrc = read('src/domain/technical/snapshot.js');
+const data = read('js/aio-data.js') + String.fromCharCode(10) + read('src/data/providers/proxy-transport.js') /* v59.22: the relay transport moved to src */ + String.fromCharCode(10) + read('src/storage/news-cache.js') /* v59.31: the IndexedDB news cache moved to src */ + String.fromCharCode(10) + read('src/app/refresh-scheduler.js') /* v59.33: the refresh scheduler moved to src */ + String.fromCharCode(10) + read('src/data/server-data-loader.js') /* v59.34: the server data loader moved to src */ + String.fromCharCode(10) + read('src/data/public-readiness.js') /* v59.35: the public readiness model moved to src */ + String.fromCharCode(10) + read('src/ui/components/pipeline-status.js') + String.fromCharCode(10) + read('src/data/pipeline-notices.js') + String.fromCharCode(10) + read('src/app/legacy-screen-bridges.js') /* v59.88: the pipeline status bar and readiness panel moved to src */ + String.fromCharCode(10) + read('src/app/boot-sequence.js') /* v59.36: the boot sequence moved to src */ + String.fromCharCode(10) + read('src/domain/news/selection.js') + String.fromCharCode(10) + read('src/domain/news/selection-keywords.js') /* v59.42: news scoring, keywords and selection moved to src */;
 const ui = read('js/aio-ui.js');
 const technicalLines = read('src/ai/context/technical-lines.js'); // v59.88 S4: the chat's technical block (chart fact sheet)
 const chat = read('js/aio-chat.js') + '\n' + read('src/data/providers/shared-ai-transport.js') + '\n' + read('src/ai/response/request-pipeline.js'); // v59.11: the shared AI route moved to the transport module; v59.15: the request/response pipeline module
@@ -359,8 +361,8 @@ check('E2/S-F/P1238 the news cache DB is news-scoped and migrates the legacy nam
 // P1753: the retired US deep-analysis renderer carried its own MA-stack and volume-profile copy; the shared
 // technical snapshot (core) and the AI chat keep both readings.
 check('P1753 5/10/20 + 50/100/200 MA stack reaches the AI chat (v59.88: the chart layers\' BASE_MA and alignment rows); the retired deep-analysis copy stays gone', /BASE_MA\.map/.test(technicalLines) && /sheet\.structure/.test(technicalLines) && !/단기 정배열 5>10>20/.test(ui));
-check('P1753 volume profile (POC / Value Area) stays in the shared technical snapshot; the retired deep-analysis beginner guide stays gone', /Volume Profile/.test(core) && /POC/.test(core) && /Value Area/.test(core) && !/beginnerNote/.test(ui));
-check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(core) && /sma100/.test(core) && /shortMAState/.test(core) && /longMAState/.test(core) && !/maStackScore/.test(core) && /BASE_MA/.test(technicalLines));
+check('P1753 volume profile (POC / Value Area) stays in the shared technical snapshot; the retired deep-analysis beginner guide stays gone', /export function volumeProfile\(/.test(technicalSnapshotSrc) && /\bpoc:/.test(technicalSnapshotSrc) && /valueArea:/.test(technicalSnapshotSrc) && !/beginnerNote/.test(ui));
+check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(technicalSnapshotSrc) && /sma100/.test(technicalSnapshotSrc) && /shortMAState/.test(technicalSnapshotSrc) && /longMAState/.test(technicalSnapshotSrc) && !/maStackScore/.test(core + technicalSnapshotSrc) && /BASE_MA/.test(technicalLines));
 check('event risk context fails closed without an embedded point-in-time timeline', /AIO_EVENT_RISK_CONTEXT/.test(core) && /available:\s*false/.test(core) && /asOf:\s*null/.test(core) && /timeline:\s*\[\]/.test(core) && !/headlineYoY:\s*\d/.test(core));
 check('page body redesign hub registry exists', /AIO_PAGE_ACTION_HUBS/.test(core) && /_aioApplyPageBodyRedesign/.test(core));
 check('page evidence currentness contract exists', /AIO_PAGE_EVIDENCE_CONTRACT/.test(core) && /getPageEvidenceState/.test(core) && /getPageEvidenceCurrentnessAudit/.test(core));
@@ -596,8 +598,8 @@ check(
 );
 check(
   'technical snapshot weekly context exposes canonical and legacy aliases',
-  /lastWeekClose\s*:\s*lastW\.close/.test(core) && /wClose\s*:\s*lastW\.close/.test(core) && /wRsi\s*:\s*wRsi/.test(core) && /wRsi14\s*:\s*wRsi/.test(core),
-  '_calcWeeklyContext must return lastWeekClose/wClose and wRsi/wRsi14 together'
+  /lastWeekClose\s*:\s*lastW\.close/.test(technicalSnapshotSrc) && /wClose\s*:\s*lastW\.close/.test(technicalSnapshotSrc) && /\bwRsi,/.test(technicalSnapshotSrc) && /wRsi14\s*:\s*wRsi/.test(technicalSnapshotSrc),
+  'snapshot.js weeklyContext must return lastWeekClose/wClose and wRsi/wRsi14 together'
 );
 check(
   'P1753 the retired ticker deep-analysis weekly renderer stays gone',
@@ -628,16 +630,16 @@ check('core must not recreate fake premium board renderer', !/window\._aioPremiu
 // 필드 자체는 calcTechnicalSnapshot 반환 계약으로 유지한다.
 check(
   'P545 calcTechnicalSnapshot produces snapshot.failedRetest (v57.77: test-only classifyTerminalCandle retired)',
-  /failedRetest\s*=\s*!!/.test(core) && /failedRetest\s*:/.test(core) && !/function classifyTerminalCandle/.test(core),
-  'calcTechnicalSnapshot must assign failedRetest field before return'
+  /failedRetest\s*=\s*!!/.test(technicalSnapshotSrc) && /\bfailedRetest\b[,\n]/.test(technicalSnapshotSrc) && !/function classifyTerminalCandle/.test(core),
+  'snapshot.js technicalSnapshot must assign failedRetest before return'
 );
 // snapshot 참조 패턴 목록 — 추후 새 signal이 snapshot.X를 쓰면 여기에 추가
 const snapshotSignalFields = ['failedRetest'];
 for (const field of snapshotSignalFields) {
   check(
     `P545 calcTechnicalSnapshot returns '${field}'`,
-    new RegExp(`\\b${field}\\s*[=:]`).test(core),
-    `field '${field}' not found in aio-core.js`
+    new RegExp(`\\b${field}\\s*[=:,]`).test(technicalSnapshotSrc),
+    `field '${field}' not found in src/domain/technical/snapshot.js`
   );
 }
 
@@ -1205,7 +1207,7 @@ check('PERF-BOOT-02: automatic ops push uses light mode by default and reserves 
 check('PERF-BOOT-03 (P2130): the retired currentness guard stays absent', !/applyMarketCurrentnessGuard\s*=\s*function/.test(core) && !/applyTextSurfaceHygiene\s*=\s*function/.test(core));
 check('PERF-BOOT-04 (P2130): live quotes debounce the snapshot banner refresh and retired 6s\/18s whole-document rescans stay absent', /scheduleSnapshotStaleBanner\(250\)/.test(data) && /window\.AIO\.scheduleSnapshotStaleBanner = _aioScheduleSnapshotStaleBanner/.test(core) && !/_aioScheduleSnapshotStaleBanner\(6000/.test(core) && !/_aioScheduleSnapshotStaleBanner\(18000/.test(core));
 
-check('PERF-BOOT-05: public readiness uses materialized runtime state while full share audits remain explicit/dev-only', /var detailed = opts\.full === true/.test(data) && /if \(detailed\) \{[\s\S]{0,500}getShareReadinessAudit/.test(data) && /_aioBuildPublicShareReadiness\(\{ full: false \}\)/.test(data) && /_aioSchedulePublicReadiness/.test(data) && exists('scripts/ci-boot-interaction-check.mjs') && qaHas('scripts/ci-boot-interaction-check.mjs', 'browser-runtime'));
+check('PERF-BOOT-05: public readiness uses materialized runtime state while full share audits remain explicit/dev-only', /var detailed = opts\.full === true/.test(data) && /if \(detailed\) \{[\s\S]{0,500}getShareReadinessAudit/.test(data) && /readiness\(\{ full: false \}\)/.test(data) && /_aioSchedulePublicReadiness/.test(data) && exists('scripts/ci-boot-interaction-check.mjs') && qaHas('scripts/ci-boot-interaction-check.mjs', 'browser-runtime'));
 check('PERF-BOOT-06: shell FCP is presented before synthetic route timing and all three budgets remain independent', /requestAnimationFrame\(\(\) => requestAnimationFrame\(resolvePaint\)\)/.test(bootInteractionGate) && bootInteractionGate.indexOf('resolvePaint') < bootInteractionGate.indexOf("showPage('signal')") && /fcpMs > 2500/.test(bootInteractionGate) && /routeMs > 2000/.test(bootInteractionGate) && /maxLongTaskMs > 2500/.test(bootInteractionGate));
 
 // v52.75 (WP-AI0): public AI beta safety boundary + unverified auto-analysis block.
@@ -1712,11 +1714,15 @@ try {
 check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease without result evidence', macroScheduleResultDatesRemainEvidenceBound);
 // P1592 (frontend audit F26/F16/F31/F30): structural guards for the round-4~9 findings.
 {
-  const roleRe = data.match(/const _TICKER_ROLE_ACRONYM = (\/[^;]+\/);/)?.[1];
-  let roleGate = false;
-  try { const re = new Function(`return ${roleRe}`)(); roleGate = ['COO', 'CEO', 'CFO', 'SEC', 'FDA'].every((t) => re.test(t)) && !['NVDA', 'COST', 'CAT'].some((t) => re.test(t)); } catch (_) {}
+  // v59.88 (S6): the article reading is src/domain/news/article-tickers.js; js/aio-data.js getDisplayTickers gates cached tickers through it.
+  const { articleTickers, articleSymbolAllowed } = await import('../src/domain/news/article-tickers.js');
+  const knownTickers = new Set(['COO', 'CEO', 'SEC', 'FDA', 'NVDA', 'COST', 'CAT']);
+  const roleGate = ['COO', 'CEO', 'CFO', 'SEC', 'FDA'].every((t) => !articleSymbolAllowed(t, `Former FTX ${t} joins`) && articleSymbolAllowed(t, `(${t})`))
+    && ['NVDA', 'CAT'].every((t) => articleSymbolAllowed(t, `${t} rallies`))
+    && articleTickers({ title: 'Former FTX COO joins NVDA board' }, { knownTickers }).join() === 'NVDA'
+    && articleTickers({ title: '$COO shares jump' }, { knownTickers }).join() === 'COO';
   check('P1592/F26 officer titles and agency acronyms are not news tickers unless written as $TICKER/(TICKER), in local and cached paths',
-    roleGate && /_TICKER_WORD_OVERLAP\.has\(ticker\) \|\| _TICKER_ROLE_ACRONYM\.test\(ticker\)/.test(data) && /_TICKER_ROLE_ACRONYM\.test\(bare\)/.test(data));
+    roleGate && /_aioArticleSymbolAllowed\(bare, text\)/.test(data));
   // v59.51 (content audit): the position donut and sector card left 포트폴리오 (the holdings table's 주식 중 비중 and 보유 점검
   // carry the mix), so the native renderer no longer marks a canvas; pin that the legacy donut has no canvas to draw on.
   check('P1592/F16 v59.51 (content audit) the legacy cost-basis donut has no canvas left and the legacy sector mix stays retired',

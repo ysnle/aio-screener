@@ -427,20 +427,14 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
        navigate: api.navigate,
       router: api.router,
       computeTradingScoreModel: api.computeTradingScoreModel,
-      // The technical definitions the legacy snapshot delegates to, forwarded as one group (src/app/bootstrap.js
-      // legacyTechnical), so a name added there is never missing here.
-      ...(api.legacyTechnical || {}),
       signalScoreMode: Object.freeze({ get: api.getSignalScoreMode, set: api.setSignalScoreMode, describe: api.describeSignalScoreMode }),
       computeRelativeRotation: api.computeRelativeRotation,
-      classifyMovingAverageStructure: api.classifyMovingAverageStructure,
-      deriveMultiTimeframeView: api.deriveMultiTimeframeView,
       computeNewsSentimentScore: api.computeNewsSentimentScore,
       computeNewsRiskSignals: api.computeNewsRiskSignals,
       MIN_NEWS_ANALYSIS_SAMPLE: api.MIN_NEWS_ANALYSIS_SAMPLE,
       classifyBreadthParticipation: api.classifyBreadthParticipation,
       deriveTreasuryCurveEvidence: api.deriveTreasuryCurveEvidence,
       deriveConcentrationRisk: api.deriveConcentrationRisk,
-      concentrationPenaltyForWeight: api.concentrationPenaltyForWeight,
       computeFactorRanks: api.computeFactorRanks,
       deriveFactorWeights: api.deriveFactorWeights
        ,getVerticalSliceContract: api.getVerticalSliceContract
