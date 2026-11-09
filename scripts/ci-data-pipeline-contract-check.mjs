@@ -1948,18 +1948,12 @@ const rsiParityOk = await (async () => {
   try {
     // v59.59: the producer's _rsi14 rounds technical/definitions.js rsiWilder; the parity runs the real module.
     const serverSrc = extractFunctionSource(fetchData, '_rsi14');
-    const clientRsiSrc = extractFunctionSource(core, '_calcRSILast');
-    const cleanNumsSrc = extractFunctionSource(core, '_aioCleanNums');
-    // v59.87 (ADR-0003 S1): _calcRSILast delegates to definitions.rsiWilder through AIO_ARCH; the parity runs that path.
-    const techDefSrc = extractFunctionSource(core, '_aioTechDef');
-    if (!techDefSrc) { rsiParityDetail = 'could not extract _aioTechDef from aio-core.js'; return false; }
+    // v59.88 (ADR-0003 S6): the client RSI is src/domain/technical/snapshot.js rsiLast (the legacy _calcRSILast moved there).
     if (!serverSrc) { rsiParityDetail = 'could not extract _rsi14 from fetch-data.mjs'; return false; }
-    if (!clientRsiSrc) { rsiParityDetail = 'could not extract _calcRSILast from aio-core.js'; return false; }
-    if (!cleanNumsSrc) { rsiParityDetail = 'could not extract _aioCleanNums from aio-core.js'; return false; }
     const roundFn = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
     const { rsiWilder } = await import('../src/domain/technical/definitions.js');
     const serverRsi14 = new Function('round', 'rsiWilder', `${serverSrc}\nreturn _rsi14;`)(roundFn, rsiWilder);
-    const clientCalcRsiLast = new Function('window', `${techDefSrc}\n${cleanNumsSrc}\n${clientRsiSrc}\nreturn _calcRSILast;`)({ AIO_ARCH: { rsiWilder } });
+    const { rsiLast: clientCalcRsiLast } = await import('../src/domain/technical/snapshot.js');
     // Deterministic synthetic series long enough (300 bars) for Wilder's smoothing to be well
     // past its warm-up window, matching real usage (screener enrichment runs on ~1y of history).
     const closes = [];
@@ -1985,22 +1979,19 @@ const rsiParityOk = await (async () => {
     return false;
   }
 })();
-check('server _rsi14 and client _calcRSILast are numerically equivalent (P584/R265 parity)', rsiParityOk, rsiParityDetail);
+check('server _rsi14 and client snapshot rsiLast are numerically equivalent (P584/R265 parity)', rsiParityOk, rsiParityDetail);
 
-// v59.87 (ADR-0003 S1, review of PR #170): without the shared SMA (ESM not loaded) _calcSMA is null, and _calcBB must
-// stay unknown instead of building a band around 0 (100 ×20 became 200/-200).
+// v59.87 (ADR-0003 S1, review of PR #170) → v59.88 (S6): the client Bollinger band is snapshot.js bollinger over the shared
+// SMA. A flat series is a zero-width band at the price (never a band around 0: 100 ×20 once became 200/-200), and fewer
+// closes than the period is unknown.
 const bbUnknownOk = await (async () => {
   try {
-    const src = ['_aioTechDef', '_aioCleanNums', '_calcSMA', '_calcBB'].map((name) => extractFunctionSource(core, name));
-    if (src.some((part) => !part)) return false;
-    const make = (arch) => new Function('window', `${src.join('\n')}\nreturn _calcBB;`)(arch);
-    const { smaLast } = await import('../src/domain/technical/definitions.js');
-    const flat = Array(20).fill(100);
-    const withArch = make({ AIO_ARCH: { smaLast } })(flat, 20, 2);
-    return make({})(flat, 20, 2) === null && withArch && withArch.upper === 100 && withArch.lower === 100;
+    const { bollinger } = await import('../src/domain/technical/snapshot.js');
+    const flat = bollinger(Array(20).fill(100), 20, 2);
+    return bollinger(Array(19).fill(100), 20, 2) === null && flat && flat.upper === 100 && flat.lower === 100 && flat.pctB === 0.5;
   } catch { return false; }
 })();
-check('client _calcBB is unknown without the shared SMA and exact with it (v59.87)', bbUnknownOk);
+check('client Bollinger band is unknown on a short series and exact on a flat one (v59.87, S6 v59.88)', bbUnknownOk);
 
 // FABLE-ARCH-DIAGNOSIS-2026-07-06.md Phase 3 [D-VCP]: server `_calcVCPServer` (fetch-data.mjs) and
 // client `_calcVCP` (aio-core.js) are two independently-maintained implementations of the same
@@ -2015,9 +2006,11 @@ const { RULES: RULES_FOR_VCP } = await import('../src/domain/rules/thresholds.js
 const vcpParityOk = (() => {
   try {
     const serverSrc = extractFunctionSource(fetchData, '_calcVCPServer');
-    const clientSrc = extractFunctionSource(core, '_calcVCP');
+    // v59.88 (ADR-0003 S6): the client VCP is src/domain/technical/snapshot.js vcpOf (the legacy _calcVCP moved there).
+    const snapshotSrc = readFileSync(join(root, 'src/domain/technical/snapshot.js'), 'utf8');
+    const clientSrc = extractFunctionSource(snapshotSrc, 'vcpOf');
     if (!serverSrc) { vcpParityDetail = 'could not extract _calcVCPServer from fetch-data.mjs'; return false; }
-    if (!clientSrc) { vcpParityDetail = 'could not extract _calcVCP from aio-core.js'; return false; }
+    if (!clientSrc) { vcpParityDetail = 'could not extract vcpOf from src/domain/technical/snapshot.js'; return false; }
     // Anchored to the actual declaration/expression, not a bare number — a nearby Korean comment
     // documenting the same parameter (e.g. "좌우 N=4봉 기준") would otherwise satisfy a loose
     // `N\s*=\s*4` match on whichever side's comment happens to still say the old value, hiding a
@@ -2027,16 +2020,15 @@ const vcpParityOk = (() => {
     // (the chart's detector); the old 65-bar / 4-bar-swing / 1-45% literals are gone from both, and must not come back.
     // v59.59 (logic refactor): the client no longer carries its own stage chain — it reads the producer's _calcVCPServer
     // through AIO_ARCH.vcpRead (src/app/bootstrap.js), so parity is delegation; the server's own literals stay pinned.
-    const bootstrapSrc = readFileSync(join(root, 'src/app/bootstrap.js'), 'utf8');
     const params = [
       { label: 'minimum bar count (60)', re: /\bn\s*<\s*60\b/, serverOnly: true },
-      { label: 'shared contraction detector', server: /detectContractions\(bars\)/, client: /arch\.vcpRead\(/ },
-      { label: 'pivot only from a valid contraction run', server: /const pivot = detected\.valid \? detected\.pivot : null/, client: /return Object\.assign\(\{ ok: true \}, v\)/ },
+      { label: 'shared contraction detector', server: /detectContractions\(bars\)/, client: /_calcVCPServer\(/ },
+      { label: 'pivot only from a valid contraction run', server: /const pivot = detected\.valid \? detected\.pivot : null/, client: /return v \? \{ ok: true, \.\.\.v \} : none/ },
       { label: 'no private swing pairing left (N=4 / 1-45%)', re: /\bN\s*=\s*4\s*[;,]|<=\s*45\)\s*ctrs\.push/, absent: true },
       { label: 'no private stage chain in the client', re: /vcpStage\s*=\s*!stage2/, clientAbsent: true },
-      { label: 'AIO_ARCH.vcpRead is the producer function', server: /_calcVCPServer/, client: /vcpRead: \(\.\.\.args\) => \(producerVcpRead/, clientSource: bootstrapSrc },
-      { label: '52-week full-year rule (v57.86: 240 sessions; one calendar year is 251 US / 245 KR)', server: /rangeExtremesOf\(highs, lows\)[\s\S]*range\?\.fullYear/, client: /arch\.vcpRead\(/, constant: RULES_FOR_VCP.technical.fullYearSessions === 240 },
-      { label: 'stage-2 52w-off-high floor (-30)', server: /pct52\s*>=\s*-RULES\.technical\.stage2Gate\.nearHighPct/, client: /arch\.vcpRead\(/, constant: RULES_FOR_VCP.technical.stage2Gate.nearHighPct === 30 },
+      { label: 'the client imports the producer function', server: /_calcVCPServer/, client: /import \{ _calcVCPServer \} from '\.\.\/screener\/price-factors\.js'/, clientSource: snapshotSrc },
+      { label: '52-week full-year rule (v57.86: 240 sessions; one calendar year is 251 US / 245 KR)', server: /rangeExtremesOf\(highs, lows\)[\s\S]*range\?\.fullYear/, client: /_calcVCPServer\(/, constant: RULES_FOR_VCP.technical.fullYearSessions === 240 },
+      { label: 'stage-2 52w-off-high floor (-30)', server: /pct52\s*>=\s*-RULES\.technical\.stage2Gate\.nearHighPct/, client: /_calcVCPServer\(/, constant: RULES_FOR_VCP.technical.stage2Gate.nearHighPct === 30 },
     ];
     const sides = (p) => p.re ? [p.re.test(serverSrc), p.re.test(clientSrc)] : [p.server.test(serverSrc), p.client.test(p.clientSource || clientSrc) && p.constant !== false];
     const mismatches = params.filter((p) => { const [a, b] = sides(p); return p.absent ? a || b : p.clientAbsent ? b : p.serverOnly ? !a : p.re ? a !== b : !(a && b); });
@@ -2050,7 +2042,7 @@ const vcpParityOk = (() => {
     return false;
   }
 })();
-check('server _calcVCPServer and client _calcVCP share the same core parameters (Phase 3 D-VCP parity)', vcpParityOk, vcpParityDetail);
+check('server _calcVCPServer and client snapshot vcpOf share the same core parameters (Phase 3 D-VCP parity)', vcpParityOk, vcpParityDetail);
 check('telegram digest script extracts topics, tickers, topItems', /topicCounts/.test(fetchTelegram) && /tickerCounts/.test(fetchTelegram) && /topItems/.test(fetchTelegram) && /telegram-public-mirror/.test(fetchTelegram));
 check('telegram digest preserves honest rolling-window lineage separately from capped text payloads', /observedItems/.test(fetchTelegram) && /eligibleTextCount/.test(fetchTelegram) && /selectedRawCoveragePct/.test(fetchTelegram) && /retainedItemCount/.test(fetchTelegram));
 check('telegram digest regenerates narrative and all-page routing from current artifact', /buildDynamicNarrative/.test(fetchTelegram) && /themes:dynamicNarrative\.themes/.test(fetchTelegram) && /pageMap:dynamicNarrative\.pageMap/.test(fetchTelegram) && /loadRequiredPageIds/.test(fetchTelegram) && /route-owners\.json/.test(fetchTelegram) && /guide:\[\]/.test(fetchTelegram));

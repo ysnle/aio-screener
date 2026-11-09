@@ -22,6 +22,8 @@ const versionNum = version.replace(/^v/, '');
 const html = read('index.html');
 const visibleHtml = html.replace(/<!--[\s\S]*?-->/g, '');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js') + String.fromCharCode(10) + read('src/data/quality/validation-stores.js') + String.fromCharCode(10) + read('src/data/quality/api-health.js') + String.fromCharCode(10) + read('src/app/score-entry-points.js')) /* P1329: audits live in the QA bundle; v59.17/v59.18: the validation stores and API health state moved to src; v59.41: the score entry points */;
+// v59.88 (ADR-0003 S6): the technical snapshot is src/domain/technical/snapshot.js (moved from js/aio-core.js).
+const technicalSnapshotSrc = read('src/domain/technical/snapshot.js');
 const data = read('js/aio-data.js') + String.fromCharCode(10) + read('src/data/providers/proxy-transport.js') /* v59.22: the relay transport moved to src */ + String.fromCharCode(10) + read('src/storage/news-cache.js') /* v59.31: the IndexedDB news cache moved to src */ + String.fromCharCode(10) + read('src/app/refresh-scheduler.js') /* v59.33: the refresh scheduler moved to src */ + String.fromCharCode(10) + read('src/data/server-data-loader.js') /* v59.34: the server data loader moved to src */ + String.fromCharCode(10) + read('src/data/public-readiness.js') /* v59.35: the public readiness model moved to src */ + String.fromCharCode(10) + read('src/app/boot-sequence.js') /* v59.36: the boot sequence moved to src */ + String.fromCharCode(10) + read('src/domain/news/selection.js') + String.fromCharCode(10) + read('src/domain/news/selection-keywords.js') /* v59.42: news scoring, keywords and selection moved to src */;
 const ui = read('js/aio-ui.js');
 const chat = read('js/aio-chat.js') + '\n' + read('src/data/providers/shared-ai-transport.js') + '\n' + read('src/ai/response/request-pipeline.js'); // v59.11: the shared AI route moved to the transport module; v59.15: the request/response pipeline module
@@ -358,8 +360,8 @@ check('E2/S-F/P1238 the news cache DB is news-scoped and migrates the legacy nam
 // P1753: the retired US deep-analysis renderer carried its own MA-stack and volume-profile copy; the shared
 // technical snapshot (core) and the AI chat keep both readings.
 check('P1753 5/10/20 + 50/100/200 MA stack reaches the AI chat via the shared snapshot; the retired deep-analysis copy stays gone', /FULL_BULL_STACK_5_10_20_50_100_200/.test(core + '\n' + chat) && !/단기 정배열 5>10>20/.test(ui));
-check('P1753 volume profile (POC / Value Area) stays in the shared technical snapshot; the retired deep-analysis beginner guide stays gone', /Volume Profile/.test(core) && /POC/.test(core) && /Value Area/.test(core) && !/beginnerNote/.test(ui));
-check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(core) && /sma100/.test(core) && /shortMAState/.test(core) && /longMAState/.test(core) && !/maStackScore/.test(core) && /5SMA/.test(chat) && /100SMA/.test(chat));
+check('P1753 volume profile (POC / Value Area) stays in the shared technical snapshot; the retired deep-analysis beginner guide stays gone', /export function volumeProfile\(/.test(technicalSnapshotSrc) && /\bpoc:/.test(technicalSnapshotSrc) && /valueArea:/.test(technicalSnapshotSrc) && !/beginnerNote/.test(ui));
+check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(technicalSnapshotSrc) && /sma100/.test(technicalSnapshotSrc) && /shortMAState/.test(technicalSnapshotSrc) && /longMAState/.test(technicalSnapshotSrc) && !/maStackScore/.test(core + technicalSnapshotSrc) && /5SMA/.test(chat) && /100SMA/.test(chat));
 check('event risk context fails closed without an embedded point-in-time timeline', /AIO_EVENT_RISK_CONTEXT/.test(core) && /available:\s*false/.test(core) && /asOf:\s*null/.test(core) && /timeline:\s*\[\]/.test(core) && !/headlineYoY:\s*\d/.test(core));
 check('page body redesign hub registry exists', /AIO_PAGE_ACTION_HUBS/.test(core) && /_aioApplyPageBodyRedesign/.test(core));
 check('page evidence currentness contract exists', /AIO_PAGE_EVIDENCE_CONTRACT/.test(core) && /getPageEvidenceState/.test(core) && /getPageEvidenceCurrentnessAudit/.test(core));
@@ -595,8 +597,8 @@ check(
 );
 check(
   'technical snapshot weekly context exposes canonical and legacy aliases',
-  /lastWeekClose\s*:\s*lastW\.close/.test(core) && /wClose\s*:\s*lastW\.close/.test(core) && /wRsi\s*:\s*wRsi/.test(core) && /wRsi14\s*:\s*wRsi/.test(core),
-  '_calcWeeklyContext must return lastWeekClose/wClose and wRsi/wRsi14 together'
+  /lastWeekClose\s*:\s*lastW\.close/.test(technicalSnapshotSrc) && /wClose\s*:\s*lastW\.close/.test(technicalSnapshotSrc) && /\bwRsi,/.test(technicalSnapshotSrc) && /wRsi14\s*:\s*wRsi/.test(technicalSnapshotSrc),
+  'snapshot.js weeklyContext must return lastWeekClose/wClose and wRsi/wRsi14 together'
 );
 check(
   'P1753 the retired ticker deep-analysis weekly renderer stays gone; the chat consumer reads the aliased weekly context',
@@ -623,16 +625,16 @@ check('core must not recreate fake premium board renderer', !/window\._aioPremiu
 // 필드 자체는 calcTechnicalSnapshot 반환 계약으로 유지한다.
 check(
   'P545 calcTechnicalSnapshot produces snapshot.failedRetest (v57.77: test-only classifyTerminalCandle retired)',
-  /failedRetest\s*=\s*!!/.test(core) && /failedRetest\s*:/.test(core) && !/function classifyTerminalCandle/.test(core),
-  'calcTechnicalSnapshot must assign failedRetest field before return'
+  /failedRetest\s*=\s*!!/.test(technicalSnapshotSrc) && /\bfailedRetest\b[,\n]/.test(technicalSnapshotSrc) && !/function classifyTerminalCandle/.test(core),
+  'snapshot.js technicalSnapshot must assign failedRetest before return'
 );
 // snapshot 참조 패턴 목록 — 추후 새 signal이 snapshot.X를 쓰면 여기에 추가
 const snapshotSignalFields = ['failedRetest'];
 for (const field of snapshotSignalFields) {
   check(
     `P545 calcTechnicalSnapshot returns '${field}'`,
-    new RegExp(`\\b${field}\\s*[=:]`).test(core),
-    `field '${field}' not found in aio-core.js`
+    new RegExp(`\\b${field}\\s*[=:,]`).test(technicalSnapshotSrc),
+    `field '${field}' not found in src/domain/technical/snapshot.js`
   );
 }
 

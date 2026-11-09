@@ -42,10 +42,7 @@ import { isListedUsSymbol, usListingSymbol } from '../data/us-listings.js';
 import { stripEvidenceIds } from '../domain/briefing/evidence-text.js';
 import { releaseAtMs, formatKstWhen } from '../domain/briefing/schedule.js';
 import { groupNewsStories, isNewsRevision, newsArticleKey, resolveNewsIssuers } from '../domain/news/stories.js';
-// Portfolio statistics/backtest is a native ESM module; importing it during
-// bootstrap keeps the classic regression surface available before lazy route
-// navigation while leaving the implementation out of aio-core.js.
-import { _statMean, _statStdDev, _calcDailyReturns, _quantileR7, _calcSharpe, _calcMaxDrawdown, _pearsonCorr, _calcCorrelationMatrix } from '../domain/portfolio/return-stats.js';
+// v59.88 (S6): the portfolio return statistics install with the lazy screen bridges (legacy-screen-bridges.js).
 import { assessAccountPerformance } from '../domain/portfolio/risk.js';
 import { PORTFOLIO_ASSUMPTION_KEYS, EXPOSURE_PATHS, REBALANCE_POLICIES, normalizeCurrencyCode, normalizeAnnualRate, normalizeExposurePath, normalizeRebalancePolicy, readPortfolioAssumptions } from '../data/portfolio-assumptions.js';
 import { LEDGER_COVERAGE_INPUTS, appendLedgerTransaction, appendLedgerValuation, ledgerCoverageState, normalizeLedger, removeLedgerEntry as removeLedgerEntryFromLedger, setLedgerCoverage as setLedgerCoverageOnLedger, setLedgerFlowTiming as setLedgerFlowTimingOnLedger } from '../data/portfolio-ledger.js';
@@ -117,14 +114,6 @@ export function installCompatibilityGlobals(root = globalThis) {
   if (document) restoreSidebar({ documentRef: document, root: window });
   window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => window.fetch(...args) });
   window._aioCompletedBars = completedBars; // v57.92 A04: the AI trend line reads completed sessions only, like the chart
-  window._statMean = _statMean;
-  window._statStdDev = _statStdDev;
-  window._calcDailyReturns = _calcDailyReturns;
-  window._quantileR7 = _quantileR7;
-  window._calcSharpe = _calcSharpe;
-  window._calcMaxDrawdown = _calcMaxDrawdown;
-  window._pearsonCorr = _pearsonCorr;
-  window._calcCorrelationMatrix = _calcCorrelationMatrix;
   // Legacy unification (2026-10-17): the chat's screener query engine moved here from js/aio-data.js. Every call reads
   // the canonical rows the native screener orchestrator ranked (no second ranking run) and the producer's factor date.
   const screenerState = (path) => { try { return window.AIO_ARCH?.getScreenerState?.(path) ?? null; } catch (_) { return null; } };

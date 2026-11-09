@@ -17,10 +17,24 @@ import { installGlossaryModal } from '../ui/knowledge/glossary-modal.js';
 import { bindRefreshProgress, createGlobalRefresh } from '../ui/components/refresh-progress.js';
 import { createEarningsCalendar } from '../ui/components/earnings-calendar.js';
 import { renderPortfolioBacktestLab, renderPortfolioBacktestStatus, varCertLabel } from '../ui/components/portfolio-backtest-lab.js';
+import * as returnStats from '../domain/portfolio/return-stats.js';
+import { technicalSnapshot, extensionHeat } from '../domain/technical/snapshot.js';
+import { sellPressure, positionTechnicalRisk, portfolioTechnicalRisk } from '../domain/portfolio/technical-risk.js';
 
 export function installLegacyScreenBridges(root, documentRef) {
   // v59.70 (D5): the 한국 거시 기준일 badges (_aioRenderKrMacroFreshnessBadges) left with the 한국 거시 fold.
   const at = { documentRef, root };
+  // v59.88 (ADR-0003 S6) 포트폴리오: the return statistics (refreshPortfolioRisk) and the technical engine
+  // (refreshPortfolioTechnicalRisk, js/aio-tests.js) that js/aio-core.js used to keep as copies. Both callers run after a
+  // network wait, long after this module has loaded; before it the names are absent and the callers' typeof guards hold.
+  for (const name of ['_statMean', '_statStdDev', '_calcDailyReturns', '_quantileR7', '_calcPortfolioVaR', '_calcSharpe', '_calcMaxDrawdown', '_pearsonCorr', '_calcCorrelationMatrix']) root[name] = returnStats[name];
+  Object.assign(root, {
+    calcTechnicalSnapshot: technicalSnapshot,
+    calcExtensionHeat: extensionHeat,
+    calcSellPressure: sellPressure,
+    calcPositionTechnicalRisk: positionTechnicalRisk,
+    calcPortfolioTechnicalRisk: portfolioTechnicalRisk
+  });
   // v58.91 오늘: home VIX card (legacy snapshot apply and home refresh call this name).
   root._aioRenderHomeVix = (quote) => renderHomeVix({ documentRef, root, quote });
   root._aioRenderHomeVix();
