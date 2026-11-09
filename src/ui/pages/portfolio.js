@@ -298,7 +298,10 @@ function renderCashBalances(documentRef, surface) {
     text = `읽을 수 없는 현금 잔액 ${surface.cashInvalidCount}건이 있어 합계를 계산하지 않았습니다`;
   } else if (surface.cashHeld) {
     const names = (conversion.held || []).map((code) => ({ KRW: '원화', USD: '달러' }[code] || code)).join('·');
-    text = `환율 자료가 없어 합계를 계산하지 않았습니다, ${names ? `${names} 현금은 ` : ''}통화별 금액만 표시`;
+    // A USD/KRW mix with no base currency is held for the base choice, not for a missing rate (the app close converts it).
+    text = surface.baseChoiceConverts
+      ? `기준 통화를 고르지 않아 ${names ? `${names} ` : ''}현금을 통화별로 표시, 설정에서 고르면 원/달러 종가로 합산`
+      : `환율 자료가 없어 합계를 계산하지 않았습니다, ${names ? `${names} 현금은 ` : ''}통화별 금액만 표시`;
   } else if (surface.cash != null && conversion.converted) {
     const undeclared = !surface.declaredBaseCurrency && !surface.holdingCount ? ', 기준 통화 미선언이라 달러로 표시' : '';
     text = `합계 ${formatSurfaceMoney(surface.cash, unit)}, ${rateText}${undeclared}`;
