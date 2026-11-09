@@ -317,7 +317,7 @@ function earningsQualityCard(doc, read, analysis) {
   // v58.74 (text audit 종목 C4): the two signals can disagree (NVDA: cash 0.86 of income, yet accruals +10.9% of assets) —
   // the expert says how both are true and what to check next.
   if (ratio != null && ratio >= 0.8 && accrualLatest && accrualLatest.ratio >= 0.05 && latest.netIncome > latest.operatingCashFlow) {
-    card.append(el(doc, 'p', `이익의 ${Math.round(ratio * 100)}%는 현금으로 들어왔지만, 현금이 아닌 이익 ${formatUsdShort(latest.netIncome - latest.operatingCashFlow)}이 자산 대비 큽니다(발생액 비율 ${signedText(accrualLatest.ratio * 100, 1, '%')}). 매출이 빠르게 늘 때는 매출채권·재고가 함께 느는 경우가 많아, 다음 분기 현금 전환을 확인합니다.`, 'v2-fiscal-quality__reconcile'));
+    card.append(el(doc, 'p', `이익의 ${Math.round(ratio * 100)}%는 현금으로 들어왔지만, 현금이 아닌 이익(${formatUsdShort(latest.netIncome - latest.operatingCashFlow)})이 자산 대비 큽니다(발생액 비율 ${signedText(accrualLatest.ratio * 100, 1, '%')}). 매출이 빠르게 늘 때는 매출채권·재고가 함께 느는 경우가 많아, 다음 분기 현금 전환을 확인합니다.`, 'v2-fiscal-quality__reconcile'));
   }
   // ③ 원리 / 지금 읽기 / 한계 behind one disclosure row; ④ the evidence line.
   const fold = el(doc, 'details', null, 'sx-disclosure v2-fiscal-principle');

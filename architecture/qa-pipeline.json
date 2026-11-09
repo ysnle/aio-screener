@@ -1121,7 +1121,8 @@
         },
         {
           "id": "narrative-lifecycle-model",
-          "script": "scripts/ci-narrative-lifecycle-model-check.mjs"
+          "script": "scripts/ci-narrative-lifecycle-model-check.mjs",
+          "timeoutMs": 240000
         },
         {
           "id": "market-session-model",

@@ -175,14 +175,18 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
   // Address → selection: the first load and every back/forward step.
   const themeIds = () => (Array.isArray(runtimeRoot.THEME_MAP) ? runtimeRoot.THEME_MAP.map((theme) => String(theme?.id || '')) : null);
   const applyAddress = () => {
-    const link = parseRouteDeepLink(location.hash, themeIds());
+    let link = parseRouteDeepLink(location.hash, themeIds());
     if (!link) return;
     if (link.legacyTheme) {
       // The old detail address is read here once (the classic showPage copy is spent too) and written as #themes?theme=.
       try { delete runtimeRoot._aioThemeDetailHash; } catch (_) { /* frozen root */ }
       writeHash('themes', 'theme', link.themeId);
     }
-    if (link.entityId && /^#[a-z]+\//.test(location.hash)) writeHash(link.routeId, 'sym', link.entityId); // canonical address
+    // The address names a subject the way a reader typed it (#fundamental/005930); it resolves through
+    // the same normalizer as the search box, so 차트 and 재무 공시 open 005930.KS (DART), not a US 'no SEC record' page.
+    const resolved = link.entityId && typeof runtimeRoot._aioNormalizeTickerInput === 'function' ? normalizeEntityId(runtimeRoot._aioNormalizeTickerInput(link.entityId)) : null;
+    if (resolved && resolved !== link.entityId) link = { ...link, entityId: resolved };
+    if (link.entityId && (/^#[a-z]+\//.test(location.hash) || resolved)) writeHash(link.routeId, 'sym', link.entityId); // canonical address
     if (link.entityId && link.routeId === 'ticker') {
       const current = String(runtimeRoot.AIO?.state?._currentTickerSym || runtimeRoot._currentTickerSym || '').toUpperCase();
       if (current !== link.entityId && typeof runtimeRoot.showTicker === 'function') runtimeRoot.showTicker(link.entityId);

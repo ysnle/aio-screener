@@ -230,10 +230,12 @@ export function buildTrailingYearRead(quarters = []) {
   const sum = (rows, field) => rows.reduce((total, q) => total + q[field], 0);
   const revenue = sum(span, 'revenue');
   const netIncome = sum(span, 'netIncome');
-  const run = trailingQuarters(quarters, 8);
-  const prior = run && run.slice(0, 4).every((q) => finite(q.revenue) != null) ? run.slice(0, 4) : null;
+  // The year-earlier span needs revenue only: its net income may be missing (a derived Q4 without the year's Q1..Q3 income)
+  // and that blanks the income comparison, not the revenue growth (TSLA, PLTR, AVGO fell back to a ten-month-old year).
+  const run = trailingQuarters(quarters, 8, { field: 'revenue' });
+  const prior = run && run.slice(4).every((q, index) => q === span[index]) ? run.slice(0, 4) : null;
   const priorRevenue = prior ? sum(prior, 'revenue') : null;
-  const priorIncome = prior ? sum(prior, 'netIncome') : null;
+  const priorIncome = prior && prior.every((q) => finite(q.netIncome) != null) ? sum(prior, 'netIncome') : null;
   return {
     from: span[0].periodEnd, through: span[3].periodEnd, revenue, netIncome, margin: revenue > 0 ? netIncome / revenue * 100 : null,
     revenueYoy: priorRevenue > 0 ? (revenue / priorRevenue - 1) * 100 : null,
