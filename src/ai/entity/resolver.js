@@ -6,7 +6,7 @@
 // all-caps symbol the registries do not know stays an entity but carries verified:false.
 import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
 import { resolveRegisteredName } from '../../domain/ticker/resolve-name.js';
-// v59.88 (ADR-0003 S6): the nickname table and the non-ticker words are shared with the chat ticker resolver.
+// The nickname table and the non-ticker words are shared with the chat ticker resolver.
 import { COMPANY_NICKNAMES } from '../../domain/ticker/nicknames.js';
 import { NON_TICKER_ACRONYMS, isNonTickerWord } from '../../domain/ticker/question-words.js';
 
@@ -123,7 +123,7 @@ export function resolveEntities(query, { root = globalThis, route = null } = {})
     const resolved = entries ? (resolveRegisteredName(symbol, entries) || symbol) : symbol;
     add(resolved, name, 'alias');
   }
-  // v59.88 (S6): 'SK하이닉스' and 'LG화학' named the company and also left an unverified symbol SK / LG from their prefix.
+  // 'SK하이닉스' and 'LG화학' named the company and also left an unverified symbol SK / LG from their prefix.
   for (const [token, raw] of glued) {
     const ghost = found.get(raw.toUpperCase());
     if (ghost && ghost.kind === 'ticker' && ghost.alias === raw && nameMatches.some(([name]) => koreanTokenMatches(token, String(name).replace(/\s+/g, '')))) found.delete(ghost.symbol);

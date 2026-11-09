@@ -1,12 +1,12 @@
-// v59.88 (ADR-0003 S6): the issuers a news article names — moved from js/aio-data.js extractTickers(item) with its word
-// gates (v30.12, v39.2, P1449, P1550, P1592) and P1428's attribution rule. The symbol list and the name map are the
+// The issuers a news article names — moved from js/aio-data.js extractTickers(item) with its word
+// gates and the broker-attribution rule. The symbol list and the name map are the
 // shell's data (js/aio-data.js KNOWN_TICKERS and KR_TICKER_MAP), handed in by src/app/compatibility-globals.js, which
 // installs the legacy name extractTickers. A question's tickers are a different reading: src/ai/entity/chat-tickers.js.
 
 // v39.2: symbols that are English words ('ARM', 'KEYS') count only as $TICKER or (TICKER).
 const WORD_SYMBOLS = new Set(['ARM', 'ON', 'IT', 'A', 'F', 'V', 'C', 'U', 'X', 'D', 'E', 'K', 'T', 'ALL', 'RUN', 'LOW', 'KEY', 'FAST', 'REAL',
   'PLAY', 'FLEX', 'CAN', 'GE', 'HD', 'DE', 'BE', 'HAS', 'KEYS', 'TEL', 'TER', 'APH', 'CLS', 'JBL', 'DELL', 'AI']);
-// P1592 (F26): officer titles and agencies are listed symbols too ('Former FTX COO' opened CooperCompanies).
+// Officer titles and agencies are listed symbols too ('Former FTX COO' opened CooperCompanies).
 const ROLE_ACRONYM = /^(?:C[A-Z]O|EVP|SVP|VP|GM|IPO|ETF|SEC|FDA|DOJ|FTC|NIH|EPA|ECB|IMF|GDP|CPI)$/;
 // v30.12 / v46.6 / v48.20: symbols that need a market word within 80 characters.
 const AMBIGUOUS = new Set(['AI', 'META', 'COST', 'SNOW', 'NET', 'PATH', 'APP', 'DASH', 'SHOP', 'SNAP', 'HOOD', 'SOFI', 'WOLF', 'COIN', 'RIOT',
@@ -32,7 +32,7 @@ function wordPattern(word) {
   return re;
 }
 
-/** P1592: a symbol that is a word or a title stands only as $TICKER or (TICKER); the translated-ticker cache passes the same gate. */
+/** A symbol that is a word or a title stands only as $TICKER or (TICKER); the translated-ticker cache passes the same gate. */
 export function articleSymbolAllowed(symbol, text) {
   return !(WORD_SYMBOLS.has(symbol) || ROLE_ACRONYM.test(symbol)) || marked(symbol, text);
 }
@@ -45,14 +45,14 @@ function inMarketContext(symbol, text) {
   return MARKET_WORDS.some((word) => context.includes(word));
 }
 
-// P1550: a one- or two-syllable Korean alias needs a non-Hangul edge and an end or a particle ('모델'의 '델' is not DELL).
+// A one- or two-syllable Korean alias needs a non-Hangul edge and an end or a particle ('모델'의 '델' is not DELL).
 function koreanAliasIn(lowerText, alias) {
   if (!lowerText.includes(alias)) return false;
   if (alias.length >= 3 || !/^[가-힣]+$/.test(alias)) return true;
   return new RegExp(`(?:^|[^가-힣])${escape(alias)}(?:$|[^가-힣]|(?:은|는|이|가|을|를|의|도|와|과|에|로|만)(?:$|[^가-힣]))`).test(lowerText);
 }
 
-// P1428: a broker cited as the source of a view ("..., Morgan Stanley says") is not the story's subject.
+// A broker cited as the source of a view ("..., Morgan Stanley says") is not the story's subject.
 function isAttribution(lowerText, name) {
   if (!/[a-z]/.test(name) || name.length < 4) return false;
   const n = escape(name);
@@ -71,7 +71,7 @@ export function articleTickers(item, { knownTickers = new Set(), nameMap = {} } 
     if (symbol.length <= 2 && !text.includes(`$${symbol}`)) continue;
     if (articleSymbolAllowed(symbol, text) && wordPattern(symbol).test(text) && inMarketContext(symbol, text)) found.add(symbol);
   }
-  // P1449/R17: an English alias keeps word edges ('Artificial Intelligence' is not INTC); a Korean one uses koreanAliasIn.
+  // An English alias keeps word edges ('Artificial Intelligence' is not INTC); a Korean one uses koreanAliasIn.
   const lowerText = text.toLowerCase();
   for (const [name, symbol] of Object.entries(nameMap)) {
     if (found.size >= 5) break;

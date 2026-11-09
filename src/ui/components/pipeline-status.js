@@ -1,4 +1,4 @@
-// v59.88 (ADR-0003 S6): the 데이터 파이프라인 상태 bar (#aio-pipeline-status-bar with its one-line toggle) and the
+// The 데이터 파이프라인 상태 bar (#aio-pipeline-status-bar with its one-line toggle) and the
 // developer-mode 공개 준비 panel (#aio-public-readiness), moved from js/aio-data.js (_aioRenderPipelineStatus,
 // _aioCheckManualFieldStaleness, _aioUpdatePipelineStatusToggle, _aioRenderPublicReadiness, _aioSchedulePublicReadiness).
 // The notices are src/data/pipeline-notices.js and the readiness model src/data/public-readiness.js; this file only draws.
@@ -10,7 +10,7 @@ const noticeHtml = (m) => `<span class="lda-pipe" data-tone="${escapeHtml(m.tone
 
 /**
  * One paint of the bar, in the legacy order: the notices replace its content, the stale hand-kept fields are appended as
- * pills, and the toggle summary counts what the bar holds (v52.15 P616: one line instead of eleven pills).
+ * pills, and the toggle summary counts what the bar holds.
  * `meta` is the server data meta; `universeStale` and `fieldTs`/`staleDays` come from the caller's state.
  */
 export function renderPipelineStatus({ documentRef, meta, universeStale = false, fieldTs = null, staleDays = null, log = null }) {
@@ -43,7 +43,7 @@ export function renderPipelineStatus({ documentRef, meta, universeStale = false,
   return { notices: msgs, stale };
 }
 
-/** The 공개 준비 panel — developer mode on 오늘 only (v52.87 P702); the model is src/data/public-readiness.js. */
+/** The 공개 준비 panel — developer mode on 오늘 only; the model is src/data/public-readiness.js. */
 export function renderPublicReadiness({ documentRef, readiness, pageText, sourceText }) {
   const el = documentRef?.getElementById('aio-public-readiness');
   if (!el) return;

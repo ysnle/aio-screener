@@ -3065,12 +3065,6 @@ function _aioApplyNativeScreenerState(nativeState) {
   return true;
 }
 window._aioApplyNativeScreenerState = _aioApplyNativeScreenerState;
-// Native screener metadata by path (no slice clone). The legacy readers below take these instead of the copies this
-// projection used to keep in _aioServerScreener / _aioScreenerFactorAsOf / _aioScreenerFactorObservedAt / _aioFactorBacktest.
-function _aioScreenerMetadata(path) {
-  var arch = window.AIO_ARCH;
-  try { return arch && typeof arch.getScreenerState === 'function' ? arch.getScreenerState('metadata.' + path) : undefined; } catch (_) { return undefined; }
-}
 // v59.42: _aioScreenerFactorBacktest left with its only reader, the deleted legacy factor-backtest diagram.
 try {
   window.addEventListener('aio:nativeScreenerReady', function(event) {

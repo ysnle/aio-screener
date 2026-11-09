@@ -151,7 +151,7 @@ function _quantileR7(sorted, p) {
   return sorted[lo] + (h - lo) * (sorted[hi] - sorted[lo]);
 }
 
-// Historical-simulation VaR (v48.88, moved from js/aio-core.js in v59.88): the loss at the left-tail observation itself,
+// Historical-simulation VaR: the loss at the left-tail observation itself,
 // as a positive fraction, so interpolation never crosses the loss/gain boundary into a negative VaR. Under 10 finite
 // returns it is unknown.
 function _calcPortfolioVaR(returns, confidence) {

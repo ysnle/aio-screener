@@ -1,8 +1,8 @@
-// v59.88 (ADR-0003 S6): the holding-level technical risk read — moved from js/aio-core.js calcSellPressure,
+// The holding-level technical risk read — moved from js/aio-core.js calcSellPressure,
 // calcPositionTechnicalRisk and calcPortfolioTechnicalRisk. The concentration tier is concentration.js's
 // concentrationPenaltyForWeight (P758), the technical input is technical/snapshot.js. Behaviour is the legacy one,
 // pinned by architecture/fixtures/technical-snapshot-golden.json; the 포트폴리오 panel (js/aio-ui.js
-// renderPortfolioTechnicalRisk) shows the action as a load level, not an instruction (P1535).
+// renderPortfolioTechnicalRisk) shows the action as a load level, not an instruction.
 // The legacy names calcSellPressure / calcPositionTechnicalRisk / calcPortfolioTechnicalRisk are installed from here by
 // src/app/legacy-screen-bridges.js.
 import { technicalSnapshot } from '../technical/snapshot.js';
@@ -22,7 +22,7 @@ export function sellPressure(ohlcvOrSnapshot, context = {}) {
   let score = 0;
   const add = (points, flag) => { score += points; flags.push(flag); };
   if (!snapshot || !snapshot.ok) return { score: null, action: 'WAIT', flags: ['DATA_INSUFFICIENT'], snapshot };
-  const dist50Adr = snapshot.dist50Pct != null && snapshot.adr20Pct > 0 ? snapshot.dist50Pct / snapshot.adr20Pct : null; // P2262: RULES.technical.extension ADR bands
+  const dist50Adr = snapshot.dist50Pct != null && snapshot.adr20Pct > 0 ? snapshot.dist50Pct / snapshot.adr20Pct : null; // RULES.technical.extension ADR bands
   if (dist50Adr !== null && dist50Adr >= 4) add(24, 'DIST_50SMA_EXTENDED_4ADR');
   if (dist50Adr !== null && dist50Adr >= 7) add(20, 'DIST_50SMA_STRETCHED_7ADR');
   if (snapshot.dist21Atr !== null && snapshot.dist21Atr >= 2.5) add(10, 'DIST_21EMA_PLUS_2_5ATR_SHORT_TERM_EXTENSION');
@@ -51,10 +51,10 @@ export function positionTechnicalRisk(position = {}, ohlcvOrSnapshot = null, por
     || position.quoteSourceKind === 'live-quote' || position.priceSource === 'live-quote';
   let px = quoteAllowed ? finite(position.price) : null;
   if (px == null && quoteAllowed) px = finite(position.currentPrice);
-  const referencePx = px != null ? px : (snapshot && snapshot.ok === true ? finite(snapshot.price) : null); // P1536: reference close for P&L only, never exposure or weight
+  const referencePx = px != null ? px : (snapshot && snapshot.ok === true ? finite(snapshot.price) : null); // reference close for P&L only, never exposure or weight
   const hasTechnicalSnapshot = !!(snapshot && snapshot.ok === true);
   const totalValue = finite(portfolioContext.totalValue);
-  // v57.48: the caller's base-currency value wins over qty × price; still only behind a decision-grade quote (P1536).
+  // The caller's base-currency value wins over qty × price; still only behind a decision-grade quote.
   const value = px != null && px > 0 && finite(position.value) != null && finite(position.value) > 0 ? finite(position.value) : qty != null && qty >= 0 && px != null && px > 0 ? qty * px : null;
   const weightPct = value != null && totalValue != null && totalValue > 0 ? (value / totalValue) * 100 : null;
   const pnlPct = cost != null && cost > 0 && referencePx != null && referencePx > 0 ? ((referencePx - cost) / cost) * 100 : null;

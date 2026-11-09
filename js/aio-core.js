@@ -10911,10 +10911,7 @@ window.evaluateMetric = evaluateMetric;
 window.AIO_EVENT_RISK_CONTEXT = AIO_EVENT_RISK_CONTEXT;
 window.AIO_TACTICAL_TRADER_FRAMEWORK = AIO_TACTICAL_TRADER_FRAMEWORK;
 window.AIO.getTacticalTraderFramework = function() { return AIO_TACTICAL_TRADER_FRAMEWORK; };
-window.calcSellPressure = calcSellPressure;
 window.calcDataQuality = calcDataQuality;
-window.calcPositionTechnicalRisk = calcPositionTechnicalRisk;
-window.calcPortfolioTechnicalRisk = calcPortfolioTechnicalRisk;
 
 window.AIO.version = APP_VERSION;
 

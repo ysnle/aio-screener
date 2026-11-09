@@ -1,7 +1,7 @@
 // v30.15: typed tickers in a question — $AAPL, a capitalised 2–5 letter symbol that is not a common word, finance
 // acronym or (without a company question after it) a role/industry word, and a 6-digit Korean code (.KS); at most 5.
 // Moved unchanged from js/aio-chat.js (roadmap item 11, layer 1 채팅); window._extractTickers keeps the legacy name.
-// v59.88 (ADR-0003 S6): this is the typed-symbol stage of src/ai/entity/chat-tickers.js, the one question resolver.
+// This is the typed-symbol stage of src/ai/entity/chat-tickers.js, the one question resolver.
 import { ENGLISH_STOP_WORDS, NON_TICKER_ACRONYMS, ROLE_OR_INDUSTRY_WORDS, isNonTickerWord } from '../../domain/ticker/question-words.js';
 
 export function extractTickers(text) {
@@ -25,7 +25,7 @@ export function extractTickers(text) {
   if (m1) m1.forEach(function(t) { var s = t.slice(1); if (!seen[s]) { seen[s]=1; tickers.push(s); } });
   // 대문자 티커 (2~5글자, 문장 내에서 독립적으로 등장)
   var m2 = plain.match(/\b([A-Z]{2,5})\b/g);
-  // v59.88 (S6): the word lists are src/domain/ticker/question-words.js, shared with the entity resolver.
+  // The word lists are src/domain/ticker/question-words.js, shared with the entity resolver.
   // A class form whose base is a plain word or acronym ("IT-A", "US-B") stays out, as its base did before.
   tickers = tickers.filter(function(t) { var b = classBase[t]; return !b || !(ENGLISH_STOP_WORDS.has(b) || NON_TICKER_ACRONYMS.has(b) || ROLE_OR_INDUSTRY_WORDS.has(b)); });
   if (m2) m2.forEach(function(t) { if (!seen[t] && !ENGLISH_STOP_WORDS.has(t) && !isNonTickerWord(t, text)) { seen[t]=1; tickers.push(t); } });

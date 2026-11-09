@@ -1,0 +1,8 @@
+{
+  "version": "v59.88",
+  "date": "2026-11-09",
+  "changelog": [
+    "**데이터 파이프라인 상태 바와 공개 준비 패널을 src로 이전 (ADR-0003 S6):** js/aio-data.js의 _aioRenderDataFreshness와 파이프라인 상태 바·수기 갱신 필드 경과 표시·공개 준비 패널(약 330줄)이 src/data/pipeline-notices.js(무엇을 말할지, 순수 함수)와 src/ui/components/pipeline-status.js(그리기)로 나뉘었다. 서버 데이터 로더는 네 번 부르던 호출을 하나로 줄였고, 감사 모드 토글은 패널을 직접 쓰지 않고 렌더러에 맡긴다(한 id에 한 작성자). 안내 색은 화면에 보이지 않던 인라인 border-left-color 대신 data-tone(risk/warn/muted)으로 남긴다."
+  ],
+  "note": "ADR-0003 S6: pipeline status bar and public-readiness panel moved out of js/aio-data.js"
+}

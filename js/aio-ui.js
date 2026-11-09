@@ -103,7 +103,7 @@ const LLM_MODELS = {
   luna: { id: 'gpt-6-luna', label: 'GPT-6 Luna', reasoningEffort: 'none' }, 'luna-low': { id: 'gpt-6-luna', label: 'GPT-6 Luna, 심층', reasoningEffort: 'low', thinking: true },
   'luna-medium': { id: 'gpt-6-luna', label: 'GPT-6 Luna, 분석', reasoningEffort: 'medium', thinking: true } // v57.61: analysis/decision/comparison/outlook; medium reasoning adds ~2-5k output tokens (~$0.002)
 };
-// v59.88 (S6): a company the question names — typed or by name — through the one resolver (src/ai/entity/chat-tickers.js).
+// A company the question names — typed or by name — through the one resolver (src/ai/entity/chat-tickers.js).
 function _aioQueryNamesCompany(query) {
   var resolve = window.AIO && window.AIO.resolveChatTickers;
   return typeof resolve === 'function' && resolve({ query: query, companiesOnly: true }).length > 0;

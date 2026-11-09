@@ -1,4 +1,4 @@
-// v59.88 (ADR-0003 S6): the daily technical snapshot — moved from js/aio-core.js calcTechnicalSnapshot and its _calc*
+// The daily technical snapshot — moved from js/aio-core.js calcTechnicalSnapshot and its _calc*
 // helpers (MACD, Bollinger, RVOL, candle shape, recent levels, VCP, RSI divergence, Fibonacci, volume profile, weekly
 // context) and calcExtensionHeat. SMA/EMA/RSI/ATR/ADR are technical/definitions.js, the MA stack is stage.js and the VCP
 // is the screener producer's own _calcVCPServer, as the legacy wrappers already delegated. Behaviour is the legacy one,
@@ -20,7 +20,7 @@ export function cleanOhlcv(ohlcv) {
     if (!Number.isFinite(close) || close <= 0) return null;
     let open = Number(d.open); if (!Number.isFinite(open) || open <= 0) open = close;
     let high = Number(d.high), low = Number(d.low);
-    const hlFilled = !(Number.isFinite(high) && high > 0 && Number.isFinite(low) && low > 0); // v59.59: ADR/VCP skip a filled bar
+    const hlFilled = !(Number.isFinite(high) && high > 0 && Number.isFinite(low) && low > 0); // ADR/VCP skip a filled bar
     if (!Number.isFinite(high) || high <= 0) high = Math.max(open, close);
     if (!Number.isFinite(low) || low <= 0) low = Math.min(open, close);
     let volume = Number(d.volume); if (!Number.isFinite(volume) || volume < 0) volume = 0;
@@ -80,7 +80,7 @@ export function closePosition(bar) {
   return Math.max(0, Math.min(1, (c - l) / (h - l)));
 }
 
-// v59.59: (high − low) ÷ that day's close, the screener's adrPct; a bar whose high/low was filled is not counted.
+// (high − low) ÷ that day's close, the screener's adrPct; a bar whose high/low was filled is not counted.
 export function adrPercent(ohlcv, period = 20) {
   const bars = cleanOhlcv(ohlcv);
   if (bars.length < 2) return null;
@@ -108,7 +108,7 @@ function recentLevel(values, lookback, fn) {
   return nums.length ? fn(...nums) : null;
 }
 
-// v51.68 → v59.59: the producer's own _calcVCPServer (Minervini contraction), bars with a filled high/low left out.
+// The producer's own _calcVCPServer (Minervini contraction), bars with a filled high/low left out.
 export function vcpOf(bars) {
   const none = { ok: false, vcpScore: 0, vcpStage: 'insufficient_data' };
   if (bars.length < 60) return none;
@@ -125,7 +125,7 @@ export function priceRsiDivergence(bars) {
   const series = rsiSeriesWilder(closes, 14).slice(14);
   if (series.length < 30) return null;
   const N = 4;
-  // P1253: the RSI series is 14 bars shorter; both slices take the same length so price[i] and rsi[i] are one bar.
+  // The RSI series is 14 bars shorter; both slices take the same length so price[i] and rsi[i] are one bar.
   const look = Math.min(Math.min(50, bars.length - 1), series.length, bars.length - 1);
   const cSlice = closes.slice(-look), rSlice = series.slice(-look);
   const pHighs = [], pLows = [], rHighs = [], rLows = [];
@@ -245,7 +245,7 @@ export function weeklyContext(bars) {
   if (weekBars.length > 4 && weekBars[0]._n < WEEK) weekBars.shift();
   if (weekBars.length < 4) return null;
   const wCloses = weekBars.map((b) => b.close);
-  const wSma20 = wCloses.length >= 20 ? smaLast(wCloses, 20) : null; // P2262: no shorter stand-in
+  const wSma20 = wCloses.length >= 20 ? smaLast(wCloses, 20) : null; // no shorter stand-in
   const wSma50 = wCloses.length >= 50 ? smaLast(wCloses, 50) : null;
   const wRsi = rsiWilder(wCloses, 14);
   const lastW = weekBars[weekBars.length - 1];
@@ -260,7 +260,7 @@ export function weeklyContext(bars) {
   };
 }
 
-// v52.16 P5l/P619: the producer's _retPct(closes, n) — the n-bar return in percent.
+// The producer's _retPct(closes, n) — the n-bar return in percent.
 function retPct(closes, n) {
   if (!Array.isArray(closes) || closes.length <= n) return null;
   const a = closes[closes.length - 1 - n], b = closes[closes.length - 1];

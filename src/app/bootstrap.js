@@ -50,7 +50,7 @@ import { createCloseBasisEvidenceReader, closeBasisSubstituteFor, renderCloseBas
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
-// v59.88 (ADR-0003 S6): the legacy snapshot's technical definitions, VCP read and MA classifier left with it
+// The legacy snapshot's technical definitions, VCP read and MA classifier left with it
 // (src/domain/technical/snapshot.js, installed by the lazy legacy-screen-bridges.js).
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
@@ -1230,7 +1230,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // copy of the multi-source fallback formula (R352/F-03).
     ,deriveTreasuryCurveEvidence
     // RM-03 continued (2026-07-21, P758): concentration-risk slice of the holding technical risk
-    // (src/domain/portfolio/technical-risk.js imports concentrationPenaltyForWeight itself since v59.88).
+    // (src/domain/portfolio/technical-risk.js imports concentrationPenaltyForWeight itself).
     ,deriveConcentrationRisk
     // RM-03 continued (2026-07-21, P759): the legacy screener ranking wrapper resolves its
     // existing profile/regime inputs and projects this pure model back onto SCREENER_DB; native

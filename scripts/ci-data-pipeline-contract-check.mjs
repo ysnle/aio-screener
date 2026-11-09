@@ -2044,7 +2044,7 @@ const vcpParityOk = (() => {
     return false;
   }
 })();
-check('server _calcVCPServer and client snapshot vcpOf share the same core parameters (Phase 3 D-VCP parity)', vcpParityOk, vcpParityDetail);
+check('server _calcVCPServer and client snapshot vcpOf share the same core parameters (Phase 3 D-VCP parity, P2325)', vcpParityOk, vcpParityDetail);
 check('telegram digest script extracts topics, tickers, topItems', /topicCounts/.test(fetchTelegram) && /tickerCounts/.test(fetchTelegram) && /topItems/.test(fetchTelegram) && /telegram-public-mirror/.test(fetchTelegram));
 check('telegram digest preserves honest rolling-window lineage separately from capped text payloads', /observedItems/.test(fetchTelegram) && /eligibleTextCount/.test(fetchTelegram) && /selectedRawCoveragePct/.test(fetchTelegram) && /retainedItemCount/.test(fetchTelegram));
 check('telegram digest regenerates narrative and all-page routing from current artifact', /buildDynamicNarrative/.test(fetchTelegram) && /themes:dynamicNarrative\.themes/.test(fetchTelegram) && /pageMap:dynamicNarrative\.pageMap/.test(fetchTelegram) && /loadRequiredPageIds/.test(fetchTelegram) && /route-owners\.json/.test(fetchTelegram) && /guide:\[\]/.test(fetchTelegram));

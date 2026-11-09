@@ -1,16 +1,16 @@
-// v59.88 (ADR-0003 S6): which capitalised words in a question are not tickers. The typed-symbol scan
+// Which capitalised words in a question are not tickers. The typed-symbol scan
 // (src/ai/entity/extract-tickers.js) and the entity resolver (src/ai/entity/resolver.js) kept two lists that disagreed:
 // "WTI 전망" was a plain word to one and an unverified symbol to the other, "멀티에셋 PM의 관점" a role to one and a
 // ticker to the other. Both read these sets now.
 
-// P1550: finance acronyms, currency codes and agencies are terms, never symbols (USD is a listed ETF, SEC/CEO/FED/WTI words).
+// Finance acronyms, currency codes and agencies are terms, never symbols (USD is a listed ETF, SEC/CEO/FED/WTI words).
 export const NON_TICKER_ACRONYMS = new Set(['AI', 'API', 'SEC', 'FOMC', 'FED', 'PER', 'PBR', 'PSR', 'PEG', 'ROE', 'ROA', 'IT', 'IPO',
   'CEO', 'CFO', 'COO', 'CTO', 'RSI', 'MACD', 'CPI', 'PCE', 'PPI', 'NFP', 'GDP', 'PMI', 'ISM', 'VIX', 'ETF', 'FX', 'USD', 'KRW', 'JPY',
   'EUR', 'CNY', 'GBP', 'US', 'KR', 'UK', 'EU', 'DCF', 'DDM', 'NAV', 'FCF', 'EPS', 'EBITDA', 'IV', 'GEX', 'ATM', 'OTM', 'OK', 'ATR', 'EMA',
   'SMA', 'VCP', 'SEPA', 'VWAP', 'YOY', 'MOM', 'QOQ', 'FFR', 'QE', 'QT', 'WTI', 'ECB', 'BOJ', 'IMF', 'OPEC', 'NYSE', 'FDA', 'DOJ', 'FTC',
   'KOSPI', 'KRX']);
 
-// X22/P1680: role and industry words ("멀티에셋 PM", "서버/HW") are symbols only when a company question follows them
+// Role and industry words ("멀티에셋 PM", "서버/HW") are symbols only when a company question follows them
 // ("PM 실적", "IR 주가"; PM/IR/HR/UI are listed). $PM always resolves.
 export const ROLE_OR_INDUSTRY_WORDS = new Set(['PM', 'HW', 'SW', 'IB', 'PE', 'VC', 'HY', 'IG', 'IR', 'HR', 'PR', 'QA', 'UI', 'UX', 'OS',
   'CIO', 'AUM', 'CFA', 'LP', 'GP', 'EM', 'DM', 'ESG', 'OEM', 'ODM', 'SAAS', 'GPU', 'CPU', 'HBM', 'DRAM', 'NAND', 'EUV', 'LLM', 'IDC', 'EV',

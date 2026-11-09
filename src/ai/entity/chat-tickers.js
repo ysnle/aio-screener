@@ -4,7 +4,7 @@
 // particle ("엔비디아는"). A demonstrative follow-up ("이 종목", "그 회사") reuses the previous turn's companies;
 // nothing else is inferred (P1339: no ticker guessing). companiesOnly drops index/FX/commodity nicknames, which the
 // unified panel answers from its market and domain blocks instead.
-// v59.88 (ADR-0003 S6): this is the one question ticker resolver. The typed-symbol scan (extract-tickers.js) and the
+// This is the one question ticker resolver. The typed-symbol scan (extract-tickers.js) and the
 // nickname table (src/domain/ticker/nicknames.js) are imported, not handed in: the chat's own fuzzy map is gone, and a
 // nickname is read beside typed symbols and plan names instead of only when they found nothing ("암드 vs 엔비디아").
 import { companyEntitySymbols } from './company-symbols.js';

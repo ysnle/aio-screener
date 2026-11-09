@@ -1303,7 +1303,7 @@ function saveWatchlists(lists) {
   if (!ok) showToast(window._aioWatchlistStore ? '관심목록을 저장하지 못했습니다(브라우저 저장 공간 부족).' : '관심목록을 아직 불러오는 중입니다. 잠시 뒤 다시 시도하세요.');
   return ok;
 }
-// v59.88 (ADR-0003 S6): the active list id is the store's too (readActiveWatchlistId / writeActiveWatchlistId).
+// The active list id is the store's too (readActiveWatchlistId / writeActiveWatchlistId).
 function getActiveWatchlistId() {
   return window._aioWatchlistStore ? window._aioWatchlistStore.activeId() : '';
 }
@@ -1379,7 +1379,7 @@ function switchWatchlist() {
 // deleted) and clears the inputs only while they still show that request.
 function addToWatchlist(ticker, note, accepted, request) {
   var activeId = request ? request.listId : getActiveWatchlistId();
-  // v58.80 F16: a stock-page add with no chosen list goes to the first list (or a new one) — the store's rule (v59.88).
+  // A stock-page add with no chosen list goes to the first list (or a new one) — the store's rule.
   if (!activeId && ticker && !request && window._aioWatchlistStore) {
     var wlAll = getWatchlists(), wlCount = wlAll.length;
     activeId = window._aioWatchlistStore.ensureTarget(wlAll, '').id;

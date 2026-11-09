@@ -25,7 +25,7 @@ import { renderPipelineStatus, renderPublicReadiness } from '../ui/components/pi
 export function installLegacyScreenBridges(root, documentRef) {
   // v59.70 (D5): the 한국 거시 기준일 badges (_aioRenderKrMacroFreshnessBadges) left with the 한국 거시 fold.
   const at = { documentRef, root };
-  // v59.88 (ADR-0003 S6) 포트폴리오: the return statistics (refreshPortfolioRisk) and the technical engine
+  // 포트폴리오: the return statistics (refreshPortfolioRisk) and the technical engine
   // (refreshPortfolioTechnicalRisk, js/aio-tests.js) that js/aio-core.js used to keep as copies. Both callers run after a
   // network wait, long after this module has loaded; before it the names are absent and the callers' typeof guards hold.
   for (const name of ['_statMean', '_statStdDev', '_calcDailyReturns', '_quantileR7', '_calcPortfolioVaR', '_calcSharpe', '_calcMaxDrawdown', '_pearsonCorr', '_calcCorrelationMatrix']) root[name] = returnStats[name];
@@ -77,7 +77,7 @@ export function installLegacyScreenBridges(root, documentRef) {
   if (root._aioWatchlistPending && typeof root.refreshWatchlistUI === 'function') { root._aioWatchlistPending = false; root.refreshWatchlistUI(); }
   // v59.07 도움말: the chapter layout (guide.js runs it on mount; the headless T869 test calls this name).
   root._aioOrganizeGuideChapters = () => { const page = documentRef.getElementById('page-guide'); if (page) organizeGuideChapters(documentRef, page); };
-  // v59.88 (S6) 오늘: the 데이터 파이프라인 상태 bar and the developer-mode 공개 준비 panel (src/ui/components/pipeline-status.js).
+  // 오늘: the 데이터 파이프라인 상태 bar and the developer-mode 공개 준비 panel (src/ui/components/pipeline-status.js).
   // The server data loader calls _aioRenderPipelineStatus after each data.json apply; a load before this install is
   // painted now from the stored meta.
   const staleDaysFallback = (d) => Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
@@ -92,7 +92,7 @@ export function installLegacyScreenBridges(root, documentRef) {
       log: typeof root._aioLog === 'function' ? root._aioLog : null
     });
     if (meta) {
-      // v59.08: the 스크리너 재무 팩터 coverage note reads the same meta.
+      // The 스크리너 재무 팩터 coverage note reads the same meta.
       root._aioScreenerFmpMeta = meta;
       root._aioRenderScreenerFmpStatus?.(meta);
       root._aioSchedulePublicReadiness(250);

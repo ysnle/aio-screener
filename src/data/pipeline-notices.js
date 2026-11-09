@@ -1,4 +1,4 @@
-// v59.88 (ADR-0003 S6): what the 데이터 파이프라인 상태 bar says — moved from js/aio-data.js _aioRenderPipelineStatus
+// What the 데이터 파이프라인 상태 bar says — moved from js/aio-data.js _aioRenderPipelineStatus
 // (v51.65, the producer notices) and _aioCheckManualFieldStaleness (v51.66, the hand-kept _fieldTs dates). Pure: it
 // reads the server data meta the loader stored and returns notices; src/ui/components/pipeline-status.js draws them.
 // Texts are the legacy ones.

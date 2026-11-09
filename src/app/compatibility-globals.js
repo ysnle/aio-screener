@@ -44,7 +44,7 @@ import { isListedUsSymbol, usListingSymbol } from '../data/us-listings.js';
 import { stripEvidenceIds } from '../domain/briefing/evidence-text.js';
 import { releaseAtMs, formatKstWhen } from '../domain/briefing/schedule.js';
 import { groupNewsStories, isNewsRevision, newsArticleKey, resolveNewsIssuers } from '../domain/news/stories.js';
-// v59.88 (S6): the portfolio return statistics install with the lazy screen bridges (legacy-screen-bridges.js).
+// The portfolio return statistics install with the lazy screen bridges (legacy-screen-bridges.js).
 import { assessAccountPerformance } from '../domain/portfolio/risk.js';
 import { PORTFOLIO_ASSUMPTION_KEYS, EXPOSURE_PATHS, REBALANCE_POLICIES, normalizeCurrencyCode, normalizeAnnualRate, normalizeExposurePath, normalizeRebalancePolicy, readPortfolioAssumptions } from '../data/portfolio-assumptions.js';
 import { LEDGER_COVERAGE_INPUTS, appendLedgerTransaction, appendLedgerValuation, ledgerCoverageState, normalizeLedger, removeLedgerEntry as removeLedgerEntryFromLedger, setLedgerCoverage as setLedgerCoverageOnLedger, setLedgerFlowTiming as setLedgerFlowTimingOnLedger } from '../data/portfolio-ledger.js';
@@ -112,8 +112,8 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._bumpApiCounter = (providerKey) => bumpApiCounter(providerKey, window);
   window._isQuotaExceeded = (providerKey) => isQuotaExceeded(providerKey, window);
   window._extractTickers = extractTickers;
-  window._resolveTickerFromFuzzy = (word) => nicknameSymbol(word); // v59.88 (S6): the one nickname table (was js/aio-chat.js)
-  // v59.88 (S6): a news article's issuers (was js/aio-data.js extractTickers) over the shell's symbol list and name map.
+  window._resolveTickerFromFuzzy = (word) => nicknameSymbol(word); // the one nickname table (was js/aio-chat.js)
+  // A news article's issuers (was js/aio-data.js extractTickers) over the shell's symbol list and name map.
   window.extractTickers = (item) => articleTickers(item, window._aioNewsSymbolLists || {});
   window._aioArticleSymbolAllowed = articleSymbolAllowed;
   window.toggleSidebar = () => toggleSidebar({ documentRef: document, root: window });
@@ -307,7 +307,7 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   // v58.80 (first-users F29): the screener star and 포트폴리오 관심 종목 share one store.
   window._aioWatchlistGet = () => readWatchlistSymbols(window.localStorage);
   // v59.42: the named lists' CRUD in js/aio-workspace.js reads and writes through the same store (one writer).
-  // v59.88 (S6): the active list id and the default-target rule live in the store too (js/aio-workspace.js read the key raw).
+  // The active list id and the default-target rule live in the store too (js/aio-workspace.js read the key raw).
   window._aioWatchlistStore = {
     read: () => readWatchlists(window.localStorage),
     write: (lists) => writeWatchlists(window.localStorage, lists),
