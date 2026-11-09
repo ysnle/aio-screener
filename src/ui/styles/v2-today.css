@@ -9,7 +9,7 @@
 /* ═══ 1. 오늘 hero (2b) ══════════════════════════════════════════════════ */
 #page-home > #home-score-hero.home-hero {
   display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 40px; align-items: stretch;
-  padding: 28px var(--sx-card-pad-x); margin: 0 0 16px; border: 0 !important; /* responsive.css L43 hairline reset */
+  padding: 28px var(--sx-card-pad-x); margin: 0 0 16px; border: 0; /* responsive.css L43 hairline reset */
 }
 #page-home .home-hero-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 #page-home .home-hero-verdict { font-size: 28px; }
@@ -27,7 +27,7 @@
 
 /* v59.51: the day's question (#home-operator-note, filled by js/aio-data.js) is the hero's second line — no card of its own,
    and its "m/d 종가 기준 '판정'" line is not repeated under the verdict word it sits beside. */
-#page-home #home-score-hero #home-operator-note .aio-operator-note-card { margin: 0; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none !important; } /* soft-ui §3 sets the card shadow with !important */
+#page-home #home-score-hero #home-operator-note .aio-operator-note-card { margin: 0; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none; } /* soft-ui §3 sets the card shadow with !important */
 #page-home #home-score-hero #home-operator-note .aio-operator-note-meta { display: flex; gap: 8px; align-items: baseline; margin: 0 0 2px; font-size: 12px; color: var(--text-muted); }
 #page-home #home-score-hero #home-operator-note .aio-operator-note-title { margin: 0; font-size: 14px !important; font-weight: 500; line-height: 1.6 !important; color: var(--text-primary); } /* index.html sets the stand-alone card's 18px/1.34 with !important */
 #page-home #home-score-hero #home-operator-note { margin: 0; }
@@ -264,7 +264,7 @@
 #page-market-news .news-item-headline { font-size: 14px; font-weight: 600; line-height: 1.5; letter-spacing: -0.01em; margin: 0 0 4px; }
 #page-market-news .news-item-link { min-height: 24px; }
 #page-market-news .news-item-summary { font-size: 12px; line-height: 1.65; color: var(--text-secondary); margin: 0 0 4px; }
-#page-market-news .news-item-meta { font-size: 12px !important; color: var(--text-muted); margin-top: 2px; } /* index.html L2322 pins 11px with !important */
+#page-market-news .news-item-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; } /* index.html L2322 pins 11px with !important */
 #page-market-news .news-evidence { font-size: 12px; }
 #page-market-news .news-evidence > summary { display: inline-flex; align-items: center; min-height: 24px; color: var(--text-muted); }
 #page-market-news .news-item-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; padding-top: 2px; }
@@ -287,7 +287,7 @@
 }
 @media (max-width: 743px) {
   /* iPhone: one column, 44px touch targets. */
-  #page-home > #home-score-hero.home-hero { padding: 20px var(--sx-card-pad-x) !important; border-radius: var(--radius-container) !important; }
+  #page-home > #home-score-hero.home-hero { padding: 20px var(--sx-card-pad-x) !important; border-radius: var(--radius-container); }
   #page-home .home-hero-verdict { font-size: 28px; }
   #page-home .home-hero-lede { font-size: 14px; }
   #page-home #home-daily-loop.daily-loop { grid-template-columns: minmax(0, 1fr); }
@@ -405,5 +405,5 @@
   #page-home #home-cross-assets > span:not([hidden]) { flex-wrap: wrap; align-content: center; gap: 2px 6px; padding: 8px 12px; border-radius: 10px; min-width: 0; }
   #page-home #home-cross-assets > span:not([hidden]) > .sh-muted-text:first-child { flex-basis: 100%; }
   #page-home #home-cross-assets > span:not([hidden]) .sh-ink-figure { font-size: 15px; }
-  #page-home #home-cross-assets > span:not([hidden]) :is(.sh-semi-figure, .sh-soft-text, .aio-metric-delta) { font-size: 12px !important; } /* #home-fg-delta sets 12px !important above */
+  #page-home #home-cross-assets > span:not([hidden]) :is(.sh-semi-figure, .sh-soft-text, .aio-metric-delta) { font-size: 12px; } /* #home-fg-delta sets 12px !important above */
 }
