@@ -22,17 +22,10 @@ function notify(root, reason) {
   if (typeof root._aioNotifyNewsSurfaceInvalidated === 'function') root._aioNotifyNewsSurfaceInvalidated(reason);
 }
 
+// A pick sets aria-pressed only; the look is the #news-filter-row aria-pressed rule in responsive.css, and news.js
+// re-syncs the same attribute on every render. No inline colours, so that rule needs no !important.
 function markChip(documentRef, group, el) {
-  documentRef?.querySelectorAll?.(`#${group} .chip`).forEach((c) => {
-    c.style.background = 'transparent';
-    c.style.borderColor = 'var(--surface-5)';
-    c.style.color = 'var(--text-secondary)';
-  });
-  if (el) {
-    el.style.background = 'var(--accent-dim)';
-    el.style.borderColor = 'var(--accent-border)';
-    el.style.color = 'var(--accent)';
-  }
+  documentRef?.querySelectorAll?.(`#${group} .chip`).forEach((c) => c.setAttribute?.('aria-pressed', String(c === el)));
 }
 
 // v48.19: the telegram chip is the country filter 'tg', so every filter path renders through the same feed.

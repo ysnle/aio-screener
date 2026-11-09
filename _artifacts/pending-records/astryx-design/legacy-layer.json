@@ -1,0 +1,10 @@
+{
+  "version": "v59.90",
+  "date": "2026-11-09",
+  "p": null,
+  "r": null,
+  "changelog": [
+    "**예전 CSS를 낮은 층으로 분리 (v59.90, 소유자 선택 2026-11-09):** index.html의 첫 인라인 스타일 블록, legacy-*.css 7개, shell-static.css를 `@layer legacy`로 묶었다. 이제 화면 스타일시트가 선택자 우선순위가 아니라 층 순서로 이긴다. 층 안에 남은 important 플래그는 층 규칙 때문에 오히려 화면 규칙을 이기게 되므로 두 가지로 처리했다. main에서 원래 지던 67개는 지웠고, 나머지 229개는 층 밖의 `legacy-important-shell.css`·`legacy-important-files.css`로 옮겨 예전과 같은 순서를 지켰다. 이 두 파일은 정리할 부채 목록이고 ratchet이 줄기만 하도록 막는다. 층이 생기면서 필요 없어진 화면 규칙 플래그 62개와 이동 파일의 플래그 5개도 지웠다. 위젯 여백(16px 18px, 아래 14px)은 soft-ui.css로, 포트폴리오 상단 3열은 portfolio-page.css로 옮겼다. 전체 !important는 709개에서 571개가 됐다. 예전 규칙이 막고 있던 새 화면 규칙 4곳이 살아났다. 폰 포트폴리오 입력칸이 2열 그리드가 됐고(v58.80 의도), 테마 '열기' 글자가 잉크색이 됐다. 페이지 출처 링크는 12px이 됐고, 용어에는 도움말 커서가 붙었다. 20개 라우트를 1440·820·390px, 라이트·다크로 main과 계산 스타일을 대조했다. 이 4곳과 실시간 데이터에 따른 높이 차이 말고는 바뀐 것이 없다. 리뷰에서 계산 스타일 대조가 hover와 클릭 뒤 상태를 보지 않은 틈이 드러났다. 뉴스 국가·주제 칩은 누르면 `news-controls.js`가 인라인 색을 써서 눌린 칩이 잉크 채움 대신 옅은 강조색이 되고, 눌린 칩에 hover하면 글자가 배경과 같은 색이 됐다. 이제 칩을 누르면 aria-pressed만 바뀌고 모양은 CSS 규칙 하나가 정한다. hover 규칙은 눌린 칩을 건너뛴다. 사이드바 활성 항목도 hover 때 a08 채움을 유지한다. hover·눌림 짝 전수 검사에서 남은 건은 없다."
+  ],
+  "note": "@layer legacy for index.html block 1 + legacy-*.css + shell-static.css; legacy important flags moved to two unlayered debt files; 709→571; news chips aria-pressed only, hover skips pressed/active"
+}

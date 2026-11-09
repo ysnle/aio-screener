@@ -43,7 +43,7 @@ body { background: var(--bg-base); font-family: var(--font-sans); color: var(--t
 .logo::after { display: none !important; }
 .logo .sh-shell-sidebar-row { display: flex; align-items: baseline; }
 .logo .sh-shell-sidebar-grow { display: flex; align-items: baseline; gap: 6px; }
-.logo-mark { display: inline !important; font-family: var(--font-sans); font-size: 18px !important; font-weight: 800; letter-spacing: -0.02em !important; line-height: 1.2; }
+.logo-mark { display: inline !important; font-family: var(--font-sans); font-size: 18px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
 .logo-sub { display: inline !important; margin: 0; font-size: 12px; font-weight: 400; color: var(--text-secondary); letter-spacing: 0; }
 
 /* v58.68 (owner 2026-10-23): a shortcut hint is noise where there is no keyboard (phone, tablet). */
@@ -52,19 +52,19 @@ body { background: var(--bg-base); font-family: var(--font-sans); color: var(--t
 .nav-section + .nav-section { border-top: 0; margin-top: 0; }
 .nav-label { padding: 0 12px 4px; font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 0; text-transform: none; }
 .nav-item {
-  min-height: 32px; height: auto; padding: 0 12px !important; margin: 0;
+  min-height: 32px; height: auto; padding: 0 12px; margin: 0;
   display: flex; align-items: center; border-radius: var(--radius-element); border: 0;
-  font-size: 14px !important; font-weight: 400; color: var(--text-primary) !important;
+  font-size: 14px; font-weight: 400; color: var(--text-primary);
   
 }
 .nav-item::before, .nav-item::after { display: none !important; }
 .nav-item .nav-icon { display: none !important; }
-.nav-item:hover { background: var(--sx-ink-a05) !important; }
-.nav-item.active { background: var(--sx-ink-a08) !important; font-weight: 600 !important; color: var(--text-primary); }
+.nav-item:not(.active):hover { background: var(--sx-ink-a05) !important; } /* v59.90: hover leaves the active item on its a08 fill */
+.nav-item.active { background: var(--sx-ink-a08); font-weight: 600; color: var(--text-primary); }
 .nav-divider { display: none; }
 .sh-shell-sidebar-pad4 { padding: 0; }
 .sidebar-action-btn {
-  width: 100%; min-height: 32px; padding: 0 12px; border-radius: var(--radius-element); border: 0 !important;
+  width: 100%; min-height: 32px; padding: 0 12px; border-radius: var(--radius-element); border: 0;
   background: transparent; color: var(--text-secondary); font-size: 12px;
   text-align: left; justify-content: flex-start;
 }
@@ -91,7 +91,7 @@ body.dark-theme .sidebar-footer .llm-panel { background: var(--white-a1); }
 
 /* Topbar: no chrome bar — a quiet row of status capsules and the AI button, aligned with the page column. */
 .topbar {
-  background: transparent !important; border: 0 !important; box-shadow: none;
+  background: transparent; border: 0; box-shadow: none;
   min-height: 52px; padding: 14px 40px 0 !important;
 }
 .topbar #breadcrumb { display: none; }
@@ -120,14 +120,14 @@ body.dark-theme .sidebar-footer .llm-panel { background: var(--white-a1); }
 .page-head { border: 0 !important; padding: 0 0 4px var(--sx-card-pad-x) !important; margin: 0 0 20px !important; align-items: flex-end; gap: 16px; }
 .page-head > div:has(> .page-title) { display: flex; flex-direction: column-reverse; gap: 4px; }
 .page-title {
-  font-family: var(--font-sans); font-size: 28px; font-weight: 700 !important;
+  font-family: var(--font-sans); font-size: 28px; font-weight: 700;
   letter-spacing: -0.025em; line-height: 1.15; color: var(--text-primary);
 }
 .page-subtitle { margin: 0; font-size: 12px; font-weight: 400; color: var(--text-muted); }
 h2, .section-title, .widget-title, .aio-card-title, .section-header {
   font-family: var(--font-sans); letter-spacing: -0.01em !important; text-transform: none;
 }
-.widget-title, .aio-card-title { font-size: 14px !important; font-weight: 700; color: var(--text-primary); }
+.widget-title, .aio-card-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
 
 /* The hub tab row floats right so the page header shares its line (2b/3b). */
 .aio-hub-tabs {
@@ -161,16 +161,17 @@ h2, .section-title, .widget-title, .aio-card-title, .section-header {
 /* ═══ 3. Surfaces ═══════════════════════════════════════════════════════ */
 /* Cards: no border, 20px radius, two-step shadow. Inner tiles: ink 3.5% fill, 12–16px radius. */
 .aio-card, .data-widget, .aio-widget, .kr-idx-card, .kr-theme-card, .kr-screen-card, .sx-card {
-  background: var(--bg-card) !important; border: 0 !important; border-radius: var(--radius-container) !important;
+  background: var(--bg-card); border: 0; border-radius: var(--radius-container);
   box-shadow:none;
 }
-.aio-card, .aio-widget, .data-widget { padding: 20px 22px; }
+.aio-card { padding: 20px 22px; }
+.aio-widget, .data-widget { padding: 16px 18px; margin-bottom: 14px; } /* v59.90: moved from index.html, where an important flag overrode the 20px 22px above */
 .aio-card.is-interactive:hover { background: var(--bg-card) !important; box-shadow:none !important; }
 #home-operator-note .aio-operator-note-card {
   border: 0; border-radius: var(--radius-container); background: var(--bg-card); box-shadow:none;
 }
 #home-operator-note .aio-operator-note-card { padding: 22px 26px; }
-#home-operator-note .aio-operator-note-kicker { color: var(--text-secondary) !important; }
+#home-operator-note .aio-operator-note-kicker { color: var(--text-secondary); }
 
 .trend-card, .regime-axis, .macro-stat, .temp-tile, .thp-quadrant-card, .tp-card, .capex-flow-card, .masters-metric, .pf-allocation-card, .regime-scenario-card, .scr-funnel-step, .sh-base-panel, .sh-base-panel-s1, .empty-state, .stock-chart-evidence, .masters-detail-card, .rates-guide {
   border: 0 !important; border-radius: var(--radius-container) !important; background: var(--sx-ink-a03) !important; box-shadow: none !important;
@@ -185,7 +186,7 @@ details > summary { cursor: pointer; }
 /* Tables (astryx Table): header label semibold in the secondary text role; rows keep a faint divider; hover is a flat
    wash on hover-capable pointers only (a touch never leaves a stuck highlight). */
 .page table { border-collapse: separate; border-spacing: 0; }
-.page th { font-weight: 600 !important; color: var(--color-text-secondary) !important; font-size: 12px; letter-spacing: 0; text-transform: none; border-color: rgba(var(--ink-rgb), 0.06) !important; background: transparent !important; }
+.page th { font-weight: 600 !important; color: var(--color-text-secondary); font-size: 12px; letter-spacing: 0; text-transform: none; border-color: rgba(var(--ink-rgb), 0.06) !important; background: transparent !important; }
 .page td { border-color: rgba(var(--ink-rgb), 0.05) !important; }
 .page tbody tr {  }
 @media (hover: hover) { .page tbody tr:hover > td { background: var(--color-overlay-hover); } }
@@ -395,13 +396,13 @@ body:has(#ai-panel.open) #aio-first-visit-disclaimer:not(.is-inline) { display: 
 #aio-first-visit-disclaimer.is-inline {
   position: relative !important; left: auto !important; right: auto !important; bottom: auto !important; transform: none !important;
   width: auto; max-width: none; margin: 0 0 16px; padding: 8px 8px 8px var(--sx-card-pad-x); z-index: auto !important;
-  flex-direction: row; flex-wrap: wrap; align-items: center !important; gap: 10px 16px !important;
-  border: 0.5px solid var(--border-strong); font-size: 12px !important;
+  flex-direction: row; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+  border: 0.5px solid var(--border-strong); font-size: 12px;
 }
-#aio-first-visit-disclaimer.is-inline .lu-dc-text { flex: 1 1 280px !important; min-width: 0; }
+#aio-first-visit-disclaimer.is-inline .lu-dc-text { flex: 1 1 280px; min-width: 0; }
 /* v59.55: one line, shown until 확인 (localStorage); the page foot keeps the same words and reopens it. */
 #aio-first-visit-disclaimer.is-inline .lu-dc-title { display: inline; margin: 0 6px 0 0; font-size: 12px; }
-#aio-first-visit-disclaimer.is-inline .lu-dc-btn { align-self: center; height: var(--size-element-md); min-height: var(--size-element-md); padding: 0 14px !important; font-size: 12px !important; }
+#aio-first-visit-disclaimer.is-inline .lu-dc-btn { align-self: center; height: var(--size-element-md); min-height: var(--size-element-md); padding: 0 14px; font-size: 12px; }
 @media (pointer: coarse) { #aio-first-visit-disclaimer.is-inline .lu-dc-btn { height: 44px; min-height: 44px; } }
 body.aio-disclaimer-open .sidebar { padding-bottom: 16px !important; }
 
@@ -472,7 +473,7 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none; }
   .content { padding: 16px 24px 32px !important; }
   .topbar { padding: 8px 16px 0 !important; min-height: 0; }
   .page-title { font-size: 28px; }
-  #ai-panel { top: 0 !important; bottom: auto !important; right: 0 !important; border-radius: 0 !important; width: min(440px, 100vw) !important; }
+  #ai-panel { top: 0 !important; bottom: auto !important; right: 0 !important; border-radius: 0; width: min(440px, 100vw) !important; }
 }
 @media (max-width: 1023px) {
   .sx-tabbar {
@@ -543,13 +544,13 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none; }
    only while the sidebar is collapsed (the way back); the drawer widths keep it. */
 /* One opaque fill on both halves, so the overlap where they meet (the bar's gap differs by width) leaves no seam. */
 .topbar { --tb-chip-bg: color-mix(in srgb, var(--text-primary) 7%, var(--bg-base)); }
-.topbar #topbar-live-badge { position: relative; border-radius: var(--radius-full) 0 0 var(--radius-full) !important; padding: 0 2px 0 10px !important; margin-inline-end: -8px; background: var(--tb-chip-bg) !important; }
+.topbar #topbar-live-badge { position: relative; border-radius: var(--radius-full) 0 0 var(--radius-full); padding: 0 2px 0 10px !important; margin-inline-end: -8px; background: var(--tb-chip-bg); }
 .topbar #topbar-live-badge .topbar-live-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .topbar #live-quote-ts {
   display: inline-flex; align-items: center; min-height: 26px; box-sizing: border-box; padding: 0 10px 0 6px;
-  border-radius: 0 var(--radius-full) var(--radius-full) 0 !important; background: var(--tb-chip-bg); color: var(--text-secondary); font-weight: 600;
+  border-radius: 0 var(--radius-full) var(--radius-full) 0; background: var(--tb-chip-bg); color: var(--text-secondary); font-weight: 600;
 }
-.topbar #live-quote-ts[data-compact]:not([data-compact=""]) { font-size: 0 !important; }
+.topbar #live-quote-ts[data-compact]:not([data-compact=""]) { font-size: 0; }
 .topbar #live-quote-ts[data-compact]:not([data-compact=""])::after { content: attr(data-compact); font-size: 12px; font-variant-numeric: tabular-nums; }
 @media (min-width: 1024px) {
   #sidebar-toggle-btn { display: none !important; }

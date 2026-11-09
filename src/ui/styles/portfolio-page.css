@@ -181,3 +181,5 @@ input[aria-invalid="true"] { border-color: var(--data-red); }
 /* v59.70 (screen review 20): an empty book offers add, import and a preview in its own empty state; the page head's
    종목 추가 · 내보내기 · 가져오기 row said the same twice, so it shows once there is a holding. */
 #page-portfolio[data-pf-empty="true"] .page-head .sh-portfolio-row { display: none; }
+/* v59.90 layer split: the hero keeps three stat columns at every width (was an index.html important flag over .aio-responsive-card-grid). */
+#pf-hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }

@@ -73,6 +73,16 @@ z-index, transform, height), and pairs where two rules each look redundant only 
 Screener column minimums live in the column registry (`src/ui/pages/screener/model.js`), not in CSS overrides.
 Result: 1,202 → 709 (index.html 217 of them).
 
+## Cascade layers (v59.90)
+`@layer legacy` holds the pre-soft-ui shell CSS: the first `<style>` block in index.html, `legacy-*.css` and
+`shell-static.css` (imported with `layer(legacy)` in responsive.css). Every other stylesheet is unlayered, so it beats
+the legacy layer by layer order, whatever the selector specificity. New rules never need `!important` to beat legacy CSS.
+An important flag inside a lower layer would beat every unlayered important flag, so the legacy layer holds no flags.
+The flags it had sit, unlayered, in `legacy-important-shell.css` (from index.html, imported first) and
+`legacy-important-files.css` (from the legacy files, imported right after them). That keeps the order they had. These two
+files are the debt list: delete a declaration, or move the rule that needs it into its screen stylesheet.
+The AI panel `<style>` block at the end of index.html stays unlayered.
+
 ## Next
-- Most of the remaining flags exist to beat soft-ui's own page-wide rules (`.page th/td`, `.page input`, `.page .aio-btn-table`).
-  Retire those rules, or scope them, before working on the per-screen rules that out-rank them.
+- Shrink `legacy-important-*.css` (224 flags, 179 of them on selectors that matched nothing on 20 routes: check each for dead CSS).
+- Most of soft-ui's remaining flags beat those files or inline styles set by JS. Retire them file by file.
