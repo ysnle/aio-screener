@@ -302,19 +302,17 @@ function waitForKnowledge(promise, signal) {
   });
 }
 
-export function createAIKnowledgeRetriever({ fetchImpl = globalThis.fetch, indexUrl = './public-data/knowledge/ai-retrieval-index.json', timeoutMs = 7000, suppliedMaterials = null } = {}) {
+// S5 (ADR-0003): the retriever does not fetch. The composition root (src/app/bootstrap.js) hands it loadIndex, which reads
+// the index through the data layer's artifact loader; the AI layer keeps only the wait bound and the shared retry.
+export function createAIKnowledgeRetriever({ loadIndex = null, timeoutMs = 7000, suppliedMaterials = null } = {}) {
   let indexPromise = null;
   let lastAudit = Object.freeze({ version: AI_KNOWLEDGE_RETRIEVAL_VERSION, retrieverVersion: AI_KNOWLEDGE_RETRIEVAL_VERSION, status: 'NOT_LOADED', returned: 0 });
   const load = async () => {
     if (!indexPromise) {
-      if (typeof fetchImpl !== 'function') throw new Error('knowledge_fetch_unavailable');
+      if (typeof loadIndex !== 'function') throw new Error('knowledge_loader_unavailable');
       const controller = new AbortController();
       let timer;
-      const pending = Promise.race([Promise.resolve().then(() => fetchImpl(indexUrl, { cache: 'no-cache', signal: controller.signal }))
-        .then((response) => {
-          if (!response || response.ok === false) throw new Error(`knowledge_index_http_${response?.status || 'unknown'}`);
-          return response.json();
-        })
+      const pending = Promise.race([Promise.resolve().then(() => loadIndex({ signal: controller.signal }))
         // suppliedMaterials may be a loader: the corpus is a lazy chunk, and a failed load keeps the article index.
         .then(async (payload) => createAIKnowledgeIndex(payload?.articles || [], {
           suppliedMaterials: typeof suppliedMaterials === 'function' ? await Promise.resolve().then(suppliedMaterials).catch(() => null) : suppliedMaterials

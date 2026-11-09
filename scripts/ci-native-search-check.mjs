@@ -51,7 +51,8 @@ let sent, done, error;
 const stream = { citations: [], researchError: null };
 const output = { id: 'resp_mock', status: 'completed', output: [{ type: 'message', content: [{ type: 'output_text', text: '참고 설명', annotations: [{ type: 'url_citation', url: cite.url, title: cite.title }] }] }] };
 const events = [{ type: 'response.output_text.delta', delta: '참고 설명' }, { type: 'response.completed', response: output }];
-const context = vm.createContext({ window: { AIO: { attachNativeSearch } }, console: { log() {} }, AbortController, TextDecoder, setTimeout, clearTimeout,
+const { AI_WORKER_CONTRACT } = await import('../src/domain/ai/worker-contract.js'); // v59.87: chat-globals installs it beside the chat
+const context = vm.createContext({ window: { AIO: { attachNativeSearch, aiWorkerContract: AI_WORKER_CONTRACT } }, console: { log() {} }, AbortController, TextDecoder, setTimeout, clearTimeout,
   getApiKey: () => '', getModelConfig: () => ({ reasoningEffort: 'none', label: 'fixture' }),
   _aioAIRequestStream: () => stream, _aioThrowIfChatAborted: signal => { if (signal?.aborted) throw new DOMException('aborted', 'AbortError'); },
   _aioEnsureClaudeRoute: async () => ({ ok: true, target: { url: 'https://worker.test/openai' }, health }),

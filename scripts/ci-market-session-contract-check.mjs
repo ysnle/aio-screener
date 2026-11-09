@@ -130,11 +130,13 @@ check('temporal evidence separates event/observed/collected/published', temporal
     check('P1533 KRX close is end-of-day confirmed from 16:00 KST and for earlier sessions', kr('2026-07-16T07:00:00Z')?.eodConfirmed === true && kr('2026-07-17T01:00:00Z')?.date === '2026-07-16' && kr('2026-07-17T01:00:00Z')?.eodConfirmed === true);
   }
   const offenders = [];
+  const srcAi = fileURLToPath(new URL('../src/ai/', import.meta.url));
   (function walk(dir) {
     for (const entry of readdirSync(dir)) {
       const full = path.join(dir, entry);
       if (statSync(full).isDirectory()) walk(full);
-      else if (/\.m?js$/.test(entry) && /^\s*(?:import|export)\b[^\n]*from\s+['"](?:\.\.\/)+ai\//m.test(readFileSync(full, 'utf8'))) offenders.push(path.relative(fileURLToPath(new URL('..', import.meta.url)), full));
+      // v59.87: the specifier is resolved, so src/domain/ai (reached as '../ai/' from a sibling folder) is not src/ai.
+      else if (/\.m?js$/.test(entry) && [...readFileSync(full, 'utf8').matchAll(/^\s*(?:import|export)\b[^\n]*from\s+['"](\.[^'"]+)['"]/gm)].some((m) => path.resolve(path.dirname(full), m[1]).startsWith(srcAi))) offenders.push(path.relative(fileURLToPath(new URL('..', import.meta.url)), full));
     }
   })(fileURLToPath(new URL('../src/domain', import.meta.url)));
   check('P1533 src/domain must not import from src/ai (the domain layer sits below it)', offenders.length === 0, offenders);

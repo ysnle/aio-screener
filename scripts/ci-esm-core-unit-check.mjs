@@ -84,7 +84,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 
 // P1353: refuse unsupported paid search before incrementing counters; personal-key cost stays separate.
 {
-  const { preparePaidWebSearch } = await load('src/ai/policies/budget.js');
+  const { preparePaidWebSearch } = await load('src/ai/policy/budget.js');
   const state = {};
   let refused = false, counters = 0;
   try { preparePaidWebSearch({ serverKey: true, state, bumpCounter: () => counters++ }); } catch (error) { refused = /월 예산.*유료 웹 검색/.test(error.message); }
