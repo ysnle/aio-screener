@@ -10,7 +10,7 @@
 // What a regime has tended to mean for stocks is labelled 해석 (a historical tendency, not a forecast).
 
 import { creditCause, creditReleaseText, creditState, hyDelta20Bp, hyWidening20Record } from '../briefing/market-read.js';
-import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack } from '../market/close-series.js';
+import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack } from '../market/session/close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { brentWtiCheck } from './liquidity-growth.js';
 import { inflationDirection, oilDivergence, policyCycle, MACRO_SIGNAL_RULES } from './macro-signals.js';

@@ -10,7 +10,7 @@
 // equities too), not a partial effect holding the market fixed. Weekly (5-session) steps from the end of the book's
 // common dates: Korean and US closes on the same calendar date are ~16 hours apart, which daily pairs understate.
 // A shock is the weekly relationship scaled linearly — an extrapolation the label states, never a forecast.
-import { buildCloseSeries } from '../market/close-series.js';
+import { buildCloseSeries } from '../market/session/close-series.js';
 import { listingCurrency } from './fx.js';
 
 export const STRESS_MIN_WEEKS = 30; // below this the slope's error band is too wide to print a figure

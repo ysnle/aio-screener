@@ -10,10 +10,10 @@ import { runScreen, createDefaultScreenDefinitions } from '../src/domain/screene
 import { createScreenDefinition } from '../src/data/contracts/screener.js';
 import { isDecisionEligibleRightsId } from '../src/data/contracts/evidence.js';
 import { worstSessionMove } from '../src/domain/portfolio/kr-stress.js';
-import { openSessionDatesBetween } from '../src/domain/market/market-calendar.js';
+import { openSessionDatesBetween } from '../src/domain/market/session/market-calendar.js';
 import { baseCount, climaxSigns } from '../src/domain/technical/follow-through.js';
 import { buildDirection } from '../src/domain/guide/market-guide.js';
-import { BRANCHES } from '../src/domain/market/macro-crossroads.js';
+import { BRANCHES } from '../src/domain/market/regime/macro-crossroads.js';
 import { evaluateConditionalEvidence } from '../src/domain/screener/conditional-evidence.js';
 
 const read = (row, key) => row[key] ?? null;

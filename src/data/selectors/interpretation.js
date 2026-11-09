@@ -1,10 +1,10 @@
-// Owner 2026-10-19: the browser adapter of the interpretation pipeline (src/domain/interpretation/market-interpretation.js).
+// Owner 2026-10-19: the browser adapter of the interpretation pipeline (src/domain/market/interpretation/market-interpretation.js).
 // It gathers every input from the loaded runtime artifacts once and keeps the result until one of them changes, so
 // 오늘, 시장 상태, 거시, 테마, 브리핑, the AI chat and each screen's lessons read the same regime, branches and guide.
 import { collectMarketInputs } from './market-inputs.js';
-import { buildMarketInterpretation } from '../../domain/interpretation/market-interpretation.js';
+import { buildMarketInterpretation } from '../../domain/market/interpretation/market-interpretation.js';
 import { CONSENSUS_KEY } from '../consensus-estimates.js';
-import { indexEarningsInput, interpretationInput } from '../../domain/interpretation/inputs.js';
+import { indexEarningsInput, interpretationInput } from '../../domain/market/interpretation/inputs.js';
 import { SCENARIO_OUTCOMES, SCENARIO_STATE } from '../artifact-registry.js';
 
 // The native store, registered once by bootstrap, so every caller reads the same typed rows in place (v57.77 perf: the

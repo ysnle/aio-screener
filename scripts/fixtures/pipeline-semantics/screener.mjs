@@ -195,7 +195,7 @@ export const cases = [
     assert.equal(readRowNumber({ ret5d: -1.5, fieldReadiness: readiness('BLOCKED') }, 'ret5d'), -1.5);
   } },
   { id: 'BC-SESSION-01', name: '가격 팩터의 현재성은 달력일이 아니라 거래소 세션으로 판정한다', run: async ({ load }) => {
-    const { isSessionCurrent } = await load('src/domain/market/market-calendar.js');
+    const { isSessionCurrent } = await load('src/domain/market/session/market-calendar.js');
     const { FRESHNESS_POLICY } = await load('src/domain/shared/freshness-policy.js');
     const current = (args) => isSessionCurrent(args, FRESHNESS_POLICY.factorSession);
     const at = (iso) => Date.parse(iso);

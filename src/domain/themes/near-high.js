@@ -3,7 +3,7 @@
 // membership (screener metadata.indexWeights, GICS sectors); the value is the screener row's pctFromCloseHigh52w on the
 // US factor session the bars print. A member without that session's value is not measured, never counted as far.
 import { readRowNumber } from '../../data/contracts/screener.js';
-import { GICS_KO } from '../market/sector-map.js';
+import { GICS_KO } from '../market/indices/sector-map.js';
 
 export const NEAR_HIGH_PCT = 5;
 // One or two members must not set a sector's share (Real Estate and Materials have ~20–30 members).

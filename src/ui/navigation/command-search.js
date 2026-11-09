@@ -16,7 +16,7 @@
 // Korean syllable is still composing), Esc closes. The module loads lazily (src/app/compatibility-globals.js).
 
 import { ROUTE_HUBS, routeLabel } from './route-hubs.js';
-import { searchCandidates } from '../../domain/ticker/resolve-name.js';
+import { searchCandidates } from '../../domain/instruments/resolve-name.js';
 import { loadKnowledgeSearch, normalize, openKnowledgeResult } from '../knowledge/glossary-bridge.js';
 import { renderDataState } from '../components/data-state.js';
 

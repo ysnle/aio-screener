@@ -9,8 +9,8 @@ import { requestFiscalHistory, parseFiscalHistory } from './fiscal-read.js';
 import { crossroadsForRoot } from './macro-crossroads.js';
 import { themePlaybookForRoot } from './theme-playbook.js';
 import { readMarketRegime } from './market-regime.js';
-import { CHOICES } from '../../domain/market/macro-crossroads.js';
-import { scenarioLead } from '../../domain/market/scenario-lead.js';
+import { CHOICES } from '../../domain/market/regime/macro-crossroads.js';
+import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { THEME_STATES } from '../../domain/scenarios/analogs.js';
 import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
@@ -181,7 +181,7 @@ async function buildCrossroadsVisual({ documentRef: doc, root }) {
   if (!model?.available || model.held) return null;
   const tone = { same: '이 시나리오 쪽', against: '반대쪽', neutral: '중립', unknown: '보류' };
   // First-users run-6 (MERGED #2): a tie is every tied branch, labelled (동률), never one of them as (중심) — the one
-  // reading of "which branch leads" is scenarioLead (domain/market/scenario-lead.js).
+  // reading of "which branch leads" is scenarioLead (domain/market/regime/scenario-lead.js).
   const lead = scenarioLead(model);
   const top = new Set(lead.ids || []);
   const tie = lead.state === 'tie';

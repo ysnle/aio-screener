@@ -2932,7 +2932,7 @@ if (typeof document !== 'undefined') {
   _aioPageBus.register('core-freshness', 'aio:liveQuotes', function(){ window._aioUpdateFreshness(); });
   // P1326/R671 (F-56): the topbar is the only quote-status slot. The badge carries the state
   // word (LIVE/지연/종가/지난 시세/미수신) and #live-quote-ts carries only the detail, both from
-  // src/domain/market/quote-currentness.js — observation times + the US calendar, never the
+  // src/domain/market/session/quote-currentness.js — observation times + the US calendar, never the
   // render clock. The duplicate home-header pill was removed.
   function _aioDescribeCurrentness(observations, durableCount) {
     var describe = typeof window._aioDescribeQuoteCurrentness === 'function' ? window._aioDescribeQuoteCurrentness : null;
@@ -6049,7 +6049,7 @@ window.AIO.getTickerRegistryEntryAudit = function() {
   };
 };
 
-// P1342: one resolver (src/domain/ticker/resolve-name.js) — aliases never rewrite ticker-shaped input.
+// P1342: one resolver (src/domain/instruments/resolve-name.js) — aliases never rewrite ticker-shaped input.
 window.AIO.resolveTickerFromAnyName = function(input) { return typeof window._aioResolveRegisteredName === 'function' ? window._aioResolveRegisteredName(input) : null; };
 
 // v59.70 P2: window.AIO.getTickerMappingAudit moved to js/aio-qa-audits.js (QA-only callers).
@@ -8568,7 +8568,7 @@ window.AIO.getSnapshotConsistencyAudit = function() {
 };
 
 
-// v59.41: AIO.diagnoseBreadthConsensus (the v49.25 breadth consensus) moved to src/domain/market/breadth-consensus.js; src/app/score-entry-points.js installs it.
+// v59.41: AIO.diagnoseBreadthConsensus (the v49.25 breadth consensus) moved to src/domain/market/breadth/breadth-consensus.js; src/app/score-entry-points.js installs it.
 
 // ─────────────────────────────────────────────────────────────────
 // v49.25 R56 자동화: getThresholdLabelAudit
@@ -11195,7 +11195,7 @@ var AIO_MANUAL_REFERENCE_EXPIRY_RULES = Object.freeze({
   krExports: Object.freeze({ label: '한국 수출 잠정치', where: 'public-data/data.json officialWebReferences.krExports', maxAgeDays: 15, producer: 'public-data/official-references.json items.krExports', screen: '수출 잠정치 문구를 기한 지남으로 보류' }),
   structuralResearch: Object.freeze({ label: '구조 데이터 원천 조사 기록', where: 'public-data/structural-data-research.json', maxAgeDays: 180, reviewLeadDays: 30, producer: null, screen: '화면 노출 없음(원천 경계 근거), 만료 시 웹 조사 계약 gate가 배포를 막음' }),
   schedule: Object.freeze({ label: '공식 발표 일정표', where: 'js/aio-core.js AIO_MACRO_OFFICIAL_SCHEDULES', graceDays: 0, reviewLeadDays: 21, producer: 'public-data/macro-calendar.json', screen: '그 발표의 다음 일정을 일정 확인 필요로 보류' }),
-  holidays: Object.freeze({ label: '거래소 휴장일 표', where: 'src/domain/market/market-calendar.js + js/aio-core.js DATE_ENGINE', asOf: '2026-09-29', reviewLeadDays: 61, producer: null, screen: '미등록 연도는 거래일 판정을 unknown으로 보류' })
+  holidays: Object.freeze({ label: '거래소 휴장일 표', where: 'src/domain/market/session/market-calendar.js + js/aio-core.js DATE_ENGINE', asOf: '2026-09-29', reviewLeadDays: 61, producer: null, screen: '미등록 연도는 거래일 판정을 unknown으로 보류' })
 });
 function _aioRefDate(value) {
   var text = String(value == null ? '' : value).trim().slice(0, 10);
@@ -11467,7 +11467,7 @@ const NARRATIVE_ENGINE = (function() {
   function getSKEWRegime(v) { return regime(v, [[125,'low','낮음','#3dd68c',25],[140,'normal','보통','#ffa057',55],[Infinity,'high','높음','#ec5d5e',85]]); }
   function getMOVERegime(v) { return regime(v, [[80,'low','낮음','#3dd68c',25],[120,'normal','보통','#ffa057',55],[Infinity,'high','높음','#ec5d5e',85]]); }
   // v59.70 (data audit R9): getFGRegime (25-55 '중립') was removed — it had no caller and disagreed with RULES.fearGreed
-  // (src/domain/rules/thresholds.js, under 45 = fear), the one Fear & Greed band (src/domain/sentiment/metrics.js fearGreedBand).
+  // (src/domain/rules/thresholds.js, under 45 = fear), the one Fear & Greed band (src/domain/market/sentiment/metrics.js fearGreedBand).
   function getBreadthRegime(v) { return regime(v, [[40,'weak','좁음','#ec5d5e',25],[60,'mixed','혼조','#ffa057',50],[Infinity,'broad','넓음','#3dd68c',85]]); } // P2262: RULES.breadth 40/60
 
   function current() {
@@ -11810,7 +11810,7 @@ window.AIO = window.AIO || {};
 window.AIO.getCurrentBreadthEvidence = function(maxAgeMs) {
   var maxAge = Number(maxAgeMs) > 0 ? Number(maxAgeMs) : 4 * 24 * 60 * 60 * 1000;
   var strictOptional = function(value) { return _aioStrictFinite(value); };
-  // P1274: every breadth reader takes the one checked screener observation (src/domain/market/screener-breadth.js).
+  // P1274: every breadth reader takes the one checked screener observation (src/domain/market/breadth/screener-breadth.js).
   var screenerBreadth = null;
   try { screenerBreadth = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth() : null; } catch (_) {}
   var candidates = [screenerBreadth && screenerBreadth.us];

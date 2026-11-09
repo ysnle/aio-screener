@@ -14,14 +14,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { interpretationFromArtifacts } from './lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
-import { releaseActuals, actualText, scoreRelease, EVENT_NAMES } from '../src/domain/market/macro-crossroads.js';
+import { releaseActuals, actualText, scoreRelease, EVENT_NAMES } from '../src/domain/market/regime/macro-crossroads.js';
 import { THEME_STATES, THEME_STAGE_RULE } from '../src/domain/scenarios/analogs.js';
 import { SCENARIO_STATE_CURRENT } from '../src/domain/scenarios/theme-stage.js';
 import { choiceName } from '../src/domain/guide/market-guide.js';
 import { withDirectionParticle } from '../src/domain/content/korean-particle.js';
 import { LESSON_BY_ID } from '../src/domain/guide/lessons.js';
-import { scenarioLead } from '../src/domain/market/scenario-lead.js';
-import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { scenarioLead } from '../src/domain/market/regime/scenario-lead.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PD = (name) => path.join(ROOT, 'public-data', name);

@@ -3722,7 +3722,7 @@ button[data-filter-active="true"] {
     <div id="regime-radar-host"></div>
   </section>
   <!-- v59.66 (owner 2026-11-03, phase 4): breadth, sentiment and positioning read against the indicator they qualify
-       (src/domain/market/cross-readings.js), on the face instead of a fold of their own. -->
+       (src/domain/market/regime/cross-readings.js), on the face instead of a fold of their own. -->
   <section class="sx-card mk-cross" id="regime-cross" aria-labelledby="regime-cross-title" hidden>
     <h2 class="sx-card__title" id="regime-cross-title">지표를 같이 놓고 보면</h2>
     <div class="mk-cross__list" id="regime-cross-list"></div>
@@ -3979,7 +3979,7 @@ button[data-filter-active="true"] {
     </details>
   </section>
 
-  <!-- v59.70 (D5, owner decision): the folded 한국 매크로 section (#kr-integrated-macro) is retired — 기준금리·다음 금통위·물가·수출 moved to the 시장 상태 한국 board (src/domain/market/korea-policy.js), 원/달러 1년 범위 is that board's won card. -->
+  <!-- v59.70 (D5, owner decision): the folded 한국 매크로 section (#kr-integrated-macro) is retired — 기준금리·다음 금통위·물가·수출 moved to the 시장 상태 한국 board (src/domain/market/korea/korea-policy.js), 원/달러 1년 범위 is that board's won card. -->
   <!-- v57.50 I04: 거시 경제 ends with where the same reading continues (macro-board.js renderMacroBoard). -->
   <nav class="flow-next" id="macro-next" aria-label="이어서 볼 곳" data-fold hidden></nav>
 </div>

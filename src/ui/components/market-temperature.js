@@ -3,7 +3,7 @@
 // a short reading with the past-spell evidence, and a fold with the method. D02: no average score and no band.
 // Hidden until the producer (scripts/build-market-temperature.mjs) has published.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { TEMPERATURE_COMPONENTS, TEMPERATURE_MARKETS, TEMPERATURE_RULES, staleMarketIds } from '../../domain/sentiment/market-temperature.js';
+import { TEMPERATURE_COMPONENTS, TEMPERATURE_MARKETS, TEMPERATURE_RULES, staleMarketIds } from '../../domain/market/sentiment/market-temperature.js';
 import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';

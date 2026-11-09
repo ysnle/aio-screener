@@ -7,9 +7,9 @@ import { MEMBER_ROLES, macroMoves, revisionCounts, themeReasons } from '../../..
 import { THEME_STATES } from '../../../domain/scenarios/analogs.js';
 import { headlineForCompany, sessionNewsWindow } from '../../../domain/briefing/news-picks.js';
 import { selectNewsItems } from '../../../state/selectors/news.js';
-import { themeDetailFlow } from '../../../domain/market/page-flow.js';
+import { themeDetailFlow } from '../../../domain/market/story/page-flow.js';
 import { buildGroupStrength, directionLabel } from '../../../domain/themes/group-strength.js';
-import { buildCloseSeries } from '../../../domain/market/close-series.js';
+import { buildCloseSeries } from '../../../domain/market/session/close-series.js';
 import { selectProducedRotation } from '../../../domain/themes/produced-rotation.js';
 import { RRG_QUADRANT_WORDS, rrgQuadrantOf } from '../../../domain/themes/rrg.js';
 import { benchmarkReturns, basisOf } from '../../components/theme-strength.js';

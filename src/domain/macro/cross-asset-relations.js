@@ -3,7 +3,7 @@
 // stocks fell, oil rose and gold fell (10/23: 10Y −19bp, S&P 500 −1.5%, SMH −13.1%, TLT +2.5%, WTI +9.2%, gold −6.7%) was
 // never told as one story. Each usual relation is tested on the same 20 sessions; only pairs whose two legs both pass their
 // line and move against the usual direction are named, with the leg that led the move. Tendencies, not laws or forecasts.
-import { buildCloseSeries, sessionPointBack } from '../market/close-series.js';
+import { buildCloseSeries, sessionPointBack } from '../market/session/close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { signedText } from '../shared/number.js';
 

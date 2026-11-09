@@ -7,7 +7,7 @@ import { SETUP_STAGES, setupLifecycle, breakoutChecklist, timeframeAlignment, pa
 import { buildEarningsSchedule } from '../../domain/fundamental/analysis-read.js';
 import { refreshSharedArtifact, sharedArtifactState } from '../../data/shared-artifacts.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
-import { scenarioLead } from '../../domain/market/scenario-lead.js';
+import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { el } from './dom.js';
 import { myLineFacts } from './stock-chart-drawings.js';

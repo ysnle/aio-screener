@@ -2,7 +2,7 @@ import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DECLARED_INSTRUMENT_ENTRIES, analysisEligibilityFor, parseInstrumentRegistry, resolveInstrument } from '../src/domain/market/instrument-registry.js';
+import { DECLARED_INSTRUMENT_ENTRIES, analysisEligibilityFor, parseInstrumentRegistry, resolveInstrument } from '../src/domain/instruments/instrument-registry.js';
 import {
   FIELD_STATUS,
   OBSERVATION_SOURCES,

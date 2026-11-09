@@ -60,7 +60,7 @@ function check(name, ok, detail) {
 
 // ── Rally attempt / follow-through day (O'Neil) ────────────────────────────────────────────────────────────────────
 {
-  const { rallyAttemptSeries, rallyAttemptRead } = await load('src/domain/market/rally-attempt.js');
+  const { rallyAttemptSeries, rallyAttemptRead } = await load('src/domain/market/regime/rally-attempt.js');
   const date = (i) => new Date(Date.UTC(2026, 0, 1 + i)).toISOString().slice(0, 10);
   const bar = (close, i, volume = 1000) => ({ date: date(i), close, volume });
   // 70 flat sessions (window warm), slide to 90, FTD on day 5, rally to a new high (success), a second correction.
@@ -84,7 +84,7 @@ function check(name, ok, detail) {
 
 // ── Sentiment ──────────────────────────────────────────────────────────────────────────────────────────────────────
 {
-  const { vixTermStructure } = await load('src/domain/sentiment/metrics.js');
+  const { vixTermStructure } = await load('src/domain/market/sentiment/metrics.js');
   const term = vixTermStructure({ vix9d: 20, vix: 19, vix3m: 20, vix6m: null });
   check('v59.59 VIX term structure reads without the unused 6-month point', !term.blocked && term.frontInverted === true, term);
   check('v59.59 VIX term structure still blocks without the 3-month point', vixTermStructure({ vix9d: 20, vix: 19, vix3m: null, vix6m: 21 }).blocked === true);
@@ -92,7 +92,7 @@ function check(name, ok, detail) {
 
 // ── Trading score: a gated-out component does not move the total ───────────────────────────────────────────────────
 {
-  const { computeTradingScoreModel } = await load('src/domain/signal/trading-score.js');
+  const { computeTradingScoreModel } = await load('src/domain/market/signal/trading-score.js');
   const base = { vix: 16, pcr: 0.8, hyBp: 320, dxy: 100, tnx: 4, spxPrice: 5000, spx50ma: 4900, spx200ma: 4500, breadth20: 80 };
   const gated = computeTradingScoreModel({ ...base, maCurrent: false, breadthAvailable: false });
   const fresh = computeTradingScoreModel({ ...base, maCurrent: true, breadthAvailable: true });
@@ -127,7 +127,7 @@ function check(name, ok, detail) {
 
 // ── Index earnings: revision coverage counts only members with revision counts ─────────────────────────────────────
 {
-  const { buildIndexEarnings } = await load('src/domain/market/index-earnings.js');
+  const { buildIndexEarnings } = await load('src/domain/market/indices/index-earnings.js');
   const asOf = '2026-11-01';
   const syms = Array.from({ length: 10 }, (_, i) => `S${i}`);
   const weights = { asOf, rows: syms.map((sym) => ({ sym, sector: 'IT', weight: 1 })) };
@@ -144,7 +144,7 @@ function check(name, ok, detail) {
   check('v59.59 percentile: the sample high is 100, the low 0, the middle 50', percentileOf(sample, 5) === 100 && percentileOf(sample, 1) === 0 && percentileOf(sample, 3) === 50, [percentileOf(sample, 5), percentileOf(sample, 1), percentileOf(sample, 3)]);
   check('v59.59 percentile: ties count half among the others', percentileOf([1, 2, 2, 3], 2) === 50, percentileOf([1, 2, 2, 3], 2));
   check('v59.59 percentile: a value outside the sample ranks against all of it', percentileOf([1, 2, 3], 10) === 100 && percentileOf([1, 2, 3], 2.5) === (2 / 3) * 100);
-  const { trailingRanks } = await load('src/domain/sentiment/market-temperature.js');
+  const { trailingRanks } = await load('src/domain/market/sentiment/market-temperature.js');
   const rising = Array.from({ length: 10 }, (_, i) => i);
   check('v59.59 temperature rank of a running high is 100 (was 95)', trailingRanks(rising, { window: 10, minSample: 10 }).at(-1) === 100, trailingRanks(rising, { window: 10, minSample: 10 }).at(-1));
 }

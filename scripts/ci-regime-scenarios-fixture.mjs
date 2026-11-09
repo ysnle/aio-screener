@@ -2,8 +2,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { buildMarketRegime, bp } from '../src/domain/briefing/market-read.js';
-import { buildMarketScenarios, buildRegimeAxisHistory, renderMarketScenarioContext, buildKoreaIndexSeries, buildKoreaRegimeObservations } from '../src/domain/market/regime-scenarios.js';
-import { resolveMarketCalendarSession } from '../src/domain/market/market-calendar.js';
+import { buildMarketScenarios, buildRegimeAxisHistory, renderMarketScenarioContext, buildKoreaIndexSeries, buildKoreaRegimeObservations } from '../src/domain/market/regime/regime-scenarios.js';
+import { resolveMarketCalendarSession } from '../src/domain/market/session/market-calendar.js';
 import { renderRegimePage } from '../src/ui/components/market-regime.js';
 
 const dates = [];
@@ -115,9 +115,9 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
 {
   const { buildMarketRead, koreaMoveRecord } = await import('../src/domain/briefing/market-read.js');
   const { buildDailyChanges } = await import('../src/domain/briefing/daily-diff.js');
-  const { briefingFlow } = await import('../src/domain/market/page-flow.js');
+  const { briefingFlow } = await import('../src/domain/market/story/page-flow.js');
   const { brentWtiCheck } = await import('../src/domain/macro/liquidity-growth.js');
-  const { buildScenarioOutlook } = await import('../src/domain/market/scenario-outlook.js');
+  const { buildScenarioOutlook } = await import('../src/domain/market/regime/scenario-outlook.js');
   const now = Date.parse('2026-10-13T09:00:00Z');
   const open = (market, date) => resolveMarketCalendarSession({ market, date }).status === 'open';
   const build = (shock) => {

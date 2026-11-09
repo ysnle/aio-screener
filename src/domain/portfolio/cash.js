@@ -8,7 +8,7 @@
  * rate and never 1.
  */
 import { convertWithDeclaredRates } from './fx.js';
-import { buildCloseSeries, closeBasis } from '../market/close-series.js';
+import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
 import { isIsoDay } from '../shared/session-date.js';
 
 const md = (date) => (isIsoDay(String(date || '')) ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '');

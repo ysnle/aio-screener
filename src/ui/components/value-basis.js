@@ -6,7 +6,7 @@
 
 import { placeTooltipBody } from './term-tooltip.js';
 import { claimPopover, releasePopover, watchScroll, hoverSuppressed } from './popover.js';
-import { countOpenSessionsBetween, latestCompletedSession } from '../../domain/market/market-calendar.js';
+import { countOpenSessionsBetween, latestCompletedSession } from '../../domain/market/session/market-calendar.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
 const DATE_ATTRS = ['data-observed-at', 'data-source-ts', 'data-as-of'];

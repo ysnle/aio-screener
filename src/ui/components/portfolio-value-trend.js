@@ -3,7 +3,7 @@
 // replaces js/aio-ui.js updateBenchmarkChart, which asked Yahoo for every holding and drew only after 새로고침.
 import { buildBenchmarkTrend } from '../../domain/portfolio/benchmark-trend.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
-import { buildCloseSeries, sessionPointBack } from '../../domain/market/close-series.js';
+import { buildCloseSeries, sessionPointBack } from '../../domain/market/session/close-series.js';
 import { signedText } from '../../domain/shared/number.js';
 import { createTrendChart } from './trend-chart.js';
 import { renderDataState } from './data-state.js';

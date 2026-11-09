@@ -12,12 +12,12 @@
 // No price, size, timing or named stock; stock-level selection stays on the theme, chart, company and screener screens.
 import { median } from '../themes/theme-medians.js'; // v59.70 (R9)
 import { CHOICE_WORDS } from '../content/choice-words.js';
-import { creditStable } from '../interpretation/concepts.js';
+import { creditStable } from '../market/interpretation/concepts.js';
 import { withSubjectParticle, withDirectionParticle } from '../content/korean-particle.js';
 import { EXPOSURE_TAGS, WIND_LABELS, themeProfile, windFor } from './exposures.js';
 import { THEME_STATES, THEME_STAGE_RULE, themeStateOf, frequencyText, inlineDrift, INLINE_DRIFT_LABELS } from './analogs.js';
-import { CHOICES } from '../market/macro-crossroads.js';
-import { scenarioLead } from '../market/scenario-lead.js';
+import { CHOICES } from '../market/regime/macro-crossroads.js';
+import { scenarioLead } from '../market/regime/scenario-lead.js';
 import { marketWindowReturns, recentMove, recentMoveText, relativeBand, weeklyNoiseFromVol, WINDOW_LABELS } from '../themes/recent-check.js';
 import { signedText, finiteNumber as finite } from '../shared/number.js';
 
@@ -38,7 +38,7 @@ export const LEAD_CONFIRM_MET = 3;
 // v57.84 review: one line with leadingStageText (50%) and R708 — at 30% the stage read 주도 지속 while its own sentence
 // said "50일선 위 종목이 30%뿐이라 추세가 넓게 받쳐 주지 않습니다".
 export const ABOVE50_FLOOR = 50;
-// The shared credit rule lives with the other shared concepts (src/domain/interpretation/concepts.js).
+// The shared credit rule lives with the other shared concepts (src/domain/market/interpretation/concepts.js).
 export { creditStable };
 
 const FAVOURED = {

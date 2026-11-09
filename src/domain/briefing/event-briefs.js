@@ -8,7 +8,7 @@ export const EVENT_BRIEFS_SCHEMA = 'event-briefs.v1';
 
 import { surprisePct, readNumber } from '../shared/number.js';
 import { MARKET_MOVERS, MOVER_BY_SYMBOL } from './market-movers.js';
-import { resolveMarketCalendarSession } from '../market/market-calendar.js';
+import { resolveMarketCalendarSession } from '../market/session/market-calendar.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 
 /** How many times a call or press-conference summary is searched for before it is left as not found. */

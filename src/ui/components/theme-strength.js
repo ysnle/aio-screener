@@ -1,10 +1,10 @@
 // P1417: the 테마 screen's daily "what changed" — sub-theme relative strength from the published
 // screener returns (no live quotes needed), and the AI capital-spending flow linked to those themes.
-import { themeStrengthLead } from '../../domain/market/page-flow.js';
+import { themeStrengthLead } from '../../domain/market/story/page-flow.js';
 import { sectionLead } from './page-flow.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { buildGroupStrength, directionLabel, GROUP_WINDOWS, STRENGTH_TABS } from '../../domain/themes/group-strength.js';
-import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
+import { latestCompletedUsSession } from '../../domain/market/session/market-calendar.js';
 import { AI_CAPEX_FLOW, AI_BOTTLENECK_LEAD_TIMES } from '../../domain/themes/ai-capex-flow.js';
 import { el } from './dom.js';
 import { sessionChipText } from './session-lag.js';

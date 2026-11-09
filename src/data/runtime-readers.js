@@ -3,15 +3,15 @@ import { canonicalSourceTier, isDecisionEligibleSourceKind } from './contracts/s
 import { QUOTE_IDENTITIES } from './contracts/market-snapshot.js';
 import { readPortfolioAssumptions } from './portfolio-assumptions.js';
 import { readCashBalances } from './portfolio-cash.js';
-import { normalizeSignalScoreMode } from '../domain/signal/mode.js';
-import { resolveCloseBasis, selectCloseBasisObservation, describeCloseBasis, CLOSE_BASIS_QUOTE_KEYS, CLOSE_BASIS_DAILY_KEYS } from '../domain/signal/close-basis.js';
-import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
-import { historyFieldSessionDate } from '../domain/market/history-session.js';
-import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
+import { normalizeSignalScoreMode } from '../domain/market/signal/mode.js';
+import { resolveCloseBasis, selectCloseBasisObservation, describeCloseBasis, CLOSE_BASIS_QUOTE_KEYS, CLOSE_BASIS_DAILY_KEYS } from '../domain/market/signal/close-basis.js';
+import { spxMovingAveragesFromHistory } from '../domain/market/indices/moving-average.js';
+import { historyFieldSessionDate } from '../domain/market/session/history-session.js';
+import { computeTradingScoreModel } from '../domain/market/signal/trading-score.js';
 import { finiteNumber as finite } from '../domain/shared/number.js';
-import { resolveHoldingInput } from '../domain/ticker/resolve-name.js';
+import { resolveHoldingInput } from '../domain/instruments/resolve-name.js';
 import { listingCurrency } from '../domain/portfolio/fx.js';
-import { historyFieldMeta } from '../domain/market/history-meta.js';
+import { historyFieldMeta } from '../domain/market/indices/history-meta.js';
 
 // Native runtime readers.  These readers are deliberately kept in the data
 // layer so route providers do not depend on the legacy compatibility facade.

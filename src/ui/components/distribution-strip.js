@@ -4,7 +4,7 @@ import { buildCloseSeries } from '../../domain/briefing/market-read.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { el } from './dom.js';
 import { shortDate } from '../../domain/content/date-labels.js';
-import { rallyAttemptRead } from '../../domain/market/rally-attempt.js';
+import { rallyAttemptRead } from '../../domain/market/regime/rally-attempt.js';
 
 // v58.75 (persona review): the 25-session distribution-day count over its last 25 sessions, always on the face of 시장 상태
 // (it was only an evidence row) — bars at or above the leadership confirmation line (RULES.leadership) take the burden tone.

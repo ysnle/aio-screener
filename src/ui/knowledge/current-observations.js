@@ -146,4 +146,4 @@ export function validateCurrentObservationsArtifact(artifact) {
 }
 import { applySafeExternalLink } from './safe-external-link.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
-import { historyFieldMeta } from '../../domain/market/history-meta.js';
+import { historyFieldMeta } from '../../domain/market/indices/history-meta.js';

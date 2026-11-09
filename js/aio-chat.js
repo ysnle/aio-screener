@@ -3292,7 +3292,7 @@ function _buildUserProfileContext() {
 
 window._buildUserProfileContext = _buildUserProfileContext;
 
-// v59.88 (ADR-0003 S6): the nickname table (v49.69 P369 _resolveTickerFromFuzzy) is src/domain/ticker/nicknames.js;
+// v59.88 (ADR-0003 S6): the nickname table (v49.69 P369 _resolveTickerFromFuzzy) is src/domain/instruments/nicknames.js;
 // window._resolveTickerFromFuzzy is its exact-word lookup, installed by src/app/compatibility-globals.js.
 
 // v49.69 P366 R130: 자동 페이지 이동 — 사용자 입력 의도 → 적합 페이지 자동 전환

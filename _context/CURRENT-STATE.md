@@ -14,15 +14,15 @@ last_verified: 2026-11-09
 - Version: `v59.87`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 20 (source: `architecture/route-owners.json`)
-- App shell: 5,774 lines / 423,434 bytes
+- App shell: 5,774 lines / 423,447 bytes
 
 | Source | Lines | Bytes |
 |---|---:|---:|
-| `index.html` | 5,774 | 423,434 |
-| `js/aio-core.js` | 14,763 | 907,558 |
-| `js/aio-data.js` | 6,934 | 450,331 |
+| `index.html` | 5,774 | 423,447 |
+| `js/aio-core.js` | 14,763 | 907,602 |
+| `js/aio-data.js` | 6,934 | 450,354 |
 | `js/aio-ui.js` | 1,251 | 73,069 |
-| `js/aio-chat.js` | 4,490 | 339,192 |
+| `js/aio-chat.js` | 4,490 | 339,197 |
 | `js/aio-tests.js` | 8,789 | 705,928 |
 | `js/aio-glossary.js` | 415 | 114,129 |
 

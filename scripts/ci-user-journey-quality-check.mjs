@@ -61,7 +61,7 @@ try {
   for (const [name, ok] of Object.entries(foldFixture)) check(`v59.52 (P2187) briefing why-moved fold ${name}`, ok);
   const temperatureFixture = await page.evaluate(async () => {
     const { renderMarketTemperature } = await import('/src/ui/components/market-temperature.js');
-    const { TEMPERATURE_COMPONENTS } = await import('/src/domain/sentiment/market-temperature.js');
+    const { TEMPERATURE_COMPONENTS } = await import('/src/domain/market/sentiment/market-temperature.js');
     const host = document.createElement('div'); document.body.append(host);
     const anchor = document.createElement('div'); host.append(anchor);
     const doc = { createElement: document.createElement.bind(document), createElementNS: document.createElementNS.bind(document),

@@ -11,7 +11,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { openSessionDatesBetween } from '../src/domain/market/market-calendar.js';
+import { openSessionDatesBetween } from '../src/domain/market/session/market-calendar.js';
 import { degradeAllowedUseOnStatus } from '../src/data/contracts/evidence.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');

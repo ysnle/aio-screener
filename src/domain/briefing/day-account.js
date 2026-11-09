@@ -1,11 +1,11 @@
 // v59.65 (owner 2026-11-03, phase 3): 브리핑 tells the last 24 hours as linked stories from the market-day ledger
-// (public-data/market-day.json, src/domain/market-day/facts.js). The ledger's own threads join everything a shared subject
+// (public-data/market-day.json, src/domain/market/day/facts.js). The ledger's own threads join everything a shared subject
 // or peer touches (one 11/3 thread held 36 facts), so a story here is one level down: a lead or major fact claims its direct
 // neighbours — the members of a group, the headlines about its subject, the groups the price drives, the same-family
 // prices — and a fact belongs to one story only, in materiality order. What moved hard with nothing linked to it is kept
 // apart as unexplained; what is still ahead is a dated list. Nothing is scored here: rank and materiality are the ledger's.
 import { signedText, usdKoreanText } from '../shared/number.js';
-import { usThenKorea } from '../market/session-time.js';
+import { usThenKorea } from '../market/session/session-time.js';
 const pct = (value, digits = 1) => signedText(value, digits, '%');
 const bp = (value) => signedText(value, 0, 'bp');
 const md = (date) => { const text = String(date || ''); return text.length >= 10 ? `${Number(text.slice(5, 7))}/${Number(text.slice(8, 10))}` : text; };

@@ -18,7 +18,7 @@ import { normalizeAllowedUse } from '../../data/contracts/evidence.js';
 import { canonicalSourceTier } from '../../data/contracts/source-kind.js';
 import { MODEL_DEFAULT_WEIGHTS } from './factor-weights.js';
 import { screenerMarket, MARKET_POPULATION_POLICY } from './market-scope.js';
-import { isSessionCurrent, latestCompletedSession } from '../market/market-calendar.js';
+import { isSessionCurrent, latestCompletedSession } from '../market/session/market-calendar.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../fundamental/period.js';
 import { finiteNumber as finite } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';

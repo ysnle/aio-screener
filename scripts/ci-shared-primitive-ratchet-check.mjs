@@ -36,7 +36,7 @@
 //   dataPathLiteral — a './public-data/' literal in src/data or src/app outside src/data/artifact-registry.js (the one
 //                     table of artifact locations and load budgets; readers use artifactUrl/loadArtifact or a descriptor).
 //   sessionBranch   — a `… ? latestCompletedKrSession(…) : latestCompletedUsSession(…)` market branch anywhere in src/;
-//                     latestCompletedSession(market, now) in src/domain/market/market-calendar.js is the one branch.
+//                     latestCompletedSession(market, now) in src/domain/market/session/market-calendar.js is the one branch.
 //
 // v59.88 (ADR-0003 S4, verdicts in domain): one more, so screens and the AI stop judging by their own lines:
 //   verdictLiteral  — in src/ui and src/ai, a comparison against a numeric literal other than 0 and ±1 (`pct > 40`,
@@ -65,7 +65,7 @@ const PUBLIC_DATA_RE = /['"`]\.\/public-data\//g;
 const VERDICT_LITERAL_RE = /(?<!(?:length|size|[wW]idth|[hH]eight|[cC]ount|[iI]ndex)\)?\s*)(?<![=<>!])[<>]=?\s*-?(?:\d*\.\d+|[2-9]|\d{2,})(?![\w.])/g;
 const SESSION_BRANCH_RE = /latestCompletedKrSession\([^()]*(?:\([^()]*\))?[^()]*\)(?:\?\.date)?\s*:\s*(?:market\s*===\s*'US'\s*\?\s*)?latestCompletedUsSession\(/g;
 const REGISTRY_OWNER = 'src/data/artifact-registry.js';
-const SESSION_OWNER = 'src/domain/market/market-calendar.js';
+const SESSION_OWNER = 'src/domain/market/session/market-calendar.js';
 const METRICS = ['localFinite', 'dateRegex', 'rawRowRead', 'nullAsZero', 'localEscape', 'localIndicator', 'publicDataPath', 'dataPathLiteral', 'sessionBranch', 'verdictLiteral'];
 const VERDICT_SCOPES = ['src/ui/', 'src/ai/'];
 const METRIC_WORDS = { localEscape: 'local HTML escape copies', localIndicator: 'local SMA/EMA/RSI copies', publicDataPath: "'./public-data/' literals", dataPathLiteral: "'./public-data/' literals outside the artifact registry", sessionBranch: 'KR/US latest-session branches', verdictLiteral: 'threshold comparisons against numeric literals' };
@@ -74,7 +74,7 @@ const METRIC_REMEDY = {
   localIndicator: 'import smaSeries/emaSeries/rsiWilder from src/domain/technical/definitions.js',
   publicDataPath: 'request the artifact through src/data (loader descriptor owned there), not by path',
   dataPathLiteral: 'register the file in src/data/artifact-registry.js and read artifactUrl(id) / loadArtifact(root, id)',
-  sessionBranch: 'call latestCompletedSession(market, now) from src/domain/market/market-calendar.js',
+  sessionBranch: 'call latestCompletedSession(market, now) from src/domain/market/session/market-calendar.js',
   verdictLiteral: 'put the line in src/domain/rules/thresholds.js or the domain reading that owns it, and render its result',
 };
 const INDICATOR_OWNER = 'src/domain/technical/definitions.js';

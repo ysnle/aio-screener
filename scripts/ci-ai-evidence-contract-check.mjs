@@ -530,7 +530,7 @@ console.log('PASS ai-chat-analysis-integration: production helper, orchestrator 
 const { default: assert } = await import('node:assert/strict');
 const { default: vm } = await import('node:vm');
 const { readFileSync } = await import('node:fs');
-const { describeSharedConnection } = await import('../src/domain/connections/shared.js');
+const { describeSharedConnection } = await import('../src/domain/ai/shared-connection.js');
 const { formatSecResearchEvidence } = await import('../src/ai/context/sec-fundamentals.js');
 const { createEntityProvider } = await import('../src/data/providers/entity.js');
 const { selectPublicEarnings } = await import('../src/data/providers/earnings.js');

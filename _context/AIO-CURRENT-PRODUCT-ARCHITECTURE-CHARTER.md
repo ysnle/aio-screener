@@ -105,13 +105,13 @@ AIO는 한국어 자기주도 투자자를 위한 **증거 기반 관찰·스크
 
 ```text
 입력 어댑터 (브라우저: src/data/selectors/interpretation.js · 생산자: scripts/lib/market-interpretation-inputs.mjs)
-  → src/domain/interpretation/market-interpretation.js
+  → src/domain/market/interpretation/market-interpretation.js
      regime → marketRead → macroRead → crossroads → scenarios → groups → outlook → playbook → guide
   → 화면 · AI 문맥 · 서버 해석 · 상태 기록
 ```
 
 - 단계 함수는 파이프라인 모듈 안에서만 호출한다. 예외는 선언하고 이유를 적는다 (`scripts/ci-interpretation-boundary-check.mjs`).
-- 여러 엔진이 함께 쓰는 개념(신용 안정, 방어 섹터)은 `src/domain/interpretation/concepts.js` 한 곳에 둔다.
+- 여러 엔진이 함께 쓰는 개념(신용 안정, 방어 섹터)은 `src/domain/market/interpretation/concepts.js` 한 곳에 둔다.
 - domain·data·ai는 src/ui를 import하지 않는다. 새 신호(예: 금리 곡선 국면, 이익 전망 수정 폭)는 같은 입력을 받는 순수 함수로 만들고 파이프라인에 이름 있는 단계로 추가한다.
 
 ## 전수 역설계 범위와 구현 상태

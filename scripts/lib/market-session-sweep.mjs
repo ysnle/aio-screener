@@ -5,7 +5,7 @@
 // live failures that remained were the next boundaries (RUT's 16:30 close stamp after the open, 9 runs; the Sunday
 // 17:00/18:00 ET reopen, 9 runs). This walks two weeks — one with the 11-01 DST change — every 10 minutes and derives,
 // from the venue schedule alone, which print a provider holds and which set it belongs to.
-import { resolveMarketCalendarSession } from '../../src/domain/market/market-calendar.js';
+import { resolveMarketCalendarSession } from '../../src/domain/market/session/market-calendar.js';
 
 const IN_SESSION = new Set(['CURRENT_SESSION', 'DELAYED_IN_SESSION']);
 const COMPLETED = new Set(['MARKET_CLOSED', 'PREVIOUS_CLOSE_EXPECTED']);

@@ -3,7 +3,7 @@
 // index's completed KRX closes (the same close series the briefing and 시장 상태 read), says where the last close
 // sits against its 50- and 200-day averages, and reads three lines of computed facts. No grade, no verdict.
 import { buildCloseSeries, koreaRecordText, krSessionThrough, sessionPointBack, KR_SHOCK_TAIL_PCT } from '../../domain/briefing/market-read.js';
-import { krIndexMoveRecord, KR_MONTH_SESSIONS } from '../../domain/market/kr-index-record.js';
+import { krIndexMoveRecord, KR_MONTH_SESSIONS } from '../../domain/market/korea/kr-index-record.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';

@@ -1,12 +1,12 @@
-import { deriveQuotePresentation } from '../market/quote-presentation.js';
+import { deriveQuotePresentation } from '../market/session/quote-presentation.js';
 // P1432 (stage 5, owner direction 2026-10-04): 오늘 is the screen a trader opens every morning, so it
 // answers "what changed since the last session" and "what happened to my names" before anything else.
 // Pure functions over the completed-close history and the published screener rows — no live quote is
 // promoted to a close, and a measure missing on either session is left out rather than read as zero.
 import { buildMarketRegime, krSessionThrough } from './market-read.js';
-import { buildCloseSeries, closeBasis } from '../market/close-series.js';
+import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
 import { RULES } from '../rules/thresholds.js';
-import { countOpenSessionsBetween, openSessionDatesBetween } from '../market/market-calendar.js';
+import { countOpenSessionsBetween, openSessionDatesBetween } from '../market/session/market-calendar.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';

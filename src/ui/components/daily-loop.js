@@ -8,8 +8,8 @@ import { withObjectParticle } from '../../domain/content/korean-particle.js';
 import { el } from './dom.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
-import { buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
-import { deriveQuotePresentation } from '../../domain/market/quote-presentation.js';
+import { buildKoreaIndexSeries } from '../../domain/market/regime/regime-scenarios.js';
+import { deriveQuotePresentation } from '../../domain/market/session/quote-presentation.js';
 import { formatScreenerPrice, screenerMarket } from '../../domain/screener/market-scope.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 function call(root, name, arg, fallback) {

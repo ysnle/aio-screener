@@ -2,11 +2,11 @@
 // 없고, 향후 … CPI 발표 체크해야된다라는 내용도 없고"): 매크로's six chapters. Each answers one question with one small
 // picture, the latest numbers, what they mean for stocks, the next dated release and the condition that would change the
 // read. Every number comes from macro-history.json (FRED) or history.json; every sentence is chosen by a rule here.
-import { oneSessionDay } from '../market-day/one-session.js';
+import { oneSessionDay } from '../market/day/one-session.js';
 import { readNumber, signedText } from '../shared/number.js';
-import { dayLabel } from '../market/market-story.js';
-import { buildCloseSeries, closeBasis } from '../market/close-series.js';
-import { MARKET_WINDOWS, closeChange } from '../market/market-windows.js';
+import { dayLabel } from '../market/story/market-story.js';
+import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
+import { MARKET_WINDOWS, closeChange } from '../market/session/market-windows.js';
 import { rateDifferential, sessionPointBack, wonMoveSentence } from './rates-fx.js';
 import { RULES } from '../rules/thresholds.js';
 import { withTopicParticle } from '../content/korean-particle.js';
@@ -333,7 +333,7 @@ function dollarChapter(history, macroHistory = null) {
   };
 }
 
-// v59.64: each chapter's "오늘" line from the market-day ledger (src/domain/market-day/facts.js) — the chapter's own
+// v59.64: each chapter's "오늘" line from the market-day ledger (src/domain/market/day/facts.js) — the chapter's own
 // gauge that moved most against its usual day, what moved with it (driver links: oil → energy names), and the most
 // material report on the same topic. Nothing is said when the ledger is missing or every gauge moved as usual.
 const CHAPTER_ASSETS = Object.freeze({ inflation: ['breakeven10'], labor: [], rates: ['tnx', 'dgs2', 'realYield10'], oil: ['wti', 'brent'],

@@ -2,8 +2,8 @@
 // dependency-free so providers, the browser engine, AI adapters and scripts
 // can consume the same immutable shapes without importing the legacy shell.
 import { CANONICAL_SOURCE_TIERS, canonicalSourceTier } from './source-kind.js';
-import { latestCompletedUsSession, latestCompletedKrSession, nyParts } from '../../domain/market/market-calendar.js';
-import { listingMarketOfSymbol, timeZoneForSymbol } from '../../domain/market/session-time.js';
+import { latestCompletedUsSession, latestCompletedKrSession, nyParts } from '../../domain/market/session/market-calendar.js';
+import { listingMarketOfSymbol, timeZoneForSymbol } from '../../domain/market/session/session-time.js';
 import { finiteNumber as finite, readNumber } from '../../domain/shared/number.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../../domain/fundamental/period.js';
 

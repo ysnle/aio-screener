@@ -3,7 +3,7 @@
 // every name it exported before.
 import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from '../lib/atomic-write.mjs';
-import { factorScopesByMarket } from '../../src/domain/market/session-time.js';
+import { factorScopesByMarket } from '../../src/domain/market/session/session-time.js';
 import { round } from '../lib/producer-math.mjs';
 import { EXTENDED_SHARD_SCHEMA, RANKING_CONTRACTS, encodeShardRows, expandShardRows, isValidShard } from '../../src/data/screener-extended.js';
 import { REPO_ROOT } from './paths.mjs';

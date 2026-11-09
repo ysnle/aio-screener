@@ -7,18 +7,18 @@ import { createHash } from 'node:crypto';
 import { RULES } from '../../src/domain/rules/thresholds.js';
 import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from '../lib/ai-shared-analysis.mjs';
 import { buildCloseSeries } from '../../src/domain/briefing/market-read.js';
-import { countOpenSessionsBetween } from '../../src/domain/market/market-calendar.js';
-import { buildMarketFlow } from '../../src/domain/market/market-flow.js';
+import { countOpenSessionsBetween } from '../../src/domain/market/session/market-calendar.js';
+import { buildMarketFlow } from '../../src/domain/market/regime/market-flow.js';
 import { HEADLINE_GLOSSARY_PAIRS } from '../../src/domain/briefing/headline-terms.js';
 import { expandScreenerArtifact } from '../../src/data/screener-extended.js';
 import { loadThemeMaps } from '../build-scenario-state.mjs';
 import { readNarrativeContext } from '../lib/narrative-context.mjs';
-import { renderMarketScenarioModel } from '../../src/domain/market/regime-scenarios.js';
-import { renderScenarioOutlookContext } from '../../src/domain/market/scenario-outlook.js';
-import { renderMacroCrossroadsContext } from '../../src/domain/market/macro-crossroads.js';
+import { renderMarketScenarioModel } from '../../src/domain/market/regime/regime-scenarios.js';
+import { renderScenarioOutlookContext } from '../../src/domain/market/regime/scenario-outlook.js';
+import { renderMacroCrossroadsContext } from '../../src/domain/market/regime/macro-crossroads.js';
 import { renderMarketGuideContext } from '../../src/domain/guide/market-guide.js';
 import { POLITICAL_EVENTS } from '../../src/domain/briefing/schedule.js';
-import { indexLevels, levelValue, levelsRead } from '../../src/domain/market/index-levels.js';
+import { indexLevels, levelValue, levelsRead } from '../../src/domain/market/indices/index-levels.js';
 import { interpretationFromArtifacts, marketAnalysisRegimeInput as regimeInputFromArtifacts } from '../lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
 import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
 import { buildMarketAnalysisPrompt, buildMarketAnalysisRetryPrompt, inflationDirectionLine } from '../lib/market-analysis-prompt.mjs';
@@ -30,7 +30,7 @@ const SCREENER_OUT = `${REPO_ROOT}/public-data/screener.json`;
 import { MACRO_HISTORY_OUT, MACRO_CALENDAR_OUT } from './macro-history.mjs';
 import { coreInflationRead } from '../../src/domain/macro/macro-read.js';
 import { readNumber } from '../../src/domain/shared/number.js';
-import { readHistoryRows as expandHistoryRows } from '../../src/domain/market/history-rows.js';
+import { readHistoryRows as expandHistoryRows } from '../../src/domain/market/indices/history-rows.js';
 
 // v57.81: plain Korean values with their session ("10/14 종가"), never "SPX=… (ISO)"; the last verified reading rides along
 // as `lastVerified` so the next run can still keep it (retainVerifiedMarketAnalysis).
@@ -115,7 +115,7 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
 }
 
 // v58.68 (owner 2026-10-23): "the screens show the surface" — the packet carried the indices and the semiconductor drop
-// but not where the money went. The same money-flow reading 오늘 and 시장 상태 draw (domain/market/market-flow.js): sector
+// but not where the money went. The same money-flow reading 오늘 and 시장 상태 draw (domain/market/regime/market-flow.js): sector
 // ETFs, the 10-year yield, fear, the strongest and weakest sub-themes and the sectors whose sub-themes split.
 export function marketFlowContext(data, history = [], nowMs = Date.now(), { screener = null, themes = null } = {}) {
   try {
@@ -205,7 +205,7 @@ export function upcomingPoliticalLine(nowMs = Date.now(), days = 7) {
 }
 // v59.62 (owner 2026-11-03): the reading said nothing about where the indexes sit on their charts (Nasdaq-100 more than
 // 10% off its high, semiconductors 11% under the 50-day line, the July low as support). Rules over the closes only
-// (src/domain/market/index-levels.js); the line names no price target.
+// (src/domain/market/indices/index-levels.js); the line names no price target.
 export function chartLevelsLine(history = []) {
   const levels = indexLevels(history);
   return levels.length ? `차트 위치: ${levels.map(levelValue).join(' · ')}. ${levelsRead(levels)}` : '';

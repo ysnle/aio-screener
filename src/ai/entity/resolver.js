@@ -4,11 +4,11 @@
 // the whole token / token + a Korean particle (Korean); a symbol is confirmed through the same
 // registry functions the ticker screen uses (normalizeTickerInput, resolveRegisteredName). An
 // all-caps symbol the registries do not know stays an entity but carries verified:false.
-import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
-import { resolveRegisteredName } from '../../domain/ticker/resolve-name.js';
+import { normalizeTickerInput } from '../../domain/instruments/ticker-symbol.js';
+import { resolveRegisteredName } from '../../domain/instruments/resolve-name.js';
 // The nickname table and the non-ticker words are shared with the chat ticker resolver.
-import { COMPANY_NICKNAMES } from '../../domain/ticker/nicknames.js';
-import { NON_TICKER_ACRONYMS, isNonTickerWord } from '../../domain/ticker/question-words.js';
+import { COMPANY_NICKNAMES } from '../../domain/instruments/nicknames.js';
+import { NON_TICKER_ACRONYMS, isNonTickerWord } from '../../domain/instruments/question-words.js';
 
 export const AI_ENTITY_RESOLUTION_VERSION = 'ai-entity-resolution.v2';
 

@@ -8,7 +8,7 @@ import { finiteFact as finite, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_D
 import { hasFinalConsonant, withTopicParticle } from '../content/korean-particle.js';
 import { trailingQuarters } from './fiscal-read.js';
 import { fiscalMetrics as fiscalMetricsOf } from './peer-read.js';
-import { countOpenSessionsBetween, dateInTimezone } from '../market/market-calendar.js';
+import { countOpenSessionsBetween, dateInTimezone } from '../market/session/market-calendar.js';
 import { consensusView, CONSENSUS_PRICE_MAX_AGE_DAYS } from './consensus-read.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';

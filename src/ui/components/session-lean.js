@@ -1,13 +1,13 @@
 // v58.81 (owner 2026-10-26): two 오늘 blocks beside the six-axis verdict — the market clock with the Korea↔US link check
-// (domain/market/session-bridge.js) and the probabilistic lean (domain/market/market-lean.js). Neither changes the
+// (domain/market/session/session-bridge.js) and the probabilistic lean (domain/market/regime/market-lean.js). Neither changes the
 // verdict; both say what they are built from.
 import { el } from './dom.js';
-import { buildSessionBridge, renderSessionBridgeContext } from '../../domain/market/session-bridge.js';
-import { buildMarketLean, renderMarketLeanContext } from '../../domain/market/market-lean.js';
+import { buildSessionBridge, renderSessionBridgeContext } from '../../domain/market/session/session-bridge.js';
+import { buildMarketLean, renderMarketLeanContext } from '../../domain/market/regime/market-lean.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
 import { selectNewsItems } from '../../state/selectors/news.js';
-import { usWeekendClosed } from '../../domain/market/market-calendar.js';
+import { usWeekendClosed } from '../../domain/market/session/market-calendar.js';
 import { EVENT_BRIEFS, KR_INDEX_WEIGHTS, MARKET_TEMPERATURE, STRESS_OUTCOMES } from '../../data/artifact-registry.js';
 
 const VERDICT_WORDS = Object.freeze({ supports: '근거 맞음', partial: '일부 맞음', against: '근거 약함', unknown: '판단 보류' });

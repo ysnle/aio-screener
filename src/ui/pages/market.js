@@ -3,7 +3,7 @@ import { renderBreadthBoard } from '../components/breadth-board.js';
 import { renderMacroBoard, renderRatesFxBoard } from '../components/macro-board.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { subscribeToSlices } from '../../state/memoize.js';
-import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/quote-presentation.js';
+import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/session/quote-presentation.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { signedText, readNumber as finite } from '../../domain/shared/number.js';

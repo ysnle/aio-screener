@@ -3,7 +3,7 @@
 // the reports behind a story, the smaller stories and the big moves nothing explains open in folds.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
-import { oneSessionDay } from '../../domain/market-day/one-session.js';
+import { oneSessionDay } from '../../domain/market/day/one-session.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
 import { storyWeight } from './story-weight.js';

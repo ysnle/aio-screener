@@ -12,7 +12,7 @@ import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
-import { MARKET_CALENDAR_REGISTRY } from '../src/domain/market/market-calendar.js';
+import { MARKET_CALENDAR_REGISTRY } from '../src/domain/market/session/market-calendar.js';
 import { mergeProducedMacroCalendar } from '../src/data/macro-calendar.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');

@@ -4,7 +4,7 @@ import { buildPortfolioRead } from '../../domain/portfolio/portfolio-read.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { readMarketRegime } from './market-regime.js';
 import { renderNextSteps } from './page-flow.js';
-import { benchmarkRowFor, indexReturns } from '../../domain/market/benchmarks.js';
+import { benchmarkRowFor, indexReturns } from '../../domain/market/indices/benchmarks.js';
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { buildCloseSeries, koreaMoveRecord } from '../../domain/briefing/market-read.js';
 import { el } from './dom.js';
@@ -17,8 +17,8 @@ import { signedText } from '../../domain/shared/number.js';
 import { sectorBand, SECTOR_BAND_NOTE } from '../../domain/portfolio/concentration-bands.js';
 import { lookThrough, lookThroughSentence, SP500_TRACKERS } from '../../domain/portfolio/look-through.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
-import { BRANCHES } from '../../domain/market/macro-crossroads.js';
-import { scenarioLead } from '../../domain/market/scenario-lead.js';
+import { BRANCHES } from '../../domain/market/regime/macro-crossroads.js';
+import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { US_THEME_PROFILES, windFor } from '../../domain/scenarios/exposures.js';
 
 // P1466: the 3-month gap to the blended index split into sector, stock selection, FX and cash —

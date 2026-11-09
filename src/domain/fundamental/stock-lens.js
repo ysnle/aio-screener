@@ -4,8 +4,8 @@
 // the interpretation's crossroads, regime). The app never picks: these are facts, conditions and counts — no price, weight, grade or odds.
 import { finiteFact as finite, fiscalYearLabel, isPriorAnnualPeriod } from './period.js';
 import { themeProfile, windFor, WIND_LABELS, EXPOSURE_TAGS } from '../scenarios/exposures.js';
-import { BRANCHES } from '../market/macro-crossroads.js';
-import { scenarioLead } from '../market/scenario-lead.js';
+import { BRANCHES } from '../market/regime/macro-crossroads.js';
+import { scenarioLead } from '../market/regime/scenario-lead.js';
 import { signedText, usdKoreanText } from '../shared/number.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { RETURNED_LABEL } from './analysis-read.js';

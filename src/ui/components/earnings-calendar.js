@@ -5,7 +5,7 @@
 // src/ui/styles/legacy-pages.css instead of inline styles. The stored snapshot is read through
 // src/data/earnings-calendar-snapshot.js; the page-entry trigger stays in js/aio-pages.js (initFundamentalLegacyWidgets).
 import { escapeHtml } from '../html.js';
-import { dateInTimezone } from '../../domain/market/market-calendar.js';
+import { dateInTimezone } from '../../domain/market/session/market-calendar.js';
 import { fetchEarningsCalendarSnapshot } from '../../data/earnings-calendar-snapshot.js';
 
 const DAY_MS = 86400000;

@@ -16,7 +16,7 @@ import { calculationRow } from '../../src/data/contracts/screener.js';
 import { computeFactorRanks } from '../../src/domain/screener/factor-ranks.js';
 import { MODEL_DEFAULT_WEIGHTS } from '../../src/domain/screener/factor-weights.js';
 import { buildPopulationRankingIdentity, buildRankingIdentity } from '../../src/domain/screener/model-fingerprint.js';
-import { marketOfSymbol } from '../../src/domain/market/session-time.js';
+import { marketOfSymbol } from '../../src/domain/market/session/session-time.js';
 import { summarizeCandidateArchive } from '../../src/domain/screener/candidate-record.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../../src/domain/fundamental/period.js';
 

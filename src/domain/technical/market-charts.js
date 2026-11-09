@@ -5,13 +5,13 @@
 // support and resistance from swing points (a close that is the lowest/highest of five sessions on each side), the
 // double top and the six-month support from index-levels.js. Breadth enters only where it changes the reading of a
 // trend (owner: "시장 폭만 본다고 해서 의미가 없듯이"). No target, entry or stop is ever named.
-import { usThenKorea } from '../market/session-time.js';
+import { usThenKorea } from '../market/session/session-time.js';
 import { readNumber } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
-import { sessionCloses, indexLevel } from '../market/index-levels.js';
+import { sessionCloses, indexLevel } from '../market/indices/index-levels.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { TREND_PHASE_LABELS, bufferedTrend, classifyTrend, trendKey } from './bands.js';
-import { rallyAttemptRead } from '../market/rally-attempt.js';
+import { rallyAttemptRead } from '../market/regime/rally-attempt.js';
 import { RULES } from '../rules/thresholds.js';
 import { rsiWilder } from './definitions.js';
 

@@ -3,10 +3,10 @@
 import { ensureFrameStyle } from '../knowledge/analysis-frames.js';
 import { readNumber } from '../../domain/shared/number.js';
 import { describeValueScaleCarryover } from '../../domain/masters/value-scale.js';
-import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
+import { applySafeExternalLink } from '../knowledge/safe-external-link.js';
 import { withTopicParticle } from '../../domain/content/korean-particle.js';
 import { displayActionOf, formatReportedValue, formatPercent, formatValueDelta, formatDelta, formatIssuerName, isPartialAmendmentPeriod } from '../../domain/masters/holdings-format.js';
-import { EXACT_TICKER_RE, buildReferenceTickerMap, cleanIssuerName, normalizeCusip, resolveExactTicker } from '../../domain/masters/ticker-exact.js';
+import { EXACT_TICKER_RE, buildReferenceTickerMap, cleanIssuerName, normalizeCusip, resolveExactTicker } from '../../domain/instruments/ticker-exact.js';
 
 const ACTION_LABELS = Object.freeze({
   NEW: '신규 편입',

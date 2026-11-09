@@ -10,11 +10,11 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { buildMarketRegime } from '../src/domain/briefing/market-read.js';
-import { computeTradingScoreModel } from '../src/domain/signal/trading-score.js';
-import { buildMarketTemperature } from '../src/domain/sentiment/market-temperature.js';
-import { openSessionDatesBetween } from '../src/domain/market/market-calendar.js';
+import { computeTradingScoreModel } from '../src/domain/market/signal/trading-score.js';
+import { buildMarketTemperature } from '../src/domain/market/sentiment/market-temperature.js';
+import { openSessionDatesBetween } from '../src/domain/market/session/market-calendar.js';
 import { RULES } from '../src/domain/rules/thresholds.js';
-import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 
 // [date, S&P 500 close, VIX close, HY OAS bp]
 const WINDOWS = [

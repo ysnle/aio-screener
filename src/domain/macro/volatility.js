@@ -1,11 +1,11 @@
 // v59.74: the volatility complex (매크로 › 주제별로 보기 › 변동성, and the MOVE card on 금리와 환율). Kept out of
 // macro-chapters.js so the rates board can read it without loading every chapter.
 import { signedText } from '../shared/number.js';
-import { buildCloseSeries, closeBasis } from '../market/close-series.js';
-import { MARKET_WINDOWS, closeChange } from '../market/market-windows.js';
+import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
+import { MARKET_WINDOWS, closeChange } from '../market/session/market-windows.js';
 import { RULES } from '../rules/thresholds.js';
 import { formatKstWhen, releaseAtMs } from '../briefing/schedule.js';
-import { dayLabel } from '../market/market-story.js';
+import { dayLabel } from '../market/story/market-story.js';
 
 const signed = (value, digits = 2, unit = '%') => signedText(value, digits, unit);
 const historySpan = (history, field) => { const change = closeChange(history, field, MARKET_WINDOWS.rule); return change ? { from: change.from.value, to: change.to.value, pct: change.pct } : null; };

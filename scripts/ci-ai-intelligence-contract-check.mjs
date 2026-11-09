@@ -727,7 +727,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   const named = companyEntitySymbols(namedPlan);
   check('P1740 plan-resolved company names feed chat data injection (no index/topic proxies)', named.includes('NVDA') && named.includes('005930.KS') && !named.some((s) => s.startsWith('^') || s === 'SMH'));
   const { resolveChatTickers } = await import('../src/ai/entity/chat-tickers.js');
-  // v59.88 (S6): the nickname table is src/domain/ticker/nicknames.js, imported by the resolver (no injected fuzzy map).
+  // v59.88 (S6): the nickname table is src/domain/instruments/nicknames.js, imported by the resolver (no injected fuzzy map).
   const chatState = {};
   check('P1740 chat tickers: nickname with particle, market proxies dropped for companies, demonstrative follow-up only',
     resolveChatTickers({ query: '하이닉스는 어때?', state: chatState }).join() === '000660.KS'

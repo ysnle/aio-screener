@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { classifyFigiResult, normalizeFigiTicker, selectQueries, mergeEntries, collectDisplayedCusips, buildFigiArtifact, FIGI_MAP_SCHEMA } from './collect-13f-figi-tickers.mjs';
-import { buildReferenceTickerMap, resolveExactTicker, cleanIssuerName, isNonCommonTitle } from '../src/domain/masters/ticker-exact.js';
+import { buildReferenceTickerMap, resolveExactTicker, cleanIssuerName, isNonCommonTitle } from '../src/domain/instruments/ticker-exact.js';
 import { createSecurityLookup } from '../src/ui/pages/masters.js';
 
 const common = (ticker, extra = {}) => ({ ticker, exchCode: 'US', marketSector: 'Equity', securityType2: 'Common Stock', name: 'APPLE INC', ...extra });

@@ -105,11 +105,11 @@ check('temporal evidence separates event/observed/collected/published', temporal
   const { readFileSync, readdirSync, statSync } = await import('node:fs');
   const path = await import('node:path');
   const { fileURLToPath } = await import('node:url');
-  const calendar = await import('../src/domain/market/market-calendar.js').catch((error) => ({ error }));
-  check('P1533 src/domain/market/market-calendar.js exists', !calendar.error, String(calendar.error?.message || ''));
+  const calendar = await import('../src/domain/market/session/market-calendar.js').catch((error) => ({ error }));
+  check('P1533 src/domain/market/session/market-calendar.js exists', !calendar.error, String(calendar.error?.message || ''));
   if (!calendar.error) {
     check('P1533 market-session.js re-exports the very same calendar objects', calendar.MARKET_CALENDAR_REGISTRY === MARKET_CALENDAR_REGISTRY && calendar.MARKET_CALENDAR_ADAPTERS === MARKET_CALENDAR_ADAPTERS && calendar.resolveMarketCalendarSession === resolveMarketCalendarSession && calendar.US_REGULAR_CALENDAR_2026 === US_REGULAR_CALENDAR_2026);
-    const calendarSource = readFileSync(new URL('../src/domain/market/market-calendar.js', import.meta.url), 'utf8');
+    const calendarSource = readFileSync(new URL('../src/domain/market/session/market-calendar.js', import.meta.url), 'utf8');
     check('P1533 the official NYSE/KRX source lines moved with the calendar (the annual review script parses them)', /^\/\/\s*NYSE source[^\r\n]*\r?\n\/\/\s*https:\/\/\S+/m.test(calendarSource) && /^\/\/\s*KRX source[^\r\n]*\r?\n\/\/\s*https:\/\/\S+/m.test(calendarSource));
     check('P1533 the calendar module imports nothing', !/^\s*import\s/m.test(calendarSource));
     const count = calendar.countOpenSessionsBetween;
@@ -146,9 +146,9 @@ check('temporal evidence separates event/observed/collected/published', temporal
 // the classic DATE_ENGINE copy is held equal above (it runs before any module loads, so it cannot import the registry).
 {
   const scheduleSource = readFileSync(new URL('../src/domain/briefing/schedule.js', import.meta.url), 'utf8');
-  const { MARKET_HOLIDAY_NAMES } = await import('../src/domain/market/market-calendar.js');
+  const { MARKET_HOLIDAY_NAMES } = await import('../src/domain/market/session/market-calendar.js');
   const { marketStructureEvents } = await import('../src/domain/briefing/schedule.js');
-  check('P1735 the briefing schedule keeps no literal holiday table and reads the exchange registry', !/HOLIDAYS_20\d\d\s*=/.test(scheduleSource) && !/'20\d\d-\d\d-\d\d':\s*'[^']*(?:휴장|절|날)'/.test(scheduleSource) && /import \{[^}]*MARKET_CALENDAR_REGISTRY[^}]*\} from '\.\.\/market\/market-calendar\.js'/.test(scheduleSource));
+  check('P1735 the briefing schedule keeps no literal holiday table and reads the exchange registry', !/HOLIDAYS_20\d\d\s*=/.test(scheduleSource) && !/'20\d\d-\d\d-\d\d':\s*'[^']*(?:휴장|절|날)'/.test(scheduleSource) && /import \{[^}]*MARKET_CALENDAR_REGISTRY[^}]*\} from '\.\.\/market\/session\/market-calendar\.js'/.test(scheduleSource));
   for (const calendarKey of ['KRX', 'NYSE']) {
     const registered = new Set(Object.values(MARKET_CALENDAR_REGISTRY[calendarKey]).flatMap((calendar) => calendar.holidays));
     const names = Object.keys(MARKET_HOLIDAY_NAMES?.[calendarKey] || {});
@@ -176,8 +176,8 @@ check('temporal evidence separates event/observed/collected/published', temporal
   // copies — a fixed EDT offset and a KR close without the 30-minute grace — must be caught, or the oracle proves nothing.
   {
     const { sweepMarketClocks } = await import('./lib/market-clock-sweep.mjs');
-    const calendar = await import('../src/domain/market/market-calendar.js');
-    const clock = await import('../src/domain/market/session-bridge.js');
+    const calendar = await import('../src/domain/market/session/market-calendar.js');
+    const clock = await import('../src/domain/market/session/session-bridge.js');
     const sweep = sweepMarketClocks({ calendar, clock });
     check('v59.50 shared market clocks match the schedule oracle (10/24-11/30, 10-minute steps)', sweep.checked > 40000 && sweep.mismatches.length === 0, { checked: sweep.checked, first: sweep.mismatches.slice(0, 4) });
     const fixedEdt = { ...calendar, latestCompletedUsSession: (now, options) => {

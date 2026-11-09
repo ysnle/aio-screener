@@ -7,7 +7,7 @@ import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../compone
 import { renderDailyLoop } from '../components/daily-loop.js';
 import { renderKoreaParticipation } from '../components/korea-participation.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../../domain/briefing/market-read.js';
-import { fearGreedBand } from '../../domain/sentiment/metrics.js';
+import { fearGreedBand } from '../../domain/market/sentiment/metrics.js';
 import { renderKnowledgeArrival, clearKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { renderHomeVix } from '../components/home-vix.js';
 import { readNumber as finite } from '../../domain/shared/number.js';
