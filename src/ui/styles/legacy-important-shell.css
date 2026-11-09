@@ -1,82 +1,34 @@
 /* v59.90 layer split: the important-flagged declarations of the index.html first <style> block, kept outside @layer legacy so they keep the precedence they had
    against the screen stylesheets (a flagged declaration inside a lower layer would beat every unlayered flagged one). Each one is a
    debt item: delete it, or move the rule that needs it into its screen stylesheet. Shrink only (ci-design-token-ratchet). */
-.aio-card.has-stripe-top { border-top-width: 1px !important; }
 #score-decision-sub { font-size: var(--fs-sm) !important; line-height: 1.6 !important; }
 #snap-gspc [data-live-price], #snap-ixic [data-live-price],
 #snap-oil  [data-live-price], #snap-gold [data-live-price],
 #snap-btc  [data-live-price] { font-size: 18px !important; font-weight: 700 !important; }
 .aio-core-view .aio-secondary-hard { display: none !important; }
-.nav-item { border-radius: var(--radius-inner) !important; }
-.page [style*="font-size:10px"],
-
-.page [style*="font-size: 10px"],
-.page [style*="font-size:11px"],
-.page [style*="font-size: 10px"] { font-size: 12px !important; }
-.page [style*="font-size:11px"],
-.page [style*="font-size: 11px"] { font-size: 12px !important; }
-.page [style*="font-size:11px"],
-.page [style*="font-size: 11px"] { font-size: 12px !important; }
-.page [style*="font-size:11px"],
-.page [style*="font-size: 11px"] { font-size: 12px !important; }
-.page [style*="font-size:10px"],
-.page [style*="font-size: 10px"] { font-size: 12px !important; }
-.page [style*="font-size:11px"],
-.page [style*="font-size: 11px"] { font-size: 12px !important; }
-.sidebar [style*="font-size:11px"],
-.sidebar [style*="font-size: 11px"],
-.sidebar [style*="font-size:11px"],
-.sidebar [style*="font-size: 11px"],
-.sidebar [style*="font-size:11px"],
-.sidebar [style*="font-size: 11px"],
-.sidebar [style*="font-size:10px"],
-.sidebar [style*="font-size: 10px"] { font-size: 12px !important; }
-.topbar [style*="font-size:11px"],
-.topbar [style*="font-size: 11px"],
-.topbar [style*="font-size:11px"],
-.topbar [style*="font-size: 11px"],
-.topbar [style*="font-size:11px"],
-.topbar [style*="font-size: 11px"],
-.topbar [style*="font-size:10px"],
-.topbar [style*="font-size: 10px"] { font-size: 12px !important; }
-.page [style*="font-size:11px"],
-.page [style*="font-size: 11px"] { font-size: 12px !important; }
+.page [style*="font-size:10px"], .page [style*="font-size: 10px"], .page [style*="font-size:11px"], .page [style*="font-size: 11px"],
+.sidebar [style*="font-size:10px"], .sidebar [style*="font-size: 10px"], .sidebar [style*="font-size:11px"], .sidebar [style*="font-size: 11px"],
+.topbar [style*="font-size:10px"], .topbar [style*="font-size: 10px"], .topbar [style*="font-size:11px"], .topbar [style*="font-size: 11px"] { font-size: 12px !important; }
 .page [style*="font-size:12px"],
 .page [style*="font-size: 12px"] { font-size: 14px !important; }
 .page [style*="font-size:17px"] { font-size: 18px !important; }
-.status-pill { font-size: 12px !important; padding: 3px 10px !important; }
 .acp-bubble { font-size: 14px !important; line-height: 1.7 !important; }
 .acp-input-row input { font-size: 12px !important; }
 .acp-input-row button { font-size: 12px !important; }
 .q-chip { padding: 7px 10px !important; }
-.search-bar input { font-size: 12px !important; }
-.kr-idx-val { font-size: 28px !important; }
-.kr-idx-chg { font-size: 12px !important; }
-.fx-note { font-size: 12px !important; }
-.fxb-dynamic-comment .dc-title { font-size: 12px !important; }
 .page [style*="font-size:16px"] { font-size: 18px !important; }
-.kr-flow-table td, .kr-flow-table th { font-size: 12px !important; }
 [hidden]:not([hidden="until-found"]) { display:none !important; }
 .page #home-kpi-strip > .is-interactive:not(:has(~ .is-interactive:not([hidden]))) { border-right: 0 !important; }
 .insight-box { display: none !important; }
-.aio-why { display: none !important; }
 .tg-feed-more { display: none !important; }
 .nav-item .en { display: none !important; }
 #page-breadth canvas[id^="bp-"] { height:var(--chart-h-sm)!important; }
 #home-score-hero[data-state="blocked"] { padding:10px 0!important; gap:14px!important; }
 #home-score-hero[data-state="blocked"] #home-hero-headline { font-size:14px!important; margin-bottom:2px!important; }
 #home-score-hero[data-state="blocked"] #home-hero-desc { font-size:12px!important; line-height:1.6!important; }
-.rm-status { font-size: 12px !important; }
 .tip-body { font-size: 12px !important; line-height: 1.65 !important; padding: 9px 12px !important; }
-.fx-note { font-size: 12px !important; }
-.kr-flow-table th { font-size: 12px !important; }
-.kr-idx-label { font-size: 12px !important; }
 .pill-wt { font-size: 12px !important; }
-.ch-item-time { font-size: 12px !important; }
-.btn-accent { font-size: 12px !important; }
-.acp-expand-btn { font-size: 12px !important; }
 .acp-history-btn { font-size: 12px !important; }
-.ch-item-a { font-size: 12px !important; }
 .kr-theme-catalyst { font-size: 12px !important; }
 .kr-theme-heat { font-size: 12px !important; }
 .kr-theme-stat { font-size: 12px !important; }
@@ -88,13 +40,10 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
 #page-sentiment [style*="display:grid"],
 #page-sentiment [style*="display: grid"] { align-items: start !important; align-content: start !important; }
 #page-sentiment .aio-widget { align-self: start !important; }
-#page-sentiment .lwc-chart-container { max-width: 100% !important; overflow: hidden !important; }
 #page-sentiment iframe,
 #page-sentiment [class*="tradingview"],
 #page-sentiment [id*="tradingview"] { max-width: 100% !important; overflow: hidden !important; }
 #page-macro canvas { width: 100% !important; max-width: 100% !important; }
-#portfolio-donut { max-height: 250px !important; max-width: 250px !important; }
-#page-portfolio #pf-benchmark-chart { width: 100% !important; max-width: 100% !important; }
 @media (prefers-reduced-motion: reduce) {
 *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
@@ -102,9 +51,7 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
 body.dark-theme .nav-item:hover { background: var(--white-a1) !important; }
 body.dark-theme .nav-item.active { background: var(--gold-a3) !important; }
 @media print {
-.sidebar, .aio-btn-table,
-  .q-chip, .update-banner, .chat-expanded,
-  button, input, [onclick] { display:none !important; }
+.sidebar, .aio-btn-table, .q-chip, .update-banner, button, input, [onclick] { display:none !important; }
 .page { display:block !important; position:static !important; width:100% !important; padding:10px !important; }
 body { background:#fff !important; color:#000 !important; }
 .page-title { color:#000 !important; }
@@ -116,10 +63,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
 .nav-item:not(.active):hover { background: rgba(var(--ink-rgb),0.05) !important; }
 .tg-live-feed { border-radius: var(--radius-element) !important; border-color: rgba(var(--ink-rgb),0.13) !important; background: transparent !important; box-shadow: none !important; }
 .tg-live-feed-hd { background: rgba(var(--ink-rgb),0.025) !important; border-bottom-color: rgba(var(--ink-rgb),0.08) !important; }
-.aio-source-badge,
-.aio-confidence-badge,
-.status-pill,
-.pill-chip { border-radius: var(--radius-full) !important; letter-spacing: 0 !important; }
+.aio-source-badge, .pill-chip { border-radius: var(--radius-full) !important; letter-spacing: 0 !important; }
 .aio-ai-context-btn { border-radius: var(--radius-element) !important; color: var(--accent-text) !important; }
 .aio-public-readiness { display: none !important; }
 body.aio-dev-mode .aio-public-readiness { display:grid !important; }
@@ -149,23 +93,7 @@ body.aio-dev-mode #page-themes .aio-page-advanced-toggle,
 body.aio-dev-mode #page-portfolio .aio-page-advanced-toggle,
 body.aio-dev-mode #page-market-news .aio-page-advanced-toggle,
 body.aio-dev-mode #page-screener .aio-page-advanced-toggle, .page .aio-page-advanced-toggle[data-user-fold] { display:block !important; }
-body:not(.aio-dev-mode) #market-pulse-bar,
-
-body:not(.aio-dev-mode) #aio-public-readiness,
-body:not(.aio-dev-mode) #snapshot-stale-warning,
-body:not(.aio-dev-mode) #chat-home,
-body:not(.aio-dev-mode) #page-sentiment > .stale-badge,
-body:not(.aio-dev-mode) #live-source-static-badge,
-body:not(.aio-dev-mode) #server-data-age,
-body:not(.aio-dev-mode) #llm-header-badge,
-body:not(.aio-dev-mode) #llm-quota,
-body:not(.aio-dev-mode) #topbar-refresh-btn,
-body:not(.aio-dev-mode) #fund-pre-search-guide,
-body:not(.aio-dev-mode) #fund-earnings-calendar,
-body:not(.aio-dev-mode) #page-signal > details:not(.page-sources), 
-
-body:not(.aio-dev-mode) .aio-operator-control,
-body:not(.aio-dev-mode) .page [id^="tg-feed-"]:not(#tg-feed-market-news) { display:none !important; }
+body:not(.aio-dev-mode) #market-pulse-bar, body:not(.aio-dev-mode) #aio-public-readiness, body:not(.aio-dev-mode) #snapshot-stale-warning, body:not(.aio-dev-mode) #live-source-static-badge, body:not(.aio-dev-mode) #server-data-age, body:not(.aio-dev-mode) #llm-header-badge, body:not(.aio-dev-mode) #llm-quota, body:not(.aio-dev-mode) #topbar-refresh-btn, body:not(.aio-dev-mode) #fund-pre-search-guide, body:not(.aio-dev-mode) #fund-earnings-calendar, body:not(.aio-dev-mode) #page-signal > details:not(.page-sources), body:not(.aio-dev-mode) .aio-operator-control, body:not(.aio-dev-mode) .page [id^="tg-feed-"]:not(#tg-feed-market-news) { display:none !important; }
 body:not(.aio-dev-mode) #page-home > details.aio-card { padding-top:0 !important; }
 #pf-freshness-strip { display:none !important; }
 #scr-load-more-wrap[hidden] { display:none !important; }

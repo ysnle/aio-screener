@@ -84,5 +84,12 @@ files are the debt list: delete a declaration, or move the rule that needs it in
 The AI panel `<style>` block at the end of index.html stays unlayered.
 
 ## Next
-- Shrink `legacy-important-*.css` (224 flags, 179 of them on selectors that matched nothing on 20 routes: check each for dead CSS).
+- `legacy-important-*.css` went from 224 to 115 flags in v59.91. Rules whose selector names a class or id that no HTML, JS or
+  data file writes were deleted, and repeated `[style*=font-size]` rules were merged. What is left falls into three groups:
+  utility guards that must out-rank inline styles written by JS (`[hidden]`, `.sr-only`, `*[hidden]` load-more wraps,
+  dev-mode visibility, print, reduced motion); rules that still decide what the screen looks like (nav item radius and
+  hover, `.q-chip` padding, `[style*="font-size:12px"]`); and rules for elements that only appear after an interaction
+  (AI panel `.acp-*`, tooltips, glossary, KR theme cards). Remove the last group only with a probe that opens those states.
+- A probe that only renders routes misses hover and post-click inline styles. Before removing a flag, check hover/pressed
+  pairs and any JS that writes `.style` on the element.
 - Most of soft-ui's remaining flags beat those files or inline styles set by JS. Retire them file by file.
