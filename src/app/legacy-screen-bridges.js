@@ -7,7 +7,6 @@ import * as newsControls from '../ui/components/news-controls.js';
 import { setSectorPerfView } from '../ui/components/sector-perf-view.js';
 import { setRRGView } from '../ui/components/rrg-view.js';
 import { ensureKrThemeProgressive } from '../ui/components/kr-theme-progressive.js';
-import { renderPortfolioExposure, renderPortfolioStress } from '../ui/components/portfolio-exposure.js';
 import { renderPortfolioRiskMetrics, renderPortfolioRiskStatus } from '../ui/components/portfolio-risk-metrics.js';
 import { renderScreenerFmpStatus } from '../ui/components/screener-fmp-status.js';
 import { organizeGuideChapters } from '../ui/components/guide-chapters.js';
@@ -45,9 +44,12 @@ export function installLegacyScreenBridges(root, documentRef) {
   root._aioRenderPortfolioBacktestLab = (model) => renderPortfolioBacktestLab(model, at);
   root._aioRenderPortfolioBacktestStatus = (text, warn) => renderPortfolioBacktestStatus(text, warn, at);
   root._aioBtVarCertLabel = varCertLabel;
-  // v59.04 포트폴리오: the 익스포저·집중도 and stress panels (refreshPortfolioRisk calls them).
-  root._aioRenderPortfolioExposure = (positions, returnsMap, corrRes = null) => renderPortfolioExposure(positions, returnsMap, { ...at, corrRes });
-  root._aioRenderPortfolioStress = (positions, historyMap, commonDates) => renderPortfolioStress(positions, historyMap, commonDates, at);
+  // v59.04 포트폴리오: the 익스포저·집중도 and stress panels (refreshPortfolioRisk calls them). Only the portfolio route
+  // draws them, so their renderer and its concentration reading load on the first call, not in the boot window.
+  const exposure = () => import('../ui/components/portfolio-exposure.js');
+  const drawLater = (draw) => { exposure().then(draw).catch(() => {}); };
+  root._aioRenderPortfolioExposure = (positions, returnsMap, corrRes = null) => drawLater((m) => m.renderPortfolioExposure(positions, returnsMap, { ...at, corrRes }));
+  root._aioRenderPortfolioStress = (positions, historyMap, commonDates) => drawLater((m) => m.renderPortfolioStress(positions, historyMap, commonDates, at));
   // v59.05 포트폴리오: the 리스크 지표 panel and its status lines; a refreshPortfolioRisk that ran before this module
   // loaded is repeated now.
   root._aioRenderPortfolioRiskStatus = (text, warn) => renderPortfolioRiskStatus(text, warn, at);

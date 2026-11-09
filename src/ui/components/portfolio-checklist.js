@@ -13,9 +13,8 @@ import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
 import { EARNINGS_CALENDAR, SCENARIO_STATE } from '../../data/artifact-registry.js';
+import { holdingBand, sectorBand, HOLDING_LINE_PCT, SECTOR_LINE_PCT } from '../../domain/portfolio/concentration-bands.js';
 
-const SINGLE_BAND = 25; // the 점검 single-holding internal band (domain/portfolio/checks.js: 25% 초과 주의)
-const SECTOR_BAND = 40; // the exposure panel's internal sector band (portfolio-read.js SECTOR_CONCENTRATION_BAND)
 const EARNINGS_SOON_DAYS = 14;
 const THESIS_CHECKS = 4; // 50일선 · 테마 단계 · 이익 전망 · 실적일
 
@@ -47,11 +46,11 @@ export function portfolioCriteria({ surface, root, checks = null, rules = {}, se
   const items = [
     { id: 'single', label: '한 종목 쏠림', principle: '한 종목이 크면 그 종목 하나의 일이 계좌 전체의 일이 됩니다.',
       value: topPct == null ? '미확인' : `가장 큰 ${top.symbol} ${topPct.toFixed(1)}%(보유 종목 중)`,
-      basis: r.maxPositionPct != null ? `내 원칙 ${r.maxPositionPct}% 이하` : `앱 점검선 ${SINGLE_BAND}% 이하`,
-      ok: topPct == null ? null : r.maxPositionPct != null ? topPct <= r.maxPositionPct : single ? single.status !== 'attention' : topPct <= SINGLE_BAND },
+      basis: r.maxPositionPct != null ? `내 원칙 ${r.maxPositionPct}% 이하` : `앱 점검선 ${HOLDING_LINE_PCT}% 이하`,
+      ok: topPct == null ? null : r.maxPositionPct != null ? topPct <= r.maxPositionPct : single ? single.status !== 'attention' : holdingBand(topPct) !== 'attention' },
     { id: 'sector', label: '업종 쏠림', principle: '같은 업종은 같은 뉴스에 함께 움직여, 종목 수가 많아도 한 번에 흔들립니다.',
       value: lens.topSector ? `가장 큰 ${lens.topSector.name} ${lens.topSector.pct.toFixed(0)}%(주식 부분 중)` : '미확인',
-      basis: `앱 점검선 ${SECTOR_BAND}% 이하`, ok: lens.topSector ? lens.topSector.pct <= SECTOR_BAND : null },
+      basis: `앱 점검선 ${SECTOR_LINE_PCT}% 이하`, ok: lens.topSector ? sectorBand(lens.topSector.pct) !== 'over' : null },
     { id: 'cushion', label: '실질 분산', principle: '주식이 내리는 주에 함께 내리지 않는 부분이 있어야 분산이 실제로 작동합니다.',
       value: `실질 종목 수 ${lens.effectiveN.toFixed(1)}개${corr?.available ? `, 채권 부분과 주식 부분의 주간 상관 ${corr.r.toFixed(2)}` : lens.bonds?.bondPct > 0 ? ', 상관은 가격 기록이 쌓이면 계산' : ', 채권 ETF 없음'}`,
       basis: '채권 부분과 주식 부분의 상관이 0보다 작음', ok: corr?.available ? corr.r < 0 : lens.bonds?.available && !(lens.bonds.bondPct > 0) ? false : null },

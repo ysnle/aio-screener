@@ -1,0 +1,8 @@
+{
+  "version": "v59.88",
+  "date": "2026-11-09",
+  "changelog": [
+    "**AI 기술지표 블록 = 차트 화면 판정 (ADR-0003 S4, S5 남은 작업):** 채팅의 기술적 실측 블록이 OHLCV 260봉을 따로 받아 고전 calcTechnicalSnapshot으로 RSI·MACD·이평 배열·Stage·VCP·피보나치·매물대·다이버전스·확장도를 다시 계산하고 자체 라벨('50일선 이탈(추세 훼손)', '상단 재진입(소진주의)' 등)을 붙이던 것을 없앴다. 이제 src/ai/context/technical-lines.js가 차트 화면과 같은 완료 일봉(src/data/daily-chart-bars.js, 한국 종목은 네이버 일봉 대체 포함)을 같은 analyzeChart·buildChartLayers로 읽고, chart-read.js chartFactSheet의 문구(차트 읽기·근거·전환 조건·이평 배열·차트 카드·차트 표시·근거 목록)를 그대로 인용한다. RSI는 한 번만, 스크리너 행 값이 있으면 그 값으로 적는다. 한국 종목 1일 변화는 검증된 직전 거래소 종가(P1728)만 쓴다. js/aio-chat.js _fetchTechnicalDataForChat은 AIO.chatTechnicalBlock 위임 10줄로 줄었다(-104줄)."
+  ],
+  "note": "{VERSION} AI technical block quotes the chart screen's fact sheet on the chart's bars"
+}
