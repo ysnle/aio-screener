@@ -171,8 +171,13 @@ function renderTickerHero(documentRef, state, root) {
   // v59.54 (first-users run-6 #11): a symbol outside AIO's registries showed only its letters, so FB read as Facebook when the
   // listed FB is a ProShares ETF. The official listing's name (already loaded for the listed/not-listed check) names it.
   const listingName = !isKr && id ? usListingNameFor(root, documentRef, id, state) : null;
+  // The page title already names the company from the screener row (SoFi Technologies); a provider quote without a
+  // long name left the line under the symbol reading the symbol again (SOFI / SOFI).
+  let screenerName = null;
+  if (!isKr && id) { try { screenerName = (root?._aioGetCanonicalScreenerRows?.() || []).find((row) => row?.sym === id)?.name || null; } catch (_) { screenerName = null; } }
+  const knownName = screenerName && String(screenerName).trim().toUpperCase() !== id ? String(screenerName).trim() : null;
   setText(documentRef, 'ticker-hero-fullname', id
-    ? (krName ? id : (state?.name && state.name !== id ? state.name : listingName || (state?.id ? id : `${root?._currentTickerName || id}, ${root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다' : '시세 불러오는 중'}`)))
+    ? (krName ? id : (state?.name && state.name !== id ? state.name : listingName || knownName || (state?.id ? id : `${root?._currentTickerName || id}, ${root?._aioEntitySummaryStatus?.[id] === 'unavailable' ? '시세를 불러오지 못했습니다' : '시세 불러오는 중'}`)))
     : ''); // v59.55: the search box right below says it
   // P1317: a KRX listing (.KS/.KQ) trades only in KRW — the venue, not a guess, fixes the quote currency.
   // P1689: a fallback quote can arrive without a currency; use one already observed for this symbol (live envelope or

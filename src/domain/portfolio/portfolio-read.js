@@ -52,6 +52,7 @@ function trendState(row) {
 export const TREND_LABEL = Object.freeze({ up: '상승 추세', near: '선 근처(판정 보류)', pullback: '추세 속 조정', rebound: '장기 추세 아래 반등', down: '하락 추세' });
 const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
 
+const shortDate = (iso) => `${Number(String(iso).slice(5, 7))}/${Number(String(iso).slice(8, 10))}`;
 export function buildPortfolioRead({ surface = null, rows = [], benchmark = null, benchmarkFor = null, marketReturnFor = null, usdkrwReturnPct = null, usdkrwAsOf, rotation = {}, regime = null, krRecord = null } = {}) {
   // P1449: like the checks panel, this read refuses sums it cannot honestly stand behind.
   // A mixed surface without declared FX legs holds only local-unit values — summing them is
@@ -60,6 +61,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   if (surface && surface.currencyState === 'mixed-without-conversion') {
     return { available: false, reason: surface.currencyHeldReason === 'unknown-unit'
       ? `시세 통화를 알 수 없는 보유가 ${surface.unknownCurrencyCount || 1}종목 있어 비중·회전·지수 대비를 한 통화로 만들 수 없습니다. 그 종목의 시세 통화를 입력하면 다시 표시됩니다.`
+      : surface.baseChoiceConverts ? `원화와 달러 보유가 섞여 있고 기준 통화를 고르지 않아 비중·회전·지수 대비를 한 통화로 합치지 않았습니다. 포트폴리오 설정에서 기준 통화(원화 또는 달러)를 고르면 원/달러${surface.appFxDate ? ` ${shortDate(surface.appFxDate)}` : ''} 종가로 환산해 다시 표시합니다.`
       : `통화가 다른 보유가 섞여 있는데 환율이 선언되지 않아(${[...new Set([...(surface.declaredCurrencies || []), ...(surface.heldCurrencies || [])])].join('/')}) 비중·회전·지수 대비를 한 통화로 만들 수 없습니다. 포트폴리오 설정에서 환율을 선언하면 다시 표시됩니다.` };
   }
   const bySymbol = new Map((rows || []).map((row) => [String(row?.sym || '').toUpperCase(), row]));
@@ -201,8 +203,14 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   // so a zero share is said as "없습니다"; the 3-month line carries its own assumption (it once sat two paragraphs away
   // and "내 수익률" read as the account's). The 50·200일선 definitions and buffers stay in the folded points.
   const share = (pct) => pct > 0 && pct < 1 ? '1% 미만' : `${(pct || 0).toFixed(0)}%`;
+  // With neither an up nor a down share the line leads with what the holdings are doing ("100%는 아직 방향이 뚜렷하지 않고")
+  // instead of two empty clauses ("오르는 흐름에 있는 종목은 없고, 내리는 흐름인 종목은 없습니다. 100%는 …").
+  const lead = trendContainedPct >= 99.5 ? (unpriced ? `가격을 확인한 보유 금액${unpricedNote} 중` : '보유 금액 중') : `${plainBasis.replace(/ 기준으로$/, '')} 중`;
+  const restLine = `${nearPct > 0 ? ` ${share(nearPct)}는 아직 방향이 뚜렷하지 않습니다.` : ''}${otherPct > 0 ? ` ${share(otherPct)}는 큰 흐름 속 조정이나 반등 중입니다.` : ''}`;
   const trendLine = !trendMix.length ? null
-    : `${trendContainedPct >= 99.5 ? (unpriced ? `가격을 확인한 보유 금액${unpricedNote} 중` : '보유 금액 중') : `${plainBasis.replace(/ 기준으로$/, '')} 중`} ${upPct > 0 ? `${share(upPct)}는 오르는 흐름에 있고` : '오르는 흐름에 있는 종목은 없고'}, ${downPct > 0 ? `${share(downPct)}는 내리는 흐름입니다` : '내리는 흐름인 종목은 없습니다'}.${nearPct > 0 ? ` ${share(nearPct)}는 아직 방향이 뚜렷하지 않습니다.` : ''}${otherPct > 0 ? ` ${share(otherPct)}는 큰 흐름 속 조정이나 반등 중입니다.` : ''}`;
+    : !(upPct > 0) && !(downPct > 0)
+      ? `${lead} ${[nearPct > 0 ? `${share(nearPct)}는 아직 방향이 뚜렷하지 않` : null, otherPct > 0 ? `${share(otherPct)}는 큰 흐름 속 조정이나 반등 중이` : null].filter(Boolean).join('고, ')}고, 오르거나 내리는 흐름인 종목은 없습니다.`
+      : `${lead} ${upPct > 0 ? `${share(upPct)}는 오르는 흐름에 있고` : '오르는 흐름에 있는 종목은 없고'}, ${downPct > 0 ? `${share(downPct)}는 내리는 흐름입니다` : '내리는 흐름인 종목은 없습니다'}.${restLine}`;
   const headline = [trendLine,
     book3 != null && bench3 != null ? `지금 구성을 3개월 전부터 들고 있었다면 ${attribution.blendedLabel.replace(/\([^)]*\)/g, '')}보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${book3 >= bench3 ? '앞섰습니다' : '뒤처졌습니다'}${relativeBasisNote}.` : null,
     regime?.available ? `미국 시장은 '${regime.overall}'입니다.` : null, krLine?.headline || null].filter(Boolean).join(' ');

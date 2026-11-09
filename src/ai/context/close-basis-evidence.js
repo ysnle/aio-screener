@@ -13,8 +13,14 @@ export const CLOSE_BASIS_VERSION = 'close-basis-evidence.v1';
 
 // `change`: 'pct' publishes a one-session % change row, 'bp' a basis-point change row (rates never move in %).
 const METRICS = Object.freeze([
-  { field: 'spx', metric: 'close.spx', entity: 'SPX', label: 'S&P 500 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^GSPC', 'SPX'] },
-  { field: 'nasdaq', metric: 'close.nasdaq', entity: 'NASDAQ', label: '나스닥 종합 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^IXIC'] },
+  { field: 'spx', metric: 'close.spx', entity: 'SPX', label: 'S&P 500 종가', unit: 'index', digits: 2, change: 'pct', chg20: 'pct', symbols: ['^GSPC', 'SPX'] },
+  { field: 'nasdaq', metric: 'close.nasdaq', entity: 'NASDAQ', label: '나스닥 종합 종가', unit: 'index', digits: 2, change: 'pct', chg20: 'pct', symbols: ['^IXIC'] },
+  // The leadership read (나스닥 100 · 반도체) and the 차트 page's default QQQ/SPY/IWM set judge on these closes, but the chat
+  // had no typed row for them: "QQQ와 SOXX 중 한 달 더 약한 쪽" was answered "검증 evidenceId 없음" after the bell. The
+  // ETFs track the index, so the label names the ETF beside the index; SOXX is the ETF's own close.
+  { field: 'ndx', metric: 'close.ndx', entity: 'NDX', label: '나스닥 100 종가(QQQ 추종 지수)', unit: 'index', digits: 2, change: 'pct', chg20: 'pct', symbols: ['^NDX', 'NDX'] },
+  { field: 'rut', metric: 'close.rut', entity: 'RUT', label: '러셀 2000 종가(IWM 추종 지수)', unit: 'index', digits: 2, change: 'pct', chg20: 'pct', symbols: ['^RUT', 'RUT'] },
+  { field: 'soxx', metric: 'close.soxx', entity: 'SOXX', label: 'SOXX 종가', unit: 'usd', digits: 2, change: 'pct', chg20: 'pct', symbols: ['SOXX'] },
   { field: 'vix', metric: 'close.vix', entity: 'VIX', label: 'VIX 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^VIX', 'VIX'] },
   { field: 'tnx', metric: 'close.us10y', entity: 'US10Y', label: '미 10년물 금리 종가', unit: 'percent', digits: 3, change: 'bp', symbols: ['^TNX', 'US10Y'] },
   { field: 'dxy', metric: 'close.dxy', entity: 'DXY', label: '달러 지수 종가', unit: 'index', digits: 2, change: null, chg20: 'pct', symbols: ['DX-Y.NYB', 'DXY'] },
@@ -100,7 +106,7 @@ export function closeBasisSubstituteFor(symbol, rows = []) {
   return def ? (rows || []).find((item) => item.metric === def.metric) || null : null;
 }
 
-const UNIT_TEXT = Object.freeze({ index: '', percent: '%', bp: 'bp', usd_per_barrel: '달러', usd_per_ounce: '달러', krw_per_usd: '원' });
+const UNIT_TEXT = Object.freeze({ index: '', usd: '달러', percent: '%', bp: 'bp', usd_per_barrel: '달러', usd_per_ounce: '달러', krw_per_usd: '원' });
 
 /** One prompt block that names each close value with its date and evidence id. */
 export function renderCloseBasisEvidenceContext(rows = []) {

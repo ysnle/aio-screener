@@ -1,14 +1,14 @@
 {
   "schemaVersion": "aio-route-soak-evidence.v1",
-  "observedAt": "2026-11-08T14:42:38.540Z",
-  "appRevision": "v59.84",
-  "gitHead": "875e8834774c2af11161c13a4991758e71c185e0",
+  "observedAt": "2026-11-09T03:16:42.252Z",
+  "appRevision": "v59.86",
+  "gitHead": "41f43769c4ca382e223b82cbc566214d8b96c1f1",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
-    "browserVersion": "156.0.8078.4",
-    "platform": "win32",
-    "node": "v24.18.0",
+    "browserVersion": "153.0.8010.12",
+    "platform": "linux",
+    "node": "v22.23.4",
     "viewport": "1440x1000"
   },
   "command": "node scripts/ci-route-soak-check.mjs",
@@ -94,7 +94,7 @@
     },
     {
       "route": "signal",
-      "surface": "한국 금리·물가·수출한국은행 공식 발표, 8/27 결정기준금리 3.00%다음 금통위 2026-11-26수출(2026-10 잠정) 1,153억 달",
+      "surface": "한국 금리·물가·수출한국은행 공식 발표, 8/27 결정기준금리 3.00%다음 금통위 2026-11-26소비자물가 전년 대비 +2.8%, 목표 2",
       "errors": []
     }
   ]

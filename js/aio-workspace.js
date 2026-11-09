@@ -176,6 +176,9 @@ function savePortfolioAssumption(fieldId, value) {
     if (normalized == null) localStorage.removeItem(key);
     else localStorage.setItem(key, field.kind === 'rate' ? String(value).trim() : normalized);
   } catch(e) {}
+  // The portfolio store holds the declarations it read at load; without this event a base currency chosen here changed
+  // nothing until the page was reloaded (a KRW/USD mix stayed held). Cash saves announce the same event.
+  try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch(e) {}
   renderPortfolio();
   if (typeof refreshPortfolioRisk === 'function') { try { refreshPortfolioRisk(); } catch(e) {} }
 }

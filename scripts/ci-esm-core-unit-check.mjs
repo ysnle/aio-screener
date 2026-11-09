@@ -7281,6 +7281,10 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     dxyRows.at(-1).dxy = 102.2;
     const dollar85 = chapters85({ history: dxyRows }).chapters.find((row) => row.id === 'dollar');
     if (!dollar85 || /범위 중간/.test(dollar85.mean) || !/1년 범위의 22% 위치로 상위 20%가 아니라/.test(dollar85.mean)) fail(`v59.85 the dollar sentence states only the computed range position: ${dollar85?.mean}`);
+    // The growth chapter words real retail sales by the real change itself (near flat ±0.2% reads 버티는 정도), not by how
+    // much CPI took off the nominal print.
+    const growthOf = (cpiTo) => chapters85({ macroHistory: { series: { consumerSentiment: { observations: [['2026-09-01', 55]] }, retailSales: { observations: [['2026-08-01', 100], ['2026-09-01', 100.8]] }, cpiIndex: { observations: [['2026-08-01', 100], ['2026-09-01', cpiTo]] } } } }).chapters.find((row) => row.id === 'growth')?.mean || '';
+    if (!/버티는 정도/.test(growthOf(100.65)) || /버티는 정도/.test(growthOf(100.45)) || !/실질로도 늘었지만/.test(growthOf(100.45)) || !/실질로 줄었습니다/.test(growthOf(101.1))) fail(`v59.86 real retail wording follows the real change: ${growthOf(100.65)} / ${growthOf(100.45)} / ${growthOf(101.1)}`);
     // Brent and WTI are compared on their last common close: a missing Brent print does not pair 11/6 WTI with 11/5 Brent.
     const oilRows = dxyRows.slice(-50).map((row) => ({ date: row.date, wti: 90, brent: 95 }));
     oilRows[oilRows.length - 1] = { date: oilRows.at(-1).date, wti: 75 };
@@ -7294,5 +7298,16 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
       || !v85.assertsInflationReaccel('물가가 재가속되고 있습니다.') || v85.assertsInflationReaccel('근원 CPI는 재가속 신호를 보였습니다.') || v85.assertsInflationReaccel('물가 재가속 경로라면 금리 부담이 커질 수 있습니다.')
       || v85.marketSentenceRejectReason('물가가 다시 빨라지며 금리 부담이 커진 하루였다.', { inflationNotReaccelerating: true }) !== 'inflation-direction'
       || v85.marketSentenceRejectReason('물가가 다시 빨라지며 금리 부담이 커진 하루였다.', {}) === 'inflation-direction') fail('v59.85 the 재가속 assertion is blocked symmetrically with 둔화');
+    // A hedge in a later clause qualifies the consequence, not the 재가속 assertion; a hedge on the predicate or a leading
+    // condition still makes the sentence a branch.
+    if (!v85.assertsInflationReaccel('물가가 재가속되고 있어 금리가 더 오를 수 있습니다.')
+      || v85.assertsInflationReaccel('물가가 재가속되고 있는지 확인해야 합니다.') || v85.assertsInflationReaccel('물가가 재가속되고 있을 가능성이 있습니다.') || v85.assertsInflationReaccel('물가가 재가속되고 있을 수 있습니다.')
+      || v85.assertsInflationReaccel('CPI가 예상을 웃돌 경우 물가 재가속 신호로 읽힐 수 있습니다.')) fail('v59.86 the conditional marker must sit on the 재가속 predicate or a leading condition');
+    // The trailing-year revenue growth needs the year-earlier quarters' revenue only: a derived Q4 without net income
+    // blanks the income comparison, not the revenue growth (TSLA·PLTR·AVGO fell back to a ten-month-old fiscal year).
+    const { buildTrailingYearRead } = await import(pathToFileURL(path.join(root, 'src/domain/fundamental/analysis-read.js')).href);
+    const qEnds = ['2024-09-30', '2024-12-31', '2025-03-31', '2025-06-30', '2025-09-30', '2025-12-31', '2026-03-31', '2026-06-30'];
+    const ttm = buildTrailingYearRead(qEnds.map((periodEnd, index) => ({ periodEnd, revenue: index < 4 ? 100 : 120, netIncome: index === 1 ? null : 10 })));
+    if (!ttm || Math.abs(ttm.revenueYoy - 20) > 1e-9 || ttm.netIncomeYoy !== null || ttm.priorMargin !== null) fail(`v59.86 trailing-year revenue growth reads the year-earlier revenue alone: ${JSON.stringify(ttm)}`);
   }
 }

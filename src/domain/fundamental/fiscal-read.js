@@ -43,7 +43,9 @@ export function reconcileFiscalHistory(history = [], fundamentals = null, symbol
 
 // 2026-10-14 audit #2: the four latest consecutive fiscal quarters (about 3 months apart, no gap), newest last, or null.
 // A derived fourth quarter (FY − Q1..Q3) counts; nothing is estimated beyond the published quarters.
-export function trailingQuarters(quarters = [], count = 4) {
+// `field` is the value every quarter of the span must carry: net income by default (a margin or an income sum), revenue
+// for a revenue-only comparison (an issuer's oldest stored quarter is often a derived Q4 with revenue but no net income).
+export function trailingQuarters(quarters = [], count = 4, { field = 'netIncome' } = {}) {
   const rows = (Array.isArray(quarters) ? quarters : []).filter((q) => isIsoDay(String(q?.periodEnd || '')))
     .slice().sort((a, b) => a.periodEnd.localeCompare(b.periodEnd));
   if (rows.length < count) return null;
@@ -52,7 +54,7 @@ export function trailingQuarters(quarters = [], count = 4) {
     const gapDays = (Date.parse(span[i].periodEnd) - Date.parse(span[i - 1].periodEnd)) / 86400000;
     if (!(gapDays >= 75 && gapDays <= 105)) return null;
   }
-  return span.every((q) => finite(q.netIncome) != null) ? span : null;
+  return span.every((q) => finite(q[field]) != null) ? span : null;
 }
 
 // 2026-10-14 audit #21: year-over-year share counts that jump by a near-integer ratio (a split the cover-page count

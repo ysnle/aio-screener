@@ -154,6 +154,8 @@ function labor(macroHistory, events) {
 // 10년 = 실질 + 기대인플레 holds only on one date: the legs are cut at the latest date all three have (FRED posts the
 // real yield a day after the others). v59.74: the oil and metals chapters read the same cut, so one screen does not print a
 // 20-session breakeven of -11bp (rates) beside -10bp (oil).
+// real retail sales within ±0.2% of flat month over month read as 버티는 정도 (the print's own rounding band is ±0.1%p).
+const REAL_RETAIL_FLAT_PCT = 0.2;
 const splitThrough = (macroHistory) => ['dgs10', 'realYield10', 'breakeven10'].map((id) => series(macroHistory, id).at(-1)?.date || '').sort()[0] || null;
 
 function rates(macroHistory, events, history = []) {
@@ -169,7 +171,9 @@ function rates(macroHistory, events, history = []) {
   const kind = Math.abs(ten.bp) < 10 ? 'flat' : share >= 0.6 ? (ten.bp < 0 ? 'growth' : 'tight') : be.bp / ten.bp >= 0.6 ? (ten.bp < 0 ? 'relief' : 'fear') : 'mixed';
   // a real-yield-led fall is a growth scare only when stocks fell with it (the 금리 axis's
   // growthScareSpx20dPct); with stocks up it is the opposite — a retreat of tightening expectations.
-  const spx = closeChange(history, 'spx', WINDOW, { through: closeBasis(history) });
+  // the stock leg is cut on the same date as the rate split, so '같은 기간 S&P 500' is the split's own span.
+  const spxThrough = [ten.date, closeBasis(history)].filter(Boolean).sort()[0] || null;
+  const spx = closeChange(history, 'spx', WINDOW, { through: spxThrough });
   const growthRead = spx && spx.pct <= RULES.rates.growthScareSpx20dPct
     ? `하락이 거의 실질금리에서 나왔고 같은 기간 S&P 500이 ${signed(spx.pct, 1)} 빠졌습니다. 물가 기대가 내려서가 아니라 성장 걱정으로 주식에서 채권으로 옮긴 움직임입니다.`
     : spx && spx.pct >= RULES.crossAsset.stock20dPct
@@ -440,7 +444,8 @@ function growthKorea(macroHistory, history, events) {
   const won = krw ? wonMoveSentence(krw.pct, { dxy20: historySpan(history, 'dxy')?.pct ?? null }) : '';
   const next = nextOf(events, ['us-retail']);
   const spending = !retail ? ''
-    : realRetail != null && retail.value >= 0 && realRetail < retail.value - 0.3 ? `소매판매는 명목 ${signed(retail.value, 1)}지만 같은 달 소비자물가(${signed(cpiSame.value, 2)})를 빼면 실질 약 ${signed(realRetail, 1)}로, 소비는 늘었다기보다 ${realRetail >= 0 ? '버티는 정도입니다' : '물가에 밀려 줄었습니다'}. `
+    // the wording follows the real change itself: near flat reads 버티는 정도, below it 줄었습니다, clearly above it 늘었다.
+    : realRetail != null && retail.value >= 0 && realRetail < retail.value - 0.3 ? `소매판매는 명목 ${signed(retail.value, 1)}지만 같은 달 소비자물가(${signed(cpiSame.value, 2)})를 빼면 실질 약 ${signed(realRetail, 1)}로, ${realRetail >= REAL_RETAIL_FLAT_PCT ? '실질로도 늘었지만 증가분의 상당 부분은 물가 몫입니다' : realRetail > -REAL_RETAIL_FLAT_PCT ? '소비는 늘었다기보다 버티는 정도입니다' : '소비는 물가에 밀려 실질로 줄었습니다'}. `
       : retail.value >= 0 ? '소비 지출은 아직 꺾이지 않았습니다. ' : '소비 지출이 줄었습니다. ';
   return {
     id: 'growth', title: '성장 · 소비 · 한국', question: '경기의 지속력과 한국 시장이 묶인 고리',

@@ -94,6 +94,10 @@ export const cases = [
     assert.doesNotMatch(tinyDown.headline, /내리는 흐름인 종목은 없습니다/);
     const zero = buildPortfolioRead({ surface: { rows: [{ symbol: 'UP', value: 1 }] }, rows: [{ sym: 'UP', pctSma50: 10, pctSma200: 20 }] });
     assert.match(zero.headline, /내리는 흐름인 종목은 없습니다/);
+    // v59.86: with neither an up nor a down share the line leads with the holdings' own state, not two empty clauses.
+    const flat = buildPortfolioRead({ surface: { rows: [{ symbol: 'FLAT', value: 1 }] }, rows: [{ sym: 'FLAT', pctSma50: 1, pctSma200: 15 }] });
+    assert.match(flat.headline, /100%는 아직 방향이 뚜렷하지 않고, 오르거나 내리는 흐름인 종목은 없습니다/);
+    assert.doesNotMatch(flat.headline, /오르는 흐름에 있는 종목은 없고/);
   } },
   { id: 'P22-LEDGER-01', name: '읽을 수 없는 입출금 행은 버리지 않고 계좌 성과를 보류한다', run: async ({ load }) => {
     const { assessAccountPerformance } = await load('src/domain/portfolio/risk.js');
@@ -186,6 +190,10 @@ export const cases = [
     const mixed = derivePortfolioSurface({ state: { readState: 'ready', holdings: [{ symbol: 'ABC.L', shares: 1, price: 100 }, { symbol: 'AAPL', shares: 1, price: 100 }], cashKnown: true, cash: 0 }, now: NOW });
     assert.equal(mixed.positionValue, null);
     assert.equal(mixed.currencyState, 'mixed-without-conversion');
+    // v59.86: an unconverted USD/KRW mix keeps each row's P&L in its own unit (the table printed a won gain with $).
+    const krMix = derivePortfolioSurface({ state: { readState: 'ready', holdings: [{ symbol: 'AAPL', shares: 1, price: 200, avgCost: 180, currency: 'USD' }, { symbol: '005930.KS', shares: 10, price: 100000, avgCost: 55000, currency: 'KRW' }], cashKnown: true, cash: 0 }, now: NOW });
+    assert.equal(krMix.currencyState, 'mixed-without-conversion');
+    assert.deepEqual(krMix.rows.map((row) => [row.valueUnit, row.costUnit]), [['USD', 'USD'], ['KRW', 'KRW']]);
   } },
   { id: 'P23-FX-01', name: '평가 화면이 쓰는 앱 원/달러 종가를 위험 입력도 받아들인다', run: async ({ load }) => {
     const { assembleRiskEstimateInput } = await load('src/ui/panels/portfolio-risk-input.js');
