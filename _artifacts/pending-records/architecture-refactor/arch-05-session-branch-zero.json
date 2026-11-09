@@ -1,0 +1,8 @@
+{
+  "version": "v59.87",
+  "date": "2026-11-09",
+  "changelog": [
+    "**세션 분기 0 (ADR-0003 S3 후속):** 테마 그룹 강도(group-strength.js)의 '현재' 판정과 채팅이 읽는 _aioLatestCompletedSessionDate가 KR/US 분기를 각자 쓰던 것을 market-calendar.js latestCompletedSession(market, now) 하나로 옮겼다. 공용 원시 함수 ratchet의 sessionBranch가 2→0이다. 날짜는 같다(미국 쪽은 이전 세션 확인을 요구하지 않는 공용 규칙으로, 달력 시작 경계에서만 null 대신 날짜를 준다)."
+  ],
+  "note": "ADR-0003 S3 follow-up: sessionBranch 2 -> 0"
+}

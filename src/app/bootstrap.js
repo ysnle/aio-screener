@@ -58,7 +58,7 @@ import('../domain/screener/price-factors.js').then((module) => { producerVcpRead
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
 import { classifyBreadthParticipation } from '../domain/market/breadth.js';
 import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
-import { latestCompletedUsSession, latestCompletedKrSession } from '../domain/market/market-calendar.js';
+import { latestCompletedUsSession, latestCompletedKrSession, latestCompletedSession } from '../domain/market/market-calendar.js';
 import { regimePulse } from '../domain/briefing/regime-pulse.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk, concentrationPenaltyForWeight } from '../domain/portfolio/concentration.js';
@@ -311,7 +311,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // v59.51: it sits inside the home verdict card, which carries the verdict it questions, so it repeats no verdict.
   // The Korean close label needs the daily record, which loads after the first top-bar render.
   root.addEventListener?.('aio:historyLoaded', () => { try { root.document?.dispatchEvent(new root.CustomEvent('aio:quoteTopbar', { detail: {} })); } catch (_) {} });
-  root._aioLatestCompletedSessionDate = (market = 'US') => (market === 'KR' ? latestCompletedKrSession(clock.now()) : latestCompletedUsSession(clock.now()))?.date || null;
+  root._aioLatestCompletedSessionDate = (market = 'US') => latestCompletedSession(market, clock.now())?.date || null;
   root._aioKrIndexStress = () => krIndexStressRows(root._aioHistory || [], { now: clock.now() }); // v57.81: KOSPI's own worst moves for the stress panel
   root._aioPortfolioStressHtml = (input) => portfolioStressHtml({ ...input, history: root._aioHistory || [], now: clock.now() }); // 2026-10-19: sensitivities from the book's own weekly returns
   // P1339: when the live Yahoo 1y chart (autoUpdateMA) has not produced MAs, derive them from the

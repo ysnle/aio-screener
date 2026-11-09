@@ -1,6 +1,6 @@
 import { median, themeMedians } from './theme-medians.js';
 import { screenerMarket } from '../screener/market-scope.js';
-import { latestCompletedKrSession, latestCompletedUsSession } from '../market/market-calendar.js';
+import { latestCompletedSession } from '../market/market-calendar.js';
 import { recentMove, weeklyNoiseFromVol } from './recent-check.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { latestSessionRows } from '../shared/session-date.js';
@@ -128,7 +128,7 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
   // X03 (2026-10-13): "current" meant only "the newest basis among the groups". With a clock it also has to be the
   // latest completed session of the market — a 10/9 ranking read on 10/13 is a dated reference, not today's leaders.
   const expectedSession = Number.isFinite(Number(now)) && now != null
-    ? (market === 'KR' ? latestCompletedKrSession(Number(now))?.date : latestCompletedUsSession(Number(now), { requirePrevious: false })?.date) || null
+    ? latestCompletedSession(market, Number(now))?.date || null
     : null;
   for (const group of groups) group.current = !!group.basis && group.basis === latestBasis && (!expectedSession || group.basis === expectedSession);
   const rank1m = rankBy(groups, 'ret1m');
