@@ -1137,6 +1137,15 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 // the way ci-domain-parity-check.mjs verifies trading-score/RRG/Weinstein-MTF/news-scoring. Hand-
 // written expected outputs against the documented thresholds instead, same as this file's other
 // sections.
+// v59.88 (ADR-0003 S4 follow-up): the 오늘 Korea line's separate-check clause is the domain's reading. With no record
+// tail the 5-session line (RULES.briefing.krSeparate5dPct, 5%) decides it either way; under it the clause is empty.
+{
+  const { krSeparateCheckTone } = await load('src/domain/market/kr-index-record.js');
+  const kospi = (d5) => ({ date: '2026-11-06', d5 });
+  if (krSeparateCheckTone([], kospi(-6)) !== ' — 5거래일 낙폭이 커 미국장과 따로 확인할 구간입니다.') fail('krSeparateCheckTone: a -6% five-session KOSPI names the drop');
+  if (krSeparateCheckTone([], kospi(5)) !== ' — 5거래일 상승 폭이 커 미국장과 따로 확인할 구간입니다.') fail('krSeparateCheckTone: +5% is on the line and names the rise');
+  if (krSeparateCheckTone([], kospi(4.9)) !== '' || krSeparateCheckTone([], kospi(null)) !== '' || krSeparateCheckTone([], null) !== '') fail('krSeparateCheckTone: under the line, unknown or absent stays empty');
+}
 {
   const { classifyBreadthParticipation } = await load('src/domain/market/breadth.js');
   const broad = classifyBreadthParticipation({ sma20: 65, sma50: 60, sma20Delta: 3 });

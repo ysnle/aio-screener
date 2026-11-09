@@ -4,6 +4,7 @@
 // tail (KR_SHOCK_TAIL_PCT), its position in AIO's own record. KOSPI is the briefing's koreaMoveRecord itself; KOSDAQ is
 // measured by the same rule (exact KRX session spans, the last 252 changes). One month is KR_MONTH_SESSIONS everywhere.
 import { koreaMoveRecord, koreaRecordText, krSessionThrough, KR_SHOCK_TAIL_PCT } from '../briefing/market-read.js';
+import { RULES } from '../rules/thresholds.js';
 import { buildCloseSeries, recordPercentile } from './close-series.js';
 import { countOpenSessionsBetween } from './market-calendar.js';
 import { signedText } from '../shared/number.js';
@@ -40,4 +41,18 @@ export function krIndexMoveText(record) {
   if (!record || record.d1 == null) return '';
   const rare = koreaRecordText(record, { maxTail: KR_SHOCK_TAIL_PCT });
   return `하루 ${signed(record.d1)}${record.d5 != null ? `, 5거래일 ${signed(record.d5)}` : ''}${rare ? `(${rare})` : ''}`;
+}
+
+/**
+ * The clause the 오늘 Korea line adds when the KOSPI session should be read apart from the US tally: a move rare in AIO's
+ * own KOSPI record (1- or 5-session, outer KR_SHOCK_TAIL_PCT) on the shown session is named with that record; otherwise
+ * a 5-session change of at least RULES.briefing.krSeparate5dPct either way. '' when neither holds.
+ */
+export function krSeparateCheckTone(history, kospi, { now = Date.now() } = {}) {
+  if (!kospi) return '';
+  const record = koreaMoveRecord(history, { now });
+  const rare = record?.extreme && record.date === kospi.date ? koreaRecordText(record, { maxTail: KR_SHOCK_TAIL_PCT }) : '';
+  if (rare) return ` — 코스피 변화가 ${rare}라 미국장과 따로 확인할 구간입니다.`;
+  if (kospi.d5 == null || Math.abs(kospi.d5) < RULES.briefing.krSeparate5dPct) return '';
+  return kospi.d5 < 0 ? ' — 5거래일 낙폭이 커 미국장과 따로 확인할 구간입니다.' : ' — 5거래일 상승 폭이 커 미국장과 따로 확인할 구간입니다.';
 }

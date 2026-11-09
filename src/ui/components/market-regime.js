@@ -4,7 +4,8 @@ import { renderHomeGuide } from './market-guide.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { renderStressOutcomes } from './stress-outcomes.js';
 import { deepDiveLinks } from './deep-dive.js';
-import { alignInput, buildCloseSeries, closeBasis, isUsable, koreaMoveRecord, koreaRecordText, KR_SHOCK_TAIL_PCT, sessionPointBack } from '../../domain/briefing/market-read.js';
+import { alignInput, buildCloseSeries, closeBasis, isUsable, sessionPointBack } from '../../domain/briefing/market-read.js';
+import { krSeparateCheckTone } from '../../domain/market/kr-index-record.js';
 import { previousRegime } from '../../domain/briefing/daily-diff.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
@@ -809,12 +810,8 @@ function paintKoreaLine(doc, root) {
   const { kospi, kosdaq } = koreaIndexParts(history);
   if (!kospi) { line.hidden = true; return; }
   const [, month, day] = kospi.date.split('-').map(Number);
-  // P1723: a move rare in AIO's own KOSPI record (1-session or 5-session, outer 5%) is named with that record even when
-  // the 5-session change stays under 5%; the US six-axis tally is unchanged.
-  const record = koreaMoveRecord(history, { now: Date.now() });
-  const rare = record?.extreme && record.date === kospi.date ? koreaRecordText(record, { maxTail: KR_SHOCK_TAIL_PCT }) : '';
-  const tone = rare ? ` — 코스피 변화가 ${rare}라 미국장과 따로 확인할 구간입니다.`
-    : kospi.d5 != null && Math.abs(kospi.d5) >= 5 ? (kospi.d5 < 0 ? ' — 5거래일 낙폭이 커 미국장과 따로 확인할 구간입니다.' : ' — 5거래일 상승 폭이 커 미국장과 따로 확인할 구간입니다.') : '';
+  // The separate-check clause is the domain's reading (record tail first, then the 5-session line); the US tally is unchanged.
+  const tone = krSeparateCheckTone(history, kospi, { now: Date.now() });
   const summary = line.querySelector(':scope > summary');
   const detail = doc.getElementById('home-kr-detail');
   if (summary) summary.textContent = `한국 ${month}/${day} 마감: ${[kospi, kosdaq].filter((part) => part?.d1).map((part) => `${part.title} ${part.d1}`).join(', ') || kospi.text}`;
