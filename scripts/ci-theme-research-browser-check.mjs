@@ -87,7 +87,8 @@ try {
   await page.evaluate(() => window.openKrThemeDetail('semi'));
   await page.waitForFunction(() => document.getElementById('page-themes')?.classList.contains('active') && document.getElementById('kr-theme-detail-panel')?.closest('details')?.open
     && /반도체/.test(document.querySelector('#kr-theme-detail-content .krl-d-title')?.textContent || ''), null, { timeout: 8000 });
-  await page.waitForTimeout(900);
+  // The jump scrolls smoothly; under a loaded runner it can settle after a fixed wait, so wait for it to land (or time out).
+  await page.waitForFunction(() => { const t = document.getElementById('kr-theme-detail-panel').getBoundingClientRect().top; return t >= -4 && t < 400; }, null, { timeout: 5000 }).catch(() => {});
   const krDetailTop = await page.evaluate(() => document.getElementById('kr-theme-detail-panel').getBoundingClientRect().top);
   assert.ok(krDetailTop >= -4 && krDetailTop < 400, `v58.52 the Korean theme detail is in view after the jump (top ${krDetailTop})`);
   await page.evaluate(() => window.showPage('themes'));
