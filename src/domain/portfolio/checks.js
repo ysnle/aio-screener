@@ -10,12 +10,13 @@
 // and counted, never treated as zero.
 import { listingCurrency, listingRegion } from './fx.js';
 import { concentrationPenaltyForWeight } from './concentration.js';
+import { holdingBand, holdingTierText, HOLDING_BAND_BASIS } from './concentration-bands.js';
+import { RULES } from '../rules/thresholds.js';
 import { readNumber as finite } from '../shared/number.js';
 import { sectorLabel } from '../screener/sector-label.js';
 
 export const PORTFOLIO_CHECKS_MODEL_VERSION = 'portfolio-checks.v1';
-export const SINGLE_CURRENCY_MAX = 0.5;
-export const SINGLE_HOLDING_TIERS = Object.freeze([10, 15, 25]);
+export const SINGLE_CURRENCY_MAX = RULES.portfolio.currencyMax;
 
 
 function shares(entries, total) {
@@ -66,10 +67,9 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
   const topIsEtf = assetTypeOf(top.name) === 'ETF';
   const checks = [
     { id: 'single-holding', label: '한 종목 쏠림', value: shareHeld ? '판정 보류' : `${top.name} ${top.pct.toFixed(1)}%`,
-      status: shareHeld ? 'unknown' : top.pct > SINGLE_HOLDING_TIERS[2] && !topIsEtf ? 'attention' : top.pct > SINGLE_HOLDING_TIERS[0] ? 'info' : 'ok',
-      detail: shareHeld ? heldNote : top.pct > SINGLE_HOLDING_TIERS[2] && topIsEtf ? `가장 큰 보유가 ETF(${top.name})라 한 회사 쏠림은 아닙니다 — 그 ETF가 담은 지수·업종의 쏠림은 섹터 구성으로 확인합니다.` : top.pct > SINGLE_HOLDING_TIERS[2] ? '한 종목이 투자금의 25%를 넘습니다 — 이 종목 하나의 급락이 계좌 전체를 좌우할 수 있는 수준입니다.'
-        : top.pct > SINGLE_HOLDING_TIERS[1] ? '한 종목이 15%를 넘습니다(참고 구간).' : top.pct > SINGLE_HOLDING_TIERS[0] ? '한 종목이 10%를 넘습니다(참고 구간).' : '가장 큰 종목도 투자금의 10% 이하입니다.',
-      basis: '내부 구간: 10~25% 참고, 25% 초과 주의', tier: holdingTier },
+      status: shareHeld ? 'unknown' : holdingBand(top.pct) === 'attention' && topIsEtf ? 'info' : holdingBand(top.pct),
+      detail: shareHeld ? heldNote : holdingBand(top.pct) === 'attention' && topIsEtf ? `가장 큰 보유가 ETF(${top.name})라 한 회사 쏠림은 아닙니다 — 그 ETF가 담은 지수·업종의 쏠림은 섹터 구성으로 확인합니다.` : holdingTierText(top.pct),
+      basis: `내부 구간: ${HOLDING_BAND_BASIS}`, tier: holdingTier },
     { id: 'single-currency', label: '한 통화 쏠림', value: `${topCurrency.name} ${topCurrency.pct.toFixed(0)}%`,
       // X10 (2026-10-13): this is the valuation (listing) currency mix. Translation risk exists only against a
       // different base currency; the companies' own revenue/cost FX exposure is not measured here.

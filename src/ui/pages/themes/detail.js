@@ -24,6 +24,10 @@ import { askRow } from '../../components/ask-row.js';
 import { dirColor, finiteOrNull, screenerRowMap } from './shared.js';
 import { shortSession, usCloseSession } from './rrg.js';
 import { EARNINGS_CALENDAR } from '../../../data/artifact-registry.js';
+import { themeDayMoveRead, themeSpreadRead, themeBreadthRead } from '../../../domain/themes/theme-day-read.js';
+
+// The one-day readings' tones (src/domain/themes/theme-day-read.js) as the panel's text colours.
+const TONE_COLOR = Object.freeze({ muted: 'var(--text-muted)', neutral: 'var(--text-secondary)', favorable: 'var(--data-green)', caution: 'var(--data-amber)' });
 
 // v58.75 (persona review): the theme's representative ETF against SPY over the produced 100 sessions (rotationHistory
 // relativeStrength, rebased to 100 on the first session) — the line an RRG point summarises. No ETF, no chart.
@@ -664,16 +668,10 @@ export function renderThemeDetailTemperature({ documentRef, root, store, themeId
   heading.textContent = '테마 당일 등락 구간';
   heading.className = 'thp-detail-heading';
   const body = documentRef.createElement('div');
-  const pct = finite(detail.pct);
-  if (pct == null) body.textContent = '시세 대기 — 구성종목 가격이 확인되면 당일 등락을 표시합니다.';
-  else if (pct >= 3) body.textContent = '당일 +3% 이상 — 관측된 당일 등락 구간입니다. 과열·추세 지속은 별도 기간 근거가 필요합니다.';
-  else if (pct >= 1) body.textContent = '당일 +1% 이상 — 관측된 당일 등락 구간입니다. 시계열 모멘텀·자금 유입은 별도 근거가 필요합니다.';
-  // v59.45 R1-02: the flat band is symmetric (-1% < pct < +1%); +0.9% read 보합 while -0.05% read 하락.
-  else if (pct > -1) body.textContent = '당일 보합 — 관측된 당일 등락 구간입니다. 방향은 추가 가격·거래량으로 확인합니다.';
-  else if (pct > -2) body.textContent = '당일 -1% 이하 — 관측된 당일 등락 구간입니다. 원인(수급·로테이션)은 별도 근거가 필요합니다.';
-  else body.textContent = '당일 -2% 이하 — 관측된 당일 등락 구간입니다. 시계열 하락·구조 훼손은 별도 기간 근거가 필요합니다.';
+  const read = themeDayMoveRead(detail.pct);
+  body.textContent = read.text;
   body.className = 'thp-detail-body';
-  body.style.color = pct == null ? 'var(--text-muted)' : pct > -1 ? 'var(--text-secondary)' : 'var(--data-amber)';
+  body.style.color = TONE_COLOR[read.tone];
   host.replaceChildren(heading, body);
   host.hidden = false;
 }
@@ -700,11 +698,9 @@ export function renderThemeDetailSpread({ documentRef, root, store, themeId = nu
   if (rows.length < 2) {
     body.textContent = '시세 대기 — 최소 두 종목의 등락률이 확인되면 격차를 계산합니다.';
   } else {
-    const spread = rows[0].pct - rows[rows.length - 1].pct;
     // LC-38: a narrow day-level spread is not evidence that every constituent reacted to one
     // catalyst, nor a reason to prefer the ETF. State the measured dispersion only.
-    const level = spread > 5 ? '매우 큼 — 구성 종목 간 당일 등락 차가 큽니다.' : spread > 2 ? '보통 — 테마 전체 움직임과 종목별 차이가 함께 있습니다.' : '좁음 — 구성 종목의 당일 등락이 비슷합니다.';
-    body.textContent = `등락 편차 ${spread.toFixed(1)}%p (${level})`;
+    body.textContent = themeSpreadRead(rows[0].pct - rows[rows.length - 1].pct).text;
     const leaders = documentRef.createElement('div');
     leaders.textContent = `최강 ${rows[0].symbol} ${signedText(rows[0].pct, 2)}%, 최약 ${rows[rows.length - 1].symbol} ${rows[rows.length - 1].pct >= 0 ? '+' : ''}${rows[rows.length - 1].pct.toFixed(2)}%`;
     leaders.className = 'thp-spread-leaders';
@@ -736,12 +732,10 @@ export function renderThemeDetailBreadthHealth({ documentRef, root, store, theme
   const leaderList = Array.isArray(detail.leaders) ? detail.leaders : [];
   const priceEligible = leaderList.filter((symbol) => finite(detailQuote(detail, symbol)?.pct) != null).length;
   const basis = breadth == null ? '' : ` (가격 적격 ${priceEligible}/${leaderList.length})`;
-  if (breadth == null) body.textContent = '시세 대기 — 충분한 구성종목 가격이 확인되면 당일 가격 참여 폭을 계산합니다.';
-  else if (breadth >= 70) body.textContent = `상승 종목 ${breadth}%${basis}, 당일 가격 참여 폭 우수 — 관측된 당일 가격 참여이며 자금 유입·거래 주체의 증거가 아닙니다.`;
-  else if (breadth >= 50) body.textContent = `상승 종목 ${breadth}%${basis}, 당일 가격 참여 폭 보통 — 일부 종목 중심인지 선별이 필요합니다.`;
-  else body.textContent = `상승 종목 ${breadth}%${basis}, 당일 가격 참여 폭 취약 — 관측된 당일 가격 참여이며 추세 단정이 아닙니다.`;
+  const read = themeBreadthRead(breadth, basis);
+  body.textContent = read.text;
   body.className = 'thp-detail-body';
-  body.style.color = breadth == null ? 'var(--text-muted)' : breadth >= 70 ? 'var(--data-green)' : breadth >= 50 ? 'var(--text-secondary)' : 'var(--data-amber)';
+  body.style.color = TONE_COLOR[read.tone];
   host.replaceChildren(heading, body);
   host.hidden = false;
 }

@@ -12,6 +12,7 @@
 // one position-value formula. The old split formula could produce weights above 100% for valid
 // `{shares,currentPrice}` holdings.
 import { readNumber as finite } from '../shared/number.js';
+import { RULES } from '../rules/thresholds.js';
 export const PORTFOLIO_CONCENTRATION_MODEL_VERSION = 'portfolio-concentration.v2';
 
 
@@ -32,10 +33,16 @@ function firstField(position, keys) {
   return { key: null, parsed: { state: 'missing', value: null } };
 }
 
+// The tiers are RULES.portfolio (the lines every portfolio screen states); the points each tier adds to the legacy heat
+// score are this model's own weights. The band words live in concentration-bands.js.
+const TIERS = RULES.portfolio.holdingPct;
+const PENALTY = [5, 10, 18];
+
 export function concentrationPenaltyForWeight(weightPct) {
   const weight = finite(weightPct);
   if (weight == null || weight < 0) return 0;
-  return weight >= 25 ? 18 : weight >= 15 ? 10 : weight >= 10 ? 5 : 0;
+  // The penalty of the highest tier reached (index -1, below the first tier, reads 0).
+  return PENALTY[TIERS.filter((line) => weight >= line).length - 1] || 0;
 }
 
 // P1252 (CON-01/CON-03): 레거시 계약(js/aio-core.js calcPositionTechnicalRisk의 "Cost basis is historical context only" 주석: "Cost basis는 역사적 맥락일 뿐,

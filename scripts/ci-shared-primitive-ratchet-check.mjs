@@ -38,6 +38,12 @@
 //   sessionBranch   — a `… ? latestCompletedKrSession(…) : latestCompletedUsSession(…)` market branch anywhere in src/;
 //                     latestCompletedSession(market, now) in src/domain/market/market-calendar.js is the one branch.
 //
+// v59.88 (ADR-0003 S4, verdicts in domain): one more, so screens and the AI stop judging by their own lines:
+//   verdictLiteral  — in src/ui and src/ai, a comparison against a numeric literal other than 0 and ±1 (`pct > 40`,
+//                     `rsi >= 70`, `share > 0.25`), unless the left side is a length/size/width/height/count/index. Such a
+//                     number is a threshold the screen or the AI applies itself; the line belongs in
+//                     src/domain/rules/thresholds.js (or the domain reading that owns it) and the screen renders the result.
+//
 // Usage:
 //   node scripts/ci-shared-primitive-ratchet-check.mjs           # verify
 //   node scripts/ci-shared-primitive-ratchet-check.mjs --write   # record shrinks (growth is refused)
@@ -56,17 +62,20 @@ const NULL_AS_ZERO_RE = /Number\.isFinite\(Number\(/g;
 const ESCAPE_RE = /^\s*(?:export\s+)?(?:function\s+(?:esc|escHtml|escapeHtml|escapeHTML)\s*\(|const\s+(?:esc|escHtml|escapeHtml|escapeHTML)\s*=\s*(?:\(|[A-Za-z_]\w*\s*=>|function\b))/gm;
 const INDICATOR_RE = /^\s*(?:export\s+)?(?:function\s+(?:rsi|sma|ema)(?:[A-Z]\w*)?\s*\(|const\s+(?:rsi|sma|ema)(?:[A-Z]\w*)?\s*=\s*(?:\(|[A-Za-z_]\w*\s*=>|function\b))/gm;
 const PUBLIC_DATA_RE = /['"`]\.\/public-data\//g;
+const VERDICT_LITERAL_RE = /(?<!(?:length|size|[wW]idth|[hH]eight|[cC]ount|[iI]ndex)\)?\s*)(?<![=<>!])[<>]=?\s*-?(?:\d*\.\d+|[2-9]|\d{2,})(?![\w.])/g;
 const SESSION_BRANCH_RE = /latestCompletedKrSession\([^()]*(?:\([^()]*\))?[^()]*\)(?:\?\.date)?\s*:\s*(?:market\s*===\s*'US'\s*\?\s*)?latestCompletedUsSession\(/g;
 const REGISTRY_OWNER = 'src/data/artifact-registry.js';
 const SESSION_OWNER = 'src/domain/market/market-calendar.js';
-const METRICS = ['localFinite', 'dateRegex', 'rawRowRead', 'nullAsZero', 'localEscape', 'localIndicator', 'publicDataPath', 'dataPathLiteral', 'sessionBranch'];
-const METRIC_WORDS = { localEscape: 'local HTML escape copies', localIndicator: 'local SMA/EMA/RSI copies', publicDataPath: "'./public-data/' literals", dataPathLiteral: "'./public-data/' literals outside the artifact registry", sessionBranch: 'KR/US latest-session branches' };
+const METRICS = ['localFinite', 'dateRegex', 'rawRowRead', 'nullAsZero', 'localEscape', 'localIndicator', 'publicDataPath', 'dataPathLiteral', 'sessionBranch', 'verdictLiteral'];
+const VERDICT_SCOPES = ['src/ui/', 'src/ai/'];
+const METRIC_WORDS = { localEscape: 'local HTML escape copies', localIndicator: 'local SMA/EMA/RSI copies', publicDataPath: "'./public-data/' literals", dataPathLiteral: "'./public-data/' literals outside the artifact registry", sessionBranch: 'KR/US latest-session branches', verdictLiteral: 'threshold comparisons against numeric literals' };
 const METRIC_REMEDY = {
   localEscape: 'import the shared escape (src/ui/html.js; legacy escHtml until it lands) instead of defining esc',
   localIndicator: 'import smaSeries/emaSeries/rsiWilder from src/domain/technical/definitions.js',
   publicDataPath: 'request the artifact through src/data (loader descriptor owned there), not by path',
   dataPathLiteral: 'register the file in src/data/artifact-registry.js and read artifactUrl(id) / loadArtifact(root, id)',
   sessionBranch: 'call latestCompletedSession(market, now) from src/domain/market/market-calendar.js',
+  verdictLiteral: 'put the line in src/domain/rules/thresholds.js or the domain reading that owns it, and render its result',
 };
 const INDICATOR_OWNER = 'src/domain/technical/definitions.js';
 const ESCAPE_OWNER = 'src/ui/html.js';
@@ -77,7 +86,7 @@ const { SCREENER_FIELD_REGISTRY } = await import(pathToFileURL(join(root, 'src/d
 const ROW_KEYS = [...new Set(SCREENER_FIELD_REGISTRY.fields.filter((field) => field.type === 'number' && field.rowKey).map((field) => field.rowKey))];
 const ROW_READ_RE = new RegExp(String.raw`\b(?:row|r|member|stock|item|entry)\??\.(?:${ROW_KEYS.join('|')})\b`, 'g');
 
-export function countCopies(source, { rowReads = true, layered = rowReads, src = true, indicatorOwner = false, escapeOwner = false, dataLayer = false, sessionOwner = false } = {}) {
+export function countCopies(source, { rowReads = true, layered = rowReads, src = true, indicatorOwner = false, escapeOwner = false, dataLayer = false, sessionOwner = false, verdictScope = false } = {}) {
   const text = String(source);
   const n = (re) => (text.match(re) || []).length;
   return {
@@ -87,6 +96,7 @@ export function countCopies(source, { rowReads = true, layered = rowReads, src =
     publicDataPath: layered ? n(PUBLIC_DATA_RE) : 0,
     dataPathLiteral: dataLayer ? n(PUBLIC_DATA_RE) : 0,
     sessionBranch: src && !sessionOwner ? n(SESSION_BRANCH_RE) : 0,
+    verdictLiteral: verdictScope ? n(VERDICT_LITERAL_RE) : 0,
   };
 }
 
@@ -105,7 +115,7 @@ function measure() {
   for (const file of productFiles()) {
     const layered = ROW_READ_SCOPES.some((scope) => file.startsWith(scope));
     const dataLayer = (file.startsWith('src/data/') || file.startsWith('src/app/')) && file !== REGISTRY_OWNER;
-    const result = countCopies(readFileSync(join(root, file), 'utf8'), { rowReads: layered, layered, src: file.startsWith('src/'), indicatorOwner: file === INDICATOR_OWNER, escapeOwner: file === ESCAPE_OWNER, dataLayer, sessionOwner: file === SESSION_OWNER });
+    const result = countCopies(readFileSync(join(root, file), 'utf8'), { rowReads: layered, layered, src: file.startsWith('src/'), indicatorOwner: file === INDICATOR_OWNER, escapeOwner: file === ESCAPE_OWNER, dataLayer, sessionOwner: file === SESSION_OWNER, verdictScope: VERDICT_SCOPES.some((scope) => file.startsWith(scope)) });
     if (METRICS.some((metric) => result[metric])) counts[file] = result;
   }
   return counts;
@@ -153,6 +163,8 @@ if (isMain) {
     countCopies("const u = './public-data/x.json';", { rowReads: false, layered: false, dataLayer: true }).dataPathLiteral === 1,
     countCopies("const a = market === 'KR' ? latestCompletedKrSession(now) : latestCompletedUsSession(now, { requirePrevious: false });\nconst b = (market === 'KR' ? latestCompletedKrSession(Number(now))?.date : latestCompletedUsSession(Number(now)))?.date;").sessionBranch === 2,
     countCopies("return isKr ? latestCompletedKrSession(now) : latestCompletedUsSession(now);", { sessionOwner: true }).sessionBranch === 0,
+    countCopies("if (pct > 40 || rsi >= 70 || share > 0.25 || x <= -2) go();\nif (rows.length >= 6 || size > 3 || n > 0 || d < 1 || v >= -1) go();\nconst f = (v) => 60;", { verdictScope: true }).verdictLiteral === 4,
+    countCopies('if (pct > 40) go();').verdictLiteral === 0,
     compareToBaseline({ 'src/ui/b.js': { localEscape: 1 } }, {}).length === 1,
     compareToBaseline({ 'scripts/lib/a.mjs': { localFinite: 0, dateRegex: 0, rawRowRead: 0, nullAsZero: 1 } }, {}).length === 1,
     compareToBaseline({ 'src/ui/a.js': { localFinite: 0, dateRegex: 0, rawRowRead: 3 } }, { 'src/ui/a.js': { localFinite: 0, dateRegex: 0, rawRowRead: 2 } }).length === 1,
@@ -183,7 +195,7 @@ if (isMain) {
     writeFileSync(join(root, BASELINE_PATH), `${JSON.stringify({
       schemaVersion: 'aio-shared-primitive-baseline.v1',
       generatedBy: relative(root, fileURLToPath(import.meta.url)).split('\\').join('/'),
-      note: "Per-file counts in src/ and scripts/ (not ci-* gates or fixtures) of local finite readers, YYYY-MM-DD regex copies, Number.isFinite(Number(x)) null-as-zero checks, (src) local HTML escape and SMA/EMA/RSI copies, and (src domain/ui/ai) raw screener row field reads and './public-data/' literals. Shrink only; never raise a count or add a file.",
+      note: "Per-file counts in src/ and scripts/ (not ci-* gates or fixtures) of local finite readers, YYYY-MM-DD regex copies, Number.isFinite(Number(x)) null-as-zero checks, (src) local HTML escape and SMA/EMA/RSI copies, and (src domain/ui/ai) raw screener row field reads and './public-data/' literals, and (src ui/ai) threshold comparisons against numeric literals. Shrink only; never raise a count or add a file.",
       scopes: SCOPES,
       totals: total,
       counts,

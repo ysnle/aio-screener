@@ -1,9 +1,10 @@
 // Legacy unification (2026-10-26, roadmap item 11, screen 포트폴리오): the 익스포저·집중도 panel (#pf-exposure-panel) and
-// the stress panel placement (#pf-stress-panel) moved here from js/aio-workspace.js (v50.54 3D/3E). Texts, thresholds
-// (sector > 40%, top 3 > 60%, mean pairwise correlation > 0.70) and the base-currency weights (P1445, window._pfBaseValues)
-// are unchanged. refreshPortfolioRisk still collects the returns and history and calls the two window names that
+// the stress panel placement (#pf-stress-panel) moved here from js/aio-workspace.js (v50.54 3D/3E). The reading (shares,
+// bands, warnings) is src/domain/portfolio/exposure-panel.js on RULES.portfolio; this module collects the base-currency rows
+// (P1445, window._pfBaseValues) and renders. refreshPortfolioRisk still collects the returns and history and calls the two window names that
 // src/app/legacy-screen-bridges.js installs; the pairwise correlation is the same window._pfPearson its matrix uses.
 import { escapeHtml } from '../html.js';
+import { deriveExposurePanel } from '../../domain/portfolio/exposure-panel.js';
 
 
 export function renderPortfolioExposure(positions, returnsMap, { documentRef = globalThis.document, root = globalThis, corrRes = null } = {}) {
@@ -25,68 +26,25 @@ export function renderPortfolioExposure(positions, returnsMap, { documentRef = g
   const total = surf.totalAssets != null && isFinite(surf.totalAssets) && surf.totalAssets >= posSum && surf.totalAssets > 0 ? surf.totalAssets : posSum;
   const basisNote = total === posSum ? '주식 부분 중' : '현금 포함 총자산 대비';
   if (total <= 0) { el.innerHTML = root._pfBaseNote(base); return; }
-  rows.forEach((r) => { r.w = r.value / total; });
-  const secLabel = typeof root._aioPortfolioSectorLabel === 'function' ? root._aioPortfolioSectorLabel : (s) => s;
-  // v59.45 (R1-03): an ETF (screener index/sector 'ETF', the rule the native 점검 uses for topIsEtf) is many companies and a
-  // holding without a screener sector is unclassified — neither is a sector. SPY 40 + QQQ 25 read 'ETF 섹터 65% 집중',
-  // the opposite of the 점검 card on the same screen. Both stay on the list, named, but only real sectors are counted
-  // and warned on.
-  const isEtf = (r) => !!r.stock && (r.stock.index === 'ETF' || r.stock.sector === 'ETF');
-  // v59.53: instrument type and sector exposure are separate axes; a sector ETF retains its sector.
-  const kindOf = (r) => (r.stock?.sector && r.stock.sector !== 'ETF' ? 'sector' : isEtf(r) ? 'etf' : 'none');
-  const bySec = {};
-  const secKind = {};
-  rows.forEach((r) => {
-    const kind = kindOf(r);
-    const sec = kind === 'etf' ? 'ETF(여러 업종 묶음)' : kind === 'none' ? '미분류' : secLabel(r.stock.sector);
-    bySec[sec] = (bySec[sec] || 0) + r.w;
-    secKind[sec] = kind;
-  });
-  const secArr = Object.keys(bySec).map((k) => [k, bySec[k]]).sort((a, b) => b[1] - a[1]);
-  const realSecArr = secArr.filter((s) => secKind[s[0]] === 'sector');
-  const top3Rows = rows.slice().sort((a, b) => b.w - a.w).slice(0, 3);
-  const top3 = top3Rows.reduce((s, r) => s + r.w, 0);
-  const top3Etf = top3Rows.filter(isEtf).length;
-  const ranked = rows.filter((r) => r.stock && typeof r.stock.rank === 'number');
-  const wr = ranked.reduce((s, r) => s + r.w, 0);
-  const avgRank = wr > 0 ? Math.round(ranked.reduce((s, r) => s + r.stock.rank * r.w, 0) / wr) : null;
-  // The rank average is over the ranked holdings only; its coverage of the holdings is printed beside it.
-  const rankCoverage = posSum > 0 ? Math.round(ranked.reduce((s, r) => s + (r.value || 0), 0) / posSum * 100) : null;
-  // Mean pairwise correlation. v59.59 (logic refactor): from the risk panel's own matrix when it is passed — its KR–US
-  // cells are weekly (non-synchronous closes understate daily co-movement), so the daily average here read lower than
-  // the matrix beside it. The daily fallback stays for a caller without the matrix.
-  const tk = Object.keys(returnsMap || {});
-  let cs = 0; let cn = 0;
-  const matrix = Array.isArray(corrRes?.matrix) ? corrRes.matrix : null;
-  if (matrix) {
-    for (let a = 0; a < matrix.length; a++) for (let b = a + 1; b < matrix.length; b++) { const c = matrix[a]?.[b]; if (typeof c === 'number' && Number.isFinite(c)) { cs += c; cn++; } }
-  } else for (let a = 0; a < tk.length; a++) {
-    for (let b = a + 1; b < tk.length; b++) {
-      const c = root._pfPearson(returnsMap[tk[a]], returnsMap[tk[b]]);
-      if (c != null) { cs += c; cn++; }
-    }
-  }
-  const avgCorr = cn > 0 ? cs / cn : null;
-  const warns = [];
-  if (realSecArr.length && realSecArr[0][1] > 0.40) warns.push(`${realSecArr[0][0]} 섹터 ${Math.round(realSecArr[0][1] * 100)}% 집중(>40%)`);
-  if (top3 > 0.60) warns.push(`상위 3종목 ${Math.round(top3 * 100)}% 집중(>60%${top3Etf ? `, ETF ${top3Etf}개 포함` : ''})`);
-  if (avgCorr != null && avgCorr > 0.7) warns.push(`평균 상관 ${avgCorr.toFixed(2)} — 분산효과 약함(>0.70)`);
-  const secHtml = secArr.slice(0, 5).map((s) => {
-    const tone = secKind[s[0]] !== 'sector' ? ' is-plain' : s[1] > 0.4 ? ' is-over' : s[1] > 0.25 ? ' is-near' : ' is-within';
-    return `<div class="wsl-xp-kv wsl-fs-sm"><span class="wsl-dim">${escapeHtml(s[0])}</span><span class="wsl-b${tone}">${Math.round(s[1] * 100)}%</span></div>`;
+  const model = deriveExposurePanel({ rows, total, posSum, corrMatrix: Array.isArray(corrRes?.matrix) ? corrRes.matrix : null, returnsMap, pearson: root._pfPearson,
+    sectorLabel: typeof root._aioPortfolioSectorLabel === 'function' ? root._aioPortfolioSectorLabel : (s) => s });
+  const { avgCorr, avgRank, rankCoverage, top3 } = model;
+  const secHtml = model.sectors.slice(0, 5).map((s) => {
+    const tone = s.band ? ` is-${s.band}` : ' is-plain'; // over · near · within are the band words
+    return `<div class="wsl-xp-kv wsl-fs-sm"><span class="wsl-dim">${escapeHtml(s.name)}</span><span class="wsl-b${tone}">${Math.round(s.share * 100)}%</span></div>`;
   }).join('');
   el.innerHTML =
     `<div class="wsl-head">익스포저, 집중도 <span class="wsl-w500">(${basisNote})</span></div>` +
     '<div class="wsl-xp-cols">' +
       `<div>${secHtml}</div>` +
       '<div class="wsl-fs-sm">' +
-        `<div class="wsl-xp-kv"><span class="wsl-dim">상위3 집중</span><span class="wsl-b${top3 > 0.6 ? ' is-over' : ' is-plain'}">${Math.round(top3 * 100)}%</span></div>` +
+        `<div class="wsl-xp-kv"><span class="wsl-dim">상위3 집중</span><span class="wsl-b${model.top3Over ? ' is-over' : ' is-plain'}">${Math.round(top3 * 100)}%</span></div>` +
         `<div class="wsl-xp-kv"><span class="wsl-dim">평균 상관</span><span class="wsl-b">${avgCorr != null ? avgCorr.toFixed(2) : '—'}</span></div>` +
         `<div class="wsl-xp-kv"><span class="wsl-dim">평균 퀀트 랭크</span><span class="wsl-b">${avgRank != null ? `${avgRank}${rankCoverage != null && rankCoverage < 100 ? ` (랭크 확인 ${rankCoverage}%)` : ''}` : '—'}</span></div>` +
-        `<div class="wsl-xp-kv"><span class="wsl-dim">종목/섹터 수</span><span class="wsl-b">${rows.length}/${realSecArr.length}</span></div>` +
+        `<div class="wsl-xp-kv"><span class="wsl-dim">종목/섹터 수</span><span class="wsl-b">${model.holdings}/${model.sectorCount}</span></div>` +
       '</div>' +
     '</div>' +
-    (warns.length ? `<div class="wsl-xp-note is-warn">${warns.map(escapeHtml).join(', ')}</div>` : '<div class="wsl-xp-note is-ok">집중도·상관 한도 내</div>');
+    (model.warnings.length ? `<div class="wsl-xp-note is-warn">${model.warnings.map(escapeHtml).join(', ')}</div>` : `<div class="wsl-xp-note is-ok">${model.clearNote}</div>`);
   el.insertAdjacentHTML('beforeend', root._pfBaseNote(base)); // P1445
 }
 

@@ -4,7 +4,7 @@
 import { drawChart, ensureChartLibrary, openMarketChart } from './stock-chart.js';
 import { attachChartLayers } from './stock-chart-layers.js';
 import { buildChartLayers } from '../../domain/technical/chart-layers.js';
-import { barsFromYahoo, completedBars } from './chart-bars.js';
+import { barsFromYahoo, completedBars } from '../../data/chart-bars.js';
 import { chartPalette } from './color-theme.js';
 import { el } from './dom.js';
 

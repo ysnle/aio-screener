@@ -5264,21 +5264,21 @@
     _assert('T774 v57.62 websearch_citations: native 인용 렌더(engine:claude)+통합 패널 요청별 인용 표시+스트리밍 수집', t774ok, t774detail);
 
     // ── v50.12: 기술적 분석 채팅 데이터 주입 — 기존 OHLCV 엔진 재사용 ──
-    // T775: _fetchTechnicalDataForChat 정의 + chatSend 배선(v50.38: 티커 감지 시 전 컨텍스트) + calcTechnicalSnapshot 엔진 활용 (소스 검증, 네트워크 비의존)
+    // T775: _fetchTechnicalDataForChat 정의 + chatSend 배선(v50.38: 티커 감지 시 전 컨텍스트) + 차트 화면 판정 위임(AIO.chatTechnicalBlock, 소스 검증)
     var t775ok = false, t775detail = '';
     try {
       var fnDef = typeof window._fetchTechnicalDataForChat === 'function';
-      var engineOk = typeof window.calcTechnicalSnapshot === 'function' && (typeof window.fetchOHLCVWithFallback === 'function' || typeof window.fetchOHLCV === 'function');
+      var engineOk = !!(window.AIO && typeof window.AIO.chatTechnicalBlock === 'function');
       var fnSrc = fnDef ? String(window._fetchTechnicalDataForChat) : '';
       // 헬퍼가 엔진 재사용 + 핵심 지표 라벨 포함
-      var reuseOk = /calcTechnicalSnapshot/.test(fnSrc) && /fetchOHLCVWithFallback|fetchOHLCV/.test(fnSrc) &&
-        /RSI\(14\)/.test(fnSrc) && /Stage/.test(fnSrc) && /이동평균/.test(fnSrc);
+      var reuseOk = /AIO\.chatTechnicalBlock/.test(fnSrc) && !/calcTechnicalSnapshot|fetchOHLCV/.test(fnSrc) &&
+        /signal:\s*opts\.signal/.test(fnSrc) && /autoMarket/.test(fnSrc);
       // v57.62: chatSendUnified (only chat path; per-page chatSend retired) injects technicals for detected tickers in every context, wrapped as untrusted data
       var csSrc = (typeof chatSendUnified === 'function') ? String(chatSendUnified) : '';
       var technicalPromptWrapped = /_wrapUnifiedExternal\(\s*['"]TECHNICAL_ENRICHMENT['"]\s*,\s*_uniTechnicalStr/.test(csSrc);
       var wiredOk = /_fetchTechnicalDataForChat\(_uniTechTickers,\s*\{[^}]*signal:\s*_uniSignal/.test(csSrc) && technicalPromptWrapped;
       t775ok = fnDef && engineOk && reuseOk && wiredOk;
-      t775detail = 'fnDef=' + fnDef + ' engine=' + engineOk + ' reuse(snapshot+ohlcv+RSI+Stage)=' + reuseOk + ' wired(unified,prompt=' + (technicalPromptWrapped ? 'wrapped' : 'missing') + ')=' + wiredOk;
+      t775detail = 'fnDef=' + fnDef + ' engine=' + engineOk + ' delegate(chart fact sheet)=' + reuseOk + ' wired(unified,prompt=' + (technicalPromptWrapped ? 'wrapped' : 'missing') + ')=' + wiredOk;
     } catch(e) { t775detail = 'err: ' + (e && e.message); }
     _assert('T775 v57.62 technical_chat_data: _fetchTechnicalDataForChat 엔진 재사용 + chatSendUnified technical 배선', t775ok, t775detail);
 
@@ -6267,8 +6267,8 @@
         syms827.indexOf('SPY') >= 0 && syms827.indexOf('QQQ') >= 0 &&
         csSrc827.indexOf('autoMarket: detectedTickers.length === 0') >= 0 &&
         csSrc827.indexOf('_aioTechnicalSymbolsForChat(ctxId, q, detectedTickers)') >= 0 &&
-        techSrc827.indexOf('데이터 품질') >= 0 &&
-        techSrc827.indexOf('dataQuality') >= 0 &&
+        techSrc827.indexOf('chatTechnicalBlock') >= 0 &&
+        techSrc827.indexOf('autoMarket') >= 0 &&
         reg827.some(function(s) { return s.key === 'technicalOHLCV' && s.fn === '_fetchTechnicalDataForChat' && s.tier === 'technical'; }) &&
         audit827 && audit827.status === 'ok' && audit827.unused === 0);
       t827detail = JSON.stringify({
