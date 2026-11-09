@@ -1,5 +1,5 @@
 // P1624: one route-owned, identity-checked public chart response supplies quote and history.
-import { canonicalEpochMs } from '../chart/contract.js';
+import { canonicalEpochMs } from '../technical/chart-contract.js';
 import { finiteNumber as finite } from '../shared/number.js';
 
 const positive = value => finite(value) > 0 ? value : null;

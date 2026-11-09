@@ -309,8 +309,8 @@ if (data?.marketAnalysis) {
 }
 
 // ── P1094 : the visible breakdown must reconstruct the visible total ────────
-const domain = await import(pathToFileURL('src/domain/signal/trading-score.js').href).catch(() => null);
-check('trading score exposes a reconcilable breakdown', !!domain && /scoreBreakdown/.test(read('src/domain/signal/trading-score.js')));
+const domain = await import(pathToFileURL('src/domain/market/signal/trading-score.js').href).catch(() => null);
+check('trading score exposes a reconcilable breakdown', !!domain && /scoreBreakdown/.test(read('src/domain/market/signal/trading-score.js')));
 if (domain) {
   const golden = json('architecture/fixtures/trading-score-golden.json');
   const resolveInputs = (inputs) => {
@@ -573,4 +573,4 @@ if (errors.length) {
 }
 console.log('Artifact semantics OK: macro freshness, history vintage timestamps, operational vocabulary, narrative evidence lineage, and score reconciliation.');
 
-import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';

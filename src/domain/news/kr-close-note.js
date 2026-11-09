@@ -1,7 +1,7 @@
 // v58.74: an intraday KOSPI/KOSDAQ crash or surge headline ("코스피 5,500선 붕괴", 10/23 09:19 KST) carries that session's
 // completed close when the close reversed it (+0.30%), so it reads as the intraday move it was.
-import { buildCloseSeries } from '../market/close-series.js';
-import { countOpenSessionsBetween, resolveMarketCalendarSession } from '../market/market-calendar.js';
+import { buildCloseSeries } from '../market/session/close-series.js';
+import { countOpenSessionsBetween, resolveMarketCalendarSession } from '../market/session/market-calendar.js';
 
 const DOWN = /폭락|급락|최대\s*낙폭|패닉|붕괴|투매|와르르|plung|crash|tumbl|\brout\b/i;
 const UP = /폭등|급등|soar|surg/i;

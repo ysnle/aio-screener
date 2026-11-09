@@ -13,8 +13,8 @@ import { relativeBand, rrgRecentReading } from '../../domain/themes/recent-check
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { RRG_QUADRANT_WORDS, RRG_RATIO_SESSIONS, RRG_MOMENTUM_LAG } from '../../domain/themes/rrg.js';
 import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
-import { CHOICES } from '../../domain/market/macro-crossroads.js';
-import { scenarioLead } from '../../domain/market/scenario-lead.js';
+import { CHOICES } from '../../domain/market/regime/macro-crossroads.js';
+import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { stageChoiceText, LEAD_CONFIRM_MET, ABOVE50_FLOOR } from '../../domain/scenarios/theme-playbook.js';
 
@@ -47,7 +47,7 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { themePlaybookForRoot } from './theme-playbook.js';
 import { setResearchHandoff } from '../../app/research-handoff.js';
 import { el } from './dom.js';
-import { SECTOR_ETF_LABELS } from '../../domain/interpretation/concepts.js';
+import { SECTOR_ETF_LABELS } from '../../domain/market/interpretation/concepts.js';
 import { closeChipText, frameHead, markFrame, setAsOf } from './section-frame.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
 import { NOTE_TITLES, researchForTheme } from '../../domain/knowledge/theme-research-links.js';

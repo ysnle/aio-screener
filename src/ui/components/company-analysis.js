@@ -5,7 +5,7 @@
 import { buildCompanyAnalysis } from '../../domain/entity/company-analysis.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { parseFiscalHistory, requestFiscalHistory, dartLink } from './fiscal-read.js';
-import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
+import { koreanThemeGroups } from '../../domain/market/korea/korea-participation.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { krFundamentalPoints } from '../../domain/entity/kr-fundamentals.js';
 import { ARTIFACT_FRESHNESS } from '../../data/contracts/artifact-freshness.js';

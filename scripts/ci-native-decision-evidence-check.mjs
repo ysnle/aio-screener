@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { createRuntimeReaders, buildRuntimeObservationCatalog } from '../src/data/runtime-readers.js';
-import { computeTradingScoreModel } from '../src/domain/signal/trading-score.js';
+import { computeTradingScoreModel } from '../src/domain/market/signal/trading-score.js';
 import { computeNewsSentimentScore } from '../src/domain/news/scoring.js';
 
 const ids = [

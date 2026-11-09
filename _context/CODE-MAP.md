@@ -49,7 +49,7 @@ current_checkpoint: P963 correlated public-AI browser request plus ticker empty-
 | `src/ai/intent/taxonomy.js` | 83 | AIQ-1 typed intent taxonomy/routing |
 | `src/ai/entity/resolver.js` | 51 | AIQ-1 entity alias/ticker resolution |
 | `src/ai/time/market-session.js` | 132 | AIQ-1 current-question market session evidence (the pure calendar names are re-exported from the domain module) |
-| `src/domain/market/market-calendar.js` | 210 | pure NYSE/KRX calendar: registered holidays and half-days, latest completed US/KR session (`eodConfirmed`), holiday-aware session counts; imports nothing |
+| `src/domain/market/session/market-calendar.js` | 210 | pure NYSE/KRX calendar: registered holidays and half-days, latest completed US/KR session (`eodConfirmed`), holiday-aware session counts; imports nothing |
 | `src/ai/evidence/graph.js` | 28 | AIQ-2 evidence graph/completeness boundary (파일 없음 — 2026-11-04 재스캔) |
 | `src/ai/analysis/causal.js` | 24 | AIQ-4 temporal/cross-asset causal attribution primitive |
 | `src/ai/policy/suitability.js` | 10 | AIQ-2 action/suitability permission boundary |
@@ -75,7 +75,12 @@ current_checkpoint: P963 correlated public-AI browser request plus ticker empty-
 `src/state/{slices,selectors}` contains entity, portfolio, screener, and
 analysis slices. Their commands/providers/normalizers/orchestrators live under
 `src/app/commands` and `src/data/{providers,normalize,orchestrators}`.
-Pure models are under `src/domain/{market,macro,technical,portfolio,screener,news,signal,home}`;
+Pure models are under `src/domain/{market,macro,technical,portfolio,screener,news,instruments,...}`. Since v59.88 (ADR-0003 S7)
+`src/domain/market/` is split by subject: `session/` (exchange calendar, session time, windows, close series, quote
+currentness), `indices/` (history rows, index levels and earnings, benchmarks, sector map), `breadth/`, `korea/`,
+`regime/` (axes, scenarios, leadership, lean, flow), `story/` (market story, synthesis, timeline, page flow), `day/`,
+`signal/`, `sentiment/` and `interpretation/`. Ticker identity (name resolution, nicknames, question words, symbol
+folding, instrument registry, 13F CUSIP crosswalk) is `src/domain/instruments/`; company stories stay in `entity/`;
 AI contracts are under `src/ai/{context,retrieval,provider,websearch,response}`;
 privacy/release/retirement contracts are `src/storage/*` and
 `architecture/{asset-manifest,retirement-manifest}.json`.
@@ -118,7 +123,7 @@ benchmark-relative-strength remains visible as missing evidence.
 
 ### P761-P780 continuation (2026-07-22)
 
-- `src/domain/signal/trading-score.js` owns the `signal-from-trading-score.v1` decision envelope; `src/domain/signal/decision.js`, `src/domain/market/model.js`, and `src/domain/screener/ranking.js` are retired.
+- `src/domain/market/signal/trading-score.js` owns the `signal-from-trading-score.v1` decision envelope; `src/domain/signal/decision.js`, `src/domain/market/model.js`, and `src/domain/screener/ranking.js` are retired.
 - `src/domain/screener/factor-weights.js` owns neutral/risk-on/risk-off/profile weight resolution. `src/app/trader-profiles.js:_aioFactorWeights` (moved out of js/aio-data.js in v59.40) is a storage/profile bridge only.
 - `src/app/bootstrap.js:getScreenerRows` is the native screener read API. `_aioGetCanonicalScreenerRows()` is the legacy compatibility adapter used by portfolio, ticker, fundamental, chat, watchlist, and audit consumers.
 - `SCREENER_DB` remains the curated identity/memo and legacy data-pipeline compatibility boundary. Its direct non-route reads and runtime factor projection were retired; remaining work is to migrate the identity/memo producers and remove the remaining compatibility surface when their consumers are cut over.

@@ -156,7 +156,7 @@
       "contestedIds": [],
       "legacyWriterEvidence": [],
       "p1207Boundary": "sentiment.js and entity.js consume the same ^SKEW quote observation (market.volatility.skew/index, observedAt, revisionId) for the sentiment cards (the options route retired in v56.79); the legacy sentiment data-snap SKEW writer is deleted.",
-      "notes": "W01-B (2026-09-19): sentiment narrative cut over to the single ViewModel (src/domain/sentiment/narrative.js + src/ui/pages/sentiment.js). Legacy `_generateSentimentAnalysis`/`_updateSentimentActionGuides` are inert stubs and the aio-data.js deferred timers are removed; sent-analysis-text is native from the same revision as the P/C card. Static numeric seeds replaced with fail-closed placeholders. P1207 adds one typed SKEW observation shared with options."
+      "notes": "W01-B (2026-09-19): sentiment narrative cut over to the single ViewModel (src/domain/market/sentiment/narrative.js + src/ui/pages/sentiment.js). Legacy `_generateSentimentAnalysis`/`_updateSentimentActionGuides` are inert stubs and the aio-data.js deferred timers are removed; sent-analysis-text is native from the same revision as the P/C card. Static numeric seeds replaced with fail-closed placeholders. P1207 adds one typed SKEW observation shared with options."
     },
     "briefing": {
       "lifecycleOwner": "native",

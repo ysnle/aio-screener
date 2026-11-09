@@ -1,9 +1,9 @@
-import { buildKoreaParticipation } from '../../domain/market/korea-participation.js';
+import { buildKoreaParticipation } from '../../domain/market/korea/korea-participation.js';
 import { koreaMoveRecord } from '../../domain/briefing/market-read.js';
 import { heavyweightLine } from '../../domain/themes/group-strength.js';
 import { el } from './dom.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { buildKrInvestorFlowView, formatEok } from '../../domain/market/kr-investor-flows.js';
+import { buildKrInvestorFlowView, formatEok } from '../../domain/market/korea/kr-investor-flows.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { dataState } from './data-state.js';
 import { KR_INVESTOR_FLOWS } from '../../data/artifact-registry.js';

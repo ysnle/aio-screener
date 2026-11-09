@@ -1,4 +1,4 @@
-import { latestCompletedUsSession } from '../market/market-calendar.js';
+import { latestCompletedUsSession } from '../market/session/market-calendar.js';
 import { isFiniteNumber as finite } from '../shared/number.js';
 
 // P1358: consume durable derived evidence; do not fabricate price histories.

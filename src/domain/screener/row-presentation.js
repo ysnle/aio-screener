@@ -2,7 +2,7 @@
 // staleness and held-ranking copy). No DOM, network or storage — src/ui/pages/screener.js re-exports these names
 // for the gates that import them from the page.
 import { readRowNumber } from '../../data/contracts/screener.js';
-import { latestCompletedSession } from '../market/market-calendar.js';
+import { latestCompletedSession } from '../market/session/market-calendar.js';
 import { finiteNumber as finite } from '../shared/number.js';
 
 

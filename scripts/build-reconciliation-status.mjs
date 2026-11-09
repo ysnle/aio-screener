@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { createReconciliationStatus, validateReconciliationStatus } from '../src/data/contracts/reconciliation.js';
 import { CRITICAL_DATA_GAP_REGISTRY, DATA_SOURCE_REGISTRY, sourceContractFor } from '../src/data/contracts/source-registry.js';
-import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 
 export const RECONCILIATION_STATUS_OUT = new URL('../public-data/reconciliation-status.json', import.meta.url);
 

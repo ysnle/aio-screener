@@ -108,7 +108,7 @@ export const cases = [
       assert.match(coverage.lines[0], /80% 이상/);
   } },
   { id: 'P25-TICKER-01', name: '명시한 .KQ 접미사도 6자리 단축코드로 같은 발행사 이름을 붙인다(단축코드는 시장 간 고유)', run: async ({ load }) => {
-      const { tickerDisplayName } = await load('src/domain/entity/ticker-symbol.js');
+      const { tickerDisplayName } = await load('src/domain/instruments/ticker-symbol.js');
       assert.equal(tickerDisplayName('005930.KS', { krStockDb: { '005930': { name: '삼성전자' } } }), '삼성전자');
   } },
   { id: 'P25-SOURCE-01', name: '자격 정보가 든 https 링크는 사업 설명 출처로 인정하지 않는다(기업 분석과 같은 규칙)', run: async ({ load }) => {

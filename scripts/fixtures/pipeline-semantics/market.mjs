@@ -21,8 +21,8 @@ export const cases = [
     assert.equal(temperatureStateLabel({ state: 'hot', cold: 0, hot: 3 }), '강한 과열');
   } },
   { id: 'RUN6-SMH-01', name: 'the money-flow SMH move is the completed history close the 주도 영역 line prints, not a later rotation bar', run: async ({ load }) => {
-    const { buildMarketFlow } = await load('src/domain/market/market-flow.js');
-    const { sessionMove } = await load('src/domain/market/leadership-verdict.js');
+    const { buildMarketFlow } = await load('src/domain/market/regime/market-flow.js');
+    const { sessionMove } = await load('src/domain/market/regime/leadership-verdict.js');
     const history = [{ date: '2026-10-21', smh: 100, tnx: 4.17 }, { date: '2026-10-22', smh: 93, tnx: 4.11 }];
     const flow = buildMarketFlow({ rotationHistory: rotation({ ...ELEVEN, SMH: -8.4 }), history, nowMs: Date.parse('2026-10-23T01:00:00Z') });
     const semis = sessionMove(history, 'smh', '2026-10-22');
@@ -30,7 +30,7 @@ export const cases = [
     assert.doesNotMatch(flow.line, /-8\.4%/);
   } },
   { id: 'RUN6-10Y-01', name: 'the money-flow 10-year change is tenYearClose of the same history (one source for the figure)', run: async ({ load }) => {
-    const { buildMarketFlow } = await load('src/domain/market/market-flow.js');
+    const { buildMarketFlow } = await load('src/domain/market/regime/market-flow.js');
     const { tenYearClose } = await load('src/domain/macro/rates-fx.js');
     const history = [{ date: '2026-10-20', spx: 1, tnx: 4.20 }, { date: '2026-10-21', spx: 1, tnx: 4.17 }, { date: '2026-10-22', spx: 1, tnx: 4.11 }];
     const flow = buildMarketFlow({ rotationHistory: rotation(ELEVEN), history, nowMs: Date.parse('2026-10-23T01:00:00Z') });
@@ -38,7 +38,7 @@ export const cases = [
     assert.equal(flow.tenYearBp, -6);
   } },
   { id: 'RUN6-TIE-02', name: 'a tie in the scenario model reads as a tie everywhere: no single lead, every tied branch named, no alternative', run: async ({ load }) => {
-    const { scenarioLead } = await load('src/domain/market/scenario-lead.js');
+    const { scenarioLead } = await load('src/domain/market/regime/scenario-lead.js');
     const { liveBranches } = await load('src/domain/briefing/event-guide.js');
     const items = [{ id: 'aibust', title: 'AI 투자 꺾임 — x', fit: '조건 충족 2/4' }, { id: 'oilshock', title: '유가 충격 — y', fit: '조건 충족 2/4' }, { id: 'reflation', title: '재가속 — z', fit: '조건 충족 1/4' }];
     const tie = { available: true, leadId: 'oilshock', altId: 'reflation', tiedIds: ['aibust', 'oilshock'], items };
@@ -50,13 +50,13 @@ export const cases = [
     assert.equal(scenarioLead({ ...tie, held: true }).state, 'held');
   } },
   { id: 'P16-TIME-01', name: '특별 개장(10:00) 날 09:30은 정규장이 아니라 개장 전이다', run: async ({ load }) => {
-    const { marketClock } = await load('src/domain/market/session-bridge.js');
+    const { marketClock } = await load('src/domain/market/session/session-bridge.js');
     assert.equal(marketClock(Date.parse('2026-11-19T09:30:00+09:00')).kr.phase, 'before');
     assert.equal(marketClock(Date.parse('2026-11-19T10:05:00+09:00')).kr.phase, 'regular');
     assert.equal(marketClock(Date.parse('2026-11-18T09:30:00+09:00')).kr.phase, 'regular');
   } },
   { id: 'P16-TIME-02', name: '다른 세션의 코스닥·반도체 ETF는 한국장 원인 비교에 쓰지 않는다', run: async ({ load }) => {
-    const { koreaLinks } = await load('src/domain/market/session-bridge.js');
+    const { koreaLinks } = await load('src/domain/market/session/session-bridge.js');
     const common = { kospi: { change: 1, observedAt: '2026-10-28T06:30:00Z' }, nasdaq: { change: 1, observedAt: '2026-10-27T20:00:00Z' } };
     const aligned = koreaLinks({ ...common, kosdaq: { change: 1, observedAt: '2026-10-28T06:30:00Z' } });
     const mixed = koreaLinks({ ...common, kosdaq: { change: -8, observedAt: '2026-10-26T06:30:00Z' }, semis: { change: 20, observedAt: '2026-10-29T20:00:00Z' } });
@@ -65,7 +65,7 @@ export const cases = [
     assert.doesNotMatch(mixed.find((row) => row.id === 'local').evidence, /코스닥/);
   } },
   { id: 'P16-TIME-03', name: '현재보다 뒤의 선물 관측은 0분 전이 아니라 시각 확인 안 됨이다', run: async ({ load }) => {
-    const { buildSessionBridge } = await load('src/domain/market/session-bridge.js');
+    const { buildSessionBridge } = await load('src/domain/market/session/session-bridge.js');
     const out = buildSessionBridge({ nowMs: Date.parse('2026-10-28T08:00:00Z'), snapshot: { generatedAt: '2026-10-29T08:00:00Z', quotes: [{ instrumentId: 'NQ=F', value: 22000, changePct: 2, observedAt: '2026-10-29T08:00:00Z' }] } });
     assert.equal(out.readings.nq.ageMin, null);
     assert.equal(out.snapshotAgeMin, null);
@@ -73,43 +73,43 @@ export const cases = [
     assert.match(out.futuresLine, /관측 시각 확인 안 됨/);
   } },
   { id: 'P16-RANK-01', name: '표본 밖 최댓값의 백분위는 100을 넘지 않는다', run: async ({ load }) => {
-    const { recordPercentile } = await load('src/domain/market/close-series.js');
+    const { recordPercentile } = await load('src/domain/market/session/close-series.js');
     const series = Array.from({ length: 30 }, (_, i) => ({ date: `2026-09-${String(i + 1).padStart(2, '0')}`, value: i }));
     assert.equal(recordPercentile(series, 99).pct, 100);
     assert.equal(recordPercentile(series).pct, 100);
   } },
   { id: 'P16-USE-01', name: "생산자가 allowedUse 'none'을 주면 reference로 넓히지 않는다", run: async ({ load }) => {
-    const { deriveQuotePresentation } = await load('src/domain/market/quote-presentation.js');
+    const { deriveQuotePresentation } = await load('src/domain/market/session/quote-presentation.js');
     const out = deriveQuotePresentation({ symbol: 'X', price: 10, quoteEnvelope: { value: 10, observedAt: '2026-10-28T20:00:00Z', allowedUse: 'none' } });
     assert.notEqual(out?.allowedUse, 'reference');
   } },
   { id: 'P17-BREADTH-01', name: '관측 시각 없는 한국 시장 폭은 검증 통과가 아니다', run: async ({ load }) => {
-    const { readScreenerBreadth } = await load('src/domain/market/screener-breadth.js');
+    const { readScreenerBreadth } = await load('src/domain/market/breadth/screener-breadth.js');
     const out = readScreenerBreadth({ schemaVersion: '1.0', segments: { us: segment, kr: { ...segment, observedAt: undefined } } }, Date.parse('2026-10-29T00:00:00Z'));
     assert.equal(out.kr, null);
     assert.equal(out.krState.status, 'blocked');
     assert.equal(out.state.status, 'verified_current');
   } },
   { id: 'P17-BREADTH-02', name: '오래된 S&P 500 모집단이 최신 미국 모집단을 막지 않는다', run: async ({ load }) => {
-    const { readScreenerBreadth } = await load('src/domain/market/screener-breadth.js');
+    const { readScreenerBreadth } = await load('src/domain/market/breadth/screener-breadth.js');
     const out = readScreenerBreadth({ schemaVersion: '1.0', segments: { us: segment, kr: segment, sp500: { ...segment, observedAt: '2026-10-01T20:00:00Z' } } }, Date.parse('2026-10-29T00:00:00Z'));
     assert.equal(out.state.status, 'verified_current');
     assert.equal(out.us.generatedAt, segment.observedAt);
     assert.ok(out.kr);
   } },
   { id: 'P17-MAP-01', name: '거래대금 미확인은 회전율 0으로 시가총액을 버리지 않는다', run: async ({ load }) => {
-    const { buildSectorMap } = await load('src/domain/market/sector-map.js');
+    const { buildSectorMap } = await load('src/domain/market/indices/sector-map.js');
     const rows = Array.from({ length: 20 }, (_, i) => ({ sym: `TEST${i}`, sector: 'Technology', index: 'SP500', referenceMarketCap: { billions: 1 }, ret1d: 1, factorSessionDate: '2026-10-28' }));
     assert.equal(buildSectorMap({ rows }).available, true);
   } },
   { id: 'P17-CONSENSUS-01', name: '결측 시장 폭 세 개는 강세 합의가 아니다', run: async ({ load }) => {
-    const { diagnoseBreadthConsensus } = await load('src/domain/market/breadth-consensus.js');
+    const { diagnoseBreadthConsensus } = await load('src/domain/market/breadth/breadth-consensus.js');
     const registry = { BREADTH: { getLabel: (v) => ({ signal: v === 0 ? 'capitulation' : 'mixed', label: 'fixture' }) } };
     assert.equal(diagnoseBreadthConsensus({ sma5: null, sma20: null, sma50: '' }, registry).verdict, '—');
     assert.equal(diagnoseBreadthConsensus({ sma5: 0 }, registry).details[0].value, 0);
   } },
   { id: 'P17-EARNINGS-01', name: '미래 날짜 종가는 최신 가격이 아니고, 문자열 비중은 숫자로 더한다', run: async ({ load }) => {
-    const { buildIndexEarnings } = await load('src/domain/market/index-earnings.js');
+    const { buildIndexEarnings } = await load('src/domain/market/indices/index-earnings.js');
     const now = Date.parse('2026-10-29T00:00:00Z');
     const consensus = { rows: { TEST: { asOf: '2026-10-28', fwd: { eps: 5, up4w: 1, down4w: 0 } }, B: { asOf: '2026-10-28', fwd: { eps: 5, up4w: 1, down4w: 0 } } } };
     const future = buildIndexEarnings({ now, rows: [{ sym: 'TEST', valuationPrice: 100, factorSessionDate: '2099-01-01' }], weights: { rows: [{ sym: 'TEST', weight: 100 }] }, consensus });
@@ -118,7 +118,7 @@ export const cases = [
     assert.equal(strings.coveragePct, 100);
   } },
   { id: 'P17-RELEASE-01', name: '실업률 미확인·하락은 보합~+0.1%p 조건 충족이 아니고, 부분 공개 고용은 소비하지 않는다', run: async ({ load }) => {
-    const { scoreRelease, releaseActuals } = await load('src/domain/market/macro-crossroads.js');
+    const { scoreRelease, releaseActuals } = await load('src/domain/market/regime/macro-crossroads.js');
     assert.ok(!scoreRelease('us-nfp', { payroll: 100, unempDelta: null, wageMoM: 0.2 }).some((x) => x.branchId === 'softland'));
     assert.ok(!scoreRelease('us-nfp', { payroll: 100, unempDelta: -0.5, wageMoM: 0.2 }).some((x) => x.branchId === 'softland'));
     assert.ok(scoreRelease('us-nfp', { payroll: 100, unempDelta: 0.1, wageMoM: 0.2 }).some((x) => x.branchId === 'softland'));
@@ -129,13 +129,13 @@ export const cases = [
     assert.equal(first.lastScored['us-nfp'], undefined);
   } },
   { id: 'P17-OUTLOOK-01', name: 'RRG 경계의 선도 업종은 경계 링크에 나온다', run: async ({ load }) => {
-    const { buildScenarioOutlook } = await load('src/domain/market/scenario-outlook.js');
+    const { buildScenarioOutlook } = await load('src/domain/market/regime/scenario-outlook.js');
     const border = { symbol: 'XLK', label: '기술', rsRatio: 100.2, rsMomentum: 100.2, quadrant: 'Leading' };
     const out = buildScenarioOutlook({ scenarios: { available: true, asOf: '2026-10-28', scenarios: [{ id: 'expansion' }] }, regime: { available: true, axes: [] }, sectors: [border] });
     assert.ok(out.items[0].opportunityLinks.some((part) => part.links.some((link) => link.label === '기술')));
   } },
   { id: 'P17-FLOW-01', name: '가격 관측만으로 돈이 옮겨갔다고 쓰지 않고 업종 분모는 관측 수다', run: async ({ load }) => {
-    const { buildMarketFlow } = await load('src/domain/market/market-flow.js');
+    const { buildMarketFlow } = await load('src/domain/market/regime/market-flow.js');
     const day = { XLP: 3.3, XLU: 2.1, XLV: 1.3, XLF: 1.1, XLRE: 1.1, XLB: 0.7, XLY: -0.5, XLE: -0.9, XLI: -1, XLC: -1.4, XLK: -3.3, SMH: -6 };
     const nowMs = Date.parse('2026-10-23T01:00:00Z');
     const flow = buildMarketFlow({ rotationHistory: rotation(day), nowMs });
@@ -145,19 +145,19 @@ export const cases = [
     assert.match(buildMarketFlow({ rotationHistory: rotation(nine), nowMs }).line, /9개 업종 중/);
   } },
   { id: 'P17-TIMELINE-01', name: '변화가 없는 시간대 항목은 0.00%로 표시하지 않는다', run: async ({ load }) => {
-    const { formatSlotMove } = await load('src/domain/market/market-timeline.js');
+    const { formatSlotMove } = await load('src/domain/market/story/market-timeline.js');
     assert.equal(formatSlotMove({ label: 'TEST', change: null }), null);
     assert.equal(formatSlotMove({ label: 'TEST', change: 0 }).text, '0.00%');
   } },
   { id: 'P17-FXCARD-01', name: '기준일보다 오래된 원/달러 카드는 stale로 표시한다', run: async ({ load }) => {
-    const { buildKoreaRegimeObservations } = await load('src/domain/market/regime-scenarios.js');
+    const { buildKoreaRegimeObservations } = await load('src/domain/market/regime/regime-scenarios.js');
     const history = KR_DAYS('2026-08-03', 45).map((date, i) => ({ date, usdkrw: 1300 + i }));
     const out = buildKoreaRegimeObservations({ history }, { nowMs: Date.parse('2026-10-29T00:00:00Z'), through: '2026-10-28' });
     assert.equal(out.cards.find((card) => card.id === 'usdkrw').stale, true);
   } },
   { id: 'P18-INFLATION-01', name: '물가 지표 하나만 공개되면 조건 문구가 두 지표 모두라고 말하지 않는다', run: async ({ load }) => {
     const { inflationDirection } = await load('src/domain/macro/macro-signals.js');
-    const { BRANCHES } = await load('src/domain/market/macro-crossroads.js');
+    const { BRANCHES } = await load('src/domain/market/regime/macro-crossroads.js');
     const one = inflationDirection({ pce: { pace: 1, yoy: 3, date: '2026-09-01' } });
     const both = inflationDirection({ pce: { pace: 1, yoy: 3, date: '2026-09-01' }, cpi: { pace: 1, yoy: 3, date: '2026-09-01' } });
     // v57.69 keeps a single published measure deciding; the condition then names that measure instead of "모두".
@@ -271,7 +271,7 @@ export const cases = [
     await assert.rejects(fetchMarket('KOSPI', noTotal, { pauseMs: 0 }), /incomplete/);
   } },
   { id: 'R4-04', name: 'VIX 기간구조: VIX=VIX3M은 역전, 9일물만 높으면 앞쪽 역전', run: async ({ load }) => {
-    const { vixTermStructure } = await load('src/domain/sentiment/metrics.js');
+    const { vixTermStructure } = await load('src/domain/market/sentiment/metrics.js');
     assert.equal(vixTermStructure({ vix9d: 19, vix: 20, vix3m: 20, vix6m: 21 }).regime, '백워데이션');
     assert.match(vixTermStructure({ vix9d: 24, vix: 20, vix3m: 21, vix6m: 22 }).regime, /^앞쪽 역전/);
     assert.equal(vixTermStructure({ vix9d: 18, vix: 19, vix3m: 21, vix6m: 22 }).regime, '콘탱고');

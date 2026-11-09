@@ -1,4 +1,4 @@
-import { normalizeChartBar } from '../../domain/chart/contract.js';
+import { normalizeChartBar } from '../../domain/technical/chart-contract.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
 
 export function normalizeEntity(raw = {}) {

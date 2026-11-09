@@ -1,4 +1,4 @@
-import { MARKET_CALENDAR_REGISTRY, MARKET_HOLIDAY_NAMES } from '../market/market-calendar.js';
+import { MARKET_CALENDAR_REGISTRY, MARKET_HOLIDAY_NAMES } from '../market/session/market-calendar.js';
 import { SCHEDULED_EVENTS, activeScheduledEvents } from './scheduled-events.js';
 import { isIsoDay } from '../shared/session-date.js';
 
@@ -120,7 +120,7 @@ export function formatKstWhen(ms) {
 //   a holiday); March/June/September/December are the quarterly simultaneous expiry.
 // - US monthly listed options expiry: the third Friday (quarterly months: index futures expire the same day).
 // - Exchange holidays: every registered KRX and NYSE closure (P1735: read from the one exchange calendar in
-//   src/domain/market/market-calendar.js — this file kept a 2026-only copy that would have shown no 2027 holiday).
+//   src/domain/market/session/market-calendar.js — this file kept a 2026-only copy that would have shown no 2027 holiday).
 const QUARTER_MONTHS = new Set([3, 6, 9, 12]);
 const registeredHolidays = (calendarKey) => Object.values(MARKET_CALENDAR_REGISTRY[calendarKey] || {}).flatMap((calendar) => calendar.holidays);
 const isKrxHoliday = (iso) => (MARKET_CALENDAR_REGISTRY.KRX?.[iso.slice(0, 4)]?.holidays || []).includes(iso);

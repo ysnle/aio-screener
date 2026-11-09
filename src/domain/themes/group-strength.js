@@ -1,6 +1,6 @@
 import { median, themeMedians } from './theme-medians.js';
 import { screenerMarket } from '../screener/market-scope.js';
-import { latestCompletedSession } from '../market/market-calendar.js';
+import { latestCompletedSession } from '../market/session/market-calendar.js';
 import { recentMove, weeklyNoiseFromVol } from './recent-check.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { latestSessionRows } from '../shared/session-date.js';

@@ -81,7 +81,7 @@ const calendars = await import('./lib/official-calendars.mjs');
 // R8: one input builder; the producers pass the rotation, S&P 500 breadth and index-earnings inputs.
 {
   const { interpretationFromArtifacts } = await import('./lib/market-interpretation-inputs.mjs');
-  const inputs = await import('../src/domain/interpretation/inputs.js');
+  const inputs = await import('../src/domain/market/interpretation/inputs.js');
   const market = inputs.regimeMarketInput({ macro: { hyOAS: 3.12, _asOf_hyOAS: '2026-11-02', _asOf_dgs2: '2026-11-02' }, breadthSp500: { above50: 40 }, nowMs: 0 });
   check('v59.70 R8 the shared builder carries the 2-year date and the S&P 500 breadth segment', market.rates.dgs2AsOf === '2026-11-02' && market.breadthSp500?.above50 === 40 && market.credit.hyBp === 312);
   const producer = read('scripts/lib/market-interpretation-inputs.mjs');
@@ -96,7 +96,7 @@ const calendars = await import('./lib/official-calendars.mjs');
 
 // R9: one moving-average breadth counter.
 {
-  const { breadthCounts } = await import('../src/domain/market/breadth.js');
+  const { breadthCounts } = await import('../src/domain/market/breadth/breadth.js');
   const counts = breadthCounts([{ pctSma50: 2 }, { pctSma50: -1 }, { pctSma50: null }, {}], 'pctSma50');
   check('v59.70 R9 breadthCounts counts only measured rows', counts.count === 2 && counts.above === 1 && counts.pct === 50, JSON.stringify(counts));
 }
@@ -139,8 +139,8 @@ const calendars = await import('./lib/official-calendars.mjs');
 // R8 extension: the story reads five sessions of session-dated closes, and the verdict table's two watch rows stay
 // outside the counts.
 {
-  const { buildMarketStory, STORY_SESSIONS } = await import('../src/domain/market/market-story.js');
-  const { MARKET_WINDOWS } = await import('../src/domain/market/market-windows.js');
+  const { buildMarketStory, STORY_SESSIONS } = await import('../src/domain/market/story/market-story.js');
+  const { MARKET_WINDOWS } = await import('../src/domain/market/session/market-windows.js');
   const days = ['2026-10-22', '2026-10-23', '2026-10-26', '2026-10-27', '2026-10-28', '2026-10-29', '2026-10-30', '2026-11-02'];
   // Each row's NDX is the previous session's completed close; read by row date it would be one session late.
   const history = days.map((date, i) => ({ date, spx: 6000 + i * 10, ndx: 20000 + i * 100,
@@ -152,7 +152,7 @@ const calendars = await import('./lib/official-calendars.mjs');
   const { interpretationFromArtifacts } = await import('./lib/market-interpretation-inputs.mjs');
   const pd = (file) => JSON.parse(read(`public-data/${file}`));
   // The published history.json is history.v2 once the producer runs (v59.70); read it the way the producers do.
-  const { readHistoryRows } = await import('../src/domain/market/history-rows.js');
+  const { readHistoryRows } = await import('../src/domain/market/indices/history-rows.js');
   const out = interpretationFromArtifacts({ data: pd('data.json'), history: readHistoryRows(pd('history.json')), macroHistory: pd('macro-history.json'), screener: pd('screener.json'), nowMs: Date.parse('2026-11-03T14:00:00Z') });
   const regime = out.regime || out;
   const watch = Object.fromEntries((regime.watchAxes || []).map((row) => [row.id, row]));
@@ -173,10 +173,10 @@ const calendars = await import('./lib/official-calendars.mjs');
   const { normalizeHistoryRows, RETIRED_HIST_FIELDS } = await import('./producer/history.mjs');
   const rows = normalizeHistoryRows([{ date: '2026-10-22', spx: 6800, pcr: 0.94, fieldMeta: { spx: { observedAt: '2026-10-22T20:00:00Z' }, pcr: { observedAt: '2026-10-22', source: 'Cboe Daily Market Statistics' } } }]);
   check('v59.70 Cboe: a history write removes the stored pcr value and its provenance', RETIRED_HIST_FIELDS.includes('pcr') && !('pcr' in rows[0]) && !('pcr' in rows[0].fieldMeta) && rows[0].spx === 6800, JSON.stringify(rows[0]).slice(0, 200));
-  const { computeCompositeFearGreed } = await import('../src/domain/sentiment/composite-fear-greed.js');
+  const { computeCompositeFearGreed } = await import('../src/domain/market/sentiment/composite-fear-greed.js');
   const composite = computeCompositeFearGreed({ history: [{ date: '2026-10-22', spx: 6800, pcr: 0.9 }] });
   check('v59.70 Cboe: the sentiment composite has no put/call component', composite.componentsTotal === 6 && !composite.components.some((row) => row.id === 'putCall'));
-  const { computeTradingScoreModel } = await import('../src/domain/signal/trading-score.js');
+  const { computeTradingScoreModel } = await import('../src/domain/market/signal/trading-score.js');
   const base = { mode: 'swing', vix: 18, vvix: 90, dxy: 100, tnx: 3.5, oilPrice: 80, maCurrent: true, spx200ma: 450, spx50ma: 480, spxPrice: 500, breadthAvailable: true, breadth200: 60, hyBp: 300 };
   check('v59.70 Cboe: the trading score does not read put/call', computeTradingScoreModel({ ...base, pcr: 1.6 }).total === computeTradingScoreModel(base).total);
   // Code that would call Cboe again (its statistics page or CDN, the page's ratio labels) or publish the old fields.
@@ -213,14 +213,14 @@ const calendars = await import('./lib/official-calendars.mjs');
   check('v59.70 SOXX: without SOXX the Nasdaq-100 does not stand in', leadershipBreakOf({ ndx: slide }, asOf).available === false);
   const L = RULES.leadership;
   check('v59.70 SOXX: the edges are the volatility-scaled SOXX ones', L.proxyDrop5dPct === 6 && L.proxyBufferPct === 2 && L.aiLagSemis20dPp === 10 && L.semisLagRsp5dPp === 7 && !('aiLagNdx20dPp' in L) && !('leaderDrop5dPct' in RULES.trend), JSON.stringify(L));
-  const { BRANCHES } = await import('../src/domain/market/macro-crossroads.js');
+  const { BRANCHES } = await import('../src/domain/market/regime/macro-crossroads.js');
   const aiLag = BRANCHES.find((branch) => branch.id === 'aibust').conditions[0][1];
   check('v59.70 SOXX: the AI 투자 꺾임 gate reads SOXX, not the Nasdaq-100 or SMH', aiLag({ soxxRel20: -11 }) === true && aiLag({ ndxRel20: -5, smhRel20: -12 }) === null && aiLag({ soxxRel20: -9 }) === false);
   const { normalizeHistoryRows: normalize, HIST_FIELD_PLAUSIBILITY } = await import('./producer/history.mjs');
   const { CORE_SYMBOLS, AUX_SYMBOLS } = await import('./producer/quotes.mjs');
   check('v59.70 SOXX: a core quote and a history column with bounds', CORE_SYMBOLS.includes('SOXX') && !AUX_SYMBOLS.includes('SOXX') && Array.isArray(HIST_FIELD_PLAUSIBILITY.soxx) && 'soxx' in normalize([{ date: asOf, fieldMeta: {} }])[0]);
-  const { buildMarketStory } = await import('../src/domain/market/market-story.js');
-  const { resolveMarketCalendarSession } = await import('../src/domain/market/market-calendar.js');
+  const { buildMarketStory } = await import('../src/domain/market/story/market-story.js');
+  const { resolveMarketCalendarSession } = await import('../src/domain/market/session/market-calendar.js');
   const days = [];
   for (let t = Date.parse('2026-10-19T12:00:00Z'); days.length < 8; t += 86400000) {
     const date = new Date(t).toISOString().slice(0, 10);
@@ -232,7 +232,7 @@ const calendars = await import('./lib/official-calendars.mjs');
   // cross-asset moves, earnings reactions, the money-flow growth basket and market-day facts read SOXX; the smh history
   // column stays data only. A domain or UI module that reads the 'smh' field again fails.
   const { INDEX_STRIP } = await import('../src/ui/components/home-index-strip.js');
-  const { LEVEL_FIELDS } = await import('../src/domain/market/index-levels.js');
+  const { LEVEL_FIELDS } = await import('../src/domain/market/indices/index-levels.js');
   const { CHART_INDEXES } = await import('../src/domain/technical/market-charts.js');
   check('v59.70 SOXX: the home semiconductor card, index levels and charts are SOXX', INDEX_STRIP.some((row) => row.sym === 'SOXX' && row.close === 'soxx') && !INDEX_STRIP.some((row) => row.sym === 'SMH')
     && LEVEL_FIELDS.some(([field]) => field === 'soxx') && CHART_INDEXES.some(([field]) => field === 'soxx') && ![...LEVEL_FIELDS, ...CHART_INDEXES].some(([field]) => field === 'smh'));
@@ -251,8 +251,8 @@ const calendars = await import('./lib/official-calendars.mjs');
 {
   const { hyDelta20Bp } = await import('../src/domain/briefing/market-read.js');
   const { buildMacroChapters } = await import('../src/domain/macro/macro-chapters.js');
-  const { crossReadings } = await import('../src/domain/market/cross-readings.js');
-  const { resolveMarketCalendarSession } = await import('../src/domain/market/market-calendar.js');
+  const { crossReadings } = await import('../src/domain/market/regime/cross-readings.js');
+  const { resolveMarketCalendarSession } = await import('../src/domain/market/session/market-calendar.js');
   const sessions = [];
   for (let t = Date.parse('2026-02-02T12:00:00Z'); sessions.length < 201; t += 86400000) {
     const date = new Date(t).toISOString().slice(0, 10);
@@ -310,7 +310,7 @@ const calendars = await import('./lib/official-calendars.mjs');
 // v59.70 (X bookmarks #6, #11): flows after a release and the beat-but-fell share, on closes, outside any verdict.
 {
   const { eventAftermath, beatButFell } = await import('../src/domain/briefing/event-aftermath.js');
-  const { resolveMarketCalendarSession } = await import('../src/domain/market/market-calendar.js');
+  const { resolveMarketCalendarSession } = await import('../src/domain/market/session/market-calendar.js');
   const days = [];
   for (let t = Date.parse('2026-10-01T12:00:00Z'); days.length < 20; t += 86400000) {
     const date = new Date(t).toISOString().slice(0, 10);

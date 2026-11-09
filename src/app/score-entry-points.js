@@ -1,10 +1,10 @@
 // v59.41 (roadmap 11, layer 5 score): the score entry points moved out of the classic scripts unchanged —
 // computeTradingScore (js/aio-core.js), computeNewsSentimentScore/computeNewsRiskSignals (js/aio-data.js) and
-// AIO.diagnoseBreadthConsensus (js/aio-core.js; its body is src/domain/market/breadth-consensus.js). The models
+// AIO.diagnoseBreadthConsensus (js/aio-core.js; its body is src/domain/market/breadth/breadth-consensus.js). The models
 // themselves already live in src/domain (signal/trading-score.js, news/scoring.js). newsCache and _aioLog stay
 // declared in the classic scripts; a module resolves those names in the shared global scope.
 // src/app/compatibility-globals.js installs this before DOMContentLoaded.
-import { diagnoseBreadthConsensus } from '../domain/market/breadth-consensus.js';
+import { diagnoseBreadthConsensus } from '../domain/market/breadth/breadth-consensus.js';
 
 export function installScoreEntryPoints(window = globalThis) {
   /* ── 뉴스→시그널 통합: 뉴스 감성 집계 ─────────────────────── */

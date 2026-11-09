@@ -47,14 +47,14 @@ const screenerPage = readScreenerPageSource();
 const newsPage = read('src/ui/pages/news.js');
 const newsScoring = read('src/domain/news/scoring.js');
 const routeOwners = JSON.parse(read('architecture/route-owners.json'));
-const sentimentDomain = read('src/domain/sentiment/metrics.js');
+const sentimentDomain = read('src/domain/market/sentiment/metrics.js');
 const themesPage = readThemesPageSource(); // v59.70: the page is split under src/ui/pages/themes/
 const atlasPage = read('src/ui/pages/atlas.js');
 const mastersPage = read('src/ui/pages/masters.js') + read('src/ui/pages/masters-views.js'); // v59.70: view builders split out of the page
 const marketPage = read('src/ui/pages/market.js');
 const portfolioPage = read('src/ui/pages/portfolio.js');
 const newsNormalize = read('src/data/normalize/news.js');
-const tradingScoreDomain = read('src/domain/signal/trading-score.js');
+const tradingScoreDomain = read('src/domain/market/signal/trading-score.js');
 const secReportDomain = read('src/domain/fundamental/sec-report.js');
 const entityPage = read('src/ui/pages/entity.js');
 const glossary = read('js/aio-glossary.js');
@@ -208,7 +208,7 @@ check('page decisions fail closed when evidence is unavailable or market epoch i
 // v51.98/Phase 3 [A3]: computeTradingScore/classifyMarketRegime/getScoreAdvice moved from index.html
 // inline to js/aio-core.js (P594) — these three checks now search `core`, not `html`.
 // RM-03 (2026-07-19): the alias-producing literal moved into
-// src/domain/signal/trading-score.js's computeTradingScoreModel (single-implementation
+// src/domain/market/signal/trading-score.js's computeTradingScoreModel (single-implementation
 // extraction); js/aio-core.js's wrapper now merges the model's result via Object.assign instead of
 // writing the `{ total, score: total` shape itself, so this checks the domain module (where the
 // shape now genuinely lives) plus proof the legacy wrapper actually calls into it.
@@ -249,8 +249,8 @@ check('E2/LC-26/P1214 checklist is stated independent of the score mode', !/스�
 // P1672: the legacy checklist writer and its window bridge left with the ec-* sinks (P1392); the
 // revision-bound domain summary stays covered by ci-esm-core-unit-check.
 check('QA-SIG-27/P1263 entry checklist aggregates via the revision-bound domain summary', !/_sigSummarizeEntryChecklist/.test(bootstrap + pagesSource)
-  && /checklistPolicy/.test(read('src/domain/signal/mode.js'))
-  && /export function summarizeEntryChecklist/.test(read('src/domain/signal/mode.js')));
+  && /checklistPolicy/.test(read('src/domain/market/signal/mode.js'))
+  && /export function summarizeEntryChecklist/.test(read('src/domain/market/signal/mode.js')));
 // The Minervini engine helpers fed only the retired deep-analysis renderer; the native chart (src/domain/technical/chart-analysis.js) owns VCP/trend template now.
 check('P1753 retired deep-analysis Minervini engine helpers stay gone from the legacy shell', !/function\s+(?:_buildMinerviniTechnicalEngine|_calcMinerviniMAStack|_buildHorizontalVolumeZones|_calcVcpQuality|_calcFibonacciConfluence)\b/.test(ui) && !/_renderDeepChart/.test(core));
 // LC-39/P1215: the entity/portfolio → technical bridge must write the real deep-analysis input
@@ -568,7 +568,7 @@ check('Cloudflare worker handles Naver JSON endpoints with browser-like headers 
 check('viewport matrix CI script covers desktop-only viewports, topbar clipping, and SVG text geometry', qaHas('scripts/ci-viewport-matrix-check.mjs', 'browser-viewport') && qaHas('scripts/ci-desktop-scope-check.mjs', 'core') && /desktop-qa-config\.mjs/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /'theme-detail'/.test(read('scripts/ci-viewport-matrix-check.mjs')) && !/mobile390|tablet768/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /desktop1440/.test(read('scripts/desktop-qa-config.mjs')) && /topbarClipCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTextOverlapCount/.test(read('scripts/ci-viewport-matrix-check.mjs')) && /svgTinyTextCount/.test(read('scripts/ci-viewport-matrix-check.mjs')));
 check('proxy registry ranks active proxies by success-rate score, not only static order', /okCount/.test(data) && /failCount/.test(data) && /getScore:\s*function/.test(data) && /self\.getScore\(b\)\s*-\s*self\.getScore\(a\)/.test(data));
 check('quote status uses one presenter and vocabulary from observation times, never the render clock (P1326/R671)', (() => {
-  const presenter = read('src/domain/market/quote-currentness.js');
+  const presenter = read('src/domain/market/session/quote-currentness.js');
   return ['실시간', '지연', '종가', '지난 시세', '미수신'].every((word) => presenter.includes(word))
     && /function _aioWriteQuoteStatus/.test(core) && /_aioDescribeQuoteCurrentness/.test(core)
     && !/클라 시세|일부 실시간/.test(data) && !/id="live-quote-ts-topbar"/.test(html);
@@ -1324,7 +1324,7 @@ check('WP-AI19/20: shared pipeline carries tool and rights audits and denies mut
 // v52.91: third-pass live currentness/root-cause gates.
 check('LIVE3-01: stored API secrets never re-enter DOM values or reveal partial key fragments', /el\.value = '••••••••'/.test(ui + core) && !/el\.value = saved/.test(ui) && !/inp\.value = key;\s*\/\/ 실제 키 표시/.test(html) && !/slice\(0, 8\) \+ '\.\.\.' \+/.test(html + core));
 check('LIVE3-02: early snapshot-date rendering uses the post-initialization window bridge and avoids DATA_SNAPSHOT TDZ', /var snap = window\.DATA_SNAPSHOT \|\| null/.test(core));
-const { readScreenerBreadth } = await import('../src/domain/market/screener-breadth.js');
+const { readScreenerBreadth } = await import('../src/domain/market/breadth/screener-breadth.js');
 const breadthFixture = (us) => ({ schemaVersion: '1.0', source: 'fixture', segments: { us: { above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, observedAt: '2026-10-14T20:30:00.000Z', ...us } } });
 // v59.70: the fixture ran on the wall clock ("a day ago" is not the latest close at every hour), so this check failed the
 // bot's data-commit CI 9 times on 11/03 05:22-08:53Z and those commits never deployed. Pinned: Thu 11:00 KST after the 10/14 US close.
@@ -1512,7 +1512,7 @@ check('P875: quote change/value basis survives snapshot bridge, PriceStore, lega
 check('P1105: the history series feeds the field metadata its chart consumes',
   /valueBasis: meta\.valueBasis \|\| null/.test(data) &&
   /fieldMeta: arr\[i\]\.fieldMeta \|\| null/.test(data) &&
-  /historyFieldMeta\(row, field\)/.test(read('src/domain/market/close-series.js'))); // P1425: close series read per-field metadata (v58.64 DOMAIN #8: moved from briefing/market-read.js; v59.70 R2: through historyFieldMeta)
+  /historyFieldMeta\(row, field\)/.test(read('src/domain/market/session/close-series.js'))); // P1425: close series read per-field metadata (v58.64 DOMAIN #8: moved from briefing/market-read.js; v59.70 R2: through historyFieldMeta)
 // P1106: the FRED series table declares each series' display unit. Three series
 // were declared twice, so the earlier declaration was silently dead — editing it
 // had no effect. Every series must also declare the unit key explicitly, even

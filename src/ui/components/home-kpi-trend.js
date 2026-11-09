@@ -6,8 +6,8 @@
 // visual. A futures chip shows only a live futures quote while CME trades (usWeekendClosed, the rule the session bridge's
 // futures line uses too); otherwise the strip's close is the answer and the chip is hidden.
 import { buildCloseSeries, closeBasis, sessionPointBack } from '../../domain/briefing/market-read.js';
-import { usWeekendClosed } from '../../domain/market/market-calendar.js';
-import { MARKET_WINDOWS } from '../../domain/market/market-windows.js';
+import { usWeekendClosed } from '../../domain/market/session/market-calendar.js';
+import { MARKET_WINDOWS } from '../../domain/market/session/market-windows.js';
 
 // v58.74: usWeekendClosed lives in market-calendar.js (the futures chips and the session bridge read it too).
 export { usWeekendClosed };

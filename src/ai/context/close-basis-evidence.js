@@ -5,7 +5,7 @@
 // source ('close-basis'), so a claim can bind to exactly the value the user sees. Live rows stay live; a stale live
 // row is pointed at its close-basis substitute instead of being silently relabelled.
 import { alignMarketInputs, buildCloseSeries, krSessionThrough, sessionPointBack } from '../../domain/briefing/market-read.js';
-import { countOpenSessionsBetween, latestCompletedUsSession } from '../../domain/market/market-calendar.js';
+import { countOpenSessionsBetween, latestCompletedUsSession } from '../../domain/market/session/market-calendar.js';
 import { isFiniteNumber as finite } from '../../domain/shared/number.js';
 
 export const CLOSE_BASIS_SOURCE = 'close-basis';

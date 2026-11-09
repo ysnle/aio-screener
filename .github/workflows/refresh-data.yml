@@ -56,7 +56,7 @@ jobs:
           sparse-checkout: |
             scripts/refresh-cadence.mjs
             scripts/cron-fallback-guard.mjs
-            src/domain/market/market-calendar.js
+            src/domain/market/session/market-calendar.js
             public-data/data.json
 
       - name: Stand down a cron slot the Worker dispatch already covers (v59.85)

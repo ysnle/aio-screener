@@ -337,7 +337,7 @@ async function main() {
     // v59.52: execute the real portfolio reader: SPY is an adjusted benchmark only when its return is calculable.
     const benchmarkReadiness = await page.evaluate(async () => {
       const { renderPortfolioRead } = await import('./src/ui/components/portfolio-read.js');
-      const { benchmarkRowFor } = await import('./src/domain/market/benchmarks.js');
+      const { benchmarkRowFor } = await import('./src/domain/market/indices/benchmarks.js');
       const originalRows = window._aioGetCanonicalScreenerRows;
       const date = benchmarkRowFor('AAPL', window._aioHistory || []).asOf;
       const result = {};

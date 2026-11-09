@@ -6,7 +6,7 @@ import { RULES } from '../rules/thresholds.js';
 // v57.84: the 52-week range, ADR, moving averages and EMAs are technical/definitions.js — the chart's own definitions.
 import { smaLast, emaLast, rsiWilder, adrPctOf, rangeExtremesOf, detectContractions, isBreakoutDay, priorVolumeAverage } from '../technical/definitions.js';
 import { followThroughFields } from '../technical/follow-through.js';
-import { listingMarketOfSymbol, sessionDateInMarket, timeZoneForMarket, timeZoneForSymbol } from '../market/session-time.js';
+import { listingMarketOfSymbol, sessionDateInMarket, timeZoneForMarket, timeZoneForSymbol } from '../market/session/session-time.js';
 import { isoDay } from '../shared/session-date.js';
 export const round = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
 const BACKTEST_MIN_LIQUIDITY_OBSERVATIONS = 10;

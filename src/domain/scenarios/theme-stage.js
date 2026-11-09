@@ -4,8 +4,8 @@
 // When the per-refresh state is not current the accessor returns [] and callers render nothing (no placeholder).
 import { THEME_STATES } from './analogs.js';
 import { WIND_LABELS } from './exposures.js';
-import { CHOICES } from '../market/macro-crossroads.js';
-import { countOpenSessionsBetween, latestCompletedSession } from '../market/market-calendar.js';
+import { CHOICES } from '../market/regime/macro-crossroads.js';
+import { countOpenSessionsBetween, latestCompletedSession } from '../market/session/market-calendar.js';
 import { isIsoDay } from '../shared/session-date.js';
 
 // v58.75 (persona review): v2 = members pooled once per theme (v58.74). scenario-state.json stamps the version it was built

@@ -3,7 +3,7 @@
 // and the recurring scheduler. The boot-phase object (_aioBootPhase), newsCache and the server-ready lets it reads
 // stay declared in the classic scripts; a module resolves those names in the shared global scope.
 // src/app/compatibility-globals.js installs this before DOMContentLoaded.
-import { readHistoryRows } from '../domain/market/history-rows.js';
+import { readHistoryRows } from '../domain/market/indices/history-rows.js';
 
 export function installBootSequence(window = globalThis) {
   // v59.70 (R2): js/aio-data.js _aioLoadHistory expands history.json through the one reader.

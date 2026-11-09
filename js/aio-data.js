@@ -3240,7 +3240,7 @@ async function _aioLoadHistory() {
     var url = './public-data/history.json'; // v57.61 (perf): no ?t= — the no-cache fetch revalidates (304) instead of re-downloading 3MB each hour
     var bp = window.__aioBootPrefetch && window.__aioBootPrefetch.history, pre = bp && !bp.taken ? (bp.taken = true, bp.res) : null; var r = await (pre ? pre.catch(function() { return fetch(url, { cache: 'no-cache' }); }) : fetch(url, { cache: 'no-cache' })); // the <head> boot prefetch (src/data/boot-prefetch.js), once
     if (!r.ok) return _aioHistoryFailed();
-    var arr = await r.json(); if (typeof window.__aioReadHistoryRows === 'function') arr = window.__aioReadHistoryRows(arr); // v59.70 R2: v1 or history.v2 → rows (src/domain/market/history-rows.js)
+    var arr = await r.json(); if (typeof window.__aioReadHistoryRows === 'function') arr = window.__aioReadHistoryRows(arr); // v59.70 R2: v1 or history.v2 → rows (src/domain/market/indices/history-rows.js)
     if (!Array.isArray(arr) || !arr.length) return _aioHistoryFailed(Array.isArray(arr) ? 'empty' : '');
     window._aioHistory = arr; window.__aioHistoryLoadState = 'ready';
     window._aioHistoryMeta = { days: arr.length, first: arr[0] && arr[0].date, last: arr[arr.length - 1] && arr[arr.length - 1].date, loadedAt: Date.now() };
@@ -6564,7 +6564,7 @@ function updateScreenerFromLiveData() {
 }
 
 // Apply server-computed daily breadth to the macro snapshot only when observation time and coverage pass
-// (src/domain/market/screener-breadth.js checks it; every other breadth reader asks _aioScreenerBreadth()).
+// (src/domain/market/breadth/screener-breadth.js checks it; every other breadth reader asks _aioScreenerBreadth()).
 // This is an AIO US screener-universe measurement, not official exchange breadth.
 function _aioApplyScreenerBreadth(sd) {
   var read = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth(sd && sd.breadth) : null;
@@ -6619,7 +6619,7 @@ window._aioApplyScreenerBreadth = _aioApplyScreenerBreadth;
 // reader recomputes the same revision.
 function toggleSignalMode(mode) {
   // The mode bridge is one grouped AIO_ARCH entry (get/set/describe) so the facade budget stays a
-  // single key; the owner and the descriptor prose live in src/domain/signal/mode.js.
+  // single key; the owner and the descriptor prose live in src/domain/market/signal/mode.js.
   var bridge = window.AIO_ARCH && window.AIO_ARCH.signalScoreMode ? window.AIO_ARCH.signalScoreMode : null;
   var normalized = bridge && typeof bridge.set === 'function'
     ? bridge.set(mode)

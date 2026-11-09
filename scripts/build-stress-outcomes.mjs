@@ -6,7 +6,7 @@
 import { readFile, writeFile, rename } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { buildStressOutcomes, STRESS_HORIZONS } from '../src/domain/signal/stress-outcomes.js';
+import { buildStressOutcomes, STRESS_HORIZONS } from '../src/domain/market/signal/stress-outcomes.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(root, 'public-data', 'stress-outcomes.json');

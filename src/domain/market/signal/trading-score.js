@@ -1,0 +1,471 @@
+// RM-03: extracted from js/aio-core.js:computeTradingScore (v51.98 Phase 3 A3 relocated it from
+// index.html; this packet moves the scoring math itself into a pure module while the legacy
+// function becomes a thin wrapper that gathers inputs and calls this). This is a pure function:
+// no DOM, no global reads, no fetch — every value the legacy wrapper used to read from its own
+// globals is now an explicit parameter, already clamped/evidence-gated exactly as the legacy
+// wrapper gated it before. The formula itself (thresholds, weights,
+// corrections, order of operations) is transcribed unchanged — this is code motion, not a new
+// model (R352/F-03: legacy and native must not diverge into two different formulas).
+import { RULES } from '../../rules/thresholds.js';
+
+// v5 (v57.83, R707): the trend component uses the market read's 1% noise buffer around the 50-day line.
+export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v6';
+export const SIGNAL_DECISION_MODEL_VERSION = 'signal-from-trading-score.v1';
+export const SIGNAL_PRESENTATION_MODEL_VERSION = 'signal-presentation.v2';
+
+// The score is currently a descriptive market-condition index.  The long-run
+// validation artifact is explicitly non-significant, so no score band may be
+// promoted to a portfolio action until a future provider supplies an
+// independently established predictive-validation contract.
+const PREDICTIVE_VALIDATION_NOT_ESTABLISHED = 'not-established';
+const PREDICTIVE_VALIDATION_ESTABLISHED = 'established';
+
+function finiteNumber(value) {
+  return !['number', 'string'].includes(typeof value) || String(value).trim() === '' || !Number.isFinite(Number(value)) ? null : Number(value);
+}
+
+function boundedNumber(value, minimum, maximum) {
+  const number = finiteNumber(value);
+  return number != null && number >= minimum && number <= maximum ? number : null;
+}
+
+function freezeEvidenceMap(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  return Object.freeze(Object.fromEntries(Object.entries(value).map(([key, row]) => [
+    key,
+    row && typeof row === 'object' && !Array.isArray(row)
+      ? Object.freeze({
+          ...row,
+          value: Array.isArray(row.value)
+            ? Object.freeze(row.value.map((item) => item && typeof item === 'object' ? Object.freeze({ ...item }) : item))
+            : row.value
+        })
+      : null
+  ])));
+}
+
+// The score and its visible breakdown share one model, including missingness.
+export function deriveTradingScoreComponents(score = {}) {
+  return Object.freeze([
+    ['volScore', '변동성', 25], ['trendScore', '추세', 20],
+    ['momScore', '위험선호', 25], ['breadthScore', '시장 폭', 20], ['macroScore', '매크로', 10]
+  ].map(([key, label, weight]) => {
+    const value = finiteNumber(score[key]);
+    return Object.freeze({ key, label, weight, value, contribution: value == null ? null : Math.round(Math.max(0, Math.min(100, value)) * weight / 100) });
+  }));
+}
+
+/**
+ * @param {object} input
+ * @param {'day'|'swing'|string|undefined} input.mode
+ * @param {number|null} input.vix        clamped 5-150
+ * @param {number|null} input.vvix       clamped 50-250
+ * @param {number|null} input.dxy        clamped 80-130
+ * @param {number|null} input.tnx        clamped 0-8
+ * @param {number|null} input.oilPrice   clamped 0-300
+ * @param {number|null} input.fg         accepted for compatibility; not a composite input since v4 (P1388)
+ * @param {boolean} input.maCurrent      whether the legacy `_spxMA` global is fresh (<=4 days old)
+ * @param {number|null} input.spx200ma   legacy `_spxMA[200]` when maCurrent, else null
+ * @param {number|null} input.spx50ma    legacy `_spxMA[50]` when maCurrent, else null
+ * @param {number|null} input.spxPrice   closing/live ^GSPC price
+ * @param {boolean} input.breadthAvailable
+ * @param {number|null} input.breadth20  % of AIO US stocks above their 20-SMA, when breadthAvailable
+ * @param {number|null} input.breadth200 legacy name of the same 20-SMA share (kept for older callers)
+ * @param {number|null} input.hyBp       FRED HY OAS in bp, already evidence-gated
+ * @param {number|null} input.newsSentimentScore  null means "skip the news sentiment adjustment"
+ *   (matches the legacy try/catch: if gathering it threw, no adjustment was applied)
+ * @param {Array<{impact:number}>} input.newsRiskSignals  empty array means "skip" (same reason)
+ */
+export function computeTradingScoreModel(input = {}) {
+  const { mode, newsRiskSignals } = input;
+  const predictiveValidation = input.predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED
+    ? PREDICTIVE_VALIDATION_ESTABLISHED
+    : PREDICTIVE_VALIDATION_NOT_ESTABLISHED;
+  const hasDecisionEvidence = !!input && input.decisionEvidence && typeof input.decisionEvidence === 'object' && !Array.isArray(input.decisionEvidence);
+  const closeBasisKeys = [];
+  const decisionValue = (key, fallback, minimum, maximum) => {
+    if (!hasDecisionEvidence) return boundedNumber(fallback, minimum, maximum);
+    const evidence = input.decisionEvidence[key];
+    // Runtime evidence uses `verified_current`; older callers may still use
+    // `live`/`fresh`.  Accept only those explicitly current statuses and an
+    // explicit decision-use grant.  Reference/snapshot/stale values must not
+    // silently fall back into the score.
+    // P1328/R670: a close-basis value (latest completed US regular session) describes the
+    // market for this reference score; it is tracked so the result can never be decision-eligible.
+    const closeBasis = evidence?.allowedUse === 'close-basis' && evidence.status === 'session_close';
+    if (!evidence || (!closeBasis && (evidence.allowedUse !== 'decision' || !['live', 'fresh', 'verified_current'].includes(evidence.status)))) return null;
+    const bounded = boundedNumber(evidence.value, minimum, maximum);
+    if (closeBasis && bounded != null) closeBasisKeys.push(key);
+    return bounded;
+  };
+  const decisionCollection = (key, fallback) => {
+    if (!hasDecisionEvidence) return Array.isArray(fallback) ? fallback : [];
+    const evidence = input.decisionEvidence[key];
+    if (!evidence || evidence.allowedUse !== 'decision' || !['live', 'fresh', 'verified_current'].includes(evidence.status) || !Array.isArray(evidence.value)) return [];
+    return evidence.value;
+  };
+  const vix = decisionValue('vix', input.vix, 5, 150);
+  const vvix = decisionValue('vvix', input.vvix, 50, 250);
+  const dxy = decisionValue('dxy', input.dxy, 80, 130);
+  const tnx = decisionValue('tnx', input.tnx, 0, 8);
+  const oilPrice = decisionValue('oilPrice', input.oilPrice, 0, 300);
+  const spx200ma = decisionValue('spx200ma', input.spx200ma, Number.MIN_VALUE, Number.MAX_VALUE);
+  const spx50ma = decisionValue('spx50ma', input.spx50ma, Number.MIN_VALUE, Number.MAX_VALUE);
+  const spxPrice = decisionValue('spxPrice', input.spxPrice, Number.MIN_VALUE, Number.MAX_VALUE);
+  const hyBp = decisionValue('hyBp', input.hyBp, 0, 10_000);
+  // v57.50 C07: this input is the share of AIO US stocks above their 20-day SMA (the bands below were set for it).
+  // `breadth200` is the legacy evidence key kept for the decision-evidence contract; `breadth20` is the accurate name.
+  const breadth20 = decisionValue('breadth200', input.breadth20 ?? input.breadth200, 0, 100);
+  // Keyword-count news heuristics are reference-only unless a producer supplies
+  // an independently current, decision-authorized evidence envelope. Raw news
+  // output must not bypass the same contract required from market observations.
+  const newsSentimentScore = decisionValue('newsSentimentScore', input.newsSentimentScore, 0, 100);
+  const decisionNewsRiskSignals = decisionCollection('newsRiskSignals', newsRiskSignals);
+  const maCurrent = hasDecisionEvidence
+    ? !!(spx200ma != null && spx50ma != null && spxPrice != null)
+    : input.maCurrent === true;
+  const breadthAvailable = hasDecisionEvidence ? breadth20 != null : input.breadthAvailable === true;
+
+  // 1. Volatility Score (25%) — lower VIX is better for trading
+  let volScore = null;
+  if (vix == null) volScore = null;
+  else if (vix < 15) volScore = 90;
+  else if (vix < 18) volScore = 78;
+  else if (vix < 22) volScore = 62;
+  else if (vix < 27) volScore = 42;
+  else if (vix < 35) volScore = 22;
+  else volScore = 8;
+  // Day trading: elevated volatility is slightly better
+  if (mode === 'day' && volScore != null) {
+    if (vix >= 18 && vix < 30) volScore = Math.min(100, volScore + 12);
+  }
+
+  // 2. Risk-appetite Score (25%) — the HY credit spread. P1388 (v4): CNN Fear & Greed already blends VIX, junk-bond
+  // demand, breadth and momentum, so it is shown on its own and does not enter the composite. v59.70 (trading-score.v6,
+  // owner 11/4): the Cboe put/call half is removed with its source (Cboe terms forbid storing the statistics).
+  let momScore = hyBp == null ? null : hyBp < 300 ? 80 : hyBp < 350 ? 70 : hyBp < 450 ? 55 : hyBp < 550 ? 35 : hyBp < 700 ? 20 : 8;
+
+  // 3. Trend Score (20%) — SPX vs estimated MAs (종가 기준)
+  // v57.83 (R707, trading-score.v5): a close 0.15% above the 50-day line scored as "above" while the market read already
+  // called it 시험 구간. Within ±RULES.trend.bufferPct (1%) of the line the component sits between above (68) and
+  // below (50); "above"/"below" need the buffer cleared, the same rule as the 시장 상태 trend axis.
+  // v57.83 crash replay: a close under the 200-day line is 부담 on that axis, but a bear-market rally 2%+ over a falling
+  // 50-day line (2022-07/08) scored the top band 82. Under the 200-day line only the 32/15 bands apply.
+  const trendBuffer = RULES.trend.bufferPct / 100;
+  let trendCalcScore = null;
+  if (!spxPrice || !spx50ma || !spx200ma) trendCalcScore = null;
+  else if (spxPrice <= spx200ma) trendCalcScore = spxPrice > spx200ma * 0.97 ? 32 : 15;
+  else if (spxPrice > spx50ma * 1.02) trendCalcScore = 82;
+  else if (spxPrice >= spx50ma * (1 + trendBuffer)) trendCalcScore = 68;
+  else if (spxPrice > spx50ma * (1 - trendBuffer) && spxPrice > spx200ma) trendCalcScore = 59;
+  else if (spxPrice > spx200ma) trendCalcScore = 50;
+  else if (spxPrice > spx200ma * 0.97) trendCalcScore = 32;
+  else trendCalcScore = 15;
+  let trendScore = maCurrent ? trendCalcScore : null;
+
+  // 4. Breadth Score (20%) — % above 20 SMA
+  let breadthCalcScore = null;
+  if (breadth20 != null && breadth20 > 70) breadthCalcScore = 88;
+  else if (breadth20 != null && breadth20 > 55) breadthCalcScore = 72;
+  else if (breadth20 != null && breadth20 > 40) breadthCalcScore = 52;
+  else if (breadth20 != null && breadth20 > 25) breadthCalcScore = 28;
+  else if (breadth20 != null) breadthCalcScore = 12;
+  let breadthScore = breadthAvailable ? breadthCalcScore : null;
+
+  // 5. Macro Score (10%) — 기저 55, 누진 감점
+  // P1328: VVIX is an optional stress modifier (it is often not collected client-side); dollar and
+  // 10Y yield are the required macro inputs.
+  let macroScore = dxy != null && tnx != null ? 55 : null;
+  if (macroScore != null && dxy > 107) macroScore -= 12;
+  if (macroScore != null && dxy > 110) macroScore -= 8;
+  if (macroScore != null && tnx > 4.5) macroScore -= 10;
+  if (macroScore != null && vvix > 110) macroScore -= 8;
+  if (macroScore != null) macroScore = Math.max(10, Math.min(90, macroScore));
+
+  // 교차변수 보정 — 복합 리스크 시 추가 감점
+  let crossRiskCount = 0;
+  if (vix != null && vix > 25) crossRiskCount++;
+  if (dxy != null && dxy > 107) crossRiskCount++;
+  if (tnx != null && tnx > 4.5) crossRiskCount++;
+  if (oilPrice != null && oilPrice > 100) crossRiskCount++;
+  if (crossRiskCount >= 3 && macroScore != null) macroScore = Math.max(10, macroScore - 10);
+
+  // 추세-시장폭 다이버전스 보너스/패널티
+  if (trendScore != null && breadthScore != null && trendScore > 65 && breadthScore < 30) {
+    trendScore = Math.max(10, trendScore - 10);
+  } else if (trendScore != null && breadthScore != null && trendScore < 35 && breadthScore > 55) {
+    breadthScore = Math.min(90, breadthScore + 8);
+  }
+
+  const weightedComponents = [
+    { value: volScore, weight: 25 }, { value: momScore, weight: 25 },
+    // v59.59 (logic refactor): the gated scores, not the raw *CalcScore — a stale MA or unavailable breadth was listed in
+    // componentMissing yet still moved the total at full coverage (the legacy path, where callers pass the flags).
+    { value: trendScore, weight: 20 }, { value: breadthScore, weight: 20 },
+    { value: macroScore, weight: 10 }
+  ];
+  const availableWeight = weightedComponents.reduce((sum, row) => sum + (row.value == null ? 0 : row.weight), 0);
+  const weightedSumRaw = weightedComponents.reduce((sum, row) => sum + (row.value == null ? 0 : row.value * row.weight), 0);
+  const rawCompositeScore = availableWeight ? Math.round(weightedSumRaw / availableWeight) : null;
+  const configuredCoverageThreshold = finiteNumber(input.decisionCoverageThreshold);
+  const decisionCoverageThreshold = configuredCoverageThreshold != null
+    ? Math.max(0, Math.min(100, configuredCoverageThreshold))
+    : hasDecisionEvidence ? 80 : 0;
+  let compositeScore = hasDecisionEvidence && availableWeight < decisionCoverageThreshold ? null : rawCompositeScore;
+
+  // P1094: post-composite adjustments and the [5,100] clamp move the published total
+  // AFTER the weighted component sum. They were never exposed, so the visible
+  // breakdown could not explain the visible total: independently rounded
+  // contributions drift by ±1, and the golden `bear_crisis_full_data` case publishes
+  // total 5 against components that sum to 13 with nothing naming the difference.
+  // Record every term so the identity is reconstructible.
+  const adjustments = [];
+  const applyAdjustment = (key, delta) => {
+    if (compositeScore == null || !delta) return;
+    compositeScore += delta;
+    adjustments.push({ key, delta });
+  };
+
+  // P1388: credit stress now lives in the risk-appetite axis; no second HY adjustment.
+
+  // 지정학 위험 보정 (유가)
+  if (compositeScore != null && oilPrice != null && oilPrice > 100) applyAdjustment('geopolitical-oil', -10);
+  else if (compositeScore != null && oilPrice != null && oilPrice > 90) applyAdjustment('geopolitical-oil', -5);
+
+  // 뉴스 감성/리스크 보정 — null/[] means the legacy gather step failed and applied no adjustment
+  if (compositeScore != null && newsSentimentScore != null && newsSentimentScore < 30) applyAdjustment('news-sentiment', -8);
+  else if (compositeScore != null && newsSentimentScore != null && newsSentimentScore > 70) applyAdjustment('news-sentiment', +5);
+  if (compositeScore != null && decisionNewsRiskSignals.length) {
+    const newsRiskAdjustment = decisionNewsRiskSignals.reduce((sum, riskSignal) => sum + (boundedNumber(riskSignal?.impact, -100, 100) ?? 0), 0);
+    applyAdjustment('news-risk', Math.max(-30, Math.min(30, newsRiskAdjustment)));
+  }
+
+  // 최소 5점 보장 — 0점은 "데이터 미수신"으로 오해되므로 바닥값 설정
+  const unclampedScore = compositeScore;
+  const total = compositeScore == null ? null : Math.max(5, Math.min(100, compositeScore));
+  const adjustmentsTotal = adjustments.reduce((sum, row) => sum + row.delta, 0);
+
+  const componentMissing = [];
+  if (volScore == null) componentMissing.push('volatility');
+  if (momScore == null) componentMissing.push('momentum');
+  if (!maCurrent) componentMissing.push('trend');
+  if (!breadthAvailable) componentMissing.push('breadth');
+  if (macroScore == null) componentMissing.push('macro');
+
+  return Object.freeze({
+    total,
+    score: total,
+    modelVersion: TRADING_SCORE_MODEL_VERSION,
+    volScore, momScore, trendScore, breadthScore, macroScore,
+    componentCoveragePct: availableWeight,
+    componentMissing: Object.freeze(componentMissing),
+    partial: availableWeight < 100,
+    // P1349: base-axis coverage does not certify the optional stress corrections.
+    missingOptionalInputs: Object.freeze(Object.entries({ vvix, oilPrice, hyBp }).filter(([, value]) => value == null).map(([key]) => key)),
+    decisionBlocked: hasDecisionEvidence && total == null,
+    decisionCoverageThreshold,
+    rawCompositeScore,
+    // P1094: the exact terms behind `total`, so the visible breakdown can be
+    // reconciled: total = clamp(round(weightedSumRaw / availableWeight) + Σadjustments).
+    scoreBreakdown: Object.freeze({
+      componentWeights: Object.freeze({ volScore: 25, momScore: 25, trendScore: 20, breadthScore: 20, macroScore: 10 }),
+      availableWeight,
+      weightedSumRaw,
+      rawCompositeScore,
+      adjustments: Object.freeze(adjustments.map((row) => Object.freeze({ ...row }))),
+      adjustmentsTotal,
+      unclampedScore,
+      floorApplied: unclampedScore != null && unclampedScore < 5,
+      ceilingApplied: unclampedScore != null && unclampedScore > 100,
+      total
+    }),
+    newsAdjustmentApplied: newsSentimentScore != null || decisionNewsRiskSignals.length > 0,
+    // A complete input vector is not the same thing as a validated predictive
+    // model.  Keep this false unless an explicit future validation contract is
+    // supplied; current score-backtest evidence is descriptive/reference-only.
+    // P1328: which inputs used the close basis, and the basis itself, travel with the score.
+    closeBasis: closeBasisKeys.length && input.closeBasis ? Object.freeze({ date: input.closeBasis.date, label: input.closeBasis.label || '', inSession: input.closeBasis.inSession === true, keys: Object.freeze(closeBasisKeys.slice()) }) : null,
+    decisionEligible: input.decisionEligible === true && closeBasisKeys.length === 0
+      && predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED
+      && total != null && !((hasDecisionEvidence && availableWeight < decisionCoverageThreshold) || componentMissing.length),
+    predictiveValidation,
+    researchBoundary: 'market-condition-index-reference-only',
+    componentEvidence: hasDecisionEvidence ? freezeEvidenceMap(input.decisionEvidence) : null
+  });
+}
+
+/**
+ * Convert the canonical market-environment score into the analysis signal
+ * envelope. This is intentionally descriptive (WATCH/WAIT/REDUCE), not a
+ * security-specific buy/sell prediction.
+ */
+export function deriveSignalDecisionFromTradingScore({ score = {}, inputVersion = 'unknown' } = {}) {
+  const total = finiteNumber(score?.total ?? score?.score);
+  const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
+  const predictiveValidation = score?.predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED
+    ? PREDICTIVE_VALIDATION_ESTABLISHED
+    : PREDICTIVE_VALIDATION_NOT_ESTABLISHED;
+  const decisionEligible = score?.decisionEligible === true && predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED;
+  const presentation = deriveTradingScoreDecisionPresentation({ score, inputVersion });
+  if (total == null) {
+    return Object.freeze({
+      modelVersion: SIGNAL_DECISION_MODEL_VERSION,
+      inputVersion,
+      status: 'blocked',
+      action: 'NO_ACTION',
+      score: null,
+      decisionEligible: false,
+      predictiveValidation,
+      reasons: Object.freeze(missing.length ? ['required-input-missing', ...missing.map((key) => `missing:${key}`)] : ['required-input-missing']),
+      presentation
+    });
+  }
+  const band = total >= 75 ? 'favorable' : total >= 60 ? 'constructive' : total >= 45 ? 'neutral' : total >= 30 ? 'caution' : 'defensive';
+  const reasons = [`market-condition-band:${band}`];
+  if (missing.length) reasons.push(...missing.map((key) => `missing:${key}`));
+  if (!decisionEligible) reasons.push('predictive-validation-not-established');
+  return Object.freeze({
+    modelVersion: SIGNAL_DECISION_MODEL_VERSION,
+    inputVersion,
+    status: !decisionEligible ? 'reference-only' : score?.partial ? 'partial' : 'current',
+    action: decisionEligible ? (total >= 60 ? 'WATCH' : total <= 30 ? 'REDUCE' : 'WAIT') : 'NO_ACTION',
+    score: total,
+    decisionEligible,
+    predictiveValidation,
+    reasons: Object.freeze(reasons),
+    presentation
+  });
+}
+
+/**
+ * The visible signal hero uses a five-tier Korean explanation while the
+ * machine-facing envelope above intentionally stays at the coarser
+ * WATCH/WAIT/REDUCE action level. Keeping that distinction explicit prevents
+ * the legacy wording from becoming a second scoring implementation.
+ */
+const CONDITION_BAND_LABELS = Object.freeze({ favorable: '매우 양호', constructive: '양호', neutral: '중립', caution: '주의', defensive: '위험' });
+
+export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersion = 'unknown' } = {}) {
+  const total = finiteNumber(score?.total ?? score?.score);
+  const missing = Array.isArray(score?.componentMissing) ? score.componentMissing.slice() : [];
+  const components = deriveTradingScoreComponents(score);
+  const optionalLabels = { vvix: 'VVIX', hyBp: '하이일드 스프레드', oilPrice: 'WTI' };
+  const optionalMissing = Array.isArray(score.missingOptionalInputs) ? score.missingOptionalInputs : [];
+  const optionalText = optionalMissing.length ? ` 보조 입력 미수신: ${optionalMissing.map(key => optionalLabels[key] || key).join(', ')}.` : '';
+  // P1118: the published total is not the weighted component sum — post-composite
+  // adjustments and the [5,100] clamp move it afterwards. Carry the exact terms into the
+  // presentation so the visible hero can reconcile the components it already shows with
+  // the total it shows beside them, instead of leaving the difference unnamed.
+  const breakdown = score?.scoreBreakdown && typeof score.scoreBreakdown === 'object' ? score.scoreBreakdown : null;
+  const predictiveValidation = score?.predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED
+    ? PREDICTIVE_VALIDATION_ESTABLISHED
+    : PREDICTIVE_VALIDATION_NOT_ESTABLISHED;
+  const decisionEligible = score?.decisionEligible === true && predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED;
+  const missingLabels = { volatility: '변동성', momentum: '위험선호', trend: '추세', breadth: '시장 폭', macro: '매크로' };
+  const missingText = missing.map((key) => missingLabels[key] || key).join(', ');
+  const reasons = missing.map((key) => `missing:${key}`);
+  // P1328: the basis the inputs were read on (e.g. "9/28 미국 정규장 종가 기준") is part of the statement.
+  const basisLabel = score?.closeBasis?.label || '';
+  if (total == null) {
+    return Object.freeze({
+      modelVersion: SIGNAL_PRESENTATION_MODEL_VERSION,
+      inputVersion,
+      status: 'blocked',
+      tier: 'blocked',
+      action: 'NO_ACTION',
+      score: null,
+      displayScore: '—',
+      decisionEligible: false,
+      predictiveValidation,
+      components,
+      breakdown,
+      decision: '점수 보류 — 확정 종가 근거 부족',
+      description: `${basisLabel ? `${basisLabel}, ` : ''}${missingText || '시장 환경'}: 확정 종가 기준의 필수 근거가 부족해 점수를 보류합니다. 개별 관측값은 별도로 확인하세요.${optionalText}`,
+      reasons: Object.freeze(['required-input-missing', ...reasons])
+    });
+  }
+
+  const partial = score?.partial === true;
+  // Until predictive validation is established, expose only a descriptive
+  // condition band.  In particular, do not emit WATCH/REDUCE or language that
+  // can be consumed as an entry, sizing, or de-risking instruction.
+  if (!decisionEligible) {
+    const conditionBand = total >= 75 ? 'favorable' : total >= 60 ? 'constructive' : total >= 45 ? 'neutral' : total >= 30 ? 'caution' : 'defensive';
+    return Object.freeze({
+      modelVersion: SIGNAL_PRESENTATION_MODEL_VERSION,
+      inputVersion,
+      status: partial ? 'partial' : 'reference-only',
+      tier: 'reference-only',
+      action: 'NO_ACTION',
+      score: total,
+      displayScore: partial ? `${total}*` : String(total),
+      conditionBand,
+      decisionEligible: false,
+      predictiveValidation,
+      components,
+      breakdown,
+      basisLabel,
+      decision: `시장환경 관찰 — ${CONDITION_BAND_LABELS[conditionBand]} 구간, 예측 검증 미확립`,
+      description: `${basisLabel ? `${basisLabel}. ` : ''}${missingText ? `${missingText} 자료가 없어 나머지 항목(${breakdown?.availableWeight ?? '—'}점 만점)을 100점으로 환산했습니다. ` : ''}변동성·추세·위험선호·시장 폭·거시 상태를 묶은 설명값입니다.${optionalText}`,
+      reasons: Object.freeze(['predictive-validation-not-established', ...reasons])
+    });
+  }
+  if (partial) {
+    return Object.freeze({
+      modelVersion: SIGNAL_PRESENTATION_MODEL_VERSION,
+      inputVersion,
+      status: 'partial',
+      tier: 'partial',
+      action: 'WAIT',
+      score: total,
+      displayScore: `${total}*`,
+      decisionEligible: false,
+      predictiveValidation,
+      components,
+      breakdown,
+      basisLabel,
+      decision: '판정 보류 — 부분 데이터 점수',
+      description: `${basisLabel ? `${basisLabel}, ` : ''}${missingText || '일부 입력'} 제외, 수신된 입력만 반영한 참고 점수입니다.`,
+      reasons: Object.freeze(['partial-inputs', ...reasons])
+    });
+  }
+
+  const bands = total >= 75
+    ? {
+        tier: 'favorable', action: 'WATCH', decision: '스트레스 신호 적음 — 종목별 근거 별도 확인',
+        description: '현재 시장 입력 조합에서 스트레스 신호가 적게 관측됩니다. 점수는 예측 신호가 아니며, 2016~2026 부분 검증에서는 점수 상위 구간의 이후 수익률이 더 높지 않았습니다.'
+      }
+    : total >= 60
+      ? {
+          tier: 'constructive', action: 'WATCH', decision: '스트레스 신호 일부 — 단독 판단 근거 아님',
+          description: '스트레스 신호가 일부 관측됩니다. 점수는 예측 신호가 아니며 종목·거래량·손익비는 별도로 확인할 항목입니다.'
+        }
+      : total >= 45
+        ? {
+            tier: 'neutral', action: 'WAIT', decision: '중립 — 신호 혼재',
+            description: '시장 신호가 혼재된 환경입니다. 점수는 예측 신호가 아니며, 종목별 근거와 본인 리스크 한도는 별도로 확인할 항목입니다.'
+          }
+        : total >= 30
+          ? {
+              tier: 'caution', action: 'REDUCE', decision: '주의 — 비중 부담 점검',
+              description: '스트레스 신호가 늘어난 구간입니다. 기존 포지션의 방어선, 현금 비중, 헤지 여부는 본인 기준으로 확인할 항목입니다.'
+            }
+          : {
+              tier: 'defensive', action: 'REDUCE', decision: '위험 — 방어 조건 점검',
+              description: '스트레스 신호가 다수인 구간입니다. 신규 진입 여부와 현금·헤지, VIX 변화는 본인 기준으로 확인할 항목입니다.'
+            };
+
+  return Object.freeze({
+    modelVersion: SIGNAL_PRESENTATION_MODEL_VERSION,
+    inputVersion,
+    status: 'current',
+    ...bands,
+    score: total,
+    displayScore: String(total),
+    decisionEligible: true,
+    predictiveValidation,
+    components,
+    breakdown,
+    reasons: Object.freeze([`trading-score-tier:${bands.tier}`])
+  });
+}

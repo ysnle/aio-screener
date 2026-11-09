@@ -9,8 +9,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { INTERPRETATION_STAGES } from '../src/domain/interpretation/market-interpretation.js';
-import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { INTERPRETATION_STAGES } from '../src/domain/market/interpretation/market-interpretation.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const label = 'v58.31 interpretation boundary';
@@ -19,22 +19,22 @@ const files = [...walk('src'), ...walk('scripts').filter((file) => !/^scripts\/(
 const read = (file) => readFileSync(path.join(ROOT, file), 'utf8');
 const failures = [];
 
-const PIPELINE = 'src/domain/interpretation/market-interpretation.js';
+const PIPELINE = 'src/domain/market/interpretation/market-interpretation.js';
 const STAGES = {
   buildMarketRegime: 'src/domain/briefing/market-read.js',
   buildMarketRead: 'src/domain/briefing/market-read.js',
   buildMacroRead: 'src/domain/macro/macro-read.js',
-  buildIndexEarnings: 'src/domain/market/index-earnings.js',
-  buildMacroCrossroads: 'src/domain/market/macro-crossroads.js',
-  buildMarketScenarios: 'src/domain/market/regime-scenarios.js',
-  buildScenarioOutlook: 'src/domain/market/scenario-outlook.js',
+  buildIndexEarnings: 'src/domain/market/indices/index-earnings.js',
+  buildMacroCrossroads: 'src/domain/market/regime/macro-crossroads.js',
+  buildMarketScenarios: 'src/domain/market/regime/regime-scenarios.js',
+  buildScenarioOutlook: 'src/domain/market/regime/scenario-outlook.js',
   buildThemePlaybook: 'src/domain/scenarios/theme-playbook.js',
   buildMarketGuide: 'src/domain/guide/market-guide.js'
 };
 // Declared exceptions: a different question on different inputs, not a second assembly of today's interpretation.
 const EXCEPTIONS = {
   'src/domain/briefing/daily-diff.js': ['buildMarketRegime'], // axis flips compared on closes only, today vs the prior session (its headline says credit is left out)
-  'src/domain/market/regime-scenarios.js': ['buildMarketRegime', 'buildMarketScenarios'], // the stage's own default argument and its legacy render helper
+  'src/domain/market/regime/regime-scenarios.js': ['buildMarketRegime', 'buildMarketScenarios'], // the stage's own default argument and its legacy render helper
   'scripts/producer/theme-stage-backfill.mjs': ['buildThemePlaybook'] // v58.79: past sessions' theme stages from past closes (no macro inputs), not today's interpretation
 };
 
@@ -67,7 +67,7 @@ for (const adapter of ['src/data/selectors/interpretation.js', 'scripts/lib/mark
 }
 // Behaviour on the published artifacts: one build gives every stage; the browser adapter reuses it until an input object
 // changes; a stage that throws is reported, not half-built.
-const { buildMarketInterpretation } = await import('../src/domain/interpretation/market-interpretation.js');
+const { buildMarketInterpretation } = await import('../src/domain/market/interpretation/market-interpretation.js');
 const { marketInterpretation, registerInterpretationStore } = await import('../src/data/selectors/interpretation.js');
 const artifact = (name) => { try { return JSON.parse(read(`public-data/${name}`)); } catch (_) { return null; } };
 const historyRaw = artifact('history.json');

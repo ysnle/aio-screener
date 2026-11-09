@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // v59.70 (data audit R2): history.json has one reader. Its stored shape is history.v2 (field dictionary + checkedAt,
-// src/domain/market/history-rows.js); every consumer expands it through readHistoryRows(), which returns the v1 rows.
+// src/domain/market/indices/history-rows.js); every consumer expands it through readHistoryRows(), which returns the v1 rows.
 // This gate fails (1) a script, module or classic script that reads the file without that expander — a reader that
 // parses it itself would see the compact rows — and (2) a round trip that does not give back the rows exactly, for the
 // published file and for a v1-shaped copy of it.
@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { readHistoryRows, compactHistoryRows, HISTORY_SCHEMA_V2 } from '../src/domain/market/history-rows.js';
+import { readHistoryRows, compactHistoryRows, HISTORY_SCHEMA_V2 } from '../src/domain/market/indices/history-rows.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
@@ -18,7 +18,7 @@ const check = (label, ok, detail = '') => { if (!ok) failures.push(`${label}${de
 const READ = /(?:readFile(?:Sync)?|JSON\.parse|readJson|readIf|json|artifact|read|fetch)\s*\([^)\n]*(?:history\.json|\bHIST\b|INPUT_PATHS\.history|historyPath\b|HISTORY_PATH)/;
 const URL_READ = /url\s*=\s*['"]\.\/public-data\/history\.json['"]/;
 const EXPANDS = /readHistoryRows|expandHistoryRows|__aioReadHistoryRows/;
-const SKIP = new Set(['src/domain/market/history-rows.js', 'scripts/ci-history-access-check.mjs']);
+const SKIP = new Set(['src/domain/market/indices/history-rows.js', 'scripts/ci-history-access-check.mjs']);
 const walk = (dir) => fs.readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap((entry) => {
   const rel = `${dir}/${entry.name}`;
   if (entry.isDirectory()) return entry.name === 'node_modules' || entry.name === 'fixtures' ? [] : walk(rel);

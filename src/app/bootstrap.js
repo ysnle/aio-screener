@@ -26,8 +26,8 @@ import { clearArtifactCache, loadJsonArtifact, stableFetcher } from '../data/art
 import { artifactUrl } from '../data/artifact-registry.js';
 import { createEvidence } from '../data/contracts/evidence.js';
 import { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } from '../data/selectors/evidence.js';
-import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
-import { finalizePageDecision } from '../domain/signal/page-decision.js';
+import { computeTradingScoreModel } from '../domain/market/signal/trading-score.js';
+import { finalizePageDecision } from '../domain/market/signal/page-decision.js';
 import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hubs.js';
 import { registerInterpretationStore } from '../data/selectors/interpretation.js';
 import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
@@ -48,14 +48,14 @@ import { collectMarketInputs } from '../data/selectors/market-inputs.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../domain/briefing/market-read.js';
 import { createCloseBasisEvidenceReader, closeBasisSubstituteFor, renderCloseBasisEvidenceContext } from '../ai/context/close-basis-evidence.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
-import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
+import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/market/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 // The legacy snapshot's technical definitions, VCP read and MA classifier left with it
 // (src/domain/technical/snapshot.js, installed by the lazy legacy-screen-bridges.js).
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
-import { classifyBreadthParticipation } from '../domain/market/breadth.js';
-import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
-import { latestCompletedUsSession, latestCompletedKrSession, latestCompletedSession } from '../domain/market/market-calendar.js';
+import { classifyBreadthParticipation } from '../domain/market/breadth/breadth.js';
+import { spxMovingAveragesFromHistory } from '../domain/market/indices/moving-average.js';
+import { latestCompletedUsSession, latestCompletedKrSession, latestCompletedSession } from '../domain/market/session/market-calendar.js';
 import { regimePulse } from '../domain/briefing/regime-pulse.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk } from '../domain/portfolio/concentration.js';

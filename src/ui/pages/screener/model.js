@@ -9,7 +9,7 @@ import { consensusView } from '../../../domain/fundamental/consensus-read.js';
 import { consensusRowFor } from '../../../data/consensus-estimates.js';
 import { CHANNEL_SIGNAL_KEYS, channelSignalValue } from '../../../domain/screener/channel-signals.js';
 import { themeStagesFor, scenarioStateCurrent } from '../../../domain/scenarios/theme-stage.js';
-import { koreanThemeGroups } from '../../../domain/market/korea-participation.js';
+import { koreanThemeGroups } from '../../../domain/market/korea/korea-participation.js';
 import { signedText, finiteNumber as finite } from '../../../domain/shared/number.js';
 // Row arrays from the store and the workbench are replaced, never edited in place, so one market's slice is cut once
 // per array. Handing renderBacktest the same slice also lets the factor-overlap cache below hit (a fresh filter result

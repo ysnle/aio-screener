@@ -699,7 +699,7 @@ if (domWriterIntersection.length) {
 const modules = await Promise.all([
   import(pathToFileURL(path.join(root, 'src/data/contracts/evidence.js'))),
   import(pathToFileURL(path.join(root, 'src/data/evidence-store.js'))),
-  import(pathToFileURL(path.join(root, 'src/domain/sentiment/metrics.js'))),
+  import(pathToFileURL(path.join(root, 'src/domain/market/sentiment/metrics.js'))),
   import(pathToFileURL(path.join(root, 'src/state/store.js'))),
   import(pathToFileURL(path.join(root, 'src/state/slices/sentiment.js'))),
   import(pathToFileURL(path.join(root, 'src/state/selectors/sentiment.js'))),

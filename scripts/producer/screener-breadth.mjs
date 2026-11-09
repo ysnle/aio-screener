@@ -3,13 +3,13 @@
 // every name it exported before.
 import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from '../lib/atomic-write.mjs';
-import { listingMarketOfSymbol } from '../../src/domain/market/session-time.js';
-import { evaluateSymbolSignals, BREADTH_SIGNAL_MODEL_VERSION } from '../../src/domain/market/breadth-signals.js';
+import { listingMarketOfSymbol } from '../../src/domain/market/session/session-time.js';
+import { evaluateSymbolSignals, BREADTH_SIGNAL_MODEL_VERSION } from '../../src/domain/market/breadth/breadth-signals.js';
 import { round } from '../lib/producer-math.mjs';
 import { isSessionComplete, sessionSegmentOfSymbol } from '../../src/domain/screener/price-factors.js';
 import { REPO_ROOT, HIST } from './paths.mjs';
 import { normalizeHistoryRows } from './history.mjs';
-import { readHistoryRows, compactHistoryRows } from '../../src/domain/market/history-rows.js';
+import { readHistoryRows, compactHistoryRows } from '../../src/domain/market/indices/history-rows.js';
 
 // Reconstruct daily breadth from the same dated adjusted-close rows used by
 // the screener. Date alignment is explicit; array position is never used to
@@ -297,7 +297,7 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
     distributionRows += 1;
   }
   // v59.57: Nasdaq Composite rally attempt (phase 0 none · 1 attempt · 2 confirmed), its day count from the lowest close,
-  // and the follow-through session flag — the counterpart of the distribution-day count (src/domain/market/rally-attempt.js).
+  // and the follow-through session flag — the counterpart of the distribution-day count (src/domain/market/regime/rally-attempt.js).
   let rallyRows = 0;
   for (const point of Array.isArray(rally?.series) ? rally.series : []) {
     // A cold-start state (the 63-session high window not yet full) never overwrites a row an earlier, longer run wrote.

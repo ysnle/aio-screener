@@ -95,7 +95,7 @@ check(!/xbrl\/frames|CY\$\{year\}Q/.test(read('src/ui/components/fundamental-sea
 check(read('src/app/bootstrap.js').includes("legacy.on('aio:entityChanged', syncAnalysis.sync)"), 'native analysis refreshes when entity selection changes');
 const suppliedMaterials = read('src/domain/research/supplied-materials.js');
 const suppliedBridge = read('src/ui/knowledge/supplied-material-bridge.js');
-const chartContract = read('src/domain/chart/contract.js');
+const chartContract = read('src/domain/technical/chart-contract.js');
 const entityNormalizer = read('src/data/normalize/entity.js');
 const analysisPage = read('src/ui/pages/analysis.js');
 const screenerContract = read('src/data/contracts/screener.js');
@@ -152,7 +152,7 @@ check(screenerOrchestrator.includes('SCREENER_REFERENCE_FRAMEWORK_IDS') && scree
 // nathan-framework-ids.js; the 53 KB frameworks load with the AI planner. The leaf must name the same frameworks in order.
 const nathanIdLeaf = await import(new URL('../src/domain/research/nathan-framework-ids.js', import.meta.url));
 const nathanFrameworkModule = await import(new URL('../src/domain/research/nathan-frameworks.js', import.meta.url));
-check(JSON.stringify(nathanIdLeaf.NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS) === JSON.stringify(nathanFrameworkModule.NATHAN_PREVIOUS_THREADS_FRAMEWORKS.map((framework) => framework.id)), 'the boot-time Nathan framework id list equals the frameworks, in order');
+check(JSON.stringify(nathanIdLeaf.NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS) === JSON.stringify(nathanFrameworkModule.NATHAN_PREVIOUS_THREADS_FRAMEWORKS.map((framework) => framework.id)), 'v59.88 the boot-time Nathan framework id list equals the frameworks, in order');
 check(nathanFrameworkPackSource.includes('NATHAN_KNOWLEDGE_CONCEPTS') && nathanFrameworkPackSource.includes('NATHAN_KNOWLEDGE_ALIASES') && nathanFrameworkPackSource.includes('NATHAN_ANALYSIS_PROTOCOL'), 'Nathan material has a canonical concept, dictionary and analysis-protocol projection');
 check(nathanFrameworkArtifact.schemaVersion === 'nathan-framework-pack.v1' && nathanFrameworkArtifact.articles?.length === 28 && nathanFrameworkArtifact.aliases?.length >= 250, 'Nathan canonical framework artifact preserves 28 structural articles and the broad term dictionary');
 check(nathanFrameworkArtifact.articles?.every((article) => article.surface === 'nathan-frameworks' && article.publication === 'EDUCATIONAL_REFERENCE_ONLY' && article.sources?.every((source) => !source.url)), 'Nathan retrieval artifact keeps structured concepts without replaying raw X URLs');
@@ -164,7 +164,7 @@ check(['2095849461423456366', '2095688508597788864', '2095270553406124090', 'git
 check(['screener', 'macro', 'fxbond', 'themes', 'ticker', 'fundamental', 'masters', 'technical'].every((route) => suppliedMaterials.includes(`${route}: Object.freeze`)) && suppliedMaterials.includes("'theme-detail': Object.freeze"), 'structural frameworks are mapped to screener and major research routes');
 check(chat.includes('supplied-materials-2026-09-05') && chat.includes('AIO_SUPPLIED_MATERIALS_20260905_REFERENCE') && chat.includes('2026-09-05 자료 시계열 정렬'), 'chat context carries the direct-read packet and explicit time-series hard stops');
 check(chartContract.includes('canonicalEpochMs') && chartContract.includes('normalizeChartBar') && chartContract.includes('classifyChartUpdate') && chartContract.includes('negotiateChartRenderer'), 'Vela-derived chart boundary exposes canonical bars, update settlement and capability negotiation');
-check(entityNormalizer.includes("from '../../domain/chart/contract.js'") && entityNormalizer.includes('epochMs: bar.epochMs'), 'entity and technical chart inputs cross the canonical time/bar boundary');
+check(entityNormalizer.includes("from '../../domain/technical/chart-contract.js'") && entityNormalizer.includes('epochMs: bar.epochMs'), 'entity and technical chart inputs cross the canonical time/bar boundary');
 const bump = read('scripts/bump-version.mjs');
 const recovery = vm.createContext({ resumeFrom: 'v54.67', prevVer: 'v54.67', newVer: 'v54.68' });
 vm.runInContext("const targetPattern = (pattern) => new RegExp(pattern.source.replaceAll('v54\\\\.67', 'v54\\\\.68'), pattern.flags);\n" + section(bump, 'function replaceOnce(', 'function replaceAll('), recovery);

@@ -3,7 +3,7 @@ import { dirname } from 'node:path';
 import { createMarketSnapshot, EVIDENCE_TIER_INSTRUMENTS, TIER_0_INSTRUMENTS, tier0Coverage, validateMarketSnapshot } from '../src/data/contracts/market-snapshot.js';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { isLatestUsRegularClose, latestCompletedKrSession, latestCompletedUsSession, nyParts } from '../src/ai/time/market-session.js';
-import { dateInTimezone, resolveMarketCalendarSession } from '../src/domain/market/market-calendar.js';
+import { dateInTimezone, resolveMarketCalendarSession } from '../src/domain/market/session/market-calendar.js';
 
 export const MARKET_SNAPSHOT_OUT = new URL('../public-data/market-snapshot.json', import.meta.url);
 export const MARKET_SNAPSHOT_STATUS_OUT = new URL('../public-data/market-snapshot-status.json', import.meta.url);
@@ -29,7 +29,7 @@ const PUBLISHABLE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 // costs freshness, which is the safe direction.
 const CLOSED_VENUE_MAX_AGE_MS = 3 * DAY_MS;
 
-// P1617: the KR holiday calendar now exists as a registry (src/domain/market/market-calendar.js),
+// P1617: the KR holiday calendar now exists as a registry (src/domain/market/session/market-calendar.js),
 // so the Korean-index closed-venue bound is calendar-derived instead of a fixed window. A venue
 // holiday adjacent to a weekend (한글날 Fri 2026-10-09 + 주말 → no KRX session between the Thu 10/8 close and the Mon 10/12 open)
 // pushed a legitimate Wednesday close past the 72h leash and the snapshot attempt failed closed

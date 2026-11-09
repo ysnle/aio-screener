@@ -1,7 +1,7 @@
 import { deriveTechnicalStageFromOhlcv } from '../../domain/technical/stage.js';
-import { computeTradingScoreModel, deriveSignalDecisionFromTradingScore, deriveTradingScoreDecisionPresentation, TRADING_SCORE_MODEL_VERSION } from '../../domain/signal/trading-score.js';
-import { normalizeSignalScoreMode, describeSignalScoreMode } from '../../domain/signal/mode.js';
-import { deriveHomeSummary } from '../../domain/home/summary.js';
+import { computeTradingScoreModel, deriveSignalDecisionFromTradingScore, deriveTradingScoreDecisionPresentation, TRADING_SCORE_MODEL_VERSION } from '../../domain/market/signal/trading-score.js';
+import { normalizeSignalScoreMode, describeSignalScoreMode } from '../../domain/market/signal/mode.js';
+import { deriveHomeSummary } from '../../domain/briefing/home-summary.js';
 
 export function normalizeAnalysis(raw = {}) {
   // The retired 0-100 market-health grade no longer rides on the technical slice (no surface read it after P1420).

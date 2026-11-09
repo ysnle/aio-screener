@@ -9,14 +9,14 @@
 import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from '../lib/atomic-write.mjs';
 import { closesToFactors, isSessionComplete } from '../../src/domain/screener/price-factors.js';
-import { listingMarketOfSymbol } from '../../src/domain/market/session-time.js';
+import { listingMarketOfSymbol } from '../../src/domain/market/session/session-time.js';
 import { buildGroupStrength } from '../../src/domain/themes/group-strength.js';
 import { krThemeArtifactRead } from '../../src/domain/themes/kr-themes.js';
 import { buildThemePlaybook } from '../../src/domain/scenarios/theme-playbook.js';
 import { THEME_STAGE_RULE } from '../../src/domain/scenarios/analogs.js';
 import { loadThemeMaps } from '../build-scenario-state.mjs';
 import { REPO_ROOT } from './paths.mjs';
-import { readHistoryRows } from '../../src/domain/market/history-rows.js';
+import { readHistoryRows } from '../../src/domain/market/indices/history-rows.js';
 
 export const THEME_STAGE_HISTORY_SCHEMA = 'theme-stage-history.v1';
 export const THEME_STAGE_BACKFILL_SESSIONS = 120;

@@ -1,7 +1,7 @@
 // v59.59 (formal inventory D1, 2026-11-02): calendar-aware exhaustive sweep of the producer's market-session classifier
 // (scripts/build-market-snapshot.mjs deriveMarketSession). ci-market-snapshot-contract-check already walks two ordinary
 // weeks with a weekday-only oracle; the 16 session failures behind P2098/P2159/P2162 were each the next calendar boundary.
-// This sweep takes its oracle from the exchange calendars (src/domain/market/market-calendar.js) instead: a print is in
+// This sweep takes its oracle from the exchange calendars (src/domain/market/session/market-calendar.js) instead: a print is in
 // session only between that day's registered open and close, and otherwise the provider holds the latest registered
 // completed close. Windows: 11-16..11-30 (KRX 수능 10:00-16:30, US Thanksgiving, the 11-27 13:00 half day),
 // 12-21..01-06 (US Christmas Eve half day and holiday, KRX year-end closure, New Year, KRX 01-04 10:00 open) and
@@ -23,7 +23,7 @@
 // Out of scope: FX/futures/commodities (weekday oracle in scripts/lib/market-session-sweep.mjs), ^VIX/^TNX/^IRX
 // extended hours, Tokyo/Hong Kong (no holiday calendar by design), PRE/POST provider hints, quoteQuality.
 import * as snapshot from './build-market-snapshot.mjs';
-import * as calendar from '../src/domain/market/market-calendar.js';
+import * as calendar from '../src/domain/market/session/market-calendar.js';
 import { importVariant, verifyCoverage } from './lib/model-check-kit.mjs';
 
 const GATE = 'market-session-model';
@@ -174,9 +174,9 @@ const exposeScheduled = await importVariant(MODULE, [['function scheduledSession
 const drift = verifyCoverage(GATE, [
   { module: MODULE, name: 'deriveMarketSession', fn: snapshot.deriveMarketSession },
   { module: MODULE, name: 'scheduledSession', fn: exposeScheduled.scheduledSession },
-  { module: 'src/domain/market/market-calendar.js', name: 'isLatestUsRegularClose', fn: calendar.isLatestUsRegularClose },
-  { module: 'src/domain/market/market-calendar.js', name: 'latestCompletedUsSession', fn: calendar.latestCompletedUsSession },
-  { module: 'src/domain/market/market-calendar.js', name: 'latestCompletedKrSession', fn: calendar.latestCompletedKrSession }
+  { module: 'src/domain/market/session/market-calendar.js', name: 'isLatestUsRegularClose', fn: calendar.isLatestUsRegularClose },
+  { module: 'src/domain/market/session/market-calendar.js', name: 'latestCompletedUsSession', fn: calendar.latestCompletedUsSession },
+  { module: 'src/domain/market/session/market-calendar.js', name: 'latestCompletedKrSession', fn: calendar.latestCompletedKrSession }
 ], { sync: process.argv.includes('--sync') });
 if (drift.length) fail(`covered code changed — re-read the oracle in this file's header against it, update it, then rerun with --sync:\n  ${drift.join('\n  ')}`);
 

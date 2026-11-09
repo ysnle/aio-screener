@@ -1,9 +1,9 @@
 // Theme screens: the sector and theme board — day splits, period tabs, Korea close blocks, performance and near-high bars, chips and the board render.
 import { selectThemesItems } from '../../../state/selectors/themes.js';
 import { themeTeachFor } from '../../components/theme-playbook-view.js';
-import { rotationFlow } from '../../../domain/market/page-flow.js';
+import { rotationFlow } from '../../../domain/market/story/page-flow.js';
 import { krThemeArtifactRead, krThemeLabel } from '../../../domain/themes/kr-themes.js';
-import { buildThemeFlow } from '../../../domain/market/market-flow.js';
+import { buildThemeFlow } from '../../../domain/market/regime/market-flow.js';
 import { RRG_BORDER_LABEL, RRG_QUADRANT_WORDS } from '../../../domain/themes/rrg.js';
 import { rrgRecentReading } from '../../../domain/themes/recent-check.js';
 import { readMarketRegime } from '../../components/market-regime.js';

@@ -93,7 +93,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 // change to its latest close, the one number 매크로 and 시장 상태 print (it was clamped to the SPX date).
 {
   const { buildKrwDecomposition } = await load('src/domain/macro/krw-decomposition.js');
-  const { closeChange } = await load('src/domain/market/market-windows.js');
+  const { closeChange } = await load('src/domain/market/session/market-windows.js');
   const rows = [];
   for (let day = Date.UTC(2025, 0, 6), i = 0; rows.length < 320; day += 86400000) {
     const wd = new Date(day).getUTCDay();
@@ -270,7 +270,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   }
   // v59.70: every US theme id survives each old address form (it used to open THEME_MAP[0] = 방산 for all of them), and a
   // retired Korean id (UAM·우주·양자) opens the plain list.
-  const { loadThemeMaps } = await import('../scripts/build-scenario-state.mjs');
+  const { loadThemeMaps } = await import('./build-scenario-state.mjs');
   const { usThemes } = loadThemeMaps();
   const moved = [];
   for (const { id } of usThemes) {
@@ -960,7 +960,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 
 // ── W1-03: Trading Score reference input must fail closed ───────────────────────────────────
 {
-  const { computeTradingScoreModel } = await load('src/domain/signal/trading-score.js');
+  const { computeTradingScoreModel } = await load('src/domain/market/signal/trading-score.js');
   const decision = (value) => ({ value, status: 'live', allowedUse: 'decision' });
   const reference = (value) => ({ value, status: 'snapshot', allowedUse: 'reference' });
   const full = { vix: decision(18), vvix: decision(90), dxy: decision(100), tnx: decision(3.5), oilPrice: decision(80), fg: decision(50), spx200ma: decision(450), spx50ma: decision(480), spxPrice: decision(500), breadth200: decision(60), hyBp: decision(300) };
@@ -1132,7 +1132,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   }
 }
 
-// ── domain/market/breadth.js ────────────────────────────────────────────────────────────────
+// ── domain/market/breadth/breadth.js ────────────────────────────────────────────────────────────────
 // Not a legacy extraction (no prior implementation existed for this classifier — P746 follow-up,
 // Fable-advisor design, 2026-07-21), so there is no legacy golden fixture to dump/compare against
 // the way ci-domain-parity-check.mjs verifies trading-score/RRG/Weinstein-MTF/news-scoring. Hand-
@@ -1141,14 +1141,14 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 // v59.88 (ADR-0003 S4 follow-up): the 오늘 Korea line's separate-check clause is the domain's reading. With no record
 // tail the 5-session line (RULES.briefing.krSeparate5dPct, 5%) decides it either way; under it the clause is empty.
 {
-  const { krSeparateCheckTone } = await load('src/domain/market/kr-index-record.js');
+  const { krSeparateCheckTone } = await load('src/domain/market/korea/kr-index-record.js');
   const kospi = (d5) => ({ date: '2026-11-06', d5 });
   if (krSeparateCheckTone([], kospi(-6)) !== ' — 5거래일 낙폭이 커 미국장과 따로 확인할 구간입니다.') fail('krSeparateCheckTone: a -6% five-session KOSPI names the drop');
   if (krSeparateCheckTone([], kospi(5)) !== ' — 5거래일 상승 폭이 커 미국장과 따로 확인할 구간입니다.') fail('krSeparateCheckTone: +5% is on the line and names the rise');
   if (krSeparateCheckTone([], kospi(4.9)) !== '' || krSeparateCheckTone([], kospi(null)) !== '' || krSeparateCheckTone([], null) !== '') fail('krSeparateCheckTone: under the line, unknown or absent stays empty');
 }
 {
-  const { classifyBreadthParticipation } = await load('src/domain/market/breadth.js');
+  const { classifyBreadthParticipation } = await load('src/domain/market/breadth/breadth.js');
   const broad = classifyBreadthParticipation({ sma20: 65, sma50: 60, sma20Delta: 3 });
   if (!broad.available || broad.level !== 'broad' || broad.direction !== 'rising') fail(`breadth: 65/60 sma20/50 with +3pp delta should classify broad+rising, got ${JSON.stringify(broad)}`);
   const narrow = classifyBreadthParticipation({ sma20: 30, sma50: 40, sma20Delta: -5 });
@@ -1228,7 +1228,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!/국가·주제 필터와 무관/.test(country.channel) || country.channel !== topic.channel || country.channel !== channelChip.channel) fail(`P1537 the channel note must state it ignores the country/topic filter whenever a control is active, got ${JSON.stringify([country.channel, topic.channel, channelChip.channel])}`);
   if (describeNewsScope(null).articles !== '필터 없음' || describeNewsScope(undefined).channel !== '') fail('P1537 missing controls read as no filter');
   // v57.77: 뉴스 ends with 이어서 볼 곳 like every other screen — 브리핑 then 시장 상태; 한국 opens the Korea board.
-  const { newsFlow } = await load('src/domain/market/page-flow.js');
+  const { newsFlow } = await load('src/domain/market/story/page-flow.js');
   const plainNext = newsFlow().next;
   const krNext = newsFlow({ countryFilter: 'kr' }).next;
   if (plainNext.map((item) => item.route).join(',') !== 'briefing,signal' || plainNext.some((item) => !item.label || !item.why)) fail(`v57.77 newsFlow links 브리핑 then 시장 상태 with a reason each, got ${JSON.stringify(plainNext)}`);
@@ -1257,9 +1257,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (rrgPoints.some((p) => p.rsRatio <= rrgAxes.x.min || p.rsRatio >= rrgAxes.x.max || p.rsMomentum <= rrgAxes.y.min || p.rsMomentum >= rrgAxes.y.max) || rrgAxes.x.ticks.length < 3 || !(rrgAxes.x.min < 100 && rrgAxes.x.max > 100)) fail(`M09 rrg axes must contain every point and the 100 baseline: ${JSON.stringify(rrgAxes)}`);
   const nearAxes = rrgAxisDomain([{ rsRatio: 101, rsMomentum: 101.2 }]);
   if (!(nearAxes.x.min < 100 && nearAxes.y.min < 100)) fail('M09 rrg axes must include the 100 baseline even when every point is above it');
-  const { deriveHomeSummary } = await load('src/domain/home/summary.js');
+  const { deriveHomeSummary } = await load('src/domain/briefing/home-summary.js');
   if (deriveHomeSummary({ sentiment: { fearGreed: NaN }, signal: { score: Infinity }, newsCount: -2 }).status !== 'unavailable') fail('home: non-finite inputs counted as available');
-  const { deriveSentimentSummary } = await load('src/domain/sentiment/metrics.js');
+  const { deriveSentimentSummary } = await load('src/domain/market/sentiment/metrics.js');
   const sentiment = deriveSentimentSummary({ fearGreed: 101, vix9d: -1, vix: 17, vix3m: 20, vix6m: 22 });
   if (!sentiment.blocked || !Object.isFrozen(sentiment.vixTermStructure.points)) fail('sentiment: out-of-domain inputs were promoted or mutable');
   // P1426: the transmission lens was retired; the macro read's direction helpers are pure and checked here.
@@ -1418,9 +1418,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (allPriced.status !== 'current' || allPriced.issues.length || heldWithTotal.status !== 'current') fail('P1561 a fully priced set and a set with an explicit total stay current');
 }
 
-// ── domain/signal/trading-score.js: signal envelope ──────────────────────────────────────────
+// ── domain/market/signal/trading-score.js: signal envelope ──────────────────────────────────────────
 {
-  const { computeTradingScoreModel, deriveSignalDecisionFromTradingScore, deriveTradingScoreDecisionPresentation, SIGNAL_PRESENTATION_MODEL_VERSION } = await load('src/domain/signal/trading-score.js');
+  const { computeTradingScoreModel, deriveSignalDecisionFromTradingScore, deriveTradingScoreDecisionPresentation, SIGNAL_PRESENTATION_MODEL_VERSION } = await load('src/domain/market/signal/trading-score.js');
   const score = computeTradingScoreModel({ mode: 'swing', vix: 18, vvix: 90, dxy: 100, tnx: 3.5, oilPrice: 80, fg: 50, maCurrent: true, spx200ma: 450, spx50ma: 480, spxPrice: 500, breadthAvailable: true, breadth200: 60, hyBp: 300, newsSentimentScore: 50, newsRiskSignals: [] });
   const signal = deriveSignalDecisionFromTradingScore({ score, inputVersion: 'unit.v1' });
   if (signal.modelVersion !== 'signal-from-trading-score.v1' || signal.score !== score.total || signal.action !== 'NO_ACTION' || signal.status !== 'reference-only' || signal.decisionEligible !== false || signal.predictiveValidation !== 'not-established') fail(`signal: unvalidated score must remain descriptive/reference-only, got ${JSON.stringify(signal)}`);
@@ -1435,7 +1435,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (blocked.presentation?.decision !== '점수 보류 — 확정 종가 근거 부족' || !/확정 종가 기준의 필수 근거/.test(blocked.presentation?.description || '') || /실시간·검증된 입력/.test(blocked.presentation?.description || '')) fail(`P1349: blocked presentation contradicts the close-basis reference policy ${JSON.stringify(blocked.presentation)}`);
   // ── P1328/R670: the reference score is computed on the latest completed US regular close ──
   {
-    const { resolveCloseBasis, evaluateCloseBasisInput, describeCloseBasis } = await load('src/domain/signal/close-basis.js');
+    const { resolveCloseBasis, evaluateCloseBasisInput, describeCloseBasis } = await load('src/domain/market/signal/close-basis.js');
     const now = Date.parse('2026-09-29T01:50:00Z'); // Tue 10:50 KST, US closed after Mon 9/28
     const basis = resolveCloseBasis(now);
     if (basis?.date !== '2026-09-28' || basis.previousDate !== '2026-09-25' || new Date(basis.closeMs).toISOString() !== '2026-09-28T20:00:00.000Z' || basis.inSession) fail(`close basis: wrong latest session ${JSON.stringify(basis)} (P1328)`);
@@ -1466,7 +1466,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
   // ── P1326/R671: one quote-currentness vocabulary from observation times + the US calendar ──
   {
-    const { describeQuoteCurrentness } = await load('src/domain/market/quote-currentness.js');
+    const { describeQuoteCurrentness } = await load('src/domain/market/session/quote-currentness.js');
     const at = (iso) => Date.parse(iso);
     const inSession = { date: '2026-09-28', closeMs: at('2026-09-28T20:00:00Z'), previousDate: '2026-09-25', inSession: true };
     const closedSession = { ...inSession, inSession: false };
@@ -1486,7 +1486,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
   // ── P1339: SPX 50/200 MAs derive from completed daily history when the live chart is absent ──
   {
-    const { spxMovingAveragesFromHistory } = await load('src/domain/market/moving-average.js');
+    const { spxMovingAveragesFromHistory } = await load('src/domain/market/indices/moving-average.js');
     const rows = Array.from({ length: 200 }, (_, i) => ({ date: new Date(Date.UTC(2026, 0, 1) + i * 86400000).toISOString().slice(0, 10), spx: i < 150 ? 100 : 200 }));
     const ma = spxMovingAveragesFromHistory([...rows].reverse().concat([{ date: 'bad', spx: 1e9 }, { date: '2027-01-01', spx: null }]));
     if (!ma || ma[50] !== 200 || ma[200] !== 125 || ma.asOf !== rows[199].date) fail(`moving average: expected 200/125 on sorted valid closes, got ${JSON.stringify(ma)} (P1339)`);
@@ -1542,7 +1542,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     // v59.63: the market-day ledger — unusual by its own volatility, a stock tied to its own news or the price it runs on,
     // a big move with neither kept as unexplained, a group tied through its leaders only, threads over subject/peer links.
     {
-      const { buildMarketDay } = await load('src/domain/market-day/facts.js');
+      const { buildMarketDay } = await load('src/domain/market/day/facts.js');
       const days = []; for (let d = Date.parse('2026-08-03T12:00:00Z'); days.length < 70; d += 86400000) { const day = new Date(d); if (![0, 6].includes(day.getUTCDay())) days.push(day.toISOString().slice(0, 10)); }
       const history = days.map((date, i) => ({ date, wti: i === 69 ? 100 * 0.92 : 100 + (i % 2 ? 0.5 : -0.5), spx: 5000 + (i % 2 ? 10 : -10), fieldMeta: { wti: { sessionDate: date }, spx: { sessionDate: date } } }));
       const nowMs = Date.parse(`${days[69]}T22:00:00Z`);
@@ -1618,7 +1618,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       // v59.66: 시장 상태 reads indicators in pairs — an index under its 50-day line with most members above it is a narrow
       // pullback; extreme fear with a calm VIX is not a capitulation; falling yields with widening spreads is growth fear;
       // a day as large as a week is read on the day.
-      const { crossReadings } = await load('src/domain/market/cross-readings.js');
+      const { crossReadings } = await load('src/domain/market/regime/cross-readings.js');
       const cdays = []; for (let d = Date.parse('2026-06-01T12:00:00Z'); cdays.length < 80; d += 86400000) { const day = new Date(d); if (![0, 6].includes(day.getUTCDay())) cdays.push(day.toISOString().slice(0, 10)); }
       const chist = cdays.map((date, i) => ({ date, spx: i < 79 ? 5000 : 4800, rsp: 100 + i * 0.2, breadth50: 68, vix: 21, vix3m: 22, fg: 19, tnx: 4.9 - i * 0.02, kospi: i < 79 ? 5000 : 4800, usdkrw: i < 79 ? 1400 : 1410 }));
       const chy = { series: { hyOas: { observations: cdays.map((date, i) => [date, 3 + i * 0.02]) } } };
@@ -1628,7 +1628,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       }
       // v59.70 (owner 11/07): each screen's lenses carry their basis and reach — a stalled input is named, a market with
       // no data says so, and every lens a screen lists exists with a question, data and a limit.
-      const { pageLensReads, PAGE_LENSES, LENS_BY_ID } = await load('src/domain/lenses/registry.js');
+      const { pageLensReads, PAGE_LENSES, LENS_BY_ID } = await load('src/domain/narrative/lens-registry.js');
       const staleFg = chist.map((row, i) => (i < 60 ? row : { ...row, fg: undefined })); // v59.71: put/call retired; a stalled survey is the late input
       const lensReads = pageLensReads('signal', { history: staleFg, macroHistory: chy, nowMs: Date.parse(`${cdays.at(-1)}T22:00:00Z`) });
       const sentimentLens = lensReads.find((lens) => lens.id === 'sentiment');
@@ -1756,7 +1756,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       const tln = reactionRead({ layer: 'limited', figures: [fig('eps_diluted', -68)], guidance: [{ text: '2027년 전망 상향' }], reasons: { points: [] }, reaction: reaction(6) }, { history: rh });
       // v59.70 step 1: a history row that repeats the previous close (11/03 carrying 11/02) is not that date's close — the
       // reaction's market rung is unknown rather than 0.0%, and every surprise % is the one shared formula.
-      const { closeMoveBetween } = await load('src/domain/market/close-series.js');
+      const { closeMoveBetween } = await load('src/domain/market/session/close-series.js');
       const { surprisePct } = await load('src/domain/shared/number.js');
       const carried = [{ date: '2026-11-02', spx: 7541.4, fieldMeta: { spx: { sessionDate: '2026-11-02' } } }, { date: '2026-11-03', spx: 7541.4, fieldMeta: { spx: { sessionDate: '2026-11-02' } } }];
       const flat = reactionRead({ layer: 'limited', figures: [fig('eps_diluted', 5)], guidance: [], reasons: { points: [] }, reaction: { baseDate: '2026-11-02', firstDate: '2026-11-03', firstPct: -6, latestDate: '2026-11-03', latestPct: -6 } }, { history: carried });
@@ -1815,7 +1815,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (movers !== 'NVDA,AMD,AAPL') fail(`v59.67: home movers must be NVDA,AMD,AAPL, got ${movers}`);
     }
     // v59.62: chart levels — 50-day line, closing high, six-month support, and a double top read at its neck (testing, broken).
-    const { indexLevel, levelsRead } = await load('src/domain/market/index-levels.js');
+    const { indexLevel, levelsRead } = await load('src/domain/market/indices/index-levels.js');
     const synth = (tail) => {
       const values = [...Array.from({ length: 40 }, (_, i) => 100 + i), ...Array.from({ length: 30 }, (_, i) => 139 - i), ...Array.from({ length: 30 }, (_, i) => 110 + i), ...tail];
       const start = Date.parse('2026-01-05T12:00:00Z'); const rows = []; let day = 0;
@@ -1828,14 +1828,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || !/쌍봉이 완성/.test(levelsRead([{ ...broken, label: '반도체(SMH)' }])) || !/쌍봉 완성 여부/.test(levelsRead([{ ...testing, label: '반도체(SMH)' }]))) fail('v59.62: chart levels must read a double top as testing at the neck and broken 1% under it');
     // v59.62: a major dated event before the next macro release is named first, from the one registry both screens read.
     const { buildMarketGuide } = await load('src/domain/guide/market-guide.js');
-    const { SCHEDULED_EVENTS: storyEvents } = await load('src/domain/market/market-story.js');
+    const { SCHEDULED_EVENTS: storyEvents } = await load('src/domain/market/story/market-story.js');
     const nextRow = (iso) => buildMarketGuide({ regime: { available: true, overall: '혼조', counts: {} }, crossroads: { available: true, events: [], items: [], nextEvent: { id: 'us-nfp', name: '고용보고서', date: '2026-11-06', when: '11/6(금)' } }, nowMs: Date.parse(iso) }).situation.find((row) => row.id === 'next').text;
     if (!/^11\/3 미국 중간선거 결과 → 11\/6\(금\) 고용보고서/.test(nextRow('2026-11-03T12:00:00Z')) || /중간선거/.test(nextRow('2026-11-05T12:00:00Z'))
       || !storyEvents.some((event) => event.date === '2026-11-03' && event.title === '미국 중간선거')) fail('v59.62: the next-fork row must name the midterm before the jobs report, and 시장 상태 must read the same registry');
     // v59.70 (step 3 screen audit): the week ahead lists a report only at 1%+ of the S&P 500 or from the mover list, and
     // the AI-spending sentence only on a line with a mover (Moderna 0.1% read "대형 기술주 쏠림이 이어질지 가르는 실적").
     {
-      const { buildMarketStory } = await load('src/domain/market/market-story.js');
+      const { buildMarketStory } = await load('src/domain/market/story/market-story.js');
       // v59.71: the story window is one week (STORY_SESSIONS = MARKET_WINDOWS.week), so the fixture leads by 200 a session.
       const weekRows = []; let day = Date.parse('2026-09-01T00:00:00Z');
       while (weekRows.length < 40) { const at = new Date(day); if (at.getUTCDay() >= 1 && at.getUTCDay() <= 5) { const i = weekRows.length; weekRows.push({ date: at.toISOString().slice(0, 10), spx: 6000 + i * 5, ndx: 20000 + i * 200, soxx: 300 + i * 2, rsp: 180 - i * 0.5, iwm: 220 }); } day += 86400000; }
@@ -1869,7 +1869,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
   // ── P1339: company names resolve exactly; ticker-shaped input is never rewritten through an alias ──
   {
-    const { resolveRegisteredName, searchCandidates, isKnownSymbol } = await load('src/domain/ticker/resolve-name.js');
+    const { resolveRegisteredName, searchCandidates, isKnownSymbol } = await load('src/domain/instruments/resolve-name.js');
     const picks = searchCandidates('삼성', { entries: { '005930.KS': { kr: '삼성전자' } }, krStockDb: { '006400': { name: '삼성SDI' }, '005930': { name: '삼성전자' } } });
     if (picks.map((row) => row.symbol).join(',') !== '005930.KS,006400.KS' || searchCandidates('삼', {}).length || isKnownSymbol('NVDAA', { entries: { NVDA: {} } }) || !isKnownSymbol('nvda', { entries: { NVDA: {} } })) fail(`v57.54 review: a partial name lists candidates to pick (deduplicated, never auto-opened) and an unregistered ticker is recognised as unknown, got ${JSON.stringify(picks)}`);
     const entries = { GOOGL: { en: 'Alphabet', kr: '알파벳', alt: ['google', 'goog'] }, NVDA: { en: 'NVIDIA', kr: '엔비디아', alt: ['nvidia'] }, WDAY: { en: 'Workday', alt: ['hr'] }, '000660.KS': { en: 'SK hynix', kr: 'SK하이닉스', alt: ['sk hynix'] } };
@@ -1880,7 +1880,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     }
     // v57.81: the portfolio box shares the ticker-route owner. A newly listed universe symbol (SPCX) is accepted by exact match;
     // a near-miss ticker is never rewritten; a nickname resolves only when the registry carries it.
-    const { resolveHoldingInput } = await load('src/domain/ticker/resolve-name.js');
+    const { resolveHoldingInput } = await load('src/domain/instruments/resolve-name.js');
     const universe = [{ sym: 'SPCX' }, { sym: 'NVDA' }];
     const withAlias = { SPCX: { en: 'SpaceX', kr: '스페이스X', alt: ['spacex', '스엑'] } };
     const holdingCases = [
@@ -1931,7 +1931,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // mode entirely, and the UI copy promised a threshold the model never produced. This fixes the mode
 // as a real calculation input with a single owner and forbids a mode-dependent decision cutoff.
 {
-  const signalMode = await load('src/domain/signal/mode.js');
+  const signalMode = await load('src/domain/market/signal/mode.js');
   if (signalMode.SIGNAL_SCORE_MODES.join(',') !== 'swing,day') fail(`P1214 signal-mode: mode vocabulary drifted, got ${signalMode.SIGNAL_SCORE_MODES.join(',')}`);
   if (signalMode.normalizeSignalScoreMode('DAY') !== 'day' || signalMode.normalizeSignalScoreMode('nonsense') !== 'swing' || signalMode.normalizeSignalScoreMode(null) !== 'swing') {
     fail('P1214 signal-mode: an unknown or blank mode must normalize to the swing default');
@@ -2290,14 +2290,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // together. Missing P/C withholds, missing SPY never becomes 0% flat, and a missing
 // trading score withholds while a valid 0 stays 0.
 {
-  const narrativeModule = await load('src/domain/sentiment/narrative.js');
+  const narrativeModule = await load('src/domain/market/sentiment/narrative.js');
   const { deriveSentimentViewModel, spyMoveState, tradingScoreLink } = narrativeModule;
   // v59.70 (owner 11/4): the Cboe put/call band, metric and narrative are gone with the source.
   const observed = deriveSentimentViewModel({ values: { fearGreed: 42, vix9d: 18, vix: 17, vix3m: 20, vix6m: 22, putCall: 0.79, spyChg: 0.4, tradingScoreTotal: 55 }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
   if ('putCallBand' in narrativeModule || 'putCallNeedlePosition' in narrativeModule || observed.metrics.some((row) => row.metricId === 'putCall') || observed.narratives.some((row) => row.claimId === 'sentiment.put-call')) fail('v59.70 the sentiment view model carries no put/call metric, band or narrative');
   {
     // v59.43: a 5-session 10-year drop with HY OAS widening by the watch amount is a flight to safety, not a supportive rate move.
-    const { defensiveYieldDrop } = await load('src/domain/market/regime-radar.js');
+    const { defensiveYieldDrop } = await load('src/domain/market/regime/regime-radar.js');
     const ty = [{ date: '2026-10-20', value: 5.10 }, { date: '2026-10-27', value: 4.99 }];
     const wide = defensiveYieldDrop(ty, [{ date: '2026-10-20', value: 300 }, { date: '2026-10-27', value: 320 }], '2026-10-27', '2026-10-20');
     const calm = defensiveYieldDrop(ty, [{ date: '2026-10-20', value: 300 }, { date: '2026-10-27', value: 305 }], '2026-10-27', '2026-10-20');
@@ -2380,7 +2380,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (mixedRank.ranking || mixedRank.points.some((point) => point.id === 'rank')) fail('v57.54 rank above its denominator must not be shown');
   if (!/스크리너 종합 순위\(여러 요인의 가중 합\) 188\/239/.test(inRange.points.find((point) => point.id === 'rank')?.text || '')) fail('v57.54 in-range market rank must be shown on its own denominator');
   if (!/같은 섹터\(기술\)/.test(inRange.next.find((step) => step.route === 'screener')?.why || '')) fail('v57.54 screener handoff must use the Korean sector name');
-  const { benchmarkRowFor } = await load('src/domain/market/benchmarks.js');
+  const { benchmarkRowFor } = await load('src/domain/market/indices/benchmarks.js');
   const benchHistory = ['2026-10-06', '2026-10-07', '2026-10-08', '2026-10-12'].map((date, index) => ({ date, kospi: 100 + index }));
   if (benchmarkRowFor('005930.KS', benchHistory, { through: '2026-10-08' }).asOf !== '2026-10-08' || benchmarkRowFor('005930.KS', benchHistory).asOf !== '2026-10-12') fail('S07 benchmark must cut at the factor session when asked');
   {
@@ -2574,7 +2574,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   // v57.54 (owner image 3): per-market price temperature — five three-year ranks side by side, an extreme spell only
   // when three components sit in the same decile, no average (D02); US markets first; the producer never ranks an
   // intraday print and fills an empty provider close from the exchange series.
-  const temp = await load('src/domain/sentiment/market-temperature.js');
+  const temp = await load('src/domain/market/sentiment/market-temperature.js');
   const tempDates = [];
   for (let t = Date.UTC(2020, 0, 1); tempDates.length < 1300; t += 86400000) { const day = new Date(t).getUTCDay(); if (day && day < 6) tempDates.push(new Date(t).toISOString().slice(0, 10)); }
   const wave = (i) => 100 * Math.exp(i * 0.0004) * (1 + 0.01 * Math.sin(i / 7) + 0.006 * Math.sin(i / 3.1));
@@ -2612,7 +2612,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const evidence = tempUi.temperatureEvidence({ label: '코스피', from: '1999-01-05', state: 'cold', outcomes: { cold: { h63: { n: 39, mean: 5.6, se: 2.5, hitRate: 67, p10: -11.8 } }, all: { h63: { n: 6800, mean: 3.1, se: 1.25, hitRate: 60 } } } });
   if (!/1999년 이후 강한 냉각 구간이 시작된 첫날 중 서로 겹치지 않는 39번/.test(evidence) || !/두 범위가 겹쳐 평균 차이는 구별되지 않습니다/.test(evidence) || /예측은 아닙니다/.test(evidence)) fail(`v57.54/v57.84 the past-spell line (overlap verdict carries the caveat; the boilerplate 예측 sentence is gone) names n, the ± range and whether it clears the baseline, got ${evidence}`);
   // v59.87 (S3): the currentness rule moved to the domain model beside the producer's formula.
-  const tempModel = await load('src/domain/sentiment/market-temperature.js');
+  const tempModel = await load('src/domain/market/sentiment/market-temperature.js');
   const staleIds = tempModel.staleMarketIds({ retained: ['kosdaq'] }, [{ id: 'spx', asOf: '2026-10-13' }, { id: 'kosdaq', asOf: '2026-10-13' }, { id: 'nikkei', asOf: '2026-10-02' }, { id: 'kospi', asOf: '2026-10-09' }], Date.parse('2026-10-14T00:00:00Z'));
   if ([...staleIds].sort().join(',') !== 'kosdaq,nikkei') fail(`v57.54 a retained market or one more than a week behind is stale and leaves the "now" lead, got ${[...staleIds]}`);
   // v58.77 pipeline audit DATA-03: every market failing leaves them equally old; the artifact age and the calendar catch it.
@@ -4464,7 +4464,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { createAIOArchitecture } = await load('src/app/bootstrap.js');
   const { createMarketSnapshot, validateMarketSnapshot, TIER_0_INSTRUMENTS } = await load('src/data/contracts/market-snapshot.js');
   const { createRuntimeReaders } = await load('src/data/runtime-readers.js');
-  const { computeTradingScoreModel } = await load('src/domain/signal/trading-score.js');
+  const { computeTradingScoreModel } = await load('src/domain/market/signal/trading-score.js');
   const now = Date.parse('2026-09-30T02:00:00Z');
   const observedAt = '2026-09-29T20:00:00Z';
   const values = { '^GSPC': 7670, '^VIX': 16, '^TNX': 4.2, 'DX-Y.NYB': 101, 'CL=F': 70 };
@@ -4743,7 +4743,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 
 // ── v59.57: Nasdaq rally attempt / follow-through day and Treasury auction comparison ────
 {
-  const { rallyAttemptSeries, rallyAttemptRead } = await load('src/domain/market/rally-attempt.js');
+  const { rallyAttemptSeries, rallyAttemptRead } = await load('src/domain/market/regime/rally-attempt.js');
   // 30 flat sessions at 100, a slide to 90 (day 1 = the lowest close), three quiet sessions, then +2% on rising volume.
   const closes = [...Array(30).fill(100), 97, 94, 92, 90, 90.5, 90.8, 91, 92.82, 93, 89];
   const bars = closes.map((close, i) => ({ date: `2026-0${i < 20 ? 7 : 8}-${String((i % 20) + 1).padStart(2, '0')}`, close, volume: i === 37 ? 2000 : 1000 }));
@@ -4767,7 +4767,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 
 // ── P1416: breadth signals — 4% movers, 52-week highs/lows, 40-day ratio, distribution days ────
 {
-  const { evaluateSymbolSignals, distributionDaySeries } = await load('src/domain/market/breadth-signals.js');
+  const { evaluateSymbolSignals, distributionDaySeries } = await load('src/domain/market/breadth/breadth-signals.js');
   const n = 260;
   const closes = Array.from({ length: n }, (_, i) => 100 + Math.sin(i / 9) * 5);
   closes[n - 1] = closes[n - 2] * 1.05; // +5% last session
@@ -4829,7 +4829,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // v58.68 (owner 2026-10-23): the leaders' verdict line — a 6% semiconductor session is named 급락일 beside the break state,
 // a missing previous session leaves the day out (no change across a gap), and the six-axis count is not its input.
 {
-  const { buildLeadershipVerdict } = await import(pathToFileURL(path.join(root, 'src/domain/market/leadership-verdict.js')).href);
+  const { buildLeadershipVerdict } = await import(pathToFileURL(path.join(root, 'src/domain/market/regime/leadership-verdict.js')).href);
   const leadership = { available: true, state: 'break', drop5: -4.1 };
   // v59.70: the semiconductor line is SOXX, the leadership proxy (its 급락일 edge is 4.5%).
   const rows = [{ date: '2026-10-20', soxx: 400, ndx: 25000 }, { date: '2026-10-21', soxx: 400, ndx: 25000 }, { date: '2026-10-22', soxx: 376, ndx: 24350, breadthLow20: 189, fieldMeta: { breadthLow20: { eligible: 900 } } }];
@@ -4845,7 +4845,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // sectors down is a market-wide fall, a 10-year change of another session is left out, and a sector whose sub-themes
 // moved apart (regulated utilities up, nuclear power down) is named as a split.
 {
-  const { buildMarketFlow, buildThemeFlow } = await import(pathToFileURL(path.join(root, 'src/domain/market/market-flow.js')).href);
+  const { buildMarketFlow, buildThemeFlow } = await import(pathToFileURL(path.join(root, 'src/domain/market/regime/market-flow.js')).href);
   const session = '2026-10-22', nowMs = Date.parse('2026-10-23T01:00:00Z');
   const rotation = (daily) => ({ schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', decisionUse: false, allowedUseCeiling: 'reference', latestCompletedSession: session,
     items: Object.fromEntries(Object.entries(daily).map(([symbol, pct]) => [symbol, { status: 'CURRENT', sessionDate: session, rsRatio: 101, rsMomentum: 101, quadrant: 'Leading', dailyPct: pct, weeklyPct: pct, alignedSessionCount: 60, observedAt: '2026-10-22T20:00:00.000Z', fetchedAt: '2026-10-22T20:20:00.000Z' }])) });
@@ -4863,7 +4863,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || split.splits[0]?.theme !== '유틸리티' || !/규제 유틸리티 \+2\.6%, 원전\/독립발전 -5\.7%/.test(split.splitLines[0]) || stale.available)
     fail(`v58.68 market flow wrong: ${JSON.stringify({ flow: [flow.kind, flow.line, flow.read], broad: [broad.kind, broad.tenYearBp], split: split.splitLines, stale: stale.available })}`);
   // v58.74: the boot-set copy of the AI chain equals the AI capex layers (minus the broad industrials theme).
-  const { AI_CHAIN_THEMES, AI_CHAIN_GROUPS } = await import(pathToFileURL(path.join(root, 'src/domain/market/market-flow.js')).href);
+  const { AI_CHAIN_THEMES, AI_CHAIN_GROUPS } = await import(pathToFileURL(path.join(root, 'src/domain/market/regime/market-flow.js')).href);
   const { AI_CAPEX_FLOW } = await import(pathToFileURL(path.join(root, 'src/domain/themes/ai-capex-flow.js')).href);
   const capexThemes = [...new Set(AI_CAPEX_FLOW.layers.flatMap((layer) => layer.themes || []).filter((id) => id !== 'industrials'))].sort();
   const capexGroups = [...new Set(AI_CAPEX_FLOW.layers.flatMap((layer) => layer.groups || []))].sort();
@@ -4899,7 +4899,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { directionLabel } = await import(pathToFileURL(path.join(root, 'src/domain/themes/group-strength.js')).href);
   if (directionLabel({ direction: 'weakening', recent: { surged: true } }) !== '순위 밀렸지만 1주 급반등' || directionLabel({ direction: 'improving', recent: { broken: true } }) !== '순위 올랐지만 1주 급락'
     || directionLabel({ direction: 'weakening', recent: { surged: false, move: 2 } }) !== '순위 밀렸지만 1주 반등' || directionLabel({ direction: 'weakening', recent: { surged: false, move: -1 } }) !== '최근 식음') fail('v58.74 week-aware theme rank label wrong');
-  const { fomcDecisionDate } = await import(pathToFileURL(path.join(root, 'src/domain/market/macro-crossroads.js')).href);
+  const { fomcDecisionDate } = await import(pathToFileURL(path.join(root, 'src/domain/market/regime/macro-crossroads.js')).href);
   if (fomcDecisionDate('2026-09-17') !== '2026-09-16') fail('v58.74 FOMC change is dated by its decision day');
   const { nextEarningsLine: earningsLine } = await import('./producer/market-narrative.mjs');
   const weekLine = earningsLine({ earnings: [['KO', '2026-10-27', 'bmo', 0.56], ['V', '2026-10-27', 'amc', 1.07], ['MSFT', '2026-10-28', 'amc', 5.85], ['GOOGL', '2026-10-28', 'amc', 2.88], ['AMZN', '2026-10-29', 'amc', 3.9]].map(([symbol, date, hour, indexWeight]) => ({ symbol, date, hour, indexWeight }) ) }, '2026-10-23');
@@ -4982,7 +4982,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 
 // P1620/P1621: same-session breadth facts, zero events and question-selected prompt parity.
 {
-  const { buildBreadthSnapshot } = await load('src/domain/market/breadth-snapshot.js');
+  const { buildBreadthSnapshot } = await load('src/domain/market/breadth/breadth-snapshot.js');
   const { buildMarketContentContext } = await load('src/ai/context/market-content.js');
   const history = [{ date: '2026-10-09', spx: 7800, advanceRatio: .639, breadthNewHighs: 24, breadthNewLows: 13, breadth50: 34.7, breadth200: 49.9 }, { date: '2026-10-10', spx: null, breadth50: 99 }];
   const snap = buildBreadthSnapshot(history);
@@ -5339,7 +5339,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
 }
 // ── P1317~P1320 — 한국 종목 상세·참고 시총·셀별 stale 소음·툴팁 위치 (v56.78) ─────────────────────
 {
-  const { normalizeTickerInput, tickerDisplayName } = await load('src/domain/entity/ticker-symbol.js');
+  const { normalizeTickerInput, tickerDisplayName } = await load('src/domain/instruments/ticker-symbol.js');
   const krStockDb = { '005930': { name: '삼성전자' }, '000660': { name: 'SK하이닉스' }, '247540': { name: '에코프로비엠' }, '005935': { name: '삼성전자우' } };
   const krToYahoo = (code) => code + (code === '247540' ? '.KQ' : '.KS');
   const n = (value) => normalizeTickerInput(value, { krStockDb, krToYahoo });
@@ -5549,7 +5549,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
 
 // v59.70 (D5): the 시장 상태 한국 board's 금리·물가·수출 card reads the settled snapshot; a held reference (null) is not 0.
 {
-  const { koreaPolicyCard } = await load('src/domain/market/korea-policy.js');
+  const { koreaPolicyCard } = await load('src/domain/market/korea/korea-policy.js');
   const card = koreaPolicyCard({ bokRate: 3, bokNext: '2026-11-26', _fieldTs: { bok_rate: '2026-08-27' }, krCpi: 2.4, krExportReference: { status: 'verified', periodLabel: '2026-10', exportsBillionUsd: 115.3, exportsYoyPct: 93.7 } });
   if (card?.value !== '기준금리 3.00%' || card.caption !== '한국은행 공식 발표, 8/27 결정' || card.lines[0] !== '다음 금통위 2026-11-26' || card.lines[1] !== '소비자물가 전년 대비 +2.4%, 목표 2%보다 0.4%p 높음' || !/^수출\(2026-10 잠정\) 1,153억 달러, 전년 같은 기간 대비 \+93\.7%\(같은 날짜 구간/.test(card.lines[2])) fail(`v59.70 D5 Korea policy card: ${JSON.stringify(card)}`);
   if (koreaPolicyCard({ bokRate: null, krCpi: '', krExportReference: { status: 'stale-reference', exportsBillionUsd: 1 } }) !== null) fail('v59.70 D5 a held rate, a blank CPI and a stale export reference draw no card (never 0)');
@@ -5559,7 +5559,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
 // P1586: self-computed sentiment composite — withholds below four components, ranks each against its own
 // trailing year, labels the stand-in junk-bond basis, and never borrows CNN's value.
 {
-  const { computeCompositeFearGreed } = await import(pathToFileURL(path.join(root, 'src/domain/sentiment/composite-fear-greed.js')).href);
+  const { computeCompositeFearGreed } = await import(pathToFileURL(path.join(root, 'src/domain/market/sentiment/composite-fear-greed.js')).href);
   const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
   const rising = Array.from({ length: 300 }, (_, i) => ({ date: day(i), spx: 5000 + i * 5, vix: 20 - i * 0.02, advanceRatio: 0.5 + Math.sin(i / 9) * 0.1 + i * 0.0004, fg: 99 }));
   // P1644 (M03): the spread series must reach the price basis (within two sessions) to count as current.
@@ -5631,7 +5631,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
 // P1679/P1681: S&P 500 map domain — tiles stay inside the canvas, the fallback names what is missing, a member on an
 // older close is greyed and kept out of the averages, and a tab is enabled only by the members' own returns.
 {
-  const { buildSectorMap, layoutSectorMap, squarify } = await load('src/domain/market/sector-map.js');
+  const { buildSectorMap, layoutSectorMap, squarify } = await load('src/domain/market/indices/sector-map.js');
   const tiles = squarify([{ value: 6 }, { value: 6 }, { value: 4 }, { value: 3 }, { value: 2 }, { value: 2 }, { value: 1 }], { x: 0, y: 0, w: 600, h: 400 });
   if (tiles.length !== 7 || tiles.some((t) => t.x < -1e-6 || t.y < -1e-6 || t.x + t.w > 600 + 1e-6 || t.y + t.h > 400 + 1e-6)) fail('P1679 squarify tiles must stay inside the rectangle');
   const sectors = ['Technology', 'Financial Services', 'Healthcare', 'Energy'];
@@ -5680,7 +5680,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
 {
   const { buildCloseSeries, alignMarketInputs, buildMarketRegime, hyDelta20Bp } = await load('src/domain/briefing/market-read.js');
   const { formatPayrollChange, buildBriefingSchedule } = await load('src/domain/briefing/schedule.js');
-  const { openSessionDatesBetween } = await load('src/domain/market/market-calendar.js');
+  const { openSessionDatesBetween } = await load('src/domain/market/session/market-calendar.js');
   const sessions = openSessionDatesBetween('2026-01-30', '2026-10-12', { market: 'US' });
   const history = sessions.map((date, i) => ({ date, spx: 6000 + i, usdkrw: 1400, kospi: 3000 + i,
     fieldMeta: { spx: { observedAt: `${date}T20:10:00Z` }, usdkrw: { observedAt: `${date}T20:10:00Z` } } }));
@@ -5824,7 +5824,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
 {
   const { buildCloseSeries } = await load('src/domain/briefing/market-read.js');
   const { buildDailyChanges } = await load('src/domain/briefing/daily-diff.js');
-  const { historyFieldSessionDate, inferPreviousCloseSession } = await load('src/domain/market/history-session.js');
+  const { historyFieldSessionDate, inferPreviousCloseSession } = await load('src/domain/market/session/history-session.js');
   const prev = (observedAt, fetchedAt, extra = {}) => ({ observedAt, fetchedAt, valueBasis: 'previous-completed-close', observationRelation: 'previous-completed-close', observedAtSource: 'provider-previous-close', ...extra });
   const spxMeta = (date) => ({ observedAt: `${date}T20:30:00Z`, valueBasis: 'latest-completed-close', observationRelation: 'latest-completed-close' });
   const rows = [
@@ -6107,7 +6107,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 }
 {
   // Legacy unification (2026-10-17): one checked screener-breadth read replaces the projected breadth globals.
-  const { readScreenerBreadth } = await load('src/domain/market/screener-breadth.js');
+  const { readScreenerBreadth } = await load('src/domain/market/breadth/screener-breadth.js');
   const now = Date.parse('2026-10-17T06:00:00Z');
   const seg = (extra) => ({ above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, advances: 400, declines: 300, observedAt: '2026-10-16T20:00:00Z', ...extra });
   const read = readScreenerBreadth({ schemaVersion: '1.0', source: 'fixture', segments: { us: seg({}), kr: seg({ eligible: 150, unchanged: 5 }) } }, now);
@@ -6190,7 +6190,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (withCut.asOf !== day(30) || withCut.shortBp !== -20) fail(`v58.72: the official curve cut extends the FRED window to the curve's date: ${JSON.stringify({ asOf: withCut.asOf, shortBp: withCut.shortBp })}`);
   if (curveDynamics(curve(flat(30, 4), flat(30, 4.3)), undefined, { date: day(10), short: 3, long: 4 }).asOf !== day(29)) fail('v58.72: an older official cut does not replace the FRED tail');
 
-  const { buildIndexEarnings } = await load('src/domain/market/index-earnings.js');
+  const { buildIndexEarnings } = await load('src/domain/market/indices/index-earnings.js');
   const weights = { asOf: '2026-10-15', rows: [['AAA', 'Energy', 50], ['GOOGL', 'Communication Services', 25], ['GOOG', 'Communication Services', 20], ['ZZZ', 'Energy', 5]] };
   const est = (eps, trailing, up, down) => ({ asOf: '2026-10-18T00:00:00Z', fwd: { eps, up4w: up, down4w: down }, trailing: { eps: trailing } });
   const consensus = { rows: { AAA: est(5, 4, 3, 1), GOOGL: est(10, 8, 4, 0), GOOG: est(10, 8, 4, 0) } };
@@ -6655,7 +6655,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 {
   // v58.79 (owner 2026-10-25): the breadth headline is S&P 500 members; the AIO US universe is the fallback.
   const producer = await import(pathToFileURL(path.join(root, 'scripts/producer/screener-breadth.mjs')).href);
-  const client = await load('src/domain/market/screener-breadth.js');
+  const client = await load('src/domain/market/breadth/screener-breadth.js');
   if (producer.SP500_SCOPE !== client.SP500_BREADTH_SCOPE) fail('v58.79 producer and client name the S&P 500 breadth scope the same');
   const sp = { eligible: 497 }, us = { eligible: 840 };
   if (producer.headlineBreadthSegment({ sp500: sp, us })?.segment !== sp || producer.headlineBreadthSegment({ sp500: { eligible: 120 }, us })?.segment !== us
@@ -6779,8 +6779,8 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 // v58.80 (first-users bundle 1): one name, one length, one number. The skeptic read the S&P 500 month as -1.5% (20) and
 // -1.0% (21) and the quarter as +2.6% (62 rows) and +2.8% (63): every screen that says 3개월/1개월 measures it the same way.
 {
-  const { MARKET_WINDOWS, closeChange, windowLabel } = await load('src/domain/market/market-windows.js');
-  const { indexReturns } = await load('src/domain/market/benchmarks.js');
+  const { MARKET_WINDOWS, closeChange, windowLabel } = await load('src/domain/market/session/market-windows.js');
+  const { indexReturns } = await load('src/domain/market/indices/benchmarks.js');
   const { homeParticipationSeries } = await load('src/ui/components/home-kpi-trend.js');
   const { buildAssetPerformance } = await load('src/ui/components/macro-board.js');
   const { RULES } = await load('src/domain/rules/thresholds.js');
@@ -7067,8 +7067,8 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     || fresh('hySpread', '2026-10-22', '2026-10-26T12:00:00Z') !== 'fresh' || fresh('hySpread', '2026-10-21', '2026-10-27T14:00:00Z') !== 'stale'
     || fresh('vix', '2026-10-23T20:00:00Z', '2026-10-25T22:00:00Z') !== 'stale') fail('v58.82 daily sentiment staleness follows NYSE sessions, not a flat 48h');
 
-  const { normalizeTickerInput } = await load('src/domain/entity/ticker-symbol.js');
-  const { resolveHoldingInput } = await load('src/domain/ticker/resolve-name.js');
+  const { normalizeTickerInput } = await load('src/domain/instruments/ticker-symbol.js');
+  const { resolveHoldingInput } = await load('src/domain/instruments/resolve-name.js');
   if (normalizeTickerInput('ＡＡＰＬ') !== 'AAPL' || normalizeTickerInput('００５９３０') !== '005930.KS' || resolveHoldingInput('ｎｖｄａ').symbol !== 'NVDA') fail('v58.82 full-width tickers fold to ASCII');
 
   const { marketStructureEvents } = await load('src/domain/briefing/schedule.js');
@@ -7093,7 +7093,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   // v59.75 (review): the fold currencies keep four places from the provider bar and file a summer 23:00Z bar on its London day.
   const { dailyRowsFromYahooChart } = await load('src/domain/screener/price-factors.js');
   const fxBar = { timestamp: [1783897200], indicators: { quote: [{ close: [1.15437], open: [1.15], high: [1.16], low: [1.14], volume: [0] }] }, meta: {} };
-  const { barSessionDateForField } = await load('src/domain/market/history-session.js');
+  const { barSessionDateForField } = await load('src/domain/market/session/history-session.js');
   if (dailyRowsFromYahooChart(fxBar, { closeDigits: 4 })[0]?.close !== 1.1544 || dailyRowsFromYahooChart(fxBar)[0]?.close !== 1.15
     || barSessionDateForField('eurusd', '2026-07-12T23:00:00Z') !== '2026-07-13') fail('v59.75 fold currency history keeps four places and its London session day');
   // v59.75: the US–Japan / US–Korea rate differential on one OECD monthly basis, read against the currency's move between the same month-ends.
@@ -7115,7 +7115,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const fullBb = creditRanges({ series: { ...longTiers, bbOas: tier(0, 400, 2), bOas: tier(5, 395, 3.5) } });
   if (shortBb.ranges.some((range) => ['bbOas', 'bOas'].includes(range.id)) || fullBb.ranges.map((range) => range.id).join() !== 'igOas,hyOas,bbOas,bOas,cccOas') fail(`v59.75 BB/B enter the credit ranges only on the same record: ${JSON.stringify({ short: shortBb.ranges.map((r) => r.id), full: fullBb.ranges.map((r) => r.id) })}`);
   // v59.10 (owner 2026-10-26: family codes removed): a health payload with a left-over family field is still ready.
-  const { describeSharedConnection } = await load('src/domain/connections/shared.js');
+  const { describeSharedConnection } = await load('src/domain/ai/shared-connection.js');
   const ai = { ready: true, provider: 'openai', model: 'gpt-6-luna' };
   const leftOver = describeSharedConnection({ schemaVersion: 'aio-worker-health.v1', ai: { ...ai, familyCodeRequired: true, familyCodeAccepted: false } });
   if (!leftOver.ok || leftOver.reason !== 'SHARED_WORKER') fail(`v59.10 no family-code step remains: ${JSON.stringify(leftOver)}`);
@@ -7134,7 +7134,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 // v58.81 (owner 2026-10-26): the market clock and Korea↔US link check — Monday 22:13 KST is the US pre-market with the
 // open 17 minutes away; a KOSDAQ fall far larger than every outside cue is named Korea-led; old futures are flagged.
 {
-  const { buildSessionBridge, koreaLinks, marketClock } = await load('src/domain/market/session-bridge.js');
+  const { buildSessionBridge, koreaLinks, marketClock } = await load('src/domain/market/session/session-bridge.js');
   const q = (instrumentId, value, changePct, observedAt) => ({ instrumentId, value, changePct, observedAt });
   const snapshot = { generatedAt: '2026-10-26T09:21:00Z', quotes: [q('^KS11', 5469, -1.46, '2026-10-26T06:32:50Z'), q('^KQ11', 727, -3.26, '2026-10-26T06:33:00Z'), q('^IXIC', 25955, -0.21, '2026-10-23T21:15:59Z'), q('KRW=X', 1323.8, 0.01, '2026-10-26T09:20:59Z'), q('CL=F', 100.7, -2.45, '2026-10-26T09:11:08Z')],
     evidenceQuotes: [q('ES=F', 7683, 0.31, '2026-10-26T09:11:06Z'), q('NQ=F', 29187, 0.24, '2026-10-26T09:11:08Z'), q('^N225', 62189, -0.8, '2026-10-26T06:45:03Z'), q('^HSI', 23211, 0.51, '2026-10-26T08:08:28Z')] };
@@ -7167,7 +7167,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     fail(`P2127 KOSDAQ gap wording follows the day's direction: ${JSON.stringify({ upLess, upMore, downLess, downMore, split })}`);
   // v59.42 (owner audit 2026-10-28): the 한국 고유 요인 line names the contributors (weight × same-session return) and each
   // one's dated item — the filing brief first; a market wrap that tags many symbols is not this name's news.
-  const { indexContributors, contributorsSentence, datedItemFor } = await load('src/domain/market/move-attribution.js');
+  const { indexContributors, contributorsSentence, datedItemFor } = await load('src/domain/market/regime/move-attribution.js');
   const rows = [{ sym: '000660.KS', name: 'SK하이닉스', ret1d: 10.89, factorSessionDate: '2026-10-28' }, { sym: '005930.KS', name: '삼성전자', ret1d: 9, factorSessionDate: '2026-10-28' },
     { sym: '373220.KS', name: 'LG에너지솔루션', ret1d: -2.3, factorSessionDate: '2026-10-28' }, { sym: '402340.KS', name: 'SK스퀘어', ret1d: 13, factorSessionDate: '2026-10-27' }];
   const weights = [{ sym: '005930.KS', weightPct: 29.6 }, { sym: '000660.KS', weightPct: 22.7 }, { sym: '373220.KS', weightPct: 1.9 }, { sym: '402340.KS', weightPct: 2.5 }];
@@ -7187,7 +7187,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 // v58.81 (owner 2026-10-26): the probabilistic lean — a frequency votes only beyond its sampling noise on 30+ cases, the
 // condition count votes at a two-axis gap, opposite votes read 엇갈림, and the base rate is always stated.
 {
-  const { buildMarketLean, frequencyEvidence } = await load('src/domain/market/market-lean.js');
+  const { buildMarketLean, frequencyEvidence } = await load('src/domain/market/regime/market-lean.js');
   const stress = { all: { 21: { hitRate: 64 } }, bands: [{ id: 'normal', horizons: { 21: { hitRate: 63.4, nEff: 136 } } }, { id: 'stress', horizons: { 21: { hitRate: 80, nEff: 60 } } }] };
   const regime = (favorable, burden) => ({ available: true, counts: { favorable, neutral: 6 - favorable - burden, burden } });
   const today = buildMarketLean({ regime: regime(0, 3), stress, vix: 19.2 });
@@ -7258,11 +7258,11 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   }
 }
 
-// v59.41: AIO.diagnoseBreadthConsensus moved to src/domain/market/breadth-consensus.js unchanged; the registry is passed
+// v59.41: AIO.diagnoseBreadthConsensus moved to src/domain/market/breadth/breadth-consensus.js unchanged; the registry is passed
 // in. The weights (5SMA .10 · 20SMA .20 · 50SMA .30 · McClellan .20 · Weinstein .10 · golden cross .10), the band scores
 // and the verdict cut-offs are pinned here. A change here is a model change.
 {
-  const { diagnoseBreadthConsensus } = await load('src/domain/market/breadth-consensus.js');
+  const { diagnoseBreadthConsensus } = await load('src/domain/market/breadth/breadth-consensus.js');
   const reg = { BREADTH: { getLabel: (v) => v < 20 ? { signal: 'capitulation', label: 'low' } : v < 40 ? { signal: 'bearish', label: 'weak' } : v < 60 ? { signal: 'mixed', label: 'mid' } : v < 80 ? { signal: 'bullish', label: 'good' } : { signal: 'overbought', label: 'hot' } } };
   const empty = diagnoseBreadthConsensus({}, reg), noReg = diagnoseBreadthConsensus({ sma50: 70 }, null);
   if (empty.verdict !== '—' || empty.score !== null || noReg.verdict !== '—') fail('v59.41 breadth consensus without inputs or registry is held');

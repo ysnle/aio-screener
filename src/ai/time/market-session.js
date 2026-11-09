@@ -1,7 +1,7 @@
 import {
   MARKET_TIME_VERSION,
   currentCalendarContext
-} from '../../domain/market/market-calendar.js';
+} from '../../domain/market/session/market-calendar.js';
 
 // P1533: the pure exchange calendar moved to the domain layer; these names stay importable from here.
 export {
@@ -18,7 +18,7 @@ export {
   resolveMarketCalendarSession,
   countOpenSessionsBetween,
   openSessionDatesBetween
-} from '../../domain/market/market-calendar.js';
+} from '../../domain/market/session/market-calendar.js';
 
 export const AI_MARKET_SESSION_VERSION = 'market-session-evidence.v1';
 export const AI_MARKET_TIME_VERSION = MARKET_TIME_VERSION;

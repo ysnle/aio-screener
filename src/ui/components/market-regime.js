@@ -5,15 +5,15 @@ import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { renderStressOutcomes } from './stress-outcomes.js';
 import { deepDiveLinks } from './deep-dive.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable, sessionPointBack } from '../../domain/briefing/market-read.js';
-import { krSeparateCheckTone } from '../../domain/market/kr-index-record.js';
+import { krSeparateCheckTone } from '../../domain/market/korea/kr-index-record.js';
 import { previousRegime } from '../../domain/briefing/daily-diff.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
-import { regimeFlow } from '../../domain/market/page-flow.js';
+import { regimeFlow } from '../../domain/market/story/page-flow.js';
 import { renderNextSteps, openRouteSection } from './page-flow.js';
 import { createTrendChart } from './trend-chart.js';
 import { refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
-import { buildRegimeAxisHistory, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
+import { buildRegimeAxisHistory, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime/regime-scenarios.js';
 import { renderRegimeRadar } from './regime-radar.js';
 import { renderMacroCrossroads, showCrossroadsSection } from './macro-crossroads.js';
 import { el } from './dom.js';
@@ -521,7 +521,7 @@ function crossMap(doc, row) {
 }
 
 function paintCrossReadings(doc, root, inputs) {
-  Promise.all([import('../../domain/market/cross-readings.js'), import('../../data/shared-artifacts.js'), import('../../data/artifact-registry.js')]).then(([{ crossReadings }, { refreshSharedArtifact }, { MARKET_DAY }]) => {
+  Promise.all([import('../../domain/market/regime/cross-readings.js'), import('../../data/shared-artifacts.js'), import('../../data/artifact-registry.js')]).then(([{ crossReadings }, { refreshSharedArtifact }, { MARKET_DAY }]) => {
     const paint = () => {
       const host = doc.getElementById('regime-cross-list');
       const section = doc.getElementById('regime-cross');
@@ -657,7 +657,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       // v59.70 (post-boot budget): and only once the 한국 시장 fold is open (it starts closed).
       const krFold = boardKr.closest?.('details');
       const whenOpen = (fn) => { if (!krFold || krFold.open) fn(); else krFold.addEventListener('toggle', function once() { if (!krFold.open) return; krFold.removeEventListener('toggle', once); fn(); }); };
-      if (cards.length) whenOpen(() => import('../../domain/market/korea-policy.js').then(({ koreaPolicyCard }) => {
+      if (cards.length) whenOpen(() => import('../../domain/market/korea/korea-policy.js').then(({ koreaPolicyCard }) => {
         const policy = koreaPolicyCard(root.DATA_SNAPSHOT);
         if (!policy || boardKr.__aioKrRender !== krRender) return;
         const section = el(doc, 'section', null, 'regime-axis'); section.dataset.axis = 'kr-policy'; section.dataset.market = 'KR';
@@ -747,8 +747,8 @@ function koreaIndexParts(history) {
 }
 
 // v58.68 (owner 2026-10-23): the AI·semiconductor leaders' own verdict, shown under the six-axis verdict on 오늘 and
-// 시장 상태 (domain/market/leadership-verdict.js). It names the leaders' state; the six-axis count is unchanged.
-// The money-flow part (domain/market/market-flow.js) follows it: where the session's money went across sectors and
+// 시장 상태 (domain/market/regime/leadership-verdict.js). It names the leaders' state; the six-axis count is unchanged.
+// The money-flow part (domain/market/regime/market-flow.js) follows it: where the session's money went across sectors and
 // sub-themes, with the 10-year yield and fear on the same session.
 // v59.51 (two layers, owner 2026-10-31): the face is one line of state words — "주도주(AI·반도체) 이탈, 급락일" (and on 시장
 // 상태 "돈의 방향 방어 업종 강세"); the readings, the evidence numbers, the method, the sector and theme splits open under it.

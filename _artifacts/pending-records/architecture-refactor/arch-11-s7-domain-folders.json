@@ -1,0 +1,8 @@
+{
+  "version": "v59.88",
+  "date": "2026-11-09",
+  "changelog": [
+    "**domain 폴더 재편 (ADR-0003 S7):** 파일 40개가 한 폴더에 섞여 있던 src/domain/market/을 주제별로 나눴다. session(거래소 달력·세션 시각·창·종가 시계열·시세 현재성), indices(history 행·지수 위치·지수 실적·벤치마크·섹터 지도), breadth, korea, regime(축·시나리오·주도주·우위·자금 흐름), story(시장 이야기·종합·시간대·페이지 흐름)로 나눴다. 떨어져 있던 market-day·signal·sentiment·interpretation은 market/ 아래 day·signal·sentiment·interpretation으로 들어갔다. 티커 정체성(회사 이름 해석·별칭·질문 단어·심볼 정규화·종목 레지스트리·13F CUSIP 대응표)은 src/domain/instruments/ 한 곳에 모았다. 회사 이야기는 entity/에, 투자 대가 보유 종목은 masters/에 그대로 둔다. 파일 하나뿐이던 home·connections·chart·lenses 폴더는 briefing/home-summary.js, ai/shared-connection.js, technical/chart-contract.js, narrative/lens-registry.js로 옮겨 없앴다. 63개 파일을 옮기고 import 510곳과 경로 문자열 314곳을 codemod로 한 번에 바꿨다. 동작은 바뀌지 않았다. 새 import-resolution 검사가 깨진 상대 import가 0개인지 확인한다."
+  ],
+  "note": "{VERSION} ADR-0003 S7 domain folder reorganisation"
+}

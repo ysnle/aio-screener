@@ -1,15 +1,15 @@
-// Owner 2026-10-19: the producers' adapter of the interpretation pipeline (src/domain/interpretation/
+// Owner 2026-10-19: the producers' adapter of the interpretation pipeline (src/domain/market/interpretation/
 // market-interpretation.js). fetch-data (the published narrative) and build-scenario-state (scenario-state.json) build
 // the regime, branches, structure flows, theme stages and market guide through this one function, from the same
 // published artifacts the screens read. v59.70 (data audit R8): the input itself is now assembled by the shared builder
-// (src/domain/interpretation/inputs.js) the browser adapter uses, so the producers also pass the sector rotation
+// (src/domain/market/interpretation/inputs.js) the browser adapter uses, so the producers also pass the sector rotation
 // (data.json rotationHistory), the S&P 500 breadth segment and index weights (screener.json) and consensus EPS
 // (consensus-estimates.json). What only the browser has: the hand-kept release names (AIO_MACRO_CALENDAR.releases in
 // js/aio-core.js) and a fresher HY read from its own FRED fetch.
-import { buildMarketInterpretation } from '../../src/domain/interpretation/market-interpretation.js';
-import { indexEarningsInput, interpretationInput, regimeMarketInput } from '../../src/domain/interpretation/inputs.js';
+import { buildMarketInterpretation } from '../../src/domain/market/interpretation/market-interpretation.js';
+import { indexEarningsInput, interpretationInput, regimeMarketInput } from '../../src/domain/market/interpretation/inputs.js';
 import { expandScreenerArtifact } from '../../src/data/screener-extended.js'; // v57.95 core row encoding
-import { readHistoryRows } from '../../src/domain/market/history-rows.js';
+import { readHistoryRows } from '../../src/domain/market/indices/history-rows.js';
 
 // P1635/P1685: the screen's regime inputs (credit with the 20-session HY change, rates) from the published
 // market data. The browser reads the same values through src/data/selectors/market-inputs.js.

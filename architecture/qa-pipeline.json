@@ -329,6 +329,7 @@
             "src/ui/components/company-story.js",
             "src/ui/components/fundamental-analysis-*.js",
             "src/domain/entity/**",
+            "src/domain/instruments/**",
             "src/domain/fundamental/**",
             "src/domain/briefing/day-account.js",
             "scripts/lib/fake-dom.mjs",
@@ -575,7 +576,7 @@
           "id": "data-boundary-fixture",
           "script": "scripts/ci-data-boundary-fixture.mjs",
           "remedy": "a screen reads an artifact through src/data/artifact-registry.js and grades a session through market-calendar sessionLagGrade/latestCompletedSession; a pinned value that moved is a behavior change, not a fixture to refresh",
-          "inputs": ["src/data/artifact-registry.js", "src/data/shared-artifacts.js", "src/data/contracts/artifact-freshness.js", "src/domain/market/market-calendar.js", "src/domain/shared/freshness-policy.js", "src/ui/components/session-lag.js", "src/domain/screener/row-presentation.js", "src/domain/sentiment/market-temperature.js", "src/domain/masters/filing-deadline.js", "scripts/ci-data-boundary-fixture.mjs"]
+          "inputs": ["src/data/artifact-registry.js", "src/data/shared-artifacts.js", "src/data/contracts/artifact-freshness.js", "src/domain/market/session/market-calendar.js", "src/domain/shared/freshness-policy.js", "src/ui/components/session-lag.js", "src/domain/screener/row-presentation.js", "src/domain/market/sentiment/market-temperature.js", "src/domain/masters/filing-deadline.js", "scripts/ci-data-boundary-fixture.mjs"]
         },
         {
           "id": "artifact-cache-model",
@@ -729,12 +730,12 @@
             "scripts/lib/atomic-write.mjs",
             "scripts/fetch-earnings-calendar.mjs",
             "src/ai/time/market-session.js",
-            "src/domain/market/market-calendar.js",
+            "src/domain/market/session/market-calendar.js",
             "src/data/contracts/market-snapshot.js",
             "src/data/contracts/operations.js",
             "src/data/contracts/reconciliation.js",
             "src/data/contracts/source-registry.js",
-            "src/domain/signal/trading-score.js"
+            "src/domain/market/signal/trading-score.js"
           ]
         },
         {
@@ -1058,9 +1059,9 @@
             "scripts/build-validation-gates.mjs",
             "src/data/contracts/evidence.js",
             "src/data/selectors/**",
-            "src/domain/interpretation/**",
-            "src/domain/market/breadth.js",
-            "src/domain/market/korea-participation.js",
+            "src/domain/market/interpretation/**",
+            "src/domain/market/breadth/breadth.js",
+            "src/domain/market/korea/korea-participation.js",
             "js/aio-core.js",
             "js/aio-pages.js",
             "architecture/validation-gate-criteria.json",
@@ -1077,7 +1078,7 @@
             "src/domain/briefing/**",
             "src/domain/macro/**",
             "src/domain/market/**",
-            "src/domain/market-day/**",
+            "src/domain/market/day/**",
             "src/domain/scenarios/correction-base-rates.js",
             "src/domain/technical/market-charts.js",
             "src/ui/**"
@@ -1119,7 +1120,7 @@
             "js/aio-data.js",
             "version.json",
             "src/ai/time/market-session.js",
-            "src/domain/market/market-calendar.js",
+            "src/domain/market/session/market-calendar.js",
             "src/data/market-snapshot-loader.js",
             "src/legacy/market-snapshot-bridge.js",
             ".github/workflows/refresh-data.yml"
@@ -1133,7 +1134,7 @@
           "id": "history-access",
           "script": "scripts/ci-history-access-check.mjs",
           "inputs": [
-            "src/domain/market/history-rows.js",
+            "src/domain/market/indices/history-rows.js",
             "scripts/**",
             "src/**",
             "js/aio-data.js",
@@ -1198,7 +1199,7 @@
             "scripts/lib/operations-alert-policy.mjs",
             "scripts/ci-operations-alert-policy-check.mjs",
             "src/ai/time/market-session.js",
-            "src/domain/market/market-calendar.js",
+            "src/domain/market/session/market-calendar.js",
             "scripts/build-operations-status.mjs",
             "scripts/ci-operations-status-check.mjs"
           ]
@@ -1271,7 +1272,7 @@
             "js/aio-data.js",
             "version.json",
             "src/ai/time/market-session.js",
-            "src/domain/market/market-calendar.js"
+            "src/domain/market/session/market-calendar.js"
           ]
         },
         {
@@ -1396,7 +1397,7 @@
             "public-data/operations-status.json",
             "public-data/macro-calendar.json",
             "scripts/lib/official-calendars.mjs",
-            "src/domain/signal/trading-score.js",
+            "src/domain/market/signal/trading-score.js",
             "src/data/contracts/operations.js",
             "scripts/fetch-data.mjs",
             "scripts/producer/**",
@@ -1440,7 +1441,7 @@
             "src/data/shared-artifacts.js",
             "src/data/artifact-cache.js",
             "src/data/artifact-registry.js",
-            "src/domain/market/market-calendar.js",
+            "src/domain/market/session/market-calendar.js",
             "src/ui/components/daily-loop.js",
             "src/ui/components/briefing-read.js",
             "src/ui/pages/market.js",
@@ -1711,6 +1712,7 @@
           "script": "scripts/ci-masters-contract-check.mjs",
           "inputs": [
             "src/domain/masters/**",
+            "src/domain/instruments/**",
             "public-data/knowledge/**",
             "public-data/principles/**",
             "public-data/atlas/**",
@@ -2562,7 +2564,7 @@
             "src/data/shared-artifacts.js",
             "src/data/artifact-cache.js",
             "src/data/artifact-registry.js",
-            "src/domain/market/market-calendar.js",
+            "src/domain/market/session/market-calendar.js",
             "src/ui/components/daily-loop.js",
             "src/ui/components/briefing-read.js",
             "src/ui/pages/market.js",
@@ -3166,7 +3168,7 @@
         "scripts/lib/operations-alert-policy.mjs",
         "scripts/ci-operations-alert-policy-check.mjs",
         "src/ai/time/market-session.js",
-        "src/domain/market/market-calendar.js",
+        "src/domain/market/session/market-calendar.js",
         "scripts/build-operations-status.mjs",
         "scripts/ci-operations-status-check.mjs"
       ],
@@ -3298,7 +3300,7 @@
         "src/platform/storage.js",
         "src/ui/navigation/route-hubs.js",
         "src/data/stock-subject-store.js",
-        "src/domain/market/history-meta.js",
+        "src/domain/market/indices/history-meta.js",
         ".github/workflows/knowledge-build-candidate.yml"
       ],
       "groups": [
@@ -3319,7 +3321,7 @@
         "src/data/shared-artifacts.js",
         "src/data/artifact-cache.js",
         "src/data/artifact-registry.js",
-        "src/domain/market/market-calendar.js",
+        "src/domain/market/session/market-calendar.js",
         "src/ui/components/daily-loop.js",
         "src/ui/components/briefing-read.js",
         "src/ui/pages/market.js",
@@ -3394,7 +3396,7 @@
         ".github/workflows/pages-deploy.yml",
         "_headers",
         "src/ai/time/market-session.js",
-        "src/domain/market/market-calendar.js",
+        "src/domain/market/session/market-calendar.js",
         "src/legacy/market-snapshot-bridge.js"
       ],
       "groups": [

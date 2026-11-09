@@ -96,7 +96,7 @@ for (const row of [...LEDGER, ...SOURCE_PUSH_LEDGER]) {
 }
 // The breadth fixture really was clock-bound: on the 11-03 06:00Z wall clock the old 97 h assertion failed.
 {
-  const { readScreenerBreadth } = await import('../src/domain/market/screener-breadth.js');
+  const { readScreenerBreadth } = await import('../src/domain/market/breadth/screener-breadth.js');
   const us = (now, extra) => ({ schemaVersion: '1.0', source: 'fixture', segments: { us: { above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, observedAt: new Date(now - 3600000).toISOString(), ...extra } } });
   const oldAt = (now) => readScreenerBreadth(us(now, { observedAt: new Date(now - 97 * 3600000).toISOString() }), now).us === null;
   const fixedNow = Date.parse('2026-10-14T23:00:00Z');

@@ -5,21 +5,21 @@
 // P1416 (open-source comparison 2026-10-03): three groups — participation (moving-average ratios),
 // leadership (52-week highs vs lows, 4% movers, with the stocks behind each count) and index
 // confirmation (S&P 500 distribution days and the index itself). Definitions live in
-// src/domain/market/breadth-signals.js; this module only presents them.
+// src/domain/market/breadth/breadth-signals.js; this module only presents them.
 import { deepDiveFold } from './deep-dive.js';
 import { splitReading } from './market-regime.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
-import { breadthFlow } from '../../domain/market/page-flow.js';
+import { breadthFlow } from '../../domain/market/story/page-flow.js';
 import { renderNextSteps, sectionLead } from './page-flow.js';
 import { el } from './dom.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 import { sectorLabel } from '../../domain/screener/sector-label.js';
-import { breadthScopeOf } from '../../domain/market/screener-breadth.js';
+import { breadthScopeOf } from '../../domain/market/breadth/screener-breadth.js';
 import { noteFold } from './section-frame.js';
 import { historyWaitText } from './data-state.js';
 

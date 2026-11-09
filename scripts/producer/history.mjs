@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { deriveMarketSession } from '../build-market-snapshot.mjs';
 import { atomicWriteFile } from '../lib/atomic-write.mjs';
 import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession } from '../../src/ai/time/market-session.js';
-import { barSessionDateForField, historyFieldSessionDate, observationSessionDate } from '../../src/domain/market/history-session.js';
+import { barSessionDateForField, historyFieldSessionDate, observationSessionDate } from '../../src/domain/market/session/history-session.js';
 import { round } from '../lib/producer-math.mjs';
 import { isSessionComplete } from '../../src/domain/screener/price-factors.js';
 import { compareUsdKrwCrossCheck } from '../lib/macro-sources.mjs';
@@ -13,7 +13,7 @@ import { HIST } from './paths.mjs';
 import { mapLimit, fetchHistory, fetchHourlySessionClose, FOUR_PLACE_QUOTES } from './quotes.mjs';
 import { readNumber } from '../../src/domain/shared/number.js';
 import { isoDay } from '../../src/domain/shared/session-date.js';
-import { readHistoryRows, compactHistoryRows } from '../../src/domain/market/history-rows.js';
+import { readHistoryRows, compactHistoryRows } from '../../src/domain/market/indices/history-rows.js';
 
 // history.json 레코드 필드 ↔ Yahoo 심볼 매핑 (백필 대상). F&G/IV는 과거 무료 소스 없어 제외(해당 일자 null).
 const HIST_SYMBOLS = {

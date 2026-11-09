@@ -5,8 +5,8 @@
 // row (one list, not the map plus a second accordion of the same branches): the
 // cause→effect chain, the dated triggers, the three likelihood lines and the reader's choices with their
 // opportunity cost. Reads only published artifacts already loaded for the 거시 and 시장 상태 screens.
-import { CHOICES, EVENT_NAMES, fomcDecisionDate, macroTransitions } from '../../domain/market/macro-crossroads.js';
-import { scenarioLead } from '../../domain/market/scenario-lead.js';
+import { CHOICES, EVENT_NAMES, fomcDecisionDate, macroTransitions } from '../../domain/market/regime/macro-crossroads.js';
+import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { frameHead, markFrame, noteFold, setAsOf } from './section-frame.js';

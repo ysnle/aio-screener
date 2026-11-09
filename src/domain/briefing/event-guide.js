@@ -4,12 +4,12 @@
 // collected expectation or a recorded reaction, and an item without data is left out.
 import { EXPOSURE_TAGS, US_THEME_PROFILES, windFor, WIND_LABELS } from '../scenarios/exposures.js';
 import { formatUsdRevenue, earningsFilterMs, usWallClockMs, reportedNumber, dedupeEarningsRows } from './schedule.js';
-import { resolveMarketCalendarSession } from '../market/market-calendar.js';
+import { resolveMarketCalendarSession } from '../market/session/market-calendar.js';
 import { isIsoDay } from '../shared/session-date.js';
-import { scenarioLead } from '../market/scenario-lead.js';
+import { scenarioLead } from '../market/regime/scenario-lead.js';
 
 // A scenario is named only when the headline's own words are about what that branch tracks
-// (src/domain/market/macro-crossroads.js branch ids); a branch without a term list is never named.
+// (src/domain/market/regime/macro-crossroads.js branch ids); a branch without a term list is never named.
 export const SCENARIO_TITLE_TERMS = Object.freeze({
   reheat: /inflation|\bCPI\b|\bPCE\b|price pressure|hot(?:ter)? prices|물가|인플레/i,
   softland: /inflation|\bCPI\b|\bPCE\b|payrolls?|jobs report|unemployment|soft landing|물가|인플레|고용|실업|연착륙/i,

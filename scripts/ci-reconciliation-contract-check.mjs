@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateReconciliationStatus } from '../src/data/contracts/reconciliation.js';
 import { buildReconciliationStatus } from './build-reconciliation-status.mjs';
-import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 import { clockJudgementBlocks } from './lib/qa-live-data.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');

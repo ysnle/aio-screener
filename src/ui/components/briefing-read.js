@@ -7,7 +7,7 @@ import { alignInput } from '../../domain/briefing/market-read.js';
 import { buildBriefingSchedule } from '../../domain/briefing/schedule.js';
 import { ensureResearchSnapshots } from './research-snapshots.js';
 import { refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
-import { briefingFlow } from '../../domain/market/page-flow.js';
+import { briefingFlow } from '../../domain/market/story/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { crossroadsForRoot, themeLinkRow } from './macro-crossroads.js';
 import { el } from './dom.js';

@@ -4,10 +4,10 @@
 // 10Y >= 5% = '높은 수준', 10Y >= 4.7% = '주식 압박') and the four-axis bull/bear count with the
 // observed level, its change and its date. The only rule shown is the one 시장 상태 already uses:
 // a yen rally of 3% or more in 20 sessions marks the FX axis as a burden.
-import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack } from '../market/close-series.js';
-import { resolveMarketCalendarSession } from '../market/market-calendar.js';
+import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack } from '../market/session/close-series.js';
+import { resolveMarketCalendarSession } from '../market/session/market-calendar.js';
 import { RULES } from '../rules/thresholds.js';
-import { MARKET_WINDOWS } from '../market/market-windows.js';
+import { MARKET_WINDOWS } from '../market/session/market-windows.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 

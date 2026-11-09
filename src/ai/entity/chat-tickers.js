@@ -5,11 +5,11 @@
 // nothing else is inferred (P1339: no ticker guessing). companiesOnly drops index/FX/commodity nicknames, which the
 // unified panel answers from its market and domain blocks instead.
 // This is the one question ticker resolver. The typed-symbol scan (extract-tickers.js) and the
-// nickname table (src/domain/ticker/nicknames.js) are imported, not handed in: the chat's own fuzzy map is gone, and a
+// nickname table (src/domain/instruments/nicknames.js) are imported, not handed in: the chat's own fuzzy map is gone, and a
 // nickname is read beside typed symbols and plan names instead of only when they found nothing ("암드 vs 엔비디아").
 import { companyEntitySymbols } from './company-symbols.js';
 import { extractTickers } from './extract-tickers.js';
-import { nicknameSymbol } from '../../domain/ticker/nicknames.js';
+import { nicknameSymbol } from '../../domain/instruments/nicknames.js';
 
 const PARTICLES = ['에서는', '에서', '으로', '까지', '보다', '처럼', '이랑', '하고', '은', '는', '이', '가', '을', '를', '의', '와', '과', '도', '에', '로', '랑', '만'];
 const isMarketProxy = (sym) => /^\^|=X$|=F$|-USD$/.test(String(sym));

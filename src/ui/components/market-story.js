@@ -1,8 +1,8 @@
 // v59.55 (owner 11/1): 시장 상태's first card — 무슨 일이 있었나. One picture (one week of moves on the shared two-sided bar, STORY_SESSIONS),
-// one reading (domain/market/market-story.js), the week-ahead list on the face, and one fold with the asset-by-asset
+// one reading (domain/market/story/market-story.js), the week-ahead list on the face, and one fold with the asset-by-asset
 // confirmation and the earnings reactions. The week-ahead list owns the next release on this page; the 다음에 확인할 것
 // card below keeps the two price checks.
-import { buildMarketStory } from '../../domain/market/market-story.js';
+import { buildMarketStory } from '../../domain/market/story/market-story.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { signedFill, signedScale, signedTrack } from './signed-bar.js';
 import { frameHead, frameReading, markFrame } from './section-frame.js';

@@ -9,7 +9,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { latestCompletedKrSession, resolveMarketCalendarSession } from '../src/domain/market/market-calendar.js';
+import { latestCompletedKrSession, resolveMarketCalendarSession } from '../src/domain/market/session/market-calendar.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = resolve(ROOT, 'public-data/kr-index-weights.json');

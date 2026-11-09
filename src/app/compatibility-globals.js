@@ -27,18 +27,18 @@ import { installSharedRoute } from '../data/providers/shared-ai-transport.js'; /
 import { withTimeout } from '../platform/with-timeout.js'; // v59.14 roadmap 11: helpers moved from js/aio-chat.js
 import { bumpApiCounter, isQuotaExceeded } from '../data/api-quota.js';
 import { extractTickers } from '../ai/entity/extract-tickers.js';
-import { nicknameSymbol } from '../domain/ticker/nicknames.js';
+import { nicknameSymbol } from '../domain/instruments/nicknames.js';
 import { articleTickers, articleSymbolAllowed } from '../domain/news/article-tickers.js';
 import { restoreSidebar, toggleSidebar } from '../ui/components/sidebar-toggle.js';
 import { createPersonalProviderTransport } from '../data/providers/personal-transport.js';
-import { describeSharedConnection } from '../domain/connections/shared.js';
+import { describeSharedConnection } from '../domain/ai/shared-connection.js';
 import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
 import { chooseAnswerVisuals } from '../ai/response/answer-visual-choice.js';
 import { buildChatPolicyLines } from '../ai/context/policy-lines.js';
 import { resolveChatTickers } from '../ai/entity/chat-tickers.js';
 import { portfolioRowsLine } from '../ai/context/portfolio-rows.js'; // v58.75: redacted holdings line (workbench + AI panel)
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../ai/research/native-search.js';
-import { isKnownSymbol, resolveHoldingInput, resolveRegisteredName, searchCandidates } from '../domain/ticker/resolve-name.js';
+import { isKnownSymbol, resolveHoldingInput, resolveRegisteredName, searchCandidates } from '../domain/instruments/resolve-name.js';
 import { hasFinalConsonant } from '../domain/content/korean-particle.js';
 import { isListedUsSymbol, usListingSymbol } from '../data/us-listings.js';
 import { stripEvidenceIds } from '../domain/briefing/evidence-text.js';
@@ -57,12 +57,12 @@ import { BACKUP_SECTIONS, backupReminder, buildPortfolioBackup, describeBackupCo
 import { readWatchlists, readWatchlistSymbols, toggleWatchlistSymbol, writeWatchlists, readActiveWatchlistId, writeActiveWatchlistId, ensureTargetList } from '../data/watchlist-store.js';
 import { CASH_INPUT_CURRENCIES, PORTFOLIO_CASH_KEY, LEGACY_CASH_KEY, readCashBalances, setCashBalance, writeCashBalances } from '../data/portfolio-cash.js';
 import { appUsdKrwClose } from '../domain/portfolio/cash.js';
-import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker-symbol.js';
-import { describeQuoteCurrentness } from '../domain/market/quote-currentness.js';
+import { normalizeTickerInput, tickerDisplayName } from '../domain/instruments/ticker-symbol.js';
+import { describeQuoteCurrentness } from '../domain/market/session/quote-currentness.js';
 import { KR_THEME_LABELS } from '../domain/themes/kr-themes.js';
 import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
 import { completedBars } from '../data/chart-bars.js';
-import { readScreenerBreadth } from '../domain/market/screener-breadth.js';
+import { readScreenerBreadth } from '../domain/market/breadth/screener-breadth.js';
 import { installPageCompleteness } from '../data/page-completeness.js';
 import { fetchServerData, buildServerDataMeta } from '../data/server-data.js';
 import { takeBootPrefetch } from '../data/boot-prefetch.js';

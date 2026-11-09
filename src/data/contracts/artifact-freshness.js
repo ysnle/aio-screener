@@ -20,7 +20,7 @@
 // on it said "today". freshnessState is now the worse of the liveness grade and the session-lag grade.
 
 import { stampDay } from '../../domain/shared/session-date.js';
-import { observationSessionState, sessionLagGrade } from '../../domain/market/market-calendar.js';
+import { observationSessionState, sessionLagGrade } from '../../domain/market/session/market-calendar.js';
 import { FRESHNESS_POLICY } from '../../domain/shared/freshness-policy.js';
 
 export const FRESHNESS_SCHEMA = 'aio-freshness.v1';
