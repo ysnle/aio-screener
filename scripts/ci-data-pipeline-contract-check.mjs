@@ -1858,6 +1858,25 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('screener breadth calculation separates US/KR and computes MA/advance ratios', ok, detail.slice(0, 400));
 }
 {
+  // v59.88: after the Korean close and before the US one, each market is on its own latest session. The mixed `all`
+  // segment counts every row on its market's session (US Friday + KR Monday), not only the majority date's rows.
+  let detail = '';
+  let ok = false;
+  try {
+    const src = extractFunctionSource(fetchData, 'computeScreenerBreadth');
+    const fn = new Function('round', '_mean', `${src}\nreturn computeScreenerBreadth;`)((v, d) => Number(v.toFixed(d)), (a) => a.reduce((s, v) => s + v, 0) / a.length);
+    const up = Array.from({ length: 220 }, (_, i) => 100 + i);
+    const us = Array.from({ length: 4 }, (_, i) => ({ sym: `US${i}`, adjCloses: up, observedAt: '2026-11-06T21:00:00.000Z' }));
+    const kr = Array.from({ length: 2 }, (_, i) => ({ sym: `00593${i}.KS`, adjCloses: up, observedAt: '2026-11-09T06:30:00.000Z' }));
+    const stale = { sym: 'US9', adjCloses: up, observedAt: '2026-11-05T21:00:00.000Z' };
+    const rows = [...us, ...kr, stale];
+    const out = fn(rows.map((row) => row.sym), rows);
+    ok = out.segments.all.eligible === 6 && out.segments.all.universe === 7 && out.segments.us.eligible === 4 && out.segments.kr.eligible === 2;
+    detail = JSON.stringify({ all: out.segments.all.eligible, us: out.segments.us.eligible, kr: out.segments.kr.eligible });
+  } catch (error) { detail = error.message; }
+  check('screener breadth `all` counts each market on its own latest session (v59.88)', ok, detail);
+}
+{
   let detail = '';
   let ok = false;
   try {
