@@ -22,9 +22,8 @@ function notify(root, reason) {
   if (typeof root._aioNotifyNewsSurfaceInvalidated === 'function') root._aioNotifyNewsSurfaceInvalidated(reason);
 }
 
-// v59.90: a pick sets aria-pressed, and the look is the #news-filter-row aria-pressed rule in responsive.css (news.js
-// re-syncs the same attribute on every render). The chips used to get inline colours here, which forced !important
-// on that rule and still let an inline accent tint replace the ink fill after a click.
+// A pick sets aria-pressed only; the look is the #news-filter-row aria-pressed rule in responsive.css, and news.js
+// re-syncs the same attribute on every render. No inline colours, so that rule needs no !important.
 function markChip(documentRef, group, el) {
   documentRef?.querySelectorAll?.(`#${group} .chip`).forEach((c) => c.setAttribute?.('aria-pressed', String(c === el)));
 }
