@@ -427,8 +427,8 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
        navigate: api.navigate,
       router: api.router,
       computeTradingScoreModel: api.computeTradingScoreModel,
-      // v59.87 (ADR-0003 S1): the technical definitions the legacy snapshot delegates to, forwarded as one group
-      // (src/app/bootstrap.js legacyTechnical) so a name added there cannot miss this allowlist again.
+      // The technical definitions the legacy snapshot delegates to, forwarded as one group (src/app/bootstrap.js
+      // legacyTechnical), so a name added there is never missing here.
       ...(api.legacyTechnical || {}),
       signalScoreMode: Object.freeze({ get: api.getSignalScoreMode, set: api.setSignalScoreMode, describe: api.describeSignalScoreMode }),
       computeRelativeRotation: api.computeRelativeRotation,

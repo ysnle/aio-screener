@@ -43,9 +43,7 @@ import { historyWaitText, serverDataWaitText } from './data-state.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 
-function signedNumber(value, digits) {
-  return `${value < 0 ? '-' : ''}${Math.abs(value).toFixed(digits)}`;
-}
+const signedNumber = (value, digits) => signedText(value, digits, '', { plus: false });
 
 // Codex browser audit H16: "내리는 중" beside a +0.1pp month read as a contradiction. The mark names its window —
 // the latest 3-month average against the 3-month average six months earlier (indicators.js trendOf).

@@ -23,11 +23,12 @@ export function isFiniteNumber(value) {
 // v58.74 (text audit): one sign style for every displayed change. 34 local helpers printed "-0.8%", "−0.0%" (U+2212) and
 // "±0.00%p" side by side on one screen. The sign is chosen after rounding (a value that rounds to zero carries no
 // sign) and the minus is the ASCII hyphen-minus every other number on the site uses.
-export function signedText(value, digits = 1, unit = '') {
+// `plus: false` prints a minus but no plus (range ends, premiums); a value that rounds to zero is unsigned either way.
+export function signedText(value, digits = 1, unit = '', { plus = true } = {}) {
   const number = typeof value === 'number' ? value : value == null || value === '' ? NaN : Number(value);
   if (!Number.isFinite(number)) return '—';
   const text = Math.abs(number).toFixed(digits);
-  return `${Number(text) === 0 ? '' : number > 0 ? '+' : '-'}${text}${unit}`;
+  return `${Number(text) === 0 ? '' : number > 0 ? (plus ? '+' : '') : '-'}${text}${unit}`;
 }
 
 // v58.80 (first-users R2-27): the colour follows the printed sign — a change that rounds to zero ("0.0%") is neither

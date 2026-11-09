@@ -2,6 +2,7 @@
 // (chart-analysis), issuer filings (fiscal history) — never from numbers the model wrote. The unified AI panel is the
 // only AI entry point (owner 2026-10-12) and had no visual at all; the sparkline/diagram code lived on the retired
 // per-page chat path. Each figure states its basis date; a figure whose data is missing is not drawn.
+import { escapeHtml as esc } from '../html.js';
 import { analyzeChart } from '../../domain/technical/chart-analysis.js';
 import { barsFromYahoo, completedBars } from './chart-bars.js';
 import { requestFiscalHistory, parseFiscalHistory } from './fiscal-read.js';
@@ -19,7 +20,6 @@ import { isIsoDay } from '../../domain/shared/session-date.js';
 
 export { chooseAnswerVisuals };
 
-const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
 const signed = (value, digits = 1) => signedText(value, digits, '%');
 const price = (value, kr) => (kr ? Math.round(value).toLocaleString('en-US') : value >= 1000 ? value.toFixed(0) : value.toFixed(2));

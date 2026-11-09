@@ -2,11 +2,11 @@
 // and its formatters moved here from js/aio-workspace.js. Markup, labels and the VaR/CVaR certification wording are
 // unchanged. runPortfolioBacktestLab in js/aio-workspace.js still fetches the history, runs the engine and calls
 // window._aioRenderPortfolioBacktestLab; src/app/legacy-screen-bridges.js installs it and window.varCertLabel.
+import { escapeHtml as esc } from '../html.js';
+import { signedText } from '../../domain/shared/number.js';
 
-function fmtPct(v, d) {
-  if (v === null || v === undefined || !isFinite(v)) return '—';
-  return (v >= 0 ? '+' : '') + (v * 100).toFixed(d == null ? 2 : d) + '%';
-}
+// The shared sign rule: a value that rounds to zero prints no sign.
+const fmtPct = (v, d) => (typeof v === 'number' && isFinite(v) ? signedText(v * 100, d == null ? 2 : d, '%') : '—');
 function fmtNum(v, d) {
   if (v === null || v === undefined || !isFinite(v)) return '—';
   return Number(v).toFixed(d == null ? 2 : d);
@@ -44,16 +44,14 @@ function fmtMoney(v) {
 function td(value, cls) {
   return '<td class="wsl-bt-c is-fig is-r' + (cls ? ' ' + cls : '') + '">' + value + '</td>';
 }
-const escapeFor = (root) => (s) => (typeof root.escHtml === 'function' ? root.escHtml(String(s)) : String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
 
 // The one-line states runPortfolioBacktestLab reports before a result (no holdings, a rejected form, collecting).
 export function renderPortfolioBacktestStatus(text, warn, { documentRef = globalThis.document, root = globalThis } = {}) {
   const el = documentRef.getElementById('pf-backtest-output');
-  if (el) el.innerHTML = `<div class="wsl-msg${warn ? ' is-warn' : ''}">${escapeFor(root)(text)}</div>`;
+  if (el) el.innerHTML = `<div class="wsl-msg${warn ? ' is-warn' : ''}">${esc(text)}</div>`;
 }
 
 export function renderPortfolioBacktestLab(model, { documentRef = globalThis.document, root = globalThis } = {}) {
-  const esc = escapeFor(root);
   const el = documentRef.getElementById('pf-backtest-output');
   if (!el) return;
   if (!model || !model.ok) {

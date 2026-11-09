@@ -44,7 +44,7 @@ export function resolveLayers(stored) {
 
 const isNum = (value) => typeof value === 'number' && Number.isFinite(value);
 
-// v59.87 (ADR-0003 S1): the per-bar Wilder RSI lives in definitions.js with rsiWilder; re-exported for the pane's importers.
+// The per-bar Wilder RSI lives in definitions.js with rsiWilder; re-exported for the pane's importers.
 export { rsiSeriesWilder };
 
 /** MACD(fast, slow, signal) per bar: line = EMA(fast) − EMA(slow), signal = EMA(signal) of the line, hist = line − signal. */

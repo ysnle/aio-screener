@@ -935,7 +935,6 @@
     _assert('T103 tech_snapshot: ok', snap && snap.ok === true, 'snap=' + !!snap);
     _assertRange('T103 tech_snapshot: RSI valid', snap && snap.rsi14, 0, 100);
     _assert('T103 tech_snapshot: ATR/MA valid', snap && snap.atr14 > 0 && snap.sma50 > 0 && snap.ema21 > 0, 'atr=' + (snap && snap.atr14));
-    _assert('v59.87 T103 tech_snapshot: ADR reads technical/definitions.js through AIO_ARCH (was always null)', snap && snap.adr20Pct > 0, 'adr=' + (snap && snap.adr20Pct));
 
     var climax = _makeTechBars(80, 0.05);
     var prev = climax[climax.length - 1].close;

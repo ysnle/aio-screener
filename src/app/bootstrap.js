@@ -1220,10 +1220,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,classifyMovingAverageStructure
     ,deriveMultiTimeframeView
     // The technical definitions legacy calcTechnicalSnapshot delegates to (js/aio-core.js _calc*, _calcADRPercent,
-    // _calcVCP). v59.87 (ADR-0003 S1): one group that compatibility-facade.js forwards whole onto window.AIO_ARCH — these
-    // names were listed here but never on the facade's allowlist, so since v59.59 the legacy ADR read null and VCP read
-    // insufficient_data in every browser. v57.84: detectContractions is the one VCP contraction detector; audit
-    // 2026-10-17 (owner D6): isBreakoutDay the one breakout-day test; v59.59: ADR and the VCP stage are the producer's own.
+    // _calcVCP), as one group compatibility-facade.js forwards whole onto window.AIO_ARCH: a name listed only here and not
+    // on the facade's allowlist reads as missing in the browser. detectContractions is the one VCP contraction detector,
+    // isBreakoutDay the one breakout-day test (owner D6), and the ADR and VCP stage are the producer's own functions.
     ,legacyTechnical: Object.freeze({
       detectContractions,
       isBreakoutDay,

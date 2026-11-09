@@ -10661,7 +10661,7 @@ function _aioCleanOHLCV(ohlcv) {
   }).filter(Boolean);
 }
 
-// v59.87 (ADR-0003 S1): SMA/EMA/RSI/ATR are technical/definitions.js (AIO_ARCH); these wrappers only clean the legacy
+// SMA/EMA/RSI/ATR are technical/definitions.js (through AIO_ARCH, ADR-0003); these wrappers only clean the legacy
 // inputs. Unknown (null) without the ESM, like _calcADRPercent.
 function _aioTechDef(name) {
   var arch = window.AIO_ARCH;

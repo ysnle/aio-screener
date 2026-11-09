@@ -36,8 +36,8 @@ export function smaLast(values, period) {
 
 /**
  * Exponential moving average per index. The default seed is the simple average of the first `period` values (null
- * before it), the chart/screener/legacy-snapshot definition. v59.87 (ADR-0003 S1): `seed: 'first'` starts from the first
- * value with no warm-up nulls — the McClellan-style oscillator the sentiment composite reads, which kept its own copy.
+ * before it), the chart/screener/legacy-snapshot definition. `seed: 'first'` starts from the first value with no warm-up
+ * nulls — the McClellan-style oscillator of the sentiment composite.
  */
 export function emaSeries(values, period, { seed = 'sma' } = {}) {
   const k = 2 / (period + 1);
@@ -76,9 +76,8 @@ export function rsiWilder(closes, period = 14) {
 }
 
 /**
- * Wilder RSI per bar, aligned to `closes` (null until period + 1 closes). v59.87 (ADR-0003 S1): moved here from
- * chart-layers.js so the RSI pane and rsiWilder's last value are one implementation; the input is taken as given (the
- * pane keeps bar alignment), rsiWilder drops non-positive closes before calling it.
+ * Wilder RSI per bar, aligned to `closes` (null until period + 1 closes) — the RSI pane, and rsiWilder's last value. The
+ * input is taken as given (the pane keeps bar alignment); rsiWilder drops non-positive closes before calling it.
  */
 export function rsiSeriesWilder(closes, period = 14) {
   const out = (Array.isArray(closes) ? closes : []).map(() => null);

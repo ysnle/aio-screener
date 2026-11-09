@@ -946,6 +946,24 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (fakeRoot.AIO_ARCH?.version !== 'test.v1' || fakeRoot.AIO_ARCH?.status !== 'MIGRATION_IN_PROGRESS') fail('facade: exposeArchitecture did not expose the expected fields onto root.AIO_ARCH');
 }
 
+// v59.87 (legacy technical facade): the technical definitions legacy calcTechnicalSnapshot delegates to travel as one group. bootstrap listed
+// adrPctOf/vcpRead/detectContractions/isBreakoutDay but the facade allowlist never forwarded them, so the legacy ADR read
+// null and the VCP insufficient_data in every browser. Every name aio-core reads from AIO_ARCH for the snapshot must be in
+// bootstrap's legacyTechnical group, and the facade must forward the group whole.
+{
+  const marker = () => 0;
+  const techRoot = {};
+  exposeArchitecture(techRoot, { version: 'test.v1', legacyTechnical: Object.freeze({ adrPctOf: marker, rsiWilder: marker }) });
+  if (techRoot.AIO_ARCH?.adrPctOf !== marker || techRoot.AIO_ARCH?.rsiWilder !== marker) fail('v59.87 facade: exposeArchitecture does not forward api.legacyTechnical onto root.AIO_ARCH');
+  const coreSource = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
+  const bootSource = readFileSync(path.join(root, 'src/app/bootstrap.js'), 'utf8');
+  const group = bootSource.match(/legacyTechnical: Object\.freeze\(\{([\s\S]*?)\}\)/)?.[1] || '';
+  const grouped = new Set([...group.matchAll(/^\s*([A-Za-z_]\w*)\s*(?:,|:)/gm)].map((m) => m[1]));
+  const read = new Set([...coreSource.matchAll(/arch\.(adrPctOf|vcpRead|detectContractions|isBreakoutDay)\b/g), ...coreSource.matchAll(/_aioTechDef\('(\w+)'\)/g)].map((m) => m[1]));
+  const missing = [...read].filter((name) => !grouped.has(name));
+  if (!read.size || missing.length) fail(`v59.87 bootstrap legacyTechnical is missing names js/aio-core.js reads from AIO_ARCH: ${missing.join(', ') || '(none read)'}`);
+}
+
 // P1348: use the shipped compatibility registry, not a fixture alias map.
 {
   const source = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
