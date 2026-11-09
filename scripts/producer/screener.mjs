@@ -359,14 +359,24 @@ export function computeScreenerBreadth(syms, results, assetTypeOf = null, option
     // v57.75 (crash audit): observedAt was the newest row's time, so one early-updating symbol stamped a segment that
     // still held the previous session for most rows with the new date. It is now the latest time on the date most rows
     // were observed (the session the counts actually describe).
+    // The session is chosen per listing market: in the mixed `all` segment a Korean close (16:00 KST Monday) and a US
+    // close (Friday) are each their market's latest session, so one majority date would drop the smaller market's rows.
+    const marketOfSym = (sym) => (isKr(sym) ? 'KR' : isUs(sym) ? 'US' : 'INTL');
     const dayCount = new Map();
-    rows.forEach(r => { const day = String(r.observedAt || '').slice(0, 10); if (day) dayCount.set(day, (dayCount.get(day) || 0) + 1); });
-    const sessionDay = [...dayCount.entries()].sort((a, b) => b[1] - a[1] || b[0].localeCompare(a[0]))[0]?.[0] || null;
+    rows.forEach(r => {
+      const day = String(r.observedAt || '').slice(0, 10);
+      if (!day) return;
+      const market = marketOfSym(r.sym);
+      if (!dayCount.has(market)) dayCount.set(market, new Map());
+      dayCount.get(market).set(day, (dayCount.get(market).get(day) || 0) + 1);
+    });
+    const sessionDayOf = new Map([...dayCount].map(([market, days]) => [market, [...days.entries()].sort((a, b) => b[1] - a[1] || b[0].localeCompare(a[0]))[0][0]]));
     let observedAt = null;
     let sessionRows = 0;
     rows.forEach(r => {
       // v58.71 (pipeline audit): only rows on the counted session enter the counts; a row still on an earlier session
       // compared that session's two bars and mixed two days into one advance/decline reading.
+      const sessionDay = sessionDayOf.get(marketOfSym(r.sym)) || null;
       if (sessionDay && String(r.observedAt || '').slice(0, 10) !== sessionDay) return;
       sessionRows++;
       const c = r.adjCloses;
