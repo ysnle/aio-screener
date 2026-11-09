@@ -21,6 +21,9 @@ function weightPercent(value) {
 export function normalizePortfolio(raw = {}) {
   const holdings = Array.isArray(raw.holdings) ? raw.holdings.map((holding) => Object.freeze({
     symbol: String(holding?.symbol || holding?.sym || '').toUpperCase(),
+    // The listing a stored code is quoted under (005930 -> 005930.KS), resolved once by the runtime reader. Dropping it
+    // here sent the bare code to the quote providers and left the row unpriced; absent stays null, never guessed.
+    listingSymbol: String(holding?.listingSymbol || '').toUpperCase() || null,
     shares: numeric(holding?.shares ?? holding?.qty),
     avgCost: numeric(holding?.avgCost ?? holding?.avg),
     // A blocked quote is not a zero-dollar quote. Preserve missingness so the

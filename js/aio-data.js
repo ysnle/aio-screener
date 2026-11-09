@@ -5337,14 +5337,16 @@ async function _aioFetchLiveQuotesOnce(requestedSymbols, attempt) {
   } catch(e) { _aioLog('warn', 'fetch', '모든 환율 API 실패: ' + e.message); }
 
   // ─── 2.5. 한국 시장: 네이버 파이낸스 1차 소스 (v36) ─────────────────
-  // 네이버 성공 시 Yahoo Korean 배치 스킵 → 요청 수 절감 + 데이터 정확도 향상
-  let _naverKrLoaded = false;
+  // Every row Naver returns is kept, and Yahoo is asked only for the KR symbols Naver did not return. A count threshold
+  // (">= 3") threw away a lone holding's quote whenever an index call failed, and the whole-group skip below left a
+  // Naver miss unasked.
+  const _naverQuoted = new Set();
   try {
     const naverQuotes = await fetchKrNaverQuotes(_requestedQuoteSyms);
-    if (naverQuotes.length >= 3) {
+    if (naverQuotes.length) {
       allQuotes.push(...naverQuotes);
-      _naverKrLoaded = true;
-      console.log('[AIO] 한국 시세 네이버 1차 소스 성공:', naverQuotes.length + '개');
+      naverQuotes.forEach(function(q) { if (q && q.symbol) _naverQuoted.add(String(q.symbol).toUpperCase()); });
+      console.log('[AIO] 한국 시세 네이버 1차 소스:', naverQuotes.length + '개');
       // 네이버 데이터 즉시 반영 (체감 속도 향상)
       applyLiveQuotes(allQuotes);
     }
@@ -5499,18 +5501,9 @@ async function _aioFetchLiveQuotesOnce(requestedSymbols, attempt) {
   const MAX_GROUP_FAILS = 3; // 연속 3그룹 전부 실패 → 프록시 죽음 판정
 
   for (let gi = 0; gi < PRIORITY_SYMS.length; gi++) {
-    const group = PRIORITY_SYMS[gi];
-
-    // v36: 네이버로 한국 데이터 이미 로드 완료 → Yahoo Korean 배치 스킵 (요청 절감)
-    if (_naverKrLoaded) {
-      const isKrGroup = group.every(function(s) {
-        return s.endsWith('.KS') || s.endsWith('.KQ') || s === '^KS11' || s === '^KQ11';
-      });
-      if (isKrGroup) {
-        console.log('[AIO] 네이버 데이터 사용 — Yahoo Korean 그룹 스킵 (group ' + gi + ')');
-        continue;
-      }
-    }
+    // Symbols Naver already quoted are not asked again; a group Naver covered entirely is skipped.
+    const group = PRIORITY_SYMS[gi].filter(function(s) { return !_naverQuoted.has(String(s).toUpperCase()); });
+    if (!group.length) continue;
 
     // 프록시 죽음 판정 후: 핵심 그룹 이후는 스킵
     if (groupFailStreak >= MAX_GROUP_FAILS && gi >= CRITICAL_GROUPS) {
