@@ -5337,15 +5337,12 @@ async function _aioFetchLiveQuotesOnce(requestedSymbols, attempt) {
   } catch(e) { _aioLog('warn', 'fetch', '모든 환율 API 실패: ' + e.message); }
 
   // ─── 2.5. 한국 시장: 네이버 파이낸스 1차 소스 (v36) ─────────────────
-  // Every row Naver returns is kept, and Yahoo is asked only for the KR symbols Naver did not return. A count threshold
-  // (">= 3") threw away a lone holding's quote whenever an index call failed, and the whole-group skip below left a
-  // Naver miss unasked.
-  const _naverQuoted = new Set();
+  // Every row Naver returns is kept. A count threshold (">= 3") threw away a lone holding's quote whenever an index call
+  // failed, and skipping the Yahoo Korean groups after it left a symbol Naver missed unasked.
   try {
     const naverQuotes = await fetchKrNaverQuotes(_requestedQuoteSyms);
     if (naverQuotes.length) {
       allQuotes.push(...naverQuotes);
-      naverQuotes.forEach(function(q) { if (q && q.symbol) _naverQuoted.add(String(q.symbol).toUpperCase()); });
       console.log('[AIO] 한국 시세 네이버 1차 소스:', naverQuotes.length + '개');
       // 네이버 데이터 즉시 반영 (체감 속도 향상)
       applyLiveQuotes(allQuotes);
@@ -5501,9 +5498,11 @@ async function _aioFetchLiveQuotesOnce(requestedSymbols, attempt) {
   const MAX_GROUP_FAILS = 3; // 연속 3그룹 전부 실패 → 프록시 죽음 판정
 
   for (let gi = 0; gi < PRIORITY_SYMS.length; gi++) {
-    // Symbols Naver already quoted are not asked again; a group Naver covered entirely is skipped.
-    const group = PRIORITY_SYMS[gi].filter(function(s) { return !_naverQuoted.has(String(s).toUpperCase()); });
-    if (!group.length) continue;
+    const group = PRIORITY_SYMS[gi];
+
+    // Korean groups are asked too (the spark batch above already holds most of them, so this is rarely a new request):
+    // Naver rows carry no observation time, and _aioSelectAtomicQuotes, the one owner of the provider choice, prefers a
+    // row that does while keeping Naver's KR index previous close sticky.
 
     // 프록시 죽음 판정 후: 핵심 그룹 이후는 스킵
     if (groupFailStreak >= MAX_GROUP_FAILS && gi >= CRITICAL_GROUPS) {
