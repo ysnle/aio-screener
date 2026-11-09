@@ -475,7 +475,7 @@ export const CASH_CONDITION_IDS = ['fcf-margin-min', 'capex-intensity-max'];
 export function requestCashMetrics(root, onReady) {
   if (root?._aioScreenerCash || root?._aioScreenerCashRequested) return;
   root._aioScreenerCashRequested = true;
-  import('../components/screener-cash.js').then((mod) => mod.requestCashMetrics(root, onReady)).catch(() => {}).finally(() => { root._aioScreenerCashRequested = false; });
+  import('../../components/screener-cash.js').then((mod) => mod.requestCashMetrics(root, onReady)).catch(() => {}).finally(() => { root._aioScreenerCashRequested = false; });
 }
 export function customRead(row, key) {
   if (key === 'fwdPe') return forwardPe(row);
