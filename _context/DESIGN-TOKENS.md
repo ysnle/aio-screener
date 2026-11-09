@@ -65,6 +65,14 @@ override in soft-ui.css; a full-page pixel comparison of eight routes in both th
 - Toast: inverted surface with container corners (it is a transient overlay, not a chip).
 - Every stylesheet's 4/8/12/999px corners now name their role (580 declarations); 13px text moved to 12px (66).
 
+## !important retirement (v59.89)
+Flags were removed only where the browser showed they change nothing: each flag was switched off on its own on every
+route (1440/820/390, light and dark, four screener states) and kept if any computed value moved. Two kinds of flags
+stay on purpose: flags on properties that JS changes after load (display, visibility, position, overflow, opacity,
+z-index, transform, height), and pairs where two rules each look redundant only because the other one is there.
+Screener column minimums live in the column registry (`src/ui/pages/screener/model.js`), not in CSS overrides.
+Result: 1,202 → 709 (index.html 217 of them).
+
 ## Next
-- Retire the ivory-hairline layer that `soft-ui.css` repaints with `!important`, screen by screen (1,202 flags left;
-  the ratchet keeps the number from growing).
+- Most of the remaining flags exist to beat soft-ui's own page-wide rules (`.page th/td`, `.page input`, `.page .aio-btn-table`).
+  Retire those rules, or scope them, before working on the per-screen rules that out-rank them.
