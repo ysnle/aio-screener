@@ -37,92 +37,64 @@
        record (1 KB, build-scenario-state) is requested here and painted by the static shell under the hero. -->
   <script>(function(){var c=navigator.connection||{};if(!(c.saveData||/(^|-)(2g|3g)$/.test(c.effectiveType||''))){var l=document.createElement('link');l.rel='stylesheet';l.id='aio-font-css';l.href='https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css';document.head.appendChild(l)}try{window._aioTodayVerdict=fetch('./public-data/today-verdict.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null}).catch(function(){return null})}catch(e){}})();</script>
   <style>
-:root {
-  /* ═══════════════════════════════════════════════════════════════════════
-     v52.62 아이보리 리디자인 — "AIO 리디자인.dc.html" 시안(1b/2a/2b) 기반
-     철학: 잉크/페이퍼 무채 베이스 + 상승/하락 2색만 데이터색으로 허용
-     CLAUDE-CODE-HANDOFF.md §1~§2 — 기존 변수명 유지, 값만 교체(파급 최소화)
-     ═══════════════════════════════════════════════════════════════════════ */
+:root, body {
+  /* ═══ Colour roles (v59.88, astryx grammar — _context/DESIGN-TOKENS.md) ═══════════════════════════════════
+     The one definition of every semantic colour. Values point at Radix steps (radix-colors.css), which swap under
+     body.dark-theme; declared on body as well, so each var() re-resolves against the body's scale there. The dark
+     theme only overrides the roles whose step differs (body.dark-theme block below). Palette (owner): ivory ink and
+     paper, judgement green/amber/red, price direction red-up/blue-down. Legacy names further down are aliases. */
+  --color-background-body: var(--gold-2);       /* page */
+  --color-background-surface: var(--gold-2);    /* sidebar, top bar */
+  --color-background-card: var(--gold-1);       /* card, panel, popover, input */
+  --color-background-emphasized: var(--gold-3); /* hover, selected, drawer */
+  --color-overlay: var(--black-a6);             /* modal scrim */
+  --color-overlay-hover: var(--gold-a2);
+  --color-text-primary: var(--gold-12);
+  --color-text-secondary: var(--gold-11);       /* AA on gold-1/gold-2 */
+  --color-border: var(--gold-7);
+  --color-border-emphasized: var(--gold-8);
+  --color-border-muted: var(--gold-6);
+  --color-accent: var(--gold-12);               /* ink accent: no brand hue */
+  --color-accent-muted: var(--gold-a2);
+  --ink-rgb: 59,53,43;                          /* ink as r,g,b — rgba(var(--ink-rgb),a) follows the theme */
+  /* Status: text role on page and card surfaces (AA), pale fill for chips and banners, strong fill for bars. Light text is a
+     quarter of step 12 over step 11 so it clears 4.5:1 on step-3 chips (v59.70 screen review #25); dark keeps step 11. */
+  --color-text-success: color-mix(in srgb, var(--green-11) 75%, var(--green-12));
+  --color-text-warning: color-mix(in srgb, var(--amber-11) 75%, var(--amber-12));
+  --color-text-error: color-mix(in srgb, var(--red-11) 75%, var(--red-12));
+  --color-success-muted: var(--green-3); --color-warning-muted: var(--amber-3); --color-error-muted: var(--red-3);
+  --color-success: var(--green-9); --color-error: var(--red-9);
+  /* Domain layer: price and return direction (Korean brokerage convention, candles agree — P1634, v58.80). */
+  --color-data-up: color-mix(in srgb, var(--red-11) 75%, var(--red-12));
+  --color-data-down: color-mix(in srgb, var(--blue-11) 75%, var(--blue-12));
+  --color-data-up-emphasized: var(--red-12); --color-data-down-emphasized: var(--blue-12);
+  --color-data-up-muted: var(--red-3); --color-data-down-muted: var(--blue-3);
 
-  /* === 배경 계층 (Depth 4단) — 웜 페이퍼 === */
-  --bg-base:       var(--gold-2);
-  --bg-dark:       var(--gold-2);     /* alias (legacy) */
-  --bg-surface:    var(--gold-2);     /* 사이드바/톱바 surface */
-  --bg-card:       var(--gold-1);     /* 카드 기본 */
-  --bg-elevated:   var(--gold-3);     /* hover / selected / drawer */
-  --bg-overlay:    var(--black-a6);  /* 모달 overlay */
-  --bg-hover:      var(--gold-a2);
-  --bg-secondary:  var(--gold-2);     /* legacy alias */
-  --bg-input:      var(--gold-1);
-
-  /* === 테두리 계층 (3단) — 웜 헤어라인 === */
-  --border:         var(--gold-7);
-  --border-strong:  var(--gold-8);
-  --border-accent:  var(--gold-8);    /* 색 액센트 테두리 폐기 → 무채 강조선 */
-  --border-subtle:  var(--gold-6);
-
-  /* === Surface 계층 (잉크 오버레이 — 화이트→잉크 기반으로 반전) === */
-  --surface-1: var(--gold-a2);  /* 최하: 테이블 hover, 미약한 구분 */
-  --surface-2: var(--gold-a2);  /* 기본: 빈 상태 안내, secondary 카드 */
-  --surface-3: var(--gold-a3);  /* 중간: input 배경, chip 배경 */
-  --surface-4: var(--gold-a3);  /* 강조: hover elevation */
-  --surface-5: var(--gold-a4);  /* 최상: active, 강조 카드 */
-
-  /* === 텍스트 계층 (웜 잉크) === */
-  --text-primary:   var(--gold-12);
-  --ink-rgb:        59,53,43;  /* ink as r,g,b — rgba(var(--ink-rgb),a) follows the theme (dark: body.dark-theme) */
-  --text-secondary: var(--gold-11);
-  --text-muted:     var(--gold-11);  /* #fbf9f5/#f7f4ee 배경 대비 WCAG AA 일반 텍스트 기준 충족 */
-  --text-dim:       var(--text-muted); /* P1604: subdued explanations still need readable contrast. */
-
-  /* === 데이터 팔레트 — 아이보리 원칙 §1: 색은 3계열만(무채+평가 green/amber/red+방향 --dir-up 빨강/--dir-down 파랑, soft-ui.css, v58.80)
-     cyan/magenta/purple/blue는 무채 잉크에 수렴, yellow는 세컨더리 잉크. amber는 주의·혼조 전용 앰버(P1758, AA 텍스트) */
-  --data-cyan:    var(--gold-12);
-  --data-magenta: var(--gold-12);
-  --data-purple:  var(--gold-12);
-  --data-amber:   var(--amber-11);   /* 주의·혼조 — 개편 v2 #7a5000을 #f4f0e8 바탕 ink .15 칩 위 AA(4.5:1)로 한 단계 보정 */
-  --data-green:   var(--green-11);   /* 통과/양호 (가격 방향은 --dir-up) */
-  --data-red:     var(--red-11);   /* 경고/부담 (가격 방향은 --dir-down) */
-  --data-yellow:  var(--gold-11);
-  --data-blue:    var(--gold-12);
-
-  /* === Accent (브랜드 대표) — 시안 폐기, 잉크 액센트 === */
-  --accent:         var(--gold-12);
-  --accent-soft:    var(--gold-a2);
-  --accent-dim:     var(--gold-a3);
-  --accent-border:  var(--gold-7);
-  --accent-text:    var(--gold-12);
-
-  /* R34: 데이터 색상 소프트 토큰 (배경/배지/신호용) — green/red만 색상 유지, 나머지는 잉크 계열로 통일 */
-  --data-green-faint:   var(--green-2);
-  --data-green-soft:    var(--green-3);
-  --data-green-mid:     var(--green-3);
-  --data-green-dim:     var(--green-4);
-  --data-red-faint:     var(--red-2);
-  --data-red-soft:      var(--red-3);
-  --data-red-mid:       var(--red-3);
-  --data-red-dim:       var(--red-4);
-  --data-amber-soft:    var(--amber-3);
-  --data-amber-mid:     var(--amber-2);
-  --data-amber-faint:   var(--amber-2);
-  --data-muted-soft:    var(--gold-a3);
-  --accent-faint:       var(--gold-a2);
-  --data-cyan-soft:     var(--gold-a2);
-  --data-cyan-light:    var(--gold-a2);
-  --border-accent-dim:  var(--gold-a4);
-  --data-cyan-dim:      var(--gold-a4);
-  --data-purple-faint:  var(--gold-a2);
-  --data-purple-soft:   var(--gold-a3);
-  --data-purple-border: var(--gold-7);
-
-  /* Legacy alias (기존 CSS 호환) */
-  --green:  var(--green-11);
-  --red:    var(--red-11);
-  --yellow: var(--gold-11);
-  --orange: var(--gold-11);
-  --purple: var(--gold-12);
-  --cyan:   var(--gold-12);
-  --indigo: var(--data-purple);
+  /* ═══ Aliases — older names, one line each, never a second value ═══ */
+  --bg-base: var(--color-background-body); --bg-dark: var(--color-background-body); --bg-secondary: var(--color-background-body);
+  --bg-surface: var(--color-background-surface); --bg-card: var(--color-background-card); --bg-input: var(--color-background-card);
+  --bg-elevated: var(--color-background-emphasized); --bg-overlay: var(--color-overlay); --bg-hover: var(--color-overlay-hover);
+  --border: var(--color-border); --border-strong: var(--color-border-emphasized); --border-accent: var(--color-border-emphasized);
+  --border-subtle: var(--color-border-muted);
+  --surface-1: var(--gold-a2); --surface-2: var(--gold-a2); --surface-3: var(--gold-a3); --surface-4: var(--gold-a3); --surface-5: var(--gold-a4);
+  --text-primary: var(--color-text-primary); --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-secondary); --text-dim: var(--color-text-secondary); /* P1604: subdued text stays AA */
+  --data-green: var(--color-text-success); --data-amber: var(--color-text-warning); --data-red: var(--color-text-error);
+  --dir-up: var(--color-data-up); --dir-down: var(--color-data-down);
+  --dir-up-strong: var(--color-data-up-emphasized); --dir-down-strong: var(--color-data-down-emphasized);
+  --dir-up-bg: var(--color-data-up-muted); --dir-down-bg: var(--color-data-down-muted);
+  /* Retired hues converge on ink (ivory rule §1): cyan/magenta/purple/blue are ink, yellow/orange the secondary ink. */
+  --data-cyan: var(--color-text-primary); --data-magenta: var(--color-text-primary); --data-purple: var(--color-text-primary);
+  --data-blue: var(--color-text-primary); --data-yellow: var(--color-text-secondary);
+  --accent: var(--color-accent); --accent-text: var(--color-accent); --accent-soft: var(--color-accent-muted);
+  --accent-faint: var(--color-accent-muted); --accent-dim: var(--gold-a3); --accent-border: var(--color-border);
+  --data-green-faint: var(--green-2); --data-green-soft: var(--color-success-muted); --data-green-mid: var(--color-success-muted); --data-green-dim: var(--green-4);
+  --data-red-faint: var(--red-2); --data-red-soft: var(--color-error-muted); --data-red-mid: var(--color-error-muted); --data-red-dim: var(--red-4);
+  --data-amber-soft: var(--color-warning-muted); --data-amber-mid: var(--amber-2); --data-amber-faint: var(--amber-2);
+  --data-muted-soft: var(--gold-a3); --data-cyan-soft: var(--gold-a2); --data-cyan-light: var(--gold-a2); --data-cyan-dim: var(--gold-a4);
+  --border-accent-dim: var(--gold-a4); --data-purple-faint: var(--gold-a2); --data-purple-soft: var(--gold-a3); --data-purple-border: var(--color-border);
+  --green: var(--color-text-success); --red: var(--color-text-error); --yellow: var(--color-text-secondary); --orange: var(--color-text-secondary);
+  --purple: var(--color-text-primary); --cyan: var(--color-text-primary); --indigo: var(--color-text-primary);
 
   /* === Typography — Pretendard Variable 단일 (v58.53 개편 v2) === */
   --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -2529,38 +2501,14 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
 /* ── v52.62: 다크 테마(그래파이트 무채, 시안 1a) — 아이보리가 기본값이 되며 토글 클래스를
    light-theme→dark-theme로 롤네임(JS toggleTheme()/복원 IIFE 동시 수정, index.html 내부 전용) ── */
 body.dark-theme {
-  /* v52.62: 4462행 부근의 "v51.43 visual hierarchy refresh" :root!important 오버라이드가
-     같은 변수를 !important로 재선언하므로, 겹치는 변수는 !important 없이는 항상 패배한다
-     (author-important 티어끼리는 특이도로 재비교되어 body.dark-theme(0,1,1)이 :root(0,1,0)보다
-     이겨야 하므로 !important 필요). 안전하게 전체 선언에 !important 통일 적용 */
-  --bg-base:var(--gold-1) !important; --bg-dark:var(--gold-1) !important; --bg-surface:var(--gold-2) !important; --bg-card:var(--gold-2) !important;
-  --bg-elevated:var(--gold-3) !important; --bg-overlay:var(--black-a8) !important; --bg-hover:var(--gold-a2) !important;
-  --bg-secondary:var(--gold-2) !important; --bg-input:var(--gold-2) !important;
-  --border:var(--gold-7) !important; --border-strong:var(--gold-8) !important; --border-subtle:var(--gold-6) !important;
-  --border-accent:var(--gold-8) !important;
-  --surface-1:var(--gold-a2) !important; --surface-2:var(--gold-a2) !important; --surface-3:var(--gold-a3) !important;
-  --surface-4:var(--gold-a3) !important; --surface-5:var(--gold-a4) !important;
-  --ink-rgb:232,226,217 !important;
-  --text-primary:var(--gold-12) !important; --text-secondary:var(--gold-11) !important; --text-muted:var(--gold-11) !important; --text-dim:var(--text-muted) !important;
-  --data-cyan:var(--gold-12) !important; --data-magenta:var(--gold-12) !important; --data-purple:var(--gold-12) !important; --data-blue:var(--gold-12) !important;
-  --data-amber:var(--amber-11) !important; --data-yellow:var(--gold-11) !important;
-  --data-green:var(--green-11) !important; --data-red:var(--red-11) !important;
-  --accent:var(--gold-12) !important; --accent-soft:var(--gold-a2) !important; --accent-dim:var(--gold-a3) !important;
-  --accent-border:var(--gold-7) !important; --accent-text:var(--gold-12) !important; --accent-faint:var(--gold-a2) !important;
-  --green:var(--green-11) !important; --red:var(--red-11) !important; --yellow:var(--gold-11) !important; --orange:var(--gold-11) !important; --purple:var(--gold-12) !important; --cyan:var(--gold-12) !important;
-  --data-green-faint:var(--green-2) !important; --data-green-soft:var(--green-3) !important;
-  --data-green-mid:var(--green-3) !important; --data-green-dim:var(--green-4) !important;
-  --data-red-faint:var(--red-2) !important; --data-red-soft:var(--red-3) !important;
-  --data-red-mid:var(--red-3) !important; --data-red-dim:var(--red-4) !important;
-  --data-amber-soft:var(--amber-3) !important; --data-amber-mid:var(--amber-2) !important; --data-amber-faint:var(--amber-2) !important;
-  --data-muted-soft:var(--gold-a3) !important; --data-cyan-soft:var(--gold-a2) !important; --data-cyan-light:var(--gold-a2) !important;
-  --border-accent-dim:var(--gold-a4) !important; --data-cyan-dim:var(--gold-a4) !important;
-  --data-purple-faint:var(--gold-a2) !important; --data-purple-soft:var(--gold-a3) !important; --data-purple-border:var(--gold-7) !important;
-  --shadow-xs:none !important; --shadow-sm:none !important; --shadow:none !important;
-  --shadow-glow-cyan:none !important; --shadow-glow-magenta:none !important;
-  --chart-1:var(--gold-12) !important; --chart-2:var(--gold-9) !important; --chart-3:var(--gold-7) !important; --chart-4:var(--green-9) !important;
-  --chart-5:var(--gold-11) !important; --chart-6:var(--gold-8) !important; --chart-7:var(--gold-10) !important; --chart-8:var(--red-9) !important;
-  --chart-grid:var(--gold-a3) !important; --chart-axis:var(--gold-a5) !important;
+  /* Dark theme: only the roles whose Radix step differs from light. Every other role and alias re-resolves on body
+     against the dark scale (radix-colors.css), so nothing else is restated here. */
+  --color-background-body: var(--gold-1);
+  --color-background-card: var(--gold-2);
+  --color-overlay: var(--black-a8);
+  --ink-rgb: 232,226,217;
+  --color-text-success: var(--green-11); --color-text-warning: var(--amber-11); --color-text-error: var(--red-11);
+  --color-data-up: var(--red-11); --color-data-down: var(--blue-11);
 }
 body.dark-theme canvas { filter:none; }
 /* .content/.sidebar/.topbar은 var(--bg-base)/var(--bg-surface) 참조라 위 토큰 재선언만으로 자동 전환됨.
@@ -2677,41 +2625,6 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
 
 /* v51.43: visual hierarchy refresh (R231) — v52.62 아이보리 리디자인으로 값만 교체, 선언 구조·
    R231 취지(반복 cyan 액센트/균질 카드/과도한 letter-spacing 축소로 우선순위 회복)는 그대로 유지 */
-:root {
-  --bg-base:       var(--gold-2) !important;
-  --bg-dark:       var(--gold-2) !important;
-  --bg-surface:    var(--gold-2) !important;
-  --bg-card:       var(--gold-1) !important;
-  --bg-elevated:   var(--gold-3) !important;
-  --bg-hover:      var(--gold-a2) !important;
-  --bg-secondary:  var(--gold-2) !important;
-  --border:        var(--gold-7) !important;
-  --border-strong: var(--gold-8) !important;
-  --border-subtle: var(--gold-6) !important;
-  --text-primary:   var(--gold-12) !important;
-  --ink-rgb:        59,53,43 !important;
-  --text-secondary: var(--gold-11) !important;
-  --text-muted:     var(--gold-11) !important;
-  --text-dim:       var(--text-muted) !important;
-  --data-cyan:    var(--gold-12) !important;
-  --data-green:   var(--green-11) !important;
-  --data-amber:   var(--amber-11) !important;
-  --data-red:     var(--red-11) !important;
-  --data-purple:  var(--gold-12) !important;
-  --data-magenta: var(--gold-12) !important;
-  --accent:         var(--gold-12) !important;
-  --accent-text:    var(--gold-12) !important;
-  --accent-soft:    var(--gold-a2) !important;
-  --accent-dim:     var(--gold-a3) !important;
-  --accent-border:  var(--gold-7) !important;
-  --accent-faint:   var(--gold-a2) !important;
-  --ls-tight: -0.02em !important;
-  --ls-wide: 0 !important;
-  --ls-wider: 0 !important;
-  --shadow-xs: none !important;
-  --shadow-sm: none !important;
-  --shadow: none !important;
-}
 body {
   background: var(--bg-base) !important;
 }

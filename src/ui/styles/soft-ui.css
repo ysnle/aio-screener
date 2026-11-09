@@ -15,32 +15,16 @@
   --sx-ink-a06: rgba(var(--ink-rgb), 0.06);
   --sx-ink-a07: rgba(var(--ink-rgb), 0.07);
   --sx-ink-a08: rgba(var(--ink-rgb), 0.08);
-  --sx-good-bg: var(--green-3);
-  --sx-warn-bg: var(--amber-3);
-  --sx-down-bg: var(--red-3);
-  /* v58.80 (owner-delegated 2026-10-26): price and return direction follows the Korean brokerage convention the
-     candles already used (P1634) — rising red, falling blue. Judgements (양호/부담, 통과/실패) keep green/amber/red. */
-  --dir-up: var(--red-11);
-  --dir-down: var(--blue-11);
-  --dir-up-strong: var(--red-12);
-  --dir-down-strong: var(--blue-12);
-  --dir-up-bg: var(--red-3);
-  --dir-down-bg: var(--blue-3);
+  --sx-good-bg: var(--color-success-muted);
+  --sx-warn-bg: var(--color-warning-muted);
+  --sx-down-bg: var(--color-error-muted);
   --sx-card-shadow: none;
   --sx-hero-shadow: none;
   --sx-float-shadow: var(--shadow-md);
-  --sx-sidebar-bg: var(--gold-2);
+  --sx-sidebar-bg: var(--color-background-surface);
   --sx-ease: var(--ease-standard);
   --sx-icon-warning: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 1.75 14.75 14H1.25L8 1.75Z'/%3E%3Cpath d='M8 6.25v3.5M8 11.75v.25'/%3E%3C/svg%3E");
   --sx-dur: var(--dur-base);
-}
-/* v59.70 (screen review #25): direction and data text in the light theme. Radix step 11 on a step-3 chip read 4.1~4.3:1; a
-   quarter of step 12 reaches AA on every chip, card and table background (ci-contrast-focus-browser-check). The base tokens
-   in index.html stay step 11 (P1758 reads them); the dark theme keeps step 11. */
-body:not(.dark-theme) {
-  --dir-up: color-mix(in srgb, var(--red-11) 75%, var(--red-12)); --dir-down: color-mix(in srgb, var(--blue-11) 75%, var(--blue-12));
-  --data-green: color-mix(in srgb, var(--green-11) 75%, var(--green-12)); --data-amber: color-mix(in srgb, var(--amber-11) 75%, var(--amber-12));
-  --data-red: color-mix(in srgb, var(--red-11) 75%, var(--red-12));
 }
 
 /* ═══ 1. Shell ═══════════════════════════════════════════════════════════ */
