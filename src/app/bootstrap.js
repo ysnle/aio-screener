@@ -142,8 +142,7 @@ import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/reference-index.
 import { loadResearchCorpus } from '../domain/research/corpus-loader.js';
 import { coreReadsSettled, createCriticalDataGate, ROWS_FIRST_ROUTES } from './critical-data-gate.js';
 import { loadFreshnessLedgers, readArtifactFreshness } from '../data/freshness.js';
-import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-frameworks.js';
-import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIASES } from '../domain/knowledge/nathan-framework-pack.js';
+import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS, NATHAN_ANALYSIS_PROTOCOL } from '../domain/research/nathan-framework-ids.js';
 
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
@@ -1286,14 +1285,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   root.AIO.ensureResearchCorpus = () => loadSuppliedMaterials().then((reference) => {
     root.AIO.SUPPLIED_MATERIALS_REFERENCE = reference;
     // The Nathan thread catalogue travels with the corpus (supplied-materials nathanThreads); only the
-    // framework ids and the framework pack below are boot-time.
+    // framework ids and the analysis protocol below are boot-time (the frameworks load with the AI planner).
     root.AIO.NATHAN_PREVIOUS_THREADS_REFERENCE = reference?.nathanThreads || root.AIO.NATHAN_PREVIOUS_THREADS_REFERENCE;
     return reference;
   });
   root.AIO.NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS = NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS;
-  root.AIO.NATHAN_FRAMEWORK_PACK = NATHAN_FRAMEWORK_PACK;
   root.AIO.NATHAN_ANALYSIS_PROTOCOL = NATHAN_ANALYSIS_PROTOCOL;
-  root.AIO.NATHAN_KNOWLEDGE_ALIASES = NATHAN_KNOWLEDGE_ALIASES;
   return Object.freeze({ ...api, store, evidenceStore });
 }
 

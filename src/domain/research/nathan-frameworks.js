@@ -453,4 +453,4 @@ const FRAMEWORKS = Object.freeze(RAW_FRAMEWORKS.map((framework) => Object.freeze
 })));
 
 export const NATHAN_PREVIOUS_THREADS_FRAMEWORKS = FRAMEWORKS;
-export const NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS = Object.freeze(FRAMEWORKS.map((framework) => framework.id));
+export { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from './nathan-framework-ids.js';

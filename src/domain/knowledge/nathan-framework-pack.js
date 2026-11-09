@@ -5,6 +5,7 @@
 // with the research corpus on demand and stays out of the boot set.
 import { NATHAN_PREVIOUS_THREADS_IDENTITY, NATHAN_PREVIOUS_THREADS_FRAMEWORKS, NATHAN_FRAMEWORK_SOURCE_TITLES } from '../research/nathan-frameworks.js';
 import { compareStableText } from './order.js';
+import { NATHAN_ANALYSIS_PROTOCOL, nathanConceptId } from '../research/nathan-framework-ids.js';
 
 
 export const NATHAN_FRAMEWORK_PACK_VERSION = 'nathan-framework-pack.v1';
@@ -86,7 +87,7 @@ function frameworkRoutes(framework) {
 const rawFrameworks = Array.isArray(NATHAN_PREVIOUS_THREADS_FRAMEWORKS) ? NATHAN_PREVIOUS_THREADS_FRAMEWORKS : [];
 
 export const NATHAN_FRAMEWORKS = Object.freeze(rawFrameworks.map((framework) => {
-  const conceptId = `nathan-frameworks:${framework.id}`;
+  const conceptId = nathanConceptId(framework.id);
   const aliases = aliasVariants(framework);
   const routeIds = frameworkRoutes(framework);
   return Object.freeze({
@@ -132,19 +133,7 @@ export const NATHAN_KNOWLEDGE_ALIASES = Object.freeze([...aliasTargetMap.entries
     resolution: unique(targets).length === 1 ? 'unique' : 'multi-framework'
   })));
 
-export const NATHAN_ANALYSIS_PROTOCOL = Object.freeze({
-  schemaVersion: 'nathan-analysis-protocol.v1',
-  sourceKind: 'REFERENCE',
-  currentClaimsAllowed: false,
-  rankingUse: 'none',
-  stages: Object.freeze(['scope', 'mechanism', 'observables', 'confirmation', 'counter-scenario', 'currentness']),
-  separation: Object.freeze(['structural reference', 'current observation', 'inference', 'action']),
-  stopRules: Object.freeze([
-    '현재 수치·예측·목표·방향성은 별도 LIVE/SNAPSHOT/Web Research 근거 없이는 사용하지 않는다.',
-    '반증 조건과 반대 경로가 없으면 결론이 아니라 가설로 남긴다.',
-    '자료의 권위·서사·인용 횟수는 사실성이나 안전성의 대체 지표로 사용하지 않는다.'
-  ])
-});
+export { NATHAN_ANALYSIS_PROTOCOL };
 
 export function matchNathanFrameworks(query, { routeId = null, limit = 5 } = {}) {
   const normalized = clean(query).toLocaleLowerCase('ko-KR');
