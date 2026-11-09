@@ -844,9 +844,12 @@ function render({ root, documentRef, store, route, activeTickerTab = 'overview',
     // v57.81: a US listing outside the screener universe reads its SEC filing on demand (session cache, two at a time);
     // the record's arrival re-renders through 'aio:entityChanged', and a missing CIK says so instead of '미수신'.
     const onDemandId = String(state?.id || '').trim().toUpperCase();
+    // A screener ETF row is the same fact the on-demand check reaches later ('not-applicable'): no company filings.
+    let etfRow = false;
+    try { etfRow = !!onDemandId && (root?._aioGetCanonicalScreenerRows?.() || []).some((row) => row?.sym === onDemandId && (row.sector === 'ETF' || row.index === 'ETF')); } catch (_) { etfRow = false; }
     const onDemand = onDemandId && !isKrSymbol(onDemandId) && !state?.fundamentals ? root?._aioOnDemandSymbol?.(onDemandId) || null : null;
-    if (onDemandId && !isKrSymbol(onDemandId) && !state?.fundamentals && !onDemand) root?._aioRequestOnDemandSymbol?.(onDemandId)?.catch?.(() => {});
-    renderFundamentalStatus(documentRef, state, onDemand);
+    if (onDemandId && !isKrSymbol(onDemandId) && !state?.fundamentals && !onDemand && !etfRow) root?._aioRequestOnDemandSymbol?.(onDemandId)?.catch?.(() => {});
+    renderFundamentalStatus(documentRef, state, etfRow && !state?.fundamentals ? { secStatus: 'not-applicable' } : onDemand);
     renderFundamentalReport(documentRef, routeNode, state);
     // v58.55 (3d) → v59.51: 듀폰 분해 + 역 DCF live in 재무 공시's 투자 논지 틀 fold. The price is the screener's completed-session
     // valuation close (the same close its P/E uses), else the latest dated close; never the live quote, so the calculator
