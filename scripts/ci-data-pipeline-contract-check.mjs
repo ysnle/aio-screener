@@ -368,7 +368,7 @@ const fetchData = readProducerSource();
 const fetchTelegram = read('scripts/fetch-telegram-digest.mjs');
 const reconciliationBuilder = read('scripts/build-reconciliation-status.mjs');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
-const data = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js') + '\n' + read('src/data/public-readiness.js') + '\n' + read('src/domain/news/selection.js') + '\n' + read('src/app/news-selection-entry-points.js') /* v59.42: news scoring and selection moved to src */; // v59.34/v59.35: the server data loader and the public readiness model moved to src
+const data = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js') + '\n' + read('src/data/public-readiness.js') + '\n' + read('src/domain/news/selection.js') + '\n' + read('src/app/news-selection-entry-points.js') /* v59.42: news scoring and selection moved to src */ + '\n' + read('src/data/pipeline-notices.js') /* v59.88: the pipeline status notices moved to src */; // v59.34/v59.35: the server data loader and the public readiness model moved to src
 const chat = read('js/aio-chat.js');
 const tests = read('js/aio-tests.js');
 const screenerPage = readScreenerPageSource();
@@ -1948,12 +1948,14 @@ const rsiParityOk = await (async () => {
   try {
     // v59.59: the producer's _rsi14 rounds technical/definitions.js rsiWilder; the parity runs the real module.
     const serverSrc = extractFunctionSource(fetchData, '_rsi14');
-    // v59.88 (ADR-0003 S6): the client RSI is src/domain/technical/snapshot.js rsiLast (the legacy _calcRSILast moved there).
+    // v59.88 (ADR-0003 S6): the client RSI is technical/definitions.js rsiWilder itself (the legacy _calcRSILast wrapper
+    // moved into src/domain/technical/snapshot.js, which calls rsiWilder directly).
     if (!serverSrc) { rsiParityDetail = 'could not extract _rsi14 from fetch-data.mjs'; return false; }
     const roundFn = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
     const { rsiWilder } = await import('../src/domain/technical/definitions.js');
     const serverRsi14 = new Function('round', 'rsiWilder', `${serverSrc}\nreturn _rsi14;`)(roundFn, rsiWilder);
-    const { rsiLast: clientCalcRsiLast } = await import('../src/domain/technical/snapshot.js');
+    const clientCalcRsiLast = rsiWilder;
+    if (!/rsi14 = rsiWilder\(closes, 14\)/.test(readFileSync(join(root, 'src/domain/technical/snapshot.js'), 'utf8'))) { rsiParityDetail = 'snapshot.js rsi14 must be rsiWilder(closes, 14)'; return false; }
     // Deterministic synthetic series long enough (300 bars) for Wilder's smoothing to be well
     // past its warm-up window, matching real usage (screener enrichment runs on ~1y of history).
     const closes = [];
@@ -1979,7 +1981,7 @@ const rsiParityOk = await (async () => {
     return false;
   }
 })();
-check('server _rsi14 and client snapshot rsiLast are numerically equivalent (P584/R265 parity)', rsiParityOk, rsiParityDetail);
+check('server _rsi14 and client snapshot rsi14 (rsiWilder) are numerically equivalent (P584/R265 parity)', rsiParityOk, rsiParityDetail);
 
 // v59.87 (ADR-0003 S1, review of PR #170) → v59.88 (S6): the client Bollinger band is snapshot.js bollinger over the shared
 // SMA. A flat series is a zero-width band at the price (never a band around 0: 100 ×20 once became 200/-200), and fewer

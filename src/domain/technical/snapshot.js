@@ -4,7 +4,7 @@
 // is the screener producer's own _calcVCPServer, as the legacy wrappers already delegated. Behaviour is the legacy one,
 // pinned by architecture/fixtures/technical-snapshot-golden.json (scripts/ci-domain-parity-check.mjs).
 // The legacy names calcTechnicalSnapshot / calcExtensionHeat are installed from here by src/app/legacy-screen-bridges.js.
-import { smaLast, emaSeries, rsiWilder, atrWilder, adrPctOf } from './definitions.js';
+import { smaLast, emaSeries, emaLast, rsiWilder, rsiSeriesWilder, atrWilder, adrPctOf } from './definitions.js';
 import { classifyMovingAverageStructure } from './stage.js';
 import { _calcVCPServer } from '../screener/price-factors.js';
 
@@ -28,37 +28,16 @@ export function cleanOhlcv(ohlcv) {
   }).filter(Boolean);
 }
 
-export function sma(values, period = 20) {
-  const nums = present(values);
-  return nums.length < period || period <= 0 ? null : smaLast(nums, period);
-}
-export function emaFull(values, period = 20) {
-  const nums = present(values);
-  return nums.length < period || period <= 0 ? null : emaSeries(nums, period);
-}
-export function ema(values, period = 20) {
-  const series = emaFull(values, period);
-  return series ? series[series.length - 1] : null;
-}
-export function atr(ohlcv, period = 14) {
-  const bars = cleanOhlcv(ohlcv);
-  return bars.length < period + 1 ? null : atrWilder(bars, period);
-}
-export function rsiLast(closes, period = 14) {
-  const nums = positive(closes);
-  return nums.length < period + 1 ? null : rsiWilder(nums, period);
-}
-
+// Every series below is already clean (cleanOhlcv bars, or a series built from them), so the shared definitions take it
+// as is: smaLast/emaLast/rsiWilder/atrWilder are null below their period, as the legacy wrappers were.
 export function macd(closes, fast = 12, slow = 26, signal = 9) {
   const nums = positive(closes);
   if (nums.length < slow + signal) return null;
-  const fastEma = emaFull(nums, fast);
-  const slowEma = emaFull(nums, slow);
-  if (!fastEma || !slowEma) return null;
+  const fastEma = emaSeries(nums, fast);
+  const slowEma = emaSeries(nums, slow);
   const line = nums.map((_, i) => (fastEma[i] !== null && slowEma[i] !== null ? fastEma[i] - slowEma[i] : null));
   const cleanMacd = line.filter((v) => v !== null);
-  const signalClean = emaFull(cleanMacd, signal);
-  if (!signalClean) return null;
+  const signalClean = emaSeries(cleanMacd, signal); // cleanMacd holds at least slow + signal − slow + 1 values
   const sig = signalClean[signalClean.length - 1];
   const last = cleanMacd[cleanMacd.length - 1];
   const prevMacd = cleanMacd.length > 1 ? cleanMacd[cleanMacd.length - 2] : last;
@@ -76,8 +55,7 @@ export function bollinger(closes, period = 20, mult = 2) {
   const nums = positive(closes);
   if (nums.length < period) return null;
   const slice = nums.slice(-period);
-  const mid = sma(nums, period);
-  if (mid === null) return null;
+  const mid = smaLast(nums, period);
   // R265: population variance (÷ period), Bollinger's own definition and TA-Lib/TradingView's.
   const sd = Math.sqrt(slice.reduce((s, v) => s + (v - mid) ** 2, 0) / period);
   const upper = mid + mult * sd, lower = mid - mult * sd, width = upper - lower;
@@ -139,30 +117,12 @@ export function vcpOf(bars) {
   return v ? { ok: true, ...v } : none;
 }
 
-// v51.69: the whole Wilder RSI series (divergence input); flat = 50 as rsiWilder (v59.59).
-export function rsiSeries(closes, period = 14) {
-  const n = closes.length;
-  if (n < period + 2) return [];
-  const gains = [], losses = [];
-  for (let i = 1; i < n; i++) { const d = closes[i] - closes[i - 1]; gains.push(d > 0 ? d : 0); losses.push(d < 0 ? -d : 0); }
-  let avgG = 0, avgL = 0;
-  for (let k = 0; k < period; k++) { avgG += gains[k]; avgL += losses[k]; }
-  avgG /= period; avgL /= period;
-  const rsiOf = (g, l) => (l === 0 ? (g === 0 ? 50 : 100) : 100 - 100 / (1 + g / l));
-  const rsi = [rsiOf(avgG, avgL)];
-  for (let m = period; m < gains.length; m++) {
-    avgG = (avgG * (period - 1) + gains[m]) / period;
-    avgL = (avgL * (period - 1) + losses[m]) / period;
-    rsi.push(rsiOf(avgG, avgL));
-  }
-  return rsi;
-}
-
 // v51.69: regular and hidden RSI divergence on the last 50 bars (pivot span 4).
-export function rsiDivergence(bars) {
+export function priceRsiDivergence(bars) {
   if (!bars || bars.length < 60) return null;
   const closes = bars.map((b) => b.close);
-  const series = rsiSeries(closes, 14);
+  // The Wilder series from its first value (the legacy copy had dropped the warm-up the same way).
+  const series = rsiSeriesWilder(closes, 14).slice(14);
   if (series.length < 30) return null;
   const N = 4;
   // P1253: the RSI series is 14 bars shorter; both slices take the same length so price[i] and rsi[i] are one bar.
@@ -285,9 +245,9 @@ export function weeklyContext(bars) {
   if (weekBars.length > 4 && weekBars[0]._n < WEEK) weekBars.shift();
   if (weekBars.length < 4) return null;
   const wCloses = weekBars.map((b) => b.close);
-  const wSma20 = wCloses.length >= 20 ? sma(wCloses, 20) : null; // P2262: no shorter stand-in
-  const wSma50 = wCloses.length >= 50 ? sma(wCloses, 50) : null;
-  const wRsi = rsiLast(wCloses, 14);
+  const wSma20 = wCloses.length >= 20 ? smaLast(wCloses, 20) : null; // P2262: no shorter stand-in
+  const wSma50 = wCloses.length >= 50 ? smaLast(wCloses, 50) : null;
+  const wRsi = rsiWilder(wCloses, 14);
   const lastW = weekBars[weekBars.length - 1];
   const prevW = weekBars[weekBars.length - 2] || lastW;
   return {
@@ -313,10 +273,10 @@ export function technicalSnapshot(ohlcv) {
   if (bars.length < 20) return { ok: false, reason: 'insufficient_ohlcv', bars: bars.length };
   const closes = bars.map((d) => d.close), highs = bars.map((d) => d.high), lows = bars.map((d) => d.low), volumes = bars.map((d) => d.volume);
   const last = bars[bars.length - 1], prev = bars[bars.length - 2] || last;
-  const atr14 = atr(bars, 14);
-  const sma5 = sma(closes, 5), sma10 = sma(closes, 10), sma20 = sma(closes, 20), sma50 = sma(closes, 50), sma100 = sma(closes, 100), sma200 = sma(closes, 200);
-  const ema10 = ema(closes, 10), ema21 = ema(closes, 21);
-  const rsi14 = rsiLast(closes, 14);
+  const atr14 = atrWilder(bars, 14);
+  const sma5 = smaLast(closes, 5), sma10 = smaLast(closes, 10), sma20 = smaLast(closes, 20), sma50 = smaLast(closes, 50), sma100 = smaLast(closes, 100), sma200 = smaLast(closes, 200);
+  const ema10 = emaLast(closes, 10), ema21 = emaLast(closes, 21);
+  const rsi14 = rsiWilder(closes, 14);
   const macd12 = macd(closes, 12, 26, 9);
   const bb20 = bollinger(closes, 20, 2);
   const prevBB20 = closes.length > 20 ? bollinger(closes.slice(0, -1), 20, 2) : null;
@@ -329,7 +289,7 @@ export function technicalSnapshot(ohlcv) {
   const dist20Pct = sma20 ? ((last.close - sma20) / sma20) * 100 : null;
   const dist20Adr = adr20Pct && dist20Pct !== null ? dist20Pct / adr20Pct : null;
   const bbReentry = !!(prevBB20 && bb20 && prev.close > prevBB20.upper && last.close <= bb20.upper);
-  const sma50Prior = closes.length >= 55 ? sma(closes.slice(0, -5), 50) : null;
+  const sma50Prior = closes.length >= 55 ? smaLast(closes.slice(0, -5), 50) : null;
   const maStructure = classifyMovingAverageStructure({ sma5, sma10, sma20, sma50, sma100, sma200, sma50Prior, lastClose: last.close });
   const rvol20 = relativeVolume(volumes, 20);
   const vcp = bars.length >= 60 ? vcpOf(bars) : { ok: false, vcpScore: 0, vcpStage: 'insufficient_data' };
@@ -337,7 +297,7 @@ export function technicalSnapshot(ohlcv) {
   const failedRetest = !!(prior20High && last.close >= prior20High * 0.99 && last.close < prior20High && last.close < prev.close && rvol20 !== null && rvol20 >= 1.2);
   const fib = bars.length >= 60 ? fibonacciLevels(bars) : null;
   const volProfile = bars.length >= 30 ? volumeProfile(bars) : null;
-  const rsiDiv = bars.length >= 60 ? rsiDivergence(bars) : null;
+  const rsiDiv = bars.length >= 60 ? priceRsiDivergence(bars) : null;
   const weeklyCtx = bars.length >= 10 ? weeklyContext(bars) : null;
   return {
     ok: true, bars: bars.length, time: last.time, price: last.close, prevClose: prev.close, dayGainPct,

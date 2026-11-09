@@ -1,7 +1,7 @@
 // v59.35 (roadmap 11, layer 4 boot sequence): the public share readiness model moved out of js/aio-data.js unchanged —
 // _aioBuildPublicShareReadiness with its text helpers, AIO.getPublicShareReadiness and AIO.getDataReconciliationStatus.
-// It reads state and returns a model; the developer-mode panel that draws it (_aioRenderPublicReadiness) stays in
-// js/aio-data.js. The functions stay window globals for those classic callers; src/app/compatibility-globals.js
+// It reads state and returns a model; the developer-mode panel that draws it (_aioRenderPublicReadiness) is
+// src/ui/components/pipeline-status.js (v59.88). The functions stay window globals for those classic callers; src/app/compatibility-globals.js
 // installs this before DOMContentLoaded.
 export function installPublicReadiness(window = globalThis) {
   // P1126/R619: 이스케이프 구현은 escHtml 하나만 둔다. 여기 있던 5줄짜리 재구현은

@@ -10056,9 +10056,8 @@ window._aioAuditModeToggle = function(checked, el) {
   } catch(_) {}
   try { if (document.body) document.body.classList.toggle('aio-dev-mode', !!checked); } catch(_) {}
   try {
-    var readiness = document.getElementById('aio-public-readiness');
-    if (checked && typeof window._aioRenderPublicReadiness === 'function') window._aioRenderPublicReadiness();
-    else if (readiness) readiness.style.removeProperty('display');
+    // v59.88: the panel (src/ui/components/pipeline-status.js) shows itself in developer mode and clears itself otherwise.
+    if (typeof window._aioRenderPublicReadiness === 'function') window._aioRenderPublicReadiness();
   } catch(_) {}
   // 즉시 재렌더
   try { window._aioRefreshAuditWidget(); } catch(_) {}

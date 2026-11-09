@@ -3061,7 +3061,7 @@ function _aioApplyNativeScreenerState(nativeState) {
     window.DATA_SNAPSHOT._fieldTs.screener = asOf;
   }
   // The screener artifact's load state is read from the native slice (src/data/page-completeness.js screenerLoadState).
-  try { if (typeof _aioRenderDataFreshness === 'function') _aioRenderDataFreshness(); } catch (_) {}
+  try { if (typeof window._aioSchedulePublicReadiness === 'function') window._aioSchedulePublicReadiness(250); } catch (_) {}
   return true;
 }
 window._aioApplyNativeScreenerState = _aioApplyNativeScreenerState;
@@ -3087,93 +3087,9 @@ let _aioServerHyReady = false;
 // v59.38: the v51.67 delta display (_aioRenderDeltas, _aioSetDeltaEl, _aioRenderLiveFearGreedDelta and the aio_delta_* refs) is retired —
 // none of its 12 target ids exists in index.html or src/, so it painted nothing; 홈 F&G 전일 변화 is native (P1428).
 
-// v51.66: 전 페이지 데이터 신선도 UI — screener 듀얼 타임스탬프 + macro FRED 기준 시각
-function _aioRenderDataFreshness() {
-  try {
-    // v59.55 (alignment pass): the screener stamp writer left — it overwrote the native as-of line (screener.js) with
-    // '팩터 관측 … | 가격 …' a few seconds after paint.
-    // v57.77: the macro FRED stamp writer (#macro-fred-ts) left with its absent element.
-    if (typeof _aioSchedulePublicReadiness === 'function') _aioSchedulePublicReadiness(250);
-  } catch(_) {}
-}
-window._aioRenderDataFreshness = _aioRenderDataFreshness;
-
-// v51.66: 수동 유지 _fieldTs 필드 staleness 경고 — >7일 경과 시 콘솔 warn + 배너 pill
-// 중앙은행 금리/매크로 정책 날짜는 자동 갱신 불가 — 운영자가 직접 aio-core.js에서 업데이트해야 함
-var _MANUAL_FIELDTS_LABELS = {
-  fed_rate:        'Fed 연방기금금리 월평균',
-  boj_rate:        'BOJ 정책금리',
-  bok_rate:        'BOK 기준금리',
-  boe_rate:        'BOE 정책금리',
-  pboc_rate:       'PBOC LPR',
-  kr_bond:         '한국 국고채',
-  kr_macro:        '한국 거시경제',
-  kr_cpi:          '한국 소비자물가',
-  kr_pmi:          '한국 제조업 PMI',
-  us_macro_manual: '미국 거시경제(수동)',
-  breadth_sma:     '시장 폭 SMA',
-};
-// 정책금리는 회의에서 동결될 수 있는 이벤트 데이터다. 일괄 7일 기준은 정상적인 동결
-// 결정을 stale로 오인하므로 각 데이터의 실제 관측/발표 주기에 맞춘다.
-var _MANUAL_FIELDTS_MAX_DAYS = {
-  fed_rate: 55, boj_rate: 60, bok_rate: 60, boe_rate: 60, pboc_rate: 45,
-  kr_bond: 7, kr_macro: 40, kr_cpi: 40, kr_pmi: 40, us_macro_manual: 40, breadth_sma: 3
-};
-function _aioCheckManualFieldStaleness() {
-  var snap = window.DATA_SNAPSHOT;
-  if (!snap || !snap._fieldTs) return;
-  var staleResults = [];
-  var staleDaysFn = typeof window._aioStaleDays === 'function' ? window._aioStaleDays : function(d) {
-    return Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
-  };
-  Object.keys(_MANUAL_FIELDTS_LABELS).forEach(function(key) {
-    var dateStr = snap._fieldTs[key];
-    if (!dateStr) return;
-    var days = staleDaysFn(dateStr);
-    var maxDays = _MANUAL_FIELDTS_MAX_DAYS[key] || 7;
-    if (days > maxDays) {
-      staleResults.push({ key: key, label: _MANUAL_FIELDTS_LABELS[key], days: days, date: dateStr });
-      if (typeof _aioLog === 'function') {
-        _aioLog('warn', 'data', '[_fieldTs] ' + _MANUAL_FIELDTS_LABELS[key] + ' ' + days + '일 경과 (' + dateStr + ') — aio-core.js DATA_SNAPSHOT._fieldTs.' + key + ' 업데이트 필요');
-      }
-    }
-  });
-  // 배너에 stale 항목 표시 (파이프라인 상태 바 활용)
-  var bar = document.getElementById('aio-pipeline-status-bar');
-  if (bar && staleResults.length) {
-    // 기존 stale pill 제거 후 재주입
-    bar.querySelectorAll('.stale-manual-pill').forEach(function(el) { el.remove(); });
-    staleResults.forEach(function(r) {
-      var pill = document.createElement('span');
-      pill.className = 'stale-manual-pill'; // styled in legacy-data.css
-      pill.title = r.label + ' — 마지막 업데이트 ' + r.date + ' (' + r.days + '일 경과). 정책 발표/공식 소스 확인 후 갱신됩니다.';
-      pill.textContent = '' + r.label + ' ' + r.days + '일 경과';
-      bar.appendChild(pill);
-    });
-    bar.style.display = 'flex';
-  }
-  return staleResults;
-}
-window._aioCheckManualFieldStaleness = _aioCheckManualFieldStaleness;
-
-// v52.15 P6/P616: 홈 경고 pill 11개 연속 노출("고장난 시스템" 인상) 완화 — _aioRenderPipelineStatus/
-// _aioCheckManualFieldStaleness는 무변경으로 두고, 이 함수가 둘이 채운 pill 개수만 집계해
-// #aio-pipeline-status-toggle(<details>, 사이트 전역 .aio-page-advanced-toggle 패턴)의 1줄 요약을 갱신.
-// 반드시 위 두 함수 호출 이후에 실행되어야 함(마지막에 실제 개수를 읽어야 하므로).
-function _aioUpdatePipelineStatusToggle() {
-  try {
-    var bar = document.getElementById('aio-pipeline-status-bar');
-    var toggle = document.getElementById('aio-pipeline-status-toggle');
-    var summary = document.getElementById('aio-pipeline-status-summary');
-    if (!bar || !toggle || !summary) return;
-    var count = bar.children.length;
-    if (count === 0) { toggle.style.display = 'none'; return; }
-    bar.style.display = 'flex';
-    toggle.style.display = 'block';
-    summary.textContent = '주의 항목 ' + count + '건';
-  } catch (_e) {}
-}
-window._aioUpdatePipelineStatusToggle = _aioUpdatePipelineStatusToggle;
+// v59.88 (ADR-0003 S6): the pipeline status bar (_aioRenderPipelineStatus with the stale hand-kept _fieldTs pills and the
+// toggle summary) and the developer-mode 공개 준비 panel (_aioRenderPublicReadiness/_aioSchedulePublicReadiness) are
+// src/ui/components/pipeline-status.js over src/data/pipeline-notices.js, installed by src/app/legacy-screen-bridges.js.
 
 // P1737: public-data/official-references.json (BOK base rate, KR CPI, KR exports; each item carries its own
 // status). _aioLoadOfficialReferences runs after each data.json apply (v59.34~ from src/data/server-data-loader.js); a
@@ -3301,131 +3217,7 @@ if (typeof window !== 'undefined') {
 
 // v59.70 L3: the server data age badge (_aioRenderServerDataAge) moved unchanged to src/ui/components/home-status-surface.js.
 
-// v51.65: 파이프라인 상태 배너 — marketAnalysisOk/fmpOk/fredOk 기반으로 경고 표시
-// 이슈가 없으면 숨김 유지 (R234 — 기본값 hidden)
-function _aioRenderPipelineStatus() {
-  try {
-    var bar = document.getElementById('aio-pipeline-status-bar');
-    if (!bar) return;
-    var meta = window._serverDataMeta;
-    if (!meta) { bar.style.display = 'none'; return; }
-
-    var msgs = Array.isArray(meta.pipelineNotices) ? meta.pipelineNotices.slice() : []; // v58.70: src/data/server-data.js
-    if (meta.marketCyclePublished !== true) {
-      msgs.push({ icon: '', text: '시장 스냅샷 미발행', detail: '최근 refresh 시도는 완전한 시장 cycle로 발행되지 않았습니다. 현재 시세는 마지막 성공본 참고자료입니다.', color: '#e5484d' });
-    }
-    if (meta.marketAnalysisOk === false) {
-      msgs.push({ icon: '', text: 'AI 시장 분석 비활성', detail: '운영자의 공용 AI 연결 설정 후 자동 분석을 사용할 수 있습니다.', color: '#e2a336' });
-    }
-    if (meta.fmpHasKey && meta.fmpOk === false && (meta.fundamentalCoveragePct == null || Number(meta.fundamentalCoveragePct) < 80)) {
-      var coverageValue = meta.fundamentalCoveragePct == null ? null : Number(meta.fundamentalCoveragePct);
-      var coverageLabel = isFinite(coverageValue) ? coverageValue.toFixed(1) + '%' : '미확인';
-      var fmpDetail = '유료 FMP는 사용하지 않음, 무료 SEC companyfacts 누적 커버리지 ' + coverageLabel;
-      msgs.push({ icon: '', text: '재무 팩터 축소 모드', detail: fmpDetail, color: '#e5484d' });
-    }
-    if (_aioScreenerMetadata('universeFreshnessStatus') === 'stale') {
-      msgs.push({ icon: '!', text: '스크리너 종목 유니버스 갱신 필요', detail: '팩터 파일과 종목 식별 유니버스의 기준일이 다릅니다. 현재 결과는 연구용 부분 상태입니다.', color: '#e2a336' });
-    }
-    if (!meta.fredHasKey) {
-      msgs.push({ icon: '', text: 'FRED 거시 서버갱신 비활성', detail: 'GitHub Secrets → FRED_API_KEY 등록 시 자동 활성화', color: '#b9a88d' });
-    }
-    if (meta.fredHasKey && meta.fredFetchOk === false) {
-      msgs.push({ icon: '', text: 'FRED 거시 수집 실패', detail: 'FRED_API_KEY 등록됨 → API 오류 또는 레이트리밋. 키 유효성 확인', color: '#e5484d' });
-    }
-    var reconciliation = meta.reconciliation || null;
-    if (!reconciliation || reconciliation.status === 'unavailable') {
-      msgs.push({ icon: '!', text: '데이터 범주 상태 미수신', detail: '22개 데이터 범주의 자동 조정 상태를 불러오지 못했습니다.', color: '#e5484d' });
-    } else if (reconciliation.status === 'stale') {
-      msgs.push({ icon: '!', text: '데이터 범주 상태 불일치', detail: '현재 시장 스냅샷과 조정 상태의 revision이 다릅니다.', color: '#e5484d' });
-    } else if (Array.isArray(reconciliation.runtimeBlockedCategories) && reconciliation.runtimeBlockedCategories.length) {
-      msgs.push({
-        icon: '!',
-        text: '자동 데이터 경로 차단 ' + reconciliation.runtimeBlockedCategories.length + '건',
-        detail: reconciliation.runtimeBlockedCategories.slice(0, 6).join(', '),
-        color: '#e5484d'
-      });
-    }
-
-    if (msgs.length === 0) { bar.style.display = 'none'; return; }
-
-    var html = msgs.map(function(m) {
-      return '<span class="lda-pipe" style="border-left-color:' + m.color + ';" title="' + m.detail.replace(/"/g,'&quot;') + '">'
-           + m.icon + ' <b>' + m.text + '</b>'
-           + ' <span class="lda-pipe-detail">' + m.detail + '</span>'
-           + '</span>';
-    }).join('');
-
-    bar.innerHTML = html;
-    bar.style.display = 'flex';
-
-    // v59.08: the 스크리너 재무 팩터 coverage note is drawn by src/ui/components/screener-fmp-status.js
-    // (window._aioRenderScreenerFmpStatus, src/app/legacy-screen-bridges.js); the meta is kept for its install.
-    window._aioScreenerFmpMeta = meta;
-    if (typeof window._aioRenderScreenerFmpStatus === 'function') window._aioRenderScreenerFmpStatus(meta);
-    if (typeof _aioSchedulePublicReadiness === 'function') _aioSchedulePublicReadiness(250);
-  } catch(_) {}
-}
-window._aioRenderPipelineStatus = _aioRenderPipelineStatus;
-
-// v59.35: the public share readiness model (_aioBuildPublicShareReadiness, AIO.getPublicShareReadiness, AIO.getDataReconciliationStatus) moved to src/data/public-readiness.js.
-
-function _aioRenderPublicReadiness() {
-  try {
-    var el = document.getElementById('aio-public-readiness');
-    if (!el) return;
-    // v52.87 P702: 운영/배포 진단은 개발자 모드 전용이다. 일반 투자 화면에는 렌더하지 않는다.
-    if (!document.body || !document.body.classList.contains('aio-dev-mode')) {
-      el.style.removeProperty('display');
-      return;
-    }
-    var activePage = document.querySelector('.page.active');
-    if (activePage && activePage.id !== 'page-home') return;
-    var m = _aioBuildPublicShareReadiness({ full: false });
-    var issues = (m.blockers || []).concat(m.warnings || []).slice(0, 4);
-    var rows = (m.pageEvidenceRows || []).slice(0, 8);
-    var sourceHtml = rows.length ? (
-      '<div class="aio-public-readiness-pages" aria-label="Page source and asOf matrix">' +
-        rows.map(function(r) {
-          return '<span class="aio-public-page-source is-' + _aioPublicReadinessEsc(String(r.sourceKind || '').toLowerCase()) + '">' +
-            '<b>' + _aioPublicReadinessEsc(_aioPublicReadinessPageText(r.pageId)) + '</b>' +
-            '<em>' + _aioPublicReadinessEsc(_aioPublicReadinessSourceText(r.sourceKind, r.sourceLabel)) + '</em>' +
-            '<small>' + _aioPublicReadinessEsc(r.asOf || '시각 확인 중') + '</small>' +
-          '</span>';
-        }).join('') +
-      '</div>'
-    ) : '';
-    el.className = 'aio-public-readiness is-' + m.status;
-    el.innerHTML =
-      '<div class="aio-public-readiness-main">' +
-        '<div class="aio-public-readiness-label">' + _aioPublicReadinessEsc(m.label) + '</div>' +
-      '</div>' +
-      '<div class="aio-public-readiness-card"><b>버전</b><span id="aio-public-readiness-version">' + _aioPublicReadinessEsc(m.version) + '</span></div>' +
-      '<div class="aio-public-readiness-card"><b>데이터</b><span>' + _aioPublicReadinessEsc(m.dataLabel) + '<br>' + _aioPublicReadinessEsc(m.dataStatus) + '</span></div>' +
-      '<div class="aio-public-readiness-card"><b>현재성</b><span>' + _aioPublicReadinessEsc(m.pageStatus) + '<br>' + _aioPublicReadinessEsc(m.pipelineStatus) + '</span></div>' +
-      sourceHtml +
-      (issues.length ? '<div class="aio-public-readiness-issues">' + issues.map(_aioPublicReadinessEsc).join(', ') + '</div>' : '');
-    el.style.display = 'grid';
-  } catch(_) {}
-}
-window._aioRenderPublicReadiness = _aioRenderPublicReadiness;
-var _aioPublicReadinessTimer = 0;
-function _aioSchedulePublicReadiness(delay) {
-  clearTimeout(_aioPublicReadinessTimer);
-  _aioPublicReadinessTimer = setTimeout(function() {
-    _aioPublicReadinessTimer = 0;
-    _aioRenderPublicReadiness();
-  }, Math.max(0, Number(delay) || 0));
-}
-window._aioSchedulePublicReadiness = _aioSchedulePublicReadiness;
-try {
-  window.addEventListener('aio:liveQuotes', function() { _aioSchedulePublicReadiness(250); });
-  window.addEventListener('aio:pageShown', function(e) {
-    var detail = e && e.detail;
-    var pageId = typeof detail === 'string' ? detail : detail && (detail.pageId || detail.id || detail.route);
-    if (pageId === 'home') _aioSchedulePublicReadiness(100);
-  });
-  _aioSchedulePublicReadiness(1500);
-} catch(_) {}
+// v59.35: the public share readiness model is src/data/public-readiness.js; its panel is src/ui/components/pipeline-status.js (v59.88).
 
 // v50.24/WO-4: 부팅 후에도 탭을 열어두면 data.json을 30분마다 재로드 (boot-only 갭 해소).
 // 배지 나이는 1분마다 재렌더(카운트업). 둘 다 _aioRegisterTimer로 등록 — 탭 숨김 중엔 멈추고 복귀 시 주기 경과분 1회 실행(P1756).
@@ -6891,8 +6683,7 @@ function applyLiveQuotes(quotes) {
   if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
     window.DATA_SNAPSHOT._fieldTs.prices = _batchObservedTimes.length ? new Date(Math.max.apply(null, _batchObservedTimes)).toISOString() : null;
   }
-  // v51.66: 가격 갱신 후 신선도 UI 업데이트 (스크리너 듀얼 타임스탬프)
-  try { if (typeof _aioRenderDataFreshness === 'function') _aioRenderDataFreshness(); } catch(_) {}
+  try { if (typeof window._aioSchedulePublicReadiness === 'function') window._aioSchedulePublicReadiness(250); } catch(_) {}
 }
 
 function updateScreenerFromLiveData() {

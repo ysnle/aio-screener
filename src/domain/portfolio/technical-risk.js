@@ -7,15 +7,10 @@
 // src/app/legacy-screen-bridges.js.
 import { technicalSnapshot } from '../technical/snapshot.js';
 import { concentrationPenaltyForWeight } from './concentration.js';
+import { readNumber } from '../shared/number.js';
 
-// The strict finite read the legacy shell used (_aioStrictFinite): booleans, blanks and non-numbers are unknown.
-function finite(value) {
-  if (value == null || typeof value === 'boolean') return null;
-  if (typeof value !== 'number' && typeof value !== 'string') return null;
-  if (typeof value === 'string' && value.trim() === '') return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
+// readNumber is the strict read the legacy shell used (_aioStrictFinite): booleans, blanks and non-numbers are unknown.
+const finite = readNumber;
 const isSnapshot = (value) => !!value && value.ok !== undefined;
 const actionFor = (score) => (score >= 75 ? 'EXIT_OR_HEDGE' : score >= 58 ? 'TRIM_50' : score >= 38 ? 'TRIM_25_33' : score >= 18 ? 'NO_ADD_RAISE_STOP' : 'HOLD_CORE');
 const upperTicker = (position) => (position.ticker || position.symbol || '').toString().toUpperCase();
