@@ -89,6 +89,23 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (item.title !== '$NBIS &#036;DOUBLE' || item.ko_title !== '$NBIS 한글 &#036;DOUBLE' || item.ko_summary !== '<script>문자열') fail('P1359 translated/original text decoding boundary');
 }
 
+// v59.88: after the Korean close and before the US one, the won decomposition's KOSPI leg is the KOSPI's own 20-session
+// change to its latest close, the one number 매크로 and 시장 상태 print (it was clamped to the SPX date).
+{
+  const { buildKrwDecomposition } = await load('src/domain/macro/krw-decomposition.js');
+  const { closeChange } = await load('src/domain/market/market-windows.js');
+  const rows = [];
+  for (let day = Date.UTC(2025, 0, 6), i = 0; rows.length < 320; day += 86400000) {
+    const wd = new Date(day).getUTCDay();
+    if (!wd || wd === 6) continue;
+    rows.push({ date: new Date(day).toISOString().slice(0, 10), spx: 5000 + i, kospi: 2500 + 3 * i + (i % 7) * 4, usdkrw: 1300 + Math.sin(i / 5) * 10 + i * 0.1, dxy: 100 + Math.sin(i / 5) * 0.8 });
+    i += 1;
+  }
+  rows.push({ date: new Date(Date.parse(rows.at(-1).date) + 3 * 86400000).toISOString().slice(0, 10), kospi: rows.at(-1).kospi * 0.9 });
+  const krw = buildKrwDecomposition(rows);
+  const own = closeChange(rows, 'kospi', 20);
+  if (!krw.available || !own || Math.abs(krw.kospiMove - own.pct) > 1e-9) fail(`v59.88 won decomposition KOSPI leg ${krw.kospiMove} differs from the KOSPI's own 20-session change ${own?.pct}`);
+}
 // P1358: durable derived rotation drives the native provider without exposing raw prices.
 {
   const { selectProducedRotation } = await load('src/domain/themes/produced-rotation.js');

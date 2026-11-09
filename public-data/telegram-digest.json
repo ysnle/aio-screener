@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-09T07:22:32.961Z",
-  "attemptedAt": "2026-11-09T07:22:32.961Z",
-  "lastSuccessfulAt": "2026-11-09T07:22:32.961Z",
+  "generatedAt": "2026-11-09T07:51:50.136Z",
+  "attemptedAt": "2026-11-09T07:51:50.136Z",
+  "lastSuccessfulAt": "2026-11-09T07:51:50.136Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-26T07:22:27.439Z",
-  "until": "2026-11-09T07:22:27.439Z",
+  "since": "2026-10-26T07:51:45.076Z",
+  "until": "2026-11-09T07:51:45.076Z",
   "current24hWindow": {
     "start": "2026-11-07T23:00:00.000Z",
     "end": "2026-11-08T23:00:00.000Z",
@@ -89,11 +89,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1323,
-      "freshCount": 39,
+      "freshCount": 20,
       "eligibleTextCount": 1266,
       "selectedCount": 129,
       "error": null,
@@ -113,11 +113,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 704,
-      "freshCount": 35,
+      "freshCount": 19,
       "eligibleTextCount": 703,
       "selectedCount": 121,
       "error": null,
@@ -125,7 +125,7 @@
     }
   ],
   "count": 2267,
-  "retainedItemCount": 438,
+  "retainedItemCount": 414,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -1968,15 +1968,13 @@
       "datetime": "2026-11-09T02:25:31.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "macro",
-        "semi",
-        "earnings",
-        "healthcare"
+        "semi"
       ],
       "score": 64,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중국 CICC : 미국 증시, 충분히 하락했나?” •CICC 증권은 나스닥과 필라델피아 반도체지수의 밸류에이션이 역사적 백분위 기준 각각 44%, 14%까지 하락했지만, 시장을 반등시킬 핵심 촉매가..."
+      "summary": ">>중국 CICC : 미국 증시, 충분히 하락했나?” •CICC 증권은 나스닥과 필라델피아 반도체지수의 밸류에이션이 역사적 백분위 기준 각각 44%, 14%까지 하락했지만, 시장을 반등시킬 핵심 촉매가...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71790",
@@ -1985,7 +1983,7 @@
       "datetime": "2026-11-09T02:23:39.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
@@ -1995,8 +1993,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>BofA Hartnett “미국 중간선거는 AI 정점의 신호”…월가의 강세장 신념이 하나씩 무너지고 있음 •BofA 수석 전략가 Hartnett은 미국 중간선거를 ‘AI 주식 집중도 정점’의 역사적..."
+      "summary": ">>BofA Hartnett “미국 중간선거는 AI 정점의 신호”…월가의 강세장 신념이 하나씩 무너지고 있음 •BofA 수석 전략가 Hartnett은 미국 중간선거를 ‘AI 주식 집중도 정점’의 역사적...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21060",
@@ -2048,10 +2046,11 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": "•대만가권지수 +5%까지 확대중 •지수늠 41,690pt, TSMC는 +5.15% 거래중",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "•대만가권지수 +5%까지 확대중 •지수늠 41,690pt, TSMC는 +5.15% 거래중"
+      ]
     },
     {
       "id": "HANAchina/71785",
@@ -2060,10 +2059,8 @@
       "datetime": "2026-11-09T01:38:03.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "macro",
-        "credit"
+        "macro"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
       "media": {
@@ -2072,8 +2069,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "[중국 10월 물가: 마진 스퀴즈 엄습] - 10월 CPI YoY +0.7% (예상 +0.8% / 9월 +0.9%) - 10월 PPI YoY +5.7% (예상 +5.3% / 9월 +5.0%) **물가 상승세..."
+      "summary": "[중국 10월 물가: 마진 스퀴즈 엄습] - 10월 CPI YoY +0.7% (예상 +0.8% / 9월 +0.9%) - 10월 PPI YoY +5.7% (예상 +5.3% / 9월 +5.0%) **물가 상승세...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68750",
@@ -2100,10 +2097,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>실시간 검색어에 등극 - 젠슨 황, 염문설로 사임할까? 엔비디아, AI 거래에 설상가상 (중국언론) •엔비디아 CEO 젠슨 황은 일요일 전 직원에게 공개서한을 보내 혼외정사 사실을 공식적으로 인정하고,...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>실시간 검색어에 등극 - 젠슨 황, 염문설로 사임할까? 엔비디아, AI 거래에 설상가상 (중국언론) •엔비디아 CEO 젠슨 황은 일요일 전 직원에게 공개서한을 보내 혼외정사 사실을 공식적으로 인정하고,..."
+      ]
     },
     {
       "id": "insidertracking/68748",
@@ -2134,18 +2131,16 @@
       "datetime": "2026-11-09T01:03:59.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "equity",
         "credit",
-        "macro",
-        "power"
+        "equity"
       ],
-      "lead": 1,
       "score": 76,
       "hasText": true,
+      "summary": ">>AI 거래의 ‘풍향계’ : Meta 채권 발행, 우여곡절 끝에 성사 •Meta는 미국 중간선거일에 460억달러 규모의 채권 발행을 추진했으나 S&P의 신용등급 전망 하향, Microsoft의 선제적인 채권...",
+      "lead": 2,
       "tickers": [
         "MSFT"
-      ],
-      "summary": ">>AI 거래의 ‘풍향계’ : Meta 채권 발행, 우여곡절 끝에 성사 •Meta는 미국 중간선거일에 460억달러 규모의 채권 발행을 추진했으나 S&P의 신용등급 전망 하향, Microsoft의 선제적인 채권..."
+      ]
     },
     {
       "id": "insidertracking/68743",
@@ -2156,14 +2151,14 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
+      "summary": "니케이에 따르면 일론 머스크가 추진하는 테슬라와 스페이스X의 반도체 합작 사업 '테라팹(Terafab)'이 2032년까지 월 100만 장의 반도체 웨이퍼 생산을 목표로 설정한 것으로 알려짐. 테라팹은 반도체...",
+      "lead": 1,
       "tickers": [
         "TSLA",
         "005930.KS"
-      ],
-      "summary": "니케이에 따르면 일론 머스크가 추진하는 테슬라와 스페이스X의 반도체 합작 사업 '테라팹(Terafab)'이 2032년까지 월 100만 장의 반도체 웨이퍼 생산을 목표로 설정한 것으로 알려짐. 테라팹은 반도체..."
+      ]
     },
     {
       "id": "insidertracking/68741",
@@ -2172,10 +2167,8 @@
       "datetime": "2026-11-09T00:41:52.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "semi",
-        "macro"
+        "semi"
       ],
-      "lead": 1,
       "score": 63,
       "hasText": true,
       "media": {
@@ -2184,10 +2177,11 @@
         "videoCount": 1,
         "documents": []
       },
+      "summary": "트럼프 대통령이 엔비디아 최고경영자(CEO) 젠슨 황에 대해 긍정적으로 평가하며, 최근 제기된 사안과 관련해 잘못을 저질렀다는 이야기는 듣지 못했다고 밝힘. 트럼프 대통령은 “저는 그와 이 문제에 대해...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 대통령이 엔비디아 최고경영자(CEO) 젠슨 황에 대해 긍정적으로 평가하며, 최근 제기된 사안과 관련해 잘못을 저질렀다는 이야기는 듣지 못했다고 밝힘. 트럼프 대통령은 “저는 그와 이 문제에 대해..."
+      ]
     },
     {
       "id": "insidertracking/68740",
@@ -2200,10 +2194,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "TSMC가 고객 수요에 대응하기 위해 반도체 공장 동시 건설 규모를 기존 20개에서 30개로 확대하려 했으나, 인력 부족과 건설 과정의 어려움으로 수요를 충족하지 못하고 있는 것으로 알려짐.",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC가 고객 수요에 대응하기 위해 반도체 공장 동시 건설 규모를 기존 20개에서 30개로 확대하려 했으나, 인력 부족과 건설 과정의 어려움으로 수요를 충족하지 못하고 있는 것으로 알려짐."
+      ]
     },
     {
       "id": "bornlupin/21058",
@@ -2253,13 +2247,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "트럼프 대통령이 엔비디아 최고경영자(CEO) 젠슨 황을 높이 평가하며, 향후 아시아 순방에 동행할 가능성을 언급. 트럼프 대통령은 젠슨 황에 대해 “좋은 사람입니다”라고 평가했으며, 아시아 순방에 함께...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 대통령이 엔비디아 최고경영자(CEO) 젠슨 황을 높이 평가하며, 향후 아시아 순방에 동행할 가능성을 언급. 트럼프 대통령은 젠슨 황에 대해 “좋은 사람입니다”라고 평가했으며, 아시아 순방에 함께..."
+      ]
     },
     {
       "id": "insidertracking/68734",
@@ -2268,14 +2262,12 @@
       "datetime": "2026-11-08T23:34:10.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "macro",
-        "healthcare"
+        "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "월스트리트저널의 수석 경제 기자이자 ‘연준의 입’으로 불리는 닉 티미라오스는 미국 중간선거 결과가 트럼프 행정부와 연방준비제도(Fed) 간 권력 구도를 변화시켰으며, 트럼프 대통령의 연준 장악 시도에 지금까지..."
+      "summary": "월스트리트저널의 수석 경제 기자이자 ‘연준의 입’으로 불리는 닉 티미라오스는 미국 중간선거 결과가 트럼프 행정부와 연방준비제도(Fed) 간 권력 구도를 변화시켰으며, 트럼프 대통령의 연준 장악 시도에 지금까지...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71772",
@@ -2368,17 +2360,14 @@
       "datetime": "2026-11-08T22:09:58.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 81,
       "hasText": true,
+      "summary": "11월 09일 미주인 브리핑 자막 안내 유튜브 영상에서 자막 버튼을 누르시면 자동으로 생성되는 자막과 함께 시청하실 수 있습니다. ※ 추후 시각화 자료도 제공드릴 수 있는 방법도 찾고있습니다. • 젠슨 황...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "11월 09일 미주인 브리핑 자막 안내 유튜브 영상에서 자막 버튼을 누르시면 자동으로 생성되는 자막과 함께 시청하실 수 있습니다. ※ 추후 시각화 자료도 제공드릴 수 있는 방법도 찾고있습니다. • 젠슨 황..."
+      ]
     },
     {
       "id": "bornlupin/21056",
@@ -8663,17 +8652,14 @@
       "datetime": "2026-11-08T22:09:58.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 81,
       "hasText": true,
+      "summary": "11월 09일 미주인 브리핑 자막 안내 유튜브 영상에서 자막 버튼을 누르시면 자동으로 생성되는 자막과 함께 시청하실 수 있습니다. ※ 추후 시각화 자료도 제공드릴 수 있는 방법도 찾고있습니다. • 젠슨 황...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "11월 09일 미주인 브리핑 자막 안내 유튜브 영상에서 자막 버튼을 누르시면 자동으로 생성되는 자막과 함께 시청하실 수 있습니다. ※ 추후 시각화 자료도 제공드릴 수 있는 방법도 찾고있습니다. • 젠슨 황..."
+      ]
     },
     {
       "id": "bornlupin/21056",

@@ -51,7 +51,9 @@ export function buildKrwDecomposition(history = [], { through = undefined } = {}
   };
   // v59.70 (re-review N2): the KOSPI leg is its own 20 Korean sessions, the one KOSPI 20-session change 매크로 and 시장 상태
   // quote (-19.3%); counted in the won's US sessions it read -18.6% for the same label.
-  const krw = move('usdkrw'); const dxy = move('dxy'); const kospiChange = closeChange(history, 'kospi', n, { through: basis });
+  // It ends on the latest Korean close, not the US basis: after the Korean close and before the US one, clamping it to
+  // the SPX date dropped Monday's KOSPI session and printed a second 20-session number.
+  const krw = move('usdkrw'); const dxy = move('dxy'); const kospiChange = closeChange(history, 'kospi', n, { through: through === undefined ? null : through });
   const kospi = kospiChange ? { pct: kospiChange.pct } : null;
   if (!krw || !dxy) return { available: false, reason: '원/달러와 달러 지수의 20거래일 변화를 계산하지 못했습니다.' };
   const start = { date: krw.from }; const end = { date: krw.to };
