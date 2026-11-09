@@ -50,7 +50,7 @@ import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
 import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 import { classifyMovingAverageStructure, deriveMultiTimeframeView } from '../domain/technical/stage.js';
-import { detectContractions, isBreakoutDay, adrPctOf } from '../domain/technical/definitions.js';
+import { detectContractions, isBreakoutDay, adrPctOf, smaLast, emaSeries, rsiWilder, atrWilder } from '../domain/technical/definitions.js';
 // v59.59 (logic refactor): the producer's VCP read for the legacy snapshot, behind import() (boot budget). The snapshot is
 // built on a stock's detail, well after boot; before the module arrives the legacy read is 'insufficient_data'.
 let producerVcpRead = null;
@@ -1219,13 +1219,21 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     ,computeRelativeRotation
     ,classifyMovingAverageStructure
     ,deriveMultiTimeframeView
-    // v57.84 (owner decision): the one VCP contraction detector — legacy calcTechnicalSnapshot's _calcVCP delegates here.
-    ,detectContractions
-    // Audit 2026-10-17 (owner D6): the one breakout-day test — legacy _calcVCP reads it too.
-    ,isBreakoutDay
-    // v59.59 (logic refactor): the legacy snapshot's ADR and VCP stage read the producer's own functions.
-    ,adrPctOf
-    ,vcpRead: (...args) => (producerVcpRead ? producerVcpRead(...args) : null)
+    // The technical definitions legacy calcTechnicalSnapshot delegates to (js/aio-core.js _calc*, _calcADRPercent,
+    // _calcVCP). v59.87 (ADR-0003 S1): one group that compatibility-facade.js forwards whole onto window.AIO_ARCH — these
+    // names were listed here but never on the facade's allowlist, so since v59.59 the legacy ADR read null and VCP read
+    // insufficient_data in every browser. v57.84: detectContractions is the one VCP contraction detector; audit
+    // 2026-10-17 (owner D6): isBreakoutDay the one breakout-day test; v59.59: ADR and the VCP stage are the producer's own.
+    ,legacyTechnical: Object.freeze({
+      detectContractions,
+      isBreakoutDay,
+      adrPctOf,
+      smaLast,
+      emaSeries,
+      rsiWilder,
+      atrWilder,
+      vcpRead: (...args) => (producerVcpRead ? producerVcpRead(...args) : null)
+    })
     ,computeNewsSentimentScore
     ,computeNewsRiskSignals
     ,MIN_NEWS_ANALYSIS_SAMPLE

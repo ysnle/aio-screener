@@ -1950,13 +1950,16 @@ const rsiParityOk = await (async () => {
     const serverSrc = extractFunctionSource(fetchData, '_rsi14');
     const clientRsiSrc = extractFunctionSource(core, '_calcRSILast');
     const cleanNumsSrc = extractFunctionSource(core, '_aioCleanNums');
+    // v59.87 (ADR-0003 S1): _calcRSILast delegates to definitions.rsiWilder through AIO_ARCH; the parity runs that path.
+    const techDefSrc = extractFunctionSource(core, '_aioTechDef');
+    if (!techDefSrc) { rsiParityDetail = 'could not extract _aioTechDef from aio-core.js'; return false; }
     if (!serverSrc) { rsiParityDetail = 'could not extract _rsi14 from fetch-data.mjs'; return false; }
     if (!clientRsiSrc) { rsiParityDetail = 'could not extract _calcRSILast from aio-core.js'; return false; }
     if (!cleanNumsSrc) { rsiParityDetail = 'could not extract _aioCleanNums from aio-core.js'; return false; }
     const roundFn = (v, d) => (typeof v === 'number' && isFinite(v)) ? Number(v.toFixed(d)) : null;
     const { rsiWilder } = await import('../src/domain/technical/definitions.js');
     const serverRsi14 = new Function('round', 'rsiWilder', `${serverSrc}\nreturn _rsi14;`)(roundFn, rsiWilder);
-    const clientCalcRsiLast = new Function(`${cleanNumsSrc}\n${clientRsiSrc}\nreturn _calcRSILast;`)();
+    const clientCalcRsiLast = new Function('window', `${techDefSrc}\n${cleanNumsSrc}\n${clientRsiSrc}\nreturn _calcRSILast;`)({ AIO_ARCH: { rsiWilder } });
     // Deterministic synthetic series long enough (300 bars) for Wilder's smoothing to be well
     // past its warm-up window, matching real usage (screener enrichment runs on ~1y of history).
     const closes = [];

@@ -1,0 +1,28 @@
+{
+  "version": "v59.87",
+  "date": "2026-11-09",
+  "p": {
+    "title": "옛 기술 스냅샷의 ADR·VCP가 v59.59 이후 모든 브라우저에서 비어 있었다(AIO_ARCH 허용 목록 누락)",
+    "symptom": "calcTechnicalSnapshot의 adr20Pct가 늘 null이었고, VCP 단계는 늘 insufficient_data('데이터 부족')였다. 그래서 50일선 대비 ADR 배수(dist20Adr·dist50Adr)가 비고, AI 기술 문맥의 VCP 줄도 '데이터 부족'으로 나갔다.",
+    "root_cause": "v59.59에서 _calcADRPercent와 _calcVCP를 window.AIO_ARCH.adrPctOf·vcpRead에 위임했다. 그런데 이 이름들은 bootstrap.js의 api 객체에만 추가됐고, 실제로 window.AIO_ARCH를 만드는 compatibility-facade.js의 손으로 쓴 허용 목록에는 들어가지 않았다. detectContractions·isBreakoutDay도 같은 상태였다. 한 API를 두 목록이 따로 관리하는 구조여서, 위임 코드가 'ESM이 없으면 null'로 조용히 떨어졌다.",
+    "fix": "bootstrap.js가 legacy 스냅샷이 위임하는 기술 정의(detectContractions·isBreakoutDay·adrPctOf·vcpRead와 ADR-0003 S1의 smaLast·emaSeries·rsiWilder·atrWilder)를 legacyTechnical 한 묶음으로 내보내고, compatibility-facade.js는 그 묶음을 통째로 window.AIO_ARCH에 펼친다. 묶음에 넣은 이름은 허용 목록에서 빠질 수 없다.",
+    "violated_rule": "한 API는 한 곳에서 선언한다. 위임 대상이 없을 때 조용히 null로 떨어지는 경로는 실제 브라우저에서 위임이 성립하는지 테스트로 확인해야 한다.",
+    "prevention": "legacy가 AIO_ARCH로 위임하는 순수 함수는 bootstrap의 legacyTechnical(또는 같은 방식의 묶음)에 넣는다. 헤드리스 T103이 실제 facade를 거친 ADR 값을 확인한다.",
+    "verification": "node scripts/ci-headless-tests.mjs (v59.87 T103 tech_snapshot: ADR reads technical/definitions.js through AIO_ARCH)",
+    "files": ["src/app/bootstrap.js", "src/legacy/compatibility-facade.js", "js/aio-core.js", "js/aio-tests.js"]
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-LEGACY-TECH-FACADE",
+      "text": "v59.87: calcTechnicalSnapshot의 ADR(adr20Pct)·RSI·ATR·SMA/EMA가 실제 window.AIO_ARCH를 거쳐 technical/definitions.js 값으로 채워진다(260봉 픽스처에서 null이 아니다).",
+      "verify_by": "node scripts/ci-headless-tests.mjs",
+      "done": true
+    }
+  ],
+  "qa_section": "기술 지표 단일 정의",
+  "changelog": [
+    "**옛 기술 스냅샷 ADR·VCP 복구 ({P}):** v59.59 이후 calcTechnicalSnapshot의 ADR이 늘 비고 VCP가 늘 '데이터 부족'이던 문제를 고쳤다. 원인은 위임 함수가 window.AIO_ARCH 허용 목록에 없던 것이다. 이제 bootstrap의 legacyTechnical 묶음을 facade가 통째로 노출한다."
+  ],
+  "note": "legacy technical facade group (ADR/VCP null since v59.59)"
+}

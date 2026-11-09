@@ -10661,33 +10661,27 @@ function _aioCleanOHLCV(ohlcv) {
   }).filter(Boolean);
 }
 
+// v59.87 (ADR-0003 S1): SMA/EMA/RSI/ATR are technical/definitions.js (AIO_ARCH); these wrappers only clean the legacy
+// inputs. Unknown (null) without the ESM, like _calcADRPercent.
+function _aioTechDef(name) {
+  var arch = window.AIO_ARCH;
+  return arch && typeof arch[name] === 'function' ? arch[name] : null;
+}
+
 function _calcSMA(values, period) {
   var nums = _aioCleanNums(values).filter(function(v) { return v !== null; });
+  var smaLast = _aioTechDef('smaLast');
   period = period || 20;
-  if (nums.length < period || period <= 0) return null;
-  var sum = 0;
-  for (var i = nums.length - period; i < nums.length; i++) sum += nums[i];
-  return sum / period;
+  if (!smaLast || nums.length < period || period <= 0) return null;
+  return smaLast(nums, period);
 }
 
 function _calcEMAFull(values, period) {
   var nums = _aioCleanNums(values).filter(function(v) { return v !== null; });
+  var emaSeries = _aioTechDef('emaSeries');
   period = period || 20;
-  if (nums.length < period || period <= 0) return null;
-  var k = 2 / (period + 1);
-  var ema = 0;
-  for (var i = 0; i < period; i++) ema += nums[i];
-  ema = ema / period;
-  var out = [];
-  for (var j = 0; j < nums.length; j++) {
-    if (j < period - 1) out.push(null);
-    else if (j === period - 1) out.push(ema);
-    else {
-      ema = nums[j] * k + ema * (1 - k);
-      out.push(ema);
-    }
-  }
-  return out;
+  if (!emaSeries || nums.length < period || period <= 0) return null;
+  return emaSeries(nums, period);
 }
 
 function _calcEMA(values, period) {
@@ -10696,41 +10690,18 @@ function _calcEMA(values, period) {
 }
 
 function _calcATR(ohlcv, period) {
-  var bars = _aioCleanOHLCV(ohlcv);
+  var bars = _aioCleanOHLCV(ohlcv), atrWilder = _aioTechDef('atrWilder');
   period = period || 14;
-  if (bars.length < period + 1) return null;
-  var trs = [];
-  for (var i = 1; i < bars.length; i++) {
-    var prevClose = bars[i - 1].close;
-    trs.push(Math.max(bars[i].high - bars[i].low, Math.abs(bars[i].high - prevClose), Math.abs(bars[i].low - prevClose)));
-  }
-  if (trs.length < period) return null;
-  var atr = 0;
-  for (var j = 0; j < period; j++) atr += trs[j];
-  atr = atr / period;
-  for (var k = period; k < trs.length; k++) atr = ((atr * (period - 1)) + trs[k]) / period;
-  return atr;
+  if (!atrWilder || bars.length < period + 1) return null;
+  return atrWilder(bars, period);
 }
 
 function _calcRSILast(closes, period) {
   var nums = _aioCleanNums(closes).filter(function(v) { return v !== null && v > 0; });
+  var rsiWilder = _aioTechDef('rsiWilder');
   period = period || 14;
-  if (nums.length < period + 1) return null;
-  var gain = 0, loss = 0;
-  for (var i = 1; i <= period; i++) {
-    var d = nums[i] - nums[i - 1];
-    if (d >= 0) gain += d; else loss -= d;
-  }
-  var avgGain = gain / period;
-  var avgLoss = loss / period;
-  for (var j = period + 1; j < nums.length; j++) {
-    var diff = nums[j] - nums[j - 1];
-    avgGain = ((avgGain * (period - 1)) + Math.max(diff, 0)) / period;
-    avgLoss = ((avgLoss * (period - 1)) + Math.max(-diff, 0)) / period;
-  }
-  if (avgLoss === 0) return avgGain === 0 ? 50 : 100; // v59.59: flat (no gain, no loss) is neutral 50, as technical/definitions.js rsiWilder
-  var rs = avgGain / avgLoss;
-  return 100 - (100 / (1 + rs));
+  if (!rsiWilder || nums.length < period + 1) return null;
+  return rsiWilder(nums, period);
 }
 
 function _calcMACD(closes, fast, slow, signal) {
