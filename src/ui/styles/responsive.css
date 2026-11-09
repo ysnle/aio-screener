@@ -41,7 +41,7 @@
 .page-head--stack { display: block; }
 .page-head + .briefing-block,
 .aio-section:has(> .page-head:last-child) + .briefing-block { border-top: 0; padding-top: 4px; }
-.page-head ~ #home-score-hero { border-top: 0 !important; padding-top: 28px !important; } /* run-5 prep: the hero became a card (sx-card--hero); 4px left its title on the card's top edge */
+.page-head ~ #home-score-hero { border-top: 0; padding-top: 28px; } /* run-5 prep: the hero became a card (sx-card--hero); 4px left its title on the card's top edge */
 /* UI review 2026-10-18: one look for every "pick a view" toggle. The screens used four (grey square chips, outlined
    rectangles, a pill group, filled pills); all now read as outlined pills with the chosen one filled in ink. */
 .page :is(.news-sort-btn, .sector-map-tab, .stock-chart-intervals button, .regime-chart-selectors button) {
@@ -111,7 +111,7 @@
    navigation drawer is for iPad portrait and phones only (≤1023, with the bottom tab bar). The AI panel overlays the page
    up to 1279 instead of splitting it — beside a sidebar a 400px split left too little room for the page. */
 @media (max-width: 1279px) {
-  .app { width: 100% !important; max-width: 100% !important; }
+  .app { width: 100%; max-width: 100%; }
 }
 @media (max-width: 1023px) {
   .sidebar, .sidebar.collapsed, body.aio-screener-focus .sidebar {
@@ -127,7 +127,7 @@
   #sidebar-toggle-btn { display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
 }
 @media (max-width: 1100px) {
-  .app { width: 100% !important; max-width: 100% !important; }
+  .app { width: 100%; max-width: 100%; }
   .main { min-width: 0; width: 100%; }
   .topbar { padding: 6px 12px; gap: 8px; flex-wrap: wrap; }
   .topbar > div { min-width: 0; }
@@ -141,9 +141,9 @@
       .macro-overview, .rates-curve-row, .scr-workflow-grid,
       .page .screener-read-layout, .page .stock-read-visuals, .page .daily-loop,
       .knowledge-learning-controls) { grid-template-columns: minmax(0, 1fr); }
-  .page .aio-responsive-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-  .page .aio-responsive-layout { grid-template-columns: minmax(0, 1fr) !important; }
-  .page .aio-responsive-row { flex-wrap: wrap; gap: 10px !important; }
+  .page .aio-responsive-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page .aio-responsive-layout { grid-template-columns: minmax(0, 1fr); }
+  .page .aio-responsive-row { flex-wrap: wrap; gap: 10px; }
   .page .rl-grid, .page .rl-head { grid-template-columns: minmax(0, 1fr); }
   .page .rl-nav, .page .rl-aside { position: static; max-height: none; min-width: 0; }
   /* P2063: v2-research's <=1279px rule pins the aside to column 2; in this one-column band that made an implicit second
@@ -161,7 +161,7 @@
   body #ai-panel { width: min(440px, 100vw); height: var(--aio-visual-height, 100dvh); top: var(--aio-visual-top, 0px); bottom: auto; }
   #ai-panel-msgs { min-height: 0; overscroll-behavior: contain; }
   #ai-panel .ai-input-row { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
-  #ai-panel input, .acp-input-row input { font-size: 16px !important; }
+  #ai-panel input, .acp-input-row input { font-size: 16px; }
   .ai-ph-close, #topbar-ai-btn, #topbar-help-btn { min-height: 44px; }
   .page .aio-table-scroll { scrollbar-width: thin; }
   /* v57.55 cleanup: macro tiles cut their value line ("2년물이 기준금리보다 0.92%p…") on a phone; it wraps instead. */
@@ -183,14 +183,14 @@
   /* 2026-10-19: the status cell is the one that gives way at 360px. It may wrap onto a second line ("10/19" over
      "21:58", "23시간" over "전") instead of pushing the version badge, help and AI buttons off the bar, so no data
      age or chip word can overflow the row; it is never cut with an ellipsis. */
-  #live-quote-ts { white-space: normal !important; line-height: 1.15; overflow: hidden; text-overflow: clip; min-width: 0; }
+  #live-quote-ts { white-space: normal; line-height: 1.15; overflow: hidden; text-overflow: clip; min-width: 0; }
   /* v57.54: "서버 10/13 2…" was cut mid-time. The phone shows only the compact time the writer derives
      (data-compact, e.g. "10/13 22:20"); the full sentence stays the element's text and title for readers. */
-  #live-quote-ts[data-compact]:not([data-compact=""]) { font-size: 0 !important; text-overflow: clip; }
+  #live-quote-ts[data-compact]:not([data-compact=""]) { font-size: 0; text-overflow: clip; }
   #live-quote-ts[data-compact]:not([data-compact=""])::after { content: attr(data-compact); font-size: 12px; font-variant-numeric: tabular-nums; }
   /* Room for that time at 360px: tighter chips and gaps (help/AI keep their 44px height). */
   .topbar-actions-right { column-gap: 4px !important; }
-  #topbar-live-badge { padding-inline: 6px !important; }
+  #topbar-live-badge { padding-inline: 6px; }
   #topbar-help-btn, #topbar-ai-btn { padding-inline: 8px !important; }
   /* UI review 2026-10-18: one topbar row on a phone (~56px instead of ~105px). The breadcrumb repeated the hub
      tabs and page title just below it, so it hides here; the menu button joins the actions row. */
@@ -202,7 +202,7 @@
   .topbar-actions-right { width: auto; flex: 1 1 auto !important; min-width: 0; }
   #home-score-hero .home-hero-divider { display: none; }
   /* Portfolio hero: two columns and no vertical divider on a phone (the three-column grid broke words). */
-  #pf-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px !important; min-width: 0 !important; flex: 1 1 100% !important; }
+  #pf-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px; min-width: 0; flex: 1 1 100%; }
   /* v58.80 (first-users bundle 5): the nine-column holdings table scrolled sideways at min-width 680px, its sticky 종목
      column overlapped "목표가" and 수정·삭제 sat off-screen; it is a list of cards now (portfolio-page.css), so it keeps
      the screen width and the sideways-scroll mask does not apply. */
@@ -215,17 +215,17 @@
       .principles-chapter-grid, .atlas-node-grid) { grid-template-columns: minmax(0, 1fr); }
   #page-fxbond.page .mk-curve-card .rates-yields { grid-template-columns: repeat(2, minmax(0, 1fr)); } /* v59.70 (screen review #1): the curve card's auto-fit rule out-ranked the phone grid */
   .page :is(.rates-yields, .rates-other, .kr-index-grid, .scr-funnel, .principles-reference-loop, .integrated-framework-flow, .page .daily-moves, .chart-stage-steps) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .page .aio-responsive-card-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .page .aio-responsive-card-grid { grid-template-columns: minmax(0, 1fr); }
   .page :is(.briefing-event, .daily-event, .macro-chain-branch, .theme-detail-flow .stock-read-bar-row) { grid-template-columns: minmax(0, 1fr); }
   .page .regime-chips { min-width: 0; width: 100%; }
-  #home-score-hero { gap: 16px !important; padding: 16px 0 !important; }
+  #home-score-hero { gap: 16px !important; padding: 16px 0; }
   .page .fiscal-peers .stock-read-bar-value { min-width: 0; white-space: normal; }
   /* v57.81: theme-detail sub-theme values wrap under the bar instead of an ellipsis, so 1개월 and 5거래일 stay visible. */
   .page .theme-detail-flow .stock-read-bar-value { min-width: 0; white-space: normal; overflow: visible; text-overflow: clip; }
   body #ai-panel { width: 100%; border-left: 0; }
   .ai-ph { padding: 10px 12px; flex-wrap: wrap; }
   /* v58.80 run-5 (phone #15): wrapped, the × fell to a row of its own at the left; it keeps the top-right corner. */
-  #ai-panel .ai-ph { position: relative; padding-right: 60px !important; } /* soft-ui.css sets padding with !important */
+  #ai-panel .ai-ph { position: relative; padding-right: 60px; } /* soft-ui.css sets padding with !important */
   #ai-panel .ai-ph-close { position: absolute; top: 6px; right: 8px; margin: 0; }
   #ai-panel .ai-ph-route { order: 5; flex: 1 1 100%; margin: 0; white-space: normal; } /* v57.81: 11px text floor (was 10px) */
   #ai-panel-policy { flex-shrink: 0; }
@@ -282,7 +282,7 @@ body { word-break: keep-all; overflow-wrap: break-word; }
   #sidebar-toggle-btn, .topbar button { min-height: 44px; min-width: 44px; }
   #glossary-modal [data-action="_aioCloseGlossary"] { min-width: 44px; min-height: 44px; }
   #glossary-cats button { min-height: 44px; }
-  #aio-confirm-modal button, .page .aio-btn-table.primary { min-height: 44px !important; } /* 첫 종목 추가 sits in a table cell with an inline 36px */
+  #aio-confirm-modal button, .page .aio-btn-table.primary { min-height: 44px; } /* 첫 종목 추가 sits in a table cell with an inline 36px */
   .home-sector-bars li[tabindex], .regime-radar-table dd[tabindex] { min-height: 44px; }
   /* v58.80 run-5 (phone #13): fiscal-quality.css's `.page a.fiscal-source-link:not(.aio-btn-table)` (0,3,1) outranked this
      rule and kept the link at 24px; the selector matches it, and the empty portfolio's 36px buttons reach 44px too. */
@@ -304,12 +304,12 @@ body { word-break: keep-all; overflow-wrap: break-word; }
    drawn sizes. v59.55: a trend chart drawn at its own pixel width (.is-actual-size, the stock price line) is not scaled. */
 @media (pointer: coarse), (max-width: 1100px) {
   .trend-chart-wrap, .rates-curve-wrap { container-type: inline-size; }
-  @container (max-width: 439.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 15px !important; } }
-  @container (max-width: 380.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 17px !important; } }
-  @container (max-width: 335.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 19px !important; } }
-  @container (max-width: 300.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 21px !important; } }
-  @container (max-width: 271.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 23.5px !important; } }
-  @container (max-width: 242.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 26px !important; } }
+  @container (max-width: 439.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 15px; } }
+  @container (max-width: 380.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 17px; } }
+  @container (max-width: 335.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 19px; } }
+  @container (max-width: 300.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 21px; } }
+  @container (max-width: 271.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 23.5px; } }
+  @container (max-width: 242.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 26px; } }
   @container (max-width: 439.98px) { .page .rates-curve .rates-curve-tenor.is-penult { text-anchor: end; } .page .rates-curve .rates-curve-tenor.is-last { text-anchor: end; transform: translateX(20px); } }
   @container (max-width: 429.98px) { }
   @container (max-width: 393.98px) { }
@@ -351,12 +351,12 @@ body.dark-theme #page-screener .scr-screen-chip.active { color: var(--accent) !i
 body.dark-theme .aio-badge.is-amber,
 body.dark-theme .sp-neutral,
 body.dark-theme .btn-accent.--orange,
-body.dark-theme .scr-star.active { color: var(--text-secondary) !important; }
+body.dark-theme .scr-star.active { color: var(--text-secondary); }
 /* v57.55 review (5e): on a phone the screener's 관심·비교 + 백분위 columns took half the visible width before the symbol,
    and the sub-theme name column wrapped one word per line (rows 100–160px tall). Both tables already scroll sideways. */
 @media (max-width: 767px) {
-  #page-screener table [data-column-key="watchlist"] { min-width: 60px !important; padding: 6px 2px !important; }
-  #page-screener table [data-column-key="rank"] { min-width: 50px !important; padding: 6px 4px !important; }
+  #page-screener table [data-column-key="watchlist"] { padding: 6px 2px; }
+  #page-screener table [data-column-key="rank"] { padding: 6px 4px; }
   #page-screener .scr-row-actions { gap: 2px; }
   .theme-strength-table td:nth-child(2) { min-width: 150px; }
 }
@@ -416,11 +416,11 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
    change as labelled values in four even columns, members below. The header row is hidden (each value carries data-label); the member
    comparison opened by 비교 keeps its own sideways scroll. Wider screens keep the table. */
 @media (max-width: 599px) {
-  .page .theme-strength-table { display: block; min-width: 0 !important; width: 100%; }
+  .page .theme-strength-table { display: block; min-width: 0; width: 100%; }
   .page .theme-strength-table > thead { display: none; }
   .page .theme-strength-table > tbody { display: block; }
   .page .theme-strength-table > tbody > tr { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 10px; position: relative; padding: 10px 12px 10px 40px; border-bottom: 0.5px solid var(--border); }
-  .page .theme-strength-table > tbody > tr > td { display: block; min-width: 0 !important; padding: 0 !important; border: 0; text-align: left !important; white-space: nowrap; background: transparent; font-size: 12px; }
+  .page .theme-strength-table > tbody > tr > td { display: block; min-width: 0; padding: 0; border: 0; text-align: left; white-space: nowrap; background: transparent; font-size: 12px; }
   .page .theme-strength-table > tbody > tr > td[data-label]::before { content: attr(data-label); display: block; font-size: 12px; font-family: var(--font-sans, inherit); color: var(--text-muted); line-height: 1.4; }
   .page .theme-strength-table > tbody > tr > td:is([data-label="순위"], [data-label="하위 테마"])::before { content: none; }
   .page .theme-strength-table > tbody > tr > td[data-label="순위"] { position: absolute; left: 12px; top: 10px; font-weight: 600; }
@@ -462,8 +462,8 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 /* 2026-10-18 UI review (visual pass 2) */
 /* News country/topic filters join the one toggle style; the grey box around them goes (inline styles from the legacy
    writer, hence !important). Selection reads from aria-pressed, which src/ui/pages/news.js keeps in sync. */
-#news-filter-row { background: transparent !important; border: 0 !important; padding: 0 !important; gap: 8px 18px !important; }
-#news-filter-row .chip { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px !important; font-size: 12px !important; border: 0.5px solid var(--border-strong) !important; border-radius: var(--radius-full) !important; background: transparent !important; color: var(--text-secondary) !important; }
+#news-filter-row { background: transparent; border: 0; padding: 0; gap: 8px 18px; }
+#news-filter-row .chip { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; font-size: 12px; border: 0.5px solid var(--border-strong); border-radius: var(--radius-full); background: transparent; color: var(--text-secondary); }
 #news-filter-row .chip:hover { color: var(--text-primary) !important; border-color: var(--text-secondary) !important; }
 #news-filter-row .chip[aria-pressed="true"] { background: var(--text-primary) !important; border-color: var(--text-primary) !important; color: var(--bg-card) !important; }
 #news-filter-row .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -534,10 +534,10 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 /* v59.55 (alignment pass, audit 3): every page-level fold is one card row — card surface, 14px/700 title on the text
    column, drawn chevron at the right. These were bare captions (테마 지도·AI 설비투자), a '펼치기' word box (한국 시장,
    포트폴리오 기록·도구) or a bordered '+' box (거시·금리 보조 섹션). */
-.page > details.sx-disclosure.sh-fold-mt16 { background: var(--bg-card); border-radius: var(--radius-container); margin: 16px 0 !important; }
+.page > details.sx-disclosure.sh-fold-mt16 { background: var(--bg-card); border-radius: var(--radius-container); margin: 16px 0; }
 .page > details.sx-disclosure.sh-fold-mt16 > summary { padding: 14px var(--sx-card-pad-x); font-size: 14px; font-weight: 700; color: var(--text-primary); }
 #page-themes #themes-ai-chain:not([hidden]) { background: var(--bg-card); border-radius: var(--radius-container); padding: 20px var(--sx-card-pad-x); }
-.aio-page-advanced-toggle { border: 0 !important; border-radius: var(--radius-container) !important; background: var(--bg-card) !important; }
+.aio-page-advanced-toggle { border: 0; border-radius: var(--radius-container); background: var(--bg-card); }
 .aio-page-advanced-toggle > summary { padding: 14px 48px 14px var(--sx-card-pad-x); font-size: 14px; font-weight: 700; color: var(--text-primary); }
 .aio-page-advanced-toggle > summary:after {
   content: ''; right: calc(var(--sx-card-pad-x) + 3px); width: 7px; height: 7px; border: solid var(--text-muted); border-width: 0 1.5px 1.5px 0;
@@ -573,7 +573,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
    so its text starts on the card's text column (it sat 16px deeper: 브리핑 자세히·일정, 거시 금리 조건, 환율). */
 :is(.sx-card, .briefing-block) .sx-disclosure:not(.mk-axis, .mk-maxis, .sx-disclosure .sx-disclosure) { margin-inline: -16px; }
 /* The first-visit notice: one card like the others, no outline, even inner padding. */
-#aio-first-visit-disclaimer.is-inline { border: 0 !important; background: var(--bg-card) !important; padding: 8px var(--sx-card-pad-x) !important; }
+#aio-first-visit-disclaimer.is-inline { border: 0 !important; background: var(--bg-card); padding: 8px var(--sx-card-pad-x) !important; }
 
 /* v59.55 (alignment pass, round 2). */
 /* 브리핑 header reads like every screen: basis line, hub kicker, title (the date line sat under the title). */
@@ -720,14 +720,14 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
    wins (at (1,1,0) it lost to (1,2,0) and the read column was 4px wide on a phone). scripts/ci-phone-override-specificity-check.mjs */
 @media (max-width: 743px) { :is(#page-fxbond .fx-krw, #page-market-news .news-focus) :is(.fx-krw__body, .news-focus__body) { grid-template-columns: minmax(0, 1fr); } }
 #page-market-news .news-focus { background: var(--bg-card); border-radius: var(--radius-container); padding: 20px var(--sx-card-pad-x); margin: 0 0 16px; }
-#page-screener #scr-tab-evidence.is-empty { display: none !important; }
+#page-screener #scr-tab-evidence.is-empty { display: none; }
 
 /* v59.56 (screen review): on a phone the 투자 참고용 notice took ~130px above the page (three text lines, then the button on
    its own row). The button now sits beside the text, so the notice is as tall as its text. */
 @media (max-width: 640px) {
-  #aio-first-visit-disclaimer.is-inline { flex-wrap: nowrap !important; gap: 10px !important; margin-bottom: 12px !important; }
+  #aio-first-visit-disclaimer.is-inline { flex-wrap: nowrap; gap: 10px !important; margin-bottom: 12px !important; }
   #aio-first-visit-disclaimer.is-inline .lu-dc-text { flex: 1 1 0 !important; font-size: 12px; line-height: 1.5; }
-  #aio-first-visit-disclaimer.is-inline .lu-dc-btn { flex: 0 0 auto; padding: 0 12px !important; font-size: 12px !important; }
+  #aio-first-visit-disclaimer.is-inline .lu-dc-btn { flex: 0 0 auto; padding: 0 12px !important; font-size: 12px; }
 }
 /* v59.64 기술적 분석: index cards two to a row on wide screens, one on phones; the trend word is a quiet tag, not a grade. */
 #page-charts .charts-lead { margin: 0 0 12px; font-size: 15px; line-height: 1.6; color: var(--text-primary); }

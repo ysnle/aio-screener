@@ -10,7 +10,7 @@
 /* Run-5: the row above already names the place (#ticker-breadcrumb-main); the hub label inside the symbol's flex row pushed
    the company name onto the label's line ('종목 ›   Apple Inc.'). */
 #page-ticker #ticker-hero-name[data-hub-label]::before { display: none; }
-#page-ticker #ticker-hero-fullname { font-size: 14px !important; color: var(--text-secondary) !important; }
+#page-ticker #ticker-hero-fullname { font-size: 14px !important; color: var(--text-secondary); }
 #page-ticker .sh-ticker-box { margin-left: 0; text-align: left; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 #page-ticker .v2-stock-price { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
 #page-ticker #ticker-hero-chg { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
@@ -21,7 +21,7 @@
 #page-ticker #ticker-hero-pnl { order: 4; font-size: 12px; color: var(--text-muted); }
 #page-ticker #ticker-summary-price-basis { order: 3; }
 #page-ticker .entity-summary-price-basis { font-size: 12px; color: var(--text-muted); max-width: none; }
-#page-ticker #ticker-back-btn-main { height: 28px; min-height: 28px; padding: 0 12px !important; font-size: 12px !important; font-weight: 500; }
+#page-ticker #ticker-back-btn-main { height: 28px; min-height: 28px; padding: 0 12px !important; font-size: 12px; font-weight: 500; }
 
 /* Search: one soft row; with a symbol open it steps back (no section label). */
 #page-ticker .v2-stock-search {
@@ -45,8 +45,8 @@
 #page-ticker .ticker-start .sh-wrap-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 #page-ticker:not(.is-empty) .ticker-start { display: none; }
 #page-ticker .v2-stock-search .q-chip {
-  height: 28px; padding: 0 12px; border: 0 !important; border-radius: var(--radius-full) !important; background: var(--sx-ink-a06) !important;
-  color: var(--text-primary) !important; font-size: 12px; 
+  height: 28px; padding: 0 12px; border: 0; border-radius: var(--radius-full); background: var(--sx-ink-a06);
+  color: var(--text-primary); font-size: 12px; 
 }
 #page-ticker .v2-stock-search .q-chip:hover { background: var(--sx-ink-a08) !important; }
 #page-ticker .v2-stock-search .sh-ticker-btn { height: 36px; border-radius: var(--radius-full) !important; border: 0 !important; background: var(--text-primary) !important; color: var(--bg-base) !important; padding: 0 16px; font-weight: 600; }
@@ -103,8 +103,8 @@
 #page-technical .stock-chart-head .briefing-h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
 #page-technical #stock-chart-status { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
 #page-technical .stock-chart-intervals.sx-seg { display: inline-flex; flex-wrap: wrap; gap: 0; margin: 0 0 12px; }
-#page-technical .stock-chart-intervals.sx-seg > button { border: 0 !important; background: transparent; padding: 0 12px !important; }
-#page-technical .stock-chart-intervals.sx-seg > button[aria-pressed="true"] { background: var(--bg-card) !important; color: var(--text-primary) !important; font-weight: 600; box-shadow:none; }
+#page-technical .stock-chart-intervals.sx-seg > button { border: 0; background: transparent; padding: 0 12px !important; }
+#page-technical .stock-chart-intervals.sx-seg > button[aria-pressed="true"] { background: var(--bg-card); color: var(--text-primary); font-weight: 600; box-shadow:none; }
 #page-technical .stock-chart-layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
 #page-technical .stock-chart-layout > div:first-child {
   min-width: 0; padding: 20px 24px 14px; border-radius: var(--radius-container); background: var(--bg-card); box-shadow:none;
@@ -195,7 +195,7 @@
 .v2-fiscal-wc__key { display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); }
 .v2-fiscal-wc__key::before { content: ''; width: 8px; height: 8px; border-radius: 2px; }
 /* Search and status: one soft row under the header. */
-#page-fundamental #fund-native-sec-report, #page-fundamental #fund-legacy-fold { border: 0 !important; border-radius: var(--radius-container) !important; background: var(--sx-ink-a03) !important; padding: 12px 16px !important; margin-top: 12px; }
+#page-fundamental #fund-native-sec-report, #page-fundamental #fund-legacy-fold { border: 0; border-radius: var(--radius-container); background: var(--sx-ink-a03); padding: 12px 16px; margin-top: 12px; }
 
 /* ═══ 3b. 분석 카드 — 듀폰 · 역 DCF · R&D · 발생액 (v58.55) ════════════════ */
 #page-ticker #ticker-analysis { margin: 0 0 18px; }
@@ -254,7 +254,7 @@
 /* ═══ 4. 테마 · 섹터 (3f) ═══════════════════════════════════════════════ */
 #page-themes .v2-themes-verdict { border: 0; padding: 0; margin: 0 0 22px; display: flex; flex-direction: column; gap: 14px; }
 .v2-themes-hero { display: flex; flex-direction: column; gap: 6px; padding: 22px var(--sx-card-pad-x); }
-.v2-themes-hero .sx-kicker { margin: 0; font-size: 12px !important; font-weight: 600 !important; letter-spacing: 0 !important; }
+.v2-themes-hero .sx-kicker { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0 !important; }
 .v2-themes-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: start; }
 .v2-themes-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .v2-themes-rrg { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -284,7 +284,7 @@
 .v2-themes-top > .sx-row { padding: 13px 16px; font-size: 12px; }
 /* The sections under the verdict: soft cards instead of hairline panels. */
 #page-themes > .aio-section.sector-map, #page-themes > .aio-section.theme-strength, #page-themes > .aio-section.capex-flow:not(:empty), #page-themes > .aio-section.index-earnings, #page-themes > .aio-section.tp-section {
-  border: 0 !important; border-radius: var(--radius-container); background: var(--bg-card) !important; box-shadow:none; padding: 20px 22px;
+  border: 0 !important; border-radius: var(--radius-container); background: var(--bg-card); box-shadow:none; padding: 20px 22px;
 }
 #page-themes > .aio-section:is(.sector-map, .theme-strength, .capex-flow:not(:empty), .index-earnings, .tp-section) { margin: 0 0 18px; }
 /* 테마 시나리오 map: 부담 wind is amber (red stays for falling prices). */
@@ -479,7 +479,7 @@
   #page-themes .thp-perf-label { width: 54px; }
 }
 @media (pointer: coarse) {
-  #page-technical .stock-chart-intervals.sx-seg > button, .v2-themes-top > .sx-row { min-height: 44px !important; }
+  #page-technical .stock-chart-intervals.sx-seg > button, .v2-themes-top > .sx-row { min-height: 44px; }
 }
 
 /* ═══ 8. Dark ════════════════════════════════════════════════════════════ */

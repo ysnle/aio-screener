@@ -117,7 +117,7 @@
 .rl-path-head { display: flex; justify-content: space-between; align-items: baseline; }
 .rl-path-level { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
 .rl-path-count { font-size: 12px; color: var(--text-muted); }
-.rl-path-title { margin: 0; font-family: var(--font-sans) !important; font-size: 18px; font-weight: 700; letter-spacing: -0.01em !important; color: var(--text-primary); }
+.rl-path-title { margin: 0; font-family: var(--font-sans); font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: var(--text-primary); }
 .rl-path-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .rl-path-step {
   appearance: none; display: flex; align-items: center; gap: 10px; width: calc(100% + 12px); min-height: 32px; padding: 4px 6px; margin: 0 -6px;
@@ -179,13 +179,13 @@
 /* ═══ 5. Glossary modal (3h · sidebar 용어 사전) ═════════════════════════ */
 #glossary-modal { background: var(--black-a5) !important; backdrop-filter: blur(6px) !important; }
 #glossary-modal > .sh-shell-glossary-modal-stack {
-  width: min(860px, calc(100vw - 32px)); max-width: 860px !important; max-height: 86vh !important;
+  width: min(860px, calc(100vw - 32px)); max-width: 860px; max-height: 86vh !important;
   border: 0 !important; border-radius: var(--radius-container) !important; overflow: hidden;
-  background: var(--bg-card) !important; box-shadow: var(--sx-float-shadow) !important;
+  background: var(--bg-card) !important; box-shadow: var(--sx-float-shadow);
 }
 #glossary-modal .sh-shell-glossary-modal-box { padding: 22px 26px 14px; border-bottom: 0.5px solid rgba(var(--ink-rgb), 0.06); }
 #glossary-modal h2.sh-shell-glossary-modal-big {
-  font-family: var(--font-sans) !important; font-size: 18px !important; font-weight: 700 !important; letter-spacing: -0.02em; color: var(--text-primary) !important;
+  font-family: var(--font-sans); font-size: 18px; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary);
 }
 #glossary-modal .sh-shell-glossary-modal-btn {
   width: 36px; height: 36px; border-radius: var(--radius-full); background: var(--rs-tile-strong); font-size: 18px; line-height: 1; color: var(--text-secondary);
@@ -252,13 +252,13 @@
 .rl-shell .rl-grid > .rl-aside:empty { display: none; }
 
 /* ═══ 6. Masters (5j) — real 13F only; quarter-end date chip under the name ═ */
-#page-masters .masters-detail-card { min-height: 0; padding: 0; border: 0 !important; border-radius: 0 !important; background: none !important; }
+#page-masters .masters-detail-card { min-height: 0; padding: 0; border: 0; border-radius: 0 !important; background: none !important; }
 #page-masters .masters-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--text-secondary); }
 #page-masters .masters-detail-title { margin: 6px 0 8px; font-family: var(--font-sans); font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
 #page-masters .masters-quarter-chip { margin: 0 0 8px; }
 #page-masters .masters-detail-filer, #page-masters .masters-holdings-meta { font-size: 12px; color: var(--text-muted); }
 #page-masters .masters-metric-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 18px 0; }
-#page-masters .masters-metric { padding: 14px 16px; border-radius: var(--radius-container) !important; }
+#page-masters .masters-metric { padding: 14px 16px; border-radius: var(--radius-container); }
 #page-masters .masters-metric-label { font-size: 12px; color: var(--text-muted); }
 #page-masters .masters-metric-value { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
 #page-masters .masters-weight-bars .af-bar-row { grid-template-columns: minmax(120px, 190px) 1fr 56px; font-size: 12px; }
@@ -266,7 +266,7 @@
   display: inline-flex; flex-wrap: wrap; gap: 0; padding: 2px; margin: 16px 0 12px; border-radius: var(--radius-element); background: var(--rs-tile-strong);
 }
 #page-masters .masters-detail-tab, #page-masters .masters-filter-tab {
-  min-height: 28px; padding: 0 14px; border: 0 !important; border-radius: var(--radius-element); background: transparent; font-size: 12px; color: var(--text-secondary);
+  min-height: 28px; padding: 0 14px; border: 0; border-radius: var(--radius-element); background: transparent; font-size: 12px; color: var(--text-secondary);
   
 }
 #page-masters .masters-detail-tab:hover, #page-masters .masters-filter-tab:hover { color: var(--text-primary); background: transparent; }
@@ -275,12 +275,12 @@
   background: var(--bg-card); color: var(--text-primary); font-weight: 600; box-shadow:none;
 }
 #page-masters .masters-route-button, #page-masters .masters-page-button {
-  min-height: 32px; padding: 0 14px; border: 0 !important; border-radius: var(--radius-full); background: var(--rs-tile-strong); font-size: 12px; font-weight: 600; color: var(--text-primary);
+  min-height: 32px; padding: 0 14px; border: 0; border-radius: var(--radius-full); background: var(--rs-tile-strong); font-size: 12px; font-weight: 600; color: var(--text-primary);
   
 }
 #page-masters .masters-route-button:hover, #page-masters .masters-page-button:hover { background: var(--rs-pick); }
 #page-masters .masters-holdings-section, #page-masters .masters-style-compare {
-  border: 0 !important; border-radius: var(--radius-container); padding: 18px 20px; background: var(--rs-tile);
+  border: 0; border-radius: var(--radius-container); padding: 18px 20px; background: var(--rs-tile);
 }
 #page-masters .masters-holdings-title { font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
 #page-masters .masters-ticker-lookup-input { height: 38px; border: 0; border-radius: var(--radius-container); background: var(--rs-tile-strong); font-size: 14px; }
@@ -355,7 +355,7 @@
 #page-guide .guide-rules td.is-burden, #page-guide .regime-state.is-burden { color: var(--data-amber); } /* red is price-down only, never a verdict */
 #page-guide .guide-rules th { border-bottom: 0.5px solid rgba(var(--ink-rgb), 0.08); }
 #page-guide .aio-guide-chapter, #page-guide .guide-ref, #page-guide #guide-public-policy {
-  margin: 12px 0 0; padding: 0 4px; border: 0 !important; border-radius: var(--radius-container); background: var(--bg-card); box-shadow:none;
+  margin: 12px 0 0; padding: 0 4px; border: 0; border-radius: var(--radius-container); background: var(--bg-card); box-shadow:none;
 }
 #page-guide .aio-guide-chapter > summary, #page-guide .guide-ref > summary {
   min-height: 52px; padding: 14px 18px; font-family: var(--font-sans); font-size: 14px; font-weight: 600; border-radius: var(--radius-container);
@@ -370,8 +370,8 @@
 /* ═══ 9. Korea (5n) — labelled '한국', secondary to US; price moves use the Korean convention ═══
    up = --candle-up (#d23f35) · down = --candle-down (#2a64c8), the color-theme.js / chart-quality.css tokens. These are
    price directions only; verdict colours (green favourable / amber burden) never apply to them. */
-.kr-up { color: var(--dir-up, var(--red-11)) !important; } /* v59.70 (#25): text takes the direction text colour, not the candle fill */
-.kr-down { color: var(--dir-down, var(--blue-11)) !important; }
+.kr-up { color: var(--dir-up, var(--red-11)); } /* v59.70 (#25): text takes the direction text colour, not the candle fill */
+.kr-down { color: var(--dir-down, var(--blue-11)); }
 .kr-market-chip { margin-right: 8px; vertical-align: 2px; }
 .trend-card .kr-index-move { flex-basis: 100%; text-align: right; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
 #kr-index-trends .trend-card-head { flex-wrap: wrap; }
