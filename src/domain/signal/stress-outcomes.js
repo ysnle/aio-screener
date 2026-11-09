@@ -2,6 +2,7 @@
 // actually happened after past days in the same stress band instead of a score. Stress is the VIX close (the
 // input that carried most of the old score's signal); outcomes are the S&P 500's forward price returns.
 // Pure function shared by the producer (scripts/build-stress-outcomes.mjs) and the regression fixture.
+import { mean, stdev } from '../shared/number.js';
 
 // T14 (expert review 2026-10-13, coordinator decision): these producer bands (15/20/25/30/40) stay as published so the
 // artifact and its history keep one definition; they are outcome buckets, not RULES.volatility (18/25/32) judgement edges,
@@ -40,9 +41,8 @@ function summarize(returns, horizon) {
   const sorted = [...returns].sort((a, b) => a - b);
   const n = sorted.length;
   if (!n) return { n: 0, mean: null, median: null, hitRate: null, p10: null, p90: null, sd: null, nEff: 0, se: null };
-  const mean = sorted.reduce((sum, value) => sum + value, 0) / n;
-  const sd = n > 1 ? Math.sqrt(sorted.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (n - 1)) : null;
-  return { n, mean: round(mean), median: round(percentile(sorted, 0.5)),
+  const sd = stdev(sorted, { sample: true });
+  return { n, mean: round(mean(sorted)), median: round(percentile(sorted, 0.5)),
     hitRate: round((sorted.filter((value) => value > 0).length / n) * 100, 1), p10: round(percentile(sorted, 0.1)), p90: round(percentile(sorted, 0.9)),
     sd: round(sd), nEff: round(n / horizon, 1), se: round(meanStandardError({ sd, n, horizon })) };
 }

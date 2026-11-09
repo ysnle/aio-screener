@@ -2,11 +2,12 @@
 // theme playbook gives it now (scenario-state.json, the same record the 테마와 섹터 screen reads). A theme opens its detail.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { SCENARIO_STATE } from '../../data/artifact-registry.js';
+import { signedText } from '../../domain/shared/number.js';
 
 // The row's own stage label and 1-month return; no scenario module is imported, so the knowledge builders' import closure
 // stays the research corpus (v58.77 QA-01).
 const stageWord = (row) => String(row?.stateLabel || '').split(' (')[0] || '판정 보류';
-const pctText = (value) => `${value > 0 ? '+' : ''}${Number(value).toFixed(1)}%`;
+const pctText = (value) => signedText(value, 1, '%');
 
 export function themeStageBlock(doc, root, themeIds, block) {
   const names = new Map((Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : []).map((theme) => [theme.id, theme.nameKr || theme.id]));

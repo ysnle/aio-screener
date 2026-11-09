@@ -34,10 +34,18 @@ export function smaLast(values, period) {
   return sum / period;
 }
 
-/** Exponential moving average per index, seeded with the simple average of the first `period` values. */
-export function emaSeries(values, period) {
+/**
+ * Exponential moving average per index. The default seed is the simple average of the first `period` values (null
+ * before it), the chart/screener/legacy-snapshot definition. `seed: 'first'` starts from the first value with no warm-up
+ * nulls — the McClellan-style oscillator of the sentiment composite.
+ */
+export function emaSeries(values, period, { seed = 'sma' } = {}) {
   const k = 2 / (period + 1);
   const out = [];
+  if (seed === 'first') {
+    values.forEach((value, index) => out.push(index === 0 ? value : value * k + out[index - 1] * (1 - k)));
+    return out;
+  }
   let prev = null;
   values.forEach((value, index) => {
     if (index + 1 < period) { out.push(null); return; }
@@ -64,20 +72,28 @@ export function emaLast(values, period) {
 export function rsiWilder(closes, period = 14) {
   const nums = (Array.isArray(closes) ? closes : []).filter((v) => typeof v === 'number' && Number.isFinite(v) && v > 0);
   if (!(period > 0) || nums.length < period + 1) return null;
+  return rsiSeriesWilder(nums, period).at(-1);
+}
+
+/**
+ * Wilder RSI per bar, aligned to `closes` (null until period + 1 closes) — the RSI pane, and rsiWilder's last value. The
+ * input is taken as given (the pane keeps bar alignment); rsiWilder drops non-positive closes before calling it.
+ */
+export function rsiSeriesWilder(closes, period = 14) {
+  const out = (Array.isArray(closes) ? closes : []).map(() => null);
+  if (!Array.isArray(closes) || !(period > 0) || closes.length <= period) return out;
   let gain = 0, loss = 0;
-  for (let i = 1; i <= period; i++) {
-    const d = nums[i] - nums[i - 1];
-    if (d >= 0) gain += d; else loss -= d;
+  for (let i = 1; i <= period; i++) { const d = closes[i] - closes[i - 1]; if (d >= 0) gain += d; else loss -= d; }
+  gain /= period; loss /= period;
+  const value = () => (loss === 0 ? (gain === 0 ? 50 : 100) : 100 - 100 / (1 + gain / loss));
+  out[period] = value();
+  for (let i = period + 1; i < closes.length; i++) {
+    const d = closes[i] - closes[i - 1];
+    gain = (gain * (period - 1) + Math.max(d, 0)) / period;
+    loss = (loss * (period - 1) + Math.max(-d, 0)) / period;
+    out[i] = value();
   }
-  let avgGain = gain / period;
-  let avgLoss = loss / period;
-  for (let j = period + 1; j < nums.length; j++) {
-    const diff = nums[j] - nums[j - 1];
-    avgGain = ((avgGain * (period - 1)) + Math.max(diff, 0)) / period;
-    avgLoss = ((avgLoss * (period - 1)) + Math.max(-diff, 0)) / period;
-  }
-  if (avgLoss === 0) return avgGain === 0 ? 50 : 100;
-  return 100 - (100 / (1 + avgGain / avgLoss));
+  return out;
 }
 
 /** True range per bar; the first bar has no prior close, so its range is high − low. */

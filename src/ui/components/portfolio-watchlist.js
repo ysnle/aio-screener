@@ -4,8 +4,7 @@
 // v58.63 BND01 input rule (clear only while the inputs still show the request) and the v57.81 quote registration are
 // unchanged. Storage and the list edits stay in aio-workspace.js, which passes the lists and the active id to the
 // window names that src/app/legacy-screen-bridges.js installs.
-
-const esc = (root, s) => (typeof root.escHtml === 'function' ? root.escHtml(String(s)) : String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
+import { escapeHtml } from '../html.js';
 
 const SIGNAL_TONE = { BUY: ' is-buy', SELL: ' is-sell', WATCH: ' is-watch' };
 
@@ -49,16 +48,16 @@ function renderContent(lists, activeId, { documentRef, root }) {
     const chgStr = chg !== null ? `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%` : '—';
     const signal = db ? db.signal : '—';
     const nameStr = db ? db.name : '';
-    const eSym = esc(root, t.sym); // v46.9: XSS 방어
+    const eSym = escapeHtml(t.sym); // v46.9: XSS 방어
     const sigLabel = typeof root._scrSignalLabel === 'function' ? root._scrSignalLabel(signal) : signal;
-    return `<tr class="aio-hover-row wsl-wl-row" data-action="_aioPortfolioTicker" data-arg="${esc(root, eSym)}">` +
-      `<td class="wsl-wl-c"><b class="wsl-wl-sym">${eSym}</b>${nameStr ? `<div class="wsl-note">${esc(root, nameStr)}</div>` : ''}</td>` +
+    return `<tr class="aio-hover-row wsl-wl-row" data-action="_aioPortfolioTicker" data-arg="${escapeHtml(eSym)}">` +
+      `<td class="wsl-wl-c"><b class="wsl-wl-sym">${eSym}</b>${nameStr ? `<div class="wsl-note">${escapeHtml(nameStr)}</div>` : ''}</td>` +
       `<td class="wsl-wl-fig">${price}</td>` +
       `<td class="wsl-wl-fig${chgTone}">${chgStr}</td>` +
       `<td class="wsl-wl-ctr">${signal !== '—' ? `<span class="wsl-wl-sig${SIGNAL_TONE[signal] || ''}">${sigLabel}</span>` : '<span class="wsl-note">—</span>'}</td>` +
-      `<td class="wsl-wl-memo">${esc(root, t.note || '')}</td>` +
+      `<td class="wsl-wl-memo">${escapeHtml(t.note || '')}</td>` +
       '<td class="wsl-wl-ctr">' +
-        `<button data-action="removeFromWatchlist" data-arg="${esc(root, eSym)}" data-stop="1" aria-label="${esc(root, eSym)} 관심 종목에서 삭제" class="aio-btn-table wsl-wl-del" title="삭제">삭제</button>` +
+        `<button data-action="removeFromWatchlist" data-arg="${escapeHtml(eSym)}" data-stop="1" aria-label="${escapeHtml(eSym)} 관심 종목에서 삭제" class="aio-btn-table wsl-wl-del" title="삭제">삭제</button>` +
       '</td>' +
     '</tr>';
   }).join('');

@@ -2,7 +2,7 @@
 import { chartPalette } from '../../components/color-theme.js';
 import { selectThemesItems } from '../../../state/selectors/themes.js';
 import { selectProducedRotation } from '../../../domain/themes/produced-rotation.js';
-import { rrgAxisDomain, RRG_DEFINITION, RRG_QUADRANT_READS, RRG_QUADRANT_WORDS } from '../../../domain/themes/rrg.js';
+import { rrgAxisDomain, rrgQuadrantOf, RRG_BORDER_LABEL, RRG_BORDER_WORD, RRG_DEFINITION, RRG_QUADRANT_READS, RRG_QUADRANT_WORDS } from '../../../domain/themes/rrg.js';
 import { sessionChipText } from '../../components/session-lag.js';
 import { rrgRecentReading, RRG_NEUTRAL_BAND } from '../../../domain/themes/recent-check.js';
 import { finiteNumber as finite } from '../../../domain/shared/number.js';
@@ -17,7 +17,7 @@ import { NEAR_HIGH_TAB } from './sectors.js';
 export const QUADRANTS = Object.freeze([
   ...['Leading', 'Improving', 'Weakening', 'Lagging'].map((key) => ({ key, label: RRG_QUADRANT_WORDS[key], note: RRG_QUADRANT_READS[key] })),
   // v57.84 (owner decision 3-3): the band is each sector's own typical 5-session move on that axis, with hysteresis.
-  { key: 'Border', label: '기준선 부근', note: `두 축 중 하나가 100에 그 섹터의 평소 5거래일 움직임만큼 가까워 사분면을 정하지 않음(움직임 기록이 없으면 ±${RRG_NEUTRAL_BAND}). 한 번 정한 사분면은 반대쪽으로 그 폭의 절반을 넘어야 바뀜. 속이 빈 점은 놓인 구역과 판정이 다른 섹터로, 이름 옆에 판정을 적음`, optional: true }
+  { key: 'Border', label: RRG_BORDER_LABEL, note: `두 축 중 하나가 100에 그 섹터의 평소 5거래일 움직임만큼 가까워 사분면을 정하지 않음(움직임 기록이 없으면 ±${RRG_NEUTRAL_BAND}). 한 번 정한 사분면은 반대쪽으로 그 폭의 절반을 넘어야 바뀜. 속이 빈 점은 놓인 구역과 판정이 다른 섹터로, 이름 옆에 판정을 적음`, optional: true }
 ]);
 
 // v59.70: the screen reads the previous session's artifact (flagged lagging) until the refresh lands, never session ticks.
@@ -92,7 +92,7 @@ export function renderRRGStatus({ documentRef, root, store, route }) {
   const close = usCloseSession(root);
   // v58.79 (layout over captions): the line keeps the quadrant counts; the window and the close are the card head's
   // chip, and the tail's meaning is the line's hover (the tail control names itself).
-  status.textContent = `선도 ${counts.Leading}, 개선 ${counts.Improving}, 약화 ${counts.Weakening}, 후행 ${counts.Lagging}${counts.Border ? `, 기준선 부근 ${counts.Border}` : ''}`;
+  status.textContent = `선도 ${counts.Leading}, 개선 ${counts.Improving}, 약화 ${counts.Weakening}, 후행 ${counts.Lagging}${counts.Border ? `, ${RRG_BORDER_LABEL} ${counts.Border}` : ''}`;
   status.title = `${rrgTrailLength(root) ? `꼬리 = 최근 ${rrgTrailLength(root)}거래일 경로(작은 점이 시작), 화살표 = 오늘 위치. ` : ''}속이 빈 점 = 놓인 구역과 판정이 다른 섹터(이름 옆에 판정)`;
   writeSectorCardChip(documentRef, root);
   status.style.color = 'var(--text-dim)';
@@ -295,7 +295,7 @@ export function renderRRGCanvas({ documentRef, root, store, route }) {
   // v58.80 (first-users bundle 2): XLRE and XLF sat inside the 선도 area while the text called them 개선 and 기준선 부근 —
   // the text uses the settled zone (band + hysteresis), the dot its raw position. A dot whose settled zone differs from
   // where it sits is drawn as a ring and its label names the settled word.
-  const rawQuadrant = (item) => (item.rsRatio >= 100 ? (item.rsMomentum >= 100 ? 'Leading' : 'Weakening') : (item.rsMomentum >= 100 ? 'Improving' : 'Lagging'));
+  const rawQuadrant = (item) => rrgQuadrantOf(item.rsRatio, item.rsMomentum);
   const dots = validItems.map((item) => { const zone = zoneKey(root, item); return { item, zone, held: zone !== rawQuadrant(item), x: px(item.rsRatio), y: py(item.rsMomentum), color: colors[zone] || muted }; });
   for (const dot of dots) {
     context.beginPath();
@@ -322,7 +322,7 @@ export function renderRRGCanvas({ documentRef, root, store, route }) {
     // A phone shows the Korean sector name instead of the ticker (run-3: "XLRE, XBI 같은 영어 약자만"), except in 전체.
     const ticker = String(dot.item.symbol || dot.item.id || '');
     const symbol = compact && activeView(root) !== 'all' && dot.item.label ? String(dot.item.label) : ticker;
-    const word = dot.held ? (dot.zone === 'Border' ? '경계' : RRG_QUADRANT_WORDS[dot.zone] || '') : '';
+    const word = dot.held ? (dot.zone === 'Border' ? RRG_BORDER_WORD : RRG_QUADRANT_WORDS[dot.zone] || '') : '';
     const name = [showNames ? String(dot.item.label || '') : '', word].filter(Boolean).join(' ');
     context.font = 'bold 12px "Pretendard Variable", Pretendard, system-ui';
     const symbolWidth = context.measureText?.(symbol)?.width || symbol.length * 7;

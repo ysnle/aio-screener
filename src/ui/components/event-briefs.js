@@ -10,7 +10,7 @@ import { releaseZones } from '../../domain/macro/release-zones.js';
 import { releaseZoneBar } from './release-zone-bar.js';
 import { reactionRead, earningsCells } from '../../domain/briefing/reaction-read.js';
 import { el } from './dom.js';
-import { directionOf, usdScaleWords } from '../../domain/shared/number.js';
+import { directionOf, signedText, usdScaleWords } from '../../domain/shared/number.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, figureSurprise, koreanReleaseText, watchItem } from '../../domain/briefing/event-briefs.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
@@ -62,7 +62,7 @@ function basisWord(points) {
 // opens this body in its own fold, so it no longer repeats them and nests a second fold.
 // v59.70 (refactor step 4, 종목): 예상 | 발표 | 다음 전망 | 주가 반응 — four short cells read from earningsCells. The reaction
 // cell replaces the reaction line; an empty cell says what is missing instead of leaving a gap.
-const signedOne = (value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+const signedOne = (value) => signedText(value, 1, '%');
 // v59.70 (lens plan step 1): when the compared estimate was last seen before the report; a row first seen after it says so.
 const seenText = (iso) => {
   const ms = Date.parse(iso || '');

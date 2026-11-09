@@ -11,7 +11,7 @@ import { themeDetailFlow } from '../../../domain/market/page-flow.js';
 import { buildGroupStrength, directionLabel } from '../../../domain/themes/group-strength.js';
 import { buildCloseSeries } from '../../../domain/market/close-series.js';
 import { selectProducedRotation } from '../../../domain/themes/produced-rotation.js';
-import { RRG_QUADRANT_WORDS } from '../../../domain/themes/rrg.js';
+import { RRG_QUADRANT_WORDS, rrgQuadrantOf } from '../../../domain/themes/rrg.js';
 import { benchmarkReturns, basisOf } from '../../components/theme-strength.js';
 import { renderNextSteps } from '../../components/page-flow.js';
 import { signedText, directionOf, finiteNumber as finite } from '../../../domain/shared/number.js';
@@ -40,8 +40,7 @@ export function rrgMoveOf(root, themeId) {
   const points = (Array.isArray(item.trail) ? item.trail : []).filter((point) => finiteOrNull(point?.rsRatio) != null && finiteOrNull(point?.rsMomentum) != null && (!item.sessionDate || String(point.sessionDate) < String(item.sessionDate)));
   const past = points[points.length - RRG_MOVE_SESSIONS];
   if (!past) return null;
-  const quadrant = (ratio, momentum) => (ratio >= 100 ? (momentum >= 100 ? 'Leading' : 'Weakening') : momentum >= 100 ? 'Improving' : 'Lagging');
-  const from = quadrant(past.rsRatio, past.rsMomentum), to = quadrant(item.rsRatio, item.rsMomentum);
+  const from = rrgQuadrantOf(past.rsRatio, past.rsMomentum), to = rrgQuadrantOf(item.rsRatio, item.rsMomentum);
   return { etf, from, to, fromWord: RRG_QUADRANT_WORDS[from], toWord: RRG_QUADRANT_WORDS[to], sessions: RRG_MOVE_SESSIONS };
 }
 

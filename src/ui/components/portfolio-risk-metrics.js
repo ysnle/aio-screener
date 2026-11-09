@@ -3,21 +3,21 @@
 // js/aio-workspace.js (_renderRiskMetrics and the refreshPortfolioRisk writers). Texts and the scope rules (22:PFR02/
 // PFR09, P1188, P1197, P1449) are unchanged. refreshPortfolioRisk still fetches the history and assembles the estimate;
 // it reports through window._aioRenderPortfolioRiskStatus / _aioRenderPortfolioRiskMetrics (src/app/legacy-screen-bridges.js).
+import { escapeHtml } from '../html.js';
 
-const esc = (root, s) => (typeof root.escHtml === 'function' ? root.escHtml(String(s)) : String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
 
 // One status line (no holdings, requesting, or a hold reason). Returns false when the panel is absent.
 export function renderPortfolioRiskStatus(text, warn, { documentRef = globalThis.document, root = globalThis } = {}) {
   const el = documentRef.getElementById('pf-risk-metrics');
   if (!el) return false;
-  el.innerHTML = `<div class="wsl-msg${warn ? ' is-warn' : ''}">${esc(root, text)}</div>`;
+  el.innerHTML = `<div class="wsl-msg${warn ? ' is-warn' : ''}">${escapeHtml(text)}</div>`;
   return true;
 }
 
 export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.document, root = globalThis } = {}) {
   const el = documentRef.getElementById('pf-risk-metrics');
   if (!el) return;
-  const _escHtmlSafe = (s) => esc(root, s);
+  const _escHtmlSafe = escapeHtml;
   let var95 = data.var95, var99 = data.var99, sharpe = data.sharpe,
       mddRes = data.mddRes, corrRes = data.corrRes, n = data.n;
   let est = data.estimate || null;

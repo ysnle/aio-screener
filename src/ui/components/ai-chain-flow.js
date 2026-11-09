@@ -2,6 +2,7 @@
 // one-month median move with the last session beside it, a sentence of counts, and each group's members in a fold.
 // A lazy chunk like the release summaries; the rows and themes are the screener's and the 테마 screen's, already loaded.
 import { el } from './dom.js';
+import { signedText } from '../../domain/shared/number.js';
 import { signedBar } from './signed-bar.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { aiChainFlow, defensiveContrast } from '../../domain/briefing/ai-chain-flow.js';
@@ -13,7 +14,7 @@ import { TW_MONTHLY_REVENUE } from '../../data/artifact-registry.js';
 
 // Rounded first, so a move under 0.05% reads 0.0% and is flat, never "+0.0%" or "-0.0%".
 const tenth = (value) => (value == null ? null : Math.round(value * 10) / 10 || 0);
-const signed = (value) => { const v = tenth(value); return v == null ? '-' : `${v > 0 ? '+' : ''}${v.toFixed(1)}%`; };
+const signed = (value) => (value == null ? '-' : signedText(value, 1, '%'));
 const direction = (value) => { const v = tenth(value); return v == null || v === 0 ? 'flat' : v < 0 ? 'down' : 'up'; };
 
 function sessionLabel(root) {

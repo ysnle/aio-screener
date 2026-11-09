@@ -5,13 +5,14 @@ import { signedBar } from './signed-bar.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { SECTOR_ETF_LABELS, sectorRecentCheck, leaderFading } from '../../domain/market/scenario-outlook.js';
 import { rrgSettledQuadrant } from '../../domain/themes/recent-check.js';
+import { RRG_BORDER_WORD, RRG_QUADRANT_WORDS } from '../../domain/themes/rrg.js';
 import { el } from './dom.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 
 const particle = (word) => { const code = word.charCodeAt(word.length - 1) - 0xac00; return code >= 0 && code < 11172 && code % 28 ? '이' : '가'; };
 // Audit 2026-10-14: one date format on 오늘 (M/D), and the block is an h2 like its sibling sections.
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : String(date || ''); };
-const QUADRANT = { Leading: '선도', Improving: '개선', Weakening: '약화', Lagging: '후행', Border: '경계' }; // v59.55: the RRG chart's word; '50일 기준선 부근' ran past the card's text edge
+const QUADRANT = { ...RRG_QUADRANT_WORDS, Border: RRG_BORDER_WORD }; // the RRG chart's short words; the long border label ran past the card's text edge
 const quadrantLabel = (key) => QUADRANT[key] || null;
 
 export function sectorMoves(artifact, nowMs = Date.now()) {

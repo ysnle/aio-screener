@@ -5,7 +5,7 @@
 // company, a date or a level by hand: what is unusual is decided by the size of a move against its own recent
 // volatility, and what a move is linked to is decided by shared subjects (the same ticker, a member of the same group)
 // or a shared topic. A move with no subject link is kept and marked unexplained instead of being given a guessed cause.
-import { readNumber, surprisePct } from '../shared/number.js';
+import { readNumber, surprisePct, stdev } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { sessionCloses } from '../market/index-levels.js';
 import { closeSessionMarket } from '../market/close-series.js';
@@ -53,8 +53,8 @@ const WORD_TOPICS = Object.freeze([
   ['korea', /\b(?:kospi|kosdaq|korea|samsung|sk hynix)\b|코스피|코스닥|삼성|하이닉스/i], ['crypto', /\b(?:bitcoin|crypto|ether(?:eum)?)\b|비트코인/i]
 ]);
 
-const mean = (values) => values.reduce((sum, v) => sum + v, 0) / values.length;
-const stdev = (values) => { if (values.length < 10) return null; const m = mean(values); return Math.sqrt(mean(values.map((v) => (v - m) ** 2))) || null; };
+// A step's volatility needs ten prior steps; a flat series (0) has none.
+const stepStdev = (values) => (values.length < 10 ? null : stdev(values) || null);
 const round = (value, digits = 2) => (Number.isFinite(value) ? Number(value.toFixed(digits)) : null);
 const stampOf = (row) => Date.parse(row?.publishedAt || row?.pubDate || row?.datetime || row?.eventTime || '');
 const topicsOf = (text, base = []) => [...new Set([...base, ...WORD_TOPICS.filter(([, re]) => re.test(text)).map(([topic]) => topic)])];
@@ -64,7 +64,7 @@ function changeOf(series, unit) {
   if (series.length < 12) return null;
   const steps = series.slice(1).map((row, i) => (unit === 'bp' ? (row.value - series[i].value) * 100 : (row.value / series[i].value - 1) * 100));
   const last = steps.at(-1);
-  const sd = stdev(steps.slice(-61, -1));
+  const sd = stepStdev(steps.slice(-61, -1));
   const week = series.length >= 6 ? (unit === 'bp' ? (series.at(-1).value - series.at(-6).value) * 100 : (series.at(-1).value / series.at(-6).value - 1) * 100) : null;
   return { change: round(last), week: round(week), z: sd ? round(last / sd) : null };
 }

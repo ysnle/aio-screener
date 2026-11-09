@@ -9,6 +9,7 @@ import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { directionOf, signedText } from '../../domain/shared/number.js';
+import { smaLast } from '../../domain/technical/definitions.js';
 
 export const KR_INDEX_TRENDS = Object.freeze([
   Object.freeze({ field: 'kospi', label: '코스피', hostId: 'kr-kospi-tech-result' }),
@@ -16,7 +17,6 @@ export const KR_INDEX_TRENDS = Object.freeze([
 ]);
 const YEAR_SESSIONS = 252;
 
-const mean = (series, n) => series.length >= n ? series.slice(-n).reduce((sum, point) => sum + point.value, 0) / n : null;
 const level = (value) => value == null ? '—' : value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 const close = (value) => value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const signed = (value) => value == null ? '—' : `${signedText(value, 1)}%`;
@@ -31,8 +31,9 @@ export function krIndexTrendFacts(history = [], field, { through = null, now = n
     const from = sessionPointBack(series, n, 'KR')?.value ?? null;
     return from ? (last.value / from - 1) * 100 : null;
   };
-  const ma50 = mean(series, 50);
-  const ma200 = mean(series, 200);
+  const closes = series.map((point) => point.value);
+  const ma50 = smaLast(closes, 50);
+  const ma200 = smaLast(closes, 200);
   const window = series.slice(-YEAR_SESSIONS).map((point) => point.value);
   const high = Math.max(...window);
   const low = Math.min(...window);
