@@ -1,0 +1,25 @@
+{
+  "version": "v59.92",
+  "date": "2026-11-09",
+  "p": {
+    "title": "거부된 달러 현금 금액이 이전 저장 금액으로 되돌아감",
+    "symptom": "포트폴리오 달러 현금 칸에 -100을 넣으면 '0 이상이어야 합니다' 문구는 뜨지만, 앞선 저장이 일으킨 화면 갱신(시세·스트레스 입력·이력 도착)이 숫자 검사가 끝나기 전에 그려지면 칸이 이전 저장 금액(1200)으로 바뀌었다. v59.91 QA의 browser-vault refused_cash_amount_says_why_and_keeps_balance가 부하에서 typed=1200으로 실패했다.",
+    "root_cause": "현금 칸에는 쓰는 쪽이 둘(입력하는 사람, 저장값을 그리는 렌더)인데 렌더 시점의 DOM 추측(포커스, input-check가 다는 aria-invalid)으로만 구분했다. 저장은 입력값 확보 → 숫자 검사 모듈 지연 로드 대기 → 거부 표시 또는 기록의 사슬이라, change 이벤트 뒤 거부 표시 전까지는 칸에 포커스도 aria-invalid도 없어 렌더가 저장값으로 덮었다. P2106은 저장할 값만 지켰고 화면의 칸은 지키지 않았다.",
+    "fix": "칸의 소유자를 칸 자신의 data-cash-entry에 명시하고, 저장 경로만 그 값을 쓴다. 셸의 change 처리기(_aioSaveCashBalance)가 어떤 대기보다 먼저 'saving'을 단다. 지연 로드되는 src/ui/panels/portfolio-cash-entry.js의 checkCashEntry가 숫자 검사 뒤 소유를 정한다: 통과하면 표시를 지워 렌더에 돌려주고(셸 다리가 기록), 거부되면 'refused'로 입력한 글자와 문구를 다음 저장까지 지킨다. 포트폴리오 페이지의 renderCashBalances는 같은 모듈의 paintCashBox로만 칸에 쓰며, 소유 표시가 있거나 포커스된 칸은 건드리지 않는다. 처리기는 지연 페이지보다 먼저 입력을 받아야 해서 셸에 남고, 새 모듈은 지연 청크라 부트 묶음은 늘지 않았다(1,481,436 / 554,657).",
+    "violated_rule": "한 화면 값에는 한 시점에 한 소유자 — 비동기 처리기가 기다리는 동안의 DOM 상태 추측으로 소유를 정하지 않는다(P2106의 연장).",
+    "prevention": "ci-portfolio-vault-e2e: 거부될 저장을 요청한 직후와 끝난 뒤 aio:portfolioStressInput으로 네이티브 렌더를 강제해도 칸이 -100을 유지(수정 전 결정적으로 typed=1200 실패). 같은 검사의 120ms 고정 대기를 네이티브 페이지 마운트 대기로 바꿔 부하에서 restoredBox가 거짓 실패하지 않게 했다. ci-esm-core-unit-check: saving·refused 칸은 paintCashBox가 건드리지 않고, 통과하면 렌더에 돌아가며, 포커스 칸은 건드리지 않음(v59.92).",
+    "verification": "수정 전 browser-vault에서 typed=1200 결정적 재현. 수정 후 단독 실행과 4개 동시 실행(부하)에서 현금 검사 모두 통과. 동시 4개 중 1회 PFE2-08 portfolio_input_boundary(escapedTextVisible)가 실패했는데 현금과 무관한 기존 타이밍 검사다. 부트 예산 통과.",
+    "files": [
+      "src/ui/panels/portfolio-cash-entry.js",
+      "src/app/compatibility-globals.js",
+      "src/ui/pages/portfolio.js",
+      "scripts/ci-portfolio-vault-e2e.mjs",
+      "scripts/ci-esm-core-unit-check.mjs"
+    ]
+  },
+  "r": null,
+  "changelog": [
+    "**거부된 현금 금액이 칸에 남는다 ({P}):** 달러 현금에 음수를 넣으면 거부 문구 아래 칸이 이전 금액으로 되돌아갈 수 있었다. 앞선 저장이 일으킨 화면 갱신이 숫자 검사보다 먼저 그려지면 생겼다. 이제 현금 칸은 저장을 요청한 순간부터 칸 자신에 소유가 표시되고(`data-cash-entry`, `src/ui/panels/portfolio-cash-entry.js`), 화면 갱신은 소유자가 없는 칸에만 저장값을 그린다. 거부된 금액은 고칠 때까지 문구와 함께 남는다."
+  ],
+  "note": "cash box ownership on the box (data-cash-entry saving/refused); render paints only unowned boxes ({P})"
+}

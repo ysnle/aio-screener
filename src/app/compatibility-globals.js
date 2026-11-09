@@ -335,21 +335,22 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   // v58.80 run-5 (breaker #5): a refused ticker or currency is marked beside its field like a refused number, not only in a toast.
   const fieldRefusals = { ticker: '종목 목록에 없는 심볼입니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름으로 입력하세요.', currency: '3자리 통화 코드(예: USD, KRW)로 입력하거나 비워 두세요.' };
   window._aioMarkField = (id, refusal = '') => inputCheck().then(({ markField }) => markField(document.getElementById(id), refusal ? { ok: false, reason: fieldRefusals[refusal] || refusal } : { ok: true })).catch(() => null);
-  window._aioSaveCashBalance = async (el) => {
+  // v59.92: the box is marked as the save's before any wait, so a render queued by the previous save cannot refill it while
+  // the check loads; src/ui/panels/portfolio-cash-entry.js owns the marks and the check. P2106: the typed text is taken
+  // here too.
+  window._aioSaveCashBalance = (el) => {
     const currency = el?.dataset?.currency;
-    if (!currency) return;
-    // P2106: the typed amount is taken before the lazy import, as for the holding form above — a portfolio render while
-    // the check loads refills the box with the stored amount, and that amount was saved instead of the typed one.
+    if (!currency) return Promise.resolve();
     const typed = { value: el.value, badInput: !!el.validity?.badInput };
-    // -100 and 1e309 emptied the field to $0 without a word, and twenty digits were kept.
-    const { checkNumericField, NUMERIC_LIMITS } = await inputCheck();
-    const read = checkNumericField(el, { label: currency === 'KRW' ? '원화 현금' : '달러 현금', min: 0, max: NUMERIC_LIMITS.cash[currency] ?? NUMERIC_LIMITS.amount, ...typed });
-    if (!read.ok) return;
-    const next = setCashBalance(readCashBalances(window.localStorage).balances, currency, read.empty ? '' : String(read.value));
-    const ack = writeCashBalances(window.localStorage, next);
-    if (!ack.ok) window.showToast?.('현금을 저장하지 못했습니다 — 이전 금액이 그대로 남아 있습니다.');
-    try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch (_) {}
-    try { window.renderPortfolio?.(); } catch (_) {}
+    el.dataset.cashEntry = 'saving';
+    return import('../ui/panels/portfolio-cash-entry.js').then(({ checkCashEntry }) => {
+      const read = checkCashEntry(el, typed);
+      if (!read.ok) return;
+      const ack = writeCashBalances(window.localStorage, setCashBalance(readCashBalances(window.localStorage).balances, currency, read.empty ? '' : String(read.value)));
+      if (!ack.ok) window.showToast?.('현금을 저장하지 못했습니다 — 이전 금액이 그대로 남아 있습니다.');
+      try { document.dispatchEvent(new CustomEvent('aio:portfolioChanged')); } catch (_) {}
+      try { window.renderPortfolio?.(); } catch (_) {}
+    }, () => { delete el.dataset.cashEntry; });
   };
   // v57.81: the official US listing (public-data/us-listings.json) is fetched only when a symbol is unknown to the
   // registries above — never at boot. Exact symbol only; listed:null means it could not be checked (never accept).
