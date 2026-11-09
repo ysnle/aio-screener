@@ -1641,118 +1641,17 @@ window._aioLowConfPerspectives = window._aioLowConfPerspectives || function() {
   } catch (_) { return null; }
 };
 
-// v50.12: 기술적 분석 채팅용 종목별 실측 기술지표 fetch — 기존 엔진 재사용(fetchOHLCVWithFallback + calcTechnicalSnapshot + calcExtensionHeat).
-// technical/signal/ticker 컨텍스트에서 RSI/MACD/MA정배열/추세/Weinstein Stage/ATR 이격/확장도를 주입 (방법론만 있고 종목별 데이터 없던 갭 해소).
+// ADR-0003 S4: the technical block is the 차트 screen's own reading of the same completed daily bars
+// (src/ai/context/technical-lines.js chatTechnicalBlock via chat-globals) — no second OHLCV fetch or legacy snapshot.
 async function _fetchTechnicalDataForChat(tickers, opts) {
   if (!tickers || !tickers.length) return '';
   opts = opts || {};
   _aioThrowIfChatAborted(opts.signal);
-  var fetcher = window.fetchOHLCVWithFallback || window.fetchOHLCV;
-  var calc = window.calcTechnicalSnapshot;
-  if (typeof fetcher !== 'function' || typeof calc !== 'function') return '';
-  var list = tickers.slice(0, 3);
-  // 병렬 OHLCV fetch (종목별 6s timeout) — 순차 대기 방지
-  var settled = await Promise.all(list.map(function(t) {
-    _aioThrowIfChatAborted(opts.signal);
-    var p = Promise.resolve(fetcher(t, '1day', 260, { signal: opts.signal })).catch(function(error){
-      if (error && (error.name === 'AbortError' || error.code === 'ABORTED')) throw error;
-      return null;
-    });
-    return (typeof _withTimeout === 'function') ? _withTimeout(p, 6000, null) : p;
-  }));
+  var block = window.AIO && typeof window.AIO.chatTechnicalBlock === 'function' ? window.AIO.chatTechnicalBlock : null;
+  if (!block) return '';
+  var text = await block(tickers, { root: window, signal: opts.signal, autoMarket: !!opts.autoMarket });
   _aioThrowIfChatAborted(opts.signal);
-  var blocks = [];
-  for (var i = 0; i < list.length; i++) {
-    _aioThrowIfChatAborted(opts.signal);
-    var t = list[i], snap = null, _droppedOpenBar = null, _lastBarDate = null;
-    try {
-      var ohlcv = settled[i];
-      // v57.50 C17: the block says "종가", so it is computed from completed daily bars only. A bar dated after the
-      // market's latest completed session is the session in progress and is left out (the screen uses the same rule).
-      if (ohlcv && ohlcv.length) {
-        var _mkt = /\.(KS|KQ)$/i.test(String(t)) ? 'KR' : 'US';
-        var _doneDate = typeof window._aioLatestCompletedSessionDate === 'function' ? window._aioLatestCompletedSessionDate(_mkt) : null;
-        var _tailDate = String(ohlcv[ohlcv.length - 1] && ohlcv[ohlcv.length - 1].time || '').slice(0, 10);
-        if (_doneDate && /^\d{4}-\d{2}-\d{2}$/.test(_tailDate) && _tailDate > _doneDate) { _droppedOpenBar = _tailDate; ohlcv = ohlcv.slice(0, -1); }
-        _lastBarDate = ohlcv.length ? String(ohlcv[ohlcv.length - 1].time || '').slice(0, 10) || null : null;
-      }
-      if (ohlcv && ohlcv.length) snap = calc(ohlcv);
-    } catch (_) { snap = null; }
-    if (!snap || !snap.ok) {
-      blocks.push('━━ [' + t + ' 기술적 데이터] ━━\nOHLCV 미수신 — source 확인 기술지표 계산 불가. 추측 금지, "기술 데이터 수신 대기"로 답하라.');
-      continue;
-    }
-    // v50.38 트랙1b: snapshot stash (소비자였던 per-page chatSend 차트 읽기 카드는 v57.62 퇴역)
-    try { window._aioLastTechSnap = window._aioLastTechSnap || {}; window._aioLastTechSnap[t] = { snap: snap, ts: Date.now() }; } catch(_) {}
-    var ext = window.calcExtensionHeat ? window.calcExtensionHeat(snap) : null;
-    var f = function(v, d) { return (v != null && !isNaN(v)) ? Number(v).toFixed(d == null ? 2 : d) : 'N/A'; };
-    var q = settled[i] && settled[i].dataQuality ? settled[i].dataQuality : null;
-    var qObservedAt = q && (q.observedAt || q.asOf || q.sourceTs);
-    var qLine = q ? ('• 데이터 품질: ' + (q.label || q.confidence || 'UNKNOWN') + ', source ' + (q.source || 'unknown') + (q.rows != null ? ', rows ' + q.rows : '') + (q.timestamp ? ', fetched ' + new Date(q.timestamp).toISOString() : '') + ', observedAt ' + (qObservedAt || '미확인') + '\n') : '';
-    var maAlign = snap.fullMAState === 'FULL_BULL_STACK_5_10_20_50_100_200' ? '완전 정배열(5>10>20>50>100>200)' :
-                  snap.fullMAState === 'FULL_BEAR_STACK_5_10_20_50_100_200' ? '완전 역배열(5<10<20<50<100<200)' :
-                  snap.shortMAState === 'SHORT_BULL_STACK_5_10_20' && snap.longMAState === 'LONG_BULL_STACK_50_100_200' ? '단기·장기 정배열' :
-                  snap.shortMAState === 'SHORT_BULL_STACK_5_10_20' ? '단기 정배열 / 장기 확인 필요' :
-                  snap.longMAState === 'LONG_BULL_STACK_50_100_200' ? '장기 정배열 / 단기 혼조' :
-                  (snap.above50SMA === false) ? '50일선 이탈(추세 훼손)' : '혼조';
-    // v57.50 C19: this is a moving-average stack reading, not Weinstein's 30-week Stage, and it carries no buy/avoid call.
-    // v57.81: one label table with the chart (stage.js MA_STRUCTURE_LABELS via compatibility-globals); unknown = 판정 보류.
-    var stageKr = String((window.AIO_MA_STRUCTURE_LABELS || {})[snap.stageEstimate] || '이동평균 배열 판정 보류').replace(/이동평균 배열(?: · |, )/, '이동평균 배열 ');
-    var hi20 = snap.recentHigh20, lo20 = snap.recentLow20;
-    var posVs20 = (hi20 && lo20 && hi20 > lo20) ? Math.round((snap.price - lo20) / (hi20 - lo20) * 100) : null;
-    // v57.50 C17: RSI is the screener row's value (same number and session the screen shows) when it exists.
-    var _scrRow = null;
-    try {
-      var _scrRowsT = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-      for (var _ri = 0; _ri < (_scrRowsT || []).length; _ri++) { if (_scrRowsT[_ri] && String(_scrRowsT[_ri].sym || '').toUpperCase() === String(t).toUpperCase()) { _scrRow = _scrRowsT[_ri]; break; } }
-    } catch (_) { _scrRow = null; }
-    var _scrRsi = _scrRow && _scrRow.rsi != null && isFinite(Number(_scrRow.rsi)) && /^\d{4}-\d{2}-\d{2}/.test(String(_scrRow.factorSessionDate || '')) ? Number(_scrRow.rsi) : null;
-    var _rsiShown = _scrRsi != null ? _scrRsi : snap.rsi14;
-    var _rsiBasis = _scrRsi != null ? ' (' + String(_scrRow.factorSessionDate).slice(0, 10) + ' 종가, 스크리너 값)' : (_lastBarDate ? ' (' + _lastBarDate + ' 종가)' : '');
-    var lines = '━━ [' + t + ' 기술적 데이터, OHLCV ' + snap.bars + '봉 일봉 실측, 완료 봉 기준' + (_droppedOpenBar ? ', 진행 중 ' + _droppedOpenBar + ' 봉 제외' : '') + '] ━━\n';
-    // P1728: a KRX symbol's one-day change comes from the verified previous KRX close (history/screener), not the
-    // provider bars — the chart dropped the 10/12 session after the 10/9 holiday. No verified basis, no number.
-    var _isKrSym = /\.(KS|KQ)$/i.test(String(t)) || t === '^KS11' || t === '^KQ11';
-    var _krDay = _isKrSym && _lastBarDate && typeof window._aioKrVerifiedDayChange === 'function' ? window._aioKrVerifiedDayChange(t, _lastBarDate, snap.price) : null;
-    var _dayChangeText = !_isKrSym ? (snap.dayGainPct >= 0 ? '+' : '') + f(snap.dayGainPct) + '%'
-      : _krDay ? (_krDay.pct >= 0 ? '+' : '') + f(_krDay.pct) + '%, ' + (_krDay.basis === 'screener-reconciled-session-change' ? _lastBarDate + ' 거래소 종가 기준 1일 변화' : '거래소 종가 기준 직전 ' + _krDay.basisDate + ' 대비')
-      : '전일 대비 미확인 — 직전 거래소 종가를 검증하지 못함, 등락률을 만들지 말 것';
-    lines += '• 종가 ' + (_isKrSym ? '' : '$') + f(snap.price) + (_lastBarDate ? ' (' + _lastBarDate + ')' : '') + ' (' + _dayChangeText + '), RSI(14) ' + f(_rsiShown, 1) + _rsiBasis + (_rsiShown >= 70 ? ' 과매수' : _rsiShown <= 30 ? ' 과매도' : ' 중립') + '\n';
-    lines += '• 이동평균: 5SMA ' + f(snap.sma5) + ', 10SMA ' + f(snap.sma10) + ', 20SMA ' + f(snap.sma20) + ', 50SMA ' + f(snap.sma50) + ', 100SMA ' + f(snap.sma100) + ', 200SMA ' + f(snap.sma200) + ' → ' + maAlign + '\n'; // expert review 2026-10-14: facts only, no 0-100 composite for the model to repeat
-    lines += '• 추세/Stage: ' + snap.trendState + ', ' + stageKr + '\n';
-    lines += '• 50SMA 이격 ' + (snap.dist50Atr != null ? f(snap.dist50Atr, 1) + ' ATR' : 'N/A') + ', 20SMA 이격 ' + (snap.dist20Atr != null ? f(snap.dist20Atr, 1) + ' ATR' : 'N/A') + ', ATR(14) $' + f(snap.atr14) + '\n';
-    lines += '• MACD 히스토그램 ' + (snap.macd && snap.macd.hist != null ? f(snap.macd.hist) + (snap.macd.hist > 0 ? ' 상승모멘텀' : ' 하락모멘텀') : 'N/A') + ', 볼린저 ' + (snap.bbReentry ? '상단 재진입(소진주의)' : snap.bbOutsideUpper ? '상단 돌파' : '밴드 내') + ', RVOL20 ' + f(snap.rvol20, 1) + 'x\n';
-    lines += '• 20일 고/저 $' + f(snap.recentHigh20) + '/$' + f(snap.recentLow20) + (posVs20 != null ? ' (레인지 ' + posVs20 + '% 위치)' : '') + ', 50일 고/저 $' + f(snap.recentHigh50) + '/$' + f(snap.recentLow50) + '\n';
-    if (snap.vcp) {
-      var vcpLabel = snap.vcpStage === 'breakout' ? '돌파' : snap.vcpStage === 'extended' ? '피벗에서 확장' : snap.vcpStage === 'pivot_down' ? '피벗 위 하락 마감' : snap.vcpStage === 'near_pivot' ? '피벗 근접' : snap.vcpStage === 'contracting' ? '수축 진행' : snap.vcpStage === 'basing' ? '베이스' : snap.vcpStage === 'stage2_only' ? 'Stage2 단독' : snap.vcpStage === 'not_stage2' ? 'Stage2 미충족' : '데이터 부족';
-      lines += '• VCP: ' + vcpLabel + (snap.vcp.contractionCount != null ? ', 수축 ' + snap.vcp.contractionCount + '회' + ((snap.vcp.contractionDepths || []).length ? '(깊이 ' + snap.vcp.contractionDepths.map(function(d) { return f(d, 1) + '%'; }).join('→') + ')' : '') : '') + (snap.vcpPivot ? ', 피벗 $' + f(snap.vcpPivot) : '') + (snap.vcp.volumeDrying ? ', 거래량 고갈 확인' : '') + '\n';
-    }
-    if (snap.fibNearest || snap.volProfile) {
-      var fibLine = snap.fibNearest ? (snap.fibNearest.label + ' $' + f(snap.fibNearest.price) + ' (' + (snap.fibNearest.distPct >= 0 ? '+' : '') + f(snap.fibNearest.distPct, 1) + '%)') : 'N/A';
-      var vp = snap.volProfile || {};
-      var va = vp.valueArea ? ('$' + f(vp.valueArea.lo) + '~$' + f(vp.valueArea.hi)) : 'N/A';
-      var vpLine = (vp.poc ? 'POC $' + f(vp.poc.mid) : 'POC N/A') + ', VA ' + va +
-        (vp.nearestResistance ? ', 위 매물 $' + f(vp.nearestResistance.mid) : '') +
-        (vp.nearestSupport ? ', 아래 방어 $' + f(vp.nearestSupport.mid) : '');
-      lines += '• 피보나치/매물대: 근접 Fib ' + fibLine + ', ' + vpLine + '\n';
-    }
-    if (snap.rsiDiv || snap.weeklyCtx) {
-      var divSignal = snap.rsiDivSignal || (snap.rsiDiv && snap.rsiDiv.signal) || 'none';
-      var divLabel = divSignal === 'bullish' ? '강세(가격LL+RSIHL)' : divSignal === 'bearish' ? '약세(가격HH+RSILH)' : divSignal === 'hidden_bullish' ? '히든강세(가격HL+RSILL)' : divSignal === 'hidden_bearish' ? '히든약세(가격LH+RSIHH)' : '없음';
-      var wc = snap.weeklyCtx || {};
-      var wClose = wc.wClose != null ? wc.wClose : wc.lastWeekClose;
-      var wRsi = wc.wRsi14 != null ? wc.wRsi14 : wc.wRsi;
-      var wTrendLabel = wc.wTrend === 'bullish' ? '주봉 상승' : wc.wTrend === 'bearish' ? '주봉 하락' : '주봉 혼조/부족';
-      lines += '• RSI 다이버전스: ' + divLabel + ', 주봉 컨텍스트: ' + wTrendLabel + (wClose != null ? ' 종가 $' + f(wClose) : '') + (wc.wSma20 != null ? ' / W20 $' + f(wc.wSma20) : '') + (wc.wSma50 != null ? ' / W50 $' + f(wc.wSma50) : '') + (wRsi != null ? ' / W-RSI ' + f(wRsi, 1) : '') + '\n';
-    }
-    if (ext) lines += '• 확장도(Blow-off Risk): ' + ext.state + (ext.flags && ext.flags.length ? ' (' + ext.flags.slice(0, 3).join('/') + ')' : '') + '\n';
-    lines += qLine;
-    lines += '※ 위는 OHLCV 관측 기반 계산값이다. observedAt이 미확인이면 현재값으로 단정하지 않는다. 지지·저항·추세 무효화 조건을 설명하되, 매매 지시·손절가·목표가로 전환하지 말고 학습데이터 추측을 금지한다.';
-    blocks.push(lines);
-  }
-  if (!blocks.length) return '';
-  var scope = opts.autoMarket ? '시장 대표 차트' : '종목';
-  return '\n\n【' + scope + ' 기술적 실측 데이터 (calcTechnicalSnapshot — OHLCV 관측값)】\n' + blocks.join('\n\n') + '\n';
+  return text || '';
 }
 
 function _aioTechnicalSymbolsForChat(ctxId, query, detectedTickers) {

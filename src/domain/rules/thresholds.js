@@ -168,5 +168,12 @@ export const RULES = Object.freeze({
   // CNN Fear & Greed integer bands: extreme fear 0-24, fear 25-44, neutral 45-55, greed 56-75, extreme greed 76-100
   // (as reproduced from CNN Business by https://www.nerdwallet.com/article/investing/what-is-the-fear-and-greed-index;
   // the index is published as a whole number, so a reading is rounded before it is banded).
+  // Portfolio concentration lines: this app's internal bands, not a published standard, except the
+  // single-currency half, which is Ghostfolio's CurrencyClusterRiskCurrentInvestment default (thresholdMax 0.5). One holding:
+  // 10/15% are reference tiers and above 25% reads 주의. One sector: above 25% is near the
+  // line, above 40% is over it. The top three holdings over 60% and a mean pairwise correlation over 0.70 are the exposure
+  // panel's other two lines. The 점검 card, the exposure panel, the sector card and the criteria list all read these.
+  portfolio: Object.freeze({ holdingPct: Object.freeze([10, 15, 25]),
+    sectorNear: 25, sectorOver: 40, top3Over: 60, corrOver: 0.7, currencyMax: 0.5 }),
   fearGreed: Object.freeze({ extremeFearBelow: 25, fearBelow: 45, greedAbove: 55, extremeGreedAbove: 75 })
 });

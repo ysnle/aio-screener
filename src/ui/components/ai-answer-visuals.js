@@ -4,7 +4,7 @@
 // per-page chat path. Each figure states its basis date; a figure whose data is missing is not drawn.
 import { escapeHtml as esc } from '../html.js';
 import { analyzeChart } from '../../domain/technical/chart-analysis.js';
-import { barsFromYahoo, completedBars } from './chart-bars.js';
+import { barsFromYahoo, completedBars } from '../../data/chart-bars.js';
 import { requestFiscalHistory, parseFiscalHistory } from './fiscal-read.js';
 import { crossroadsForRoot } from './macro-crossroads.js';
 import { themePlaybookForRoot } from './theme-playbook.js';

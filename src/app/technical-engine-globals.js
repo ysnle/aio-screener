@@ -1,6 +1,6 @@
 // The holding technical engine and the portfolio return statistics under the names the classic shell calls
-// (js/aio-workspace.js refreshPortfolioRisk / refreshPortfolioTechnicalRisk, js/aio-chat.js, js/aio-tests.js). Only
-// 포트폴리오 and the chat's technical block read them, so they load on demand through window._aioLoadTechnicalEngine
+// (js/aio-workspace.js refreshPortfolioRisk / refreshPortfolioTechnicalRisk, js/aio-tests.js). Only
+// 포트폴리오 reads them, so they load on demand through window._aioLoadTechnicalEngine
 // (src/app/compatibility-globals.js) instead of riding every route's post-boot budget.
 import * as returnStats from '../domain/portfolio/return-stats.js';
 import { technicalSnapshot, extensionHeat } from '../domain/technical/snapshot.js';

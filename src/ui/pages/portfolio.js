@@ -5,6 +5,7 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
 import { appUsdKrwClose } from '../../domain/portfolio/cash.js';
 import { derivePortfolioChecks } from '../../domain/portfolio/checks.js';
+import { HOLDING_BAND_BASIS } from '../../domain/portfolio/concentration-bands.js';
 import { renderPortfolioRead, renderPortfolioLens } from '../components/portfolio-read.js';
 import { renderPortfolioCriteria, renderThesisCheck } from '../components/portfolio-checklist.js';
 import { portfolioRowsForAI, portfolioSectorLabel } from '../../domain/portfolio/portfolio-read.js';
@@ -777,7 +778,7 @@ function renderPortfolioChecks(documentRef, root, surface) {
   // v59.51 (two layers): one expert fold under the criteria — the criteria's thresholds and reasons (portfolio-checklist.js),
   // the share cards below, then the effective-N / index / bond cards (portfolio-read.js renderPortfolioLens).
   fold.append(el('summary', '자세히, 점검 기준 · 비중 세부 · 지수와의 관계 · 채권 완충'));
-  fold.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? `, 평가액이 없는 ${result.excluded}종목 제외` : ''}, 한 종목은 앱 점검선(10~25% 참고, 25% 초과 주의), 한 통화는 공개 기본값으로 판정하고 나머지는 참고 비중으로 표시. 점검선은 쏠림을 세는 선이며 권장 비중이 아닙니다`, 'theme-strength-basis'));
+  fold.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? `, 평가액이 없는 ${result.excluded}종목 제외` : ''}, 한 종목은 앱 점검선(${HOLDING_BAND_BASIS}), 한 통화는 공개 기본값으로 판정하고 나머지는 참고 비중으로 표시. 점검선은 쏠림을 세는 선이며 권장 비중이 아닙니다`, 'theme-strength-basis'));
   const list = el('div', null, 'pf-checks-list');
   for (const check of result.checks) {
     const card = el('section', null, 'pf-check');

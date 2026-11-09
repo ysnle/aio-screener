@@ -1,0 +1,28 @@
+{
+  "version": "v59.88",
+  "date": "2026-11-09",
+  "p": {
+    "title": "한국 장 마감 뒤 미국 장 마감 전의 스크리너 갱신이 'all breadth coverage below 80%'로 실패했다",
+    "symptom": "평일 07:15 UTC(16:15 KST) 예약 실행과 재실행이 validate-screener-artifact에서 'all breadth coverage below 80%'로 멈췄다. 스크리너·SEC 갱신이 다음 미국 마감 뒤 실행까지 이전 산출물에 머물렀다.",
+    "root_cause": "computeScreenerBreadth는 세그먼트마다 행 수가 가장 많은 관측일 하나를 세션으로 골랐다. 한국 장이 끝나고 미국 장이 끝나기 전에는 한국 행이 월요일, 미국 행이 금요일에 있다. 그래서 미국과 한국을 섞은 all 세그먼트는 금요일 행만 세어, 미국 855행 대 전체 1,098행으로 커버리지가 약 78%가 됐다. us와 kr 세그먼트는 각자 한 시장이라 영향이 없었다.",
+    "fix": "세션일을 상장 시장(KR·US·기타)별로 고른다. 각 행은 자기 시장의 최신 세션일 때 센다. 한 세그먼트 안에서 이전 세션에 남은 행을 빼는 v58.71 규칙은 시장마다 그대로 적용된다.",
+    "violated_rule": "여러 시장을 섞은 집계는 시장마다 자기 거래일 달력으로 세션을 판정한다. 하나의 다수결 날짜를 섞은 시장 전체에 적용하지 않는다.",
+    "prevention": "ci-data-pipeline-contract-check가 미국 금요일 행·한국 월요일 행·이전 세션 미국 행을 섞은 픽스처로 all이 6/7, us 4, kr 2를 세는지 확인한다.",
+    "verification": "node scripts/ci-data-pipeline-contract-check.mjs (v59.88 screener breadth all counts each market on its own latest session)",
+    "files": ["scripts/producer/screener.mjs", "scripts/ci-data-pipeline-contract-check.mjs"]
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-BREADTH-ALL-MARKET-SESSION",
+      "text": "v59.88: 한국 장 마감 뒤 미국 장 마감 전에도 스크리너 breadth의 all 세그먼트가 미국·한국 행을 각자 최신 세션으로 세어 커버리지 검사를 통과한다.",
+      "verify_by": "node scripts/ci-data-pipeline-contract-check.mjs",
+      "done": true
+    }
+  ],
+  "qa_section": "스크리너 산출물 계약",
+  "changelog": [
+    "**스크리너 갱신 평일 오후 실패 복구 ({P}):** 한국 장 마감 뒤 미국 장 마감 전 실행에서 all breadth가 금요일 행만 세어 80% 커버리지 검사에 걸리던 문제를 고쳤다. 세션은 이제 상장 시장마다 따로 고른다."
+  ],
+  "note": "breadth all segment per-market session (weekday 07:15 UTC refresh failure)"
+}

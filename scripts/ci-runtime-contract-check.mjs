@@ -26,6 +26,7 @@ const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa
 const technicalSnapshotSrc = read('src/domain/technical/snapshot.js');
 const data = read('js/aio-data.js') + String.fromCharCode(10) + read('src/data/providers/proxy-transport.js') /* v59.22: the relay transport moved to src */ + String.fromCharCode(10) + read('src/storage/news-cache.js') /* v59.31: the IndexedDB news cache moved to src */ + String.fromCharCode(10) + read('src/app/refresh-scheduler.js') /* v59.33: the refresh scheduler moved to src */ + String.fromCharCode(10) + read('src/data/server-data-loader.js') /* v59.34: the server data loader moved to src */ + String.fromCharCode(10) + read('src/data/public-readiness.js') /* v59.35: the public readiness model moved to src */ + String.fromCharCode(10) + read('src/ui/components/pipeline-status.js') + String.fromCharCode(10) + read('src/data/pipeline-notices.js') + String.fromCharCode(10) + read('src/app/legacy-screen-bridges.js') /* v59.88: the pipeline status bar and readiness panel moved to src */ + String.fromCharCode(10) + read('src/app/boot-sequence.js') /* v59.36: the boot sequence moved to src */ + String.fromCharCode(10) + read('src/domain/news/selection.js') + String.fromCharCode(10) + read('src/domain/news/selection-keywords.js') /* v59.42: news scoring, keywords and selection moved to src */;
 const ui = read('js/aio-ui.js');
+const technicalLines = read('src/ai/context/technical-lines.js'); // v59.88 S4: the chat's technical block (chart fact sheet)
 const chat = read('js/aio-chat.js') + '\n' + read('src/data/providers/shared-ai-transport.js') + '\n' + read('src/ai/response/request-pipeline.js'); // v59.11: the shared AI route moved to the transport module; v59.15: the request/response pipeline module
 // P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
 const pagesSource = read('js/aio-pages.js');
@@ -359,9 +360,9 @@ check('E2/S-E/P1239 the chat consumes one screener AI context helper', /root\._a
 check('E2/S-F/P1238 the news cache DB is news-scoped and migrates the legacy name', /_AIO_IDB_NAME = 'AIOScreenerNewsCache'/.test(data) && /_AIO_IDB_LEGACY_NAME = 'AIOScreenerDB'/.test(data) && /function _idbMigrateLegacyNews\(/.test(data) && /store-not-empty/.test(data));
 // P1753: the retired US deep-analysis renderer carried its own MA-stack and volume-profile copy; the shared
 // technical snapshot (core) and the AI chat keep both readings.
-check('P1753 5/10/20 + 50/100/200 MA stack reaches the AI chat via the shared snapshot; the retired deep-analysis copy stays gone', /FULL_BULL_STACK_5_10_20_50_100_200/.test(core + '\n' + chat) && !/단기 정배열 5>10>20/.test(ui));
+check('P1753 5/10/20 + 50/100/200 MA stack reaches the AI chat (v59.88: the chart layers\' BASE_MA and alignment rows); the retired deep-analysis copy stays gone', /BASE_MA\.map/.test(technicalLines) && /sheet\.structure/.test(technicalLines) && !/단기 정배열 5>10>20/.test(ui));
 check('P1753 volume profile (POC / Value Area) stays in the shared technical snapshot; the retired deep-analysis beginner guide stays gone', /export function volumeProfile\(/.test(technicalSnapshotSrc) && /\bpoc:/.test(technicalSnapshotSrc) && /valueArea:/.test(technicalSnapshotSrc) && !/beginnerNote/.test(ui));
-check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(technicalSnapshotSrc) && /sma100/.test(technicalSnapshotSrc) && /shortMAState/.test(technicalSnapshotSrc) && /longMAState/.test(technicalSnapshotSrc) && !/maStackScore/.test(core + technicalSnapshotSrc) && /5SMA/.test(chat) && /100SMA/.test(chat));
+check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(technicalSnapshotSrc) && /sma100/.test(technicalSnapshotSrc) && /shortMAState/.test(technicalSnapshotSrc) && /longMAState/.test(technicalSnapshotSrc) && !/maStackScore/.test(core + technicalSnapshotSrc) && /BASE_MA/.test(technicalLines));
 check('event risk context fails closed without an embedded point-in-time timeline', /AIO_EVENT_RISK_CONTEXT/.test(core) && /available:\s*false/.test(core) && /asOf:\s*null/.test(core) && /timeline:\s*\[\]/.test(core) && !/headlineYoY:\s*\d/.test(core));
 check('page body redesign hub registry exists', /AIO_PAGE_ACTION_HUBS/.test(core) && /_aioApplyPageBodyRedesign/.test(core));
 check('page evidence currentness contract exists', /AIO_PAGE_EVIDENCE_CONTRACT/.test(core) && /getPageEvidenceState/.test(core) && /getPageEvidenceCurrentnessAudit/.test(core));
@@ -601,14 +602,18 @@ check(
   'snapshot.js weeklyContext must return lastWeekClose/wClose and wRsi/wRsi14 together'
 );
 check(
-  'P1753 the retired ticker deep-analysis weekly renderer stays gone; the chat consumer reads the aliased weekly context',
-  !/var _wClose = _wc\.wClose/.test(ui) && /snap\.weeklyCtx/.test(chat),
+  'P1753 the retired ticker deep-analysis weekly renderer stays gone',
+  !/var _wClose = _wc\.wClose/.test(ui),
   'js/aio-ui.js analyzeTickerDeep (its only weeklyCtx renderer) was retired with its sink (P1753)'
 );
+// v59.88 (ADR-0003 S4): the chat's technical block is the 차트 screen's reading of the same completed daily bars — the
+// chart's fact sheet (chart-read.js chartFactSheet over analyzeChart + buildChartLayers), not a second OHLCV fetch run
+// through the legacy calcTechnicalSnapshot with its own labels.
 check(
-  'AI chat consumes calcTechnicalSnapshot VCP/Fib/Volume/RSI/weekly fields',
-  /• VCP:/.test(chat) && /• 피보나치\/매물대:/.test(chat) && /• RSI 다이버전스:/.test(chat) && /주봉 컨텍스트/.test(chat),
-  'js/aio-chat.js must surface new calcTechnicalSnapshot fields, not only compute them'
+  'v59.88 AI chat technical block quotes the chart screen fact sheet on the chart bars',
+  /AIO\.chatTechnicalBlock/.test(chat) && !/calcTechnicalSnapshot\(|fetchOHLCVWithFallback/.test(chat.slice(chat.indexOf('async function _fetchTechnicalDataForChat'), chat.indexOf('function _aioTechnicalSymbolsForChat')))
+    && /chartFactSheet\(/.test(technicalLines) && /loadCompletedDailyBars\(/.test(technicalLines) && !/calcTechnicalSnapshot|_calc[A-Z]/.test(technicalLines),
+  'js/aio-chat.js _fetchTechnicalDataForChat delegates to AIO.chatTechnicalBlock (src/ai/context/technical-lines.js), which reads src/data/daily-chart-bars.js and the domain chart fact sheet'
 );
 
 const userFacingFiles = [

@@ -17,64 +17,29 @@ import { attachChartLayers } from './stock-chart-layers.js';
 import { renderTrendStrip } from './stock-chart-mtf.js';
 import { buildChartLayers } from '../../domain/technical/chart-layers.js';
 import { strategySection } from './stock-chart-strategies.js';
-import { trendRead } from '../../domain/technical/chart-strategies.js';
-import { trendOfBars } from '../../domain/technical/trend-state.js';
+import { chartReadCards, chartStructureRows } from '../../domain/technical/chart-read.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
-import { RULES } from '../../domain/rules/thresholds.js';
 import { rsiWilder, smaLast } from '../../domain/technical/definitions.js';
 import { signedText } from '../../domain/shared/number.js';
 // v58.75: the bar helpers live in chart-bars.js so boot-time readers (AI visuals, compatibility globals) can import
 // them without pulling the chart module into the boot set; re-exported here for existing importers.
-import { barsFromYahoo, completedBars } from './chart-bars.js';
+import { barsFromYahoo, completedBars } from '../../data/chart-bars.js';
+import { requestDailyChartPayload, completedDailyBars } from '../../data/daily-chart-bars.js';
 const INDEX_FUNDS = new Set(['SPY', 'QQQ', 'SOXX', 'IWM', 'DIA']);
 export { barsFromYahoo, completedBars };
 // v57.91 (visual audit): the loading card spans the whole evidence grid instead of sitting in its last column.
 const fullRow = (node) => { if (node?.style) node.style.gridColumn = '1 / -1'; return node; };
 
-// v58.53 개편 v2 (5f): three reading cards under the chart — distance from the 50-day line, RSI 14 and the 60-session
-// volume-weighted average price — each computed from the same completed daily bars the chart draws (no other source).
-const signedPct = (value) => signedText(value, 1, '%');
 // One RSI definition (definitions.rsiWilder); the name stays for existing importers.
 export const wilderRsi = rsiWilder;
-export function sessionVwap(bars, sessions = 60) {
-  const window = (bars || []).slice(-sessions);
-  let weighted = 0, volume = 0;
-  for (const bar of window) { const v = Number(bar.volume) || 0; if (v > 0) { weighted += (bar.high + bar.low + bar.close) / 3 * v; volume += v; } }
-  return window.length >= sessions && volume > 0 ? weighted / volume : null;
-}
-function chartReadCards(doc, analysis, currency) {
-  const close = analysis.last?.close;
-  const sma50 = analysis.lines?.sma50?.at(-1);
-  const cards = [];
-  const card = (name, value, detail, ref) => {
+// The cards' values and verdict words are the domain reading (src/domain/technical/chart-read.js); this only lays them out.
+function chartReadCardsView(doc, analysis, currency) {
+  const cards = chartReadCards(analysis, { currency }).map((model) => {
     const box = el(doc, 'div', null, 'sx-card v2-chart-read');
-    box.append(el(doc, 'span', name, 'v2-chart-read__name'), el(doc, 'b', value, 'v2-chart-read__value'), el(doc, 'span', detail, 'v2-chart-read__detail'), el(doc, 'span', ref, 'v2-chart-read__ref'));
-    cards.push(box);
+    box.append(el(doc, 'span', model.name, 'v2-chart-read__name'), el(doc, 'b', model.value, 'v2-chart-read__value'), el(doc, 'span', model.detail, 'v2-chart-read__detail'), el(doc, 'span', model.ref, 'v2-chart-read__ref'));
+    if (model.title) box.title = model.title;
     return box;
-  };
-  // v58.79 (chart review): direction first — swing structure, moving-average order and the 50-day slope, with any turn.
-  // The word is the canonical trend the chip, the 종목 page and the screener say
-  // (trend-state.js); the swing structure and the 50-day slope (trendRead) are its evidence, not a second verdict.
-  const trend = trendRead(analysis);
-  const canonical = trendOfBars(analysis.bars);
-  if (canonical || trend?.direction) {
-    const box = card('추세', canonical?.label || '판단 보류', trend?.turn || (trend?.facts || []).filter((fact) => !fact.startsWith('이동평균')).join(', '), '50·200일선 위치(종목·스크리너와 같은 판정), 고점·저점 구조(Dow)');
-    box.title = [canonical?.text, ...(trend?.facts || []), trend?.turn].filter(Boolean).join(' · ');
-  }
-  if (close > 0 && sma50 > 0) {
-    const pct = (close / sma50 - 1) * 100;
-    const multiple = Number.isFinite(analysis.adrFrom50) ? Math.abs(analysis.adrFrom50) : null;
-    card('50일선 대비', signedPct(pct), multiple == null ? `50일선 ${formatScreenerPrice(sma50, currency)}` : `일평균 변동폭(${analysis.adrPct.toFixed(1)}%)의 ${multiple.toFixed(1)}배 ${pct >= 0 ? '위 — 멀수록 50일선 쪽으로 되돌릴 때 낙폭이 큽니다' : '아래 — 멀수록 50일선을 되찾는 데 필요한 상승 폭이 큽니다'}`, '이동평균 규칙, Brock·Lakonishok·LeBaron(1992)');
-  }
-  const rsi = wilderRsi(analysis.bars.map((bar) => bar.close));
-  if (rsi != null) {
-    const { overbought: hot, oversold: cold } = RULES.technical.rsi;
-    card('RSI 14일', rsi.toFixed(1), rsi >= hot ? `과열 기준(${hot}) 이상 — 강한 추세에서는 오래 머물기도 합니다` : rsi <= cold ? `과매도 기준(${cold}) 이하 — 약한 추세에서는 이어지기도 합니다` : `과열 ${hot}, 과매도 ${cold} 사이`, 'Wilder(1978) RSI');
-  }
-  const vwap = sessionVwap(analysis.bars, 60);
-  if (vwap != null && close > 0) {
-    card('거래량 가중 평균가 (60일)', formatScreenerPrice(vwap, currency), `종가가 ${Math.abs((close / vwap - 1) * 100).toFixed(1)}% ${close >= vwap ? '위' : '아래'} — 최근 60거래일 거래가 많이 일어난 가격의 평균`, 'VWAP, 일봉 전형가격 × 거래량 근사');
-  }
+  });
   if (!cards.length) return null;
   const row = el(doc, 'div', null, 'v2-chart-reads');
   row.append(...cards);
@@ -297,7 +262,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   // A slower earlier request must not overwrite the symbol the user asked for last.
   const ticket = (root.__aioStockChartTicket = (root.__aioStockChartTicket || 0) + 1);
   root.__aioStockChartAnalysis = null;
-  const pending = Promise.resolve().then(() => root._aioFetchYahooChartData?.(sym, '2y', '1d')).catch(() => null);
+  const pending = requestDailyChartPayload(root, sym);
   const library = ensureChartLibrary(root);
   let slowTimer = null;
   const slow = new Promise((resolve) => { slowTimer = setTimeout(() => resolve('__slow__'), 4000); });
@@ -311,18 +276,12 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   }
   let payload = await pending;
   if (ticket !== root.__aioStockChartTicket) return null;
-  let { bars, droppedLive } = completedBars(barsFromYahoo(payload), payload);
-  const kr = /\.(KS|KQ)$/.test(sym);
+  let bars, droppedLive;
   // v59.74 (owner 2026-11-07, no stock left out): a Korean listing Yahoo returns short or empty falls back to the Naver
-  // daily series (naver-kr.js fetchKrDailyCandles, the same provider the KR quotes use) before the chart gives up.
-  if (kr && bars.length < 260 && typeof root.fetchKrDailyCandles === 'function') {
-    const rows = await Promise.resolve().then(() => root.fetchKrDailyCandles(sym, 500)).catch(() => null);
-    if (ticket !== root.__aioStockChartTicket) return null;
-    if (Array.isArray(rows) && rows.length > bars.length) {
-      payload = { ...(payload || {}), meta: { ...(payload?.meta || {}), currency: 'KRW', exchangeTimezoneName: 'Asia/Seoul' }, transport: 'naver-fchart' };
-      ({ bars, droppedLive } = completedBars(rows.map((row) => ({ time: row.date, open: row.open, high: row.high, low: row.low, close: row.close, volume: row.volume })), payload));
-    }
-  }
+  // daily series before the chart gives up (src/data/daily-chart-bars.js, the same bars the AI's technical block reads).
+  ({ bars, droppedLive, payload } = await completedDailyBars(root, sym, payload));
+  if (ticket !== root.__aioStockChartTicket) return null;
+  const kr = /\.(KS|KQ)$/.test(sym);
   const benchmarkField = benchmarkFieldFor(sym);
   const benchmark = benchmarkField ? buildCloseSeries(root._aioHistory || [], benchmarkField) : [];
   const analysis = analyzeChart(bars, { benchmark, benchmarkLabel: kr ? (/\.KQ$/.test(sym) ? 'KOSDAQ' : 'KOSPI') : 'S&P 500' });
@@ -443,12 +402,11 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   visuals.append(template);
   const list = el(doc, 'dl', null, 'regime-evidence');
   // v59.74 (owner 2026-11-07): short 5 > 10 > 20, mid/long 20 > 50 > 200 — the same alignment the chart's layer line states.
-  const align = chartLayers.alignment;
-  const structureRows = [['단기 이평 배열 (5·10·20일)', align.shortLabel ? `${align.shortLabel}${align.closeAbove5 == null ? '' : `, 종가 5일선 ${align.closeAbove5 ? '위' : '아래'}`}` : '계산 불가'], ['중장기 이평 배열 (20·50·200일)', align.longLabel ? `${align.longLabel}${align.full && align.full === align.long && align.long !== 'mixed' ? ' (100일선 포함)' : ''}` : '기록 부족']];
+  const structureRows = chartStructureRows(chartLayers.alignment);
   for (const [label, value] of [...structureRows, ...analysis.evidence, ['시장 상태', regime.available ? `${regime.overall} (양호 ${regime.counts.favorable}, 부담 ${regime.counts.burden})` : '—']]) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
   const more = el(doc, 'details', null, 'chart-evidence-more');
   more.append(el(doc, 'summary', `근거 전체 (${analysis.evidence.length + 3}개)`), list);
-  const readCards = chartReadCards(doc, analysis, kr ? 'KRW' : payload?.meta?.currency || null);
+  const readCards = chartReadCardsView(doc, analysis, kr ? 'KRW' : payload?.meta?.currency || null);
   const body = el(doc, 'div', null, 'v2-chart-body');
   // v58.79 (owner 2026-10-25): each mark the chart draws links to the research note that teaches it.
   const learn = el(doc, 'div', null, 'xr-explore chart-learn');

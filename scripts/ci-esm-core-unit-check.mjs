@@ -30,6 +30,43 @@ const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compat
 const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/capability-loader.js');
 const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/pages/entity.js');
 
+// v59.88 (ADR-0003 S4): verdicts live in src/domain. The portfolio concentration bands are RULES.portfolio, read through
+// concentration.js by the 점검 card, the criteria list, the exposure panel and the sector card; the chart's reading cards
+// and the AI technical block share one chart fact sheet (chart-read.js).
+{
+  const { RULES } = await load('src/domain/rules/thresholds.js');
+  const bands = { ...(await load('src/domain/portfolio/concentration.js')), ...(await load('src/domain/portfolio/concentration-bands.js')) };
+  const { deriveExposurePanel } = await load('src/domain/portfolio/exposure-panel.js');
+  const P = RULES.portfolio;
+  if (P.holdingPct.join() !== '10,15,25' || P.sectorNear !== 25 || P.sectorOver !== 40 || P.top3Over !== 60 || P.corrOver !== 0.7 || P.currencyMax !== 0.5) fail('v59.88 RULES.portfolio changed without a stated reason');
+  if ([9.99, 10, 15, 25, 80].map(bands.concentrationPenaltyForWeight).join() !== '0,5,10,18,18') fail('v59.88 the penalty ladder must read RULES.portfolio unchanged');
+  if ([10, 10.5, 25, 25.1].map(bands.holdingBand).join() !== 'ok,info,info,attention' || [25, 25.5, 40, 40.5].map(bands.sectorBand).join() !== 'within,near,near,over') fail('v59.88 holding/sector bands are strictly-above lines');
+  if (bands.HOLDING_BAND_BASIS !== '10~25% 참고, 25% 초과 주의' || bands.SECTOR_BAND_NOTE !== '내부 구간 40% 초과') fail('v59.88 band texts are derived from RULES.portfolio');
+  const panel = deriveExposurePanel({ rows: [{ sym: 'AAPL', value: 26, stock: { sector: 'Technology', rank: 10 } }, { sym: 'XOM', value: 74, stock: { sector: 'Energy', rank: 50 } }], total: 100, posSum: 100, corrMatrix: [[1, 0.8], [0.8, 1]] });
+  if (panel.warnings.join(' | ') !== 'Energy 섹터 74% 집중(>40%) | 상위 3종목 100% 집중(>60%) | 평균 상관 0.80 — 분산효과 약함(>0.70)' || panel.sectors.map((row) => row.band).join() !== 'over,near' || panel.avgRank !== 40) fail(`v59.88 exposure panel reading changed: ${JSON.stringify(panel)}`);
+  const uiBands = ['src/ui/components/portfolio-checklist.js', 'src/ui/components/portfolio-read.js', 'src/ui/components/portfolio-exposure.js', 'src/ui/pages/portfolio.js']
+    .filter((rel) => /\b(?:SECTOR_BAND|SINGLE_BAND|SECTOR_CONCENTRATION_BAND)\s*=|[<>]=?\s*0?\.(?:4|25|6|7)0?\b|10~25%|40% 초과/.test(readFileSync(path.join(root, rel), 'utf8')));
+  if (uiBands.length) fail(`v59.88 a portfolio screen redefines a concentration band: ${uiBands.join(', ')}`); // text-pin-ok: absence of a redefined band
+  const day = await load('src/domain/themes/theme-day-read.js');
+  if ([3, 1, 0.99, -0.99, -1, -1.99, -2, null].map((pct) => day.themeDayMoveRead(pct).tone).join() !== 'neutral,neutral,neutral,neutral,caution,caution,caution,muted'
+    || !/^당일 \+3% 이상/.test(day.themeDayMoveRead(3).text) || !/^당일 보합/.test(day.themeDayMoveRead(-0.99).text) || !/^당일 -2% 이하/.test(day.themeDayMoveRead(-2).text)
+    || day.themeSpreadRead(5.01).text !== '등락 편차 5.0%p (매우 큼 — 구성 종목 간 당일 등락 차가 큽니다.)' || !/좁음/.test(day.themeSpreadRead(2).text)
+    || [70, 50, 49, null].map((value) => day.themeBreadthRead(value).tone).join() !== 'favorable,neutral,caution,muted') fail('v59.88 theme one-day readings moved to the domain unchanged');
+  const { bandedRsi, chartReadCards, sessionVwap } = await load('src/domain/technical/chart-read.js');
+  const { analyzeChart } = await load('src/domain/technical/chart-analysis.js');
+  const { technicalBlock } = await load('src/ai/context/technical-lines.js');
+  if (bandedRsi(70).band !== 'overbought' || bandedRsi(30).band !== 'oversold' || bandedRsi(50).word !== '중립' || bandedRsi(null) !== null) fail('v59.88 RSI band words read RULES.technical.rsi');
+  const bars = [];
+  let price = 100;
+  for (let i = 0; i < 320; i++) { price *= 1 + Math.sin(i / 17) * 0.01 + 0.001; bars.push({ time: new Date(Date.UTC(2024, 0, 1) + i * 86400000).toISOString().slice(0, 10), open: price * 0.995, high: price * 1.01, low: price * 0.99, close: price, volume: 1e6 + (i % 7) * 1e5 }); }
+  const cards = chartReadCards(analyzeChart(bars), { currency: 'USD' });
+  if (cards.map((card) => card.id).join() !== 'trend,sma50,rsi,vwap' || sessionVwap(bars.slice(-10), 60) !== null) fail(`v59.88 chart reading cards: ${cards.map((card) => card.id)}`);
+  const block = technicalBlock({ symbol: 'NVDA', bars, payload: { meta: { currency: 'USD' } } });
+  const krBlock = technicalBlock({ symbol: '005930.KS', bars });
+  if (!/차트 화면과 같은 완료 봉 기준/.test(block) || !/• 차트 카드: 추세 /.test(block) || !/이동평균: 5일 \$/.test(block) || /calcTechnicalSnapshot|소진주의|추세 훼손/.test(block)
+    || !/전일 대비 미확인/.test(krBlock) || !/기술 데이터 수신 대기/.test(technicalBlock({ symbol: 'X', bars: bars.slice(0, 10) }))) fail('v59.88 the AI technical block quotes the chart fact sheet (same bars, same words, KR day change only from the verified close)');
+}
+
 // P1355: generated version alignment never restamps market data or live Worker observations.
 {
   const { alignGeneratedVersion, GENERATED_VERSION_FILES } = await load('scripts/lib/align-generated-version.mjs');
@@ -52,6 +89,23 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   if (item.title !== '$NBIS &#036;DOUBLE' || item.ko_title !== '$NBIS 한글 &#036;DOUBLE' || item.ko_summary !== '<script>문자열') fail('P1359 translated/original text decoding boundary');
 }
 
+// v59.88: after the Korean close and before the US one, the won decomposition's KOSPI leg is the KOSPI's own 20-session
+// change to its latest close, the one number 매크로 and 시장 상태 print (it was clamped to the SPX date).
+{
+  const { buildKrwDecomposition } = await load('src/domain/macro/krw-decomposition.js');
+  const { closeChange } = await load('src/domain/market/market-windows.js');
+  const rows = [];
+  for (let day = Date.UTC(2025, 0, 6), i = 0; rows.length < 320; day += 86400000) {
+    const wd = new Date(day).getUTCDay();
+    if (!wd || wd === 6) continue;
+    rows.push({ date: new Date(day).toISOString().slice(0, 10), spx: 5000 + i, kospi: 2500 + 3 * i + (i % 7) * 4, usdkrw: 1300 + Math.sin(i / 5) * 10 + i * 0.1, dxy: 100 + Math.sin(i / 5) * 0.8 });
+    i += 1;
+  }
+  rows.push({ date: new Date(Date.parse(rows.at(-1).date) + 3 * 86400000).toISOString().slice(0, 10), kospi: rows.at(-1).kospi * 0.9 });
+  const krw = buildKrwDecomposition(rows);
+  const own = closeChange(rows, 'kospi', 20);
+  if (!krw.available || !own || Math.abs(krw.kospiMove - own.pct) > 1e-9) fail(`v59.88 won decomposition KOSPI leg ${krw.kospiMove} differs from the KOSPI's own 20-session change ${own?.pct}`);
+}
 // P1358: durable derived rotation drives the native provider without exposing raw prices.
 {
   const { selectProducedRotation } = await load('src/domain/themes/produced-rotation.js');
@@ -4983,7 +5037,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const read = win._aioKrIndexCloseRead('kosdaq', history);
   if (!read || read.date !== '2026-10-13' || read.prevDate !== '2026-10-12' || Math.abs(read.pct + 1.432) > 0.01) fail(`P1729 the AI header KR close read must name both sessions: ${JSON.stringify(read)}`);
   const chatSource = readFileSync(path.join(root, 'js/aio-chat.js'), 'utf8');
-  if (!/_aioKrIndexCloseRead\('kospi'/.test(chatSource) || !/고른 상승·소수 종목 주도·동반 약세/.test(chatSource) || !/_aioKrVerifiedDayChange\(t, _lastBarDate/.test(chatSource)) fail('P1728/P1729 the chat header and technical block must use the verified KR change and the three flows');
+  // v59.88 (S4): the technical block moved to src/ai/context/technical-lines.js; it reads the same verified KR change.
+  const technicalSource = readFileSync(path.join(root, 'src/ai/context/technical-lines.js'), 'utf8');
+  if (!/_aioKrIndexCloseRead\('kospi'/.test(chatSource) || !/고른 상승·소수 종목 주도·동반 약세/.test(chatSource) || !/krDayChange\(symbol, analysis\.asOf, analysis\.last\.close\)/.test(technicalSource)) fail('P1728/P1729 the chat header and technical block must use the verified KR change and the three flows');
 }
 
 // P2116: the news exclusion lists match English keywords as whole words — 'nfl' inside "inflation" dropped every

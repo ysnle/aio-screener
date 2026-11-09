@@ -14,10 +14,11 @@ import { buildChatMacroLines, kstStamp } from '../ai/context/chat-macro-lines.js
 import * as macroReleaseEvidence from '../ai/context/macro-release-evidence.js';
 import { AI_WORKER_CONTRACT } from '../domain/ai/worker-contract.js'; // S5: model id, body limit, header names
 import { chatStockTrendLine } from '../ai/context/stock-trend-line.js'; // S5: [주가 추이] from the 종목 page's row
+import { chatTechnicalBlock } from '../ai/context/technical-lines.js'; // S4: the 차트 screen's reading of the same bars
 
 export function installChatGlobals(root = globalThis) {
   root.AIO = root.AIO || {};
-  Object.assign(root.AIO, { buildMarketContentContext, buildQuestionDomainContext, chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch, chatReferenceBudget: CHAT_REFERENCE_BUDGET, capReferenceLines, buildChatMacroLines, macroReleaseEvidence, chatStockTrendLine, aiWorkerContract: AI_WORKER_CONTRACT });
+  Object.assign(root.AIO, { buildMarketContentContext, buildQuestionDomainContext, chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch, chatReferenceBudget: CHAT_REFERENCE_BUDGET, capReferenceLines, buildChatMacroLines, macroReleaseEvidence, chatStockTrendLine, chatTechnicalBlock, aiWorkerContract: AI_WORKER_CONTRACT });
   root._aioKstStamp = kstStamp; // the chat's and the workspace prompt's assembly time, in KST on any device
   const input = () => (typeof root.AIO.screenerQueryInput === 'function' ? root.AIO.screenerQueryInput() : null) || { rows: [] };
   const rankAsOf = () => (typeof root.AIO.screenerFactorAsOf === 'function' ? root.AIO.screenerFactorAsOf() : null);

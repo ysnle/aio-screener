@@ -14,6 +14,7 @@ import { loadArtifact } from '../../data/artifact-registry.js';
 import { estimateBookSensitivities, bookWeights, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
 import { bondCushion, assetClassOf, BOND_ETF_MAP, BOND_KIND_LABEL } from '../../domain/portfolio/asset-class.js';
 import { signedText } from '../../domain/shared/number.js';
+import { sectorBand, SECTOR_BAND_NOTE } from '../../domain/portfolio/concentration-bands.js';
 import { lookThrough, lookThroughSentence, SP500_TRACKERS } from '../../domain/portfolio/look-through.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { BRANCHES } from '../../domain/market/macro-crossroads.js';
@@ -228,7 +229,6 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
 // from the stored holdings (surface rows in the base currency), the book's own weekly regression on its home index
 // (stress-sensitivity.js, inputs handed over by the legacy stress panel) and the published S&P 500 weights
 // (public-data/sp500-weights.json, IVV holdings). No holdings → nothing renders; a missing input says 없음.
-const SECTOR_CONCENTRATION_BAND = 40; // the exposure panel's internal band (js/aio-workspace.js, >40% 섹터 집중)
 let sp500Weights = null;
 let sp500Requested = false;
 function requestSp500Weights(root, onReady) {
@@ -378,7 +378,7 @@ export function renderPortfolioLens({ documentRef: doc, root, surface, checks = 
   const cards = [];
   if (look) cards.push(lookThroughCard(doc, look, card));
   if (lens.topSector) {
-    const heavy = lens.topSector.pct > SECTOR_CONCENTRATION_BAND;
+    const heavy = sectorBand(lens.topSector.pct) === 'over';
     // v58.80 (first-users bundle 2): one holding read "비중이 고르게 나뉘어" — there is nothing to spread.
     const spread = lens.holdings <= 1 ? ' 한 종목만 보유해 종목 사이의 분산은 없습니다.'
       : lens.effectiveN < lens.holdings - 0.5
@@ -387,8 +387,8 @@ export function renderPortfolioLens({ documentRef: doc, root, surface, checks = 
     const bondNote = lens.stockHoldings < lens.holdings ? ' 채권 ETF는 이 섹터 비중의 분모에서 뺐습니다.' : '';
     const next = look ? look.sectors.filter((item) => item.key !== 'Unclassified').slice(1, 3).map((item) => `${sectorLabel(item.key)} ${item.pct.toFixed(0)}%`).join(', ') : '';
     cards.push(card(`${lens.topSector.name} 비중`, `${lens.topSector.pct.toFixed(0)}%`, heavy ? 'burden' : null, look
-      ? `${look.trackers.join('·')} 속 종목을 섹터별로 나눠 더하면 가장 큰 섹터가 주식 부분의 ${lens.topSector.pct.toFixed(0)}%입니다${heavy ? '(내부 구간 40% 초과)' : ''}.${next ? ` 다음은 ${next}.` : ''}${bondNote}`
-      : `가장 큰 섹터가 주식 부분 평가액의 ${lens.topSector.pct.toFixed(0)}%입니다${heavy ? '(내부 구간 40% 초과)' : ''}.${bondNote}${spread}`));
+      ? `${look.trackers.join('·')} 속 종목을 섹터별로 나눠 더하면 가장 큰 섹터가 주식 부분의 ${lens.topSector.pct.toFixed(0)}%입니다${heavy ? `(${SECTOR_BAND_NOTE})` : ''}.${next ? ` 다음은 ${next}.` : ''}${bondNote}`
+      : `가장 큰 섹터가 주식 부분 평가액의 ${lens.topSector.pct.toFixed(0)}%입니다${heavy ? `(${SECTOR_BAND_NOTE})` : ''}.${bondNote}${spread}`));
   }
   const indexLine = lens.index && !look; // with trackers held, the look-through card shows the index overlap instead
   if (lens.index || lens.beta != null) {

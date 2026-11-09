@@ -61,7 +61,7 @@ import { normalizeTickerInput, tickerDisplayName } from '../domain/entity/ticker
 import { describeQuoteCurrentness } from '../domain/market/quote-currentness.js';
 import { KR_THEME_LABELS } from '../domain/themes/kr-themes.js';
 import { MA_STRUCTURE_LABELS } from '../domain/technical/stage.js';
-import { completedBars } from '../ui/components/chart-bars.js';
+import { completedBars } from '../data/chart-bars.js';
 import { readScreenerBreadth } from '../domain/market/screener-breadth.js';
 import { installPageCompleteness } from '../data/page-completeness.js';
 import { fetchServerData, buildServerDataMeta } from '../data/server-data.js';
@@ -178,8 +178,8 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   // it spent 28.6 KB of each route's post-boot budget on an engine only 포트폴리오's run button uses.
   const backtestLab = () => import('../domain/portfolio/backtest.js').then((module) => { window.AIO.buildPortfolioBacktestLab = module.buildPortfolioBacktestLab; return module; });
   window._aioLoadBacktestLab = backtestLab;
-  // The holding technical engine and the return statistics load the same way: 포트폴리오's risk runs and the chat's
-  // technical block await this before their synchronous calls (src/app/technical-engine-globals.js).
+  // The holding technical engine and the return statistics load the same way: 포트폴리오's risk runs
+  // await this before their synchronous calls (src/app/technical-engine-globals.js).
   window._aioLoadTechnicalEngine = () => import('./technical-engine-globals.js').then((module) => module.installTechnicalEngine(window));
   // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)의 단일 소유자 — 셸은 이 브리지를
   // 호출해 결과를 그대로 렌더한다.

@@ -1,6 +1,6 @@
-// v58.75: completed-session and Yahoo-payload bar helpers, split from stock-chart.js so boot-time readers do not load
-// the chart module (Lightweight Charts wiring, levels, coach) just to trim a live bar.
-// P1428 (Codex review): during the session Yahoo's last daily bar is still moving; it was analysed and
+// Completed-session and Yahoo-payload bar helpers, split from stock-chart.js so boot-time readers do not load
+// the chart module just to trim a live bar. ADR-0003 S4: they normalise provider payloads, so they live in src/data.
+// During the session Yahoo's last daily bar is still moving; it was analysed and
 // labelled 종가. A bar dated today in the exchange's zone is kept only after the close (+20 minutes for the
 // official print); the regular-session end comes from the payload when present (16:00 by default).
 export function completedBars(bars, payload, nowMs = Date.now()) {
