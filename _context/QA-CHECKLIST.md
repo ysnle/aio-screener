@@ -4,6 +4,13 @@ last_verified: 2026-11-09
 confidence: medium
 ---
 
+## v59.88 스크리너 산출물 계약 (2026-11-09)
+
+- [x] QA-BREADTH-ALL-MARKET-SESSION: v59.88: 한국 장 마감 뒤 미국 장 마감 전에도 스크리너 breadth의 all 세그먼트가 미국·한국 행을 각자 최신 세션으로 세어 커버리지 검사를 통과한다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-KRW-KOSPI-OWN-SESSION: v59.88: 한국 장 마감 뒤 미국 장 마감 전에도 원화 분해 블록의 코스피 20거래일 변화가 매크로·시장 상태의 코스피 20거래일 변화와 같다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-IMPORT-RESOLUTION: v59.88: src/와 worker/의 모든 상대 import(정적, 문자열 import())가 존재하는 파일을 가리킨다. 스크리너 현금 지표 조건은 screener-cash chunk를 불러온다. verify_by: node scripts/ci-architecture-contract-check.mjs
+- [x] QA-DESIGN-TOKEN-RATCHET: v59.88: 스타일시트마다 px로 직접 쓴 모서리, 12·14·18·28px 밖 글자 크기, !important 수가 기준선보다 늘지 않는다. 새 규칙은 --radius-inner/element/container/full과 --size-element-sm/md/lg 역할 토큰을 쓴다. verify_by: node scripts/ci-design-token-ratchet-check.mjs
+
 ## v59.87 기술 지표 단일 정의 (2026-11-09)
 
 - [x] QA-LEGACY-TECH-FACADE: v59.87: calcTechnicalSnapshot의 ADR(adr20Pct)·RSI·ATR·SMA/EMA가 실제 window.AIO_ARCH를 거쳐 technical/definitions.js 값으로 채워진다(260봉 픽스처에서 null이 아니다). verify_by: node scripts/ci-esm-core-unit-check.mjs
