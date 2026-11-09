@@ -1,15 +1,15 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-11-09T07:36:07.131Z",
+ "generatedAt": "2026-11-09T08:06:36.245Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
- "eligible": 3878,
- "stored": 3514,
- "attempted": 529,
- "updated": 515,
+ "eligible": 3876,
+ "stored": 3512,
+ "attempted": 0,
+ "updated": 0,
  "failures": [
   {
    "symbol": "AACI",
@@ -4588,8 +4588,8 @@
   "SCZM",
   "TRBG"
  ],
- "pointInTimeCoverage": 3514,
- "pointInTimeAcceptedCoverage": 3514,
+ "pointInTimeCoverage": 3512,
+ "pointInTimeAcceptedCoverage": 3512,
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
@@ -4597,27 +4597,27 @@
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:42579275160",
-  "attemptedAt": "2026-11-09T07:31:43.094Z",
+  "runId": "gha:42582764547",
+  "attemptedAt": "2026-11-09T08:06:25.359Z",
   "sourceRevision": "sec-company-tickers:e1469df6a5e24ec90676d0bbd0059f857167207722b4e9952852b8f0806a9472",
   "inputWatermarks": {
-   "universe": "2026-11-09T07:31:41.599Z",
-   "screener": "2026-11-09T01:21:06.435Z",
-   "previousArtifact": "2026-11-08T22:55:19.969Z"
+   "universe": "2026-11-09T08:06:23.450Z",
+   "screener": "2026-11-09T08:05:41.288Z",
+   "previousArtifact": "2026-11-09T07:36:07.131Z"
   },
   "batchLimit": 600,
   "counts": {
-   "eligible": 3878,
-   "attempted": 529,
-   "updated": 515,
-   "retained": 2999,
+   "eligible": 3876,
+   "attempted": 0,
+   "updated": 0,
+   "retained": 3512,
    "pendingEligible": 364
   },
   "thisBatch": {
-   "updated": 515,
+   "updated": 0,
    "terminalUnsupported": 0,
-   "transientFailed": 14,
-   "recorded": 14
+   "transientFailed": 0,
+   "recorded": 0
   },
   "ledger": {
    "total": 367,
@@ -4627,8 +4627,8 @@
   },
   "lastSuccessfulObservation": "2026-11-09T07:31:43.094Z",
   "publication": {
-   "status": "PARTIAL",
-   "reason": "some attempted targets were not updated",
+   "status": "NOT_ATTEMPTED",
+   "reason": "no target was due in this batch",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -127822,98 +127822,6 @@
    "roe": -41.3,
    "roeBasis": "average-equity",
    "equityPrior": 10266534
-  },
-  "INM": {
-   "symbol": "INM",
-   "cik": "0001728328",
-   "entityName": "InMed Pharmaceuticals Inc.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-06-30",
-   "observedAt": "2025-06-30",
-   "filedAt": "2025-09-23",
-   "acceptedAt": "2025-09-22T21:46:03.000Z",
-   "availableAt": "2026-09-09T20:31:17.000Z",
-   "transportFetchedAt": "2026-11-08T22:53:18.922Z",
-   "reportAgeDays": 497,
-   "reportRecency": "stale-fy",
-   "accessionByField": {
-    "revenue": "0001213900-25-090210",
-    "netIncome": "0001213900-26-098419",
-    "equity": "0001213900-26-098419",
-    "sharesOutstanding": "0001213900-25-090210"
-   },
-   "operandAvailability": {
-    "revenue": "2025-09-22T21:46:03.000Z",
-    "netIncome": "2026-09-09T20:31:17.000Z",
-    "equity": "2026-09-09T20:31:17.000Z",
-    "sharesOutstanding": "2025-09-22T21:46:03.000Z",
-    "priorRevenue": "2025-09-22T21:46:03.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2025-09-22T21:46:03.000Z",
-    "margin": "2026-09-09T20:31:17.000Z",
-    "roe": "2026-09-09T20:31:17.000Z",
-    "pe": "2026-09-09T20:31:17.000Z",
-    "pb": "2026-09-09T20:31:17.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "REFERENCE",
-   "quality": {
-    "status": "REFERENCE",
-    "stale": true,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-11-08T22:53:18.922Z",
-   "form": "10-K",
-   "accession": "0001213900-25-090210",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 4942633,
-   "netIncome": -8162133,
-   "equity": 13434495,
-   "equityBasis": "parent",
-   "sharesOutstanding": 2384186,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2025-09-17",
-   "normalizerVersion": "sec-normalizer.2026-11-04",
-   "revenueConcept": "Revenues",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 214,
-    "acceptedTimeCount": 214,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 7.5,
-   "margin": -165.1,
-   "roe": -72.1,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "net-income",
-    "value": -13164729,
-    "through": "2026-09-30",
-    "availableAt": "2026-11-03T00:26:13.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 9206109
   },
   "INMB": {
    "symbol": "INMB",
@@ -316436,89 +316344,6 @@
    "roeBasis": "average-equity",
    "equityPrior": 464866000
   },
-  "MCTA": {
-   "symbol": "MCTA",
-   "cik": "0002035992",
-   "entityName": "Charming Medical Ltd",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2026-03-31",
-   "observedAt": "2026-03-31",
-   "filedAt": "2026-07-30",
-   "acceptedAt": "2026-07-30T20:05:46.000Z",
-   "availableAt": "2026-07-30T20:05:46.000Z",
-   "transportFetchedAt": "2026-11-08T22:36:58.414Z",
-   "reportAgeDays": 223,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001213900-26-083325",
-    "netIncome": "0001213900-26-083325",
-    "equity": "0001213900-26-083325",
-    "sharesOutstanding": null
-   },
-   "operandAvailability": {
-    "revenue": "2026-07-30T20:05:46.000Z",
-    "netIncome": "2026-07-30T20:05:46.000Z",
-    "equity": "2026-07-30T20:05:46.000Z",
-    "sharesOutstanding": null,
-    "priorRevenue": "2026-07-30T20:05:46.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-07-30T20:05:46.000Z",
-    "margin": "2026-07-30T20:05:46.000Z",
-    "roe": "2026-07-30T20:05:46.000Z",
-    "pe": "2026-07-30T20:05:46.000Z",
-    "pb": "2026-07-30T20:05:46.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-11-08T22:36:58.414Z",
-   "form": "20-F",
-   "accession": "0001213900-26-083325",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 4807713,
-   "netIncome": -22648,
-   "equity": 5180962,
-   "equityBasis": "parent",
-   "sharesOutstanding": null,
-   "sharesCheck": "foreign-share-basis-unverified",
-   "sharesBasis": null,
-   "sharesObservedAt": null,
-   "normalizerVersion": "sec-normalizer.2026-11-04",
-   "revenueConcept": "Revenues",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 32,
-    "acceptedTimeCount": 32,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": -22.7,
-   "margin": -0.5,
-   "roe": -0.9,
-   "roeBasis": "average-equity",
-   "equityPrior": 49243
-  },
   "MCY": {
    "symbol": "MCY",
    "cik": "0000064996",
@@ -318895,9 +318720,9 @@
  "recordPolicy": "compact: normalized annual record without point-in-time observation arrays",
  "issuerSicPolicy": "SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to 800 issuers (missing first, then older than 30 days); a failed read keeps the previous code",
  "issuerSicCoverage": {
-  "classified": 3833,
-  "eligible": 3878,
-  "passAttempted": 32,
+  "classified": 3831,
+  "eligible": 3876,
+  "passAttempted": 45,
   "passUpdated": 0,
   "passFailed": 0
  },
@@ -329522,12 +329347,6 @@
    "cik": "0001991592",
    "observedAt": "2026-11-08T07:33:31.156Z"
   },
-  "INM": {
-   "sic": "2834",
-   "description": "Pharmaceutical Preparations",
-   "cik": "0001728328",
-   "observedAt": "2026-11-08T22:49:50.689Z"
-  },
   "INMB": {
    "sic": "2836",
    "description": "Biological Products, (No Diagnostic Substances)",
@@ -331921,12 +331740,6 @@
    "description": "Services-Motion Picture Theaters",
    "cik": "0000062234",
    "observedAt": "2026-11-08T22:49:50.689Z"
-  },
-  "MCTA": {
-   "sic": "8090",
-   "description": "Services-Misc Health & Allied Services, NEC",
-   "cik": "0002035992",
-   "observedAt": "2026-11-08T22:33:53.138Z"
   },
   "MCY": {
    "sic": "6331",
