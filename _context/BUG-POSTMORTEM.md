@@ -39,6 +39,56 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2324 - v59.86 - 시장 뉴스 타임라인 링크가 다크 모드에서 대비 1.85로 읽기 어려웠다 (2026-11-09)
+
+- symptom/reproduction: browser-contrast-focus가 #page-market-news 타임라인의 a.aio-inline-target 대비 1.85를 보고했다.
+- root_cause: 링크가 테마 색을 받지 않고 브라우저 기본 링크색(방문색 포함)을 썼다.
+- fix: 타임라인 링크와 방문 링크가 var(--accent-text)와 밑줄을 쓴다.
+- violated_rule: 본문 링크는 테마 토큰 색을 쓴다(WCAG AA).
+- prevention: 새 인라인 링크 클래스는 테마 토큰을 지정한다.
+- verification/residual: node scripts/qa-runner.mjs affected (browser-contrast-focus)
+- files: src/ui/styles/v2-today.css
+
+## P2323 - v59.86 - 차트 화면 AI가 QQQ·SOXX 한 달 비교를 '검증 근거 없음'으로 거절했다 (2026-11-09)
+
+- symptom/reproduction: 라이브 #technical/QQQ에서 'QQQ와 SOXX 중 최근 한 달 더 약한 쪽'을 묻자 AI가 시세가 검증 차단 상태이고 evidenceId가 없다며 수익률을 말하지 않았다. 시장 상태 화면은 같은 SOXX·나스닥 100 종가로 주도 영역을 판정하고 있었다.
+- root_cause: 종가 기준 근거 행(close-basis)이 S&P 500·나스닥 종합·VIX 등만 발행하고 나스닥 100·SOXX·러셀 2000을 빠뜨렸다. 장 마감 뒤 실시간 행은 stale이라 쓸 수 없었다. 단일 종목 차트 화면(technical)은 화면 기준 문맥 대상 목록에도 없었다.
+- fix: close.ndx(QQQ 추종 지수)·close.soxx·close.rut(IWM 추종 지수)를 1거래일·20거래일 변화와 함께 발행하고, S&P 500·나스닥 종합에도 20거래일 변화를 더했다. technical 화면도 화면 기준 문맥을 받는다.
+- violated_rule: 화면이 판정에 쓰는 종가는 AI도 같은 근거 행으로 받는다.
+- prevention: 시장 상태 판정에 새 계열을 쓰면 close-basis METRICS에 같은 계열을 더한다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs (v59.86 NDX(QQQ)·SOXX·RUT(IWM) closes and 20-session moves are close-basis evidence)
+- files: src/ai/context/close-basis-evidence.js, src/ai/response/renderer.js, js/aio-chat.js
+
+## P2322 - v59.86 - 통화 혼합 포트폴리오에서 원화 종목 손익을 달러로 표시했고, 기준 통화를 골라도 새로고침 전에는 반영되지 않았다 (2026-11-09)
+
+- symptom/reproduction: 라이브에서 AAPL·NVDA·SOXX와 005930을 함께 담자 '손익 (USD)' 열에 005930 '+$1,398,000.00 +254.2%'가 나왔다(원화 금액에 $). 설정에서 기준 통화 KRW를 저장해도 화면은 새로고침 전까지 환산하지 않았고, 보류 안내는 환율 선언을 요구했다.
+- root_cause: 표가 손익을 행 단위와 무관하게 표 전체 기준 통화(없으면 USD)로 찍었다. 환산이 없는 혼합에서 행의 값·원가는 각자 통화다. savePortfolioAssumption은 저장 뒤 legacy 표만 다시 그리고 aio:portfolioChanged를 보내지 않아 native 표면이 이전 상태를 읽었다. 앱 원/달러 종가로 환산 가능한 혼합인지 안내가 구분하지 않았다.
+- fix: 표면 행이 valueUnit·costUnit을 갖고, 표는 둘이 같을 때만 손익을 내며 그 단위로 찍는다(혼합이면 머리글 '손익 (보유 통화)'). 저장 뒤 aio:portfolioChanged를 보낸다. baseChoiceConverts일 때 안내는 '기준 통화를 고르면 원/달러 M/D 종가로 환산'이라고 말한다.
+- violated_rule: 금액은 그 금액이 계산된 통화로만 표시한다.
+- prevention: 표의 금액 열은 행이 가진 단위 필드를 읽고 표 전체 단위를 덮어쓰지 않는다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs (v59.86 unconverted USD/KRW mix keeps each row's unit); 로컬 브라우저 기준 통화 KRW 저장 즉시 '손익 (KRW)'
+- files: src/domain/portfolio/surface.js, src/ui/pages/portfolio.js, src/domain/portfolio/portfolio-read.js, src/ui/components/portfolio-value-trend.js, js/aio-workspace.js
+
+## P2321 - v59.86 - #fundamental/005930 주소가 한국 종목으로 풀리지 않아 SEC 재무 안내를 보였다 (2026-11-09)
+
+- symptom/reproduction: 라이브에서 #fundamental/005930을 열면 '미국 SEC 공시 기업만' 안내가 나왔다. 검색창에 005930을 넣으면 005930.KS로 풀려 한국 재무(DART 미연결) 안내가 나왔다.
+- root_cause: router.applyAddress가 주소의 종목 코드를 그대로 entityId로 썼다. 검색창이 쓰는 티커 정규화(_aioNormalizeTickerInput)는 주소 경로를 타지 않았다.
+- fix: applyAddress가 같은 정규화로 종목을 풀고, 바뀐 경우 주소를 #fundamental?sym=005930.KS로 다시 쓴다.
+- violated_rule: 한 입력(종목 코드)은 들어온 경로와 무관하게 같은 정규화를 탄다.
+- prevention: 주소·검색·링크 세 경로가 같은 티커 정규화를 부른다.
+- verification/residual: 로컬 브라우저: #fundamental/005930 → #fundamental?sym=005930.KS, 한국 재무 안내; 라이브 점검 워크플로 live-user-journey.yml
+- files: src/app/router.js
+
+## P2320 - v59.86 - 최근 4개 분기 매출 성장이 1년 전 분기의 순이익 공백 때문에 10개월 전 회계연도 성장으로 되돌아갔다 (2026-11-09)
+
+- symptom/reproduction: TSLA·PLTR·AVGO·IONQ·RKLB의 재무 화면 '최근 4개 분기' 칸이 매출 성장률을 비우고 10개월 전 회계연도 성장률을 앞세웠다. 1년 전 4개 분기 중 하나(연간에서 역산한 4분기)에 순이익이 없을 뿐 매출은 모두 있었다.
+- root_cause: buildTrailingYearRead가 1년 전 구간을 trailingQuarters(8)로 골랐고, trailingQuarters는 순이익이 모두 있는 구간만 돌려줬다. 매출 비교에 필요 없는 필드가 매출 성장까지 막았다. 1년 전 이익이 없을 때 priorMargin은 0%로 계산됐다.
+- fix: trailingQuarters에 검사 필드 옵션(field)을 두고 1년 전 구간은 매출로만 고른다. 이익 비교와 이전 마진은 1년 전 4개 분기 이익이 모두 있을 때만 낸다.
+- violated_rule: 비교에 쓰는 필드만 비교의 성립 조건이 된다 — 다른 필드의 공백이 다른 비교를 막지 않는다.
+- prevention: 분기 구간 선택기를 쓸 때 그 비교가 읽는 필드를 넘긴다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (v59.86 trailing-year revenue growth reads the year-earlier revenue alone); 로컬 재무 화면 TSLA·PLTR·AVGO
+- files: src/domain/fundamental/analysis-read.js, src/domain/fundamental/fiscal-read.js
+
 ## P2319 - v59.85 - '다음 일정'이 미국 발표를 KST 날짜로만 걸러 FOMC는 발표 전에 빠지고 CPI는 발표 뒤에도 남았다 (2026-11-08)
 
 - symptom/reproduction: 시장 상태의 주간 일정과 오늘 hero의 '다음 일정'에서 FOMC(14:00 ET = 다음날 04:00 KST)가 KST 자정에 사라져 발표 4시간 전부터 목록에 없었고, CPI(22:30 KST)는 발표가 끝난 뒤에도 자정까지 '다음'으로 남았다. 실적도 장 전·장 마감 후 시각과 무관하게 KST 날짜로 걸렀다. 인상 국면인데 CPI·고용의 이유 문장은 '금리 인하 기대'로 쓰였다.

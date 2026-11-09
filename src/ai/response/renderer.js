@@ -5,7 +5,7 @@ function line(value) { return String(value == null ? '' : value).trim(); }
 // not "15.21index [close-basis · 2026-10-12]". Unknown units and sources pass through unchanged.
 // official macro releases (source 'macro-release') read "공식 발표 · 2026-09 기준월" — a monthly release's asOf is its
 // reference month, not a close date.
-const UNIT_TEXT = Object.freeze({ index: '', percent: '%', bp: 'bp', thousands: '천 명', usd_per_barrel: '달러', usd_per_ounce: '달러', krw_per_usd: '원' });
+const UNIT_TEXT = Object.freeze({ index: '', usd: '달러', percent: '%', bp: 'bp', thousands: '천 명', usd_per_barrel: '달러', usd_per_ounce: '달러', krw_per_usd: '원' });
 const SOURCE_TEXT = Object.freeze({ 'close-basis': '종가 기준', 'macro-release': '공식 발표' });
 // The monthly row's label already names its reference month ("CPI 전년 대비 (2026-09 기준월)"), so the trace does not repeat a date.
 const whenText = (claim) => claim.source === 'close-basis' ? ` · ${claim.asOf} 종가`

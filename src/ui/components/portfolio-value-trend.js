@@ -14,7 +14,7 @@ const signed = (value, unit = '%') => signedText(value, 1, unit);
 
 /** The model for the section from the page's surface and the symbol → screener row map. */
 export function portfolioValueTrend({ surface, rowOf, history = [] } = {}) {
-  if (surface?.currencyState === 'mixed-without-conversion') return { available: false, reason: 'currency' };
+  if (surface?.currencyState === 'mixed-without-conversion') return { available: false, reason: surface.baseChoiceConverts ? 'currency-base' : 'currency' };
   const spy = rowOf('SPY');
   const asOf = spy?.factorSessionDate || null;
   const spx = asOf ? buildCloseSeries(history, 'spx', { through: asOf }) : [];
@@ -30,6 +30,7 @@ export function portfolioValueTrend({ surface, rowOf, history = [] } = {}) {
 
 const HOLD_TEXT = Object.freeze({
   currency: '통화가 다른 종목이 섞여 있고 환율이 없어 한 통화로 합치지 못했습니다. 설정에서 기준 통화와 환율을 넣으면 그립니다.',
+  'currency-base': '원화와 달러 종목이 섞여 있어 아직 한 통화로 합치지 않았습니다. 설정에서 기준 통화를 고르면 원/달러 종가로 환산해 그립니다.',
   coverage: '보유 평가액의 80% 이상이 1일 이상의 가격 기록을 갖추지 못해 비교를 보류합니다.'
 });
 

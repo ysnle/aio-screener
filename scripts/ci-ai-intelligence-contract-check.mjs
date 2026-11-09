@@ -564,7 +564,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     const day = new Date(at).getUTCDay();
     if (day !== 0 && day !== 6) days.push(new Date(at).toISOString().slice(0, 10));
   }
-  const history = days.map((date, index) => ({ date, spx: 6000 + index * 5, nasdaq: 20000 + index * 10, vix: 15 + (index % 7) / 10, vix3m: 18, tnx: 4.9 + (index % 9) / 100, dxy: 100, wti: 90, gold: 4000, kospi: 5900 + index, usdkrw: 1450 }));
+  const history = days.map((date, index) => ({ date, spx: 6000 + index * 5, nasdaq: 20000 + index * 10, vix: 15 + (index % 7) / 10, vix3m: 18, tnx: 4.9 + (index % 9) / 100, dxy: 100, wti: 90, gold: 4000, kospi: 5900 + index, usdkrw: 1450, ndx: 21000 + index * 8, rut: 2400 + index, soxx: 250 + index / 10 }));
   history[history.length - 1] = { ...history[history.length - 1], vix: 15.21, tnx: 5.24 };
   history[history.length - 2] = { ...history[history.length - 2], vix: 14.84, tnx: 5.244 };
   const closeRows = buildCloseBasisEvidence({ history, credit: {}, rates: {}, now: Date.parse('2026-10-13T04:00:00Z') });
@@ -578,6 +578,10 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     JSON.stringify(closeRows.slice(0, 8)));
   const tnx20 = closeRows.find((row) => row.metric === 'close.us10y.chg20d');
   detail('v57.55 review (6b): the 10-year 20-session move the screen shows is published as bp evidence', tnx20?.unit === 'bp' && Number.isFinite(tnx20.value) && /20거래일 변화/.test(tnx20.label || ''), JSON.stringify(tnx20));
+  // v59.86 (live probe 11/9): "QQQ와 SOXX 중 한 달 더 약한 쪽" had no typed row after the bell; the leadership closes are evidence.
+  const leaderRows = ['close.ndx', 'close.ndx.chg20d', 'close.soxx', 'close.soxx.chg20d', 'close.rut.chg20d', 'close.spx.chg20d'].map((metric) => closeRows.find((row) => row.metric === metric));
+  detail('v59.86 NDX(QQQ)·SOXX·RUT(IWM) closes and 20-session moves are close-basis evidence', leaderRows.every((row) => row && Number.isFinite(row.value) && row.asOf === '2026-10-12')
+    && /QQQ/.test(leaderRows[0].label) && leaderRows[2].unit === 'usd', JSON.stringify(leaderRows));
   // Review negative control: a basis more than two sessions behind the latest close is held (regime-board M05 parity).
   const staleRows = buildCloseBasisEvidence({ history: history.filter((row) => row.date <= '2026-10-02'), credit: {}, rates: {}, now: Date.parse('2026-10-13T04:00:00Z') });
   detail('#7 an old close basis publishes no close-basis evidence (same hold as the regime board)', staleRows.length === 0, String(staleRows.length));

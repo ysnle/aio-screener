@@ -590,11 +590,23 @@ export function inflationReaccelContradicts(direction = null) {
   return !!state && state !== 'unknown' && state !== 'up';
 }
 // An unqualified assertion: 물가/인플레이션 as the subject. A named measure ("근원 CPI는 재가속") says which one and is allowed.
-// A conditional or scenario sentence ("물가 재가속 경로라면 …", "재가속될 경우") describes a branch, not the present.
-const CONDITIONAL_SENTENCE = /(?:라면|다면|이면|으면|면\s|경우|시나리오|가능성|는지|ㄹ지|을지|할지|될지|위험이\s?있|수\s?있)/;
+// A conditional or scenario sentence ("물가 재가속 경로라면 …", "재가속되고 있는지", "재가속되고 있을 가능성") describes a branch,
+// not the present. The marker must sit on the 재가속 predicate itself (its own word and the next one) or in a condition that
+// opens the sentence before it ("CPI가 웃돌 경우 물가 재가속 신호…"). A hedge in a later clause ("물가가 재가속되고 있어 금리가
+// 더 오를 수 있습니다") qualifies the consequence, not the assertion, so it no longer excuses it.
+const CONDITIONAL_PREDICATE_TAIL = /^\S*(?:\s+\S+)?/;
+const CONDITIONAL_TAIL_MARKER = /(?:라면|다면|이면|으면|경우|시나리오|가능성|는지|ㄹ지|을지|할지|될지|위험|을\s*수(?:\s|$))/;
+const CONDITIONAL_LEAD_MARKER = /(?:라면|다면|이면|으면|면\s|경우|시나리오|만약|만일)/;
+function reaccelAssertedUnconditionally(sentence) {
+  const match = INFLATION_REACCEL_ASSERTION.exec(sentence);
+  if (!match) return false;
+  const lead = sentence.slice(0, match.index);
+  const tail = sentence.slice(match.index + match[0].length).match(CONDITIONAL_PREDICATE_TAIL)?.[0] || '';
+  return !CONDITIONAL_LEAD_MARKER.test(lead) && !CONDITIONAL_TAIL_MARKER.test(match[0] + tail);
+}
 /** True when a sentence asserts, unconditionally, that inflation is re-accelerating. */
 export const assertsInflationReaccel = (text) => String(text || '').split(/(?<=[.!?。])\s+|\n+/)
-  .some((sentence) => INFLATION_REACCEL_ASSERTION.test(sentence) && !CONDITIONAL_SENTENCE.test(sentence));
+  .some(reaccelAssertedUnconditionally);
 export const INFLATION_REACCEL_ASSERTION = /(?:물가|인플레이션)(?:가|는|이|은)?\s?(?:다시\s?)?(?:재가속|가속|빨라지)(?:되고|하고|고)\s?있|(?:물가|인플레이션)\s?재가속\s?(?:경로|흐름|추세|국면|신호)|(?:물가|인플레이션)(?:가|는|이|은)?\s?(?:다시\s?)?재가속(?:됐|했|되었|하였)/;
 
 export function validateMarketAnalysisText(text, data, snapshot = null, { context = '', history = [], inflationDirection = null } = {}) {

@@ -329,6 +329,8 @@
 #page-briefing .briefing-result-rules, #page-briefing .briefing-result-cases { margin-top: 6px; margin-bottom: 8px; padding-left: 18px; font-size: 12px; line-height: 1.7; color: var(--text-secondary); }
 #page-briefing .briefing-result-sub { font-size: 12px; font-weight: 600; color: var(--text-primary); margin-top: 6px; }
 #page-market-news .news-item-tickers { margin: 0 0 2px; }
+/* A multi-article story's timeline links kept the browser's default blue/purple (1.85:1 on the dark card). */
+#page-market-news a.aio-inline-target, #page-market-news a.aio-inline-target:visited { color: var(--accent-text); text-decoration: underline; text-underline-offset: 2px; }
 #page-market-news .news-item-chain { margin: 2px 0 0; font-size: 12px; line-height: 1.5; color: var(--text-muted); overflow-wrap: anywhere; }
 /* Owner 2026-10-25: the four index ETFs' last regular session opens 오늘 (src/ui/components/home-index-strip.js). */
 #page-home .home-index-strip { margin: 0 0 16px; }

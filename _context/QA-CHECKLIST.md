@@ -4,6 +4,14 @@ last_verified: 2026-11-09
 confidence: medium
 ---
 
+## v59.86 라이브 실사용 점검 (2026-11-09)
+
+- [x] QA-FUND-TTM-REVENUE: v59.86: 1년 전 4개 분기의 매출이 모두 있으면 '최근 4개 분기' 매출 성장률이 나오고, 그중 순이익 공백은 이익 비교만 비운다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-ROUTE-KR-CODE: v59.86: #fundamental/005930·#ticker/005930처럼 한국 코드로 연 주소가 005930.KS로 풀려 검색창으로 연 화면과 같다. verify_by: node scripts/live-user-journey.mjs (AIO_LIVE_BASE 로컬)
+- [x] QA-PF-MIXED-ROW-UNIT: v59.86: 미국·한국 종목을 기준 통화 없이 담으면 손익 열 머리글이 '손익 (보유 통화)'이고 원화 종목 손익은 ₩로 표시된다. 기준 통화를 저장하면 새로고침 없이 그 통화로 환산된다. verify_by: node scripts/ci-pipeline-semantics-check.mjs
+- [x] QA-AI-LEADER-CLOSES: v59.86: 장 마감 뒤 차트 화면에서 QQQ·SOXX·IWM 한 달 비교를 물으면 나스닥 100·SOXX·러셀 2000의 종가와 20거래일 변화를 종가 기준 근거로 인용한다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-A11Y-NEWS-LINK: v59.86: 시장 뉴스 타임라인 링크가 라이트·다크 모두 AA 대비를 넘는다. verify_by: node scripts/qa-runner.mjs affected --files src/ui/styles/v2-today.css
+
 ## v59.85 Data publisher (v59.85) (2026-11-09)
 
 - [x] QA-DATA-PUBLISH-01: After a producing workflow's lost push race, the next data commit sits on top of the other commit and the runner's worktree edits survive (autostash). A conflict dispatches exactly one collision re-run. verify_by: node scripts/ci-publish-data-commit-check.mjs
