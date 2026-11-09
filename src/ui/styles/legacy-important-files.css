@@ -1,0 +1,91 @@
+/* v59.90 layer split: the important-flagged declarations of the legacy-*.css and shell-static.css files, kept outside @layer legacy so they keep the precedence they had
+   against the screen stylesheets (a flagged declaration inside a lower layer would beat every unlayered flagged one). Each one is a
+   debt item: delete it, or move the rule that needs it into its screen stylesheet. Shrink only (ci-design-token-ratchet). */
+
+/* ── from legacy-workspace.css ── */
+#page-portfolio .wsl-wl-del { font-size: var(--fs-sm) !important; }
+
+/* ── from shell-static.css ── */
+.page .sh-muted-note-mb6 { font-size: var(--fs-sm) !important; }
+.page .sh-fine { font-size: var(--fs-xs) !important; }
+.page .sh-soft-label-bold { font-size: var(--fs-sm) !important; }
+.page .sh-muted-label-semi { font-size: var(--fs-xs) !important; }
+.page .sh-soft-fine-scroll { font-size: var(--fs-xs) !important; }
+.page .sh-bold-label { font-size: var(--fs-xs) !important; }
+.page .sh-muted-text-mb8 { font-size: var(--fs-base) !important; }
+.page .sh-muted-note-mt2 { font-size: var(--fs-sm) !important; }
+.page .sh-soft-note-mt4 { font-size: var(--fs-sm) !important; }
+.page .sh-regular-fine { font-size: var(--fs-xs) !important; }
+.page .sh-soft-note { font-size: var(--fs-sm) !important; }
+.page .sh-green-note { font-size: var(--fs-sm) !important; }
+.page .sh-small-field { font-size: var(--fs-sm) !important; }
+.page .sh-muted-text-mt6 { font-size: var(--fs-base) !important; }
+.page .sh-bold-btn { font-size: var(--fs-base) !important; }
+.page .sh-muted-note-centered { font-size: var(--fs-sm) !important; }
+.page .sh-soft-label-mb8 { font-size: var(--fs-sm) !important; }
+.page .sh-cyan-label { font-size: var(--fs-sm) !important; }
+.page .sh-soft-btn { font-size: var(--fs-base) !important; }
+.page .sh-home-score-hero-row { font-size: var(--fs-base) !important; }
+.page .sh-technical-tv-plot-text { font-size: var(--fs-base) !important; }
+.page .sh-technical-tv-sym-field { font-size: var(--fs-sm) !important; }
+.page .sh-technical-candle-meta-row { font-size: var(--fs-sm) !important; }
+.page .sh-technical-integrated-cols-small { font-size: var(--fs-sm) !important; }
+.page .sh-technical-integrated-note { font-size: var(--fs-sm) !important; }
+.page .sh-technical-integrated-cols-three { font-size: var(--fs-sm) !important; }
+.page .sh-technical-integrated-cols-two { font-size: var(--fs-sm) !important; }
+.page .sh-technical-breadth-adl-big { font-size: 18px !important; }
+.page .sh-technical-integrated-cols-gap8 { font-size: var(--fs-sm) !important; }
+.page .sh-technical-analysis-input-field { font-size: var(--fs-base) !important; }
+.page .sh-macro-integrated-note { font-size: var(--fs-sm) !important; }
+.page .sh-macro-integrated-note-amber { font-size: var(--fs-sm) !important; }
+.page .sh-macro-integrated-tint { font-size: var(--fs-xs) !important; }
+.page .sh-macro-integrated-tint-soft { font-size: var(--fs-xs) !important; }
+.page .sh-macro-integrated-label { font-size: var(--fs-sm) !important; }
+.page .sh-macro-integrated-fine { font-size: var(--fs-xs) !important; }
+.page .sh-fund-earnings-calendar-note { font-size: var(--fs-sm) !important; }
+.page .sh-themes-sub-matrix-text { font-size: var(--fs-base) !important; }
+.page .sh-portfolio-add-memo-field { font-size: var(--fs-base); }
+.page .sh-portfolio-entry-part-btn { font-size: var(--fs-base); }
+.page .sh-portfolio-ai-workbench-label { font-size: var(--fs-sm) !important; }
+.page .sh-portfolio-ai-select-field { font-size: var(--fs-base) !important; }
+.page .sh-portfolio-ai-workbench-btn { font-size: var(--fs-base) !important; }
+.page .sh-portfolio-journal-note-field { font-size: var(--fs-base) !important; }
+.page .sh-portfolio-ai-workbench-btn-bold { font-size: var(--fs-sm) !important; }
+.page .sh-portfolio-allocation-part-text { font-size: var(--fs-base) !important; }
+.page .sh-portfolio-allocation-part-text-soft { font-size: var(--fs-base) !important; }
+.page .sh-portfolio-sector-breakdown-text { font-size: var(--fs-base) !important; }
+.page .sh-portfolio-benchmark-part-btn { font-size: var(--fs-base) !important; }
+.page .sh-portfolio-benchmark-part-row { font-size: var(--fs-sm) !important; }
+.page .sh-portfolio-benchmark-part-note { font-size: var(--fs-sm) !important; }
+.page .sh-portfolio-holdings-analysis-figure { font-size: 18px !important; }
+.page .sh-portfolio-holdings-plots-text { font-size: var(--fs-base) !important; }
+.page .sh-portfolio-backtest-lab-note { font-size: var(--fs-sm) !important; }
+.page .sh-portfolio-backtest-lab-btn { font-size: var(--fs-base); }
+.page .sh-portfolio-text { font-size: var(--fs-base) !important; }
+.page .sh-portfolio-rr-ratio-label { font-size: var(--fs-xs) !important; }
+.page .sh-portfolio-rr-position-text { font-size: var(--fs-base) !important; }
+.page .sh-portfolio-ledger-part-toggle { font-size: var(--fs-base) !important; }
+.page .sh-news-count-text { font-size: var(--fs-base) !important; }
+.page .sh-news-last-fetch-text { font-size: var(--fs-base) !important; }
+.page .sh-news-country-chips-chip-cyan { font-size: var(--fs-sm) !important; }
+.page .sh-screener-builder-title-text { font-size: var(--fs-base) !important; }
+.page .sh-screener-builder-title-note { font-size: var(--fs-sm) !important; }
+.page .sh-screener-workbench-advanced-fine { font-size: var(--fs-xs) !important; }
+.page .sh-screener-developer-drawer-toggle { font-size: var(--fs-base) !important; }
+.page .sh-screener-why-drawer-note { font-size: var(--fs-sm) !important; }
+.page .sh-screener-tab-button-btn { font-size: var(--fs-base) !important; }
+.page .sh-screener-text-search-field { font-size: var(--fs-sm) !important; }
+.page .sh-screener-tab-ranking-label { font-size: var(--fs-base) !important; }
+.page .sh-screener-tab-ranking-note { font-size: var(--fs-sm) !important; }
+.page .sh-screener-adv-filter-label { font-size: var(--fs-xs) !important; }
+.page .sh-screener-setup-field { font-size: var(--fs-sm) !important; }
+.page .sh-screener-adv-filter-note { font-size: var(--fs-sm) !important; }
+.page .sh-screener-adv-filter-label-muted { font-size: var(--fs-sm) !important; }
+.page .sh-screener-adv-filter-btn { font-size: var(--fs-xs) !important; }
+.page .sh-screener-results-table-colhead-ruled { font-size: var(--fs-base); }
+.page .sh-screener-results-table-colhead-fs12 { font-size: var(--fs-base); }
+.page .sh-screener-tab-ranking-fine { font-size: var(--fs-xs) !important; }
+.page .sh-screener-tab-ranking-figure { font-size: 18px !important; }
+.page .sh-screener-tab-ranking-figure-ink { font-size: 18px !important; }
+.page .sh-screener-tab-ranking-btn { font-size: var(--fs-xs) !important; }
+.page .sh-screener-backtest-summary-text { font-size: var(--fs-base) !important; }

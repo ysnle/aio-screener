@@ -10,7 +10,7 @@
 /* Run-5: the row above already names the place (#ticker-breadcrumb-main); the hub label inside the symbol's flex row pushed
    the company name onto the label's line ('종목 ›   Apple Inc.'). */
 #page-ticker #ticker-hero-name[data-hub-label]::before { display: none; }
-#page-ticker #ticker-hero-fullname { font-size: 14px !important; color: var(--text-secondary); }
+#page-ticker #ticker-hero-fullname { font-size: 14px; color: var(--text-secondary); }
 #page-ticker .sh-ticker-box { margin-left: 0; text-align: left; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 #page-ticker .v2-stock-price { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
 #page-ticker #ticker-hero-chg { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
@@ -484,4 +484,4 @@
 
 /* ═══ 8. Dark ════════════════════════════════════════════════════════════ */
 body.dark-theme .page .v2-stock-hero .stock-read-marker { box-shadow: 0 0 0 2px var(--text-primary), 0 2px 6px var(--black-a7); }
-body.dark-theme #page-technical .stock-chart-intervals.sx-seg > button[aria-pressed="true"] { background: var(--bg-elevated) !important; box-shadow:none; }
+body.dark-theme #page-technical .stock-chart-intervals.sx-seg > button[aria-pressed="true"] { background: var(--bg-elevated); box-shadow:none; }

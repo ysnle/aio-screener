@@ -37,7 +37,7 @@
 #ai-panel .ai-ph-close { grid-area: close; }
 @media (max-width: 700px) {
   /* The close button keeps its own grid column (responsive.css placed it absolutely over a padded header). */
-  body #ai-panel .ai-ph { padding: 8px 8px 8px 12px !important; }
+  body #ai-panel .ai-ph { padding: 8px 8px 8px 12px; }
   body #ai-panel .ai-ph-close { position: static; }
 }
 #ai-panel .ai-ph-route[data-state="ok"] { color: var(--data-green); }

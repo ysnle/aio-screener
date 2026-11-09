@@ -180,8 +180,8 @@
 #glossary-modal { background: var(--black-a5) !important; backdrop-filter: blur(6px) !important; }
 #glossary-modal > .sh-shell-glossary-modal-stack {
   width: min(860px, calc(100vw - 32px)); max-width: 860px; max-height: 86vh !important;
-  border: 0 !important; border-radius: var(--radius-container) !important; overflow: hidden;
-  background: var(--bg-card) !important; box-shadow: var(--sx-float-shadow);
+  border: 0; border-radius: var(--radius-container); overflow: hidden;
+  background: var(--bg-card); box-shadow: var(--sx-float-shadow);
 }
 #glossary-modal .sh-shell-glossary-modal-box { padding: 22px 26px 14px; border-bottom: 0.5px solid rgba(var(--ink-rgb), 0.06); }
 #glossary-modal h2.sh-shell-glossary-modal-big {
@@ -470,7 +470,7 @@
   #page-masters .masters-top-tickers .masters-ticker-chip, #page-atlas .atlas-layer-ticker { height: 36px; min-height: 36px; padding: 0 14px; font-size: 12px; }
   #page-atlas .atlas-layer-company { height: 36px; min-height: 36px; }
   .rl-entry .rl-entry-body .af-issue { font-size: 18px; }
-  #glossary-modal > .sh-shell-glossary-modal-stack { width: calc(100vw - 16px); max-height: 92vh !important; border-radius: var(--radius-container) !important; }
+  #glossary-modal > .sh-shell-glossary-modal-stack { width: calc(100vw - 16px); max-height: 92vh !important; border-radius: var(--radius-container); }
   #glossary-modal .sh-shell-glossary-modal-box { padding: 16px 16px 12px; }
   #glossary-cats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   #glossary-cats .lu-gl-cat { flex: none; }

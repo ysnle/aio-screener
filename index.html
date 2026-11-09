@@ -37,6 +37,8 @@
        record (1 KB, build-scenario-state) is requested here and painted by the static shell under the hero. -->
   <script>(function(){var c=navigator.connection||{};if(!(c.saveData||/(^|-)(2g|3g)$/.test(c.effectiveType||''))){var l=document.createElement('link');l.rel='stylesheet';l.id='aio-font-css';l.href='https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css';document.head.appendChild(l)}try{window._aioTodayVerdict=fetch('./public-data/today-verdict.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null}).catch(function(){return null})}catch(e){}})();</script>
   <style>
+@layer legacy; /* v59.90: the pre-soft-ui shell CSS sits in a lower cascade layer, so screen stylesheets win by layer order instead of !important — _context/DESIGN-TOKENS.md */
+@layer legacy {
 :root, body {
   /* ═══ Colour roles (v59.88, astryx grammar — _context/DESIGN-TOKENS.md) ═══════════════════════════════════
      The one definition of every semantic colour. Values point at Radix steps (radix-colors.css), which swap under
@@ -250,8 +252,7 @@ body {
 .aio-card.has-stripe-top    { border-top-width: 3px; border-top-style: solid; border-top-color: var(--accent); }
 .aio-card.has-stripe-left   {  border-left-style: solid; border-left-color: var(--accent); }
 /* v52.62 아이보리: 컬러 스트라이프 폐기 — 두께만 1px 헤어라인으로 리셋, DOM 클래스는 유지 */
-.aio-card.has-stripe-top    { border-top-width: 1px !important; }
-.aio-card.has-stripe-left   { border-left-width: 1px !important; }
+.aio-card.has-stripe-left   { border-left-width: 1px; }
 
 .aio-card-title {
   font-size: var(--fs-sm);
@@ -366,22 +367,13 @@ body {
 .aio-section-rule::before { content: ''; flex: 1; height: 1px; background: var(--border); }
 
 /* ── Metric delta — 12→13px ──────────────────────────────────────────── */
-.aio-metric-delta { font-size: var(--fs-sm) !important; }
+.aio-metric-delta { font-size: var(--fs-sm); }
 
 /* ─────────────────────────────────────────────────────────────────────
    ID 직접 타겟: 데이터/설명 텍스트 가독성 향상
    원칙: 판정 라벨은 축소, 데이터 수치와 설명 텍스트는 상향
-   ───────────────────────────────────────────────────────────────────── */
-
-/* [시그널] 판정 이유 설명 텍스트 */
-#score-decision-sub {
-  font-size: var(--fs-sm) !important;    /* 13px (기존 12px) */
-  line-height: 1.6 !important;
-}
+   ───────────────────────────────────────────────────────────────────── *//* [시그널] 판정 이유 설명 텍스트 */
 /* [시그널] 스냅샷 카드 입력 데이터 — 원시 시세 가독성 향상 */
-#snap-gspc [data-live-price], #snap-ixic [data-live-price],
-#snap-oil  [data-live-price], #snap-gold [data-live-price],
-#snap-btc  [data-live-price] { font-size: 18px !important; font-weight: 700 !important; }
 
 /* ═══════════════════════════════════════════════════════════════════════ */
 
@@ -625,9 +617,7 @@ body {
   border-color: var(--gold-6);
   background: var(--gold-3);
 }
-.aio-core-view .aio-secondary-hard {
-  display: none !important;
-}
+
 .aio-core-view .beginner-tip {
   padding: 8px 10px;
   margin-top: 8px;
@@ -704,7 +694,6 @@ body { background: var(--bg-base); }
 .content { background: var(--bg-base); }
 
 /* v48.41 R2: Sidebar nav item — sharp terminal style */
-.nav-item { border-radius: var(--radius-inner) !important;  }
 
 /* v34: Keyboard shortcuts help modal */
 /* v48.43: Keyboard shortcut modal — Figma 글래스 */
@@ -758,68 +747,31 @@ body { background: var(--bg-base); }
 .page { line-height: var(--lh-body); }
 .page h5 { font-size: 12px; }
 .data-widget, .aio-widget { line-height: var(--lh-body); }
-.page-subtitle { line-height: 1.5; } /* v30.7: font-size는 아래 .page-subtitle 블록에서 정의 */
-
-/* ═══ v24 GLOBAL FONT SCALE-UP ═══════════════════════════════════
+.page-subtitle { line-height: 1.5; } /* v30.7: font-size는 아래 .page-subtitle 블록에서 정의 *//* ═══ v24 GLOBAL FONT SCALE-UP ═══════════════════════════════════
    기존 인라인 font-size 6~9px → 최소 10~12px로 스케일업
    일관성 + 가독성 대폭 개선
-   ═══════════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════════ *//* v57.81: `.page div/span/td/th/b/label { font-size: revert }` 퇴역 — 최소 크기를 보장하지 못했고
+   (0,1,1) 특이도로 클래스 글자 크기(예: 21px 지표 값)를 부모 크기로 되돌렸다. 바닥 11px은 각 클래스가 직접 지킨다. *//* 인라인 font-size 6px~7px → 11px 최소 보장 *//* v40.4: 최소 글자 크기 강제 — 모든 인라인 7~10px을 최소 11px로 */
 
-/* v57.81: `.page div/span/td/th/b/label { font-size: revert }` 퇴역 — 최소 크기를 보장하지 못했고
-   (0,1,1) 특이도로 클래스 글자 크기(예: 21px 지표 값)를 부모 크기로 되돌렸다. 바닥 11px은 각 클래스가 직접 지킨다. */
 
-/* 인라인 font-size 6px~7px → 11px 최소 보장 */
-.page [style*="font-size:10px"],
-/* v40.4: 최소 글자 크기 강제 — 모든 인라인 7~10px을 최소 11px로 */
-.page [style*="font-size: 10px"],
-.page [style*="font-size:11px"],
-.page [style*="font-size: 10px"] { font-size: 12px !important; }
-.page [style*="font-size:11px"],
-.page [style*="font-size: 11px"] { font-size: 12px !important; }
-.page [style*="font-size:11px"],
-.page [style*="font-size: 11px"] { font-size: 12px !important; }
-.page [style*="font-size:11px"],
-.page [style*="font-size: 11px"] { font-size: 12px !important; }
-.page [style*="font-size:10px"],
-.page [style*="font-size: 10px"] { font-size: 12px !important; }
-.page [style*="font-size:11px"],
-.page [style*="font-size: 11px"] { font-size: 12px !important; }
+
+
+
 
 /* v40.6: 사이드바 인라인 font-size 최소 11px 보장 */
-.sidebar [style*="font-size:11px"],
-.sidebar [style*="font-size: 11px"],
-.sidebar [style*="font-size:11px"],
-.sidebar [style*="font-size: 11px"],
-.sidebar [style*="font-size:11px"],
-.sidebar [style*="font-size: 11px"],
-.sidebar [style*="font-size:10px"],
-.sidebar [style*="font-size: 10px"] { font-size: 12px !important; }
 
 /* v40.7: 탑바 인라인 font-size 최소 11px 보장 */
-.topbar [style*="font-size:11px"],
-.topbar [style*="font-size: 11px"],
-.topbar [style*="font-size:11px"],
-.topbar [style*="font-size: 11px"],
-.topbar [style*="font-size:11px"],
-.topbar [style*="font-size: 11px"],
-.topbar [style*="font-size:10px"],
-.topbar [style*="font-size: 10px"] { font-size: 12px !important; }
 
 /* 인라인 font-size 11px → 13px */
-.page [style*="font-size:11px"],
-.page [style*="font-size: 11px"] { font-size: 12px !important; }
 
 /* 인라인 font-size 12px → 14px */
-.page [style*="font-size:12px"],
-.page [style*="font-size: 12px"] { font-size: 14px !important; }
 
 /* 페이지 타이틀 확대 */
-.page-title { font-family: var(--font-display) !important; font-size: 28px !important; font-weight: 600 !important; }
-.page [style*="font-size:17px"] { font-size: 18px !important; }
+.page-title { font-family: var(--font-display); font-size: 28px; font-weight: 600; }
+
 
 /* 상태 pill 통일 */
-.status-pill { font-size: 12px !important; padding: 3px 10px !important; }
-.freshness-badge { font-size: 12px !important; }
+.freshness-badge { font-size: 12px; }
 
 /* v48.62: 페이지 결론 바 — 결론·액션·업데이트 3열 */
 .page-conclusion-bar { display:flex; align-items:stretch; gap:0; background:rgba(var(--ink-rgb),0.03); border:0.5px solid var(--border); border-radius:var(--radius-inner); margin-bottom:12px; overflow:hidden; }
@@ -832,17 +784,15 @@ body { background: var(--bg-base); }
 .pcb-updated .pcb-value { font-size:12px; color:var(--text-muted); font-family:var(--font-mono); }
 
 /* 차트 채팅 일관성 */
-.acp-bubble { font-size: 14px !important; line-height: 1.7 !important; }
-.acp-input-row input { font-size: 12px !important; }
-.acp-input-row button { font-size: 12px !important; }
-.q-chip { font-size: 12px !important; padding: 7px 10px !important; }
+
+
+.q-chip { font-size: 12px; }
 
 /* 탭/버튼 통일 */
-.aio-btn-table { font-size: 12px !important; }
-.kr-tab { font-size: 12px !important; }
+.aio-btn-table { font-size: 12px; }
+.kr-tab { font-size: 12px; }
 
 /* 검색바 */
-.search-bar input { font-size: 12px !important; }
 
 /* 드롭다운 select 요소 스타일 — v30.7 색상 통일 */
 select, select option {
@@ -858,20 +808,15 @@ select:focus {
 .page table td, .page table th { font-size: 12px; }
 
 /* KR 인덱스 확대 */
-.kr-idx-val { font-size: 28px !important; }
-.kr-idx-chg { font-size: 12px !important; }
+
 
 /* FX 카드 */
-.fx-note { font-size: 12px !important; }
 
 /* 다이나믹 코멘트 */
-.fxb-dynamic-comment .dc-title { font-size: 12px !important; }
 
 /* 시그널 라이트 / 카드 내부 */
-.page [style*="font-size:16px"] { font-size: 18px !important; }
 
 /* Tactical Score 확대 */
-.kr-flow-table td, .kr-flow-table th { font-size: 12px !important; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   background: var(--bg-dark); color: var(--text-primary); font-family: var(--font-sans);
@@ -1240,13 +1185,13 @@ body {
 .macro-chain-legend { margin-top: 10px; }
 .macro-gauge-note { font-size: 12px; color: var(--text-muted); margin: -2px 0 6px; }
 /* P1429: home futures fallback — the last completed index close when futures quotes are missing */
-.kpi-fallback { display: flex; flex-direction: column; gap: 2px; } [hidden]:not([hidden="until-found"]) { display:none !important; }
+.kpi-fallback { display: flex; flex-direction: column; gap: 2px; } 
 .page .kpi-fallback-value { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
 .page .kpi-fallback-note { font-size: 12px; color: var(--text-muted); }
 /* P1505: without a futures quote the cell is the cash close — the spot line repeated the same number */
 [data-futures-missing="true"] .kpi-spot { display: none; }
 .page #home-kpi-strip [data-futures-missing="true"] > .kpi-value, .page #home-kpi-strip [data-futures-missing="true"] > [data-live-chg] { display: none; }
-.page #home-kpi-strip .kpi-value { white-space: nowrap; } /* v57.79: the value and its freshness dot stay on one line; the last visible cell drops its divider */ .page #home-kpi-strip > .is-interactive:not(:has(~ .is-interactive:not([hidden]))) { border-right: 0 !important; }
+.page #home-kpi-strip .kpi-value { white-space: nowrap; } /* v57.79: the value and its freshness dot stay on one line; the last visible cell drops its divider */
 /* P1429: one empty state */
 .empty-state { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; border: 0.5px dashed var(--border); border-radius: var(--radius-element); padding: 12px 14px; background: var(--surface-1, var(--bg-card)); }
 .empty-state.is-compact { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; padding: 8px 12px; }
@@ -1438,10 +1383,8 @@ body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 /* v48.58: WCAG AA 대비 4.5:1 준수 — sd-w(회색) 명도 상향 + 브랜드 토큰 매핑 */
 .sd-r{background:var(--data-red);} .sd-g{background:var(--data-green);} .sd-y{background:var(--data-amber);} .sd-w{background:var(--gold-9);color:var(--gold-2);font-weight:700;}
 /* v51.58: insight-box 전 페이지 숨김 — 페이지 설명 카드 제거 (마크업은 JS 앵커로 유지) */
-.insight-box { display: none !important; }
 /* v51.59: 잡음/중복 요소 제거 */
-.aio-why { display: none !important; }
-.tg-feed-more { display: none !important; }
+
 
 /* v48.42: 사이드바 액션 버튼 (aio-btn-* 정렬) */
 .sidebar-action-btn {
@@ -1845,21 +1788,20 @@ h3.chat-h{font-size:14px;}h4.chat-h{font-size:12px;}h5.chat-h{font-size:12px;}h6
    방치 시 두 블록 순서가 바뀌면 구 네이비 팔레트가 되살아나는 잠재 리스크만 제거)
    ════════════════════════════════════════════════════════════════ */
 /* 기본 폰트 */
-body { font-size: 14px !important; }
+body { font-size: 14px; }
 
 /* 내비게이션 */
-.nav-item  { font-size: 12px !important; padding: 8px 10px 8px 13px !important; }
-.nav-label { font-size: 12px !important; }
-.nav-item .en { display: none !important; }  /* v20: 이중표기 제거 */
-.logo-sub  { font-size: 12px !important; }
+.nav-item  { font-size: 12px; padding: 8px 10px 8px 13px; }
+.nav-label { font-size: 12px; }
+  /* v20: 이중표기 제거 */
+.logo-sub  { font-size: 12px; }
 
 /* 페이지 헤더 — v52.65: .page-title 18px!important 제거(2129행 27px 규칙과 상충해 소스순서상 항상 이겨
    시안 전 페이지 공통 27px serif 타이틀 스펙을 무효화하던 죽은 코드 — v52.62 색토큰 정리와 동일 계열 이슈) */
-.page-subtitle { font-size: 12px !important; }
+.page-subtitle { font-size: 12px; }
 
-/* 위젯 */
-.data-widget, .aio-widget  { padding: 16px 18px !important; margin-bottom: 14px !important; }
-.widget-title { font-size: 12px !important; }
+/* 위젯 — padding and gap moved to soft-ui.css (v59.90 layer split) */
+.widget-title { font-size: 12px; }
 
 /* v20 overrides — now superseded by v24 global scale-up above */
 
@@ -1966,7 +1908,6 @@ html { scrollbar-width: thin; scrollbar-color: rgba(var(--ink-rgb),0.12) transpa
 .fx-note{font-size:12px;color:var(--text-muted);line-height:1.4;margin-top:3px;}
 
 /* v41.1: breadth 차트 캔버스 높이 토큰화 */
-#page-breadth canvas[id^="bp-"]{height:var(--chart-h-sm)!important;}
 /* v50.82: 페이지별 SVG 다이어그램 시각화 패널 */
 .aio-vis-panel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px;}
 .aio-vis-panel.is-single{grid-template-columns:1fr;max-width:560px;}
@@ -2045,9 +1986,9 @@ html { scrollbar-width: thin; scrollbar-color: rgba(var(--ink-rgb),0.12) transpa
 .pulse-seg{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--radius-inner);cursor:pointer;transition:transform var(--dur-base) var(--ease-out);background:var(--surface-2);border:0.5px solid rgba(var(--ink-rgb),0.06);}
 .pulse-seg:hover{background:rgba(var(--ink-rgb),0.1); }
 /* v48.30 (A11y WCAG AA): ps-label/ps-status 8px → 11px 강제 (인라인 style override 패턴 외라 명시 규칙 필요) */
-.pulse-seg .ps-label{font-size:12px !important;color:var(--text-muted);font-weight:700;letter-spacing:0;}
+.pulse-seg .ps-label{font-size:12px;color:var(--text-muted);font-weight:700;letter-spacing:0;}
 .pulse-seg .ps-val{font-weight:800;font-family:var(--font-mono);font-size:12px;}
-.pulse-seg .ps-status{font-size:12px !important;font-weight:600;}
+.pulse-seg .ps-status{font-size:12px;font-weight:600;}
 /* v42.1: 크로스링크 */
 .cross-link{font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;opacity:0.85;transition:opacity var(--dur-base) var(--ease-out);display:inline-flex;align-items:center;min-height:24px;} /* v50.31 a11y: WCAG AA 24px 탭 높이 */
 [data-action="_aioNewsTickerClick"]{display:inline-flex;align-items:center;min-height:24px;} /* v50.31 a11y: 뉴스 $티커 칩 4개 생성점 공통 탭 높이 */
@@ -2060,8 +2001,7 @@ html { scrollbar-width: thin; scrollbar-color: rgba(var(--ink-rgb),0.12) transpa
 .fund-ticker-card{background:var(--surface-1);border:0.5px solid var(--border);border-radius:var(--radius-inner);padding:12px;cursor:pointer;position:relative;overflow:hidden;}
 .fund-ticker-card:hover{border-color:rgba(var(--ink-rgb),0.4); }
 
-/* Home FX strip cells */
-#home-score-hero[data-state="blocked"]{padding:10px 0!important;gap:14px!important}#home-score-hero[data-state="blocked"] #home-hero-headline{font-size:14px!important;margin-bottom:2px!important}#home-score-hero[data-state="blocked"] #home-hero-desc{font-size:12px!important;line-height:1.6!important}/* P1322 */
+/* Home FX strip cells *//* P1322 */
 
 /* ── v48.43: Sidebar LLM/API 패널 (Figma × Bloomberg) ───────────── */
 .sidebar-footer { padding: 0; border-top: 0.5px solid var(--border); margin-top: auto; }
@@ -2241,46 +2181,32 @@ html { scrollbar-width: thin; scrollbar-color: rgba(var(--ink-rgb),0.12) transpa
 
 /* ═══ v15: 가독성 강화 · 최소 폰트 보장 ════════════════════
    일부 영역의 과소한 글자 크기를 읽기 쉽게 조정
-   ═════════════════════════════════════════════════════════════════ */
-
-/* 리스크 모니터 라벨 */
-.rm-status { font-size: 12px !important; }
+   ═════════════════════════════════════════════════════════════════ *//* 리스크 모니터 라벨 */
 
 
 /* 툴팁 본문: 더 잘 읽히도록 */
-.tip-body {
-  font-size: 12px !important;
-  line-height: 1.65 !important;
-  padding: 9px 12px !important;
-}
 
 /* 사이드바 하단 메모 */
-.llm-budget-note { font-size: 12px !important; }
+.llm-budget-note { font-size: 12px; }
 
-/* v40.7: sub-11px 미보호 클래스 일괄 override */
-/* FX/Bond */
-.fx-note { font-size: 12px !important; }
+/* v40.7: sub-11px 미보호 클래스 일괄 override *//* FX/Bond */
 /* 테이블 헤더 */
-.kr-flow-table th { font-size: 12px !important; }
 /* 한국 종목 */
-.kr-badge { font-size: 12px !important; }
-.kr-idx-label { font-size: 12px !important; }
-.pill-wt { font-size: 12px !important; }
+.kr-badge { font-size: 12px; }
+
+
 /* 뉴스/채팅 보조 */
-.news-item-meta { font-size: 12px !important; }
-.ch-item-time { font-size: 12px !important; }
-/* v41.3: 누락 sub-11px override 9건 추가 */
-/* v41.2 btn 클래스 → 인라인 override 탈락 보정 */
-.btn-accent { font-size: 12px !important; }
-.btn-vault { font-size: 12px !important; }
+.news-item-meta { font-size: 12px; }
+
+/* v41.3: 누락 sub-11px override 9건 추가 *//* v41.2 btn 클래스 → 인라인 override 탈락 보정 */
+.btn-vault { font-size: 12px; }
 /* v41.3: font-size:10px 클래스 override 19건 */
-.acp-expand-btn { font-size: 12px !important; }
-.acp-history-btn { font-size: 12px !important; }
-.ch-item-a { font-size: 12px !important; }
-.kr-theme-catalyst { font-size: 12px !important; }
-.kr-theme-heat { font-size: 12px !important; }
-.kr-theme-stat { font-size: 12px !important; }
-.stk-item { font-size: 12px !important; }
+
+
+
+
+
+
 
 /* ═══ v20: Missing PnL classes ═══ */
 .pnl { font-family: var(--font-mono); font-weight: 700; font-size: 12px; }
@@ -2308,11 +2234,10 @@ html { scrollbar-width: thin; scrollbar-color: rgba(var(--ink-rgb),0.12) transpa
 .skip-link:focus { top: 0; }
 
 /* v30.11: 스크린리더 전용 텍스트 (시각적으로 숨김, 보조 기술에서 읽힘) */
-.sr-only {
-  position: absolute !important; width: 1px !important; height: 1px !important;
-  padding: 0 !important; margin: -1px !important; overflow: hidden !important;
-  clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important;
-}
+.sr-only { width: 1px;
+  padding: 0;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+ }
 
 /* ═══ v27: Loading Spinner ═══ */
 @keyframes spin27 { to { transform: rotate(360deg); } }
@@ -2376,8 +2301,8 @@ button:focus-visible, select:focus-visible, input:focus-visible, .nav-item:focus
 .scr-empty-state { padding:12px; border:0.5px dashed var(--border-strong); border-radius:var(--radius-inner); color:var(--data-amber); font-size:12px; font-weight:700; }
 .scr-empty-detail { margin-top:4px; color:var(--text-muted); font-size:12px; font-weight:400; line-height:1.5; }
 .scr-definition-error { margin-top:6px; padding:6px 8px; border-radius:var(--radius-inner); background:var(--data-red-soft); color:var(--red-12); font:12px/1.5 var(--font-mono); overflow-wrap:anywhere; }
-body.dark-theme .scr-profile-btn.active { color:var(--bg-base) !important; }
-body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
+body.dark-theme .scr-profile-btn.active { color:var(--bg-base); }
+
 /* v52.72 아이보리 4c: 시안은 9열 핵심 컬럼만 노출 — 나머지(순위/등급/섹터/모멘텀/추세/저변동/밸류/퀄리티/
    시총/진입?/시그널/최신뉴스/그룹헤더)는 기본 숨김, "전체 컬럼 보기" 토글로만 노출(삭제 아님). */
 #screener-results-table .scr-adv-col { display: none; }
@@ -2395,10 +2320,8 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
 
 /* ═══ v30.13d: RRG Chart 비율 수정 — 동적 캔버스 + 왜곡 방지 ═══ */
 #rrg-canvas {
-  max-height: 520px !important;
-  width: 100% !important;
   /* height는 JS에서 동적 설정 (drawRRG) */
-}
+ }
 
 /* ═══ v27.1: 시그널 페이지 2컬럼 그리드 비율 조정 ═══ */
 #page-signal [style*="grid-template-columns:1fr 1fr"] {
@@ -2411,44 +2334,26 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
 /* ═══ v27.2: 센티먼트 차트 — 컨테이너가 이미 높이 제한하므로 canvas 제약 완화 ═══ */
 #page-sentiment canvas {
   display: block;
-  width: 100% !important;
-  max-width: 100% !important;
   box-sizing: border-box;
-  max-height: 280px !important;
-}
+ }
 
 /* ═══ v50.15: 센티먼트 거대 여백 해소 — 2열 그리드에서 짧은 차트 카드가 긴 열(F&G 컴포넌트)에 맞춰
    stretch되며 카드 내부에 300~400px 빈 공간 발생. 그리드 아이템을 콘텐츠 높이로 정렬(stretch 차단). ═══ */
-#page-sentiment [style*="display:grid"],
-#page-sentiment [style*="display: grid"] {
-  align-items: start !important;
-  align-content: start !important;
-}
-#page-sentiment .aio-widget { align-self: start !important; }
+
 #page-sentiment { overflow-x: clip; }
-#page-sentiment .lwc-chart-container {
-  max-width: 100% !important;
-  overflow: hidden !important;
-}
+
 #page-sentiment .aio-section,
 #page-sentiment .aio-widget,
 #page-sentiment .data-widget {
   min-width: 0;
 }
-#page-sentiment iframe,
-#page-sentiment [class*="tradingview"],
-#page-sentiment [id*="tradingview"] {
-  max-width: 100% !important;
-  overflow: hidden !important;
-}
+
 
 /* v52.56 H3-D: FRED/매크로 차트도 좁은 노트북 그리드의 실제 부모 폭을 따름 */
 #page-macro canvas {
   display: block;
-  width: 100% !important;
-  max-width: 100% !important;
   box-sizing: border-box;
-}
+ }
 
 /* v52.56 H3-D: 의도된 결과표 가로 스크롤을 키보드·스크린리더에도 명시 */
 .aio-table-scroll {
@@ -2463,16 +2368,10 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
 }
 
 /* ═══ v27.1: 포트폴리오 도넛 차트 비율 제한 ═══ */
-#portfolio-donut {
-  max-height: 250px !important;
-  max-width: 250px !important;
-}
 #page-portfolio #pf-benchmark-chart {
   display: block;
-  width: 100% !important;
-  max-width: 100% !important;
   box-sizing: border-box;
-}
+ }
 
 /* ═══ v27.1: 전체 카드 간격 통일 ═══ */
 .page > .data-widget, .page > .aio-widget,
@@ -2482,16 +2381,10 @@ body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
 
 /* ═══ v27.4: 배터리 절약 — 애니메이션 줄이기 ═══ */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  
 }
 
 /* ═══ v20: Enhanced Tooltips for Beginners ═══ */
-.term-tooltip .tip-body {
-  width: 260px !important;
-  font-size: 12px !important;
-  line-height: 1.7 !important;
-  padding: 10px 14px !important;
-}
 
 /* ═══ Macro Page Animations ═══ */
 @keyframes pulse {
@@ -2514,8 +2407,7 @@ body.dark-theme {
 body.dark-theme canvas { filter:none; }
 /* .content/.sidebar/.topbar은 var(--bg-base)/var(--bg-surface) 참조라 위 토큰 재선언만으로 자동 전환됨.
    아래 nav-item 규칙만 하드코딩 rgba라 다크 전용 재정의 필요 */
-body.dark-theme .nav-item:hover { background: var(--white-a1) !important; }
-body.dark-theme .nav-item.active { background: var(--gold-a3) !important; color: var(--text-primary) !important; }
+body.dark-theme .nav-item.active { color: var(--text-primary); }
 /* ── v34.9: 다크/라이트 토글 버튼 ── */
 /* v40.6: 테마 토글 — 고정 위치 제거, 사이드바 하단에 통합 */
 .theme-toggle-btn { display:none; }
@@ -2526,14 +2418,11 @@ body.dark-theme .nav-item.active { background: var(--gold-a3) !important; color:
 .a11y-hold::before { content:'● '; font-size:0.7em; }
 /* ── v34.8: 인쇄 전용 스타일시트 ── */
 @media print {
-  .sidebar, .aio-btn-table,
-  .q-chip, .update-banner, .chat-expanded,
-  button, input, [onclick] { display:none !important; }
-  .page { display:block !important; position:static !important;
-    width:100% !important; padding:10px !important; }
-  body { background:#fff !important; color:#000 !important; font-size:11pt !important; }
-  .page-title { color:#000 !important; font-size:14pt !important; }
-  canvas { max-width:100% !important; page-break-inside:avoid; background:#fff !important; }
+  
+  
+  body { font-size:11pt; }
+  .page-title { font-size:14pt; }
+  canvas { page-break-inside:avoid; }
 }
 
 /* ── v48.92: Fund Analysis 탭 그룹 ─────────────────────────────── */
@@ -2570,8 +2459,7 @@ body.dark-theme .nav-item.active { background: var(--gold-a3) !important; color:
 }
 
 /* v50.73 source badges; the v59.70 (D2) delete removed the dev-only decision header styles */
-.aio-audit-widget { display:none !important; }
-body.aio-dev-mode .aio-audit-widget { display:block !important; }
+
 .aio-source-badge, .aio-confidence-badge {
   display:inline-flex; align-items:center; gap:4px;
   padding:3px 8px; border-radius:var(--radius-full); font-size:12px; font-weight:800;
@@ -2627,15 +2515,15 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
 /* v51.43: visual hierarchy refresh (R231) — v52.62 아이보리 리디자인으로 값만 교체, 선언 구조·
    R231 취지(반복 cyan 액센트/균질 카드/과도한 letter-spacing 축소로 우선순위 회복)는 그대로 유지 */
 body {
-  background: var(--bg-base) !important;
+  background: var(--bg-base);
 }
 .content {
-  background: var(--bg-base) !important;
+  background: var(--bg-base);
 }
 .sidebar,
 .topbar {
-  background: var(--bg-surface) !important;
-  border-color: var(--border) !important;
+  background: var(--bg-surface);
+  border-color: var(--border);
 }
 .logo {
   background: rgba(var(--ink-rgb),0.02);
@@ -2646,25 +2534,22 @@ body {
   background: linear-gradient(90deg, var(--text-secondary), var(--data-cyan));
 }
 .logo-sub {
-  letter-spacing: 0 !important;
+  letter-spacing: 0;
 }
 .nav-item {
-  border-radius: var(--radius-element) !important;
-  color: var(--text-secondary) !important;
-}
+  color: var(--text-secondary);
+ }
 .nav-item::before {
   width: 4px;
   height: 24px;
   border-radius: 0 var(--radius-inner) var(--radius-inner) 0;
   background: var(--text-secondary);
 }
-.nav-item:hover {
-  background: rgba(var(--ink-rgb),0.05) !important;
-}
+
 .nav-item.active {
-  background: rgba(var(--ink-rgb),0.05) !important;
-  color: var(--text-primary) !important;
-  font-weight: 700 !important;
+  background: rgba(var(--ink-rgb),0.05);
+  color: var(--text-primary);
+  font-weight: 700;
 }
 .page.active {
   max-width: 1480px;
@@ -2676,57 +2561,38 @@ body {
 .kr-idx-card,
 .kr-theme-card,
 .kr-screen-card {
-  border-radius: var(--radius-element) !important;
-  border-color: rgba(var(--ink-rgb),0.13) !important;
-  background: color-mix(in srgb, var(--bg-card) 92%, white 8%) !important;
-  box-shadow:none !important;
+  border-radius: var(--radius-element);
+  border-color: rgba(var(--ink-rgb),0.13);
+  background: color-mix(in srgb, var(--bg-card) 92%, white 8%);
+  box-shadow:none;
 }
 /* tg-live-feed는 투명 배경으로 페이지에 흡수 (v51.48 visual coherence) */
-.tg-live-feed {
-  border-radius: var(--radius-element) !important;
-  border-color: rgba(var(--ink-rgb),0.13) !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-.tg-live-feed-hd {
-  background: rgba(var(--ink-rgb),0.025) !important;
-  border-bottom-color: rgba(var(--ink-rgb),0.08) !important;
-}
+
 .widget-title,
 .aio-card-title,
 .section-header {
-  color: var(--text-primary) !important;
-  letter-spacing: 0 !important;
+  color: var(--text-primary);
+  letter-spacing: 0;
 }
-.aio-source-badge,
-.aio-confidence-badge,
-.status-pill,
-.pill-chip {
-  border-radius: var(--radius-full) !important;
-  letter-spacing: 0 !important;
-}
-.aio-ai-context-btn {
-  border-radius: var(--radius-element) !important;
-  color: var(--accent-text) !important;
-}
+
+
 #home-operator-note .aio-operator-note-card {
   position: relative;
-  border-radius: var(--radius-element) !important;
-  border: 0.5px solid rgba(var(--ink-rgb),0.32) !important;
+  border-radius: var(--radius-element);
+  border: 0.5px solid rgba(var(--ink-rgb),0.32);
   
-  background: var(--bg-card) !important;
-  box-shadow:none !important;
+  background: var(--bg-card);
+  box-shadow:none;
 }
 #home-operator-note .aio-operator-note-kicker {
-  color: var(--data-amber) !important;
-  letter-spacing: 0 !important;
+  color: var(--data-amber);
+  letter-spacing: 0;
 }
 #home-operator-note .aio-operator-note-title {
-  font-size: 18px !important;
-  line-height: 1.34 !important;
+  font-size: 18px;
+  line-height: 1.34;
 }
 .aio-public-readiness {
-  display: none !important;
   grid-template-columns: minmax(180px, 0.8fr) repeat(3, minmax(130px, 1fr));
   gap: 8px;
   margin: 0 0 12px;
@@ -2735,8 +2601,8 @@ body {
   
   border-radius: var(--radius-element);
   background: var(--bg-card);
-}
-body.aio-dev-mode .aio-public-readiness { display:grid !important; }
+ }
+
 .aio-public-readiness.is-ok { border-left-color: var(--data-green); }
 .aio-public-readiness.is-warn { border-left-color: var(--data-amber); }
 .aio-public-readiness.is-block { border-left-color: var(--data-red); }
@@ -2867,56 +2733,13 @@ body.aio-dev-mode .aio-public-readiness { display:grid !important; }
 .aio-page-advanced-body { padding:0 12px 12px; }
 /* v52.87 P702: 13개 아이보리 시안이 기본 정보구조다. 시안 밖 레거시/운영 패널은
    일반 사용자 경로에 접힌 행으로도 남기지 않고, 명시적 개발자 모드에서만 복구한다. */
-#page-home .aio-page-advanced-toggle:not([data-user-fold]),
-#page-signal .aio-page-advanced-toggle:not([data-user-fold]),
-#page-briefing .aio-page-advanced-toggle:not([data-user-fold]),
-#page-breadth .aio-page-advanced-toggle:not([data-user-fold]),
-#page-sentiment .aio-page-advanced-toggle:not([data-user-fold]),
-#page-technical .aio-page-advanced-toggle:not([data-user-fold]),
-#page-macro .aio-page-advanced-toggle:not([data-user-fold]),
-#page-fxbond .aio-page-advanced-toggle:not([data-user-fold]),
-#page-fundamental .aio-page-advanced-toggle:not([data-user-fold]),
-#page-themes .aio-page-advanced-toggle:not([data-user-fold]),
-#page-portfolio .aio-page-advanced-toggle:not([data-user-fold]),
-#page-market-news .aio-page-advanced-toggle:not([data-user-fold]),
-#page-screener .aio-page-advanced-toggle:not([data-user-fold]) { display:none !important; }
-body.aio-dev-mode #page-home .aio-page-advanced-toggle,
-body.aio-dev-mode #page-signal .aio-page-advanced-toggle,
-body.aio-dev-mode #page-briefing .aio-page-advanced-toggle,
-body.aio-dev-mode #page-breadth .aio-page-advanced-toggle,
-body.aio-dev-mode #page-sentiment .aio-page-advanced-toggle,
-body.aio-dev-mode #page-technical .aio-page-advanced-toggle,
-body.aio-dev-mode #page-macro .aio-page-advanced-toggle,
-body.aio-dev-mode #page-fxbond .aio-page-advanced-toggle,
-body.aio-dev-mode #page-fundamental .aio-page-advanced-toggle,
-body.aio-dev-mode #page-themes .aio-page-advanced-toggle,
-body.aio-dev-mode #page-portfolio .aio-page-advanced-toggle,
-body.aio-dev-mode #page-market-news .aio-page-advanced-toggle,
-body.aio-dev-mode #page-screener .aio-page-advanced-toggle, .page .aio-page-advanced-toggle[data-user-fold] { display:block !important; } /* P1327 → v57.81: user-content folds carry data-user-fold and show to everyone; inside them a widget without a source or against a product rule is data-dev-only */
-/* v52.88 P703: 시안 13면을 실제 기본 화면으로 고정한다. 운영 진단/중복 피드는
-   삭제하지 않고 개발자 모드에만 남겨 사용자 화면의 판단 밀도를 보존한다. */
-body:not(.aio-dev-mode) #market-pulse-bar,
-/* v57.71: #home-operator-note is "오늘의 한 문장" — user content, no longer an operator panel */
-body:not(.aio-dev-mode) #aio-public-readiness,
-body:not(.aio-dev-mode) #snapshot-stale-warning,
-body:not(.aio-dev-mode) #chat-home,
-body:not(.aio-dev-mode) #page-sentiment > .stale-badge,
-body:not(.aio-dev-mode) #live-source-static-badge,
-body:not(.aio-dev-mode) #server-data-age,
-body:not(.aio-dev-mode) #llm-header-badge,
-body:not(.aio-dev-mode) #llm-quota,
-body:not(.aio-dev-mode) #topbar-refresh-btn,
-body:not(.aio-dev-mode) #fund-pre-search-guide,
-body:not(.aio-dev-mode) #fund-earnings-calendar,
-body:not(.aio-dev-mode) #page-signal > details:not(.page-sources), /* v59.51 (run-6 #14): never the 데이터 출처 fold; the breadth and sentiment lines left — those pages keep no developer-only folds */
-/* P1257/LC-35 제품 결정(2026-09-25): 테마 페이지 숨김 구형 섹션을 분류했다 —
+ /* P1327 → v57.81: user-content folds carry data-user-fold and show to everyone; inside them a widget without a source or against a product rule is data-dev-only *//* v52.88 P703: 시안 13면을 실제 기본 화면으로 고정한다. 운영 진단/중복 피드는
+   삭제하지 않고 개발자 모드에만 남겨 사용자 화면의 판단 밀도를 보존한다. *//* v57.71: #home-operator-note is "오늘의 한 문장" — user content, no longer an operator panel *//* v59.51 (run-6 #14): never the 데이터 출처 fold; the breadth and sentiment lines left — those pages keep no developer-only folds *//* P1257/LC-35 제품 결정(2026-09-25): 테마 페이지 숨김 구형 섹션을 분류했다 —
    ① 퇴역(삭제): 시장 리더십 미러·섹터 ETF 20일 추이·테마 히트맵·대표 ETF 그리드(칩·상세와 중복되는 구형).
    ② 공개 경로로 이전: 경기 사이클(리드 판정·재배치 계약)·섹터 퍼포먼스(네이티브 렌더러 계약).
    ③ 개발자 번들로 이전: 세분화 테마 45·한국 28테마 통합 — v52.87 P702 고급 토글 경로 유지(계약 DOM 보존).
    공개 문구는 공개 노출 범위만 약속한다. 구형 일괄 숨김 규칙 자체도 제거했다. */
-body:not(.aio-dev-mode) .aio-operator-control,
-body:not(.aio-dev-mode) .page [id^="tg-feed-"]:not(#tg-feed-market-news) { display:none !important; }
-body:not(.aio-dev-mode) #page-home > details.aio-card { padding-top:0 !important; }
+
 
 /* v53.69/P875: the completed 24-hour Telegram lane is a user-facing evidence
    surface, not an operator duplicate.  Keep the public feed compact while
@@ -2931,17 +2754,16 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card { margin-bottom: 5px; }
 body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 
 /* 4a 시안: 총손익·현금·노출규칙의 3열 요약. */
-#pf-hero-stats { grid-template-columns:repeat(3,minmax(0,1fr)) !important; }
-#pf-freshness-strip { display:none !important; }
+
 
 /* 4c 시안은 첫 화면에 12개 후보만 보여주고 전체 결과는 점진 공개한다. */
 #scr-load-more-wrap { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:14px; }
-#scr-load-more-wrap[hidden] { display:none !important; }
+
 #news-load-more-wrap { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:16px; }
-#news-load-more-wrap[hidden] { display:none !important; }
+
 body:not(.aio-dev-mode) #briefing-live-news-list { max-height:820px; overflow:hidden; }
 body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; overflow:visible; }
-#risk-banner { background:transparent !important; border-top:0.5px solid var(--border-subtle) !important; color:var(--text-dim) !important; margin-top:28px !important; padding:12px 0 !important; }
+
 #risk-banner button { display:none; }
 
 /* v52.89 P704: 사용설명서·용어사전·한국 5면도 13면 시안의 조용한 정보 위계를 공유한다. */
@@ -2973,7 +2795,7 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 .aio-guide-chapter > .aio-section { margin-bottom:16px; }
 .aio-comp-secondary-feed { display:none; }
 #page-guide > .aio-explain { margin:16px 0 0; }
-#page-guide #guide-public-policy { margin-top:28px !important; }
+
 #page-guide .aio-guide-chapter .aio-section-hd { display:none; }
 #kr-integrated-themes .kr-theme-grid { gap:12px; }
 #kr-integrated-themes .aio-theme-progressive .kr-theme-card:nth-child(n+4) { display:none; }
@@ -2985,18 +2807,17 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 .kr-theme-card-more > summary:after { content:'+'; margin-left:auto; font-size:14px; font-weight:400; }
 .kr-theme-card-more[open] > summary:after { content:'−'; }
 .kr-theme-memo-full { padding:8px 0 2px; font-size:12px; line-height:1.7; color:var(--text-secondary); }
-#glossary-modal { background:var(--black-a6) !important; backdrop-filter:blur(2px) !important; }
-#glossary-modal > div { max-width:860px !important; max-height:86vh !important; background:var(--bg-elevated) !important; border-color:var(--border) !important; color:var(--text-primary); border-radius:var(--radius-element) !important; box-shadow:0 24px 70px var(--black-a4); }
-#glossary-modal h2 { font-family:var(--font-display); font-size:18px !important; font-weight:600; color:var(--text-primary) !important; }
-#glossary-body .aio-glossary-item { padding:15px 0 !important; }
-#glossary-body .aio-glossary-term { color:var(--text-primary) !important; font-family:var(--font-display); font-size:14px !important; }
+#glossary-modal { background:var(--black-a6); backdrop-filter:blur(2px); }
+#glossary-modal > div { max-width:860px; background:var(--bg-elevated); border-color:var(--border); color:var(--text-primary); border-radius:var(--radius-element); box-shadow:0 24px 70px var(--black-a4); }
+#glossary-modal h2 { font-family:var(--font-display); font-size:18px; font-weight:600; color:var(--text-primary); }
+
+#glossary-body .aio-glossary-term { font-family:var(--font-display); }
 
 /* 시안의 조용한 브랜드/내비게이션. */
-.logo .aio-avatar { display:none !important; }
-.logo-mark { font-family:var(--font-display) !important; font-size:28px !important; letter-spacing:-0.03em !important; }
+.logo-mark { font-family:var(--font-display); font-size:28px; letter-spacing:-0.03em; }
 .logo-sub { margin-top:2px; }
-.nav-icon { display:none !important; }
-.nav-item { padding-left:12px !important; }
+
+.nav-item { padding-left:12px; }
 /* 포트폴리오는 시안 4a 순서(보유→리스크→배분→벤치마크→종목분석)를 CSS order로 고정한다. */
 #pf-main { flex-direction:column; }
 #pf-main > * { order:90; }
@@ -3013,8 +2834,8 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 #pf-holdings-analysis-section { order:5; }
 /* v52.39 P654: 페이지 기초 가이드 (기본 접힘, .aio-page-advanced-toggle 상속) */
 .aio-fund { margin:10px 0 12px; border:0.5px solid var(--border); border-radius:var(--radius-element); background:var(--bg-secondary); }
-.aio-page-dense-folded { display:none !important; }
-.aio-page-advanced-body .aio-page-dense-folded:not(.insight-box) { display:block !important; }
+
+
 /* v53.6: ticker 종목 개요 행 (v57.76: the unused .ticker-ov-grid two-column layout rule is removed) */
 /* Buy phase label (Buy Alert / Buy Ready / SEPA style) */
 .aio-visual-report { margin:12px 0 14px; padding:12px; border:0.5px solid var(--border); border-radius:var(--radius-inner); background:var(--bg-card); }
@@ -3035,12 +2856,6 @@ body:not(.aio-dev-mode) #briefing-live-news-list.is-expanded { max-height:none; 
 }
 
 /* 필터 버튼 활성 상태 — 전 페이지 통일 */
-button[data-filter-active="true"] {
-  background: rgba(var(--ink-rgb),0.15) !important;
-  border-color: rgba(var(--ink-rgb),0.45) !important;
-  color: var(--accent) !important;
-  font-weight: 700 !important;
-}
 
 /* ═══ 페이지 최대 너비 오버플로 방지 ═══ */
 .page, .aio-widget, .data-widget { max-width: 100%; box-sizing: border-box; }
@@ -3240,7 +3055,7 @@ button[data-filter-active="true"] {
 .atlas-taxonomy-relations { color:var(--text-secondary); }
 .atlas-module-source-details { margin-top:8px; padding-top:7px; border-top:0.5px solid var(--border); }
 .atlas-module-source-summary { color:var(--text-secondary); font-size:12px; font-weight:700; cursor:pointer; }
-.atlas-node-guide-boundary { color:var(--text-muted) !important; }
+
 .atlas-card-meta { display:flex; justify-content:space-between; gap:8px; align-items:center; }
 .atlas-card-title { margin:8px 0 5px; color:var(--text-primary); font-size:14px; line-height:1.35; }
 .atlas-card-copy { margin:0; color:var(--text-secondary); font-size:14px; line-height:1.7; }
@@ -3285,6 +3100,7 @@ button[data-filter-active="true"] {
 /* v54.47: controls that users must click or fill need a predictable hit area (desktop density). */
 .page input:not([type="hidden"]), .page select, .page textarea { min-height:40px; box-sizing:border-box; }
 .page button, .page [role="button"] { min-height:36px; }
+} /* @layer legacy */
 </style>
 <link rel="stylesheet" href="src/ui/styles/responsive.css"></head>
 <body>

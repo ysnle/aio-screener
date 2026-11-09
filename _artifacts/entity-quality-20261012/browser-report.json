@@ -6,19 +6,19 @@
     "P1626",
     "P1627"
   ],
-  "version": "v59.86",
+  "version": "v59.89",
   "sourceHashes": {
-    "index.html": "18848aaf56fce8ac7925a8a4333f87bb1ba6aa09929dae9a75b4c564613eac8c",
-    "src/ui/pages/entity.js": "f1caf2ff2bb0696a44a391d115793dc9e169597f20dc50182f399b7f41aaba71",
+    "index.html": "e4384434c2ba6b3e7c38f97618b13aa03cfee60c3bfe9dcf03ffeea10f468e8c",
+    "src/ui/pages/entity.js": "214f1d58c02ce0c7fe8f36139c1c99ef89fdee412d963fe45acce1add394adaa",
     "src/ui/pages/screener.js": "ebe10360d1dc204f0d0770afe86d63b5ff9003c507df7ed73e806747f96d29d9",
-    "src/ui/pages/analysis.js": "1510994fb7a31ca695c240153f52ba00ff4bdfb31a8f827c1a4cdd06d3fab78b",
-    "src/ui/components/stock-chart.js": "7b98e665bddb58b433b3a28bdb930b1e4eaf7993c67e10db256b226c1d2b31fa",
-    "src/ui/components/stock-read.js": "5f383c5c02ad167b3837a16b5e60ab7ee7b5bdc70732d93e44f7cd4c79833b80",
-    "src/ui/components/fiscal-read.js": "7541d3d3532bb26f8794e0ae1a3130edd15c28f8a2b0b37d3956182d84054134",
-    "src/domain/entity/summary-hydration.js": "218ea3f2216e59b1fbe4ef361ec17c045ca6fec67e75f900c984bdb6b85f812c",
+    "src/ui/pages/analysis.js": "ab5ae20e558a34ad29a22c556a8080e78bac9c9729c508bc8040db7d3cbf2378",
+    "src/ui/components/stock-chart.js": "b8a0a133d1b8ad787ea73ff97959e2b6c90db0831b8fe6f7fbb65494ddf10999",
+    "src/ui/components/stock-read.js": "23da837d059da97a4454c18f7daa26a70e6341738c7608ea75d5cc0f74f6ebf0",
+    "src/ui/components/fiscal-read.js": "da0fd78c7ef52b8612b0c11d34c64eded13c481e4e88f2a56e57a2d715eb2687",
+    "src/domain/entity/summary-hydration.js": "38f39fac084103fb3e8d273debb308475286b87990ce5025c473bc898dcf123f",
     "src/domain/screener/market-scope.js": "ac4a26f2d0b195ef36157cb7dcd88b2a1e8c004b32f9f2c360dc5c7c1157701e",
-    "src/domain/screener/factor-ranks.js": "fe5509bc81b92dfcbd5b0cb6476a48774dcaa7bdea1064cf58b6c4a132e768ed",
-    "src/data/providers/screener.js": "b35d41746350ecec2ee1340b1a48ed10b509222967952da017c8ad448d1ab9ba",
+    "src/domain/screener/factor-ranks.js": "437dd149f22470c39152fc7ea8b19283d61cb9f788f696a1a467ba04687c4406",
+    "src/data/providers/screener.js": "a9480f10ef181df5012d0cccca1d06b8fcc62dbb16a928b65464a25dec3c80b4",
     "src/domain/fundamental/fiscal-read.js": "d6cc2bc9eb52219321ad2fe858a2456ce1cdd4336c7f7669af317d5905027db1",
     "src/domain/technical/chart-scenarios.js": "9fb309f3c37385bf22c77e19972be6976be98e7c800ae77caa0b1bd064e56632"
   },
@@ -123,23 +123,7 @@
           }
         ]
       },
-      "fixtureRequests": 1
-    },
-    {
-      "label": "tablet-light/summary",
-      "layout": {
-        "route": "page-ticker",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "tablet-light",
-      "stockFoldRerender": {
-        "exists": true,
-        "open": true,
-        "focus": true
-      }
+      "fixtureRequests": 2
     },
     {
       "label": "phone-light",
@@ -202,7 +186,15 @@
           }
         ]
       },
-      "fixtureRequests": 2
+      "fixtureRequests": 1
+    },
+    {
+      "label": "tablet-light/summary",
+      "layout": {
+        "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
+      }
     },
     {
       "label": "phone-light/summary",
@@ -213,7 +205,30 @@
       }
     },
     {
+      "label": "phone-light",
+      "stockFoldRerender": {
+        "exists": true,
+        "open": true,
+        "focus": true
+      }
+    },
+    {
       "label": "tablet-light",
+      "stockFoldRerender": {
+        "exists": true,
+        "open": true,
+        "focus": true
+      }
+    },
+    {
+      "label": "tablet-light",
+      "companyFoldRerender": {
+        "open": true,
+        "focus": true
+      }
+    },
+    {
+      "label": "phone-light",
       "companyFoldRerender": {
         "open": true,
         "focus": true
@@ -306,21 +321,6 @@
       }
     },
     {
-      "label": "phone-light",
-      "stockFoldRerender": {
-        "exists": true,
-        "open": true,
-        "focus": true
-      }
-    },
-    {
-      "label": "phone-light",
-      "companyFoldRerender": {
-        "open": true,
-        "focus": true
-      }
-    },
-    {
       "label": "tablet-light",
       "market": "US",
       "listing": [
@@ -394,62 +394,62 @@
         {
           "symbol": "180640.KS",
           "price": "—",
-          "ret3m": 62.9
+          "ret3m": 69.4
         },
         {
           "symbol": "328130.KQ",
           "price": "—",
-          "ret3m": 43.7
-        },
-        {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 38.7
+          "ret3m": 50.3
         },
         {
           "symbol": "035760.KQ",
           "price": "—",
-          "ret3m": 36.3
+          "ret3m": 42.1
         },
         {
-          "symbol": "192820.KS",
+          "symbol": "036540.KQ",
           "price": "—",
-          "ret3m": 30.4
+          "ret3m": 31.9
         },
         {
-          "symbol": "028050.KS",
+          "symbol": "030530.KQ",
           "price": "—",
-          "ret3m": 26.7
+          "ret3m": 30.1
         },
         {
           "symbol": "128940.KS",
           "price": "—",
-          "ret3m": 23.5
+          "ret3m": 25
         },
         {
-          "symbol": "112610.KS",
+          "symbol": "192820.KS",
           "price": "—",
-          "ret3m": 23.2
+          "ret3m": 23.6
+        },
+        {
+          "symbol": "028050.KS",
+          "price": "—",
+          "ret3m": 23.4
         },
         {
           "symbol": "280360.KS",
           "price": "—",
-          "ret3m": 19.8
+          "ret3m": 19.6
         },
         {
-          "symbol": "241710.KQ",
+          "symbol": "005180.KS",
           "price": "—",
-          "ret3m": 17.9
+          "ret3m": 19.5
         },
         {
-          "symbol": "031980.KQ",
+          "symbol": "112610.KS",
           "price": "—",
-          "ret3m": 15.8
+          "ret3m": 18.7
         },
         {
-          "symbol": "021240.KS",
+          "symbol": "302440.KS",
           "price": "—",
-          "ret3m": 14.9
+          "ret3m": 16.8
         }
       ],
       "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
@@ -545,62 +545,62 @@
         {
           "symbol": "180640.KS",
           "price": "—",
-          "ret3m": 62.9
+          "ret3m": 69.4
         },
         {
           "symbol": "328130.KQ",
           "price": "—",
-          "ret3m": 43.7
-        },
-        {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 38.7
+          "ret3m": 50.3
         },
         {
           "symbol": "035760.KQ",
           "price": "—",
-          "ret3m": 36.3
+          "ret3m": 42.1
         },
         {
-          "symbol": "192820.KS",
+          "symbol": "036540.KQ",
           "price": "—",
-          "ret3m": 30.4
+          "ret3m": 31.9
         },
         {
-          "symbol": "028050.KS",
+          "symbol": "030530.KQ",
           "price": "—",
-          "ret3m": 26.7
+          "ret3m": 30.1
         },
         {
           "symbol": "128940.KS",
           "price": "—",
-          "ret3m": 23.5
+          "ret3m": 25
         },
         {
-          "symbol": "112610.KS",
+          "symbol": "192820.KS",
           "price": "—",
-          "ret3m": 23.2
+          "ret3m": 23.6
+        },
+        {
+          "symbol": "028050.KS",
+          "price": "—",
+          "ret3m": 23.4
         },
         {
           "symbol": "280360.KS",
           "price": "—",
-          "ret3m": 19.8
+          "ret3m": 19.6
         },
         {
-          "symbol": "241710.KQ",
+          "symbol": "005180.KS",
           "price": "—",
-          "ret3m": 17.9
+          "ret3m": 19.5
         },
         {
-          "symbol": "031980.KQ",
+          "symbol": "112610.KS",
           "price": "—",
-          "ret3m": 15.8
+          "ret3m": 18.7
         },
         {
-          "symbol": "021240.KS",
+          "symbol": "302440.KS",
           "price": "—",
-          "ret3m": 14.9
+          "ret3m": 16.8
         }
       ],
       "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
@@ -794,62 +794,62 @@
         {
           "symbol": "180640.KS",
           "price": "—",
-          "ret3m": 62.9
+          "ret3m": 69.4
         },
         {
           "symbol": "328130.KQ",
           "price": "—",
-          "ret3m": 43.7
-        },
-        {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 38.7
+          "ret3m": 50.3
         },
         {
           "symbol": "035760.KQ",
           "price": "—",
-          "ret3m": 36.3
+          "ret3m": 42.1
         },
         {
-          "symbol": "192820.KS",
+          "symbol": "036540.KQ",
           "price": "—",
-          "ret3m": 30.4
+          "ret3m": 31.9
         },
         {
-          "symbol": "028050.KS",
+          "symbol": "030530.KQ",
           "price": "—",
-          "ret3m": 26.7
+          "ret3m": 30.1
         },
         {
           "symbol": "128940.KS",
           "price": "—",
-          "ret3m": 23.5
+          "ret3m": 25
         },
         {
-          "symbol": "112610.KS",
+          "symbol": "192820.KS",
           "price": "—",
-          "ret3m": 23.2
+          "ret3m": 23.6
+        },
+        {
+          "symbol": "028050.KS",
+          "price": "—",
+          "ret3m": 23.4
         },
         {
           "symbol": "280360.KS",
           "price": "—",
-          "ret3m": 19.8
+          "ret3m": 19.6
         },
         {
-          "symbol": "241710.KQ",
+          "symbol": "005180.KS",
           "price": "—",
-          "ret3m": 17.9
+          "ret3m": 19.5
         },
         {
-          "symbol": "031980.KQ",
+          "symbol": "112610.KS",
           "price": "—",
-          "ret3m": 15.8
+          "ret3m": 18.7
         },
         {
-          "symbol": "021240.KS",
+          "symbol": "302440.KS",
           "price": "—",
-          "ret3m": 14.9
+          "ret3m": 16.8
         }
       ],
       "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
@@ -1158,77 +1158,6 @@
       }
     },
     {
-      "label": "desktop-light",
-      "summary": {
-        "price": "$84.64",
-        "basis": "정규장 관측가, 2026-10-10 05:00 한국 시간",
-        "business": "Aehr Test Systems 무엇을 하는 회사종목 등록 정보",
-        "source": "https://finance.yahoo.com/quote/AEHR/history/",
-        "canvas": {
-          "width": 1092,
-          "height": 210
-        },
-        "lastDate": "2026-10-09",
-        "native": "native",
-        "chart": {
-          "points": 23,
-          "width": 1028,
-          "height": 97.69998168945312,
-          "stroke": "color(srgb 0.703922 0.151961 0.178431)",
-          "up": "color-mix(in srgb, #ce2c31 75%, #641723)",
-          "down": "color-mix(in srgb, #0d74ce 75%, #113264)"
-        },
-        "active": "page-ticker",
-        "signed": [
-          {
-            "down": true,
-            "left": 11.09,
-            "width": 38.91,
-            "title": "AEHR -38.6%"
-          },
-          {
-            "down": true,
-            "left": 44.97,
-            "width": 5.03,
-            "title": "S&P 500(SPY, 배당 포함) -5.0%"
-          },
-          {
-            "down": true,
-            "left": 0,
-            "width": 50,
-            "title": "AEHR -49.6%"
-          },
-          {
-            "down": true,
-            "left": 45.31,
-            "width": 4.69,
-            "title": "S&P 500(SPY, 배당 포함) -4.7%"
-          },
-          {
-            "down": true,
-            "left": 4.7,
-            "width": 45.3,
-            "title": "AEHR -44.9%"
-          },
-          {
-            "down": false,
-            "left": 50,
-            "width": 0.6,
-            "title": "S&P 500(SPY, 배당 포함) +0.2%"
-          }
-        ]
-      },
-      "fixtureRequests": 2
-    },
-    {
-      "label": "desktop-light/summary",
-      "layout": {
-        "route": "page-ticker",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
       "label": "desktop-dark",
       "summary": {
         "price": "$84.64",
@@ -1301,8 +1230,101 @@
     },
     {
       "label": "desktop-light",
+      "summary": {
+        "price": "$84.64",
+        "basis": "정규장 관측가, 2026-10-10 05:00 한국 시간",
+        "business": "Aehr Test Systems 무엇을 하는 회사종목 등록 정보",
+        "source": "https://finance.yahoo.com/quote/AEHR/history/",
+        "canvas": {
+          "width": 1092,
+          "height": 210
+        },
+        "lastDate": "2026-10-09",
+        "native": "native",
+        "chart": {
+          "points": 23,
+          "width": 1028,
+          "height": 97.69998168945312,
+          "stroke": "color(srgb 0.703922 0.151961 0.178431)",
+          "up": "color-mix(in srgb, #ce2c31 75%, #641723)",
+          "down": "color-mix(in srgb, #0d74ce 75%, #113264)"
+        },
+        "active": "page-ticker",
+        "signed": [
+          {
+            "down": true,
+            "left": 11.09,
+            "width": 38.91,
+            "title": "AEHR -38.6%"
+          },
+          {
+            "down": true,
+            "left": 44.97,
+            "width": 5.03,
+            "title": "S&P 500(SPY, 배당 포함) -5.0%"
+          },
+          {
+            "down": true,
+            "left": 0,
+            "width": 50,
+            "title": "AEHR -49.6%"
+          },
+          {
+            "down": true,
+            "left": 45.31,
+            "width": 4.69,
+            "title": "S&P 500(SPY, 배당 포함) -4.7%"
+          },
+          {
+            "down": true,
+            "left": 4.7,
+            "width": 45.3,
+            "title": "AEHR -44.9%"
+          },
+          {
+            "down": false,
+            "left": 50,
+            "width": 0.6,
+            "title": "S&P 500(SPY, 배당 포함) +0.2%"
+          }
+        ]
+      },
+      "fixtureRequests": 2
+    },
+    {
+      "label": "desktop-light/summary",
+      "layout": {
+        "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "desktop-dark",
       "stockFoldRerender": {
         "exists": true,
+        "open": true,
+        "focus": true
+      }
+    },
+    {
+      "label": "desktop-light",
+      "stockFoldRerender": {
+        "exists": true,
+        "open": true,
+        "focus": true
+      }
+    },
+    {
+      "label": "desktop-dark",
+      "companyFoldRerender": {
+        "open": true,
+        "focus": true
+      }
+    },
+    {
+      "label": "desktop-light",
+      "companyFoldRerender": {
         "open": true,
         "focus": true
       }
@@ -1371,13 +1393,6 @@
       "fixtureRequests": 2
     },
     {
-      "label": "desktop-light",
-      "companyFoldRerender": {
-        "open": true,
-        "focus": true
-      }
-    },
-    {
       "label": "tablet-dark/summary",
       "layout": {
         "route": "page-ticker",
@@ -1386,24 +1401,9 @@
       }
     },
     {
-      "label": "desktop-dark",
-      "stockFoldRerender": {
-        "exists": true,
-        "open": true,
-        "focus": true
-      }
-    },
-    {
       "label": "tablet-dark",
       "stockFoldRerender": {
         "exists": true,
-        "open": true,
-        "focus": true
-      }
-    },
-    {
-      "label": "desktop-dark",
-      "companyFoldRerender": {
         "open": true,
         "focus": true
       }
@@ -1414,6 +1414,73 @@
         "open": true,
         "focus": true
       }
+    },
+    {
+      "label": "desktop-dark",
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "MRNA",
+          "price": "$254.1911/6 종가",
+          "ret3m": 325
+        },
+        {
+          "symbol": "EPAM",
+          "price": "$159.3111/6 종가",
+          "ret3m": 63.6
+        },
+        {
+          "symbol": "ACN",
+          "price": "$260.5011/6 종가",
+          "ret3m": 47.3
+        },
+        {
+          "symbol": "APPN",
+          "price": "—",
+          "ret3m": 45
+        },
+        {
+          "symbol": "RVTY",
+          "price": "$155.1111/6 종가",
+          "ret3m": 33.8
+        },
+        {
+          "symbol": "GME",
+          "price": "$25.1211/6 종가",
+          "ret3m": 33.7
+        },
+        {
+          "symbol": "TYL",
+          "price": "$420.5611/6 종가",
+          "ret3m": 32
+        },
+        {
+          "symbol": "EXEL",
+          "price": "$69.5711/6 종가",
+          "ret3m": 31.4
+        },
+        {
+          "symbol": "AMC",
+          "price": "—",
+          "ret3m": 29.8
+        },
+        {
+          "symbol": "VEEV",
+          "price": "$303.7311/6 종가",
+          "ret3m": 29.4
+        },
+        {
+          "symbol": "PTC",
+          "price": "$195.0711/6 종가",
+          "ret3m": 29.2
+        },
+        {
+          "symbol": "HAS",
+          "price": "$118.9111/6 종가",
+          "ret3m": 26.8
+        }
+      ],
+      "note": "미국 순위 계산 823종목(기본 종목 범위), 표시 334개"
     },
     {
       "label": "desktop-light",
@@ -1483,68 +1550,152 @@
       "note": "미국 순위 계산 823종목(기본 종목 범위), 표시 334개"
     },
     {
+      "label": "desktop-dark",
+      "market": "KR",
+      "listing": [
+        {
+          "symbol": "180640.KS",
+          "price": "—",
+          "ret3m": 69.4
+        },
+        {
+          "symbol": "328130.KQ",
+          "price": "—",
+          "ret3m": 50.3
+        },
+        {
+          "symbol": "035760.KQ",
+          "price": "—",
+          "ret3m": 42.1
+        },
+        {
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 31.9
+        },
+        {
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 30.1
+        },
+        {
+          "symbol": "128940.KS",
+          "price": "—",
+          "ret3m": 25
+        },
+        {
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 23.6
+        },
+        {
+          "symbol": "028050.KS",
+          "price": "—",
+          "ret3m": 23.4
+        },
+        {
+          "symbol": "280360.KS",
+          "price": "—",
+          "ret3m": 19.6
+        },
+        {
+          "symbol": "005180.KS",
+          "price": "—",
+          "ret3m": 19.5
+        },
+        {
+          "symbol": "112610.KS",
+          "price": "—",
+          "ret3m": 18.7
+        },
+        {
+          "symbol": "302440.KS",
+          "price": "—",
+          "ret3m": 16.8
+        }
+      ],
+      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
+    },
+    {
+      "label": "desktop-dark",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "desktop-dark/screener",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
       "label": "desktop-light",
       "market": "KR",
       "listing": [
         {
           "symbol": "180640.KS",
           "price": "—",
-          "ret3m": 62.9
+          "ret3m": 69.4
         },
         {
           "symbol": "328130.KQ",
           "price": "—",
-          "ret3m": 43.7
-        },
-        {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 38.7
+          "ret3m": 50.3
         },
         {
           "symbol": "035760.KQ",
           "price": "—",
-          "ret3m": 36.3
+          "ret3m": 42.1
         },
         {
-          "symbol": "192820.KS",
+          "symbol": "036540.KQ",
           "price": "—",
-          "ret3m": 30.4
+          "ret3m": 31.9
         },
         {
-          "symbol": "028050.KS",
+          "symbol": "030530.KQ",
           "price": "—",
-          "ret3m": 26.7
+          "ret3m": 30.1
         },
         {
           "symbol": "128940.KS",
           "price": "—",
-          "ret3m": 23.5
+          "ret3m": 25
         },
         {
-          "symbol": "112610.KS",
+          "symbol": "192820.KS",
           "price": "—",
-          "ret3m": 23.2
+          "ret3m": 23.6
+        },
+        {
+          "symbol": "028050.KS",
+          "price": "—",
+          "ret3m": 23.4
         },
         {
           "symbol": "280360.KS",
           "price": "—",
-          "ret3m": 19.8
+          "ret3m": 19.6
         },
         {
-          "symbol": "241710.KQ",
+          "symbol": "005180.KS",
           "price": "—",
-          "ret3m": 17.9
+          "ret3m": 19.5
         },
         {
-          "symbol": "031980.KQ",
+          "symbol": "112610.KS",
           "price": "—",
-          "ret3m": 15.8
+          "ret3m": 18.7
         },
         {
-          "symbol": "021240.KS",
+          "symbol": "302440.KS",
           "price": "—",
-          "ret3m": 14.9
+          "ret3m": 16.8
         }
       ],
       "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
@@ -1567,73 +1718,6 @@
       }
     },
     {
-      "label": "desktop-dark",
-      "market": "US",
-      "listing": [
-        {
-          "symbol": "MRNA",
-          "price": "$254.1911/6 종가",
-          "ret3m": 325
-        },
-        {
-          "symbol": "EPAM",
-          "price": "$159.3111/6 종가",
-          "ret3m": 63.6
-        },
-        {
-          "symbol": "ACN",
-          "price": "$260.5011/6 종가",
-          "ret3m": 47.3
-        },
-        {
-          "symbol": "APPN",
-          "price": "—",
-          "ret3m": 45
-        },
-        {
-          "symbol": "RVTY",
-          "price": "$155.1111/6 종가",
-          "ret3m": 33.8
-        },
-        {
-          "symbol": "GME",
-          "price": "$25.1211/6 종가",
-          "ret3m": 33.7
-        },
-        {
-          "symbol": "TYL",
-          "price": "$420.5611/6 종가",
-          "ret3m": 32
-        },
-        {
-          "symbol": "EXEL",
-          "price": "$69.5711/6 종가",
-          "ret3m": 31.4
-        },
-        {
-          "symbol": "AMC",
-          "price": "—",
-          "ret3m": 29.8
-        },
-        {
-          "symbol": "VEEV",
-          "price": "$303.7311/6 종가",
-          "ret3m": 29.4
-        },
-        {
-          "symbol": "PTC",
-          "price": "$195.0711/6 종가",
-          "ret3m": 29.2
-        },
-        {
-          "symbol": "HAS",
-          "price": "$118.9111/6 종가",
-          "ret3m": 26.8
-        }
-      ],
-      "note": "미국 순위 계산 823종목(기본 종목 범위), 표시 334개"
-    },
-    {
       "label": "tablet-dark",
       "market": "US",
       "listing": [
@@ -1701,144 +1785,68 @@
       "note": "미국 순위 계산 823종목(기본 종목 범위), 표시 334개"
     },
     {
-      "label": "desktop-dark",
-      "market": "KR",
-      "listing": [
-        {
-          "symbol": "180640.KS",
-          "price": "—",
-          "ret3m": 62.9
-        },
-        {
-          "symbol": "328130.KQ",
-          "price": "—",
-          "ret3m": 43.7
-        },
-        {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 38.7
-        },
-        {
-          "symbol": "035760.KQ",
-          "price": "—",
-          "ret3m": 36.3
-        },
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 30.4
-        },
-        {
-          "symbol": "028050.KS",
-          "price": "—",
-          "ret3m": 26.7
-        },
-        {
-          "symbol": "128940.KS",
-          "price": "—",
-          "ret3m": 23.5
-        },
-        {
-          "symbol": "112610.KS",
-          "price": "—",
-          "ret3m": 23.2
-        },
-        {
-          "symbol": "280360.KS",
-          "price": "—",
-          "ret3m": 19.8
-        },
-        {
-          "symbol": "241710.KQ",
-          "price": "—",
-          "ret3m": 17.9
-        },
-        {
-          "symbol": "031980.KQ",
-          "price": "—",
-          "ret3m": 15.8
-        },
-        {
-          "symbol": "021240.KS",
-          "price": "—",
-          "ret3m": 14.9
-        }
-      ],
-      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
-    },
-    {
-      "label": "desktop-dark",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
       "label": "tablet-dark",
       "market": "KR",
       "listing": [
         {
           "symbol": "180640.KS",
           "price": "—",
-          "ret3m": 62.9
+          "ret3m": 69.4
         },
         {
           "symbol": "328130.KQ",
           "price": "—",
-          "ret3m": 43.7
-        },
-        {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 38.7
+          "ret3m": 50.3
         },
         {
           "symbol": "035760.KQ",
           "price": "—",
-          "ret3m": 36.3
+          "ret3m": 42.1
         },
         {
-          "symbol": "192820.KS",
+          "symbol": "036540.KQ",
           "price": "—",
-          "ret3m": 30.4
+          "ret3m": 31.9
         },
         {
-          "symbol": "028050.KS",
+          "symbol": "030530.KQ",
           "price": "—",
-          "ret3m": 26.7
+          "ret3m": 30.1
         },
         {
           "symbol": "128940.KS",
           "price": "—",
-          "ret3m": 23.5
+          "ret3m": 25
         },
         {
-          "symbol": "112610.KS",
+          "symbol": "192820.KS",
           "price": "—",
-          "ret3m": 23.2
+          "ret3m": 23.6
+        },
+        {
+          "symbol": "028050.KS",
+          "price": "—",
+          "ret3m": 23.4
         },
         {
           "symbol": "280360.KS",
           "price": "—",
-          "ret3m": 19.8
+          "ret3m": 19.6
         },
         {
-          "symbol": "241710.KQ",
+          "symbol": "005180.KS",
           "price": "—",
-          "ret3m": 17.9
+          "ret3m": 19.5
         },
         {
-          "symbol": "031980.KQ",
+          "symbol": "112610.KS",
           "price": "—",
-          "ret3m": 15.8
+          "ret3m": 18.7
         },
         {
-          "symbol": "021240.KS",
+          "symbol": "302440.KS",
           "price": "—",
-          "ret3m": 14.9
+          "ret3m": 16.8
         }
       ],
       "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
@@ -1861,15 +1869,7 @@
       }
     },
     {
-      "label": "desktop-dark/screener",
-      "layout": {
-        "route": "page-screener",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "tablet-dark",
+      "label": "desktop-dark",
       "fiscal": {
         "rows": 19,
         "captions": [
@@ -2057,7 +2057,15 @@
       }
     },
     {
-      "label": "desktop-dark",
+      "label": "desktop-dark/fiscal",
+      "layout": {
+        "route": "page-fundamental",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "tablet-dark",
       "fiscal": {
         "rows": 19,
         "captions": [
@@ -2144,14 +2152,6 @@
         ],
         "tableText": "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-311,660만 달러-203만 달러-270만 달러23만 달러-293만 달러1,145만 달러0달러24.2M주2022-05-315,083만 달러945만 달러151만 달러42만 달러109만 달러5,099만 달러자료 없음27.3M주2023-05-316,496만 달러1,456만 달러1,001만 달러136만 달러865만 달러7,560만 달러자료 없음28.8M주2024-05-316,622만 달러3,316만 달러176만 달러75만 달러101만 달러1.1억 달러자료 없음29.0M주2025-05-305,897만 달러-391만 달러-740만 달러499만 달러-1,239만 달러1.2억 달러자료 없음29.9M주2026-05-295,000만 달러-713만 달러-331만 달러207만 달러-538만 달러2.2억 달러자료 없음32.6M주",
         "basis": "직전 발표 7/14, 다음 실적 일정 미확정"
-      }
-    },
-    {
-      "label": "desktop-dark/fiscal",
-      "layout": {
-        "route": "page-fundamental",
-        "overflow": 0,
-        "clipped": []
       }
     },
     {

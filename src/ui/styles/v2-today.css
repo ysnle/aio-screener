@@ -27,9 +27,9 @@
 
 /* v59.51: the day's question (#home-operator-note, filled by js/aio-data.js) is the hero's second line — no card of its own,
    and its "m/d 종가 기준 '판정'" line is not repeated under the verdict word it sits beside. */
-#page-home #home-score-hero #home-operator-note .aio-operator-note-card { margin: 0; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none; } /* soft-ui §3 sets the card shadow with !important */
+#page-home #home-score-hero #home-operator-note .aio-operator-note-card { margin: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; } /* soft-ui §3 sets the card shadow with !important */
 #page-home #home-score-hero #home-operator-note .aio-operator-note-meta { display: flex; gap: 8px; align-items: baseline; margin: 0 0 2px; font-size: 12px; color: var(--text-muted); }
-#page-home #home-score-hero #home-operator-note .aio-operator-note-title { margin: 0; font-size: 14px !important; font-weight: 500; line-height: 1.6 !important; color: var(--text-primary); } /* index.html sets the stand-alone card's 18px/1.34 with !important */
+#page-home #home-score-hero #home-operator-note .aio-operator-note-title { margin: 0; font-size: 14px; font-weight: 500; line-height: 1.6; color: var(--text-primary); } /* index.html sets the stand-alone card's 18px/1.34 with !important */
 #page-home #home-score-hero #home-operator-note { margin: 0; }
 /* The Korea line and the month tilt: one line each, their readings open in place (expert layer). */
 #page-home .home-kr-line[hidden] { display: none; }
@@ -54,7 +54,7 @@
 /* The value leads its name (13px bold over a 12px name); shell-static.css `.page .sh-muted-text` set the name to
    14px !important, so the name outweighed the number it labels. */
 #page-home #home-cross-assets .sh-ink-figure { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
-#page-home #home-cross-assets .sh-semi-figure, #page-home #home-cross-assets .sh-soft-text, #page-home #home-cross-assets .sh-muted-text { font-size: 12px !important; }
+#page-home #home-cross-assets .sh-semi-figure, #page-home #home-cross-assets .sh-soft-text, #page-home #home-cross-assets .sh-muted-text { font-size: 12px; }
 #page-home #home-fg-delta.aio-metric-delta { display: inline !important; font-size: 12px !important; } /* the static markup hides it inline until filled */
 #page-home #home-fg-delta:empty { display: none !important; }
 
@@ -245,7 +245,7 @@
 #page-market-news .news-card .briefing-h2-note { font-size: 12px; font-weight: 400; color: var(--text-secondary); }
 #page-market-news .news-list { display: flex; flex-direction: column; gap: 0; }
 #page-market-news .news-sort-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 0 10px; margin: 0 0 10px; }
-#page-market-news .news-filter-row { display: flex; flex-wrap: wrap; align-items: center; padding: 0 10px !important; margin: 0 0 8px; } /* responsive.css resets padding with !important */
+#page-market-news .news-filter-row { display: flex; flex-wrap: wrap; align-items: center; padding: 0 10px; margin: 0 0 8px; } /* responsive.css resets padding with !important */
 #page-market-news .news-intraday-list { padding: 0 10px 8px; }
 #page-market-news #news-load-more-wrap:not([hidden]) { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 10px; }
 #page-market-news #tg-feed-market-news { padding: 0 10px 10px; }
