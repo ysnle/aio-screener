@@ -19,7 +19,7 @@ import { createResearchCapability, validateResearchCapability } from '../src/ai/
 import { classifyAIConduct, classifyAIRequest, auditAIResponse, getAIConductPolicy, buildScopedConductFallback } from '../src/ai/policy/conduct.js';
 import { createAIAnswerOrchestrator } from '../src/ai/orchestrator/answer-orchestrator.js';
 import { createAIKnowledgeIndex, retrieveAIKnowledge } from '../src/ai/retrieval/knowledge.js';
-import { evaluateEvidenceUse } from '../src/ai/policy.js';
+import { evaluateEvidenceUse } from '../src/ai/policy/evidence-use.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -519,7 +519,7 @@ check('knowledge-concept-links-match-explicit-source-not-word-overlap', publishe
   return JSON.stringify(article.conceptIds) === JSON.stringify(expected) && article.conceptLinkStatus === (expected.length ? 'SOURCE_LINK' : 'UNMAPPED') && article.candidateConceptStatus === 'TEXT_CANDIDATE';
 }));
 check('knowledge-concept-coverage-reports-unmapped-truthfully', publishedKnowledgeIndex.counts.withConcepts === publishedKnowledgeIndex.articles.filter((article) => article.conceptIds.length).length && publishedKnowledgeIndex.counts.unmappedConcepts === publishedKnowledgeIndex.articles.filter((article) => !article.conceptIds.length).length);
-check('knowledge-loader-never-fetches-article-monolith', read('src/ai/retrieval/knowledge.js').includes('ai-retrieval-index.json') && !read('src/ai/retrieval/knowledge.js').includes("indexUrl = './public-data/knowledge/articles.json'"));
+check('knowledge-loader-never-fetches-article-monolith', /AI_RETRIEVAL_INDEX_URL = '\.\/public-data\/knowledge\/ai-retrieval-index\.json'/.test(bootstrap) && !/articles\.json/.test(read('src/ai/retrieval/knowledge.js'))); // v59.87: the app injects the index loader
 // v57.62: only the unified surface remains (per-page chatSend retired), so its knowledge block must be wrapped.
 check('knowledge-reference-is-wrapped-as-untrusted-data', /buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE', _uniKnowledge\.context/.test(chat));
 check('unified-chat-renders-native-claude-citations', /_uniCitationResult/.test(chat) && /engine:'claude'/.test(chat) && /_aioAIRequestCitations\(_uniRequestId\)/.test(chat));

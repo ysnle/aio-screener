@@ -1,0 +1,6 @@
+{
+  "version": "v59.87",
+  "date": "2026-11-09",
+  "changelog": ["**AI 계층 경계 정리 (v59.87, ADR-0003 S5):** 브라우저–Worker 계약(모델 id·본문 한도·클라이언트 트림 목표·헤더 이름)을 src/domain/ai/worker-contract.js 하나로 모아 Worker·openai-budget·채팅·연결 판정이 함께 읽는다. 거시 블록의 DXY 대체값은 원시 실시간 시세 대신 표시된 스냅샷만 쓴다. AI 기술 조건의 RSI 구간은 RULES.technical.rsi를 읽는다. AI 정책 모듈은 src/ai/policy/ 한 폴더(evidence-use·budget·conduct·suitability)로 합쳤다. 지식 검색기는 직접 fetch하지 않고 앱 조립 루트가 데이터 계층 로더(loadJsonArtifact)를 주입한다."],
+  "note": "S5: AI–Worker 계약 공유, AI 정책 폴더 통합, 지식 인덱스 로더 주입"
+}

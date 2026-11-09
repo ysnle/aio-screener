@@ -4,6 +4,66 @@
 import { runSections } from './lib/gate-sections.mjs';
 
 await runSections('ai-evidence', [
+// ── section screen-facts (S5, ADR-0003, v59.87): the AI reads the facts the screens compute ──
+['screen-facts', async () => {
+const { default: assert } = await import('node:assert/strict');
+const { readFileSync } = await import('node:fs');
+const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
+const { stockTrendLine, screenRowFor, chatStockTrendLine } = await import('../src/ai/context/stock-trend-line.js');
+const { buildStockRead } = await import('../src/domain/entity/stock-read.js');
+// v59.87 [주가 추이] prints the 종목 page's own numbers: returns, trend label, 52-week position and RSI from the same row.
+const row = { sym: 'NVDA', factorSessionDate: '2026-11-06', ret5d: -8.8, ret1m: -19.02, ret3m: -14.11, pctSma50: -15.08, pctSma200: -8.68, adrPct: 2.95, rsi: 30.8, pctFrom52wLow: 13.6, pctFrom52wHigh: -23.3 };
+const line = stockTrendLine({ symbol: 'NVDA', row });
+const page = buildStockRead({ symbol: 'NVDA', row });
+assert.ok(line.includes(`추세 ${page.facts.trendLabel}(`), `v59.87 trend label is the page label: ${line}`);
+assert.ok(line.includes('5거래일 -8.8%, 1개월 -19.0%, 3개월 -14.1%'), `v59.87 returns are the row values: ${line}`);
+assert.ok(line.includes(`52주 범위 ${Math.round(page.position * 100)}% 위치(고점 대비 -23.3%)`), `v59.87 52-week position is the page position: ${line}`);
+assert.ok(line.includes('RSI 31') && line.includes('11/6 종가'), `v59.87 RSI and session date: ${line}`);
+assert.equal(stockTrendLine({ symbol: 'X', row: null }), null, 'v59.87 no row, no line');
+// v59.87 row order: published screener row, then a ready on-demand row; a KR listing outside the universe has none.
+const root = { _aioGetCanonicalScreenerRows: () => [row], _aioOnDemandSymbol: (sym) => (sym === 'ZZZZ' ? { status: 'ready', row: { ...row, sym: 'ZZZZ' } } : null) };
+assert.equal(screenRowFor(root, 'nvda').source, 'screener', 'v59.87 published row first');
+assert.equal(screenRowFor(root, 'ZZZZ').source, 'on-demand', 'v59.87 then the ready on-demand row');
+assert.ok((await chatStockTrendLine('ZZZZ', { root })).includes('요청 시 산출'), 'v59.87 an on-demand line says it was computed on request');
+let requested = 0;
+assert.equal(await chatStockTrendLine('000660.KS', { root: { ...root, _aioRequestOnDemandSymbol: () => { requested += 1; } } }), null, 'v59.87 a KR listing outside the universe has no line');
+assert.equal(requested, 0, 'v59.87 a KR listing is never sent to the US on-demand reader');
+// v59.87 no second computation path in the chat: _fetchTickerTrend returns the shared line and never downloads a chart.
+const vm = await import('node:vm');
+const chat = read('js/aio-chat.js');
+const trendFn = chat.slice(chat.indexOf('async function _fetchTickerTrend('), chat.indexOf('// _withTimeout moved to'));
+let downloads = 0;
+const sandbox = { fetchViaProxy: () => { downloads += 1; throw new Error('no chart download'); }, fetch: () => { downloads += 1; throw new Error('no fetch'); } };
+sandbox.window = { ...sandbox, AIO: { chatStockTrendLine: async (sym, opts) => (opts.root === sandbox.window ? `shared:${sym}` : null) } };
+vm.createContext(sandbox);
+vm.runInContext(`${trendFn}; this._trend = _fetchTickerTrend;`, sandbox);
+assert.equal(await sandbox._trend('NVDA'), 'shared:NVDA', 'v59.87 _fetchTickerTrend returns the shared screen-row line');
+assert.equal(downloads, 0, 'v59.87 _fetchTickerTrend downloads nothing');
+const { buildChatMacroLines } = await import('../src/ai/context/chat-macro-lines.js');
+const fx = buildChatMacroLines({ ctxId: 'fxbond', root: { _liveData: { 'DX-Y.NYB': { price: 120 } }, DATA_SNAPSHOT: { dxy: 99.5 } } });
+assert.ok(fx.some((l) => l.includes('99.50') && l.includes('스냅샷 참고')) && !fx.some((l) => l.includes('120')), `v59.87 DXY fallback is the labelled snapshot, not the raw live quote: ${fx.join()}`);
+// v59.87 the RSI zone is RULES.technical.rsi.
+const { RULES } = await import('../src/domain/rules/thresholds.js');
+const { buildTechnicalConditions } = await import('../src/ai/analysis/technical.js');
+const zone = (rsi14) => buildTechnicalConditions({ indicators: { rsi14 } }).conditions[0].status;
+assert.equal(zone(RULES.technical.rsi.overbought), 'overbought', 'v59.87 overbought band is RULES');
+assert.equal(zone(RULES.technical.rsi.overbought - 0.1), 'neutral', 'v59.87 just under the overbought band is neutral');
+assert.equal(zone(RULES.technical.rsi.oversold), 'oversold', 'v59.87 oversold band is RULES');
+assert.equal(zone(RULES.technical.rsi.oversold + 0.1), 'neutral', 'v59.87 just over the oversold band is neutral');
+// v59.87 one browser–Worker contract: the Worker's model and the chat's trim target come from it; the published config agrees.
+const contract = await import('../src/domain/ai/worker-contract.js');
+const budget = await import('../worker/openai-budget.mjs');
+assert.equal(budget.OPENAI_MODEL, contract.AI_MODEL, 'v59.87 the Worker serves the contract model');
+assert.ok(contract.AI_CLIENT_BODY_TARGET_BYTES < contract.AI_REQUEST_MAX_BYTES, 'v59.87 the chat trims under the Worker limit');
+assert.equal(JSON.parse(read('public-config.json')).ai?.model, contract.AI_MODEL, 'v59.87 public-config.json names the contract model');
+// v59.87 one AI policy folder; the retriever has no fetch of its own even when a global fetch exists.
+const { existsSync } = await import('node:fs');
+assert.ok(!existsSync(new URL('../src/ai/policy.js', import.meta.url)) && !existsSync(new URL('../src/ai/policies', import.meta.url)), 'v59.87 src/ai/policy/ is the one policy folder');
+const { createAIKnowledgeRetriever } = await import('../src/ai/retrieval/knowledge.js');
+const loaderError = await createAIKnowledgeRetriever({}).load().then(() => null, (error) => error);
+assert.ok(/knowledge_loader_unavailable/.test(String(loaderError?.message)), 'v59.87 the knowledge retriever needs the injected loader');
+console.log(JSON.stringify({ ok: true, section: 'screen-facts' }));
+}],
 // ── section premise (was ci-ai-premise-check.mjs) ──
 ['premise', async () => {
 const { default: assert } = await import('node:assert/strict');

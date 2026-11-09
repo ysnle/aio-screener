@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-09T03:20:24.205Z",
+  "observedAt": "2026-11-09T04:21:38.333Z",
   "appRevision": "v59.86",
-  "gitHead": "41f43769c4ca382e223b82cbc566214d8b96c1f1",
+  "gitHead": "fed62e108f05dd3ab3588aca2a310cf367a70b15",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -175,30 +175,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 3,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 24,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "PER",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -233,30 +211,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 3,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "%p",
-          "width": 22,
-          "height": 26,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "ETF",
-          "width": 22,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -309,8 +265,86 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 11,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "Finnhub calendar/earnings + calendar/ipo 실적 집계",
+          "width": 291,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "반응 이유 기사 1",
+          "width": 89,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "반응 이유 기사 2",
+          "width": 89,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "SEC 8-K EX-99.1",
+          "width": 103,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "반응 이유 기사 1",
+          "width": 89,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "반응 이유 기사 2",
+          "width": 89,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "반응 이유 기사 3",
+          "width": 89,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "SEC 8-K EX-99.1",
+          "width": 103,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "반응 이유 기사 1",
+          "width": 89,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "반응 이유 기사 2",
+          "width": 89,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "반응 이유 기사 3",
+          "width": 89,
+          "height": 15,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },

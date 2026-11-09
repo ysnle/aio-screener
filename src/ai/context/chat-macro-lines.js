@@ -64,8 +64,9 @@ export function buildChatMacroLines({ ctxId, root = globalThis, timeLabel = '' }
     const fx = joinParts([cite(row('close.dxy'), 'DXY'), cite(row('close.dxy.chg20d'), 'DXY 20거래일', true), cite(row('close.usdkrw'), '원/달러'), cite(row('close.usdkrw.chg20d'), '원/달러 20거래일', true)]);
     if (fx) lines.push(`• 달러·환율: ${fx} — 달러 강약은 20거래일 변화로 판단(원/달러 상승 = 원화 약세)`);
     else {
-      const dxy = readNumber(root._liveData?.['DX-Y.NYB']?.price) ?? readNumber(pick('dxy'));
-      if (dxy != null) lines.push(`• 달러(DXY, 실시간/스냅샷 참고, 기준일 미확인): ${dxy.toFixed(2)} — 수준만으로 강약을 단정하지 않음`);
+      // S5 (ADR-0003): no raw live-quote read — without the close row the snapshot value is the only, labelled reference.
+      const dxy = readNumber(pick('dxy'));
+      if (dxy != null) lines.push(`• 달러(DXY, 스냅샷 참고, 기준일 미확인): ${dxy.toFixed(2)} — 수준만으로 강약을 단정하지 않음`);
     }
     const rates = rateLine(); if (rates) lines.push(rates);
     // The credit level is the FRED HY OAS (bp), not the HYG price (which carries rate duration).

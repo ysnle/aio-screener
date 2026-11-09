@@ -101,12 +101,12 @@ check('Worker token cap and stop reason are consumed by the client', chat.includ
   check('server market prose requires typed evidence before client publish', untyped.analysis === null && untyped.meta.reason === 'metric-evidence-required' && typed.analysis?.status === 'verified');
 }
 check('Worker exposes health readiness', worker.includes("_u.pathname === '/health'") && worker.includes("schemaVersion: 'aio-worker-health.v1'") && worker.includes('ai: { configured'));
-check('Worker CORS allows every browser chat header', worker.includes('X-AIO-App-Token') && worker.includes('Access-Control-Allow-Headers'));
+check('Worker CORS allows every browser chat header', /'Access-Control-Allow-Headers': \[[^\]]*AI_HEADERS\.appToken[^\]]*AI_HEADERS\.idempotencyKey/.test(worker)); // v59.87: names from the shared contract; worker/openai-contract.test.mjs checks the live preflight
 // v56: the rollback helper is shared with /relay, so it is no longer Anthropic-specific
 // by name. The property under test is unchanged: only the request that owns a failed
 // reservation may release it.
 check('Worker rolls back owned failed quota reservations', /async function releaseQuota\(/.test(worker) && worker.includes('ownedReservation'));
-check('Worker exposes effective token cap', worker.includes("'X-AIO-Max-Tokens'"));
+check('Worker exposes effective token cap', /\[AI_HEADERS\.maxTokens\]: String\(maxTokens\)/.test(worker)); // v59.87: header name from the shared contract
 check('operations status separates scheduled analysis and public chat', operations.ai?.scheduledAnalysis && operations.ai?.publicChat?.scheduledAnalysisDoesNotImplyChat === true);
 check('operations status separates five readiness fields', ['secretConfigured', 'workflowWired', 'lastCallSucceeded', 'dataCurrent', 'licensedForUse'].every(field => read('public-data/operations-status.json').includes(`"${field}"`)));
 
@@ -194,6 +194,7 @@ for (const serverKey of [true]) {
       },
     };
     context.window = context;
+    context.AIO = { aiWorkerContract: (await import('../src/domain/ai/worker-contract.js')).AI_WORKER_CONTRACT }; // v59.87: installed by chat-globals beside the chat
     context._lastClaudeUsage = { input_tokens: 99999 };
     vm.createContext(context);
     vm.runInContext(source.slice(storeStart, storeEnd) + '\n' + source.slice(start, end), context);
@@ -306,14 +307,14 @@ assert.equal(root._aioBuildAIResponseDisclosure({freshness:{after:{quoteRows:[{t
 assert.deepEqual([...html.matchAll(/<a href="([^"]*)"/g)].map((m)=>m[1]),['https://sec.gov/report']);
 assert(!html.includes('javascript:'));
 let loads=0;
-const retry=createAIKnowledgeRetriever({timeoutMs:5,fetchImpl:()=>++loads===1 ? new Promise(()=>{}) : Promise.resolve({ok:true,json:async()=>({articles:[]})})});
+const retry=createAIKnowledgeRetriever({timeoutMs:5,loadIndex:()=>++loads===1 ? new Promise(()=>{}) : Promise.resolve({articles:[]})}); // S5 (ADR-0003): the app injects the loader
 assert.equal((await retry.buildContext('금리')).audit.status,'UNAVAILABLE');
 assert.equal((await retry.buildContext('금리')).audit.status,'NO_RELEVANT_MATCH');
 assert.equal(loads,2);
-let resolveLoad; const shared=createAIKnowledgeRetriever({timeoutMs:100,fetchImpl:()=>new Promise(resolve=>{resolveLoad=resolve;})});
+let resolveLoad; const shared=createAIKnowledgeRetriever({timeoutMs:100,loadIndex:()=>new Promise(resolve=>{resolveLoad=resolve;})});
 const cancel=new AbortController(); const a=shared.buildContext('금리',{signal:cancel.signal}), b=shared.buildContext('AI');
 await Promise.resolve(); cancel.abort(); assert.equal((await a).audit.status,'CANCELLED');
-resolveLoad({ok:true,json:async()=>({articles:[]})}); assert.equal((await b).audit.status,'NO_RELEVANT_MATCH');
+resolveLoad({articles:[]}); assert.equal((await b).audit.status,'NO_RELEVANT_MATCH');
 // v57.62: the dead per-page chatSend (P1653 removed every #chat-<ctx>-inp it needed) is gone; the unified panel is the
 // only chat path, so its stream callbacks carry the stale-epoch guard.
 assert(!source.includes('async function chatSend(') && !source.includes('var _pageOnError = function'), 'v57.62 per-page chatSend retired');
@@ -414,7 +415,9 @@ assert(unifiedChat.includes('_wrapUnifiedExternal') && unifiedChat.includes("_wr
   // text — earlier answers shortened, reference blocks cut to a floor, then the oldest turns — and the follow-up keeps them.
   const trimAt = stream.indexOf('var _bodyBytes = function'), trimEnd = stream.indexOf("console.log('[AIO] callSharedAi", trimAt);
   assert(trimAt > 0 && trimEnd > trimAt, 'v59.44 callSharedAi trims the request by UTF-8 bytes');
-  const trim = new Function('system', '_trimmedMessages', `${stream.slice(trimAt, trimEnd)}; return { bytes: _bodyBytes(system, _trimmedMessages), turns: _trimmedMessages.length };`);
+  const trimBody = new Function('system', '_trimmedMessages', 'window', `${stream.slice(trimAt, trimEnd)}; return { bytes: _bodyBytes(system, _trimmedMessages), turns: _trimmedMessages.length };`);
+  const { AI_WORKER_CONTRACT } = await import('../src/domain/ai/worker-contract.js'); // v59.87: the trim target is the shared contract's
+  const trim = (system, messages) => trimBody(system, messages, { AIO: { aiWorkerContract: AI_WORKER_CONTRACT } });
   const ko = (n) => '가'.repeat(n);
   const turns = (...sizes) => sizes.map((n, i) => ({ role: i % 2 ? 'assistant' : 'user', content: ko(n) }));
   const followUp = trim(ko(60000), turns(100, 30000, 100));

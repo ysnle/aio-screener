@@ -159,7 +159,7 @@ benchmark-relative-strength remains visible as missing evidence.
 
 | Area | Files | Contract |
 |---|---|---|
-| AR-06 inference | `src/ai/inference.js`, `src/ai/policy.js` | direction/range/confidence/sourceCount/sourceUrls/observedWindow; exact current numeric search values blocked |
+| AR-06 inference | `src/ai/inference.js`, `src/ai/policy/evidence-use.js` | direction/range/confidence/sourceCount/sourceUrls/observedWindow; exact current numeric search values blocked |
 | AR-07 canonical data | `src/data/contracts/market-snapshot.js`, `src/data/market-snapshot-loader.js`, `src/data/contracts/operations.js`, `src/data/contracts/reconciliation.js`, `src/data/contracts/source-registry.js` | Tier 0/LKG/operations/22-category reconciliation/source-capability registry |
 | AR-07 producer | `scripts/build-market-snapshot.mjs`, `scripts/build-operations-status.mjs`, `scripts/build-reconciliation-status.mjs`, `worker/data-plane.js` | durable publish + independent fast-plane preflight |
 | ARX-03 state boundary | `src/state/slices/sentiment.js`, `src/state/selectors/sentiment.js`, `src/app/commands/sentiment.js` | typed `data/sentiment` reducer, selector-only UI reads, command-owned dispatch |
