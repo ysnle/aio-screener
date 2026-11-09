@@ -5,10 +5,10 @@ import { el } from './dom.js';
 import { buildSessionBridge, renderSessionBridgeContext } from '../../domain/market/session-bridge.js';
 import { buildMarketLean, renderMarketLeanContext } from '../../domain/market/market-lean.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
-import { MARKET_TEMPERATURE, STRESS_OUTCOMES, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
-import { KR_INDEX_WEIGHTS, EVENT_BRIEFS } from '../../data/event-artifacts.js';
+import { refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
 import { selectNewsItems } from '../../state/selectors/news.js';
 import { usWeekendClosed } from '../../domain/market/market-calendar.js';
+import { EVENT_BRIEFS, KR_INDEX_WEIGHTS, MARKET_TEMPERATURE, STRESS_OUTCOMES } from '../../data/artifact-registry.js';
 
 const VERDICT_WORDS = Object.freeze({ supports: '근거 맞음', partial: '일부 맞음', against: '근거 약함', unknown: '판단 보류' });
 

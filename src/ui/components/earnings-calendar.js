@@ -4,6 +4,7 @@
 // Output is unchanged except that the Before Open / After Close box colours come from classes in
 // src/ui/styles/legacy-pages.css instead of inline styles. The stored snapshot is read through
 // src/data/earnings-calendar-snapshot.js; the page-entry trigger stays in js/aio-pages.js (initFundamentalLegacyWidgets).
+import { escapeHtml } from '../html.js';
 import { dateInTimezone } from '../../domain/market/market-calendar.js';
 import { fetchEarningsCalendarSnapshot } from '../../data/earnings-calendar-snapshot.js';
 
@@ -47,7 +48,7 @@ function sessionHtml(label, tone, items, esc) {
 }
 
 // v48.56: weekly layout — one column per weekday, IPOs first, then Before Open and After Close.
-export function earningsWeekHtml(earnings, ipos, week, { now = new Date(), esc = (v) => String(v) } = {}) {
+export function earningsWeekHtml(earnings, ipos, week, { now = new Date(), esc = escapeHtml } = {}) {
   const sorted = earnings.slice().sort((a, b) => {
     if (a.date !== b.date) return a.date > b.date ? 1 : -1;
     const tA = hourOf(a), tB = hourOf(b);
@@ -84,7 +85,6 @@ export function earningsWeekHtml(earnings, ipos, week, { now = new Date(), esc =
 
 export function createEarningsCalendar({ root = globalThis, documentRef = root.document } = {}) {
   let weekOffset = 0;
-  const esc = (value) => (typeof root.escHtml === 'function' ? root.escHtml(value) : String(value));
   const log = (msg) => { if (typeof root._aioLog === 'function') root._aioLog('warn', 'fetch', msg); };
 
   async function load() {
@@ -99,7 +99,7 @@ export function createEarningsCalendar({ root = globalThis, documentRef = root.d
       const snapshot = await fetchEarningsCalendarSnapshot({ root });
       const status = documentRef.getElementById('earn-cal-status');
       if (snapshot && (snapshot.earnings.length > 0 || snapshot.ipos.length > 0)) {
-        body.innerHTML = earningsWeekHtml(snapshot.earnings, snapshot.ipos, week, { esc });
+        body.innerHTML = earningsWeekHtml(snapshot.earnings, snapshot.ipos, week, { esc: escapeHtml });
         if (status) {
           status.textContent = `${snapshot.earnings.length}건 어닝 + ${snapshot.ipos.length}IPO, ${fromStr.slice(5)}~${toStr.slice(5)}`
             + ` (저장 스냅샷 ${String(snapshot.weekStart || '—').slice(5)}~${String(snapshot.weekEnd || '—').slice(5)})`;

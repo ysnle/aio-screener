@@ -8,7 +8,7 @@
 import { refreshSharedArtifact } from './shared-artifacts.js';
 import { isIsoDay } from '../domain/shared/session-date.js';
 
-export const MACRO_CALENDAR = Object.freeze({ key: '_aioMacroCalendar', url: './public-data/macro-calendar.json', schemas: ['macro-calendar.v1'], maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 256 * 1024 });
+import { MACRO_CALENDAR } from './artifact-registry.js';
 
 const FOMC_KEYS = Object.freeze(['us-fomc', 'us-fed-rate']);
 const ISM_KEYS = Object.freeze(['us-ism-mfg', 'us-ism-svc']);

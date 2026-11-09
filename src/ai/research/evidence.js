@@ -1,4 +1,4 @@
-import { companyEntitySymbols } from '../orchestrator/question-planner.js';
+import { companyEntitySymbols } from '../entity/company-symbols.js';
 
 export const AI_RESEARCH_EVIDENCE_VERSION = 'research-evidence.v1';
 

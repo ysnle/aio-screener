@@ -177,3 +177,19 @@ export function buildMarketTemperature(rows = [], { rules = TEMPERATURE_RULES } 
     })
   };
 }
+
+// The currentness rule sits with the model, not the card (ADR-0003 S3).
+// A market whose fetch failed keeps yesterday's body in the artifact (payload.retained), so the
+// "now" lead must not name it. A body more than a week behind the newest market is treated the same way.
+// When every fetch fails the artifact is left unchanged, so the markets agree with each
+// other and the comparison above flags none of them. An artifact not rewritten for two days (the producer runs every
+// refresh, weekends included), or a body more than ten calendar days old (past the longest Korean and Japanese holiday
+// breaks), is stale too.
+export function staleMarketIds(payload, markets, nowMs = Date.now()) {
+  const newest = Math.max(...markets.map((item) => Date.parse(item.asOf)).filter(Number.isFinite));
+  const retained = new Set(Array.isArray(payload?.retained) ? payload.retained : []);
+  const generated = Date.parse(payload?.generatedAt || '');
+  const artifactStale = Number.isFinite(generated) && nowMs - generated > 2 * 86400000;
+  return new Set(markets.filter((item) => artifactStale || retained.has(item.id) || newest - Date.parse(item.asOf) > 7 * 86400000
+    || nowMs - Date.parse(item.asOf) > 10 * 86400000).map((item) => item.id));
+}

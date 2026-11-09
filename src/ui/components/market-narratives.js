@@ -6,8 +6,9 @@
 import { el } from './dom.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { buildNarrativeCards, lessonFrame } from '../../domain/narrative/narrative-cards.js';
-import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { NARRATIVE_BY_ID } from '../../domain/narrative/narratives.js';
+import { MARKET_DAY } from '../../data/artifact-registry.js';
 
 const FACE_MAX = 3;
 const shortMd = (iso) => { const [, m, d] = String(iso || '').split('-'); return m && d ? `${Number(m)}/${Number(d)}` : ''; };

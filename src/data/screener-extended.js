@@ -3,11 +3,12 @@
 // its size and contract; the extra rows ship in one separate shard (public-data/screener-extended.json) with the same
 // row schema, read only when a reader picks 확장 on the screener. This module is shared by the producer
 // (scripts/fetch-data.mjs), the gates and the browser provider, so the row encoding and the scope rule live once.
+import { artifactUrl } from './artifact-registry.js';
 
 export const EXTENDED_SHARD_SCHEMA = 'screener-extended.v1';
 export const EXTENDED_UNIVERSE_SCHEMA = 'screener-extended-universe.v1';
 export const EXTENDED_ROW_ENCODING = 'row-defaults.v1';
-export const EXTENDED_SHARD_URL = './public-data/screener-extended.json';
+export const EXTENDED_SHARD_URL = artifactUrl('screener-extended.json');
 export const UNIVERSE_SCOPE_KEY = 'aio_screener_universe_scope';
 export const UNIVERSE_SCOPES = Object.freeze(['core', 'extended']);
 // Membership tags use the index keys the screener already labels (INDEX_LABELS in src/ui/pages/screener.js).

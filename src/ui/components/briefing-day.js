@@ -1,13 +1,13 @@
 // v59.65 (owner 2026-11-03, phase 3): 브리핑's 지난 24시간 section. The face carries the opening line (both markets, with the
 // equal-weight index read against the index) and the lead/major stories, each one sentence of what moved and one of why;
 // the reports behind a story, the smaller stories and the big moves nothing explains open in folds.
-import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { EVENT_BRIEFS } from '../../data/event-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
 import { oneSessionDay } from '../../domain/market-day/one-session.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
 import { storyWeight } from './story-weight.js';
+import { EVENT_BRIEFS, MARKET_DAY } from '../../data/artifact-registry.js';
 
 function fold(doc, summary, children, className = 'sx-disclosure briefing-day-fold') {
   const node = el(doc, 'details', null, className);

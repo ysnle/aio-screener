@@ -1,5 +1,5 @@
 // Screener 사후 검증 view: factor weights, back-test, conditional evidence and the validation banner.
-import { loadJsonArtifact, stableFetcher } from '../../../data/artifact-cache.js';
+import { SCENARIO_STATE, loadArtifact } from '../../../data/artifact-registry.js';
 import { renderScreenerValidation, readValidationState, renderValidationHero } from '../../components/screener-validation.js';
 import { buildPopulationRankingIdentity, liveScreenerModelFingerprint } from '../../../domain/screener/model-fingerprint.js';
 import { measuredCandidateEntries, summarizeCandidateArchive } from '../../../domain/screener/candidate-record.js';
@@ -10,7 +10,7 @@ import { FACTOR_LABELS, describeStaleDates } from '../../../domain/screener/row-
 import { CONDITIONAL_EVIDENCE_DISCLAIMER, CONDITIONAL_EVIDENCE_VERSION } from '../../../domain/screener/conditional-evidence.js';
 import { EVIDENCE_LINEAGE_VERSION } from '../../../domain/screener/evidence-lineage.js';
 import { marketRankingMetadata } from '../../../domain/screener/market-scope.js';
-import { refreshSharedArtifact, SCENARIO_STATE } from '../../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../../data/shared-artifacts.js';
 import { renderNextSteps } from '../../components/page-flow.js';
 import { signedText, finiteNumber as finite } from '../../../domain/shared/number.js';
 import { el } from './filters.js';
@@ -430,12 +430,12 @@ export function createValidationController(ctx) {
         const fetchFn = root?.fetch || globalThis.fetch;
         if (typeof fetchFn === 'function') {
           Promise.all([
-            loadJsonArtifact(stableFetcher(root), './public-data/backtest-history.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
-            loadJsonArtifact(stableFetcher(root), './public-data/model-validation-status.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 256 * 1024 }).catch(() => null),
-            loadJsonArtifact(stableFetcher(root), './public-data/factor-backtest-longrun.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
-            loadJsonArtifact(stableFetcher(root), './public-data/screener-candidate-archive.json', { maxAgeMs: 60 * 60 * 1000, maxBytes: 2 * 1024 * 1024 }).catch(() => null),
+            loadArtifact(root, 'backtest-history.json').catch(() => null),
+            loadArtifact(root, 'model-validation-status.json').catch(() => null),
+            loadArtifact(root, 'factor-backtest-longrun.json').catch(() => null),
+            loadArtifact(root, 'screener-candidate-archive.json').catch(() => null),
             // 개편 v2 (3c/5h): the validation gate's status and blockers drive the banner before the table.
-            loadJsonArtifact(stableFetcher(root), './public-data/screener-validation-gate.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 64 * 1024 }).catch(() => null)
+            loadArtifact(root, 'screener-validation-gate.json').catch(() => null)
           ]).then(([history, status, longrun, candidates, gate]) => {
             if (gate && typeof gate === 'object') root._aioScreenerValidationGate = gate;
             if (candidates && typeof candidates === 'object') root._aioCandidateArchive = candidates; // P1465: forward candidate record

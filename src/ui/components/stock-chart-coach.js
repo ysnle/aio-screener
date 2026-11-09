@@ -5,7 +5,6 @@
 import { buildPriceLevels, checkPricePlan } from '../../domain/technical/price-levels.js';
 import { SETUP_STAGES, setupLifecycle, breakoutChecklist, timeframeAlignment, pastBreakouts, pastBreakoutsText } from '../../domain/technical/setup-coach.js';
 import { buildEarningsSchedule } from '../../domain/fundamental/analysis-read.js';
-import { EARNINGS_CALENDAR } from './fiscal-read.js';
 import { refreshSharedArtifact, sharedArtifactState } from '../../data/shared-artifacts.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { scenarioLead } from '../../domain/market/scenario-lead.js';
@@ -15,6 +14,7 @@ import { myLineFacts } from './stock-chart-drawings.js';
 import { rewardRiskFacts, RR_GUIDE } from '../../domain/technical/chart-strategies.js';
 import { signedText } from '../../domain/shared/number.js';
 import { createStorageGateway } from '../../platform/storage.js';
+import { EARNINGS_CALENDAR } from '../../data/artifact-registry.js';
 
 // The domain functions the sections use, passed as one object so stock-chart.js reads them through this lazy module.
 export const tools = Object.freeze({ buildPriceLevels, checkPricePlan, SETUP_STAGES, setupLifecycle, breakoutChecklist, timeframeAlignment, pastBreakouts, pastBreakoutsText, buildEarningsSchedule });

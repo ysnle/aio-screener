@@ -8,17 +8,10 @@ import { createResearchPlan } from '../research/plan.js';
 import { classifyAIRequest } from '../policy/conduct.js';
 import { createQuestionPremise } from './premise.js';
 import { buildNathanAnalysisContext } from '../../domain/knowledge/nathan-framework-pack.js';
+import { CHAT_TOPIC_PROXIES, companyEntitySymbols } from '../entity/company-symbols.js';
 
 export const AI_QUESTION_PLAN_VERSION = 'question-plan.v1';
-// Sector/index topic words resolve to proxy symbols (반도체 → SOXX, owner 2026-11-04); they are topics, not a named company.
-export const CHAT_TOPIC_PROXIES = new Set(['SOXX', 'SMH', 'IGV', 'DX-Y.NYB']);
-
-// P1740: the companies a question names, for data injection: verified US/KR listings, never an index or topic proxy.
-export function companyEntitySymbols(questionPlan, limit = 5) {
-  const list = questionPlan?.entities?.entities || [];
-  return [...new Set(list.filter((entity) => entity && entity.verified && (entity.market === 'US' || entity.market === 'KR')
-    && !String(entity.symbol).startsWith('^') && !CHAT_TOPIC_PROXIES.has(entity.symbol)).map((entity) => String(entity.symbol)))].slice(0, limit);
-}
+export { CHAT_TOPIC_PROXIES, companyEntitySymbols };
 
 const REQUIRED_BY_INTENT = Object.freeze({
   MARKET_STATUS: ['market-session', 'market-snapshot'],

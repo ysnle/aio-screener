@@ -60,11 +60,11 @@ for (const [label, source, marker] of [
   ['concept map group', conceptsView, "{ id: 'map', title: '개념 지도' }"],
   ['lesson reading text', conceptsView, 'lesson.story'],
   ['lesson worked-number block (v57.98)', conceptsView, 'renderWorkedCalc(doc, lesson.worked)'],
-  ['dictionary reading text', page, 'loadJsonArtifact(stableFetcher(root), CONCEPT_STORIES_URL'],
+  ['dictionary reading text', page, 'loadArtifactUrl(root, CONCEPT_STORIES_URL'],
     ['reviewed content', catalogSource, '"reviewedAt": "2026-08-18"'],
     ['catalog fetched before mount', page, 'loadPrinciplesCatalog(root, { signal: scope?.signal })'],
     ['deep article renderer', page, 'renderKnowledgeLesson'],
-  ['per-lesson article shard', page, './public-data/knowledge/articles/principles/']
+  ['per-lesson article shard', page, "artifactFamilyUrl('knowledge-article', 'principles', lessonId)"]
   ,['supplied material bridge', page, 'createSuppliedMaterialBridge']
   ,['market/13F/AI reference sections', suppliedMaterials, 'market-principles']
 ]) if (!source.includes(marker)) fail(`${label} missing marker: ${marker}`);

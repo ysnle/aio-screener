@@ -8,10 +8,10 @@ import { emptyState } from './empty-state.js';
 import { benchmarkRowFor } from '../../domain/market/benchmarks.js';
 import { marketRows, screenerMarket } from '../../domain/screener/market-scope.js';
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
-import { latestCompletedKrSession, latestCompletedUsSession, countOpenSessionsBetween } from '../../domain/market/market-calendar.js';
-import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
+import { countOpenSessionsBetween, latestCompletedSession } from '../../domain/market/market-calendar.js';
+import { SCENARIO_STATE, loadArtifact } from '../../data/artifact-registry.js';
 import { themeStagesFor, themeMarketOf } from '../../domain/scenarios/theme-stage.js';
-import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
 import { summarizeValidation } from './screener-validation.js';
 import { el } from './dom.js';
@@ -28,8 +28,6 @@ import { requestFiscalHistory } from './fiscal-read.js';
 // QA 2026-11-07: every ROE above 60% read '자기자본이 작아 크게 나옴' — NVIDIA's 101.5% comes from a 55.6% net margin, not a
 // thin equity base. A very high margin names the margin; otherwise the note says what usually lifts ROE that far.
 const roeNote = (margin) => (margin != null && margin >= 30 ? '(이익률이 매우 높아 크게 나옴)' : '(자사주 매입·적은 자기자본이 키운 값일 수 있음)');
-
-const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
 
 // v57.50 I13: the position weight only from the portfolio surface the portfolio screen already built (vault open,
 // one currency basis, total assets known). Nothing is read or unlocked from here.
@@ -54,7 +52,7 @@ function thirteenFFor(root, sym, onLoaded) {
   const fetchFn = root?.fetch || globalThis.fetch;
   if (root && !root._aioTickerIndexReferenceRequested && typeof fetchFn === 'function') {
     root._aioTickerIndexReferenceRequested = true;
-    loadJsonArtifact(stableFetcher(root), TICKER_INDEX_REFERENCE_URL, { timeoutMs: 8000 })
+    loadArtifact(root, 'masters/ticker-index-reference.json')
       .then((value) => { if (value && typeof value === 'object') { root._aioTickerIndexReference = value; onLoaded?.(); } })
       .catch(() => {});
   }
@@ -301,7 +299,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const spyBenchmark = spyRow && num(spyRow.ret3m) != null ? { ...benchmark, label: 'S&P 500(SPY, 배당 포함)', asOf: spyRow.factorSessionDate, ret5d: num(spyRow.ret5d), ret1m: num(spyRow.ret1m), ret3m: num(spyRow.ret3m), ret6m: num(spyRow.ret6m) } : null;
   const alignedBenchmark = spyBenchmark || (row?.factorSessionDate && benchmark.asOf === row.factorSessionDate ? benchmark : { ...benchmark, ret5d:null, ret1m:null, ret3m:null, ret6m:null }); // v57.84: the 5-day window too
   const market = screenerMarket({ sym });
-  const latestSession = market === 'KR' ? latestCompletedKrSession(Date.now()) : latestCompletedUsSession(Date.now(), { requirePrevious: false });
+  const latestSession = latestCompletedSession(market, Date.now());
   const factorSession = String(row?.factorSessionDate || '').slice(0, 10);
   const sessionLag = factorSession && latestSession?.date && factorSession < latestSession.date ? { session: factorSession, latest: latestSession.date, sessions: countOpenSessionsBetween(factorSession, latestSession.date, market) } : null;
   host.dataset.aioStockReadSymbol = sym;

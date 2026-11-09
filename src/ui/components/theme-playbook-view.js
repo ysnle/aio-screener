@@ -41,7 +41,7 @@ function stageChoiceTable(doc, stage, list) {
   wrap.append(table);
   return wrap;
 }
-import { MACRO_HISTORY, SCENARIO_STATE, refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { refreshScenarioArtifacts, showCrossroadsSection } from './macro-crossroads.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { themePlaybookForRoot } from './theme-playbook.js';
@@ -56,6 +56,7 @@ import { signedText } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { themeCriteria, memberRoles, roleExamples, themeScenarioSplit } from '../../domain/scenarios/theme-criteria.js';
 import { CONSENSUS_KEY, requestConsensusEstimates } from '../../data/consensus-estimates.js';
+import { EARNINGS_CALENDAR, MACRO_HISTORY, SCENARIO_STATE } from '../../data/artifact-registry.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const pct = (value) => (value == null ? '—' : `${signedText(value, 1)}%`);
@@ -190,7 +191,6 @@ function screenerSectorFor(root, store) {
 // v58.75 (persona review, teach-and-check A-4~6): the members of a theme with their published screener rows, and the
 // six criteria, member roles and conditional scenarios read from them (src/domain/scenarios/theme-criteria.js). The
 // consensus and earnings-calendar artifacts load on the themes route only, after its first paint.
-export const EARNINGS_CALENDAR = Object.freeze({ key: '_aioEarningsCalendarArtifact', url: './public-data/earnings-calendar.json', schemas: ['earnings-calendar.v1'], maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 512 * 1024 });
 export function themeMembersFor(root, store, market, themeId) {
   const rows = store?.getState?.()?.screener?.rows || [];
   const bySymbol = root?.__aioRowsBySym?.rows === rows ? root.__aioRowsBySym.map : new Map(rows.filter((row) => row?.sym).map((row) => [String(row.sym).toUpperCase(), row]));

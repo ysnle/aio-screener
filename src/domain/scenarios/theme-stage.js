@@ -5,7 +5,7 @@
 import { THEME_STATES } from './analogs.js';
 import { WIND_LABELS } from './exposures.js';
 import { CHOICES } from '../market/macro-crossroads.js';
-import { countOpenSessionsBetween, latestCompletedKrSession, latestCompletedUsSession } from '../market/market-calendar.js';
+import { countOpenSessionsBetween, latestCompletedSession } from '../market/market-calendar.js';
 import { isIsoDay } from '../shared/session-date.js';
 
 // v58.75 (persona review): v2 = members pooled once per theme (v58.74). scenario-state.json stamps the version it was built
@@ -25,7 +25,7 @@ export const SCENARIO_BASIS_MAX_LAG = 2;
 export function scenarioBasisCurrent(date, market = 'US', nowMs = Date.now()) {
   const day = String(date || '').slice(0, 10);
   if (!isIsoDay(day)) return true;
-  const latest = market === 'KR' ? latestCompletedKrSession(nowMs)?.date : latestCompletedUsSession(nowMs, { requirePrevious: false })?.date;
+  const latest = latestCompletedSession(market, nowMs)?.date;
   if (!latest) return true;
   if (day > latest) return false;
   return countOpenSessionsBetween(day, latest, market) <= SCENARIO_BASIS_MAX_LAG;

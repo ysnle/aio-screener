@@ -15,6 +15,7 @@ import { readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { percentileOf } from '../shared/percentile.js';
 import { historyFieldMeta } from '../market/history-meta.js';
+import { emaSeries, smaSeries } from '../technical/definitions.js';
 
 export const COMPOSITE_FEAR_GREED_VERSION = 'aio-sentiment-composite.v1';
 const RANK_WINDOW = 252;
@@ -27,19 +28,6 @@ function series(rows, field) {
   return buildCloseSeries(Array.isArray(rows) ? rows : [], field).map((row) => ({ date: row.date, value: finite(row.value) })).filter((row) => row.value != null);
 }
 
-function sma(values, end, length) {
-  if (end + 1 < length) return null;
-  let sum = 0;
-  for (let i = end - length + 1; i <= end; i += 1) sum += values[i];
-  return sum / length;
-}
-
-function emaSeries(values, length) {
-  const k = 2 / (length + 1);
-  const out = [];
-  values.forEach((value, index) => out.push(index === 0 ? value : value * k + out[index - 1] * (1 - k)));
-  return out;
-}
 
 // Percentile of the latest raw value within the trailing window (inclusive), 0..100.
 function percentileRank(raw) {
@@ -60,9 +48,10 @@ function component(id, label, rawSeries, { invert = false, basis }) {
 function ratioToAverage(rows, field, length) {
   const points = series(rows, field);
   const values = points.map((row) => row.value);
+  const averages = smaSeries(values, length);
   const out = [];
   for (let i = 0; i < points.length; i += 1) {
-    const average = sma(values, i, length);
+    const average = averages[i];
     if (average) out.push({ date: points[i].date, value: values[i] / average - 1 });
   }
   return out;
@@ -114,8 +103,8 @@ export function computeCompositeFearGreed({ history = [], macroHistory = null } 
   // 3. Breadth: McClellan-style oscillator on the advancing share (counts, not volume).
   const advance = series(history, 'advanceRatio');
   const centered = advance.map((row) => row.value - 0.5);
-  const fast = emaSeries(centered, 19);
-  const slow = emaSeries(centered, 39);
+  const fast = emaSeries(centered, 19, { seed: 'first' });
+  const slow = emaSeries(centered, 39, { seed: 'first' });
   const breadth = advance.length >= 39 ? advance.slice(38).map((row, index) => ({ date: row.date, value: fast[index + 38] - slow[index + 38] })) : [];
   components.push(component('breadth', '상승 종목 흐름', breadth, { basis: '상승 종목 비율의 19/39일 EMA 차 (종목 수 기준)' }));
   // 4. Volatility: VIX against its 50-day average (high = fear).

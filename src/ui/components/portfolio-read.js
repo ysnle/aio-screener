@@ -10,7 +10,7 @@ import { buildCloseSeries, koreaMoveRecord } from '../../domain/briefing/market-
 import { el } from './dom.js';
 import { askRow } from './ask-row.js';
 import { signedBar, signedScale } from './signed-bar.js';
-import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
+import { loadArtifact } from '../../data/artifact-registry.js';
 import { estimateBookSensitivities, bookWeights, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
 import { bondCushion, assetClassOf, BOND_ETF_MAP, BOND_KIND_LABEL } from '../../domain/portfolio/asset-class.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -236,7 +236,7 @@ function requestSp500Weights(root, onReady) {
   sp500Requested = true;
   const fetchFn = root?.fetch || globalThis.fetch;
   if (typeof fetchFn !== 'function') return;
-  loadJsonArtifact(stableFetcher(root || globalThis), './public-data/sp500-weights.json', { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes: 512 * 1024 })
+  loadArtifact(root || globalThis, 'sp500-weights.json')
     .then((data) => { if (data && Array.isArray(data.rows)) { sp500Weights = data; onReady?.(); } })
     .catch(() => {});
 }

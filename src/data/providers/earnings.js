@@ -1,4 +1,5 @@
 // P1607: shared calendar discovery stays within the artifact's actual date window.
+import { artifactUrl } from '../artifact-registry.js';
 export function selectPublicEarnings(data, symbol, from, to) {
   if (!data || data.status !== 'current-reference' || !Array.isArray(data.earnings) || !data.weekStart || !data.weekEnd || from > data.weekEnd || to < data.weekStart) return null;
   return data.earnings.filter(row => row.symbol === symbol && row.date >= from && row.date <= to)
@@ -10,7 +11,7 @@ export function createPublicEarningsReader(httpClient, now = () => Date.now()) {
   let pending, cached, loadedAt = 0;
   return async (symbol, from, to) => {
     if (!cached || now() - loadedAt > 120000) {
-      if (!pending) pending = httpClient.requestJson('./public-data/earnings-calendar.json', { cache: 'no-store' }).then(result => {
+      if (!pending) pending = httpClient.requestJson(artifactUrl('earnings-calendar.json'), { cache: 'no-store' }).then(result => {
         if (result.ok && Array.isArray(result.data?.earnings)) { cached = result.data; loadedAt = now(); }
         else cached = null;
       }).finally(() => { pending = null; });

@@ -7,7 +7,8 @@ import { loadKnowledgeIndex, searchKnowledgeIndex } from './knowledge-search.js'
 import { createStorageGateway } from '../../platform/storage.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
-import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { SCENARIO_STATE } from '../../data/artifact-registry.js';
 
 // v57.55 review (2e, beginner panel): two ways in before the 400-book shelf — the start of the column series (written as a
 // sequence from money to the stock market) and the notes that match the next release the 오늘/거시 screens are waiting for.
@@ -169,7 +170,7 @@ export function el(doc, tag, className, text) {
   return node;
 }
 
-const loadIndex = (root) => loadKnowledgeIndex(root?.fetch?.bind(root));
+const loadIndex = (root) => loadKnowledgeIndex(root);
 
 const normalize = (text) => String(text || '').toLowerCase().replace(/\(.*?\)/g, ' ').replace(/\s+/g, ' ').trim();
 // Codex browser audit H52: concepts were listed first regardless of fit, so the note whose title is

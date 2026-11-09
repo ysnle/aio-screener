@@ -11,6 +11,7 @@ import { SEC_REFERENCE_TURNOVER_BOUNDS, SEC_MARGIN_HOLD_ABOVE_PCT } from '../../
 import { finiteNumber as finite } from '../../domain/shared/number.js';
 import { SIC_SECTOR_SOURCE, sectorFromSic } from '../../domain/fundamental/sic-sector.js';
 import { EXTENDED_SHARD_URL, RANKING_CONTRACTS, expandScreenerArtifact, expandShardRows, isValidShard, normalizeUniverseScope, rowMembership, shardIdentityRows } from '../screener-extended.js';
+import { artifactUrl } from '../artifact-registry.js';
 
 // P1173 (17 작업 단위 4 / O07): this consumer declares which input set it can combine. The three
 // artifacts may be refreshed on their own cadence, so equal generation dates are not required; what is
@@ -240,9 +241,9 @@ function sicIndustry(sic, descriptions) {
 
 export function createScreenerProvider({
   httpClient,
-  url = './public-data/screener.json',
-  universeUrl = './public-data/screener-universe.json',
-  modelValidationUrl = './public-data/model-validation-status.json',
+  url = artifactUrl('screener.json'),
+  universeUrl = artifactUrl('screener-universe.json'),
+  modelValidationUrl = artifactUrl('model-validation-status.json'),
   // v57.81: the extended shard (Russell 2000 + Nasdaq beyond the core) is read only for the 확장 scope. Before its
   // first load it is fetched only while allowExtendedFetch() says so (the screener route), so a remembered 확장 choice
   // does not download it on another screen.

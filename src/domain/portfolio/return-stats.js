@@ -1,16 +1,15 @@
 // v57.60: return-statistics helpers extracted from backtest.js (pure; no DOM, no globals). backtest.js
 // re-exports the same names, so bootstrap's _stat* compatibility bindings and the module API are unchanged.
 
+import { mean, stdev } from '../shared/number.js';
+
+// The legacy return-statistics contract: an empty mean and a short-sample deviation are 0, not null.
 function _statMean(arr) {
-  if (!arr || !arr.length) return 0;
-  return arr.reduce((sum, value) => sum + value, 0) / arr.length;
+  return mean(arr) ?? 0;
 }
 
 function _statStdDev(arr) {
-  if (!arr || arr.length < 2) return 0;
-  const mean = _statMean(arr);
-  const variance = arr.reduce((sum, value) => sum + (value - mean) * (value - mean), 0) / (arr.length - 1);
-  return Math.sqrt(variance);
+  return stdev(arr, { sample: true }) ?? 0;
 }
 
 // ── 22:PFR05 (E4) sample-stability verification ──────────────────────────────

@@ -11,7 +11,7 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { regimeFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps, openRouteSection } from './page-flow.js';
 import { createTrendChart } from './trend-chart.js';
-import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
 import { buildRegimeAxisHistory, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
 import { renderRegimeRadar } from './regime-radar.js';
 import { renderMacroCrossroads, showCrossroadsSection } from './macro-crossroads.js';
@@ -21,6 +21,7 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { historyWaitText } from './data-state.js';
+import { MACRO_HISTORY } from '../../data/artifact-registry.js';
 
 // Live review 2026-10-14 (owner reading standard: 3–5 lines, ~130–230자 per block): a longer reading keeps its first
 // sentences on the face (up to ~200자, cut at a sentence end) and folds the rest under '이어서 읽기'.
@@ -519,7 +520,7 @@ function crossMap(doc, row) {
 }
 
 function paintCrossReadings(doc, root, inputs) {
-  Promise.all([import('../../domain/market/cross-readings.js'), import('../../data/shared-artifacts.js')]).then(([{ crossReadings }, { MARKET_DAY, refreshSharedArtifact }]) => {
+  Promise.all([import('../../domain/market/cross-readings.js'), import('../../data/shared-artifacts.js'), import('../../data/artifact-registry.js')]).then(([{ crossReadings }, { refreshSharedArtifact }, { MARKET_DAY }]) => {
     const paint = () => {
       const host = doc.getElementById('regime-cross-list');
       const section = doc.getElementById('regime-cross');

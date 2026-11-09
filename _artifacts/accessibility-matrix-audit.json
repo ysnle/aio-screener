@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-09T04:21:38.333Z",
+  "observedAt": "2026-11-09T04:30:12.716Z",
   "appRevision": "v59.86",
-  "gitHead": "fed62e108f05dd3ab3588aca2a310cf367a70b15",
+  "gitHead": "2d0227d6d55d9417cbd283c758a6c4b661d5b89c",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -58,7 +58,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 0,
+      "selectCount": 2,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -211,8 +211,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "ETF",
+          "width": 22,
+          "height": 27,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 23,
+          "height": 27,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -265,86 +280,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 11,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "Finnhub calendar/earnings + calendar/ipo 실적 집계",
-          "width": 291,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 89,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 89,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 103,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 89,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 89,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 89,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC 8-K EX-99.1",
-          "width": 103,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 1",
-          "width": 89,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 2",
-          "width": 89,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "반응 이유 기사 3",
-          "width": 89,
-          "height": 15,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -441,23 +378,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 24,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 23,
-          "height": 27,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },

@@ -2,7 +2,7 @@
 // staleness and held-ranking copy). No DOM, network or storage — src/ui/pages/screener.js re-exports these names
 // for the gates that import them from the page.
 import { readRowNumber } from '../../data/contracts/screener.js';
-import { latestCompletedUsSession, latestCompletedKrSession } from '../market/market-calendar.js';
+import { latestCompletedSession } from '../market/market-calendar.js';
 import { finiteNumber as finite } from '../shared/number.js';
 
 
@@ -82,7 +82,7 @@ export function profileComputability(weights, factorCoverage) {
 // while the US file is current — the hold copy and the population note must name the market that is late.
 export function factorSessionLag(market, factorSessionDate, now = Date.now()) {
   const session = String(factorSessionDate || '').slice(0, 10);
-  const latest = market === 'KR' ? latestCompletedKrSession(now) : latestCompletedUsSession(now, { requirePrevious: false });
+  const latest = latestCompletedSession(market, now);
   if (!session || !latest?.date || session >= latest.date) return null;
   return { session, latest: latest.date, label: market === 'KR' ? '한국장' : '미국장' };
 }

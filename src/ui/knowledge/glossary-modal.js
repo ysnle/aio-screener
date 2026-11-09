@@ -3,8 +3,9 @@
 // _glossaryCat, _GLOSSARY_GROUPS, _glossaryPreviousFocus) and the close, category and search handlers in js/aio-core.js
 // (_aioCloseGlossary, _aioGlossaryCat, _aioFilterGlossary). They moved here unchanged, so every writer of #glossary-modal,
 // #glossary-cats and #glossary-body sits in one place (AG-DOM-WRITER). The entry parts and the cross-surface search stay in
-// glossary-bridge.js; the registry stays in js/aio-glossary.js (root.GLOSSARY) and HTML escaping stays root.escHtml, the
-// classic helper that also strips pictographs.
+// glossary-bridge.js; the registry stays in js/aio-glossary.js (root.GLOSSARY); HTML escaping is src/ui/html.js, which also strips
+// pictographs.
+import { escapeHtml as esc } from '../html.js';
 
 // P1599 (F113): 28 raw categories mixed subject, industry and difficulty on four rows; seven reader groups replace them
 // (each item keeps its own category tag).
@@ -41,7 +42,6 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
   let previousFocus = null;
   let shownQuery = ''; // v59.70: the term the command search opened the modal on (the modal has no search box of its own)
   const entries = () => (Array.isArray(root.GLOSSARY) ? root.GLOSSARY : []);
-  const esc = (value) => (typeof root.escHtml === 'function' ? root.escHtml(value) : String(value));
 
   function renderCats() {
     // P1248: the buttons come from the GLOSSARY registry, so a category that only the data has is never left out.

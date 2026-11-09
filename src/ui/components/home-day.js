@@ -2,7 +2,7 @@
 // material stories, one line each, the day's top headlines, and the stocks that moved the most by the ledger's own ranking (a mega-cap's pull on the
 // S&P 500 counts as much as a small name's surprise). The same model as 브리핑 (src/domain/briefing/day-account.js), so
 // the two screens cannot disagree on what mattered.
-import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
 import { oneSessionDay } from '../../domain/market-day/one-session.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -12,6 +12,7 @@ import { frameHead } from './section-frame.js';
 import { pickImportantNews } from '../../domain/briefing/news-picks.js';
 import { groupNewsStories } from '../../domain/news/stories.js';
 import { usThenKorea } from '../../domain/market/session-time.js';
+import { MARKET_DAY } from '../../data/artifact-registry.js';
 
 const RANK_ORDER = Object.freeze({ lead: 0, major: 1, minor: 2, context: 3 });
 

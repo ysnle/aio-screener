@@ -9,10 +9,10 @@ import { portfolioLens, leadScenarioExposures } from './portfolio-read.js';
 import { readJournal } from '../panels/portfolio-trade-journal.js';
 import { normalizeRules } from '../../domain/portfolio/trade-journal.js';
 import { consensusRowFor, requestConsensusEstimates } from '../../data/consensus-estimates.js';
-import { SCENARIO_STATE, refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { EARNINGS_CALENDAR } from './fiscal-read.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
+import { EARNINGS_CALENDAR, SCENARIO_STATE } from '../../data/artifact-registry.js';
 
 const SINGLE_BAND = 25; // the 점검 single-holding internal band (domain/portfolio/checks.js: 25% 초과 주의)
 const SECTOR_BAND = 40; // the exposure panel's internal sector band (portfolio-read.js SECTOR_CONCENTRATION_BAND)

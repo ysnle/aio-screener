@@ -13,11 +13,10 @@ import { setStockSubject } from '../navigation/route-hubs.js';
 import { renderStockRead } from '../components/stock-read.js';
 import { renderTickerStart } from '../components/ticker-start.js';
 import { createTrendChart } from '../components/trend-chart.js';
-import { EARNINGS_CALENDAR, renderFiscalRead, requestFiscalHistory } from '../components/fiscal-read.js';
-import { EVENT_BRIEFS } from '../../data/event-artifacts.js';
+import { renderFiscalRead, requestFiscalHistory } from '../components/fiscal-read.js';
 import { buildEarningsSchedule } from '../../domain/fundamental/analysis-read.js';
 import { requestConsensusEstimates } from '../../data/consensus-estimates.js';
-import { refreshSharedArtifact, SCENARIO_STATE, MARKET_DAY } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { whyMovedLine } from '../../domain/entity/why-moved.js';
 import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
@@ -31,7 +30,7 @@ function storyRendererOr(onReady) {
   storyRendererLoad.then(onReady, () => {});
   return null;
 }
-import { requestCompanyStory, companyStoryFor, companySideArtifact, COMPANY_PROFILE_INDEX } from '../../data/company-profiles.js';
+import { requestCompanyStory, companyStoryFor, companySideArtifact } from '../../data/company-profiles.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { entityFundamentalsState } from '../../domain/content/data-state.js';
 import { renderDataState } from '../components/data-state.js';
@@ -39,6 +38,7 @@ import { finiteNumber as finite, signedText, usdKoreanText } from '../../domain/
 import { latestCompletedKrSession } from '../../domain/market/market-calendar.js';
 import { stockLensContext, renderStockContext, renderStockStrengths, installStockLensGlobal } from '../components/stock-lens-cards.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
+import { COMPANY_PROFILE_INDEX, EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY, SCENARIO_STATE } from '../../data/artifact-registry.js';
 
 // 2026-10-13 review S21: observation times read in Korean time, not "… 20:00:00 UTC".
 
@@ -844,9 +844,12 @@ function render({ root, documentRef, store, route, activeTickerTab = 'overview',
     // v57.81: a US listing outside the screener universe reads its SEC filing on demand (session cache, two at a time);
     // the record's arrival re-renders through 'aio:entityChanged', and a missing CIK says so instead of '미수신'.
     const onDemandId = String(state?.id || '').trim().toUpperCase();
+    // A screener ETF row is the same fact the on-demand check reaches later ('not-applicable'): no company filings.
+    let etfRow = false;
+    try { etfRow = !!onDemandId && (root?._aioGetCanonicalScreenerRows?.() || []).some((row) => row?.sym === onDemandId && (row.sector === 'ETF' || row.index === 'ETF')); } catch (_) { etfRow = false; }
     const onDemand = onDemandId && !isKrSymbol(onDemandId) && !state?.fundamentals ? root?._aioOnDemandSymbol?.(onDemandId) || null : null;
-    if (onDemandId && !isKrSymbol(onDemandId) && !state?.fundamentals && !onDemand) root?._aioRequestOnDemandSymbol?.(onDemandId)?.catch?.(() => {});
-    renderFundamentalStatus(documentRef, state, onDemand);
+    if (onDemandId && !isKrSymbol(onDemandId) && !state?.fundamentals && !onDemand && !etfRow) root?._aioRequestOnDemandSymbol?.(onDemandId)?.catch?.(() => {});
+    renderFundamentalStatus(documentRef, state, etfRow && !state?.fundamentals ? { secStatus: 'not-applicable' } : onDemand);
     renderFundamentalReport(documentRef, routeNode, state);
     // v58.55 (3d) → v59.51: 듀폰 분해 + 역 DCF live in 재무 공시's 투자 논지 틀 fold. The price is the screener's completed-session
     // valuation close (the same close its P/E uses), else the latest dated close; never the live quote, so the calculator

@@ -1,6 +1,7 @@
 // Server data artifact (public-data/data.json + reconciliation-status.json). Legacy unification (2026-10-17): the fetch,
 // the reconciliation check and the market-cycle gate moved here from js/aio-data.js _aioLoadServerData, which still
 // projects the payload into DATA_SNAPSHOT and the legacy evidence globals.
+import { artifactUrl } from './artifact-registry.js';
 
 // R646/P1295/P1296: canonical policy is 12h; artifact metadata does not configure runtime freshness.
 export const LIVE_CORE_FRESHNESS_SLA_HOURS = 12;
@@ -167,7 +168,7 @@ export function buildServerDataMeta(d, { reconciliation, now = Date.now() } = {}
 export async function fetchServerData({ fetch = globalThis.fetch, now = () => Date.now(), prefetched = null } = {}) {
   const minute = prefetched?.minute ?? Math.floor(now() / 60000);
   const response = await (prefetched?.response ? prefetched.response.catch(() => null) : Promise.resolve(null))
-    .then((early) => (early?.ok ? early : fetch(`./public-data/data.json?t=${minute}`, { cache: 'no-cache' })));
+    .then((early) => (early?.ok ? early : fetch(`${artifactUrl('data.json')}?t=${minute}`, { cache: 'no-cache' })));
   if (!response.ok) return { ok: false, reason: `data.json HTTP ${response.status}` };
   const data = await response.json();
   if (!data || !data.meta) return { ok: false, empty: true, reason: 'invalid data.json payload' };
@@ -175,7 +176,7 @@ export async function fetchServerData({ fetch = globalThis.fetch, now = () => Da
   // see category degradation without a page reload.
   let reconciliationPayload;
   try {
-    const reconciliationResponse = await fetch(`./public-data/reconciliation-status.json?t=${minute}`, { cache: 'no-cache' });
+    const reconciliationResponse = await fetch(`${artifactUrl('reconciliation-status.json')}?t=${minute}`, { cache: 'no-cache' });
     reconciliationPayload = reconciliationResponse.ok ? await reconciliationResponse.json() : new Error(`HTTP ${reconciliationResponse.status}`);
   } catch (error) {
     reconciliationPayload = error instanceof Error ? error : new Error(String(error));

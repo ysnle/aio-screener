@@ -41,7 +41,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = resolve(ROOT, 'public-data/event-briefs.json');
 const DAY = 86400000;
 const RETAIN_DAYS = 120;
-// The home screen reads the file whole (1 MiB client cap, src/data/event-artifacts.js). Past this budget the oldest briefs go
+// The home screen reads the file whole (1 MiB client cap, src/data/artifact-registry.js). Past this budget the oldest briefs go
 // first, but never one inside the fetch lookback (it would be fetched and summarised again) or one with this month's AI cost
 // (the month ledger is summed from kept briefs) (artifact audit, v59.48).
 const BRIEF_BYTE_BUDGET = 640 * 1024;

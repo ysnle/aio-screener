@@ -183,6 +183,17 @@ export function latestCompletedKrSession(now = Date.now()) {
   return null;
 }
 
+const isKrMarket = (market) => ['KR', 'KRX'].includes(String(market).toUpperCase());
+
+/**
+ * The latest completed session of a market — KRX for 'KR'/'KRX', else NYSE without requiring the session
+ * before it. Eight readers wrote this branch themselves (`market === 'KR' ? latestCompletedKrSession(now) :
+ * latestCompletedUsSession(now, { requirePrevious: false })`).
+ */
+export function latestCompletedSession(market, now = Date.now()) {
+  return isKrMarket(market) ? latestCompletedKrSession(now) : latestCompletedUsSession(now, { requirePrevious: false });
+}
+
 // v57.91 (performance audit): the Date round trip here was 0.8s of a phone home render; a calendar check on the digits
 // accepts and rejects the same strings (month 01-12, a day that exists in that month, leap years included).
 const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -352,22 +363,35 @@ export function observationSessionState({ market = 'US', sessionDate = null, obs
   if (!Number.isFinite(nowMs)) return null;
   const observedMs = observedAt == null || observedAt === '' ? NaN : Date.parse(observedAt);
   if (Number.isFinite(observedMs) && observedMs > nowMs) return { status: 'invalid', reason: 'future-observation' };
-  const kr = ['KR', 'KRX'].includes(String(market).toUpperCase());
+  const kr = isKrMarket(market);
   const timezone = kr ? 'Asia/Seoul' : 'America/New_York';
   const own = dateOnly(sessionDate) || (Number.isFinite(observedMs) ? dateInTimezone(observedMs, timezone) : null);
   if (own && own > dateInTimezone(nowMs, timezone)) return { status: 'invalid', reason: 'future-session' };
-  const last = latest || (kr ? latestCompletedKrSession(nowMs) : latestCompletedUsSession(nowMs, { requirePrevious: false }));
+  const last = latest || latestCompletedSession(market, nowMs);
   if (!own || !last?.date) return null;
   const lag = own >= last.date ? 0 : countOpenSessionsBetween(own, last.date, kr ? 'KR' : 'US');
   const closeMs = Number.isFinite(last.closeMs) ? last.closeMs : null;
   return { lag, latestDate: last.date, latestCloseMs: closeMs, sinceLatestCloseMs: closeMs == null ? null : nowMs - closeMs };
 }
 
-// Current = lag 0, or up to maxLag behind while the latest close is under graceMs old (its producer has not landed).
-export function isSessionCurrent(args = {}, { maxLag = 1, graceMs = 12 * 3600000 } = {}) {
-  const state = observationSessionState(args);
+// The one session-lag rule (ADR-0003 S3). The screener factor check (isSessionCurrent) and the artifact freshness
+// grade (src/data/contracts/artifact-freshness.js sessionLagState) each held a copy of "lag 0, or one behind while that
+// close is under 12 hours old"; the ledger copy also kept its own 12-hour constant. Both read this grade now:
+//   current  lag 0, or up to maxLag behind while the latest close is under graceMs old (its producer has not landed)
+//   late     up to maxLag behind after that grace
+//   stale    more than maxLag behind
+//   invalid  future evidence (observationSessionState status 'invalid')
+// null when the calendar year is unknown (callers fall back to their day budget).
+export function sessionLagGrade(state, { maxLag = 1, graceMs = 12 * 3600000 } = {}) {
   if (!state) return null;
-  if (state.status === 'invalid') return false;
-  if (state.lag === 0) return true;
-  return state.lag <= maxLag && state.sinceLatestCloseMs != null && state.sinceLatestCloseMs <= graceMs;
+  if (state.status === 'invalid') return 'invalid';
+  if (state.lag === 0) return 'current';
+  if (state.lag > maxLag) return 'stale';
+  return state.sinceLatestCloseMs != null && state.sinceLatestCloseMs <= graceMs ? 'current' : 'late';
+}
+
+// Current = sessionLagGrade 'current'; false for invalid evidence; null for an unknown calendar.
+export function isSessionCurrent(args = {}, policy = {}) {
+  const grade = sessionLagGrade(observationSessionState(args), policy);
+  return grade == null ? null : grade === 'current';
 }

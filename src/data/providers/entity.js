@@ -5,6 +5,7 @@
 // entity route's fundamentals field. id/quote/options still come from the injected `read`
 // callback (legacy projection) — those are out of scope for this slice (see session card).
 import { expandSecRecords } from '../contracts/sec-projection.js';
+import { artifactUrl } from '../artifact-registry.js';
 
 const DEFAULT_FUNDAMENTAL_WATCHLIST = Object.freeze(['NVDA', 'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'TSLA', 'AVGO']);
 
@@ -18,7 +19,7 @@ function lastHistoryObservedAt(history = []) {
   return row.observedAt || row.date || row.time || row.timestamp || null;
 }
 
-export function createEntityProvider({ read = () => ({}), httpClient, fundamentalsUrl = './public-data/sec-fundamentals-summary.json', fundamentalWatchlist = DEFAULT_FUNDAMENTAL_WATCHLIST, now = () => Date.now(), cacheTtlMs = 30 * 60 * 1000, readOnDemand = () => null } = {}) {
+export function createEntityProvider({ read = () => ({}), httpClient, fundamentalsUrl = artifactUrl('sec-fundamentals-summary.json'), fundamentalWatchlist = DEFAULT_FUNDAMENTAL_WATCHLIST, now = () => Date.now(), cacheTtlMs = 30 * 60 * 1000, readOnDemand = () => null } = {}) {
   // v57.81: an out-of-universe US listing's annual SEC record, read on demand with the producer's normalizer
   // (src/data/on-demand-symbol.js), stands in only when the published projection has no row for the symbol.
   const onDemandFundamentals = (symbol) => { try { const record = readOnDemand(symbol); return record && String(record.symbol || '').toUpperCase() === symbol ? { ...record } : null; } catch (_) { return null; } };

@@ -4,7 +4,8 @@
 import { buildMacroChapters } from '../../domain/macro/macro-chapters.js';
 import { markFrame } from './section-frame.js';
 import { el } from './dom.js';
-import { MARKET_DAY, refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { MARKET_DAY } from '../../data/artifact-registry.js';
 
 function miniBars(doc, viz) {
   const box = el(doc, 'figure', null, 'mx-ch__viz');

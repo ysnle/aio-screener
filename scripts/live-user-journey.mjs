@@ -46,6 +46,13 @@ const page = await context.newPage();
 const errors = [];
 page.on('pageerror', (error) => errors.push(`pageerror ${error.message.slice(0, 200)}`));
 page.on('console', (message) => { if (message.type() === 'error') errors.push(`console ${message.text().slice(0, 200)}`); });
+// A console "Failed to load resource" line has no URL; the response itself names what failed.
+// js/aio-qa-audits.js loads only for automated browsers (navigator.webdriver) and is not deployed, so its 404 is this probe's own.
+page.on('response', (response) => { if (response.status() >= 400 && !/\/js\/aio-qa-audits\.js/.test(response.url())) errors.push(`http ${response.status()} ${response.url().slice(0, 200)}`); });
+// Short screens that are a stated state, not a missing render: the help index (folded sections), an ETF's or a Korean
+// listing's financials (no company filings / DART not connected).
+const STATED_SHORT = /ETF는 기업 재무 공시가 없습니다|한국 공시\(DART\)|판정 기준표, 시장 상태/;
+const tooShort = (text) => !text || (text.length < 200 && !STATED_SHORT.test(text));
 const flushErrors = (label) => {
   const unique = [...new Set(errors.splice(0))];
   if (unique.length) section(`${label} — browser errors`, unique.join('\n'));
@@ -69,7 +76,7 @@ try {
     for (const route of ROUTES) {
       await open(route, route === 'charts' ? 12000 : 8000);
       const { id, text } = await visiblePageText(page);
-      if (!text || text.length < 200) problems.push(`#${route}: page text ${text?.length || 0} chars`);
+      if (tooShort(text)) problems.push(`#${route}: page text ${text?.length || 0} chars`);
       writeFileSync(`${OUT}/route-${fileName(route)}.txt`, text);
       await page.screenshot({ path: `${OUT}/route-${fileName(route)}.png` }).catch(() => {});
       section(`#${route} (${id})`, text.slice(0, Number(process.env.AIO_JOURNEY_TEXT_LIMIT || 5000)));
@@ -86,7 +93,7 @@ try {
         if (route === 'technical') await page.waitForSelector('#page-technical canvas', { timeout: 20000 }).catch(() => problems.push(`${hash}: no chart canvas`));
         await page.waitForTimeout(route === 'technical' ? 3000 : 0);
         const { id, text } = await visiblePageText(page);
-        if (!text || text.length < 200) problems.push(`${hash}: page text ${text?.length || 0} chars`);
+        if (tooShort(text)) problems.push(`${hash}: page text ${text?.length || 0} chars`);
         writeFileSync(`${OUT}/${fileName(hash)}.txt`, text);
         await page.screenshot({ path: `${OUT}/${fileName(hash)}.png` }).catch(() => {});
         section(`${hash} (${id})`, text.slice(0, Number(process.env.AIO_JOURNEY_TEXT_LIMIT || 5000)));

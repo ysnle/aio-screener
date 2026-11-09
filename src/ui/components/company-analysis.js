@@ -6,12 +6,13 @@ import { buildCompanyAnalysis } from '../../domain/entity/company-analysis.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { parseFiscalHistory, requestFiscalHistory, dartLink } from './fiscal-read.js';
 import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
-import { refreshSharedArtifact, SCENARIO_STATE } from '../../data/shared-artifacts.js';
-import { KR_FUNDAMENTALS, krFundamentalPoints } from '../../domain/entity/kr-fundamentals.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { krFundamentalPoints } from '../../domain/entity/kr-fundamentals.js';
 import { ARTIFACT_FRESHNESS } from '../../data/contracts/artifact-freshness.js';
 import { consensusView, peMultipleText } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
+import { KR_FUNDAMENTALS, SCENARIO_STATE } from '../../data/artifact-registry.js';
 const mdOf = (date) => { const m = String(date || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${Number(m[1])}/${Number(m[2])}` : ''; };
 // v57.55 review (8m, semi-expert panel): the numbers a reader looks for first, on one line, each with its own date. US
 // listings only (Korean listings have their own OpenDART block); a value that is not there is left out, never estimated.

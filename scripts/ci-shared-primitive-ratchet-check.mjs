@@ -23,6 +23,21 @@
 //   nullAsZero  — `Number.isFinite(Number(x))`, which is true for null, '' and false; use isFiniteNumber/readNumber.
 // A scope the prior baseline did not scan is recorded as measured once, like a new metric.
 //
+// v59.87 (ADR-0003 S0, layered single owner): three more copies the 2026-11-09 audit found are held here:
+//   localEscape    — a local `esc`/`escHtml`/`escapeHtml` definition in src/ (8 found); the canonical escape is
+//                    src/ui/html.js once it exists. An alias (`const esc = escHtml;`) is not a copy.
+//   localIndicator — a local SMA/EMA/RSI definition (`function sma…(`, `const rsi… = (…) =>`) in src/ outside
+//                    src/domain/technical/definitions.js, the canonical indicator owner.
+//   publicDataPath — a './public-data/' path literal in src/domain, src/ui or src/ai. Artifact locations belong to
+//                    src/data; screens and AI ask the data layer for an artifact instead of naming its file.
+// ci-architecture-contract-check already forbids fetch/storage in those layers outright; these three only shrink.
+//
+// v59.87 (ADR-0003 S2+S3, data boundary): two more, so the registry and the session rule stay the only owners:
+//   dataPathLiteral — a './public-data/' literal in src/data or src/app outside src/data/artifact-registry.js (the one
+//                     table of artifact locations and load budgets; readers use artifactUrl/loadArtifact or a descriptor).
+//   sessionBranch   — a `… ? latestCompletedKrSession(…) : latestCompletedUsSession(…)` market branch anywhere in src/;
+//                     latestCompletedSession(market, now) in src/domain/market/market-calendar.js is the one branch.
+//
 // Usage:
 //   node scripts/ci-shared-primitive-ratchet-check.mjs           # verify
 //   node scripts/ci-shared-primitive-ratchet-check.mjs --write   # record shrinks (growth is refused)
@@ -38,7 +53,23 @@ const DEFINITION_FILES = new Set(['src/domain/shared/number.js', 'src/domain/sha
 const FINITE_RE = /^\s*(?:export\s+)?(?:function\s+finite\s*\(|const\s+finite\s*=\s*(?:\(|[A-Za-z_]\w*\s*=>))/gm;
 const DATE_RE = /\\d\{4\}-\\d\{2\}-\\d\{2\}/g;
 const NULL_AS_ZERO_RE = /Number\.isFinite\(Number\(/g;
-const METRICS = ['localFinite', 'dateRegex', 'rawRowRead', 'nullAsZero'];
+const ESCAPE_RE = /^\s*(?:export\s+)?(?:function\s+(?:esc|escHtml|escapeHtml|escapeHTML)\s*\(|const\s+(?:esc|escHtml|escapeHtml|escapeHTML)\s*=\s*(?:\(|[A-Za-z_]\w*\s*=>|function\b))/gm;
+const INDICATOR_RE = /^\s*(?:export\s+)?(?:function\s+(?:rsi|sma|ema)(?:[A-Z]\w*)?\s*\(|const\s+(?:rsi|sma|ema)(?:[A-Z]\w*)?\s*=\s*(?:\(|[A-Za-z_]\w*\s*=>|function\b))/gm;
+const PUBLIC_DATA_RE = /['"`]\.\/public-data\//g;
+const SESSION_BRANCH_RE = /latestCompletedKrSession\([^()]*(?:\([^()]*\))?[^()]*\)(?:\?\.date)?\s*:\s*(?:market\s*===\s*'US'\s*\?\s*)?latestCompletedUsSession\(/g;
+const REGISTRY_OWNER = 'src/data/artifact-registry.js';
+const SESSION_OWNER = 'src/domain/market/market-calendar.js';
+const METRICS = ['localFinite', 'dateRegex', 'rawRowRead', 'nullAsZero', 'localEscape', 'localIndicator', 'publicDataPath', 'dataPathLiteral', 'sessionBranch'];
+const METRIC_WORDS = { localEscape: 'local HTML escape copies', localIndicator: 'local SMA/EMA/RSI copies', publicDataPath: "'./public-data/' literals", dataPathLiteral: "'./public-data/' literals outside the artifact registry", sessionBranch: 'KR/US latest-session branches' };
+const METRIC_REMEDY = {
+  localEscape: 'import the shared escape (src/ui/html.js; legacy escHtml until it lands) instead of defining esc',
+  localIndicator: 'import smaSeries/emaSeries/rsiWilder from src/domain/technical/definitions.js',
+  publicDataPath: 'request the artifact through src/data (loader descriptor owned there), not by path',
+  dataPathLiteral: 'register the file in src/data/artifact-registry.js and read artifactUrl(id) / loadArtifact(root, id)',
+  sessionBranch: 'call latestCompletedSession(market, now) from src/domain/market/market-calendar.js',
+};
+const INDICATOR_OWNER = 'src/domain/technical/definitions.js';
+const ESCAPE_OWNER = 'src/ui/html.js';
 const SCOPES = ['src', 'scripts'];
 const scopeOf = (file) => file.split('/')[0];
 const ROW_READ_SCOPES = ['src/domain/', 'src/ui/', 'src/ai/'];
@@ -46,9 +77,17 @@ const { SCREENER_FIELD_REGISTRY } = await import(pathToFileURL(join(root, 'src/d
 const ROW_KEYS = [...new Set(SCREENER_FIELD_REGISTRY.fields.filter((field) => field.type === 'number' && field.rowKey).map((field) => field.rowKey))];
 const ROW_READ_RE = new RegExp(String.raw`\b(?:row|r|member|stock|item|entry)\??\.(?:${ROW_KEYS.join('|')})\b`, 'g');
 
-export function countCopies(source, { rowReads = true } = {}) {
+export function countCopies(source, { rowReads = true, layered = rowReads, src = true, indicatorOwner = false, escapeOwner = false, dataLayer = false, sessionOwner = false } = {}) {
   const text = String(source);
-  return { localFinite: (text.match(FINITE_RE) || []).length, dateRegex: (text.match(DATE_RE) || []).length, rawRowRead: rowReads ? (text.match(ROW_READ_RE) || []).length : 0, nullAsZero: (text.match(NULL_AS_ZERO_RE) || []).length };
+  const n = (re) => (text.match(re) || []).length;
+  return {
+    localFinite: n(FINITE_RE), dateRegex: n(DATE_RE), rawRowRead: rowReads ? n(ROW_READ_RE) : 0, nullAsZero: n(NULL_AS_ZERO_RE),
+    localEscape: src && !escapeOwner ? n(ESCAPE_RE) : 0,
+    localIndicator: src && !indicatorOwner ? n(INDICATOR_RE) : 0,
+    publicDataPath: layered ? n(PUBLIC_DATA_RE) : 0,
+    dataPathLiteral: dataLayer ? n(PUBLIC_DATA_RE) : 0,
+    sessionBranch: src && !sessionOwner ? n(SESSION_BRANCH_RE) : 0,
+  };
 }
 
 function productFiles() {
@@ -64,7 +103,9 @@ function productFiles() {
 function measure() {
   const counts = {};
   for (const file of productFiles()) {
-    const result = countCopies(readFileSync(join(root, file), 'utf8'), { rowReads: ROW_READ_SCOPES.some((scope) => file.startsWith(scope)) });
+    const layered = ROW_READ_SCOPES.some((scope) => file.startsWith(scope));
+    const dataLayer = (file.startsWith('src/data/') || file.startsWith('src/app/')) && file !== REGISTRY_OWNER;
+    const result = countCopies(readFileSync(join(root, file), 'utf8'), { rowReads: layered, layered, src: file.startsWith('src/'), indicatorOwner: file === INDICATOR_OWNER, escapeOwner: file === ESCAPE_OWNER, dataLayer, sessionOwner: file === SESSION_OWNER });
     if (METRICS.some((metric) => result[metric])) counts[file] = result;
   }
   return counts;
@@ -73,11 +114,14 @@ function measure() {
 export function compareToBaseline(counts, baseline) {
   const failures = [];
   for (const [file, now] of Object.entries(counts)) {
-    const allowed = { localFinite: 0, dateRegex: 0, rawRowRead: 0, nullAsZero: 0, ...(baseline[file] || {}) };
+    const allowed = { ...Object.fromEntries(METRICS.map((metric) => [metric, 0])), ...(baseline[file] || {}) };
     if ((now.nullAsZero || 0) > allowed.nullAsZero) failures.push(`${file}: Number.isFinite(Number(x)) grew ${allowed.nullAsZero} → ${now.nullAsZero} — it reads null and '' as 0; use isFiniteNumber/readNumber from src/domain/shared/number.js`);
     if (now.rawRowRead > allowed.rawRowRead) failures.push(`${file}: raw screener row reads grew ${allowed.rawRowRead} → ${now.rawRowRead} — call readRowNumber(row, key, purpose) from src/data/contracts/screener.js`);
     if (now.localFinite > allowed.localFinite) failures.push(`${file}: local finite copies grew ${allowed.localFinite} → ${now.localFinite} — import finiteNumber/readNumber from src/domain/shared/number.js`);
     if (now.dateRegex > allowed.dateRegex) failures.push(`${file}: date regex copies grew ${allowed.dateRegex} → ${now.dateRegex} — use isoDay/stampDay/latestSessionRows from src/domain/shared/session-date.js`);
+    for (const metric of Object.keys(METRIC_WORDS)) {
+      if ((now[metric] || 0) > allowed[metric]) failures.push(`${file}: ${METRIC_WORDS[metric]} grew ${allowed[metric]} → ${now[metric]} — ${METRIC_REMEDY[metric]}`);
+    }
   }
   return failures;
 }
@@ -94,9 +138,22 @@ if (isMain) {
     String.raw`if (/^\d{4}-\d{2}-\d{2}$/.test(x)) return x;`,
     'const a = row.ret1m + row?.pctSma50 + quote.price + readRowNumber(row, "ret3m");',
     'if (Number.isFinite(Number(value.changePct))) keep(value);',
+    'const esc = (value) => String(value);',
+    'const escHtml = root.escHtml;',
+    'function smaOf(values, n) { return values; }',
+    'const ema = emaSeries;',
+    'const small = (text) => text;',
+    "const URL = './public-data/history.json';",
   ].join('\n'));
   const selfTest = [
     probe.localFinite === 3 && probe.dateRegex === 1 && probe.rawRowRead === 2 && probe.nullAsZero === 1,
+    probe.localEscape === 1 && probe.localIndicator === 1 && probe.publicDataPath === 1,
+    countCopies('function rsiWilder(c) {}', { indicatorOwner: true }).localIndicator === 0,
+    countCopies("const u = './public-data/x.json';", { rowReads: false, layered: false }).publicDataPath === 0,
+    countCopies("const u = './public-data/x.json';", { rowReads: false, layered: false, dataLayer: true }).dataPathLiteral === 1,
+    countCopies("const a = market === 'KR' ? latestCompletedKrSession(now) : latestCompletedUsSession(now, { requirePrevious: false });\nconst b = (market === 'KR' ? latestCompletedKrSession(Number(now))?.date : latestCompletedUsSession(Number(now)))?.date;").sessionBranch === 2,
+    countCopies("return isKr ? latestCompletedKrSession(now) : latestCompletedUsSession(now);", { sessionOwner: true }).sessionBranch === 0,
+    compareToBaseline({ 'src/ui/b.js': { localEscape: 1 } }, {}).length === 1,
     compareToBaseline({ 'scripts/lib/a.mjs': { localFinite: 0, dateRegex: 0, rawRowRead: 0, nullAsZero: 1 } }, {}).length === 1,
     compareToBaseline({ 'src/ui/a.js': { localFinite: 0, dateRegex: 0, rawRowRead: 3 } }, { 'src/ui/a.js': { localFinite: 0, dateRegex: 0, rawRowRead: 2 } }).length === 1,
     compareToBaseline({ 'src/a.js': { localFinite: 2, dateRegex: 0 } }, { 'src/a.js': { localFinite: 1, dateRegex: 0 } }).length === 1,
@@ -126,12 +183,12 @@ if (isMain) {
     writeFileSync(join(root, BASELINE_PATH), `${JSON.stringify({
       schemaVersion: 'aio-shared-primitive-baseline.v1',
       generatedBy: relative(root, fileURLToPath(import.meta.url)).split('\\').join('/'),
-      note: 'Per-file counts in src/ and scripts/ (not ci-* gates or fixtures) of local finite readers, YYYY-MM-DD regex copies, Number.isFinite(Number(x)) null-as-zero checks and (src domain/ui/ai) raw screener row field reads. Shrink only; never raise a count or add a file.',
+      note: "Per-file counts in src/ and scripts/ (not ci-* gates or fixtures) of local finite readers, YYYY-MM-DD regex copies, Number.isFinite(Number(x)) null-as-zero checks, (src) local HTML escape and SMA/EMA/RSI copies, and (src domain/ui/ai) raw screener row field reads and './public-data/' literals. Shrink only; never raise a count or add a file.",
       scopes: SCOPES,
       totals: total,
       counts,
     }, null, 2)}\n`);
-    console.log(`Shared-primitive baseline written: ${Object.keys(counts).length} files, ${total.localFinite} local finite, ${total.dateRegex} date regex, ${total.rawRowRead} raw row reads, ${total.nullAsZero} null-as-zero.`);
+    console.log(`Shared-primitive baseline written: ${Object.keys(counts).length} files, ${METRICS.map((metric) => `${metric}=${total[metric]}`).join(', ')}.`);
   } else {
     if (!prior) {
       console.error(`FAIL ${BASELINE_PATH} missing — run with --write once.`);
@@ -142,8 +199,8 @@ if (isMain) {
       for (const failure of failures) console.error(`FAIL ${failure}`);
       process.exit(1);
     }
-    const before = { localFinite: 0, dateRegex: 0, rawRowRead: 0, nullAsZero: 0, ...(prior.totals || {}) };
+    const before = { ...Object.fromEntries(METRICS.map((metric) => [metric, 0])), ...(prior.totals || {}) };
     const shrank = METRICS.some((metric) => total[metric] < before[metric]);
-    console.log(`Shared-primitive ratchet OK: ${total.localFinite} local finite, ${total.dateRegex} date regex, ${total.rawRowRead} raw row reads, ${total.nullAsZero} null-as-zero${shrank ? ` (shrank from ${METRICS.map((metric) => before[metric]).join('/')} — run --write to lock in)` : ''}.`);
+    console.log(`Shared-primitive ratchet OK: ${METRICS.map((metric) => `${metric}=${total[metric]}`).join(', ')}${shrank ? ` (shrank from ${METRICS.map((metric) => before[metric]).join('/')} — run --write to lock in)` : ''}.`);
   }
 }

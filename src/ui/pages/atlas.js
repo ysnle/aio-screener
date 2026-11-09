@@ -6,7 +6,7 @@ import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-st
 import { renderKnowledgeLesson } from '../../ui/knowledge/lesson.js';
 import { createCurrentObservationBlock, validateCurrentObservationsArtifact } from '../../ui/knowledge/current-observations.js';
 import { createKnowledgeLearningControls } from '../../ui/knowledge/learning-controls.js';
-import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
+import { artifactFamilyUrl, artifactFetcher, artifactUrl, loadArtifactUrl } from '../../data/artifact-registry.js';
 import { createSuppliedMaterialBridge } from '../../ui/knowledge/supplied-material-bridge.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 import { createIntegratedFrameworkSpine } from '../../ui/knowledge/integrated-framework-spine.js';
@@ -16,26 +16,26 @@ import { renderIndustryPage } from '../knowledge/industry-view.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 
 const REVIEWED_AT = '2026-08-18';
-const RESEARCH_URL = './public-data/atlas/source-packets.json';
-const FOUNDATIONS_URL = './public-data/atlas/foundations.json';
-const FOUNDATIONS_LESSONS_URL = './public-data/atlas/foundation-lessons.json';
-const DOMAIN_GUIDES_URL = './public-data/atlas/domain-guides.json';
-const DOMAIN_PACKETS_URL = './public-data/atlas/domain-source-packets.json';
-const DOMAIN_CLAIMS_URL = './public-data/atlas/domain-claim-ledger.json';
-const TAXONOMY_COVERAGE_URL = './public-data/atlas/taxonomy-node-coverage.json';
-const TELEGRAM_REFERENCE_URL = './public-data/telegram-digest.json';
-const PLAYER_PRODUCT_URL = './public-data/atlas/player-product-registry.json';
-const PLAYER_PRODUCT_CURRENTNESS_URL = './public-data/atlas/player-product-currentness.json';
-const DEEP_TAXONOMY_URL = './public-data/atlas/deep-taxonomy.json';
-const KNOWLEDGE_SOURCES_URL = './public-data/knowledge/sources.json';
-const KNOWLEDGE_STATUS_URL = './public-data/knowledge/status-summary.json';
-const KNOWLEDGE_RELATIONSHIP_GUIDES_URL = './public-data/knowledge/relationship-guides.json';
-const CURRENT_OBSERVATIONS_URL = './public-data/knowledge/current-observations.json';
-const CURRENT_EVIDENCE_LEDGER_URL = './public-data/atlas/current-evidence-ledger.json';
-const ROUTE_TARGETS_URL = './public-data/knowledge/route-targets.json';
+const RESEARCH_URL = artifactUrl('atlas/source-packets.json');
+const FOUNDATIONS_URL = artifactUrl('atlas/foundations.json');
+const FOUNDATIONS_LESSONS_URL = artifactUrl('atlas/foundation-lessons.json');
+const DOMAIN_GUIDES_URL = artifactUrl('atlas/domain-guides.json');
+const DOMAIN_PACKETS_URL = artifactUrl('atlas/domain-source-packets.json');
+const DOMAIN_CLAIMS_URL = artifactUrl('atlas/domain-claim-ledger.json');
+const TAXONOMY_COVERAGE_URL = artifactUrl('atlas/taxonomy-node-coverage.json');
+const TELEGRAM_REFERENCE_URL = artifactUrl('telegram-digest.json');
+const PLAYER_PRODUCT_URL = artifactUrl('atlas/player-product-registry.json');
+const PLAYER_PRODUCT_CURRENTNESS_URL = artifactUrl('atlas/player-product-currentness.json');
+const DEEP_TAXONOMY_URL = artifactUrl('atlas/deep-taxonomy.json');
+const KNOWLEDGE_SOURCES_URL = artifactUrl('knowledge/sources.json');
+const KNOWLEDGE_STATUS_URL = artifactUrl('knowledge/status-summary.json');
+const KNOWLEDGE_RELATIONSHIP_GUIDES_URL = artifactUrl('knowledge/relationship-guides.json');
+const CURRENT_OBSERVATIONS_URL = artifactUrl('knowledge/current-observations.json');
+const CURRENT_EVIDENCE_LEDGER_URL = artifactUrl('atlas/current-evidence-ledger.json');
+const ROUTE_TARGETS_URL = artifactUrl('knowledge/route-targets.json');
 // S18 (D8): concept guides and layer titles come from content/research/atlas/page-copy.json via build-research-content.
-const ATLAS_COPY_URL = './public-data/atlas/page-copy.json';
-const INDUSTRY_STORIES_URL = './public-data/atlas/industry-stories.json';
+const ATLAS_COPY_URL = artifactUrl('atlas/page-copy.json');
+const INDUSTRY_STORIES_URL = artifactUrl('atlas/industry-stories.json');
 const TELEGRAM_DISCOVERY_BOUNDARY = 'discovery only';
 
 // The three design specs deliberately stop before source-packet completion.
@@ -815,8 +815,8 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       };
       root?.addEventListener?.('popstate', onPop);
       bag.add(() => root?.removeEventListener?.('popstate', onPop));
-      loadJsonArtifact(stableFetcher(root), ATLAS_COPY_URL, { signal: scope?.signal }).then((copy) => { state.copy = copy; if (isAlive()) render(); }).catch(() => {});
-      loadJsonArtifact(stableFetcher(root), INDUSTRY_STORIES_URL, { signal: scope?.signal }).then((stories) => { state.nodeStories = stories.nodes; state.domainStories = stories.domains; if (isAlive()) render(); }).catch(() => {});
+      loadArtifactUrl(root, ATLAS_COPY_URL, { signal: scope?.signal }).then((copy) => { state.copy = copy; if (isAlive()) render(); }).catch(() => {});
+      loadArtifactUrl(root, INDUSTRY_STORIES_URL, { signal: scope?.signal }).then((stories) => { state.nodeStories = stories.nodes; state.domainStories = stories.domains; if (isAlive()) render(); }).catch(() => {});
            bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioKnowledgeLearningState; delete page.dataset.aioAtlasResearch; delete page.dataset.aioAtlasFoundations; delete page.dataset.aioAtlasFoundationLessons; delete page.dataset.aioAtlasKnowledgeArticles; delete page.dataset.aioAtlasKnowledgeStatus; delete page.dataset.aioAtlasRouteTargets; delete page.dataset.aioAtlasRegistry; delete page.dataset.aioAtlasDomainGuides; delete page.dataset.aioAtlasDomainPackets; delete page.dataset.aioAtlasClaims; delete page.dataset.aioAtlasTaxonomyCoverage; delete page.dataset.aioAtlasDeepTaxonomy; delete page.dataset.aioAtlasTelegram; delete page.dataset.aioAtlasCurrentness; delete page.dataset.aioAtlasCurrentEvidenceLedger; delete page.dataset.aioAtlasKnowledgeSources; delete page.dataset.aioAtlasKnowledgeClaims; delete page.dataset.aioAtlasKnowledgeCoverage; delete page.dataset.aioAtlasKnowledgeResearchDossiers; delete page.dataset.aioAtlasKnowledgeDomainDossiers; delete page.dataset.aioAtlasRelationshipGuides; delete page.dataset.aioAtlasCurrentObservations; content.replaceChildren(); });
       render();
       const fetchFn = root?.fetch || globalThis.fetch;
@@ -858,7 +858,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             page.dataset.aioReviewedAt = [state.research?.reviewedAt, state.foundations?.reviewedAt, state.foundationLessons?.reviewedAt, state.taxonomyCoverage?.reviewedAt, state.deepTaxonomy?.reviewedAt, state.relationshipGuides?.reviewedAt, REVIEWED_AT].filter(Boolean).sort().at(-1) || REVIEWED_AT;
           };
           const capabilityLoader = createKnowledgeCapabilityBatchLoader({
-            fetchFn: stableFetcher(root),
+            fetchFn: artifactFetcher(root),
             state,
             dataset: page.dataset,
             datasetMap,
@@ -898,7 +898,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             state.loadingArticleIds.add(moduleId);
             render();
             try {
-              const article = await loadJsonArtifact(stableFetcher(root), `./public-data/knowledge/articles/atlas-foundations/${encodeURIComponent(moduleId)}.json`, { signal: scope?.signal, force: retryAfterFailure });
+              const article = await loadArtifactUrl(root, artifactFamilyUrl('knowledge-article', 'atlas-foundations', moduleId), { signal: scope?.signal, force: retryAfterFailure });
               if (article?.articleId !== `atlas-foundations:${moduleId}` || article?.surface !== 'atlas-foundations' || article?.lessonId !== moduleId) throw new Error(`article identity mismatch: ${moduleId}`);
               if (!isAlive()) return;
               state.knowledgeArticles = { articles: [...state.knowledgeArticles.articles, article] };

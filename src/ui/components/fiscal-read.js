@@ -5,7 +5,7 @@ import { buildPeerRead } from '../../domain/fundamental/peer-read.js';
 import { buildQuarterRead, buildWorkingCapitalRead, parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
 import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
-import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
+import { EARNINGS_CALENDAR, artifactUrl, loadArtifact } from '../../data/artifact-registry.js';
 import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
 import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
@@ -18,9 +18,6 @@ import { refreshSharedArtifact, sharedArtifactState } from '../../data/shared-ar
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
 // The provider earnings calendar (week rows + the v58.75 six-week `upcoming` map), shared with the company summary.
-// v59.55: declared in event-artifacts.js so 시장 상태's week-ahead list reads it without loading this module.
-import { EARNINGS_CALENDAR } from '../../data/event-artifacts.js';
-export { EARNINGS_CALENDAR };
 
 const CAPITAL_COLUMNS = ['grossProfit', 'operatingIncome', 'cash', 'shortTermInvestments', 'shareBasedCompensation', 'buybacks', 'dividends'];
 // P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).
@@ -56,10 +53,9 @@ export function requestFiscalHistory(root, onReady, key = 'default') {
   const fetchFn = root?.fetch || globalThis.fetch;
   if (typeof fetchFn !== 'function') return;
   root._aioSecFiscalHistoryRequested = true;
-  const load = (url, maxBytes) => loadJsonArtifact(stableFetcher(root), url, { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes });
   // P1440: the summary manifest names the fiscal artifact once the producer has written it.
-  load('./public-data/sec-fundamentals-summary.manifest.json', 64 * 1024)
-    .then((manifest) => (manifest?.fiscalHistory?.path === 'public-data/sec-fiscal-history.json' ? load('./public-data/sec-fiscal-history.json', 1024 * 1024) : null))
+  loadArtifact(root, 'sec-fundamentals-summary.manifest.json')
+    .then((manifest) => (`./${manifest?.fiscalHistory?.path}` === artifactUrl('sec-fiscal-history.json') ? loadArtifact(root, 'sec-fiscal-history.json') : null))
     .then((artifact) => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistoryFailed = false; root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; root._aioSecIssuerSic = artifact?.issuerSic && typeof artifact.issuerSic === 'object' ? artifact.issuerSic : null; })
     .catch(() => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistoryFailed = true; root._aioSecFiscalHistory = null; })
     .finally(() => { root._aioSecFiscalHistoryRequested = false; const ready = Object.values(root._aioSecFiscalHistoryOnReady || {}); delete root._aioSecFiscalHistoryOnReady; ready.forEach((fn) => fn?.()); });
@@ -478,6 +474,9 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
       if (dart) host.append(dart);
     // v58.80 (first-users F03): on a slow phone NVDA read "SEC 공시 대상이 아니거나…" while the history file was still on its
     // way (undefined = not answered yet); run-2: a failed download is not "no record" either.
+    // An ETF has no company filings at all; "not covered or not collected yet" read as a gap in the data.
+    } else if (row && (row.sector === 'ETF' || row.index === 'ETF')) {
+      host.append(emptyState(doc, { title: 'ETF는 기업 재무 공시가 없습니다', reason: `${symbol}${row.name ? ` (${row.name})` : ''} — 지수를 따르는 상장지수펀드라 매출·이익 대신 가격 흐름과 추종 지수로 읽습니다.`, next: '가격 흐름과 이동평균은 차트 화면에서 확인합니다.', compact: true }));
     } else if (root?._aioSecFiscalHistory === undefined) host.append(emptyState(doc, { title: '재무 기록을 불러오는 중입니다', reason: `${symbol} — 공시 재무 파일이 도착하면 여기에 그립니다.`, compact: true }));
     else if (root?._aioSecFiscalHistoryFailed) host.append(emptyState(doc, { title: '재무 파일을 받지 못했습니다', reason: `${symbol} — 연결이 느리거나 끊겨 공시 재무 파일이 도착하지 않았습니다.`, next: '1분 뒤 이 화면을 다시 열면 다시 받습니다.', compact: true }));
     else host.append(emptyState(doc, { title: 'SEC 연간 재무 기록이 없습니다', reason: `${symbol} — SEC 공시 대상이 아니거나 아직 수집되지 않은 종목입니다.`, next: 'ETF는 사업회사 재무와 구분합니다.', compact: true }));

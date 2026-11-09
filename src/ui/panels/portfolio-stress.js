@@ -1,11 +1,11 @@
 // Expertise review 2026-10-19 (redesign): the stress panel's HTML. Every figure comes from the book's own weekly
 // regression (src/domain/portfolio/stress-sensitivity.js) or, for the KOSPI rows, from the index's recorded worst moves
 // (kr-stress.js). The legacy shell (js/aio-workspace.js _aioRenderPortfolioStress) only places the string.
+import { escapeHtml as esc } from '../html.js';
 import { estimateBookSensitivities, scenarioImpact, krwTranslationPct, bookWeights, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
 import { krIndexStressRows } from '../../domain/portfolio/kr-stress.js';
 import { signedText } from '../../domain/shared/number.js';
 
-const esc = (text) => String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const signed = (value, digits = 1) => signedText(value, digits, '%');
 const md = (date) => (date ? `${date.slice(0, 4)}.${Number(date.slice(5, 7))}.${Number(date.slice(8, 10))}` : '');
 const toneOf = (value) => (value < -15 ? 'is-severe' : value < 0 ? 'is-down' : 'is-up');

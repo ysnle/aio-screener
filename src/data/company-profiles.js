@@ -5,7 +5,7 @@ import { loadJsonArtifact, stableFetcher } from './artifact-cache.js';
 // The story helpers and the renderer load with the first story, not at boot (architecture/boot-budget.json).
 const storyHelpers = () => import('../domain/entity/company-story.js');
 
-export const COMPANY_PROFILE_INDEX = Object.freeze({ key: '_aioCompanyProfileIndex', url: './public-data/company-profiles/index.json', schemas: ['company-profiles-index.v1'], maxAgeMs: 12 * 60 * 60 * 1000, maxBytes: 256 * 1024 });
+import { COMPANY_PROFILE_INDEX, artifactFamilyUrl, artifactUrl } from './artifact-registry.js';
 
 const storeOf = (root) => { const store = (root.__aioCompanyStories ||= { rows: {}, context: {}, inFlight: {}, failed: {} }); store.entries ||= {}; return store; };
 
@@ -41,7 +41,7 @@ export function requestCompanyStory(root, symbol, onChange) {
     // the research date alone did not see a same-day correction.
     if (!entry || !entry.file) { if (store.rows[id]) { delete store.rows[id]; delete store.context[id]; delete store.entries[id]; onChange?.(); } else if (changed) onChange?.(); return; }
     if ((have && storyMatchesEntry(have, entry, store.entries[id])) || store.inFlight[id] || Date.now() - (store.failed[id] || 0) < 60000) { if (changed) onChange?.(); return; }
-    store.inFlight[id] = Promise.all([loadJsonArtifact(stableFetcher(root), `./public-data/company-profiles/${encodeURIComponent(entry.file)}`, { maxAgeMs: 0, force: true, maxBytes: 256 * 1024 }), storyHelpers()])
+    store.inFlight[id] = Promise.all([loadJsonArtifact(stableFetcher(root), artifactFamilyUrl('company-profile', entry.file), { maxAgeMs: 0, force: true, maxBytes: 256 * 1024 }), storyHelpers()])
       .then(([payload, { isCompanyStory, companyStoryContext }]) => {
         if (!isCompanyStory(payload, id)) throw new Error('shape');
         // The AI context reads the story as text from the store, so its boot module imports none of this.
@@ -56,8 +56,8 @@ export function requestCompanyStory(root, symbol, onChange) {
 // v59.74: the company graph (who pays whom across the stories) and the 산업 지도 reading text, each fetched once when the
 // first story renders and kept for the tab's life. A failed read is retried after a minute; the story renders without it.
 const SIDE_ARTIFACTS = Object.freeze({
-  graph: { url: './public-data/company-profiles/graph.json', maxBytes: 512 * 1024, valid: (p) => p?.schemaVersion === 'company-graph.v1' && p.nodes && Array.isArray(p.edges) },
-  industry: { url: './public-data/atlas/industry-stories.json', maxBytes: 256 * 1024, valid: (p) => p?.schemaVersion === 'industry-stories.v1' && p.nodes && p.domains }
+  graph: { url: artifactUrl('company-profiles/graph.json'), maxBytes: 512 * 1024, valid: (p) => p?.schemaVersion === 'company-graph.v1' && p.nodes && Array.isArray(p.edges) },
+  industry: { url: artifactUrl('atlas/industry-stories.json'), maxBytes: 256 * 1024, valid: (p) => p?.schemaVersion === 'industry-stories.v1' && p.nodes && p.domains }
 });
 
 /** The loaded side artifact ('graph' | 'industry'), or null; onChange runs once when it arrives. */

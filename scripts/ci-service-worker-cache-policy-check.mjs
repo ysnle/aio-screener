@@ -7,6 +7,7 @@ await runSections('service-worker-cache-policy', [
 // ── section cache-policy (was ci-service-worker-cache-policy-check.mjs) ──
 ['cache-policy', async () => {
 const { default: fs } = await import('node:fs');
+const { artifactIdLiterals } = await import('./lib/artifact-id-literals.mjs');
 
 const source = fs.readFileSync('sw.js', 'utf8');
 const fail = (message) => { throw new Error(`[sw-cache-policy] ${message}`); };
@@ -75,9 +76,13 @@ const clientText = clientSources.join('\n');
 // evidence: `operations-status` appears in a client bundle as the schema string
 // `operations-status-v1`, which made an earlier form of this assertion pass while
 // the routing table named a file no client ever fetched.
+// Readers name most artifacts by registry id (src/data/artifact-registry.js: artifactUrl('screener.json'),
+// loadArtifact(root, 'backtest-history.json')), which is the same path under public-data/.
+const clientIds = new Set(artifactIdLiterals(clientText));
+const clientReads = (name) => clientIds.has(`${name}.json`) || clientText.includes(`public-data/${name}.json`) || clientText.includes(`./public-data/${name}.json`);
 const routedPaths = [...new Set([...routingTables.matchAll(/[a-z0-9][a-z0-9/_-]{3,}/g)].map((match) => match[0]))]
   .filter((token) => publishedPaths.has(token));
-const orphanRoutes = routedPaths.filter((name) => !clientText.includes(`public-data/${name}.json`) && !clientText.includes(`./public-data/${name}.json`));
+const orphanRoutes = routedPaths.filter((name) => !clientReads(name));
 if (orphanRoutes.length) fail(`cache routing names artifacts no client fetches: ${orphanRoutes.join(', ')}`);
 
 // P1173 (06 O03 / W06-C): the reverse gap used to be deliberately unasserted — the
@@ -93,8 +98,7 @@ if (!coreTable.includes('CORE_DATA_URL_PATTERNS')) fail('core data routing table
 // The patterns are written with escaped slashes, so compare against a flattened copy.
 const coreTableFlat = coreTable.replace(/\\/g, '');
 const unroutedConsumed = CORE_DATA_ARTIFACTS.filter((name) => {
-  const path = `public-data/${name}.json`;
-  if (!clientText.includes(path) && !clientText.includes(`./${path}`)) return false;
+  if (!clientReads(name)) return false;
   return !coreTableFlat.includes(`/public-data/${name}.json`);
 });
 if (unroutedConsumed.length) fail(`client-consumed core data has no offline route: ${unroutedConsumed.join(', ')}`);

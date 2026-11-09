@@ -3,8 +3,8 @@
 // (sector > 40%, top 3 > 60%, mean pairwise correlation > 0.70) and the base-currency weights (P1445, window._pfBaseValues)
 // are unchanged. refreshPortfolioRisk still collects the returns and history and calls the two window names that
 // src/app/legacy-screen-bridges.js installs; the pairwise correlation is the same window._pfPearson its matrix uses.
+import { escapeHtml } from '../html.js';
 
-const esc = (root, s) => (typeof root.escHtml === 'function' ? root.escHtml(String(s)) : String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
 
 export function renderPortfolioExposure(positions, returnsMap, { documentRef = globalThis.document, root = globalThis, corrRes = null } = {}) {
   const el = documentRef.getElementById('pf-exposure-panel');
@@ -73,7 +73,7 @@ export function renderPortfolioExposure(positions, returnsMap, { documentRef = g
   if (avgCorr != null && avgCorr > 0.7) warns.push(`평균 상관 ${avgCorr.toFixed(2)} — 분산효과 약함(>0.70)`);
   const secHtml = secArr.slice(0, 5).map((s) => {
     const tone = secKind[s[0]] !== 'sector' ? ' is-plain' : s[1] > 0.4 ? ' is-over' : s[1] > 0.25 ? ' is-near' : ' is-within';
-    return `<div class="wsl-xp-kv wsl-fs-sm"><span class="wsl-dim">${esc(root, s[0])}</span><span class="wsl-b${tone}">${Math.round(s[1] * 100)}%</span></div>`;
+    return `<div class="wsl-xp-kv wsl-fs-sm"><span class="wsl-dim">${escapeHtml(s[0])}</span><span class="wsl-b${tone}">${Math.round(s[1] * 100)}%</span></div>`;
   }).join('');
   el.innerHTML =
     `<div class="wsl-head">익스포저, 집중도 <span class="wsl-w500">(${basisNote})</span></div>` +
@@ -86,7 +86,7 @@ export function renderPortfolioExposure(positions, returnsMap, { documentRef = g
         `<div class="wsl-xp-kv"><span class="wsl-dim">종목/섹터 수</span><span class="wsl-b">${rows.length}/${realSecArr.length}</span></div>` +
       '</div>' +
     '</div>' +
-    (warns.length ? `<div class="wsl-xp-note is-warn">${warns.map((w) => esc(root, w)).join(', ')}</div>` : '<div class="wsl-xp-note is-ok">집중도·상관 한도 내</div>');
+    (warns.length ? `<div class="wsl-xp-note is-warn">${warns.map(escapeHtml).join(', ')}</div>` : '<div class="wsl-xp-note is-ok">집중도·상관 한도 내</div>');
   el.insertAdjacentHTML('beforeend', root._pfBaseNote(base)); // P1445
 }
 

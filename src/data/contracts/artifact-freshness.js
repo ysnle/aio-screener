@@ -20,7 +20,8 @@
 // on it said "today". freshnessState is now the worse of the liveness grade and the session-lag grade.
 
 import { stampDay } from '../../domain/shared/session-date.js';
-import { observationSessionState } from '../../domain/market/market-calendar.js';
+import { observationSessionState, sessionLagGrade } from '../../domain/market/market-calendar.js';
+import { FRESHNESS_POLICY } from '../../domain/shared/freshness-policy.js';
 
 export const FRESHNESS_SCHEMA = 'aio-freshness.v1';
 
@@ -164,10 +165,9 @@ export function artifactContractDrift(file, payload) {
 }
 
 const RANK = { current: 0, late: 1, stale: 2 };
-// Session-lag policy (the screener's factorSession rule, FRESHNESS_POLICY): the latest completed session is current;
-// one behind is current while that close is under 12 hours old (its producer has not landed yet), late after; two or
-// more behind is stale.
-const SESSION_GRACE_MS = 12 * 60 * 60 * 1000;
+// Session-lag policy: the screener's factorSession rule (FRESHNESS_POLICY.factorSession) graded by the calendar's one
+// sessionLagGrade — the latest completed session is current; one behind is current while that close is under 12 hours
+// old (its producer has not landed yet), late after; two or more behind is stale.
 
 /** Liveness grade from checkedAt (else producedAt): late after two missed cadences, stale past staleAfterMinutes. */
 export function livenessState(row, now = Date.now()) {
@@ -187,11 +187,9 @@ export function sessionLagState(row, now = Date.now()) {
   const lagByMarket = {};
   for (const [market, day] of Object.entries(basis)) {
     const observed = observationSessionState({ market, sessionDate: day, now });
-    if (!observed || observed.status === 'invalid') continue;
+    const state = sessionLagGrade(observed, FRESHNESS_POLICY.factorSession);
+    if (state == null || state === 'invalid') continue;
     lagByMarket[market] = observed.lag;
-    const state = observed.lag === 0 ? 'current'
-      : observed.lag === 1 ? (observed.sinceLatestCloseMs != null && observed.sinceLatestCloseMs <= SESSION_GRACE_MS ? 'current' : 'late')
-        : 'stale';
     if (worst == null || RANK[state] > RANK[worst]) worst = state;
   }
   return worst == null ? null : { state: worst, lagByMarket };

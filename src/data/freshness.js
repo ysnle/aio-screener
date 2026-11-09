@@ -3,13 +3,14 @@
 // (scripts/ci-external-pipeline-check.mjs, the same freshnessState) grade an artifact the same way.
 import { ARTIFACT_FRESHNESS, FRESHNESS_SCHEMA, freshnessLedgerPath, freshnessState } from './contracts/artifact-freshness.js';
 import { refreshSharedArtifact } from './shared-artifacts.js';
+import { artifactFamilyUrl } from './artifact-registry.js';
 
 const LEDGER_WORKFLOWS = Object.freeze([...new Set(Object.values(ARTIFACT_FRESHNESS)
   .filter((entry) => entry.ledger !== false).map((entry) => entry.workflow))]);
 
 const ledgerSpec = (workflow) => ({
   key: `_aioFreshness_${workflow.replace(/\W+/g, '_')}`,
-  url: `./${freshnessLedgerPath(workflow)}`,
+  url: artifactFamilyUrl('ledger', freshnessLedgerPath(workflow)),
   schemas: [FRESHNESS_SCHEMA],
   maxAgeMs: 15 * 60 * 1000,
   maxBytes: 64 * 1024,

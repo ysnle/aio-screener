@@ -5,8 +5,9 @@
 // the form the universe, quotes and SEC use). Company names are never resolved automatically (R663); since v57.83 a
 // name search offers listing candidates for the reader to choose from (searchUsListingNames), nothing more.
 import { loadJsonArtifact, stableFetcher } from './artifact-cache.js';
+import { artifactUrl } from './artifact-registry.js';
 
-export const US_LISTINGS_URL = './public-data/us-listings.json';
+export const US_LISTINGS_URL = artifactUrl('us-listings.json');
 export const US_LISTINGS_SCHEMA = 'us-listings.v1';
 const MAX_BYTES = 2 * 1024 * 1024;
 const MAX_AGE_MS = 6 * 60 * 60 * 1000;
