@@ -1,0 +1,10 @@
+{
+  "version": "v59.91",
+  "date": "2026-11-09",
+  "p": null,
+  "r": null,
+  "changelog": [
+    "**예전 CSS 부채 목록 정리 (v59.91):** `legacy-important-shell.css`·`legacy-important-files.css`의 !important를 224개에서 115개로 줄였다. HTML·JS·데이터 어디에서도 쓰지 않는 클래스나 id를 가리키는 규칙 96개(플래그 100개)를 지웠다. 예: `.status-pill`, `.kr-idx-*`, `#portfolio-donut`, 쓰이지 않는 `sh-*` 정적 클래스 76개. 같은 선언이 반복되던 `[style*=\"font-size\"]` 규칙은 하나로 합쳤다. 앞의 규칙을 뒤에서 덮어쓰던 `.nav-item` radius 중복도 지웠다. 전체 !important는 571개에서 462개다. 20개 라우트를 1440·820·390px, 라이트·다크로 main과 계산 스타일을 대조했다. 남은 플래그는 세 종류다. JS 인라인 스타일을 이겨야 하는 유틸리티(hidden·sr-only·개발 모드·인쇄·모션 감소), 아직 화면 모양을 정하는 규칙, 상호작용 뒤에만 나타나는 요소의 규칙이다. 근거는 `_context/DESIGN-TOKENS.md`에 적었다."
+  ],
+  "note": "debt files 224→115 flags: dead selectors (no HTML/JS/data writes the class or id) deleted, duplicate [style*=font-size] rules merged; total 571→462"
+}
