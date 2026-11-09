@@ -25,10 +25,22 @@ function writeLists(storage, lists) {
   } catch (_) { return false; }
 }
 
-function targetList(storage, lists, now) {
-  let active = '';
-  try { active = storage?.getItem(ACTIVE_WATCHLIST_KEY) || ''; } catch (_) { active = ''; }
-  let list = lists.find((item) => item.id === active) || lists[0];
+export function readActiveWatchlistId(storage) {
+  try { return storage?.getItem(ACTIVE_WATCHLIST_KEY) || ''; } catch (_) { return ''; }
+}
+
+// v59.45: false when the write was refused (the backup restore reports it).
+export function writeActiveWatchlistId(storage, id) {
+  try { storage.setItem(ACTIVE_WATCHLIST_KEY, id); return true; } catch (_) { return false; }
+}
+
+/**
+ * The list an add goes to when the reader did not pick one: the active list, else the first, else a new "관심 종목" list
+ * (pushed onto `lists`). One rule for the screener star and the stock page's 관심 종목 추가 (v58.80 F16), which kept
+ * two copies of it (v59.88, ADR-0003 S6).
+ */
+export function ensureTargetList(lists, activeId, now = Date.now()) {
+  let list = lists.find((item) => item.id === activeId) || lists[0];
   if (!list) {
     list = { id: `wl_${now}`, name: '관심 종목', tickers: [], createdAt: now };
     lists.push(list);
@@ -36,6 +48,8 @@ function targetList(storage, lists, now) {
   if (!Array.isArray(list.tickers)) list.tickers = [];
   return list;
 }
+
+const targetList = (storage, lists, now) => ensureTargetList(lists, readActiveWatchlistId(storage), now);
 
 function foldLegacyStars(storage, now) {
   let legacy = null;
