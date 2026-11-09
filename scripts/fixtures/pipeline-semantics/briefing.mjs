@@ -148,7 +148,7 @@ export const cases = [
       assert.deepEqual([group.measured, group.listed], [4, 4]);
   } },
   { id: 'P21-ATTRIBUTION-01', name: '지수 기여 종목 옆 루머 제목은 미확인으로 표시한다', run: async ({ load }) => {
-      const { datedItemFor } = await load('src/domain/market/move-attribution.js');
+      const { datedItemFor } = await load('src/domain/market/regime/move-attribution.js');
       const item = datedItemFor({ sym: 'NVDA', name: 'Nvidia' }, { sessionCloseMs: NOW, news: [{ title: 'Nvidia rumored to buy a startup', pubDate: new Date(NOW - 3600000).toISOString() }] });
       assert.match(item.text, /^\[미확인\]/);
   } },

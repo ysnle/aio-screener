@@ -4,7 +4,7 @@
 import { workflowPublishes } from './lib/data-publish-sets.mjs';
 import { readThemesPageSource } from './lib/themes-page-source.mjs';
 import { runSections } from './lib/gate-sections.mjs';
-import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 
 await runSections('scenario-guidance-fixture', [
 // ── section scenario-guidance (was ci-scenario-guidance-fixture.mjs) ──
@@ -13,8 +13,8 @@ const { default: assert } = await import('node:assert/strict');
 const { readFileSync } = await import('node:fs');
 const { default: vm } = await import('node:vm');
 const { buildMarketRegime, movingAverageStructure } = await import('../src/domain/briefing/market-read.js');
-const { buildMarketScenarios } = await import('../src/domain/market/regime-scenarios.js');
-const { buildScenarioOutlook, renderScenarioOutlookContext } = await import('../src/domain/market/scenario-outlook.js');
+const { buildMarketScenarios } = await import('../src/domain/market/regime/regime-scenarios.js');
+const { buildScenarioOutlook, renderScenarioOutlookContext } = await import('../src/domain/market/regime/scenario-outlook.js');
 const { CHART_INTERVALS, intervalBars, intervalSpec, intervalStructure } = await import('../src/ui/components/stock-chart.js');
 const { buildMarketAnalysisRegimeContext } = await import('./fetch-data.mjs');
 const { readProducerSource } = await import('./lib/producer-source.mjs'); // v57.62: fetch-data.mjs + the lib modules split out of it
@@ -92,7 +92,7 @@ assert.equal(live.observations[1].value, 50, 'P1636: dated company targets stay 
 console.log('scenario guidance fixture: PASS');
 
 // P1637: regime radar — one-year positions, today vs 5/20 sessions, no composite.
-const { buildRegimeRadar } = await import('../src/domain/market/regime-radar.js');
+const { buildRegimeRadar } = await import('../src/domain/market/regime/regime-radar.js');
 const macroHistory = JSON.parse(readFileSync(new URL('../public-data/macro-history.json', import.meta.url), 'utf8'));
 const radar = buildRegimeRadar({ history: rows }, { macroHistory });
 assert.ok(radar.available && radar.axes.length === 6, 'P1637: six radar axes');
@@ -101,7 +101,7 @@ assert.equal(radar.dates.length, 3, 'P1637: today, 5 and 20 sessions ago');
 assert.ok(!('composite' in radar) && !('score' in radar), 'P1637: no composite score');
 
 // P1638: CCC minus B gap from rating-tier OAS.
-const { buildRegimeAxisHistory } = await import('../src/domain/market/regime-scenarios.js');
+const { buildRegimeAxisHistory } = await import('../src/domain/market/regime/regime-scenarios.js');
 const tierMacro = { series: { cccOas: { observations: rows.slice(-130).map((row) => [row.date, 12]) }, bOas: { observations: rows.slice(-130).map((row) => [row.date, 3]) } } };
 const tiers = buildRegimeAxisHistory({ history: rows, credit: {}, rates: {} }, { macroHistory: tierMacro });
 const gap = tiers.axes.credit.find((item) => item.id === 'ccc-b');
@@ -121,7 +121,7 @@ const { sectorMoves } = await import('../src/ui/components/sector-moves.js');
 const rotation = { latestCompletedSession: '2026-10-09', items: { XLK: { status: 'CURRENT', symbol: 'XLK', sessionDate: '2026-10-09', dailyPct: 0.5, quadrant: 'Leading' }, XLU: { status: 'CURRENT', symbol: 'XLU', sessionDate: '2026-10-09', dailyPct: -1.2, quadrant: 'Lagging' } } };
 // M13 (Codex review): the old fixture's rows failed the strict selector and an empty result passed. Use a
 // schema-valid artifact and assert the exact rows, then a stale row that must be left out.
-const { latestCompletedUsSession } = await import('../src/domain/market/market-calendar.js');
+const { latestCompletedUsSession } = await import('../src/domain/market/session/market-calendar.js');
 const fixtureNow = Date.parse('2026-10-10T12:00:00Z');
 const session = latestCompletedUsSession(fixtureNow - 5 * 60000);
 const rrgRow = (symbol, dailyPct, rsRatio, rsMomentum, quadrant, sessionDate = session.date) => ({ status: 'CURRENT', symbol, sessionDate, dailyPct, weeklyPct: dailyPct * 2, rsRatio, rsMomentum, quadrant, alignedSessionCount: 60, observedAt: new Date(session.closeMs).toISOString(), fetchedAt: '2026-10-10T01:00:00Z' });
@@ -172,7 +172,7 @@ console.log('scenario guidance fixture (basis card): PASS');
 // P1742/P1743 (owner 2026-10-13): forward branches as a registry — chain, dated triggers, three likelihood lines, choices
 // with opportunity cost — plus every theme by one rule, scored releases and the automated transition log.
 {
-  const { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext, releaseActuals, scoreRelease, BRANCHES, CHOICES, BRANCH_NOTES } = await import('../src/domain/market/macro-crossroads.js');
+  const { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext, releaseActuals, scoreRelease, BRANCHES, CHOICES, BRANCH_NOTES } = await import('../src/domain/market/regime/macro-crossroads.js');
   const { BRANCH_ANALOGS, analogOutcome, themeStateOutcomes, themeStateOf, THEME_STATES } = await import('../src/domain/scenarios/analogs.js');
   const { EXPOSURE_TAGS, US_THEME_PROFILES, KR_THEME_PROFILES, windFor } = await import('../src/domain/scenarios/exposures.js');
   const { buildThemePlaybook, renderThemePlaybookContext, rotationOf } = await import('../src/domain/scenarios/theme-playbook.js');
@@ -226,7 +226,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     const etfFields = [...maps.usThemes.flatMap((theme) => [theme.etf, ...(theme.subThemes || []).map((sub) => sub.etf)]), ...literalOf('var SUB_THEMES = [').map((theme) => theme.etf)];
     assert.ok(!etfFields.some((etf) => etf in reference), 'v59.70 no theme names DRAM/NCLD as its ETF');
     assert.ok(!/us:\s*'(DRAM|NCLD)'/.test(readFileSync(new URL('../js/aio-kr-data.js', import.meta.url), 'utf8')), 'v59.70 no KR theme links to DRAM/NCLD');
-    const { rotationFlow } = await import('../src/domain/market/page-flow.js');
+    const { rotationFlow } = await import('../src/domain/market/story/page-flow.js');
     const flow = rotationFlow({ groups: { Leading: [{ symbol: 'DRAM', label: '메모리(참고)', referenceOnly: true }, { symbol: 'XLK', label: '기술' }], Improving: [], Weakening: [], Lagging: [{ symbol: 'NCLD', label: 'GPU 클라우드(참고)', referenceOnly: true }, { symbol: 'XLE', label: '에너지' }] } });
     assert.ok(!/메모리|GPU 클라우드|DRAM|NCLD/.test(flow.read), `v59.70 reference rows stay out of the rotation verdict: ${flow.read}`);
   }
@@ -309,7 +309,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(!noisy.pastConflict && !noisy.pastBridge && /표본 오차 안에서 구별되지 않았습니다/.test(noisy.past.text) && !/비슷한 때 \d+%|중앙값/.test(noisy.past.text) && /비슷한 시장 움직임으로 고른 비교/.test(readFileSync(new URL('../src/ui/components/macro-crossroads.js', import.meta.url), 'utf8')), 'audit D1/D2 (v58.74: the market-move basis is said once in the section lead): within 2 SE the frequency line says sampling noise');
   {
     // v57.84 (owner 2026-10-16): favored stays; audit D1 (owner 2026-10-17): a conflict needs the up-share past the base rate by two binomial standard errors.
-    const { pastConflict } = await import('../src/domain/market/macro-crossroads.js');
+    const { pastConflict } = await import('../src/domain/market/regime/macro-crossroads.js');
     const branch = (favored) => ({ favored, title: 'x — y' });
     assert.equal(pastConflict(branch(['defend', 'wait']), { n: 94, up: 61, baseUpPct: 64 }), null, 'v57.84 65% against a 64% base is the base rate, not a conflict');
     assert.equal(pastConflict(branch(['hold', 'stage']), { n: 73, up: 41, baseUpPct: 64 }), null, 'audit D1: hold/stage with 56% against 64% (n 73) is inside 2 SE');
@@ -494,9 +494,9 @@ console.log('scenario guidance fixture (basis card): PASS');
 // line, Nasdaq-100 -3.9% in five sessions, Russell 2000 under its 200-day line, new lows 40 > new highs 28, 39% advancing,
 // 7 distribution days), a clean uptrend and an intact narrow tape.
 {
-  const { resolveMarketCalendarSession } = await import('../src/domain/market/market-calendar.js');
+  const { resolveMarketCalendarSession } = await import('../src/domain/market/session/market-calendar.js');
   const { leadershipBreakOf } = await import('../src/domain/briefing/market-read.js');
-  const { TRANSITION_TITLE, renderMarketScenarioContext } = await import('../src/domain/market/regime-scenarios.js');
+  const { TRANSITION_TITLE, renderMarketScenarioContext } = await import('../src/domain/market/regime/regime-scenarios.js');
   const { leadershipClaimIssues } = await import('./lib/market-analysis-validate.mjs');
   const days = [];
   for (let t = Date.parse('2025-07-01T12:00:00Z'); t <= Date.parse('2026-10-14T12:00:00Z'); t += 86400000) {
@@ -614,12 +614,12 @@ console.log('scenario guidance fixture (basis card): PASS');
 // current leadership, a 0.23pp dollar call, and narrative state words that contradict the packet.
 {
   const { latchedState, recoveryCheck, usdKrwWindow, hyWidening20Record, creditState, buildMarketRead } = await import('../src/domain/briefing/market-read.js');
-  const { breadthFlow } = await import('../src/domain/market/page-flow.js');
-  const { buildKoreaRegimeObservations } = await import('../src/domain/market/regime-scenarios.js');
+  const { breadthFlow } = await import('../src/domain/market/story/page-flow.js');
+  const { buildKoreaRegimeObservations } = await import('../src/domain/market/regime/regime-scenarios.js');
   const { buildSentimentModel } = await import('../src/ui/components/sentiment-board.js');
-  const { sectorRecentCheck, leaderFading, rrgBorder } = await import('../src/domain/market/scenario-outlook.js');
+  const { sectorRecentCheck, leaderFading, rrgBorder } = await import('../src/domain/market/regime/scenario-outlook.js');
   const { axisStateClaimIssues, crossMarketDateIssues } = await import('./lib/market-analysis-validate.mjs');
-  const { resolveMarketCalendarSession } = await import('../src/domain/market/market-calendar.js');
+  const { resolveMarketCalendarSession } = await import('../src/domain/market/session/market-calendar.js');
   const days = [];
   for (let t = Date.parse('2025-07-01T12:00:00Z'); t <= Date.parse('2026-10-14T12:00:00Z'); t += 86400000) {
     const date = new Date(t).toISOString().slice(0, 10), weekday = new Date(t).getUTCDay();
@@ -753,7 +753,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.equal(bandAt(mid, -1), 'neutral', 'v57.84 a falling dollar alone is not 양호 (oil must fall too)');
     const top = buildMacroRead({ macro: {}, rateFx: { dxy20: 2.2, dxyPosition: 0.9 }, regime: { axes: [{ id: 'commodities', state: 'burden' }] } });
     assert.ok(top.sharedGauges.commodities.gauge.label.includes('달러') && bandAt(top, 2.2) === 'burden', 'v57.84 at the top of its range the line is rise20dPct');
-    const { BRANCHES } = await import('../src/domain/market/macro-crossroads.js');
+    const { BRANCHES } = await import('../src/domain/market/regime/macro-crossroads.js');
     const { RULES } = await import('../src/domain/rules/thresholds.js');
     const labels = BRANCHES.flatMap((branch) => branch.conditions.map(([label]) => (typeof label === 'string' ? label : '')));
     assert.ok(labels.some((label) => label.includes(`+${RULES.oil.rise20dPct}% 이상 또는 1년 평균 대비 +${RULES.oil.aboveYearAvgPct}%`)), 'v57.84 the 유가 급등 label prints its RULES values');
@@ -772,7 +772,7 @@ console.log('scenario guidance fixture (basis card): PASS');
 // v57.81 (거시 analysis audit, group X; 10/14–10/15 numbers): every branch has a core condition (gate) before it can lead,
 // conditions and '시장 가격' count only past a dead zone, the inflation direction needs PCE and CPI to agree, one Brent/WTI rule.
 {
-  const { buildMacroCrossroads, buildScenarioSignals, BRANCHES, COUNT_WORDS } = await import('../src/domain/market/macro-crossroads.js');
+  const { buildMacroCrossroads, buildScenarioSignals, BRANCHES, COUNT_WORDS } = await import('../src/domain/market/regime/macro-crossroads.js');
   const { buildMacroRead } = await import('../src/domain/macro/macro-read.js');
   const { buildLiquidityGrowthGroups } = await import('../src/domain/macro/liquidity-growth.js');
   const mhOf = (series) => ({ schemaVersion: 'macro-history.v1', series: Object.fromEntries(Object.entries(series).map(([key, observations]) => [key, { observations }])) });
@@ -874,7 +874,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const { buildThemePlaybook, renderThemePlaybookContext, rotationOf } = await import('../src/domain/scenarios/theme-playbook.js');
   const { rrgRecentReading, rrgZone, rsRecentCheck, relativeBand, weeklyNoiseFromVol, recentMove } = await import('../src/domain/themes/recent-check.js');
   const { themeStagesFor, SCENARIO_STATE_CURRENT } = await import('../src/domain/scenarios/theme-stage.js');
-  const { themeStrengthLead, themeDetailFlow, rotationFlow } = await import('../src/domain/market/page-flow.js');
+  const { themeStrengthLead, themeDetailFlow, rotationFlow } = await import('../src/domain/market/story/page-flow.js');
   const { themeLeadClaimIssues } = await import('./lib/market-analysis-validate.mjs');
   const spx = { field: 'spx', name: 'S&P 500', asOf: '2026-10-14', ret5d: -1.06, ret1m: 1.76, ret3m: 2.46, ret6m: 9.91, from: { ret1m: '2026-09-15' } };
   const kospi = { asOf: '2026-10-15', ret5d: -18.4, ret1m: -21.0, ret3m: -25.7, ret6m: -5.4, from: { ret1m: '2026-09-10' } };
@@ -953,7 +953,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.ok(heavy.state === null && /^판정 보류 — 거래대금 상위 종목이 코스피보다 더 빠져/.test(heavy.stateLabel), `v57.87 heavyweights below KOSPI withhold the stage (${heavy.state}: ${heavy.stateLabel})`);
     const shaky = buildThemePlaybook({ usGroups: [g('aicapex', 'A1', { ret1m: -4.0, ret3m: 8.0, ret6m: 24.0 /* audit 2026-10-17 D4: beyond the 10.6%p band */, ret5d: -12.2, above50Pct: 0 })], crossroads: cross, credit: 'neutral', benchmarks: { US: spx } }).themes[0];
     {
-      const { BRANCHES: branchList } = await import('../src/domain/market/macro-crossroads.js');
+      const { BRANCHES: branchList } = await import('../src/domain/market/regime/macro-crossroads.js');
       const oilCalm = branchList.find((item) => item.id === 'softland').conditions.find(([label]) => /유가 안정/.test(label))[1];
       assert.ok(oilCalm({ oil20: -3.9, oilVsYear: 24, oilHeld: false }) === false && oilCalm({ oil20: -3.9, oilVsYear: 5, oilHeld: false }) === true, 'v57.87 WTI 24% above its year average is not 유가 안정 off a 20-session start on a spike');
     }
@@ -1060,7 +1060,7 @@ console.log('scenario guidance fixture (basis card): PASS');
 // v57.83 codex audit F07: a release later today is still next; once its release time passes it is not, and an
 // indicator card whose value came from that release points at the following date. Legacy clocks mirror the ESM ones.
 {
-  const { upcomingMacroEvents } = await import('../src/domain/market/macro-crossroads.js');
+  const { upcomingMacroEvents } = await import('../src/domain/market/regime/macro-crossroads.js');
   const { RELEASE_CLOCKS } = await import('../src/domain/briefing/schedule.js');
   const schedules = { 'us-retail': ['2026-10-15', '2026-11-17'] };
   const at = (iso) => upcomingMacroEvents({ schedules, nowMs: Date.parse(iso) }).find((e) => e.id === 'us-retail')?.date;
@@ -1129,7 +1129,7 @@ console.log('scenario guidance fixture (basis card): PASS');
 // principles lesson that exists, and no surface turns the count into a probability or an instruction.
 const { default: assert } = await import('node:assert/strict');
 const { readFileSync } = await import('node:fs');
-const { BRANCHES, CHOICES } = await import('../src/domain/market/macro-crossroads.js');
+const { BRANCHES, CHOICES } = await import('../src/domain/market/regime/macro-crossroads.js');
 const { buildMarketGuide, buildDirection, renderMarketGuideContext, CHOICE_KEYS } = await import('../src/domain/guide/market-guide.js');
 const { pastEvidence, ANALOG_METHOD } = await import('../src/domain/scenarios/analogs.js');
 const { ALL_LESSONS, LESSON_BY_ID, LESSON_KINDS, SCREEN_LESSON_IDS, selectLessons, selectScreenLessons } = await import('../src/domain/guide/lessons.js');

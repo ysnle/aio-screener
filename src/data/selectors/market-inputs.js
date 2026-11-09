@@ -1,5 +1,5 @@
 import { readNumber as finite } from '../../domain/shared/number.js';
-import { regimeMarketInput } from '../../domain/interpretation/inputs.js';
+import { regimeMarketInput } from '../../domain/market/interpretation/inputs.js';
 // v57.60: moved from src/ui/components/briefing-read.js (pure data gathering from runtime globals, no DOM) so
 // the AI context, bootstrap and the market boards read it without importing a ui component.
 
@@ -16,7 +16,7 @@ export function collectMarketInputs(root, { now = Date.now() } = {}) {
   try { fgMetric = root.AIO?.getCanonicalMetric?.('fg') || null; } catch (_) {}
   const fg = finite(fgMetric?.value);
   // v59.70 (R8): the runtime reads below override the published macro block inside the shared builder
-  // (src/domain/interpretation/inputs.js); a runtime value that is missing falls back to the same data.json field the
+  // (src/domain/market/interpretation/inputs.js); a runtime value that is missing falls back to the same data.json field the
   // producers read, so the two adapters differ only where the browser holds a fresher observation.
   const credit = {
     hyBp: finite(root._hySpreadBp) ?? finite(snapshot.hySpread),

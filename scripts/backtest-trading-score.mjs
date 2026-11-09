@@ -12,7 +12,7 @@
 // live now returns null/missing, a `hyg<76` HYG-dollar-price credit-stress channel live removed
 // (P714/R343) that this file was still double-counting alongside its own separate bp
 // approximation, and an aaiiBear breadth-floor adjustment with no live counterpart at all.
-// reconstructScore() now calls the single extracted src/domain/signal/trading-score.js model
+// reconstructScore() now calls the single extracted src/domain/market/signal/trading-score.js model
 // instead (R352: extraction is code motion, not a parallel model) — see that file's own comment
 // for the full parity story and architecture/fixtures/trading-score-golden.json /
 // scripts/ci-domain-parity-check.mjs for the standing parity gate.
@@ -34,9 +34,9 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { computeTradingScoreModel } from '../src/domain/signal/trading-score.js';
+import { computeTradingScoreModel } from '../src/domain/market/signal/trading-score.js';
 import { spearman as spearmanWithMidranks } from './lib/rank-statistics.mjs';
-import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 
@@ -190,7 +190,7 @@ export async function runBacktest(historyPath, outPath) {
 
   const output = {
     generatedAt: new Date().toISOString(),
-    note: 'Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.',
+    note: 'Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/market/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.',
     summary: summarizeTradingScoreBacktest(corr5d, corr21d),
     records: merged,
   };

@@ -19,7 +19,7 @@ context boundary without mutating portfolio state.
 
 1. `src/domain/**` is pure and cannot import DOM, network, storage, or provider
    modules, nor `src/ai/**` (the domain layer sits below it; the shared exchange
-   calendar is `src/domain/market/market-calendar.js`, gated by
+   calendar is `src/domain/market/session/market-calendar.js`, gated by
    `scripts/ci-market-session-contract-check.mjs`).
 2. `src/data/**` validates external values before ingesting them into the
    evidence store.

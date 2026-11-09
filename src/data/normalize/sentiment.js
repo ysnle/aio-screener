@@ -1,5 +1,5 @@
 import { finiteNumber as finite } from '../../domain/shared/number.js';
-import { countOpenSessionsBetween, dateInTimezone, dateOnly, latestCompletedUsSession } from '../../domain/market/market-calendar.js';
+import { countOpenSessionsBetween, dateInTimezone, dateOnly, latestCompletedUsSession } from '../../domain/market/session/market-calendar.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 const SENTIMENT_FIELDS = Object.freeze([
   { metric: 'fearGreed', unit: 'score', sourceKind: 'legacy-runtime', observedAt: 'fearGreedObservedAt', maxAgeMs: 172_800_000, maxUsSessions: 0 },

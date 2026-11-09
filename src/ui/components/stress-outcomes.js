@@ -2,7 +2,7 @@
 // One visual (forward one-month result per VIX band, today's band marked), a short reading, and a fold that
 // teaches how to read the table and why the old score was dropped. Hidden until the producer has published.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { CLUSTER_GAP_SESSIONS, stressBandOf } from '../../domain/signal/stress-outcomes.js';
+import { CLUSTER_GAP_SESSIONS, stressBandOf } from '../../domain/market/signal/stress-outcomes.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { el } from './dom.js';

@@ -1,8 +1,8 @@
-// v59.55 (owner 11/1): the closing card of every market screen (domain/market/market-synthesis.js). It sits right above
+// v59.55 (owner 11/1): the closing card of every market screen (domain/market/story/market-synthesis.js). It sits right above
 // 이어서 볼 곳: this screen's own line, the four-step chain (체력 → 흐름 → 움직이는 힘 → 다음 갈림길), up to three
 // scenario branches with a met/total meter and what confirms or breaks each, where to lean and what to avoid, the checks
 // to make, and two questions for the AI. renderNextSteps (page-flow.js) loads it lazily for the SYNTHESIS_PAGES navs.
-import { buildMarketSynthesis } from '../../domain/market/market-synthesis.js';
+import { buildMarketSynthesis } from '../../domain/market/story/market-synthesis.js';
 
 import { latestMarketInterpretation, marketInterpretation } from '../../data/selectors/interpretation.js';
 import { frameHead, markFrame } from './section-frame.js';

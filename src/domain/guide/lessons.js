@@ -8,7 +8,7 @@ import { pastEvidence } from '../scenarios/analogs.js';
 import { hasFinalConsonant } from '../content/korean-particle.js';
 import { shortDate } from '../content/date-labels.js';
 import { hasLeadingIsoDay } from '../shared/session-date.js';
-import { scenarioLead } from '../market/scenario-lead.js';
+import { scenarioLead } from '../market/regime/scenario-lead.js';
 
 export const LESSON_KINDS = Object.freeze({
   attitude: '태도',

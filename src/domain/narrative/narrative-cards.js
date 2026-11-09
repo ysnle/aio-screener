@@ -7,7 +7,7 @@
 // relayed a lot while its branch's conditions are mostly unmet says exactly that — attention is not confirmation
 // (NARRATIVE-UX-HANDOFF: 관측과 해석 분리, 반대 근거, 다음에 볼 것; no probability, no grade, no personal instruction).
 import { NARRATIVE_BY_ID } from './narratives.js';
-import { CHOICES } from '../market/macro-crossroads.js';
+import { CHOICES } from '../market/regime/macro-crossroads.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 
 const TREND_WORDS = Object.freeze({ rising: '늘어남', fading: '줄어듦', steady: '비슷함', new: '새로 등장', few: '건수 적음' });

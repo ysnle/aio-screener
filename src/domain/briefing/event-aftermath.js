@@ -6,7 +6,7 @@
 //   beatButFell — among recent reports that beat the EPS estimate, how many closed lower on the first session that could
 //     trade on them, beside the same share for all reports ('호재 무반응').
 // Both are context lines; neither feeds a verdict or a score.
-import { buildCloseSeries, closeBasis } from '../market/close-series.js';
+import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
 import { releaseSession } from './event-briefs.js';
 
 export const AFTERMATH_RULE = Object.freeze({ sessions: 3, minSessions: 2, leadPp: 1 });

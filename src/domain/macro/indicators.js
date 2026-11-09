@@ -10,7 +10,7 @@ import { peopleText, signedText, readNumber as finite } from '../shared/number.j
 import { isIsoDay } from '../shared/session-date.js';
 // MERGED #13 (run-6): '다음 FOMC 결정 12/9' (the ET calendar day) sat beside the timeline's 12/10(목) — every release date
 // is the one KST release clock with the zone named (eventWhenText).
-import { eventWhenText } from '../market/macro-crossroads.js';
+import { eventWhenText } from '../market/regime/macro-crossroads.js';
 
 export const FED_PCE_TARGET = 2; // FOMC Statement on Longer-Run Goals: 2% on the PCE price index
 

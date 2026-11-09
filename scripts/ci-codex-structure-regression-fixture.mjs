@@ -272,7 +272,7 @@ for (const id of ['trend', 'breadth', 'volatility', 'rates', 'credit', 'commodit
 assert.ok(MACRO_GROUP_DEEP_DIVES.liquidity && MACRO_GROUP_DEEP_DIVES.growth && MACRO_GROUP_DEEP_DIVES['commodities-fx'], 'P1660: macro group deep dives');
 assert.ok(!/추가 근거와 출처/.test(fs.readFileSync(new URL('../src/ui/components/market-regime.js', import.meta.url), 'utf8')), 'P1660: no evidence-dump fold title');
 // P1661: past outcomes by VIX band replace the failed composite score.
-const { buildStressOutcomes, stressBandOf } = await import('../src/domain/signal/stress-outcomes.js');
+const { buildStressOutcomes, stressBandOf } = await import('../src/domain/market/signal/stress-outcomes.js');
 const days = Array.from({ length: 120 }, (_, i) => new Date(Date.UTC(2020, 0, 1) + i * 86400000).toISOString().slice(0, 10));
 const stress = buildStressOutcomes(days.map((d, i) => [d, 100 + i]), days.map((d, i) => [d, i < 60 ? 35 : 12]), { horizons: [21] });
 assert.equal(stressBandOf(14.8).id, 'calm'); assert.equal(stressBandOf(30).id, 'stress');

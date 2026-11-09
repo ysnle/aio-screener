@@ -10,22 +10,22 @@
 // the observation (text) apart from the interpretation (reading), which is worded as a hypothesis.
 
 import { RULES } from '../rules/thresholds.js';
-import { countOpenSessionsBetween, latestCompletedKrSession, latestCompletedUsSession } from '../market/market-calendar.js';
+import { countOpenSessionsBetween, latestCompletedKrSession, latestCompletedUsSession } from '../market/session/market-calendar.js';
 import { shortDate } from '../content/date-labels.js';
 import { brentWtiFromSeries } from '../macro/macro-signals.js';
 
 const DAY_MS = 86400000;
 
-// v58.64 (DOMAIN #8): the close series lives in domain/market/close-series.js; these names stay exported from here.
-import { finite, closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile } from '../market/close-series.js';
-import { buildLeadershipVerdict } from '../market/leadership-verdict.js';
-import { MARKET_WINDOWS } from '../market/market-windows.js';
+// v58.64 (DOMAIN #8): the close series lives in domain/market/session/close-series.js; these names stay exported from here.
+import { finite, closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile } from '../market/session/close-series.js';
+import { buildLeadershipVerdict } from '../market/regime/leadership-verdict.js';
+import { MARKET_WINDOWS } from '../market/session/market-windows.js';
 import { signedText } from '../shared/number.js';
 import { withSubjectParticle } from '../content/korean-particle.js';
-import { breadthScopeOf } from '../market/screener-breadth.js';
+import { breadthScopeOf } from '../market/breadth/screener-breadth.js';
 import { isIsoDay } from '../shared/session-date.js';
-import { computeCompositeFearGreed } from '../sentiment/composite-fear-greed.js';
-import { fearGreedBand } from '../sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
+import { computeCompositeFearGreed } from '../market/sentiment/composite-fear-greed.js';
+import { fearGreedBand } from '../market/sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
 export { closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile };
 
 const sessionsBetween = (from, to) => countOpenSessionsBetween(from, to, 'US');
@@ -95,7 +95,7 @@ export function movingAverageStructure(stat) {
 }
 
 const SERIES_FIELDS = ['spx', 'nasdaq', 'ndx', 'rut', 'vix', 'vix3m', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'usdkrw', 'usdjpy', 'breadth50', 'breadth20', 'breadth200', 'advanceRatio',
-  // P1416: leadership and index-confirmation evidence (src/domain/market/breadth-signals.js).
+  // P1416: leadership and index-confirmation evidence (src/domain/market/breadth/breadth-signals.js).
   'breadth40', 'breadthNewHighs', 'breadthNewLows', 'breadthUp4', 'breadthDown4', 'distributionDays',
   // v59.70 (owner 11/4): SOXX, the leadership proxy, and the equal-weight S&P 500 of the AI·반도체 집중 row.
   'soxx', 'rsp'];
@@ -624,7 +624,7 @@ export function buildMarketRead(input = {}) {
     else if (b50 >= RULES.breadth.broadAtLeast && spx20 != null && spx20 > 0) add('broad-rally', 55, `${historyWho} 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 상승이 대형주에 그치지 않고 넓게 퍼져 있습니다.`, 'index');
     else if (b50 < B.broadWeakBelow && spx20 != null && spx20 < 0) add('broad-weakness', 70, `${historyWho} 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 약세가 시장 전반에 퍼져 있습니다.`, 'index');
   }
-  // P1416: leadership and distribution (definitions in src/domain/market/breadth-signals.js).
+  // P1416: leadership and distribution (definitions in src/domain/market/breadth/breadth-signals.js).
   const nh = s.breadthNewHighs?.date === spx.date ? s.breadthNewHighs.value : null;
   const nl = s.breadthNewLows?.date === spx.date ? s.breadthNewLows.value : null;
   if (nh != null && nl != null && spxFromHigh != null) {

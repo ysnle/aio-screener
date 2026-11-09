@@ -1,7 +1,7 @@
 // 2026-10-19 cadence redesign: the briefing's 시간대별 시황. The 24h macro read above stays as it is; this section lists
 // the six-hour KST slots (06·12·18·24시) — the one in progress first, then each sealed slot, newest open and the rest
 // folded — so a slot the reader missed is still there after the next one lands. No data, no section.
-import { buildMarketTimelineView } from '../../domain/market/market-timeline.js';
+import { buildMarketTimelineView } from '../../domain/market/story/market-timeline.js';
 import { moveHeadlineRows } from '../../domain/briefing/news-picks.js';
 import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
 import { selectNewsItems } from '../../state/selectors/news.js';

@@ -3,8 +3,8 @@
 // index is the least-squares slope of 5-session % changes over the past year of shared closes (history.json, completed
 // closes only; daily changes are blurred because the two closes are stamped at different hours); the dollar's share is that slope times the dollar index's 20-session move, the rest is the Korea share.
 // It is a split of one past move, not a forecast, and the slope changes over time (the fold says how well it fit).
-import { buildCloseSeries, closeBasis, sessionPointBack } from '../market/close-series.js';
-import { MARKET_WINDOWS, closeChange } from '../market/market-windows.js';
+import { buildCloseSeries, closeBasis, sessionPointBack } from '../market/session/close-series.js';
+import { MARKET_WINDOWS, closeChange } from '../market/session/market-windows.js';
 import { signedText } from '../shared/number.js';
 
 export const KRW_RULE = Object.freeze({ sessions: MARKET_WINDOWS.rule, fitSessions: 250, step: MARKET_WINDOWS.week, minFit: 30, quietPct: 1 });

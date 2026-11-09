@@ -39,7 +39,7 @@ target_version: version.json
 |---|---|---|---|---|
 | 2026-10-01 | 8화면 정보구조, 용어 사전은 모달 | AGENTS Information architecture | **2026-11-03으로 대체** | AGENTS, RULES C5/R704, `architecture/route-owners.json` |
 | 2026-11-03 | 9화면: 기술적 분석(지수·대표 종목 차트)을 매크로처럼 별도 화면으로. 홈은 지수·대표 가격·종목·핵심 소식, 브리핑은 24시간 전체 연결 해설, 시장 상태는 진단·시나리오·체크리스트이고 시장 폭·심리는 각 영역에 근거로 섞어 넣는다(따로 접지 않음). 매크로는 금·은/유가/금리/신용/달러를 각각 시장과 연결 | AGENTS Information architecture | 진행 중: v59.64 기술적 분석(`charts`)·매크로 자산별 장 구현, 브리핑·시장 상태·홈은 다음 단계 | AGENTS, `architecture/route-owners.json`, `src/ui/navigation/route-hubs.js` |
-| 2026-11-03 | 경중: 모든 사실은 한 원장(`market-day.json`)에서 시장 영향으로 순위를 매기고, 중요한 것은 제자리에, 사소한 것은 보조로, 잡음은 버린다 | AGENTS Materiality | 유지 | `src/domain/market-day/facts.js` |
+| 2026-11-03 | 경중: 모든 사실은 한 원장(`market-day.json`)에서 시장 영향으로 순위를 매기고, 중요한 것은 제자리에, 사소한 것은 보조로, 잡음은 버린다 | AGENTS Materiality | 유지 | `src/domain/market/day/facts.js` |
 | 2026-10-11 | 데스크톱·휴대폰·아이패드 반응형 재승인, 데스크톱 밀도 유지 | AGENTS Responsive | 유지 (R474 → R669로 대체) | AGENTS, RULES C6/R669 |
 | 2026-10-12~13 | 화면·AI는 앞을 본다: 예정된 공식 일정에서 갈래별 조건부 추론, 지시·가격·확률 없음 | AGENTS No grades | 유지 | AGENTS, RULES R697/R698 |
 | 2026-10-13 | 미국 종목 Forward PER | v57.54 | 유지 | 코드 |

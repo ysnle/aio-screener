@@ -4,11 +4,11 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { atomicWriteFile } from '../lib/atomic-write.mjs';
-import { factorScopesByMarket, listingMarketOfSymbol } from '../../src/domain/market/session-time.js';
+import { factorScopesByMarket, listingMarketOfSymbol } from '../../src/domain/market/session/session-time.js';
 import { reconcileSecRecord } from '../../src/domain/fundamental/sec-report.js';
 import { secFundamentalRowFields } from '../../src/domain/fundamental/sec-row-fields.js';
-import { distributionDaySeries } from '../../src/domain/market/breadth-signals.js';
-import { rallyAttemptSeries } from '../../src/domain/market/rally-attempt.js';
+import { distributionDaySeries } from '../../src/domain/market/breadth/breadth-signals.js';
+import { rallyAttemptSeries } from '../../src/domain/market/regime/rally-attempt.js';
 import { updateCandidateArchive } from '../lib/candidate-archive.mjs';
 import { round } from '../lib/producer-math.mjs';
 import { encodeScreenerArtifact, expandScreenerArtifact } from '../../src/data/screener-extended.js';

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // v59.70 (integration review 89e8c881): CI's browser shards read the pinned snapshot (architecture/browser-data-fixture.json),
 // and its history.json may still be the v1 array while refresh-data already writes history.v2 (field dictionary +
-// checkedAt, src/domain/market/history-rows.js). This fixture keeps the page's v2 read path under CI instead of leaving
+// checkedAt, src/domain/market/indices/history-rows.js). This fixture keeps the page's v2 read path under CI instead of leaving
 // it to the watchdog: it serves the working tree's history compacted to history.v2 and checks the page loads the same
 // rows a v1 array gives — the boot prefetch in <head>, js/aio-data.js _aioLoadHistory and window.__aioReadHistoryRows.
 //   1. v2 served: load state 'ready', same day count, first/last date, expanded fieldMeta and series as the v1 page;
@@ -13,7 +13,7 @@ import { dirname, join, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { closeAll, freePort, startLocalServer } from './lib/browser-gate.mjs';
-import { compactHistoryRows, readHistoryRows, HISTORY_SCHEMA_V2 } from '../src/domain/market/history-rows.js';
+import { compactHistoryRows, readHistoryRows, HISTORY_SCHEMA_V2 } from '../src/domain/market/indices/history-rows.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];

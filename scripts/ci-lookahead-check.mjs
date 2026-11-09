@@ -9,11 +9,11 @@
 // holds Friday's 17:00 ET DXY/WTI settle (observed Friday), so a bucket-date cut drops a value a run on D could see.
 import { readFileSync } from 'node:fs';
 import { buildMarketRegime, buildCloseSeries } from '../src/domain/briefing/market-read.js';
-import { spxMovingAveragesFromHistory } from '../src/domain/market/moving-average.js';
-import { buildRegimeRadar } from '../src/domain/market/regime-radar.js';
+import { spxMovingAveragesFromHistory } from '../src/domain/market/indices/moving-average.js';
+import { buildRegimeRadar } from '../src/domain/market/regime/regime-radar.js';
 import { buildThemeStageBackfill } from './producer/theme-stage-backfill.mjs';
 import { loadThemeMaps } from './build-scenario-state.mjs';
-import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 
 const readJson = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
 const historyFile = readJson('../public-data/history.json');

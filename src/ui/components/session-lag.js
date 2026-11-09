@@ -2,7 +2,7 @@
 // screen's sector card, 세부 테마 상위 and 테마 시나리오 — "11/2 종가 기준, 11/3 반영 전". The basis stays the artifact's
 // own session (rotationHistory, playbook asOfByMarket): data.json's freshness ledger row carries no basis session.
 import { shortDate } from '../../domain/content/date-labels.js';
-import { latestCompletedSession } from '../../domain/market/market-calendar.js';
+import { latestCompletedSession } from '../../domain/market/session/market-calendar.js';
 
 /** The latest completed US session (ISO day) when `basis` is behind it, else ''. */
 export function usSessionPending(basis, nowMs = Date.now()) {

@@ -14,7 +14,7 @@
 //      number is not read as the sector line's number for the same name.
 import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright';
-import { SECTOR_ETF_LABELS } from '../src/domain/interpretation/concepts.js';
+import { SECTOR_ETF_LABELS } from '../src/domain/market/interpretation/concepts.js';
 import { closeAll, freePort, startLocalServer } from './lib/browser-gate.mjs';
 
 const port = (Number(process.env.CI_THEME_SCREENER_REVIEW_PORT) || await freePort());

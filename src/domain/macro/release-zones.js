@@ -8,7 +8,7 @@
 // delays cuts (a burden); once inflation is near target the same report is growth, read as good. Too cold is bad in
 // both regimes — a cut that arrives because earnings are falling does not lift stocks.
 import { monthChangeAt, seriesOf, yoySeries } from './macro-read.js';
-import { releaseActuals } from '../market/macro-crossroads.js';
+import { releaseActuals } from '../market/regime/macro-crossroads.js';
 import { policyCycle } from './macro-signals.js';
 
 const INFLATION_FIRST_ABOVE = 2.5; // core PCE YoY, %

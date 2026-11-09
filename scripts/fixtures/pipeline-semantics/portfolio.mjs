@@ -32,7 +32,7 @@ export const cases = [
   { id: 'v59.53', name: 'registered bare Korean holdings retain their quote listing and currency through valuation', run: async ({ load }) => {
     const { createRuntimeReaders } = await load('src/data/runtime-readers.js');
     const { derivePortfolioSurface } = await load('src/domain/portfolio/surface.js');
-    const { resolveHoldingInput } = await load('src/domain/ticker/resolve-name.js');
+    const { resolveHoldingInput } = await load('src/domain/instruments/resolve-name.js');
     const { listingCurrency } = await load('src/domain/portfolio/fx.js');
     const universe = [{ sym: '005930.KS' }, { sym: '035900.KQ' }, { sym: 'AAPL' }];
     const root = { getPortfolioData: () => [{ ticker: '005930', qty: 1, cost: 70000, costCurrency: 'KRW' }, { ticker: 'AAPL', qty: 1, cost: 100, costCurrency: 'USD' }],

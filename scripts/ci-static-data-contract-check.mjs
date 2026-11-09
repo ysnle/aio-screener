@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { collectAnnualOfficialSchedules } from './fetch-fred-calendar-candidates.mjs';
-import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 import { sourcePlanes } from './producer/source-planes.mjs';
 
 const read = (file) => fs.readFileSync(file, 'utf8');

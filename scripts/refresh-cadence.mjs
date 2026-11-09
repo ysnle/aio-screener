@@ -3,7 +3,7 @@
 // the weekend no new prices exist, so the 30-minute refresh skips and only a news cycle runs, about every hour
 // (v57.54: was 2 hours — weekend policy, tariff and geopolitical news arrive while no market is open).
 // Used by the `cadence` job of refresh-data.yml before any install; it reads only the exchange calendar (the one
-// holiday/half-day source, src/domain/market/market-calendar.js) and the published data.json clock.
+// holiday/half-day source, src/domain/market/session/market-calendar.js) and the published data.json clock.
 //
 // Quiet window (all must hold, otherwise the cycle runs in full):
 //   1. Seoul wall clock is Saturday, Sunday, or Monday before 07:00 KST (the owner's weekend frame);
@@ -18,7 +18,7 @@
 // Operator workflow_dispatch and the daily '33 7 * * *' cron are always full; a Worker scheduler dispatch
 // (trigger=scheduler, P1377) and the :17/:47 cron follow the weekend rule.
 import fs from 'node:fs';
-import { resolveMarketCalendarSession, MARKET_CALENDAR_ADAPTERS, dateInTimezone } from '../src/domain/market/market-calendar.js';
+import { resolveMarketCalendarSession, MARKET_CALENDAR_ADAPTERS, dateInTimezone } from '../src/domain/market/session/market-calendar.js';
 
 export const FINAL_CLOSE_GRACE_MIN = 60;
 export const PRE_OPEN_LEAD_MIN = 120;

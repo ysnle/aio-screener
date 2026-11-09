@@ -1,4 +1,4 @@
-import { deriveSentimentSummary } from '../../domain/sentiment/metrics.js';
+import { deriveSentimentSummary } from '../../domain/market/sentiment/metrics.js';
 
 export function selectSentimentState(state) {
   return state?.sentiment || null;

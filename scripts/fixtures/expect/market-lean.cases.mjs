@@ -1,6 +1,6 @@
 // Expect cases for the market-wide lean (owner 2026-10-26): what the 오늘 screen and the AI context print for each
 // evidence mix. Scenarios mirror the v58.81 unit checks in ci-esm-core-unit-check.mjs; this file shows the whole text.
-export const suite = { name: 'market-lean', source: 'src/domain/market/market-lean.js' };
+export const suite = { name: 'market-lean', source: 'src/domain/market/regime/market-lean.js' };
 
 const stress = { all: { 21: { hitRate: 64 } }, bands: [{ id: 'normal', horizons: { 21: { hitRate: 63.4, nEff: 136 } } }, { id: 'stress', horizons: { 21: { hitRate: 80, nEff: 60 } } }] };
 const regime = (favorable, burden, asOf = null) => ({ available: true, asOf, counts: { favorable, neutral: 6 - favorable - burden, burden } });

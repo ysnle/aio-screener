@@ -3,8 +3,7 @@ import { deriveScreenerSetupProfile } from '../../domain/screener/setup-profile.
 import { calculationRow, createScreenDefinition, stableHash } from '../contracts/screener.js';
 import { runScreen, summarizeScreenReadiness, SCREEN_ENGINE_VERSION } from '../../domain/screener/screen-engine.js';
 import { SUPPLIED_MATERIALS_META, SUPPLIED_MATERIAL_CLAIM_IDS } from '../../domain/research/reference-index.js';
-import { NATHAN_PREVIOUS_THREADS_FRAMEWORKS } from '../../domain/research/nathan-frameworks.js';
-import { NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_CONCEPTS } from '../../domain/knowledge/nathan-framework-pack.js';
+import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS, NATHAN_ANALYSIS_PROTOCOL, nathanConceptId } from '../../domain/research/nathan-framework-ids.js';
 import { CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
 import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
 import { RANKING_CONTRACTS } from '../screener-extended.js';
@@ -118,8 +117,8 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       ranking: { field: 'rank', direction: 'desc' },
       columns: ['identity.symbol', 'identity.name', 'rank', 'price.ret3m', 'price.rsi14'],
       referenceFrameworkIds: SCREENER_REFERENCE_FRAMEWORK_IDS,
-      referenceConceptIds: NATHAN_KNOWLEDGE_CONCEPTS.map((concept) => concept.canonicalId),
-      referenceQuestionIds: NATHAN_PREVIOUS_THREADS_FRAMEWORKS.flatMap((framework) => [`${framework.id}:confirmation`, `${framework.id}:invalidation`]),
+      referenceConceptIds: NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS.map(nathanConceptId),
+      referenceQuestionIds: NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS.flatMap((id) => [`${id}:confirmation`, `${id}:invalidation`]),
       referenceProcessingStages: NATHAN_ANALYSIS_PROTOCOL.stages,
       referenceTimeSeriesIds: SCREENER_RESEARCH_MAPPING.timeSeriesIds,
       referenceClaimIds: SUPPLIED_MATERIAL_CLAIM_IDS,

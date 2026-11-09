@@ -2,7 +2,7 @@
 // same-theme chips (smallest sub-theme first) or any ticker typed in — rebased to the stock's close at the start of the
 // last six months, plus a period-return table. The picks stay in memory for this page; nothing is stored.
 import { chartPeers, rebasedLine, periodReturns, alignedPeriodReturns, COMPARE_PERIODS, COMPARE_MAX, COMPARE_WINDOW } from '../../domain/technical/chart-compare.js';
-import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
+import { normalizeTickerInput } from '../../domain/instruments/ticker-symbol.js';
 import { barsFromYahoo, completedBars } from '../../data/chart-bars.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';

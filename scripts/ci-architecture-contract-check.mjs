@@ -699,7 +699,7 @@ if (domWriterIntersection.length) {
 const modules = await Promise.all([
   import(pathToFileURL(path.join(root, 'src/data/contracts/evidence.js'))),
   import(pathToFileURL(path.join(root, 'src/data/evidence-store.js'))),
-  import(pathToFileURL(path.join(root, 'src/domain/sentiment/metrics.js'))),
+  import(pathToFileURL(path.join(root, 'src/domain/market/sentiment/metrics.js'))),
   import(pathToFileURL(path.join(root, 'src/state/store.js'))),
   import(pathToFileURL(path.join(root, 'src/state/slices/sentiment.js'))),
   import(pathToFileURL(path.join(root, 'src/state/selectors/sentiment.js'))),
@@ -894,5 +894,33 @@ const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa
 const completeness = read('src/data/page-completeness.js');
 if (!core.includes('AIO_PAGE_CONTRACTS') || !completeness.includes('AIO.getPageDataCompleteness') || !completeness.includes('blocked') || !completeness.includes('stale-reference')) fail('page completeness contract is not wired to the slice gate');
 console.log(JSON.stringify({ ok: true, slices: VERTICAL_SLICE_CONTRACTS.map((slice) => ({ id: slice.id, routes: slice.routes, requiredData: slice.requiredData })), routes: ROUTE_IDS.length }));
+}],
+// ── section import-resolution (v59.88, ADR-0003 S7) ──
+// Every relative import in src/ and worker/, static or a string-literal import(), names a file that exists. esbuild
+// leaves an unresolvable import() in the bundle as written, so the browser asks for a missing URL and the .catch()
+// beside it hides the miss: the screener's cash conditions never loaded through '../components/screener-cash.js'
+// from src/ui/pages/screener/. A folder move rewrites these paths, and this is what proves the rewrite whole.
+['import-resolution', async () => {
+const { default: fs } = await import('node:fs');
+const { default: path } = await import('node:path');
+const { fileURLToPath } = await import('node:url');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const specRe = /(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+)(['"])(\.{1,2}\/[^'"\n]+)\1/g;
+const missing = [];
+let checked = 0;
+for (const dir of ['src', 'worker']) {
+  for (const rel of fs.readdirSync(path.join(root, dir), { recursive: true })) {
+    if (!/\.m?js$/.test(String(rel))) continue;
+    const file = path.join(root, dir, String(rel));
+    const text = fs.readFileSync(file, 'utf8');
+    for (const match of text.matchAll(specRe)) {
+      checked += 1;
+      const target = path.resolve(path.dirname(file), match[2].split('?')[0]);
+      if (!fs.existsSync(target)) missing.push(`${path.relative(root, file)} -> ${match[2]}`);
+    }
+  }
+}
+if (missing.length) throw new Error(`[import-resolution] ${missing.length} relative import(s) name no file: ${missing.slice(0, 12).join('; ')}`);
+console.log(JSON.stringify({ ok: true, section: 'import-resolution', checked }));
 }],
 ]);

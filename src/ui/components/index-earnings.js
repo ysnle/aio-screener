@@ -1,10 +1,10 @@
 // Expertise review 2026-10-19: the S&P 500's own earnings read — revision breadth (are next-year estimates being raised or
 // cut), the forward multiple and the equity risk premium against the 10-year real yield — with a per-sector revision line.
-// Data owner: src/domain/market/index-earnings.js, built once as the interpretation pipeline's indexEarnings stage so the
+// Data owner: src/domain/market/indices/index-earnings.js, built once as the interpretation pipeline's indexEarnings stage so the
 // lessons and the AI read the same revision breadth. Conclusion first, then the evidence, then what it means.
-import { INDEX_EARNINGS_MIN_WEIGHT_PCT, SECTOR_MIN_MEMBERS } from '../../domain/market/index-earnings.js';
+import { INDEX_EARNINGS_MIN_WEIGHT_PCT, SECTOR_MIN_MEMBERS } from '../../domain/market/indices/index-earnings.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
-import { GICS_KO } from '../../domain/market/sector-map.js';
+import { GICS_KO } from '../../domain/market/indices/sector-map.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { el } from './dom.js';
 import { gaugeBar } from './gauge-bar.js';

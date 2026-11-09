@@ -1,16 +1,16 @@
 // P1621: bounded, question-selected facts from the same native models used by the screens.
-import { buildBreadthSnapshot } from '../../domain/market/breadth-snapshot.js';
-import { breadthScopeOf } from '../../domain/market/screener-breadth.js';
+import { buildBreadthSnapshot } from '../../domain/market/breadth/breadth-snapshot.js';
+import { breadthScopeOf } from '../../domain/market/breadth/screener-breadth.js';
 import { buildGroupStrength } from '../../domain/themes/group-strength.js';
 import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/chart-scenarios.js';
-import { koreaParticipationContext } from '../../domain/market/korea-participation.js';
+import { koreaParticipationContext } from '../../domain/market/korea/korea-participation.js';
 import { companyAnalysisContext } from '../../domain/entity/company-analysis.js';
-import { renderMarketScenarioModel } from '../../domain/market/regime-scenarios.js';
-import { renderScenarioOutlookContext } from '../../domain/market/scenario-outlook.js';
+import { renderMarketScenarioModel } from '../../domain/market/regime/regime-scenarios.js';
+import { renderScenarioOutlookContext } from '../../domain/market/regime/scenario-outlook.js';
 import { renderMarketGuideContext } from '../../domain/guide/market-guide.js';
-import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
+import { latestCompletedUsSession } from '../../domain/market/session/market-calendar.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
-import { renderMacroCrossroadsContext } from '../../domain/market/macro-crossroads.js';
+import { renderMacroCrossroadsContext } from '../../domain/market/regime/macro-crossroads.js';
 import { renderThemePlaybookContext } from '../../domain/scenarios/theme-playbook.js';
 import { conditionLabel, parseConditionValue } from '../../domain/screener/custom-conditions.js';
 import { signedText } from '../../domain/shared/number.js';

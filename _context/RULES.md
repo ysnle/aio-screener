@@ -1055,7 +1055,7 @@ On entry, each of the 8 screens reloads the latest published artifacts and label
 **정본**: R301 · 규칙 45건 (비활성 1건)
 
 ## R726. 한 이름은 한 길이, 한 집합, 한 번의 반올림 (v58.80, P2074)
-화면의 기간 이름(1개월·3개월·20거래일 등)은 src/domain/market/market-windows.js가 정한 길이 하나만 가리키고 sessionPointBack으로 잰다(행 개수 금지). 게이트: `ci-esm-core-unit-check`, `ci-fiscal-quality-fixture`, `ci-scenario-guidance-fixture`.
+화면의 기간 이름(1개월·3개월·20거래일 등)은 src/domain/market/session/market-windows.js가 정한 길이 하나만 가리키고 sessionPointBack으로 잰다(행 개수 금지). 게이트: `ci-esm-core-unit-check`, `ci-fiscal-quality-fixture`, `ci-scenario-guidance-fixture`.
 
 ## R715. 한 필드의 사용 가능 기한은 한 상수에서 읽고, 순위 모집단은 비교 가능한 보통주로 한정한다 (v57.85, P1872)
 같은 데이터의 계산 사용 기한을 두 곳(필드 레지스트리, 순위 모델)에 따로 두지 않는다. 연간 공시 수치는 FUNDAMENTAL_MAX_PERIOD_AGE_DAYS를 읽는다. 게이트: `ci-screener-workbench-contract`, `ci-candidate-archive-check`.

@@ -1,7 +1,7 @@
-// v59.44: the market-mover list on its own, so the boot-time news matcher (src/domain/market/move-attribution.js)
+// v59.44: the market-mover list on its own, so the boot-time news matcher (src/domain/market/regime/move-attribution.js)
 // does not load the brief parser and selectors in event-briefs.js, which re-exports it.
 
-// The fixed list (owner 2026-10-28). `newsNames` are the exact names a headline uses (src/domain/market/move-attribution.js
+// The fixed list (owner 2026-10-28). `newsNames` are the exact names a headline uses (src/domain/market/regime/move-attribution.js
 // matches them by the shared keyword rule). `irDomains` limit the call-summary search to the company's own pages plus wires.
 // CIKs are not listed: the producer resolves them from SEC company_tickers.json by exact ticker. Korean names resolve
 // through DART by corp code, and the producer checks the filing names the same company before using it.

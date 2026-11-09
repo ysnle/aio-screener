@@ -7,7 +7,7 @@ import { emptyState } from './empty-state.js';
 import { renderNextSteps } from './page-flow.js';
 import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/chart-scenarios.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
-import { normalizeTickerInput } from '../../domain/entity/ticker-symbol.js';
+import { normalizeTickerInput } from '../../domain/instruments/ticker-symbol.js';
 import { el } from './dom.js';
 import { askRow } from './ask-row.js';
 import { CHART_NOTES } from '../../domain/knowledge/theme-research-links.js';

@@ -5,7 +5,7 @@ import { createResourceBag } from '../../app/lifecycle.js';
 import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, pushKnowledgeRouteState, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { artifactUrl, loadArtifactUrl } from '../../data/artifact-registry.js';
 import { detectValueScaleSuspects, withholdSuspectValues, withholdManagerValues, managersUnderScaleReview, describeValueScaleReview } from '../../domain/masters/value-scale.js';
-import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
+import { applySafeExternalLink } from '../knowledge/safe-external-link.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { MASTER_REGISTRY, buildManagerRegistry, deriveCoverageSummary, formatReportedValue, formatCompactUsd, formatScale, formatPercent, summarizeLatestChange, formatQuarterLabel } from '../../domain/masters/holdings-format.js';

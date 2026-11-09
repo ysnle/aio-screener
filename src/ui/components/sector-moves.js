@@ -3,7 +3,7 @@
 // whose row is not current for that session is left out rather than shown with an old number.
 import { signedBar } from './signed-bar.js';
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
-import { SECTOR_ETF_LABELS, sectorRecentCheck, leaderFading } from '../../domain/market/scenario-outlook.js';
+import { SECTOR_ETF_LABELS, sectorRecentCheck, leaderFading } from '../../domain/market/regime/scenario-outlook.js';
 import { rrgSettledQuadrant } from '../../domain/themes/recent-check.js';
 import { RRG_BORDER_WORD, RRG_QUADRANT_WORDS } from '../../domain/themes/rrg.js';
 import { el } from './dom.js';

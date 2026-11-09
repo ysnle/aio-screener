@@ -15,9 +15,9 @@ import { buildTrailingYearRead, buildEarningsSchedule, buildMarginCashRead, buil
 import { lensIdFor, buildLensRead, buildPeerStrengths, buildSituationRead, buildThesisFrame, buildWatchList, buildMarketLink, dailyBeta } from '../../domain/fundamental/stock-lens.js';
 import { themeStagesFor, themeMarketOf } from '../../domain/scenarios/theme-stage.js';
 import { themeProfile } from '../../domain/scenarios/exposures.js';
-import { koreanThemeGroups } from '../../domain/market/korea-participation.js';
-import { buildCloseSeries } from '../../domain/market/close-series.js';
-import { MARKET_WINDOWS, closeChange } from '../../domain/market/market-windows.js';
+import { koreanThemeGroups } from '../../domain/market/korea/korea-participation.js';
+import { buildCloseSeries } from '../../domain/market/session/close-series.js';
+import { MARKET_WINDOWS, closeChange } from '../../domain/market/session/market-windows.js';
 import { signedText } from '../../domain/shared/number.js';
 import { sharedArtifactState } from '../../data/shared-artifacts.js';
 import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';

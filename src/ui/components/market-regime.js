@@ -4,15 +4,16 @@ import { renderHomeGuide } from './market-guide.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { renderStressOutcomes } from './stress-outcomes.js';
 import { deepDiveLinks } from './deep-dive.js';
-import { alignInput, buildCloseSeries, closeBasis, isUsable, koreaMoveRecord, koreaRecordText, KR_SHOCK_TAIL_PCT, sessionPointBack } from '../../domain/briefing/market-read.js';
+import { alignInput, buildCloseSeries, closeBasis, isUsable, sessionPointBack } from '../../domain/briefing/market-read.js';
+import { krSeparateCheckTone } from '../../domain/market/korea/kr-index-record.js';
 import { previousRegime } from '../../domain/briefing/daily-diff.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
-import { regimeFlow } from '../../domain/market/page-flow.js';
+import { regimeFlow } from '../../domain/market/story/page-flow.js';
 import { renderNextSteps, openRouteSection } from './page-flow.js';
 import { createTrendChart } from './trend-chart.js';
 import { refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
-import { buildRegimeAxisHistory, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime-scenarios.js';
+import { buildRegimeAxisHistory, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime/regime-scenarios.js';
 import { renderRegimeRadar } from './regime-radar.js';
 import { renderMacroCrossroads, showCrossroadsSection } from './macro-crossroads.js';
 import { el } from './dom.js';
@@ -520,7 +521,7 @@ function crossMap(doc, row) {
 }
 
 function paintCrossReadings(doc, root, inputs) {
-  Promise.all([import('../../domain/market/cross-readings.js'), import('../../data/shared-artifacts.js'), import('../../data/artifact-registry.js')]).then(([{ crossReadings }, { refreshSharedArtifact }, { MARKET_DAY }]) => {
+  Promise.all([import('../../domain/market/regime/cross-readings.js'), import('../../data/shared-artifacts.js'), import('../../data/artifact-registry.js')]).then(([{ crossReadings }, { refreshSharedArtifact }, { MARKET_DAY }]) => {
     const paint = () => {
       const host = doc.getElementById('regime-cross-list');
       const section = doc.getElementById('regime-cross');
@@ -656,7 +657,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       // v59.70 (post-boot budget): and only once the 한국 시장 fold is open (it starts closed).
       const krFold = boardKr.closest?.('details');
       const whenOpen = (fn) => { if (!krFold || krFold.open) fn(); else krFold.addEventListener('toggle', function once() { if (!krFold.open) return; krFold.removeEventListener('toggle', once); fn(); }); };
-      if (cards.length) whenOpen(() => import('../../domain/market/korea-policy.js').then(({ koreaPolicyCard }) => {
+      if (cards.length) whenOpen(() => import('../../domain/market/korea/korea-policy.js').then(({ koreaPolicyCard }) => {
         const policy = koreaPolicyCard(root.DATA_SNAPSHOT);
         if (!policy || boardKr.__aioKrRender !== krRender) return;
         const section = el(doc, 'section', null, 'regime-axis'); section.dataset.axis = 'kr-policy'; section.dataset.market = 'KR';
@@ -746,8 +747,8 @@ function koreaIndexParts(history) {
 }
 
 // v58.68 (owner 2026-10-23): the AI·semiconductor leaders' own verdict, shown under the six-axis verdict on 오늘 and
-// 시장 상태 (domain/market/leadership-verdict.js). It names the leaders' state; the six-axis count is unchanged.
-// The money-flow part (domain/market/market-flow.js) follows it: where the session's money went across sectors and
+// 시장 상태 (domain/market/regime/leadership-verdict.js). It names the leaders' state; the six-axis count is unchanged.
+// The money-flow part (domain/market/regime/market-flow.js) follows it: where the session's money went across sectors and
 // sub-themes, with the 10-year yield and fear on the same session.
 // v59.51 (two layers, owner 2026-10-31): the face is one line of state words — "주도주(AI·반도체) 이탈, 급락일" (and on 시장
 // 상태 "돈의 방향 방어 업종 강세"); the readings, the evidence numbers, the method, the sector and theme splits open under it.
@@ -809,12 +810,8 @@ function paintKoreaLine(doc, root) {
   const { kospi, kosdaq } = koreaIndexParts(history);
   if (!kospi) { line.hidden = true; return; }
   const [, month, day] = kospi.date.split('-').map(Number);
-  // P1723: a move rare in AIO's own KOSPI record (1-session or 5-session, outer 5%) is named with that record even when
-  // the 5-session change stays under 5%; the US six-axis tally is unchanged.
-  const record = koreaMoveRecord(history, { now: Date.now() });
-  const rare = record?.extreme && record.date === kospi.date ? koreaRecordText(record, { maxTail: KR_SHOCK_TAIL_PCT }) : '';
-  const tone = rare ? ` — 코스피 변화가 ${rare}라 미국장과 따로 확인할 구간입니다.`
-    : kospi.d5 != null && Math.abs(kospi.d5) >= 5 ? (kospi.d5 < 0 ? ' — 5거래일 낙폭이 커 미국장과 따로 확인할 구간입니다.' : ' — 5거래일 상승 폭이 커 미국장과 따로 확인할 구간입니다.') : '';
+  // The separate-check clause is the domain's reading (record tail first, then the 5-session line); the US tally is unchanged.
+  const tone = krSeparateCheckTone(history, kospi, { now: Date.now() });
   const summary = line.querySelector(':scope > summary');
   const detail = doc.getElementById('home-kr-detail');
   if (summary) summary.textContent = `한국 ${month}/${day} 마감: ${[kospi, kosdaq].filter((part) => part?.d1).map((part) => `${part.title} ${part.d1}`).join(', ') || kospi.text}`;

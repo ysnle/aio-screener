@@ -23,17 +23,17 @@ import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { MACRO_AXIS_DEEP_DIVES, MACRO_GROUP_DEEP_DIVES } from '../../domain/content/board-deep-dives.js';
 import { deepDiveFold } from './deep-dive.js';
 import { openCrossroadsBranch } from './macro-crossroads.js';
-import { BRANCHES } from '../../domain/market/macro-crossroads.js';
+import { BRANCHES } from '../../domain/market/regime/macro-crossroads.js';
 import { longHistoryRows } from '../../domain/macro/long-history.js';
 import { taylorRule, TAYLOR_R_STAR_OPTIONS, TAYLOR_R_STAR_SEP } from '../../domain/macro/taylor-rule.js';
 import { el } from './dom.js';
 import { frameHead, noteFold } from './section-frame.js';
 import { monthLabel, shortDate } from '../../domain/content/date-labels.js';
-import { usWeekendClosed } from '../../domain/market/market-calendar.js';
+import { usWeekendClosed } from '../../domain/market/session/market-calendar.js';
 import { peopleText, signedText } from '../../domain/shared/number.js';
 import { buildCrossAssetRelations } from '../../domain/macro/cross-asset-relations.js';
 import { dodgeSvgLabels } from './svg-label-dodge.js';
-import { MARKET_WINDOWS } from '../../domain/market/market-windows.js';
+import { MARKET_WINDOWS } from '../../domain/market/session/market-windows.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { MACRO_SIGNAL_RULES } from '../../domain/macro/macro-signals.js';
 import { volatilityChapter } from '../../domain/macro/volatility.js';
@@ -1180,7 +1180,7 @@ function allocationPrinciples(doc, root, model, nowCorr) {
 }
 
 // v58.75 (persona review): the equity risk premium (S&P 500 forward earnings yield − 10-year real yield) sits beside the
-// real-yield card it depends on — the same indexEarnings stage 거시 renders in full (src/domain/market/index-earnings.js).
+// real-yield card it depends on — the same indexEarnings stage 거시 renders in full (src/domain/market/indices/index-earnings.js).
 function renderErpLine(doc, root) {
   const levels = doc.getElementById('rates-levels');
   if (!levels) return;

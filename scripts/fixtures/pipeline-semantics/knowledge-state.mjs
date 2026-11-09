@@ -102,7 +102,7 @@ export const cases = [
       assert.equal(input.market.now, NOW);
   } },
   { id: 'P28-CONTRACT-01', name: '스크리너 행 변환 예외는 rows 단계 오류로 남고 전체 해석을 멈추지 않는다', run: async ({ load }) => {
-      const { buildMarketInterpretation } = await load('src/domain/interpretation/market-interpretation.js');
+      const { buildMarketInterpretation } = await load('src/domain/market/interpretation/market-interpretation.js');
       const bad = { get fieldReadiness() { throw new Error('getter'); } };
       const out = buildMarketInterpretation({ market: { history: [] }, screenerRows: [bad], nowMs: NOW });
       assert.ok(out.errors.rows);

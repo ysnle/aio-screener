@@ -19,7 +19,7 @@ const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa
 const ui = read('js/aio-ui.js');
 const tests = read('js/aio-tests.js');
 const runtimeGate = read('scripts/ci-runtime-contract-check.mjs');
-const tradingScoreDomain = read('src/domain/signal/trading-score.js');
+const tradingScoreDomain = read('src/domain/market/signal/trading-score.js');
 // v57.54: the R219/P513/P513-Q1/v50.89 prose-marker checks that used to read RULES.md, QA-CHECKLIST.md,
 // BUG-POSTMORTEM.md and CHANGELOG.md are replaced by architecture/governance-markers.json (policy
 // "semantic-review"), verified by ci-workflow-compaction-check.mjs. This gate checks code and evidence only.
@@ -86,7 +86,7 @@ warnings.push(`SEMANTIC_REVIEW_OPEN current=${currentCoveragePct === null ? 'unk
 // scoped to classifyMarketRegime's own body (not a free-floating search across all of `core`,
 // which is large enough to contain an unrelated coincidental "breadth200...: 75)" match elsewhere).
 // RM-03 (2026-07-19): the alias-producing literal moved into
-// src/domain/signal/trading-score.js's computeTradingScoreModel (single-implementation
+// src/domain/market/signal/trading-score.js's computeTradingScoreModel (single-implementation
 // extraction) — checks the domain module (where the shape now genuinely lives) plus proof the
 // legacy wrapper in `core` actually delegates to it.
 check('trading score semantic gate is present', /computeTradingScore returns both total and score/.test(runtimeGate) && /AIO_ARCH\.computeTradingScoreModel/.test(core) && /\{\s*total\s*,\s*score\s*:\s*total/.test(tradingScoreDomain));

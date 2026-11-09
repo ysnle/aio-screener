@@ -63,7 +63,7 @@ for (const file of sources) {
     '348210.KQ': { kr: '넥스틴', en: 'NEXTIN' }, NVDA: { kr: '엔비디아', en: 'NVIDIA' }
   };
   const glossary = [{ term: 'OAS / HY 스프레드', alias: '하이일드 스프레드  high yield', def: '하이일드 회사채가 국채보다 더 얹어 주는 금리입니다.' }, { term: 'HYG', alias: '', def: 'ETF' }];
-  const { searchCandidates } = await import('../src/domain/ticker/resolve-name.js');
+  const { searchCandidates } = await import('../src/domain/instruments/resolve-name.js');
   const groupsFor = (query) => {
     const stock = { id: 'stock', items: searchCandidates(query, { entries, limit: 7 }).map((pick) => ({ kind: 'stock', symbol: pick.symbol, label: pick.label })) };
     const term = { id: 'term', items: search.matchTerms(query, glossary).map((entry) => ({ kind: 'term', term: entry.term, alias: entry.alias, label: entry.term })) };

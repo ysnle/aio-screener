@@ -1,8 +1,8 @@
 // 2026-10-13 (owner: "finviz maps 같은 S&P 500 지도"): sectors as boxes, members as tiles sized by index weight
 // and shaded by return over one completed window (app-wide convention, M07, v58.80: rising red, falling blue). One lead sentence
 // reads the map; the sector table and the reading guide stay folded. A tile opens the stock page.
-import { buildSectorMap, layoutSectorMap, SECTOR_MAP_PERIODS, shadeOf } from '../../domain/market/sector-map.js';
-import { latestCompletedUsSession } from '../../domain/market/market-calendar.js';
+import { buildSectorMap, layoutSectorMap, SECTOR_MAP_PERIODS, shadeOf } from '../../domain/market/indices/sector-map.js';
+import { latestCompletedUsSession } from '../../domain/market/session/market-calendar.js';
 import { el } from './dom.js';
 import { asOfChip, markFrame } from './section-frame.js';
 import { signedText } from '../../domain/shared/number.js';

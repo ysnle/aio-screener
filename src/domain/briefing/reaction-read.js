@@ -4,7 +4,7 @@
 // management). Each rung is measured from the brief, the closes or the reported reasons; the conclusion is the first
 // rung that explains the move, and a move nothing explains says so instead of guessing.
 import { readNumber } from '../shared/number.js';
-import { closeMoveBetween } from '../market/close-series.js';
+import { closeMoveBetween } from '../market/session/close-series.js';
 import { figureSurprise } from './event-briefs.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 

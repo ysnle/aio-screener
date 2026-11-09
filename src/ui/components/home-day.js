@@ -4,14 +4,14 @@
 // the two screens cannot disagree on what mattered.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
-import { oneSessionDay } from '../../domain/market-day/one-session.js';
+import { oneSessionDay } from '../../domain/market/day/one-session.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
 import { storyWeight } from './story-weight.js';
 import { frameHead } from './section-frame.js';
 import { pickImportantNews } from '../../domain/briefing/news-picks.js';
 import { groupNewsStories } from '../../domain/news/stories.js';
-import { usThenKorea } from '../../domain/market/session-time.js';
+import { usThenKorea } from '../../domain/market/session/session-time.js';
 import { MARKET_DAY } from '../../data/artifact-registry.js';
 
 const RANK_ORDER = Object.freeze({ lead: 0, major: 1, minor: 2, context: 3 });

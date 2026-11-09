@@ -1,6 +1,6 @@
 // P1637: the regime radar on 시장 상태 — six axes, today against 5 and 20 sessions ago. Plain SVG so it
 // follows the theme tokens; numbers are one-year positions of each series, not a composite score.
-import { buildRegimeRadar } from '../../domain/market/regime-radar.js';
+import { buildRegimeRadar } from '../../domain/market/regime/regime-radar.js';
 import { el } from './dom.js';
 import { signedText } from '../../domain/shared/number.js';
 

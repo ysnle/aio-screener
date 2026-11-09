@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { finalizePageDecision } from '../src/domain/signal/page-decision.js';
-import { deriveSignalDecisionFromTradingScore } from '../src/domain/signal/trading-score.js';
+import { finalizePageDecision } from '../src/domain/market/signal/page-decision.js';
+import { deriveSignalDecisionFromTradingScore } from '../src/domain/market/signal/trading-score.js';
 
 // P1357: execute the production legacy builder against the native presentation.
 const core = readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');

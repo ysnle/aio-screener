@@ -8,7 +8,7 @@ import { selectNewsItems, selectNewsStatus } from '../../state/selectors/news.js
 import { subscribeToSlices } from '../../state/memoize.js';
 import { groupNewsStories, newsArticleKey, newsEvidence, newsTopicOf, resolveNewsIssuers, selectIntradayNews } from '../../domain/news/stories.js';
 import { briefingWindowKST, deriveNewsSummary, isNewsAnalysisEligible, isNewsHeadlineOnly, isNewsTopicReviewRequired } from '../../domain/news/scoring.js';
-import { newsFlow } from '../../domain/market/page-flow.js';
+import { newsFlow } from '../../domain/market/story/page-flow.js';
 import { renderNextSteps } from '../components/page-flow.js';
 import { renderChannelData } from '../components/channel-data.js';
 import { krIndexCloseNote } from '../../domain/news/kr-close-note.js';

@@ -1,8 +1,0 @@
-{
-  "version": "v59.88",
-  "date": "2026-11-09",
-  "changelog": [
-    "**관심목록 활성 목록과 기본 목록 규칙을 저장소 한 곳으로 (ADR-0003 S6):** js/aio-workspace.js가 활성 목록 키를 직접 읽고 쓰며 \"목록이 없으면 '관심 종목'을 만든다\"는 규칙을 따로 갖고 있었다. 이제 src/data/watchlist-store.js의 readActiveWatchlistId·writeActiveWatchlistId·ensureTargetList를 window._aioWatchlistStore로 쓴다. 보유 종목 표와 목록 저장은 v59.42에 이미 src로 옮겨져 있었다(ADR의 남은 이중 소유자 목록이 낡았던 부분)."
-  ],
-  "note": "ADR-0003 S6: watchlist active id and default-target rule in the store"
-}

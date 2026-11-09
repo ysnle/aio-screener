@@ -1,4 +1,4 @@
-import { describeSharedConnection } from '../../domain/connections/shared.js';
+import { describeSharedConnection } from '../../domain/ai/shared-connection.js';
 
 export function installConnectionPanel(root, documentRef) {
   if (!documentRef?.getElementById) return () => {};

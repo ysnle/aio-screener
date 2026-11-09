@@ -4,7 +4,7 @@
 // and re-exports them; genMarketAnalysis (the model call) stays in the producer.
 import { round } from './producer-math.mjs';
 import { LIST_ITEM_BREAK, analysisLevelsAfterLabels, analysisProse, isNonMetricNumber } from './market-analysis-numbers.mjs';
-import { sessionDateInMarket } from '../../src/domain/market/session-time.js';
+import { sessionDateInMarket } from '../../src/domain/market/session/session-time.js';
 import { buildCloseSeries } from '../../src/domain/briefing/market-read.js';
 import { isConditionalNumericSentence } from '../../src/ai/response/publication.js';
 import { RULES } from '../../src/domain/rules/thresholds.js';

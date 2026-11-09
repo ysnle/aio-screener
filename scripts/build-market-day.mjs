@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // v59.63 phase 1: writes public-data/market-day.json, the one ledger of the last day's moves and events
-// (src/domain/market-day/facts.js), from artifacts this refresh and the other producers already published. A run that
+// (src/domain/market/day/facts.js), from artifacts this refresh and the other producers already published. A run that
 // cannot read history or the screener leaves the previous artifact in place.
 // v59.70 (owner D6, screen review 12): the one network step — headline facts the news bundle did not translate (the
 // screener's per-company memos) get a Korean title here, on the Worker's free Workers AI path only, so every headline
@@ -11,8 +11,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { loadThemeMaps } from './build-scenario-state.mjs';
-import { buildMarketDay } from '../src/domain/market-day/facts.js';
-import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { buildMarketDay } from '../src/domain/market/day/facts.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 import { HEADLINE_TRANSLATION_MAX, isCleanKoreanTitle, isFaithfulKoreanTitle } from './producer/market-narrative.mjs';
 import { requestWorkersAiTranslation } from './lib/ai-shared-analysis.mjs';
 import { detectNarratives, narrativeDayLog, publishedNarratives } from '../src/domain/narrative/narratives.js';

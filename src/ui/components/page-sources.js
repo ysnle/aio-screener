@@ -2,7 +2,7 @@
 // "데이터 출처" note at its end so a reader who needs to check a number — an institutional user in particular —
 // can still find the provider and series. Dates stay on the numbers themselves; only the provider moves here.
 
-import { pageLensReads } from '../../domain/lenses/registry.js';
+import { pageLensReads } from '../../domain/narrative/lens-registry.js';
 import { screenerRowsForRoot } from '../../data/selectors/interpretation.js';
 
 const QUOTES ='지수·환율·원자재 시세: Yahoo Finance (지연 시세, 판정은 직전 미국장 종가)';
@@ -52,7 +52,7 @@ export const PAGE_SOURCES = Object.freeze({
 });
 
 // v59.70 (owner 2026-11-07): the fold also says what the screen reads through — each lens's question, the reading it
-// encodes, today's basis date and coverage, and what it cannot tell (src/domain/lenses/registry.js). Refreshed on every
+// encodes, today's basis date and coverage, and what it cannot tell (src/domain/narrative/lens-registry.js). Refreshed on every
 // visit, since coverage moves with the loaded data; the provider list below it is unchanged.
 const ROUTE_NAMES = Object.freeze({ charts: '기술적 분석', breadth: '시장 폭', sentiment: '투자 심리', fxbond: '금리와 환율', briefing: '브리핑', macro: '매크로',
   themes: '테마와 섹터', screener: '스크리너', signal: '시장 상태' });

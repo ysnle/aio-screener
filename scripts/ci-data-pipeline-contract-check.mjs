@@ -8,7 +8,7 @@ import { runInNewContext } from 'node:vm';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { backtestFactors, deriveCyclePublication, deriveFactorQuality, deriveTickerNewsLineage, writeMacroCalendar } from './fetch-data.mjs';
 import { FOMC_RECHECK_MS, buildIsmRuleEvents, deriveFedPolicyRate, parseFomcCalendarHtml, selectFomcMeetings } from './lib/official-calendars.mjs';
-import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session-time.js';
+import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session/session-time.js';
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { SHARED_AI_MODEL, extractCompletedResponseText, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
@@ -2125,9 +2125,9 @@ check('telegram digest registers four channels and fail-closed source catalog', 
 
 check('app loads server data artifact', /public-data\/data\.json/.test(data) && /_aioLoadServerData/.test(data));
 check('app applies quotes, macro, F&G, news, telegram, LLM, and native screener metadata', /applyLiveQuotes\(d\.quotes\)/.test(data) && /DATA_SNAPSHOT/.test(data) && /_applyFearGreedScore/.test(data) && /_aioApplyNewsBackstop/.test(data) && /_aioLoadServerTelegramDigest/.test(data) && /_serverMarketAnalysis/.test(data) && /_aioApplyNativeScreenerState/.test(data) && /aio:nativeScreenerReady/.test(data));
-// 2026-10-17: the coverage/age gate lives in src/domain/market/screener-breadth.js, which every breadth reader asks.
+// 2026-10-17: the coverage/age gate lives in src/domain/market/breadth/screener-breadth.js, which every breadth reader asks.
 {
-  const { readScreenerBreadth } = await import('../src/domain/market/screener-breadth.js');
+  const { readScreenerBreadth } = await import('../src/domain/market/breadth/screener-breadth.js');
   // v59.70 (I8): a fixed Wednesday clock. On the wall clock the 97 h row read as current on Tuesdays 05-09Z (a pre-open
   // Friday observation counts as Friday's session, one behind Monday, inside the 12 h grace), so CI on 11-03 data
   // commits failed nine times in a row and held every later release UNATTESTED.
@@ -2501,7 +2501,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const convergeJobHead = refresh.match(/\n  converge:\n[\s\S]*?\n    steps:/)?.[0] || '';
   check('P1757 refresh-data decides cadence in a sparse, read-only job before the producer, and fails open to full',
     /node scripts\/refresh-cadence\.mjs --github-output/.test(cadenceJob) && /sparse-checkout:/.test(cadenceJob)
-      && ['scripts/refresh-cadence.mjs', 'src/domain/market/market-calendar.js', 'public-data/data.json'].every((file) => cadenceJob.includes(file))
+      && ['scripts/refresh-cadence.mjs', 'src/domain/market/session/market-calendar.js', 'public-data/data.json'].every((file) => cadenceJob.includes(file))
       && !/npm ci|setup-node/.test(cadenceJob) && /contents:\s*read/.test(cadenceJob) && !/\n    if:/.test(cadenceJob)
       && /needs: cadence/.test(refreshJobHead) && /if: \$\{\{ !cancelled\(\) && needs\.cadence\.outputs\.mode != 'skip' \}\}/.test(refreshJobHead)
       && /needs: \[cadence, refresh\]/.test(convergeJobHead) && /needs\.cadence\.outputs\.mode != 'skip'/.test(convergeJobHead)
@@ -2690,7 +2690,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && audit(undefined, new Date(at).toISOString(), { marketTimelineSealed: [] }).failures.includes('market-timeline-missing')
       && audit(undefined, new Date(at).toISOString()).failures.length === 0,
     JSON.stringify([audit(first.timeline, new Date(at).toISOString()), audit(first.timeline, '2026-10-19T12:30:00.000Z')]));
-  const view = (await import('../src/domain/market/market-timeline.js')).buildMarketTimelineView(next.timeline, Date.parse('2026-10-19T09:30:00.000Z'));
+  const view = (await import('../src/domain/market/story/market-timeline.js')).buildMarketTimelineView(next.timeline, Date.parse('2026-10-19T09:30:00.000Z'));
   check('v58.28 cadence: the briefing view lists the in-progress slot and the sealed slots newest first by KST day',
     view.available && view.current?.endLabel === '24:00' && view.groups[0]?.label === '오늘 10/19' && view.groups[0].slots[0].endLabel === '18:00'
       && view.groups.some((group) => group.label === '어제 10/18') && view.overdue === false, JSON.stringify(view.groups.map((group) => [group.label, group.slots.map((slot) => slot.endLabel)])));
@@ -3094,4 +3094,4 @@ if (errors.length) {
 
 console.log('Data pipeline contract check OK: Actions -> public-data -> runtime audit -> chat/memo consumers are structurally wired.');
 
-import { readHistoryRows } from '../src/domain/market/history-rows.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';

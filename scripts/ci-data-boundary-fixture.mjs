@@ -2,7 +2,7 @@
 // scripts/ci-data-boundary-fixture.mjs — v59.87 (ADR-0003 S2+S3)
 //
 // Pins the data-boundary move: every artifact location and load budget now lives in src/data/artifact-registry.js, and
-// the session-lag rule is one function (src/domain/market/market-calendar.js sessionLagGrade / latestCompletedSession).
+// the session-lag rule is one function (src/domain/market/session/market-calendar.js sessionLagGrade / latestCompletedSession).
 // The values below were captured on fed62e1, before the move, from the old owners (shared-artifacts.js,
 // event-artifacts.js, theme-playbook-view.js, the three domain read models; artifact-freshness.js' own 12-hour grace;
 // the eight `market === 'KR' ? latestCompletedKrSession : latestCompletedUsSession` branches; the 13F and market
@@ -28,11 +28,11 @@ const check = (label, ok, detail = '') => { if (!ok) failures.push(`${label}${de
 const hash = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
 const registry = await load('src/data/artifact-registry.js');
-const cal = await load('src/domain/market/market-calendar.js');
+const cal = await load('src/domain/market/session/market-calendar.js');
 const fr = await load('src/data/contracts/artifact-freshness.js');
 const lag = await load('src/ui/components/session-lag.js');
 const rp = await load('src/domain/screener/row-presentation.js');
-const temperature = await load('src/domain/sentiment/market-temperature.js');
+const temperature = await load('src/domain/market/sentiment/market-temperature.js');
 const filing = await load('src/domain/masters/filing-deadline.js');
 
 const H = 3600000, KB = 1024, MB = 1024 * KB;
@@ -97,7 +97,7 @@ const tempMarkets = [{ id: 'us', asOf: '2026-11-19' }, { id: 'kr', asOf: '2026-1
 const temp = [];
 for (let t = Date.parse('2026-11-19T00:00:00Z'); t < Date.parse('2026-12-02T00:00:00Z'); t += 6 * H) temp.push([t, [...temperature.staleMarketIds(tempPayload, tempMarkets, t)].sort()]);
 temp.push(['no-gen', [...temperature.staleMarketIds({}, tempMarkets, Date.parse('2026-11-20T00:00:00Z'))].sort()]);
-check('v59.87 staleMarketIds (moved to domain/sentiment/market-temperature.js) is unchanged', hash(temp) === '09697a06403bb5a705d44a114300662c19e338be3309f2d45b7eb244d09d890b', hash(temp));
+check('v59.87 staleMarketIds (moved to domain/market/sentiment/market-temperature.js) is unchanged', hash(temp) === '09697a06403bb5a705d44a114300662c19e338be3309f2d45b7eb244d09d890b', hash(temp));
 
 // The grade itself, case by case.
 const grade = (lagN, sinceMs, policy) => cal.sessionLagGrade({ lag: lagN, sinceLatestCloseMs: sinceMs }, policy);

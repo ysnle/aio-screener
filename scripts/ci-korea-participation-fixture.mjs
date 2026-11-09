@@ -8,7 +8,7 @@ await runSections('korea-participation-fixture', [
 ['korea-participation', async () => {
 // P1628: Korean sessions, sample denominators, currency-independent participation and missingness.
 const { default: assert } = await import('node:assert/strict');
-const { buildKoreaParticipation } = await import('../src/domain/market/korea-participation.js');
+const { buildKoreaParticipation } = await import('../src/domain/market/korea/korea-participation.js');
 const rows=[{sym:'005930.KS',factorSessionDate:'2026-10-08',pctSma50:3,pctSma200:-2,ret1m:2,ret3m:6},
  {sym:'000660.KS',factorSessionDate:'2026-10-08',pctSma50:-3,pctSma200:2,ret1m:4,ret3m:10},
  {sym:'NVDA',factorSessionDate:'2026-10-09',pctSma50:20,ret3m:90},
@@ -65,7 +65,7 @@ assert.ok(model.missing.includes('외국인·기관 순매수'),'P1628 FX direct
   for (let k = 0; k < 4; k += 1) { level *= week[k]; calm[n - 5 + k] = level; }
   calm[n - 1] = calm[n - 6] * (1 - 0.184);
   const krHistory = dates.map((date, i) => ({ date, kospi: calm[i], kosdaq: calm[i] / 4 }));
-  const { buildKoreaRegimeObservations } = await import('../src/domain/market/regime-scenarios.js');
+  const { buildKoreaRegimeObservations } = await import('../src/domain/market/regime/regime-scenarios.js');
   const { krIndexTrendFacts, krIndexReading } = await import('../src/ui/components/kr-index-trend.js');
   const cards = buildKoreaRegimeObservations({ history: krHistory }, { nowMs: now }).cards;
   const kospiCard = cards.find((card) => card.id === 'kospi');
@@ -103,7 +103,7 @@ console.log('PASS P1628 Korean completed-session participation and honest unavai
 const { default: assert } = await import('node:assert/strict');
 const { readFileSync } = await import('node:fs');
 const { parseNaverTrend, buildKrInvestorFlows, pendingKrInvestorFlows, sessionsToRead, naverTrendUrl, readSessions, KR_INVESTOR_FLOWS_SCHEMA, KR_FLOW_KEEP_SESSIONS } = await import('./fetch-kr-investor-flows.mjs');
-const { buildKrInvestorFlowView, formatEok } = await import('../src/domain/market/kr-investor-flows.js');
+const { buildKrInvestorFlowView, formatEok } = await import('../src/domain/market/korea/kr-investor-flows.js');
 const recorded = JSON.parse(readFileSync(new URL('./fixtures/kr-investor-flows/naver-trend-responses.json', import.meta.url), 'utf8'));
 
 assert.deepEqual(parseNaverTrend(recorded['kospi-20261103'], '2026-11-03'), { date: '2026-11-03', individual: 16388, foreign: -15086, institution: -4941 }, 'v59.70 a Naver trend row parses to 억원 for all three investor types');

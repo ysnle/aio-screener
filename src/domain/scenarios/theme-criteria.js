@@ -10,7 +10,7 @@ import { ABOVE50_FLOOR } from './theme-playbook.js';
 import { withDirectionParticle } from '../content/korean-particle.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
-import { scenarioLead } from '../market/scenario-lead.js';
+import { scenarioLead } from '../market/regime/scenario-lead.js';
 
 // v59.46 boundary contract: member numbers are read through the screener readiness contract, not row[key].
 const value = (row, key) => readRowNumber(row, key, 'calculation');

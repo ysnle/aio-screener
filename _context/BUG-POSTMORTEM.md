@@ -39,6 +39,46 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2331 - v59.88 - 질문 티커 해석 경로가 다섯 개라 별명이 다른 종목과 함께 쓰이면 빠지고, 한글 이름에 붙은 영문 접두가 유령 티커가 됐다 (2026-11-09)
+
+- symptom/reproduction: "암드 vs 엔비디아"는 NVDA만 읽어 AMD 데이터 없이 비교했다. "SK하이닉스 전망"·"LG화학 전망"은 000660.KS·051910.KS 옆에 검증되지 않은 SK·LG를 붙였다. "WTI 전망"·"멀티에셋 PM의 관점"은 질문 계획에 미검증 티커 WTI·PM을 남겼다.
+- root_cause: 질문 티커를 읽는 규칙이 extract-tickers.js, resolver.js(FALLBACK_NAMES), chat-tickers.js, js/aio-chat.js _resolveTickerFromFuzzy, js/aio-data.js extractTickers(item)에 나뉘어 있었다. 채팅 별명표는 다른 티커가 하나도 없을 때만 읽었고, 소문자로 비교해 'LG화학' 키는 한 번도 맞지 않았다. 비티커 단어 목록도 두 벌이라 WTI·PM 판정이 서로 달랐고, 영문 접두 + 한글 토큰은 접두만 따로 티커로 읽혔다.
+- fix: 별명표 하나(src/domain/ticker/nicknames.js)와 비티커 단어표 하나(src/domain/ticker/question-words.js)를 resolver와 typed-symbol 스캔이 함께 쓴다. chat-tickers.js가 유일한 질문 해석기로 단계를 직접 import하고, 별명을 typed 심볼·계획 이름과 항상 함께 읽으며, 한글 이름에 붙은 영문 접두를 버린다. resolver는 $TSLA를 읽고 같은 접두 규칙을 적용한다. 레거시 fuzzy 함수는 지우고 window._resolveTickerFromFuzzy는 별명표 조회로 설치한다. 질문 복잡도 판단(js/aio-ui.js)도 같은 해석기를 쓴다. 뉴스 기사 티커 읽기는 src/domain/news/article-tickers.js로 옮겼다(질문 해석과 다른 읽기).
+- violated_rule: 한 개념에 한 소유자 (ADR-0003, AGENTS 구조 우선)
+- prevention: pipeline-semantics S6-TICKER-01이 별명 병기·접두 유령·WTI/PM·$TSLA·추측 금지(금일·마크롱·메타버스·애플리케이션)를 고정하고, S6-TICKER-02가 기사 티커 관문(P1428·P1449·P1550·P1592)을 고정한다.
+- verification/residual: 60문항 기준선을 바꾸기 전과 비교해 차이는 의도한 수정뿐; 공개 데이터 뉴스 79건에서 기사 티커 읽기 레거시와 차이 0; ci-ai-intelligence-contract-check, ci-pipeline-semantics-check, ci-runtime-contract-check 통과.
+- files: src/domain/ticker/nicknames.js, src/domain/ticker/question-words.js, src/ai/entity/chat-tickers.js, src/ai/entity/resolver.js, src/ai/entity/extract-tickers.js, src/domain/news/article-tickers.js, js/aio-chat.js, js/aio-data.js, js/aio-ui.js
+
+## P2330 - v59.88 - 스크리너의 FCF 마진·매출 대비 설비투자 조건이 현금 지표를 한 번도 불러오지 못했다 (2026-11-09)
+
+- symptom/reproduction: 맞춤 조건에 FCF 마진이나 매출 대비 설비투자를 넣어도 값이 채워지지 않았다. 콘솔에도 오류가 남지 않았다.
+- root_cause: src/ui/pages/screener/model.js가 현금 지표 chunk를 import('../components/screener-cash.js')로 불렀다. 이 경로는 src/ui/pages/components/를 가리켜 없는 파일이다. esbuild는 해석하지 못한 import()를 경고 없이 그대로 남긴다. 그래서 브라우저가 없는 URL을 요청했고, 옆의 .catch(() => {})가 실패를 숨겼다. 파일이 screener/ 폴더로 한 단계 내려갈 때 상대 경로를 고치지 않은 것이 시작이다.
+- fix: 경로를 '../../components/screener-cash.js'로 고쳤다. 번들에 screener-cash chunk가 다시 생긴다.
+- violated_rule: 상대 import는 정적이든 문자열 import()든 존재하는 파일을 가리켜야 한다. 파일을 옮길 때는 그 파일이 부르는 경로도 함께 다시 계산한다.
+- prevention: ci-architecture-contract-check에 import-resolution 구역을 추가했다. src/와 worker/의 모든 상대 import(정적, 문자열 import())가 실제 파일을 가리키는지 확인한다. S7 폴더 재편도 이 검사로 경로가 빠짐없이 바뀌었는지 증명한다.
+- verification/residual: node scripts/ci-architecture-contract-check.mjs (section import-resolution)
+- files: src/ui/pages/screener/model.js, scripts/ci-architecture-contract-check.mjs
+
+## P2329 - v59.88 - 한국 장 마감 뒤 미국 장 마감 전에는 원화 분해의 코스피 20거래일 변화가 매크로·시장 상태와 달랐다 (2026-11-09)
+
+- symptom/reproduction: 평일 16:00 KST 이후 데이터 커밋에서 ci-metric-consistency가 'the won decomposition quotes the KOSPI 20 Korean sessions — -23.6 vs -21.4'로 실패했다. CI가 통과하지 못한 데이터 리비전은 배포 수렴 단계에서 UNATTESTED_REVISION으로 거부됐다. 화면에서는 금리와 환율의 원화 분해 블록이 다른 화면과 다른 코스피 숫자를 보였다.
+- root_cause: buildKrwDecomposition은 원/달러와 달러 지수를 SPX 마지막 날짜(미국 기준일)에 맞추려고 through를 썼다. 그런데 같은 through를 코스피 구간에도 넘겼다. 한국 장이 먼저 끝난 날에는 이 때문에 월요일 코스피 세션이 빠지고, 금요일에서 끝나는 다른 20거래일 변화가 나왔다.
+- fix: 코스피 구간은 호출자가 through를 직접 지정하지 않으면 코스피 자체의 최신 종가에서 끝난다. 원/달러와 달러 지수 구간은 계속 미국 기준일에 맞춘다.
+- violated_rule: 여러 시장을 섞은 계산에서 한 시장의 기준일을 다른 시장 구간에 쓰지 않는다. 각 구간은 자기 시장의 최신 세션에서 끝난다.
+- prevention: ci-esm-core-unit-check가 마지막 행에 코스피만 있는(미국은 아직 마감 전) 기록으로 원화 분해의 kospiMove와 closeChange(kospi, 20)가 같은지 확인한다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (v59.88 won decomposition KOSPI leg) + node scripts/ci-metric-consistency-check.mjs
+- files: src/domain/macro/krw-decomposition.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2328 - v59.88 - 한국 장 마감 뒤 미국 장 마감 전의 스크리너 갱신이 'all breadth coverage below 80%'로 실패했다 (2026-11-09)
+
+- symptom/reproduction: 평일 07:15 UTC(16:15 KST) 예약 실행과 재실행이 validate-screener-artifact에서 'all breadth coverage below 80%'로 멈췄다. 스크리너·SEC 갱신이 다음 미국 마감 뒤 실행까지 이전 산출물에 머물렀다.
+- root_cause: computeScreenerBreadth는 세그먼트마다 행 수가 가장 많은 관측일 하나를 세션으로 골랐다. 한국 장이 끝나고 미국 장이 끝나기 전에는 한국 행이 월요일, 미국 행이 금요일에 있다. 그래서 미국과 한국을 섞은 all 세그먼트는 금요일 행만 세어, 미국 855행 대 전체 1,098행으로 커버리지가 약 78%가 됐다. us와 kr 세그먼트는 각자 한 시장이라 영향이 없었다.
+- fix: 세션일을 상장 시장(KR·US·기타)별로 고른다. 각 행은 자기 시장의 최신 세션일 때 센다. 한 세그먼트 안에서 이전 세션에 남은 행을 빼는 v58.71 규칙은 시장마다 그대로 적용된다.
+- violated_rule: 여러 시장을 섞은 집계는 시장마다 자기 거래일 달력으로 세션을 판정한다. 하나의 다수결 날짜를 섞은 시장 전체에 적용하지 않는다.
+- prevention: ci-data-pipeline-contract-check가 미국 금요일 행·한국 월요일 행·이전 세션 미국 행을 섞은 픽스처로 all이 6/7, us 4, kr 2를 세는지 확인한다.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs (v59.88 screener breadth all counts each market on its own latest session)
+- files: scripts/producer/screener.mjs, scripts/ci-data-pipeline-contract-check.mjs
+
 ## P2327 - v59.87 - AI [주가 추이]가 종목 화면과 다른 계산으로 수익률·추세를 말함 (2026-11-09)
 
 - symptom/reproduction: 채팅의 [주가 추이]는 Yahoo 3개월 차트를 따로 받아 5/20/60봉 수익률, 3개월 범위 위치, 자체 단기 흐름 라벨(단기·중기 하락 추세 등)을 계산했다. 종목 화면은 스크리너 행(ret5d·ret1m·ret3m·52주 거리·bufferedTrend)을 읽으므로, 같은 종목의 수익률·위치·추세 문구가 화면과 AI에서 달라질 수 있었다.

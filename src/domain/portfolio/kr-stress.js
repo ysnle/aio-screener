@@ -4,8 +4,8 @@
 // 1:1, i.e. beta 1, which the label states; no forecast); a window is offered only when the record holds at least STRESS_MIN_CASES
 // non-overlapping windows of that length (R706 sample floor), and the record length is named beside it.
 import { krSessionThrough } from '../briefing/market-read.js';
-import { buildCloseSeries } from '../market/close-series.js';
-import { countOpenSessionsBetween } from '../market/market-calendar.js';
+import { buildCloseSeries } from '../market/session/close-series.js';
+import { countOpenSessionsBetween } from '../market/session/market-calendar.js';
 
 export const STRESS_MIN_CASES = 10;
 const WINDOWS = Object.freeze([5, 20]);

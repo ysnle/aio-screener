@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { deriveMarketSession } from './build-market-snapshot.mjs';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { holdRepeatedSessions, continuousReopenPrint, mergeMacroLastKnownGood, normalizeHistoryRows, parseBeaPceHtml, validateMarketAnalysisText, HIST_FIELD_PLAUSIBILITY, histValueWithinPlausibility, parseFredDexkousCsv, compareUsdKrwCrossCheck } from './fetch-data.mjs';
-import { readHistoryRows, compactHistoryRows } from '../src/domain/market/history-rows.js';
+import { readHistoryRows, compactHistoryRows } from '../src/domain/market/indices/history-rows.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));

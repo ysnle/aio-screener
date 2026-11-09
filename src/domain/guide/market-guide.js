@@ -12,8 +12,8 @@
 //   stance    — what to lean toward and what to avoid, derived from the direction, the lead's exposures and the traps
 //   lessons   — the concept layer (lessons.js) entries today's data touches, each linked to the principles library
 import { pastEvidence } from '../scenarios/analogs.js';
-import { CHOICES } from '../market/macro-crossroads.js';
-import { scenarioLead } from '../market/scenario-lead.js';
+import { CHOICES } from '../market/regime/macro-crossroads.js';
+import { scenarioLead } from '../market/regime/scenario-lead.js';
 import { activeScheduledEvents } from '../briefing/scheduled-events.js';
 import { CHOICE_WORDS } from '../content/choice-words.js';
 import { selectLessons, LESSON_KINDS } from './lessons.js';

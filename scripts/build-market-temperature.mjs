@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v57.54: producer for public-data/market-temperature.json — per-market price temperature (src/domain/sentiment/
+// v57.54: producer for public-data/market-temperature.json — per-market price temperature (src/domain/market/sentiment/
 // market-temperature.js) for KOSPI, KOSDAQ, S&P 500, Nasdaq Composite and Nikkei 225 from long daily closes.
 // Runs only in GitHub Actions (refresh-data, every full refresh, skipped while the artifact is under 4 hours old).
 // A session counts only after its market has closed (fetch-data isSessionComplete), so an intraday Seoul/Tokyo print is
@@ -12,7 +12,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { isSessionComplete, parseKrDailySeries } from './fetch-data.mjs';
-import { MARKET_TEMPERATURE_SCHEMA, TEMPERATURE_MARKETS, TEMPERATURE_RULES, buildMarketTemperature } from '../src/domain/sentiment/market-temperature.js';
+import { MARKET_TEMPERATURE_SCHEMA, TEMPERATURE_MARKETS, TEMPERATURE_RULES, buildMarketTemperature } from '../src/domain/market/sentiment/market-temperature.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'public-data', 'market-temperature.json');

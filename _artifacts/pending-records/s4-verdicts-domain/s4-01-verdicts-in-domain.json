@@ -1,8 +1,0 @@
-{
-  "version": "v59.88",
-  "date": "2026-11-09",
-  "changelog": [
-    "**판정 로직을 domain으로 (ADR-0003 S4):** 화면이 스스로 판정하던 선을 domain 한 곳으로 옮기고, 화면은 결과만 그린다. 포트폴리오 집중도 구간(한 종목 10·15·25%, 섹터 25·40%, 상위 3종목 60%, 평균 상관 0.70, 한 통화 50%)은 RULES.portfolio 하나이고, 점검 카드·점검 기준·익스포저 패널·섹터 카드가 src/domain/portfolio/concentration-bands.js로 같은 선과 같은 문구를 읽는다(portfolio-checklist의 25·40 재정의, portfolio-read의 40, portfolio-exposure의 0.40·0.25·0.60·0.70, 점검 안내문의 '10~25%' 리터럴 삭제). 익스포저 패널의 섹터 합산·경고는 src/domain/portfolio/exposure-panel.js view model이다. 차트 읽기 카드(추세·50일선 대비·RSI·VWAP)와 이평 배열 행은 src/domain/technical/chart-read.js, 테마 상세의 당일 등락·종목 간 격차·참여 폭 판정은 src/domain/themes/theme-day-read.js다. 화면 출력은 같다(이전 전후 출력 비교). ci-shared-primitive-ratchet-check에 verdictLiteral 지표(src/ui·src/ai의 숫자 리터럴 비교, 길이·크기·폭·개수·인덱스 제외)를 더해 측정값 211에서 줄어들기만 허용한다. 차트 봉 정규화(chart-bars.js)는 src/data로 옮겼다."
-  ],
-  "note": "{VERSION} ADR-0003 S4 verdict lines in the domain, screens render the result"
-}

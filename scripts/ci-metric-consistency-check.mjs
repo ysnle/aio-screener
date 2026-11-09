@@ -17,15 +17,15 @@ const num = (text, re) => { const hit = String(text || '').match(re); return hit
 
 const { buildMarketRegime, oasDelta20Bp } = await load('src/domain/briefing/market-read.js');
 const { buildMacroChapters } = await load('src/domain/macro/macro-chapters.js');
-const { buildMarketStory } = await load('src/domain/market/market-story.js');
-const { crossReadings } = await load('src/domain/market/cross-readings.js');
-const { buildMarketDay } = await load('src/domain/market-day/facts.js');
+const { buildMarketStory } = await load('src/domain/market/story/market-story.js');
+const { crossReadings } = await load('src/domain/market/regime/cross-readings.js');
+const { buildMarketDay } = await load('src/domain/market/day/facts.js');
 const { buildDayAccount } = await load('src/domain/briefing/day-account.js');
 const { keyStocks } = await load('src/ui/components/home-day.js');
 const { homeBriefTiers, EVENT_BRIEFS_SCHEMA } = await load('src/domain/briefing/event-briefs.js');
 
 // ── 1. The published files, every screen's model (items 5 and 6).
-const { readHistoryRows } = await load('src/domain/market/history-rows.js');
+const { readHistoryRows } = await load('src/domain/market/indices/history-rows.js');
 const history = readHistoryRows(json('public-data/history.json'));
 const macroHistory = json('public-data/macro-history.json');
 const hy = oasDelta20Bp(macroHistory, 'hyOas');
@@ -91,11 +91,11 @@ const shown = [...tiers.core, ...tiers.notable, ...tiers.rest];
 check('v59.70 31 a brief shows no ™ ® ℠', shown.length === 1 && !/[™®℠]/.test(JSON.stringify({ ...shown[0], checkText: '' })) && shown[0].checkText === 'Scorpio™', JSON.stringify(shown[0] || null));
 
 // ── 6. Screen re-review 2026-11-06 (89e8c881).
-const { buildRegimeRadar } = await load('src/domain/market/regime-radar.js');
+const { buildRegimeRadar } = await load('src/domain/market/regime/regime-radar.js');
 const { buildKrwDecomposition } = await load('src/domain/macro/krw-decomposition.js');
-const { closeChange } = await load('src/domain/market/market-windows.js');
-const { oneSessionDay } = await load('src/domain/market-day/one-session.js');
-const { koreaLinks } = await load('src/domain/market/session-bridge.js');
+const { closeChange } = await load('src/domain/market/session/market-windows.js');
+const { oneSessionDay } = await load('src/domain/market/day/one-session.js');
+const { koreaLinks } = await load('src/domain/market/session/session-bridge.js');
 const { fxSideWord } = await load('src/domain/macro/rates-fx.js');
 const { coreStockRows } = await load('src/domain/technical/market-charts.js');
 // #5: one HY reading per window — the radar's '피난성' sentence quotes the same 5-session change, and a threshold label
@@ -139,7 +139,7 @@ const charted = coreStockRows({ screener: { data: screenerData }, day: { facts: 
 check('v59.70 re-review N7 기술적 분석 movers: US first, Korean next, no third market', charted === 'NVDA,005930.KS', charted);
 
 // ── 7. v59.74 weekly outlook review (11/7): the next release, the week list, the biggest day and the held closes.
-const { nextDecidingEvent } = await load('src/domain/market/macro-crossroads.js');
+const { nextDecidingEvent } = await load('src/domain/market/regime/macro-crossroads.js');
 const { keepDisplacedSessions, heldUsSessionFields, mergeBackfillBars } = await load('scripts/producer/history.mjs');
 const cpi = { id: 'us-cpi', name: 'CPI (소비자물가)', date: '2026-11-10', when: '11/10(화) 22:30 KST' };
 const retail = { id: 'us-retail', name: '소매판매', date: '2026-11-17', when: '11/17(화) 22:30 KST' };
@@ -159,7 +159,7 @@ if (weekStory.available) {
   check('v59.74 the biggest session is named with its breadth', weekStory.bigDay?.date === '2026-11-05' && /가장 큰 하루는 .*11\/5\(목\) S&P 500 -4\.4%.*전면 매도/.test(weekStory.lead), weekStory.lead);
   check('v59.74 a broad sell-off day withdraws "시장 전체가 팔린 것은 아닙니다"', !/시장 전체가 팔린 것은 아닙니다/.test(weekStory.lead), weekStory.lead);
 }
-const { biggestDay } = await load('src/domain/market/market-story.js');
+const { biggestDay } = await load('src/domain/market/story/market-story.js');
 const spxRow = (date, spx) => ({ date, spx, fieldMeta: { spx: { observedAt: `${date}T21:00:00.000Z`, observationRelation: 'latest-completed-close', sessionDate: date } } });
 const gapDay = biggestDay([spxRow('2026-11-02', 100), spxRow('2026-11-03', 101.5), spxRow('2026-11-05', 104.5), spxRow('2026-11-06', 104.6)], { from: '2026-11-02', to: '2026-11-06', events: [] });
 check('v59.74 a two-session span over a missing close is not the biggest day', gapDay === null, JSON.stringify(gapDay));
@@ -184,8 +184,8 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
   const { buildMarketRead } = await load('src/domain/briefing/market-read.js');
   const { creditJudgement, creditReading } = await load('src/domain/briefing/credit-reading.js');
   const { buildMacroRead } = await load('src/domain/macro/macro-read.js');
-  const { participationShift, ROTATION_TITLE, buildMarketScenarios } = await load('src/domain/market/regime-scenarios.js');
-  const { buildMarketInterpretation } = await load('src/domain/interpretation/market-interpretation.js');
+  const { participationShift, ROTATION_TITLE, buildMarketScenarios } = await load('src/domain/market/regime/regime-scenarios.js');
+  const { buildMarketInterpretation } = await load('src/domain/market/interpretation/market-interpretation.js');
   const data = json('public-data/data.json');
   const cut = (rows, day) => rows.filter((row) => String(row.date || '') <= day);
   for (const day of ['2026-11-06', null]) {

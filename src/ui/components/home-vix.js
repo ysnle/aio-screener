@@ -2,7 +2,7 @@
 // (_aioRenderHomeVix). Output and colours are unchanged. The home page (src/ui/pages/analysis.js) paints it on every
 // render; window._aioRenderHomeVix stays for the legacy snapshot apply and home refresh (src/app/compatibility-globals.js).
 
-import { vixBand } from '../../domain/sentiment/narrative.js';
+import { vixBand } from '../../domain/market/sentiment/narrative.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 
 // VIX is never 0: a 0 is a missing quote.

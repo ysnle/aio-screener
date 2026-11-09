@@ -1,6 +1,6 @@
 // S5 (ADR-0003): the one statement of what the browser and the shared AI Worker must agree on. The Worker
 // (cloudflare-worker-proxy.js, worker/openai-budget.mjs) imports it through its bundle, the browser through
-// src/app/chat-globals.js (AIO.aiWorkerContract) and src/domain/connections/shared.js. The model id, the body limit and
+// src/app/chat-globals.js (AIO.aiWorkerContract) and src/domain/ai/shared-connection.js. The model id, the body limit and
 // the header names were literals in five files, and the client's trim target (180 KB) sat beside a Worker limit (200 KiB)
 // it never named. Pure constants: no imports, safe for the Worker, the domain and the classic shell.
 

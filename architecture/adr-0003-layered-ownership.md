@@ -11,7 +11,7 @@
 | 관심사 | 구현 수 | 대표 위치 |
 |---|---:|---|
 | 신선도 판정(최신/지연/참고/없음) | 약 15 | `data/contracts/artifact-freshness.js`(레지스트리), `data/quality/freshness.js`, `data/quality/freshness-engine.js`, `shared-artifacts.js`, `ui/pages/masters.js` `thirteenFStale`, `ui/components/market-temperature.js`, `domain/macro/liquidity-growth.js` … |
-| 거래 세션·종가일 계산 | 약 10 | `domain/market/market-calendar.js`, `session-time.js`, `history-session.js`, `domain/shared/session-date.js`, `ai/time/market-session.js`, `ui/pages/themes/rrg.js` … |
+| 거래 세션·종가일 계산 | 약 10 | `domain/market/session/market-calendar.js`, `session-time.js`, `history-session.js`, `domain/shared/session-date.js`, `ai/time/market-session.js`, `ui/pages/themes/rrg.js` … |
 | JSON 아티팩트 로더 | 3개 스택 + 직접 fetch | `data/artifact-cache.js` `loadJsonArtifact`, `data/shared-artifacts.js` `refreshSharedArtifact`, `data/server-data-loader.js`, `ui/knowledge/glossary-bridge.js:159`, `ai/retrieval/knowledge.js:305` |
 | `src/data` 밖의 `public-data` 경로·로더 설정 | ui 약 66, domain 3, ai 1 | `ui/pages/atlas.js`, `principles.js`, `masters.js`, `ui/components/theme-playbook-view.js:193` … |
 | RSI | 4 | `domain/technical/definitions.js` `rsiWilder`, `chart-layers.js` `rsiSeriesWilder`, `market-charts.js` `rsiOf`, `js/aio-core.js` `_calcRSILast` |
@@ -56,14 +56,14 @@ js/*.js       호환 셸: 새 기능 금지, 지우는 방향으로만 수정
 | 아티팩트 위치·형태·주기 | `src/data/artifact-registry.js`(신규, `ARTIFACT_FRESHNESS`에서 `maxAgeMs` 파생) | ui·domain·ai의 URL 상수와 `{key,url,schemas,maxAgeMs}` 설명자 |
 | 로딩·캐시 | `data/artifact-cache.js` `loadJsonArtifact` | `refreshSharedArtifact`는 그 위의 얇은 클라이언트로, 직접 fetch 2곳은 위임으로 |
 | 신선도 | `data/contracts/artifact-freshness.js` `freshnessState`/`sessionLagState` | `quality/freshness.js`·`freshness-engine.js`는 어댑터로, 화면별 `*Stale`은 레지스트리 주기로 |
-| 세션·종가일 | `domain/market/market-calendar.js` | `ai/time/market-session.js`, ui의 `usCloseSession` 등 |
+| 세션·종가일 | `domain/market/session/market-calendar.js` | `ai/time/market-session.js`, ui의 `usCloseSession` 등 |
 | 통계 | `domain/shared/stats.js`(신규: mean, stdev, pctChange는 null 정책을 명시) + `percentile.js` | domain·ui 로컬 사본 |
 | 기술 지표 | `domain/technical/definitions.js`(SMA/EMA/RSI/ATR) | `chart-layers` `rsiSeriesWilder`, `market-charts` `rsiOf`, ui `smaOf`, legacy `_calc*` |
 | 추세 판정 | `domain/technical/trend-state.js` | stage·bands·chart-strategies 분류기는 이 결과에서 파생 |
 | RRG | `domain/themes/rrg.js` | domain 2곳, ui 3곳, 단어표 |
 | 포맷·escape | `src/ui/format.js`(신규, `domain/shared/number.js` 위) + `src/ui/html.js`(신규) | `fmt*` 로컬 헬퍼, `esc` 사본 7곳(legacy `escHtml`은 이 모듈을 노출) |
 | 상태 배지·빈 상태 | `ui/components/freshness-badge.js`, `empty-state.js` + 상태 문구표 1개 | legacy `renderDataQualityBadge`, 페이지별 empty 함수 |
-| 티커 해석 | `domain/ticker/resolve-name.js` + `domain/entity/ticker-symbol.js` | AI 5경로는 QuestionPlan → resolver 하나로 |
+| 티커 해석 | `domain/instruments/resolve-name.js` + `domain/instruments/ticker-symbol.js` | AI 5경로는 QuestionPlan → resolver 하나로 |
 | AI–Worker 계약 | `worker/ai-contract.mjs`(신규: 모델 id, 본문 한도, 헤더 이름) | `js/aio-chat.js`, `js/aio-core.js`, `cloudflare-worker-proxy.js`, `openai-budget.mjs` 하드코딩 |
 | 포트폴리오 표 | `ui/pages/portfolio.js` | `js/aio-workspace.js` `renderPortfolio`의 tbody 분기 |
 

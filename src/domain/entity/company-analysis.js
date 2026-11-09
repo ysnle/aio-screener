@@ -1,10 +1,10 @@
 // P1624: one issuer model for every registered symbol; no example-symbol branches.
 import { buildFiscalRead, isLendingFinancial } from '../fundamental/fiscal-read.js';
 import { deriveSecReport } from '../fundamental/sec-report.js';
-import { resolveInstrument, INSTRUMENT_REGISTRY } from '../market/instrument-registry.js';
+import { resolveInstrument, INSTRUMENT_REGISTRY } from '../instruments/instrument-registry.js';
 import { screenerMarket, marketRows, MARKET_POPULATION_POLICY } from '../screener/market-scope.js';
 import { fieldValueForPurpose } from '../../data/contracts/screener.js';
-import { latestCompletedSession } from '../market/market-calendar.js';
+import { latestCompletedSession } from '../market/session/market-calendar.js';
 import { outOfUniverseContext } from './out-of-universe-read.js';
 import { signedText, finiteNumber as finite } from '../shared/number.js';
 import { safeSourceUrl } from './business-profiles.js';

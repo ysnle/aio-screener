@@ -26,8 +26,8 @@ import { clearArtifactCache, loadJsonArtifact, stableFetcher } from '../data/art
 import { artifactUrl } from '../data/artifact-registry.js';
 import { createEvidence } from '../data/contracts/evidence.js';
 import { selectForDecision, selectForDisplay, selectLastKnown, selectCompleteness } from '../data/selectors/evidence.js';
-import { computeTradingScoreModel } from '../domain/signal/trading-score.js';
-import { finalizePageDecision } from '../domain/signal/page-decision.js';
+import { computeTradingScoreModel } from '../domain/market/signal/trading-score.js';
+import { finalizePageDecision } from '../domain/market/signal/page-decision.js';
 import { installRouteHubTabs, setStockSubject } from '../ui/navigation/route-hubs.js';
 import { registerInterpretationStore } from '../data/selectors/interpretation.js';
 import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
@@ -48,14 +48,14 @@ import { collectMarketInputs } from '../data/selectors/market-inputs.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../domain/briefing/market-read.js';
 import { createCloseBasisEvidenceReader, closeBasisSubstituteFor, renderCloseBasisEvidenceContext } from '../ai/context/close-basis-evidence.js';
 import { earningsContextForHeadline } from '../domain/news/earnings-context.js';
-import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/signal/mode.js';
+import { normalizeSignalScoreMode, describeSignalScoreMode, SIGNAL_SCORE_MODE_STORAGE_KEY } from '../domain/market/signal/mode.js';
 import { computeRelativeRotation } from '../domain/themes/rrg.js';
 // The legacy snapshot's technical definitions, VCP read and MA classifier left with it
 // (src/domain/technical/snapshot.js, installed by the lazy legacy-screen-bridges.js).
 import { computeNewsSentimentScore, computeNewsRiskSignals, MIN_NEWS_ANALYSIS_SAMPLE, normalizeNewsSentimentHistory } from '../domain/news/scoring.js';
-import { classifyBreadthParticipation } from '../domain/market/breadth.js';
-import { spxMovingAveragesFromHistory } from '../domain/market/moving-average.js';
-import { latestCompletedUsSession, latestCompletedKrSession, latestCompletedSession } from '../domain/market/market-calendar.js';
+import { classifyBreadthParticipation } from '../domain/market/breadth/breadth.js';
+import { spxMovingAveragesFromHistory } from '../domain/market/indices/moving-average.js';
+import { latestCompletedUsSession, latestCompletedKrSession, latestCompletedSession } from '../domain/market/session/market-calendar.js';
 import { regimePulse } from '../domain/briefing/regime-pulse.js';
 import { deriveTreasuryCurveEvidence } from '../domain/macro/treasury-curve.js';
 import { deriveConcentrationRisk } from '../domain/portfolio/concentration.js';
@@ -138,8 +138,7 @@ import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/reference-index.
 import { loadResearchCorpus } from '../domain/research/corpus-loader.js';
 import { coreReadsSettled, createCriticalDataGate, ROWS_FIRST_ROUTES } from './critical-data-gate.js';
 import { loadFreshnessLedgers, readArtifactFreshness } from '../data/freshness.js';
-import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS } from '../domain/research/nathan-frameworks.js';
-import { NATHAN_FRAMEWORK_PACK, NATHAN_ANALYSIS_PROTOCOL, NATHAN_KNOWLEDGE_ALIASES } from '../domain/knowledge/nathan-framework-pack.js';
+import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS, NATHAN_ANALYSIS_PROTOCOL } from '../domain/research/nathan-framework-ids.js';
 
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
@@ -1260,14 +1259,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   root.AIO.ensureResearchCorpus = () => loadSuppliedMaterials().then((reference) => {
     root.AIO.SUPPLIED_MATERIALS_REFERENCE = reference;
     // The Nathan thread catalogue travels with the corpus (supplied-materials nathanThreads); only the
-    // framework ids and the framework pack below are boot-time.
+    // framework ids and the analysis protocol below are boot-time (the frameworks load with the AI planner).
     root.AIO.NATHAN_PREVIOUS_THREADS_REFERENCE = reference?.nathanThreads || root.AIO.NATHAN_PREVIOUS_THREADS_REFERENCE;
     return reference;
   });
   root.AIO.NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS = NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS;
-  root.AIO.NATHAN_FRAMEWORK_PACK = NATHAN_FRAMEWORK_PACK;
   root.AIO.NATHAN_ANALYSIS_PROTOCOL = NATHAN_ANALYSIS_PROTOCOL;
-  root.AIO.NATHAN_KNOWLEDGE_ALIASES = NATHAN_KNOWLEDGE_ALIASES;
   return Object.freeze({ ...api, store, evidenceStore });
 }
 

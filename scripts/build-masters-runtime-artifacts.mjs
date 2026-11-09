@@ -6,7 +6,7 @@ import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
 import { readManagerRows, writeManagerRows } from './lib/masters-manager-store.mjs';
-import { buildReferenceTickerMap, normalizeCusip, resolveExactTicker } from '../src/domain/masters/ticker-exact.js';
+import { buildReferenceTickerMap, normalizeCusip, resolveExactTicker } from '../src/domain/instruments/ticker-exact.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mastersDir = path.join(root, 'public-data', 'masters');

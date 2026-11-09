@@ -1,8 +1,8 @@
 import { buildFieldReadiness, createInstrumentRef, LIVE_QUOTE_DERIVED_ROW_KEYS, SCREENER_FIELD_REGISTRY, stableHashAsync, validateInstrumentRef } from '../contracts/screener.js';
-import { INSTRUMENT_REGISTRY, analysisEligibilityFor, resolveInstrument } from '../../domain/market/instrument-registry.js';
+import { INSTRUMENT_REGISTRY, analysisEligibilityFor, resolveInstrument } from '../../domain/instruments/instrument-registry.js';
 import { canonicalSourceTier, isDecisionEligibleSourceKind } from '../contracts/source-kind.js';
 import { FRESHNESS_POLICY } from '../../domain/shared/freshness-policy.js';
-import { isSessionCurrent } from '../../domain/market/market-calendar.js';
+import { isSessionCurrent } from '../../domain/market/session/market-calendar.js';
 import { isDecisionEligibleRightsId } from '../contracts/evidence.js';
 import { createPublicationPolicy, evaluatePublicationSet } from './publication-set.js';
 import { evaluateQuoteContract } from './quote-contract.js';
