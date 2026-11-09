@@ -74,13 +74,15 @@ js/*.js       호환 셸: 새 기능 금지, 지우는 방향으로만 수정
 | 단계 | 내용 | 규모 | 위험 |
 |---|---|---|---|
 | S0 경계 게이트 | 새 게이트를 만들지 않고 기존 소유 게이트를 넓혔다. `ci-architecture-contract-check`는 이미 domain·ui·ai의 fetch·storage와 ui import를 금지하고 있다. `ci-shared-primitive-ratchet-check`에 `localEscape`·`localIndicator`·`publicDataPath` 지표를 더해 파일별로 줄어들기만 허용한다(v59.87, 측정값 7·6·60). 정본 표는 이 문서 §3이 정본이다 | 작음 | 낮음 |
-| S1 공용 원시 함수 | `ui/html.js`·`ui/format.js`·`domain/shared/stats.js` 정본화. RSI/SMA/EMA를 `definitions.js` 하나로, RRG를 `rrg.js` 하나로 | 중간(약 30파일) | 낮음~중간. RSI 시드 차이와 null·0 처리 차이는 동일성 테스트로 먼저 드러낸다 |
+| S1 공용 원시 함수 | `ui/html.js` escape, `domain/shared/number.js`의 부호 표기·평균·표준편차 정본화(별도 `stats.js`는 부트 청크 하나를 더 만들어 number.js로 합침). RSI/SMA/EMA/ATR을 `definitions.js` 하나로, RRG 사분면을 `rrg.js` 하나로 | 중간(약 30파일) | 낮음~중간. RSI 시드 차이와 null·0 처리 차이는 동일성 테스트로 먼저 드러낸다 |
 | S2 데이터 경계 | `artifact-registry.js`, URL·설명자 이전, 직접 fetch 2곳 위임, `refreshSharedArtifact`를 `loadJsonArtifact` 위로 | 중간 | 낮음~중간 |
 | S3 신선도·세션 단일화 | 판정은 레지스트리 하나로, 배지 문구는 문구표 하나로. 세션 계산은 `market-calendar` | 중간 | 중간(사용자에게 보이는 상태 문구가 바뀔 수 있어 visual-state 테스트로 확인) |
 | S4 판정 로직 이전 | UI·AI 안의 임계값·판정 문구를 domain으로 옮기고 view model로 받기. 포트폴리오 25/40 구간 중복 제거 | 중간 | 중간 |
 | S5 AI가 화면과 같은 사실 읽기 | `_fetchTickerTrend`·`_liveData` 직접 읽기를 domain 결과로 교체, Worker 계약 상수 공유, policy 폴더 3개 통합 | 중간 | 중간(프롬프트 전후 스냅샷 비교) |
 | S6 legacy 이중 소유자 제거 | 포트폴리오 표, 워치리스트 저장소, `extractTickers`, 신선도 렌더러(약 330줄), `_calc*` 지표(약 500줄)를 native에 위임 | 큼 | 중간~높음 |
 | S7 폴더 재편 | `market/` 내부 분할(regime·breadth·korea) 후 market-day·signal·sentiment·interpretation 흡수, entity·ticker·masters를 instruments로, stub 폴더 삭제 | 큼(import 대량 변경) | 높음. codemod로 한 번에, 마지막에 |
+
+S1에서 확인한 제약: esbuild는 공유 모듈의 진입점 집합이 바뀌면 청크를 따로 떼므로, 부트 모듈 사이에 import 한 줄이 늘면 청크당 약 200~430 gzip B가 붙는다. 그래서 `produced-rotation.js`는 사분면 규칙을 풀어 쓰고 동일성 검사로 묶었다. 부트 청크 배치 자체는 이 단계들과 따로, 부트 예산(`architecture/boot-budget.json`)의 라우트 lazy화로 다룬다.
 
 이번 배치 범위는 S0~S3을 권장한다. S4~S5는 이어지는 배치로, S6~S7은 각각 다시 보고한 뒤 진행한다. `fetchAllNews`(약 570줄)와 `applyLiveQuotes`(약 500줄)의 native 이전은 전역 결합이 커서 별도 설계가 필요하고, 이 ADR 범위 밖이다.
 

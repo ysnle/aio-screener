@@ -59,6 +59,13 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const now = Date.parse('2026-10-01T00:34:00Z');
   const artifact = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', sourceKind: 'T3_PUBLIC_DELAYED', allowedUseCeiling: 'reference', decisionUse: false, latestCompletedSession: '2026-09-30', items: { XLK: { status: 'CURRENT', sessionDate: '2026-09-30', observedAt: '2026-09-30T20:00:00Z', fetchedAt: '2026-10-01T00:33:00Z', rsRatio: 101, rsMomentum: 102, quadrant: 'Leading', dailyPct: 1.2, weeklyPct: 3.5, alignedSessionCount: 60, performanceBasis: 'adjusted-close-total-return' } } };
   if (!selectProducedRotation(artifact, 'XLK', now)) fail('P1358 coherent producer rotation was lost');
+  // v59.87: the written-out quadrant rule of produced-rotation.js stays the rrgQuadrantOf of rrg.js (both sides of 100).
+  const { rrgQuadrantOf } = await load('src/domain/themes/rrg.js');
+  for (const [rs, mom] of [[101, 102], [101, 99], [99, 101], [99, 98], [100, 100], [100, 99.9], [99.9, 100]]) {
+    const quadrant = rrgQuadrantOf(rs, mom);
+    const item = { ...artifact.items.XLK, rsRatio: rs, rsMomentum: mom, quadrant };
+    if (!selectProducedRotation({ ...artifact, items: { XLK: item } }, 'XLK', now)) fail(`v59.87 produced-rotation quadrant rule differs from rrgQuadrantOf at ${rs}/${mom} (${quadrant})`);
+  }
   // P1366: an absent 1/5-session return keeps the valid coordinates; a non-numeric return does not.
   const partialReturn = selectProducedRotation({ ...artifact, items: { XLK: { ...artifact.items.XLK, dailyPct: null, weeklyPct: null } } }, 'XLK', now);
   if (!partialReturn || partialReturn.rsRatio !== 101 || partialReturn.dailyPct !== null) fail('P1366 missing optional return discarded valid RRG coordinates');

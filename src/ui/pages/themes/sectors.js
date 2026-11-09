@@ -4,7 +4,7 @@ import { themeTeachFor } from '../../components/theme-playbook-view.js';
 import { rotationFlow } from '../../../domain/market/page-flow.js';
 import { krThemeArtifactRead, krThemeLabel } from '../../../domain/themes/kr-themes.js';
 import { buildThemeFlow } from '../../../domain/market/market-flow.js';
-import { RRG_QUADRANT_WORDS } from '../../../domain/themes/rrg.js';
+import { RRG_BORDER_LABEL, RRG_QUADRANT_WORDS } from '../../../domain/themes/rrg.js';
 import { rrgRecentReading } from '../../../domain/themes/recent-check.js';
 import { readMarketRegime } from '../../components/market-regime.js';
 import { marketInterpretation } from '../../../data/selectors/interpretation.js';
@@ -299,7 +299,7 @@ export function renderThemePerformanceBars({ documentRef, root, store, route }) 
     // v58.80 first-users run-2 (F12): "선도" beside the day's worst move read as a contradiction; the badge is the ~50-session
     // rotation stage, not this period's move, so it says so.
     const quadrantWord = RRG_QUADRANT_WORDS[row.quadrant];
-    badge.textContent = row.pct == null ? '대기' : (row.quadrant === 'Border' ? '기준선 부근' : quadrantWord ? `50일 ${quadrantWord}` : '중립');
+    badge.textContent = row.pct == null ? '대기' : (row.quadrant === 'Border' ? RRG_BORDER_LABEL : quadrantWord ? `50일 ${quadrantWord}` : '중립');
     if (quadrantWord) badge.title = `약 50거래일 상대강도 회전 단계 — 위 막대(${period[1]})와 다른 기간입니다`;
     badge.className = 'thp-perf-badge';
     badge.style.color = row.pct == null ? 'var(--text-muted)' : colors[row.quadrant] || 'var(--text-muted)';

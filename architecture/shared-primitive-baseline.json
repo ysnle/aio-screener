@@ -11,8 +11,8 @@
     "dateRegex": 41,
     "rawRowRead": 88,
     "nullAsZero": 72,
-    "localEscape": 7,
-    "localIndicator": 6,
+    "localEscape": 0,
+    "localIndicator": 2,
     "publicDataPath": 60
   },
   "counts": {
@@ -682,15 +682,6 @@
       "localIndicator": 0,
       "publicDataPath": 0
     },
-    "src/domain/sentiment/composite-fear-greed.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 2,
-      "publicDataPath": 0
-    },
     "src/domain/signal/close-basis.js": {
       "localFinite": 0,
       "dateRegex": 1,
@@ -724,7 +715,7 @@
       "rawRowRead": 0,
       "nullAsZero": 0,
       "localEscape": 0,
-      "localIndicator": 2,
+      "localIndicator": 1,
       "publicDataPath": 0
     },
     "src/domain/technical/market-charts.js": {
@@ -768,7 +759,7 @@
       "dateRegex": 0,
       "rawRowRead": 1,
       "nullAsZero": 0,
-      "localEscape": 1,
+      "localEscape": 0,
       "localIndicator": 0,
       "publicDataPath": 0
     },
@@ -787,15 +778,6 @@
       "rawRowRead": 0,
       "nullAsZero": 1,
       "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0
-    },
-    "src/ui/components/earnings-calendar.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 1,
       "localIndicator": 0,
       "publicDataPath": 0
     },
@@ -844,15 +826,6 @@
       "localIndicator": 0,
       "publicDataPath": 0
     },
-    "src/ui/components/portfolio-exposure.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 1,
-      "localIndicator": 0,
-      "publicDataPath": 0
-    },
     "src/ui/components/portfolio-read.js": {
       "localFinite": 0,
       "dateRegex": 0,
@@ -862,24 +835,6 @@
       "localIndicator": 0,
       "publicDataPath": 1
     },
-    "src/ui/components/portfolio-risk-metrics.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 1,
-      "localIndicator": 0,
-      "publicDataPath": 0
-    },
-    "src/ui/components/portfolio-watchlist.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 1,
-      "localIndicator": 0,
-      "publicDataPath": 0
-    },
     "src/ui/components/screener-validation.js": {
       "localFinite": 0,
       "dateRegex": 0,
@@ -887,15 +842,6 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
-    },
-    "src/ui/components/stock-chart.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 1,
       "publicDataPath": 0
     },
     "src/ui/components/stock-read.js": {
@@ -924,15 +870,6 @@
       "localEscape": 0,
       "localIndicator": 0,
       "publicDataPath": 1
-    },
-    "src/ui/knowledge/glossary-modal.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 1,
-      "localIndicator": 0,
-      "publicDataPath": 0
     },
     "src/ui/knowledge/knowledge-search.js": {
       "localFinite": 0,
@@ -1005,15 +942,6 @@
       "localEscape": 0,
       "localIndicator": 0,
       "publicDataPath": 5
-    },
-    "src/ui/panels/portfolio-stress.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 1,
-      "localIndicator": 0,
-      "publicDataPath": 0
     },
     "src/ui/panels/portfolio-trade-journal.js": {
       "localFinite": 0,

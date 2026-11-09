@@ -8,7 +8,7 @@ import { createTrendChart } from './trend-chart.js';
 import { liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { el } from './dom.js';
 import { signedBar, signedScale } from './signed-bar.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, mean, stdev } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
 export const VALIDATION_MIN_REBALANCES = 12;
@@ -25,9 +25,8 @@ export function meanTStat(values) {
   const xs = (Array.isArray(values) ? values : []).map(finiteOrNull).filter((x) => x != null);
   const n = xs.length;
   if (n < 2) return null;
-  const mean = xs.reduce((sum, x) => sum + x, 0) / n;
-  const sd = Math.sqrt(xs.reduce((sum, x) => sum + (x - mean) ** 2, 0) / (n - 1));
-  return sd > 0 ? mean / (sd / Math.sqrt(n)) : null;
+  const sd = stdev(xs, { sample: true });
+  return sd > 0 ? mean(xs) / (sd / Math.sqrt(n)) : null;
 }
 
 const pct = (value, digits = 2) => (value == null || !Number.isFinite(Number(value)) ? '—' : `${Number(value) >= 0 ? '+' : ''}${Number(value).toFixed(digits)}%`);

@@ -10,7 +10,7 @@
 // Pure functions over [{ date, value }] series (ascending); imports nothing but the shared thresholds, so any domain module
 // (market-read included) can call them without an import cycle.
 import { RULES } from '../rules/thresholds.js';
-import { signedText, finiteNumber as finite } from '../shared/number.js';
+import { signedText, finiteNumber as finite, stdev } from '../shared/number.js';
 import { percentileOf } from '../shared/percentile.js';
 
 export const MACRO_SIGNAL_RULES = Object.freeze({
@@ -32,11 +32,6 @@ const median = (values) => {
   if (!sorted.length) return null;
   const mid = Math.floor(sorted.length / 2);
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-};
-const stdev = (values) => {
-  if (!values.length) return null;
-  const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
-  return Math.sqrt(values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length);
 };
 const monthOf = (date) => { const month = Number(String(date || '').split('-')[1]); return month ? `${month}월` : ''; };
 const indexBack = (series, n) => (series.length > n ? series[series.length - 1 - n] : null);

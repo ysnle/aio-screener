@@ -84,3 +84,23 @@ export function usdScaleWords(value, digits = 2) {
   if (abs >= 1e6) return `${sign}$${(abs / 1e6).toFixed(digits)} million`;
   return `${sign}$${(abs / 1e3).toFixed(digits)} thousand`;
 }
+
+// The one mean and standard deviation (ADR-0003). Callers keep their own guards (minimum samples, what an empty input
+// returns); the arithmetic is shared so a population and a sample deviation are never confused by a local copy.
+
+/** Arithmetic mean of finite numbers already filtered by the caller; null for an empty list. */
+export function mean(values) {
+  if (!Array.isArray(values) || !values.length) return null;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+/**
+ * Standard deviation. Population (÷ n) by default; `sample: true` divides by n − 1 (returns, test statistics).
+ * null when there are too few values (none, or one for a sample deviation).
+ */
+export function stdev(values, { sample = false } = {}) {
+  const n = Array.isArray(values) ? values.length : 0;
+  if (n < (sample ? 2 : 1)) return null;
+  const m = mean(values);
+  return Math.sqrt(values.reduce((sum, value) => sum + (value - m) ** 2, 0) / (sample ? n - 1 : n));
+}
