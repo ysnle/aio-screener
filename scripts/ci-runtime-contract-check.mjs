@@ -1019,7 +1019,7 @@ check('headless tests cover Batch 4 efficacy fixes (EF-03/17/18)', /_testV5243Ba
 
 // v52.44 (P659): B8 Cloudflare Worker anycast 403(forbidden) auto-retry mitigation
 check('P1421: shared fetch helper has cancellation and no blind paid retry', /async function _aioFetchClaudeWithRetry\(url, fetchOpts, serverKey, maxRetries, options\)/.test(chat) && chat.includes('return fetch(url, fetchOpts);') && !chat.includes("_peek.error.type === 'forbidden'"));
-check('P1421: chat sends one Responses request through the shared helper', (chat.match(/_aioFetchClaudeWithRetry\(_claudeTarget\.url/g) || []).length === 1 && chat.includes("model: 'gpt-6-luna'") && chat.includes('max_output_tokens: effectiveMaxTokens'));
+check('P1421: chat sends one Responses request through the shared helper', (chat.match(/_aioFetchClaudeWithRetry\(_claudeTarget\.url/g) || []).length === 1 && chat.includes('model: _aiContract.model') && chat.includes('max_output_tokens: effectiveMaxTokens')); // S5 (ADR-0003): the model id is the browser–Worker contract's (src/domain/ai/worker-contract.js)
 check('B8 → v59.70 D6: aio-data.js has no Claude translation call site (browser translation deleted) and the retired briefing call site stays absent', !/_aioFetchClaudeWithRetry\s*:\s*fetch\)\(_ct\.url/.test(data) && !/function\s+_generateAIBriefing\b/.test(data));
 check('headless tests cover the B8 Worker-retry mitigation', /_testV5244WorkerAnycastRetry/.test(tests) && /T887/.test(tests) && /T888/.test(tests) && /T889/.test(tests) && /T890/.test(tests));
 
@@ -1043,10 +1043,10 @@ check('P838: automatic plaintext API-key IndexedDB backup is retired without reo
 // app token when routed through the Worker; the Worker's own behavior is verified separately by
 // scripts/ci-worker-anthropic-check.mjs (a real handler-invocation test, not just a static contract).
 check('WO-1B: _aioAppToken() helper exists and is exposed for cross-file reuse', /function _aioAppToken\(\)/.test(chat) && /window\._aioAppToken = _aioAppToken/.test(chat));
-check('P1421: shared-only chat always sends the app token and never a provider key', /'X-AIO-App-Token': _aioAppToken\(\)/.test(chat) && !chat.includes('anthropic-dangerous-direct-browser-access'));
+check('P1421: shared-only chat always sends the app token and never a provider key', /'X-AIO-App-Token': _aioAppToken\(\)/.test(chat) && /_claudeHeaders\[_aiContract\.headers\.appToken\] = _aioAppToken\(\)/.test(chat) && !chat.includes('anthropic-dangerous-direct-browser-access'));
 check('WO-1B → v59.70 D6: aio-data.js sends no AI request of its own (browser translation deleted); the retired briefing call site stays absent', !/'X-AIO-App-Token':/.test(data) && !/function\s+_generateAIBriefing\b/.test(data));
 check('P1421: cloudflare-worker-proxy.js enforces exact Origin, optional app-token, dedicated rate limit, and fail-closed atomic quota', /resolveAllowedOrigin\(origin, env\)/.test(worker) && /env\.AIO_APP_TOKEN/.test(worker) && /OPENAI_RATE_LIMIT/.test(worker) && /hasAtomicQuotaBinding\(env\)/.test(worker) && /AI_KILL_SWITCH/.test(worker));
-check('WO-1B: CORS preflight allows the new X-AIO-App-Token header (otherwise browsers block it before the Worker ever sees it)', /Access-Control-Allow-Headers['"]?:\s*'[^']*X-AIO-App-Token/.test(worker));
+check('WO-1B → S5 (ADR-0003): CORS preflight allows the app-token header from the shared contract (otherwise browsers block it before the Worker ever sees it)', /'Access-Control-Allow-Headers':\s*\[[^\]]*AI_HEADERS\.appToken/.test(worker) && /from '\.\/src\/domain\/ai\/worker-contract\.js'/.test(worker));
 
 // v52.49 (P664/WO-6): Trading Score provenance/freshness — computeTradingScore()'s own evidenceAudit
 // (7 tracked inputs, never consumed anywhere) is extended to the 6 remaining score inputs and wired

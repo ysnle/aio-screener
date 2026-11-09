@@ -1,5 +1,6 @@
 import { OPENAI_MODEL, AI_MONTHLY_MAX_MICRO_USD, AI_MAX_OUTPUT_TOKENS_LIMIT, paidWebSearchEnabled, quotaInteger, aiMonthlyBudgetMicroUsd, prepareOpenAiBudget, verifiedOpenAiCharge } from './worker/openai-budget.mjs';
 import { createOpenAiReceiptObserver } from './worker/openai-usage.mjs';
+import { AI_HEADERS, AI_REQUEST_MAX_BYTES } from './src/domain/ai/worker-contract.js'; // S5: one browser–Worker contract
 export { aiMonthlyBudgetMicroUsd, prepareOpenAiBudget } from './worker/openai-budget.mjs';
 /**
  * AIO Screener CORS/data relay and shared GPT-6 Luna gateway.
@@ -333,7 +334,7 @@ function getCorsHeaders(requestOrigin, env) {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS, POST',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-AIO-App-Token, X-AIO-Operator-Token, X-AIO-Idempotency-Key, X-AIO-Request-Id',
+    'Access-Control-Allow-Headers': ['Content-Type', 'Authorization', AI_HEADERS.appToken, AI_HEADERS.operatorToken, AI_HEADERS.idempotencyKey, AI_HEADERS.requestId].join(', '),
     'Access-Control-Max-Age': '86400',
     // The allowed origin is echoed per request; a shared cache must not serve one origin's ACAO to another.
     'Vary': 'Origin',
@@ -570,7 +571,7 @@ async function handleFeedback(request, env, origin) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin, env) });
   if (request.method !== 'POST') return errorResponse('POST required for /feedback', 405, origin, null, env);
   if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin, null, env);
-  if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get('X-AIO-App-Token'))) return errorResponse('Forbidden', 403, origin, null, env);
+  if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get(AI_HEADERS.appToken))) return errorResponse('Forbidden', 403, origin, null, env);
   const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
   cleanupRateLimitMap(feedbackRateLimitMap);
   if (!await enforceRateLimit(env, 'RATE_LIMIT_FEEDBACK', feedbackRateLimitMap, FEEDBACK_RATE_LIMIT, clientIp)) return errorResponse('Too many requests', 429, origin, null, env);
@@ -595,7 +596,7 @@ async function handleOperatorFeedback(request, env, origin) {
   // The owner reads notes in the app's connection panel, so a browser preflight is answered; everything else is 404
   // without the operator token, like /_ops/ai-usage.
   if (request.method === 'OPTIONS' && resolveAllowedOrigin(origin, env)) return new Response(null, { status: 204, headers: getCorsHeaders(origin, env) });
-  if (!await matchesOperatorToken(env?.AIO_OPERATOR_TOKEN, request.headers.get('X-AIO-Operator-Token'))) return privateOperatorResponse(null, 404);
+  if (!await matchesOperatorToken(env?.AIO_OPERATOR_TOKEN, request.headers.get(AI_HEADERS.operatorToken))) return privateOperatorResponse(null, 404);
   if (request.method !== 'GET') return privateOperatorResponse({ error: 'GET required' }, 405);
   const cors = resolveAllowedOrigin(origin, env) ? getCorsHeaders(origin, env) : {};
   try {
@@ -608,10 +609,10 @@ async function handleOperatorFeedback(request, env, origin) {
 
 async function handleOperatorAiUsage(request, env) {
   const configuredToken = env?.AIO_OPERATOR_TOKEN;
-  const suppliedToken = request.headers.get('X-AIO-Operator-Token');
+  const suppliedToken = request.headers.get(AI_HEADERS.operatorToken);
   // v59.27: the automation token (already able to spend through /openai) may read these counters too, so the
   // weekly review needs no separate AIO_OPERATOR_TOKEN repository secret to see the month.
-  const automationReader = !suppliedToken && await matchesOperatorToken(env?.AIO_AUTOMATION_TOKEN, request.headers.get('X-AIO-Automation-Token'));
+  const automationReader = !suppliedToken && await matchesOperatorToken(env?.AIO_AUTOMATION_TOKEN, request.headers.get(AI_HEADERS.automationToken));
   if (!automationReader && !await matchesOperatorToken(configuredToken, suppliedToken)) return privateOperatorResponse(null, 404);
   if (request.method !== 'GET') return privateOperatorResponse({ error: 'GET required' }, 405);
   if (!hasAtomicQuotaBinding(env)) return privateOperatorResponse({ error: 'usage source unavailable' }, 503);
@@ -645,7 +646,7 @@ async function handleOperatorAiUsage(request, env) {
 }
 
 async function deriveRequestId(request, bodyText) {
-  const supplied = request.headers.get('X-AIO-Idempotency-Key') || request.headers.get('X-AIO-Request-Id');
+  const supplied = request.headers.get(AI_HEADERS.idempotencyKey) || request.headers.get(AI_HEADERS.requestId);
   if (supplied && /^[A-Za-z0-9._:-]{8,160}$/.test(supplied)) return 'client:' + supplied;
   // Identical prompts are separate billable attempts unless the caller opts
   // into an explicit idempotency key. Hashing the body under-counted repeated
@@ -1349,15 +1350,15 @@ async function handleOpenAi(request, env, origin) {
   if (!env?.OPENAI_API_KEY) return errorResponse('server OpenAI key is not configured', 503, origin, aiError, env);
   if (origin) {
     if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin, aiError, env);
-    if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get('X-AIO-App-Token'))) return errorResponse('Forbidden', 403, origin, aiError, env);
-  } else if (!await matchesOperatorToken(env.AIO_AUTOMATION_TOKEN, request.headers.get('X-AIO-Automation-Token'))) {
+    if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get(AI_HEADERS.appToken))) return errorResponse('Forbidden', 403, origin, aiError, env);
+  } else if (!await matchesOperatorToken(env.AIO_AUTOMATION_TOKEN, request.headers.get(AI_HEADERS.automationToken))) {
     return errorResponse('Authorized automation token required', 403, origin, aiError, env);
   }
   cleanupRateLimitMap(openAiRateLimitMap);
   const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
   if (!await enforceRateLimit(env, 'RATE_LIMIT_OPENAI', openAiRateLimitMap, OPENAI_RATE_LIMIT, clientIp)) { logDenial('/openai', 'rate-limit'); return errorResponse('Too many AI requests', 429, origin, aiError, env); }
   if (!hasAtomicQuotaBinding(env)) return errorResponse('atomic AI quota is not configured', 503, origin, aiError, env);
-  const maxBodyBytes = 200 * 1024;
+  const maxBodyBytes = AI_REQUEST_MAX_BYTES;
   let bodyText;
   try { bodyText = await readBoundedAiRequestBody(request, maxBodyBytes); }
   catch (error) { return errorResponse(error.status === 413 ? 'Request body too large' : 'Failed to read request body', error.status === 413 ? 413 : 400, origin, aiError, env); }
@@ -1377,14 +1378,14 @@ async function handleOpenAi(request, env, origin) {
   // P1759: browser (Origin) requests carry a per-connection HMAC key; authenticated automation does not.
   const clientKey = origin ? await deriveClientKey(env, clientIp, dayKey.slice(7)) : null;
   const clientFields = clientKey ? { clientKey, clientCap } : {};
-  const exposeAiMeta = { 'Access-Control-Expose-Headers': ['X-AIO-Max-Tokens', ...AI_META_HEADERS].join(', ') };
+  const exposeAiMeta = { 'Access-Control-Expose-Headers': [AI_HEADERS.maxTokens, ...AI_META_HEADERS].join(', ') };
   if (hasDurableObjectNamespace(env)) {
     try {
       const upstream = await fetchOpenAiThroughDurableObject(env, { dayKey, cap, requestId, responseBody: body, ...clientFields }, request.signal);
       return new Response(upstream.body, { status: upstream.status, headers: {
         'Content-Type': upstream.headers.get('content-type') || 'application/json',
         ...getCorsHeaders(origin, env), ...SECURITY_HEADERS, ...exposeAiMeta, ...copyAiMetaHeaders(upstream.headers),
-        'X-AIO-Proxy': 'cloudflare-worker-openai', 'X-AIO-Max-Tokens': String(maxTokens),
+        'X-AIO-Proxy': 'cloudflare-worker-openai', [AI_HEADERS.maxTokens]: String(maxTokens),
         'X-AIO-Upstream-Authority': upstream.headers.get('X-AIO-Upstream-Authority') || 'durable-object',
       }});
     } catch (error) {
@@ -1399,7 +1400,7 @@ async function handleOpenAi(request, env, origin) {
     return new Response(upstream.body, { status: upstream.status, headers: {
       'Content-Type': upstream.headers.get('content-type') || 'application/json',
       ...getCorsHeaders(origin, env), ...SECURITY_HEADERS, ...exposeAiMeta, ...copyAiMetaHeaders(upstream.headers),
-      'X-AIO-Proxy': 'cloudflare-worker-openai', 'X-AIO-Max-Tokens': String(maxTokens),
+      'X-AIO-Proxy': 'cloudflare-worker-openai', [AI_HEADERS.maxTokens]: String(maxTokens),
     }});
   } catch (error) {
     return errorResponse('AI quota unavailable', 503, origin, aiError, env);
@@ -1417,7 +1418,7 @@ async function handleRelay(request, env, origin) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: getCorsHeaders(origin, env) });
   if (request.method !== 'GET') return errorResponse('GET required for /relay', 405, origin, null, env);
   if (!resolveAllowedOrigin(origin, env)) return errorResponse('Origin not allowed', 403, origin, null, env);
-  if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get('X-AIO-App-Token'))) return errorResponse('Forbidden', 403, origin, null, env);
+  if (env.AIO_APP_TOKEN && !await constantTimeTokenEquals(env.AIO_APP_TOKEN, request.headers.get(AI_HEADERS.appToken))) return errorResponse('Forbidden', 403, origin, null, env);
   cleanupRateLimitMap(relayRateLimitMap);
   const clientIp = request.headers.get('cf-connecting-ip') || 'unknown';
   if (!await enforceRateLimit(env, 'RATE_LIMIT_RELAY', relayRateLimitMap, RELAY_RATE_LIMIT, clientIp)) { logDenial('/relay', 'rate-limit'); return errorResponse('Too many relay requests', 429, origin, null, env); }
@@ -1517,7 +1518,7 @@ export const WORKERS_AI_TRANSLATE_PER_MINUTE = 30;
 const workersAiRateLimitMap = new Map();
 async function handleWorkersAiTranslate(request, env) {
   // Token first: an anonymous caller sees 404 for every method, like /_ops/ai-usage.
-  if (!await matchesOperatorToken(env?.AIO_AUTOMATION_TOKEN, request.headers.get('X-AIO-Automation-Token'))) return privateOperatorResponse(null, 404);
+  if (!await matchesOperatorToken(env?.AIO_AUTOMATION_TOKEN, request.headers.get(AI_HEADERS.automationToken))) return privateOperatorResponse(null, 404);
   if (request.method !== 'POST') return privateOperatorResponse({ error: 'post-required' }, 405);
   if (env?.AI_KILL_SWITCH === '1') return privateOperatorResponse({ error: 'kill-switch' }, 503);
   if (!await enforceRateLimit(env, 'RATE_LIMIT_WORKERS_AI', workersAiRateLimitMap, WORKERS_AI_TRANSLATE_PER_MINUTE, 'automation')) return privateOperatorResponse({ error: 'rate-limit' }, 429);
@@ -1592,7 +1593,7 @@ export default {
         logDenial('/health', 'rate-limit');
         return errorResponse('Too many requests', 429, requestOrigin, null, env);
       }
-      return healthResponse(requestOrigin, env, request.method, request.headers.get('X-AIO-App-Token') || '', healthClientIp);
+      return healthResponse(requestOrigin, env, request.method, request.headers.get(AI_HEADERS.appToken) || '', healthClientIp);
     }
 
     // P1421: AI provider route branches before the independent data proxy.

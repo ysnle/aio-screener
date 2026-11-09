@@ -705,7 +705,7 @@ const modules = await Promise.all([
   import(pathToFileURL(path.join(root, 'src/state/selectors/sentiment.js'))),
   import(pathToFileURL(path.join(root, 'src/app/commands/sentiment.js'))),
   import(pathToFileURL(path.join(root, 'src/data/contracts/market-snapshot.js'))),
-  import(pathToFileURL(path.join(root, 'src/ai/policy.js'))),
+  import(pathToFileURL(path.join(root, 'src/ai/policy/evidence-use.js'))),
   import(pathToFileURL(path.join(root, 'src/ai/inference.js'))),
   import(pathToFileURL(path.join(root, 'src/platform/http.js'))),
   import(pathToFileURL(path.join(root, 'src/platform/storage.js'))),

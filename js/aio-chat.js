@@ -1187,7 +1187,9 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
     var text = JSON.stringify({ instructions: sys || '', input: msgs });
     try { return new TextEncoder().encode(text).length; } catch (_) { return text.length * 3; }
   };
-  var _AI_BODY_BYTES = 180000;
+  // S5 (ADR-0003): the target and the Worker's limit are one contract (src/domain/ai/worker-contract.js).
+  var _aiContract = window.AIO.aiWorkerContract;
+  var _AI_BODY_BYTES = _aiContract.clientBodyTargetBytes;
   _trimmedMessages = _trimmedMessages.map(function(m, i) {
     var c = String(m.content || '');
     return m.role === 'assistant' && i < _trimmedMessages.length - 1 && c.length > 6000
@@ -1220,7 +1222,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   var effectiveMaxTokens = isFinite(workerMaxTokens) && workerMaxTokens > 0 ? Math.min(requestedMaxTokens, workerMaxTokens) : requestedMaxTokens;
   var useExtendedThinking = modelCfg.reasoningEffort === 'low' || modelCfg.reasoningEffort === 'medium';
   var reqBody = {
-    model: 'gpt-6-luna', instructions: system || '',
+    model: _aiContract.model, instructions: system || '',
     input: _trimmedMessages.map(function(message) { return { role: message.role, content: String(message.content || '') }; }),
     max_output_tokens: effectiveMaxTokens, reasoning: { effort: modelCfg.reasoningEffort || 'none' }, store: false, stream: true
   };
@@ -1228,8 +1230,9 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   var searchEnabledNow = opts.webSearch === true;
   if (window.AIO?.attachNativeSearch) reqBody = window.AIO.attachNativeSearch(reqBody, { enabled: searchEnabledNow, health: routeState.health });
   if (reqBody.tools && window._aioAIBudgetPolicy) window._aioAIBudgetPolicy.preparePaidWebSearch({ serverKey: true, health: routeState.health, state: window });
-  var _claudeHeaders = { 'Content-Type': 'application/json', 'X-AIO-App-Token': _aioAppToken() };
-  if (_streamRequestId) _claudeHeaders['X-AIO-Idempotency-Key'] = _streamRequestId + (opts.retryAttempt > 0 ? ':retry' + Math.min(2, opts.retryAttempt) : ''); // v57.61: a retry is a new paid attempt (reusing the key got 409) that the Worker counts as the same question
+  var _claudeHeaders = { 'Content-Type': 'application/json' };
+  _claudeHeaders[_aiContract.headers.appToken] = _aioAppToken();
+  if (_streamRequestId) _claudeHeaders[_aiContract.headers.idempotencyKey] = _streamRequestId + (opts.retryAttempt > 0 ? ':retry' + Math.min(2, opts.retryAttempt) : ''); // v57.61: a retry is a new paid attempt (reusing the key got 409) that the Worker counts as the same question
   try {
     var res = await _aioFetchClaudeWithRetry(_claudeTarget.url, {
       method: 'POST', signal: ctrl.signal, headers: _claudeHeaders, body: JSON.stringify(reqBody)
@@ -1354,7 +1357,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         // v49.79 P427/R164: 누적 비용 추적 (AIO.getApiUsage() 조회 가능)
         try {
           if (typeof window._aioTrackApiUsage === 'function') {
-            window._aioTrackApiUsage({ model: 'gpt-6-luna', inputTokens: _totalInput, outputTokens: _out });
+            window._aioTrackApiUsage({ model: window.AIO.aiWorkerContract.model, inputTokens: _totalInput, outputTokens: _out });
           }
         } catch(_) {}
       }
@@ -1590,59 +1593,12 @@ function _aioResolveChatTickers(q, questionPlan, state, options) {
   return resolve({ query: q, questionPlan: questionPlan, state: state, companiesOnly: !!(options && options.companiesOnly), extract: _extractTickers, fuzzy: typeof _resolveTickerFromFuzzy === 'function' ? _resolveTickerFromFuzzy : null, root: window, ctxId: (options && options.ctxId) || '' }); // v58.75: the screen's company (chat-tickers.js screenSubjectTicker)
 }
 
-// v48.11: 주가 추이 자동 분석 — 5D/20D/3M 변동 + 추세 라벨 + 52주 위치
-// Yahoo chart range=3mo 1회 호출로 추세 전환 감지용 핵심 지표 산출.
-// "긍정 뉴스 + 하락 추세" 같은 시간 불일치 상황을 AI가 반드시 인식하도록 프롬프트에 주입.
+// S5 (ADR-0003): [주가 추이] is the 종목 page's own reading of the screener row (src/ai/context/stock-trend-line.js) — the
+// Yahoo 3-month refetch and its separate 5/20/60-bar label are gone, so the chat and the page print the same numbers.
 async function _fetchTickerTrend(ticker) {
-  try {
-    // window._tickerTrendCache 10분 TTL
-    if (!window._tickerTrendCache) window._tickerTrendCache = {};
-    var c = window._tickerTrendCache[ticker];
-    if (c && (Date.now() - c._ts < 600000)) return c.text;
-    var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker) + '?interval=1d&range=3mo';
-    var r;
-    try { r = await fetchViaProxy(url, 6000); } catch(e) { return null; }
-    if (!r || !r.ok) return null;
-    var d = await r.json();
-    var result = d && d.chart && d.chart.result && d.chart.result[0];
-    if (!result) return null;
-    // v57.92 (internal audit A04): dated bars, and the still-moving session bar is dropped exactly as the chart does
-    // (completedBars) — the 5D/20D line was computed on an intraday price and called a trend without a date.
-    var rawCloses = (result.indicators && result.indicators.quote && result.indicators.quote[0] && result.indicators.quote[0].close) || [];
-    var tz = (result.meta && result.meta.exchangeTimezoneName) || 'America/New_York';
-    var bars = (Array.isArray(result.timestamp) ? result.timestamp : []).map(function(ts, i) {
-      return { time: new Date(ts * 1000).toLocaleDateString('en-CA', { timeZone: tz }), close: rawCloses[i] };
-    }).filter(function(bar) { return typeof bar.close === 'number' && isFinite(bar.close) && bar.close > 0; });
-    if (typeof window._aioCompletedBars === 'function') bars = window._aioCompletedBars(bars, { meta: result.meta }).bars;
-    var closes = bars.map(function(bar) { return bar.close; });
-    if (closes.length < 20) return null;
-    var lastDay = bars[bars.length - 1].time;
-    var now = closes[closes.length - 1];
-    var d5 = closes[Math.max(0, closes.length - 6)];
-    var d20 = closes[Math.max(0, closes.length - 21)];
-    var d60 = closes[0];
-    var pct5 = ((now - d5) / d5) * 100;
-    var pct20 = ((now - d20) / d20) * 100;
-    var pct60 = ((now - d60) / d60) * 100;
-    // 추세 라벨 — 5D/20D 조합으로 전환 상황 식별
-    var label;
-    if (pct5 > 2 && pct20 > 5) label = '단기·중기 상승 추세';
-    else if (pct5 > 2 && pct20 < -3) label = '반등 초기 (중기는 하락)';
-    else if (pct5 < -2 && pct20 < -5) label = '단기·중기 하락 추세';
-    else if (pct5 < -2 && pct20 > 3) label = '조정 중 (중기는 상승)';
-    else if (Math.abs(pct5) < 2 && Math.abs(pct20) < 3) label = '횡보';
-    else if (pct20 > 10) label = '강세 유지';
-    else if (pct20 < -10) label = '약세 지속';
-    else label = '혼조';
-    // 52주 위치 (3개월 범위 기준 근사치)
-    var hi = Math.max.apply(null, closes);
-    var lo = Math.min.apply(null, closes);
-    var pos = hi > lo ? Math.round(((now - lo) / (hi - lo)) * 100) : 50;
-    var canon = window.AIO && typeof window.AIO.stockTrendFor === 'function' ? window.AIO.stockTrendFor(ticker) : null;
-    var text = (canon ? '추세 ' + canon.label + '(종목 화면과 같은 50·200일선 기준' + (canon.session ? ', ' + Number(canon.session.slice(5, 7)) + '/' + Number(canon.session.slice(8, 10)) + ' 종가' : '') + ') · ' : '') + '단기 흐름 ' + label + ' (' + Number(lastDay.slice(5, 7)) + '/' + Number(lastDay.slice(8, 10)) + ' 완료 종가까지 5거래일 ' + (pct5>=0?'+':'') + pct5.toFixed(1) + '%, 20거래일 ' + (pct20>=0?'+':'') + pct20.toFixed(1) + '%, 3개월 ' + (pct60>=0?'+':'') + pct60.toFixed(1) + '%, 3개월 범위 ' + pos + '% 위치)';
-    window._tickerTrendCache[ticker] = { text: text, _ts: Date.now() };
-    return text;
-  } catch(e) { return null; }
+  var line = window.AIO && typeof window.AIO.chatStockTrendLine === 'function' ? window.AIO.chatStockTrendLine : null;
+  if (!line) return null;
+  try { return await line(ticker, { root: window }); } catch (e) { return null; }
 }
 
 // _withTimeout moved to src/platform/with-timeout.js (v59.14, roadmap item 11; window._withTimeout).
@@ -1859,7 +1815,7 @@ function _aioDomainContextForQuestion(ctxId, query, tickers) {
 var AIO_CHAT_SOURCE_REGISTRY = [
   // 시세·추세 (in-function 호출)
   { key:'quote',        label:'실시간 시세',         fn:'dynamicTickerLookup',           tier:'quote',       free:true,  requiresKey:null,         appliesTo:function(){return true;} },
-  { key:'trend',        label:'주가 추이(5D/20D/3M)', fn:'_fetchTickerTrend',             tier:'quote',       free:true,  requiresKey:null,         appliesTo:function(){return true;} },
+  { key:'trend',        label:'주가 추이(5D/1M/3M)', fn:'_fetchTickerTrend',             tier:'quote',       free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'technicalOHLCV', label:'OHLCV 기술지표(RSI/MACD/MA/ATR)', fn:'_fetchTechnicalDataForChat', tier:'technical', free:true, requiresKey:null, appliesTo:function(){return true;} },
   { key:'nextEarnings', label:'다음 어닝 일정',       fn:'readPublicEarnings',  tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
   // 펀더멘털 (window.AIO.*)

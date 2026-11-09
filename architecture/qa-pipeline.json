@@ -634,7 +634,21 @@
         },
         {
           "id": "ai-evidence",
-          "script": "scripts/ci-ai-evidence-contract-check.mjs"
+          "script": "scripts/ci-ai-evidence-contract-check.mjs",
+          "inputs": [
+            "index.html",
+            "js/**",
+            "src/**",
+            "sw.js",
+            "version.json",
+            "public-config.json",
+            "public-artifact-manifest.json",
+            "architecture/**",
+            "scripts/**",
+            "_headers",
+            "cloudflare-worker-proxy.js",
+            "worker/**"
+          ]
         },
         {
           "id": "domain-parity",

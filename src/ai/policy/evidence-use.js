@@ -17,4 +17,4 @@ export function evaluateClaim({ evidence, claimType = 'text', sourceClass = 'OBS
   return Object.freeze({ allowed: decision.allowed, reason: decision.reason, allowedUse: evidence?.allowedUse || 'none' });
 }
 
-export { createInferredClaim, validateInferredClaim } from './inference.js';
+export { createInferredClaim, validateInferredClaim } from '../inference.js';

@@ -2,7 +2,9 @@
 // Price snapshot: https://developers.openai.com/api/docs/models/gpt-6-luna
 // Text input is bounded by UTF-8 bytes plus protocol/schema framing. Cached
 // tokens are charged at the worst cache-write rate, never at a guessed discount.
-export const OPENAI_MODEL = 'gpt-6-luna';
+// S5 (ADR-0003): the model id and the body limit come from the browser–Worker contract (src/domain/ai/worker-contract.js).
+import { AI_MODEL, AI_REQUEST_MAX_BYTES } from '../src/domain/ai/worker-contract.js';
+export const OPENAI_MODEL = AI_MODEL;
 export const PRICING_AS_OF = '2026-10-03';
 // P1608: owner approved $20 including conditional hosted search (2026-10-11).
 export const AI_MONTHLY_MAX_MICRO_USD = 20000000;
@@ -117,7 +119,7 @@ export function prepareOpenAiBudget(requestBody, env = {}) {
       || (format.description !== undefined && typeof format.description !== 'string') || (format.strict !== undefined && typeof format.strict !== 'boolean')) throw new Error('invalid JSON schema format');
   }
   const bytes = new TextEncoder().encode(JSON.stringify(body)).byteLength;
-  if (bytes > 200 * 1024) throw new Error('AI request exceeds the budgeted text limit');
+  if (bytes > AI_REQUEST_MAX_BYTES) throw new Error('AI request exceeds the budgeted text limit');
   const inputTokenUpperBound = bytes + 8192 + (Array.isArray(body.input) ? body.input.length : 1) * 1024 + (body.tools?.length || 0) * 4096;
   if (inputTokenUpperBound > 272000) throw new Error('long-context pricing is outside the shared budget protocol');
   const textReservationMicroUsd = Math.ceil(inputTokenUpperBound * INPUT_MICRO_USD_PER_TOKEN + body.max_output_tokens * OUTPUT_MICRO_USD_PER_TOKEN);
