@@ -1,8 +1,0 @@
-{
-  "version": "v59.88",
-  "date": "2026-11-09",
-  "changelog": [
-    "**오늘 한국 줄의 '따로 확인' 판정을 domain으로 (ADR-0003 S4 후속):** market-regime 화면이 직접 갖고 있던 코스피 5거래일 5% 선과 기록 꼬리 판정을 src/domain/market/kr-index-record.js의 krSeparateCheckTone으로 옮겼다. 5% 선은 RULES.briefing.krSeparate5dPct다. 화면은 결과 문구만 그리고, 출력은 이전과 같다. verdictLiteral 기준선은 211에서 210이 됐다."
-  ],
-  "note": "{VERSION} KOSPI separate-check clause in the domain"
-}

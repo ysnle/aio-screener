@@ -1,8 +1,0 @@
-{
-  "version": "v59.88",
-  "date": "2026-11-09",
-  "changelog": [
-    "**레거시 기술적 엔진을 src/domain으로 이전 (ADR-0003 S6):** js/aio-core.js의 calcTechnicalSnapshot과 _calc* 보조 함수, calcExtensionHeat, calcSellPressure, calcPositionTechnicalRisk, calcPortfolioTechnicalRisk, 포트폴리오 통계(_statMean·VaR·샤프·MDD·상관)가 src/domain/technical/snapshot.js, src/domain/portfolio/technical-risk.js, return-stats.js로 옮겨졌다. 지표는 공용 정의(smaLast·emaSeries·rsiWilder·atrWilder)를 직접 쓰고, 옛 이름은 src/app/legacy-screen-bridges.js가 설치한다. 이전 전 리비전(d505113)의 레거시 함수를 VM에서 그대로 돌린 골든 픽스처(architecture/fixtures/technical-snapshot-golden.json, 13개 OHLCV + 5개 포지션 시나리오)와 ci-domain-parity-check가 1e-9 허용오차로 같음을 고정한다. bootstrap의 legacyTechnical 묶음은 사라졌다."
-  ],
-  "note": "ADR-0003 S6: legacy technical engine and portfolio stats moved to src/domain, pinned by a golden fixture"
-}
