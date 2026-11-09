@@ -13,7 +13,9 @@
     "nullAsZero": 72,
     "localEscape": 7,
     "localIndicator": 6,
-    "publicDataPath": 60
+    "publicDataPath": 1,
+    "dataPathLiteral": 0,
+    "sessionBranch": 2
   },
   "counts": {
     "scripts/build-macro-calendar-review.mjs": {
@@ -23,7 +25,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/build-market-snapshot.mjs": {
       "localFinite": 0,
@@ -32,7 +36,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/build-operations-status.mjs": {
       "localFinite": 0,
@@ -41,7 +47,9 @@
       "nullAsZero": 3,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/build-reconciliation-status.mjs": {
       "localFinite": 1,
@@ -50,7 +58,9 @@
       "nullAsZero": 4,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/build-universe-review.mjs": {
       "localFinite": 0,
@@ -59,7 +69,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/fetch-earnings-calendar.mjs": {
       "localFinite": 0,
@@ -68,7 +80,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/fetch-fred-calendar-candidates.mjs": {
       "localFinite": 0,
@@ -77,7 +91,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/lib/13f-semantic-hash.mjs": {
       "localFinite": 0,
@@ -86,7 +102,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/lib/ai-shared-analysis.mjs": {
       "localFinite": 0,
@@ -95,7 +113,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/lib/candidate-archive.mjs": {
       "localFinite": 0,
@@ -104,7 +124,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/lib/factors.mjs": {
       "localFinite": 0,
@@ -113,7 +135,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/lib/macro-sources.mjs": {
       "localFinite": 0,
@@ -122,7 +146,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/lib/official-calendars.mjs": {
       "localFinite": 0,
@@ -131,7 +157,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/lib/operations-weekly-review.mjs": {
       "localFinite": 0,
@@ -140,7 +168,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/lib/rank-statistics.mjs": {
       "localFinite": 1,
@@ -149,7 +179,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/lib/rotation-history.mjs": {
       "localFinite": 0,
@@ -158,7 +190,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/lib/web-reference-verify.mjs": {
       "localFinite": 0,
@@ -167,7 +201,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/preview-macro-calendar.mjs": {
       "localFinite": 0,
@@ -176,7 +212,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/producer/fred.mjs": {
       "localFinite": 0,
@@ -185,7 +223,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/producer/history.mjs": {
       "localFinite": 0,
@@ -194,7 +234,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/producer/kr-exchange.mjs": {
       "localFinite": 0,
@@ -203,7 +245,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/producer/macro-history.mjs": {
       "localFinite": 0,
@@ -212,7 +256,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/producer/screener-breadth.mjs": {
       "localFinite": 0,
@@ -221,7 +267,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/producer/screener.mjs": {
       "localFinite": 0,
@@ -230,7 +278,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/producer/theme-stage-backfill.mjs": {
       "localFinite": 0,
@@ -239,7 +289,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/record-fix.mjs": {
       "localFinite": 0,
@@ -248,7 +300,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "scripts/sync-screener-universe.mjs": {
       "localFinite": 0,
@@ -257,7 +311,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ai/context/choosing-blocks.js": {
       "localFinite": 0,
@@ -266,7 +322,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ai/context/market-content.js": {
       "localFinite": 0,
@@ -275,7 +333,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ai/context/screener-query.js": {
       "localFinite": 0,
@@ -284,7 +344,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ai/retrieval/knowledge.js": {
       "localFinite": 0,
@@ -293,7 +355,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 1
+      "publicDataPath": 1,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ai/session/user-profile.js": {
       "localFinite": 0,
@@ -302,7 +366,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/app/bootstrap.js": {
       "localFinite": 0,
@@ -311,7 +377,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 1
     },
     "src/data/artifact-cache.js": {
       "localFinite": 0,
@@ -320,7 +388,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/data/contracts/market-snapshot.js": {
       "localFinite": 0,
@@ -329,7 +399,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/data/orchestrators/screener.js": {
       "localFinite": 0,
@@ -338,7 +410,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/data/page-completeness.js": {
       "localFinite": 0,
@@ -347,7 +421,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/data/portfolio-backup.js": {
       "localFinite": 0,
@@ -356,7 +432,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/data/providers/themes.js": {
       "localFinite": 0,
@@ -365,7 +443,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/data/quality/api-health.js": {
       "localFinite": 0,
@@ -374,7 +454,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/data/runtime-readers.js": {
       "localFinite": 0,
@@ -383,7 +465,9 @@
       "nullAsZero": 3,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/data/server-market-analysis.js": {
       "localFinite": 0,
@@ -392,7 +476,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/briefing/event-briefs.js": {
       "localFinite": 0,
@@ -401,7 +487,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/briefing/event-guide.js": {
       "localFinite": 0,
@@ -410,7 +498,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/briefing/evidence-text.js": {
       "localFinite": 0,
@@ -419,7 +509,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/briefing/market-read.js": {
       "localFinite": 0,
@@ -428,7 +520,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/briefing/regime-pulse.js": {
       "localFinite": 0,
@@ -437,7 +531,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/briefing/schedule.js": {
       "localFinite": 0,
@@ -446,25 +542,9 @@
       "nullAsZero": 3,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
-    },
-    "src/domain/briefing/tw-monthly-revenue.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 1
-    },
-    "src/domain/entity/kr-fundamentals.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 1
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/fundamental/analysis-read.js": {
       "localFinite": 0,
@@ -473,7 +553,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/fundamental/sec-row-fields.js": {
       "localFinite": 0,
@@ -482,7 +564,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/macro/macro-read.js": {
       "localFinite": 0,
@@ -491,7 +575,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/macro/treasury-curve.js": {
       "localFinite": 0,
@@ -500,7 +586,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/market/index-earnings.js": {
       "localFinite": 0,
@@ -509,16 +597,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
-    },
-    "src/domain/market/kr-investor-flows.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 1
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/market/market-calendar.js": {
       "localFinite": 0,
@@ -527,7 +608,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/market/market-flow.js": {
       "localFinite": 0,
@@ -536,7 +619,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/market/moving-average.js": {
       "localFinite": 0,
@@ -545,7 +630,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/market/screener-breadth.js": {
       "localFinite": 0,
@@ -554,7 +641,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/masters/holdings-format.js": {
       "localFinite": 0,
@@ -563,7 +652,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/masters/value-scale.js": {
       "localFinite": 0,
@@ -572,7 +663,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/news/scoring.js": {
       "localFinite": 0,
@@ -581,7 +674,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/portfolio/backtest.js": {
       "localFinite": 0,
@@ -590,7 +685,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/portfolio/cash.js": {
       "localFinite": 0,
@@ -599,7 +696,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/portfolio/return-stats.js": {
       "localFinite": 0,
@@ -608,7 +707,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/portfolio/risk.js": {
       "localFinite": 0,
@@ -617,7 +718,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/portfolio/surface.js": {
       "localFinite": 0,
@@ -626,7 +729,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/scenarios/theme-playbook.js": {
       "localFinite": 0,
@@ -635,7 +740,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/screener/conditional-evidence.js": {
       "localFinite": 0,
@@ -644,7 +751,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/screener/evidence-lineage.js": {
       "localFinite": 0,
@@ -653,7 +762,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/screener/factor-ranks.js": {
       "localFinite": 0,
@@ -662,7 +773,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/screener/row-presentation.js": {
       "localFinite": 0,
@@ -671,7 +784,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/screener/screen-engine.js": {
       "localFinite": 0,
@@ -680,7 +795,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/sentiment/composite-fear-greed.js": {
       "localFinite": 0,
@@ -689,7 +806,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 2,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/signal/close-basis.js": {
       "localFinite": 0,
@@ -698,7 +817,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/signal/trading-score.js": {
       "localFinite": 0,
@@ -707,7 +828,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/technical/chart-drawings.js": {
       "localFinite": 0,
@@ -716,7 +839,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/technical/chart-layers.js": {
       "localFinite": 0,
@@ -725,7 +850,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 2,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/technical/market-charts.js": {
       "localFinite": 0,
@@ -734,7 +861,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 1,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/technical/price-levels.js": {
       "localFinite": 0,
@@ -743,7 +872,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/domain/themes/group-strength.js": {
       "localFinite": 0,
@@ -752,7 +883,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 1
     },
     "src/legacy/compatibility-facade.js": {
       "localFinite": 0,
@@ -761,7 +894,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/ai-answer-visuals.js": {
       "localFinite": 0,
@@ -770,7 +905,9 @@
       "nullAsZero": 0,
       "localEscape": 1,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/ai-chain-flow.js": {
       "localFinite": 0,
@@ -779,7 +916,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/company-story.js": {
       "localFinite": 0,
@@ -788,7 +927,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/earnings-calendar.js": {
       "localFinite": 0,
@@ -797,7 +938,9 @@
       "nullAsZero": 0,
       "localEscape": 1,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/fiscal-read.js": {
       "localFinite": 0,
@@ -806,7 +949,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 2
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/fundamental-analysis-cards.js": {
       "localFinite": 0,
@@ -815,7 +960,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/home-index-strip.js": {
       "localFinite": 0,
@@ -824,7 +971,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/macro-board.js": {
       "localFinite": 0,
@@ -833,7 +982,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/portfolio-checklist.js": {
       "localFinite": 0,
@@ -842,7 +993,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/portfolio-exposure.js": {
       "localFinite": 0,
@@ -851,7 +1004,9 @@
       "nullAsZero": 0,
       "localEscape": 1,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/portfolio-read.js": {
       "localFinite": 0,
@@ -860,7 +1015,9 @@
       "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 1
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/portfolio-risk-metrics.js": {
       "localFinite": 0,
@@ -869,7 +1026,9 @@
       "nullAsZero": 0,
       "localEscape": 1,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/portfolio-watchlist.js": {
       "localFinite": 0,
@@ -878,7 +1037,9 @@
       "nullAsZero": 0,
       "localEscape": 1,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/screener-validation.js": {
       "localFinite": 0,
@@ -887,7 +1048,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/stock-chart.js": {
       "localFinite": 0,
@@ -896,7 +1059,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 1,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/stock-read.js": {
       "localFinite": 0,
@@ -905,7 +1070,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 1
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/components/theme-playbook-view.js": {
       "localFinite": 0,
@@ -914,16 +1081,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 1
-    },
-    "src/ui/knowledge/glossary-bridge.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 1
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/knowledge/glossary-modal.js": {
       "localFinite": 0,
@@ -932,16 +1092,9 @@
       "nullAsZero": 0,
       "localEscape": 1,
       "localIndicator": 0,
-      "publicDataPath": 0
-    },
-    "src/ui/knowledge/knowledge-search.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 1
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/knowledge/theme-stage-links.js": {
       "localFinite": 0,
@@ -950,34 +1103,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
-    },
-    "src/ui/pages/atlas.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 20
-    },
-    "src/ui/pages/masters.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 10
-    },
-    "src/ui/pages/principles.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 14
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/pages/screener/model.js": {
       "localFinite": 0,
@@ -986,7 +1114,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/pages/screener/table.js": {
       "localFinite": 0,
@@ -995,16 +1125,9 @@
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
-    },
-    "src/ui/pages/screener/validation-tab.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 5
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/panels/portfolio-stress.js": {
       "localFinite": 0,
@@ -1013,7 +1136,9 @@
       "nullAsZero": 0,
       "localEscape": 1,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     },
     "src/ui/panels/portfolio-trade-journal.js": {
       "localFinite": 0,
@@ -1022,7 +1147,9 @@
       "nullAsZero": 2,
       "localEscape": 0,
       "localIndicator": 0,
-      "publicDataPath": 0
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0
     }
   }
 }

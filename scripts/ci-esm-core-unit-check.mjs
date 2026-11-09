@@ -2522,11 +2522,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (JSON.stringify(spans) !== JSON.stringify([{ start: '2026-01-01', end: '2026-01-02', tone: 'cold' }, { start: '2026-01-06', end: '2026-01-06', tone: 'hot' }])) fail(`v57.54 extreme spans group consecutive sessions by tone, got ${JSON.stringify(spans)}`);
   const evidence = tempUi.temperatureEvidence({ label: '코스피', from: '1999-01-05', state: 'cold', outcomes: { cold: { h63: { n: 39, mean: 5.6, se: 2.5, hitRate: 67, p10: -11.8 } }, all: { h63: { n: 6800, mean: 3.1, se: 1.25, hitRate: 60 } } } });
   if (!/1999년 이후 강한 냉각 구간이 시작된 첫날 중 서로 겹치지 않는 39번/.test(evidence) || !/두 범위가 겹쳐 평균 차이는 구별되지 않습니다/.test(evidence) || /예측은 아닙니다/.test(evidence)) fail(`v57.54/v57.84 the past-spell line (overlap verdict carries the caveat; the boilerplate 예측 sentence is gone) names n, the ± range and whether it clears the baseline, got ${evidence}`);
-  const staleIds = tempUi.staleMarketIds({ retained: ['kosdaq'] }, [{ id: 'spx', asOf: '2026-10-13' }, { id: 'kosdaq', asOf: '2026-10-13' }, { id: 'nikkei', asOf: '2026-10-02' }, { id: 'kospi', asOf: '2026-10-09' }], Date.parse('2026-10-14T00:00:00Z'));
+  // v59.87 (S3): the currentness rule moved to the domain model beside the producer's formula.
+  const tempModel = await load('src/domain/sentiment/market-temperature.js');
+  const staleIds = tempModel.staleMarketIds({ retained: ['kosdaq'] }, [{ id: 'spx', asOf: '2026-10-13' }, { id: 'kosdaq', asOf: '2026-10-13' }, { id: 'nikkei', asOf: '2026-10-02' }, { id: 'kospi', asOf: '2026-10-09' }], Date.parse('2026-10-14T00:00:00Z'));
   if ([...staleIds].sort().join(',') !== 'kosdaq,nikkei') fail(`v57.54 a retained market or one more than a week behind is stale and leaves the "now" lead, got ${[...staleIds]}`);
   // v58.77 pipeline audit DATA-03: every market failing leaves them equally old; the artifact age and the calendar catch it.
-  const allOld = tempUi.staleMarketIds({ retained: [], generatedAt: '2025-01-02T00:00:00Z' }, [{ id: 'spx', asOf: '2025-01-01' }, { id: 'kospi', asOf: '2025-01-01' }], Date.parse('2026-10-14T00:00:00Z'));
-  const weekend = tempUi.staleMarketIds({ retained: [], generatedAt: '2026-10-18T20:00:00Z' }, [{ id: 'spx', asOf: '2026-10-16' }, { id: 'kospi', asOf: '2026-10-16' }], Date.parse('2026-10-18T22:00:00Z'));
+  const allOld = tempModel.staleMarketIds({ retained: [], generatedAt: '2025-01-02T00:00:00Z' }, [{ id: 'spx', asOf: '2025-01-01' }, { id: 'kospi', asOf: '2025-01-01' }], Date.parse('2026-10-14T00:00:00Z'));
+  const weekend = tempModel.staleMarketIds({ retained: [], generatedAt: '2026-10-18T20:00:00Z' }, [{ id: 'spx', asOf: '2026-10-16' }, { id: 'kospi', asOf: '2026-10-16' }], Date.parse('2026-10-18T22:00:00Z'));
   if (allOld.size !== 2 || weekend.size !== 0) fail(`v58.77 DATA-03 an unchanged artifact after a full outage is stale; a weekend is not, got ${[...allOld]} / ${[...weekend]}`);
   // v57.83 codex audit F05 + R706: under 10 non-overlapping windows no average; 10-29 carries the small-sample note;
   // every kept 63-session window starts at least 63 sessions after the previous one.

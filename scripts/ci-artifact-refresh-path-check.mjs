@@ -11,6 +11,7 @@ import { ARTIFACT_FRESHNESS, MANUAL_ARTIFACTS, freshnessLedgerPath, freshnessSta
 import { workflowPublishes } from './lib/data-publish-sets.mjs';
 import { buildLedger } from './write-freshness-ledger.mjs';
 import { readArtifactFreshness } from '../src/data/freshness.js';
+import { artifactIdLiterals } from './lib/artifact-id-literals.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const read = (file) => readFileSync(join(root, file), 'utf8');
@@ -31,9 +32,12 @@ for (const name of readdirSync(join(root, 'js'))) if (name.endsWith('.js') && na
 runtimeFiles.push('index.html', 'sw.js');
 const readers = new Map();
 for (const file of runtimeFiles) {
-  for (const match of read(file).matchAll(/public-data\/([a-z0-9][a-z0-9-]*\.json)/g)) {
-    if (!readers.has(match[1])) readers.set(match[1], new Set());
-    readers.get(match[1]).add(file);
+  // v59.87 (S2): readers name most artifacts by registry id (artifactUrl / loadArtifact / the registry's descriptors).
+  const text = read(file);
+  const names = [...[...text.matchAll(/public-data\/([a-z0-9][a-z0-9-]*\.json)/g)].map((match) => match[1]), ...artifactIdLiterals(text).filter((id) => /^[a-z0-9][a-z0-9-]*\.json$/.test(id))];
+  for (const name of names) {
+    if (!readers.has(name)) readers.set(name, new Set());
+    readers.get(name).add(file);
   }
 }
 check('v59.70 the runtime reader scan finds the core artifacts', ['data.json', 'history.json', 'screener.json', 'scenario-state.json'].every((name) => readers.has(name)), [...readers.keys()].join(' '));

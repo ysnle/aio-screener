@@ -1,8 +1,9 @@
 import { STYLE_FRAMES, groupManagersByStyle } from '../../domain/masters/style-frames.js';
+import { thirteenFStale } from '../../domain/masters/filing-deadline.js';
 import { renderManagersPage } from '../knowledge/managers-view.js';
 import { createResourceBag } from '../../app/lifecycle.js';
 import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, pushKnowledgeRouteState, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
-import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
+import { artifactUrl, loadArtifactUrl } from '../../data/artifact-registry.js';
 import { detectValueScaleSuspects, withholdSuspectValues, withholdManagerValues, managersUnderScaleReview, describeValueScaleReview } from '../../domain/masters/value-scale.js';
 import { applySafeExternalLink } from '../../ui/knowledge/safe-external-link.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
@@ -13,16 +14,16 @@ import { VIEW_LABELS, element, button, createMetric, ensureMastersExtraStyle, cr
 export { createSecurityLookup, shareClassTag } from './masters-views.js'; // v59.70: moved with the view builders
 
 const REVIEWED_AT = '2026-08-16';
-const FILINGS_URL = './public-data/masters/filings.json';
-const HOLDINGS_URL = './public-data/masters/holdings-summary.json';
-const SECURITY_MASTER_URL = './public-data/masters/security-master.json';
-const SECURITY_MASTER_REFERENCE_URL = './public-data/masters/security-master-reference.json';
-const HISTORY_INDEX_URL = './public-data/masters/history-index.json';
-const MANAGER_CATALOG_URL = './public-data/masters/manager-catalog.json';
-const ROW_PREVIEWS_URL = './public-data/masters/manager-row-previews.json';
-const FILING_DISCOVERY_URL = './public-data/masters/filing-discovery.json';
-const MANAGER_PRINCIPLES_URL = './public-data/masters/manager-principles.json';
-const TICKER_INDEX_REFERENCE_URL = './public-data/masters/ticker-index-reference.json';
+const FILINGS_URL = artifactUrl('masters/filings.json');
+const HOLDINGS_URL = artifactUrl('masters/holdings-summary.json');
+const SECURITY_MASTER_URL = artifactUrl('masters/security-master.json');
+const SECURITY_MASTER_REFERENCE_URL = artifactUrl('masters/security-master-reference.json');
+const HISTORY_INDEX_URL = artifactUrl('masters/history-index.json');
+const MANAGER_CATALOG_URL = artifactUrl('masters/manager-catalog.json');
+const ROW_PREVIEWS_URL = artifactUrl('masters/manager-row-previews.json');
+const FILING_DISCOVERY_URL = artifactUrl('masters/filing-discovery.json');
+const MANAGER_PRINCIPLES_URL = artifactUrl('masters/manager-principles.json');
+const TICKER_INDEX_REFERENCE_URL = artifactUrl('masters/ticker-index-reference.json');
 const TICKER_INDEX_LOAD_OPTIONS = Object.freeze({ timeoutMs: 8000 });
 
 function statusLabel(status) {
@@ -276,18 +277,6 @@ function createCatalogCoverage(documentRef, catalog, registry, holdings, preview
   return section;
 }
 
-// 13F is due 45 days after each quarter end; a holding set is stale once the following quarter's deadline has passed.
-export function thirteenFStale(periodOfReport, now = Date.now()) {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(periodOfReport || ''));
-  if (!match) return false;
-  const nextQuarterEnd = Date.UTC(Number(match[1]), Number(match[2]) + 3, 0);
-  // A deadline on a weekend rolls to the next Monday (SEC business-day rule); holidays are ignored.
-  let due = nextQuarterEnd + 45 * 86400000;
-  const weekday = new Date(due).getUTCDay();
-  if (weekday === 6) due += 2 * 86400000;
-  else if (weekday === 0) due += 86400000;
-  return now >= due + 86400000;
-}
 
 function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscovery, holdingMeta, compactRows, fullRows, comparisonRows, previewMeta, previewRows, state, securityMaster, referenceMaster, historyManager, historyRowsArtifact, issuerAggregates, principlesArtifact, registry, holdingManagers, rowsByManager) {
   const detail = element(documentRef, 'article', 'masters-detail-card');
@@ -711,14 +700,14 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
          }
       };
       const fetchFn = root?.fetch || globalThis.fetch;
-      const loadJson = (url) => loadJsonArtifact(stableFetcher(root), url, { signal: scope?.signal });
+      const loadJson = (url) => loadArtifactUrl(root, url, { signal: scope?.signal });
       const loadOptionalArtifact = async (key, url, options = {}) => {
         if (!isAlive() || state[key] != null || state.loadingCapabilities.has(key)) return;
         state.loadingCapabilities.add(key);
         state[`${key}Error`] = false;
         page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'loading';
         try {
-          state[key] = await loadJsonArtifact(stableFetcher(root), url, { signal: scope?.signal, ...options });
+          state[key] = await loadArtifactUrl(root, url, { signal: scope?.signal, ...options });
           if (!isAlive()) return;
           page.dataset[`aioMasters${key[0].toUpperCase()}${key.slice(1)}`] = 'connected';
         } catch (error) {
@@ -738,7 +727,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         state.managerRowErrors.delete(managerId);
         render();
         try {
-          const artifact = await loadJsonArtifact(stableFetcher(root), descriptor.url, { signal: scope?.signal, integrity: descriptor.sha256, maxBytes: descriptor.bytes });
+          const artifact = await loadArtifactUrl(root, descriptor.url, { signal: scope?.signal, integrity: descriptor.sha256, maxBytes: descriptor.bytes });
           if (!isAlive()) return;
           if (artifact?.managerId !== managerId || artifact?.artifactRole !== 'BOUNDED_WEB_PROJECTION' || artifact?.holdings?.length !== descriptor.projectionRows || artifact?.comparisons?.length !== descriptor.comparisonProjectionRows || artifact?.fullRowsAvailable !== descriptor.fullRows || artifact?.fullComparisonsAvailable !== descriptor.comparisonRows || artifact?.latestFiling?.accession !== descriptor.accession) {
             throw new Error(`manager shard integrity mismatch: ${managerId}`);

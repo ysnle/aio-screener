@@ -4,7 +4,7 @@ import { deriveSecReport } from '../fundamental/sec-report.js';
 import { resolveInstrument, INSTRUMENT_REGISTRY } from '../market/instrument-registry.js';
 import { screenerMarket, marketRows, MARKET_POPULATION_POLICY } from '../screener/market-scope.js';
 import { fieldValueForPurpose } from '../../data/contracts/screener.js';
-import { latestCompletedUsSession, latestCompletedKrSession } from '../market/market-calendar.js';
+import { latestCompletedSession } from '../market/market-calendar.js';
 import { outOfUniverseContext } from './out-of-universe-read.js';
 import { signedText, finiteNumber as finite } from '../shared/number.js';
 import { safeSourceUrl } from './business-profiles.js';
@@ -45,7 +45,7 @@ export function buildCompanyAnalysis({ symbol, row = null, summary = null, profi
     // equal to its theme is not repeated, and one theme id is listed once.
     if ((subThemes.length || (theme.leaders || []).some(ticker => sym(ticker) === id)) && !associations.some(item => item.id === theme.id)) associations.push({ id: theme.id, name: themeName, subThemes: [...new Set(subThemes.map(sub => sub.name))].filter(sub => sub && sub !== themeName) });
   }
-  const lastSession = market === 'KR' ? latestCompletedKrSession(nowMs) : market === 'US' ? latestCompletedUsSession(nowMs, { requirePrevious: false }) : null;
+  const lastSession = market === 'KR' || market === 'US' ? latestCompletedSession(market, nowMs) : null;
   const sessionDate = matchedRow?.factorSessionDate;
   const completedBasis = validDate(sessionDate) && !!lastSession?.date && sessionDate <= lastSession.date;
   const currentFactors = completedBasis && sessionDate === lastSession.date;

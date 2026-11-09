@@ -9,8 +9,8 @@ import { frameHead, markFrame } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { el } from './dom.js';
 import { askRow } from './ask-row.js';
-import { MARKET_DAY } from '../../data/shared-artifacts.js';
 import { buildNarrativeCards } from '../../domain/narrative/narrative-cards.js';
+import { MARKET_DAY } from '../../data/artifact-registry.js';
 
 // v59.70 (owner 11/07, narrative connected end to end): the chain gains the story the market is relaying most, with how
 // far the indicators back the scenario it points to — the same read as 시장 상태's 시장이 말하는 이야기 card.

@@ -6,7 +6,7 @@ import { releaseZones } from '../../domain/macro/release-zones.js';
 import { alignInput } from '../../domain/briefing/market-read.js';
 import { buildBriefingSchedule } from '../../domain/briefing/schedule.js';
 import { ensureResearchSnapshots } from './research-snapshots.js';
-import { MACRO_HISTORY, refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
 import { briefingFlow } from '../../domain/market/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { crossroadsForRoot, themeLinkRow } from './macro-crossroads.js';
@@ -22,6 +22,7 @@ export { collectMarketInputs } from '../../data/selectors/market-inputs.js';
 import { marketInterpretation, screenerRowsForRoot } from '../../data/selectors/interpretation.js';
 import { buildEarningsWeek, eventPreviews } from '../../domain/briefing/event-guide.js';
 import { historyWaitText } from './data-state.js';
+import { MACRO_HISTORY } from '../../data/artifact-registry.js';
 
 // Only S&P 500 members: the weekly calendar lists hundreds of micro-caps.
 function universeNames(root) {

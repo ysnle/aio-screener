@@ -1,7 +1,7 @@
 // Theme screens: one theme in detail — criteria, teach, summary, composition, members, leaders and the day insights.
 import { signedBar } from '../../components/signed-bar.js';
 import { selectSelectedThemeDetail, selectThemesItems } from '../../../state/selectors/themes.js';
-import { renderThemeDetailPlaybook, themeTeachFor, scenarioSplitText, EARNINGS_CALENDAR } from '../../components/theme-playbook-view.js';
+import { renderThemeDetailPlaybook, themeTeachFor, scenarioSplitText } from '../../components/theme-playbook-view.js';
 import { themePlaybookForRoot } from '../../components/theme-playbook.js';
 import { MEMBER_ROLES, macroMoves, revisionCounts, themeReasons } from '../../../domain/scenarios/theme-criteria.js';
 import { THEME_STATES } from '../../../domain/scenarios/analogs.js';
@@ -23,6 +23,7 @@ import { isoDay, stampDay, latestSessionRows } from '../../../domain/shared/sess
 import { askRow } from '../../components/ask-row.js';
 import { dirColor, finiteOrNull, screenerRowMap } from './shared.js';
 import { shortSession, usCloseSession } from './rrg.js';
+import { EARNINGS_CALENDAR } from '../../../data/artifact-registry.js';
 
 // v58.75 (persona review): the theme's representative ETF against SPY over the produced 100 sessions (rotationHistory
 // relativeStrength, rebased to 100 on the first session) — the line an RRG point summarises. No ETF, no chart.

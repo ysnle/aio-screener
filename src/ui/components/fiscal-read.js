@@ -5,7 +5,7 @@ import { buildPeerRead } from '../../domain/fundamental/peer-read.js';
 import { buildQuarterRead, buildWorkingCapitalRead, parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
 import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
-import { loadJsonArtifact, stableFetcher } from '../../data/artifact-cache.js';
+import { EARNINGS_CALENDAR, artifactUrl, loadArtifact } from '../../data/artifact-registry.js';
 import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
 import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
@@ -18,9 +18,6 @@ import { refreshSharedArtifact, sharedArtifactState } from '../../data/shared-ar
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
 // The provider earnings calendar (week rows + the v58.75 six-week `upcoming` map), shared with the company summary.
-// v59.55: declared in event-artifacts.js so 시장 상태's week-ahead list reads it without loading this module.
-import { EARNINGS_CALENDAR } from '../../data/event-artifacts.js';
-export { EARNINGS_CALENDAR };
 
 const CAPITAL_COLUMNS = ['grossProfit', 'operatingIncome', 'cash', 'shortTermInvestments', 'shareBasedCompensation', 'buybacks', 'dividends'];
 // P1436: "YYYY-MM-DD:revenue:netIncome;…" in USD millions (public-data/sec-fiscal-history.json).
@@ -56,10 +53,9 @@ export function requestFiscalHistory(root, onReady, key = 'default') {
   const fetchFn = root?.fetch || globalThis.fetch;
   if (typeof fetchFn !== 'function') return;
   root._aioSecFiscalHistoryRequested = true;
-  const load = (url, maxBytes) => loadJsonArtifact(stableFetcher(root), url, { maxAgeMs: 6 * 60 * 60 * 1000, maxBytes });
   // P1440: the summary manifest names the fiscal artifact once the producer has written it.
-  load('./public-data/sec-fundamentals-summary.manifest.json', 64 * 1024)
-    .then((manifest) => (manifest?.fiscalHistory?.path === 'public-data/sec-fiscal-history.json' ? load('./public-data/sec-fiscal-history.json', 1024 * 1024) : null))
+  loadArtifact(root, 'sec-fundamentals-summary.manifest.json')
+    .then((manifest) => (`./${manifest?.fiscalHistory?.path}` === artifactUrl('sec-fiscal-history.json') ? loadArtifact(root, 'sec-fiscal-history.json') : null))
     .then((artifact) => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistoryFailed = false; root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; root._aioSecIssuerSic = artifact?.issuerSic && typeof artifact.issuerSic === 'object' ? artifact.issuerSic : null; })
     .catch(() => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistoryFailed = true; root._aioSecFiscalHistory = null; })
     .finally(() => { root._aioSecFiscalHistoryRequested = false; const ready = Object.values(root._aioSecFiscalHistoryOnReady || {}); delete root._aioSecFiscalHistoryOnReady; ready.forEach((fn) => fn?.()); });

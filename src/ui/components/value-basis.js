@@ -6,7 +6,7 @@
 
 import { placeTooltipBody } from './term-tooltip.js';
 import { claimPopover, releasePopover, watchScroll, hoverSuppressed } from './popover.js';
-import { countOpenSessionsBetween, latestCompletedKrSession, latestCompletedUsSession } from '../../domain/market/market-calendar.js';
+import { countOpenSessionsBetween, latestCompletedSession } from '../../domain/market/market-calendar.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
 const DATE_ATTRS = ['data-observed-at', 'data-source-ts', 'data-as-of'];
@@ -35,7 +35,7 @@ export function basisAge(stamp, nowMs, { market = 'US', cadence = null, freshnes
       const age = days < 60 ? `${days}일 전` : `약 ${Math.round(days / 30.4)}개월 전`;
       return { label: `${text} 기준`, age, days, cadence, stale: judged !== undefined ? judged : days > CADENCE_DAYS[cadence] };
     }
-    const latest = (market === 'KR' ? latestCompletedKrSession(nowMs) : latestCompletedUsSession(nowMs, { requirePrevious: false }))?.date || null;
+    const latest = latestCompletedSession(market, nowMs)?.date || null;
     if (latest && text > latest) return { label: `${text} 기준`, age: '완료 전 거래일', lag: null, stale: judged !== undefined ? judged : null };
     const lag = latest && latest > text ? countOpenSessionsBetween(text, latest, market) : 0;
     return { label: `${text} 기준`, age: lag === 0 ? '최신 거래일' : `${lag}거래일 전`, lag, stale: judged !== undefined ? judged : lag > 2 };

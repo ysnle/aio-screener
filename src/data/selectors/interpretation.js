@@ -3,9 +3,9 @@
 // 오늘, 시장 상태, 거시, 테마, 브리핑, the AI chat and each screen's lessons read the same regime, branches and guide.
 import { collectMarketInputs } from './market-inputs.js';
 import { buildMarketInterpretation } from '../../domain/interpretation/market-interpretation.js';
-import { SCENARIO_OUTCOMES, SCENARIO_STATE } from '../shared-artifacts.js';
 import { CONSENSUS_KEY } from '../consensus-estimates.js';
 import { indexEarningsInput, interpretationInput } from '../../domain/interpretation/inputs.js';
+import { SCENARIO_OUTCOMES, SCENARIO_STATE } from '../artifact-registry.js';
 
 // The native store, registered once by bootstrap, so every caller reads the same typed rows in place (v57.77 perf: the
 // legacy bridge snapshots them). A caller may still pass its own store (fixtures, the AI's row view). An empty native

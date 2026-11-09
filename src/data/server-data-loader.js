@@ -4,8 +4,9 @@
 // src/data/server-data.js fetched it. It still sets the classic script-scope lets _aioServerMacroReady and
 // _aioServerHyReady, which stay declared in js/aio-data.js because initV20DataEngine reads them there; a module
 // resolves those names in the shared global scope. src/app/compatibility-globals.js installs this before DOMContentLoaded.
-import { refreshSharedArtifact, ROTATION_DETAIL } from './shared-artifacts.js';
+import { refreshSharedArtifact } from './shared-artifacts.js';
 import { mergeRotationDetail, rotationDetailPending } from '../domain/themes/rotation-detail.js';
+import { ROTATION_DETAIL } from './artifact-registry.js';
 
 // v59.70 (data audit R11): data.json carries the rotation coordinates and rotation-detail.json the series. The one
 // loader merges them into _serverDataMeta.rotationHistory, so the stock, portfolio, screener and theme readers keep the

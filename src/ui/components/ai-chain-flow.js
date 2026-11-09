@@ -5,10 +5,11 @@ import { el } from './dom.js';
 import { signedBar } from './signed-bar.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { aiChainFlow, defensiveContrast } from '../../domain/briefing/ai-chain-flow.js';
-import { buildTwRevenueView, signedPct, TW_MONTHLY_REVENUE } from '../../domain/briefing/tw-monthly-revenue.js';
+import { buildTwRevenueView, signedPct } from '../../domain/briefing/tw-monthly-revenue.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { CONSENSUS_KEY, requestConsensusEstimates } from '../../data/consensus-estimates.js';
 import { layerValuation, LAYER_PER_MIN_COVERAGE, LAYER_PER_MIN_MEASURED } from '../../domain/themes/layer-valuation.js';
+import { TW_MONTHLY_REVENUE } from '../../data/artifact-registry.js';
 
 // Rounded first, so a move under 0.05% reads 0.0% and is flat, never "+0.0%" or "-0.0%".
 const tenth = (value) => (value == null ? null : Math.round(value * 10) / 10 || 0);

@@ -14,9 +14,9 @@ import { directionOf, usdScaleWords } from '../../domain/shared/number.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, figureSurprise, koreanReleaseText, watchItem } from '../../domain/briefing/event-briefs.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { EVENT_BRIEFS } from '../../data/event-artifacts.js';
 import { eventAftermath, beatButFell } from '../../domain/briefing/event-aftermath.js';
 import { signedBar, signedScale } from './signed-bar.js';
+import { EVENT_BRIEFS } from '../../data/artifact-registry.js';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 function whenText(brief) {

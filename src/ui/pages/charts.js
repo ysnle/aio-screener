@@ -3,7 +3,7 @@
 // the table below reads the largest S&P 500 weights and the day's material movers from the screener's own fields.
 // Breadth joins only the S&P 500 reading, where it changes what the chart says.
 import { createResourceBag } from '../../app/lifecycle.js';
-import { MARKET_DAY, refreshSharedArtifact, screenerRowsState } from '../../data/shared-artifacts.js';
+import { refreshSharedArtifact, screenerRowsState } from '../../data/shared-artifacts.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { chartsConclusion, coreStockRows, indexChartReadings } from '../../domain/technical/market-charts.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -14,6 +14,7 @@ import { installMarketCandles } from '../components/market-candles.js';
 import { el } from '../components/dom.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { historyWaitText, renderDataState } from '../components/data-state.js';
+import { MARKET_DAY } from '../../data/artifact-registry.js';
 
 // The ETF the 종목 차트 tab can open for each index; the Korean indexes have no tradable twin there.
 const CHART_SYMBOL = Object.freeze({ ndx: 'QQQ', spx: 'SPY', soxx: 'SOXX', rut: 'IWM' });

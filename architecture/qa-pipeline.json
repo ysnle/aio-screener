@@ -567,6 +567,12 @@
           "inputs": ["src/app/refresh-scheduler.js", "js/aio-data.js", "js/aio-core.js", "js/aio-chat.js", "src/data/on-demand-symbol.js", "src/data/server-data-loader.js", "src/data/quote-demand.js", "scripts/ci-state-machine-regression-check.mjs"]
         },
         {
+          "id": "data-boundary-fixture",
+          "script": "scripts/ci-data-boundary-fixture.mjs",
+          "remedy": "a screen reads an artifact through src/data/artifact-registry.js and grades a session through market-calendar sessionLagGrade/latestCompletedSession; a pinned value that moved is a behavior change, not a fixture to refresh",
+          "inputs": ["src/data/artifact-registry.js", "src/data/shared-artifacts.js", "src/data/contracts/artifact-freshness.js", "src/domain/market/market-calendar.js", "src/domain/shared/freshness-policy.js", "src/ui/components/session-lag.js", "src/domain/screener/row-presentation.js", "src/domain/sentiment/market-temperature.js", "src/domain/masters/filing-deadline.js", "scripts/ci-data-boundary-fixture.mjs"]
+        },
+        {
           "id": "artifact-cache-model",
           "script": "scripts/ci-artifact-cache-model-check.mjs",
           "inputs": ["src/data/artifact-cache.js", "scripts/ci-artifact-cache-model-check.mjs", "scripts/lib/model-check-kit.mjs", "architecture/model-check-coverage.json"]
@@ -1287,6 +1293,7 @@
             "scripts/build-us-listings.mjs",
             "src/data/us-listings.js",
             "src/data/artifact-cache.js",
+            "src/data/artifact-registry.js",
             "src/app/compatibility-globals.js",
             "src/app/bootstrap.js",
             "js/aio-workspace.js",
@@ -1413,6 +1420,7 @@
             "src/data/macro-calendar.js",
             "src/data/shared-artifacts.js",
             "src/data/artifact-cache.js",
+            "src/data/artifact-registry.js",
             "src/domain/market/market-calendar.js",
             "src/ui/components/daily-loop.js",
             "src/ui/components/briefing-read.js",
@@ -1570,6 +1578,7 @@
             "src/ui/pages/principles.js",
             "src/ui/pages/atlas.js",
             "src/ui/knowledge/knowledge-search.js",
+            "src/data/artifact-registry.js",
             "src/domain/knowledge/**",
             "scripts/lib/research-content.mjs",
             "scripts/lib/research-content-fingerprint.mjs",
@@ -2533,6 +2542,7 @@
             "src/data/macro-calendar.js",
             "src/data/shared-artifacts.js",
             "src/data/artifact-cache.js",
+            "src/data/artifact-registry.js",
             "src/domain/market/market-calendar.js",
             "src/ui/components/daily-loop.js",
             "src/ui/components/briefing-read.js",
@@ -3259,6 +3269,7 @@
         "src/app/lifecycle.js",
         "src/app/routes.js",
         "src/data/artifact-cache.js",
+        "src/data/artifact-registry.js",
         "src/data/knowledge/load-capabilities.js",
         "src/data/shared-artifacts.js",
         "src/domain/content/korean-particle.js",
@@ -3288,6 +3299,7 @@
         "src/data/macro-calendar.js",
         "src/data/shared-artifacts.js",
         "src/data/artifact-cache.js",
+        "src/data/artifact-registry.js",
         "src/domain/market/market-calendar.js",
         "src/ui/components/daily-loop.js",
         "src/ui/components/briefing-read.js",
@@ -3722,6 +3734,7 @@
         "scripts/build-us-listings.mjs",
         "src/data/us-listings.js",
         "src/data/artifact-cache.js",
+        "src/data/artifact-registry.js",
         "src/app/compatibility-globals.js",
         "src/app/bootstrap.js",
         "js/aio-workspace.js",
