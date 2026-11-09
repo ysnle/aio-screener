@@ -355,8 +355,8 @@ body.dark-theme .scr-star.active { color: var(--text-secondary); }
 /* v57.55 review (5e): on a phone the screener's 관심·비교 + 백분위 columns took half the visible width before the symbol,
    and the sub-theme name column wrapped one word per line (rows 100–160px tall). Both tables already scroll sideways. */
 @media (max-width: 767px) {
-  #page-screener table [data-column-key="watchlist"] { min-width: 60px; padding: 6px 2px; }
-  #page-screener table [data-column-key="rank"] { min-width: 50px; padding: 6px 4px; }
+  #page-screener table [data-column-key="watchlist"] { padding: 6px 2px; }
+  #page-screener table [data-column-key="rank"] { padding: 6px 4px; }
   #page-screener .scr-row-actions { gap: 2px; }
   .theme-strength-table td:nth-child(2) { min-width: 150px; }
 }

@@ -29,10 +29,10 @@
 /* v59.70 (S12): one condition row — 표에서 찾기 · 시장 · 섹터 · + 조건 · 보기 — then the applied conditions as chips and the
    two panels (+ 조건, 보기) that open under the row. */
 #page-screener .scr-filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; }
-#page-screener .scr-search-field { flex: 0 1 240px; min-width: 0; height: var(--size-element-md); min-height: var(--size-element-md); padding: 0 12px; border-radius: var(--radius-element) !important; font-size: 12px; }
+#page-screener .scr-search-field { flex: 0 1 240px; min-width: 0; height: var(--size-element-md); min-height: var(--size-element-md); padding: 0 12px; border-radius: var(--radius-element); font-size: 12px; }
 #page-screener .scr-chip-select {
   appearance: none; -webkit-appearance: none; height: var(--size-element-md); min-height: var(--size-element-md); max-width: 200px; padding: 0 30px 0 12px;
-  border: 0; border-radius: var(--radius-element) !important; background-color: var(--sx-ink-a06); color: var(--text-primary);
+  border: 0; border-radius: var(--radius-element); background-color: var(--sx-ink-a06); color: var(--text-primary);
   background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%) !important;
   background-position: calc(100% - 16px) 52%, calc(100% - 11px) 52% !important; background-size: 5px 5px, 5px 5px !important; background-repeat: no-repeat !important;
   font: inherit; font-size: 12px; cursor: pointer; text-overflow: ellipsis;
@@ -143,13 +143,7 @@ body:not(.aio-dev-mode) #page-screener .scr-dev-only { display: none; }
 #page-screener td[data-column-key="rank"] .scr-rank-bar { display: none; }
 #page-screener .scr-range52 { position: relative; display: block; width: 100%; min-width: 84px; height: 4px; border-radius: var(--radius-full); background: var(--sx-ink-a07); }
 #page-screener .scr-range52-dot { position: absolute; top: 50%; width: 14px; height: 14px; box-sizing: border-box; border: 0.5px solid var(--text-primary); border-radius: 50%; background: var(--bg-card); transform: translate(-50%, -50%); }
-#page-screener td[data-column-key="watchlist"] { min-width: 72px !important; }
-/* The 기본 columns are narrower than the registry's minimums so the table fits beside the 400px inspector. */
-#page-screener #screener-results-table :is(td, th)[data-column-key="screenRank"] { min-width: 52px !important; }
-#page-screener #screener-results-table :is(td, th)[data-column-key="sym"] { min-width: 120px !important; }
-#page-screener #screener-results-table :is(td, th):is([data-column-key="price"], [data-column-key="ret1m"], [data-column-key="ret3m"]) { min-width: 60px !important; }
-#page-screener #screener-results-table :is(td, th)[data-column-key="range52"] { min-width: 92px !important; }
-#page-screener #screener-results-table :is(td, th)[data-column-key="rank"] { min-width: 52px !important; }
+/* Column minimums live in the column registry (src/ui/pages/screener/model.js), which writes them inline; the 기본 columns are narrow enough to fit beside the 400px inspector. */
 @media (min-width: 1024px) and (max-width: 1599px) {
   #page-screener .scr-split:has(> .scr-why-drawer:not([hidden])) .scr-sym-name { max-width: 96px; }
 }
@@ -270,7 +264,7 @@ body:not(.aio-dev-mode) #page-screener .scr-dev-only { display: none; }
 #page-screener .scr-vh-evidence { padding: 12px 0 0; }
 #page-screener .scr-vh-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 #page-screener .screener-read { margin: 0 0 16px; padding: 22px 24px; border: 0; border-radius: var(--radius-container); background: var(--bg-card); box-shadow:none; }
-#page-screener .scr-view-panel .aio-vis-card, #page-screener .scr-view-panel .sh-screener-tab-factors-panel { border: 0; border-radius: var(--radius-container) !important; background: var(--bg-card) !important; box-shadow:none; padding: 20px 22px; }
+#page-screener .scr-view-panel .aio-vis-card, #page-screener .scr-view-panel .sh-screener-tab-factors-panel { border: 0; border-radius: var(--radius-container); background: var(--bg-card); box-shadow:none; padding: 20px 22px; }
 #page-screener .scr-view-panel .aio-info-box { border: 0; border-radius: var(--radius-container); background: var(--sx-warn-bg); margin-top: 12px; }
 
 /* ═══ 8. 맞춤 조건 (v59.70 S12): the picker sits in the + 조건 panel, the chosen conditions are chips in the condition row ═══ */
@@ -473,7 +467,7 @@ body:not(.aio-dev-mode) #page-screener .scr-dev-only { display: none; }
 }
 
 /* ═══ 11. Dark theme: light-only alphas ═══ */
-body.dark-theme #page-screener .scr-preset-seg > button[aria-pressed="true"] { background: var(--bg-elevated) !important; color: var(--text-primary) !important; box-shadow:none; }
+body.dark-theme #page-screener .scr-preset-seg > button[aria-pressed="true"] { background: var(--bg-elevated); color: var(--text-primary) !important; box-shadow:none; }
 body.dark-theme #page-screener .scr-sheet-scrim { background: var(--black-a7); }
 body.dark-theme #page-screener .scr-chip-select.is-set { color: var(--bg-base) !important; }
 

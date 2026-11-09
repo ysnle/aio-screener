@@ -82,19 +82,19 @@ export const REGIME_DESCRIPTIONS = {
 // prevents the old header/cell drift (for example, VCP under the wrong label).
 export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   // v58.56 (#12): the row keeps the ☆ only — 비교 is one button in the inspector/sheet, where the stock is being read.
-  { key: 'watchlist', label: '관심', sortable: false, align: 'center', width: 48, group: 'utility' },
+  { key: 'watchlist', label: '관심', sortable: false, align: 'center', width: 72, group: 'utility' },
   // v58.56 (#3): the first column of the default view numbers the rows by market cap (1 = largest of the rows shown). The
   // default order is market cap (v57.55), so it reads 1, 2, 3…; 전체 순위 moved beside 백분위. Its header sorts by 시총.
   // v58.80 (first-users F21): the header read '#' beside 전체 순위 and 백분위 and was taken for a rank; it is the row order.
   { key: 'capOrder', label: '순서', headerLabel: '순서', sortAs: 'mcap', hint: '지금 정렬 기준에서의 순서 — 기본 정렬(시총 큰 순)에서는 시가총액 순서(1 = 가장 큼), 누르면 시총 순으로 정렬합니다', sortable: true, align: 'left', width: 44, group: 'identity' },
   // 개편 v2 (3c): the ordinal among ranked rows (the same number the inspector and the stock summary quote).
-  { key: 'screenRank', label: '전체 순위', hint: '같은 시장에서 순위가 매겨진 종목 사이의 순서 — 조건 화면과 표시 필터는 이 순서를 바꾸지 않습니다', sortable: true, align: 'left', width: 72, group: 'ranking' },
+  { key: 'screenRank', label: '전체 순위', hint: '같은 시장에서 순위가 매겨진 종목 사이의 순서 — 조건 화면과 표시 필터는 이 순서를 바꾸지 않습니다', sortable: true, align: 'left', width: 52, group: 'ranking' },
   // P1464: the value is a percentile among rows that pass the criteria — "점수 100" read as a perfect
   // score, so the header names what it is.
-  { key: 'rank', label: '백분위', sortable: true, align: 'center', width: 72, group: 'ranking' },
+  { key: 'rank', label: '백분위', sortable: true, align: 'center', width: 52, group: 'ranking' },
   // P1419: the column shows the percentile position the rank already is (상위 N%), not a letter grade.
   { key: 'grade', label: '상위', sortable: false, align: 'center', width: 56, group: 'ranking' },
-  { key: 'sym', label: '종목', sortable: true, align: 'left', width: 142, group: 'identity', sticky: true },
+  { key: 'sym', label: '종목', sortable: true, align: 'left', width: 120, group: 'identity', sticky: true },
   { key: 'sector', label: '섹터', sortable: true, align: 'left', width: 116, group: 'identity' },
   { key: 'momentum', label: '모멘텀', sortable: true, align: 'right', width: 74, group: 'factor' },
   { key: 'trend', label: '추세', sortable: true, align: 'right', width: 74, group: 'factor' },
@@ -109,14 +109,14 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'revGrowth', label: '매출 성장', hint: '최근 회계연도 매출의 전년 대비 증가율(SEC 공시)', sortable: true, align: 'right', width: 80, group: 'fundamental' },
   // v57.54: forward multiple on analyst consensus (reference only; the 밸류 factor stays on reported earnings).
   { key: 'fwdPe', label: 'Forward PER', hint: '종가 ÷ 아직 실적이 발표되지 않은 4개 분기 컨센서스 EPS 합(조정 EPS) — 점수에 쓰지 않는 참고값, 미국 종목만', sortable: true, align: 'right', width: 92, group: 'market' },
-  { key: 'price', label: '가격', sortable: true, align: 'right', width: 86, group: 'market' },
+  { key: 'price', label: '가격', sortable: true, align: 'right', width: 60, group: 'market' },
   { key: 'pctFrom52wHigh', label: '52주 고점 대비', sortable: true, align: 'right', width: 96, group: 'market' },
   // 개편 v2 (3c): where the last close sits between the 52-week low and high (both distances come from the artifact).
-  { key: 'range52', label: '52주 위치', hint: '52주 저점(왼쪽)과 고점(오른쪽) 사이에서 마지막 종가의 위치 — 같은 산출물의 저점·고점 대비 거리로 계산', sortable: true, align: 'left', width: 120, group: 'market' },
+  { key: 'range52', label: '52주 위치', hint: '52주 저점(왼쪽)과 고점(오른쪽) 사이에서 마지막 종가의 위치 — 같은 산출물의 저점·고점 대비 거리로 계산', sortable: true, align: 'left', width: 92, group: 'market' },
   // v58.75 (persona review): one week — the move a swing trader checks first (ret5d is already in the artifact).
   { key: 'ret5d', label: '1주', hint: '최근 5거래일 수익률, 완료된 종가 기준', sortable: true, align: 'right', width: 64, group: 'market' },
-  { key: 'ret1m', label: '1개월', sortable: true, align: 'right', width: 70, group: 'market' },
-  { key: 'ret3m', label: '3개월', sortable: true, align: 'right', width: 70, group: 'market' },
+  { key: 'ret1m', label: '1개월', sortable: true, align: 'right', width: 60, group: 'market' },
+  { key: 'ret3m', label: '3개월', sortable: true, align: 'right', width: 60, group: 'market' },
   { key: 'ret6m', label: '6M', sortable: true, align: 'right', width: 70, group: 'market' },
   // v58.75 (persona review): market-wide relative strength — the percentile of the plain return among every row of the same
   // market loaded now (before the display filters). One fact's percentile, not a score; 모멘텀 is ranked inside the sector.

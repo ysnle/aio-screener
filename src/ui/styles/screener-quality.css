@@ -22,8 +22,8 @@
   #page-screener #screener-results-table[data-column-preset="overview"] { width: 100%; table-layout: auto; }
   #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key]:not([data-column-key="capOrder"], [data-column-key="sym"], [data-column-key="ret1m"], [data-column-key="rank"]) { display: none; }
   #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key] { min-width: 0 !important; }
-  #page-screener #screener-results-table[data-column-preset="overview"] td.scr-column-cell { padding: 8px 6px !important; vertical-align: middle; }
-  #page-screener #screener-results-table[data-column-preset="overview"] th.scr-column-header { padding: 0 4px !important; }
+  #page-screener #screener-results-table[data-column-preset="overview"] td.scr-column-cell { padding: 8px 6px; vertical-align: middle; }
+  #page-screener #screener-results-table[data-column-preset="overview"] th.scr-column-header { padding: 0 4px; }
   #page-screener #screener-results-table[data-column-preset="overview"] .scr-sort-btn { min-height: 32px; padding: 4px 2px; font-size: 12px; }
   #page-screener #screener-results-table[data-column-preset="overview"] :is(th, td)[data-column-key="capOrder"] { width: 30px; text-align: left; }
   #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="capOrder"] { font-size: 12px; }
@@ -35,11 +35,6 @@
   #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="rank"] .scr-rank-value { font-size: 14px; }
   #page-screener #screener-results-table[data-column-preset="overview"] td[data-column-key="rank"] .scr-rank-unranked { white-space: normal; font-size: 12px; }
   #page-screener #screener-results-table td.scr-empty-cell { white-space: normal; }
-}
-@media (max-width: 599px) {
-  .scr-reading-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
-  .scr-reading-row { flex-direction: column; gap: 2px !important; }
-  .scr-reading-row > span:first-child { width: auto !important; }
 }
 /* 개편 v2: the Why drawer is the inspector (≥1024px) or a bottom sheet (≤1023px) — v2-screener.css; the inline-row placement is retired. */
 .scr-why-drawer { scroll-margin-top: 12px; }
