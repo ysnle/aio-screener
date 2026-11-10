@@ -1,5 +1,6 @@
 // P1607: shared calendar discovery stays within the artifact's actual date window.
-import { artifactUrl } from '../artifact-registry.js';
+import { EARNINGS_CALENDAR } from '../artifact-registry.js';
+import { refreshSharedArtifact } from '../shared-artifacts.js';
 export function selectPublicEarnings(data, symbol, from, to) {
   if (!data || data.status !== 'current-reference' || !Array.isArray(data.earnings) || !data.weekStart || !data.weekEnd || from > data.weekEnd || to < data.weekStart) return null;
   return data.earnings.filter(row => row.symbol === symbol && row.date >= from && row.date <= to)
@@ -7,16 +8,10 @@ export function selectPublicEarnings(data, symbol, from, to) {
     .map(row => ({ ...row, source: data.source, sourceUrl: data.sourceUrl, fetchedAt: data.generatedAt, coverageEnd: data.weekEnd }));
 }
 
-export function createPublicEarningsReader(httpClient, now = () => Date.now()) {
-  let pending, cached, loadedAt = 0;
+// The AI's earnings reader reads the registry's shared copy (root[EARNINGS_CALENDAR.key]), the same one the screens use.
+export function createPublicEarningsReader(root) {
   return async (symbol, from, to) => {
-    if (!cached || now() - loadedAt > 120000) {
-      if (!pending) pending = httpClient.requestJson(artifactUrl('earnings-calendar.json'), { cache: 'no-store' }).then(result => {
-        if (result.ok && Array.isArray(result.data?.earnings)) { cached = result.data; loadedAt = now(); }
-        else cached = null;
-      }).finally(() => { pending = null; });
-      await pending;
-    }
-    return selectPublicEarnings(cached, symbol, from, to);
+    await refreshSharedArtifact(root, EARNINGS_CALENDAR);
+    return selectPublicEarnings(root?.[EARNINGS_CALENDAR.key] || null, symbol, from, to);
   };
 }

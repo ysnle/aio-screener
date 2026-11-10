@@ -1,16 +1,18 @@
-// Roadmap item 11 (legacy decomposition, 종목 · 실적 일정): the stored earnings calendar reader moved here unchanged from
-// js/aio-pages.js (_fetchEarningsCalendarSnapshot). refresh-screener writes public-data/earnings-calendar.json weekly; it
+// Roadmap item 11 (legacy decomposition, 종목 · 실적 일정): the stored earnings calendar reader moved here from
+// js/aio-pages.js (_fetchEarningsCalendarSnapshot). refresh-screener writes public-data/earnings-calendar.json; it
 // had no reader for a long time, so the screen's "무키 시 스냅샷" wording was not true (P1102). The snapshot carries its
 // window (weekStart~weekEnd); dates outside it are dropped by the renderer. 브리핑, 오늘 일정 and 뉴스 read it through
 // root._fetchEarningsCalendarSnapshot, so src/app/compatibility-globals.js installs it at boot.
+// The reader shares the registry's cached copy (EARNINGS_CALENDAR, kept on root[EARNINGS_CALENDAR.key]) with the
+// company summary, the chart coach, 테마 detail and 시장 상태, so one session downloads the file once per max age; a
+// failed refresh keeps the last good copy.
+import { EARNINGS_CALENDAR } from './artifact-registry.js';
+import { refreshSharedArtifact } from './shared-artifacts.js';
 
 export async function fetchEarningsCalendarSnapshot({ root = globalThis } = {}) {
   try {
-    const res = typeof root.fetchWithTimeout === 'function'
-      ? await root.fetchWithTimeout(`public-data/earnings-calendar.json?v=${Date.now()}`, { cache: 'no-cache' }, 6000)
-      : null;
-    if (!res || !res.ok) return null;
-    const d = await res.json();
+    await refreshSharedArtifact(root, EARNINGS_CALENDAR);
+    const d = root[EARNINGS_CALENDAR.key];
     if (!d || !Array.isArray(d.earnings)) return null;
     return {
       earnings: d.earnings,

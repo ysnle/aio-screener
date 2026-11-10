@@ -2287,7 +2287,7 @@ check('workflow governance doc exists', exists('_context/WORKFLOW-GOVERNANCE.md'
 check('earnings calendar keeps producer, consumer and lineage policy aligned',
   /fetch-earnings-calendar\.mjs/.test(read('.github/workflows/refresh-screener.yml'))
   // P1133/R620 → v59.59 roadmap 11: the earnings-calendar consumer moved from js/aio-pages.js to src/data/.
-  && /public-data\/earnings-calendar\.json/.test(read('src/data/earnings-calendar-snapshot.js'))
+  && /'earnings-calendar\.json'/.test(read('src/data/artifact-registry.js')) && /EARNINGS_CALENDAR/.test(read('src/data/earnings-calendar-snapshot.js'))
   && /'earnings-calendar\.json'/.test(read('scripts/ci-data-lineage-audit.mjs')),
   'producer, consumer or lineage policy is missing');
 
