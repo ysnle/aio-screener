@@ -6998,6 +6998,28 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (huge.ok || !/매수 단가는 1,000,000,000 이하/.test(huge.reason) || blank.ok || !/종목/.test(blank.reason)) fail(`v58.80 holding refusals: ${JSON.stringify({ huge, blank })}`);
 }
 
+// v59.92: the cash box says who owns it (data-cash-entry). The render paints only a box nobody owns; a refused box keeps
+// the typed text and its note until it is checked again, a written one goes back to the render, a focused one is left alone.
+{
+  const { paintCashBox, checkCashEntry } = await load('src/ui/panels/portfolio-cash-entry.js');
+  const doc = { activeElement: null, getElementById: () => null, createElement: () => ({ id: '', textContent: '', setAttribute() {}, remove() {} }) };
+  const attrs = new Map();
+  const box = { id: 'pf-cash-usd-input', value: '-100', dataset: { currency: 'USD', cashEntry: 'saving' }, ownerDocument: doc, validity: { badInput: false }, setAttribute: (k, v) => attrs.set(k, v), removeAttribute: (k) => attrs.delete(k), getAttribute: (k) => attrs.get(k) ?? null, closest: () => null, insertAdjacentElement() {} };
+  const whileSaving = paintCashBox(box, 1200);
+  const refusal = checkCashEntry(box, { value: '-100', badInput: false });
+  const afterRefusal = paintCashBox(box, 1200);
+  if (whileSaving || afterRefusal || refusal.ok || box.value !== '-100' || box.dataset.cashEntry !== 'refused' || attrs.get('aria-invalid') !== 'true')
+    fail(`v59.92 a cash box being saved or refused is not repainted with the stored amount: ${JSON.stringify({ whileSaving, afterRefusal, value: box.value, mark: box.dataset.cashEntry })}`);
+  box.value = '700';
+  box.dataset.cashEntry = 'saving';
+  const accepted = checkCashEntry(box, { value: '700', badInput: false });
+  const repainted = paintCashBox(box, 700);
+  doc.activeElement = box;
+  const typing = paintCashBox(box, 5);
+  if (!accepted.ok || accepted.value !== 700 || 'cashEntry' in box.dataset || !repainted || typing || box.value !== '700' || attrs.has('aria-invalid'))
+    fail(`v59.92 an accepted cash amount hands the box back to the render, and a focused box is left alone: ${JSON.stringify({ accepted, repainted, typing, value: box.value })}`);
+}
+
 // v58.80 (first-users F29): the screener star and 포트폴리오 관심 종목 share one store; the old star array is folded in once.
 {
   const { readWatchlistSymbols, toggleWatchlistSymbol, LEGACY_STAR_KEY, WATCHLISTS_KEY } = await load('src/data/watchlist-store.js');

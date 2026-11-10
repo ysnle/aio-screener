@@ -1104,7 +1104,8 @@ async function main() {
       document.getElementById('pf-pin-input').value = '1357';
       await window.unlockPortfolio(); // test PIN in this throwaway context only
       window.showPage('portfolio');
-      await new Promise((r) => setTimeout(r, 120));
+      // v59.92: waits for the lazy native page (it paints the boxes) instead of a fixed 120 ms, which a loaded run outlasted.
+      for (let waited = 0; waited < 5000 && document.getElementById('page-portfolio')?.dataset.aioArchitectureRenderer !== 'native'; waited += 50) await new Promise((r) => setTimeout(r, 50));
       const krwBox = document.getElementById('pf-cash-krw-input');
       const usdBox = document.getElementById('pf-cash-usd-input');
       const restoredBox = krwBox?.value === '5000';
@@ -1113,8 +1114,13 @@ async function main() {
       const saved = localStorage.getItem('aio_portfolio_cash_balances');
       const legacyDropped = localStorage.getItem('aio_portfolio_cash') === null;
       // v58.80 (first-users bundle 6): a refused amount says why and leaves the stored balance as it was.
+      // v59.92: a render set off by the previous save lands while the check loads (aio:portfolioStressInput repaints the
+      // native page synchronously) and again after the refusal; the refused text stays instead of turning back into 1200.
       usdBox.value = '-100';
-      await window._aioSaveCashBalance(usdBox);
+      const refusing = window._aioSaveCashBalance(usdBox);
+      window.dispatchEvent(new Event('aio:portfolioStressInput'));
+      await refusing;
+      window.dispatchEvent(new Event('aio:portfolioStressInput'));
       const refused = { kept: localStorage.getItem('aio_portfolio_cash_balances') === saved, reason: document.getElementById('pf-cash-usd-input-error')?.textContent || '', invalid: usdBox.getAttribute('aria-invalid') === 'true', typed: usdBox.value };
       usdBox.value = '1200';
       await window._aioSaveCashBalance(usdBox);

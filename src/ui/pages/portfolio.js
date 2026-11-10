@@ -15,6 +15,7 @@ import { renderTradeJournal, installTradeJournal } from '../panels/portfolio-tra
 import { renderPortfolioValueTrend } from '../components/portfolio-value-trend.js';
 import { renderPortfolioExposureBar } from '../components/portfolio-exposure-bar.js';
 import { installPlanCheck } from '../components/portfolio-plan-check.js';
+import { paintCashBox } from '../panels/portfolio-cash-entry.js';
 import { signedText, readNumber as finite } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
@@ -278,13 +279,8 @@ function screenerSectorOf(bySymbol) {
 function renderCashBalances(documentRef, surface) {
   const balances = Array.isArray(surface?.cashBalances) ? surface.cashBalances : [];
   const amountOf = (code) => balances.find((row) => row.currency === code)?.amount;
-  for (const [id, code] of [['pf-cash-krw-input', 'KRW'], ['pf-cash-usd-input', 'USD']]) {
-    const input = documentRef?.getElementById(id);
-    // v58.80 (bundle 6): a refused value stays on screen with its message until the reader corrects it.
-    if (!input || documentRef.activeElement === input || input.getAttribute('aria-invalid') === 'true') continue;
-    const amount = amountOf(code);
-    input.value = amount == null ? '' : String(amount);
-  }
+  // A box being typed in or saved, or holding a refused amount, is the reader's and is left alone.
+  for (const [id, code] of [['pf-cash-krw-input', 'KRW'], ['pf-cash-usd-input', 'USD']]) paintCashBox(documentRef?.getElementById(id), amountOf(code));
   const conversion = surface?.cashConversion || {};
   const each = balances.filter((row) => row.amount > 0).map((row) => formatSurfaceMoney(row.amount, row.currency || conversion.target || surface.declaredBaseCurrency));
   const unit = conversion.target || surface.declaredCashCurrency || surface.declaredBaseCurrency;
