@@ -173,65 +173,45 @@ benchmark-relative-strength remains visible as missing evidence.
 
 ## v59.69 rescan (2026-11-04, origin/main 432ac3eb)
 
-The three tables below were re-measured with `grep -n` against the files on 2026-11-04 (index.html 6,239 lines). They
-supersede the v53.8 rescan (2026-07-18, index.html 28,618 lines), whose ranges were all off after the inline blocks moved
-to `js/*` and `src/**`. Older detailed line snapshots further down stay as audit history and are not current.
+Line numbers are not recorded here because they move every release. Each row below names an id or symbol and the
+command that finds it; run that command and read only the region it returns.
 
 ### Shell/script boundaries
 
-| Range | Content |
-|------:|---------|
-| 8, 38 | first-paint `data.json`/`history.json` preload and connection-aware font loader |
-| 39~3446 | main CSS |
-| 3448~6050 | body shell + 20 route DOM (inline islands 3457~3522, 3763, 3874, 3975~3996) |
-| 6051 | DOMPurify CDN |
-| 6052~6073 | CDN failure fallback |
-| 6081~6086 | `aio-workspace/kr-data/pages/core/data/ui` defer loaders (`?v=59.69`) |
-| 6137 | `js/aio-glossary.js` defer loader (`js/aio-chat.js` loads on demand through `src/app/chat-loader.js`, v59.16) |
-| 6183~6226 | footer support CSS |
-| 6236 | `src/app/bootstrap.js` (native ESM entry) |
+| Anchor | Content |
+|--------|---------|
+| `grep -n '__aioBootPrefetch' index.html`, `grep -n 'aio-font-css' index.html` | first-paint `data.json`/`history.json` preload and connection-aware font loader |
+| `grep -n '<style>' index.html` (first hit) to `grep -n '</style>' index.html` (first hit) | main CSS |
+| `grep -n '<body' index.html` to `grep -n 'dompurify@' index.html` | body shell + 20 route DOM (inline islands: `grep -n '<script>' index.html`) |
+| `grep -n 'dompurify@' index.html` | DOMPurify CDN |
+| `grep -n 'coordinateChartDependency' index.html` | CDN failure fallback (on-demand chart library loader) |
+| `grep -n 'defer></script>' index.html` | `aio-workspace/kr-data/pages/core/data/ui` defer loaders (`?v=` cachebuster) |
+| `grep -n '#ai-panel{' index.html` | footer support CSS (AI side panel styles) |
+| `grep -n 'src/app/bootstrap.js' index.html` | `src/app/bootstrap.js` (native ESM entry) |
 
 ### Active route DOM starts (20)
 
-| id | line |
-|----|-----:|
-| `page-home` | 3766 |
-| `page-signal` | 3849 |
-| `page-breadth` | 3923 |
-| `page-sentiment` | 3941 |
-| `page-briefing` | 3961 |
-| `page-technical` | 4046 |
-| `page-macro` | 4156 |
-| `page-charts` | 4355 |
-| `page-fxbond` | 4370 |
-| `page-fundamental` | 4435 |
-| `page-themes` | 4492 |
-| `page-theme-detail` | 4689 |
-| `page-portfolio` | 4691 |
-| `page-ticker` | 5199 |
-| `page-market-news` | 5275 |
-| `page-screener` | 5397 |
-| `page-principles` | 5759 |
-| `page-masters` | 5767 |
-| `page-atlas` | 5775 |
-| `page-guide` | 5782 |
+Find all 20 with `grep -n 'id="page-' index.html`. Route order: `page-home`, `page-signal`, `page-breadth`,
+`page-sentiment`, `page-briefing`, `page-technical`, `page-macro`, `page-charts`, `page-fxbond`, `page-fundamental`,
+`page-themes`, `page-theme-detail`, `page-portfolio`, `page-ticker`, `page-market-news`, `page-screener`,
+`page-principles`, `page-masters`, `page-atlas`, `page-guide`.
 
 `page-options` has no DOM (retired v56.79; `#options` is a sentiment alias). Route authority: `src/app/routes.js` `ROUTE_IDS` (20).
 
 ### Current high-value runtime anchors
 
-| Symbol | Location |
+| Symbol | Location (file + search string) |
 |--------|----------|
-| `APP_VERSION` | `js/aio-core.js:2` |
-| `AIO_MANUAL_REFERENCE` / `DATA_SNAPSHOT` | `js/aio-core.js:12919` / `12959` |
-| `applyDataSnapshot` | `js/aio-core.js:13691` |
-| `computeTradingScore` | `src/app/score-entry-points.js:41` (installed as a global; no longer defined in `js/aio-core.js`) |
-| `AIO_PAGE_CONTRACTS` materialization | `js/aio-core.js:15019` (`_buildContracts` 15005) |
-| `destroyPageCharts` / `showPage` | `js/aio-core.js:16237` / `16462` |
-| `fetchLiveQuotes` / `applyLiveQuotes` | `js/aio-data.js:5825` / `7106` |
-| `_aioApplyNativeScreenerState` | `js/aio-data.js:3046` (`_aioComputeFactorRanks` 퇴역 2026-10-17 — native orchestrator가 유일한 랭킹) |
-| native sentiment page (legacy `initBreadthPage` 삭제 v57.60) | `src/ui/pages/sentiment.js:21` (`createSentimentPage`) |
-| `CHAT_CONTEXTS` / `chatSendUnified` (per-page `chatSend` 삭제 v57.62) | `js/aio-chat.js:816` / `3941` |
+| `APP_VERSION` | `js/aio-core.js` — `grep -n 'const APP_VERSION' js/aio-core.js` |
+| `AIO_MANUAL_REFERENCE` / `DATA_SNAPSHOT` | `js/aio-core.js` — `grep -n 'const AIO_MANUAL_REFERENCE\|const DATA_SNAPSHOT' js/aio-core.js` |
+| `applyDataSnapshot` | `js/aio-core.js` — `grep -n 'function applyDataSnapshot' js/aio-core.js` |
+| `computeTradingScore` | `src/app/score-entry-points.js` — `grep -n 'function computeTradingScore' src/app/score-entry-points.js` (installed as a global; no longer defined in `js/aio-core.js`) |
+| `AIO_PAGE_CONTRACTS` materialization | `js/aio-core.js` — `grep -n 'AIO_PAGE_CONTRACTS =\|function _buildContracts' js/aio-core.js` |
+| `destroyPageCharts` / `showPage` | `js/aio-core.js` — `grep -n 'function destroyPageCharts\|function showPage' js/aio-core.js` |
+| `fetchLiveQuotes` / `applyLiveQuotes` | `src/data/quote-demand.js` — `grep -n 'root.fetchLiveQuotes =' src/data/quote-demand.js`; `js/aio-data.js` — `grep -n 'function applyLiveQuotes' js/aio-data.js` |
+| `_aioApplyNativeScreenerState` | `js/aio-data.js` — `grep -n 'function _aioApplyNativeScreenerState' js/aio-data.js` (`_aioComputeFactorRanks` 퇴역 2026-10-17 — native orchestrator가 유일한 랭킹) |
+| native sentiment page (legacy `initBreadthPage` 삭제 v57.60) | `src/ui/pages/sentiment.js` — `grep -n 'export function createSentimentPage' src/ui/pages/sentiment.js` |
+| `CHAT_CONTEXTS` / `chatSendUnified` (per-page `chatSend` 삭제 v57.62) | `js/aio-chat.js` — `grep -n 'const CHAT_CONTEXTS\|function chatSendUnified' js/aio-chat.js` |
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `grep -n`/부분 Read로 한 번 더 확인한다.
@@ -503,27 +483,25 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 
 | 작업 | 우선 파일/범위 |
 |------|----------------|
-| R1 버전 동기화 | `index.html:10`(title), `index.html:5237`(badge), `js/aio-core.js:17670`(APP_VERSION), `version.json`, `sw.js:8`(SW_VERSION), `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md` + `index.html:12461~12463`·`15941`·`28287` 캐시버스터 `?v=` (반드시 `node scripts/bump-version.mjs <버전>`) |
-| 매매 알고리즘 수정 | `js/aio-core.js:20068~20335`(computeTradingScore/getScoreAdvice/computeExecutionWindow/classifyMarketRegime) — **v51.98 Phase 3 A3로 모듈화됨**(§3 참조), `_ldSafe` 바로 뒤 |
-| 배포 게이트/evidence 감사 | `js/aio-core.js:20527~22687`(contracts→evidence→trading→deployment gate) |
-| 데이터 진실성/교차소스 | `js/aio-core.js:20535~20807` |
-| DATA_SNAPSHOT 갱신 | `js/aio-core.js:18620~18898`, freshness/pipeline audit 18108~18440 |
+| R1 버전 동기화 | `index.html` `<title>`·badge `id="app-version-badge"`, `js/aio-core.js` `APP_VERSION`, `version.json`, `sw.js` `SW_VERSION`, `CLAUDE.md`, `_context/CLAUDE.md`, `CHANGELOG.md` + `index.html` 캐시버스터 `?v=` (반드시 `node scripts/bump-version.mjs <버전>`) |
+| 매매 알고리즘 수정 | `src/app/score-entry-points.js` `computeTradingScore`(전역 설치), 모델 `src/domain/market/signal/trading-score.js` `computeTradingScoreModel` — **v51.98 Phase 3 A3로 모듈화됨**(§3 참조) |
+| 배포 게이트/evidence 감사 | `js/aio-core.js` `getDeploymentGateAudit`, `js/aio-qa-audits.js` `runEvidenceDeploymentGate` |
+| 데이터 진실성/교차소스 | `js/aio-qa-audits.js` `getDataTruthAudit`, `js/aio-data.js` `scheduleQuoteCrossSourceValidation` |
+| DATA_SNAPSHOT 갱신 | `js/aio-core.js` `DATA_SNAPSHOT`·`applyDataSnapshot`, freshness/pipeline audit `js/aio-qa-audits.js` `auditAllFreshness`·`getDataPipelineAudit` |
 | 뉴스 채점·제외·선별 | `src/domain/news/selection.js` (목록 `selection-keywords.js`, 규칙 `keyword-match.js`; 창 이름 `src/app/news-selection-entry-points.js`) — 수집·번역·티커는 `js/aio-data.js` |
-| RSI/기술지표 (서버·클라 이중 구현, 공식은 v51.91에 단일화됨 — 진단 C1 해소) | 서버 `scripts/fetch-data.mjs:1082`(`_rsi14`, Wilder) = 클라 `js/aio-core.js:18612`(`_calcRSILast`, Wilder) — 파라미터 드리프트만 잔여 감시 대상 (좌표 2026-07-21 재확인) |
-| 팩터 랭킹/백테스트 (진단 C2 — 의도적 live 7팩터 vs server 4팩터 서브셋, P759 domain 추출 완료) | `src/domain/screener/factor-ranks.js:105` `computeFactorRanks` → legacy `js/aio-data.js:15947` projection; 서버 `scripts/fetch-data.mjs:1173` `backtestFactors`는 look-ahead/data-coverage 사유로 모멘텀/추세/저변동/kalman 4팩터만 사용 |
-| 페이지 전환/init 가드 | `js/aio-core.js:22841~23313`(destroyPageCharts/showPage), 각 page init 함수 |
+| RSI/기술지표 (서버·클라 이중 구현, 공식은 v51.91에 단일화됨 — 진단 C1 해소) | `src/domain/screener/price-factors.js` `_rsi14`(Wilder) — 서버(`scripts/lib/factors.mjs`가 이 모듈을 가져옴)와 브라우저가 같은 모듈을 쓴다 |
+| 팩터 랭킹/백테스트 (진단 C2 — 의도적 live 7팩터 vs server 4팩터 서브셋, P759 domain 추출 완료) | `src/domain/screener/factor-ranks.js` `computeFactorRanks`; 서버 `scripts/lib/factors.mjs` `backtestFactors`는 look-ahead/data-coverage 사유로 모멘텀/추세/저변동/kalman 4팩터만 사용 |
+| 페이지 전환/init 가드 | `js/aio-core.js` `destroyPageCharts`·`showPage`, 각 page init 함수 |
 | sentiment 차트 | `src/ui/pages/sentiment.js` |
-| LLM 모델/쿼터 | `js/aio-ui.js:113~360` |
-| Claude 채팅/웹검색/preflight | `js/aio-chat.js:2320~5160` |
+| LLM 모델/쿼터 | `js/aio-ui.js` `LLM_MODELS`·`getModelConfig`·`getQuota`·`updateQuotaBadge`·`consumeLLMQuery` |
+| Claude 채팅/웹검색/preflight | `js/aio-chat.js` `chatSendUnified`·`_shouldUseClaudeWebSearch`·`_aioPrepareAIResearch` |
 | 기업 분석 UI | `src/ui/pages/entity.js`, `src/ui/components/fundamental-search.js` |
-| 포트폴리오 DOM | `index.html:9476~9931` |
-| 옵션 분석 DOM(폐기 shell) | `index.html:10333~10343` |
-| 한국 페이지 DOM | `index.html:10526~11699` |
+| 포트폴리오 DOM | `index.html` `id="page-portfolio"` |
 | browser unit tests (CI 헤드리스 상설화됨, Phase 2 B5 — `.github/workflows/ci.yml` `headless-tests` job, report-only) | `js/aio-tests.js`, 로더는 `js/aio-core.js` 내(`AIO.loadTests()`), CI 러너는 `scripts/ci-headless-tests.mjs` |
-| glossary | `js/aio-glossary.js`, `index.html:28287` |
-| 데이터 파이프라인(서버) | `scripts/fetch-data.mjs` — Yahoo 1차 + 핵심 ETF 20종 한정 Twelve Data 2차 폴백(Phase 2 B1, `TWELVE_DATA_API_KEY` 필요, 지수/선물/FX/KR 확장은 미검증 스코프 제외), `getScreenerSymbols()`는 이제 `public-data/screener-universe.json`을 직접 읽음(Phase 2 B6, `scripts/sync-screener-universe.mjs`가 `js/aio-data.js`의 `SCREENER_DB`에서 생성·CI가 drift 검증 — 정규식 파싱 제거 완료. 클라 비동기 부팅 로드는 Phase 3 A2로 보류) |
-| FRED_SERIES(서버) | `scripts/fetch-data.mjs:44` — Phase 2 B2(v51.97)로 `housingStarts`(HOUST)/`retailSales`(RSAFS)/`usWageGrowth`(CES0500000003) 추가, `fetchFred()`에 `scale`(단위 변환)·`mom_pct`(전월비%) kind 신설. `consConf`(Conf. Board)는 의도적 제외 — FRED 무료 시리즈 없음, UMCSENT(미시간대)와 혼동 금지(R274/P593). 한국 CPI(FRED 릴레이)는 보류(신선도 미검증 + KOSIS 직접경로 우위) |
-| 매매점수 검증 하네스(Phase 3 C3, v52.2) | `scripts/backtest-trading-score.mjs`(신규) — `computeTradingScore`(`js/aio-core.js:20068`) 5개 서브스코어 계단함수를 순수 함수로 재구현, `public-data/history.json`으로 매일 재구성 점수 vs forward 5/21일 SPX 수익률 계산, `public-data/score-backtest-history.json`에 날짜별 upsert 누적(`updateBacktestHistory` P586과 동일 패턴). `fetch-data.mjs` `main()`의 `updateHistory()` 직후에서 호출. **현재 표본 극히 작음**(fg 데이터 24/201일뿐이라 5일forward n=19·21일forward n=3, `statisticallyMeaningful: false`) — 재튜닝 근거 아님, 인프라만(P599 참조). |
+| glossary | `js/aio-glossary.js`(로더 `src/app/classic-loader.js` `loadGlossary`), `index.html` `id="glossary-modal"` |
+| 데이터 파이프라인(서버) | `scripts/fetch-data.mjs` — Yahoo 1차 + 핵심 ETF 20종 한정 Twelve Data 2차 폴백(Phase 2 B1, `TWELVE_DATA_API_KEY` 필요, 지수/선물/FX/KR 확장은 미검증 스코프 제외; `scripts/producer/quotes.mjs` `collectVerifiedQuotes`), `scripts/producer/screener.mjs` `getScreenerUniverse()`는 `public-data/screener-universe.json`을 직접 읽음(Phase 2 B6, `scripts/sync-screener-universe.mjs`가 `js/aio-data.js`의 `SCREENER_DB`에서 생성·CI가 drift 검증 — 정규식 파싱 제거 완료. 클라 비동기 부팅 로드는 Phase 3 A2로 보류) |
+| FRED_SERIES(서버) | `scripts/lib/macro-sources.mjs` `FRED_SERIES` — Phase 2 B2(v51.97)로 `housingStarts`(HOUST)/`retailSales`(RSAFS)/`usWageGrowth`(CES0500000003) 추가, `scripts/producer/fred.mjs` `fetchFred()`에 `scale`(단위 변환)·`mom_pct`(전월비%) kind 신설. `consConf`(Conf. Board)는 의도적 제외 — FRED 무료 시리즈 없음, UMCSENT(미시간대)와 혼동 금지(R274/P593). 한국 CPI(FRED 릴레이)는 보류(신선도 미검증 + KOSIS 직접경로 우위) |
+| 매매점수 검증 하네스(Phase 3 C3, v52.2) | `scripts/backtest-trading-score.mjs`(신규) — `src/domain/market/signal/trading-score.js` `computeTradingScoreModel`을 가져와 `public-data/history.json`으로 매일 재구성 점수 vs forward 5/21일 SPX 수익률 계산, `public-data/score-backtest-history.json`에 날짜별 upsert 누적(`updateBacktestHistory` P586과 동일 패턴). `scripts/fetch-data.mjs` `main()`이 `updateHistory()` 뒤에 `scoreBacktestDue`일 때 `runTradingScoreBacktest`로 호출. **현재 표본 극히 작음**(fg 데이터 24/201일뿐이라 5일forward n=19·21일forward n=3, `statisticallyMeaningful: false`) — 재튜닝 근거 아님, 인프라만(P599 참조). |
 
 ---
 
