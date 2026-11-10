@@ -331,11 +331,6 @@ export function extractPostSignals(post, universe) {
   return [...extractAnalystActions(text, meta), ...extractEarnings(text, meta), ...extractMacroReleases(text, meta), ...extractRetailFlows(text, meta), ...extractDeals(text, meta)];
 }
 
-/** true when a post carries numbers worth keeping in the reading lists (selection floor, not a rank). */
-export function isDataPost(signals) {
-  return Array.isArray(signals) && signals.length > 0;
-}
-
 /**
  * New signals win over carried ones with the same key; signals older than the window are dropped. Each kind keeps a
  * bounded count, newest first, so the digest cannot grow without limit.

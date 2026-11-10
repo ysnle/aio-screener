@@ -7,10 +7,6 @@ import { stampDay } from '../../domain/shared/session-date.js';
 
 export const FRESHNESS_STATES = Object.freeze(['current', 'late', 'stale', 'unknown']);
 
-export function isDegradedRecord(record) {
-  return !!(record && (Array.isArray(record.allowedUseDegradedBy) ? record.allowedUseDegradedBy.length : record.allowedUseDegradedBy));
-}
-
 // freshness: the reader's object; market: which basis session to show; degraded: the record's 참고 flag.
 export function freshnessBadge(doc, freshness, { market = 'US', degraded = false } = {}) {
   const state = FRESHNESS_STATES.includes(freshness?.state) ? freshness.state : 'unknown';

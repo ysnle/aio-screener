@@ -51,13 +51,6 @@ export function frameReading(doc, text) {
   return text ? el(doc, 'p', text, 'aio-frame-reading') : null;
 }
 
-/** The one fold of a frame: method, rules and detail the reader opens on purpose. */
-export function frameMore(doc, label, ...children) {
-  const fold = el(doc, 'details', null, 'sx-disclosure aio-frame-more');
-  fold.append(el(doc, 'summary', label), ...children.filter(Boolean));
-  return fold;
-}
-
 /** Sets (or clears) the as-of chip of an existing frame head, after the title and before any actions. */
 export function setAsOf(doc, head, text, detail = '') {
   if (!head) return null;

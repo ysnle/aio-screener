@@ -9,7 +9,6 @@ import { fileURLToPath } from 'node:url';
 
 export const SEC_LEDGER_PATH = 'public-data/sec-fundamentals.json';
 export const SEC_LEDGER_MANIFEST_PATH = 'public-data/sec-fundamentals-summary.manifest.json';
-export const SEC_LEDGER_SUMMARY_PATH = 'public-data/sec-fundamentals-summary.json';
 export const SEC_STORE_BRANCH = 'data-store';
 export const SEC_STORE_FILE = 'sec-fundamentals.json';
 
