@@ -7,6 +7,7 @@ import { buildChartLayers } from '../../domain/technical/chart-layers.js';
 import { barsFromYahoo, completedBars } from '../../data/chart-bars.js';
 import { chartPalette } from './color-theme.js';
 import { el } from './dom.js';
+import { signedText, directionOf } from '../../domain/shared/number.js';
 
 export const MARKET_CANDLES = Object.freeze([['QQQ', '나스닥100'], ['SPY', 'S&P 500'], ['IWM', '러셀2000']]);
 const CARD_PRICE_PX = 260;
@@ -67,8 +68,9 @@ export function installMarketCandles({ documentRef: doc, root, page = null, host
     const last = bars.at(-1), prev = bars.at(-2);
     const change = (last.close / prev.close - 1) * 100;
     const close = card.querySelector('.charts-candle-close');
-    close.textContent = `${last.time.slice(5).replace('-', '/')} $${last.close.toFixed(2)} ${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-    close.classList.add(change >= 0 ? 'is-up' : 'is-down');
+    close.textContent = `${last.time.slice(5).replace('-', '/')} $${last.close.toFixed(2)} ${signedText(change, 2, '%')}`;
+    const direction = directionOf(change, 2);
+    if (direction) close.classList.add(direction === 'up' ? 'is-up' : 'is-down');
   };
   MARKET_CANDLES.forEach((item) => { load(item).catch(() => {}); });
   const recolor = () => { const next = chartPalette(root); instances.forEach((instance) => instance.applyTheme?.(next)); };

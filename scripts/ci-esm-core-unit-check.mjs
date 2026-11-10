@@ -7482,3 +7482,32 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     if (!ttm || Math.abs(ttm.revenueYoy - 20) > 1e-9 || ttm.netIncomeYoy !== null || ttm.priorMargin !== null) fail(`v59.86 trailing-year revenue growth reads the year-earlier revenue alone: ${JSON.stringify(ttm)}`);
   }
 }
+
+// The arrow, the sign and the up/down colour follow the printed value: a change that prints 0.00% is flat.
+{
+  const { createFakeDocument } = await import(pathToFileURL(path.join(root, 'scripts/lib/fake-dom.mjs')).href);
+  const { renderTickerHero } = await load('src/ui/pages/entity.js');
+  const { renderDailyLoop } = await load('src/ui/components/daily-loop.js');
+  const hero = (pct) => {
+    const doc = createFakeDocument({ ids: ['ticker-hero-chg'] });
+    renderTickerHero(doc, { id: 'AAPL', quote: { value: 100, pct, currency: 'USD' } }, { _currentTickerId: 'AAPL' });
+    const node = doc.getElementById('ticker-hero-chg');
+    return { text: node.textContent, up: node.classList.contains('up'), down: node.classList.contains('down') };
+  };
+  const kospi = (pct) => {
+    const doc = createFakeDocument({ ids: ['home-daily-loop', 'home-kospi-chip', 'home-kospi-label', 'home-kospi-value', 'home-kospi-chg'] });
+    renderDailyLoop({ documentRef: doc, root: { _liveData: { '^KS11': { price: 2500, pct, observedAt: '2026-11-10T05:00:00Z' } }, _aioHistory: [] }, store: null, regime: {} });
+    const node = doc.getElementById('home-kospi-chg');
+    return { text: node.textContent, up: node.classList.contains('pos'), down: node.classList.contains('neg') };
+  };
+  for (const pct of [0, -0.001, 0.004]) {
+    const h = hero(pct), k = kospi(pct);
+    if (h.text !== '0.00%' || h.up || h.down) fail(`v59.94 the ticker hero prints a change that rounds to zero flat, without an arrow or colour (${pct}): ${JSON.stringify(h)}`);
+    if (k.text !== '0.00%' || k.up || k.down) fail(`v59.94 the 코스피 chip prints a change that rounds to zero without a rising or falling colour (${pct}): ${JSON.stringify(k)}`);
+  }
+  const heroUp = hero(1.234), heroDown = hero(-1.234), kospiUp = kospi(1.234), kospiDown = kospi(-1.234);
+  if (heroUp.text !== '▲ +1.23%' || !heroUp.up || heroUp.down) fail(`v59.94 a rising ticker hero change reads ▲ +1.23% in the rising colour: ${JSON.stringify(heroUp)}`);
+  if (heroDown.text !== '▼ 1.23%' || !heroDown.down || heroDown.up) fail(`v59.94 a falling ticker hero change reads ▼ 1.23% in the falling colour: ${JSON.stringify(heroDown)}`);
+  if (kospiUp.text !== '+1.23%' || !kospiUp.up || kospiUp.down) fail(`v59.94 a rising 코스피 chip change is +1.23% in the rising colour: ${JSON.stringify(kospiUp)}`);
+  if (kospiDown.text !== '-1.23%' || !kospiDown.down || kospiDown.up) fail(`v59.94 a falling 코스피 chip change is -1.23% in the falling colour: ${JSON.stringify(kospiDown)}`);
+}

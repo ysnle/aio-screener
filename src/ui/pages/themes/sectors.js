@@ -9,7 +9,7 @@ import { rrgRecentReading } from '../../../domain/themes/recent-check.js';
 import { readMarketRegime } from '../../components/market-regime.js';
 import { marketInterpretation } from '../../../data/selectors/interpretation.js';
 import { renderNextSteps } from '../../components/page-flow.js';
-import { signedText, finiteNumber as finite } from '../../../domain/shared/number.js';
+import { signedText, directionOf, finiteNumber as finite } from '../../../domain/shared/number.js';
 import { screenerRowsState } from '../../../data/shared-artifacts.js';
 import { DATA_STATE_CHIPS } from '../../../domain/content/data-state.js';
 import { asOfChip } from '../../components/section-frame.js';
@@ -78,7 +78,8 @@ export function renderKrThemeArtifact({ documentRef, root, store }) {
     const item = el('div', null, 'stock-read-bar-row');
     const track = el('div', null, 'stock-read-track');
     track.style.position = 'relative';
-    const bar = el('div', null, `stock-read-bar is-stock ${theme.ret1m >= 0 ? 'is-up' : 'is-down'}`);
+    const direction = directionOf(theme.ret1m, 1);
+    const bar = el('div', null, `stock-read-bar is-stock${direction === 'up' ? ' is-up' : direction === 'down' ? ' is-down' : ''}`);
     const half = `${(Math.abs(theme.ret1m) / max * 50).toFixed(1)}%`;
     bar.classList.add('thp-strength-bar');
     bar.style.width = `max(2px, ${half})`;

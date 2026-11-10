@@ -5,7 +5,7 @@
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
 import { oneSessionDay } from '../../domain/market/day/one-session.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, directionOf } from '../../domain/shared/number.js';
 import { el } from './dom.js';
 import { storyWeight } from './story-weight.js';
 import { frameHead } from './section-frame.js';
@@ -94,7 +94,8 @@ export function renderHomeDay({ documentRef: doc, root, store = null }) {
     row.setAttribute('aria-label', '크게 움직인 종목');
     row.append(el(doc, 'span', '크게 움직인 종목', 'home-day__stocks-label'));
     for (const stock of stocks) {
-      const chip = el(doc, 'button', null, `home-day__stock ${stock.change >= 0 ? 'is-up' : 'is-down'}`);
+      const direction = directionOf(stock.change, 1);
+      const chip = el(doc, 'button', null, `home-day__stock${direction === 'up' ? ' is-up' : direction === 'down' ? ' is-down' : ''}`);
       chip.type = 'button';
       chip.dataset.action = 'aioOpenMarketChart';
       chip.dataset.arg = stock.sym;
