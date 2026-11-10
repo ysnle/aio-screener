@@ -1,0 +1,17 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 an official release stops being upcoming once its real release time has passed",
+    "symptom": "The 오늘 화면 '앞으로' list showed last night's FOMC decision (and the previous evening's CPI) as a coming event on the morning read: a FOMC decision dated 2026-12-09 was still upcoming at 09:30 KST on 12-10, and CPI on 12-10 was still upcoming at 09:30 KST on 12-11.",
+    "root_cause": "scheduleFacts in the market-day ledger gave every official release the fixed clock 13:30 UTC and kept it upcoming until 12 hours after that, ignoring the per-release clock (08:30 ET for CPI/jobs/PCE, 14:00 ET for FOMC) that releaseAtMs already provides.",
+    "fix": "scheduleFacts reads the release time from releaseAtMs (13:30 UTC only as a fallback for an id without a known clock) and lists a release only while that time is still in the future; the 12-hour grace is removed.",
+    "violated_rule": "A past event is not shown as coming.",
+    "prevention": "ci-esm-core-unit-check builds the ledger at three instants around a FOMC decision and a CPI release and asserts which are upcoming; the assertions fail on the old fixed clock.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs and node scripts/ci-metric-consistency-check.mjs exit 0; the new v59.94 case failed before the fix.",
+    "files": ["src/domain/market/day/facts.js", "scripts/ci-esm-core-unit-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**Lead ({P}):** The market-day ledger lists an official release (CPI, jobs, PCE, FOMC) as upcoming only until its own release time, so the morning read no longer shows last night's decision as a coming event."],
+  "note": "v59.94: released official events leave the upcoming list at their real release time"
+}
