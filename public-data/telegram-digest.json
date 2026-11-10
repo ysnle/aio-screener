@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-10T02:57:55.994Z",
-  "attemptedAt": "2026-11-10T02:57:55.994Z",
-  "lastSuccessfulAt": "2026-11-10T02:57:55.994Z",
+  "generatedAt": "2026-11-10T03:21:53.994Z",
+  "attemptedAt": "2026-11-10T03:21:53.994Z",
+  "lastSuccessfulAt": "2026-11-10T03:21:53.994Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-27T02:57:49.238Z",
-  "until": "2026-11-10T02:57:49.238Z",
+  "since": "2026-10-27T03:21:48.018Z",
+  "until": "2026-11-10T03:21:48.018Z",
   "current24hWindow": {
     "start": "2026-11-08T23:00:00.000Z",
     "end": "2026-11-09T23:00:00.000Z",
@@ -92,20 +92,20 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1306,
+      "count": 1309,
       "freshCount": 40,
-      "eligibleTextCount": 1251,
+      "eligibleTextCount": 1254,
       "selectedCount": 128,
       "error": null,
-      "lastPostId": 68852
+      "lastPostId": 68857
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 226,
-      "freshCount": 38,
+      "freshCount": 19,
       "eligibleTextCount": 226,
       "selectedCount": 127,
       "error": null,
@@ -116,56 +116,60 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 705,
-      "freshCount": 38,
-      "eligibleTextCount": 704,
+      "count": 710,
+      "freshCount": 40,
+      "eligibleTextCount": 709,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 71863
+      "lastPostId": 71869
     }
   ],
-  "count": 2237,
-  "retainedItemCount": 445,
+  "count": 2245,
+  "retainedItemCount": 444,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2237,
-    "eligibleTextCount": 2181,
+    "observedCount": 2245,
+    "eligibleTextCount": 2189,
     "mediaOnlyCount": 56,
-    "mediaAttachedCount": 657,
-    "photoPostCount": 563,
+    "mediaAttachedCount": 662,
+    "photoPostCount": 568,
     "documentPostCount": 4,
     "imageOnlyCount": 3,
-    "highSignalCount": 388,
-    "broadSignalCount": 839,
+    "highSignalCount": 390,
+    "broadSignalCount": 843,
     "selectedRawCount": 376,
     "selectedEligibleCount": 376,
     "selectedRawCoveragePct": 17.2,
-    "selectedOfObservedPct": 16.8,
+    "selectedOfObservedPct": 16.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "japan": 71,
+    "market-note": 790,
     "macro": 334,
-    "market-note": 787,
-    "earnings": 381,
+    "semi": 478,
+    "earnings": 384,
+    "credit": 91,
+    "healthcare": 75,
+    "japan": 71,
     "power": 286,
     "ai-policy": 97,
-    "semi": 475,
     "equity": 113,
     "media-only": 55,
-    "credit": 89,
-    "healthcare": 74,
-    "geo": 432,
+    "geo": 431,
     "kr-market": 107,
     "flows": 62,
     "optical": 31,
     "crypto": 4
   },
   "tickerCounts": {
-    "NVDA": 149,
+    "NVDA": 151,
+    "CRWV": 9,
+    "MU": 33,
+    "RKLB": 2,
+    "IRDM": 2,
     "AMZN": 66,
     "WMT": 1,
     "ULTA": 1,
@@ -180,8 +184,6 @@
     "TTWO": 1,
     "OXY": 1,
     "HIMS": 2,
-    "RKLB": 1,
-    "IRDM": 1,
     "LLY": 4,
     "META": 2,
     "AAPL": 22,
@@ -190,13 +192,11 @@
     "2454.TW": 5,
     "NYT": 1,
     "006400.KS": 3,
-    "MU": 32,
     "BE": 11,
     "MSFT": 48,
     "CAT": 4,
     "000660.KS": 52,
     "AMAT": 2,
-    "CRWV": 8,
     "BIDU": 1,
     "GOOGL": 8,
     "WDC": 2,
@@ -259,19 +259,19 @@
     "005940.KS": 1
   },
   "themes": [
-    "Market Notes (787 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 8세대 TPU 시스템의 신규 변형인 ‘TPU 8tx’와 ‘TPU 8i Max’를 공개함. TPU...",
-    "Semiconductors/Memory (475 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
-    "Geopolitics (432 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구...",
-    "Earnings/Corporate (381 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Market Notes (790 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 8세대 TPU 시스템의 신규 변형인 ‘TPU 8tx’와 ‘TPU 8i Max’를 공개함. TPU...",
+    "Semiconductors/Memory (478 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
+    "Geopolitics (431 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구...",
+    "Earnings/Corporate (384 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (334 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
-    "AI Power/Grid (286 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란...",
+    "AI Power/Grid (286 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "Equity/Analyst (113 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (107 posts in 14-day research window): 비상계엄 직후보다 더 밀렸다...코스닥 ‘충격’ > 7일 한국거래소에 따르면 코스닥 지수는 전날 34.14포인트(5.03%) 내린 644.27에 장을 마쳤다. 12.3 비상계엄과 탄핵정국 혼란이 한창이던 지난..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 149,
+      "count": 151,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
@@ -282,7 +282,7 @@
     {
       "key": "AMZN",
       "count": 66,
-      "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
+      "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
       "key": "000660.KS",
@@ -292,7 +292,7 @@
     {
       "key": "MSFT",
       "count": 48,
-      "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
+      "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
       "key": "TSM",
@@ -316,7 +316,7 @@
     },
     {
       "key": "MU",
-      "count": 32,
+      "count": 33,
       "text": "2026년 11월 9일 미국 증시 프리마켓 브리핑 엔비디아 CEO 젠슨 황의 혼외관계 인정 및 사과, 이사회 조사 착수 관련 보도가 전해지면서 엔비디아 주가는 야간거래에서 3% 이상 하락. 나스닥 선물도..."
     },
     {
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 432,
+      "count": 431,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
@@ -355,7 +355,7 @@
       "topics": [
         "credit"
       ],
-      "count": 89,
+      "count": 91,
       "focus": "11월 04일 미주인 브리핑 • 나스닥 0.83% 상승 · 엔비디아 시총 5조 달러 회복 • AMD 데이터센터 매출 97% 급증 · 시간 외 6% 상승 • 메타 대규모 회사채 발행 추진 · AI 투자 확대 •..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 475,
+      "count": 478,
       "focus": "2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000..."
     },
     {
@@ -383,7 +383,7 @@
         "power"
       ],
       "count": 286,
-      "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
+      "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
       "id": "ai-policy",
@@ -427,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 381,
+      "count": 384,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -436,7 +436,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 74,
+      "count": 75,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체 분석 결과 장기적인 해외 시장 규모가 최소한 미국 시장만큼 클 수 있다 고 밝혔습니다. 또한 환자들이 고용량..."
     },
     {
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 787,
+      "count": 790,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 8세대 TPU 시스템의 신규 변형인 ‘TPU 8tx’와 ‘TPU 8i Max’를 공개함. TPU..."
     }
   ],
@@ -899,20 +899,17 @@
       "datetime": "2026-11-08T03:54:53.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "power",
-        "macro",
-        "geo",
-        "semi"
+        "power"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
+      ]
     },
     {
       "id": "insidertracking/68579",
@@ -1728,6 +1725,110 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/68857",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68857",
+      "datetime": "2026-11-10T03:17:54.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "lead": 2,
+      "score": 63,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "미국 레딧 관심도 엔비디아 → CPI"
+    },
+    {
+      "id": "HANAchina/71868",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71868",
+      "datetime": "2026-11-10T03:16:49.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "earnings",
+        "credit"
+      ],
+      "lead": 1,
+      "score": 66,
+      "hasText": true,
+      "tickers": [
+        "CRWV"
+      ],
+      "summary": ">>AI 폭풍의 핵심: 주가 반토막 근접, ‘AI 클라우드 양대 강자’ CoreWeave·Nebius 실적 발표 임박 •CoreWeave와 Nebius 주가는 지난 한 달간 각각 40%, 36% 급락했으며,..."
+    },
+    {
+      "id": "insidertracking/68856",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68856",
+      "datetime": "2026-11-10T03:14:51.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아 오버나잇"
+    },
+    {
+      "id": "insidertracking/68855",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68855",
+      "datetime": "2026-11-10T03:14:28.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "MU"
+      ],
+      "summary": "마이크론 오버나잇"
+    },
+    {
+      "id": "insidertracking/68853",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68853",
+      "datetime": "2026-11-10T03:11:05.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "credit",
+        "earnings"
+      ],
+      "score": 75,
+      "hasText": true,
+      "tickers": [
+        "RKLB",
+        "IRDM"
+      ],
+      "summary": "로켓랩(RKLB) Q3 2026 어닝콜 요약 긍정 요인: • 기록적인 매출 성장 및 마진 개선. 3분기 매출은 2억6,780만달러로 전년 대비 73% 증가하며 가이던스 상회. GAAP 매출총이익률은..."
+    },
     {
       "id": "insidertracking/68852",
       "channel": "insidertracking",
@@ -2737,7 +2838,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2746,10 +2846,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>젠슨 황의 엔비디아 지분 1,625억달러 중 1,495억달러는 부부 공동 신탁 및 재단이 보유 (중국언론) •엔비디아 연차보고서에 따르면 젠슨 황이 보유한 8.71억주 가운데 약 8.01억주는 아내...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황의 엔비디아 지분 1,625억달러 중 1,495억달러는 부부 공동 신탁 및 재단이 보유 (중국언론) •엔비디아 연차보고서에 따르면 젠슨 황이 보유한 8.71억주 가운데 약 8.01억주는 아내..."
+      ]
     },
     {
       "id": "HANAchina/71825",
@@ -2762,10 +2863,11 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>젠슨 황 후임자 부재 (중국언론) •젠슨 황이 33년간 엔비디아를 이끌었지만, 시가총액 4.5조달러에 달하는 회사에 명확한 CEO 후계자가 공개적으로 정해져 있지 않다는 지적이 나옴. 10명의 사외이사와...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 후임자 부재 (중국언론) •젠슨 황이 33년간 엔비디아를 이끌었지만, 시가총액 4.5조달러에 달하는 회사에 명확한 CEO 후계자가 공개적으로 정해져 있지 않다는 지적이 나옴. 10명의 사외이사와..."
+      ]
     },
     {
       "id": "HANAchina/71824",
@@ -2774,15 +2876,14 @@
       "datetime": "2026-11-09T09:43:37.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>젠슨 황 거취 ‘50대50’? 번스타인 경고: 가볍게 보면 ‘심각한 차질’, 심각하게 보면 민주당에 ‘칼을 쥐여주는 것’ (중국언론 종합) •엔비디아 주가는 개장 전 5% 이상 하락했으며, 이사회는 독립...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 거취 ‘50대50’? 번스타인 경고: 가볍게 보면 ‘심각한 차질’, 심각하게 보면 민주당에 ‘칼을 쥐여주는 것’ (중국언론 종합) •엔비디아 주가는 개장 전 5% 이상 하락했으며, 이사회는 독립..."
+      ]
     },
     {
       "id": "insidertracking/68775",
@@ -2852,10 +2953,7 @@
       "datetime": "2026-11-09T08:40:31.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "geo",
-        "semi",
-        "earnings",
-        "japan"
+        "market-note"
       ],
       "score": 70,
       "hasText": true,
@@ -2865,8 +2963,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "[대만 10월 수출입: 수출 역대 최고치 경신] • 수출 967.6억 달러 (YoY +58.9%), 36개월 연속 플러스 성장 • 수입 688.9억 달러 (YoY +75.1%) • 무역수지: 278.8억 달러..."
+      "summary": "[대만 10월 수출입: 수출 역대 최고치 경신] • 수출 967.6억 달러 (YoY +58.9%), 36개월 연속 플러스 성장 • 수입 688.9억 달러 (YoY +75.1%) • 무역수지: 278.8억 달러...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68770",
@@ -2941,11 +3039,11 @@
       ],
       "score": 55,
       "hasText": true,
+      "summary": "중국 관영매체, 젠슨 황의 중국 간첩 연루 의혹 일축…미·중 관계 악화 경고 중국 관영 신문은 엔비디아(Nvidia Corp.) 최고경영자(CEO) 젠슨 황의 혼외정사 문제와 중국 정부는 아무런 관련이 없다고...",
       "tickers": [
         "NVDA",
         "NYT"
-      ],
-      "summary": "중국 관영매체, 젠슨 황의 중국 간첩 연루 의혹 일축…미·중 관계 악화 경고 중국 관영 신문은 엔비디아(Nvidia Corp.) 최고경영자(CEO) 젠슨 황의 혼외정사 문제와 중국 정부는 아무런 관련이 없다고..."
+      ]
     },
     {
       "id": "HANAchina/71820",
@@ -3141,16 +3239,14 @@
       "datetime": "2026-11-09T03:47:23.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "semi",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "생산량은 '라피더스의 40배'… 일론 머스크 반도체 공장, 장비 조달팀 극비 방일 일론 머스크의 테슬라와 스페이스X가 공동 추진하는 초대형 반도체 공장 프로젝트 '테라팹(Terafab)'이 본격적인 가동...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "생산량은 '라피더스의 40배'… 일론 머스크 반도체 공장, 장비 조달팀 극비 방일 일론 머스크의 테슬라와 스페이스X가 공동 추진하는 초대형 반도체 공장 프로젝트 '테라팹(Terafab)'이 본격적인 가동..."
+      ]
     },
     {
       "id": "HANAchina/71800",
@@ -3232,8 +3328,7 @@
       "datetime": "2026-11-09T02:23:12.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
       "score": 59,
       "hasText": true,
@@ -3243,10 +3338,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "25년 10월 10일 글 ( 작년 부터 의혹 제기했었던 곳이 있네요) 앨리스 황(Alice Huang)은 중국 공산당(CCP)을 위해 일하는 스파이인가? (2024년 6월 어느 날 밤, 엔비디아 CEO 젠슨...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "25년 10월 10일 글 ( 작년 부터 의혹 제기했었던 곳이 있네요) 앨리스 황(Alice Huang)은 중국 공산당(CCP)을 위해 일하는 스파이인가? (2024년 6월 어느 날 밤, 엔비디아 CEO 젠슨..."
+      ]
     },
     {
       "id": "bornlupin/21059",
@@ -3255,14 +3350,13 @@
       "datetime": "2026-11-09T02:03:00.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "geo",
-        "macro"
+        "macro",
+        "geo"
       ],
-      "lead": 2,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "트럼프 \"이란 추가 공격 가능성 낮아\" 발언에 장 초반 국제유가 하락 도널드 트럼프 미국 대통령이 분쟁 종식을 위한 회담이 진전되는 한 이란에 대한 추가 공격을 명령할 가능성이 매우 낮다고 밝히면서, 월요일..."
+      "summary": "트럼프 \"이란 추가 공격 가능성 낮아\" 발언에 장 초반 국제유가 하락 도널드 트럼프 미국 대통령이 분쟁 종식을 위한 회담이 진전되는 한 이란에 대한 추가 공격을 명령할 가능성이 매우 낮다고 밝히면서, 월요일...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71788",
@@ -3435,7 +3529,6 @@
       "datetime": "2026-11-09T00:09:04.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "macro",
         "semi"
       ],
       "score": 68,
@@ -3446,10 +3539,11 @@
         "videoCount": 1,
         "documents": []
       },
+      "summary": "트럼프 - 젠슨 황 관련 기자: 엔비디아(Nvidia)가 젠슨 황(Jensen Huang)과 중국 스파이 간의 관계를 조사 중입니다. 오늘 젠슨 황과 통화하셨나요? 트럼프: 그 문제에 대해 그와 이야기하지...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 - 젠슨 황 관련 기자: 엔비디아(Nvidia)가 젠슨 황(Jensen Huang)과 중국 스파이 간의 관계를 조사 중입니다. 오늘 젠슨 황과 통화하셨나요? 트럼프: 그 문제에 대해 그와 이야기하지..."
+      ]
     },
     {
       "id": "HANAchina/71773",
@@ -3560,10 +3654,11 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": "회사 임직원 여러분께 드리는 메시지 엔비디아 CEO 젠슨 황 2026년 11월 8일 엔비디아 창업자 겸 CEO 젠슨 황이 오늘 앞서 엔비디아 직원들에게 다음과 같은 이메일을 보냈습니다. 저는 제 가족과 여러분...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "회사 임직원 여러분께 드리는 메시지 엔비디아 CEO 젠슨 황 2026년 11월 8일 엔비디아 창업자 겸 CEO 젠슨 황이 오늘 앞서 엔비디아 직원들에게 다음과 같은 이메일을 보냈습니다. 저는 제 가족과 여러분..."
+      ]
     },
     {
       "id": "HANAchina/71766",
@@ -3607,13 +3702,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "엔비디아 이사회, 젠슨 황 CEO 혼외관계 인정 후 간첩 공작 의혹 조사 착수 이사회는 일요일 발표한 성명에서 외부 법률자문단과 협력하는 독립 사외이사 위원회를 구성해 이번 사건에 대한 조사를 감독할...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 이사회, 젠슨 황 CEO 혼외관계 인정 후 간첩 공작 의혹 조사 착수 이사회는 일요일 발표한 성명에서 외부 법률자문단과 협력하는 독립 사외이사 위원회를 구성해 이번 사건에 대한 조사를 감독할..."
+      ]
     },
     {
       "id": "bornlupin/21055",
@@ -3624,13 +3718,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "NVIDIA 뉴스룸 공식 성명 엔비디아 이사회는 최근 창업자 겸 CEO인 젠슨 황이 외국 정보기관의 공작 대상이 되었다는 보도가 나온 것과 관련해 독립적인 조사에 착수합니다. 이번 조사는 외부 독립...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "NVIDIA 뉴스룸 공식 성명 엔비디아 이사회는 최근 창업자 겸 CEO인 젠슨 황이 외국 정보기관의 공작 대상이 되었다는 보도가 나온 것과 관련해 독립적인 조사에 착수합니다. 이번 조사는 외부 독립..."
+      ]
     },
     {
       "id": "insidertracking/68721",
@@ -4077,20 +4171,17 @@
       "datetime": "2026-11-08T03:54:53.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "power",
-        "macro",
-        "geo",
-        "semi"
+        "power"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
+      ]
     },
     {
       "id": "HANAchina/71747",
@@ -4132,7 +4223,7 @@
       "datetime": "2026-11-08T03:00:57.000Z",
       "localDateKst": "2026-11-08",
       "tags": [
-        "power"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
@@ -4142,10 +4233,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "코어위브(CoreWeave)의 마이클 인트레이터(Michael Intrator) CEO가 지나 히노호사(Gina Hinojosa) 텍사스 주지사 당선인에게 보낸 축하 및 협력 약속 서한 당선인 정책 지지 :...",
       "tickers": [
         "CRWV"
-      ],
-      "summary": "코어위브(CoreWeave)의 마이클 인트레이터(Michael Intrator) CEO가 지나 히노호사(Gina Hinojosa) 텍사스 주지사 당선인에게 보낸 축하 및 협력 약속 서한 당선인 정책 지지 :..."
+      ]
     },
     {
       "id": "bornlupin/21050",
@@ -4155,21 +4246,18 @@
       "localDateKst": "2026-11-08",
       "tags": [
         "power",
-        "semi",
-        "equity",
-        "healthcare"
+        "equity"
       ],
-      "lead": 1,
       "score": 88,
       "hasText": true,
+      "summary": "The Information) AI 데이터센터 건설 지연, 마이크로소프트, 아마존, 구글 3대 기업은 오히려 수혜 Microsoft(MSFT), Amazon(AMZN), Alphabet(GOOGL)은 오히려...",
       "tickers": [
         "NVDA",
         "MSFT",
         "GOOG",
         "AMZN",
         "GOOGL"
-      ],
-      "summary": "The Information) AI 데이터센터 건설 지연, 마이크로소프트, 아마존, 구글 3대 기업은 오히려 수혜 Microsoft(MSFT), Amazon(AMZN), Alphabet(GOOGL)은 오히려..."
+      ]
     },
     {
       "id": "HANAchina/71745",
@@ -4411,14 +4499,12 @@
       "datetime": "2026-11-07T13:24:46.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "earnings",
-        "power"
+        "earnings"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "위스트론·위윈, 역대 최강 10월 매출 기록고객사 수주 가시성 견조, AI 서버 비중 사상 최고치… 하반기 실적이 상반기 웃돌 것으로 전망 AI 인프라 수요 강세에 힘입어 위스트론(3231)과 자회사..."
+      "summary": "위스트론·위윈, 역대 최강 10월 매출 기록고객사 수주 가시성 견조, AI 서버 비중 사상 최고치… 하반기 실적이 상반기 웃돌 것으로 전망 AI 인프라 수요 강세에 힘입어 위스트론(3231)과 자회사...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68634",
@@ -4498,19 +4584,17 @@
       "datetime": "2026-11-07T11:53:21.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
-        "power",
-        "healthcare"
+        "semi"
       ],
-      "lead": 1,
       "score": 72,
       "hasText": true,
+      "summary": "TSMC가 엔비디아를 위해 3D DRAM을 생산한다고? 윈본드 자오유쥔 회장의 견해 1. TSMC의 DRAM 시장 진출 가능성 낮아 최근 TSMC가 엔비디아를 위해 3D DRAM을 생산하고 첨단 메모리 시장에...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM",
         "005930.KS"
-      ],
-      "summary": "TSMC가 엔비디아를 위해 3D DRAM을 생산한다고? 윈본드 자오유쥔 회장의 견해 1. TSMC의 DRAM 시장 진출 가능성 낮아 최근 TSMC가 엔비디아를 위해 3D DRAM을 생산하고 첨단 메모리 시장에..."
+      ]
     },
     {
       "id": "insidertracking/68629",
@@ -6101,27 +6185,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/68499",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68499",
-      "datetime": "2026-11-06T00:36:36.000Z",
-      "localDateKst": "2026-11-06",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "트럼프 \"美에 공장 안 지으면 최대 300% 관세\"…강경 기조 유지 > 도널드 트럼프 미국 대통령이 미국에 공장을 건설하지 않는 외국 기업에 최대 300%의 관세를 부과할 수 있다고 언급함.",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21021",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21021",
@@ -6151,22 +6214,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/68496",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68496",
-      "datetime": "2026-11-06T00:04:55.000Z",
-      "localDateKst": "2026-11-06",
-      "tags": [
-        "market-note"
-      ],
-      "score": 61,
-      "hasText": true,
-      "summary": "블룸버그에 따르면 AI 중심 헤지펀드 밸류 얼라인드 리서치 어드바이저스(VARA)가 AI 인프라 관련 쏠림 거래의 급격한 반전으로 10월 33% 급락하며 올해 두 번째 대규모 손실 기록. VARA는 앞서...",
-      "tickers": [
-        "BE"
-      ]
-    },
-    {
       "id": "HANAchina/71626",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71626",
@@ -6181,20 +6228,6 @@
       "hasText": true,
       "summary": "• 대만 증시 약세와 외국인 순매도 속에 신대만달러 환율이 장중 달러당 33선에 근접하자, 대만 중앙은행 외환국은 수출기업들에게 추가적인 고점 환율을 기다리기보다 달러 가격이 유리한 지금 시점에 맞춰 달러를...",
       "lead": 3,
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/68490",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68490",
-      "datetime": "2026-11-05T23:16:05.000Z",
-      "localDateKst": "2026-11-06",
-      "tags": [
-        "market-note"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "월스트리트저널(WSJ)에 따르면 백악관이 공화당의 중간선거 참패 이후 3,000개 이상의 보수 성향 단체에 공개 발언을 감시하고 있다는 경고를 전달. 이번 경고는 공화당 주요 인사들이 의회 통제권 상실의...",
       "tickers": []
     },
     {
@@ -6280,27 +6313,6 @@
       "tickers": [
         "GOOG"
       ]
-    },
-    {
-      "id": "insidertracking/68481",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68481",
-      "datetime": "2026-11-05T21:56:08.000Z",
-      "localDateKst": "2026-11-06",
-      "tags": [
-        "geo"
-      ],
-      "score": 50,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "텔레그래프 칼럼니스트 데이비드 블레어는 미국 중간선거 이후 트럼프 대통령이 우크라이나 전쟁의 조기 종식을 위해 키이우에 대한 압박을 강화할 가능성이 있다고 분석. 블레어는 민주당의 중간선거 승리로 트럼프...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "HANAchina/71610",
@@ -7363,22 +7375,6 @@
       "hasText": true,
       "summary": "• TSMC가 중부과학단지(중커)에 1.4나노 공정을 구축하고 후공정 업체 실리콘웨어(SPIL)가 얼린·윈린 투자를 확대하면서, 타이중-장화-윈린을 잇는 첨단 제조 및 패키징 클러스터가 형성 • AI·HPC...",
       "lead": 1,
-      "tickers": [
-        "TSM"
-      ]
-    },
-    {
-      "id": "HANAchina/71504",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71504",
-      "datetime": "2026-11-03T23:13:52.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "market-note"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": "• 삼성이 8인치 파운드리 신규 수주를 중단하고 2030년 완전 철수를 추진함에 따라 발생하는 대규모 외주 및 고객사 이탈 물량을 UMC가 흡수할 전망 • UMC는 삼성 시스템LSI와 8인치 공정뿐 아니라...",
       "tickers": [
         "TSM"
       ]
@@ -9143,7 +9139,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -9152,10 +9147,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>젠슨 황의 엔비디아 지분 1,625억달러 중 1,495억달러는 부부 공동 신탁 및 재단이 보유 (중국언론) •엔비디아 연차보고서에 따르면 젠슨 황이 보유한 8.71억주 가운데 약 8.01억주는 아내...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황의 엔비디아 지분 1,625억달러 중 1,495억달러는 부부 공동 신탁 및 재단이 보유 (중국언론) •엔비디아 연차보고서에 따르면 젠슨 황이 보유한 8.71억주 가운데 약 8.01억주는 아내..."
+      ]
     },
     {
       "id": "HANAchina/71825",
@@ -9168,10 +9164,11 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>젠슨 황 후임자 부재 (중국언론) •젠슨 황이 33년간 엔비디아를 이끌었지만, 시가총액 4.5조달러에 달하는 회사에 명확한 CEO 후계자가 공개적으로 정해져 있지 않다는 지적이 나옴. 10명의 사외이사와...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 후임자 부재 (중국언론) •젠슨 황이 33년간 엔비디아를 이끌었지만, 시가총액 4.5조달러에 달하는 회사에 명확한 CEO 후계자가 공개적으로 정해져 있지 않다는 지적이 나옴. 10명의 사외이사와..."
+      ]
     },
     {
       "id": "HANAchina/71824",
@@ -9180,15 +9177,14 @@
       "datetime": "2026-11-09T09:43:37.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>젠슨 황 거취 ‘50대50’? 번스타인 경고: 가볍게 보면 ‘심각한 차질’, 심각하게 보면 민주당에 ‘칼을 쥐여주는 것’ (중국언론 종합) •엔비디아 주가는 개장 전 5% 이상 하락했으며, 이사회는 독립...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 거취 ‘50대50’? 번스타인 경고: 가볍게 보면 ‘심각한 차질’, 심각하게 보면 민주당에 ‘칼을 쥐여주는 것’ (중국언론 종합) •엔비디아 주가는 개장 전 5% 이상 하락했으며, 이사회는 독립..."
+      ]
     },
     {
       "id": "insidertracking/68775",
@@ -9258,10 +9254,7 @@
       "datetime": "2026-11-09T08:40:31.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "geo",
-        "semi",
-        "earnings",
-        "japan"
+        "market-note"
       ],
       "score": 70,
       "hasText": true,
@@ -9271,8 +9264,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "[대만 10월 수출입: 수출 역대 최고치 경신] • 수출 967.6억 달러 (YoY +58.9%), 36개월 연속 플러스 성장 • 수입 688.9억 달러 (YoY +75.1%) • 무역수지: 278.8억 달러..."
+      "summary": "[대만 10월 수출입: 수출 역대 최고치 경신] • 수출 967.6억 달러 (YoY +58.9%), 36개월 연속 플러스 성장 • 수입 688.9억 달러 (YoY +75.1%) • 무역수지: 278.8억 달러...",
+      "tickers": []
     },
     {
       "id": "insidertracking/68770",
@@ -9347,11 +9340,11 @@
       ],
       "score": 55,
       "hasText": true,
+      "summary": "중국 관영매체, 젠슨 황의 중국 간첩 연루 의혹 일축…미·중 관계 악화 경고 중국 관영 신문은 엔비디아(Nvidia Corp.) 최고경영자(CEO) 젠슨 황의 혼외정사 문제와 중국 정부는 아무런 관련이 없다고...",
       "tickers": [
         "NVDA",
         "NYT"
-      ],
-      "summary": "중국 관영매체, 젠슨 황의 중국 간첩 연루 의혹 일축…미·중 관계 악화 경고 중국 관영 신문은 엔비디아(Nvidia Corp.) 최고경영자(CEO) 젠슨 황의 혼외정사 문제와 중국 정부는 아무런 관련이 없다고..."
+      ]
     },
     {
       "id": "HANAchina/71820",
@@ -9547,16 +9540,14 @@
       "datetime": "2026-11-09T03:47:23.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "semi",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "생산량은 '라피더스의 40배'… 일론 머스크 반도체 공장, 장비 조달팀 극비 방일 일론 머스크의 테슬라와 스페이스X가 공동 추진하는 초대형 반도체 공장 프로젝트 '테라팹(Terafab)'이 본격적인 가동...",
       "tickers": [
         "TSLA"
-      ],
-      "summary": "생산량은 '라피더스의 40배'… 일론 머스크 반도체 공장, 장비 조달팀 극비 방일 일론 머스크의 테슬라와 스페이스X가 공동 추진하는 초대형 반도체 공장 프로젝트 '테라팹(Terafab)'이 본격적인 가동..."
+      ]
     },
     {
       "id": "HANAchina/71800",
@@ -9638,8 +9629,7 @@
       "datetime": "2026-11-09T02:23:12.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
       "score": 59,
       "hasText": true,
@@ -9649,10 +9639,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "25년 10월 10일 글 ( 작년 부터 의혹 제기했었던 곳이 있네요) 앨리스 황(Alice Huang)은 중국 공산당(CCP)을 위해 일하는 스파이인가? (2024년 6월 어느 날 밤, 엔비디아 CEO 젠슨...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "25년 10월 10일 글 ( 작년 부터 의혹 제기했었던 곳이 있네요) 앨리스 황(Alice Huang)은 중국 공산당(CCP)을 위해 일하는 스파이인가? (2024년 6월 어느 날 밤, 엔비디아 CEO 젠슨..."
+      ]
     },
     {
       "id": "bornlupin/21059",
@@ -9661,14 +9651,13 @@
       "datetime": "2026-11-09T02:03:00.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "geo",
-        "macro"
+        "macro",
+        "geo"
       ],
-      "lead": 2,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "트럼프 \"이란 추가 공격 가능성 낮아\" 발언에 장 초반 국제유가 하락 도널드 트럼프 미국 대통령이 분쟁 종식을 위한 회담이 진전되는 한 이란에 대한 추가 공격을 명령할 가능성이 매우 낮다고 밝히면서, 월요일..."
+      "summary": "트럼프 \"이란 추가 공격 가능성 낮아\" 발언에 장 초반 국제유가 하락 도널드 트럼프 미국 대통령이 분쟁 종식을 위한 회담이 진전되는 한 이란에 대한 추가 공격을 명령할 가능성이 매우 낮다고 밝히면서, 월요일...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71788",
@@ -9841,7 +9830,6 @@
       "datetime": "2026-11-09T00:09:04.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "macro",
         "semi"
       ],
       "score": 68,
@@ -9852,10 +9840,11 @@
         "videoCount": 1,
         "documents": []
       },
+      "summary": "트럼프 - 젠슨 황 관련 기자: 엔비디아(Nvidia)가 젠슨 황(Jensen Huang)과 중국 스파이 간의 관계를 조사 중입니다. 오늘 젠슨 황과 통화하셨나요? 트럼프: 그 문제에 대해 그와 이야기하지...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 - 젠슨 황 관련 기자: 엔비디아(Nvidia)가 젠슨 황(Jensen Huang)과 중국 스파이 간의 관계를 조사 중입니다. 오늘 젠슨 황과 통화하셨나요? 트럼프: 그 문제에 대해 그와 이야기하지..."
+      ]
     },
     {
       "id": "HANAchina/71773",
