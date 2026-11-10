@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-10T20:21:24.010Z",
-  "attemptedAt": "2026-11-10T20:21:24.010Z",
-  "lastSuccessfulAt": "2026-11-10T20:21:24.010Z",
+  "generatedAt": "2026-11-10T20:52:13.397Z",
+  "attemptedAt": "2026-11-10T20:52:13.397Z",
+  "lastSuccessfulAt": "2026-11-10T20:52:13.397Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-27T20:21:19.295Z",
-  "until": "2026-11-10T20:21:19.295Z",
+  "since": "2026-10-27T20:52:10.109Z",
+  "until": "2026-11-10T20:52:10.109Z",
   "current24hWindow": {
     "start": "2026-11-08T23:00:00.000Z",
     "end": "2026-11-09T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1314,
-      "freshCount": 20,
-      "eligibleTextCount": 1257,
+      "count": 1307,
+      "freshCount": 40,
+      "eligibleTextCount": 1250,
       "selectedCount": 130,
       "error": null,
-      "lastPostId": 68924
+      "lastPostId": 68927
     },
     {
       "channel": "bornlupin",
@@ -124,61 +124,61 @@
       "lastPostId": 71900
     }
   ],
-  "count": 2247,
-  "retainedItemCount": 408,
+  "count": 2240,
+  "retainedItemCount": 424,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2247,
-    "eligibleTextCount": 2189,
+    "observedCount": 2240,
+    "eligibleTextCount": 2182,
     "mediaOnlyCount": 58,
-    "mediaAttachedCount": 702,
-    "photoPostCount": 602,
+    "mediaAttachedCount": 703,
+    "photoPostCount": 603,
     "documentPostCount": 4,
     "imageOnlyCount": 3,
-    "highSignalCount": 391,
-    "broadSignalCount": 843,
+    "highSignalCount": 390,
+    "broadSignalCount": 838,
     "selectedRawCount": 377,
     "selectedEligibleCount": 377,
-    "selectedRawCoveragePct": 17.2,
+    "selectedRawCoveragePct": 17.3,
     "selectedOfObservedPct": 16.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
     "market-note": 794,
-    "earnings": 375,
-    "kr-market": 105,
-    "macro": 333,
-    "semi": 487,
-    "equity": 120,
-    "power": 283,
+    "geo": 423,
+    "semi": 485,
+    "macro": 329,
+    "healthcare": 73,
+    "earnings": 374,
+    "kr-market": 104,
+    "equity": 119,
+    "power": 282,
     "media-only": 57,
     "ai-policy": 103,
-    "geo": 424,
-    "credit": 88,
+    "credit": 85,
     "japan": 68,
     "flows": 61,
-    "healthcare": 73,
     "optical": 31,
     "crypto": 4
   },
   "tickerCounts": {
+    "NVDA": 156,
     "MSFT": 50,
     "AAPL": 24,
     "TSM": 52,
-    "NVDA": 156,
-    "AMD": 51,
-    "AVGO": 15,
-    "GOOG": 99,
+    "AMD": 49,
+    "AVGO": 14,
+    "GOOG": 97,
     "GS": 4,
     "MS": 4,
     "AMZN": 66,
     "TSLA": 36,
     "2454.TW": 6,
     "005930.KS": 40,
-    "000660.KS": 50,
+    "000660.KS": 48,
     "CRWV": 8,
     "MU": 30,
     "RKLB": 2,
@@ -202,7 +202,7 @@
     "BIDU": 1,
     "GOOGL": 8,
     "WDC": 2,
-    "STX": 7,
+    "STX": 6,
     "ORCL": 11,
     "DB": 2,
     "MRNA": 3,
@@ -260,13 +260,13 @@
   },
   "themes": [
     "Market Notes (794 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 8세대 TPU 시스템의 신규 변형인 ‘TPU 8tx’와 ‘TPU 8i Max’를 공개함. TPU...",
-    "Semiconductors/Memory (487 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
-    "Geopolitics (424 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
-    "Earnings/Corporate (375 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (333 posts in 14-day research window): 2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물...",
-    "AI Power/Grid (283 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
-    "Equity/Analyst (120 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "Korea Market (105 posts in 14-day research window): 비상계엄 직후보다 더 밀렸다...코스닥 ‘충격’ > 7일 한국거래소에 따르면 코스닥 지수는 전날 34.14포인트(5.03%) 내린 644.27에 장을 마쳤다. 12.3 비상계엄과 탄핵정국 혼란이 한창이던 지난..."
+    "Semiconductors/Memory (485 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
+    "Geopolitics (423 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
+    "Earnings/Corporate (374 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (329 posts in 14-day research window): 2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물...",
+    "AI Power/Grid (282 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "Equity/Analyst (119 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Korea Market (104 posts in 14-day research window): 비상계엄 직후보다 더 밀렸다...코스닥 ‘충격’ > 7일 한국거래소에 따르면 코스닥 지수는 전날 34.14포인트(5.03%) 내린 644.27에 장을 마쳤다. 12.3 비상계엄과 탄핵정국 혼란이 한창이던 지난..."
   ],
   "catalysts": [
     {
@@ -276,7 +276,7 @@
     },
     {
       "key": "GOOG",
-      "count": 99,
+      "count": 97,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
@@ -290,18 +290,18 @@
       "text": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물..."
     },
     {
-      "key": "AMD",
-      "count": 51,
-      "text": "2026년 11월 9일 미국 증시 프리마켓 브리핑 엔비디아 CEO 젠슨 황의 혼외관계 인정 및 사과, 이사회 조사 착수 관련 보도가 전해지면서 엔비디아 주가는 야간거래에서 3% 이상 하락. 나스닥 선물도..."
-    },
-    {
       "key": "MSFT",
       "count": 50,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
+      "key": "AMD",
+      "count": 49,
+      "text": "2026년 11월 9일 미국 증시 프리마켓 브리핑 엔비디아 CEO 젠슨 황의 혼외관계 인정 및 사과, 이사회 조사 착수 관련 보도가 전해지면서 엔비디아 주가는 야간거래에서 3% 이상 하락. 나스닥 선물도..."
+    },
+    {
       "key": "000660.KS",
-      "count": 50,
+      "count": 48,
       "text": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물..."
     },
     {
@@ -337,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 333,
+      "count": 329,
       "focus": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물..."
     },
     {
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 424,
+      "count": 423,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의..."
     },
     {
@@ -355,7 +355,7 @@
       "topics": [
         "credit"
       ],
-      "count": 88,
+      "count": 85,
       "focus": ">>Apple, 7개 트랜치 달러채 발행…1년여 만에 투자등급 채권시장 복귀 •Apple이 1년여 만에 투자등급 채권시장에 복귀해 2~10년 만기의 7개 트랜치 달러채 발행에 나섬. 최장기 채권의 최초 금리..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 487,
+      "count": 485,
       "focus": "2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000..."
     },
     {
@@ -382,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 283,
+      "count": 282,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -400,7 +400,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 105,
+      "count": 104,
       "focus": "비상계엄 직후보다 더 밀렸다...코스닥 ‘충격’ > 7일 한국거래소에 따르면 코스닥 지수는 전날 34.14포인트(5.03%) 내린 644.27에 장을 마쳤다. 12.3 비상계엄과 탄핵정국 혼란이 한창이던 지난..."
     },
     {
@@ -409,7 +409,7 @@
       "topics": [
         "equity"
       ],
-      "count": 120,
+      "count": 119,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -427,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 375,
+      "count": 374,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -1721,6 +1721,48 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68926",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68926",
+      "datetime": "2026-11-10T20:49:12.000Z",
+      "localDateKst": "2026-11-11",
+      "tags": [
+        "geo",
+        "semi"
+      ],
+      "score": 66,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 11일 트럼프 발언·헤그세스 · 트럼프, 피트 헤그세스 국방장관에게 “A+++” 평가 · 트럼프, 헤그세스를 비판한 전 하원의원 토머스 매시를..."
+    },
+    {
+      "id": "insidertracking/68925",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68925",
+      "datetime": "2026-11-10T20:48:13.000Z",
+      "localDateKst": "2026-11-11",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "healthcare"
+      ],
+      "score": 83,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 11일 🇺🇸 아메리카 • 미국 10월 물가가 예상보다 강한 흐름을 보이며 연준의 추가 긴축 가능성이 확대. 로리 로건 댈러스 연은 총재는 인플레이션이 2% 목표를..."
+    },
+    {
       "id": "insidertracking/68920",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/68920",
@@ -1892,11 +1934,11 @@
         "macro",
         "geo"
       ],
+      "lead": 1,
       "score": 62,
       "hasText": true,
-      "summary": "국제유가가 최근 2거래일 동안 7% 이상 급락하며 브렌트유는 배럴당 약 91달러, 미국 서부텍사스산원유(WTI)는 85.20달러까지 하락. 이번 급락은 트럼프 대통령이 당분간 이란에 대한 추가 군사 공격이...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "국제유가가 최근 2거래일 동안 7% 이상 급락하며 브렌트유는 배럴당 약 91달러, 미국 서부텍사스산원유(WTI)는 85.20달러까지 하락. 이번 급락은 트럼프 대통령이 당분간 이란에 대한 추가 군사 공격이..."
     },
     {
       "id": "bornlupin/21094",
@@ -1948,13 +1990,13 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "로이터에 따르면 이탈리아 밀라노 검찰은 아마존을 통해 판매된 유럽연합(EU) 역외 제품 150만 개 이상에 대해 적절한 수입 부가가치세(VAT)와 관세가 납부되지 않았다고 지적. 현재까지 확인된 미납...",
-      "lead": 1,
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": "로이터에 따르면 이탈리아 밀라노 검찰은 아마존을 통해 판매된 유럽연합(EU) 역외 제품 150만 개 이상에 대해 적절한 수입 부가가치세(VAT)와 관세가 납부되지 않았다고 지적. 현재까지 확인된 미납..."
     },
     {
       "id": "insidertracking/68892",
@@ -1963,14 +2005,14 @@
       "datetime": "2026-11-10T11:17:37.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 51,
       "hasText": true,
-      "summary": "11월 10일 디크립트 보도를 인용한 내용에 따르면, 미국 엘리자베스 워런 상원의원이 미국 통화감독청(OCC)이 지난 8월 트럼프 대통령이 지지하는 월드 리버티 파이낸셜의 은행 인가를 조건부 승인한 사안에...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "11월 10일 디크립트 보도를 인용한 내용에 따르면, 미국 엘리자베스 워런 상원의원이 미국 통화감독청(OCC)이 지난 8월 트럼프 대통령이 지지하는 월드 리버티 파이낸셜의 은행 인가를 조건부 승인한 사안에..."
     },
     {
       "id": "insidertracking/68887",
@@ -1981,12 +2023,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "디인포메이션에 따르면 엔비디아 CEO 젠슨 황과 앨리스 황의 관계를 통해 2023년 이후 최소 75억 달러 규모의 엔비디아 칩이 중국에 판매된 것으로 보도.",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "디인포메이션에 따르면 엔비디아 CEO 젠슨 황과 앨리스 황의 관계를 통해 2023년 이후 최소 75억 달러 규모의 엔비디아 칩이 중국에 판매된 것으로 보도."
     },
     {
       "id": "insidertracking/68885",
@@ -6037,53 +6080,6 @@
       "tickers": [
         "NVDA",
         "MU"
-      ]
-    },
-    {
-      "id": "insidertracking/68576",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68576",
-      "datetime": "2026-11-06T21:43:34.000Z",
-      "localDateKst": "2026-11-07",
-      "tags": [
-        "healthcare"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Amphastar Pharmaceuticals · Ardent Health · Becton, Dickinson and Company · BeOne...",
-      "tickers": [
-        "AAPL",
-        "MRNA",
-        "MTD",
-        "IBN"
-      ]
-    },
-    {
-      "id": "insidertracking/68575",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68575",
-      "datetime": "2026-11-06T21:41:14.000Z",
-      "localDateKst": "2026-11-07",
-      "tags": [
-        "market-note"
-      ],
-      "score": 97,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) · 오라클 (ORCL) — 마이크로소프트가 2023년 체결한 오라클 AI 컴퓨팅 용량 임대 계약의...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "MSFT",
-        "GOOG",
-        "TSM",
-        "ORCL",
-        "TXT"
       ]
     },
     {
