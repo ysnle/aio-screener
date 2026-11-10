@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-10T05:21:43.880Z",
-  "attemptedAt": "2026-11-10T05:21:43.880Z",
-  "lastSuccessfulAt": "2026-11-10T05:21:43.880Z",
+  "generatedAt": "2026-11-10T06:21:42.987Z",
+  "attemptedAt": "2026-11-10T06:21:42.987Z",
+  "lastSuccessfulAt": "2026-11-10T06:21:42.987Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-27T05:21:37.953Z",
-  "until": "2026-11-10T05:21:37.953Z",
+  "since": "2026-10-27T06:21:37.573Z",
+  "until": "2026-11-10T06:21:37.573Z",
   "current24hWindow": {
     "start": "2026-11-08T23:00:00.000Z",
     "end": "2026-11-09T23:00:00.000Z",
@@ -92,24 +92,24 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1311,
+      "count": 1307,
       "freshCount": 37,
-      "eligibleTextCount": 1255,
+      "eligibleTextCount": 1251,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 68864
+      "lastPostId": 68867
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 227,
+      "count": 229,
       "freshCount": 38,
-      "eligibleTextCount": 227,
+      "eligibleTextCount": 229,
       "selectedCount": 127,
       "error": null,
-      "lastPostId": 21087
+      "lastPostId": 21089
     },
     {
       "channel": "HANAchina",
@@ -117,29 +117,29 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 715,
-      "freshCount": 30,
+      "freshCount": 32,
       "eligibleTextCount": 714,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 71888
+      "lastPostId": 71892
     }
   ],
-  "count": 2253,
-  "retainedItemCount": 441,
+  "count": 2251,
+  "retainedItemCount": 439,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2253,
-    "eligibleTextCount": 2196,
+    "observedCount": 2251,
+    "eligibleTextCount": 2194,
     "mediaOnlyCount": 57,
-    "mediaAttachedCount": 671,
-    "photoPostCount": 577,
+    "mediaAttachedCount": 676,
+    "photoPostCount": 582,
     "documentPostCount": 4,
     "imageOnlyCount": 3,
-    "highSignalCount": 390,
-    "broadSignalCount": 843,
+    "highSignalCount": 391,
+    "broadSignalCount": 844,
     "selectedRawCount": 374,
     "selectedEligibleCount": 374,
     "selectedRawCoveragePct": 17,
@@ -147,32 +147,35 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 480,
+    "semi": 483,
+    "market-note": 792,
+    "flows": 63,
+    "ai-policy": 100,
     "equity": 116,
-    "macro": 334,
+    "earnings": 385,
+    "macro": 333,
     "power": 286,
     "kr-market": 108,
     "credit": 91,
-    "geo": 432,
-    "market-note": 792,
-    "ai-policy": 99,
-    "flows": 63,
+    "geo": 430,
     "media-only": 56,
-    "earnings": 383,
     "healthcare": 75,
     "japan": 71,
     "optical": 31,
     "crypto": 4
   },
   "tickerCounts": {
-    "NVDA": 153,
+    "AMD": 47,
+    "MSFT": 49,
+    "GOOG": 101,
+    "AMZN": 68,
+    "TSM": 50,
+    "NVDA": 152,
     "AAPL": 23,
-    "AMZN": 67,
     "005930.KS": 42,
     "000660.KS": 53,
-    "TSM": 47,
     "CRWV": 9,
-    "MU": 32,
+    "MU": 31,
     "RKLB": 2,
     "IRDM": 2,
     "WMT": 1,
@@ -180,9 +183,7 @@
     "017670.KS": 3,
     "TSLA": 35,
     "NVO": 3,
-    "GOOG": 101,
     "ASTS": 1,
-    "AMD": 46,
     "TTWO": 1,
     "OXY": 1,
     "HIMS": 2,
@@ -194,7 +195,6 @@
     "NYT": 1,
     "006400.KS": 3,
     "BE": 11,
-    "MSFT": 48,
     "CAT": 4,
     "AMAT": 2,
     "BIDU": 1,
@@ -260,10 +260,10 @@
   },
   "themes": [
     "Market Notes (792 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 8세대 TPU 시스템의 신규 변형인 ‘TPU 8tx’와 ‘TPU 8i Max’를 공개함. TPU...",
-    "Semiconductors/Memory (480 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
-    "Geopolitics (432 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구...",
-    "Earnings/Corporate (383 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (334 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의 협상 가능성을 열어두면서도 군사적 압박을 유지. • 트럼프 대통령은 피트 헤그세스 국방장관이 탄핵 절차에...",
+    "Semiconductors/Memory (483 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
+    "Geopolitics (430 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구...",
+    "Earnings/Corporate (385 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (333 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의 협상 가능성을 열어두면서도 군사적 압박을 유지. • 트럼프 대통령은 피트 헤그세스 국방장관이 탄핵 절차에...",
     "AI Power/Grid (286 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란...",
     "Equity/Analyst (116 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (108 posts in 14-day research window): 비상계엄 직후보다 더 밀렸다...코스닥 ‘충격’ > 7일 한국거래소에 따르면 코스닥 지수는 전날 34.14포인트(5.03%) 내린 644.27에 장을 마쳤다. 12.3 비상계엄과 탄핵정국 혼란이 한창이던 지난..."
@@ -271,7 +271,7 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 153,
+      "count": 152,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
@@ -281,7 +281,7 @@
     },
     {
       "key": "AMZN",
-      "count": 67,
+      "count": 68,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
     },
     {
@@ -290,18 +290,18 @@
       "text": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물 +0.12% 수준이며 VIX는 19.88로 -0.65%. 지난주 AI·반도체 급락 이후 전반적인 시장 변동성은..."
     },
     {
-      "key": "MSFT",
-      "count": 48,
-      "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
-    },
-    {
       "key": "TSM",
-      "count": 47,
+      "count": 50,
       "text": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물 +0.12% 수준이며 VIX는 19.88로 -0.65%. 지난주 AI·반도체 급락 이후 전반적인 시장 변동성은..."
     },
     {
+      "key": "MSFT",
+      "count": 49,
+      "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
+    },
+    {
       "key": "AMD",
-      "count": 46,
+      "count": 47,
       "text": "2026년 11월 9일 미국 증시 프리마켓 브리핑 엔비디아 CEO 젠슨 황의 혼외관계 인정 및 사과, 이사회 조사 착수 관련 보도가 전해지면서 엔비디아 주가는 야간거래에서 3% 이상 하락. 나스닥 선물도..."
     },
     {
@@ -316,7 +316,7 @@
     },
     {
       "key": "MU",
-      "count": 32,
+      "count": 31,
       "text": "2026년 11월 9일 미국 증시 프리마켓 브리핑 엔비디아 CEO 젠슨 황의 혼외관계 인정 및 사과, 이사회 조사 착수 관련 보도가 전해지면서 엔비디아 주가는 야간거래에서 3% 이상 하락. 나스닥 선물도..."
     },
     {
@@ -337,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 334,
+      "count": 333,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의 협상 가능성을 열어두면서도 군사적 압박을 유지. • 트럼프 대통령은 피트 헤그세스 국방장관이 탄핵 절차에..."
     },
     {
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 432,
+      "count": 430,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 480,
+      "count": 483,
       "focus": "2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000..."
     },
     {
@@ -391,7 +391,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 99,
+      "count": 100,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -427,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 383,
+      "count": 385,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -1726,6 +1726,116 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71892",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71892",
+      "datetime": "2026-11-10T06:14:19.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>스마트폰 ‘대규모 재활용 시대’ 진입, 내년에는 재활용 메모리 탑재 비중 9%까지 상승 가능 •TrendForce, 올해 재용접해 재활용하는 메모리가 스마트폰 시장의 34%를 차지할 것으로 예상되며,..."
+    },
+    {
+      "id": "HANAchina/71890",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71890",
+      "datetime": "2026-11-10T05:35:48.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "semi",
+        "flows",
+        "ai-policy",
+        "equity"
+      ],
+      "lead": 2,
+      "score": 83,
+      "hasText": true,
+      "tickers": [
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "AMZN"
+      ],
+      "summary": ">>메모리주 상승폭 축소, DRAM 수급 부족 2027년까지 확대 (대만공상시보) •AI 서버 수요가 지속적으로 증가하면서 DRAM 공급 부족이 2027년까지 이어질 가능성. CSP의 Agentic AI..."
+    },
+    {
+      "id": "bornlupin/21088",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21088",
+      "datetime": "2026-11-10T05:35:12.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "earnings",
+        "semi"
+      ],
+      "lead": 2,
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "TSM"
+      ],
+      "summary": "TSMC 2026년 10월 순매출 mom +14.7%, yoy +59.7% 연결 기준 약 5,868억 9,000만 대만달러(NT$) 2026년 9월 대비 14.7%, 2025년 10월 대비 59.7% 증가한..."
+    },
+    {
+      "id": "HANAchina/71889",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71889",
+      "datetime": "2026-11-10T05:33:09.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "earnings",
+        "semi"
+      ],
+      "lead": 2,
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "TSM"
+      ],
+      "summary": ">> TSMC 10월 매출 • 10월 매출 5,868.9억TWD YoY+59.7%, MoM+14.6%"
+    },
+    {
+      "id": "insidertracking/68866",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68866",
+      "datetime": "2026-11-10T05:32:34.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "earnings",
+        "semi"
+      ],
+      "lead": 2,
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "TSM"
+      ],
+      "summary": "TSMC의 2026년 10월 매출은 5,868억9,000만 대만달러로 전월 대비 14.7%, 전년 동월 대비 59.7% 증가. 2026년 1~10월 누적 매출은 4조4,856억1,700만 대만달러로 전년 동기..."
+    },
+    {
       "id": "bornlupin/21087",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21087",
@@ -2206,14 +2316,13 @@
       "datetime": "2026-11-09T23:02:02.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "earnings",
-        "power"
+        "earnings"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 델타 전자 10월 연결 매출 746.66억 TWD(월간 사상 최고치, MoM +14.2%, YoY +30.1%), 1~10월 누적 매출 6,143.34억 TWD(YoY +36.3%) 기록 • 4분기에는..."
+      "summary": "• 델타 전자 10월 연결 매출 746.66억 TWD(월간 사상 최고치, MoM +14.2%, YoY +30.1%), 1~10월 누적 매출 6,143.34억 TWD(YoY +36.3%) 기록 • 4분기에는...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71849",
@@ -2222,17 +2331,16 @@
       "datetime": "2026-11-09T22:54:59.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
+      "summary": "• 젠슨 황 개인 리스크가 엔비디아의 성장 모멘텀 약화로 번질 경우, 대만 증시 상승을 견인해 온 글로벌 AI 투자 밸류에이션 축소로 이어져 대만 IT 대형주 전반에 하방 압력으로 작용할 수 있다는 우려 가...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "• 젠슨 황 개인 리스크가 엔비디아의 성장 모멘텀 약화로 번질 경우, 대만 증시 상승을 견인해 온 글로벌 AI 투자 밸류에이션 축소로 이어져 대만 IT 대형주 전반에 하방 압력으로 작용할 수 있다는 우려 가..."
+      ]
     },
     {
       "id": "HANAchina/71848",
@@ -2274,21 +2382,18 @@
       "datetime": "2026-11-09T22:13:25.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 86,
       "hasText": true,
+      "summary": "11월 10일 미주인 브리핑 자막 안내 유튜브 영상에서 자막 버튼을 누르시면 자동으로 생성되는 자막과 함께 시청하실 수 있습니다. ※ 추후 시각화 자료도 제공드릴 수 있는 방법도 찾고있습니다. • S&P...",
       "tickers": [
         "NVDA",
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "11월 10일 미주인 브리핑 자막 안내 유튜브 영상에서 자막 버튼을 누르시면 자동으로 생성되는 자막과 함께 시청하실 수 있습니다. ※ 추후 시각화 자료도 제공드릴 수 있는 방법도 찾고있습니다. • S&P..."
+      ]
     },
     {
       "id": "bornlupin/21075",
@@ -6223,21 +6328,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/68508",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68508",
-      "datetime": "2026-11-06T03:08:48.000Z",
-      "localDateKst": "2026-11-06",
-      "tags": [
-        "earnings"
-      ],
-      "score": 77,
-      "hasText": true,
-      "summary": "에어비앤비(ABNB) Q3 2026 어닝콜 요약 긍정 요인: • 강력한 매출 및 예약 성장. 3분기 매출은 49억달러로 전년 대비 19% 증가. 총예약액(GBV)은 277억달러로 21%, 예약 숙박일수 및...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "HANAchina/71647",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71647",
@@ -7282,62 +7372,6 @@
       "tickers": [
         "NVDA"
       ]
-    },
-    {
-      "id": "HANAchina/71529",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71529",
-      "datetime": "2026-11-04T04:17:36.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "semi"
-      ],
-      "score": 75,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "• 알리바바·텐센트·바이트댄스 등 중국 빅테크들이 주문한 엔비디아 'RTX Pro 5500'은 약 600만 대(총 700억 달러 이상)에 달하지만, 향후 4개월간 실제 인도받을 물량은 수만 대(전체의 약...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "TSM"
-      ]
-    },
-    {
-      "id": "HANAchina/71520",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71520",
-      "datetime": "2026-11-04T03:14:12.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "ai-policy"
-      ],
-      "score": 54,
-      "hasText": true,
-      "summary": ">>OpenAI 고위 임원, ChatGPT 검색량이 구글의 20% 수준에 도달 •OpenAI의 구글 검색 시장 도전이 가시적인 성과를 내기 시작. OpenAI의 소비자용 제품 책임자인 Adam Fry는...",
-      "lead": 1,
-      "tickers": [
-        "GOOG"
-      ]
-    },
-    {
-      "id": "HANAchina/71519",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71519",
-      "datetime": "2026-11-04T03:00:18.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "•중 10년 국채 금리 1.595% •2025년 1월 이후 최저",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/20994",
@@ -8420,22 +8454,6 @@
       "tickers": [
         "005930.KS"
       ]
-    },
-    {
-      "id": "bornlupin/20880",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20880",
-      "datetime": "2026-10-29T01:31:07.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "[DS증권 반도체 이수림] 삼성전자 3Q26 Key Takeaways 3분기 - B/G DRAM은 한자릿수 초중반, NAND는 한자릿수 중반 증가 - ASP DRAM 20% 수준 상승, NAND 10% 후반...",
-      "tickers": [
-        "005930.KS"
-      ]
     }
   ],
   "current24hItems": [
@@ -8446,17 +8464,16 @@
       "datetime": "2026-11-09T22:54:59.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
+      "summary": "• 젠슨 황 개인 리스크가 엔비디아의 성장 모멘텀 약화로 번질 경우, 대만 증시 상승을 견인해 온 글로벌 AI 투자 밸류에이션 축소로 이어져 대만 IT 대형주 전반에 하방 압력으로 작용할 수 있다는 우려 가...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "• 젠슨 황 개인 리스크가 엔비디아의 성장 모멘텀 약화로 번질 경우, 대만 증시 상승을 견인해 온 글로벌 AI 투자 밸류에이션 축소로 이어져 대만 IT 대형주 전반에 하방 압력으로 작용할 수 있다는 우려 가..."
+      ]
     },
     {
       "id": "HANAchina/71848",
@@ -8498,21 +8515,18 @@
       "datetime": "2026-11-09T22:13:25.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 86,
       "hasText": true,
+      "summary": "11월 10일 미주인 브리핑 자막 안내 유튜브 영상에서 자막 버튼을 누르시면 자동으로 생성되는 자막과 함께 시청하실 수 있습니다. ※ 추후 시각화 자료도 제공드릴 수 있는 방법도 찾고있습니다. • S&P...",
       "tickers": [
         "NVDA",
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "11월 10일 미주인 브리핑 자막 안내 유튜브 영상에서 자막 버튼을 누르시면 자동으로 생성되는 자막과 함께 시청하실 수 있습니다. ※ 추후 시각화 자료도 제공드릴 수 있는 방법도 찾고있습니다. • S&P..."
+      ]
     },
     {
       "id": "bornlupin/21075",
