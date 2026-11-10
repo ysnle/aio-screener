@@ -4,7 +4,7 @@
 // timestamp-only rewrite and checks what reached the remote, what the runner's worktree looks like afterwards and which
 // dispatches were asked for.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, chmodSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,14 +26,16 @@ const git = (cwd, ...args) => run(cwd, 'git', args);
 const tmp = mkdtempSync(join(tmpdir(), 'aio-publish-'));
 const remote = join(tmp, 'remote.git');
 const ghLog = join(tmp, 'gh.log');
-const ghBin = join(tmp, 'gh');
-writeFileSync(ghBin, `#!/usr/bin/env bash\necho "$*" >> ${JSON.stringify(ghLog)}\n`);
-chmodSync(ghBin, 0o755);
+const ghBin = join(tmp, 'gh.mjs');
+writeFileSync(ghBin, `import { appendFileSync } from 'node:fs';\nappendFileSync(${JSON.stringify(ghLog)}, process.argv.slice(2).join(' ') + '\\n');\n`);
 const outFile = join(tmp, 'github-output');
 const savedEnv = { ...process.env };
 const savedCwd = process.cwd();
 Object.assign(process.env, { AIO_PUBLISH_GH: ghBin, AIO_PUBLISH_SLEEP_MS: '0', AIO_PUBLISH_NOW: '2026-11-08T15:00:00Z', GITHUB_OUTPUT: outFile,
-  GIT_AUTHOR_NAME: 'fixture', GIT_AUTHOR_EMAIL: 'f@x', GIT_COMMITTER_NAME: 'fixture', GIT_COMMITTER_EMAIL: 'f@x' });
+  GIT_AUTHOR_NAME: 'fixture', GIT_AUTHOR_EMAIL: 'f@x', GIT_COMMITTER_NAME: 'fixture', GIT_COMMITTER_EMAIL: 'f@x',
+  // The fixture repositories compare file bytes; a machine with core.autocrlf=true would rewrite LF as CRLF when the
+  // autostash is re-applied.
+  GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.autocrlf', GIT_CONFIG_VALUE_0: 'false' });
 
 const SETS = {
   data: { workflow: 'fixture.yml', message: 'data: fixture', candidateFile: null, required: ['out/a.json'], optional: ['out/b.json', 'out/missing.json'],
@@ -103,9 +105,8 @@ try {
   { // a failed CI dispatch after the push is a warning and hands converge no sha to wait on
     const { runner } = fresh();
     writeFileSync(join(runner, 'out/a.json'), '{"v":9}\n');
-    const failing = join(tmp, 'gh-fail');
-    writeFileSync(failing, '#!/usr/bin/env bash\nexit 1\n');
-    chmodSync(failing, 0o755);
+    const failing = join(tmp, 'gh-fail.mjs');
+    writeFileSync(failing, 'process.exit(1);\n');
     process.env.AIO_PUBLISH_GH = failing;
     const code = inRepo(runner, { set: 'data' });
     process.env.AIO_PUBLISH_GH = ghBin;
