@@ -44,7 +44,15 @@ export function claimSourceUrl(value) {
 // covered; 개월/개년 stay out so a period like "3개월" is not read as a current figure.
 // Briefing audit 2026-10-17: the particles 가/도/의 joined the metric list ("VIX가 15.2로" published unbound); a period after
 // the number ("금리가 3개월") stays out. v58.77 (pipeline audit AI-02): index levels without a unit ("코스피는 2,450이다") are covered.
+// A market instrument whose level is quoted without a unit, optionally with an alias or a per-unit word:
+// "달러인덱스(DXY)는 104.2입니다", "WTI는 배럴당 71.4입니다", "10년물은 4.15에 마감했다".
+var UNITLESS_MARKET_LEVEL = /(?:10년물|2년물|30년물|국채\s*금리|원\/달러|달러\/원|달러인덱스|DXY|WTI|브렌트|유가|금\s*가격|금값|비트코인)(?:\s*\([^)]{1,20}\))?\s*(?:는|은|이|가|도|의|:)?\s*(?:배럴당|온스당)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))/i;
+// A decimal or comma-grouped number that is not a period, date or count: "182.3", "1,385.2". It counts only in a
+// sentence that also reports an observation ("엔비디아는 어제 182.3에 마감했다").
+var OBSERVED_PLAIN_NUMBER = /(?<![\d,.])(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d+)(?![\d,.]|\s*(?:년|월|일|개월|분기|주|쪽|번|차례|회|명|개|곳|건))/;
 export function hasCurrentNumericContent(value) {
+  var text = String(value || '');
+  if (UNITLESS_MARKET_LEVEL.test(text) || (OBSERVATION_MARKER.test(text) && OBSERVED_PLAIN_NUMBER.test(text))) return true;
   return /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:코스피|KOSPI)(?:\s*200)?\s*(?:지수)?\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:코스닥|나스닥|다우|닛케이|니케이|러셀\s*2000|S&P\s*500|KOSDAQ|Nasdaq|Dow|Nikkei)\s*(?:지수)?\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:현재|최신|지금|오늘)[^.!?。！？\n]{0,40}?\d[\d,.]*|\d[\d,.]*\s*(?:개(?![월년])|곳|건|명|종목|조|억|만)|\b(?:19|20)\d{2}-\d{2}-\d{2}(?!\d))/i.test(String(value || ''));
 }
 
