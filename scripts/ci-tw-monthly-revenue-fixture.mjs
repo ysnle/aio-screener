@@ -51,6 +51,33 @@ assert.equal(buildTwRevenueView(pendingTwMonthlyRevenue()).state, 'pending', 'v5
 assert.equal(buildTwRevenueView(null, { loadState: 'failed' }).state, 'unavailable', 'v59.56 failed fetch reads unavailable');
 assert.equal(buildTwRevenueView({ ...artifact, schemaVersion: 'x' }).reason, 'schema', 'v59.56 unknown schema reads unavailable');
 
+// A company the source left out keeps its previous record (marked carried) instead of losing its history.
+const months12 = (end) => Array.from({ length: 12 }, (_, i) => ({ month: shiftMonth(end, i - 11), revenue: 1000 + i }));
+const prevArtifact = buildTwMonthlyRevenue({ rows: [row('2330', '台積電', 300, 290, 250, '11508'), row('2454', '聯發科', 40, 42, 40, '11508')], generatedAt: '2026-10-01T00:00:00Z' });
+prevArtifact.companies = prevArtifact.companies.map((c) => ({ ...c, history: months12('2026-08') }));
+const carriedRun = buildTwMonthlyRevenue({ rows: [row('2330', '台積電', 330, 300, 250)], previous: prevArtifact, generatedAt: '2026-11-01T00:00:00Z' });
+const prev2454 = prevArtifact.companies.find((c) => c.code === '2454');
+const kept2454 = carriedRun.companies.find((c) => c.code === '2454');
+const fresh2330 = carriedRun.companies.find((c) => c.code === '2330');
+assert.equal(carriedRun.status, 'ok', 'v59.94 a run with one parsed company stays ok');
+assert.ok(kept2454, 'v59.94 a company missing from the source rows is kept from the previous artifact');
+assert.deepEqual(kept2454, { ...prev2454, carried: true }, 'v59.94 the kept company equals its previous record plus carried');
+assert.equal(kept2454.month, '2026-08', 'v59.94 the kept company keeps its own older month');
+assert.ok(carriedRun.missing.includes('2454'), 'v59.94 a carried company is still listed as missing');
+assert.equal(fresh2330.history.length, 13, 'v59.94 the parsed company extends its 12-month history');
+assert.equal('carried' in fresh2330, false, 'v59.94 a company parsed from this run carries no flag');
+assert.equal(carriedRun.latestMonth, '2026-09', 'v59.94 latestMonth comes from the parsed company');
+const carriedView = buildTwRevenueView(carriedRun, { nowMs: Date.parse('2026-10-20T00:00:00Z') });
+assert.equal(carriedView.month, '2026-09', 'v59.94 the view reads the parsed month as latest');
+assert.equal(carriedView.reported, 1, 'v59.94 a carried company on an older month is not in the latest-month sum');
+const recarried = buildTwMonthlyRevenue({ rows: [row('2330', '台積電', 330, 300, 250)], previous: carriedRun, generatedAt: '2026-11-02T00:00:00Z' });
+assert.ok(sameRevenueData(recarried, carriedRun), 'v59.94 re-carrying the same records compares unchanged');
+const backAgain = buildTwMonthlyRevenue({ rows: [row('2330', '台積電', 330, 300, 250), row('2454', '聯發科', 45, 40, 40)], previous: carriedRun, generatedAt: '2026-11-03T00:00:00Z' });
+assert.equal('carried' in backAgain.companies.find((c) => c.code === '2454'), false, 'v59.94 a returning company drops the carried flag');
+assert.equal(backAgain.companies.find((c) => c.code === '2454').history.length, 13, 'v59.94 a returning company keeps its accumulated history');
+const allCarried = buildTwMonthlyRevenue({ rows: [row('9999', '他社', 1, 1, 1)], previous: carriedRun, generatedAt: '2026-11-04T00:00:00Z' });
+assert.equal(allCarried.status, 'no-companies', 'v59.94 a run with no parsed company leaves the artifact unchanged');
+
 // The committed artifact always parses as the schema (the 수집 전 marker until the first Actions run).
 const committed = JSON.parse(await readFile(new URL('../public-data/tw-monthly-revenue.json', import.meta.url), 'utf8'));
 assert.equal(committed.schemaVersion, 'tw-monthly-revenue.v1', 'v59.56 committed artifact schema');
