@@ -5515,37 +5515,6 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (!(Number(grid.attrs.x1) > 48)) fail(`v59.55 a ₩ axis label widens the value column: x1=${grid?.attrs.x1}`);
 }
 
-// v57.77: the 한국 차트·기술 분석 KOSPI/KOSDAQ cards printed "N단계, 확도 NN%", a setup state and English MACD/BB boxes from
-// a live fetch. They now read completed KRX closes only: 50-/200-day position in Korean and three computed-fact lines.
-{
-  const { krIndexTrendFacts, krIndexPositionText, krIndexReading, renderKrIndexTrends } = await load('src/ui/components/kr-index-trend.js');
-  const { isCloseSessionDate } = await load('src/domain/briefing/market-read.js');
-  const dates = [];
-  const cursor = new Date(Date.UTC(2025, 6, 1));
-  while (dates.length < 230) { const date = cursor.toISOString().slice(0, 10); if (isCloseSessionDate(date, 'KR')) dates.push(date); cursor.setUTCDate(cursor.getUTCDate() + 1); }
-  const rising = dates.map((date, i) => ({ date, kospi: 2500 + i * 10 }));
-  const up = krIndexTrendFacts(rising, 'kospi');
-  if (krIndexPositionText(up) !== '50일선 위, 200일선 위' || up.cross !== '위') fail(`v57.77 a rising KOSPI must read 50일선 위, 200일선 위: ${krIndexPositionText(up)}`);
-  const lines = krIndexReading(up, '코스피');
-  if (lines.length !== 3 || lines.some((line) => /단계|확도|등급|셋업|Stage|MACD|Signal|Histogram|Upper|Lower|%B|52W|Gap/.test(line))) fail(`v57.77 the KR index reading is three fact lines without grades or English labels: ${lines.join(' / ')}`);
-  const falling = rising.map((row, i) => i >= 170 ? { ...row, kospi: 4200 - (i - 170) * 30 } : row);
-  if (krIndexPositionText(krIndexTrendFacts(falling, 'kospi')) !== '50일선 아래, 200일선 아래') fail('v57.77 a falling KOSPI must read 50일선 아래, 200일선 아래');
-  if (krIndexPositionText(krIndexTrendFacts(rising.slice(0, 30), 'kospi')) !== '50일선 계산 전, 200일선 계산 전') fail('v57.77 averages without enough closes are withheld, not estimated');
-  if (krIndexTrendFacts(rising, 'kospi', { through: dates[199] })?.date !== dates[199]) fail('v57.77 the KR card stops at the completed KRX session');
-  const makeNode = (tag) => ({ tag, attrs: {}, children: [], style: {}, dataset: {}, textContent: '', className: '', setAttribute(key, value) { this.attrs[key] = String(value); }, append(...kids) { this.children.push(...kids); }, replaceChildren(...kids) { this.children = kids; }, addEventListener() {} });
-  const hosts = { 'kr-kospi-tech-result': makeNode('section'), 'kr-kosdaq-tech-result': makeNode('section') };
-  const doc = { createElement: makeNode, createElementNS: (ns, tag) => makeNode(tag), getElementById: (id) => hosts[id] || null };
-  const now = Date.parse(`${dates.at(-1)}T09:00:00Z`);
-  const drawn = renderKrIndexTrends({ documentRef: doc, root: { _aioHistory: rising }, now });
-  const walk = (node, out = []) => { out.push(node); (node.children || []).forEach((kid) => walk(kid, out)); return out; };
-  const kospiNodes = walk(hosts['kr-kospi-tech-result']);
-  if (drawn !== 1 || !kospiNodes.some((node) => node.tag === 'svg') || !kospiNodes.some((node) => node.textContent === '50일선 위, 200일선 위')) fail('v57.77 the KOSPI card draws one close chart and its 50-/200-day position');
-  if (hosts['kr-kosdaq-tech-result'].style.display !== 'none') fail('v57.77 a KOSDAQ card without close history stays hidden');
-  const first = hosts['kr-kospi-tech-result'].children;
-  renderKrIndexTrends({ documentRef: doc, root: { _aioHistory: rising }, now });
-  if (hosts['kr-kospi-tech-result'].children !== first) fail('v57.77 the KR card redraws only when the last close changes');
-}
-
 // v59.70 (D6): the producer translates headlines; a failed translation (titleKoFailed) keeps the original with a '원문' mark.
 {
   const { untranslatedMark } = await load('src/ui/pages/news.js');

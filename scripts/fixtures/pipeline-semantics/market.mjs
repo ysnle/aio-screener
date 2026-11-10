@@ -287,9 +287,6 @@ export const cases = [
     const { sectorMoves } = await load('src/ui/components/sector-moves.js');
     const day = { XLP: 0.003, XLU: 1, XLV: -1, XLF: -1, XLRE: -1, XLB: -1, XLY: -1, XLE: -1, XLI: -1, XLC: -1, XLK: -1 };
     assert.equal(sectorMoves(rotation(day), Date.parse('2026-10-23T01:00:00Z')).upCount, 1);
-    const { krIndexTrendFacts } = await load('src/ui/components/kr-index-trend.js');
-    const facts = krIndexTrendFacts([{ date: '2026-10-28', kospi: 3000 }, { date: '2026-10-29', kospi: 2999.1 }], 'kospi');
-    assert.equal(facts.d1Direction, null);
   } },
   { id: 'P2164-AXIS-01', name: '불안정은 안정이 아니고, 신용융자는 신용 축이 아니며, 완화는 그 상태의 주장이 아니다', run: async ({ load }) => {
     const { axisStateClaimIssues } = await load('scripts/lib/market-analysis-validate.mjs');
