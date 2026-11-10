@@ -259,6 +259,41 @@ try {
   }
 }
 
+// v59.94: for fallback-cron workflows a run is this slot's recent success only when it started inside the window, so the
+// previous slot's run (started a full slot spacing earlier) never suppresses the next slot however late it completed.
+{
+  const { dispatchRefreshData } = await import('../worker/data-plane.js');
+  const env = { GITHUB_DISPATCH_TOKEN: 'fixture', AIO_QUOTES_KV: { get: async () => null, put: async () => {} } };
+  const runsFetch = (runs) => async (_url, init) => init.method === 'POST' ? new Response(null, { status: 204 }) : Response.json({ workflow_runs: runs });
+  const run = (id, event, startedAt, updatedAt, extra = {}) => ({ id, event, head_branch: 'main', status: 'completed', conclusion: 'success', run_started_at: startedAt, created_at: startedAt, updated_at: updatedAt, ...extra });
+  // :20 dispatch ran 09:20→09:27, the :47 cron stood down; the :50 slot must dispatch.
+  const fiftySlot = await dispatchRefreshData({ env, scheduledTime: Date.parse('2026-11-10T09:50:00Z'), fetchImpl: runsFetch([
+    run(2, 'schedule', '2026-11-10T09:47:00Z', '2026-11-10T09:47:40Z'), run(1, 'workflow_dispatch', '2026-11-10T09:20:00Z', '2026-11-10T09:27:00Z')]) });
+  if (!fiftySlot.dispatched || fiftySlot.reason !== 'accepted') fail(`v59.94 the previous slot's refresh-data run must not suppress the :50 slot: ${JSON.stringify(fiftySlot)}`);
+  // A dispatched run that started 5 minutes before the slot and already succeeded is not repeated.
+  const justRan = await dispatchRefreshData({ env, scheduledTime: Date.parse('2026-11-10T09:50:00Z'), fetchImpl: runsFetch([
+    run(3, 'workflow_dispatch', '2026-11-10T09:45:00Z', '2026-11-10T09:49:00Z')]) });
+  if (justRan.dispatched || justRan.reason !== 'recent-success') fail(`v59.94 a refresh-data run started inside the window must suppress the slot: ${JSON.stringify(justRan)}`);
+  // A run still in progress keeps the slot from dispatching.
+  const stillRunning = await dispatchRefreshData({ env, scheduledTime: Date.parse('2026-11-10T09:50:00Z'), fetchImpl: runsFetch([
+    run(4, 'workflow_dispatch', '2026-11-10T09:20:00Z', '2026-11-10T09:49:00Z', { status: 'in_progress', conclusion: null })]) });
+  if (stillRunning.dispatched || stillRunning.reason !== 'workflow-active') fail(`v59.94 an in-progress refresh-data run must stay workflow-active: ${JSON.stringify(stillRunning)}`);
+}
+{
+  const { dispatchRefreshScreener, dispatchEventBriefs } = await import('../worker/data-plane.js');
+  const env = { GITHUB_DISPATCH_TOKEN: 'fixture', AIO_QUOTES_KV: { get: async () => null, put: async () => {} } };
+  const runsFetch = (runs) => async (_url, init) => init.method === 'POST' ? new Response(null, { status: 204 }) : Response.json({ workflow_runs: runs });
+  const run = (id, event, startedAt, updatedAt) => ({ id, event, head_branch: 'main', status: 'completed', conclusion: 'success', run_started_at: startedAt, created_at: startedAt, updated_at: updatedAt });
+  // Screener backup: the on-time 21:53 cron that completed at 22:05 still suppresses the 22:25 backup (measured from completion).
+  const screenerCron = await dispatchRefreshScreener({ env, scheduledTime: Date.parse('2026-11-10T22:25:00Z'), fetchImpl: runsFetch([
+    run(5, 'schedule', '2026-11-10T21:53:00Z', '2026-11-10T22:05:00Z')]) });
+  if (screenerCron.dispatched || screenerCron.reason !== 'recent-success') fail(`v59.94 the screener backup must still skip an on-time cron run: ${JSON.stringify(screenerCron)}`);
+  // Event briefs: the previous slot's run (started 20 min ago, completed 17 min ago) does not suppress this slot.
+  const briefsNext = await dispatchEventBriefs({ env, scheduledTime: Date.parse('2026-11-10T13:25:00Z'), fetchImpl: runsFetch([
+    run(6, 'workflow_dispatch', '2026-11-10T13:05:00Z', '2026-11-10T13:08:00Z')]) });
+  if (!briefsNext.dispatched || briefsNext.reason !== 'accepted') fail(`v59.94 the previous event-briefs slot's run must not suppress the next slot: ${JSON.stringify(briefsNext)}`);
+}
+
 // P1595: fallback dispatch coalesces healthy work, persists safe receipts and bounds stalled bodies.
 {
   const { dispatchRefreshData } = await import('../worker/data-plane.js');

@@ -1,0 +1,17 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 the :50 refresh-data dispatch slot was skipped every hour",
+    "symptom": "Market data refreshed once an hour instead of every 30 minutes. On 2026-11-10 (gh run list) dispatched refresh-data runs started at 01:20, 02:20 ... 10:20 (e.g. 10:20 -> 10:26) and finished at :26-:29; data commits landed at :23-:24 each hour and no :50 run existed.",
+    "root_cause": "The data-plane dispatcher skipped a slot when the newest non-cron run had completed less than 25 minutes earlier. A :20 run completing at :27 is 23 minutes old at :50, so the :50 slot was treated as a recent success, while the :47 GitHub cron had already stood down because of that same :20 run.",
+    "fix": "For workflows whose cron is only the Worker's fallback (refresh-data, event-briefs) the recent-success age is measured from the run's start (run_started_at, then created_at, then updated_at), so the previous slot's run never suppresses the next slot. The screener backup keeps the completion-based age so an on-time cron run is still not repeated. Takes effect when the data-plane Worker is redeployed (Deploy fast data plane after push).",
+    "violated_rule": "A dedupe window must measure the event it dedupes: 'a run already happened for this slot' is a start-time question, not a completion-time one.",
+    "prevention": "ci-data-plane-contract-check drives the dispatcher with a fake fetch: a :20 run finishing at :27 must not suppress :50; a run started 5 min before the slot still suppresses; in-progress stays workflow-active; the screener backup still skips an on-time cron; event briefs' previous-slot run does not suppress.",
+    "verification": "node scripts/ci-data-plane-contract-check.mjs fails on the old rule (recent-success at 09:50) and passes on the new; after deploy, gh run list --workflow refresh-data.yml shows dispatched runs at both :20 and :50.",
+    "files": ["worker/data-plane.js", "scripts/ci-data-plane-contract-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**Refresh every 30 minutes again ({P}):** the data-plane dispatcher measured 'recent success' from when the :20 run finished, so the :50 slot was skipped every hour; fallback-cron workflows now measure from the run's start, and the screener backup is unchanged."],
+  "note": "v59.94: :50 refresh-data slot dispatched again (start-based recent-success age)"
+}
