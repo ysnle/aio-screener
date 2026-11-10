@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-09
+last_verified: 2026-11-10
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -38,6 +38,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 <!-- ledger-class-report:end -->
 
 ---
+
+## P2333 - v59.92 - 0.0%로 표시된 원/달러 변화에 '원화 강세'가 붙음 (2026-11-10)
+
+- symptom/reproduction: 환율·채권 화면의 원화 분해 문장이 '원/달러 0.0%(원화 강세)'로 나왔다. v59.92 릴리스 CI의 browser-rendered-copy-lint가 zero-direction으로 실패했다.
+- root_cause: buildKrwDecomposition은 숫자를 signedText로 소수 첫째 자리까지 반올림해 그리면서 방향 단어는 반올림 전 krwMove의 부호로 골랐다. -0.04% 같은 움직임은 0.0%로 표시되면서 강세로 읽혔다.
+- fix: 방향 단어를 표시와 같은 반올림을 쓰는 shared/number.js의 directionOf에서 고른다. 0으로 반올림되면 '변화 없음'이다.
+- violated_rule: 방향 단어·색은 표시된 숫자의 부호를 따른다(v58.80 directionOf와 같은 계약).
+- prevention: browser-rendered-copy-lint zero-direction이 이 문장을 잡는다(v59.92 CI에서 고정 데이터로 결정적 재현).
+- verification/residual: 수정 후 browser-rendered-copy-lint 통과.
+- files: src/domain/macro/krw-decomposition.js
 
 ## P2332 - v59.92 - 거부된 달러 현금 금액이 이전 저장 금액으로 되돌아감 (2026-11-09)
 
