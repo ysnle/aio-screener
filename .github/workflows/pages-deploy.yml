@@ -157,6 +157,7 @@ jobs:
           # Canonical bulk ledgers stay producer-side until retention-managed object storage is
           # configured. Pages receives only bounded projections and referenced immutable objects.
           # v59.70 (data audit R4): producer-only inputs and research histories that no browser path reads stay out too.
+          # Knowledge-build and 13F-build inputs (dossiers, coverage matrix, learning graph, CUSIP map) are build inputs no browser path reads.
           rsync -a \
             --exclude 'sec-fundamentals.json' \
             --exclude 'sec-fundamentals-extended.json' \
@@ -171,6 +172,16 @@ jobs:
             --exclude 'masters/issuer-aggregates.json' \
             --exclude 'masters/managers/' \
             --exclude 'masters/managers-store.json' \
+            --exclude 'knowledge/research-dossiers.json' \
+            --exclude 'knowledge/research-dossiers/' \
+            --exclude 'knowledge/coverage-matrix.json' \
+            --exclude 'knowledge/integrated-market-ai-frameworks.json' \
+            --exclude 'masters/cusip-ticker-map.json' \
+            --exclude 'knowledge/domain-dossiers.json' \
+            --exclude 'knowledge/domain-dossiers/' \
+            --exclude 'knowledge/learning-graph.json' \
+            --exclude 'knowledge/research-facts.json' \
+            --exclude 'knowledge/research-source-seeds.json' \
             public-data/ "$RUNNER_TEMP/pages-dist/public-data/"
           # Deploy-time bundle: minify the classic js/ scripts one by one and bundle the src/ module graph into hashed
           # chunks, in the staged copy only (source layout, CI and local serving are unchanged). It runs before the
