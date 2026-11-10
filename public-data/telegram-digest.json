@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-10T08:22:06.100Z",
-  "attemptedAt": "2026-11-10T08:22:06.100Z",
-  "lastSuccessfulAt": "2026-11-10T08:22:06.100Z",
+  "generatedAt": "2026-11-10T09:21:56.444Z",
+  "attemptedAt": "2026-11-10T09:21:56.444Z",
+  "lastSuccessfulAt": "2026-11-10T09:21:56.444Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-27T08:22:01.427Z",
-  "until": "2026-11-10T08:22:01.427Z",
+  "since": "2026-10-27T09:21:51.375Z",
+  "until": "2026-11-10T09:21:51.375Z",
   "current24hWindow": {
     "start": "2026-11-08T23:00:00.000Z",
     "end": "2026-11-09T23:00:00.000Z",
@@ -92,22 +92,22 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1306,
-      "freshCount": 37,
-      "eligibleTextCount": 1251,
+      "count": 1305,
+      "freshCount": 38,
+      "eligibleTextCount": 1250,
       "selectedCount": 128,
       "error": null,
-      "lastPostId": 68876
+      "lastPostId": 68880
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 229,
+      "count": 226,
       "freshCount": 19,
-      "eligibleTextCount": 229,
-      "selectedCount": 126,
+      "eligibleTextCount": 226,
+      "selectedCount": 125,
       "error": null,
       "lastPostId": 21091
     },
@@ -116,65 +116,66 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 715,
-      "freshCount": 32,
-      "eligibleTextCount": 714,
+      "count": 712,
+      "freshCount": 30,
+      "eligibleTextCount": 711,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 71898
+      "lastPostId": 71899
     }
   ],
-  "count": 2250,
-  "retainedItemCount": 428,
+  "count": 2243,
+  "retainedItemCount": 425,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2250,
-    "eligibleTextCount": 2194,
+    "observedCount": 2243,
+    "eligibleTextCount": 2187,
     "mediaOnlyCount": 56,
-    "mediaAttachedCount": 679,
-    "photoPostCount": 585,
+    "mediaAttachedCount": 682,
+    "photoPostCount": 588,
     "documentPostCount": 4,
     "imageOnlyCount": 3,
-    "highSignalCount": 393,
-    "broadSignalCount": 846,
-    "selectedRawCount": 375,
-    "selectedEligibleCount": 375,
+    "highSignalCount": 388,
+    "broadSignalCount": 838,
+    "selectedRawCount": 374,
+    "selectedEligibleCount": 374,
     "selectedRawCoveragePct": 17.1,
     "selectedOfObservedPct": 16.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 486,
-    "ai-policy": 101,
-    "equity": 118,
-    "geo": 430,
     "market-note": 788,
-    "credit": 90,
-    "power": 287,
-    "earnings": 387,
-    "japan": 72,
-    "flows": 63,
-    "macro": 330,
     "kr-market": 107,
+    "power": 284,
+    "macro": 328,
+    "semi": 481,
+    "earnings": 385,
+    "ai-policy": 100,
+    "equity": 114,
+    "geo": 428,
+    "credit": 88,
+    "japan": 70,
+    "flows": 62,
     "media-only": 55,
     "healthcare": 74,
     "optical": 31,
     "crypto": 4
   },
   "tickerCounts": {
-    "NVDA": 154,
-    "AMD": 48,
-    "MSFT": 48,
-    "GOOG": 101,
-    "AMZN": 68,
-    "005930.KS": 43,
-    "000660.KS": 53,
-    "AAPL": 24,
     "TSM": 50,
-    "CRWV": 9,
+    "2454.TW": 6,
+    "NVDA": 152,
+    "AMD": 48,
+    "MSFT": 46,
+    "GOOG": 99,
+    "AMZN": 66,
+    "005930.KS": 41,
+    "000660.KS": 51,
+    "AAPL": 24,
+    "CRWV": 8,
     "MU": 31,
     "RKLB": 2,
     "IRDM": 2,
@@ -191,7 +192,6 @@
     "META": 2,
     "PLTR": 27,
     "AVGO": 14,
-    "2454.TW": 5,
     "NYT": 1,
     "006400.KS": 3,
     "BE": 11,
@@ -260,33 +260,33 @@
   },
   "themes": [
     "Market Notes (788 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 8세대 TPU 시스템의 신규 변형인 ‘TPU 8tx’와 ‘TPU 8i Max’를 공개함. TPU...",
-    "Semiconductors/Memory (486 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
-    "Geopolitics (430 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구...",
-    "Earnings/Corporate (387 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
-    "Macro/Rates (330 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의 협상 가능성을 열어두면서도 군사적 압박을 유지. • 트럼프 대통령은 피트 헤그세스 국방장관이 탄핵 절차에...",
-    "AI Power/Grid (287 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
-    "Equity/Analyst (118 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Semiconductors/Memory (481 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
+    "Geopolitics (428 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구...",
+    "Earnings/Corporate (385 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Macro/Rates (328 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의 협상 가능성을 열어두면서도 군사적 압박을 유지. • 트럼프 대통령은 피트 헤그세스 국방장관이 탄핵 절차에...",
+    "AI Power/Grid (284 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "Equity/Analyst (114 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (107 posts in 14-day research window): 비상계엄 직후보다 더 밀렸다...코스닥 ‘충격’ > 7일 한국거래소에 따르면 코스닥 지수는 전날 34.14포인트(5.03%) 내린 644.27에 장을 마쳤다. 12.3 비상계엄과 탄핵정국 혼란이 한창이던 지난..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 154,
+      "count": 152,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
       "key": "GOOG",
-      "count": 101,
+      "count": 99,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
       "key": "AMZN",
-      "count": 68,
+      "count": 66,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
       "key": "000660.KS",
-      "count": 53,
+      "count": 51,
       "text": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물 +0.12% 수준이며 VIX는 19.88로 -0.65%. 지난주 AI·반도체 급락 이후 전반적인 시장 변동성은..."
     },
     {
@@ -301,12 +301,12 @@
     },
     {
       "key": "MSFT",
-      "count": 48,
+      "count": 46,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
       "key": "005930.KS",
-      "count": 43,
+      "count": 41,
       "text": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물 +0.12% 수준이며 VIX는 19.88로 -0.65%. 지난주 AI·반도체 급락 이후 전반적인 시장 변동성은..."
     },
     {
@@ -337,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 330,
+      "count": 328,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의 협상 가능성을 열어두면서도 군사적 압박을 유지. • 트럼프 대통령은 피트 헤그세스 국방장관이 탄핵 절차에..."
     },
     {
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 430,
+      "count": 428,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
@@ -355,7 +355,7 @@
       "topics": [
         "credit"
       ],
-      "count": 90,
+      "count": 88,
       "focus": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물 +0.12% 수준이며 VIX는 19.88로 -0.65%. 지난주 AI·반도체 급락 이후 전반적인 시장 변동성은..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 486,
+      "count": 481,
       "focus": "2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000..."
     },
     {
@@ -382,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 287,
+      "count": 284,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -391,7 +391,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 101,
+      "count": 100,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -409,7 +409,7 @@
       "topics": [
         "equity"
       ],
-      "count": 118,
+      "count": 114,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -427,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 387,
+      "count": 385,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -445,7 +445,7 @@
       "topics": [
         "japan"
       ],
-      "count": 72,
+      "count": 70,
       "focus": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
     },
     {
@@ -454,7 +454,7 @@
       "topics": [
         "flows"
       ],
-      "count": 63,
+      "count": 62,
       "focus": "서학개미 순매수 미국 주식 TOP 50 (11월 누적) > 기간: 2026/11/01 ~ 2026/11/06 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -1519,25 +1519,6 @@
       ]
     },
     {
-      "id": "bornlupin/20849",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20849",
-      "datetime": "2026-10-27T09:09:11.000Z",
-      "localDateKst": "2026-10-27",
-      "tags": [
-        "credit"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "AI 자금조달 - 확대되는 기업 간 자금조달 격차 AI 산업의 '레드퀸 효과(Red Queen Effect)'로 인해 클라우드 서비스 제공업체(CSP)들은 계속해서 막대한 투자를 이어가고 있지만, 자본은 점점...",
-      "tickers": [
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "CRWV"
-      ]
-    },
-    {
       "id": "bornlupin/21015",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21015",
@@ -1720,9 +1701,63 @@
       "hasText": true,
       "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프...",
       "tickers": []
+    },
+    {
+      "id": "bornlupin/20902",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20902",
+      "datetime": "2026-10-30T23:30:17.000Z",
+      "localDateKst": "2026-10-31",
+      "tags": [
+        "market-note"
+      ],
+      "score": 92,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "summary": "다음주 일정 11월 1일: 한국 10월 수출입 2일: 미국 10월 ISM 제조업 PMI, 미국 서머타임 해제(한국시간 오후11시30분 장시작, 오전 6시 장마감), TEM, EL, CIFR, TSEM...",
+      "tickers": [],
+      "listTickers": [
+        "AMD",
+        "ALAB",
+        "COHR",
+        "AAOI",
+        "PLTR",
+        "SMCI",
+        "ROKU"
+      ]
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/71899",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71899",
+      "datetime": "2026-11-10T08:23:06.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "score": 77,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "TSM",
+        "2454.TW"
+      ],
+      "summary": "중화권 마감 시황 (26.11.10, 화) 🇨🇳 중국 본토 증시는 올해 1~10월 수출입 총액이 전년 대비 20%(10월 수출 +28.7%) 급증했다는 대외 무역 호조 속에 기술 성장주 중심의 반등세가..."
+    },
     {
       "id": "insidertracking/68876",
       "channel": "insidertracking",
@@ -7371,27 +7406,6 @@
       "tickers": [
         "BE"
       ]
-    },
-    {
-      "id": "HANAchina/71533",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71533",
-      "datetime": "2026-11-04T05:52:12.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "semi"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "•CXMT +8.5% •중국 반도체 과창50지수 +8%",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/20994",
