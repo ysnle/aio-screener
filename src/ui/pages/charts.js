@@ -152,6 +152,11 @@ export function createChartsPage({ root = globalThis, documentRef, store, route 
         target?.addEventListener?.(eventName, renderNow);
         bag.add(() => target?.removeEventListener?.(eventName, renderNow));
       }
+      // The refresh scheduler announces on window; the document registration above stays.
+      if (typeof root?.addEventListener === 'function' && root !== documentRef) {
+        root.addEventListener('aio:refresh:done', renderNow);
+        bag.add(() => root.removeEventListener?.('aio:refresh:done', renderNow));
+      }
       bag.add(() => {
         delete page.dataset.aioArchitectureRoute;
         delete page.dataset.aioArchitectureRenderer;

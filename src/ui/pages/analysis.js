@@ -155,6 +155,11 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
       bag.add(() => eventTarget?.removeEventListener?.('aio:refresh:done', renderNow));
       bag.add(() => eventTarget?.removeEventListener?.('aio:serverDataLoaded', renderNow));
       bag.add(() => eventTarget?.removeEventListener?.('aio:historyLoaded', renderNow));
+      // The refresh scheduler announces on window; the document registration above stays.
+      if (typeof root?.addEventListener === 'function' && root !== eventTarget) {
+        root.addEventListener('aio:refresh:done', renderNow);
+        bag.add(() => root.removeEventListener?.('aio:refresh:done', renderNow));
+      }
       const page = documentRef?.getElementById(`page-${route}`);
       // v57.50 I05: a research document that links here (#signal?metric=… / #technical?metric=…) names what the reader
       // came to check; the note leaves with the route.

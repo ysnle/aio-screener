@@ -359,6 +359,11 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         eventTarget?.addEventListener?.(eventName, renderNow);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
       });
+      // The refresh scheduler and the live-quote reader announce on window; the document registration above stays.
+      if (typeof root?.addEventListener === 'function' && root !== eventTarget) ['aio:liveDataReceived', 'aio:refresh:done'].forEach((eventName) => {
+        root.addEventListener(eventName, renderNow);
+        bag.add(() => root.removeEventListener?.(eventName, renderNow));
+      });
         // P1417: history.json announces itself on window (js/aio-data.js), not on document.
         const windowTarget = root && root !== eventTarget ? root : null;
         if (windowTarget?.addEventListener) {

@@ -7536,3 +7536,28 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const lower = inspectorDoc.getElementById('scr-why-preview').textContent;
   if (!lower.includes('S&P 500보다 1.5%p 낮습니다')) fail(`v59.94 a real 3-month gap still names its size and direction: ${lower}`);
 }
+
+// The refresh scheduler announces aio:refresh:done on window: a mounted page repaints from it and lets it go on teardown.
+// The screener's population line keeps the ranking weights in its hover beside the fixed sentence.
+{
+  const { createFakeDocument, shellIds } = await import(pathToFileURL(path.join(root, 'scripts/lib/fake-dom.mjs')).href);
+  const { createScreenerPage } = await load('src/ui/pages/screener.js');
+  const listeners = new Map();
+  const win = {
+    fetch: () => Promise.reject(new Error('offline gate')), _liveData: {},
+    addEventListener: (type, fn) => { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type).add(fn); },
+    removeEventListener: (type, fn) => { listeners.get(type)?.delete(fn); },
+    dispatchEvent: (event) => { for (const fn of [...(listeners.get(event.type) || [])]) fn(event); return true; }
+  };
+  const doc = createFakeDocument({ ids: shellIds(readFileSync(path.join(root, 'index.html'), 'utf8')) });
+  const screenerStore = createStore({ initialState: { screener: { rows: [{ sym: 'AAA', ret3m: 5, screenRank: 1, screenStatus: 'passed' }], metadata: { ranking: { ranked: 1, appliedFactorWeights: { momentum: 0.6, trend: 0.4 } } } } } });
+  const dispose = createScreenerPage({ documentRef: doc, store: screenerStore, root: win, readLiveData: () => ({}), workbench: { run: async () => null, getDefaultScreens: () => [] } }).mount();
+  const note = doc.getElementById('scr-population-note');
+  if (!note.title.includes('모멘텀 60%') || !note.title.includes('백분위는 같은 시장')) fail(`v59.94 the screener population hover names the ranking weights and the fixed sentence: ${note.title}`);
+  note.title = '';
+  win.dispatchEvent({ type: 'aio:refresh:done' });
+  if (!note.title.includes('모멘텀')) fail('v59.94 aio:refresh:done dispatched on window repaints the mounted screener');
+  if (typeof dispose === 'function') dispose();
+  const left = ['aio:refresh:done', 'aio:liveDataReceived'].reduce((sum, type) => sum + (listeners.get(type)?.size || 0), 0);
+  if (typeof dispose !== 'function' || left) fail(`v59.94 the screener's window refresh listeners are removed on teardown (left ${left})`);
+}

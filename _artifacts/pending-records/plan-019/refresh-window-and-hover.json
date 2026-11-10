@@ -1,0 +1,29 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 새로고침 완료 뒤 일곱 화면이 다시 그려지지 않고, 스크리너 순위 비중 안내가 고정 문장에 덮임",
+    "symptom": "자동·수동 새로고침이 끝나도 시장 상태·차트·오늘·스크리너·종목·뉴스·테마 화면이 aio:refresh:done으로 다시 그려지지 않았다(시장 상태는 aio:liveDataReceived도). 스크리너 '순위 계산' 줄의 hover는 정렬과 팩터 비중을 보여 주지 않고 고정 설명만 보였다.",
+    "root_cause": "refresh-scheduler.js와 aio-data.js는 이 두 이벤트를 window에만 보내는데 일곱 화면은 document에서만 들었다. table.js는 diagnostics.title을 비중 문장으로 쓴 뒤 몇 줄 아래에서 고정 문장으로 다시 덮었다.",
+    "fix": "일곱 화면이 document 등록은 그대로 두고 같은 handler를 root(window)에도 등록하며(addEventListener가 있는 root만), 같은 teardown bag에서 해제한다. table.js는 비중 문장과 고정 문장을 한 title로 한 번 쓴다.",
+    "violated_rule": "이벤트는 그 이벤트를 보내는 대상에서 듣는다 (sentiment.js가 document와 window를 함께 듣는 방식)",
+    "prevention": "ci-esm-core-unit-check가 스크리너 화면을 가짜 window로 mount해 window의 aio:refresh:done이 다시 그리는지, teardown 뒤 두 이벤트 listener가 남지 않는지, 순위 줄 hover에 팩터 비중과 고정 문장이 함께 있는지 본다.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs exit 0; node scripts/ci-desktop-continuity-check.mjs exit 0; 이전 screener/page.js·table.js로 되돌리면 새 assertion이 각각 실패함을 확인.",
+    "files": [
+      "src/ui/pages/market.js",
+      "src/ui/pages/charts.js",
+      "src/ui/pages/analysis.js",
+      "src/ui/pages/screener/page.js",
+      "src/ui/pages/entity.js",
+      "src/ui/pages/news.js",
+      "src/ui/pages/themes.js",
+      "src/ui/pages/screener/table.js",
+      "scripts/ci-esm-core-unit-check.mjs"
+    ]
+  },
+  "r": null,
+  "changelog": [
+    "**Lead ({P}):** 새로고침이 끝나면 시장 상태·차트·오늘·스크리너·종목·뉴스·테마 화면이 다시 그려지고, 스크리너 순위 줄의 hover가 정렬·팩터 비중을 다시 보여 준다."
+  ],
+  "note": "v59.94: refresh-done repaints reach the pages; screener weights hover"
+}

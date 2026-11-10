@@ -936,6 +936,11 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
         eventTarget?.addEventListener?.(eventName, refresh);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, refresh));
       });
+      // The refresh scheduler announces on window; the document registration above stays.
+      if (typeof root?.addEventListener === 'function' && root !== eventTarget) {
+        root.addEventListener('aio:refresh:done', refresh);
+        bag.add(() => root.removeEventListener?.('aio:refresh:done', refresh));
+      }
       eventTarget?.addEventListener?.('aio:pageShown', onPageShown);
       bag.add(() => eventTarget?.removeEventListener?.('aio:pageShown', onPageShown));
       const page = documentRef?.getElementById(`page-${route}`);
