@@ -46,7 +46,7 @@ export function claimSourceUrl(value) {
 // the number ("금리가 3개월") stays out. v58.77 (pipeline audit AI-02): index levels without a unit ("코스피는 2,450이다") are covered.
 // A market instrument whose level is quoted without a unit, optionally with an alias or a per-unit word:
 // "달러인덱스(DXY)는 104.2입니다", "WTI는 배럴당 71.4입니다", "10년물은 4.15에 마감했다".
-var UNITLESS_MARKET_LEVEL = /(?:10년물|2년물|30년물|국채\s*금리|원\/달러|달러\/원|달러인덱스|DXY|WTI|브렌트|유가|금\s*가격|금값|비트코인)(?:\s*\([^)]{1,20}\))?\s*(?:는|은|이|가|도|의|:)?\s*(?:배럴당|온스당)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))/i;
+var UNITLESS_MARKET_LEVEL = /(?:10년물|2년물|30년물|국채\s*금리|원\/달러|달러\/원|달러인덱스|\b(?:DXY|WTI)\b|브렌트|유가(?!증권)|금\s*가격|금값|비트코인)(?:\s*\([^)]{1,20}\))?\s*(?:는|은|이|가|도|의|:)?\s*(?:배럴당|온스당)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))/i;
 // A decimal or comma-grouped number that is not a period, date or count: "182.3", "1,385.2". It counts only in a
 // sentence that also reports an observation ("엔비디아는 어제 182.3에 마감했다").
 var OBSERVED_PLAIN_NUMBER = /(?<![\d,.])(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d+)(?![\d,.]|\s*(?:년|월|일|개월|분기|주|쪽|번|차례|회|명|개|곳|건))/;
