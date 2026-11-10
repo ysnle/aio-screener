@@ -34,7 +34,7 @@ import { requestCompanyStory, companyStoryFor, companySideArtifact } from '../..
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { entityFundamentalsState } from '../../domain/content/data-state.js';
 import { renderDataState } from '../components/data-state.js';
-import { finiteNumber as finite, signedText, usdKoreanText } from '../../domain/shared/number.js';
+import { finiteNumber as finite, signedText, directionOf, usdKoreanText } from '../../domain/shared/number.js';
 import { latestCompletedKrSession } from '../../domain/market/session/market-calendar.js';
 import { stockLensContext, renderStockContext, renderStockStrengths, installStockLensGlobal } from '../components/stock-lens-cards.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
@@ -131,7 +131,7 @@ export function lastPublishedClose(id, state, root) {
   return candidates.filter(item => isIsoDay(item.date)).sort((a, b) => b.date.localeCompare(a.date))[0] || null;
 }
 
-function renderTickerHero(documentRef, state, root) {
+export function renderTickerHero(documentRef, state, root) {
   const requestedId = String(root?._currentTickerId || '').trim().toUpperCase() || null;
   const id = state?.id || requestedId;
   let quote = state?.quote || {};
@@ -189,9 +189,11 @@ function renderTickerHero(documentRef, state, root) {
   if (heroPrice) { if (close) heroPrice.dataset.priceBasis = 'last-close'; else delete heroPrice.dataset.priceBasis; }
   // P1728: a Korean change without a verified previous KRX close says so instead of showing a dash or a wrong base.
   const krUnverified = pct == null && price != null && quote.changeBasis === 'kr-previous-close-unverified';
-  const change = setText(documentRef, 'ticker-hero-chg', closeLabel || (pct == null ? (krUnverified ? '전일 기준 미확인' : '—') : `${pct >= 0 ? '▲ +' : '▼ '}${Math.abs(pct).toFixed(2)}%`));
+  const heroDirection = directionOf(pct, 2);
+  const heroChangeText = heroDirection === 'up' ? `▲ ${signedText(pct, 2, '%')}` : heroDirection === 'down' ? `▼ ${Math.abs(pct).toFixed(2)}%` : signedText(pct, 2, '%');
+  const change = setText(documentRef, 'ticker-hero-chg', closeLabel || (pct == null ? (krUnverified ? '전일 기준 미확인' : '—') : heroChangeText));
   if (change) {
-    change.className = `ticker-chg-big ${pct == null || closeLabel ? '' : pct >= 0 ? 'up' : 'down'}`;
+    change.className = `ticker-chg-big ${pct == null || closeLabel ? '' : heroDirection || ''}`;
     const basisDate = String(quote.changeBasisDate || '').slice(5).replace('-', '/');
     change.title = closeLabel ? `${close.date} 확정 종가(수정 종가), 현재 시세가 아닙니다` : krUnverified ? '직전 완료 거래일 종가를 검증하지 못해 등락률을 보류합니다.'
       : quote.changeBasis === 'screener-reconciled-session-change' && basisDate ? `${basisDate} 거래소 종가 기준 1일 변화`
@@ -934,6 +936,11 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
         eventTarget?.addEventListener?.(eventName, refresh);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, refresh));
       });
+      // The refresh scheduler announces on window; the document registration above stays.
+      if (typeof root?.addEventListener === 'function' && root !== eventTarget) {
+        root.addEventListener('aio:refresh:done', refresh);
+        bag.add(() => root.removeEventListener?.('aio:refresh:done', refresh));
+      }
       eventTarget?.addEventListener?.('aio:pageShown', onPageShown);
       bag.add(() => eventTarget?.removeEventListener?.('aio:pageShown', onPageShown));
       const page = documentRef?.getElementById(`page-${route}`);

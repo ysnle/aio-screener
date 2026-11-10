@@ -111,8 +111,9 @@ export function renderThemeDetailTeach({ documentRef, root, store }) {
     lines.push(THEME_STATES[row.state] ? `지금 단계는 '${stageWord(row.state)}'입니다${definition ? ` — ${definition}` : ''}.` : '지금 단계는 판정 보류입니다 — 단계를 정하는 조건이 서로 엇갈립니다.');
     const etf = (root?.THEME_MAP || []).find((theme) => theme?.id === themeId)?.etf || null;
     const rel = relativeSeriesOf(root, etf);
-    const word = (value, last) => `${Math.abs(value).toFixed(1)}% ${value >= 0 ? (last ? '강했습니다' : '강했고') : (last ? '약했습니다' : '약했고')}`;
-    if (rel) lines.push(`최근 ${rel.series.length}거래일은 시장(SPY)보다 ${word(rel.total, false)}, 최근 20거래일은 ${word(rel.recent, true)}.`);
+    const word = (value, last) => directionOf(value, 1) == null ? (last ? '비슷했습니다' : '비슷했고')
+      : `${Math.abs(value).toFixed(1)}% ${value > 0 ? (last ? '강했습니다' : '강했고') : (last ? '약했습니다' : '약했고')}`;
+    if (rel) lines.push(`최근 ${rel.series.length}거래일은 시장(SPY)${directionOf(rel.total, 1) == null ? '과' : '보다'} ${word(rel.total, false)}, 최근 20거래일은 ${word(rel.recent, true)}.`);
     const ranked = themeFlowOf(root, store, themeId, etf).flow.rows.filter((group) => !group.smallSample && group.ret3m != null);
     if (ranked.length >= 2) lines.push(`테마 안에서는 ${ranked[0].name} 쪽이 가장 강하고, ${ranked.at(-1).name} 쪽이 가장 약합니다(3개월).`);
     // v59.51 (one lead source): scenarioLead — a tie names every tied branch and reads their common wind (혼재 if they differ).

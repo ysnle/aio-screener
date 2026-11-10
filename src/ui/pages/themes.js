@@ -174,6 +174,11 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           eventTarget?.addEventListener?.(eventName, scheduleRender);
           bag.add(() => eventTarget?.removeEventListener?.(eventName, scheduleRender));
         });
+        // The refresh scheduler announces on window; the document registration above stays.
+        if (typeof root?.addEventListener === 'function' && root !== eventTarget) {
+          root.addEventListener('aio:refresh:done', scheduleRender);
+          bag.add(() => root.removeEventListener?.('aio:refresh:done', scheduleRender));
+        }
         // P1417: history.json announces itself on window (js/aio-data.js), not on document.
         const windowTarget = root && root !== eventTarget ? root : null;
         if (windowTarget?.addEventListener) {

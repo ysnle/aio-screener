@@ -875,6 +875,11 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
         eventTarget?.addEventListener?.(eventName, renderNow);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
       });
+      // The refresh scheduler announces on window; the document registration above stays.
+      if (typeof root?.addEventListener === 'function' && root !== eventTarget) {
+        root.addEventListener('aio:refresh:done', renderNow);
+        bag.add(() => root.removeEventListener?.('aio:refresh:done', renderNow));
+      }
        if ((route === 'market-news' || route === 'briefing') && page) page.dataset.aioArchitectureRenderer = 'native';
       bag.add(() => {
         if (page?.dataset.aioArchitectureSlice === 'news') delete page.dataset.aioArchitectureSlice;

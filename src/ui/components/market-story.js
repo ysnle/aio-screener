@@ -10,6 +10,7 @@ import { openRouteSection } from './page-flow.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { el } from './dom.js';
 import { askRow } from './ask-row.js';
+import { signedText, directionOf } from '../../domain/shared/number.js';
 import { EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY } from '../../data/artifact-registry.js';
 
 function ensure(root, artifact, rerender) {
@@ -101,7 +102,8 @@ function detailFold(doc, story) {
     for (const row of story.earnings) {
       const tr = el(doc, 'tr');
       tr.dataset.symbol = row.symbol;
-      const move = el(doc, 'td', `${row.pct > 0 ? '+' : ''}${row.pct.toFixed(1)}%`, row.pct > 0 ? 'is-up' : row.pct < 0 ? 'is-down' : '');
+      const direction = directionOf(row.pct, 1);
+      const move = el(doc, 'td', signedText(row.pct, 1, '%'), direction === 'up' ? 'is-up' : direction === 'down' ? 'is-down' : '');
       tr.append(el(doc, 'td', `${row.name} ${shortDate(row.date)}`), move, el(doc, 'td', row.reason || '보도된 이유 없음'), el(doc, 'td', row.capex || '—'));
       body.append(tr);
     }

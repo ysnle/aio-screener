@@ -7518,3 +7518,82 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     if (!ttm || Math.abs(ttm.revenueYoy - 20) > 1e-9 || ttm.netIncomeYoy !== null || ttm.priorMargin !== null) fail(`v59.86 trailing-year revenue growth reads the year-earlier revenue alone: ${JSON.stringify(ttm)}`);
   }
 }
+
+// The arrow, the sign and the up/down colour follow the printed value: a change that prints 0.00% is flat.
+{
+  const { createFakeDocument } = await import(pathToFileURL(path.join(root, 'scripts/lib/fake-dom.mjs')).href);
+  const { renderTickerHero } = await load('src/ui/pages/entity.js');
+  const { renderDailyLoop } = await load('src/ui/components/daily-loop.js');
+  const hero = (pct) => {
+    const doc = createFakeDocument({ ids: ['ticker-hero-chg'] });
+    renderTickerHero(doc, { id: 'AAPL', quote: { value: 100, pct, currency: 'USD' } }, { _currentTickerId: 'AAPL' });
+    const node = doc.getElementById('ticker-hero-chg');
+    return { text: node.textContent, up: node.classList.contains('up'), down: node.classList.contains('down') };
+  };
+  const kospi = (pct) => {
+    const doc = createFakeDocument({ ids: ['home-daily-loop', 'home-kospi-chip', 'home-kospi-label', 'home-kospi-value', 'home-kospi-chg'] });
+    renderDailyLoop({ documentRef: doc, root: { _liveData: { '^KS11': { price: 2500, pct, observedAt: '2026-11-10T05:00:00Z' } }, _aioHistory: [] }, store: null, regime: {} });
+    const node = doc.getElementById('home-kospi-chg');
+    return { text: node.textContent, up: node.classList.contains('pos'), down: node.classList.contains('neg') };
+  };
+  for (const pct of [0, -0.001, 0.004]) {
+    const h = hero(pct), k = kospi(pct);
+    if (h.text !== '0.00%' || h.up || h.down) fail(`v59.94 the ticker hero prints a change that rounds to zero flat, without an arrow or colour (${pct}): ${JSON.stringify(h)}`);
+    if (k.text !== '0.00%' || k.up || k.down) fail(`v59.94 the 코스피 chip prints a change that rounds to zero without a rising or falling colour (${pct}): ${JSON.stringify(k)}`);
+  }
+  const heroUp = hero(1.234), heroDown = hero(-1.234), kospiUp = kospi(1.234), kospiDown = kospi(-1.234);
+  if (heroUp.text !== '▲ +1.23%' || !heroUp.up || heroUp.down) fail(`v59.94 a rising ticker hero change reads ▲ +1.23% in the rising colour: ${JSON.stringify(heroUp)}`);
+  if (heroDown.text !== '▼ 1.23%' || !heroDown.down || heroDown.up) fail(`v59.94 a falling ticker hero change reads ▼ 1.23% in the falling colour: ${JSON.stringify(heroDown)}`);
+  if (kospiUp.text !== '+1.23%' || !kospiUp.up || kospiUp.down) fail(`v59.94 a rising 코스피 chip change is +1.23% in the rising colour: ${JSON.stringify(kospiUp)}`);
+  if (kospiDown.text !== '-1.23%' || !kospiDown.down || kospiDown.up) fail(`v59.94 a falling 코스피 chip change is -1.23% in the falling colour: ${JSON.stringify(kospiDown)}`);
+}
+
+// Comparison words follow the printed difference, and the sector sentence counts the sectors it read.
+{
+  const { createFakeDocument } = await import(pathToFileURL(path.join(root, 'scripts/lib/fake-dom.mjs')).href);
+  const { writeSectorHero } = await load('src/ui/pages/themes/sectors.js');
+  const { createInspectorController } = await load('src/ui/pages/screener/inspector.js');
+  const sectorDoc = createFakeDocument({ ids: ['rrg-rotation-read'] });
+  const sectorRows = [['A', 1.2], ['B', 0.8], ['C', 0.5], ['D', 0.3], ['E', 0.2], ['F', 0.1], ['G', -0.02]].map(([label, pct]) => ({ label, pct }));
+  writeSectorHero(sectorDoc, {}, sectorRows, '1개월');
+  const sectorRead = sectorDoc.getElementById('rrg-rotation-read').textContent;
+  if (!sectorRead.includes('7개 섹터') || sectorRead.includes('11개 섹터') || sectorRead.includes('약한 섹터')) fail(`v59.94 the sector sentence counts the sectors it read and does not call a sector printing 0.0% weak: ${sectorRead}`);
+  const session = '2026-11-09';
+  const row = { sym: 'AAA', name: 'A', ret3m: 10.0, ret1m: 1, factorSessionDate: session, screenStatus: 'passed', instrumentRef: { market: 'US', currency: 'USD' } };
+  const spy = { sym: 'SPY', ret3m: 10.04, factorSessionDate: session, instrumentRef: { market: 'US', currency: 'USD' } };
+  const inspectorDoc = createFakeDocument();
+  const ctx = { documentRef: inspectorDoc, root: {}, store: createStore({ initialState: { screener: { rows: [row, spy] } } }), bag: createResourceBag(), actions: [],
+    liveReader: () => null, watchlistReader: () => [], profileReader: () => null, selectedSymbols: new Set(), compareSymbols: new Set() };
+  createInspectorController(ctx);
+  ctx.renderWhyDrawer(row);
+  const preview = inspectorDoc.getElementById('scr-why-preview').textContent;
+  if (!preview.includes('S&P 500과 비슷합니다') || preview.includes('낮습니다')) fail(`v59.94 a 3-month gap that prints 0.0%p reads 비슷합니다, not 낮습니다: ${preview}`);
+  ctx.renderWhyDrawer({ ...row, ret3m: 8.5 });
+  const lower = inspectorDoc.getElementById('scr-why-preview').textContent;
+  if (!lower.includes('S&P 500보다 1.5%p 낮습니다')) fail(`v59.94 a real 3-month gap still names its size and direction: ${lower}`);
+}
+
+// The refresh scheduler announces aio:refresh:done on window: a mounted page repaints from it and lets it go on teardown.
+// The screener's population line keeps the ranking weights in its hover beside the fixed sentence.
+{
+  const { createFakeDocument, shellIds } = await import(pathToFileURL(path.join(root, 'scripts/lib/fake-dom.mjs')).href);
+  const { createScreenerPage } = await load('src/ui/pages/screener.js');
+  const listeners = new Map();
+  const win = {
+    fetch: () => Promise.reject(new Error('offline gate')), _liveData: {},
+    addEventListener: (type, fn) => { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type).add(fn); },
+    removeEventListener: (type, fn) => { listeners.get(type)?.delete(fn); },
+    dispatchEvent: (event) => { for (const fn of [...(listeners.get(event.type) || [])]) fn(event); return true; }
+  };
+  const doc = createFakeDocument({ ids: shellIds(readFileSync(path.join(root, 'index.html'), 'utf8')) });
+  const screenerStore = createStore({ initialState: { screener: { rows: [{ sym: 'AAA', ret3m: 5, screenRank: 1, screenStatus: 'passed' }], metadata: { ranking: { ranked: 1, appliedFactorWeights: { momentum: 0.6, trend: 0.4 } } } } } });
+  const dispose = createScreenerPage({ documentRef: doc, store: screenerStore, root: win, readLiveData: () => ({}), workbench: { run: async () => null, getDefaultScreens: () => [] } }).mount();
+  const note = doc.getElementById('scr-population-note');
+  if (!note.title.includes('모멘텀 60%') || !note.title.includes('백분위는 같은 시장')) fail(`v59.94 the screener population hover names the ranking weights and the fixed sentence: ${note.title}`);
+  note.title = '';
+  win.dispatchEvent({ type: 'aio:refresh:done' });
+  if (!note.title.includes('모멘텀')) fail('v59.94 aio:refresh:done dispatched on window repaints the mounted screener');
+  if (typeof dispose === 'function') dispose();
+  const left = ['aio:refresh:done', 'aio:liveDataReceived'].reduce((sum, type) => sum + (listeners.get(type)?.size || 0), 0);
+  if (typeof dispose !== 'function' || left) fail(`v59.94 the screener's window refresh listeners are removed on teardown (left ${left})`);
+}

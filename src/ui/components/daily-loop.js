@@ -55,7 +55,8 @@ function renderKoreaQuote(doc, root) {
   const change = set('home-kospi-chg', model.pct == null ? '' : signedText(model.pct, 2, '%'));
   if (change) {
     change.classList.remove('pos', 'neg', 'a11y-up', 'a11y-dn', 'a11y-hold');
-    if (model.pct != null) change.classList.add(model.pct >= 0 ? 'pos' : 'neg', model.pct > 0 ? 'a11y-up' : model.pct < 0 ? 'a11y-dn' : 'a11y-hold');
+    const direction = directionOf(model.pct, 2);
+    if (model.pct != null) change.classList.add(...(direction === 'up' ? ['pos', 'a11y-up'] : direction === 'down' ? ['neg', 'a11y-dn'] : ['a11y-hold']));
   }
   chip.title = '코스피 실시간·지연 시세(한국 시간), 등락은 직전 한국 종가 대비, 위 한국 줄은 마감 종가 기준입니다';
   chip.dataset.basis = model.basis;

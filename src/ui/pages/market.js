@@ -6,7 +6,7 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/session/quote-presentation.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
-import { signedText, readNumber as finite } from '../../domain/shared/number.js';
+import { signedText, directionOf, readNumber as finite } from '../../domain/shared/number.js';
 import { macroReleasesFor } from '../../domain/briefing/macro-releases.js';
 import { BREADTH_CONTRIBUTORS, MACRO_HISTORY } from '../../data/artifact-registry.js';
 
@@ -140,8 +140,9 @@ function renderLiveQuotes(root, page) {
     // P1579: up/down colour is a signal; it is given only to a current or delayed observation whose
     // change basis is known. A stale or basis-unknown change stays readable but neutral.
     const signalled = ['current', 'delayed'].includes(value.presentation?.displayState) && value.presentation?.changeCoherent === true;
-    node.classList?.toggle('pos', signalled && value.pct >= 0);
-    node.classList?.toggle('neg', signalled && value.pct < 0);
+    const direction = directionOf(value.pct, 2);
+    node.classList?.toggle('pos', signalled && direction === 'up');
+    node.classList?.toggle('neg', signalled && direction === 'down');
     quoteLineage(node, value);
   });
 }
@@ -357,6 +358,11 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
       ['aio:liveQuotes', 'aio:liveDataReceived', 'aio:refresh:done', 'aio:serverDataLoaded', 'aio:historyLoaded', 'aio:macroUpdated'].forEach((eventName) => {
         eventTarget?.addEventListener?.(eventName, renderNow);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
+      });
+      // The refresh scheduler and the live-quote reader announce on window; the document registration above stays.
+      if (typeof root?.addEventListener === 'function' && root !== eventTarget) ['aio:liveDataReceived', 'aio:refresh:done'].forEach((eventName) => {
+        root.addEventListener(eventName, renderNow);
+        bag.add(() => root.removeEventListener?.(eventName, renderNow));
       });
         // P1417: history.json announces itself on window (js/aio-data.js), not on document.
         const windowTarget = root && root !== eventTarget ? root : null;

@@ -179,6 +179,11 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         eventTarget?.addEventListener?.(eventName, onDataEvent);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, onDataEvent));
       });
+      // The refresh scheduler announces on window; the document registration above stays.
+      if (typeof root?.addEventListener === 'function' && root !== eventTarget) {
+        root.addEventListener('aio:refresh:done', onDataEvent);
+        bag.add(() => root.removeEventListener?.('aio:refresh:done', onDataEvent));
+      }
       const windowTarget = root && root !== eventTarget ? root : null;
       if (windowTarget?.addEventListener) {
         windowTarget.addEventListener('aio:historyLoaded', onDataEvent);
