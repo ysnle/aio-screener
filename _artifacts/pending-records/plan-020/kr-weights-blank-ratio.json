@@ -1,0 +1,17 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 KR index weights read a blank day ratio as a 0% move",
+    "symptom": "A stock whose Naver fluctuationsRatio was blank was published in kr-index-weights.json with ret1dPct 0 and its weight computed on the unadjusted cap.",
+    "root_cause": "The local num() helper in fetch-kr-index-weights.mjs converted with Number(), and Number('') is 0, so a blank ratio passed the ret != null check.",
+    "fix": "num() returns null for a blank, whitespace, null or undefined input before converting (comma stripping kept), so a stock with no reported ratio is excluded like other unusable rows; '0.00' still reads as 0.",
+    "violated_rule": "A missing value stays missing (never 0 or a guess).",
+    "prevention": "ci-event-briefs-check calls marketWeights with blank and null ratios (excluded, remaining stock weightPct 100) and a '0.00' ratio (kept with ret1dPct 0).",
+    "verification": "node scripts/ci-event-briefs-check.mjs and node scripts/ci-pipeline-semantics-check.mjs pass; the new case fails against the previous producer.",
+    "files": ["scripts/fetch-kr-index-weights.mjs", "scripts/ci-event-briefs-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**KR index weights: a blank day ratio is missing ({P}):** a stock with no reported change is no longer published as a 0% move on its unadjusted cap; it is left out of the weights like other unusable rows."],
+  "note": "v59.94: KR weights blank ratio is missing"
+}
