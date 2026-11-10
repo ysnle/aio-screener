@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-10T13:51:34.788Z",
-  "attemptedAt": "2026-11-10T13:51:34.788Z",
-  "lastSuccessfulAt": "2026-11-10T13:51:34.788Z",
+  "generatedAt": "2026-11-10T14:22:19.762Z",
+  "attemptedAt": "2026-11-10T14:22:19.762Z",
+  "lastSuccessfulAt": "2026-11-10T14:22:19.762Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-27T13:51:29.695Z",
-  "until": "2026-11-10T13:51:29.695Z",
+  "since": "2026-10-27T14:22:14.135Z",
+  "until": "2026-11-10T14:22:14.135Z",
   "current24hWindow": {
     "start": "2026-11-08T23:00:00.000Z",
     "end": "2026-11-09T23:00:00.000Z",
@@ -89,11 +89,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1314,
-      "freshCount": 40,
+      "freshCount": 20,
       "eligibleTextCount": 1257,
       "selectedCount": 130,
       "error": null,
@@ -113,19 +113,19 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 703,
-      "freshCount": 16,
+      "freshCount": 30,
       "eligibleTextCount": 702,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 71899
+      "lastPostId": 71900
     }
   ],
   "count": 2247,
-  "retainedItemCount": 424,
+  "retainedItemCount": 420,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -147,8 +147,8 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "earnings": 375,
     "market-note": 794,
+    "earnings": 375,
     "kr-market": 105,
     "macro": 333,
     "semi": 487,
@@ -1892,11 +1892,11 @@
         "macro",
         "geo"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": "국제유가가 최근 2거래일 동안 7% 이상 급락하며 브렌트유는 배럴당 약 91달러, 미국 서부텍사스산원유(WTI)는 85.20달러까지 하락. 이번 급락은 트럼프 대통령이 당분간 이란에 대한 추가 군사 공격이..."
+      "summary": "국제유가가 최근 2거래일 동안 7% 이상 급락하며 브렌트유는 배럴당 약 91달러, 미국 서부텍사스산원유(WTI)는 85.20달러까지 하락. 이번 급락은 트럼프 대통령이 당분간 이란에 대한 추가 군사 공격이...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21094",
@@ -1948,13 +1948,13 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "로이터에 따르면 이탈리아 밀라노 검찰은 아마존을 통해 판매된 유럽연합(EU) 역외 제품 150만 개 이상에 대해 적절한 수입 부가가치세(VAT)와 관세가 납부되지 않았다고 지적. 현재까지 확인된 미납...",
+      "lead": 1,
       "tickers": [
         "AMZN"
-      ],
-      "summary": "로이터에 따르면 이탈리아 밀라노 검찰은 아마존을 통해 판매된 유럽연합(EU) 역외 제품 150만 개 이상에 대해 적절한 수입 부가가치세(VAT)와 관세가 납부되지 않았다고 지적. 현재까지 확인된 미납..."
+      ]
     },
     {
       "id": "insidertracking/68892",
@@ -1963,14 +1963,14 @@
       "datetime": "2026-11-10T11:17:37.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 51,
       "hasText": true,
+      "summary": "11월 10일 디크립트 보도를 인용한 내용에 따르면, 미국 엘리자베스 워런 상원의원이 미국 통화감독청(OCC)이 지난 8월 트럼프 대통령이 지지하는 월드 리버티 파이낸셜의 은행 인가를 조건부 승인한 사안에...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "11월 10일 디크립트 보도를 인용한 내용에 따르면, 미국 엘리자베스 워런 상원의원이 미국 통화감독청(OCC)이 지난 8월 트럼프 대통령이 지지하는 월드 리버티 파이낸셜의 은행 인가를 조건부 승인한 사안에..."
+      ]
     },
     {
       "id": "insidertracking/68887",
@@ -1981,13 +1981,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "디인포메이션에 따르면 엔비디아 CEO 젠슨 황과 앨리스 황의 관계를 통해 2023년 이후 최소 75억 달러 규모의 엔비디아 칩이 중국에 판매된 것으로 보도.",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "디인포메이션에 따르면 엔비디아 CEO 젠슨 황과 앨리스 황의 관계를 통해 2023년 이후 최소 75억 달러 규모의 엔비디아 칩이 중국에 판매된 것으로 보도."
+      ]
     },
     {
       "id": "insidertracking/68885",
@@ -2006,10 +2005,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "DLSS: 엔비디아가 AI를 활용해 게임 화질을 개선하고 FPS(프레임 수)를 높이는 기술",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "DLSS: 엔비디아가 AI를 활용해 게임 화질을 개선하고 FPS(프레임 수)를 높이는 기술"
+      ]
     },
     {
       "id": "insidertracking/68884",
@@ -2020,11 +2019,10 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "미국 연방준비제도(Fed)의 월러 위원: 금리 인상폭 150bp 또는 200bp 인상은 없을 것 - 극단적으로 매파적인 정책은 아니며, 경제를 침체시키는 것을 원하지 않음"
+      "summary": "미국 연방준비제도(Fed)의 월러 위원: 금리 인상폭 150bp 또는 200bp 인상은 없을 것 - 극단적으로 매파적인 정책은 아니며, 경제를 침체시키는 것을 원하지 않음",
+      "tickers": []
     },
     {
       "id": "insidertracking/68882",
@@ -2489,7 +2487,7 @@
       "datetime": "2026-11-10T03:30:34.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "market-note"
+        "ai-policy"
       ],
       "score": 50,
       "hasText": true,
@@ -2499,8 +2497,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>로봇으로 병뚜껑 돌리고 루빅스 큐브 풀고 그림까지! Fable 5.2의 피지컬 AI 능력 ‘놀라운 도약’ •Fable 5.2는 시뮬레이션 양팔 로봇 평가에서 64.9%의 점수를 기록, 전작 Fable...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>로봇으로 병뚜껑 돌리고 루빅스 큐브 풀고 그림까지! Fable 5.2의 피지컬 AI 능력 ‘놀라운 도약’ •Fable 5.2는 시뮬레이션 양팔 로봇 평가에서 64.9%의 점수를 기록, 전작 Fable..."
     },
     {
       "id": "insidertracking/68857",
@@ -2532,15 +2530,16 @@
       "datetime": "2026-11-10T03:16:49.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "earnings"
+        "earnings",
+        "credit"
       ],
+      "lead": 1,
       "score": 66,
       "hasText": true,
-      "summary": ">>AI 폭풍의 핵심: 주가 반토막 근접, ‘AI 클라우드 양대 강자’ CoreWeave·Nebius 실적 발표 임박 •CoreWeave와 Nebius 주가는 지난 한 달간 각각 40%, 36% 급락했으며,...",
-      "lead": 1,
       "tickers": [
         "CRWV"
-      ]
+      ],
+      "summary": ">>AI 폭풍의 핵심: 주가 반토막 근접, ‘AI 클라우드 양대 강자’ CoreWeave·Nebius 실적 발표 임박 •CoreWeave와 Nebius 주가는 지난 한 달간 각각 40%, 36% 급락했으며,..."
     },
     {
       "id": "insidertracking/68856",
