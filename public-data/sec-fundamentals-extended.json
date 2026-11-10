@@ -1,15 +1,15 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-11-10T07:33:47.177Z",
+ "generatedAt": "2026-11-10T22:33:25.208Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
  "eligible": 3876,
- "stored": 3512,
- "attempted": 224,
- "updated": 210,
+ "stored": 3511,
+ "attempted": 3,
+ "updated": 2,
  "failures": [
   {
    "symbol": "AACI",
@@ -3470,6 +3470,16 @@
    "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
   },
   {
+   "symbol": "SCQC",
+   "status": "TERMINAL_UNSUPPORTED",
+   "reasonCode": "required-us-gaap-taxonomy-missing",
+   "reason": "required-us-gaap-taxonomy-missing; issuerTaxonomy=UNKNOWN",
+   "issuerTaxonomy": "UNKNOWN",
+   "filingForms": [],
+   "attemptedAt": "2026-11-10T22:33:11.886Z",
+   "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
+  },
+  {
    "symbol": "SCTX",
    "status": "TERMINAL_UNSUPPORTED",
    "reasonCode": "required-us-gaap-annual-concepts-unavailable",
@@ -4570,7 +4580,8 @@
   "YMAT",
   "YSS",
   "YSWY",
-  "ZKP"
+  "ZKP",
+  "SCQC"
  ],
  "retryableFailures": [
   "AYA",
@@ -4588,44 +4599,44 @@
   "SCZM",
   "TRBG"
  ],
- "pointInTimeCoverage": 3512,
- "pointInTimeAcceptedCoverage": 3512,
+ "pointInTimeCoverage": 3511,
+ "pointInTimeAcceptedCoverage": 3511,
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
- "nextRefreshCandidates": 364,
+ "nextRefreshCandidates": 365,
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:42775215598",
-  "attemptedAt": "2026-11-10T07:32:24.946Z",
-  "sourceRevision": "sec-company-tickers:e1469df6a5e24ec90676d0bbd0059f857167207722b4e9952852b8f0806a9472",
+  "runId": "gha:42914458219",
+  "attemptedAt": "2026-11-10T22:33:11.886Z",
+  "sourceRevision": "sec-company-tickers:362d80f1387acd3ade83c874b9c82b7d20b361547da60cf306726aca169c7c56",
   "inputWatermarks": {
-   "universe": "2026-11-10T07:32:23.136Z",
-   "screener": "2026-11-10T07:31:34.867Z",
-   "previousArtifact": "2026-11-09T22:33:04.866Z"
+   "universe": "2026-11-10T22:33:09.992Z",
+   "screener": "2026-11-10T22:32:26.974Z",
+   "previousArtifact": "2026-11-10T07:33:47.177Z"
   },
   "batchLimit": 600,
   "counts": {
    "eligible": 3876,
-   "attempted": 224,
-   "updated": 210,
-   "retained": 3302,
-   "pendingEligible": 364
+   "attempted": 3,
+   "updated": 2,
+   "retained": 3509,
+   "pendingEligible": 365
   },
   "thisBatch": {
-   "updated": 210,
-   "terminalUnsupported": 0,
-   "transientFailed": 14,
-   "recorded": 14
+   "updated": 2,
+   "terminalUnsupported": 1,
+   "transientFailed": 0,
+   "recorded": 1
   },
   "ledger": {
-   "total": 367,
-   "terminalUnsupported": 353,
+   "total": 368,
+   "terminalUnsupported": 354,
    "transientFailed": 14,
    "legacyUnknown": 0
   },
-  "lastSuccessfulObservation": "2026-11-10T07:32:24.946Z",
+  "lastSuccessfulObservation": "2026-11-10T22:33:11.886Z",
   "publication": {
    "status": "PARTIAL",
    "reason": "some attempted targets were not updated",
@@ -42107,98 +42118,6 @@
    },
    "roeBasis": "average-equity",
    "equityPrior": 583216000
-  },
-  "BWMN": {
-   "symbol": "BWMN",
-   "cik": "0001847590",
-   "entityName": "Bowman Consulting Group Ltd.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-03-05",
-   "acceptedAt": "2026-03-05T21:40:23.000Z",
-   "availableAt": "2026-03-05T21:40:23.000Z",
-   "transportFetchedAt": "2026-11-07T07:34:15.523Z",
-   "reportAgeDays": 311,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001628280-26-015252",
-    "netIncome": "0001628280-26-015252",
-    "equity": "0001628280-26-015252",
-    "sharesOutstanding": "0001628280-26-015252"
-   },
-   "operandAvailability": {
-    "revenue": "2026-03-05T21:40:23.000Z",
-    "netIncome": "2026-03-05T21:40:23.000Z",
-    "equity": "2026-03-05T21:40:23.000Z",
-    "sharesOutstanding": "2026-03-05T21:40:23.000Z",
-    "priorRevenue": "2026-03-05T21:40:23.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-03-05T21:40:23.000Z",
-    "margin": "2026-03-05T21:40:23.000Z",
-    "roe": "2026-03-05T21:40:23.000Z",
-    "pe": "2026-03-05T21:40:23.000Z",
-    "pb": "2026-03-05T21:40:23.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-11-07T07:34:15.523Z",
-   "form": "10-K",
-   "accession": "0001628280-26-015252",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 490017000,
-   "netIncome": 12849000,
-   "equity": 261105000,
-   "equityBasis": "parent",
-   "sharesOutstanding": 17123509,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2026-02-28",
-   "normalizerVersion": "sec-normalizer.2026-11-04",
-   "revenueConcept": "RevenueFromContractWithCustomerExcludingAssessedTax",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 190,
-    "acceptedTimeCount": 190,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 14.9,
-   "margin": 2.6,
-   "roe": 5.1,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "common",
-    "value": -1349000,
-    "through": "2026-09-30",
-    "availableAt": "2026-11-06T11:47:18.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 246115000
   },
   "BXC": {
    "symbol": "BXC",
@@ -89426,98 +89345,6 @@
    },
    "roeBasis": "average-equity",
    "equityPrior": 804571000
-  },
-  "EZRA": {
-   "symbol": "EZRA",
-   "cik": "0001812727",
-   "entityName": "Reliance Global Group, Inc.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-03-10",
-   "acceptedAt": "2026-03-10T20:15:56.000Z",
-   "availableAt": "2026-03-10T20:15:56.000Z",
-   "transportFetchedAt": "2026-11-08T07:34:24.119Z",
-   "reportAgeDays": 312,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001493152-26-009536",
-    "netIncome": "0001493152-26-009536",
-    "equity": "0001493152-26-009536",
-    "sharesOutstanding": "0001493152-26-009536"
-   },
-   "operandAvailability": {
-    "revenue": "2026-03-10T20:15:56.000Z",
-    "netIncome": "2026-03-10T20:15:56.000Z",
-    "equity": "2026-03-10T20:15:56.000Z",
-    "sharesOutstanding": "2026-03-10T20:15:56.000Z",
-    "priorRevenue": "2026-03-10T20:15:56.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-03-10T20:15:56.000Z",
-    "margin": "2026-03-10T20:15:56.000Z",
-    "roe": "2026-03-10T20:15:56.000Z",
-    "pe": "2026-03-10T20:15:56.000Z",
-    "pb": "2026-03-10T20:15:56.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-11-08T07:34:24.119Z",
-   "form": "10-K",
-   "accession": "0001493152-26-009536",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 12430959,
-   "netIncome": -6987756,
-   "equity": 6427430,
-   "equityBasis": "parent",
-   "sharesOutstanding": 5451940,
-   "sharesCheck": "consistent",
-   "sharesBasis": "weighted-diluted",
-   "sharesObservedAt": "2025-12-31",
-   "normalizerVersion": "sec-normalizer.2026-11-04",
-   "revenueConcept": "Revenues",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 216,
-    "acceptedTimeCount": 216,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": -11.6,
-   "margin": -56.2,
-   "roe": -148.3,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "net-income",
-    "value": -6002511,
-    "through": "2026-06-30",
-    "availableAt": "2026-07-30T21:29:39.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 2997242
   },
   "FA": {
    "symbol": "FA",
@@ -247677,98 +247504,6 @@
    "roe": 1.7,
    "roeBasis": "year-end-equity"
   },
-  "TCBI": {
-   "symbol": "TCBI",
-   "cik": "0001077428",
-   "entityName": "TEXAS CAPITAL BANCSHARES INC/TX",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-02-10",
-   "acceptedAt": "2026-02-10T21:07:14.000Z",
-   "availableAt": "2026-02-10T21:07:14.000Z",
-   "transportFetchedAt": "2026-11-08T22:37:05.045Z",
-   "reportAgeDays": 313,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001077428-26-000010",
-    "netIncome": "0001077428-26-000010",
-    "equity": "0001077428-26-000010",
-    "sharesOutstanding": "0001077428-26-000010"
-   },
-   "operandAvailability": {
-    "revenue": "2026-02-10T21:07:14.000Z",
-    "netIncome": "2026-02-10T21:07:14.000Z",
-    "equity": "2026-02-10T21:07:14.000Z",
-    "sharesOutstanding": "2026-02-10T21:07:14.000Z",
-    "priorRevenue": "2026-02-10T21:07:14.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-02-10T21:07:14.000Z",
-    "margin": "2026-02-10T21:07:14.000Z",
-    "roe": "2026-02-10T21:07:14.000Z",
-    "pe": "2026-02-10T21:07:14.000Z",
-    "pb": "2026-02-10T21:07:14.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-11-08T22:37:05.045Z",
-   "form": "10-K",
-   "accession": "0001077428-26-000010",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 1255779000,
-   "netIncome": 330244000,
-   "equity": 3631382000,
-   "equityBasis": "parent",
-   "sharesOutstanding": 44176837,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2026-02-09",
-   "normalizerVersion": "sec-normalizer.2026-11-04",
-   "revenueConcept": "derived:InterestIncomeExpenseNet+NoninterestIncome",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 346,
-    "acceptedTimeCount": 345,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 34.7,
-   "margin": 26.3,
-   "roe": 9.4,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "common",
-    "value": 345850000,
-    "through": "2026-09-30",
-    "availableAt": "2026-10-22T12:30:57.000Z",
-    "derivedQuarter": true
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 3367936000
-  },
   "TCBK": {
    "symbol": "TCBK",
    "cik": "0000356171",
@@ -318747,6 +318482,190 @@
    },
    "roeBasis": "average-equity",
    "equityPrior": 834166000
+  },
+  "MTRI": {
+   "symbol": "MTRI",
+   "cik": "0001728328",
+   "entityName": "InMed Pharmaceuticals Inc.",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "T1_OFFICIAL",
+   "sourceKind": "T1_OFFICIAL",
+   "rightsId": "PUBLIC_REFERENCE",
+   "model": "sec-fy-normalized-v2",
+   "availabilityModel": "sec-pit-availability.v1",
+   "periodType": "FY",
+   "fiscalPeriodEnd": "2025-06-30",
+   "observedAt": "2025-06-30",
+   "filedAt": "2025-09-23",
+   "acceptedAt": "2025-09-22T21:46:03.000Z",
+   "availableAt": "2026-09-09T20:31:17.000Z",
+   "transportFetchedAt": "2026-11-10T22:33:13.769Z",
+   "reportAgeDays": 499,
+   "reportRecency": "stale-fy",
+   "accessionByField": {
+    "revenue": "0001213900-25-090210",
+    "netIncome": "0001213900-26-098419",
+    "equity": "0001213900-26-098419",
+    "sharesOutstanding": "0001213900-25-090210"
+   },
+   "operandAvailability": {
+    "revenue": "2025-09-22T21:46:03.000Z",
+    "netIncome": "2026-09-09T20:31:17.000Z",
+    "equity": "2026-09-09T20:31:17.000Z",
+    "sharesOutstanding": "2025-09-22T21:46:03.000Z",
+    "priorRevenue": "2025-09-22T21:46:03.000Z"
+   },
+   "derivedAvailability": {
+    "revGrowth": "2025-09-22T21:46:03.000Z",
+    "margin": "2026-09-09T20:31:17.000Z",
+    "roe": "2026-09-09T20:31:17.000Z",
+    "pe": "2026-09-09T20:31:17.000Z",
+    "pb": "2026-09-09T20:31:17.000Z"
+   },
+   "allowedUse": "research-relative-ranking-only",
+   "qualityStatus": "REFERENCE",
+   "quality": {
+    "status": "REFERENCE",
+    "stale": true,
+    "decisionUse": false,
+    "allowedUse": "reference"
+   },
+   "fetchedAt": "2026-11-10T22:33:13.769Z",
+   "form": "10-K",
+   "accession": "0001213900-25-090210",
+   "accountingStandard": "US-GAAP",
+   "reportingCurrency": "USD",
+   "revenue": 4942633,
+   "netIncome": -8162133,
+   "equity": 13434495,
+   "equityBasis": "parent",
+   "sharesOutstanding": 2384186,
+   "sharesCheck": "consistent",
+   "sharesBasis": "dei-cover",
+   "sharesObservedAt": "2025-09-17",
+   "normalizerVersion": "sec-normalizer.2026-11-04",
+   "revenueConcept": "Revenues",
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "equity",
+    "sharesOutstanding",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "pit": {
+    "schemaVersion": "sec-pit-facts.v1",
+    "status": "accepted-time-partial",
+    "observationCount": 214,
+    "acceptedTimeCount": 214,
+    "observationsDropped": "extended-ledger-compact"
+   },
+   "revGrowth": 7.5,
+   "margin": -165.1,
+   "roe": -72.1,
+   "peEarnings": {
+    "basis": "ttm",
+    "concept": "net-income",
+    "value": -13164729,
+    "through": "2026-09-30",
+    "availableAt": "2026-11-03T00:26:13.000Z",
+    "derivedQuarter": true
+   },
+   "roeBasis": "average-equity",
+   "equityPrior": 9206109
+  },
+  "TXCP": {
+   "symbol": "TXCP",
+   "cik": "0001077428",
+   "entityName": "TEXAS CAPITAL BANCSHARES INC/TX",
+   "source": "SEC EDGAR companyfacts",
+   "sourceTier": "T1_OFFICIAL",
+   "sourceKind": "T1_OFFICIAL",
+   "rightsId": "PUBLIC_REFERENCE",
+   "model": "sec-fy-normalized-v2",
+   "availabilityModel": "sec-pit-availability.v1",
+   "periodType": "FY",
+   "fiscalPeriodEnd": "2025-12-31",
+   "observedAt": "2025-12-31",
+   "filedAt": "2026-02-10",
+   "acceptedAt": "2026-02-10T21:07:14.000Z",
+   "availableAt": "2026-02-10T21:07:14.000Z",
+   "transportFetchedAt": "2026-11-10T22:33:14.370Z",
+   "reportAgeDays": 315,
+   "reportRecency": "recent-fy",
+   "accessionByField": {
+    "revenue": "0001077428-26-000010",
+    "netIncome": "0001077428-26-000010",
+    "equity": "0001077428-26-000010",
+    "sharesOutstanding": "0001077428-26-000010"
+   },
+   "operandAvailability": {
+    "revenue": "2026-02-10T21:07:14.000Z",
+    "netIncome": "2026-02-10T21:07:14.000Z",
+    "equity": "2026-02-10T21:07:14.000Z",
+    "sharesOutstanding": "2026-02-10T21:07:14.000Z",
+    "priorRevenue": "2026-02-10T21:07:14.000Z"
+   },
+   "derivedAvailability": {
+    "revGrowth": "2026-02-10T21:07:14.000Z",
+    "margin": "2026-02-10T21:07:14.000Z",
+    "roe": "2026-02-10T21:07:14.000Z",
+    "pe": "2026-02-10T21:07:14.000Z",
+    "pb": "2026-02-10T21:07:14.000Z"
+   },
+   "allowedUse": "research-relative-ranking-only",
+   "qualityStatus": "CURRENT",
+   "quality": {
+    "status": "CURRENT",
+    "stale": false,
+    "decisionUse": false,
+    "allowedUse": "reference"
+   },
+   "fetchedAt": "2026-11-10T22:33:14.370Z",
+   "form": "10-K",
+   "accession": "0001077428-26-000010",
+   "accountingStandard": "US-GAAP",
+   "reportingCurrency": "USD",
+   "revenue": 1255779000,
+   "netIncome": 330244000,
+   "equity": 3631382000,
+   "equityBasis": "parent",
+   "sharesOutstanding": 44176837,
+   "sharesCheck": "consistent",
+   "sharesBasis": "dei-cover",
+   "sharesObservedAt": "2026-02-09",
+   "normalizerVersion": "sec-normalizer.2026-11-04",
+   "revenueConcept": "derived:InterestIncomeExpenseNet+NoninterestIncome",
+   "coverage": [
+    "revenue",
+    "netIncome",
+    "equity",
+    "sharesOutstanding",
+    "revGrowth",
+    "margin",
+    "roe"
+   ],
+   "pit": {
+    "schemaVersion": "sec-pit-facts.v1",
+    "status": "accepted-time-partial",
+    "observationCount": 346,
+    "acceptedTimeCount": 345,
+    "observationsDropped": "extended-ledger-compact"
+   },
+   "revGrowth": 34.7,
+   "margin": 26.3,
+   "roe": 9.4,
+   "peEarnings": {
+    "basis": "ttm",
+    "concept": "common",
+    "value": 345850000,
+    "through": "2026-09-30",
+    "availableAt": "2026-10-22T12:30:57.000Z",
+    "derivedQuarter": true
+   },
+   "roeBasis": "average-equity",
+   "equityPrior": 3367936000
   }
  },
  "scope": "extended",
@@ -318755,7 +318674,7 @@
  "issuerSicCoverage": {
   "classified": 3831,
   "eligible": 3876,
-  "passAttempted": 38,
+  "passAttempted": 45,
   "passUpdated": 0,
   "passFailed": 0
  },
@@ -322353,12 +322272,6 @@
    "description": "Insurance Agents, Brokers & Service",
    "cik": "0001781755",
    "observedAt": "2026-11-10T07:32:24.946Z"
-  },
-  "BWMN": {
-   "sic": "8742",
-   "description": "Services-Management Consulting Services",
-   "cik": "0001847590",
-   "observedAt": "2026-11-07T07:33:40.259Z"
   },
   "BXBL": {
    "sic": "1520",
@@ -326108,12 +326021,6 @@
    "sic": "5900",
    "description": "Retail-Miscellaneous Retail",
    "cik": "0000876523",
-   "observedAt": "2026-11-08T07:33:31.156Z"
-  },
-  "EZRA": {
-   "sic": "6411",
-   "description": "Insurance Agents, Brokers & Service",
-   "cik": "0001812727",
    "observedAt": "2026-11-08T07:33:31.156Z"
   },
   "FA": {
@@ -332536,6 +332443,12 @@
    "cik": "0001091223",
    "observedAt": "2026-11-08T22:33:53.138Z"
   },
+  "MTRI": {
+   "sic": "2834",
+   "description": "Pharmaceutical Preparations",
+   "cik": "0001728328",
+   "observedAt": "2026-11-10T22:33:11.886Z"
+  },
   "MTRN": {
    "sic": "3460",
    "description": "Metal Forgings & Stampings",
@@ -337114,6 +337027,12 @@
    "cik": "0002083143",
    "observedAt": "2026-10-19T22:30:26.357Z"
   },
+  "SCQC": {
+   "sic": "6770",
+   "description": "Blank Checks",
+   "cik": "0002131303",
+   "observedAt": "2026-11-10T22:33:11.886Z"
+  },
   "SCSC": {
    "sic": "5045",
    "description": "Wholesale-Computers & Peripheral Equipment & Software",
@@ -338758,12 +338677,6 @@
    "cik": "0001743340",
    "observedAt": "2026-11-07T22:40:23.072Z"
   },
-  "TCBI": {
-   "sic": "6022",
-   "description": "State Commercial Banks",
-   "cik": "0001077428",
-   "observedAt": "2026-11-08T22:33:53.138Z"
-  },
   "TCBK": {
    "sic": "6022",
    "description": "State Commercial Banks",
@@ -339657,6 +339570,12 @@
    "description": "Biological Products, (No Diagnostic Substances)",
    "cik": "0001581280",
    "observedAt": "2026-11-07T22:40:23.072Z"
+  },
+  "TXCP": {
+   "sic": "6022",
+   "description": "State Commercial Banks",
+   "cik": "0001077428",
+   "observedAt": "2026-11-10T22:33:11.886Z"
   },
   "TXG": {
    "sic": "3826",
