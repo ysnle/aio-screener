@@ -66,16 +66,10 @@ assert.ok(model.missing.includes('외국인·기관 순매수'),'P1628 FX direct
   calm[n - 1] = calm[n - 6] * (1 - 0.184);
   const krHistory = dates.map((date, i) => ({ date, kospi: calm[i], kosdaq: calm[i] / 4 }));
   const { buildKoreaRegimeObservations } = await import('../src/domain/market/regime/regime-scenarios.js');
-  const { krIndexTrendFacts, krIndexReading } = await import('../src/ui/components/kr-index-trend.js');
   const cards = buildKoreaRegimeObservations({ history: krHistory }, { nowMs: now }).cards;
   const kospiCard = cards.find((card) => card.id === 'kospi');
   assert.match(kospiCard.read, /^최근 20거래일\(한국\) [-+]\d+\.\d%, 하루 -\d+\.\d%, 5거래일 -18\.4%\(최근 \d+거래일 기록에서 하루 (최저|하위 \d+%)·5거래일 최저/, `v57.81 the 시장 상태 KR card shows the 1-day move and its record position (${kospiCard.read})`);
   assert.match(cards.find((card) => card.id === 'kosdaq').read, /하루 -\d+\.\d%, 5거래일 -18\.4%\(최근 \d+거래일 기록에서/, 'v57.81 KOSDAQ reads the same record rule');
-  const chartLine = krIndexReading(krIndexTrendFacts(krHistory, 'kospi', { through: '2026-10-15', now }), '코스피')[0];
-  assert.match(chartLine, /하루 -\d+\.\d%, 5거래일 -18\.4%, 20거래일 [-+]\d+\.\d%\. 최근 \d+거래일 기록에서 하루 (최저|하위 \d+%)·5거래일 최저입니다\.$/, `v57.81 the chart-tab KR card shows the same record and the same month window (${chartLine})`);
-  const quiet = krHistory.slice(0, n - 5);
-  const quietLine = krIndexReading(krIndexTrendFacts(quiet, 'kospi', { now: Date.parse(`${quiet.at(-1).date}T09:00:00Z`) }), '코스피')[0];
-  assert.ok(!/기록에서/.test(quietLine), `v57.81 clean: an ordinary day names no record position (${quietLine})`);
 
   // Stress: the KOSPI's own worst 5/20-session moves, only above the R706 floor.
   const { krIndexStressRows } = await import('../src/domain/portfolio/kr-stress.js');
@@ -94,7 +88,7 @@ assert.ok(model.missing.includes('외국인·기관 순매수'),'P1628 FX direct
   const kosdaq1d = evidence.find((row) => row.metric === 'close.kosdaq.chg1d');
   assert.ok(kosdaq?.value === 760.82 && kosdaq.asOf === '2026-10-15' && kosdaq.market === 'KR' && kosdaq1d?.value === -7.65, `v57.81 close.kosdaq is present with its 1-day change (${JSON.stringify([kosdaq, kosdaq1d])})`);
 }
-console.log('PASS P1628 Korean completed-session participation and honest unavailable source boundaries; P1723 index vs sample day and largest-traded names; v57.81 spread reading, KR index card record, KOSPI stress row, close.kosdaq.');
+console.log('PASS P1628 Korean completed-session participation and honest unavailable source boundaries; P1723 index vs sample day and largest-traded names; v57.81 spread reading, 시장 상태 KR card record, KOSPI stress row, close.kosdaq.');
 }],
 // ── section kr-investor-flows (was ci-kr-investor-flows-fixture.mjs) ──
 ['kr-investor-flows', async () => {

@@ -3,9 +3,7 @@
 // scripts/build-knowledge-search-index.mjs and held equal by ci-knowledge-generated-parity-check), so a search
 // no longer pulls learning-core and the rest of the research modules into the route (S17~S19).
 import { normalize } from './glossary-bridge.js';
-import { artifactUrl, loadArtifact } from '../../data/artifact-registry.js';
-
-export const KNOWLEDGE_INDEX_URL = artifactUrl('knowledge/search-index.json');
+import { loadArtifact } from '../../data/artifact-registry.js';
 
 let cached = null;
 // One fetch per page; a failed load settles to an empty index so callers never wait on a dead promise.

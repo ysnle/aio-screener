@@ -128,10 +128,3 @@ export function installLoadFailureNotice(root, doc, { timeoutMs = CORE_FILE_TIME
   sync();
   return () => { if (timer) root.clearTimeout?.(timer); for (const type of events) root.removeEventListener(type, sync); notice?.remove(); };
 }
-
-// Removes a state the host still shows (a renderer about to draw real content calls this first).
-export function clearDataState(host) {
-  if (!host) return;
-  host.removeAttribute('aria-busy');
-  for (const box of host.querySelectorAll?.(':scope > .aio-state') || []) box.remove();
-}

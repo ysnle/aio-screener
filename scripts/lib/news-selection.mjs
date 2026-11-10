@@ -439,7 +439,6 @@ export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['G
 // (a changed URL, a query Google stopped answering) would only show as a slowly thinner bundle. Each run publishes per-feed
 // counts, a streak of consecutive runs without a usable current item and when it last had one; the watchdog warns when
 // a feed has had none for a day (a quiet Korean weekend morning is not a dead feed).
-export const NEWS_FEED_STALE_MS = 24 * 3600000;
 // v59.57 (P-feed-quiet): per-source quiet allowance for low-cadence official feeds. It applies only while the feed still
 // answers and parses items ("no-current"); an error or an empty response keeps the default thresholds.
 export const NEWS_FEED_QUIET_MAX_MS = Object.freeze(Object.fromEntries(NEWS_FEEDS.filter((feed) => feed.quietMaxHours > 0).map((feed) => [feed.source, feed.quietMaxHours * 3600000])));
@@ -471,9 +470,6 @@ export function mergeNewsFeedHealth(previous, current, at = new Date().toISOStri
 export const NEWS_FEED_IDLE_MS = 7 * 86400000;
 export function idleNewsFeeds(feedHealth, nowMs = Date.now(), minAgeMs = NEWS_FEED_IDLE_MS) {
   return (Array.isArray(feedHealth) ? feedHealth : []).filter((row) => nowMs - Date.parse(row?.countedSince || '') >= minAgeMs && Number(row?.runs) > 0 && Number(row?.selectedTotal || 0) === 0);
-}
-export function staleNewsFeeds(feedHealth, nowMs = Date.now(), maxAgeMs = NEWS_FEED_STALE_MS) {
-  return (Array.isArray(feedHealth) ? feedHealth : []).filter((row) => row?.missStreak > 0 && nowMs - Date.parse(row.lastHealthyAt || '') > newsFeedQuietAllowanceMs(row, maxAgeMs));
 }
 
 /** Previous-run news rows of the same completed cycle, rebuilt as scoring candidates. */

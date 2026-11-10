@@ -11,7 +11,6 @@ function deepFreeze(value) {
 
 const policy = deepFreeze(structuredClone(importedPolicy));
 export const OPERATIONS_ALERT_POLICY = policy;
-export const OPERATIONS_ALERT_STATUSES = Object.freeze([...policy.statuses]);
 
 const SITE_POLICY = policy.alerts.siteUnavailable;
 const CORE_POLICY = policy.alerts.coreArtifactStaleness;

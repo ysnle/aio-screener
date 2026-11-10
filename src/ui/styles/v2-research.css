@@ -373,9 +373,6 @@
 .kr-up { color: var(--dir-up, var(--red-11)); } /* v59.70 (#25): text takes the direction text colour, not the candle fill */
 .kr-down { color: var(--dir-down, var(--blue-11)); }
 .kr-market-chip { margin-right: 8px; vertical-align: 2px; }
-.trend-card .kr-index-move { flex-basis: 100%; text-align: right; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
-#kr-index-trends .trend-card-head { flex-wrap: wrap; }
-#kr-index-trends .trend-card-value { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
 #kr-themes-artifact-read .stock-read-bar.is-up { background: var(--candle-up, var(--red-10)); }
 #kr-themes-artifact-read .stock-read-bar.is-down { background: var(--candle-down, var(--blue-11)); }
 

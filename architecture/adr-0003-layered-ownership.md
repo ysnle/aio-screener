@@ -15,7 +15,7 @@
 | JSON 아티팩트 로더 | 3개 스택 + 직접 fetch | `data/artifact-cache.js` `loadJsonArtifact`, `data/shared-artifacts.js` `refreshSharedArtifact`, `data/server-data-loader.js`, `ui/knowledge/glossary-bridge.js:159`, `ai/retrieval/knowledge.js:305` |
 | `src/data` 밖의 `public-data` 경로·로더 설정 | ui 약 66, domain 3, ai 1 | `ui/pages/atlas.js`, `principles.js`, `masters.js`, `ui/components/theme-playbook-view.js:193` … |
 | RSI | 4 | `domain/technical/definitions.js` `rsiWilder`, `chart-layers.js` `rsiSeriesWilder`, `market-charts.js` `rsiOf`, `js/aio-core.js` `_calcRSILast` |
-| SMA/EMA | 5 이상 | `domain/technical/definitions.js`, `sentiment/composite-fear-greed.js`, `ui/components/stock-chart.js` `smaOf`, `ui/components/kr-index-trend.js`, `js/aio-core.js` `_calcSMA/_calcEMA` |
+| SMA/EMA | 5 이상 | `domain/technical/definitions.js`, `sentiment/composite-fear-greed.js`, `ui/components/stock-chart.js` `smaOf`, `js/aio-core.js` `_calcSMA/_calcEMA` |
 | 평균·표준편차·백분위·변화율 | 약 16 | `macro/macro-signals.js`, `market-day/facts.js`, `portfolio/return-stats.js`, `fundamental/peer-read.js` …(null·0 처리 방식이 서로 다름) |
 | 추세·MA 정렬 판정 | 6 이상 | `technical/stage.js`, `bands.js`, `trend-state.js`, `chart-layers.js`, `chart-strategies.js`, `market/regime-radar.js` |
 | RRG 사분면 | 6 | `domain/themes/rrg.js` `classifyRRG` + domain 2곳, ui 3곳(별도 한국어 단어표 포함) |

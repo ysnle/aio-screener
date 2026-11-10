@@ -8,7 +8,6 @@
 // Measured on the data bot's own commits (2026-11-03/04): depth 6 changed 7 of 958 deployed files between two
 // refreshes 16 h apart, mostly news-source and theme-id keys and arrays that were empty on one run; the default
 // depth 3 with schemaDrift's empty/map tolerance is what the browser-data fixture gate compares.
-import { createHash } from 'node:crypto';
 
 const MAP_KEY_LIMIT = 40;
 export const SCHEMA_DEPTH = 3;
@@ -48,10 +47,6 @@ function merge(left, right) {
 
 export function schemaShape(value, { maxDepth = SCHEMA_DEPTH } = {}) {
   return shape(value, 0, maxDepth);
-}
-
-export function schemaFingerprint(value, options) {
-  return createHash('sha256').update(JSON.stringify(schemaShape(value, options))).digest('hex').slice(0, 16);
 }
 
 // Paths whose structure differs between a pinned shape and a current one, as '+path' (only now), '-path' (only

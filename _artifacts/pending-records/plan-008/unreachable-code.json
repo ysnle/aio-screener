@@ -1,0 +1,8 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "changelog": [
+    "**Lead (v59.94):** Removed code nothing in the product reaches: the retired 한국 지수 추세 module (src/ui/components/kr-index-trend.js, its three test blocks and its CSS rules), nine exports nothing imports (clearDataState, isDegradedRecord, frameMore, KNOWLEDGE_INDEX_URL, staleNewsFeeds with NEWS_FEED_STALE_MS, schemaFingerprint, isDataPost, SEC_LEDGER_SUMMARY_PATH, OPERATIONS_ALERT_STATUSES) and the orphan script scripts/research-screen-text-snapshot.mjs, so tests no longer describe a chart-tab KR card that does not ship."
+  ],
+  "note": "v59.94: unreachable src/script code removed"
+}
