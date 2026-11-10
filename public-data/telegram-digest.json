@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-10T23:21:50.539Z",
-  "attemptedAt": "2026-11-10T23:21:50.539Z",
-  "lastSuccessfulAt": "2026-11-10T23:21:50.539Z",
+  "generatedAt": "2026-11-10T23:45:28.719Z",
+  "attemptedAt": "2026-11-10T23:45:28.719Z",
+  "lastSuccessfulAt": "2026-11-10T23:45:28.719Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-27T23:21:43.960Z",
-  "until": "2026-11-10T23:21:43.960Z",
+  "since": "2026-10-27T23:45:21.805Z",
+  "until": "2026-11-10T23:45:21.805Z",
   "current24hWindow": {
     "start": "2026-11-09T23:00:00.000Z",
     "end": "2026-11-10T23:00:00.000Z",
@@ -92,74 +92,74 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1308,
+      "count": 1305,
       "freshCount": 40,
-      "eligibleTextCount": 1248,
+      "eligibleTextCount": 1246,
       "selectedCount": 127,
       "error": null,
-      "lastPostId": 68970
+      "lastPostId": 68971
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 233,
+      "count": 232,
       "freshCount": 39,
-      "eligibleTextCount": 233,
-      "selectedCount": 126,
+      "eligibleTextCount": 232,
+      "selectedCount": 125,
       "error": null,
-      "lastPostId": 21101
+      "lastPostId": 21103
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 704,
-      "freshCount": 30,
-      "eligibleTextCount": 703,
+      "count": 701,
+      "freshCount": 31,
+      "eligibleTextCount": 700,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71912
+      "lastPostId": 71913
     }
   ],
-  "count": 2245,
-  "retainedItemCount": 442,
+  "count": 2238,
+  "retainedItemCount": 433,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2245,
-    "eligibleTextCount": 2184,
-    "mediaOnlyCount": 61,
-    "mediaAttachedCount": 730,
-    "photoPostCount": 628,
+    "observedCount": 2238,
+    "eligibleTextCount": 2178,
+    "mediaOnlyCount": 60,
+    "mediaAttachedCount": 731,
+    "photoPostCount": 629,
     "documentPostCount": 4,
     "imageOnlyCount": 3,
-    "highSignalCount": 398,
-    "broadSignalCount": 847,
-    "selectedRawCount": 375,
-    "selectedEligibleCount": 375,
+    "highSignalCount": 396,
+    "broadSignalCount": 840,
+    "selectedRawCount": 374,
+    "selectedEligibleCount": 374,
     "selectedRawCoveragePct": 17.2,
     "selectedOfObservedPct": 16.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 489,
-    "power": 287,
-    "earnings": 379,
-    "macro": 332,
-    "geo": 417,
     "market-note": 790,
-    "equity": 121,
+    "geo": 418,
+    "earnings": 375,
+    "semi": 482,
     "ai-policy": 108,
-    "kr-market": 107,
-    "credit": 90,
+    "equity": 122,
+    "power": 286,
+    "macro": 331,
+    "kr-market": 106,
+    "credit": 89,
     "flows": 62,
-    "media-only": 60,
-    "healthcare": 73,
+    "media-only": 59,
+    "healthcare": 72,
     "japan": 67,
     "optical": 31,
     "crypto": 4
@@ -171,7 +171,7 @@
     "CRWV": 11,
     "AMZN": 66,
     "MSFT": 48,
-    "AAPL": 23,
+    "AAPL": 22,
     "AMD": 48,
     "AVGO": 13,
     "GOOG": 92,
@@ -180,7 +180,7 @@
     "TSLA": 35,
     "2454.TW": 6,
     "005930.KS": 39,
-    "000660.KS": 47,
+    "000660.KS": 40,
     "MU": 29,
     "RKLB": 2,
     "IRDM": 2,
@@ -212,7 +212,7 @@
     "HUM": 1,
     "IONQ": 2,
     "BCS": 2,
-    "285A.T": 9,
+    "285A.T": 7,
     "COHR": 3,
     "ARM": 1,
     "QCOM": 1,
@@ -260,12 +260,12 @@
   },
   "themes": [
     "Market Notes (790 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 8세대 TPU 시스템의 신규 변형인 ‘TPU 8tx’와 ‘TPU 8i Max’를 공개함. TPU...",
-    "Semiconductors/Memory (489 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
-    "Geopolitics (417 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
-    "Earnings/Corporate (379 posts in 14-day research window): 코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러 상회), 전년 대비 +168% * GAAP EPS: -1.27달러 (조정 EPS 예상 -1.21달러와 직접...",
-    "Macro/Rates (332 posts in 14-day research window): 2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물...",
-    "AI Power/Grid (287 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
-    "Equity/Analyst (121 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Semiconductors/Memory (482 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
+    "Geopolitics (418 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
+    "Earnings/Corporate (375 posts in 14-day research window): 코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러 상회), 전년 대비 +168% * GAAP EPS: -1.27달러 (조정 EPS 예상 -1.21달러와 직접...",
+    "Macro/Rates (331 posts in 14-day research window): 2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물...",
+    "AI Power/Grid (286 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "Equity/Analyst (122 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (108 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
@@ -301,7 +301,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 47,
+      "count": 40,
       "text": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물..."
     },
     {
@@ -326,7 +326,7 @@
     },
     {
       "key": "AAPL",
-      "count": 23,
+      "count": 22,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 · 로보틱스 • 엔비디아 (NVDA) — 엔비디아가 Rebellions·SK텔레콤과 NVIDIA NVLink Fusion을 활용한 소버린 AI..."
     }
   ],
@@ -337,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 332,
+      "count": 331,
       "focus": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물..."
     },
     {
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 417,
+      "count": 418,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의..."
     },
     {
@@ -355,7 +355,7 @@
       "topics": [
         "credit"
       ],
-      "count": 90,
+      "count": 89,
       "focus": "코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 · 2027년까지 적격 수요가 가용 용량의 10배 수준 · 2028년 수요도 공급 용량의 수배 수준 · 2027년 공급..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 489,
+      "count": 482,
       "focus": "2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000..."
     },
     {
@@ -382,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 287,
+      "count": 286,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -400,7 +400,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 107,
+      "count": 106,
       "focus": "빌트에 따르면 독일에서 자녀가 있는 가구에 지급되는 사회복지급여의 약 60%가 독일 국적이 없는 우크라이나·시리아·아프가니스탄 등 외국 국적자에게 지급. 독일 정부가 독일을 위한 대안(AfD)의 질의에 제출한 답변에 따르면 2025년 미성년 자녀가 있는 가구에 총 205억4,000만 유로가 지급됐으며, 이 가운데..."
     },
     {
@@ -409,7 +409,7 @@
       "topics": [
         "equity"
       ],
-      "count": 121,
+      "count": 122,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -427,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 379,
+      "count": 375,
       "focus": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러 상회), 전년 대비 +168% * GAAP EPS: -1.27달러 (조정 EPS 예상 -1.21달러와 직접..."
     },
     {
@@ -436,7 +436,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 73,
+      "count": 72,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체 분석 결과 장기적인 해외 시장 규모가 최소한 미국 시장만큼 클 수 있다 고 밝혔습니다. 또한 환자들이 고용량..."
     },
     {
@@ -1530,25 +1530,6 @@
       ]
     },
     {
-      "id": "bornlupin/20856",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20856",
-      "datetime": "2026-10-27T23:40:02.000Z",
-      "localDateKst": "2026-10-28",
-      "tags": [
-        "earnings",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "SK하이닉스 2026년 3분기 실적 IR (2026.10.28 / K-IFRS 연결 기준) 1. 3분기 실적: 매출·영업이익 사상 최대 • 매출 104.62조원: QoQ +32%, YoY +328% •...",
-      "lead": 2,
-      "tickers": [
-        "285A.T",
-        "000660.KS"
-      ]
-    },
-    {
       "id": "bornlupin/21096",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21096",
@@ -1722,6 +1703,24 @@
       ]
     },
     {
+      "id": "bornlupin/20952",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/20952",
+      "datetime": "2026-11-02T12:13:54.000Z",
+      "localDateKst": "2026-11-02",
+      "tags": [
+        "semi",
+        "optical"
+      ],
+      "score": 93,
+      "hasText": true,
+      "summary": "마벨 테크놀로지(Marvell Technology, $MRVL )가 루멘텀(Lumentum, $LITE )을 전액 주식 교환 방식으로 인수하는 최종 계약을 체결 차세대 AI 연결성(Connectivity)...",
+      "tickers": [
+        "MRVL",
+        "LITE"
+      ]
+    },
+    {
       "id": "HANAchina/71618",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71618",
@@ -1737,6 +1736,47 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/71913",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71913",
+      "datetime": "2026-11-10T23:24:48.000Z",
+      "localDateKst": "2026-11-11",
+      "tags": [
+        "semi",
+        "ai-policy",
+        "equity"
+      ],
+      "lead": 1,
+      "score": 82,
+      "hasText": true,
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "AVGO",
+        "MU",
+        "TSM",
+        "ALAB"
+      ],
+      "summary": "• TSMC 이사회는 앤트로픽 보통주 최대 5억 달러, 오픈AI 우선주 최대 5억 달러 등 총 최대 10억 달러(약 330억 대만달러) 규모의 지분 투자 안건을 승인. 하드웨어 팹 파운드리가 최상위 프론티어..."
+    },
+    {
+      "id": "bornlupin/21102",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21102",
+      "datetime": "2026-11-10T23:22:19.000Z",
+      "localDateKst": "2026-11-11",
+      "tags": [
+        "power"
+      ],
+      "score": 53,
+      "hasText": true,
+      "tickers": [],
+      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 Q&A 세션 중 현재는 연산 수요가 인프라 공급보다 빠르게 증가하고 있으며, 신규 계약의 이익률도 상승 중. 2027년까지 공급은 사실상 대부분 판매된 상태...."
+    },
     {
       "id": "bornlupin/21101",
       "channel": "bornlupin",
@@ -4350,11 +4390,11 @@
       ],
       "score": 55,
       "hasText": true,
+      "summary": "중국 관영매체, 젠슨 황의 중국 간첩 연루 의혹 일축…미·중 관계 악화 경고 중국 관영 신문은 엔비디아(Nvidia Corp.) 최고경영자(CEO) 젠슨 황의 혼외정사 문제와 중국 정부는 아무런 관련이 없다고...",
       "tickers": [
         "NVDA",
         "NYT"
-      ],
-      "summary": "중국 관영매체, 젠슨 황의 중국 간첩 연루 의혹 일축…미·중 관계 악화 경고 중국 관영 신문은 엔비디아(Nvidia Corp.) 최고경영자(CEO) 젠슨 황의 혼외정사 문제와 중국 정부는 아무런 관련이 없다고..."
+      ]
     },
     {
       "id": "HANAchina/71820",
@@ -7557,20 +7597,6 @@
       ]
     },
     {
-      "id": "HANAchina/71553",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71553",
-      "datetime": "2026-11-04T11:40:12.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "market-note"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": ">>인도, 공화당 참패로 무역 압박 완화 기대…새로운 위험도 부상 (대만경제일보) •인도 정부 관계자들은 중간선거에서 민주당이 압승하면서 일부 무역 압박이 완화될 것으로 기대하면서도, 양국 관계의 불확실성이...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/20999",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/20999",
@@ -8437,24 +8463,6 @@
         "MSFT",
         "META",
         "AMZN"
-      ]
-    },
-    {
-      "id": "bornlupin/20906",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20906",
-      "datetime": "2026-10-31T07:38:59.000Z",
-      "localDateKst": "2026-10-31",
-      "tags": [
-        "market-note"
-      ],
-      "score": 72,
-      "hasText": true,
-      "summary": "[단독] 최태원 SK그룹 회장 샘 올트먼 오픈AI CEO와 오찬 최태원 SK그룹 회장이 방한 중인 샘 올트먼 오픈AI 최고경영자(CEO)와 오찬을 갖고 인공지능(AI) 산업 발전과 양사 간 협력 방안을...",
-      "tickers": [
-        "005930.KS",
-        "000660.KS",
-        "017670.KS"
       ]
     }
   ],
