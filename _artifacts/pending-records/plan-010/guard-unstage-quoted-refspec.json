@@ -1,0 +1,17 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 command guard denied an index-only unstage and allowed a forced push with a quoted +refspec",
+    "symptom": "The agent command guard denied an index-only restore of the whole tree (it only unstages; nothing is lost), and let through forced pushes whose refspec was quoted with a leading plus.",
+    "root_cause": "The whole-tree discard rule matched every restore of '.', whatever its flags; the push rule required the plus right after whitespace, so a quote before it hid the force marker.",
+    "fix": "The whole-tree rule carries an exemption predicate for a restore with --staged/-S and neither --worktree nor -W (clustered short flags read too, so -SW stays denied); the push rule accepts an optional quote before the plus. A plus inside a refspec (HEAD:+main, a+b) is not a force marker and stays allowed.",
+    "violated_rule": "A guard rule matches the operation's effect, not one spelling of it.",
+    "prevention": "Workspace contract fixtures: deny the three quoted forced pushes, a staged-plus-worktree restore and -SW; allow --staged, -S, --source=HEAD --staged, a+b, HEAD:main and HEAD:+main. Every earlier fixture keeps its result.",
+    "verification": "node scripts/ci-workspace-contract-check.mjs prints Workspace contract OK; with the old agent-hook.mjs the three quoted-push denies and the three index-only allows fail.",
+    "files": ["scripts/agent-hook.mjs", "scripts/ci-workspace-contract-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**Command guard ({P}):** an index-only restore now passes the guard because it only unstages, and a forced push whose refspec is quoted is denied like an unquoted one."],
+  "note": "v59.94: guard allows unstage, denies quoted +refspec"
+}

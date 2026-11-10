@@ -7140,6 +7140,49 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const { barSessionDateForField } = await load('src/domain/market/session/history-session.js');
   if (dailyRowsFromYahooChart(fxBar, { closeDigits: 4 })[0]?.close !== 1.1544 || dailyRowsFromYahooChart(fxBar)[0]?.close !== 1.15
     || barSessionDateForField('eurusd', '2026-07-12T23:00:00Z') !== '2026-07-13') fail('v59.75 fold currency history keeps four places and its London session day');
+  // v59.94: high, low and adjusted close keep the close's digits, so a four-place FX bar never reads a high below its close.
+  const fxBar4 = { timestamp: [1783897200], indicators: { quote: [{ close: [1.15444], open: [1.15], high: [1.15991], low: [1.15012], volume: [0] }], adjclose: [{ adjclose: [1.15444] }] }, meta: {} };
+  const fxRow4 = dailyRowsFromYahooChart(fxBar4, { closeDigits: 4 })[0];
+  const fxRow2 = dailyRowsFromYahooChart(fxBar4)[0];
+  if (fxRow4?.close !== 1.1544 || fxRow4.high !== 1.1599 || fxRow4.low !== 1.1501 || fxRow4.adjClose !== 1.1544 || !(fxRow4.high >= fxRow4.close && fxRow4.close >= fxRow4.low)
+    || fxRow2?.close !== 1.15 || fxRow2.high !== 1.16 || fxRow2.low !== 1.15 || fxRow2.adjClose !== 1.15) fail(`v59.94 daily bar high/low/adjClose keep the close digits: ${JSON.stringify({ fxRow4, fxRow2 })}`);
+  // v59.94: repeated stale snapshot applies keep one waiting listener pair and one fallback timer for the stale banner.
+  {
+    const { installDataStatusSurface } = await load('src/ui/components/data-status-surface.js');
+    const listeners = new Map();
+    let added = 0;
+    let timers = 0;
+    const staleEl = { style: { display: '' }, textContent: '' };
+    const fakeWindow = {
+      AIO: {},
+      addEventListener(type, fn) { added += 1; if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type).add(fn); },
+      removeEventListener(type, fn) { listeners.get(type)?.delete(fn); },
+    };
+    const fakeDocument = { getElementById: (id) => (id === 'snapshot-stale-warning' ? staleEl : null) };
+    const realSetTimeout = globalThis.setTimeout;
+    const realClearTimeout = globalThis.clearTimeout;
+    globalThis.setTimeout = () => { timers += 1; return timers; };
+    globalThis.clearTimeout = () => {};
+    try {
+      installDataStatusSurface(fakeWindow, fakeDocument);
+      const stale = { _marketDataUpdated: new Date(Date.now() - 3 * 86400000).toISOString(), _marketDataDate: '2026-11-07' };
+      for (let i = 0; i < 3; i += 1) fakeWindow._aioApplySnapshotStaleWarning(stale);
+      const pending = () => [...listeners.values()].reduce((sum, set) => sum + set.size, 0);
+      const firstAdded = added;
+      const firstTimers = timers;
+      const shown = staleEl.style.display;
+      const handler = [...(listeners.get('aio:liveQuotes') || [])][0];
+      if (handler) handler({ detail: {} });
+      const hidden = staleEl.style.display;
+      const afterLive = pending();
+      fakeWindow._aioApplySnapshotStaleWarning(stale);
+      if (firstAdded !== 2 || firstTimers !== 1 || shown !== 'block' || !handler || hidden !== 'none' || afterLive !== 0 || added !== 4 || pending() !== 2 || timers !== 2)
+        fail(`v59.94 stale banner keeps one pending listener set: ${JSON.stringify({ firstAdded, firstTimers, shown, hidden, afterLive, added, pending: pending(), timers })}`);
+    } finally {
+      globalThis.setTimeout = realSetTimeout;
+      globalThis.clearTimeout = realClearTimeout;
+    }
+  }
   // v59.75: the US–Japan / US–Korea rate differential on one OECD monthly basis, read against the currency's move between the same month-ends.
   const { rateDifferential } = await load('src/domain/macro/rates-fx.js');
   const months = ['2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09'];

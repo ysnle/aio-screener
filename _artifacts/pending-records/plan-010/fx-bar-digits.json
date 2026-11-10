@@ -1,0 +1,17 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 four-place FX daily bars rounded high, low and adjusted close to two places",
+    "symptom": "Daily rows for EURUSD, GBPUSD, CNY and AUDUSD kept close at four places but high, low and adjClose at two, so a row could read close 1.1544 with high 1.15, a high below its close.",
+    "root_cause": "dailyRowsFromYahooChart rounded close with closeDigits but hard-coded 2 for high, low and adjClose.",
+    "fix": "high, low and adjClose round with the same closeDigits as close; the default stays 2, so every other instrument is unchanged.",
+    "violated_rule": "One bar's fields share one precision; a rounding step must not reorder high, close and low.",
+    "prevention": "Unit gate builds one bar at closeDigits 4 and asserts high 1.1599, low 1.1501, adjClose 1.1544 and high >= close >= low, and the same bar at the default digits stays at two places.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs exits 0; with the old price-factors.js it fails with high 1.16, low 1.15, adjClose 1.15 on the four-place row.",
+    "files": ["src/domain/screener/price-factors.js", "scripts/ci-esm-core-unit-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**FX bar digits ({P}):** four-place currency bars keep four places in high, low and adjusted close as well as close, so a row no longer reads a high below its close; other instruments are unchanged."],
+  "note": "v59.94: FX bars keep their close digits"
+}

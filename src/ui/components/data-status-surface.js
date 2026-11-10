@@ -192,6 +192,16 @@ export function installDataStatusSurface(window = globalThis, document = globalT
     if (swBadge) el.innerHTML += swBadge;
   }
 
+  // The stale banner's waiting listener pair and fallback timer ({ handler, timer }), or null.
+  let stalePending = null;
+  function _clearStalePending() {
+    if (!stalePending) return;
+    window.removeEventListener('aio:liveDataReceived', stalePending.handler);
+    window.removeEventListener('aio:liveQuotes', stalePending.handler);
+    clearTimeout(stalePending.timer);
+    stalePending = null;
+  }
+
   function _aioApplySnapshotStaleWarning(S) {
       // v34.2: Staleness 경고 — 스냅샷 기준이지만 실시간 데이터가 들어오면 자동 해제
       // 개선: 고정 12초 타이머 → 반복 폴링 + 이벤트 리스너로 확실히 해제
@@ -210,6 +220,8 @@ export function installDataStatusSurface(window = globalThis, document = globalT
           // v48.14 (Agent W11): 2분 폴링 루프 제거 — 순수 이벤트 구독으로 전환
           // aio:liveDataReceived + aio:liveQuotes 둘 다 구독해서 stale 해제
           // 첫 로드 후 45초 내 아무 이벤트 없으면 마지막 1회 확인 (만약 이벤트 누락)
+          // One pending listener set at a time: a repeated stale apply keeps the set already waiting.
+          if (stalePending) return;
           var _onStaleLiveFire = function(ev) {
             if (ev && ev.detail && ev.detail.coreCoverageOk === false) return;
             try {
@@ -217,19 +229,20 @@ export function installDataStatusSurface(window = globalThis, document = globalT
               if (audit && audit.liveCoverage && audit.liveCoverage.coreOk === false && window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._isFallback !== false) return;
             } catch(_audit) {}
             if (staleEl) staleEl.style.display = 'none';
-            window.removeEventListener('aio:liveDataReceived', _onStaleLiveFire);
-            window.removeEventListener('aio:liveQuotes', _onStaleLiveFire);
+            _clearStalePending();
           };
-          window.addEventListener('aio:liveDataReceived', _onStaleLiveFire, { once: true });
-          window.addEventListener('aio:liveQuotes', _onStaleLiveFire, { once: true });
+          window.addEventListener('aio:liveDataReceived', _onStaleLiveFire);
+          window.addEventListener('aio:liveQuotes', _onStaleLiveFire);
           // fallback: 45초 후 1회 확인 (이벤트 누락 대비)
-          setTimeout(function() {
+          var timer = setTimeout(function() {
             var liveTs = window._quoteTimestamps || {};
             var hasRecent = Object.values(liveTs).some(function(t) { return Date.now() - t < 120000; });
             if (hasRecent) _onStaleLiveFire();
           }, 45000);
+          stalePending = { handler: _onStaleLiveFire, timer: timer };
         } else {
           staleEl.style.display = 'none';
+          _clearStalePending();
         }
       }
   }

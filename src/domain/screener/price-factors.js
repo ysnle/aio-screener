@@ -344,11 +344,11 @@ export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOStrin
        close: round(c, closeDigits),
       // Missing adjusted-close evidence stays missing. A raw-close fallback
       // would silently turn a total-return backtest into a price-only test.
-      adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, 2) : null,
+      adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, closeDigits) : null,
        // Missing OHLC bars are unknown.  Falling back to close creates a
        // fabricated zero-range bar and can make ADR/VCP look complete.
-       high:   typeof h === 'number' && isFinite(h) ? round(h, 2)    : null,
-       low:    typeof l === 'number' && isFinite(l) ? round(l, 2)    : null,
+       high:   typeof h === 'number' && isFinite(h) ? round(h, closeDigits) : null,
+       low:    typeof l === 'number' && isFinite(l) ? round(l, closeDigits) : null,
        // Missing volume is unknown, not zero.  Zero is a real observation
        // for some instruments and would otherwise corrupt VCP/liquidity
        // factors while making a partial provider response look complete.

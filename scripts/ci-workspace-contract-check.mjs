@@ -94,6 +94,15 @@ for (const command of ['git push origin main', 'git push --follow-tags origin ma
   const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
   check(`guard allows "${command}" (v59.93)`, !/deny/.test(out.stdout || ''));
 }
+// v59.94: a quoted +refspec is a forced push and an index-plus-worktree restore discards; an index-only restore just unstages.
+for (const command of ['git push origin "+main"', "git push origin '+main'", 'git push origin "+HEAD:main"', 'git restore --staged --worktree .', 'git restore -SW .']) {
+  const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
+  check(`v59.94 guard denies ${JSON.stringify(command)}`, /"permissionDecision":"deny"/.test(out.stdout || ''));
+}
+for (const command of ['git restore --staged .', 'git restore -S .', 'git restore --source=HEAD --staged .', 'git push origin a+b', 'git push origin HEAD:main', 'git push origin HEAD:+main']) {
+  const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
+  check(`v59.94 guard allows ${JSON.stringify(command)}`, !/deny/.test(out.stdout || ''));
+}
 check('guard allows a single-path checkout (P1340)', !/deny/.test(runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command: 'git checkout -- js/aio-core.js' } }).stdout || ''));
 let dangerousOutput = {};
 try { dangerousOutput = JSON.parse(dangerousHook.stdout || '{}'); } catch { dangerousOutput = {}; }
