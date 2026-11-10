@@ -1,0 +1,22 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 earnings calendar records its failed day and IPO queries",
+    "symptom": "A failed Finnhub day query or IPO query in fetch-earnings-calendar became [] and the artifact was still stamped status current-reference with nothing recording the failure: a failed IPO call read as no IPOs this week, and a failed day silently fell back to the capped week response.",
+    "root_cause": "The day loop and the IPO query caught errors into an empty array, the same value as a real empty answer, while only the upcoming loop kept failures apart (upcomingGaps).",
+    "fix": "An exported pure helper earningsQueryGaps({ days, dayResults, ipoResult }) treats a non-array or rejected query as null and returns { dayRows, earningsDayGaps, ipos, iposAvailable }; main() calls it and the payload adds earningsDayGaps (failed YYYY-MM-DD days) next to upcomingGaps and iposAvailable next to ipos. A failed day still keeps the week rows; status and fetched data are unchanged.",
+    "violated_rule": "A missing value stays missing: a failed query must not be published as an empty, current result.",
+    "prevention": "scripts/ci-event-briefs-check.mjs calls earningsQueryGaps: a failed day is listed and its week rows survive the merge, a failed IPO query yields iposAvailable false with an empty list, and all-success yields no gaps and true.",
+    "verification": "node scripts/ci-event-briefs-check.mjs passes with the change and fails 3 v59.94 checks with the producer change stashed; node scripts/qa-runner.mjs contracts --keep-going.",
+    "files": [
+      "scripts/fetch-earnings-calendar.mjs",
+      "scripts/ci-event-briefs-check.mjs"
+    ]
+  },
+  "r": null,
+  "changelog": [
+    "**Earnings calendar query failures recorded ({P}):** a failed day query is listed in earningsDayGaps and a failed IPO query sets iposAvailable false, so neither reads as an empty, current result; the week rows a failed day keeps are unchanged."
+  ],
+  "note": "v59.94: earnings calendar earningsDayGaps + iposAvailable"
+}

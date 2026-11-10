@@ -160,6 +160,29 @@ check('v59.70 estimate first/last seen times survive rewrites and stop at the re
   same([r2.estimateFirstSeenAt, r2.estimateLastSeenAt, r3.estimateFirstSeenAt, r3.estimateLastSeenAt, revised.estimateFirstSeenAt, late.estimateLastSeenAt], [t1, t2, t1, t2, t3, null]);
 });
 
+// v59.94: a failed day or IPO query is recorded, not published as an empty, current result.
+const { earningsQueryGaps, mergeEarningsRows } = await import('./fetch-earnings-calendar.mjs');
+check('v59.94 a failed day query is listed in earningsDayGaps and its week rows survive', () => {
+  const days = ['2026-11-09', '2026-11-10'];
+  const weekRows = [{ symbol: 'AAA', date: '2026-11-09' }, { symbol: 'BBB', date: '2026-11-10' }];
+  const out = earningsQueryGaps({ days, dayResults: [[{ symbol: 'CCC', date: '2026-11-09' }], null], ipoResult: [] });
+  same(out.earningsDayGaps, ['2026-11-10']);
+  same(out.dayRows, [{ symbol: 'CCC', date: '2026-11-09' }]);
+  same(mergeEarningsRows(weekRows, out.dayRows).map((row) => row.symbol), ['AAA', 'CCC', 'BBB']);
+});
+check('v59.94 a failed IPO query yields iposAvailable false and an empty list', () => {
+  const out = earningsQueryGaps({ days: [], dayResults: [], ipoResult: null });
+  eq(out.iposAvailable, false);
+  same(out.ipos, []);
+});
+check('v59.94 all queries succeeding yields no gaps and iposAvailable true', () => {
+  const ipo = [{ symbol: 'NEWCO', date: '2026-11-11' }];
+  const out = earningsQueryGaps({ days: ['2026-11-09'], dayResults: [[]], ipoResult: ipo });
+  same(out.earningsDayGaps, []);
+  eq(out.iposAvailable, true);
+  same(out.ipos, ipo);
+});
+
 // v59.42: KOSPI weight proxies — common stocks only (no preferred, no ETF), the share at the previous close.
 const { buildKrIndexWeights } = await import('./fetch-kr-index-weights.mjs');
 const { readFileSync } = await import('node:fs');

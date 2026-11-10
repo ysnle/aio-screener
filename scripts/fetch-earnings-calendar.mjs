@@ -140,6 +140,19 @@ export function mergeEarningsRows(...lists) {
   }
   return [...merged.values()].sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.symbol).localeCompare(String(b.symbol)));
 }
+// v59.94: a failed day query or IPO query is recorded instead of reading as an empty, current result. dayResults[i] is
+// the row array for days[i] or null when that query failed; ipoResult is an array or null. A failed day still keeps
+// what the week query returned (the merge does that); it is only listed in earningsDayGaps.
+export function earningsQueryGaps({ days = [], dayResults = [], ipoResult = null } = {}) {
+  const dayRows = [];
+  const earningsDayGaps = [];
+  days.forEach((day, index) => {
+    const rows = dayResults[index];
+    if (Array.isArray(rows)) dayRows.push(...rows); else earningsDayGaps.push(day);
+  });
+  const iposAvailable = Array.isArray(ipoResult);
+  return { dayRows, earningsDayGaps, ipos: iposAvailable ? ipoResult : [], iposAvailable };
+}
 
 // v59.70 (lens plan step 1): when each estimate was seen. The calendar is rewritten every run and its estimate column is
 // the provider's value at that moment; after the report the same row can carry a revised estimate beside the actual.
@@ -195,22 +208,23 @@ async function main() {
     console.warn('[earnings-calendar] published an unavailable snapshot: FINNHUB_API_KEY is not configured');
     return;
   }
-  const [weekRows, ipos] = await Promise.all([
+  const [weekRows, ipoResult] = await Promise.all([
     fetchJSON(`${FINNHUB_BASE}/calendar/earnings?from=${from}&to=${to}&token=${FINNHUB_KEY}`).then((d) => (Array.isArray(d?.earningsCalendar) ? d.earningsCalendar : [])),
     // v58.71 (pipeline audit): a failed IPO call no longer throws away the earnings week with it.
-    fetchJSON(`${FINNHUB_BASE}/calendar/ipo?from=${from}&to=${to}&token=${FINNHUB_KEY}`).then((d) => (Array.isArray(d?.ipoCalendar) ? d.ipoCalendar : [])).catch(() => [])
+    fetchJSON(`${FINNHUB_BASE}/calendar/ipo?from=${from}&to=${to}&token=${FINNHUB_KEY}`).then((d) => (Array.isArray(d?.ipoCalendar) ? d.ipoCalendar : null)).catch(() => null)
   ]);
   // 2026-10-19 data audit: the week query came back with 526 rows and without INTC, KO, NOW, BA, CAT or SAP in their
   // reporting week — a capped response. One query per day (8 more calls, well inside 60/min) fills it; a failed day
-  // keeps what the week query returned.
-  const dayRows = [];
-  for (const day of earningsCalendarDays(from, to)) {
-    const rows = await fetchJSON(`${FINNHUB_BASE}/calendar/earnings?from=${day}&to=${day}&token=${FINNHUB_KEY}`)
-      .then((d) => (Array.isArray(d?.earningsCalendar) ? d.earningsCalendar : [])).catch(() => []);
-    dayRows.push(...rows);
+  // keeps what the week query returned and is listed in earningsDayGaps.
+  const days = earningsCalendarDays(from, to);
+  const dayResults = [];
+  for (const day of days) {
+    dayResults.push(await fetchJSON(`${FINNHUB_BASE}/calendar/earnings?from=${day}&to=${day}&token=${FINNHUB_KEY}`)
+      .then((d) => (Array.isArray(d?.earningsCalendar) ? d.earningsCalendar : null)).catch(() => null));
   }
+  const { dayRows, earningsDayGaps, ipos, iposAvailable } = earningsQueryGaps({ days, dayResults, ipoResult });
   const earnings = mergeEarningsRows(weekRows, dayRows);
-  console.log(`[earnings-calendar] week query ${weekRows.length} rows, day queries ${dayRows.length}, merged ${earnings.length}`);
+  console.log(`[earnings-calendar] week query ${weekRows.length} rows, day queries ${dayRows.length} (${earningsDayGaps.length} failed), merged ${earnings.length}${iposAvailable ? '' : ', ipo query failed'}`);
   const sp500 = await readJsonIf(`${ROOT}/public-data/sp500-weights.json`);
   const universe = await readJsonIf(`${ROOT}/public-data/screener-universe.json`);
   // v58.75 (persona review): the weeks after this window, one weekday per call, paced; universe listings only.
@@ -242,6 +256,7 @@ async function main() {
     largeCapCoverage: await withSecReportedCheck(largeCapScheduleGaps(earnings, { sp500Rows: sp500?.rows, universeRows: universe?.universe }), { from }),
     upcomingWindow: { from: isoDay(now), to: upcomingDays.at(-1) || to, weeks: UPCOMING_WEEKS, scope: 'screener universe (US listings)', format: 'SYM: date|hour (bmo before open, amc after close, dmh during hours, empty unknown)' },
     upcomingGaps,
+    earningsDayGaps,
     upcoming,
     earnings: stampEstimateSeen(earnings.map((row) => ({
       symbol: row.symbol || null,
@@ -259,7 +274,8 @@ async function main() {
       date: row.date || null,
       name: row.name || null,
       exchange: row.exchange || null
-    }))
+    })),
+    iposAvailable
   };
   await atomicWriteFile(OUT, `${JSON.stringify(payload, null, 1)}\n`);
   console.log(`[earnings-calendar] ${payload.earnings.length} earnings + ${payload.ipos.length} ipos (${from}~${to})`);
