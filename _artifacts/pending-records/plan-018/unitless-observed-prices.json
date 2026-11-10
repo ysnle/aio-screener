@@ -1,0 +1,17 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 AI numeric-evidence check missed observed prices, yields and FX levels written without a unit",
+    "symptom": "In a current-sensitive answer with no bound evidence, sentences such as '엔비디아는 어제 182.3에 마감했다.', '10년물은 4.15에 마감했다.', '원/달러는 1,385.2에 마감했다.', '달러인덱스(DXY)는 104.2입니다.' and 'WTI는 배럴당 71.4입니다.' were published unchanged, while unit-bearing figures were removed.",
+    "root_cause": "hasCurrentNumericContent only recognised a number with a listed unit, after a listed metric or index word, or after 현재/최신/지금/오늘. Bond, FX, dollar-index, oil, gold and bitcoin levels and plain decimal prices next to an observation verb had no rule.",
+    "fix": "hasCurrentNumericContent adds two narrow rules: market-level nouns (10년물, 원/달러, 달러인덱스/DXY, WTI, 브렌트, 유가, 금값, 비트코인 and others, with an optional alias and 배럴당/온스당) followed by a number, and a decimal or comma-grouped number that is not a period/date/count in a sentence carrying the existing OBSERVATION_MARKER.",
+    "violated_rule": "No unverified current number in an AI answer (no invented numbers).",
+    "prevention": "ci-ai-intelligence-contract-check asserts the five unit-less observed sentences are detected and stripped, six period/date/page-count sentences are not, and a unit-less yield threshold inside a condition stays.",
+    "verification": "node scripts/ci-ai-intelligence-contract-check.mjs; node scripts/ci-ai-chat-reliability-contract-check.mjs; node scripts/ci-pipeline-semantics-check.mjs; node scripts/ci-boot-bundle-budget-check.mjs",
+    "files": ["src/ai/response/publication.js", "scripts/ci-ai-intelligence-contract-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**AI unit-less current numbers ({P}):** an answer with no bound evidence no longer publishes an observed price, yield, FX or commodity level just because it carried no unit; period, date and threshold sentences stay."],
+  "note": "v59.94: unit-less observed prices count as current numbers"
+}

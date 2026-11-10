@@ -970,6 +970,16 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   check('v58.77 AI-02 unit-less index levels are current numbers; a period and a threshold condition are not',
     ['코스피는 2,450이다.', '나스닥은 18,200.5에 있다.', 'S&P 500은 6,100이다.'].every((t) => pub.stripUnverifiedCurrentNumericSentences(t) === '')
       && pub.stripUnverifiedCurrentNumericSentences('코스피 3개월 수익률을 보면 방향이 보인다.') !== '' && pub.stripUnverifiedCurrentNumericSentences('코스피가 3,000을 넘으면 과열로 본다.') !== '');
+  const unitlessObserved = ['엔비디아는 어제 182.3에 마감했다.', '10년물은 4.15에 마감했다.', '원/달러는 1,385.2에 마감했다.', '달러인덱스(DXY)는 104.2입니다.', 'WTI는 배럴당 71.4입니다.'];
+  for (const t of unitlessObserved) {
+    check(`v59.94 an observed price without a unit is a current number: ${t}`, pub.hasCurrentNumericContent(t) === true && pub.stripUnverifiedCurrentNumericSentences(t) === '');
+  }
+  const periodOrDate = ['3개월 동안 두 차례 올랐다.', '2026년 11월 10일 기준 자료입니다.', '1970년대에는 물가가 두 자릿수였다.', '1분기와 2분기 모두 발표가 있었습니다.', '10년 평균을 웃돌았다.', '어제 발표된 자료는 3쪽 분량입니다.'];
+  for (const t of periodOrDate) {
+    check(`v59.94 a period, date or page count is not a current number: ${t}`, pub.hasCurrentNumericContent(t) === false && pub.stripUnverifiedCurrentNumericSentences(t) === t);
+  }
+  check('v59.94 a unit-less yield threshold inside a condition stays',
+    pub.stripUnverifiedCurrentNumericSentences('10년물이 4.5를 넘으면 부담이 커집니다.') === '10년물이 4.5를 넘으면 부담이 커집니다.');
 }
 
 // v58.77 (owner 2026-10-25): the 맞춤 profile adapts how answers explain, never what they pick (R724); the example
