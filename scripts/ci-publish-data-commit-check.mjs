@@ -4,7 +4,7 @@
 // timestamp-only rewrite and checks what reached the remote, what the runner's worktree looks like afterwards and which
 // dispatches were asked for.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, chmodSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,9 +26,8 @@ const git = (cwd, ...args) => run(cwd, 'git', args);
 const tmp = mkdtempSync(join(tmpdir(), 'aio-publish-'));
 const remote = join(tmp, 'remote.git');
 const ghLog = join(tmp, 'gh.log');
-const ghBin = join(tmp, 'gh');
-writeFileSync(ghBin, `#!/usr/bin/env bash\necho "$*" >> ${JSON.stringify(ghLog)}\n`);
-chmodSync(ghBin, 0o755);
+const ghBin = join(tmp, 'gh.mjs');
+writeFileSync(ghBin, `import { appendFileSync } from 'node:fs';\nappendFileSync(${JSON.stringify(ghLog)}, process.argv.slice(2).join(' ') + '\\n');\n`);
 const outFile = join(tmp, 'github-output');
 const savedEnv = { ...process.env };
 const savedCwd = process.cwd();
@@ -103,9 +102,8 @@ try {
   { // a failed CI dispatch after the push is a warning and hands converge no sha to wait on
     const { runner } = fresh();
     writeFileSync(join(runner, 'out/a.json'), '{"v":9}\n');
-    const failing = join(tmp, 'gh-fail');
-    writeFileSync(failing, '#!/usr/bin/env bash\nexit 1\n');
-    chmodSync(failing, 0o755);
+    const failing = join(tmp, 'gh-fail.mjs');
+    writeFileSync(failing, 'process.exit(1);\n');
     process.env.AIO_PUBLISH_GH = failing;
     const code = inRepo(runner, { set: 'data' });
     process.env.AIO_PUBLISH_GH = ghBin;

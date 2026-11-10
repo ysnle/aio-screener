@@ -13,7 +13,7 @@
 // Writes changed / sha / collision to $GITHUB_OUTPUT. Exit codes: 0 published or nothing to publish, 1 refused, 2 usage.
 //
 // Test seams (scripts/ci-publish-data-commit-check.mjs drives this against a throwaway bare remote):
-//   AIO_PUBLISH_GH       command used instead of `gh` (receives the same arguments)
+//   AIO_PUBLISH_GH       command used instead of `gh`, or a .js/.mjs/.cjs script run with Node (receives the same arguments)
 //   AIO_PUBLISH_SLEEP_MS fixed back-off between push attempts (default: attempt × 3 s + up to 5 s jitter)
 //   AIO_PUBLISH_NOW      ISO time used for the commit-message minute
 import { spawnSync } from 'node:child_process';
@@ -61,6 +61,7 @@ const headJson = (path) => {
 };
 function gh(args) {
   const bin = process.env.AIO_PUBLISH_GH;
+  if (bin && /\.(mjs|cjs|js)$/.test(bin)) return spawnSync(process.execPath, [bin, ...args], { stdio: 'inherit' }).status === 0;
   const result = bin ? spawnSync(bin, args, { stdio: 'inherit' }) : spawnSync('gh', args, { stdio: 'inherit' });
   return result.status === 0;
 }
