@@ -224,7 +224,6 @@ window.AIO.normalizeAiError = _aioNormalizeAiError;
 window._aioNormalizeAiError = _aioNormalizeAiError;
 window._aioSetLastAiError = function(error, context) {
   var normalized = _aioNormalizeAiError(error, context);
-  window._aioLastAiError = normalized;
   return normalized;
 };
 
@@ -1134,30 +1133,6 @@ window.getApiKey = function(name) {
 };
 // v58.19: setApiKey는 v57.78 saveSidebarApiKey 퇴역 뒤 호출자가 0건이라 제거했다 (AI 키는 서버 전용, R675).
 
-// ═══ v48.95: _wordHit — 유니코드 단어경계 키워드 매칭 ══════════════════════
-// 용도: P1-1 한국어 단글자 '금'.includes('금리') 오탐 방지
-//       .includes(kw) 대신 단어경계(\p{L}\p{N}) 기반 매칭
-// 사용: _wordHit('금리 상승', '금') → false,  _wordHit('금 상승', '금') → true
-// 성능: RegExp 컴파일 캐시 (_wordHitRxCache) — 고빈도 키워드 재컴파일 방지
-var _wordHitRxCache = {};
-window._wordHit = function(text, kw) {
-  if (!kw) return false;
-  var rx = _wordHitRxCache[kw];
-  if (!rx) {
-    try {
-      var esc = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      rx = _wordHitRxCache[kw] = new RegExp(
-        '(?:^|[^\\p{L}\\p{N}])' + esc + '(?=$|[^\\p{L}\\p{N}])', 'u'
-      );
-    } catch(e) {
-      // 'u' 플래그 미지원 환경 fallback → 기존 includes
-      rx = _wordHitRxCache[kw] = null;
-    }
-  }
-  text = String(text); if (!rx || text.indexOf(kw) < 0) return text.indexOf(kw) >= 0;
-  return rx.test(text);
-};
-
 // ═══ v48.96: _aioChartRegistry — Chart.js 인스턴스 중앙 관리 ════════════════
 // 용도: 재렌더 전 destroy 보장 → 메모리 누수 방지 (P1-5)
 // 사용: _aioChartRegistry.register('fund-var', chartInst)
@@ -1199,23 +1174,6 @@ window._aioChartRegistry = {
     return this.resizeAllVisible();
   }
 };
-
-// ═══ v48.96: _aioSetupCanvas — devicePixelRatio 적용 캔버스 초기화 ══════════
-// 용도: 레티나/HiDPI 화면에서 차트 선명도 보장 (P2-3)
-// 사용: var ctx = _aioSetupCanvas(canvas, 600, 200)
-//       new Chart(ctx, {...})
-window._aioSetupCanvas = function(canvas, w, h) {
-  if (!canvas || !canvas.getContext) return null;
-  var dpr = Math.max(1, window.devicePixelRatio || 1);
-  canvas.width = Math.round(w * dpr);
-  canvas.height = Math.round(h * dpr);
-  canvas.style.width = w + 'px';
-  canvas.style.height = h + 'px';
-  var ctx = canvas.getContext('2d');
-  if (ctx && dpr > 1) ctx.scale(dpr, dpr);
-  return ctx;
-};
-
 
 // ═══ v48.96: _aioModalTrap — 모달 키보드 포커스 순환 + ESC 닫기 (P2-9) ════════
 // 용도: WCAG 2.1 SC 2.1.2 — 모달 내 Tab/Shift+Tab 순환, ESC로 닫힘
@@ -4569,7 +4527,6 @@ window.AIO.recordAIContextBudget = function(text, options) {
   stats.p95InputTokens = sorted[Math.max(0, Math.ceil(sorted.length * 0.95) - 1)];
   stats.latestInputTokens = sample.estimatedInputTokens;
   sample.p95InputTokens = stats.p95InputTokens;
-  window._aioLastAIContextBudgetAudit = sample;
   return sample;
 };
 
@@ -10644,25 +10601,6 @@ try { window.AIO.stores.price = window.PriceStore || null; window.AIO.stores.new
 // src/domain/technical/snapshot.js and the holding risk (calcSellPressure, calcPositionTechnicalRisk, calcPortfolioTechnicalRisk)
 // src/domain/portfolio/technical-risk.js; src/app/legacy-screen-bridges.js installs the window names.
 
-// P1128/R619: OPEX 만기 계산의 단일 정본. aio-data.js의 사본은 P575에서 시간대 보정을 받았지만
-// 이쪽은 받지 못해 두 구현이 하루 다른 날짜를 낼 수 있었다. 로컬 자정을 toISOString으로 바꾸면
-// UTC+ 시간대에서 전날이 되므로(KST: 3rd Friday 2026-01-16 → "2026-01-15") 로컬 성분으로 포맷한다.
-function _aioNextMonthlyOpex(referenceDate) {
-  // v58.82: 휴장인 셋째 금요일(2027-06-18)은 직전 거래일 만기
-  function third(y, m) {
-    var d = new Date(y, m, 1 + ((5 - new Date(y, m, 1).getDay() + 7) % 7) + 14);
-    try { for (var i = 0; i < 4 && DATE_ENGINE.hasMarketCalendar('US', d.getFullYear()) && !DATE_ENGINE.isUsTradingDay(d); i++) d = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1); } catch (_) {}
-    return d;
-  }
-  var ref = referenceDate ? new Date(referenceDate) : new Date();
-  var refDay = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate());
-  var next = third(ref.getFullYear(), ref.getMonth());
-  if (next.getTime() < refDay.getTime()) next = third(ref.getMonth() === 11 ? ref.getFullYear() + 1 : ref.getFullYear(), (ref.getMonth() + 1) % 12);
-  var y = next.getFullYear(), m = String(next.getMonth() + 1).padStart(2, '0'), d = String(next.getDate()).padStart(2, '0');
-  return { nextOpexDate: y + '-' + m + '-' + d, daysToOpex: Math.ceil((next.getTime() - refDay.getTime()) / 86400000) };
-}
-window._aioNextMonthlyOpex = _aioNextMonthlyOpex;
-
 var AIO_EVENT_RISK_CONTEXT = {
   available: false,
   asOf: null,
@@ -11024,59 +10962,6 @@ window.AIO.getDataFreshnessAudit = function() {
     macroHealth: macroHealth,
     snapshotHealth: snapshotHealth,
     generatedAt: new Date().toISOString()
-  };
-};
-
-// v48.37: SCREENER_DB memo 내부 날짜 파서 — 애널리스트 리포트 staleness 구조적 감지
-// 매칭 패턴: [Citi 04/17] · [JPM 04/17] · [GS 04/15 Buy] · [2026.04] · [2026-04-15]
-// 반환: { oldestTs: number, freshestTs: number, isStale: bool, badge: HTML }
-window._aioMemoStaleInfo = function(memo, opts) {
-  if (!memo || typeof memo !== 'string') return null;
-  opts = opts || {};
-  var category = opts.category || 'report';
-  var year = opts.year || new Date().getFullYear();
-  var dates = [];
-  // Pattern 1: [LABEL MM/DD] — 예: [Citi 04/17], [JPM 04/17], [GS 04/15 Buy]
-  var rx1 = /\[[A-Za-z0-9&]+(?:\s[A-Z][A-Za-z]*)?\s(\d{1,2})\/(\d{1,2})(?:\s[A-Za-z]+)?\]/g;
-  var m;
-  while ((m = rx1.exec(memo)) !== null) {
-    var mm = parseInt(m[1], 10), dd = parseInt(m[2], 10);
-    if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31) {
-      var d = new Date(year, mm - 1, dd);
-      // 미래 날짜면 작년으로 (예: 12/28 in April → 전년 12월)
-      // v49.1 P186: 3월/11월 DST 전환 ±1h 보정 (fall-back 시 25h 허용)
-      var _dstGrace = ([3, 11].indexOf(new Date().getMonth() + 1) !== -1) ? 3600000 : 0;
-      if (d.getTime() > Date.now() + 86400000 + _dstGrace) d.setFullYear(year - 1);
-      dates.push(d.getTime());
-    }
-  }
-  // Pattern 2: [YYYY.MM] — 예: [2026.04]
-  var rx2 = /\[(\d{4})\.(\d{1,2})\]/g;
-  while ((m = rx2.exec(memo)) !== null) {
-    var yr = parseInt(m[1], 10), mn = parseInt(m[2], 10);
-    if (yr >= 2020 && yr <= 2040 && mn >= 1 && mn <= 12) {
-      dates.push(new Date(yr, mn - 1, 15).getTime());
-    }
-  }
-  // Pattern 3: [YYYY-MM-DD] — 예: [2026-04-15]
-  var rx3 = /\[(\d{4})-(\d{1,2})-(\d{1,2})\]/g;
-  while ((m = rx3.exec(memo)) !== null) {
-    var y3 = parseInt(m[1], 10), m3 = parseInt(m[2], 10), d3 = parseInt(m[3], 10);
-    if (y3 >= 2020 && y3 <= 2040 && m3 >= 1 && m3 <= 12 && d3 >= 1 && d3 <= 31) {
-      dates.push(new Date(y3, m3 - 1, d3).getTime());
-    }
-  }
-  if (dates.length === 0) return null;
-  var freshest = Math.max.apply(null, dates);
-  var oldest = Math.min.apply(null, dates);
-  var DE = window.FRESHNESS_ENGINE;
-  return {
-    freshestTs: freshest,
-    oldestTs: oldest,
-    count: dates.length,
-    isStale: DE ? DE.isStale(freshest, category) : false,
-    badge: DE ? DE.staleBadge(freshest, category, opts.badgeOpts) : '',
-    label: DE ? DE.formatRelative(freshest) : ''
   };
 };
 
@@ -14741,22 +14626,3 @@ function showTicker(tkr) {
 
 // v59.88 (ADR-0003 S6): the portfolio statistics (_statMean, _calcPortfolioVaR, Sharpe, MDD, correlation) are
 // src/domain/portfolio/return-stats.js, installed on window by src/app/legacy-screen-bridges.js.
-
-// ── 공유 포맷 유틸 (원소유: aio-chat.js → aio-core.js 승격 v51.16) ────────
-// 의존: window._aioFiniteNum (이 파일 line ~788). aio-ui.js·aio-chat.js에서 local alias로 사용.
-function _fmtNum(v) {
-  var fv = (typeof window._aioFiniteNum === 'function') ? window._aioFiniteNum(v) : (v != null && isFinite(v) ? v : null);
-  if (fv === null) return '—';
-  var abs = Math.abs(fv);
-  if (abs >= 1e12) return (fv/1e12).toFixed(2) + 'T';
-  if (abs >= 1e9)  return (fv/1e9).toFixed(2)  + 'B';
-  if (abs >= 1e6)  return (fv/1e6).toFixed(1)  + 'M';
-  if (abs >= 1e3)  return (fv/1e3).toFixed(1)  + 'K';
-  return fv.toFixed(2);
-}
-function _fmtPct(v) {
-  var n = Number(v);
-  return Number.isFinite(n) ? (n >= 0 ? '+' : '') + window._aioSafeFixed(n, 1, '0.0') + '%' : 'N/A';
-}
-window._fmtNum = _fmtNum;
-window._fmtPct = _fmtPct

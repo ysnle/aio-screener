@@ -893,20 +893,6 @@ function _itbObservedCount(sp) {
 
 // P1558 → v57.76: the Korean flag-label map (_itbFlagLabel) left with the brief panels that showed flag badges.
 
-function renderDataQualityBadge(quality) {
-  quality = quality || {};
-  if ((quality.policyKey || quality.value !== undefined) && window.calcDataQuality) {
-    try { quality = window.calcDataQuality(quality); } catch(_) {}
-  }
-  var confNum = typeof quality.confidence === 'number' ? quality.confidence : (quality.confidence === 'high' ? 90 : quality.confidence === 'medium' ? 65 : quality.confidence === 'low' ? 35 : null);
-  var label = quality.label || (confNum >= 80 ? 'HIGH' : confNum >= 55 ? 'MEDIUM' : confNum >= 30 ? 'LOW' : 'UNKNOWN');
-  var tone = label === 'HIGH' ? 'bull' : label === 'MEDIUM' ? 'warn' : 'risk';
-  var conf = confNum !== null ? ' ' + _itbNum(confNum, 0) + '%' : '';
-  var source = quality.source ? ', ' + quality.source : '';
-  return _itbBadge('Data ' + label + conf, tone) + '<span style="font-size:12px;color:var(--text-muted);margin-left:6px;">' + escHtml((quality.freshness || 'UNKNOWN') + source) + '</span>';
-}
-
-
 function renderPortfolioTechnicalRisk(result) {
   var el = document.getElementById('pf-technical-risk');
   if (!el) return;
@@ -933,7 +919,6 @@ function renderPortfolioTechnicalRisk(result) {
     '<div class="lu-pf-scroll"><table class="lu-pf-tbl"><thead><tr class="lu-pf-thr"><th class="lu-pf-th">종목</th><th class="lu-pf-th lu-pf-th-r">비중</th><th class="lu-pf-th lu-pf-th-r">손익</th><th class="lu-pf-th lu-pf-th-r">확인 조건</th><th class="lu-pf-th">부담 수준</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
 }
 
-window.renderDataQualityBadge = renderDataQualityBadge;
 window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
 
 // v59.51 (content audit): the _aioDiagram SVG engine (v50.81) drew its last type, factor-radar, into the retired
