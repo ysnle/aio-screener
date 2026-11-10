@@ -2636,11 +2636,6 @@ function applyFredToUI(data) {
   if (data['T10Y2Y']) {
     if (window.DATA_SNAPSHOT) window.DATA_SNAPSHOT.t10y2y = data['T10Y2Y'].value;
   }
-  // v31.9: VIXCLS Yahoo 실시간 → 센티먼트 히스토리에 최신값 주입
-  if (data['VIXCLS'] && data['VIXCLS']._source && data['VIXCLS']._source.startsWith('yahoo-')) {
-    window._liveVIXCLS = data['VIXCLS'].value;
-  }
-
   // v57.60: retired spread-2s10s-* writers removed (nodes no longer exist); DATA_SNAPSHOT.t10y2y above stays.
 
   // Unemployment, CPI, Fed Funds for macro page
@@ -2963,7 +2958,6 @@ function _querySWVersion() {
     mc.port1.onmessage = function(e) {
       if (e.data && e.data.version) {
         window._aioSWVersion = e.data.version;
-        window._aioSWCheckedAt = Date.now();
         var appVer = (typeof APP_VERSION === 'string' ? APP_VERSION : (window.AIO && window.AIO.version) || '');
         if (appVer && e.data.version === appVer) {
           try { sessionStorage.removeItem('aio_sw_controller_reload_v1'); } catch (_) {}
@@ -3179,7 +3173,6 @@ function _aioApplyNewsBackstop(force) {
     _aioNotifyNewsSurfaceInvalidated('news-server-cache');
     if (typeof renderBriefingFeed === 'function') renderBriefingFeed(items);
     _aioUpdateNewsSummaryFromItems(items, { kind: 'server-cache', generatedAt: serverMeta.generatedAt || null });
-    window._newsBackstopApplied = { count: items.length, at: Date.now() };
     if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server 뉴스 백스톱 적용: ' + items.length + '건 (클라이언트 뉴스 부재)');
     // 스테일 배너 (v57.77: the absent #news-cache-ts stamp writer is retired)
     try {
@@ -4843,12 +4836,6 @@ async function _aioFetchLiveQuotesOnce(requestedSymbols, attempt) {
           });
         }
       }
-      // v48.2: BTC 도미넌스 근사치 계산 — Top 4 중 BTC 시총 / 합계 (정확한 도미넌스는 /global 필요하나 근사치로 대용)
-      try {
-        var _mcBTC = d.bitcoin && d.bitcoin.usd_market_cap;
-        var _mcTotal4 = (d.bitcoin && d.bitcoin.usd_market_cap || 0) + (d.ethereum && d.ethereum.usd_market_cap || 0) + (d.solana && d.solana.usd_market_cap || 0) + (d.binancecoin && d.binancecoin.usd_market_cap || 0);
-        if (_mcBTC && _mcTotal4) window._btcDominanceTop4 = (_mcBTC / _mcTotal4) * 100;
-      } catch(e) {}
       console.log('[AIO] CoinGecko 크립토 갱신:', Object.keys(d).length, '개');
     }
   } catch(e) { _aioLog('warn', 'fetch', 'CoinGecko 실패: ' + e.message); }
@@ -6515,9 +6502,6 @@ function applyLiveQuotes(quotes) {
       window.AIO.applyLiveDataToDom({ reason: 'applyLiveQuotes', force: true });
     }
   } catch(_liveDomBindErr) {}
-
-  // v34: 글로벌 마켓 오버뷰 신선도 타임스탬프 갱신
-  window._liveQuoteTimestamp = Date.now();
 
   // v35.8: 실시간 데이터 localStorage 캐시 — 다음 로드 시 폴백으로 활용
   try {

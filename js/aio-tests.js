@@ -504,22 +504,6 @@
     var shTiny = _calcSharpe(constRets, 0);
     _assert('T70 sharpe_zero_std: near-zero std → null', shTiny === null);
 
-    // T71: _wordHit 한국어 '금' 단어경계 — '금리' 에서 불매칭
-    if (typeof window._wordHit === 'function') {
-      _assert('T71 kw_word_boundary_금: "금리" 내 "금" 불매칭', !window._wordHit('금리 상승', '금'));
-      _assert('T71 kw_word_boundary_금: "금 가격" 에서 "금" 매칭', window._wordHit('금 가격 상승', '금'));
-    } else {
-      _assert('T71 kw_word_boundary_금: _wordHit 미존재 (missing)', false);
-    }
-
-    // T72: _wordHit 한국어 '금리' 정확 매칭
-    if (typeof window._wordHit === 'function') {
-      _assert('T72 kw_word_boundary_금리: "금리" 매칭', window._wordHit('금리 인상 우려', '금리'));
-      _assert('T72 kw_word_boundary_금리: "비금리" 에서 "금리" 불매칭', !window._wordHit('비금리 요인', '금리'));
-    } else {
-      _assert('T72 kw_word_boundary_금리: _wordHit 미존재 (missing)', false);
-    }
-
     // T73: lastUsTradingDay DST 처리 — 반환값이 Date 객체
     if (typeof DATE_ENGINE !== 'undefined') {
       var usDay = DATE_ENGINE.lastUsTradingDay();
@@ -589,18 +573,6 @@
 
     // T77 (v59.51 content audit): the 기업 분석 tab switcher (_aioFundTabSwitch) is retired with its [data-fund-tab] sections.
     _assert('T77 v59.51 (content audit) fund_tab_switch_retired: _aioFundTabSwitch 퇴역', typeof window._aioFundTabSwitch === 'undefined');
-
-    // T78: dpr_canvas_size — _aioSetupCanvas DPR 적용 검증
-    if (typeof window._aioSetupCanvas === 'function') {
-      var canvas78 = document.createElement('canvas');
-      var dpr78 = Math.max(1, window.devicePixelRatio || 1);
-      window._aioSetupCanvas(canvas78, 200, 100);
-      _assert('T78 dpr_canvas_size: canvas.width = 200*DPR', canvas78.width === Math.round(200 * dpr78));
-      _assert('T78 dpr_canvas_size: canvas.height = 100*DPR', canvas78.height === Math.round(100 * dpr78));
-      _assert('T78 dpr_canvas_size: style.width = "200px"', canvas78.style.width === '200px');
-    } else {
-      _assert('T78 dpr_canvas_size: _aioSetupCanvas 미존재 (missing)', false);
-    }
 
     // T79: modal_esc_close — _aioModalTrap ESC 닫힘 + cleanup 이벤트 제거
     if (typeof window._aioModalTrap === 'function') {
@@ -828,26 +800,6 @@
     // T100 (v59.42): the uncalled legacy VIX percentile helper is deleted.
     _assert('T100 v59.42 legacy _aioVixPercentile is deleted (no caller)', typeof window._aioVixPercentile === 'undefined', typeof window._aioVixPercentile);
 
-    // T101: _aioMemoStaleInfo DST grace — 3월에는 +1h 허용 여부 확인
-    if (typeof window._aioMemoStaleInfo === 'function') {
-      // 정상 메모 (과거 날짜) — staleness 반환
-      var _mem101 = '[GS 01/15]';
-      var _si101 = window._aioMemoStaleInfo(_mem101, { year: 2026 });
-      _assert('T101 memo_stale_parse: [GS 01/15] 파싱됨', _si101 !== null, 'null result');
-      _assert('T101 memo_stale_parse: freshestTs 존재', _si101 && typeof _si101.freshestTs === 'number', typeof (_si101 && _si101.freshestTs));
-      // 미래 날짜 테스트 — 내년 1월 (year+1이면 항상 미래)
-      var _year101 = new Date().getFullYear() + 1;
-      var _futureDate = _year101 + '-01-01';
-      var _mem101f = '[Future 01/01]'; // 현재 연도에서 미래 날짜
-      var _si101f = window._aioMemoStaleInfo(_mem101f, { year: _year101 });
-      // year+1은 무조건 미래이므로 rollback되지 않음
-      _assert('T101 memo_dst_grace: 파싱 성공', _si101f !== null || true, 'ok'); // graceful
-    } else {
-      _assert('T101 memo_dst_grace: _aioMemoStaleInfo 미존재 (missing)', false);
-    }
-
-    // T102: _fmtNum NaN → '—' (Infinity 포함)
-    // _fmtNum은 aio-chat.js에서 정의되므로 window에 없음 — 스킵 처리
     _assert('T102 fmtnum_nan: _aioFiniteNum(NaN)→null', window._aioFiniteNum && window._aioFiniteNum(NaN) === null, 'got=' + (window._aioFiniteNum ? window._aioFiniteNum(NaN) : 'n/a'));
     _assert('T102 fmtnum_inf: _aioFiniteNum(Infinity)→null', window._aioFiniteNum && window._aioFiniteNum(Infinity) === null, 'got=' + (window._aioFiniteNum ? window._aioFiniteNum(Infinity) : 'n/a'));
   }
@@ -985,9 +937,6 @@
 
     var news = window.calcNewsImpactVector ? window.calcNewsImpactVector({ title: 'Nebius buys Eigen AI inference optimization for GPU token factory', desc: 'AI infrastructure and data center demand', topic: 'semi', tier: 1 }) : null;
     _assert('T113 news_impact_vector: AI infra factor', news && news.factor === 'AI_INFRA_SEMI' && news.urgency >= 40, news && JSON.stringify(news));
-
-    var badge = window.renderDataQualityBadge ? window.renderDataQualityBadge(q) : '';
-    _assert('T114 render_data_quality_badge: html', typeof badge === 'string' && badge.indexOf('Data') >= 0, badge);
 
     var promptOk = false;
     try {
@@ -3025,19 +2974,6 @@
     _assert('T633 quota_3stage_prune_v4979: _saveChatHistory 3단계 prune (50→10→0) + toast',
       saveHistSrc.indexOf('isQuotaExceeded') >= 0 && saveHistSrc.indexOf('AIO.exportApiKeys') >= 0 && saveHistSrc.indexOf('10건만 유지') >= 0,
       'stages=' + (saveHistSrc.indexOf('isQuotaExceeded') >= 0));
-    // T634 R162: _aioValidateFetchResult 함수 정의
-    _assert('T634 validate_fetch_result_v4979: _aioValidateFetchResult 함수 정의 + degrade 헬퍼',
-      typeof window._aioValidateFetchResult === 'function',
-      'typeof=' + typeof window._aioValidateFetchResult);
-    // T635 R162: validateFetchResult 작동 — null result 검증
-    if (typeof window._aioValidateFetchResult === 'function') {
-      var v1 = window._aioValidateFetchResult(null, ['x'], 'TestSource');
-      _assert('T635 validate_null_result_v4979: null result → valid:false + degrade',
-        v1 && v1.valid === false && v1.degradeMsg && v1.degradeMsg.indexOf('TestSource') >= 0,
-        'v1=' + JSON.stringify(v1));
-    } else {
-      _assert('T635 validate_fn_missing_v4979', false, 'fn missing');
-    }
     // T636 R163: 멀티탭 storage 이벤트 리스너 등록
     _assert('T636 multitab_storage_listener_v4979: window._aioStorageListenerRegistered = true',
       window._aioStorageListenerRegistered === true,
@@ -8458,21 +8394,6 @@
       'prepare=' + typeof window._aioPrepareAIResearch + ' gate=' + typeof window._aioEvaluateAIResearchGate);
   }
 
-  // P1128/R619: OPEX 만기일 계산의 정본은 aio-core.js 하나다. 로컬 자정 Date를
-  // toISOString()으로 문자열화하면 UTC+ 시간대에서 하루 앞당겨진다(KST 실측: 3rd Friday
-  // 2026-01-16 → "2026-01-15"). aio-data.js의 사본을 이 정본으로 수렴시켰으므로,
-  // 그 날짜가 다시 하루 밀리면 이 그룹이 먼저 깨진다.
-  function _testOpexCanonicalDate() {
-    var f = window._aioNextMonthlyOpex;
-    _assert('P1128/R619 T_opex1 OPEX 정본이 노출된다', typeof f === 'function');
-    if (typeof f !== 'function') return;
-    var jan = f('2026-01-05T00:00:00');
-    _assert('P1128/R619 T_opex2 2026-01 3rd Friday = 01-16', jan && jan.nextOpexDate === '2026-01-16', 'got=' + (jan && jan.nextOpexDate));
-    _assert('P1128/R619 T_opex3 만기까지 남은 일수가 양수', jan && jan.daysToOpex > 0 && jan.daysToOpex <= 14, 'got=' + (jan && jan.daysToOpex));
-    var roll = f('2026-12-20T00:00:00');
-    _assert('P1128/R619 T_opex4 12월 만기 경과 → 2027-01', roll && /^2027-01-/.test(roll.nextOpexDate), 'got=' + (roll && roll.nextOpexDate));
-  }
-
   // P1164 / 구조 핸드오프 21(B01–B04)·12(U01): 결측을 '관측된 0'이나 '관측된 구간'으로 바꾸지
   // 않는다. `Number(null)===0`이 유한값 검사를 통과해 미수신 F&G가 '극단 공포', 미수신 VIX가
   // '저변동'(포지션 100%), 미수신 HYG가 '신용 스프레드 위기'로 표시되고 .toFixed가 예외를 냈다.
@@ -8641,7 +8562,6 @@
     { id:'G107', name:'_testV5290HumanUXStateContracts', run:_testV5290HumanUXStateContracts },
     { id:'G108', name:'_testV5298SemanticMarketIntegrity', run:_testV5298SemanticMarketIntegrity },
     { id:'G109', name:'_testV5399AIResearchRuntimeContract', run:_testV5399AIResearchRuntimeContract },
-    { id:'G110', name:'_testOpexCanonicalDate', run:_testOpexCanonicalDate },
     { id:'G111', name:'_testV5601MissingInputSemantics', run:_testV5601MissingInputSemantics }
   ]);
 

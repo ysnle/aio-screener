@@ -3053,7 +3053,6 @@ window._shouldSingleDeepAnalyzeChat = _shouldSingleDeepAnalyzeChat;
 // ─────────────────────────────────────────────────────────────────
 // P1608: provider-neutral source-first choice; the Worker owns admission.
 function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers, questionPlan, researchState) {
-  window._aioWebSearchCapped = false;
   var route = window._aioLastClaudeRouteState;
   return !!window.AIO?.selectNativeSearch?.({ decision: questionPlan?.researchDecision, questionPlan: questionPlan, externalResult: researchState?.externalResult,
     preparation: researchState?.preparation, internalEvidenceReady: researchState?.internalEvidenceReady, internalReferenceEvidence: researchState?.internalReferenceEvidence,
@@ -3171,30 +3170,6 @@ function _aioSessionContextHeader() {
          '【데이터 신선도】 _liveData 마지막 갱신: ' + liveAge + ' / DATA_SNAPSHOT 기준일: ' + snapDate + '\n';
 }
 window._aioSessionContextHeader = _aioSessionContextHeader;
-
-// v49.79 P425/R162: _aioValidateFetchResult — 17 promise 결과 schema 검증 (코드 단위 진단 #4)
-// 외부 API schema 변경 시 graceful degradation. _fetchTickerDataForChat의 각 라벨 출력 전 호출.
-// 사용자 정직 요구 — schema 변경 시 silent crash 차단.
-function _aioValidateFetchResult(result, requiredFields, sourceName) {
-  if (!result || typeof result !== 'object') {
-    return { valid: false, reason: sourceName + ': result is null/non-object', degradeMsg: '[' + sourceName + ', 데이터 미수신 또는 schema 오류]' };
-  }
-  if (result.error || result.fetchFailed) {
-    return { valid: false, reason: sourceName + ': explicit error flag', degradeMsg: '[' + sourceName + ', ' + (result.reason || result.error || 'fetch 실패') + ']' };
-  }
-  if (Array.isArray(requiredFields)) {
-    var missing = requiredFields.filter(function(f) { return result[f] === undefined || result[f] === null; });
-    if (missing.length === requiredFields.length) {
-      return { valid: false, reason: sourceName + ': all required fields missing (' + missing.join(',') + ')', degradeMsg: '[' + sourceName + ', schema 변경 가능 — 필수 필드 ' + missing.join(',') + ' 부재]' };
-    }
-    if (missing.length > 0) {
-      // 일부 누락은 partial 처리
-      return { valid: true, partial: true, missingFields: missing, warningMsg: '' + sourceName + ' partial — ' + missing.join(',') + ' 누락' };
-    }
-  }
-  return { valid: true, partial: false };
-}
-window._aioValidateFetchResult = _aioValidateFetchResult;
 
 // _aioFetchLabel(name, source, ts) — 데이터 블록 라벨 표준화
 // 출력: '[name · fetched YYYY-MM-DD HH:MM KST · source]'
