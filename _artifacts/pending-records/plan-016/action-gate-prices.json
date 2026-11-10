@@ -1,0 +1,17 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 AI action gate catches prices written with thousands separators, 만/억 units and ranges",
+    "symptom": "AI answers such as '손절은 1,050달러에서 하세요.', '삼성전자 손절은 65,000원에서 하세요.', 'NVDA 1,000달러 매수.', '손절은 7만 원에서 하세요.' and '손절은 175~178달러에서 하세요.' reached the screen unchanged, while '손절은 1050달러에서 하세요.' was replaced.",
+    "root_cause": "_aioApplyAIActionGate split every sentence into clauses on every comma, so '1,050' was cut and no pattern saw the action word and the number together; pricedImperative read only a bare number plus 달러/원, so a 천/만/억 magnitude or a range tail stopped the match.",
+    "fix": "The clause split no longer treats a comma between a digit and exactly three digits as a separator, and pricedImperative's number part accepts an optional range tail (~, -, en dash) and an optional 천/만/억 magnitude before the currency word.",
+    "violated_rule": "No trade instructions (entry/stop/target/size): the app never tells the reader what to buy or sell, at what price, size or time.",
+    "prevention": "ci-ai-intelligence-contract-check carries one assertion per missed price spelling (comma, 원, ticker, 목표가, 만 with and without a space, ~ range, - range) plus the 1050 regression guard and five analysis sentences that must stay unchanged (level fact, conditional, negated instruction, attributed rule, comma list).",
+    "verification": "node scripts/ci-ai-intelligence-contract-check.mjs: the eight new assertions fail with the pre-fix request-pipeline.js and pass after; ci-ai-chat-reliability, ci-pipeline-semantics and ci-boot-bundle-budget exit 0; a 2,000-character input runs through the gate in under 10 ms.",
+    "files": ["src/ai/response/request-pipeline.js", "scripts/ci-ai-intelligence-contract-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**AI trade-instruction gate reads Korean price spellings ({P}):** a priced instruction written with a thousands separator (1,050달러), a 만/억 unit (7만 원) or a range (175~178달러) is now replaced like the plain-number form, while level facts, conditionals, negations, attributed rules and comma lists stay unchanged."],
+  "note": "v59.94: action gate catches comma, unit and range prices"
+}

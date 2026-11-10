@@ -571,7 +571,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     // v58.63 (architecture audit A15): English directives are directives too ("You should buy NVDA now." passed untouched).
     var english = /\b(?:you\s+(?:should|must|need\s+to|ought\s+to)|i\s+(?:recommend|suggest|advise)(?:\s+(?:you|that\s+you))?|we\s+recommend(?:\s+(?:you|that\s+you))?|it(?:'s|\s+is)\s+time\s+to)\s+(?:buy|sell|short|add\s+to|trim|dump|load\s+up\s+on|go\s+long|go\s+short|exit)\b|(?:^|[.!?]\s*)(?:buy|sell|short)\s+(?:[A-Z]{1,5}\b|shares|the\s+stock|it\s+now|now)|\bstrong\s+(?:buy|sell)\b/i;
     var englishIndirect = /\b(?:said|argued|wrote|believed|taught|advised|warned)\s+(?:that\s+)?(?:you|investors|traders)\b|\bthe\s+(?:rule|principle|maxim)\s+(?:is|says)\b/i;
-    var pricedImperative = new RegExp('(?:' + action + '|손절가|목표가|매수가|매도가|진입가|익절가)\\s*(?:은|는|을|를)?\\s*\\$?\\d[\\d,.]*\\s*(?:달러|원)?\\s*(?:에서|에|으로|로|부근에서|근처에서)\\s*(?:하세요|하십시오|하라|두세요|잡으세요|거세요|설정하세요|정하세요|하시기\\s*바랍니다)'); // v58.75: priced imperatives ("손절은 178달러에서 하세요")
+    var pricedImperative = new RegExp('(?:' + action + '|손절가|목표가|매수가|매도가|진입가|익절가)\\s*(?:은|는|을|를)?\\s*\\$?\\d[\\d,.]*(?:\\s*[~\\-–]\\s*\\$?\\d[\\d,.]*)?(?:\\s*(?:천|만|억))?\\s*(?:달러|원)?\\s*(?:에서|에|으로|로|부근에서|근처에서)\\s*(?:하세요|하십시오|하라|두세요|잡으세요|거세요|설정하세요|정하세요|하시기\\s*바랍니다)'); // v58.75: priced imperatives ("손절은 178달러에서 하세요")
     var patterns = [recommend, imperative, colloquial, weight, opportunity, tickerAction, english, pricedImperative];
     // v58.63 (A15): a negation exempts a directive only when it binds to that directive — inside the matched words or right
     // after/before them ("매수를 추천하지 않습니다", "not a buy"). A negation elsewhere in the sentence ("매수하세요 그리고 손절하지
@@ -604,7 +604,8 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var replaced = 0;
     var out = sentences.map(function(sentence) {
       // A negation counts only inside the clause that carries the directive ("지금 매수하세요, 이것은 지시가 아닙니다" is replaced).
-      var directive = sentence.trim().split(/[,，;；]+|\s(?:그러나|하지만|다만|그리고|또한|그러면서|그다음|그\s*후)\s|\s(?:and|but|then)\s/i).some(function(clause) {
+      // A thousands separator ("1,050달러") does not split a clause.
+      var directive = sentence.trim().split(/(?<!\d)[,，;；]+|[,，;；]+(?!\d{3}(?:\D|$))|\s(?:그러나|하지만|다만|그리고|또한|그러면서|그다음|그\s*후)\s|\s(?:and|but|then)\s/i).some(function(clause) {
         clause = clause.trim();
         return !!clause && patterns.some(function(re) { return matchesOf(clause, re).some(function(m) { return !bound(clause, m) && !quoted(clause, m); }); });
       });
