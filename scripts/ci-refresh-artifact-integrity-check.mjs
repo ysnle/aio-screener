@@ -1,14 +1,32 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 
-const readCurrent = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
-const current = readCurrent('public-data/data.json');
+const currentText = fs.readFileSync('public-data/data.json', 'utf8');
+const current = JSON.parse(currentText);
+const gitShow = (rev) => {
+  try {
+    return execFileSync('git', ['show', `${rev}:public-data/data.json`], { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
+  } catch (_) {
+    return null;
+  }
+};
+const normalise = (text) => text.replace(/\r\n/g, '\n');
+// Before the refresh commit the working tree differs from HEAD, so HEAD is the
+// last published artifact. After the commit (or locally) the tree equals HEAD,
+// so the previous refresh is HEAD^. A shallow clone or first commit has no
+// HEAD^; then there is no prior quality claim to compare against.
 let previous = null;
-try {
-  previous = JSON.parse(execFileSync('git', ['show', 'HEAD^:public-data/data.json'], { encoding: 'utf8' }));
-} catch (_) {
-  // Initial history or a shallow checkout has no parent artifact; there is no
-  // prior quality claim to compare against.
+let baseline = 'none';
+const headText = gitShow('HEAD');
+if (headText !== null && normalise(headText) !== normalise(currentText)) {
+  previous = JSON.parse(headText);
+  baseline = 'HEAD';
+} else {
+  const parentText = gitShow('HEAD^');
+  if (parentText !== null) {
+    previous = JSON.parse(parentText);
+    baseline = 'HEAD^';
+  }
 }
 const currentMeta = current.meta || {};
 const previousMeta = previous?.meta || {};
@@ -29,4 +47,4 @@ if (degradedQuote) {
   console.error(`refresh artifact integrity failed: quote coverage regressed ${previousMeta.symbolsOk} -> ${currentMeta.symbolsOk}`);
   process.exit(1);
 }
-console.log(JSON.stringify({ ok: true, fred: { previous: previousMeta.fredFetchOk ?? null, current: currentMeta.fredFetchOk ?? null, lkg: currentMeta.fredLkgUsed === true, explicitLkgBoundary: explicitFredLkgBoundary }, quotes: { previous: previousMeta.symbolsOk ?? null, current: currentMeta.symbolsOk ?? null } }));
+console.log(JSON.stringify({ ok: true, baseline, fred: { previous: previousMeta.fredFetchOk ?? null, current: currentMeta.fredFetchOk ?? null, lkg: currentMeta.fredLkgUsed === true, explicitLkgBoundary: explicitFredLkgBoundary }, quotes: { previous: previousMeta.symbolsOk ?? null, current: currentMeta.symbolsOk ?? null } }));
