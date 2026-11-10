@@ -3086,6 +3086,41 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   check('P2128 Telegram feed escapes the channel name and tag label and counts matching posts before the cap', !feedMarkup.includes('<b>x</b>') && !feedMarkup.includes('<i>tag</i>') && /5건 표시, 해당 7건/.test(feedMarkup), feedMarkup.slice(0, 300));
 }
 
+// v59.94: the degradation gate runs before the refresh commit on a depth-1 checkout, so it compares the working tree
+// with HEAD (the last published data.json); after the commit it falls back to HEAD^, and with no parent it passes.
+{
+  const { mkdtempSync, rmSync, writeFileSync, mkdirSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const dir = mkdtempSync(join(tmpdir(), 'aio-degrade-'));
+  const git = (...args) => spawnSync('git', ['-c', 'user.name=aio-test', '-c', 'user.email=aio-test@example.invalid', '-c', 'core.autocrlf=false', ...args], { cwd: dir, encoding: 'utf8' });
+  const writeData = (meta) => writeFileSync(join(dir, 'public-data/data.json'), JSON.stringify({ meta }));
+  const gate = () => spawnSync(process.execPath, [join(root, 'scripts/ci-refresh-artifact-integrity-check.mjs')], { cwd: dir, encoding: 'utf8' });
+  try {
+    git('init', '-q');
+    mkdirSync(join(dir, 'public-data'));
+    const committed = { fredFetchOk: true, symbolsOk: 90 };
+    writeData(committed);
+    git('add', '-A');
+    const commit = git('commit', '-q', '-m', 'seed');
+    check('v59.94 degradation gate test repo commits its seed data.json', commit.status === 0, commit.stderr);
+    writeData({ fredFetchOk: true, symbolsOk: 40 });
+    let run = gate();
+    check('v59.94 degradation gate refuses quote coverage 90 -> 40 against HEAD before commit', run.status === 1 && /quote coverage regressed 90 -> 40/.test(run.stderr), `${run.status} ${run.stdout}${run.stderr}`);
+    writeData({ fredFetchOk: false, symbolsOk: 90 });
+    run = gate();
+    check('v59.94 degradation gate refuses a FRED regression against HEAD before commit', run.status === 1, `${run.status} ${run.stdout}${run.stderr}`);
+    writeData({ fredFetchOk: false, fredHasKey: false, fredLkgUsed: true, fredLkgSource: 'x', symbolsOk: 90 });
+    run = gate();
+    check('v59.94 degradation gate passes an explicit FRED LKG boundary', run.status === 0, `${run.status} ${run.stdout}${run.stderr}`);
+    writeData({ fredFetchOk: true, symbolsOk: 95 });
+    run = gate();
+    check('v59.94 degradation gate passes a healthy refresh with baseline HEAD', run.status === 0 && /"baseline":"HEAD"/.test(run.stdout), `${run.status} ${run.stdout}${run.stderr}`);
+    writeData(committed);
+    run = gate();
+    check('v59.94 degradation gate passes with baseline none when the tree equals the only commit', run.status === 0 && /"baseline":"none"/.test(run.stdout), `${run.status} ${run.stdout}${run.stderr}`);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+
 if (errors.length) {
   console.error('Data pipeline contract check failed:');
   errors.forEach((error) => console.error(' - ' + error));

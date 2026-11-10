@@ -1,0 +1,22 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 refresh degradation gate compares against the last published data.json",
+    "symptom": "The refresh-data step 'Reject silent artifact degradation' always printed ok; a refresh whose FRED fetch regressed or whose quote coverage fell under 70 symbols could be committed.",
+    "root_cause": "The gate read the previous artifact from HEAD^. The workflow checks out with depth 1, so HEAD^ does not exist and the catch treated it as no prior claim; even with history, HEAD (not HEAD^) is the last published refresh before the commit.",
+    "fix": "The gate now uses HEAD as the baseline when the working-tree data.json differs from it (pre-commit, line endings normalised), else HEAD^, else none, and prints the chosen baseline. Refreshes with a FRED regression (without an explicit LKG marker) or quote coverage under 70 will now be refused before commit, as the workflow's own comments describe.",
+    "violated_rule": "A gate must be able to fail in the context it runs in; a catch that turns a missing baseline into a pass hid that it never compared anything.",
+    "prevention": "ci-data-pipeline-contract-check spawns the gate in a temporary single-commit git repository and asserts it refuses degraded quotes and a FRED regression against HEAD, passes the LKG boundary and a healthy refresh with baseline HEAD, and passes with baseline none when the tree equals the only commit.",
+    "verification": "node scripts/ci-data-pipeline-contract-check.mjs passes, and fails on the degraded-quote and FRED cases with the previous gate restored; node scripts/ci-refresh-artifact-integrity-check.mjs prints ok with a baseline field.",
+    "files": [
+      "scripts/ci-refresh-artifact-integrity-check.mjs",
+      "scripts/ci-data-pipeline-contract-check.mjs"
+    ]
+  },
+  "r": null,
+  "changelog": [
+    "**Refresh degradation gate compares against the last published data ({P}):** the gate read HEAD^, which a depth-1 checkout does not have, so it always passed; it now compares the new data.json with HEAD before the commit, and refreshes with a FRED regression or quote coverage under 70 will now be refused before commit."
+  ],
+  "note": "v59.94: refresh degradation gate baseline HEAD before commit"
+}
