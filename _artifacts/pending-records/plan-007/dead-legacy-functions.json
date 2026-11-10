@@ -1,8 +1,0 @@
-{
-  "version": "v59.94",
-  "date": "2026-11-10",
-  "changelog": [
-    "**Lead (v59.94):** Legacy classic scripts drop seven functions nothing called (_wordHit, _aioSetupCanvas, _fmtNum, _fmtPct, _aioNextMonthlyOpex, _aioMemoStaleInfo in aio-core.js; renderDataQualityBadge in aio-ui.js; _aioValidateFetchResult in aio-chat.js) and eight write-only window globals, with the in-browser tests that only exercised them (T71, T72, T78, T101, T114, T634, T635, G110); the classic boot bundle goes from 1,118,079 to 1,113,934 raw bytes (369,658 to 368,113 gzip)."
-  ],
-  "note": "v59.94: dead legacy functions and write-only globals removed"
-}

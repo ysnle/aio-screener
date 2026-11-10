@@ -39,6 +39,166 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2353 - v59.95 - v59.94 Taiwan monthly revenue erased a company the source rows left out (2026-11-10)
+
+- symptom/reproduction: When a TWSE t187ap05_L run omitted some of the 16 AI supply-chain codes, tw-monthly-revenue.json was still published as status ok with only the present companies; the omitted companies' records and up to 24 months of accumulated history were erased, and a returning code restarted from 3 months.
+- root_cause: buildTwMonthlyRevenue skipped any code without a parsable row and never consulted the previous artifact's record for it, so a missing input became a silent loss.
+- fix: A code missing from this run's rows keeps its previous record (own month and history) marked carried: true and is still listed in missing; a parsed company never carries the flag; status and latestMonth/publishedAt come only from this run's parsed rows, so an all-carried run stays no-companies and leaves the artifact untouched.
+- violated_rule: A missing value stays missing and a value that exists is not thrown away.
+- prevention: ci-tw-monthly-revenue-fixture covers a carried company (equal to its previous record plus carried), the parsed company's 13-month history, latestMonth from the parsed month, the view excluding the older carried month, re-carry comparing unchanged, a returning company dropping the flag, and an all-carried run returning no-companies.
+- verification/residual: node scripts/ci-tw-monthly-revenue-fixture.mjs passes; the new cases fail against the previous producer.
+- files: scripts/fetch-tw-monthly-revenue.mjs, scripts/ci-tw-monthly-revenue-fixture.mjs
+
+## P2352 - v59.95 - v59.94 KR index weights read a blank day ratio as a 0% move (2026-11-10)
+
+- symptom/reproduction: A stock whose Naver fluctuationsRatio was blank was published in kr-index-weights.json with ret1dPct 0 and its weight computed on the unadjusted cap.
+- root_cause: The local num() helper in fetch-kr-index-weights.mjs converted with Number(), and Number('') is 0, so a blank ratio passed the ret != null check.
+- fix: num() returns null for a blank, whitespace, null or undefined input before converting (comma stripping kept), so a stock with no reported ratio is excluded like other unusable rows; '0.00' still reads as 0.
+- violated_rule: A missing value stays missing (never 0 or a guess).
+- prevention: ci-event-briefs-check calls marketWeights with blank and null ratios (excluded, remaining stock weightPct 100) and a '0.00' ratio (kept with ret1dPct 0).
+- verification/residual: node scripts/ci-event-briefs-check.mjs and node scripts/ci-pipeline-semantics-check.mjs pass; the new case fails against the previous producer.
+- files: scripts/fetch-kr-index-weights.mjs, scripts/ci-event-briefs-check.mjs
+
+## P2351 - v59.95 - v59.94 새로고침 완료 뒤 일곱 화면이 다시 그려지지 않고, 스크리너 순위 비중 안내가 고정 문장에 덮임 (2026-11-10)
+
+- symptom/reproduction: 자동·수동 새로고침이 끝나도 시장 상태·차트·오늘·스크리너·종목·뉴스·테마 화면이 aio:refresh:done으로 다시 그려지지 않았다(시장 상태는 aio:liveDataReceived도). 스크리너 '순위 계산' 줄의 hover는 정렬과 팩터 비중을 보여 주지 않고 고정 설명만 보였다.
+- root_cause: refresh-scheduler.js와 aio-data.js는 이 두 이벤트를 window에만 보내는데 일곱 화면은 document에서만 들었다. table.js는 diagnostics.title을 비중 문장으로 쓴 뒤 몇 줄 아래에서 고정 문장으로 다시 덮었다.
+- fix: 일곱 화면이 document 등록은 그대로 두고 같은 handler를 root(window)에도 등록하며(addEventListener가 있는 root만), 같은 teardown bag에서 해제한다. table.js는 비중 문장과 고정 문장을 한 title로 한 번 쓴다.
+- violated_rule: 이벤트는 그 이벤트를 보내는 대상에서 듣는다 (sentiment.js가 document와 window를 함께 듣는 방식)
+- prevention: ci-esm-core-unit-check가 스크리너 화면을 가짜 window로 mount해 window의 aio:refresh:done이 다시 그리는지, teardown 뒤 두 이벤트 listener가 남지 않는지, 순위 줄 hover에 팩터 비중과 고정 문장이 함께 있는지 본다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs exit 0; node scripts/ci-desktop-continuity-check.mjs exit 0; 이전 screener/page.js·table.js로 되돌리면 새 assertion이 각각 실패함을 확인.
+- files: src/ui/pages/market.js, src/ui/pages/charts.js, src/ui/pages/analysis.js, src/ui/pages/screener/page.js, src/ui/pages/entity.js, src/ui/pages/news.js, src/ui/pages/themes.js, src/ui/pages/screener/table.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2350 - v59.95 - v59.94 종목 등락·코스피 칩·카드의 화살표와 색이 출력된 값이 아니라 원래 값의 부호를 따름 (2026-11-10)
+
+- symptom/reproduction: 보합 종목의 종목 화면 등락이 상승색 '▲ +0.00%'로, -0.001%는 하락색 '▼ 0.00%'로 보였다. 오늘의 코스피 칩·크게 움직인 종목, 시장 상태 실시간 등락, 차트 카드 종가, 실적 다음 날 표, 한국 테마 막대도 0으로 반올림되는 변화를 오르거나 내린 색으로 칠했다.
+- root_cause: 각 렌더러가 원래 값의 부호(>= 0)로 화살표·부호·색을 정하고 글자는 반올림해 출력했다. v58.80의 directionOf/signedText 규칙(출력 값이 방향을 정함)이 이 일곱 곳에 적용되지 않았다.
+- fix: entity.js 종목 머리, market.js 실시간 등락, daily-loop.js 코스피 칩, home-day.js 종목 칩, market-candles.js 종가 줄, market-story.js 실적 표, themes/sectors.js 한국 테마 막대가 출력 자릿수와 같은 자릿수로 directionOf를 한 번 구하고 signedText로 글자를 만든다. 방향이 없으면 화살표와 up/down 클래스를 붙이지 않는다.
+- violated_rule: 부호·화살표·색은 출력된 값을 따른다 (src/domain/shared/number.js directionOf, v58.80)
+- prevention: ci-esm-core-unit-check가 종목 머리(renderTickerHero)와 코스피 칩(renderDailyLoop)을 가짜 문서에 그려 0, -0.001, 0.004는 화살표·색 없이 0.00%, ±1.234는 맞는 화살표·색·글자인지 본다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs exit 0; 이전 entity.js·daily-loop.js로 되돌리면 새 assertion이 각각 실패함을 확인.
+- files: src/ui/pages/entity.js, src/ui/pages/market.js, src/ui/components/daily-loop.js, src/ui/components/home-day.js, src/ui/components/market-candles.js, src/ui/components/market-story.js, src/ui/pages/themes/sectors.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2349 - v59.95 - v59.94 비교 문장이 0.0%로 출력되는 차이를 높다·낮다·강했다·반전으로 읽고, 섹터 문장이 읽은 수와 무관하게 '11개 섹터'라고 씀 (2026-11-10)
+
+- symptom/reproduction: 스크리너 설명이 'S&P 500보다 0.0%p 낮습니다', 테마 상세가 '0.0% 강했고'라고 썼다. 섹터 요약은 6~10개 섹터만 읽어도 '11개 섹터가 대부분 올랐고'라고 했고, +0.0%·-0.0%로 출력되는 섹터를 강한·약한 섹터로 불렀다. 한국 참여도는 1개월 수익률이 +0.0%로 출력돼도 '반전'이라 했다.
+- root_cause: 문장의 방향 단어를 원래 값의 부호(>= 0, > 0, Math.sign)로 정하고 숫자는 소수 한 자리로 반올림해 출력했다. 섹터 수는 문자열 상수였다.
+- fix: inspector.js는 directionOf(excess3m, 1)가 없으면 'S&P 500과 비슷합니다', themes/detail.js word()는 '비슷했고/비슷했습니다'(앞 문장은 '시장(SPY)과'), writeSectorHero는 ${list.length}개 섹터와 directionOf(row.pct, 1)로 강·약을 고르고, korea-participation.js는 두 출력 방향이 모두 있고 반대일 때만 반전이라 쓴다.
+- violated_rule: 부호·화살표·색·비교 단어는 출력된 값을 따른다 (src/domain/shared/number.js directionOf, v58.80)
+- prevention: ci-esm-core-unit-check가 writeSectorHero를 7개 행으로 그려 '7개 섹터'와 -0.02% 섹터가 약한 섹터로 불리지 않음을, 스크리너 설명(createInspectorController.renderWhyDrawer)이 -0.04%p 차이에 '비슷합니다'를 쓰고 1.5%p 차이에는 크기와 방향을 쓰는지 본다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs exit 0; 이전 sectors.js·inspector.js로 되돌리면 새 assertion이 각각 실패함을 확인.
+- files: src/ui/pages/screener/inspector.js, src/ui/pages/themes/detail.js, src/ui/pages/themes/sectors.js, src/ui/components/korea-participation.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2348 - v59.95 - v59.94 AI numeric-evidence check missed observed prices, yields and FX levels written without a unit (2026-11-10)
+
+- symptom/reproduction: In a current-sensitive answer with no bound evidence, sentences such as '엔비디아는 어제 182.3에 마감했다.', '10년물은 4.15에 마감했다.', '원/달러는 1,385.2에 마감했다.', '달러인덱스(DXY)는 104.2입니다.' and 'WTI는 배럴당 71.4입니다.' were published unchanged, while unit-bearing figures were removed.
+- root_cause: hasCurrentNumericContent only recognised a number with a listed unit, after a listed metric or index word, or after 현재/최신/지금/오늘. Bond, FX, dollar-index, oil, gold and bitcoin levels and plain decimal prices next to an observation verb had no rule.
+- fix: hasCurrentNumericContent adds two narrow rules: market-level nouns (10년물, 원/달러, 달러인덱스/DXY, WTI, 브렌트, 유가, 금값, 비트코인 and others, with an optional alias and 배럴당/온스당) followed by a number, and a decimal or comma-grouped number that is not a period/date/count in a sentence carrying the existing OBSERVATION_MARKER.
+- violated_rule: No unverified current number in an AI answer (no invented numbers).
+- prevention: ci-ai-intelligence-contract-check asserts the five unit-less observed sentences are detected and stripped, six period/date/page-count sentences are not, and a unit-less yield threshold inside a condition stays.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs; node scripts/ci-ai-chat-reliability-contract-check.mjs; node scripts/ci-pipeline-semantics-check.mjs; node scripts/ci-boot-bundle-budget-check.mjs
+- files: src/ai/response/publication.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2347 - v59.95 - v59.94 an official release stops being upcoming once its real release time has passed (2026-11-10)
+
+- symptom/reproduction: The 오늘 화면 '앞으로' list showed last night's FOMC decision (and the previous evening's CPI) as a coming event on the morning read: a FOMC decision dated 2026-12-09 was still upcoming at 09:30 KST on 12-10, and CPI on 12-10 was still upcoming at 09:30 KST on 12-11.
+- root_cause: scheduleFacts in the market-day ledger gave every official release the fixed clock 13:30 UTC and kept it upcoming until 12 hours after that, ignoring the per-release clock (08:30 ET for CPI/jobs/PCE, 14:00 ET for FOMC) that releaseAtMs already provides.
+- fix: scheduleFacts reads the release time from releaseAtMs (13:30 UTC only as a fallback for an id without a known clock) and lists a release only while that time is still in the future; the 12-hour grace is removed.
+- violated_rule: A past event is not shown as coming.
+- prevention: ci-esm-core-unit-check builds the ledger at three instants around a FOMC decision and a CPI release and asserts which are upcoming; the assertions fail on the old fixed clock.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs and node scripts/ci-metric-consistency-check.mjs exit 0; the new v59.94 case failed before the fix.
+- files: src/domain/market/day/facts.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2346 - v59.95 - v59.94 AI action gate catches prices written with thousands separators, 만/억 units and ranges (2026-11-10)
+
+- symptom/reproduction: AI answers such as '손절은 1,050달러에서 하세요.', '삼성전자 손절은 65,000원에서 하세요.', 'NVDA 1,000달러 매수.', '손절은 7만 원에서 하세요.' and '손절은 175~178달러에서 하세요.' reached the screen unchanged, while '손절은 1050달러에서 하세요.' was replaced.
+- root_cause: _aioApplyAIActionGate split every sentence into clauses on every comma, so '1,050' was cut and no pattern saw the action word and the number together; pricedImperative read only a bare number plus 달러/원, so a 천/만/억 magnitude or a range tail stopped the match.
+- fix: The clause split no longer treats a comma between a digit and exactly three digits as a separator, and pricedImperative's number part accepts an optional range tail (~, -, en dash) and an optional 천/만/억 magnitude before the currency word.
+- violated_rule: No trade instructions (entry/stop/target/size): the app never tells the reader what to buy or sell, at what price, size or time.
+- prevention: ci-ai-intelligence-contract-check carries one assertion per missed price spelling (comma, 원, ticker, 목표가, 만 with and without a space, ~ range, - range) plus the 1050 regression guard and five analysis sentences that must stay unchanged (level fact, conditional, negated instruction, attributed rule, comma list).
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs: the eight new assertions fail with the pre-fix request-pipeline.js and pass after; ci-ai-chat-reliability, ci-pipeline-semantics and ci-boot-bundle-budget exit 0; a 2,000-character input runs through the gate in under 10 ms.
+- files: src/ai/response/request-pipeline.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2345 - v59.95 - v59.94 the :50 refresh-data dispatch slot was skipped every hour (2026-11-10)
+
+- symptom/reproduction: Market data refreshed once an hour instead of every 30 minutes. On 2026-11-10 (gh run list) dispatched refresh-data runs started at 01:20, 02:20 ... 10:20 (e.g. 10:20 -> 10:26) and finished at :26-:29; data commits landed at :23-:24 each hour and no :50 run existed.
+- root_cause: The data-plane dispatcher skipped a slot when the newest non-cron run had completed less than 25 minutes earlier. A :20 run completing at :27 is 23 minutes old at :50, so the :50 slot was treated as a recent success, while the :47 GitHub cron had already stood down because of that same :20 run.
+- fix: For workflows whose cron is only the Worker's fallback (refresh-data, event-briefs) the recent-success age is measured from the run's start (run_started_at, then created_at, then updated_at), so the previous slot's run never suppresses the next slot. The screener backup keeps the completion-based age so an on-time cron run is still not repeated. Takes effect when the data-plane Worker is redeployed (Deploy fast data plane after push).
+- violated_rule: A dedupe window must measure the event it dedupes: 'a run already happened for this slot' is a start-time question, not a completion-time one.
+- prevention: ci-data-plane-contract-check drives the dispatcher with a fake fetch: a :20 run finishing at :27 must not suppress :50; a run started 5 min before the slot still suppresses; in-progress stays workflow-active; the screener backup still skips an on-time cron; event briefs' previous-slot run does not suppress.
+- verification/residual: node scripts/ci-data-plane-contract-check.mjs fails on the old rule (recent-success at 09:50) and passes on the new; after deploy, gh run list --workflow refresh-data.yml shows dispatched runs at both :20 and :50.
+- files: worker/data-plane.js, scripts/ci-data-plane-contract-check.mjs
+
+## P2344 - v59.95 - v59.94 stale snapshot banner stacked a listener pair and a timer on every apply (2026-11-10)
+
+- symptom/reproduction: While market data was over 24 hours old, every snapshot apply added two more live-data listeners and another 45 s fallback timer for the same hide-the-banner job; they piled up for the session while the producer stayed stalled.
+- root_cause: _aioApplySnapshotStaleWarning built a new handler, two { once: true } listeners and a timer on each call, and nothing tracked a set already waiting.
+- fix: One pending set per installed surface: a repeated stale apply keeps the waiting set; the handler, when it hides the banner, removes both listeners, clears the timer and resets the slot; fresh data tears a waiting set down. Listeners are no longer once-only, so an early return on incomplete coverage keeps them waiting.
+- violated_rule: A repeated render path must not register a new subscription per call.
+- prevention: Unit gate installs the surface on a fake window and asserts three stale applies register exactly two listeners and one timer, a live event removes them, and the next stale apply registers a new set.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs exits 0; with the old data-status-surface.js it fails with 6 listeners and 3 timers after three applies.
+- files: src/ui/components/data-status-surface.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2343 - v59.95 - v59.94 command guard denied an index-only unstage and allowed a forced push with a quoted +refspec (2026-11-10)
+
+- symptom/reproduction: The agent command guard denied an index-only restore of the whole tree (it only unstages; nothing is lost), and let through forced pushes whose refspec was quoted with a leading plus.
+- root_cause: The whole-tree discard rule matched every restore of '.', whatever its flags; the push rule required the plus right after whitespace, so a quote before it hid the force marker.
+- fix: The whole-tree rule carries an exemption predicate for a restore with --staged/-S and neither --worktree nor -W (clustered short flags read too, so -SW stays denied); the push rule accepts an optional quote before the plus. A plus inside a refspec (HEAD:+main, a+b) is not a force marker and stays allowed.
+- violated_rule: A guard rule matches the operation's effect, not one spelling of it.
+- prevention: Workspace contract fixtures: deny the three quoted forced pushes, a staged-plus-worktree restore and -SW; allow --staged, -S, --source=HEAD --staged, a+b, HEAD:main and HEAD:+main. Every earlier fixture keeps its result.
+- verification/residual: node scripts/ci-workspace-contract-check.mjs prints Workspace contract OK; with the old agent-hook.mjs the three quoted-push denies and the three index-only allows fail.
+- files: scripts/agent-hook.mjs, scripts/ci-workspace-contract-check.mjs
+
+## P2342 - v59.95 - v59.94 four-place FX daily bars rounded high, low and adjusted close to two places (2026-11-10)
+
+- symptom/reproduction: Daily rows for EURUSD, GBPUSD, CNY and AUDUSD kept close at four places but high, low and adjClose at two, so a row could read close 1.1544 with high 1.15, a high below its close.
+- root_cause: dailyRowsFromYahooChart rounded close with closeDigits but hard-coded 2 for high, low and adjClose.
+- fix: high, low and adjClose round with the same closeDigits as close; the default stays 2, so every other instrument is unchanged.
+- violated_rule: One bar's fields share one precision; a rounding step must not reorder high, close and low.
+- prevention: Unit gate builds one bar at closeDigits 4 and asserts high 1.1599, low 1.1501, adjClose 1.1544 and high >= close >= low, and the same bar at the default digits stays at two places.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs exits 0; with the old price-factors.js it fails with high 1.16, low 1.15, adjClose 1.15 on the four-place row.
+- files: src/domain/screener/price-factors.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2341 - v59.95 - v59.94 a manual CI dispatch no longer cancels main's push CI, and release_sha reaches shells only through env (2026-11-10)
+
+- symptom/reproduction: A workflow_dispatch of CI started by hand without release_sha shared the concurrency group CI-refs/heads/main with the push-triggered run and cancelled it (cancel-in-progress), so that push SHA never got its attestation and Pages/Worker deploys waited for the next push. The free-form release_sha input was also interpolated straight into three run: lines.
+- root_cause: The concurrency group fell through from release_sha to github.ref for a dispatch with no SHA, colliding with the push group; three steps used ${{ inputs.release_sha || github.sha }} (and step/job outputs) inside run: text instead of env:, the injection-in-run pattern CodeQL flags, and a malformed value failed opaquely.
+- fix: The group now uses manual-<run_id> for a dispatch without release_sha (push, PR and bot-dispatch groups unchanged). The release-source resolver step and both data-overlay steps pass RELEASE_SHA/CODE_SHA through env:. The first preflight step rejects a release_sha that is not a full 40-character lowercase hex SHA.
+- violated_rule: Workflow inputs and step outputs reach shell text through env:, never ${{ }} inside run:; a manual run must not share a cancel-in-progress group with the release-gating push run.
+- prevention: scripts/ci-release-source-check.mjs re-pins the resolver call to the env spelling (--sha "$RELEASE_SHA"); the early guard fails a malformed SHA with a named error.
+- verification/residual: workflow-yaml and qa-runner fast pass; every scripts/ci-*.mjs gate that reads ci.yml passes except the two known local failures (publish-data-commit, browser-data-pin-drift); grep shows no inputs.* inside run: text. The workflow itself is unverified until the next push.
+- files: .github/workflows/ci.yml, scripts/ci-release-source-check.mjs
+
+## P2340 - v59.95 - v59.94 earnings calendar records its failed day and IPO queries (2026-11-10)
+
+- symptom/reproduction: A failed Finnhub day query or IPO query in fetch-earnings-calendar became [] and the artifact was still stamped status current-reference with nothing recording the failure: a failed IPO call read as no IPOs this week, and a failed day silently fell back to the capped week response.
+- root_cause: The day loop and the IPO query caught errors into an empty array, the same value as a real empty answer, while only the upcoming loop kept failures apart (upcomingGaps).
+- fix: An exported pure helper earningsQueryGaps({ days, dayResults, ipoResult }) treats a non-array or rejected query as null and returns { dayRows, earningsDayGaps, ipos, iposAvailable }; main() calls it and the payload adds earningsDayGaps (failed YYYY-MM-DD days) next to upcomingGaps and iposAvailable next to ipos. A failed day still keeps the week rows; status and fetched data are unchanged.
+- violated_rule: A missing value stays missing: a failed query must not be published as an empty, current result.
+- prevention: scripts/ci-event-briefs-check.mjs calls earningsQueryGaps: a failed day is listed and its week rows survive the merge, a failed IPO query yields iposAvailable false with an empty list, and all-success yields no gaps and true.
+- verification/residual: node scripts/ci-event-briefs-check.mjs passes with the change and fails 3 v59.94 checks with the producer change stashed; node scripts/qa-runner.mjs contracts --keep-going.
+- files: scripts/fetch-earnings-calendar.mjs, scripts/ci-event-briefs-check.mjs
+
+## P2339 - v59.95 - v59.94 publish-data-commit gate failed on every Windows run and hid the browser groups (2026-11-10)
+
+- symptom/reproduction: On the owner's Windows machine `node scripts/ci-publish-data-commit-check.mjs` failed five or six checks on every run. The gate is in the data group, so `qa-runner affected` skipped all 55 later browser checks unless `--keep-going` was passed; local QA silently lost its browser evidence. CI on Linux passed.
+- root_cause: Two machine assumptions in the test. Its fake `gh` was a bash-shebang script made executable with chmod, which Windows cannot spawn, so every dispatch 'failed'. And its temporary repositories inherited the machine's `core.autocrlf=true`, so the autostash re-applied a tracked file with CRLF and the byte comparison of that file failed.
+- fix: `gh()` in scripts/publish-data-commit.mjs runs an `AIO_PUBLISH_GH` that ends in .js/.mjs/.cjs with the current Node; the other two branches are unchanged. The check's stubs are Node scripts, and its git child processes get `core.autocrlf=false` through GIT_CONFIG_COUNT.
+- violated_rule: REVIEW.md failure 6 (a gate that does not prove what it claims: here it failed for a reason unrelated to the publisher) and the Windows notes in CLAUDE.md.
+- prevention: The gate itself now passes on Windows and Linux; a regression shows as the same gate failing locally.
+- verification/residual: node scripts/ci-publish-data-commit-check.mjs exits 0 from Git Bash on Windows ('Publish data commit OK: 4 sets …'). A shell without `bash` on PATH still fails the gate, because the publisher runs its hook commands through `bash -c` by design.
+- files: scripts/publish-data-commit.mjs, scripts/ci-publish-data-commit-check.mjs
+
+## P2338 - v59.94 - v59.94 refresh degradation gate compares against the last published data.json (2026-11-10)
+
+- symptom/reproduction: The refresh-data step 'Reject silent artifact degradation' always printed ok; a refresh whose FRED fetch regressed or whose quote coverage fell under 70 symbols could be committed.
+- root_cause: The gate read the previous artifact from HEAD^. The workflow checks out with depth 1, so HEAD^ does not exist and the catch treated it as no prior claim; even with history, HEAD (not HEAD^) is the last published refresh before the commit.
+- fix: The gate now uses HEAD as the baseline when the working-tree data.json differs from it (pre-commit, line endings normalised), else HEAD^, else none, and prints the chosen baseline. Refreshes with a FRED regression (without an explicit LKG marker) or quote coverage under 70 will now be refused before commit, as the workflow's own comments describe.
+- violated_rule: A gate must be able to fail in the context it runs in; a catch that turns a missing baseline into a pass hid that it never compared anything.
+- prevention: ci-data-pipeline-contract-check spawns the gate in a temporary single-commit git repository and asserts it refuses degraded quotes and a FRED regression against HEAD, passes the LKG boundary and a healthy refresh with baseline HEAD, and passes with baseline none when the tree equals the only commit.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs passes, and fails on the degraded-quote and FRED cases with the previous gate restored; node scripts/ci-refresh-artifact-integrity-check.mjs prints ok with a baseline field.
+- files: scripts/ci-refresh-artifact-integrity-check.mjs, scripts/ci-data-pipeline-contract-check.mjs
+
 ## P2337 - v59.93 - v59.93 Korean fallback quotes had no previous close after a weekend or holiday (2026-11-10)
 
 - symptom/reproduction: For Korean stocks the primary Naver quote path missed, the daily-bar fallback returned a price with an empty change and change percent on Mondays and on the first session after a KRX holiday, and returned nothing before that session's open even though the previous close existed.

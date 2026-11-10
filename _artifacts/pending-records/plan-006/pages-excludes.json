@@ -1,6 +1,0 @@
-{
-  "version": "v59.94",
-  "date": "2026-11-10",
-  "changelog": ["**Lead (v59.94):** The Pages deploy now leaves out ten knowledge-build and 13F-build inputs no browser path reads (research and domain dossiers with their per-unit folders, coverage matrix, integrated framework bundle, learning graph, research facts and source seeds, CUSIP ticker map): 482 files, about 5.1 MB (5,118,305 bytes) fewer per deploy. The repository copies are unchanged, so producers and CI keep reading them; `PAGES_DATA_EXCLUDES` and the workflow `rsync` excludes changed together."],
-  "note": "v59.94: Pages skips 482 build-input files (~5.1 MB) no browser reads"
-}

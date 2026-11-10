@@ -13,11 +13,11 @@
     "note": "2026-11-08 (v59.81, owner \"전체 개선안들 모두 적용\"): the boot module budget rose in 1 KB steps 10+ times in 14 days. This ceiling is the owner's decision; the budget may not exceed it. A feature that needs boot bytes moves another module behind its route."
   },
   "classicBootBudget": {
-    "rawBytes": 1119000,
-    "gzipBytes": 370000,
+    "rawBytes": 1114000,
+    "gzipBytes": 368200,
     "targetRawBytes": 1000000,
     "measuredBy": "scripts/ci-boot-bundle-budget-check.mjs (the CLASSIC_BOOT_SCRIPTS of scripts/lib/pages-bundle-config.mjs, each minified as build-pages-bundle.mjs ships it; js/aio-chat.js loads with the AI panel and is outside)",
-    "note": "2026-11-09 (v59.88, ADR-0003 S6): lowered 1,226,000→1,119,000 raw and 406,000→370,000 gzip to the measured 1,118,101 / 369,667 after the legacy dual owners (indicator copies, freshness renderers, portfolio table and watchlist store, extractTickers) delegated to src/ and their copies were deleted. 2026-11-04 (v59.70, 2nd batch A P0): first byte budget for the seven classic boot scripts, a ratchet at the measured 1,225,679 raw / 405,967 gzip. The PLAN target is 1,000 KB raw after the 2nd-batch B work (QA functions out of aio-core, route-only classic scripts lazy); lower this ceiling as each step lands and never raise it without a reason here."
+    "note": "2026-11-10 (v59.95, project audit): lowered 1,119,000→1,114,000 raw and 370,000→368,200 gzip to the measured 1,113,934 / 368,113 after eight legacy functions nothing called and eight write-only globals were deleted. 2026-11-09 (v59.88, ADR-0003 S6): lowered 1,226,000→1,119,000 raw and 406,000→370,000 gzip to the measured 1,118,101 / 369,667 after the legacy dual owners (indicator copies, freshness renderers, portfolio table and watchlist store, extractTickers) delegated to src/ and their copies were deleted. 2026-11-04 (v59.70, 2nd batch A P0): first byte budget for the seven classic boot scripts, a ratchet at the measured 1,225,679 raw / 405,967 gzip. The PLAN target is 1,000 KB raw after the 2nd-batch B work (QA functions out of aio-core, route-only classic scripts lazy); lower this ceiling as each step lands and never raise it without a reason here."
   },
   "postBootLazyBudget": {
     "rawBytes": 265000,
