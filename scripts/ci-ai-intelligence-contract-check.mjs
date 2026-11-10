@@ -707,6 +707,15 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   const centsReplaced = ['손절은 177.50달러에서 하세요.', '매수는 $212.5에서 하세요.', 'NVDA 212.5달러 매수.', '손절가는 177.50달러로 하세요.'];
   detail('P2114 directive gate: decimal prices stay in facts and are replaced in priced imperatives',
     centsKept.every((text) => gate(text).text === text) && centsReplaced.every((text) => /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text)), JSON.stringify([...centsKept, ...centsReplaced].map(gate)));
+  // v59.94: the clause split cut "1,050" at its comma and the priced-imperative number stopped at 만/억 units and ranges.
+  const priceShapeKept = ['50일선은 1,050달러 부근입니다.', '1,050달러를 이탈하면 추세가 약해집니다.', '1,050달러에서 손절하라는 뜻은 아닙니다.', '오닐은 7~8% 손실에서 손절해야 한다고 봤습니다.', '매출, 영업이익, 순이익이 모두 늘었습니다.'];
+  const priceShapeReplaced = ['손절은 1050달러에서 하세요.', '손절은 1,050달러에서 하세요.', '삼성전자 손절은 65,000원에서 하세요.', 'NVDA 1,000달러 매수.', '목표가는 1,200달러로 잡으세요.', '손절은 7만 원에서 하세요.', '손절가는 7만원으로 잡으세요.', '손절은 175~178달러에서 하세요.', '손절은 175-178달러 부근에서 하세요.'];
+  const priceShapeGone = (text) => { const out = gate(text).text; return /개별 매매 지시는 제공하지 않습니다/.test(out) && !/\d/.test(out.replace(/개별 매매 지시는 제공하지 않습니다[^\n]*/g, '')); };
+  detail('v59.94 directive gate: analysis with comma prices, ranges and lists stays unchanged',
+    priceShapeKept.every((text) => gate(text).text === text), JSON.stringify(priceShapeKept.map(gate)));
+  for (const text of priceShapeReplaced) {
+    detail(`v59.94 directive gate: comma/unit/range priced instruction is replaced (${text})`, priceShapeGone(text), JSON.stringify(gate(text)));
+  }
 
   // #4: the base-currency what-if module (src/ai/context/portfolio-simulation.js) lost its only consumer in v57.62 and was removed in v58.51;
   // the old chat simulator must stay retired.
