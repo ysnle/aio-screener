@@ -1,10 +1,30 @@
 {
  "schemaVersion": "treasury-auctions.v1",
- "generatedAt": "2026-11-10T07:48:46.908Z",
+ "generatedAt": "2026-11-10T20:03:25.304Z",
  "source": "TreasuryDirect TA_WS securities/auctioned",
  "method": "미 재무부 TreasuryDirect 경매 결과(명목 이표채, TIPS·변동금리채 제외). 응찰률 = 응찰 총액 ÷ 발행액. 간접 낙찰 = 경쟁 낙찰액 중 간접 응찰자(딜러를 거친 해외·국내 기관) 비중. 같은 만기의 직전 6회 평균과 비교하며(응찰률 ±0.1배, 간접 낙찰 ±5%p), 발행 직전 거래 금리(when-issued)가 없어 테일은 계산하지 않습니다.",
- "latestAuction": "2026-11-09",
+ "latestAuction": "2026-11-10",
  "rows": [
+  {
+   "date": "2026-11-10",
+   "tenor": 10,
+   "term": "10-Year",
+   "cusip": "91282CRX1",
+   "reopening": false,
+   "offeringBn": 42,
+   "highYield": 5.02,
+   "bidToCover": 2.46,
+   "allottedAtHighPct": 95.17,
+   "indirectPct": 61.2,
+   "directPct": 29,
+   "dealerPct": 9.8,
+   "prior": 6,
+   "btcMean": 2.6,
+   "indirectMean": 76.6,
+   "btcGap": -0.14,
+   "indirectGap": -15.4,
+   "read": "weak"
+  },
   {
    "date": "2026-11-09",
    "tenor": 3,
@@ -1762,5 +1782,5 @@
    "read": "thin"
   }
  ],
- "summary": "최근 3주 5건(3년·7년·5년·2년·20년) 중 3년물·7년물·2년물이 같은 만기 직전 입찰보다 약하게 팔렸습니다. 입찰 수요가 약하면 재무부가 더 높은 금리를 줘야 팔려 장기 금리를 밀어 올립니다."
+ "summary": "최근 3주 6건(10년·3년·7년·5년·2년·20년) 중 10년물·3년물·7년물·2년물이 같은 만기 직전 입찰보다 약하게 팔렸습니다. 입찰 수요가 약하면 재무부가 더 높은 금리를 줘야 팔려 장기 금리를 밀어 올립니다."
 }
