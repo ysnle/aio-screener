@@ -5,7 +5,7 @@
 // It is a split of one past move, not a forecast, and the slope changes over time (the fold says how well it fit).
 import { buildCloseSeries, closeBasis, sessionPointBack } from '../market/session/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../market/session/market-windows.js';
-import { signedText } from '../shared/number.js';
+import { directionOf, signedText } from '../shared/number.js';
 
 export const KRW_RULE = Object.freeze({ sessions: MARKET_WINDOWS.rule, fitSessions: 250, step: MARKET_WINDOWS.week, minFit: 30, quietPct: 1 });
 
@@ -63,7 +63,7 @@ export function buildKrwDecomposition(history = [], { through = undefined } = {}
   const koreaPart = krwMove - dollarPart;
   const kospiMove = kospi ? kospi.pct : null;
   const quiet = KRW_RULE.quietPct;
-  const wonWord = krwMove > 0 ? '원화 약세' : krwMove < 0 ? '원화 강세' : '변화 없음';
+  const wonWord = { up: '원화 약세', down: '원화 강세' }[directionOf(krwMove)] || '변화 없음';
   let driver;
   if (Math.abs(krwMove) < quiet && Math.abs(koreaPart) < quiet) driver = 'quiet';
   else if (Math.abs(koreaPart) < quiet || Math.abs(dollarPart) >= Math.abs(koreaPart) * 2) driver = 'dollar';
