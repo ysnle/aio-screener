@@ -39,6 +39,46 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2337 - v59.93 - v59.93 Korean fallback quotes had no previous close after a weekend or holiday (2026-11-10)
+
+- symptom/reproduction: For Korean stocks the primary Naver quote path missed, the daily-bar fallback returned a price with an empty change and change percent on Mondays and on the first session after a KRX holiday, and returned nothing before that session's open even though the previous close existed.
+- root_cause: src/data/providers/naver-kr.js requested daily bars from 'today minus 2 calendar days'. On a Monday that window is Saturday to Monday, so it holds at most one bar and the previous-close row the change is computed from is absent.
+- fix: The window starts 7 calendar days back; the code still reads only the last two rows.
+- violated_rule: AGENTS.md honesty: a value that exists (the previous close) must not be shown as missing.
+- prevention: None added: the path is a browser-side fallback against an external endpoint, limited to 20 codes. Listed as not verified in a browser.
+- verification/residual: Read-through of the date window and row selection; node --check. Not exercised against the live endpoint.
+- files: src/data/providers/naver-kr.js
+
+## P2336 - v59.93 - v59.93 agent command guard let short-flag force pushes and option-prefixed hard resets through (2026-11-10)
+
+- symptom/reproduction: scripts/agent-hook.mjs guard-command denied 'git push origin main --force' but allowed 'git push -f origin main', 'git push --force-with-lease', 'git push origin +main', 'git -C . reset --hard HEAD', 'git restore --source=HEAD .' and 'git -C . restore .'. The hook is the only barrier where local settings allow git push.
+- root_cause: Each deny pattern matched one spelling: the literal word --force followed by whitespace or end of line, 'git reset --hard' with nothing between git and reset, and restore options without '='.
+- fix: The patterns stay inside one command segment and allow options between git and the subcommand; force push matches --force, --force-with-lease[=ref], --force-if-includes, -f alone or in a short-flag cluster, and a +refspec; restore/checkout options may carry '=value'.
+- violated_rule: AGENTS.md non-negotiable boundaries (destructive commands are denied by the hook); P1340 fixed the same guard for whole-tree discards.
+- prevention: ci-workspace-contract-check runs the hook against eight denied spellings and five allowed commands (plain push, --follow-tags, -u, reset --soft, commit && push).
+- verification/residual: node scripts/ci-workspace-contract-check.mjs passes with the new cases.
+- files: scripts/agent-hook.mjs, scripts/ci-workspace-contract-check.mjs
+
+## P2335 - v59.93 - v59.93 blank-chart fallback threw on a deleted function and skipped its unavailable marking (2026-11-10)
+
+- symptom/reproduction: When a legacy canvas chart (RRG, breadth 5/20/50-day, FRED charts) was still blank a few seconds after a page was shown, the fallback message was drawn but the canvas was not marked data-source-kind=unavailable / data-operational-use=blocked, the status text stayed on its loading wording instead of '라이브 차트 미수신, 판단 보류', and later blank canvases on the same page were not processed at all. Nothing appeared in the console.
+- root_cause: AIO.ensureVisibleCanvasFallbacks in js/aio-core.js still called markFallbackCanvas(canvas) after commit 6150e7e3d removed that function (the grey corner mark was dropped). The ReferenceError aborted the forEach, and the timer that calls the function wraps it in an empty catch.
+- fix: Removed the call. The attribute marking and status text that follow it now run.
+- violated_rule: REVIEW.md failure 5 (a progress/loading state not cleared) reached through a deleted callee; an empty catch hid it.
+- prevention: The audit's scan of bare calls in the five legacy scripts found this as the only unresolved one. No new gate: a source pin is barred by the text-pin ratchet, and the path needs a blank canvas in a browser.
+- verification/residual: node --check js/aio-core.js; git grep markFallbackCanvas returns nothing. Not exercised in a browser (needs a route with a blank legacy canvas).
+- files: js/aio-core.js
+
+## P2334 - v59.93 - v59.93 briefing opening said '지수 하락' on a day the S&P 500 rose (2026-11-10)
+
+- symptom/reproduction: The 오늘/브리핑 opening line reads the equal-weight S&P 500 against the index. Whenever the equal-weight index beat the cap-weighted one by 0.8 points or more it printed '지수 하락은 대형주 몇 곳에 몰렸고 나머지 종목은 덜 내렸습니다' — also with S&P 500 +0.3% / equal weight +1.4% (no index fall), and with S&P 500 -0.5% / equal weight +0.8% (the rest rose, it did not 'fall less').
+- root_cause: indexLine in src/domain/briefing/day-account.js chose the sentence from the sign of (equal weight - index) only. The direction words in the sentence were written for one case, both figures negative, and the sign of neither figure was checked. The unit fixture itself used -0.5 / +0.8 and only asserted that the word 동일가중 appeared.
+- fix: The sentence follows the sign of both printed figures: index up -> '지수보다 나머지 종목이 더 강했습니다'; index down and equal weight up -> '지수 하락은 대형주 몇 곳에 몰렸고 나머지 종목은 오히려 올랐습니다'; both down -> the previous wording. The weaker-rest branch is unchanged.
+- violated_rule: REVIEW.md failure 1 (a screen states something that is not true); same class as P2333 (direction word must follow the printed number).
+- prevention: ci-esm-core-unit-check asserts the sentence for five sign combinations (up day, down with rest up, down with rest down less, rest weaker, gap under 0.8) and fails on the previous code.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs passes; with the previous day-account.js stashed back it fails with the v59.93 message.
+- files: src/domain/briefing/day-account.js, scripts/ci-esm-core-unit-check.mjs
+
 ## P2333 - v59.92 - 0.0%로 표시된 원/달러 변화에 '원화 강세'가 붙음 (2026-11-10)
 
 - symptom/reproduction: 환율·채권 화면의 원화 분해 문장이 '원/달러 0.0%(원화 강세)'로 나왔다. v59.92 릴리스 CI의 browser-rendered-copy-lint가 zero-direction으로 실패했다.

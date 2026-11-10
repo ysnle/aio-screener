@@ -1600,6 +1600,15 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         || account.unexplained[0]?.sym !== 'MYST' || !/동일가중/.test(account.opening) || account.ahead[0]?.label !== '고용보고서') {
         fail(`v59.65: briefing day account broke ${JSON.stringify({ oilStory, told, unexplained: account.unexplained, opening: account.opening })}`);
       }
+      // v59.93: the equal-weight sentence follows the sign of both figures — an up day never reads "지수 하락", and a
+      // rising equal-weight index never reads "덜 내렸습니다".
+      const { indexLine } = await load('src/domain/briefing/day-account.js');
+      const breadthOf = (spx, rsp) => indexLine([{ kind: 'price', asset: 'spx', label: 'S&P 500', change: spx }, { kind: 'price', asset: 'rsp', label: 'S&P 500 동일가중', change: rsp }]);
+      const breadthWords = { upDay: breadthOf(0.3, 1.4), downRestUp: breadthOf(-0.5, 0.8), downRestLess: breadthOf(-2, -0.9), restWeaker: breadthOf(1.5, 0.5), close: breadthOf(0.3, 0.6) };
+      if (/하락|내렸/.test(breadthWords.upDay) || !/더 강했습니다/.test(breadthWords.upDay) || !/지수 하락.*오히려 올랐습니다/.test(breadthWords.downRestUp) || /덜 내렸/.test(breadthWords.downRestUp)
+        || !/지수 하락.*덜 내렸습니다/.test(breadthWords.downRestLess) || !/더 약했습니다/.test(breadthWords.restWeaker) || /동일가중 S&P 500은/.test(breadthWords.close)) {
+        fail(`v59.93: the equal-weight sentence contradicts the printed index moves ${JSON.stringify(breadthWords)}`);
+      }
       // v59.70 (screen review #11): a deal fact (acquirer/target/terms, no label) is told as a story with a title and its
       // terms; no seed kind reaches the list as a bare weight bar.
       const dealAccount = buildDayAccount({ generatedAt: 'y', sessions: { us: D }, facts: [

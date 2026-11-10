@@ -85,6 +85,15 @@ for (const command of ['git checkout -- .', 'git restore .', 'git restore --work
 // P1342: the reachability tooling lives in the repo (not a session scratchpad) and its splitter/remover stay correct.
 const deadCodeSelfTest = spawnSync(process.execPath, [join(root, 'scripts', 'dead-code.mjs'), 'self-test'], { cwd: root, encoding: 'utf8', timeout: 15_000 });
 check('dead-code tooling self-test passes (P1342)', deadCodeSelfTest.status === 0, deadCodeSelfTest.stderr);
+// v59.93: the guard matched one spelling per command; these forced pushes and whole-tree discards passed it.
+for (const command of ['git push origin main --force', 'git push -f origin main', 'git push --force-with-lease', 'git push --force-with-lease=main origin main', 'git push origin +main', 'git -C . reset --hard HEAD', 'git restore --source=HEAD .', 'git -C . restore .']) {
+  const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
+  check(`guard denies "${command}" (v59.93)`, /"permissionDecision":"deny"/.test(out.stdout || ''));
+}
+for (const command of ['git push origin main', 'git push --follow-tags origin main', 'git push -u origin claude/thread', 'git reset --soft HEAD~1', 'git commit -m "notes" && git push', 'git push origin main\ngit log -f', 'git commit -m "fix: push origin main -f handling"']) {
+  const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
+  check(`guard allows "${command}" (v59.93)`, !/deny/.test(out.stdout || ''));
+}
 check('guard allows a single-path checkout (P1340)', !/deny/.test(runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command: 'git checkout -- js/aio-core.js' } }).stdout || ''));
 let dangerousOutput = {};
 try { dangerousOutput = JSON.parse(dangerousHook.stdout || '{}'); } catch { dangerousOutput = {}; }

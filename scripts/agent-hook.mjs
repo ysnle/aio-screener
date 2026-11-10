@@ -49,17 +49,26 @@ const deny = (reason) => emit({
 
 if (mode === 'guard-command') {
   const normalized = command.replace(/\s+/g, ' ').trim();
-  const blocked = [
-    [/\bgit\s+reset\s+--hard\b/i, 'git reset --hard can destroy uncommitted work.'],
+  // Git rules read one command at a time (split on newline ; & |) and name the subcommand itself: `GIT` is `git` plus
+  // its own options (`-C dir`, `-c k=v`, `--no-pager`), so `git -C . reset --hard` matches and a commit message that
+  // mentions "push -f" does not.
+  const segments = command.split(/[\n;&|]+/).map((part) => part.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const GIT = String.raw`\bgit(?:\s+(?:-[Cc]\s+\S+|--?[\w-]+(?:=\S+)?))*\s+`;
+  const gitBlocked = [
+    [new RegExp(`${GIT}reset\\b.*\\s--hard\\b`, 'i'), 'git reset --hard can destroy uncommitted work.'],
     // P1340: the shared working tree belongs to the user; whole-tree discards are as destructive as reset --hard.
-    [/\bgit\s+(?:checkout|restore)\b(?:\s+-{1,2}[a-z-]+(?:\s+\S+)?)*\s+(?:--\s+)?\.(?:\s|$)/i, 'Discarding the whole working tree can destroy uncommitted work.'],
-    [/\bgit\s+checkout\s+(?:-f|--force)\b/i, 'Forced checkout discards local changes.'],
-    [/\bgit\s+clean\b[^\n]*\s(?:-[a-z]*f[a-z]*|--force)\b/i, 'git clean -f deletes untracked files permanently.'],
-    [/\bgit\s+push\b[^\n]*\s--force(?:\s|$)/i, 'Force push is forbidden; use an explicitly reviewed safer workflow.'],
+    [new RegExp(`${GIT}(?:checkout|restore)\\b(?:\\s+-{1,2}[a-z-]+(?:=\\S+)?(?:\\s+\\S+)?)*\\s+(?:--\\s+)?\\.(?:\\s|$)`, 'i'), 'Discarding the whole working tree can destroy uncommitted work.'],
+    [new RegExp(`${GIT}checkout\\s+(?:-f|--force)\\b`, 'i'), 'Forced checkout discards local changes.'],
+    [new RegExp(`${GIT}clean\\b.*\\s(?:-[a-z]*f[a-z]*|--force)\\b`, 'i'), 'git clean -f deletes untracked files permanently.'],
+    // Every spelling of a forced push: --force, --force-with-lease[=ref], --force-if-includes, -f (alone or in a
+    // short-flag cluster) and a +refspec.
+    [new RegExp(`${GIT}push\\b.*\\s(?:--force(?:-with-lease|-if-includes)?(?:=\\S+)?|-[a-z]*f[a-z]*|\\+\\S+)(?:\\s|$)`, 'i'), 'Force push is forbidden; use an explicitly reviewed safer workflow.']
+  ];
+  const blocked = [
     [/(?:^|[;&|]\s*)rm\s+-[^\n]*r[^\n]*f\s+(?:~|\/|\$HOME|%USERPROFILE%)(?:\s|$)/i, 'Recursive deletion of a home/root target is forbidden.'],
     [/\b(?:Remove-Item|del|rmdir)\b[^\n]*(?:C:\\|%USERPROFILE%|\$HOME)[^\n]*(?:-Recurse|\/s)/i, 'Broad recursive deletion is forbidden.']
   ];
-  const match = blocked.find(([pattern]) => pattern.test(normalized));
+  const match = gitBlocked.find(([pattern]) => segments.some((segment) => pattern.test(segment))) || blocked.find(([pattern]) => pattern.test(normalized));
   if (match) deny(match[1]);
   process.exit(0);
 }

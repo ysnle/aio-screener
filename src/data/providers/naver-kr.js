@@ -173,7 +173,7 @@ export function installNaverKrCollector(window = globalThis) {
     if (missing.length > 0) {
       var today = new Date();
       var yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 2); // 주말 대비 2일 전
+      yesterday.setDate(yesterday.getDate() - 7); // 주말·연휴 뒤에도 직전 거래일 종가가 창에 들어오도록 7일 전부터
       var fmt = function(d) { return d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0'); };
       var startD = fmt(yesterday), endD = fmt(today);
 

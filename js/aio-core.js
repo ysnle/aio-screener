@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v59.92';
+const APP_VERSION = 'v59.93';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1553,7 +1553,6 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
           fill: true
         });
       if (!ok) return;
-      markFallbackCanvas(canvas);
       canvas.setAttribute('data-source-kind', 'unavailable');
       canvas.setAttribute('data-operational-use', 'blocked');
       canvas.setAttribute('data-source-label', 'chart-runtime-fallback');

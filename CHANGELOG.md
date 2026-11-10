@@ -1,3 +1,14 @@
+## v59.93 (2026-11-10)
+- **Opening line follows the printed signs (P2334):** The briefing's equal-weight sentence said '지수 하락' whenever the equal-weight S&P 500 beat the index, including on days the index rose, and '덜 내렸습니다' when the rest of the market rose. It now follows the sign of both figures; a unit check covers five sign combinations.
+- **Blank-chart fallback completes (P2335):** `AIO.ensureVisibleCanvasFallbacks` called `markFallbackCanvas`, a function deleted with the grey corner mark. The silent ReferenceError skipped the unavailable marking, the '라이브 차트 미수신' status text and every later blank canvas. The call is removed.
+- **Command guard covers every forced-push spelling (P2336):** The agent hook denied `--force` only as a whole word and `git reset --hard` only with nothing between `git` and `reset`; `-f`, `--force-with-lease`, a `+refspec`, `git -C . reset --hard` and `git restore --source=HEAD .` passed. All are denied now, with allow/deny fixtures in the workspace contract.
+- **Korean fallback quote window (P2337):** The daily-bar fallback for Korean stocks asked for the last 2 calendar days, so a Monday or post-holiday request had no previous close and showed an empty change. The window is 7 days.
+- **Event briefs failures raise an alert (v59.93):** `operations-alert.yml` now monitors 'Event briefs (FOMC and market-mover earnings)'; it was the one scheduled data workflow whose failures opened no issue.
+- **Docs match the code (v59.93):** `CLAUDE.md` says 9 screens (AGENTS.md canon since 2026-11-03); the Budget and Scores bullets in `AGENTS.md` are two lines again; the per-client cap comment in `worker/wrangler.proxy.toml` states the current value (1000, a third of the daily cap) and that the $20 month is a target, not a hard stop.
+- **Leftovers removed (v59.93):** root `scratch-why.mjs` (referenced by nothing) and three CSS rules for ids that no longer exist (`#ticker-setup`, `#fund-legacy-fold`).
+- **Audit (v59.93):** project-wide read by six read-only reviewers (runtime data/domain, UI and legacy shell, Worker/workflows/security, scripts and gates, docs and workspace, performance and footprint); every finding was re-read before a fix. Items needing an owner decision are in the session report, not changed.
+- R1 7곳 v59.93
+
 ## v59.92 (2026-11-10)
 - **거부된 현금 금액이 칸에 남는다 (P2332):** 달러 현금에 음수를 넣으면 거부 문구 아래 칸이 이전 금액으로 되돌아갈 수 있었다. 앞선 저장이 일으킨 화면 갱신이 숫자 검사보다 먼저 그려지면 생겼다. 이제 현금 칸은 저장을 요청한 순간부터 칸 자신에 소유가 표시되고(`data-cash-entry`, `src/ui/panels/portfolio-cash-entry.js`), 화면 갱신은 소유자가 없는 칸에만 저장값을 그린다. 거부된 금액은 고칠 때까지 문구와 함께 남는다.
 - **0.0% 환율 변화에 방향을 붙이지 않는다 (P2333):** 원화 분해 문장이 '원/달러 0.0%(원화 강세)'처럼 반올림 전 부호로 강세·약세를 골랐다. 이제 표시된 숫자와 같은 반올림(`directionOf`)으로 고르고, 0.0%면 '변화 없음'이다.

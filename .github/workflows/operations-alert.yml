@@ -4,7 +4,7 @@ name: Operations failure escalation
 # deduplicated recovery loop without editing source, dispatching work, or deploying.
 on:
   workflow_run:
-    workflows: ['CI', 'Deploy GitHub Pages', 'Data freshness watchdog', 'Knowledge base lint', 'Refresh market data', 'Refresh screener and SEC fundamentals', 'Deploy AI proxy', 'Deploy fast data plane', 'Browser live-data watchdog']
+    workflows: ['CI', 'Deploy GitHub Pages', 'Data freshness watchdog', 'Knowledge base lint', 'Refresh market data', 'Refresh screener and SEC fundamentals', 'Deploy AI proxy', 'Deploy fast data plane', 'Browser live-data watchdog', 'Event briefs (FOMC and market-mover earnings)']
     types: [completed]
 
 permissions:
@@ -71,7 +71,9 @@ jobs:
             const workSteps = {
               'Deploy GitHub Pages': 'Verify released Pages and all external planes',
               'Deploy AI proxy': 'Verify health, readiness, CORS, and fail-closed origin',
-              'Deploy fast data plane': 'Smoke check fast plane'
+              'Deploy fast data plane': 'Smoke check fast plane',
+              // A cron slot the Worker dispatch already covers stands down and ends success with the build skipped.
+              'Event briefs (FOMC and market-mover earnings)': 'Build event briefs'
             };
             const observedWork = async (id) => {
               if (!gatedWorkflows.includes(workflow) && !workSteps[workflow]) return true;

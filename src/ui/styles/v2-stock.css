@@ -195,7 +195,7 @@
 .v2-fiscal-wc__key { display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); }
 .v2-fiscal-wc__key::before { content: ''; width: 8px; height: 8px; border-radius: 2px; }
 /* Search and status: one soft row under the header. */
-#page-fundamental #fund-native-sec-report, #page-fundamental #fund-legacy-fold { border: 0; border-radius: var(--radius-container); background: var(--sx-ink-a03); padding: 12px 16px; margin-top: 12px; }
+#page-fundamental #fund-native-sec-report { border: 0; border-radius: var(--radius-container); background: var(--sx-ink-a03); padding: 12px 16px; margin-top: 12px; }
 
 /* ═══ 3b. 분석 카드 — 듀폰 · 역 DCF · R&D · 발생액 (v58.55) ════════════════ */
 #page-ticker #ticker-analysis { margin: 0 0 18px; }
@@ -342,7 +342,7 @@
 /* ═══ 6b. '고르는 법' blocks (v58.75 persona review) ═════════════════════
    종목 요약: market line + memo/watch entry, setup tiles, strengths/weaknesses, '계속 볼 것'.
    재무 공시: margin ladder, EPS surprise, theme peers, lens table, thesis template, situations. Tokens only (light/dark). */
-#page-ticker #ticker-context[hidden], #page-ticker #ticker-strength[hidden], #page-ticker #ticker-setup[hidden] { display: none; }
+#page-ticker #ticker-context[hidden], #page-ticker #ticker-strength[hidden] { display: none; }
 #page-ticker #ticker-context.v2-stock-context {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
   margin: 0 0 14px; padding: 12px 16px; border-radius: var(--radius-container); background: var(--sx-ink-a03);
@@ -355,8 +355,6 @@
 .v2-stock-context__line.is-favorable { border-left-color: var(--data-green); }
 .v2-stock-context__actions { display: flex; flex-wrap: wrap; gap: 8px; flex: 0 0 auto; }
 .v2-stock-context__actions > .aio-btn-table { min-height: 32px; padding: 0 14px; border-radius: var(--radius-full); }
-#page-ticker #ticker-setup.v2-stock-setup { margin: 0 0 14px; }
-#page-ticker #ticker-setup .v2-stock-checks { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 #page-ticker #ticker-strength.v2-stock-strength { margin: 0 0 18px; }
 .v2-stock-strength .v2-stock-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .v2-stock-strength .v2-stock-card > .sx-card__head { padding: 0; flex-wrap: wrap; }
