@@ -86,7 +86,7 @@ for (const file of RESTAMP_FILES) assert.ok(OVERLAY_GENERATED_PATHS.some((path) 
 // The attest guard used to hold its own copy of the generated-path list; the workflows must call the shared resolver/builder.
 const ci = readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8');
 const pages = readFileSync(new URL('../.github/workflows/pages-deploy.yml', import.meta.url), 'utf8');
-assert.match(ci, /resolve-release-source\.mjs --sha "\$\{\{ inputs\.release_sha \|\| github\.sha \}\}" --wait-min 15 --github-output/, 'v59.78 release-source contract');
+assert.match(ci, /resolve-release-source\.mjs --sha "\$RELEASE_SHA" --wait-min 15 --github-output/, 'v59.94 release-source contract (SHA passed through env)');
 assert.match(ci, /resolve-release-source\.mjs --sha "\$EXPECTED_SHA" --verify-code-sha "\$CODE_SHA"/, 'v59.78 release-source contract');
 assert.match(ci, /if: needs\.preflight\.outputs\.release_mode == 'overlay'[\s\S]*?build-data-overlay\.mjs/, 'v59.78 release-source contract');
 assert.match(pages, /if: steps\.release\.outputs\.code_sha != ''[\s\S]*?build-data-overlay\.mjs/, 'v59.78 release-source contract');
