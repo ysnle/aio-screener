@@ -106,9 +106,13 @@ async function dispatchWorkflow(policy, { env, scheduledTime = Date.now(), fetch
     // Where the GitHub cron is only this dispatcher's fallback (scripts/cron-fallback-guard.mjs), a cron run that stood down
     // still ends 'success' without producing anything, so it must not count as the recent success that skips this slot.
     // A fallback cron that did produce is ignored too; the cost is at most one extra cycle after a missed slot.
+    // For those workflows a run counts as this slot's recent success only when it started inside the window: the previous
+    // slot's run started a full slot spacing earlier, so it never suppresses the next slot however late it completed.
+    // Other policies (the screener backup) measure from completion, so an on-time cron run that just finished still counts.
     const latest = policy.cronIsFallback ? runs.find(run => run.event !== 'schedule') : runs[0];
-    const completedAge = at.getTime() - Date.parse(latest?.updated_at || '');
-    if (latest?.conclusion === 'success' && completedAge >= 0 && completedAge < policy.recentSuccessMs) {
+    const ageFrom = policy.cronIsFallback ? (latest?.run_started_at || latest?.created_at || latest?.updated_at) : latest?.updated_at;
+    const runAge = at.getTime() - Date.parse(ageFrom || '');
+    if (latest?.conclusion === 'success' && runAge >= 0 && runAge < policy.recentSuccessMs) {
       return finish({ dispatched: false, reason: 'recent-success', runId: latest.id });
     }
     const response = await client.requestJson(`${base}/dispatches`, {
