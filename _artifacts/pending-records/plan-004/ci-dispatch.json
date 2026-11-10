@@ -1,0 +1,17 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 a manual CI dispatch no longer cancels main's push CI, and release_sha reaches shells only through env",
+    "symptom": "A workflow_dispatch of CI started by hand without release_sha shared the concurrency group CI-refs/heads/main with the push-triggered run and cancelled it (cancel-in-progress), so that push SHA never got its attestation and Pages/Worker deploys waited for the next push. The free-form release_sha input was also interpolated straight into three run: lines.",
+    "root_cause": "The concurrency group fell through from release_sha to github.ref for a dispatch with no SHA, colliding with the push group; three steps used ${{ inputs.release_sha || github.sha }} (and step/job outputs) inside run: text instead of env:, the injection-in-run pattern CodeQL flags, and a malformed value failed opaquely.",
+    "fix": "The group now uses manual-<run_id> for a dispatch without release_sha (push, PR and bot-dispatch groups unchanged). The release-source resolver step and both data-overlay steps pass RELEASE_SHA/CODE_SHA through env:. The first preflight step rejects a release_sha that is not a full 40-character lowercase hex SHA.",
+    "violated_rule": "Workflow inputs and step outputs reach shell text through env:, never ${{ }} inside run:; a manual run must not share a cancel-in-progress group with the release-gating push run.",
+    "prevention": "scripts/ci-release-source-check.mjs re-pins the resolver call to the env spelling (--sha \"$RELEASE_SHA\"); the early guard fails a malformed SHA with a named error.",
+    "verification": "workflow-yaml and qa-runner fast pass; every scripts/ci-*.mjs gate that reads ci.yml passes except the two known local failures (publish-data-commit, browser-data-pin-drift); grep shows no inputs.* inside run: text. The workflow itself is unverified until the next push.",
+    "files": [".github/workflows/ci.yml", "scripts/ci-release-source-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**CI dispatch isolation ({P}):** a hand-started CI dispatch without release_sha gets its own concurrency group so it cannot cancel main's push CI, and release_sha now reaches shells only through env: with an early full-SHA check."],
+  "note": "v59.94: CI manual dispatch own group; release_sha via env"
+}
