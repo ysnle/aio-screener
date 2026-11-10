@@ -57,18 +57,20 @@ if (mode === 'guard-command') {
   const gitBlocked = [
     [new RegExp(`${GIT}reset\\b.*\\s--hard\\b`, 'i'), 'git reset --hard can destroy uncommitted work.'],
     // P1340: the shared working tree belongs to the user; whole-tree discards are as destructive as reset --hard.
-    [new RegExp(`${GIT}(?:checkout|restore)\\b(?:\\s+-{1,2}[a-z-]+(?:=\\S+)?(?:\\s+\\S+)?)*\\s+(?:--\\s+)?\\.(?:\\s|$)`, 'i'), 'Discarding the whole working tree can destroy uncommitted work.'],
+    // A restore of the index only (--staged/-S without --worktree/-W, short flags may be clustered) just unstages.
+    [new RegExp(`${GIT}(?:checkout|restore)\\b(?:\\s+-{1,2}[a-z-]+(?:=\\S+)?(?:\\s+\\S+)?)*\\s+(?:--\\s+)?\\.(?:\\s|$)`, 'i'), 'Discarding the whole working tree can destroy uncommitted work.',
+      (segment) => /\brestore\b/.test(segment) && /\s(?:--staged|-[A-Za-z]*S[A-Za-z]*)(?:\s|$)/.test(segment) && !/\s(?:--worktree|-[A-Za-z]*W[A-Za-z]*)(?:\s|$)/.test(segment)],
     [new RegExp(`${GIT}checkout\\s+(?:-f|--force)\\b`, 'i'), 'Forced checkout discards local changes.'],
     [new RegExp(`${GIT}clean\\b.*\\s(?:-[a-z]*f[a-z]*|--force)\\b`, 'i'), 'git clean -f deletes untracked files permanently.'],
     // Every spelling of a forced push: --force, --force-with-lease[=ref], --force-if-includes, -f (alone or in a
-    // short-flag cluster) and a +refspec.
-    [new RegExp(`${GIT}push\\b.*\\s(?:--force(?:-with-lease|-if-includes)?(?:=\\S+)?|-[a-z]*f[a-z]*|\\+\\S+)(?:\\s|$)`, 'i'), 'Force push is forbidden; use an explicitly reviewed safer workflow.']
+    // short-flag cluster) and a +refspec, quoted or not.
+    [new RegExp(`${GIT}push\\b.*\\s(?:--force(?:-with-lease|-if-includes)?(?:=\\S+)?|-[a-z]*f[a-z]*|["']?\\+\\S+)(?:\\s|$)`, 'i'),'Force push is forbidden; use an explicitly reviewed safer workflow.']
   ];
   const blocked = [
     [/(?:^|[;&|]\s*)rm\s+-[^\n]*r[^\n]*f\s+(?:~|\/|\$HOME|%USERPROFILE%)(?:\s|$)/i, 'Recursive deletion of a home/root target is forbidden.'],
     [/\b(?:Remove-Item|del|rmdir)\b[^\n]*(?:C:\\|%USERPROFILE%|\$HOME)[^\n]*(?:-Recurse|\/s)/i, 'Broad recursive deletion is forbidden.']
   ];
-  const match = gitBlocked.find(([pattern]) => segments.some((segment) => pattern.test(segment))) || blocked.find(([pattern]) => pattern.test(normalized));
+  const match = gitBlocked.find(([pattern, , exempt]) => segments.some((segment) => pattern.test(segment) && !(exempt && exempt(segment)))) || blocked.find(([pattern]) => pattern.test(normalized));
   if (match) deny(match[1]);
   process.exit(0);
 }

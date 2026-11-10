@@ -1,0 +1,17 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 stale snapshot banner stacked a listener pair and a timer on every apply",
+    "symptom": "While market data was over 24 hours old, every snapshot apply added two more live-data listeners and another 45 s fallback timer for the same hide-the-banner job; they piled up for the session while the producer stayed stalled.",
+    "root_cause": "_aioApplySnapshotStaleWarning built a new handler, two { once: true } listeners and a timer on each call, and nothing tracked a set already waiting.",
+    "fix": "One pending set per installed surface: a repeated stale apply keeps the waiting set; the handler, when it hides the banner, removes both listeners, clears the timer and resets the slot; fresh data tears a waiting set down. Listeners are no longer once-only, so an early return on incomplete coverage keeps them waiting.",
+    "violated_rule": "A repeated render path must not register a new subscription per call.",
+    "prevention": "Unit gate installs the surface on a fake window and asserts three stale applies register exactly two listeners and one timer, a live event removes them, and the next stale apply registers a new set.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs exits 0; with the old data-status-surface.js it fails with 6 listeners and 3 timers after three applies.",
+    "files": ["src/ui/components/data-status-surface.js", "scripts/ci-esm-core-unit-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**Stale banner listeners ({P}):** a stale snapshot applied again no longer adds another pair of live-data listeners and another fallback timer; one waiting set hides the banner when live data arrives."],
+  "note": "v59.94: stale banner keeps one pending listener set"
+}
