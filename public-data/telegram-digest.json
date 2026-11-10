@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-10T14:51:31.178Z",
-  "attemptedAt": "2026-11-10T14:51:31.178Z",
-  "lastSuccessfulAt": "2026-11-10T14:51:31.178Z",
+  "generatedAt": "2026-11-10T15:21:42.380Z",
+  "attemptedAt": "2026-11-10T15:21:42.380Z",
+  "lastSuccessfulAt": "2026-11-10T15:21:42.380Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-27T14:51:26.526Z",
-  "until": "2026-11-10T14:51:26.526Z",
+  "since": "2026-10-27T15:21:37.221Z",
+  "until": "2026-11-10T15:21:37.221Z",
   "current24hWindow": {
     "start": "2026-11-08T23:00:00.000Z",
     "end": "2026-11-09T23:00:00.000Z",
@@ -9912,10 +9912,10 @@
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
-    "pt": 21,
-    "earnings": 57,
+    "pt": 15,
+    "earnings": 53,
     "macro": 3,
-    "retail": 5
+    "retail": 4
   },
   "signals": [
     {
@@ -10127,90 +10127,6 @@
       "ratingAction": null,
       "date": "2026-10-28",
       "post": "bornlupin/20865"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|LMT|Morgan Stanley|2026-10-27",
-      "ticker": "LMT",
-      "broker": "Morgan Stanley",
-      "ptFrom": null,
-      "ptTo": 835,
-      "currency": "USD",
-      "direction": "set",
-      "rating": "buy",
-      "ratingAction": "upgrade",
-      "date": "2026-10-27",
-      "post": "insidertracking/67399"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|INTC|-|2026-10-27",
-      "ticker": "INTC",
-      "broker": null,
-      "ptFrom": null,
-      "ptTo": 125,
-      "currency": "USD",
-      "direction": "set",
-      "rating": "buy",
-      "ratingAction": "upgrade",
-      "date": "2026-10-27",
-      "post": "insidertracking/67399"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|SPOT|Bernstein|2026-10-27",
-      "ticker": "SPOT",
-      "broker": "Bernstein",
-      "ptFrom": 625,
-      "ptTo": 725,
-      "currency": "USD",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-27",
-      "post": "insidertracking/67399"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|LITE|-|2026-10-27",
-      "ticker": "LITE",
-      "broker": null,
-      "ptFrom": null,
-      "ptTo": 1200,
-      "currency": "USD",
-      "direction": "initiate",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-27",
-      "post": "bornlupin/20829"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|AVGO|KeyBanc|2026-10-27",
-      "ticker": "AVGO",
-      "broker": "KeyBanc",
-      "ptFrom": null,
-      "ptTo": 575,
-      "currency": "USD",
-      "direction": "hold",
-      "rating": "buy",
-      "ratingAction": "upgrade",
-      "date": "2026-10-27",
-      "post": "insidertracking/67517"
-    },
-    {
-      "kind": "pt",
-      "key": "pt|LEU|-|2026-10-27",
-      "ticker": "LEU",
-      "broker": null,
-      "ptFrom": null,
-      "ptTo": 151,
-      "currency": "USD",
-      "direction": "initiate",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-10-27",
-      "post": "insidertracking/67517"
     },
     {
       "kind": "earnings",
@@ -10849,54 +10765,6 @@
       "post": "insidertracking/67649"
     },
     {
-      "kind": "earnings",
-      "key": "earnings|앰코테크놀로지|2026-10-27",
-      "ticker": null,
-      "name": "앰코테크놀로지",
-      "quarter": "2026Q3",
-      "revenue": "miss",
-      "eps": "miss",
-      "guidance": null,
-      "date": "2026-10-27",
-      "post": "insidertracking/67421"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|힐튼|2026-10-27",
-      "ticker": null,
-      "name": "힐튼",
-      "quarter": "2026Q3",
-      "revenue": "miss",
-      "eps": "beat",
-      "guidance": null,
-      "date": "2026-10-27",
-      "post": "insidertracking/67490"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|UPS|2026-10-27",
-      "ticker": null,
-      "name": "UPS",
-      "quarter": "2026Q3",
-      "revenue": "beat",
-      "eps": "beat",
-      "guidance": "raise",
-      "date": "2026-10-27",
-      "post": "insidertracking/67491"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|로열캐리비안그룹|2026-10-27",
-      "ticker": null,
-      "name": "로열캐리비안그룹",
-      "quarter": "2026Q3",
-      "revenue": "miss",
-      "eps": "beat",
-      "guidance": "raise",
-      "date": "2026-10-27",
-      "post": "insidertracking/67495"
-    },
-    {
       "kind": "macro",
       "key": "macro|Unemployment Rate, 10월|2026-11-06",
       "name": "미국 실업률",
@@ -11262,88 +11130,6 @@
       "inverseShare": 0,
       "top10Share": 61.81,
       "post": "insidertracking/67676"
-    },
-    {
-      "kind": "retail",
-      "key": "retail|순매수|2026-10-27",
-      "side": "buy",
-      "date": "2026-10-27",
-      "top": [
-        {
-          "rank": 1,
-          "name": "SPACE EXPLORATION TECHN-CL A",
-          "share": 18.39,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 2,
-          "name": "PROSHARES ULTRAPRO QQQ ETF",
-          "share": 8.86,
-          "leveraged": true,
-          "inverse": false
-        },
-        {
-          "rank": 3,
-          "name": "NVIDIA CORP",
-          "share": 8.72,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 4,
-          "name": "PROSHARES ULTRA QQQ ETF",
-          "share": 6.61,
-          "leveraged": true,
-          "inverse": false
-        },
-        {
-          "rank": 5,
-          "name": "BLOOM ENERGY CORP CL A",
-          "share": 4.68,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 6,
-          "name": "INVESCO NASDAQ 100 ETF",
-          "share": 4,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 7,
-          "name": "VANGUARD SP 500 ETF",
-          "share": 3.72,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 8,
-          "name": "ALPHABET INC CL A",
-          "share": 3.21,
-          "leveraged": false,
-          "inverse": false
-        },
-        {
-          "rank": 9,
-          "name": "DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF",
-          "share": 2.99,
-          "leveraged": true,
-          "inverse": false
-        },
-        {
-          "rank": 10,
-          "name": "J.P. MORGAN NASDAQ EQUITY PREMIUM INCOME ETF",
-          "share": 2.63,
-          "leveraged": false,
-          "inverse": false
-        }
-      ],
-      "leveragedLongShare": 22.35,
-      "inverseShare": 0,
-      "top10Share": 63.81,
-      "post": "insidertracking/67535"
     }
   ]
 }
