@@ -1562,6 +1562,19 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         || !day.threads.some((t) => t.facts.includes(`stock:OIL1:${days[69]}`) && t.facts.includes(`stock:OIL2:${days[69]}`))) {
         fail(`v59.63: market-day ledger rules broke ${JSON.stringify({ wti: wti?.z, spx: spx?.z, OIL1: by('OIL1'), ACQ: by('ACQ'), MYST: by('MYST'), OLDN: by('OLDN'), energy: !!energy })}`);
       }
+      // v59.94: an official release is upcoming only until its own release time (FOMC 14:00 ET, CPI 08:30 ET), not a
+      // fixed 13:30 UTC clock plus 12 hours.
+      {
+        const macroCalendar = { schedules: { 'us-fomc': ['2026-12-09'], 'us-cpi': ['2026-12-10'] } };
+        const upcomingAt = (iso) => buildMarketDay({ history: [], macroCalendar, nowMs: Date.parse(iso) }).facts.filter((f) => f.kind === 'upcoming').map((f) => `${f.event}:${f.date}`);
+        const morningAfterFomc = upcomingAt('2026-12-10T00:30:00Z');
+        const morningAfterCpi = upcomingAt('2026-12-11T00:30:00Z');
+        const beforeFomc = upcomingAt('2026-12-09T15:00:00Z');
+        if (!morningAfterFomc.includes('us-cpi:2026-12-10') || morningAfterFomc.includes('us-fed-rate:2026-12-09')
+          || morningAfterCpi.includes('us-cpi:2026-12-10') || !beforeFomc.includes('us-fed-rate:2026-12-09')) {
+          fail(`v59.94: a released official event stays upcoming past its release time ${JSON.stringify({ morningAfterFomc, morningAfterCpi, beforeFomc })}`);
+        }
+      }
       // v59.64: a 매크로 chapter says what moved today in its own field (the lead gauge and the group it drives); the 기술적 분석
       // trend words follow where the close sits against the 50/200-day lines, and a stock gets the same words from its distances.
       const { buildMacroChapters } = await load('src/domain/macro/macro-chapters.js');

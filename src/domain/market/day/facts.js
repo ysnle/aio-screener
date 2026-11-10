@@ -12,6 +12,7 @@ import { closeSessionMarket } from '../session/close-series.js';
 import { countOpenSessionsBetween } from '../session/market-calendar.js';
 import { companyMatcher } from '../../briefing/news-picks.js';
 import { SCHEDULED_EVENTS } from '../../briefing/scheduled-events.js';
+import { releaseAtMs } from '../../briefing/schedule.js';
 import { EVENT_NAMES } from '../regime/macro-crossroads.js';
 
 export const MARKET_DAY_VERSION = 'market-day.v1';
@@ -170,8 +171,9 @@ function scheduleFacts(macroCalendar, nowMs) {
   for (const [rawId, dates] of Object.entries(macroCalendar?.schedules || {})) {
     const id = alias[rawId] || rawId;
     for (const date of Array.isArray(dates) ? dates : []) {
-      const at = Date.parse(`${date}T13:30:00Z`);
-      if (!EVENT_NAMES[id] || !(at >= nowMs - 12 * HOUR && at <= nowMs + 10 * DAY)) continue;
+      // A release is listed until its own release time; 13:30 UTC only for an id without a known clock.
+      const at = releaseAtMs(id, date) ?? Date.parse(`${date}T13:30:00Z`);
+      if (!EVENT_NAMES[id] || !(at > nowMs && at <= nowMs + 10 * DAY)) continue;
       out.push({ id: `upcoming:${id}:${date}`, kind: 'upcoming', event: id, label: EVENT_NAMES[id], date, subjects: [],
         topics: id === 'us-nfp' ? ['jobs', 'rates'] : ['us-cpi', 'us-pce'].includes(id) ? ['inflation', 'rates'] : ['rates', 'macro'], weight: 2 });
     }
