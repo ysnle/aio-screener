@@ -1,0 +1,8 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "changelog": [
+    "**CODE-MAP names anchors, not line numbers (v59.94):** the rescan tables and the quick task reference in `_context/CODE-MAP.md` pointed hundreds to tens of thousands of lines away from the code and named functions that had moved (`computeTradingScore`, `backtestFactors`, `FRED_SERIES`, `fetchLiveQuotes`). Each row now names a symbol or id with the `grep` that finds it; two rows for DOM that no longer exists were removed. `architecture/route-owners.json` `rm01Note` states the current counts (20 routes, native charts on 15, not applicable on 5), and `_context/CLAUDE.md` says where the full command list lives."
+  ],
+  "note": "v59.94: second audit round"
+}

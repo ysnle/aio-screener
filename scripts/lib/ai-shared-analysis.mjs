@@ -108,8 +108,8 @@ export function sharedAiUsage(payload) {
 // producer each carried their own copy (headers, abort timer, idempotency key, error mapping); the event-brief copy keyed
 // requests by Date.now() and no run attempt. `purpose` labels the idempotency key so the Worker's request log tells the
 // lanes apart, and a fresh UUID per actual request prevents replaying a spent reservation.
-// The Worker's hosted-search deadline is 120 s (cloudflare-worker-proxy.js openAiDeadlineMs); search callers wait 125 s so
-// the client stays inside the Worker bound while covering its completions.
+// The Worker's hosted-search deadline is 120 s (cloudflare-worker-proxy.js openAiDeadlineMs); search callers wait 125 s, just
+// past that bound, so the Worker deadline answers first and the client receives its response.
 export const SHARED_AI_TIMEOUT_MS = Object.freeze({ analysis: 30000, search: 125000 });
 const keyPart = (value, fallback, pattern, max) => String(value || '').replace(pattern, '').slice(0, max) || fallback;
 export function sharedAiIdempotencyKey(purpose, env = process.env) {

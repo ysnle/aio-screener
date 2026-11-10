@@ -671,7 +671,7 @@ const QUOTA_STATE_RETENTION_MS = 3 * 24 * 60 * 60 * 1000;
 const AI_FREE_RETRIES_PER_DAY = 20; // v57.61: retries of a counted question that do not use the connection's daily questions
 const AI_PER_CLIENT_DAILY_CAP_DEFAULT = 150; // v57.54: a household shares one IP; half the 300/day global cap still stops one outsider draining it
 const AI_PER_CLIENT_DAILY_CAP_MAX = 1000;
-// 2026-10-18 review A1/A2: the per-connection cap above counts questions, not money. One connection inside its 200
+// 2026-10-18 review A1/A2: the per-connection cap above counts questions, not money. One connection inside its daily
 // questions could reserve the whole $20 month (74 searched answers at the $0.27 upper bound, ~10 minutes at the
 // 20/min rate limit), so a connection's reserved micro-USD per UTC day is also capped at 1/20 of the month. The
 // reservation is the upper bound and settlement returns the unused part, so ordinary use stays far below it.
@@ -769,7 +769,7 @@ function withAiMetaHeaders(response, extra) {
 
 // A hosted-search request or a long (> 4000-token, reasoning-inclusive) answer routinely needs more than a
 // minute; cutting it at 60 s retained the whole reservation for an answer the caller never received. The
-// Actions search client (scripts/lib/ai-shared-analysis.mjs) waits 115 s, inside this 120 s bound.
+// Actions search client (scripts/lib/ai-shared-analysis.mjs) waits 125 s, just past this 120 s bound, so the Worker deadline answers first.
 const OPENAI_DEADLINE_MS = 60000;
 const OPENAI_LONG_DEADLINE_MS = 120000;
 // v57.61: medium reasoning or a >8192-token answer (search included) needs more wall time than 120 s.
@@ -1618,7 +1618,7 @@ export default {
     }
 
     // v56: 이 라우트에서 Origin 허용목록은 지금까지 403을 내지 않았다 — 어떤 ACAO 값을 돌려줄지
-    // 고르는 데만 쓰였으므로, 비브라우저 클라이언트는 ALLOWED_DOMAINS 전체(v57.81 기준 24개 호스트)로 가는
+    // 고르는 데만 쓰였으므로, 비브라우저 클라이언트는 ALLOWED_DOMAINS 전체로 가는
     // 익명 릴레이로 이 Worker를 쓸 수 있었다. /openai·/relay와 동일하게 게이트로 강제한다.
     // (비브라우저 클라이언트는 Origin을 위조할 수 있으므로 이것은 인증이 아니라 최소 방어선이며,
     //  isolate 독립적인 실효 상한은 헤더에 적힌 Cloudflare WAF 레이트리밋 규칙뿐이다.)

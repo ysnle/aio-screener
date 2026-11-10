@@ -1,0 +1,8 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "changelog": [
+    "**Worker comments state the code's numbers (v59.94):** three comments in `cloudflare-worker-proxy.js` and one in `scripts/lib/ai-shared-analysis.mjs` named a per-connection cap of 200 (the setting is 1000), a 115 s Actions search wait 'inside' the 120 s Worker deadline (the client waits 125 s, so the Worker deadline answers first) and 24 allowed hosts (22). Comment-only."
+  ],
+  "note": "v59.94: second audit round"
+}
