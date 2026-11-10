@@ -6808,6 +6808,42 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (failed?.state !== 'failed' || /미확정/.test(failed.text) || loading?.state !== 'loading' || !/불러오는 중/.test(loading.text)) fail(`v58.80 a missing calendar is not "미확정": ${JSON.stringify({ failed, loading })}`);
 }
 
+// v59.94: the earnings calendar snapshot and the AI earnings reader read the registry's one shared copy, so a session
+// downloads the 400 KB file once per max age; a failed first load is null and a failed refresh keeps the last good copy.
+{
+  const { fetchEarningsCalendarSnapshot } = await load('src/data/earnings-calendar-snapshot.js');
+  const { createPublicEarningsReader } = await load('src/data/providers/earnings.js');
+  const { EARNINGS_CALENDAR } = await load('src/data/artifact-registry.js');
+  const artifact = {
+    schemaVersion: 'earnings-calendar.v1', status: 'current-reference', generatedAt: '2026-11-10T00:00:00Z',
+    weekStart: '2026-11-09', weekEnd: '2026-11-15', source: 'Fixture', sourceUrl: 'https://example.test/cal',
+    earnings: [{ symbol: 'NVDA', date: '2026-11-12' }], ipos: [{ symbol: 'NEWC', date: '2026-11-13' }],
+    largeCapCoverage: { unconfirmed: ['AAPL'] }
+  };
+  const text = JSON.stringify(artifact);
+  const fakeRoot = (okFn) => {
+    const r = { calls: 0 };
+    r.fetch = async () => { r.calls += 1; return okFn(r.calls) ? { ok: true, status: 200, headers: { get: () => String(Buffer.byteLength(text)) }, text: async () => text, json: async () => JSON.parse(text) } : { ok: false, status: 503 }; };
+    r.fetchWithTimeout = (url, options) => r.fetch(url, options); // the boot global a direct reader would use
+    return r;
+  };
+  const good = fakeRoot(() => true);
+  const first = await fetchEarningsCalendarSnapshot({ root: good });
+  const second = await fetchEarningsCalendarSnapshot({ root: good });
+  if (good.calls !== 1) fail(`v59.94: two earnings calendar snapshot reads made ${good.calls} requests, expected 1`);
+  const want = { earnings: artifact.earnings, ipos: artifact.ipos, weekStart: '2026-11-09', weekEnd: '2026-11-15', generatedAt: '2026-11-10T00:00:00Z', source: 'Fixture', sourceUrl: 'https://example.test/cal', unconfirmed: ['AAPL'] };
+  if (JSON.stringify(first) !== JSON.stringify(want) || JSON.stringify(second) !== JSON.stringify(want)) fail(`v59.94: earnings calendar snapshot shape changed ${JSON.stringify(first)}`);
+  const ai = await createPublicEarningsReader(good)('NVDA', '2026-11-09', '2026-11-20');
+  if (good.calls !== 1 || ai?.length !== 1 || ai[0].date !== '2026-11-12' || ai[0].source !== 'Fixture') fail(`v59.94: the AI earnings reader must reuse the shared copy ${JSON.stringify({ calls: good.calls, ai })}`);
+  const down = fakeRoot(() => false);
+  if (await fetchEarningsCalendarSnapshot({ root: down }) !== null) fail('v59.94: a failed first earnings calendar load must read null');
+  const flaky = fakeRoot((n) => n === 1);
+  await fetchEarningsCalendarSnapshot({ root: flaky });
+  flaky.__aioSharedArtifacts[EARNINGS_CALENDAR.key].loadedAt = 0; // the copy is past its max age
+  const kept = await fetchEarningsCalendarSnapshot({ root: flaky });
+  if (flaky.calls !== 2 || JSON.stringify(kept) !== JSON.stringify(want)) fail(`v59.94: a failed refresh must keep the last good earnings snapshot ${JSON.stringify({ calls: flaky.calls, kept })}`);
+}
+
 // v58.80 (first-users bundle 6): one reader for typed numbers — refusals carry a reason, nothing is silently emptied.
 {
   const { readNumericInput, NUMERIC_LIMITS } = await load('src/domain/shared/numeric-input.js');

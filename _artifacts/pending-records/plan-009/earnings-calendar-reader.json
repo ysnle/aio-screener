@@ -1,0 +1,6 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "changelog": ["**Lead (v59.94):** The earnings calendar snapshot (브리핑, 오늘 일정, 뉴스) and the AI earnings reader now read the registry's one shared copy of earnings-calendar.json (6-hour max age, 512 KB bound) instead of their own fetches, one of which used a unique `?v=` URL on every call; a session downloads the 400 KB file once, and a failed refresh keeps the last good copy."],
+  "note": "v59.94: earnings-calendar.json has one cached reader"
+}

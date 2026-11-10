@@ -463,7 +463,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     await Promise.all(missing.map((symbol) => root._aioRequestOnDemandSymbol(symbol)));
     return entityProvider.readFundamentals(symbols);
   };
-  if (root?.AIO) root.AIO.readPublicEarnings = createPublicEarningsReader(httpClient, clock.now);
+  if (root?.AIO) root.AIO.readPublicEarnings = createPublicEarningsReader(root);
   const syncEntity = createEntityOrchestrator({ provider: entityProvider, commands: entityCommands });
   // P1668: only the ticker/fundamental pages read entity state, so boot and broadcast refreshes
   // skip the SEC fundamentals projection until one of them has been shown or a ticker selected.
