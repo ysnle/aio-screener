@@ -89,20 +89,27 @@ export function mergeHistory(previous = [], record) {
 export function buildTwMonthlyRevenue({ rows = [], previous = null, generatedAt = new Date().toISOString() } = {}) {
   const byCode = new Map((Array.isArray(rows) ? rows : []).map((row) => [String(row?.['公司代號'] || '').trim(), row]));
   const prevByCode = new Map((previous?.companies || []).map((c) => [c.code, c]));
-  const companies = []; const missing = []; const renamed = [];
+  const companies = []; const parsed = []; const missing = []; const renamed = [];
   for (const group of TW_AI_CHAIN) {
     for (const [code, expect, nameKo] of group.members) {
       const record = byCode.has(code) ? parseRevenueRow(byCode.get(code)) : null;
-      if (!record) { missing.push(code); continue; }
+      if (!record) {
+        // A company the source left out keeps its previous record (own month and history), marked carried.
+        missing.push(code);
+        if (prevByCode.has(code)) companies.push({ ...prevByCode.get(code), carried: true });
+        continue;
+      }
       if (!record.sourceName.startsWith(expect)) renamed.push(`${code}:${record.sourceName}`);
-      companies.push({ ...record, nameKo, group: group.id, history: mergeHistory(prevByCode.get(code)?.history, record) });
+      const company = { ...record, nameKo, group: group.id, history: mergeHistory(prevByCode.get(code)?.history, record) };
+      companies.push(company); parsed.push(company);
     }
   }
-  const months = companies.map((c) => c.month).sort();
+  // latestMonth/publishedAt come from this run's parsed rows only, so a carried record never sets the current month.
+  const months = parsed.map((c) => c.month).sort();
   return {
-    schemaVersion: TW_REVENUE_SCHEMA, generatedAt, status: companies.length ? 'ok' : 'no-companies', source: SOURCE, sourceUrl: TW_REVENUE_URL, sourceKind: 'T1_OFFICIAL',
+    schemaVersion: TW_REVENUE_SCHEMA, generatedAt, status: parsed.length ? 'ok' : 'no-companies', source: SOURCE, sourceUrl: TW_REVENUE_URL, sourceKind: 'T1_OFFICIAL',
     unit: '천 대만달러(仟元)', basis: '회사가 MOPS에 신고한 월 매출 금액. 증감률은 원천 금액으로 계산',
-    latestMonth: months.at(-1) || null, publishedAt: companies.map((c) => c.publishedAt).filter(Boolean).sort().at(-1) || null,
+    latestMonth: months.at(-1) || null, publishedAt: parsed.map((c) => c.publishedAt).filter(Boolean).sort().at(-1) || null,
     groups: TW_AI_CHAIN.map((g) => ({ id: g.id, name: g.name, codes: g.members.map(([code]) => code) })),
     companies, missing, renamed
   };

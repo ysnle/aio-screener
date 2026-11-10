@@ -195,6 +195,15 @@ check('v59.42 KR weights: common stocks at the previous close', () => {
   eq(out.rows[0].weightPct, Math.round((caps[0] / caps.reduce((a, b) => a + b, 0)) * 10000) / 100);
   eq(out.asOf, '2026-10-29');
 });
+const { marketWeights } = await import('./fetch-kr-index-weights.mjs');
+check('v59.94 KR weights: a blank or null day ratio is missing, not zero', () => {
+  const stock = (itemCode, fluctuationsRatio, marketValueRaw = '1,000') => ({ stockEndType: 'stock', itemCode, stockName: itemCode, marketValueRaw, fluctuationsRatio, localTradedAt: '2026-10-29T15:30:00+09:00' });
+  const out = marketWeights([stock('000010', ''), stock('000020', null), stock('000030', '10.00', '1,100')], 10);
+  eq(out.count, 1);
+  same(out.rows.map((row) => [row.code, row.weightPct]), [['000030', 100]]);
+  const flat = marketWeights([stock('000010', ''), stock('000040', '0.00')], 10);
+  same(flat.rows.map((row) => [row.code, row.ret1dPct, row.weightPct]), [['000040', 0, 100]]);
+});
 
 // v59.44 (owner 2026-10-29): news by weight — tiers, the price after the report, Samsung's 조원 table, Korean headlines.
 const { homeBriefTiers, briefTier, releaseSession, earningsReaction, reactionText, briefHeadline, parseDartPreliminaryResults, formatKrw } = await import('../src/domain/briefing/event-briefs.js');

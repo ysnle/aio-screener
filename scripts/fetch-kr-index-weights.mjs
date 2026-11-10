@@ -18,7 +18,8 @@ const TOP = { KOSPI: 30, KOSDAQ: 20 };
 const PAGE_SIZE = 100;
 const MAX_PAGES = 40;
 
-const num = (value) => { const n = Number(String(value ?? '').replace(/,/g, '')); return Number.isFinite(n) ? n : null; };
+// A blank, whitespace or absent value is missing (Number('') would read it as 0).
+const num = (value) => { const raw = String(value ?? '').replace(/,/g, '').trim(); if (!raw) return null; const n = Number(raw); return Number.isFinite(n) ? n : null; };
 const kstDate = (iso) => { const ms = Date.parse(iso || ''); return Number.isFinite(ms) ? new Date(ms + 9 * 3600000).toISOString().slice(0, 10) : null; };
 
 /** One market's rows → { asOf, count, rows: top N { code, name, weightPct, ret1dPct } }. */

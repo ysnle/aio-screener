@@ -1,0 +1,17 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 Taiwan monthly revenue erased a company the source rows left out",
+    "symptom": "When a TWSE t187ap05_L run omitted some of the 16 AI supply-chain codes, tw-monthly-revenue.json was still published as status ok with only the present companies; the omitted companies' records and up to 24 months of accumulated history were erased, and a returning code restarted from 3 months.",
+    "root_cause": "buildTwMonthlyRevenue skipped any code without a parsable row and never consulted the previous artifact's record for it, so a missing input became a silent loss.",
+    "fix": "A code missing from this run's rows keeps its previous record (own month and history) marked carried: true and is still listed in missing; a parsed company never carries the flag; status and latestMonth/publishedAt come only from this run's parsed rows, so an all-carried run stays no-companies and leaves the artifact untouched.",
+    "violated_rule": "A missing value stays missing and a value that exists is not thrown away.",
+    "prevention": "ci-tw-monthly-revenue-fixture covers a carried company (equal to its previous record plus carried), the parsed company's 13-month history, latestMonth from the parsed month, the view excluding the older carried month, re-carry comparing unchanged, a returning company dropping the flag, and an all-carried run returning no-companies.",
+    "verification": "node scripts/ci-tw-monthly-revenue-fixture.mjs passes; the new cases fail against the previous producer.",
+    "files": ["scripts/fetch-tw-monthly-revenue.mjs", "scripts/ci-tw-monthly-revenue-fixture.mjs"]
+  },
+  "r": null,
+  "changelog": ["**Taiwan revenue keeps a company the source left out ({P}):** a code missing from a TWSE run now keeps its previous record and history marked carried, instead of being erased while the artifact still read ok."],
+  "note": "v59.94: TW revenue carries missing companies"
+}
