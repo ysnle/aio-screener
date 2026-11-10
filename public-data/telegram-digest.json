@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-10T01:22:09.985Z",
-  "attemptedAt": "2026-11-10T01:22:09.985Z",
-  "lastSuccessfulAt": "2026-11-10T01:22:09.985Z",
+  "generatedAt": "2026-11-10T02:21:54.516Z",
+  "attemptedAt": "2026-11-10T02:21:54.516Z",
+  "lastSuccessfulAt": "2026-11-10T02:21:54.516Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-27T01:22:03.416Z",
-  "until": "2026-11-10T01:22:03.416Z",
+  "since": "2026-10-27T02:21:48.613Z",
+  "until": "2026-11-10T02:21:48.613Z",
   "current24hWindow": {
     "start": "2026-11-08T23:00:00.000Z",
     "end": "2026-11-09T23:00:00.000Z",
@@ -92,81 +92,83 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1303,
+      "count": 1306,
       "freshCount": 40,
-      "eligibleTextCount": 1249,
-      "selectedCount": 127,
+      "eligibleTextCount": 1251,
+      "selectedCount": 128,
       "error": null,
-      "lastPostId": 68846
+      "lastPostId": 68851
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 224,
+      "count": 225,
       "freshCount": 38,
-      "eligibleTextCount": 224,
+      "eligibleTextCount": 225,
       "selectedCount": 128,
       "error": null,
-      "lastPostId": 21081
+      "lastPostId": 21083
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 709,
+      "count": 704,
       "freshCount": 38,
-      "eligibleTextCount": 708,
+      "eligibleTextCount": 703,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 71857
+      "lastPostId": 71860
     }
   ],
-  "count": 2236,
-  "retainedItemCount": 446,
+  "count": 2235,
+  "retainedItemCount": 443,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2236,
-    "eligibleTextCount": 2181,
-    "mediaOnlyCount": 55,
-    "mediaAttachedCount": 653,
-    "photoPostCount": 559,
+    "observedCount": 2235,
+    "eligibleTextCount": 2179,
+    "mediaOnlyCount": 56,
+    "mediaAttachedCount": 657,
+    "photoPostCount": 563,
     "documentPostCount": 4,
     "imageOnlyCount": 3,
     "highSignalCount": 389,
-    "broadSignalCount": 839,
-    "selectedRawCount": 376,
-    "selectedEligibleCount": 376,
-    "selectedRawCoveragePct": 17.2,
-    "selectedOfObservedPct": 16.8,
+    "broadSignalCount": 840,
+    "selectedRawCount": 377,
+    "selectedEligibleCount": 377,
+    "selectedRawCoveragePct": 17.3,
+    "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
     "semi": 476,
-    "equity": 111,
+    "earnings": 380,
+    "market-note": 788,
+    "equity": 114,
+    "media-only": 55,
+    "ai-policy": 96,
     "macro": 334,
     "japan": 69,
-    "market-note": 788,
-    "ai-policy": 96,
     "power": 285,
-    "media-only": 54,
-    "earnings": 383,
     "credit": 90,
     "healthcare": 74,
-    "geo": 433,
+    "geo": 432,
     "kr-market": 107,
     "flows": 62,
     "optical": 31,
     "crypto": 4
   },
   "tickerCounts": {
-    "NVDA": 149,
-    "AMZN": 64,
+    "NVDA": 150,
+    "AMZN": 66,
+    "WMT": 1,
+    "ULTA": 1,
     "017670.KS": 3,
     "TSM": 46,
     "TSLA": 35,
@@ -201,7 +203,7 @@
     "STX": 7,
     "ORCL": 11,
     "DB": 2,
-    "MRNA": 4,
+    "MRNA": 3,
     "MTD": 1,
     "IBN": 1,
     "HUM": 1,
@@ -259,17 +261,17 @@
   "themes": [
     "Market Notes (788 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 8세대 TPU 시스템의 신규 변형인 ‘TPU 8tx’와 ‘TPU 8i Max’를 공개함. TPU...",
     "Semiconductors/Memory (476 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
-    "Geopolitics (433 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구...",
-    "Earnings/Corporate (383 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
+    "Geopolitics (432 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구...",
+    "Earnings/Corporate (380 posts in 14-day research window): GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS...",
     "Macro/Rates (334 posts in 14-day research window): 2026년 11월 7일 미국 증시 브리핑 미국 증시는 강한 10월 고용지표에도 금리 충격이 제한되면서 기술주와 AI 인프라 중심의 반등 진행. S&P 500 +0.31%, 나스닥 +1.09%, 러셀2000...",
     "AI Power/Grid (285 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란...",
-    "Equity/Analyst (111 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Equity/Analyst (114 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "Korea Market (107 posts in 14-day research window): 비상계엄 직후보다 더 밀렸다...코스닥 ‘충격’ > 7일 한국거래소에 따르면 코스닥 지수는 전날 34.14포인트(5.03%) 내린 644.27에 장을 마쳤다. 12.3 비상계엄과 탄핵정국 혼란이 한창이던 지난..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 149,
+      "count": 150,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
@@ -279,7 +281,7 @@
     },
     {
       "key": "AMZN",
-      "count": 64,
+      "count": 66,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로 선거 결과를 분석했다. 패배 원인에 대해서는 의견이 갈렸다. • 데이비드 색스: 가장 큰 원인은 이란..."
     },
     {
@@ -344,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 433,
+      "count": 432,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
@@ -407,7 +409,7 @@
       "topics": [
         "equity"
       ],
-      "count": 111,
+      "count": 114,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -425,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 383,
+      "count": 380,
       "focus": "GlobalFoundries 2026년 3분기 실적 요약 실적 • 매출 $18.99억, YoY +13%, 예상 $18.9억 상회 • 조정 EPS $0.53, YoY +29%, 예상 $0.51 상회 • IFRS..."
     },
     {
@@ -1727,6 +1729,47 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/68851",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68851",
+      "datetime": "2026-11-10T02:19:58.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "차주 화요일 장 마감후 엔비디아 실적 발표 예정입니다. > 한국 시간으로 수요일 새벽 6시"
+    },
+    {
+      "id": "insidertracking/68849",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/68849",
+      "datetime": "2026-11-10T01:56:45.000Z",
+      "localDateKst": "2026-11-10",
+      "tags": [
+        "equity"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [
+        "AMZN",
+        "WMT",
+        "ULTA"
+      ],
+      "summary": "[한투증권 유통/화장품 김명주] 미국 블랙프라이데이 관련 기사 #2 #블랙프라이데이 : 11월 27일(금) #사이버먼데이 : 11월 30일(월) 1. 주요 유통사별 행사 일정 - Amazon: (얼리, 메인)..."
+    },
+    {
       "id": "insidertracking/68846",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/68846",
@@ -2084,16 +2127,15 @@
       "localDateKst": "2026-11-10",
       "tags": [
         "semi",
-        "power",
-        "macro"
+        "power"
       ],
-      "lead": 2,
       "score": 76,
       "hasText": true,
+      "summary": "싱가포르 기업 메가스피드의 대표 앨리스 황과 엔비디아 CEO 젠슨 황의 긴밀한 관계가 알리바바의 동남아시아 데이터센터 구축 사업을 계기로 형성됐다는 보도. 이번 사건은 스파이 활동과 불륜 의혹이 얽힌 가운데...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "싱가포르 기업 메가스피드의 대표 앨리스 황과 엔비디아 CEO 젠슨 황의 긴밀한 관계가 알리바바의 동남아시아 데이터센터 구축 사업을 계기로 형성됐다는 보도. 이번 사건은 스파이 활동과 불륜 의혹이 얽힌 가운데..."
+      ]
     },
     {
       "id": "insidertracking/68807",
@@ -2104,17 +2146,17 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": "삼성전자가 12월 하반기 미국 텍사스주 테일러에 건설한 신규 반도체 공장의 시험 가동을 준비 중. 첨단 반도체 본격 양산은 2027년 시작할 계획. 삼성전자는 아직 생산라인 시험 가동의 정확한 일정을 발표하지...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "TSLA",
         "TSM",
         "005930.KS"
-      ],
-      "summary": "삼성전자가 12월 하반기 미국 텍사스주 테일러에 건설한 신규 반도체 공장의 시험 가동을 준비 중. 첨단 반도체 본격 양산은 2027년 시작할 계획. 삼성전자는 아직 생산라인 시험 가동의 정확한 일정을 발표하지..."
+      ]
     },
     {
       "id": "insidertracking/68803",
@@ -2912,14 +2954,14 @@
       "datetime": "2026-11-09T07:59:17.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>미국 당국자, 젠슨 황의 혼외정사 상대 여성이 중국 정보기관 소속 주장…중국 외교부 “근거 없는 억측” •중국 외교부 대변인은 젠슨황의 불륜 상대 여성이 중국 정보기관에서 근무한다는 주장에 대해 “중국...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>미국 당국자, 젠슨 황의 혼외정사 상대 여성이 중국 정보기관 소속 주장…중국 외교부 “근거 없는 억측” •중국 외교부 대변인은 젠슨황의 불륜 상대 여성이 중국 정보기관에서 근무한다는 주장에 대해 “중국..."
+      ]
     },
     {
       "id": "HANAchina/71814",
@@ -4956,13 +4998,14 @@
       "datetime": "2026-11-07T00:05:56.000Z",
       "localDateKst": "2026-11-07",
       "tags": [
-        "semi",
         "power",
         "equity",
-        "earnings"
+        "semi"
       ],
       "score": 85,
       "hasText": true,
+      "summary": "일론 머스크 인터뷰 - 제33회 배런 투자 컨퍼런스- 26년 11월 6일 테라팹·AI 데이터센터·SpaceX·스타링크·우주 AI 1. 테라팹(Terafab): 반도체 생산능력 30배 확대 머스크는 미국의...",
+      "lead": 2,
       "tickers": [
         "NVDA",
         "TSLA",
@@ -4972,8 +5015,7 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "일론 머스크 인터뷰 - 제33회 배런 투자 컨퍼런스- 26년 11월 6일 테라팹·AI 데이터센터·SpaceX·스타링크·우주 AI 1. 테라팹(Terafab): 반도체 생산능력 30배 확대 머스크는 미국의..."
+      ]
     },
     {
       "id": "HANAchina/71678",
@@ -6266,73 +6308,6 @@
       "tickers": [
         "NVDA",
         "MU"
-      ]
-    },
-    {
-      "id": "insidertracking/68474",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68474",
-      "datetime": "2026-11-05T21:37:12.000Z",
-      "localDateKst": "2026-11-06",
-      "tags": [
-        "market-note"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Aflac · AGNC Investment · Allstate · Amerant Bancorp · American Financial Group · American...",
-      "tickers": [],
-      "listTickers": [
-        "AAPL",
-        "LLY",
-        "V",
-        "MA",
-        "PG",
-        "ABBV",
-        "KO",
-        "DIS",
-        "AMGN",
-        "PFE",
-        "TRV",
-        "BLK",
-        "MRNA",
-        "SBUX",
-        "GILD",
-        "GSAT",
-        "ROKU",
-        "AMC",
-        "CI",
-        "CL"
-      ]
-    },
-    {
-      "id": "insidertracking/68473",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68473",
-      "datetime": "2026-11-05T21:33:51.000Z",
-      "localDateKst": "2026-11-06",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 팔란티어 (PLTR) — 아메리라이프와 보험 유통 전반의 AI 전환을 위한 엔터프라이즈 파트너십 체결. Foundry와 AIP는...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AAPL",
-        "AMZN",
-        "AAOI",
-        "BE",
-        "PLTR",
-        "SMCI",
-        "T",
-        "AKAM"
       ]
     },
     {
@@ -8623,16 +8598,15 @@
       "localDateKst": "2026-11-10",
       "tags": [
         "semi",
-        "power",
-        "macro"
+        "power"
       ],
-      "lead": 2,
       "score": 76,
       "hasText": true,
+      "summary": "싱가포르 기업 메가스피드의 대표 앨리스 황과 엔비디아 CEO 젠슨 황의 긴밀한 관계가 알리바바의 동남아시아 데이터센터 구축 사업을 계기로 형성됐다는 보도. 이번 사건은 스파이 활동과 불륜 의혹이 얽힌 가운데...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "싱가포르 기업 메가스피드의 대표 앨리스 황과 엔비디아 CEO 젠슨 황의 긴밀한 관계가 알리바바의 동남아시아 데이터센터 구축 사업을 계기로 형성됐다는 보도. 이번 사건은 스파이 활동과 불륜 의혹이 얽힌 가운데..."
+      ]
     },
     {
       "id": "insidertracking/68807",
@@ -8643,17 +8617,17 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": "삼성전자가 12월 하반기 미국 텍사스주 테일러에 건설한 신규 반도체 공장의 시험 가동을 준비 중. 첨단 반도체 본격 양산은 2027년 시작할 계획. 삼성전자는 아직 생산라인 시험 가동의 정확한 일정을 발표하지...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "TSLA",
         "TSM",
         "005930.KS"
-      ],
-      "summary": "삼성전자가 12월 하반기 미국 텍사스주 테일러에 건설한 신규 반도체 공장의 시험 가동을 준비 중. 첨단 반도체 본격 양산은 2027년 시작할 계획. 삼성전자는 아직 생산라인 시험 가동의 정확한 일정을 발표하지..."
+      ]
     },
     {
       "id": "insidertracking/68803",
@@ -9409,14 +9383,14 @@
       "datetime": "2026-11-09T07:59:17.000Z",
       "localDateKst": "2026-11-09",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>미국 당국자, 젠슨 황의 혼외정사 상대 여성이 중국 정보기관 소속 주장…중국 외교부 “근거 없는 억측” •중국 외교부 대변인은 젠슨황의 불륜 상대 여성이 중국 정보기관에서 근무한다는 주장에 대해 “중국...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>미국 당국자, 젠슨 황의 혼외정사 상대 여성이 중국 정보기관 소속 주장…중국 외교부 “근거 없는 억측” •중국 외교부 대변인은 젠슨황의 불륜 상대 여성이 중국 정보기관에서 근무한다는 주장에 대해 “중국..."
+      ]
     },
     {
       "id": "HANAchina/71814",
