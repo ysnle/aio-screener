@@ -7511,3 +7511,28 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (kospiUp.text !== '+1.23%' || !kospiUp.up || kospiUp.down) fail(`v59.94 a rising 코스피 chip change is +1.23% in the rising colour: ${JSON.stringify(kospiUp)}`);
   if (kospiDown.text !== '-1.23%' || !kospiDown.down || kospiDown.up) fail(`v59.94 a falling 코스피 chip change is -1.23% in the falling colour: ${JSON.stringify(kospiDown)}`);
 }
+
+// Comparison words follow the printed difference, and the sector sentence counts the sectors it read.
+{
+  const { createFakeDocument } = await import(pathToFileURL(path.join(root, 'scripts/lib/fake-dom.mjs')).href);
+  const { writeSectorHero } = await load('src/ui/pages/themes/sectors.js');
+  const { createInspectorController } = await load('src/ui/pages/screener/inspector.js');
+  const sectorDoc = createFakeDocument({ ids: ['rrg-rotation-read'] });
+  const sectorRows = [['A', 1.2], ['B', 0.8], ['C', 0.5], ['D', 0.3], ['E', 0.2], ['F', 0.1], ['G', -0.02]].map(([label, pct]) => ({ label, pct }));
+  writeSectorHero(sectorDoc, {}, sectorRows, '1개월');
+  const sectorRead = sectorDoc.getElementById('rrg-rotation-read').textContent;
+  if (!sectorRead.includes('7개 섹터') || sectorRead.includes('11개 섹터') || sectorRead.includes('약한 섹터')) fail(`v59.94 the sector sentence counts the sectors it read and does not call a sector printing 0.0% weak: ${sectorRead}`);
+  const session = '2026-11-09';
+  const row = { sym: 'AAA', name: 'A', ret3m: 10.0, ret1m: 1, factorSessionDate: session, screenStatus: 'passed', instrumentRef: { market: 'US', currency: 'USD' } };
+  const spy = { sym: 'SPY', ret3m: 10.04, factorSessionDate: session, instrumentRef: { market: 'US', currency: 'USD' } };
+  const inspectorDoc = createFakeDocument();
+  const ctx = { documentRef: inspectorDoc, root: {}, store: createStore({ initialState: { screener: { rows: [row, spy] } } }), bag: createResourceBag(), actions: [],
+    liveReader: () => null, watchlistReader: () => [], profileReader: () => null, selectedSymbols: new Set(), compareSymbols: new Set() };
+  createInspectorController(ctx);
+  ctx.renderWhyDrawer(row);
+  const preview = inspectorDoc.getElementById('scr-why-preview').textContent;
+  if (!preview.includes('S&P 500과 비슷합니다') || preview.includes('낮습니다')) fail(`v59.94 a 3-month gap that prints 0.0%p reads 비슷합니다, not 낮습니다: ${preview}`);
+  ctx.renderWhyDrawer({ ...row, ret3m: 8.5 });
+  const lower = inspectorDoc.getElementById('scr-why-preview').textContent;
+  if (!lower.includes('S&P 500보다 1.5%p 낮습니다')) fail(`v59.94 a real 3-month gap still names its size and direction: ${lower}`);
+}

@@ -396,9 +396,9 @@ export function writeSectorHero(documentRef, root, rows, periodLabel) {
   if (list.length < 6) { delete read.dataset.sectorMoves; if (detail) detail.hidden = true; return; }
   const close = usCloseSession(root);
   const name = (part) => part.map((row) => `${row.label} ${signedText(row.pct, 1)}%`).join(', ');
-  const up = list.filter((row) => row.pct > 0).slice(0, 3), down = list.filter((row) => row.pct < 0).slice(-2).reverse();
+  const up = list.filter((row) => directionOf(row.pct, 1) === 'up').slice(0, 3), down = list.filter((row) => directionOf(row.pct, 1) === 'down').slice(-2).reverse();
   const body = up.length && down.length ? `강한 섹터는 ${name(up)}, 약한 섹터는 ${name(down)}입니다.`
-    : up.length ? `11개 섹터가 대부분 올랐고 ${name(up)}가 앞섰습니다.` : `11개 섹터가 대부분 내렸고 ${name(list.slice(-3).reverse())}가 가장 약했습니다.`;
+    : up.length ? `${list.length}개 섹터가 대부분 올랐고 ${name(up)}가 앞섰습니다.` : `${list.length}개 섹터가 대부분 내렸고 ${name(list.slice(-3).reverse())}가 가장 약했습니다.`;
   // 1일·1주 sit on the rotation artifact's session; the longer windows are the screener's own close (no shared date).
   read.textContent = `${close && (periodLabel === '1일' || periodLabel === '1주') ? `${shortSession(close)}까지 ` : ''}${periodLabel}, ${body}`;
   read.dataset.sectorMoves = periodLabel;

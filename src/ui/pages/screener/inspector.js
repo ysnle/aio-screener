@@ -7,7 +7,7 @@ import { SCREENER_FIELD_REGISTRY, readRowNumber } from '../../../data/contracts/
 import { FACTOR_LABELS } from '../../../domain/screener/row-presentation.js';
 import { screenerMarket, marketRankingMetadata, formatScreenerPrice } from '../../../domain/screener/market-scope.js';
 import { modelContraryEvidence } from '../../../domain/technical/bands.js';
-import { signedText, finiteNumber as finite } from '../../../domain/shared/number.js';
+import { signedText, directionOf, finiteNumber as finite } from '../../../domain/shared/number.js';
 import { stampDay } from '../../../domain/shared/session-date.js';
 import { shortDate } from '../../../domain/content/date-labels.js';
 import { SCREENER_COLUMN_REGISTRY, cell, conditionMarginText, conditionMargins, currentOverlap, liveRow, range52Position, returnText, scopedRows, text } from './model.js';
@@ -209,7 +209,7 @@ export function createInspectorController(ctx) {
          const excess3m = excessOf('ret3m');
          setText('scr-why-preview', [
            trendWords ? `종가가 ${trendWords}에 있습니다.` : null,
-           excess3m == null ? null : `3개월 수익률(${returnText(readRowNumber(row, 'ret3m', 'display'))})은 S&P 500보다 ${Math.abs(excess3m).toFixed(1)}%p ${excess3m >= 0 ? '높습니다' : '낮습니다'}.`,
+           excess3m == null ? null : `3개월 수익률(${returnText(readRowNumber(row, 'ret3m', 'display'))})은 ${directionOf(excess3m, 1) == null ? 'S&P 500과 비슷합니다' : `S&P 500보다 ${Math.abs(excess3m).toFixed(1)}%p ${excess3m > 0 ? '높습니다' : '낮습니다'}`}.`,
            `${missing.length ? `빠진 필수값 ${missing.length}개` : '빠진 필수값 없음'}, ${contrary.length ? `걸린 반대 조건 ${contrary.length}개` : row.screenStatus === 'unavailable' ? '판정 보류' : '걸린 반대 조건 없음'}.`
          ].filter(Boolean).join(' '));
          renderExcessBars(documentRef, row, benchmark);
