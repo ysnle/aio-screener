@@ -1,0 +1,19 @@
+{
+  "version": "v59.94",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.94 publish-data-commit gate failed on every Windows run and hid the browser groups",
+    "symptom": "On the owner's Windows machine `node scripts/ci-publish-data-commit-check.mjs` failed five or six checks on every run. The gate is in the data group, so `qa-runner affected` skipped all 55 later browser checks unless `--keep-going` was passed; local QA silently lost its browser evidence. CI on Linux passed.",
+    "root_cause": "Two machine assumptions in the test. Its fake `gh` was a bash-shebang script made executable with chmod, which Windows cannot spawn, so every dispatch 'failed'. And its temporary repositories inherited the machine's `core.autocrlf=true`, so the autostash re-applied a tracked file with CRLF and the byte comparison of that file failed.",
+    "fix": "`gh()` in scripts/publish-data-commit.mjs runs an `AIO_PUBLISH_GH` that ends in .js/.mjs/.cjs with the current Node; the other two branches are unchanged. The check's stubs are Node scripts, and its git child processes get `core.autocrlf=false` through GIT_CONFIG_COUNT.",
+    "violated_rule": "REVIEW.md failure 6 (a gate that does not prove what it claims: here it failed for a reason unrelated to the publisher) and the Windows notes in CLAUDE.md.",
+    "prevention": "The gate itself now passes on Windows and Linux; a regression shows as the same gate failing locally.",
+    "verification": "node scripts/ci-publish-data-commit-check.mjs exits 0 from Git Bash on Windows ('Publish data commit OK: 4 sets …'). A shell without `bash` on PATH still fails the gate, because the publisher runs its hook commands through `bash -c` by design.",
+    "files": ["scripts/publish-data-commit.mjs", "scripts/ci-publish-data-commit-check.mjs"]
+  },
+  "r": null,
+  "changelog": [
+    "**Publish gate passes on Windows ({P}):** the data publisher's test used a bash-shebang `gh` stub and the machine's `core.autocrlf`, so it failed on every local Windows run and made `qa-runner` skip the browser groups. The stubs are Node scripts (run through a new `.js/.mjs` branch of `AIO_PUBLISH_GH`) and the fixture repositories pin `core.autocrlf=false`."
+  ],
+  "note": "v59.94: second audit round"
+}

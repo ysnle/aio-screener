@@ -32,7 +32,10 @@ const outFile = join(tmp, 'github-output');
 const savedEnv = { ...process.env };
 const savedCwd = process.cwd();
 Object.assign(process.env, { AIO_PUBLISH_GH: ghBin, AIO_PUBLISH_SLEEP_MS: '0', AIO_PUBLISH_NOW: '2026-11-08T15:00:00Z', GITHUB_OUTPUT: outFile,
-  GIT_AUTHOR_NAME: 'fixture', GIT_AUTHOR_EMAIL: 'f@x', GIT_COMMITTER_NAME: 'fixture', GIT_COMMITTER_EMAIL: 'f@x' });
+  GIT_AUTHOR_NAME: 'fixture', GIT_AUTHOR_EMAIL: 'f@x', GIT_COMMITTER_NAME: 'fixture', GIT_COMMITTER_EMAIL: 'f@x',
+  // The fixture repositories compare file bytes; a machine with core.autocrlf=true would rewrite LF as CRLF when the
+  // autostash is re-applied.
+  GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.autocrlf', GIT_CONFIG_VALUE_0: 'false' });
 
 const SETS = {
   data: { workflow: 'fixture.yml', message: 'data: fixture', candidateFile: null, required: ['out/a.json'], optional: ['out/b.json', 'out/missing.json'],
