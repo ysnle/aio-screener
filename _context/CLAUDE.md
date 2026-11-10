@@ -41,6 +41,8 @@ P1518 구조 재검토: 아래 canonical 경로·훅·미러·권한 경계를 w
 | `/deploy` | explicit-authority release workflow |
 | `/session-save` | explicit personal-memory request only; project state remains in repository artifacts |
 
+This table lists the core routes only; the full set of commands is the files in `.claude/commands/`.
+
 ## Hook policy
 
 - Hooks may deny destructive commands, protect archived evidence, inject generated preflight context, or emit advisory gate warnings.
