@@ -1,0 +1,17 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.97 A typed all-capital ticker is never rewritten to another issuer through a display name",
+    "symptom": "Typing FORD (Forward Industries' ticker, outside the universe) in the 종목 search opened Ford Motor (F); BLOCK opened Block's symbol.",
+    "root_cause": "resolveRegisteredName refused registry aliases for ticker-shaped input but still compared the en/kr display names case-insensitively, so an all-capital ticker equal to a company name in another case resolved to that company.",
+    "fix": "An all-capital ticker-shaped input matches a display name only when it equals the registry's spelling exactly (TSMC, NAVER, HYBE, 3M still resolve); mixed- or lower-case input keeps the case-insensitive name match.",
+    "violated_rule": "No ticker guessing: a ticker-shaped input is never rewritten to another issuer.",
+    "prevention": "ci-esm-core-unit-check resolves FORD/BLOCK to null and TSMC/NAVER/F/aapl/Ford/apple/포드/ford to their registry symbols; all 73 all-capital ticker-shaped registry names were checked to still resolve.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs failed on the old source (FORD -> F) and passes now; search-surface and codex-structure gates exit 0.",
+    "files": ["src/domain/instruments/resolve-name.js", "scripts/ci-esm-core-unit-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**Typed ticker stays itself ({P}):** an all-capital symbol such as FORD or BLOCK no longer opens Ford or Block by their display names; it is checked as a symbol and the companies stay among the candidates, while registry names written in capitals (TSMC, NAVER) still resolve."],
+  "note": "v59.97: all-capital ticker input matches display names only in the registry's exact spelling"
+}

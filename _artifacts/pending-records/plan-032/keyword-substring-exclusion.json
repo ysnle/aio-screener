@@ -1,0 +1,17 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.97 The news bear keyword '위기' no longer matches inside '분위기'",
+    "symptom": "A headline such as '연말 랠리 분위기, 코스피 강세' was classified warn and pulled the day's news tone toward bearish.",
+    "root_cause": "Multi-character Korean keywords match as plain substrings in keyword-match.js, so the bear keyword '위기' (crisis) hit inside '분위기' (mood).",
+    "fix": "keyword-match.js carries a small exclusion table for substring keywords ({ '위기': ['분위기'] }); a substring hit counts only when it is not part of an excluded word at that position. The compiled matcher stays cached per keyword.",
+    "violated_rule": "One keyword rule for every news list must not produce false matches inside unrelated words.",
+    "prevention": "ci-esm-core-unit-check: '투자 분위기 살아나' misses '위기'; '금융 위기 우려' and '위기감 확산' hit; the stance of '연말 랠리 분위기, 코스피 강세' is not warn.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs failed on the old source and passes now; architecture, runtime, native-decision-evidence, domain-parity, data-pipeline and expect-output gates exit 0 (no news-selection fixture output changed).",
+    "files": ["src/domain/news/keyword-match.js", "scripts/ci-esm-core-unit-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**Mood is not crisis ({P}):** the news tone no longer counts '분위기' (mood) as the bear keyword '위기' (crisis); the keyword matcher now skips a Korean keyword inside a listed longer word."],
+  "note": "v59.97: substring keyword exclusion table, '위기' not inside '분위기'"
+}
