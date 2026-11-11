@@ -31,7 +31,7 @@ UI·AI 안의 판정 로직도 문제다. `ai/analysis/technical.js:12-17`은 RU
 ## 2. 목표 구조와 의존 규칙
 
 ```
-scripts/ (producer, Actions 전용) ──▶ public-data/*.json ◀── schemas/ (형태 정본)
+scripts/ (producer, Actions 전용) ──▶ public-data/*.json ◀── architecture/browser-data-fixture.json (형태 고정: 구조 id)
                                            │
 src/data      로더·검증·신선도·저장소 ─────┤  (fetch·storage는 여기와 src/app만)
 src/domain    순수 계산·판정·문구 규칙 ────┤  (DOM·fetch·window 금지, 시계·데이터는 인자로)
