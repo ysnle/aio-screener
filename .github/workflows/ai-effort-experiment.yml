@@ -1,0 +1,97 @@
+name: AI effort experiment (manual)
+
+# Owner-approved experiment (2026-11-11): the market reading runs with reasoning off and a 1,500-token ceiling, and
+# the validator rejected the first attempt in 7 of 12 recent refreshes. scripts/ai-effort-experiment.mjs replays the
+# published inputs of several recent data commits through the production path once per variant. It calls the shared
+# Worker (metered by the budget ledger), commits nothing and uploads its JSON as a workflow artifact.
+on:
+  workflow_dispatch:
+    inputs:
+      samples:
+        description: 'How many recent market-data commits to replay (1-8)'
+        required: false
+        default: '5'
+      variants:
+        description: 'effort:maxOutputTokens list'
+        required: false
+        default: 'none:1500,low:4000,medium:6000'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-effort-experiment
+  cancel-in-progress: false
+
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SAMPLES: ${{ inputs.samples || '5' }}
+      VARIANTS: ${{ inputs.variants || 'none:1500,low:4000,medium:6000' }}
+      AI_PROXY_URL: ${{ vars.AIO_PROXY_URL || 'https://aio-proxy.zmfhd007.workers.dev' }}
+      AIO_AUTOMATION_TOKEN: ${{ secrets.AIO_AUTOMATION_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 120
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Replay recent inputs per variant
+        run: |
+          set -euo pipefail
+          case "$SAMPLES" in ([1-8]) ;; (*) echo "::error::samples must be 1-8"; exit 1 ;; esac
+          case "$VARIANTS" in (*[!a-z0-9:,]*|'') echo "::error::variants must look like none:1500,low:4000"; exit 1 ;; esac
+          mkdir -p "$RUNNER_TEMP/ai-effort"
+          # Every third market-data commit (about 90 minutes apart), newest first, that still carries this script's inputs.
+          mapfile -t commits < <(git log --format=%H -n 120 --grep='^data: refresh market' | awk 'NR % 3 == 1' | head -n "$SAMPLES")
+          [ "${#commits[@]}" -gt 0 ] || { echo "::error::no market-data commits in the fetched history"; exit 1; }
+          index=0
+          for sha in "${commits[@]}"; do
+            index=$((index + 1))
+            tree="$RUNNER_TEMP/ai-effort/tree-$index"
+            git worktree add --detach "$tree" "$sha" >/dev/null
+            cp scripts/ai-effort-experiment.mjs "$tree/scripts/ai-effort-experiment.mjs"
+            ln -s "$GITHUB_WORKSPACE/node_modules" "$tree/node_modules"
+            (cd "$tree" && node scripts/ai-effort-experiment.mjs --variants "$VARIANTS" --label "${sha:0:9}" --out "$RUNNER_TEMP/ai-effort/sample-$index.json") || echo "::warning::sample $index (${sha:0:9}) failed"
+          done
+
+      - name: Summarise
+        if: always()
+        run: |
+          set -euo pipefail
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const dir = process.argv[1];
+            const files = fs.readdirSync(dir).filter((name) => /^sample-\d+\.json$/.test(name)).sort();
+            const rows = files.flatMap((name) => { const report = JSON.parse(fs.readFileSync(path.join(dir, name), "utf8")); return report.results.map((row) => ({ ...row, label: report.label, at: report.dataGeneratedAt, production: report.production })); });
+            const keys = [...new Set(rows.map((row) => `${row.effort}:${row.maxOutputTokens}`))];
+            const lines = ["## AI effort experiment", "", `samples ${files.length}`, "", "| variant | verified | first attempt | retained/blocked | avg input tok | avg output tok | avg chars | avg seconds |", "|---|---|---|---|---|---|---|---|"];
+            for (const key of keys) {
+              const set = rows.filter((row) => `${row.effort}:${row.maxOutputTokens}` === key);
+              const avg = (pick) => Math.round(set.reduce((sum, row) => sum + pick(row), 0) / Math.max(1, set.length));
+              const verified = set.filter((row) => row.status === "verified");
+              lines.push(`| ${key} | ${verified.length}/${set.length} | ${set.filter((row) => row.firstAttemptPassed).length}/${set.length} | ${set.length - verified.length} | ${avg((row) => row.inputTokens || 0)} | ${avg((row) => row.outputTokens || 0)} | ${verified.length ? Math.round(verified.reduce((sum, row) => sum + row.textChars, 0) / verified.length) : 0} | ${avg((row) => (row.calls || []).reduce((sum, call) => sum + call.ms, 0) / 1000)} |`);
+            }
+            lines.push("", "| sample | data time | production | variant | status | attempts | validator reasons |", "|---|---|---|---|---|---|---|");
+            for (const row of rows) lines.push(`| ${row.label} | ${row.at} | ${row.production.outcome || "?"} | ${row.effort}:${row.maxOutputTokens} | ${row.status}${row.reason ? " (" + String(row.reason).slice(0, 80) + ")" : ""} | ${row.attempts} | ${(row.blocked || []).map((item) => item.attempt + ": " + item.issues).join("; ").slice(0, 200) || "-"} |`);
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
+            console.log(lines.join("\n"));
+          ' "$RUNNER_TEMP/ai-effort"
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ai-effort-experiment
+          path: ${{ runner.temp }}/ai-effort/sample-*.json
+          retention-days: 14
