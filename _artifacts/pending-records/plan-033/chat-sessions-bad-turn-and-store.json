@@ -2,16 +2,21 @@
   "version": "v59.97",
   "date": "2026-11-11",
   "p": {
-    "title": "v59.97 a saved conversation turn without an answer or an unreadable store no longer breaks or erases saved conversations",
-    "symptom": "One stored turn without a string answer made every later save throw inside the end-of-answer handler (no more saved turns, no follow-up chips, the run held until its timeout); a stored value that did not parse was silently replaced by a store holding only the newest conversation.",
-    "root_cause": "loadSessions kept turns as stored and turnChars read t.q.length + t.a.length, so a missing field threw during pruning; a parse failure fell back to an empty list that the next save wrote over the reader's unreadable data.",
-    "fix": "readSessionStore (src/ai/session/chat-sessions.js) normalises each kept turn (non-objects dropped; q, a, ctx coerced to strings; at kept) and reports whether the store was readable; saveSessions refuses to write (saved: false) over a stored value that is not a readable list, and turnChars coerces its fields. loadSessions keeps its shape.",
-    "violated_rule": "Stored conversations are the reader's data and are never lost on a parse error.",
-    "prevention": "ci-ai-intelligence-contract-check: a stored turn { q, at } without a saves the next turn with a: ''; a truncated JSON store returns saved: false from appendTurn and deleteSession and stays byte-identical, and loadSessions returns [].",
-    "verification": "node scripts/ci-ai-intelligence-contract-check.mjs passes; the three v59.97 checks fail on the old module.",
-    "files": ["src/ai/session/chat-sessions.js", "scripts/ci-ai-intelligence-contract-check.mjs"]
+    "title": "v59.97 a saved conversation turn without an answer no longer breaks saving",
+    "symptom": "One stored turn without a string answer made every later save throw inside the end-of-answer handler (no more saved turns, no follow-up chips, the run held until its timeout).",
+    "root_cause": "loadSessions kept turns as stored and turnChars read t.q.length + t.a.length, so a missing field threw during pruning.",
+    "fix": "loadSessions (src/ai/session/chat-sessions.js) normalises each kept turn (non-objects dropped; q, a, ctx coerced to strings; at kept) and turnChars coerces its fields. A stored value that does not parse still reads as empty and the next save starts over: refusing to write would leave the reader unable to save with nothing to delete.",
+    "violated_rule": "A bad stored record must not stop the answer flow.",
+    "prevention": "ci-ai-intelligence-contract-check: a stored turn { q, at } without a saves the next turn with a: ''; a truncated JSON store reads as empty and the next answer is saved.",
+    "verification": "node scripts/ci-ai-intelligence-contract-check.mjs passes; the bad-turn check fails on the old module.",
+    "files": [
+      "src/ai/session/chat-sessions.js",
+      "scripts/ci-ai-intelligence-contract-check.mjs"
+    ]
   },
   "r": null,
-  "changelog": ["**Saved AI conversations survive bad data ({P}):** a stored turn without an answer no longer stops later saves, and a store that cannot be read is left in place instead of being overwritten."],
-  "note": "v59.97: chat sessions tolerate a bad turn and never overwrite an unreadable store"
+  "changelog": [
+    "**Saved AI conversations survive a bad turn ({P}):** a stored turn without an answer no longer stops later saves."
+  ],
+  "note": "v59.97: chat sessions tolerate a bad stored turn"
 }

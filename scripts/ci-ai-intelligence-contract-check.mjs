@@ -953,7 +953,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     check('v57.83 chat sessions: the consent card says continuing sends recent turns to the AI server', /AI 서버로 전송됩니다/.test(ui) && !/서버로 보내지 않으며/.test(ui));
   }
   {
-    // A stored turn without a string answer cannot break saving, and a store that does not parse is never written over.
+    // A stored turn without a string answer cannot break saving, and a store that does not parse does not block it.
     const mem = (raw) => { const m = new Map([[sessions.CONSENT_KEY, '1'], [sessions.SESSIONS_KEY, raw]]); return { m, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) }; };
     const bad = mem(JSON.stringify([{ id: 'b', title: 't', createdAt: 1, updatedAt: 1, turns: [{ q: 'c', at: 2 }, null] }]));
     let result = null, threw = false;
@@ -964,8 +964,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     const broken = mem(truncated);
     let brokenResult = null, brokenThrew = false;
     try { brokenResult = sessions.appendTurn(broken, { sessionId: 'n', ctx: 'home', question: 'q', answer: 'a', at: 5 }); } catch (_) { brokenThrew = true; }
-    check('v59.97 chat sessions: an unreadable store is not overwritten by the next answer', !brokenThrew && brokenResult.saved === false && broken.m.get(sessions.SESSIONS_KEY) === truncated && sessions.loadSessions(broken).length === 0);
-    check('v59.97 chat sessions: deleting from an unreadable store leaves it in place', sessions.deleteSession(broken, 's1') === false && broken.m.get(sessions.SESSIONS_KEY) === truncated);
+    check('v59.97 chat sessions: a store that does not parse reads as empty and the next answer is saved', !brokenThrew && brokenResult.saved === true && sessions.loadSessions(broken).length === 1 && sessions.loadSessions(broken)[0].turns[0].a === 'a');
   }
   check('v57.54 chat sessions: deleting the open conversation also clears it from the panel context', /if \(session\.id === api\.sessionId\) \{ cancel\('session-delete'\); setActive\(null\); shared\.messages\.length = 0; repaint\(\); \}/.test(ui));
   check('P1745 chat sessions: installed at boot', /installChatSessions\(window, document, \{ storage:/.test(fs.readFileSync(new URL('../src/app/bootstrap.js', import.meta.url), 'utf8')));

@@ -23,22 +23,13 @@ export function setConsent(storage, granted) {
 
 const normaliseTurn = (t) => ({ ...t, ctx: String(t.ctx ?? ''), q: String(t.q ?? ''), a: String(t.a ?? ''), at: t.at });
 
-/** The stored conversations and whether the store could be read. An empty store is readable; a stored value that
- *  cannot be read as a list of conversations is still the reader's data, so saving refuses to write over it. */
-export function readSessionStore(storage) {
-  let text;
-  try { text = storage.getItem(SESSIONS_KEY); } catch (_) { return { sessions: [], readable: false }; }
-  if (text == null || text === '') return { sessions: [], readable: true };
-  const raw = safe(() => JSON.parse(text), undefined);
-  if (!Array.isArray(raw)) return { sessions: [], readable: false };
-  const sessions = raw
+/** The stored conversations, each turn with string fields. A stored value this module cannot parse holds nothing the
+ *  panel could ever show again, so it reads as empty and the next save starts over. */
+export function loadSessions(storage) {
+  const raw = safe(() => JSON.parse(storage.getItem(SESSIONS_KEY) || '[]'), []);
+  return (Array.isArray(raw) ? raw : [])
     .filter((s) => s && typeof s.id === 'string' && Array.isArray(s.turns))
     .map((s) => ({ ...s, turns: s.turns.filter((t) => t && typeof t === 'object').map(normaliseTurn) }));
-  return { sessions, readable: true };
-}
-
-export function loadSessions(storage) {
-  return readSessionStore(storage).sessions;
 }
 
 function titleOf(question) {
@@ -70,7 +61,6 @@ export function pruneSessions(sessions) {
  *  codex audit F02). Returns false when nothing could be written, so the caller can tell the reader. */
 export function saveSessions(storage, sessions) {
   if (consentState(storage) !== 'granted') return false;
-  if (!readSessionStore(storage).readable) return false; // never replace conversations that could not be read
   let kept = pruneSessions(sessions);
   if (!kept.length) return safe(() => { storage.removeItem(SESSIONS_KEY); return true; }, false);
   // A full store keeps the newest conversations: drop the oldest half and retry; the last one left halves its oldest turns.
