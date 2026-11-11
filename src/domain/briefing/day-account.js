@@ -59,8 +59,8 @@ export function indexLine(facts) {
     // The wording follows the sign of both figures: "지수 하락" only on a day the index fell, "덜 내렸습니다" only
     // when the equal-weight index also fell.
     const rest = spx.change >= 0 ? '지수보다 나머지 종목이 더 강했습니다'
-      : rsp.change > 0 ? '지수 하락은 대형주 몇 곳에 몰렸고 나머지 종목은 오히려 올랐습니다'
-        : '지수 하락은 대형주 몇 곳에 몰렸고 나머지 종목은 덜 내렸습니다';
+      : rsp.change > 0 ? '지수 하락은 시가총액이 큰 종목에 더 실렸고 나머지 종목은 오히려 올랐습니다'
+        : '지수 하락은 시가총액이 큰 종목에 더 실렸고 나머지 종목은 덜 내렸습니다';
     breadth = rsp.change > spx.change ? ` 동일가중 S&P 500은 ${pct(rsp.change)}로, ${rest}.`
       : ` 동일가중 S&P 500은 ${pct(rsp.change)}로, 지수보다 나머지 종목이 더 약했습니다.`;
   }
