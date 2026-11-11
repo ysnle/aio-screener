@@ -205,9 +205,14 @@ Plan-specific:
 ### Part A — the direction word follows the printed 10-year
 - `ratesOf`: decide `flat` vs moved and the direction from `ten.bp` (the printed span). Keep the real/breakeven
   shares against the FRED total `d` (they decompose the FRED move): when the printed move is ≥ 10bp in absolute
-  terms but the FRED total is under 10bp or has the opposite sign, the decomposition is not usable — return kind
-  `'mixed'` for that case (the reading for `mixed` makes no real/breakeven claim; confirm by reading `RATE_READ`).
-  When the market span is missing, `ten` is the FRED span and nothing changes.
+  terms but the FRED total is under 10bp or has the opposite sign, the decomposition is not usable. `RATE_READ.mixed`
+  (~line 152) and the 매크로 `mixed` text both say "실질금리와 기대인플레가 함께 움직여 한쪽으로 읽기 어렵습니다" — a
+  real/breakeven claim that would be false here — so add one new kind for this case (e.g. `'undivided'`) with a
+  neutral reading in each file: `10년 금리가 움직였지만 실질금리·기대인플레로 나눠 읽을 수 없습니다` (keep the
+  sentence style of the neighbouring readings). When the market span is missing, `ten` is the FRED span and nothing
+  changes.
+- Neither `ratesOf` nor the 매크로 rates function is exported: tests and the replay go through `buildMarketStory`
+  and `buildMacroChapters`.
 - `macro-chapters.js` rates chapter: same rule — `flat` and direction from the span that is printed in the bar.
   Read how `ten`, `market`, `real`, `be` are used below (growth-scare logic etc.) and keep every other use.
 
@@ -231,23 +236,30 @@ Add `breadthCross: { broadAbovePct: 55, narrowBelowPct: 45 }` (or the naming sty
 sentence; 44 → the broad-weakness sentence; the ≥ 55 sentence contains `45%`.
 
 ### Part D — one definition of extreme fear
-`fearful` uses the gauge's band: `fearGreedBand(fg).label === '극단 공포'` (or `fg < RULES.fearGreed.extremeFearBelow`
-— whichever the gauge itself uses). Test: at 25 the cross-reading does not say 극단 공포; at 24 it does.
+`fearful` uses the gauge's band: `fearGreedBand(fg).label === '극단 공포'` (the band rounds first — 24.6 reads
+공포 — so a raw `fg < 25` comparison is not equivalent; use the band function). Test: at 25 and at 24.6 the
+cross-reading does not say 극단 공포; at 24 it does.
 
 ### Part E — counts from the printed value
-Use `directionOf(row.daily, 1)` for the up/down counts and the risen/fallen lists. Test: a sector at +0.04 is in
-neither list and neither count.
+Use `directionOf(row.daily, 1)` for the up/down counts and the risen/fallen lists. Note `up`/`down` also feed
+`kind` (the broad-sector count), so the kind can change on a day with near-zero sectors — that is intended. Test: a
+sector at +0.04 is in neither list and neither count.
 
 ### Part F — one rank wording
-Export one helper next to the record it describes (in `market-read.js` or a small shared module both files already
-import from — check import direction: `page-flow.js` may import from `market-read.js`, not the reverse) that returns
-the word for a percentile with the 60/40 bands, and call it from both places. Test: percentile 55 → both sites say
-"중간쯤"; 65 → "많은 편"; 35 → "적은 편".
+Export one helper from `market-read.js` (`page-flow.js` already imports from it; `market-read.js` never imports
+`page-flow.js`, so there is no cycle) that returns the whole rank phrase for a percentile with the 60/40 bands (both
+templates embed a phrase such as "상위 N%에 드는 많은 편" / "중간쯤", not a single word — read both templates and
+return what they need), and call it from both places. Test the helper directly: percentile 55 → the 중간쯤 phrase;
+65 → 많은 편; 35 → 적은 편; and one `page-flow` output at 55. (The `market-read.js` site only fires at six or more
+distribution days; if it cannot be reached in a unit case, test the helper and say so.)
 
 ### Part G — one VIX band ladder
-Put the VIX band edges and names in `RULES` (one ladder) and read it from both files. For 18–25 keep the name the
-시장 상태 axis uses ("주의 구간") unless the 매크로 file's comment gives a reason for "통상 범위" that still holds —
-report which you kept and why. Test: VIX 21 gets the same band name from both functions.
+The shared name for VIX 18–25 is **"통상 범위"**: `src/domain/macro/volatility.js`, `narrative.js` and the
+position-sizing labels use it, and `scripts/ci-domain-parity-check.mjs` (~lines 330, 354, 377) pins the ladder
+저변동 / 통상 범위 / 변동성 경계 / 고변동; the edges already live in `RULES.volatility` (calmBelow 18, stressAt 25,
+highAt 32). Only `market-read.js` ~1334 says "주의 구간". Change that one site to read the band name from the same
+function the 매크로 file uses (`vixBand` — find its export) instead of its own string. Do not add a second ladder.
+Test: VIX 21 gets "통상 범위" from the 시장 상태 volatility read; `node scripts/ci-domain-parity-check.mjs` exit 0.
 
 ### Finish
 All gates in the commands table, then `node scripts/qa-runner.mjs contracts --keep-going`. Do not edit an existing
@@ -267,10 +279,9 @@ Per part. Each new assertion must fail on the old source (copy-aside method).
 
 ## STOP conditions (per part)
 
-- A: `RATE_READ['mixed']` (or the 매크로 equivalent) makes a real/breakeven claim, so the fallback would itself be a
-  wrong sentence — report the text instead.
+- A: a wording or text-budget gate rejects the new neutral reading — report its message.
 - F: the two files cannot share a helper without an import cycle or a layering-gate failure.
-- G: a wording/vocabulary gate pins one of the two band names.
+- G: the 시장 상태 volatility sentence cannot take the shared band name without changing its meaning (e.g. it says "주의" as a judgement, not a band name) — report the sentence.
 - Any part: an existing expectation flips.
 
 ## Maintenance notes

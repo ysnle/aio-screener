@@ -180,18 +180,28 @@ Plan-specific:
 ### Part A — the chart's return has one currency basis
 1. Read how the attribution path computes an FX-inclusive holding return and which FX series and windows it has
    (write the function names and the data source in your report).
-2. Preferred fix: `buildBenchmarkTrend` accepts, per covered row, the FX return of the row's listing currency
-   against the base over each window (`fxReturnOf(symbol, key)`, a percentage, `0` when the listing currency equals
-   the base), and `bookThen` divides by `(1 + r_local/100) * (1 + r_fx/100)`. `portfolio-value-trend.js` supplies
-   it from the same source the attribution uses. When a row needs an FX return and none is available for a window,
-   that row is not covered for that window (the existing coverage rule then decides whether the chart is shown).
-3. Fallback, only if step 2 cannot reuse the attribution's FX source without restructuring it: when any covered
+2. Preferred fix: `buildBenchmarkTrend` accepts an **optional** `fxReturnOf(symbol, key)` (a percentage; when the
+   argument is absent every row's FX return is 0, so existing callers such as
+   `scripts/ci-portfolio-native-chart-check.mjs` ~65–72 keep working), and `bookThen` divides by
+   `(1 + r_local/100) * (1 + r_fx/100)`. Facts at the planned commit: the attribution takes a single scalar,
+   `indexReturns(history, 'usdkrw').ret3m` (`src/ui/components/portfolio-read.js` ~152), and `indexReturns`
+   (`benchmarks.js`) only has 1/3/6-month returns, while the chart needs 12m, 6m, 3m, 1m, 5d and 1d. So the
+   component must compute the FX return per window itself, e.g. with
+   `closeChange(history, 'usdkrw', sessions, { through: asOf })` from `market-windows.js` (check the unit: helpers
+   such as `fxReturnInto` return a fraction, 0.05, not a percentage). The row's listing currency is on the surface
+   row as `row.convertedFrom` (`surface.js` ~356); the component passes only `{ symbol, value }` today. When a row
+   needs an FX return and none is available for a window (no USD/KRW close for that span), that row is not covered
+   for that window (the existing coverage rule then decides whether the chart is shown).
+3. Fallback, only if the per-window FX returns cannot be computed from the history the component already has
+   (`usdkrw` closes missing for most windows) or the currencies involved go beyond USD/KRW: when any covered
    row's listing currency differs from the base currency, do not draw the chart; return
    `{ available: false, reason: 'fx-basis' }` and let the component print one plain sentence in the chart's place
    saying the comparison needs exchange-rate history for this account (Korean, no developer wording — follow the
    existing unavailable message in that component for tone).
 4. Either way the note under the chart must state the basis it uses ("환율 포함" when FX is applied; nothing when
-   every holding is in the base currency).
+   every holding is in the base currency). `scripts/ci-esm-core-unit-check.mjs` (~3666–3667) pins two strings of
+   that note in the component's source — "지금 비중을 그대로 들고 있었다고 본 값이라 계좌 수익률과 다릅니다" and
+   "수정 종가(배당 포함)": keep both exactly and append the FX wording.
 
 Tests (`v59.97`): a KRW-base book with one USD row (local 3-month return +10%, FX +5%) → the 3-month book return
 is +15.5% within 0.05 (step 2) or the model is unavailable with reason `fx-basis` (step 3); a USD-base book of USD
@@ -210,7 +220,8 @@ Tests: gap −0.02 → no `뒤처` word and neutral tone; gap −0.06 → `0.1%p
 ### Part C — the screener trust word from the rounded spread
 Round to the printed two decimals first (`directionOf(spread, 2)`): `null` → tone `'neutral'`, text says the top
 and bottom groups differed by `0.00%p` (no 앞섰/뒤처 word), headline `과거 상위 20%와 하위의 차이 없음`. Otherwise
-as today.
+as today. The `distinguishable === false` branch just above (~line 94) prints "평균 0.00%p 앞섰지만" for a zero
+spread too — apply the same rule there.
 
 Tests: spread 0.003 → neutral, no `앞섰`; spread 0.006 → `0.01%p 앞섰습니다`.
 

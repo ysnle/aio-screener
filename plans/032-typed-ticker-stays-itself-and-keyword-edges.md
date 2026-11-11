@@ -178,16 +178,21 @@ Plan-specific:
 ### Part A — a typed ticker stays what was typed
 1. Failing tests first (`v59.97`), next to the existing GOOG/HR/SQ cases, with
    `entries = { F: { en: 'Ford', kr: '포드', alt: ['ford'] }, SQ: { en: 'Block', kr: '블록' }, AAPL: { en: 'Apple', kr: '애플' } }`:
-   - `resolveRegisteredName('FORD', entries)` → `null`; `('BLOCK', entries)` → `null` (all-capital, ticker-shaped:
-     a ticker, not a name);
+   - `resolveRegisteredName('FORD', entries)` → `null`; `('BLOCK', entries)` → `null` (all-capital, ticker-shaped,
+     and not the registry's own spelling of a name);
+   - with `entries.TSM = { en: 'TSMC', kr: '대만반도체' }` and `entries['035420.KS'] = { en: 'NAVER', kr: '네이버' }`:
+     `('TSMC', entries)` → `'TSM'`; `('NAVER', entries)` → `'035420.KS'` (an all-capital registry name still resolves);
    - `('F', entries)` → `'F'`; `('aapl', entries)` → `'AAPL'` (an exact symbol in any case still resolves);
    - `('Ford', entries)` → `'F'`; `('apple', entries)` → `'AAPL'`; `('포드', entries)` → `'F'` (a name typed as a
      name still resolves);
    - `('ford', entries)` → `'F'` (lower-case input is a name here; the alias rule for ticker-shaped input is
      unchanged: it resolves through `en`, not through `alt`).
-2. Change the rule: display names (`en`/`kr`) are matched unless the input is ticker-shaped **and** entirely
-   upper-case letters/digits/symbols (i.e. `text === text.toUpperCase()` and it contains at least one letter). Keep
-   everything else. Update the comment above the function to state the rule.
+2. Change the rule: when the input is ticker-shaped **and** entirely upper-case (`text === text.toUpperCase()`
+   and it contains at least one letter), a display name (`en`/`kr`) matches only if it equals the typed text
+   **exactly, case included**. About forty registry names are themselves all-capital (TSMC→TSM, NAVER, HYBE, LVMH,
+   IDEXX, ONEOK, KLA, MKS, HMM, 3M, SK, LG, KAI …) and must keep resolving: `TSMC` equals the name "TSMC" → `TSM`;
+   `FORD` does not equal "Ford" → `null`. Mixed- or lower-case input keeps today's case-insensitive name match.
+   Update the comment above the function to state the rule.
 3. Check the two callers' behaviour for `FORD`: the 종목 route falls back to the typed symbol (an unknown symbol —
    read what the route shows for an unknown symbol; it should be the existing "not in the universe" state plus
    candidates, not an error) and the AI entity resolver treats it as an unresolved typed symbol. Report what each
@@ -200,6 +205,12 @@ Plan-specific:
    `keywordHit('금융 위기 우려', '위기')` → `true`; `keywordHit('위기감 확산', '위기')` → `true`;
    `classifyNewsTextStance('연말 랠리 분위기, 코스피 강세')` is not `'warn'` (use the real exported names — check
    the module's exports first).
+Notes before editing: `keywordHit` is shared with article selection, topics, Telegram and AI cues, but `'위기'`
+   is a keyword only in `scoring.js` (~24), so an exclusion keyed on it changes stance scoring only (selection calls
+   `classifyNewsTextStance`, so a few stances can change — intended). Put the new test cases in
+   `scripts/ci-esm-core-unit-check.mjs` next to the existing `keywordHit` cases (~5081), **not** in
+   `scripts/fixtures/expect/news-selection.cases.mjs` (that would force an `*.expect.md` regeneration). Do not bump
+   `NEWS_SCORING_MODEL_VERSION`: the rule fixes a false match, it does not change the model.
 2. In `keyword-match.js`, add a small exclusion table for substring keywords — a map from keyword to the longer
    words it must not match inside, starting with `{ '위기': ['분위기'] }` — and apply it in the substring branch:
    a hit counts only if it is not part of an excluded word at that position. Keep the `PATTERNS` cache working
@@ -228,8 +239,10 @@ Per part above.
 
 ## STOP conditions
 
-- A: an existing test requires an all-capital name such as `APPLE` or `TESLA` to resolve to its ticker — report the
-  case (it is the behaviour this plan removes; the reviewer decides).
+- A: an existing test requires an all-capital spelling of a mixed-case name (e.g. `APPLE` for "Apple") to resolve
+  to its ticker — report the case (it is the behaviour this plan removes; the reviewer decides). Before finishing,
+  list every registry entry whose `en` or `kr` name is all-capital and ticker-shaped (extract from
+  `AIO_TICKER_NAME_REGISTRY` in `js/aio-core.js` with a temp script) and confirm each still resolves.
 - A: the 종목 route shows an error (not the unknown-symbol state) for an unresolved typed symbol.
 - B: the matcher is shared with selection keywords in a way that the exclusion changes article selection — report
   how many of the fixture headlines change selection.

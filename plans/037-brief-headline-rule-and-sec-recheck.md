@@ -169,18 +169,35 @@ Never run a `fetch-*.mjs` producer as a script.
    stored headline is the producer's own fallback headline (Korean), not the model's; a headline with one Hangul
    character → fallback; a proper Korean headline → kept. For `briefHeadline`: one Hangul character → the fallback
    branch.
-2. Use `isCleanKoreanTitle` (import it from where it lives; if importing it into `src/` would cross a layering
-   rule, apply the same ≥ 2 Hangul test through the helper `src/` already has for this — search
-   `git grep -n "HANGUL\|가-힣].*가-힣" -- src/domain | head`) in both acceptance points.
+2. `isCleanKoreanTitle` lives in `scripts/producer/market-narrative.mjs` (~279), which `src/` cannot import and
+   which pulls ~30 modules. Apply the gate's own rule — at least two Hangul syllables — at both acceptance points:
+   in `src/domain/briefing/event-briefs.js` `briefHeadline` with a small local test (or an existing `src/` helper —
+   search `git grep -n "HANGUL\|가-힣].*가-힣" -- src/domain | head`), and in `scripts/fetch-event-briefs.mjs`
+   `safeHeadline` with the same test (importing the shared helper from `src/` if you add one). `safeHeadline` is
+   not exported: test the FOMC path by driving `buildEventBriefs` with `{ ...sources, ai: async () => … }` the way
+   the fixture's `fixtureSources.ai` does.
 3. Check what the fallback headline is for each brief kind and that it always passes the gate's rule; print one of
    each in your report.
 
 **Verify**: both brief gates exit 0; the English-headline case fails on the old producer.
 
 ### Part B — a terminal "no annual concepts" row becomes due when a newer periodic filing exists
-1. Read the selection code and write down the order of the filters and what `attemptedAt` and the filing index
-   provide for a symbol without data.
-2. Failing test first (`v59.97`, in the SEC gate that tests selection): a symbol recorded
+1. Read the selection code (~lines 297–345 of `refreshSecFundamentals`: the `dueTargets` map and filter are
+   inline; the only exported selector is `selectSecBatch`, which takes prebuilt rows) and write down the order of
+   the filters. Facts at the planned commit: `periodic.filers` is a map from CIK to the latest periodic filing
+   **date** over the last 7 days, with no form type; `SEC_PERIODIC_FORMS` (~line 48) includes 10-Q/10-QT; the
+   existing `newFiling` test compares with `>=` against a date-only attempt date; IFRS filers use a different
+   terminal reason (`required-ifrs-…`).
+   Decisions for this plan: (a) extract the due test into an exported pure function
+   (e.g. `isSecTargetDue(row, { periodicDate, conceptSetChanged, recheckUnsupported, now })`) and call it from the
+   inline filter — a mechanical extraction; (b) a terminal row of either "annual concepts unavailable" reason
+   (US-GAAP or IFRS) becomes due when the issuer has a periodic filing dated **strictly after** the row's attempt
+   date — any periodic form counts, because the map carries no form type: a 10-Q costs one extra fetch per quarter
+   for such an issuer and is how the first annual facts are eventually found; (c) the retry goes through the normal
+   path (no bypass of the existing 24-hour retry spacing), and a retry that again yields no annual concepts moves
+   `attemptedAt` forward so the same filing date does not trigger again.
+2. Failing test first (`v59.97`, in `scripts/ci-fiscal-quality-fixture.mjs`, next to its `selectSecBatch` cases
+   ~133/218, calling the extracted function): a symbol recorded
    `TERMINAL_UNSUPPORTED` with reason `required-us-gaap-annual-concepts-unavailable` and `attemptedAt` = T, and a
    filing index showing a 10-K (or 20-F/40-F — use the same form list `newFiling` uses) filed after T → the symbol
    is due; the same row with no newer periodic filing → not due; a terminal row with a different reason → not due.
@@ -208,8 +225,8 @@ Per part above.
 
 - A: a fallback headline for some brief kind can itself be non-Korean (e.g. built from an English company name
   alone) — report the kind; the fix then needs a wording decision.
-- B: the selection cannot see a filing date for a symbol without data (no filing index is loaded for it) — report
-  what would have to be fetched; do not add a network call.
+- B: extracting the due test changes which symbols are selected for a fixture that exists today (compare the
+  selected set before and after on the gate's fixtures) — report the difference.
 
 ## Maintenance notes
 
