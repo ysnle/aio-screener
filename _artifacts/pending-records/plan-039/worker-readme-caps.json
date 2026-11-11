@@ -1,0 +1,6 @@
+{
+  "version": "v59.98",
+  "date": "2026-11-11",
+  "changelog": ["**Worker README states the deployed AI caps (v59.98):** `worker/README.md` said `AI_PER_CLIENT_DAILY_CAP` is deployed as 200 and described the per-connection month share and the low-budget search removal as always on; `wrangler.proxy.toml` deploys 1000 (a third of `AI_DAILY_CAP` 3000) and `AI_MONTHLY_BUDGET_MODE = \"target\"`, under which the Worker applies neither. The section now says so."],
+  "note": "v59.98: worker README cap section matches wrangler.proxy.toml and the Worker code"
+}
