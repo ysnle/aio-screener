@@ -1,0 +1,22 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-10",
+  "p": {
+    "title": "v59.97 metric-consistency gate failed when the 시장 상태 axis correctly withheld a stale HY or 10-year input, and its 11/6 replay rode on live rows",
+    "symptom": "With the last two HY OAS observations missing (HY three US sessions behind the S&P close), ci-metric-consistency-check failed 'the credit judgement every reader uses is the 시장 상태 credit axis state — burden vs unknown' and the 매크로 chapter comparison the same way; with the 10-year missing for the last three sessions it failed 'the verdict table has a 10-year 5- and 20-session change' and '연결해서 보면 quotes the same HY change' (+33bp at the pair's 11/5 close vs +23bp at the HY close). The 2026-11-06 replay was skipped silently once that close left the published window, and asserted exact values (breadth +26.8%p, S&P -4.4% on 11/5) on live rows the producer may still repair.",
+    "root_cause": "The gate compared every reader with the axis without the axis's own alignment rule: the axis takes an input only while it is at most two US sessions behind the S&P close (alignInput/isUsable) and is 'unknown' beyond that, while creditJudgement and the 매크로 chapter still date the last observation. The 연결해서 보면 pair reads through the 10-year's last close, so its HY change is the reading at that close, not today's. The gate had only ever run in the states the market was in when it was written, and its one fixed-date replay read the live files.",
+    "fix": "Where the gate compares a reader with an axis, it skips with a printed '[metric-consistency] SKIP <what>: <axis> withheld (input <n> sessions behind <basis>)' line when the axis state is unknown or the input's alignment is not usable (the 10-year readings likewise when the rates axis withholds the 10-year). The pair's HY change is compared at the pair's own close when that close is older than the HY observation. A table-driven block builds synthetic sessions (flat S&P, constructed HY OAS) for favourable, neutral by 20-session widening, 부담 by level, 부담 by five-session speed, 부담 by the 20-session record and stale HY, and asserts creditJudgement, the 시장 상태 credit axis and the 매크로 credit chapter agree (thresholds from RULES.credit; the stale state is skipped with a line). The 11/6 and 11/7 replays read architecture/fixtures/market-close-2026-11-06.json (published rows and observations through the 11/6 close); today's files get the comparisons only.",
+    "violated_rule": "A gate that judges today's data needs the inputs the product passes, a fixture for each state of the fact, and a printed skip when the product itself withholds the input (P2354 class: the gate only ran in the states of the day it was written).",
+    "prevention": "ci-metric-consistency-check v59.97 credit state table (six states); SKIP lines for withheld axes; pinned 11/6 fixture with a check that it holds its close and that the 11/7 week story builds from it.",
+    "verification": "node scripts/ci-metric-consistency-check.mjs exit 0 on the real files; on temp copies with the last two hyOas observations removed and with tnx removed from the rows of the last three US sessions it exits 0 and prints the SKIP lines (both failed before the change with the messages above); with hyDelta5Bp removed from the table's regime inputs the favourable and five-session-speed states fail (neutral vs favorable, neutral vs burden).",
+    "files": [
+      "scripts/ci-metric-consistency-check.mjs",
+      "architecture/fixtures/market-close-2026-11-06.json"
+    ]
+  },
+  "r": null,
+  "changelog": [
+    "**The consistency gate compares only what the product shows ({P}):** a reader is no longer compared with a 시장 상태 axis that withholds a stale HY or 10-year input (the skip is printed), a six-state credit table checks the judgement, the axis and the 매크로 chapter agree in every state, and the 11/6 replay reads a pinned fixture instead of live rows."
+  ],
+  "note": "v59.97: metric-consistency skips withheld axes, credit state table, pinned 11/6 fixture"
+}
