@@ -690,10 +690,11 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   // #13: education and attribution stay; a weight imperative, an "opportunity" call and a cross-clause negation are replaced.
   const gate = (text) => ctx._aioApplyAIActionGate(text, {});
   const kept = ['오닐은 매수가에서 7~8% 하락하면 손절해야 한다고 봤습니다.', '분할 매수를 권장하는 이유는 진입 시점의 오차를 줄이기 위해서입니다.', '이것은 매수 추천이 아닙니다.', '현재는 매수에 우호적이다.', '손절가 150달러', '매수 기회인지 판단하려면 거래량을 함께 봅니다.'];
-  const replaced = ['지금 비중을 늘리세요.', '매수 기회로 보입니다.', '지금 매수하세요, 이것은 지시가 아닙니다.', '반도체 비중을 줄여야 합니다.', '지금은 매수해야 한다고 봅니다.', 'NVDA $100 매수 추천', 'MSFT 비중 20% 확대'];
+  // v59.99 (plan 044, owner decision): '매수 기회로 보입니다.' is an assessment and moved to the v59.99 kept list below.
+  const replaced = ['지금 비중을 늘리세요.', '지금 매수하세요, 이것은 지시가 아닙니다.', '반도체 비중을 줄여야 합니다.', '지금은 매수해야 한다고 봅니다.', 'NVDA $100 매수 추천', 'MSFT 비중 20% 확대'];
   detail('#13 directive gate: attribution/reason/negated sentences are kept',
     kept.every((text) => gate(text).text === text), JSON.stringify(kept.map(gate)));
-  detail('#13 directive gate: weight, opportunity and cross-clause negation directives are replaced',
+  detail('#13 directive gate: weight and cross-clause negation directives are replaced',
     replaced.every((text) => /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text)), JSON.stringify(replaced.map(gate)));
 
   // v58.75 (persona review): price-level method explanations and facts about the reader's own price stay; a priced
@@ -735,6 +736,15 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     tidyKept.every((text) => gate(text).text === text), JSON.stringify(tidyKept.filter((text) => gate(text).text !== text).map(gate)));
   detail('v59.98 directive gate: a held-position dispose instruction is still replaced',
     tidyReplaced.every((text) => /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text)), JSON.stringify(tidyReplaced.map(gate)));
+  // v59.99 (plan 044, owner decision 2026-11-12): an assessment of the situation stays; an order to the reader is replaced.
+  const assessmentKept = ['지금은 현금 보유가 우위인 상황입니다.', '현재는 주식 매수가 부담스러운 구간입니다.', 'NVDA는 천천히 분할 매수하기 좋은 구간입니다.', '매수 기회로 보입니다.', '저가 매수 타이밍으로 읽힙니다.', '비중 확대를 고려할 만한 구간입니다.', '지금은 관망이 낫습니다.', '이 시나리오라면 비중을 줄이는 쪽이 유리합니다.', '지금은 매수하는 게 낫다고 보는 구간입니다.', '분할 매수하는 것이 좋은 국면입니다.'];
+  for (const text of assessmentKept) {
+    detail(`v59.99 directive gate: an assessment stays unchanged (${text})`, gate(text).text === text, JSON.stringify(gate(text)));
+  }
+  const orderReplaced = ['NVDA를 지금 매수하세요.', '지금 사세요.', '비중을 30%로 늘리세요.', '매도를 추천드립니다.', '손절은 178달러에서 하세요.', '지금 매수하는 게 좋습니다.', 'Consider buying NVDA now.', '매수 기회입니다, 지금 매수하세요.'];
+  for (const text of orderReplaced) {
+    detail(`v59.99 directive gate: an order to the reader is still replaced (${text})`, /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text), JSON.stringify(gate(text)));
+  }
 
   // #4: the base-currency what-if module (src/ai/context/portfolio-simulation.js) lost its only consumer in v57.62 and was removed in v58.51;
   // the old chat simulator must stay retired.

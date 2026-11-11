@@ -494,11 +494,11 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     return '\n\n【공개 AI 도우미 분석·행동 경계 — 최우선】\n' +
       '이 AI는 "AI 도우미, 교육/리서치 보조"이며 독립 투자자문·검증 시스템·실시간 주문 도구가 아니다.\n' +
       '교육·시장 원리·상품 구조·규제 영향·법률/세무의 일반 또는 사용자 맥락 분석을 회피하지 마라. 관할·사실관계가 부족하면 합리적 전제를 밝히고 공식 원문·기준일·추가 확인 항목을 제시하라.\n' +
-      '가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다. 다만 "매수하세요"·"매도를 추천"·"비중 N% 확대"처럼 특정 종목에 대한 행동 지시 문장은 쓰지 말고(쓰면 화면에서 문장이 대체된다), 적합성 정보나 근거가 있어도 개인화된 단일 행동 지시로 확정하지 말고 조건별 선택지와 의사결정 체크리스트로 전환하라.\n' +
+      '가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다. 지금 상황을 판단하고 근거가 어느 쪽을 지지하는지와 그 이유를 말하라(예: "현금 보유가 우위인 상황", "매수가 부담스러운 구간", "분할 매수하기 좋은 구간"). 조건이 붙은 시나리오와 말로 된 가능성("가능성이 더 높아 보입니다")은 같은 문장이나 바로 앞 문장에 근거(조건 충족 수·가격 방향·표본 수가 있는 과거 빈도)를 댈 때 쓴다. 다만 "매수하세요"·"매도를 추천드립니다"·"비중을 30%로 늘리세요"처럼 읽는 사람에게 행동을 명령하거나 권하는 문장은 쓰지 마라(쓰면 화면에서 문장이 대체된다).\n' +
       '불법 행위의 구체적 실행법, 실제 주문·계정 변경·외부 전송, 수익 보장만 차단한다. 그 밖의 질문은 답변 전체를 안전 모드로 바꾸지 말고 부족한 현재 주장만 제한하라.\n' +
       '조건, 데이터의 한계, 위험요인, 확인해야 할 원문과 재검증 절차를 설명하라. 현재성 주장은 주입된 근거 블록만 사용하고 기준시각과 Evidence 상태를 명시하라.\n' +
       '현재 수치·출처·기준시각이 주입되지 않았으면 그 수치를 현재 사실로 단정하지 마라. 빠진 자료는 위 [AIO EXTERNAL EVIDENCE CONTRACT]의 누락 자료 규칙대로 다루고 답변 자체를 거부하지 마라.\n' +
-      '최종 판단을 대신하지 마라. 근거·조건·반대 시나리오·무효화 신호를 정리해 사용자가 스스로 결정하도록 넘기고, 어떤 결론도 확정된 지시가 아니라 검토 대상으로 제시하라.\n' +
+      '판단에는 근거·조건·반대 시나리오·무효화 신호를 함께 붙이고, 최종 결정은 사용자가 한다.\n' +
       '보정(calibration) 모델 ID와 검증된 calibration 메타데이터가 주입되지 않은 경우 Bull/Base/Bear·상승/하락 확률을 숫자(%)로 만들거나 추정하지 마라. 확률 대신 조건·반대 가설·확인할 신호를 제시하라.\n';
   }
 
@@ -611,7 +611,9 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     // A price sentence (손절가/목표가 … + a number) followed by a bare imperative that points back at it (그 가격에서, 거기서).
     var priceStatement = /(?:손절가|목표가|매수가|매도가|진입가|익절가)\s*(?:은|는|이|가|:)?\s*(?:\$?\d|[일이삼사오육칠팔구십백천만억]+\s*(?:달러|원))/;
     var referBack = /(?:그\s*가격|그\s*수준|해당\s*(?:가격|수준)|거기)\s*(?:에서|에|으로|로|서)\s*(?:(?:매수|매도|손절|익절|청산|정리|처분|진입)\s*)?(?:하세요|하십시오)/;
-    var opportunity = /(?:매수|매도|진입|매집|저가\s*매수|추가\s*매수)\s*(?:의\s*)?(?:기회|적기|타이밍)\s*(?:로|으로|입니다|이다|라고|가\s*될|일\s*수)/;
+    // A nominalised clause that ends in a zone or situation ("매수하는 게 낫다고 보는 구간입니다") assesses the market, not
+    // the reader's next action; "매수 기회로 보입니다" is an assessment too and is not a family of its own.
+    var zoneAssessment = /^\s*(?:고\s*(?:보는|볼\s*수\s*있는|판단되는|읽히는)\s*)?(?:구간|상황|국면|환경|시점)/;
     var indirect = /(?:다는|라는)\s*것(?:이|은)\s*[^,.]{0,30}(?:원칙|규칙|격언|주장|철학|방식)|(?:한다|하라|해라|하세요|된다|합니다)\s*(?:고|라고|는|라는)\s*(?:봤|보았|했|말했|주장했|강조했|설명했|조언했|권했|가르쳤|규칙|원칙|격언)|(?:라는|이라는|다는)\s*(?:규칙|원칙|격언)|(?:하는|한|권장하는|추천하는|권하는)\s*(?:이유|까닭|배경)/;
     var negated = /(?:아닙니다|아니다|않습니다|않는다|금지|하지\s*마|하지\s*않|제공하지|드리지|지시가\s*아|지시 아님)/;
     // v58.63 (architecture audit A15): English directives are directives too ("You should buy NVDA now." passed untouched).
@@ -619,7 +621,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var englishIndirect = /\b(?:said|argued|wrote|believed|taught|advised|warned)\s+(?:that\s+)?(?:you|investors|traders)\b|\bthe\s+(?:rule|principle|maxim)\s+(?:is|says)\b/i;
     // The price may be digits ("1,050달러", "175~178달러", "7만 원") or Korean number words with a currency ("천오십 달러").
     var pricedImperative = new RegExp('(?:' + action + '|손절가|목표가|매수가|매도가|진입가|익절가)\\s*(?:은|는|을|를)?\\s*(?:\\$?\\d[\\d,.]*(?:\\s*[~\\-–]\\s*\\$?\\d[\\d,.]*)?(?:\\s*(?:천|만|억))?\\s*(?:달러|원)?|[일이삼사오육칠팔구십백천만억]+\\s*(?:달러|원))\\s*(?:에서|에|으로|로|부근에서|근처에서)\\s*(?:하세요|하십시오|하라|두세요|잡으세요|거세요|설정하세요|정하세요|하시기\\s*바랍니다)'); // v58.75: priced imperatives ("손절은 178달러에서 하세요")
-    var patterns = [recommend, imperative, colloquial, weight, opportunity, tickerAction, english, pricedImperative, sizedWeight, allocation, nominalised, colloquialHold, positionImperative, englishSoft];
+    var patterns = [recommend, imperative, colloquial, weight, tickerAction, english, pricedImperative, sizedWeight, allocation, nominalised, colloquialHold, positionImperative, englishSoft];
     // v58.63 (A15): a negation exempts a directive only when it binds to that directive — inside the matched words or right
     // after/before them ("매수를 추천하지 않습니다", "not a buy"). A negation elsewhere in the sentence ("매수하세요 그리고 손절하지
     // 마세요") no longer clears the buy instruction beside it.
@@ -655,7 +657,11 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       // A thousands separator ("1,050달러") does not split a clause.
       return normalise(sentence).trim().split(/(?<!\d)[,，;；]+|[,，;；]+(?!\d{3}(?:\D|$))|\s(?:그러나|하지만|다만|그리고|또한|그러면서|그다음|그\s*후)\s|\s(?:and|but|then)\s/i).some(function(clause) {
         clause = clause.trim();
-        return !!clause && patterns.some(function(re) { return matchesOf(clause, re).some(function(m) { return !bound(clause, m) && !quoted(clause, m); }); });
+        return !!clause && patterns.some(function(re) {
+          return matchesOf(clause, re).some(function(m) {
+            return !bound(clause, m) && !quoted(clause, m) && !(re === nominalised && zoneAssessment.test(clause.slice(m.index + m[0].length)));
+          });
+        });
       });
     };
     var flags = sentences.map(isDirective);
