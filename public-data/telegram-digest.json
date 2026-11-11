@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-11T10:22:24.588Z",
-  "attemptedAt": "2026-11-11T10:22:24.588Z",
-  "lastSuccessfulAt": "2026-11-11T10:22:24.588Z",
+  "generatedAt": "2026-11-11T10:51:44.321Z",
+  "attemptedAt": "2026-11-11T10:51:44.321Z",
+  "lastSuccessfulAt": "2026-11-11T10:51:44.321Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-28T10:22:20.849Z",
-  "until": "2026-11-11T10:22:20.849Z",
+  "since": "2026-10-28T10:51:39.784Z",
+  "until": "2026-11-11T10:51:39.784Z",
   "current24hWindow": {
     "start": "2026-11-09T23:00:00.000Z",
     "end": "2026-11-10T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1293,
-      "freshCount": 20,
-      "eligibleTextCount": 1233,
+      "count": 1296,
+      "freshCount": 40,
+      "eligibleTextCount": 1235,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 69016
+      "lastPostId": 69025
     },
     {
       "channel": "bornlupin",
@@ -113,33 +113,33 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 712,
-      "freshCount": 35,
-      "eligibleTextCount": 711,
+      "count": 711,
+      "freshCount": 17,
+      "eligibleTextCount": 710,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 71963
     }
   ],
-  "count": 2242,
+  "count": 2244,
   "retainedItemCount": 423,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2242,
-    "eligibleTextCount": 2181,
-    "mediaOnlyCount": 61,
-    "mediaAttachedCount": 767,
-    "photoPostCount": 664,
+    "observedCount": 2244,
+    "eligibleTextCount": 2182,
+    "mediaOnlyCount": 62,
+    "mediaAttachedCount": 769,
+    "photoPostCount": 666,
     "documentPostCount": 4,
-    "imageOnlyCount": 3,
-    "highSignalCount": 396,
-    "broadSignalCount": 838,
+    "imageOnlyCount": 4,
+    "highSignalCount": 397,
+    "broadSignalCount": 839,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
     "selectedRawCoveragePct": 17.1,
@@ -147,11 +147,12 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 486,
+    "market-note": 796,
+    "semi": 488,
+    "earnings": 375,
+    "media-only": 61,
     "optical": 34,
-    "market-note": 795,
     "macro": 333,
-    "earnings": 376,
     "geo": 399,
     "kr-market": 102,
     "power": 291,
@@ -160,26 +161,26 @@
     "flows": 61,
     "credit": 89,
     "japan": 70,
-    "media-only": 60,
     "equity": 128,
     "crypto": 3
   },
   "tickerCounts": {
-    "NVDA": 170,
+    "PLTR": 28,
+    "GOOG": 90,
+    "NVDA": 172,
+    "MSFT": 52,
+    "AMZN": 67,
     "LITE": 15,
     "COHR": 4,
     "TSM": 54,
-    "MSFT": 51,
     "BABA": 3,
     "103590.KS": 1,
-    "GOOG": 89,
     "AMD": 49,
     "AVGO": 13,
     "MU": 28,
     "BE": 13,
     "CRWV": 14,
     "TSLA": 34,
-    "AMZN": 66,
     "AAPL": 22,
     "GS": 4,
     "MS": 4,
@@ -198,7 +199,6 @@
     "HIMS": 2,
     "LLY": 4,
     "META": 2,
-    "PLTR": 27,
     "NYT": 1,
     "006400.KS": 3,
     "CAT": 4,
@@ -257,10 +257,10 @@
     "ETSY": 2
   },
   "themes": [
-    "Market Notes (795 posts in 14-day research window): 코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·...",
-    "Semiconductors/Memory (486 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
+    "Market Notes (796 posts in 14-day research window): 코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·...",
+    "Semiconductors/Memory (488 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
     "Geopolitics (399 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
-    "Earnings/Corporate (376 posts in 14-day research window): 코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
+    "Earnings/Corporate (375 posts in 14-day research window): 코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러 상회), 전년 대비 +168% * GAAP EPS: -1.27달러 (조정 EPS 예상 -1.21달러와 직접...",
     "Macro/Rates (333 posts in 14-day research window): 2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물 +0.28%, 러셀2000 선물 +0.51% 수준이며 VIX는 19.28로 -3.15%. 전일 금리 급등과 기술주...",
     "AI Power/Grid (291 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "Equity/Analyst (128 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
@@ -269,17 +269,17 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 170,
+      "count": 172,
       "text": "코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·..."
     },
     {
       "key": "GOOG",
-      "count": 89,
+      "count": 90,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
       "key": "AMZN",
-      "count": 66,
+      "count": 67,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -289,7 +289,7 @@
     },
     {
       "key": "MSFT",
-      "count": 51,
+      "count": 52,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -313,14 +313,14 @@
       "text": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물..."
     },
     {
+      "key": "PLTR",
+      "count": 28,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 9일 > 오후 2시~ 오후 9시 기준 🇺🇸 아메리카 • 미국과 이란이 호르무즈 해협 재개방을 위한 협상을 검토 중인 가운데 트럼프 대통령은 카타르 총리와 회담할..."
+    },
+    {
       "key": "MU",
       "count": 28,
       "text": "2026년 11월 9일 미국 증시 프리마켓 브리핑 엔비디아 CEO 젠슨 황의 혼외관계 인정 및 사과, 이사회 조사 착수 관련 보도가 전해지면서 엔비디아 주가는 야간거래에서 3% 이상 하락. 나스닥 선물도..."
-    },
-    {
-      "key": "PLTR",
-      "count": 27,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 9일 > 오후 2시~ 오후 9시 기준 🇺🇸 아메리카 • 미국과 이란이 호르무즈 해협 재개방을 위한 협상을 검토 중인 가운데 트럼프 대통령은 카타르 총리와 회담할..."
     },
     {
       "key": "AAPL",
@@ -354,7 +354,7 @@
         "credit"
       ],
       "count": 89,
-      "focus": ">>Apple, 7개 트랜치 달러채 발행…1년여 만에 투자등급 채권시장 복귀 •Apple이 1년여 만에 투자등급 채권시장에 복귀해 2~10년 만기의 7개 트랜치 달러채 발행에 나섬. 최장기 채권의 최초 금리..."
+      "focus": "코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로 두 자릿수 초반 마진을 예상보다 빠르게 달성. • 백로그 및 전력 용량 급증. 매출 백로그는 약..."
     },
     {
       "id": "semi",
@@ -362,7 +362,7 @@
       "topics": [
         "semi"
       ],
-      "count": 486,
+      "count": 488,
       "focus": "2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000..."
     },
     {
@@ -425,8 +425,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 376,
-      "focus": "코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로..."
+      "count": 375,
+      "focus": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러 상회), 전년 대비 +168% * GAAP EPS: -1.27달러 (조정 EPS 예상 -1.21달러와 직접..."
     },
     {
       "id": "healthcare",
@@ -470,7 +470,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 795,
+      "count": 796,
       "focus": "코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·..."
     }
   ],
@@ -762,15 +762,17 @@
       "datetime": "2026-11-11T03:46:04.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "earnings"
+        "credit",
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
-      "lead": 1,
       "tickers": [
         "CRWV"
-      ]
+      ],
+      "summary": "코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로..."
     },
     {
       "id": "insidertracking/68964",
@@ -1724,6 +1726,42 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69020",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69020",
+      "datetime": "2026-11-11T10:32:57.000Z",
+      "localDateKst": "2026-11-11",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "로이터에 따르면 미국의 블랙리스트에 오른 중국 대학이 수출 제한에도 불구하고 엔비디아의 H200 반도체를 구매한 것으로 확인됐다는 보도."
+    },
+    {
+      "id": "insidertracking/69019",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69019",
+      "datetime": "2026-11-11T10:28:18.000Z",
+      "localDateKst": "2026-11-11",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 69,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "AMZN"
+      ],
+      "summary": "폴리티코에 따르면 엔비디아의 대중국 반도체 수출 제한을 지지하는 미국 양당의 움직임이 확대되면서 올해 국방 법안에 새로운 수출 통제 조치가 포함될 가능성이 높아지는 상황. • 의회 내 수출 규제 지지 확대:..."
+    },
+    {
       "id": "HANAchina/71963",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71963",
@@ -1995,7 +2033,6 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -2004,8 +2041,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>미 연준·재무부·의회 3중 압박, 골드만삭스 : 2027년 유동성 위기 발생 가능 •골드만삭스는 은행 자산에서 준비금이 차지하는 비중이 약 11%까지 하락해 2019년 유동성 위기 당시 저점보다 소폭 높은..."
+      "summary": ">>미 연준·재무부·의회 3중 압박, 골드만삭스 : 2027년 유동성 위기 발생 가능 •골드만삭스는 은행 자산에서 준비금이 차지하는 비중이 약 11%까지 하락해 2019년 유동성 위기 당시 저점보다 소폭 높은...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21113",
@@ -2057,13 +2095,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "로이터에 따르면 미국 상원 은행위원회의 공화당 고위 의원이 엔비디아 최고경영자(CEO) 젠슨 황의 사임을 공개적으로 요구. 해당 의원은 구체적인 내용을 밝히지 않은 우려 사항을 사임 요구의 근거로 제시.",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "로이터에 따르면 미국 상원 은행위원회의 공화당 고위 의원이 엔비디아 최고경영자(CEO) 젠슨 황의 사임을 공개적으로 요구. 해당 의원은 구체적인 내용을 밝히지 않은 우려 사항을 사임 요구의 근거로 제시."
     },
     {
       "id": "HANAchina/71934",
@@ -2074,13 +2112,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>“DRAM 대부” : TSMC가 DRAM 시장에 진출하는 것은 불가능 •‘DRAM 대부’로 불리는 Zhaojie Technology 회장 겸 YMTC 전 집행회장 고치취안은 로직칩과 DRAM은 완전히 다른...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": ">>“DRAM 대부” : TSMC가 DRAM 시장에 진출하는 것은 불가능 •‘DRAM 대부’로 불리는 Zhaojie Technology 회장 겸 YMTC 전 집행회장 고치취안은 로직칩과 DRAM은 완전히 다른..."
+      ]
     },
     {
       "id": "HANAchina/71933",
@@ -2091,13 +2129,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "•미국 상원 금융위원회 소속 공화당 의원 Kevin Cramer가 엔비디아 CEO 젠슨 황의 사임을 촉구 (POLITICO)",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "•미국 상원 금융위원회 소속 공화당 의원 Kevin Cramer가 엔비디아 CEO 젠슨 황의 사임을 촉구 (POLITICO)"
+      ]
     },
     {
       "id": "insidertracking/68992",
@@ -2106,15 +2144,17 @@
       "datetime": "2026-11-11T03:46:04.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "earnings"
+        "credit",
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
-      "lead": 1,
       "tickers": [
         "CRWV"
-      ]
+      ],
+      "summary": "코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로..."
     },
     {
       "id": "insidertracking/68991",
@@ -2125,6 +2165,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2133,10 +2174,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 엔비디아에 여전히 집중",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 엔비디아에 여전히 집중"
     },
     {
       "id": "insidertracking/68990",
@@ -2146,15 +2187,16 @@
       "localDateKst": "2026-11-11",
       "tags": [
         "japan",
+        "semi",
         "earnings"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": "11월 11일 닛케이225 지수가 3거래일 연속 상승. 최근 큰 폭의 조정을 겪은 AI 관련주에 대해 경제지표와 기업 실적이 일부 낙관론을 되살린 영향. 로이터가 수요일 발표한 조사에 따르면 일본의 11월...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "11월 11일 닛케이225 지수가 3거래일 연속 상승. 최근 큰 폭의 조정을 겪은 AI 관련주에 대해 경제지표와 기업 실적이 일부 낙관론을 되살린 영향. 로이터가 수요일 발표한 조사에 따르면 일본의 11월..."
     },
     {
       "id": "HANAchina/71932",
@@ -2167,11 +2209,11 @@
         "ai-policy",
         "equity"
       ],
-      "lead": 3,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Anthropic IPO 로드쇼 PPT : ‘컴퓨팅’ 49회, ‘안전’ 27회 언급, 매출 1년 만에 12배 증가, 장기 이익률 목표 35% •Anthropic IPO 로드쇼 영상에서 ‘컴퓨팅’이 49회..."
+      "summary": ">>Anthropic IPO 로드쇼 PPT : ‘컴퓨팅’ 49회, ‘안전’ 27회 언급, 매출 1년 만에 12배 증가, 장기 이익률 목표 35% •Anthropic IPO 로드쇼 영상에서 ‘컴퓨팅’이 49회...",
+      "lead": 3,
+      "tickers": []
     },
     {
       "id": "HANAchina/71931",
@@ -2180,16 +2222,14 @@
       "datetime": "2026-11-11T03:05:26.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "score": 64,
       "hasText": true,
+      "summary": ">>(음성) CoreWeave 컨콜 : 2027년 수요가 생산능력의 10배 •CoreWeave는 2027년 말 기준 적격 수요가 가용 생산능력의 10배에 달할 것으로 전망함. 2028년 수요는 아직 상장되지...",
       "tickers": [
         "CRWV"
-      ],
-      "summary": ">>(음성) CoreWeave 컨콜 : 2027년 수요가 생산능력의 10배 •CoreWeave는 2027년 말 기준 적격 수요가 가용 생산능력의 10배에 달할 것으로 전망함. 2028년 수요는 아직 상장되지..."
+      ]
     },
     {
       "id": "insidertracking/68987",
@@ -2200,11 +2240,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
-      "summary": "월스트리트저널의 수석 경제기자이자 ‘연준의 대변인’으로 불리는 닉 티미라오스가 최근 기고문에서 미국의 인플레이션 반등이 연방준비제도(Fed)가 유지하려던 점진적 금리 인상 기조를 흔들고 있다고 분석. 연준...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "월스트리트저널의 수석 경제기자이자 ‘연준의 대변인’으로 불리는 닉 티미라오스가 최근 기고문에서 미국의 인플레이션 반등이 연방준비제도(Fed)가 유지하려던 점진적 금리 인상 기조를 흔들고 있다고 분석. 연준..."
     },
     {
       "id": "insidertracking/68986",
@@ -2215,6 +2255,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2223,10 +2264,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "악시오스에 따르면 미국 상무부가 하워드 러트닉 상무장관에게 엔비디아 CEO 젠슨 황과 중국 정보기관을 위해 활동한 것으로 미국 정보당국이 의심하는 사업가 앨리스 황의 관계를 경고하는 최고 기밀 정보 메모를...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "악시오스에 따르면 미국 상무부가 하워드 러트닉 상무장관에게 엔비디아 CEO 젠슨 황과 중국 정보기관을 위해 활동한 것으로 미국 정보당국이 의심하는 사업가 앨리스 황의 관계를 경고하는 최고 기밀 정보 메모를..."
     },
     {
       "id": "HANAchina/71927",
@@ -2235,7 +2276,6 @@
       "datetime": "2026-11-11T02:03:00.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "credit",
         "ai-policy",
         "equity"
       ],
@@ -2247,8 +2287,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>1조 달러 vs 1조4,000억 달러? Anthropic IPO 밸류에이션의 비밀 곧 밝혀질 전망 (중국언론) •밸류에이션 논란의 핵심은 산정 기준의 차이에 있음. 유통주식 기준 기업가치는 약 1조 달러,..."
+      "summary": ">>1조 달러 vs 1조4,000억 달러? Anthropic IPO 밸류에이션의 비밀 곧 밝혀질 전망 (중국언론) •밸류에이션 논란의 핵심은 산정 기준의 차이에 있음. 유통주식 기준 기업가치는 약 1조 달러,...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71925",
@@ -2261,8 +2301,9 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스는 12월 25bp 인상 전망 유지, 내년 3월 한 차례 추가 인상 •미국 10월 CPI가 예상치를 상회, 근원 CPI는 전월비 0.3% 상승했음. 골드만삭스는 이에 따라 연준의 금리 인상 전망을..."
+      "summary": ">>골드만삭스는 12월 25bp 인상 전망 유지, 내년 3월 한 차례 추가 인상 •미국 10월 CPI가 예상치를 상회, 근원 CPI는 전월비 0.3% 상승했음. 골드만삭스는 이에 따라 연준의 금리 인상 전망을...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21107",
@@ -5980,24 +6021,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/68683",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68683",
-      "datetime": "2026-11-08T09:44:50.000Z",
-      "localDateKst": "2026-11-08",
-      "tags": [
-        "semi"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": "11월 8일 보도에 따르면, 세계 최대 반도체 파운드리 업체 TSMC가 메모리 반도체 제조 분야로 사업 확장을 추진하기 위해 최근 첨단 메모리 반도체 생산 계획 수립에 착수. 이번 계획은 최대 고객사인...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "TSM"
-      ]
-    },
-    {
       "id": "HANAchina/71757",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71757",
@@ -6031,26 +6054,6 @@
       "hasText": true,
       "summary": ">>노무라 “블루 웨이브로 미국 데이터센터 타격, 중국 AI는 오히려 수혜” •노무라는 ‘블루 웨이브’에 따른 규제 강화로 미국 데이터센터 건설이 둔화되면서 글로벌 AI 칩 가격이 하락하고, 중국 기업의 고급...",
       "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/68681",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68681",
-      "datetime": "2026-11-08T08:07:30.000Z",
-      "localDateKst": "2026-11-08",
-      "tags": [
-        "semi"
-      ],
-      "score": 57,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "DRAM 공급/수요 전망 회색 막대 — 공급량(Global DRAM Supply) * 전 세계에서 생산·공급되는 DRAM의 양 하늘색 막대 — 수요량(Global DRAM Demand) * 전 세계에서 필요로...",
       "tickers": []
     },
     {
