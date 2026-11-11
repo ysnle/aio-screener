@@ -886,7 +886,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   const principlesPlain = buildAnswerPrinciples({ today: '2026-10-13', mode: 'explain', liveStatus: 'ok' });
   const principlesStock = buildAnswerPrinciples({ today: '2026-10-13', mode: 'decision', hasTickers: true, webSearch: true, liveStatus: 'ok', snapAgeHours: 80 });
   check('P1740 principles follow the question and state the real web-search decision',
-    !/종목 질문 규칙/.test(principlesPlain) && /웹검색: 사용하지 않음/.test(principlesPlain) && /종목 질문 규칙/.test(principlesStock) && /필요한 축만/.test(principlesStock)
+    !/종목 질문 규칙/.test(principlesPlain) && /웹검색: 사용하지 않음/.test(principlesPlain) && /종목 질문 규칙/.test(principlesStock) && !/\n4\. /.test(principlesStock)
     && /웹검색: 이번 답변에서 사용/.test(principlesStock) && /정적 데이터: 80시간/.test(principlesStock) && /buildAnswerPrinciples\(\{ today: _todayStr, mode: _uniMode/.test(chat));
   // v57.92 (internal audit A07/A08): an unknown file age is not "999시간", each value is judged by its own date, and a
   // news/price mismatch compares the market before naming a cause.
@@ -921,6 +921,53 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     && kinds({ query: '삼성전자 실적', mode: 'analysis', tickers: ['005930.KS'] }) === 'price'
     && kinds({ query: 'NVDA 주가 얼마야', mode: 'quick', tickers: ['NVDA'] }) === '');
   check('P1741 the unified panel draws figures only after the blocked-answer return', unified.indexOf('attachAnswerVisuals') > unified.indexOf('_publicGate && _publicGate.blocked === true'));
+}
+
+// v59.99 (plan 042): the assembled unified-chat prompt states each decision once — missing data in the evidence tail,
+// the answer shape in answerModeGuide, no fixed character cap, no "not a generic LLM" identity line.
+const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).loadChatPromptKit();
+{
+  const { PROMPT_FIXTURE_QUESTIONS } = await import('./fixtures/chat-prompt-assembly.mjs');
+  const tailMarker = '\n\n[AIO EXTERNAL EVIDENCE CONTRACT]';
+  for (const fixture of PROMPT_FIXTURE_QUESTIONS) {
+    const assembled = promptKit.assemble(fixture.query, fixture.ctxId);
+    const count = (needle) => assembled.prompt.split(needle).length - 1;
+    check(`v59.99 ${fixture.id}: one missing-data rule (${count('누락 자료 규칙:')}), one answer-shape block (${count('【이번 답변의 형태 — mode=')}), no 2,500자 cap`,
+      count('누락 자료 규칙:') === 1 && count('【이번 답변의 형태 — mode=') === 1 && !assembled.prompt.includes('2,500자'));
+    check(`v59.99 ${fixture.id}: the missing-data rule is in the evidence tail that trimming keeps`,
+      assembled.prompt.lastIndexOf(tailMarker) >= 0 && assembled.prompt.indexOf('누락 자료 규칙:') > assembled.prompt.lastIndexOf(tailMarker));
+    check(`v59.99 ${fixture.id}: no second shape or identity statement (coverage mode=, response_diversity_rule, answer_contract, generic-LLM line)`,
+      !/\nmode=/.test(assembled.prompt) && !assembled.prompt.includes('response_diversity_rule') && !assembled.prompt.includes('answer_contract') && !assembled.prompt.includes('not a generic LLM'));
+  }
+}
+
+// v59.99 (plan 042): routing — a concept explanation reasons at low effort, a quick fact stays at none; hosted search is
+// optional for a question that does not depend on today's values and required for a current fact; news carries 8 items.
+{
+  const effort = (query) => promptKit.route(query, 'home');
+  for (const query of ['감마 스퀴즈가 뭐야?', '듀레이션이 뭐야?']) {
+    const routed = effort(query);
+    check(`v59.99 "${query}" is an explain answer at reasoning effort low (${routed.mode}/${routed.reasoningEffort}), tokens unchanged (${routed.maxTokens})`, routed.mode === 'explain' && routed.reasoningEffort === 'low' && routed.maxTokens === 8000);
+  }
+  const quick = effort('테슬라 PER 얼마야?');
+  check(`v59.99 "테슬라 PER 얼마야?" stays quick at effort none (${quick.mode}/${quick.reasoningEffort})`, quick.mode === 'quick' && quick.reasoningEffort === 'none' && quick.maxTokens === 4000);
+  const concept = promptKit.assemble('감마 스퀴즈는 왜 생겨?', 'home');
+  check(`v59.99 a concept question with search attached lets the model choose (${concept.webSearch}/${concept.toolChoice})`, concept.webSearch === true && concept.questionPlan.researchDecision.currentSensitive === false && concept.toolChoice === 'auto');
+  const asked = promptKit.assemble('What is a bond yield? search the web', 'home');
+  check(`v59.99 an explicit search request still searches (${asked.toolChoice})`, asked.webSearch === true && asked.toolChoice === 'required');
+  const current = promptKit.assemble('엔비디아 오늘 왜 떨어졌어?', 'home');
+  check(`v59.99 "엔비디아 오늘 왜 떨어졌어?" must search (${current.toolChoice})`, current.webSearch === true && current.toolChoice === 'required');
+  const unsaid = promptKit.nativeSearch.attachNativeSearch({ reasoning: { effort: 'none' } }, { enabled: true, health: { ai: { paidWebSearchEnabled: true } } });
+  check('v59.99 a caller that does not say keeps the required search', unsaid.tool_choice === 'required');
+  const status = promptKit.nativeSearch.searchStatusText;
+  check('v59.99 an answer with no citations is not reported as a searched answer',
+    !/웹검색으로 보강해/.test(status({ attached: true, citationCount: 0 })) && /웹검색으로 보강해/.test(status({ attached: true, citationCount: 2 })) && /늦어/.test(status({ attached: false })));
+  const news = promptKit.newsBlock('시장 흐름', 'home');
+  const items = (news.raw.match(/^\d+\. \[/gm) || []).length;
+  check(`v59.99 the news block holds 8 long items within 6,000 characters (${items} items, ${news.raw.length} chars) and its wrapper does not cut it`,
+    items === 8 && news.raw.length <= 6000 && /kind=NEWS/.test(news.wrapped) && !/length-capped/.test(news.wrapped));
+  const longer = promptKit.newsBlock('시장 흐름', 'home', promptKit.longNewsItems(12));
+  check(`v59.99 more fresh news than the cap still sends at most 8 items (${(longer.raw.match(/^\d+\. \[/gm) || []).length})`, (longer.raw.match(/^\d+\. \[/gm) || []).length === 8);
 }
 
 // Owner 2026-10-14: saved conversations — nothing stored before consent, one conversation across screens, reopen restores

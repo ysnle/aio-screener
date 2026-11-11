@@ -3487,13 +3487,12 @@
     var covSample708 = typeof window._buildChatAnswerCoverageContext === 'function'
       ? window._buildChatAnswerCoverageContext('fundamental', 'NVDA latest earnings valuation risk', { tickerData:true, trendData:true, deepData:true, webSearch:true, news:true, freshness:true })
       : '';
-    _assert('T708 chat_answer_coverage_contract_v49106: answer modes and current-data contract injected',
-      (covSrc708.indexOf('AI Answer Coverage + Current Data Contract v49.106') >= 0 || covSrc708.indexOf('AI Answer Coverage + Current Data Contract v49.108') >= 0) &&
-        covSrc708.indexOf('decision memo') >= 0 &&
-        covSrc708.indexOf('ranked comparison') >= 0 &&
-        covSrc708.indexOf('valuation memo') >= 0 &&
-        covSrc708.indexOf('current_data_rule') >= 0 &&
-        covSample708.indexOf('mode=') >= 0,
+    // The answer shape is stated once, by answerModeGuide; the coverage block carries only data axes and the current-data rule.
+    _assert('T708 v59.99 chat_answer_coverage_contract: coverage axes and current-data contract injected, no second answer shape',
+      !!covSrc708 && covSample708.indexOf('required_axes=') >= 0 &&
+        covSample708.indexOf('current_data_rule') >= 0 &&
+        covSample708.indexOf('mode=') < 0 &&
+        covSample708.indexOf('response_diversity_rule') < 0,
       'coverageFn=' + !!covSrc708 + ' sample=' + covSample708.slice(0, 80));
 
     var classifySrc709 = typeof window._classifyChatIntent === 'function' ? window._classifyChatIntent.toString() : '';
@@ -6238,11 +6237,9 @@
         pipe828.some(function(r){ return r.key === 'newsFilings' && r.kind === 'qual'; }) &&
         pipe828.some(function(r){ return r.key === 'macroRatesFx' && r.pages && r.pages.indexOf('macro') >= 0; }) &&
         ctx828.indexOf('AIO Integrated Answer Pipeline v50.60') >= 0 &&
-        ctx828.indexOf('not a generic LLM') >= 0 &&
-        ctx828.indexOf('현재 시장') >= 0 &&
-        ctx828.indexOf('Quantitative answer') >= 0 &&
-        ctx828.indexOf('Qualitative answer') >= 0 &&
-        ctx828.indexOf('Page linkage') >= 0 &&
+        ctx828.indexOf('pipeline_layers=') >= 0 && // data lines only; the answer shape is answerModeGuide's
+        ctx828.indexOf('related_pages') >= 0 &&
+        ctx828.indexOf('answer_contract') < 0 &&
         ctx828.indexOf('스크리너') >= 0 && // v59.70: route-registry screen name (was 퀀트 스크리너)
         ctx828.indexOf('종목, 차트') >= 0 && // v58.73 separator; v57.55: current screen names (was 차트·기술 분석)
         ctx828.indexOf('오늘, 브리핑') >= 0 && // v59.70: route-registry name (was 브리핑·뉴스)
