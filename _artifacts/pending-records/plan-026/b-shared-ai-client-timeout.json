@@ -1,0 +1,20 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.97 the Actions shared-AI client waits past the Worker's 60 s deadline for a non-search call",
+    "symptom": "A non-search shared-AI request from GitHub Actions (market reading, headline translation fallback, slot summary) that took 30 to 60 s was aborted by the producer as provider-timeout, while the Worker, which allows that request 60 s, kept its full budget reservation for a response OpenAI may still complete and bill.",
+    "root_cause": "SHARED_AI_TIMEOUT_MS.analysis was 30 s, shorter than the Worker's 60 s non-search deadline (openAiDeadlineMs); only the search timeout followed the rule that the client outwaits the Worker.",
+    "fix": "SHARED_AI_TIMEOUT_MS.analysis is 65 s, a few seconds past the Worker's 60 s deadline, and the comment states the rule for both keys (60 s non-search, 120 s search).",
+    "violated_rule": "A client timeout on a budgeted Worker call must outlast the Worker's own deadline so the Worker answers first.",
+    "prevention": "ci-data-pipeline-contract-check v59.97 asserts SHARED_AI_TIMEOUT_MS.analysis > 60000 and search > 120000 (the Worker deadline constants are not exported, so the cross-file comparison is not made).",
+    "verification": "node scripts/ci-data-pipeline-contract-check.mjs exit 0; the refresh job makes at most 4 analysis-timeout calls a run (headline translation fallback 1, market reading 1 + 1 retry, slot summary 1), a worst-case added wait of about 140 s against timeout-minutes 45.",
+    "files": [
+      "scripts/lib/ai-shared-analysis.mjs",
+      "scripts/ci-data-pipeline-contract-check.mjs"
+    ]
+  },
+  "r": null,
+  "changelog": ["**Actions AI client outwaits the Worker ({P}):** a non-search shared-AI call from the refresh job now waits 65 s instead of 30 s, past the Worker's 60 s deadline, so a slow answer is received instead of abandoned while its budget reservation stays held."],
+  "note": "v59.97: shared-AI analysis timeout 65 s"
+}
