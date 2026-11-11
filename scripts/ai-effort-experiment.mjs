@@ -46,7 +46,8 @@ async function runVariant({ effort, maxOutputTokens }) {
     const body = { model: SHARED_AI_MODEL, input: [{ role: 'user', content: prompt }], max_output_tokens: maxOutputTokens, reasoning: { effort }, store: false, stream: false };
     // Medium reasoning runs under the Worker's 180 s deadline; the client waits just past it.
     const result = await requestSharedText(body, { purpose: 'market-analysis', timeoutMs: effort === 'none' ? SHARED_AI_TIMEOUT_MS.analysis : 185000 });
-    calls.push({ ms: Date.now() - started, promptChars: prompt.length, ok: !!result.text, reason: result.reason || null, usage: result.usage || null, chars: result.text ? result.text.length : 0 });
+    // Every attempt's text is kept (rejected ones too) so a validator reason can be read against the sentence it judged.
+    calls.push({ ms: Date.now() - started, promptChars: prompt.length, ok: !!result.text, reason: result.reason || null, usage: result.usage || null, chars: result.text ? result.text.length : 0, text: result.text || null });
     return result;
   };
   let reading;
