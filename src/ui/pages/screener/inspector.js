@@ -142,7 +142,7 @@ export function createInspectorController(ctx) {
          const moveNode = documentRef.getElementById('scr-why-move');
          const whyRet1m = readRowNumber(row, 'ret1m', 'display');
          if (moveNode) moveNode.textContent = whyRet1m == null ? '' : `1개월 ${returnText(whyRet1m)}`;
-         if (moveNode) moveNode.className = `scr-why-move ${whyRet1m == null ? '' : whyRet1m >= 0 ? 'sx-up' : 'sx-down'}`;
+         if (moveNode) moveNode.className = `scr-why-move ${({ up: 'sx-up', down: 'sx-down' })[directionOf(whyRet1m, 1)] || ''}`;
          const benchmark = rowMarket === 'US' ? (inspectState.rows || []).find((item) => item?.sym === 'SPY') || null : null;
          const sameSession = !!benchmark && !!row.factorSessionDate && String(benchmark.factorSessionDate || '').slice(0, 10) === String(row.factorSessionDate).slice(0, 10);
          const excessOf = (key) => {

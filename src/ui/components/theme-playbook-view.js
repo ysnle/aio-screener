@@ -52,7 +52,7 @@ import { closeChipText, frameHead, markFrame, setAsOf } from './section-frame.js
 import { openThemeDetail } from '../navigation/theme-detail.js';
 import { NOTE_TITLES, researchForTheme } from '../../domain/knowledge/theme-research-links.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, directionOf } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { themeCriteria, memberRoles, roleExamples, themeScenarioSplit } from '../../domain/scenarios/theme-criteria.js';
 import { CONSENSUS_KEY, requestConsensusEstimates } from '../../data/consensus-estimates.js';
@@ -60,6 +60,8 @@ import { EARNINGS_CALENDAR, MACRO_HISTORY, SCENARIO_STATE } from '../../data/art
 
 const SVG = 'http://www.w3.org/2000/svg';
 const pct = (value) => (value == null ? '—' : `${signedText(value, 1)}%`);
+// The colour class follows the sign pct prints: a value that rounds to 0.0% is neither up nor down.
+const dirClass = (value) => ({ up: 'is-up', down: 'is-down' })[directionOf(value, 1)] || '';
 const mkt = (row) => (row.market === 'KR' ? '한국' : '미국'); // v57.54: '국내' read as ambiguous on a US-first screen
 function svg(doc, tag, attrs = {}) {
   const node = doc.createElementNS(SVG, tag);
@@ -448,7 +450,7 @@ function renderThemeStrengthMap(doc, root, playbook, interpretation) {
     col.append(list);
     return col;
   };
-  const retRow = (row) => [name(row), pct(row.ret1m), row.ret1m == null ? '' : row.ret1m >= 0 ? 'is-up' : 'is-down', fact(row)];
+  const retRow = (row) => [name(row), pct(row.ret1m), dirClass(row.ret1m), fact(row)];
   const cols = el(doc, 'div', null, 'thp-cols');
   cols.append(
     // v58.80 (first-users F11): "강한 쪽, 1개월: 헬스케어 +5.6%" sat above a sector table led by energy +10.8%; the column is
@@ -632,7 +634,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
       const drift = row.stateLabel && row.state ? row.stateLabel.split(' (')[0].split(', ').slice(1).join(', ') : '';
       if (drift) stageCellRow.append(el(doc, 'span', drift, 'tp-row-drift'));
       const trend = row.ret6m ?? row.ret3m;
-      const num = (value, suffix = '') => el(doc, 'td', value == null ? '—' : `${pct(value)}${suffix}`, `is-num${value == null ? '' : value >= 0 ? ' is-up' : ' is-down'}`);
+      const num = (value, suffix = '') => el(doc, 'td', value == null ? '—' : `${pct(value)}${suffix}`, `is-num${dirClass(value) ? ` ${dirClass(value)}` : ''}`);
       const trendCell = num(trend);
       if (trend != null) trendCell.append(el(doc, 'span', row.ret6m != null ? ' 6개월' : ' 3개월', 'tp-row-window'));
       const breadthCell = el(doc, 'td', null, 'is-num tp-row-breadth');

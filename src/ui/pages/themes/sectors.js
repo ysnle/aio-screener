@@ -283,8 +283,9 @@ export function renderThemePerformanceBars({ documentRef, root, store, route }) 
     if (row.pct != null) {
       const bar = documentRef.createElement('span');
       const width = `${Math.abs(row.pct) / maxAbs * 45}%`;
-      bar.className = `thp-perf-bar ${row.pct >= 0 ? 'thp-perf-bar--up' : 'thp-perf-bar--down'}`;
-      bar.style.marginLeft = row.pct >= 0 ? '50%' : `calc(50% - ${width})`;
+      const dir = directionOf(row.pct, mode === '1d' || mode === '1w' ? 2 : 1);
+      bar.className = `thp-perf-bar${dir === 'up' ? ' thp-perf-bar--up' : dir === 'down' ? ' thp-perf-bar--down' : ''}`;
+      bar.style.marginLeft = dir === 'down' ? `calc(50% - ${width})` : '50%';
       bar.style.width = width;
       track.appendChild(bar);
     }

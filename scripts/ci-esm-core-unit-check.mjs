@@ -7597,3 +7597,51 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const left = ['aio:refresh:done', 'aio:liveDataReceived'].reduce((sum, type) => sum + (listeners.get(type)?.size || 0), 0);
   if (typeof dispose !== 'function' || left) fail(`v59.94 the screener's window refresh listeners are removed on teardown (left ${left})`);
 }
+
+// A value that rounds to zero at the digits a site prints carries no sign and no up/down class; a real move keeps both.
+{
+  const { createFakeDocument } = await import(pathToFileURL(path.join(root, 'scripts/lib/fake-dom.mjs')).href);
+  const { createInspectorController } = await load('src/ui/pages/screener/inspector.js');
+  const { renderPortfolioBacktestLab } = await load('src/ui/components/portfolio-backtest-lab.js');
+  const { renderBacktest } = await load('src/ui/pages/screener/validation-tab.js');
+  const probes = (digits) => { const tiny = 0.4 * 10 ** -digits; return { flat: [0, -tiny, tiny], up: 1.26, down: -1.26 }; };
+  const inspectorMove = (ret1m) => {
+    const doc = createFakeDocument();
+    const row = { sym: 'AAA', name: 'A', ret1m, ret3m: 5, factorSessionDate: '2026-11-09', screenStatus: 'passed', instrumentRef: { market: 'US', currency: 'USD' } };
+    const ctx = { documentRef: doc, root: {}, store: createStore({ initialState: { screener: { rows: [row] } } }), bag: createResourceBag(), actions: [],
+      liveReader: () => null, watchlistReader: () => [], profileReader: () => null, selectedSymbols: new Set(), compareSymbols: new Set() };
+    createInspectorController(ctx);
+    ctx.renderWhyDrawer(row);
+    const node = doc.getElementById('scr-why-move');
+    return { text: node.textContent, up: node.classList.contains('sx-up'), down: node.classList.contains('sx-down') };
+  };
+  const labActive = (pct) => {
+    const out = {};
+    renderPortfolioBacktestLab({ ok: true, performance: { activeReturn: pct / 100, informationRatio: 0.5, trackingError: 0.02 }, settings: {}, warnings: [] }, { root: {}, documentRef: { getElementById: () => out } });
+    const [, cls = '', text = ''] = String(out.innerHTML).match(/Active \/ IR<\/div><div class="wsl-bt-kpi-v ([\w-]*)">([^<]*)</) || [];
+    return { text, up: cls === 'is-up', down: cls === 'is-loss', cls };
+  };
+  const icBar = (value) => {
+    const doc = createFakeDocument();
+    renderBacktest(doc, { backtest: { ic: { momentum: value, composite: 0.01 } } }, {}, []);
+    const bars = doc.getElementById('screener-backtest-panel').children.find((node) => node.classList.contains('scr-ic-bars'));
+    const line = bars.children[0];
+    const fill = line.children[1].children[0];
+    return { text: line.children[2].textContent, up: fill.classList.contains('is-up'), down: fill.classList.contains('is-down'), width: fill.style.width };
+  };
+  const sites = [
+    ['screener inspector 1-month move', inspectorMove, 1, 1, (t) => t.replace(/^1개월 /, '')],
+    ['portfolio backtest active return', labActive, 2, 1, (t) => t.split(' / ')[0]],
+    ['screener validation IC bar', icBar, 3, 0.1, (t) => t]
+  ];
+  for (const [label, read, digits, scale, printed] of sites) {
+    const { flat, up, down } = probes(digits);
+    for (const value of flat) {
+      const got = read(value);
+      if (got.up || got.down || /^[+-]/.test(printed(got.text)) || (got.width && got.width !== '0%')) fail(`v59.97 the ${label} prints a value that rounds to zero flat, with no sign or up/down class (${value}): ${JSON.stringify(got)}`);
+    }
+    const rising = read(up * scale), falling = read(down * scale);
+    if (!rising.up || rising.down || /^-/.test(printed(rising.text))) fail(`v59.97 a rising ${label} keeps its rising class: ${JSON.stringify(rising)}`);
+    if (!falling.down || falling.up || !/^-/.test(printed(falling.text))) fail(`v59.97 a falling ${label} keeps its minus sign and falling class: ${JSON.stringify(falling)}`);
+  }
+}

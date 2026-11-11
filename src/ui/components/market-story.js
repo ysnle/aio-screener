@@ -27,7 +27,7 @@ function bars(doc, story) {
     line.dataset.group = row.group;
     line.append(el(doc, 'span', row.label, 'briefing-move-label'),
       signedTrack(doc, [signedFill(doc, row.pct, max, { className: row.group === 'other' ? 'is-other' : '' })], 'briefing-move-track'),
-      el(doc, 'span', `${row.pct > 0 ? '+' : ''}${row.pct.toFixed(1)}%`, 'briefing-move-value'));
+      el(doc, 'span', signedText(row.pct, 1, '%'), 'briefing-move-value'));
     wrap.append(line);
   }
   return wrap;

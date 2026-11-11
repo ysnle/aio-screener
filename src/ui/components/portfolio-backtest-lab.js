@@ -3,10 +3,12 @@
 // unchanged. runPortfolioBacktestLab in js/aio-workspace.js still fetches the history, runs the engine and calls
 // window._aioRenderPortfolioBacktestLab; src/app/legacy-screen-bridges.js installs it and window.varCertLabel.
 import { escapeHtml as esc } from '../html.js';
-import { signedText } from '../../domain/shared/number.js';
+import { signedText, directionOf } from '../../domain/shared/number.js';
 
 // The shared sign rule: a value that rounds to zero prints no sign.
 const fmtPct = (v, d) => (typeof v === 'number' && isFinite(v) ? signedText(v * 100, d == null ? 2 : d, '%') : '—');
+// The active-return colour follows the sign fmtPct prints (2 decimals of a percent).
+const activeClass = (v) => ({ up: 'is-up', down: 'is-loss' })[directionOf(typeof v === 'number' ? v * 100 : null, 2)] || 'is-plain';
 function fmtNum(v, d) {
   if (v === null || v === undefined || !isFinite(v)) return '—';
   return Number(v).toFixed(d == null ? 2 : d);
@@ -113,7 +115,7 @@ export function renderPortfolioBacktestLab(model, { documentRef = globalThis.doc
       '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">CAGR</div><div class="wsl-bt-kpi-v ' + (p.cagr >= p.benchmarkCagr ? 'is-ahead' : 'is-behind') + '">' + fmtPct(p.cagr) + '</div><div class="wsl-sub">bench ' + fmtPct(p.benchmarkCagr) + '</div></div>' +
       '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">Max Drawdown</div><div class="wsl-bt-kpi-v is-loss">' + fmtPct(-p.maxDrawdown) + '</div><div class="wsl-sub">worst underwater path</div></div>' +
       '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">Sharpe / Sortino</div><div class="wsl-bt-kpi-v is-plain">' + fmtNum(p.sharpe) + ' / ' + fmtNum(p.sortino) + '</div><div class="wsl-sub">RF ' + fmtPct(model.settings.rfAnnual, 1) + '</div></div>' +
-      '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">Active / IR</div><div class="wsl-bt-kpi-v ' + (p.activeReturn >= 0 ? 'is-up' : 'is-loss') + '">' + fmtPct(p.activeReturn) + ' / ' + fmtNum(p.informationRatio) + '</div><div class="wsl-sub">tracking error ' + fmtPct(p.trackingError) + '</div></div>' +
+      '<div class="wsl-bt-kpi"><div class="wsl-bt-kpi-l">Active / IR</div><div class="wsl-bt-kpi-v ' + activeClass(p.activeReturn) + '">' + fmtPct(p.activeReturn) + ' / ' + fmtNum(p.informationRatio) + '</div><div class="wsl-sub">tracking error ' + fmtPct(p.trackingError) + '</div></div>' +
     '</div>' +
     '<div class="wsl-bt-tables">' +
       '<div class="wsl-bt-scroll"><div class="wsl-head">Performance Summary</div><table class="wsl-bt-tbl"><thead><tr class="wsl-bt-hrow"><th class="wsl-bt-c is-l">Metric</th><th class="wsl-bt-c is-r">Portfolio</th><th class="wsl-bt-c is-r">Benchmark</th></tr></thead><tbody>' + metricHtml + '</tbody></table></div>' +
