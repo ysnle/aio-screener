@@ -110,7 +110,7 @@ function concentrationOf(m) {
 // 5거래일 column of the verdict table); the FRED legs only split it into real yield and inflation expectations.
 // The 10-year window is the rates axis's own: `sessions` closes back from the 10-year's last close on or before `to`,
 // read only while that close is within the axis's lag. A 10-year two sessions behind the S&P 500 therefore prints the
-// axis's 5-session change dated by its own close, and the FRED legs split that same window.
+// axis's 5-session change dated by its own close, and the FRED legs split that same span of sessions.
 function tenYearSpan(history, sessions, to) {
   const change = closeChange(history, 'tnx', sessions, { through: to });
   if (!change || !isUsable(alignInput(change.to.date, to))) return null;
