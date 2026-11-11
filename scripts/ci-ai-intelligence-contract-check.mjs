@@ -716,6 +716,18 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   for (const text of priceShapeReplaced) {
     detail(`v59.94 directive gate: comma/unit/range priced instruction is replaced (${text})`, priceShapeGone(text), JSON.stringify(gate(text)));
   }
+  // v59.97: nominalised and sized recommendations, colloquial and two-sentence instructions, markdown emphasis, a soft
+  // line break and Korean number words passed the gate unchanged.
+  const spellingReplaced = ['NVDA를 매수하는 것을 추천합니다.', 'NVDA를 매수하시길 권합니다.', 'NVDA를 매수할 것을 권합니다.', 'NVDA 비중을 30%로 늘리세요.', 'NVDA 비중을 20%까지 확대하세요.', '포트폴리오의 30%를 NVDA에 배분하세요.', 'NVDA **매수**를 추천합니다.', '**NVDA 매수**를 추천합니다.', 'NVDA를 지금 사두세요.', '보유 물량을 모두 처분하세요.', 'NVDA를 손절하는 게 맞습니다.', '손절가는 1,050달러입니다. 그 가격에서 정리하세요.', 'NVDA를 매수\n하세요.', '손절은 천오십 달러에서 하세요.', 'Consider buying NVDA now.'];
+  const spellingGone = (text) => { const out = gate(text).text; return /개별 매매 지시는 제공하지 않습니다/.test(out) && !/NVDA|\d|천오십/.test(out.replace(/\[개별 매매 지시는 제공하지 않습니다[^\]]*\]/g, '')); };
+  for (const text of spellingReplaced) {
+    detail(`v59.97 directive gate: instruction spelling is replaced (${JSON.stringify(text)})`, spellingGone(text), JSON.stringify(gate(text)));
+  }
+  const spellingKept = ['오닐은 7~8% 손실에서 손절해야 한다고 봤습니다.', '매수를 추천하지 않습니다.', '1,050달러에서 손절하라는 뜻은 아닙니다.', '50일선은 1,050달러 부근입니다.', '1,050달러를 이탈하면 추세가 약해집니다.', '분할 매수는 평균 단가를 낮추지만 하락이 이어지면 손실이 커집니다.', 'NVDA 비중이 30%로 늘었습니다.', '지수에서 NVDA 비중은 7%입니다.',
+    // one close analysis sentence per new family
+    '매수하는 것이 좋은지 판단하려면 거래량을 함께 봅니다.', 'NVDA를 매수하는 것을 추천하지 않습니다.', '지수 편입 비중을 30%로 늘렸습니다.', '연기금은 자산의 30%를 해외 주식에 배분했습니다.', '근거를 정리하세요.', '관심 질문을 스스로에게 던지세요.', '손절가는 1,050달러입니다. 그 가격에서 거래량이 늘었습니다.', '목표가는 1,200달러입니다. 그 수준이 맞는지 확인하세요.', '요약\n시장은 금리 방향을 보고 있습니다.', '손절은 이 수준에서 판단이 갈립니다.', 'Some funds consider buying after a drawdown.'];
+  detail('v59.97 directive gate: analysis close to the new instruction spellings stays unchanged',
+    spellingKept.every((text) => gate(text).text === text), JSON.stringify(spellingKept.filter((text) => gate(text).text !== text).map(gate)));
 
   // #4: the base-currency what-if module (src/ai/context/portfolio-simulation.js) lost its only consumer in v57.62 and was removed in v58.51;
   // the old chat simulator must stay retired.
@@ -994,6 +1006,17 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   }
   check('v59.94 a unit-less yield threshold inside a condition stays',
     pub.stripUnverifiedCurrentNumericSentences('10년물이 4.5를 넘으면 부담이 커집니다.') === '10년물이 4.5를 넘으면 부담이 커집니다.');
+  // v59.97: emphasis, full-width digits, 퍼센트/％, currency codes and English units hid a current number from the check.
+  const spelledObserved = ['VIX 지수는 15.2입니다.', '**VIX** 15.2입니다.', '**코스피**는 2,450입니다.', '실업률은 4.1 퍼센트입니다.', '실업률은 4.1％입니다.', '삼성전자는 72,000 KRW입니다.', '삼성전자 주가는 KRW 72,000입니다.', '엔비디아는 USD 182.3에 거래됩니다.', '엔비디아 주가는 １８２.３달러입니다.', 'Nvidia trades at 182.3 dollars.', 'The 10-year yield is 4.15 percent.'];
+  for (const t of spelledObserved) {
+    check(`v59.97 a current number in another spelling is detected and stripped: ${t}`, pub.hasCurrentNumericContent(t) === true && pub.stripUnverifiedCurrentNumericSentences(t) === '');
+  }
+  const spelledNotObserved = ['VIX 지수 산출 방식은 1993년에 바뀌었습니다.', '**코스피** 구성 종목은 시가총액 순입니다.', '퍼센트와 퍼센트포인트는 다릅니다.', 'KRW 표시 자산과 USD 표시 자산을 나눠 봅니다.', 'The 10-year note matures in 2036.'];
+  for (const t of spelledNotObserved) {
+    check(`v59.97 a unit word or code without a current number is kept: ${t}`, pub.hasCurrentNumericContent(t) === false && pub.stripUnverifiedCurrentNumericSentences(t) === t);
+  }
+  check('v59.97 a kept sentence beside a stripped full-width number keeps its original text',
+    pub.stripUnverifiedCurrentNumericSentences('엔비디아 주가는 １８２.３달러입니다. **실적**은 다음 주에 나옵니다.') === '**실적**은 다음 주에 나옵니다.');
 }
 
 // v58.77 (owner 2026-10-25): the 맞춤 profile adapts how answers explain, never what they pick (R724); the example
