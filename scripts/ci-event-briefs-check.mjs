@@ -278,6 +278,26 @@ check('v59.44 a headline is Korean and not the bare label (P2137)', () => {
   eq(briefHeadline('클라우드 성장 가속', { nameKo: '아마존', figures }), '클라우드 성장 가속');
   eq(briefHeadline('', { nameKo: '아마존', figures: [] }), '아마존 실적 발표');
 });
+check('v59.97 a headline with a single Hangul syllable is rebuilt from the figures', () => {
+  const figures = [{ metric: 'revenue', label: '매출', value: '$9.2 billion' }];
+  eq(briefHeadline('AMD 신 GPU', { nameKo: 'AMD', figures }), 'AMD 실적: 매출 $9.2 billion');
+  eq(briefHeadline('AMD 신 GPU', { nameKo: 'AMD', figures: [] }), 'AMD 실적 발표');
+});
+// The FOMC headline is the model's line only when it reads as Korean (two Hangul syllables, the headline-translation
+// gate's rule); otherwise the producer's own dated line is stored.
+{
+  const withFomcHeadline = (headline) => ({ ...sources, ai: async (body, purpose) => {
+    const result = await sources.ai(body, purpose);
+    return purpose === 'fomc-statement' && result.json ? { ...result, json: { ...result.json, headline } } : result;
+  } });
+  const fomcHeadline = async (headline) => (await buildEventBriefs({ ...base, sources: withFomcHeadline(headline), previous: null, nowMs })).briefs.find((brief) => brief.id === 'fomc-2026-10-28')?.headline;
+  const english = await fomcHeadline('Fed lowers the target range to 3-1/2 to 3-3/4 percent');
+  const oneSyllable = await fomcHeadline('Fed 인 cut');
+  const korean = await fomcHeadline('연준, 기준금리 인하');
+  check('v59.97 an English FOMC headline with checked numbers is replaced by the dated Korean line', () => eq(english, '10/28 FOMC 결정'));
+  check('v59.97 an FOMC headline with one Hangul syllable is replaced by the dated Korean line', () => eq(oneSyllable, '10/28 FOMC 결정'));
+  check('v59.97 a Korean FOMC headline is kept', () => eq(korean, '연준, 기준금리 인하'));
+}
 check('v59.44 the story names join as tier-2 movers with their Korean names', () => {
   const index = { profiles: [{ symbol: 'INTC', name: 'Intel Corporation' }, { symbol: 'MSFT', name: 'Microsoft' }, { symbol: '005930.KS', name: '삼성전자' }, { symbol: 'CRDO', name: 'Credo Technology Group Holding Ltd' }] };
   const movers = extendedMovers(index, "    'INTC':  { en: 'Intel',            kr: '인텔',         alt: ['intel'] },");
