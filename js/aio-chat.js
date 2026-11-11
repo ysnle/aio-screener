@@ -1387,7 +1387,9 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         requestedMaxTokens: requestedMaxTokens,
         effectiveMaxTokens: effectiveMaxTokens,
         workerMaxTokens: isFinite(workerMaxTokens) && workerMaxTokens > 0 ? workerMaxTokens : null,
-        extendedThinking: useExtendedThinking
+        extendedThinking: useExtendedThinking,
+        outputTokens: responseUsage && Number.isInteger(responseUsage.output_tokens) ? responseUsage.output_tokens : null,
+        effort: (modelCfg && modelCfg.reasoningEffort) || null
       });
       _unlinkChatAbort();
     } catch(streamErr) {
@@ -4303,6 +4305,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   var _uniOnDone = function(fullText, completion) {
     if (!_isCurrentUnifiedRun()) return;
     var _searchedAnswer = modelOpts.webSearch === true && !(state._retryCount > 0); // P1756: retries run without search
+    if (_uniAIRequest) { _uniAIRequest.answerMode = _uniMode; _uniAIRequest.searched = _searchedAnswer; } // read by the answer-quality log
     state._retryCount = 0;
     _aioSettleWebSearchStatus(_searchedAnswer ? '웹검색으로 보강해 답했습니다. 참고 링크는 답변 아래에 있습니다.' : '웹검색 응답이 늦어 검색 없이 앱 자료로 답했습니다.'); // v58.77: the "웹검색 중" line no longer stays after the answer
     var loadEl = document.getElementById('ai-panel-loading');
