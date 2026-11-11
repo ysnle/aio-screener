@@ -32,6 +32,20 @@ is self-contained; edit the plan, not only the shared block).
 | 018 | Numeric-evidence check sees unit-less prices | P2 | S–M | MED | 012 finding | DONE (merged, v59.95) |
 | 019 | UI direction follows the printed value; refresh repaints; weights hover | P2 | M | LOW | 011 finding | DONE (merged, v59.95) |
 | 020 | Producers keep or flag missing inputs (TW revenue, KR weights) | P2 | S | LOW | 013 finding | DONE (merged, v59.95) |
+| 021–024 | Audits — remaining domain, gates, producers, AI path | P2 | L | none | — | DONE (findings became 029–037) |
+| 025 | UI remaining raw-sign sites and dead subscriptions | P2 | M | LOW | 011 finding | DONE (merged, v59.97) |
+| 026 | Worker limit bindings and Actions AI client timeout | P2 | S | LOW–MED | 014 finding | DONE (merged, v59.97; deploys with the next green "Deploy AI proxy") |
+| 027 | Boot accounting, service-worker precache, research digest with the AI panel | P3 | M | MED | — | DONE (merged, v59.97) |
+| 028 | Gate hygiene: pin fetch in CI, gate name, unused schemas | P3 | M | LOW | 013 finding | DONE (merged, v59.97) |
+| 029 | Credit latch hold reaches every reader | P1 | S | MED | 021 finding | DONE (merged, v59.97) |
+| 030 | Market wording reads the printed series and shared bands | P2 | M | MED | 021 finding | DONE (merged, v59.97; part G finished by the reviewer with the shared name as text) |
+| 031 | Portfolio FX in the benchmark trend; rounded gap words | P2 | M | MED | 021 finding | DONE (merged, v59.97) |
+| 032 | A typed ticker stays itself; keyword edges | P2 | S | LOW | 021 finding | DONE (merged, v59.97) |
+| 033 | AI chat keeps its policy tail, stop clears pending, sessions tolerate bad turns | P1 | M | MED | 024 finding | DONE (merged, v59.97; reviewer changed the unreadable-store rule to start over) |
+| 034 | AI response gates normalise and widen | P1 | M | MED | 024 finding | DONE (merged, v59.97) |
+| 035 | Publish gates refuse only real degradation | P1 | M | MED | 022 finding | DONE (merged, v59.97) |
+| 036 | Calendar and count gates stop expiring into outages | P1 | M | MED | 022 finding | DONE (merged, v59.97; part A done by the reviewer as warnings, per P1542) |
+| 037 | Brief headline rule at the producer; SEC recheck after a newer filing | P2 | M | MED | 023 finding | DONE (merged, v59.97) |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED (one-line rationale)
 
@@ -39,17 +53,32 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED 
 
 All sixteen implementation plans were executed by Opus 5.5 (medium) in worktrees, reviewed diff by diff, merged into local `main` and recorded as v59.94 (P2338) and v59.95 (P2339–P2353). `node scripts/qa-runner.mjs full --no-cache --keep-going` on the integrated tree: 200 pass, 0 fail. Nothing was pushed. Audits 011–014 produced 17 findings; the confirmed ones became plans 015–020.
 
+## Result, round 3 (2026-11-11)
+
+Plans 025–037 were executed the same way and recorded as v59.97 (P2355–P2380). Before the round, v59.96 (P2354) fixed
+a false failure of the metric-consistency gate that had stopped data releases for about six hours.
+
 ## Open follow-ups (not done)
 
-- Same raw-sign pattern left at: `market-story.js` (bars value text), `korea-participation.js` `pc()` and the flow column class, `screener/validation-tab.js` (two sites), `theme-playbook-view.js`, `portfolio-backtest-lab.js`, `themes/sectors.js` (thp-perf-bar), the inspector's `scr-why-move` class.
-- `src/app/bootstrap.js` and two pages subscribe to `aio:macroUpdated` / `aio:themesHistoryLoaded`, which nothing dispatches.
-- The pinned browser-data tree and ancestry check does not run in CI's depth-1 workspace job (`scripts/browser-data-fixture.mjs` skips when the pin commit is absent).
-- OpenAI error bodies are relayed to the browser (keys masked); the code comment says this is deliberate — owner decision against the "error detail never reaches the client" policy.
-- The Actions non-search AI client times out at 30 s while the Worker allows 60 s.
-- `scripts/producer/screener.mjs`: two catch blocks around `fetchHistory` can never run, so a failed index read leaves no log line.
+- "Deploy AI proxy" fails its smoke test while the OpenAI account has no credit, and rolls the Worker back; the smoke
+  step does not classify `insufficient_quota` as an operating block. The workflow edit was not made (permission).
+- The AI entity resolver still returns the registry alias for an all-capital word that is another issuer's ticker
+  ("FORD 어때" → FORD unverified plus F verified): `englishPhraseMatches` matches names case-insensitively on its own.
+- With the 10-year input two sessions behind, the 시장 상태 story and the axis quote different 5-session changes
+  (-9bp vs -7bp); found by the 035 replay.
+- `positionImperative` in the AI action gate also replaces "관심 종목을 정리하세요".
+- An FOMC brief already published with an English headline is not repaired (only earnings briefs are).
+- Keyword substring candidates left: 부도 inside 부도덕, 상향/하향 inside 상향식/하향식.
+- Raw-sign sites left: `screener/model.js` `returnColor`, `themes/sectors.js:86`, `portfolio-backtest-lab.js` `tone`.
+- The service-worker precache stores classic scripts without the `?v=` the page requests, so those entries are
+  probably never served; three boot scripts are not precached at all.
+- `src/domain/macro/volatility.js` builds its own 18/25/32 ladder string beside `vixBand`.
+- Ledgers still cite `ci-worker-anthropic-check` (renamed `ci-worker-openai-contract-check`) as history.
+- `worker/README.md` says `AI_PER_CLIENT_DAILY_CAP` deploys as 200; the toml sets 1000.
+- HPSP is the name of two registry entries (352700.KQ, 403870.KQ).
+- OpenAI error bodies are relayed to the browser with keys masked (kept: the code says it is deliberate).
 - Source-text pins that cannot detect the regression they cite (four named in the 013 audit).
-- Silent catches around cross-module render calls (011 audit UI-05).
-- Not audited: most of `src/domain` beyond the files named in the 012 report, about 180 of the 200 gate scripts, several producers.
+- Nothing in round 3 was checked in a real browser page beyond the automated browser gates.
 
 ## Dependency and overlap notes
 
