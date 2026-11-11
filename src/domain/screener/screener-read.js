@@ -96,7 +96,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
         text: `${validation.undecided || '아직 우연과 구별 안 됨'} — 같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 ${spread == null ? '상위 20%와 하위 20%의 평균 차이는 기록이 없고' : spreadDirection == null ? `상위 20%와 하위 20%의 평균 차이는 ${Math.abs(spread).toFixed(2)}%p였지만` : `상위 20%가 하위 20%보다 평균 ${Math.abs(spread).toFixed(2)}%p ${spreadDirection === 'up' ? '앞섰지만' : '뒤졌지만'}`}, 표본 ${validation.rebalances}회로는 우연과 구별되지 않습니다. 순위는 차트·재무로 확인할 후보 목록으로 읽습니다.` });
     } else if (spread != null && spreadDirection == null) {
       points.push({ id: 'trust', tone: 'neutral', title: '순위의 과거 성과',
-        text: `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%와 하위 20%의 평균 차이는 ${Math.abs(spread).toFixed(2)}%p였습니다(비용 후 상위가 앞선 횟수 ${validation.wins ?? '—'}/${validation.rebalances}회) — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
+        text: `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%와 하위 20%의 평균 차이는 ${Math.abs(spread).toFixed(2)}%p였습니다(비용 후 상위가 앞선 횟수 ${validation.wins ?? '—'}/${validation.rebalances}회). 순위는 차트·재무로 확인할 후보 목록으로 읽습니다.` });
     } else {
       points.push({ id: 'trust', tone: spreadDirection === 'up' ? 'favorable' : 'burden', title: '순위의 과거 성과',
         text: spreadDirection === 'up'

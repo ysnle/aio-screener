@@ -27,7 +27,7 @@ export const BENCHMARK_MIN_COVERAGE = 0.8;
  * @param {string|null} [input.asOf]  the basis close date
  * @param {(symbol:string, key:string) => number|null} [input.fxReturnOf]  the % move of the holding's listing currency
  *   into the base currency over a window key; absent means every holding is in the base currency (0). A holding whose
- *   FX return is missing for a window cannot read that window.
+ *   FX return is missing over a span is not covered over that span.
  */
 export function buildBenchmarkTrend({ holdings = [], returnOf, indexReturnOf, dateOf, asOf = null, fxReturnOf = null } = {}) {
   const book = new Map();
