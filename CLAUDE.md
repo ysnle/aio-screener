@@ -42,11 +42,12 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 ## 작업 규칙
 
-- **문서와 코드가 어긋나면 코드 관례를 따른다** — CODE-MAP·스킬·핸드오프·메모리·이 파일의 설명이 지금 코드와 다르면 코드의 관례를 따르고, 최종 답변에 찾은 어긋남을 모두 적는다. 단 `AGENTS.md` 제품 결정·`RULES.md` 정책과 다른 코드는 결함으로 보고한다. 근거: 에이전트는 지시 파일이 낡아도 90% 이상 그쪽을 따르며, 이 한 문장이 코드 준수를 4%→91%로 바꿨다(arXiv 2610.30571, 2026-10-25)
-- **가능성 낮은 경계 사례에 복잡도를 더하지 않는다** — 드문 경합·보안 사례 대비 코드는 실패 양상·가능성·복잡도 비용을 먼저 설명하고 동의를 받은 뒤 넣는다(opencode AGENTS, 2026-10-25)
+- **문서와 코드가 어긋나면 코드 관례를 따른다** — CODE-MAP·스킬·핸드오프·메모리·이 파일의 설명이 지금 코드와 다르면 코드의 관례를 따르고, 최종 답변에 찾은 어긋남을 모두 적는다. 단 `AGENTS.md` 제품 결정·`RULES.md` 정책과 다른 코드는 결함으로 보고한다.
+- **가능성 낮은 경계 사례에 복잡도를 더하지 않는다** — 드문 경합·보안 사례 대비 코드는 실패 양상·가능성·복잡도 비용을 먼저 설명하고 동의를 받은 뒤 넣는다
 - 변경 이유 추적은 `/why`(`node scripts/why-trace.mjs`), 선례 없는 화면 결정은 `/prototype`, 첫 사용자 관점 QA는 `/first-users`, 모듈 깊이·인터페이스 점검은 `/deepen`
 - **커밋·배포는 사용자가 요청할 때와 아래 배치 마감 상시 승인 때만 한다**
 - **구조 우선 (소유자 2026-11-09, 원문)** — "Always build code cleanly, modularly, and with proper architecture and separation of concerns. Never simply bolt on a feature because I asked for it. If you can’t find an easy way to build it naturally, and you'd recommend a refactor to make the whole thing cleanly, stop your work ahead of time and say so." 아래 부분 패치·최소 코드 원칙보다 우선한다(정본 AGENTS.md)
+- **위임 (소유자 2026-11-11, 원문)** — "This codebase is yours: what it's for and how it's built are your call, and you'll keep building on it." 구현·구조·정리·게이트는 근거를 밝혀 정하고 보고한다. 제품 방향·push·배포·되돌릴 수 없는 삭제와 운영 변경만 묻는다(정본 AGENTS.md)
 - **가장 낮은 공통 원인을 부분 패치한다** — CODE-MAP/owner registry로 소유자를 찾고, 전면 재작성 대신 모듈 하나씩 옮긴다
 - **제품 결정·협업 원칙·변경 흐름의 정본은 `AGENTS.md`**: 소유자 요청도 근거로 검토·반대 의견 제시, 9화면 정보구조, 원천 없는 위젯·근거 없는 등급 제거, 느린 데이터 정적화, AI는 gpt-6-luna 공용 Worker(웹검색 포함 월 $20 목표·항상 사용), 종가 기준 점수, 데스크톱·모바일·아이패드 반응형 지원(2026-10-11 재승인), 옵션 퇴역, 티커 추정 금지, 로컬 프로듀서 금지, **main 직접 작업**(단일 작업은 PR 없음, 병렬 스레드는 브랜치 → 통합 때 병합, push는 배치 끝 한 번), 생성물 충돌 해소 스크립트
 - **생성 파일은 손으로 고치지 않는다** — `.claude/agents/*`·`.codex/agents/*`는 `architecture/agent-profiles.json` → `node scripts/sync-agent-profiles.mjs`, `.agents/skills/`는 `.claude/skills/` → `node scripts/sync-agent-skills.mjs`, `CURRENT-STATE`·`CONTEXT-CATALOG`는 `generate-workspace-state --write`, `*.expect.md`는 `node scripts/ci-expect-output-check.mjs --update`(바뀐 출력 diff를 읽고 확인)
@@ -57,7 +58,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 ## 환경 주의 (클라우드 세션)
 
 - 클라우드 컨테이너는 node_modules 없이, 저장소 Playwright보다 낮은 리비전의 브라우저로 시작한다 — 브라우저 게이트 전에 `node scripts/cloud-session-setup.mjs` 한 번(세션 시작 안내가 필요 여부를 알려 준다)
-- 다른 스레드와 병렬로 일할 때는 `bump-version`·`record-fix`를 돌리지 않고 기록 항목을 `_artifacts/pending-records/<스레드>/`에 두고, 새 assertion은 다음 릴리스(현재+1, 예 v59.56)를 인용한다 — 통합 때 `node scripts/apply-pending-records.mjs --dry-run` 후 `--apply`로 그 릴리스에 한 번에 기록한다(모르는 인자는 실패, `--help`는 출력만)
+- 다른 스레드와 병렬로 일할 때는 `bump-version`·`record-fix`를 돌리지 않고 기록 항목을 `_artifacts/pending-records/<스레드>/`에 두고, 새 assertion은 다음 릴리스(현재+1, 예 v59.56)를 인용한다 — 통합 때 `node scripts/apply-pending-records.mjs --dry-run` 후 `--apply`로 그 릴리스에 한 번에 기록한다
 - 클라우드·로컬 클론 모두 얕은 클론이다(`--is-shallow-repository` true) — 얕은 클론 판정으로 검사를 건너뛰지 말고 커밋 존재는 `git cat-file -e`로 본다
 
 ## 환경 주의 (Windows · Git Bash)
