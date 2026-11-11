@@ -21,9 +21,24 @@ export function setConsent(storage, granted) {
   if (!granted) { safe(() => storage.removeItem(SESSIONS_KEY)); safe(() => storage.removeItem(ACTIVE_KEY)); safe(() => storage.removeItem('aio_chat_history')); }
 }
 
+const normaliseTurn = (t) => ({ ...t, ctx: String(t.ctx ?? ''), q: String(t.q ?? ''), a: String(t.a ?? ''), at: t.at });
+
+/** The stored conversations and whether the store could be read. An empty store is readable; a stored value that
+ *  cannot be read as a list of conversations is still the reader's data, so saving refuses to write over it. */
+export function readSessionStore(storage) {
+  let text;
+  try { text = storage.getItem(SESSIONS_KEY); } catch (_) { return { sessions: [], readable: false }; }
+  if (text == null || text === '') return { sessions: [], readable: true };
+  const raw = safe(() => JSON.parse(text), undefined);
+  if (!Array.isArray(raw)) return { sessions: [], readable: false };
+  const sessions = raw
+    .filter((s) => s && typeof s.id === 'string' && Array.isArray(s.turns))
+    .map((s) => ({ ...s, turns: s.turns.filter((t) => t && typeof t === 'object').map(normaliseTurn) }));
+  return { sessions, readable: true };
+}
+
 export function loadSessions(storage) {
-  const raw = safe(() => JSON.parse(storage.getItem(SESSIONS_KEY) || '[]'), []);
-  return (Array.isArray(raw) ? raw : []).filter((s) => s && typeof s.id === 'string' && Array.isArray(s.turns));
+  return readSessionStore(storage).sessions;
 }
 
 function titleOf(question) {
@@ -31,7 +46,7 @@ function titleOf(question) {
   return text.length > 40 ? `${text.slice(0, 39)}…` : text || '새 대화';
 }
 
-const turnChars = (t) => t.q.length + t.a.length;
+const turnChars = (t) => String(t.q ?? '').length + String(t.a ?? '').length;
 
 /** Keep the newest sessions within count and size limits. A conversation that does not fit whole keeps its newest
  *  turns (the reader's latest question must never be the part that is dropped — codex audit F03, 2026-10-15). */
@@ -55,6 +70,7 @@ export function pruneSessions(sessions) {
  *  codex audit F02). Returns false when nothing could be written, so the caller can tell the reader. */
 export function saveSessions(storage, sessions) {
   if (consentState(storage) !== 'granted') return false;
+  if (!readSessionStore(storage).readable) return false; // never replace conversations that could not be read
   let kept = pruneSessions(sessions);
   if (!kept.length) return safe(() => { storage.removeItem(SESSIONS_KEY); return true; }, false);
   // A full store keeps the newest conversations: drop the oldest half and retry; the last one left halves its oldest turns.

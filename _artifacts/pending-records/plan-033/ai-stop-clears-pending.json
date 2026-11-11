@@ -1,0 +1,17 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.97 stopping an AI answer removes the 분석 중 bubble and the streaming caret",
+    "symptom": "After pressing stop in the AI panel, the '분석 중...' bubble and the blinking caret stayed on screen.",
+    "root_cause": "_aioCancelChatRequest looked for the retired per-page classes (.acp-msg wrapper, .chat-cursor caret); the unified panel builds .ai-msg bubbles that carry the loading id themselves and a .lch-caret caret.",
+    "fix": "Cancel removes loading.closest('.ai-msg, .acp-msg') or the loading element itself, and removes carets of both kinds (.lch-caret, .chat-cursor).",
+    "violated_rule": "A cancelled request leaves no pending animation on screen.",
+    "prevention": "ci-ai-chat-reliability-contract-check chat-resilience cancels a unified run with stub elements; ci-chat-ui-state-browser-check cancels a run over the panel's real markup in Chromium and checks no #ai-panel-loading, no .lch-caret, the partial answer kept and one stop notice.",
+    "verification": "Both gates pass; both fail on the old _aioCancelChatRequest.",
+    "files": ["js/aio-chat.js", "scripts/ci-ai-chat-reliability-contract-check.mjs", "scripts/ci-chat-ui-state-browser-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**Stop clears the AI panel ({P}):** stopping an answer now removes the '분석 중' bubble and the streaming caret of the current panel instead of looking for retired class names."],
+  "note": "v59.97: stop clears loading bubble and caret"
+}
