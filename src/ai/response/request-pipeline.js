@@ -564,15 +564,32 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var tickerAction = /(?:^|[\s:：(])[A-Z]{1,5}\s*(?:비중\s*)?\$?\d[\d,.]*\s*(?:달러|원|%)?\s*(?:매수|매도|확대|축소)\s*[.!)]?\s*$/;
     // v57.48 #13: a weight imperative and a "buy/sell opportunity" call are directives too; a past-tense attribution
     // ("오닐은 … 손절해야 한다고 봤습니다"), a named rule, or the reason a practice exists ("권장하는 이유") is education.
-    var weight = /비중\s*(?:을|를)?\s*(?:(?:늘리|줄이|확대하|축소하|높이|낮추)(?:세요|십시오|시기\s*바랍니다)|(?:늘려|줄여|확대해|축소해|높여|낮춰)(?:야\s*(?:합니다|한다)|라))/;
+    var weightVerb = '(?:(?:늘리|줄이|확대하|축소하|높이|낮추)(?:세요|십시오|시기\\s*바랍니다)|(?:늘려|줄여|확대해|축소해|높여|낮춰)(?:야\\s*(?:합니다|한다)|라))';
+    var weight = new RegExp('비중\\s*(?:을|를)?\\s*' + weightVerb);
+    // A weight imperative with a target size: "NVDA 비중을 30%로 늘리세요", "비중을 20%까지 확대하세요".
+    var sizedWeight = new RegExp('비중\\s*(?:을|를)?\\s*\\d[\\d.]*\\s*%\\s*(?:으로|로|까지|만큼)?\\s*' + weightVerb);
+    // An allocation imperative: "포트폴리오의 30%를 NVDA에 배분하세요".
+    var allocation = /\d[\d.]*\s*%\s*(?:를|을)\s*[A-Za-z가-힣0-9]+에\s*(?:배분|투자|편입)하(?:세요|십시오)/;
+    // A recommendation written as a noun clause: "매수하는 것을 추천합니다", "매수하시길 권합니다", "손절하는 게 맞습니다".
+    var nominalised = new RegExp(action + '\\s*(?:(?:하는|할)\\s*것을\\s*(?:추천|권(?:합니다|해|고|장))|하시길\\s*권)|(?:매수|매도|손절|익절|청산)\\s*하는\\s*(?:게|것이)\\s*(?:맞습니다|맞아요|맞다|좋습니다|좋아요|좋다|좋겠|낫습니다|낫다|낫겠)');
+    // Colloquial buy/switch imperatives: "지금 사두세요", "갈아타세요".
+    var colloquialHold = /(?<![가-힣])사\s*(?:두세요|놓으세요)|갈아타세요/;
+    // Dispose/close imperatives count only with a position as their object: "보유 물량을 모두 처분하세요" (not "근거를 정리하세요").
+    var positionImperative = /(?:보유|물량|주식|포지션|종목|비중|지분)\s*(?:을|를)\s*(?:(?:모두|전부|일부|절반|다|즉시|지금|바로|당장)\s*)?(?:처분하|정리하|던지)(?:세요|십시오)/;
+    // English soft imperative opening a clause: "Consider buying NVDA now."
+    var englishSoft = /(?:^|[.!?]\s*|\bplease\s+|\byou\s+\b(?:might|may|could|should)\b\s+)(?:consider|think\s+about)\s+(?:buying|selling|shorting|adding\s+to|trimming)\b/i;
+    // A price sentence followed by a bare imperative that points back at it: "손절가는 1,050달러입니다. 그 가격에서 정리하세요."
+    var priceStatement = /(?:손절가|목표가|매수가|매도가|진입가|익절가)\s*(?:은|는|이|가|:)?\s*(?:\$?\d|[일이삼사오육칠팔구십백천만억]+\s*(?:달러|원))/;
+    var referBack = /(?:그\s*가격|그\s*수준|해당\s*(?:가격|수준)|거기)\s*(?:에서|에|으로|로|서)\s*(?:(?:매수|매도|손절|익절|청산|정리|처분|진입)\s*)?(?:하세요|하십시오)/;
     var opportunity = /(?:매수|매도|진입|매집|저가\s*매수|추가\s*매수)\s*(?:의\s*)?(?:기회|적기|타이밍)\s*(?:로|으로|입니다|이다|라고|가\s*될|일\s*수)/;
     var indirect = /(?:다는|라는)\s*것(?:이|은)\s*[^,.]{0,30}(?:원칙|규칙|격언|주장|철학|방식)|(?:한다|하라|해라|하세요|된다|합니다)\s*(?:고|라고|는|라는)\s*(?:봤|보았|했|말했|주장했|강조했|설명했|조언했|권했|가르쳤|규칙|원칙|격언)|(?:라는|이라는|다는)\s*(?:규칙|원칙|격언)|(?:하는|한|권장하는|추천하는|권하는)\s*(?:이유|까닭|배경)/;
     var negated = /(?:아닙니다|아니다|않습니다|않는다|금지|하지\s*마|하지\s*않|제공하지|드리지|지시가\s*아|지시 아님)/;
     // v58.63 (architecture audit A15): English directives are directives too ("You should buy NVDA now." passed untouched).
     var english = /\b(?:you\s+(?:should|must|need\s+to|ought\s+to)|i\s+(?:recommend|suggest|advise)(?:\s+(?:you|that\s+you))?|we\s+recommend(?:\s+(?:you|that\s+you))?|it(?:'s|\s+is)\s+time\s+to)\s+(?:buy|sell|short|add\s+to|trim|dump|load\s+up\s+on|go\s+long|go\s+short|exit)\b|(?:^|[.!?]\s*)(?:buy|sell|short)\s+(?:[A-Z]{1,5}\b|shares|the\s+stock|it\s+now|now)|\bstrong\s+(?:buy|sell)\b/i;
     var englishIndirect = /\b(?:said|argued|wrote|believed|taught|advised|warned)\s+(?:that\s+)?(?:you|investors|traders)\b|\bthe\s+(?:rule|principle|maxim)\s+(?:is|says)\b/i;
-    var pricedImperative = new RegExp('(?:' + action + '|손절가|목표가|매수가|매도가|진입가|익절가)\\s*(?:은|는|을|를)?\\s*\\$?\\d[\\d,.]*(?:\\s*[~\\-–]\\s*\\$?\\d[\\d,.]*)?(?:\\s*(?:천|만|억))?\\s*(?:달러|원)?\\s*(?:에서|에|으로|로|부근에서|근처에서)\\s*(?:하세요|하십시오|하라|두세요|잡으세요|거세요|설정하세요|정하세요|하시기\\s*바랍니다)'); // v58.75: priced imperatives ("손절은 178달러에서 하세요")
-    var patterns = [recommend, imperative, colloquial, weight, opportunity, tickerAction, english, pricedImperative];
+    // The price may be digits ("1,050달러", "175~178달러", "7만 원") or Korean number words with a currency ("천오십 달러").
+    var pricedImperative = new RegExp('(?:' + action + '|손절가|목표가|매수가|매도가|진입가|익절가)\\s*(?:은|는|을|를)?\\s*(?:\\$?\\d[\\d,.]*(?:\\s*[~\\-–]\\s*\\$?\\d[\\d,.]*)?(?:\\s*(?:천|만|억))?\\s*(?:달러|원)?|[일이삼사오육칠팔구십백천만억]+\\s*(?:달러|원))\\s*(?:에서|에|으로|로|부근에서|근처에서)\\s*(?:하세요|하십시오|하라|두세요|잡으세요|거세요|설정하세요|정하세요|하시기\\s*바랍니다)'); // v58.75: priced imperatives ("손절은 178달러에서 하세요")
+    var patterns = [recommend, imperative, colloquial, weight, opportunity, tickerAction, english, pricedImperative, sizedWeight, allocation, nominalised, colloquialHold, positionImperative, englishSoft];
     // v58.63 (A15): a negation exempts a directive only when it binds to that directive — inside the matched words or right
     // after/before them ("매수를 추천하지 않습니다", "not a buy"). A negation elsewhere in the sentence ("매수하세요 그리고 손절하지
     // 마세요") no longer clears the buy instruction beside it.
@@ -601,15 +618,28 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     };
     // P2114: a decimal point ("177.50달러") does not end a sentence; splitting there let a priced imperative with cents through.
     var sentences = raw.match(/(?:[^.!?。\n]|\.(?=\d))+(?:[.!?。]+|\n|$)\s*/g) || [raw];
-    var replaced = 0;
-    var out = sentences.map(function(sentence) {
+    // Matching reads a normalised copy (NFKC, markdown emphasis and backticks removed); the published text is untouched.
+    var normalise = function(sentence) { return String(sentence).normalize('NFKC').replace(/\*\*|__|[*`]/g, ''); };
+    var isDirective = function(sentence) {
       // A negation counts only inside the clause that carries the directive ("지금 매수하세요, 이것은 지시가 아닙니다" is replaced).
       // A thousands separator ("1,050달러") does not split a clause.
-      var directive = sentence.trim().split(/(?<!\d)[,，;；]+|[,，;；]+(?!\d{3}(?:\D|$))|\s(?:그러나|하지만|다만|그리고|또한|그러면서|그다음|그\s*후)\s|\s(?:and|but|then)\s/i).some(function(clause) {
+      return normalise(sentence).trim().split(/(?<!\d)[,，;；]+|[,，;；]+(?!\d{3}(?:\D|$))|\s(?:그러나|하지만|다만|그리고|또한|그러면서|그다음|그\s*후)\s|\s(?:and|but|then)\s/i).some(function(clause) {
         clause = clause.trim();
         return !!clause && patterns.some(function(re) { return matchesOf(clause, re).some(function(m) { return !bound(clause, m) && !quoted(clause, m); }); });
       });
-      if (!directive) return sentence;
+    };
+    var flags = sentences.map(isDirective);
+    // A sentence pair is read together when a single line break without sentence punctuation splits one sentence
+    // ("NVDA를 매수\n하세요.") or when a price sentence is followed by an imperative that points back at that price.
+    for (var i = 0; i + 1 < sentences.length; i += 1) {
+      var softBreak = /[^.!?。\s][ \t]*\n[ \t]*$/.test(sentences[i]) && !/^\s*(?:[-*+•#>|]|\d+[.)])/.test(sentences[i + 1]);
+      var pair = (softBreak && !flags[i] && !flags[i + 1] && isDirective(sentences[i].replace(/\s+$/, ' ') + sentences[i + 1])) ||
+        (priceStatement.test(normalise(sentences[i])) && referBack.test(normalise(sentences[i + 1])));
+      if (pair) { flags[i] = true; flags[i + 1] = true; }
+    }
+    var replaced = 0;
+    var out = sentences.map(function(sentence, index) {
+      if (!flags[index]) return sentence;
       replaced += 1;
       return _AIO_DIRECTIVE_NOTICE + (/\n\s*$/.test(sentence) ? '\n' : ' ');
     }).join('');
