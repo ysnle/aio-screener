@@ -501,10 +501,10 @@ export function alignMarketInputs({ history = [], credit = {}, rates = {}, now =
     hy20Record: hyRecord && isUsable(alignInput(hyRecord.date, basis)) ? hyRecord : null,
     fg: isUsable(alignments.fg) ? (fgLast ? fgLast.value : finite(credit.fg)) : null
   };
-  // v57.81: 20-session stress needs the current change at the widen20dBp line and either the latched record state or,
-  // without a record, a change of stress20dMultiple x widen20dBp.
-  c.hy20Stress = c.hy20 != null && c.hy20 >= RULES.credit.widen20dBp
-    && (c.hy20Record ? c.hy20Record.stress : c.hy20 >= RULES.credit.stress20dMultiple * RULES.credit.widen20dBp);
+  // 20-session stress: with a record its latch decides (it holds until both release legs clear); without a record only a
+  // change of stress20dMultiple x widen20dBp enters.
+  c.hy20Stress = c.hy20Record ? c.hy20Record.stress === true
+    : (c.hy20 != null && c.hy20 >= RULES.credit.widen20dBp && c.hy20 >= RULES.credit.stress20dMultiple * RULES.credit.widen20dBp);
   const r = Object.fromEntries(['realYield10', 'realYield10Delta5', 'breakeven10Delta5', 'dgs2Delta5', 'dgs10Delta5']
     .map((key) => [key, take(rates[key], alignments.rates)]));
   const day = (value) => String(value || '').slice(0, 10);
@@ -1435,14 +1435,18 @@ export function buildMarketRegime(input = {}) {
     const month = hy20 == null ? '' : `, 20거래일 ${signed(hy20, 0, 'bp')}`;
     const state = creditState({ hyBp, hy5, hy20, hy20Stress: c.hy20Stress });
     // v58.55: creditState on a hypothetical spread (the 5/20-session bases held; the 20-session stress keeps its latch:
-    // once on it holds while the change stays at widen20dBp, otherwise it enters at the record line), for 판단이 바뀌는 조건.
+    // once on it lets go only when the change is under widen20dBp and the five-session change under widenWatch5dBp,
+    // otherwise it enters at the record line), for 판단이 바뀌는 조건.
     const C = RULES.credit;
     const base5 = hy5 == null ? null : hyBp - hy5, base20 = hy20 == null ? null : hyBp - hy20;
-    const stressAt = (change) => change != null && change >= C.widen20dBp
-      && (c.hy20Record ? (c.hy20Record.stress || change >= c.hy20Record.enterBp) : change >= C.stress20dMultiple * C.widen20dBp);
+    const stressAt = (change, d5) => {
+      if (!c.hy20Record) return change != null && change >= C.widen20dBp && change >= C.stress20dMultiple * C.widen20dBp;
+      const released = change != null && change < C.widen20dBp && !(d5 != null && d5 >= C.widenWatch5dBp);
+      return (c.hy20Record.stress === true && !released) || (change != null && change >= c.hy20Record.enterBp);
+    };
     const creditAt = (level) => {
       const d5 = base5 == null ? null : level - base5, d20 = base20 == null ? null : level - base20;
-      return creditState({ hyBp: level, hy5: d5, hy20: d20, hy20Stress: stressAt(d20) });
+      return creditState({ hyBp: level, hy5: d5, hy20: d20, hy20Stress: stressAt(d20, d5) });
     };
     const hyPoint = (at, mark, short) => ({ at, subject: '하이일드 스프레드가', mark, short, show: (to, current) => [to - current, 'bp', 0] });
     const enter20 = c.hy20Record ? c.hy20Record.enterBp : C.stress20dMultiple * C.widen20dBp;
@@ -1460,7 +1464,9 @@ export function buildMarketRegime(input = {}) {
         hyPoint(C.stressAtBp, `${C.stressAtBp}bp`, `${C.stressAtBp}bp`),
         hyPoint(C.tightBelowBp, `${C.tightBelowBp}bp`, `${C.tightBelowBp}bp`),
         ...(base5 != null ? [hyPoint(base5 + C.widen5dBp, `${fmt(base5 + C.widen5dBp, 0)}bp(5거래일 +${C.widen5dBp}bp)`, `기준 ${fmt(base5 + C.widen5dBp, 0)}bp(5일 전 ${fmt(base5, 0)}bp 대비)`),
-          hyPoint(base5 + C.calm5dBp, `${fmt(base5 + C.calm5dBp, 0)}bp(5거래일 +${C.calm5dBp}bp)`, `기준 ${fmt(base5 + C.calm5dBp, 0)}bp(5일 전 ${fmt(base5, 0)}bp 대비)`)] : []),
+          hyPoint(base5 + C.calm5dBp, `${fmt(base5 + C.calm5dBp, 0)}bp(5거래일 +${C.calm5dBp}bp)`, `기준 ${fmt(base5 + C.calm5dBp, 0)}bp(5일 전 ${fmt(base5, 0)}bp 대비)`),
+          // the latch's five-session release leg, a candidate only while the latch holds.
+          ...(c.hy20Record?.stress === true ? [hyPoint(base5 + C.widenWatch5dBp, `${fmt(base5 + C.widenWatch5dBp, 0)}bp(5거래일 +${C.widenWatch5dBp}bp)`, `기준 ${fmt(base5 + C.widenWatch5dBp, 0)}bp(5일 전 ${fmt(base5, 0)}bp 대비)`)] : [])] : []),
         ...(base20 != null ? [hyPoint(base20 + C.widen20dBp, `${fmt(base20 + C.widen20dBp, 0)}bp(20거래일 +${C.widen20dBp}bp)`, `기준 ${fmt(base20 + C.widen20dBp, 0)}bp(20일 전 ${fmt(base20, 0)}bp 대비)`),
           hyPoint(base20 + enter20, `${fmt(base20 + enter20, 0)}bp(20거래일 +${fmt(enter20, 0)}bp${c.hy20Record ? ', 자체 기록 상위 ' + (100 - C.stress20dPct) + '%' : ''})`, `기준 ${fmt(base20 + enter20, 0)}bp(20일 전 ${fmt(base20, 0)}bp 대비)`)] : [])
       ] }]

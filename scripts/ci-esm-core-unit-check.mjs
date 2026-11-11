@@ -7428,6 +7428,26 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const spikeBase = hyWidening20Record(h, days[330]);
   if (easing?.stress !== false) fail(`v59.76 the HY latch lets go when the 20-session change is under 25bp and five sessions narrowed: ${JSON.stringify(easing)}`);
   if (!(spikeBase?.value < 25) || spikeBase.stress !== true) fail(`v59.76 the HY latch holds while HY widened 16bp in five sessions, even when a spiked base pulls the 20-session change under 25bp: ${JSON.stringify(spikeBase)}`);
+  // v59.97: the latch's state reaches every reader — the credit judgement and the 시장 상태 axis say 부담 in the hold
+  // window (20-session change back under +25bp, five sessions still +15bp or more) and let go with the latch.
+  {
+    const { creditJudgement } = await load('src/domain/briefing/credit-reading.js');
+    const { buildMarketRegime, oasDelta20Bp } = await load('src/domain/briefing/market-read.js');
+    const readersAt = (index) => {
+      const day = days[index];
+      const hy = oasDelta20Bp(h, 'hyOas', day);
+      const history = days.slice(0, index + 1).map((date, i) => ({ date, spx: 6000 + i }));
+      const axis = buildMarketRegime({ history, macroHistory: h, credit: { hyBp: hy.level * 100, hyDelta5Bp: hy.d5, hyAsOf: hy.date }, now: Date.parse(`${day}T23:00:00Z`) }).axes.find((row) => row.id === 'credit');
+      return { judgement: creditJudgement(h, day), axis };
+    };
+    const hold = readersAt(330);
+    if (hold.judgement?.state !== 'burden' || hold.judgement.cause?.wide20 !== true) fail(`v59.97 the credit judgement holds 부담 while the HY latch holds: ${JSON.stringify(hold.judgement)}`);
+    if (hold.axis?.state !== 'burden') fail(`v59.97 the 시장 상태 credit axis holds 부담 while the HY latch holds: ${hold.axis?.state} ${hold.axis?.read}`);
+    const base5 = hold.judgement.hyBp - hold.judgement.hy5;
+    if (hold.axis.flipDistance?.toward !== 'neutral' || Math.abs(hold.axis.flipDistance.threshold - (base5 + 15)) > 1e-6) fail(`v59.97 the credit flip search names the latch's five-session release leg (5일 전 +15bp): ${JSON.stringify(hold.axis.flipDistance)}`);
+    const released = readersAt(325);
+    if (released.judgement?.state === 'burden' || released.axis?.state === 'burden') fail(`v59.97 once both release legs clear neither reader says 부담: ${released.judgement?.state} ${released.axis?.state}`);
+  }
   // v59.77: the latch start is judged on each session's own record line, so it no longer moves when today's line rises.
   const macroFile = JSON.parse(readFileSync(path.join(root, "public-data/macro-history.json"), "utf8"));
   if ((macroFile.series?.hyOas?.observations || []).some(([date, value]) => date === '2026-10-30' && value === 3.44)) {
