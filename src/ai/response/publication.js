@@ -100,8 +100,76 @@ export function isConditionalNumericSentence(sentence) {
   return !/\b(?:19|20)\d{2}-\d{2}-\d{2}\b|\b(?:19|20)\d{2}년\s*\d{1,2}월/.test(text);
 }
 
-export function stripUnverifiedCurrentNumericSentences(value) {
-  return String(value || '').split('\n').map(function(line) {
+// A number about the past or a fixed structure is not a current observation. "2008년 금융위기 때 S&P 500은 약 57%
+// 하락했습니다" and "S&P 500은 11개 섹터로 구성됩니다" were stripped from current-sensitive answers as unbound current
+// figures, which removed the history and definitions a reader asked for. numericClaimKind names what a numeric sentence
+// is; only 'current' must be bound to evidence.
+// A calendar year in prose ("2008년", "2020년 3월", "1970년대"); "10년물" and "3년" are not calendar years.
+var CALENDAR_YEAR = /(?<!\d)((?:19|20)\d{2})\s*년/g;
+// A completed period named without a year: a named crisis, or a trailing span of five years or more ("지난 10년간").
+var COMPLETED_PERIOD = /(?:금융\s*위기|닷컴\s*버블|블랙\s*먼데이|대공황|외환\s*위기|오일\s*쇼크|석유\s*파동)\s*(?:때|당시|기간|에)/;
+var TRAILING_YEARS = /지난\s*(?:[5-9]|[1-9]\d)\s*년\s*(?:간|동안)/;
+var CURRENT_MARKER = /(?:현재|지금|오늘|최근|이번\s*(?:주|달|분기)|올해|금일|현\s*시점|어제|전일|전날|방금|\bas of\b|\bcurrently\b|\btoday\b|\byesterday\b)/i;
+var RECENT_DATE_DAYS = 60;
+function todayMs(today) {
+  var ms = today instanceof Date ? today.getTime() : typeof today === 'number' ? today : today ? Date.parse(today) : NaN;
+  return Number.isFinite(ms) ? ms : Date.now();
+}
+// A date within the last 60 days (or ahead of today) reads as current: "2026-11-02", "2026년 10월 30일", "2026년 10월".
+function namesRecentDate(text, nowMs) {
+  var dates = [];
+  var match;
+  var iso = /(?<!\d)((?:19|20)\d{2})-(\d{2})-(\d{2})(?!\d)/g;
+  while ((match = iso.exec(text))) dates.push(Date.UTC(+match[1], +match[2] - 1, +match[3]));
+  var korean = /(?<!\d)((?:19|20)\d{2})\s*년\s*(\d{1,2})\s*월(?:\s*(\d{1,2})\s*일)?/g;
+  while ((match = korean.exec(text))) dates.push(match[3] ? Date.UTC(+match[1], +match[2] - 1, +match[3]) : Date.UTC(+match[1], +match[2], 0));
+  return dates.some(function(time) { return nowMs - time <= RECENT_DATE_DAYS * 86400000; });
+}
+function isDatedPast(text, nowMs) {
+  var year = new Date(nowMs).getUTCFullYear();
+  var years = Array.from(text.matchAll(CALENDAR_YEAR)).map(function(match) { return +match[1]; });
+  if (years.some(function(value) { return value >= year; })) return false;
+  var past = years.some(function(value) { return value < year; }) || COMPLETED_PERIOD.test(text) || TRAILING_YEARS.test(text);
+  return past && !CURRENT_MARKER.test(text) && !namesRecentDate(text, nowMs);
+}
+// A definition or structural count: "11개 섹터로 구성됩니다", "연 8회 열립니다", "최대 2,100만 개로 제한됩니다". The count
+// is the only number, the verb defines, and nothing is observed. "200일선 위 44개 종목이다" is a reading, not a definition:
+// a bare copula counts only beside a defining word.
+var FIXED_COUNT_SOURCE = '(?:연\\s*)?\\d[\\d,]*\\s*(?:만\\s*)?(?:개(?![월년])|곳|종목|회|차례|명|가지)';
+var FIXED_COUNT = new RegExp(FIXED_COUNT_SOURCE);
+var DEFINITIONAL_END = /(?:구성(?:됩니다|된다|돼\s*있습니다|되어\s*있습니다)|이루어(?:집니다|진다|져\s*있습니다)|나뉩니다|나뉜다|제한됩니다|제한된다|정해져\s*있습니다|정해집니다|열립니다|열린다|엽니다|발표됩니다|발표된다|뜻합니다|뜻한다|의미합니다|의미한다)[.!?。]*\s*$/;
+var COPULA_END = /(?:입니다|이다)[.!?。]*\s*$/;
+var DEFINITIONAL_WORD = /(?:구성|이루어|나뉘|나뉜|제한|정해|정의|뜻|의미)/;
+var OBSERVATION_VERB = /(?:올랐|내렸|하락했|상승했|마감|기록했|거래)/;
+function isFixedFact(text) {
+  if (!FIXED_COUNT.test(text) || OBSERVATION_VERB.test(text) || CURRENT_MARKER.test(text)) return false;
+  if (!DEFINITIONAL_END.test(text) && !(COPULA_END.test(text) && DEFINITIONAL_WORD.test(text))) return false;
+  return !hasCurrentNumericContent(text.replace(new RegExp(FIXED_COUNT_SOURCE, 'g'), ' '));
+}
+var CITED_URL = /(?:https?:\/\/|www\.)\S+/gi;
+// 'current' | 'dated-past' | 'fixed-fact' | 'conditional' | 'none', checked in that order after the numeric test.
+export function numericClaimKind(sentence, { today } = {}) {
+  // P1681: a date or number inside a cited URL path ("…/2026/10/12/fed-…") is not a current claim of the sentence.
+  var bare = String(sentence || '').replace(CITED_URL, ' ');
+  if (!hasCurrentNumericContent(bare)) return 'none';
+  var text = normaliseForDetection(bare);
+  var nowMs = todayMs(today);
+  if (isDatedPast(text, nowMs)) return 'dated-past';
+  if (isFixedFact(text)) return 'fixed-fact';
+  if (isConditionalNumericSentence(bare)) return 'conditional';
+  return 'current';
+}
+
+function countSentences(value) {
+  return String(value || '').split('\n').reduce(function(total, line) {
+    if (!line.trim() || /^\s*\|[\s\-:|]+\|\s*$/.test(line)) return total;
+    return total + (/^\s*\|.*\|\s*$/.test(line) ? 1 : splitAnswerSentences(line).length);
+  }, 0);
+}
+
+function stripNumericSentences(value, today) {
+  var removed = 0;
+  var text = String(value || '').split('\n').map(function(line) {
     if (!line.trim()) return '';
     // P1740: a markdown table keeps its rows; only an unverified current-number cell becomes "확인 필요". Dropping the
     // whole row left a header with no body.
@@ -112,10 +180,18 @@ export function stripUnverifiedCurrentNumericSentences(value) {
         return hasCurrentNumericContent(cell) || /^\s*[+\-−]?\d[\d,.]*\s*$/.test(cell) ? ' 확인 필요 ' : cell;
       }).join('|');
     }
-    // P1681: a date or number inside a cited URL path ("…/2026/10/12/fed-…") is not a current claim of the sentence.
-    var kept = splitAnswerSentences(line).filter(function(sentence) { var bare = sentence.replace(/(?:https?:\/\/|www\.)\S+/gi, ' '); return !hasCurrentNumericContent(bare) || isConditionalNumericSentence(bare); }).join(' ');
+    var kept = splitAnswerSentences(line).filter(function(sentence) {
+      var current = numericClaimKind(sentence, { today: today }) === 'current';
+      if (current) removed += 1;
+      return !current;
+    }).join(' ');
     return kept || null;
   }).filter(function(line) { return line !== null; }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return { text: text, removed: removed };
+}
+
+export function stripUnverifiedCurrentNumericSentences(value, { today } = {}) {
+  return stripNumericSentences(value, today).text;
 }
 
 // v57.92 (internal audit A03): the numeric checks never saw a current event without a number — "연준이 금리를 인하했고 신용
@@ -142,13 +218,17 @@ export function eventBoundToEvidence(sentence, rows) {
     return subjects.some(function(word) { return text.indexOf(word) >= 0; });
   });
 }
-export function stripUnverifiedCurrentEventSentences(value, isBound) {
+// A dated or completed past ("지난 10년간 약 100% 올랐습니다") and a fixed structure are history, not an unbound current event.
+export function stripUnverifiedCurrentEventSentences(value, isBound, { today } = {}) {
   var dropped = 0;
+  var nowMs = todayMs(today);
   var text = String(value || '').split('\n').map(function(line) {
     if (!line.trim() || /^\s*\|.*\|\s*$/.test(line)) return line;
     var kept = splitAnswerSentences(line).filter(function(sentence) {
-      var bare = sentence.replace(/(?:https?:\/\/|www\.)\S+/gi, ' ');
+      var bare = sentence.replace(CITED_URL, ' ');
+      var normalised = normaliseForDetection(bare);
       var event = CURRENT_EVENT.test(bare) && !GENERAL_OR_HISTORICAL.test(bare) && !isConditionalNumericSentence(bare) && !CONDITIONAL_MARKER.test(bare.replace(NON_CONDITIONAL_MYEON, ' '))
+        && !isDatedPast(normalised, nowMs) && !isFixedFact(normalised)
         && !(typeof isBound === 'function' && isBound(bare));
       if (event) dropped += 1;
       return !event;
@@ -166,18 +246,28 @@ function currentEventSentenceUnbound(value, rows) {
 // "연준이 금리를 인하했고 신용 스트레스도 해소됐다" was dropped from a structured plan but published from the same text when
 // the plan block broke. With zero publishable evidence on a current-sensitive question, the fallback applies the same
 // current-event rule as the plan path. `options.evidenceCount` omitted keeps the old two-argument behaviour.
+// The result carries what the filters removed: { text, removedNumericSentences, removedEventSentences, sentencesTotal }.
 function guardFallback(text, currentSensitive, options) {
-  if (!currentSensitive) return text;
-  var out = stripUnverifiedCurrentNumericSentences(text);
-  if (options && options.evidenceCount === 0) return stripUnverifiedCurrentEventSentences(out).text;
+  var result = { text: text, removedNumericSentences: 0, removedEventSentences: 0, sentencesTotal: countSentences(text) };
+  if (!currentSensitive) return result;
+  var today = options && options.today;
+  var numeric = stripNumericSentences(text, today);
+  result.text = numeric.text;
+  result.removedNumericSentences = numeric.removed;
+  var events = null;
+  if (options && options.evidenceCount === 0) events = stripUnverifiedCurrentEventSentences(numeric.text, null, { today: today });
   // v58.77 AI-01: with evidence rows handed in, an event sentence must name what one of them covers (same as the plan path).
-  if (options && Array.isArray(options.evidenceRows)) return stripUnverifiedCurrentEventSentences(out, function(sentence) { return eventBoundToEvidence(sentence, options.evidenceRows); }).text;
-  return out;
+  else if (options && Array.isArray(options.evidenceRows)) events = stripUnverifiedCurrentEventSentences(numeric.text, function(sentence) { return eventBoundToEvidence(sentence, options.evidenceRows); }, { today: today });
+  if (events) { result.text = events.text; result.removedEventSentences = events.dropped; }
+  return result;
 }
 export function extractAnswerFallback(rawText, currentSensitive, options) {
+  return extractAnswerFallbackResult(rawText, currentSensitive, options).text;
+}
+export function extractAnswerFallbackResult(rawText, currentSensitive, options) {
   var raw = String(rawText || '');
   var hasControlBlock = /\[\/?AI_ANSWER_PLAN\]/i.test(raw);
-  if (!hasControlBlock) return currentSensitive ? guardFallback(raw, true, options) : raw.trim();
+  if (!hasControlBlock) return currentSensitive ? guardFallback(raw, true, options) : guardFallback(raw.trim(), false, options);
   var values = [];
   var fieldRe = /"(?:summary|body)"\s*:\s*("(?:\\.|[^"\\])*")/g;
   var match;
@@ -273,18 +363,27 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     return Object.assign({}, claim, { text: label || '검증된 수치' });
   });
   var eventsDropped = 0;
+  var numericRemoved = 0;
+  var sentencesTotal = 0;
   var noEvidence = currentSensitive && rows.length === 0;
+  var stripNumeric = function(text) {
+    var out = stripNumericSentences(text, nowMs);
+    numericRemoved += out.removed;
+    return out.text;
+  };
   var clean = function(text) {
-    var out = stripUnverifiedCurrentNumericSentences(text);
-    var events = stripUnverifiedCurrentEventSentences(out, noEvidence ? null : function(sentence) { return eventBoundToEvidence(sentence, rows); });
+    var out = stripNumeric(text);
+    var events = stripUnverifiedCurrentEventSentences(out, noEvidence ? null : function(sentence) { return eventBoundToEvidence(sentence, rows); }, { today: nowMs });
     eventsDropped += events.dropped;
     return events.text;
   };
+  sentencesTotal += countSentences(plan.summary);
   var summary = currentSensitive ? clean(plan.summary) : String(plan.summary || '').trim();
   var sections = (Array.isArray(plan.sections) ? plan.sections : []).map(function(section) {
-    if (typeof section === 'string') return currentSensitive ? clean(section) : section;
+    if (typeof section === 'string') { sentencesTotal += countSentences(section); return currentSensitive ? clean(section) : section; }
     if (!section || typeof section !== 'object') return null;
-    return Object.assign({}, section, { title: currentSensitive ? stripUnverifiedCurrentNumericSentences(section.title) : section.title, body: currentSensitive ? clean(section.body) : section.body });
+    sentencesTotal += countSentences(section.body);
+    return Object.assign({}, section, { title: currentSensitive ? stripNumeric(section.title) : section.title, body: currentSensitive ? clean(section.body) : section.body });
   }).filter(function(section) { return typeof section === 'string' ? !!section.trim() : !!(section && section.title && section.body); });
   if (eventsDropped) droppedClaims.push({ claimId: null, reasons: ['current-event-unverified'], count: eventsDropped });
   return {
@@ -293,6 +392,7 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
       return url && rows.some(function(row) { return [claimSourceUrl(row.canonicalUrl), claimSourceUrl(row.sourceUrl), claimSourceUrl(row.source)].indexOf(url) >= 0; });
     }) }),
     droppedClaims: droppedClaims,
-    unboundEvidenceIds: Array.from(new Set(unboundEvidenceIds))
+    unboundEvidenceIds: Array.from(new Set(unboundEvidenceIds)),
+    filterCounts: { removedNumericSentences: numericRemoved, removedEventSentences: eventsDropped, sentencesTotal: sentencesTotal }
   };
 }

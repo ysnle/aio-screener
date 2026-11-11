@@ -1024,6 +1024,43 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   }
   check('v59.97 a kept sentence beside a stripped full-width number keeps its original text',
     pub.stripUnverifiedCurrentNumericSentences('엔비디아 주가는 １８２.３달러입니다. **실적**은 다음 주에 나옵니다.') === '**실적**은 다음 주에 나옵니다.');
+  // v59.99 (plan 041): dated history and fixed structure are not current observations; only 'current' needs evidence.
+  const today = Date.parse('2026-11-12T00:00:00Z');
+  const historyOrStructure = {
+    'S&P 500은 11개 섹터로 구성됩니다.': 'fixed-fact',
+    '2008년 금융위기 때 S&P 500은 약 57% 하락했습니다.': 'dated-past',
+    '애플은 2023년에 시가총액 3조 달러를 처음 돌파했습니다.': 'dated-past',
+    '비트코인의 발행량은 최대 2,100만 개로 제한됩니다.': 'fixed-fact',
+    '금값은 지난 10년간 약 100% 올랐습니다.': 'dated-past',
+    '1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.': 'dated-past',
+    'FOMC는 연 8회 열립니다.': 'none'
+  };
+  const unboundCurrent = ['엔비디아는 데이터센터 매출이 전체의 80%를 넘는 구조입니다.', '코스피는 2,650에서 마감했습니다.', '2023년 고점 대비 현재 12% 낮습니다.', '작년 매출은 600억 달러였습니다.', '올해 2026년 들어 15% 올랐습니다.', 'PER은 28배입니다.', '금리는 4.5%입니다.', '200일선 위 44개 종목이다.'];
+  for (const [t, kind] of Object.entries(historyOrStructure)) {
+    check(`v59.99 history or a fixed structure is ${kind}, not current: ${t}`, typeof pub.numericClaimKind === 'function' && pub.numericClaimKind(t, { today }) === kind);
+  }
+  for (const t of unboundCurrent) {
+    check(`v59.99 a current reading stays current: ${t}`, typeof pub.numericClaimKind === 'function' && pub.numericClaimKind(t, { today }) === 'current');
+  }
+  check('v59.99 a threshold condition is still conditional', typeof pub.numericClaimKind === 'function' && pub.numericClaimKind('VIX가 20을 넘으면 경계한다.', { today }) === 'conditional');
+  check('v59.99 a past-year sentence dated within the last 60 days reads as current',
+    typeof pub.numericClaimKind === 'function' && pub.numericClaimKind('2025년 12월 30일 코스피는 2,450.5에 마감했습니다.', { today: Date.parse('2026-01-10T00:00:00Z') }) === 'current'
+      && pub.numericClaimKind('2025년 3월 코스피는 2,450.5에 마감했습니다.', { today: Date.parse('2026-01-10T00:00:00Z') }) === 'dated-past');
+  const eventsOnly = pub.stripUnverifiedCurrentEventSentences('금값은 지난 10년간 약 100% 올랐습니다. 삼성전자는 반도체 업황 둔화로 하락했습니다.', null, { today });
+  check('v59.99 the current-event rule keeps a completed-period history and drops an unbound current event',
+    eventsOnly.text === '금값은 지난 10년간 약 100% 올랐습니다.' && eventsOnly.dropped === 1);
+  const mixed = Object.keys(historyOrStructure).concat(unboundCurrent, ['삼성전자는 반도체 업황 둔화로 하락했습니다.']).join(' ');
+  const published = pub.buildPublishableAnswerPlan({ summary: mixed, sections: [{ title: '역사와 구조', body: mixed }], claims: { claims: [] } }, [], true, { nowMs: today });
+  const keptAll = (text) => Object.keys(historyOrStructure).every((t) => text.includes(t));
+  const droppedAll = (text) => unboundCurrent.concat(['삼성전자는 반도체 업황 둔화로 하락했습니다.']).every((t) => !text.includes(t));
+  check('v59.99 a current-sensitive plan keeps history and structure and drops every unbound current sentence (summary and section)',
+    keptAll(published.plan.summary) && droppedAll(published.plan.summary) && keptAll(published.plan.sections[0].body) && droppedAll(published.plan.sections[0].body));
+  check('v59.99 the plan reports what its filters removed',
+    !!published.filterCounts && published.filterCounts.removedNumericSentences === 16 && published.filterCounts.removedEventSentences === 2 && published.filterCounts.sentencesTotal === 32);
+  const fallback = typeof pub.extractAnswerFallbackResult === 'function' ? pub.extractAnswerFallbackResult('코스피는 2,650에서 마감했습니다. 금리는 4.5%입니다. 1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.', true, { evidenceCount: 0, today }) : null;
+  check('v59.99 the fallback path keeps history and counts two removed sentences',
+    !!fallback && fallback.text === '1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.' && fallback.removedNumericSentences === 2 && fallback.sentencesTotal === 3
+      && pub.extractAnswerFallback('코스피는 2,650에서 마감했습니다. 1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.', true, { evidenceCount: 0, today }) === '1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.');
 }
 
 // v58.77 (owner 2026-10-25): the 맞춤 profile adapts how answers explain, never what they pick (R724); the example
