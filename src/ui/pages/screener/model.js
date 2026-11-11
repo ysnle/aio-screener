@@ -10,7 +10,7 @@ import { consensusRowFor } from '../../../data/consensus-estimates.js';
 import { CHANNEL_SIGNAL_KEYS, channelSignalValue } from '../../../domain/screener/channel-signals.js';
 import { themeStagesFor, scenarioStateCurrent } from '../../../domain/scenarios/theme-stage.js';
 import { koreanThemeGroups } from '../../../domain/market/korea/korea-participation.js';
-import { signedText, finiteNumber as finite } from '../../../domain/shared/number.js';
+import { signedText, directionOf, finiteNumber as finite } from '../../../domain/shared/number.js';
 // Row arrays from the store and the workbench are replaced, never edited in place, so one market's slice is cut once
 // per array. Handing renderBacktest the same slice also lets the factor-overlap cache below hit (a fresh filter result
 // every render re-measured the overlap on each keystroke).
@@ -210,7 +210,11 @@ export function cell(documentRef, value, className = '') {
   return node;
 }
 export function returnText(value) { return finite(value) == null ? '—' : `${signedText(value, 1)}%`; }
-export function returnColor(value) { return finite(value) == null ? 'var(--text-muted)' : value >= 0 ? 'var(--dir-up)' : 'var(--dir-down)'; }
+// The colour follows the sign returnText prints (one decimal): a return that rounds to 0.0% is neither up nor down.
+export function returnColor(value, digits = 1) {
+  if (finite(value) == null) return 'var(--text-muted)';
+  return ({ up: 'var(--dir-up)', down: 'var(--dir-down)' })[directionOf(value, digits)] || 'var(--text-primary)';
+}
 // v57.81: momentum and trend scores are z-scores inside the sector, so a sector-wide selloff leaves its best names high.
 // Green needs the absolute check too (bands.js bufferedTrend 'up'); otherwise a high score is shown in the neutral colour.
 export const SECTOR_RELATIVE_PRICE_FACTORS = new Set(['momentum', 'trend']);

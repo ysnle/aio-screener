@@ -83,7 +83,7 @@ export function renderKrThemeArtifact({ documentRef, root, store }) {
     const half = `${(Math.abs(theme.ret1m) / max * 50).toFixed(1)}%`;
     bar.classList.add('thp-strength-bar');
     bar.style.width = `max(2px, ${half})`;
-    bar.style.left = theme.ret1m >= 0 ? '50%' : `calc(50% - ${half})`;
+    bar.style.left = direction === 'down' ? `calc(50% - ${half})` : '50%'; // a 0.0% bar starts at the zero line
     const zero = el('span', null, 'thp-strength-zero');
     track.append(zero, bar);
     item.append(track, el('span', `1개월 ${signedText(theme.ret1m, 1)}%, 3개월 ${theme.ret3m == null ? '—' : `${signedText(theme.ret3m, 1)}%`}${theme.above50Pct != null ? `, 50일선 위 ${theme.above50Pct}%` : ''}, ${theme.covered}/${theme.members}종목`, 'stock-read-bar-value'));

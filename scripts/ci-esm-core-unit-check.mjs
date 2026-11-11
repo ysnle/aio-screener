@@ -7675,20 +7675,44 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     const fill = line.children[1].children[0];
     return { text: line.children[2].textContent, up: fill.classList.contains('is-up'), down: fill.classList.contains('is-down'), width: fill.style.width };
   };
+  const { returnColor, returnText } = await load('src/ui/pages/screener/model.js');
+  const screenerReturn = (value) => ({ text: returnText(value), up: returnColor(value) === 'var(--dir-up)', down: returnColor(value) === 'var(--dir-down)' });
+  const labAnnual = (pct) => {
+    const out = {};
+    renderPortfolioBacktestLab({ ok: true, performance: {}, annualRows: [{ year: 2025, return: pct / 100, balance: 1, benchmarkReturn: null, benchmarkBalance: 1 }], settings: {}, warnings: [] }, { root: {}, documentRef: { getElementById: () => out } });
+    const [, cls = '', text = ''] = String(out.innerHTML).match(/<td class="wsl-bt-c is-fig">2025<\/td><td class="wsl-bt-c is-fig is-r ?([\w-]*)">([^<]*)</) || [];
+    return { text, up: cls === 'is-up', down: cls === 'is-down', cls };
+  };
+  const { renderKrThemeArtifact } = await load('src/ui/pages/themes/sectors.js');
+  const krThemeBar = (ret1m) => {
+    const doc = createFakeDocument();
+    const codes = ['000001', '000002', '000003'];
+    const rows = codes.map((code) => ({ sym: `${code}.KS`, ret1m, ret3m: 1, factorSessionDate: '2026-11-10' }));
+    renderKrThemeArtifact({ documentRef: doc, root: { KR_THEME_MAP: { semis: codes.map((code) => ({ code })) } }, store: { getState: () => ({ screener: { rows } }) } });
+    const findBar = (node) => node?.classList?.contains('thp-strength-bar') ? node : (node?.children || []).map(findBar).find(Boolean) || null;
+    const findValue = (node) => node?.classList?.contains('stock-read-bar-value') ? node : (node?.children || []).map(findValue).find(Boolean) || null;
+    const host = doc.getElementById('kr-themes-artifact-read');
+    const bar = findBar(host);
+    // A bar drawn left of the zero line reads as a fall as much as the falling class does.
+    return { text: findValue(host)?.textContent || '', up: !!bar?.classList.contains('is-up'), down: !!bar?.classList.contains('is-down') || /^calc/.test(bar?.style?.left || '') };
+  };
   const sites = [
     ['screener inspector 1-month move', inspectorMove, 1, 1, (t) => t.replace(/^1개월 /, '')],
     ['portfolio backtest active return', labActive, 2, 1, (t) => t.split(' / ')[0]],
-    ['screener validation IC bar', icBar, 3, 0.1, (t) => t]
+    ['screener validation IC bar', icBar, 3, 0.1, (t) => t],
+    ['screener table return colour', screenerReturn, 1, 1, (t) => t, 'v59.98'],
+    ['portfolio backtest annual return', labAnnual, 2, 1, (t) => t, 'v59.98'],
+    ['Korean theme 1-month bar', krThemeBar, 1, 1, (t) => t.replace(/^1개월 /, '').split(',')[0], 'v59.98']
   ];
-  for (const [label, read, digits, scale, printed] of sites) {
+  for (const [label, read, digits, scale, printed, release = 'v59.97'] of sites) {
     const { flat, up, down } = probes(digits);
     for (const value of flat) {
       const got = read(value);
-      if (got.up || got.down || /^[+-]/.test(printed(got.text)) || (got.width && got.width !== '0%')) fail(`v59.97 the ${label} prints a value that rounds to zero flat, with no sign or up/down class (${value}): ${JSON.stringify(got)}`);
+      if (got.up || got.down || /^[+-]/.test(printed(got.text)) || (got.width && got.width !== '0%')) fail(`${release} the ${label} prints a value that rounds to zero flat, with no sign or up/down class (${value}): ${JSON.stringify(got)}`);
     }
     const rising = read(up * scale), falling = read(down * scale);
-    if (!rising.up || rising.down || /^-/.test(printed(rising.text))) fail(`v59.97 a rising ${label} keeps its rising class: ${JSON.stringify(rising)}`);
-    if (!falling.down || falling.up || !/^-/.test(printed(falling.text))) fail(`v59.97 a falling ${label} keeps its minus sign and falling class: ${JSON.stringify(falling)}`);
+    if (!rising.up || rising.down || /^-/.test(printed(rising.text))) fail(`${release} a rising ${label} keeps its rising class: ${JSON.stringify(rising)}`);
+    if (!falling.down || falling.up || !/^-/.test(printed(falling.text))) fail(`${release} a falling ${label} keeps its minus sign and falling class: ${JSON.stringify(falling)}`);
   }
 }
 // A market sentence reads the series it prints and the bands the other screens share.
