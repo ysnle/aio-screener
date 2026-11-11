@@ -540,6 +540,11 @@ export function reactionText(reaction) {
 }
 
 // ---- headline --------------------------------------------------------------------------------------------------------
+/** A headline reads as Korean when it holds at least two Hangul syllables (the rule the headline-translation gate checks). */
+export function isKoreanHeadline(text) {
+  return (String(text || '').match(/[가-힣]/g) || []).length >= 2;
+}
+
 /**
  * A Korean headline, or one built from the first checked figure. An English title copied from the release, or a line
  * with a figure the source does not hold, is replaced (P2137: GOOGL showed its English press-release title and MSFT the
@@ -552,7 +557,7 @@ export function briefHeadline(text, { nameKo, figures = [], sourceNumbers = null
   // 발표") or an amount kept in the filing's thousands ("$1,902,418천") is rebuilt from the figures as well.
   const english = /[A-Za-z]{2,}(?:[\s-]+[A-Za-z]{2,}){2,}/.test(value);
   const rawUnit = /\$[\d,]+\s*천/.test(value);
-  if (value && /[가-힣]/.test(value) && value !== generic && !english && !rawUnit && (!sourceNumbers || !unverifiedNumbers(value, sourceNumbers).length)) return value;
+  if (value && isKoreanHeadline(value) && value !== generic && !english && !rawUnit && (!sourceNumbers || !unverifiedNumbers(value, sourceNumbers).length)) return value;
   const lead = figures.find((figure) => figure?.metric === 'revenue') || figures[0];
   return lead?.value ? `${nameKo} 실적: ${String(lead.label || '').trim()} ${lead.value}`.replace(/\s+/g, ' ').trim() : generic;
 }

@@ -33,7 +33,7 @@ export { EARNINGS_SCHEMA, FOMC_SCHEMA, POINTS_SCHEMA, TRANSCRIPT_SCHEMA, REASONS
 import {
   EVENT_BRIEFS_SCHEMA, withoutTradeMarks, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
   parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, epsComparisonBasis, estimateAiCostUsd, AI_RATE_CARD,
-  MOVER_BY_SYMBOL, briefHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable, watchItem
+  MOVER_BY_SYMBOL, briefHeadline, isKoreanHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable, watchItem
 } from '../src/domain/briefing/event-briefs.js';
 import { readNumber, usdScaleWords } from '../src/domain/shared/number.js';
 
@@ -275,9 +275,11 @@ function safeWatch(list, sourceText) {
   return (Array.isArray(list) ? list : []).map(watchItem).filter((text) => text && !unverifiedNumbers(text, numbers).length).slice(0, 4);
 }
 
+// v59.97: a headline that does not read as Korean (two Hangul syllables) falls back, so the stored brief always passes
+// the headline-translation preflight gate.
 function safeHeadline(text, sourceText, fallback) {
   const value = String(text || '').trim();
-  return value && !unverifiedNumbers(value, sourceNumberSet(sourceText)).length ? value : fallback;
+  return value && isKoreanHeadline(value) && !unverifiedNumbers(value, sourceNumberSet(sourceText)).length ? value : fallback;
 }
 
 // P2138 / v59.45 P21-EPS-01: the GAAP-only test moved into epsComparisonBasis (src/domain/briefing/event-briefs.js, v59.48),

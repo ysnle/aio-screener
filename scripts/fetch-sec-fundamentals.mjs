@@ -230,6 +230,32 @@ export function selectSecBatch(sorted, limit, extra = 0, nowMs = Date.now(), ref
   return [...primary, ...sorted.slice(limit).filter(backfillOnly).slice(0, extra)];
 }
 
+// v59.97: an issuer recorded without comparable annual facts (a recent listing that has filed only 10-Qs) is read again
+// once it files a periodic report dated after that attempt. The daily index carries no form type, so any periodic form
+// counts (one extra read per quarter for such an issuer); the retry stamps a new attemptedAt, so one filing triggers once.
+export const SEC_NO_ANNUAL_REASON_CODES = Object.freeze(['required-us-gaap-annual-concepts-unavailable', 'required-ifrs-annual-concepts-unavailable']);
+export function filedAfterNoAnnualAttempt(priorFailure, periodicFiledAt) {
+  if (priorFailure?.status !== 'TERMINAL_UNSUPPORTED' || !SEC_NO_ANNUAL_REASON_CODES.includes(priorFailure.reasonCode)) return false;
+  const attempted = String(priorFailure.attemptedAt || priorFailure.failedAt || '').slice(0, 10);
+  return Boolean(periodicFiledAt && attempted && String(periodicFiledAt) > attempted);
+}
+
+// Pure: whether one candidate row (built in refreshSecFundamentals) is due this run. In order: a forced refresh; a
+// successor registrant's new entry version; a terminal row stays skipped unless rechecks are explicit, its concept set
+// changed, or it has no annual facts and a newer periodic filing exists; a concept-set change; then data due and the
+// failure retry spacing.
+export function isSecTargetDue(row, { now, force = false, successor = null, recheckUnsupported = false, retryFailedNow = false } = {}) {
+  if (force) return true;
+  if (successor && row.priorFailure && row.priorFailure.successorVersion !== successor.version) return true;
+  const conceptSetChanged = row.conceptSetChanged;
+  const noAnnualRecheck = filedAfterNoAnnualAttempt(row.priorFailure, row.periodicFiledAt);
+  if (row.priorFailure?.status === 'TERMINAL_UNSUPPORTED' && !recheckUnsupported && !conceptSetChanged && !noAnnualRecheck) return false;
+  if (conceptSetChanged) return true;
+  const dataDue = !row.fetchedAt || row.newFiling || noAnnualRecheck || row.cashChainMissing || row.normalizerOutdated || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
+  const retryDue = retryFailedNow || !row.lastFailureAt || now - new Date(row.lastFailureAt).getTime() >= FAILURE_RETRY_AFTER_MS;
+  return dataDue && retryDue;
+}
+
 export async function refreshSecFundamentals(priceHints = null, { scope = 'core', universePath = UNIVERSE_PATH, outPath = OUT, compact = false, requireRestored = true, batchLimit = null, sicBackfillLimit = 0 } = {}) {
   const universePayload = await readJSON(universePath, { universe: [] });
   const screener = expandScreenerArtifact(await readJSON(SCREENER_PATH, { data: {} }));
@@ -294,8 +320,10 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
   const recheckUnsupported = process.env.SEC_RECHECK_UNSUPPORTED === '1';
   const backfillExtra = scope === 'core' ? Math.max(0, Math.min(100, Number(process.env.SEC_BACKFILL_EXTRA ?? SEC_BACKFILL_EXTRA_DEFAULT) || 0)) : 0;
   const dueTargets = eligible
-    .map(symbol => ({
+    .map(symbol => ({ symbol, periodicFiledAt: periodic.filers.get(tickerMap.get(tickerKey(symbol))?.cik) || null }))
+    .map(({ symbol, periodicFiledAt }) => ({
       symbol,
+      periodicFiledAt,
       fetchedAt: previous.data && previous.data[symbol] && previous.data[symbol].fetchedAt,
       // Codex review 2026-10-05: P1446 added the cash chain (operating cash flow, capex, debt) to new
       // fetches, but stored records only refresh after REFRESH_AFTER_MS, so all 592 published issuers
@@ -310,7 +338,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
       // P1798: a stored record without a share count leaves market cap, P/E and the value factor blank (GOOGL/META
       // waited 2-5 days behind 700 outdated records), so it is refreshed first among the due records.
       // 2026-10-17: a count withheld by policy (non-USD report, 20-F ordinary shares) is not missing — a re-read cannot fill it.
-      newFiling: Boolean(previous.data?.[symbol]?.fetchedAt && (periodic.filers.get(tickerMap.get(tickerKey(symbol))?.cik) || '') >= String(previous.data[symbol].fetchedAt).slice(0, 10)),
+      newFiling: Boolean(previous.data?.[symbol]?.fetchedAt && (periodicFiledAt || '') >= String(previous.data[symbol].fetchedAt).slice(0, 10)),
       sharesMissing: Boolean(previous.data && previous.data[symbol] && !(Number(previous.data[symbol].sharesOutstanding) > 0)
         && !['reporting-currency-differs', 'foreign-share-basis-unverified'].includes(previous.data[symbol].sharesCheck)),
       lastFailureAt: previousFailureAt.get(symbol) || null,
@@ -319,18 +347,8 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
       conceptSetChanged: SEC_CONCEPT_SET_REASON_CODES.includes(previousFailureRecords.get(symbol)?.reasonCode)
         && previousFailureRecords.get(symbol)?.conceptSetVersion !== SEC_CONCEPT_SET_VERSION
     }))
-    .filter(row => {
-      if (force) return true;
-      const conceptSetChanged = row.conceptSetChanged;
-      // v57.87: a successor registrant (SEC_SUCCESSOR_ISSUERS) is rechecked once per entry version with its predecessor's facts.
-      const successor = SEC_SUCCESSOR_ISSUERS[tickerMap.get(tickerKey(row.symbol))?.cik];
-      if (successor && row.priorFailure && row.priorFailure.successorVersion !== successor.version) return true;
-      if (row.priorFailure?.status === 'TERMINAL_UNSUPPORTED' && !recheckUnsupported && !conceptSetChanged) return false;
-      if (conceptSetChanged) return true;
-      const dataDue = !row.fetchedAt || row.newFiling || row.cashChainMissing || row.normalizerOutdated || now - new Date(row.fetchedAt).getTime() >= REFRESH_AFTER_MS;
-      const retryDue = retryFailedNow || !row.lastFailureAt || now - new Date(row.lastFailureAt).getTime() >= FAILURE_RETRY_AFTER_MS;
-      return dataDue && retryDue;
-    })
+    // v57.87: a successor registrant (SEC_SUCCESSOR_ISSUERS) is rechecked once per entry version with its predecessor's facts.
+    .filter(row => isSecTargetDue(row, { now, force, successor: SEC_SUCCESSOR_ISSUERS[tickerMap.get(tickerKey(row.symbol))?.cik], recheckUnsupported, retryFailedNow }))
     // Prefer never-attempted and retryable candidates. Terminal taxonomy
     // failures remain in the audit but cannot starve fresh coverage.
     // 2026-10-16: a failure recorded under an older concept set is rechecked FIRST. It sorted last behind every due

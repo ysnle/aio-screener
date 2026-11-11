@@ -220,6 +220,27 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   assert.ok(!batch.some((row) => row.symbol === 'FAIL' || row.symbol === 'NEW'), 'v58.55 the extra slots exclude failures and never-fetched issuers');
   assert.equal(selectSecBatch(due, 24, 0, nowMs).length, 24, 'v58.55 without extra slots the batch stays at its limit');
 
+  // v59.97: an issuer recorded without annual facts (only 10-Qs filed) is read again once a newer periodic filing exists.
+  {
+    const sec = await import('./fetch-sec-fundamentals.mjs');
+    assert.equal(typeof sec.isSecTargetDue, 'function', 'v59.97 the SEC due test is an exported pure function');
+    const filers = sec.parsePeriodicFilers(['10-K        NEWCO INC         1990001     20261015    edgar/data/1990001/0001990001-26-000001.txt',
+      '10-Q        OLDCO INC         1990002     20261001    edgar/data/1990002/0001990002-26-000002.txt'].join('\n'));
+    const attemptedAt = '2026-10-05T12:00:00.000Z';
+    const terminal = (reasonCode, at = attemptedAt) => ({ symbol: 'NEWCO', status: 'TERMINAL_UNSUPPORTED', reasonCode, conceptSetVersion: 'current', attemptedAt: at });
+    const row = (priorFailure, cik) => ({ symbol: priorFailure.symbol, fetchedAt: null, periodicFiledAt: filers.get(cik) || null, priorFailure, lastFailureAt: priorFailure.attemptedAt, conceptSetChanged: false });
+    const dueAt = (r) => sec.isSecTargetDue(r, { now: nowMs });
+    assert.equal(dueAt(row(terminal('required-us-gaap-annual-concepts-unavailable'), '0001990001')), true, 'v59.97 a no-annual-facts issuer with a 10-K filed after the attempt is due');
+    assert.equal(dueAt(row(terminal('required-ifrs-annual-concepts-unavailable'), '0001990001')), true, 'v59.97 the IFRS no-annual-facts reason is rechecked the same way');
+    assert.equal(dueAt(row(terminal('required-us-gaap-annual-concepts-unavailable'), '0001990002')), false, 'v59.97 a periodic filing dated before the attempt does not make it due');
+    assert.equal(dueAt(row(terminal('required-us-gaap-annual-concepts-unavailable'), '0009999999')), false, 'v59.97 no newer periodic filing, not due');
+    assert.equal(dueAt(row(terminal('ifrs-taxonomy-not-supported-by-us-gaap-normalizer'), '0001990001')), false, 'v59.97 a terminal row with another reason stays skipped');
+    // A retry that again finds no annual facts stamps a new attemptedAt, so the same filing does not trigger again.
+    assert.equal(dueAt(row(terminal('required-us-gaap-annual-concepts-unavailable', '2026-10-16T12:00:00.000Z'), '0001990001')), false, 'v59.97 one filing triggers one retry');
+    // The retry goes through the normal 24-hour spacing.
+    assert.equal(sec.isSecTargetDue(row(terminal('required-us-gaap-annual-concepts-unavailable', '2026-10-14T23:30:00.000Z'), '0001990001'), { now: Date.parse('2026-10-15T06:00:00Z') }), false, 'v59.97 the retry keeps the 24-hour failure spacing');
+  }
+
   // Rendering: pending (8 columns) and collected (10 columns) through the real renderers.
   const { dupontCard, rdCard } = await import('../src/ui/components/fundamental-analysis-cards.js');
   const pendingDupont = dupontCard(doc, parseFiscalHistory(legacy));
