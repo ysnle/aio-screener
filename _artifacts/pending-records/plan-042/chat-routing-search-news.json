@@ -1,0 +1,19 @@
+{
+  "version": "v59.99",
+  "date": "2026-11-12",
+  "p": {
+    "title": "v59.99 an answer that carried no web citations was announced as a searched answer",
+    "symptom": "When hosted search was attached, the AI panel's status line always said '웹검색으로 보강해 답했습니다. 참고 링크는 답변 아래에 있습니다.' even when the answer came back without any citation. With tool_choice 'auto' (new for questions that do not depend on today's values) the model may skip the search, so the line would describe a search that did not happen.",
+    "root_cause": "chatSendUnified's onDone chose the status text from modelOpts.webSearch (search requested), not from what this request's answer carried (_aioAIRequestCitations).",
+    "fix": "The status text comes from searchStatusText (src/ai/research/native-search.js): searched only when this request's answer has citations, '웹검색 출처 없이 앱 자료와 일반 지식으로 답했습니다.' otherwise. In the same change: explain-mode questions use luna-low (reasoning effort low, tokens unchanged; quick stays none); attachNativeSearch sets tool_choice 'auto' when searchMustRun says the question is not current and the user did not ask for a search ('required' otherwise and when the caller does not say); the news block takes up to 8 items, titles 160 and summaries 300 characters, 6,000 characters in total from CHAT_REFERENCE_BUDGET (it fell to the 2,400-character wrapper default with 5 items).",
+    "violated_rule": "A user-facing line states only what happened (no invented facts about the answer's evidence).",
+    "prevention": "scripts/ci-ai-intelligence-contract-check.mjs (v59.99): an answer with no citations is not reported as searched; concept questions route to effort low and a quick fact to none; a non-current concept question with search attached gets tool_choice auto, an explicit search request and a current-fact question get required, a caller that does not say keeps required; a fixture with 8 long news items keeps 8 items within 6,000 characters and its wrapper does not cut it.",
+    "verification": "Failing-first: the new checks fail on the Part A commit (effort none for 감마 스퀴즈/듀레이션, tool_choice required, 5 news items in 1,729 characters) and pass after; ci-worker-relay-check, ci-ai-budget-scope-check, ci-pipeline-semantics-check, ci-native-search-check and ci-worker-openai-contract-check exit 0; the Worker budget admits tool_choice auto with the same reservation as required.",
+    "files": ["js/aio-chat.js", "src/ai/research/native-search.js", "src/app/compatibility-globals.js", "src/ai/context/reference-budget.js", "scripts/ci-ai-intelligence-contract-check.mjs", "scripts/fixtures/chat-prompt-assembly.mjs"]
+  },
+  "r": null,
+  "changelog": [
+    "**Chat routing ({P}):** a concept explanation reasons at low effort before writing the mechanism; hosted search is optional for a question that does not depend on today's values (required for a current fact or an explicit request); the status line says an answer was searched only when it carries citations; news reaches the model as up to 8 items in 6,000 characters instead of 5 cut to 2,400."
+  ],
+  "note": "v59.99: plan 042 Part B — explain effort, optional search, news cap, honest search status"
+}
