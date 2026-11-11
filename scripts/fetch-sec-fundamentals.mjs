@@ -240,6 +240,29 @@ export function filedAfterNoAnnualAttempt(priorFailure, periodicFiledAt) {
   return Boolean(periodicFiledAt && attempted && String(periodicFiledAt) > attempted);
 }
 
+// Pure: a terminal failure recorded for a concept-set reason under an older concept set is rechecked; the terminal IFRS
+// rows (no conceptSetVersion) are rechecked under the IFRS basis the same way. The recheck stamps the current version
+// (secNoAnnualFailure), so each row is rechecked once per concept-set change.
+export function secConceptSetChanged(priorFailure) {
+  return SEC_CONCEPT_SET_REASON_CODES.includes(priorFailure?.reasonCode) && priorFailure?.conceptSetVersion !== SEC_CONCEPT_SET_VERSION;
+}
+
+// Pure: the terminal record for an issuer whose filings hold no comparable annual facts under the current concept set.
+export function secNoAnnualFailure(symbol, capability, attemptedAt, successorStamp = {}) {
+  return {
+    symbol,
+    status: 'TERMINAL_UNSUPPORTED',
+    reasonCode: capability.issuerTaxonomy === 'IFRS' ? 'required-ifrs-annual-concepts-unavailable' : 'required-us-gaap-annual-concepts-unavailable',
+    reason: capability.issuerTaxonomy === 'IFRS' ? 'no comparable annual IFRS revenue facts' : 'no comparable annual US-GAAP revenue/net-income facts',
+    conceptSetVersion: SEC_CONCEPT_SET_VERSION,
+    issuerTaxonomy: capability.issuerTaxonomy,
+    filingForms: capability.filingForms,
+    attemptedAt,
+    retryPolicy: 'manual-or-explicit-SEC_RECHECK_UNSUPPORTED',
+    ...successorStamp
+  };
+}
+
 // Pure: whether one candidate row (built in refreshSecFundamentals) is due this run. In order: a forced refresh; a
 // successor registrant's new entry version; a terminal row stays skipped unless rechecks are explicit, its concept set
 // changed, or it has no annual facts and a newer periodic filing exists; a concept-set change; then data due and the
@@ -343,9 +366,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
         && !['reporting-currency-differs', 'foreign-share-basis-unverified'].includes(previous.data[symbol].sharesCheck)),
       lastFailureAt: previousFailureAt.get(symbol) || null,
       priorFailure: previousFailureRecords.get(symbol) || null,
-      // v6: the terminal IFRS rows (no conceptSetVersion) are rechecked under the IFRS basis the same way.
-      conceptSetChanged: SEC_CONCEPT_SET_REASON_CODES.includes(previousFailureRecords.get(symbol)?.reasonCode)
-        && previousFailureRecords.get(symbol)?.conceptSetVersion !== SEC_CONCEPT_SET_VERSION
+      conceptSetChanged: secConceptSetChanged(previousFailureRecords.get(symbol))
     }))
     // v57.87: a successor registrant (SEC_SUCCESSOR_ISSUERS) is rechecked once per entry version with its predecessor's facts.
     .filter(row => isSecTargetDue(row, { now, force, successor: SEC_SUCCESSOR_ISSUERS[tickerMap.get(tickerKey(row.symbol))?.cik], recheckUnsupported, retryFailedNow }))
@@ -422,18 +443,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
         }
       }
       if (!normalized) {
-        failuresBySymbol.set(target.symbol, {
-          symbol: target.symbol,
-          status: 'TERMINAL_UNSUPPORTED',
-          reasonCode: capability.issuerTaxonomy === 'IFRS' ? 'required-ifrs-annual-concepts-unavailable' : 'required-us-gaap-annual-concepts-unavailable',
-          reason: capability.issuerTaxonomy === 'IFRS' ? 'no comparable annual IFRS revenue facts' : 'no comparable annual US-GAAP revenue/net-income facts',
-          conceptSetVersion: SEC_CONCEPT_SET_VERSION,
-          issuerTaxonomy: capability.issuerTaxonomy,
-          filingForms: capability.filingForms,
-          attemptedAt,
-          retryPolicy: 'manual-or-explicit-SEC_RECHECK_UNSUPPORTED',
-          ...successorStamp
-        });
+        failuresBySymbol.set(target.symbol, secNoAnnualFailure(target.symbol, capability, attemptedAt, successorStamp));
         continue;
       }
       data[target.symbol] = compact ? compactSecRecord(normalized) : normalized;

@@ -1514,10 +1514,20 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const both = normalizeSecCompanyFacts('BTH', { cik: 4, entityName: 'Both Corp', facts: { 'us-gaap': {
       Revenues: { units: { USD: [period(400, 'a', '2024-01-01', '2024-12-31', '2025-02-20'), period(500, 'b', '2025-01-01', '2025-12-31', '2026-02-20')] } },
       ...bankRevenue, ...common }, ...shares } }, 50, submissions);
-    const secSource = readFileSync(new URL('./fetch-sec-fundamentals.mjs', import.meta.url), 'utf8');
-    ok = !!bank && bank.margin === 25 && bank.revGrowth === 25 && !!both && both.margin === 5 && both.revGrowth === 25
-      // terminal concept-coverage rows are rechecked once when the concept set version changes
-      && /conceptSetChanged/.test(secSource) && /conceptSetVersion: SEC_CONCEPT_SET_VERSION/.test(secSource);
+    // v59.98: terminal concept-coverage rows are rechecked once when the concept set version changes — by behaviour: an
+    // older-set record is due, the record the recheck writes is not, and a terminal row of another reason stays skipped.
+    const { secConceptSetChanged, secNoAnnualFailure, isSecTargetDue, SEC_CONCEPT_SET_REASON_CODES } = await import('./fetch-sec-fundamentals.mjs');
+    const nowMs = Date.parse('2026-11-11T00:00:00Z');
+    const terminalRow = (priorFailure) => ({ symbol: 'OLD', fetchedAt: null, priorFailure, conceptSetChanged: secConceptSetChanged(priorFailure), lastFailureAt: '2026-11-10T23:00:00Z' });
+    const olderSet = { symbol: 'OLD', status: 'TERMINAL_UNSUPPORTED', reasonCode: SEC_CONCEPT_SET_REASON_CODES[0], conceptSetVersion: 'sec-annual-concepts.v0' };
+    const rechecked = secNoAnnualFailure('OLD', { issuerTaxonomy: 'US-GAAP', filingForms: ['10-K'] }, '2026-11-11T00:00:00.000Z');
+    const otherReason = { ...olderSet, reasonCode: 'not-a-concept-set-reason' };
+    const recheckOnce = isSecTargetDue(terminalRow(olderSet), { now: nowMs }) === true
+      && SEC_CONCEPT_SET_REASON_CODES.includes(rechecked.reasonCode) && isSecTargetDue(terminalRow(rechecked), { now: nowMs }) === false
+      && isSecTargetDue(terminalRow(otherReason), { now: nowMs }) === false;
+    check('v59.98 a terminal SEC row recorded under an older concept set is rechecked once, then skipped under the stamped set', recheckOnce,
+      JSON.stringify({ olderSet: isSecTargetDue(terminalRow(olderSet), { now: nowMs }), rechecked: isSecTargetDue(terminalRow(rechecked), { now: nowMs }), otherReason: isSecTargetDue(terminalRow(otherReason), { now: nowMs }), reasonCodes: SEC_CONCEPT_SET_REASON_CODES }));
+    ok = !!bank && bank.margin === 25 && bank.revGrowth === 25 && !!both && both.margin === 5 && both.revGrowth === 25;
     detail = JSON.stringify({ bank: bank && { margin: bank.margin, revGrowth: bank.revGrowth }, both: both && { margin: both.margin, revGrowth: both.revGrowth } });
   } catch (error) { detail = error.message; }
   check('P1374 SEC normalizer covers bank revenue net of interest expense without overriding standard revenue', ok, detail.slice(0, 500));
