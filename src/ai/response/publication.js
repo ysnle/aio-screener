@@ -50,10 +50,17 @@ var UNITLESS_MARKET_LEVEL = /(?:10년물|2년물|30년물|국채\s*금리|원\/�
 // A decimal or comma-grouped number that is not a period, date or count: "182.3", "1,385.2". It counts only in a
 // sentence that also reports an observation ("엔비디아는 어제 182.3에 마감했다").
 var OBSERVED_PLAIN_NUMBER = /(?<![\d,.])(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d+)(?![\d,.]|\s*(?:년|월|일|개월|분기|주|쪽|번|차례|회|명|개|곳|건))/;
+// Detection reads a normalised copy: NFKC turns full-width digits and "％" into ASCII, and markdown emphasis and backticks
+// are removed so "**VIX** 15.2" reads "VIX 15.2".
+function normaliseForDetection(value) {
+  return String(value || '').normalize('NFKC').replace(/\*\*|__|[*`]/g, '');
+}
+// Units and currency codes spelled out: "4.1 퍼센트", "72,000 KRW", "182.3 dollars", "4.15 percent", "KRW 72,000", "USD 182.3".
+var SPELLED_UNIT_NUMBER = /\d[\d,.]*\s*(?:퍼센트|\b(?:KRW|USD)\b|\bdollars?\b|\bpercent\b)|\b(?:USD|KRW|US\$)\s*\d/i;
 export function hasCurrentNumericContent(value) {
-  var text = String(value || '');
-  if (UNITLESS_MARKET_LEVEL.test(text) || (OBSERVATION_MARKER.test(text) && OBSERVED_PLAIN_NUMBER.test(text))) return true;
-  return /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:코스피|KOSPI)(?:\s*200)?\s*(?:지수)?\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:코스닥|나스닥|다우|닛케이|니케이|러셀\s*2000|S&P\s*500|KOSDAQ|Nasdaq|Dow|Nikkei)\s*(?:지수)?\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:현재|최신|지금|오늘)[^.!?。！？\n]{0,40}?\d[\d,.]*|\d[\d,.]*\s*(?:개(?![월년])|곳|건|명|종목|조|억|만)|\b(?:19|20)\d{2}-\d{2}-\d{2}(?!\d))/i.test(String(value || ''));
+  var text = normaliseForDetection(value);
+  if (UNITLESS_MARKET_LEVEL.test(text) || SPELLED_UNIT_NUMBER.test(text) || (OBSERVATION_MARKER.test(text) && OBSERVED_PLAIN_NUMBER.test(text))) return true;
+  return /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX(?:\s*지수)?|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:코스피|KOSPI)(?:\s*200)?\s*(?:지수)?\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:코스닥|나스닥|다우|닛케이|니케이|러셀\s*2000|S&P\s*500|KOSDAQ|Nasdaq|Dow|Nikkei)\s*(?:지수)?\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:현재|최신|지금|오늘)[^.!?。！？\n]{0,40}?\d[\d,.]*|\d[\d,.]*\s*(?:개(?![월년])|곳|건|명|종목|조|억|만)|\b(?:19|20)\d{2}-\d{2}-\d{2}(?!\d))/i.test(text);
 }
 
 // X02 (2026-10-13): a period/question mark only ends a sentence when it is not glued to the next
@@ -65,7 +72,7 @@ export function splitAnswerSentences(line) {
   var start = 0;
   for (var i = 0; i < text.length; i++) {
     var ch = text[i];
-    var ends = '。！？'.indexOf(ch) >= 0 || ('.!?'.indexOf(ch) >= 0 && !/[A-Za-z0-9_%\/=&#~+\-]/.test(text[i + 1] || ''));
+    var ends = '。！？'.indexOf(ch) >= 0 || ('.!?'.indexOf(ch) >= 0 && !/[A-Za-z0-9_%\/=&#~+\-０-９Ａ-Ｚａ-ｚ]/.test(text[i + 1] || ''));
     if (!ends) continue;
     while (i + 1 < text.length && '.!?。！？'.indexOf(text[i + 1]) >= 0) i++;
     pieces.push(text.slice(start, i + 1));

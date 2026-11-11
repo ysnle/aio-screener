@@ -992,6 +992,17 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   }
   check('v59.94 a unit-less yield threshold inside a condition stays',
     pub.stripUnverifiedCurrentNumericSentences('10년물이 4.5를 넘으면 부담이 커집니다.') === '10년물이 4.5를 넘으면 부담이 커집니다.');
+  // v59.97: emphasis, full-width digits, 퍼센트/％, currency codes and English units hid a current number from the check.
+  const spelledObserved = ['VIX 지수는 15.2입니다.', '**VIX** 15.2입니다.', '**코스피**는 2,450입니다.', '실업률은 4.1 퍼센트입니다.', '실업률은 4.1％입니다.', '삼성전자는 72,000 KRW입니다.', '삼성전자 주가는 KRW 72,000입니다.', '엔비디아는 USD 182.3에 거래됩니다.', '엔비디아 주가는 １８２.３달러입니다.', 'Nvidia trades at 182.3 dollars.', 'The 10-year yield is 4.15 percent.'];
+  for (const t of spelledObserved) {
+    check(`v59.97 a current number in another spelling is detected and stripped: ${t}`, pub.hasCurrentNumericContent(t) === true && pub.stripUnverifiedCurrentNumericSentences(t) === '');
+  }
+  const spelledNotObserved = ['VIX 지수 산출 방식은 1993년에 바뀌었습니다.', '**코스피** 구성 종목은 시가총액 순입니다.', '퍼센트와 퍼센트포인트는 다릅니다.', 'KRW 표시 자산과 USD 표시 자산을 나눠 봅니다.', 'The 10-year note matures in 2036.'];
+  for (const t of spelledNotObserved) {
+    check(`v59.97 a unit word or code without a current number is kept: ${t}`, pub.hasCurrentNumericContent(t) === false && pub.stripUnverifiedCurrentNumericSentences(t) === t);
+  }
+  check('v59.97 a kept sentence beside a stripped full-width number keeps its original text',
+    pub.stripUnverifiedCurrentNumericSentences('엔비디아 주가는 １８２.３달러입니다. **실적**은 다음 주에 나옵니다.') === '**실적**은 다음 주에 나옵니다.');
 }
 
 // v58.77 (owner 2026-10-25): the 맞춤 profile adapts how answers explain, never what they pick (R724); the example
