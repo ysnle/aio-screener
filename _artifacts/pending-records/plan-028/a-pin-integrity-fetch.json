@@ -1,0 +1,17 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.97 the browser-data pin integrity check fetches its pinned commit instead of skipping in shallow CI checkouts",
+    "symptom": "In CI the workspace contracts shard checks out at depth 1, so checkPinIntegrity found the pinned public-data commit absent and silently skipped the tree-vs-manifest and ancestry checks on every run; a manifest missing a deployed file or a pin outside main's history passed CI.",
+    "root_cause": "scripts/browser-data-fixture.mjs only compared the pinned tree and ancestry when the commit already existed locally and reported 'absent' without a word otherwise.",
+    "fix": "When the pin is absent and an origin remote exists, checkPinIntegrity fetches it once (git fetch --no-tags --depth=1 origin <sha>, no blob filter) and runs the tree-vs-manifest comparison; a pin origin cannot serve is an integrity failure naming the pin. checkPinIntegrity and git() take a repo option so the check can run against another working copy. Limit: after a depth-1 fetch the ancestry check still cannot run (shallow history) and prints '[browser-data-fixture] SKIP ancestry: shallow history (pin <sha12>)' instead of passing silently. Without an origin remote the absent pin keeps today's quiet skip.",
+    "violated_rule": "A gate that cannot run its check must say so, not pass silently.",
+    "prevention": "scripts/ci-browser-data-fixture-check.mjs v59.97 cases build a temporary remote and a depth-1 clone: the absent pin is fetched and matches, a manifest file missing from the pinned tree fails, and a pin the remote does not have fails with the sha named.",
+    "verification": "node scripts/ci-browser-data-fixture-check.mjs exit 0; the three v59.97 cases fail with the old browser-data-fixture.mjs.",
+    "files": ["scripts/browser-data-fixture.mjs", "scripts/ci-browser-data-fixture-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**Pin integrity runs in CI ({P}):** the browser-data pin check fetches its pinned commit in a shallow checkout and compares the tree with the manifest instead of skipping; ancestry prints a labelled shallow-history SKIP."],
+  "note": "v59.97: pin integrity fetches the pin in shallow CI"
+}
