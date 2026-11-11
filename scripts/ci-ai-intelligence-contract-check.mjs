@@ -683,6 +683,14 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
         && Object.keys(macroInputs.inputs.fx || {}).some((key) => /close\.dxy/.test(key)) && spoofed.audit.usedCount === 0
         && transmission.status === 'partial' && !/근거가 없어/.test(transmission.conclusion), JSON.stringify({ audit: macroInputs.audit, spoofed: spoofed.audit, conclusion: transmission.conclusion }));
   }
+  // v59.99 (plan 043 B): the 【이전 대화에서】 block is prompt text, not evidence. On a current-sensitive question a sentence
+  // that repeats a price from an earlier answer is removed like any other unbound current number.
+  {
+    const repeated = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: '지난번 대화 이후 반도체 수요 기대가 약해졌습니다.', claims: [], sections: [{ title: '지난번 이후', body: '엔비디아 주가는 180.5달러입니다. 수요 기대가 꺾인 것이 하락의 배경으로 거론됩니다.' }], citations: [], followUps: [] }) + '[/AI_ANSWER_PLAN]';
+    const out = ctx._aioRunAIResponsePipeline(repeated, { request, questionPlan: { currentSensitive: true }, currentSensitive: true, evidence: [], record: false, streamPhase: 'complete', stripChips: false });
+    detail('v59.99 earlier turns: a figure repeated from an earlier answer is not evidence and is removed on a current question',
+      !out.text.includes('180.5') && out.text.includes('수요 기대가 꺾인 것이'), out.text);
+  }
   delete ctx.window._aioScreenBasisEvidence;
   const withoutClose = run([vixClaim, tnxClaim]);
   detail('#7 control: without the close-basis rows the same claims are dropped', withoutClose.answerPlanBindingAudit.droppedClaims.length === 2 && !withoutClose.text.includes('15.21'), withoutClose.text);
@@ -968,6 +976,45 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     items === 8 && news.raw.length <= 6000 && /kind=NEWS/.test(news.wrapped) && !/length-capped/.test(news.wrapped));
   const longer = promptKit.newsBlock('시장 흐름', 'home', promptKit.longNewsItems(12));
   check(`v59.99 more fresh news than the cap still sends at most 8 items (${(longer.raw.match(/^\d+\. \[/gm) || []).length})`, (longer.raw.match(/^\d+\. \[/gm) || []).length === 8);
+}
+
+// v59.99 (plan 043 B): a new conversation sees what earlier saved conversations said about the same ticker or theme —
+// matched by the ids the chat resolved, other conversations only, dated, 90 days, and only with the saving consent.
+{
+  const sessions = await import('../src/ai/session/chat-sessions.js');
+  const earlier = await import('../src/ai/session/earlier-turns.js');
+  const memStore = (consent = '1') => { const m = new Map(consent ? [[sessions.CONSENT_KEY, consent]] : []); return { m, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) }; };
+  const DAY = 86400000;
+  const now = Date.parse('2026-11-11T14:00:00Z'); // the prompt fixture's clock (FIXTURE_NOW)
+  const store = memStore();
+  sessions.appendTurn(store, { sessionId: 'nv', ctx: 'ticker', question: '엔비디아 실적 어땠어?', answer: '데이터센터 매출이 늘었고 그날 종가는 180.5달러였습니다.', ents: ['NVDA'], at: now - 5 * DAY });
+  sessions.appendTurn(store, { sessionId: 'ts', ctx: 'home', question: '테슬라 PER은?', answer: '테슬라 답', ents: ['TSLA'], at: now - 2 * DAY });
+  sessions.appendTurn(store, { sessionId: 'old', ctx: 'home', question: '엔비디아 작년 이야기', answer: '오래된 답', ents: ['NVDA'], at: now - 91 * DAY });
+  const saved = sessions.loadSessions(store);
+  const found = earlier.relatedEarlierTurns(saved, { entities: ['NVDA'], excludeSessionId: 'new', now });
+  check(`v59.99 earlier turns: the NVDA turn returns with its date, the TSLA and 91-day-old turns do not (${JSON.stringify(found.map((t) => [t.sessionId, t.date]))})`,
+    found.length === 1 && found[0].sessionId === 'nv' && found[0].date === '2026-11-06' && found[0].question === '엔비디아 실적 어땠어?');
+  check('v59.99 earlier turns: the open conversation is not repeated as an earlier one',
+    earlier.relatedEarlierTurns(saved, { entities: ['NVDA'], excludeSessionId: 'nv', now }).length === 0);
+  check('v59.99 earlier turns: a question without ids matches nothing', earlier.relatedEarlierTurns(saved, { entities: [], now }).length === 0);
+  const declined = memStore('0');
+  declined.m.set(sessions.SESSIONS_KEY, store.m.get(sessions.SESSIONS_KEY));
+  const unasked = memStore(null);
+  unasked.m.set(sessions.SESSIONS_KEY, store.m.get(sessions.SESSIONS_KEY));
+  const withoutConsent = [declined, unasked].map((storage) => promptKit.assemble('엔비디아 오늘 왜 떨어졌어?', 'home', { memory: { storage, sessionId: 'new' } }).prompt);
+  check('v59.99 earlier turns: a declined or not-yet-asked reader gets no earlier-conversation block even with turns stored',
+    withoutConsent.every((prompt) => !prompt.includes('【이전 대화에서】')));
+  const longStore = memStore();
+  sessions.appendTurn(longStore, { sessionId: 'l', question: 'q'.repeat(400), answer: 'a'.repeat(2000), ents: ['THEME:semiconductor'], at: now - DAY });
+  const cut = earlier.relatedEarlierTurns(sessions.loadSessions(longStore), { entities: ['theme:semiconductor'], now })[0];
+  check('v59.99 earlier turns: a theme id matches and each turn is cut to 160/500 characters', cut && cut.question.length === 160 && cut.answer.length === 500);
+  const assembled = promptKit.assemble('엔비디아 오늘 왜 떨어졌어?', 'home', { memory: { storage: store, sessionId: 'new' } });
+  const blockCount = assembled.prompt.split('【이전 대화에서】').length - 1;
+  check(`v59.99 earlier turns: the unified prompt carries the block once, dated, before the evidence tail (${blockCount})`,
+    blockCount === 1 && assembled.prompt.includes('1. (2026-11-06) 질문: 엔비디아 실적 어땠어?') && !assembled.prompt.includes('테슬라 답')
+      && assembled.prompt.indexOf('【이전 대화에서】') < assembled.prompt.lastIndexOf('\n\n[AIO EXTERNAL EVIDENCE CONTRACT]') && assembled.entities.includes('NVDA'));
+  const unrelated = promptKit.assemble('감마 스퀴즈가 뭐야?', 'home', { memory: { storage: store, sessionId: 'new' } });
+  check('v59.99 earlier turns: a question about no ticker carries no earlier-conversation block', !unrelated.prompt.includes('【이전 대화에서】'));
 }
 
 // Owner 2026-10-14: saved conversations — nothing stored before consent, one conversation across screens, reopen restores

@@ -1,8 +1,9 @@
 // Offline assembly of the unified chat system prompt (chatSendUnified, js/aio-chat.js) for gate fixtures.
 // The instruction blocks are produced by the real builders: the classic-script functions run in a vm context from
 // their own source, the ESM builders are imported. Blocks that need live data (quotes, technicals, screener, domain
-// pages, knowledge/imported research, the analysis slice, answer visuals, the teach block, chat memory) are not built;
-// the news block is built from a fixture news cache.
+// pages, knowledge/imported research, the analysis slice, answer visuals, the teach block, the same-screen memo) are not
+// built; the news block is built from a fixture news cache, and the reader-memory blocks from a fixture device store
+// (assemble's `memory` option).
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -78,6 +79,12 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
   const maxTokensExpr = statement('var modelOpts = {', ';', 'model opts') + ';';
   const webResearch = statement("sysPrompt += '\\n\\n【웹 리서치 지시", ';\n', 'web research') + ';';
   const evidenceTail = statement("sysPrompt += '\\n\\n[AIO EXTERNAL EVIDENCE CONTRACT]\\n'", ';\n', 'evidence tail') + ';';
+  // Reader memory: the turn's entity ids and the earlier-conversation block, through the chat-globals the panel installs.
+  const turnEntities = statement('state._turnEntities = window.AIO && typeof window.AIO.chatTurnEntities', ';\n', 'turn entities') + ';';
+  const earlierTurns = statement('if (window.AIO && typeof window.AIO.relatedEarlierTurnsBlock', ';\n', 'earlier turns') + ';';
+  run(`function __readerMemory(window, ctxId, detectedTickers) { var state = {}; var sysPrompt = ''; ${turnEntities} ${earlierTurns} return { entities: state._turnEntities, text: sysPrompt }; }`, 'unified#memory');
+  const { installChatGlobals } = await load('src/app/chat-globals.js');
+  const { installChatSessions } = await load('src/ui/components/chat-sessions.js');
   run(`function __newsBlock(ctxId, q) { ${newsWrap.replace('var newsCtx', 'var newsCtx')} return newsCtx || ''; }`, 'unified#news');
   run(`function __route(q, ctxId, _uniMode, _uniDeepData) { ${modelRoute} ${maxTokensExpr} return { modelKey: selectedModelKey, maxTokens: modelOpts.maxTokens }; }`, 'unified#route');
   run(`function getModelConfig(key) { return { label: key }; }`, 'stub');
@@ -103,7 +110,21 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
     return { raw, wrapped: context.__newsBlock(ctxId, query) };
   }
 
-  function assemble(query, ctxId = 'home', { news = longNewsItems(), health = { ai: { paidWebSearchEnabled: true, webSearchAvailable: true } } } = {}) {
+  // memory: { storage, sessionId, now, themeId } — the reader's device store as the panel sees it: the real session
+  // component (on an inert stub document) and the chat-globals that read it.
+  const stubNode = () => ({ style: {}, dataset: {}, setAttribute() {}, addEventListener() {}, append() {}, focus() {} });
+  const stubDoc = { createElement: stubNode, getElementById: () => null, querySelector: () => null };
+  function readerMemory(memory, ctxId, tickers) {
+    const root = { localStorage: memory.storage, _currentThemeId: memory.themeId || null, setTimeout: () => 0 };
+    installChatGlobals(root);
+    installChatSessions(root, stubDoc, { storage: memory.storage });
+    root.__aioChatSessions.sessionId = memory.sessionId || null;
+    const block = root.AIO.relatedEarlierTurnsBlock;
+    root.AIO.relatedEarlierTurnsBlock = (options) => block({ ...options, now: Date.parse(memory.now || FIXTURE_NOW) });
+    return context.__readerMemory(root, ctxId, tickers);
+  }
+
+  function assemble(query, ctxId = 'home', { news = longNewsItems(), health = { ai: { paidWebSearchEnabled: true, webSearchAvailable: true } }, memory = null } = {}) {
     const r = route(query, ctxId);
     const { questionPlan, tickers, mode } = r;
     const webSearch = nativeSearch.selectNativeSearch({ decision: questionPlan.researchDecision || {}, questionPlan, health, internalEvidenceReady: false });
@@ -115,6 +136,8 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
     add('intent', context._buildChatIntentContext(ctxId, query, flags));
     add('coverage', context._buildChatAnswerCoverageContext(ctxId, query, flags));
     add('integrated', context._buildAioIntegratedAnswerContext(ctxId, query, flags));
+    const mem = memory ? readerMemory(memory, ctxId, tickers) : { entities: [], text: '' };
+    add('earlier-turns', mem.text);
     add('registry', context._aioBuildAIClaimEvidenceRegistry([]));
     add('principles', principles.buildAnswerPrinciples({ today: FIXTURE_NOW.slice(0, 10), mode, hasTickers: tickers.length > 0, hasTrend: false, liveStatus: 'fixture', newsInjected: !!nb.wrapped, webSearch, snapAgeHours: 2 }));
     add('mode', modes.answerModeGuide(mode));
@@ -123,7 +146,7 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
     add('policy', window._aioPublicAIActionPolicyPrompt());
     let body = { model: 'fixture', instructions: blocks.map((b) => b.text).join(''), reasoning: { effort: r.reasoningEffort } };
     body = nativeSearch.attachNativeSearch(body, { enabled: webSearch, health, mustSearch: nativeSearch.searchMustRun ? nativeSearch.searchMustRun(questionPlan.researchDecision || {}) : undefined });
-    return { ...r, webSearch, blocks, prompt: blocks.map((b) => b.text).join(''), toolChoice: body.tool_choice || null, newsRaw: nb.raw };
+    return { ...r, webSearch, blocks, prompt: blocks.map((b) => b.text).join(''), toolChoice: body.tool_choice || null, newsRaw: nb.raw, entities: mem.entities };
   }
 
   return { window, context, plan, route, assemble, newsBlock, longNewsItems, modes, principles, nativeSearch, budget };
