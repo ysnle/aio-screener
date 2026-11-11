@@ -39,6 +39,266 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2380 - v59.97 - v59.97 an issuer with no annual SEC facts yet was never retried after its first 10-K (2026-11-11)
+
+- symptom/reproduction: fetch-sec-fundamentals recorded an issuer without comparable annual facts (a recent listing that had filed only 10-Qs) as TERMINAL_UNSUPPORTED (required-us-gaap/ifrs-annual-concepts-unavailable) and skipped it on every later run unless SEC_RECHECK_UNSUPPORTED was set or the concept set changed, so its fundamentals stayed missing after it filed its first 10-K.
+- root_cause: The inline due filter dropped every terminal row before any filing test; newFiling was computed only for symbols that already had data and evaluated after the terminal filter.
+- fix: The due test moved into the exported pure isSecTargetDue (mechanical extraction, same order). A terminal row of either no-annual-concepts reason becomes due when the issuer's latest periodic filing (daily form index, any periodic form) is dated strictly after the row's attemptedAt date; it goes through the normal 24-hour failure spacing, and a retry that again finds no annual facts stamps a new attemptedAt, so one filing triggers one retry.
+- violated_rule: A terminal state must name the event that ends it; 'unsupported' for a not-yet-annual filer is a waiting state, not a permanent one.
+- prevention: ci-fiscal-quality-fixture v59.97 assertions drive isSecTargetDue with a periodic-filer map parsed from a daily-index fixture: due after a newer 10-K (US-GAAP and IFRS reasons), not due for an older or absent filing, another terminal reason, a retry stamped after the filing, or inside the 24-hour spacing.
+- verification/residual: node scripts/ci-fiscal-quality-fixture.mjs fails on the old source (no exported due test) and passes now; the SEC gates (data-pipeline-contract, sec-ledger-store, sec-runtime-projection, sec-store-previous, screener-extended-contract, data-continuity, professional-data-gap, artifact-size-headroom, esm-core-unit) exit 0.
+- files: scripts/fetch-sec-fundamentals.mjs, scripts/ci-fiscal-quality-fixture.mjs
+
+## P2379 - v59.97 - v59.97 a model FOMC headline in English could be stored and block every later release at preflight (2026-11-11)
+
+- symptom/reproduction: ci-headline-translation-check (blocking preflight) requires every event-briefs.json headline to hold at least two Hangul syllables, but the producer stored the FOMC model headline whenever its numbers verified (English included) and briefHeadline accepted a single Hangul character. An English FOMC headline would fail every release's preflight for the up-to-10 days the brief stays in the file.
+- root_cause: The producer and the gate applied different rules: safeHeadline checked only numbers, briefHeadline tested /[가-힣]/ (one syllable), while the gate requires two syllables.
+- fix: One exported rule isKoreanHeadline (>= 2 Hangul syllables) in src/domain/briefing/event-briefs.js, used by briefHeadline and by the producer's safeHeadline; a non-Korean model headline falls back to the producer's own line (FOMC: 'M/D FOMC 결정'; earnings: '<name> 실적: <figure>' or '<name> 실적 발표').
+- violated_rule: A producer owns the rule its blocking gate checks: an artifact the gate would reject is never written.
+- prevention: ci-event-briefs-check v59.97 cases drive buildEventBriefs with an English, a one-syllable and a Korean FOMC model headline, and briefHeadline with a one-syllable headline.
+- verification/residual: node scripts/ci-event-briefs-check.mjs (the FOMC English and one-syllable cases fail on the old producer, the briefHeadline case on the old source; all pass now); node scripts/ci-headline-translation-check.mjs exit 0.
+- files: src/domain/briefing/event-briefs.js, scripts/fetch-event-briefs.mjs, scripts/ci-event-briefs-check.mjs
+
+## P2378 - v59.97 - v59.97 a lapsed static review window no longer stops every data release (2026-11-11)
+
+- symptom/reproduction: From 2026-12-01 the static-db-expiry gate would have failed (conf-gtc-dc schedule exhausted for more than 14 days), and because the gate runs in the data-refresh publish step every market, news and brief release would have stopped until someone edited the calendar; more schedules lapse through December and the 90-day universe limit on 2027-01-11.
+- root_cause: Three wall-clock judgements (universe replaceAfterDays, exhausted official schedule, events past their interest window) were hard failures in a gate that belongs to the publish path, although the screen already degrades a lapsed value to expired and review workflows exist to raise it.
+- fix: scripts/ci-static-db-expiry-check.mjs reports the three lapsed-window judgements as warnings; structural checks (mirror counts, provenance, review report fixtures, theme map) still fail.
+- violated_rule: P1542: a data problem is shown honestly on screen and must not stop shipping.
+- prevention: A clock replay of the gate at 2026-12-01, 2026-12-31 and 2027-01-15 exits 0 with the warnings printed; the same replay on the old gate exits 1.
+- verification/residual: node scripts/ci-static-db-expiry-check.mjs exits 0 today; pinned-clock replays exit 0 with warnings.
+- files: scripts/ci-static-db-expiry-check.mjs
+
+## P2377 - v59.97 - v59.97 six-doc coverage gate checks 13F counts for consistency instead of pinning one quarter's numbers (2026-11-11)
+
+- symptom/reproduction: ci-six-doc-coverage-check pinned live 13F counts (1290 holdings rows, 1387 comparisons, 1130 CUSIPs, 1161 issuers, 70 imported periods, 84 total periods); a replay with one extra holdings row and its counts updated exited 1, so the next 13F quarter (filing deadline around 2026-11-16) would have failed every data release.
+- root_cause: The gate asserted exact counts of artifacts the refresh rewrites whenever managers file, instead of checking that the published counts agree with the rows they describe.
+- fix: The masters checks now assert embeddedFullRowsAvailable/embeddedFullComparisonRowsAvailable equal the array lengths (and are positive), security-master unique CUSIP/issuer counts equal the counts taken from allHoldings, totalPeriods = connectedManagers x historyDepthTarget, periodsImported is positive, at most totalPeriods and equals the distinct manager|period keys in the stored rows, and rowsImported equals the row count. Status and flag conditions are kept; labels no longer state a number.
+- violated_rule: A gate on the publish path must not fail a correct product because the calendar moved (owner P1542: a data problem is shown honestly and does not stop shipping).
+- prevention: An in-gate v59.97 replay: an extra holdings row with every describing count updated passes, the same row with the embedded count left stale fails.
+- verification/residual: node scripts/ci-six-doc-coverage-check.mjs exit 0 (40 checks); replay preload adding one holdings row with counts updated: old gate exit 1 (masters full holdings count is 1290; security master fail-closed), new gate exit 0; with the embedded count stale: new gate exit 1.
+- files: scripts/ci-six-doc-coverage-check.mjs
+
+## P2376 - v59.97 - v59.97 crash-replay reads its fixed 2026 windows from a frozen closes fixture, not the rolling history (2026-11-11)
+
+- symptom/reproduction: ci-crash-replay-check replayed its fixed 2026 windows (2026-03-27 to 2026-10-15) from public-data/history.json, which keeps a rolling 420 rows. A replay with the history cut to start 2026-03-28 exited 1 ('2026-02~03 2026-03-27: history.json has no close'), so from about May 2027 every release would have failed.
+- root_cause: Fixed-date regression windows were bound to a producer artifact whose length rolls forward, so the passage of time removed the dates the gate needs.
+- fix: architecture/fixtures/crash-replay-2026-closes.json holds the session-dated closes (one array per field, 393 sessions 2025-09-18..2026-10-15, 174 KB, breadth denominators kept as eligible) generated once from history.json at 40d470fb3 through buildCloseSeries with the SOXX daily-close fixture folded in; the gate rebuilds rows from it and no longer reads history.json. No check ran on the most recent live weeks, so no live window remains.
+- violated_rule: A gate on the publish path must not fail a correct product because the calendar moved.
+- prevention: The fixed windows no longer depend on the published history's length; a missing fixture close is reported with a v59.97 label.
+- verification/residual: node scripts/ci-crash-replay-check.mjs exit 0, 24 readings before and after, every --verbose reading line identical to the old gate on today's history (only the SOXX source line and the 3/27 note text changed). Cut history (rows after 2026-03-27): old gate exit 1 'history.json has no close', new gate exit 0 with 24 readings.
+- files: scripts/ci-crash-replay-check.mjs, architecture/fixtures/crash-replay-2026-closes.json
+
+## P2375 - v59.97 - v59.97 metric-consistency gate failed when the 시장 상태 axis correctly withheld a stale HY or 10-year input, and its 11/6 replay rode on live rows (2026-11-10)
+
+- symptom/reproduction: With the last two HY OAS observations missing (HY three US sessions behind the S&P close), ci-metric-consistency-check failed 'the credit judgement every reader uses is the 시장 상태 credit axis state — burden vs unknown' and the 매크로 chapter comparison the same way; with the 10-year missing for the last three sessions it failed 'the verdict table has a 10-year 5- and 20-session change' and '연결해서 보면 quotes the same HY change' (+33bp at the pair's 11/5 close vs +23bp at the HY close). The 2026-11-06 replay was skipped silently once that close left the published window, and asserted exact values (breadth +26.8%p, S&P -4.4% on 11/5) on live rows the producer may still repair.
+- root_cause: The gate compared every reader with the axis without the axis's own alignment rule: the axis takes an input only while it is at most two US sessions behind the S&P close (alignInput/isUsable) and is 'unknown' beyond that, while creditJudgement and the 매크로 chapter still date the last observation. The 연결해서 보면 pair reads through the 10-year's last close, so its HY change is the reading at that close, not today's. The gate had only ever run in the states the market was in when it was written, and its one fixed-date replay read the live files.
+- fix: Where the gate compares a reader with an axis, it skips with a printed '[metric-consistency] SKIP <what>: <axis> withheld (input <n> sessions behind <basis>)' line when the axis state is unknown or the input's alignment is not usable (the 10-year readings likewise when the rates axis withholds the 10-year). The pair's HY change is compared at the pair's own close when that close is older than the HY observation. A table-driven block builds synthetic sessions (flat S&P, constructed HY OAS) for favourable, neutral by 20-session widening, 부담 by level, 부담 by five-session speed, 부담 by the 20-session record and stale HY, and asserts creditJudgement, the 시장 상태 credit axis and the 매크로 credit chapter agree (thresholds from RULES.credit; the stale state is skipped with a line). The 11/6 and 11/7 replays read architecture/fixtures/market-close-2026-11-06.json (published rows and observations through the 11/6 close); today's files get the comparisons only.
+- violated_rule: A gate that judges today's data needs the inputs the product passes, a fixture for each state of the fact, and a printed skip when the product itself withholds the input (P2354 class: the gate only ran in the states of the day it was written).
+- prevention: ci-metric-consistency-check v59.97 credit state table (six states); SKIP lines for withheld axes; pinned 11/6 fixture with a check that it holds its close and that the 11/7 week story builds from it.
+- verification/residual: node scripts/ci-metric-consistency-check.mjs exit 0 on the real files; on temp copies with the last two hyOas observations removed and with tnx removed from the rows of the last three US sessions it exits 0 and prints the SKIP lines (both failed before the change with the messages above); with hyDelta5Bp removed from the table's regime inputs the favourable and five-session-speed states fail (neutral vs favorable, neutral vs burden).
+- files: scripts/ci-metric-consistency-check.mjs, architecture/fixtures/market-close-2026-11-06.json
+
+## P2374 - v59.97 - v59.97 refresh integrity gate refused every key-present partial FRED cycle that the producer had labelled as last-known-good (2026-11-10)
+
+- symptom/reproduction: With FRED_API_KEY present, one series failing both attempts makes fredFetchOk false while the producer labels the cycle fredLkgUsed true / fredLkgSource 'previous-public-data-macro'. ci-refresh-artifact-integrity-check refused that cycle (degradedFred=true) because its explicit LKG boundary required the key to be absent, so quotes, news and history were not published either, and every later cycle was refused the same way until all series succeeded in one run.
+- root_cause: The LKG boundary was written for the key-absent local cycle only. fredFetchOk is the all-series-complete flag (deriveFredCycle complete), so with the key present a single failed series is indistinguishable from a total loss unless the gate reads the producer's own labels. The gate began comparing against the last published data.json in v59.94, which made the trap reachable.
+- fix: The boundary now holds when fredFetchOk is not true, fredLkgUsed is true and fredLkgSource is a non-empty string, with or without the key; with the key present at least one series must have succeeded (fredSuccessfulSeries non-empty), so a key-present total loss is still refused. An unlabelled regression or a label without a source is refused as before. The printed JSON now carries fred.failed and fred.expected so the operator log shows a partial cycle.
+- violated_rule: P1189 (a partial-failure FRED cycle is meant to publish under an explicit LKG label); P1085 (one provider outage must not look like a total pipeline outage).
+- prevention: ci-data-pipeline-contract-check v59.97 temp-repository cases: key-present labelled partial passes and prints failed/expected; key-present labelled total loss refused; key-present unlabelled regression refused; LKG label with null source refused; the v59.94 key-absent LKG case still passes.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs exit 0; the partial-labelled case failed on the gate before the change ('FRED success regressed'); node scripts/ci-refresh-artifact-integrity-check.mjs printed ok:true with fred.failed 0, fred.expected 23.
+- files: scripts/ci-refresh-artifact-integrity-check.mjs, scripts/ci-data-pipeline-contract-check.mjs
+
+## P2373 - v59.97 - v59.97 the current-number check reads normalised text and spelled units and currency codes (2026-11-11)
+
+- symptom/reproduction: Eleven current numbers passed the numeric-evidence check and were published unbound, among them 'VIX 지수는 15.2입니다.', '**VIX** 15.2입니다.', '실업률은 4.1 퍼센트입니다.', '실업률은 4.1％입니다.', '삼성전자 주가는 KRW 72,000입니다.', '엔비디아 주가는 １８２.３달러입니다.' and 'The 10-year yield is 4.15 percent.'.
+- root_cause: hasCurrentNumericContent matched raw text: markdown emphasis separated a metric from its number, full-width digits and '％' were not digits or '%', '지수' after VIX, '퍼센트', the codes KRW/USD before or after a number and the English words dollars/percent were not units, and splitAnswerSentences ended a sentence at a period glued to a full-width digit.
+- fix: hasCurrentNumericContent tests a normalised copy (NFKC, emphasis and backticks removed), allows '지수' after VIX and adds SPELLED_UNIT_NUMBER for 퍼센트, KRW/USD/US$ and dollars/percent with word boundaries; splitAnswerSentences treats a period followed by a full-width letter or digit as glued, so kept sentences are published in their original text.
+- violated_rule: A current number that is not bound to evidence is not published (P1519/P1740 numeric-evidence publication policy).
+- prevention: scripts/ci-ai-intelligence-contract-check.mjs v59.97 block: the eleven spellings must be detected and stripped, five unit words or codes without a current number must be kept, and a kept sentence beside a stripped full-width number keeps its original text.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs (the 11 detection assertions and the full-width split assertion failed on the old source, pass now); ci-ai-chat-reliability-contract-check, ci-pipeline-semantics-check, regex-term and text-pin ratchets, boot bundle budget exit 0.
+- files: src/ai/response/publication.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2372 - v59.97 - v59.97 the AI action gate catches nominalised, sized, colloquial, two-sentence and emphasised trade instructions (2026-11-11)
+
+- symptom/reproduction: Fifteen instruction spellings passed the AI action gate unchanged, among them 'NVDA를 매수하는 것을 추천합니다.', 'NVDA 비중을 30%로 늘리세요.', 'NVDA **매수**를 추천합니다.', '손절가는 1,050달러입니다. 그 가격에서 정리하세요.', 'NVDA를 매수\n하세요.', '손절은 천오십 달러에서 하세요.' and 'Consider buying NVDA now.'.
+- root_cause: The gate matched raw text sentence by sentence against verb-final patterns only: markdown emphasis and a soft line break split the action from its verb, noun-clause recommendations, sized weights, allocations, colloquial and position-object imperatives, Korean number words and English soft imperatives had no pattern, and a price sentence plus a referring imperative was never read as one instruction.
+- fix: _aioApplyAIActionGate matches a normalised copy of each sentence (NFKC, emphasis and backticks removed), reads a soft-line-break pair and a price-then-'그 가격에서 …하세요' pair together, and adds the named families nominalised, sizedWeight, allocation, colloquialHold, positionImperative (dispose verbs only with a position object), englishSoft and Korean number words in pricedImperative; the published text is untouched unless a sentence is replaced.
+- violated_rule: No trade instructions: the app never tells the reader to buy or sell, at what price or size (AGENTS product rule; P1539 action gate).
+- prevention: scripts/ci-ai-intelligence-contract-check.mjs v59.97 block: the fifteen spellings must be replaced with no ticker or price left, and the analysis sentences closest to each new family (attributed rule, negation, level fact, conditional, weight fact, allocation fact, '근거를 정리하세요', '질문을 던지세요', a non-trade imperative after a price sentence, a heading line break, third-person 'consider buying') must stay unchanged.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs (the 15 new replace assertions failed on the old source, pass now); ci-ai-chat-reliability-contract-check, ci-pipeline-semantics-check, regex-term and text-pin ratchets, boot bundle budget exit 0; a 3,000-character near-miss answer runs through the gate in about 2 ms.
+- files: src/ai/response/request-pipeline.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2371 - v59.97 - v59.97 a saved conversation turn without an answer no longer breaks saving (2026-11-11)
+
+- symptom/reproduction: One stored turn without a string answer made every later save throw inside the end-of-answer handler (no more saved turns, no follow-up chips, the run held until its timeout).
+- root_cause: loadSessions kept turns as stored and turnChars read t.q.length + t.a.length, so a missing field threw during pruning.
+- fix: loadSessions (src/ai/session/chat-sessions.js) normalises each kept turn (non-objects dropped; q, a, ctx coerced to strings; at kept) and turnChars coerces its fields. A stored value that does not parse still reads as empty and the next save starts over: refusing to write would leave the reader unable to save with nothing to delete.
+- violated_rule: A bad stored record must not stop the answer flow.
+- prevention: ci-ai-intelligence-contract-check: a stored turn { q, at } without a saves the next turn with a: ''; a truncated JSON store reads as empty and the next answer is saved.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs passes; the bad-turn check fails on the old module.
+- files: src/ai/session/chat-sessions.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2370 - v59.97 - v59.97 stopping an AI answer removes the 분석 중 bubble and the streaming caret (2026-11-11)
+
+- symptom/reproduction: After pressing stop in the AI panel, the '분석 중...' bubble and the blinking caret stayed on screen.
+- root_cause: _aioCancelChatRequest looked for the retired per-page classes (.acp-msg wrapper, .chat-cursor caret); the unified panel builds .ai-msg bubbles that carry the loading id themselves and a .lch-caret caret.
+- fix: Cancel removes loading.closest('.ai-msg, .acp-msg') or the loading element itself, and removes carets of both kinds (.lch-caret, .chat-cursor).
+- violated_rule: A cancelled request leaves no pending animation on screen.
+- prevention: ci-ai-chat-reliability-contract-check chat-resilience cancels a unified run with stub elements; ci-chat-ui-state-browser-check cancels a run over the panel's real markup in Chromium and checks no #ai-panel-loading, no .lch-caret, the partial answer kept and one stop notice.
+- verification/residual: Both gates pass; both fail on the old _aioCancelChatRequest.
+- files: js/aio-chat.js, scripts/ci-ai-chat-reliability-contract-check.mjs, scripts/ci-chat-ui-state-browser-check.mjs
+
+## P2369 - v59.97 - v59.97 a long AI conversation keeps its evidence contract and action policy when the request is trimmed (2026-11-11)
+
+- symptom/reproduction: When the AI panel's request body exceeded the Worker size target (long sessions, about 8 earlier turns), the client cut the system prompt from its end, so the external-evidence contract and the public action policy (no buy/sell instruction, answer-plan contract) were the first text removed and the model answered with reference data but no policy.
+- root_cause: callSharedAi's _cutSystem shortened the whole system prompt with slice(0, n), while chatSendUnified deliberately appends the evidence contract and the action policy last; trimming and prompt order disagreed about which end is expendable.
+- fix: _cutSystem splits the prompt at the last '\n\n[AIO EXTERNAL EVIDENCE CONTRACT]' marker and shortens only the reference data before it (same arithmetic, the floor applies to that part), then re-appends the contract and policy tail unchanged; a prompt without the marker is trimmed exactly as before.
+- violated_rule: User-protection policy must reach the model on every AI answer; a size budget may drop reference data or old turns, never the policy.
+- prevention: ci-ai-chat-reliability-contract-check chat-resilience runs the real trimming block: a 47,000-character prompt ending with the contract and a 1,500-character policy plus 8 earlier 6,000-character turns fits the target with the tail intact and the reference shorter; a marker-less prompt matches the old trimming; a small body is unchanged; an over-budget single turn still keeps the whole tail. Any future block that must survive trimming belongs after the marker.
+- verification/residual: node scripts/ci-ai-chat-reliability-contract-check.mjs passes; with the old _cutSystem it fails at 'v59.97 trimming keeps the evidence contract and the action policy intact'.
+- files: js/aio-chat.js, scripts/ci-ai-chat-reliability-contract-check.mjs
+
+## P2368 - v59.97 - v59.97 A typed all-capital ticker is never rewritten to another issuer through a display name (2026-11-11)
+
+- symptom/reproduction: Typing FORD (Forward Industries' ticker, outside the universe) in the 종목 search opened Ford Motor (F); BLOCK opened Block's symbol.
+- root_cause: resolveRegisteredName refused registry aliases for ticker-shaped input but still compared the en/kr display names case-insensitively, so an all-capital ticker equal to a company name in another case resolved to that company.
+- fix: An all-capital ticker-shaped input matches a display name only when it equals the registry's spelling exactly (TSMC, NAVER, HYBE, 3M still resolve); mixed- or lower-case input keeps the case-insensitive name match.
+- violated_rule: No ticker guessing: a ticker-shaped input is never rewritten to another issuer.
+- prevention: ci-esm-core-unit-check resolves FORD/BLOCK to null and TSMC/NAVER/F/aapl/Ford/apple/포드/ford to their registry symbols; all 73 all-capital ticker-shaped registry names were checked to still resolve.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs failed on the old source (FORD -> F) and passes now; search-surface and codex-structure gates exit 0.
+- files: src/domain/instruments/resolve-name.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2367 - v59.97 - v59.97 The news bear keyword '위기' no longer matches inside '분위기' (2026-11-11)
+
+- symptom/reproduction: A headline such as '연말 랠리 분위기, 코스피 강세' was classified warn and pulled the day's news tone toward bearish.
+- root_cause: Multi-character Korean keywords match as plain substrings in keyword-match.js, so the bear keyword '위기' (crisis) hit inside '분위기' (mood).
+- fix: keyword-match.js carries a small exclusion table for substring keywords ({ '위기': ['분위기'] }); a substring hit counts only when it is not part of an excluded word at that position. The compiled matcher stays cached per keyword.
+- violated_rule: One keyword rule for every news list must not produce false matches inside unrelated words.
+- prevention: ci-esm-core-unit-check: '투자 분위기 살아나' misses '위기'; '금융 위기 우려' and '위기감 확산' hit; the stance of '연말 랠리 분위기, 코스피 강세' is not warn.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs failed on the old source and passes now; architecture, runtime, native-decision-evidence, domain-parity, data-pipeline and expect-output gates exit 0 (no news-selection fixture output changed).
+- files: src/domain/news/keyword-match.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2366 - v59.97 - v59.97 스크리너 순위의 과거 성과가 0.00%p로 찍히는 차이에 '앞섰습니다'와 양호 톤을 붙였다 (2026-11-11)
+
+- symptom/reproduction: 상위·하위 20% 차이 +0.003%p가 '평균 0.00%p 앞섰습니다'(양호 톤)와 헤드라인 '과거 상위 20%가 하위보다 앞섬'으로 표시됐고, 우연과 구별되지 않는 경우도 '평균 0.00%p 앞섰지만'으로 적었다.
+- root_cause: 방향 단어와 톤을 반올림 전 spread의 부호로 정했다.
+- fix: spread를 찍히는 두 자리로 본다(directionOf(spread, 2)). null이면 톤 neutral, 문장은 '평균 차이는 0.00%p였습니다'(앞섰/뒤처 단어 없음), 헤드라인 '과거 상위 20%와 하위의 차이 없음'. distinguishable === false 분기도 같은 규칙.
+- violated_rule: 색과 단어는 찍힌 부호를 따른다(directionOf, v58.80 R2-27).
+- prevention: ci-esm-core-unit-check에 v59.97 단정: 0.003 → neutral·앞섰 없음·헤드라인 차이 없음, 0.006 → '0.01%p 앞섰습니다', 구별 불가 0.003 → '앞섰지만' 없음.
+- verification/residual: 새 단정은 이전 소스에서 실패, 수정 후 node scripts/ci-esm-core-unit-check.mjs exit 0. 브라우저에서는 확인하지 않았다.
+- files: src/domain/screener/screener-read.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2365 - v59.97 - v59.97 포트폴리오 '지금 구성 vs S&P 500' 추세 차트가 원화 기준 계좌의 미국 종목 수익률에서 환율 변화를 빼고 그렸다 (2026-11-11)
+
+- symptom/reproduction: 원화 기준 계좌에 미국 종목 하나(3개월 +10%, 원/달러 +5%)를 담으면 추세 차트는 +10.0%, 같은 화면의 지수 대비 문장(환율 포함)은 +15.5%로 같은 구성·같은 기간에 두 수익률이 나왔고, 차트에는 환율 제외라는 말도 없었다.
+- root_cause: buildBenchmarkTrend가 기준 통화로 환산한 평가액을 상장 통화 수익률(ret1m/ret3m…)로 되돌려 과거 값을 만들었다. 환산된 행의 convertedFrom이 차트 모델에 전달되지 않아 통화 기준이 섞였다.
+- fix: buildBenchmarkTrend가 선택 인자 fxReturnOf(symbol, key)를 받아 (1+r_local)(1+r_fx)-1을 기준 통화 수익률로 쓴다(없으면 0). portfolioValueTrend가 surface 행의 convertedFrom과 baseCurrency로 창마다 원/달러 종가 변화(closeChange, 기준 종가까지)를 fxReturnInto에 넣어 전달하고, 환율 변화가 없는 창은 그 행을 비교에서 제외한다. 환산 종목이 차트에 들어가면 주석에 '환율 포함'을 적는다.
+- violated_rule: 통화를 가정하지 않는다 / 한 수치는 기준을 밝힌다 — 같은 화면의 두 수익률이 서로 다른 통화 기준으로 계산됐다.
+- prevention: ci-portfolio-native-chart-check에 v59.97 단정 4개: 원화 기준·미국 종목 하나(+10%, 환율 +5%)의 3개월 수익률 +15.5%(모델·컴포넌트 둘 다, 컴포넌트는 history의 원/달러 종가로), 환율 변화가 없는 환산 종목은 미포함, 단일 통화 장부는 변경 전 값 그대로(고정값).
+- verification/residual: 새 단정은 이전 소스에서 실패(+10.0%), 수정 후 node scripts/ci-portfolio-native-chart-check.mjs exit 0, ci-esm-core-unit-check exit 0. 브라우저에서는 확인하지 않았다.
+- files: src/domain/portfolio/benchmark-trend.js, src/ui/components/portfolio-value-trend.js, scripts/ci-portfolio-native-chart-check.mjs
+
+## P2364 - v59.97 - v59.97 포트폴리오 지수 대비 문장이 0.0%p로 찍히는 차이에 '뒤처집니다'와 부담 톤을 붙였다 (2026-11-11)
+
+- symptom/reproduction: 3개월 차이 -0.02%p가 '0.0%p 뒤처집니다'(부담 톤)로, 헤드라인은 '0.0%p 뒤처졌습니다'로 표시됐다.
+- root_cause: 방향 단어와 톤을 반올림 전 값의 부호(gap >= 0)로 정했다.
+- fix: 지수 대비 점과 헤드라인 모두 directionOf(gap, 1)로 방향을 정한다. null이면 톤 neutral, 문장 '지수와 비슷합니다', 헤드라인 '<지수>과/와 비슷했습니다'.
+- violated_rule: 색과 단어는 찍힌 부호를 따른다(directionOf, v58.80 R2-27).
+- prevention: ci-review-integrity-unit-check에 v59.97 단정: -0.02 → neutral·뒤처 없음, -0.06 → '0.1%p 뒤처집니다', +0.04 → neutral.
+- verification/residual: 새 단정은 이전 소스에서 실패, 수정 후 node scripts/ci-review-integrity-unit-check.mjs exit 0. 브라우저에서는 확인하지 않았다.
+- files: src/domain/portfolio/portfolio-read.js, scripts/ci-review-integrity-unit-check.mjs
+
+## P2363 - v59.97 - v59.97 시장 상태 sentences named a private threshold or proxy beside a shared one (breadth 50%, F&G 25, 0.0% sectors, 분배일 rank, 나스닥 100 hold) (2026-11-11)
+
+- symptom/reproduction: The breadth pair said the reading changes '50% 아래로 내려가면' while it flipped at 45%; the sentiment pair called F&G 25 극단 공포 while the gauge calls it 공포; market-flow counted a sector printing +0.0% as risen; page-flow called the 50th-59th percentile of 분배일 '많은 편' where the 시장 상태 card says '중간쯤'; the leadership hold text named 나스닥 100 although the proxy is SOXX since v59.70.
+- root_cause: Each sentence kept its own copy of a band edge, band name or proxy label instead of reading the one the number beside it comes from.
+- fix: RULES.breadthCross (55/45) drives the breadth pair and its flip sentence; the sentiment pair uses fearGreedBand(fg).label === '극단 공포'; market-flow counts and lists by directionOf(daily, 1); one exported recordRankPhrase (RULES.recordRank 60/40) serves both 분배일 sentences; the hold text uses leadership.proxyLabel. The 시장 상태 volatility sentence names VIX 18–25 통상 범위, the name 매크로, the sentiment narrative and the sizing labels already use (it said 주의 구간).
+- violated_rule: A sentence takes its threshold and its source from the module that prints the number.
+- prevention: esm-core unit assertions: breadth 48/44/60 read middle/broad weakness/'45% 아래로'; F&G 25 and 24.6 are not 극단 공포 and 24 is; a +0.04% sector is in neither count; recordRankPhrase 55/65/35 and one page-flow line at the 56th percentile read 중간쯤. The leadership hold text (held branch) is not reached by a unit case and is untested.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (new assertions fail on the old source); ci-metric-consistency-check, ci-crash-replay-check, ci-scenario-guidance-fixture, ci-pipeline-semantics-check exit 0 with no edited expectation.
+- files: src/domain/rules/thresholds.js, src/domain/market/regime/cross-readings.js, src/domain/market/regime/market-flow.js, src/domain/market/story/page-flow.js, src/domain/briefing/market-read.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2362 - v59.97 - v59.97 the 10-year direction word was chosen from FRED DGS10 while the sentence printed the market ^TNX change (2026-11-11)
+
+- symptom/reproduction: 시장 이야기 and the 매크로 금리 장 printed the ^TNX 10-year change but read flat or moved, and the direction, from the FRED DGS10 change: on 2026-10-23 '10년 5.10 → 4.99% (-11bp) … 큰 변화가 없습니다'. Replay of the last 120 published sessions: 6 days in 시장 이야기 and 1 in the 매크로 rates chapter where a printed move of 10bp or more read flat, plus 1 매크로 day where a printed move under 10bp read as moved.
+- root_cause: v59.70 switched the printed 10-year to the market close series but left ratesOf (market-story.js) and the 매크로 rates chapter (macro-chapters.js) deciding the kind from the FRED total, so the sentence and its number came from two sources.
+- fix: Both functions decide flat vs moved and the direction from the printed span (market ^TNX when present, else FRED). The real/breakeven shares still split the FRED total and are read only when that total moved 10bp or more the same way; otherwise a new 'undivided' kind reads '실질금리·기대인플레로 나눠 읽을 수 없습니다'.
+- violated_rule: A sentence takes its threshold and its source from the module that prints the number.
+- prevention: esm-core unit assertions through buildMarketStory and buildMacroChapters: ^TNX +11bp with FRED +8bp is not flat and claims no split; ^TNX +11 with FRED -12 never reads as a fall; ^TNX +8 with FRED +11 reads flat; both +12 with a real share of 0.75 keep the real-up reading.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (new assertions fail on the old source); replay of the last 120 sessions of public-data/history.json and macro-history.json: printed >= 10bp read flat 6 -> 0 (story) and 1 -> 0 (매크로), printed < 10bp read moved 0 -> 0 and 1 -> 0; ci-metric-consistency-check, ci-crash-replay-check, ci-scenario-guidance-fixture, ci-pipeline-semantics-check exit 0 with no edited expectation.
+- files: src/domain/market/story/market-story.js, src/domain/macro/macro-chapters.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2361 - v59.97 - v59.97 the HY 20-session latch held 부담 while every reader said 중립 in its hold window (2026-11-11)
+
+- symptom/reproduction: When the 20-session HY change fell back under +25bp while the last five sessions still widened +15bp or more, hyWidening20Record reported stress (the latch holds) but the 시장 상태 credit axis, the credit judgement (매크로 신용 장, 시장 이야기) and the flip search all read 중립 — on the P2287 fixture: latch stress since 9/15, axis '경계선입니다(하이일드 344bp, 5일 +16bp, 20거래일 +4bp)'. The release text promised two legs while the verdict released on one.
+- root_cause: alignMarketInputs (c.hy20Stress), the credit axis stressAt and creditJudgement each put a 'current 20-session change >= widen20dBp' precondition in front of the record's latched state, so the latch's second release leg (five sessions under widenWatch5dBp) never reached a reader.
+- fix: With a record the latch's state is used as is; the widen20dBp and stress20dMultiple test applies only to the no-record fallback. The hypothetical stressAt(change, d5) keeps a latched record latched unless the hypothetical change is under widen20dBp and the hypothetical five-session change is under widenWatch5dBp, and the flip search gets the five-session release point (5일 전 +15bp) as a candidate while the latch holds.
+- violated_rule: One fact, one state: every reader of the credit verdict takes the 20-session stress from the one latch (same class as the v59.96 metric-consistency incident).
+- prevention: esm-core unit assertions on the P2287 fixture: at the hold-window day the latch, the credit judgement and the 시장 상태 axis all say 부담 and the flip distance names the five-session release leg; at the release day neither reader says 부담.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (new assertions fail on the old source, pass on the new); ci-metric-consistency-check, ci-crash-replay-check, ci-scenario-guidance-fixture, ci-regime-scenarios-fixture, ci-lookahead-check exit 0 with no edited expectation.
+- files: src/domain/briefing/market-read.js, src/domain/briefing/credit-reading.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2360 - v59.97 - v59.97 the screener producer logs an empty ^GSPC / ^IXIC daily-bar read instead of a warning that could never print (2026-11-11)
+
+- symptom/reproduction: When both Yahoo hosts failed for ^GSPC or ^IXIC, the screener refresh wrote no distribution-day count or rally-attempt state for the new date and the operator log did not say why.
+- root_cause: scripts/producer/screener.mjs wrapped the two index-history reads in try/catch, but fetchHistory (scripts/producer/quotes.mjs) catches every host failure itself and returns [] — the catch warnings were unreachable.
+- fix: The try/catch blocks are removed (fetchHistory cannot throw, and distributionDaySeries / rallyAttemptSeries accept an empty or malformed bar list); after each read an empty result prints one console.warn naming the symbol and the value missing for this run. The run continues as before.
+- violated_rule: A failure handler must be reachable by the failure it describes.
+- prevention: No fixture gate injects fetchHistory into this block; the existing gates that import scripts/producer/screener.mjs cover the module.
+- verification/residual: node --check scripts/producer/screener.mjs; node scripts/ci-data-pipeline-contract-check.mjs, ci-esm-core-unit-check.mjs and ci-review-integrity-unit-check.mjs exit 0.
+- files: scripts/producer/screener.mjs
+
+## P2359 - v59.97 - v59.97 the browser-data pin integrity check fetches its pinned commit instead of skipping in shallow CI checkouts (2026-11-11)
+
+- symptom/reproduction: In CI the workspace contracts shard checks out at depth 1, so checkPinIntegrity found the pinned public-data commit absent and silently skipped the tree-vs-manifest and ancestry checks on every run; a manifest missing a deployed file or a pin outside main's history passed CI.
+- root_cause: scripts/browser-data-fixture.mjs only compared the pinned tree and ancestry when the commit already existed locally and reported 'absent' without a word otherwise.
+- fix: When the pin is absent and an origin remote exists, checkPinIntegrity fetches it once (git fetch --no-tags --depth=1 origin <sha>, no blob filter) and runs the tree-vs-manifest comparison; a pin origin cannot serve is an integrity failure naming the pin. checkPinIntegrity and git() take a repo option so the check can run against another working copy. Limit: after a depth-1 fetch the ancestry check still cannot run (shallow history) and prints '[browser-data-fixture] SKIP ancestry: shallow history (pin <sha12>)' instead of passing silently. Without an origin remote the absent pin keeps today's quiet skip.
+- violated_rule: A gate that cannot run its check must say so, not pass silently.
+- prevention: scripts/ci-browser-data-fixture-check.mjs v59.97 cases build a temporary remote and a depth-1 clone: the absent pin is fetched and matches, a manifest file missing from the pinned tree fails, and a pin the remote does not have fails with the sha named.
+- verification/residual: node scripts/ci-browser-data-fixture-check.mjs exit 0; the three v59.97 cases fail with the old browser-data-fixture.mjs.
+- files: scripts/browser-data-fixture.mjs, scripts/ci-browser-data-fixture-check.mjs
+
+## P2358 - v59.97 - v59.97 the Actions shared-AI client waits past the Worker's 60 s deadline for a non-search call (2026-11-11)
+
+- symptom/reproduction: A non-search shared-AI request from GitHub Actions (market reading, headline translation fallback, slot summary) that took 30 to 60 s was aborted by the producer as provider-timeout, while the Worker, which allows that request 60 s, kept its full budget reservation for a response OpenAI may still complete and bill.
+- root_cause: SHARED_AI_TIMEOUT_MS.analysis was 30 s, shorter than the Worker's 60 s non-search deadline (openAiDeadlineMs); only the search timeout followed the rule that the client outwaits the Worker.
+- fix: SHARED_AI_TIMEOUT_MS.analysis is 65 s, a few seconds past the Worker's 60 s deadline, and the comment states the rule for both keys (60 s non-search, 120 s search).
+- violated_rule: A client timeout on a budgeted Worker call must outlast the Worker's own deadline so the Worker answers first.
+- prevention: ci-data-pipeline-contract-check v59.97 asserts SHARED_AI_TIMEOUT_MS.analysis > 60000 and search > 120000 (the Worker deadline constants are not exported, so the cross-file comparison is not made).
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs exit 0; the refresh job makes at most 4 analysis-timeout calls a run (headline translation fallback 1, market reading 1 + 1 retry, slot summary 1), a worst-case added wait of about 140 s against timeout-minutes 45.
+- files: scripts/lib/ai-shared-analysis.mjs, scripts/ci-data-pipeline-contract-check.mjs
+
+## P2357 - v59.97 - v59.97 a failing theme-detail playbook render no longer silently skips the teach render (2026-11-11)
+
+- symptom/reproduction: On opening a theme detail, one try block ran the playbook render and then the teach render with an empty catch; a throw in the first skipped the second with no trace.
+- root_cause: Two independent renders shared one try with a silent catch.
+- fix: Each render has its own try, and each failure is logged through root._aioLog('warn', 'themes', ...).
+- violated_rule: A failure is visible in the log; one surface failing does not take an independent one down silently.
+- prevention: No test: the themes page has no mount test that can make the imported playbook renderer throw.
+- verification/residual: node --check src/ui/pages/themes.js; node scripts/ci-esm-core-unit-check.mjs and node scripts/ci-desktop-continuity-check.mjs exit 0. Not checked in a browser.
+- files: src/ui/pages/themes.js
+
+## P2356 - v59.97 - v59.97 the briefing opening no longer says an index fall sat in a few large stocks (2026-11-11)
+
+- symptom/reproduction: When the equal-weight S&P 500 beat the cap-weighted index on a down day, the 오늘 opening said the fall was concentrated in a few large stocks (대형주 몇 곳에 몰렸고).
+- root_cause: indexLine reads only the cap-weighted and equal-weight index changes; their gap shows larger-cap names fell more than the average name, not that the fall sat in a few names.
+- fix: Both down-day branches now say the fall leaned more on the stocks with the larger market capitalisation (시가총액이 큰 종목에 더 실렸고); the rest of the sentence is unchanged.
+- violated_rule: A reading states only what its inputs show; no cause the data does not carry.
+- prevention: The existing v59.93 unit assertions on both branches keep passing; the claim of a few names is gone from the sentence source.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs exit 0. Not checked in a browser.
+- files: src/domain/briefing/day-account.js
+
+## P2355 - v59.97 - v59.97 seven more change sites take their sign, colour and bar from the printed value (2026-11-11)
+
+- symptom/reproduction: The briefing move bars and the Korea theme list could print -0.0% or +0.0%; the Korea flow columns, the screener validation IC and record bars, the theme playbook columns and table, the portfolio backtest active return, the theme sector performance bars and the screener inspector 1-month move coloured a value that prints as zero as rising (or, for a tiny negative, falling), and the validation IC value could print -0.000.
+- root_cause: Each site chose the sign or the up/down class from the raw value (>= 0, > 0) instead of the value rounded to the digits it prints, so the class and the text disagreed for values that round to zero.
+- fix: Each site computes the direction once with directionOf(value, digits) at the digits its text prints and prints with signedText; a flat value gets no up/down class (the backtest KPI uses its existing is-plain), a flat IC or record bar draws no fill, and a zero net-buy column gets neither colour.
+- violated_rule: The sign, colour and direction word of a change follow the printed value (src/domain/shared/number.js, v58.80).
+- prevention: ci-esm-core-unit-check v59.97 block renders the screener inspector, the portfolio backtest lab and the validation IC bars with values that round to zero and with real moves, and fails on a sign or up/down class for a flat value.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs exit 0; each of the three new probes fails with its source file restored to the previous version; node scripts/ci-desktop-continuity-check.mjs exit 0. Not checked in a browser.
+- files: src/ui/components/market-story.js, src/ui/components/korea-participation.js, src/ui/pages/screener/validation-tab.js, src/ui/components/theme-playbook-view.js, src/ui/components/portfolio-backtest-lab.js, src/ui/pages/themes/sectors.js, src/ui/pages/screener/inspector.js, scripts/ci-esm-core-unit-check.mjs
+
 ## P2354 - v59.96 - v59.96 metric-consistency gate refused every data release once the HY spread calmed (2026-11-11)
 
 - symptom/reproduction: From 2026-11-10 18:40 UTC every reduced-scope CI run for a data commit failed at `metric-consistency` with '[today] the credit judgement every reader uses is the 시장 상태 credit axis state — favorable vs neutral', so no refresh was attested or deployed for about six hours: refresh-data, the data freshness watchdog and refresh-screener all went red (issues #4, #5, #6) while the data kept being committed.

@@ -1,6 +1,0 @@
-{
-  "version": "v59.97",
-  "date": "2026-11-11",
-  "changelog": ["**Feedback and Workers AI limits hold across isolates (v59.97):** the AI proxy Worker config now declares the RATE_LIMIT_FEEDBACK (5/min per IP) and RATE_LIMIT_WORKERS_AI (30/min) bindings the code already asked for, so the /feedback note route and the free translation route are bounded per Cloudflare location instead of per isolate; ci-worker-relay-check checks both limits equal the code's own limits and that a refusing feedback binding answers 429."],
-  "note": "v59.97: feedback and Workers AI rate-limit bindings declared"
-}

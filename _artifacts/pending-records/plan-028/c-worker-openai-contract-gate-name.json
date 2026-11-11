@@ -1,6 +1,0 @@
-{
-  "version": "v59.97",
-  "date": "2026-11-11",
-  "changelog": ["**Worker gate named after what it tests (v59.97):** scripts/ci-worker-anthropic-check.mjs is now scripts/ci-worker-openai-contract-check.mjs and the QA registry gate id is worker-openai-contract; it still runs worker/openai-contract.test.mjs, so a failure no longer points at a provider the Worker stopped using."],
-  "note": "v59.97: worker gate renamed to worker-openai-contract"
-}

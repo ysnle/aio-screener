@@ -1,6 +1,0 @@
-{
-  "version": "v59.97",
-  "date": "2026-11-11",
-  "changelog": ["**Classic boot budget counts what boots (v59.97):** `CLASSIC_BOOT_SCRIPTS` now leaves out `js/aio-glossary.js`, which index.html has not run at boot since v59.70, so the set matches the six `defer` scripts; `classicBootBudget` drops to the measured 1,007,190 / 329,135 (ceiling 1,008,000 / 329,200) and `postBootLazyBudget` takes the glossary's 106,744 bytes (ceiling 358,000), the two together 1,379,000→1,380,000."],
-  "note": "v59.97: glossary bytes moved from the classic boot budget to the post-boot lazy budget"
-}

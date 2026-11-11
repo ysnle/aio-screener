@@ -1,6 +1,0 @@
-{
-  "version": "v59.97",
-  "date": "2026-11-11",
-  "changelog": ["**Unused schemas removed (v59.97):** the five schemas/knowledge/*.schema.json files had no reader (no validator, gate or producer) and implied a validation that did not happen; ADR-0003's diagram now names the mechanism that pins artifact shapes, the structure ids in architecture/browser-data-fixture.json."],
-  "note": "v59.97: unused knowledge schemas removed"
-}

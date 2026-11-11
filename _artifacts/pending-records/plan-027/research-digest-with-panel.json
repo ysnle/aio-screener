@@ -1,6 +1,0 @@
-{
-  "version": "v59.97",
-  "date": "2026-11-11",
-  "changelog": ["**Research digest loads with the AI panel (v59.97):** `js/aio-core.js` no longer fetches `public-data/user-research-digest.json` (~90 KB, `cache: 'no-store'`) 1.8 s after every boot; `src/app/chat-loader.js` loads it with the panel and the queued question waits for it, since every reader of `AIO_USER_RESEARCH_PAGE_MODULES` runs on the AI question path (dev-only audits read `not_loaded`)."],
-  "note": "v59.97: user research digest moved from boot to the AI panel load"
-}
