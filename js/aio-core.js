@@ -4779,10 +4779,7 @@ window.AIO.evaluateAIActionPermission = function(options) {
 };
 
 window.AIO.AI_RETRIEVER_VERSION = _AIO_AI_RETRIEVER_VERSION;
-
-setTimeout(function() {
-  try { if (window.AIO && window.AIO.loadUserResearchDigest) window.AIO.loadUserResearchDigest(); } catch(_) {}
-}, 1800);
+// The user research digest loads with the AI panel (src/app/chat-loader.js), not at boot.
 
 
 // v57.76: the home market-factor heatmap (_aioRenderMarketHeatmap) is retired with its folded home section — it
