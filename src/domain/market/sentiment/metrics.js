@@ -14,6 +14,17 @@ export function fearGreedBand(value) {
   return Object.freeze({ score, label: '극단 탐욕', blocked: false });
 }
 
+// v59.70 (owner 11/4): the put/call bands left with the Cboe source (its terms forbid storing the statistics).
+export function vixBand(value) {
+  const vix = finite(value);
+  if (vix == null || vix < 0) return Object.freeze({ value: null, label: '판정 보류', blocked: true });
+  // P1534: the same 18 / 25 / 32 edges as RULES.volatility and the legacy regime alert (16 / 35 had no source).
+  if (vix >= RULES.volatility.highAt) return Object.freeze({ value: vix, label: '고변동 구간', blocked: false });
+  if (vix >= RULES.volatility.stressAt) return Object.freeze({ value: vix, label: '변동성 경계 구간', blocked: false });
+  if (vix >= RULES.volatility.calmBelow) return Object.freeze({ value: vix, label: '통상 범위', blocked: false });
+  return Object.freeze({ value: vix, label: '저변동 구간', blocked: false });
+}
+
 export function vixTermStructure(values = {}) {
   const short = finite(values.vix9d);
   const spot = finite(values.vix);

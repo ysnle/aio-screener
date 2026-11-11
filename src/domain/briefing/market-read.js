@@ -25,8 +25,7 @@ import { withSubjectParticle } from '../content/korean-particle.js';
 import { breadthScopeOf } from '../market/breadth/screener-breadth.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { computeCompositeFearGreed } from '../market/sentiment/composite-fear-greed.js';
-import { fearGreedBand } from '../market/sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
-import { vixBand } from '../market/sentiment/narrative.js';
+import { fearGreedBand, vixBand } from '../market/sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
 export { closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile };
 
 const sessionsBetween = (from, to) => countOpenSessionsBetween(from, to, 'US');
@@ -464,7 +463,7 @@ export const recordSide = (rec) => rec?.pct == null ? '' : rec.lowest ? '최저'
 /** Where a count sits in the site's own record, as one phrase: many at or above the 60th percentile, few at or below the
  *  40th, the middle between them; '' without a percentile. The 시장 상태 분배일 card and the page-flow line both read it. */
 export function recordRankPhrase(pct) {
-  if (pct == null || !Number.isFinite(Number(pct))) return '';
+  if (!Number.isFinite(pct)) return '';
   const { manyAtPct, fewAtPct } = RULES.recordRank;
   return pct >= manyAtPct ? `상위 ${Math.max(1, 100 - pct)}%에 드는 많은 편` : pct <= fewAtPct ? `하위 ${Math.max(1, pct)}%에 드는 적은 편` : '중간쯤';
 }
