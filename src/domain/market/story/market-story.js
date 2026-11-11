@@ -12,8 +12,8 @@ import { seriesOf } from '../../macro/macro-read.js';
 import { SCHEDULED_EVENTS as REGISTRY } from '../../briefing/scheduled-events.js';
 import { indexLevels, levelValue, levelsRead } from '../indices/index-levels.js';
 import { historyFieldMeta } from '../indices/history-meta.js';
-import { buildCloseSeries, closeSessionMarket } from '../session/close-series.js';
-import { MARKET_WINDOWS } from '../session/market-windows.js';
+import { buildCloseSeries, closeSessionMarket, alignInput, isUsable } from '../session/close-series.js';
+import { MARKET_WINDOWS, closeChange } from '../session/market-windows.js';
 import { countOpenSessionsBetween } from '../session/market-calendar.js';
 import { oasDelta20Bp } from '../../briefing/market-read.js';
 import { creditJudgement, creditReading } from '../../briefing/credit-reading.js';
@@ -108,9 +108,19 @@ function concentrationOf(m) {
 // The ten-year move split into the real yield and breakeven inflation (FRED DFII10 + T10YIE ≈ DGS10).
 // v59.70 (screen review 6): the 10-year line is the market close series every other screen reads (history tnx, the
 // 5거래일 column of the verdict table); the FRED legs only split it into real yield and inflation expectations.
-function ratesOf(macroHistory, history, from, to) {
+// The 10-year window is the rates axis's own: `sessions` closes back from the 10-year's last close on or before `to`,
+// read only while that close is within the axis's lag. A 10-year two sessions behind the S&P 500 therefore prints the
+// axis's 5-session change dated by its own close, and the FRED legs split that same window.
+function tenYearSpan(history, sessions, to) {
+  const change = closeChange(history, 'tnx', sessions, { through: to });
+  if (!change || !isUsable(alignInput(change.to.date, to))) return null;
+  return { from: change.from.value, to: change.to.value, fromDate: change.from.date, toDate: change.to.date, pct: change.pct };
+}
+
+function ratesOf(macroHistory, history, from, to, sessions) {
+  const market = tenYearSpan(history, sessions, to);
+  if (market) { from = market.fromDate; to = market.toDate; }
   const fred = macroSpan(macroHistory, 'dgs10', from, to);
-  const market = span(history, 'tnx', from, to);
   const ten = market ? { ...market, bp: (market.to - market.from) * 100 } : fred;
   const real = macroSpan(macroHistory, 'realYield10', from, to);
   const be = macroSpan(macroHistory, 'breakeven10', from, to);
@@ -400,7 +410,7 @@ export function buildMarketStory({ history = [], macroHistory = null, briefs = n
   for (const [id] of MOVE_ROWS) { const s = span(history, id, start, asOf); if (s) moves[id] = s; }
   if (!moves.spx || !moves.ndx) return { available: false };
   const concentration = concentrationOf(moves);
-  const rates = ratesOf(macroHistory, history, start, asOf);
+  const rates = ratesOf(macroHistory, history, start, asOf, sessions);
   const credit = creditOf(macroHistory, start, asOf, sessions);
   if (rates?.kind === 'inflation-relief' && credit && credit.kind !== 'calm') rates.kind = 'flight';
   const reported = earningsMovers(briefs, { from: start, to: asOf });

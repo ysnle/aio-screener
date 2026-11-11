@@ -7713,6 +7713,21 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (fredMoved.kind !== 'flat' || !/큰 변화가 없습니다/.test(fredMoved.read) || !/큰 변화가 없습니다/.test(fredMoved.mean)) fail(`v59.97 a +8bp printed 10-year reads flat even when FRED moved +11bp: ${JSON.stringify(fredMoved)}`);
   const realUp = ratesCase(12, 12, 9, 3);
   if (realUp.kind !== 'real-up' || !/실질금리 상승/.test(realUp.read) || !/상승이 실질금리에서/.test(realUp.mean)) fail(`v59.97 both +12bp with a real-yield share of 0.75 keep the real-up reading: ${JSON.stringify(realUp)}`);
+  // With the 10-year two sessions behind the S&P 500 close, the story and the rates axis quote one 5-session change.
+  {
+    const { buildMarketRegime } = await load('src/domain/briefing/market-read.js');
+    const lagged = days.map((date, i) => ({ date, spx: 6000 + i * 5, ndx: 20000 + i * 20, rsp: 180 + i * 0.1, ...(i > last - 2 ? {} : { tnx: +(4.2 + i * 0.03).toFixed(4) }) }));
+    const obs = (base) => days.map((date, i) => [date, +(base + i * 0.01).toFixed(4)]);
+    const macroHistory = { series: { dgs10: { observations: obs(4.2) }, realYield10: { observations: obs(1.9) }, breakeven10: { observations: obs(2.3) } } };
+    const nowMs = Date.parse(`${days[last]}T23:00:00Z`);
+    const regime = buildMarketRegime({ history: lagged, macroHistory, now: nowMs });
+    const tenRow = (regime.axes || []).find((axis) => axis.id === 'rates')?.evidence?.find(([label]) => label === '미 10년물')?.[1] || '';
+    const axis5 = Number((tenRow.match(/5거래일 ([+-]?\d+)bp/) || [])[1]);
+    const story = buildMarketStory({ history: lagged, macroHistory, nowMs });
+    const storyValue = story.checks?.find((row) => row.id === 'rates')?.value || '';
+    const story5 = Number((storyValue.match(/\(([+-]?\d+)bp\)/) || [])[1]);
+    if (!Number.isFinite(axis5) || axis5 !== story5 || story.rates?.ten?.toDate !== days[last - 2]) fail(`v59.98 a 10-year two sessions behind: the 시장 상태 story quotes the rates axis's 5-session change (axis ${tenRow} | story ${storyValue}, through ${story.rates?.ten?.toDate})`);
+  }
 
   // The breadth pair states the edge it flips on, and extreme fear is the gauge's own band.
   const { crossReadings } = await load('src/domain/market/regime/cross-readings.js');
