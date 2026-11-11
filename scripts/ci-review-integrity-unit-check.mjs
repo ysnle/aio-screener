@@ -64,6 +64,18 @@ if (held.available !== false) fail('P1449 mixed currencies without rates must st
 const book = buildPortfolioRead({ surface: { rows: [{ symbol: 'AAA', value: 600, convertedFrom: 'USD' }, { symbol: '000001.KS', value: 200 }], cash: 200, baseCurrency: 'KRW' }, rows: Object.values(rows), marketReturnFor: market, usdkrwReturnPct: 2 });
 const relative = book.points.find((point) => point.id === 'relative')?.text || '';
 if (!/환율 포함, 현금은 수익률 0%로 계산/.test(relative) || !/차이의 구성: 섹터 \+1\.7%p/.test(relative)) fail(`P1466 the 지수 대비 sentence must come from the attribution: ${relative}`);
+// The 앞섭니다/뒤처집니다 word and its tone follow the gap as printed (one decimal).
+const gapRead = (gap) => {
+  const read = buildPortfolioRead({ surface: { rows: [{ symbol: 'GAP', value: 100 }] }, rows: [{ sym: 'GAP', ret3m: 3 + gap, factorSessionDate: '2026-10-12' }], marketReturnFor: () => ({ ret3m: 3, label: 'S&P 500', asOf: '2026-10-12' }) });
+  const point = read.points.find((row) => row.id === 'relative') || {};
+  return { tone: point.tone, text: point.text || '', headline: read.headline || '' };
+};
+const gapTiny = gapRead(-0.02);
+if (gapTiny.tone !== 'neutral' || /뒤처|앞서|앞섭|앞섰/.test(gapTiny.text + gapTiny.headline) || !/지수와 비슷합니다/.test(gapTiny.text) || !/S&P 500과 비슷했습니다/.test(gapTiny.headline)) fail(`v59.97 a -0.02%p gap prints 0.0%p and must read neutral, not 뒤처집니다: ${JSON.stringify(gapTiny)}`);
+const gapBehind = gapRead(-0.06);
+if (gapBehind.tone !== 'burden' || !/0\.1%p 뒤처집니다/.test(gapBehind.text) || !/0\.1%p 뒤처졌습니다/.test(gapBehind.headline)) fail(`v59.97 a -0.06%p gap prints 0.1%p 뒤처집니다: ${JSON.stringify(gapBehind)}`);
+const gapAhead = gapRead(0.04);
+if (gapAhead.tone !== 'neutral' || /뒤처|앞섭|앞섰/.test(gapAhead.text + gapAhead.headline)) fail(`v59.97 a +0.04%p gap prints 0.0%p and must read neutral: ${JSON.stringify(gapAhead)}`);
 
 // P1467: peers use the same definitions, a 12-month fiscal window and a minimum count.
 const series = (rev, ni, eq, end = '2025-12-31') => [{ periodEnd: '2024-12-31', revenue: 100, netIncome: 10, equity: eq }, { periodEnd: end, revenue: rev, netIncome: ni, equity: eq }];

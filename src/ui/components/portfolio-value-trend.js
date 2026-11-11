@@ -1,9 +1,11 @@
 // v59.70 (S16): 포트폴리오 ① 지금 구성과 S&P 500 — the shared trend chart over the last year, drawn on entry from the
 // screener's published closes (src/domain/portfolio/benchmark-trend.js) and the close history's session dates. It
 // replaces js/aio-ui.js updateBenchmarkChart, which asked Yahoo for every holding and drew only after 새로고침.
-import { buildBenchmarkTrend } from '../../domain/portfolio/benchmark-trend.js';
+import { BENCHMARK_WINDOWS, buildBenchmarkTrend } from '../../domain/portfolio/benchmark-trend.js';
+import { fxReturnInto } from '../../domain/portfolio/attribution.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { buildCloseSeries, sessionPointBack } from '../../domain/market/session/close-series.js';
+import { closeChange } from '../../domain/market/session/market-windows.js';
 import { signedText } from '../../domain/shared/number.js';
 import { createTrendChart } from './trend-chart.js';
 import { renderDataState } from './data-state.js';
@@ -19,13 +21,31 @@ export function portfolioValueTrend({ surface, rowOf, history = [] } = {}) {
   const asOf = spy?.factorSessionDate || null;
   const spx = asOf ? buildCloseSeries(history, 'spx', { through: asOf }) : [];
   const dateOf = (sessions) => (spx.length ? sessionPointBack(spx, sessions, 'US')?.date || null : null);
-  return buildBenchmarkTrend({
-    holdings: (surface?.rows || []).map((row) => ({ symbol: row.listingSymbol || row.symbol, value: row.value })),
+  const rows = (surface?.rows || []).map((row) => ({ symbol: String(row.listingSymbol || row.symbol || '').toUpperCase(), value: row.value, convertedFrom: row.convertedFrom || null }));
+  // A holding converted into the base currency carries the USD/KRW close move over the same window as its return.
+  const convertedFrom = new Map(rows.filter((row) => row.convertedFrom).map((row) => [row.symbol, row.convertedFrom]));
+  const sessionsOf = new Map(BENCHMARK_WINDOWS.map((span) => [span.key, span.sessions]));
+  const fxMoves = new Map();
+  const usdkrwPct = (key) => {
+    if (!fxMoves.has(key)) fxMoves.set(key, asOf ? closeChange(history, 'usdkrw', sessionsOf.get(key), { through: asOf })?.pct ?? null : null);
+    return fxMoves.get(key);
+  };
+  const fxReturnOf = (symbol, key) => {
+    const from = convertedFrom.get(symbol);
+    if (!from) return 0;
+    const fx = fxReturnInto(from, surface?.baseCurrency, usdkrwPct(key));
+    return fx == null ? null : fx * 100;
+  };
+  const model = buildBenchmarkTrend({
+    holdings: rows,
     returnOf: (symbol, key) => readRowNumber(rowOf(symbol), key, 'calculation'),
     indexReturnOf: (key) => readRowNumber(spy, key, 'calculation'),
     dateOf: spx.length ? dateOf : null,
-    asOf: spx.length ? asOf : null
+    asOf: spx.length ? asOf : null,
+    fxReturnOf
   });
+  if (!model.available) return model;
+  return { ...model, fxIncluded: [...convertedFrom.keys()].some((symbol) => !model.missing.includes(symbol)) };
 }
 
 const HOLD_TEXT = Object.freeze({
@@ -67,7 +87,7 @@ export function renderPortfolioValueTrend({ documentRef: doc, root, surface, row
     format: (value) => signed(value)
   });
   const parts = [lead, chart];
-  const notes = [`${model.points.slice(0, -1).map((point) => point.label).join('·')} 전 수정 종가(배당 포함)를 이은 선, 지금 비중을 그대로 들고 있었다고 본 값이라 계좌 수익률과 다릅니다.`];
+  const notes = [`${model.points.slice(0, -1).map((point) => point.label).join('·')} 전 수정 종가(배당 포함)를 이은 선, 지금 비중을 그대로 들고 있었다고 본 값이라 계좌 수익률과 다릅니다.${model.fxIncluded ? ' 기준 통화와 다른 종목은 원/달러 종가 변화를 더한 환율 포함 수익률입니다.' : ''}`];
   if (model.missing.length) notes.unshift(`가격 기록이 ${model.window}에 못 미치는 ${model.missing.slice(0, 3).join(', ')}${model.missing.length > 3 ? ` 외 ${model.missing.length - 3}종목` : ''} 제외(평가액의 ${Math.max(1, Math.round((1 - model.coveredShare) * 100))}%).`);
   parts.push(el(doc, 'p', notes.join(' '), 'pf-trend-note'));
   body.replaceChildren(...parts);
