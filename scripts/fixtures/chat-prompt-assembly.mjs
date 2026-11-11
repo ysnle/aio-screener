@@ -122,9 +122,9 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
     add('evidence-tail', context.__evidenceTail());
     add('policy', window._aioPublicAIActionPolicyPrompt());
     let body = { model: 'fixture', instructions: blocks.map((b) => b.text).join(''), reasoning: { effort: r.reasoningEffort } };
-    body = nativeSearch.attachNativeSearch(body, { enabled: webSearch, health, currentSensitive: questionPlan.researchDecision?.currentSensitive ?? questionPlan.currentSensitive });
+    body = nativeSearch.attachNativeSearch(body, { enabled: webSearch, health, mustSearch: nativeSearch.searchMustRun ? nativeSearch.searchMustRun(questionPlan.researchDecision || {}) : undefined });
     return { ...r, webSearch, blocks, prompt: blocks.map((b) => b.text).join(''), toolChoice: body.tool_choice || null, newsRaw: nb.raw };
   }
 
-  return { window, context, plan, route, assemble, newsBlock, modes, principles, nativeSearch, budget };
+  return { window, context, plan, route, assemble, newsBlock, longNewsItems, modes, principles, nativeSearch, budget };
 }

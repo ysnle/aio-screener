@@ -941,6 +941,35 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   }
 }
 
+// v59.99 (plan 042): routing — a concept explanation reasons at low effort, a quick fact stays at none; hosted search is
+// optional for a question that does not depend on today's values and required for a current fact; news carries 8 items.
+{
+  const effort = (query) => promptKit.route(query, 'home');
+  for (const query of ['감마 스퀴즈가 뭐야?', '듀레이션이 뭐야?']) {
+    const routed = effort(query);
+    check(`v59.99 "${query}" is an explain answer at reasoning effort low (${routed.mode}/${routed.reasoningEffort}), tokens unchanged (${routed.maxTokens})`, routed.mode === 'explain' && routed.reasoningEffort === 'low' && routed.maxTokens === 8000);
+  }
+  const quick = effort('테슬라 PER 얼마야?');
+  check(`v59.99 "테슬라 PER 얼마야?" stays quick at effort none (${quick.mode}/${quick.reasoningEffort})`, quick.mode === 'quick' && quick.reasoningEffort === 'none' && quick.maxTokens === 4000);
+  const concept = promptKit.assemble('감마 스퀴즈는 왜 생겨?', 'home');
+  check(`v59.99 a concept question with search attached lets the model choose (${concept.webSearch}/${concept.toolChoice})`, concept.webSearch === true && concept.questionPlan.researchDecision.currentSensitive === false && concept.toolChoice === 'auto');
+  const asked = promptKit.assemble('What is a bond yield? search the web', 'home');
+  check(`v59.99 an explicit search request still searches (${asked.toolChoice})`, asked.webSearch === true && asked.toolChoice === 'required');
+  const current = promptKit.assemble('엔비디아 오늘 왜 떨어졌어?', 'home');
+  check(`v59.99 "엔비디아 오늘 왜 떨어졌어?" must search (${current.toolChoice})`, current.webSearch === true && current.toolChoice === 'required');
+  const unsaid = promptKit.nativeSearch.attachNativeSearch({ reasoning: { effort: 'none' } }, { enabled: true, health: { ai: { paidWebSearchEnabled: true } } });
+  check('v59.99 a caller that does not say keeps the required search', unsaid.tool_choice === 'required');
+  const status = promptKit.nativeSearch.searchStatusText;
+  check('v59.99 an answer with no citations is not reported as a searched answer',
+    !/웹검색으로 보강해/.test(status({ attached: true, citationCount: 0 })) && /웹검색으로 보강해/.test(status({ attached: true, citationCount: 2 })) && /늦어/.test(status({ attached: false })));
+  const news = promptKit.newsBlock('시장 흐름', 'home');
+  const items = (news.raw.match(/^\d+\. \[/gm) || []).length;
+  check(`v59.99 the news block holds 8 long items within 6,000 characters (${items} items, ${news.raw.length} chars) and its wrapper does not cut it`,
+    items === 8 && news.raw.length <= 6000 && /kind=NEWS/.test(news.wrapped) && !/length-capped/.test(news.wrapped));
+  const longer = promptKit.newsBlock('시장 흐름', 'home', promptKit.longNewsItems(12));
+  check(`v59.99 more fresh news than the cap still sends at most 8 items (${(longer.raw.match(/^\d+\. \[/gm) || []).length})`, (longer.raw.match(/^\d+\. \[/gm) || []).length === 8);
+}
+
 // Owner 2026-10-14: saved conversations — nothing stored before consent, one conversation across screens, reopen restores
 // the recent context, declining wipes everything.
 {

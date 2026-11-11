@@ -5,10 +5,16 @@
 // AI-infrastructure framework ~16K when an AI topic is asked, and the imported research digest ~5.6K.
 // These caps bound only those reference blocks. Live quotes, the screen basis, screener rows, news and the evidence
 // registry are untouched, so answers keep every current number they could cite before.
+// The news block is live evidence with its own explicit size (its wrapper's default is 2,400 characters): up to 8 items,
+// titles 160 and summaries 300 characters, 6,000 characters in total.
 export const CHAT_REFERENCE_BUDGET = Object.freeze({
   suppliedMaterials: 3600,
   aiInfraFramework: 6000,
-  importedResearch: 3200
+  importedResearch: 3200,
+  news: 6000,
+  newsItems: 8,
+  newsTitleChars: 160,
+  newsSummaryChars: 300
 });
 
 // Keeps whole lines: the first `head` lines (block header and provenance) and the last `tail` lines (the block's own
