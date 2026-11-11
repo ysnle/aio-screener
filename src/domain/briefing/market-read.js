@@ -1339,7 +1339,7 @@ export function buildMarketRegime(input = {}) {
             : calmLevel && rising ? `VIX ${fmt(vix.value)}는 ${V.calmBelow} 아래지만 5일 ${signed(vix5, 0)} 올라 단기 불안이 커지는 중입니다 — 양호로 보지 않습니다.`
               : calmLevel && nearEdge ? `VIX ${fmt(vix.value)}가 ${V.calmBelow} 경계에서 ${V.calmBufferPt}pt 안이고 5일 ${signed(vix5, 0)} 올라 양호로 보지 않습니다.`
                 // v59.56 (text-quality audit): name the reason that applies, not both.
-                : vix && vix.value >= V.calmBelow ? `VIX ${fmt(vix.value)} — ${V.calmBelow}~${V.stressAt} 주의 구간입니다${ratio < V.calmRatioBelow ? `(VIX/3개월 VIX ${fmt(ratio, 2)}, 기간 구조는 정상)` : ''}.`
+                : vix && vix.value >= V.calmBelow ? `VIX ${fmt(vix.value)} — ${V.calmBelow}~${V.stressAt} 통상 범위입니다${ratio < V.calmRatioBelow ? `(VIX/3개월 VIX ${fmt(ratio, 2)}, 기간 구조는 정상)` : ''}.`
                   : `VIX ${fmt(vix.value)}는 ${V.calmBelow} 아래지만 VIX/3개월 VIX ${fmt(ratio, 2)}로 기간 구조가 평탄합니다.`;
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `VIX ${V.stressAt} 미만, VIX/3개월 VIX ${V.invertedRatioAt} 미만, 5일 상승률 +${V.spike5dPct}% 미만이 모두 충족되면 중립으로 바뀜`

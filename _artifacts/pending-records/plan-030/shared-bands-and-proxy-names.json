@@ -5,7 +5,7 @@
     "title": "v59.97 시장 상태 sentences named a private threshold or proxy beside a shared one (breadth 50%, F&G 25, 0.0% sectors, 분배일 rank, 나스닥 100 hold)",
     "symptom": "The breadth pair said the reading changes '50% 아래로 내려가면' while it flipped at 45%; the sentiment pair called F&G 25 극단 공포 while the gauge calls it 공포; market-flow counted a sector printing +0.0% as risen; page-flow called the 50th-59th percentile of 분배일 '많은 편' where the 시장 상태 card says '중간쯤'; the leadership hold text named 나스닥 100 although the proxy is SOXX since v59.70.",
     "root_cause": "Each sentence kept its own copy of a band edge, band name or proxy label instead of reading the one the number beside it comes from.",
-    "fix": "RULES.breadthCross (55/45) drives the breadth pair and its flip sentence; the sentiment pair uses fearGreedBand(fg).label === '극단 공포'; market-flow counts and lists by directionOf(daily, 1); one exported recordRankPhrase (RULES.recordRank 60/40) serves both 분배일 sentences; the hold text uses leadership.proxyLabel.",
+    "fix": "RULES.breadthCross (55/45) drives the breadth pair and its flip sentence; the sentiment pair uses fearGreedBand(fg).label === '극단 공포'; market-flow counts and lists by directionOf(daily, 1); one exported recordRankPhrase (RULES.recordRank 60/40) serves both 분배일 sentences; the hold text uses leadership.proxyLabel. The 시장 상태 volatility sentence names VIX 18–25 통상 범위, the name 매크로, the sentiment narrative and the sizing labels already use (it said 주의 구간).",
     "violated_rule": "A sentence takes its threshold and its source from the module that prints the number.",
     "prevention": "esm-core unit assertions: breadth 48/44/60 read middle/broad weakness/'45% 아래로'; F&G 25 and 24.6 are not 극단 공포 and 24 is; a +0.04% sector is in neither count; recordRankPhrase 55/65/35 and one page-flow line at the 56th percentile read 중간쯤. The leadership hold text (held branch) is not reached by a unit case and is untested.",
     "verification": "node scripts/ci-esm-core-unit-check.mjs (new assertions fail on the old source); ci-metric-consistency-check, ci-crash-replay-check, ci-scenario-guidance-fixture, ci-pipeline-semantics-check exit 0 with no edited expectation.",
@@ -20,7 +20,8 @@
   },
   "r": null,
   "changelog": [
-    "**Shared bands and proxy names ({P}):** the 시장 상태 breadth and sentiment pairs, the sector counts, the 분배일 rank wording and the leadership hold text now read the band, edge or proxy label the number beside them comes from, so one value no longer gets two names across screens."
+    "**Shared bands and proxy names ({P}):** the 시장 상태 breadth and sentiment pairs, the sector counts, the 분배일 rank wording and the leadership hold text now read the band, edge or proxy label the number beside them comes from, so one value no longer gets two names across screens.",
+    "**VIX 18–25 has one name ({P}):** the 시장 상태 volatility line says 통상 범위 like every other screen (was 주의 구간)."
   ],
   "note": "v59.97: shared bands and proxy names in market sentences"
 }
