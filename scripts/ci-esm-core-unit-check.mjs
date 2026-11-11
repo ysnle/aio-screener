@@ -7671,10 +7671,4 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const flowIndex = breadthFlow({ cards: [{ id: 'spx', series: flowPts((i) => 6000 + i) }, { id: 'b50', series: flowPts(() => 50) }, { id: 'b200', series: flowPts(() => 50) }, { id: 'dd', series: ddSeries }] }).leads?.index || '';
   const ddPct = recordPercentile(ddSeries, 55).pct;
   if (ddPct <= 50 || ddPct >= 60 || !flowIndex.includes(`가운데 ${recordRankPhrase(ddPct)}입니다`) || /많은 편/.test(flowIndex)) fail(`v59.97 the page-flow 분배일 line reads a ${ddPct}th-percentile count as 중간쯤: ${flowIndex}`);
-
-  // VIX 18–25 has one name on every screen: the 시장 상태 volatility read takes it from vixBand.
-  const { buildMarketRegime } = await load('src/domain/briefing/market-read.js');
-  const vixDays = xdays.map((date, i) => ({ date, spx: 5000 + i, vix: 21, vix3m: 23 }));
-  const volAxis = buildMarketRegime({ history: vixDays, now: Date.parse(`${xdays.at(-1)}T23:00:00Z`) }).axes.find((row) => row.id === 'volatility');
-  if (volAxis?.state !== 'neutral' || !/18~25 통상 범위입니다/.test(volAxis.read || '') || /주의 구간/.test(volAxis.read || '')) fail(`v59.97 VIX 21 reads 통상 범위 on 시장 상태 as on 매크로: ${volAxis?.state} ${volAxis?.read}`);
 }

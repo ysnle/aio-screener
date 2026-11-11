@@ -25,7 +25,7 @@ import { withSubjectParticle } from '../content/korean-particle.js';
 import { breadthScopeOf } from '../market/breadth/screener-breadth.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { computeCompositeFearGreed } from '../market/sentiment/composite-fear-greed.js';
-import { fearGreedBand, vixBand } from '../market/sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
+import { fearGreedBand } from '../market/sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
 export { closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile };
 
 const sessionsBetween = (from, to) => countOpenSessionsBetween(from, to, 'US');
@@ -459,7 +459,6 @@ export function koreaMoveRecord(history = [], { now = Date.now() } = {}) {
 // v57.81: 최저/최고 only at rank 1; a percentile that rounds to 0 or 100 names its rank ("하위 1% 이내(252거래일 중 2번째로 낮음)").
 const rankText = (rec, low) => { const rank = low ? rec.lowRank : rec.highRank; return rank ? `(${rec.n}거래일 중 ${rank}번째로 ${low ? '낮음' : '높음'})` : ''; };
 export const recordSide = (rec) => rec?.pct == null ? '' : rec.lowest ? '최저' : rec.highest ? '최고' : rec.pct <= 0 ? `하위 1% 이내${rankText(rec, true)}` : rec.pct >= 100 ? `상위 1% 이내${rankText(rec, false)}` : rec.pct <= 50 ? `하위 ${rec.pct}%` : `상위 ${100 - rec.pct}%`;
-/** "최근 252거래일 기록에서 하루 하위 6%·5거래일 하위 2%" for the parts of a koreaMoveRecord that are named. */
 /** Where a count sits in the site's own record, as one phrase: many at or above the 60th percentile, few at or below the
  *  40th, the middle between them; '' without a percentile. The 시장 상태 분배일 card and the page-flow line both read it. */
 export function recordRankPhrase(pct) {
@@ -468,6 +467,7 @@ export function recordRankPhrase(pct) {
   return pct >= manyAtPct ? `상위 ${Math.max(1, 100 - pct)}%에 드는 많은 편` : pct <= fewAtPct ? `하위 ${Math.max(1, pct)}%에 드는 적은 편` : '중간쯤';
 }
 
+/** "최근 252거래일 기록에서 하루 하위 6%·5거래일 하위 2%" for the parts of a koreaMoveRecord that are named. */
 export function koreaRecordText(record, { maxTail = 100 } = {}) {
   const parts = [[record?.rec1, record?.tail1, '하루'], [record?.rec5, record?.tail5, '5거래일']]
     .filter(([rec, tail]) => rec?.pct != null && tail != null && tail <= maxTail);
@@ -1339,7 +1339,7 @@ export function buildMarketRegime(input = {}) {
             : calmLevel && rising ? `VIX ${fmt(vix.value)}는 ${V.calmBelow} 아래지만 5일 ${signed(vix5, 0)} 올라 단기 불안이 커지는 중입니다 — 양호로 보지 않습니다.`
               : calmLevel && nearEdge ? `VIX ${fmt(vix.value)}가 ${V.calmBelow} 경계에서 ${V.calmBufferPt}pt 안이고 5일 ${signed(vix5, 0)} 올라 양호로 보지 않습니다.`
                 // v59.56 (text-quality audit): name the reason that applies, not both.
-                : vix && vix.value >= V.calmBelow ? `VIX ${fmt(vix.value)} — ${V.calmBelow}~${V.stressAt} ${vixBand(vix.value).label}입니다${ratio < V.calmRatioBelow ? `(VIX/3개월 VIX ${fmt(ratio, 2)}, 기간 구조는 정상)` : ''}.`
+                : vix && vix.value >= V.calmBelow ? `VIX ${fmt(vix.value)} — ${V.calmBelow}~${V.stressAt} 주의 구간입니다${ratio < V.calmRatioBelow ? `(VIX/3개월 VIX ${fmt(ratio, 2)}, 기간 구조는 정상)` : ''}.`
                   : `VIX ${fmt(vix.value)}는 ${V.calmBelow} 아래지만 VIX/3개월 VIX ${fmt(ratio, 2)}로 기간 구조가 평탄합니다.`;
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `VIX ${V.stressAt} 미만, VIX/3개월 VIX ${V.invertedRatioAt} 미만, 5일 상승률 +${V.spike5dPct}% 미만이 모두 충족되면 중립으로 바뀜`
