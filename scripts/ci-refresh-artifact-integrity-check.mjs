@@ -30,11 +30,16 @@ if (headText !== null && normalise(headText) !== normalise(currentText)) {
 }
 const currentMeta = current.meta || {};
 const previousMeta = previous?.meta || {};
-const explicitFredLkgBoundary = currentMeta.fredHasKey !== true
-  && currentMeta.fredFetchOk !== true
+// A cycle that kept last-known-good FRED values is explicit when the producer labelled it with its source. With the
+// key present, fredFetchOk is true only when every expected series succeeded, so one failed series is a labelled
+// partial cycle that still publishes (P1189); a key-present cycle in which no series succeeded is a total loss.
+const fredSuccessfulCount = Array.isArray(currentMeta.fredSuccessfulSeries) ? currentMeta.fredSuccessfulSeries.length : null;
+const fredFailedCount = Array.isArray(currentMeta.fredFailedSeries) ? currentMeta.fredFailedSeries.length : null;
+const explicitFredLkgBoundary = currentMeta.fredFetchOk !== true
   && currentMeta.fredLkgUsed === true
   && typeof currentMeta.fredLkgSource === 'string'
-  && currentMeta.fredLkgSource.length > 0;
+  && currentMeta.fredLkgSource.length > 0
+  && (currentMeta.fredHasKey !== true || fredSuccessfulCount > 0);
 const degradedFred = previousMeta.fredFetchOk === true
   && currentMeta.fredFetchOk !== true
   && !explicitFredLkgBoundary;
@@ -47,4 +52,4 @@ if (degradedQuote) {
   console.error(`refresh artifact integrity failed: quote coverage regressed ${previousMeta.symbolsOk} -> ${currentMeta.symbolsOk}`);
   process.exit(1);
 }
-console.log(JSON.stringify({ ok: true, baseline, fred: { previous: previousMeta.fredFetchOk ?? null, current: currentMeta.fredFetchOk ?? null, lkg: currentMeta.fredLkgUsed === true, explicitLkgBoundary: explicitFredLkgBoundary }, quotes: { previous: previousMeta.symbolsOk ?? null, current: currentMeta.symbolsOk ?? null } }));
+console.log(JSON.stringify({ ok: true, baseline, fred: { previous: previousMeta.fredFetchOk ?? null, current: currentMeta.fredFetchOk ?? null, lkg: currentMeta.fredLkgUsed === true, explicitLkgBoundary: explicitFredLkgBoundary, failed: fredFailedCount, expected: currentMeta.fredExpectedSeriesCount ?? null }, quotes: { previous: previousMeta.symbolsOk ?? null, current: currentMeta.symbolsOk ?? null } }));

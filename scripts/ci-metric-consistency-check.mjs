@@ -15,7 +15,15 @@ const failures = [];
 const check = (label, ok, detail = '') => { if (!ok) failures.push(`${label}${detail ? ` — ${detail}` : ''}`); };
 const num = (text, re) => { const hit = String(text || '').match(re); return hit ? Number(hit[1].replace('−', '-')) : null; };
 
-const { buildMarketRegime, oasDelta20Bp } = await load('src/domain/briefing/market-read.js');
+const { buildMarketRegime, oasDelta20Bp, alignInput, isUsable, buildCloseSeries } = await load('src/domain/briefing/market-read.js');
+// v59.97: the 시장 상태 axis withholds an input more than two US sessions behind the S&P 500 close (state 'unknown'), while
+// other readers still date their last observation. A comparison with a withheld axis is skipped, never silently.
+const skip = (what, axisId, alignment, basis) => console.log(`[metric-consistency] SKIP ${what}: ${axisId} withheld (input ${alignment?.lag ?? 'n/a'} sessions behind ${basis || 'n/a'})`);
+const withheldBy = (reg, axisId, inputDate) => {
+  const alignment = alignInput(inputDate || null, reg?.asOf || null);
+  const state = (reg?.axes || []).find((axis) => axis.id === axisId)?.state;
+  return state === 'unknown' || !isUsable(alignment) ? alignment : null;
+};
 const { buildMacroChapters } = await load('src/domain/macro/macro-chapters.js');
 const { buildMarketStory } = await load('src/domain/market/story/market-story.js');
 const { crossReadings } = await load('src/domain/market/regime/cross-readings.js');
@@ -28,6 +36,9 @@ const { homeBriefTiers, EVENT_BRIEFS_SCHEMA } = await load('src/domain/briefing/
 const { readHistoryRows } = await load('src/domain/market/indices/history-rows.js');
 const history = readHistoryRows(json('public-data/history.json'));
 const macroHistory = json('public-data/macro-history.json');
+// v59.97: the published rows and OAS observations through the 11/6 close, pinned for the fixed-date replays (sections 7, 8).
+const pinned1106 = json('architecture/fixtures/market-close-2026-11-06.json');
+const pinnedHistory = readHistoryRows(pinned1106.history);
 const hy = oasDelta20Bp(macroHistory, 'hyOas');
 const regime = buildMarketRegime({ history, macroHistory, credit: hy ? { hyBp: hy.level * 100, hyDelta5Bp: hy.d5, hyAsOf: hy.date } : {}, now: Date.now() });
 const tenRow = (regime.axes || []).find((axis) => axis.id === 'rates')?.evidence?.find(([label]) => label === '미 10년물')?.[1] || '';
@@ -38,8 +49,11 @@ const ratesNow = chapters.find((chapter) => chapter.id === 'rates')?.now || '';
 const creditNow = chapters.find((chapter) => chapter.id === 'credit')?.now || '';
 const story = buildMarketStory({ history, macroHistory });
 const storyRow = (id) => story.checks?.find((row) => row.id === id)?.value || '';
-const pair = crossReadings({ history, macroHistory }).map((row) => row.text).find((text) => /미국 10년 금리/.test(text)) || '';
-check('v59.70 the verdict table has a 10-year 5- and 20-session change', ten20 != null && ten5 != null, tenRow);
+const pairRow = crossReadings({ history, macroHistory }).find((row) => /미국 10년 금리/.test(row.text || '')) || null;
+const pair = pairRow?.text || '';
+const tenWithheld = withheldBy(regime, 'rates', buildCloseSeries(history, 'tnx', { through: regime.asOf }).at(-1)?.date);
+if (tenWithheld) skip('v59.70 10-year 5/20-session readings', 'rates', tenWithheld, regime.asOf);
+else check('v59.70 the verdict table has a 10-year 5- and 20-session change', ten20 != null && ten5 != null, tenRow);
 check('v59.70 5 HY: the published OAS has a 20-session and a 5-session reading', hy?.value != null && hy?.d5 != null);
 if (ten20 != null) {
   check('v59.70 6 매크로 rates chapter quotes the verdict table\'s 10-year 20-session change', num(ratesNow, /10년 [\d.]+ → [\d.]+% \([^,]+, ([+-]?\d+)bp\)/) === ten20, `${ratesNow} vs ${ten20}`);
@@ -51,7 +65,12 @@ if (ten5 != null && storyRow('rates')) check('v59.70 6 시장 상태 story quote
 if (hy?.value != null) {
   const hy20 = Math.round(hy.value); const hy5 = Math.round(hy.d5);
   check('v59.70 5 매크로 credit chapter quotes the one 20-session OAS reading', num(creditNow, /하이일드 [\d.]+ → [\d.]+% \(([+-]?\d+)bp\)/) === hy20, `${creditNow} vs ${hy20}`);
-  if (pair) check('v59.70 5 연결해서 보면 quotes the same HY change', num(pair, /하이일드 스프레드 ([+-]?\d+)bp/) === hy20, pair.slice(0, 120));
+  // v59.97: the pair reads through the 10-year's last close; when that close is older than the HY observation, its HY
+  // change is the 20-session reading at that close.
+  const pairOlder = pairRow?.asOf && pairRow.asOf < hy.date;
+  if (pairOlder) console.log(`[metric-consistency] 연결해서 보면 rates-credit reads through ${pairRow.asOf} (HY observed ${hy.date}); its HY change is compared at that close`);
+  const pairHy20 = pairOlder ? Math.round(oasDelta20Bp(macroHistory, 'hyOas', pairRow.asOf)?.value) : hy20;
+  if (pair) check('v59.70 5 연결해서 보면 quotes the same HY change', num(pair, /하이일드 스프레드 ([+-]?\d+)bp/) === pairHy20, `${pair.slice(0, 120)} vs ${pairHy20}`);
   if (storyRow('credit')) check('v59.70 5 시장 상태 story quotes the one 5-session OAS reading', num(storyRow('credit'), /하이일드 [\d.]+ → [\d.]+% \(([+-]?\d+)bp\)/) === hy5, `${storyRow('credit')} vs ${hy5}`);
 }
 // A threshold is said as a threshold: every credit flip distance short label starts with 기준.
@@ -146,11 +165,12 @@ const retail = { id: 'us-retail', name: '소매판매', date: '2026-11-17', when
 const tie = ['reflation', 'aibust', 'volshock'];
 check('v59.74 the shared next release is the earliest one any branch reads (CPI before a tie-only retail)', nextDecidingEvent([cpi, retail], tie)?.id === 'us-cpi', nextDecidingEvent([cpi, retail], tie)?.id);
 check('v59.74 the tie decider is published apart', nextDecidingEvent([cpi, retail], tie, { inPlayOnly: true })?.id === 'us-retail');
-const weekHistory = history.filter((row) => row.date <= '2026-11-07');
+const weekHistory = pinnedHistory;
 const calendarFixture = { earnings: [{ symbol: 'CSCO', date: '2026-11-12', hour: 'amc', indexWeight: 0.64 }, { symbol: 'AMAT', date: '2026-11-12', hour: 'amc', indexWeight: 0.46 },
   { symbol: 'TDG', date: '2026-11-10', hour: 'bmo', indexWeight: 0.09 }, { symbol: 'CRWV', date: '2026-11-10', hour: 'amc', indexWeight: null }] };
-const weekStory = buildMarketStory({ history: weekHistory, macroHistory, calendar: calendarFixture, nextEvent: cpi, decidingEvent: retail, events: [cpi, retail],
+const weekStory = buildMarketStory({ history: weekHistory, macroHistory: pinned1106.macroHistory, calendar: calendarFixture, nextEvent: cpi, decidingEvent: retail, events: [cpi, retail],
   storySymbols: new Map([['CRWV', 'AI 인프라 조달·신용']]), nowMs: Date.parse('2026-11-07T10:00:00Z') });
+check('v59.97 the 11/7 week story builds from the pinned 11/6 fixture', weekStory.available === true, weekStory.reason || '');
 if (weekStory.available) {
   const titles = (weekStory.week || []).map((row) => row.title);
   check('v59.74 the week list carries the 11/10 CPI', (weekStory.week || []).some((row) => row.kind === 'macro' && row.date === '2026-11-10'), JSON.stringify(titles));
@@ -187,17 +207,25 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
   const { participationShift, ROTATION_TITLE, buildMarketScenarios } = await load('src/domain/market/regime/regime-scenarios.js');
   const { buildMarketInterpretation } = await load('src/domain/market/interpretation/market-interpretation.js');
   const data = json('public-data/data.json');
-  const cut = (rows, day) => rows.filter((row) => String(row.date || '') <= day);
-  for (const day of ['2026-11-06', null]) {
-    const at = day ? cut(history, day) : history;
-    if (day && !at.some((row) => row.date === day)) continue; // the fixture close rolled out of the published window
+  // v59.97: the 11/6 close is a pinned fixture (architecture/fixtures/market-close-2026-11-06.json — the published rows and
+  // OAS observations through that close), so the replay neither drops out when the close leaves the published window nor
+  // fails when the producer repairs an old row. Exact values are asserted on the fixture only; today's files get the
+  // comparisons.
+  const passes = [
+    { day: pinned1106.closeDate, history: pinnedHistory, macroHistory: pinned1106.macroHistory, macro: pinned1106.macro || null },
+    { day: null, history, macroHistory, macro: data.macro || null }
+  ];
+  check('v59.97 the 11/6 fixture holds its close', passes[0].day === '2026-11-06' && passes[0].history.at(-1)?.date === '2026-11-06', `${passes[0].day} ${passes[0].history.at(-1)?.date}`);
+  for (const { day, history: at, macroHistory, macro } of passes) {
     const hyAt = oasDelta20Bp(macroHistory, 'hyOas', day);
     const reg = buildMarketRegime({ history: at, macroHistory, credit: hyAt ? { hyBp: hyAt.level * 100, hyDelta5Bp: hyAt.d5, hyAsOf: hyAt.date } : {}, now: day ? Date.parse(`${day}T23:00:00Z`) : Date.now() });
     const axis = (id) => (reg.axes || []).find((row) => row.id === id);
     const tag = day || 'today';
     const judgement = creditJudgement(macroHistory, hyAt?.date || null);
+    const creditWithheld = withheldBy(reg, 'credit', hyAt?.date);
     if (axis('credit') && judgement) {
-      check(`v59.84 [${tag}] the credit judgement every reader uses is the 시장 상태 credit axis state`, judgement.state === axis('credit').state, `${judgement.state} vs ${axis('credit').state}`);
+      if (creditWithheld) skip(`v59.84 [${tag}] credit judgement vs the 시장 상태 credit axis`, 'credit', creditWithheld, reg.asOf);
+      else check(`v59.84 [${tag}] the credit judgement every reader uses is the 시장 상태 credit axis state`, judgement.state === axis('credit').state, `${judgement.state} vs ${axis('credit').state}`);
       const storyAt = buildMarketStory({ history: at, macroHistory, nowMs: day ? Date.parse(`${day}T23:00:00Z`) : Date.now() });
       const storyCredit = storyAt.checks?.find((row) => row.id === 'credit');
       const storyKind = storyAt.credit?.kind;
@@ -207,10 +235,11 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
       check(`v59.84 [${tag}] a 부담 from speed never reads as a level "폭"`, judgement.state !== 'burden' || judgement.cause.level || (!/크게 벌어졌|번질 수 있는 폭/.test(reading) && /부담 기준 [\d.]+% 아래/.test(reading)), reading);
       const chaptersAt = buildMacroChapters({ macroHistory, history: at });
       const creditChapter = (Array.isArray(chaptersAt) ? chaptersAt : chaptersAt?.chapters || []).find((chapter) => chapter.id === 'credit');
-      if (creditChapter && !day) check(`v59.84 [${tag}] 매크로 신용 장 state is the axis state`, creditChapter.state === axis('credit').state, `${creditChapter.state} vs ${axis('credit').state}`);
+      if (creditChapter && !day && creditWithheld) skip(`v59.84 [${tag}] 매크로 신용 장 state vs the 시장 상태 credit axis`, 'credit', creditWithheld, reg.asOf);
+      else if (creditChapter && !day) check(`v59.84 [${tag}] 매크로 신용 장 state is the axis state`, creditChapter.state === axis('credit').state, `${creditChapter.state} vs ${axis('credit').state}`);
       if (creditChapter && !day) check(`v59.84 [${tag}] 매크로 신용 장 flip offers no condition that already holds`, !(judgement.state === 'burden' && !judgement.cause.level && /% 아래로 내려오고/.test(creditChapter.flip || '')), creditChapter.flip);
     }
-    const macroAt = buildMacroRead({ macro: data.macro || null, macroHistory, regime: reg, history: at });
+    const macroAt = buildMacroRead({ macro, macroHistory, regime: reg, history: at });
     const nodes = [...(macroAt?.chain?.nodes || []), ...(macroAt?.chain?.branches || [])];
     for (const id of ['rates', 'credit']) {
       const node = nodes.find((row) => row.id === id); const state = axis(id)?.state;
@@ -231,6 +260,59 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
     }
   }
   void buildMarketInterpretation;
+}
+
+// ── 8b. v59.97: one credit fact, one state, in every state the rule has. Synthetic US sessions with a flat S&P 500 and an
+// HY OAS series built for each state; the regime gets the inputs the product passes (level, five-session change, as-of
+// date). creditJudgement, the 시장 상태 credit axis and the 매크로 credit chapter must agree, and an HY series three sessions
+// behind the S&P close is withheld by the axis (the comparison is skipped with a printed line).
+{
+  const { RULES } = await load('src/domain/rules/thresholds.js');
+  const { isCloseSessionDate } = await load('src/domain/briefing/market-read.js');
+  const { creditJudgement } = await load('src/domain/briefing/credit-reading.js');
+  const C = RULES.credit;
+  const sessions = [];
+  for (let ms = Date.parse('2025-01-02T00:00:00Z'); sessions.length < 340; ms += 86400000) {
+    const date = new Date(ms).toISOString().slice(0, 10);
+    if (isCloseSessionDate(date, 'US')) sessions.push(date);
+  }
+  const n = sessions.length;
+  const base = C.tightBelowBp - 50;
+  // A swinging year whose 20-session changes put the record's entry line at its cap, then a calm stretch, so the last
+  // 20 sessions decide the state.
+  const swing = (i) => base + 40 * Math.sin((2 * Math.PI * i) / 80);
+  const calm = (i) => (i < 280 ? swing(i) : base);
+  const tail = (i) => i - (n - 20); // 0..19 over the last 20 sessions
+  const states = [
+    { name: 'favourable (level under the tight line, flat)', bp: (i) => calm(i), want: 'favorable' },
+    { name: 'neutral by 20-session widening under the record line', bp: (i) => (tail(i) >= 0 ? base + ((C.widen20dBp + 5) * (tail(i) + 1)) / 20 : calm(i)), want: 'neutral' },
+    { name: '부담 by level', bp: (i) => calm(i) + (C.stressAtBp + 10 - base), want: 'burden', cause: 'level' },
+    { name: '부담 by five-session speed', bp: (i) => (i >= n - 5 ? base + ((C.widen5dBp + 5) * (i - (n - 6))) / 5 : calm(i)), want: 'burden', cause: 'fast5' },
+    { name: '부담 by the 20-session record', bp: (i) => (tail(i) >= 0 ? base + ((C.widen20dBp + 5) * (tail(i) + 1)) / 20 : base), want: 'burden', cause: 'wide20' },
+    { name: 'stale (HY three sessions behind the S&P close)', bp: (i) => calm(i), want: 'favorable', hyLag: 3 }
+  ];
+  const historyRows = sessions.map((date) => ({ date, spx: 6000 }));
+  const now = Date.parse(`${sessions.at(-1)}T23:00:00Z`);
+  for (const state of states) {
+    const observations = sessions.slice(0, n - (state.hyLag || 0)).map((date, i) => [date, Math.round(state.bp(i) * 100) / 10000]);
+    const macroHistory = { series: { hyOas: { id: 'hyOas', observations } } };
+    const hyNow = oasDelta20Bp(macroHistory, 'hyOas');
+    const reg = buildMarketRegime({ history: historyRows, macroHistory, credit: hyNow ? { hyBp: hyNow.level * 100, hyDelta5Bp: hyNow.d5, hyAsOf: hyNow.date } : {}, now });
+    const axisState = (reg.axes || []).find((axis) => axis.id === 'credit')?.state;
+    const judgement = creditJudgement(macroHistory, hyNow?.date || null);
+    const model = buildMacroChapters({ macroHistory, history: historyRows });
+    const chapter = (Array.isArray(model) ? model : model?.chapters || []).find((row) => row.id === 'credit');
+    check(`v59.97 credit state table [${state.name}]: the judgement is ${state.want}${state.cause ? ` by ${state.cause}` : ''}`,
+      judgement?.state === state.want && (!state.cause || judgement.cause?.[state.cause] === true), JSON.stringify(judgement && { state: judgement.state, cause: judgement.cause, hyBp: judgement.hyBp, hy5: judgement.hy5, hy20: judgement.hy20 }));
+    const withheld = withheldBy(reg, 'credit', hyNow?.date);
+    if (state.hyLag) {
+      check(`v59.97 credit state table [${state.name}]: the 시장 상태 axis withholds the HY input`, !!withheld && axisState === 'unknown', `${axisState} ${JSON.stringify(withheld)}`);
+      if (withheld) skip(`v59.97 credit state table [${state.name}] judgement and 매크로 chapter vs the axis`, 'credit', withheld, reg.asOf);
+      continue;
+    }
+    check(`v59.97 credit state table [${state.name}]: the 시장 상태 credit axis is the judgement`, !withheld && axisState === judgement?.state, `${axisState} vs ${judgement?.state}`);
+    check(`v59.97 credit state table [${state.name}]: the 매크로 credit chapter is the judgement`, chapter?.state === judgement?.state, `${chapter?.state} vs ${judgement?.state}`);
+  }
 }
 
 // ── 9. v59.85 (chart review 2026-11-08): one trend vocabulary. The 기술적 분석 index cards, the stock table under them, the
