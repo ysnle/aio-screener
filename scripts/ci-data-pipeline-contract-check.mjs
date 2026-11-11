@@ -671,6 +671,47 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   } catch (error) { detail = error.message; }
   check('BLS normalizer rejects M13, preserves units/observation periods, and derives YoY/MoM deterministically', ok, detail.slice(0, 1200));
 }
+// v59.98: the 2026-11-10 refresh read October 2026 CPI while BLS never published October 2025 (the 2025 shutdown), and
+// the four CPI series were reported as failed fetches every cycle. A comparator month the source never published is a
+// gap, as on the FRED path: no YoY value, no failure, collection ok. A history that is simply too short still fails.
+{
+  let detail = '';
+  try {
+    const { normalizeBlsSeriesResponse } = await import('./fetch-data.mjs');
+    const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const months = (from, to) => { const out = []; for (let [y, m] = from; y < to[0] || (y === to[0] && m <= to[1]); m === 12 ? (y += 1, m = 1) : (m += 1)) out.push([y, m]); return out.reverse(); };
+    // BLS v1 row shape as stored in public-data/data.json macro._bls (string year/period/value, footnotes [{}]).
+    const series = (id, base, { skip = null, from = [2024, 1] } = {}) => ({
+      seriesID: id,
+      data: months(from, [2026, 10]).map(([y, m], index) => ({
+        year: String(y), period: `M${String(m).padStart(2, '0')}`, periodName: monthName[m - 1],
+        value: skip && skip[0] === y && skip[1] === m ? '-' : String(base - index * 0.3),
+        footnotes: skip && skip[0] === y && skip[1] === m ? [{ code: 'X', text: 'Data unavailable.' }] : [{}]
+      }))
+    });
+    const others = [series('LNS14000000', 4.1), series('LNS11300000', 61.9), series('CES0000000001', 159293), series('CES0500000003', 38)];
+    const gapPayload = { status: 'REQUEST_SUCCEEDED', Results: { series: [
+      series('CUUR0000SA0', 337.511, { skip: [2025, 10] }), series('CUSR0000SA0', 337.476, { skip: [2025, 10] }),
+      series('CUUR0000SA0L1E', 339.921, { skip: [2025, 10] }), series('CUSR0000SA0L1E', 339.9, { skip: [2025, 10] }), ...others
+    ] } };
+    const gap = normalizeBlsSeriesResponse(gapPayload, '2026-11-10T13:51:05.162Z');
+    const cpiIds = ['cpi', 'cpiSa', 'coreCpi', 'coreCpiSa'];
+    const gaps = gap.comparatorGaps || [];
+    const gapOk = gap.status === 'ok' && gap.failures.length === 0
+      && JSON.stringify(gaps.map((row) => row.metricId)) === JSON.stringify(cpiIds)
+      && gaps.every((row) => row.missingPeriod === '2025-M10')
+      && cpiIds.every((id) => gap.series[id].status === 'comparator_gap' && gap.series[id].value === null && gap.series[id].observedAt === '2026-10-01')
+      && !('blsCpiYoY' in gap.values) && !('blsCoreCpiYoY' in gap.values) && gap.values.blsUnemployment === 4.1;
+    const shortPayload = { status: 'REQUEST_SUCCEEDED', Results: { series: [
+      series('CUUR0000SA0', 337.511, { from: [2026, 1] }), series('CUSR0000SA0', 337.476), series('CUUR0000SA0L1E', 339.921), series('CUSR0000SA0L1E', 339.9), ...others
+    ] } };
+    const short = normalizeBlsSeriesResponse(shortPayload, '2026-11-10T13:51:05.162Z');
+    const shortOk = short.status === 'partial' && short.failures.length === 1 && short.failures[0].metricId === 'cpi'
+      && short.failures[0].reason === 'insufficient_history_for_yoy' && !(short.comparatorGaps || []).length && Number.isFinite(short.values.blsCpiSaYoY);
+    detail = JSON.stringify({ gapOk, shortOk, gap: { status: gap.status, failures: gap.failures, comparatorGaps: gaps }, short: { status: short.status, failures: short.failures } });
+    check('v59.98 a BLS comparator month the source never published is a gap, not a failed series; a short history still fails', gapOk && shortOk, detail.slice(0, 1200));
+  } catch (error) { check('v59.98 a BLS comparator month the source never published is a gap, not a failed series; a short history still fails', false, error.message); }
+}
 {
   let ok = false;
   let detail = '';
@@ -1473,10 +1514,20 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const both = normalizeSecCompanyFacts('BTH', { cik: 4, entityName: 'Both Corp', facts: { 'us-gaap': {
       Revenues: { units: { USD: [period(400, 'a', '2024-01-01', '2024-12-31', '2025-02-20'), period(500, 'b', '2025-01-01', '2025-12-31', '2026-02-20')] } },
       ...bankRevenue, ...common }, ...shares } }, 50, submissions);
-    const secSource = readFileSync(new URL('./fetch-sec-fundamentals.mjs', import.meta.url), 'utf8');
-    ok = !!bank && bank.margin === 25 && bank.revGrowth === 25 && !!both && both.margin === 5 && both.revGrowth === 25
-      // terminal concept-coverage rows are rechecked once when the concept set version changes
-      && /conceptSetChanged/.test(secSource) && /conceptSetVersion: SEC_CONCEPT_SET_VERSION/.test(secSource);
+    // v59.98: terminal concept-coverage rows are rechecked once when the concept set version changes — by behaviour: an
+    // older-set record is due, the record the recheck writes is not, and a terminal row of another reason stays skipped.
+    const { secConceptSetChanged, secNoAnnualFailure, isSecTargetDue, SEC_CONCEPT_SET_REASON_CODES } = await import('./fetch-sec-fundamentals.mjs');
+    const nowMs = Date.parse('2026-11-11T00:00:00Z');
+    const terminalRow = (priorFailure) => ({ symbol: 'OLD', fetchedAt: null, priorFailure, conceptSetChanged: secConceptSetChanged(priorFailure), lastFailureAt: '2026-11-10T23:00:00Z' });
+    const olderSet = { symbol: 'OLD', status: 'TERMINAL_UNSUPPORTED', reasonCode: SEC_CONCEPT_SET_REASON_CODES[0], conceptSetVersion: 'sec-annual-concepts.v0' };
+    const rechecked = secNoAnnualFailure('OLD', { issuerTaxonomy: 'US-GAAP', filingForms: ['10-K'] }, '2026-11-11T00:00:00.000Z');
+    const otherReason = { ...olderSet, reasonCode: 'not-a-concept-set-reason' };
+    const recheckOnce = isSecTargetDue(terminalRow(olderSet), { now: nowMs }) === true
+      && SEC_CONCEPT_SET_REASON_CODES.includes(rechecked.reasonCode) && isSecTargetDue(terminalRow(rechecked), { now: nowMs }) === false
+      && isSecTargetDue(terminalRow(otherReason), { now: nowMs }) === false;
+    check('v59.98 a terminal SEC row recorded under an older concept set is rechecked once, then skipped under the stamped set', recheckOnce,
+      JSON.stringify({ olderSet: isSecTargetDue(terminalRow(olderSet), { now: nowMs }), rechecked: isSecTargetDue(terminalRow(rechecked), { now: nowMs }), otherReason: isSecTargetDue(terminalRow(otherReason), { now: nowMs }), reasonCodes: SEC_CONCEPT_SET_REASON_CODES }));
+    ok = !!bank && bank.margin === 25 && bank.revGrowth === 25 && !!both && both.margin === 5 && both.revGrowth === 25;
     detail = JSON.stringify({ bank: bank && { margin: bank.margin, revGrowth: bank.revGrowth }, both: both && { margin: both.margin, revGrowth: both.revGrowth } });
   } catch (error) { detail = error.message; }
   check('P1374 SEC normalizer covers bank revenue net of interest expense without overriding standard revenue', ok, detail.slice(0, 500));

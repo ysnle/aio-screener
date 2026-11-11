@@ -64,15 +64,17 @@ The bounds that are *not* per-isolate:
   in Workers Logs. A missing or throwing binding falls back to the in-isolate `Map`.
 - the atomic Durable Object daily cap (`AI_DAILY_CAP`, `RELAY_DAILY_CAP`) — **volume,
   not identity**, and only on `/openai` and `/relay`; the generic `?url=` proxy has none.
-- P1759: a per-connection AI day cap (`AI_PER_CLIENT_DAILY_CAP`: code default 150, deployed `wrangler.proxy.toml` value 200 — a household shares one IP) checked in the same
+- P1759: a per-connection AI day cap (`AI_PER_CLIENT_DAILY_CAP`: code default 150, bounded 1-1000 and clamped to `AI_DAILY_CAP`; deployed `wrangler.proxy.toml` value 1000, a third of the deployed `AI_DAILY_CAP` 3000 — a runaway backstop, not a household limit) checked in the same
   DO admission transaction. The key is an HMAC of the UTC day and the caller IP (IPv6 by /64;
   key material `AI_CLIENT_KEY_SALT` or, if unset, `OPENAI_API_KEY`); raw IPs are never stored.
   Exceeding it returns 429 `client-daily-cap` with `Retry-After` to the next UTC midnight.
-  v58.20: the same connection's reserved micro-USD per UTC day is also capped at 1/20 of the month
-  (`AI_PER_CLIENT_MONTH_SHARE`; settlement returns the unused part, and the day's first reservation is
-  never refused by the share alone), so one caller cannot reserve the whole month inside its question count.
-  Authenticated Actions requests are exempt (global + monthly caps still apply). Below 20% of the
-  month (`budgetState: low`) the Worker removes hosted search from new requests. `/health` has its
+  v58.20: in the fail-closed budget mode the same connection's reserved micro-USD per UTC day is also
+  capped at 1/20 of the month (`AI_PER_CLIENT_MONTH_SHARE`; settlement returns the unused part, and the
+  day's first reservation is never refused by the share alone), so one caller cannot reserve the whole
+  month inside its question count, and below 20% of the month (`budgetState: low`) the Worker removes
+  hosted search from new requests. The deployed `AI_MONTHLY_BUDGET_MODE = "target"` (v59.27) turns both
+  off: the month is a target that is reported and alerted on, never a refusal.
+  Authenticated Actions requests are exempt from the per-connection cap (the global day cap and the month ledger still apply). `/health` has its
   own isolate-local bucket (120/min; optional `RATE_LIMIT_HEALTH` binding).
 
 Because `/relay` spends the BOK/KOSIS operator's quota, treat a forged-Origin client as

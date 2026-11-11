@@ -160,7 +160,7 @@ if (failures.length) process.exit(1);
 // ── section principles-lesson-parity (was ci-principles-lesson-parity-contract-check.mjs) ──
 ['principles-lesson-parity', async () => {
 const { spawnSync } = await import('node:child_process');
-const { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync } = await import('node:fs');
+const { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } = await import('node:fs');
 const { isDeepStrictEqual } = await import('node:util');
 const { dirname, join, resolve } = await import('node:path');
 const { tmpdir } = await import('node:os');
@@ -171,7 +171,6 @@ const builderPath = 'scripts/build-principles-lessons.mjs';
 const canonicalPath = 'public-data/principles/lesson-library.json';
 const canonical = JSON.parse(readFileSync(join(root, canonicalPath), 'utf8'));
 const canonicalD6 = canonical.lessons?.find((lesson) => lesson.id === 'D6');
-const builderSource = readFileSync(join(root, builderPath), 'utf8');
 const failures = [];
 const checks = [];
 
@@ -182,11 +181,6 @@ function check(label, passed, detail = '') {
 
 check('P1303/R560/QA-DATA-47 canonical Principles library contains 112 lessons and D6',
   canonical.lessons?.length === 112 && canonicalD6?.title === '중립금리와 정책 스탠스');
-check('P1303/R560/QA-DATA-47 lesson builder publishes through the shared atomic JSON writer',
-  /import\s+\{\s*atomicWriteJsonSync\s*\}\s+from\s+['"]\.\/lib\/atomic-write\.mjs['"]/.test(builderSource)
-    && /atomicWriteJsonSync\(outputPath,\s*artifact\)/.test(builderSource)
-    && !/\bfs\.writeFileSync\s*\(|\bfs\.writeFile\s*\(/.test(builderSource));
-
 const isolatedRoot = mkdtempSync(join(tmpdir(), 'aio-principles-lesson-parity-'));
 const inputPaths = [builderPath, 'scripts/lib/atomic-write.mjs', 'scripts/lib/principles-stories.mjs', 'scripts/lib/principles-stories-a-d.mjs', 'scripts/lib/principles-stories-e-h.mjs', 'scripts/lib/principles-stories-i-k.mjs', 'scripts/lib/principles-stories-l-m.mjs', 'scripts/lib/principles-stories-n-o.mjs', 'scripts/lib/principles-worked.mjs', 'scripts/lib/principles-worked-a-h.mjs', 'scripts/lib/principles-worked-i-o.mjs', 'public-data/principles/chapters.json'];
 try {
@@ -195,6 +189,17 @@ try {
     mkdirSync(dirname(target), { recursive: true });
     copyFileSync(join(root, relativePath), target);
   }
+  // v59.98: the isolated copy of the shared writer is wrapped so every atomicWriteJsonSync call is logged before it
+  // delegates to the real writer; the builder must publish its artifact through that call, not a direct write.
+  const writerLog = join(isolatedRoot, 'atomic-write-calls.log');
+  copyFileSync(join(root, 'scripts/lib/atomic-write.mjs'), join(isolatedRoot, 'scripts/lib/atomic-write-real.mjs'));
+  writeFileSync(join(isolatedRoot, 'scripts/lib/atomic-write.mjs'), [
+    "import fs from 'node:fs';",
+    "import * as real from './atomic-write-real.mjs';",
+    "export const { atomicWriteFileSync, atomicWriteFile } = real;",
+    "export function atomicWriteJsonSync(target, value) { fs.appendFileSync(process.env.AIO_ATOMIC_WRITE_LOG, `${String(target)}\\n`); real.atomicWriteJsonSync(target, value); }",
+    ''
+  ].join('\n'));
 
   const outputPath = join(isolatedRoot, canonicalPath);
   const outputs = [];
@@ -203,12 +208,18 @@ try {
     const result = spawnSync(process.execPath, [join(isolatedRoot, builderPath)], {
       cwd: isolatedRoot,
       encoding: 'utf8',
-      stdio: 'pipe'
+      stdio: 'pipe',
+      env: { ...process.env, AIO_ATOMIC_WRITE_LOG: writerLog }
     });
     runResults.push(result);
     if (result.status !== 0) break;
     outputs.push(readFileSync(outputPath, 'utf8').replace(/\r\n/g, '\n'));
   }
+  const writerCalls = existsSync(writerLog) ? readFileSync(writerLog, 'utf8').split('\n').filter(Boolean) : [];
+  const leftoverTemporaries = readdirSync(dirname(outputPath)).filter((name) => name.endsWith('.tmp'));
+  check('v59.98 lesson builder publishes its artifact through the shared atomic JSON writer (one logged call per run, no temporary left)',
+    writerCalls.length === runResults.length && writerCalls.every((target) => resolve(target) === resolve(outputPath)) && !leftoverTemporaries.length,
+    JSON.stringify({ writerCalls, leftoverTemporaries }));
 
   const runFailure = runResults.find((result) => result.status !== 0);
   check('P1303/R560/QA-DATA-47 isolated builder runs succeed twice',

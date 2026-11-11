@@ -268,6 +268,43 @@ if (/javascript|index\.html|aio-core\.js|sw\.js/.test(coreTable)) fail('the core
   await sw3.dispatch(`${base}/js/aio-core.js?v=${assetVersion}9`);
   if (log.length !== beforeHash + 1) fail('v57.54 a new code hash served a same-version script from the old cache');
 }
+// v59.98: a precache entry must answer the request the page actually makes. Install the worker with a real addAll, go
+// offline, and request every index.html script whose path is precached exactly as the page writes its src (a ?v=
+// query included): cache.match compares the query, so a query-less precache entry for a versioned script is dead.
+{
+  const vm = await import('node:vm');
+  const origin = 'https://example.test';
+  const scope = `${origin}/aio/`;
+  const stores = new Map();
+  const keyOf = (input) => (typeof input === 'string' ? new URL(input, scope).href : input.url);
+  let online = true;
+  const caches = {
+    async open(name) {
+      if (!stores.has(name)) stores.set(name, new Map());
+      const store = stores.get(name);
+      return { put: async (req, res) => { store.set(keyOf(req), res.clone()); }, match: async (req) => store.get(keyOf(req))?.clone(), keys: async () => [...store.keys()].map((url) => new Request(url)), delete: async (req) => store.delete(keyOf(req)), addAll: async (list) => { for (const url of list) store.set(keyOf(url), new Response('precached', { status: 200 })); } };
+    },
+    async match(req) { for (const store of stores.values()) { const hit = store.get(keyOf(req)); if (hit) return hit.clone(); } return undefined; },
+    async keys() { return [...stores.keys()]; },
+    async delete(name) { return stores.delete(name); }
+  };
+  const handlers = {};
+  const self = { addEventListener: (type, fn) => { handlers[type] = fn; }, registration: { scope }, location: { origin }, clients: { claim: async () => {} }, skipWaiting: async () => {} };
+  const fetchImpl = async () => { if (!online) throw new TypeError('offline'); return new Response('network', { status: 200 }); };
+  vm.runInNewContext(source, { self, caches, fetch: fetchImpl, Request, Response, Headers, URL, console, setTimeout, Date });
+  let installed; handlers.install({ waitUntil: (p) => { installed = p; } }); await installed;
+  online = false;
+  const precachedPaths = new Set(critical.map((asset) => new URL(asset, scope).pathname));
+  const pageScripts = [...fs.readFileSync('index.html', 'utf8').matchAll(/<script\b[^>]*\ssrc="(\.\/[^"]+)"/g)].map((match) => new URL(match[1], scope));
+  const deadEntries = [];
+  for (const url of pageScripts.filter((u) => precachedPaths.has(u.pathname))) {
+    let responded;
+    handlers.fetch({ request: new Request(url.href), respondWith: (p) => { responded = p; }, waitUntil: () => {} });
+    const response = await responded;
+    if (response.status !== 200 || (await response.text()) !== 'precached') deadEntries.push(url.href.replace(scope, './'));
+  }
+  if (deadEntries.length) fail(`v59.98 precached script entries never answer the page's own request offline: ${deadEntries.join(', ')}`);
+}
 const deployYml = fs.readFileSync('.github/workflows/pages-deploy.yml', 'utf8');
 if (!/code_hash=.*find index\.html js src -type f/.test(deployYml) || !/s\/\^const SW_CODE_HASH = 'local';\$\//.test(deployYml)) fail('v57.54 pages-deploy no longer stamps the shipped-code hash into sw.js');
 

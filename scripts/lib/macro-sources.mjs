@@ -708,6 +708,7 @@ export function normalizeBlsSeriesResponse(payload, fetchedAt = new Date().toISO
   const series = {};
   const values = {};
   const failures = [];
+  const comparatorGaps = [];
 
   Object.entries(BLS_SERIES).forEach(([metricId, config]) => {
     const raw = responseRows.get(config.id);
@@ -748,6 +749,16 @@ export function normalizeBlsSeriesResponse(payload, fetchedAt = new Date().toISO
     let inputs = [latest];
     if (config.derive === 'yoy') {
       const prior = rows.find(row => row.date === blsPriorYear(latest.date));
+      const comparatorDate = blsPriorYear(latest.date);
+      if (!prior && rows.some(row => row.date < comparatorDate) && rows.some(row => row !== latest && row.date > comparatorDate)) {
+        // Same rule as the FRED path (scripts/producer/fred.mjs): the source never published the comparator month (no
+        // 2025-10 CPI after the 2025 shutdown) while the months around it exist. This month has no year-over-year value,
+        // and that is not a failed fetch: the value stays missing and the series is reported as a comparator gap.
+        evidence.status = 'comparator_gap';
+        comparatorGaps.push({ metricId, seriesId: config.id, missingPeriod: `${comparatorDate.slice(0, 4)}-M${comparatorDate.slice(5, 7)}` });
+        series[metricId] = evidence;
+        return;
+      }
       if (!prior || prior.value === 0) {
         evidence.status = 'insufficient_history';
         failures.push({ metricId, seriesId: config.id, reason: 'insufficient_history_for_yoy' });
@@ -776,6 +787,7 @@ export function normalizeBlsSeriesResponse(payload, fetchedAt = new Date().toISO
   });
 
   const successful = Object.values(series).filter(row => row.status === 'ok').length;
+  const settled = successful + comparatorGaps.length;
   return {
     schemaVersion: 'bls-evidence.v1',
     source: 'BLS Public Data API v1',
@@ -785,10 +797,11 @@ export function normalizeBlsSeriesResponse(payload, fetchedAt = new Date().toISO
     lastSuccessfulAt: successful ? fetchedAt : null,
     attemptedAt: fetchedAt,
     releaseAt: null,
-    status: successful === Object.keys(BLS_SERIES).length ? 'ok' : successful ? 'partial' : 'unavailable',
+    status: successful && settled === Object.keys(BLS_SERIES).length ? 'ok' : successful ? 'partial' : 'unavailable',
     series,
     values,
     failures,
+    comparatorGaps,
     allowedUse: 'macro-evidence-with-observation-date',
     decisionUse: false
   };
