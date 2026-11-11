@@ -277,6 +277,9 @@ function safeWatch(list, sourceText) {
 
 // v59.97: a headline that does not read as Korean (two Hangul syllables) falls back, so the stored brief always passes
 // the headline-translation preflight gate.
+// The producer's own FOMC headline, dated by the decision ("10/28 FOMC 결정").
+const fomcFallbackHeadline = (date) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))} FOMC 결정`;
+
 function safeHeadline(text, sourceText, fallback) {
   const value = String(text || '').trim();
   return value && isKoreanHeadline(value) && !unverifiedNumbers(value, sourceNumberSet(sourceText)).length ? value : fallback;
@@ -379,7 +382,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
             dropped: [...changesChecked.dropped, ...unchanged.map((item) => ({ reason: 'quote-also-in-previous-statement', text: String(item.text || item.label || '').slice(0, 120) }))] };
           const dissents = verifyQuotedItems(result.json.dissents, statement.text);
           brief = { ...brief, status: 'partial', basis: 'primary-source',
-            headline: safeHeadline(result.json.headline, verifyText, `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))} FOMC 결정`),
+            headline: safeHeadline(result.json.headline, verifyText, fomcFallbackHeadline(date)),
             figures: figures.kept.slice(0, 4), details: changes.kept.slice(0, 5), detailTitle: '직전 성명 대비 바뀐 문구', dissents: dissents.kept.slice(0, 3),
             watch: safeWatch(result.json.watch, verifyText), dropped: [...figures.dropped, ...changes.dropped, ...dissents.dropped],
             ai: [...brief.ai, aiLedger('fomc-statement', result.usage)] };
@@ -555,6 +558,11 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     return pct == null ? (({ estimate, ...rest }) => rest)(figure) : pct === figure.estimate.surprisePct ? figure : { ...figure, estimate: { ...figure.estimate, surprisePct: pct } };
   };
   for (const [id, brief] of briefs) {
+    // An FOMC brief stored with a headline that does not read as Korean gets the producer's dated line (no AI call).
+    if (brief.kind === 'fomc') {
+      if (brief.headline && !isKoreanHeadline(brief.headline) && /^\d{4}-\d{2}-\d{2}$/.test(String(brief.eventDate || ''))) briefs.set(id, { ...brief, headline: fomcFallbackHeadline(brief.eventDate) });
+      continue;
+    }
     // The DART table is read from the filing (its headline is built from it); a date-only SEC brief is rechecked too.
     if (brief.kind !== 'earnings' || !brief.headline || brief.source?.rcpNo) continue;
     const headline = briefHeadline(brief.headline, { nameKo: brief.nameKo, figures: brief.figures || [] });
