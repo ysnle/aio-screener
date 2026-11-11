@@ -14,7 +14,7 @@ const ASCII_RE = /^[\x20-\x7e]+$/;
 const EDGE_RE = /[a-z0-9]/;
 const PATTERNS = new Map();
 // Longer words a substring keyword must not match inside: '위기' (crisis) sits inside '분위기' (mood).
-const SUBSTRING_EXCLUSIONS = { '위기': ['분위기'] };
+const SUBSTRING_EXCLUSIONS = { '위기': ['분위기'], '부도': ['부도덕'], '상향': ['상향식'], '하향': ['하향식'] };
 
 // Each excluded word with the offsets where the keyword sits inside it, so a hit can be checked in place.
 function exclusionsFor(raw) {

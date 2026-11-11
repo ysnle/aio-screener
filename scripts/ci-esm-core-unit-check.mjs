@@ -5105,6 +5105,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const excludedMisses = excluded.filter(([text, keyword, expected]) => keywordHit(text, keyword) !== expected);
   const { classifyNewsTextStance: stanceOf } = await load('src/domain/news/scoring.js');
   if (excludedMisses.length || stanceOf('연말 랠리 분위기, 코스피 강세') === 'warn') fail(`v59.97 a Korean keyword does not hit inside a listed longer word ('위기' in '분위기'): ${JSON.stringify(excludedMisses)} / stance ${stanceOf('연말 랠리 분위기, 코스피 강세')}`);
+  const moreExcluded = [['부도덕한 경영 논란', '부도', false], ['건설사 부도 우려', '부도', true], ['상향식 예산 편성', '상향', false], ['목표가 상향', '상향', true], ['하향식 접근', '하향', false], ['전망 하향', '하향', true]];
+  const moreMisses = moreExcluded.filter(([text, keyword, expected]) => keywordHit(text, keyword) !== expected);
+  if (moreMisses.length) fail(`v59.98 '부도' in '부도덕', '상향' in '상향식' and '하향' in '하향식' are not stance hits: ${JSON.stringify(moreMisses)}`);
   const { installTelegramCollector } = await load('src/data/providers/telegram-direct.js');
   const tg = {};
   installTelegramCollector(tg);
