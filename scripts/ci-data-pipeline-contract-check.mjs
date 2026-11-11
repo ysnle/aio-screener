@@ -467,6 +467,11 @@ check('P1421 refresh workflow fetches market data with official optional secrets
       && sharedAiPurpose('event-brief-fomc-presser')?.profile === 'search' && sharedAiPurpose('unregistered') === null
       && requestBody.max_output_tokens === SHARED_AI_PROFILES.analysis.maxOutputTokens && requestBody.reasoning.effort === SHARED_AI_PROFILES.analysis.effort
       && /^market-analysis-42-1-[0-9a-f-]{36}$/.test(requests[0].options.headers['X-AIO-Idempotency-Key']));
+  // v59.97 invariant: the client outwaits the Worker deadline for its kind of request (60 s non-search, 120 s search), so the
+  // Worker answers first and a slow answer is not abandoned while its budget reservation stays held.
+  const { SHARED_AI_TIMEOUT_MS } = await import('./lib/ai-shared-analysis.mjs');
+  check('v59.97 the shared-AI client timeouts outlast the Worker deadlines (analysis > 60 s, search > 120 s)',
+    SHARED_AI_TIMEOUT_MS.analysis > 60000 && SHARED_AI_TIMEOUT_MS.search > 120000);
 }
 {
   // v59.59: the market-reading prompt is worded by scripts/lib/market-analysis-prompt.mjs from the packet the generator
