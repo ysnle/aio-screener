@@ -204,7 +204,7 @@ export function figuresSupported(text, numbers) {
     var digits = match[3].replace(/,/g, '');
     var places = (digits.split('.')[1] || '').length;
     var written = Number(digits);
-    if (!places && written < 100 && !unit) return false;
+    if (/^\d{1,2}$/.test(digits) && !unit) return false; // an integer under 100
     var sign = match[2] === '' ? 0 : match[2] === '+' ? 1 : -1;
     return numbers.some(function(number) {
       if (unit && number.unit !== unit) return false;

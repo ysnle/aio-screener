@@ -612,7 +612,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var priceStatement = /(?:손절가|목표가|매수가|매도가|진입가|익절가)\s*(?:은|는|이|가|:)?\s*(?:\$?\d|[일이삼사오육칠팔구십백천만억]+\s*(?:달러|원))/;
     var referBack = /(?:그\s*가격|그\s*수준|해당\s*(?:가격|수준)|거기)\s*(?:에서|에|으로|로|서)\s*(?:(?:매수|매도|손절|익절|청산|정리|처분|진입)\s*)?(?:하세요|하십시오)/;
     // A nominalised clause that ends in a zone or situation ("매수하는 게 낫다고 보는 구간입니다") assesses the market, not
-    // the reader's next action; "매수 기회로 보입니다" is an assessment too and is not a family of its own.
+    // the reader's next action. A buy or sell "chance" or "timing" read as an assessment is not a family of its own.
     var zoneAssessment = /^\s*(?:고\s*(?:보는|볼\s*수\s*있는|판단되는|읽히는)\s*)?(?:구간|상황|국면|환경|시점)/;
     var indirect = /(?:다는|라는)\s*것(?:이|은)\s*[^,.]{0,30}(?:원칙|규칙|격언|주장|철학|방식)|(?:한다|하라|해라|하세요|된다|합니다)\s*(?:고|라고|는|라는)\s*(?:봤|보았|했|말했|주장했|강조했|설명했|조언했|권했|가르쳤|규칙|원칙|격언)|(?:라는|이라는|다는)\s*(?:규칙|원칙|격언)|(?:하는|한|권장하는|추천하는|권하는)\s*(?:이유|까닭|배경)/;
     var negated = /(?:아닙니다|아니다|않습니다|않는다|금지|하지\s*마|하지\s*않|제공하지|드리지|지시가\s*아|지시 아님)/;
