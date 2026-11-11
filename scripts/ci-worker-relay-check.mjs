@@ -195,14 +195,40 @@ async function main() {
   // These bindings are the strongest bound it can carry, and a missing/throwing binding must
   // degrade to the in-isolate Map rather than admitting or rejecting blindly.
   const proxyToml = readFileSync(new URL('../worker/wrangler.proxy.toml', import.meta.url), 'utf8');
-  for (const name of ['RATE_LIMIT_PROXY', 'RATE_LIMIT_OPENAI', 'RATE_LIMIT_RELAY']) {
+  for (const name of ['RATE_LIMIT_PROXY', 'RATE_LIMIT_OPENAI', 'RATE_LIMIT_RELAY', 'RATE_LIMIT_FEEDBACK', 'RATE_LIMIT_WORKERS_AI']) {
     check(`P1157 the proxy config declares the ${name} binding`, new RegExp(`name\\s*=\\s*"${name}"`).test(proxyToml));
   }
   check('P1157 every declared rate limit period is 10 or 60', [...proxyToml.matchAll(/period\s*=\s*(\d+)/g)].every((match) => ['10', '60'].includes(match[1])));
   check('P1157 rate limit namespace ids are unique positive integers', (() => {
     const ids = [...proxyToml.matchAll(/namespace_id\s*=\s*"(\d+)"/g)].map((match) => match[1]);
-    return ids.length === 3 && new Set(ids).size === ids.length && ids.every((id) => Number(id) > 0);
+    return ids.length >= 3 && new Set(ids).size === ids.length && ids.every((id) => Number(id) > 0);
   })());
+
+  // v59.97: the shared bindings must bound exactly what the in-isolate fallback bounds, so a deploy with the binding
+  // and an isolate without it admit the same rate.
+  {
+    const declaredLimit = (name) => {
+      const block = proxyToml.split('[[ratelimits]]').find((part) => new RegExp(`name\\s*=\\s*"${name}"`).test(part));
+      const match = block && block.match(/limit\s*=\s*(\d+)/);
+      return match ? Number(match[1]) : null;
+    };
+    const { WORKERS_AI_TRANSLATE_PER_MINUTE } = await import('../cloudflare-worker-proxy.js');
+    check('v59.97 the RATE_LIMIT_WORKERS_AI binding limit equals WORKERS_AI_TRANSLATE_PER_MINUTE', declaredLimit('RATE_LIMIT_WORKERS_AI') === WORKERS_AI_TRANSLATE_PER_MINUTE, [declaredLimit('RATE_LIMIT_WORKERS_AI'), WORKERS_AI_TRANSLATE_PER_MINUTE]);
+    // The feedback limit is not exported: count how many notes one IP gets past the fallback limiter before its 429.
+    const feedbackRequest = (ip, env) => worker.fetch(new Request('https://worker.example/feedback', {
+      method: 'POST', headers: { Origin: PROD_ORIGIN, 'Content-Type': 'application/json', 'cf-connecting-ip': ip }, body: JSON.stringify({ text: 'note' }),
+    }), env);
+    let admitted = 0;
+    for (let i = 0; i < 50; i += 1) {
+      const response = await feedbackRequest('192.0.2.197', {});
+      await response.arrayBuffer();
+      if (response.status === 429) break;
+      admitted += 1;
+    }
+    check('v59.97 the RATE_LIMIT_FEEDBACK binding limit equals the per-IP /feedback fallback limit', admitted > 0 && admitted < 50 && declaredLimit('RATE_LIMIT_FEEDBACK') === admitted, [declaredLimit('RATE_LIMIT_FEEDBACK'), admitted]);
+    const refusedFeedback = await feedbackRequest('192.0.2.198', { AIO_QUOTA_DO: atomicQuota(), RATE_LIMIT_FEEDBACK: { limit: async () => ({ success: false }) } });
+    check('v59.97 a refusing RATE_LIMIT_FEEDBACK binding returns 429 on /feedback', refusedFeedback.status === 429, refusedFeedback.status);
+  }
 
   {
     const stubbed = globalThis.fetch;

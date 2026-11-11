@@ -66,7 +66,7 @@ new_sqlite_classes = ["AIOQuotaDurableObject"]
 # The Durable Object daily caps (AI_DAILY_CAP / RELAY_DAILY_CAP) stay the global authority.
 #
 # `namespace_id` must be a positive integer, unique per Cloudflare account; bindings that share
-# one share their counters (deliberate, so a limit can span Workers) — do not reuse these three.
+# one share their counters (deliberate, so a limit can span Workers) — do not reuse the ids below.
 # `period` must be either 10 or 60. Bindings are not visible in the Cloudflare dashboard; observe
 # them through Workers Logs (429s) instead.
 # Requires wrangler >= 4.36.0 (deploy-ai-proxy.yml installs 4.153.0).
@@ -89,6 +89,21 @@ name = "RATE_LIMIT_RELAY"
 namespace_id = "1003"
 [ratelimits.simple]
 limit = 60
+period = 60
+
+# /feedback note writes per client IP (FEEDBACK_RATE_LIMIT) and Workers AI translation calls (WORKERS_AI_TRANSLATE_PER_MINUTE).
+[[ratelimits]]
+name = "RATE_LIMIT_FEEDBACK"
+namespace_id = "1004"
+[ratelimits.simple]
+limit = 5
+period = 60
+
+[[ratelimits]]
+name = "RATE_LIMIT_WORKERS_AI"
+namespace_id = "1005"
+[ratelimits.simple]
+limit = 30
 period = 60
 
 # Secrets injected with `wrangler secret put` by deploy-ai-proxy.yml:

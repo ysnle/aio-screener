@@ -57,7 +57,7 @@ The bounds that are *not* per-isolate:
 
 - the **Workers Rate Limiting bindings** declared in `wrangler.proxy.toml`
   (`RATE_LIMIT_PROXY` 300/min, `RATE_LIMIT_OPENAI` 20/min, `RATE_LIMIT_RELAY` 60/min,
-  `period = 60`). These share counters across every isolate **within one Cloudflare location**,
+  `RATE_LIMIT_FEEDBACK` 5/min per IP, `RATE_LIMIT_WORKERS_AI` 30/min, `period = 60`). These share counters across every isolate **within one Cloudflare location**,
   which is why they replaced the old advice to create a WAF rate limiting rule: `workers.dev`
   has no zone, so that rule was never available to this deployment. They are not global and are
   eventually consistent by design, and they are invisible in the dashboard — observe them as 429s
