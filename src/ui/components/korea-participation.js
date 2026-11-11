@@ -2,7 +2,7 @@ import { buildKoreaParticipation } from '../../domain/market/korea/korea-partici
 import { koreaMoveRecord } from '../../domain/briefing/market-read.js';
 import { heavyweightLine } from '../../domain/themes/group-strength.js';
 import { el } from './dom.js';
-import { directionOf } from '../../domain/shared/number.js';
+import { signedText, directionOf } from '../../domain/shared/number.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildKrInvestorFlowView, formatEok } from '../../domain/market/korea/kr-investor-flows.js';
 import { shortDate } from '../../domain/content/date-labels.js';
@@ -39,7 +39,7 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
   for(const [label,value] of [['50일선 위',model.breadth50],['200일선 위',model.breadth200]]) if(value.pct!=null)metrics.append(el(doc,'dt',label),el(doc,'dd',`${value.pct.toFixed(1)}% (${value.above}/${value.count}개)`));
   if(model.returns.ret1m!=null)metrics.append(el(doc,'dt','1개월 수익률 중앙값'),el(doc,'dd',`${model.returns.ret1m.toFixed(1)}%`));host.append(metrics);
   if(model.groups.length){host.append(el(doc,'h3','3개월 수익률 상위 한국 테마, 표본 중앙값'));const turnedOf=group=>{const recent=directionOf(group.ret1m,1),longer=directionOf(group.ret3m,1);return recent!=null&&longer!=null&&recent!==longer;};const turnedCount=model.groups.filter(turnedOf).length;if(turnedCount)host.append(el(doc,'p',`${model.groups.length}개 중 ${turnedCount}개는 최근 1개월 방향이 3개월과 반대입니다.`,'regime-kr-heavy'));const list=el(doc,'ul');
-    for(const group of model.groups){const item=el(doc,'li');const pc=v=>`${v>=0?'+':''}${v.toFixed(1)}%`;const turned=turnedOf(group);
+    for(const group of model.groups){const item=el(doc,'li');const pc=v=>signedText(v,1,'%');const turned=turnedOf(group);
       item.append(el(doc,'strong',`${group.themeName} 3개월 ${pc(group.ret3m)}, 1개월 ${group.ret1m==null?'미확인':pc(group.ret1m)}, ${group.members}/${group.listed}개`));if(turned){const note=el(doc,'p',`1개월 ${group.ret1m<0?'하락':'상승'} 반전`);note.className='regime-kr-heavy';item.append(note);}
       // P1651: beginners read company names, not 096770.KS codes; the exact registry name only (no guessing), code in the tooltip.
       const nameOf=member=>root.KR_STOCK_DB?.[String(member.sym||'').slice(0,6)]?.name||member.name||member.sym;
@@ -85,7 +85,7 @@ function flowMarket(doc, market) {
     cols.setAttribute('aria-label', `${market.label} ${trend.label} 순매수 최근 ${trend.sessions}거래일: ${trend.points.map((p) => `${shortDate(p.date)} ${formatEok(p.value)}`).join(', ')}`);
     const peak = Math.max(1, ...trend.points.map((p) => Math.abs(p.value)));
     for (const point of trend.points) {
-      const col = el(doc, 'span', null, `kr-flow-col ${point.value >= 0 ? 'is-up' : 'is-down'}`);
+      const col = el(doc, 'span', null, `kr-flow-col${point.value > 0 ? ' is-up' : point.value < 0 ? ' is-down' : ''}`);
       col.style.height = `${Math.max(2, Math.abs(point.value) / peak * 50).toFixed(1)}%`;
       col.title = `${shortDate(point.date)} ${formatEok(point.value)} 원`;
       cols.append(col);

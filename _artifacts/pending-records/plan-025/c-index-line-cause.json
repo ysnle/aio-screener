@@ -1,0 +1,17 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.97 the briefing opening no longer says an index fall sat in a few large stocks",
+    "symptom": "When the equal-weight S&P 500 beat the cap-weighted index on a down day, the 오늘 opening said the fall was concentrated in a few large stocks (대형주 몇 곳에 몰렸고).",
+    "root_cause": "indexLine reads only the cap-weighted and equal-weight index changes; their gap shows larger-cap names fell more than the average name, not that the fall sat in a few names.",
+    "fix": "Both down-day branches now say the fall leaned more on the stocks with the larger market capitalisation (시가총액이 큰 종목에 더 실렸고); the rest of the sentence is unchanged.",
+    "violated_rule": "A reading states only what its inputs show; no cause the data does not carry.",
+    "prevention": "The existing v59.93 unit assertions on both branches keep passing; the claim of a few names is gone from the sentence source.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs exit 0. Not checked in a browser.",
+    "files": ["src/domain/briefing/day-account.js"]
+  },
+  "r": null,
+  "changelog": ["**Index-line cause ({P}):** on a day the equal-weight S&P 500 beat the index, the opening says the fall leaned on larger caps instead of claiming it sat in a few large stocks, which the two figures cannot show."],
+  "note": "v59.97: index line over-claim removed"
+}

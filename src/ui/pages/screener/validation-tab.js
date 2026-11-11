@@ -12,7 +12,7 @@ import { EVIDENCE_LINEAGE_VERSION } from '../../../domain/screener/evidence-line
 import { marketRankingMetadata } from '../../../domain/screener/market-scope.js';
 import { refreshSharedArtifact } from '../../../data/shared-artifacts.js';
 import { renderNextSteps } from '../../components/page-flow.js';
-import { signedText, finiteNumber as finite } from '../../../domain/shared/number.js';
+import { signedText, directionOf, finiteNumber as finite } from '../../../domain/shared/number.js';
 import { el } from './filters.js';
 import { REGIME_DESCRIPTIONS, cell, currentOverlap, scopedRows, selectedValue, text, withThemeStages } from './model.js';
 // 개편 v2 (3c/5h): the validation state before the table (amber banner) and the 사후 검증 summary. One reading of the
@@ -196,10 +196,11 @@ export function renderBacktest(documentRef, metadata, root = globalThis, rows = 
     const value = finite(ic[key]);
     const line = el('div', null, 'scr-ic-row');
     const track = el('div', null, 'scr-ic-track');
-    const fill = el('span', null, `scr-ic-fill ${value == null ? '' : value >= 0 ? 'is-up' : 'is-down'}`);
-    if (value != null) { fill.style.width = `${Math.min(50, Math.abs(value) / icMax * 50).toFixed(1)}%`; fill.style[value >= 0 ? 'left' : 'right'] = '50%'; }
+    const dir = directionOf(value, 3);
+    const fill = el('span', null, `scr-ic-fill ${dir === 'up' ? 'is-up' : dir === 'down' ? 'is-down' : ''}`);
+    if (dir) { fill.style.width = `${Math.min(50, Math.abs(value) / icMax * 50).toFixed(1)}%`; fill.style[dir === 'up' ? 'left' : 'right'] = '50%'; }
     track.append(fill);
-    line.append(el('span', label, 'scr-ic-label'), track, el('span', value == null ? '—' : value.toFixed(3), 'scr-ic-value'));
+    line.append(el('span', label, 'scr-ic-label'), track, el('span', signedText(value, 3, '', { plus: false }), 'scr-ic-value'));
     bars.append(line);
   }
   panel.append(bars);
@@ -256,9 +257,10 @@ function renderCandidateRecord(panel, el, archive, populationRanking) {
       const value = entry.outcome.topVsUniversePct;
       const line = el('div', null, 'scr-ic-row');
       const track = el('div', null, 'scr-ic-track');
-      const fill = el('span', null, `scr-ic-fill ${value >= 0 ? 'is-up' : 'is-down'}`);
-      fill.style.width = `${Math.min(50, Math.abs(value) / max * 50).toFixed(1)}%`;
-      fill.style[value >= 0 ? 'left' : 'right'] = '50%';
+      const dir = directionOf(value, 2);
+      const fill = el('span', null, `scr-ic-fill ${dir === 'up' ? 'is-up' : dir === 'down' ? 'is-down' : ''}`);
+      fill.style.width = dir ? `${Math.min(50, Math.abs(value) / max * 50).toFixed(1)}%` : '0%';
+      if (dir) fill.style[dir === 'up' ? 'left' : 'right'] = '50%';
       track.append(fill);
       line.append(el('span', entry.date.slice(5), 'scr-ic-label'), track, el('span', `${signedText(value, 2)}%p`, 'scr-ic-value'));
       bars.append(line);
