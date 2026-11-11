@@ -1,0 +1,23 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.97 the HY 20-session latch held 부담 while every reader said 중립 in its hold window",
+    "symptom": "When the 20-session HY change fell back under +25bp while the last five sessions still widened +15bp or more, hyWidening20Record reported stress (the latch holds) but the 시장 상태 credit axis, the credit judgement (매크로 신용 장, 시장 이야기) and the flip search all read 중립 — on the P2287 fixture: latch stress since 9/15, axis '경계선입니다(하이일드 344bp, 5일 +16bp, 20거래일 +4bp)'. The release text promised two legs while the verdict released on one.",
+    "root_cause": "alignMarketInputs (c.hy20Stress), the credit axis stressAt and creditJudgement each put a 'current 20-session change >= widen20dBp' precondition in front of the record's latched state, so the latch's second release leg (five sessions under widenWatch5dBp) never reached a reader.",
+    "fix": "With a record the latch's state is used as is; the widen20dBp and stress20dMultiple test applies only to the no-record fallback. The hypothetical stressAt(change, d5) keeps a latched record latched unless the hypothetical change is under widen20dBp and the hypothetical five-session change is under widenWatch5dBp, and the flip search gets the five-session release point (5일 전 +15bp) as a candidate while the latch holds.",
+    "violated_rule": "One fact, one state: every reader of the credit verdict takes the 20-session stress from the one latch (same class as the v59.96 metric-consistency incident).",
+    "prevention": "esm-core unit assertions on the P2287 fixture: at the hold-window day the latch, the credit judgement and the 시장 상태 axis all say 부담 and the flip distance names the five-session release leg; at the release day neither reader says 부담.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs (new assertions fail on the old source, pass on the new); ci-metric-consistency-check, ci-crash-replay-check, ci-scenario-guidance-fixture, ci-regime-scenarios-fixture, ci-lookahead-check exit 0 with no edited expectation.",
+    "files": [
+      "src/domain/briefing/market-read.js",
+      "src/domain/briefing/credit-reading.js",
+      "scripts/ci-esm-core-unit-check.mjs"
+    ]
+  },
+  "r": null,
+  "changelog": [
+    "**Credit latch reaches every reader ({P}):** inside the HY 20-session latch's hold window (20-session change back under +25bp, five sessions still +15bp or more) the 시장 상태 credit axis, the credit judgement and the flip search now hold 부담 with the latch instead of reading 중립, and the flip distance names the five-session release leg."
+  ],
+  "note": "v59.97: HY latch hold reaches every credit reader"
+}

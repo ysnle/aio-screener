@@ -13,7 +13,7 @@ export function creditJudgement(macroHistory, through = null) {
   if (!hy20) return null;
   const record = hyWidening20Record(macroHistory, through);
   const hyBp = hy20.level * 100, hy5 = hy20.d5, hy20Bp = hy20.value;
-  const hy20Stress = hy20Bp != null && hy20Bp >= RULES.credit.widen20dBp && (record ? !!record.stress : hy20Bp >= RULES.credit.stress20dMultiple * RULES.credit.widen20dBp);
+  const hy20Stress = record ? !!record.stress : (hy20Bp != null && hy20Bp >= RULES.credit.widen20dBp && hy20Bp >= RULES.credit.stress20dMultiple * RULES.credit.widen20dBp);
   const state = creditState({ hyBp, hy5, hy20: hy20Bp, hy20Stress });
   return { state, cause: creditCause({ hyBp, hy5, hy20Record: hy20Stress ? { stress: true } : null }), hyBp, hy5, hy20: hy20Bp, record, date: hy20.date };
 }
