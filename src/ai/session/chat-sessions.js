@@ -18,7 +18,8 @@ export function consentState(storage) {
 }
 export function setConsent(storage, granted) {
   safe(() => storage.setItem(CONSENT_KEY, granted ? '1' : '0'));
-  if (!granted) { safe(() => storage.removeItem(SESSIONS_KEY)); safe(() => storage.removeItem(ACTIVE_KEY)); safe(() => storage.removeItem('aio_chat_history')); }
+  // Declining also removes what the reader told the assistant (reader-notes.js NOTES_KEY).
+  if (!granted) for (const key of [SESSIONS_KEY, ACTIVE_KEY, 'aio_chat_history', 'aio_reader_notes_v1']) safe(() => storage.removeItem(key));
 }
 
 const normaliseTurn = (t) => ({ ...t, ctx: String(t.ctx ?? ''), q: String(t.q ?? ''), a: String(t.a ?? ''), at: t.at });
@@ -76,12 +77,13 @@ export function saveSessions(storage, sessions) {
 export function newSessionId() { return `s${now().toString(36)}${Math.random().toString(36).slice(2, 7)}`; }
 
 /** Append one completed turn to the active conversation (creating it on the first turn). Returns the session;
- *  session.saved is false when the browser store refused the write. */
-export function appendTurn(storage, { sessionId, ctx, question, answer, at = now() }) {
+ *  session.saved is false when the browser store refused the write. `ents` are the ticker/theme ids the chat resolved
+ *  for the question (read by earlier-turns.js). */
+export function appendTurn(storage, { sessionId, ctx, question, answer, ents, at = now() }) {
   const sessions = loadSessions(storage);
   let session = sessions.find((s) => s.id === sessionId);
   if (!session) { session = { id: sessionId || newSessionId(), title: titleOf(question), createdAt: at, updatedAt: at, turns: [] }; sessions.push(session); }
-  session.turns.push({ ctx: String(ctx || ''), q: String(question || '').slice(0, LIMITS.charsPerMessage), a: String(answer || '').slice(0, LIMITS.charsPerMessage), at });
+  session.turns.push({ ctx: String(ctx || ''), q: String(question || '').slice(0, LIMITS.charsPerMessage), a: String(answer || '').slice(0, LIMITS.charsPerMessage), at, ...(ents?.length ? { ents: ents.slice(0, 8).map(String) } : {}) });
   if (session.turns.length > LIMITS.turnsPerSession) session.turns = session.turns.slice(-LIMITS.turnsPerSession);
   session.updatedAt = at;
   const saved = saveSessions(storage, sessions);

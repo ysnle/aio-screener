@@ -1,4 +1,5 @@
 import { splitAnswerSentences, isConditionalNumericSentence } from './publication.js';
+import { rememberField } from '../session/reader-notes.js';
 
 export const AI_CLAIM_LEDGER_VERSION = 'claim-ledger.v1';
 
@@ -59,7 +60,8 @@ export function validateClaimLedger(ledger, { currentSensitive = false, requireC
   return Object.freeze({ ok: errors.length === 0, errors: Object.freeze([...new Set(errors)]), validCount: Math.max(0, claims.length - invalidClaims.size) });
 }
 
-export function createAnswerPlan({ questionPlan = null, summary = '', claims = [], sections = [], citations = [], followUps = [], scenario = null } = {}) {
+// `remember`: optional notes about the reader for later answers (src/ai/session/reader-notes.js); never rendered.
+export function createAnswerPlan({ questionPlan = null, summary = '', claims = [], sections = [], citations = [], followUps = [], scenario = null, remember = [] } = {}) {
   return Object.freeze({
     schemaVersion: 'answer-plan.v1',
     queryId: questionPlan?.queryId || null,
@@ -69,6 +71,7 @@ export function createAnswerPlan({ questionPlan = null, summary = '', claims = [
     sections: freezeRows(sections),
     citations: freezeRows(citations),
     followUps: Object.freeze((Array.isArray(followUps) ? followUps : []).map((value) => String(value == null ? '' : value)).filter(Boolean)),
+    remember: rememberField(remember),
     scenario: scenario && typeof scenario === 'object' ? Object.freeze({ ...scenario, calibration: freezeRecord(scenario.calibration), probabilities: scenario.calibration?.modelId ? freezeRecord(scenario.probabilities) : null }) : null
   });
 }

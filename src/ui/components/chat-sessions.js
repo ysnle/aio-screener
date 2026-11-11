@@ -13,6 +13,9 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
   const shared = { messages: [], streaming: false, _chatSendEntered: 0, _requestEpoch: 0, _activeRequest: null, _retryCount: 0 };
   // v58.75 (persona review): screenLabel names the screen an answer was asked on (the answer's basis line).
   const api = { shared, sessionId: null, screenLabel: (ctx) => SCREEN[ctx] || '' };
+  // The chat's lazy reader-memory modules read the consent and the saved conversations through here.
+  api.consented = () => consentState(storage) === 'granted';
+  api.saved = () => (api.consented() ? loadSessions(storage) : []);
   root.__aioChatSessions = api;
   // (1) One conversation for the whole panel.
   if (typeof root.getChatState === 'function') root.getChatState = () => shared;
@@ -66,10 +69,10 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
     const state = consentState(storage);
     if (state === 'granted') {
       if (!api.sessionId) setActive(newSessionId());
-      const saved = appendTurn(storage, { sessionId: api.sessionId, ctx: ctxId, question, answer });
+      const saved = appendTurn(storage, { sessionId: api.sessionId, ctx: ctxId, question, answer, ents: shared._turnEntities });
       if (saved.saved === false) notifySaveFailed();
     } else if (state === 'unasked') {
-      pending.push({ ctx: ctxId, question, answer });
+      pending.push({ ctx: ctxId, question, answer, ents: shared._turnEntities });
       askConsent();
     }
     return typeof originalSave === 'function' ? originalSave.apply(this, arguments) : false;

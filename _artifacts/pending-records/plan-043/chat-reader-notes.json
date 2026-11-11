@@ -1,0 +1,8 @@
+{
+  "version": "v59.99",
+  "date": "2026-11-12",
+  "changelog": [
+    "**What the reader tells the assistant is remembered, shown and deletable (v59.99):** the answer plan gains an optional `remember` field (at most two notes of 60 characters, only what the reader said about themselves; amounts, long numbers and anything not a string are dropped by the parser). Notes are kept on the device with the conversation-saving consent (newest 20, deduped; `src/ai/session/reader-notes.js`), said once under the answer, listed in the 답변 맞춤 sheet as 기억하고 있는 것 with a delete per note and 모두 지우기, sent as one dated `【사용자가 알려준 것】` block that never licenses a trade instruction, and wiped when conversation saving is declined."
+  ],
+  "note": "v59.99: plan 043 Part C — reader notes from the answer plan"
+}

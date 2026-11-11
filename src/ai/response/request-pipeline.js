@@ -464,6 +464,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       questionPlan: questionPlan,
       answerPlanAudit: answerPlanAudit,
       answerPlanBindingAudit: answerPlanBindingAudit,
+      remember: answerPlanAudit.plan && Array.isArray(answerPlanAudit.plan.remember) ? answerPlanAudit.plan.remember : [], // notes about the reader, stored by the panel (never shown in the answer)
       followUps: answerPlanAudit.status === 'valid' ? (answerPlanAudit.plan.followUps || []) : [],
       citations: answerPlanAudit.status === 'valid' ? (answerPlanAudit.plan.citations || []) : []
     };
@@ -516,6 +517,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       '목소리: 시장 경험이 많은 리서치 애널리스트처럼 정확하고 중립적으로 쓴다. 결론을 먼저 말하고, 근거는 지표 이름·기간·기준일로 구체적으로 대며, 관측된 사실·해석·추정을 구분한다. 낙관과 비관을 공정하게 다루고, 상투적 문구("투자에는 위험이 따릅니다", "다양한 요인이 있습니다")와 같은 면책 문장의 반복을 피한다. 자연스러운 한국어로 쓴다.\n' +
       '수치: 주입된 데이터와 검색 결과에 있는 수치는 그 수치가 필요한 문장에 기준일이나 기준(예: "11월 10일 종가 기준")과 함께 쓸 수 있다. 핵심 수치는 claims에도 넣고, 각 수치 claim은 type, text, metric, entity, value, unit, scale, asOf, source, evidenceIds, status를 채운다. metric/entity/scale은 주입된 evidence registry에서 그대로 복사하고 entity가 비어 있으면 빈 문자열로 둔다. 조건·임계값("VIX가 20을 넘으면")과 개념 설명용 예시 숫자는 본문에 써도 된다. 그 자료에 없는 현재 수치는 쓰지 말고 무엇이 확인되지 않았는지 밝혀라.\n' +
       'followUps: 이 답변 다음에 실제로 이어질 만한 구체적 질문 2~3개(이번 답변과 사용 가능한 데이터에 연결된 것).\n' +
+      'remember(선택): 사용자가 이 대화에서 자기 자신에 대해 직접 밝힌 것(보유·관심 종목, 투자 기간·목표, 다르게 설명해 달라는 요청) 가운데 다음 답에 도움이 될 것만 "remember":["짧은 메모"]로 최대 2개, 각 60자 이내로 적는다. 추측하지 말고, 건강·경제적 어려움·신원 정보와 계좌번호·금액은 적지 않으며, 해당이 없으면 이 필드를 빼라.\n' +
       '[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"질문에 대한 직접 답과 핵심 판단","claims":[],"sections":[{"title":"이 섹션의 주장을 담은 제목","body":"근거·해석·조건"}],"citations":[],"followUps":[]}[\/AI_ANSWER_PLAN]\n';
   };
 

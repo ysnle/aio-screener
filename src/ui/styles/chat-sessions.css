@@ -90,3 +90,8 @@
 #ai-panel .ai-profile-learned-list dt { color: var(--text-muted); }
 #ai-panel .ai-profile-learned-list dd { margin: 0; color: var(--text-primary); overflow-wrap: anywhere; }
 #ai-panel .ai-profile-learned .ai-session-delete { align-self: flex-start; }
+#ai-panel .ai-profile-notes { border-top: 0.5px solid var(--border-subtle); padding-top: 10px; }
+#ai-panel .ai-profile-notes-list { list-style: none; margin: 0; padding: 0; }
+#ai-panel .ai-profile-notes-list .ai-session-item { justify-content: space-between; }
+#ai-panel .ai-profile-notes-list .ai-session-delete { align-self: center; }
+#ai-panel .ai-profile-note { flex: 1; min-width: 0; color: var(--text-primary); overflow-wrap: anywhere; }

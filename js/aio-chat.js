@@ -3847,6 +3847,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   var loadBubble = _appendAIMsg('ai', '<span class="lch-muted">분석 중...</span>', 'ai-panel-loading');
   var aiBubble = null;
   var sysPrompt = '';
+  state._turnEntities = [];
   // v52.78/WP-AI3: page-scoped reference retrieval uses the active question.
   window._aioActiveAIQuery = q;
   if (typeof _aioCreateAIRequestObject !== 'function' && window._aioAIPipelineReady) await window._aioAIPipelineReady; // v59.15: the pipeline module loads after boot
@@ -3939,6 +3940,8 @@ async function chatSendUnified(_aioDispatchOptions) {
     // 1. 티커 감지 + 실시간 시세 (8s 타임아웃)
     try { _aioChoosing = await _withTimeout(window.AIO.buildQuestionDomainContext.loadBlocks(), 4000, 'choosing-blocks'); } catch (cbe) { if (!_isCurrentUnifiedRun() || (cbe && cbe.name === 'AbortError')) throw cbe; } // v58.75: lazy choosing-blocks.js
     var detectedTickers = _aioResolveChatTickers(q, _uniQuestionPlan, state, { companiesOnly: true, ctxId: ctxId });
+    // The ticker/theme ids this question is about: saved with the turn and matched against earlier saved conversations.
+    state._turnEntities = window.AIO && typeof window.AIO.chatTurnEntities === 'function' ? window.AIO.chatTurnEntities({ tickers: detectedTickers, themeId: ctxId === 'theme-detail' ? window._currentThemeId : null }) : [];
     if (detectedTickers.source === 'screen' && _aioChoosing) sysPrompt += _aioChoosing.screenSubjectPrompt(_uniScreenSubject = detectedTickers[0]); // v58.75
     var _uniFreshPreflight = null;
     if (window.AIO && typeof window.AIO.ensureFreshChatAnswerData === 'function') {
@@ -4156,6 +4159,8 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (typeof _buildChatMemoryContext === 'function') {
       sysPrompt += _buildChatMemoryContext(ctxId, q);
     }
+    if (window.AIO && typeof window.AIO.relatedEarlierTurnsBlock === 'function') sysPrompt += window.AIO.relatedEarlierTurnsBlock({ entities: state._turnEntities });
+    if (window.AIO && typeof window.AIO.readerNotesBlock === 'function') sysPrompt += window.AIO.readerNotesBlock();
     if (_uniFreshPreflight && detectedTickers.length > 0) {
       var _uniFreshAfter = _uniFreshPreflight.after || {};
       var _uniQuoteRows = (_uniFreshAfter.quoteRows || []).map(function(r) {
@@ -4390,6 +4395,9 @@ async function chatSendUnified(_aioDispatchOptions) {
 
     // v46.10: 대화 기록 저장
     if (typeof saveChatEntry === 'function') saveChatEntry(ctxId, q, visible);
+    // What the reader said about themselves (the plan's `remember`) is stored with consent and said once under the answer.
+    var _uniRemembered = window.AIO && typeof window.AIO.rememberReaderNotes === 'function' ? window.AIO.rememberReaderNotes(_uniDoneResult.remember) : '';
+    if (_uniRemembered) _appendAIMsg('ai', '<span class="lch-muted" role="status">' + escHtml(_uniRemembered) + '</span>');
 
     var newChips = (_uniDoneResult.followUps && _uniDoneResult.followUps.length)
       ? _uniDoneResult.followUps.slice(0, 3)

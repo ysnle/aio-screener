@@ -16,6 +16,8 @@ import { AI_WORKER_CONTRACT } from '../domain/ai/worker-contract.js'; // S5: mod
 import { chatStockTrendLine } from '../ai/context/stock-trend-line.js'; // S5: [주가 추이] from the 종목 page's row
 import { chatTechnicalBlock } from '../ai/context/technical-lines.js'; // S4: the 차트 screen's reading of the same bars
 import { recordAnswerQuality, summariseAnswerQuality } from '../ai/telemetry/answer-quality-log.js';
+import { earlierTurnsPromptBlock, relatedEarlierTurns, turnEntities } from '../ai/session/earlier-turns.js';
+import { addNotes, loadNotes, notesPromptBlock } from '../ai/session/reader-notes.js';
 
 export function installChatGlobals(root = globalThis) {
   root.AIO = root.AIO || {};
@@ -24,6 +26,22 @@ export function installChatGlobals(root = globalThis) {
   const storage = () => { try { return root.localStorage || null; } catch (_) { return null; } };
   root.AIO.recordAnswerQuality = (entry) => recordAnswerQuality(storage(), entry);
   root.AIO.answerQualitySummary = (options) => summariseAnswerQuality(storage(), options);
+  // Reader memory on this device: the ids a question is about, and earlier saved conversations about the same ids. The
+  // saved conversations come from the panel's session api (src/ui/components/chat-sessions.js), which returns none
+  // without the conversation-saving consent; the open conversation is already in the model context.
+  root.AIO.chatTurnEntities = ({ tickers = [], themeId = null } = {}) => turnEntities([...(Array.isArray(tickers) ? tickers : []), ...(themeId ? [`THEME:${themeId}`] : [])]);
+  root.AIO.relatedEarlierTurnsBlock = ({ entities = [], now = Date.now() } = {}) => {
+    const sessions = root.__aioChatSessions;
+    return sessions?.saved ? earlierTurnsPromptBlock(relatedEarlierTurns(sessions.saved(), { entities, excludeSessionId: sessions.sessionId || null, now })) : '';
+  };
+  // What the reader told the assistant (an answer plan's `remember`), under the same consent. The returned line is shown
+  // once under the answer, so nothing is remembered silently.
+  const consented = () => root.__aioChatSessions?.consented?.() === true;
+  root.AIO.readerNotesBlock = () => (consented() ? notesPromptBlock(loadNotes(storage())) : '');
+  root.AIO.rememberReaderNotes = (notes, { now = Date.now() } = {}) => {
+    const added = addNotes(storage(), notes, { consented: consented(), now });
+    return Array.isArray(added) && added.length ? `기억해 둡니다: ${added.map((text) => `"${text}"`).join(', ')}. 답변 맞춤에서 보거나 지울 수 있습니다.` : '';
+  };
   root._aioKstStamp = kstStamp; // the chat's and the workspace prompt's assembly time, in KST on any device
   const input = () => (typeof root.AIO.screenerQueryInput === 'function' ? root.AIO.screenerQueryInput() : null) || { rows: [] };
   const rankAsOf = () => (typeof root.AIO.screenerFactorAsOf === 'function' ? root.AIO.screenerFactorAsOf() : null);

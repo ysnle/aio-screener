@@ -683,6 +683,19 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
         && Object.keys(macroInputs.inputs.fx || {}).some((key) => /close\.dxy/.test(key)) && spoofed.audit.usedCount === 0
         && transmission.status === 'partial' && !/근거가 없어/.test(transmission.conclusion), JSON.stringify({ audit: macroInputs.audit, spoofed: spoofed.audit, conclusion: transmission.conclusion }));
   }
+  // v59.99 (plan 043 B): the 【이전 대화에서】 block is prompt text, not evidence. On a current-sensitive question a sentence
+  // that repeats a price from an earlier answer is removed like any other unbound current number.
+  {
+    const repeated = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: '지난번 대화 이후 반도체 수요 기대가 약해졌습니다.', claims: [], sections: [{ title: '지난번 이후', body: '엔비디아 주가는 180.5달러입니다. 수요 기대가 꺾인 것이 하락의 배경으로 거론됩니다.' }], citations: [], followUps: [] }) + '[/AI_ANSWER_PLAN]';
+    const out = ctx._aioRunAIResponsePipeline(repeated, { request, questionPlan: { currentSensitive: true }, currentSensitive: true, evidence: [], record: false, streamPhase: 'complete', stripChips: false });
+    detail('v59.99 earlier turns: a figure repeated from an earlier answer is not evidence and is removed on a current question',
+      !out.text.includes('180.5') && out.text.includes('수요 기대가 꺾인 것이'), out.text);
+    // v59.99 (plan 043 C): the plan's `remember` notes come back to the panel and are never part of the answer text.
+    const remembering = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: '장기 보유 관점에서는 분기 실적보다 다년 매출 구조가 먼저입니다.', claims: [], sections: [{ title: '장기 관점의 순서', body: '산업 사이클과 밸류에이션 범위를 먼저 봅니다.' }], citations: [], followUps: [], remember: ['엔비디아를 장기 보유 중', '용어를 쉽게 풀어 달라고 함'] }) + '[/AI_ANSWER_PLAN]';
+    const kept = ctx._aioRunAIResponsePipeline(remembering, { request, questionPlan: { currentSensitive: false }, currentSensitive: false, evidence: [], record: false, streamPhase: 'complete', stripChips: false });
+    detail('v59.99 reader notes: a plan with remember renders its answer without the field and hands the notes back',
+      kept.text.includes('다년 매출 구조') && !/장기 보유 중|쉽게 풀어|remember/.test(kept.text) && JSON.stringify(kept.remember) === JSON.stringify(['엔비디아를 장기 보유 중', '용어를 쉽게 풀어 달라고 함']), JSON.stringify({ text: kept.text, remember: kept.remember }));
+  }
   delete ctx.window._aioScreenBasisEvidence;
   const withoutClose = run([vixClaim, tnxClaim]);
   detail('#7 control: without the close-basis rows the same claims are dropped', withoutClose.answerPlanBindingAudit.droppedClaims.length === 2 && !withoutClose.text.includes('15.21'), withoutClose.text);
@@ -745,6 +758,10 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   for (const text of orderReplaced) {
     detail(`v59.99 directive gate: an order to the reader is still replaced (${text})`, /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text), JSON.stringify(gate(text)));
   }
+  // v59.99 (plan 043 C): a remembered holding shapes the explanation; an answer that turns it into an order is replaced.
+  const fromNotes = ['보유 중이니 매도하세요.', '엔비디아를 보유 중이시니 지금 매도하세요.', '장기 보유 중이니 더 사세요.'];
+  detail('v59.99 directive gate: an instruction built on a remembered holding is replaced',
+    fromNotes.every((text) => /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text)), JSON.stringify(fromNotes.map(gate)));
 
   // #4: the base-currency what-if module (src/ai/context/portfolio-simulation.js) lost its only consumer in v57.62 and was removed in v58.51;
   // the old chat simulator must stay retired.
@@ -978,6 +995,86 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     items === 8 && news.raw.length <= 6000 && /kind=NEWS/.test(news.wrapped) && !/length-capped/.test(news.wrapped));
   const longer = promptKit.newsBlock('시장 흐름', 'home', promptKit.longNewsItems(12));
   check(`v59.99 more fresh news than the cap still sends at most 8 items (${(longer.raw.match(/^\d+\. \[/gm) || []).length})`, (longer.raw.match(/^\d+\. \[/gm) || []).length === 8);
+}
+
+// v59.99 (plan 043 B): a new conversation sees what earlier saved conversations said about the same ticker or theme —
+// matched by the ids the chat resolved, other conversations only, dated, 90 days, and only with the saving consent.
+{
+  const sessions = await import('../src/ai/session/chat-sessions.js');
+  const earlier = await import('../src/ai/session/earlier-turns.js');
+  const memStore = (consent = '1') => { const m = new Map(consent ? [[sessions.CONSENT_KEY, consent]] : []); return { m, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) }; };
+  const DAY = 86400000;
+  const now = Date.parse('2026-11-11T14:00:00Z'); // the prompt fixture's clock (FIXTURE_NOW)
+  const store = memStore();
+  sessions.appendTurn(store, { sessionId: 'nv', ctx: 'ticker', question: '엔비디아 실적 어땠어?', answer: '데이터센터 매출이 늘었고 그날 종가는 180.5달러였습니다.', ents: ['NVDA'], at: now - 5 * DAY });
+  sessions.appendTurn(store, { sessionId: 'ts', ctx: 'home', question: '테슬라 PER은?', answer: '테슬라 답', ents: ['TSLA'], at: now - 2 * DAY });
+  sessions.appendTurn(store, { sessionId: 'old', ctx: 'home', question: '엔비디아 작년 이야기', answer: '오래된 답', ents: ['NVDA'], at: now - 91 * DAY });
+  const saved = sessions.loadSessions(store);
+  const found = earlier.relatedEarlierTurns(saved, { entities: ['NVDA'], excludeSessionId: 'new', now });
+  check(`v59.99 earlier turns: the NVDA turn returns with its date, the TSLA and 91-day-old turns do not (${JSON.stringify(found.map((t) => [t.sessionId, t.date]))})`,
+    found.length === 1 && found[0].sessionId === 'nv' && found[0].date === '2026-11-06' && found[0].question === '엔비디아 실적 어땠어?');
+  check('v59.99 earlier turns: the open conversation is not repeated as an earlier one',
+    earlier.relatedEarlierTurns(saved, { entities: ['NVDA'], excludeSessionId: 'nv', now }).length === 0);
+  check('v59.99 earlier turns: a question without ids matches nothing', earlier.relatedEarlierTurns(saved, { entities: [], now }).length === 0);
+  const declined = memStore('0');
+  declined.m.set(sessions.SESSIONS_KEY, store.m.get(sessions.SESSIONS_KEY));
+  const unasked = memStore(null);
+  unasked.m.set(sessions.SESSIONS_KEY, store.m.get(sessions.SESSIONS_KEY));
+  const withoutConsent = [declined, unasked].map((storage) => promptKit.assemble('엔비디아 오늘 왜 떨어졌어?', 'home', { memory: { storage, sessionId: 'new' } }).prompt);
+  check('v59.99 earlier turns: a declined or not-yet-asked reader gets no earlier-conversation block even with turns stored',
+    withoutConsent.every((prompt) => !prompt.includes('【이전 대화에서】')));
+  const longStore = memStore();
+  sessions.appendTurn(longStore, { sessionId: 'l', question: 'q'.repeat(400), answer: 'a'.repeat(2000), ents: ['THEME:semiconductor'], at: now - DAY });
+  const cut = earlier.relatedEarlierTurns(sessions.loadSessions(longStore), { entities: ['theme:semiconductor'], now })[0];
+  check('v59.99 earlier turns: a theme id matches and each turn is cut to 160/500 characters', cut && cut.question.length === 160 && cut.answer.length === 500);
+  const assembled = promptKit.assemble('엔비디아 오늘 왜 떨어졌어?', 'home', { memory: { storage: store, sessionId: 'new' } });
+  const blockCount = assembled.prompt.split('【이전 대화에서】').length - 1;
+  check(`v59.99 earlier turns: the unified prompt carries the block once, dated, before the evidence tail (${blockCount})`,
+    blockCount === 1 && assembled.prompt.includes('1. (2026-11-06) 질문: 엔비디아 실적 어땠어?') && !assembled.prompt.includes('테슬라 답')
+      && assembled.prompt.indexOf('【이전 대화에서】') < assembled.prompt.lastIndexOf('\n\n[AIO EXTERNAL EVIDENCE CONTRACT]') && assembled.entities.includes('NVDA'));
+  const unrelated = promptKit.assemble('감마 스퀴즈가 뭐야?', 'home', { memory: { storage: store, sessionId: 'new' } });
+  check('v59.99 earlier turns: a question about no ticker carries no earlier-conversation block', !unrelated.prompt.includes('【이전 대화에서】'));
+
+  // v59.99 (plan 043 C): what the reader told the assistant — parsed from the plan's optional `remember`, stored on the
+  // device with the saving consent, deduped, capped, wiped with the consent, and sent as one dated block.
+  const notes = await import('../src/ai/session/reader-notes.js');
+  const { parseAnswerPlanText } = await import('../src/ai/response/claim-ledger.js');
+  const planWith = (remember) => parseAnswerPlanText('[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: '요약', claims: [], sections: [], citations: [], followUps: [], ...(remember === undefined ? {} : { remember }) }) + '[/AI_ANSWER_PLAN]');
+  const parsed = planWith(['삼성전자를 3년째 보유', 'x'.repeat(61), '월 300만 원씩 적립', '예수금 500달러', 42, null, '계좌 123-456-7890', '반도체 위주로 관심', '세 번째 메모']);
+  check(`v59.99 reader notes: the parser keeps at most two clean notes and drops over-cap, money, long-number and non-string entries (${JSON.stringify(parsed.plan?.remember)})`,
+    parsed.status === 'valid' && JSON.stringify(parsed.plan.remember) === JSON.stringify(['삼성전자를 3년째 보유', '반도체 위주로 관심']));
+  const absent = planWith(undefined);
+  const odd = planWith('장기 투자');
+  check('v59.99 reader notes: a plan without remember, or with a non-array remember, parses as before with no notes',
+    absent.status === 'valid' && absent.plan?.remember?.length === 0 && odd.status === 'valid' && odd.plan?.remember?.length === 0);
+  const noteStore = memStore();
+  check('v59.99 reader notes: nothing is stored without the consent', notes.addNotes(noteStore, ['장기 보유'], { consented: false }) === false && !noteStore.m.has(notes.NOTES_KEY));
+  const t0 = Date.parse('2026-11-10T01:00:00Z');
+  const firstAdd = notes.addNotes(noteStore, ['엔비디아 장기 보유 중', '쉬운 말로 설명해 달라고 함'], { consented: true, now: t0 });
+  const repeatAdd = notes.addNotes(noteStore, ['엔비디아  장기 보유 중.'], { consented: true, now: t0 + DAY });
+  check(`v59.99 reader notes: new notes are reported, a repeat is deduped and only refreshes its date (${JSON.stringify([firstAdd, repeatAdd])})`,
+    firstAdd.length === 2 && repeatAdd.length === 0 && notes.loadNotes(noteStore).length === 2 && notes.loadNotes(noteStore)[0].at === t0 + DAY);
+  for (let i = 0; i < 25; i++) notes.addNotes(noteStore, [`관심 종목 메모 ${String.fromCharCode(0xAC00 + i)}`], { consented: true, now: t0 + (i + 2) * DAY });
+  const capped = notes.loadNotes(noteStore);
+  check(`v59.99 reader notes: the store keeps the newest 20 (${capped.length})`, capped.length === 20 && capped[0].text === `관심 종목 메모 ${String.fromCharCode(0xAC00 + 24)}`);
+  check('v59.99 reader notes: one note can be removed', notes.removeNote(noteStore, capped[0].text) && notes.loadNotes(noteStore).length === 19);
+  const block = notes.notesPromptBlock(notes.loadNotes(noteStore));
+  check(`v59.99 reader notes: the prompt block is dated and at most 600 characters (${block.length})`, block.length <= 600 && block.startsWith('\n\n【사용자가 알려준 것】') && /- \(2026-11-\d\d\) 관심 종목 메모/.test(block));
+  sessions.setConsent(noteStore, false);
+  check('v59.99 reader notes: declining the conversation saving wipes the notes', !noteStore.m.has(notes.NOTES_KEY) && notes.loadNotes(noteStore).length === 0);
+  const both = memStore();
+  sessions.appendTurn(both, { sessionId: 'nv', ctx: 'ticker', question: '엔비디아 실적 어땠어?', answer: '데이터센터 매출이 늘었습니다.', ents: ['NVDA'], at: now - 5 * DAY });
+  notes.addNotes(both, ['엔비디아를 장기 보유 중', '용어는 쉽게 풀어 달라고 함'], { consented: true, now: now - 3 * DAY });
+  const withNotes = promptKit.assemble('엔비디아 오늘 왜 떨어졌어?', 'home', { memory: { storage: both, sessionId: 'new' } });
+  const notesCount = withNotes.prompt.split('【사용자가 알려준 것】').length - 1;
+  check(`v59.99 reader notes: the unified prompt carries the notes block once, before the evidence tail (${notesCount})`,
+    notesCount === 1 && withNotes.prompt.includes('- (2026-11-08) 엔비디아를 장기 보유 중') && withNotes.prompt.indexOf('【사용자가 알려준 것】') < withNotes.prompt.lastIndexOf('\n\n[AIO EXTERNAL EVIDENCE CONTRACT]'));
+  const noNotes = promptKit.assemble('엔비디아 오늘 왜 떨어졌어?', 'home', { memory: { storage: memStore(), sessionId: 'new' } });
+  const declinedNotes = memStore('0'); declinedNotes.m.set(notes.NOTES_KEY, both.m.get(notes.NOTES_KEY));
+  check('v59.99 reader notes: no block without notes, and none without the consent even if notes are stored',
+    !noNotes.prompt.includes('【사용자가 알려준 것】') && !promptKit.assemble('엔비디아 오늘 왜 떨어졌어?', 'home', { memory: { storage: declinedNotes, sessionId: 'new' } }).prompt.includes('【사용자가 알려준 것】'));
+  check('v59.99 reader notes: the answer contract offers the optional remember field once',
+    withNotes.prompt.split('remember(선택):').length - 1 === 1);
 }
 
 // Owner 2026-10-14: saved conversations — nothing stored before consent, one conversation across screens, reopen restores
@@ -1298,6 +1395,46 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     const button = head.querySelector('ai-profile-btn');
     check('v58.77 profile: the header button shows the stored profile and every request context carries it',
       button?.textContent === '답변 맞춤 켜짐' && /경험: 숙련/.test(root.AIO.aiProfileContext()) && /거시·금리·환율/.test(root.AIO.aiProfileContext()));
+  }
+  {
+    // v59.99 (plan 043 C): the 답변 맞춤 sheet lists what the reader told the assistant, one delete per note and 모두 지우기;
+    // the chat says once under the answer when a note was saved; without the saving consent nothing is kept.
+    const notes = await import('../src/ai/session/reader-notes.js');
+    const { installAIProfile } = await import('../src/ui/components/ai-profile.js');
+    const { installChatGlobals } = await import('../src/app/chat-globals.js');
+    const { root, doc, head, node } = makeDom();
+    head.insertBefore(node('div', 'ai-session-controls'), head.querySelector('.ai-ph-close'));
+    const store = new Map();
+    const storage = { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) };
+    let consent = false;
+    root.__aioChatSessions = { consented: () => consent, saved: () => [] };
+    root.localStorage = storage;
+    installChatGlobals(root);
+    const refused = root.AIO.rememberReaderNotes(['엔비디아를 장기 보유 중']);
+    consent = true;
+    const said = root.AIO.rememberReaderNotes(['엔비디아를 장기 보유 중', '용어는 쉽게 풀어 달라고 함'], { now: Date.parse('2026-11-10T01:00:00Z') });
+    const saidAgain = root.AIO.rememberReaderNotes(['엔비디아를 장기 보유 중'], { now: Date.parse('2026-11-10T02:00:00Z') });
+    check(`v59.99 reader notes: a saved note is announced once and nothing is kept without consent (${JSON.stringify([refused, said, saidAgain])})`,
+      refused === '' && /^기억해 둡니다: "엔비디아를 장기 보유 중", "용어는 쉽게 풀어 달라고 함"/.test(said) && saidAgain === '' && notes.loadNotes(storage).length === 2);
+    installAIProfile(root, doc, { storage });
+    const seen = {};
+    try {
+      head.querySelector('ai-profile-btn').dispatch('click');
+      const sheet = doc.getElementById('ai-profile-sheet');
+      const section = () => sheet.querySelector('ai-profile-notes');
+      const rows = () => section().querySelectorAll('ai-session-item');
+      seen.listed = rows().map((row) => row.querySelector('ai-profile-note').textContent);
+      rows()[0].querySelector('ai-session-delete').dispatch('click');
+      seen.afterOne = rows().map((row) => row.querySelector('ai-profile-note').textContent);
+      const wipe = section().querySelectorAll('ai-session-delete').find((b) => b.textContent === '모두 지우기');
+      wipe.dispatch('click'); wipe.dispatch('click');
+      seen.emptied = notes.loadNotes(storage).length === 0 && rows().length === 0 && /아직 없습니다/.test(section().textContent);
+      consent = false;
+      head.querySelector('ai-profile-btn').dispatch('click'); head.querySelector('ai-profile-btn').dispatch('click');
+      seen.off = /대화 저장이 꺼져 있어 기억하지 않습니다/.test(section().textContent);
+    } catch (error) { seen.error = String(error?.message || error); }
+    check(`v59.99 reader notes: the sheet lists each note with its date, deletes one, clears all, and says when saving is off (${JSON.stringify(seen)})`,
+      seen.listed?.length === 2 && seen.listed.every((text) => /\(11\/10\)$/.test(text)) && seen.afterOne?.length === 1 && seen.emptied === true && seen.off === true);
   }
   {
     // The legacy context builder delegates to the installed profile and falls back to the do-not-assume line.
