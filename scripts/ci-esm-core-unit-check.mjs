@@ -7617,3 +7617,30 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const left = ['aio:refresh:done', 'aio:liveDataReceived'].reduce((sum, type) => sum + (listeners.get(type)?.size || 0), 0);
   if (typeof dispose !== 'function' || left) fail(`v59.94 the screener's window refresh listeners are removed on teardown (left ${left})`);
 }
+
+// A market sentence reads the series it prints and the bands the other screens share.
+{
+  // The 10-year direction word follows the printed span (^TNX); the FRED legs only split it when the FRED total agrees.
+  const { buildMarketStory } = await load('src/domain/market/story/market-story.js');
+  const { buildMacroChapters } = await load('src/domain/macro/macro-chapters.js');
+  const days = []; let t = Date.parse('2026-09-14T00:00:00Z');
+  while (days.length < 40) { const at = new Date(t); if (at.getUTCDay() >= 1 && at.getUTCDay() <= 5) days.push(at.toISOString().slice(0, 10)); t += 86400000; }
+  const last = days.length - 1;
+  const ratesCase = (tnxBp, fredBp, realBp, beBp) => {
+    const history = days.map((date, i) => ({ date, spx: 6000 + i * 5, ndx: 20000 + i * 20, rsp: 180 + i * 0.1, tnx: +(4.2 + (i === last ? tnxBp / 100 : 0)).toFixed(4) }));
+    const obs = (base, bp) => days.map((date, i) => [date, +(base + (i === last ? bp / 100 : 0)).toFixed(4)]);
+    const macroHistory = { series: { dgs10: { observations: obs(4.2, fredBp) }, realYield10: { observations: obs(1.9, realBp) }, breakeven10: { observations: obs(2.3, beBp) } } };
+    const story = buildMarketStory({ history, macroHistory, nowMs: Date.parse(`${days[last]}T23:00:00Z`) });
+    const chapter = buildMacroChapters({ macroHistory, history }).chapters.find((row) => row.id === 'rates');
+    return { kind: story.rates?.kind, read: story.checks?.find((row) => row.id === 'rates')?.read || '', lead: story.lead || '', mean: chapter?.mean || '' };
+  };
+  const tnxMoved = ratesCase(11, 8, 5, 3);
+  if (tnxMoved.kind === 'flat' || /큰 변화가 없습니다/.test(tnxMoved.read) || !/10년 금리 \+11bp/.test(tnxMoved.lead) || /실질금리 상승|기대인플레 상승/.test(tnxMoved.read)) fail(`v59.97 a +11bp printed 10-year with FRED +8bp is not read flat and claims no real/breakeven split: ${JSON.stringify(tnxMoved)}`);
+  if (/큰 변화가 없습니다/.test(tnxMoved.mean) || /실질금리에서|기대인플레에서/.test(tnxMoved.mean)) fail(`v59.97 the 매크로 rates chapter reads a +11bp printed 10-year (FRED +8bp) as moved, without a split claim: ${tnxMoved.mean}`);
+  const opposite = ratesCase(11, -12, -9, -3);
+  if (opposite.kind === 'growth-fear' || /하락/.test(opposite.read) || /하락/.test(opposite.mean)) fail(`v59.97 a printed +11bp never reads as a fall because FRED fell: ${JSON.stringify(opposite)}`);
+  const fredMoved = ratesCase(8, 11, 7, 4);
+  if (fredMoved.kind !== 'flat' || !/큰 변화가 없습니다/.test(fredMoved.read) || !/큰 변화가 없습니다/.test(fredMoved.mean)) fail(`v59.97 a +8bp printed 10-year reads flat even when FRED moved +11bp: ${JSON.stringify(fredMoved)}`);
+  const realUp = ratesCase(12, 12, 9, 3);
+  if (realUp.kind !== 'real-up' || !/실질금리 상승/.test(realUp.read) || !/상승이 실질금리에서/.test(realUp.mean)) fail(`v59.97 both +12bp with a real-yield share of 0.75 keep the real-up reading: ${JSON.stringify(realUp)}`);
+}
