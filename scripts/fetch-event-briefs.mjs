@@ -36,6 +36,7 @@ import {
   MOVER_BY_SYMBOL, briefHeadline, isKoreanHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable, watchItem
 } from '../src/domain/briefing/event-briefs.js';
 import { readNumber, usdScaleWords } from '../src/domain/shared/number.js';
+import { isIsoDay } from '../src/domain/shared/session-date.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = resolve(ROOT, 'public-data/event-briefs.json');
@@ -560,7 +561,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
   for (const [id, brief] of briefs) {
     // An FOMC brief stored with a headline that does not read as Korean gets the producer's dated line (no AI call).
     if (brief.kind === 'fomc') {
-      if (brief.headline && !isKoreanHeadline(brief.headline) && /^\d{4}-\d{2}-\d{2}$/.test(String(brief.eventDate || ''))) briefs.set(id, { ...brief, headline: fomcFallbackHeadline(brief.eventDate) });
+      if (brief.headline && !isKoreanHeadline(brief.headline) && isIsoDay(brief.eventDate)) briefs.set(id, { ...brief, headline: fomcFallbackHeadline(brief.eventDate) });
       continue;
     }
     // The DART table is read from the filing (its headline is built from it); a date-only SEC brief is rechecked too.
