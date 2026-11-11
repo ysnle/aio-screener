@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-11T22:22:35.307Z",
-  "attemptedAt": "2026-11-11T22:22:35.307Z",
-  "lastSuccessfulAt": "2026-11-11T22:22:35.307Z",
+  "generatedAt": "2026-11-11T22:51:42.078Z",
+  "attemptedAt": "2026-11-11T22:51:42.078Z",
+  "lastSuccessfulAt": "2026-11-11T22:51:42.078Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-28T22:22:29.080Z",
-  "until": "2026-11-11T22:22:29.080Z",
+  "since": "2026-10-28T22:51:34.918Z",
+  "until": "2026-11-11T22:51:34.918Z",
   "current24hWindow": {
     "start": "2026-11-09T23:00:00.000Z",
     "end": "2026-11-10T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1282,
+      "count": 1287,
       "freshCount": 40,
-      "eligibleTextCount": 1222,
+      "eligibleTextCount": 1226,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 69069
+      "lastPostId": 69074
     },
     {
       "channel": "bornlupin",
@@ -109,33 +109,33 @@
       "eligibleTextCount": 231,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 21118
+      "lastPostId": 21119
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 714,
-      "freshCount": 20,
-      "eligibleTextCount": 713,
+      "count": 708,
+      "freshCount": 37,
+      "eligibleTextCount": 707,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 71979
+      "lastPostId": 71980
     }
   ],
-  "count": 2227,
-  "retainedItemCount": 425,
+  "count": 2226,
+  "retainedItemCount": 439,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2227,
-    "eligibleTextCount": 2166,
-    "mediaOnlyCount": 61,
-    "mediaAttachedCount": 801,
-    "photoPostCount": 693,
+    "observedCount": 2226,
+    "eligibleTextCount": 2164,
+    "mediaOnlyCount": 62,
+    "mediaAttachedCount": 804,
+    "photoPostCount": 696,
     "documentPostCount": 4,
     "imageOnlyCount": 4,
     "highSignalCount": 385,
@@ -147,39 +147,39 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 794,
-    "semi": 487,
+    "semi": 490,
+    "market-note": 795,
+    "media-only": 61,
     "healthcare": 73,
     "macro": 322,
-    "geo": 392,
-    "ai-policy": 113,
+    "geo": 391,
+    "ai-policy": 111,
     "japan": 71,
-    "earnings": 363,
-    "power": 288,
-    "equity": 127,
+    "earnings": 361,
+    "power": 287,
+    "equity": 126,
     "credit": 88,
-    "kr-market": 95,
+    "kr-market": 94,
     "flows": 59,
-    "media-only": 60,
     "optical": 31,
     "crypto": 3
   },
   "tickerCounts": {
-    "NVDA": 179,
+    "AMD": 50,
+    "NVDA": 180,
     "AMAT": 3,
     "MU": 28,
     "AMZN": 66,
     "TSLA": 35,
-    "MSFT": 48,
+    "MSFT": 47,
     "TSM": 55,
     "MS": 5,
     "PLTR": 28,
-    "GOOG": 81,
+    "GOOG": 79,
     "LITE": 12,
     "COHR": 4,
     "BABA": 3,
     "103590.KS": 1,
-    "AMD": 49,
     "AVGO": 13,
     "BE": 13,
     "CRWV": 14,
@@ -256,24 +256,24 @@
     "CMG": 1
   },
   "themes": [
-    "Market Notes (794 posts in 14-day research window): 코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·...",
-    "Semiconductors/Memory (487 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
-    "Geopolitics (392 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave Database’를 정식 출시함. AI 에이전트와 RAG 애플리케이션을 겨냥해 벡터 검색, 자동 장애조치, 지속적...",
-    "Earnings/Corporate (363 posts in 14-day research window): 코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
-    "Macro/Rates (322 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에 도달할 가능성이 있다고 전망. • 중국 외교부는 캐나다 내정에 개입할 의도가 전혀 없다고 밝혀. 앞서 마크 카니...",
-    "AI Power/Grid (288 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
-    "Equity/Analyst (127 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "AI Policy/Export Controls (113 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
+    "Market Notes (795 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에...",
+    "Semiconductors/Memory (490 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
+    "Geopolitics (391 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave Database’를 정식 출시함. AI 에이전트와 RAG 애플리케이션을 겨냥해 벡터 검색, 자동 장애조치, 지속적...",
+    "Earnings/Corporate (361 posts in 14-day research window): 코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
+    "Macro/Rates (322 posts in 14-day research window): 2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물...",
+    "AI Power/Grid (287 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "Equity/Analyst (126 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "AI Policy/Export Controls (111 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 179,
+      "count": 180,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의. 중국은 미국과 소통·협력을 강화하고 민감한 현안과 이견을 적절히 관리할 의향이라고 밝혀. • 미 의회..."
     },
     {
       "key": "GOOG",
-      "count": 81,
+      "count": 79,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
@@ -284,17 +284,17 @@
     {
       "key": "TSM",
       "count": 55,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에 도달할 가능성이 있다고 전망. • 중국 외교부는 캐나다 내정에 개입할 의도가 전혀 없다고 밝혀. 앞서 마크 카니..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에..."
     },
     {
       "key": "AMD",
-      "count": 49,
+      "count": 50,
       "text": "2026년 11월 9일 미국 증시 프리마켓 브리핑 엔비디아 CEO 젠슨 황의 혼외관계 인정 및 사과, 이사회 조사 착수 관련 보도가 전해지면서 엔비디아 주가는 야간거래에서 3% 이상 하락. 나스닥 선물도..."
     },
     {
       "key": "MSFT",
-      "count": 48,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에 도달할 가능성이 있다고 전망. • 중국 외교부는 캐나다 내정에 개입할 의도가 전혀 없다고 밝혀. 앞서 마크 카니..."
+      "count": 47,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에..."
     },
     {
       "key": "005930.KS",
@@ -335,7 +335,7 @@
         "macro"
       ],
       "count": 322,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에 도달할 가능성이 있다고 전망. • 중국 외교부는 캐나다 내정에 개입할 의도가 전혀 없다고 밝혀. 앞서 마크 카니..."
+      "focus": "2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물..."
     },
     {
       "id": "geo",
@@ -343,7 +343,7 @@
       "topics": [
         "geo"
       ],
-      "count": 392,
+      "count": 391,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave Database’를 정식 출시함. AI 에이전트와 RAG 애플리케이션을 겨냥해 벡터 검색, 자동 장애조치, 지속적..."
     },
     {
@@ -361,7 +361,7 @@
       "topics": [
         "semi"
       ],
-      "count": 487,
+      "count": 490,
       "focus": "2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000..."
     },
     {
@@ -371,7 +371,7 @@
         "optical"
       ],
       "count": 31,
-      "focus": ">>중국 광통신 다시 살아나나? Microsoft 발언에 CPO 관련주 일제히 급등 •Microsoft 등 미국 기업들이 트럼프 행정부에 광모듈 규제에 반대하는 로비를 벌이고 있으며, 해당 조치가 데이터센터..."
+      "focus": ">>중국 광통신 다시 살아나나? Microsoft 발언에 CPO 관련주 일제히 급등 •Microsoft 등 미국 기업들이 트럼프 행정부에 광모듈 규제에 반대하는 로비를 벌이고 있으며, 해당 조치가 데이터센터 건설을 “중단 상태에 빠뜨릴 수 있다”고 경고함. 이 소식에 중국 A주 CPO 관련주가 강하게 반등하며..."
     },
     {
       "id": "power",
@@ -379,7 +379,7 @@
       "topics": [
         "power"
       ],
-      "count": 288,
+      "count": 287,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -388,7 +388,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 113,
+      "count": 111,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -397,7 +397,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 95,
+      "count": 94,
       "focus": "코스피 야간선물 2% 상승 마감 !"
     },
     {
@@ -406,7 +406,7 @@
       "topics": [
         "equity"
       ],
-      "count": 127,
+      "count": 126,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -424,7 +424,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 363,
+      "count": 361,
       "focus": "코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로..."
     },
     {
@@ -469,8 +469,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 794,
-      "focus": "코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·..."
+      "count": 795,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에..."
     }
   ],
   "pageMap": {
@@ -848,20 +848,17 @@
       "datetime": "2026-11-11T12:02:38.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에...",
       "tickers": [
         "TSLA",
         "MSFT",
         "AMZN",
         "TSM"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에..."
+      ]
     },
     {
       "id": "insidertracking/68998",
@@ -1709,6 +1706,59 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69074",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69074",
+      "datetime": "2026-11-11T22:50:51.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "AMD"
+      ],
+      "summary": "AMD는 애프터마켓 4% 상승"
+    },
+    {
+      "id": "bornlupin/21119",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21119",
+      "datetime": "2026-11-11T22:47:47.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아, CEO 젠슨 황 해임 준비 중 — WSJ 엔비디아 이사회가 창업자이자 최고경영자(CEO)인 젠슨 황의 해임을 준비하고 있다. 이번 움직임은 젠슨 황이 중국 스파이로 의심받는 여성과의 관계를 포함해..."
+    },
+    {
+      "id": "HANAchina/71980",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71980",
+      "datetime": "2026-11-11T22:43:52.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "• 대만 국과회가 국가 안보 및 산업 경쟁력 강화를 위해 국가 핵심 기술 관리 대상을 현행 42개에서 46개로 확대 입법예고 (11월 11일~25일) • 이번에 추가된 항목은 저궤도 위성 통신, 고성능 AI..."
+    },
+    {
       "id": "insidertracking/69067",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69067",
@@ -2076,20 +2126,17 @@
       "datetime": "2026-11-11T12:02:38.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에...",
       "tickers": [
         "TSLA",
         "MSFT",
         "AMZN",
         "TSM"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에..."
+      ]
     },
     {
       "id": "HANAchina/71971",
@@ -2116,16 +2163,15 @@
       "datetime": "2026-11-11T11:40:26.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "power",
-        "earnings"
+        "power"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
+      "summary": "탈렌에너지가 연간 약 1억 달러 규모의 750MW 장기 전력 용량 계약을 확보. 투자적격 등급의 거래 상대방과 체결한 이번 계약은 2029~2030년부터 2035~2036년까지 PJM 전력시장 공급 기간을...",
+      "lead": 1,
       "tickers": [
         "AMZN"
-      ],
-      "summary": "탈렌에너지가 연간 약 1억 달러 규모의 750MW 장기 전력 용량 계약을 확보. 투자적격 등급의 거래 상대방과 체결한 이번 계약은 2029~2030년부터 2035~2036년까지 PJM 전력시장 공급 기간을..."
+      ]
     },
     {
       "id": "insidertracking/69029",
@@ -2134,9 +2180,7 @@
       "datetime": "2026-11-11T11:40:04.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "macro",
-        "power",
-        "earnings"
+        "power"
       ],
       "score": 55,
       "hasText": true,
@@ -2146,8 +2190,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "제프리스가 코닝에 대해 매수 의견으로 신규 커버리지를 개시. 인공지능(AI) 수요 증가에 따른 광섬유 공급 부족과 하이퍼스케일러 및 통신사업자들과의 다년 계약을 긍정적으로 평가. 데이터센터 간 연결(DC..."
+      "summary": "제프리스가 코닝에 대해 매수 의견으로 신규 커버리지를 개시. 인공지능(AI) 수요 증가에 따른 광섬유 공급 부족과 하이퍼스케일러 및 통신사업자들과의 다년 계약을 긍정적으로 평가. 데이터센터 간 연결(DC...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71969",
@@ -2372,7 +2416,10 @@
       "datetime": "2026-11-11T08:21:00.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "kr-market",
+        "flows"
       ],
       "score": 81,
       "hasText": true,
@@ -2382,10 +2429,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "중화권 마감 시황 (26.11.11, 수) 🇨🇳 중국 본토 증시는 연중 최대 쇼핑 축제인 ‘광군제’ 본행사일을 맞아 전통 유통·소비재 대신 AI 숏폼 및 디지털 소비로 무게추가 옮겨간 가운데, 오후 들어...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "중화권 마감 시황 (26.11.11, 수) 🇨🇳 중국 본토 증시는 연중 최대 쇼핑 축제인 ‘광군제’ 본행사일을 맞아 전통 유통·소비재 대신 AI 숏폼 및 디지털 소비로 무게추가 옮겨간 가운데, 오후 들어..."
     },
     {
       "id": "HANAchina/71957",
@@ -2394,14 +2441,15 @@
       "datetime": "2026-11-11T08:16:14.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "earnings",
-        "semi"
+        "semi",
+        "credit",
+        "earnings"
       ],
+      "lead": 1,
       "score": 74,
       "hasText": true,
-      "summary": ">>알리바바의 반도체 개발 8년, 100억위안 규모 기업으로 성장 : T-Head GPU 컴퓨팅 성능의 60%를 외부에 판매 •제프리스는 8년간의 연구개발을 거쳐 T-Head의 연간 매출이 100억위안에...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>알리바바의 반도체 개발 8년, 100억위안 규모 기업으로 성장 : T-Head GPU 컴퓨팅 성능의 60%를 외부에 판매 •제프리스는 8년간의 연구개발을 거쳐 T-Head의 연간 매출이 100억위안에..."
     },
     {
       "id": "HANAchina/71953",
@@ -2411,7 +2459,8 @@
       "localDateKst": "2026-11-11",
       "tags": [
         "optical",
-        "power"
+        "power",
+        "earnings"
       ],
       "score": 56,
       "hasText": true,
@@ -2421,11 +2470,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>중국 광통신 다시 살아나나? Microsoft 발언에 CPO 관련주 일제히 급등 •Microsoft 등 미국 기업들이 트럼프 행정부에 광모듈 규제에 반대하는 로비를 벌이고 있으며, 해당 조치가 데이터센터...",
       "tickers": [
         "MSFT",
         "LITE"
-      ]
+      ],
+      "summary": ">>중국 광통신 다시 살아나나? Microsoft 발언에 CPO 관련주 일제히 급등 •Microsoft 등 미국 기업들이 트럼프 행정부에 광모듈 규제에 반대하는 로비를 벌이고 있으며, 해당 조치가 데이터센터..."
     },
     {
       "id": "HANAchina/71950",
@@ -2434,7 +2483,9 @@
       "datetime": "2026-11-11T07:23:54.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "power"
+        "semi",
+        "power",
+        "earnings"
       ],
       "score": 55,
       "hasText": true,
@@ -2444,9 +2495,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>(요약) 2028년 — 미국 중간선거가 AI 후방 공급망에 파놓은 함정 (모건스탠리) •모건스탠리는 민주당의 블루 웨이브 이후 데이터센터 프로젝트 지연으로 2028년 기술 공급망에 ‘공백기(air...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>(요약) 2028년 — 미국 중간선거가 AI 후방 공급망에 파놓은 함정 (모건스탠리) •모건스탠리는 민주당의 블루 웨이브 이후 데이터센터 프로젝트 지연으로 2028년 기술 공급망에 ‘공백기(air..."
     },
     {
       "id": "insidertracking/68998",
@@ -6024,23 +6074,6 @@
       ]
     },
     {
-      "id": "insidertracking/68735",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68735",
-      "datetime": "2026-11-08T23:36:50.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "트럼프 대통령이 엔비디아 최고경영자(CEO) 젠슨 황을 높이 평가하며, 향후 아시아 순방에 동행할 가능성을 언급. 트럼프 대통령은 젠슨 황에 대해 “좋은 사람입니다”라고 평가했으며, 아시아 순방에 함께...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "HANAchina/71772",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71772",
@@ -7410,21 +7443,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/71620",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71620",
-      "datetime": "2026-11-05T22:37:40.000Z",
-      "localDateKst": "2026-11-06",
-      "tags": [
-        "ai-policy"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": ">>OpenAI, GPT-6 Cyber 출시…사이버보안 AI 능력 대폭 향상 •GPT-6 Cyber의 취약점 공격 벤치마크 점수가 전작 대비 51% 향상, 연구진이 Firefox에서 81개의 고위험 취약점을...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21018",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21018",
@@ -8500,27 +8518,6 @@
         "005930.KS",
         "000660.KS"
       ]
-    },
-    {
-      "id": "bornlupin/20921",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20921",
-      "datetime": "2026-11-01T01:18:54.000Z",
-      "localDateKst": "2026-11-01",
-      "tags": [
-        "semi"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 3,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "일론 머스크 1. Colossus 2 구축 현황 Macrohard와 Minihard는 각각 GB300 GPU 22만 개를 보유하고 있으며 , 800Gbps NIC(네트워크 인터페이스 카드)를 사용해 학습용으로...",
-      "lead": 1,
-      "tickers": []
     }
   ],
   "current24hItems": [
