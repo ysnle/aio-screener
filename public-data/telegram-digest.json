@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-11T11:21:32.295Z",
-  "attemptedAt": "2026-11-11T11:21:32.295Z",
-  "lastSuccessfulAt": "2026-11-11T11:21:32.295Z",
+  "generatedAt": "2026-11-11T11:51:40.773Z",
+  "attemptedAt": "2026-11-11T11:51:40.773Z",
+  "lastSuccessfulAt": "2026-11-11T11:51:40.773Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-28T11:21:27.454Z",
-  "until": "2026-11-11T11:21:27.454Z",
+  "since": "2026-10-28T11:51:35.529Z",
+  "until": "2026-11-11T11:51:35.529Z",
   "current24hWindow": {
     "start": "2026-11-09T23:00:00.000Z",
     "end": "2026-11-10T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1295,
+      "count": 1297,
       "freshCount": 40,
-      "eligibleTextCount": 1234,
+      "eligibleTextCount": 1236,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 69028
+      "lastPostId": 69032
     },
     {
       "channel": "bornlupin",
@@ -116,30 +116,30 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 709,
-      "freshCount": 35,
-      "eligibleTextCount": 708,
+      "count": 713,
+      "freshCount": 37,
+      "eligibleTextCount": 712,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71965
+      "lastPostId": 71969
     }
   ],
-  "count": 2241,
-  "retainedItemCount": 434,
+  "count": 2247,
+  "retainedItemCount": 437,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2241,
-    "eligibleTextCount": 2179,
+    "observedCount": 2247,
+    "eligibleTextCount": 2185,
     "mediaOnlyCount": 62,
-    "mediaAttachedCount": 772,
-    "photoPostCount": 669,
+    "mediaAttachedCount": 774,
+    "photoPostCount": 671,
     "documentPostCount": 4,
     "imageOnlyCount": 4,
     "highSignalCount": 397,
-    "broadSignalCount": 837,
+    "broadSignalCount": 840,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
     "selectedRawCoveragePct": 17.1,
@@ -147,15 +147,15 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 796,
+    "kr-market": 103,
+    "market-note": 799,
+    "power": 292,
+    "earnings": 376,
+    "macro": 334,
     "semi": 488,
-    "macro": 333,
-    "earnings": 374,
     "media-only": 61,
     "optical": 34,
-    "geo": 395,
-    "kr-market": 102,
-    "power": 290,
+    "geo": 394,
     "healthcare": 72,
     "ai-policy": 114,
     "flows": 61,
@@ -165,11 +165,11 @@
     "crypto": 3
   },
   "tickerCounts": {
-    "NVDA": 174,
+    "AMZN": 68,
+    "NVDA": 175,
     "PLTR": 28,
     "GOOG": 90,
     "MSFT": 52,
-    "AMZN": 67,
     "LITE": 15,
     "COHR": 4,
     "TSM": 54,
@@ -257,19 +257,19 @@
     "ETSY": 2
   },
   "themes": [
-    "Market Notes (796 posts in 14-day research window): 코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·...",
+    "Market Notes (799 posts in 14-day research window): 코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·...",
     "Semiconductors/Memory (488 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
-    "Geopolitics (395 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
-    "Earnings/Corporate (374 posts in 14-day research window): 코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러 상회), 전년 대비 +168% * GAAP EPS: -1.27달러 (조정 EPS 예상 -1.21달러와 직접...",
-    "Macro/Rates (333 posts in 14-day research window): 2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물 +0.28%, 러셀2000 선물 +0.51% 수준이며 VIX는 19.28로 -3.15%. 전일 금리 급등과 기술주...",
-    "AI Power/Grid (290 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "Geopolitics (394 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
+    "Earnings/Corporate (376 posts in 14-day research window): 코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러 상회), 전년 대비 +168% * GAAP EPS: -1.27달러 (조정 EPS 예상 -1.21달러와 직접...",
+    "Macro/Rates (334 posts in 14-day research window): 2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물 +0.28%, 러셀2000 선물 +0.51% 수준이며 VIX는 19.28로 -3.15%. 전일 금리 급등과 기술주...",
+    "AI Power/Grid (292 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "Equity/Analyst (128 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (114 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 174,
+      "count": 175,
       "text": "코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·..."
     },
     {
@@ -279,7 +279,7 @@
     },
     {
       "key": "AMZN",
-      "count": 67,
+      "count": 68,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -335,7 +335,7 @@
       "topics": [
         "macro"
       ],
-      "count": 333,
+      "count": 334,
       "focus": "2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물 +0.28%, 러셀2000 선물 +0.51% 수준이며 VIX는 19.28로 -3.15%. 전일 금리 급등과 기술주..."
     },
     {
@@ -344,7 +344,7 @@
       "topics": [
         "geo"
       ],
-      "count": 395,
+      "count": 394,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의..."
     },
     {
@@ -380,7 +380,7 @@
       "topics": [
         "power"
       ],
-      "count": 290,
+      "count": 292,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -398,7 +398,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 102,
+      "count": 103,
       "focus": "[단독]코스닥 살리기 나서는 정부…13일 거래소서 대책 논의 금융위 주재…이재명 대통령 참석 가능성도 코스닥 활성화 포함 3가지 안건 논의할 예정 \"증시 저평가\" 언급, 이 대통령 메시지 주목 정부가 오는 13일 코스닥 시장 활성화를 포함해 자본시장 대책을 다루는 간담회를 개최한다. 금융위원장이 직접 참석하는..."
     },
     {
@@ -425,7 +425,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 374,
+      "count": 376,
       "focus": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러 상회), 전년 대비 +168% * GAAP EPS: -1.27달러 (조정 EPS 예상 -1.21달러와 직접..."
     },
     {
@@ -470,7 +470,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 796,
+      "count": 799,
       "focus": "코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·..."
     }
   ],
@@ -1726,6 +1726,62 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69030",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69030",
+      "datetime": "2026-11-11T11:40:26.000Z",
+      "localDateKst": "2026-11-11",
+      "tags": [
+        "power",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [
+        "AMZN"
+      ],
+      "summary": "탈렌에너지가 연간 약 1억 달러 규모의 750MW 장기 전력 용량 계약을 확보. 투자적격 등급의 거래 상대방과 체결한 이번 계약은 2029~2030년부터 2035~2036년까지 PJM 전력시장 공급 기간을..."
+    },
+    {
+      "id": "insidertracking/69029",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69029",
+      "datetime": "2026-11-11T11:40:04.000Z",
+      "localDateKst": "2026-11-11",
+      "tags": [
+        "macro",
+        "power",
+        "earnings"
+      ],
+      "score": 55,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "제프리스가 코닝에 대해 매수 의견으로 신규 커버리지를 개시. 인공지능(AI) 수요 증가에 따른 광섬유 공급 부족과 하이퍼스케일러 및 통신사업자들과의 다년 계약을 긍정적으로 평가. 데이터센터 간 연결(DC..."
+    },
+    {
+      "id": "HANAchina/71969",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71969",
+      "datetime": "2026-11-11T11:33:07.000Z",
+      "localDateKst": "2026-11-11",
+      "tags": [
+        "semi"
+      ],
+      "score": 56,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>젠슨 황 스캔들에 음모론 확산…애널리스트 “배후에 정치적 움직임 의심, 추가 악재 나올 수도” (대만경제일보) •Nvidia 젠슨 황의 불륜설과 상대 여성이 중국 스파이와 연관됐다는 의혹으로 사임 압박이..."
+    },
+    {
       "id": "insidertracking/69028",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69028",
@@ -2232,16 +2288,15 @@
       "localDateKst": "2026-11-11",
       "tags": [
         "japan",
-        "semi",
         "earnings"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "11월 11일 닛케이225 지수가 3거래일 연속 상승. 최근 큰 폭의 조정을 겪은 AI 관련주에 대해 경제지표와 기업 실적이 일부 낙관론을 되살린 영향. 로이터가 수요일 발표한 조사에 따르면 일본의 11월...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "11월 11일 닛케이225 지수가 3거래일 연속 상승. 최근 큰 폭의 조정을 겪은 AI 관련주에 대해 경제지표와 기업 실적이 일부 낙관론을 되살린 영향. 로이터가 수요일 발표한 조사에 따르면 일본의 11월..."
+      ]
     },
     {
       "id": "HANAchina/71932",
@@ -2287,11 +2342,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "월스트리트저널의 수석 경제기자이자 ‘연준의 대변인’으로 불리는 닉 티미라오스가 최근 기고문에서 미국의 인플레이션 반등이 연방준비제도(Fed)가 유지하려던 점진적 금리 인상 기조를 흔들고 있다고 분석. 연준..."
+      "summary": "월스트리트저널의 수석 경제기자이자 ‘연준의 대변인’으로 불리는 닉 티미라오스가 최근 기고문에서 미국의 인플레이션 반등이 연방준비제도(Fed)가 유지하려던 점진적 금리 인상 기조를 흔들고 있다고 분석. 연준...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/68986",
@@ -2322,7 +2377,6 @@
       "datetime": "2026-11-11T02:03:00.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "credit",
         "ai-policy",
         "equity"
       ],
@@ -2334,8 +2388,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>1조 달러 vs 1조4,000억 달러? Anthropic IPO 밸류에이션의 비밀 곧 밝혀질 전망 (중국언론) •밸류에이션 논란의 핵심은 산정 기준의 차이에 있음. 유통주식 기준 기업가치는 약 1조 달러,..."
+      "summary": ">>1조 달러 vs 1조4,000억 달러? Anthropic IPO 밸류에이션의 비밀 곧 밝혀질 전망 (중국언론) •밸류에이션 논란의 핵심은 산정 기준의 차이에 있음. 유통주식 기준 기업가치는 약 1조 달러,...",
+      "tickers": []
     },
     {
       "id": "HANAchina/71925",
@@ -6000,38 +6054,6 @@
       ]
     },
     {
-      "id": "insidertracking/68694",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68694",
-      "datetime": "2026-11-08T12:43:58.000Z",
-      "localDateKst": "2026-11-08",
-      "tags": [
-        "market-note"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": "빌 게이츠는 최근 미국 캘리포니아주의 억만장자세 추진 방식을 참고해 초고액 자산가에게 세금을 부과하는 것이 AI 시대의 부의 분배 문제를 해결하는 데 가장 적합한 방안일 수 있다고 주장. 현재 AI 및 관련...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/68692",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68692",
-      "datetime": "2026-11-08T12:39:42.000Z",
-      "localDateKst": "2026-11-08",
-      "tags": [
-        "power"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "• 지나 히노호사, 텍사스 대형 데이터센터 신규 전력망 연결 승인 중단·세금 감면 폐지 추진 • 코어위브, 건설 지연과 금융비용 부담 우려·마이크로소프트·아마존 등 빅테크와 전력 공급 기업들의 경쟁력 부각",
-      "lead": 1,
-      "tickers": [
-        "MSFT",
-        "AMZN"
-      ]
-    },
-    {
       "id": "HANAchina/71757",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71757",
@@ -7401,20 +7423,6 @@
       "hasText": true,
       "summary": ">>반대 여론 속 OpenAI, 데이터센터 사업 추진 방식 변경 •OpenAI는 ‘전국 지역사회 협약’ 프레임워크를 발표하고 데이터센터 사업에서 비밀유지계약을 체결하지 않고, 전력 비용을 주민에게 전가하지...",
       "lead": 2,
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/71604",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71604",
-      "datetime": "2026-11-05T12:27:48.000Z",
-      "localDateKst": "2026-11-05",
-      "tags": [
-        "power"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": ">>민주당은 AI에 반대하는가? (중국언론 칼럼) •2026년 미국 중간선거 이후 민주당 승리로 AI 산업과 데이터센터 투자가 타격을 받을 것이라는 우려가 나오고 있지만, 과거 사례와 실제 정책을 보면 민주당...",
       "tickers": []
     },
     {
