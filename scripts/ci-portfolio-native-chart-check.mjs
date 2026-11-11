@@ -70,6 +70,16 @@ const full = buildBenchmarkTrend({ holdings: [{ symbol: 'AAA', value: 900 }, { s
 check('v59.70 model: the 1-year window reads the 90% of value that has it, names the rest', full.available && full.window === '1년' && Math.abs(full.bookPct - 100) < 1e-9 && Math.abs(full.indexPct - 10) < 1e-9 && full.missing.join() === 'BBB' && Math.abs(full.coveredShare - 0.9) < 1e-9 && full.points.length === 7, JSON.stringify({ window: full.window, book: full.bookPct, index: full.indexPct, missing: full.missing }));
 const thin = buildBenchmarkTrend({ holdings: [{ symbol: 'AAA', value: 100 }, { symbol: 'BBB', value: 900 }], returnOf: (symbol, key) => returns[symbol][key], indexReturnOf: (key) => index[key], dateOf: (n) => dates[n], asOf: '2026-11-03' });
 check('v59.70 model: under 80% coverage the chart starts at the longest window all of the book can read', thin.available && thin.window === '6개월' && thin.missing.length === 0, JSON.stringify({ window: thin.window }));
+// The book's return is in the base currency: a USD holding in a KRW-base book compounds its return with USD/KRW.
+const usdRow = { ret12m: null, ret6m: null, ret3m: 10, ret1m: 2, ret5d: 1, ret1d: 0.5 };
+const krwBook = buildBenchmarkTrend({ holdings: [{ symbol: 'USD1', value: 1000 }], returnOf: (symbol, key) => usdRow[key], indexReturnOf: (key) => index[key], dateOf: (n) => dates[n], asOf: '2026-11-03', fxReturnOf: () => 5 });
+check('v59.97 model: a KRW-base book of one USD holding (+10% local, USD/KRW +5%) reads +15.5% over 3 months', krwBook.available && krwBook.window === '3개월' && Math.abs(krwBook.bookPct - 15.5) < 0.05, JSON.stringify({ window: krwBook.window, book: krwBook.bookPct }));
+const noFx = buildBenchmarkTrend({ holdings: [{ symbol: 'USD1', value: 1000 }], returnOf: (symbol, key) => usdRow[key], indexReturnOf: (key) => index[key], dateOf: (n) => dates[n], asOf: '2026-11-03', fxReturnOf: () => null });
+check('v59.97 model: a converted holding without a currency move for the window is not covered', noFx.available === false && noFx.reason === 'coverage', JSON.stringify(noFx));
+const usdReturns = { AAA: returns.AAA, CCC: { ret12m: 30, ret6m: -10, ret3m: 8, ret1m: -4, ret5d: 1.5, ret1d: -0.5 } };
+const usdBook = buildBenchmarkTrend({ holdings: [{ symbol: 'AAA', value: 600 }, { symbol: 'CCC', value: 400 }], returnOf: (symbol, key) => usdReturns[symbol][key], indexReturnOf: (key) => index[key], dateOf: (n) => dates[n], asOf: '2026-11-03' });
+const usdPinned = [0, 38.959212, 43.225504, 58.323744, 61.648247, 63.910164, 64.556962];
+check('v59.97 model: a book in one currency keeps the same line as before the currency move was added', usdBook.available && usdBook.points.length === usdPinned.length && usdBook.points.every((point, i) => Math.abs(point.bookPct - usdPinned[i]) < 1e-5), JSON.stringify(usdBook.points?.map((point) => point.bookPct)));
 check('v59.70 model: no holdings is the empty state, missing inputs the loading state', buildBenchmarkTrend({ holdings: [] }).reason === 'empty' && buildBenchmarkTrend({ holdings: [{ symbol: 'AAA', value: 1 }] }).reason === 'loading');
 
 // 5b. The component models: ① holds on mixed currency and waits for data; ③ splits the book by sector.
@@ -78,6 +88,17 @@ const fetchCalls = [];
 const realFetch = globalThis.fetch;
 globalThis.fetch = (...args) => { fetchCalls.push(args); return Promise.reject(new Error('offline')); };
 check('v59.70 ① holds a mixed-currency book and waits while the closes are missing', portfolioValueTrend({ surface: { currencyState: 'mixed-without-conversion', rows: [] }, rowOf: () => null }).reason === 'currency' && portfolioValueTrend({ surface: { rows: [{ symbol: 'AAA', value: 1 }] }, rowOf: () => null }).reason === 'loading');
+// A KRW-base book converted from USD: the component reads the USD/KRW close move over each window from the history.
+const weekdays = [];
+for (let day = new Date('2026-11-03T12:00:00Z'); weekdays.length < 320; day = new Date(day.getTime() - 86400000)) {
+  if (day.getUTCDay() !== 0 && day.getUTCDay() !== 6) weekdays.unshift(day.toISOString().slice(0, 10));
+}
+const fxHistory = weekdays.map((date, i) => ({ date, spx: 6000, usdkrw: i >= weekdays.length - 10 ? 1050 : 1000 }));
+const usdRows = { SPY: { factorSessionDate: '2026-11-03', ...index }, USD1: { ret12m: 30, ret6m: 20, ret3m: 10, ret1m: 4, ret5d: 1, ret1d: 0.5 } };
+const converted = portfolioValueTrend({ surface: { currencyState: 'converted-with-declared-rates', baseCurrency: 'KRW', rows: [{ symbol: 'USD1', value: 1000, convertedFrom: 'USD' }] }, rowOf: (symbol) => usdRows[symbol] || null, history: fxHistory });
+const at3m = converted.points?.find((point) => point.label === '3개월');
+const book3m = at3m ? ((1 + converted.bookPct / 100) / (1 + at3m.bookPct / 100) - 1) * 100 : null;
+check('v59.97 ① a KRW-base book of one USD holding reads its 3-month return with the USD/KRW move (+15.5%, not +10.0%) and says so', converted.available && book3m != null && Math.abs(book3m - 15.5) < 0.05 && converted.fxIncluded === true, JSON.stringify({ available: converted.available, reason: converted.reason, book3m, fxIncluded: converted.fxIncluded }));
 check('v59.70 ① and the model read no network', fetchCalls.length === 0, String(fetchCalls.length));
 globalThis.fetch = realFetch;
 const { portfolioExposure = () => ({}) } = await load('src/ui/components/portfolio-exposure-bar.js');
