@@ -1979,7 +1979,7 @@
         "scripts/worker-deploy-impact.mjs",
         "src/data/contracts/market-snapshot.js",
         "src/data/contracts/source-kind.js",
-        "scripts/ci-worker-anthropic-check.mjs",
+        "scripts/ci-worker-openai-contract-check.mjs",
         "scripts/ci-ai-budget-scope-check.mjs",
         "scripts/lib/ai-shared-analysis.mjs",
         "scripts/build-operations-status.mjs",
@@ -1997,8 +1997,8 @@
           "script": "scripts/ci-ai-ledger-model-check.mjs"
         },
         {
-          "id": "worker-anthropic",
-          "script": "scripts/ci-worker-anthropic-check.mjs"
+          "id": "worker-openai-contract",
+          "script": "scripts/ci-worker-openai-contract-check.mjs"
         },
         {
           "id": "extension-api-runtime",
@@ -2071,7 +2071,7 @@
             "scripts/worker-deploy-impact.mjs",
             "src/data/contracts/market-snapshot.js",
             "src/data/contracts/source-kind.js",
-            "scripts/ci-worker-anthropic-check.mjs",
+            "scripts/ci-worker-openai-contract-check.mjs",
             "scripts/ci-ai-budget-scope-check.mjs",
             "scripts/lib/ai-shared-analysis.mjs",
             "scripts/build-operations-status.mjs",

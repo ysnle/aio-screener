@@ -45,15 +45,15 @@ export const isDeployed = (rel) => !PAGES_DATA_EXCLUDES.some((entry) => entry.en
 export const shapeId = (shape) => createHash('sha256').update(JSON.stringify(shape)).digest('hex').slice(0, 16);
 export const gitBlobId = (buffer) => createHash('sha1').update(`blob ${buffer.length}\0`).update(buffer).digest('hex');
 
-function git(args, { input, encoding = 'utf8' } = {}) {
-  const result = spawnSync('git', args, { cwd: root, input: input == null ? undefined : Buffer.from(input), ...(encoding === 'buffer' ? {} : { encoding }), maxBuffer: 1 << 30 });
+function git(args, { input, encoding = 'utf8', repo = root } = {}) {
+  const result = spawnSync('git', args, { cwd: repo, input: input == null ? undefined : Buffer.from(input), ...(encoding === 'buffer' ? {} : { encoding }), maxBuffer: 1 << 30 });
   if (result.status !== 0) throw new Error(`git ${args[0]} failed: ${String(result.stderr || '').trim()}`);
   return result.stdout;
 }
 
 // Every deployed public-data file at <sha>: [{ path: 'public-data/x.json', blob }].
-function deployedFiles(sha) {
-  return git(['ls-tree', '-r', '-z', '--full-tree', sha, '--', DATA_DIR]).split('\0').filter(Boolean).map((line) => {
+function deployedFiles(sha, repo = root) {
+  return git(['ls-tree', '-r', '-z', '--full-tree', sha, '--', DATA_DIR], { repo }).split('\0').filter(Boolean).map((line) => {
     const [meta, path] = line.split('\t');
     return { path, blob: meta.split(' ')[2], type: meta.split(' ')[1] };
   }).filter((entry) => entry.type === 'blob' && isDeployed(entry.path.slice(DATA_DIR.length + 1)));
@@ -126,9 +126,12 @@ function pin(rev) {
 // v59.70 (integration review 89e8c881): the pin's own consistency, independent of what the producers write now. CI
 // blocks on this (scripts/ci-browser-data-fixture-check.mjs); the drift below is live data and only reports in CI.
 // When the pinned commit is in this clone its tree must give exactly the pinned blob ids and be an ancestor of HEAD
-// (a squash or rebase would leave the pin unreachable on the remote); a shallow CI checkout leaves that to `install`,
-// which checks every blob id of the fetched snapshot before the browser shards read it.
-export function checkPinIntegrity(manifest = readManifest(), { head = 'HEAD' } = {}) {
+// (a squash or rebase would leave the pin unreachable on the remote); `install` also checks every blob id of the
+// fetched snapshot before the browser shards read it.
+// A shallow CI checkout does not have the pin: it is fetched once (depth 1) so the tree comparison still runs; with
+// only that one commit, ancestry cannot be decided and a labelled SKIP line says so. A pin the remote cannot serve is
+// an integrity fault. Without an `origin` remote (a local working copy) the absent pin is left to `install`.
+export function checkPinIntegrity(manifest = readManifest(), { head = 'HEAD', repo = root } = {}) {
   const problems = [];
   const files = Object.entries(manifest.files || {});
   if (!/^[0-9a-f]{40}$/.test(String(manifest.sha))) problems.push(`sha is not a full commit id: ${manifest.sha}`);
@@ -145,16 +148,23 @@ export function checkPinIntegrity(manifest = readManifest(), { head = 'HEAD' } =
     if (shapeId(shape) !== id) problems.push(`structure ${id} does not hash to its id`);
     if (!used.has(id)) problems.push(`structure ${id} is stored but no file uses it`);
   }
-  let commit = 'absent';
-  try { git(['cat-file', '-e', `${manifest.sha}^{commit}`]); commit = 'present'; } catch (_) { /* shallow clone: install checks blobs */ }
-  if (commit === 'present') {
-    const tree = new Map(deployedFiles(manifest.sha).map((file) => [file.path, file.blob]));
+  const hasCommit = () => spawnSync('git', ['cat-file', '-e', `${manifest.sha}^{commit}`], { cwd: repo }).status === 0;
+  let commit = hasCommit() ? 'present' : 'absent';
+  if (commit === 'absent' && /^[0-9a-f]{40}$/.test(String(manifest.sha)) && spawnSync('git', ['remote', 'get-url', 'origin'], { cwd: repo }).status === 0) {
+    const fetched = spawnSync('git', ['fetch', '--no-tags', '--depth=1', 'origin', manifest.sha], { cwd: repo, encoding: 'utf8', timeout: 120000 });
+    if (fetched.status === 0 && hasCommit()) commit = 'fetched';
+    else problems.push(`pinned commit ${manifest.sha} cannot be fetched from origin: ${String(fetched.stderr || fetched.error?.message || '').trim().split('\n').pop()}`);
+  }
+  if (commit === 'present' || commit === 'fetched') {
+    const tree = new Map(deployedFiles(manifest.sha, repo).map((file) => [file.path, file.blob]));
     const missing = [...tree.keys()].filter((path) => !manifest.files[path]);
     const extra = files.filter(([path]) => !tree.has(path)).map(([path]) => path);
     const wrong = files.filter(([path, entry]) => tree.has(path) && tree.get(path) !== entry.blob).map(([path]) => path);
     if (missing.length || extra.length || wrong.length) problems.push(`the pinned commit's deployed files differ from the manifest: missing ${missing.slice(0, 3).join(', ') || '0'}; extra ${extra.slice(0, 3).join(', ') || '0'}; other blob ${wrong.slice(0, 3).join(', ') || '0'}`);
-    const ancestor = spawnSync('git', ['merge-base', '--is-ancestor', manifest.sha, head], { cwd: root });
-    if (ancestor.status === 1) problems.push(`pinned commit ${manifest.sha.slice(0, 12)} is not in ${head}'s history (re-pin on a commit of this branch)`);
+    const ancestor = spawnSync('git', ['merge-base', '--is-ancestor', manifest.sha, head], { cwd: repo });
+    const shallow = commit === 'fetched' && String(spawnSync('git', ['rev-parse', '--is-shallow-repository'], { cwd: repo, encoding: 'utf8' }).stdout).trim() === 'true';
+    if (ancestor.status === 1 && shallow) console.log(`[browser-data-fixture] SKIP ancestry: shallow history (pin ${manifest.sha.slice(0, 12)})`);
+    else if (ancestor.status === 1) problems.push(`pinned commit ${manifest.sha.slice(0, 12)} is not in ${head}'s history (re-pin on a commit of this branch)`);
   }
   return { problems, commit };
 }

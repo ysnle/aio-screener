@@ -674,17 +674,14 @@ export async function enrichScreener() {
   // v58.79 (owner 2026-10-25): the history's headline breadth is S&P 500 members (the AIO universe stays in screener.json).
   const breadthHistory = computeScreenerBreadthHistory(breadthSyms, breadthResults, undefined, Date.now(), assetTypeOf, sp500Members);
   // P1416: distribution days need the index's own volume; one extra daily-bar request.
-  let distribution = null;
-  try {
-    const spxBars = await fetchHistory('^GSPC', '6mo');
-    distribution = { series: distributionDaySeries((spxBars || []).map((bar) => ({ date: bar.date, close: bar.close, volume: bar.volume }))) };
-  } catch (e) { console.warn('[fetch-data] distribution-day bars unavailable:', e && e.message || e); }
+  // fetchHistory does not throw: it returns [] when every host failed, so an empty read is reported here.
+  const spxBars = await fetchHistory('^GSPC', '6mo');
+  if (!spxBars?.length) console.warn('[fetch-data] ^GSPC daily bars came back empty: no distribution-day count is written for this run');
+  const distribution = { series: distributionDaySeries((spxBars || []).map((bar) => ({ date: bar.date, close: bar.close, volume: bar.volume }))) };
   // v59.57: the Nasdaq Composite rally attempt and follow-through day (O'Neil) need the index's own volume too.
-  let rally = null;
-  try {
-    const ixicBars = await fetchHistory('^IXIC', '1y');
-    rally = { series: rallyAttemptSeries((ixicBars || []).map((bar) => ({ date: bar.date, close: bar.close, volume: bar.volume }))) };
-  } catch (e) { console.warn('[fetch-data] follow-through-day bars unavailable:', e && e.message || e); }
+  const ixicBars = await fetchHistory('^IXIC', '1y');
+  if (!ixicBars?.length) console.warn('[fetch-data] ^IXIC daily bars came back empty: no rally-attempt / follow-through state is written for this run');
+  const rally = { series: rallyAttemptSeries((ixicBars || []).map((bar) => ({ date: bar.date, close: bar.close, volume: bar.volume }))) };
   const breadthHistoryInfo = await updateScreenerBreadthHistory(breadthHistory, Date.now(), distribution, rally);
   await writeBreadthContributors(breadthHistory, Date.now());
   // v58.79 (owner 2026-10-25): the theme-stage record before 10/12, recomputed from these closes with the live rule.

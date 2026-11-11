@@ -10,13 +10,14 @@
 //      script moves Date to that time;
 //   4. the workflows: ci.yml's browser job installs the pin (cache key = pinned commit + manifest hash) and sets the
 //      clock; watchdog-browser.yml runs the same groups twice a day without either; operations-alert.yml watches it.
+import { spawnSync } from 'node:child_process';
 import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import { load as loadYaml } from 'js-yaml';
-import { checkFixture, checkPinIntegrity, formatCheckFailure, gitBlobId, readManifest, PIN_HINT, MANIFEST } from './browser-data-fixture.mjs';
+import { checkFixture, checkPinIntegrity, formatCheckFailure, gitBlobId, readManifest, shapeId, PIN_HINT, MANIFEST } from './browser-data-fixture.mjs';
 import { schemaDrift, schemaShape } from './lib/schema-fingerprint.mjs';
 import { closeAll, startLocalServer } from './lib/browser-gate.mjs';
 
@@ -43,6 +44,44 @@ check('v59.70 every pinned JSON structure is stored', Object.values(manifest.fil
   check('v59.70 integrity replay: an orphan or mis-hashed structure fails', orphanProblems.some((line) => line.includes('0000000000000000 does not hash')) && orphanProblems.some((line) => line.includes('0000000000000000 is stored but no file uses it')));
   check('v59.70 integrity replay: a count that disagrees fails', checkPinIntegrity({ ...manifest, fileCount: manifest.fileCount + 1 }).problems.some((line) => line.startsWith('fileCount')));
   check('v59.70 the drift gate is a separate live-data gate', readFileSync(join(root, 'scripts/ci-browser-data-pin-drift-check.mjs'), 'utf8').includes('checkFixture('));
+}
+{
+  // A shallow clone without the pin fetches it from origin and still compares its tree with the manifest.
+  const temp = mkdtempSync(join(tmpdir(), 'aio-pin-fetch-'));
+  const remote = join(temp, 'remote');
+  const clone = join(temp, 'clone');
+  const run = (cwd, args) => {
+    const result = spawnSync('git', ['-c', 'user.name=aio-test', '-c', 'user.email=aio-test@example.invalid', '-c', 'core.autocrlf=false', ...args], { cwd, encoding: 'utf8' });
+    if (result.status !== 0) throw new Error(`git ${args.join(' ')}: ${result.stderr}`);
+    return result.stdout.trim();
+  };
+  try {
+    mkdirSync(join(remote, 'public-data'), { recursive: true });
+    run(remote, ['init', '-q']);
+    writeFileSync(join(remote, 'public-data', 'a.json'), '{"a":1}\n');
+    run(remote, ['add', '-A']);
+    run(remote, ['commit', '-q', '-m', 'first']);
+    const pinSha = run(remote, ['rev-parse', 'HEAD']);
+    const pinBlob = run(remote, ['rev-parse', 'HEAD:public-data/a.json']);
+    writeFileSync(join(remote, 'public-data', 'b.json'), '{"b":2}\n');
+    run(remote, ['add', '-A']);
+    run(remote, ['commit', '-q', '-m', 'second']);
+    run(temp, ['clone', '-q', '--depth=1', `file://${remote.replace(/\\/g, '/')}`, 'clone']);
+    const shape = schemaShape({ a: 1 });
+    const id = shapeId(shape);
+    const tempManifest = (sha, files) => ({ sha, committedAt: '2026-11-10T00:00:00Z', schemaDepth: manifest.schemaDepth, fileCount: Object.keys(files).length, files, shapes: { [id]: shape } });
+    const good = checkPinIntegrity(tempManifest(pinSha, { 'public-data/a.json': { blob: pinBlob, shape: id } }), { repo: clone });
+    check(`v59.97 a pin absent from a shallow clone is fetched and its tree matches the manifest: ${good.commit} ${good.problems.join(' / ')}`, good.commit === 'fetched' && good.problems.length === 0);
+    const extra = checkPinIntegrity(tempManifest(pinSha, { 'public-data/a.json': { blob: pinBlob, shape: id }, 'public-data/z.json': { blob: pinBlob } }), { repo: clone });
+    check(`v59.97 a fetched pin whose tree lacks a manifest file fails: ${extra.problems.join(' / ')}`, extra.problems.some((line) => line.includes('differ from the manifest') && line.includes('public-data/z.json')));
+    const ghost = 'e'.repeat(40);
+    const missing = checkPinIntegrity(tempManifest(ghost, { 'public-data/a.json': { blob: pinBlob, shape: id } }), { repo: clone });
+    check(`v59.97 a pin origin cannot serve fails with the pin named: ${missing.problems.join(' / ')}`, missing.problems.some((line) => line.includes(ghost) && line.includes('cannot be fetched')));
+  } catch (error) {
+    check(`v59.97 pin fetch replay ran: ${error.message}`, false);
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
 }
 
 // 2. Replays.
