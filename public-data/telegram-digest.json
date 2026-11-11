@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-11T07:25:23.519Z",
-  "attemptedAt": "2026-11-11T07:25:23.519Z",
-  "lastSuccessfulAt": "2026-11-11T07:25:23.519Z",
+  "generatedAt": "2026-11-11T07:51:47.764Z",
+  "attemptedAt": "2026-11-11T07:51:47.764Z",
+  "lastSuccessfulAt": "2026-11-11T07:51:47.764Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-28T07:25:18.879Z",
-  "until": "2026-11-11T07:25:18.879Z",
+  "since": "2026-10-28T07:51:40.572Z",
+  "until": "2026-11-11T07:51:40.572Z",
   "current24hWindow": {
     "start": "2026-11-09T23:00:00.000Z",
     "end": "2026-11-10T23:00:00.000Z",
@@ -89,43 +89,43 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1296,
-      "freshCount": 40,
-      "eligibleTextCount": 1235,
+      "count": 1295,
+      "freshCount": 20,
+      "eligibleTextCount": 1234,
       "selectedCount": 125,
       "error": null,
       "lastPostId": 69007
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 235,
-      "freshCount": 19,
-      "eligibleTextCount": 235,
+      "count": 238,
+      "freshCount": 38,
+      "eligibleTextCount": 238,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 21114
+      "lastPostId": 21117
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 712,
+      "count": 710,
       "freshCount": 35,
-      "eligibleTextCount": 711,
+      "eligibleTextCount": 709,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 71950
+      "lastPostId": 71953
     }
   ],
   "count": 2243,
-  "retainedItemCount": 431,
+  "retainedItemCount": 425,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -134,8 +134,8 @@
     "observedCount": 2243,
     "eligibleTextCount": 2181,
     "mediaOnlyCount": 62,
-    "mediaAttachedCount": 758,
-    "photoPostCount": 655,
+    "mediaAttachedCount": 761,
+    "photoPostCount": 658,
     "documentPostCount": 4,
     "imageOnlyCount": 3,
     "highSignalCount": 395,
@@ -147,24 +147,26 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "kr-market": 103,
+    "optical": 33,
+    "power": 291,
+    "earnings": 375,
+    "market-note": 794,
     "semi": 484,
-    "power": 290,
-    "earnings": 374,
     "ai-policy": 114,
     "japan": 71,
-    "market-note": 795,
     "healthcare": 71,
     "media-only": 61,
-    "optical": 32,
     "macro": 331,
-    "geo": 404,
+    "geo": 403,
     "equity": 129,
     "flows": 60,
     "credit": 89,
-    "kr-market": 102,
     "crypto": 3
   },
   "tickerCounts": {
+    "MSFT": 51,
+    "LITE": 14,
     "BABA": 4,
     "103590.KS": 1,
     "NVDA": 167,
@@ -175,7 +177,6 @@
     "MU": 28,
     "BE": 13,
     "CRWV": 14,
-    "MSFT": 50,
     "TSLA": 35,
     "AMZN": 66,
     "AAPL": 22,
@@ -237,7 +238,6 @@
     "MTCH": 1,
     "ON": 1,
     "BWXT": 1,
-    "LITE": 13,
     "T": 2,
     "MFG": 1,
     "007660.KS": 1,
@@ -257,12 +257,12 @@
     "ETSY": 2
   },
   "themes": [
-    "Market Notes (795 posts in 14-day research window): 코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·...",
+    "Market Notes (794 posts in 14-day research window): 코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·...",
     "Semiconductors/Memory (484 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
-    "Geopolitics (404 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
-    "Earnings/Corporate (374 posts in 14-day research window): 코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러 상회), 전년 대비 +168% * GAAP EPS: -1.27달러 (조정 EPS 예상 -1.21달러와 직접...",
+    "Geopolitics (403 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
+    "Earnings/Corporate (375 posts in 14-day research window): 코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러 상회), 전년 대비 +168% * GAAP EPS: -1.27달러 (조정 EPS 예상 -1.21달러와 직접...",
     "Macro/Rates (331 posts in 14-day research window): 2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물 +0.28%, 러셀2000 선물 +0.51% 수준이며 VIX는 19.28로 -3.15%. 전일 금리 급등과 기술주...",
-    "AI Power/Grid (290 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "AI Power/Grid (291 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "Equity/Analyst (129 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (114 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
@@ -289,7 +289,7 @@
     },
     {
       "key": "MSFT",
-      "count": 50,
+      "count": 51,
       "text": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -344,7 +344,7 @@
       "topics": [
         "geo"
       ],
-      "count": 404,
+      "count": 403,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의..."
     },
     {
@@ -371,8 +371,8 @@
       "topics": [
         "optical"
       ],
-      "count": 32,
-      "focus": "•중국 증시 다수 CPO 관련주 상한가 •중지이노라이트 +10%"
+      "count": 33,
+      "focus": ">>중국 광통신 다시 살아나나? Microsoft 발언에 CPO 관련주 일제히 급등 •Microsoft 등 미국 기업들이 트럼프 행정부에 광모듈 규제에 반대하는 로비를 벌이고 있으며, 해당 조치가 데이터센터 건설을 “중단 상태에 빠뜨릴 수 있다”고 경고함. 이 소식에 중국 A주 CPO 관련주가 강하게 반등하며..."
     },
     {
       "id": "power",
@@ -380,7 +380,7 @@
       "topics": [
         "power"
       ],
-      "count": 290,
+      "count": 291,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -398,8 +398,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 102,
-      "focus": "No retained full-text sample; 102 observed posts in the 14-day research window."
+      "count": 103,
+      "focus": "[단독]코스닥 살리기 나서는 정부…13일 거래소서 대책 논의 금융위 주재…이재명 대통령 참석 가능성도 코스닥 활성화 포함 3가지 안건 논의할 예정 \"증시 저평가\" 언급, 이 대통령 메시지 주목 정부가 오는 13일 코스닥 시장 활성화를 포함해 자본시장 대책을 다루는 간담회를 개최한다. 금융위원장이 직접 참석하는..."
     },
     {
       "id": "equity",
@@ -425,7 +425,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 374,
+      "count": 375,
       "focus": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러 상회), 전년 대비 +168% * GAAP EPS: -1.27달러 (조정 EPS 예상 -1.21달러와 직접..."
     },
     {
@@ -470,7 +470,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 795,
+      "count": 794,
       "focus": "코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·..."
     }
   ],
@@ -1716,6 +1716,31 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/71953",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71953",
+      "datetime": "2026-11-11T07:33:39.000Z",
+      "localDateKst": "2026-11-11",
+      "tags": [
+        "optical",
+        "power",
+        "earnings"
+      ],
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "MSFT",
+        "LITE"
+      ],
+      "summary": ">>중국 광통신 다시 살아나나? Microsoft 발언에 CPO 관련주 일제히 급등 •Microsoft 등 미국 기업들이 트럼프 행정부에 광모듈 규제에 반대하는 로비를 벌이고 있으며, 해당 조치가 데이터센터..."
+    },
+    {
       "id": "HANAchina/71950",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71950",
@@ -2022,7 +2047,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2031,10 +2055,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "악시오스에 따르면 미국 상무부가 하워드 러트닉 상무장관에게 엔비디아 CEO 젠슨 황과 중국 정보기관을 위해 활동한 것으로 미국 정보당국이 의심하는 사업가 앨리스 황의 관계를 경고하는 최고 기밀 정보 메모를...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "악시오스에 따르면 미국 상무부가 하워드 러트닉 상무장관에게 엔비디아 CEO 젠슨 황과 중국 정보기관을 위해 활동한 것으로 미국 정보당국이 의심하는 사업가 앨리스 황의 관계를 경고하는 최고 기밀 정보 메모를..."
+      ]
     },
     {
       "id": "HANAchina/71927",
@@ -2158,14 +2182,13 @@
       "localDateKst": "2026-11-11",
       "tags": [
         "semi",
-        "ai-policy",
-        "geo"
+        "ai-policy"
       ],
-      "lead": 2,
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": "파이낸셜타임즈에 따르면 미국 상무부가 첨단 반도체를 중국으로 밀수한 의혹을 받는 싱가포르 소재 메가스피드를 수출통제 대상인 엔티티 리스트에 추가하는 절차를 지연 중. 여러 미국 정부 기관이 메가스피드의 엔티티..."
+      "summary": "파이낸셜타임즈에 따르면 미국 상무부가 첨단 반도체를 중국으로 밀수한 의혹을 받는 싱가포르 소재 메가스피드를 수출통제 대상인 엔티티 리스트에 추가하는 절차를 지연 중. 여러 미국 정부 기관이 메가스피드의 엔티티...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/68975",
@@ -2178,10 +2201,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "L 트럼프, 방중 동행 허용 전 황 CEO의 ‘중국 스파이 의심 인물과 교제 의혹’ 보고받아 트럼프 대통령이 지난 5월 베이징 방문에 젠슨 황 엔비디아 CEO의 동행을 허용하기 전, 황 CEO가 중국 스파이로...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "L 트럼프, 방중 동행 허용 전 황 CEO의 ‘중국 스파이 의심 인물과 교제 의혹’ 보고받아 트럼프 대통령이 지난 5월 베이징 방문에 젠슨 황 엔비디아 CEO의 동행을 허용하기 전, 황 CEO가 중국 스파이로..."
+      ]
     },
     {
       "id": "HANAchina/71917",
@@ -2282,16 +2305,14 @@
       "datetime": "2026-11-10T23:18:25.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "macro",
-        "geo",
-        "semi"
+        "market-note"
       ],
       "score": 91,
       "hasText": true,
+      "summary": "• 대만 올해 총생산액 9조 대만달러 돌파에 이어, 내년에는 사상 처음으로 10조 대만달러를 넘어선 11.8조 대만달러(YoY +21.5%)에 달할 것으로 전망 • 시장 평가 기준이 CSP 업체의 Capex...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "• 대만 올해 총생산액 9조 대만달러 돌파에 이어, 내년에는 사상 처음으로 10조 대만달러를 넘어선 11.8조 대만달러(YoY +21.5%)에 달할 것으로 전망 • 시장 평가 기준이 CSP 업체의 Capex..."
+      ]
     },
     {
       "id": "insidertracking/68969",
@@ -2302,11 +2323,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "CME 페드워치에 따르면 미 연준이 12월 기준금리를 동결할 확률은 0%, 25bp 인상할 확률은 88.5%, 50bp 인상할 확률은 11.5%로 반영. 내년 1월까지 금리를 동결할 확률은 0%로 전일..."
+      "summary": "CME 페드워치에 따르면 미 연준이 12월 기준금리를 동결할 확률은 0%, 25bp 인상할 확률은 88.5%, 50bp 인상할 확률은 11.5%로 반영. 내년 1월까지 금리를 동결할 확률은 0%로 전일...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21100",
@@ -2958,18 +2979,19 @@
       "datetime": "2026-11-10T11:40:31.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi",
         "ai-policy",
-        "equity"
+        "equity",
+        "semi"
       ],
+      "lead": 2,
       "score": 69,
       "hasText": true,
-      "summary": "앤트로픽(Anthropic): 기업공개(IPO)를 통해 약 1조 달러의 기업가치 목표 다음 주 수요일 공모가 확정, 목요일 거래 개시 예정 AMD, 브로드컴, 구글 및 기타 투자자들, 앤트로픽에 260억 달러...",
       "tickers": [
         "AMD",
         "GOOG",
         "AVGO"
-      ]
+      ],
+      "summary": "앤트로픽(Anthropic): 기업공개(IPO)를 통해 약 1조 달러의 기업가치 목표 다음 주 수요일 공모가 확정, 목요일 거래 개시 예정 AMD, 브로드컴, 구글 및 기타 투자자들, 앤트로픽에 260억 달러..."
     },
     {
       "id": "bornlupin/21093",
@@ -2978,17 +3000,18 @@
       "datetime": "2026-11-10T11:37:09.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
+        "equity",
         "ai-policy",
-        "equity"
+        "earnings"
       ],
+      "lead": 1,
       "score": 68,
       "hasText": true,
-      "summary": "앤트로픽, 기업공개(IPO) 추진을 위한 로드쇼 착수 오늘 앤트로픽(Anthropic, PBC)은 클래스 A 보통주의 기업공개(IPO) 추진을 위한 로드쇼에 착수했습니다. 이번 공모는 총...",
-      "lead": 2,
       "tickers": [
         "GS",
         "MS"
-      ]
+      ],
+      "summary": "앤트로픽, 기업공개(IPO) 추진을 위한 로드쇼 착수 오늘 앤트로픽(Anthropic, PBC)은 클래스 A 보통주의 기업공개(IPO) 추진을 위한 로드쇼에 착수했습니다. 이번 공모는 총..."
     },
     {
       "id": "insidertracking/68894",
@@ -3101,11 +3124,11 @@
       ],
       "score": 60,
       "hasText": true,
-      "summary": "[단독] 일론 머스크와 마이클 미바흐, 선전 APEC서 트럼프와 동행 예정. 그렇다면 젠슨 황은? 외국 정보기관 관련 조사 속에서 엔비디아 CEO의 참석 여부가 불투명해졌으며, 중국 정부는 해당 의혹을 '근거...",
       "tickers": [
         "NVDA",
         "TSLA"
-      ]
+      ],
+      "summary": "[단독] 일론 머스크와 마이클 미바흐, 선전 APEC서 트럼프와 동행 예정. 그렇다면 젠슨 황은? 외국 정보기관 관련 조사 속에서 엔비디아 CEO의 참석 여부가 불투명해졌으며, 중국 정부는 해당 의혹을 '근거..."
     },
     {
       "id": "HANAchina/71899",
@@ -3194,10 +3217,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "중국 궈 대변인 '엔비디아 둘러싼 중국 스파이 의혹은 근거 없다'",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "중국 궈 대변인 '엔비디아 둘러싼 중국 스파이 의혹은 근거 없다'"
     },
     {
       "id": "insidertracking/68873",
@@ -3259,15 +3282,15 @@
         "earnings",
         "semi"
       ],
+      "lead": 2,
       "score": 64,
       "hasText": true,
-      "summary": "견조한 AI 칩 수요를 보여주며 TSMC 매출 60% 증가 대만 TSMC의 월간 매출이 60% 증가하며, 글로벌 AI 인프라 구축에서 차지하는 핵심적 역할을 입증 했습니다. 10월 실적 및 성장세 가속:...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "AAPL",
         "TSM"
-      ]
+      ],
+      "summary": "견조한 AI 칩 수요를 보여주며 TSMC 매출 60% 증가 대만 TSMC의 월간 매출이 60% 증가하며, 글로벌 AI 인프라 구축에서 차지하는 핵심적 역할을 입증 했습니다. 10월 실적 및 성장세 가속:..."
     },
     {
       "id": "HANAchina/71894",
@@ -3327,9 +3350,10 @@
       "datetime": "2026-11-10T05:35:12.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
+      "lead": 2,
       "score": 56,
       "hasText": true,
       "media": {
@@ -3338,10 +3362,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "TSMC 2026년 10월 순매출 mom +14.7%, yoy +59.7% 연결 기준 약 5,868억 9,000만 대만달러(NT$) 2026년 9월 대비 14.7%, 2025년 10월 대비 59.7% 증가한...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC 2026년 10월 순매출 mom +14.7%, yoy +59.7% 연결 기준 약 5,868억 9,000만 대만달러(NT$) 2026년 9월 대비 14.7%, 2025년 10월 대비 59.7% 증가한..."
     },
     {
       "id": "HANAchina/71889",
@@ -3398,14 +3422,14 @@
       "datetime": "2026-11-10T05:11:30.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 61,
       "hasText": true,
-      "summary": "앨리스 황의 과거 행적: 상하이에서 싱가포르까지 현재까지 확보된 정보의 흐름을 보면, 앨리스 황(Alice Huang)은 스파이가 아니라 자본시장을 능숙하게 활용하는 ‘화이트 글러브’(배후 세력을 대신해...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "앨리스 황의 과거 행적: 상하이에서 싱가포르까지 현재까지 확보된 정보의 흐름을 보면, 앨리스 황(Alice Huang)은 스파이가 아니라 자본시장을 능숙하게 활용하는 ‘화이트 글러브’(배후 세력을 대신해..."
     },
     {
       "id": "HANAchina/71888",
@@ -3513,13 +3537,14 @@
       "datetime": "2026-11-10T03:55:01.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "ai-policy",
-        "equity"
+        "equity",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
-      "summary": "앤스로픽, 아모데이 및 JP모건 CEO 다이먼과 함께하는 IPO 라이브 스트리밍 계획 앤스로픽(Anthropic PBC)은 공동 창업자 겸 최고경영자(CEO) 다리오 아모데이가 JP모건 체이스의 제이미 다이먼...",
-      "tickers": []
+      "tickers": [],
+      "summary": "앤스로픽, 아모데이 및 JP모건 CEO 다이먼과 함께하는 IPO 라이브 스트리밍 계획 앤스로픽(Anthropic PBC)은 공동 창업자 겸 최고경영자(CEO) 다리오 아모데이가 JP모건 체이스의 제이미 다이먼..."
     },
     {
       "id": "HANAchina/71871",
@@ -3838,15 +3863,17 @@
       "datetime": "2026-11-09T23:50:32.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "earnings"
+        "earnings",
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 69,
       "hasText": true,
-      "summary": "NHN 2026년 3분기 실적 IR 1. 전체 실적 — 영업이익 전년 대비 113% 증가 매출 7,583억원 (YoY +21.2%, QoQ +0.1%) 영업이익 588억원 (YoY +112.6%, QoQ...",
-      "lead": 1,
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": "NHN 2026년 3분기 실적 IR 1. 전체 실적 — 영업이익 전년 대비 113% 증가 매출 7,583억원 (YoY +21.2%, QoQ +0.1%) 영업이익 588억원 (YoY +112.6%, QoQ..."
     },
     {
       "id": "HANAchina/71850",
@@ -7356,23 +7383,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/71592",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71592",
-      "datetime": "2026-11-05T09:09:43.000Z",
-      "localDateKst": "2026-11-05",
-      "tags": [
-        "equity"
-      ],
-      "score": 71,
-      "hasText": true,
-      "summary": ">>Microsoft, Nscale 계약 잇따라 철회: 영국 30억달러 계약 이어 텍사스 증설 주문도 취소 •영국 AI 스타트업 Nscale이 IPO를 앞두고 Microsoft의 계약 철회로 다시 타격을...",
-      "lead": 1,
-      "tickers": [
-        "MSFT"
-      ]
-    },
-    {
       "id": "bornlupin/21017",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21017",
@@ -9040,18 +9050,19 @@
       "datetime": "2026-11-10T11:40:31.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi",
         "ai-policy",
-        "equity"
+        "equity",
+        "semi"
       ],
+      "lead": 2,
       "score": 69,
       "hasText": true,
-      "summary": "앤트로픽(Anthropic): 기업공개(IPO)를 통해 약 1조 달러의 기업가치 목표 다음 주 수요일 공모가 확정, 목요일 거래 개시 예정 AMD, 브로드컴, 구글 및 기타 투자자들, 앤트로픽에 260억 달러...",
       "tickers": [
         "AMD",
         "GOOG",
         "AVGO"
-      ]
+      ],
+      "summary": "앤트로픽(Anthropic): 기업공개(IPO)를 통해 약 1조 달러의 기업가치 목표 다음 주 수요일 공모가 확정, 목요일 거래 개시 예정 AMD, 브로드컴, 구글 및 기타 투자자들, 앤트로픽에 260억 달러..."
     },
     {
       "id": "bornlupin/21093",
@@ -9060,17 +9071,18 @@
       "datetime": "2026-11-10T11:37:09.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
+        "equity",
         "ai-policy",
-        "equity"
+        "earnings"
       ],
+      "lead": 1,
       "score": 68,
       "hasText": true,
-      "summary": "앤트로픽, 기업공개(IPO) 추진을 위한 로드쇼 착수 오늘 앤트로픽(Anthropic, PBC)은 클래스 A 보통주의 기업공개(IPO) 추진을 위한 로드쇼에 착수했습니다. 이번 공모는 총...",
-      "lead": 2,
       "tickers": [
         "GS",
         "MS"
-      ]
+      ],
+      "summary": "앤트로픽, 기업공개(IPO) 추진을 위한 로드쇼 착수 오늘 앤트로픽(Anthropic, PBC)은 클래스 A 보통주의 기업공개(IPO) 추진을 위한 로드쇼에 착수했습니다. 이번 공모는 총..."
     },
     {
       "id": "insidertracking/68894",
@@ -9183,11 +9195,11 @@
       ],
       "score": 60,
       "hasText": true,
-      "summary": "[단독] 일론 머스크와 마이클 미바흐, 선전 APEC서 트럼프와 동행 예정. 그렇다면 젠슨 황은? 외국 정보기관 관련 조사 속에서 엔비디아 CEO의 참석 여부가 불투명해졌으며, 중국 정부는 해당 의혹을 '근거...",
       "tickers": [
         "NVDA",
         "TSLA"
-      ]
+      ],
+      "summary": "[단독] 일론 머스크와 마이클 미바흐, 선전 APEC서 트럼프와 동행 예정. 그렇다면 젠슨 황은? 외국 정보기관 관련 조사 속에서 엔비디아 CEO의 참석 여부가 불투명해졌으며, 중국 정부는 해당 의혹을 '근거..."
     },
     {
       "id": "HANAchina/71899",
@@ -9276,10 +9288,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "중국 궈 대변인 '엔비디아 둘러싼 중국 스파이 의혹은 근거 없다'",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "중국 궈 대변인 '엔비디아 둘러싼 중국 스파이 의혹은 근거 없다'"
     },
     {
       "id": "insidertracking/68873",
@@ -9341,15 +9353,15 @@
         "earnings",
         "semi"
       ],
+      "lead": 2,
       "score": 64,
       "hasText": true,
-      "summary": "견조한 AI 칩 수요를 보여주며 TSMC 매출 60% 증가 대만 TSMC의 월간 매출이 60% 증가하며, 글로벌 AI 인프라 구축에서 차지하는 핵심적 역할을 입증 했습니다. 10월 실적 및 성장세 가속:...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "AAPL",
         "TSM"
-      ]
+      ],
+      "summary": "견조한 AI 칩 수요를 보여주며 TSMC 매출 60% 증가 대만 TSMC의 월간 매출이 60% 증가하며, 글로벌 AI 인프라 구축에서 차지하는 핵심적 역할을 입증 했습니다. 10월 실적 및 성장세 가속:..."
     },
     {
       "id": "HANAchina/71894",
@@ -9409,9 +9421,10 @@
       "datetime": "2026-11-10T05:35:12.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
+      "lead": 2,
       "score": 56,
       "hasText": true,
       "media": {
@@ -9420,10 +9433,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "TSMC 2026년 10월 순매출 mom +14.7%, yoy +59.7% 연결 기준 약 5,868억 9,000만 대만달러(NT$) 2026년 9월 대비 14.7%, 2025년 10월 대비 59.7% 증가한...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC 2026년 10월 순매출 mom +14.7%, yoy +59.7% 연결 기준 약 5,868억 9,000만 대만달러(NT$) 2026년 9월 대비 14.7%, 2025년 10월 대비 59.7% 증가한..."
     },
     {
       "id": "HANAchina/71889",
@@ -9480,14 +9493,14 @@
       "datetime": "2026-11-10T05:11:30.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 61,
       "hasText": true,
-      "summary": "앨리스 황의 과거 행적: 상하이에서 싱가포르까지 현재까지 확보된 정보의 흐름을 보면, 앨리스 황(Alice Huang)은 스파이가 아니라 자본시장을 능숙하게 활용하는 ‘화이트 글러브’(배후 세력을 대신해...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "앨리스 황의 과거 행적: 상하이에서 싱가포르까지 현재까지 확보된 정보의 흐름을 보면, 앨리스 황(Alice Huang)은 스파이가 아니라 자본시장을 능숙하게 활용하는 ‘화이트 글러브’(배후 세력을 대신해..."
     },
     {
       "id": "HANAchina/71888",
@@ -9595,13 +9608,14 @@
       "datetime": "2026-11-10T03:55:01.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "ai-policy",
-        "equity"
+        "equity",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
-      "summary": "앤스로픽, 아모데이 및 JP모건 CEO 다이먼과 함께하는 IPO 라이브 스트리밍 계획 앤스로픽(Anthropic PBC)은 공동 창업자 겸 최고경영자(CEO) 다리오 아모데이가 JP모건 체이스의 제이미 다이먼...",
-      "tickers": []
+      "tickers": [],
+      "summary": "앤스로픽, 아모데이 및 JP모건 CEO 다이먼과 함께하는 IPO 라이브 스트리밍 계획 앤스로픽(Anthropic PBC)은 공동 창업자 겸 최고경영자(CEO) 다리오 아모데이가 JP모건 체이스의 제이미 다이먼..."
     },
     {
       "id": "HANAchina/71871",
@@ -9920,15 +9934,17 @@
       "datetime": "2026-11-09T23:50:32.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "earnings"
+        "earnings",
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 69,
       "hasText": true,
-      "summary": "NHN 2026년 3분기 실적 IR 1. 전체 실적 — 영업이익 전년 대비 113% 증가 매출 7,583억원 (YoY +21.2%, QoQ +0.1%) 영업이익 588억원 (YoY +112.6%, QoQ...",
-      "lead": 1,
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": "NHN 2026년 3분기 실적 IR 1. 전체 실적 — 영업이익 전년 대비 113% 증가 매출 7,583억원 (YoY +21.2%, QoQ +0.1%) 영업이익 588억원 (YoY +112.6%, QoQ..."
     },
     {
       "id": "HANAchina/71850",
