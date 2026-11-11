@@ -167,8 +167,13 @@ function rates(macroHistory, events, history = []) {
   if (!ten || !real || !be) return null;
   const tnx = closeChange(history, 'tnx', WINDOW, { through: closeBasis(history) });
   const market = tnx ? { from: tnx.from.value, to: tnx.to.value, fromDate: tnx.from.date, date: tnx.to.date, bp: (tnx.to.value - tnx.from.value) * 100 } : null;
+  // Flat vs moved and the direction follow the 10-year printed in the bar (market span when present); the real/breakeven
+  // shares split the FRED total, so they are read only when that total moved as far and the same way.
+  const moved = market ? market.bp : ten.bp;
   const share = ten.bp ? real.bp / ten.bp : 0;
-  const kind = Math.abs(ten.bp) < 10 ? 'flat' : share >= 0.6 ? (ten.bp < 0 ? 'growth' : 'tight') : be.bp / ten.bp >= 0.6 ? (ten.bp < 0 ? 'relief' : 'fear') : 'mixed';
+  const kind = Math.abs(moved) < 10 ? 'flat'
+    : Math.abs(ten.bp) < 10 || Math.sign(ten.bp) !== Math.sign(moved) ? 'undivided'
+      : share >= 0.6 ? (moved < 0 ? 'growth' : 'tight') : be.bp / ten.bp >= 0.6 ? (moved < 0 ? 'relief' : 'fear') : 'mixed';
   // a real-yield-led fall is a growth scare only when stocks fell with it (the 금리 axis's
   // growthScareSpx20dPct); with stocks up it is the opposite — a retreat of tightening expectations.
   // the stock leg is cut on the same date as the rate split, so '같은 기간 S&P 500' is the split's own span.
@@ -181,7 +186,8 @@ function rates(macroHistory, events, history = []) {
       : '하락이 거의 실질금리에서 나왔습니다. 주가가 크게 움직이지 않아 성장 걱정인지 긴축 기대 후퇴인지는 아직 가르지 않습니다.';
   const read = { flat: '20거래일 동안 큰 변화가 없습니다.', growth: growthRead,
     tight: '상승이 실질금리에서 나왔습니다. 긴축 부담이 커져 성장주 할인율이 올라갑니다.', relief: '하락이 기대인플레에서 나와 물가 안도 쪽입니다.',
-    fear: '상승이 기대인플레에서 나와 물가 걱정 쪽입니다.', mixed: '실질금리와 기대인플레가 함께 움직여 한쪽으로 읽기 어렵습니다.' }[kind];
+    fear: '상승이 기대인플레에서 나와 물가 걱정 쪽입니다.', mixed: '실질금리와 기대인플레가 함께 움직여 한쪽으로 읽기 어렵습니다.',
+    undivided: '10년 금리가 움직였지만 실질금리·기대인플레로 나눠 읽을 수 없습니다.' }[kind];
   const next = nextOf(events, ['us-fed-rate']);
   // the term premium (Kim-Wright, about a week behind) keeps its own span on the bar label and in the numbers.
   const termLabel = term ? `기간 프리미엄(${shortDay(term.date)}까지)` : null;

@@ -8,7 +8,7 @@ import { isDefensiveSector, SECTOR_ETF_LABELS } from '../interpretation/concepts
 const sectorName = (item) => SECTOR_ETF_LABELS[String(item?.symbol || '').toUpperCase()] || item?.label || item?.symbol;
 import { RULES } from '../../rules/thresholds.js';
 import { hasFinalConsonant, withTopicParticle } from '../../content/korean-particle.js';
-import { recoveryCheck } from '../../briefing/market-read.js';
+import { recordRankPhrase, recoveryCheck } from '../../briefing/market-read.js';
 import { recordPercentile, RECORD_FULL_YEAR } from '../session/close-series.js';
 import { rrgRecentReading } from '../../themes/recent-check.js';
 import { signedText } from '../../shared/number.js';
@@ -102,7 +102,7 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
             : spx20 > 0 && down ? '지수는 올랐지만 참여는 소폭 줄었습니다 — 아직 큰 괴리(10%p 이상 감소)는 아닙니다'
               : !up && !down ? `참여 비율의 20거래일 변화가 ±${zone}%p 안이라 지수 움직임을 참여가 확인하지도 부정하지도 않습니다` : '지수와 참여가 모두 거의 변하지 않았습니다';
     const ddText = dd == null ? '' : ddRecord?.pct == null ? ` 최근 25거래일 분배일은 ${round(dd)}회입니다.`
-      : ` 최근 25거래일 분배일은 ${round(dd)}회로, 이 사이트가 기록한 ${ddRecord.n}거래일 가운데 ${ddRecord.pct >= 50 ? `상위 ${Math.max(1, 100 - ddRecord.pct)}%에 드는 많은 편` : `하위 ${Math.max(1, ddRecord.pct)}%에 드는 적은 편`}입니다${ddRecord.provisional ? `(기록이 ${RECORD_FULL_YEAR}거래일이 안 돼 잠정)` : ''}.`;
+      : ` 최근 25거래일 분배일은 ${round(dd)}회로, 이 사이트가 기록한 ${ddRecord.n}거래일 가운데 ${recordRankPhrase(ddRecord.pct)}입니다${ddRecord.provisional ? `(기록이 ${RECORD_FULL_YEAR}거래일이 안 돼 잠정)` : ''}.`;
     index = `S&P 500은 20일 ${signed(spx20, 1, '%')}, 50일선 위 종목 비율은 20일 ${signed(b50d20, 1, '%p')} — ${gap}.${ddText}`;
   }
 

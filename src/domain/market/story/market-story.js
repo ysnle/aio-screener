@@ -115,12 +115,17 @@ function ratesOf(macroHistory, history, from, to) {
   const real = macroSpan(macroHistory, 'realYield10', from, to);
   const be = macroSpan(macroHistory, 'breakeven10', from, to);
   if (!ten || !fred || !real || !be) return null;
-  const d = fred.bp;
+  // Flat vs moved and the direction follow the printed ten-year span; the real/breakeven shares split the FRED total,
+  // so they are read only when that total moved as far and the same way as the printed span.
+  const moved = ten.bp; const d = fred.bp;
   let kind = 'flat';
-  if (Math.abs(d) >= 10) {
-    const realShare = real.bp / d; const beShare = be.bp / d;
-    if (d < 0) kind = realShare >= 0.6 ? 'growth-fear' : beShare >= 0.6 ? 'inflation-relief' : 'mixed';
-    else kind = realShare >= 0.6 ? 'real-up' : beShare >= 0.6 ? 'inflation-fear' : 'mixed';
+  if (Math.abs(moved) >= 10) {
+    if (Math.abs(d) < 10 || Math.sign(d) !== Math.sign(moved)) kind = 'undivided';
+    else {
+      const realShare = real.bp / d; const beShare = be.bp / d;
+      if (moved < 0) kind = realShare >= 0.6 ? 'growth-fear' : beShare >= 0.6 ? 'inflation-relief' : 'mixed';
+      else kind = realShare >= 0.6 ? 'real-up' : beShare >= 0.6 ? 'inflation-fear' : 'mixed';
+    }
   }
   return { ten, real, be, kind };
 }
@@ -158,7 +163,8 @@ const RATE_READ = Object.freeze({
   'real-up': '대부분 실질금리 상승이라 긴축 부담 쪽입니다',
   'inflation-fear': '대부분 기대인플레 상승이라 물가 걱정 쪽입니다',
   mixed: '실질금리와 기대인플레가 함께 움직여 한쪽으로 읽기 어렵습니다',
-  flat: '큰 변화가 없습니다'
+  undivided: '실질금리·기대인플레로 나눠 읽을 수 없습니다',
+  flat:'큰 변화가 없습니다'
 });
 
 /** One brief per reported company in the window: its first-session reaction, the reported reason and a capex line. */

@@ -6,6 +6,7 @@ import { readNumber, signedText } from '../../shared/number.js';
 import { RULES } from '../../rules/thresholds.js';
 import { sessionCloses } from '../indices/index-levels.js';
 import { hyDelta20Bp } from '../../briefing/market-read.js';
+import { fearGreedBand } from '../sentiment/metrics.js';
 
 const pct = (value, digits = 1) => signedText(value, digits, '%');
 const unit = (value) => Math.max(0.04, Math.min(0.96, value));
@@ -42,11 +43,12 @@ function trendAndBreadth(history) {
   const vs50 = (spx.at(-1).value / ma50 - 1) * 100;
   const b = Math.round(breadth);
   const below = vs50 < 0;
+  const { broadAbovePct, narrowBelowPct } = RULES.breadthCross;
   let text;
-  if (below && b >= 55) text = `S&P 500은 50일선 아래(${pct(vs50)})지만 구성 종목의 ${b}%는 아직 50일선 위입니다. 하락이 대형주 몇 곳에 몰린 조정이고 시장 전체가 무너진 것은 아닙니다. 이 비율이 50% 아래로 내려가면 약세가 넓게 퍼진 것으로 바뀝니다.`;
-  else if (below && b < 45) text = `지수도 구성 종목도 함께 50일선 아래(종목 ${b}%만 위)입니다. 하락이 넓게 퍼져, 대형주 몇 곳의 문제가 아닙니다.`;
-  else if (!below && b < 45) text = `지수는 50일선 위(${pct(vs50)})지만 구성 종목은 ${b}%만 50일선 위입니다. 소수 대형주가 받치는 좁은 상승이라, 그 종목들이 꺾이면 지수도 쉽게 밀립니다.`;
-  else if (!below && b >= 55) text = `지수와 구성 종목 대부분(${b}%)이 함께 50일선 위입니다. 넓게 받쳐진 상승 추세입니다.`;
+  if (below && b >= broadAbovePct) text = `S&P 500은 50일선 아래(${pct(vs50)})지만 구성 종목의 ${b}%는 아직 50일선 위입니다. 하락이 대형주 몇 곳에 몰린 조정이고 시장 전체가 무너진 것은 아닙니다. 이 비율이 ${narrowBelowPct}% 아래로 내려가면 약세가 넓게 퍼진 것으로 바뀝니다.`;
+  else if (below && b < narrowBelowPct) text = `지수도 구성 종목도 함께 50일선 아래(종목 ${b}%만 위)입니다. 하락이 넓게 퍼져, 대형주 몇 곳의 문제가 아닙니다.`;
+  else if (!below && b < narrowBelowPct) text = `지수는 50일선 위(${pct(vs50)})지만 구성 종목은 ${b}%만 50일선 위입니다. 소수 대형주가 받치는 좁은 상승이라, 그 종목들이 꺾이면 지수도 쉽게 밀립니다.`;
+  else if (!below && b >= broadAbovePct) text = `지수와 구성 종목 대부분(${b}%)이 함께 50일선 위입니다. 넓게 받쳐진 상승 추세입니다.`;
   else text = `지수는 50일선 ${below ? '아래' : '위'}(${pct(vs50)}), 구성 종목은 ${b}%가 50일선 위로 중간입니다. 폭이 아직 방향을 정하지 못했습니다.`;
   // v59.70 (lens plan step 3): a member above a falling 50-day line is a bounce, not participation; when most of the
   // above-line share sits on falling lines the reading says so.
@@ -68,7 +70,8 @@ function volatilityAndSentiment(history, day) {
   const inverted = vix3m !== null && vix > vix3m;
   const numbers = [`VIX ${vix.toFixed(1)}${inverted ? '(3개월물보다 높아 단기 불안이 큰 상태)' : ''}`, fg !== null ? `공포·탐욕 지수 ${Math.round(fg)}` : null].filter(Boolean);
   const stressed = inverted || vix >= 25;
-  const fearful = fg !== null && fg <= 25;
+  // Extreme fear is the gauge's own band (published whole number under RULES.fearGreed.extremeFearBelow).
+  const fearful = fg !== null && fearGreedBand(fg).label === '극단 공포';
   let read;
   if (stressed && fearful) read = '지수 불안과 심리 공포가 함께 높습니다. 과거에는 이런 겹침 뒤 반등이 자주 나왔지만, 신용 스프레드가 같이 벌어지면 예외입니다.';
   else if (stressed) read = '지수 변동성은 커졌지만 심리 지표는 아직 극단 공포가 아닙니다. 투매형 바닥 신호로 보기는 이릅니다.';
