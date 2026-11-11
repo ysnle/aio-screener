@@ -1056,7 +1056,8 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   check('v59.99 a current-sensitive plan keeps history and structure and drops every unbound current sentence (summary and section)',
     keptAll(published.plan.summary) && droppedAll(published.plan.summary) && keptAll(published.plan.sections[0].body) && droppedAll(published.plan.sections[0].body));
   check('v59.99 the plan reports what its filters removed',
-    !!published.filterCounts && published.filterCounts.removedNumericSentences === 16 && published.filterCounts.removedEventSentences === 2 && published.filterCounts.sentencesTotal === 32);
+    !!published.filterCounts && published.filterCounts.removedNumericSentences === unboundCurrent.length * 2 && published.filterCounts.removedEventSentences === 2
+      && published.filterCounts.sentencesTotal === (Object.keys(historyOrStructure).length + unboundCurrent.length + 1) * 2);
   const fallback = typeof pub.extractAnswerFallbackResult === 'function' ? pub.extractAnswerFallbackResult('코스피는 2,650에서 마감했습니다. 금리는 4.5%입니다. 1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.', true, { evidenceCount: 0, today }) : null;
   check('v59.99 the fallback path keeps history and counts two removed sentences',
     !!fallback && fallback.text === '1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.' && fallback.removedNumericSentences === 2 && fallback.sentencesTotal === 3
