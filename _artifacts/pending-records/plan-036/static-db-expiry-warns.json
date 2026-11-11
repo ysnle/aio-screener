@@ -1,0 +1,21 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.97 a lapsed static review window no longer stops every data release",
+    "symptom": "From 2026-12-01 the static-db-expiry gate would have failed (conf-gtc-dc schedule exhausted for more than 14 days), and because the gate runs in the data-refresh publish step every market, news and brief release would have stopped until someone edited the calendar; more schedules lapse through December and the 90-day universe limit on 2027-01-11.",
+    "root_cause": "Three wall-clock judgements (universe replaceAfterDays, exhausted official schedule, events past their interest window) were hard failures in a gate that belongs to the publish path, although the screen already degrades a lapsed value to expired and review workflows exist to raise it.",
+    "fix": "scripts/ci-static-db-expiry-check.mjs reports the three lapsed-window judgements as warnings; structural checks (mirror counts, provenance, review report fixtures, theme map) still fail.",
+    "violated_rule": "P1542: a data problem is shown honestly on screen and must not stop shipping.",
+    "prevention": "A clock replay of the gate at 2026-12-01, 2026-12-31 and 2027-01-15 exits 0 with the warnings printed; the same replay on the old gate exits 1.",
+    "verification": "node scripts/ci-static-db-expiry-check.mjs exits 0 today; pinned-clock replays exit 0 with warnings.",
+    "files": [
+      "scripts/ci-static-db-expiry-check.mjs"
+    ]
+  },
+  "r": null,
+  "changelog": [
+    "**A lapsed calendar no longer stops data releases ({P}):** the static-database expiry gate warns on lapsed review windows instead of failing the publish step (it would have blocked every release from 2026-12-01)."
+  ],
+  "note": "v59.97: static-db expiry windows warn instead of blocking publishes"
+}

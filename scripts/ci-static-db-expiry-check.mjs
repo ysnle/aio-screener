@@ -1,8 +1,12 @@
 // Static-database expiry gate (R605/P1081).
 // Hand-curated configuration (universe membership, theme constituents, official
-// calendars, manual policy references) never refreshes itself. This gate fails
-// when the declared review windows lapse so the data-refresh run is forced to
-// review them on cadence instead of relying on memory.
+// calendars, manual policy references) never refreshes itself. Structure (the
+// mirror matches its source, provenance fields exist, the review report works)
+// fails this gate. A lapsed review window is a wall-clock judgement: it warns
+// here and never fails, because this gate also runs in the data-refresh publish
+// step, where a failure stops every data release while the screen already shows
+// the lapsed value as expired (P1542). The universe and macro-calendar review
+// workflows and the manual-reference expiry watchdog raise the issue.
 
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -65,7 +69,7 @@ const bulkAge = ageDays(lastBulk ? `${lastBulk}T00:00:00Z` : null);
 check('static-db:universe-lastBulkUpdate-parseable', bulkAge != null, `lastBulkUpdate=${lastBulk}`);
 if (bulkAge != null) {
   warn('static-db:universe-within-staleAfterDays', !(Number.isFinite(staleAfter) && bulkAge > staleAfter), `age=${bulkAge.toFixed(1)}d > staleAfterDays=${staleAfter} (R605: review membership)`);
-  check('static-db:universe-within-replaceAfterDays', !(Number.isFinite(replaceAfter) && bulkAge > replaceAfter), `age=${bulkAge.toFixed(1)}d > replaceAfterDays=${replaceAfter} (R605: hard limit)`);
+  warn('static-db:universe-within-replaceAfterDays', !(Number.isFinite(replaceAfter) && bulkAge > replaceAfter), `age=${bulkAge.toFixed(1)}d > replaceAfterDays=${replaceAfter} (R605: replace limit passed)`);
 }
 
 // S1 mirror: generated mirror must match the hand-curated source (R271).
@@ -86,8 +90,7 @@ const officialNext = (key) => {
 };
 // P1542 (owner direction: a data problem is shown honestly on screen and must not stop shipping): an exhausted official schedule already
 // degrades to 'unavailable-expired' at runtime (nothing is inferred), so the gate no longer fails on the very day the last date passes.
-// It warns while 21 days of schedule remain, and fails only when the schedule has been exhausted for more than 14 days, which leaves the
-// macro-calendar review workflow a fortnight to deliver the next dates before a deploy is held.
+// It warns while 21 days of schedule remain and again, more loudly, once the schedule has been exhausted for more than 14 days.
 const SCHEDULE_LEAD_WARN_DAYS = 21;
 const SCHEDULE_GRACE_DAYS = 14;
 const lastScheduled = (key) => {
@@ -100,7 +103,7 @@ const staleNext = calendarRows
   .filter(([, key, date]) => date < todayIso && !officialNext(key))
   .filter(([, key]) => { const last = lastScheduled(key); return !last || dayDiff(todayIso, last) > SCHEDULE_GRACE_DAYS; })
   .map(([full, key, date]) => `${key}=${date}`);
-check('static-db:calendar-no-past-nextRelease', staleNext.length === 0, `schedule exhausted for more than ${SCHEDULE_GRACE_DAYS} days: ${staleNext.join(', ')} (R650: advance the schedule without inferring a completed result)`);
+warn('static-db:calendar-no-past-nextRelease', staleNext.length === 0, `schedule exhausted for more than ${SCHEDULE_GRACE_DAYS} days: ${staleNext.join(', ')} (R650: advance the schedule without inferring a completed result)`);
 const runningOut = [...new Set(calendarRows.map(([, key]) => key))]
   .map((key) => ({ key, last: lastScheduled(key) }))
   .filter(({ last }) => last && dayDiff(last, todayIso) < SCHEDULE_LEAD_WARN_DAYS)
@@ -116,7 +119,7 @@ const staleEvents = [...eventRegistry.matchAll(/(\w+):\s*\{[^}]*?eventDate:\s*'(
   .map(([, id, date, maxAge]) => ({ id, ageDays: (nowMs - Date.parse(`${date}T00:00:00+09:00`)) / 86400000, maxAge: Number(maxAge) }))
   .filter((row) => Number.isFinite(row.ageDays) && row.ageDays > row.maxAge + 60)
   .map((row) => `${row.id}(${Math.floor(row.ageDays)}d > claim ${row.maxAge}d + 60d window)`);
-check('static-db:events-beyond-interest-window-removed', staleEvents.length === 0, `expired events still registered: ${staleEvents.join(', ')} (R605: remove explicitly in data-refresh)`);
+warn('static-db:events-beyond-interest-window-removed', staleEvents.length === 0, `expired events still registered: ${staleEvents.join(', ')} (R605: remove explicitly in data-refresh)`);
 
 // S5: manual policy references must carry observation + publication + source.
 for (const key of ['bokPolicy']) { // v59.70 (R7, S7/I10): fedPolicy and krInflation are producer-only now
