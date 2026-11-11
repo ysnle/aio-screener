@@ -91,13 +91,12 @@ if (!errors.length) {
     && !allowlist.publicRootAllowlist.includes('js/*.js')
     && !allowlist.publicRootAllowlist.includes('js/aio-tests.js'));
   check('Pages allowlist excludes the browser test bundle', Array.isArray(allowlist.excludedFromPagesArtifact) && allowlist.excludedFromPagesArtifact.includes('js/aio-tests.js') && !sw.includes('./js/aio-tests.js'));
-  // v59.97: js/aio-chat.js and js/aio-glossary.js load on demand and are cached by the worker's runtime shell rule on
-  // first use instead of the install precache; the boot scripts stay precached.
-  const onDemandRuntimeScripts = new Set(['js/aio-chat.js', 'js/aio-glossary.js']);
+  // v59.98: classic scripts are requested with ?v=<version>, which a query-less precache entry never matches, so every
+  // runtime script is cached by the worker's runtime shell rule on first use instead of the install precache.
   const runtimeShellSource = sw.match(/const RUNTIME_SHELL_PATH_RE = \/(.+)\/;/)?.[1];
   const runtimeShellRe = runtimeShellSource ? new RegExp(runtimeShellSource) : null;
-  check('v59.97 service worker caches every runtime script (boot scripts precached, on-demand scripts by the runtime shell rule) and no test bundle',
-    publicRuntimeScripts.every(file => onDemandRuntimeScripts.has(file) ? Boolean(runtimeShellRe?.test(`/aio/${file}`)) : sw.includes(`./${file}`))
+  check('v59.98 service worker caches every runtime script by the runtime shell rule and no test bundle',
+    publicRuntimeScripts.every(file => Boolean(runtimeShellRe?.test(`/aio/${file}`)))
       && !sw.includes('./js/aio-tests.js'));
   check('Pages staging copies the explicit runtime list', publicRuntimeScripts.every(file => pagesWorkflow.includes(file)) && !pagesWorkflow.includes('rsync -a js/'));
   check('Pages staging copies public AI config', pagesWorkflow.includes('public-config.json'));

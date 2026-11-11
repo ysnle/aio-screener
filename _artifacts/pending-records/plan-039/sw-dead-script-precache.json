@@ -1,0 +1,6 @@
+{
+  "version": "v59.98",
+  "date": "2026-11-11",
+  "changelog": ["**Service worker precache holds only entries it can serve (v59.98):** index.html requests the classic scripts as `./js/<name>.js?v=<version>` and `cache.match` compares the query string, so the three query-less `./js/aio-*.js` precache entries never answered a request, online or offline. They were removed from `CRITICAL_SHELL_ASSETS` (the versioned shell branch already stores each script under its requested URL on first fetch), and `ci-service-worker-cache-policy-check` now installs the worker with a real `addAll`, goes offline and requests every precached page script exactly as index.html writes it."],
+  "note": "v59.98: sw.js drops three never-served precache entries; behavioural offline check added"
+}
