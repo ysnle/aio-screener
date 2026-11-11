@@ -566,19 +566,20 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     // ("오닐은 … 손절해야 한다고 봤습니다"), a named rule, or the reason a practice exists ("권장하는 이유") is education.
     var weightVerb = '(?:(?:늘리|줄이|확대하|축소하|높이|낮추)(?:세요|십시오|시기\\s*바랍니다)|(?:늘려|줄여|확대해|축소해|높여|낮춰)(?:야\\s*(?:합니다|한다)|라))';
     var weight = new RegExp('비중\\s*(?:을|를)?\\s*' + weightVerb);
-    // A weight imperative with a target size: "NVDA 비중을 30%로 늘리세요", "비중을 20%까지 확대하세요".
+    // A weight imperative with a target size (비중을 30%로 / 20%까지 + the weight verbs above).
     var sizedWeight = new RegExp('비중\\s*(?:을|를)?\\s*\\d[\\d.]*\\s*%\\s*(?:으로|로|까지|만큼)?\\s*' + weightVerb);
-    // An allocation imperative: "포트폴리오의 30%를 NVDA에 배분하세요".
+    // An allocation imperative: a share of the portfolio (30%를) put into a named holding (NVDA에) with 배분/투자/편입.
     var allocation = /\d[\d.]*\s*%\s*(?:를|을)\s*[A-Za-z가-힣0-9]+에\s*(?:배분|투자|편입)하(?:세요|십시오)/;
-    // A recommendation written as a noun clause: "매수하는 것을 추천합니다", "매수하시길 권합니다", "손절하는 게 맞습니다".
+    // A recommendation written as a noun clause: action + 하는/할 것을 + 추천/권, action + 하시길 권, or action + 하는 게 + 맞/좋/낫.
     var nominalised = new RegExp(action + '\\s*(?:(?:하는|할)\\s*것을\\s*(?:추천|권(?:합니다|해|고|장))|하시길\\s*권)|(?:매수|매도|손절|익절|청산)\\s*하는\\s*(?:게|것이)\\s*(?:맞습니다|맞아요|맞다|좋습니다|좋아요|좋다|좋겠|낫습니다|낫다|낫겠)');
     // Colloquial buy/switch imperatives: "지금 사두세요", "갈아타세요".
     var colloquialHold = /(?<![가-힣])사\s*(?:두세요|놓으세요)|갈아타세요/;
-    // Dispose/close imperatives count only with a position as their object: "보유 물량을 모두 처분하세요" (not "근거를 정리하세요").
+    // Dispose/close imperatives (처분/정리/던지) count only when a position word (보유, 물량, 주식, 포지션, 종목, 비중, 지분) is
+    // their object; tidying up notes or reasons is an ordinary word.
     var positionImperative = /(?:보유|물량|주식|포지션|종목|비중|지분)\s*(?:을|를)\s*(?:(?:모두|전부|일부|절반|다|즉시|지금|바로|당장)\s*)?(?:처분하|정리하|던지)(?:세요|십시오)/;
     // English soft imperative opening a clause: "Consider buying NVDA now."
     var englishSoft = /(?:^|[.!?]\s*|\bplease\s+|\byou\s+\b(?:might|may|could|should)\b\s+)(?:consider|think\s+about)\s+(?:buying|selling|shorting|adding\s+to|trimming)\b/i;
-    // A price sentence followed by a bare imperative that points back at it: "손절가는 1,050달러입니다. 그 가격에서 정리하세요."
+    // A price sentence (손절가/목표가 … + a number) followed by a bare imperative that points back at it (그 가격에서, 거기서).
     var priceStatement = /(?:손절가|목표가|매수가|매도가|진입가|익절가)\s*(?:은|는|이|가|:)?\s*(?:\$?\d|[일이삼사오육칠팔구십백천만억]+\s*(?:달러|원))/;
     var referBack = /(?:그\s*가격|그\s*수준|해당\s*(?:가격|수준)|거기)\s*(?:에서|에|으로|로|서)\s*(?:(?:매수|매도|손절|익절|청산|정리|처분|진입)\s*)?(?:하세요|하십시오)/;
     var opportunity = /(?:매수|매도|진입|매집|저가\s*매수|추가\s*매수)\s*(?:의\s*)?(?:기회|적기|타이밍)\s*(?:로|으로|입니다|이다|라고|가\s*될|일\s*수)/;
@@ -630,7 +631,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     };
     var flags = sentences.map(isDirective);
     // A sentence pair is read together when a single line break without sentence punctuation splits one sentence
-    // ("NVDA를 매수\n하세요.") or when a price sentence is followed by an imperative that points back at that price.
+    // (an action word at a line end and its verb on the next line) or when a price sentence is followed by an imperative that points back at that price.
     for (var i = 0; i + 1 < sentences.length; i += 1) {
       var softBreak = /[^.!?。\s][ \t]*\n[ \t]*$/.test(sentences[i]) && !/^\s*(?:[-*+•#>|]|\d+[.)])/.test(sentences[i + 1]);
       var pair = (softBreak && !flags[i] && !flags[i + 1] && isDirective(sentences[i].replace(/\s+$/, ' ') + sentences[i + 1])) ||
