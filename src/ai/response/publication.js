@@ -111,6 +111,7 @@ var COMPLETED_PERIOD = /(?:금융\s*위기|닷컴\s*버블|블랙\s*먼데이|�
 var TRAILING_YEARS = /지난\s*(?:[5-9]|[1-9]\d)\s*년\s*(?:간|동안)/;
 var CURRENT_MARKER = /(?:현재|지금|오늘|최근|이번\s*(?:주|달|분기)|올해|금일|현\s*시점|어제|전일|전날|방금|\bas of\b|\bcurrently\b|\btoday\b|\byesterday\b)/i;
 var RECENT_DATE_DAYS = 60;
+var RECENT_REPORT_WORD = /분기|매출|영업이익|순이익|실적|EPS|가이던스|현금흐름|마진|이익률|배당/i;
 function todayMs(today) {
   var ms = today instanceof Date ? today.getTime() : typeof today === 'number' ? today : today ? Date.parse(today) : NaN;
   return Number.isFinite(ms) ? ms : Date.now();
@@ -129,6 +130,8 @@ function isDatedPast(text, nowMs) {
   var year = new Date(nowMs).getUTCFullYear();
   var years = Array.from(text.matchAll(CALENDAR_YEAR)).map(function(match) { return +match[1]; });
   if (years.some(function(value) { return value >= year; })) return false;
+  // Last year's company results are the newest reported figures, not history: they stay bound to evidence.
+  if (years.some(function(value) { return value === year - 1; }) && RECENT_REPORT_WORD.test(text)) return false;
   var past = years.some(function(value) { return value < year; }) || COMPLETED_PERIOD.test(text) || TRAILING_YEARS.test(text);
   return past && !CURRENT_MARKER.test(text) && !namesRecentDate(text, nowMs);
 }

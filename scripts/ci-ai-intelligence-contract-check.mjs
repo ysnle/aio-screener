@@ -1035,7 +1035,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     '1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.': 'dated-past',
     'FOMC는 연 8회 열립니다.': 'none'
   };
-  const unboundCurrent = ['엔비디아는 데이터센터 매출이 전체의 80%를 넘는 구조입니다.', '코스피는 2,650에서 마감했습니다.', '2023년 고점 대비 현재 12% 낮습니다.', '작년 매출은 600억 달러였습니다.', '올해 2026년 들어 15% 올랐습니다.', 'PER은 28배입니다.', '금리는 4.5%입니다.', '200일선 위 44개 종목이다.'];
+  const unboundCurrent = ['2025년 4분기 매출은 300억 달러였습니다.', '엔비디아는 데이터센터 매출이 전체의 80%를 넘는 구조입니다.', '코스피는 2,650에서 마감했습니다.', '2023년 고점 대비 현재 12% 낮습니다.', '작년 매출은 600억 달러였습니다.', '올해 2026년 들어 15% 올랐습니다.', 'PER은 28배입니다.', '금리는 4.5%입니다.', '200일선 위 44개 종목이다.'];
   for (const [t, kind] of Object.entries(historyOrStructure)) {
     check(`v59.99 history or a fixed structure is ${kind}, not current: ${t}`, typeof pub.numericClaimKind === 'function' && pub.numericClaimKind(t, { today }) === kind);
   }
