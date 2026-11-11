@@ -1900,6 +1900,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       const got = resolveRegisteredName(input, entries);
       if (got !== expected) fail(`ticker name resolution: ${JSON.stringify(input)} expected ${expected}, got ${got} (P1339, no ticker guessing)`);
     }
+    // An all-capital ticker-shaped input matches a display name only in the registry's own spelling: FORD (Forward
+    // Industries' ticker) never opens Ford Motor; TSMC and NAVER are the registry's names and still resolve.
+    const capEntries = { F: { en: 'Ford', kr: '포드', alt: ['ford'] }, SQ: { en: 'Block', kr: '블록' }, AAPL: { en: 'Apple', kr: '애플' }, TSM: { en: 'TSMC', kr: '대만반도체' }, '035420.KS': { en: 'NAVER', kr: '네이버' } };
+    const capCases = [['FORD', null], ['BLOCK', null], ['TSMC', 'TSM'], ['NAVER', '035420.KS'], ['F', 'F'], ['aapl', 'AAPL'], ['Ford', 'F'], ['apple', 'AAPL'], ['포드', 'F'], ['ford', 'F']];
+    for (const [input, expected] of capCases) {
+      const got = resolveRegisteredName(input, capEntries);
+      if (got !== expected) fail(`v59.97 a typed all-capital ticker is never rewritten to another issuer's name: ${JSON.stringify(input)} expected ${expected}, got ${got}`);
+    }
     // v57.81: the portfolio box shares the ticker-route owner. A newly listed universe symbol (SPCX) is accepted by exact match;
     // a near-miss ticker is never rewritten; a nickname resolves only when the registry carries it.
     const { resolveHoldingInput } = await load('src/domain/instruments/resolve-name.js');
@@ -5082,6 +5090,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const rule = [['taxi drivers', 'tax', false], ['new taxes', 'tax', true], ['surgery partners', 'surge', false], ['ai chips', 'chip', true], ['금리가 오른다', '금리', true], ['금리 상승', '금', false], ['핵심 인재', '핵', false], ['북한 핵 실험', '핵', true]];
   const misses = rule.filter(([text, keyword, expected]) => keywordHit(text, keyword) !== expected);
   if (misses.length) fail(`P2117 one keyword rule (whole English words + plural, Korean substrings, lone syllables stand alone): ${JSON.stringify(misses)}`);
+  const excluded = [['투자 분위기 살아나', '위기', false], ['금융 위기 우려', '위기', true], ['위기감 확산', '위기', true], ['분위기 반전 속 금융 위기', '위기', true]];
+  const excludedMisses = excluded.filter(([text, keyword, expected]) => keywordHit(text, keyword) !== expected);
+  const { classifyNewsTextStance: stanceOf } = await load('src/domain/news/scoring.js');
+  if (excludedMisses.length || stanceOf('연말 랠리 분위기, 코스피 강세') === 'warn') fail(`v59.97 a Korean keyword does not hit inside a listed longer word ('위기' in '분위기'): ${JSON.stringify(excludedMisses)} / stance ${stanceOf('연말 랠리 분위기, 코스피 강세')}`);
   const { installTelegramCollector } = await load('src/data/providers/telegram-direct.js');
   const tg = {};
   installTelegramCollector(tg);
