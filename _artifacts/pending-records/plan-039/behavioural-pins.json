@@ -1,6 +1,0 @@
-{
-  "version": "v59.98",
-  "date": "2026-11-11",
-  "changelog": ["**Two audited source-text pins test behaviour (v59.98):** the SEC concept-set recheck and the lesson builder's atomic publish were asserted by matching source text, which passes on broken behaviour. The recheck predicate and the terminal record were extracted as pure exports of `fetch-sec-fundamentals.mjs` (`secConceptSetChanged`, `secNoAnnualFailure`) and the gate now proves an older-set row is due once and the stamped record is not; the knowledge-corpus gate runs the builder against a logging wrapper of the shared writer and requires one atomic call per run and no temporary left. The T869 label pin and the chat citation stamp stay: both need the browser runtime."],
-  "note": "v59.98: SEC concept-set recheck and atomic lesson publish asserted by behaviour"
-}

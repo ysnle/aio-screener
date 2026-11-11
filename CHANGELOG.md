@@ -1,3 +1,18 @@
+## v59.98 (2026-11-11)
+- **AI 질문의 대문자 티커 (P2381):** 'FORD', 'BLOCK'처럼 대문자로 쓴 티커 모양 단어는 레지스트리 표기와 똑같을 때만 회사 이름으로 읽어, 다른 발행사(F, XYZ)가 함께 잡히지 않는다.
+- **10년 금리 5거래일 변화 한 창 (P2382):** 10년 금리 자료가 S&P 500 종가보다 늦을 때도 시장 상태 이야기가 판정표 금리 축과 같은 5거래일 변화(10년 금리 자체의 마지막 종가 기준)를 인용한다.
+- **AI 지시 관문의 '종목 정리' (P2383):** 관심 종목·오늘 본 종목을 정리하라는 안내는 그대로 두고, 보유 종목·주식·물량을 정리·처분하라는 문장만 매매 지시로 바꾼다.
+- **저장된 FOMC 요약 제목 (P2384):** 이미 발행된 FOMC 요약의 제목이 한국어가 아니면, 다음 갱신 때 AI 호출 없이 '10/28 FOMC 결정' 형식의 날짜 제목으로 바꾼다.
+- **뉴스 성향 단어의 부분 일치 (P2385):** '부도덕', '상향식', '하향식'은 성향 단어 '부도', '상향', '하향'으로 세지 않는다.
+- **표시 값의 방향 세 곳 더 (P2386):** 스크리너 수익률 열, 포트폴리오 백테스트 연도별 수익률, 한국 테마 1개월 막대가 0.0%로 표시되는 값에는 오름·내림 색이나 왼쪽 막대를 붙이지 않는다.
+- **Lead (v59.98):** 매크로 변동성 문장의 VIX 구간 이름과 경계(18/25/32)를 narrative.js의 한 사다리(VIX_BANDS, vixBandRow)에서 읽는다. vixBand도 같은 사다리를 쓰며 출력 문구는 그대로다.
+- **Two audited source-text pins test behaviour (v59.98):** the SEC concept-set recheck and the lesson builder's atomic publish were asserted by matching source text, which passes on broken behaviour. The recheck predicate and the terminal record were extracted as pure exports of `fetch-sec-fundamentals.mjs` (`secConceptSetChanged`, `secNoAnnualFailure`) and the gate now proves an older-set row is due once and the stamped record is not; the knowledge-corpus gate runs the builder against a logging wrapper of the shared writer and requires one atomic call per run and no temporary left. The T869 label pin and the chat citation stamp stay: both need the browser runtime.
+- **BLS CPI comparator gap is not a failed fetch (P2387):** October 2025 CPI was never published, so the October 2026 print has no year-over-year comparator; the BLS normalizer now classifies that the way the FRED path already did (no value, no failure) instead of reporting four failed CPI series every refresh.
+- **Service worker precache holds only entries it can serve (v59.98):** index.html requests the classic scripts as `./js/<name>.js?v=<version>` and `cache.match` compares the query string, so the three query-less `./js/aio-*.js` precache entries never answered a request, online or offline. They were removed from `CRITICAL_SHELL_ASSETS` (the versioned shell branch already stores each script under its requested URL on first fetch), and `ci-service-worker-cache-policy-check` now installs the worker with a real `addAll`, goes offline and requests every precached page script exactly as index.html writes it.
+- **Worker README states the deployed AI caps (v59.98):** `worker/README.md` said `AI_PER_CLIENT_DAILY_CAP` is deployed as 200 and described the per-connection month share and the low-budget search removal as always on; `wrangler.proxy.toml` deploys 1000 (a third of `AI_DAILY_CAP` 3000) and `AI_MONTHLY_BUDGET_MODE = "target"`, under which the Worker applies neither. The section now says so.
+- **AI effort experiment (v59.98):** a manual workflow replays recent published inputs through the market-reading path with reasoning none/low/medium and reports validator pass rate, tokens and text; it commits nothing.
+- R1 7곳 v59.98
+
 ## v59.97 (2026-11-11)
 - **Printed sign at seven more sites (P2355):** the briefing move bars, Korea participation, screener validation bars, theme playbook, portfolio backtest active return, sector performance bars and the screener inspector move now show a value that rounds to zero as flat, with no sign and no rising or falling colour.
 - **Lead (v59.97):** the boot and the 시장·테마 pages no longer subscribe to aio:macroUpdated and aio:themesHistoryLoaded, two events nothing in src, js or the gates dispatches; the teardown drops their stop calls with them.

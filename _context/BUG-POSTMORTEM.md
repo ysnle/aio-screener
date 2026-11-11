@@ -39,6 +39,76 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2387 - v59.98 - v59.98 BLS reported its four CPI series as failed every refresh after the October 2026 CPI release (2026-11-11)
+
+- symptom/reproduction: From the 2026-11-10T13:51Z refresh on, data.json meta.blsFailedSeries listed cpi, cpiSa, coreCpi and coreCpiSa (reason insufficient_history_for_yoy) and the run summary showed 'BLS official | PARTIAL | series=4/6', while FRED, reading the same CPI months, reported complete.
+- root_cause: BLS never published October 2025 CPI (the 2025 shutdown), so the October 2026 print has no twelve-month comparator. scripts/producer/fred.mjs has classified that as a comparator gap since v58.71; normalizeBlsSeriesResponse had no such branch and recorded each CPI series as a failure, which made the collection 'partial' and fed the failure receipts.
+- fix: normalizeBlsSeriesResponse applies the FRED rule: with no exact prior-year row but months published on both sides of it, the series gets status 'comparator_gap', its value stays missing, it is listed in a new comparatorGaps array instead of failures, and it does not make the collection partial. A history that is simply too short still fails.
+- violated_rule: One source-gap rule per observation family: the FRED and BLS paths read the same CPI months and must classify a never-published comparator month the same way.
+- prevention: ci-data-pipeline-contract-check drives the normalizer with a BLS v1 response in the stored row shape whose 2025-M10 value is '-', and with a short history; the first must be ok with four comparator gaps and no YoY value, the second must still fail.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs exits 0; against the previous normalizer the new check fails with status partial and the four insufficient_history_for_yoy failures seen in production. The live meta clears at the next BLS fetch in Actions (12 h cache).
+- files: scripts/lib/macro-sources.mjs, scripts/ci-data-pipeline-contract-check.mjs
+
+## P2386 - v59.98 - v59.98 Three more surfaces take their up/down colour from the printed value (2026-11-11)
+
+- symptom/reproduction: A return printed 0.0% (or 0.00%) still showed a rising or falling colour: the screener table's return columns coloured 0.0% red as rising, the 포트폴리오 backtest annual table coloured 0.00% as rising, and a Korean theme bar of -0.04% (printed 0.0%) was drawn left of the zero line.
+- root_cause: screener/model.js returnColor (value >= 0), themes/sectors.js bar anchor (theme.ret1m >= 0) and portfolio-backtest-lab.js tone (v < 0) read the raw sign instead of the printed one.
+- fix: returnColor(value, digits = 1) and the backtest annual tone use directionOf at the digits each prints (1 for returnText, 2 for fmtPct); the theme bar anchors left of zero only when directionOf says down. A flat value has no up/down colour.
+- violated_rule: Direction follows the printed value (plan 025 rule, directionOf/signedText).
+- prevention: ci-esm-core-unit-check's printed-direction block adds the three sites (screener return colour, backtest annual return, Korean theme bar via the fake DOM).
+- verification/residual: Each new site failed before its fix (0.0% read up; 0.00% classed is-up; -0.04% bar anchored left) and passes after; design-token, inline-style, shared-primitive, patch-comment and text-pin ratchets pass.
+- files: src/ui/pages/screener/model.js, src/ui/pages/themes/sectors.js, src/ui/components/portfolio-backtest-lab.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2385 - v59.98 - v59.98 '부도덕', '상향식' and '하향식' no longer count as stance keyword hits (2026-11-11)
+
+- symptom/reproduction: A news title with 부도덕 (immoral), 상향식 or 하향식 (bottom-up, top-down) counted the stance keywords 부도, 상향 or 하향 and could tilt the item's bull/bear stance.
+- root_cause: Korean stance keywords match as substrings; SUBSTRING_EXCLUSIONS listed only 분위기 for 위기.
+- fix: keyword-match.js SUBSTRING_EXCLUSIONS adds 부도 → 부도덕, 상향 → 상향식, 하향 → 하향식 (all three confirmed as stance keywords in scoring.js BULL_KEYWORDS/BEAR_KEYWORDS).
+- violated_rule: A keyword hit is the word itself, not a longer word that contains it.
+- prevention: ci-esm-core-unit-check asserts the three false matches are gone while 건설사 부도 우려, 목표가 상향 and 전망 하향 still hit.
+- verification/residual: The new check failed before the fix (three false hits) and passes after; ci-expect-output-check reports no fixture output change.
+- files: src/domain/news/keyword-match.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2384 - v59.98 - v59.98 A published FOMC brief with a non-Korean headline is repaired (2026-11-11)
+
+- symptom/reproduction: An FOMC brief stored before v59.97 with an English headline kept it on every later refresh.
+- root_cause: safeHeadline guards only new FOMC briefs; the stored-brief repair pass in fetch-event-briefs.mjs covered earnings briefs only.
+- fix: The repair pass gives a stored FOMC brief whose headline fails isKoreanHeadline the producer's dated fallback line (fomcFallbackHeadline, the same one new briefs use), without an AI call; a Korean headline is untouched.
+- violated_rule: Korean UI: a stored headline meets the same gate as a new one.
+- prevention: ci-event-briefs-check drives buildEventBriefs with a previous artifact holding an English and a Korean FOMC headline (AI source throws if called).
+- verification/residual: The English case failed before the fix and passes after; node scripts/ci-event-briefs-check.mjs exits 0.
+- files: scripts/fetch-event-briefs.mjs, scripts/ci-event-briefs-check.mjs
+
+## P2383 - v59.98 - v59.98 The AI action gate keeps advice to tidy a watchlist of 종목 (2026-11-11)
+
+- symptom/reproduction: An AI answer advising the reader to tidy their watchlist (관심 종목 + 정리하세요) was replaced with the no-trade-instruction notice.
+- root_cause: positionImperative in request-pipeline.js treated a bare 종목 as a position object for 정리하 as it does for 처분하 and 던지.
+- fix: With 정리하 the object must be 보유, 물량, 주식, 포지션, 비중, 지분 or 보유 종목; 처분하 and 던지 keep the full position-word list.
+- violated_rule: The directive gate replaces trade instructions, not ordinary guidance close to their wording.
+- prevention: ci-ai-intelligence-contract-check asserts two watchlist-tidy sentences stay and three held-position dispose sentences are still replaced.
+- verification/residual: The kept case failed before the fix (both sentences replaced) and passes after; ci-regex-term-ratchet-check and ci-instruction-text-ratchet-check pass.
+- files: src/ai/response/request-pipeline.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2382 - v59.98 - v59.98 The 시장 상태 story and the rates axis quote one 10-year 5-session change when the 10-year lags (2026-11-11)
+
+- symptom/reproduction: With the 10-year input behind the S&P 500 close, the 시장 상태 story printed a different 10-year 5-session change than the verdict table's rates axis (plan 035 replay: -9bp vs -7bp; a local replay with the last two tnx values removed: -9bp vs -3bp).
+- root_cause: The story measured the 10-year from the close five US sessions before the S&P 500 basis to the 10-year's last close, a shorter window when that close lags; the axis counts five sessions back from the 10-year's own last close.
+- fix: market-story.js reads the 10-year through closeChange (the shared window owner, same sessionPointBack as the axis) ending at the 10-year's own last close on or before the basis, only while alignInput accepts it; the FRED real/breakeven legs split that same window.
+- violated_rule: One metric, one window, one number on every screen.
+- prevention: ci-esm-core-unit-check builds a synthetic history with the 10-year two sessions behind and asserts the story and the rates axis quote the same 5-session change dated by the 10-year's close.
+- verification/residual: The new check failed before the fix (axis +15bp, story +9bp) and passes after; ci-metric-consistency-check, ci-domain-parity-check and ci-data-audit-contract-check pass.
+- files: src/domain/market/story/market-story.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2381 - v59.98 - v59.98 An all-capital ticker in an AI question no longer also resolves to another issuer (2026-11-11)
+
+- symptom/reproduction: resolveEntities('FORD 어때') returned FORD (ticker, unverified) and F (Ford, verified); 'BLOCK 전망' likewise returned XYZ.
+- root_cause: The AI entity resolver matched English display names and aliases case-insensitively, while resolveRegisteredName already read an all-capital ticker-shaped word as a ticker.
+- fix: resolve-name.js exports typedAsTicker and typedNameMatches; resolveRegisteredName and the resolver's English name match both use typedNameMatches, so an all-capital ticker-shaped word names a company only when it is the registry's exact spelling (TSMC, NAVER).
+- violated_rule: No ticker guessing: one rule for reading a typed word as a ticker or a name.
+- prevention: ci-codex-structure-regression-fixture asserts FORD/BLOCK do not resolve to F/XYZ while Ford, ford, TSMC and NAVER still resolve.
+- verification/residual: node scripts/ci-codex-structure-regression-fixture.mjs failed before the fix (FORD,F) and passes after; ci-esm-core-unit-check, ci-search-surface-contract and ci-pipeline-semantics-check pass.
+- files: src/domain/instruments/resolve-name.js, src/ai/entity/resolver.js, scripts/ci-codex-structure-regression-fixture.mjs
+
 ## P2380 - v59.97 - v59.97 an issuer with no annual SEC facts yet was never retried after its first 10-K (2026-11-11)
 
 - symptom/reproduction: fetch-sec-fundamentals recorded an issuer without comparable annual facts (a recent listing that had filed only 10-Qs) as TERMINAL_UNSUPPORTED (required-us-gaap/ifrs-annual-concepts-unavailable) and skipped it on every later run unless SEC_RECHECK_UNSUPPORTED was set or the concept set changed, so its fundamentals stayed missing after it filed its first 10-K.
