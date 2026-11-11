@@ -1,0 +1,6 @@
+{
+  "version": "v59.99",
+  "date": "2026-11-12",
+  "changelog": ["**Answer filters are counted (v59.99):** each finished chat answer records, on this device and without any question or answer text, how many sentences the evidence filters removed, how many claims were dropped, directive replacements and truncation; `AIO.answerQualitySummary()` reads the last 14 days in one line."],
+  "note": "v59.99: answer-quality log (src/ai/telemetry/answer-quality-log.js) loads with the chat, not at boot"
+}

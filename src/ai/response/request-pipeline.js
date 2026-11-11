@@ -262,6 +262,11 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var publication = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication;
     return publication ? publication.extractAnswerFallback(rawText, currentSensitive, options) : '';
   }
+  // The same fallback with what its filters removed ({ text, removedNumericSentences, removedEventSentences, sentencesTotal }).
+  function _aioExtractAIAnswerFallbackResult(rawText, currentSensitive, options) {
+    var publication = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication;
+    return publication && typeof publication.extractAnswerFallbackResult === 'function' ? publication.extractAnswerFallbackResult(rawText, currentSensitive, options) : { text: _aioExtractAIAnswerFallback(rawText, currentSensitive, options), removedNumericSentences: null, removedEventSentences: null, sentencesTotal: null };
+  }
 
   function _aioBuildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive) {
     var publication = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication;
@@ -293,18 +298,22 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     // Structured control JSON is never exposed while streaming. At completion,
     // render every safe part and drop only invalid/unbound claims.
     var visible = '';
+    var filterCounts = null;
     if (publishablePlan.plan && window.AIO_ARCH && typeof window.AIO_ARCH.renderAIAnswerPlan === 'function') {
       visible = window.AIO_ARCH.renderAIAnswerPlan(publishablePlan.plan, { format: 'text' });
+      filterCounts = publishablePlan.filterCounts || null;
     } else if (isPartialStream) {
       visible = 'AI 답변을 구성하고 근거를 검증하는 중…';
     } else {
-      visible = _aioExtractAIAnswerFallback(raw, currentSensitive, { evidenceCount: bindingIds.size, evidenceRows: bindingEvidence.filter(_aioEvidenceCanPublish) });
+      filterCounts = _aioExtractAIAnswerFallbackResult(raw, currentSensitive, { evidenceCount: bindingIds.size, evidenceRows: bindingEvidence.filter(_aioEvidenceCanPublish) });
+      visible = filterCounts.text;
     }
     if (!visible && !isPartialStream) visible = '답변 형식이 완성되지 않아 검증 가능한 문장을 복구하지 못했습니다. 같은 질문을 다시 보내면 간결한 형식으로 재시도합니다.';
     if (meta.stripChips !== false && typeof stripChips === 'function') visible = stripChips(visible);
     var gate = (typeof _aioApplyAIActionGate === 'function')
       ? _aioApplyAIActionGate(visible, meta)
       : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', reasons: ['validator-unavailable'] };
+    var directiveReplacements = Number.isInteger(gate.replacedSentences) ? gate.replacedSentences : 0;
     var claimAudit = publishablePlan.plan
       ? { status: publishablePlan.droppedClaims.length ? 'partial' : 'pass', blocked: false, claims: publishablePlan.plan.claims.claims, validCount: publishablePlan.plan.claims.claims.length, issues: publishablePlan.droppedClaims, source: 'answer-plan.v1' }
       : (typeof window !== 'undefined' && window.AIO && typeof window.AIO.validateAIResponseClaims === 'function')
@@ -458,6 +467,25 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       followUps: answerPlanAudit.status === 'valid' ? (answerPlanAudit.plan.followUps || []) : [],
       citations: answerPlanAudit.status === 'valid' ? (answerPlanAudit.plan.citations || []) : []
     };
+    // A finished answer records what the filters removed (counts only, no question or answer text).
+    if (!isPartialStream) {
+      var completion = meta.completion || {};
+      var countOf = function(value) { return Number.isInteger(value) && value >= 0 ? value : null; };
+      result.answerQuality = {
+        at: new Date().toISOString(),
+        mode: request.answerMode || null,
+        effort: completion.effort || null,
+        searched: request.searched === true,
+        outputTokens: countOf(completion.outputTokens),
+        truncated: completion.truncated === true,
+        removedNumericSentences: countOf(filterCounts && filterCounts.removedNumericSentences),
+        removedEventSentences: countOf(filterCounts && filterCounts.removedEventSentences),
+        droppedClaims: publishablePlan.droppedClaims.filter(function(entry) { return entry && typeof entry.count !== 'number'; }).length, // the event-sentence tally is not a claim
+        directiveReplacements: directiveReplacements,
+        sentencesTotal: countOf(filterCounts && filterCounts.sentencesTotal)
+      };
+      if (meta.record !== false && window.AIO && typeof window.AIO.recordAnswerQuality === 'function') window.AIO.recordAnswerQuality(result.answerQuality);
+    }
     if (meta.record !== false) _aioRecordAIResponseManifest(result);
     return result;
   }

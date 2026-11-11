@@ -26,6 +26,26 @@ const researchPlan = async (load, { minimumIndependentSources = 1, minimumPrimar
 const at = '2026-10-28T10:00:00Z';
 
 export const cases = [
+  { id: 'v59.99', name: 'a finished answer records how many sentences the evidence filters removed, without its text', run: async ({ load }) => {
+    const { installAIRequestPipeline } = await load('src/ai/response/request-pipeline.js');
+    const answerPublication = await load('src/ai/response/publication.js');
+    const recorded = [];
+    const root = { AIO_ARCH: { getAIOrchestrator: () => ({ answerPublication }) }, AIO: { recordAnswerQuality: (entry) => { recorded.push(entry); return true; } } };
+    installAIRequestPipeline(root, {});
+    const raw = '코스피는 2,650에서 마감했습니다. PER은 28배입니다. 1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다. 금리 인하는 보통 성장주에 유리합니다.';
+    const request = { requestId: 'q1', entrypoint: 'unified-chat', answerMode: 'analysis', searched: false };
+    const meta = { request, currentSensitive: true, entrypoint: 'unified-chat', completion: { truncated: false, outputTokens: 640, effort: 'low' } };
+    root._aioRunAIResponsePipeline(raw, { ...meta, streamPhase: 'partial', record: false });
+    assert.equal(recorded.length, 0, 'v59.99 a partial stream records nothing');
+    const result = root._aioRunAIResponsePipeline(raw, { ...meta, streamPhase: 'complete' });
+    assert.equal(recorded.length, 1);
+    assert.equal(recorded[0].removedNumericSentences, 2);
+    assert.equal(recorded[0].sentencesTotal, 4);
+    assert.equal(recorded[0].outputTokens, 640);
+    assert.equal(recorded[0].mode, 'analysis');
+    assert.match(result.text, /1987년 블랙 먼데이/);
+    assert.ok(!JSON.stringify(recorded[0]).includes('코스피'), 'v59.99 no answer text is recorded');
+  } },
   { id: 'v59.52', name: 'chat sector and theme cues match words, not retail containing AI or a lowercase pronoun it', run: async ({ load }) => {
     const { runScreenerQuery, detectSectorQuery } = await load('src/ai/context/screener-query.js');
     const rows = [{ sym: 'NVDA', sector: 'Technology' }, { sym: 'WMT', sector: 'Consumer' }];

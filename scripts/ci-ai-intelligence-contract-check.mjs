@@ -1063,6 +1063,30 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
       && pub.extractAnswerFallback('코스피는 2,650에서 마감했습니다. 1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.', true, { evidenceCount: 0, today }) === '1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.');
 }
 
+// v59.99 (plan 041): the answer-quality log keeps counts only, at most 300 entries, and summarises the last 14 days.
+{
+  const log = await import('../src/ai/telemetry/answer-quality-log.js');
+  const box = new Map();
+  const storage = { getItem: (k) => (box.has(k) ? box.get(k) : null), setItem: (k, v) => box.set(k, String(v)) };
+  const now = Date.parse('2026-11-12T00:00:00Z');
+  const entry = (daysAgo, extra = {}) => ({ at: new Date(now - daysAgo * 86400000).toISOString(), mode: 'analysis', effort: 'low', searched: false, outputTokens: 900, truncated: false, removedNumericSentences: 1, removedEventSentences: 0, droppedClaims: 0, directiveReplacements: 0, sentencesTotal: 10, ...extra });
+  check('v59.99 answer-quality log refuses an entry carrying question or answer text',
+    log.recordAnswerQuality(storage, { ...entry(0), question: 'NVDA 전망은?' }, now) === false && log.recordAnswerQuality(storage, { ...entry(0), answer: '본문' }, now) === false && !box.has(log.ANSWER_QUALITY_KEY));
+  check('v59.99 answer-quality log swallows a storage failure', log.recordAnswerQuality({ getItem: () => { throw new Error('denied'); }, setItem: () => { throw new Error('denied'); } }, entry(0), now) === false
+    && log.summariseAnswerQuality({ getItem: () => { throw new Error('denied'); } }, { now }).answers === 0);
+  for (let i = 0; i < 305; i += 1) log.recordAnswerQuality(storage, entry(30, { outputTokens: i }), now);
+  const stored = JSON.parse(box.get(log.ANSWER_QUALITY_KEY));
+  check('v59.99 answer-quality log keeps the newest 300 entries', stored.length === log.ANSWER_QUALITY_LIMIT && stored[0].outputTokens === 5 && stored[299].outputTokens === 304
+    && stored.every((row) => !('question' in row) && !('answer' in row)));
+  log.recordAnswerQuality(storage, entry(1, { removedNumericSentences: 2, removedEventSentences: 1, truncated: true }), now);
+  log.recordAnswerQuality(storage, entry(2, { removedNumericSentences: 0, searched: true }), now);
+  const summary = log.summariseAnswerQuality(storage, { now });
+  check('v59.99 answer-quality summary counts only the last 14 days',
+    summary.answers === 2 && summary.removedSentences === 3 && summary.removedPerAnswer === 1.5 && summary.truncatedAnswers === 1 && summary.searchedAnswers === 1
+      && summary.line === '최근 14일 답변 2건 · 삭제된 문장 3개(답변당 1.5) · 잘린 답변 1건', JSON.stringify(summary));
+  check('v59.99 answer-quality summary with no answers says so', log.summariseAnswerQuality({ getItem: () => null }, { now }).line === '최근 14일 답변 기록 없음');
+}
+
 // v58.77 (owner 2026-10-25): the 맞춤 profile adapts how answers explain, never what they pick (R724); the example
 // questions fold on touch and narrow layouts once a conversation starts.
 {
