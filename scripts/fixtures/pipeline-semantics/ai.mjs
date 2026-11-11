@@ -86,6 +86,29 @@ export const cases = [
     await root.AIO.loadChat();
     assert.deepEqual(sent, ['보내려던 질문']);
   } },
+  { id: 'v59.97', name: 'the chat loader loads the user research digest once and replays a queued question only after it', run: async ({ load }) => {
+    const { installChatLoader } = await load('src/app/chat-loader.js');
+    const scripts = [], input = { value: '리서치 질문' };
+    const doc = { readyState: 'complete', querySelector: () => null, getElementById: () => input,
+      createElement: () => ({}), head: { appendChild: (script) => scripts.push(script) } };
+    let digestCalls = 0, finishDigest = null;
+    const root = { navigator: {}, AIO: { loadUserResearchDigest: () => { digestCalls += 1; return new Promise((resolve) => { finishDigest = resolve; }); } } };
+    installChatLoader(root, doc);
+    assert.equal(digestCalls, 0, 'v59.97 the digest is not fetched before the panel loads');
+    root.chatSendUnified();
+    root.AIO.loadChat(); root.AIO.loadChat();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(digestCalls, 1, 'v59.97 one panel load fetches the digest once');
+    const sent = [];
+    root.chatSendUnified = () => { sent.push(input.value); };
+    scripts[0].onload();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.deepEqual(sent, [], 'v59.97 the queued question waits for the digest');
+    finishDigest(true);
+    await root.AIO.loadChat();
+    assert.deepEqual(sent, ['리서치 질문']);
+    assert.equal(digestCalls, 1);
+  } },
   { id: 'v59.52', name: 'chat screener filters and comparison labels respect canonical readiness and keep reference dates', run: async ({ load }) => {
     const { runScreenerQuery, formatScreenerResultPrompt, buildDiversifiedRecommendationRows, detectSectorQuery } = await load('src/ai/context/screener-query.js');
     const row = (status) => ({ sym: 'AAPL', name: 'Apple', sector: 'Technology', signal: 'WATCH', rsi: 25, mcap: 2, ret3m: 15, factorSessionDate: '2026-10-28',

@@ -1,0 +1,6 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "changelog": ["**Service worker precaches only what boot needs (v59.97):** `CRITICAL_SHELL_ASSETS` no longer lists `js/aio-chat.js` (AI panel) and `js/aio-glossary.js` (after boot), so a new deploy stops making every device download both before the worker activates; the runtime shell rule caches them on first use, and the release-revision gate now checks that rule for the two on-demand scripts instead of their names in sw.js."],
+  "note": "v59.97: on-demand classic scripts left the service-worker install precache"
+}

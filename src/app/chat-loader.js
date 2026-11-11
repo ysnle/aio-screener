@@ -63,8 +63,11 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
     notice = next;
     setBusy(false);
   };
+  // The user research digest (public-data/user-research-digest.json, read only by the AI question path) loads with the
+  // panel, and the replay waits for it.
+  const loadResearchDigest = () => Promise.resolve().then(() => root.AIO.loadUserResearchDigest?.()).catch(() => {});
   const load = () => pending || (pending = new Promise((resolve, reject) => {
-    const cuesReady = Promise.all([loadCues(), loadChatGlobals(), Promise.resolve().then(alongside).catch(() => {})]);
+    const cuesReady = Promise.all([loadCues(), loadChatGlobals(), Promise.resolve().then(alongside).catch(() => {}), loadResearchDigest()]);
     const script = doc.createElement('script');
     script.src = './js/aio-chat.js?v=' + scriptVersion(doc);
     script.onload = () => { cuesReady.then(() => { clearNotice(); setBusy(false); replay(); resolve(true); }); };

@@ -26,7 +26,9 @@ const HASHED_CHUNK_RE = /\/src\/chunks\/[^/?#]+-[A-Z0-9]{8}\.js$/;
 // after the browser actually requests them.
 //
 // P1134/R621: critical precache = the files EVERY route needs to boot (3 shell documents + the
-// 5 classic runtime scripts + bootstrap). Modules extracted out of index.html's inline blocks
+// 3 classic runtime scripts listed + bootstrap). Scripts that load on demand (js/aio-chat.js with the
+// AI panel, js/aio-glossary.js after boot) are not precached: the runtime shell cache below stores
+// them on first use. Modules extracted out of index.html's inline blocks
 // are deliberately NOT precached here: one entry per extraction would push the list past its
 // 12-entry bound and make the atomic `cache.addAll` fail-prone for files the initial route may
 // never need. They are served from the request-driven runtime cache (RUNTIME_SHELL_PATH_RE /
@@ -40,8 +42,6 @@ const CRITICAL_SHELL_ASSETS = [
   './js/aio-core.js',
   './js/aio-data.js',
   './js/aio-ui.js',
-  './js/aio-chat.js',
-  './js/aio-glossary.js',
   './src/app/bootstrap.js'
 ];
 const RUNTIME_SHELL_PATH_RE = /\/(?:js|src)\//;
