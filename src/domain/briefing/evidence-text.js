@@ -21,5 +21,9 @@ export function stripEvidenceIds(text) {
     .replace(/[ \t]*\(\s*\)/g, '')
     // v58.74: "[[regime-context]]" and "[[regime-context];]" left "[]" and "[;]" behind.
     .replace(/[ \t]*\[[\s;,]*\](?!\()/g, '')
+    // A packet section named as a source ("[향후 시나리오]") and the tail of a bracket whose opening was already
+    // removed (".; regime-context]", ".;]", ".]") are citation debris too.
+    .replace(/[ \t]*\[(?:향후|테마|중심|반대)?\s?시나리오\]/g, '')
+    .replace(/^([^\[\n]*?)[ \t]*[;,]?[ \t]*(?:[a-z][a-z0-9-]*)?\](?=\s*$)/gm, '$1')
     .replace(/[ \t]{2,}/g, ' ').replace(/[ \t]+([.,;])/g, '$1');
 }

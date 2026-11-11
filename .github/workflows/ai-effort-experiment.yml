@@ -52,15 +52,16 @@ jobs:
           case "$SAMPLES" in ([1-8]) ;; (*) echo "::error::samples must be 1-8"; exit 1 ;; esac
           case "$VARIANTS" in (*[!a-z0-9:,]*|'') echo "::error::variants must look like none:1500,low:4000"; exit 1 ;; esac
           mkdir -p "$RUNNER_TEMP/ai-effort"
-          # Every third market-data commit (about 90 minutes apart), newest first, that still carries this script's inputs.
+          # Every third market-data commit (about 90 minutes apart), newest first.
           mapfile -t commits < <(git log --format=%H -n 120 --grep='^data: refresh market' | awk 'NR % 3 == 1' | head -n "$SAMPLES")
           [ "${#commits[@]}" -gt 0 ] || { echo "::error::no market-data commits in the fetched history"; exit 1; }
           index=0
           for sha in "${commits[@]}"; do
             index=$((index + 1))
             tree="$RUNNER_TEMP/ai-effort/tree-$index"
-            git worktree add --detach "$tree" "$sha" >/dev/null
-            cp scripts/ai-effort-experiment.mjs "$tree/scripts/ai-effort-experiment.mjs"
+            # Today's code (prompt, validator, retry) over that commit's published inputs.
+            git worktree add --detach "$tree" HEAD >/dev/null
+            git -C "$tree" checkout "$sha" -- public-data
             ln -s "$GITHUB_WORKSPACE/node_modules" "$tree/node_modules"
             (cd "$tree" && node scripts/ai-effort-experiment.mjs --variants "$VARIANTS" --label "${sha:0:9}" --out "$RUNNER_TEMP/ai-effort/sample-$index.json") || echo "::warning::sample $index (${sha:0:9}) failed"
           done

@@ -1,0 +1,25 @@
+{
+  "version": "v59.99",
+  "date": "2026-11-12",
+  "p": {
+    "title": "v59.99 the market reading is no longer blocked by a quoted likelihood, an approached rate level, 안정 on a neutral axis or a burden the sentence says is absent",
+    "symptom": "In 12 recent refreshes the reading was rejected on its first attempt 7 times and on both attempts 4 times, so the screen kept a reading up to 12 hours old. A replay of 11 production inputs (ai-effort-experiment, 2026-11-11) showed the rejected sentences were correct: a reported statement (\"추가 공격 가능성이 낮다는 발언이 … 거론됐고\"), a headline level (\"10년물 금리가 5%에 근접한 가운데 주가가 내렸다\"), \"신용·변동성은 안정적\" with volatility 중립, and \"시장 폭 부담 … 이 빠져 있어\". Reasoning effort made no difference to the pass rate. Citation debris (\".; regime-context]\", \"[향후 시나리오]\") also reached the published text.",
+    "root_cause": "Four validator rules matched words instead of claims: any 가능성 + 높/낮 in a sentence; a direction word within 14 characters after a rate figure in percent, whoever its subject was; 안정 mapped to the 양호 state only; a state word counted as asserted unless a negation followed it immediately. stripEvidenceIds had no rule for a closing bracket whose opening was already removed or for a packet section named in Korean.",
+    "fix": "scripts/lib/market-analysis-validate.mjs: a likelihood inside an attributed statement is not this reading's forecast; a rate level followed by an approach/cross phrase is a level; 안정 fits 양호 and 중립 and contradicts only 부담; a state the rest of the clause says is absent is not a claim. src/domain/briefing/evidence-text.js removes the bracket tail and Korean section tags. The experiment workflow now replays old inputs with today's code.",
+    "violated_rule": "A deterministic gate must block wrong claims, not correct sentences (P2164 class).",
+    "prevention": "ci-scenario-guidance-fixture: the four rejected production sentences pass and their true counterparts (own likelihood, rate change in percent, 양호 on a neutral axis, an asserted burden, 안정 on a 부담 axis) are still blocked; ci-codex-structure-regression-fixture: debris cases.",
+    "verification": "Both gates exit 0; replay through the experiment workflow after push.",
+    "files": [
+      "scripts/lib/market-analysis-validate.mjs",
+      "src/domain/briefing/evidence-text.js",
+      "scripts/ci-scenario-guidance-fixture.mjs",
+      "scripts/ci-codex-structure-regression-fixture.mjs",
+      ".github/workflows/ai-effort-experiment.yml"
+    ]
+  },
+  "r": null,
+  "changelog": [
+    "**The market reading is blocked less often for correct sentences ({P}):** four validator rules that matched words rather than claims were narrowed, and citation debris no longer reaches the text."
+  ],
+  "note": "v59.99: market-reading validator false blocks narrowed"
+}

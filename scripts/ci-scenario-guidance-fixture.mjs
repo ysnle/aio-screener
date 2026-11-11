@@ -734,6 +734,25 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.deepEqual(axisStateClaimIssues('신용 스프레드 확대가 부담입니다.', { context: packet.replace('credit: neutral', 'credit: burden') }), [], 'v57.81 the same words pass when the packet says 부담');
   assert.deepEqual(axisStateClaimIssues('신용 스프레드가 더 벌어지면 부담이 될 수 있습니다.', { context: packet }), [], 'v57.81 a conditional is not a state claim');
   assert.deepEqual(axisStateClaimIssues('추세는 양호합니다.', { context: packet }), ['axis-state-contradiction:trend']);
+  {
+    // Rejections seen in the 2026-11-11 replay of production inputs: each of these blocked a whole reading.
+    const { validateAnalysisAdmission, validateAnalysisMetricMentions } = await import('./lib/market-analysis-validate.mjs');
+    const axes = 'trend: burden — x\nbreadth: favorable — x\nvolatility: neutral — x\ncredit: favorable — x\nrates: neutral — x';
+    assert.deepEqual(axisStateClaimIssues('시장 폭은 양호하고 신용·변동성은 안정적입니다.', { context: axes }), [], 'v59.99 안정 fits a neutral axis (it contradicts only 부담)');
+    assert.deepEqual(axisStateClaimIssues('신용·변동성은 안정적입니다.', { context: axes.replace('volatility: neutral', 'volatility: burden') }), ['axis-state-contradiction:volatility'], 'v59.99 안정 still contradicts a 부담 axis');
+    assert.deepEqual(axisStateClaimIssues('변동성은 양호합니다.', { context: axes }), ['axis-state-contradiction:volatility'], 'v59.99 양호 still names one state');
+    assert.deepEqual(axisStateClaimIssues('시장 폭 부담과 신용 또는 변동성 부담이 빠져 있어 동반 약세로 확정하기 이릅니다.', { context: axes }), [], 'v59.99 a burden the clause says is absent is not a claim');
+    assert.deepEqual(axisStateClaimIssues('시장 폭 부담이 뚜렷합니다.', { context: axes }), ['axis-state-contradiction:breadth'], 'v59.99 an asserted burden is still checked');
+    assert.deepEqual(validateAnalysisAdmission('11/11 월스트리트저널 보도에 따르면 이란에 대한 추가 공격 가능성이 낮다는 발언이 유가 하락 재료로 거론됐습니다.'), [], 'v59.99 a likelihood inside an attributed statement is the report, not a forecast');
+    assert.deepEqual(validateAnalysisAdmission('반등 가능성이 높습니다.'), ['likelihood-qualitative'], 'v59.99 the reading\'s own likelihood is still blocked');
+    assert.deepEqual(validateAnalysisAdmission('반등 가능성이 높다는 해석입니다.'), ['likelihood-qualitative'], 'v59.99 an unattributed "…다는 해석" is still blocked');
+    const tenYear = [{ metricId: 'market.us10y', evidenceId: 'us10y:1', unit: 'percent', value: 4.95, label: '미국 10년물 금리' }];
+    const change = new Map([['us10y:1', 2.4]]);
+    const rateIssues = (text) => validateAnalysisMetricMentions(text, tenYear, change, { context: '4.95' });
+    assert.deepEqual(rateIssues('11/11 마켓워치는 10년물 금리가 5%에 근접한 가운데 주가가 내렸다고 전했습니다.'), [], 'v59.99 a rate level the text approaches is not a change in percent');
+    assert.deepEqual(rateIssues('11/11 마켓워치 보도에 따르면 10년물 금리가 5%에 가까워지며 주식이 하락했습니다.'), [], 'v59.99 the direction word after an approached level belongs to the next subject');
+    assert.deepEqual(rateIssues('미국 10년물 금리가 2.4% 상승했습니다.'), ['rate-change-not-bp:market.us10y'], 'v59.99 a rate change in percent is still blocked');
+  }
   const kr = { krDate: '2026-10-15', usDate: '2026-10-14' };
   assert.deepEqual(crossMarketDateIssues('코스피 -7.56%, 미국 주가지수 -1.11%로 마감했습니다.', kr), ['cross-market-session-dates-missing'], 'v57.81 an undated KOSPI/S&P comparison across sessions is rejected');
   assert.deepEqual(crossMarketDateIssues('코스피(10/15) -7.56%, 미국 주가지수(10/14) -1.11%로 마감했습니다.', kr), []);

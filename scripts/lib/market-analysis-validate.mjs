@@ -252,6 +252,7 @@ export function analysisMetricMentions(text) {
 
 const ANALYSIS_UP = /(?:상승|오른|올라|올랐|급등|반등|강세|높아|뛴|확대)/;
 const ANALYSIS_DOWN = /(?:하락|내린|내려|내렸|떨어|급락|약세|낮아|빠진|축소)/;
+const RATE_LEVEL_PHRASE = /^\s*(?:에|로|까지|선|대|를|을)?\s*(?:근접|가까|육박|접근|다가|도달|이르|닿|넘|돌파|상회|하회|웃돌|밑돌|수준|부근|안팎)/;
 
 // v57.81 (10/15 07:52 run): VIX's row turned AFTER_HOURS (17.52, +3.85% against 16.87). The prompt keeps in-session rows
 // out and REGIME_CONTEXT shows the 10/14 completed close (VIX 16.87, +10.48%), yet the validator compared "VIX +10.48%"
@@ -329,7 +330,10 @@ export function validateAnalysisMetricMentions(text, metricEvidence = [], change
       previousEnd = match.index + match[0].length;
       const magnitude = Number(digits.replace(/,/g, ''));
       if (!Number.isFinite(magnitude)) continue;
-      const direction = sign === '-' || sign === '−' ? -1 : sign === '+' ? 1 : ANALYSIS_DOWN.test(after) ? -1 : ANALYSIS_UP.test(after) ? 1 : 0;
+      // A rate level the text approaches or crosses ("10년물 금리가 5%에 근접한 가운데 주가가 내렸다") is a level: the
+      // direction word after it belongs to the next subject, so it is not read as the rate's own change in percent.
+      const levelPhrase = rate && suffix === '%' && !sign && RATE_LEVEL_PHRASE.test(after);
+      const direction = sign === '-' || sign === '−' ? -1 : sign === '+' ? 1 : levelPhrase ? 0 : ANALYSIS_DOWN.test(after) ? -1 : ANALYSIS_UP.test(after) ? 1 : 0;
       const moved = direction !== 0;
       const stated = direction ? direction * magnitude : magnitude;
       const plain = digits.replace(/,/g, '');
@@ -392,7 +396,11 @@ export function validateAnalysisAdmission(body, { changes = new Map(), context =
   // are the same claims without the evidence the owner's rule asks for (conditions n/m, frequency with n).
   for (const sentence of body.replace(/\[[^\]]*\]/g, '').split(/(?<=[.?!。])\s+|\n+/)) {
     // Briefing audit 2026-10-17: only a condition count exempts the sentence — a date ("10/16 이후") passed as n/m.
-    if (/(?:가능성|확률)(?:이|은|도)?\s?(?:높|낮|크|작|커|적)/.test(sentence) && !/(?:충족|조건)\D{0,6}\d+\s*\/\s*\d+|\d+\s*\/\s*\d+\s*(?:충족|조건)/.test(sentence)) issues.push('likelihood-qualitative');
+    // A likelihood inside an attributed statement ("추가 공격 가능성이 낮다는 발언이 … 거론됐고") is the report's content,
+    // not this reading's own forecast.
+    const reportedLikelihood = /(?:가능성|확률)(?:이|은|도)?\s?(?:높|낮|크|작|커|적)[가-힣]{0,4}?(?:다는|다고|라는|라고)\s?(?:[가-힣]+\s)?(?:발언|보도|언급|관측|전언|소식|입장|발표)/.test(sentence)
+      && /보도|발언|전했|밝혔|말했|따르면|거론/.test(sentence);
+    if (/(?:가능성|확률)(?:이|은|도)?\s?(?:높|낮|크|작|커|적)/.test(sentence) && !reportedLikelihood && !/(?:충족|조건)\D{0,6}\d+\s*\/\s*\d+|\d+\s*\/\s*\d+\s*(?:충족|조건)/.test(sentence)) issues.push('likelihood-qualitative');
     if (/과거/.test(sentence) && /대부분|대체로|자주|흔히/.test(sentence) && !/\d+\s*(?:번|회|건|차례)|표본/.test(sentence)) issues.push('frequency-without-sample');
   }
   // Condition counts must be well-formed and, when a regime context was supplied, appear in it.
@@ -480,7 +488,11 @@ const AXIS_CLAIMS = Object.freeze([
   ['rates', /(?:장기)?금리(?:는|가|도)?\s?(?:상승이\s?)?(양호|부담)/],
   ['breadth', /시장\s?폭(?:은|이|도)?\s?(양호|부담)/]
 ]);
-const CLAIM_STATE = Object.freeze({ 부담: 'burden', 스트레스: 'burden', 불안정: 'burden', 안정: 'favorable', 양호: 'favorable' });
+// 안정 says the axis is not under stress: it fits 양호 and 중립 alike ("신용·변동성은 안정적" with volatility in its
+// ordinary range) and contradicts only 부담. 양호 and the burden words name one state.
+const CLAIM_STATE = Object.freeze({ 부담: ['burden'], 스트레스: ['burden'], 불안정: ['burden'], 안정: ['favorable', 'neutral'], 양호: ['favorable'] });
+// The rest of the clause says the state is absent ("시장 폭 부담과 신용 또는 변동성 부담이 빠져 있어").
+const CLAIM_ABSENT_LATER = /빠져\s?있|빠진|빠졌|없(?:어|으|습|다|는)|부재|미충족|나타나지|확인되지/;
 const CLAIM_CONDITIONAL = /(?:하면|한다면|할\s?경우|된다면|되면|는지|인지|수\s?있|지\s?않|아니)/;
 // v59.49: an easing verb after the state word ("스트레스가 완화됐다") reports the state receding, not holding.
 const CLAIM_NEGATED = /^\s?(?:조건\s?)?(?:은|는|이|가)?\s?(?:아직\s?)?(?:미충족|충족되지|충족 못|빠[짐져졌]|아님|완화|줄|축소|해소|누그러)/;
@@ -501,8 +513,9 @@ export function axisStateClaimIssues(body, { context = '' } = {}) {
       // Live 2026-10-21: the packet's own condition labels ("추세 부담 미충족", "신용 안정 미충족", "추세 부담이 아직 빠짐")
       // were read as claims of that state. A state word negated right after it is not a claim.
       if (match && CLAIM_NEGATED.test(sentence.slice(match.index + match[0].length, match.index + match[0].length + 12))) continue;
+      if (match && CLAIM_ABSENT_LATER.test(sentence.slice(match.index + match[0].length).split(/[,;，；]/)[0])) continue;
       const claimed = CLAIM_STATE[match?.[1]];
-      if (claimed && states[axis] && states[axis] !== 'unknown' && states[axis] !== claimed) issues.push(`axis-state-contradiction:${axis}`);
+      if (claimed && states[axis] && states[axis] !== 'unknown' && !claimed.includes(states[axis])) issues.push(`axis-state-contradiction:${axis}`);
     }
   }
   return [...new Set(issues)];

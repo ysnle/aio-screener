@@ -225,6 +225,9 @@ assert.ok(core.includes('(?:headline:|market-analysis:'), 'P1651: whole citation
   assert.equal(strip('단일 [market.index.spx] 해시 [90b7eec7] 출처 [headline:https://x.com/a] 끝'), '단일 해시 출처 끝', 'v57.83: single ids, hashes and headline citations are removed');
   assert.equal(strip('정상 [참고] (S&P 500) (node.js) 링크 [텍스트](https://a.b) 2.5%'), '정상 [참고] (S&P 500) (node.js) 링크 [텍스트](https://a.b) 2.5%', 'v57.83: ordinary brackets, parentheses and links are kept');
   assert.equal(strip('S&P 500 -1.21%([market.index.spx:75cea69c]); 헤드라인'), 'S&P 500 -1.21%; 헤드라인', 'v58.72: an id wrapped in parentheses leaves no empty "()"');
+  assert.equal(strip('한 해석입니다.; regime-context]\n해석이 가능합니다.;]\n읽힙니다.]'), '한 해석입니다.\n해석이 가능합니다.\n읽힙니다.', 'v59.99: the tail of a bracket whose opening was removed is debris');
+  assert.equal(strip('비용이 커집니다 [향후 시나리오] [테마 시나리오].'), '비용이 커집니다.', 'v59.99: a packet section named as a source is removed');
+  assert.equal(strip('정상 [참고] 문장입니다.\n배열 a[0] 값'), '정상 [참고] 문장입니다.\n배열 a[0] 값', 'v59.99: balanced ordinary brackets stay');
   assert.equal(strip('갈림길입니다 [[regime-context]]. 약해집니다 [[regime-context];].'), '갈림길입니다. 약해집니다.', 'v58.74: a doubled bracket around an id leaves no "[]" or "[;]"');
   // v59.84 (live briefing 2026-11-08 "[; regime-context]"): every mix of ";"/"," separators and empty slots around ids is
   // removed; enumerate the shapes instead of pinning one string.
