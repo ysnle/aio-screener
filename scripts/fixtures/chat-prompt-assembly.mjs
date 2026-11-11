@@ -82,7 +82,8 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
   // Reader memory: the turn's entity ids and the earlier-conversation block, through the chat-globals the panel installs.
   const turnEntities = statement('state._turnEntities = window.AIO && typeof window.AIO.chatTurnEntities', ';\n', 'turn entities') + ';';
   const earlierTurns = statement('if (window.AIO && typeof window.AIO.relatedEarlierTurnsBlock', ';\n', 'earlier turns') + ';';
-  run(`function __readerMemory(window, ctxId, detectedTickers) { var state = {}; var sysPrompt = ''; ${turnEntities} ${earlierTurns} return { entities: state._turnEntities, text: sysPrompt }; }`, 'unified#memory');
+  const readerNotes = statement('if (window.AIO && typeof window.AIO.readerNotesBlock', ';\n', 'reader notes') + ';';
+  run(`function __readerMemory(window, ctxId, detectedTickers) { var state = {}; var sysPrompt = ''; ${turnEntities} ${earlierTurns} var earlier = sysPrompt; ${readerNotes} return { entities: state._turnEntities, earlier: earlier, notes: sysPrompt.slice(earlier.length) }; }`, 'unified#memory');
   const { installChatGlobals } = await load('src/app/chat-globals.js');
   const { installChatSessions } = await load('src/ui/components/chat-sessions.js');
   run(`function __newsBlock(ctxId, q) { ${newsWrap.replace('var newsCtx', 'var newsCtx')} return newsCtx || ''; }`, 'unified#news');
@@ -136,8 +137,9 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
     add('intent', context._buildChatIntentContext(ctxId, query, flags));
     add('coverage', context._buildChatAnswerCoverageContext(ctxId, query, flags));
     add('integrated', context._buildAioIntegratedAnswerContext(ctxId, query, flags));
-    const mem = memory ? readerMemory(memory, ctxId, tickers) : { entities: [], text: '' };
-    add('earlier-turns', mem.text);
+    const mem = memory ? readerMemory(memory, ctxId, tickers) : { entities: [], earlier: '', notes: '' };
+    add('earlier-turns', mem.earlier);
+    add('reader-notes', mem.notes);
     add('registry', context._aioBuildAIClaimEvidenceRegistry([]));
     add('principles', principles.buildAnswerPrinciples({ today: FIXTURE_NOW.slice(0, 10), mode, hasTickers: tickers.length > 0, hasTrend: false, liveStatus: 'fixture', newsInjected: !!nb.wrapped, webSearch, snapAgeHours: 2 }));
     add('mode', modes.answerModeGuide(mode));

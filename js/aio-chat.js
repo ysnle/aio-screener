@@ -4160,6 +4160,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       sysPrompt += _buildChatMemoryContext(ctxId, q);
     }
     if (window.AIO && typeof window.AIO.relatedEarlierTurnsBlock === 'function') sysPrompt += window.AIO.relatedEarlierTurnsBlock({ entities: state._turnEntities });
+    if (window.AIO && typeof window.AIO.readerNotesBlock === 'function') sysPrompt += window.AIO.readerNotesBlock();
     if (_uniFreshPreflight && detectedTickers.length > 0) {
       var _uniFreshAfter = _uniFreshPreflight.after || {};
       var _uniQuoteRows = (_uniFreshAfter.quoteRows || []).map(function(r) {
@@ -4394,6 +4395,9 @@ async function chatSendUnified(_aioDispatchOptions) {
 
     // v46.10: 대화 기록 저장
     if (typeof saveChatEntry === 'function') saveChatEntry(ctxId, q, visible);
+    // What the reader said about themselves (the plan's `remember`) is stored with consent and said once under the answer.
+    var _uniRemembered = window.AIO && typeof window.AIO.rememberReaderNotes === 'function' ? window.AIO.rememberReaderNotes(_uniDoneResult.remember) : '';
+    if (_uniRemembered) _appendAIMsg('ai', '<span class="lch-muted" role="status">' + escHtml(_uniRemembered) + '</span>');
 
     var newChips = (_uniDoneResult.followUps && _uniDoneResult.followUps.length)
       ? _uniDoneResult.followUps.slice(0, 3)

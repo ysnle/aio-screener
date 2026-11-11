@@ -4,6 +4,8 @@
 // explanation only; the boundary text lives in src/ai/session/user-profile.js.
 import { PROFILE_FIELDS, PROFILE_KEY, MAX_LENSES, MAX_INTERESTS_CHARS, buildProfileContext, clearProfile, isProfileSet, loadProfile, profileSummary, saveProfile } from '../../ai/session/user-profile.js';
 import { LEARN_KEY, LEARN_CONSENT_KEY, clearLearned, learningEnabled, loadLearned, recordUsage, setLearning, summarizeLearned } from '../../ai/session/usage-learning.js';
+import { clearNotes, loadNotes, removeNote } from '../../ai/session/reader-notes.js';
+import { kstDate } from '../../ai/session/earlier-turns.js';
 import { el } from './dom.js';
 
 const SCREEN_NAME = { home: '오늘', briefing: '브리핑', macro: '매크로', fxbond: '금리·환율', themes: '테마', 'theme-detail': '테마', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', ticker: '종목', technical: '차트', fundamental: '재무', screener: '스크리너', portfolio: '포트폴리오', 'market-news': '뉴스', principles: '개념', atlas: '산업 지도', masters: '투자 대가', guide: '안내' };
@@ -113,6 +115,43 @@ export function installAIProfile(root = globalThis, doc = root.document, { stora
     return set;
   }
 
+  // 기억하고 있는 것: what the reader told the assistant in conversations (src/ai/session/reader-notes.js), kept only
+  // with the conversation-saving consent (the panel's session api), each note deletable.
+  function notesSection() {
+    const set = el(doc, 'fieldset', null, 'ai-profile-group ai-profile-notes');
+    set.append(el(doc, 'legend', '기억하고 있는 것', 'ai-profile-legend'));
+    const body = el(doc, 'div', null, 'ai-profile-learned');
+    const paint = () => {
+      if (root.__aioChatSessions?.consented?.() !== true) {
+        body.replaceChildren(el(doc, 'p', '대화 저장이 꺼져 있어 기억하지 않습니다. 대화 목록에서 저장을 켜면 대화에서 알려 준 내용이 여기에 남습니다.', 'ai-session-meta'));
+        return;
+      }
+      const notes = loadNotes(storage);
+      if (!notes.length) {
+        body.replaceChildren(el(doc, 'p', '아직 없습니다. 대화에서 보유 종목이나 투자 기간을 말하면 여기에 남고, 답변 아래에 한 번 알려 드립니다.', 'ai-session-meta'));
+        return;
+      }
+      const list = el(doc, 'ul', null, 'ai-profile-notes-list');
+      for (const note of notes) {
+        const item = el(doc, 'li', null, 'ai-session-item');
+        const remove = el(doc, 'button', '삭제', 'ai-session-delete'); remove.type = 'button';
+        remove.setAttribute('aria-label', `'${note.text}' 지우기`);
+        remove.addEventListener('click', () => { removeNote(storage, note.text); paint(); });
+        item.append(el(doc, 'span', `${note.text} (${kstDate(note.at).slice(5).replace('-', '/')})`, 'ai-session-meta ai-profile-note'), remove);
+        list.append(item);
+      }
+      const wipe = el(doc, 'button', '모두 지우기', 'ai-session-delete'); wipe.type = 'button';
+      wipe.addEventListener('click', () => {
+        if (wipe.dataset.confirm !== '1') { wipe.dataset.confirm = '1'; wipe.textContent = '한 번 더 누르면 모두 지웁니다'; return; }
+        clearNotes(storage); paint();
+      });
+      body.replaceChildren(list, wipe);
+    };
+    paint();
+    set.append(body);
+    return set;
+  }
+
   function close({ focusButton = true } = {}) {
     sheet.hidden = true;
     button.setAttribute('aria-expanded', 'false');
@@ -160,7 +199,7 @@ export function installAIProfile(root = globalThis, doc = root.document, { stora
     text.type = 'text'; text.name = 'interests'; text.maxLength = MAX_INTERESTS_CHARS; text.value = profile.interests || '';
     text.autocomplete = 'off';
     interests.append(text);
-    form.append(interests, learningSection());
+    form.append(interests, learningSection(), notesSection());
     const status = el(doc, 'p', isProfileSet(profile) ? `지금: ${profileSummary(profile) || '설정됨'}${learningEnabled(storage) ? ', 비어 있는 칸은 사용 기록으로' : ''}`
       : learningEnabled(storage) ? '지금: 직접 고른 설정 없음, 사용 기록 요약으로 맞춤' : '지금: 미설정 (성향을 가정하지 않고 답합니다)', 'ai-session-meta ai-profile-status');
     status.setAttribute('role', 'status');

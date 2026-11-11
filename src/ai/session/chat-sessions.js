@@ -18,7 +18,8 @@ export function consentState(storage) {
 }
 export function setConsent(storage, granted) {
   safe(() => storage.setItem(CONSENT_KEY, granted ? '1' : '0'));
-  if (!granted) { safe(() => storage.removeItem(SESSIONS_KEY)); safe(() => storage.removeItem(ACTIVE_KEY)); safe(() => storage.removeItem('aio_chat_history')); }
+  // Declining also removes what the reader told the assistant (reader-notes.js NOTES_KEY).
+  if (!granted) for (const key of [SESSIONS_KEY, ACTIVE_KEY, 'aio_chat_history', 'aio_reader_notes_v1']) safe(() => storage.removeItem(key));
 }
 
 const normaliseTurn = (t) => ({ ...t, ctx: String(t.ctx ?? ''), q: String(t.q ?? ''), a: String(t.a ?? ''), at: t.at });
