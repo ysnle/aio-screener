@@ -15,7 +15,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 | 작업 | 읽을 파일 |
 |------|----------|
-| **index.html 수정** | `_context/CODE-MAP.md` → 해당 line 범위만 Read |
+| **index.html 수정** | `_context/CODE-MAP.md`의 앵커(심볼·id와 찾는 `grep`) → 그 명령이 가리키는 구간만 Read |
 | **모든 작업** | `_context/CURRENT-STATE.md` 한 번 확인; governance/index는 관련 상세나 위치 탐색이 필요할 때 |
 | **작업 이어받기(핸드오프)** | SessionStart 훅이 출력하는 최신 `_artifacts/**/HANDOFF*.md`·`*RESPONSE*.md` — 마지막 작업·열린 항목·다음 행동·반복 금지. 핸드오프는 맥락이지 증거가 아니다: 지금 HEAD에서 다시 확인하고, 열린 항목마다 이어가기·다시 설계·닫기를 근거와 함께 정한 뒤 손댄다 |
 | **버그 수정** | `/bug-fix` → 관련 R/P/QA 항목만 검색 → 회귀 게이트 |
