@@ -16,7 +16,8 @@ export function portfolioSectorLabel(name) {
 import { buildAttribution } from './attribution.js';
 import { rrgRecentReading } from '../themes/recent-check.js';
 import { koreaRecordText, KR_SHOCK_TAIL_PCT } from '../briefing/market-read.js';
-import { signedText, readNumber as finite } from '../shared/number.js';
+import { directionOf, signedText, readNumber as finite } from '../shared/number.js';
+import { withAndParticle } from '../content/korean-particle.js';
 import { hasLeadingIsoDay } from '../shared/session-date.js';
 import { bufferedTrend } from '../technical/bands.js';
 
@@ -162,10 +163,12 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   const relativeBasisNote = attribution.available && attribution.coveredPct != null && attribution.coveredPct < 100 ? ` (수익률·비교 지수가 확인된 보유액 ${attribution.coveredPct.toFixed(0)}% 기준)` : '';
   if (attribution.available) {
     const gap = attribution.excessPct;
+    // The word follows the printed gap: a gap that prints as 0.0%p is neither ahead nor behind.
+    const direction = directionOf(gap, 1);
     const parts = attribution.excess.filter((part) => Math.abs(part.pct) >= 0.05).map((part) => `${part.label} ${signed(part.pct, 1, '%p')}`).join(', ');
     const lead = attribution.topStock[0];
-    points.push({ id: 'relative', tone: gap >= 0 ? 'favorable' : 'burden', title: '지수 대비',
-      text: `지금 구성의 3개월 수익률 ${signed(book3)}(환율 포함, 현금은 수익률 0%로 계산) vs ${attribution.blendedLabel} ${signed(bench3)}${relativeBasisNote} — ${Math.abs(gap).toFixed(1)}%p ${gap >= 0 ? '앞섭니다' : '뒤처집니다'}. 차이의 구성: ${parts || '모두 0.1%p 미만'}${lead && Math.abs(lead.stockPct) >= 0.1 ? `(종목 선택에서 가장 큰 기여는 ${lead.symbol} ${signed(lead.stockPct, 1, '%p')})` : ''}. 실제 매매 시점과 다를 수 있는 현재 구성 기준 값입니다.` });
+    points.push({ id: 'relative', tone: direction == null ? 'neutral' : direction === 'up' ? 'favorable' : 'burden', title: '지수 대비',
+      text: `지금 구성의 3개월 수익률 ${signed(book3)}(환율 포함, 현금은 수익률 0%로 계산) vs ${attribution.blendedLabel} ${signed(bench3)}${relativeBasisNote} — ${direction == null ? '지수와 비슷합니다' : `${Math.abs(gap).toFixed(1)}%p ${direction === 'up' ? '앞섭니다' : '뒤처집니다'}`}. 차이의 구성: ${parts || '모두 0.1%p 미만'}${lead && Math.abs(lead.stockPct) >= 0.1 ? `(종목 선택에서 가장 큰 기여는 ${lead.symbol} ${signed(lead.stockPct, 1, '%p')})` : ''}. 실제 매매 시점과 다를 수 있는 현재 구성 기준 값입니다.` });
   }
   // v57.81 (analysis audit 2026-10-15): the tally is the six US axes, so it is named as the US state, and its sentence
   // follows the overall label (부담 우세 at burden 3 · favourable 1 read "극단적이지 않아"). A book whose Korean part is at
@@ -211,8 +214,10 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     : !(upPct > 0) && !(downPct > 0)
       ? `${lead} ${[nearPct > 0 ? `${share(nearPct)}는 아직 방향이 뚜렷하지 않` : null, otherPct > 0 ? `${share(otherPct)}는 큰 흐름 속 조정이나 반등 중이` : null].filter(Boolean).join('고, ')}고, 오르거나 내리는 흐름인 종목은 없습니다.`
       : `${lead} ${upPct > 0 ? `${share(upPct)}는 오르는 흐름에 있고` : '오르는 흐름에 있는 종목은 없고'}, ${downPct > 0 ? `${share(downPct)}는 내리는 흐름입니다` : '내리는 흐름인 종목은 없습니다'}.${restLine}`;
+  const headlineDirection = book3 != null && bench3 != null ? directionOf(book3 - bench3, 1) : null;
+  const headlineIndex = attribution.available ? attribution.blendedLabel.replace(/\([^)]*\)/g, '') : '';
   const headline = [trendLine,
-    book3 != null && bench3 != null ? `지금 구성을 3개월 전부터 들고 있었다면 ${attribution.blendedLabel.replace(/\([^)]*\)/g, '')}보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${book3 >= bench3 ? '앞섰습니다' : '뒤처졌습니다'}${relativeBasisNote}.` : null,
+    book3 != null && bench3 != null ? `지금 구성을 3개월 전부터 들고 있었다면 ${headlineDirection == null ? `${withAndParticle(headlineIndex.trim())} 비슷했습니다` : `${headlineIndex}보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${headlineDirection === 'up' ? '앞섰습니다' : '뒤처졌습니다'}`}${relativeBasisNote}.` : null,
     regime?.available ? `미국 시장은 '${regime.overall}'입니다.` : null, krLine?.headline || null].filter(Boolean).join(' ');
   const next = [];
   if (weakest[0]) next.push({ action: 'showTicker', arg: weakest[0].symbol, route: 'ticker', label: weakest[0].symbol, why: '하락 추세 중 비중이 가장 큰 종목의 개요·차트' });
