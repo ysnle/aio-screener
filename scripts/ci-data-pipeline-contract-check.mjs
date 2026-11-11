@@ -3099,7 +3099,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   try {
     git('init', '-q');
     mkdirSync(join(dir, 'public-data'));
-    const committed = { fredFetchOk: true, symbolsOk: 90 };
+    const committed = { fredHasKey: true, fredFetchOk: true, symbolsOk: 90 };
     writeData(committed);
     git('add', '-A');
     const commit = git('commit', '-q', '-m', 'seed');
@@ -3113,6 +3113,22 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     writeData({ fredFetchOk: false, fredHasKey: false, fredLkgUsed: true, fredLkgSource: 'x', symbolsOk: 90 });
     run = gate();
     check('v59.94 degradation gate passes an explicit FRED LKG boundary', run.status === 0, `${run.status} ${run.stdout}${run.stderr}`);
+    // v59.97: with the key present, one failed series makes fredFetchOk false and the producer labels the cycle as LKG.
+    // That labelled partial cycle publishes (P1189); a total loss, an unlabelled regression or a label without a source does not.
+    const fredNames = Array.from({ length: 23 }, (_, k) => `series${k}`);
+    const lkgLabel = { fredHasKey: true, fredFetchOk: false, fredLkgUsed: true, fredLkgSource: 'previous-public-data-macro', fredExpectedSeriesCount: 23, symbolsOk: 90 };
+    writeData({ ...lkgLabel, fredFailedSeries: ['cpi'], fredSuccessfulSeries: fredNames.slice(1) });
+    run = gate();
+    check('v59.97 degradation gate passes a key-present partial FRED cycle labelled as LKG and prints the failed/expected counts', run.status === 0 && /"failed":1/.test(run.stdout) && /"expected":23/.test(run.stdout), `${run.status} ${run.stdout}${run.stderr}`);
+    writeData({ ...lkgLabel, fredFailedSeries: fredNames, fredSuccessfulSeries: [] });
+    run = gate();
+    check('v59.97 degradation gate refuses a key-present total FRED loss even when labelled as LKG', run.status === 1, `${run.status} ${run.stdout}${run.stderr}`);
+    writeData({ fredHasKey: true, fredFetchOk: false, fredLkgUsed: false, fredFailedSeries: ['cpi'], fredSuccessfulSeries: fredNames.slice(1), symbolsOk: 90 });
+    run = gate();
+    check('v59.97 degradation gate refuses a key-present FRED regression without an LKG label', run.status === 1, `${run.status} ${run.stdout}${run.stderr}`);
+    writeData({ ...lkgLabel, fredLkgSource: null, fredFailedSeries: ['cpi'], fredSuccessfulSeries: fredNames.slice(1) });
+    run = gate();
+    check('v59.97 degradation gate refuses an LKG label that names no source', run.status === 1, `${run.status} ${run.stdout}${run.stderr}`);
     writeData({ fredFetchOk: true, symbolsOk: 95 });
     run = gate();
     check('v59.94 degradation gate passes a healthy refresh with baseline HEAD', run.status === 0 && /"baseline":"HEAD"/.test(run.stdout), `${run.status} ${run.stdout}${run.stderr}`);
