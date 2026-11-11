@@ -1111,6 +1111,43 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
       && pub.extractAnswerFallback('코스피는 2,650에서 마감했습니다. 1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.', true, { evidenceCount: 0, today }) === '1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.');
 }
 
+// v59.99 (plan 044): a current figure that is in the evidence stays in its sentence; one that is not removes it.
+{
+  const pub = await import('../src/ai/response/publication.js');
+  const nowMs = Date.parse('2026-11-12T00:00:00Z');
+  const rows = [
+    { evidenceId: 'ev-nvda-price', metric: 'price', entity: 'NVDA', value: 180.25, unit: 'USD', scale: 'raw', asOf: '2026-11-11', source: 'close-basis', status: 'ok' },
+    { evidenceId: 'ev-nvda-change', metric: 'change.pct', entity: 'NVDA', value: -1.2, unit: 'percent', scale: 'raw', asOf: '2026-11-11', source: 'close-basis', status: 'ok' }
+  ];
+  const publish = (summary, evidence = rows) => pub.buildPublishableAnswerPlan({ summary, sections: [{ title: '근거', body: summary }], claims: { claims: [] } }, evidence, true, { nowMs }).plan;
+  const numbers = typeof pub.supportedNumbersFromEvidence === 'function' ? pub.supportedNumbersFromEvidence(rows, nowMs) : null;
+  const supported = (text) => typeof pub.figuresSupported === 'function' && pub.figuresSupported(text, numbers);
+  check('v59.99 supported numbers: printed forms of an evidence value with its unit and sign',
+    supported('180.25달러') && supported('180.3달러') && supported('180달러') && supported('$180.25') && supported('180.25') && supported('−1.2%') && supported('-1.20%') && supported('1.2%')
+      && !supported('+1.2%') && !supported('180.251달러') && !supported('180.25%') && !supported('195달러'));
+  check('v59.99 supported numbers: an integer under 100 needs a unit that agrees; counts and 조/억/만 are never supported',
+    supported('1%') && !supported('1') && !supported('1배') && !supported('28배') && !supported('180억 달러') && !supported('3건'));
+  check('v59.99 supported numbers: no publishable numeric row means no supported numbers',
+    typeof pub.supportedNumbersFromEvidence === 'function' && pub.supportedNumbersFromEvidence([], nowMs) === null
+      && pub.supportedNumbersFromEvidence([{ ...rows[0], status: 'stale' }], nowMs) === null && pub.supportedNumbersFromEvidence([{ evidenceId: 'doc', status: 'reference', value: null }], nowMs) === null);
+  const kept = ['NVDA는 180.25달러로, 천천히 분할 매수하기 좋은 구간입니다.', '오늘 −1.2% 내렸지만 추세는 유지됩니다.', '180.25달러에서 172달러로 내려오면 비중을 다시 볼 만합니다.', '11월 11일 종가 기준 NVDA는 180.3달러입니다.'];
+  const removed = ['NVDA는 195달러까지 오를 여지가 있습니다.', 'PER은 28배입니다.', 'NVDA는 180.25달러지만 PER은 28배입니다.', '오늘 +1.2% 올랐습니다.', 'NVDA는 3거래일 연속 180.25달러 위입니다.'];
+  for (const t of kept) {
+    const plan = publish(t);
+    check(`v59.99 a current sentence whose figures are in the evidence is kept (summary and section): ${t}`, plan.summary === t && plan.sections[0].body === t);
+  }
+  for (const t of removed) {
+    const plan = publish(t);
+    check(`v59.99 a current sentence with a figure not in the evidence is removed: ${t}`, plan.summary === '' && !plan.sections.length);
+  }
+  const table = publish('| 항목 | 값 |\n|---|---|\n| 주가 | 180.25달러 |\n| PER | 28배 |').summary;
+  check('v59.99 a table cell whose figure is in the evidence keeps it; an unsupported cell reads 확인 필요', /\| 180\.25달러 \|/.test(table) && /\| PER \| 확인 필요 \|/.test(table));
+  check('v59.99 with no evidence rows a supported-looking sentence is removed as before',
+    publish(kept[0], []).summary === '' && publish(kept[1], []).summary === '');
+  const fallback = pub.extractAnswerFallbackResult(`${kept[0]} ${removed[0]}`, true, { evidenceCount: rows.length, evidenceRows: rows, today: nowMs });
+  check('v59.99 the fallback path applies the same supported-number rule to the rows it is given', fallback.text === kept[0] && fallback.removedNumericSentences === 1);
+}
+
 // v59.99 (plan 041): the answer-quality log keeps counts only, at most 300 entries, and summarises the last 14 days.
 {
   const log = await import('../src/ai/telemetry/answer-quality-log.js');

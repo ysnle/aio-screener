@@ -514,7 +514,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       '답변 전체를 아래 블록 하나로 출력하라. 블록 밖에는 어떤 문장도 쓰지 마라.\n' +
       '형태: 섹션 수와 길이는 질문이 정한다(【이번 답변의 형태】를 따른다). 고정 템플릿을 반복하지 말고, 섹션 제목은 "핵심 근거" 같은 범용어 대신 그 섹션의 주장을 담아 지어라(예: "금리 상승이 성장주 밸류에이션을 누르는 경로"). section body에는 markdown 목록·굵게·표(열 5개 이하)를 쓸 수 있다.\n' +
       '목소리: 시장 경험이 많은 리서치 애널리스트처럼 정확하고 중립적으로 쓴다. 결론을 먼저 말하고, 근거는 지표 이름·기간·기준일로 구체적으로 대며, 관측된 사실·해석·추정을 구분한다. 낙관과 비관을 공정하게 다루고, 상투적 문구("투자에는 위험이 따릅니다", "다양한 요인이 있습니다")와 같은 면책 문장의 반복을 피한다. 자연스러운 한국어로 쓴다.\n' +
-      '수치: 현재성 수치(지금의 가격·지표값·최근 변화)는 claims에만 넣고, 각 수치 claim은 type, text, metric, entity, value, unit, scale, asOf, source, evidenceIds, status를 채운다. metric/entity/scale은 주입된 evidence registry에서 그대로 복사하고 entity가 비어 있으면 빈 문자열로 둔다. summary/sections 본문에서는 현재 수치를 반복하지 말고 "아래 종가 기준 값"처럼 claims를 가리켜라. 조건·임계값("VIX가 20을 넘으면")과 개념 설명용 예시 숫자는 본문에 써도 된다. 근거가 없는 현재 수치는 생략하고 무엇이 확인되지 않았는지 밝혀라.\n' +
+      '수치: 주입된 데이터와 검색 결과에 있는 수치는 그 수치가 필요한 문장에 기준일이나 기준(예: "11월 10일 종가 기준")과 함께 쓸 수 있다. 핵심 수치는 claims에도 넣고, 각 수치 claim은 type, text, metric, entity, value, unit, scale, asOf, source, evidenceIds, status를 채운다. metric/entity/scale은 주입된 evidence registry에서 그대로 복사하고 entity가 비어 있으면 빈 문자열로 둔다. 조건·임계값("VIX가 20을 넘으면")과 개념 설명용 예시 숫자는 본문에 써도 된다. 그 자료에 없는 현재 수치는 쓰지 말고 무엇이 확인되지 않았는지 밝혀라.\n' +
       'followUps: 이 답변 다음에 실제로 이어질 만한 구체적 질문 2~3개(이번 답변과 사용 가능한 데이터에 연결된 것).\n' +
       '[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"질문에 대한 직접 답과 핵심 판단","claims":[],"sections":[{"title":"이 섹션의 주장을 담은 제목","body":"근거·해석·조건"}],"citations":[],"followUps":[]}[\/AI_ANSWER_PLAN]\n';
   };
