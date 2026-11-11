@@ -1,0 +1,22 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.97 an issuer with no annual SEC facts yet was never retried after its first 10-K",
+    "symptom": "fetch-sec-fundamentals recorded an issuer without comparable annual facts (a recent listing that had filed only 10-Qs) as TERMINAL_UNSUPPORTED (required-us-gaap/ifrs-annual-concepts-unavailable) and skipped it on every later run unless SEC_RECHECK_UNSUPPORTED was set or the concept set changed, so its fundamentals stayed missing after it filed its first 10-K.",
+    "root_cause": "The inline due filter dropped every terminal row before any filing test; newFiling was computed only for symbols that already had data and evaluated after the terminal filter.",
+    "fix": "The due test moved into the exported pure isSecTargetDue (mechanical extraction, same order). A terminal row of either no-annual-concepts reason becomes due when the issuer's latest periodic filing (daily form index, any periodic form) is dated strictly after the row's attemptedAt date; it goes through the normal 24-hour failure spacing, and a retry that again finds no annual facts stamps a new attemptedAt, so one filing triggers one retry.",
+    "violated_rule": "A terminal state must name the event that ends it; 'unsupported' for a not-yet-annual filer is a waiting state, not a permanent one.",
+    "prevention": "ci-fiscal-quality-fixture v59.97 assertions drive isSecTargetDue with a periodic-filer map parsed from a daily-index fixture: due after a newer 10-K (US-GAAP and IFRS reasons), not due for an older or absent filing, another terminal reason, a retry stamped after the filing, or inside the 24-hour spacing.",
+    "verification": "node scripts/ci-fiscal-quality-fixture.mjs fails on the old source (no exported due test) and passes now; the SEC gates (data-pipeline-contract, sec-ledger-store, sec-runtime-projection, sec-store-previous, screener-extended-contract, data-continuity, professional-data-gap, artifact-size-headroom, esm-core-unit) exit 0.",
+    "files": [
+      "scripts/fetch-sec-fundamentals.mjs",
+      "scripts/ci-fiscal-quality-fixture.mjs"
+    ]
+  },
+  "r": null,
+  "changelog": [
+    "**First annual filing is read ({P}):** an issuer recorded with no annual SEC facts yet (only 10-Qs filed) is read again once it files a periodic report dated after that attempt, so a recent listing's fundamentals fill after its first 10-K instead of staying missing."
+  ],
+  "note": "v59.97: SEC no-annual-facts rows retried after a newer filing"
+}
