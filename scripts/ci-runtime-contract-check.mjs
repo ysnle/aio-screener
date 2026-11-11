@@ -1050,7 +1050,7 @@ check('P838: automatic plaintext API-key IndexedDB backup is retired without reo
 
 // v52.47 (P662/WO-1B): Anthropic proxy auth/cost-boundary hardening — client side sends the shared
 // app token when routed through the Worker; the Worker's own behavior is verified separately by
-// scripts/ci-worker-anthropic-check.mjs (a real handler-invocation test, not just a static contract).
+// scripts/ci-worker-openai-contract-check.mjs (a real handler-invocation test, not just a static contract).
 check('WO-1B: _aioAppToken() helper exists and is exposed for cross-file reuse', /function _aioAppToken\(\)/.test(chat) && /window\._aioAppToken = _aioAppToken/.test(chat));
 check('P1421: shared-only chat always sends the app token and never a provider key', /'X-AIO-App-Token': _aioAppToken\(\)/.test(chat) && /_claudeHeaders\[_aiContract\.headers\.appToken\] = _aioAppToken\(\)/.test(chat) && !chat.includes('anthropic-dangerous-direct-browser-access'));
 check('WO-1B → v59.70 D6: aio-data.js sends no AI request of its own (browser translation deleted); the retired briefing call site stays absent', !/'X-AIO-App-Token':/.test(data) && !/function\s+_generateAIBriefing\b/.test(data));
