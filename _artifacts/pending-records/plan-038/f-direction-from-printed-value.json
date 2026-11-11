@@ -1,0 +1,17 @@
+{
+  "version": "v59.98",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.98 Three more surfaces take their up/down colour from the printed value",
+    "symptom": "A return printed 0.0% (or 0.00%) still showed a rising or falling colour: the screener table's return columns coloured 0.0% red as rising, the 포트폴리오 backtest annual table coloured 0.00% as rising, and a Korean theme bar of -0.04% (printed 0.0%) was drawn left of the zero line.",
+    "root_cause": "screener/model.js returnColor (value >= 0), themes/sectors.js bar anchor (theme.ret1m >= 0) and portfolio-backtest-lab.js tone (v < 0) read the raw sign instead of the printed one.",
+    "fix": "returnColor(value, digits = 1) and the backtest annual tone use directionOf at the digits each prints (1 for returnText, 2 for fmtPct); the theme bar anchors left of zero only when directionOf says down. A flat value has no up/down colour.",
+    "violated_rule": "Direction follows the printed value (plan 025 rule, directionOf/signedText).",
+    "prevention": "ci-esm-core-unit-check's printed-direction block adds the three sites (screener return colour, backtest annual return, Korean theme bar via the fake DOM).",
+    "verification": "Each new site failed before its fix (0.0% read up; 0.00% classed is-up; -0.04% bar anchored left) and passes after; design-token, inline-style, shared-primitive, patch-comment and text-pin ratchets pass.",
+    "files": ["src/ui/pages/screener/model.js", "src/ui/pages/themes/sectors.js", "src/ui/components/portfolio-backtest-lab.js", "scripts/ci-esm-core-unit-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**표시 값의 방향 세 곳 더 ({P}):** 스크리너 수익률 열, 포트폴리오 백테스트 연도별 수익률, 한국 테마 1개월 막대가 0.0%로 표시되는 값에는 오름·내림 색이나 왼쪽 막대를 붙이지 않는다."],
+  "note": "v59.98: printed-direction rule at three more sites"
+}

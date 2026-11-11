@@ -575,8 +575,9 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     // Colloquial buy/switch imperatives: "지금 사두세요", "갈아타세요".
     var colloquialHold = /(?<![가-힣])사\s*(?:두세요|놓으세요)|갈아타세요/;
     // Dispose/close imperatives (처분/정리/던지) count only when a position word (보유, 물량, 주식, 포지션, 종목, 비중, 지분) is
-    // their object; tidying up notes or reasons is an ordinary word.
-    var positionImperative = /(?:보유|물량|주식|포지션|종목|비중|지분)\s*(?:을|를)\s*(?:(?:모두|전부|일부|절반|다|즉시|지금|바로|당장)\s*)?(?:처분하|정리하|던지)(?:세요|십시오)/;
+    // their object; tidying up notes or reasons is an ordinary word. With 정리 a bare 종목 is a list being tidied, so it
+    // counts only as 보유 종목.
+    var positionImperative = /(?:(?:보유|물량|주식|포지션|종목|비중|지분)\s*(?:을|를)\s*(?:(?:모두|전부|일부|절반|다|즉시|지금|바로|당장)\s*)?(?:처분하|던지)|(?:보유\s*종목|보유|물량|주식|포지션|비중|지분)\s*(?:을|를)\s*(?:(?:모두|전부|일부|절반|다|즉시|지금|바로|당장)\s*)?정리하)(?:세요|십시오)/;
     // English soft imperative opening a clause: "Consider buying NVDA now."
     var englishSoft = /(?:^|[.!?]\s*|\bplease\s+|\byou\s+\b(?:might|may|could|should)\b\s+)(?:consider|think\s+about)\s+(?:buying|selling|shorting|adding\s+to|trimming)\b/i;
     // A price sentence (손절가/목표가 … + a number) followed by a bare imperative that points back at it (그 가격에서, 거기서).

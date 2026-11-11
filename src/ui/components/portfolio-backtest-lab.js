@@ -62,7 +62,8 @@ export function renderPortfolioBacktestLab(model, { documentRef = globalThis.doc
     return;
   }
   const p = model.performance || {};
-  const tone = (v) => (v < 0 ? 'is-down' : 'is-up');
+  // The annual return colour follows the sign fmtPct prints (2 decimals of a percent); 0.00% has no colour.
+  const tone = (v) => ({ up: 'is-up', down: 'is-down' })[directionOf(typeof v === 'number' ? v * 100 : null, 2)] || '';
   const metricRows = [
     ['Start Balance', fmtMoney(p.startBalance), fmtMoney(p.startBalance)],
     ['End Balance', fmtMoney(p.endBalance), fmtMoney(p.benchmarkEndBalance)],

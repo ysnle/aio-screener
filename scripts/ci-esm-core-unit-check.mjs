@@ -5105,6 +5105,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const excludedMisses = excluded.filter(([text, keyword, expected]) => keywordHit(text, keyword) !== expected);
   const { classifyNewsTextStance: stanceOf } = await load('src/domain/news/scoring.js');
   if (excludedMisses.length || stanceOf('연말 랠리 분위기, 코스피 강세') === 'warn') fail(`v59.97 a Korean keyword does not hit inside a listed longer word ('위기' in '분위기'): ${JSON.stringify(excludedMisses)} / stance ${stanceOf('연말 랠리 분위기, 코스피 강세')}`);
+  const moreExcluded = [['부도덕한 경영 논란', '부도', false], ['건설사 부도 우려', '부도', true], ['상향식 예산 편성', '상향', false], ['목표가 상향', '상향', true], ['하향식 접근', '하향', false], ['전망 하향', '하향', true]];
+  const moreMisses = moreExcluded.filter(([text, keyword, expected]) => keywordHit(text, keyword) !== expected);
+  if (moreMisses.length) fail(`v59.98 '부도' in '부도덕', '상향' in '상향식' and '하향' in '하향식' are not stance hits: ${JSON.stringify(moreMisses)}`);
   const { installTelegramCollector } = await load('src/data/providers/telegram-direct.js');
   const tg = {};
   installTelegramCollector(tg);
@@ -7672,20 +7675,44 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     const fill = line.children[1].children[0];
     return { text: line.children[2].textContent, up: fill.classList.contains('is-up'), down: fill.classList.contains('is-down'), width: fill.style.width };
   };
+  const { returnColor, returnText } = await load('src/ui/pages/screener/model.js');
+  const screenerReturn = (value) => ({ text: returnText(value), up: returnColor(value) === 'var(--dir-up)', down: returnColor(value) === 'var(--dir-down)' });
+  const labAnnual = (pct) => {
+    const out = {};
+    renderPortfolioBacktestLab({ ok: true, performance: {}, annualRows: [{ year: 2025, return: pct / 100, balance: 1, benchmarkReturn: null, benchmarkBalance: 1 }], settings: {}, warnings: [] }, { root: {}, documentRef: { getElementById: () => out } });
+    const [, cls = '', text = ''] = String(out.innerHTML).match(/<td class="wsl-bt-c is-fig">2025<\/td><td class="wsl-bt-c is-fig is-r ?([\w-]*)">([^<]*)</) || [];
+    return { text, up: cls === 'is-up', down: cls === 'is-down', cls };
+  };
+  const { renderKrThemeArtifact } = await load('src/ui/pages/themes/sectors.js');
+  const krThemeBar = (ret1m) => {
+    const doc = createFakeDocument();
+    const codes = ['000001', '000002', '000003'];
+    const rows = codes.map((code) => ({ sym: `${code}.KS`, ret1m, ret3m: 1, factorSessionDate: '2026-11-10' }));
+    renderKrThemeArtifact({ documentRef: doc, root: { KR_THEME_MAP: { semis: codes.map((code) => ({ code })) } }, store: { getState: () => ({ screener: { rows } }) } });
+    const findBar = (node) => node?.classList?.contains('thp-strength-bar') ? node : (node?.children || []).map(findBar).find(Boolean) || null;
+    const findValue = (node) => node?.classList?.contains('stock-read-bar-value') ? node : (node?.children || []).map(findValue).find(Boolean) || null;
+    const host = doc.getElementById('kr-themes-artifact-read');
+    const bar = findBar(host);
+    // A bar drawn left of the zero line reads as a fall as much as the falling class does.
+    return { text: findValue(host)?.textContent || '', up: !!bar?.classList.contains('is-up'), down: !!bar?.classList.contains('is-down') || /^calc/.test(bar?.style?.left || '') };
+  };
   const sites = [
     ['screener inspector 1-month move', inspectorMove, 1, 1, (t) => t.replace(/^1개월 /, '')],
     ['portfolio backtest active return', labActive, 2, 1, (t) => t.split(' / ')[0]],
-    ['screener validation IC bar', icBar, 3, 0.1, (t) => t]
+    ['screener validation IC bar', icBar, 3, 0.1, (t) => t],
+    ['screener table return colour', screenerReturn, 1, 1, (t) => t, 'v59.98'],
+    ['portfolio backtest annual return', labAnnual, 2, 1, (t) => t, 'v59.98'],
+    ['Korean theme 1-month bar', krThemeBar, 1, 1, (t) => t.replace(/^1개월 /, '').split(',')[0], 'v59.98']
   ];
-  for (const [label, read, digits, scale, printed] of sites) {
+  for (const [label, read, digits, scale, printed, release = 'v59.97'] of sites) {
     const { flat, up, down } = probes(digits);
     for (const value of flat) {
       const got = read(value);
-      if (got.up || got.down || /^[+-]/.test(printed(got.text)) || (got.width && got.width !== '0%')) fail(`v59.97 the ${label} prints a value that rounds to zero flat, with no sign or up/down class (${value}): ${JSON.stringify(got)}`);
+      if (got.up || got.down || /^[+-]/.test(printed(got.text)) || (got.width && got.width !== '0%')) fail(`${release} the ${label} prints a value that rounds to zero flat, with no sign or up/down class (${value}): ${JSON.stringify(got)}`);
     }
     const rising = read(up * scale), falling = read(down * scale);
-    if (!rising.up || rising.down || /^-/.test(printed(rising.text))) fail(`v59.97 a rising ${label} keeps its rising class: ${JSON.stringify(rising)}`);
-    if (!falling.down || falling.up || !/^-/.test(printed(falling.text))) fail(`v59.97 a falling ${label} keeps its minus sign and falling class: ${JSON.stringify(falling)}`);
+    if (!rising.up || rising.down || /^-/.test(printed(rising.text))) fail(`${release} a rising ${label} keeps its rising class: ${JSON.stringify(rising)}`);
+    if (!falling.down || falling.up || !/^-/.test(printed(falling.text))) fail(`${release} a falling ${label} keeps its minus sign and falling class: ${JSON.stringify(falling)}`);
   }
 }
 // A market sentence reads the series it prints and the bands the other screens share.
@@ -7713,6 +7740,21 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (fredMoved.kind !== 'flat' || !/큰 변화가 없습니다/.test(fredMoved.read) || !/큰 변화가 없습니다/.test(fredMoved.mean)) fail(`v59.97 a +8bp printed 10-year reads flat even when FRED moved +11bp: ${JSON.stringify(fredMoved)}`);
   const realUp = ratesCase(12, 12, 9, 3);
   if (realUp.kind !== 'real-up' || !/실질금리 상승/.test(realUp.read) || !/상승이 실질금리에서/.test(realUp.mean)) fail(`v59.97 both +12bp with a real-yield share of 0.75 keep the real-up reading: ${JSON.stringify(realUp)}`);
+  // With the 10-year two sessions behind the S&P 500 close, the story and the rates axis quote one 5-session change.
+  {
+    const { buildMarketRegime } = await load('src/domain/briefing/market-read.js');
+    const lagged = days.map((date, i) => ({ date, spx: 6000 + i * 5, ndx: 20000 + i * 20, rsp: 180 + i * 0.1, ...(i > last - 2 ? {} : { tnx: +(4.2 + i * 0.03).toFixed(4) }) }));
+    const obs = (base) => days.map((date, i) => [date, +(base + i * 0.01).toFixed(4)]);
+    const macroHistory = { series: { dgs10: { observations: obs(4.2) }, realYield10: { observations: obs(1.9) }, breakeven10: { observations: obs(2.3) } } };
+    const nowMs = Date.parse(`${days[last]}T23:00:00Z`);
+    const regime = buildMarketRegime({ history: lagged, macroHistory, now: nowMs });
+    const tenRow = (regime.axes || []).find((axis) => axis.id === 'rates')?.evidence?.find(([label]) => label === '미 10년물')?.[1] || '';
+    const axis5 = Number((tenRow.match(/5거래일 ([+-]?\d+)bp/) || [])[1]);
+    const story = buildMarketStory({ history: lagged, macroHistory, nowMs });
+    const storyValue = story.checks?.find((row) => row.id === 'rates')?.value || '';
+    const story5 = Number((storyValue.match(/\(([+-]?\d+)bp\)/) || [])[1]);
+    if (!Number.isFinite(axis5) || axis5 !== story5 || story.rates?.ten?.toDate !== days[last - 2]) fail(`v59.98 a 10-year two sessions behind: the 시장 상태 story quotes the rates axis's 5-session change (axis ${tenRow} | story ${storyValue}, through ${story.rates?.ten?.toDate})`);
+  }
 
   // The breadth pair states the edge it flips on, and extreme fear is the gauge's own band.
   const { crossReadings } = await load('src/domain/market/regime/cross-readings.js');

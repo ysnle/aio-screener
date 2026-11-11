@@ -297,6 +297,14 @@ check('v59.97 a headline with a single Hangul syllable is rebuilt from the figur
   check('v59.97 an English FOMC headline with checked numbers is replaced by the dated Korean line', () => eq(english, '10/28 FOMC 결정'));
   check('v59.97 an FOMC headline with one Hangul syllable is replaced by the dated Korean line', () => eq(oneSyllable, '10/28 FOMC 결정'));
   check('v59.97 a Korean FOMC headline is kept', () => eq(korean, '연준, 기준금리 인하'));
+  // A brief stored before that gate kept its English headline; the repair pass gives it the dated line without the AI.
+  const storedWith = (headline) => ({ ...first, briefs: first.briefs.map((brief) => (brief.id === 'fomc-2026-10-28' ? { ...brief, headline } : brief)) });
+  const noAi = { ...sources, ai: async () => { throw new Error('the repair pass called the AI'); } };
+  const repairedHeadline = async (headline) => (await buildEventBriefs({ ...base, sources: noAi, previous: storedWith(headline), nowMs: nowMs + 3600000 })).briefs.find((brief) => brief.id === 'fomc-2026-10-28')?.headline;
+  const repairedEnglish = await repairedHeadline('Fed lowers the target range to 3-1/2 to 3-3/4 percent');
+  const keptKorean = await repairedHeadline('연준, 기준금리 인하');
+  check('v59.98 a stored FOMC brief with an English headline is repaired to the dated Korean line', () => eq(repairedEnglish, '10/28 FOMC 결정'));
+  check('v59.98 a stored Korean FOMC headline is unchanged by the repair pass', () => eq(keptKorean, '연준, 기준금리 인하'));
 }
 check('v59.44 the story names join as tier-2 movers with their Korean names', () => {
   const index = { profiles: [{ symbol: 'INTC', name: 'Intel Corporation' }, { symbol: 'MSFT', name: 'Microsoft' }, { symbol: '005930.KS', name: '삼성전자' }, { symbol: 'CRDO', name: 'Credo Technology Group Holding Ltd' }] };

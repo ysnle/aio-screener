@@ -5,7 +5,7 @@
 // registry functions the ticker screen uses (normalizeTickerInput, resolveRegisteredName). An
 // all-caps symbol the registries do not know stays an entity but carries verified:false.
 import { normalizeTickerInput } from '../../domain/instruments/ticker-symbol.js';
-import { resolveRegisteredName } from '../../domain/instruments/resolve-name.js';
+import { resolveRegisteredName, typedNameMatches } from '../../domain/instruments/resolve-name.js';
 // The nickname table and the non-ticker words are shared with the chat ticker resolver.
 import { COMPANY_NICKNAMES } from '../../domain/instruments/nicknames.js';
 import { NON_TICKER_ACRONYMS, isNonTickerWord } from '../../domain/instruments/question-words.js';
@@ -59,6 +59,16 @@ function englishPhraseMatches(lower, name) {
   return new RegExp(`(^|[^a-z0-9])${escape(name)}(?=$|[^a-z0-9])`).test(lower);
 }
 
+// A company name as a whole word of the question, compared with the shared registry rule: a word typed in capitals
+// like a ticker ('FORD', 'BLOCK') names a company only when it is the registry's exact spelling ('TSMC', 'NAVER').
+function englishNameMatches(source, name) {
+  const pattern = new RegExp(`(^|[^a-z0-9])(${escape(name)})(?=$|[^a-z0-9])`, 'gi');
+  for (const match of source.matchAll(pattern)) {
+    if (typedNameMatches(match[2], name)) return true;
+  }
+  return false;
+}
+
 export function resolveEntities(query, { root = globalThis, route = null } = {}) {
   const source = text(query);
   const lower = source.toLowerCase();
@@ -105,7 +115,7 @@ export function resolveEntities(query, { root = globalThis, route = null } = {})
     const hit = HANGUL.test(value)
       ? tokens.some((token) => koreanTokenMatches(token, value))
       // A name spelled like its own symbol ('aapl', 'coin', 'meta') is handled as a symbol in step 1.
-      : value.length >= 3 && value.toLowerCase() !== String(symbol).toLowerCase() && !COMMON_WORDS.has(value.toLowerCase()) && englishPhraseMatches(lower, value.toLowerCase());
+      : value.length >= 3 && value.toLowerCase() !== String(symbol).toLowerCase() && !COMMON_WORDS.has(value.toLowerCase()) && englishNameMatches(source, value);
     if (hit) nameMatches.push([value, symbol]);
   };
   if (entries) {

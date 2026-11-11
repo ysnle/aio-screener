@@ -3,16 +3,27 @@
 // to input that is not ticker-shaped, so GOOG / HR / SQ are never rewritten to a different issuer.
 // An all-capital ticker-shaped input is read as a ticker: it matches a display name only when it equals the registry's
 // spelling exactly, so FORD (another issuer's ticker) never opens Ford, while TSMC and NAVER still resolve.
+// The AI entity resolver applies the same rule to words in a question (typedNameMatches).
 export function resolveRegisteredName(raw, entries = {}) {
   const text = String(raw || '').trim();
   if (!text) return null;
   if (entries[text.toUpperCase()]) return text.toUpperCase();
   const tickerShaped = /^[a-z0-9.^=-]{1,5}$/i.test(text);
-  const typedAsTicker = tickerShaped && /[A-Z]/.test(text) && text === text.toUpperCase();
-  const lower = text.toLowerCase();
-  const matches = (name) => (typedAsTicker ? String(name) === text : String(name).toLowerCase() === lower);
+  const matches = (name) => typedNameMatches(text, name);
   return Object.keys(entries).find((symbol) => [entries[symbol].en, entries[symbol].kr, ...(tickerShaped ? [] : entries[symbol].alt || [])]
     .some((name) => name && matches(name))) || null;
+}
+
+/** An all-capital, ticker-shaped word (at least one letter): read as a ticker before any name. */
+export function typedAsTicker(word) {
+  const text = String(word || '');
+  return /^[A-Z0-9.^=-]{1,5}$/.test(text) && /[A-Z]/.test(text);
+}
+
+/** Whether a typed word names a display name: case-insensitive, except a word typed as a ticker must match exactly. */
+export function typedNameMatches(typed, name) {
+  const text = String(typed || '');
+  return typedAsTicker(text) ? String(name) === text : String(name).toLowerCase() === text.toLowerCase();
 }
 
 // v57.54 review: a search with no exact match ("삼성") showed a one-second toast and left the previous stock on screen.

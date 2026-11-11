@@ -6,6 +6,7 @@ import { MARKET_WINDOWS, closeChange } from '../market/session/market-windows.js
 import { RULES } from '../rules/thresholds.js';
 import { formatKstWhen, releaseAtMs } from '../briefing/schedule.js';
 import { dayLabel } from '../market/story/market-story.js';
+import { vixBandRow } from '../market/sentiment/narrative.js';
 
 const signed = (value, digits = 2, unit = '%') => signedText(value, digits, unit);
 const historySpan = (history, field) => { const change = closeChange(history, field, MARKET_WINDOWS.rule); return change ? { from: change.from.value, to: change.to.value, pct: change.pct } : null; };
@@ -49,7 +50,8 @@ export function volatilityChapter(history = [], events = []) {
   const vix20 = span('vix'); const vvix20 = span('vvix'); const move20 = span('move');
   // the shared VIX band names — '18~25 주의 구간' here read 통상 범위
   // [안정] in the AI header for the same VIX 21.
-  const band = vix.value >= V.highAt ? `${V.highAt} 이상 고변동 구간` : vix.value >= V.stressAt ? `${V.stressAt}~${V.highAt} 변동성 경계 구간` : vix.value >= V.calmBelow ? `${V.calmBelow}~${V.stressAt} 통상 범위` : `${V.calmBelow} 아래 저변동 구간`;
+  const row = vixBandRow(vix.value);
+  const band = `${row.to == null ? `${row.from} 이상` : row.from == null ? `${row.to} 아래` : `${row.from}~${row.to}`} ${row.label}`;
   const parts = [];
   // 1. Equity volatility and its term structure (the 시장 상태 lines).
   const term = ratio == null ? '' : ratio >= V.invertedRatioAt ? `이고, 3개월 VIX보다 높아 기간 구조가 역전됐습니다(${ratio.toFixed(2)})`

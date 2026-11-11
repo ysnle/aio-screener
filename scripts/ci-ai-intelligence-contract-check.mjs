@@ -728,6 +728,13 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     '매수하는 것이 좋은지 판단하려면 거래량을 함께 봅니다.', 'NVDA를 매수하는 것을 추천하지 않습니다.', '지수 편입 비중을 30%로 늘렸습니다.', '연기금은 자산의 30%를 해외 주식에 배분했습니다.', '근거를 정리하세요.', '관심 질문을 스스로에게 던지세요.', '손절가는 1,050달러입니다. 그 가격에서 거래량이 늘었습니다.', '목표가는 1,200달러입니다. 그 수준이 맞는지 확인하세요.', '요약\n시장은 금리 방향을 보고 있습니다.', '손절은 이 수준에서 판단이 갈립니다.', 'Some funds consider buying after a drawdown.'];
   detail('v59.97 directive gate: analysis close to the new instruction spellings stays unchanged',
     spellingKept.every((text) => gate(text).text === text), JSON.stringify(spellingKept.filter((text) => gate(text).text !== text).map(gate)));
+  // A bare 종목 with 정리하 is tidying a list; 보유 종목, or 처분/던지, is a position instruction.
+  const tidyKept = ['관심 종목을 정리하세요.', '오늘 본 종목을 정리하세요.'];
+  const tidyReplaced = ['보유 종목을 정리하세요.', '종목을 모두 처분하세요.', '주식을 정리하세요.'];
+  detail('v59.98 directive gate: tidying a watchlist of 종목 stays unchanged',
+    tidyKept.every((text) => gate(text).text === text), JSON.stringify(tidyKept.filter((text) => gate(text).text !== text).map(gate)));
+  detail('v59.98 directive gate: a held-position dispose instruction is still replaced',
+    tidyReplaced.every((text) => /개별 매매 지시는 제공하지 않습니다/.test(gate(text).text)), JSON.stringify(tidyReplaced.map(gate)));
 
   // #4: the base-currency what-if module (src/ai/context/portfolio-simulation.js) lost its only consumer in v57.62 and was removed in v58.51;
   // the old chat simulator must stay retired.

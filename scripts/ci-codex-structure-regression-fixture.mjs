@@ -55,6 +55,21 @@ for (const query of ['0059300 분석', '005930.KSXYZ 분석', '20261012 시장 �
 assert.ok(resolveEntities('999999 분석', { root: resolverRoot }).entities.every((entity) => entity.verified === false), 'E01: an unlisted code is never verified');
 assert.ok(resolveEntities('005930 분석', { root: resolverRoot }).entities.length > 0, 'E01: a listed code still resolves');
 
+// An all-capital ticker-shaped word matches an English company name only when it is the registry's exact spelling.
+const nameRoot = { AIO_TICKER_NAME_REGISTRY: { entries: {
+  F: { en: 'Ford', kr: '포드', alt: ['ford'] },
+  TSM: { en: 'TSMC', kr: 'TSMC', alt: ['tsmc', 'tsm', '대만반도체'] },
+  XYZ: { en: 'Block', kr: '블록', alt: ['block', 'xyz', 'square', 'sq'] },
+  '035420.KS': { en: 'NAVER', kr: '네이버', alt: ['naver', '035420'] }
+} } };
+const entitySymbols = (query) => resolveEntities(query, { root: nameRoot }).entities.map((entity) => entity.symbol);
+assert.ok(!entitySymbols('FORD 어때').includes('F'), `v59.98: FORD is a ticker, not Ford (${entitySymbols('FORD 어때')})`);
+assert.ok(entitySymbols('Ford 어때').includes('F'), `v59.98: Ford still names Ford (${entitySymbols('Ford 어때')})`);
+assert.ok(entitySymbols('ford 어때').includes('F'), `v59.98: lower-case ford still names Ford (${entitySymbols('ford 어때')})`);
+assert.ok(entitySymbols('TSMC 어때').includes('TSM'), `v59.98: TSMC is the registry spelling (${entitySymbols('TSMC 어때')})`);
+assert.ok(entitySymbols('NAVER 실적').includes('035420.KS'), `v59.98: NAVER is the registry spelling (${entitySymbols('NAVER 실적')})`);
+assert.ok(!entitySymbols('BLOCK 전망').includes('XYZ'), `v59.98: BLOCK is not Block (${entitySymbols('BLOCK 전망')})`);
+
 // E03: the rotation share is measured on US holdings only.
 const pf = buildPortfolioRead({ surface: { currencyState: 'converted', rows: [{ symbol: 'AAPL', value: 10 }, { symbol: '005930.KS', value: 90 }] }, rows: ['AAPL', '005930.KS'].map((sym) => ({ sym, sector: 'Technology', pctSma50: 1, pctSma200: 2 })), rotation: { XLK: { quadrant: 'Leading' } } });
 assert.match(JSON.stringify(pf.points.find((x) => x.id === 'rotation') || {}), /미국 보유분/, 'E03: rotation names the US-holdings basis');
