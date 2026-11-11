@@ -52,6 +52,52 @@ const principlesLessons = catalogCount('lessons');
 const principlesPaths = catalogCount('paths');
 const principlesEdges = catalogCount('edges');
 
+// v59.97: the 13F artifacts are rewritten every quarter when managers file, so the gate checks that each published
+// count agrees with the rows it describes instead of pinning one quarter's numbers (an extra holdings row used to fail
+// every data release).
+const uniqueCount = (rows, pick) => new Set((rows || []).map(pick).filter(Boolean)).size;
+function mastersCountConsistency({ holdings, securityMaster, historyIndex, historyRows }) {
+  const allHoldings = holdings.allHoldings || [];
+  const comparisons = holdings.comparisons || [];
+  const historyPeriodKeys = new Set((historyRows.rows || []).map((row) => `${row.managerId}|${row.reportPeriod}`));
+  return [
+    { check: 'v59.97 masters full holdings rows are present and match their embedded count', pass: allHoldings.length > 0 && holdings.embeddedFullRowsAvailable === allHoldings.length },
+    { check: 'v59.97 masters full comparison rows are present and match their embedded count', pass: comparisons.length > 0 && holdings.embeddedFullComparisonRowsAvailable === comparisons.length },
+    { check: 'v59.97 masters security master is connected fail-closed and its unique CUSIP/issuer counts match the holdings rows', pass: securityMaster.status === 'REFERENCE_NORMALIZATION_PENDING'
+      && securityMaster.coverage?.rawUniqueCusips > 0 && securityMaster.coverage.rawUniqueCusips === uniqueCount(allHoldings, (row) => row.cusipNormalized || row.cusip)
+      && securityMaster.coverage?.rawUniqueIssuerNames > 0 && securityMaster.coverage.rawUniqueIssuerNames === uniqueCount(allHoldings, (row) => row.issuer)
+      && securityMaster.coverage?.mappedRows === 0 && securityMaster.records?.length === 0 },
+    { check: 'v59.97 masters filing history covers connected managers x depth target and imported periods match the stored rows', pass: historyIndex.status === 'FILING_HISTORY_ROWS_CONNECTED'
+      && historyIndex.connectedManagers === 7 && historyIndex.historyDepthTarget === 12
+      && historyIndex.totalPeriods === historyIndex.connectedManagers * historyIndex.historyDepthTarget
+      && historyIndex.rowImportedPeriods === historyIndex.totalPeriods && historyIndex.pendingRowImportPeriods === 0
+      && historyRows.status === 'RAW_SEC_HISTORY_CONNECTED'
+      && historyRows.periodsImported > 0 && historyRows.periodsImported <= historyIndex.totalPeriods && historyRows.periodsImported === historyPeriodKeys.size
+      && historyRows.rowsImported > 0 && historyRows.rowsImported === (historyRows.rows || []).length }
+  ];
+}
+
+// v59.97 replay: one extra holdings row with every count that describes it updated passes; the same row with the
+// embedded count left stale fails.
+function mastersCountSelfTest() {
+  const base = {
+    holdings: { allHoldings: [{ cusip: 'A1', cusipNormalized: 'A1', issuer: 'ALPHA' }], comparisons: [{ key: 'c1' }], embeddedFullRowsAvailable: 1, embeddedFullComparisonRowsAvailable: 1 },
+    securityMaster: { status: 'REFERENCE_NORMALIZATION_PENDING', coverage: { rawUniqueCusips: 1, rawUniqueIssuerNames: 1, mappedRows: 0 }, records: [] },
+    historyIndex: { status: 'FILING_HISTORY_ROWS_CONNECTED', connectedManagers: 7, historyDepthTarget: 12, totalPeriods: 84, rowImportedPeriods: 84, pendingRowImportPeriods: 0 },
+    historyRows: { status: 'RAW_SEC_HISTORY_CONNECTED', periodsImported: 1, rowsImported: 1, rows: [{ managerId: 'm', reportPeriod: '2026-09-30' }] }
+  };
+  const extraRow = { cusip: 'B2', cusipNormalized: 'B2', issuer: 'BETA' };
+  const consistent = { ...base,
+    holdings: { ...base.holdings, allHoldings: [...base.holdings.allHoldings, extraRow], embeddedFullRowsAvailable: 2 },
+    securityMaster: { ...base.securityMaster, coverage: { ...base.securityMaster.coverage, rawUniqueCusips: 2, rawUniqueIssuerNames: 2 } } };
+  const stale = { ...consistent, holdings: { ...consistent.holdings, embeddedFullRowsAvailable: 1 } };
+  const allPass = (input) => mastersCountConsistency(input).every((item) => item.pass);
+  return [
+    { check: 'v59.97 replay: an extra 13F holdings row with its counts updated passes', pass: allPass(base) && allPass(consistent) },
+    { check: 'v59.97 replay: an extra 13F holdings row with a stale embedded count fails', pass: !allPass(stale) }
+  ];
+}
+
 const checks = [
   ...sourceDocs.map((file) => ({ check: `source exists: ${file}`, pass: fs.existsSync(path.join(root, file)) })),
   { check: 'atlas taxonomy node count is 95', pass: atlasIndex.taxonomyNodes === 95 },
@@ -81,15 +127,13 @@ const checks = [
   { check: 'knowledge article authoring mode preserves source reference or enforces semantic depth', pass: authoringContracts.principles.failures.length === 0 && authoringContracts.atlas.failures.length === 0 },
   { check: 'principles node guide knowledge base is 60 and individually authored', pass: principlesNodeGuides.status === 'AUTHORED_REFERENCE_CONNECTED' && principlesNodeGuides.publication === 'EDUCATIONAL_REFERENCE_ONLY' && principlesNodeGuides.nodes.length === 60 && new Set(principlesNodeGuides.nodes.map((node) => node.id)).size === 60 && principlesNodeGuides.nodes.every((node) => ['definition', 'intuition', 'mechanism', 'kpi', 'connection', 'risk'].every((field) => node[field])) },
   ...['definition', 'mechanism', 'example', 'counterScenario', 'verificationQuestion', 'diagram'].map((field) => ({ check: `principles ${field} text is unique per lesson`, pass: new Set(principlesLessonLibrary.lessons.map((lesson) => lesson[field])).size === principlesLessonLibrary.lessons.length })),
-  { check: 'masters full holdings count is 1290', pass: mastersHoldings.allHoldings?.length === 1290 },
-  { check: 'masters full comparison count is 1387', pass: mastersHoldings.comparisons?.length === 1387 },
   // v59.70: the latest 13F period moves forward every quarter (2026-06-30 -> 2026-09-30 on 11/06), so the check
   // follows the data: a past quarter-end that equals the newest period any manager reports.
   { check: 'masters latest available period is a past quarter-end equal to the newest manager period', pass: /^\d{4}-(03-31|06-30|09-30|12-31)$/.test(String(mastersFilings.latestAvailablePeriod || '')) && Date.parse(mastersFilings.latestAvailablePeriod) <= Date.now() && mastersFilings.latestAvailablePeriod === (mastersFilings.managers || []).map((item) => item.latestAvailablePeriod).filter(Boolean).sort().at(-1) },
   { check: 'masters filings contain stale Scion reference', pass: mastersFilings.managers?.some((item) => item.id === 'scion-asset-management' && item.freshnessStatus === 'STALE_REFERENCE') },
-  { check: 'masters security master artifact is connected fail-closed', pass: mastersSecurityMaster.status === 'REFERENCE_NORMALIZATION_PENDING' && mastersSecurityMaster.coverage?.rawUniqueCusips === 1130 && mastersSecurityMaster.coverage?.rawUniqueIssuerNames === 1161 && mastersSecurityMaster.coverage?.mappedRows === 0 && mastersSecurityMaster.records?.length === 0 }
-  ,{ check: 'masters reference mapping is explicitly non-verified', pass: mastersReferenceMaster.status === 'REFERENCE_MAPPING_CONNECTED' && mastersReferenceMaster.coverage?.verifiedTickerRows === 0 && mastersReferenceMaster.coverage?.verifiedSectorRows === 0 && mastersReferenceMaster.records?.length === mastersReferenceMaster.coverage?.referenceSectorRows }
-  ,{ check: 'masters filing history rows are 7 managers x 12 periods', pass: mastersHistoryIndex.status === 'FILING_HISTORY_ROWS_CONNECTED' && mastersHistoryIndex.connectedManagers === 7 && mastersHistoryIndex.historyDepthTarget === 12 && mastersHistoryIndex.totalPeriods === 84 && mastersHistoryIndex.rowImportedPeriods === 84 && mastersHistoryIndex.pendingRowImportPeriods === 0 && mastersHistoryRows.status === 'RAW_SEC_HISTORY_CONNECTED' && mastersHistoryRows.periodsImported === 70 && mastersHistoryRows.rowsImported > 0 }
+  { check: 'masters reference mapping is explicitly non-verified', pass: mastersReferenceMaster.status === 'REFERENCE_MAPPING_CONNECTED' && mastersReferenceMaster.coverage?.verifiedTickerRows === 0 && mastersReferenceMaster.coverage?.verifiedSectorRows === 0 && mastersReferenceMaster.records?.length === mastersReferenceMaster.coverage?.referenceSectorRows },
+  ...mastersCountConsistency({ holdings: mastersHoldings, securityMaster: mastersSecurityMaster, historyIndex: mastersHistoryIndex, historyRows: mastersHistoryRows }),
+  ...mastersCountSelfTest()
 ];
 
 const failed = checks.filter((item) => !item.pass);
