@@ -886,7 +886,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   const principlesPlain = buildAnswerPrinciples({ today: '2026-10-13', mode: 'explain', liveStatus: 'ok' });
   const principlesStock = buildAnswerPrinciples({ today: '2026-10-13', mode: 'decision', hasTickers: true, webSearch: true, liveStatus: 'ok', snapAgeHours: 80 });
   check('P1740 principles follow the question and state the real web-search decision',
-    !/종목 질문 규칙/.test(principlesPlain) && /웹검색: 사용하지 않음/.test(principlesPlain) && /종목 질문 규칙/.test(principlesStock) && /필요한 축만/.test(principlesStock)
+    !/종목 질문 규칙/.test(principlesPlain) && /웹검색: 사용하지 않음/.test(principlesPlain) && /종목 질문 규칙/.test(principlesStock) && !/\n4\. /.test(principlesStock)
     && /웹검색: 이번 답변에서 사용/.test(principlesStock) && /정적 데이터: 80시간/.test(principlesStock) && /buildAnswerPrinciples\(\{ today: _todayStr, mode: _uniMode/.test(chat));
   // v57.92 (internal audit A07/A08): an unknown file age is not "999시간", each value is judged by its own date, and a
   // news/price mismatch compares the market before naming a cause.
@@ -921,6 +921,24 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
     && kinds({ query: '삼성전자 실적', mode: 'analysis', tickers: ['005930.KS'] }) === 'price'
     && kinds({ query: 'NVDA 주가 얼마야', mode: 'quick', tickers: ['NVDA'] }) === '');
   check('P1741 the unified panel draws figures only after the blocked-answer return', unified.indexOf('attachAnswerVisuals') > unified.indexOf('_publicGate && _publicGate.blocked === true'));
+}
+
+// v59.99 (plan 042): the assembled unified-chat prompt states each decision once — missing data in the evidence tail,
+// the answer shape in answerModeGuide, no fixed character cap, no "not a generic LLM" identity line.
+const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).loadChatPromptKit();
+{
+  const { PROMPT_FIXTURE_QUESTIONS } = await import('./fixtures/chat-prompt-assembly.mjs');
+  const tailMarker = '\n\n[AIO EXTERNAL EVIDENCE CONTRACT]';
+  for (const fixture of PROMPT_FIXTURE_QUESTIONS) {
+    const assembled = promptKit.assemble(fixture.query, fixture.ctxId);
+    const count = (needle) => assembled.prompt.split(needle).length - 1;
+    check(`v59.99 ${fixture.id}: one missing-data rule (${count('누락 자료 규칙:')}), one answer-shape block (${count('【이번 답변의 형태 — mode=')}), no 2,500자 cap`,
+      count('누락 자료 규칙:') === 1 && count('【이번 답변의 형태 — mode=') === 1 && !assembled.prompt.includes('2,500자'));
+    check(`v59.99 ${fixture.id}: the missing-data rule is in the evidence tail that trimming keeps`,
+      assembled.prompt.lastIndexOf(tailMarker) >= 0 && assembled.prompt.indexOf('누락 자료 규칙:') > assembled.prompt.lastIndexOf(tailMarker));
+    check(`v59.99 ${fixture.id}: no second shape or identity statement (coverage mode=, response_diversity_rule, answer_contract, generic-LLM line)`,
+      !/\nmode=/.test(assembled.prompt) && !assembled.prompt.includes('response_diversity_rule') && !assembled.prompt.includes('answer_contract') && !assembled.prompt.includes('not a generic LLM'));
+  }
 }
 
 // Owner 2026-10-14: saved conversations — nothing stored before consent, one conversation across screens, reopen restores

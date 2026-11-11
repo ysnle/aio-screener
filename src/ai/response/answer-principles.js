@@ -13,17 +13,14 @@ export function buildAnswerPrinciples({ today, mode = 'analysis', hasTickers = f
       // v57.92 (internal audit A08): the old rule told the model to read a post-news drop as 재료 소진/후속 악재 — a cause
       // chosen before checking whether the whole market fell. The cause is now compared before it is named.
       '2. 뉴스와 가격 방향이 엇갈리면 원인을 정하기 전에 같은 기간 시장·업종 움직임, 금리·환율, 기대 대비 결과를 먼저 비교한다. 주입 자료로 가려지지 않으면 "이미 가격에 반영", "시장 전체 하락", "다른 악재"를 후보로 나란히 두고 원인 미확정으로 말한다.',
-      '3. 애널리스트 목표가·컨센서스는 발표 시점과 함께 쓰고, 오래된 값은 참고로만 둔다.',
-      mode === 'decision' || mode === 'analysis'
-        ? '4. 종목 분석은 질문에 필요한 축만 골라 구성한다(전부 채울 필요 없음): 지금 이 종목에서 가장 중요한 한 가지 → 사업·성장 동력·경쟁 우위 → 실적·밸류에이션(주입 수치, 동종 대비 "왜 그 수준인가") → 낙관·비관 시나리오와 각각의 조건 → 다음 촉매와 판단을 바꿀 신호.'
-        : '4. 사실 확인형 질문은 묻는 사실에 먼저 답하고, 그 사실을 해석하는 데 필요한 맥락만 덧붙인다.');
+      '3. 애널리스트 목표가·컨센서스는 발표 시점과 함께 쓰고, 오래된 값은 참고로만 둔다.');
   }
   // v58.75 (persona review): the teach-and-check order (choosing-blocks.js teachAndCheckBlock), chosen by the caller.
   if (teachBlock) lines.push('', teachBlock);
   lines.push('', '【데이터 상태】', `• 실시간 시세: ${liveStatus}`);
   if (hasTickers) {
     lines.push(`• 주가 추이(5거래일/20거래일/3개월, 완료 종가): ${hasTrend ? '주입됨' : '미주입 — 추세 단정 금지'}`,
-      '• 기업 재무: 주입된 공시·재무 블록에 있는 항목·기간만 쓴다. 시세 조회 성공은 재무 수집 성공이 아니며, 없는 지표는 미제공으로 밝힌다.');
+      '• 기업 재무: 주입된 공시·재무 블록에 있는 항목·기간만 쓴다. 시세 조회 성공은 재무 수집 성공이 아니다.');
   }
   lines.push(`• 뉴스: ${newsInjected ? '주입됨(시각 포함)' : '관련 뉴스 없음 — "최근 뉴스에 따르면"으로 시작하지 마라'}`,
     `• 웹검색: ${webSearch ? '이번 답변에서 사용 — 검색으로 확인한 사실은 출처와 날짜를 함께 밝혀라' : '사용하지 않음 — 주입 데이터 밖의 최신 사실은 단정하지 마라'}`);
@@ -37,7 +34,6 @@ export function buildAnswerPrinciples({ today, mode = 'analysis', hasTickers = f
   // monthly figure in a four-day-old file is still the latest one. A late file now withholds only values its own date has passed.
   else if (snapAgeHours >= 72) lines.push(`• 정적 데이터: ${snapAgeHours}시간(${Math.round(snapAgeHours / 24)}일) 경과 — 기준일이 지난 수치(일간 시세 등)는 현재값으로 인용하지 마라`);
   else if (snapAgeHours >= 48) lines.push(`• 정적 데이터: ${snapAgeHours}시간 경과 — 인용 시 기준 시각을 밝혀라`);
-  lines.push('• 없거나 확인되지 않은 데이터는 "확인되지 않음"으로 밝히고 추측으로 채우지 마라.');
   return `${lines.join('\n')}\n`;
 }
 
