@@ -1,0 +1,6 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "changelog": ["**Lead (v59.97):** the boot and the 시장·테마 pages no longer subscribe to aio:macroUpdated and aio:themesHistoryLoaded, two events nothing in src, js or the gates dispatches; the teardown drops their stop calls with them."],
+  "note": "v59.97: dead event subscriptions removed"
+}
