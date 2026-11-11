@@ -52,6 +52,11 @@ export const RULES = Object.freeze({
   // recent peak, a +20pp short-term participation rebound and a 2:1 4%-up thrust are conventions, not validated predictors.
   bottomWatch: Object.freeze({ fearAtMost: 25, newLowsWindow: 10, newLowsShrinkShare: 0.5, b20Window: 20, b20ReboundPp: 20, thrustRatio: 2 }),
   breadth: Object.freeze({ weakBelow: 40, broadAtLeast: 60, reversalShare: 0.5, lastSessionNoticePp: 3, indexConfirmDeadZonePp: 3, holdExitAt: 45, latchSessions: 60 }),
+  // 시장 상태 '추세와 시장 폭' pair: the share of S&P 500 members above their 50-day line reads broad at or above
+  // broadAbovePct and narrow under narrowBelowPct; between them it is the middle reading.
+  breadthCross: Object.freeze({ broadAbovePct: 55, narrowBelowPct: 45 }),
+  // A count's place in the site's own record (분배일): 많은 편 at or above manyAtPct, 적은 편 at or below fewAtPct, else 중간쯤.
+  recordRank: Object.freeze({ manyAtPct: 60, fewAtPct: 40 }),
   // VIX 18 / 25 / 32: the calm / stress / high band edges (a convention, not a validated predictor; P1367 fixed them
   // and the regime-drift alert already compares these bands). VIX above its 3-month (ratio >= 1) is an inverted term structure.
   // v57.81: 양호 needs VIX at least calmBufferPt under the calm edge, or under the edge and not rising over five sessions;

@@ -26,6 +26,7 @@ import { breadthScopeOf } from '../market/breadth/screener-breadth.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { computeCompositeFearGreed } from '../market/sentiment/composite-fear-greed.js';
 import { fearGreedBand } from '../market/sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
+import { vixBand } from '../market/sentiment/narrative.js';
 export { closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile };
 
 const sessionsBetween = (from, to) => countOpenSessionsBetween(from, to, 'US');
@@ -460,6 +461,14 @@ export function koreaMoveRecord(history = [], { now = Date.now() } = {}) {
 const rankText = (rec, low) => { const rank = low ? rec.lowRank : rec.highRank; return rank ? `(${rec.n}거래일 중 ${rank}번째로 ${low ? '낮음' : '높음'})` : ''; };
 export const recordSide = (rec) => rec?.pct == null ? '' : rec.lowest ? '최저' : rec.highest ? '최고' : rec.pct <= 0 ? `하위 1% 이내${rankText(rec, true)}` : rec.pct >= 100 ? `상위 1% 이내${rankText(rec, false)}` : rec.pct <= 50 ? `하위 ${rec.pct}%` : `상위 ${100 - rec.pct}%`;
 /** "최근 252거래일 기록에서 하루 하위 6%·5거래일 하위 2%" for the parts of a koreaMoveRecord that are named. */
+/** Where a count sits in the site's own record, as one phrase: many at or above the 60th percentile, few at or below the
+ *  40th, the middle between them; '' without a percentile. The 시장 상태 분배일 card and the page-flow line both read it. */
+export function recordRankPhrase(pct) {
+  if (pct == null || !Number.isFinite(Number(pct))) return '';
+  const { manyAtPct, fewAtPct } = RULES.recordRank;
+  return pct >= manyAtPct ? `상위 ${Math.max(1, 100 - pct)}%에 드는 많은 편` : pct <= fewAtPct ? `하위 ${Math.max(1, pct)}%에 드는 적은 편` : '중간쯤';
+}
+
 export function koreaRecordText(record, { maxTail = 100 } = {}) {
   const parts = [[record?.rec1, record?.tail1, '하루'], [record?.rec5, record?.tail5, '5거래일']]
     .filter(([rec, tail]) => rec?.pct != null && tail != null && tail <= maxTail);
@@ -645,7 +654,7 @@ export function buildMarketRead(input = {}) {
     const record = recordPercentile(ddSeries, dd);
     const common = ddSeries.length ? Math.round(ddSeries.filter((point) => point.value >= ddAt).length / ddSeries.length * 100) : null;
     // v59.56 (text-quality audit): "AIO 기록 121일 중 96백분위" read as jargon; the same plain wording as the page-flow line.
-    const rankWord = record.pct == null ? '' : record.pct >= 60 ? `상위 ${Math.max(1, 100 - record.pct)}%에 드는 많은 편` : record.pct <= 40 ? `하위 ${Math.max(1, record.pct)}%에 드는 적은 편` : '중간쯤';
+    const rankWord = recordRankPhrase(record.pct);
     const where = record.pct == null ? '' : ` 이 사이트가 기록한 ${record.n}거래일 가운데 ${rankWord}입니다${record.provisional ? '(기록 1년 미만, 잠정)' : ''}.`;
     add('distribution-cluster', 74, `S&P 500 최근 25거래일 중 ${fmt(dd, 0)}일이 0.2% 이상 하락하면서 거래량이 늘어난 날(분배일)입니다.${where}`, 'index', {
       reading: record.pct != null && record.pct < 80 && common != null
@@ -1331,7 +1340,7 @@ export function buildMarketRegime(input = {}) {
             : calmLevel && rising ? `VIX ${fmt(vix.value)}는 ${V.calmBelow} 아래지만 5일 ${signed(vix5, 0)} 올라 단기 불안이 커지는 중입니다 — 양호로 보지 않습니다.`
               : calmLevel && nearEdge ? `VIX ${fmt(vix.value)}가 ${V.calmBelow} 경계에서 ${V.calmBufferPt}pt 안이고 5일 ${signed(vix5, 0)} 올라 양호로 보지 않습니다.`
                 // v59.56 (text-quality audit): name the reason that applies, not both.
-                : vix && vix.value >= V.calmBelow ? `VIX ${fmt(vix.value)} — ${V.calmBelow}~${V.stressAt} 주의 구간입니다${ratio < V.calmRatioBelow ? `(VIX/3개월 VIX ${fmt(ratio, 2)}, 기간 구조는 정상)` : ''}.`
+                : vix && vix.value >= V.calmBelow ? `VIX ${fmt(vix.value)} — ${V.calmBelow}~${V.stressAt} ${vixBand(vix.value).label}입니다${ratio < V.calmRatioBelow ? `(VIX/3개월 VIX ${fmt(ratio, 2)}, 기간 구조는 정상)` : ''}.`
                   : `VIX ${fmt(vix.value)}는 ${V.calmBelow} 아래지만 VIX/3개월 VIX ${fmt(ratio, 2)}로 기간 구조가 평탄합니다.`;
     const flip = state === 'unknown' ? null
       : state === 'burden' ? `VIX ${V.stressAt} 미만, VIX/3개월 VIX ${V.invertedRatioAt} 미만, 5일 상승률 +${V.spike5dPct}% 미만이 모두 충족되면 중립으로 바뀜`
@@ -1673,7 +1682,7 @@ export function buildMarketRegime(input = {}) {
   // the AI context read it), so a narrow-leadership reading cannot stand while it holds.
   // v57.83: leaders weak without the market-wide confirmations — the index can hold while AI·semis fall (2026-07).
   if (leadership.state === 'weak') addConflict('주도주가 약해졌지만 시장 전반으로 번지지는 않았습니다.', `주도주 약세 — ${leadership.summary}. 시장 전반의 확인 신호(신저가 우위·상승 종목 감소·분배일·러셀 2000 약세)는 ${leadership.met}/${leadership.confirmations.length}개라 아직 동반 약세로 번지지 않았지만, 지수만 보고 주도 영역이 건재하다고 읽지 않습니다.`);
-  if (leadership.break) addConflict('지수를 받치던 주도주가 함께 약해지고 있습니다.', `주도 영역이 꺾이는 신호 — ${leadership.summary}. 시장 전반의 확인 신호는 ${leadership.window > 1 ? `최근 ${leadership.window}거래일 안에 ` : ''}${leadership.confirmations.length}개 중 ${leadership.met}개로, 판정 기준 ${leadership.need}개를 채웠습니다${leadership.held ? '(나스닥 100 약세가 풀릴 때까지 판정 유지)' : ''}. 소수 종목이 지수를 받치던 흐름에서 함께 약해지는 흐름으로 넘어가는지 확인할 구간입니다.`);
+  if (leadership.break) addConflict('지수를 받치던 주도주가 함께 약해지고 있습니다.', `주도 영역이 꺾이는 신호 — ${leadership.summary}. 시장 전반의 확인 신호는 ${leadership.window > 1 ? `최근 ${leadership.window}거래일 안에 ` : ''}${leadership.confirmations.length}개 중 ${leadership.met}개로, 판정 기준 ${leadership.need}개를 채웠습니다${leadership.held ? `(${leadership.proxyLabel} 약세가 풀릴 때까지 판정 유지)` : ''}. 소수 종목이 지수를 받치던 흐름에서 함께 약해지는 흐름으로 넘어가는지 확인할 구간입니다.`);
   // P1591 (M02): the HY clause follows the observed 5-day direction — "확대가 이어지면" read as already widening
   // when the spread had narrowed 9bp.
   const hyClause = c?.hy5 == null ? '하이일드 스프레드의 5일 방향은 아직 확인하지 못했습니다'

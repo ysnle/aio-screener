@@ -7643,4 +7643,38 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (fredMoved.kind !== 'flat' || !/큰 변화가 없습니다/.test(fredMoved.read) || !/큰 변화가 없습니다/.test(fredMoved.mean)) fail(`v59.97 a +8bp printed 10-year reads flat even when FRED moved +11bp: ${JSON.stringify(fredMoved)}`);
   const realUp = ratesCase(12, 12, 9, 3);
   if (realUp.kind !== 'real-up' || !/실질금리 상승/.test(realUp.read) || !/상승이 실질금리에서/.test(realUp.mean)) fail(`v59.97 both +12bp with a real-yield share of 0.75 keep the real-up reading: ${JSON.stringify(realUp)}`);
+
+  // The breadth pair states the edge it flips on, and extreme fear is the gauge's own band.
+  const { crossReadings } = await load('src/domain/market/regime/cross-readings.js');
+  const xdays = []; for (let d = Date.parse('2026-06-01T12:00:00Z'); xdays.length < 80; d += 86400000) { const day = new Date(d); if (![0, 6].includes(day.getUTCDay())) xdays.push(day.toISOString().slice(0, 10)); }
+  const pairOf = (b50, fg) => Object.fromEntries(crossReadings({ history: xdays.map((date, i) => ({ date, spx: i < 79 ? 5000 : 4800, breadth50: b50, vix: 15, vix3m: 18, fg })), day: null }).map((row) => [row.id, row.text]));
+  const mid = pairOf(48, 50)['trend-breadth'] || '', wide = pairOf(44, 50)['trend-breadth'] || '', held = pairOf(60, 50)['trend-breadth'] || '';
+  if (!/중간입니다/.test(mid) || !/하락이 넓게 퍼져/.test(wide) || !/이 비율이 45% 아래로 내려가면/.test(held)) fail(`v59.97 the breadth pair flips at the 45% edge it names: ${JSON.stringify({ mid, wide, held })}`);
+  const fearAt = (fg) => pairOf(60, fg)['volatility-sentiment'] || '';
+  if (/극단 공포 쪽/.test(fearAt(25)) || /극단 공포 쪽/.test(fearAt(24.6)) || !/극단 공포 쪽/.test(fearAt(24))) fail(`v59.97 the sentiment pair calls extreme fear only where the gauge does (24 yes; 25 and 24.6 no): ${[25, 24.6, 24].map(fearAt).join(' | ')}`);
+
+  // Sector counts follow the printed one-decimal move.
+  const { buildMarketFlow } = await load('src/domain/market/regime/market-flow.js');
+  const fsession = '2026-10-22';
+  const frotation = (daily) => ({ schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', decisionUse: false, allowedUseCeiling: 'reference', latestCompletedSession: fsession,
+    items: Object.fromEntries(Object.entries(daily).map(([symbol, value]) => [symbol, { status: 'CURRENT', sessionDate: fsession, rsRatio: 101, rsMomentum: 101, quadrant: 'Leading', dailyPct: value, weeklyPct: value, alignedSessionCount: 60, observedAt: '2026-10-22T20:00:00.000Z', fetchedAt: '2026-10-22T20:20:00.000Z' }])) });
+  const flatSector = buildMarketFlow({ rotationHistory: frotation({ XLP: 0.04, XLU: 2.1, XLV: 1.3, XLF: 1.1, XLRE: 1.1, XLB: 0.7, XLY: -0.5, XLE: -0.9, XLI: -1, XLC: -1.4, XLK: -0.03 }), history: [], nowMs: Date.parse('2026-10-23T01:00:00Z') });
+  if (flatSector.up !== 5 || flatSector.down !== 4 || /필수소비재|기술/.test(flatSector.line || '') || !/11개 업종 중 5개 상승/.test(flatSector.line || '')) fail(`v59.97 a sector printing 0.0% is in neither the counts nor the lists: ${flatSector.up}/${flatSector.down} ${flatSector.line}`);
+
+  // One rank phrase for a record percentile, shared by the 시장 상태 분배일 card and the page-flow line.
+  const { recordRankPhrase } = await load('src/domain/briefing/market-read.js');
+  if (recordRankPhrase(55) !== '중간쯤' || recordRankPhrase(65) !== '상위 35%에 드는 많은 편' || recordRankPhrase(35) !== '하위 35%에 드는 적은 편' || recordRankPhrase(null) !== '') fail(`v59.97 the record rank phrase uses the 60/40 bands: ${[55, 65, 35].map(recordRankPhrase).join(' | ')}`);
+  const { breadthFlow } = await load('src/domain/market/story/page-flow.js');
+  const { recordPercentile } = await load('src/domain/market/session/close-series.js');
+  const flowPts = (fn) => Array.from({ length: 100 }, (_, i) => ({ date: `2026-01-${String(i).padStart(3, '0')}`, value: fn(i) }));
+  const ddSeries = flowPts((i) => (i === 99 ? 55 : i));
+  const flowIndex = breadthFlow({ cards: [{ id: 'spx', series: flowPts((i) => 6000 + i) }, { id: 'b50', series: flowPts(() => 50) }, { id: 'b200', series: flowPts(() => 50) }, { id: 'dd', series: ddSeries }] }).leads?.index || '';
+  const ddPct = recordPercentile(ddSeries, 55).pct;
+  if (ddPct <= 50 || ddPct >= 60 || !flowIndex.includes(`가운데 ${recordRankPhrase(ddPct)}입니다`) || /많은 편/.test(flowIndex)) fail(`v59.97 the page-flow 분배일 line reads a ${ddPct}th-percentile count as 중간쯤: ${flowIndex}`);
+
+  // VIX 18–25 has one name on every screen: the 시장 상태 volatility read takes it from vixBand.
+  const { buildMarketRegime } = await load('src/domain/briefing/market-read.js');
+  const vixDays = xdays.map((date, i) => ({ date, spx: 5000 + i, vix: 21, vix3m: 23 }));
+  const volAxis = buildMarketRegime({ history: vixDays, now: Date.parse(`${xdays.at(-1)}T23:00:00Z`) }).axes.find((row) => row.id === 'volatility');
+  if (volAxis?.state !== 'neutral' || !/18~25 통상 범위입니다/.test(volAxis.read || '') || /주의 구간/.test(volAxis.read || '')) fail(`v59.97 VIX 21 reads 통상 범위 on 시장 상태 as on 매크로: ${volAxis?.state} ${volAxis?.read}`);
 }

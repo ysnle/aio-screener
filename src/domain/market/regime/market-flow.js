@@ -41,7 +41,8 @@ export function buildMarketFlow({ rotationHistory = null, history = [], themes =
   const mean = (list) => list.length ? list.reduce((sum, row) => sum + row.daily, 0) / list.length : null;
   const defensive = mean(rows.filter((row) => DEFENSIVE_SECTORS.has(row.symbol)));
   const growth = mean(rows.filter((row) => GROWTH_FLOW.includes(row.symbol)));
-  const up = sectors.filter((row) => row.daily > 0).length, down = sectors.filter((row) => row.daily < 0).length;
+  // Counts and lists follow the printed one-decimal move: a sector printing 0.0% is neither up nor down.
+  const up = sectors.filter((row) => directionOf(row.daily, 1) === 'up').length, down = sectors.filter((row) => directionOf(row.daily, 1) === 'down').length;
   const gap = defensive != null && growth != null ? defensive - growth : null;
   const kind = down >= rule.broadSectorCount ? 'broadDown' : up >= rule.broadSectorCount ? 'broadUp'
     : gap != null && gap >= rule.rotationGapPp && defensive > 0 ? 'defensive'
@@ -49,7 +50,7 @@ export function buildMarketFlow({ rotationHistory = null, history = [], themes =
   // v58.74 (text audit): the lists rank the 11 sectors only; 반도체(SOXX) is named on its own after the count.
   const sorted = [...sectors].sort((a, b) => b.daily - a.daily);
   const item = (row) => `${row.label} ${signed(row.daily)}`;
-  const rose = sorted.filter((row) => row.daily > 0).slice(0, 3), fell = sorted.filter((row) => row.daily < 0).reverse().slice(0, 3);
+  const rose = sorted.filter((row) => directionOf(row.daily, 1) === 'up').slice(0, 3), fell = sorted.filter((row) => directionOf(row.daily, 1) === 'down').reverse().slice(0, 3);
   const ten = tenYearClose(history, { through: session });
   const tenYearBp = ten?.date === session && ten.d1Bp != null ? Math.round(ten.d1Bp) : null;
   const fgRow = (Array.isArray(history) ? history : []).find((row) => row?.date === session);
