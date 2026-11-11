@@ -170,7 +170,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         const unsubscribe = store && subscribeToSlices(store, ['themes', 'screener'], renderNow);
         if (unsubscribe) bag.add(unsubscribe);
         const eventTarget = documentRef || root;
-        ['aio:themesViewChanged', 'aio:themesHistoryLoaded', 'aio:rotationDetailLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes', 'aio:sectorPerfChanged', 'aio:colorThemeChanged'].forEach((eventName) => {
+        ['aio:themesViewChanged', 'aio:rotationDetailLoaded', 'aio:historyLoaded', 'aio:refresh:done', 'aio:liveQuotes', 'aio:sectorPerfChanged', 'aio:colorThemeChanged'].forEach((eventName) => {
           eventTarget?.addEventListener?.(eventName, scheduleRender);
           bag.add(() => eventTarget?.removeEventListener?.(eventName, scheduleRender));
         });
@@ -196,7 +196,9 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           }
           syncStandalone();
           renderDetail(); // v57.61: detail renderers skip while closed, so the opening render happens here
-          try { renderThemeDetailPlaybook({ documentRef, root }); renderThemeDetailTeach({ documentRef, root, store }); } catch (_) {} // P1743: needs the theme id set above
+          // Needs the theme id set above; each render has its own guard so a failure in one still draws the other.
+          try { renderThemeDetailPlaybook({ documentRef, root }); } catch (error) { root?._aioLog?.('warn', 'themes', `테마 상세 플레이북 렌더 실패: ${error?.message || error}`); }
+          try { renderThemeDetailTeach({ documentRef, root, store }); } catch (error) { root?._aioLog?.('warn', 'themes', `테마 상세 읽기 렌더 실패: ${error?.message || error}`); }
           // The architecture listener synchronously refreshes the store before this
           // compatibility event reaches the mounted page. The store subscription is
           // the sole detail renderer; this listener owns visibility only.
