@@ -170,21 +170,67 @@ function countSentences(value) {
   }, 0);
 }
 
-function stripNumericSentences(value, today) {
+// Supported numbers: the numeric values of the publishable evidence rows the model was given, each with its unit.
+// Search results reach this module only as document rows without a numeric value, so they add nothing here.
+var ROW_UNITS = { USD: 'USD', KRW: 'KRW', PERCENT: 'percent', '%': 'percent', PCT: 'percent', BP: 'bp', BPS: 'bp', X: 'multiple', MULTIPLE: 'multiple', '배': 'multiple', INDEX: 'point', POINT: 'point', POINTS: 'point', PT: 'point' };
+export function supportedNumbersFromEvidence(rows, nowMs = Date.now()) {
+  var numbers = (Array.isArray(rows) ? rows : []).filter(function(row) {
+    return evidenceCanPublish(row, nowMs) && typeof row.value === 'number' && isFinite(row.value) && String(row.scale || 'raw') === 'raw';
+  }).map(function(row) { return { value: row.value, unit: ROW_UNITS[String(row.unit || '').trim().toUpperCase()] || '' }; });
+  return numbers.length ? numbers : null;
+}
+// What is not a figure of the sentence: a link, a date or clock time, a window length that names a measure ("20거래일",
+// "52주", "10년물", "3개월"; "3거래일 연속" is a count and stays), an index name ("S&P 500", "나스닥 100") and a code
+// with digits ("US10Y", "H100", "2s10s").
+var NOT_A_FIGURE = /(?:https?:\/\/|www\.)\S+|(?<!\d)(?:19|20)\d{2}\s*(?:[-./]|년)\s*\d{1,2}(?:\s*(?:[-./]|월)\s*\d{1,2}\s*일?)?(?!\d)|(?<!\d)\d{1,2}\s*월\s*\d{1,2}\s*일|(?<!\d)(?:19|20)\d{2}\s*년(?:대)?|(?<!\d)\d{1,2}:\d{2}(?!\d)|(?:S&P|나스닥|러셀|코스피|코스닥|\b(?:Nasdaq|NASDAQ|Russell|KOSPI|KOSDAQ)\b)\s*(?:500|100|2000|200|150)(?![\d,.])|(?<![\d.,])\d+\s*(?:개월|개년|년물|년간|년|분기|주(?![가식당요])|거래일|일선|일(?![부반정본간]))(?!\s*(?:연속|째|만에))|(?<![A-Za-z])(?!\b(?:USD|KRW|US)\d)[A-Za-z]+\d[\dA-Za-z]*|\d+s\d+s|\d+-\b(?:year|month|week|day)\b/g;
+var WRITTEN_FIGURE = /(\$|₩|\b(?:USD|KRW|US\$)\s*)?([+\-−]?)(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<![A-Za-z])(%|퍼센트|percent\b|bps?\b|배|달러|dollars?\b|USD\b|원|KRW\b|포인트|pt\b|조|억|만|개|곳|건|명|종목)?/gi;
+var WRITTEN_UNITS = [[/^(?:%|퍼센트|percent)$/i, 'percent'], [/^bps?$/i, 'bp'], [/^배$/, 'multiple'], [/^(?:\$|달러|dollars?|USD|US\$)$/i, 'USD'], [/^(?:₩|원|KRW)$/i, 'KRW'], [/^(?:포인트|pt)$/i, 'point']];
+function writtenUnit(word) {
+  if (!word) return '';
+  var hit = WRITTEN_UNITS.filter(function(pair) { return pair[0].test(word); })[0];
+  return hit ? hit[1] : 'unsupported';
+}
+// True when the text writes at least one figure and every figure equals a supported number in a printed form
+// (180.25 → "180.25", "180.3", "180"), with the sign it writes and a unit that agrees. An integer under 100 must be
+// written with a unit that agrees with its row's unit: a bare "5" is not supported by every row. A count or a
+// 조/억/만 magnitude is never supported this way.
+export function figuresSupported(text, numbers) {
+  if (!Array.isArray(numbers) || !numbers.length) return false;
+  var bare = normaliseForDetection(text).replace(NOT_A_FIGURE, ' ');
+  var figures = Array.from(bare.matchAll(WRITTEN_FIGURE));
+  return figures.length > 0 && figures.every(function(match) {
+    var unit = writtenUnit(match[4] || String(match[1] || '').trim());
+    if (unit === 'unsupported') return false;
+    var digits = match[3].replace(/,/g, '');
+    var places = (digits.split('.')[1] || '').length;
+    var written = Number(digits);
+    if (/^\d{1,2}$/.test(digits) && !unit) return false; // an integer under 100
+    var sign = match[2] === '' ? 0 : match[2] === '+' ? 1 : -1;
+    return numbers.some(function(number) {
+      if (unit && number.unit !== unit) return false;
+      if (sign && number.value !== 0 && sign !== Math.sign(number.value)) return false;
+      var size = Math.abs(number.value);
+      return written === size || ((String(size).split('.')[1] || '').length > places && Number(size.toFixed(places)) === written);
+    });
+  });
+}
+
+function stripNumericSentences(value, today, numbers) {
   var removed = 0;
   var text = String(value || '').split('\n').map(function(line) {
     if (!line.trim()) return '';
     // P1740: a markdown table keeps its rows; only an unverified current-number cell becomes "확인 필요". Dropping the
-    // whole row left a header with no body.
+    // whole row left a header with no body. A cell whose every figure is a supported number keeps its value.
     if (/^\s*\|.*\|\s*$/.test(line)) {
       if (/^\s*\|[\s\-:|]+\|\s*$/.test(line)) return line;
       return line.split('|').map(function(cell, index, cells) {
         if (index === 0 || index === cells.length - 1) return cell;
-        return hasCurrentNumericContent(cell) || /^\s*[+\-−]?\d[\d,.]*\s*$/.test(cell) ? ' 확인 필요 ' : cell;
+        return (hasCurrentNumericContent(cell) || /^\s*[+\-−]?\d[\d,.]*\s*$/.test(cell)) && !figuresSupported(cell, numbers) ? ' 확인 필요 ' : cell;
       }).join('|');
     }
     var kept = splitAnswerSentences(line).filter(function(sentence) {
-      var current = numericClaimKind(sentence, { today: today }) === 'current';
+      // A current sentence stays when every figure it writes is in the evidence; one figure that is not removes it.
+      var current = numericClaimKind(sentence, { today: today }) === 'current' && !figuresSupported(sentence.replace(CITED_URL, ' '), numbers);
       if (current) removed += 1;
       return !current;
     }).join(' ');
@@ -254,13 +300,14 @@ function guardFallback(text, currentSensitive, options) {
   var result = { text: text, removedNumericSentences: 0, removedEventSentences: 0, sentencesTotal: countSentences(text) };
   if (!currentSensitive) return result;
   var today = options && options.today;
-  var numeric = stripNumericSentences(text, today);
+  var numbers = options && supportedNumbersFromEvidence(options.evidenceRows, todayMs(today));
+  var numeric = stripNumericSentences(text, today, numbers);
   result.text = numeric.text;
   result.removedNumericSentences = numeric.removed;
   var events = null;
   if (options && options.evidenceCount === 0) events = stripUnverifiedCurrentEventSentences(numeric.text, null, { today: today });
   // v58.77 AI-01: with evidence rows handed in, an event sentence must name what one of them covers (same as the plan path).
-  else if (options && Array.isArray(options.evidenceRows)) events = stripUnverifiedCurrentEventSentences(numeric.text, function(sentence) { return eventBoundToEvidence(sentence, options.evidenceRows); }, { today: today });
+  else if (options && Array.isArray(options.evidenceRows)) events = stripUnverifiedCurrentEventSentences(numeric.text, function(sentence) { return eventBoundToEvidence(sentence, options.evidenceRows) || figuresSupported(sentence, numbers); }, { today: today });
   if (events) { result.text = events.text; result.removedEventSentences = events.dropped; }
   return result;
 }
@@ -272,7 +319,7 @@ export function extractAnswerFallbackResult(rawText, currentSensitive, options) 
   var hasControlBlock = /\[\/?AI_ANSWER_PLAN\]/i.test(raw);
   if (!hasControlBlock) return currentSensitive ? guardFallback(raw, true, options) : guardFallback(raw.trim(), false, options);
   var values = [];
-  var fieldRe = /"(?:summary|body)"\s*:\s*("(?:\\.|[^"\\])*")/g;
+  var fieldRe = /"\b(?:summary|body)\b"\s*:\s*("(?:\\.|[^"\\])*")/g;
   var match;
   while ((match = fieldRe.exec(raw)) && values.length < 8) {
     try {
@@ -369,14 +416,16 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
   var numericRemoved = 0;
   var sentencesTotal = 0;
   var noEvidence = currentSensitive && rows.length === 0;
+  var numbers = supportedNumbersFromEvidence(rows, nowMs);
   var stripNumeric = function(text) {
-    var out = stripNumericSentences(text, nowMs);
+    var out = stripNumericSentences(text, nowMs, numbers);
     numericRemoved += out.removed;
     return out.text;
   };
   var clean = function(text) {
     var out = stripNumeric(text);
-    var events = stripUnverifiedCurrentEventSentences(out, noEvidence ? null : function(sentence) { return eventBoundToEvidence(sentence, rows); }, { today: nowMs });
+    // An event sentence whose figures are all in the evidence ("오늘 −1.2% 내렸지만") is bound by those values.
+    var events = stripUnverifiedCurrentEventSentences(out, noEvidence ? null : function(sentence) { return eventBoundToEvidence(sentence, rows) || figuresSupported(sentence, numbers); }, { today: nowMs });
     eventsDropped += events.dropped;
     return events.text;
   };

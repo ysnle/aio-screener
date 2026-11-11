@@ -753,6 +753,25 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.deepEqual(rateIssues('11/11 마켓워치 보도에 따르면 10년물 금리가 5%에 가까워지며 주식이 하락했습니다.'), [], 'v59.99 the direction word after an approached level belongs to the next subject');
     assert.deepEqual(rateIssues('미국 10년물 금리가 2.4% 상승했습니다.'), ['rate-change-not-bp:market.us10y'], 'v59.99 a rate change in percent is still blocked');
   }
+  {
+    // v59.99 (plan 044, owner 2026-11-12): judgement and likelihood in words are allowed with their ground in the same or
+    // the previous sentence; a likelihood standing alone, a numeric probability and an order are still blocked.
+    const { validateAnalysisAdmission, softenReaderDuty } = await import('./lib/market-analysis-validate.mjs');
+    const axes = 'trend: favorable — x\nbreadth: favorable — x\nvolatility: neutral — x\ncredit: favorable — x\nrates: neutral — x';
+    const grounded = ['조건 충족 3/4이고 시장 폭도 양호해 반등 가능성이 더 높아 보입니다.', '과거 73건 중 41건에서 20거래일 뒤 올랐습니다. 이번에도 반등 가능성이 더 큽니다.', '신용이 안정적인 동안은 분할 접근이 우위입니다.',
+      // the same rule where the old validator detected the likelihood and blocked it
+      '시장 폭이 양호해 반등 가능성이 높습니다.', '과거 73건 중 41건에서 20거래일 뒤 올랐습니다. 이번에도 반등 가능성이 높습니다.', '금리가 더 내려가면 반등 가능성이 높습니다.', 'S&P 500이 -1.2% 내렸습니다. 반등 가능성은 낮아 보입니다.'];
+    for (const text of grounded) assert.deepEqual(validateAnalysisAdmission(text), [], `v59.99 a likelihood or stance with its ground passes: ${text}`);
+    assert.deepEqual(validateAnalysisAdmission('반등 가능성이 높습니다.'), ['likelihood-qualitative'], 'v59.99 a likelihood standing alone is still blocked');
+    assert.deepEqual(validateAnalysisAdmission('변동성 확대 가능성이 높습니다.'), ['likelihood-qualitative'], 'v59.99 the forecast state itself is not its own ground');
+    assert.deepEqual(validateAnalysisAdmission('반면 반등 가능성이 높습니다.'), ['likelihood-qualitative'], 'v59.99 반면 is not a condition');
+    assert.deepEqual(validateAnalysisAdmission('상승 확률은 60%입니다.'), ['probability-claim'], 'v59.99 a numeric probability is still blocked');
+    assert.deepEqual(validateAnalysisAdmission('지금 매수하세요.'), ['trade-instruction'], 'v59.99 an order is still blocked');
+    const stance = ['지금은 현금·방어 우위입니다.', '지금은 주식 매수가 부담스러운 구간입니다.', '분할 접근이 유리한 구간입니다.', '방어 업종이 유리한 국면입니다.', '관망의 비용이 작습니다.', '추격 매수의 비용이 큽니다.'];
+    for (const text of stance) {
+      assert.ok(validateAnalysisAdmission(text).length === 0 && axisStateClaimIssues(text, { context: axes }).length === 0 && softenReaderDuty(text) === text, `v59.99 stance vocabulary passes admission, axis claims and the reader-duty softener: ${text}`);
+    }
+  }
   const kr = { krDate: '2026-10-15', usDate: '2026-10-14' };
   assert.deepEqual(crossMarketDateIssues('코스피 -7.56%, 미국 주가지수 -1.11%로 마감했습니다.', kr), ['cross-market-session-dates-missing'], 'v57.81 an undated KOSPI/S&P comparison across sessions is rejected');
   assert.deepEqual(crossMarketDateIssues('코스피(10/15) -7.56%, 미국 주가지수(10/14) -1.11%로 마감했습니다.', kr), []);
