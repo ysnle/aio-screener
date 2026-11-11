@@ -1,0 +1,17 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.97 the screener producer logs an empty ^GSPC / ^IXIC daily-bar read instead of a warning that could never print",
+    "symptom": "When both Yahoo hosts failed for ^GSPC or ^IXIC, the screener refresh wrote no distribution-day count or rally-attempt state for the new date and the operator log did not say why.",
+    "root_cause": "scripts/producer/screener.mjs wrapped the two index-history reads in try/catch, but fetchHistory (scripts/producer/quotes.mjs) catches every host failure itself and returns [] — the catch warnings were unreachable.",
+    "fix": "The try/catch blocks are removed (fetchHistory cannot throw, and distributionDaySeries / rallyAttemptSeries accept an empty or malformed bar list); after each read an empty result prints one console.warn naming the symbol and the value missing for this run. The run continues as before.",
+    "violated_rule": "A failure handler must be reachable by the failure it describes.",
+    "prevention": "No fixture gate injects fetchHistory into this block; the existing gates that import scripts/producer/screener.mjs cover the module.",
+    "verification": "node --check scripts/producer/screener.mjs; node scripts/ci-data-pipeline-contract-check.mjs, ci-esm-core-unit-check.mjs and ci-review-integrity-unit-check.mjs exit 0.",
+    "files": ["scripts/producer/screener.mjs"]
+  },
+  "r": null,
+  "changelog": ["**Empty index read is logged ({P}):** the screener producer warns when the ^GSPC or ^IXIC daily bars come back empty, naming the distribution-day or rally value that is missing for that run."],
+  "note": "v59.97: empty index history read is logged"
+}
