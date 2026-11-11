@@ -29,7 +29,7 @@ const { readHistoryRows } = await load('src/domain/market/indices/history-rows.j
 const history = readHistoryRows(json('public-data/history.json'));
 const macroHistory = json('public-data/macro-history.json');
 const hy = oasDelta20Bp(macroHistory, 'hyOas');
-const regime = buildMarketRegime({ history, macroHistory, credit: hy ? { hyBp: hy.level * 100, hyAsOf: hy.date } : {}, now: Date.now() });
+const regime = buildMarketRegime({ history, macroHistory, credit: hy ? { hyBp: hy.level * 100, hyDelta5Bp: hy.d5, hyAsOf: hy.date } : {}, now: Date.now() });
 const tenRow = (regime.axes || []).find((axis) => axis.id === 'rates')?.evidence?.find(([label]) => label === '미 10년물')?.[1] || '';
 const ten20 = num(tenRow, /20일 ([+-]?\d+)bp/); const ten5 = num(tenRow, /5거래일 ([+-]?\d+)bp/);
 const model = buildMacroChapters({ macroHistory, history });
@@ -192,7 +192,7 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
     const at = day ? cut(history, day) : history;
     if (day && !at.some((row) => row.date === day)) continue; // the fixture close rolled out of the published window
     const hyAt = oasDelta20Bp(macroHistory, 'hyOas', day);
-    const reg = buildMarketRegime({ history: at, macroHistory, credit: hyAt ? { hyBp: hyAt.level * 100, hyAsOf: hyAt.date } : {}, now: day ? Date.parse(`${day}T23:00:00Z`) : Date.now() });
+    const reg = buildMarketRegime({ history: at, macroHistory, credit: hyAt ? { hyBp: hyAt.level * 100, hyDelta5Bp: hyAt.d5, hyAsOf: hyAt.date } : {}, now: day ? Date.parse(`${day}T23:00:00Z`) : Date.now() });
     const axis = (id) => (reg.axes || []).find((row) => row.id === id);
     const tag = day || 'today';
     const judgement = creditJudgement(macroHistory, hyAt?.date || null);
@@ -219,7 +219,7 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
       check(`v59.84 [${tag}] 매크로 연결 상자 ${id} node colours the axis state`, node.impact === expected, `${node.impact} vs axis ${state}`);
     }
     if (axis('rates')?.state !== 'favorable') check(`v59.84 [${tag}] 연결 상자 never says the discount rate is easing while the rates axis is not 양호`, !(macroAt?.chain?.links || []).some((line) => /할인율 부담이 줄고/.test(line)), (macroAt?.chain?.links || []).join(' / '));
-    const read = buildMarketRead({ history: at, macroHistory, credit: hyAt ? { hyBp: hyAt.level * 100, hyAsOf: hyAt.date } : {}, now: day ? Date.parse(`${day}T23:00:00Z`) : Date.now() });
+    const read = buildMarketRead({ history: at, macroHistory, credit: hyAt ? { hyBp: hyAt.level * 100, hyDelta5Bp: hyAt.d5, hyAsOf: hyAt.date } : {}, now: day ? Date.parse(`${day}T23:00:00Z`) : Date.now() });
     const checks = JSON.stringify(read || {});
     if (axis('credit')?.state !== 'favorable') check(`v59.84 [${tag}] no check offers "양호 조건 상실" while credit is not 양호`, !/양호 조건 상실/.test(checks), (checks.match(/[^"]{0,60}양호 조건 상실[^"]{0,20}/) || [''])[0]);
     const shift = participationShift(at);

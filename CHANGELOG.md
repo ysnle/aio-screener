@@ -1,3 +1,7 @@
+## v59.96 (2026-11-11)
+- **Data releases unblocked (P2354):** the `metric-consistency` gate compared the credit judgement with a 시장 상태 axis it had built without the five-session HY change, so it called a favorable credit state a mismatch and refused every data release from 11/10 18:40 UTC. The gate now passes the same input the app does; screens were already consistent.
+- R1 7곳 v59.96
+
 ## v59.95 (2026-11-10)
 - **Publish gate passes on Windows (P2339):** the data publisher's test used a bash-shebang `gh` stub and the machine's `core.autocrlf`, so it failed on every local Windows run and made `qa-runner` skip the browser groups. The stubs are Node scripts (run through a new `.js/.mjs` branch of `AIO_PUBLISH_GH`) and the fixture repositories pin `core.autocrlf=false`.
 - **Earnings calendar query failures recorded (P2340):** a failed day query is listed in earningsDayGaps and a failed IPO query sets iposAvailable false, so neither reads as an empty, current result; the week rows a failed day keeps are unchanged.

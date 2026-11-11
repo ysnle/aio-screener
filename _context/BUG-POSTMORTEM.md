@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-10
+last_verified: 2026-11-11
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -38,6 +38,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 <!-- ledger-class-report:end -->
 
 ---
+
+## P2354 - v59.96 - v59.96 metric-consistency gate refused every data release once the HY spread calmed (2026-11-11)
+
+- symptom/reproduction: From 2026-11-10 18:40 UTC every reduced-scope CI run for a data commit failed at `metric-consistency` with '[today] the credit judgement every reader uses is the 시장 상태 credit axis state — favorable vs neutral', so no refresh was attested or deployed for about six hours: refresh-data, the data freshness watchdog and refresh-screener all went red (issues #4, #5, #6) while the data kept being committed.
+- root_cause: The gate (added in v59.84) built the 시장 상태 regime with `credit: { hyBp, hyAsOf }` and no five-session change, while the app passes `hyDelta5Bp` from the snapshot (`macro.hyOASDelta5`). Without it `creditState` can never return 'favorable'. The other reader in the comparison (`creditJudgement`) derives the five-session change itself. The two agreed only while the 20-session widening was at or above +25bp (both neutral or burden); on 11/9 the widening fell to +23bp with the level at 334bp and a -9bp week, so the real state became favorable and the gate's own incomplete input disagreed with it.
+- fix: The gate passes `hyDelta5Bp` (the same `d5` the judgement reads from the OAS history) at both regime builds. No product code changed: the live snapshot carries the five-session change, so the screens already agreed.
+- violated_rule: REVIEW.md failure 6 (a gate that does not prove what it claims) — a consistency gate that fed one reader less input than the product does.
+- prevention: The gate now runs the favorable case on today's files. Follow-up recorded in plans/: a data-dependent gate that blocks every release needs a fixture for each state of the fact it compares, not only the state at the time it was written.
+- verification/residual: node scripts/ci-metric-consistency-check.mjs fails on the previous gate with today's public-data and passes after the change ('HY -9/23bp agree across 시장 상태, 매크로 and 연결해서 보면'); node scripts/qa-runner.mjs fast: fail=0.
+- files: scripts/ci-metric-consistency-check.mjs
 
 ## P2353 - v59.95 - v59.94 Taiwan monthly revenue erased a company the source rows left out (2026-11-10)
 
