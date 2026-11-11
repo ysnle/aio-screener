@@ -355,7 +355,7 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
       const unsubscribe = store && subscribeToSlices(store, ['market', 'marketSnapshot', 'screener'], renderNow);
       if (unsubscribe) bag.add(unsubscribe);
       const eventTarget = documentRef || root;
-      ['aio:liveQuotes', 'aio:liveDataReceived', 'aio:refresh:done', 'aio:serverDataLoaded', 'aio:historyLoaded', 'aio:macroUpdated'].forEach((eventName) => {
+      ['aio:liveQuotes', 'aio:liveDataReceived', 'aio:refresh:done', 'aio:serverDataLoaded', 'aio:historyLoaded'].forEach((eventName) => {
         eventTarget?.addEventListener?.(eventName, renderNow);
         bag.add(() => eventTarget?.removeEventListener?.(eventName, renderNow));
       });

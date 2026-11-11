@@ -820,9 +820,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       if (!disposed) emitDataTimelineUpdated('server-data');
     }, { isActive: () => !disposed });
     const stopServerMarketData = legacy.on('aio:serverDataLoaded', syncServerArtifactConsumers);
-    const stopMacroUpdated = legacy.on('aio:macroUpdated', syncMarket.sync);
     const stopThemesRefresh = compatibilityEvents.on('aio:refresh:done', syncThemes.sync);
-    const stopThemesHistory = legacy.on('aio:themesHistoryLoaded', syncThemes.sync);
     const stopRotationDetail = legacy.on('aio:rotationDetailLoaded', syncThemes.sync); // v59.70 (R11): series arrived after data.json
     const stopThemeDetail = legacy.on('aio:themeDetailShown', syncThemes.sync);
     const stopEntityRefresh = compatibilityEvents.on('aio:refresh:done', syncEntityForConsumers);
@@ -1093,9 +1091,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       criticalData.dispose();
       stopSnapshotRevision();
       stopMacroCalendar();
-      stopMacroUpdated();
       stopThemesRefresh();
-      stopThemesHistory();
       stopRotationDetail();
       stopThemeDetail();
       stopEntityRefresh();
