@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-11T23:22:11.154Z",
-  "attemptedAt": "2026-11-11T23:22:11.154Z",
-  "lastSuccessfulAt": "2026-11-11T23:22:11.154Z",
+  "generatedAt": "2026-11-11T23:51:48.240Z",
+  "attemptedAt": "2026-11-11T23:51:48.240Z",
+  "lastSuccessfulAt": "2026-11-11T23:51:48.240Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-28T23:22:05.356Z",
-  "until": "2026-11-11T23:22:05.356Z",
+  "since": "2026-10-28T23:51:41.040Z",
+  "until": "2026-11-11T23:51:41.040Z",
   "current24hWindow": {
     "start": "2026-11-10T23:00:00.000Z",
     "end": "2026-11-11T23:00:00.000Z",
@@ -97,67 +97,67 @@
       "eligibleTextCount": 1228,
       "selectedCount": 120,
       "error": null,
-      "lastPostId": 69078
+      "lastPostId": 69083
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 230,
-      "freshCount": 19,
-      "eligibleTextCount": 230,
-      "selectedCount": 123,
+      "count": 231,
+      "freshCount": 39,
+      "eligibleTextCount": 231,
+      "selectedCount": 122,
       "error": null,
-      "lastPostId": 21119
+      "lastPostId": 21122
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 709,
-      "freshCount": 37,
-      "eligibleTextCount": 708,
+      "count": 710,
+      "freshCount": 38,
+      "eligibleTextCount": 709,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 71985
+      "lastPostId": 71988
     }
   ],
-  "count": 2228,
-  "retainedItemCount": 431,
+  "count": 2230,
+  "retainedItemCount": 436,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2228,
-    "eligibleTextCount": 2166,
+    "observedCount": 2230,
+    "eligibleTextCount": 2168,
     "mediaOnlyCount": 62,
-    "mediaAttachedCount": 807,
-    "photoPostCount": 699,
+    "mediaAttachedCount": 810,
+    "photoPostCount": 702,
     "documentPostCount": 4,
     "imageOnlyCount": 4,
     "highSignalCount": 384,
-    "broadSignalCount": 829,
-    "selectedRawCount": 367,
-    "selectedEligibleCount": 367,
+    "broadSignalCount": 834,
+    "selectedRawCount": 366,
+    "selectedEligibleCount": 366,
     "selectedRawCoveragePct": 16.9,
-    "selectedOfObservedPct": 16.5,
+    "selectedOfObservedPct": 16.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "ai-policy": 111,
-    "semi": 492,
-    "market-note": 798,
-    "credit": 88,
-    "earnings": 361,
-    "power": 286,
+    "semi": 497,
+    "market-note": 796,
+    "credit": 89,
+    "macro": 321,
+    "power": 287,
+    "ai-policy": 110,
+    "earnings": 359,
     "japan": 71,
     "media-only": 61,
     "healthcare": 73,
-    "macro": 320,
-    "geo": 390,
+    "geo": 388,
     "equity": 126,
     "kr-market": 94,
     "flows": 58,
@@ -165,29 +165,29 @@
     "crypto": 3
   },
   "tickerCounts": {
+    "NVDA": 185,
+    "005930.KS": 37,
+    "000660.KS": 27,
     "AMD": 51,
-    "AVGO": 15,
-    "NVDA": 180,
+    "AVGO": 14,
     "CRWV": 15,
     "TSM": 56,
     "AMAT": 3,
     "MU": 28,
     "AMZN": 66,
     "TSLA": 35,
-    "MSFT": 45,
+    "MSFT": 44,
     "MS": 5,
     "PLTR": 28,
-    "GOOG": 79,
+    "GOOG": 76,
     "LITE": 11,
     "COHR": 4,
     "BABA": 3,
     "103590.KS": 1,
     "BE": 13,
-    "AAPL": 22,
+    "AAPL": 21,
     "GS": 4,
     "2454.TW": 6,
-    "005930.KS": 36,
-    "000660.KS": 27,
     "RKLB": 2,
     "IRDM": 2,
     "WMT": 1,
@@ -207,7 +207,7 @@
     "GOOGL": 7,
     "WDC": 2,
     "STX": 3,
-    "ORCL": 9,
+    "ORCL": 8,
     "DB": 2,
     "MRNA": 3,
     "MTD": 1,
@@ -255,30 +255,30 @@
     "006800.KS": 1
   },
   "themes": [
-    "Market Notes (798 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 에어비앤비 (ABNB) — 자체 AI 여행 에이전트를 2027년 상반기 출시할 계획임. 여행 계획·옵션 비교·예약 관리뿐 아니라...",
-    "Semiconductors/Memory (492 posts in 14-day research window): 2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000...",
-    "Geopolitics (390 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave Database’를 정식 출시함. AI 에이전트와 RAG 애플리케이션을 겨냥해 벡터 검색, 자동 장애조치, 지속적...",
-    "Earnings/Corporate (361 posts in 14-day research window): 코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
-    "Macro/Rates (320 posts in 14-day research window): 2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물...",
-    "AI Power/Grid (286 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "Market Notes (796 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
+    "Semiconductors/Memory (497 posts in 14-day research window): [SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화...",
+    "Geopolitics (388 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave Database’를 정식 출시함. AI 에이전트와 RAG 애플리케이션을 겨냥해 벡터 검색, 자동 장애조치, 지속적...",
+    "Earnings/Corporate (359 posts in 14-day research window): 코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
+    "Macro/Rates (321 posts in 14-day research window): 2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물...",
+    "AI Power/Grid (287 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "Equity/Analyst (126 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "AI Policy/Export Controls (111 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
+    "AI Policy/Export Controls (110 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 180,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의. 중국은 미국과 소통·협력을 강화하고 민감한 현안과 이견을 적절히 관리할 의향이라고 밝혀. • 미 의회..."
+      "count": 185,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
     },
     {
       "key": "GOOG",
-      "count": 79,
+      "count": 76,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
       "key": "AMZN",
       "count": 66,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의. 중국은 미국과 소통·협력을 강화하고 민감한 현안과 이견을 적절히 관리할 의향이라고 밝혀. • 미 의회..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
     },
     {
       "key": "TSM",
@@ -292,13 +292,13 @@
     },
     {
       "key": "MSFT",
-      "count": 45,
+      "count": 44,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에..."
     },
     {
       "key": "005930.KS",
-      "count": 36,
-      "text": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물..."
+      "count": 37,
+      "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화..."
     },
     {
       "key": "TSLA",
@@ -318,11 +318,11 @@
     {
       "key": "000660.KS",
       "count": 27,
-      "text": "2026년 11월 10일 미국 증시 프리마켓 브리핑 미국 지수선물은 CPI 발표를 앞두고 혼조세. 다우 선물 +0.36%, S&P500 선물 +0.14%, 나스닥100 선물 -0.14%, 러셀2000 선물..."
+      "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화..."
     },
     {
       "key": "AAPL",
-      "count": 22,
+      "count": 21,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 · 로보틱스 • 엔비디아 (NVDA) — 엔비디아가 Rebellions·SK텔레콤과 NVIDIA NVLink Fusion을 활용한 소버린 AI..."
     }
   ],
@@ -333,7 +333,7 @@
       "topics": [
         "macro"
       ],
-      "count": 320,
+      "count": 321,
       "focus": "2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물..."
     },
     {
@@ -342,7 +342,7 @@
       "topics": [
         "geo"
       ],
-      "count": 390,
+      "count": 388,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave Database’를 정식 출시함. AI 에이전트와 RAG 애플리케이션을 겨냥해 벡터 검색, 자동 장애조치, 지속적..."
     },
     {
@@ -351,7 +351,7 @@
       "topics": [
         "credit"
       ],
-      "count": 88,
+      "count": 89,
       "focus": "2026년 11월 12일 미국 증시 브리핑 미국 증시는 AI 인프라와 반도체를 중심으로 강한 위험선호가 복원되며 상승 마감. S&P 500 +1.28%, 나스닥 +1.58%, 다우 +0.47%, 러셀2000 +0.88% 기록. VIX는 17.59로 9.61% 급락하며 변동성 부담 완화. 다만 시장 내부적으로는..."
     },
     {
@@ -360,8 +360,8 @@
       "topics": [
         "semi"
       ],
-      "count": 492,
-      "focus": "2026년 11월 10일 미국 증시 브리핑 미국 증시는 엔비디아 급락에도 전반적인 위험선호가 강하게 회복되며 상승 마감. S&P 500 +2.34%, 다우 +2.15%, 나스닥 +2.74%, 러셀2000..."
+      "count": 497,
+      "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화..."
     },
     {
       "id": "optical",
@@ -378,7 +378,7 @@
       "topics": [
         "power"
       ],
-      "count": 286,
+      "count": 287,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -387,7 +387,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 111,
+      "count": 110,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -423,7 +423,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 361,
+      "count": 359,
       "focus": "코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로..."
     },
     {
@@ -468,8 +468,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 798,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 에어비앤비 (ABNB) — 자체 AI 여행 에이전트를 2027년 상반기 출시할 계획임. 여행 계획·옵션 비교·예약 관리뿐 아니라..."
+      "count": 796,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
     }
   ],
   "pageMap": {
@@ -722,6 +722,27 @@
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
     {
+      "id": "bornlupin/21121",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21121",
+      "datetime": "2026-11-11T23:35:27.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi",
+        "credit",
+        "macro",
+        "power"
+      ],
+      "lead": 1,
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
+    },
+    {
       "id": "insidertracking/69044",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69044",
@@ -801,18 +822,15 @@
       "datetime": "2026-11-11T20:56:54.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
       "tickers": [
         "NVDA",
         "AMZN"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
+      ]
     },
     {
       "id": "insidertracking/69034",
@@ -925,16 +943,19 @@
       "datetime": "2026-11-10T21:14:53.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "earnings"
+        "earnings",
+        "semi",
+        "power",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "CRWV"
-      ]
+      ],
+      "summary": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러..."
     },
     {
       "id": "insidertracking/68940",
@@ -1431,26 +1452,6 @@
       ]
     },
     {
-      "id": "bornlupin/20874",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20874",
-      "datetime": "2026-10-28T23:27:17.000Z",
-      "localDateKst": "2026-10-29",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "알파벳(GOOGL) 2026년 3분기 어닝콜 — CapEx·AI 인프라 관련 1. CapEx 규모 및 2027년 전망 — CFO 아나트 아슈케나지 • 3분기 CapEx는 514억 달러. 대부분 AI 투자를...",
-      "tickers": [
-        "NVDA",
-        "AAPL",
-        "GOOG",
-        "AVGO",
-        "ORCL"
-      ]
-    },
-    {
       "id": "bornlupin/21096",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21096",
@@ -1458,16 +1459,18 @@
       "localDateKst": "2026-11-10",
       "tags": [
         "semi",
-        "equity"
+        "equity",
+        "earnings"
       ],
+      "lead": 2,
       "score": 99,
       "hasText": true,
-      "summary": "BofA, 엔비디아 $NVDA , 투자의견 매수(BUY), 목표주가 $350 유지 \"엔비디아에 잠재적인 방해 요인이 발생하거나 당국의 조사가 강화될 경우, AMD, 브로드컴, 마벨과 같은 다른 컴퓨팅...",
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO"
-      ]
+      ],
+      "summary": "BofA, 엔비디아 $NVDA , 투자의견 매수(BUY), 목표주가 $350 유지 \"엔비디아에 잠재적인 방해 요인이 발생하거나 당국의 조사가 강화될 경우, AMD, 브로드컴, 마벨과 같은 다른 컴퓨팅..."
     },
     {
       "id": "bornlupin/21015",
@@ -1697,6 +1700,147 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/71988",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71988",
+      "datetime": "2026-11-11T23:48:49.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>Nvidia, 외부 업체와 협력해 차기 CEO 후보 물색 •Nvidia가 외부 업체와 협력해 차기 CEO 후보를 물색하고 있음. 보다 광범위한 CEO 선임 절차를 진행하기에 앞서 과도기 CEO를 먼저..."
+    },
+    {
+      "id": "bornlupin/21122",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21122",
+      "datetime": "2026-11-11T23:39:45.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아, 차기 CEO 후보 물색 위해 외부 전문업체와 협력 중 후임 CEO 공개 영입 절차에 앞서 임시 CEO 선임 검토 중"
+    },
+    {
+      "id": "insidertracking/69083",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69083",
+      "datetime": "2026-11-11T23:39:23.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "$NVDA - 엔비디아, 새로운 CEO 발굴을 위해 외부 기업과 협력 중"
+    },
+    {
+      "id": "insidertracking/69081",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69081",
+      "datetime": "2026-11-11T23:36:05.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아 영향으로 지수선물 하락 전환 국장에서는 별일 없길 바랍니다 진짜..."
+    },
+    {
+      "id": "bornlupin/21121",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21121",
+      "datetime": "2026-11-11T23:35:27.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi",
+        "credit",
+        "macro",
+        "power"
+      ],
+      "lead": 1,
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
+    },
+    {
+      "id": "bornlupin/21120",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21120",
+      "datetime": "2026-11-11T23:34:51.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "트럼프 행정부, 엔비디아 이사회의 젠슨 황 CEO 해임 준비 인지 — CBS 뉴스 엔비디아 이사회, 수요일 젠슨 황 CEO 해임 여부 결정 예정 — 소식통"
+    },
+    {
+      "id": "insidertracking/69080",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69080",
+      "datetime": "2026-11-11T23:28:35.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "로이터 소식통에 따르면 엔비디아 이사회가 수요일 회의를 열고 젠슨 황 CEO의 해임 여부를 결정할 예정."
+    },
+    {
+      "id": "HANAchina/71986",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/71986",
+      "datetime": "2026-11-11T23:23:43.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "macro"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>브라질, 최대 108억달러 규모 재정정비안 제시…세제혜택 축소·지출 긴축 추진 •브라질 정부는 세금 감면 축소, 세액공제 사용 제한, 공공부문 임금 억제 등을 통해 재정을 정비할 계획임. 이를 통해 내년..."
+    },
     {
       "id": "HANAchina/71985",
       "channel": "HANAchina",
@@ -2029,7 +2173,7 @@
       "datetime": "2026-11-11T21:00:56.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -2039,8 +2183,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 11월 12일 미장 마감 S&P 500 - 7,617.39 +1.28% 다우 30 - 52,475.94 +0.47% 나스닥 - 25,461.66 +1.58% 러셀 2000 - 2,846.07..."
+      "summary": "2026년 11월 12일 미장 마감 S&P 500 - 7,617.39 +1.28% 다우 30 - 52,475.94 +0.47% 나스닥 - 25,461.66 +1.58% 러셀 2000 - 2,846.07...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69038",
@@ -2049,9 +2193,7 @@
       "datetime": "2026-11-11T20:59:08.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "geo",
-        "semi",
-        "ai-policy"
+        "geo"
       ],
       "score": 76,
       "hasText": true,
@@ -2061,10 +2203,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD..."
+      ]
     },
     {
       "id": "insidertracking/69037",
@@ -2073,18 +2215,15 @@
       "datetime": "2026-11-11T20:56:54.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
       "tickers": [
         "NVDA",
         "AMZN"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
+      ]
     },
     {
       "id": "HANAchina/71978",
@@ -3324,13 +3463,14 @@
       "datetime": "2026-11-10T21:20:19.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "ai-policy",
-        "earnings"
+        "earnings",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "[단독] 오픈AI, 3분기 매출 100억 달러로 급증 ​오픈AI(OpenAI)는 최신 모델과 기업용 제품에 대한 수요가 늘어나면서 성장 둔화기를 딛고 반등하여, 3분기 매출이 50% 급증한 약 100억 달러에...",
-      "tickers": []
+      "tickers": [],
+      "summary": "[단독] 오픈AI, 3분기 매출 100억 달러로 급증 ​오픈AI(OpenAI)는 최신 모델과 기업용 제품에 대한 수요가 늘어나면서 성장 둔화기를 딛고 반등하여, 3분기 매출이 50% 급증한 약 100억 달러에..."
     },
     {
       "id": "insidertracking/68953",
@@ -3382,16 +3522,19 @@
       "datetime": "2026-11-10T21:14:53.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "earnings"
+        "earnings",
+        "semi",
+        "power",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "CRWV"
-      ]
+      ],
+      "summary": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러..."
     },
     {
       "id": "insidertracking/68945",
@@ -3707,13 +3850,13 @@
       "datetime": "2026-11-10T11:50:17.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi",
         "ai-policy",
-        "equity"
+        "equity",
+        "semi"
       ],
+      "lead": 2,
       "score": 77,
       "hasText": true,
-      "summary": "다음 기업들이 모두 기업공개(IPO) 공모가로 앤트로픽(Anthropic, $ANT ) 주식을 매수 구글 ( $GOOGL ): 100억 달러 엔비디아 ( $NVDA ): 100억 달러 AMD ( $AMD ):...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -3723,7 +3866,8 @@
         "AVGO",
         "MU",
         "TSM"
-      ]
+      ],
+      "summary": "다음 기업들이 모두 기업공개(IPO) 공모가로 앤트로픽(Anthropic, $ANT ) 주식을 매수 구글 ( $GOOGL ): 100억 달러 엔비디아 ( $NVDA ): 100억 달러 AMD ( $AMD ):..."
     },
     {
       "id": "bornlupin/21096",
@@ -3733,16 +3877,18 @@
       "localDateKst": "2026-11-10",
       "tags": [
         "semi",
-        "equity"
+        "equity",
+        "earnings"
       ],
+      "lead": 2,
       "score": 99,
       "hasText": true,
-      "summary": "BofA, 엔비디아 $NVDA , 투자의견 매수(BUY), 목표주가 $350 유지 \"엔비디아에 잠재적인 방해 요인이 발생하거나 당국의 조사가 강화될 경우, AMD, 브로드컴, 마벨과 같은 다른 컴퓨팅...",
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO"
-      ]
+      ],
+      "summary": "BofA, 엔비디아 $NVDA , 투자의견 매수(BUY), 목표주가 $350 유지 \"엔비디아에 잠재적인 방해 요인이 발생하거나 당국의 조사가 강화될 경우, AMD, 브로드컴, 마벨과 같은 다른 컴퓨팅..."
     },
     {
       "id": "bornlupin/21095",
@@ -3755,10 +3901,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "AMD, 95억 달러 규모의 앤트로픽 클래스 N 주식 매입 합의",
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": "AMD, 95억 달러 규모의 앤트로픽 클래스 N 주식 매입 합의"
     },
     {
       "id": "insidertracking/68896",
@@ -3783,18 +3929,19 @@
       "datetime": "2026-11-10T11:40:31.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi",
         "ai-policy",
-        "equity"
+        "equity",
+        "semi"
       ],
+      "lead": 2,
       "score": 69,
       "hasText": true,
-      "summary": "앤트로픽(Anthropic): 기업공개(IPO)를 통해 약 1조 달러의 기업가치 목표 다음 주 수요일 공모가 확정, 목요일 거래 개시 예정 AMD, 브로드컴, 구글 및 기타 투자자들, 앤트로픽에 260억 달러...",
       "tickers": [
         "AMD",
         "GOOG",
         "AVGO"
-      ]
+      ],
+      "summary": "앤트로픽(Anthropic): 기업공개(IPO)를 통해 약 1조 달러의 기업가치 목표 다음 주 수요일 공모가 확정, 목요일 거래 개시 예정 AMD, 브로드컴, 구글 및 기타 투자자들, 앤트로픽에 260억 달러..."
     },
     {
       "id": "bornlupin/21093",
@@ -3803,17 +3950,18 @@
       "datetime": "2026-11-10T11:37:09.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
+        "equity",
         "ai-policy",
-        "equity"
+        "earnings"
       ],
+      "lead": 1,
       "score": 68,
       "hasText": true,
-      "summary": "앤트로픽, 기업공개(IPO) 추진을 위한 로드쇼 착수 오늘 앤트로픽(Anthropic, PBC)은 클래스 A 보통주의 기업공개(IPO) 추진을 위한 로드쇼에 착수했습니다. 이번 공모는 총...",
-      "lead": 2,
       "tickers": [
         "GS",
         "MS"
-      ]
+      ],
+      "summary": "앤트로픽, 기업공개(IPO) 추진을 위한 로드쇼 착수 오늘 앤트로픽(Anthropic, PBC)은 클래스 A 보통주의 기업공개(IPO) 추진을 위한 로드쇼에 착수했습니다. 이번 공모는 총..."
     },
     {
       "id": "insidertracking/68894",
@@ -3926,11 +4074,11 @@
       ],
       "score": 60,
       "hasText": true,
-      "summary": "[단독] 일론 머스크와 마이클 미바흐, 선전 APEC서 트럼프와 동행 예정. 그렇다면 젠슨 황은? 외국 정보기관 관련 조사 속에서 엔비디아 CEO의 참석 여부가 불투명해졌으며, 중국 정부는 해당 의혹을 '근거...",
       "tickers": [
         "NVDA",
         "TSLA"
-      ]
+      ],
+      "summary": "[단독] 일론 머스크와 마이클 미바흐, 선전 APEC서 트럼프와 동행 예정. 그렇다면 젠슨 황은? 외국 정보기관 관련 조사 속에서 엔비디아 CEO의 참석 여부가 불투명해졌으며, 중국 정부는 해당 의혹을 '근거..."
     },
     {
       "id": "HANAchina/71899",
@@ -4019,10 +4167,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "중국 궈 대변인 '엔비디아 둘러싼 중국 스파이 의혹은 근거 없다'",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "중국 궈 대변인 '엔비디아 둘러싼 중국 스파이 의혹은 근거 없다'"
     },
     {
       "id": "insidertracking/68873",
@@ -4084,15 +4232,15 @@
         "earnings",
         "semi"
       ],
+      "lead": 2,
       "score": 64,
       "hasText": true,
-      "summary": "견조한 AI 칩 수요를 보여주며 TSMC 매출 60% 증가 대만 TSMC의 월간 매출이 60% 증가하며, 글로벌 AI 인프라 구축에서 차지하는 핵심적 역할을 입증 했습니다. 10월 실적 및 성장세 가속:...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "AAPL",
         "TSM"
-      ]
+      ],
+      "summary": "견조한 AI 칩 수요를 보여주며 TSMC 매출 60% 증가 대만 TSMC의 월간 매출이 60% 증가하며, 글로벌 AI 인프라 구축에서 차지하는 핵심적 역할을 입증 했습니다. 10월 실적 및 성장세 가속:..."
     },
     {
       "id": "HANAchina/71894",
@@ -4152,9 +4300,10 @@
       "datetime": "2026-11-10T05:35:12.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
+      "lead": 2,
       "score": 56,
       "hasText": true,
       "media": {
@@ -4163,10 +4312,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "TSMC 2026년 10월 순매출 mom +14.7%, yoy +59.7% 연결 기준 약 5,868억 9,000만 대만달러(NT$) 2026년 9월 대비 14.7%, 2025년 10월 대비 59.7% 증가한...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC 2026년 10월 순매출 mom +14.7%, yoy +59.7% 연결 기준 약 5,868억 9,000만 대만달러(NT$) 2026년 9월 대비 14.7%, 2025년 10월 대비 59.7% 증가한..."
     },
     {
       "id": "HANAchina/71889",
@@ -4223,14 +4372,14 @@
       "datetime": "2026-11-10T05:11:30.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 61,
       "hasText": true,
-      "summary": "앨리스 황의 과거 행적: 상하이에서 싱가포르까지 현재까지 확보된 정보의 흐름을 보면, 앨리스 황(Alice Huang)은 스파이가 아니라 자본시장을 능숙하게 활용하는 ‘화이트 글러브’(배후 세력을 대신해...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "앨리스 황의 과거 행적: 상하이에서 싱가포르까지 현재까지 확보된 정보의 흐름을 보면, 앨리스 황(Alice Huang)은 스파이가 아니라 자본시장을 능숙하게 활용하는 ‘화이트 글러브’(배후 세력을 대신해..."
     },
     {
       "id": "HANAchina/71888",
@@ -4338,13 +4487,14 @@
       "datetime": "2026-11-10T03:55:01.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "ai-policy",
-        "equity"
+        "equity",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
-      "summary": "앤스로픽, 아모데이 및 JP모건 CEO 다이먼과 함께하는 IPO 라이브 스트리밍 계획 앤스로픽(Anthropic PBC)은 공동 창업자 겸 최고경영자(CEO) 다리오 아모데이가 JP모건 체이스의 제이미 다이먼...",
-      "tickers": []
+      "tickers": [],
+      "summary": "앤스로픽, 아모데이 및 JP모건 CEO 다이먼과 함께하는 IPO 라이브 스트리밍 계획 앤스로픽(Anthropic PBC)은 공동 창업자 겸 최고경영자(CEO) 다리오 아모데이가 JP모건 체이스의 제이미 다이먼..."
     },
     {
       "id": "HANAchina/71871",
@@ -6015,28 +6165,6 @@
       ]
     },
     {
-      "id": "insidertracking/68748",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68748",
-      "datetime": "2026-11-09T01:09:51.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "엔비디아 오버나잇 3% 하락",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "HANAchina/71779",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71779",
@@ -6052,47 +6180,6 @@
       "lead": 2,
       "tickers": [
         "MSFT"
-      ]
-    },
-    {
-      "id": "insidertracking/68743",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68743",
-      "datetime": "2026-11-09T00:48:34.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": "니케이에 따르면 일론 머스크가 추진하는 테슬라와 스페이스X의 반도체 합작 사업 '테라팹(Terafab)'이 2032년까지 월 100만 장의 반도체 웨이퍼 생산을 목표로 설정한 것으로 알려짐. 테라팹은 반도체...",
-      "lead": 1,
-      "tickers": [
-        "TSLA",
-        "005930.KS"
-      ]
-    },
-    {
-      "id": "insidertracking/68741",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68741",
-      "datetime": "2026-11-09T00:41:52.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 63,
-      "hasText": true,
-      "media": {
-        "kind": "video",
-        "photoCount": 0,
-        "videoCount": 1,
-        "documents": []
-      },
-      "summary": "트럼프 대통령이 엔비디아 최고경영자(CEO) 젠슨 황에 대해 긍정적으로 평가하며, 최근 제기된 사안과 관련해 잘못을 저질렀다는 이야기는 듣지 못했다고 밝힘. 트럼프 대통령은 “저는 그와 이 문제에 대해...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
       ]
     },
     {
@@ -7373,42 +7460,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/71647",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71647",
-      "datetime": "2026-11-06T02:51:41.000Z",
-      "localDateKst": "2026-11-06",
-      "tags": [
-        "semi"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "•중국 반도체 과창50지수 플러스 전환 •개장 -5% 낙폭 극복 •홍콩 증시 약보합 전환, 3대지수 낙폭 축소",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/71643",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71643",
-      "datetime": "2026-11-06T02:22:27.000Z",
-      "localDateKst": "2026-11-06",
-      "tags": [
-        "semi"
-      ],
-      "score": 57,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 3,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>BofA 로드쇼 : 홍콩 및 일부 상하이 투자자들, 메모리주에 대해 뚜렷한 약세 전환 •BofA 로드쇼에서 홍콩 투자자들의 메모리주에 대한 투자 심리가 뚜렷하게 약세로 전환된 것으로 나타났으며, 일부...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21021",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21021",
@@ -8465,54 +8516,6 @@
       "hasText": true,
       "summary": "Axios, 미국·이란 협상에 관여한 외교관 인용 “협상은 긍정적인 진전을 보였으며, 중재국들은 양측 사이에 여전히 남아 있는 입장 차이와 우려 사항을 해소하기 위해 노력하고 있다.” 미국·이란 전쟁 종식을...",
       "tickers": []
-    },
-    {
-      "id": "bornlupin/20927",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20927",
-      "datetime": "2026-11-01T08:59:03.000Z",
-      "localDateKst": "2026-11-01",
-      "tags": [
-        "semi"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": "UBS: CPU-to-GPU 비율의 상당한 상승 여력, 그러나 궁극적으로 전체 시장 규모(TAM)를 결정하는 것은 메모리 UBS는 복잡한 에이전틱 AI 워크로드의 확산으로 GPU당 필요한 CPU 수가 크게...",
-      "tickers": []
-    },
-    {
-      "id": "bornlupin/20925",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20925",
-      "datetime": "2026-11-01T06:58:11.000Z",
-      "localDateKst": "2026-11-01",
-      "tags": [
-        "semi"
-      ],
-      "score": 59,
-      "hasText": true,
-      "summary": "젠슨 황, \"2029년 전까지 메모리 과잉 가능성 낮다\" 2029년 이전 메모리 공급 과잉 가능성 낮아 ​ 수요 지속 전망: 시장 일각의 공급 과잉 우려와 달리, 젠슨 황은 고대역폭메모리(HBM) 등 메모리는...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "bornlupin/20924",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20924",
-      "datetime": "2026-11-01T01:31:24.000Z",
-      "localDateKst": "2026-11-01",
-      "tags": [
-        "semi"
-      ],
-      "score": 75,
-      "hasText": true,
-      "summary": "한국의 반도체 주도 수출 가속화, 연간 1조 달러 목표에 한 걸음 더 근접 - WSJ 한국의 반도체 주도 수출 성장세가 10월 들어 예상보다 훨씬 빠른 속도로 가속화되면서, 사상 초유의 연간 수출 1조 달러...",
-      "lead": 1,
-      "tickers": [
-        "005930.KS",
-        "000660.KS"
-      ]
     }
   ],
   "current24hItems": [
@@ -8747,7 +8750,7 @@
       "datetime": "2026-11-11T21:00:56.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -8757,8 +8760,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 11월 12일 미장 마감 S&P 500 - 7,617.39 +1.28% 다우 30 - 52,475.94 +0.47% 나스닥 - 25,461.66 +1.58% 러셀 2000 - 2,846.07..."
+      "summary": "2026년 11월 12일 미장 마감 S&P 500 - 7,617.39 +1.28% 다우 30 - 52,475.94 +0.47% 나스닥 - 25,461.66 +1.58% 러셀 2000 - 2,846.07...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69038",
@@ -8767,9 +8770,7 @@
       "datetime": "2026-11-11T20:59:08.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "geo",
-        "semi",
-        "ai-policy"
+        "geo"
       ],
       "score": 76,
       "hasText": true,
@@ -8779,10 +8780,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD..."
+      ]
     },
     {
       "id": "insidertracking/69037",
@@ -8791,18 +8792,15 @@
       "datetime": "2026-11-11T20:56:54.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
       "tickers": [
         "NVDA",
         "AMZN"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
+      ]
     },
     {
       "id": "HANAchina/71978",
