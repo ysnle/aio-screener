@@ -14,7 +14,21 @@ import { computeTradingScoreModel } from '../src/domain/market/signal/trading-sc
 import { buildMarketTemperature } from '../src/domain/market/sentiment/market-temperature.js';
 import { openSessionDatesBetween } from '../src/domain/market/session/market-calendar.js';
 import { RULES } from '../src/domain/rules/thresholds.js';
-import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
+
+// v59.97: the frozen 2026 replay fixture (one array per field over its session dates) back to history rows. A breadth
+// field's eligible denominator returns as its fieldMeta, the only provenance the regime reads from these rows.
+function replayFixtureRows(fixture) {
+  const dates = Array.isArray(fixture?.dates) ? fixture.dates : [];
+  const series = fixture?.series || {};
+  return dates.map((date, i) => {
+    const row = { date };
+    for (const [field, values] of Object.entries(series)) if (Number.isFinite(values?.[i])) row[field] = values[i];
+    for (const [field, byDate] of Object.entries(fixture?.eligible || {})) {
+      if (Number.isFinite(byDate?.[date])) (row.fieldMeta ||= {})[field] = { eligible: byDate[date] };
+    }
+    return row;
+  });
+}
 
 // [date, S&P 500 close, VIX close, HY OAS bp]
 const WINDOWS = [
@@ -185,28 +199,19 @@ for (const [w, window] of WINDOWS.entries()) {
   summary.push(`${window.id}: outer changes regime ${regimeFlips} / close-vs-50 ${naiveFlips}`);
 }
 
-// Real 2026 windows, replayed day by day from the published history.json + macro-history.json (no synthetic path).
-// - 2026-02..03: S&P 500 -9.1%, Nasdaq-100 -11.8%, VIX 31 on 3/27. history.json starts 2025-08-22, so the 200-day line —
-//   and with it the trend axis — is not computable from this file before 2026-06; the replay says so instead of guessing.
+// Real 2026 windows, replayed day by day from recorded closes (the frozen replay fixture) + macro-history.json (no synthetic path).
+// - 2026-02..03: S&P 500 -9.1%, Nasdaq-100 -11.8%, VIX 31 on 3/27. The recorded closes start 2025-09-18, so the 200-day line —
+//   and with it the trend axis — is not computable before 2026-07; the replay says so instead of guessing.
 // - 2026-07: the S&P 500 fell at most 4.5% while the Nasdaq-100 fell 11.3% from 6/2 to 7/29 (owner 2026-10-16: "지수는 덜 빠져도 AI·반도체는 많이 빠졌다"). A leadership
 //   state of 'holding' then told the AI packet "주도 영역 이탈: 아니오".
 // - 2026-10-12..15: the v57.81 rule changes came from this week (0.15% over the 50-day line and VIX 16.87 after +11.9%
 //   in five sessions both read 양호 on 10/14).
 {
-  const rows = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'))); // v59.70: the one reader; never the stored shape's .rows
-  // v59.70 (owner 11/4): the leadership proxy is SOXX. Until history.json carries its own soxx column (the next refresh
-  // backfills a year), a session without one reads the dated Yahoo closes in architecture/fixtures/soxx-daily-closes.json.
-  const soxxFixture = JSON.parse(readFileSync(new URL('../architecture/fixtures/soxx-daily-closes.json', import.meta.url), 'utf8')).closes;
-  let soxxFromFixture = 0;
-  for (const row of rows) {
-    const meta = row.fieldMeta?.spx;
-    const session = meta?.sessionDate || row.date;
-    if (Number.isFinite(row.soxx) || !meta || !Number.isFinite(row.spx) || !Number.isFinite(soxxFixture[session])) continue;
-    row.soxx = soxxFixture[session];
-    row.fieldMeta = { ...row.fieldMeta, soxx: { ...meta, symbol: 'SOXX', source: 'fixture' } };
-    soxxFromFixture += 1;
-  }
-  summary.push(`SOXX: history.json ${rows.filter((row) => Number.isFinite(row.soxx)).length - soxxFromFixture}개 세션, 고정 기록 ${soxxFromFixture}개 세션`);
+  // v59.97: the windows read frozen session-dated closes (architecture/fixtures/crash-replay-2026-closes.json, generated
+  // once from history.json through 2026-10-15 with the SOXX daily-close fixture already folded in). history.json keeps a
+  // rolling 420 rows, so reading it directly would fail every release once 2026-03-27 left the file (about May 2027).
+  const rows = replayFixtureRows(JSON.parse(readFileSync(new URL('../architecture/fixtures/crash-replay-2026-closes.json', import.meta.url), 'utf8')));
+  summary.push(`v59.97 고정 기록: ${rows.length}개 세션 (${rows[0]?.date} ~ ${rows.at(-1)?.date}), SOXX ${rows.filter((row) => Number.isFinite(row.soxx)).length}개 세션`);
   const macroHistory = JSON.parse(readFileSync(new URL('../public-data/macro-history.json', import.meta.url), 'utf8'));
   const hy = macroHistory.series?.hyOas?.observations || [];
   const realAt = (date) => {
@@ -219,7 +224,7 @@ for (const [w, window] of WINDOWS.entries()) {
     return { date, row: hist.at(-1), credit, regime, states: Object.fromEntries(regime.axes.map((axis) => [axis.id, axis.state])), leadership: regime.leadership || {} };
   };
   const sessions = (from, to) => rows.filter((row) => row.date >= from && row.date <= to && Number.isFinite(row.spx) && Number.isFinite(row.soxx)).map((row) => row.date);
-  const need = (date, label) => { const read = realAt(date); if (!read) failures.push(`${label} ${date}: history.json has no close`); return read; };
+  const need = (date, label) => { const read = realAt(date); if (!read) failures.push(`v59.97 ${label} ${date}: the replay fixture has no close`); return read; };
   const line = (read, extra = '') => `${read.date} ${['trend', 'breadth', 'volatility', 'credit'].map((id) => `${id}:${read.states[id]}`).join(' ')} leaders:${read.leadership.state}${extra}`;
 
   // Day-by-day invariants over all three windows.
@@ -246,7 +251,7 @@ for (const [w, window] of WINDOWS.entries()) {
     check(!['trend', 'breadth', 'volatility'].some((id) => mar27.states[id] === 'favorable'), `2026-03-27: 급락일에 양호 판정 ${line(mar27)}`);
     check(mar27.states.volatility === 'burden' && mar27.states.breadth === 'burden', `2026-03-27: 변동성·시장 폭 부담이어야 함 ${line(mar27)}`);
     check(mar27.leadership.state !== 'holding', `v59.70 2026-03-27: 반도체 급락 바닥인데 주도 영역 유지 (${mar27.leadership.summary})`);
-    summary.push(line(mar27, mar27.states.trend === 'unknown' ? ' (추세: history.json 200거래일 미만)' : ''));
+    summary.push(line(mar27, mar27.states.trend === 'unknown' ? ' (추세: 고정 기록 200거래일 미만)' : ''));
   }
   // 2026-07: the AI/semis decline under a steady index.
   for (const date of ['2026-07-28', '2026-07-29']) {

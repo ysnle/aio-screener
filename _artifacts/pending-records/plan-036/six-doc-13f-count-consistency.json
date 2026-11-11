@@ -1,0 +1,17 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.97 six-doc coverage gate checks 13F counts for consistency instead of pinning one quarter's numbers",
+    "symptom": "ci-six-doc-coverage-check pinned live 13F counts (1290 holdings rows, 1387 comparisons, 1130 CUSIPs, 1161 issuers, 70 imported periods, 84 total periods); a replay with one extra holdings row and its counts updated exited 1, so the next 13F quarter (filing deadline around 2026-11-16) would have failed every data release.",
+    "root_cause": "The gate asserted exact counts of artifacts the refresh rewrites whenever managers file, instead of checking that the published counts agree with the rows they describe.",
+    "fix": "The masters checks now assert embeddedFullRowsAvailable/embeddedFullComparisonRowsAvailable equal the array lengths (and are positive), security-master unique CUSIP/issuer counts equal the counts taken from allHoldings, totalPeriods = connectedManagers x historyDepthTarget, periodsImported is positive, at most totalPeriods and equals the distinct manager|period keys in the stored rows, and rowsImported equals the row count. Status and flag conditions are kept; labels no longer state a number.",
+    "violated_rule": "A gate on the publish path must not fail a correct product because the calendar moved (owner P1542: a data problem is shown honestly and does not stop shipping).",
+    "prevention": "An in-gate v59.97 replay: an extra holdings row with every describing count updated passes, the same row with the embedded count left stale fails.",
+    "verification": "node scripts/ci-six-doc-coverage-check.mjs exit 0 (40 checks); replay preload adding one holdings row with counts updated: old gate exit 1 (masters full holdings count is 1290; security master fail-closed), new gate exit 0; with the embedded count stale: new gate exit 1.",
+    "files": ["scripts/ci-six-doc-coverage-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**13F counts follow the quarter ({P}):** the six-doc coverage gate now checks that each published 13F count matches the rows it describes instead of pinning this quarter's numbers, so the next 13F filing no longer fails every data release."],
+  "note": "v59.97: six-doc coverage 13F count consistency"
+}
