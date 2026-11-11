@@ -9,7 +9,7 @@ import { rrgSettledQuadrant } from '../themes/recent-check.js';
 import { NEAR_LINE_ADR, RECENT_DROP_ADR, adrMultiple, recentDrop } from '../technical/bands.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { sectorLabel } from './sector-label.js';
-import { readNumber as finite } from '../shared/number.js';
+import { directionOf, readNumber as finite } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
 // v59.46 boundary contract: screener row numbers are read through the readiness contract, not row[key].
@@ -82,6 +82,8 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   }
   if (validation?.available) {
     const spread = finite(validation.spreadNet);
+    // The word follows the spread as printed (two decimals): a spread that prints as 0.00%p is neither ahead nor behind.
+    const spreadDirection = directionOf(spread, 2);
     // P1449: past performance is a claim about THIS model only when the stored record's model
     // fingerprint matches the live model. On mismatch (or a pre-fingerprint record) the
     // trust point says why it is not validation instead of quoting the old model's spread.
@@ -91,12 +93,15 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
     } else if (validation.distinguishable === false) {
       // v57.50 D11: the same "cannot tell yet" admission as the validation panel — no 앞섬/뒤처짐 from a small sample.
       points.push({ id: 'trust', tone: 'neutral', title: '순위의 과거 성과',
-        text: `${validation.undecided || '아직 우연과 구별 안 됨'} — 같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 ${spread == null ? '상위 20%와 하위 20%의 평균 차이는 기록이 없고' : `상위 20%가 하위 20%보다 평균 ${Math.abs(spread).toFixed(2)}%p ${spread >= 0 ? '앞섰지만' : '뒤졌지만'}`}, 표본 ${validation.rebalances}회로는 우연과 구별되지 않습니다. 순위는 차트·재무로 확인할 후보 목록으로 읽습니다.` });
+        text: `${validation.undecided || '아직 우연과 구별 안 됨'} — 같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 ${spread == null ? '상위 20%와 하위 20%의 평균 차이는 기록이 없고' : spreadDirection == null ? `상위 20%와 하위 20%의 평균 차이는 ${Math.abs(spread).toFixed(2)}%p였지만` : `상위 20%가 하위 20%보다 평균 ${Math.abs(spread).toFixed(2)}%p ${spreadDirection === 'up' ? '앞섰지만' : '뒤졌지만'}`}, 표본 ${validation.rebalances}회로는 우연과 구별되지 않습니다. 순위는 차트·재무로 확인할 후보 목록으로 읽습니다.` });
+    } else if (spread != null && spreadDirection == null) {
+      points.push({ id: 'trust', tone: 'neutral', title: '순위의 과거 성과',
+        text: `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%와 하위 20%의 평균 차이는 ${Math.abs(spread).toFixed(2)}%p였습니다(비용 후 상위가 앞선 횟수 ${validation.wins ?? '—'}/${validation.rebalances}회) — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
     } else {
-      points.push({ id: 'trust', tone: spread != null && spread > 0 ? 'favorable' : 'burden', title: '순위의 과거 성과',
-        text: spread != null && spread > 0
+      points.push({ id: 'trust', tone: spreadDirection === 'up' ? 'favorable' : 'burden', title: '순위의 과거 성과',
+        text: spreadDirection === 'up'
           ? `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 평균 ${spread.toFixed(2)}%p 앞섰습니다(비용 후 ${validation.wins}/${validation.rebalances}회). 다만 지금 종목 구성으로 본 결과라 생존 편향이 있습니다.`
-          : `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 ${spread == null ? '평균 차이 기록 없이 앞서지 못했고' : `평균 ${Math.abs(spread).toFixed(2)}%p ${spread < 0 ? '뒤처졌고' : '앞섰을 뿐이고'}`} 비용 후 ${validation.wins ?? '—'}/${validation.rebalances}회만 앞섰습니다 — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
+          : `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 ${spread == null ? '평균 차이 기록 없이 앞서지 못했고' : `평균 ${Math.abs(spread).toFixed(2)}%p 뒤처졌고`} 비용 후 ${validation.wins ?? '—'}/${validation.rebalances}회만 앞섰습니다 — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
     }
   }
   // 2026-10-14 audit #5: how many of the top fifth sit in themes at each stage (same rows as 테마 시나리오). Counts only;
@@ -124,7 +129,8 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
     : validation.modelMatch === false ? '순위의 과거 성과는 다른 모델 기록이라 판단 보류'
       : validation.distinguishable === false ? `순위의 과거 성과는 아직 우연과 구별 안 됨(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회 앞섬)`
         : spreadValue == null ? null
-          : spreadValue > 0 ? `과거 상위 20%가 하위보다 앞섬(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회)`
+          : directionOf(spreadValue, 2) == null ? `과거 상위 20%와 하위의 차이 없음(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회 앞섬)`
+          : spreadValue > 0 ?`과거 상위 20%가 하위보다 앞섬(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회)`
             : `과거 상위 20%가 하위보다 뒤처짐(${validation.rebalances}회 중 비용 후 ${validation.wins ?? '—'}회 앞섬)`;
   const headline = `${topName} 구성은 ${over.length ? `${over.map((row) => row.label).join('·')} 쏠림` : '업종 쏠림 없음'}${trustVerdict ? `, ${trustVerdict}` : ''} — 순위 계산 ${ranked.length}종목 중 ${topLabel}`;
   const next = [];

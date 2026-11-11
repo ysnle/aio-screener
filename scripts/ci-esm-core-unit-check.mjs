@@ -2477,6 +2477,17 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (basisSummary.wins !== 2 || basisSummary.winsBasis !== 'net' || !/비용 후 2회/.test(basisRead.headline)) fail(`v57.81 one validation count basis (net) must be named, got ${basisRead.headline}`);
   const health = basisRead.points.find((point) => point.id === 'health');
   if (health?.tone !== 'neutral' || !/추세 팩터/.test(health.text) || !/하루 평균 변동폭의 2배 넘게 하락/.test(health.text)) fail(`v57.81 상위권 추세 is neutral, names the trend factor and the five-session drawdown share, got ${JSON.stringify(health)}`);
+  // The trust word follows the spread as printed (two decimals): 0.003%p prints 0.00%p and is neither ahead nor behind.
+  const spreadRead = (spreadNet, distinguishable = true) => {
+    const read = buildScreenerRead({ rows: basisRows, validation: { available: true, modelMatch: true, distinguishable, spreadNet, rebalances: 12, wins: 6 } });
+    return { trust: read.points.find((point) => point.id === 'trust') || {}, headline: read.headline || '' };
+  };
+  const flatSpread = spreadRead(0.003);
+  if (flatSpread.trust.tone !== 'neutral' || /앞섰|뒤처/.test(flatSpread.trust.text || '') || !/0\.00%p/.test(flatSpread.trust.text || '') || !/과거 상위 20%와 하위의 차이 없음/.test(flatSpread.headline) || /하위보다 앞섬/.test(flatSpread.headline)) fail(`v59.97 a 0.003%p spread prints 0.00%p and must read neutral with no 앞섰 word, got ${JSON.stringify(flatSpread)}`);
+  const smallSpread = spreadRead(0.006);
+  if (smallSpread.trust.tone !== 'favorable' || !/평균 0\.01%p 앞섰습니다/.test(smallSpread.trust.text || '') || !/과거 상위 20%가 하위보다 앞섬/.test(smallSpread.headline)) fail(`v59.97 a 0.006%p spread prints 0.01%p 앞섰습니다, got ${JSON.stringify(smallSpread)}`);
+  const flatUndecided = spreadRead(0.003, false);
+  if (flatUndecided.trust.tone !== 'neutral' || /앞섰지만|뒤졌지만/.test(flatUndecided.trust.text || '') || !/0\.00%p/.test(flatUndecided.trust.text || '')) fail(`v59.97 an undecided 0.00%p spread carries no 앞섰지만, got ${JSON.stringify(flatUndecided)}`);
   // The fiscal headline carries its FY; an annual filing past the longest 10-K deadline after the next FY end is flagged.
   const { buildFiscalRead: fiscalForHero } = await load('src/domain/fundamental/fiscal-read.js');
   const fyHistory = [{ periodEnd: '2024-06-30', revenue: 10e9, netIncome: 1e9, equity: 8e9 }, { periodEnd: '2025-06-30', revenue: 12e9, netIncome: 1.3e9, equity: 9e9 }];
