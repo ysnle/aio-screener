@@ -1,0 +1,17 @@
+{
+  "version": "v59.98",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.98 The AI action gate keeps advice to tidy a watchlist of 종목",
+    "symptom": "An AI answer advising the reader to tidy their watchlist (관심 종목 + 정리하세요) was replaced with the no-trade-instruction notice.",
+    "root_cause": "positionImperative in request-pipeline.js treated a bare 종목 as a position object for 정리하 as it does for 처분하 and 던지.",
+    "fix": "With 정리하 the object must be 보유, 물량, 주식, 포지션, 비중, 지분 or 보유 종목; 처분하 and 던지 keep the full position-word list.",
+    "violated_rule": "The directive gate replaces trade instructions, not ordinary guidance close to their wording.",
+    "prevention": "ci-ai-intelligence-contract-check asserts two watchlist-tidy sentences stay and three held-position dispose sentences are still replaced.",
+    "verification": "The kept case failed before the fix (both sentences replaced) and passes after; ci-regex-term-ratchet-check and ci-instruction-text-ratchet-check pass.",
+    "files": ["src/ai/response/request-pipeline.js", "scripts/ci-ai-intelligence-contract-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**AI 지시 관문의 '종목 정리' ({P}):** 관심 종목·오늘 본 종목을 정리하라는 안내는 그대로 두고, 보유 종목·주식·물량을 정리·처분하라는 문장만 매매 지시로 바꾼다."],
+  "note": "v59.98: 정리 needs a held-position object"
+}
