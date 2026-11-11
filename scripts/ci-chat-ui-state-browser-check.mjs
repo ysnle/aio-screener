@@ -62,6 +62,16 @@ try {
     _aioReleaseChatRequest(fresh);
     return isolated && !document.querySelector('#chat-home-btn-stop') && !getChatState('home').streaming;
   }));
+  // The unified panel's own markup: the loading bubble is an .ai-msg carrying the loading id, the caret is .lch-caret.
+  assert.deepEqual(await page.evaluate(() => {
+    const msgs = document.getElementById('chat-home-msgs');
+    msgs.insertAdjacentHTML('beforeend', '<div class="ai-msg ai" id="ai-panel-loading"><div class="ai-msg-content"><div class="ai-bubble"><span class="lch-muted">분석 중...</span></div></div></div>'
+      + '<div class="ai-msg ai" id="ai-panel-streaming"><div class="ai-msg-content"><div class="ai-bubble">부분 답변<span class="lch-caret">|</span></div></div></div>');
+    let notices = 0;
+    _aioBeginChatRequest('home', '패널 중단', { buttonId: 'chat-home-btn', loadingId: 'ai-panel-loading', streamingId: 'ai-panel-streaming', appendCancelNotice: () => { notices++; } });
+    _aioCancelChatRequest('home', 'user-cancelled');
+    return { loading: !!document.getElementById('ai-panel-loading'), carets: document.querySelectorAll('.lch-caret').length, partialKept: msgs.textContent.includes('부분 답변'), notices };
+  }), { loading: false, carets: 0, partialKept: true, notices: 1 }, 'v59.97 stop leaves no 분석 중 bubble or caret in the unified panel');
   // P1136/R620: the chat-history block moved out of index.html's inline block A into
   // js/aio-workspace.js. The slice boundaries must follow the code, or this guard silently
   // degrades to an empty string and the storage assertions below test nothing.

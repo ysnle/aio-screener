@@ -1,0 +1,17 @@
+{
+  "version": "v59.97",
+  "date": "2026-11-11",
+  "p": {
+    "title": "v59.97 a long AI conversation keeps its evidence contract and action policy when the request is trimmed",
+    "symptom": "When the AI panel's request body exceeded the Worker size target (long sessions, about 8 earlier turns), the client cut the system prompt from its end, so the external-evidence contract and the public action policy (no buy/sell instruction, answer-plan contract) were the first text removed and the model answered with reference data but no policy.",
+    "root_cause": "callSharedAi's _cutSystem shortened the whole system prompt with slice(0, n), while chatSendUnified deliberately appends the evidence contract and the action policy last; trimming and prompt order disagreed about which end is expendable.",
+    "fix": "_cutSystem splits the prompt at the last '\\n\\n[AIO EXTERNAL EVIDENCE CONTRACT]' marker and shortens only the reference data before it (same arithmetic, the floor applies to that part), then re-appends the contract and policy tail unchanged; a prompt without the marker is trimmed exactly as before.",
+    "violated_rule": "User-protection policy must reach the model on every AI answer; a size budget may drop reference data or old turns, never the policy.",
+    "prevention": "ci-ai-chat-reliability-contract-check chat-resilience runs the real trimming block: a 47,000-character prompt ending with the contract and a 1,500-character policy plus 8 earlier 6,000-character turns fits the target with the tail intact and the reference shorter; a marker-less prompt matches the old trimming; a small body is unchanged; an over-budget single turn still keeps the whole tail. Any future block that must survive trimming belongs after the marker.",
+    "verification": "node scripts/ci-ai-chat-reliability-contract-check.mjs passes; with the old _cutSystem it fails at 'v59.97 trimming keeps the evidence contract and the action policy intact'.",
+    "files": ["js/aio-chat.js", "scripts/ci-ai-chat-reliability-contract-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**Long AI conversations keep their safety policy ({P}):** when a request has to be shortened, only the reference data before the evidence contract is cut, so the contract and the action policy always reach the model."],
+  "note": "v59.97: prompt trim keeps the policy tail"
+}

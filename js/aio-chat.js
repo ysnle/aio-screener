@@ -962,12 +962,12 @@ function _aioCancelChatRequest(ctxId, reason) {
   }
   var loading = document.getElementById(run.loadingId || ('chat-' + ctxId + '-loading'));
   if (loading && typeof loading.closest === 'function') {
-    var loadingWrap = loading.closest('.acp-msg');
-    if (loadingWrap) loadingWrap.remove();
+    var loadingWrap = loading.closest('.ai-msg, .acp-msg') || loading;
+    loadingWrap.remove();
   }
   var streaming = document.getElementById(run.streamingId || ('chat-' + ctxId + '-streaming'));
   if (streaming && typeof streaming.querySelectorAll === 'function') {
-    streaming.querySelectorAll('.chat-cursor').forEach(function(cursor) { cursor.remove(); });
+    streaming.querySelectorAll('.lch-caret, .chat-cursor').forEach(function(cursor) { cursor.remove(); });
     streaming.removeAttribute('id');
   }
   var silentCancel = ['history-cleared', 'superseded', 'route-changed', 'context-changed'].indexOf(run.cancelReason) >= 0;
@@ -1196,12 +1196,20 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
       ? { role: m.role, content: c.slice(0, 6000) + '\n…(이전 답변 뒷부분 생략)' } : m;
   });
   // A follow-up needs the previous answer, so the reference blocks give way to a floor before any turn is dropped.
+  // The evidence contract and the action policy close the prompt: they start at the last occurrence of this marker,
+  // which must match the line in chatSendUnified that appends '\n\n[AIO EXTERNAL EVIDENCE CONTRACT]\n' before
+  // _aioPublicAIActionPolicyPrompt(). Only the reference data before it is shortened; the floor applies to that part.
+  // A prompt without the marker is shortened from its end.
+  var _AI_PROMPT_TAIL_MARKER = '\n\n[AIO EXTERNAL EVIDENCE CONTRACT]';
   var _cutSystem = function(floor) {
     for (var _cut = 0; _cut < 8 && _bodyBytes(system, _trimmedMessages) > _AI_BODY_BYTES; _cut++) {
       var _sys = String(system || '');
-      if (_sys.length <= floor) return;
+      var _tailAt = _sys.lastIndexOf(_AI_PROMPT_TAIL_MARKER);
+      var _head = _tailAt >= 0 ? _sys.slice(0, _tailAt) : _sys;
+      var _tail = _tailAt >= 0 ? _sys.slice(_tailAt) : '';
+      if (_head.length <= floor) return;
       var _over = _bodyBytes(system, _trimmedMessages) - _AI_BODY_BYTES;
-      system = _sys.slice(0, Math.max(floor, _sys.length - Math.ceil(_over / 3) - 500)) + '\n…(참고 자료 일부 생략)';
+      system = _head.slice(0, Math.max(floor, _head.length - Math.ceil(_over / 3) - 500)) + '\n…(참고 자료 일부 생략)' + _tail;
     }
   };
   _cutSystem(30000);
