@@ -1,6 +1,6 @@
 {
  "schemaVersion": "treasury-auctions.v1",
- "generatedAt": "2026-11-11T07:15:21.151Z",
+ "generatedAt": "2026-11-12T07:47:36.982Z",
  "source": "TreasuryDirect TA_WS securities/auctioned",
  "method": "미 재무부 TreasuryDirect 경매 결과(명목 이표채, TIPS·변동금리채 제외). 응찰률 = 응찰 총액 ÷ 발행액. 간접 낙찰 = 경쟁 낙찰액 중 간접 응찰자(딜러를 거친 해외·국내 기관) 비중. 같은 만기의 직전 6회 평균과 비교하며(응찰률 ±0.1배, 간접 낙찰 ±5%p), 발행 직전 거래 금리(when-issued)가 없어 테일은 계산하지 않습니다.",
  "latestAuction": "2026-11-10",
@@ -1018,11 +1018,11 @@
    "indirectPct": 74.8,
    "directPct": 11.9,
    "dealerPct": 13.3,
-   "prior": 6,
+   "prior": 5,
    "btcMean": 2.66,
-   "indirectMean": 61.8,
+   "indirectMean": 61.7,
    "btcGap": 0.02,
-   "indirectGap": 13,
+   "indirectGap": 13.1,
    "read": "strong"
   },
   {
@@ -1158,11 +1158,11 @@
    "indirectPct": 59.8,
    "directPct": 20.7,
    "dealerPct": 19.5,
-   "prior": 5,
-   "btcMean": 2.68,
-   "indirectMean": 62.3,
-   "btcGap": -0.13,
-   "indirectGap": -2.5,
+   "prior": 4,
+   "btcMean": 2.69,
+   "indirectMean": 62.1,
+   "btcGap": -0.14,
+   "indirectGap": -2.4,
    "read": "weak"
   },
   {
@@ -1298,11 +1298,11 @@
    "indirectPct": 57.1,
    "directPct": 31.9,
    "dealerPct": 10.9,
-   "prior": 4,
-   "btcMean": 2.7,
-   "indirectMean": 63.5,
-   "btcGap": -0.08,
-   "indirectGap": -6.4,
+   "prior": 3,
+   "btcMean": 2.71,
+   "indirectMean": 63.8,
+   "btcGap": -0.09,
+   "indirectGap": -6.7,
    "read": "weak"
   },
   {
@@ -1418,12 +1418,8 @@
    "indirectPct": 56.5,
    "directPct": 29.5,
    "dealerPct": 14,
-   "prior": 3,
-   "btcMean": 2.72,
-   "indirectMean": 65.9,
-   "btcGap": -0.07,
-   "indirectGap": -9.4,
-   "read": "weak"
+   "prior": 2,
+   "read": "thin"
   },
   {
    "date": "2026-01-12",
@@ -1554,7 +1550,7 @@
    "indirectPct": 72,
    "directPct": 19,
    "dealerPct": 9,
-   "prior": 2,
+   "prior": 1,
    "read": "thin"
   },
   {
@@ -1666,7 +1662,7 @@
    "indirectPct": 63,
    "directPct": 27.3,
    "dealerPct": 9.7,
-   "prior": 1,
+   "prior": 0,
    "read": "thin"
   },
   {
@@ -1762,22 +1758,6 @@
    "indirectPct": 66.8,
    "directPct": 24.1,
    "dealerPct": 9.1,
-   "prior": 0,
-   "read": "thin"
-  },
-  {
-   "date": "2025-10-07",
-   "tenor": 3,
-   "term": "3-Year",
-   "cusip": "91282CPC9",
-   "reopening": false,
-   "offeringBn": 58,
-   "highYield": 3.576,
-   "bidToCover": 2.66,
-   "allottedAtHighPct": 60.65,
-   "indirectPct": 62.7,
-   "directPct": 26.6,
-   "dealerPct": 10.7,
    "prior": 0,
    "read": "thin"
   }
