@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-12T16:10:18.670Z",
-  "attemptedAt": "2026-11-12T16:10:18.670Z",
-  "lastSuccessfulAt": "2026-11-12T16:10:18.670Z",
+  "generatedAt": "2026-11-12T16:21:53.516Z",
+  "attemptedAt": "2026-11-12T16:21:53.516Z",
+  "lastSuccessfulAt": "2026-11-12T16:21:53.516Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-29T16:10:14.267Z",
-  "until": "2026-11-12T16:10:14.267Z",
+  "since": "2026-10-29T16:21:50.113Z",
+  "until": "2026-11-12T16:21:50.113Z",
   "current24hWindow": {
     "start": "2026-11-10T23:00:00.000Z",
     "end": "2026-11-11T23:00:00.000Z",
@@ -113,11 +113,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 709,
-      "freshCount": 37,
+      "freshCount": 20,
       "eligibleTextCount": 708,
       "selectedCount": 125,
       "error": null,
@@ -125,7 +125,7 @@
     }
   ],
   "count": 2217,
-  "retainedItemCount": 416,
+  "retainedItemCount": 405,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -1474,19 +1474,16 @@
       "datetime": "2026-11-12T02:17:44.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 99,
       "hasText": true,
+      "summary": ">>인터넷 버블 ‘주역’의 경험자 - 전 Cisco 임원이 비교한 인터넷 대규모 인프라 투자 vs AI 대규모 인프라 투자 (중국언론) •전 Cisco 고위 임원 Mike Volpi는 현재 AI 인프라 투자...",
       "tickers": [
         "NVDA",
         "GOOG",
         "AVGO"
-      ],
-      "summary": ">>인터넷 버블 ‘주역’의 경험자 - 전 Cisco 임원이 비교한 인터넷 대규모 인프라 투자 vs AI 대규모 인프라 투자 (중국언론) •전 Cisco 고위 임원 Mike Volpi는 현재 AI 인프라 투자..."
+      ]
     },
     {
       "id": "bornlupin/21096",
@@ -2275,11 +2272,11 @@
         "macro",
         "kr-market"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>BOJ 심의위원 아사다 도이치로 •BOJ는 환율을 직접 관리하지 않기 때문에 달러·엔이 어느수준이 적절한지에 대해서는 언급할수 없음 •정책금리가 정책 목표에 부합하는 수준에 도달하더라도, 이후 추가 금리..."
+      "summary": ">>BOJ 심의위원 아사다 도이치로 •BOJ는 환율을 직접 관리하지 않기 때문에 달러·엔이 어느수준이 적절한지에 대해서는 언급할수 없음 •정책금리가 정책 목표에 부합하는 수준에 도달하더라도, 이후 추가 금리...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72009",
@@ -2288,10 +2285,8 @@
       "datetime": "2026-11-12T05:52:37.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "power",
-        "equity"
+        "power"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
       "media": {
@@ -2300,12 +2295,13 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>번스타인 : 586GW에서 199GW로 : 미국 AI 데이터센터 계획의 3분의 2는 ‘PPT 용량’? •Bernstein이 북미 데이터센터 프로젝트 8,858개를 개별 조사한 결과, 발표된 총 586GW의...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": ">>번스타인 : 586GW에서 199GW로 : 미국 AI 데이터센터 계획의 3분의 2는 ‘PPT 용량’? •Bernstein이 북미 데이터센터 프로젝트 8,858개를 개별 조사한 결과, 발표된 총 586GW의..."
+      ]
     },
     {
       "id": "insidertracking/69107",
@@ -2433,7 +2429,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -2442,8 +2437,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "•중국 반도체 과창50지수 +3.9% •중국 컴퓨팅 관련주 다수 상한가 •반면, 전방 위주 항셍테크지수 -1.8%"
+      "summary": "•중국 반도체 과창50지수 +3.9% •중국 컴퓨팅 관련주 다수 상한가 •반면, 전방 위주 항셍테크지수 -1.8%",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72002",
@@ -2452,19 +2448,16 @@
       "datetime": "2026-11-12T02:17:44.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 99,
       "hasText": true,
+      "summary": ">>인터넷 버블 ‘주역’의 경험자 - 전 Cisco 임원이 비교한 인터넷 대규모 인프라 투자 vs AI 대규모 인프라 투자 (중국언론) •전 Cisco 고위 임원 Mike Volpi는 현재 AI 인프라 투자...",
       "tickers": [
         "NVDA",
         "GOOG",
         "AVGO"
-      ],
-      "summary": ">>인터넷 버블 ‘주역’의 경험자 - 전 Cisco 임원이 비교한 인터넷 대규모 인프라 투자 vs AI 대규모 인프라 투자 (중국언론) •전 Cisco 고위 임원 Mike Volpi는 현재 AI 인프라 투자..."
+      ]
     },
     {
       "id": "HANAchina/71998",
@@ -2473,14 +2466,13 @@
       "datetime": "2026-11-12T02:06:29.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "ai-policy",
-        "equity"
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Anthropic 상장이 이번 AI 상승장의 정점일까? (중국언론) •매번 큰 상승장이 끝날 때 “정점이니 빨리 도망쳐야 한다”고 외치는 사람은 없었음. 이유는 간단. 정점은 지나고 나서야 알 수 있기..."
+      "summary": ">>Anthropic 상장이 이번 AI 상승장의 정점일까? (중국언론) •매번 큰 상승장이 끝날 때 “정점이니 빨리 도망쳐야 한다”고 외치는 사람은 없었음. 이유는 간단. 정점은 지나고 나서야 알 수 있기...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69095",
@@ -2521,10 +2513,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>쿡, 젠슨 황의 잠재적 후임자로 거론? •Polymarket은 소셜미디어에 전 애플 CEO 팀 쿡이 Nvidia CEO 젠슨 황의 잠재적 후임자로 지명됐다는 보도가 나왔다고 밝힘 (중국언론) **?????",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>쿡, 젠슨 황의 잠재적 후임자로 거론? •Polymarket은 소셜미디어에 전 애플 CEO 팀 쿡이 Nvidia CEO 젠슨 황의 잠재적 후임자로 지명됐다는 보도가 나왔다고 밝힘 (중국언론) **?????"
+      ]
     },
     {
       "id": "HANAchina/71993",
