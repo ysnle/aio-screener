@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-12T05:51:43.314Z",
-  "attemptedAt": "2026-11-12T05:51:43.314Z",
-  "lastSuccessfulAt": "2026-11-12T05:51:43.314Z",
+  "generatedAt": "2026-11-12T06:21:40.045Z",
+  "attemptedAt": "2026-11-12T06:21:40.045Z",
+  "lastSuccessfulAt": "2026-11-12T06:21:40.045Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-29T05:51:38.429Z",
-  "until": "2026-11-12T05:51:38.429Z",
+  "since": "2026-10-29T06:21:35.316Z",
+  "until": "2026-11-12T06:21:35.316Z",
   "current24hWindow": {
     "start": "2026-11-10T23:00:00.000Z",
     "end": "2026-11-11T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1286,
+      "count": 1285,
       "freshCount": 38,
-      "eligibleTextCount": 1225,
+      "eligibleTextCount": 1224,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 69107
+      "lastPostId": 69108
     },
     {
       "channel": "bornlupin",
@@ -116,30 +116,30 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 704,
-      "freshCount": 39,
-      "eligibleTextCount": 703,
+      "count": 707,
+      "freshCount": 36,
+      "eligibleTextCount": 706,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72008
+      "lastPostId": 72014
     }
   ],
-  "count": 2215,
-  "retainedItemCount": 421,
+  "count": 2217,
+  "retainedItemCount": 418,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2215,
-    "eligibleTextCount": 2153,
+    "observedCount": 2217,
+    "eligibleTextCount": 2155,
     "mediaOnlyCount": 62,
-    "mediaAttachedCount": 826,
-    "photoPostCount": 717,
+    "mediaAttachedCount": 828,
+    "photoPostCount": 719,
     "documentPostCount": 5,
     "imageOnlyCount": 5,
-    "highSignalCount": 380,
-    "broadSignalCount": 834,
+    "highSignalCount": 381,
+    "broadSignalCount": 835,
     "selectedRawCount": 368,
     "selectedEligibleCount": 368,
     "selectedRawCoveragePct": 17.1,
@@ -147,15 +147,15 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "ai-policy": 112,
-    "equity": 128,
-    "semi": 504,
-    "power": 283,
+    "market-note": 789,
     "macro": 319,
+    "kr-market": 93,
+    "power": 284,
+    "equity": 129,
+    "ai-policy": 112,
+    "semi": 504,
     "geo": 386,
     "japan": 72,
-    "kr-market": 92,
-    "market-note": 788,
     "earnings": 347,
     "media-only": 60,
     "credit": 86,
@@ -165,8 +165,10 @@
     "crypto": 3
   },
   "tickerCounts": {
+    "MSFT": 43,
+    "GOOG": 75,
+    "AMZN": 65,
     "NVDA": 198,
-    "GOOG": 74,
     "AVGO": 14,
     "CRWV": 16,
     "005930.KS": 32,
@@ -175,9 +177,7 @@
     "TSM": 56,
     "AMAT": 3,
     "MU": 28,
-    "AMZN": 64,
     "TSLA": 35,
-    "MSFT": 42,
     "MS": 5,
     "PLTR": 28,
     "LITE": 10,
@@ -255,13 +255,13 @@
     "006800.KS": 1
   },
   "themes": [
-    "Market Notes (788 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
+    "Market Notes (789 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
     "Semiconductors/Memory (504 posts in 14-day research window): [SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화...",
     "Geopolitics (386 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
     "Earnings/Corporate (347 posts in 14-day research window): 코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
     "Macro/Rates (319 posts in 14-day research window): 2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물...",
-    "AI Power/Grid (283 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
-    "Equity/Analyst (128 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "AI Power/Grid (284 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "Equity/Analyst (129 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (112 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
@@ -272,12 +272,12 @@
     },
     {
       "key": "GOOG",
-      "count": 74,
+      "count": 75,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 10일 🇺🇸 아메리카 • 미국 하원에 피트 헤그세스 국방장관에 대한 탄핵소추안이 발의. 공화당 토머스 매시 의원은 의회 승인 없는 이란 전쟁 개시와 미군 철수 요구..."
     },
     {
       "key": "AMZN",
-      "count": 64,
+      "count": 65,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
     },
     {
@@ -292,7 +292,7 @@
     },
     {
       "key": "MSFT",
-      "count": 42,
+      "count": 43,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 11일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 칠레 재무장관은 자국 경제가 기술적 경기 하강 국면에 있다고 평가하면서도 2028년 경제성장률이 4%에..."
     },
     {
@@ -378,7 +378,7 @@
       "topics": [
         "power"
       ],
-      "count": 283,
+      "count": 284,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -396,7 +396,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 92,
+      "count": 93,
       "focus": "[단독]코스닥 살리기 나서는 정부…13일 거래소서 대책 논의 금융위 주재…이재명 대통령 참석 가능성도 코스닥 활성화 포함 3가지 안건 논의할 예정 \"증시 저평가\" 언급, 이 대통령 메시지 주목 정부가 오는 13일 코스닥 시장 활성화를 포함해 자본시장 대책을 다루는 간담회를 개최한다. 금융위원장이 직접 참석하는..."
     },
     {
@@ -405,7 +405,7 @@
       "topics": [
         "equity"
       ],
-      "count": 128,
+      "count": 129,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -468,7 +468,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 788,
+      "count": 789,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
     }
   ],
@@ -1690,6 +1690,48 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72014",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72014",
+      "datetime": "2026-11-12T06:14:16.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "macro",
+        "kr-market"
+      ],
+      "lead": 1,
+      "score": 55,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>BOJ 심의위원 아사다 도이치로 •BOJ는 환율을 직접 관리하지 않기 때문에 달러·엔이 어느수준이 적절한지에 대해서는 언급할수 없음 •정책금리가 정책 목표에 부합하는 수준에 도달하더라도, 이후 추가 금리..."
+    },
+    {
+      "id": "HANAchina/72009",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72009",
+      "datetime": "2026-11-12T05:52:37.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "power",
+        "equity"
+      ],
+      "lead": 1,
+      "score": 65,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 4,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "AMZN"
+      ],
+      "summary": ">>번스타인 : 586GW에서 199GW로 : 미국 AI 데이터센터 계획의 3분의 2는 ‘PPT 용량’? •Bernstein이 북미 데이터센터 프로젝트 8,858개를 개별 조사한 결과, 발표된 총 586GW의..."
+    },
+    {
       "id": "insidertracking/69107",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69107",
@@ -2732,14 +2774,14 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
+      "summary": "•Morgan Stanley, Nvidia를 ‘최선호주’에서 제외…‘비중확대’는 유지 •Baird, Nvidia 목표주가 500달러→200달러로 하향…투자의견 ‘중립’으로 하향",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "MS"
-      ],
-      "summary": "•Morgan Stanley, Nvidia를 ‘최선호주’에서 제외…‘비중확대’는 유지 •Baird, Nvidia 목표주가 500달러→200달러로 하향…투자의견 ‘중립’으로 하향"
+      ]
     },
     {
       "id": "insidertracking/69030",
@@ -2789,10 +2831,11 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>젠슨 황 스캔들에 음모론 확산…애널리스트 “배후에 정치적 움직임 의심, 추가 악재 나올 수도” (대만경제일보) •Nvidia 젠슨 황의 불륜설과 상대 여성이 중국 스파이와 연관됐다는 의혹으로 사임 압박이...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 스캔들에 음모론 확산…애널리스트 “배후에 정치적 움직임 의심, 추가 악재 나올 수도” (대만경제일보) •Nvidia 젠슨 황의 불륜설과 상대 여성이 중국 스파이와 연관됐다는 의혹으로 사임 압박이..."
+      ]
     },
     {
       "id": "insidertracking/69028",
@@ -7206,36 +7249,6 @@
       ]
     },
     {
-      "id": "HANAchina/71675",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71675",
-      "datetime": "2026-11-06T23:41:26.000Z",
-      "localDateKst": "2026-11-07",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>BOJ 총재 : 인플레이션 상방 리스크, 향후 심각한 충격 시 비전통적 완화 재개 가능 •우에다 가즈오는 기조적 인플레이션이 2% 목표 수준을 유지할 것으로 예상하며, 임금 상승과 물가 상승이 점차...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/71672",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71672",
-      "datetime": "2026-11-06T15:53:14.000Z",
-      "localDateKst": "2026-11-07",
-      "tags": [
-        "ai-policy"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": ">>Anthropic 상장이 더 큰 리스크 이벤트가 될 것 (HSBC) •HSBC의 Max Kettner는 2주 전 미국 증시 투자의견을 최고 수준의 비중확대에서 중립으로 하향. 당시 그는 기업들의 자본지출...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21038",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21038",
@@ -8887,14 +8900,14 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
+      "summary": "•Morgan Stanley, Nvidia를 ‘최선호주’에서 제외…‘비중확대’는 유지 •Baird, Nvidia 목표주가 500달러→200달러로 하향…투자의견 ‘중립’으로 하향",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "MS"
-      ],
-      "summary": "•Morgan Stanley, Nvidia를 ‘최선호주’에서 제외…‘비중확대’는 유지 •Baird, Nvidia 목표주가 500달러→200달러로 하향…투자의견 ‘중립’으로 하향"
+      ]
     },
     {
       "id": "insidertracking/69030",
@@ -8944,10 +8957,11 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>젠슨 황 스캔들에 음모론 확산…애널리스트 “배후에 정치적 움직임 의심, 추가 악재 나올 수도” (대만경제일보) •Nvidia 젠슨 황의 불륜설과 상대 여성이 중국 스파이와 연관됐다는 의혹으로 사임 압박이...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 스캔들에 음모론 확산…애널리스트 “배후에 정치적 움직임 의심, 추가 악재 나올 수도” (대만경제일보) •Nvidia 젠슨 황의 불륜설과 상대 여성이 중국 스파이와 연관됐다는 의혹으로 사임 압박이..."
+      ]
     },
     {
       "id": "insidertracking/69028",
