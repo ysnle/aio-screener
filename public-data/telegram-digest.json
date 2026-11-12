@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-12T06:21:40.045Z",
-  "attemptedAt": "2026-11-12T06:21:40.045Z",
-  "lastSuccessfulAt": "2026-11-12T06:21:40.045Z",
+  "generatedAt": "2026-11-12T06:51:54.232Z",
+  "attemptedAt": "2026-11-12T06:51:54.232Z",
+  "lastSuccessfulAt": "2026-11-12T06:51:54.232Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-29T06:21:35.316Z",
-  "until": "2026-11-12T06:21:35.316Z",
+  "since": "2026-10-29T06:51:48.291Z",
+  "until": "2026-11-12T06:51:48.291Z",
   "current24hWindow": {
     "start": "2026-11-10T23:00:00.000Z",
     "end": "2026-11-11T23:00:00.000Z",
@@ -89,57 +89,57 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1285,
-      "freshCount": 38,
-      "eligibleTextCount": 1224,
+      "count": 1283,
+      "freshCount": 19,
+      "eligibleTextCount": 1223,
       "selectedCount": 122,
       "error": null,
       "lastPostId": 69108
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 225,
-      "freshCount": 20,
-      "eligibleTextCount": 225,
+      "count": 224,
+      "freshCount": 39,
+      "eligibleTextCount": 224,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 21125
+      "lastPostId": 21126
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 707,
-      "freshCount": 36,
-      "eligibleTextCount": 706,
+      "count": 706,
+      "freshCount": 37,
+      "eligibleTextCount": 705,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72014
+      "lastPostId": 72016
     }
   ],
-  "count": 2217,
-  "retainedItemCount": 418,
+  "count": 2213,
+  "retainedItemCount": 410,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2217,
-    "eligibleTextCount": 2155,
-    "mediaOnlyCount": 62,
+    "observedCount": 2213,
+    "eligibleTextCount": 2152,
+    "mediaOnlyCount": 61,
     "mediaAttachedCount": 828,
     "photoPostCount": 719,
     "documentPostCount": 5,
     "imageOnlyCount": 5,
-    "highSignalCount": 381,
-    "broadSignalCount": 835,
+    "highSignalCount": 382,
+    "broadSignalCount": 834,
     "selectedRawCount": 368,
     "selectedEligibleCount": 368,
     "selectedRawCoveragePct": 17.1,
@@ -147,17 +147,17 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 789,
-    "macro": 319,
+    "earnings": 348,
+    "semi": 503,
+    "market-note": 787,
+    "macro": 318,
     "kr-market": 93,
     "power": 284,
     "equity": 129,
     "ai-policy": 112,
-    "semi": 504,
     "geo": 386,
-    "japan": 72,
-    "earnings": 347,
-    "media-only": 60,
+    "japan": 70,
+    "media-only": 59,
     "credit": 86,
     "healthcare": 70,
     "flows": 55,
@@ -165,14 +165,14 @@
     "crypto": 3
   },
   "tickerCounts": {
+    "NVDA": 199,
     "MSFT": 43,
     "GOOG": 75,
     "AMZN": 65,
-    "NVDA": 198,
     "AVGO": 14,
     "CRWV": 16,
     "005930.KS": 32,
-    "000660.KS": 27,
+    "000660.KS": 26,
     "AMD": 51,
     "TSM": 56,
     "AMAT": 3,
@@ -251,15 +251,14 @@
     "AZN": 1,
     "COIN": 1,
     "SBUX": 1,
-    "MRK": 1,
-    "006800.KS": 1
+    "MRK": 1
   },
   "themes": [
-    "Market Notes (789 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
-    "Semiconductors/Memory (504 posts in 14-day research window): [SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화...",
+    "Market Notes (787 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
+    "Semiconductors/Memory (503 posts in 14-day research window): [SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화...",
     "Geopolitics (386 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
-    "Earnings/Corporate (347 posts in 14-day research window): 코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
-    "Macro/Rates (319 posts in 14-day research window): 2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물...",
+    "Earnings/Corporate (348 posts in 14-day research window): 코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
+    "Macro/Rates (318 posts in 14-day research window): 2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물...",
     "AI Power/Grid (284 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "Equity/Analyst (129 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (112 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
@@ -267,7 +266,7 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 198,
+      "count": 199,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
     },
     {
@@ -317,7 +316,7 @@
     },
     {
       "key": "000660.KS",
-      "count": 27,
+      "count": 26,
       "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화..."
     },
     {
@@ -333,7 +332,7 @@
       "topics": [
         "macro"
       ],
-      "count": 319,
+      "count": 318,
       "focus": "2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물..."
     },
     {
@@ -360,7 +359,7 @@
       "topics": [
         "semi"
       ],
-      "count": 504,
+      "count": 503,
       "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화..."
     },
     {
@@ -423,7 +422,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 347,
+      "count": 348,
       "focus": "코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로..."
     },
     {
@@ -441,7 +440,7 @@
       "topics": [
         "japan"
       ],
-      "count": 72,
+      "count": 70,
       "focus": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
     },
     {
@@ -468,7 +467,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 789,
+      "count": 787,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
     }
   ],
@@ -938,16 +937,19 @@
       "datetime": "2026-11-10T21:14:53.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "earnings"
+        "earnings",
+        "semi",
+        "power",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "CRWV"
-      ]
+      ],
+      "summary": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러..."
     },
     {
       "id": "insidertracking/68940",
@@ -1454,16 +1456,18 @@
       "localDateKst": "2026-11-10",
       "tags": [
         "semi",
-        "equity"
+        "equity",
+        "earnings"
       ],
+      "lead": 2,
       "score": 99,
       "hasText": true,
-      "summary": "BofA, 엔비디아 $NVDA , 투자의견 매수(BUY), 목표주가 $350 유지 \"엔비디아에 잠재적인 방해 요인이 발생하거나 당국의 조사가 강화될 경우, AMD, 브로드컴, 마벨과 같은 다른 컴퓨팅...",
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO"
-      ]
+      ],
+      "summary": "BofA, 엔비디아 $NVDA , 투자의견 매수(BUY), 목표주가 $350 유지 \"엔비디아에 잠재적인 방해 요인이 발생하거나 당국의 조사가 강화될 경우, AMD, 브로드컴, 마벨과 같은 다른 컴퓨팅..."
     },
     {
       "id": "bornlupin/21015",
@@ -1678,17 +1682,38 @@
       "datetime": "2026-11-10T23:13:45.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
+        "macro",
+        "semi",
+        "power",
         "earnings"
       ],
       "score": 89,
       "hasText": true,
-      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 1. 실적: 매출 급증, 수익성 개선 vs 이자비용 부담 • 매출 $37억(+168% YoY), 가이던스 상단 상회 • 수주잔고 약 $1,330억(+138%...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 1. 실적: 매출 급증, 수익성 개선 vs 이자비용 부담 • 매출 $37억(+168% YoY), 가이던스 상단 상회 • 수주잔고 약 $1,330억(+138%..."
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/21126",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21126",
+      "datetime": "2026-11-12T06:37:56.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "earnings",
+        "semi"
+      ],
+      "lead": 1,
+      "score": 81,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "폭스콘(Hon Hai) 2026년 3분기 실적 견조한 AI 서버 수요에 힘입어 2026년 3분기 매출, 영업이익, 순이익 모두 시장 예상치를 크게 상회 엔비디아의 최대 서버 제조사이자 애플의 최대 아이폰..."
+    },
     {
       "id": "HANAchina/72014",
       "channel": "HANAchina",
@@ -2064,11 +2089,11 @@
         "macro",
         "semi"
       ],
-      "lead": 1,
       "score": 86,
       "hasText": true,
-      "tickers": [],
-      "summary": "블룸버그에 따르면 코어위브가 투자등급 대출을 통해 최소 40억 달러 조달 계획. 모건스탠리와 미쓰비시UFJ파이낸셜그룹이 이번 거래를 주도하며, GPU와 고객 계약을 담보로 활용할 예정. 금리는 7~7.5%..."
+      "summary": "블룸버그에 따르면 코어위브가 투자등급 대출을 통해 최소 40억 달러 조달 계획. 모건스탠리와 미쓰비시UFJ파이낸셜그룹이 이번 거래를 주도하며, GPU와 고객 계약을 담보로 활용할 예정. 금리는 7~7.5%...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69085",
@@ -2079,7 +2104,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2088,10 +2112,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "넥스트 엔비디아 CEO에 Ian Buck (이안 벅)이 거론되는데..... 엔비디아 하이퍼스케일 및 고성능 컴퓨팅(HPC) 부문 부사장이라고 하네요. > 근데 관상이 ㅋㅋㅋㅋ",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "넥스트 엔비디아 CEO에 Ian Buck (이안 벅)이 거론되는데..... 엔비디아 하이퍼스케일 및 고성능 컴퓨팅(HPC) 부문 부사장이라고 하네요. > 근데 관상이 ㅋㅋㅋㅋ"
+      ]
     },
     {
       "id": "bornlupin/21123",
@@ -2154,10 +2179,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "$NVDA - 엔비디아, 새로운 CEO 발굴을 위해 외부 기업과 협력 중",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "$NVDA - 엔비디아, 새로운 CEO 발굴을 위해 외부 기업과 협력 중"
+      ]
     },
     {
       "id": "insidertracking/69081",
@@ -2168,7 +2193,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2177,10 +2201,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 영향으로 지수선물 하락 전환 국장에서는 별일 없길 바랍니다 진짜...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 영향으로 지수선물 하락 전환 국장에서는 별일 없길 바랍니다 진짜..."
+      ]
     },
     {
       "id": "bornlupin/21121",
@@ -2231,10 +2256,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "로이터 소식통에 따르면 엔비디아 이사회가 수요일 회의를 열고 젠슨 황 CEO의 해임 여부를 결정할 예정.",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "로이터 소식통에 따르면 엔비디아 이사회가 수요일 회의를 열고 젠슨 황 CEO의 해임 여부를 결정할 예정."
+      ]
     },
     {
       "id": "HANAchina/71986",
@@ -2281,11 +2306,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "애프터마켓 현황 상승장 마감하고 젠슨황이 테크쪽에 똥물 뿌림. 브로드컴, AMD는 상승",
       "tickers": [
         "AMD",
         "AVGO"
-      ],
-      "summary": "애프터마켓 현황 상승장 마감하고 젠슨황이 테크쪽에 똥물 뿌림. 브로드컴, AMD는 상승"
+      ]
     },
     {
       "id": "HANAchina/71984",
@@ -2368,10 +2393,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "AMD는 애프터마켓 4% 상승",
       "tickers": [
         "AMD"
-      ],
-      "summary": "AMD는 애프터마켓 4% 상승"
+      ]
     },
     {
       "id": "bornlupin/21119",
@@ -2421,10 +2446,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "뉴욕타임즈에 따르면 미국 정보당국이 중국 스파이로 판단한 중국계 여성과의 불륜 관계로 조사를 받고 있는 엔비디아 CEO 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과도 혼외 관계를 맺었다고 전직 직원...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "뉴욕타임즈에 따르면 미국 정보당국이 중국 스파이로 판단한 중국계 여성과의 불륜 관계로 조사를 받고 있는 엔비디아 CEO 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과도 혼외 관계를 맺었다고 전직 직원..."
+      ]
     },
     {
       "id": "insidertracking/69062",
@@ -3614,12 +3639,12 @@
       "datetime": "2026-11-10T23:22:19.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "market-note"
+        "power"
       ],
       "score": 53,
       "hasText": true,
-      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 Q&A 세션 중 현재는 연산 수요가 인프라 공급보다 빠르게 증가하고 있으며, 신규 계약의 이익률도 상승 중. 2027년까지 공급은 사실상 대부분 판매된 상태....",
-      "tickers": []
+      "tickers": [],
+      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 Q&A 세션 중 현재는 연산 수요가 인프라 공급보다 빠르게 증가하고 있으며, 신규 계약의 이익률도 상승 중. 2027년까지 공급은 사실상 대부분 판매된 상태...."
     },
     {
       "id": "bornlupin/21101",
@@ -3628,14 +3653,16 @@
       "datetime": "2026-11-10T23:18:49.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "market-note"
+        "semi",
+        "power",
+        "earnings"
       ],
       "score": 87,
       "hasText": true,
-      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 Q&A 세션 1. 골드만삭스 — AI 인프라 공급과잉 가능성 Q. 향후 1~2년간 대규모 신규 공급으로 AI 인프라가 공급과잉에 진입하면 어떻게 대응할...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 Q&A 세션 1. 골드만삭스 — AI 인프라 공급과잉 가능성 Q. 향후 1~2년간 대규모 신규 공급으로 AI 인프라가 공급과잉에 진입하면 어떻게 대응할..."
     },
     {
       "id": "HANAchina/71912",
@@ -3675,14 +3702,17 @@
       "datetime": "2026-11-10T23:13:45.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
+        "macro",
+        "semi",
+        "power",
         "earnings"
       ],
       "score": 89,
       "hasText": true,
-      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 1. 실적: 매출 급증, 수익성 개선 vs 이자비용 부담 • 매출 $37억(+168% YoY), 가이던스 상단 상회 • 수주잔고 약 $1,330억(+138%...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 1. 실적: 매출 급증, 수익성 개선 vs 이자비용 부담 • 매출 $37억(+168% YoY), 가이던스 상단 상회 • 수주잔고 약 $1,330억(+138%..."
     },
     {
       "id": "HANAchina/71911",
@@ -3849,13 +3879,14 @@
       "datetime": "2026-11-10T21:20:19.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "ai-policy",
-        "earnings"
+        "earnings",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "[단독] 오픈AI, 3분기 매출 100억 달러로 급증 ​오픈AI(OpenAI)는 최신 모델과 기업용 제품에 대한 수요가 늘어나면서 성장 둔화기를 딛고 반등하여, 3분기 매출이 50% 급증한 약 100억 달러에...",
-      "tickers": []
+      "tickers": [],
+      "summary": "[단독] 오픈AI, 3분기 매출 100억 달러로 급증 ​오픈AI(OpenAI)는 최신 모델과 기업용 제품에 대한 수요가 늘어나면서 성장 둔화기를 딛고 반등하여, 3분기 매출이 50% 급증한 약 100억 달러에..."
     },
     {
       "id": "insidertracking/68953",
@@ -3907,16 +3938,19 @@
       "datetime": "2026-11-10T21:14:53.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "earnings"
+        "earnings",
+        "semi",
+        "power",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "CRWV"
-      ]
+      ],
+      "summary": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러..."
     },
     {
       "id": "insidertracking/68945",
@@ -4232,13 +4266,13 @@
       "datetime": "2026-11-10T11:50:17.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi",
         "ai-policy",
-        "equity"
+        "equity",
+        "semi"
       ],
+      "lead": 2,
       "score": 77,
       "hasText": true,
-      "summary": "다음 기업들이 모두 기업공개(IPO) 공모가로 앤트로픽(Anthropic, $ANT ) 주식을 매수 구글 ( $GOOGL ): 100억 달러 엔비디아 ( $NVDA ): 100억 달러 AMD ( $AMD ):...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -4248,7 +4282,8 @@
         "AVGO",
         "MU",
         "TSM"
-      ]
+      ],
+      "summary": "다음 기업들이 모두 기업공개(IPO) 공모가로 앤트로픽(Anthropic, $ANT ) 주식을 매수 구글 ( $GOOGL ): 100억 달러 엔비디아 ( $NVDA ): 100억 달러 AMD ( $AMD ):..."
     },
     {
       "id": "bornlupin/21096",
@@ -4258,16 +4293,18 @@
       "localDateKst": "2026-11-10",
       "tags": [
         "semi",
-        "equity"
+        "equity",
+        "earnings"
       ],
+      "lead": 2,
       "score": 99,
       "hasText": true,
-      "summary": "BofA, 엔비디아 $NVDA , 투자의견 매수(BUY), 목표주가 $350 유지 \"엔비디아에 잠재적인 방해 요인이 발생하거나 당국의 조사가 강화될 경우, AMD, 브로드컴, 마벨과 같은 다른 컴퓨팅...",
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO"
-      ]
+      ],
+      "summary": "BofA, 엔비디아 $NVDA , 투자의견 매수(BUY), 목표주가 $350 유지 \"엔비디아에 잠재적인 방해 요인이 발생하거나 당국의 조사가 강화될 경우, AMD, 브로드컴, 마벨과 같은 다른 컴퓨팅..."
     },
     {
       "id": "bornlupin/21095",
@@ -4280,10 +4317,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "AMD, 95억 달러 규모의 앤트로픽 클래스 N 주식 매입 합의",
       "tickers": [
         "AMD"
-      ]
+      ],
+      "summary": "AMD, 95억 달러 규모의 앤트로픽 클래스 N 주식 매입 합의"
     },
     {
       "id": "insidertracking/68896",
@@ -4308,18 +4345,19 @@
       "datetime": "2026-11-10T11:40:31.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi",
         "ai-policy",
-        "equity"
+        "equity",
+        "semi"
       ],
+      "lead": 2,
       "score": 69,
       "hasText": true,
-      "summary": "앤트로픽(Anthropic): 기업공개(IPO)를 통해 약 1조 달러의 기업가치 목표 다음 주 수요일 공모가 확정, 목요일 거래 개시 예정 AMD, 브로드컴, 구글 및 기타 투자자들, 앤트로픽에 260억 달러...",
       "tickers": [
         "AMD",
         "GOOG",
         "AVGO"
-      ]
+      ],
+      "summary": "앤트로픽(Anthropic): 기업공개(IPO)를 통해 약 1조 달러의 기업가치 목표 다음 주 수요일 공모가 확정, 목요일 거래 개시 예정 AMD, 브로드컴, 구글 및 기타 투자자들, 앤트로픽에 260억 달러..."
     },
     {
       "id": "bornlupin/21093",
@@ -4328,17 +4366,18 @@
       "datetime": "2026-11-10T11:37:09.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
+        "equity",
         "ai-policy",
-        "equity"
+        "earnings"
       ],
+      "lead": 1,
       "score": 68,
       "hasText": true,
-      "summary": "앤트로픽, 기업공개(IPO) 추진을 위한 로드쇼 착수 오늘 앤트로픽(Anthropic, PBC)은 클래스 A 보통주의 기업공개(IPO) 추진을 위한 로드쇼에 착수했습니다. 이번 공모는 총...",
-      "lead": 2,
       "tickers": [
         "GS",
         "MS"
-      ]
+      ],
+      "summary": "앤트로픽, 기업공개(IPO) 추진을 위한 로드쇼 착수 오늘 앤트로픽(Anthropic, PBC)은 클래스 A 보통주의 기업공개(IPO) 추진을 위한 로드쇼에 착수했습니다. 이번 공모는 총..."
     },
     {
       "id": "insidertracking/68894",
@@ -4451,11 +4490,11 @@
       ],
       "score": 60,
       "hasText": true,
-      "summary": "[단독] 일론 머스크와 마이클 미바흐, 선전 APEC서 트럼프와 동행 예정. 그렇다면 젠슨 황은? 외국 정보기관 관련 조사 속에서 엔비디아 CEO의 참석 여부가 불투명해졌으며, 중국 정부는 해당 의혹을 '근거...",
       "tickers": [
         "NVDA",
         "TSLA"
-      ]
+      ],
+      "summary": "[단독] 일론 머스크와 마이클 미바흐, 선전 APEC서 트럼프와 동행 예정. 그렇다면 젠슨 황은? 외국 정보기관 관련 조사 속에서 엔비디아 CEO의 참석 여부가 불투명해졌으며, 중국 정부는 해당 의혹을 '근거..."
     },
     {
       "id": "HANAchina/71899",
@@ -4544,10 +4583,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "중국 궈 대변인 '엔비디아 둘러싼 중국 스파이 의혹은 근거 없다'",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "중국 궈 대변인 '엔비디아 둘러싼 중국 스파이 의혹은 근거 없다'"
     },
     {
       "id": "insidertracking/68873",
@@ -4609,15 +4648,15 @@
         "earnings",
         "semi"
       ],
+      "lead": 2,
       "score": 64,
       "hasText": true,
-      "summary": "견조한 AI 칩 수요를 보여주며 TSMC 매출 60% 증가 대만 TSMC의 월간 매출이 60% 증가하며, 글로벌 AI 인프라 구축에서 차지하는 핵심적 역할을 입증 했습니다. 10월 실적 및 성장세 가속:...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "AAPL",
         "TSM"
-      ]
+      ],
+      "summary": "견조한 AI 칩 수요를 보여주며 TSMC 매출 60% 증가 대만 TSMC의 월간 매출이 60% 증가하며, 글로벌 AI 인프라 구축에서 차지하는 핵심적 역할을 입증 했습니다. 10월 실적 및 성장세 가속:..."
     },
     {
       "id": "HANAchina/71894",
@@ -4677,9 +4716,10 @@
       "datetime": "2026-11-10T05:35:12.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
+      "lead": 2,
       "score": 56,
       "hasText": true,
       "media": {
@@ -4688,10 +4728,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "TSMC 2026년 10월 순매출 mom +14.7%, yoy +59.7% 연결 기준 약 5,868억 9,000만 대만달러(NT$) 2026년 9월 대비 14.7%, 2025년 10월 대비 59.7% 증가한...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC 2026년 10월 순매출 mom +14.7%, yoy +59.7% 연결 기준 약 5,868억 9,000만 대만달러(NT$) 2026년 9월 대비 14.7%, 2025년 10월 대비 59.7% 증가한..."
     },
     {
       "id": "HANAchina/71889",
@@ -4748,14 +4788,14 @@
       "datetime": "2026-11-10T05:11:30.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 61,
       "hasText": true,
-      "summary": "앨리스 황의 과거 행적: 상하이에서 싱가포르까지 현재까지 확보된 정보의 흐름을 보면, 앨리스 황(Alice Huang)은 스파이가 아니라 자본시장을 능숙하게 활용하는 ‘화이트 글러브’(배후 세력을 대신해...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "앨리스 황의 과거 행적: 상하이에서 싱가포르까지 현재까지 확보된 정보의 흐름을 보면, 앨리스 황(Alice Huang)은 스파이가 아니라 자본시장을 능숙하게 활용하는 ‘화이트 글러브’(배후 세력을 대신해..."
     },
     {
       "id": "HANAchina/71888",
@@ -8474,26 +8514,6 @@
       "tickers": [
         "TSM"
       ]
-    },
-    {
-      "id": "bornlupin/20931",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20931",
-      "datetime": "2026-11-02T00:01:45.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "market-note"
-      ],
-      "score": 57,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "한국 경제, 2026년 3분기 전분기 대비 1.0% 성장… 시장 예상치 상회 한국 경제는 2026년 3분기 전분기 대비 1.0% 성장하며 3개 분기 연속 성장세를 기록했습니다. 이는 시장 예상치인 +0.8%를...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -8514,10 +8534,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "AMD는 애프터마켓 4% 상승",
       "tickers": [
         "AMD"
-      ],
-      "summary": "AMD는 애프터마켓 4% 상승"
+      ]
     },
     {
       "id": "bornlupin/21119",
@@ -8567,10 +8587,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "뉴욕타임즈에 따르면 미국 정보당국이 중국 스파이로 판단한 중국계 여성과의 불륜 관계로 조사를 받고 있는 엔비디아 CEO 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과도 혼외 관계를 맺었다고 전직 직원...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "뉴욕타임즈에 따르면 미국 정보당국이 중국 스파이로 판단한 중국계 여성과의 불륜 관계로 조사를 받고 있는 엔비디아 CEO 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과도 혼외 관계를 맺었다고 전직 직원..."
+      ]
     },
     {
       "id": "insidertracking/69062",
@@ -9740,12 +9760,12 @@
       "datetime": "2026-11-10T23:22:19.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "market-note"
+        "power"
       ],
       "score": 53,
       "hasText": true,
-      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 Q&A 세션 중 현재는 연산 수요가 인프라 공급보다 빠르게 증가하고 있으며, 신규 계약의 이익률도 상승 중. 2027년까지 공급은 사실상 대부분 판매된 상태....",
-      "tickers": []
+      "tickers": [],
+      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 Q&A 세션 중 현재는 연산 수요가 인프라 공급보다 빠르게 증가하고 있으며, 신규 계약의 이익률도 상승 중. 2027년까지 공급은 사실상 대부분 판매된 상태...."
     },
     {
       "id": "bornlupin/21101",
@@ -9754,14 +9774,16 @@
       "datetime": "2026-11-10T23:18:49.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "market-note"
+        "semi",
+        "power",
+        "earnings"
       ],
       "score": 87,
       "hasText": true,
-      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 Q&A 세션 1. 골드만삭스 — AI 인프라 공급과잉 가능성 Q. 향후 1~2년간 대규모 신규 공급으로 AI 인프라가 공급과잉에 진입하면 어떻게 대응할...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 Q&A 세션 1. 골드만삭스 — AI 인프라 공급과잉 가능성 Q. 향후 1~2년간 대규모 신규 공급으로 AI 인프라가 공급과잉에 진입하면 어떻게 대응할..."
     },
     {
       "id": "HANAchina/71912",
@@ -9801,14 +9823,17 @@
       "datetime": "2026-11-10T23:13:45.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
+        "macro",
+        "semi",
+        "power",
         "earnings"
       ],
       "score": 89,
       "hasText": true,
-      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 1. 실적: 매출 급증, 수익성 개선 vs 이자비용 부담 • 매출 $37억(+168% YoY), 가이던스 상단 상회 • 수주잔고 약 $1,330억(+138%...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 1. 실적: 매출 급증, 수익성 개선 vs 이자비용 부담 • 매출 $37억(+168% YoY), 가이던스 상단 상회 • 수주잔고 약 $1,330억(+138%..."
     },
     {
       "id": "HANAchina/71911",
@@ -9860,7 +9885,7 @@
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
     "pt": 13,
-    "earnings": 35,
+    "earnings": 36,
     "macro": 3,
     "retail": 3
   },
@@ -10046,6 +10071,18 @@
       "ratingAction": null,
       "date": "2026-10-29",
       "post": "HANAchina/71221"
+    },
+    {
+      "kind": "earnings",
+      "key": "earnings|폭스콘|2026-11-12",
+      "ticker": null,
+      "name": "폭스콘",
+      "quarter": "2026Q3",
+      "revenue": "beat",
+      "eps": null,
+      "guidance": null,
+      "date": "2026-11-12",
+      "post": "bornlupin/21126"
     },
     {
       "kind": "earnings",
