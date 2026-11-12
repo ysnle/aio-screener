@@ -1,6 +1,6 @@
 {
   "schemaVersion": "kr-index-weights.v1",
-  "generatedAt": "2026-11-11T07:25:53.543Z",
+  "generatedAt": "2026-11-12T07:25:55.644Z",
   "producer": "scripts/fetch-kr-index-weights.mjs",
   "source": "Naver Finance market-value ranking (KRX prices)",
   "sourceKind": "T3_PUBLIC_DELAYED",
@@ -8,314 +8,314 @@
   "basis": "Common-stock market-cap share at the previous close (preferred shares excluded) — a proxy for the index weight, not the official KRX weight. Top names only.",
   "markets": {
     "KOSPI": {
-      "asOf": "2026-11-11",
-      "count": 826,
+      "asOf": "2026-11-12",
+      "count": 825,
       "rows": [
         {
           "code": "005930",
           "name": "삼성전자",
-          "weightPct": 27.91,
-          "ret1dPct": 3.07
+          "weightPct": 28.17,
+          "ret1dPct": 0.49
         },
         {
           "code": "000660",
           "name": "SK하이닉스",
-          "weightPct": 21.25,
-          "ret1dPct": 4.95
+          "weightPct": 21.82,
+          "ret1dPct": -2.04
         },
         {
           "code": "402340",
           "name": "SK스퀘어",
-          "weightPct": 2.41,
-          "ret1dPct": 3.95
+          "weightPct": 2.46,
+          "ret1dPct": -1.76
         },
         {
           "code": "373220",
           "name": "LG에너지솔루션",
-          "weightPct": 1.86,
-          "ret1dPct": 1.51
-        },
-        {
-          "code": "207940",
-          "name": "삼성바이오로직스",
-          "weightPct": 1.63,
-          "ret1dPct": -2.25
+          "weightPct": 1.84,
+          "ret1dPct": -2.53
         },
         {
           "code": "009150",
           "name": "삼성전기",
-          "weightPct": 1.58,
-          "ret1dPct": 3.97
+          "weightPct": 1.61,
+          "ret1dPct": -5.42
+        },
+        {
+          "code": "207940",
+          "name": "삼성바이오로직스",
+          "weightPct": 1.55,
+          "ret1dPct": 1.12
         },
         {
           "code": "005380",
           "name": "현대차",
-          "weightPct": 1.34,
-          "ret1dPct": -0.91
+          "weightPct": 1.3,
+          "ret1dPct": -2.39
         },
         {
           "code": "105560",
           "name": "KB금융",
-          "weightPct": 1.3,
-          "ret1dPct": 0.52
+          "weightPct": 1.27,
+          "ret1dPct": -1.11
         },
         {
           "code": "032830",
           "name": "삼성생명",
-          "weightPct": 1.17,
-          "ret1dPct": 1.02
+          "weightPct": 1.16,
+          "ret1dPct": 1.21
         },
         {
           "code": "068270",
           "name": "셀트리온",
-          "weightPct": 1.13,
-          "ret1dPct": 2.22
+          "weightPct": 1.12,
+          "ret1dPct": 0.72
         },
         {
           "code": "028260",
           "name": "삼성물산",
-          "weightPct": 1.09,
-          "ret1dPct": 1.25
+          "weightPct": 1.07,
+          "ret1dPct": 0.53
         },
         {
           "code": "055550",
           "name": "신한지주",
-          "weightPct": 0.96,
-          "ret1dPct": 0.23
-        },
-        {
-          "code": "000270",
-          "name": "기아",
-          "weightPct": 0.9,
-          "ret1dPct": -1.56
+          "weightPct": 0.94,
+          "ret1dPct": -0.82
         },
         {
           "code": "006400",
           "name": "삼성SDI",
-          "weightPct": 0.88,
-          "ret1dPct": 4.28
+          "weightPct": 0.9,
+          "ret1dPct": -2.19
+        },
+        {
+          "code": "000270",
+          "name": "기아",
+          "weightPct": 0.86,
+          "ret1dPct": -1.16
         },
         {
           "code": "034730",
           "name": "SK",
           "weightPct": 0.84,
-          "ret1dPct": 1.88
+          "ret1dPct": 1.22
         },
         {
           "code": "012450",
           "name": "한화에어로스페이스",
-          "weightPct": 0.82,
-          "ret1dPct": -0.61
+          "weightPct": 0.79,
+          "ret1dPct": -0.91
         },
         {
           "code": "086790",
           "name": "하나금융지주",
-          "weightPct": 0.77,
-          "ret1dPct": 1.1
+          "weightPct": 0.76,
+          "ret1dPct": -0.08
         },
         {
           "code": "012330",
           "name": "현대모비스",
-          "weightPct": 0.76,
-          "ret1dPct": 0.85
+          "weightPct": 0.74,
+          "ret1dPct": -0.71
         },
         {
           "code": "034020",
           "name": "두산에너빌리티",
-          "weightPct": 0.72,
-          "ret1dPct": 0.32
+          "weightPct": 0.71,
+          "ret1dPct": -1.27
         },
         {
           "code": "035420",
           "name": "NAVER",
-          "weightPct": 0.7,
-          "ret1dPct": 0.41
+          "weightPct": 0.69,
+          "ret1dPct": -6.69
         },
         {
           "code": "329180",
           "name": "HD현대중공업",
-          "weightPct": 0.67,
-          "ret1dPct": -2.43
+          "weightPct": 0.64,
+          "ret1dPct": 1.71
         },
         {
           "code": "000810",
           "name": "삼성화재",
-          "weightPct": 0.64,
-          "ret1dPct": -5.34
+          "weightPct": 0.59,
+          "ret1dPct": -7.24
         },
         {
           "code": "316140",
           "name": "우리금융지주",
-          "weightPct": 0.55,
-          "ret1dPct": 1.45
+          "weightPct": 0.54,
+          "ret1dPct": 0.16
         },
         {
           "code": "066570",
           "name": "LG전자",
-          "weightPct": 0.55,
-          "ret1dPct": 0.57
-        },
-        {
-          "code": "138040",
-          "name": "메리츠금융지주",
-          "weightPct": 0.52,
-          "ret1dPct": -3.35
+          "weightPct": 0.54,
+          "ret1dPct": -2.83
         },
         {
           "code": "005490",
           "name": "POSCO홀딩스",
-          "weightPct": 0.52,
-          "ret1dPct": 1.85
+          "weightPct": 0.51,
+          "ret1dPct": -0.72
         },
         {
-          "code": "010130",
-          "name": "고려아연",
-          "weightPct": 0.48,
-          "ret1dPct": -4.76
+          "code": "138040",
+          "name": "메리츠금융지주",
+          "weightPct": 0.51,
+          "ret1dPct": -13.13
         },
         {
           "code": "015760",
           "name": "한국전력",
-          "weightPct": 0.47,
-          "ret1dPct": -0.16
+          "weightPct": 0.46,
+          "ret1dPct": -1.97
+        },
+        {
+          "code": "010130",
+          "name": "고려아연",
+          "weightPct": 0.45,
+          "ret1dPct": -2.29
         },
         {
           "code": "011200",
           "name": "HMM",
-          "weightPct": 0.46,
-          "ret1dPct": -1.77
+          "weightPct": 0.44,
+          "ret1dPct": 5.5
         },
         {
           "code": "096770",
           "name": "SK이노베이션",
-          "weightPct": 0.45,
-          "ret1dPct": 0.73
+          "weightPct": 0.44,
+          "ret1dPct": -2.53
         }
       ]
     },
     "KOSDAQ": {
-      "asOf": "2026-11-11",
-      "count": 1763,
+      "asOf": "2026-11-12",
+      "count": 1764,
       "rows": [
         {
           "code": "196170",
           "name": "알테오젠",
-          "weightPct": 3.28,
-          "ret1dPct": 3.69
+          "weightPct": 3.22,
+          "ret1dPct": -4.25
         },
         {
           "code": "086520",
           "name": "에코프로",
-          "weightPct": 2.42,
-          "ret1dPct": 8.68
+          "weightPct": 2.52,
+          "ret1dPct": -2.99
         },
         {
           "code": "247540",
           "name": "에코프로비엠",
-          "weightPct": 2.37,
-          "ret1dPct": 10.55
+          "weightPct": 2.5,
+          "ret1dPct": -3.05
         },
         {
           "code": "036930",
           "name": "주성엔지니어링",
-          "weightPct": 1.89,
-          "ret1dPct": 16.48
+          "weightPct": 2.09,
+          "ret1dPct": -4.65
         },
         {
           "code": "277810",
           "name": "레인보우로보틱스",
-          "weightPct": 1.68,
-          "ret1dPct": 6.77
-        },
-        {
-          "code": "039030",
-          "name": "이오테크닉스",
-          "weightPct": 1.13,
-          "ret1dPct": 8.72
-        },
-        {
-          "code": "000250",
-          "name": "삼천당제약",
-          "weightPct": 1.12,
-          "ret1dPct": 3.74
+          "weightPct": 1.7,
+          "ret1dPct": -1.01
         },
         {
           "code": "222800",
           "name": "심텍",
-          "weightPct": 1.11,
-          "ret1dPct": 15.76
+          "weightPct": 1.2,
+          "ret1dPct": 0.82
+        },
+        {
+          "code": "039030",
+          "name": "이오테크닉스",
+          "weightPct": 1.16,
+          "ret1dPct": -2.41
+        },
+        {
+          "code": "000250",
+          "name": "삼천당제약",
+          "weightPct": 1.1,
+          "ret1dPct": -1.93
         },
         {
           "code": "028300",
           "name": "HLB",
-          "weightPct": 1.08,
-          "ret1dPct": -1.16
+          "weightPct": 1,
+          "ret1dPct": -2.01
         },
         {
           "code": "058470",
           "name": "리노공업",
-          "weightPct": 0.99,
-          "ret1dPct": 7.2
+          "weightPct": 1,
+          "ret1dPct": 0
         },
         {
           "code": "240810",
           "name": "원익IPS",
-          "weightPct": 0.9,
-          "ret1dPct": 16.37
+          "weightPct": 0.99,
+          "ret1dPct": -2.13
         },
         {
           "code": "108490",
           "name": "로보티즈",
-          "weightPct": 0.86,
-          "ret1dPct": 8.84
+          "weightPct": 0.89,
+          "ret1dPct": -1.04
         },
         {
           "code": "403870",
           "name": "HPSP",
-          "weightPct": 0.8,
-          "ret1dPct": 9.33
-        },
-        {
-          "code": "095340",
-          "name": "ISC",
-          "weightPct": 0.75,
-          "ret1dPct": 9.86
+          "weightPct": 0.83,
+          "ret1dPct": -0.62
         },
         {
           "code": "031980",
           "name": "피에스케이홀딩스",
-          "weightPct": 0.74,
-          "ret1dPct": 16.74
+          "weightPct": 0.83,
+          "ret1dPct": -6.91
         },
         {
-          "code": "214450",
-          "name": "파마리서치",
-          "weightPct": 0.69,
-          "ret1dPct": -0.6
-        },
-        {
-          "code": "145020",
-          "name": "휴젤",
-          "weightPct": 0.67,
-          "ret1dPct": -2.01
+          "code": "095340",
+          "name": "ISC",
+          "weightPct": 0.78,
+          "ret1dPct": -1.64
         },
         {
           "code": "319660",
           "name": "피에스케이",
-          "weightPct": 0.66,
-          "ret1dPct": 9.89
+          "weightPct": 0.69,
+          "ret1dPct": -4.79
         },
         {
-          "code": "030530",
-          "name": "원익홀딩스",
-          "weightPct": 0.6,
-          "ret1dPct": 7.57
+          "code": "214450",
+          "name": "파마리서치",
+          "weightPct": 0.65,
+          "ret1dPct": -1.41
+        },
+        {
+          "code": "131290",
+          "name": "티에스이",
+          "weightPct": 0.63,
+          "ret1dPct": 3.96
+        },
+        {
+          "code": "145020",
+          "name": "휴젤",
+          "weightPct": 0.62,
+          "ret1dPct": 0.46
         },
         {
           "code": "141080",
           "name": "리가켐바이오",
-          "weightPct": 0.59,
-          "ret1dPct": 10.12
+          "weightPct": 0.61,
+          "ret1dPct": -3.81
         }
       ]
     }
