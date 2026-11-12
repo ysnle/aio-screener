@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-12T07:21:33.200Z",
-  "attemptedAt": "2026-11-12T07:21:33.200Z",
-  "lastSuccessfulAt": "2026-11-12T07:21:33.200Z",
+  "generatedAt": "2026-11-12T07:56:41.021Z",
+  "attemptedAt": "2026-11-12T07:56:41.021Z",
+  "lastSuccessfulAt": "2026-11-12T07:56:41.021Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-29T07:21:26.907Z",
-  "until": "2026-11-12T07:21:26.907Z",
+  "since": "2026-10-29T07:56:34.842Z",
+  "until": "2026-11-12T07:56:34.842Z",
   "current24hWindow": {
     "start": "2026-11-10T23:00:00.000Z",
     "end": "2026-11-11T23:00:00.000Z",
@@ -97,49 +97,49 @@
       "eligibleTextCount": 1221,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 69109
+      "lastPostId": 69112
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 224,
+      "count": 226,
       "freshCount": 39,
-      "eligibleTextCount": 224,
+      "eligibleTextCount": 226,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 21127
+      "lastPostId": 21129
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 706,
+      "count": 712,
       "freshCount": 36,
-      "eligibleTextCount": 705,
+      "eligibleTextCount": 711,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72020
+      "lastPostId": 72029
     }
   ],
-  "count": 2211,
-  "retainedItemCount": 424,
+  "count": 2219,
+  "retainedItemCount": 431,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2211,
-    "eligibleTextCount": 2150,
+    "observedCount": 2219,
+    "eligibleTextCount": 2158,
     "mediaOnlyCount": 61,
-    "mediaAttachedCount": 830,
-    "photoPostCount": 721,
+    "mediaAttachedCount": 833,
+    "photoPostCount": 723,
     "documentPostCount": 5,
     "imageOnlyCount": 5,
     "highSignalCount": 382,
-    "broadSignalCount": 834,
+    "broadSignalCount": 838,
     "selectedRawCount": 368,
     "selectedEligibleCount": 368,
     "selectedRawCoveragePct": 17.1,
@@ -147,25 +147,26 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 785,
+    "semi": 511,
+    "kr-market": 95,
+    "flows": 56,
+    "earnings": 349,
+    "market-note": 786,
+    "geo": 382,
+    "healthcare": 69,
+    "ai-policy": 113,
     "macro": 318,
-    "semi": 504,
     "power": 285,
-    "kr-market": 94,
-    "earnings": 348,
     "equity": 129,
-    "ai-policy": 112,
-    "geo": 384,
     "japan": 70,
     "media-only": 59,
     "credit": 86,
-    "healthcare": 69,
-    "flows": 55,
     "optical": 29,
     "crypto": 3
   },
   "tickerCounts": {
-    "NVDA": 200,
+    "NVDA": 204,
+    "LLY": 5,
     "MSFT": 43,
     "GOOG": 75,
     "AMZN": 65,
@@ -198,7 +199,6 @@
     "TTWO": 1,
     "OXY": 1,
     "HIMS": 2,
-    "LLY": 4,
     "META": 2,
     "NYT": 1,
     "006400.KS": 1,
@@ -254,19 +254,19 @@
     "MRK": 1
   },
   "themes": [
-    "Market Notes (785 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
-    "Semiconductors/Memory (504 posts in 14-day research window): [SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화...",
-    "Geopolitics (384 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
-    "Earnings/Corporate (348 posts in 14-day research window): 코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
+    "Market Notes (786 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
+    "Semiconductors/Memory (511 posts in 14-day research window): [SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화...",
+    "Geopolitics (382 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
+    "Earnings/Corporate (349 posts in 14-day research window): 코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
     "Macro/Rates (318 posts in 14-day research window): 2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물...",
     "AI Power/Grid (285 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "Equity/Analyst (129 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "AI Policy/Export Controls (112 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
+    "AI Policy/Export Controls (113 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 200,
+      "count": 204,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
     },
     {
@@ -341,7 +341,7 @@
       "topics": [
         "geo"
       ],
-      "count": 384,
+      "count": 382,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의..."
     },
     {
@@ -359,7 +359,7 @@
       "topics": [
         "semi"
       ],
-      "count": 504,
+      "count": 511,
       "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화..."
     },
     {
@@ -386,7 +386,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 112,
+      "count": 113,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -395,7 +395,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 94,
+      "count": 95,
       "focus": "[단독]코스닥 살리기 나서는 정부…13일 거래소서 대책 논의 금융위 주재…이재명 대통령 참석 가능성도 코스닥 활성화 포함 3가지 안건 논의할 예정 \"증시 저평가\" 언급, 이 대통령 메시지 주목 정부가 오는 13일 코스닥 시장 활성화를 포함해 자본시장 대책을 다루는 간담회를 개최한다. 금융위원장이 직접 참석하는..."
     },
     {
@@ -422,7 +422,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 348,
+      "count": 349,
       "focus": "코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로..."
     },
     {
@@ -449,8 +449,8 @@
       "topics": [
         "flows"
       ],
-      "count": 55,
-      "focus": "No retained full-text sample; 55 observed posts in the 14-day research window."
+      "count": 56,
+      "focus": "No retained full-text sample; 56 observed posts in the 14-day research window."
     },
     {
       "id": "insider",
@@ -467,7 +467,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 785,
+      "count": 786,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
     }
   ],
@@ -1697,6 +1697,78 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69112",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69112",
+      "datetime": "2026-11-12T07:52:27.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "레딧 관심도는 엔비디아에 집중"
+    },
+    {
+      "id": "insidertracking/69111",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69111",
+      "datetime": "2026-11-12T07:51:52.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "블룸버그에 따르면 중국 정부가 미국에 엔비디아 CEO 관련 스캔들을 기술 수출 제한 조치의 정당화 근거로 활용하지 말 것을 촉구. 중국 정부는 양국 정상 간 예정된 회담을 앞두고 미국 당국자들과 접촉을..."
+    },
+    {
+      "id": "HANAchina/72027",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72027",
+      "datetime": "2026-11-12T07:39:34.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>마이클 버리 : 엔비디아 급락, 단기적으로는 절호의 거래 기회지만 장기적으로는 여전히 하락 전망 •Burry는 이미 공매도 포지션을 보유하고 있지 않았다면 이번 스캔들로 인한 급락이 역발상 매수 기회가 될..."
+    },
+    {
+      "id": "HANAchina/72024",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72024",
+      "datetime": "2026-11-12T07:27:34.000Z",
+      "localDateKst": "2026-11-12",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>중국 외교부 : 미국은 이른바 간첩 논리를 만들어내고 기술 봉쇄의 구실을 찾는 것을 중단해야 •11월 12일 중국 외교부 마오닝 대변인은 정례 기자회견에서 엔비디아 관련 질문에 대해 이른바 ‘중국..."
+    },
+    {
       "id": "HANAchina/72018",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72018",
@@ -2303,8 +2375,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>최저 30% 가격에 Token 판매! AI 모델 업체, 사상 처음 ‘광군제’ 할인 경쟁 •11월 11일 톈마오몰의 ‘톈마오 AI 스페이스’에서 Zhipu, MiniMax, Qwen AI, Qoder 등..."
+      "summary": ">>최저 30% 가격에 Token 판매! AI 모델 업체, 사상 처음 ‘광군제’ 할인 경쟁 •11월 11일 톈마오몰의 ‘톈마오 AI 스페이스’에서 Zhipu, MiniMax, Qwen AI, Qoder 등...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69078",
@@ -2338,7 +2410,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
       "media": {
@@ -2347,12 +2418,13 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>젠슨 황, 새로운 불륜설 확산…Nvidia 시간외 급락, 해임설 이후 낙폭 8%로 확대 •젠슨 황과 Nvidia 의료사업 부문 부사장 Kimberly Powell의 불륜설이 제기. 두 사람 모두 기혼,...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO"
-      ],
-      "summary": ">>젠슨 황, 새로운 불륜설 확산…Nvidia 시간외 급락, 해임설 이후 낙폭 8%로 확대 •젠슨 황과 Nvidia 의료사업 부문 부사장 Kimberly Powell의 불륜설이 제기. 두 사람 모두 기혼,..."
+      ]
     },
     {
       "id": "HANAchina/71982",
@@ -2361,17 +2433,16 @@
       "datetime": "2026-11-11T23:07:34.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "credit",
-        "semi",
-        "earnings"
+        "earnings",
+        "credit"
       ],
-      "lead": 1,
       "score": 83,
       "hasText": true,
+      "summary": ">>CoreWeave, 투자등급 대출 통해 최소 40억달러 조달 추진 •AI 연산업체 CoreWeave가 연간 매출 전망을 상향한 가운데, 투자등급 대출을 통해 최소 40억달러를 조달할 계획인 것으로 전해짐....",
+      "lead": 2,
       "tickers": [
         "CRWV"
-      ],
-      "summary": ">>CoreWeave, 투자등급 대출 통해 최소 40억달러 조달 추진 •AI 연산업체 CoreWeave가 연간 매출 전망을 상향한 가운데, 투자등급 대출을 통해 최소 40억달러를 조달할 계획인 것으로 전해짐...."
+      ]
     },
     {
       "id": "HANAchina/71981",
@@ -2380,18 +2451,15 @@
       "datetime": "2026-11-11T23:01:46.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "semi",
-        "power",
-        "earnings",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": "• TSMC: AI 연산 수요가 지수함수적 수준을 넘어 포물선 형태로 치솟고 있으며, TSMC 고객사는 물론 엔드유저까지도 컴퓨팅 파워를 AI 시대의 핵심 자원으로 인식해 더 많은 칩을 확보하는 상황. 이에...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "• TSMC: AI 연산 수요가 지수함수적 수준을 넘어 포물선 형태로 치솟고 있으며, TSMC 고객사는 물론 엔드유저까지도 컴퓨팅 파워를 AI 시대의 핵심 자원으로 인식해 더 많은 칩을 확보하는 상황. 이에..."
+      ]
     },
     {
       "id": "insidertracking/69074",
@@ -2439,12 +2507,12 @@
       "datetime": "2026-11-11T22:43:52.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 대만 국과회가 국가 안보 및 산업 경쟁력 강화를 위해 국가 핵심 기술 관리 대상을 현행 42개에서 46개로 확대 입법예고 (11월 11일~25일) • 이번에 추가된 항목은 저궤도 위성 통신, 고성능 AI..."
+      "summary": "• 대만 국과회가 국가 안보 및 산업 경쟁력 강화를 위해 국가 핵심 기술 관리 대상을 현행 42개에서 46개로 확대 입법예고 (11월 11일~25일) • 이번에 추가된 항목은 저궤도 위성 통신, 고성능 AI...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69067",
@@ -2463,10 +2531,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "뉴욕타임즈에 따르면 미국 정보당국이 중국 스파이로 판단한 중국계 여성과의 불륜 관계로 조사를 받고 있는 엔비디아 CEO 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과도 혼외 관계를 맺었다고 전직 직원...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "뉴욕타임즈에 따르면 미국 정보당국이 중국 스파이로 판단한 중국계 여성과의 불륜 관계로 조사를 받고 있는 엔비디아 CEO 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과도 혼외 관계를 맺었다고 전직 직원..."
+      ]
     },
     {
       "id": "insidertracking/69062",
@@ -2675,11 +2743,11 @@
         "power",
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>데이터센터 반대 움직임 속 AI 투자, 얼마나 더 갈까? 핵심은 GPU 임대 가격 •중간선거 이후 데이터센터 건설에 대한 규제 및 인허가 강화 위험이 커지고 있으나, GPU 임대 가격 상승이 자본지출..."
+      "summary": ">>데이터센터 반대 움직임 속 AI 투자, 얼마나 더 갈까? 핵심은 GPU 임대 가격 •중간선거 이후 데이터센터 건설에 대한 규제 및 인허가 강화 위험이 커지고 있으나, GPU 임대 가격 상승이 자본지출...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71977",
@@ -4731,10 +4799,9 @@
       "datetime": "2026-11-10T05:35:12.000Z",
       "localDateKst": "2026-11-10",
       "tags": [
-        "earnings",
-        "semi"
+        "semi",
+        "earnings"
       ],
-      "lead": 2,
       "score": 56,
       "hasText": true,
       "media": {
@@ -4743,10 +4810,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "TSMC 2026년 10월 순매출 mom +14.7%, yoy +59.7% 연결 기준 약 5,868억 9,000만 대만달러(NT$) 2026년 9월 대비 14.7%, 2025년 10월 대비 59.7% 증가한...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "TSMC 2026년 10월 순매출 mom +14.7%, yoy +59.7% 연결 기준 약 5,868억 9,000만 대만달러(NT$) 2026년 9월 대비 14.7%, 2025년 10월 대비 59.7% 증가한..."
+      ]
     },
     {
       "id": "HANAchina/71889",
@@ -6072,50 +6139,6 @@
       ]
     },
     {
-      "id": "insidertracking/68774",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68774",
-      "datetime": "2026-11-09T09:01:42.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "프리마켓 오픈 엔비디아 -5%",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/68772",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68772",
-      "datetime": "2026-11-09T08:58:14.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "레딧 관심도는 엔비디아에 초집중;;;",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "HANAchina/71823",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71823",
@@ -7152,25 +7175,6 @@
       ]
     },
     {
-      "id": "HANAchina/71686",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71686",
-      "datetime": "2026-11-07T01:29:48.000Z",
-      "localDateKst": "2026-11-07",
-      "tags": [
-        "market-note"
-      ],
-      "score": 68,
-      "hasText": true,
-      "summary": ">>Microsoft, AI 연산력 임대 축소 - Oracle Cloud 계약에서 단계적으로 철수한다는 소식에 ‘신흥 클라우드’ CoreWeave 급락 •금요일 보도에 따르면 Microsoft가 최근 몇 달간...",
-      "tickers": [
-        "NVDA",
-        "MSFT",
-        "ORCL",
-        "CRWV"
-      ]
-    },
-    {
       "id": "bornlupin/21045",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21045",
@@ -7217,20 +7221,6 @@
         "GOOG",
         "BE"
       ]
-    },
-    {
-      "id": "HANAchina/71683",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71683",
-      "datetime": "2026-11-07T00:18:01.000Z",
-      "localDateKst": "2026-11-07",
-      "tags": [
-        "market-note"
-      ],
-      "score": 63,
-      "hasText": true,
-      "summary": ">>UBS : AI 투자 사이클 조정 국면, 버블 붕괴 아님…대만 시장 밸류에이션 매력 부각 (대만경제일보) •UBS 대만 전략은 현재 AI 투자 사이클이 조정 국면에 진입했지만 버블 붕괴는 아니라고 밝힘....",
-      "tickers": []
     },
     {
       "id": "bornlupin/21042",
@@ -8560,12 +8550,12 @@
       "datetime": "2026-11-11T22:43:52.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 대만 국과회가 국가 안보 및 산업 경쟁력 강화를 위해 국가 핵심 기술 관리 대상을 현행 42개에서 46개로 확대 입법예고 (11월 11일~25일) • 이번에 추가된 항목은 저궤도 위성 통신, 고성능 AI..."
+      "summary": "• 대만 국과회가 국가 안보 및 산업 경쟁력 강화를 위해 국가 핵심 기술 관리 대상을 현행 42개에서 46개로 확대 입법예고 (11월 11일~25일) • 이번에 추가된 항목은 저궤도 위성 통신, 고성능 AI...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69067",
@@ -8584,10 +8574,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "뉴욕타임즈에 따르면 미국 정보당국이 중국 스파이로 판단한 중국계 여성과의 불륜 관계로 조사를 받고 있는 엔비디아 CEO 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과도 혼외 관계를 맺었다고 전직 직원...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "뉴욕타임즈에 따르면 미국 정보당국이 중국 스파이로 판단한 중국계 여성과의 불륜 관계로 조사를 받고 있는 엔비디아 CEO 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과도 혼외 관계를 맺었다고 전직 직원..."
+      ]
     },
     {
       "id": "insidertracking/69062",
@@ -8796,11 +8786,11 @@
         "power",
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>데이터센터 반대 움직임 속 AI 투자, 얼마나 더 갈까? 핵심은 GPU 임대 가격 •중간선거 이후 데이터센터 건설에 대한 규제 및 인허가 강화 위험이 커지고 있으나, GPU 임대 가격 상승이 자본지출..."
+      "summary": ">>데이터센터 반대 움직임 속 AI 투자, 얼마나 더 갈까? 핵심은 GPU 임대 가격 •중간선거 이후 데이터센터 건설에 대한 규제 및 인허가 강화 위험이 커지고 있으나, GPU 임대 가격 상승이 자본지출...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71977",
