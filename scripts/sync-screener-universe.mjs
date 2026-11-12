@@ -71,8 +71,10 @@ async function build() {
   meta.recordCount = universe.length;
   meta.uniqueSymbols = uniqueSymbols;
   meta.duplicateSymbols = Math.max(0, universe.length - uniqueSymbols);
-  const updatedAt = meta.lastBulkUpdate ? Date.parse(`${meta.lastBulkUpdate}T00:00:00Z`) : NaN;
-  meta.currentness = Number.isFinite(updatedAt) && Number.isFinite(Number(meta.staleAfterDays)) && Date.now() - updatedAt > Number(meta.staleAfterDays) * 86400000 ? 'STALE' : 'CURRENT';
+  // The mirror holds only what the source holds. Whether the universe is past its review window depends on the day it
+  // is read, so readers derive it from lastBulkUpdate and staleAfterDays; a value written here made the checked-in
+  // file differ from a rebuild on day 31 with no change to the source.
+  delete meta.currentness;
   return { meta, universe, generatedFrom: 'js/aio-data.js:SCREENER_DB', generatedBy: 'scripts/sync-screener-universe.mjs' };
 }
 

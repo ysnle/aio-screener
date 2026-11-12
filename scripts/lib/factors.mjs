@@ -463,7 +463,7 @@ export function backtestFactors(stockData, opts) {
     universePolicy: {
       membership: 'current-configured-universe-applied-retrospectively',
       selectionAsOf: universeMeta.lastBulkUpdate || null,
-      currentness: universeMeta.currentness || 'unknown',
+      staleAfterDays: universeMeta.staleAfterDays ?? null,
       generatedFrom: universeMeta.generatedFrom || 'public-data/screener-universe.json',
       lookaheadBias: 'historical-membership-not-available',
       survivorshipBias: 'uncontrolled-current-membership-only',

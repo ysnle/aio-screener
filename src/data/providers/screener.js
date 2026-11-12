@@ -340,10 +340,9 @@ export function createScreenerProvider({
       const universeMeta = universePayload?.meta && typeof universePayload.meta === 'object' ? universePayload.meta : {};
       const universeLastBulkUpdate = universeMeta.lastBulkUpdate || null;
       const universeStaleAfterDays = numberOrNull(universeMeta.staleAfterDays) ?? 30;
-      const universeCurrentness = String(universeMeta.currentness || '').trim().toUpperCase() || 'UNKNOWN';
-      const universeFreshnessStatus = Array.isArray(universePayload?.universe)
-        ? (universeCurrentness === 'STALE' || !asOfIsFresh(universeLastBulkUpdate, now, universeStaleAfterDays) ? 'stale' : universeCurrentness === 'CURRENT' ? 'current' : 'unknown')
-        : 'unknown';
+      // Derived at read time from the review date and window the mirror carries.
+      const universeCurrentness = !universeLastBulkUpdate ? 'UNKNOWN' : asOfIsFresh(universeLastBulkUpdate, now, universeStaleAfterDays) ? 'CURRENT' : 'STALE';
+      const universeFreshnessStatus = Array.isArray(universePayload?.universe) ? ({ CURRENT: 'current', STALE: 'stale' })[universeCurrentness] || 'unknown' : 'unknown';
       const unavailable = (revision = null, detail = null) => Object.freeze({
         rows: [],
         filters: {},

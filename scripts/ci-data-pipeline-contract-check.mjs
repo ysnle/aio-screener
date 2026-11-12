@@ -2273,6 +2273,11 @@ check('getScreenerSymbols reads screener-universe.json, not source-text regex', 
 {
   const sync = spawnSync(process.execPath, [join(root, 'scripts/sync-screener-universe.mjs'), '--check'], { encoding: 'utf8' });
   check('public-data/screener-universe.json is in sync with js/aio-data.js SCREENER_DB', sync.status === 0, (sync.stdout + sync.stderr).trim().slice(0, 400));
+  // The same rebuild a year from now must give the same file: a clock-derived field in the mirror made this check fail
+  // on day 31 after the last universe review (2026-11-12) with no change to the source, and every deploy stopped.
+  const later = `data:text/javascript,const at=Date.now()+366*864e5;const Real=Date;globalThis.Date=class extends Real{constructor(...a){super(...(a.length?a:[at]));}static now(){return at;}};`;
+  const future = spawnSync(process.execPath, ['--import', later, join(root, 'scripts/sync-screener-universe.mjs'), '--check'], { encoding: 'utf8' });
+  check('v59.99 the screener-universe mirror does not change with the calendar', future.status === 0, (future.stdout + future.stderr).trim().slice(0, 400));
 }
 // ── P1449: 종목 identity — SCREENER_DB/registry name vs the issuer's own SEC entity name. ──
 // A ticker must name one issuer everywhere (P1339/R95/R85). The 2026-10 review caught 'A' being

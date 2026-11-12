@@ -1,0 +1,17 @@
+{
+  "version": "v59.99",
+  "date": "2026-11-12",
+  "p": {
+    "title": "v59.99 the screener-universe mirror no longer changes with the calendar",
+    "symptom": "From 2026-11-12 00:54Z every CI run failed in the data-pipeline gate (\"screener-universe.json is in sync with SCREENER_DB\"), so no revision was attested, GitHub Pages stopped deploying and the refresh scheduler's convergence step failed every 30 minutes; data commits kept landing on main but the live site stayed on the last attested revision for about 12 hours.",
+    "root_cause": "scripts/sync-screener-universe.mjs wrote meta.currentness (CURRENT/STALE) from Date.now() into the checked-in mirror. Thirty days after lastBulkUpdate (2026-10-13) a rebuild said STALE while the file said CURRENT, so the drift check failed with no change to the source. The warn-only change to the static-db expiry gate (v59.97) did not cover this second place where the same review window was evaluated.",
+    "fix": "The mirror carries only source fields (lastBulkUpdate, staleAfterDays); src/data/providers/screener.js derives the universe's currentness at read time from them, and the factor backtest's universePolicy carries staleAfterDays instead of the word. The mirror was regenerated.",
+    "violated_rule": "A generated file compared in a gate must be a pure function of its sources (P1542 class: a lapsed review window is shown, never a deploy stop).",
+    "prevention": "ci-data-pipeline-contract-check rebuilds the mirror in check mode with the clock moved a year ahead and requires no difference.",
+    "verification": "node scripts/ci-data-pipeline-contract-check.mjs exits 0 (it exited 1 on origin/main at 2026-11-12); screener workbench, unit and expiry gates exit 0.",
+    "files": ["scripts/sync-screener-universe.mjs", "src/data/providers/screener.js", "scripts/lib/factors.mjs", "public-data/screener-universe.json", "scripts/ci-data-pipeline-contract-check.mjs"]
+  },
+  "r": null,
+  "changelog": ["**Deploys no longer stop on day 31 after a universe review ({P}):** the screener-universe mirror held a clock-derived CURRENT/STALE word, so its drift check failed on 2026-11-12 with no source change and blocked CI attestation and Pages for about 12 hours; readers now derive it."],
+  "note": "v59.99: screener-universe mirror is a pure function of its source"
+}
