@@ -11,7 +11,7 @@ import {
   OFFICIAL_REFERENCES_SCHEMA, LANE_POLICY, refreshOfficialReferences, validateOfficialReferences, dueDecision,
   numberRegExps, dateRegExps, pageText, CUSTOMS_PRESS_BOARD, customsReleaseLinks, fetchOfficialPage,
 } from './lib/web-reference-verify.mjs';
-import { buildSharedWebSearchBody, requestSharedAnalysis } from './lib/ai-shared-analysis.mjs';
+import { SHARED_AI_PROFILES, buildSharedWebSearchBody, requestSharedAnalysis } from './lib/ai-shared-analysis.mjs';
 import { prepareOpenAiBudget } from '../worker/openai-budget.mjs';
 import { load as loadYaml } from 'js-yaml';
 
@@ -306,7 +306,7 @@ async function single(id, candidate, options = {}) {
 {
   let sent = null;
   await requestSharedAnalysis('fixture', { env: ENV, fetchImpl: async (url, init) => { sent = JSON.parse(init.body); return modelResponse({ ok: true }); } });
-  check('P1734 requestSharedAnalysis keeps its search-free 1500-token body', sent && !('tools' in sent) && sent.max_output_tokens === 1500 && sent.reasoning?.effort === 'none');
+  check('P1734 requestSharedAnalysis keeps its search-free body at the analysis profile', sent && !('tools' in sent) && sent.max_output_tokens === SHARED_AI_PROFILES.analysis.maxOutputTokens && sent.reasoning?.effort === SHARED_AI_PROFILES.analysis.effort);
 }
 
 // 9. Workflow, lineage and producer wiring.

@@ -11,7 +11,7 @@ import { FOMC_RECHECK_MS, buildIsmRuleEvents, deriveFedPolicyRate, parseFomcCale
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session/session-time.js';
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
-import { SHARED_AI_MODEL, extractCompletedResponseText, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
+import { SHARED_AI_MODEL, SHARED_AI_PROFILES as ANALYSIS_PROFILES, extractCompletedResponseText, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 import { marketAnalysisDiagnostic, summarizeOperationalChecks, workflowCadence, operationalSummary, WATCHDOG_THRESHOLDS } from './lib/operational-health.mjs';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 import { parseHoldings } from './fetch-sp500-weights.mjs';
@@ -444,8 +444,8 @@ check('P1421 refresh workflow fetches market data with official optional secrets
     && requests.every(row => row.url === 'https://fixture.workers.dev/openai' && row.options.redirect === 'error'
       && row.options.headers['X-AIO-Automation-Token'] === env.AIO_AUTOMATION_TOKEN && !row.options.headers.Origin)
     && requests[0].options.headers['X-AIO-Idempotency-Key'] !== requests[1].options.headers['X-AIO-Idempotency-Key']
-    && requestBody.model === SHARED_AI_MODEL && requestBody.max_output_tokens === 1500
-    && requestBody.store === false && requestBody.reasoning.effort === 'none' && !requestBody.tools
+    && requestBody.model === SHARED_AI_MODEL && requestBody.max_output_tokens === ANALYSIS_PROFILES.analysis.maxOutputTokens
+    && requestBody.store === false && requestBody.reasoning.effort === ANALYSIS_PROFILES.analysis.effort && !requestBody.tools
     && !/api\.anthropic\.com|api\.openai\.com|ANTHROPIC_API_KEY|OPENAI_API_KEY/.test(fetchData));
   const limited = await requestSharedAnalysis('fixture', { env, fetchImpl: async () => new Response('{}', { status: 429 }) });
   check('P1421 monthly quota exhaustion fails closed without direct provider retry', limited.text === null && limited.reason === 'provider-http-429');

@@ -37,7 +37,7 @@ async function runVariant({ effort, maxOutputTokens }) {
   const warn = console.warn;
   console.warn = (...parts) => {
     const line = parts.join(' ');
-    const match = line.match(/marketAnalysis (attempt-\d) blocked: ([^:]*?) ::/);
+    const match = line.match(/marketAnalysis (attempt-\d) blocked: (.*?) :: /);
     if (match) blocked.push({ attempt: match[1], issues: match[2].trim() });
     warn(...parts);
   };

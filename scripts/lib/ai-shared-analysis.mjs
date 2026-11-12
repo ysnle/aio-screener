@@ -37,7 +37,10 @@ export function extractCompletedResponseText(payload) {
 // its profile and the purpose its request is logged under.
 export const SHARED_AI_PROFILES = Object.freeze({
   // Plain Korean prose checked by a deterministic validator afterwards (market reading, translation fallback, slot summary).
-  analysis: Object.freeze({ maxOutputTokens: 1500, effort: 'none' }),
+  // Low reasoning and room for it (reasoning tokens count inside the ceiling): replays of 27 production inputs
+  // (ai-effort-experiment, 2026-11-11/12) passed the validator 16 of 19 times at low against 13 of 19 with reasoning
+  // off, for about 230 more output tokens and one more second per call; medium added errors and minutes, no passes.
+  analysis: Object.freeze({ maxOutputTokens: 4000, effort: 'low' }),
   // A JSON-schema answer over a fetched primary source (earnings release, FOMC statement, press-conference transcript).
   structured: Object.freeze({ maxOutputTokens: 2500, effort: 'low' }),
   // One bounded hosted search on an official/report domain list (Worker admission: worker/openai-budget.mjs).
