@@ -28,7 +28,9 @@ const CASES = [
   { id: 'applied', question: '추세가 좋은데 과열되지 않은 종목 골라줘', answer: '모멘텀이 이어지는 쪽을 고릅니다.\n스크리너 조건: RSI 50 이상, 3개월 수익률 10% 이상', expect: 'applied', ids: ['rsi-min', 'ret3m-min'] },
   { id: 'empty', question: '엄청 오른 종목 찾아줘', answer: '아주 강한 종목만 남깁니다.\n스크리너 조건: 1개월 수익률 500% 이상', expect: 'empty', ids: ['ret1m-min'] },
   { id: 'unsupported', question: '강하거나 오래 오른 종목 찾아줘', answer: '비싼 종목을 봅니다.\n스크리너 조건: PER 40 이상', expect: 'unparsed', ids: [] },
-  { id: 'question-fallback', question: 'RSI 30 이하 종목 찾아줘', answer: '과매도 구간의 종목입니다.', expect: 'applied', ids: ['rsi-max'], from: 'question' },
+  // RSI 45: a level some stocks are under on any market day. At 30 the case depended on the pinned day's data and
+  // found no stock on 2026-11-12, which read as a failure of the condition parser.
+  { id: 'question-fallback', question: 'RSI 45 이하 종목 찾아줘', answer: '약한 구간의 종목입니다.', expect: 'applied', ids: ['rsi-max'], from: 'question' },
   { id: 'worker-failure', question: 'ROE 15% 이상 종목 찾아줘', answer: null, expect: 'none', ids: [] }
 ];
 
