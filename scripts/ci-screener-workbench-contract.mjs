@@ -182,6 +182,14 @@ async function run() {
     rightsByField: Object.fromEntries(SCREENER_FIELD_REGISTRY.fields.map((field) => [field.fieldId, 'VERIFIED']))
   });
   assert(lineage.fields['price.close'].observedAt === '2026-08-12T00:01:30.000Z' && lineage.fields['price.close'].sourceId === 'runtime-quote-fixture', 'G-SCR-LINEAGE: live price keeps its own observation/source epoch');
+  {
+    // A symbol and its name do not expire: 400 days after the universe review the identity fields are still usable.
+    const agedRow = { ...lineageRow, identityObservedAt: '2025-07-01T00:00:00.000Z' };
+    const aged = buildFieldReadiness(agedRow, { now: Date.parse('2026-08-12T00:02:00.000Z'), revisionId: 'fixture-v2', sourceId: 'factor-fixture', sourceKind: 'T1_OFFICIAL',
+      rightsByField: Object.fromEntries(SCREENER_FIELD_REGISTRY.fields.map((field) => [field.fieldId, 'VERIFIED'])) });
+    assert(['identity.symbol', 'identity.name', 'identity.market', 'identity.currency'].every((id) => aged.fields[id].status !== 'STALE'),
+      `v59.99 identity fields have no clock budget: ${JSON.stringify(['identity.symbol', 'identity.name', 'identity.market', 'identity.currency'].map((id) => aged.fields[id].status))}`);
+  }
   assert(lineage.fields['quality.roe'].observedAt === '2026-07-31T00:00:00.000Z' && lineage.fields['quality.roe'].sourceId === 'sec-fixture', 'G-SCR-LINEAGE: fundamentals keep filing-derived observation/source epoch');
   const definition = createScreenDefinition({ screenId: 'fixture-screen', name: 'Fixture screen', objective: 'contract-test', filtersAST: { type: 'and', children: [{ type: 'range', field: 'price.ret3m', min: 0, nullPolicy: 'reject' }, { type: 'exists', field: 'quality.roe', nullPolicy: 'reject' }] }, hardGates: [{ type: 'range', field: 'price.dollarVolume30d', min: 1_000_000, nullPolicy: 'reject' }], ranking: { field: 'price.ret3m', direction: 'desc' }, requiredFields: ['price.ret3m', 'quality.roe'] });
   assert(validateScreenDefinition(definition).ok, 'G-SCR-DEFINITION: AST definition validates without executable code');

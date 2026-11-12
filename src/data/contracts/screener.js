@@ -153,13 +153,16 @@ export async function stableHashAsync(value, { yieldImpl, signal, workPerChunk =
   return state.result();
 }
 
+// Identity is reference data from the curated universe: a symbol and its name do not expire with the review window
+// (null = no freshness budget). A lapsed universe review is reported once for the page (universeFreshnessStatus); with a
+// 30-day budget here every row turned unusable on day 31 and the default screen showed no stocks.
 const FIELD_ROWS = [
-  ['identity.symbol', '종목 코드', 'string', 'text', 'symbol', 30],
-  ['identity.name', '기업명', 'string', 'text', 'name', 30],
-  ['identity.market', '시장', 'enum', 'market', 'market', 30],
-  ['identity.mic', 'MIC', 'string', 'code', 'mic', 30],
-  ['identity.currency', '통화', 'enum', 'currency', 'currency', 30],
-  ['identity.assetType', '자산 유형', 'enum', 'asset', 'assetType', 30],
+  ['identity.symbol', '종목 코드', 'string', 'text', 'symbol', null],
+  ['identity.name', '기업명', 'string', 'text', 'name', null],
+  ['identity.market', '시장', 'enum', 'market', 'market', null],
+  ['identity.mic', 'MIC', 'string', 'code', 'mic', null],
+  ['identity.currency', '통화', 'enum', 'currency', 'currency', null],
+  ['identity.assetType', '자산 유형', 'enum', 'asset', 'assetType', null],
   ['price.close', '종가', 'number', 'currency', 'price', 2],
   ['price.ret1m', '1개월 수익률', 'number', 'percent', 'ret1m', 3],
   ['price.ret3m', '3개월 수익률', 'number', 'percent', 'ret3m', 3],
@@ -203,7 +206,7 @@ const DEFAULT_FIELD_DEFINITIONS = FIELD_ROWS.map(([fieldId, label, type, unit, r
   unit,
   rowKey,
   supportedMarkets: Object.freeze(['US', 'KR']),
-  cadence: freshnessDays <= 3 ? 'session/eod' : 'filing/reconciliation',
+  cadence: freshnessDays == null ? 'reference' : freshnessDays <= 3 ? 'session/eod' : 'filing/reconciliation',
   freshnessBudgetMs: freshnessDays == null ? null : freshnessDays * DAY,
   requiredCapabilities: Object.freeze([fieldId.split('.')[0]]),
   missingPolicy: type === 'number' ? 'unknown' : 'reject',

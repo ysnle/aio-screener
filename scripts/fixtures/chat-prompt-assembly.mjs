@@ -20,7 +20,9 @@ export const PROMPT_FIXTURE_QUESTIONS = Object.freeze([
 ]);
 
 // Eight long news items in the home topics, all fresh, so the news block is at its item and length caps.
-export function longNewsItems(count = 8, nowMs = Date.parse(FIXTURE_NOW)) {
+// The news builder keeps items from the last 24 hours of the real clock, so these are dated from it: dated from the
+// fixed fixture time they aged out of the window one day after they were written.
+export function longNewsItems(count = 8, nowMs = Date.now()) {
   return Array.from({ length: count }, (_, i) => ({
     title: `Fixture headline ${i + 1} ` + '반도체 수요와 금리 경로가 엇갈린 하루 '.repeat(12),
     desc: `Fixture summary ${i + 1} ` + '실적 발표 뒤 가이던스와 마진 전망, 금리 기대 변화가 함께 움직였다는 요약 '.repeat(12),
