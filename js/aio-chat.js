@@ -4227,6 +4227,9 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (/^(analysis|decision|comparison|outlook)$/.test(_uniMode)) selectedModelKey = 'luna-medium'; // v57.61: medium reasoning for multi-step answers (+~$0.002 each)
   else if (_uniMode === 'explain') selectedModelKey = 'luna-low'; // a concept explanation (감마 스퀴즈, 듀레이션) reasons briefly before writing the mechanism
   var selectedModelCfg = typeof getModelConfig === 'function' ? getModelConfig(selectedModelKey) : { label: selectedModelKey };
+  // What the answer's figures are checked against: the injected data blocks, without the earlier-conversation and
+  // reader-note blocks (their numbers are as of another day) and without the instruction tail.
+  var _uniReferenceText = window.AIO && typeof window.AIO.answerReferenceText === 'function' ? window.AIO.answerReferenceText(sysPrompt) : '';
   var modelOpts = { modelKey: selectedModelKey, maxTokens: _uniDeepData ? 16000 : (_uniMode === 'quick' ? 4000 : selectedModelKey === 'luna-medium' ? 12000 : 8000) }; // v57.61: reasoning tokens share this cap
   sysPrompt += window.AIO && typeof window.AIO.answerModeGuide === 'function' ? window.AIO.answerModeGuide(_uniMode) : '';
   // P1741: tell the model which app-drawn figures will sit under its answer, so the prose can point to them.
@@ -4292,7 +4295,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (loadEl) loadEl.parentNode.removeChild(loadEl);
     if (!aiBubble) { aiBubble = _appendAIMsg('ai', '', 'ai-panel-streaming'); }
     var _uniChunkResult = (typeof _aioRunAIResponsePipeline === 'function')
-       ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, analysisAudit: _uniAnalysisAudit, streamPhase: 'partial', record: false })
+       ? _aioRunAIResponsePipeline(fullText, { referenceText: _uniReferenceText, request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, analysisAudit: _uniAnalysisAudit, streamPhase: 'partial', record: false })
       : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
     var visible = (_uniResearchRequired && !_uniWebResult)
       ? '최신·인과성 주장에 필요한 Web Research 근거를 검증 중입니다. 검증 전 수치와 원인 단정은 표시하지 않습니다.'
@@ -4319,7 +4322,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       ? _aioEvaluateAIResearchGate({ questionPlan: _uniQuestionPlan, requestId: _uniRequestId, required: _uniResearchRequired, externalResult: _uniWebResult, nativeCitations: _uniUseClaudeWebSearch ? _aioAIRequestCitations(_uniRequestId) : [], error: _uniWebResult ? null : (_uniResearchFailure || _aioAIRequestResearchError(_uniRequestId)) })
       : { required: _uniResearchRequired, ready: !_uniResearchRequired, reason: 'research-gate-unavailable' };
     var _uniDoneResult = (typeof _aioRunAIResponsePipeline === 'function')
-       ? _aioRunAIResponsePipeline(fullText, { request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, researchGate: _uniResearchGate, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, analysisAudit: _uniAnalysisAudit, completion: completion || null, streamPhase: 'complete' })
+       ? _aioRunAIResponsePipeline(fullText, { referenceText: _uniReferenceText, request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, researchGate: _uniResearchGate, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, analysisAudit: _uniAnalysisAudit, completion: completion || null, streamPhase: 'complete' })
       : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
     var visible = _uniDoneResult.text;
     var _publicGate = _uniDoneResult.actionGate;

@@ -1212,6 +1212,23 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check('v59.99 the plan reports what its filters removed',
     !!published.filterCounts && published.filterCounts.removedNumericSentences === unboundCurrent.length * 2 && published.filterCounts.removedEventSentences === 2
       && published.filterCounts.sentencesTotal === (Object.keys(historyOrStructure).length + unboundCurrent.length + 1) * 2);
+  {
+    // A figure the model was given in its data blocks stays in the sentence that uses it; one that is nowhere in that
+    // material, or only in a block quoting another day's conversation or in the instruction tail, is removed.
+    const system = '기초\n\n[TICKER]\nNVDA 현재가 180.25달러, 전일 대비 -1.2%, PER 28.4배, 50일선 대비 -3.1%, RSI 41.7\n\n【이전 대화에서】\n1. (2026-11-06) 그때 종가는 172.5달러\n\n【사용자가 알려준 것】\n- 메모\n\n[AIO EXTERNAL EVIDENCE CONTRACT]\n규칙 99.9달러';
+    const reference = pub.answerReferenceText(system);
+    const given = ['NVDA는 180.25달러로, 천천히 분할 매수하기 좋은 구간입니다.', 'PER은 28.4배로 높은 편입니다.', '50일선보다 3.1% 낮습니다.', '오늘 1.2% 내렸습니다.', 'RSI는 41.7입니다.'];
+    const notGiven = ['PER은 35배입니다.', '지난번 종가 172.5달러보다 높습니다.', '목표가는 99.9달러입니다.'];
+    const summary = (options) => pub.buildPublishableAnswerPlan({ summary: given.concat(notGiven).join(' '), sections: [], claims: { claims: [] } }, [], true, { nowMs: today, ...options }).plan.summary;
+    const withReference = summary({ referenceText: reference });
+    check('v60.00 the reference text is the data blocks only (no earlier-conversation block, no reader notes, no instruction tail)',
+      reference.includes('180.25달러') && !reference.includes('172.5') && !reference.includes('99.9') && !reference.includes('메모'));
+    check('v60.00 a figure from the injected data stays in its sentence', given.every((line) => withReference.includes(line)), withReference);
+    check('v60.00 a figure that is not in the injected data is still removed', notGiven.every((line) => !withReference.includes(line)), withReference);
+    check('v60.00 without reference text every unbound current figure is removed as before', given.concat(notGiven).every((line) => !summary({}).includes(line)));
+    const fallbackWithReference = pub.extractAnswerFallbackResult(given.concat(notGiven).join(' '), true, { evidenceCount: 0, today, referenceText: reference });
+    check('v60.00 the fallback path follows the same rule', given.every((line) => fallbackWithReference.text.includes(line)) && notGiven.every((line) => !fallbackWithReference.text.includes(line)), fallbackWithReference.text);
+  }
   const fallback = typeof pub.extractAnswerFallbackResult === 'function' ? pub.extractAnswerFallbackResult('코스피는 2,650에서 마감했습니다. 금리는 4.5%입니다. 1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.', true, { evidenceCount: 0, today }) : null;
   check('v59.99 the fallback path keeps history and counts two removed sentences',
     !!fallback && fallback.text === '1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.' && fallback.removedNumericSentences === 2 && fallback.sentencesTotal === 3

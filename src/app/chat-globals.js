@@ -16,6 +16,7 @@ import { AI_WORKER_CONTRACT } from '../domain/ai/worker-contract.js'; // S5: mod
 import { chatStockTrendLine } from '../ai/context/stock-trend-line.js'; // S5: [주가 추이] from the 종목 page's row
 import { chatTechnicalBlock } from '../ai/context/technical-lines.js'; // S4: the 차트 screen's reading of the same bars
 import { recordAnswerQuality, summariseAnswerQuality } from '../ai/telemetry/answer-quality-log.js';
+import { answerReferenceText } from '../ai/response/publication.js';
 import { earlierTurnsPromptBlock, relatedEarlierTurns, turnEntities } from '../ai/session/earlier-turns.js';
 import { addNotes, loadNotes, notesPromptBlock } from '../ai/session/reader-notes.js';
 
@@ -26,6 +27,7 @@ export function installChatGlobals(root = globalThis) {
   const storage = () => { try { return root.localStorage || null; } catch (_) { return null; } };
   root.AIO.recordAnswerQuality = (entry) => recordAnswerQuality(storage(), entry);
   root.AIO.answerQualitySummary = (options) => summariseAnswerQuality(storage(), options);
+  root.AIO.answerReferenceText = answerReferenceText; // the injected data an answer's figures are checked against
   // Reader memory on this device: the ids a question is about, and earlier saved conversations about the same ids. The
   // saved conversations come from the panel's session api (src/ui/components/chat-sessions.js), which returns none
   // without the conversation-saving consent; the open conversation is already in the model context.
