@@ -10,6 +10,7 @@
 - **A number that is in the evidence stays in its sentence (P2390):** a current-sensitive chat answer now removes a sentence only when one of its current figures is not in the injected evidence, so a judgement written next to the injected price is no longer deleted with it.
 - **The market reading is blocked less often for correct sentences (P2391):** four validator rules that matched words rather than claims were narrowed, and citation debris no longer reaches the text.
 - **Deploys no longer stop on day 31 after a universe review (P2392):** the screener-universe mirror held a clock-derived CURRENT/STALE word, so its drift check failed on 2026-11-12 with no source change and blocked CI attestation and Pages for about 12 hours; readers now derive it.
+- **The screener shows its stocks again (P2393):** symbol and name fields expired with the 30-day universe review window, so from 2026-11-12 every row was unusable and the default view was empty.
 - R1 7곳 v59.99
 
 ## v59.98 (2026-11-11)

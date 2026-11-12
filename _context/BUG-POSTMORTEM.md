@@ -39,6 +39,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2393 - v59.99 - v59.99 the screener no longer empties 31 days after a universe review (2026-11-12)
+
+- symptom/reproduction: From 2026-11-12 the screener's default view showed '조건에 맞는 종목이 없습니다' with 822 ranked US stocks and 0 displayed (the same for 한국), on the live site and in five browser gates.
+- root_cause: The six identity fields (symbol, name, market, MIC, currency, asset type) carried a 30-day freshness budget measured from the universe's lastBulkUpdate. On day 31 every row's identity.symbol was STALE, the required-field audit marked every row not eligible, and the default screen passed none.
+- fix: src/data/contracts/screener.js: identity fields are reference data with no clock budget (cadence 'reference'); a lapsed universe review is still reported once for the page through universeFreshnessStatus.
+- violated_rule: P1542: a lapsed review window is shown honestly and never removes the product's content.
+- prevention: ci-screener-workbench-contract: identity fields observed 400 days ago are not STALE; the news fixture of the chat prompt gate is dated from the real clock (it aged out of the 24-hour window one day after it was written); the non-browser contracts suite was run with the clock 45 and 120 days ahead — only live-data freshness checks differ.
+- verification/residual: ci-screener-controls-contract (browser) exits 0 again; ci-ai-intelligence-contract-check exits 0 today and with the clock 40 days ahead.
+- files: src/data/contracts/screener.js, scripts/ci-screener-workbench-contract.mjs, scripts/fixtures/chat-prompt-assembly.mjs
+
 ## P2392 - v59.99 - v59.99 the screener-universe mirror no longer changes with the calendar (2026-11-12)
 
 - symptom/reproduction: From 2026-11-12 00:54Z every CI run failed in the data-pipeline gate ("screener-universe.json is in sync with SCREENER_DB"), so no revision was attested, GitHub Pages stopped deploying and the refresh scheduler's convergence step failed every 30 minutes; data commits kept landing on main but the live site stayed on the last attested revision for about 12 hours.
