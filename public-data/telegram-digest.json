@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-12T04:21:40.428Z",
-  "attemptedAt": "2026-11-12T04:21:40.428Z",
-  "lastSuccessfulAt": "2026-11-12T04:21:40.428Z",
+  "generatedAt": "2026-11-12T04:52:26.746Z",
+  "attemptedAt": "2026-11-12T04:52:26.746Z",
+  "lastSuccessfulAt": "2026-11-12T04:52:26.746Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-29T04:21:35.633Z",
-  "until": "2026-11-12T04:21:35.633Z",
+  "since": "2026-10-29T04:52:21.936Z",
+  "until": "2026-11-12T04:52:21.936Z",
   "current24hWindow": {
     "start": "2026-11-10T23:00:00.000Z",
     "end": "2026-11-11T23:00:00.000Z",
@@ -89,11 +89,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1283,
-      "freshCount": 39,
+      "freshCount": 19,
       "eligibleTextCount": 1221,
       "selectedCount": 120,
       "error": null,
@@ -113,11 +113,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 705,
-      "freshCount": 39,
+      "freshCount": 19,
       "eligibleTextCount": 704,
       "selectedCount": 125,
       "error": null,
@@ -125,7 +125,7 @@
     }
   ],
   "count": 2213,
-  "retainedItemCount": 422,
+  "retainedItemCount": 398,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -2117,8 +2117,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>최저 30% 가격에 Token 판매! AI 모델 업체, 사상 처음 ‘광군제’ 할인 경쟁 •11월 11일 톈마오몰의 ‘톈마오 AI 스페이스’에서 Zhipu, MiniMax, Qwen AI, Qoder 등..."
+      "summary": ">>최저 30% 가격에 Token 판매! AI 모델 업체, 사상 처음 ‘광군제’ 할인 경쟁 •11월 11일 톈마오몰의 ‘톈마오 AI 스페이스’에서 Zhipu, MiniMax, Qwen AI, Qoder 등...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69078",
@@ -2137,11 +2137,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "애프터마켓 현황 상승장 마감하고 젠슨황이 테크쪽에 똥물 뿌림. 브로드컴, AMD는 상승",
       "tickers": [
         "AMD",
         "AVGO"
-      ],
-      "summary": "애프터마켓 현황 상승장 마감하고 젠슨황이 테크쪽에 똥물 뿌림. 브로드컴, AMD는 상승"
+      ]
     },
     {
       "id": "HANAchina/71984",
@@ -2152,7 +2152,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
       "media": {
@@ -2161,12 +2160,13 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>젠슨 황, 새로운 불륜설 확산…Nvidia 시간외 급락, 해임설 이후 낙폭 8%로 확대 •젠슨 황과 Nvidia 의료사업 부문 부사장 Kimberly Powell의 불륜설이 제기. 두 사람 모두 기혼,...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO"
-      ],
-      "summary": ">>젠슨 황, 새로운 불륜설 확산…Nvidia 시간외 급락, 해임설 이후 낙폭 8%로 확대 •젠슨 황과 Nvidia 의료사업 부문 부사장 Kimberly Powell의 불륜설이 제기. 두 사람 모두 기혼,..."
+      ]
     },
     {
       "id": "HANAchina/71982",
@@ -2175,17 +2175,16 @@
       "datetime": "2026-11-11T23:07:34.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "credit",
-        "semi",
-        "earnings"
+        "earnings",
+        "credit"
       ],
-      "lead": 1,
       "score": 83,
       "hasText": true,
+      "summary": ">>CoreWeave, 투자등급 대출 통해 최소 40억달러 조달 추진 •AI 연산업체 CoreWeave가 연간 매출 전망을 상향한 가운데, 투자등급 대출을 통해 최소 40억달러를 조달할 계획인 것으로 전해짐....",
+      "lead": 2,
       "tickers": [
         "CRWV"
-      ],
-      "summary": ">>CoreWeave, 투자등급 대출 통해 최소 40억달러 조달 추진 •AI 연산업체 CoreWeave가 연간 매출 전망을 상향한 가운데, 투자등급 대출을 통해 최소 40억달러를 조달할 계획인 것으로 전해짐...."
+      ]
     },
     {
       "id": "HANAchina/71981",
@@ -2194,18 +2193,15 @@
       "datetime": "2026-11-11T23:01:46.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "semi",
-        "power",
-        "earnings",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": "• TSMC: AI 연산 수요가 지수함수적 수준을 넘어 포물선 형태로 치솟고 있으며, TSMC 고객사는 물론 엔드유저까지도 컴퓨팅 파워를 AI 시대의 핵심 자원으로 인식해 더 많은 칩을 확보하는 상황. 이에...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "• TSMC: AI 연산 수요가 지수함수적 수준을 넘어 포물선 형태로 치솟고 있으며, TSMC 고객사는 물론 엔드유저까지도 컴퓨팅 파워를 AI 시대의 핵심 자원으로 인식해 더 많은 칩을 확보하는 상황. 이에..."
+      ]
     },
     {
       "id": "insidertracking/69074",
@@ -2224,10 +2220,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "AMD는 애프터마켓 4% 상승",
       "tickers": [
         "AMD"
-      ],
-      "summary": "AMD는 애프터마켓 4% 상승"
+      ]
     },
     {
       "id": "bornlupin/21119",
@@ -2253,12 +2249,12 @@
       "datetime": "2026-11-11T22:43:52.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 대만 국과회가 국가 안보 및 산업 경쟁력 강화를 위해 국가 핵심 기술 관리 대상을 현행 42개에서 46개로 확대 입법예고 (11월 11일~25일) • 이번에 추가된 항목은 저궤도 위성 통신, 고성능 AI..."
+      "summary": "• 대만 국과회가 국가 안보 및 산업 경쟁력 강화를 위해 국가 핵심 기술 관리 대상을 현행 42개에서 46개로 확대 입법예고 (11월 11일~25일) • 이번에 추가된 항목은 저궤도 위성 통신, 고성능 AI...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69067",
@@ -2277,10 +2273,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "뉴욕타임즈에 따르면 미국 정보당국이 중국 스파이로 판단한 중국계 여성과의 불륜 관계로 조사를 받고 있는 엔비디아 CEO 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과도 혼외 관계를 맺었다고 전직 직원...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "뉴욕타임즈에 따르면 미국 정보당국이 중국 스파이로 판단한 중국계 여성과의 불륜 관계로 조사를 받고 있는 엔비디아 CEO 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과도 혼외 관계를 맺었다고 전직 직원..."
+      ]
     },
     {
       "id": "insidertracking/69062",
@@ -2289,19 +2285,16 @@
       "datetime": "2026-11-11T21:38:23.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "ai-policy"
+        "semi"
       ],
       "score": 96,
       "hasText": true,
+      "summary": "11월 12일 미주인 브리핑 • 나스닥 1.58% 상승 · VIX 9.61% 하락 • 코어위브 25% 상승 마감 · AI 인프라주 동반 강세 • 마이크론·오라클·엔비디아 장중 급등 · 반도체 매수세 확대 •...",
       "tickers": [
         "NVDA",
         "AMAT",
         "MU"
-      ],
-      "summary": "11월 12일 미주인 브리핑 • 나스닥 1.58% 상승 · VIX 9.61% 하락 • 코어위브 25% 상승 마감 · AI 인프라주 동반 강세 • 마이크론·오라클·엔비디아 장중 급등 · 반도체 매수세 확대 •..."
+      ]
     },
     {
       "id": "insidertracking/69047",
@@ -2492,11 +2485,11 @@
         "power",
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>데이터센터 반대 움직임 속 AI 투자, 얼마나 더 갈까? 핵심은 GPU 임대 가격 •중간선거 이후 데이터센터 건설에 대한 규제 및 인허가 강화 위험이 커지고 있으나, GPU 임대 가격 상승이 자본지출..."
+      "summary": ">>데이터센터 반대 움직임 속 AI 투자, 얼마나 더 갈까? 핵심은 GPU 임대 가격 •중간선거 이후 데이터센터 건설에 대한 규제 및 인허가 강화 위험이 커지고 있으나, GPU 임대 가격 상승이 자본지출...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71977",
@@ -2506,14 +2499,14 @@
       "localDateKst": "2026-11-12",
       "tags": [
         "semi",
-        "flows",
-        "power"
+        "power",
+        "flows"
       ],
-      "lead": 2,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>모건스탠리 경고: 구형 메모리 가격 정점 임박…2028년 수급 완화 가능성 •모건스탠리는 미국 중간선거 이후 2028년 미국 데이터센터 신규 용량의 약 20%가 2029년으로 연기될 것으로 예상함. 이에..."
+      "summary": ">>모건스탠리 경고: 구형 메모리 가격 정점 임박…2028년 수급 완화 가능성 •모건스탠리는 미국 중간선거 이후 2028년 미국 데이터센터 신규 용량의 약 20%가 2029년으로 연기될 것으로 예상함. 이에...",
+      "lead": 3,
+      "tickers": []
     },
     {
       "id": "HANAchina/71976",
@@ -2524,11 +2517,11 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>사우디 10월 원유 생산량 26% 급증…전쟁 발발 이후 최고치, 브렌트유 이달 20% 이상 하락 •OPEC 월간 보고서에 따르면 사우디의 10월 일평균 원유 생산량은 1,056만 배럴로 증가함. 전쟁 발발..."
+      "summary": ">>사우디 10월 원유 생산량 26% 급증…전쟁 발발 이후 최고치, 브렌트유 이달 20% 이상 하락 •OPEC 월간 보고서에 따르면 사우디의 10월 일평균 원유 생산량은 1,056만 배럴로 증가함. 전쟁 발발...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71975",
@@ -2539,11 +2532,11 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>메모리 업체, 추가 가격 인상 움직임…“4분기 공식 가격 소폭 상승” (상해증권보) •11월 11일 오후 중국 A주 메모리 관련주가 일제히 상승함. 장 마감 기준 Puran 9.73%, Biwin..."
+      "summary": ">>메모리 업체, 추가 가격 인상 움직임…“4분기 공식 가격 소폭 상승” (상해증권보) •11월 11일 오후 중국 A주 메모리 관련주가 일제히 상승함. 장 마감 기준 Puran 9.73%, Biwin...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71973",
@@ -2552,15 +2545,13 @@
       "datetime": "2026-11-11T13:14:06.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "ai-policy",
-        "equity",
-        "earnings"
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Anthropic 대규모 계정 정리…Claude 강력한 계정 차단 정책 11월 12일부터 전면 시행 •Anthropic은 11월 12일부터 더 엄격한 리스크 관리 정책을 시행함. 사용자의 실제 물리적..."
+      "summary": ">>Anthropic 대규모 계정 정리…Claude 강력한 계정 차단 정책 11월 12일부터 전면 시행 •Anthropic은 11월 12일부터 더 엄격한 리스크 관리 정책을 시행함. 사용자의 실제 물리적...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69035",
@@ -2633,14 +2624,14 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
+      "summary": "•Morgan Stanley, Nvidia를 ‘최선호주’에서 제외…‘비중확대’는 유지 •Baird, Nvidia 목표주가 500달러→200달러로 하향…투자의견 ‘중립’으로 하향",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "MS"
-      ],
-      "summary": "•Morgan Stanley, Nvidia를 ‘최선호주’에서 제외…‘비중확대’는 유지 •Baird, Nvidia 목표주가 500달러→200달러로 하향…투자의견 ‘중립’으로 하향"
+      ]
     },
     {
       "id": "insidertracking/69030",
@@ -2690,10 +2681,11 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>젠슨 황 스캔들에 음모론 확산…애널리스트 “배후에 정치적 움직임 의심, 추가 악재 나올 수도” (대만경제일보) •Nvidia 젠슨 황의 불륜설과 상대 여성이 중국 스파이와 연관됐다는 의혹으로 사임 압박이...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 스캔들에 음모론 확산…애널리스트 “배후에 정치적 움직임 의심, 추가 악재 나올 수도” (대만경제일보) •Nvidia 젠슨 황의 불륜설과 상대 여성이 중국 스파이와 연관됐다는 의혹으로 사임 압박이..."
+      ]
     },
     {
       "id": "insidertracking/69028",
@@ -8516,10 +8508,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "AMD는 애프터마켓 4% 상승",
       "tickers": [
         "AMD"
-      ],
-      "summary": "AMD는 애프터마켓 4% 상승"
+      ]
     },
     {
       "id": "bornlupin/21119",
@@ -8545,12 +8537,12 @@
       "datetime": "2026-11-11T22:43:52.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 대만 국과회가 국가 안보 및 산업 경쟁력 강화를 위해 국가 핵심 기술 관리 대상을 현행 42개에서 46개로 확대 입법예고 (11월 11일~25일) • 이번에 추가된 항목은 저궤도 위성 통신, 고성능 AI..."
+      "summary": "• 대만 국과회가 국가 안보 및 산업 경쟁력 강화를 위해 국가 핵심 기술 관리 대상을 현행 42개에서 46개로 확대 입법예고 (11월 11일~25일) • 이번에 추가된 항목은 저궤도 위성 통신, 고성능 AI...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69067",
@@ -8569,10 +8561,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "뉴욕타임즈에 따르면 미국 정보당국이 중국 스파이로 판단한 중국계 여성과의 불륜 관계로 조사를 받고 있는 엔비디아 CEO 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과도 혼외 관계를 맺었다고 전직 직원...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "뉴욕타임즈에 따르면 미국 정보당국이 중국 스파이로 판단한 중국계 여성과의 불륜 관계로 조사를 받고 있는 엔비디아 CEO 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과도 혼외 관계를 맺었다고 전직 직원..."
+      ]
     },
     {
       "id": "insidertracking/69062",
@@ -8581,19 +8573,16 @@
       "datetime": "2026-11-11T21:38:23.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "ai-policy"
+        "semi"
       ],
       "score": 96,
       "hasText": true,
+      "summary": "11월 12일 미주인 브리핑 • 나스닥 1.58% 상승 · VIX 9.61% 하락 • 코어위브 25% 상승 마감 · AI 인프라주 동반 강세 • 마이크론·오라클·엔비디아 장중 급등 · 반도체 매수세 확대 •...",
       "tickers": [
         "NVDA",
         "AMAT",
         "MU"
-      ],
-      "summary": "11월 12일 미주인 브리핑 • 나스닥 1.58% 상승 · VIX 9.61% 하락 • 코어위브 25% 상승 마감 · AI 인프라주 동반 강세 • 마이크론·오라클·엔비디아 장중 급등 · 반도체 매수세 확대 •..."
+      ]
     },
     {
       "id": "insidertracking/69047",
@@ -8784,11 +8773,11 @@
         "power",
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>데이터센터 반대 움직임 속 AI 투자, 얼마나 더 갈까? 핵심은 GPU 임대 가격 •중간선거 이후 데이터센터 건설에 대한 규제 및 인허가 강화 위험이 커지고 있으나, GPU 임대 가격 상승이 자본지출..."
+      "summary": ">>데이터센터 반대 움직임 속 AI 투자, 얼마나 더 갈까? 핵심은 GPU 임대 가격 •중간선거 이후 데이터센터 건설에 대한 규제 및 인허가 강화 위험이 커지고 있으나, GPU 임대 가격 상승이 자본지출...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71977",
@@ -8798,14 +8787,14 @@
       "localDateKst": "2026-11-12",
       "tags": [
         "semi",
-        "flows",
-        "power"
+        "power",
+        "flows"
       ],
-      "lead": 2,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>모건스탠리 경고: 구형 메모리 가격 정점 임박…2028년 수급 완화 가능성 •모건스탠리는 미국 중간선거 이후 2028년 미국 데이터센터 신규 용량의 약 20%가 2029년으로 연기될 것으로 예상함. 이에..."
+      "summary": ">>모건스탠리 경고: 구형 메모리 가격 정점 임박…2028년 수급 완화 가능성 •모건스탠리는 미국 중간선거 이후 2028년 미국 데이터센터 신규 용량의 약 20%가 2029년으로 연기될 것으로 예상함. 이에...",
+      "lead": 3,
+      "tickers": []
     },
     {
       "id": "HANAchina/71976",
@@ -8816,11 +8805,11 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>사우디 10월 원유 생산량 26% 급증…전쟁 발발 이후 최고치, 브렌트유 이달 20% 이상 하락 •OPEC 월간 보고서에 따르면 사우디의 10월 일평균 원유 생산량은 1,056만 배럴로 증가함. 전쟁 발발..."
+      "summary": ">>사우디 10월 원유 생산량 26% 급증…전쟁 발발 이후 최고치, 브렌트유 이달 20% 이상 하락 •OPEC 월간 보고서에 따르면 사우디의 10월 일평균 원유 생산량은 1,056만 배럴로 증가함. 전쟁 발발...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71975",
@@ -8831,11 +8820,11 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>메모리 업체, 추가 가격 인상 움직임…“4분기 공식 가격 소폭 상승” (상해증권보) •11월 11일 오후 중국 A주 메모리 관련주가 일제히 상승함. 장 마감 기준 Puran 9.73%, Biwin..."
+      "summary": ">>메모리 업체, 추가 가격 인상 움직임…“4분기 공식 가격 소폭 상승” (상해증권보) •11월 11일 오후 중국 A주 메모리 관련주가 일제히 상승함. 장 마감 기준 Puran 9.73%, Biwin...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/71973",
@@ -8844,15 +8833,13 @@
       "datetime": "2026-11-11T13:14:06.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
-        "ai-policy",
-        "equity",
-        "earnings"
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Anthropic 대규모 계정 정리…Claude 강력한 계정 차단 정책 11월 12일부터 전면 시행 •Anthropic은 11월 12일부터 더 엄격한 리스크 관리 정책을 시행함. 사용자의 실제 물리적..."
+      "summary": ">>Anthropic 대규모 계정 정리…Claude 강력한 계정 차단 정책 11월 12일부터 전면 시행 •Anthropic은 11월 12일부터 더 엄격한 리스크 관리 정책을 시행함. 사용자의 실제 물리적...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69034",
@@ -8905,14 +8892,14 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
+      "summary": "•Morgan Stanley, Nvidia를 ‘최선호주’에서 제외…‘비중확대’는 유지 •Baird, Nvidia 목표주가 500달러→200달러로 하향…투자의견 ‘중립’으로 하향",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "MS"
-      ],
-      "summary": "•Morgan Stanley, Nvidia를 ‘최선호주’에서 제외…‘비중확대’는 유지 •Baird, Nvidia 목표주가 500달러→200달러로 하향…투자의견 ‘중립’으로 하향"
+      ]
     },
     {
       "id": "insidertracking/69030",
@@ -8962,10 +8949,11 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>젠슨 황 스캔들에 음모론 확산…애널리스트 “배후에 정치적 움직임 의심, 추가 악재 나올 수도” (대만경제일보) •Nvidia 젠슨 황의 불륜설과 상대 여성이 중국 스파이와 연관됐다는 의혹으로 사임 압박이...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 스캔들에 음모론 확산…애널리스트 “배후에 정치적 움직임 의심, 추가 악재 나올 수도” (대만경제일보) •Nvidia 젠슨 황의 불륜설과 상대 여성이 중국 스파이와 연관됐다는 의혹으로 사임 압박이..."
+      ]
     },
     {
       "id": "insidertracking/69028",
