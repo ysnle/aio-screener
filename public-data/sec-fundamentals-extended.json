@@ -1,13 +1,13 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-11-12T07:33:10.435Z",
+ "generatedAt": "2026-11-12T22:32:42.193Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
- "eligible": 3874,
- "stored": 3509,
+ "eligible": 3872,
+ "stored": 3507,
  "attempted": 0,
  "updated": 0,
  "failures": [
@@ -4599,8 +4599,8 @@
   "SCZM",
   "TRBG"
  ],
- "pointInTimeCoverage": 3509,
- "pointInTimeAcceptedCoverage": 3509,
+ "pointInTimeCoverage": 3507,
+ "pointInTimeAcceptedCoverage": 3507,
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
@@ -4608,20 +4608,20 @@
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:43175183280",
-  "attemptedAt": "2026-11-12T07:32:56.821Z",
-  "sourceRevision": "sec-company-tickers:362d80f1387acd3ade83c874b9c82b7d20b361547da60cf306726aca169c7c56",
+  "runId": "gha:43319790623",
+  "attemptedAt": "2026-11-12T22:32:27.033Z",
+  "sourceRevision": "sec-company-tickers:98d357e2c5b2fb5bfdb085f3d6a9010036e43a2306e63563061b1997d1e8224e",
   "inputWatermarks": {
-   "universe": "2026-11-12T07:32:54.857Z",
-   "screener": "2026-11-12T07:32:05.221Z",
-   "previousArtifact": "2026-11-11T22:35:07.002Z"
+   "universe": "2026-11-12T22:32:24.775Z",
+   "screener": "2026-11-12T22:31:32.370Z",
+   "previousArtifact": "2026-11-12T07:33:10.435Z"
   },
   "batchLimit": 600,
   "counts": {
-   "eligible": 3874,
+   "eligible": 3872,
    "attempted": 0,
    "updated": 0,
-   "retained": 3509,
+   "retained": 3507,
    "pendingEligible": 365
   },
   "thisBatch": {
@@ -136609,97 +136609,6 @@
    "roeBasis": "average-equity",
    "equityPrior": 743100000
   },
-  "KAZR": {
-   "symbol": "KAZR",
-   "cik": "0002031009",
-   "entityName": "Skyline Builders Group Holding Ltd",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2026-03-31",
-   "observedAt": "2026-03-31",
-   "filedAt": "2026-08-21",
-   "acceptedAt": "2026-08-21T11:02:27.000Z",
-   "availableAt": "2026-08-21T11:02:27.000Z",
-   "transportFetchedAt": "2026-11-08T07:35:56.849Z",
-   "reportAgeDays": 222,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001213900-26-092307",
-    "netIncome": "0001213900-26-092307",
-    "equity": "0001213900-26-092307",
-    "sharesOutstanding": null
-   },
-   "operandAvailability": {
-    "revenue": "2026-08-21T11:02:27.000Z",
-    "netIncome": "2026-08-21T11:02:27.000Z",
-    "equity": "2026-08-21T11:02:27.000Z",
-    "sharesOutstanding": null,
-    "priorRevenue": "2026-08-21T11:02:27.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-08-21T11:02:27.000Z",
-    "margin": "2026-08-21T11:02:27.000Z",
-    "roe": "2026-08-21T11:02:27.000Z",
-    "pe": "2026-08-21T11:02:27.000Z",
-    "pb": "2026-08-21T11:02:27.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-11-08T07:35:56.849Z",
-   "form": "20-F/A",
-   "accession": "0001213900-26-092307",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 50111828,
-   "netIncome": 9063802,
-   "equity": 79618857,
-   "equityBasis": "parent",
-   "sharesOutstanding": null,
-   "sharesCheck": "foreign-share-basis-unverified",
-   "sharesBasis": null,
-   "sharesObservedAt": null,
-   "normalizerVersion": "sec-normalizer.2026-11-04",
-   "revenueConcept": "Revenues",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 64,
-    "acceptedTimeCount": 64,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 8.9,
-   "margin": 18.1,
-   "roe": 20.6,
-   "peEarnings": {
-    "basis": "fy",
-    "concept": "common",
-    "value": -7530152,
-    "through": "2026-03-31",
-    "availableAt": "2026-08-21T11:02:27.000Z",
-    "derivedQuarter": false
-   },
-   "roeBasis": "average-equity",
-   "equityPrior": 8592123
-  },
   "KBH": {
    "symbol": "KBH",
    "cik": "0000795266",
@@ -184945,94 +184854,6 @@
    },
    "roeBasis": "average-equity",
    "equityPrior": 81628062
-  },
-  "NXXT": {
-   "symbol": "NXXT",
-   "cik": "0001817004",
-   "entityName": "NEXTNRG, INC.",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-05-11",
-   "acceptedAt": "2026-05-11T20:14:34.000Z",
-   "availableAt": "2026-05-11T20:14:34.000Z",
-   "transportFetchedAt": "2026-11-08T22:36:06.623Z",
-   "reportAgeDays": 313,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001493152-26-022229",
-    "netIncome": "0001493152-26-022229",
-    "equity": "0001493152-26-022229",
-    "sharesOutstanding": "0001493152-26-022229"
-   },
-   "operandAvailability": {
-    "revenue": "2026-05-11T20:14:34.000Z",
-    "netIncome": "2026-05-11T20:14:34.000Z",
-    "equity": "2026-05-11T20:14:34.000Z",
-    "sharesOutstanding": "2026-05-11T20:14:34.000Z",
-    "priorRevenue": "2026-05-11T20:14:34.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-05-11T20:14:34.000Z",
-    "margin": "2026-05-11T20:14:34.000Z",
-    "roe": "2026-05-11T20:14:34.000Z",
-    "pe": "2026-05-11T20:14:34.000Z",
-    "pb": "2026-05-11T20:14:34.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-11-08T22:36:06.623Z",
-   "form": "10-K/A",
-   "accession": "0001493152-26-022229",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 81835279,
-   "netIncome": -85738617,
-   "equity": -19677465,
-   "equityBasis": "parent",
-   "sharesOutstanding": 156654973,
-   "sharesCheck": "consistent",
-   "sharesBasis": "dei-cover",
-   "sharesObservedAt": "2026-04-15",
-   "normalizerVersion": "sec-normalizer.2026-11-04",
-   "revenueConcept": "Revenues",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "sharesOutstanding",
-    "revGrowth",
-    "margin"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 201,
-    "acceptedTimeCount": 201,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 194.7,
-   "margin": -104.8,
-   "peEarnings": {
-    "basis": "ttm",
-    "concept": "net-income",
-    "value": -58183294,
-    "through": "2026-06-30",
-    "availableAt": "2026-08-13T20:02:50.000Z",
-    "derivedQuarter": true
-   }
   },
   "NYAX": {
    "symbol": "NYAX",
@@ -318530,8 +318351,8 @@
  "recordPolicy": "compact: normalized annual record without point-in-time observation arrays",
  "issuerSicPolicy": "SEC submissions sic per issuer; recorded on every submissions read plus a SIC-only pass of up to 800 issuers (missing first, then older than 30 days); a failed read keeps the previous code",
  "issuerSicCoverage": {
-  "classified": 3829,
-  "eligible": 3874,
+  "classified": 3827,
+  "eligible": 3872,
   "passAttempted": 45,
   "passUpdated": 0,
   "passFailed": 0
@@ -329901,12 +329722,6 @@
    "cik": "0001828102",
    "observedAt": "2026-11-08T07:33:31.156Z"
   },
-  "KAZR": {
-   "sic": "1700",
-   "description": "Construction - Special Trade Contractors",
-   "cik": "0002031009",
-   "observedAt": "2026-11-08T07:33:31.156Z"
-  },
   "KBH": {
    "sic": "1531",
    "description": "Operative Builders",
@@ -333500,12 +333315,6 @@
    "description": "Services-Computer Processing & Data Preparation",
    "cik": "0001784970",
    "observedAt": "2026-11-07T07:33:40.259Z"
-  },
-  "NXXT": {
-   "sic": "5500",
-   "description": "Retail-Auto Dealers & Gasoline Stations",
-   "cik": "0001817004",
-   "observedAt": "2026-11-08T22:33:53.138Z"
   },
   "NYAX": {
    "sic": "7372",
