@@ -1,8 +1,0 @@
-{
-  "version": "v59.99",
-  "date": "2026-11-12",
-  "changelog": [
-    "**The market reading may judge and weigh scenarios with their ground (v59.99):** owner decision 2026-11-12: \"AI에게 어느 정도의 자율성은 부여해줘야 돼. … 매매 지시 금지만 … 확률적 사고와 가능성/시나리오를 기반으로 한 설명과 판단들은 사용자에게 얘기해도 된다.\" `likelihood-qualitative` now passes when the sentence, or the one before it, gives a ground: a condition count n/m (anywhere in the sentence, as before), a record with its count (\"과거 73건 중 41건\", \"표본 52\"), an axis named with its state (추세/시장 폭/신용/변동성/금리), a signed change in % or bp, or an explicit condition (\"…하면\", \"…라면\"; \"따르면\" and \"반면\" are not conditions); the likelihood's own words are not their ground, so \"반등 가능성이 높습니다\" and \"변동성 확대 가능성이 높습니다\" alone are still blocked. `probability-claim` and `trade-instruction` are unchanged, and the stance words 우위 / 부담스러운 구간 / 유리한 구간·국면 / 비용이 작다·크다 pass admission, the axis-state check and the reader-duty softener. The prompt's conduct rule now asks the reading to say which side the evidence favours and why (현금·방어 우위 / 분할 접근 우위 / 판단 보류) with its ground and what would change it."
-  ],
-  "note": "v59.99: plan 044 Part C — grounded likelihood and stance in the market reading"
-}

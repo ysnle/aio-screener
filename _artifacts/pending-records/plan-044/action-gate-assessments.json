@@ -1,8 +1,0 @@
-{
-  "version": "v59.99",
-  "date": "2026-11-12",
-  "changelog": [
-    "**The chat action gate bans orders, not assessments (v59.99):** owner decision 2026-11-12: \"AI에게 어느 정도의 자율성은 부여해줘야 돼. … 매매 지시 금지만 … '지금은 현금 보유가 우위인 상황' / '주식 매수 부담인 구간' 이렇게 확률적 사고와 가능성/시나리오를 기반으로 한 설명과 판단들은 사용자에게 얘기해도 된다.\" The `opportunity` family (\"매수 기회로 보입니다\", \"저가 매수 타이밍으로 읽힙니다\") is no longer replaced, and a nominalised clause that ends in a zone or situation (구간/상황/국면/환경/시점, the named `zoneAssessment` regex) is exempt; every imperative, recommendation, weight, priced, allocation, position and English family, and the negation and quotation handling, are unchanged. The policy text and the decision-mode guide now ask the model to judge the situation and say which side the evidence favours and why, give likelihood in words only with its ground, and never address an order to the reader; the numeric-probability rule is unchanged."
-  ],
-  "note": "v59.99: plan 044 Part B — the action gate keeps assessments"
-}

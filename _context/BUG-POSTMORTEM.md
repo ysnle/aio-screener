@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-11
+last_verified: 2026-11-12
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -38,6 +38,56 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 <!-- ledger-class-report:end -->
 
 ---
+
+## P2392 - v59.99 - v59.99 the screener-universe mirror no longer changes with the calendar (2026-11-12)
+
+- symptom/reproduction: From 2026-11-12 00:54Z every CI run failed in the data-pipeline gate ("screener-universe.json is in sync with SCREENER_DB"), so no revision was attested, GitHub Pages stopped deploying and the refresh scheduler's convergence step failed every 30 minutes; data commits kept landing on main but the live site stayed on the last attested revision for about 12 hours.
+- root_cause: scripts/sync-screener-universe.mjs wrote meta.currentness (CURRENT/STALE) from Date.now() into the checked-in mirror. Thirty days after lastBulkUpdate (2026-10-13) a rebuild said STALE while the file said CURRENT, so the drift check failed with no change to the source. The warn-only change to the static-db expiry gate (v59.97) did not cover this second place where the same review window was evaluated.
+- fix: The mirror carries only source fields (lastBulkUpdate, staleAfterDays); src/data/providers/screener.js derives the universe's currentness at read time from them, and the factor backtest's universePolicy carries staleAfterDays instead of the word. The mirror was regenerated.
+- violated_rule: A generated file compared in a gate must be a pure function of its sources (P1542 class: a lapsed review window is shown, never a deploy stop).
+- prevention: ci-data-pipeline-contract-check rebuilds the mirror in check mode with the clock moved a year ahead and requires no difference.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs exits 0 (it exited 1 on origin/main at 2026-11-12); screener workbench, unit and expiry gates exit 0.
+- files: scripts/sync-screener-universe.mjs, src/data/providers/screener.js, scripts/lib/factors.mjs, public-data/screener-universe.json, scripts/ci-data-pipeline-contract-check.mjs
+
+## P2391 - v59.99 - v59.99 the market reading is no longer blocked by a quoted likelihood, an approached rate level, 안정 on a neutral axis or a burden the sentence says is absent (2026-11-12)
+
+- symptom/reproduction: In 12 recent refreshes the reading was rejected on its first attempt 7 times and on both attempts 4 times, so the screen kept a reading up to 12 hours old. A replay of 11 production inputs (ai-effort-experiment, 2026-11-11) showed the rejected sentences were correct: a reported statement ("추가 공격 가능성이 낮다는 발언이 … 거론됐고"), a headline level ("10년물 금리가 5%에 근접한 가운데 주가가 내렸다"), "신용·변동성은 안정적" with volatility 중립, and "시장 폭 부담 … 이 빠져 있어". Reasoning effort made no difference to the pass rate. Citation debris (".; regime-context]", "[향후 시나리오]") also reached the published text.
+- root_cause: Four validator rules matched words instead of claims: any 가능성 + 높/낮 in a sentence; a direction word within 14 characters after a rate figure in percent, whoever its subject was; 안정 mapped to the 양호 state only; a state word counted as asserted unless a negation followed it immediately. stripEvidenceIds had no rule for a closing bracket whose opening was already removed or for a packet section named in Korean.
+- fix: scripts/lib/market-analysis-validate.mjs: a likelihood inside an attributed statement is not this reading's forecast; a rate level followed by an approach/cross phrase is a level; 안정 fits 양호 and 중립 and contradicts only 부담; a state the rest of the clause says is absent is not a claim. src/domain/briefing/evidence-text.js removes the bracket tail and Korean section tags. The experiment workflow now replays old inputs with today's code.
+- violated_rule: A deterministic gate must block wrong claims, not correct sentences (P2164 class).
+- prevention: ci-scenario-guidance-fixture: the four rejected production sentences pass and their true counterparts (own likelihood, rate change in percent, 양호 on a neutral axis, an asserted burden, 안정 on a 부담 axis) are still blocked; ci-codex-structure-regression-fixture: debris cases.
+- verification/residual: Both gates exit 0; replay through the experiment workflow after push.
+- files: scripts/lib/market-analysis-validate.mjs, src/domain/briefing/evidence-text.js, scripts/ci-scenario-guidance-fixture.mjs, scripts/ci-codex-structure-regression-fixture.mjs, .github/workflows/ai-effort-experiment.yml
+
+## P2390 - v59.99 - v59.99 the chat evidence filter deleted a current sentence even when its number was the injected one (2026-11-12)
+
+- symptom/reproduction: On a current-sensitive answer "NVDA는 180.25달러로, 천천히 분할 매수하기 좋은 구간입니다" lost the whole sentence, judgement included, although 180.25 USD was the injected price row; the prompt also told the model to keep current numbers out of prose.
+- root_cause: buildPublishableAnswerPlan's sentence stripper removed every sentence whose numericClaimKind was 'current' without comparing its figures with the publishable evidence rows it already held; a table cell became 확인 필요 the same way, and the answer-plan contract asked for current numbers only in claims.
+- fix: publication.js gains supportedNumbersFromEvidence(rows) (the numeric value and unit of each publishable raw-scale row) and figuresSupported(text, numbers): every figure written in the text must equal a supported value in a printed form (180.25 → 180.25/180.3/180) with the written sign and an agreeing unit; an integer under 100 needs a written unit that agrees, and counts and 조/억/만 magnitudes are never supported. A current sentence or table cell is kept only when all of its figures are supported, and an event sentence whose figures are all supported counts as bound. With no numeric rows the behaviour is unchanged. The answer-plan contract now lets injected and searched figures appear in their sentences with their date or basis and forbids a figure that is not in that material.
+- violated_rule: C16 / R687: a current figure must exist in the evidence the model was given; one that does exist is not an unbound claim.
+- prevention: ci-ai-intelligence-contract-check v59.99 (plan 044) cases drive the helper and buildPublishableAnswerPlan with a 180.25 USD price row and a -1.2% change row: supported sentences and cells kept, unsupported or mixed ones removed, no-row behaviour unchanged, the fallback path with rows following the same rule.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs exit 0; against the previous publication.js the same gate fails 8 plan-044 checks, including both kept sentences.
+- files: src/ai/response/publication.js, src/ai/response/request-pipeline.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2389 - v59.99 - v59.99 an answer that carried no web citations was announced as a searched answer (2026-11-12)
+
+- symptom/reproduction: When hosted search was attached, the AI panel's status line always said '웹검색으로 보강해 답했습니다. 참고 링크는 답변 아래에 있습니다.' even when the answer came back without any citation. With tool_choice 'auto' (new for questions that do not depend on today's values) the model may skip the search, so the line would describe a search that did not happen.
+- root_cause: chatSendUnified's onDone chose the status text from modelOpts.webSearch (search requested), not from what this request's answer carried (_aioAIRequestCitations).
+- fix: The status text comes from searchStatusText (src/ai/research/native-search.js): searched only when this request's answer has citations, '웹검색 출처 없이 앱 자료와 일반 지식으로 답했습니다.' otherwise. In the same change: explain-mode questions use luna-low (reasoning effort low, tokens unchanged; quick stays none); attachNativeSearch sets tool_choice 'auto' when searchMustRun says the question is not current and the user did not ask for a search ('required' otherwise and when the caller does not say); the news block takes up to 8 items, titles 160 and summaries 300 characters, 6,000 characters in total from CHAT_REFERENCE_BUDGET (it fell to the 2,400-character wrapper default with 5 items).
+- violated_rule: A user-facing line states only what happened (no invented facts about the answer's evidence).
+- prevention: scripts/ci-ai-intelligence-contract-check.mjs (v59.99): an answer with no citations is not reported as searched; concept questions route to effort low and a quick fact to none; a non-current concept question with search attached gets tool_choice auto, an explicit search request and a current-fact question get required, a caller that does not say keeps required; a fixture with 8 long news items keeps 8 items within 6,000 characters and its wrapper does not cut it.
+- verification/residual: Failing-first: the new checks fail on the Part A commit (effort none for 감마 스퀴즈/듀레이션, tool_choice required, 5 news items in 1,729 characters) and pass after; ci-worker-relay-check, ci-ai-budget-scope-check, ci-pipeline-semantics-check, ci-native-search-check and ci-worker-openai-contract-check exit 0; the Worker budget admits tool_choice auto with the same reservation as required.
+- files: js/aio-chat.js, src/ai/research/native-search.js, src/app/compatibility-globals.js, src/ai/context/reference-budget.js, scripts/ci-ai-intelligence-contract-check.mjs, scripts/fixtures/chat-prompt-assembly.mjs
+
+## P2388 - v59.99 - v59.99 the chat evidence filter deleted dated history and fixed definitions as unbound current figures (2026-11-12)
+
+- symptom/reproduction: On a current-sensitive question the answer lost sentences such as "S&P 500은 11개 섹터로 구성됩니다", "2008년 금융위기 때 S&P 500은 약 57% 하락했습니다" and "금값은 지난 10년간 약 100% 올랐습니다"; only conditional or '보통/역사적으로' sentences survived.
+- root_cause: stripUnverifiedCurrentNumericSentences kept a sentence only when hasCurrentNumericContent was false or the sentence was a condition, so any number - a past year's move, a structural count - was treated as a current observation; the current-event rule exempted a calendar year but not a completed period such as '지난 10년간'.
+- fix: publication.js gains numericClaimKind(sentence, { today }) returning current, dated-past, fixed-fact, conditional or none; the numeric and current-event strippers remove only 'current'. A past calendar year or completed period without a current marker or a date in the last 60 days is dated-past; a count with a defining verb and no other magnitude is fixed-fact.
+- violated_rule: C16 / R687: only a number presented as a current observation must be bound to injected evidence; history and definitions are not current figures.
+- prevention: ci-ai-intelligence-contract-check v59.99 cases drive numericClaimKind, the event stripper, buildPublishableAnswerPlan and the fallback with kept history/structure sentences and removed unbound current readings.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs exit 0; the same gate against the previous publication.js fails 21 v59.99 checks, including the end-to-end plan case.
+- files: src/ai/response/publication.js, scripts/ci-ai-intelligence-contract-check.mjs
 
 ## P2387 - v59.98 - v59.98 BLS reported its four CPI series as failed every refresh after the October 2026 CPI release (2026-11-11)
 

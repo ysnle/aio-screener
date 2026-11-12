@@ -1,8 +1,0 @@
-{
-  "version": "v59.99",
-  "date": "2026-11-12",
-  "changelog": [
-    "**Chat prompt states each decision once (v59.99):** the unified chat prompt carried the missing-data rule in four blocks (the policy one pulling the other way), the answer shape in three (a coverage `mode=` and `response_diversity_rule` that could disagree with `chooseAnswerMode`, the integrated `answer_contract`, principles item 4), a 2,500-character cap against an 8,000–16,000-token ceiling, and a \"not a generic LLM\" identity line. The evidence tail kept by trimming now owns the missing-data rule (say what is missing and why in one clause, then answer with what is known), `answerModeGuide` owns shape and length per mode, and the intelligence gate checks the assembled prompt for four fixture questions (`scripts/fixtures/chat-prompt-assembly.mjs`)."
-  ],
-  "note": "v59.99: plan 042 Part A — one owner per chat prompt decision"
-}

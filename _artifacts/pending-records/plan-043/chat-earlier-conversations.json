@@ -1,8 +1,0 @@
-{
-  "version": "v59.99",
-  "date": "2026-11-12",
-  "changelog": [
-    "**A new conversation sees earlier ones about the same subject (v59.99):** a new conversation knew nothing of the reader's saved ones. Each saved turn now keeps the ticker/theme ids the chat resolved for its question, and the unified prompt adds one dated `【이전 대화에서】` block with up to three turns from other saved conversations that share an id (question ≤160 characters, the first 500 of the answer, 90 days, conversation-saving consent only; `src/ai/session/earlier-turns.js`, read through the panel's session api so the boot module set does not split). Numbers in it are marked as of that date, and the gate shows a figure repeated from an earlier answer is still removed on a current question."
-  ],
-  "note": "v59.99: plan 043 Part B — earlier saved conversations about the same ticker or theme"
-}
