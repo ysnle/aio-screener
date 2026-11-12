@@ -47,6 +47,14 @@ is self-contained; edit the plan, not only the shared block).
 | 036 | Calendar and count gates stop expiring into outages | P1 | M | MED | 022 finding | DONE (merged, v59.97; part A done by the reviewer as warnings, per P1542) |
 | 037 | Brief headline rule at the producer; SEC recheck after a newer filing | P2 | M | MED | 023 finding | DONE (merged, v59.97) |
 
+| 038 | Follow-ups: reader-facing defects (capital tickers in AI questions, one 10-year window, watchlist tidy, stored FOMC headline, keyword edges, three sign sites, shared VIX ladder) | P2 | M | LOW–MED | round 3 | DONE (merged, v59.98) |
+| 039 | Follow-ups: operations and hygiene (dead precache entries, BLS comparator gap, alert-issue rule explained, README caps, two behavioural pins) | P2 | M | LOW–MED | round 3 | DONE (merged, v59.98; HPSP left: the repository cannot tell the two codes apart) |
+| 040 | — | — | — | — | — | not written: the market-reading fixes were made by the reviewer from the experiment's rejected texts (v59.99) |
+| 041 | Chat: the evidence filter keeps history and definitions; what it removes is counted | P1 | M | MED | AI audit | DONE (merged, v59.99; reviewer kept last year's company results bound to evidence) |
+| 042 | Chat: one owner per instruction, no length cap, low effort for explanations, search not forced for concepts, more news | P1 | M–L | MED | AI audit | DONE (merged, v59.99) |
+| 043 | Chat: earlier conversations about the same subject; things the reader said are remembered | P1 | L | MED | owner request | DONE parts B, C (v59.99); part A REJECTED — a profile already exists (src/ai/session/user-profile.js) |
+| 044 | Judgement latitude; figures checked against evidence instead of deleted | P1 | L | MED–HIGH | owner decision 2026-11-12 | DONE (merged, v59.99; extended to the injected data blocks in v60.01) |
+
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED (one-line rationale)
 
 ## Result (2026-11-10)
@@ -58,27 +66,33 @@ All sixteen implementation plans were executed by Opus 5.5 (medium) in worktrees
 Plans 025–037 were executed the same way and recorded as v59.97 (P2355–P2380). Before the round, v59.96 (P2354) fixed
 a false failure of the metric-consistency gate that had stopped data releases for about six hours.
 
+## Result, AI quality pass and the 11/12 deploy block (2026-11-12)
+
+- v59.98: plans 038–039. v59.99: plans 041–044, the market-reading validator's four false blocks, and the deploy
+  block of 2026-11-12 (the screener-universe mirror held a clock-derived word; identity fields had a 30-day budget).
+  v60.01: chat answers keep figures found in their injected data; the analysis lane uses low reasoning.
+- Measured with `.github/workflows/ai-effort-experiment.yml` (three runs, 27 replayed inputs): reasoning effort was
+  not what blocked the reading; after the validator fixes `none` passed 7 of 8 and `low` 8 of 8.
+- The non-browser contracts suite was run with the clock 45 and 120 days ahead; only live-data freshness checks
+  differ. Browser gates were not run with a moved clock.
+
 ## Open follow-ups (not done)
 
-- "Deploy AI proxy" fails its smoke test while the OpenAI account has no credit, and rolls the Worker back; the smoke
-  step does not classify `insufficient_quota` as an operating block. The workflow edit was not made (permission).
-- The AI entity resolver still returns the registry alias for an all-capital word that is another issuer's ticker
-  ("FORD 어때" → FORD unverified plus F verified): `englishPhraseMatches` matches names case-insensitively on its own.
-- With the 10-year input two sessions behind, the 시장 상태 story and the axis quote different 5-session changes
-  (-9bp vs -7bp); found by the 035 replay.
-- `positionImperative` in the AI action gate also replaces "관심 종목을 정리하세요".
-- An FOMC brief already published with an English headline is not repaired (only earnings briefs are).
-- Keyword substring candidates left: 부도 inside 부도덕, 상향/하향 inside 상향식/하향식.
-- Raw-sign sites left: `screener/model.js` `returnColor`, `themes/sectors.js:86`, `portfolio-backtest-lab.js` `tone`.
-- The service-worker precache stores classic scripts without the `?v=` the page requests, so those entries are
-  probably never served; three boot scripts are not precached at all.
-- `src/domain/macro/volatility.js` builds its own 18/25/32 ladder string beside `vixBand`.
-- Ledgers still cite `ci-worker-anthropic-check` (renamed `ci-worker-openai-contract-check`) as history.
-- `worker/README.md` says `AI_PER_CLIENT_DAILY_CAP` deploys as 200; the toml sets 1000.
-- HPSP is the name of two registry entries (352700.KQ, 403870.KQ).
+- Chat function tools (the model asks for data instead of receiving it all in the prompt): not designed or built.
+- A rejected market reading is still replaced whole by the previous one; dropping only the offending sentence is not built.
+- The universe review is overdue (lastBulkUpdate 2026-10-13); the screens now show a notice instead of failing.
+- "Deploy AI proxy": the smoke step does not classify `insufficient_quota` as an operating block (workflow edit not made).
+- Alert issues close only after two consecutive successes of their workflow; rarely-run deploy workflows keep theirs
+  open for days (a one-line workflow change was proposed in the 039 report, not made).
+- Refresh summary prints BLS `series=N/6` though eight series exist (workflow file).
+- HPSP is the name of two registry entries (352700.KQ, 403870.KQ); 413640.KQ has en 'Hyundai Mobis Test'.
+- Numbers in the chat are checked against the injected text without entity binding: a real figure can be attached to
+  the wrong subject.
+- The home one-line sentence filter still rejects "매수가 부담스러운 구간" as an instruction.
+- Ledgers still cite `ci-worker-anthropic-check` (renamed) as history; `worker/README.md` line 9 says "at most $20".
 - OpenAI error bodies are relayed to the browser with keys masked (kept: the code says it is deliberate).
-- Source-text pins that cannot detect the regression they cite (four named in the 013 audit).
-- Nothing in round 3 was checked in a real browser page beyond the automated browser gates.
+- `browser-theme-research` failed once under load in a full run and passed alone (scroll timing).
+- Nothing from the AI pass was checked by hand in a real browser or against the live model beyond the experiment.
 
 ## Dependency and overlap notes
 
