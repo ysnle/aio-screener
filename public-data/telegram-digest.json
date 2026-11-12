@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-12T23:22:28.914Z",
-  "attemptedAt": "2026-11-12T23:22:28.914Z",
-  "lastSuccessfulAt": "2026-11-12T23:22:28.914Z",
+  "generatedAt": "2026-11-12T23:52:14.694Z",
+  "attemptedAt": "2026-11-12T23:52:14.694Z",
+  "lastSuccessfulAt": "2026-11-12T23:52:14.694Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-29T23:22:22.408Z",
-  "until": "2026-11-12T23:22:22.408Z",
+  "since": "2026-10-29T23:52:09.788Z",
+  "until": "2026-11-12T23:52:09.788Z",
   "current24hWindow": {
     "start": "2026-11-11T23:00:00.000Z",
     "end": "2026-11-12T23:00:00.000Z",
@@ -92,70 +92,70 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1262,
+      "count": 1263,
       "freshCount": 39,
-      "eligibleTextCount": 1203,
+      "eligibleTextCount": 1204,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 69182
+      "lastPostId": 69184
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
-      "reachedOlder": false,
-      "reachedKnown": true,
-      "count": 235,
-      "freshCount": 20,
-      "eligibleTextCount": 235,
-      "selectedCount": 122,
-      "error": null,
-      "lastPostId": 21140
-    },
-    {
-      "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 708,
-      "freshCount": 37,
-      "eligibleTextCount": 707,
+      "count": 235,
+      "freshCount": 39,
+      "eligibleTextCount": 235,
+      "selectedCount": 123,
+      "error": null,
+      "lastPostId": 21142
+    },
+    {
+      "channel": "HANAchina",
+      "pages": 1,
+      "reachedOlder": false,
+      "reachedKnown": true,
+      "count": 706,
+      "freshCount": 20,
+      "eligibleTextCount": 705,
       "selectedCount": 125,
       "error": null,
       "lastPostId": 72048
     }
   ],
-  "count": 2205,
-  "retainedItemCount": 425,
+  "count": 2204,
+  "retainedItemCount": 421,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2205,
-    "eligibleTextCount": 2145,
+    "observedCount": 2204,
+    "eligibleTextCount": 2144,
     "mediaOnlyCount": 60,
-    "mediaAttachedCount": 875,
+    "mediaAttachedCount": 876,
     "photoPostCount": 757,
     "documentPostCount": 5,
     "imageOnlyCount": 5,
     "highSignalCount": 378,
     "broadSignalCount": 844,
-    "selectedRawCount": 372,
-    "selectedEligibleCount": 372,
-    "selectedRawCoveragePct": 17.3,
+    "selectedRawCount": 373,
+    "selectedEligibleCount": 373,
+    "selectedRawCoveragePct": 17.4,
     "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 529,
     "power": 283,
-    "earnings": 338,
-    "macro": 319,
-    "kr-market": 93,
+    "kr-market": 94,
+    "earnings": 337,
     "market-note": 778,
+    "semi": 528,
+    "macro": 319,
     "credit": 86,
     "equity": 133,
-    "geo": 375,
+    "geo": 374,
     "ai-policy": 118,
     "japan": 70,
     "healthcare": 62,
@@ -165,11 +165,12 @@
     "crypto": 3
   },
   "tickerCounts": {
-    "NVDA": 222,
+    "NVDA": 223,
+    "MSFT": 44,
+    "GOOG": 67,
+    "AMZN": 57,
     "AMD": 54,
     "TSM": 57,
-    "MSFT": 43,
-    "GOOG": 66,
     "TSLA": 40,
     "AMAT": 6,
     "SMCI": 7,
@@ -179,7 +180,6 @@
     "NVO": 4,
     "DDOG": 1,
     "SNOW": 1,
-    "AMZN": 57,
     "AVGO": 15,
     "000660.KS": 27,
     "CRWV": 16,
@@ -255,9 +255,9 @@
   },
   "themes": [
     "Market Notes (778 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
-    "Semiconductors/Memory (529 posts in 14-day research window): [SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화...",
-    "Geopolitics (375 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
-    "Earnings/Corporate (338 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정 EBITDA $465.8M (예상 $353M) → 32.0% 상회 , 마진 47.5% • AI 클라우드...",
+    "Semiconductors/Memory (528 posts in 14-day research window): [SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화...",
+    "Geopolitics (374 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
+    "Earnings/Corporate (337 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정 EBITDA $465.8M (예상 $353M) → 32.0% 상회 , 마진 47.5% • AI 클라우드...",
     "Macro/Rates (319 posts in 14-day research window): 2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%, 러셀2000 -1.63% 기록. 엔비디아가 장중 두 자릿수 급락한 이후 저가 매수세 유입으로 낙폭을 축소하면서...",
     "AI Power/Grid (283 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (133 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
@@ -266,21 +266,21 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 222,
+      "count": 223,
       "text": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%, 러셀2000 -1.63% 기록. 엔비디아가 장중 두 자릿수 급락한 이후 저가 매수세 유입으로 낙폭을 축소하면서..."
     },
     {
       "key": "GOOG",
-      "count": 66,
+      "count": 67,
       "text": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%, 러셀2000 -1.63% 기록. 엔비디아가 장중 두 자릿수 급락한 이후 저가 매수세 유입으로 낙폭을 축소하면서..."
     },
     {
-      "key": "TSM",
+      "key": "AMZN",
       "count": 57,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
-      "key": "AMZN",
+      "key": "TSM",
       "count": 57,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
@@ -291,7 +291,7 @@
     },
     {
       "key": "MSFT",
-      "count": 43,
+      "count": 44,
       "text": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%, 러셀2000 -1.63% 기록. 엔비디아가 장중 두 자릿수 급락한 이후 저가 매수세 유입으로 낙폭을 축소하면서..."
     },
     {
@@ -341,7 +341,7 @@
       "topics": [
         "geo"
       ],
-      "count": 375,
+      "count": 374,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의..."
     },
     {
@@ -359,7 +359,7 @@
       "topics": [
         "semi"
       ],
-      "count": 529,
+      "count": 528,
       "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화..."
     },
     {
@@ -395,8 +395,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 93,
-      "focus": "코스피 야간선물은 양전 마감"
+      "count": 94,
+      "focus": "[단독]코스닥 살리기 나서는 정부…13일 거래소서 대책 논의 금융위 주재…이재명 대통령 참석 가능성도 코스닥 활성화 포함 3가지 안건 논의할 예정 \"증시 저평가\" 언급, 이 대통령 메시지 주목 정부가 오는 13일 코스닥 시장 활성화를 포함해 자본시장 대책을 다루는 간담회를 개최한다. 금융위원장이 직접 참석하는..."
     },
     {
       "id": "equity",
@@ -422,7 +422,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 338,
+      "count": 337,
       "focus": "네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정 EBITDA $465.8M (예상 $353M) → 32.0% 상회 , 마진 47.5% • AI 클라우드..."
     },
     {
@@ -1696,6 +1696,45 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/21142",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21142",
+      "datetime": "2026-11-12T23:46:42.000Z",
+      "localDateKst": "2026-11-13",
+      "tags": [
+        "power",
+        "kr-market",
+        "earnings"
+      ],
+      "score": 61,
+      "hasText": true,
+      "tickers": [],
+      "summary": "[NH/백준기] 스몰캡 - 지엔씨에너지 [NH/스몰캡(목진원)] [지엔씨에너지] ★수주잔고 7,264억원, 실적은 어차피 따라온다 3Q26 Review: 매출은 최대, 이익은 일회성·시차 요인에 발목 3분기..."
+    },
+    {
+      "id": "bornlupin/21141",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21141",
+      "datetime": "2026-11-12T23:42:38.000Z",
+      "localDateKst": "2026-11-13",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 72,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "AMZN"
+      ],
+      "relatedTickers": [
+        "AVGO"
+      ],
+      "summary": "엔비디아 독점 약화, TPU·ASIC 부상 가능성 젠슨 황이 없는 엔비디아는 향후 GPU 개발 속도와 산업 기술 표준을 주도하는 영향력에 변화가 발생할 수 있습니다. - 엔비디아는 GPU 성능, CUDA..."
+    },
+    {
       "id": "insidertracking/69182",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69182",
@@ -1789,7 +1828,7 @@
       "relatedTickers": [
         "AVGO"
       ],
-      "summary": "• 젠슨 황 사임으로 엔비디아의 기술 주도권 약화가 우려되면서, 대형 클라우드 기업(CSP)들이 단일 플랫폼 리스크를 줄이기 위해 자체 칩(ASIC)과 TPU 도입을 서두르고 있음 • 랙당 최대 500만..."
+      "summary": "•젠슨황 사임으로 엔비디아의 기술 주도권 약화가 우려되면서, CSP 들이 단일 플랫폼 리스크를 줄이기 위해 자체 칩(ASIC)과 TPU 도입을 서두르고 있음 •랙당 최대 500만 달러인 고가 엔비디아 서버의..."
     },
     {
       "id": "HANAchina/72046",
@@ -2761,13 +2800,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>마이클 버리 : 엔비디아 급락, 단기적으로는 절호의 거래 기회지만 장기적으로는 여전히 하락 전망 •Burry는 이미 공매도 포지션을 보유하고 있지 않았다면 이번 스캔들로 인한 급락이 역발상 매수 기회가 될...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>마이클 버리 : 엔비디아 급락, 단기적으로는 절호의 거래 기회지만 장기적으로는 여전히 하락 전망 •Burry는 이미 공매도 포지션을 보유하고 있지 않았다면 이번 스캔들로 인한 급락이 역발상 매수 기회가 될..."
+      ]
     },
     {
       "id": "HANAchina/72024",
@@ -2780,10 +2819,11 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>중국 외교부 : 미국은 이른바 간첩 논리를 만들어내고 기술 봉쇄의 구실을 찾는 것을 중단해야 •11월 12일 중국 외교부 마오닝 대변인은 정례 기자회견에서 엔비디아 관련 질문에 대해 이른바 ‘중국...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>중국 외교부 : 미국은 이른바 간첩 논리를 만들어내고 기술 봉쇄의 구실을 찾는 것을 중단해야 •11월 12일 중국 외교부 마오닝 대변인은 정례 기자회견에서 엔비디아 관련 질문에 대해 이른바 ‘중국..."
+      ]
     },
     {
       "id": "HANAchina/72018",
@@ -2797,10 +2837,10 @@
       ],
       "score": 64,
       "hasText": true,
+      "summary": "**알리바바 장중 낙폭 -7%까지 확대 해외 데이터센터에 엔비디아 칩 ’줄예약‘ ’원격접근 규제법‘ 美상원 통과 우려 회색시장선 수출제한 칩 사재기",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "**알리바바 장중 낙폭 -7%까지 확대 해외 데이터센터에 엔비디아 칩 ’줄예약‘ ’원격접근 규제법‘ 美상원 통과 우려 회색시장선 수출제한 칩 사재기"
+      ]
     },
     {
       "id": "bornlupin/21126",
@@ -2830,11 +2870,11 @@
         "macro",
         "kr-market"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>BOJ 심의위원 아사다 도이치로 •BOJ는 환율을 직접 관리하지 않기 때문에 달러·엔이 어느수준이 적절한지에 대해서는 언급할수 없음 •정책금리가 정책 목표에 부합하는 수준에 도달하더라도, 이후 추가 금리..."
+      "summary": ">>BOJ 심의위원 아사다 도이치로 •BOJ는 환율을 직접 관리하지 않기 때문에 달러·엔이 어느수준이 적절한지에 대해서는 언급할수 없음 •정책금리가 정책 목표에 부합하는 수준에 도달하더라도, 이후 추가 금리...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72009",
@@ -2843,10 +2883,8 @@
       "datetime": "2026-11-12T05:52:37.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "power",
-        "equity"
+        "power"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
       "media": {
@@ -2855,12 +2893,13 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>번스타인 : 586GW에서 199GW로 : 미국 AI 데이터센터 계획의 3분의 2는 ‘PPT 용량’? •Bernstein이 북미 데이터센터 프로젝트 8,858개를 개별 조사한 결과, 발표된 총 586GW의...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": ">>번스타인 : 586GW에서 199GW로 : 미국 AI 데이터센터 계획의 3분의 2는 ‘PPT 용량’? •Bernstein이 북미 데이터센터 프로젝트 8,858개를 개별 조사한 결과, 발표된 총 586GW의..."
+      ]
     },
     {
       "id": "insidertracking/69107",
@@ -3332,12 +3371,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "트럼프 행정부, 엔비디아 이사회의 젠슨 황 CEO 해임 준비 인지 — CBS 뉴스 엔비디아 이사회, 수요일 젠슨 황 CEO 해임 여부 결정 예정 — 소식통",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 행정부, 엔비디아 이사회의 젠슨 황 CEO 해임 준비 인지 — CBS 뉴스 엔비디아 이사회, 수요일 젠슨 황 CEO 해임 여부 결정 예정 — 소식통"
     },
     {
       "id": "insidertracking/69080",
@@ -3497,13 +3537,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "엔비디아, CEO 젠슨 황 해임 준비 중 — WSJ 엔비디아 이사회가 창업자이자 최고경영자(CEO)인 젠슨 황의 해임을 준비하고 있다. 이번 움직임은 젠슨 황이 중국 스파이로 의심받는 여성과의 관계를 포함해...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아, CEO 젠슨 황 해임 준비 중 — WSJ 엔비디아 이사회가 창업자이자 최고경영자(CEO)인 젠슨 황의 해임을 준비하고 있다. 이번 움직임은 젠슨 황이 중국 스파이로 의심받는 여성과의 관계를 포함해..."
     },
     {
       "id": "HANAchina/71980",
@@ -4305,16 +4345,19 @@
       "datetime": "2026-11-11T04:26:24.000Z",
       "localDateKst": "2026-11-11",
       "tags": [
+        "earnings",
         "semi",
-        "earnings"
+        "flows",
+        "japan"
       ],
+      "lead": 2,
       "score": 73,
       "hasText": true,
-      "summary": "JP모건, TSMC 2027년 매출 40% 추가 성장 전망… 목표주가 3,300대만달러 실적 및 주가 전망 투자의견 및 목표주가: 강력한 AI 수요와 선단 공정의 공급 부족 심화에 힘입어 투자의견...",
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "JP모건, TSMC 2027년 매출 40% 추가 성장 전망… 목표주가 3,300대만달러 실적 및 주가 전망 투자의견 및 목표주가: 강력한 AI 수요와 선단 공정의 공급 부족 심화에 힘입어 투자의견..."
     },
     {
       "id": "bornlupin/21112",
@@ -4327,14 +4370,14 @@
       ],
       "score": 72,
       "hasText": true,
-      "summary": "미장 오버나이트 코어위브 +16.5% 네비우스 +11.4% 블룸에너지 +6% 마이크론 +4.7% AMD +4.4% 브로드컴 +3.2% 엔비디아 +2.4%",
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO",
         "MU",
         "BE"
-      ]
+      ],
+      "summary": "미장 오버나이트 코어위브 +16.5% 네비우스 +11.4% 블룸에너지 +6% 마이크론 +4.7% AMD +4.4% 브로드컴 +3.2% 엔비디아 +2.4%"
     },
     {
       "id": "insidertracking/68995",
@@ -4561,11 +4604,11 @@
       ],
       "score": 60,
       "hasText": true,
-      "summary": "미장 오버나이트 코어위브 +11% 네비우스 +10% IREN +5% 블룸에너지 +3.5% 마이크론 +2.2%",
       "tickers": [
         "MU",
         "BE"
-      ]
+      ],
+      "summary": "미장 오버나이트 코어위브 +11% 네비우스 +10% IREN +5% 블룸에너지 +3.5% 마이크론 +2.2%"
     },
     {
       "id": "HANAchina/71923",
@@ -8450,34 +8493,6 @@
         "066570.KS",
         "017670.KS"
       ]
-    },
-    {
-      "id": "bornlupin/20942",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20942",
-      "datetime": "2026-11-02T04:15:10.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "market-note"
-      ],
-      "score": 70,
-      "hasText": true,
-      "summary": "BofA, AI 설비투자(Capex) 전망치를 상향 조정 클라우드 설비투자가 2026년(역년 기준) 1조 300억 달러, 2027년 1조 5,800억 달러에 달할 것으로 추산했습니다. 이는 전년 동기 대비...",
-      "tickers": []
-    },
-    {
-      "id": "bornlupin/20941",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20941",
-      "datetime": "2026-11-02T03:45:05.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "모건스탠리 마이크 윌슨 “미국 중간선거 전후 조정은 매수 기회… S&P 500 8,000 도달 전망” - Bloomberg 인터뷰 모건스탠리의 미국 주식 수석 전략가 마이크 윌슨(Mike Wilson)은 미국...",
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -9451,13 +9466,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>마이클 버리 : 엔비디아 급락, 단기적으로는 절호의 거래 기회지만 장기적으로는 여전히 하락 전망 •Burry는 이미 공매도 포지션을 보유하고 있지 않았다면 이번 스캔들로 인한 급락이 역발상 매수 기회가 될...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>마이클 버리 : 엔비디아 급락, 단기적으로는 절호의 거래 기회지만 장기적으로는 여전히 하락 전망 •Burry는 이미 공매도 포지션을 보유하고 있지 않았다면 이번 스캔들로 인한 급락이 역발상 매수 기회가 될..."
+      ]
     },
     {
       "id": "HANAchina/72024",
@@ -9470,10 +9485,11 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>중국 외교부 : 미국은 이른바 간첩 논리를 만들어내고 기술 봉쇄의 구실을 찾는 것을 중단해야 •11월 12일 중국 외교부 마오닝 대변인은 정례 기자회견에서 엔비디아 관련 질문에 대해 이른바 ‘중국...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>중국 외교부 : 미국은 이른바 간첩 논리를 만들어내고 기술 봉쇄의 구실을 찾는 것을 중단해야 •11월 12일 중국 외교부 마오닝 대변인은 정례 기자회견에서 엔비디아 관련 질문에 대해 이른바 ‘중국..."
+      ]
     },
     {
       "id": "HANAchina/72018",
@@ -9487,10 +9503,10 @@
       ],
       "score": 64,
       "hasText": true,
+      "summary": "**알리바바 장중 낙폭 -7%까지 확대 해외 데이터센터에 엔비디아 칩 ’줄예약‘ ’원격접근 규제법‘ 美상원 통과 우려 회색시장선 수출제한 칩 사재기",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "**알리바바 장중 낙폭 -7%까지 확대 해외 데이터센터에 엔비디아 칩 ’줄예약‘ ’원격접근 규제법‘ 美상원 통과 우려 회색시장선 수출제한 칩 사재기"
+      ]
     },
     {
       "id": "bornlupin/21126",
@@ -9520,11 +9536,11 @@
         "macro",
         "kr-market"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>BOJ 심의위원 아사다 도이치로 •BOJ는 환율을 직접 관리하지 않기 때문에 달러·엔이 어느수준이 적절한지에 대해서는 언급할수 없음 •정책금리가 정책 목표에 부합하는 수준에 도달하더라도, 이후 추가 금리..."
+      "summary": ">>BOJ 심의위원 아사다 도이치로 •BOJ는 환율을 직접 관리하지 않기 때문에 달러·엔이 어느수준이 적절한지에 대해서는 언급할수 없음 •정책금리가 정책 목표에 부합하는 수준에 도달하더라도, 이후 추가 금리...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72009",
@@ -9533,10 +9549,8 @@
       "datetime": "2026-11-12T05:52:37.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "power",
-        "equity"
+        "power"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
       "media": {
@@ -9545,12 +9559,13 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>번스타인 : 586GW에서 199GW로 : 미국 AI 데이터센터 계획의 3분의 2는 ‘PPT 용량’? •Bernstein이 북미 데이터센터 프로젝트 8,858개를 개별 조사한 결과, 발표된 총 586GW의...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": ">>번스타인 : 586GW에서 199GW로 : 미국 AI 데이터센터 계획의 3분의 2는 ‘PPT 용량’? •Bernstein이 북미 데이터센터 프로젝트 8,858개를 개별 조사한 결과, 발표된 총 586GW의..."
+      ]
     },
     {
       "id": "insidertracking/69107",
@@ -10022,12 +10037,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "트럼프 행정부, 엔비디아 이사회의 젠슨 황 CEO 해임 준비 인지 — CBS 뉴스 엔비디아 이사회, 수요일 젠슨 황 CEO 해임 여부 결정 예정 — 소식통",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 행정부, 엔비디아 이사회의 젠슨 황 CEO 해임 준비 인지 — CBS 뉴스 엔비디아 이사회, 수요일 젠슨 황 CEO 해임 여부 결정 예정 — 소식통"
     },
     {
       "id": "insidertracking/69080",
