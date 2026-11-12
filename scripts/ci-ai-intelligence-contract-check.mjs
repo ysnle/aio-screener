@@ -1221,13 +1221,13 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     const notGiven = ['PER은 35배입니다.', '지난번 종가 172.5달러보다 높습니다.', '목표가는 99.9달러입니다.'];
     const summary = (options) => pub.buildPublishableAnswerPlan({ summary: given.concat(notGiven).join(' '), sections: [], claims: { claims: [] } }, [], true, { nowMs: today, ...options }).plan.summary;
     const withReference = summary({ referenceText: reference });
-    check('v60.00 the reference text is the data blocks only (no earlier-conversation block, no reader notes, no instruction tail)',
+    check('v60.01 the reference text is the data blocks only (no earlier-conversation block, no reader notes, no instruction tail)',
       reference.includes('180.25달러') && !reference.includes('172.5') && !reference.includes('99.9') && !reference.includes('메모'));
-    check('v60.00 a figure from the injected data stays in its sentence', given.every((line) => withReference.includes(line)), withReference);
-    check('v60.00 a figure that is not in the injected data is still removed', notGiven.every((line) => !withReference.includes(line)), withReference);
-    check('v60.00 without reference text every unbound current figure is removed as before', given.concat(notGiven).every((line) => !summary({}).includes(line)));
+    check('v60.01 a figure from the injected data stays in its sentence', given.every((line) => withReference.includes(line)), withReference);
+    check('v60.01 a figure that is not in the injected data is still removed', notGiven.every((line) => !withReference.includes(line)), withReference);
+    check('v60.01 without reference text every unbound current figure is removed as before', given.concat(notGiven).every((line) => !summary({}).includes(line)));
     const fallbackWithReference = pub.extractAnswerFallbackResult(given.concat(notGiven).join(' '), true, { evidenceCount: 0, today, referenceText: reference });
-    check('v60.00 the fallback path follows the same rule', given.every((line) => fallbackWithReference.text.includes(line)) && notGiven.every((line) => !fallbackWithReference.text.includes(line)), fallbackWithReference.text);
+    check('v60.01 the fallback path follows the same rule', given.every((line) => fallbackWithReference.text.includes(line)) && notGiven.every((line) => !fallbackWithReference.text.includes(line)), fallbackWithReference.text);
   }
   const fallback = typeof pub.extractAnswerFallbackResult === 'function' ? pub.extractAnswerFallbackResult('코스피는 2,650에서 마감했습니다. 금리는 4.5%입니다. 1987년 블랙 먼데이에 다우는 하루 22.6% 하락했습니다.', true, { evidenceCount: 0, today }) : null;
   check('v59.99 the fallback path keeps history and counts two removed sentences',

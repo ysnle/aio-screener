@@ -1,6 +1,6 @@
 {
-  "version": "v60.00",
+  "version": "v60.01",
   "date": "2026-11-12",
-  "changelog": ["**The automated market reading thinks before it writes (v60.00):** the analysis lane runs with low reasoning and a 4,000-token ceiling instead of reasoning off and 1,500. In replays of 27 production inputs it passed the validator 16 of 19 times against 13 of 19, for about 230 more output tokens and one second per call; medium reasoning added errors and minutes without more passes, so it was not adopted."],
-  "note": "v60.00: analysis lane uses low reasoning"
+  "changelog": ["**The automated market reading thinks before it writes (v60.01):** the analysis lane runs with low reasoning and a 4,000-token ceiling instead of reasoning off and 1,500. In replays of 27 production inputs it passed the validator 16 of 19 times against 13 of 19, for about 230 more output tokens and one second per call; medium reasoning added errors and minutes without more passes, so it was not adopted."],
+  "note": "v60.01: analysis lane uses low reasoning"
 }
