@@ -1,3 +1,8 @@
+## v60.01 (2026-11-12)
+- **Answers keep the figures they were given (P2394):** PER, returns, moving-average gaps and other figures from the chat's injected data now stay in the sentences that use them; invented figures are still removed.
+- **The automated market reading thinks before it writes (v60.01):** the analysis lane runs with low reasoning and a 4,000-token ceiling instead of reasoning off and 1,500. In replays of 27 production inputs it passed the validator 16 of 19 times against 13 of 19, for about 230 more output tokens and one second per call; medium reasoning added errors and minutes without more passes, so it was not adopted.
+- R1 7곳 v60.01
+
 ## v59.99 (2026-11-12)
 - **Answer filters are counted (v59.99):** each finished chat answer records, on this device and without any question or answer text, how many sentences the evidence filters removed, how many claims were dropped, directive replacements and truncation; `AIO.answerQualitySummary()` reads the last 14 days in one line.
 - **Chat answers keep history and definitions (P2388):** on a current-sensitive question a dated past move or a fixed count is no longer deleted as an unbound current figure; only current readings still need evidence.

@@ -39,6 +39,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2394 - v60.01 - v60.01 a figure from the data the chat model was given stays in the sentence that uses it (2026-11-12)
+
+- symptom/reproduction: On a current-sensitive question the answer lost every sentence that wrote PER, a return, a moving-average gap or RSI, although those figures were in the prompt's own data blocks; only the quote price counted as evidence (v59.99), so a judgement written with its number was still deleted.
+- root_cause: The publication filter checked figures only against typed evidence rows. The ticker, technical, screener and domain blocks reach the model as text and had no row.
+- fix: src/ai/response/publication.js reads the figures of the injected reference text (answerReferenceText: the system prompt before the instruction tail, without the earlier-conversation and reader-note blocks) and treats a figure written there as supported, for the plan path, the fallback path and the event rule; js/aio-chat.js passes that text to the pipeline. A figure that is nowhere in the material is removed as before.
+- violated_rule: Owner decision 2026-11-12: a current figure is checked against what the model was given, not deleted because it is a figure.
+- prevention: ci-ai-intelligence-contract-check: five sentences with injected figures stay; a figure not in the data, one only in the earlier-conversation block and one only in the instruction tail are removed; without reference text behaviour is unchanged; the fallback path follows the same rule.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs exits 0; pipeline-semantics, chat-reliability, boot budget and the ratchets exit 0.
+- files: src/ai/response/publication.js, src/ai/response/request-pipeline.js, js/aio-chat.js, src/app/chat-globals.js, scripts/ci-ai-intelligence-contract-check.mjs
+
 ## P2393 - v59.99 - v59.99 the screener no longer empties 31 days after a universe review (2026-11-12)
 
 - symptom/reproduction: From 2026-11-12 the screener's default view showed '조건에 맞는 종목이 없습니다' with 822 ranked US stocks and 0 displayed (the same for 한국), on the live site and in five browser gates.
