@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-13T06:51:59.165Z",
-  "attemptedAt": "2026-11-13T06:51:59.165Z",
-  "lastSuccessfulAt": "2026-11-13T06:51:59.165Z",
+  "generatedAt": "2026-11-13T07:21:38.633Z",
+  "attemptedAt": "2026-11-13T07:21:38.633Z",
+  "lastSuccessfulAt": "2026-11-13T07:21:38.633Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-30T06:51:54.538Z",
-  "until": "2026-11-13T06:51:54.538Z",
+  "since": "2026-10-30T07:21:32.887Z",
+  "until": "2026-11-13T07:21:32.887Z",
   "current24hWindow": {
     "start": "2026-11-11T23:00:00.000Z",
     "end": "2026-11-12T23:00:00.000Z",
@@ -113,26 +113,26 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 717,
-      "freshCount": 20,
-      "eligibleTextCount": 716,
+      "count": 718,
+      "freshCount": 39,
+      "eligibleTextCount": 717,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72075
+      "lastPostId": 72076
     }
   ],
-  "count": 2198,
-  "retainedItemCount": 400,
+  "count": 2199,
+  "retainedItemCount": 409,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2198,
-    "eligibleTextCount": 2141,
+    "observedCount": 2199,
+    "eligibleTextCount": 2142,
     "mediaOnlyCount": 57,
     "mediaAttachedCount": 887,
     "photoPostCount": 767,
@@ -147,6 +147,7 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "flows": 57,
     "semi": 550,
     "power": 287,
     "equity": 136,
@@ -158,7 +159,6 @@
     "market-note": 763,
     "japan": 69,
     "ai-policy": 123,
-    "flows": 56,
     "kr-market": 94,
     "credit": 84,
     "healthcare": 62,
@@ -451,8 +451,8 @@
       "topics": [
         "flows"
       ],
-      "count": 56,
-      "focus": "No retained full-text sample; 56 observed posts in the 14-day research window."
+      "count": 57,
+      "focus": ">>CCTV : 역외신탁 개인소득세 1,600억 위안, ‘부자 증세’ 아닌 ‘미납 세금 회수’ •역외신탁 관련 개인소득세 1,600억 위안 이상이 신고·납부됐으며, 10월에만 1,200억 위안 이상이 국고에 들어와 당월 전국 개인소득세 수입이 약 90% 증가. 이는 새로운 세금을 부과하거나 특정 계층을 증세한 것이..."
     },
     {
       "id": "insider",
@@ -2095,7 +2095,8 @@
       "datetime": "2026-11-13T00:50:05.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
       "score": 51,
       "hasText": true,
@@ -2105,10 +2106,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>기업의 영혼이 떠난다! 현재 엔비디아 vs 2011년 애플 •젠슨황이 물러난 이후 엔비디아의 향방에 대해 골드만삭스는 스티브 잡스 사례를 제시 •애플 CEO 스티브 잡스는 2011년 1월 병가를 시작했고...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>기업의 영혼이 떠난다! 현재 엔비디아 vs 2011년 애플 •젠슨황이 물러난 이후 엔비디아의 향방에 대해 골드만삭스는 스티브 잡스 사례를 제시 •애플 CEO 스티브 잡스는 2011년 1월 병가를 시작했고..."
     },
     {
       "id": "HANAchina/72054",
@@ -2119,13 +2120,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": ">>트럼프, 엔비디아 CEO 젠슨 황에게 자리 지키기 위해 싸우라고 촉구 (NYT) •뉴욕타임스에 따르면, 엔비디아 CEO 젠슨 황이 11월 12일 사임하기에 앞서 도널드 트럼프 미국 대통령이 비공개로 황에게...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>트럼프, 엔비디아 CEO 젠슨 황에게 자리 지키기 위해 싸우라고 촉구 (NYT) •뉴욕타임스에 따르면, 엔비디아 CEO 젠슨 황이 11월 12일 사임하기에 앞서 도널드 트럼프 미국 대통령이 비공개로 황에게..."
     },
     {
       "id": "HANAchina/72050",
@@ -2135,17 +2136,18 @@
       "localDateKst": "2026-11-13",
       "tags": [
         "semi",
-        "power"
+        "power",
+        "earnings"
       ],
+      "lead": 2,
       "score": 77,
       "hasText": true,
-      "summary": ">>삼성전자, 데이터센터 냉각장비 업체 Modine Manufacturing 인수 협상 (과창판일보) •삼성전자가 데이터센터 냉각 시스템 생산업체 Modine Manufacturing 인수를 협의 중인 것으로...",
-      "lead": 2,
       "tickers": [
         "005930.KS",
         "066570.KS",
         "MOD"
-      ]
+      ],
+      "summary": ">>삼성전자, 데이터센터 냉각장비 업체 Modine Manufacturing 인수 협상 (과창판일보) •삼성전자가 데이터센터 냉각 시스템 생산업체 Modine Manufacturing 인수를 협의 중인 것으로..."
     },
     {
       "id": "bornlupin/21143",
@@ -2213,15 +2215,17 @@
       "datetime": "2026-11-12T23:52:26.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "ai-policy"
+        "ai-policy",
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 74,
       "hasText": true,
-      "summary": ">>美, AI 수출통제 확대 검토…중국의 선진 AI칩 원격 사용 차단 추진 (대만경제일보) •미 상무부가 국가안보 조사를 진행하면서 말레이시아·싱가포르·태국 등 7개국에 대한 AI 수출 제한을 확대하는 새로운...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>美, AI 수출통제 확대 검토…중국의 선진 AI칩 원격 사용 차단 추진 (대만경제일보) •미 상무부가 국가안보 조사를 진행하면서 말레이시아·싱가포르·태국 등 7개국에 대한 AI 수출 제한을 확대하는 새로운..."
     },
     {
       "id": "bornlupin/21142",
@@ -2325,12 +2329,15 @@
       "datetime": "2026-11-12T23:12:42.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
+        "macro",
+        "semi",
+        "kr-market",
         "earnings"
       ],
       "score": 72,
       "hasText": true,
-      "summary": "• 폭스콘은 지난 8월 기업설명회보다 사업 가시성이 크게 개선됨에 따라 4대 핵심 제품군의 전망치를 모두 상향 조정하고, 올 4분기와 2026년 연간 실적 모두 가파른 성장을 기록해 내년까지 호조세가 이어질...",
-      "tickers": []
+      "tickers": [],
+      "summary": "• 폭스콘은 지난 8월 기업설명회보다 사업 가시성이 크게 개선됨에 따라 4대 핵심 제품군의 전망치를 모두 상향 조정하고, 올 4분기와 2026년 연간 실적 모두 가파른 성장을 기록해 내년까지 호조세가 이어질..."
     },
     {
       "id": "HANAchina/72047",
@@ -2339,18 +2346,19 @@
       "datetime": "2026-11-12T23:10:10.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
-      "summary": "•젠슨황 사임으로 엔비디아의 기술 주도권 약화가 우려되면서, CSP 들이 단일 플랫폼 리스크를 줄이기 위해 자체 칩(ASIC)과 TPU 도입을 서두르고 있음 •랙당 최대 500만 달러인 고가 엔비디아 서버의...",
-      "lead": 1,
       "tickers": [
         "NVDA"
       ],
       "relatedTickers": [
         "AVGO"
-      ]
+      ],
+      "summary": "•젠슨황 사임으로 엔비디아의 기술 주도권 약화가 우려되면서, CSP 들이 단일 플랫폼 리스크를 줄이기 위해 자체 칩(ASIC)과 TPU 도입을 서두르고 있음 •랙당 최대 500만 달러인 고가 엔비디아 서버의..."
     },
     {
       "id": "HANAchina/72046",
@@ -2359,17 +2367,18 @@
       "datetime": "2026-11-12T22:56:11.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 64,
       "hasText": true,
-      "summary": "• 엔비디아 젠슨황 CEO 사임 소식 여파로 대만 증시는 1,165pt 급락(11/12), 전문가들은 이를 단기 악재 해소가 아닌 장기적 악재로 평가. 특히 ① 기존 'AI 선순환 생태계'의 붕괴 가능성, ②...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "TSM"
-      ]
+      ],
+      "summary": "• 엔비디아 젠슨황 CEO 사임 소식 여파로 대만 증시는 1,165pt 급락(11/12), 전문가들은 이를 단기 악재 해소가 아닌 장기적 악재로 평가. 특히 ① 기존 'AI 선순환 생태계'의 붕괴 가능성, ②..."
     },
     {
       "id": "insidertracking/69178",
@@ -2413,13 +2422,14 @@
       "datetime": "2026-11-12T22:25:15.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "macro"
       ],
+      "lead": 1,
       "score": 59,
       "hasText": true,
-      "summary": ">>CXMT 부사장 “컴퓨팅 슈퍼사이클, 계층화 시대로 진입…메모리 경쟁은 전 영역으로 확대” •CXMT 부사장 뤄샤오둥은 연산 슈퍼사이클이 ‘계층화 시대’에 진입하면서 메모리 경쟁도 전 영역을 아우르는...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>CXMT 부사장 “컴퓨팅 슈퍼사이클, 계층화 시대로 진입…메모리 경쟁은 전 영역으로 확대” •CXMT 부사장 뤄샤오둥은 연산 슈퍼사이클이 ‘계층화 시대’에 진입하면서 메모리 경쟁도 전 영역을 아우르는..."
     },
     {
       "id": "HANAchina/72041",
@@ -2430,13 +2440,13 @@
       "tags": [
         "ai-policy"
       ],
+      "lead": 1,
       "score": 54,
       "hasText": true,
-      "summary": ">>구글, Gemini 4 Hydrogen 출시…환각 5배 감소, 속도 2배 향상 •구글이 Gemini 4 Hydrogen을 출시함. 고효율 실행 엔진을 목표로 속도와 정확성을 강화했으며, 이전 세대...",
-      "lead": 1,
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": ">>구글, Gemini 4 Hydrogen 출시…환각 5배 감소, 속도 2배 향상 •구글이 Gemini 4 Hydrogen을 출시함. 고효율 실행 엔진을 목표로 속도와 정확성을 강화했으며, 이전 세대..."
     },
     {
       "id": "insidertracking/69174",
@@ -2803,12 +2813,14 @@
       "datetime": "2026-11-12T15:01:35.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "power",
+        "equity",
+        "earnings"
       ],
+      "lead": 1,
       "score": 85,
       "hasText": true,
-      "summary": ">>젠슨 황을 잃은 엔비디아는 어떻게 될까? (중국언론) •엔비디아가 젠슨 황 없이도 엔비디아일 수 있는지가 핵심임. 황의 역할은 매우 크지만, 엔비디아의 경쟁력은 30년 넘게 GPU에 집중해온 기술 축적과...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2819,7 +2831,8 @@
         "MU",
         "TSM",
         "000660.KS"
-      ]
+      ],
+      "summary": ">>젠슨 황을 잃은 엔비디아는 어떻게 될까? (중국언론) •엔비디아가 젠슨 황 없이도 엔비디아일 수 있는지가 핵심임. 황의 역할은 매우 크지만, 엔비디아의 경쟁력은 30년 넘게 GPU에 집중해온 기술 축적과..."
     },
     {
       "id": "HANAchina/72035",
@@ -8451,17 +8464,18 @@
       "datetime": "2026-11-12T22:56:11.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 64,
       "hasText": true,
-      "summary": "• 엔비디아 젠슨황 CEO 사임 소식 여파로 대만 증시는 1,165pt 급락(11/12), 전문가들은 이를 단기 악재 해소가 아닌 장기적 악재로 평가. 특히 ① 기존 'AI 선순환 생태계'의 붕괴 가능성, ②...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "TSM"
-      ]
+      ],
+      "summary": "• 엔비디아 젠슨황 CEO 사임 소식 여파로 대만 증시는 1,165pt 급락(11/12), 전문가들은 이를 단기 악재 해소가 아닌 장기적 악재로 평가. 특히 ① 기존 'AI 선순환 생태계'의 붕괴 가능성, ②..."
     },
     {
       "id": "insidertracking/69178",
@@ -8505,13 +8519,14 @@
       "datetime": "2026-11-12T22:25:15.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "macro"
       ],
+      "lead": 1,
       "score": 59,
       "hasText": true,
-      "summary": ">>CXMT 부사장 “컴퓨팅 슈퍼사이클, 계층화 시대로 진입…메모리 경쟁은 전 영역으로 확대” •CXMT 부사장 뤄샤오둥은 연산 슈퍼사이클이 ‘계층화 시대’에 진입하면서 메모리 경쟁도 전 영역을 아우르는...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>CXMT 부사장 “컴퓨팅 슈퍼사이클, 계층화 시대로 진입…메모리 경쟁은 전 영역으로 확대” •CXMT 부사장 뤄샤오둥은 연산 슈퍼사이클이 ‘계층화 시대’에 진입하면서 메모리 경쟁도 전 영역을 아우르는..."
     },
     {
       "id": "HANAchina/72041",
@@ -8522,13 +8537,13 @@
       "tags": [
         "ai-policy"
       ],
+      "lead": 1,
       "score": 54,
       "hasText": true,
-      "summary": ">>구글, Gemini 4 Hydrogen 출시…환각 5배 감소, 속도 2배 향상 •구글이 Gemini 4 Hydrogen을 출시함. 고효율 실행 엔진을 목표로 속도와 정확성을 강화했으며, 이전 세대...",
-      "lead": 1,
       "tickers": [
         "GOOG"
-      ]
+      ],
+      "summary": ">>구글, Gemini 4 Hydrogen 출시…환각 5배 감소, 속도 2배 향상 •구글이 Gemini 4 Hydrogen을 출시함. 고효율 실행 엔진을 목표로 속도와 정확성을 강화했으며, 이전 세대..."
     },
     {
       "id": "insidertracking/69174",
@@ -8895,12 +8910,14 @@
       "datetime": "2026-11-12T15:01:35.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "power",
+        "equity",
+        "earnings"
       ],
+      "lead": 1,
       "score": 85,
       "hasText": true,
-      "summary": ">>젠슨 황을 잃은 엔비디아는 어떻게 될까? (중국언론) •엔비디아가 젠슨 황 없이도 엔비디아일 수 있는지가 핵심임. 황의 역할은 매우 크지만, 엔비디아의 경쟁력은 30년 넘게 GPU에 집중해온 기술 축적과...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -8911,7 +8928,8 @@
         "MU",
         "TSM",
         "000660.KS"
-      ]
+      ],
+      "summary": ">>젠슨 황을 잃은 엔비디아는 어떻게 될까? (중국언론) •엔비디아가 젠슨 황 없이도 엔비디아일 수 있는지가 핵심임. 황의 역할은 매우 크지만, 엔비디아의 경쟁력은 30년 넘게 GPU에 집중해온 기술 축적과..."
     },
     {
       "id": "HANAchina/72035",
