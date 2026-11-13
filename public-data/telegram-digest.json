@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-13T05:52:23.514Z",
-  "attemptedAt": "2026-11-13T05:52:23.514Z",
-  "lastSuccessfulAt": "2026-11-13T05:52:23.514Z",
+  "generatedAt": "2026-11-13T06:21:39.592Z",
+  "attemptedAt": "2026-11-13T06:21:39.592Z",
+  "lastSuccessfulAt": "2026-11-13T06:21:39.592Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-30T05:52:17.078Z",
-  "until": "2026-11-13T05:52:17.078Z",
+  "since": "2026-10-30T06:21:33.653Z",
+  "until": "2026-11-13T06:21:33.653Z",
   "current24hWindow": {
     "start": "2026-11-11T23:00:00.000Z",
     "end": "2026-11-12T23:00:00.000Z",
@@ -89,12 +89,12 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1250,
-      "freshCount": 40,
-      "eligibleTextCount": 1194,
+      "count": 1248,
+      "freshCount": 20,
+      "eligibleTextCount": 1192,
       "selectedCount": 126,
       "error": null,
       "lastPostId": 69202
@@ -116,63 +116,63 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 719,
+      "count": 718,
       "freshCount": 39,
-      "eligibleTextCount": 718,
+      "eligibleTextCount": 717,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72074
+      "lastPostId": 72075
     }
   ],
-  "count": 2203,
-  "retainedItemCount": 423,
+  "count": 2200,
+  "retainedItemCount": 410,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2203,
-    "eligibleTextCount": 2146,
+    "observedCount": 2200,
+    "eligibleTextCount": 2143,
     "mediaOnlyCount": 57,
-    "mediaAttachedCount": 886,
-    "photoPostCount": 766,
+    "mediaAttachedCount": 887,
+    "photoPostCount": 767,
     "documentPostCount": 5,
     "imageOnlyCount": 5,
     "highSignalCount": 382,
-    "broadSignalCount": 859,
+    "broadSignalCount": 860,
     "selectedRawCount": 374,
     "selectedEligibleCount": 374,
-    "selectedRawCoveragePct": 17.4,
+    "selectedRawCoveragePct": 17.5,
     "selectedOfObservedPct": 17,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 550,
+    "semi": 551,
     "power": 287,
     "equity": 136,
-    "earnings": 343,
+    "earnings": 342,
     "optical": 29,
-    "geo": 369,
+    "geo": 368,
     "macro": 319,
     "media-only": 55,
-    "market-note": 764,
+    "market-note": 763,
     "japan": 69,
     "ai-policy": 123,
-    "flows": 58,
+    "flows": 57,
     "kr-market": 94,
     "credit": 84,
     "healthcare": 62,
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 236,
+    "NVDA": 237,
     "GOOG": 70,
     "319660.KQ": 1,
     "BE": 16,
     "AMD": 58,
     "TSM": 58,
     "MSFT": 46,
-    "AMZN": 56,
+    "AMZN": 55,
     "ORCL": 9,
     "AVGO": 16,
     "005930.KS": 35,
@@ -256,10 +256,10 @@
     "AZN": 1
   },
   "themes": [
-    "Market Notes (764 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
-    "Semiconductors/Memory (550 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave...",
-    "Geopolitics (369 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
-    "Earnings/Corporate (343 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정 EBITDA $465.8M (예상 $353M) → 32.0% 상회 , 마진 47.5% • AI 클라우드...",
+    "Market Notes (763 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
+    "Semiconductors/Memory (551 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave...",
+    "Geopolitics (368 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
+    "Earnings/Corporate (342 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정 EBITDA $465.8M (예상 $353M) → 32.0% 상회 , 마진 47.5% • AI 클라우드...",
     "Macro/Rates (319 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면 인플레이션은 여전히 지나치게 높고 끈질기게 지속되고 있어 2% 목표 복귀를 위해 통화정책 측면에서 추가 대응이...",
     "AI Power/Grid (287 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (136 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
@@ -268,7 +268,7 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 236,
+      "count": 237,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면 인플레이션은 여전히 지나치게 높고 끈질기게 지속되고 있어 2% 목표 복귀를 위해 통화정책 측면에서 추가 대응이..."
     },
     {
@@ -288,7 +288,7 @@
     },
     {
       "key": "AMZN",
-      "count": 56,
+      "count": 55,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -343,7 +343,7 @@
       "topics": [
         "geo"
       ],
-      "count": 369,
+      "count": 368,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의..."
     },
     {
@@ -361,7 +361,7 @@
       "topics": [
         "semi"
       ],
-      "count": 550,
+      "count": 551,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave..."
     },
     {
@@ -424,7 +424,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 343,
+      "count": 342,
       "focus": "네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정 EBITDA $465.8M (예상 $353M) → 32.0% 상회 , 마진 47.5% • AI 클라우드..."
     },
     {
@@ -451,8 +451,8 @@
       "topics": [
         "flows"
       ],
-      "count": 58,
-      "focus": "No retained full-text sample; 58 observed posts in the 14-day research window."
+      "count": 57,
+      "focus": "No retained full-text sample; 57 observed posts in the 14-day research window."
     },
     {
       "id": "insider",
@@ -469,7 +469,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 764,
+      "count": 763,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
     }
   ],
@@ -1697,6 +1697,29 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72075",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72075",
+      "datetime": "2026-11-13T05:57:00.000Z",
+      "localDateKst": "2026-11-13",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "“회사를 이끌던 사람을 다시 데려오자” 엔비디아 직원들, 젠슨 황 복귀 촉구 •엔비디아 직원들이 젠슨 황의 복귀를 집단적으로 지지하고 있음. 사내 ‘의견함’ 게시글에는 1,600개 이상의 댓글이 달렸으며,..."
+    },
+    {
       "id": "HANAchina/72074",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72074",
@@ -2260,10 +2283,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "근데 젠슨황 진짜...너무 허무하게 갔네요. 엔비디아 주주분들 모두 하락분을 다 만회하시고, 다시 좋은 수익 거두시길 바랍니다.",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "근데 젠슨황 진짜...너무 허무하게 갔네요. 엔비디아 주주분들 모두 하락분을 다 만회하시고, 다시 좋은 수익 거두시길 바랍니다."
+      ]
     },
     {
       "id": "insidertracking/69181",
@@ -2272,17 +2295,15 @@
       "datetime": "2026-11-12T23:17:14.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": "엔비디아 주가가 최근 큰 폭으로 하락하면서 선행 주가수익비율(PER)이 약 12배까지 떨어져 2012년 이후 최저 수준 기록. 젠슨 황의 CEO 사임 이후 엔비디아 주가는 목요일 4% 이상 하락했으며, 이번...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 주가가 최근 큰 폭으로 하락하면서 선행 주가수익비율(PER)이 약 12배까지 떨어져 2012년 이후 최저 수준 기록. 젠슨 황의 CEO 사임 이후 엔비디아 주가는 목요일 4% 이상 하락했으며, 이번..."
+      ]
     },
     {
       "id": "insidertracking/69180",
@@ -2293,13 +2314,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "젠슨 황이 엔비디아 CEO직에서 물러나면서 아직 귀속되지 않은 약 1억800만 달러 규모의 주식 보상을 포기할 예정. 블룸버그 억만장자 지수 기준 젠슨 황의 현재 자산은 약 1,384억 달러로, 이번에...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "젠슨 황이 엔비디아 CEO직에서 물러나면서 아직 귀속되지 않은 약 1억800만 달러 규모의 주식 보상을 포기할 예정. 블룸버그 억만장자 지수 기준 젠슨 황의 현재 자산은 약 1,384억 달러로, 이번에..."
+      ]
     },
     {
       "id": "HANAchina/72048",
@@ -2366,16 +2387,15 @@
       "datetime": "2026-11-12T22:45:46.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi",
-        "macro"
+        "semi"
       ],
-      "lead": 1,
       "score": 63,
       "hasText": true,
+      "summary": "테크크런치에 따르면 민주당 중진 의원 론 와이든과 리처드 닐이 트럼프 행정부의 엔비디아 AI 반도체 중국 판매 처리 방식에 대한 조사 착수. 두 의원은 하워드 러트닉 상무장관에게 보낸 서한에서 엔비디아...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "테크크런치에 따르면 민주당 중진 의원 론 와이든과 리처드 닐이 트럼프 행정부의 엔비디아 AI 반도체 중국 판매 처리 방식에 대한 조사 착수. 두 의원은 하워드 러트닉 상무장관에게 보낸 서한에서 엔비디아..."
+      ]
     },
     {
       "id": "insidertracking/69177",
@@ -2385,17 +2405,15 @@
       "localDateKst": "2026-11-13",
       "tags": [
         "earnings",
-        "equity",
-        "semi",
-        "power"
+        "equity"
       ],
-      "lead": 2,
       "score": 74,
       "hasText": true,
+      "summary": "AI 클라우드 기업 엔스케일(Nscale)이 기업공개(IPO) 신고서를 수정 제출하며 대규모 AI 인프라 투자 계획과 신규 계약, 재무 실적 공개. • 앤트로픽 투자: 웨스트버지니아주 모나크 캠퍼스에서...",
+      "lead": 2,
       "tickers": [
         "MSFT"
-      ],
-      "summary": "AI 클라우드 기업 엔스케일(Nscale)이 기업공개(IPO) 신고서를 수정 제출하며 대규모 AI 인프라 투자 계획과 신규 계약, 재무 실적 공개. • 앤트로픽 투자: 웨스트버지니아주 모나크 캠퍼스에서..."
+      ]
     },
     {
       "id": "HANAchina/72044",
@@ -2438,18 +2456,16 @@
       "localDateKst": "2026-11-13",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "equity"
+        "semi"
       ],
       "score": 86,
       "hasText": true,
+      "summary": "11월 13일 미주인 브리핑 • 젠슨 황 전격 사임 · 엔비디아 장중 급락 후 4% 하락 마감 • 美 법무부·의회 엔비디아 조사 확대 · 대중국 반도체 규제 주목 • 연준 추가 긴축 발언 · 美 10년물...",
       "tickers": [
         "NVDA",
         "TSLA",
         "AMAT"
-      ],
-      "summary": "11월 13일 미주인 브리핑 • 젠슨 황 전격 사임 · 엔비디아 장중 급락 후 4% 하락 마감 • 美 법무부·의회 엔비디아 조사 확대 · 대중국 반도체 규제 주목 • 연준 추가 긴축 발언 · 美 10년물..."
+      ]
     },
     {
       "id": "insidertracking/69173",
@@ -2460,13 +2476,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "이제 젠슨황은 엔비디아와 관련없는 사람이 되었으므로 개인 추가 불륜 의혹은 더이상 무의미함 엔비디아 주식에 의미있는 것은 조사 중에 있는 앨리스의 스파이 의혹과 젠슨의 연루 정도",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "이제 젠슨황은 엔비디아와 관련없는 사람이 되었으므로 개인 추가 불륜 의혹은 더이상 무의미함 엔비디아 주식에 의미있는 것은 조사 중에 있는 앨리스의 스파이 의혹과 젠슨의 연루 정도"
+      ]
     },
     {
       "id": "insidertracking/69171",
@@ -2485,10 +2500,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "로이터에 따르면 엔비디아에서 물러난 젠슨 황 전 CEO가 두 번째 직원과도 부적절한 관계를 맺었던 것으로 사안에 정통한 관계자 2명을 인용해 보도. 이번 보도는 젠슨 황의 사임으로 이어진 기존 2건의 혼외...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "로이터에 따르면 엔비디아에서 물러난 젠슨 황 전 CEO가 두 번째 직원과도 부적절한 관계를 맺었던 것으로 사안에 정통한 관계자 2명을 인용해 보도. 이번 보도는 젠슨 황의 사임으로 이어진 기존 2건의 혼외..."
+      ]
     },
     {
       "id": "insidertracking/69162",
@@ -2507,10 +2523,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도는 엔비디아에 여전히 집중",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 레딧 관심도는 엔비디아에 여전히 집중"
+      ]
     },
     {
       "id": "insidertracking/69161",
@@ -2519,10 +2535,11 @@
       "datetime": "2026-11-12T21:18:46.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "healthcare"
+        "market-note"
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · American Financial Group · Assurant · Berkshire Hathaway · Cboe Global...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -2545,8 +2562,7 @@
         "WCN",
         "LH",
         "RGA"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · American Financial Group · Assurant · Berkshire Hathaway · Cboe Global..."
+      ]
     },
     {
       "id": "insidertracking/69159",
@@ -2827,13 +2843,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>엔비디아 CEO 젠슨 황 사임 •엔비디아는 최고재무책임자(CFO) Colette Kress를 임시 CEO로 임명. 엔비디아는 HARVEY JONES를 회사 최초의 이사회 의장으로 임명함.",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>엔비디아 CEO 젠슨 황 사임 •엔비디아는 최고재무책임자(CFO) Colette Kress를 임시 CEO로 임명. 엔비디아는 HARVEY JONES를 회사 최초의 이사회 의장으로 임명함."
+      ]
     },
     {
       "id": "bornlupin/21137",
@@ -7213,27 +7229,6 @@
       ]
     },
     {
-      "id": "HANAchina/71757",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71757",
-      "datetime": "2026-11-08T08:24:46.000Z",
-      "localDateKst": "2026-11-08",
-      "tags": [
-        "semi"
-      ],
-      "score": 85,
-      "hasText": true,
-      "summary": ">>TSMC '메모리 진출설'의 실체와 오해 (대만공상시보) •TSMC가 HBM4 하단의 베이스 다이를 제작하거나, 향후 3D DRAM 하단의 컨트롤러/로직 다이를 제조하고 3DFabric / SoIC...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "MU",
-        "TSM",
-        "005930.KS",
-        "000660.KS"
-      ]
-    },
-    {
       "id": "bornlupin/21054",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21054",
@@ -8489,16 +8484,15 @@
       "datetime": "2026-11-12T22:45:46.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi",
-        "macro"
+        "semi"
       ],
-      "lead": 1,
       "score": 63,
       "hasText": true,
+      "summary": "테크크런치에 따르면 민주당 중진 의원 론 와이든과 리처드 닐이 트럼프 행정부의 엔비디아 AI 반도체 중국 판매 처리 방식에 대한 조사 착수. 두 의원은 하워드 러트닉 상무장관에게 보낸 서한에서 엔비디아...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "테크크런치에 따르면 민주당 중진 의원 론 와이든과 리처드 닐이 트럼프 행정부의 엔비디아 AI 반도체 중국 판매 처리 방식에 대한 조사 착수. 두 의원은 하워드 러트닉 상무장관에게 보낸 서한에서 엔비디아..."
+      ]
     },
     {
       "id": "insidertracking/69177",
@@ -8508,17 +8502,15 @@
       "localDateKst": "2026-11-13",
       "tags": [
         "earnings",
-        "equity",
-        "semi",
-        "power"
+        "equity"
       ],
-      "lead": 2,
       "score": 74,
       "hasText": true,
+      "summary": "AI 클라우드 기업 엔스케일(Nscale)이 기업공개(IPO) 신고서를 수정 제출하며 대규모 AI 인프라 투자 계획과 신규 계약, 재무 실적 공개. • 앤트로픽 투자: 웨스트버지니아주 모나크 캠퍼스에서...",
+      "lead": 2,
       "tickers": [
         "MSFT"
-      ],
-      "summary": "AI 클라우드 기업 엔스케일(Nscale)이 기업공개(IPO) 신고서를 수정 제출하며 대규모 AI 인프라 투자 계획과 신규 계약, 재무 실적 공개. • 앤트로픽 투자: 웨스트버지니아주 모나크 캠퍼스에서..."
+      ]
     },
     {
       "id": "HANAchina/72044",
@@ -8561,18 +8553,16 @@
       "localDateKst": "2026-11-13",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "equity"
+        "semi"
       ],
       "score": 86,
       "hasText": true,
+      "summary": "11월 13일 미주인 브리핑 • 젠슨 황 전격 사임 · 엔비디아 장중 급락 후 4% 하락 마감 • 美 법무부·의회 엔비디아 조사 확대 · 대중국 반도체 규제 주목 • 연준 추가 긴축 발언 · 美 10년물...",
       "tickers": [
         "NVDA",
         "TSLA",
         "AMAT"
-      ],
-      "summary": "11월 13일 미주인 브리핑 • 젠슨 황 전격 사임 · 엔비디아 장중 급락 후 4% 하락 마감 • 美 법무부·의회 엔비디아 조사 확대 · 대중국 반도체 규제 주목 • 연준 추가 긴축 발언 · 美 10년물..."
+      ]
     },
     {
       "id": "insidertracking/69173",
@@ -8583,13 +8573,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "이제 젠슨황은 엔비디아와 관련없는 사람이 되었으므로 개인 추가 불륜 의혹은 더이상 무의미함 엔비디아 주식에 의미있는 것은 조사 중에 있는 앨리스의 스파이 의혹과 젠슨의 연루 정도",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "이제 젠슨황은 엔비디아와 관련없는 사람이 되었으므로 개인 추가 불륜 의혹은 더이상 무의미함 엔비디아 주식에 의미있는 것은 조사 중에 있는 앨리스의 스파이 의혹과 젠슨의 연루 정도"
+      ]
     },
     {
       "id": "insidertracking/69171",
@@ -8608,10 +8597,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "로이터에 따르면 엔비디아에서 물러난 젠슨 황 전 CEO가 두 번째 직원과도 부적절한 관계를 맺었던 것으로 사안에 정통한 관계자 2명을 인용해 보도. 이번 보도는 젠슨 황의 사임으로 이어진 기존 2건의 혼외...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "로이터에 따르면 엔비디아에서 물러난 젠슨 황 전 CEO가 두 번째 직원과도 부적절한 관계를 맺었던 것으로 사안에 정통한 관계자 2명을 인용해 보도. 이번 보도는 젠슨 황의 사임으로 이어진 기존 2건의 혼외..."
+      ]
     },
     {
       "id": "insidertracking/69162",
@@ -8630,10 +8620,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도는 엔비디아에 여전히 집중",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 레딧 관심도는 엔비디아에 여전히 집중"
+      ]
     },
     {
       "id": "insidertracking/69161",
@@ -8642,10 +8632,11 @@
       "datetime": "2026-11-12T21:18:46.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "healthcare"
+        "market-note"
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · American Financial Group · Assurant · Berkshire Hathaway · Cboe Global...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -8668,8 +8659,7 @@
         "WCN",
         "LH",
         "RGA"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · AerCap Holdings · American Financial Group · Assurant · Berkshire Hathaway · Cboe Global..."
+      ]
     },
     {
       "id": "insidertracking/69159",
@@ -8950,13 +8940,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>엔비디아 CEO 젠슨 황 사임 •엔비디아는 최고재무책임자(CFO) Colette Kress를 임시 CEO로 임명. 엔비디아는 HARVEY JONES를 회사 최초의 이사회 의장으로 임명함.",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>엔비디아 CEO 젠슨 황 사임 •엔비디아는 최고재무책임자(CFO) Colette Kress를 임시 CEO로 임명. 엔비디아는 HARVEY JONES를 회사 최초의 이사회 의장으로 임명함."
+      ]
     },
     {
       "id": "bornlupin/21137",
