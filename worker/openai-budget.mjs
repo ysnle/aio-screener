@@ -20,6 +20,17 @@ export const WEB_SEARCH_MAX_CALLS = 2;
 // allowance is policy: 4x (low) / 8x (medium) the published block. A completed receipt then settles from usage.
 export const WEB_SEARCH_FEE_MICRO_USD_PER_CALL = 11000; // $0.01 x 1.1
 export const SEARCH_CONTENT_TOKENS_PER_CALL = Object.freeze({ low: 32000, medium: 64000 });
+// v60.02: a searched request may also carry the app's custom functions (the model chooses per question whether to search,
+// call a data function, or both). The mix is bounded, not refused:
+//   - one web_search tool and at most WEB_SEARCH_MAX_FUNCTIONS function definitions; each definition is already counted
+//     at 4096 tokens in inputTokenUpperBound, which every reserved turn re-reads;
+//   - max_tool_calls stays at most WEB_SEARCH_MAX_CALLS. Whether the provider counts only hosted calls or every tool call
+//     against it, the web_search_call items of one response are at most max_tool_calls, and settlement keeps the whole
+//     reservation for a receipt with more. So the fees and content stay reserved for at most 2 searches;
+//   - a function_call item ends the response (the client runs it and sends a new, separately reserved request), so it
+//     adds output tokens (inside max_output_tokens, which every turn already re-reads) but no model turn: a mixed response
+//     is still at most 1 + max_tool_calls turns, the bound the searched formula below already bills.
+export const WEB_SEARCH_MAX_FUNCTIONS = 12;
 const LONG_CONTEXT_TOKENS = 272000;
 // v57.61: analysis may ask for medium reasoning and medium search context; both stay inside max_output_tokens
 // and the per-call content allowance above (v57.62). Higher effort is never admitted with search.
@@ -89,10 +100,11 @@ export function prepareOpenAiBudget(requestBody, env = {}) {
     }
   }
   if (body.tools !== undefined && (!Array.isArray(body.tools) || body.tools.length > 32)) throw new Error('at most 32 custom functions supported');
-  let searchToolCount = 0;
+  let searchToolCount = 0, searchTool = null;
   for (const tool of body.tools || []) {
     if (tool?.type === 'web_search') {
       if (!paidWebSearchEnabled(env)) throw new Error('공용 AI 웹검색이 아직 활성화되지 않았습니다.');
+      searchTool = tool;
       if (++searchToolCount > 1 || !onlyKeys(tool, ['type','search_context_size','return_token_budget','filters'])
         || !SEARCH_CONTEXT_SIZES.includes(tool.search_context_size) || tool.return_token_budget !== 'default') throw new Error('bounded web_search configuration required');
       if (tool.filters !== undefined && (!onlyKeys(tool.filters, ['allowed_domains']) || !Array.isArray(tool.filters.allowed_domains)
@@ -107,7 +119,7 @@ export function prepareOpenAiBudget(requestBody, env = {}) {
   if (searchToolCount) {
     body.max_tool_calls = quotaInteger(body.max_tool_calls, WEB_SEARCH_MAX_CALLS, WEB_SEARCH_MAX_CALLS);
     body.reasoning = { effort: SEARCH_EFFORTS.includes(body.reasoning?.effort) ? body.reasoning.effort : 'low' };
-    if (body.tools.length !== 1) throw new Error('hosted search cannot mix with custom functions');
+    if (body.tools.length - 1 > WEB_SEARCH_MAX_FUNCTIONS) throw new Error('hosted search admits at most 12 custom functions');
   } else if (body.max_tool_calls !== undefined) throw new Error('max_tool_calls requires hosted search');
   if (body.tool_choice !== undefined && !['auto','required','none'].includes(body.tool_choice)
     && (!onlyKeys(body.tool_choice, ['type','name']) || body.tool_choice.type !== 'function' || !identifier(body.tool_choice.name))) throw new Error('unsupported tool choice');
@@ -126,7 +138,7 @@ export function prepareOpenAiBudget(requestBody, env = {}) {
   let reservationMicroUsd = textReservationMicroUsd, billedInputTokenUpperBound = inputTokenUpperBound, longContextPricing = false;
   if (searchToolCount) {
     const calls = body.max_tool_calls;
-    const turnContextUpperBound = inputTokenUpperBound + calls * SEARCH_CONTENT_TOKENS_PER_CALL[body.tools[0].search_context_size] + body.max_output_tokens;
+    const turnContextUpperBound = inputTokenUpperBound + calls * SEARCH_CONTENT_TOKENS_PER_CALL[searchTool.search_context_size] + body.max_output_tokens;
     longContextPricing = turnContextUpperBound > LONG_CONTEXT_TOKENS;
     billedInputTokenUpperBound = (1 + calls) * turnContextUpperBound;
     const [inputRate, outputRate] = tokenRates(longContextPricing);
