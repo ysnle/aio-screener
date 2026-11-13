@@ -24,7 +24,7 @@ import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
 import { buildMarketAnalysisPrompt, buildMarketAnalysisRetryPrompt, inflationDirectionLine } from '../lib/market-analysis-prompt.mjs';
 import { afterHoursContextLines, afterHoursSignature } from './after-hours.mjs';
 import { earningsContextLines, earningsContextSignature, readEventBriefs, cashflowContextLines, readBigtechCashflow } from './earnings-context.mjs';
-import { softenReaderDuty, inflationEasingContradicts, inflationReaccelContradicts, EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
+import { softenReaderDuty, salvageMarketAnalysis, inflationEasingContradicts, inflationReaccelContradicts, EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
 import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT, EARNINGS_CALENDAR_OUT, REPO_ROOT } from './paths.mjs';
 const SCREENER_OUT = `${REPO_ROOT}/public-data/screener.json`;
 import { MACRO_HISTORY_OUT, MACRO_CALENDAR_OUT } from './macro-history.mjs';
@@ -510,6 +510,8 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
         : '';
       console.warn(`[fetch-data] marketAnalysis ${attempt} blocked: ${issues.join(',').slice(0, 300)} :: ${String(body || '').replace(/\s+/g, ' ').slice(0, 400)}${issues.includes('causal-attribution-missing') ? ` :: news-sentences=${newsSentences || 'none'}` : ''}`);
     };
+    const firstText = text;
+    let salvaged = null;
     if (!semantic.ok) {
       // P1719: one retry with the validator's reasons; a second block is final for this run.
       logRejected('attempt-1', text, semantic.issues);
@@ -521,9 +523,21 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
         semantic = validate(text);
         if (!semantic.ok) logRejected('attempt-2', text, semantic.issues);
       }
+      // v60.02 (plan 046): a reading still blocked loses its offending lines (at most two) when the rest validates clean —
+      // the retry's text first, then the first attempt's. The sentence candidate is untouched.
+      if (!semantic.ok) {
+        const rescue = [...new Set([text, firstText].filter(Boolean))].map((candidate) => salvageMarketAnalysis(candidate, validate)).find((row) => row.ok);
+        if (rescue) {
+          const fixed = [...new Set(rescue.removed.flatMap((row) => row.issues))];
+          salvaged = { removed: rescue.removed.length, issues: fixed };
+          text = rescue.text;
+          semantic = rescue.semantic;
+          console.log(`[fetch-data] marketAnalysis salvaged: removed ${salvaged.removed} line(s) for ${fixed.join(',')}`);
+        }
+      }
     }
     if (!text || !semantic.ok) return { ...retainOrFallback(semantic.issues.join(',')), blockedAttemptKey: attemptKey };
-    return { ...buildStructuredMarketAnalysis({ data, text: softenReaderDuty(semantic.text || text), model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), sentenceCandidate, largeMove, largeMoveDirection,
+    return { ...buildStructuredMarketAnalysis({ data, text: softenReaderDuty(semantic.text || text), model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), ...(salvaged ? { salvaged } : {}), sentenceCandidate, largeMove, largeMoveDirection,
       narrativeSignature: inputSignature, narrativeThemes: narrativeContext.themes.map(({ id, label, telegramCount, recentCount, tickerCount }) => ({ id, label, telegramCount, recentCount, tickerCount })) };
   } catch (error) {
     return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence, keep);

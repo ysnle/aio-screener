@@ -13,7 +13,8 @@
 // Invariants:
 //   N1 verified   — a published reading marked verified passed the semantic gate and is at most 12 h old.
 //   N2 retained   — a retained reading names its own generation time, is older than this run, and never nests.
-//   N3 fresh      — a reading generated this run is verified only when this run's model answer passed the validator.
+//   N3 fresh      — a reading generated this run is verified only when this run's model answer passed the validator; a
+//                   salvaged answer (v60.02: blocked twice, one offending line removed) is verified only without that line.
 //   N4 no repeat  — the same inputs as a blocked attempt, within its sentence day, make no model call (P2000).
 //   N5 new day    — the first run of a new 08:00 KST sentence day never reuses without a model call.
 //   N6 quarantine — a narrative restored by lane quarantine is null or a verified reading within 12 h (P1986).
@@ -47,6 +48,10 @@ const VARIANTS = [
   { label: '새 날 재사용 차단 제거', expect: ['N5'], chart: false, module: 'scripts/producer/market-narrative.mjs', replacements: [
     ['const reused = sentenceDayOpen ? null : reusableMarketAnalysis(', 'const reused = reusableMarketAnalysis('],
   ] },
+  // v60.02: a salvage that publishes without the validator's zero-issue verdict must break N1 and N3.
+  { label: '검증 없는 줄 빼기', expect: ['N1', 'N3'], chart: false, module: 'scripts/producer/market-narrative.mjs', replacements: [
+    ['.find((row) => row.ok);', '.find((row) => row.ok) || { ok: true, text, removed: [], semantic: { ...semantic, ok: true } };'],
+  ] },
 ];
 
 // Fixture material from the P1719 scene (ci-data-pipeline-contract-check): the good answer passes, the bad one blocks.
@@ -62,7 +67,12 @@ const TIME_STEPS = {
   nextDay: (ms) => { const next = new Date(ms); next.setUTCHours(23, 30, 0, 0); return next.getTime() > ms ? next.getTime() : next.getTime() + 86400000; },
   expire: (ms) => ms + 13 * 3600000,
 };
-const PROVIDERS = { good: [GOOD], 'bad-good': [BAD, GOOD], 'bad-bad': [BAD, BAD], empty: [null] };
+// v60.02: a six-line reading whose only issue is one wrong level on its own line, on both attempts — the run publishes it
+// without that line (salvageMarketAnalysis).
+const SALVAGE_BAD_LINE = 'S&P 500은 7,100으로 마감했다.';
+const SALVAGEABLE = ['S&P 500은 10월 12일 7,807.24로 마감했다.', '코스피는 5.46% 하락했다.', SALVAGE_BAD_LINE, '위험 선호는 제한적이다.',
+  '외국인 수급은 다음 관측으로 확인할 대목이다.', '다음 세션의 방향은 아직 정해지지 않았다.'].join('\n');
+const PROVIDERS = { good: [GOOD], 'bad-good': [BAD, GOOD], 'bad-bad': [BAD, BAD], salvage: [SALVAGEABLE, SALVAGEABLE], empty: [null] };
 const EVENTS = [];
 for (const time of Object.keys(TIME_STEPS)) for (const inputs of ['same', 'changed']) for (const provider of Object.keys(PROVIDERS)) EVENTS.push({ time, inputs, provider });
 
@@ -75,7 +85,7 @@ const CHART_NODES = {
   fallback: { label: '확인된 지표만 표시', kind: 'works' },
   unverified: { label: '검증 안 된 해설이 검증본처럼 표시', kind: 'bug' },
 };
-const PASSING = new Set(['good', 'bad-good']);
+const PASSING = new Set(['good', 'bad-good', 'salvage']);
 
 // Simulated clock: `new Date()` and Date.now() read it; explicit arguments behave as usual.
 const RealDate = Date;
@@ -137,7 +147,10 @@ async function explore({ genMarketAnalysis, applyMarketAnalysis, applyLaneQuaran
       if (reading.lastVerified || reading.retained.retained) note('N2-retained-nests', trace, Object.keys(reading));
     }
     if (reading?.lastVerified && (reading.lastVerified.lastVerified || reading.lastVerified.retained)) note('N2-last-verified-chain', trace, Object.keys(reading.lastVerified));
-    if (freshThisRun && reading.status === 'verified' && !reading.retained && !(event.provider === 'good' || event.provider === 'bad-good')) note('N3-verified-without-passing-answer', trace, event.provider);
+    if (freshThisRun && reading.status === 'verified' && !reading.retained && !PASSING.has(event.provider)) note('N3-verified-without-passing-answer', trace, event.provider);
+    // v60.02: a salvaged reading is verified only without its offending line, and only an answer that was blocked is salvaged.
+    if (freshThisRun && reading.status === 'verified' && event.provider === 'salvage' && !(reading.salvaged?.removed >= 1 && !String(reading.full || '').includes('7,100'))) note('N3-salvaged-kept-bad-line', trace, reading.salvaged);
+    if (freshThisRun && reading.salvaged && event.provider !== 'salvage') note('N3-salvaged-without-block', trace, event.provider);
     if (freshThisRun && reading.status === 'verified' && next.calls === 0) note('N3-fresh-verified-without-call', trace, reading.generatedAt);
     const sameInputs = next.version === prev.version && sentenceDay(next.nowMs) === sentenceDay(prev.nowMs);
     const repeated = Boolean(prev.published?.blockedAttemptKey && sameInputs && next.calls > 0);
@@ -148,7 +161,7 @@ async function explore({ genMarketAnalysis, applyMarketAnalysis, applyLaneQuaran
     const aged = prev.published?.status === 'verified' && !ageOk(prev.published, next.nowMs) ? '검증본이 12시간 넘게 지나 ' : '';
     const label = repeated ? '같은 막힌 입력인데 모델을 다시 호출'
       : next.calls === 0 ? (prev.published?.blockedAttemptKey && sameInputs ? `${aged}막힌 입력 그대로 → 모델 호출 없음` : '자료 변화 없음 → 모델 호출 없이 재사용')
-      : `${aged}모델 답 ${PASSING.has(event.provider) ? '검증 통과' : '불합격'}`;
+      : `${aged}모델 답 ${event.provider === 'salvage' ? '틀린 줄을 빼고 검증 통과' : PASSING.has(event.provider) ? '검증 통과' : '불합격'}`;
     next.card = cardState(reading, next.nowMs, seen);
     chart.add(prev.card, next.card, label, variant, trace.join('>'));
   }
@@ -191,7 +204,7 @@ async function explore({ genMarketAnalysis, applyMarketAnalysis, applyLaneQuaran
           blockedVersion: reading?.blockedAttemptKey ? result.version : state.blockedVersion };
         checkRun(trace, state, result, event);
         next.card = result.card;
-        const outcome = `${reading?.status}${reading?.retained ? '+retained' : ''}${result.calls ? '' : '+no-call'}`;
+        const outcome = `${reading?.status}${reading?.retained ? '+retained' : ''}${reading?.salvaged && !state.generated.includes(reading.generatedAt) ? '+salvaged' : ''}${result.calls ? '' : '+no-call'}`;
         outcomes.set(outcome, (outcomes.get(outcome) || 0) + 1);
         checkQuarantine(trace, next);
         const key = abstractKey(next);
@@ -225,7 +238,7 @@ try {
 }
 
 // Calibration: every lifecycle branch must be reached, or the model is not exercising the producer.
-for (const required of ['verified', 'verified+no-call', 'verified+retained', 'blocked']) if (!real.outcomes.has(required)) fail(`outcome ${required} never reached: ${JSON.stringify(Object.fromEntries(real.outcomes))}`);
+for (const required of ['verified', 'verified+no-call', 'verified+retained', 'verified+salvaged', 'blocked']) if (!real.outcomes.has(required)) fail(`outcome ${required} never reached: ${JSON.stringify(Object.fromEntries(real.outcomes))}`);
 if (real.violations.size) {
   for (const line of describe(real.violations)) console.error(`[${GATE}] ${line}`);
   fail(`${real.violations.size} invariant(s) violated over ${real.runs} runs`);

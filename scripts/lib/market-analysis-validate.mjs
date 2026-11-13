@@ -792,6 +792,33 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   };
 }
 
+// v60.02 (plan 046): a reading still blocked after its retry loses its offending lines (at most `maxRemoved`), not the whole
+// text. Lines are the reading's own lines (the /\n+/ split _marketAnalysisSummary publishes). Each step removes the line
+// whose absence leaves strictly the fewest issues (ties: the later line); the result is ok only when the validator then
+// finds nothing, so a line the validator requires (a cause on a large-move day, cross-market dates, the scenario line)
+// cannot be removed. An order or an invented probability is discarded whole, as before.
+const SALVAGE_NEVER = Object.freeze(['trade-instruction', 'probability-claim']);
+export function salvageMarketAnalysis(text, validate, { maxRemoved = 2, minLines = 5 } = {}) {
+  let lines = String(text || '').split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  let current = validate(lines.join('\n'));
+  if ((current?.issues || []).some((issue) => SALVAGE_NEVER.includes(issue))) return { ok: false };
+  const removed = [];
+  while (!current?.ok && removed.length < maxRemoved && lines.length > minLines) {
+    let best = null;
+    lines.forEach((_, index) => {
+      const without = lines.filter((__, at) => at !== index);
+      const result = validate(without.join('\n'));
+      if (!best || result.issues.length <= best.result.issues.length) best = { index, without, result };
+    });
+    if (!best || best.result.issues.length >= current.issues.length) break;
+    removed.push({ line: lines[best.index], issues: current.issues.filter((issue) => !best.result.issues.includes(issue)) });
+    lines = best.without;
+    current = best.result;
+  }
+  if (!current?.ok || (current.issues || []).length) return { ok: false };
+  return { ok: true, text: lines.join('\n'), removed, semantic: current };
+}
+
 // AI commentary shares the Worker budget with chat and translation (P1421).
 
 const MARKET_ANALYSIS_NEWS_HEADLINE_DEPTHS = new Set(['', 'headline', 'headline-only', 'title-only', 'snippet']);
@@ -1227,6 +1254,11 @@ export function splitMarketSentence(text) {
 // Briefing audit 2026-10-17: 부담을 and 매수세 matched 담을 / 매수, silently dropping the day's sentence.
 // Screen audit 2026-10-19: so did 매도 소진 — the prompt offers the bottom-watch split (소진 대 확인).
 const SENTENCE_INSTRUCTION = /(?:사세요|사라(?![지졌진질져])|사야|매수(?!세|\s?(?:소진|압력|우위|심리|신호|물량))|매도(?!세|\s?(?:소진|압력|우위|심리|신호|물량))|팔아|팔세요|(?<![가-힣])담(?:아|을|으세요)|들어가라|들어가세요|비중을\s?(?:늘|줄)|추천|확실히|반드시\s?오른|보장)/;
+// v60.02 (owner 2026-11-12 "Judgement allowed"): 매수/매도 as the object or modifier of a state noun assesses the market
+// ("주식 매수가 부담스러운 구간", "추격 매수의 비용", "분할 매수하기 좋은 국면"); these phrases are set aside before the
+// instruction test, so a bare action word or an imperative elsewhere in the line is still an order.
+const SENTENCE_ASSESSMENT = /매수(?:가|는)?\s?부담|매수(?:하기)?\s?(?:좋은|유리한|불리한)\s?(?:구간|국면|상황|시점)|추격\s?매수의\s?비용|매도\s?(?:압력|우위)|현금\s?(?:보유)?(?:가|이)?\s?우위/g;
+const sentenceGivesInstruction = (text) => SENTENCE_INSTRUCTION.test(text.replace(SENTENCE_ASSESSMENT, ' '));
 // v57.75: the sentence names no company or index (the card sits above every market), states no likelihood or certainty
 // and no policy rescue, and cannot assert easing inflation while CPI is rising.
 const SENTENCE_NAMES = /코스피|코스닥|나스닥|다우|에스앤피|S&P|엔비디아|삼성|하이닉스|애플|테슬라|마이크로소프트|알파벳|구글|아마존|메타|브로드컴|TSMC|코어위브/i;
@@ -1243,7 +1275,7 @@ export function marketSentenceRejectReason(sentence, { inflationRising = false, 
   if (!/[가-힣]/.test(text)) return 'not-korean';
   if (/[0-9%$₩]/.test(text)) return 'number';
   if (/\p{Extended_Pictographic}/u.test(text)) return 'emoji';
-  if (SENTENCE_INSTRUCTION.test(text)) return 'instruction';
+  if (sentenceGivesInstruction(text)) return 'instruction';
   // Owner 2026-11-07: questions belong in long prose only; the home's one line is a statement, never a question.
   if (MARKET_SENTENCE_QUESTION.test(text)) return 'question';
   // Latin tickers in any case ("nvda", "Nvda") except the word AI.

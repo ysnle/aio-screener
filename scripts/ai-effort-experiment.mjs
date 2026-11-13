@@ -56,7 +56,7 @@ async function runVariant({ effort, maxOutputTokens }) {
   const text = String(reading?.full || reading?.summary || '');
   return {
     effort, maxOutputTokens, status: reading?.status || null, reason: reading?.reason || null,
-    attempts: calls.length, firstAttemptPassed: calls.length === 1 && reading?.status === 'verified', blocked, calls,
+    attempts: calls.length, firstAttemptPassed: calls.length === 1 && reading?.status === 'verified', salvaged: reading?.salvaged || null, blocked, calls,
     inputTokens: calls.reduce((sum, call) => sum + (call.usage?.inputTokens || 0), 0),
     outputTokens: calls.reduce((sum, call) => sum + (call.usage?.outputTokens || 0), 0),
     textChars: reading?.status === 'verified' ? text.length : 0,
@@ -76,4 +76,4 @@ const report = {
   results
 };
 writeFileSync(out, JSON.stringify(report, null, 2) + '\n');
-for (const row of results) console.log(`[ai-effort-experiment] ${row.effort}:${row.maxOutputTokens} status=${row.status} attempts=${row.attempts} blocked=${row.blocked.map((item) => item.issues).join(' | ') || '-'} in=${row.inputTokens} out=${row.outputTokens} chars=${row.textChars}`);
+for (const row of results) console.log(`[ai-effort-experiment] ${row.effort}:${row.maxOutputTokens} status=${row.status} attempts=${row.attempts} salvaged=${row.salvaged ? `${row.salvaged.removed}:${row.salvaged.issues.join(',')}` : '-'} blocked=${row.blocked.map((item) => item.issues).join(' | ') || '-'} in=${row.inputTokens} out=${row.outputTokens} chars=${row.textChars}`);

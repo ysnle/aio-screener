@@ -1,0 +1,8 @@
+{
+  "version": "v60.02",
+  "date": "2026-11-13",
+  "changelog": [
+    "**Lead (v60.02):** A market reading still blocked after its retry now loses its offending lines (at most two, keeping more than five) instead of the whole text: `salvageMarketAnalysis` removes, one at a time, the line whose absence leaves strictly fewer validator issues and publishes only when the validator then finds none, so a required line (a large-move cause, cross-market dates, the scenario line) cannot be cut and an order or a numeric probability is still discarded whole. The run logs `marketAnalysis salvaged`, the reading carries `salvaged: { removed, issues }`, `aiUsage` counts the outcome `salvaged` and the effort experiment reports it per variant. Before, one wrong sentence cost a whole refresh (a replay after the v59.99 validator fixes still lost 1 of 8 readings this way). Measured on the 10/21 02:21Z fixture: one validator run 1.7 ms, a one-line salvage of an 8-line reading 9 runs / 18 ms (bound: lines x 2)."
+  ],
+  "note": "v60.02: blocked market reading salvaged by removing at most two lines"
+}
