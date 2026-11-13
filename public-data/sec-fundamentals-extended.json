@@ -1,15 +1,15 @@
 {
  "schemaVersion": "2.0",
- "generatedAt": "2026-11-13T07:39:17.682Z",
+ "generatedAt": "2026-11-13T22:32:44.016Z",
  "source": "SEC EDGAR companyfacts",
  "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
  "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
  "allowedUse": "research/reference; normalized annual filing facts, not analyst estimates or live TTM",
  "model": "sec-fy-normalized-v2",
  "eligible": 3872,
- "stored": 3507,
- "attempted": 315,
- "updated": 246,
+ "stored": 3505,
+ "attempted": 2,
+ "updated": 0,
  "failures": [
   {
    "symbol": "AACI",
@@ -2341,6 +2341,17 @@
    "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
   },
   {
+   "symbol": "LOVI",
+   "status": "TERMINAL_UNSUPPORTED",
+   "reasonCode": "required-us-gaap-annual-concepts-unavailable",
+   "reason": "no comparable annual US-GAAP revenue/net-income facts",
+   "conceptSetVersion": "sec-annual-concepts.v7",
+   "issuerTaxonomy": "US_GAAP",
+   "filingForms": [],
+   "attemptedAt": "2026-11-13T22:32:30.867Z",
+   "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
+  },
+  {
    "symbol": "LPCV",
    "status": "TERMINAL_UNSUPPORTED",
    "reasonCode": "required-us-gaap-annual-concepts-unavailable",
@@ -4078,6 +4089,16 @@
    "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
   },
   {
+   "symbol": "WWB",
+   "status": "TERMINAL_UNSUPPORTED",
+   "reasonCode": "required-us-gaap-taxonomy-missing",
+   "reason": "required-us-gaap-taxonomy-missing; issuerTaxonomy=UNKNOWN",
+   "issuerTaxonomy": "UNKNOWN",
+   "filingForms": [],
+   "attemptedAt": "2026-11-13T22:32:30.867Z",
+   "retryPolicy": "manual-or-explicit-SEC_RECHECK_UNSUPPORTED"
+  },
+  {
    "symbol": "XCBE",
    "status": "TERMINAL_UNSUPPORTED",
    "reasonCode": "required-us-gaap-annual-concepts-unavailable",
@@ -4586,7 +4607,9 @@
   "YMAT",
   "YSS",
   "YSWY",
-  "ZKP"
+  "ZKP",
+  "LOVI",
+  "WWB"
  ],
  "retryableFailures": [
   "AYA",
@@ -4603,47 +4626,47 @@
   "SCZM",
   "TRBG"
  ],
- "pointInTimeCoverage": 3507,
- "pointInTimeAcceptedCoverage": 3507,
+ "pointInTimeCoverage": 3505,
+ "pointInTimeAcceptedCoverage": 3505,
  "batchLimit": 600,
  "backfillExtra": 0,
  "unsupportedRecheckPolicy": "SEC_RECHECK_UNSUPPORTED=1 required for explicit recheck; terminal unsupported rows remain auditable and out of normal batches",
- "nextRefreshCandidates": 365,
+ "nextRefreshCandidates": 367,
  "domainReceipt": {
   "schemaVersion": "domain-receipt.v1",
   "domain": "sec-fundamentals",
-  "runId": "gha:43386300939",
-  "attemptedAt": "2026-11-13T07:37:17.229Z",
+  "runId": "gha:43519183026",
+  "attemptedAt": "2026-11-13T22:32:30.867Z",
   "sourceRevision": "sec-company-tickers:98d357e2c5b2fb5bfdb085f3d6a9010036e43a2306e63563061b1997d1e8224e",
   "inputWatermarks": {
-   "universe": "2026-11-13T07:37:15.014Z",
-   "screener": "2026-11-13T07:36:44.083Z",
-   "previousArtifact": "2026-11-12T22:32:42.193Z"
+   "universe": "2026-11-13T22:32:27.723Z",
+   "screener": "2026-11-13T22:31:50.909Z",
+   "previousArtifact": "2026-11-13T07:39:17.682Z"
   },
   "batchLimit": 600,
   "counts": {
    "eligible": 3872,
-   "attempted": 315,
-   "updated": 246,
-   "retained": 3261,
-   "pendingEligible": 365
+   "attempted": 2,
+   "updated": 0,
+   "retained": 3505,
+   "pendingEligible": 367
   },
   "thisBatch": {
-   "updated": 246,
-   "terminalUnsupported": 56,
-   "transientFailed": 13,
-   "recorded": 69
+   "updated": 0,
+   "terminalUnsupported": 2,
+   "transientFailed": 0,
+   "recorded": 2
   },
   "ledger": {
-   "total": 368,
-   "terminalUnsupported": 355,
+   "total": 370,
+   "terminalUnsupported": 357,
    "transientFailed": 13,
    "legacyUnknown": 0
   },
   "lastSuccessfulObservation": "2026-11-13T07:37:17.229Z",
   "publication": {
-   "status": "PARTIAL",
-   "reason": "some attempted targets were not updated",
+   "status": "NO_REFRESH_RETAINED",
+   "reason": "every attempted target failed; previously stored rows stay published",
    "allowsPartial": true,
    "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
    "terminalExcludedFromBatchFailures": true,
@@ -52456,89 +52479,6 @@
    },
    "roeBasis": "average-equity",
    "equityPrior": 275763000
-  },
-  "CLGN": {
-   "symbol": "CLGN",
-   "cik": "0001631487",
-   "entityName": "CollPlant Biotechnologies Ltd",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-03-26",
-   "acceptedAt": "2026-03-26T12:47:35.000Z",
-   "availableAt": "2026-03-26T12:47:35.000Z",
-   "transportFetchedAt": "2026-11-07T22:44:27.776Z",
-   "reportAgeDays": 312,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001213900-26-034393",
-    "netIncome": "0001213900-26-034393",
-    "equity": "0001213900-26-034393",
-    "sharesOutstanding": null
-   },
-   "operandAvailability": {
-    "revenue": "2026-03-26T12:47:35.000Z",
-    "netIncome": "2026-03-26T12:47:35.000Z",
-    "equity": "2026-03-26T12:47:35.000Z",
-    "sharesOutstanding": null,
-    "priorRevenue": "2026-03-26T12:47:35.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-03-26T12:47:35.000Z",
-    "margin": "2026-03-26T12:47:35.000Z",
-    "roe": "2026-03-26T12:47:35.000Z",
-    "pe": "2026-03-26T12:47:35.000Z",
-    "pb": "2026-03-26T12:47:35.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-11-07T22:44:27.776Z",
-   "form": "20-F",
-   "accession": "0001213900-26-034393",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 2371000,
-   "netIncome": -11489000,
-   "equity": 6081000,
-   "equityBasis": "parent",
-   "sharesOutstanding": null,
-   "sharesCheck": "foreign-share-basis-unverified",
-   "sharesBasis": null,
-   "sharesObservedAt": null,
-   "normalizerVersion": "sec-normalizer.2026-11-04",
-   "revenueConcept": "Revenues",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 218,
-    "acceptedTimeCount": 218,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": 360.4,
-   "margin": -484.6,
-   "roe": -117.6,
-   "roeBasis": "average-equity",
-   "equityPrior": 13465000
   },
   "CLIK": {
    "symbol": "CLIK",
@@ -208121,89 +208061,6 @@
    "roeBasis": "average-equity",
    "equityPrior": 675295000
   },
-  "PTLE": {
-   "symbol": "PTLE",
-   "cik": "0002016337",
-   "entityName": "PTL Ltd",
-   "source": "SEC EDGAR companyfacts",
-   "sourceTier": "T1_OFFICIAL",
-   "sourceKind": "T1_OFFICIAL",
-   "rightsId": "PUBLIC_REFERENCE",
-   "model": "sec-fy-normalized-v2",
-   "availabilityModel": "sec-pit-availability.v1",
-   "periodType": "FY",
-   "fiscalPeriodEnd": "2025-12-31",
-   "observedAt": "2025-12-31",
-   "filedAt": "2026-04-30",
-   "acceptedAt": "2026-04-30T20:31:08.000Z",
-   "availableAt": "2026-04-30T20:31:08.000Z",
-   "transportFetchedAt": "2026-11-07T07:36:13.889Z",
-   "reportAgeDays": 311,
-   "reportRecency": "recent-fy",
-   "accessionByField": {
-    "revenue": "0001213900-26-050289",
-    "netIncome": "0001213900-26-050289",
-    "equity": "0001213900-26-050289",
-    "sharesOutstanding": null
-   },
-   "operandAvailability": {
-    "revenue": "2026-04-30T20:31:08.000Z",
-    "netIncome": "2026-04-30T20:31:08.000Z",
-    "equity": "2026-04-30T20:31:08.000Z",
-    "sharesOutstanding": null,
-    "priorRevenue": "2026-04-30T20:31:08.000Z"
-   },
-   "derivedAvailability": {
-    "revGrowth": "2026-04-30T20:31:08.000Z",
-    "margin": "2026-04-30T20:31:08.000Z",
-    "roe": "2026-04-30T20:31:08.000Z",
-    "pe": "2026-04-30T20:31:08.000Z",
-    "pb": "2026-04-30T20:31:08.000Z"
-   },
-   "allowedUse": "research-relative-ranking-only",
-   "qualityStatus": "CURRENT",
-   "quality": {
-    "status": "CURRENT",
-    "stale": false,
-    "decisionUse": false,
-    "allowedUse": "reference"
-   },
-   "fetchedAt": "2026-11-07T07:36:13.889Z",
-   "form": "20-F",
-   "accession": "0001213900-26-050289",
-   "accountingStandard": "US-GAAP",
-   "reportingCurrency": "USD",
-   "revenue": 71647383,
-   "netIncome": -1180275,
-   "equity": 8893950,
-   "equityBasis": "parent",
-   "sharesOutstanding": null,
-   "sharesCheck": "foreign-share-basis-unverified",
-   "sharesBasis": null,
-   "sharesObservedAt": null,
-   "normalizerVersion": "sec-normalizer.2026-11-04",
-   "revenueConcept": "Revenues",
-   "coverage": [
-    "revenue",
-    "netIncome",
-    "equity",
-    "revGrowth",
-    "margin",
-    "roe"
-   ],
-   "pit": {
-    "schemaVersion": "sec-pit-facts.v1",
-    "status": "accepted-time-partial",
-    "observationCount": 48,
-    "acceptedTimeCount": 48,
-    "observationsDropped": "extended-ledger-compact"
-   },
-   "revGrowth": -27,
-   "margin": -1.6,
-   "roe": -24.8,
-   "roeBasis": "average-equity",
-   "equityPrior": 614144
-  },
   "PTLO": {
    "symbol": "PTLO",
    "cik": "0001871509",
@@ -318342,7 +318199,7 @@
  "issuerSicCoverage": {
   "classified": 3827,
   "eligible": 3872,
-  "passAttempted": 38,
+  "passAttempted": 45,
   "passUpdated": 0,
   "passFailed": 0
  },
@@ -322923,12 +322780,6 @@
    "sic": "3661",
    "description": "Telephone & Telegraph Apparatus",
    "cik": "0000796505",
-   "observedAt": "2026-11-07T22:40:23.072Z"
-  },
-  "CLGN": {
-   "sic": "3842",
-   "description": "Orthopedic, Prosthetic & Surgical Appliances & Supplies",
-   "cik": "0001631487",
    "observedAt": "2026-11-07T22:40:23.072Z"
   },
   "CLIK": {
@@ -330779,6 +330630,12 @@
    "cik": "0001701758",
    "observedAt": "2026-11-08T07:33:31.156Z"
   },
+  "LOVI": {
+   "sic": "6770",
+   "description": "Blank Checks",
+   "cik": "0002115191",
+   "observedAt": "2026-11-13T22:32:30.867Z"
+  },
   "LPAA": {
    "sic": "6770",
    "description": "Blank Checks",
@@ -335193,12 +335050,6 @@
    "sic": "2834",
    "description": "Pharmaceutical Preparations",
    "cik": "0001377121",
-   "observedAt": "2026-11-07T07:33:40.259Z"
-  },
-  "PTLE": {
-   "sic": "5172",
-   "description": "Wholesale-Petroleum & Petroleum Products (No Bulk Stations)",
-   "cik": "0002016337",
    "observedAt": "2026-11-07T07:33:40.259Z"
   },
   "PTLO": {
@@ -340684,6 +340535,12 @@
    "description": "Services-Personal Services",
    "cik": "0000105319",
    "observedAt": "2026-11-09T07:31:43.094Z"
+  },
+  "WWB": {
+   "sic": "2836",
+   "description": "Biological Products, (No Diagnostic Substances)",
+   "cik": "0002145089",
+   "observedAt": "2026-11-13T22:32:30.867Z"
   },
   "WWW": {
    "sic": "3140",
