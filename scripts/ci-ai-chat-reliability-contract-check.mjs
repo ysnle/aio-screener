@@ -280,7 +280,7 @@ async function scenario({ responses, tools = true, kit = loop.chatToolKit(toolRo
       const body = JSON.parse(options.body);
       out.requests.push(body); out.keys.push(options.headers['X-AIO-Idempotency-Key']);
       const next = responses[out.requests.length - 1];
-      assert(next, `unexpected request ${out.requests.length}`);
+      assert(next, `v60.02 tool loop: unexpected request ${out.requests.length}`);
       if (next.status) return { ok: false, status: next.status, text: async () => JSON.stringify({ error: { message: next.message } }) };
       return new Response(new ReadableStream({ start(controller) { controller.enqueue(encode(next.slice(0, 23))); controller.enqueue(encode(next.slice(23))); controller.close(); } }));
     }
@@ -296,7 +296,7 @@ async function scenario({ responses, tools = true, kit = loop.chatToolKit(toolRo
   await context.callSharedAi('fixture instructions', [{ role: 'user', content: '엔비디아는 지금 어때?' }], (text) => { out.chunks.push(text); progress?.chars(text.length); },
     (...args) => out.done.push(args), (error) => out.errors.push(error),
     { signal: caller.signal, requestId: 'fixture-tools', webSearch, mustSearch, tools: tools ? toolOpts : undefined, onCancel() { out.cancelled++; }, onStage: progress ? progressHook(progress) : undefined });
-  assert.equal(deadlines.size, 0, 'tool loop scenario must clean its connection timers');
+  assert.equal(deadlines.size, 0, 'v60.02 tool loop scenario must clean its connection timers');
   return out;
 }
 const budgetOf = (body) => prepareOpenAiBudget(body);
@@ -304,14 +304,14 @@ const budgetOf = (body) => prepareOpenAiBudget(body);
 {
   const r = await scenario({ responses: [answer('바로 답합니다')] });
   assert.equal(r.requests.length, 1, 'v60.02 a response without tool calls is one request');
-  assert.equal(r.done.length, 1); assert.equal(r.done[0][0], '바로 답합니다');
-  assert.equal(r.requests[0].tool_choice, 'auto'); assert.equal(r.requests[0].parallel_tool_calls, true);
-  assert.deepEqual(r.requests[0].tools.map((tool) => tool.name), loop.toolRequestFields().tools.map((tool) => tool.name));
-  assert.equal(r.done[0][1].toolRounds, 0); assert.equal(r.done[0][1].toolCalls, 0);
-  assert.equal(r.keys[0], 'fixture-tools'); budgetOf(r.requests[0]);
+  assert.equal(r.done.length, 1, 'v60.02 tool loop'); assert.equal(r.done[0][0], '바로 답합니다', 'v60.02 tool loop');
+  assert.equal(r.requests[0].tool_choice, 'auto', 'v60.02 tool loop'); assert.equal(r.requests[0].parallel_tool_calls, true, 'v60.02 tool loop');
+  assert.deepEqual(r.requests[0].tools.map((tool) => tool.name), loop.toolRequestFields().tools.map((tool) => tool.name), 'v60.02 tool loop');
+  assert.equal(r.done[0][1].toolRounds, 0, 'v60.02 tool loop'); assert.equal(r.done[0][1].toolCalls, 0, 'v60.02 tool loop');
+  assert.equal(r.keys[0], 'fixture-tools', 'v60.02 tool loop'); budgetOf(r.requests[0]);
   const plain = await scenario({ responses: [answer('도구 없음')], tools: false });
   assert(!plain.requests[0].tools && !('tool_choice' in plain.requests[0]), 'v60.02 a caller that does not ask for tools sends none');
-  assert.equal(plain.done[0][1].toolRounds, null);
+  assert.equal(plain.done[0][1].toolRounds, null, 'v60.02 tool loop');
 }
 // (2) One round with two parallel calls: the second request carries both outputs; the answer is the second response's.
 let sequence = null;
@@ -321,27 +321,27 @@ let sequence = null;
   sequence = r.requests;
   assert.equal(r.requests.length, 2, 'v60.02 one tool round is two requests');
   const input = r.requests[1].input;
-  assert.deepEqual(input.slice(0, 3).map((item) => item.type || item.role), ['user', 'function_call', 'function_call']);
+  assert.deepEqual(input.slice(0, 3).map((item) => item.type || item.role), ['user', 'function_call', 'function_call'], 'v60.02 tool loop');
   assert.deepEqual(input.slice(1, 3), calls.map(({ id, ...rest }) => rest), 'v60.02 the model\'s calls go back as returned, without the output item id');
   const outputs = input.filter((item) => item.type === 'function_call_output');
-  assert.deepEqual(outputs.map((item) => item.call_id), ['call_1', 'call_2']);
+  assert.deepEqual(outputs.map((item) => item.call_id), ['call_1', 'call_2'], 'v60.02 tool loop');
   assert(/\[주가 추이\] NVDA/.test(outputs[0].output) && /VIX 17\.2/.test(outputs[1].output) && outputs.every((item) => /\(기준: [^)]*\d{4}-\d{2}-\d{2}/.test(item.output)), 'v60.02 each output is the tool text with its date');
-  assert.equal(r.requests[1].tool_choice, 'auto');
-  assert.equal(r.done.length, 1); assert.equal(r.done[0][0], '추세와 VIX를 함께 봅니다');
+  assert.equal(r.requests[1].tool_choice, 'auto', 'v60.02 tool loop');
+  assert.equal(r.done.length, 1, 'v60.02 tool loop'); assert.equal(r.done[0][0], '추세와 VIX를 함께 봅니다', 'v60.02 tool loop');
   assert(!r.chunks.some((text) => text.includes('숨김')), 'v60.02 the text of a round that asks for data is not shown');
   assert.deepEqual(r.keys, ['fixture-tools', 'fixture-tools:r1'], 'v60.02 each round has its own idempotency key');
-  assert.equal(r.status.length, 1); assert(/^자료를 더 찾는 중: /.test(r.status[0]) && !/trend|macro|\{/.test(r.status[0]), `v60.02 the pending line is plain Korean (${r.status[0]})`);
-  assert.equal(r.results.length, 2); assert(r.results.every((result) => result.ok));
-  assert.equal(r.done[0][1].toolRounds, 1); assert.equal(r.done[0][1].toolCalls, 2);
+  assert.equal(r.status.length, 1, 'v60.02 tool loop'); assert(/^자료를 더 찾는 중: /.test(r.status[0]) && !/trend|macro|\{/.test(r.status[0]), `v60.02 the pending line is plain Korean (${r.status[0]})`);
+  assert.equal(r.results.length, 2, 'v60.02 tool loop'); assert(r.results.every((result) => result.ok));
+  assert.equal(r.done[0][1].toolRounds, 1, 'v60.02 tool loop'); assert.equal(r.done[0][1].toolCalls, 2, 'v60.02 tool loop');
   r.requests.forEach(budgetOf);
 }
 // (3) The model keeps calling: two rounds, then the third request has tool_choice none.
 {
   const r = await scenario({ responses: [asks([call('trend', { symbol: 'NVDA' }, 1)]), asks([call('macro', { topic: 'macro' }, 2)]), answer('두 번 찾고 답합니다')] });
-  assert.equal(r.requests.length, 3);
+  assert.equal(r.requests.length, 3, 'v60.02 tool loop');
   assert.deepEqual(r.requests.map((body) => body.tool_choice), ['auto', 'auto', 'none'], 'v60.02 the last allowed request makes the model answer');
-  assert.equal(r.done[0][0], '두 번 찾고 답합니다'); assert.equal(r.done[0][1].toolRounds, 2);
-  assert.deepEqual(r.keys, ['fixture-tools', 'fixture-tools:r1', 'fixture-tools:r2']);
+  assert.equal(r.done[0][0], '두 번 찾고 답합니다', 'v60.02 tool loop'); assert.equal(r.done[0][1].toolRounds, 2, 'v60.02 tool loop');
+  assert.deepEqual(r.keys, ['fixture-tools', 'fixture-tools:r1', 'fixture-tools:r2'], 'v60.02 tool loop');
   r.requests.forEach(budgetOf);
 }
 // (4) More than six calls: the extra calls get a 한도 output and the next request must answer.
@@ -349,23 +349,23 @@ let sequence = null;
   const calls = Array.from({ length: 7 }, (_, i) => call('trend', { symbol: 'NVDA' }, i + 1));
   const r = await scenario({ responses: [asks(calls), answer('한도 안에서 답합니다')] });
   const outputs = r.requests[1].input.filter((item) => item.type === 'function_call_output');
-  assert.equal(outputs.length, 7);
+  assert.equal(outputs.length, 7, 'v60.02 tool loop');
   assert(outputs.slice(0, 6).every((item) => /\[주가 추이\]/.test(item.output)) && /한도/.test(outputs[6].output) && !/\[주가 추이\]/.test(outputs[6].output), 'v60.02 calls past six are not run and say 한도');
-  assert.equal(r.requests[1].tool_choice, 'none'); assert.equal(r.done[0][1].toolCalls, 6);
+  assert.equal(r.requests[1].tool_choice, 'none', 'v60.02 tool loop'); assert.equal(r.done[0][1].toolCalls, 6, 'v60.02 tool loop');
 }
 // (5) A 400 on the first tools request: one more request without tools, from the original input.
 {
   const r = await scenario({ responses: [{ status: 400, message: 'invalid custom function' }, answer('도구 없이 답합니다')] });
-  assert.equal(r.requests.length, 2);
+  assert.equal(r.requests.length, 2, 'v60.02 tool loop');
   assert(r.requests[0].tools && !r.requests[1].tools && !('tool_choice' in r.requests[1]) && !('parallel_tool_calls' in r.requests[1]), 'v60.02 the fallback request carries no tools');
-  assert.deepEqual(r.requests[1].input, r.requests[0].input);
-  assert.equal(r.done[0][0], '도구 없이 답합니다'); assert.equal(r.errors.length, 0);
-  assert.deepEqual(r.keys, ['fixture-tools', 'fixture-tools:plain']);
+  assert.deepEqual(r.requests[1].input, r.requests[0].input, 'v60.02 tool loop');
+  assert.equal(r.done[0][0], '도구 없이 답합니다', 'v60.02 tool loop'); assert.equal(r.errors.length, 0, 'v60.02 tool loop');
+  assert.deepEqual(r.keys, ['fixture-tools', 'fixture-tools:plain'], 'v60.02 tool loop');
   const twice = await scenario({ responses: [{ status: 400, message: 'bad' }, { status: 400, message: 'bad again' }] });
-  assert.equal(twice.requests.length, 2, 'v60.02 the fallback without tools happens once'); assert.equal(twice.errors.length, 1);
+  assert.equal(twice.requests.length, 2, 'v60.02 the fallback without tools happens once'); assert.equal(twice.errors.length, 1, 'v60.02 tool loop');
   const malformed = await scenario({ responses: [asks([{ type: 'function_call', id: 'fc_x', name: 'trend', arguments: '{}', status: 'completed' }]), answer('형식 오류 뒤 답합니다')] });
-  assert.equal(malformed.requests.length, 2); assert(!malformed.requests[1].tools, 'v60.02 a malformed call falls back to the request without tools');
-  assert.equal(malformed.done[0][0], '형식 오류 뒤 답합니다');
+  assert.equal(malformed.requests.length, 2, 'v60.02 tool loop'); assert(!malformed.requests[1].tools, 'v60.02 a malformed call falls back to the request without tools');
+  assert.equal(malformed.done[0][0], '형식 오류 뒤 답합니다', 'v60.02 tool loop');
 }
 // (6) Cancel while the tools run: no further request, the cancel is reported once.
 {
@@ -373,7 +373,7 @@ let sequence = null;
   const hanging = { ...loop.chatToolKit(toolRoot), session: (body, hooks, options) => loop.createToolSession(body, hooks, { ...options, root: toolRoot, run: hangingRun }) };
   const r = await scenario({ responses: [asks([call('trend', { symbol: 'NVDA' }, 1)])], kit: hanging, cancelDuringTools: true });
   assert.equal(r.requests.length, 1, 'v60.02 a cancelled tool round sends no further request');
-  assert.equal(r.cancelled, 1); assert.equal(r.done.length, 0); assert.equal(r.errors.length, 0);
+  assert.equal(r.cancelled, 1, 'v60.02 tool loop'); assert.equal(r.done.length, 0, 'v60.02 tool loop'); assert.equal(r.errors.length, 0, 'v60.02 tool loop');
 }
 // (7) v60.02 (plan 049, owner 2026-11-13 "웹 검색도 적절히 효율적으로 알아서 사용할 수 있도록"): hosted search travels
 // beside the function tools. A round may hold provider-run search calls and client-run function calls; the citations of
@@ -406,7 +406,7 @@ let sequence = null;
   // Text streamed before the round's first function call is shown until the next round replaces it (the loop hides a
   // round's text from its first announced call on); the panel ends on the final answer.
   assert.equal(r.chunks.at(-1), '검색과 자료로 답합니다', 'v60.02 the panel ends on the final round\'s answer');
-  assert.equal(r.done[0][1].toolRounds, 1); assert.equal(r.done[0][1].toolCalls, 2, 'v60.02 the call limit counts function calls only');
+  assert.equal(r.done[0][1].toolRounds, 1, 'v60.02 tool loop'); assert.equal(r.done[0][1].toolCalls, 2, 'v60.02 the call limit counts function calls only');
   assert.equal(r.done[0][1].searchCalls, 1, 'v60.02 the completed responses\' web_search_call items are counted');
   const citations = Array.from(r.context._aioAIRequestCitations('fixture-tools'), (item) => item.url);
   assert.deepEqual(citations, ['https://example.com/guidance', 'https://example.com/filing'], 'v60.02 the citations of every round are kept for the sources list');
@@ -470,7 +470,7 @@ let retried=false;
 const third=root._aioBeginChatRequest('home','retry'); third.retryTimer=setTimeout(()=>{retried=true;},10);
 root._aioCancelChatRequest('home','clear'); await new Promise(resolve=>setTimeout(resolve,20)); assert(!retried);
 const unifiedRun=root._aioBeginChatRequest('home','unified',{entrypoint:'unified-chat',routeId:'fundamental',buttonId:'ai-panel-btn',loadingId:'ai-panel-loading',streamingId:'ai-panel-streaming'});
-assert.equal(unifiedRun.entrypoint,'unified-chat'); assert(states.home.streaming && states.home._activeRequest===unifiedRun);
+assert.equal(unifiedRun.entrypoint,'unified-chat', 'v60.02 tool loop'); assert(states.home.streaming && states.home._activeRequest===unifiedRun);
 documentListeners['aio:pageShown']({detail:'technical'});
 assert(unifiedRun.controller.signal.aborted && !root._aioIsCurrentChatRequest('home', unifiedRun));
 root._aiCtxMap={'trend':'themes','themes':'themes'}; // a legacy route alias (kr-themes retired v57.54)
@@ -502,11 +502,11 @@ assert(timedOutSignal && timedOutSignal.aborted);
 // P1655: no browser-side search provider remains; a required question always hands off to the shared Worker search.
 const prepared=await root._aioPrepareAIResearch({researchDecision:{requirement:'REQUIRED'},researchPlan:{planId:'p'}});
 assert(prepared.nativeFallbackRequired===true && prepared.externalResult===null && prepared.failure===null);
-assert.equal((await root._aioPrepareAIResearch({researchDecision:{requirement:'NOT_NEEDED'}})).nativeFallbackRequired,false);
+assert.equal((await root._aioPrepareAIResearch({researchDecision:{requirement:'NOT_NEEDED'}})).nativeFallbackRequired,false, 'v60.02 tool loop');
 assert(!/_aiWebSearch|_googleSearch|_perplexitySearch|_needsWebSearch/.test(source));
 const plan={researchDecision:{requirement:'REQUIRED'},researchPlan:{planId:'p',stopConditions:{minimumIndependentSources:1,minimumPrimarySources:1}}};
-assert.equal(root._shouldUseClaudeWebSearch('today','home',[],plan,{preparation:{planId:'p',externalEvidenceReady:true}}),false);
-assert.equal(root._shouldUseClaudeWebSearch('today','home',[],plan,{preparation:{planId:'old',externalEvidenceReady:true}}),false);
+assert.equal(root._shouldUseClaudeWebSearch('today','home',[],plan,{preparation:{planId:'p',externalEvidenceReady:true}}),false, 'v60.02 tool loop');
+assert.equal(root._shouldUseClaudeWebSearch('today','home',[],plan,{preparation:{planId:'old',externalEvidenceReady:true}}),false, 'v60.02 tool loop');
 const doc={canonicalUrl:'https://sec.gov/report',contentDepth:'EXCERPT',rights:'PUBLIC_REFERENCE'};
 const floor=evaluateResearchEvidenceFloor({questionPlan:plan,externalResult:{citations:[{url:doc.canonicalUrl}],researchEvidence:{currentClaimsAllowed:true,evidenceDocuments:[doc,{canonicalUrl:'https://example.org/snippet',contentDepth:'SNIPPET'}]}}});
 assert(floor.ready && floor.eligibleEvidenceCount===1 && floor.excludedEvidenceCount===1);
@@ -519,20 +519,20 @@ root._AIO_PUBLIC_AI_POLICY={label:'AI 베타'};
 vm.runInContext(section('function _aioPublicAIFormatAsOf(', 'function _aioApplyAIActionGate('),root);
 root._serverDataMeta={generatedAt:'2026-09-10T00:00:00Z'};
 const disclosure=root._aioBuildAIResponseDisclosure({freshness:{after:{quoteRows:[{fetchedAt:'2026-09-10T00:00:00Z',truthStatus:'unknown'}]}}});
-assert.equal(disclosure.asOf,'미확인');
-assert.equal(disclosure.status,'확인 필요');
-assert.equal(root._aioBuildAIResponseDisclosure({freshness:{after:{quoteRows:[{truthStatus:'verified',decisionUse:true,source:'Yahoo chart',fetchedAt:new Date().toISOString()}]}}}).status,'확인 필요');
+assert.equal(disclosure.asOf,'미확인', 'v60.02 tool loop');
+assert.equal(disclosure.status,'확인 필요', 'v60.02 tool loop');
+assert.equal(root._aioBuildAIResponseDisclosure({freshness:{after:{quoteRows:[{truthStatus:'verified',decisionUse:true,source:'Yahoo chart',fetchedAt:new Date().toISOString()}]}}}).status,'확인 필요', 'v60.02 tool loop');
 assert.deepEqual([...html.matchAll(/<a href="([^"]*)"/g)].map((m)=>m[1]),['https://sec.gov/report']);
 assert(!html.includes('javascript:'));
 let loads=0;
 const retry=createAIKnowledgeRetriever({timeoutMs:5,loadIndex:()=>++loads===1 ? new Promise(()=>{}) : Promise.resolve({articles:[]})}); // S5 (ADR-0003): the app injects the loader
-assert.equal((await retry.buildContext('금리')).audit.status,'UNAVAILABLE');
-assert.equal((await retry.buildContext('금리')).audit.status,'NO_RELEVANT_MATCH');
-assert.equal(loads,2);
+assert.equal((await retry.buildContext('금리')).audit.status,'UNAVAILABLE', 'v60.02 tool loop');
+assert.equal((await retry.buildContext('금리')).audit.status,'NO_RELEVANT_MATCH', 'v60.02 tool loop');
+assert.equal(loads,2, 'v60.02 tool loop');
 let resolveLoad; const shared=createAIKnowledgeRetriever({timeoutMs:100,loadIndex:()=>new Promise(resolve=>{resolveLoad=resolve;})});
 const cancel=new AbortController(); const a=shared.buildContext('금리',{signal:cancel.signal}), b=shared.buildContext('AI');
-await Promise.resolve(); cancel.abort(); assert.equal((await a).audit.status,'CANCELLED');
-resolveLoad({articles:[]}); assert.equal((await b).audit.status,'NO_RELEVANT_MATCH');
+await Promise.resolve(); cancel.abort(); assert.equal((await a).audit.status,'CANCELLED', 'v60.02 tool loop');
+resolveLoad({articles:[]}); assert.equal((await b).audit.status,'NO_RELEVANT_MATCH', 'v60.02 tool loop');
 // v57.62: the dead per-page chatSend (P1653 removed every #chat-<ctx>-inp it needed) is gone; the unified panel is the
 // only chat path, so its stream callbacks carry the stale-epoch guard.
 assert(!source.includes('async function chatSend(') && !source.includes('var _pageOnError = function'), 'v57.62 per-page chatSend retired');
@@ -545,7 +545,7 @@ vm.runInContext(section('window._aioChatFreshnessInfo = function()', '// ── 
 root._liveData={AAA:{price:100,observedAt:new Date(Date.now()-60000).toISOString()}};
 assert(!root._aioChatFreshnessInfo().liveStatus.includes('인용 자체 금지'));
 root._liveData={AAA:{price:100}}; root._quoteTimestamps={AAA:Date.now()};
-assert.equal(root._aioChatFreshnessInfo().ldAgeMin,null);
+assert.equal(root._aioChatFreshnessInfo().ldAgeMin,null, 'v60.02 tool loop');
 const shell=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/aio-ui.js',import.meta.url),'utf8');
 // P1131/R619: the unified chat surface (inline block G) moved from index.html into js/aio-chat.js, so
