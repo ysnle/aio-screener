@@ -173,18 +173,137 @@ function countSentences(value) {
 // Supported numbers: the numeric values of the publishable evidence rows the model was given, each with its unit.
 // Search results reach this module only as document rows without a numeric value, so they add nothing here.
 var ROW_UNITS = { USD: 'USD', KRW: 'KRW', PERCENT: 'percent', '%': 'percent', PCT: 'percent', BP: 'bp', BPS: 'bp', X: 'multiple', MULTIPLE: 'multiple', '배': 'multiple', INDEX: 'point', POINT: 'point', POINTS: 'point', PT: 'point' };
-export function supportedNumbersFromEvidence(rows, nowMs = Date.now()) {
+// With the question's entities, a row's figure belongs to the entity its ticker/entity field names when that is one of
+// them; a row about anything else (an index, a rate) supports every subject.
+export function supportedNumbersFromEvidence(rows, nowMs = Date.now(), { entities } = {}) {
+  var ids = entityIds(entities);
   var numbers = (Array.isArray(rows) ? rows : []).filter(function(row) {
     return evidenceCanPublish(row, nowMs) && typeof row.value === 'number' && isFinite(row.value) && String(row.scale || 'raw') === 'raw';
-  }).map(function(row) { return { value: row.value, unit: ROW_UNITS[String(row.unit || '').trim().toUpperCase()] || '' }; });
+  }).map(function(row) {
+    var number = { value: row.value, unit: ROW_UNITS[String(row.unit || '').trim().toUpperCase()] || '' };
+    if (ids) {
+      var own = String(row.entity || row.entityId || row.ticker || row.symbol || '').trim().toUpperCase();
+      number.entity = ids.indexOf(own) >= 0 ? own : null;
+    }
+    return number;
+  });
   return numbers.length ? numbers : null;
+}
+
+// The subjects of a question: [{ id, names: [...] }] (a ticker and its registry names). A Latin name matches as a whole
+// word (one of three letters or fewer only in capitals, so "ON" or "ALL" is not read in English prose); a Hangul name
+// matches inside a word ("엔비디아는"). Longer names are matched first and blanked, so a short name inside a longer one
+// does not count twice.
+function entityIds(entities) {
+  if (!Array.isArray(entities)) return null;
+  var ids = entities.map(function(entity) { return String(entity && entity.id || '').trim().toUpperCase(); }).filter(Boolean);
+  return ids.length ? ids : null;
+}
+function escapeRegExp(value) { return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function entityMatchers(entities) {
+  if (!entityIds(entities)) return null;
+  var matchers = [];
+  entities.forEach(function(entity) {
+    var id = String(entity && entity.id || '').trim().toUpperCase();
+    if (!id) return;
+    var names = [id].concat(Array.isArray(entity.names) ? entity.names : []);
+    Array.from(new Set(names.map(function(name) { return String(name || '').normalize('NFKC').trim(); }))).forEach(function(name) {
+      if (name.length < 2 || /^_/.test(name)) return;
+      var pattern;
+      if (/[가-힣]/.test(name)) pattern = new RegExp('()(' + escapeRegExp(name) + ')', 'g');
+      else if (name.length <= 3) pattern = new RegExp('(^|[^A-Za-z0-9])(' + escapeRegExp(name.toUpperCase()) + ')(?=$|[^A-Za-z0-9])', 'g');
+      else pattern = new RegExp('(^|[^A-Za-z0-9])(' + escapeRegExp(name) + ')(?=$|[^A-Za-z0-9])', 'gi');
+      matchers.push({ id: id, length: name.length, pattern: pattern });
+    });
+  });
+  return matchers.sort(function(a, b) { return b.length - a.length; });
+}
+function namedEntities(text, matchers) {
+  var found = [];
+  var rest = normaliseForDetection(text);
+  matchers.forEach(function(matcher) {
+    matcher.pattern.lastIndex = 0;
+    if (!matcher.pattern.test(rest)) return;
+    if (found.indexOf(matcher.id) < 0) found.push(matcher.id);
+    matcher.pattern.lastIndex = 0;
+    rest = rest.replace(matcher.pattern, function(all, before, name) { return before + ' '.repeat(name.length); });
+  });
+  return found;
+}
+function soleEntity(text, matchers) {
+  var found = namedEntities(text, matchers);
+  return found.length === 1 ? found[0] : null;
+}
+
+// The reference text cut into pieces that each belong to one subject or to none (null):
+// - a quarantined data block ("item[0] … data=\"…\"") is read as the text it quotes, and its pieces never run past it;
+// - a section opens at a line starting with a run of ━ and runs to the next one; when its first lines name exactly one
+//   subject, the whole section (blank lines included) is that subject's;
+// - outside such a section, a top-level "• X …" bullet naming exactly one subject opens a section that runs to the next
+//   such bullet, a ━ line or a blank line;
+// - anything else is cut at blank lines: a block naming exactly one subject is that subject's, otherwise each line
+//   naming exactly one subject is its, and the rest belongs to none.
+var QUARANTINED_ITEM = /^item\[\d+\][^\n]*? data=("(?:\\.|[^"\\])*")[ \t]*$/gm;
+var SECTION_RULE = /^\s*━{2,}/;
+var SECTION_HEAD_LINES = 3;
+function referenceRegions(text) {
+  var regions = [];
+  var start = 0;
+  var match;
+  QUARANTINED_ITEM.lastIndex = 0;
+  while ((match = QUARANTINED_ITEM.exec(text))) {
+    var decoded = null;
+    try { decoded = JSON.parse(match[1]); } catch (_) { decoded = null; }
+    if (typeof decoded !== 'string') continue;
+    regions.push(text.slice(start, match.index));
+    regions.push(decoded);
+    start = match.index + match[0].length;
+  }
+  regions.push(text.slice(start));
+  return regions;
+}
+function blockPieces(lines, matchers, pieces) {
+  var blocks = [[]];
+  lines.forEach(function(line) {
+    if (!line.trim()) { if (blocks[blocks.length - 1].length) blocks.push([]); return; }
+    blocks[blocks.length - 1].push(line);
+  });
+  blocks.forEach(function(block) {
+    if (!block.length) return;
+    var owner = soleEntity(block.join('\n'), matchers);
+    if (owner) { pieces.push({ text: block.join('\n'), entity: owner }); return; }
+    block.forEach(function(line) { pieces.push({ text: line, entity: soleEntity(line, matchers) }); });
+  });
+}
+function referencePieces(text, matchers) {
+  var pieces = [];
+  referenceRegions(String(text || '')).forEach(function(region) {
+    var sections = [{ kind: null, lines: [] }];
+    region.split('\n').forEach(function(line) {
+      var current = sections[sections.length - 1];
+      var bulletOwner = current.kind !== 'rule' && /^•/.test(line) ? soleEntity(line, matchers) : null;
+      if (SECTION_RULE.test(line)) sections.push({ kind: 'rule', lines: [line] });
+      else if (bulletOwner) sections.push({ kind: 'bullet', entity: bulletOwner, lines: [line] });
+      else if (current.kind === 'bullet' && !line.trim()) sections.push({ kind: null, lines: [line] });
+      else current.lines.push(line);
+    });
+    sections.forEach(function(section) {
+      var owner = section.kind === 'bullet' ? section.entity
+        : section.kind === 'rule' ? soleEntity(section.lines.filter(function(line) { return line.replace(/━/g, '').trim(); }).slice(0, SECTION_HEAD_LINES).join('\n'), matchers)
+        : null;
+      if (owner) pieces.push({ text: section.lines.join('\n'), entity: owner });
+      else blockPieces(section.lines, matchers, pieces);
+    });
+  });
+  return pieces;
 }
 // What is not a figure of the sentence: a link, a date or clock time, a window length that names a measure ("20거래일",
 // "52주", "10년물", "3개월"; "3거래일 연속" is a count and stays), an index name ("S&P 500", "나스닥 100") and a code
 // with digits ("US10Y", "H100", "2s10s").
 var NOT_A_FIGURE = /(?:https?:\/\/|www\.)\S+|(?<!\d)(?:19|20)\d{2}\s*(?:[-./]|년)\s*\d{1,2}(?:\s*(?:[-./]|월)\s*\d{1,2}\s*일?)?(?!\d)|(?<!\d)\d{1,2}\s*월\s*\d{1,2}\s*일|(?<!\d)(?:19|20)\d{2}\s*년(?:대)?|(?<!\d)\d{1,2}:\d{2}(?!\d)|(?:S&P|나스닥|러셀|코스피|코스닥|\b(?:Nasdaq|NASDAQ|Russell|KOSPI|KOSDAQ)\b)\s*(?:500|100|2000|200|150)(?![\d,.])|(?<![\d.,])\d+\s*(?:개월|개년|년물|년간|년|분기|주(?![가식당요])|거래일|일선|일(?![부반정본간]))(?!\s*(?:연속|째|만에))|(?<![A-Za-z])(?!\b(?:USD|KRW|US)\d)[A-Za-z]+\d[\dA-Za-z]*|\d+s\d+s|\d+-\b(?:year|month|week|day)\b/g;
-var WRITTEN_FIGURE = /(\$|₩|\b(?:USD|KRW|US\$)\s*)?([+\-−]?)(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<![A-Za-z])(%|퍼센트|percent\b|bps?\b|배|달러|dollars?\b|USD\b|원|KRW\b|포인트|pt\b|조|억|만|개|곳|건|명|종목)?/gi;
-var WRITTEN_UNITS = [[/^(?:%|퍼센트|percent)$/i, 'percent'], [/^bps?$/i, 'bp'], [/^배$/, 'multiple'], [/^(?:\$|달러|dollars?|USD|US\$)$/i, 'USD'], [/^(?:₩|원|KRW)$/i, 'KRW'], [/^(?:포인트|pt)$/i, 'point']];
+var WRITTEN_FIGURE = /(\$|₩|\b(?:USD|KRW|US\$)\s*)?([+\-−]?)(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<![A-Za-z])(%|퍼센트|percent\b|bps?\b|배|달러|dollars?\b|USD\b|원|KRW\b|포인트|pt\b|조|억|만|개|곳|건|명|종목|(?<=\d)x(?![A-Za-z0-9]))?/gi;
+// "41.2x" (an x glued to the digits) is a multiple, as "41.2배" is.
+var WRITTEN_UNITS = [[/^(?:%|퍼센트|percent)$/i, 'percent'], [/^bps?$/i, 'bp'], [/^(?:배|x)$/i, 'multiple'], [/^(?:\$|달러|dollars?|USD|US\$)$/i, 'USD'], [/^(?:₩|원|KRW)$/i, 'KRW'], [/^(?:포인트|pt)$/i, 'point']];
 function writtenUnit(word) {
   if (!word) return '';
   var hit = WRITTEN_UNITS.filter(function(pair) { return pair[0].test(word); })[0];
@@ -207,52 +326,80 @@ export function answerReferenceText(systemPrompt) {
   var tailAt = text.lastIndexOf(REFERENCE_TAIL);
   return (tailAt >= 0 ? text.slice(0, tailAt) : text).replace(OTHER_DAY_BLOCK, '');
 }
-export function supportedNumbersFromText(text) {
-  var bare = normaliseForDetection(String(text || '')).replace(NOT_A_FIGURE, ' ');
+// With `entities`, each figure also carries the subject it was given for (`entity`: an id, or null for material about no
+// single subject: macro lines, rows naming several tickers, generic data). Without them the rows are as before.
+export function supportedNumbersFromText(text, { entities } = {}) {
+  var matchers = entityMatchers(entities);
+  var pieces = matchers ? referencePieces(text, matchers) : [{ text: String(text || ''), entity: undefined }];
   var numbers = [];
   var seen = new Set();
-  var matches = bare.matchAll(WRITTEN_FIGURE);
-  for (var match of matches) {
-    var unit = writtenUnit(match[4] || String(match[1] || '').trim());
-    if (unit === 'unsupported') continue;
-    var size = Number(match[3].replace(/,/g, ''));
-    if (!isFinite(size)) continue;
-    var value = /^[-−]$/.test(match[2]) ? -size : size;
-    var key = value + '|' + unit;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    numbers.push({ value: value, unit: unit, signed: match[2] !== '' });
+  for (var piece of pieces) {
+    var bare = normaliseForDetection(piece.text).replace(NOT_A_FIGURE, ' ');
+    for (var match of bare.matchAll(WRITTEN_FIGURE)) {
+      var unit = writtenUnit(match[4] || String(match[1] || '').trim());
+      if (unit === 'unsupported') continue;
+      var size = Number(match[3].replace(/,/g, ''));
+      if (!isFinite(size)) continue;
+      var value = /^[-−]$/.test(match[2]) ? -size : size;
+      var key = value + '|' + unit + (matchers ? '|' + piece.entity : '');
+      if (seen.has(key)) continue;
+      seen.add(key);
+      var number = { value: value, unit: unit, signed: match[2] !== '' };
+      if (matchers) number.entity = piece.entity;
+      numbers.push(number);
+      if (numbers.length >= REFERENCE_FIGURE_LIMIT) break;
+    }
     if (numbers.length >= REFERENCE_FIGURE_LIMIT) break;
   }
   return numbers.length ? numbers : null;
 }
-function supportedNumbers(rows, referenceText, nowMs) {
-  var all = (supportedNumbersFromEvidence(rows, nowMs) || []).concat(supportedNumbersFromText(referenceText) || []);
+function supportedNumbers(rows, referenceText, nowMs, entities) {
+  var all = (supportedNumbersFromEvidence(rows, nowMs, { entities: entities }) || []).concat(supportedNumbersFromText(referenceText, { entities: entities }) || []);
   return all.length ? all : null;
 }
-export function figuresSupported(text, numbers) {
-  if (!Array.isArray(numbers) || !numbers.length) return false;
-  var bare = normaliseForDetection(text).replace(NOT_A_FIGURE, ' ');
-  var figures = Array.from(bare.matchAll(WRITTEN_FIGURE));
-  return figures.length > 0 && figures.every(function(match) {
-    var unit = writtenUnit(match[4] || String(match[1] || '').trim());
-    if (unit === 'unsupported') return false;
-    var digits = match[3].replace(/,/g, '');
-    var places = (digits.split('.')[1] || '').length;
-    var written = Number(digits);
-    if (/^\d{1,2}$/.test(digits) && !unit) return false; // an integer under 100
-    var sign = match[2] === '' ? 0 : match[2] === '+' ? 1 : -1;
-    return numbers.some(function(number) {
-      if (unit && number.unit !== unit) return false;
-      // A figure the material wrote without a sign ("1.2% 하락") carries its direction in words, so it supports either sign.
-      if (sign && number.value !== 0 && number.signed !== false && sign !== Math.sign(number.value)) return false;
-      var size = Math.abs(number.value);
-      return written === size || ((String(size).split('.')[1] || '').length > places && Number(size.toFixed(places)) === written);
-    });
+// One written figure against the supported numbers; `subject` (an entity id) limits them to that subject's and the
+// subject-free ones.
+function figureSupported(match, numbers, subject) {
+  var unit = writtenUnit(match[4] || String(match[1] || '').trim());
+  if (unit === 'unsupported') return false;
+  var digits = match[3].replace(/,/g, '');
+  var places = (digits.split('.')[1] || '').length;
+  var written = Number(digits);
+  if (/^\d{1,2}$/.test(digits) && !unit) return false; // an integer under 100
+  var sign = match[2] === '' ? 0 : match[2] === '+' ? 1 : -1;
+  return numbers.some(function(number) {
+    if (subject && number.entity && number.entity !== subject) return false;
+    if (unit && number.unit !== unit) return false;
+    // A figure the material wrote without a sign ("1.2% 하락") carries its direction in words, so it supports either sign.
+    if (sign && number.value !== 0 && number.signed !== false && sign !== Math.sign(number.value)) return false;
+    var size = Math.abs(number.value);
+    return written === size || ((String(size).split('.')[1] || '').length > places && Number(size.toFixed(places)) === written);
   });
 }
+function writtenFigures(text) {
+  return Array.from(normaliseForDetection(text).replace(NOT_A_FIGURE, ' ').matchAll(WRITTEN_FIGURE));
+}
+// A comparison sentence is checked clause by clause: a comma that is not a thousands separator, "；", "반면", "이고",
+// "이며", "but", "while".
+var CLAUSE_BREAK = /(?<!\d),|,(?!\d)|[;；]|반면|이고|이며|\bbut\b|\bwhile\b/i;
+// With `entities`, a sentence (or a clause of a sentence naming several) that names exactly one subject is supported
+// only by that subject's figures and the subject-free ones.
+export function figuresSupported(text, numbers, { entities } = {}) {
+  if (!Array.isArray(numbers) || !numbers.length) return false;
+  var matchers = entityMatchers(entities);
+  var named = matchers ? namedEntities(text, matchers) : [];
+  var parts = named.length > 1 ? String(text || '').split(CLAUSE_BREAK).map(function(clause) { return { text: clause, subject: soleEntity(clause, matchers) }; })
+    : [{ text: String(text || ''), subject: named.length === 1 ? named[0] : null }];
+  var total = 0;
+  var supported = parts.every(function(part) {
+    var figures = writtenFigures(part.text);
+    total += figures.length;
+    return figures.every(function(match) { return figureSupported(match, numbers, part.subject); });
+  });
+  return total > 0 && supported;
+}
 
-function stripNumericSentences(value, today, numbers) {
+function stripNumericSentences(value, today, numbers, entities) {
   var removed = 0;
   var text = String(value || '').split('\n').map(function(line) {
     if (!line.trim()) return '';
@@ -267,7 +414,7 @@ function stripNumericSentences(value, today, numbers) {
     }
     var kept = splitAnswerSentences(line).filter(function(sentence) {
       // A current sentence stays when every figure it writes is in the evidence; one figure that is not removes it.
-      var current = numericClaimKind(sentence, { today: today }) === 'current' && !figuresSupported(sentence.replace(CITED_URL, ' '), numbers);
+      var current = numericClaimKind(sentence, { today: today }) === 'current' && !figuresSupported(sentence.replace(CITED_URL, ' '), numbers, { entities: entities });
       if (current) removed += 1;
       return !current;
     }).join(' ');
@@ -337,14 +484,15 @@ function guardFallback(text, currentSensitive, options) {
   var result = { text: text, removedNumericSentences: 0, removedEventSentences: 0, sentencesTotal: countSentences(text) };
   if (!currentSensitive) return result;
   var today = options && options.today;
-  var numbers = options && supportedNumbers(options.evidenceRows, options.referenceText, todayMs(today));
-  var numeric = stripNumericSentences(text, today, numbers);
+  var entities = options && options.entities;
+  var numbers = options && supportedNumbers(options.evidenceRows, options.referenceText, todayMs(today), entities);
+  var numeric = stripNumericSentences(text, today, numbers, entities);
   result.text = numeric.text;
   result.removedNumericSentences = numeric.removed;
   var events = null;
   if (options && options.evidenceCount === 0 && !numbers) events = stripUnverifiedCurrentEventSentences(numeric.text, null, { today: today });
   // v58.77 AI-01: with evidence rows handed in, an event sentence must name what one of them covers (same as the plan path).
-  else if (options && (Array.isArray(options.evidenceRows) || numbers)) events = stripUnverifiedCurrentEventSentences(numeric.text, function(sentence) { return eventBoundToEvidence(sentence, options.evidenceRows || []) || figuresSupported(sentence, numbers); }, { today: today });
+  else if (options && (Array.isArray(options.evidenceRows) || numbers)) events = stripUnverifiedCurrentEventSentences(numeric.text, function(sentence) { return eventBoundToEvidence(sentence, options.evidenceRows || []) || figuresSupported(sentence, numbers, { entities: entities }); }, { today: today });
   if (events) { result.text = events.text; result.removedEventSentences = events.dropped; }
   return result;
 }
@@ -388,7 +536,7 @@ export function summarizeAnswerLimitations(reasons = [], { publishedClaimCount =
   return phrases.length ? '※ ' + phrases.join(' · ') : '';
 }
 
-export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive, { nowMs = Date.now(), referenceText = '' } = {}) {
+export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive, { nowMs = Date.now(), referenceText = '', entities = null } = {}) {
   if (!plan) return { plan: null, droppedClaims: [], unboundEvidenceIds: [] };
   var rows = (Array.isArray(bindingEvidence) ? bindingEvidence : []).filter(row => evidenceCanPublish(row, nowMs));
   var bindingIds = new Set(rows.map(claimEvidenceId));
@@ -454,16 +602,16 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
   var sentencesTotal = 0;
   var noEvidence = currentSensitive && rows.length === 0;
   var noSupport = noEvidence && !referenceText;
-  var numbers = supportedNumbers(rows, referenceText, nowMs);
+  var numbers = supportedNumbers(rows, referenceText, nowMs, entities);
   var stripNumeric = function(text) {
-    var out = stripNumericSentences(text, nowMs, numbers);
+    var out = stripNumericSentences(text, nowMs, numbers, entities);
     numericRemoved += out.removed;
     return out.text;
   };
   var clean = function(text) {
     var out = stripNumeric(text);
     // An event sentence whose figures are all in the evidence ("오늘 −1.2% 내렸지만") is bound by those values.
-    var events = stripUnverifiedCurrentEventSentences(out, noSupport ? null : function(sentence) { return eventBoundToEvidence(sentence, rows) || figuresSupported(sentence, numbers); }, { today: nowMs });
+    var events = stripUnverifiedCurrentEventSentences(out, noSupport ? null : function(sentence) { return eventBoundToEvidence(sentence, rows) || figuresSupported(sentence, numbers, { entities: entities }); }, { today: nowMs });
     eventsDropped += events.dropped;
     return events.text;
   };
