@@ -1491,6 +1491,65 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check('v57.54 a Korean policy question still selects the Korean macro domain block (P1740)', /contexts\.add\('kr-macro'\)/.test(read('src/ai/context/market-content.js')) && /ctxId === 'macro' \|\| ctxId === 'kr-macro'/.test(chatSource));
 }
 
+// v60.02 (plan 047): a figure from the material is supported for the subject it was given for, not for every subject.
+{
+  const pub = await import('../src/ai/response/publication.js');
+  const today = Date.parse('2026-11-13T00:00:00Z');
+  const entities = [{ id: 'NVDA', names: ['NVIDIA', '엔비디아'] }, { id: 'AMD', names: ['Advanced Micro Devices'] }];
+  const reference = '[NVDA]\n엔비디아(NVDA) 가격 180.25달러, PER 28.4배, 1개월 -6.2%, EV/EBITDA 33.0x\n\n[AMD]\nAMD 가격 142.10달러, PER 41.2배, EV/EBITDA 36.5x\n\n미국 10년물 4.95%, 영업이익률 중앙값 23.5%';
+  const kept = ['NVDA의 PER은 28.4배입니다.', '엔비디아는 180.25달러입니다.', 'AMD의 PER은 41.2배입니다.', '10년물은 4.95%입니다.', 'NVDA 28.4배, AMD 41.2배로 차이가 큽니다.', 'PER은 28.4배입니다.'];
+  const wrongSubject = ['AMD의 PER은 28.4배입니다.', '엔비디아는 142.10달러입니다.', 'NVDA는 28.4배이고 AMD는 28.4배입니다.'];
+  const keep = (sentence, options) => pub.buildPublishableAnswerPlan({ summary: sentence, sections: [], claims: { claims: [] } }, [], true, { nowMs: today, referenceText: reference, ...options }).plan.summary.includes(sentence);
+  const rows = pub.supportedNumbersFromText(reference, { entities }) || [];
+  const owner = (value, unit) => (rows.find((row) => row.value === value && row.unit === unit) || {}).entity;
+  check('v60.02 each block\'s figures belong to the block\'s subject and a macro line to none',
+    owner(180.25, 'USD') === 'NVDA' && owner(28.4, 'multiple') === 'NVDA' && owner(-6.2, 'percent') === 'NVDA'
+      && owner(142.1, 'USD') === 'AMD' && owner(41.2, 'multiple') === 'AMD' && owner(4.95, 'percent') === null && rows.every((row) => 'entity' in row));
+  check('v60.02 without entities the reference rows carry no subject (v60.01 rows)', (pub.supportedNumbersFromText(reference) || []).every((row) => !('entity' in row)));
+  kept.forEach((sentence) => check(`v60.02 kept with entities: ${sentence}`, keep(sentence, { entities })));
+  wrongSubject.forEach((sentence) => check(`v60.02 a real figure on the wrong subject is removed: ${sentence}`, !keep(sentence, { entities })));
+  wrongSubject.concat(kept).forEach((sentence) => check(`v60.02 without entities the sentence is kept as in v60.01: ${sentence}`, keep(sentence, {})));
+  check('v60.02 a figure written "36.5x" in the material supports "36.5배" in the answer', keep('AMD의 EV/EBITDA는 36.5배입니다.', { entities }) && keep('AMD의 EV/EBITDA는 36.5배입니다.', {}));
+  check('v60.02 "23.5x" is a multiple, so a 23.5% margin does not support it', !keep('현재 EV/EBITDA는 23.5x입니다.', { entities }) && !keep('현재 EV/EBITDA는 23.5x입니다.', {}));
+  check('v60.02 an x after a space or inside a word is not a multiple', (pub.supportedNumbersFromText('3 x 4 lanes, 0x1F') || []).every((row) => row.unit !== 'multiple'));
+  check('v60.02 a typed evidence row belongs to its ticker when it is a question subject, else to none',
+    JSON.stringify((pub.supportedNumbersFromEvidence([
+      { evidenceId: 'a', status: 'ok', value: 180.25, unit: 'USD', entity: 'NVDA' }, { evidenceId: 'b', status: 'ok', value: 15.2, unit: 'point', entity: '^VIX' }
+    ], today, { entities }) || []).map((row) => row.entity)) === '["NVDA",null]'
+      && (pub.supportedNumbersFromEvidence([{ evidenceId: 'a', status: 'ok', value: 180.25, unit: 'USD', entity: 'NVDA' }], today) || []).every((row) => !('entity' in row)));
+  // The injected blocks as chatSendUnified sends them: quarantined (one line each, JSON-quoted), the ticker block with a ━
+  // rule per ticker and no blank line between tickers, the technical block one ━━ [X] ━━ block per symbol.
+  const blocks = await import('./fixtures/answer-subject-blocks.mjs');
+  const wrapped = blocks.wrappedReference(promptKit.window.AIO.buildAIUntrustedBlock);
+  const tagged = pub.supportedNumbersFromText(wrapped, { entities: blocks.SUBJECT_ENTITIES }) || [];
+  const own = (sym) => pub.supportedNumbersFromText(blocks.ownLines(sym).join('\n')) || [];
+  const belongs = (sym) => own(sym).filter((figure) => tagged.some((row) => row.value === figure.value && row.unit === figure.unit && row.entity === sym));
+  for (const sym of ['NVDA', 'AMD']) {
+    check(`v60.02 every figure of the ${sym} ticker and technical blocks belongs to ${sym} (${belongs(sym).length}/${own(sym).length})`,
+      own(sym).length >= 20 && belongs(sym).length === own(sym).length);
+  }
+  check('v60.02 the market header before the first rule belongs to no subject',
+    [[6812.4, ''], [15.2, ''], [4.95, 'percent']].every(([value, unit]) => tagged.some((row) => row.value === value && row.unit === unit && row.entity === null)));
+  const plan = (summary, options) => pub.buildPublishableAnswerPlan({ summary, sections: [], claims: { claims: [] } }, [], true, { nowMs: today, referenceText: pub.answerReferenceText(wrapped), ...options }).plan.summary;
+  const keptWrapped = ['엔비디아는 180.25달러입니다.', 'AMD의 EV/EBITDA는 41.2배입니다.', '미국 10년물은 4.95%입니다.'];
+  const removedWrapped = ['AMD는 180.25달러입니다.', 'NVDA의 EV/EBITDA는 41.2배입니다.'];
+  const out = plan(keptWrapped.concat(removedWrapped).join(' '), { entities: blocks.SUBJECT_ENTITIES });
+  check('v60.02 on the injected block shapes the right subject keeps its figure and the wrong one loses it',
+    keptWrapped.every((s) => out.includes(s)) && removedWrapped.every((s) => !out.includes(s)));
+  const fallback = pub.extractAnswerFallbackResult(keptWrapped.concat(removedWrapped).join(' '), true, { evidenceCount: 0, today, referenceText: pub.answerReferenceText(wrapped), entities: blocks.SUBJECT_ENTITIES });
+  check('v60.02 the fallback path applies the same subject rule', keptWrapped.every((s) => fallback.text.includes(s)) && removedWrapped.every((s) => !fallback.text.includes(s)));
+  const noEntities = plan(removedWrapped.join(' '), {});
+  // The chat passes its tickers; their names come from the ticker registry entries.
+  const registry = { NVDA: { en: 'NVIDIA', kr: '엔비디아', alt: ['nvidia', 'nvda'] }, MSFT: { en: 'Microsoft', kr: '마이크로소프트', alt: ['microsoft', 'msft', 'ms'] }, MS: { en: 'Morgan Stanley', kr: '모건스탠리', alt: [] } };
+  check('v60.02 a bare ticker takes its registry names, leaving out a name that is another ticker',
+    JSON.stringify(pub.answerEntities(['NVDA', 'msft', 'ZZZZ', ''], registry)) === JSON.stringify([{ id: 'NVDA', names: ['NVIDIA', '엔비디아', 'nvidia', 'nvda'] }, { id: 'MSFT', names: ['Microsoft', '마이크로소프트', 'microsoft', 'msft'] }, { id: 'ZZZZ', names: [] }]));
+  const byRegistry = pub.buildPublishableAnswerPlan({ summary: '엔비디아는 142.10달러입니다. 엔비디아는 180.25달러입니다.', sections: [], claims: { claims: [] } }, [], true, { nowMs: today, referenceText: reference, entities: ['NVDA', 'AMD'], nameEntries: registry }).plan.summary;
+  check('v60.02 bare tickers with registry entries apply the subject rule (a Korean name found through the registry)', byRegistry === '엔비디아는 180.25달러입니다.');
+  check('v60.02 an empty entities list is the v60.01 rule', keep('AMD의 PER은 28.4배입니다.', { entities: [] }));
+  // The second one is kept here only since "41.2x" reads as a multiple; in v60.01 it was removed for the unit.
+  check('v60.02 without entities the wrong-subject sentences on the injected shapes are kept (v60.01 rule)', removedWrapped.every((s) => noEntities.includes(s)));
+}
+
 if (failures.length) {
   console.error(`AI intelligence contract failed (${failures.length})`);
   failures.forEach((failure) => console.error(`- ${failure}`));
