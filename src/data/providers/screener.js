@@ -341,7 +341,10 @@ export function createScreenerProvider({
       const universeLastBulkUpdate = universeMeta.lastBulkUpdate || null;
       const universeStaleAfterDays = numberOrNull(universeMeta.staleAfterDays) ?? 30;
       // Derived at read time from the review date and window the mirror carries.
-      const universeCurrentness = !universeLastBulkUpdate ? 'UNKNOWN' : asOfIsFresh(universeLastBulkUpdate, now, universeStaleAfterDays) ? 'CURRENT' : 'STALE';
+      // A review dated after this clock (a day boundary, a reader's clock that runs behind) is a recent review, not a
+      // lapsed one: only an age past the window reads STALE.
+      const universeReviewedMs = universeLastBulkUpdate ? new Date(universeLastBulkUpdate).getTime() : NaN;
+      const universeCurrentness = !Number.isFinite(universeReviewedMs) ? 'UNKNOWN' : (now - universeReviewedMs) / 86400000 <= universeStaleAfterDays ? 'CURRENT' : 'STALE';
       const universeFreshnessStatus = Array.isArray(universePayload?.universe) ? ({ CURRENT: 'current', STALE: 'stale' })[universeCurrentness] || 'unknown' : 'unknown';
       const unavailable = (revision = null, detail = null) => Object.freeze({
         rows: [],

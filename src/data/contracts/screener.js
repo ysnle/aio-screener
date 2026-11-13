@@ -398,7 +398,9 @@ export function classifyFieldStatus({ value, observedAt, now = Date.now(), fresh
   if (conflict) return 'CONFLICT';
   if (value == null || value === '' || (typeof value === 'number' && !Number.isFinite(value))) return 'MISSING';
   const observedMs = observedAt ? Date.parse(observedAt) : NaN;
-  if (!Number.isFinite(observedMs) || !Number.isFinite(now) || observedMs > now) return 'STALE';
+  // An observation dated after this clock is not usable — except reference data (no freshness budget): its date is
+  // the day a curated list was reviewed, which a reader's clock or a fixed test clock can sit a day behind.
+  if (!Number.isFinite(observedMs) || !Number.isFinite(now) || (observedMs > now && cadence !== 'reference')) return 'STALE';
   const sessionCurrent = cadence === 'session/eod' && isLatestSessionObservation(observedMs, now, market, timeZone);
   if (!sessionCurrent && freshnessBudgetMs != null && (!Number.isFinite(freshnessBudgetMs) || freshnessBudgetMs < 0 || now - observedMs > freshnessBudgetMs)) return lastGood ? 'LAST_GOOD' : 'STALE';
   return reviewedPublicReference || String(sourceKind) === 'T3_PUBLIC_DELAYED' ? 'DELAYED' : 'CURRENT';

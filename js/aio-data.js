@@ -8,7 +8,7 @@
 // ═══════════════ SCREENER DATABASE & FUNCTIONS ═══════════════
 // SCREENER_DB는 정적 식별자 유니버스다. 변동 팩터와 메모는 출처가 있는 런타임 산출물만 병합한다.
 var SCREENER_DB_META = {
-  schemaVersion:'v53.4', lastBulkUpdate:'2026-11-12', staleAfterDays:30, replaceAfterDays:90,
+  schemaVersion:'v53.4', lastBulkUpdate:'2026-11-13', staleAfterDays:30, replaceAfterDays:90,
   source:'js/aio-data.js curated identity universe; public-data/screener.json runtime enrichment',
   note:'정적 유니버스는 심볼·이름·섹터·지수만 보관하며 signal/memo/mcap/rsi는 런타임 산출물로만 채운다.'
 };
