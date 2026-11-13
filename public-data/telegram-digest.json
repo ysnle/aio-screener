@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-13T10:21:44.936Z",
-  "attemptedAt": "2026-11-13T10:21:44.936Z",
-  "lastSuccessfulAt": "2026-11-13T10:21:44.936Z",
+  "generatedAt": "2026-11-13T10:51:45.018Z",
+  "attemptedAt": "2026-11-13T10:51:45.018Z",
+  "lastSuccessfulAt": "2026-11-13T10:51:45.018Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-30T10:21:40.790Z",
-  "until": "2026-11-13T10:21:40.790Z",
+  "since": "2026-10-30T10:51:39.702Z",
+  "until": "2026-11-13T10:51:39.702Z",
   "current24hWindow": {
     "start": "2026-11-11T23:00:00.000Z",
     "end": "2026-11-12T23:00:00.000Z",
@@ -92,9 +92,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1233,
+      "count": 1230,
       "freshCount": 20,
-      "eligibleTextCount": 1179,
+      "eligibleTextCount": 1176,
       "selectedCount": 126,
       "error": null,
       "lastPostId": 69210
@@ -113,51 +113,51 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 722,
-      "freshCount": 20,
-      "eligibleTextCount": 721,
+      "count": 720,
+      "freshCount": 39,
+      "eligibleTextCount": 719,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72083
+      "lastPostId": 72084
     }
   ],
-  "count": 2187,
-  "retainedItemCount": 401,
+  "count": 2182,
+  "retainedItemCount": 409,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2187,
-    "eligibleTextCount": 2132,
+    "observedCount": 2182,
+    "eligibleTextCount": 2127,
     "mediaOnlyCount": 55,
     "mediaAttachedCount": 894,
     "photoPostCount": 772,
     "documentPostCount": 5,
     "imageOnlyCount": 5,
     "highSignalCount": 379,
-    "broadSignalCount": 857,
+    "broadSignalCount": 853,
     "selectedRawCount": 374,
     "selectedEligibleCount": 374,
-    "selectedRawCoveragePct": 17.5,
+    "selectedRawCoveragePct": 17.6,
     "selectedOfObservedPct": 17.1,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "japan": 70,
     "market-note": 760,
     "geo": 366,
     "flows": 57,
     "kr-market": 93,
-    "semi": 547,
+    "semi": 544,
     "optical": 30,
-    "japan": 69,
-    "earnings": 337,
-    "power": 286,
+    "earnings": 332,
+    "power": 285,
     "equity": 136,
-    "macro": 317,
+    "macro": 316,
     "media-only": 53,
     "ai-policy": 123,
     "credit": 84,
@@ -222,7 +222,7 @@
     "HUM": 1,
     "IONQ": 2,
     "BCS": 2,
-    "285A.T": 7,
+    "285A.T": 6,
     "ARM": 1,
     "QCOM": 1,
     "SN": 1,
@@ -256,11 +256,11 @@
   },
   "themes": [
     "Market Notes (760 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
-    "Semiconductors/Memory (547 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave...",
+    "Semiconductors/Memory (544 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave...",
     "Geopolitics (366 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
-    "Earnings/Corporate (337 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정 EBITDA $465.8M (예상 $353M) → 32.0% 상회 , 마진 47.5% • AI 클라우드...",
-    "Macro/Rates (317 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면 인플레이션은 여전히 지나치게 높고 끈질기게 지속되고 있어 2% 목표 복귀를 위해 통화정책 측면에서 추가 대응이...",
-    "AI Power/Grid (286 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
+    "Earnings/Corporate (332 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정 EBITDA $465.8M (예상 $353M) → 32.0% 상회 , 마진 47.5% • AI 클라우드...",
+    "Macro/Rates (316 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면 인플레이션은 여전히 지나치게 높고 끈질기게 지속되고 있어 2% 목표 복귀를 위해 통화정책 측면에서 추가 대응이...",
+    "AI Power/Grid (285 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (136 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (123 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
@@ -333,7 +333,7 @@
       "topics": [
         "macro"
       ],
-      "count": 317,
+      "count": 316,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면 인플레이션은 여전히 지나치게 높고 끈질기게 지속되고 있어 2% 목표 복귀를 위해 통화정책 측면에서 추가 대응이..."
     },
     {
@@ -360,7 +360,7 @@
       "topics": [
         "semi"
       ],
-      "count": 547,
+      "count": 544,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave..."
     },
     {
@@ -378,7 +378,7 @@
       "topics": [
         "power"
       ],
-      "count": 286,
+      "count": 285,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -397,7 +397,7 @@
         "kr-market"
       ],
       "count": 93,
-      "focus": "코스피 야간선물"
+      "focus": "•심천 증시 -1.5%에서 보합권, 기관 매수세 유입 •국산 AI 칩 강세 지속"
     },
     {
       "id": "equity",
@@ -423,7 +423,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 337,
+      "count": 332,
       "focus": "네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정 EBITDA $465.8M (예상 $353M) → 32.0% 상회 , 마진 47.5% • AI 클라우드..."
     },
     {
@@ -441,7 +441,7 @@
       "topics": [
         "japan"
       ],
-      "count": 69,
+      "count": 70,
       "focus": "앤트로픽, 대규모 미국 IPO 위해 일본에서 최대 35억 달러 조달 추진 1. 앤트로픽, 일본 투자자로부터 최대 35억 달러 조달 추진 - AI 스타트업 앤트로픽(Anthropic PBC)이 미국 증시..."
     },
     {
@@ -2092,15 +2092,17 @@
       "datetime": "2026-11-13T02:25:30.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "ai-policy",
+        "equity"
       ],
+      "lead": 1,
       "score": 61,
       "hasText": true,
-      "summary": ">>업계 관계자: 엔비디아, 공격적인 투자 속도 늦출 것으로 예상 •벤처캐피털 관계자와 스타트업 창업자, 반도체 업계 경영진들은 엔비디아가 그동안의 공격적인 투자 속도를 늦출 것으로 예상. 엔비디아는 올해...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>업계 관계자: 엔비디아, 공격적인 투자 속도 늦출 것으로 예상 •벤처캐피털 관계자와 스타트업 창업자, 반도체 업계 경영진들은 엔비디아가 그동안의 공격적인 투자 속도를 늦출 것으로 예상. 엔비디아는 올해..."
     },
     {
       "id": "insidertracking/69191",
@@ -2132,7 +2134,8 @@
       "datetime": "2026-11-13T01:21:18.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "market-note"
+        "semi",
+        "earnings"
       ],
       "score": 56,
       "hasText": true,
@@ -2142,10 +2145,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>젠슨 황 퇴진, 14개 월가 투자은행 긴급 분석…“대체할 사람 없다”는 공통된 평가 •14개 월가 기관이 젠슨 황의 퇴진에 대해 긴급 분석을 내놓음. 이 가운데 3곳은 투자의견을 하향했고 6곳은 목표주가를...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>젠슨 황 퇴진, 14개 월가 투자은행 긴급 분석…“대체할 사람 없다”는 공통된 평가 •14개 월가 기관이 젠슨 황의 퇴진에 대해 긴급 분석을 내놓음. 이 가운데 3곳은 투자의견을 하향했고 6곳은 목표주가를..."
     },
     {
       "id": "HANAchina/72057",
@@ -2154,13 +2157,13 @@
       "datetime": "2026-11-13T01:16:25.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
+        "semi",
         "earnings"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>SMIC : 3분기 평균 웨이퍼 판매단가 전분기 대비 1.8% 상승 •SMIC CEO는 3분기 실적 발표회에서 3분기 전체 매출이 31억9,000만 달러로 사상 최고치를 다시 경신했으며, 전분기 대비...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>SMIC : 3분기 평균 웨이퍼 판매단가 전분기 대비 1.8% 상승 •SMIC CEO는 3분기 실적 발표회에서 3분기 전체 매출이 31억9,000만 달러로 사상 최고치를 다시 경신했으며, 전분기 대비..."
     },
     {
       "id": "HANAchina/72055",
@@ -2169,7 +2172,8 @@
       "datetime": "2026-11-13T00:50:05.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
       "score": 51,
       "hasText": true,
@@ -2179,10 +2183,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>기업의 영혼이 떠난다! 현재 엔비디아 vs 2011년 애플 •젠슨황이 물러난 이후 엔비디아의 향방에 대해 골드만삭스는 스티브 잡스 사례를 제시 •애플 CEO 스티브 잡스는 2011년 1월 병가를 시작했고...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>기업의 영혼이 떠난다! 현재 엔비디아 vs 2011년 애플 •젠슨황이 물러난 이후 엔비디아의 향방에 대해 골드만삭스는 스티브 잡스 사례를 제시 •애플 CEO 스티브 잡스는 2011년 1월 병가를 시작했고..."
     },
     {
       "id": "HANAchina/72054",
@@ -2193,13 +2197,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": ">>트럼프, 엔비디아 CEO 젠슨 황에게 자리 지키기 위해 싸우라고 촉구 (NYT) •뉴욕타임스에 따르면, 엔비디아 CEO 젠슨 황이 11월 12일 사임하기에 앞서 도널드 트럼프 미국 대통령이 비공개로 황에게...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>트럼프, 엔비디아 CEO 젠슨 황에게 자리 지키기 위해 싸우라고 촉구 (NYT) •뉴욕타임스에 따르면, 엔비디아 CEO 젠슨 황이 11월 12일 사임하기에 앞서 도널드 트럼프 미국 대통령이 비공개로 황에게..."
     },
     {
       "id": "HANAchina/72050",
@@ -2209,17 +2213,18 @@
       "localDateKst": "2026-11-13",
       "tags": [
         "semi",
-        "power"
+        "power",
+        "earnings"
       ],
+      "lead": 2,
       "score": 77,
       "hasText": true,
-      "summary": ">>삼성전자, 데이터센터 냉각장비 업체 Modine Manufacturing 인수 협상 (과창판일보) •삼성전자가 데이터센터 냉각 시스템 생산업체 Modine Manufacturing 인수를 협의 중인 것으로...",
-      "lead": 2,
       "tickers": [
         "005930.KS",
         "066570.KS",
         "MOD"
-      ]
+      ],
+      "summary": ">>삼성전자, 데이터센터 냉각장비 업체 Modine Manufacturing 인수 협상 (과창판일보) •삼성전자가 데이터센터 냉각 시스템 생산업체 Modine Manufacturing 인수를 협의 중인 것으로..."
     },
     {
       "id": "bornlupin/21143",
@@ -2287,15 +2292,17 @@
       "datetime": "2026-11-12T23:52:26.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "ai-policy"
+        "ai-policy",
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 74,
       "hasText": true,
-      "summary": ">>美, AI 수출통제 확대 검토…중국의 선진 AI칩 원격 사용 차단 추진 (대만경제일보) •미 상무부가 국가안보 조사를 진행하면서 말레이시아·싱가포르·태국 등 7개국에 대한 AI 수출 제한을 확대하는 새로운...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>美, AI 수출통제 확대 검토…중국의 선진 AI칩 원격 사용 차단 추진 (대만경제일보) •미 상무부가 국가안보 조사를 진행하면서 말레이시아·싱가포르·태국 등 7개국에 대한 AI 수출 제한을 확대하는 새로운..."
     },
     {
       "id": "bornlupin/21142",
@@ -2399,12 +2406,15 @@
       "datetime": "2026-11-12T23:12:42.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
+        "macro",
+        "semi",
+        "kr-market",
         "earnings"
       ],
       "score": 72,
       "hasText": true,
-      "summary": "• 폭스콘은 지난 8월 기업설명회보다 사업 가시성이 크게 개선됨에 따라 4대 핵심 제품군의 전망치를 모두 상향 조정하고, 올 4분기와 2026년 연간 실적 모두 가파른 성장을 기록해 내년까지 호조세가 이어질...",
-      "tickers": []
+      "tickers": [],
+      "summary": "• 폭스콘은 지난 8월 기업설명회보다 사업 가시성이 크게 개선됨에 따라 4대 핵심 제품군의 전망치를 모두 상향 조정하고, 올 4분기와 2026년 연간 실적 모두 가파른 성장을 기록해 내년까지 호조세가 이어질..."
     },
     {
       "id": "HANAchina/72047",
@@ -2413,18 +2423,19 @@
       "datetime": "2026-11-12T23:10:10.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
-      "summary": "•젠슨황 사임으로 엔비디아의 기술 주도권 약화가 우려되면서, CSP 들이 단일 플랫폼 리스크를 줄이기 위해 자체 칩(ASIC)과 TPU 도입을 서두르고 있음 •랙당 최대 500만 달러인 고가 엔비디아 서버의...",
-      "lead": 1,
       "tickers": [
         "NVDA"
       ],
       "relatedTickers": [
         "AVGO"
-      ]
+      ],
+      "summary": "•젠슨황 사임으로 엔비디아의 기술 주도권 약화가 우려되면서, CSP 들이 단일 플랫폼 리스크를 줄이기 위해 자체 칩(ASIC)과 TPU 도입을 서두르고 있음 •랙당 최대 500만 달러인 고가 엔비디아 서버의..."
     },
     {
       "id": "HANAchina/72046",
@@ -2433,17 +2444,18 @@
       "datetime": "2026-11-12T22:56:11.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 64,
       "hasText": true,
-      "summary": "• 엔비디아 젠슨황 CEO 사임 소식 여파로 대만 증시는 1,165pt 급락(11/12), 전문가들은 이를 단기 악재 해소가 아닌 장기적 악재로 평가. 특히 ① 기존 'AI 선순환 생태계'의 붕괴 가능성, ②...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "TSM"
-      ]
+      ],
+      "summary": "• 엔비디아 젠슨황 CEO 사임 소식 여파로 대만 증시는 1,165pt 급락(11/12), 전문가들은 이를 단기 악재 해소가 아닌 장기적 악재로 평가. 특히 ① 기존 'AI 선순환 생태계'의 붕괴 가능성, ②..."
     },
     {
       "id": "insidertracking/69178",
@@ -2487,13 +2499,14 @@
       "datetime": "2026-11-12T22:25:15.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "macro"
       ],
+      "lead": 1,
       "score": 59,
       "hasText": true,
-      "summary": ">>CXMT 부사장 “컴퓨팅 슈퍼사이클, 계층화 시대로 진입…메모리 경쟁은 전 영역으로 확대” •CXMT 부사장 뤄샤오둥은 연산 슈퍼사이클이 ‘계층화 시대’에 진입하면서 메모리 경쟁도 전 영역을 아우르는...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>CXMT 부사장 “컴퓨팅 슈퍼사이클, 계층화 시대로 진입…메모리 경쟁은 전 영역으로 확대” •CXMT 부사장 뤄샤오둥은 연산 슈퍼사이클이 ‘계층화 시대’에 진입하면서 메모리 경쟁도 전 영역을 아우르는..."
     },
     {
       "id": "HANAchina/72041",
@@ -8449,17 +8462,18 @@
       "datetime": "2026-11-12T22:56:11.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 64,
       "hasText": true,
-      "summary": "• 엔비디아 젠슨황 CEO 사임 소식 여파로 대만 증시는 1,165pt 급락(11/12), 전문가들은 이를 단기 악재 해소가 아닌 장기적 악재로 평가. 특히 ① 기존 'AI 선순환 생태계'의 붕괴 가능성, ②...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "TSM"
-      ]
+      ],
+      "summary": "• 엔비디아 젠슨황 CEO 사임 소식 여파로 대만 증시는 1,165pt 급락(11/12), 전문가들은 이를 단기 악재 해소가 아닌 장기적 악재로 평가. 특히 ① 기존 'AI 선순환 생태계'의 붕괴 가능성, ②..."
     },
     {
       "id": "insidertracking/69178",
@@ -8503,13 +8517,14 @@
       "datetime": "2026-11-12T22:25:15.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "macro"
       ],
+      "lead": 1,
       "score": 59,
       "hasText": true,
-      "summary": ">>CXMT 부사장 “컴퓨팅 슈퍼사이클, 계층화 시대로 진입…메모리 경쟁은 전 영역으로 확대” •CXMT 부사장 뤄샤오둥은 연산 슈퍼사이클이 ‘계층화 시대’에 진입하면서 메모리 경쟁도 전 영역을 아우르는...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>CXMT 부사장 “컴퓨팅 슈퍼사이클, 계층화 시대로 진입…메모리 경쟁은 전 영역으로 확대” •CXMT 부사장 뤄샤오둥은 연산 슈퍼사이클이 ‘계층화 시대’에 진입하면서 메모리 경쟁도 전 영역을 아우르는..."
     },
     {
       "id": "HANAchina/72041",
