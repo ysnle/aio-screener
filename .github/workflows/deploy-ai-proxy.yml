@@ -301,7 +301,7 @@ jobs:
           # code enforcing the shared ledger — the previous revision reads the same ledger, so rolling back fixes nothing.
           # It is reported as operating-blocked; any other non-200 is still a code failure and rolls back.
           policy_blocked=0
-          if [ "$upstream_status" = '429' ] && node -e "const r=JSON.parse(require('fs').readFileSync(process.argv[1]));if(!['monthly-budget','daily-cap','client-daily-cap','rate-limit'].includes(r?.error?.code))process.exit(1)" "$RUNNER_TEMP/aio-ai-upstream.json"; then
+          if [ "$upstream_status" = '429' ] && node -e "const r=JSON.parse(require('fs').readFileSync(process.argv[1]));if(!['monthly-budget','daily-cap','client-daily-cap','rate-limit'].includes(r?.error?.code)&&!['insufficient_quota','credit_balance_exhausted'].includes(r?.error?.type??r?.error?.code))process.exit(1)" "$RUNNER_TEMP/aio-ai-upstream.json"; then
             policy_blocked=1
             echo "::warning::ai_proxy_operating_blocked: paid smoke answered 429 $(node -e "console.log(JSON.parse(require('fs').readFileSync(process.argv[1])).error.code)" "$RUNNER_TEMP/aio-ai-upstream.json") — the deployed code enforced the budget; paid checks skipped, not rolled back"
           elif [ "$upstream_status" != '200' ]; then cat "$RUNNER_TEMP/aio-ai-upstream.json" || true; echo "::error::ai_proxy_upstream_failed: HTTP $upstream_status"; exit 1; fi

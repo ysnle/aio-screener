@@ -116,7 +116,9 @@ jobs:
             // v58.84 recovery hysteresis: a lane flapping fail/fail/pass/fail/fail closed and reopened its issue on every
             // pass, two notifications per flap (issue #4 reached 184 comments). An open alert closes only when the previous
             // observed run also succeeded; a lone pass between failures leaves it open and quiet.
-            if (succeeded && existing && existing.state === 'open') {
+            // A deploy workflow runs only when its inputs change, so its second success can be days away; its success is a
+            // verified step (workSteps), which is the evidence the hysteresis asks a second run for.
+            if (succeeded && existing && existing.state === 'open' && !workSteps[workflow]) {
               for (const candidate of recentRuns.filter((item) => item.id !== run.id)) {
                 if (candidate.conclusion === 'success' && !(await observedWork(candidate.id))) continue;
                 if (candidate.conclusion !== 'success') {
