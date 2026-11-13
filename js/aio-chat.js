@@ -3619,7 +3619,7 @@ function updateAIPanelContext(pageId) {
     if (aiInp) { aiInp.disabled = true; if (_ctxChanged) { aiInp.value = ''; _aioSyncQuestionCount(); } }
     if (aiBtn) aiBtn.disabled = true;
     var msgsEl = document.getElementById('ai-panel-msgs');
-    if (msgsEl) {
+    if (msgsEl && !_keepRunningAnswer) { // a running answer stays on screen and finishes here (the panel stays mounted)
       msgsEl.innerHTML = '<div class="ai-no-ctx">AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.</div>';
     }
     var titleEl = document.getElementById('ai-panel-title');

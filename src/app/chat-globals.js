@@ -31,7 +31,10 @@ export function installChatGlobals(root = globalThis) {
   root.AIO.answerQualitySummary = (options) => summariseAnswerQuality(storage(), options);
   root.AIO.answerReferenceText = answerReferenceText; // the injected data an answer's figures are checked against
   root.AIO.chatTools = chatToolKit(root); // the data tools the model may call (src/ai/tools/), run by callSharedAi
-  root.AIO.chatRun = createChatRunKit(root, root.document); // the waiting line of a running answer
+  // The waiting line of a running answer; its question is kept in this tab's sessionStorage until the answer arrives, so
+  // a reload during the wait offers it again once the panel loads.
+  root.AIO.chatRun = createChatRunKit(root, root.document, { storage: () => { try { return root.sessionStorage || null; } catch (_) { return null; } } });
+  try { root.AIO.chatRun.showPendingCard(); } catch (_) { /* the panel works without the card */ }
   // Reader memory on this device: the ids a question is about, and earlier saved conversations about the same ids. The
   // saved conversations come from the panel's session api (src/ui/components/chat-sessions.js), which returns none
   // without the conversation-saving consent; the open conversation is already in the model context.

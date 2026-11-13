@@ -113,7 +113,10 @@ try {
   await waiting.evaluate(async () => {
     window.clock = { t: 5_000_000 };
     const { createChatRunKit } = await import('/src/ui/components/chat-run-status.js');
-    window.kit = createChatRunKit(window, document, { now: () => window.clock.t });
+    window.tab = new Map();
+    window.tabStore = { getItem: (k) => (tab.has(k) ? tab.get(k) : null), setItem: (k, v) => tab.set(k, String(v)), removeItem: (k) => tab.delete(k) };
+    window.kit = createChatRunKit(window, document, { now: () => window.clock.t, storage: () => tabStore });
+    window.leaveAsks = () => { const event = new Event('beforeunload', { cancelable: true }); window.dispatchEvent(event); return event.defaultPrevented; };
     // The panel's loading bubble as js/aio-chat.js _appendAIMsg builds it.
     window.loadingBubble = () => {
       const msg = document.createElement('div'); msg.className = 'ai-msg ai'; msg.id = 'ai-panel-loading';
@@ -161,6 +164,48 @@ try {
     await new Promise((resolve) => setTimeout(resolve, 1300));
     return { nodes: statusNodes().length, unchanged: node.textContent === before, running: stopped.status.running };
   }), { nodes: 0, unchanged: true, running: false }, 'v60.02 a stopped run leaves no status line and no running timer');
+  // Part B: while a run is in flight its question is kept for this tab and leaving asks first; the release undoes both.
+  assert.deepEqual(await waiting.evaluate(() => {
+    const before = leaveAsks();
+    const live = startRun('반도체 재고 흐름은?');
+    const during = { asks: leaveAsks(), kept: JSON.parse(tab.get('aio_chat_pending_v1') || 'null')?.question };
+    _aioReleaseChatRequest(live);
+    return { before, during, after: leaveAsks(), keptAfter: tab.has('aio_chat_pending_v1') };
+  }), { before: false, during: { asks: true, kept: '반도체 재고 흐름은?' }, after: false, keptAfter: false }, 'v60.02 beforeunload and the kept question last exactly from send to release');
+  // A hidden tab gets no frame: stream end does not wait for one, so a finished answer is published as usual.
+  assert.equal(await waiting.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    const hiddenRun = startRun('숨은 탭 질문');
+    const settled = hiddenRun.status.hook('ended');
+    _aioReleaseChatRequest(hiddenRun);
+    delete document.hidden;
+    return settled === undefined && document.hidden === false;
+  }), true, 'v60.02 a hidden tab does not hold the answer back at stream end');
+  // After a reload: the card above the question box, with 다시 묻기 and 지우기; expired after 15 minutes.
+  assert.deepEqual(await waiting.evaluate(() => {
+    document.getElementById('ai-panel-msgs').replaceChildren();
+    const question = '엔비디아 실적 발표 뒤 반도체 공급망 전체의 재고와 가격 흐름이 어떻게 달라졌는지 기업별로 나눠서 자세히 설명해 줘. 특히 메모리와 파운드리 쪽을 중심으로';
+    const keep = () => tab.set('aio_chat_pending_v1', JSON.stringify({ sessionId: null, ctx: 'home', question, startedAt: clock.t - 60_000 }));
+    keep();
+    const card = kit.showPendingCard();
+    const quoted = /^답변을 받기 전에 화면이 새로 열렸습니다\. 방금 질문: "(.+)…"$/.exec(card?.querySelector('p')?.textContent || '')?.[1] || '';
+    const shown = { above: card?.nextElementSibling?.id === 'ai-panel-chips', quote: quoted.length <= 79 && quoted.length >= 70 && question.startsWith(quoted), buttons: [...(card?.querySelectorAll('button') || [])].map((b) => b.textContent), cards: document.querySelectorAll('#ai-pending-turn').length };
+    card.querySelectorAll('button')[1].click();
+    const cleared = { card: !!document.getElementById('ai-pending-turn'), kept: tab.has('aio_chat_pending_v1') };
+    keep();
+    const sent = [];
+    window.chatSendUnified = () => sent.push(document.getElementById('ai-panel-inp').value);
+    kit.showPendingCard().querySelectorAll('button')[0].click();
+    const asked = { sent, card: !!document.getElementById('ai-pending-turn'), kept: tab.has('aio_chat_pending_v1') };
+    keep();
+    clock.t += 15 * 60_000;
+    return { shown, cleared, asked, expired: kit.showPendingCard() === null && !tab.has('aio_chat_pending_v1') };
+  }), {
+    shown: { above: true, quote: true, buttons: ['다시 묻기', '지우기'], cards: 1 },
+    cleared: { card: false, kept: false },
+    asked: { sent: ['엔비디아 실적 발표 뒤 반도체 공급망 전체의 재고와 가격 흐름이 어떻게 달라졌는지 기업별로 나눠서 자세히 설명해 줘. 특히 메모리와 파운드리 쪽을 중심으로'], card: false, kept: false },
+    expired: true
+  }, 'v60.02 the reload card quotes the question (80 chars), 지우기 forgets it, 다시 묻기 sends it once, and it expires at 15 minutes');
   await waiting.close();
   console.log('Chat UI state Chromium fixture PASS: keyboard stop, cancelled turn isolation, route cancellation, stale epoch, completion cleanup, malformed/expired history isolation, retired history overlay absent (v59.42), waiting line in place and stopped with its run (v60.02). Offline isolated DOM evidence.');
 } finally { await browser.close(); }

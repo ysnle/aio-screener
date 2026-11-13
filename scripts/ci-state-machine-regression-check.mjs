@@ -297,6 +297,43 @@ this._aioKeepRunningAnswer = function (from, to) { return !!(from && to && this.
   pass('SM-08 a kept-running answer keeps the send button off on every AI screen');
 }
 
+// SM-08b (v60.02, plan 050) — the same cut, with the real keep rule of src/ui/components/chat-sessions.js: the panel is a
+// shell panel that stays mounted, so moving to a screen without an AI context keeps the running answer and its messages.
+{
+  const { installChatSessions } = await import('../src/ui/components/chat-sessions.js');
+  const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+  const cut = (from, to) => { const a = source.indexOf(from), b = source.indexOf(to, a); assert(a >= 0 && b > a, `v60.02 SM-08b: ${from} is found in js/aio-chat.js`); return source.slice(a, b); };
+  const inert = () => new Proxy(function () {}, { apply: () => undefined, get: (_, key) => (key === 'then' ? undefined : inert()) });
+  const sessionsRoot = { getChatState: () => null };
+  const sessions = installChatSessions(sessionsRoot, { getElementById: () => null, querySelector: () => null, createElement: () => inert() }, { storage: null });
+  const msgs = { innerHTML: '<div class="ai-msg">질문</div><div id="ai-panel-loading">생각하는 중</div>', scrollTop: 0, scrollHeight: 0 };
+  const button = { disabled: false, textContent: '전송', setAttribute() {}, removeAttribute() {} };
+  const input = { disabled: false, value: '' };
+  const own = {
+    window: {}, AbortController, Date, String, Object, Array, Math, Promise,
+    document: { getElementById: (id) => (id === 'ai-panel-btn' ? button : id === 'ai-panel-inp' ? input : id === 'ai-panel-msgs' ? msgs : null), createElement: () => ({}) },
+    CHAT_CONTEXTS: { home: { title: '오늘' }, macro: { title: '매크로' } }, _aiDefaultChips: {}
+  };
+  own.window = own;
+  const context = vm.createContext(new Proxy(own, { has: () => true, get: (target, key) => (key in target ? target[key] : key === Symbol.unscopables ? undefined : inert()) }));
+  vm.runInContext(`${cut('const chatState = {};', "if (typeof window !== 'undefined') {")}
+var _aiCurrentCtx = 'home'; var _aiCtxMap = { home: 'home', macro: 'macro' };
+${cut('function updateAIPanelContext(', 'function _aioSyncQuestionCount(')}
+getChatState = function () { return this.__shared; }.bind(this);`, Object.assign(context, { __shared: sessions.shared, _aioKeepRunningAnswer: sessionsRoot._aioKeepRunningAnswer }));
+  const run = context._aioBeginChatRequest('home', '질문', { entrypoint: 'unified-chat', buttonId: 'ai-panel-btn', idleLabel: '전송' });
+  context.updateAIPanelContext('masters'); // a screen without an AI context
+  assert.equal(sessions.shared._activeRequest, run, 'v60.02 SM-08b: moving to a screen without an AI context keeps the running answer');
+  assert.equal(run.controller.signal.aborted, false, 'v60.02 SM-08b: the kept answer is not aborted');
+  assert.ok(msgs.innerHTML.includes('ai-panel-loading') && !msgs.innerHTML.includes('ai-no-ctx'), 'v60.02 SM-08b: its question and waiting line stay on screen');
+  context.updateAIPanelContext('macro');
+  assert.equal(sessions.shared._activeRequest, run, 'v60.02 SM-08b: coming back to an AI screen still has the answer running');
+  assert.ok(msgs.innerHTML.includes('ai-panel-loading'), 'v60.02 SM-08b: coming back does not repaint over the waiting line');
+  context._aioReleaseChatRequest(run);
+  context.updateAIPanelContext('masters');
+  assert.ok(msgs.innerHTML.includes('ai-no-ctx'), 'v60.02 SM-08b: with nothing running, a screen without an AI context shows its notice');
+  pass('SM-08b a running answer survives a move to a screen without an AI context');
+}
+
 // SM-13 — the real on-demand reader: a pending read keeps its cache slot while 40 settled reads pass it.
 {
   let pendingListing = null;

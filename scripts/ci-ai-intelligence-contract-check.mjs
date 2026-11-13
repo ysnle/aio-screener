@@ -1747,6 +1747,29 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check('v60.02 an unknown stage name is ignored', q.stage('streaming').snapshot().stage === 'checking');
 }
 
+// v60.02 (plan 050): the question kept for this tab while its answer runs (src/ai/session/pending-turn.js).
+{
+  const pt = await import('../src/ai/session/pending-turn.js');
+  const box = new Map();
+  const tab = { getItem: (k) => (box.has(k) ? box.get(k) : null), setItem: (k, v) => box.set(k, String(v)), removeItem: (k) => box.delete(k) };
+  const t0 = 2_000_000;
+  const long = '엔비디아 실적 발표 뒤 반도체 공급망 전체의 재고와 가격 흐름이 어떻게 달라졌는지 기업별로 나눠서 자세히 설명해 줘. 특히 메모리와 파운드리 쪽을 중심으로';
+  check('v60.02 a pending turn is stored under one key with its session, screen, question and start', pt.savePendingTurn(tab, { sessionId: 's1', ctx: 'home', question: long, startedAt: t0 }) === true
+    && JSON.stringify(JSON.parse(box.get(pt.PENDING_TURN_KEY))) === JSON.stringify({ sessionId: 's1', ctx: 'home', question: long, startedAt: t0 }));
+  check('v60.02 a pending turn reads back within 15 minutes', pt.readPendingTurn(tab, { now: t0 + 14 * 60_000 })?.question === long);
+  check('v60.02 a pending turn expires at 15 minutes and is removed', pt.readPendingTurn(tab, { now: t0 + 15 * 60_000 }) === null && !box.has(pt.PENDING_TURN_KEY));
+  pt.savePendingTurn(tab, { ctx: 'home', question: '짧은 질문', startedAt: t0 });
+  pt.clearPendingTurn(tab);
+  check('v60.02 a finished turn clears the kept question', pt.readPendingTurn(tab, { now: t0 }) === null);
+  box.set(pt.PENDING_TURN_KEY, '{not json');
+  check('v60.02 an unreadable or future-dated record reads as none', pt.readPendingTurn(tab, { now: t0 }) === null
+    && pt.savePendingTurn(tab, { question: '미래', startedAt: t0 + 60_000 }) && pt.readPendingTurn(tab, { now: t0 }) === null);
+  check('v60.02 an empty question or a refusing store keeps nothing', pt.savePendingTurn(tab, { question: '  ', startedAt: t0 }) === false
+    && pt.savePendingTurn({ setItem() { throw new Error('quota'); } }, { question: 'q', startedAt: t0 }) === false && pt.savePendingTurn(null, { question: 'q', startedAt: t0 }) === false);
+  const preview = pt.pendingQuestionPreview(long);
+  check(`v60.02 the card quotes at most 80 characters of the question (${preview.length})`, preview.length <= 80 && preview.length >= 70 && preview.endsWith('…') && long.startsWith(preview.slice(0, -1)) && pt.pendingQuestionPreview(' 짧은\n질문 ') === '짧은 질문');
+}
+
 if (failures.length) {
   console.error(`AI intelligence contract failed (${failures.length})`);
   failures.forEach((failure) => console.error(`- ${failure}`));
