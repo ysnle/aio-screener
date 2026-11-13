@@ -1163,6 +1163,19 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     yonhap?.country === 'kr' && yonhap.tier === 2 && yonhap.source === '연합뉴스' && NEWS_FEEDS.filter((feed) => /news\.google\.com/.test(feed.url)).length >= 8, JSON.stringify(yonhap));
 }
 {
+  // v60.02 (plan 046, owner 2026-11-12 "Judgement allowed"): the home sentence may assess (매수/매도 as the object or modifier
+  // of a state noun); an order to the reader is still rejected. The short orders fail on length alone, so each is also
+  // checked inside a longer line, where the instruction rule must catch it.
+  const { marketSentenceRejectReason } = await import('./lib/market-analysis-validate.mjs');
+  const assessments = ['주식 매수가 부담스러운 구간입니다.', '추격 매수의 비용이 큽니다.', '현금 보유가 우위인 하루였습니다.', '분할 매수하기 좋은 국면으로 읽힙니다.'];
+  const orders = ['지금 매수하세요.', '매도할 때입니다.', '지금은 매수.', '비중을 줄이세요.'];
+  const passed = Object.fromEntries(assessments.map((text) => [text, marketSentenceRejectReason(text)]));
+  const rejected = Object.fromEntries(orders.map((text) => [text, [marketSentenceRejectReason(text), marketSentenceRejectReason(`흔들린 하루 뒤의 판단은 이렇다, ${text}`)]]));
+  check('v60.02 the home sentence may judge (매수 부담, 추격 매수의 비용, 현금 우위, 매수하기 좋은 국면) and an order to the reader is still rejected',
+    Object.values(passed).every((reason) => reason === null) && Object.values(rejected).every(([alone, inLine]) => alone !== null && inLine === 'instruction'),
+    JSON.stringify({ passed, rejected }));
+}
+{
   // v57.75 (AI pipeline + crash-day audit): a citation id or a refusal counted as attribution; likelihood in words and
   // frequency without n passed; a retained reading was never re-checked; the sentence label leaked when bolded, the
   // sentence named companies in lowercase, promised a policy rescue, and could not change after a crash at 10:00 KST.
