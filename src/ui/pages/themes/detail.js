@@ -519,7 +519,14 @@ export function memberTable(documentRef, root, members, { onSort, showGroup = fa
     th.setAttribute('aria-sort', sort.key === key ? (sort.dir < 0 ? 'descending' : 'ascending') : 'none');
     const button = make('button', `${label}${sort.key === key ? (sort.dir < 0 ? ' ↓' : ' ↑') : ''}`, 'thp-member-sort');
     button.type = 'button';
-    button.addEventListener('click', () => { root._aioMemberSort = { key, dir: sort.key === key ? -sort.dir : -1 }; onSort?.(); });
+    button.dataset.sortKey = key;
+    button.addEventListener('click', () => {
+      const dir = sort.key === key ? -sort.dir : -1;
+      root._aioMemberSort = { key, dir };
+      onSort?.();
+      documentRef.querySelector(`.thp-member-sort[data-sort-key="${key}"]`)?.focus?.({ preventScroll: true });
+      root._aioAnnounce?.(`${label} ${dir < 0 ? '높은 순' : '낮은 순'}으로 정렬했습니다`);
+    });
     th.append(button);
     hr.append(th);
   }

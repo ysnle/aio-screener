@@ -156,11 +156,11 @@ try {
     assert.ok((await page.locator('#page-principles').textContent()).includes(lesson.reverse),'P1605: selected note includes counter-path');
   }
   await capture('research-note','principles','learn','open all five supplied reasoning notes','five notes show mechanisms, examples and counter-paths');
-  await page.getByRole('searchbox', {name:'리서치 라이브러리 통합 검색',exact:true}).fill('차환');
+  await page.getByRole('combobox', {name:'리서치 라이브러리 통합 검색',exact:true}).fill('차환');
   const noteResult=page.getByRole('option').filter({hasText:'평균이 감추는 신용 분산과 차환의 시간차'});
   await noteResult.click();
   await page.getByRole('heading',{name:'평균이 감추는 신용 분산과 차환의 시간차',exact:true}).waitFor({state:'visible'});
-  assert.equal(await page.getByRole('searchbox',{name:'리서치 라이브러리 통합 검색',exact:true}).inputValue(), '', 'P1606: search selection opens the canonical note and clears search');
+  assert.equal(await page.getByRole('combobox',{name:'리서치 라이브러리 통합 검색',exact:true}).inputValue(), '', 'P1606: search selection opens the canonical note and clears search');
   const refused=await browser.newContext({serviceWorkers:'block'});
   await refused.route('**/*',(r)=>r.request().url().startsWith(base)?r.continue():r.abort());
   await refused.addInitScript(()=>{Storage.prototype.getItem=function(){throw new DOMException('fixture','SecurityError');};});

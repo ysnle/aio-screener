@@ -9,6 +9,7 @@ import { parseConditionValue, matchesConditions, conditionCoverage, conditionLab
 import { sectorLabel } from '../../../domain/screener/screener-read.js';
 import { readUniverseScope, rememberExtendedCount, writeUniverseScope } from '../../../data/screener-extended.js';
 import { finiteNumber as finite } from '../../../domain/shared/number.js';
+import { openLayer } from '../../behaviors/layers.js';
 import { FILTER_LABELS, INDEX_CODE_LABELS, INDEX_LABELS, customRead, scopedRows, screenerRuntime, selectedValue } from './model.js';
 export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {}) {
   const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
@@ -596,8 +597,10 @@ export function createFiltersController(ctx) {
   // v59.70 (S12): + 조건 and 보기 open one panel each under the bar (one open at a time). Escape or a click outside closes
   // the panel and returns focus to its button.
   const panelButton = (id) => page.querySelector(`[data-aio-screener-action="toggle-panel"][data-aio-screener-arg="${id}"]`);
-  const openPanel = () => [...page.querySelectorAll('.scr-panel')].find((panel) => !panel.hidden) || null;
+  let releasePanel = () => {};
   ctx.setPanel = (id, open, { returnFocus = true } = {}) => {
+    releasePanel();
+    releasePanel = () => {};
     for (const panel of page.querySelectorAll('.scr-panel')) {
       const on = !!open && panel.id === id;
       const wasOpen = !panel.hidden;
@@ -605,20 +608,10 @@ export function createFiltersController(ctx) {
       panelButton(panel.id)?.setAttribute('aria-expanded', on ? 'true' : 'false');
       if (wasOpen && !on && returnFocus && panel.contains(documentRef.activeElement)) panelButton(panel.id)?.focus?.({ preventScroll: true });
     }
-    if (open) documentRef.getElementById(id)?.querySelector('button, select, input')?.focus?.({ preventScroll: true });
-  };
-  const onPanelKeydown = (event) => {
-    const panel = openPanel();
-    if (event.key !== 'Escape' || !panel) return;
-    if (!panel.contains(event.target) && event.target !== panelButton(panel.id)) return;
-    event.preventDefault();
-    ctx.setPanel(panel.id, false);
-    panelButton(panel.id)?.focus?.({ preventScroll: true });
-  };
-  const onOutside = (event) => {
-    const panel = openPanel();
-    if (!panel || panel.contains(event.target) || event.target.closest?.('[data-aio-screener-action="toggle-panel"]')) return;
-    ctx.setPanel(panel.id, false, { returnFocus: false });
+    const panel = open ? documentRef.getElementById(id) : null;
+    if (!panel) return;
+    panel.querySelector('button, select, input')?.focus?.({ preventScroll: true });
+    releasePanel = openLayer({ root: panel, modal: false, outside: true, trigger: panelButton(id), onDismiss: () => { ctx.setPanel(id, false, { returnFocus: false }); panelButton(id)?.focus?.({ preventScroll: true }); } });
   };
   // '/' focuses 표에서 찾기 (the command search keeps Ctrl+K); typing in a field keeps its slash.
   const onSlash = (event) => {
@@ -631,12 +624,9 @@ export function createFiltersController(ctx) {
     search.focus();
     search.select?.();
   };
-  page.addEventListener('keydown', onPanelKeydown);
-  documentRef.addEventListener('pointerdown', onOutside, true);
   documentRef.addEventListener('keydown', onSlash);
   bag.add(() => {
-    page.removeEventListener('keydown', onPanelKeydown);
-    documentRef.removeEventListener('pointerdown', onOutside, true);
+    releasePanel();
     documentRef.removeEventListener('keydown', onSlash);
     ctx.setPanel(null, false, { returnFocus: false });
   });

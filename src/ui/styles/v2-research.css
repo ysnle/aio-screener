@@ -46,7 +46,7 @@
 }
 .rl-shell .rl-shelf:not([open]) { padding-bottom: 4px; }
 .rl-shell .rl-shelf > summary { padding: 0 0 12px; }
-.rl-shell .rl-shelf-name { font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+.rl-shell .rl-shelf-name { font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: 0; }
 .rl-shell .rl-shelf-stats { font-size: 12px; color: var(--text-muted); }
 .rl-shell .rl-shelf-toggle { border: 0; font-size: 12px; color: var(--text-secondary); }
 .rl-shell .rl-picks { border-bottom: 0.5px solid rgba(var(--ink-rgb), 0.06); }
@@ -161,7 +161,7 @@
 /* ═══ 4. Documents (analysis notes, columns, lessons) inside the hero card ═ */
 .rl-shell .af-kicker { font-size: 12px; letter-spacing: 0; }
 .rl-shell .af-issue { font-family: var(--font-sans); font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
-.rl-shell .af-section { font-size: 14px; letter-spacing: -0.01em; }
+.rl-shell .af-section { font-size: 14px; letter-spacing: 0; }
 .rl-shell .af-flow-step, .rl-shell .af-channel, .rl-shell .af-tag {
   border: 0; border-radius: var(--radius-full); background: var(--rs-tile-strong); padding: 5px 11px;
 }
@@ -282,7 +282,7 @@
 #page-masters .masters-holdings-section, #page-masters .masters-style-compare {
   border: 0; border-radius: var(--radius-container); padding: 18px 20px; background: var(--rs-tile);
 }
-#page-masters .masters-holdings-title { font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+#page-masters .masters-holdings-title { font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: 0; }
 #page-masters .masters-ticker-lookup-input { height: 38px; border: 0; border-radius: var(--radius-container); background: var(--rs-tile-strong); font-size: 14px; }
 #page-masters .masters-ticker-lookup-input:focus { outline: none; background: var(--bg-card); box-shadow: 0 0 0 3px rgba(var(--ink-rgb), 0.12); }
 /* v58.56 (#4): exact-CUSIP ticker chips (open 종목 요약) beside the readable issuer name; top holdings as chips under the name. */
@@ -308,7 +308,7 @@
 /* v58.56 (#8, 5j): value-chain layer card in the atlas domain view's right column — seven layers, bottom-up,
    registry companies as chips (ticker chips open 종목 요약). No layer is tinted: the grouping is not a bottleneck claim. */
 #page-atlas .atlas-layers-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 8px; margin: 0 0 10px; }
-#page-atlas .atlas-layers-title { margin: 0; font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; color: var(--text-primary); }
+#page-atlas .atlas-layers-title { margin: 0; font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: 0; color: var(--text-primary); }
 #page-atlas .atlas-layers-sub { font-size: 12px; color: var(--text-muted); }
 #page-atlas .atlas-layers-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 #page-atlas .atlas-layer { border-radius: var(--radius-container); background: var(--rs-tile); padding: 4px 6px 8px; }
@@ -377,7 +377,7 @@
 #kr-themes-artifact-read .stock-read-bar.is-down { background: var(--candle-down, var(--blue-11)); }
 
 #regime-kr-participation { font-size: 14px; line-height: 1.7; padding: 0; border: 0; border-radius: 0; background: none; }
-#regime-kr-participation > h2 { display: flex; align-items: center; font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+#regime-kr-participation > h2 { display: flex; align-items: center; font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: 0; }
 #regime-kr-participation > h3 { font-size: 14px; font-weight: 700; margin: 18px 0 8px; }
 #regime-kr-participation .flow-lead { font-size: 14px; color: var(--text-secondary); }
 #regime-kr-participation .regime-kr-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 10px; max-width: none; margin: 12px 0; }
@@ -397,7 +397,7 @@
 /* v58.55 개편 v2 (5n) 투자자별 순매수 — diverging bars on a centre line, Korean colours (net buying red · net selling blue). */
 .kr-flows { margin: 18px 0 6px; font-size: 14px; line-height: 1.6; }
 .kr-flows-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; margin: 0 0 10px; }
-.kr-flows-head > h3 { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+.kr-flows-head > h3 { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: 0; }
 .kr-flows-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .kr-flows-market { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 16px 18px; border-radius: var(--radius-container); background: var(--rs-tile); }
 .kr-flows-market-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }

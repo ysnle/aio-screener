@@ -23,7 +23,7 @@
 /* Refresh progress layer — appended to <body>, outside .page, so no inline font-size substring rule applied. */
 #aio-refresh-progress-layer { position: fixed; right: 14px; top: 58px; z-index: 99998; width: min(360px, calc(100vw - 28px)); background: var(--surface-2,var(--green-12)); border: 1px solid var(--border,var(--gold-12)); border-radius: var(--radius-inner); box-shadow: 0 14px 34px var(--black-a5); padding: 10px 12px; color: var(--text-primary,var(--blue-3)); font-family: var(--font-sans,system-ui); }
 #aio-refresh-progress-layer .lu-rp-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
-#aio-refresh-progress-title { font-size: 12px; font-weight: 800; }
+#aio-refresh-progress-title { font-size: 12px; font-weight: 700; }
 #aio-refresh-progress-layer .lu-rp-track { height: 4px; background: var(--surface-4,var(--gold-12)); border-radius: var(--radius-inner); overflow: hidden; margin-bottom: 8px; }
 #aio-refresh-progress-bar { height: 100%; width: 0%; background: var(--data-cyan,var(--blue-5)); transition:width var(--dur-base) var(--ease-out); }
 #aio-refresh-progress-list { display: grid; gap: 4px; max-height: 190px; overflow: auto; }

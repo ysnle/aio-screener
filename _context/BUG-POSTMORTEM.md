@@ -39,6 +39,26 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2402 - v60.05 - 입력창에서 취소 버튼에 Enter를 누르면 값이 저장됨 (2026-11-13)
+
+- symptom/reproduction: 값 입력 모달에서 Tab으로 취소에 간 뒤 Enter를 누르면 취소가 아니라 입력값이 제출됐다.
+- root_cause: Enter 제출을 문서 전체 keydown에서 받았다. 포커스가 어느 버튼에 있든 Enter는 제출이었다.
+- fix: Enter 제출을 입력 필드의 keydown으로 옮겼다(한글 조합 중 Enter 제외). Escape는 레이어 스택이 맡는다.
+- violated_rule: 키 처리는 그 컨트롤 범위에서만 (C 색인: 단일 소유자)
+- prevention: 모달의 키 처리는 behaviors/layers.js와 해당 컨트롤에만 둔다. 문서 범위 Escape/Enter 리스너를 새로 만들지 않는다.
+- verification/residual: 로컬 브라우저에서 포트폴리오 값 입력 모달: 취소에 포커스 후 Enter → 값 변경 없음.
+- files: js/aio-workspace.js
+
+## P2401 - v60.05 - Escape 한 번에 겹친 레이어가 함께 닫힘 (2026-11-13)
+
+- symptom/reproduction: AI 패널을 연 채 단축키 도움말(또는 확인창)을 열고 Escape를 누르면 도움말과 AI 패널이 한 번에 닫혔다.
+- root_cause: Escape 처리자가 모달 트랩, 단축키 처리기, 반응형 셸, 확인창에 따로 있었고 서로의 처리 여부(defaultPrevented)를 보지 않았다. 열린 순서를 아는 곳이 없었다.
+- fix: src/ui/behaviors/layers.js가 열린 레이어를 순서대로 쌓고 문서당 키 리스너 하나로 맨 위 레이어만 닫는다. window._aioModalTrap은 이 모듈이 설치하고 js/aio-core.js의 사본은 지웠다. 단축키 처리기와 반응형 셸은 이미 처리된 Escape를 건너뛰고, 확인창의 두 번째 Escape 리스너는 지웠다. 모달이 열린 동안 뒤 화면은 inert다.
+- violated_rule: 한 동작의 소유자는 하나 (C 색인: 단일 소유자)
+- prevention: ci-esm-core-unit-check가 레이어 두 개를 열고 Escape 한 번에 위 레이어만 닫히는지, 다음 Escape가 아래 레이어에 닿는지, 문서당 리스너가 하나인지 확인한다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs 통과. 로컬 브라우저에서 AI 패널+도움말을 열고 Escape 1회: 도움말만 닫힘, 2회: AI 패널 닫힘.
+- files: src/ui/behaviors/layers.js, src/ui/navigation/screen-shortcuts.js, src/ui/components/responsive-shell.js, js/aio-workspace.js, js/aio-core.js
+
 ## P2400 - v60.04 - v60.04 a live comparison answer keeps the figures it copied from its material and loses its false 'no current figures' header (2026-11-13)
 
 - symptom/reproduction: A live answer (2026-11-13, NVDA vs AMD, 6 tool calls) opened with '※ 최신 수치 확인 안 됨 — 일반 설명만' above a table full of figures; all six typed claims were dropped, three true sentences were removed (two that only dated their sources, one giving each company its own growth figure), the RSI cells read '확인 필요', and the chart's 3-month figures differed from the table's.

@@ -1,8 +1,12 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-09
+last_verified: 2026-11-13
 confidence: medium
 ---
+
+## v60.05 공용 동작 계층 (2026-11-13)
+
+- [x] QA-A11Y-05: 겹친 레이어에서 Escape는 맨 위 하나만 닫고, 모달이 열린 동안 뒤 화면은 inert다 (v60.05 P2401). verify_by: node scripts/ci-esm-core-unit-check.mjs
 
 ## v59.88 스크리너 산출물 계약 (2026-11-09)
 

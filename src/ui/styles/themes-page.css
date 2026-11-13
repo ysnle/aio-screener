@@ -59,7 +59,7 @@
 .page .thp-expert-fold > :not(summary) { margin-top: 8px; }
 
 /* Theme detail: section headings, bodies and empty states */
-.page .thp-detail-heading { font-size: var(--fs-base); font-weight: 800; color: var(--text-secondary); margin: 8px 0 4px; }
+.page .thp-detail-heading { font-size: var(--fs-base); font-weight: 700; color: var(--text-secondary); margin: 8px 0 4px; }
 .page .thp-detail-heading.thp-detail-heading--loose { margin: 8px 0 6px; }
 .page .thp-detail-body { font-size: var(--fs-sm); line-height: 1.7; color: var(--text-secondary); }
 .page .thp-detail-body.thp-detail-body--grid { display: grid; gap: 4px; }
@@ -72,16 +72,16 @@
 .page .thp-subtheme-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 5px; }
 .page .thp-subtheme-name { font-size: var(--fs-base); font-weight: 700; color: var(--text-primary); }
 .page .thp-subtheme-etf { font-size: var(--fs-xs); font-family: var(--font-mono); font-weight: 700; color: var(--text-muted); }
-.page .thp-subtheme-pct { font-size: var(--fs-sm); font-family: var(--font-mono); font-weight: 800; }
+.page .thp-subtheme-pct { font-size: var(--fs-sm); font-family: var(--font-mono); font-weight: 700; }
 .page .thp-ticker-chips { display: flex; gap: 4px; flex-wrap: wrap; }
 .page .thp-ticker-chip { font-size: var(--fs-xs); font-family: var(--font-mono); color: var(--text-secondary); background: var(--surface-2); padding: 2px 6px; border-radius: var(--radius-inner); cursor: pointer; }
 
 /* Theme detail: leader cards */
 .page .thp-leader-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px; }
 .page .thp-leader-card { text-align: left; background: var(--surface-2); border: 0.5px solid var(--surface-5); border-radius: var(--radius-inner); padding: 7px 8px; cursor: pointer; color: var(--text-primary); }
-.page .thp-leader-ticker { display: block; font-size: var(--fs-base); font-weight: 800; font-family: var(--font-mono); color: var(--accent); }
+.page .thp-leader-ticker { display: block; font-size: var(--fs-base); font-weight: 700; font-family: var(--font-mono); color: var(--accent); }
 .page .thp-leader-price { display: block; font-size: var(--fs-sm); font-family: var(--font-mono); color: var(--text-secondary); margin-top: 2px; }
-.page .thp-leader-pct { display: block; font-size: var(--fs-sm); font-family: var(--font-mono); font-weight: 800; margin-top: 2px; }
+.page .thp-leader-pct { display: block; font-size: var(--fs-sm); font-family: var(--font-mono); font-weight: 700; margin-top: 2px; }
 
 /* Existing classes on the detail return link and deep-link hint; (0,3,0) outranks `.page .flow-next-link` 14px */
 .page .flow-next-link.theme-detail-return { font-size: var(--fs-base); margin-bottom: 8px; }

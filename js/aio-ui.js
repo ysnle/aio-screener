@@ -814,18 +814,6 @@ document.addEventListener('DOMContentLoaded', function() {
     signalDecisionSub.setAttribute('aria-atomic', 'true');
   }
 
-  // 22. v41.2: 모달 포커스 트랩 (dialog 열릴 때 내부에 포커스 가둠)
-  document.querySelectorAll('[role="dialog"]').forEach(function(dlg) {
-    dlg.addEventListener('keydown', function(e) {
-      if (e.key !== 'Tab') return;
-      var focusable = dlg.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-      if (focusable.length === 0) return;
-      var first = focusable[0], last = focusable[focusable.length - 1];
-      if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
-      else { if (document.activeElement === last) { e.preventDefault(); first.focus(); } }
-    });
-  });
-
   // 23. v54.47: route title is the page-level heading; nested widget titles stay
   // at level 2 so screen-reader navigation follows the visible hierarchy.
   document.querySelectorAll('.page[id]').forEach(function(pg) {
@@ -1163,7 +1151,7 @@ function toggleTheme() {
   var saved = null;
   try { saved = localStorage.getItem('aio_theme'); } catch (_) {}
   if (saved === 'dark' || (saved == null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) { // v57.54: no saved choice follows the device setting
-    document.body.classList.add('dark-theme');
+    document.body.classList.add('dark-theme'); // already set by the inline script at the top of <body>; kept for a blocked inline script
     var btn = document.getElementById('theme-toggle');
     if (btn) btn.textContent = 'Dark';
     var sbLabel = document.getElementById('sidebar-theme-label');

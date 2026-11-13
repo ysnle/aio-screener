@@ -89,6 +89,7 @@ export function handleShortcutKey(event, { root = globalThis, documentRef = root
   // The open command search is a modal dialog: its own keys (arrows, Enter, Esc) and typing stay with it.
   if (typeof root._aioCommandSearchIsOpen === 'function' && root._aioCommandSearchIsOpen()) return null;
   if (event.key === 'Escape') {
+    if (event.defaultPrevented) return null; // the top layer closed itself (behaviors/layers.js)
     help.close();
     if (typeof root._aioGlossaryIsOpen === 'function' && root._aioGlossaryIsOpen()) { root._aioCloseGlossary(); return 'glossary'; }
     const aiPanel = documentRef.getElementById('ai-panel');

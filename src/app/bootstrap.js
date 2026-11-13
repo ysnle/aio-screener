@@ -34,6 +34,7 @@ import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
 import { applyLegacyThemeDetailAddress } from '../ui/navigation/theme-detail.js';
 import { installRouteScrollMemory } from '../ui/navigation/scroll-memory.js';
 import { installShellOverlays } from '../ui/components/shell-overlays.js';
+import { installLayers } from '../ui/behaviors/layers.js';
 import { installColorTheme } from '../ui/components/color-theme.js';
 import { installLoadFailureNotice } from '../ui/components/data-state.js';
 import { installConnectionPanel } from '../ui/panels/connections.js';
@@ -974,24 +975,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       target.focus();
     };
     documentRef?.addEventListener?.('click', onSkipLink);
-    // P1592 (F32): every role=tablist gets the keyboard model its role announces — Arrow/Home/End move to
-    // and activate the next tab (activation reuses the tab's own click handler). A page with its own
-    // handler (종목 탭) calls preventDefault first and is left alone.
-    const onTabKey = (event) => {
-      if (event.defaultPrevented || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-      const tab = event.target?.closest?.('[role="tab"]');
-      const list = tab?.closest?.('[role="tablist"]');
-      if (!list) return;
-      const tabs = [...list.querySelectorAll('[role="tab"]')].filter((node) => !node.hidden && !node.disabled && node.closest('[role="tablist"]') === list);
-      const current = tabs.indexOf(tab);
-      if (current < 0 || tabs.length < 2) return;
-      const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1
-        : event.key === 'ArrowRight' ? (current + 1) % tabs.length : (current - 1 + tabs.length) % tabs.length;
-      event.preventDefault();
-      tabs[next].focus();
-      tabs[next].click();
-    };
-    documentRef?.addEventListener?.('keydown', onTabKey);
+    installLayers({ root });
+    // Not needed to draw the first screen.
+    let stopRoving = () => {};
+    import('../ui/behaviors/roving.js').then(({ installRoving }) => { stopRoving = installRoving({ root, documentRef }); }).catch(() => {});
+    import('../ui/behaviors/announce.js').then(({ installAnnouncements }) => installAnnouncements({ root, documentRef })).catch(() => {});
     if (root?.location?.hash === '#main-content') {
       try { root.history?.replaceState?.(root.history.state, '', `${root.location.pathname}${root.location.search}`); } catch (_) {}
     }
@@ -1128,7 +1116,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       clearInterval(timelineWatchdog);
       documentRef?.removeEventListener?.('visibilitychange', onVisibilityTimelineCheck);
       documentRef?.removeEventListener?.('click', onSkipLink);
-      documentRef?.removeEventListener?.('keydown', onTabKey);
+      stopRoving();
       router.dispose();
       // Fable-advisor review (2026-07-21): drop any in-flight screener/entity fetch resolution
       // permanently once the app is torn down — see the generation-counter guard in those two

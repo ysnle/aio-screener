@@ -113,7 +113,7 @@
   background: var(--bg-card); border: 0; border-radius: var(--radius-container); box-shadow:none; padding: 20px 22px; margin: 0 0 16px;
 }
 #page-briefing > .briefing-block[hidden], #page-briefing .briefing-pair > [hidden] { display: none; }
-#page-briefing .briefing-h2 { font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 12px; }
+#page-briefing .briefing-h2 { font-family: var(--font-sans); font-size: 14px; font-weight: 700; letter-spacing: 0; margin: 0 0 12px; }
 #page-briefing .briefing-h2-note { font-size: 12px; font-weight: 400; color: var(--text-secondary); }
 /* Hero: "오늘의 시장 해석" — kicker, the headline, its reading, then the numbered points (오늘의 세 줄). */
 #page-briefing > #briefing-read.sx-card--hero { padding: 26px var(--sx-card-pad-x); border-radius: var(--radius-container); }
@@ -240,7 +240,7 @@
 #page-market-news .news-card[hidden] { display: none; }
 #page-market-news .news-card > .briefing-h2, #page-market-news .news-card > .aio-section-hd { padding: 0 10px; margin: 0 0 8px; }
 #page-market-news .news-card .briefing-h2 { font-family: var(--font-sans); font-size: 14px; font-weight: 700; }
-#page-market-news .news-card .aio-section-label { font-size: 14px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; text-transform: none; }
+#page-market-news .news-card .aio-section-label { font-size: 14px; font-weight: 700; color: var(--text-primary); letter-spacing: 0; text-transform: none; }
 #page-market-news .news-card .aio-section-hd { border: 0; display: flex; align-items: baseline; gap: 10px; }
 #page-market-news .news-card .briefing-h2-note { font-size: 12px; font-weight: 400; color: var(--text-secondary); }
 #page-market-news .news-list { display: flex; flex-direction: column; gap: 0; }
@@ -261,7 +261,7 @@
 #page-market-news .news-time-col { width: auto; padding-top: 3px; }
 #page-market-news .news-time-abs { font-size: 12px; color: var(--text-muted); font-weight: 500; }
 #page-market-news .news-time-day { font-size: 12px; }
-#page-market-news .news-item-headline { font-size: 14px; font-weight: 600; line-height: 1.5; letter-spacing: -0.01em; margin: 0 0 4px; }
+#page-market-news .news-item-headline { font-size: 14px; font-weight: 600; line-height: 1.5; letter-spacing: 0; margin: 0 0 4px; }
 #page-market-news .news-item-link { min-height: 24px; }
 #page-market-news .news-item-summary { font-size: 12px; line-height: 1.65; color: var(--text-secondary); margin: 0 0 4px; }
 #page-market-news .news-item-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; } /* index.html L2322 pins 11px with !important */

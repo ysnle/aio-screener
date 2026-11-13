@@ -654,10 +654,6 @@ function showConfirmModal(title, msg, onConfirm, icon, onCancel) {
   modal.style.display = 'flex'; modal.dataset.tone = /삭제|지우|초기화|제거|비우|덮어/.test(title + ' ' + msg) ? 'danger' : 'neutral'; // run-4: only removals are red
   modal._aioTrapCleanup = typeof window._aioModalTrap === 'function' ? window._aioModalTrap(modal, function() { closeConfirmModal('trap'); }) : null;
   (document.getElementById('aio-confirm-cancel') || okBtn).focus(); // v58.80 run-5: Enter on arrival kept the old value; it no longer overwrote a holding
-  // ESC 키로 닫기
-  if (modal._escHandler) document.removeEventListener('keydown', modal._escHandler); // v46.9: 중복 등록 방지
-  modal._escHandler = function(e) { if (e.key === 'Escape') closeConfirmModal('escape'); };
-  document.addEventListener('keydown', modal._escHandler);
 }
 function closeConfirmModal(reason) {
   var modal = document.getElementById('aio-confirm-modal');
@@ -667,7 +663,6 @@ function closeConfirmModal(reason) {
   _confirmCallback = null;
   _confirmCancelCallback = null;
   if (modal._aioTrapCleanup) { modal._aioTrapCleanup(); modal._aioTrapCleanup = null; }
-  if (modal._escHandler) { document.removeEventListener('keydown', modal._escHandler); modal._escHandler = null; }
   var previousFocus = _confirmPreviousFocus;
   _confirmPreviousFocus = null;
   if (previousFocus && document.contains(previousFocus) && !previousFocus.disabled) { try { previousFocus.focus(); } catch (_) {} }
@@ -707,17 +702,12 @@ function showPromptModal(title, label, defaultValue, onSubmit, opts) {
   function _close(val) {
     if (closed) return;
     closed = true;
-    document.removeEventListener('keydown', _esc);
     if (modal._aioTrapCleanup) { modal._aioTrapCleanup(); modal._aioTrapCleanup = null; }
     if (modal.parentNode) modal.parentNode.removeChild(modal);
     if (previousFocus && document.contains(previousFocus) && !previousFocus.disabled) { try { previousFocus.focus(); } catch (_) {} }
     try { if (typeof onSubmit === 'function') onSubmit(val); } catch(e) { if (typeof _aioLog === 'function') _aioLog('error', 'modal', 'prompt onSubmit failed: ' + e.message); }
   }
-  function _esc(e) {
-    if (e.key === 'Escape') { e.preventDefault(); _close(null); }
-    else if (e.key === 'Enter') { e.preventDefault(); _close(input.value); } // v58.80 B18: stop the Enter from reopening the prompt
-  }
-  document.addEventListener('keydown', _esc);
+  input.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); _close(input.value); } }); // v58.80 B18: stop the Enter from reopening the prompt
   document.getElementById('aio-prompt-cancel').addEventListener('click', function() { _close(null); });
   document.getElementById('aio-prompt-ok').addEventListener('click', function() { _close(input.value); });
   modal.addEventListener('click', function(e) { if (e.target === modal) _close(null); });
@@ -1437,6 +1427,7 @@ function showToast(msg) {
   var toast = document.createElement('div');
   toast.className = 'aio-toast wsl-toast'; toast.textContent = String(msg == null ? '' : msg).replace(/\S{33,}/g, function(w) { return w.slice(0, 24) + '…'; }).slice(0, 320); // run-4 #10 // v57.81: .aio-toast stacks above the first-visit disclaimer; look: legacy-workspace.css
   document.body.appendChild(toast);
+  if (typeof window._aioAnnounce === 'function') window._aioAnnounce(toast.textContent);
   requestAnimationFrame(function() { toast.style.opacity = '1'; });
   setTimeout(function() {
     toast.style.opacity = '0';

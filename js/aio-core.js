@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v60.04';
+const APP_VERSION = 'v60.05';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1175,37 +1175,7 @@ window._aioChartRegistry = {
   }
 };
 
-// ═══ v48.96: _aioModalTrap — 모달 키보드 포커스 순환 + ESC 닫기 (P2-9) ════════
-// 용도: WCAG 2.1 SC 2.1.2 — 모달 내 Tab/Shift+Tab 순환, ESC로 닫힘
-// 사용: var cleanup = _aioModalTrap(modalRootEl, onClose)
-//       cleanup() — 이벤트 제거 (모달 닫을 때 호출)
-window._aioModalTrap = function(rootEl, onClose) {
-  if (!rootEl) return function() {};
-  var FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
-  function getFocusable() { return Array.prototype.slice.call(rootEl.querySelectorAll(FOCUSABLE)); }
-  function handleKey(e) {
-    var key = e.key || e.keyCode;
-    if (key === 'Escape' || key === 27) {
-      e.preventDefault();
-      if (typeof onClose === 'function') onClose();
-      return;
-    }
-    if (key !== 'Tab' && key !== 9) return;
-    var els = getFocusable();
-    if (!els.length) { e.preventDefault(); return; }
-    var first = els[0], last = els[els.length - 1];
-    if (e.shiftKey) {
-      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
-    } else {
-      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
-    }
-  }
-  document.addEventListener('keydown', handleKey, true);
-  // 최초 포커스: 첫 포커서블 요소 or rootEl 자체
-  var first = getFocusable()[0];
-  if (first) { first.focus(); } else if (rootEl.tabIndex >= 0) { rootEl.focus(); }
-  return function() { document.removeEventListener('keydown', handleKey, true); };
-};
+// Modal focus and Escape: window._aioModalTrap is installed by src/ui/behaviors/layers.js.
 
 
 // ═══ v48.97: _aioProxyChain — CORS 프록시 순차 폴백 + Circuit Breaker (P2-6) ══

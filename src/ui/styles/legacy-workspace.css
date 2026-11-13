@@ -26,7 +26,7 @@
 #page-portfolio .wsl-b { font-weight: 700; }
 #page-portfolio .wsl-w500 { font-weight: 500; }
 #page-portfolio .wsl-fs-sm { font-size: var(--fs-sm); }
-#page-portfolio .wsl-head { font-size: var(--fs-sm); font-weight: 800; color: var(--text-secondary); margin-bottom: 6px; }
+#page-portfolio .wsl-head { font-size: var(--fs-sm); font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
 #page-portfolio .wsl-msg { font-size: var(--fs-sm); color: var(--text-muted); padding: 8px 0; }
 #page-portfolio .wsl-aside { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 6px; }
 #page-portfolio .wsl-msg.is-warn, #page-portfolio .wsl-aside.is-warn { color: var(--data-amber); }
@@ -48,7 +48,7 @@
 #page-portfolio .wsl-rk-tiles { display: grid; grid-template-columns: repeat(auto-fit,minmax(138px,1fr)); gap: 10px; margin-bottom: 14px; }
 #page-portfolio .wsl-rk-tile { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: var(--radius-inner); padding: 10px 12px; }
 #page-portfolio .wsl-rk-label { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
-#page-portfolio .wsl-rk-val { font-size: 18px; font-weight: 800; font-family: var(--font-mono); }
+#page-portfolio .wsl-rk-val { font-size: 18px; font-weight: 700; font-family: var(--font-mono); }
 #page-portfolio .wsl-rk-val.is-loss { color: var(--data-red); }
 #page-portfolio .wsl-rk-sub { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 4px; }
 #page-portfolio .wsl-rk-heat { margin-bottom: 12px; }
@@ -69,7 +69,7 @@
 #page-portfolio .wsl-bt-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
 #page-portfolio .wsl-bt-kpis { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 8px; margin-bottom: 10px; }
 #page-portfolio .wsl-bt-kpi { background: var(--surface-2); border: 0.5px solid var(--border); border-radius: var(--radius-inner); padding: 10px; }
-#page-portfolio .wsl-bt-kpi-l { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 800; }
+#page-portfolio .wsl-bt-kpi-l { font-size: var(--fs-xs); color: var(--text-muted); font-weight: 700; }
 #page-portfolio .wsl-bt-kpi-v { font-size: 18px; font-family: var(--font-mono); font-weight: 700; }
 #page-portfolio .wsl-bt-kpi-v.is-loss { color: var(--dir-down); }
 #page-portfolio .wsl-bt-kpi-v.is-plain { color: var(--text-primary); }
@@ -85,11 +85,11 @@
 #page-portfolio .wsl-bt-c.is-r { text-align: right; }
 #page-portfolio .wsl-bt-c.is-ctr { text-align: center; }
 #page-portfolio .wsl-bt-c.is-fig { font-family: var(--font-mono); }
-#page-portfolio .wsl-bt-c.is-heavy { font-weight: 800; }
+#page-portfolio .wsl-bt-c.is-heavy { font-weight: 700; }
 #page-portfolio .wsl-bt-c.is-dim { color: var(--text-secondary); }
 #page-portfolio .wsl-bt-c.is-up { color: var(--dir-up); }
 #page-portfolio .wsl-bt-c.is-down { color: var(--dir-down); }
-#page-portfolio .wsl-bt-c.is-dd { color: var(--dir-down); font-weight: 800; }
+#page-portfolio .wsl-bt-c.is-dd { color: var(--dir-down); font-weight: 700; }
 #page-portfolio .wsl-bt-warn { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.5; margin-top: 10px; border-top: 0.5px solid var(--border); padding-top: 8px; }
 
 /* Watchlist rows (#wl-tbody). The delete button's old inline 11px beat `.aio-btn-table`'s !important 12px through

@@ -38,7 +38,7 @@
 #kr-theme-detail-content .krl-d-stat-l { font-size: var(--fs-sm); color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
 #kr-theme-detail-content .krl-d-stat-v { font-size: 18px; font-weight: 700; }
 #kr-theme-detail-content .krl-d-stat-v.is-fig { font-family: var(--font-mono); }
-#kr-theme-detail-content .krl-d-stat-name { font-size: var(--fs-base); font-weight: 800; }
+#kr-theme-detail-content .krl-d-stat-name { font-size: var(--fs-base); font-weight: 700; }
 #kr-theme-detail-content .krl-d-stat-pct { font-size: var(--fs-xs); }
 #kr-theme-detail-content :is(.krl-d-stat-name, .krl-d-stat-pct).is-up { color: var(--dir-up); }
 #kr-theme-detail-content :is(.krl-d-stat-name, .krl-d-stat-pct).is-down { color: var(--dir-down); }
@@ -55,7 +55,7 @@
 #kr-theme-detail-content .krl-d-row.is-alt { background: rgba(var(--ink-rgb),0.015); }
 #kr-theme-detail-content .krl-d-c { padding: 7px 8px; }
 #kr-theme-detail-content .krl-d-c.is-name { font-size: var(--fs-base); font-weight: 700; white-space: nowrap; cursor: pointer; }
-#kr-theme-detail-content .krl-d-c.is-fig { font-size: 12px; font-weight: 800; font-family: var(--font-mono); text-align: right; }
+#kr-theme-detail-content .krl-d-c.is-fig { font-size: 12px; font-weight: 700; font-family: var(--font-mono); text-align: right; }
 #kr-theme-detail-content .krl-d-c.is-heavy { font-weight: 700; }
 #kr-theme-detail-content .krl-d-c.is-ctr { text-align: center; }
 #kr-theme-detail-content .krl-d-c.is-xs { font-size: var(--fs-xs); }

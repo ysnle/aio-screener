@@ -7,6 +7,7 @@ import { LEARN_KEY, LEARN_CONSENT_KEY, clearLearned, learningEnabled, loadLearne
 import { clearNotes, loadNotes, removeNote } from '../../ai/session/reader-notes.js';
 import { kstDate } from '../../ai/session/earlier-turns.js';
 import { el } from './dom.js';
+import { openLayer } from '../behaviors/layers.js';
 
 const SCREEN_NAME = { home: '오늘', briefing: '브리핑', macro: '매크로', fxbond: '금리·환율', themes: '테마', 'theme-detail': '테마', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', ticker: '종목', technical: '차트', fundamental: '재무', screener: '스크리너', portfolio: '포트폴리오', 'market-news': '뉴스', principles: '개념', atlas: '산업 지도', masters: '투자 대가', guide: '안내' };
 const TICKER_ROUTES = new Set(['ticker', 'technical', 'fundamental']);
@@ -152,7 +153,9 @@ export function installAIProfile(root = globalThis, doc = root.document, { stora
     return set;
   }
 
+  let releaseLayer = () => {};
   function close({ focusButton = true } = {}) {
+    releaseLayer();
     sheet.hidden = true;
     button.setAttribute('aria-expanded', 'false');
     if (focusButton) button.focus?.();
@@ -224,6 +227,8 @@ export function installAIProfile(root = globalThis, doc = root.document, { stora
     sheet.style.top = `${head.offsetHeight || 52}px`; // the header wraps on a phone; the sheet starts below it
     sheet.hidden = false;
     button.setAttribute('aria-expanded', 'true');
+    releaseLayer();
+    releaseLayer = openLayer({ root: sheet, modal: false, outside: true, trigger: button, onDismiss: () => close() });
     form.querySelector('input')?.focus?.();
   }
   button.addEventListener('click', () => {
@@ -231,7 +236,6 @@ export function installAIProfile(root = globalThis, doc = root.document, { stora
     head.querySelector('[aria-controls="ai-session-list"][aria-expanded="true"]')?.click(); // one sheet at a time
     open();
   });
-  sheet.addEventListener('keydown', (event) => { if (event.key === 'Escape') { event.stopPropagation(); close(); } });
   // Another tab saved a profile: this tab's next question uses it.
   root.addEventListener?.('storage', (event) => {
     if (![PROFILE_KEY, LEARN_KEY, LEARN_CONSENT_KEY].includes(event?.key)) return;

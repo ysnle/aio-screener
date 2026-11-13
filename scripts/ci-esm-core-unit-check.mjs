@@ -6902,6 +6902,44 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (placeTermPopover !== placePopover) fail('v58.80 the term popover uses the shared placement rule');
   { const at = placePopover({ left: 312, right: 334, top: 259, bottom: 279, width: 22, height: 20 }, { width: 320, height: 90 }, { width: 1440, height: 900 }); if (at.left !== 312 || at.top !== 285) fail(`v59.70 (screen review #27) the popover starts at its term, not centred back over the sidebar: ${JSON.stringify(at)}`); }
   { const at = placePopover({ left: 1400, right: 1430, top: 259, bottom: 279, width: 30, height: 20 }, { width: 320, height: 90 }, { width: 1440, height: 900 }); if (at.left !== 1440 - 320 - 8) fail(`v59.70 the popover stays inside the right edge: ${JSON.stringify(at)}`); }
+  {
+    // v60.05: shared behaviours. Escape closes the top layer only; a segmented group moves by arrow keys and wraps.
+    const { openLayer, openLayerCount } = await load('src/ui/behaviors/layers.js');
+    const { rovingTarget } = await load('src/ui/behaviors/roving.js');
+    const listeners = [];
+    const doc = { body: {}, activeElement: null, addEventListener: (type, fn) => { if (type === 'keydown') listeners.push(fn); } };
+    const layerRoot = () => ({ ownerDocument: doc, tabIndex: -1, querySelectorAll: () => [], contains: () => false });
+    const closed = [];
+    const closeLower = openLayer({ root: layerRoot(), documentRef: doc, onDismiss: () => { closed.push('lower'); closeLower(); } });
+    const closeUpper = openLayer({ root: layerRoot(), documentRef: doc, onDismiss: () => { closed.push('upper'); closeUpper(); } });
+    const escape = () => { const event = { key: 'Escape', defaultPrevented: false, preventDefault() { this.defaultPrevented = true; } }; listeners.forEach((fn) => fn(event)); return event; };
+    if (listeners.length !== 1) fail('v60.05 the layer stack keeps one key listener per document: ' + listeners.length);
+    const first = escape();
+    if (closed.join() !== 'upper' || !first.defaultPrevented || openLayerCount(doc) !== 1) fail('v60.05 one Escape closes the top layer only: ' + closed.join());
+    escape();
+    if (closed.join() !== 'upper,lower' || openLayerCount(doc) !== 0) fail('v60.05 the next Escape reaches the layer below: ' + closed.join());
+    if (escape().defaultPrevented) fail('v60.05 Escape with no layer open is left to the page');
+    if (rovingTarget('ArrowRight', 2, 3) !== 0 || rovingTarget('ArrowLeft', 0, 3) !== 2) fail('v60.05 roving focus wraps at both ends');
+    if (rovingTarget('ArrowRight', 0, 3, { rtl: true }) !== 2) fail('v60.05 roving focus follows right-to-left');
+    if (rovingTarget('Home', 2, 3) !== 0 || rovingTarget('End', 0, 3) !== 2) fail('v60.05 Home and End reach the ends');
+    if (rovingTarget('ArrowDown', 0, 3) !== -1 || rovingTarget('ArrowDown', 0, 3, { vertical: true }) !== 1) fail('v60.05 a horizontal group leaves Up and Down to the page');
+    // A popover layer: a press outside its root and trigger closes it; a press inside either does not.
+    const pointerListeners = [];
+    const popDoc = { body: {}, addEventListener: (type, fn) => { if (type === 'pointerdown') pointerListeners.push(fn); } };
+    const inside = {}, onTrigger = {}, elsewhere = {};
+    let dismissed = 0;
+    const closePop = openLayer({ root: { contains: (node) => node === inside }, trigger: { contains: (node) => node === onTrigger }, modal: false, outside: true, documentRef: popDoc, onDismiss: () => { dismissed += 1; closePop(); } });
+    pointerListeners.forEach((fn) => fn({ target: inside }));
+    pointerListeners.forEach((fn) => fn({ target: onTrigger }));
+    if (dismissed !== 0) fail('v60.05 a press inside a popover or on its trigger keeps it open');
+    pointerListeners.forEach((fn) => fn({ target: elsewhere }));
+    pointerListeners.forEach((fn) => fn({ target: elsewhere }));
+    if (dismissed !== 1 || openLayerCount(popDoc) !== 0) fail('v60.05 a press outside closes the popover once: ' + dismissed);
+    const { nextOptionIndex } = await load('src/ui/behaviors/listbox.js');
+    if (nextOptionIndex('ArrowDown', -1, 4) !== 0 || nextOptionIndex('ArrowUp', -1, 4) !== 3) fail('v60.05 the first arrow enters the option list at its near end');
+    if (nextOptionIndex('ArrowDown', 3, 4) !== 0 || nextOptionIndex('ArrowUp', 0, 4) !== 3) fail('v60.05 the option highlight wraps');
+    if (nextOptionIndex('ArrowDown', -1, 0) !== -1) fail('v60.05 an empty option list has no highlight');
+  }
   // run-5: after a route change hover waits for a real pointer move (a synthetic move has no movement).
   const { watchScroll, hoverSuppressed } = await load('src/ui/components/popover.js');
   const listeners = {};

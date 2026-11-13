@@ -1,3 +1,19 @@
+## v60.05 (2026-11-13)
+- P2401 Escape 한 번에 도움말과 AI 패널이 함께 닫히던 문제: 열린 레이어를 한 곳(`src/ui/behaviors/layers.js`)에서 쌓고 맨 위만 닫는다. 모달 뒤 화면은 inert.
+- P2402 값 입력 모달에서 취소 버튼에 Enter를 누르면 저장되던 문제: Enter 제출은 입력 필드에서만 받는다.
+- 탭 목록과 세그먼트 버튼 묶음은 Tab 정지가 하나다(`src/ui/behaviors/roving.js`). 묶음 안에서는 화살표, Home, End로 움직인다. 화면을 바꾸는 상단 탭은 화살표로 포커스만 옮기고 Enter로 연다(전에는 화살표 한 번에 화면이 바뀌고 포커스가 탭을 떠났다).
+- 토스트 알림을 화면 낭독기가 읽는다(`src/ui/behaviors/announce.js`, 부팅 때 만들어 둔 영역 두 개).
+- 포커스 링을 본문 글자색 2px로 통일했다(버튼·입력·메뉴의 50% 잉크 링은 대비 2.76:1이었다).
+- 표에서 선택한 행에 1px 윤곽을 더했다(옅은 배경만으로는 선택이 읽히지 않았다).
+- 다크 테마를 첫 페인트 전에 적용하고 `color-scheme`을 선언했다(다크 사용자에게 밝은 화면이 잠깐 보였다; 스크롤바와 기본 컨트롤도 테마를 따른다).
+- 모바일 메뉴 드로어, 좁은 화면의 AI 패널, 스크리너 Why 시트, + 조건·보기 패널, AI 대화 목록과 답변 맞춤 시트, 용어·기준 팝오버가 같은 레이어 스택을 쓴다. 각자 갖고 있던 Escape·Tab 가두기·바깥 누름 코드는 지웠다. AI 대화 목록과 맞춤 시트는 이제 바깥을 누르면 닫힌다.
+- 리서치 라이브러리 검색은 입력창에 포커스를 둔 채 위·아래 화살표로 결과를 고르고 Enter로 연다(`src/ui/behaviors/listbox.js`). 결과 수를 읽어 준다.
+- 테마 구성 종목 표와 테마 단계 표를 정렬하면 포커스가 같은 머리글 버튼에 남고 정렬 방향을 읽어 준다.
+- AI 대화 영역은 `role=log`다. 답변이 끝난 뒤 한 번 읽는다(작성 중에는 `aria-busy`).
+- 부트 예산을 측정값에 맞춰 올렸다(raw 1,484,000→1,485,000, gzip 555,500→556,500; 이유는 `architecture/boot-budget.json`). 로빙 포커스와 알림은 부팅 뒤에 불러온다.
+- 화면 다듬기(unslop 점검 목록 기준, 진단 결과 '가벼운 손질' 등급): 굵기 800·900을 700으로 낮췄다(58곳). 14px 이하 글자의 음수 자간을 0으로 돌렸다(12곳). 공용 카드·타일·칩·행·버튼의 안쪽 여백을 4px 격자에 맞췄다(카드 좌우 22→24, 휴대폰 18→16, 작은 칩 높이 22→24 등, `soft-ui.css`). 팔레트·서체·배치는 그대로다.
+- R1 7곳 v60.05
+
 ## v60.04 (2026-11-13)
 - **A live answer keeps its own figures (P2400):** figures the model copied from injected data and tool results are kept as dated reference claims, date-only sentences and unit-less readings such as RSI stay, a tool result no longer inherits the previous company's section, and the 3-month chart uses the same 63 sessions as the table.
 - R1 7곳 v60.04

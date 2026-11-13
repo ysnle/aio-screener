@@ -901,6 +901,8 @@ function _aioBeginChatRequest(ctxId, query, options) {
   var sendButton = document.getElementById('chat-' + ctxId + '-btn');
   sendButton = document.getElementById(buttonId) || sendButton;
   if (sendButton) { sendButton.disabled = true; if (sendButton.setAttribute) sendButton.setAttribute('aria-busy', 'true'); } // v59.70: shared busy look (ui-states.css)
+  var chatLog = document.getElementById('ai-panel-msgs'); // role=log: the answer is read once it is whole, not word by word
+  if (chatLog && chatLog.setAttribute) chatLog.setAttribute('aria-busy', 'true');
   if (sendButton && sendButton.parentNode && typeof document.createElement === 'function') {
     var stopButton = document.createElement('button');
     stopButton.type = 'button';
@@ -939,6 +941,8 @@ function _aioReleaseChatRequest(run) {
   state._activeRequest = null;
   var button = document.getElementById(run.buttonId || ('chat-' + run.ctxId + '-btn'));
   if (button) { button.disabled = false; if (button.removeAttribute) button.removeAttribute('aria-busy'); button.textContent = run.idleLabel || '전송 ▶'; }
+  var chatLog = document.getElementById('ai-panel-msgs');
+  if (chatLog && chatLog.removeAttribute) chatLog.removeAttribute('aria-busy');
   if (ownsState && window._aioActiveAIQuery === run.query) window._aioActiveAIQuery = null;
 }
 

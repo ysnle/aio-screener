@@ -574,7 +574,14 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   const criteriaButton = el(doc, 'button', `기준 충족${criteriaSort === 'desc' ? ' ↓' : criteriaSort === 'asc' ? ' ↑' : ''}`, 'thp-member-sort');
   criteriaButton.type = 'button';
   criteriaButton.title = '전문가 기준 6개(다기간 상대강도, 참여 폭, 이익 전망, 촉매, 과열 아님, 시나리오 적합) 중 충족한 수 — 단계 안에서 정렬';
-  criteriaButton.addEventListener('click', () => { root._aioTpCriteriaSort = criteriaSort === 'desc' ? 'asc' : criteriaSort === 'asc' ? null : 'desc'; renderThemePlaybook({ documentRef: doc, root, store }); });
+  criteriaButton.dataset.sortKey = `criteria-${market}`;
+  criteriaButton.addEventListener('click', () => {
+    const next = criteriaSort === 'desc' ? 'asc' : criteriaSort === 'asc' ? null : 'desc';
+    root._aioTpCriteriaSort = next;
+    renderThemePlaybook({ documentRef: doc, root, store });
+    doc.querySelector(`.thp-member-sort[data-sort-key="criteria-${market}"]`)?.focus?.({ preventScroll: true });
+    root._aioAnnounce?.(next ? `기준 충족 ${next === 'desc' ? '많은 순' : '적은 순'}으로 정렬했습니다` : '기준 충족 정렬을 풀었습니다');
+  });
   criteriaHead.append(criteriaButton);
   headRow.append(criteriaHead);
   head.append(headRow);

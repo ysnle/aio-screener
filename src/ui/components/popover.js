@@ -2,6 +2,8 @@
 // popover, the "?" tooltips and the touch title popover. Only one is open at a time (opening one closes the other), all
 // are placed inside the viewport by one rule, and while one is open the floating chrome steps aside
 // (body.aio-popover-open hides 맨 위로, which sat on top of popovers near the bottom-right).
+import { openLayer } from '../behaviors/layers.js';
+
 export const POPOVER_EDGE = 8;
 
 // Below the anchor when it fits, else above, else whichever side has more room, clamped to the viewport.
@@ -25,15 +27,18 @@ export function claimPopover(documentRef, close) {
   if (current && current.close !== close) {
     const previous = current;
     current = null;
+    previous.release();
     try { previous.close(); } catch (_) { /* a broken closer never blocks the new popover */ }
   }
-  current = { close };
+  // Escape closes the popover before anything under it (behaviors/layers.js).
+  current = { close, release: documentRef?.addEventListener ? openLayer({ documentRef, onDismiss: close, modal: false }) : () => {} };
   documentRef?.body?.classList.add('aio-popover-open');
 }
 
 // A popover calls this as it closes; only the owner of the open slot clears it.
 export function releasePopover(documentRef, close) {
   if (current?.close !== close) return;
+  current.release();
   current = null;
   documentRef?.body?.classList.remove('aio-popover-open');
 }

@@ -1,5 +1,6 @@
 // P1618: UI-only responsive lifecycle; preferences stay in the app boundary.
 import { attachScrollCue } from './scroll-cue.js';
+import { openLayer } from '../behaviors/layers.js';
 const CARD_GRIDS = '#fund-rpt-fin-grid,#pf-hero-stats,#fund-valuation-cards'; // v59.51: #home-kpi-strip left with the home quote row merge
 const LAYOUTS = '#fund-qual-grid,#fund-qual-charts,#rrg-quadrant-cards';
 const SCROLL_CUE_BOXES = '.page .aio-table-scroll,#screener-results-table .scr-registry-header';
@@ -32,8 +33,12 @@ export function installResponsiveShell(root, doc) {
   toggle.setAttribute('aria-controls', sidebar.id);
   let opened = false;
   let focusReturn = null;
+  // The drawer and the narrow AI panel are layers with their own backdrop: Escape and Tab come from behaviors/layers.js.
+  let releaseDrawer = () => {}, releaseAi = () => {};
   const setOpen = (value, restoreFocus = true) => {
+    const wasOpened = opened;
     opened = compact.matches && value;
+    if (opened !== wasOpened) { releaseDrawer(); releaseDrawer = opened ? openLayer({ root: sidebar, inert: false, focus: false, onDismiss: () => setOpen(false) }) : () => {}; }
     doc.body.classList.toggle('aio-navigation-open', opened);
     toggle.setAttribute('aria-expanded', String(opened));
     moreTab?.setAttribute('aria-expanded', String(opened));
@@ -74,17 +79,10 @@ export function installResponsiveShell(root, doc) {
     if (opened && event.target.closest?.('.sidebar [data-action="showPage"],.sidebar [data-action="openGlossary"],.sidebar [data-action="openKbdHelp"],.sidebar a[href^="#"]')) { setOpen(false, false); if (!event.target.closest?.('[data-action="openKbdHelp"]')) toggle.focus(); } // v58.80 (first-users bundle 5): the menu stayed over the shortcut sheet and its 닫기 tap hit 용어 사전
   };
   const onKey = (event) => {
+    if (event.key === 'Escape' && event.defaultPrevented) return; // a layer above took it (behaviors/layers.js)
     // v58.80 (first-users F24): the shortcut sheet promises "Esc 모달/메뉴 닫기", but on a desktop width (panel beside the page)
     // Escape from inside the open AI panel did nothing; only the narrow overlay closed.
     if (event.key === 'Escape' && !opened && ai?.classList.contains('open') && ai.contains(doc.activeElement)) { event.preventDefault(); ai.querySelector('.ai-ph-close')?.click(); return; }
-    const activePanel = opened ? sidebar : aiOverlay.matches && ai?.classList.contains('open') ? ai : null;
-    if (!activePanel) return;
-    if (event.key === 'Escape') { event.preventDefault(); if (opened) setOpen(false); else ai.querySelector('.ai-ph-close')?.click(); return; }
-    if (event.key !== 'Tab') return;
-    const controls = [...activePanel.querySelectorAll(FOCUSABLE)].filter((el) => el.getClientRects().length && root.getComputedStyle(el).visibility !== 'hidden');
-    const first = controls[0], last = controls.at(-1);
-    if (event.shiftKey && doc.activeElement === first) { event.preventDefault(); last?.focus(); }
-    else if (!event.shiftKey && doc.activeElement === last) { event.preventDefault(); first?.focus(); }
   };
   // P1653: iOS fires visualViewport resize/scroll on every keystroke while the keyboard is open. Writing the variables
   // on <html> restyled the whole document per event, so typing in the AI panel lagged on iPhone/iPad. The values are
@@ -156,6 +154,7 @@ export function installResponsiveShell(root, doc) {
     if (modal) { if (opened) setOpen(false, false); ai.setAttribute('role', 'dialog'); ai.setAttribute('aria-modal', 'true'); }
     else { ai.removeAttribute('aria-modal'); if (previousAi.role) ai.setAttribute('role', previousAi.role); else ai.removeAttribute('role'); }
     if (aiWasModal && !modal) doc.getElementById('topbar-ai-btn')?.focus();
+    if (!!modal !== aiWasModal) { releaseAi(); releaseAi = modal ? openLayer({ root: ai, inert: false, focus: false, onDismiss: () => ai.querySelector('.ai-ph-close')?.click() }) : () => {}; }
     aiWasModal = !!modal;
   };
   const aiObserver = new root.MutationObserver(onAi);
@@ -194,6 +193,7 @@ export function installResponsiveShell(root, doc) {
     backdrop.remove(); close.remove(); doc.removeEventListener('click', onClick, true); doc.removeEventListener('keydown', onKey); root.removeEventListener('keydown', onLateEscape); root.removeEventListener('aio:workerHealth', routeLine);
     compact.removeEventListener('change', onMode); aiOverlay.removeEventListener('change', onAi); root.removeEventListener('hashchange', onHash);
     doc.removeEventListener('aio:navigationCommitted', markTab);
+    releaseDrawer(); releaseAi();
     root.removeEventListener('resize', refreshViewport); root.visualViewport?.removeEventListener('resize', refreshViewport);
     root.visualViewport?.removeEventListener('scroll', refreshViewport);
     doc.documentElement.style.removeProperty('--aio-visual-height'); doc.documentElement.style.removeProperty('--aio-visual-top');

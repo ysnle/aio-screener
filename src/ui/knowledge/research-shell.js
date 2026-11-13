@@ -9,6 +9,7 @@ import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-st
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { SCENARIO_STATE } from '../../data/artifact-registry.js';
+import { bindCombobox } from '../behaviors/listbox.js';
 
 // v57.55 review (2e, beginner panel): two ways in before the 400-book shelf — the start of the column series (written as a
 // sequence from money to the stock market) and the notes that match the next release the 오늘/거시 screens are waiting for.
@@ -257,9 +258,12 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   const results = el(doc, 'div', 'rl-results');
   results.hidden = true;
   results.setAttribute('role', 'listbox');
+  results.setAttribute('aria-label', '검색 결과');
+  const closeResults = () => { results.hidden = true; combobox.sync(); };
+  const combobox = bindCombobox({ input, list: results, onClose: closeResults });
   const run = async () => {
     const query = input.value.trim();
-    if (query.length < 2) { results.hidden = true; results.replaceChildren(); return; }
+    if (query.length < 2) { results.replaceChildren(); closeResults(); return; }
     const index = await loadIndex(root);
     if (input.value.trim() !== query) return;
     const concepts = conceptMatches(query);
@@ -267,12 +271,16 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
     const rank = (item) => { const at = SURFACE_ORDER.indexOf(item.surface); return at < 0 ? SURFACE_ORDER.length : at; };
     const items = pool.sort((a, b) => (b.score || 0) - (a.score || 0) || rank(a) - rank(b)).slice(0, 12);
     results.replaceChildren();
-    if (!items.length) results.appendChild(el(doc, 'div', 'rl-result', '일치하는 항목이 없습니다.'));
-    else {
+    // The summary line is not an option: it is presentational inside the list and read out once instead.
+    const summary = el(doc, 'div', items.length ? 'rl-result-meta rl-result-summary' : 'rl-result', '일치하는 항목이 없습니다.');
+    summary.setAttribute('role', 'presentation');
+    if (items.length) {
       const counts = new Map();
       pool.forEach((item) => counts.set(item.surfaceLabel, (counts.get(item.surfaceLabel) || 0) + 1));
-      results.appendChild(el(doc, 'div', 'rl-result-meta rl-result-summary', `찾은 범위, ${[...counts].map(([label, n]) => `${label} ${n}`).join(', ')}${pool.length > items.length ? ` — 상위 ${items.length}개 표시` : ''}`));
+      summary.textContent = `찾은 범위, ${[...counts].map(([label, n]) => `${label} ${n}`).join(', ')}${pool.length > items.length ? ` — 상위 ${items.length}개 표시` : ''}`;
     }
+    results.appendChild(summary);
+    root._aioAnnounce?.(items.length ? `검색 결과 ${items.length}건` : summary.textContent);
     for (const item of items) {
       const row = el(doc, 'button', 'rl-result');
       row.type = 'button';
@@ -280,7 +288,7 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
       row.dataset.researchResult = item.id;
       row.append(el(doc, 'div', 'rl-result-title', item.title), el(doc, 'div', 'rl-result-meta', [item.surfaceLabel, item.group].filter(Boolean).join(', ')), el(doc, 'div', 'rl-result-text', item.text));
       row.addEventListener('click', () => {
-        results.hidden = true; input.value = '';
+        closeResults(); input.value = '';
         if (item.glossaryTerm) {
           root.openGlossary?.(item.glossaryTerm); // v59.70: the glossary opens on the term (its search box left for the command search)
           return;
@@ -290,17 +298,16 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
       results.appendChild(row);
     }
     results.hidden = false;
+    combobox.sync();
   };
   let timer = null;
   input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 120); });
-  input.addEventListener('keydown', (event) => { if (event.key === 'Escape') { results.hidden = true; input.blur(); } });
   // v58.63 (architecture audit A13): the list closes only when focus leaves the whole search box. Tab from the input
   // into a result button kept the old 180ms blur timer, which hid the list and dropped focus to BODY.
   search.addEventListener('focusout', (event) => {
     if (event.relatedTarget && search.contains(event.relatedTarget)) return;
-    setTimeout(() => { if (!search.contains(doc.activeElement)) results.hidden = true; }, 180);
+    setTimeout(() => { if (!search.contains(doc.activeElement)) closeResults(); }, 180);
   });
-  results.addEventListener('keydown', (event) => { if (event.key === 'Escape') { results.hidden = true; input.focus(); } });
   search.append(input, results);
   head.append(titleBox, search);
   const grid = el(doc, 'div', 'rl-grid');

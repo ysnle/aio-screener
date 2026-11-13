@@ -43,7 +43,7 @@ body { background: var(--bg-base); font-family: var(--font-sans); color: var(--t
 .logo::after { display: none !important; }
 .logo .sh-shell-sidebar-row { display: flex; align-items: baseline; }
 .logo .sh-shell-sidebar-grow { display: flex; align-items: baseline; gap: 6px; }
-.logo-mark { display: inline !important; font-family: var(--font-sans); font-size: 18px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+.logo-mark { display: inline !important; font-family: var(--font-sans); font-size: 18px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
 .logo-sub { display: inline !important; margin: 0; font-size: 12px; font-weight: 400; color: var(--text-secondary); letter-spacing: 0; }
 
 /* v58.68 (owner 2026-10-23): a shortcut hint is noise where there is no keyboard (phone, tablet). */
@@ -225,18 +225,18 @@ details > summary { cursor: pointer; }
 .tp-dot.is-head, .tp-swatch.is-head { fill: var(--data-amber); background: var(--data-amber); }
 
 /* ═══ 5. sx-* component library (3a) ═════════════════════════════════════ */
-:root { --sx-card-pad-x: 22px; }
+:root { --sx-card-pad-x: 24px; }
 .sx-card { padding: 20px var(--sx-card-pad-x); }
-.sx-card--hero { border-radius: var(--radius-container); padding: 26px var(--sx-card-pad-x); box-shadow:none; }
-.sx-card--tile { border-radius: var(--radius-container); padding: 18px 20px; }
+.sx-card--hero { border-radius: var(--radius-container); padding: 28px var(--sx-card-pad-x); box-shadow:none; }
+.sx-card--tile { border-radius: var(--radius-container); padding: 16px 20px; }
 .sx-card--flush { padding: 20px 8px 8px; }
-.sx-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 0 0 10px; }
-.sx-card--flush > .sx-card__head { padding: 0 16px 10px; }
-.sx-card__title { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; color: var(--text-primary); }
+.sx-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 0 0 12px; }
+.sx-card--flush > .sx-card__head { padding: 0 16px 12px; }
+.sx-card__title { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: 0; color: var(--text-primary); }
 .sx-card__meta { font-size: 12px; color: var(--text-secondary); }
 /* v58.79 section frame (src/ui/components/section-frame.js): the head holds a title, one as-of chip and actions — no
    caption line; the body holds one reading of at most 240 characters. */
-.aio-frame-head { flex-wrap: wrap; row-gap: 6px; }
+.aio-frame-head { flex-wrap: wrap; row-gap: 8px; }
 .aio-frame-head:has(> .aio-frame-actions) { justify-content: flex-start; } /* the chip sits by the title; actions take the right */
 .aio-frame-head > .sr-only + .aio-asof { margin-left: auto; }
 .aio-frame-visual { min-width: 0; } /* v59.70 (S24): a story frame's one visual; wide charts shrink instead of widening the card */
@@ -248,7 +248,7 @@ details > summary { cursor: pointer; }
 .aio-note-fold__text { margin: 2px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 .macro-chain-rule { margin: 4px 0 8px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 .aio-frame-reading { margin: 0 0 12px; max-width: 72ch; font-size: 14px; line-height: 1.65; text-wrap: pretty; color: var(--text-primary); }
-.sx-tile { background: var(--sx-ink-a03); border-radius: var(--radius-container); padding: 16px 18px; }
+.sx-tile { background: var(--sx-ink-a03); border-radius: var(--radius-container); padding: 16px 20px; }
 .sx-kicker { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
 .sx-verdict { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--text-primary); }
 .sx-lede { margin: 0; font-size: 18px; line-height: 1.6; letter-spacing: -0.01em; text-wrap: pretty; color: var(--text-primary); }
@@ -262,24 +262,24 @@ details > summary { cursor: pointer; }
 .sx-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .sx-stack { display: flex; flex-direction: column; gap: 16px; }
 
-/* Capsule chips: 22–28px, verdict colours only (우호 / 부담 / 중립). Red is never a verdict colour. */
+/* Capsule chips: 24–28px, verdict colours only (우호 / 부담 / 중립). Red is never a verdict colour. */
 .sx-chip {
   display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: var(--radius-full);
   background: var(--sx-ink-a07); color: var(--text-secondary); font-size: 12px; font-weight: 400; white-space: nowrap;
 }
 .sx-chip > b, .sx-chip__state { font-weight: 600; }
-.sx-chip--sm { height: 22px; padding: 0 9px; font-size: 12px; font-weight: 700; }
+.sx-chip--sm { height: 24px; padding: 0 8px; font-size: 12px; font-weight: 700; }
 .sx-chip--good { background: var(--sx-good-bg); }
 .sx-chip--good > b, .sx-chip--good.sx-chip--sm, .sx-chip--good .sx-chip__state { color: var(--data-green); }
 .sx-chip--warn { background: var(--sx-warn-bg); }
 .sx-chip--warn > b, .sx-chip--warn.sx-chip--sm, .sx-chip--warn .sx-chip__state { color: var(--data-amber); }
 .sx-chip--neutral > b, .sx-chip--neutral .sx-chip__state { color: var(--text-secondary); }
 .sx-chip--date { background: var(--sx-warn-bg); color: var(--amber-12); font-weight: 600; }
-.sx-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sx-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .sx-btn {
   appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  height: var(--size-element-md); padding: 0 14px; border: 0; border-radius: var(--radius-element); font: inherit; font-size: 12px; font-weight: 600;
+  height: var(--size-element-md); padding: 0 16px; border: 0; border-radius: var(--radius-element); font: inherit; font-size: 12px; font-weight: 600;
   background: var(--sx-ink-a06); color: var(--text-primary); cursor: pointer; text-decoration: none;
   
 }
@@ -313,7 +313,7 @@ details > summary { cursor: pointer; }
 .sx-disclosure:hover { background: var(--sx-ink-a03); }
 .sx-disclosure[open], .sx-disclosure.is-open { background: var(--sx-ink-a03); }
 .sx-disclosure__body { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0 16px 16px; }
-.sx-disclosure__card { background: var(--bg-card); border-radius: var(--radius-container); padding: 16px 18px; }
+.sx-disclosure__card { background: var(--bg-card); border-radius: var(--radius-container); padding: 16px 20px; }
 .sx-disclosure__label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; color: var(--text-secondary); }
 .sx-disclosure__text { margin: 0; font-size: 12px; line-height: 1.7; color: var(--text-primary); }
 .sx-evidence { display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 0 20px 16px; font-size: 12px; color: var(--text-muted); }
@@ -322,7 +322,7 @@ details > summary { cursor: pointer; }
 .sx-rows { display: flex; flex-direction: column; }
 .sx-row {
   appearance: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%;
-  padding: 14px 24px; border: 0; border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); background: none;
+  padding: 12px 24px; border: 0; border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); background: none;
   font: inherit; font-size: 14px; color: var(--text-primary); text-align: left; cursor: pointer;
 }
 .sx-row:hover { background: var(--sx-ink-a03); }
@@ -518,7 +518,7 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none; }
   .aio-hub-seg > .aio-hub-tab { flex: 1 1 0; padding: 0 8px !important; }
   .aio-hub-subject { flex: 1 1 100%; flex-wrap: wrap; }
   .sx-card, .aio-card, .aio-widget, .data-widget { border-radius: var(--radius-container); }
-  :root { --sx-card-pad-x: 18px; }
+  :root { --sx-card-pad-x: 16px; }
   .sx-card { padding: 16px var(--sx-card-pad-x); }
   .sx-card--hero { padding: 20px var(--sx-card-pad-x); border-radius: var(--radius-container); }
   .sx-verdict { font-size: 28px; }

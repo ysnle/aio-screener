@@ -12,6 +12,7 @@ import { stampDay } from '../../../domain/shared/session-date.js';
 import { shortDate } from '../../../domain/content/date-labels.js';
 import { SCREENER_COLUMN_REGISTRY, cell, conditionMarginText, conditionMargins, currentOverlap, liveRow, range52Position, returnText, scopedRows, text } from './model.js';
 import { createColumnContent } from './table.js';
+import { openLayer } from '../../behaviors/layers.js';
 // 개편 v2 (3c): author·year evidence for the factors the score weights. Only the listed studies; a factor without one
 // (추세, 추세 속도, 밸류) shows its definition and weight only.
 const FACTOR_EVIDENCE = Object.freeze({
@@ -310,6 +311,8 @@ export function createInspectorController(ctx) {
        };
        let sheetScrim = null;
        let sheetFrame = null;
+       let sheetLayerOpen = false;
+       let releaseSheet = () => {};
        // Review fix: only a reader's tap opens the sheet — an inspector the wide layout opened by itself closes when the
        // screen narrows (iPad rotation) instead of turning into a sheet with a scrim nobody asked for.
        ctx.whyUserOpened = false;
@@ -330,6 +333,12 @@ export function createInspectorController(ctx) {
            page.append(sheetScrim);
          }
          if (sheetScrim) sheetScrim.hidden = !open;
+         // The sheet is a layer of its own (Escape, Tab stays inside); its scrim is the backdrop, so the page is not inert.
+         if (open !== sheetLayerOpen) {
+           releaseSheet();
+           releaseSheet = open ? openLayer({ root: ctx.whyDrawerNode, inert: false, focus: false, onDismiss: () => ctx.closeWhyDrawer() }) : () => {};
+           sheetLayerOpen = open;
+         }
          if (!open) { ctx.whyDrawerNode.classList.remove('is-open'); return; }
          if (ctx.whyDrawerNode.classList.contains('is-open')) return;
          const raise = () => { sheetFrame = null; if (!ctx.whyDrawerNode.hidden) ctx.whyDrawerNode.classList.add('is-open'); };
@@ -355,17 +364,8 @@ export function createInspectorController(ctx) {
          ctx.selectedResultRow()?.focus?.();
        };
        const onWhyKeydown = (event) => {
-         if (event.key === 'Escape') { event.preventDefault(); ctx.closeWhyDrawer(); return; }
-         if (event.key !== 'Tab' || ctx.whyDrawerNode.getAttribute('aria-modal') !== 'true') return;
-         // Focus trap while the sheet is a modal dialog: Tab cycles inside it instead of reaching the page behind the scrim.
-         const focusables = [...ctx.whyDrawerNode.querySelectorAll('button, a[href], input, select, textarea, summary, [tabindex]:not([tabindex="-1"])')]
-           .filter((node) => !node.disabled && node.getClientRects().length);
-         if (!focusables.length) { event.preventDefault(); return; }
-         const first = focusables[0];
-         const last = focusables[focusables.length - 1];
-         const active = documentRef.activeElement;
-         if (event.shiftKey && (active === first || active === ctx.whyDrawerNode)) { event.preventDefault(); last.focus(); }
-         else if (!event.shiftKey && active === last) { event.preventDefault(); first.focus(); }
+         // Beside the table the inspector closes on Escape only from inside it; as a sheet the layer stack owns the key.
+         if (event.key === 'Escape' && !event.defaultPrevented) { event.preventDefault(); ctx.closeWhyDrawer(); }
        };
        if (ctx.whyDrawerNode) {
          ctx.whyDrawerNode.addEventListener('keydown', onWhyKeydown);
@@ -375,6 +375,7 @@ export function createInspectorController(ctx) {
          bag.add(() => {
            narrowQuery?.removeEventListener?.('change', onNarrowChange);
            ctx.whyDrawerNode.removeEventListener('keydown', onWhyKeydown);
+           releaseSheet();
            if (sheetFrame != null) root?.cancelAnimationFrame?.(sheetFrame);
            ctx.whyDrawerNode.classList.remove('is-open');
            sheetScrim?.remove(); sheetScrim = null;

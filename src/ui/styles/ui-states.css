@@ -120,3 +120,12 @@ dialog[open]::backdrop { animation: aio-fade-in var(--dur-base) var(--ease-out);
 /* v59.70 (quality bar): a curve value label that the line or the dashed month-ago curve runs through stays legible —
    a card-coloured halo behind the glyphs (paint-order keeps the fill on top). */
 .rates-curve .rates-curve-label { paint-order: stroke; stroke: var(--bg-card); stroke-width: 3px; stroke-linejoin: round; }
+
+/* ═══ 5. Theme and selection ═════════════════════════════════════════════ */
+/* Scrollbars and native controls follow the theme. */
+:root, body { color-scheme: light; }
+body.dark-theme { color-scheme: dark; }
+/* A selected row reads without its tint: a full 1px outline. */
+.aio-table tbody tr.is-selected, .content table tbody tr.is-selected, .content table tbody tr.active,
+#page-screener #screener-results-table tbody tr.is-selected { outline: 1px solid var(--text-secondary); outline-offset: -1px; }
+#page-screener #screener-results-table tbody tr.is-selected { border-radius: var(--radius-element); }

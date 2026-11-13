@@ -4,6 +4,7 @@
 // state instead of one per screen, (2) records each completed turn, (3) adds the header controls and the list.
 import { appendTurn, consentState, deleteSession, loadSessions, newSessionId, sessionMessages, sessionWhen, setConsent, ACTIVE_KEY } from '../../ai/session/chat-sessions.js';
 import { el } from './dom.js';
+import { openLayer } from '../behaviors/layers.js';
 
 const SCREEN = { home: '오늘', briefing: '브리핑', macro: '매크로', fxbond: '금리·환율', themes: '테마', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', ticker: '종목', technical: '차트', fundamental: '재무', screener: '스크리너', portfolio: '포트폴리오', 'market-news': '뉴스', 'theme-detail': '테마', principles: '개념', atlas: '산업 지도', masters: '투자 대가', guide: '안내' };
 
@@ -142,7 +143,15 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
   panel.setAttribute('role', 'dialog');
   panel.setAttribute('aria-label', '저장된 대화 목록');
   doc.getElementById('ai-panel')?.append(panel);
-  function closeList() { panel.hidden = true; list.setAttribute('aria-expanded', 'false'); }
+  let releaseLayer = () => {};
+  function closeList() { releaseLayer(); panel.hidden = true; list.setAttribute('aria-expanded', 'false'); }
+  // Escape or a press outside the list closes it and returns to its button.
+  function showList() {
+    releaseLayer();
+    panel.hidden = false;
+    list.setAttribute('aria-expanded', 'true');
+    releaseLayer = openLayer({ root: panel, modal: false, outside: true, trigger: list, onDismiss: () => { closeList(); list.focus(); } });
+  }
   function openList() {
     const top = el(doc, 'div', null, 'ai-session-list-head');
     const back = el(doc, 'button', '닫기', 'ai-session-btn'); back.type = 'button'; back.addEventListener('click', () => { closeList(); list.focus(); });
@@ -154,8 +163,7 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
       body.append(el(doc, 'p', '켜면 다음 질문부터 이 브라우저에 저장되고, 목록에서 다시 열어 이어서 물을 수 있습니다.', 'ai-session-meta'), on);
       panel.replaceChildren(top, body);
       panel.style.top = `${head?.offsetHeight || 52}px`; // the header wraps on a phone; the list starts below it
-      panel.hidden = false;
-      list.setAttribute('aria-expanded', 'true');
+      showList();
       on.focus?.();
       return;
     }
@@ -198,11 +206,9 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
     foot.append(el(doc, 'p', '이 브라우저에만 저장, PIN 암호화 대상 아님, 최근 40개 대화', 'ai-session-meta'), off);
     panel.replaceChildren(top, items, foot);
     panel.style.top = `${head?.offsetHeight || 52}px`; // the header wraps on a phone; the list starts below it
-    panel.hidden = false;
-    list.setAttribute('aria-expanded', 'true');
+    showList();
     panel.querySelector('.ai-session-open, .ai-session-btn')?.focus?.();
   }
   list.addEventListener('click', () => (panel.hidden ? openList() : closeList()));
-  panel.addEventListener('keydown', (event) => { if (event.key === 'Escape') { event.stopPropagation(); closeList(); list.focus(); } });
   return api;
 }

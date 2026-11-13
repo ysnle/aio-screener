@@ -464,7 +464,7 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
   .page .mg-lessons { grid-template-columns: minmax(0, 1fr); }
 }
 /* v58.37: portfolio stress panel (src/ui/panels/portfolio-stress.js) — classes, never below the 12px floor. */
-.pf-stress-head { font-size: var(--fs-min); font-weight: 800; color: var(--text-secondary); margin-bottom: 6px; }
+.pf-stress-head { font-size: var(--fs-min); font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
 .pf-stress-sub { font-weight: 400; color: var(--text-muted); }
 .pf-stress-row { display: flex; justify-content: space-between; gap: 8px; font-size: var(--fs-min); padding: 2px 0; }
 .pf-stress-name { color: var(--text-secondary); }

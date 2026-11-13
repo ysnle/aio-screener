@@ -114,12 +114,13 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
   // strip names the tab and the sidebar / bottom bar mark the menu, so the extra word only floated between date and title.
   const subject = hub.id === 'stock' ? readStockSubject(root) : null;
   // v58.53 개편 v2: the tabs sit in one segmented control (soft-ui.css .aio-hub-seg).
-  // First-users run-6 #20: a screen reader heard three loose buttons; the segment is the screen's tab list (the arrow-key
-  // model comes from bootstrap's role=tablist handler).
+  // First-users run-6 #20: a screen reader heard three loose buttons; the segment is the screen's tab list (one tab stop and
+  // the arrow keys come from behaviors/roving.js; a tab opens a screen, so arrows move focus and Enter opens it).
   const seg = documentRef.createElement('span');
   seg.className = 'aio-hub-seg';
   seg.setAttribute('role', 'tablist');
   seg.setAttribute('aria-label', hub.label);
+  seg.dataset.activation = 'manual';
   nav.appendChild(seg);
   for (const tab of tabs) {
     const button = documentRef.createElement('button');
