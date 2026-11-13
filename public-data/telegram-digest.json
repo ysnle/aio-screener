@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-13T14:21:48.229Z",
-  "attemptedAt": "2026-11-13T14:21:48.229Z",
-  "lastSuccessfulAt": "2026-11-13T14:21:48.229Z",
+  "generatedAt": "2026-11-13T14:52:06.132Z",
+  "attemptedAt": "2026-11-13T14:52:06.132Z",
+  "lastSuccessfulAt": "2026-11-13T14:52:06.132Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-30T14:21:43.752Z",
-  "until": "2026-11-13T14:21:43.752Z",
+  "since": "2026-10-30T14:52:01.892Z",
+  "until": "2026-11-13T14:52:01.892Z",
   "current24hWindow": {
     "start": "2026-11-11T23:00:00.000Z",
     "end": "2026-11-12T23:00:00.000Z",
@@ -113,11 +113,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 723,
-      "freshCount": 39,
+      "freshCount": 20,
       "eligibleTextCount": 722,
       "selectedCount": 125,
       "error": null,
@@ -125,7 +125,7 @@
     }
   ],
   "count": 2189,
-  "retainedItemCount": 414,
+  "retainedItemCount": 405,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -396,7 +396,7 @@
         "kr-market"
       ],
       "count": 94,
-      "focus": "•심천 증시 -1.5%에서 보합권, 기관 매수세 유입 •국산 AI 칩 강세 지속"
+      "focus": "코스피 야간선물 양호"
     },
     {
       "id": "equity",
@@ -2046,14 +2046,13 @@
       "datetime": "2026-11-13T05:24:38.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "geo",
-        "macro"
+        "geo"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>바클레이즈: 미·이란 ‘전쟁도 평화도 아닌’ 교착 상태가 트럼프 임기 종료까지 지속될 가능성에 대비해야 함 •바클레이즈는 미·이란 충돌이 1년 내 종료될 가능성이 50%를 밑돌며, ‘장기화’가 기본..."
+      "summary": ">>바클레이즈: 미·이란 ‘전쟁도 평화도 아닌’ 교착 상태가 트럼프 임기 종료까지 지속될 가능성에 대비해야 함 •바클레이즈는 미·이란 충돌이 1년 내 종료될 가능성이 50%를 밑돌며, ‘장기화’가 기본...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69200",
@@ -2169,13 +2168,13 @@
         "semi",
         "japan"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>TSMC, 5억 달러 규모 벤처캐피털 펀드 설립 계획… 반도체 스타트업 지원 •닛케이 아시아에 따르면, TSMC 공동운영책임자 장샤오창은 TSMC가 반도체 스타트업을 지원하고 투자 범위를 확대하기 위해...",
+      "lead": 2,
       "tickers": [
         "TSM"
-      ],
-      "summary": ">>TSMC, 5억 달러 규모 벤처캐피털 펀드 설립 계획… 반도체 스타트업 지원 •닛케이 아시아에 따르면, TSMC 공동운영책임자 장샤오창은 TSMC가 반도체 스타트업을 지원하고 투자 범위를 확대하기 위해..."
+      ]
     },
     {
       "id": "HANAchina/72068",
@@ -2184,19 +2183,17 @@
       "datetime": "2026-11-13T03:35:07.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi",
-        "equity",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": ">>Cerebras 컨콜 : Microsoft 대형 계약 확보, HBM 부족이 오히려 기회… WSE-5 칩 내년 여름 양산 •AI 칩 업체 Cerebras가 Microsoft와 클라우드 협력 계약을 체결,...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "AMZN",
         "ORCL"
-      ],
-      "summary": ">>Cerebras 컨콜 : Microsoft 대형 계약 확보, HBM 부족이 오히려 기회… WSE-5 칩 내년 여름 양산 •AI 칩 업체 Cerebras가 Microsoft와 클라우드 협력 계약을 체결,..."
+      ]
     },
     {
       "id": "HANAchina/72067",
@@ -2205,7 +2202,6 @@
       "datetime": "2026-11-13T03:33:49.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi",
         "ai-policy",
         "equity"
       ],
@@ -2217,12 +2213,13 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>젠슨 황 퇴임, AI 신생 플레이어의 ‘최대 큰손’도 사라져 •Anthropic 100억 달러 규모 IPO 투자, Figure AI 추가 10억 달러 투자, Nscale 50억 달러 이상 신용보증 등 협상...",
+      "lead": 2,
       "tickers": [
         "NVDA",
         "AMD",
         "GOOG"
-      ],
-      "summary": ">>젠슨 황 퇴임, AI 신생 플레이어의 ‘최대 큰손’도 사라져 •Anthropic 100억 달러 규모 IPO 투자, Figure AI 추가 10억 달러 투자, Nscale 50억 달러 이상 신용보증 등 협상..."
+      ]
     },
     {
       "id": "HANAchina/72064",
@@ -2232,19 +2229,19 @@
       "localDateKst": "2026-11-13",
       "tags": [
         "semi",
-        "ai-policy",
-        "equity"
+        "ai-policy"
       ],
       "score": 77,
       "hasText": true,
+      "summary": ">>(영상) 리사 수는 무능한 인텔을 꺾었지만, 젠슨 황 후계자는 7대 강적과 맞서야 함 •Dylan Patel은 엔비디아의 차기 CEO가 OpenAI, Broadcom, Google, Anthropic,...",
+      "lead": 2,
       "tickers": [
         "NVDA",
         "AMD",
         "GOOG",
         "AVGO",
         "AMZN"
-      ],
-      "summary": ">>(영상) 리사 수는 무능한 인텔을 꺾었지만, 젠슨 황 후계자는 7대 강적과 맞서야 함 •Dylan Patel은 엔비디아의 차기 CEO가 OpenAI, Broadcom, Google, Anthropic,..."
+      ]
     },
     {
       "id": "HANAchina/72063",
@@ -2257,10 +2254,11 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>(10월 인터뷰 영상) 젠슨 황, 사태 전 후계자 언급 “나도 해고될 수 있어…딸이 CEO가 되려면 실력으로 증명해야” •사태 발생전 진행된 블룸버그 인터뷰에서 젠슨 황은 딸이 엔비디아의 차기 CEO가 될...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>(10월 인터뷰 영상) 젠슨 황, 사태 전 후계자 언급 “나도 해고될 수 있어…딸이 CEO가 되려면 실력으로 증명해야” •사태 발생전 진행된 블룸버그 인터뷰에서 젠슨 황은 딸이 엔비디아의 차기 CEO가 될..."
+      ]
     },
     {
       "id": "HANAchina/72062",
@@ -2269,17 +2267,15 @@
       "datetime": "2026-11-13T02:25:30.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi",
-        "ai-policy",
-        "equity"
+        "semi"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
+      "summary": ">>업계 관계자: 엔비디아, 공격적인 투자 속도 늦출 것으로 예상 •벤처캐피털 관계자와 스타트업 창업자, 반도체 업계 경영진들은 엔비디아가 그동안의 공격적인 투자 속도를 늦출 것으로 예상. 엔비디아는 올해...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>업계 관계자: 엔비디아, 공격적인 투자 속도 늦출 것으로 예상 •벤처캐피털 관계자와 스타트업 창업자, 반도체 업계 경영진들은 엔비디아가 그동안의 공격적인 투자 속도를 늦출 것으로 예상. 엔비디아는 올해..."
+      ]
     },
     {
       "id": "insidertracking/69191",
@@ -2311,8 +2307,7 @@
       "datetime": "2026-11-13T01:21:18.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 56,
       "hasText": true,
@@ -2322,10 +2317,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>젠슨 황 퇴진, 14개 월가 투자은행 긴급 분석…“대체할 사람 없다”는 공통된 평가 •14개 월가 기관이 젠슨 황의 퇴진에 대해 긴급 분석을 내놓음. 이 가운데 3곳은 투자의견을 하향했고 6곳은 목표주가를...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 퇴진, 14개 월가 투자은행 긴급 분석…“대체할 사람 없다”는 공통된 평가 •14개 월가 기관이 젠슨 황의 퇴진에 대해 긴급 분석을 내놓음. 이 가운데 3곳은 투자의견을 하향했고 6곳은 목표주가를..."
+      ]
     },
     {
       "id": "HANAchina/72057",
@@ -2334,13 +2329,13 @@
       "datetime": "2026-11-13T01:16:25.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi",
         "earnings"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>SMIC : 3분기 평균 웨이퍼 판매단가 전분기 대비 1.8% 상승 •SMIC CEO는 3분기 실적 발표회에서 3분기 전체 매출이 31억9,000만 달러로 사상 최고치를 다시 경신했으며, 전분기 대비..."
+      "summary": ">>SMIC : 3분기 평균 웨이퍼 판매단가 전분기 대비 1.8% 상승 •SMIC CEO는 3분기 실적 발표회에서 3분기 전체 매출이 31억9,000만 달러로 사상 최고치를 다시 경신했으며, 전분기 대비...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72055",
@@ -2349,8 +2344,7 @@
       "datetime": "2026-11-13T00:50:05.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 51,
       "hasText": true,
@@ -2360,10 +2354,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>기업의 영혼이 떠난다! 현재 엔비디아 vs 2011년 애플 •젠슨황이 물러난 이후 엔비디아의 향방에 대해 골드만삭스는 스티브 잡스 사례를 제시 •애플 CEO 스티브 잡스는 2011년 1월 병가를 시작했고...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>기업의 영혼이 떠난다! 현재 엔비디아 vs 2011년 애플 •젠슨황이 물러난 이후 엔비디아의 향방에 대해 골드만삭스는 스티브 잡스 사례를 제시 •애플 CEO 스티브 잡스는 2011년 1월 병가를 시작했고..."
+      ]
     },
     {
       "id": "HANAchina/72054",
@@ -2374,13 +2368,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>트럼프, 엔비디아 CEO 젠슨 황에게 자리 지키기 위해 싸우라고 촉구 (NYT) •뉴욕타임스에 따르면, 엔비디아 CEO 젠슨 황이 11월 12일 사임하기에 앞서 도널드 트럼프 미국 대통령이 비공개로 황에게...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>트럼프, 엔비디아 CEO 젠슨 황에게 자리 지키기 위해 싸우라고 촉구 (NYT) •뉴욕타임스에 따르면, 엔비디아 CEO 젠슨 황이 11월 12일 사임하기에 앞서 도널드 트럼프 미국 대통령이 비공개로 황에게..."
+      ]
     },
     {
       "id": "HANAchina/72050",
