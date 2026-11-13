@@ -319,7 +319,7 @@ let sequence = null;
   assert.equal(r.requests.length, 2, 'v60.02 one tool round is two requests');
   const input = r.requests[1].input;
   assert.deepEqual(input.slice(0, 3).map((item) => item.type || item.role), ['user', 'function_call', 'function_call']);
-  assert.deepEqual(input.slice(1, 3), calls, 'v60.02 the model\'s calls go back exactly as returned');
+  assert.deepEqual(input.slice(1, 3), calls.map(({ id, ...rest }) => rest), 'v60.02 the model\'s calls go back as returned, without the output item id');
   const outputs = input.filter((item) => item.type === 'function_call_output');
   assert.deepEqual(outputs.map((item) => item.call_id), ['call_1', 'call_2']);
   assert(/\[주가 추이\] NVDA/.test(outputs[0].output) && /VIX 17\.2/.test(outputs[1].output) && outputs.every((item) => /\(기준: [^)]*\d{4}-\d{2}-\d{2}/.test(item.output)), 'v60.02 each output is the tool text with its date');

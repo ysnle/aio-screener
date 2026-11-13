@@ -22,10 +22,13 @@ export function isWellFormedCall(item) {
     && typeof item.name === 'string' && IDENTIFIER.test(item.name) && typeof item.arguments === 'string';
 }
 
-/** The model's call as an input item: the fields the Worker admits, as returned. */
+/**
+ * The model's call as an input item: call id, name and arguments as returned. The output item's own id (fc_…) is left
+ * out: with store:false the Worker cannot send back the reasoning item that id belongs to, and the provider refuses a
+ * function-call item named by id without its reasoning item; matched by call_id alone it is plain input.
+ */
 export function callInputItem(item) {
   const out = { type: 'function_call', call_id: item.call_id, name: item.name, arguments: item.arguments };
-  if (typeof item.id === 'string') out.id = item.id;
   if (item.status === 'completed') out.status = 'completed';
   return out;
 }
