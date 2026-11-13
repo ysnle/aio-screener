@@ -1709,7 +1709,7 @@ A reference page must not render a control as functional unless it changes the s
 
 **불변식**: 모든 AI는 공용 Worker 한 경로(웹검색 포함 월 $20 예산)를 함께 쓴다. 질문은 QuestionPlan→Evidence→AnswerPlan 하나로 흐르고, 현재 수치는 화면과 같은 기준의 주입 증거에서만 인용하며, 답변은 문장 단위로 걸러 개인화된 매매 지시를 확정하지 않는다.
 
-**게이트**: `scripts/ci-ai-intelligence-contract-check.mjs` · `scripts/ci-ai-chat-reliability-contract-check.mjs` · `scripts/ci-ai-evidence-contract-check.mjs` · `scripts/ci-worker-anthropic-check.mjs`
+**게이트**: `scripts/ci-ai-intelligence-contract-check.mjs` · `scripts/ci-ai-chat-reliability-contract-check.mjs` · `scripts/ci-ai-evidence-contract-check.mjs` · `scripts/ci-worker-openai-contract-check.mjs`
 
 **정본**: R681 · 핵심: R681 · 규칙 103건 (비활성 6건)
 
@@ -1720,7 +1720,7 @@ The AI action gate replaces the sentence that is an unmistakable directive and k
 AI 답변에 쓰일 현재 시장 수치는 사용자가 보는 화면과 같은 스냅샷·기준일·대상에서 전달한다. 다른 시각의 값은 시각을 붙인 보조로만 넣고, 화면에 없는 산출물(진입가·점수)을 질문 버튼으로 약속하지 않는다.
 
 ## R681. All AIO AI shares one metered server credential boundary (v57.06, P1421)
-Chat, translation, automated analysis and deployment smoke call only the shared GPT-6 Luna Worker. 게이트: `ci-ai-budget-scope-check`, `ci-worker-anthropic-check`, `ci-data-pipeline-contract-check`.
+Chat, translation, automated analysis and deployment smoke call only the shared GPT-6 Luna Worker. 게이트: `ci-ai-budget-scope-check`, `ci-worker-openai-contract-check`, `ci-data-pipeline-contract-check`.
 
 ## R680. Budget scope, reservation and invoice remain distinct (v56.87, P1353)
 **Superseded by R681 (v57.79)**: the $20 shared budget, reservation accounting and the single Worker boundary are stated in R681; the direct-key path no longer exists.
@@ -1741,7 +1741,7 @@ Chat, translation, automated analysis and deployment smoke call only the shared 
 QuestionPlan의 action permission이 denied이면 provider runner를 절대 호출하지 않는다. UI는 안전한 교육·비교 대안만 표시할 수 있으며, 상단 AI 패널의 추가 gate는 단일 경계를 보강할 뿐 대체하지 않는다. 게이트: `ci-ai-intelligence-contract-check`.
 
 ## R532. AI quota reservation과 upstream 실행은 하나의 idempotency 경계를 가진다 (v54.59, P969)
-동일한 명시 idempotency key는 최대 한 번만 upstream을 호출하고 중복은 호출 전에 거부한다. key가 없는 별도 요청은 body가 같아도 각각 quota를 소비한다. 게이트: `ci-worker-anthropic-check`.
+동일한 명시 idempotency key는 최대 한 번만 upstream을 호출하고 중복은 호출 전에 거부한다. key가 없는 별도 요청은 body가 같아도 각각 quota를 소비한다. 게이트: `ci-worker-openai-contract-check`.
 
 ## R497. Public AI chat is certified as a fresh-browser consumer outcome (v54.37, P944)
 Public AI is certified only through the shared Worker route: one canonical route contract connects `public-config.json`, boot defaults, readiness, deep health, the… 게이트: `ci-ai-chat-public-route-browser-check`, `ci-ai-chat-reliability-contract-check`, `ci-runtime-contract-check`.
@@ -1756,10 +1756,10 @@ Web Research, 시장 세션, current claim 구조화가 실패해도 불법 실�
 옵션, 세법, 규제, 개인화, 어떻게 같은 단일 키워드나 그 조합으로 금융 질문 전체를 차단하지 않는다. 단일 ESM conduct policy가 request mode를 QuestionPlan과 최종 response gate에 함께 제공한다. 게이트: `ci-ai-intelligence-contract-check`.
 
 ## R459. Provider 허용 지역은 location hint가 아니라 관할권 실행 증거로 고정한다 (v54.4, P904)
-Durable Object locationHint나 Worker placement는 best-effort/ingress 설정이므로 provider outbound 지역 보장으로 인증하지 않는다. 게이트: `ci-worker-anthropic-check`, `ci-operations-contract-check`.
+Durable Object locationHint나 Worker placement는 best-effort/ingress 설정이므로 provider outbound 지역 보장으로 인증하지 않는다. 게이트: `ci-worker-openai-contract-check`, `ci-operations-contract-check`.
 
 ## R458. AI edge Worker는 소스·배포·readiness를 하나의 릴리스 계약으로 닫는다 (v54.3, P903)
-`cloudflare-worker-proxy.js`의 로컬 테스트나 Pages 배포만으로 공유 AI를 완료로 판정하지 않는다. 게이트: `ci-worker-anthropic-check`, `ci-operations-contract-check`.
+`cloudflare-worker-proxy.js`의 로컬 테스트나 Pages 배포만으로 공유 AI를 완료로 판정하지 않는다. 게이트: `ci-worker-openai-contract-check`, `ci-operations-contract-check`.
 
 ## R456. AI 채팅은 단일 QuestionPlan→Evidence→AnswerPlan 계약으로 종단간 검증한다 (v54.2, P901)
 모든 AI 표면은 같은 `QuestionPlan`의 의도·엔티티·현재성·필수 근거로 소스 fan-out과 Research를 결정하고, 모델은 하나의 `AI_ANSWER_PLAN` 계약을 생산한다. 게이트: `ci-ai-intelligence-contract-check`, `ci-ai-chat-reliability-contract-check`, `ci-headless-tests`.
@@ -1768,7 +1768,7 @@ Durable Object locationHint나 Worker placement는 best-effort/ingress 설정이
 외부 검색 adapter와 단일 상단 AI 패널이 서로 다른 evidence shape·준비 경로·판정 로직을 가져서는 안 된다. 게이트: `ci-ai-intelligence-contract-check`, `ci-ai-chat-reliability-contract-check`, `ci-headless-tests`.
 
 ## R445. Worker quota는 atomic reserve/release와 idempotency를 제공해야 하며 legacy KV는 fail-closed다 (v53.96, P895)
-KV get→put counter를 production quota authority로 사용하지 않는다. 게이트: `ci-worker-anthropic-check`.
+KV get→put counter를 production quota authority로 사용하지 않는다. 게이트: `ci-worker-openai-contract-check`.
 
 ## R444. AI 시장 분석은 claim마다 canonical evidence ID를 가지며 provider 실패도 동일 schema fallback을 낸다 (v53.96, P895)
 first-N 뉴스 제목이나 검증되지 않은 oneLine을 게시하지 않는다. 게이트: `ci-data-pipeline-contract-check`.
@@ -2019,7 +2019,7 @@ Portfolio backup/export must include every personal section the app stores in th
 Scheduled alert collectors must fetch only deployed public site/core artifacts and the protected AI usage endpoint when the separate operator token is present. 게이트: `ci-operations-alert-source-check`, `ci-qa-pipeline-contract-check`.
 
 ## R658. Operator AI usage evidence stays authenticated and private (v56.74, P1312)
-The current UTC-day shared-Worker AI request count may be read only from the US quota Durable Object through `GET /_ops/ai-usage` with a separate `AIO_OPERATOR_TOKEN` of… 게이트: `ci-worker-anthropic-check`, `ci-worker-relay-check`, `ci-cloudflare-deployment-contract-check`.
+The current UTC-day shared-Worker AI request count may be read only from the US quota Durable Object through `GET /_ops/ai-usage` with a separate `AIO_OPERATOR_TOKEN` of… 게이트: `ci-worker-openai-contract-check`, `ci-worker-relay-check`, `ci-cloudflare-deployment-contract-check`.
 
 ## R657. Operator alerts preserve explicit evidence and fail closed (v56.73, P1311)
 Evaluate a site outage only from explicit availability evidence and its continuous outage-start time; never infer one from deployment age. 게이트: `ci-operations-alert-policy-check`, `ci-qa-pipeline-contract-check`.
@@ -2142,7 +2142,7 @@ A workflow heredoc containing `import` or top-level `await` is an ESM program. �
 A GitHub Actions durable artifact is not proof that an independent fast plane, provider rights, or a 7-day freshness SLO exists. 게이트: `ci-market-snapshot-contract-check`, `ci-data-plane-contract-check`, `ci-operations-status-check` (구 ci-inference-contract-check 통합).
 
 ## R295. A special-purpose route added to a shared edge proxy must pass through the same defenses as every other route on that proxy — a new route is a new perimeter, not an exception to the old one (v52.47, WO-1B/P662 root)
-When a new route is added to an existing edge/CORS proxy (e.g. 게이트: `ci-worker-anthropic-check`, `ci-runtime-contract-check`.
+When a new route is added to an existing edge/CORS proxy (e.g. 게이트: `ci-worker-openai-contract-check`, `ci-runtime-contract-check`.
 
 ## R294. A security/encryption UI claim and a lock gate are two separate things to verify — a settings screen existing is not proof its protection is wired into the actual read path (v52.46, WO-1A/P661 root)
 When a feature claims a security property in its UI copy (e.g.

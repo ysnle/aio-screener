@@ -5,8 +5,10 @@ below; the `aio-proxy` Worker (source: `../cloudflare-worker-proxy.js`, config:
 `wrangler.proxy.toml`) serves the CORS data proxy, the shared `/openai`
 server-key route, and the `/relay` server-side key relay. AI generation uses
 `gpt-6-luna` and the operator's `OPENAI_API_KEY` Worker secret. Browser chat,
-translation and Actions analysis share one atomic UTC-month reservation budget
-of at most $20 (owner approval 2026-10-11). Conditional OpenAI web search is enabled with at most two built-in calls per request; no per-user search allowance is imposed. Search requests reserve their text and per-call search allowance up front; a completed searched answer settles at its usage tokens plus one fee per `web_search_call` item (v57.62), while a missing, failed or cancelled receipt keeps the full reserve. The ledger is not a provider invoice or guaranteed billing bound. The provider key never enters the
+translation and Actions analysis share one atomic UTC-month reservation ledger
+against a $20 month target (owner approval 2026-10-11). With `AI_MONTHLY_BUDGET_MODE = "target"`
+(`wrangler.proxy.toml`) the target is reported and alerted on but never refuses a request; the per-day
+request caps remain the hard backstop. Unset or `hard`, the same budget fails closed. Conditional OpenAI web search is enabled with at most two built-in calls per request; no per-user search allowance is imposed. Search requests reserve their text and per-call search allowance up front; a completed searched answer settles at its usage tokens plus one fee per `web_search_call` item (v57.62), while a missing, failed or cancelled receipt keeps the full reserve. The ledger is not a provider invoice or guaranteed billing bound. The provider key never enters the
 browser or Actions; Actions authenticates with a separate `AIO_AUTOMATION_TOKEN`.
 See [_context/OPERATOR-RUNBOOK.md](../_context/OPERATOR-RUNBOOK.md) for provisioning.
 
