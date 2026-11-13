@@ -1539,15 +1539,13 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const fallback = pub.extractAnswerFallbackResult(keptWrapped.concat(removedWrapped).join(' '), true, { evidenceCount: 0, today, referenceText: pub.answerReferenceText(wrapped), entities: blocks.SUBJECT_ENTITIES });
   check('v60.02 the fallback path applies the same subject rule', keptWrapped.every((s) => fallback.text.includes(s)) && removedWrapped.every((s) => !fallback.text.includes(s)));
   const noEntities = plan(removedWrapped.join(' '), {});
-  // The chat builds the entities from the registry: the statement beside _uniReferenceText, run as written.
-  const chatText = read('js/aio-chat.js');
-  const at = chatText.indexOf('var _uniAnswerEntities');
-  const statement = at < 0 ? '' : chatText.slice(at, chatText.indexOf('\n', at));
-  const registry = { entries: { NVDA: { en: 'NVIDIA', kr: '엔비디아', alt: ['nvidia', 'nvda'] }, MSFT: { en: 'Microsoft', kr: '마이크로소프트', alt: ['microsoft', 'msft', 'ms'] }, MS: { en: 'Morgan Stanley', kr: '모건스탠리', alt: [] } } };
-  let built = null;
-  try { built = vm.runInNewContext(`${statement}\n_uniAnswerEntities`, { window: { AIO_TICKER_NAME_REGISTRY: registry }, detectedTickers: ['NVDA', 'msft', 'ZZZZ'] }); } catch (_) { built = null; }
-  check('v60.02 the chat passes each question ticker with its registry names, leaving out a name that is another ticker',
-    JSON.stringify(built) === JSON.stringify([{ id: 'NVDA', names: ['NVIDIA', '엔비디아', 'nvidia', 'nvda'] }, { id: 'MSFT', names: ['Microsoft', '마이크로소프트', 'microsoft', 'msft'] }, { id: 'ZZZZ', names: [] }]));
+  // The chat passes its tickers; their names come from the ticker registry entries.
+  const registry = { NVDA: { en: 'NVIDIA', kr: '엔비디아', alt: ['nvidia', 'nvda'] }, MSFT: { en: 'Microsoft', kr: '마이크로소프트', alt: ['microsoft', 'msft', 'ms'] }, MS: { en: 'Morgan Stanley', kr: '모건스탠리', alt: [] } };
+  check('v60.02 a bare ticker takes its registry names, leaving out a name that is another ticker',
+    JSON.stringify(pub.answerEntities(['NVDA', 'msft', 'ZZZZ', ''], registry)) === JSON.stringify([{ id: 'NVDA', names: ['NVIDIA', '엔비디아', 'nvidia', 'nvda'] }, { id: 'MSFT', names: ['Microsoft', '마이크로소프트', 'microsoft', 'msft'] }, { id: 'ZZZZ', names: [] }]));
+  const byRegistry = pub.buildPublishableAnswerPlan({ summary: '엔비디아는 142.10달러입니다. 엔비디아는 180.25달러입니다.', sections: [], claims: { claims: [] } }, [], true, { nowMs: today, referenceText: reference, entities: ['NVDA', 'AMD'], nameEntries: registry }).plan.summary;
+  check('v60.02 bare tickers with registry entries apply the subject rule (a Korean name found through the registry)', byRegistry === '엔비디아는 180.25달러입니다.');
+  check('v60.02 an empty entities list is the v60.01 rule', keep('AMD의 PER은 28.4배입니다.', { entities: [] }));
   // The second one is kept here only since "41.2x" reads as a multiple; in v60.01 it was removed for the unit.
   check('v60.02 without entities the wrong-subject sentences on the injected shapes are kept (v60.01 rule)', removedWrapped.every((s) => noEntities.includes(s)));
 }

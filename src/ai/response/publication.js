@@ -194,16 +194,30 @@ export function supportedNumbersFromEvidence(rows, nowMs = Date.now(), { entitie
 // word (one of three letters or fewer only in capitals, so "ON" or "ALL" is not read in English prose); a Hangul name
 // matches inside a word ("엔비디아는"). Longer names are matched first and blanked, so a short name inside a longer one
 // does not count twice.
+// The subjects as { id, names }: a bare ticker takes its names from the ticker registry entries ({ en, kr, alt }), leaving
+// out a name that is itself another registry ticker ('ms' on MSFT is Morgan Stanley's symbol).
+export function answerEntities(list, entries) {
+  var registry = entries && typeof entries === 'object' ? entries : {};
+  return (Array.isArray(list) ? list : []).map(function(item) {
+    if (item && typeof item === 'object') return item;
+    var id = String(item || '').trim().toUpperCase();
+    var entry = registry[id] || {};
+    return { id: id, names: [entry.en, entry.kr].concat(Array.isArray(entry.alt) ? entry.alt : []).filter(function(name) {
+      var upper = String(name || '').toUpperCase();
+      return !!name && (upper === id || !registry[upper]);
+    }) };
+  }).filter(function(entity) { return !!String(entity.id || '').trim(); });
+}
 function entityIds(entities) {
   if (!Array.isArray(entities)) return null;
-  var ids = entities.map(function(entity) { return String(entity && entity.id || '').trim().toUpperCase(); }).filter(Boolean);
+  var ids = answerEntities(entities).map(function(entity) { return String(entity.id).trim().toUpperCase(); });
   return ids.length ? ids : null;
 }
 function escapeRegExp(value) { return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 function entityMatchers(entities) {
   if (!entityIds(entities)) return null;
   var matchers = [];
-  entities.forEach(function(entity) {
+  answerEntities(entities).forEach(function(entity) {
     var id = String(entity && entity.id || '').trim().toUpperCase();
     if (!id) return;
     var names = [id].concat(Array.isArray(entity.names) ? entity.names : []);
@@ -484,7 +498,7 @@ function guardFallback(text, currentSensitive, options) {
   var result = { text: text, removedNumericSentences: 0, removedEventSentences: 0, sentencesTotal: countSentences(text) };
   if (!currentSensitive) return result;
   var today = options && options.today;
-  var entities = options && options.entities;
+  var entities = options && Array.isArray(options.entities) ? answerEntities(options.entities, options.nameEntries) : null;
   var numbers = options && supportedNumbers(options.evidenceRows, options.referenceText, todayMs(today), entities);
   var numeric = stripNumericSentences(text, today, numbers, entities);
   result.text = numeric.text;
@@ -536,7 +550,8 @@ export function summarizeAnswerLimitations(reasons = [], { publishedClaimCount =
   return phrases.length ? '※ ' + phrases.join(' · ') : '';
 }
 
-export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive, { nowMs = Date.now(), referenceText = '', entities = null } = {}) {
+export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive, { nowMs = Date.now(), referenceText = '', entities = null, nameEntries = null } = {}) {
+  entities = Array.isArray(entities) ? answerEntities(entities, nameEntries) : null;
   if (!plan) return { plan: null, droppedClaims: [], unboundEvidenceIds: [] };
   var rows = (Array.isArray(bindingEvidence) ? bindingEvidence : []).filter(row => evidenceCanPublish(row, nowMs));
   var bindingIds = new Set(rows.map(claimEvidenceId));
