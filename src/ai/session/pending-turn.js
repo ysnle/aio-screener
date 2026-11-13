@@ -1,4 +1,4 @@
-// The question that is waiting for its answer, kept for this tab only (sessionStorage, handed in by the app layer) so a
+// The question that is waiting for its answer, kept for this tab only (the tab's own store, handed in by the app layer) so a
 // reload or a closed page during the wait does not lose it. It is the reader's own unsent work in this tab, kept at most
 // 15 minutes, so it needs no saving consent; it is cleared when the turn finishes, fails for good or is stopped.
 

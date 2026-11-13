@@ -384,7 +384,7 @@ let sequence = null;
 // (8) v60.02 (plan 050): the waiting line's stages follow the real stream — (a) a plain answer, (b) a searched answer
 // the request must search for, (c) one tool round. The clock is fixed; only the order of stages is read.
 {
-  const stagesOf = async (options) => { const progress = createRunProgress({ now: () => 0 }); const r = await scenario({ ...options, progress }); assert.equal(r.done.length, 1); return progress.stages().join('>'); };
+  const stagesOf = async (options) => { const progress = createRunProgress({ now: () => 0 }); const r = await scenario({ ...options, progress }); assert.equal(r.done.length, 1, 'v60.02 each staged scenario completes once'); return progress.stages().join('>'); };
   assert.equal(await stagesOf({ responses: [answer('바로 답합니다')], tools: false }), 'preparing>thinking>writing>checking', 'v60.02 a plain answer: preparing, thinking, writing, checking');
   assert.equal(await stagesOf({ responses: [answer('검색으로 답합니다')], webSearch: true, searchChoice: 'required' }), 'preparing>searching>writing>checking', 'v60.02 a required search shows searching before the text');
   assert.equal(await stagesOf({ responses: [answer('검색 선택')], webSearch: true }), 'preparing>thinking>writing>checking', 'v60.02 an optional search is not announced as searching (no search-progress event is read)');

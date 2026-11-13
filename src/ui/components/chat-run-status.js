@@ -18,7 +18,7 @@ function nextPaint(root, doc) {
   });
 }
 
-// The device store is handed in by the app layer (`storage()` returns this tab's sessionStorage).
+// The device store is handed in by the app layer (`storage()` returns this tab's own store).
 export function createChatRunKit(root = globalThis, doc = root.document, { now = () => Date.now(), storage = () => null } = {}) {
   let card = null;
   const removeCard = () => { card?.remove(); card = null; };

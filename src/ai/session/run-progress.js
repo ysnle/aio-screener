@@ -17,7 +17,8 @@ export const RUN_SLOW_NOTE = '자료 조회와 검색이 있으면 1~2분 걸릴
 export const RUN_STALL_NOTE = '응답이 늦어지고 있습니다. 조금 더 기다립니다.';
 
 const grouped = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-const elapsedText = (sec) => (sec >= 60 ? `${Math.floor(sec / 60)}분 ${sec % 60}초` : `${sec}초`);
+const MINUTE_SEC = 60;
+const elapsedText = (sec) => (sec >= MINUTE_SEC ? `${Math.floor(sec / MINUTE_SEC)}분 ${sec % MINUTE_SEC}초` : `${sec}초`);
 
 /**
  * The stage a request starts in once it is sent: a hosted search the request must run (tool_choice 'required') is
