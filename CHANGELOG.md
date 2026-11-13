@@ -1,3 +1,7 @@
+## v60.04 (2026-11-13)
+- **A live answer keeps its own figures (P2400):** figures the model copied from injected data and tool results are kept as dated reference claims, date-only sentences and unit-less readings such as RSI stay, a tool result no longer inherits the previous company's section, and the 3-month chart uses the same 63 sessions as the table.
+- R1 7곳 v60.04
+
 ## v60.03 (2026-11-13)
 - **A review dated ahead of the clock no longer empties the screener (P2398):** reference dates are not treated as future observations.
 - **A refused question is not sent twice (P2399):** the retry without data tools happens only when the refusal is about the tools.

@@ -39,6 +39,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2400 - v60.04 - v60.04 a live comparison answer keeps the figures it copied from its material and loses its false 'no current figures' header (2026-11-13)
+
+- symptom/reproduction: A live answer (2026-11-13, NVDA vs AMD, 6 tool calls) opened with '※ 최신 수치 확인 안 됨 — 일반 설명만' above a table full of figures; all six typed claims were dropped, three true sentences were removed (two that only dated their sources, one giving each company its own growth figure), the RSI cells read '확인 필요', and the chart's 3-month figures differed from the table's.
+- root_cause: Typed claims were valid only with an evidence id, which figures copied from injected text or tool results never have; a sentence whose only numbers were dates counted as an unverifiable current figure; a tool result appended after the last company section inherited that section's company, so NVDA's '+75%' was tagged to AMD; a bare two-digit integer was never supported; the chart took 63 closes (62 sessions) while the table's 3개월 is 63 sessions.
+- fix: src/ai/response/publication.js: a numeric claim without evidence ids is kept when its value is in the reference material for its subject (claimInReference); a current sentence with no figure to check stays when reference material exists; inside a company's section a line naming exactly one other company carries that company's figures; a bare two-digit integer is supported by a unit-less figure of the material. src/ui/components/ai-answer-visuals.js: the relative-return chart uses 64 closes and says its end date may differ from the text's basis date.
+- violated_rule: Owner decision 2026-11-12: a current figure is checked against what the model was given, not deleted for being a figure.
+- prevention: ci-ai-intelligence-contract-check (v60.04 block built from the live shapes): six copied claims kept, the three sentences and the RSI cells kept, a figure moved to the other company or not given at all still dropped or removed, and behaviour without reference material unchanged; three of the checks fail on the previous module.
+- verification/residual: ci-ai-intelligence-contract-check, ci-pipeline-semantics-check, ci-ai-chat-reliability-contract-check, the regex/shared-primitive/text ratchets and the boot budget exit 0. Not run: the full QA profile and a live re-check (owner asked to stop before QA and push).
+- files: src/ai/response/publication.js, src/ui/components/ai-answer-visuals.js, scripts/ci-ai-intelligence-contract-check.mjs
+
 ## P2399 - v60.03 - v60.03 a refused chat request is retried without tools only when the refusal is about the tools (2026-11-13)
 
 - symptom/reproduction: Any 400 from the Worker made the chat send the same question a second time without its data tools (plan 045), so a request the Worker refused for another reason was sent twice; the screener AI conditions browser gate saw two answer requests where one is the contract.
