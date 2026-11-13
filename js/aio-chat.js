@@ -1262,7 +1262,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
     if (!res.ok) {
       var errText = await res.text();
       clearTimeout(connectTimer);
-      if (_tools && _tools.refused(res.status)) { _armConnect(); continue; }
+      if (_tools && _tools.refused(res.status, errText)) { _armConnect(); continue; }
       var errMsg = 'API 오류 (' + res.status + ')';
       try {
         var j = JSON.parse(errText);

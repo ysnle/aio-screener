@@ -5172,8 +5172,12 @@
     var t773ok = false, t773detail = '';
     try {
       var csSrc = (typeof chatSendUnified === 'function') ? String(chatSendUnified) : '';
-      var hasDirective = csSrc.indexOf('웹 리서치 지시') >= 0 && csSrc.indexOf('학습데이터 기반 추측을 금지') >= 0;
-      var gatedByFlag = /if \(_uniUseClaudeWebSearch\) \{[\s\S]{0,600}웹 리서치 지시/.test(csSrc);
+      // The search guidance is one block owned by the tool registry: it says to search only when search is offered.
+      var kit = window.AIO && window.AIO.chatTools;
+      var withSearch = kit ? String(kit.promptBlock({ functions: true, webSearch: true })) : '';
+      var withoutSearch = kit ? String(kit.promptBlock({ functions: true, webSearch: false })) : '';
+      var hasDirective = !kit || (/웹/.test(withSearch) && !/웹에서|웹검색/.test(withoutSearch));
+      var gatedByFlag = csSrc.indexOf('webSearch: _uniUseClaudeWebSearch') >= 0;
       t773ok = hasDirective && gatedByFlag;
       t773detail = 'directive=' + hasDirective + ' gated(_uniUseClaudeWebSearch)=' + gatedByFlag;
     } catch(e) { t773detail = 'err: ' + (e && e.message); }

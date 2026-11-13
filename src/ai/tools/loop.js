@@ -113,7 +113,8 @@ export function createToolSession(plainBody, hooks = {}, { root = globalThis, si
     get rounds() { return rounds; },
     get calls() { return used; },
     keySuffix: () => (fellBack ? ':plain' : rounds ? `:r${rounds}` : ''),
-    refused: (status) => status === 400 && fallback(),
+    // Only a refusal that is about the tools is worth one request without them; any other 400 is the caller's error.
+    refused: (status, detail = '') => status === 400 && /tool|function|search|schema|검색|도구/i.test(String(detail)) && fallback(),
     beginRound() { completed = null; streamed = []; hiding = false; },
     observe(evt) {
       if ((evt?.type === 'response.output_item.added' || evt?.type === 'response.output_item.done') && evt.item?.type === 'function_call') {
