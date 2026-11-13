@@ -7,13 +7,14 @@ import { companyProfileEntry, companyStoryFor, requestCompanyStory } from '../..
 import { consensusRowFor, requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { COMPANY_PROFILE_INDEX } from '../../data/artifact-registry.js';
 import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
+import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
+import { readNumber } from '../../domain/shared/number.js';
+import { isoDay, stampDay as day } from '../../domain/shared/session-date.js';
 import { isKrSymbol, resolveToolSymbol, symbolLabel, unknownSymbolText } from './symbol.js';
 
 const SYMBOL = { type: 'string', description: '티커(예: NVDA, 005930.KS) 또는 화면에 등록된 회사 이름' };
 const objectSchema = (properties) => ({ type: 'object', properties, required: Object.keys(properties), additionalProperties: false });
-const day = (value) => (/^\d{4}-\d{2}-\d{2}/.test(String(value || '')) ? String(value).slice(0, 10) : null);
-const clampInt = (value, min, max, fallback) => (Number.isFinite(Number(value)) ? Math.min(max, Math.max(min, Math.round(Number(value)))) : fallback);
-const price = (value) => String(Number(Number(value).toFixed(value >= 1000 ? 0 : 2)));
+const clampInt = (value, min, max, fallback) => { const number = readNumber(value); return number == null ? fallback : Math.min(max, Math.max(min, Math.round(number))); };
 
 function waitFor(start, ms) {
   let timer = null;
@@ -37,8 +38,9 @@ const priceHistory = {
     const bars = (data?.bars || []).slice(-count);
     if (!bars.length) return { error: `${sym}의 완료된 일봉을 받지 못했습니다.` };
     const currency = isKrSymbol(sym) ? 'KRW' : data?.payload?.meta?.currency || null;
+    const price = (value) => formatScreenerPrice(value, currency);
     const lines = bars.map((bar) => `${bar.time} 종가 ${price(bar.close)} (고 ${price(bar.high)} · 저 ${price(bar.low)})`);
-    return { text: `【${sym} 완료된 일봉 ${bars.length}거래일${currency ? `, ${currency}` : ''}】\n${lines.join('\n')}`, asOf: `${bars.at(-1).time} 종가`, entities: [sym] };
+    return { text: `【${sym} 완료된 일봉 ${bars.length}거래일】\n${lines.join('\n')}`, asOf: `${bars.at(-1).time} 종가`, entities: [sym] };
   }
 };
 
@@ -54,8 +56,8 @@ const technicals = {
     const unknown = asked.filter((raw) => !resolveToolSymbol(root, raw));
     if (!known.length) return { error: unknownSymbolText(asked.join(', ')) };
     const block = String(await chatTechnicalBlock([...new Set(known)], { root, signal }) || '').trim();
-    // The block states each symbol's last completed close as "종가 … (YYYY-MM-DD"; a held block has none.
-    const dates = [...block.matchAll(/• 종가 [^\n]*?\((\d{4}-\d{2}-\d{2})/g)].map((match) => match[1]).sort();
+    // The block states each symbol's last completed close as "• 종가 <price> (<day>, …"; a held block has none.
+    const dates = [...block.matchAll(/• 종가 [^(\n]*\(([^,)\n]+)/g)].map((match) => isoDay(match[1].trim())).filter(Boolean).sort();
     if (!block || !dates.length) return { error: `${known.join(', ')}의 차트 일봉을 받지 못해 기술 지표를 계산하지 않았습니다.` };
     return { text: block + (unknown.length ? `\n${unknownSymbolText(unknown.join(', '))}` : ''), asOf: `${dates.at(-1)} 종가`, entities: known };
   }

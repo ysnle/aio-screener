@@ -4,10 +4,11 @@ import { buildChatMacroLines, kstStamp } from '../context/chat-macro-lines.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { SCENARIO_OUTCOMES } from '../../data/artifact-registry.js';
 import { BRANCH_ANALOGS, THEME_STATES, frequencyText } from '../../domain/scenarios/analogs.js';
+import { readNumber } from '../../domain/shared/number.js';
+import { stampDay as day } from '../../domain/shared/session-date.js';
 import { resolveToolSymbol, symbolLabel } from './symbol.js';
 
 const objectSchema = (properties) => ({ type: 'object', properties, required: Object.keys(properties), additionalProperties: false });
-const day = (value) => (/^\d{4}-\d{2}-\d{2}/.test(String(value || '')) ? String(value).slice(0, 10) : null);
 const latest = (values) => values.map(day).filter(Boolean).sort().at(-1) || null;
 const MACRO_TOPICS = Object.freeze({ macro: '미국 매크로', 'kr-macro': '한국 매크로', fxbond: '환율·채권' });
 
@@ -79,7 +80,8 @@ const news = {
     const text = String(query || '').slice(0, 120).trim();
     if (!text) return { error: '검색어가 비어 있습니다.' };
     const sym = resolveToolSymbol(root, text);
-    const span = Number.isFinite(Number(days)) ? Math.min(7, Math.max(1, Math.round(Number(days)))) : 3;
+    const asked = readNumber(days);
+    const span = asked == null ? 3 : Math.min(7, Math.max(1, Math.round(asked)));
     let found = '';
     if (sym && typeof root?._aioTickerNewsFromCache === 'function') found = root._aioTickerNewsFromCache(sym, { windowHours: span * 24, max: 8 }) || '';
     else if (!sym && typeof root?._buildNewsContext === 'function') found = root._buildNewsContext(root._aiCurrentCtx || 'home', text) || '';
