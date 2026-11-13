@@ -54,6 +54,7 @@ export function marketAnalysisOutcome(analysis, usageRow) {
   if (!analysis) return 'analysis-unavailable';
   if (analysis.status === 'verified') {
     if (analysis.retained) return 'retained-previous';
+    if (analysis.salvaged) return 'salvaged'; // v60.02: published after removing its offending lines (salvageMarketAnalysis)
     return requests ? (requests > 1 ? 'verified-after-retry' : 'verified') : 'reused';
   }
   return requests ? 'blocked' : (REASON.test(String(analysis.reason || '')) ? analysis.reason : 'blocked');

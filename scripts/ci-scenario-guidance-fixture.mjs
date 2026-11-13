@@ -1275,4 +1275,69 @@ assert.equal(pastEvidence({ n: 40, up: 22, baseUpPct: 55 }).method, ANALOG_METHO
 
 console.log(`market guide fixture OK: ${BRANCHES.length} branches tagged, ${ALL_LESSONS.length} lessons linked, ${guide.lessons.length} selected today`);
 }],
+// ── section market-analysis-salvage (v60.02, plan 046) ──
+// A reading blocked on its retry loses its bad line (at most two), not the whole text; the validator stays the judge.
+['market-analysis-salvage', async () => {
+const { default: assert } = await import('node:assert/strict');
+const { readFileSync } = await import('node:fs');
+const { salvageMarketAnalysis } = await import('./lib/market-analysis-validate.mjs');
+const { genMarketAnalysis } = await import('./producer/market-narrative.mjs');
+const { marketAnalysisOutcome } = await import('./producer/ai-usage.mjs');
+// Stub validator: each "BADn" line is one issue; a text without the ESSENTIAL line has its own issue.
+let calls = 0;
+const stub = (body) => {
+  calls += 1;
+  const issues = [...String(body).matchAll(/BAD(\d)/g)].map((m) => `bad-${m[1]}`);
+  if (/TRADE/.test(body)) issues.unshift('trade-instruction');
+  if (/PROB/.test(body)) issues.unshift('probability-claim');
+  if (!/ESSENTIAL/.test(body)) issues.push('essential-missing');
+  return { ok: issues.length === 0, issues };
+};
+const reading = (...extra) => ['L1 ESSENTIAL', 'L2', 'L3', 'L4', 'L5', 'L6', ...extra].join('\n');
+calls = 0;
+const one = salvageMarketAnalysis(reading('L7 BAD1', 'L8'), stub);
+assert.ok(one.ok && one.removed.length === 1 && one.removed[0].line === 'L7 BAD1' && one.removed[0].issues.join() === 'bad-1' && !/BAD/.test(one.text) && one.text.split('\n').length === 7,
+  `v60.02 an issue tied to one line removes that line: ${JSON.stringify(one)}`);
+assert.ok(calls <= 1 + 8 * 2, `v60.02 salvage stays within lines × maxRemoved validator runs (${calls})`);
+const two = salvageMarketAnalysis(reading('L7 BAD1', 'L8 BAD2'), stub);
+assert.ok(two.ok && two.removed.length === 2 && !/BAD/.test(two.text), `v60.02 two bad lines are both removed: ${JSON.stringify(two)}`);
+assert.equal(salvageMarketAnalysis(reading('L7 BAD1', 'L8 BAD2', 'L9 BAD3'), stub).ok, false, 'v60.02 three bad lines exceed maxRemoved: not ok');
+assert.equal(salvageMarketAnalysis(['L1 ESSENTIAL BAD1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'].join('\n'), stub).ok, false, 'v60.02 removing the bad line creates a new issue: not ok');
+assert.equal(salvageMarketAnalysis(['L1 ESSENTIAL', 'L2', 'L3', 'L4', 'L5 BAD1', 'L6 BAD2'].join('\n'), stub).ok, false, 'v60.02 a removal never leaves minLines or fewer lines');
+calls = 0;
+assert.equal(salvageMarketAnalysis(reading('L7 TRADE', 'L8'), stub).ok, false, 'v60.02 a trade instruction is discarded whole');
+assert.equal(calls, 1, 'v60.02 a trade instruction is not salvaged: only the first validation runs');
+calls = 0;
+assert.equal(salvageMarketAnalysis(reading('L7 PROB', 'L8'), stub).ok, false, 'v60.02 a probability claim is discarded whole');
+assert.equal(calls, 1, 'v60.02 a probability claim is not salvaged: only the first validation runs');
+
+// End to end: both attempts carry one axis-state contradiction ("신용은 안정적이다" while credit is 부담) in an otherwise valid
+// reading of the 10/21 02:21Z fixture; the run publishes the reading without that line, marked salvaged, after two requests.
+const fx = JSON.parse(readFileSync(new URL('./fixtures/market-analysis-20261021.json', import.meta.url), 'utf8'));
+const bad = '신용은 안정적이다.';
+const text = ['코스피는 10/20 종가 -3.73%(5거래일 -8.00%)로 밀렸고, WTI는 10/20 종가 -1.80%였지만 5거래일로는 +8.13% 올라 있었다[regime-context].',
+  '10/20 블룸버그 보도에 따르면 코어위브 채권 급락이 AI 인프라 자금 조달 우려로 번졌다 — 반도체·대형 기술주에 부담이 몰린 배경으로 거론됐다.',
+  '지금은 코스피 장중 11:01 KST 기준 +4.48%로 반대 방향이며, 10/21 연합뉴스 속보(잠정)에 따르면 매수 사이드카가 발동됐다.',
+  '10/21 Business Insider 보도에 따르면 SpaceX의 AI 설비투자 확대 전망이 반도체 반등을 이끌었고, 10/21 WSJ 보도에 따르면 미국·이란 외교 기대가 증시의 방향을 돌렸다.',
+  bad,
+  '확인할 것: 10/21 장 마감 후 META·TSLA·LRCX 실적과 설비투자 전망이 반도체·대형 기술주로 이어지는지, 하이일드 스프레드 확대가 멈추는지. 반증: 실적 뒤 반도체가 다시 밀리면 이번 반등은 되돌림으로 본다.',
+  '하이일드 스프레드가 넓어진 만큼 자금 조달 여건은 다음 관측으로 확인할 대목이다.'].join('\n');
+const prompts = [];
+const request = async (prompt) => { prompts.push(prompt); return { text }; };
+const logs = [];
+const warn = console.warn; const log = console.log;
+console.warn = (...parts) => logs.push(parts.join(' ')); console.log = (...parts) => logs.push(parts.join(' '));
+let run;
+try { run = await genMarketAnalysis(fx.data, fx.snapshot, { previous: null, request, nowMs: Date.parse(fx.nowMs), history: fx.history, narrative: { text: '', signature: 'fixture', themes: [] }, earnings: fx.earnings }); }
+finally { console.warn = warn; console.log = log; }
+const blockedLogs = logs.filter((line) => /marketAnalysis attempt-\d blocked: axis-state-contradiction:credit ::/.test(line));
+assert.ok(blockedLogs.length === 2, `v60.02 both attempts were blocked on the credit contradiction alone: ${logs.map((line) => line.slice(0, 120)).join(' | ')}`);
+assert.ok(run?.status === 'verified' && run.semanticStatus === 'verified' && run.salvaged?.removed === 1 && run.salvaged.issues.includes('axis-state-contradiction:credit') && !run.blockedAttemptKey,
+  `v60.02 the salvaged reading publishes as verified: ${JSON.stringify({ status: run?.status, salvaged: run?.salvaged, issues: run?.semanticIssues })}`);
+assert.ok(!run.full.includes(bad) && run.full.split('\n').length === 6, 'v60.02 the bad line is absent from the published reading');
+assert.equal(prompts.length, 2, 'v60.02 salvage makes no third request');
+assert.ok(logs.some((line) => line === '[fetch-data] marketAnalysis salvaged: removed 1 line(s) for axis-state-contradiction:credit'), 'v60.02 the run logs one salvage line');
+assert.equal(marketAnalysisOutcome(run, { requests: 2 }), 'salvaged', 'v60.02 the run meta counts a salvaged reading');
+console.log('market analysis salvage OK');
+}],
 ]);

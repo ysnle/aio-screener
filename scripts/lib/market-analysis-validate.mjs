@@ -792,6 +792,33 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   };
 }
 
+// v60.02 (plan 046): a reading still blocked after its retry loses its offending lines (at most `maxRemoved`), not the whole
+// text. Lines are the reading's own lines (the /\n+/ split _marketAnalysisSummary publishes). Each step removes the line
+// whose absence leaves strictly the fewest issues (ties: the later line); the result is ok only when the validator then
+// finds nothing, so a line the validator requires (a cause on a large-move day, cross-market dates, the scenario line)
+// cannot be removed. An order or an invented probability is discarded whole, as before.
+const SALVAGE_NEVER = Object.freeze(['trade-instruction', 'probability-claim']);
+export function salvageMarketAnalysis(text, validate, { maxRemoved = 2, minLines = 5 } = {}) {
+  let lines = String(text || '').split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  let current = validate(lines.join('\n'));
+  if ((current?.issues || []).some((issue) => SALVAGE_NEVER.includes(issue))) return { ok: false };
+  const removed = [];
+  while (!current?.ok && removed.length < maxRemoved && lines.length > minLines) {
+    let best = null;
+    lines.forEach((_, index) => {
+      const without = lines.filter((__, at) => at !== index);
+      const result = validate(without.join('\n'));
+      if (!best || result.issues.length <= best.result.issues.length) best = { index, without, result };
+    });
+    if (!best || best.result.issues.length >= current.issues.length) break;
+    removed.push({ line: lines[best.index], issues: current.issues.filter((issue) => !best.result.issues.includes(issue)) });
+    lines = best.without;
+    current = best.result;
+  }
+  if (!current?.ok || (current.issues || []).length) return { ok: false };
+  return { ok: true, text: lines.join('\n'), removed, semantic: current };
+}
+
 // AI commentary shares the Worker budget with chat and translation (P1421).
 
 const MARKET_ANALYSIS_NEWS_HEADLINE_DEPTHS = new Set(['', 'headline', 'headline-only', 'title-only', 'snippet']);
