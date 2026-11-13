@@ -55,6 +55,13 @@ is self-contained; edit the plan, not only the shared block).
 | 043 | Chat: earlier conversations about the same subject; things the reader said are remembered | P1 | L | MED | owner request | DONE parts B, C (v59.99); part A REJECTED — a profile already exists (src/ai/session/user-profile.js) |
 | 044 | Judgement latitude; figures checked against evidence instead of deleted | P1 | L | MED–HIGH | owner decision 2026-11-12 | DONE (merged, v59.99; extended to the injected data blocks in v60.01) |
 
+| 045 | Chat data tools: the model asks for the data it needs (10 tools, 2 rounds, 6 calls) | P1 | L | MED–HIGH | owner request | DONE (merged, v60.02; live model behaviour unproven) |
+| 046 | Market reading: a blocked reading loses its bad lines, not the whole text; the home sentence may judge | P1 | M | MED | AI pass | DONE (merged, v60.02) |
+| 047 | Chat: a figure is supported for the subject it was given for | P2 | M | MED | AI pass | DONE (merged, v60.02; tagging rule redesigned by the executor after measuring real prompts) |
+| 048 | Universe review from repository listings; registry junk; stale names; BLS footnotes | P2 | M | MED | follow-ups | DONE (merged, v60.02; KVUE and ROKU removed, OKTA relabelled; FANUY left) |
+| 049 | Chat: the model decides when to search; search and data tools in one answer (Worker admission) | P1 | M–L | MED–HIGH | owner request | DONE (merged, v60.02) |
+| 050 | Chat: the waiting line shows stages and time; a reload keeps the question; a run survives leaving an AI screen | P1 | M | MED | owner request | DONE (merged, v60.02) |
+
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED (one-line rationale)
 
 ## Result (2026-11-10)
@@ -76,23 +83,33 @@ a false failure of the metric-consistency gate that had stopped data releases fo
 - The non-browser contracts suite was run with the clock 45 and 120 days ahead; only live-data freshness checks
   differ. Browser gates were not run with a moved clock.
 
+## Result, autonomy pass (2026-11-13)
+
+Plans 045–050 and three workflow edits (provider credit exhaustion passes the AI-proxy smoke as an operating block;
+a verified deploy closes its alert on first success; BLS summary denominator) were recorded as v60.02 and v60.03.
+Reviewer fixes on top: a review date ahead of the reader's clock no longer empties the screener; the no-tools retry
+happens only for a refusal about the tools.
+
 ## Open follow-ups (not done)
 
-- Chat function tools (the model asks for data instead of receiving it all in the prompt): not designed or built.
-- A rejected market reading is still replaced whole by the previous one; dropping only the offending sentence is not built.
-- The universe review is overdue (lastBulkUpdate 2026-10-13); the screens now show a notice instead of failing.
-- "Deploy AI proxy": the smoke step does not classify `insufficient_quota` as an operating block (workflow edit not made).
-- Alert issues close only after two consecutive successes of their workflow; rarely-run deploy workflows keep theirs
-  open for days (a one-line workflow change was proposed in the 039 report, not made).
-- Refresh summary prints BLS `series=N/6` though eight series exist (workflow file).
-- HPSP is the name of two registry entries (352700.KQ, 403870.KQ); 413640.KQ has en 'Hyundai Mobis Test'.
-- Numbers in the chat are checked against the injected text without entity binding: a real figure can be attached to
-  the wrong subject.
-- The home one-line sentence filter still rejects "매수가 부담스러운 구간" as an instruction.
-- Ledgers still cite `ci-worker-anthropic-check` (renamed) as history; `worker/README.md` line 9 says "at most $20".
+- Prove on the live model: function calls in the stream shape the loop reads; a second-round request without
+  reasoning items; search mixed with functions; what `max_tool_calls` counts. Until the new Worker is deployed the
+  old one refuses the mix and the client falls back once.
+- Ledger: a searched response whose input across turns exceeds 272k tokens keeps its whole reservation instead of
+  settling; mixed requests reach that more often, so the month figure can overstate the bill (target mode: warnings
+  only). Read `AIO.answerQualitySummary()` and the Worker ledger after a week and refine the settlement if needed.
+- `js/aio-chat.js` decomposition baseline was raised for the tool loop; moving `callSharedAi`'s stream reader into
+  `src/` would bring it back down.
+- Chat answer format: the `[AI_ANSWER_PLAN]` JSON envelope still constrains writing; how often it breaks is now
+  measurable (answer-quality log) but not yet measured. Chat reasoning effort is capped at medium.
+- ROKU was removed on the listing directory's evidence (absent in four snapshots); confirm it is not a collection gap.
+  ROKU and KVUE are still named in theme maps and alias lists. FANUY (OTC) cannot be judged from the listing file.
+- Registry: '에이비엘바이오' on 347860.KQ and 298380.KQ; seven `_skip` placeholders block a no-duplicate-name gate.
+- In hard budget mode the Worker's budget saver strips every tool from a mixed request (data tools included).
+- The waiting line cannot tell an optional search in progress (it shows 생각하는 중); the pending-question card
+  appears only once the chat module loads.
 - OpenAI error bodies are relayed to the browser with keys masked (kept: the code says it is deliberate).
-- `browser-theme-research` failed once under load in a full run and passed alone (scroll timing).
-- Nothing from the AI pass was checked by hand in a real browser or against the live model beyond the experiment.
+- Nothing in v60.02–v60.03 was checked by hand in a real browser beyond the automated browser gates.
 
 ## Dependency and overlap notes
 

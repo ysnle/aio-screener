@@ -22,8 +22,8 @@ last_verified: 2026-11-13
 | `js/aio-core.js` | 14,623 | 900,791 |
 | `js/aio-data.js` | 6,916 | 449,178 |
 | `js/aio-ui.js` | 1,236 | 72,065 |
-| `js/aio-chat.js` | 4,502 | 340,893 |
-| `js/aio-tests.js` | 8,706 | 700,758 |
+| `js/aio-chat.js` | 4,502 | 340,902 |
+| `js/aio-tests.js` | 8,710 | 701,072 |
 | `js/aio-glossary.js` | 415 | 114,129 |
 
 ## Workspace
@@ -31,7 +31,7 @@ last_verified: 2026-11-13
 - Context documents: 83; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 11; command wrappers: 21; agent profiles: 4.
 - Workflows: 20; CI scripts: 200.
-- Ledgers: latest rule R747; latest postmortem P2398; open QA 89 unique IDs (89 rows, 0 explicitly superseded).
+- Ledgers: latest rule R747; latest postmortem P2399; open QA 89 unique IDs (89 rows, 0 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary

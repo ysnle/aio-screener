@@ -39,6 +39,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2399 - v60.03 - v60.03 a refused chat request is retried without tools only when the refusal is about the tools (2026-11-13)
+
+- symptom/reproduction: Any 400 from the Worker made the chat send the same question a second time without its data tools (plan 045), so a request the Worker refused for another reason was sent twice; the screener AI conditions browser gate saw two answer requests where one is the contract.
+- root_cause: createToolSession.refused took the fallback on the status alone.
+- fix: src/ai/tools/loop.js: the fallback needs a 400 whose error text names tools, functions, search or a schema; js/aio-chat.js passes the error text it already read. The headless test T773 reads the search guidance from the tool registry's prompt block instead of a removed sentence.
+- violated_rule: One question is one paid request unless a retry can change the outcome.
+- prevention: ci-ai-chat-reliability-contract-check: a 400 that is not about the tools is one request and one error; a tools refusal is retried once; ci-screener-ai-conditions-browser-check keeps its exactly-one-request rule.
+- verification/residual: Both gates and ci-headless-tests (1074/1074) exit 0.
+- files: src/ai/tools/loop.js, js/aio-chat.js, js/aio-tests.js, scripts/ci-ai-chat-reliability-contract-check.mjs
+
 ## P2398 - v60.03 - v60.02 a universe review dated a day ahead of the reader's clock no longer empties the screener (2026-11-13)
 
 - symptom/reproduction: With lastBulkUpdate set to the review day, a clock behind that date (a fixed test clock at the previous evening, a reader in an earlier time zone or with a slow clock) saw every screener row unusable and '조건에 맞는 종목이 없습니다'; plan 048's executor had to back-date the review to make a browser gate pass.

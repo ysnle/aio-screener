@@ -1,5 +1,6 @@
 ## v60.03 (2026-11-13)
 - **A review dated ahead of the clock no longer empties the screener (P2398):** reference dates are not treated as future observations.
+- **A refused question is not sent twice (P2399):** the retry without data tools happens only when the refusal is about the tools.
 - R1 7곳 v60.03
 
 ## v60.02 (2026-11-13)
