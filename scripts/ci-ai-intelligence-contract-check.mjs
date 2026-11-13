@@ -1491,6 +1491,132 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check('v57.54 a Korean policy question still selects the Korean macro domain block (P1740)', /contexts\.add\('kr-macro'\)/.test(read('src/ai/context/market-content.js')) && /ctxId === 'macro' \|\| ctxId === 'kr-macro'/.test(chatSource));
 }
 
+// v60.02 (plan 045, owner 2026-11-12 "think, reason and judge for itself"): the chat's data tools. Each tool wraps a
+// reader the screens use; the fixture root is dated from the real clock so no case depends on today's date.
+{
+  const registry = await import('../src/ai/tools/registry.js');
+  const loop = await import('../src/ai/tools/loop.js');
+  const { prepareOpenAiBudget } = await import('../worker/openai-budget.mjs');
+  const { normalizeTickerInput } = await import('../src/domain/instruments/ticker-symbol.js');
+  const { resolveRegisteredName, isKnownSymbol } = await import('../src/domain/instruments/resolve-name.js');
+  const { runScreenerQuery, formatScreenerResultPrompt } = await import('../src/ai/context/screener-query.js');
+  const { SCENARIO_OUTCOMES } = await import('../src/data/artifact-registry.js');
+  const { formatSecResearchEvidence } = await import('../src/ai/context/sec-fundamentals.js');
+  const DAY = 86400000;
+  const nowMs = Date.now();
+  const iso = (daysAgo) => new Date(nowMs - daysAgo * DAY).toISOString().slice(0, 10);
+  const entries = { NVDA: { en: 'NVIDIA', kr: '엔비디아' }, AMD: { en: 'AMD', kr: 'AMD' }, '005930.KS': { en: 'Samsung Electronics', kr: '삼성전자' } };
+  const krStockDb = { '005930': { name: '삼성전자' } };
+  const rows = [
+    { sym: 'NVDA', name: 'NVIDIA', sector: 'Technology', signal: 'BUY', mcap: 4200, rsi: 28, ret5d: -3.2, ret1m: -6.5, ret3m: 4.1, sma50: 180, sma200: 150, price: 185, pctFrom52wHigh: -12, pctFrom52wLow: 60, factorSessionDate: iso(1), rank: 81, valuationPrice: 185 },
+    { sym: 'AMD', name: 'AMD', sector: 'Technology', signal: 'WATCH', mcap: 320, rsi: 61, ret5d: 1.2, ret1m: 3.4, ret3m: 9.8, factorSessionDate: iso(1), rank: 70 }
+  ];
+  const bars = Array.from({ length: 300 }, (_, i) => nowMs - (302 - i) * DAY);
+  const payload = { timestamps: bars.map((ms) => Math.floor(ms / 1000)), opens: bars.map((_, i) => 100 + i * 0.3), highs: bars.map((_, i) => 102 + i * 0.3), lows: bars.map((_, i) => 99 + i * 0.3),
+    closes: bars.map((_, i) => 101 + i * 0.3 + (i % 5) * 0.2), volumes: bars.map(() => 1000000), meta: { currency: 'USD', exchangeTimezoneName: 'America/New_York' } };
+  const secRecord = { symbol: 'NVDA', source: 'SEC EDGAR companyfacts', periodType: 'FY', observedAt: iso(300), filedAt: iso(280), coverage: ['revenue', 'netIncome'], revenue: 130497000000, netIncome: 72880000000 };
+  const fixtureRoot = (extra = {}) => {
+    const root = {
+      AIO_TICKER_NAME_REGISTRY: { entries }, KR_STOCK_DB: krStockDb,
+      _aioGetCanonicalScreenerRows: () => rows,
+      _aioNormalizeTickerInput: (raw) => { const n = normalizeTickerInput(raw, { krStockDb }); return n !== String(raw || '').trim().toUpperCase() ? n : resolveRegisteredName(raw, entries) || n; },
+      _aioIsKnownTicker: (symbol) => isKnownSymbol(symbol, { entries, krStockDb, universe: rows }),
+      _aioFetchYahooChartData: async (symbol) => (symbol === 'NVDA' || symbol === 'AMD' ? payload : null),
+      _aioRunScreenerQuery: (query) => runScreenerQuery(query, { rows }),
+      _formatScreenerResultPrompt: (result) => formatScreenerResultPrompt(result, { rankAsOf: iso(1) }),
+      _aioScreenBasisEvidence: () => [{ metric: 'close.vix', value: 17.2, unit: 'index', asOf: iso(1), source: 'close-basis', evidenceId: 'ev-vix' }, { metric: 'macro.cpi_yoy', value: 3.0, unit: 'percent', asOf: iso(40), period: 'month', source: 'macro-release', evidenceId: 'ev-cpi' }],
+      AIO: { readPublicFundamentals: async (symbols) => (symbols.includes('NVDA') ? { NVDA: secRecord } : {}), formatSecResearchEvidence },
+      __aioCompanyStories: { rows: { NVDA: { researchedAt: iso(20) } }, context: { NVDA: '【NVDA 기업 분석】 데이터센터 매출 비중이 커진 구조다.' }, inFlight: {}, failed: {}, entries: {} },
+      _aioCompanyProfileIndex: { profiles: [{ symbol: 'NVDA', file: 'NVDA.json', researchedAt: iso(20) }] },
+      _aioConsensusEstimates: { rows: { NVDA: { asOf: `${iso(2)}T22:00:00Z`, fwd: { from: iso(-30).slice(0, 7), to: iso(-300).slice(0, 7), eps: 6.2, minEstimates: 30, up4w: 9, down4w: 1, hi: 6.8, lo: 5.6 }, trailing: { eps: 4.4 } } } },
+      [SCENARIO_OUTCOMES.key]: { schemaVersion: 'scenario-outcomes.v1', sourceLabel: '장기 일봉 기록', to: iso(6), branches: { reheat: { n: 139, up: 81, median: 1, p25: -1.4, p75: 3.7, from: '1990-01-02', to: iso(6), horizon: 20, baseN: 9182, baseUpPct: 64 } },
+        themes: { semiconductor: { symbol: 'SMH', leading: { n: 39, up: 29, median: 6.2, p25: -0.9, p75: 10.5, from: '2000-06-05', to: iso(6), horizon: 63, baseN: 5730, baseUpPct: 67 } } } },
+      _aioTickerNewsFromCache: (symbol, opts) => (symbol === 'NVDA' ? `  [NVDA 종목 뉴스, 최근 ${Math.round(opts.windowHours / 24)}일, 1건 중 Top 1]\n    1. [fixture, 3h전] 엔비디아 데이터센터 매출 전망 상향` : ''),
+      _buildNewsContext: (ctx, query) => (/금리/.test(query) ? '【최근 시장 뉴스】\n1. [fixture, 2h전] 금리 경로 재평가' : ''),
+      ...extra
+    };
+    root.__aioSharedArtifacts = { [SCENARIO_OUTCOMES.key]: { loadedAt: nowMs, failedAt: 0, inFlight: null } };
+    return root;
+  };
+  const definitions = registry.toolDefinitions();
+  const call = (name, args, id) => ({ type: 'function_call', id: `fc_${id}`, call_id: `call_${id}`, name, arguments: JSON.stringify(args), status: 'completed' });
+  let budget = null, budgetError = '';
+  try {
+    budget = prepareOpenAiBudget({ model: 'gpt-6-luna', instructions: 'fixture', max_output_tokens: 4000, stream: true, store: false, reasoning: { effort: 'low' },
+      input: [{ role: 'user', content: '엔비디아 재무는?' }, call('fundamentals', { symbol: 'NVDA' }, 1), { type: 'function_call_output', call_id: 'call_1', output: '매출: 130497000000 (USD)\n(기준: SEC 공시)' }],
+      tools: definitions, tool_choice: 'auto', parallel_tool_calls: true });
+  } catch (error) { budgetError = error.message; }
+  check(`v60.02 the Worker admits the tool definitions with a function call round (${budgetError})`, !!budget && budget.body.tools.length === registry.CHAT_TOOLS.length && budget.body.tool_choice === 'auto');
+  check('v60.02 every tool definition is a strict function with a closed object schema', definitions.every((d) => d.type === 'function' && d.strict === true && /^[A-Za-z0-9_-]{1,64}$/.test(d.name)
+    && d.parameters.type === 'object' && d.parameters.additionalProperties === false && JSON.stringify(Object.keys(d.parameters.properties).sort()) === JSON.stringify([...d.parameters.required].sort())));
+  let finalError = '';
+  try { prepareOpenAiBudget({ input: 'q', ...loop.toolRequestFields({ final: true }) }); } catch (error) { finalError = error.message || 'refused'; }
+  check(`v60.02 the Worker admits the last round's tool_choice none (${finalError})`, finalError === '');
+  const root = fixtureRoot();
+  const run = (name, args) => registry.runTool(name, JSON.stringify(args), { root, now: nowMs });
+  const good = {
+    price_history: await run('price_history', { symbol: '엔비디아', sessions: 120 }),
+    technicals: await run('technicals', { symbols: ['NVDA', 'AMD'] }),
+    trend: await run('trend', { symbol: 'NVDA' }),
+    fundamentals: await run('fundamentals', { symbol: 'NVDA' }),
+    company_story: await run('company_story', { symbol: 'NVDA' }),
+    consensus: await run('consensus', { symbol: 'NVDA' }),
+    screen: await run('screen', { query: 'RSI 30 이하 종목' }),
+    macro: await run('macro', { topic: 'macro' }),
+    scenario_record: await run('scenario_record', { id: 'semiconductor' }),
+    news: await run('news', { query: 'NVDA', days: 7 })
+  };
+  check('v60.02 every registered tool has a fixture case', Object.keys(good).sort().join() === registry.CHAT_TOOLS.map((t) => t.name).sort().join());
+  for (const [name, result] of Object.entries(good)) {
+    const cap = Math.min(registry.TOOL_TEXT_HARD_CAP, registry.CHAT_TOOLS.find((t) => t.name === name).maxChars || registry.TOOL_TEXT_DEFAULT_CAP);
+    check(`v60.02 tool ${name} returns capped text ending with its as-of date (${result.ok ? result.text.length : result.text})`, result.ok === true && result.text.length <= cap && /\n\(기준: [^)\n]*\d{4}-\d{2}-\d{2}[^)\n]*\)$/.test(result.text));
+    check(`v60.02 tool ${name} output carries no placeholder value`, !/undefined|NaN|\[object Object\]/.test(result.text));
+  }
+  check('v60.02 price_history reads the completed bars of the resolved symbol (120 sessions, newest last)', good.price_history.entities[0] === 'NVDA' && good.price_history.text.split('\n').filter((l) => /^\d{4}-\d{2}-\d{2} 종가/.test(l)).length === 120
+    && good.price_history.text.includes(`(기준: ${new Date(bars.at(-1)).toLocaleDateString('en-CA', { timeZone: 'America/New_York' })} 종가)`));
+  check('v60.02 news honours the symbol and the day window', /최근 7일/.test(good.news.text) && good.news.entities[0] === 'NVDA');
+  check('v60.02 screen returns the matched rows as entities', good.screen.entities.includes('NVDA') && !good.screen.entities.includes('AMD'));
+  const bad = [
+    ['unknown symbol', await run('fundamentals', { symbol: 'ZZZQ' }), /등록되지 않은 종목/],
+    ['unknown symbol in price history', await run('price_history', { symbol: 'NVDAX', sessions: 20 }), /등록되지 않은 종목/],
+    ['unknown tool', await registry.runTool('portfolio', '{}', { root, now: nowMs }), /없는 자료/],
+    ['bad JSON', await registry.runTool('trend', '{symbol:', { root, now: nowMs }), /형식/],
+    ['array arguments', await registry.runTool('trend', '[]', { root, now: nowMs }), /형식/],
+    ['unknown scenario id', await run('scenario_record', { id: 'moonshot' }), /기록이 없는 id/],
+    ['Korean listing has no SEC filings', await run('fundamentals', { symbol: '005930' }), /미국 상장/]
+  ];
+  for (const [label, result, reason] of bad) check(`v60.02 ${label} → ok:false with a Korean reason (${result.text})`, result.ok === false && reason.test(result.text) && Array.isArray(result.entities));
+  const throwing = fixtureRoot({ _aioScreenBasisEvidence: () => { throw new Error('boom'); }, AIO: { readPublicFundamentals: async () => { throw new Error('offline'); }, formatSecResearchEvidence }, _aioRunScreenerQuery: () => { throw new Error('boom'); } });
+  let threw = false;
+  try {
+    const results = await Promise.all([registry.runTool('fundamentals', '{"symbol":"NVDA"}', { root: throwing, now: nowMs }), registry.runTool('screen', '{"query":"과매도"}', { root: throwing, now: nowMs }), registry.runTool('macro', '{"topic":"macro"}', { root: throwing, now: nowMs })]);
+    check('v60.02 a reader that throws gives ok:false, never a throw', results.every((r) => r.ok === false && typeof r.text === 'string' && r.text.length > 0));
+  } catch (_) { threw = true; }
+  check('v60.02 runTool never throws', threw === false);
+  const placeholder = fixtureRoot({ _buildNewsContext: () => '1. [x, 1h전] 값 undefined · 비율 NaN · [object Object]' });
+  const scrubbed = await registry.runTool('news', '{"query":"금리 경로","days":1}', { root: placeholder, now: nowMs });
+  check('v60.02 a stray placeholder from a reader never reaches the model as a value', scrubbed.ok && !/undefined|NaN|\[object Object\]/.test(scrubbed.text));
+  const long = await registry.runTool('news', '{"query":"금리","days":1}', { root: fixtureRoot({ _buildNewsContext: () => Array.from({ length: 400 }, (_, i) => `${i}. 긴 뉴스 줄`).join('\n') }), now: nowMs });
+  check('v60.02 a long reader text is cut to the tool cap and still ends with its date', long.ok && long.text.length <= 4000 && /…\(이하 생략\)\n\(기준: /.test(long.text));
+  check('v60.02 the status line names what is fetched in plain Korean (no tool names, no JSON)',
+    registry.toolStatusLine([call('fundamentals', { symbol: 'NVDA' }, 1), call('scenario_record', { id: 'reheat' }, 2), call('fundamentals', { symbol: 'NVDA' }, 3)], root) === '자료를 더 찾는 중: 엔비디아 재무, 과거 비슷한 시장 기록');
+  const block = registry.toolsPromptBlock();
+  check('v60.02 the tools prompt block carries no figure an answer number could lean on', !/\d/.test(block) && block.length > 100);
+  check('v60.02 tools are offered in every mode except quick, never beside hosted search',
+    registry.offerTools({ mode: 'analysis' }) && registry.offerTools({ mode: 'explain' }) && !registry.offerTools({ mode: 'quick' }) && !registry.offerTools({ mode: 'analysis', webSearch: true }));
+  const names = registry.CHAT_TOOLS.map((t) => t.name).join(' ');
+  check('v60.02 no tool reads the portfolio, the reader notes or saved conversations', !/portfolio|note|session|conversation|holding/i.test(names));
+  check('v60.02 the completed response output is the record of function calls; streamed items stand in only without it',
+    loop.functionCallsOf({ output: [{ type: 'message' }, call('trend', { symbol: 'NVDA' }, 1)] }, [call('macro', { topic: 'macro' }, 2)]).map((c) => c.name).join() === 'trend'
+      && loop.functionCallsOf({ output: [] }, [call('macro', { topic: 'macro' }, 2)]).map((c) => c.name).join() === 'macro');
+  const grown = loop.appendToolItems(Array.from({ length: 62 }, (_, i) => ({ role: i % 2 ? 'assistant' : 'user', content: `m${i}` })), [call('trend', { symbol: 'NVDA' }, 1), call('macro', { topic: 'macro' }, 2)], [{ type: 'function_call_output', call_id: 'call_1', output: 'a' }, { type: 'function_call_output', call_id: 'call_2', output: 'b' }]);
+  check('v60.02 appended tool items keep the Worker item limit by dropping the oldest messages', grown.length === 64 && grown[0].content === 'm2' && grown.at(-1).type === 'function_call_output');
+  const ran = await loop.runToolCalls(Array.from({ length: 4 }, (_, i) => call('trend', { symbol: 'NVDA' }, i)), { root, now: nowMs, used: 4 });
+  check('v60.02 calls past the per-request budget are not run and say 한도', ran.used === 6 && ran.results.slice(0, 2).every((r) => r.ok) && ran.results.slice(2).every((r) => !r.ok && /한도/.test(r.text)) && ran.outputs.every((o, i) => o.call_id === `call_${i}`));
+  const slow = await loop.runToolCalls([call('trend', { symbol: 'NVDA' }, 9)], { root, now: nowMs, limits: { ...loop.TOOL_LOOP_LIMITS, callTimeoutMs: 20 }, run: () => new Promise(() => {}) });
+  check('v60.02 a tool that does not answer in time gives an output saying so', slow.results[0].ok === false && /시간/.test(slow.results[0].text));
+}
+
 if (failures.length) {
   console.error(`AI intelligence contract failed (${failures.length})`);
   failures.forEach((failure) => console.error(`- ${failure}`));
