@@ -8,7 +8,7 @@
 // ═══════════════ SCREENER DATABASE & FUNCTIONS ═══════════════
 // SCREENER_DB는 정적 식별자 유니버스다. 변동 팩터와 메모는 출처가 있는 런타임 산출물만 병합한다.
 var SCREENER_DB_META = {
-  schemaVersion:'v53.4', lastBulkUpdate:'2026-10-13', staleAfterDays:30, replaceAfterDays:90,
+  schemaVersion:'v53.4', lastBulkUpdate:'2026-11-12', staleAfterDays:30, replaceAfterDays:90,
   source:'js/aio-data.js curated identity universe; public-data/screener.json runtime enrichment',
   note:'정적 유니버스는 심볼·이름·섹터·지수만 보관하며 signal/memo/mcap/rsi는 런타임 산출물로만 채운다.'
 };
@@ -241,7 +241,6 @@ var SCREENER_DB = [
   { sym:'SHOP', name:'Shopify', sector:'Technology', index:'NASDAQ100' },
   { sym:'ABNB', name:'Airbnb', sector:'Consumer', index:'SP500' },
   { sym:'DASH', name:'DoorDash', sector:'Consumer', index:'SP500' },
-  { sym:'ROKU', name:'Roku', sector:'Communication Services', index:'SP400' },
   { sym:'DUOL', name:'Duolingo', sector:'Technology', index:'SP400' },
   { sym:'APP', name:'AppLovin', sector:'Communication Services', index:'SP500' },
   { sym:'AXON', name:'Axon Enterprise', sector:'Industrials', index:'SP500' },
@@ -448,7 +447,6 @@ var SCREENER_DB = [
   { sym:'ACGL', name:'Arch Capital', sector:'Financials', index:'SP500' },
   { sym:'IFF', name:'Intl Flavors & Fragrances', sector:'Materials', index:'SP500' },
   { sym:'STT', name:'State Street', sector:'Financials', index:'SP500' },
-  { sym:'KVUE', name:'Kenvue', sector:'Consumer Defensive', index:'SP500' },
   { sym:'PPG', name:'PPG Industries', sector:'Materials', index:'SP500' },
   { sym:'VLTO', name:'Veralto', sector:'Industrials', index:'SP500' },
   { sym:'GEHC', name:'GE HealthCare', sector:'Healthcare', index:'SP500' },
@@ -1097,7 +1095,7 @@ var SCREENER_DB = [
   { sym:'SPCX', name:'SpaceX (Space Exploration Technologies)', sector:'Technology', index:'NASDAQ100' },
   { sym:'TWLO', name:'Twilio', sector:'Technology', index:'SP500' },
   { sym:'VYLR', name:'Vylor', sector:'Consumer Defensive', index:'SP500' },
-  { sym:'OKTA', name:'Okta', sector:'Technology', index:'SP400' },
+  { sym:'OKTA', name:'Okta', sector:'Technology', index:'SP500' },
   { sym:'MTSI', name:'MACOM Technology Solutions Holdings', sector:'Technology', index:'SP400' },
   { sym:'SNX', name:'TD SYNNEX', sector:'Technology', index:'SP400' },
   { sym:'NTNX', name:'Nutanix', sector:'Technology', index:'SP400' },

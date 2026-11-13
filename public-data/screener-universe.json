@@ -1,13 +1,13 @@
 {
  "meta": {
   "schemaVersion": "v53.4",
-  "lastBulkUpdate": "2026-10-13",
+  "lastBulkUpdate": "2026-11-12",
   "staleAfterDays": 30,
   "replaceAfterDays": 90,
   "source": "js/aio-data.js curated identity universe; public-data/screener.json runtime enrichment",
   "note": "정적 유니버스는 심볼·이름·섹터·지수만 보관하며 signal/memo/mcap/rsi는 런타임 산출물로만 채운다.",
-  "recordCount": 1159,
-  "uniqueSymbols": 1159,
+  "recordCount": 1157,
+  "uniqueSymbols": 1157,
   "duplicateSymbols": 0
  },
  "universe": [
@@ -1214,12 +1214,6 @@
    "name": "DoorDash",
    "sector": "Consumer",
    "index": "SP500"
-  },
-  {
-   "sym": "ROKU",
-   "name": "Roku",
-   "sector": "Communication Services",
-   "index": "SP400"
   },
   {
    "sym": "DUOL",
@@ -2447,12 +2441,6 @@
    "sym": "STT",
    "name": "State Street",
    "sector": "Financials",
-   "index": "SP500"
-  },
-  {
-   "sym": "KVUE",
-   "name": "Kenvue",
-   "sector": "Consumer Defensive",
    "index": "SP500"
   },
   {
@@ -6028,7 +6016,7 @@
    "sym": "OKTA",
    "name": "Okta",
    "sector": "Technology",
-   "index": "SP400"
+   "index": "SP500"
   },
   {
    "sym": "MTSI",

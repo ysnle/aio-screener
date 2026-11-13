@@ -5674,8 +5674,6 @@ window.AIO_TICKER_NAME_REGISTRY = {
     '108320.KQ': { en: 'LX Semicon',         kr: 'LX세미콘',      alt: ['lx semicon', '108320'] },
     '084370.KQ': { en: 'EOTechnics',         kr: '이오테크닉스',  alt: ['eotechnics', '084370'] },
     '101490.KQ': { en: 'Silicon Display',    kr: '실리콘웍스',    alt: ['silicon display', '101490'] },
-    '352700.KQ': { en: 'HPSP',               kr: 'HPSP',          alt: ['hpsp', '352700'] },
-    '413640.KQ': { en: 'Hyundai Mobis Test', kr: 'NEXTIN',        alt: ['nextin', '413640'] },
     '403870.KQ': { en: 'HPSP',               kr: 'HPSP',          alt: ['hpsp', '403870'] },
     '058470_dup': { en: '_skip', kr: '_skip', alt: ['_skip'] },
     '067310.KQ': { en: 'Hana Micron',        kr: '하나마이크론',  alt: ['hana micron', '067310'] },

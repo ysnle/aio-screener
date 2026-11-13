@@ -1,0 +1,19 @@
+{
+  "version": "v60.02",
+  "date": "2026-11-13",
+  "p": {
+    "title": "v60.02 BLS 빈 각주 객체 `[{}]` 때문에 모든 시계열이 'footnote-present'로 표시됨",
+    "symptom": "public-data/data.json의 BLS 근거가 각주 없는 달도 observationStatus 'footnote-present'였다.",
+    "root_cause": "scripts/lib/macro-sources.mjs blsMonthlyRows가 footnotes를 filter(Boolean)으로만 걸러, BLS가 각주 없는 행에 보내는 빈 객체 `{}`를 각주로 셌다.",
+    "fix": "code나 text가 비어 있지 않은 각주만 남긴다. 각주가 없으면 observationStatus는 'final'.",
+    "violated_rule": "원천이 말하지 않은 상태를 만들어 내지 않는다(없는 값은 없음으로).",
+    "prevention": "ci-data-pipeline-contract-check에 v60.02 검사: `[{}]`와 빈 code/text는 각주 없음, `{code:'P', text:'Preliminary'}`는 footnote-present. 이전 코드에서 실패함을 확인했다.",
+    "verification": "node scripts/ci-data-pipeline-contract-check.mjs: 이전 macro-sources.mjs로 exit 1(새 검사 실패), 수정 후 exit 0. observationStatus 'footnote-present'를 읽는 화면 코드는 src/js에 없다(js/aio-core.js의 observationStatus는 리서치 카드 관측치로 별개) — 화면 변화 없음, 다음 데이터 갱신부터 산출물 값만 'final'로 바뀐다.",
+    "files": ["scripts/lib/macro-sources.mjs", "scripts/ci-data-pipeline-contract-check.mjs"]
+  },
+  "r": null,
+  "changelog": [
+    "**BLS 각주 판정 ({P}):** BLS가 각주 없는 달에 보내는 빈 객체 `[{}]`를 각주로 세어 모든 시계열이 '각주 있음'이던 것을, code나 text가 있는 각주만 세도록 고쳤다. 이 상태를 읽는 화면은 없어 화면은 그대로다."
+  ],
+  "note": "v60.02: BLS empty footnote objects no longer mark footnote-present"
+}

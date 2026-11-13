@@ -684,7 +684,10 @@ function blsMonthlyRows(series) {
       period: String(row.period),
       date: blsObservationDate(row.year, row.period),
       value: Number(row.value),
-      footnotes: Array.isArray(row.footnotes) ? row.footnotes.filter(Boolean) : []
+      // BLS sends `[{}]` when a row has no footnote; only a footnote with a code or text counts.
+      footnotes: Array.isArray(row.footnotes)
+        ? row.footnotes.filter(note => note && (String(note.code ?? '').trim() || String(note.text ?? '').trim()))
+        : []
     }))
     .filter(row => row.date && Number.isFinite(row.value))
     .sort((a, b) => b.date.localeCompare(a.date));

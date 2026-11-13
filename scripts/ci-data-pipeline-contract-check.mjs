@@ -671,6 +671,35 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   } catch (error) { detail = error.message; }
   check('BLS normalizer rejects M13, preserves units/observation periods, and derives YoY/MoM deterministically', ok, detail.slice(0, 1200));
 }
+// v60.02: BLS sends `footnotes: [{}]` on rows without a footnote; the empty object made every series read
+// 'footnote-present'. Only a footnote with a code or text counts.
+{
+  let ok = false;
+  let detail = '';
+  try {
+    const { normalizeBlsSeriesResponse } = await import('./fetch-data.mjs');
+    const latestFootnotes = (footnotes) => {
+      const payload = { Results: { series: [{
+        seriesID: 'CES0500000003',
+        data: [
+          { year: '2026', period: 'M06', value: '40', footnotes },
+          { year: '2026', period: 'M05', value: '39', footnotes: [{}] },
+          { year: '2025', period: 'M06', value: '38', footnotes: [{}] }
+        ]
+      }] } };
+      return normalizeBlsSeriesResponse(payload, '2026-07-15T00:00:00.000Z').series.averageHourlyEarnings;
+    };
+    const empty = latestFootnotes([{}]);
+    const blank = latestFootnotes([{ code: '', text: ' ' }]);
+    const preliminary = latestFootnotes([{ code: 'P', text: 'Preliminary' }]);
+    ok = empty.observationStatus === 'final' && empty.footnotes.length === 0
+      && blank.observationStatus === 'final' && blank.footnotes.length === 0
+      && preliminary.observationStatus === 'footnote-present' && preliminary.footnotes.length === 1
+      && preliminary.footnotes[0].code === 'P';
+    detail = JSON.stringify({ empty: [empty.observationStatus, empty.footnotes], blank: [blank.observationStatus, blank.footnotes], preliminary: [preliminary.observationStatus, preliminary.footnotes] });
+  } catch (error) { detail = error.message; }
+  check('v60.02 BLS footnotes: an empty footnote object is no footnote; a coded footnote is footnote-present', ok, detail.slice(0, 600));
+}
 // v59.98: the 2026-11-10 refresh read October 2026 CPI while BLS never published October 2025 (the 2025 shutdown), and
 // the four CPI series were reported as failed fetches every cycle. A comparator month the source never published is a
 // gap, as on the FRED path: no YoY value, no failure, collection ok. A history that is simply too short still fails.
