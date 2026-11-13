@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-13T08:21:36.984Z",
-  "attemptedAt": "2026-11-13T08:21:36.984Z",
-  "lastSuccessfulAt": "2026-11-13T08:21:36.984Z",
+  "generatedAt": "2026-11-13T08:51:51.674Z",
+  "attemptedAt": "2026-11-13T08:51:51.674Z",
+  "lastSuccessfulAt": "2026-11-13T08:51:51.674Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-30T08:21:32.403Z",
-  "until": "2026-11-13T08:21:32.403Z",
+  "since": "2026-10-30T08:51:44.518Z",
+  "until": "2026-11-13T08:51:44.518Z",
   "current24hWindow": {
     "start": "2026-11-11T23:00:00.000Z",
     "end": "2026-11-12T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1236,
-      "freshCount": 20,
+      "freshCount": 40,
       "eligibleTextCount": 1181,
       "selectedCount": 126,
       "error": null,
-      "lastPostId": 69205
+      "lastPostId": 69206
     },
     {
       "channel": "bornlupin",
@@ -116,23 +116,23 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 720,
+      "count": 721,
       "freshCount": 39,
-      "eligibleTextCount": 719,
+      "eligibleTextCount": 720,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72080
+      "lastPostId": 72082
     }
   ],
-  "count": 2188,
-  "retainedItemCount": 410,
+  "count": 2189,
+  "retainedItemCount": 420,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2188,
-    "eligibleTextCount": 2132,
+    "observedCount": 2189,
+    "eligibleTextCount": 2133,
     "mediaOnlyCount": 56,
     "mediaAttachedCount": 891,
     "photoPostCount": 769,
@@ -147,11 +147,11 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 759,
     "semi": 548,
     "optical": 30,
     "geo": 365,
     "japan": 70,
-    "market-note": 758,
     "earnings": 339,
     "flows": 56,
     "power": 286,
@@ -255,7 +255,7 @@
     "ABBV": 1
   },
   "themes": [
-    "Market Notes (758 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
+    "Market Notes (759 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
     "Semiconductors/Memory (548 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave...",
     "Geopolitics (365 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
     "Earnings/Corporate (339 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정 EBITDA $465.8M (예상 $353M) → 32.0% 상회 , 마진 47.5% • AI 클라우드...",
@@ -468,7 +468,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 758,
+      "count": 759,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의...."
     }
   ],
@@ -2265,10 +2265,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "블룸버그에 따르면 삼성전자가 데이터센터용 냉각 시스템 제조업체 모딘 매뉴팩처링 인수를 위한 협상을 진행 중.",
       "tickers": [
         "005930.KS"
-      ]
+      ],
+      "summary": "블룸버그에 따르면 삼성전자가 데이터센터용 냉각 시스템 제조업체 모딘 매뉴팩처링 인수를 위한 협상을 진행 중."
     },
     {
       "id": "HANAchina/72049",
@@ -2345,10 +2345,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "근데 젠슨황 진짜...너무 허무하게 갔네요. 엔비디아 주주분들 모두 하락분을 다 만회하시고, 다시 좋은 수익 거두시길 바랍니다.",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "근데 젠슨황 진짜...너무 허무하게 갔네요. 엔비디아 주주분들 모두 하락분을 다 만회하시고, 다시 좋은 수익 거두시길 바랍니다."
     },
     {
       "id": "insidertracking/69181",
@@ -2357,15 +2357,17 @@
       "datetime": "2026-11-12T23:17:14.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "power",
+        "earnings"
       ],
+      "lead": 1,
       "score": 69,
       "hasText": true,
-      "summary": "엔비디아 주가가 최근 큰 폭으로 하락하면서 선행 주가수익비율(PER)이 약 12배까지 떨어져 2012년 이후 최저 수준 기록. 젠슨 황의 CEO 사임 이후 엔비디아 주가는 목요일 4% 이상 하락했으며, 이번...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아 주가가 최근 큰 폭으로 하락하면서 선행 주가수익비율(PER)이 약 12배까지 떨어져 2012년 이후 최저 수준 기록. 젠슨 황의 CEO 사임 이후 엔비디아 주가는 목요일 4% 이상 하락했으며, 이번..."
     },
     {
       "id": "insidertracking/69180",
@@ -2376,13 +2378,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": "젠슨 황이 엔비디아 CEO직에서 물러나면서 아직 귀속되지 않은 약 1억800만 달러 규모의 주식 보상을 포기할 예정. 블룸버그 억만장자 지수 기준 젠슨 황의 현재 자산은 약 1,384억 달러로, 이번에...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "젠슨 황이 엔비디아 CEO직에서 물러나면서 아직 귀속되지 않은 약 1억800만 달러 규모의 주식 보상을 포기할 예정. 블룸버그 억만장자 지수 기준 젠슨 황의 현재 자산은 약 1,384억 달러로, 이번에..."
     },
     {
       "id": "HANAchina/72048",
@@ -2449,15 +2451,16 @@
       "datetime": "2026-11-12T22:45:46.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "macro"
       ],
+      "lead": 1,
       "score": 63,
       "hasText": true,
-      "summary": "테크크런치에 따르면 민주당 중진 의원 론 와이든과 리처드 닐이 트럼프 행정부의 엔비디아 AI 반도체 중국 판매 처리 방식에 대한 조사 착수. 두 의원은 하워드 러트닉 상무장관에게 보낸 서한에서 엔비디아...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "테크크런치에 따르면 민주당 중진 의원 론 와이든과 리처드 닐이 트럼프 행정부의 엔비디아 AI 반도체 중국 판매 처리 방식에 대한 조사 착수. 두 의원은 하워드 러트닉 상무장관에게 보낸 서한에서 엔비디아..."
     },
     {
       "id": "insidertracking/69177",
@@ -2467,15 +2470,17 @@
       "localDateKst": "2026-11-13",
       "tags": [
         "earnings",
-        "equity"
+        "equity",
+        "semi",
+        "power"
       ],
+      "lead": 2,
       "score": 74,
       "hasText": true,
-      "summary": "AI 클라우드 기업 엔스케일(Nscale)이 기업공개(IPO) 신고서를 수정 제출하며 대규모 AI 인프라 투자 계획과 신규 계약, 재무 실적 공개. • 앤트로픽 투자: 웨스트버지니아주 모나크 캠퍼스에서...",
-      "lead": 2,
       "tickers": [
         "MSFT"
-      ]
+      ],
+      "summary": "AI 클라우드 기업 엔스케일(Nscale)이 기업공개(IPO) 신고서를 수정 제출하며 대규모 AI 인프라 투자 계획과 신규 계약, 재무 실적 공개. • 앤트로픽 투자: 웨스트버지니아주 모나크 캠퍼스에서..."
     },
     {
       "id": "HANAchina/72044",
@@ -2502,13 +2507,13 @@
       "tags": [
         "ai-policy"
       ],
-      "lead": 1,
       "score": 54,
       "hasText": true,
+      "summary": ">>구글, Gemini 4 Hydrogen 출시…환각 5배 감소, 속도 2배 향상 •구글이 Gemini 4 Hydrogen을 출시함. 고효율 실행 엔진을 목표로 속도와 정확성을 강화했으며, 이전 세대...",
+      "lead": 1,
       "tickers": [
         "GOOG"
-      ],
-      "summary": ">>구글, Gemini 4 Hydrogen 출시…환각 5배 감소, 속도 2배 향상 •구글이 Gemini 4 Hydrogen을 출시함. 고효율 실행 엔진을 목표로 속도와 정확성을 강화했으며, 이전 세대..."
+      ]
     },
     {
       "id": "insidertracking/69174",
@@ -2518,16 +2523,18 @@
       "localDateKst": "2026-11-13",
       "tags": [
         "macro",
-        "semi"
+        "geo",
+        "semi",
+        "equity"
       ],
       "score": 86,
       "hasText": true,
-      "summary": "11월 13일 미주인 브리핑 • 젠슨 황 전격 사임 · 엔비디아 장중 급락 후 4% 하락 마감 • 美 법무부·의회 엔비디아 조사 확대 · 대중국 반도체 규제 주목 • 연준 추가 긴축 발언 · 美 10년물...",
       "tickers": [
         "NVDA",
         "TSLA",
         "AMAT"
-      ]
+      ],
+      "summary": "11월 13일 미주인 브리핑 • 젠슨 황 전격 사임 · 엔비디아 장중 급락 후 4% 하락 마감 • 美 법무부·의회 엔비디아 조사 확대 · 대중국 반도체 규제 주목 • 연준 추가 긴축 발언 · 美 10년물..."
     },
     {
       "id": "insidertracking/69173",
@@ -2538,12 +2545,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "이제 젠슨황은 엔비디아와 관련없는 사람이 되었으므로 개인 추가 불륜 의혹은 더이상 무의미함 엔비디아 주식에 의미있는 것은 조사 중에 있는 앨리스의 스파이 의혹과 젠슨의 연루 정도",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "이제 젠슨황은 엔비디아와 관련없는 사람이 되었으므로 개인 추가 불륜 의혹은 더이상 무의미함 엔비디아 주식에 의미있는 것은 조사 중에 있는 앨리스의 스파이 의혹과 젠슨의 연루 정도"
     },
     {
       "id": "insidertracking/69171",
@@ -2562,11 +2570,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "로이터에 따르면 엔비디아에서 물러난 젠슨 황 전 CEO가 두 번째 직원과도 부적절한 관계를 맺었던 것으로 사안에 정통한 관계자 2명을 인용해 보도. 이번 보도는 젠슨 황의 사임으로 이어진 기존 2건의 혼외...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "로이터에 따르면 엔비디아에서 물러난 젠슨 황 전 CEO가 두 번째 직원과도 부적절한 관계를 맺었던 것으로 사안에 정통한 관계자 2명을 인용해 보도. 이번 보도는 젠슨 황의 사임으로 이어진 기존 2건의 혼외..."
     },
     {
       "id": "insidertracking/69162",
@@ -8491,15 +8498,16 @@
       "datetime": "2026-11-12T22:45:46.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "macro"
       ],
+      "lead": 1,
       "score": 63,
       "hasText": true,
-      "summary": "테크크런치에 따르면 민주당 중진 의원 론 와이든과 리처드 닐이 트럼프 행정부의 엔비디아 AI 반도체 중국 판매 처리 방식에 대한 조사 착수. 두 의원은 하워드 러트닉 상무장관에게 보낸 서한에서 엔비디아...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "테크크런치에 따르면 민주당 중진 의원 론 와이든과 리처드 닐이 트럼프 행정부의 엔비디아 AI 반도체 중국 판매 처리 방식에 대한 조사 착수. 두 의원은 하워드 러트닉 상무장관에게 보낸 서한에서 엔비디아..."
     },
     {
       "id": "insidertracking/69177",
@@ -8509,15 +8517,17 @@
       "localDateKst": "2026-11-13",
       "tags": [
         "earnings",
-        "equity"
+        "equity",
+        "semi",
+        "power"
       ],
+      "lead": 2,
       "score": 74,
       "hasText": true,
-      "summary": "AI 클라우드 기업 엔스케일(Nscale)이 기업공개(IPO) 신고서를 수정 제출하며 대규모 AI 인프라 투자 계획과 신규 계약, 재무 실적 공개. • 앤트로픽 투자: 웨스트버지니아주 모나크 캠퍼스에서...",
-      "lead": 2,
       "tickers": [
         "MSFT"
-      ]
+      ],
+      "summary": "AI 클라우드 기업 엔스케일(Nscale)이 기업공개(IPO) 신고서를 수정 제출하며 대규모 AI 인프라 투자 계획과 신규 계약, 재무 실적 공개. • 앤트로픽 투자: 웨스트버지니아주 모나크 캠퍼스에서..."
     },
     {
       "id": "HANAchina/72044",
@@ -8544,13 +8554,13 @@
       "tags": [
         "ai-policy"
       ],
-      "lead": 1,
       "score": 54,
       "hasText": true,
+      "summary": ">>구글, Gemini 4 Hydrogen 출시…환각 5배 감소, 속도 2배 향상 •구글이 Gemini 4 Hydrogen을 출시함. 고효율 실행 엔진을 목표로 속도와 정확성을 강화했으며, 이전 세대...",
+      "lead": 1,
       "tickers": [
         "GOOG"
-      ],
-      "summary": ">>구글, Gemini 4 Hydrogen 출시…환각 5배 감소, 속도 2배 향상 •구글이 Gemini 4 Hydrogen을 출시함. 고효율 실행 엔진을 목표로 속도와 정확성을 강화했으며, 이전 세대..."
+      ]
     },
     {
       "id": "insidertracking/69174",
@@ -8560,16 +8570,18 @@
       "localDateKst": "2026-11-13",
       "tags": [
         "macro",
-        "semi"
+        "geo",
+        "semi",
+        "equity"
       ],
       "score": 86,
       "hasText": true,
-      "summary": "11월 13일 미주인 브리핑 • 젠슨 황 전격 사임 · 엔비디아 장중 급락 후 4% 하락 마감 • 美 법무부·의회 엔비디아 조사 확대 · 대중국 반도체 규제 주목 • 연준 추가 긴축 발언 · 美 10년물...",
       "tickers": [
         "NVDA",
         "TSLA",
         "AMAT"
-      ]
+      ],
+      "summary": "11월 13일 미주인 브리핑 • 젠슨 황 전격 사임 · 엔비디아 장중 급락 후 4% 하락 마감 • 美 법무부·의회 엔비디아 조사 확대 · 대중국 반도체 규제 주목 • 연준 추가 긴축 발언 · 美 10년물..."
     },
     {
       "id": "insidertracking/69173",
@@ -8580,12 +8592,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "이제 젠슨황은 엔비디아와 관련없는 사람이 되었으므로 개인 추가 불륜 의혹은 더이상 무의미함 엔비디아 주식에 의미있는 것은 조사 중에 있는 앨리스의 스파이 의혹과 젠슨의 연루 정도",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "이제 젠슨황은 엔비디아와 관련없는 사람이 되었으므로 개인 추가 불륜 의혹은 더이상 무의미함 엔비디아 주식에 의미있는 것은 조사 중에 있는 앨리스의 스파이 의혹과 젠슨의 연루 정도"
     },
     {
       "id": "insidertracking/69171",
@@ -8604,11 +8617,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "로이터에 따르면 엔비디아에서 물러난 젠슨 황 전 CEO가 두 번째 직원과도 부적절한 관계를 맺었던 것으로 사안에 정통한 관계자 2명을 인용해 보도. 이번 보도는 젠슨 황의 사임으로 이어진 기존 2건의 혼외...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "로이터에 따르면 엔비디아에서 물러난 젠슨 황 전 CEO가 두 번째 직원과도 부적절한 관계를 맺었던 것으로 사안에 정통한 관계자 2명을 인용해 보도. 이번 보도는 젠슨 황의 사임으로 이어진 기존 2건의 혼외..."
     },
     {
       "id": "insidertracking/69162",
