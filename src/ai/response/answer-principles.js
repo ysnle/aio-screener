@@ -23,7 +23,7 @@ export function buildAnswerPrinciples({ today, mode = 'analysis', hasTickers = f
       '• 기업 재무: 주입된 공시·재무 블록에 있는 항목·기간만 쓴다. 시세 조회 성공은 재무 수집 성공이 아니다.');
   }
   lines.push(`• 뉴스: ${newsInjected ? '주입됨(시각 포함)' : '관련 뉴스 없음 — "최근 뉴스에 따르면"으로 시작하지 마라'}`,
-    `• 웹검색: ${webSearch ? '이번 답변에서 사용 — 검색으로 확인한 사실은 출처와 날짜를 함께 밝혀라' : '사용하지 않음 — 주입 데이터 밖의 최신 사실은 단정하지 마라'}`);
+    webSearch ? SEARCH_ON : '• 웹검색: 사용하지 않음 — 주입 데이터 밖의 최신 사실은 단정하지 마라');
   // v48.11: a static snapshot 72h+ old is never quoted as current.
   // v57.92 (internal audit A07): the file age says whether the pipeline is behind, not whether a value is current — an
   // unknown age was passed as 999 (printed "999시간(42일) 경과"), and a monthly figure before its next release or a holiday
@@ -46,7 +46,7 @@ export function describeAnswerVisuals(picks = []) {
 
 // v57.54 review: a retry after a searched attempt timed out runs without web search; its prompt must say so, or the
 // model is told it searched and may present remembered facts as sourced, dated results.
-const SEARCH_ON = '• 웹검색: 이번 답변에서 사용 — 검색으로 확인한 사실은 출처와 날짜를 함께 밝혀라';
+const SEARCH_ON = '• 웹검색: 이번 답변에서 사용할 수 있음 — 앱 자료로 알 수 없는 것만 검색하고, 검색으로 확인한 사실은 출처와 날짜를 함께 밝혀라';
 const SEARCH_OFF = '• 웹검색: 사용하지 않음(지연으로 검색 없이 다시 시도) — 주입 데이터 밖의 최신 사실은 단정하지 마라';
 export function promptWithoutWebSearch(prompt) {
   return String(prompt ?? '').split(SEARCH_ON).join(SEARCH_OFF);

@@ -985,7 +985,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const current = promptKit.assemble('엔비디아 오늘 왜 떨어졌어?', 'home');
   check(`v59.99 "엔비디아 오늘 왜 떨어졌어?" must search (${current.toolChoice})`, current.webSearch === true && current.toolChoice === 'required');
   const unsaid = promptKit.nativeSearch.attachNativeSearch({ reasoning: { effort: 'none' } }, { enabled: true, health: { ai: { paidWebSearchEnabled: true } } });
-  check('v59.99 a caller that does not say keeps the required search', unsaid.tool_choice === 'required');
+  check('v60.02 a caller that does not force the search lets the model choose (tool_choice auto)', unsaid.tool_choice === 'auto');
   const status = promptKit.nativeSearch.searchStatusText;
   check('v59.99 an answer with no citations is not reported as a searched answer',
     !/웹검색으로 보강해/.test(status({ attached: true, citationCount: 0 })) && /웹검색으로 보강해/.test(status({ attached: true, citationCount: 2 })) && /늦어/.test(status({ attached: false })));
@@ -1660,8 +1660,8 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     registry.toolStatusLine([call('fundamentals', { symbol: 'NVDA' }, 1), call('scenario_record', { id: 'reheat' }, 2), call('fundamentals', { symbol: 'NVDA' }, 3)], root) === '자료를 더 찾는 중: 엔비디아 재무, 과거 비슷한 시장 기록');
   const block = registry.toolsPromptBlock();
   check('v60.02 the tools prompt block carries no figure an answer number could lean on', !/\d/.test(block) && block.length > 100);
-  check('v60.02 tools are offered in every mode except quick, never beside hosted search',
-    registry.offerTools({ mode: 'analysis' }) && registry.offerTools({ mode: 'explain' }) && !registry.offerTools({ mode: 'quick' }) && !registry.offerTools({ mode: 'analysis', webSearch: true }));
+  check('v60.02 tools are offered in every mode except quick, beside hosted search too (plan 049)',
+    registry.offerTools({ mode: 'analysis' }) && registry.offerTools({ mode: 'explain' }) && !registry.offerTools({ mode: 'quick' }) && registry.offerTools({ mode: 'analysis', webSearch: true }));
   const names = registry.CHAT_TOOLS.map((t) => t.name).join(' ');
   check('v60.02 no tool reads the portfolio, the reader notes or saved conversations', !/portfolio|note|session|conversation|holding/i.test(names));
   check('v60.02 the completed response output is the record of function calls; streamed items stand in only without it',
@@ -1691,7 +1691,51 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const kept = log.recordAnswerQuality(store, { at, mode: 'analysis', toolRounds: 2, toolCalls: 5 }, nowMs) && log.recordAnswerQuality(store, { at, mode: 'quick' }, nowMs);
   const toolSummary = log.summariseAnswerQuality(store, { now: nowMs });
   check('v60.02 the answer-quality log keeps tool rounds and calls as counts', kept && JSON.parse(box.get(log.ANSWER_QUALITY_KEY))[0].toolRounds === 2 && toolSummary.toolCalls === 5 && toolSummary.toolAnswers === 1);
-  check(`v60.02 a question with hosted search attached gets no tools (${searchedAsk.webSearch}/${searchedAsk.toolChoice})`, searchedAsk.webSearch === true && searchedAsk.tools === false && !searchedAsk.prompt.includes('【추가 자료 요청 (도구)】'));
+  {
+    // v60.02 (plan 049): search calls beside `searched`, and the share of answers that searched, so the owner can see
+    // whether "auto" searches too often.
+    const sbox = new Map();
+    const sstore = { getItem: (k) => (sbox.has(k) ? sbox.get(k) : null), setItem: (k, v) => sbox.set(k, String(v)) };
+    const rows = [{ searched: true, searchCalls: 2 }, { searched: true, searchCalls: 0 }, { searched: true, searchCalls: 1 }, { searched: false, searchCalls: null }];
+    const recorded = rows.every((row) => log.recordAnswerQuality(sstore, { at, mode: 'analysis', ...row }, nowMs));
+    const s = log.summariseAnswerQuality(sstore, { now: nowMs });
+    check(`v60.02 the answer-quality summary reports the searched share and average search calls (${s.searchShare}/${s.searchCallsPerAnswer})`,
+      recorded && JSON.parse(sbox.get(log.ANSWER_QUALITY_KEY))[0].searchCalls === 2 && s.searchedAnswers === 3 && s.searchCallAnswers === 2 && s.searchCalls === 3 && s.searchShare === 0.5 && s.searchCallsPerAnswer === 0.75);
+    const status = promptKit.nativeSearch.searchStatusText;
+    check('v60.02 the status line says what happened: searched and cited / searched without sources / not searched',
+      /출처 3건/.test(status({ attached: true, citationCount: 3, searchCalls: 1 })) && /찾지 못해/.test(status({ attached: true, citationCount: 0, searchCalls: 2 })) && status({ attached: true, citationCount: 0, searchCalls: 0 }) === '웹검색 없이 앱 자료와 일반 지식으로 답했습니다.');
+  }
+  // v60.02 (plan 049, owner 2026-11-13 "웹 검색도 적절히 효율적으로 알아서 사용할 수 있도록"): search and the data tools
+  // travel together; one block tells the model where to look (injected data, the tools, then the web).
+  const both = registry.toolsPromptBlock({ functions: true, webSearch: true });
+  check(`v60.02 a searched question also gets the tools, under one combined block (${searchedAsk.webSearch}/${searchedAsk.toolChoice}/${searchedAsk.tools})`,
+    searchedAsk.webSearch === true && searchedAsk.tools === true && searchedAsk.toolChoice === 'required' && searchedAsk.prompt.startsWith(both) && searchedAsk.prompt.split('【추가 자료 요청').length === 2);
+  check('v60.02 the combined block orders injected data, then tools, then the web, and carries no figure', /주입된 자료를 먼저/.test(both) && /자료 도구/.test(both) && /웹에서 검색/.test(both) && !/\d/.test(both));
+  const conceptAsk = promptKit.assemble('감마 스퀴즈는 왜 생겨?', 'home');
+  check(`v60.02 a concept question is offered search (auto) beside the tools (${conceptAsk.mode}/${conceptAsk.webSearch}/${conceptAsk.toolChoice}/${conceptAsk.tools})`, conceptAsk.webSearch === true && conceptAsk.toolChoice === 'auto' && conceptAsk.tools === true);
+  const searchAsk = promptKit.assemble('엔비디아 실적을 검색해서 알려줘', 'home');
+  check(`v60.02 "검색해서 알려줘" forces the search (${searchAsk.mode}/${searchAsk.toolChoice})`, searchAsk.webSearch === true && searchAsk.toolChoice === 'required');
+  const quickSearched = promptKit.assemble('테슬라 PER 얼마야?', 'home');
+  check(`v60.02 a quick question gets neither search nor tools (${quickSearched.mode}/${quickSearched.webSearch}/${quickSearched.tools})`, quickSearched.mode === 'quick' && quickSearched.webSearch === false && quickSearched.tools === false && !/【웹검색】|【추가 자료 요청/.test(quickSearched.prompt));
+  check(`v60.02 search disabled in health: no search, the tools still offered (${offered.webSearch}/${offered.tools}/${offered.toolChoice})`, offered.webSearch === false && offered.tools === true && offered.toolChoice === null);
+  check('v60.02 a retry without search keeps the tools block and drops the search lines',
+    registry.toolsPromptWithoutSearch(both + 'rest') === block + 'rest' && registry.toolsPromptWithoutSearch(registry.toolsPromptBlock({ functions: false, webSearch: true }) + 'rest') === 'rest');
+  {
+    // The body callSharedAi sends for a searched analysis question: attachNativeSearch, then the tool session's first request.
+    const attached = promptKit.nativeSearch.attachNativeSearch({ model: 'gpt-6-luna', instructions: searchedAsk.prompt, input: [{ role: 'user', content: '엔비디아 오늘 왜 떨어졌어?' }], max_output_tokens: 12000, reasoning: { effort: 'medium' }, store: false, stream: true },
+      { enabled: true, health: { ai: { paidWebSearchEnabled: true, maxTokens: 16384 } }, mustSearch: true, context: searchedAsk.searchContext });
+    const first = loop.createToolSession(attached, {}).body;
+    let mixedBudget = null, mixedError = '';
+    try { mixedBudget = prepareOpenAiBudget(first, { AI_WEB_SEARCH_ENABLED: 'true', AI_MAX_OUTPUT_TOKENS: '16384' }); } catch (error) { mixedError = error.message; }
+    check(`v60.02 the mixed first request (search + ${first.tools.length - 1} functions, ${first.tool_choice}) passes prepareOpenAiBudget ${mixedError}`,
+      mixedBudget !== null && first.tools[0].type === 'web_search' && first.tools.slice(1).every((tool) => tool.type === 'function') && first.tool_choice === 'required' && mixedBudget.searchReserveMicroUsd > 0);
+    if (process.env.AIO_BUDGET_NUMBERS && mixedBudget) {
+      const searchOnly = prepareOpenAiBudget(attached, { AI_WEB_SEARCH_ENABLED: 'true', AI_MAX_OUTPUT_TOKENS: '16384' });
+      const { tools: _t, max_tool_calls: _m, ...plain } = first;
+      const functionsOnly = prepareOpenAiBudget({ ...plain, tools: first.tools.slice(1), tool_choice: 'auto' }, { AI_MAX_OUTPUT_TOKENS: '16384' });
+      console.log(JSON.stringify({ promptChars: searchedAsk.prompt.length, context: searchedAsk.searchContext, searchOnly: searchOnly.reservationMicroUsd, functionsOnly: functionsOnly.reservationMicroUsd, mixed: mixedBudget.reservationMicroUsd, mixedInputUpperBound: mixedBudget.inputTokenUpperBound, mixedBilledInput: mixedBudget.billedInputTokenUpperBound, longContext: mixedBudget.longContextPricing }));
+    }
+  }
 }
 
 if (failures.length) {

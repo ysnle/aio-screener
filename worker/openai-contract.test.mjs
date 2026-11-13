@@ -55,9 +55,67 @@ async function main() {
     { ...searchBody, max_tool_calls: 3 }, { ...searchBody, max_tool_calls: 0 },
     { ...searchBody, tools: [{ ...searchBody.tools[0], return_token_budget: 'unlimited' }] },
     { ...searchBody, tools: [{ ...searchBody.tools[0], return_token_budget: 8000 }] },
-    { ...searchBody, tools: [{ ...searchBody.tools[0], filters: { allowed_domains: ['https://sec.gov'] } }] },
-    { ...searchBody, tools: [searchBody.tools[0], { type: 'function', name: 'x', parameters: {} }] }
+    { ...searchBody, tools: [{ ...searchBody.tools[0], filters: { allowed_domains: ['https://sec.gov'] } }] }
   ]) rejects('P1608 hosted search expansion cannot bypass admission', () => prepareOpenAiBudget(attempt, { AI_WEB_SEARCH_ENABLED: 'true' }));
+  {
+    // v60.02 (plan 049): hosted search and the app's custom functions travel together, bounded: one search tool, at most
+    // 12 functions, max_tool_calls at most 2, low/medium effort; the reservation stays an upper bound.
+    const fn = (i) => ({ type: 'function', name: 'fn' + i, description: 'fixture data tool ' + i, parameters: { type: 'object', properties: { symbol: { type: 'string' } }, required: ['symbol'], additionalProperties: false }, strict: true });
+    const functions = Array.from({ length: 10 }, (_, i) => fn(i));
+    const searchOn = { AI_WEB_SEARCH_ENABLED: 'true' };
+    const mixedBody = { ...searchBody, tools: [searchBody.tools[0], ...functions], tool_choice: 'auto', parallel_tool_calls: true };
+    const mixed = prepareOpenAiBudget(mixedBody, searchOn);
+    check('v60.02 a search + functions body is admitted with max_tool_calls 2 and low effort', mixed.body.tools.length === 11 && mixed.body.max_tool_calls === 2 && mixed.body.reasoning.effort === 'low' && mixed.searchReserveMicroUsd > 0);
+    check('v60.02 the search tool may sit anywhere in the tool list', prepareOpenAiBudget({ ...mixedBody, tools: [...functions, searchBody.tools[0]] }, searchOn).reservationMicroUsd === mixed.reservationMicroUsd);
+    check('v60.02 twelve functions beside search are admitted', prepareOpenAiBudget({ ...mixedBody, tools: [searchBody.tools[0], ...Array.from({ length: 12 }, (_, i) => fn(i))] }, searchOn).body.tools.length === 13);
+    for (const [label, attempt] of [
+      ['two search tools', { ...mixedBody, tools: [searchBody.tools[0], searchBody.tools[0], ...functions] }],
+      ['thirteen functions beside search', { ...mixedBody, tools: [searchBody.tools[0], ...Array.from({ length: 13 }, (_, i) => fn(i))] }],
+      ['three tool calls', { ...mixedBody, max_tool_calls: 3 }],
+      ['an over-size body', { ...mixedBody, input: [{ role: 'user', content: 'x'.repeat(260000) }] }],
+      ['search disabled', mixedBody, {}]
+    ]) {
+      let refused = false;
+      try { prepareOpenAiBudget(attempt, label === 'search disabled' ? {} : searchOn); } catch { refused = true; }
+      check('v60.02 a mixed body is refused: ' + label, refused);
+    }
+    const highMixed = prepareOpenAiBudget({ ...mixedBody, reasoning: { effort: 'high' } }, searchOn);
+    check('v60.02 effort above medium is never dispatched beside search (clamped to low, reserved as low)', highMixed.body.reasoning.effort === 'low' && highMixed.reservationMicroUsd === mixed.reservationMicroUsd);
+    // The mixed reservation covers the search-only reservation of the same body plus every function definition's tokens
+    // re-read on each of the 1 + max_tool_calls turns.
+    const searchOnly = prepareOpenAiBudget({ ...mixedBody, tools: [searchBody.tools[0]] }, searchOn);
+    const functionsOnly = prepareOpenAiBudget({ ...mixedBody, tools: functions, max_tool_calls: undefined }, searchOn);
+    const functionTokens = functions.length * 4096;
+    check('v60.02 mixed reservation >= search-only reservation + function-definition tokens billed on every turn',
+      mixed.reservationMicroUsd >= searchOnly.reservationMicroUsd + Math.floor(3 * functionTokens * 0.1375)
+        && mixed.inputTokenUpperBound === searchOnly.inputTokenUpperBound + functionTokens + (new TextEncoder().encode(JSON.stringify(mixed.body)).byteLength - new TextEncoder().encode(JSON.stringify(searchOnly.body)).byteLength)
+        && mixed.reservationMicroUsd > functionsOnly.reservationMicroUsd,
+      { mixed: mixed.reservationMicroUsd, searchOnly: searchOnly.reservationMicroUsd, functionsOnly: functionsOnly.reservationMicroUsd });
+    const mediumMixed = prepareOpenAiBudget({ ...mixedBody, input: [{ role: 'user', content: 'x'.repeat(150000) }], max_output_tokens: 16384, reasoning: { effort: 'medium' }, tools: [{ ...searchBody.tools[0], search_context_size: 'medium' }, ...functions] }, { ...searchOn, AI_MAX_OUTPUT_TOKENS: '16384' });
+    for (const [label, b] of [['small low-context', mixed], ['max-prompt medium-context', mediumMixed]]) {
+      const turn = b.inputTokenUpperBound + 2 * { low: 32000, medium: 64000 }[b.body.tools.find((tool) => tool.type === 'web_search').search_context_size] + b.body.max_output_tokens, long = turn > 272000;
+      const worst = 2 * 11000 + 3 * turn * (long ? 0.275 : 0.1375) + b.body.max_output_tokens * (long ? 0.825 : 0.55);
+      check('v60.02 mixed reservation >= worst-case charge (two searches, three turns, every function definition re-read) ' + label, b.reservationMicroUsd >= worst && b.billedInputTokenUpperBound === 3 * turn && b.longContextPricing === long, { reservation: b.reservationMicroUsd, worst });
+    }
+    // Settlement: a mixed receipt carries web_search_call and function_call items; only the search calls are billed fees.
+    const fcItem = (i) => ({ type: 'function_call', id: 'fc_' + i, call_id: 'call_' + i, name: 'fn' + i, arguments: '{"symbol":"NVDA"}', status: 'completed' });
+    const ws = { type: 'web_search_call', id: 'ws_1', status: 'completed', action: { type: 'search' } };
+    const mixedReceipt = usageResponse({ output: [ws, { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '찾았습니다', annotations: [{ type: 'url_citation', url: 'https://example.com', title: 'x' }] }] }, fcItem(1), fcItem(2)], usage: { input_tokens: 40000, output_tokens: 50, total_tokens: 40050 } });
+    const mixedCharge = verifiedOpenAiCharge(mixedReceipt, mixed);
+    check('v60.02 a mixed receipt (one search, two function calls) settles one fee plus usage', mixedCharge === Math.ceil(11000 + 40000 * 0.1375 + 50 * 0.55) && mixedCharge < mixed.reservationMicroUsd, { mixedCharge });
+    // At the reserved bounds (two searches, full output; billed input up to the long-context threshold, above which the
+    // existing rule prices the receipt at long-context rates and keeps the whole reservation).
+    const worstInput = Math.min(mixed.billedInputTokenUpperBound, 272000);
+    const worstMixed = usageResponse({ output: [ws, { ...ws, id: 'ws_2' }, fcItem(1), fcItem(2)], usage: { input_tokens: worstInput, output_tokens: mixed.body.max_output_tokens, total_tokens: worstInput + mixed.body.max_output_tokens } });
+    const worstMixedCharge = verifiedOpenAiCharge(worstMixed, mixed);
+    check('v60.02 a mixed receipt at the reserved bounds settles at or below the reservation', worstMixedCharge !== null && worstMixedCharge <= mixed.reservationMicroUsd, { worstMixedCharge, reservation: mixed.reservationMicroUsd });
+    const aboveThreshold = usageResponse({ output: [ws, fcItem(1)], usage: { input_tokens: mixed.billedInputTokenUpperBound, output_tokens: mixed.body.max_output_tokens, total_tokens: mixed.billedInputTokenUpperBound + mixed.body.max_output_tokens } });
+    const aboveCharge = verifiedOpenAiCharge(aboveThreshold, mixed);
+    check('v60.02 a mixed receipt never settles above its reservation (or keeps it whole)', aboveCharge === null || aboveCharge <= mixed.reservationMicroUsd);
+    check('v60.02 a mixed receipt with more searches than admitted keeps the reservation', verifiedOpenAiCharge(usageResponse({ output: [ws, ws, ws, fcItem(1)], usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 } }), mixed) === null);
+    check('v60.02 a function-only receipt of a mixed request settles without a search fee', verifiedOpenAiCharge(usageResponse({ output: [fcItem(1)], usage: { input_tokens: 500, output_tokens: 20, total_tokens: 520 } }), mixed) === Math.ceil(500 * 0.1375 + 20 * 0.55));
+    if (process.env.AIO_BUDGET_NUMBERS) console.log(JSON.stringify({ searchOnly: searchOnly.reservationMicroUsd, functionsOnly: functionsOnly.reservationMicroUsd, mixed: mixed.reservationMicroUsd, mediumMixed: mediumMixed.reservationMicroUsd }));
+  }
   rejects('P1608 search disabled without explicit Worker configuration', () => prepareOpenAiBudget(searchBody));
   // v57.62: searched reservation is a worst-case bound; completed searched receipts settle from usage + per-call fee.
   const searchCall = action => ({ type: 'web_search_call', id: 'ws_' + action, status: 'completed', action: { type: action } });

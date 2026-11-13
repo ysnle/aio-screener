@@ -487,7 +487,8 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
         directiveReplacements: directiveReplacements,
         sentencesTotal: countOf(filterCounts && filterCounts.sentencesTotal),
         toolRounds: countOf(completion.toolRounds), // the data-tool rounds and calls of the request (callSharedAi)
-        toolCalls: countOf(completion.toolCalls)
+        toolCalls: countOf(completion.toolCalls),
+        searchCalls: countOf(completion.searchCalls) // web_search_call items the provider ran (null when search was not attached)
       };
       if (meta.record !== false && window.AIO && typeof window.AIO.recordAnswerQuality === 'function') window.AIO.recordAnswerQuality(result.answerQuality);
     }

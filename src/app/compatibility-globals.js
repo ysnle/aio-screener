@@ -37,7 +37,7 @@ import { chooseAnswerVisuals } from '../ai/response/answer-visual-choice.js';
 import { buildChatPolicyLines } from '../ai/context/policy-lines.js';
 import { resolveChatTickers } from '../ai/entity/chat-tickers.js';
 import { portfolioRowsLine } from '../ai/context/portfolio-rows.js'; // v58.75: redacted holdings line (workbench + AI panel)
-import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence, searchStatusText, searchMustRun } from '../ai/research/native-search.js';
+import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence, searchStatusText, searchMustRun, nativeSearchOptions } from '../ai/research/native-search.js';
 import { isKnownSymbol, resolveHoldingInput, resolveRegisteredName, searchCandidates } from '../domain/instruments/resolve-name.js';
 import { hasFinalConsonant } from '../domain/content/korean-particle.js';
 import { isListedUsSymbol, usListingSymbol } from '../data/us-listings.js';
@@ -174,6 +174,7 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   window.AIO.attachNativeSearch = attachNativeSearch;
   window.AIO.searchStatusText = searchStatusText;
   window.AIO.searchMustRun = searchMustRun;
+  window.AIO.nativeSearchOptions = nativeSearchOptions;
   window.AIO.hasInternalCurrentEvidence = hasInternalCurrentEvidence;
   // v58.80 (boot budget): the backtest engine loads on demand, when the form is read (_aioReadBacktestInputs awaits it
   // before the shell's synchronous AIO.buildPortfolioBacktestLab call). v59.72: the idle warm on every route is gone —

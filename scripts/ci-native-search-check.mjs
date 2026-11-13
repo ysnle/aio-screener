@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence } from '../src/ai/research/native-search.js';
+import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence, searchMustRun, nativeSearchOptions } from '../src/ai/research/native-search.js';
 import { evaluateResearchEvidenceFloor } from '../src/ai/research/evidence.js';
 import { buildQuestionDomainContext } from '../src/ai/context/market-content.js';
 const now = Date.parse('2026-10-11T06:00:00Z');
@@ -15,10 +15,30 @@ const row = { symbol: 'NVDA', source: 'fixture', observedAt: '2026-10-10T20:00:0
 const internal = hasInternalCurrentEvidence({ freshness: { status: 'ok', after: { quoteRows: [row] } }, tickers: ['NVDA'], questionPlan: plan, now });
 assert.equal(internal, true, 'P1608 usable injected quote answers a price question');
 const select = overrides => selectNativeSearch({ decision: plan.researchDecision, questionPlan: plan, health, ...overrides });
-assert.equal(select({ internalEvidenceReady: internal }), false, 'P1608 sufficient internal coverage avoids a paid request');
-assert.equal(select({ internalEvidenceReady: false }), true, 'P1608 missing internal evidence enables supplementation');
-for (const overrides of [{ optedOut: true }, { preparation: { cancelled: true } }, { preparation: { externalEvidenceReady: true } }, { health: { ai: { paidWebSearchEnabled: false } } }, { decision: { requirement: 'NOT_NEEDED' } }])
-  assert.equal(select(overrides), false, 'P1608 opt-out/cancel/external evidence/old Worker/concept avoids paid search');
+// v60.02 (plan 049, owner 2026-11-13 "웹 검색도 적절히 효율적으로 알아서 사용할 수 있도록"): search is offered in every
+// mode except quick and the model decides; internal coverage now decides only whether the search is forced.
+assert.equal(select({ internalEvidenceReady: internal }), true, 'v60.02 a covered current question is still offered search (the model decides)');
+assert.equal(searchMustRun(plan.researchDecision, { internalEvidenceReady: internal }), false, 'v60.02 a current question the injected data covers is not forced to search');
+assert.equal(searchMustRun(plan.researchDecision, { internalEvidenceReady: false }), true, 'v60.02 a current question the injected data does not cover is forced to search');
+assert.equal(select({ decision: { requirement: 'NOT_NEEDED', currentSensitive: false }, mode: 'explain' }), true, 'v60.02 a concept question is offered search');
+assert.equal(select({ decision: { requirement: 'NOT_NEEDED', currentSensitive: false }, mode: 'quick' }), false, 'v60.02 a quick question is not offered search');
+assert.equal(select({ decision: { requirement: 'OPTIONAL', requestedByUser: true }, mode: 'quick' }), true, 'v60.02 a quick question still gets search when the reader asked for it');
+for (const overrides of [{ optedOut: true }, { preparation: { cancelled: true } }, { preparation: { externalEvidenceReady: true } }, { health: { ai: { paidWebSearchEnabled: false } } }, { health: { ai: { paidWebSearchEnabled: true, webSearchAvailable: false } } }, { health: undefined }, { decision: { requirement: 'FORBIDDEN' } }])
+  assert.equal(select(overrides), false, 'v60.02 opt-out/cancel/external evidence/disabled or budget-low Worker/unknown health/forbidden avoids paid search');
+{
+  const options = (decision, mode, internalEvidenceReady = false) => nativeSearchOptions({ decision, mode, internalEvidenceReady });
+  assert.deepEqual(options({ requirement: 'NOT_NEEDED', currentSensitive: false }, 'explain'), { mustSearch: false, searchContext: 'low' }, 'v60.02 a concept question: search offered, auto, low context');
+  assert.deepEqual(options({ requirement: 'OPTIONAL', currentSensitive: false, requestedByUser: true }, 'analysis'), { mustSearch: true, searchContext: 'low' }, 'v60.02 "검색해서 알려줘" forces the search');
+  assert.deepEqual(options({ requirement: 'REQUIRED', currentSensitive: true, causalSensitive: true }, 'analysis'), { mustSearch: true, searchContext: 'medium' }, 'v60.02 an uncovered current analysis question: required, medium context');
+  assert.deepEqual(options({ requirement: 'REQUIRED', currentSensitive: false, causalSensitive: true }, 'explain'), { mustSearch: false, searchContext: 'low' }, 'v60.02 a causal question that is not current: auto, low context outside the deep modes');
+  const deepHealth = { ai: { paidWebSearchEnabled: true, maxTokens: 16384 } };
+  const body = { input: 'q', reasoning: { effort: 'medium' } };
+  assert.equal(attachNativeSearch(body, { enabled: true, health: deepHealth, context: 'medium', mustSearch: true }).tools[0].search_context_size, 'medium', 'v60.02 medium context when asked on a medium-effort answer');
+  assert.equal(attachNativeSearch(body, { enabled: true, health: deepHealth }).tools[0].search_context_size, 'low', 'v60.02 low context by default, even at medium effort');
+  assert.equal(attachNativeSearch(body, { enabled: true, health: deepHealth }).tool_choice, 'auto', 'v60.02 a caller that does not force the search lets the model choose');
+  assert.equal(attachNativeSearch(body, { enabled: true, health: deepHealth, mustSearch: true }).tool_choice, 'required', 'v60.02 a forced search is required');
+  assert.equal(attachNativeSearch(body, { enabled: true, health: { ai: { paidWebSearchEnabled: false } } }), body, 'v60.02 search disabled in health attaches nothing');
+}
 assert.equal(hasInternalCurrentEvidence({ freshness: { status: 'ok', after: { quoteRows: [row] } }, tickers: ['AMD'], questionPlan: plan, now }), false, 'P1608 another ticker is not coverage');
 assert.equal(hasInternalCurrentEvidence({ freshness: { status: 'ok', after: { quoteRows: [row] } }, tickers: ['NVDA'], questionPlan: { ...plan, query: 'NVDA 현재 사업 구조' }, now }), false, 'P1608 a quote is not business evidence');
 assert.equal(hasInternalCurrentEvidence({ freshness: { status: 'ok', after: { quoteRows: [{ ...row, observedAt: '2017-01-01' }] } }, tickers: ['NVDA'], questionPlan: plan, now }), false, 'P1608 stale timestamp cannot avoid research');
@@ -41,9 +61,8 @@ assert.equal(attachNativeSearch({ input: 'test' }, { enabled: true, health: { ai
 
 const chat = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
 const optional = { requirement: 'OPTIONAL', currentSensitive: false };
-assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 재무 요약' }, internalReferenceEvidence: { deep: true } }), false, 'P1608 existing company evidence avoids optional search');
-assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 경쟁 해자' }, internalReferenceEvidence: { deep: true } }), true, 'P1608 financial evidence alone does not cover a moat question');
-assert.equal(select({ decision: optional, internalReferenceEvidence: {} }), true, 'P1608 missing optional company evidence permits supplementation');
+assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 재무 요약' }, mode: 'analysis' }), true, 'v60.02 a company question with injected financials is offered search; the model decides whether it needs it');
+assert.equal(searchMustRun(optional), false, 'v60.02 an optional non-current question is never forced to search');
 const start = chat.indexOf('async function callSharedAi(');
 const end = chat.indexOf('\n// ── 스크리너 질의', start);
 assert.ok(start >= 0 && end > start, 'P1608 production adapter extraction exists');
@@ -95,10 +114,17 @@ for (const [variable, marker] of [['_uniUseClaudeWebSearch', 'var _uniUseClaudeW
     : chat.slice(blockStart, chat.indexOf('if (' + variable + ') {', blockStart));
   assert.ok(blockStart >= 0 && !/\bawait\b/.test(block), 'P1608 decision block is extractable without async preparation');
   vm.runInContext(block, context);
-  assert.equal(context[variable], false, 'P1608 actual caller passes the question plan and uses internal coverage');
+  assert.equal(context[variable], true, 'v60.02 actual caller offers search on a covered question (the model decides)');
+  assert.equal(context._uniSearchInternalReady, true, 'v60.02 actual caller records the internal coverage that keeps the search optional');
   context.chatFreshPreflight = null; context._uniFreshPreflight = null;
   vm.runInContext(block, context);
   assert.equal(context[variable], true, 'P1608 actual caller supplements missing internal evidence');
+  assert.equal(context._uniSearchInternalReady, false, 'v60.02 actual caller records missing internal coverage (search then forced on a current question)');
+  context._uniScreenerResult = null; context._aioChatAnswerPolicy = () => ({ fixture: true });
+  context.window.AIO.chooseAnswerMode = (policy) => (policy && policy.fixture ? 'quick' : 'analysis');
+  vm.runInContext(block, context);
+  assert.equal(context[variable], false, 'v60.02 actual caller offers no search on a quick question');
+  delete context._aioChatAnswerPolicy; delete context.window.AIO.chooseAnswerMode;
   context.webSearchResult = externalResult; context._uniWebResult = externalResult;
   vm.runInContext(block, context);
   assert.equal(context[variable], false, 'P1608 actual caller avoids duplicate search with sufficient external evidence');
