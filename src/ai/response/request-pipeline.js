@@ -290,7 +290,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var bindingIds = new Set(bindingEvidence.filter(_aioEvidenceCanPublish).map(_aioAIClaimEvidenceId));
     // The data blocks the model was given: a figure the answer repeats from them stays in its sentence.
     var referenceText = typeof meta.referenceText === 'string' ? meta.referenceText : '';
-    var publishablePlan = _aioBuildPublishableAnswerPlan(answerPlanAudit.plan, bindingEvidence, currentSensitive, { referenceText: referenceText });
+    var publishablePlan = _aioBuildPublishableAnswerPlan(answerPlanAudit.plan, bindingEvidence, currentSensitive, { referenceText: referenceText, entities: meta.entities });
     var answerPlanBindingAudit = {
       ok: publishablePlan.droppedClaims.length === 0,
       evidenceCount: bindingIds.size,
@@ -307,7 +307,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     } else if (isPartialStream) {
       visible = 'AI 답변을 구성하고 근거를 검증하는 중…';
     } else {
-      filterCounts = _aioExtractAIAnswerFallbackResult(raw, currentSensitive, { evidenceCount: bindingIds.size, evidenceRows: bindingEvidence.filter(_aioEvidenceCanPublish), referenceText: referenceText });
+      filterCounts = _aioExtractAIAnswerFallbackResult(raw, currentSensitive, { evidenceCount: bindingIds.size, evidenceRows: bindingEvidence.filter(_aioEvidenceCanPublish), referenceText: referenceText, entities: meta.entities });
       visible = filterCounts.text;
     }
     if (!visible && !isPartialStream) visible = '답변 형식이 완성되지 않아 검증 가능한 문장을 복구하지 못했습니다. 같은 질문을 다시 보내면 간결한 형식으로 재시도합니다.';

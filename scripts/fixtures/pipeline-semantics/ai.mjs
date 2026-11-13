@@ -46,6 +46,21 @@ export const cases = [
     assert.match(result.text, /1987년 블랙 먼데이/);
     assert.ok(!JSON.stringify(recorded[0]).includes('코스피'), 'v59.99 no answer text is recorded');
   } },
+  { id: 'v60.02', name: 'the question\'s entities reach publication: a real figure on the wrong subject is removed', run: async ({ load }) => {
+    const { installAIRequestPipeline } = await load('src/ai/response/request-pipeline.js');
+    const answerPublication = await load('src/ai/response/publication.js');
+    const root = { AIO_ARCH: { getAIOrchestrator: () => ({ answerPublication }) } };
+    installAIRequestPipeline(root, {});
+    const referenceText = '[NVDA]\nNVDA 가격 180.25달러, PER 28.4배\n\n[AMD]\nAMD 가격 142.10달러, PER 41.2배';
+    const entities = [{ id: 'NVDA', names: ['엔비디아'] }, { id: 'AMD', names: [] }];
+    const raw = 'NVDA의 PER은 28.4배입니다. AMD의 PER은 28.4배입니다.';
+    const meta = { request: { requestId: 'q-subject', entrypoint: 'unified-chat', answerMode: 'analysis', searched: false }, currentSensitive: true, entrypoint: 'unified-chat', referenceText, streamPhase: 'complete', record: false };
+    const withEntities = root._aioRunAIResponsePipeline(raw, { ...meta, entities });
+    assert.match(withEntities.text, /NVDA의 PER은 28\.4배입니다\./);
+    assert.doesNotMatch(withEntities.text, /AMD의 PER은 28\.4배/, 'v60.02 meta.entities reaches the publication filter');
+    const without = root._aioRunAIResponsePipeline(raw, meta);
+    assert.match(without.text, /AMD의 PER은 28\.4배입니다\./, 'v60.02 without entities the v60.01 rule applies');
+  } },
   { id: 'v59.52', name: 'chat sector and theme cues match words, not retail containing AI or a lowercase pronoun it', run: async ({ load }) => {
     const { runScreenerQuery, detectSectorQuery } = await load('src/ai/context/screener-query.js');
     const rows = [{ sym: 'NVDA', sector: 'Technology' }, { sym: 'WMT', sector: 'Consumer' }];
