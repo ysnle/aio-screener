@@ -1,0 +1,8 @@
+{
+  "version": "v60.02",
+  "date": "2026-11-13",
+  "changelog": [
+    "**AI 질문이 새로고침에도 남음 (v60.02):** 소유자 2026-11-13 \"렉이나 오류 걸린거라 생각해서 나가거나 새로고침하면 초기화 되는 거 아니야?\" — 답변을 기다리는 질문을 이 탭의 sessionStorage(aio_chat_pending_v1, 최대 15분, 동의 불필요)에 두고 답이 끝나거나 실패하거나 중지되면 지운다. 기다리는 동안에만 beforeunload가 나가기 전에 묻고, 새로 열린 패널은 질문 카드('다시 묻기'·'지우기')를 한 번 보여 준다(자동 재전송 없음). 답변 중 AI 맥락이 없는 화면(투자 대가·안내·기술적 분석)으로 옮기면 답변이 조용히 취소되고 질문까지 사라지던 것을, 셸 패널이 계속 붙어 있으므로 답변을 이어 가도록 바꿨다(src/ai/session/pending-turn.js, src/ui/components/chat-run-status.js, chat-sessions.js _aioKeepRunningAnswer)."
+  ],
+  "note": "v60.02: a waiting chat question survives a reload (card, never auto-resent); a move to a screen without AI context keeps the answer running"
+}

@@ -925,6 +925,7 @@ function _aioReleaseChatRequest(run) {
   var state = getChatState(run.ctxId);
   var ownsState = state._activeRequest === run && state._requestEpoch === run.epoch;
   run.released = true;
+  if (run.status) run.status.end(); // the waiting line stops with its run (src/ui/components/chat-run-status.js)
   if (run.retryTimer) { clearTimeout(run.retryTimer); run.retryTimer = null; }
   if (run.stopButton && typeof run.stopButton.remove === 'function') run.stopButton.remove();
   if (run.controller && !run.controller.signal.aborted) {
@@ -1135,6 +1136,7 @@ function _aioChatError(error, status) {
 
 async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { // v57.81: was callClaude (shared Worker route); repo-only callers, no alias
   opts = opts || {};
+  var _stage = function(name, detail) { try { return opts.onStage ? opts.onStage(name, detail) : undefined; } catch (_) {} }; // the panel's waiting line
   // P1245 (05 A05): 이 스트림의 불변 요청 id. 재시도는 같은 요청 객체를 재사용하므로 id도 안정적이고,
   // 수집기·진단·evidence floor는 모두 이 값만 쓰고 공유 전역을 읽지 않는다.
   var _streamRequestId = opts.requestId ? String(opts.requestId) : null;
@@ -1247,9 +1249,12 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   var _claudeHeaders = { 'Content-Type': 'application/json' };
   _claudeHeaders[_aiContract.headers.appToken] = _aioAppToken();
   var _idempotencyKey = _streamRequestId ? _streamRequestId + (opts.retryAttempt > 0 ? ':retry' + Math.min(2, opts.retryAttempt) : '') : null; // v57.61: a retry is a new paid attempt (reusing the key got 409) that the Worker counts as the same question
+  // v30.5: 청크 간 15초 타임아웃 — 서버가 멈추면 자동 중단. v49.78 C4 P418: T 객체 미정의 가능성 방어 — typeof 체크 + 명시적 15000ms fallback
+  var _chunkTimeoutMs = Math.max((typeof T !== 'undefined' && T && T.CHUNK_TIMEOUT) ? T.CHUNK_TIMEOUT : 15000, modelCfg.reasoningEffort === 'medium' ? 90000 : (modelCfg.thinking || opts.webSearch === true) ? 45000 : 0); // v57.61: reasoning/search streams are silent until the first text
   try {
    for (;;) { // one pass per request; each tool round is its own paid attempt with its own key
     if (_tools) reqBody = _tools.body;
+    _stage('sent', { body: reqBody, quietMs: _chunkTimeoutMs });
     if (_idempotencyKey) _claudeHeaders[_aiContract.headers.idempotencyKey] = _idempotencyKey + (_tools ? _tools.keySuffix() : '');
     var res = await _aioFetchClaudeWithRetry(_claudeTarget.url, {
       method: 'POST', signal: ctrl.signal, headers: _claudeHeaders, body: JSON.stringify(reqBody)
@@ -1304,9 +1309,6 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
 
     try {
       while (true) {
-        // v30.5: 청크 간 15초 타임아웃 — 서버가 멈추면 자동 중단
-        // v49.78 C4 P418: T 객체 미정의 가능성 방어 — typeof 체크 + 명시적 15000ms fallback
-        var _chunkTimeoutMs = Math.max((typeof T !== 'undefined' && T && T.CHUNK_TIMEOUT) ? T.CHUNK_TIMEOUT : 15000, modelCfg.reasoningEffort === 'medium' ? 90000 : (modelCfg.thinking || opts.webSearch === true) ? 45000 : 0); // v57.61: reasoning/search streams are silent until the first text
         var chunkTimer;
         var chunkPromise = Promise.race([
           reader.read(),
@@ -1314,6 +1316,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         ]);
         var result;
         try { result = await chunkPromise; } finally { clearTimeout(chunkTimer); }
+        _stage('event');
         buffer += result.done ? decoder.decode() + '\n' : decoder.decode(result.value, { stream: true });
         var lines = buffer.split('\n');
         buffer = lines.pop();
@@ -1395,6 +1398,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
           outputTokens: _sloUsage.output_tokens || 0
         });
       }
+      await _stage('ended'); // the checking line paints before the filters run
       onDone(fullText, {
         stopReason: stopReason || 'end_turn',
         truncated: stopReason === 'max_tokens' || stopReason === 'max_output_tokens' || stopReason === 'incomplete' || stopReason === 'client_output_limit',
@@ -3616,7 +3620,7 @@ function updateAIPanelContext(pageId) {
     if (aiInp) { aiInp.disabled = true; if (_ctxChanged) { aiInp.value = ''; _aioSyncQuestionCount(); } }
     if (aiBtn) aiBtn.disabled = true;
     var msgsEl = document.getElementById('ai-panel-msgs');
-    if (msgsEl) {
+    if (msgsEl && !_keepRunningAnswer) { // a running answer stays on screen and finishes here (the panel stays mounted)
       msgsEl.innerHTML = '<div class="ai-no-ctx">AI 분석은 주요 분석 페이지에서 사용할 수 있습니다.</div>';
     }
     var titleEl = document.getElementById('ai-panel-title');
@@ -3861,7 +3865,8 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (_uniRun) _uniRun.userMessage = _uniUserMessage;
   // 로딩 표시
   var loadBubble = _appendAIMsg('ai', '<span class="lch-muted">분석 중...</span>', 'ai-panel-loading');
-  var aiBubble = null;
+  var aiBubble = null, _uniStatus = loadBubble && window.AIO.chatRun ? window.AIO.chatRun.begin({ node: loadBubble, ctx: ctxId, question: q }) : null; // the loading bubble is the waiting line
+  if (_uniRun) _uniRun.status = _uniStatus;
   var sysPrompt = '';
   state._turnEntities = [];
   // v52.78/WP-AI3: page-scoped reference retrieval uses the active question.
@@ -4256,10 +4261,8 @@ async function chatSendUnified(_aioDispatchOptions) {
   // trimming never cuts; their results join the reference text the answer's figures are checked against.
   var _uniTools = window.AIO && window.AIO.chatTools && window.AIO.chatTools.offer({ mode: _uniMode }) ? window.AIO.chatTools : null;
   if (window.AIO && window.AIO.chatTools && (_uniTools || _uniUseClaudeWebSearch)) sysPrompt = window.AIO.chatTools.promptBlock({ functions: !!_uniTools, webSearch: _uniUseClaudeWebSearch }) + sysPrompt;
-  if (_uniTools) modelOpts.tools = { onResults: function(results) { _uniReferenceText = _uniTools.reference(results, _uniReferenceText); }, onStatus: function(line) {
-    var pending = document.querySelector('#ai-panel-loading .lch-muted') || aiBubble; // the pending line says what is fetched
-    if (pending && _isCurrentUnifiedRun()) pending.textContent = line;
-  } };
+  if (_uniTools) modelOpts.tools = { onResults: function(results) { _uniReferenceText = _uniTools.reference(results, _uniReferenceText); }, onStatus: function(line) { if (_uniStatus && _isCurrentUnifiedRun()) _uniStatus.stage('tools', line); } };
+  if (_uniStatus) modelOpts.onStage = _uniStatus.hook; // callSharedAi reports request sent, stream activity and stream end
   if (_uniUseClaudeWebSearch) {
     _appendAIMsg('ai', '<div class="ai-websearch-status" role="status" style="font-size:12px;color:var(--text-primary);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;margin-bottom:4px;">필요하면 웹검색으로 확인한 뒤 답변</div>');
     modelOpts.webSearch = true;
@@ -4312,21 +4315,11 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_uniAIRequest, selectedModelKey);
 
   // v46.10: onChunk/onDone/onError + 재시도/폴백
+  // The answer is one AnswerPlan block that is shown only after the evidence and action filters (onDone); while it
+  // streams, the waiting line shows its length and nothing of its text.
   var _uniOnChunk = function(fullText) {
     if (!_isCurrentUnifiedRun()) return;
-    var loadEl = document.getElementById('ai-panel-loading');
-    if (loadEl) loadEl.parentNode.removeChild(loadEl);
-    if (!aiBubble) { aiBubble = _appendAIMsg('ai', '', 'ai-panel-streaming'); }
-    var _uniChunkResult = (typeof _aioRunAIResponsePipeline === 'function')
-       ? _aioRunAIResponsePipeline(fullText, { referenceText: _uniReferenceText, entities: detectedTickers, request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, analysisAudit: _uniAnalysisAudit, streamPhase: 'partial', record: false })
-      : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
-    var visible = (_uniResearchRequired && !_uniWebResult)
-      ? '최신·인과성 주장에 필요한 Web Research 근거를 검증 중입니다. 검증 전 수치와 원인 단정은 표시하지 않습니다.'
-      : _uniChunkResult.text;
-    if (_aioChoosing) visible = _aioChoosing.answerHead(_uniScreenSubject, _uniChunkResult.actionGate, visible); // v58.75
-    if (aiBubble) aiBubble.innerHTML = _uniSafeRender(visible) + '<span class="lch-caret">|</span>';
-    var msgsEl = document.getElementById('ai-panel-msgs');
-    if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
+    if (_uniStatus) _uniStatus.chars(String(fullText || '').length);
   };
 
   var _uniOnDone = function(fullText, completion) {
@@ -4360,7 +4353,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       streamEl.id = '';
       var _streamBubble = streamEl.querySelector('.ai-bubble');
       if (_streamBubble) _streamBubble.innerHTML = _uniSafeRender(visible);
-    } else if (!aiBubble) { _appendAIMsg('ai', _uniSafeRender(visible)); }
+    } else if (!aiBubble) { aiBubble = _appendAIMsg('ai', _uniSafeRender(visible)); }
     state.messages.push({ role: 'assistant', content: visible });
 
     // v46.10: 모델 배지

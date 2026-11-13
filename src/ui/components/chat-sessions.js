@@ -33,9 +33,10 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
   };
   const cancel = (reason) => { try { root._aioCancelChatRequest?.(root._aiCurrentCtx, reason); } catch (_) {} };
 
-  // v58.75 (persona review): panel glue moved out of js/aio-chat.js. (a) Moving to another AI screen while an answer is
-  // being written keeps it (one shared conversation): the classic panel asks before cancelling and repainting.
-  root._aioKeepRunningAnswer = (fromCtx, toCtx, contexts) => !!(fromCtx && toCtx && contexts?.[toCtx] && shared._activeRequest?.entrypoint === 'unified-chat');
+  // v58.75 (persona review): panel glue moved out of js/aio-chat.js. (a) Moving to another screen while an answer is
+  // being written keeps it (one shared conversation in a shell panel that stays mounted, also over a screen without an
+  // AI context): the classic panel asks before cancelling and repainting.
+  root._aioKeepRunningAnswer = () => shared._activeRequest?.entrypoint === 'unified-chat';
   // (b) The portfolio chips open the consent preview that attaches the redacted holdings (_aioPortfolioAsk) instead of
   // sending bare text; (c) that prompt is marked so the turn tells the model the holdings are in the question.
   const PORTFOLIO_CHIPS = { '포트폴리오 종합 분석': 'overview', '보유 종목 점검': 'ticker', '매매 복기': 'journal', '다음 학습 과제': 'lesson' };

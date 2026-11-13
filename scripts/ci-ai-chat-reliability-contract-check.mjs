@@ -241,6 +241,7 @@ const { readFileSync } = await import('node:fs');
 const { default: vm } = await import('node:vm');
 const { default: assert } = await import('node:assert/strict');
 const loop = await import('../src/ai/tools/loop.js');
+const { createRunProgress, progressHook } = await import('../src/ai/session/run-progress.js');
 const { AI_WORKER_CONTRACT } = await import('../src/domain/ai/worker-contract.js');
 const { prepareOpenAiBudget } = await import('../worker/openai-budget.mjs');
 const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
@@ -262,7 +263,7 @@ const toolRoot = {
   _aioGetCanonicalScreenerRows: () => [{ sym: 'NVDA', name: 'NVIDIA', ret5d: -3.2, ret1m: -6.5, ret3m: 4.1, rsi: 28, pctFrom52wHigh: -12, pctFrom52wLow: 60, factorSessionDate: session }],
   _aioScreenBasisEvidence: () => [{ metric: 'close.vix', value: 17.2, unit: 'index', asOf: session, source: 'close-basis', evidenceId: 'ev-vix' }]
 };
-async function scenario({ responses, tools = true, kit = loop.chatToolKit(toolRoot), webSearch = false, mustSearch, cancelDuringTools = false }) {
+async function scenario({ responses, tools = true, kit = loop.chatToolKit(toolRoot), webSearch = false, mustSearch, cancelDuringTools = false, progress = null, searchChoice = null, effort = 'low' }) {
   const deadlines = new Map();
   const caller = new AbortController();
   const out = { requests: [], keys: [], chunks: [], done: [], errors: [], cancelled: 0, status: [], results: [] };
@@ -270,7 +271,7 @@ async function scenario({ responses, tools = true, kit = loop.chatToolKit(toolRo
     console: { log() {}, warn() {} }, AbortController, TextDecoder, TextEncoder, performance,
     setTimeout(callback, delay) { const id = {}; deadlines.set(id, { callback, delay }); return id; },
     clearTimeout(id) { deadlines.delete(id); },
-    getApiKey: () => 'fixture-only', getModelConfig: () => ({ id: 'gpt-6-luna', label: 'fixture', reasoningEffort: 'low' }),
+    getApiKey: () => 'fixture-only', getModelConfig: () => ({ id: 'gpt-6-luna', label: 'fixture', reasoningEffort: effort }),
     _aioEnsureClaudeRoute: async () => ({ ok: true, target: { url: 'https://fixture.invalid', serverKey: true } }),
     _aioThrowIfChatAborted(signal) { if (signal?.aborted) throw signal.reason; },
     _aioLinkChatAbortSignal(signal, controller) { const cancel = () => controller.abort(); signal.addEventListener('abort', cancel); return () => signal.removeEventListener('abort', cancel); },
@@ -286,14 +287,15 @@ async function scenario({ responses, tools = true, kit = loop.chatToolKit(toolRo
   };
   context.window = context;
   context.AIO = { aiWorkerContract: AI_WORKER_CONTRACT, chatTools: kit };
-  if (webSearch) context.AIO.attachNativeSearch = (body, { enabled, mustSearch: forced }) => (enabled ? { ...body, tools: [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default' }], tool_choice: forced === true ? 'required' : 'auto', max_tool_calls: 2 } : body);
+  if (webSearch) context.AIO.attachNativeSearch = (body, { enabled, mustSearch: forced }) => (enabled ? { ...body, tools: [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default' }], tool_choice: searchChoice || (forced === true ? 'required' : 'auto'), max_tool_calls: 2 } : body);
   out.context = context;
   vm.createContext(context);
   vm.runInContext(source.slice(storeStart, storeEnd) + '\n' + source.slice(start, end), context);
-  const toolOpts = { onStatus: (line) => { out.status.push(line); if (cancelDuringTools) caller.abort(); }, onResults: (results) => out.results.push(...results) };
-  await context.callSharedAi('fixture instructions', [{ role: 'user', content: '엔비디아는 지금 어때?' }], (text) => out.chunks.push(text),
+  // With `progress`, the panel's three call sites as chatSendUnified wires them: the stage hook, the streamed length, the tools line.
+  const toolOpts = { onStatus: (line) => { out.status.push(line); progress?.stage('tools', line); if (cancelDuringTools) caller.abort(); }, onResults: (results) => out.results.push(...results) };
+  await context.callSharedAi('fixture instructions', [{ role: 'user', content: '엔비디아는 지금 어때?' }], (text) => { out.chunks.push(text); progress?.chars(text.length); },
     (...args) => out.done.push(args), (error) => out.errors.push(error),
-    { signal: caller.signal, requestId: 'fixture-tools', webSearch, mustSearch, tools: tools ? toolOpts : undefined, onCancel() { out.cancelled++; } });
+    { signal: caller.signal, requestId: 'fixture-tools', webSearch, mustSearch, tools: tools ? toolOpts : undefined, onCancel() { out.cancelled++; }, onStage: progress ? progressHook(progress) : undefined });
   assert.equal(deadlines.size, 0, 'tool loop scenario must clean its connection timers');
   return out;
 }
@@ -420,8 +422,18 @@ let sequence = null;
   assert.deepEqual(refused.requests[1].tools.map((tool) => tool.type), ['web_search'], 'v60.02 a Worker that refuses the mix gets the search-only request once');
   assert.deepEqual(refused.keys, ['fixture-tools', 'fixture-tools:plain'], 'v60.02 the search-only fallback has its own idempotency key');
 }
+// (8) v60.02 (plan 050): the waiting line's stages follow the real stream — (a) a plain answer, (b) a searched answer
+// the request must search for, (c) one tool round. The clock is fixed; only the order of stages is read.
+{
+  const stagesOf = async (options) => { const progress = createRunProgress({ now: () => 0 }); const r = await scenario({ ...options, progress }); assert.equal(r.done.length, 1, 'v60.02 each staged scenario completes once'); return progress.stages().join('>'); };
+  assert.equal(await stagesOf({ responses: [answer('바로 답합니다')], tools: false }), 'preparing>thinking>writing>checking', 'v60.02 a plain answer: preparing, thinking, writing, checking');
+  assert.equal(await stagesOf({ responses: [answer('검색으로 답합니다')], webSearch: true, searchChoice: 'required' }), 'preparing>searching>writing>checking', 'v60.02 a required search shows searching before the text');
+  assert.equal(await stagesOf({ responses: [answer('검색 선택')], webSearch: true }), 'preparing>thinking>writing>checking', 'v60.02 an optional search is not announced as searching (no search-progress event is read)');
+  assert.equal(await stagesOf({ responses: [asks([call('trend', { symbol: 'NVDA' }, 1)]), answer('찾고 답합니다')] }), 'preparing>thinking>tools>thinking>writing>checking', 'v60.02 a tool round: thinking, tools, thinking again, then the text');
+  assert.equal(await stagesOf({ responses: [answer('추론 없음')], tools: false, effort: 'none' }), 'preparing>writing>checking', 'v60.02 a request without reasoning goes from preparing to writing');
+}
 if (process.env.AIO_TOOL_LOOP_SEQUENCE) console.log(JSON.stringify(sequence, null, 1));
-console.log('Tool loop OK: no-call, parallel round, round cap, call cap, refused-tools fallback, cancel during tools, search beside functions.');
+console.log('Tool loop OK: no-call, parallel round, round cap, call cap, refused-tools fallback, cancel during tools, search beside functions, waiting-line stages.');
 }],
 // ── section chat-resilience (was ci-chat-resilience-check.mjs) ──
 ['chat-resilience', async () => {
