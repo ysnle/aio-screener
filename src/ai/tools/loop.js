@@ -33,9 +33,17 @@ export function callInputItem(item) {
   return out;
 }
 
-/** The tool fields of a request; the last allowed request sets tool_choice 'none' so the model must answer. */
-export function toolRequestFields({ final = false } = {}) {
-  return { tools: toolDefinitions(), tool_choice: final ? 'none' : 'auto', parallel_tool_calls: true };
+/** The hosted tools of a body (the web_search tool attachNativeSearch added): they travel beside the functions. */
+export function hostedToolsOf(body) {
+  return Array.isArray(body?.tools) ? body.tools.filter((tool) => tool && tool.type !== 'function') : [];
+}
+
+/**
+ * The tool fields of a request: the hosted tools first, then the data functions. The first request keeps a forced search
+ * ('required'); later rounds are 'auto'; the last allowed request sets tool_choice 'none' so the model must answer.
+ */
+export function toolRequestFields({ final = false, hosted = [], choice = 'auto' } = {}) {
+  return { tools: [...hosted, ...toolDefinitions()], tool_choice: final ? 'none' : choice, parallel_tool_calls: true };
 }
 
 /**
@@ -89,11 +97,14 @@ export async function runToolCalls(calls, { root = globalThis, now = Date.now(),
  * announced a call, so its text is not shown. `advance(stopReason)` resolves true when another request is needed — the
  * round's calls ran (hooks.onStatus before, hooks.onResults after) or a malformed call took the fallback — and false when
  * the answer is final. `refused(status)` takes the fallback for a refused tools request. Rejects with an AbortError when
- * `signal` aborts while the calls run.
+ * `signal` aborts while the calls run. When the plain body carries hosted search, every request keeps it beside the
+ * functions: the provider runs the search calls inside a response (the Worker caps them per request), the client runs the
+ * function calls, and the round and call limits count function calls only.
  */
 export function createToolSession(plainBody, hooks = {}, { root = globalThis, signal = null, fit = null, limits = TOOL_LOOP_LIMITS,
   run = (calls, options) => runToolCalls(calls, { ...options, root, limits }) } = {}) {
-  let body = { ...plainBody, ...toolRequestFields({ final: false }) };
+  const hosted = hostedToolsOf(plainBody);
+  let body = { ...plainBody, ...toolRequestFields({ hosted, choice: plainBody?.tool_choice === 'required' ? 'required' : 'auto' }) };
   let rounds = 0, used = 0, fellBack = false, completed = null, streamed = [], hiding = false;
   const fallback = () => { if (fellBack) return false; fellBack = true; body = plainBody; return true; };
   const hook = (name, value) => { try { if (typeof hooks?.[name] === 'function') hooks[name](value); } catch (_) { /* a closed panel */ } };
@@ -123,7 +134,7 @@ export function createToolSession(plainBody, hooks = {}, { root = globalThis, si
       rounds += 1;
       hook('onResults', ran.results);
       const input = appendToolItems(body.input, asked, ran.outputs);
-      body = { ...body, ...(typeof fit === 'function' ? { instructions: fit(input) } : {}), input, ...toolRequestFields({ final: rounds >= limits.rounds || used >= limits.calls }) };
+      body = { ...body, ...(typeof fit === 'function' ? { instructions: fit(input) } : {}), input, ...toolRequestFields({ hosted, final: rounds >= limits.rounds || used >= limits.calls }) };
       return true;
     }
   };
@@ -140,7 +151,7 @@ export function chatToolKit(root = globalThis) {
   return Object.freeze({
     limits: TOOL_LOOP_LIMITS,
     offer: (turn) => offerTools(turn),
-    promptBlock: () => toolsPromptBlock(),
+    promptBlock: (options) => toolsPromptBlock(options),
     reference: (results, referenceText) => withToolReference(results, referenceText),
     session: (plainBody, hooks, options = {}) => createToolSession(plainBody, hooks, { ...options, root })
   });

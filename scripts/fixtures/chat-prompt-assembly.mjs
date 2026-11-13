@@ -79,9 +79,9 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
   const newsWrap = statement('var newsCtx = _buildNewsContext(ctxId, q);', '\n      if (newsCtx) {', 'news wrap');
   const modelRoute = statement("var selectedModelKey = 'luna';", 'var selectedModelCfg', 'model route');
   const maxTokensExpr = statement('var modelOpts = {', ';', 'model opts') + ';';
-  const webResearch = statement("sysPrompt += '\\n\\n【웹 리서치 지시", ';\n', 'web research') + ';';
   const evidenceTail = statement("sysPrompt += '\\n\\n[AIO EXTERNAL EVIDENCE CONTRACT]\\n'", ';\n', 'evidence tail') + ';';
-  // The data tools: whether this turn offers them and the block that then leads the prompt (the chat-globals kit).
+  // The data tools and hosted search: whether this turn offers the tools and the one block that then leads the prompt
+  // (the chat-globals kit).
   const toolsOffer = statement('var _uniTools = window.AIO', '\n  if (_uniTools) modelOpts.tools', 'tools offer');
   window.AIO.chatTools = (await load('src/ai/tools/loop.js')).chatToolKit(window);
   // Reader memory: the turn's entity ids and the earlier-conversation block, through the chat-globals the panel installs.
@@ -94,7 +94,6 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
   run(`function __newsBlock(ctxId, q) { ${newsWrap.replace('var newsCtx', 'var newsCtx')} return newsCtx || ''; }`, 'unified#news');
   run(`function __route(q, ctxId, _uniMode, _uniDeepData) { ${modelRoute} ${maxTokensExpr} return { modelKey: selectedModelKey, maxTokens: modelOpts.maxTokens }; }`, 'unified#route');
   run(`function getModelConfig(key) { return { label: key }; }`, 'stub');
-  run(`function __webResearch() { var sysPrompt = ''; ${webResearch} return sysPrompt; }`, 'unified#web');
   run(`function __evidenceTail() { var sysPrompt = ''; ${evidenceTail} return sysPrompt; }`, 'unified#tail');
   run(`function __tools(window, _uniMode, _uniUseClaudeWebSearch) { var sysPrompt = ''; ${toolsOffer} return sysPrompt; }`, 'unified#tools');
   const LLM_MODELS = vm.runInNewContext(`(${slice(ui, 'const LLM_MODELS = {', '\n};', 'models').replace('const LLM_MODELS = ', '')}\n})`);
@@ -134,7 +133,7 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
   function assemble(query, ctxId = 'home', { news = longNewsItems(), health = { ai: { paidWebSearchEnabled: true, webSearchAvailable: true } }, memory = null } = {}) {
     const r = route(query, ctxId);
     const { questionPlan, tickers, mode } = r;
-    const webSearch = nativeSearch.selectNativeSearch({ decision: questionPlan.researchDecision || {}, questionPlan, health, internalEvidenceReady: false });
+    const webSearch = nativeSearch.selectNativeSearch({ decision: questionPlan.researchDecision || {}, questionPlan, health, mode });
     const blocks = [];
     const add = (name, text) => { if (text) blocks.push({ name, text: String(text) }); };
     const nb = newsBlock(query, ctxId, news);
@@ -149,14 +148,16 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
     add('registry', context._aioBuildAIClaimEvidenceRegistry([]));
     add('principles', principles.buildAnswerPrinciples({ today: FIXTURE_NOW.slice(0, 10), mode, hasTickers: tickers.length > 0, hasTrend: false, liveStatus: 'fixture', newsInjected: !!nb.wrapped, webSearch, snapAgeHours: 2 }));
     add('mode', modes.answerModeGuide(mode));
-    if (webSearch) add('web-research', context.__webResearch());
     add('evidence-tail', context.__evidenceTail());
     add('policy', window._aioPublicAIActionPolicyPrompt());
     const toolsBlock = context.__tools(window, mode, webSearch);
     if (toolsBlock) blocks.unshift({ name: 'tools', text: toolsBlock });
     let body ={ model: 'fixture', instructions: blocks.map((b) => b.text).join(''), reasoning: { effort: r.reasoningEffort } };
-    body = nativeSearch.attachNativeSearch(body, { enabled: webSearch, health, mustSearch: nativeSearch.searchMustRun ? nativeSearch.searchMustRun(questionPlan.researchDecision || {}) : undefined });
-    return { ...r, webSearch, blocks, prompt: blocks.map((b) => b.text).join(''), toolChoice: body.tool_choice || null, newsRaw: nb.raw, entities: mem.entities, tools: !!toolsBlock };
+    // chatSendUnified's search options (no injected quote rows in the fixture, so a current question is not covered).
+    const searchOptions = nativeSearch.nativeSearchOptions({ decision: questionPlan.researchDecision || {}, mode, internalEvidenceReady: false });
+    body = nativeSearch.attachNativeSearch(body, { enabled: webSearch, health, mustSearch: searchOptions.mustSearch, context: searchOptions.searchContext });
+    const functions = /^【추가 자료 요청 \(도구/.test(toolsBlock || '');
+    return { ...r, webSearch, blocks, prompt: blocks.map((b) => b.text).join(''), toolChoice: body.tool_choice || null, searchContext: body.tools ? body.tools[0].search_context_size : null, newsRaw: nb.raw, entities: mem.entities, tools: functions };
   }
 
   return { window, context, plan, route, assemble, newsBlock, longNewsItems, modes, principles, nativeSearch, budget };

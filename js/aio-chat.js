@@ -1237,10 +1237,11 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   };
   // P1608: reuse the metered route; old Workers receive a text request.
   var searchEnabledNow = opts.webSearch === true;
-  if (window.AIO?.attachNativeSearch) reqBody = window.AIO.attachNativeSearch(reqBody, { enabled: searchEnabledNow, health: routeState.health, mustSearch: opts.mustSearch });
+  if (window.AIO?.attachNativeSearch) reqBody = window.AIO.attachNativeSearch(reqBody, { enabled: searchEnabledNow, health: routeState.health, mustSearch: opts.mustSearch, context: opts.searchContext });
   if (reqBody.tools && window._aioAIBudgetPolicy) window._aioAIBudgetPolicy.preparePaidWebSearch({ serverKey: true, health: routeState.health, state: window });
-  // The data-tool loop (src/ai/tools/loop.js createToolSession), never beside hosted search: the Worker refuses the mix.
-  var _tools = opts.tools && !(reqBody.tools && reqBody.tools.length) && window.AIO && window.AIO.chatTools
+  var _searchCalls = reqBody.tools ? 0 : null; // web_search_call items of the completed responses, when search is attached
+  // The data-tool loop (src/ai/tools/loop.js createToolSession), beside an attached hosted search.
+  var _tools = opts.tools && window.AIO && window.AIO.chatTools
     ? window.AIO.chatTools.session(reqBody, opts.tools, { signal: _chatSignal, fit: function(input) { _cutSystem(8000, input); return system || ''; } }) : null;
   var _armConnect = function() { connectionTimedOut = false; connectTimer = setTimeout(function() { connectionTimedOut = true; ctrl.abort(); }, timeoutMs); };
   var _claudeHeaders = { 'Content-Type': 'application/json' };
@@ -1283,7 +1284,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
     // v50.10: native web_search 인용/검색결과 수집 (사용자 출처 표면화). 요청 시작 시 리셋.
     // P1245 (05 A05): 리셋 대상이 공유 전역이 아니라 이 요청의 기록이므로, 겹쳐 도는 다른 스트림의
     // 인용을 지우지 않는다.
-    if (_streamState) { // P1756: every attempt resets — a no-search retry must not inherit a failed searched attempt's citations.
+    if (_streamState && !(_tools && _tools.rounds > 0)) { // P1756: every attempt resets — a no-search retry must not inherit a failed searched attempt's citations (a tool round keeps them).
       _streamState.citations.length = 0;
       _streamState.researchError = null;
     }
@@ -1349,6 +1350,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
               window._lastClaudeUsage = responseUsage;
             }
             (completed.output || []).forEach(function(output) {
+              if (output && output.type === 'web_search_call') _searchCalls++;
               (output.content || []).forEach(function(content) {
                 (content.annotations || []).forEach(function(annotation) { if (annotation.type === 'url_citation') _pushWebCite(annotation.url, annotation.title); });
               });
@@ -1401,7 +1403,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         workerMaxTokens: isFinite(workerMaxTokens) && workerMaxTokens > 0 ? workerMaxTokens : null,
         extendedThinking: useExtendedThinking,
         outputTokens: responseUsage && Number.isInteger(responseUsage.output_tokens) ? responseUsage.output_tokens : null,
-        effort: (modelCfg && modelCfg.reasoningEffort) || null, toolRounds: _tools ? _tools.rounds : null, toolCalls: _tools ? _tools.calls : null
+        effort: (modelCfg && modelCfg.reasoningEffort) || null, toolRounds: _tools ? _tools.rounds : null, toolCalls: _tools ? _tools.calls : null, searchCalls: _searchCalls
       });
       _unlinkChatAbort();
       return;
@@ -3072,8 +3074,7 @@ window._shouldSingleDeepAnalyzeChat = _shouldSingleDeepAnalyzeChat;
 function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers, questionPlan, researchState) {
   var route = window._aioLastClaudeRouteState;
   return !!window.AIO?.selectNativeSearch?.({ decision: questionPlan?.researchDecision, questionPlan: questionPlan, externalResult: researchState?.externalResult,
-    preparation: researchState?.preparation, internalEvidenceReady: researchState?.internalEvidenceReady, internalReferenceEvidence: researchState?.internalReferenceEvidence,
-    health: route?.health });
+    preparation: researchState?.preparation, mode: researchState?.mode, health: route?.health });
 }
 window._shouldUseClaudeWebSearch = _shouldUseClaudeWebSearch;
 
@@ -3881,12 +3882,16 @@ async function chatSendUnified(_aioDispatchOptions) {
   var _uniNewsCtx = false;
   var _uniKnowledgeAudit = null;
   var _uniUseClaudeWebSearch = false;
-  var _uniWsDecided = false;
+  var _uniWsDecided = false, _uniSearchInternalReady = false, _uniPolicy = null, _uniMode = 'analysis';
   var _uniScreenSubject = '', _uniPortfolioData = false;
-  // P1740: one decision used before the status blocks are written (and again only if preparation threw before it).
+  // P1740: one decision used before the status blocks are written (and again only if preparation threw before it). The
+  // answer mode is chosen here: search is offered in every mode except quick.
   var _uniDecideWebSearch = function() {
+    try { _uniPolicy = typeof _aioChatAnswerPolicy === 'function' ? _aioChatAnswerPolicy(q, ctxId, detectedTickers, _uniScreenerResult) : null; } catch(_) { _uniPolicy = null; }
+    _uniMode = window.AIO && typeof window.AIO.chooseAnswerMode === 'function' ? window.AIO.chooseAnswerMode(_uniPolicy) : 'analysis';
     try {
-      _uniUseClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers, _uniQuestionPlan, { preparation: _uniPreparedResearch, externalResult: _uniWebResult, internalReferenceEvidence: { ticker: !!_uniTickerData, deep: !!_uniDeepData, domain: !!_uniDomainData, news: !!_uniNewsCtx }, internalEvidenceReady: window.AIO?.hasInternalCurrentEvidence?.({ questionPlan: _uniQuestionPlan, freshness: _uniFreshPreflight, tickers: detectedTickers }) });
+      _uniSearchInternalReady = !!window.AIO?.hasInternalCurrentEvidence?.({ questionPlan: _uniQuestionPlan, freshness: _uniFreshPreflight, tickers: detectedTickers });
+      _uniUseClaudeWebSearch = typeof _shouldUseClaudeWebSearch === 'function' && _shouldUseClaudeWebSearch(q, ctxId, detectedTickers, _uniQuestionPlan, { preparation: _uniPreparedResearch, externalResult: _uniWebResult, mode: _uniMode });
     } catch(_uniWsErr) { _uniUseClaudeWebSearch = false; }
     if (_uniResearchRequired && _uniResearchFailure && _uniResearchFailure.code === 'DISABLED_BY_USER') _uniUseClaudeWebSearch = false;
     _uniWsDecided = true;
@@ -4229,9 +4234,6 @@ async function chatSendUnified(_aioDispatchOptions) {
   var _todayStr = _fi2.todayStr || new Date().toISOString().slice(0,10);
   var _pHasTrend = sysPrompt.indexOf('[주가 추이]') !== -1;
   if (!_uniWsDecided) _uniDecideWebSearch();
-  var _uniPolicy = null;
-  try { _uniPolicy = typeof _aioChatAnswerPolicy === 'function' ? _aioChatAnswerPolicy(q, ctxId, detectedTickers, _uniScreenerResult) : null; } catch(_) { _uniPolicy = null; }
-  var _uniMode = window.AIO && typeof window.AIO.chooseAnswerMode === 'function' ? window.AIO.chooseAnswerMode(_uniPolicy) : 'analysis';
 
   if (window.AIO && typeof window.AIO.buildAnswerPrinciples === 'function') sysPrompt += window.AIO.buildAnswerPrinciples({ today: _todayStr, mode: _uniMode, hasTickers: detectedTickers.length > 0, hasTrend: _pHasTrend, liveStatus: _liveStatus, newsInjected: !!_uniNewsCtx, webSearch: _uniUseClaudeWebSearch, snapAgeHours: _pSnapAge, teachBlock: _aioChoosing ? _aioChoosing.teachForTurn({ ctxId: ctxId, query: q, tickers: detectedTickers, mode: _uniMode, prompt: sysPrompt }) : '' });
 
@@ -4250,20 +4252,19 @@ async function chatSendUnified(_aioDispatchOptions) {
   try {
     sysPrompt += window.AIO.describeAnswerVisuals(window.AIO.chooseAnswerVisuals({ query: q, mode: _uniMode, canonical: (_uniQuestionPlan && _uniQuestionPlan.intent && _uniQuestionPlan.intent.intents) || [], tickers: detectedTickers }));
   } catch (_) {}
-  // The data tools (src/ai/tools/): every mode except quick, never beside hosted search. Their block leads the prompt, which
+  // The data tools (src/ai/tools/): every mode except quick. One block about them and the search leads the prompt, which
   // trimming never cuts; their results join the reference text the answer's figures are checked against.
-  var _uniTools = window.AIO && window.AIO.chatTools && window.AIO.chatTools.offer({ mode: _uniMode, webSearch: _uniUseClaudeWebSearch }) ? window.AIO.chatTools : null;
-  if (_uniTools) sysPrompt = _uniTools.promptBlock() + sysPrompt;
+  var _uniTools = window.AIO && window.AIO.chatTools && window.AIO.chatTools.offer({ mode: _uniMode }) ? window.AIO.chatTools : null;
+  if (window.AIO && window.AIO.chatTools && (_uniTools || _uniUseClaudeWebSearch)) sysPrompt = window.AIO.chatTools.promptBlock({ functions: !!_uniTools, webSearch: _uniUseClaudeWebSearch }) + sysPrompt;
   if (_uniTools) modelOpts.tools = { onResults: function(results) { _uniReferenceText = _uniTools.reference(results, _uniReferenceText); }, onStatus: function(line) {
     var pending = document.querySelector('#ai-panel-loading .lch-muted') || aiBubble; // the pending line says what is fetched
     if (pending && _isCurrentUnifiedRun()) pending.textContent = line;
   } };
   if (_uniUseClaudeWebSearch) {
-    _appendAIMsg('ai', '<div class="ai-websearch-status" role="status" style="font-size:12px;color:var(--text-primary);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;margin-bottom:4px;">기존 자료를 보강하기 위해 웹검색 중, 출처 확인 후 답변</div>');
-    sysPrompt += '\n\n【웹 리서치 지시 (통합 AI 패널)】\n공급망·밸류체인·TAM/시장규모·경쟁구조·기술해자·13F·사업구조·경영진 전략처럼 최신 확인이 필요한 정성 분석은 web_search 결과를 우선하라. 확인하지 못한 항목은 "확인 불가"로 남기고, 학습데이터 기반 추측을 금지한다.';
+    _appendAIMsg('ai', '<div class="ai-websearch-status" role="status" style="font-size:12px;color:var(--text-primary);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;margin-bottom:4px;">필요하면 웹검색으로 확인한 뒤 답변</div>');
     modelOpts.webSearch = true;
-    // A current-fact question (or an explicit search request) must search; any other may answer from what the model knows.
-    if (_uniResearchDecision && window.AIO && typeof window.AIO.searchMustRun === 'function') modelOpts.mustSearch = window.AIO.searchMustRun(_uniResearchDecision);
+    // mustSearch / searchContext (src/ai/research/native-search.js): otherwise the model decides whether to search.
+    if (window.AIO && window.AIO.nativeSearchOptions) Object.assign(modelOpts, window.AIO.nativeSearchOptions({ decision: _uniResearchDecision || {}, mode: _uniMode, internalEvidenceReady: _uniSearchInternalReady }));
   }
 
   // The data wrappers above are deliberately non-authoritative. Keep this
@@ -4335,7 +4336,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     state._retryCount = 0;
     // v58.77: the "웹검색 중" line no longer stays after the answer; it says "searched" only when this answer has citations.
     _aioSettleWebSearchStatus(window.AIO && typeof window.AIO.searchStatusText === 'function'
-      ? window.AIO.searchStatusText({ attached: _searchAttached, citationCount: _searchAttached ? _aioAIRequestCitations(_uniRequestId).length : 0 })
+      ? window.AIO.searchStatusText({ attached: _searchAttached, citationCount: _searchAttached ? _aioAIRequestCitations(_uniRequestId).length : 0, searchCalls: completion ? completion.searchCalls : null })
       : (_searchAttached ? '웹검색으로 보강해 답했습니다.' : '웹검색 응답이 늦어 검색 없이 앱 자료로 답했습니다.'));
     var loadEl = document.getElementById('ai-panel-loading');
     if (loadEl) loadEl.parentNode.removeChild(loadEl);

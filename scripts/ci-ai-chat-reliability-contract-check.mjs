@@ -262,7 +262,7 @@ const toolRoot = {
   _aioGetCanonicalScreenerRows: () => [{ sym: 'NVDA', name: 'NVIDIA', ret5d: -3.2, ret1m: -6.5, ret3m: 4.1, rsi: 28, pctFrom52wHigh: -12, pctFrom52wLow: 60, factorSessionDate: session }],
   _aioScreenBasisEvidence: () => [{ metric: 'close.vix', value: 17.2, unit: 'index', asOf: session, source: 'close-basis', evidenceId: 'ev-vix' }]
 };
-async function scenario({ responses, tools = true, kit = loop.chatToolKit(toolRoot), webSearch = false, cancelDuringTools = false }) {
+async function scenario({ responses, tools = true, kit = loop.chatToolKit(toolRoot), webSearch = false, mustSearch, cancelDuringTools = false }) {
   const deadlines = new Map();
   const caller = new AbortController();
   const out = { requests: [], keys: [], chunks: [], done: [], errors: [], cancelled: 0, status: [], results: [] };
@@ -286,13 +286,14 @@ async function scenario({ responses, tools = true, kit = loop.chatToolKit(toolRo
   };
   context.window = context;
   context.AIO = { aiWorkerContract: AI_WORKER_CONTRACT, chatTools: kit };
-  if (webSearch) context.AIO.attachNativeSearch = (body, { enabled }) => (enabled ? { ...body, tools: [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default' }], tool_choice: 'auto', max_tool_calls: 2 } : body);
+  if (webSearch) context.AIO.attachNativeSearch = (body, { enabled, mustSearch: forced }) => (enabled ? { ...body, tools: [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default' }], tool_choice: forced === true ? 'required' : 'auto', max_tool_calls: 2 } : body);
+  out.context = context;
   vm.createContext(context);
   vm.runInContext(source.slice(storeStart, storeEnd) + '\n' + source.slice(start, end), context);
   const toolOpts = { onStatus: (line) => { out.status.push(line); if (cancelDuringTools) caller.abort(); }, onResults: (results) => out.results.push(...results) };
   await context.callSharedAi('fixture instructions', [{ role: 'user', content: '엔비디아는 지금 어때?' }], (text) => out.chunks.push(text),
     (...args) => out.done.push(args), (error) => out.errors.push(error),
-    { signal: caller.signal, requestId: 'fixture-tools', webSearch, tools: tools ? toolOpts : undefined, onCancel() { out.cancelled++; } });
+    { signal: caller.signal, requestId: 'fixture-tools', webSearch, mustSearch, tools: tools ? toolOpts : undefined, onCancel() { out.cancelled++; } });
   assert.equal(deadlines.size, 0, 'tool loop scenario must clean its connection timers');
   return out;
 }
@@ -372,15 +373,55 @@ let sequence = null;
   assert.equal(r.requests.length, 1, 'v60.02 a cancelled tool round sends no further request');
   assert.equal(r.cancelled, 1); assert.equal(r.done.length, 0); assert.equal(r.errors.length, 0);
 }
-// (7) Hosted search attached: no function tools in the body.
+// (7) v60.02 (plan 049, owner 2026-11-13 "웹 검색도 적절히 효율적으로 알아서 사용할 수 있도록"): hosted search travels
+// beside the function tools. A round may hold provider-run search calls and client-run function calls; the citations of
+// every round stay for the sources list, and the status says what happened.
 {
-  const r = await scenario({ responses: [answer('검색으로 답합니다')], webSearch: true });
-  assert.equal(r.requests.length, 1);
-  assert.deepEqual(r.requests[0].tools.map((tool) => tool.type), ['web_search'], 'v60.02 hosted search is never mixed with function tools');
-  assert.equal(r.done[0][1].toolRounds, null);
+  const { searchStatusText } = await import('../src/ai/research/native-search.js');
+  const searchOn = { AI_WEB_SEARCH_ENABLED: 'true' };
+  const cite = (url, title) => ({ type: 'url_citation', url, title });
+  const searched = (calls, text, url) => {
+    const message = { type: 'message', role: 'assistant', content: [{ type: 'output_text', text, annotations: [cite(url, 'fixture source')] }] };
+    const ws = { type: 'web_search_call', id: 'ws_1', status: 'completed', action: { type: 'search', query: 'NVDA guidance' } };
+    return sse([{ type: 'response.output_item.added', item: { ...ws, status: 'in_progress' } }, { type: 'response.output_item.done', item: ws },
+      { type: 'response.output_text.delta', delta: text }, { type: 'response.output_text.annotation.added', annotation: cite(url, 'fixture source') },
+      ...calls.flatMap((c) => [{ type: 'response.output_item.added', item: { ...c, arguments: '', status: 'in_progress' } }, { type: 'response.output_item.done', item: c }]),
+      { type: 'response.completed', response: { status: 'completed', output: [ws, message, ...calls], usage } }]);
+  };
+  const citedAnswer = (text, url) => sse([{ type: 'response.output_text.delta', delta: text }, { type: 'response.completed', response: { status: 'completed', output: [{ type: 'message', role: 'assistant', content: [{ type: 'output_text', text, annotations: [cite(url, 'second source')] }] }], usage } }]);
+  const calls = [call('trend', { symbol: 'NVDA' }, 1), call('macro', { topic: 'macro' }, 2)];
+  const r = await scenario({ responses: [searched(calls, '검색 뒤 자료를 더 봅니다', 'https://example.com/guidance'), citedAnswer('검색과 자료로 답합니다', 'https://example.com/filing')], webSearch: true });
+  assert.equal(r.requests.length, 2, 'v60.02 a mixed round (one search, two function calls) is two requests');
+  assert.deepEqual(r.requests[0].tools.map((tool) => tool.type), ['web_search', ...loop.toolRequestFields().tools.map(() => 'function')], 'v60.02 hosted search travels beside the function tools');
+  assert.deepEqual(r.requests[1].tools.map((tool) => tool.type), r.requests[0].tools.map((tool) => tool.type), 'v60.02 the next round keeps the search beside the functions');
+  assert.equal(r.requests[0].tool_choice, 'auto'); assert.equal(r.requests[0].max_tool_calls, 2);
+  const input = r.requests[1].input;
+  assert.deepEqual(input.filter((item) => item.type === 'function_call').map((item) => item.call_id), ['call_1', 'call_2'], 'v60.02 the function calls go back in the next request');
+  assert.deepEqual(input.filter((item) => item.type === 'function_call_output').map((item) => item.call_id), ['call_1', 'call_2'], 'v60.02 the function outputs are sent in the next request');
+  assert(!input.some((item) => item.type === 'web_search_call'), 'v60.02 the provider-run search call is not sent back as input');
+  r.requests.forEach((body) => assert(prepareOpenAiBudget(body, searchOn).searchReserveMicroUsd > 0, 'v60.02 every mixed request passes the Worker admission'));
+  assert.equal(r.done[0][0], '검색과 자료로 답합니다');
+  // Text streamed before the round's first function call is shown until the next round replaces it (the loop hides a
+  // round's text from its first announced call on); the panel ends on the final answer.
+  assert.equal(r.chunks.at(-1), '검색과 자료로 답합니다', 'v60.02 the panel ends on the final round\'s answer');
+  assert.equal(r.done[0][1].toolRounds, 1); assert.equal(r.done[0][1].toolCalls, 2, 'v60.02 the call limit counts function calls only');
+  assert.equal(r.done[0][1].searchCalls, 1, 'v60.02 the completed responses\' web_search_call items are counted');
+  const citations = Array.from(r.context._aioAIRequestCitations('fixture-tools'), (item) => item.url);
+  assert.deepEqual(citations, ['https://example.com/guidance', 'https://example.com/filing'], 'v60.02 the citations of every round are kept for the sources list');
+  assert(/웹검색으로 보강해/.test(searchStatusText({ attached: true, citationCount: citations.length, searchCalls: r.done[0][1].searchCalls })), 'v60.02 the status says the answer searched and cited its sources');
+  const quiet = await scenario({ responses: [answer('앱 자료로 답합니다')], webSearch: true });
+  assert.equal(quiet.requests.length, 1); assert.equal(quiet.done[0][1].searchCalls, 0);
+  assert.equal(searchStatusText({ attached: true, citationCount: 0, searchCalls: quiet.done[0][1].searchCalls }), '웹검색 없이 앱 자료와 일반 지식으로 답했습니다.', 'v60.02 an answer that neither searched nor called says not searched');
+  const forced = await scenario({ responses: [asks([call('trend', { symbol: 'NVDA' }, 1)]), answer('강제 검색 뒤 답합니다')], webSearch: true, mustSearch: true });
+  assert.deepEqual(forced.requests.map((body) => body.tool_choice), ['required', 'auto'], 'v60.02 a forced search is required on the first request only');
+  const plain = await scenario({ responses: [answer('검색 없이 답합니다')], webSearch: false });
+  assert(plain.requests[0].tools.every((tool) => tool.type === 'function') && plain.done[0][1].searchCalls === null, 'v60.02 without search the functions still go and no search count is reported');
+  const refused = await scenario({ responses: [{ status: 400, message: 'hosted search cannot mix with custom functions' }, answer('검색만으로 답합니다')], webSearch: true });
+  assert.deepEqual(refused.requests[1].tools.map((tool) => tool.type), ['web_search'], 'v60.02 a Worker that refuses the mix gets the search-only request once');
+  assert.deepEqual(refused.keys, ['fixture-tools', 'fixture-tools:plain']);
 }
 if (process.env.AIO_TOOL_LOOP_SEQUENCE) console.log(JSON.stringify(sequence, null, 1));
-console.log('Tool loop OK: no-call, parallel round, round cap, call cap, refused-tools fallback, cancel during tools, search exclusion.');
+console.log('Tool loop OK: no-call, parallel round, round cap, call cap, refused-tools fallback, cancel during tools, search beside functions.');
 }],
 // ── section chat-resilience (was ci-chat-resilience-check.mjs) ──
 ['chat-resilience', async () => {
@@ -575,7 +616,7 @@ assert(unifiedChat.includes('_wrapUnifiedExternal') && unifiedChat.includes("_wr
   assert(/promptWithoutWebSearch \|\| String\)\(sysPrompt\)/.test(uniRetry), 'v57.54 a retry without search also tells the model it did not search (prompt line swapped)');
   assert(/modelOpts\.webSearch = true;/.test(unifiedChat) && /callSharedAi\(sysPrompt, state\.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object\.assign\(\{\}, modelOpts, \{ signal: _uniSignal, requestId: _uniRequestId \}\)\)/.test(unifiedChat), 'P1756 first attempts keep automatic web search (modelOpts carries it)');
   const stream = section('async function callSharedAi(', 'function _pushWebCite(');
-  assert(/\n\s*if \(_streamState\) \{[^\n]*\n\s*_streamState\.citations\.length = 0;/.test(stream), 'P1756 each attempt resets its citation collector');
+  assert(/\n\s*if \(_streamState(?: && !\(_tools && _tools\.rounds > 0\))?\) \{[^\n]*\n\s*_streamState\.citations\.length = 0;/.test(stream), 'P1756 each attempt resets its citation collector (v60.02: a tool round of the same attempt keeps them)');
   // v59.44 (owner 2026-10-30, "두 번째 질문부터 막힘"): the body stays under the Worker's 200 KiB UTF-8 limit with Korean
   // text — earlier answers shortened, reference blocks cut to a floor, then the oldest turns — and the follow-up keeps them.
   const trimAt = stream.indexOf('var _bodyBytes = function'), trimEnd = stream.indexOf("console.log('[AIO] callSharedAi", trimAt);
