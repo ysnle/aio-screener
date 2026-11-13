@@ -1,8 +1,0 @@
-{
-  "version": "v60.02",
-  "date": "2026-11-13",
-  "changelog": [
-    "**Lead (v60.02):** The shared Worker now admits hosted web search and the chat's data functions in one request instead of refusing the mix (owner 2026-11-13: \"웹 검색도 적절히 효율적으로 알아서 사용할 수 있도록\"). `prepareOpenAiBudget` admits one `web_search` tool plus at most 12 function definitions, keeps `max_tool_calls` at most 2 and reasoning low/medium beside search, and reserves with the existing searched formula: (1 + max_tool_calls) turns, each re-reading the prompt, every function definition at 4,096 tokens, two calls of search content and the output, plus two search fees. A function call ends the response (the client sends a new, separately reserved request), so it adds output but no turn; whatever the provider counts against `max_tool_calls`, at most two `web_search_call` items settle, and a receipt with more keeps the whole reservation. Gates: `worker/openai-contract.test.mjs` (mixed admitted; two search tools, 13 functions, three calls, an over-size body and disabled search refused; mixed reservation at least the search-only one plus the function tokens on every turn; mixed receipts settle at or below the reservation), `ci-ai-ledger-model-check` unchanged."
-  ],
-  "note": "v60.02: Worker admits search + functions (plan 049 A) with the reservation bound stated"
-}

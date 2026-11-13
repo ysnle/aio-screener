@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-12
+last_verified: 2026-11-13
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -38,6 +38,46 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 <!-- ledger-class-report:end -->
 
 ---
+
+## P2398 - v60.03 - v60.02 a universe review dated a day ahead of the reader's clock no longer empties the screener (2026-11-13)
+
+- symptom/reproduction: With lastBulkUpdate set to the review day, a clock behind that date (a fixed test clock at the previous evening, a reader in an earlier time zone or with a slow clock) saw every screener row unusable and '조건에 맞는 종목이 없습니다'; plan 048's executor had to back-date the review to make a browser gate pass.
+- root_cause: classifyFieldStatus returned STALE for any observation dated after `now`, including the identity fields whose date is the curated list's review day, and the provider's universe status required now >= the review date while the legacy flag did not.
+- fix: src/data/contracts/screener.js: the future-date rule does not apply to reference-cadence fields; src/data/providers/screener.js: the universe is STALE only when its age exceeds the window. lastBulkUpdate is the real review day (2026-11-13).
+- violated_rule: A review date is not a market observation; clock skew must not remove content (P1542 class).
+- prevention: ci-screener-extended-browser-check runs with a fixed clock one evening before the review date and renders rows; the workbench contract keeps the identity budget test.
+- verification/residual: ci-screener-extended-browser-check exit 0 with lastBulkUpdate 2026-11-13 (exit 1 before the fix); workbench, unit and lookahead gates exit 0.
+- files: src/data/contracts/screener.js, src/data/providers/screener.js, js/aio-data.js, public-data/screener-universe.json
+
+## P2397 - v60.02 - v60.02 BLS 빈 각주 객체 `[{}]` 때문에 모든 시계열이 'footnote-present'로 표시됨 (2026-11-13)
+
+- symptom/reproduction: public-data/data.json의 BLS 근거가 각주 없는 달도 observationStatus 'footnote-present'였다.
+- root_cause: scripts/lib/macro-sources.mjs blsMonthlyRows가 footnotes를 filter(Boolean)으로만 걸러, BLS가 각주 없는 행에 보내는 빈 객체 `{}`를 각주로 셌다.
+- fix: code나 text가 비어 있지 않은 각주만 남긴다. 각주가 없으면 observationStatus는 'final'.
+- violated_rule: 원천이 말하지 않은 상태를 만들어 내지 않는다(없는 값은 없음으로).
+- prevention: ci-data-pipeline-contract-check에 v60.02 검사: `[{}]`와 빈 code/text는 각주 없음, `{code:'P', text:'Preliminary'}`는 footnote-present. 이전 코드에서 실패함을 확인했다.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs: 이전 macro-sources.mjs로 exit 1(새 검사 실패), 수정 후 exit 0. observationStatus 'footnote-present'를 읽는 화면 코드는 src/js에 없다(js/aio-core.js의 observationStatus는 리서치 카드 관측치로 별개) — 화면 변화 없음, 다음 데이터 갱신부터 산출물 값만 'final'로 바뀐다.
+- files: scripts/lib/macro-sources.mjs, scripts/ci-data-pipeline-contract-check.mjs
+
+## P2396 - v60.02 - v60.02 종목 이름 등록부의 근거 없는 두 항목(352700.KQ 'HPSP', 413640.KQ 'Hyundai Mobis Test/NEXTIN') 삭제 (2026-11-13)
+
+- symptom/reproduction: AIO_TICKER_NAME_REGISTRY에서 352700.KQ와 403870.KQ가 같은 이름 HPSP를 가졌고, 413640.KQ는 영문 'Hyundai Mobis Test'와 한글 'NEXTIN'이라는 서로 다른 회사 이름을 가졌다. 'HPSP' 검색이 근거 없는 코드로 열릴 수 있었다.
+- root_cause: 등록부 확장 때 손으로 넣은 항목이 저장소의 어떤 데이터 파일(SCREENER_DB, public-data/screener-universe.json, public-data/kr-index-weights.json, js/aio-kr-data.js, 테마 지도, public-data/**)에도 없는 코드를 가리켰다. 등록부 이름을 데이터 출처와 대조하는 검사가 없었다.
+- fix: 두 코드를 저장소 데이터 전체에서 찾아 어느 데이터 파일도 이 코드를 종목으로 부르지 않음을 확인하고 두 항목을 지웠다. HPSP는 KOSDAQ 시가총액 목록과 유니버스가 부르는 403870.KQ 하나만 남는다.
+- violated_rule: 티커 추정 금지 — 등록부의 이름은 저장소 데이터가 뒷받침해야 한다.
+- prevention: 등록부 전체 이름 중복 검사는 아직 넣지 않았다: '_skip' 자리표시자 7개(PINS_dup, 058470_dup, 141080_dup, 293490.KQ_dup, 042660.KS_dup, BP_dup, NRG_dup)와 한글 이름 '에이비엘바이오'를 함께 쓰는 347860.KQ·298380.KQ(데이터에는 298380.KQ만 있다)가 남아 있어 검사가 통과하지 않는다. 정리 뒤에 검사를 넣는다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs, ci-codex-structure-regression-fixture.mjs, ci-structural-check.mjs, ci-esm-core-unit-check.mjs 모두 exit 0.
+- files: js/aio-core.js
+
+## P2395 - v60.02 - v60.02 a chat figure is supported only for the subject it was given for (2026-11-13)
+
+- symptom/reproduction: In a two-stock question the prompt held "NVDA … PER 28.4배" and "AMD … PER 41.2배"; the answer "AMD의 PER은 28.4배입니다" was published, because every figure of the injected material supported every sentence. "41.2배" in an answer also failed against "[EV/EBITDA] 41.2x" in the material.
+- root_cause: src/ai/response/publication.js read the reference text as one flat list of figures with no subject. The per-ticker blocks reach the reference text quarantined (buildAIUntrustedBlock writes each payload on one JSON-quoted line) and the ticker block has no blank line between tickers, so subject could not be read from blank-line blocks either. The written-figure pattern did not read an x glued to digits as a multiple.
+- fix: supportedNumbersFromText(text, { entities }) tags each figure with its subject: quarantined payloads are decoded and bound to their own payload, a section opened by a line starting with a ━ run (or, outside one, by a top-level bullet naming one subject) belongs to the one subject its first lines name, other text goes by blank-line block and then by line, and anything naming no or several subjects stays subject-free. figuresSupported limits a sentence (or each clause of a sentence naming several) that names one subject to that subject's and the subject-free figures. Typed evidence rows carry their ticker when it is a question subject. The unified chat passes its resolved tickers as meta.entities; the request pipeline hands them to publication with the ticker registry entries, and answerEntities gives each ticker its en, kr and alt names (leaving out a name that is another ticker). 41.2x reads as a multiple. Without entities the v60.01 rule is unchanged.
+- violated_rule: No invented numbers: a real number attached to the wrong subject is an invented claim.
+- prevention: ci-ai-intelligence-contract-check v60.02 block: unit sentences kept/removed with and without entities, the x multiple, typed rows, the injected two-ticker shapes wrapped through the real buildAIUntrustedBlock (every figure of each ticker block tagged to it, counts asserted), plan and fallback paths, registry names for bare tickers; pipeline-semantics v60.02 case proves meta.entities and the registry names reach publication.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs and node scripts/ci-pipeline-semantics-check.mjs pass; both fail on the base sources (13 and 1 failures).
+- files: src/ai/response/publication.js, src/ai/response/request-pipeline.js, js/aio-chat.js, scripts/ci-ai-intelligence-contract-check.mjs, scripts/fixtures/answer-subject-blocks.mjs, scripts/fixtures/pipeline-semantics/ai.mjs
 
 ## P2394 - v60.01 - v60.01 a figure from the data the chat model was given stays in the sentence that uses it (2026-11-12)
 

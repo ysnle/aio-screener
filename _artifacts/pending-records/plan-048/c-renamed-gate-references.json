@@ -1,8 +1,0 @@
-{
-  "version": "v60.02",
-  "date": "2026-11-13",
-  "changelog": [
-    "**지난 이름 정리 (v60.02):** RULES·QA-CHECKLIST의 게이트 참조와 verify_by가 v59.97에 이름이 바뀐 ci-worker-anthropic-check를 가리키던 곳을 ci-worker-openai-contract-check로 고쳤다(날짜가 박힌 핸드오프와 BUG-POSTMORTEM 이력은 그대로). worker/README.md는 월 $20을 '상한'이 아니라 AI_MONTHLY_BUDGET_MODE=\"target\"대로 경고만 하고 거절하지 않는 목표로 적는다."
-  ],
-  "note": "v60.02: stale gate name in RULES/QA-CHECKLIST; worker README budget wording"
-}

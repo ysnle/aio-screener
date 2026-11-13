@@ -1,8 +1,0 @@
-{
-  "version": "v60.02",
-  "date": "2026-11-13",
-  "changelog": [
-    "**AI 패널 대기 줄 (v60.02):** 소유자 2026-11-13 \"웹 검색, 도구 호출, 데이터 분석 … 시간이 좀 걸릴 수 있잖아? … 사용자에게 안내를 하고 있어?\" — 답변을 기다리는 동안 30~120초 그대로 서 있던 '분석 중...' 말풍선이 한 줄의 상태 줄(role=status)이 됐다. 질문에 맞는 자료를 고르는 중 → 웹에서 찾는 중(검색이 필수인 요청만) / 생각하는 중 → 자료를 더 찾는 중: 도구 이름 → 답변을 쓰는 중 (N자) → 숫자와 근거를 확인하는 중 순서로 실제 스트림 이벤트(callSharedAi의 요청 전송·스트림 수신·스트림 끝 훅, 도구 루프의 onStatus)를 따르고, 5초부터 경과 시간, 25초부터 '1~2분 걸릴 수 있습니다' 안내, 청크 제한 시간의 60%까지 아무 이벤트가 없으면 '응답이 늦어지고 있습니다'를 붙인다. 스트리밍 중에는 답변 글자 수만 쓰고 원문은 필터를 거친 뒤에만 보인다(src/ai/session/run-progress.js, src/ui/components/chat-run-status.js)."
-  ],
-  "note": "v60.02: chat waiting line follows the stream stages; streamed text stays hidden, only its length is shown"
-}

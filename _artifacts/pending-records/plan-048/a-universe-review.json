@@ -1,8 +1,0 @@
-{
-  "version": "v60.02",
-  "date": "2026-11-13",
-  "changelog": [
-    "**유니버스 정기 검토 (v60.02):** 저장소에 이미 있는 거래소 상장 목록(public-data/us-listings.json, 기준일 2026-11-12)과 IVV 보유 종목(public-data/sp500-weights.json, 기준일 2026-11-11)으로 정적 유니버스를 대조하는 읽기 전용 스크립트 scripts/universe-review-evidence.mjs를 더했다. 미국 914행·한국 239행 대조 결과 두 파일 모두에서 빠진 KVUE(11/02 상장 목록·11/05 IVV에서 사라짐)와 ROKU(11/09부터 4회 연속 상장 목록에 없음, S&P 500 비편입)를 지웠고, IVV에 11/05부터 들어온 OKTA의 지수 표기를 SP400에서 SP500으로 고쳤다. 추가 후보 0, 장외 ADR인 FANUY는 상장 목록 범위 밖이라 근거가 되지 않아 남겼다. 유니버스 1,159 → 1,157행, lastBulkUpdate는 근거 파일 기준일인 2026-11-12. 스크리너 기준선 검사(SCR-OS-00)는 산출물이 실제로 만들어진 유니버스(universeLineage.recordCount)와 비교한다."
-  ],
-  "note": "v60.02: universe review — report _artifacts/universe-review-20261113/report.json (before: usRows 916, krRows 239, absentFromListings 3, removalCandidates 3 [ROKU, KVUE, FANUY], additionCandidates 0, sp500LabelNotInWeights 1 [KVUE], inWeightsLabelledOther 1 [OKTA], KR absent from kr-index-weights 189 info only); sources us-listings asOf 2026-11-12, sp500-weights asOf 2026-11-11, kr-index-weights KOSPI/KOSDAQ asOf 2026-11-12; applied 2 removals + 1 relabel; after: report-after.json"
-}
