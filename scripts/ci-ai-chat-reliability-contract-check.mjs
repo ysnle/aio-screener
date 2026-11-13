@@ -366,7 +366,8 @@ let sequence = null;
 }
 // (6) Cancel while the tools run: no further request, the cancel is reported once.
 {
-  const hanging = { ...loop.chatToolKit(toolRoot), runCalls: (calls, options) => loop.runToolCalls(calls, { ...options, root: toolRoot, limits: { ...loop.TOOL_LOOP_LIMITS, callTimeoutMs: 50 }, run: () => new Promise(() => {}) }) };
+  const hangingRun = (calls, options) => loop.runToolCalls(calls, { ...options, root: toolRoot, limits: { ...loop.TOOL_LOOP_LIMITS, callTimeoutMs: 50 }, run: () => new Promise(() => {}) });
+  const hanging = { ...loop.chatToolKit(toolRoot), session: (body, hooks, options) => loop.createToolSession(body, hooks, { ...options, root: toolRoot, run: hangingRun }) };
   const r = await scenario({ responses: [asks([call('trend', { symbol: 'NVDA' }, 1)])], kit: hanging, cancelDuringTools: true });
   assert.equal(r.requests.length, 1, 'v60.02 a cancelled tool round sends no further request');
   assert.equal(r.cancelled, 1); assert.equal(r.done.length, 0); assert.equal(r.errors.length, 0);

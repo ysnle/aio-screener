@@ -82,17 +82,66 @@ export async function runToolCalls(calls, { root = globalThis, now = Date.now(),
   };
 }
 
+/**
+ * The tool loop of one chat request, driven by callSharedAi (js/aio-chat.js). `body` is the next request's body: the
+ * plain body with the tools attached, each round's follow-up, or the plain body again after the one fallback.
+ * `observe(evt)` reads each stream event of a round (`beginRound()` resets it); `hidingText()` is true once the round
+ * announced a call, so its text is not shown. `advance(stopReason)` resolves true when another request is needed — the
+ * round's calls ran (hooks.onStatus before, hooks.onResults after) or a malformed call took the fallback — and false when
+ * the answer is final. `refused(status)` takes the fallback for a refused tools request. Rejects with an AbortError when
+ * `signal` aborts while the calls run.
+ */
+export function createToolSession(plainBody, hooks = {}, { root = globalThis, signal = null, fit = null, limits = TOOL_LOOP_LIMITS,
+  run = (calls, options) => runToolCalls(calls, { ...options, root, limits }) } = {}) {
+  let body = { ...plainBody, ...toolRequestFields({ final: false }) };
+  let rounds = 0, used = 0, fellBack = false, completed = null, streamed = [], hiding = false;
+  const fallback = () => { if (fellBack) return false; fellBack = true; body = plainBody; return true; };
+  const hook = (name, value) => { try { if (typeof hooks?.[name] === 'function') hooks[name](value); } catch (_) { /* a closed panel */ } };
+  return {
+    get body() { return body; },
+    get rounds() { return rounds; },
+    get calls() { return used; },
+    keySuffix: () => (fellBack ? ':plain' : rounds ? `:r${rounds}` : ''),
+    refused: (status) => status === 400 && fallback(),
+    beginRound() { completed = null; streamed = []; hiding = false; },
+    observe(evt) {
+      if ((evt?.type === 'response.output_item.added' || evt?.type === 'response.output_item.done') && evt.item?.type === 'function_call') {
+        hiding = true;
+        if (evt.type === 'response.output_item.done') streamed.push(evt.item);
+      } else if (evt?.type === 'response.completed') completed = evt.response || null;
+    },
+    hidingText: () => hiding,
+    async advance(stopReason) {
+      if (fellBack || stopReason !== 'end_turn' || body.tool_choice === 'none') return false;
+      const asked = functionCallsOf(completed, streamed);
+      if (!asked.length) return false;
+      if (!asked.every(isWellFormedCall)) return fallback();
+      hook('onStatus', toolStatusLine(asked, root));
+      const ran = await run(asked, { used, signal });
+      if (signal?.aborted) throw signal.reason || abortError();
+      used = ran.used;
+      rounds += 1;
+      hook('onResults', ran.results);
+      const input = appendToolItems(body.input, asked, ran.outputs);
+      body = { ...body, ...(typeof fit === 'function' ? { instructions: fit(input) } : {}), input, ...toolRequestFields({ final: rounds >= limits.rounds || used >= limits.calls }) };
+      return true;
+    }
+  };
+}
+
+/** The reference text with the successful tool texts ahead of it (so the reference figure limit never drops them). */
+export function withToolReference(results, referenceText = '') {
+  const found = (Array.isArray(results) ? results : []).filter((result) => result?.ok && result.text).map((result) => result.text);
+  return found.length ? `${found.join('\n\n')}\n\n${referenceText || ''}` : referenceText || '';
+}
+
 /** The chat-facing kit (window.AIO.chatTools) bound to the page root. */
 export function chatToolKit(root = globalThis) {
   return Object.freeze({
     limits: TOOL_LOOP_LIMITS,
     offer: (turn) => offerTools(turn),
     promptBlock: () => toolsPromptBlock(),
-    requestFields: (options) => toolRequestFields(options),
-    functionCalls: (response, streamed) => functionCallsOf(response, streamed),
-    wellFormed: (call) => isWellFormedCall(call),
-    appendItems: (input, calls, outputs) => appendToolItems(input, calls, outputs),
-    statusLine: (calls) => toolStatusLine(calls, root),
-    runCalls: (calls, options = {}) => runToolCalls(calls, { ...options, root })
+    reference: (results, referenceText) => withToolReference(results, referenceText),
+    session: (plainBody, hooks, options = {}) => createToolSession(plainBody, hooks, { ...options, root })
   });
 }
