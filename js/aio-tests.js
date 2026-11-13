@@ -2924,7 +2924,7 @@
       'fallback=' + (chatSendSrc.indexOf("typeof _aioSafeMD === 'function'") >= 0));
     // T625 (v57.62): a missing streaming bubble does not drop the answer — the final text is appended as a new bubble
     _assert('T625 v57.62 unified_missing_bubble_fallback: chatSendUnified onDone appends the answer when no streaming bubble exists',
-      chatSendSrc.indexOf("} else if (!aiBubble) { _appendAIMsg('ai', _uniSafeRender(visible)); }") >= 0,
+      chatSendSrc.indexOf("} else if (!aiBubble) { aiBubble = _appendAIMsg('ai', _uniSafeRender(visible)); }") >= 0,
       'fallback=' + (chatSendSrc.indexOf("else if (!aiBubble)") >= 0));
     // T626 (v57.62): a second send while a request owns the lifecycle is refused (v59.51: a dispatched turn owns its run)
     _assert('T626 v57.62 unified_duplicate_request_lock: chatSendUnified refuses a send while _activeRequest/streaming is held',

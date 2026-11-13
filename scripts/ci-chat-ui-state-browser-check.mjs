@@ -96,5 +96,71 @@ try {
   }), ['보존 질문']);
   // v59.42: the unreachable 대화 기록 overlay (openChatHistory) is deleted, so its dialog focus checks went with it.
   assert.equal(await page.evaluate(() => typeof window.openChatHistory), 'undefined', 'v59.42 the retired chat history overlay stays absent');
-  console.log('Chat UI state Chromium fixture PASS: keyboard stop, cancelled turn isolation, route cancellation, stale epoch, completion cleanup, malformed/expired history isolation, retired history overlay absent (v59.42). Offline isolated DOM evidence.');
+  // v60.02 (plan 050): the waiting line. The page is served from a fixture origin so the chat-loaded ESM modules import
+  // as they do in the app; the request lifecycle is the real slice above; the clock is injected (no wall-clock date).
+  const waiting = await browser.newPage();
+  const repo = new URL('../', import.meta.url);
+  await waiting.route('**/*', (route) => {
+    const url = new URL(route.request().url());
+    if (url.origin !== 'http://aio.fixture') return route.abort();
+    if (url.pathname === '/') return route.fulfill({ contentType: 'text/html', body: '<!doctype html><meta charset="utf-8"><div id="ai-panel"><div id="ai-panel-msgs"></div><div id="ai-panel-chips" class="ai-chips"></div><div class="ai-input-row"><input id="ai-panel-inp"><button id="ai-panel-btn">전송</button></div></div>' });
+    if (!url.pathname.startsWith('/src/')) return route.abort();
+    return route.fulfill({ contentType: 'text/javascript', body: readFileSync(new URL('.' + url.pathname, repo), 'utf8') });
+  });
+  await waiting.goto('http://aio.fixture/');
+  await waiting.addScriptTag({ type: 'module', content: readFileSync(new URL('../src/data/providers/shared-ai-transport.js', import.meta.url), 'utf8') + '\ninstallSharedRoute(window);' });
+  await waiting.addScriptTag({ content: section('const chatState = {};', '// ── Text processing helpers') });
+  await waiting.evaluate(async () => {
+    window.clock = { t: 5_000_000 };
+    const { createChatRunKit } = await import('/src/ui/components/chat-run-status.js');
+    window.kit = createChatRunKit(window, document, { now: () => window.clock.t });
+    // The panel's loading bubble as js/aio-chat.js _appendAIMsg builds it.
+    window.loadingBubble = () => {
+      const msg = document.createElement('div'); msg.className = 'ai-msg ai'; msg.id = 'ai-panel-loading';
+      msg.innerHTML = '<div class="ai-msg-content"><div class="ai-bubble"><span class="lch-muted">분석 중...</span></div></div>';
+      document.getElementById('ai-panel-msgs').append(msg);
+      return msg.querySelector('.ai-bubble');
+    };
+    window.startRun = (question) => {
+      const run = _aioBeginChatRequest('home', question, { entrypoint: 'unified-chat', buttonId: 'ai-panel-btn', idleLabel: '전송', loadingId: 'ai-panel-loading', stopButtonId: 'ai-panel-stop', appendCancelNotice: () => {} });
+      run.status = kit.begin({ node: loadingBubble(), ctx: 'home', question });
+      return run;
+    };
+    window.statusNodes = () => [...document.querySelectorAll('#ai-panel-msgs [role="status"]')];
+  });
+  const line = await waiting.evaluate(() => {
+    window.run = startRun('엔비디아는 지금 어때?');
+    window.firstNode = statusNodes()[0];
+    const first = firstNode.textContent;
+    run.status.hook('sent', { body: { reasoning: { effort: 'medium' } }, quietMs: 90_000 });
+    const thinking = firstNode.textContent;
+    run.status.chars(240);
+    clock.t += 12_000;
+    return { first, thinking, writing: firstNode.textContent, nodes: statusNodes().length, live: firstNode.getAttribute('aria-live'), stop: !!document.getElementById('ai-panel-stop') };
+  });
+  assert.deepEqual(line, { first: '질문에 맞는 자료를 고르는 중', thinking: '생각하는 중', writing: '답변을 쓰는 중 (240자)', nodes: 1, live: 'polite', stop: true }, 'v60.02 the loading bubble is one polite status line, updated in place, with the stop control beside it');
+  await waiting.waitForFunction(() => firstNode.textContent.includes('· 12초'), null, { timeout: 3000 });
+  assert.deepEqual(await waiting.evaluate(() => ({ same: statusNodes()[0] === firstNode, nodes: statusNodes().length, counterHidden: firstNode.querySelector('span[aria-hidden="true"]')?.textContent })),
+    { same: true, nodes: 1, counterHidden: ' (240자) · 12초' }, 'v60.02 the 1 s timer updates the same node; the counters are hidden from screen readers');
+  // The answer is published: the panel removes the loading bubble and releases the run (as _uniOnDone does).
+  assert.deepEqual(await waiting.evaluate(async () => {
+    const settled = run.status.hook('ended');
+    const checking = firstNode.textContent;
+    await settled;
+    document.getElementById('ai-panel-loading').remove();
+    _aioReleaseChatRequest(run);
+    return { checking, nodes: statusNodes().length, running: run.status.running };
+  }), { checking: '숫자와 근거를 확인하는 중 · 12초', nodes: 0, running: false }, 'v60.02 stream end reads checking; the status line is gone after the answer and its timer stops');
+  // Stop: the cancel removes the line and clears its timer — no update after the cancel.
+  assert.deepEqual(await waiting.evaluate(async () => {
+    const stopped = startRun('중단할 질문');
+    const node = statusNodes()[0];
+    _aioCancelChatRequest('home', 'user-cancelled');
+    const before = node.textContent;
+    clock.t += 30_000;
+    await new Promise((resolve) => setTimeout(resolve, 1300));
+    return { nodes: statusNodes().length, unchanged: node.textContent === before, running: stopped.status.running };
+  }), { nodes: 0, unchanged: true, running: false }, 'v60.02 a stopped run leaves no status line and no running timer');
+  await waiting.close();
+  console.log('Chat UI state Chromium fixture PASS: keyboard stop, cancelled turn isolation, route cancellation, stale epoch, completion cleanup, malformed/expired history isolation, retired history overlay absent (v59.42), waiting line in place and stopped with its run (v60.02). Offline isolated DOM evidence.');
 } finally { await browser.close(); }

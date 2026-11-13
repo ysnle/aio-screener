@@ -1214,7 +1214,7 @@ check('PERF-BOOT-06: shell FCP is presented before synthetic route timing and al
 
 // v52.75 (WP-AI0): public AI beta safety boundary + unverified auto-analysis block.
 check('WP-AI0: one shared public AI policy exposes beta/research wording, action gate, and Evidence/as-of disclosure helpers', /_AIO_PUBLIC_AI_POLICY/.test(chat) && /_aioPublicAIActionPolicyPrompt/.test(chat) && /_aioApplyAIActionGate/.test(chat) && /_aioBuildAIResponseDisclosure/.test(chat) && /_aioAppendAIPublicDisclosure/.test(chat));
-check('v57.62 WP-AI0: the unified chat path gates streaming/final output and persists gated text only', /_uniChunkResult\.text/.test(chat) && /_publicGate = _uniDoneResult\.actionGate/.test(chat) &&/state\.messages\.push\(\{ role: 'assistant', content: visible \}\)/.test(chat) && /extractChips\(visible\)/.test(chat));
+check('v57.62 WP-AI0: the unified chat path gates final output and persists gated text only (v60.02: streaming shows no answer text, see ci-ai-intelligence-contract-check)', /_publicGate = _uniDoneResult\.actionGate/.test(chat) &&/state\.messages\.push\(\{ role: 'assistant', content: visible \}\)/.test(chat) && /extractChips\(visible\)/.test(chat));
 check('R460/P905: public surfaces identify read-only conditional analysis scope and current-data recheck', /id="ai-panel-policy"/.test(html) && /AI 도우미, 읽기 전용 리서치/.test(html) && /투자·법률·세무 조건부 분석/.test(html) && /불법 실행 절차·주문 실행·확정적 보장/.test(html) && /data-ai-public-policy="beta-research"/.test(html)); // v59.42: the chat-injected header tag is deleted; the panel line carries the policy attribute
 let wpAi0SemanticGate = false;
 {

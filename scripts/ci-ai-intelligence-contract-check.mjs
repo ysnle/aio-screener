@@ -528,7 +528,18 @@ check('research-optout-degrades-current-claims-without-ending-chat', /_uniResear
 check('chat-dispatches-through-orchestrator', /AIO_ARCH\.getAIOrchestrator/.test(chat) && /_aioOrchestrated/.test(chat));
 check('orchestrator-downgrades-action-permission-to-a-disclosure', /actionPermission\.allowed === false/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && /actionLimitations/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && !/blocked-action-permission/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
 check('v57.62 chat-surface-has-pre-provider-action-boundary', /_uniPreProviderPermission/.test(chat) && !/_aioPreProviderPermission/.test(chat)); // v57.62: per-page copy retired
-check('v57.62 chat-surface-hides-unverified-research-streams', /Web Research 근거를 검증 중/.test(chat));
+// v60.02: the unified panel's stream callback, run as written: a streamed answer (here with research text and a figure)
+// reaches the waiting line only as its length; nothing of its text is written to the page before the filters run.
+{
+  const panelScript = read('js/aio-chat.js');
+  const at = panelScript.indexOf('var _uniOnChunk = function(fullText) {'), to = panelScript.indexOf('\n  };', at);
+  const seen = [], writes = [];
+  const sandbox = { _uniStatus: { chars: (n) => seen.push(n) }, _isCurrentUnifiedRun: () => true, document: new Proxy({}, { get: (_, key) => { writes.push(key); return () => null; } }), String };
+  let thrown = '';
+  try { vm.runInNewContext(`${panelScript.slice(at, to)}\n  };\n_uniOnChunk('[AI_ANSWER_PLAN]{"summary":"NVDA 999달러, 원인은 검색 결과"');`, sandbox); } catch (error) { thrown = error.message; }
+  check(`v60.02 chat-surface-hides-unverified-research-streams: a streamed answer reaches the page only as its length (${JSON.stringify(seen)}, writes ${writes.length}${thrown ? `, ${thrown}` : ''})`,
+    !thrown && seen.length === 1 && seen[0] === '[AI_ANSWER_PLAN]{"summary":"NVDA 999달러, 원인은 검색 결과"'.length && writes.length === 0);
+}
 // 2026-10-17: the maker-checker verdict (its only RESEARCH_CANDIDATE producer) had no caller and is retired; the screener
 // prompt moved to src/ai/context/screener-query.js with the producer-time rule.
 const screenerQuery = read('src/ai/context/screener-query.js');
@@ -1692,6 +1703,48 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const toolSummary = log.summariseAnswerQuality(store, { now: nowMs });
   check('v60.02 the answer-quality log keeps tool rounds and calls as counts', kept && JSON.parse(box.get(log.ANSWER_QUALITY_KEY))[0].toolRounds === 2 && toolSummary.toolCalls === 5 && toolSummary.toolAnswers === 1);
   check(`v60.02 a question with hosted search attached gets no tools (${searchedAsk.webSearch}/${searchedAsk.toolChoice})`, searchedAsk.webSearch === true && searchedAsk.tools === false && !searchedAsk.prompt.includes('【추가 자료 요청 (도구)】'));
+}
+
+// v60.02 (plan 050): the waiting line of a running answer (src/ai/session/run-progress.js) on an injected clock.
+{
+  const rp = await import('../src/ai/session/run-progress.js');
+  let t = 1_000_000;
+  const p = rp.createRunProgress({ now: () => t });
+  check(`v60.02 a run starts at preparing with no counters (${p.snapshot().label})`, p.snapshot().label === '질문에 맞는 자료를 고르는 중' && p.snapshot().elapsedSec === 0);
+  t += 4900;
+  check('v60.02 no elapsed time before 5 s', p.snapshot().label === '질문에 맞는 자료를 고르는 중');
+  t += 7100;
+  check(`v60.02 elapsed time joins the line after 5 s (${p.snapshot().label})`, p.snapshot().label === '질문에 맞는 자료를 고르는 중 · 12초' && p.snapshot().slow === false && p.snapshot().note === '');
+  check('v60.02 a medium-effort request is thinking, a required search is searching, an optional search with no reasoning keeps the stage',
+    rp.stageForRequest({ reasoning: { effort: 'medium' } }) === 'thinking' && rp.stageForRequest({ reasoning: { effort: 'low' }, tools: [{ type: 'web_search' }], tool_choice: 'required' }) === 'searching'
+    && rp.stageForRequest({ reasoning: { effort: 'low' }, tools: [{ type: 'web_search' }], tool_choice: 'auto' }) === 'thinking' && rp.stageForRequest({ reasoning: { effort: 'none' } }) === null);
+  p.stage('tools', '자료를 더 찾는 중: NVDA 주가 추이, VIX');
+  check(`v60.02 the tools stage shows the tool loop's labels (${p.snapshot().base})`, p.snapshot().base === '자료를 더 찾는 중: NVDA 주가 추이, VIX');
+  p.stage('tools', 'NVDA 재무');
+  check('v60.02 a bare tools detail gets the stage words', p.snapshot().base === '자료를 더 찾는 중: NVDA 재무');
+  p.chars(1234);
+  check(`v60.02 streamed characters move the run to writing with the count (${p.snapshot().label})`, p.snapshot().stage === 'writing' && p.snapshot().label === '답변을 쓰는 중 (1,234자) · 12초');
+  p.chars(1300); t += 200;
+  check('v60.02 the count changes at most twice a second', p.snapshot().label.startsWith('답변을 쓰는 중 (1,234자)'));
+  t += 300;
+  check('v60.02 the count catches up after 500 ms', p.snapshot().label.startsWith('답변을 쓰는 중 (1,300자)'));
+  t += 13_000;
+  const slow = p.snapshot();
+  check(`v60.02 at 25 s the line adds the 1~2분 note once (${slow.elapsedSec}s, ${slow.note})`, slow.slow === true && slow.note === rp.RUN_SLOW_NOTE && slow.label === '답변을 쓰는 중 (1,300자) · 25초');
+  t += 40_000;
+  check(`v60.02 elapsed past a minute reads in minutes (${p.snapshot().label})`, p.snapshot().label.endsWith('· 1분 5초'));
+  const q = rp.createRunProgress({ now: () => t });
+  const hook = rp.progressHook(q, { settle: () => 'painted' });
+  hook('sent', { body: { reasoning: { effort: 'medium' } }, quietMs: 90_000 });
+  t += 53_999;
+  check('v60.02 no stall note before 60 % of the chunk timeout', q.snapshot().stalled === false);
+  t += 1;
+  check(`v60.02 the stall note shows at 60 % of the chunk timeout without an event (${q.snapshot().note})`, q.snapshot().stalled === true && q.snapshot().note === rp.RUN_STALL_NOTE);
+  hook('event');
+  check('v60.02 a stream event clears the stall note', q.snapshot().stalled === false && q.snapshot().note === rp.RUN_SLOW_NOTE);
+  check('v60.02 stream end is checking and returns what settle returns', hook('ended') === 'painted' && q.snapshot().base === '숫자와 근거를 확인하는 중');
+  check(`v60.02 the stages passed are listed once each (${q.stages().join('>')})`, q.stages().join('>') === 'preparing>thinking>checking');
+  check('v60.02 an unknown stage name is ignored', q.stage('streaming').snapshot().stage === 'checking');
 }
 
 if (failures.length) {
