@@ -235,6 +235,152 @@ for (const serverKey of [true]) {
 }
 console.log('AI provider stream check OK: ' + assertions + ' isolated Responses Worker transport scenarios.');
 }],
+// ── section tool-loop (v60.02, plan 045): the data-tool rounds of callSharedAi against a scripted Worker stream ──
+['tool-loop', async () => {
+const { readFileSync } = await import('node:fs');
+const { default: vm } = await import('node:vm');
+const { default: assert } = await import('node:assert/strict');
+const loop = await import('../src/ai/tools/loop.js');
+const { AI_WORKER_CONTRACT } = await import('../src/domain/ai/worker-contract.js');
+const { prepareOpenAiBudget } = await import('../worker/openai-budget.mjs');
+const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
+const start = source.indexOf('async function callSharedAi('), end = source.indexOf('// ── 스크리너 질의', start);
+const storeStart = source.indexOf('var _AIO_AI_REQUEST_STREAM_LIMIT'), storeEnd = source.indexOf('// P897: the ESM evidence module', storeStart);
+assert(start >= 0 && end > start && storeStart >= 0 && storeEnd > storeStart);
+const encode = (value) => new TextEncoder().encode(value);
+const sse = (events) => events.map((value) => 'data: ' + JSON.stringify(value) + '\n\n').join('');
+const usage = { input_tokens: 10, output_tokens: 5 };
+const answer = (text) => sse([{ type: 'response.output_text.delta', delta: text }, { type: 'response.completed', response: { status: 'completed', output: [{ type: 'message', role: 'assistant', content: [{ type: 'output_text', text }] }], usage } }]);
+// Each call is announced, a hidden text delta follows (a round that asks for data shows none of its text), then the call is done.
+const asks = (calls) => sse([...calls.flatMap((call) => [{ type: 'response.output_item.added', item: { ...call, arguments: '', status: 'in_progress' } }, { type: 'response.output_text.delta', delta: '숨김' }, { type: 'response.output_item.done', item: call }]),
+  { type: 'response.completed', response: { status: 'completed', output: calls, usage } }]);
+const call = (name, args, id) => ({ type: 'function_call', id: `fc_${id}`, call_id: `call_${id}`, name, arguments: JSON.stringify(args), status: 'completed' });
+const DAY = 86400000, nowMs = Date.now();
+const session = new Date(nowMs - DAY).toISOString().slice(0, 10);
+const toolRoot = {
+  _aioNormalizeTickerInput: (raw) => String(raw || '').trim().toUpperCase(), _aioIsKnownTicker: (symbol) => symbol === 'NVDA',
+  _aioGetCanonicalScreenerRows: () => [{ sym: 'NVDA', name: 'NVIDIA', ret5d: -3.2, ret1m: -6.5, ret3m: 4.1, rsi: 28, pctFrom52wHigh: -12, pctFrom52wLow: 60, factorSessionDate: session }],
+  _aioScreenBasisEvidence: () => [{ metric: 'close.vix', value: 17.2, unit: 'index', asOf: session, source: 'close-basis', evidenceId: 'ev-vix' }]
+};
+async function scenario({ responses, tools = true, kit = loop.chatToolKit(toolRoot), webSearch = false, cancelDuringTools = false }) {
+  const deadlines = new Map();
+  const caller = new AbortController();
+  const out = { requests: [], keys: [], chunks: [], done: [], errors: [], cancelled: 0, status: [], results: [] };
+  const context = {
+    console: { log() {}, warn() {} }, AbortController, TextDecoder, TextEncoder, performance,
+    setTimeout(callback, delay) { const id = {}; deadlines.set(id, { callback, delay }); return id; },
+    clearTimeout(id) { deadlines.delete(id); },
+    getApiKey: () => 'fixture-only', getModelConfig: () => ({ id: 'gpt-6-luna', label: 'fixture', reasoningEffort: 'low' }),
+    _aioEnsureClaudeRoute: async () => ({ ok: true, target: { url: 'https://fixture.invalid', serverKey: true } }),
+    _aioThrowIfChatAborted(signal) { if (signal?.aborted) throw signal.reason; },
+    _aioLinkChatAbortSignal(signal, controller) { const cancel = () => controller.abort(); signal.addEventListener('abort', cancel); return () => signal.removeEventListener('abort', cancel); },
+    _aioChatError: (error) => ({ displayMessage: error.message }), _aioAppToken: () => '',
+    _aioFetchClaudeWithRetry: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      out.requests.push(body); out.keys.push(options.headers['X-AIO-Idempotency-Key']);
+      const next = responses[out.requests.length - 1];
+      assert(next, `unexpected request ${out.requests.length}`);
+      if (next.status) return { ok: false, status: next.status, text: async () => JSON.stringify({ error: { message: next.message } }) };
+      return new Response(new ReadableStream({ start(controller) { controller.enqueue(encode(next.slice(0, 23))); controller.enqueue(encode(next.slice(23))); controller.close(); } }));
+    }
+  };
+  context.window = context;
+  context.AIO = { aiWorkerContract: AI_WORKER_CONTRACT, chatTools: kit };
+  if (webSearch) context.AIO.attachNativeSearch = (body, { enabled }) => (enabled ? { ...body, tools: [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default' }], tool_choice: 'auto', max_tool_calls: 2 } : body);
+  vm.createContext(context);
+  vm.runInContext(source.slice(storeStart, storeEnd) + '\n' + source.slice(start, end), context);
+  const toolOpts = { onStatus: (line) => { out.status.push(line); if (cancelDuringTools) caller.abort(); }, onResults: (results) => out.results.push(...results) };
+  await context.callSharedAi('fixture instructions', [{ role: 'user', content: '엔비디아는 지금 어때?' }], (text) => out.chunks.push(text),
+    (...args) => out.done.push(args), (error) => out.errors.push(error),
+    { signal: caller.signal, requestId: 'fixture-tools', webSearch, tools: tools ? toolOpts : undefined, onCancel() { out.cancelled++; } });
+  assert.equal(deadlines.size, 0, 'tool loop scenario must clean its connection timers');
+  return out;
+}
+const budgetOf = (body) => prepareOpenAiBudget(body);
+// (1) No tool call: one request, the answer as today, tools offered with tool_choice auto.
+{
+  const r = await scenario({ responses: [answer('바로 답합니다')] });
+  assert.equal(r.requests.length, 1, 'v60.02 a response without tool calls is one request');
+  assert.equal(r.done.length, 1); assert.equal(r.done[0][0], '바로 답합니다');
+  assert.equal(r.requests[0].tool_choice, 'auto'); assert.equal(r.requests[0].parallel_tool_calls, true);
+  assert.deepEqual(r.requests[0].tools.map((tool) => tool.name), loop.toolRequestFields().tools.map((tool) => tool.name));
+  assert.equal(r.done[0][1].toolRounds, 0); assert.equal(r.done[0][1].toolCalls, 0);
+  assert.equal(r.keys[0], 'fixture-tools'); budgetOf(r.requests[0]);
+  const plain = await scenario({ responses: [answer('도구 없음')], tools: false });
+  assert(!plain.requests[0].tools && !('tool_choice' in plain.requests[0]), 'v60.02 a caller that does not ask for tools sends none');
+  assert.equal(plain.done[0][1].toolRounds, null);
+}
+// (2) One round with two parallel calls: the second request carries both outputs; the answer is the second response's.
+let sequence = null;
+{
+  const calls = [call('trend', { symbol: 'NVDA' }, 1), call('macro', { topic: 'macro' }, 2)];
+  const r = await scenario({ responses: [asks(calls), answer('추세와 VIX를 함께 봅니다')] });
+  sequence = r.requests;
+  assert.equal(r.requests.length, 2, 'v60.02 one tool round is two requests');
+  const input = r.requests[1].input;
+  assert.deepEqual(input.slice(0, 3).map((item) => item.type || item.role), ['user', 'function_call', 'function_call']);
+  assert.deepEqual(input.slice(1, 3), calls, 'v60.02 the model\'s calls go back exactly as returned');
+  const outputs = input.filter((item) => item.type === 'function_call_output');
+  assert.deepEqual(outputs.map((item) => item.call_id), ['call_1', 'call_2']);
+  assert(/\[주가 추이\] NVDA/.test(outputs[0].output) && /VIX 17\.2/.test(outputs[1].output) && outputs.every((item) => /\(기준: [^)]*\d{4}-\d{2}-\d{2}/.test(item.output)), 'v60.02 each output is the tool text with its date');
+  assert.equal(r.requests[1].tool_choice, 'auto');
+  assert.equal(r.done.length, 1); assert.equal(r.done[0][0], '추세와 VIX를 함께 봅니다');
+  assert(!r.chunks.some((text) => text.includes('숨김')), 'v60.02 the text of a round that asks for data is not shown');
+  assert.deepEqual(r.keys, ['fixture-tools', 'fixture-tools:r1'], 'v60.02 each round has its own idempotency key');
+  assert.equal(r.status.length, 1); assert(/^자료를 더 찾는 중: /.test(r.status[0]) && !/trend|macro|\{/.test(r.status[0]), `v60.02 the pending line is plain Korean (${r.status[0]})`);
+  assert.equal(r.results.length, 2); assert(r.results.every((result) => result.ok));
+  assert.equal(r.done[0][1].toolRounds, 1); assert.equal(r.done[0][1].toolCalls, 2);
+  r.requests.forEach(budgetOf);
+}
+// (3) The model keeps calling: two rounds, then the third request has tool_choice none.
+{
+  const r = await scenario({ responses: [asks([call('trend', { symbol: 'NVDA' }, 1)]), asks([call('macro', { topic: 'macro' }, 2)]), answer('두 번 찾고 답합니다')] });
+  assert.equal(r.requests.length, 3);
+  assert.deepEqual(r.requests.map((body) => body.tool_choice), ['auto', 'auto', 'none'], 'v60.02 the last allowed request makes the model answer');
+  assert.equal(r.done[0][0], '두 번 찾고 답합니다'); assert.equal(r.done[0][1].toolRounds, 2);
+  assert.deepEqual(r.keys, ['fixture-tools', 'fixture-tools:r1', 'fixture-tools:r2']);
+  r.requests.forEach(budgetOf);
+}
+// (4) More than six calls: the extra calls get a 한도 output and the next request must answer.
+{
+  const calls = Array.from({ length: 7 }, (_, i) => call('trend', { symbol: 'NVDA' }, i + 1));
+  const r = await scenario({ responses: [asks(calls), answer('한도 안에서 답합니다')] });
+  const outputs = r.requests[1].input.filter((item) => item.type === 'function_call_output');
+  assert.equal(outputs.length, 7);
+  assert(outputs.slice(0, 6).every((item) => /\[주가 추이\]/.test(item.output)) && /한도/.test(outputs[6].output) && !/\[주가 추이\]/.test(outputs[6].output), 'v60.02 calls past six are not run and say 한도');
+  assert.equal(r.requests[1].tool_choice, 'none'); assert.equal(r.done[0][1].toolCalls, 6);
+}
+// (5) A 400 on the first tools request: one more request without tools, from the original input.
+{
+  const r = await scenario({ responses: [{ status: 400, message: 'invalid custom function' }, answer('도구 없이 답합니다')] });
+  assert.equal(r.requests.length, 2);
+  assert(r.requests[0].tools && !r.requests[1].tools && !('tool_choice' in r.requests[1]) && !('parallel_tool_calls' in r.requests[1]), 'v60.02 the fallback request carries no tools');
+  assert.deepEqual(r.requests[1].input, r.requests[0].input);
+  assert.equal(r.done[0][0], '도구 없이 답합니다'); assert.equal(r.errors.length, 0);
+  assert.deepEqual(r.keys, ['fixture-tools', 'fixture-tools:plain']);
+  const twice = await scenario({ responses: [{ status: 400, message: 'bad' }, { status: 400, message: 'bad again' }] });
+  assert.equal(twice.requests.length, 2, 'v60.02 the fallback without tools happens once'); assert.equal(twice.errors.length, 1);
+  const malformed = await scenario({ responses: [asks([{ type: 'function_call', id: 'fc_x', name: 'trend', arguments: '{}', status: 'completed' }]), answer('형식 오류 뒤 답합니다')] });
+  assert.equal(malformed.requests.length, 2); assert(!malformed.requests[1].tools, 'v60.02 a malformed call falls back to the request without tools');
+  assert.equal(malformed.done[0][0], '형식 오류 뒤 답합니다');
+}
+// (6) Cancel while the tools run: no further request, the cancel is reported once.
+{
+  const hanging = { ...loop.chatToolKit(toolRoot), runCalls: (calls, options) => loop.runToolCalls(calls, { ...options, root: toolRoot, limits: { ...loop.TOOL_LOOP_LIMITS, callTimeoutMs: 50 }, run: () => new Promise(() => {}) }) };
+  const r = await scenario({ responses: [asks([call('trend', { symbol: 'NVDA' }, 1)])], kit: hanging, cancelDuringTools: true });
+  assert.equal(r.requests.length, 1, 'v60.02 a cancelled tool round sends no further request');
+  assert.equal(r.cancelled, 1); assert.equal(r.done.length, 0); assert.equal(r.errors.length, 0);
+}
+// (7) Hosted search attached: no function tools in the body.
+{
+  const r = await scenario({ responses: [answer('검색으로 답합니다')], webSearch: true });
+  assert.equal(r.requests.length, 1);
+  assert.deepEqual(r.requests[0].tools.map((tool) => tool.type), ['web_search'], 'v60.02 hosted search is never mixed with function tools');
+  assert.equal(r.done[0][1].toolRounds, null);
+}
+if (process.env.AIO_TOOL_LOOP_SEQUENCE) console.log(JSON.stringify(sequence, null, 1));
+console.log('Tool loop OK: no-call, parallel round, round cap, call cap, refused-tools fallback, cancel during tools, search exclusion.');
+}],
 // ── section chat-resilience (was ci-chat-resilience-check.mjs) ──
 ['chat-resilience', async () => {
 const { default: assert } = await import('node:assert/strict');

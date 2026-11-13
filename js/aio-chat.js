@@ -1199,16 +1199,17 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   // The evidence contract and the action policy close the prompt: they start at the last occurrence of this marker,
   // which must match the line in chatSendUnified that appends '\n\n[AIO EXTERNAL EVIDENCE CONTRACT]\n' before
   // _aioPublicAIActionPolicyPrompt(). Only the reference data before it is shortened; the floor applies to that part.
-  // A prompt without the marker is shortened from its end.
+  // A prompt without the marker is shortened from its end. `input` is the request's input when a tool round has grown it.
   var _AI_PROMPT_TAIL_MARKER = '\n\n[AIO EXTERNAL EVIDENCE CONTRACT]';
-  var _cutSystem = function(floor) {
-    for (var _cut = 0; _cut < 8 && _bodyBytes(system, _trimmedMessages) > _AI_BODY_BYTES; _cut++) {
+  var _cutSystem = function(floor, input) {
+    var _input = input || _trimmedMessages;
+    for (var _cut = 0; _cut < 8 && _bodyBytes(system, _input) > _AI_BODY_BYTES; _cut++) {
       var _sys = String(system || '');
       var _tailAt = _sys.lastIndexOf(_AI_PROMPT_TAIL_MARKER);
       var _head = _tailAt >= 0 ? _sys.slice(0, _tailAt) : _sys;
       var _tail = _tailAt >= 0 ? _sys.slice(_tailAt) : '';
       if (_head.length <= floor) return;
-      var _over = _bodyBytes(system, _trimmedMessages) - _AI_BODY_BYTES;
+      var _over = _bodyBytes(system, _input) - _AI_BODY_BYTES;
       system = _head.slice(0, Math.max(floor, _head.length - Math.ceil(_over / 3) - 500)) + '\n…(참고 자료 일부 생략)' + _tail;
     }
   };
@@ -1238,16 +1239,30 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   var searchEnabledNow = opts.webSearch === true;
   if (window.AIO?.attachNativeSearch) reqBody = window.AIO.attachNativeSearch(reqBody, { enabled: searchEnabledNow, health: routeState.health, mustSearch: opts.mustSearch });
   if (reqBody.tools && window._aioAIBudgetPolicy) window._aioAIBudgetPolicy.preparePaidWebSearch({ serverKey: true, health: routeState.health, state: window });
+  // The data tools (src/ai/tools/, window.AIO.chatTools): offered when the caller asks and no hosted search is attached
+  // (the Worker refuses the mix). A completed response that asks for data runs those calls and sends the next request with
+  // their outputs — at most the kit's rounds and calls, the last allowed request with tool_choice 'none'. A refused tools
+  // request or a malformed call is answered once more without tools from the original input.
+  var _toolKit = opts.tools && !(reqBody.tools && reqBody.tools.length) && window.AIO && window.AIO.chatTools ? window.AIO.chatTools : null;
+  var _plainBody = reqBody;
+  var _toolRounds = 0, _toolCalls = 0, _toolFallback = false;
+  if (_toolKit) reqBody = Object.assign({}, reqBody, _toolKit.requestFields({ final: false }));
+  var _armConnect = function() { connectionTimedOut = false; connectTimer = setTimeout(function() { connectionTimedOut = true; ctrl.abort(); }, timeoutMs); };
+  var _toolFallbackOnce = function() { if (!_toolKit || _toolFallback) return false; _toolFallback = true; reqBody = _plainBody; _armConnect(); return true; };
   var _claudeHeaders = { 'Content-Type': 'application/json' };
   _claudeHeaders[_aiContract.headers.appToken] = _aioAppToken();
-  if (_streamRequestId) _claudeHeaders[_aiContract.headers.idempotencyKey] = _streamRequestId + (opts.retryAttempt > 0 ? ':retry' + Math.min(2, opts.retryAttempt) : ''); // v57.61: a retry is a new paid attempt (reusing the key got 409) that the Worker counts as the same question
+  var _idempotencyKey = _streamRequestId ? _streamRequestId + (opts.retryAttempt > 0 ? ':retry' + Math.min(2, opts.retryAttempt) : '') : null; // v57.61: a retry is a new paid attempt (reusing the key got 409) that the Worker counts as the same question
   try {
+   for (;;) { // one pass per request: the first, each tool round's follow-up, or the one answer without tools
+    // Each request of a tool loop is its own paid attempt; a replayed key would return the first round's response.
+    if (_idempotencyKey) _claudeHeaders[_aiContract.headers.idempotencyKey] = _idempotencyKey + (_toolFallback ? ':plain' : _toolRounds ? ':r' + _toolRounds : '');
     var res = await _aioFetchClaudeWithRetry(_claudeTarget.url, {
       method: 'POST', signal: ctrl.signal, headers: _claudeHeaders, body: JSON.stringify(reqBody)
     }, true, 0, { signal: _chatSignal });
     if (!res.ok) {
       var errText = await res.text();
       clearTimeout(connectTimer);
+      if (res.status === 400 && reqBody !== _plainBody && _toolFallbackOnce()) continue;
       var errMsg = 'API 오류 (' + res.status + ')';
       try {
         var j = JSON.parse(errText);
@@ -1268,6 +1283,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
     var stopReason = null;
     var sawMessageStop = false;
     var responseUsage = null;
+    var _completedResponse = null, _streamedCalls = [], _roundCalls = false; // a round that asks for data shows none of its text
     window._lastClaudeUsage = null;
 
     // v50.10: native web_search 인용/검색결과 수집 (사용자 출처 표면화). 요청 시작 시 리셋.
@@ -1326,12 +1342,16 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
               stopReason = 'client_output_limit'; onChunk(fullText);
               void reader.cancel().catch(function() {}); break;
             }
-            onChunk(fullText);
+            if (!_roundCalls) onChunk(fullText);
+          } else if ((evt.type === 'response.output_item.added' || evt.type === 'response.output_item.done') && evt.item && evt.item.type === 'function_call') {
+            _roundCalls = true;
+            if (evt.type === 'response.output_item.done') _streamedCalls.push(evt.item);
           } else if (evt.type === 'response.output_text.annotation.added' && evt.annotation) {
             if (evt.annotation.type === 'url_citation') _pushWebCite(evt.annotation.url, evt.annotation.title);
           } else if (evt.type === 'response.completed' || evt.type === 'response.incomplete') {
             var completed = evt.response || {};
             sawMessageStop = true;
+            if (evt.type === 'response.completed') _completedResponse = completed;
             stopReason = evt.type === 'response.incomplete' ? (completed.incomplete_details && completed.incomplete_details.reason === 'max_output_tokens' ? 'max_output_tokens' : 'incomplete') : 'end_turn';
             if (completed.usage) {
               responseUsage = Object.assign({}, completed.usage);
@@ -1369,6 +1389,24 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
           }
         } catch(_) {}
       }
+      // A completed tool-offering request that asked for data: run the calls, then send the next request with their outputs.
+      var _calls = _toolKit && !_toolFallback && stopReason === 'end_turn' && reqBody.tool_choice !== 'none' ? _toolKit.functionCalls(_completedResponse, _streamedCalls) : [];
+      if (_calls.length) {
+        if (!_calls.every(_toolKit.wellFormed)) { if (_toolFallbackOnce()) continue; _calls = []; }
+      }
+      if (_calls.length) {
+        if (typeof opts.tools.onStatus === 'function') { try { opts.tools.onStatus(_toolKit.statusLine(_calls)); } catch (_) {} }
+        var _ran = await _toolKit.runCalls(_calls, { used: _toolCalls, signal: _chatSignal });
+        _aioThrowIfChatAborted(_chatSignal);
+        _toolCalls = _ran.used;
+        _toolRounds += 1;
+        if (typeof opts.tools.onResults === 'function') { try { opts.tools.onResults(_ran.results); } catch (_) {} }
+        var _nextInput = _toolKit.appendItems(reqBody.input, _calls, _ran.outputs);
+        _cutSystem(8000, _nextInput);
+        reqBody = Object.assign({}, reqBody, { instructions: system || '', input: _nextInput }, _toolKit.requestFields({ final: _toolRounds >= _toolKit.limits.rounds || _toolCalls >= _toolKit.limits.calls }));
+        _armConnect();
+        continue;
+      }
       if (window.AIO && typeof window.AIO.recordAISLOSample === 'function') {
         var _aiEndedAt = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
         var _sloUsage = responseUsage || {};
@@ -1389,9 +1427,12 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         workerMaxTokens: isFinite(workerMaxTokens) && workerMaxTokens > 0 ? workerMaxTokens : null,
         extendedThinking: useExtendedThinking,
         outputTokens: responseUsage && Number.isInteger(responseUsage.output_tokens) ? responseUsage.output_tokens : null,
-        effort: (modelCfg && modelCfg.reasoningEffort) || null
+        effort: (modelCfg && modelCfg.reasoningEffort) || null,
+        toolRounds: _toolKit ? _toolRounds : null,
+        toolCalls: _toolKit ? _toolCalls : null
       });
       _unlinkChatAbort();
+      return;
     } catch(streamErr) {
       try { void reader.cancel().catch(function() {}); } catch(e) {}
       if ((streamErr && streamErr.name === 'AbortError') || (_chatSignal && _chatSignal.aborted)) {
@@ -1411,7 +1452,9 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         onError(streamError.displayMessage || streamError.userMessage);
         _unlinkChatAbort();
       }
+      return;
     }
+   }
   } catch(err) {
     clearTimeout(connectTimer);
     _unlinkChatAbort();
