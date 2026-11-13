@@ -394,13 +394,13 @@ let sequence = null;
   assert.equal(r.requests.length, 2, 'v60.02 a mixed round (one search, two function calls) is two requests');
   assert.deepEqual(r.requests[0].tools.map((tool) => tool.type), ['web_search', ...loop.toolRequestFields().tools.map(() => 'function')], 'v60.02 hosted search travels beside the function tools');
   assert.deepEqual(r.requests[1].tools.map((tool) => tool.type), r.requests[0].tools.map((tool) => tool.type), 'v60.02 the next round keeps the search beside the functions');
-  assert.equal(r.requests[0].tool_choice, 'auto'); assert.equal(r.requests[0].max_tool_calls, 2);
+  assert.equal(r.requests[0].tool_choice, 'auto', 'v60.02 an unforced mixed request lets the model choose'); assert.equal(r.requests[0].max_tool_calls, 2, 'v60.02 the mixed request keeps the two-search cap');
   const input = r.requests[1].input;
   assert.deepEqual(input.filter((item) => item.type === 'function_call').map((item) => item.call_id), ['call_1', 'call_2'], 'v60.02 the function calls go back in the next request');
   assert.deepEqual(input.filter((item) => item.type === 'function_call_output').map((item) => item.call_id), ['call_1', 'call_2'], 'v60.02 the function outputs are sent in the next request');
   assert(!input.some((item) => item.type === 'web_search_call'), 'v60.02 the provider-run search call is not sent back as input');
   r.requests.forEach((body) => assert(prepareOpenAiBudget(body, searchOn).searchReserveMicroUsd > 0, 'v60.02 every mixed request passes the Worker admission'));
-  assert.equal(r.done[0][0], '검색과 자료로 답합니다');
+  assert.equal(r.done[0][0], '검색과 자료로 답합니다', 'v60.02 the answer is the final round\'s text');
   // Text streamed before the round's first function call is shown until the next round replaces it (the loop hides a
   // round's text from its first announced call on); the panel ends on the final answer.
   assert.equal(r.chunks.at(-1), '검색과 자료로 답합니다', 'v60.02 the panel ends on the final round\'s answer');
@@ -410,7 +410,7 @@ let sequence = null;
   assert.deepEqual(citations, ['https://example.com/guidance', 'https://example.com/filing'], 'v60.02 the citations of every round are kept for the sources list');
   assert(/웹검색으로 보강해/.test(searchStatusText({ attached: true, citationCount: citations.length, searchCalls: r.done[0][1].searchCalls })), 'v60.02 the status says the answer searched and cited its sources');
   const quiet = await scenario({ responses: [answer('앱 자료로 답합니다')], webSearch: true });
-  assert.equal(quiet.requests.length, 1); assert.equal(quiet.done[0][1].searchCalls, 0);
+  assert.equal(quiet.requests.length, 1, 'v60.02 an answer without calls is one request'); assert.equal(quiet.done[0][1].searchCalls, 0, 'v60.02 an attached search the model did not run counts zero calls');
   assert.equal(searchStatusText({ attached: true, citationCount: 0, searchCalls: quiet.done[0][1].searchCalls }), '웹검색 없이 앱 자료와 일반 지식으로 답했습니다.', 'v60.02 an answer that neither searched nor called says not searched');
   const forced = await scenario({ responses: [asks([call('trend', { symbol: 'NVDA' }, 1)]), answer('강제 검색 뒤 답합니다')], webSearch: true, mustSearch: true });
   assert.deepEqual(forced.requests.map((body) => body.tool_choice), ['required', 'auto'], 'v60.02 a forced search is required on the first request only');
@@ -418,7 +418,7 @@ let sequence = null;
   assert(plain.requests[0].tools.every((tool) => tool.type === 'function') && plain.done[0][1].searchCalls === null, 'v60.02 without search the functions still go and no search count is reported');
   const refused = await scenario({ responses: [{ status: 400, message: 'hosted search cannot mix with custom functions' }, answer('검색만으로 답합니다')], webSearch: true });
   assert.deepEqual(refused.requests[1].tools.map((tool) => tool.type), ['web_search'], 'v60.02 a Worker that refuses the mix gets the search-only request once');
-  assert.deepEqual(refused.keys, ['fixture-tools', 'fixture-tools:plain']);
+  assert.deepEqual(refused.keys, ['fixture-tools', 'fixture-tools:plain'], 'v60.02 the search-only fallback has its own idempotency key');
 }
 if (process.env.AIO_TOOL_LOOP_SEQUENCE) console.log(JSON.stringify(sequence, null, 1));
 console.log('Tool loop OK: no-call, parallel round, round cap, call cap, refused-tools fallback, cancel during tools, search beside functions.');
