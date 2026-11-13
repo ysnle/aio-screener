@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-13T19:51:52.213Z",
-  "attemptedAt": "2026-11-13T19:51:52.213Z",
-  "lastSuccessfulAt": "2026-11-13T19:51:52.213Z",
+  "generatedAt": "2026-11-13T20:21:44.166Z",
+  "attemptedAt": "2026-11-13T20:21:44.166Z",
+  "lastSuccessfulAt": "2026-11-13T20:21:44.166Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-30T19:51:47.557Z",
-  "until": "2026-11-13T19:51:47.557Z",
+  "since": "2026-10-30T20:21:39.101Z",
+  "until": "2026-11-13T20:21:39.101Z",
   "current24hWindow": {
     "start": "2026-11-11T23:00:00.000Z",
     "end": "2026-11-12T23:00:00.000Z",
@@ -113,33 +113,33 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 723,
-      "freshCount": 20,
-      "eligibleTextCount": 722,
+      "count": 726,
+      "freshCount": 38,
+      "eligibleTextCount": 725,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72092
+      "lastPostId": 72097
     }
   ],
-  "count": 2189,
-  "retainedItemCount": 405,
+  "count": 2192,
+  "retainedItemCount": 414,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2189,
-    "eligibleTextCount": 2133,
+    "observedCount": 2192,
+    "eligibleTextCount": 2136,
     "mediaOnlyCount": 56,
-    "mediaAttachedCount": 900,
-    "photoPostCount": 778,
+    "mediaAttachedCount": 901,
+    "photoPostCount": 779,
     "documentPostCount": 5,
     "imageOnlyCount": 5,
-    "highSignalCount": 377,
-    "broadSignalCount": 857,
+    "highSignalCount": 379,
+    "broadSignalCount": 860,
     "selectedRawCount": 374,
     "selectedEligibleCount": 374,
     "selectedRawCoveragePct": 17.5,
@@ -147,25 +147,25 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "geo": 362,
+    "macro": 318,
+    "semi": 552,
+    "kr-market": 95,
+    "flows": 57,
+    "credit": 84,
+    "power": 285,
     "ai-policy": 125,
-    "semi": 551,
-    "macro": 316,
     "japan": 69,
     "market-note": 762,
     "equity": 138,
-    "kr-market": 94,
     "media-only": 54,
-    "power": 284,
     "healthcare": 60,
-    "geo": 361,
-    "flows": 56,
     "optical": 30,
     "earnings": 330,
-    "credit": 83,
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 243,
+    "NVDA": 244,
     "AMD": 58,
     "GOOG": 69,
     "AVGO": 17,
@@ -255,18 +255,18 @@
   },
   "themes": [
     "Market Notes (762 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면...",
-    "Semiconductors/Memory (551 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave...",
-    "Geopolitics (361 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
+    "Semiconductors/Memory (552 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave...",
+    "Geopolitics (362 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의...",
     "Earnings/Corporate (330 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정 EBITDA $465.8M (예상 $353M) → 32.0% 상회 , 마진 47.5% • AI 클라우드...",
-    "Macro/Rates (316 posts in 14-day research window): 2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,...",
-    "AI Power/Grid (284 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
+    "Macro/Rates (318 posts in 14-day research window): 2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,...",
+    "AI Power/Grid (285 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (138 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (125 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 243,
+      "count": 244,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면..."
     },
     {
@@ -332,7 +332,7 @@
       "topics": [
         "macro"
       ],
-      "count": 316,
+      "count": 318,
       "focus": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,..."
     },
     {
@@ -341,7 +341,7 @@
       "topics": [
         "geo"
       ],
-      "count": 361,
+      "count": 362,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 10일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 이란과 관련해 미국이 추가 항공모함을 배치할 준비를 갖추고 있다고 밝혀. 미국은 이란과의..."
     },
     {
@@ -350,7 +350,7 @@
       "topics": [
         "credit"
       ],
-      "count": 83,
+      "count": 84,
       "focus": "네비우스(NBIS) 2026년 3분기 어닝콜 Q&A 중 질문: 최근 채권시장 여건이 좋지 않은데, 추가 자금이 필요할 경우 고객 선급금을 더 받을 수 있습니까? 경영진 답변: 가능합니다. 고객 선급금은 자금 수요에 대응하는 중요한 수단입니다. 네비우스는 수요가 충분했음에도 더 나은 계약 조건을 확보하기 위해 일부..."
     },
     {
@@ -359,7 +359,7 @@
       "topics": [
         "semi"
       ],
-      "count": 551,
+      "count": 552,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave..."
     },
     {
@@ -377,7 +377,7 @@
       "topics": [
         "power"
       ],
-      "count": 284,
+      "count": 285,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -395,8 +395,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 94,
-      "focus": "코스피 야간선물 양호"
+      "count": 95,
+      "focus": "•심천 증시 -1.5%에서 보합권, 기관 매수세 유입 •국산 AI 칩 강세 지속"
     },
     {
       "id": "equity",
@@ -449,7 +449,7 @@
       "topics": [
         "flows"
       ],
-      "count": 56,
+      "count": 57,
       "focus": ">>CCTV : 역외신탁 개인소득세 1,600억 위안, ‘부자 증세’ 아닌 ‘미납 세금 회수’ •역외신탁 관련 개인소득세 1,600억 위안 이상이 신고·납부됐으며, 10월에만 1,200억 위안 이상이 국고에 들어와 당월 전국 개인소득세 수입이 약 90% 증가. 이는 새로운 세금을 부과하거나 특정 계층을 증세한 것이..."
     },
     {
@@ -1692,6 +1692,64 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72097",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72097",
+      "datetime": "2026-11-13T20:12:44.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "geo",
+        "macro",
+        "semi"
+      ],
+      "lead": 3,
+      "score": 73,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>베센트: 에너지 충격을 이유로 금리 인상해서는 안 돼…이란 압박 계속, 엔비디아는 젠슨 황 없이도 성장 가능 •베센트는 현재의 인플레이션 압력을 ‘에너지 공급 충격’으로 규정하며, 연준이 단기적인 잡음성..."
+    },
+    {
+      "id": "HANAchina/72094",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72094",
+      "datetime": "2026-11-13T20:11:53.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "macro",
+        "kr-market",
+        "flows"
+      ],
+      "lead": 1,
+      "score": 55,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 3,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": ">>달러 강세의 귀환: DXY 주요 저항선 돌파, 숏 포지션 다시 큰 타격 •달러 인덱스가 주요 기술적 저항선을 돌파하며 2025년 4월 이후 최고 수준으로 상승. 미국 경제의 양호한 성과, 금리 우위 및..."
+    },
+    {
+      "id": "HANAchina/72093",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72093",
+      "datetime": "2026-11-13T20:08:39.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "credit",
+        "power"
+      ],
+      "lead": 1,
+      "score": 85,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>JPMorgan: AI 관련 회사채 발행 열풍으로 2027년 미국 우량등급 회사채 공급 사상 최대 전망 •JPMorgan은 빅테크의 AI 인프라 투자와 높은 차환 수요로 미국 투자등급 회사채 발행량이 다시..."
+    },
+    {
       "id": "HANAchina/72090",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72090",
@@ -2046,13 +2104,14 @@
       "datetime": "2026-11-13T05:24:38.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "geo"
+        "geo",
+        "macro"
       ],
+      "lead": 1,
       "score": 62,
       "hasText": true,
-      "summary": ">>바클레이즈: 미·이란 ‘전쟁도 평화도 아닌’ 교착 상태가 트럼프 임기 종료까지 지속될 가능성에 대비해야 함 •바클레이즈는 미·이란 충돌이 1년 내 종료될 가능성이 50%를 밑돌며, ‘장기화’가 기본...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>바클레이즈: 미·이란 ‘전쟁도 평화도 아닌’ 교착 상태가 트럼프 임기 종료까지 지속될 가능성에 대비해야 함 •바클레이즈는 미·이란 충돌이 1년 내 종료될 가능성이 50%를 밑돌며, ‘장기화’가 기본..."
     },
     {
       "id": "insidertracking/69200",
@@ -2168,13 +2227,13 @@
         "semi",
         "japan"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": ">>TSMC, 5억 달러 규모 벤처캐피털 펀드 설립 계획… 반도체 스타트업 지원 •닛케이 아시아에 따르면, TSMC 공동운영책임자 장샤오창은 TSMC가 반도체 스타트업을 지원하고 투자 범위를 확대하기 위해...",
-      "lead": 2,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": ">>TSMC, 5억 달러 규모 벤처캐피털 펀드 설립 계획… 반도체 스타트업 지원 •닛케이 아시아에 따르면, TSMC 공동운영책임자 장샤오창은 TSMC가 반도체 스타트업을 지원하고 투자 범위를 확대하기 위해..."
     },
     {
       "id": "HANAchina/72068",
@@ -2183,17 +2242,19 @@
       "datetime": "2026-11-13T03:35:07.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "equity",
+        "earnings"
       ],
+      "lead": 1,
       "score": 59,
       "hasText": true,
-      "summary": ">>Cerebras 컨콜 : Microsoft 대형 계약 확보, HBM 부족이 오히려 기회… WSE-5 칩 내년 여름 양산 •AI 칩 업체 Cerebras가 Microsoft와 클라우드 협력 계약을 체결,...",
-      "lead": 1,
       "tickers": [
         "MSFT",
         "AMZN",
         "ORCL"
-      ]
+      ],
+      "summary": ">>Cerebras 컨콜 : Microsoft 대형 계약 확보, HBM 부족이 오히려 기회… WSE-5 칩 내년 여름 양산 •AI 칩 업체 Cerebras가 Microsoft와 클라우드 협력 계약을 체결,..."
     },
     {
       "id": "HANAchina/72067",
@@ -2202,6 +2263,7 @@
       "datetime": "2026-11-13T03:33:49.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
+        "semi",
         "ai-policy",
         "equity"
       ],
@@ -2213,13 +2275,12 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>젠슨 황 퇴임, AI 신생 플레이어의 ‘최대 큰손’도 사라져 •Anthropic 100억 달러 규모 IPO 투자, Figure AI 추가 10억 달러 투자, Nscale 50억 달러 이상 신용보증 등 협상...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "AMD",
         "GOOG"
-      ]
+      ],
+      "summary": ">>젠슨 황 퇴임, AI 신생 플레이어의 ‘최대 큰손’도 사라져 •Anthropic 100억 달러 규모 IPO 투자, Figure AI 추가 10억 달러 투자, Nscale 50억 달러 이상 신용보증 등 협상..."
     },
     {
       "id": "HANAchina/72064",
@@ -2229,19 +2290,19 @@
       "localDateKst": "2026-11-13",
       "tags": [
         "semi",
-        "ai-policy"
+        "ai-policy",
+        "equity"
       ],
       "score": 77,
       "hasText": true,
-      "summary": ">>(영상) 리사 수는 무능한 인텔을 꺾었지만, 젠슨 황 후계자는 7대 강적과 맞서야 함 •Dylan Patel은 엔비디아의 차기 CEO가 OpenAI, Broadcom, Google, Anthropic,...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "AMD",
         "GOOG",
         "AVGO",
         "AMZN"
-      ]
+      ],
+      "summary": ">>(영상) 리사 수는 무능한 인텔을 꺾었지만, 젠슨 황 후계자는 7대 강적과 맞서야 함 •Dylan Patel은 엔비디아의 차기 CEO가 OpenAI, Broadcom, Google, Anthropic,..."
     },
     {
       "id": "HANAchina/72063",
@@ -2254,11 +2315,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": ">>(10월 인터뷰 영상) 젠슨 황, 사태 전 후계자 언급 “나도 해고될 수 있어…딸이 CEO가 되려면 실력으로 증명해야” •사태 발생전 진행된 블룸버그 인터뷰에서 젠슨 황은 딸이 엔비디아의 차기 CEO가 될...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>(10월 인터뷰 영상) 젠슨 황, 사태 전 후계자 언급 “나도 해고될 수 있어…딸이 CEO가 되려면 실력으로 증명해야” •사태 발생전 진행된 블룸버그 인터뷰에서 젠슨 황은 딸이 엔비디아의 차기 CEO가 될..."
     },
     {
       "id": "HANAchina/72062",
@@ -2267,15 +2327,17 @@
       "datetime": "2026-11-13T02:25:30.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi"
+        "semi",
+        "ai-policy",
+        "equity"
       ],
+      "lead": 1,
       "score": 61,
       "hasText": true,
-      "summary": ">>업계 관계자: 엔비디아, 공격적인 투자 속도 늦출 것으로 예상 •벤처캐피털 관계자와 스타트업 창업자, 반도체 업계 경영진들은 엔비디아가 그동안의 공격적인 투자 속도를 늦출 것으로 예상. 엔비디아는 올해...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>업계 관계자: 엔비디아, 공격적인 투자 속도 늦출 것으로 예상 •벤처캐피털 관계자와 스타트업 창업자, 반도체 업계 경영진들은 엔비디아가 그동안의 공격적인 투자 속도를 늦출 것으로 예상. 엔비디아는 올해..."
     },
     {
       "id": "insidertracking/69191",
@@ -2307,7 +2369,8 @@
       "datetime": "2026-11-13T01:21:18.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "market-note"
+        "semi",
+        "earnings"
       ],
       "score": 56,
       "hasText": true,
@@ -2317,10 +2380,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>젠슨 황 퇴진, 14개 월가 투자은행 긴급 분석…“대체할 사람 없다”는 공통된 평가 •14개 월가 기관이 젠슨 황의 퇴진에 대해 긴급 분석을 내놓음. 이 가운데 3곳은 투자의견을 하향했고 6곳은 목표주가를...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>젠슨 황 퇴진, 14개 월가 투자은행 긴급 분석…“대체할 사람 없다”는 공통된 평가 •14개 월가 기관이 젠슨 황의 퇴진에 대해 긴급 분석을 내놓음. 이 가운데 3곳은 투자의견을 하향했고 6곳은 목표주가를..."
     },
     {
       "id": "HANAchina/72057",
@@ -2329,13 +2392,13 @@
       "datetime": "2026-11-13T01:16:25.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
+        "semi",
         "earnings"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>SMIC : 3분기 평균 웨이퍼 판매단가 전분기 대비 1.8% 상승 •SMIC CEO는 3분기 실적 발표회에서 3분기 전체 매출이 31억9,000만 달러로 사상 최고치를 다시 경신했으며, 전분기 대비...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>SMIC : 3분기 평균 웨이퍼 판매단가 전분기 대비 1.8% 상승 •SMIC CEO는 3분기 실적 발표회에서 3분기 전체 매출이 31억9,000만 달러로 사상 최고치를 다시 경신했으며, 전분기 대비..."
     },
     {
       "id": "HANAchina/72055",
@@ -7141,60 +7204,6 @@
       "lead": 1,
       "tickers": [
         "TSM"
-      ]
-    },
-    {
-      "id": "HANAchina/71785",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71785",
-      "datetime": "2026-11-09T01:38:03.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "macro"
-      ],
-      "score": 64,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "[중국 10월 물가: 마진 스퀴즈 엄습] - 10월 CPI YoY +0.7% (예상 +0.8% / 9월 +0.9%) - 10월 PPI YoY +5.7% (예상 +5.3% / 9월 +5.0%) **물가 상승세...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/71782",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71782",
-      "datetime": "2026-11-09T01:24:48.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": ">>실시간 검색어에 등극 - 젠슨 황, 염문설로 사임할까? 엔비디아, AI 거래에 설상가상 (중국언론) •엔비디아 CEO 젠슨 황은 일요일 전 직원에게 공개서한을 보내 혼외정사 사실을 공식적으로 인정하고,...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "HANAchina/71779",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71779",
-      "datetime": "2026-11-09T01:03:59.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "credit",
-        "equity"
-      ],
-      "score": 76,
-      "hasText": true,
-      "summary": ">>AI 거래의 ‘풍향계’ : Meta 채권 발행, 우여곡절 끝에 성사 •Meta는 미국 중간선거일에 460억달러 규모의 채권 발행을 추진했으나 S&P의 신용등급 전망 하향, Microsoft의 선제적인 채권...",
-      "lead": 2,
-      "tickers": [
-        "MSFT"
       ]
     },
     {
