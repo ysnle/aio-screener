@@ -305,8 +305,16 @@ function referencePieces(text, matchers) {
       var owner = section.kind === 'bullet' ? section.entity
         : section.kind === 'rule' ? soleEntity(section.lines.filter(function(line) { return line.replace(/━/g, '').trim(); }).slice(0, SECTION_HEAD_LINES).join('\n'), matchers)
         : null;
-      if (owner) pieces.push({ text: section.lines.join('\n'), entity: owner });
-      else blockPieces(section.lines, matchers, pieces);
+      if (!owner) { blockPieces(section.lines, matchers, pieces); return; }
+      // Inside a subject's section a line that names exactly one other subject carries that subject's figures: text
+      // appended after the last section (a tool result about another company) must not inherit the section's owner.
+      var own = [];
+      section.lines.forEach(function(line) {
+        var named = soleEntity(line, matchers);
+        if (named && named !== owner) pieces.push({ text: line, entity: named });
+        else own.push(line);
+      });
+      pieces.push({ text: own.join('\n'), entity: owner });
     });
   });
   return pieces;
@@ -379,15 +387,37 @@ function figureSupported(match, numbers, subject) {
   var digits = match[3].replace(/,/g, '');
   var places = (digits.split('.')[1] || '').length;
   var written = Number(digits);
-  if (/^\d{1,2}$/.test(digits) && !unit) return false; // an integer under 100
+  if (/^\d$/.test(digits) && !unit) return false; // a bare single digit is supported by nothing
+  // A bare two-digit integer ("RSI 58") is supported only by a figure the material also wrote without a unit.
+  var bareSmall = /^\d{2}$/.test(digits) && !unit;
   var sign = match[2] === '' ? 0 : match[2] === '+' ? 1 : -1;
   return numbers.some(function(number) {
     if (subject && number.entity && number.entity !== subject) return false;
+    if (bareSmall && number.unit !== '') return false;
     if (unit && number.unit !== unit) return false;
     // A figure the material wrote without a sign ("1.2% 하락") carries its direction in words, so it supports either sign.
     if (sign && number.value !== 0 && number.signed !== false && sign !== Math.sign(number.value)) return false;
     var size = Math.abs(number.value);
     return written === size || ((String(size).split('.')[1] || '').length > places && Number(size.toFixed(places)) === written);
+  });
+}
+// A typed claim's value against the supported numbers: the same subject (or a subject-free figure), an agreeing unit
+// when the claim's unit is one the material writes, the claim's sign, and the value as written or rounded.
+function claimInReference(claim, numbers, entities) {
+  if (!Array.isArray(numbers) || !numbers.length || typeof claim.value !== 'number' || !isFinite(claim.value)) return false;
+  var matchers = entityMatchers(entities);
+  var subject = matchers && claim.entity ? soleEntity(String(claim.entity), matchers) : null;
+  var unitWord = String(claim.unit || '').trim();
+  var unit = ROW_UNITS[unitWord.toUpperCase()] || writtenUnit(unitWord);
+  if (unit === 'unsupported') unit = '';
+  var places = (String(Math.abs(claim.value)).split('.')[1] || '').length;
+  var size = Math.abs(claim.value);
+  return numbers.some(function(number) {
+    if (subject && number.entity && number.entity !== subject) return false;
+    if (unit ? number.unit !== unit : number.unit !== '') return false;
+    if (claim.value !== 0 && number.signed !== false && number.value !== 0 && Math.sign(claim.value) !== Math.sign(number.value)) return false;
+    var given = Math.abs(number.value);
+    return given === size || ((String(given).split('.')[1] || '').length > places && Number(given.toFixed(places)) === size);
   });
 }
 function writtenFigures(text) {
@@ -428,7 +458,11 @@ function stripNumericSentences(value, today, numbers, entities) {
     }
     var kept = splitAnswerSentences(line).filter(function(sentence) {
       // A current sentence stays when every figure it writes is in the evidence; one figure that is not removes it.
-      var current = numericClaimKind(sentence, { today: today }) === 'current' && !figuresSupported(sentence.replace(CITED_URL, ' '), numbers, { entities: entities });
+      var bare = sentence.replace(CITED_URL, ' ');
+      // With reference material in hand, a sentence whose only numbers are dates or window lengths ("11월 12일 종가
+      // 기준 자료입니다") states no figure to check and stays.
+      var nothingToCheck = Array.isArray(numbers) && numbers.length > 0 && writtenFigures(bare).length === 0;
+      var current = numericClaimKind(sentence, { today: today }) === 'current' && !nothingToCheck && !figuresSupported(bare, numbers, { entities: entities });
       if (current) removed += 1;
       return !current;
     }).join(' ');
@@ -559,6 +593,8 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
   var droppedClaims = [];
   var unboundEvidenceIds = [];
   var boundLabels = new Map();
+  var referenceClaims = new Set();
+  var claimNumbers = supportedNumbers(rows, referenceText, nowMs, entities);
   var safeClaims = claims.filter(function(claim) {
     var reasons = [];
     var type = String(claim && claim.type || '');
@@ -566,6 +602,13 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     // P1688 live check (2026-10-13): the model labelled exact registry copies type "market_data"; a claim that carries a
     // metric and a numeric value is numeric whatever its label, so it is validated (not dropped as untyped content).
     var numeric = /^(?:numeric|metric|percentage|probability)$/.test(type) || (type !== 'text' && !!(claim && claim.metric) && typeof (claim && claim.value) === 'number');
+    // A figure copied from the injected data or a tool result has no evidence id to cite, but it is in the material the
+    // model was given for that subject: it is kept as a reference figure (its own text, dated) instead of being dropped
+    // as unverified. A figure that is nowhere in that material still fails below.
+    if (numeric && !ids.length && type !== 'probability' && claim.status !== 'blocked' && claim.asOf && claimInReference(claim, claimNumbers, entities)) {
+      referenceClaims.add(claim);
+      return true;
+    }
     if (numeric) {
       if (typeof claim.value !== 'number' || !isFinite(claim.value)) reasons.push('numeric-value');
       if (!claim.unit || !claim.asOf || !claim.source || !ids.length) reasons.push('traceability');
@@ -605,6 +648,7 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     if (matchedRow && matchedRow.label) boundLabels.set(claim, String(matchedRow.label));
     return true;
   }).map(function(claim) {
+    if (referenceClaims.has(claim)) return claim;
     if (!/^(?:numeric|metric|percentage|probability)$/.test(String(claim.type || '')) && !(String(claim.type || '') !== 'text' && claim.metric && typeof claim.value === 'number')) return claim;
     // Render the verified tuple separately; model prose must not smuggle a
     // second, conflicting number alongside a valid structured value.

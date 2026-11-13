@@ -1560,6 +1560,49 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   // The second one is kept here only since "41.2x" reads as a multiple; in v60.01 it was removed for the unit.
   check('v60.02 without entities the wrong-subject sentences on the injected shapes are kept (v60.01 rule)', removedWrapped.every((s) => noEntities.includes(s)));
 }
+// v60.04: the shapes of a live comparison answer (2026-11-13). The model copied its figures from the injected data
+// and tool results; every typed claim was dropped for having no evidence id, three true sentences and two table cells
+// were removed, and the answer opened with "최신 수치 확인 안 됨 — 일반 설명만".
+{
+  const pub = await import('../src/ai/response/publication.js');
+  const today = Date.parse('2026-11-13T00:00:00Z');
+  const nameEntries = { NVDA: { en: 'NVIDIA', kr: '엔비디아' }, AMD: { en: 'AMD', kr: 'AMD' } };
+  const reference = [
+    '[주가 추이] NVDA: 추세 이탈(50·200일선 기준) · 5거래일 -8.5%, 1개월 -24.9%, 3개월 -26.1% · 52주 범위 18% 위치(고점 대비 -31.7%) · RSI 26 (11/12 종가) (기준: 2026-11-12 종가)',
+    '[주가 추이] AMD: 추세 50일선 부근 · 5거래일 +44.7%, 1개월 +2.5%, 3개월 +13.8% · 52주 범위 84% 위치(고점 대비 -11.1%) · RSI 58 (11/12 종가) (기준: 2026-11-12 종가)',
+    '【종목 기술적 실측 데이터 (차트 화면 일봉 판정)】',
+    '━━ [NVDA 기술적 데이터, 일봉 500봉] ━━',
+    '• 종가 $173.73 (2026-11-11, +2.87%), RSI(14) 26.0 (2026-11-12 종가, 스크리너 값) 과매도',
+    '━━ [AMD 기술적 데이터, 일봉 500봉] ━━',
+    '• 종가 $552.90 (2026-11-11, +7.32%), RSI(14) 57.5 (2026-11-12 종가, 스크리너 값) 중립',
+    '(기준: 2026-11-11 종가) NVDA 시장 기대(컨센서스): Forward PER 약 13.8배, 직전 4개 분기 조정 기준 24.1배, 예상 이익 +75% — 종가 $166.19(2026-11-12)',
+    '(기준: 예상치 수집 2026-11-12) AMD 시장 기대(컨센서스): Forward PER 약 43.7배, 직전 4개 분기 조정 기준 104.0배, 예상 이익 +138% — 종가 $585.30(2026-11-12)'
+  ].join('\n');
+  const claim = (entity, metric, value, unit) => ({ type: 'numeric', text: `${entity} ${metric} ${value}`, metric, entity, value, unit, scale: 'raw', asOf: '2026-11-12', source: '앱 자료', evidenceIds: [], status: '앱 자료' });
+  const given = [claim('NVDA', '3개월 수익률', -26.1, 'percent'), claim('AMD', '3개월 수익률', 13.8, 'percent'), claim('NVDA', 'Forward PER', 13.8, '배'),
+    claim('AMD', 'Forward PER', 43.7, '배'), claim('NVDA', 'RSI(14)', 26, '지수'), claim('AMD', 'RSI(14)', 58, '지수')];
+  const notGiven = [claim('NVDA', 'Forward PER', 43.7, '배'), claim('AMD', '3개월 수익률', -26.1, 'percent'), claim('NVDA', 'PBR', 31.4, '배')];
+  const keptSentences = ['최근 3개월 수익률과 RSI는 2026년 11월 12일 종가 기준 앱 주가추이·기술판정 자료입니다.',
+    '컨센서스 자료에서는 예상 이익 증가율이 NVDA 약 75%, AMD 약 138%로 제시됐습니다.', '비교 기준은 2026년 11월 12일 완료 종가·당일 수집 추정치입니다.'];
+  const removedSentences = ['컨센서스 자료에서는 예상 이익 증가율이 NVDA 약 138%로 제시됐습니다.', 'AMD의 Forward PER은 약 13.8배입니다.'];
+  const table = '| 비교 기준 | NVDA | AMD |\n|---|---|---|\n| RSI (11/12 종가) | 26 | 58 |\n| 거래 회전 | 33 | 7 |';
+  const run = (claims, body) => pub.buildPublishableAnswerPlan({ summary: body, sections: [{ title: '비교', body: table }], claims: { claims } }, [], true,
+    { nowMs: today, referenceText: reference, entities: ['NVDA', 'AMD'], nameEntries });
+  const good = run(given, keptSentences.join(' '));
+  check('v60.04 figures the model copied from its material are kept as claims, not dropped for a missing evidence id',
+    good.droppedClaims.length === 0 && good.plan.claims.claims.length === given.length, JSON.stringify(good.droppedClaims));
+  check('v60.04 a sentence that only dates its sources, and one that gives each company its own figure, stay',
+    keptSentences.every((line) => good.plan.summary.includes(line)), good.plan.summary);
+  check('v60.04 a bare two-digit reading the material also gives without a unit stays in its table cell; one it does not give is replaced',
+    /\| 26 \| 58 \|/.test(good.plan.sections[0].body) && /거래 회전 \| 확인 필요 \| 확인 필요 \|/.test(good.plan.sections[0].body), good.plan.sections[0].body);
+  const bad = run(notGiven, removedSentences.join(' '));
+  check('v60.04 a figure given for the other company, or not given at all, is still dropped as a claim',
+    bad.droppedClaims.length === notGiven.length && bad.plan.claims.claims.length === 0, JSON.stringify(bad.droppedClaims));
+  check('v60.04 a sentence that moves a figure to the other company is still removed', removedSentences.every((line) => !bad.plan.summary.includes(line)), bad.plan.summary);
+  const noReference = pub.buildPublishableAnswerPlan({ summary: keptSentences.join(' '), sections: [], claims: { claims: given } }, [], true, { nowMs: today });
+  check('v60.04 without reference material nothing changes: the claims are dropped and the dated sentences removed',
+    noReference.droppedClaims.length === given.length && keptSentences.slice(0, 2).every((line) => !noReference.plan.summary.includes(line)));
+}
 // v60.02 (plan 045, owner 2026-11-12 "think, reason and judge for itself"): the chat's data tools. Each tool wraps a
 // reader the screens use; the fixture root is dated from the real clock so no case depends on today's date.
 {

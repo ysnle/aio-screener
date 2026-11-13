@@ -140,9 +140,11 @@ export async function buildFundamentalsVisual({ documentRef: doc, root, symbol }
   return figure;
 }
 
-// Up to three companies rebased to 100 over the last ~3 months of completed sessions.
+// Up to three companies rebased to 100 over the last 63 completed sessions: 64 closes, so the last value is the same
+// 63-session return the screens call 3개월 (a 63-close window measured 62 sessions and disagreed with the table beside it).
+const RELATIVE_CLOSES = 64;
 export async function buildRelativeVisual({ documentRef: doc, root, symbols }) {
-  const series = (await Promise.all(symbols.slice(0, 3).map(async (symbol) => ({ symbol, bars: (await loadBars(root, symbol, '6mo')).slice(-63) }))))
+  const series = (await Promise.all(symbols.slice(0, 3).map(async (symbol) => ({ symbol, bars: (await loadBars(root, symbol, '6mo')).slice(-RELATIVE_CLOSES) }))))
     .filter((item) => item.bars.length >= 20);
   if (series.length < 2) return null;
   // v58.63 (architecture audit C08): the lines were aligned by position, so two series ending on different sessions
@@ -150,7 +152,7 @@ export async function buildRelativeVisual({ documentRef: doc, root, symbols }) {
   // lines now share the completed sessions every series has, each rebased on the same first common date.
   const dayOf = (bar) => String(bar.time ?? '').slice(0, 10);
   const common = series.map((item) => new Set(item.bars.map(dayOf))).reduce((acc, set) => new Set([...acc].filter((day) => set.has(day))));
-  const days = [...common].sort().slice(-63);
+  const days = [...common].sort().slice(-RELATIVE_CLOSES);
   const span = days.length;
   if (span < 20) return null;
   const lines = series.map((item) => {
@@ -169,8 +171,8 @@ export async function buildRelativeVisual({ documentRef: doc, root, symbols }) {
     lines.map((line, i) => `<path d="${polyline(line.values, x, y)}" fill="none" stroke="${colors[i]}" stroke-width="1.8"${i === 2 ? ' stroke-dasharray="5 3"' : ''}/>`).join('') +
     `<text x="62" y="${H - 6}" font-size="13" fill="var(--text-muted)">${esc(lines[0].from)}</text><text x="${W - 6}" y="${H - 6}" text-anchor="end" font-size="13" fill="var(--text-muted)">${esc(lines[0].to)}</text></svg>`;
   const legend = `<div class="aav-legend">${lines.map((line, i) => `<span><span class="aav-swatch${i ? ` aav-swatch--${i}` : ''}"></span>${esc(line.symbol)} ${esc(signed(line.values[line.values.length - 1] - 100))}</span>`).join('')}</div>`;
-  const { figure, body } = frame(doc, `최근 ${span}거래일 상대 수익률 (시작일 = 100)`,
-    `${lines[0].from}~${lines[0].to} 완료된 일봉 종가 기준입니다. 통화·시장이 다르면 각 시장의 현지 가격으로 계산했습니다.`);
+  const { figure, body } = frame(doc, `최근 ${span - 1}거래일 상대 수익률 (시작일 = 100)`,
+    `${lines[0].from}~${lines[0].to} 완료된 일봉 종가 기준입니다. 끝 날짜가 본문 수치의 기준일과 다르면 값도 다릅니다. 통화·시장이 다르면 각 시장의 현지 가격으로 계산했습니다.`);
   body.innerHTML = svg + legend;
   return figure;
 }
