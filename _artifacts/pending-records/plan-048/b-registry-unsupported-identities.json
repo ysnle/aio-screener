@@ -1,0 +1,19 @@
+{
+  "version": "v60.02",
+  "date": "2026-11-13",
+  "p": {
+    "title": "v60.02 종목 이름 등록부의 근거 없는 두 항목(352700.KQ 'HPSP', 413640.KQ 'Hyundai Mobis Test/NEXTIN') 삭제",
+    "symptom": "AIO_TICKER_NAME_REGISTRY에서 352700.KQ와 403870.KQ가 같은 이름 HPSP를 가졌고, 413640.KQ는 영문 'Hyundai Mobis Test'와 한글 'NEXTIN'이라는 서로 다른 회사 이름을 가졌다. 'HPSP' 검색이 근거 없는 코드로 열릴 수 있었다.",
+    "root_cause": "등록부 확장 때 손으로 넣은 항목이 저장소의 어떤 데이터 파일(SCREENER_DB, public-data/screener-universe.json, public-data/kr-index-weights.json, js/aio-kr-data.js, 테마 지도, public-data/**)에도 없는 코드를 가리켰다. 등록부 이름을 데이터 출처와 대조하는 검사가 없었다.",
+    "fix": "두 코드를 저장소 데이터 전체에서 찾아 어느 데이터 파일도 이 코드를 종목으로 부르지 않음을 확인하고 두 항목을 지웠다. HPSP는 KOSDAQ 시가총액 목록과 유니버스가 부르는 403870.KQ 하나만 남는다.",
+    "violated_rule": "티커 추정 금지 — 등록부의 이름은 저장소 데이터가 뒷받침해야 한다.",
+    "prevention": "등록부 전체 이름 중복 검사는 아직 넣지 않았다: '_skip' 자리표시자 7개(PINS_dup, 058470_dup, 141080_dup, 293490.KQ_dup, 042660.KS_dup, BP_dup, NRG_dup)와 한글 이름 '에이비엘바이오'를 함께 쓰는 347860.KQ·298380.KQ(데이터에는 298380.KQ만 있다)가 남아 있어 검사가 통과하지 않는다. 정리 뒤에 검사를 넣는다.",
+    "verification": "node scripts/ci-ai-intelligence-contract-check.mjs, ci-codex-structure-regression-fixture.mjs, ci-structural-check.mjs, ci-esm-core-unit-check.mjs 모두 exit 0.",
+    "files": ["js/aio-core.js"]
+  },
+  "r": null,
+  "changelog": [
+    "**종목 이름 등록부 정리 ({P}):** 저장소의 어떤 데이터에도 없는 352700.KQ('HPSP')와 413640.KQ('Hyundai Mobis Test'/'NEXTIN') 항목을 지웠다. HPSP 검색은 이제 데이터가 부르는 403870.KQ만 연다."
+  ],
+  "note": "v60.02: registry — removed 352700.KQ and 413640.KQ; duplicate-name check deferred (remaining duplicates listed in prevention)"
+}
