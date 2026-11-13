@@ -19,6 +19,7 @@ import { recordAnswerQuality, summariseAnswerQuality } from '../ai/telemetry/ans
 import { answerReferenceText } from '../ai/response/publication.js';
 import { earlierTurnsPromptBlock, relatedEarlierTurns, turnEntities } from '../ai/session/earlier-turns.js';
 import { addNotes, loadNotes, notesPromptBlock } from '../ai/session/reader-notes.js';
+import { chatToolKit } from '../ai/tools/loop.js';
 
 export function installChatGlobals(root = globalThis) {
   root.AIO = root.AIO || {};
@@ -28,6 +29,7 @@ export function installChatGlobals(root = globalThis) {
   root.AIO.recordAnswerQuality = (entry) => recordAnswerQuality(storage(), entry);
   root.AIO.answerQualitySummary = (options) => summariseAnswerQuality(storage(), options);
   root.AIO.answerReferenceText = answerReferenceText; // the injected data an answer's figures are checked against
+  root.AIO.chatTools = chatToolKit(root); // the data tools the model may call (src/ai/tools/), run by callSharedAi
   // Reader memory on this device: the ids a question is about, and earlier saved conversations about the same ids. The
   // saved conversations come from the panel's session api (src/ui/components/chat-sessions.js), which returns none
   // without the conversation-saving consent; the open conversation is already in the model context.

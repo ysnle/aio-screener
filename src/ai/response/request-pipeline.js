@@ -485,7 +485,9 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
         removedEventSentences: countOf(filterCounts && filterCounts.removedEventSentences),
         droppedClaims: publishablePlan.droppedClaims.filter(function(entry) { return entry && typeof entry.count !== 'number'; }).length, // the event-sentence tally is not a claim
         directiveReplacements: directiveReplacements,
-        sentencesTotal: countOf(filterCounts && filterCounts.sentencesTotal)
+        sentencesTotal: countOf(filterCounts && filterCounts.sentencesTotal),
+        toolRounds: countOf(completion.toolRounds), // the data-tool rounds and calls of the request (callSharedAi)
+        toolCalls: countOf(completion.toolCalls)
       };
       if (meta.record !== false && window.AIO && typeof window.AIO.recordAnswerQuality === 'function') window.AIO.recordAnswerQuality(result.answerQuality);
     }

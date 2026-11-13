@@ -81,6 +81,9 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
   const maxTokensExpr = statement('var modelOpts = {', ';', 'model opts') + ';';
   const webResearch = statement("sysPrompt += '\\n\\n【웹 리서치 지시", ';\n', 'web research') + ';';
   const evidenceTail = statement("sysPrompt += '\\n\\n[AIO EXTERNAL EVIDENCE CONTRACT]\\n'", ';\n', 'evidence tail') + ';';
+  // The data tools: whether this turn offers them and the block that then leads the prompt (the chat-globals kit).
+  const toolsOffer = statement('var _uniTools = window.AIO', '\n  if (_uniTools) modelOpts.tools', 'tools offer');
+  window.AIO.chatTools = (await load('src/ai/tools/loop.js')).chatToolKit(window);
   // Reader memory: the turn's entity ids and the earlier-conversation block, through the chat-globals the panel installs.
   const turnEntities = statement('state._turnEntities = window.AIO && typeof window.AIO.chatTurnEntities', ';\n', 'turn entities') + ';';
   const earlierTurns = statement('if (window.AIO && typeof window.AIO.relatedEarlierTurnsBlock', ';\n', 'earlier turns') + ';';
@@ -93,6 +96,7 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
   run(`function getModelConfig(key) { return { label: key }; }`, 'stub');
   run(`function __webResearch() { var sysPrompt = ''; ${webResearch} return sysPrompt; }`, 'unified#web');
   run(`function __evidenceTail() { var sysPrompt = ''; ${evidenceTail} return sysPrompt; }`, 'unified#tail');
+  run(`function __tools(window, _uniMode, _uniUseClaudeWebSearch) { var sysPrompt = ''; ${toolsOffer} return sysPrompt; }`, 'unified#tools');
   const LLM_MODELS = vm.runInNewContext(`(${slice(ui, 'const LLM_MODELS = {', '\n};', 'models').replace('const LLM_MODELS = ', '')}\n})`);
 
   function plan(query, ctxId = 'home') { return createQuestionPlan({ query, route: ctxId, now: FIXTURE_NOW }); }
@@ -148,9 +152,11 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
     if (webSearch) add('web-research', context.__webResearch());
     add('evidence-tail', context.__evidenceTail());
     add('policy', window._aioPublicAIActionPolicyPrompt());
-    let body = { model: 'fixture', instructions: blocks.map((b) => b.text).join(''), reasoning: { effort: r.reasoningEffort } };
+    const toolsBlock = context.__tools(window, mode, webSearch);
+    if (toolsBlock) blocks.unshift({ name: 'tools', text: toolsBlock });
+    let body ={ model: 'fixture', instructions: blocks.map((b) => b.text).join(''), reasoning: { effort: r.reasoningEffort } };
     body = nativeSearch.attachNativeSearch(body, { enabled: webSearch, health, mustSearch: nativeSearch.searchMustRun ? nativeSearch.searchMustRun(questionPlan.researchDecision || {}) : undefined });
-    return { ...r, webSearch, blocks, prompt: blocks.map((b) => b.text).join(''), toolChoice: body.tool_choice || null, newsRaw: nb.raw, entities: mem.entities };
+    return { ...r, webSearch, blocks, prompt: blocks.map((b) => b.text).join(''), toolChoice: body.tool_choice || null, newsRaw: nb.raw, entities: mem.entities, tools: !!toolsBlock };
   }
 
   return { window, context, plan, route, assemble, newsBlock, longNewsItems, modes, principles, nativeSearch, budget };

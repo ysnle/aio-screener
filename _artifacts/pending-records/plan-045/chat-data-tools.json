@@ -1,0 +1,8 @@
+{
+  "version": "v60.02",
+  "date": "2026-11-13",
+  "changelog": [
+    "**Lead (v60.02):** The chat model can now ask for the data it needs (owner 2026-11-12: the AI should \"think, reason and judge for itself\" as in an ordinary chatbot). Ten function tools in `src/ai/tools/` wrap readers the screens already use — completed daily bars, the chart's technical reading, the stock page's trend line, public SEC filings, researched company stories, consensus, the screener query, the 매크로 release rows, the long-history scenario and theme-stage records, and the news cache; an unknown symbol is refused, every result is capped and ends with its date, and none reads the portfolio, the reader's notes or saved conversations. `callSharedAi` runs the calls of a completed response in parallel (8 s each), at most two rounds and six calls, the last allowed request with `tool_choice: 'none'`, a distinct idempotency key per round, one fallback without tools on a refused request or malformed call, and never beside hosted search. Tool texts join the reference text the answer's figures are checked against; the answer-quality log records `toolRounds` and `toolCalls`. Gates: `ci-ai-intelligence-contract-check` (registry, Worker admission, fixtures, prompt assembly), `ci-ai-chat-reliability-contract-check` tool-loop section (scripted stream), `ci-pipeline-semantics-check` (a tool-only figure stays)."
+  ],
+  "note": "v60.02: chat data tools (plan 045) — registry, bounded tool loop, prompt block, reference text, telemetry"
+}

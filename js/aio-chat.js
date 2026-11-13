@@ -1201,14 +1201,15 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   // _aioPublicAIActionPolicyPrompt(). Only the reference data before it is shortened; the floor applies to that part.
   // A prompt without the marker is shortened from its end.
   var _AI_PROMPT_TAIL_MARKER = '\n\n[AIO EXTERNAL EVIDENCE CONTRACT]';
-  var _cutSystem = function(floor) {
-    for (var _cut = 0; _cut < 8 && _bodyBytes(system, _trimmedMessages) > _AI_BODY_BYTES; _cut++) {
+  var _cutSystem = function(floor, input) { // input: a tool round's grown request input
+    var _input = input || _trimmedMessages;
+    for (var _cut = 0; _cut < 8 && _bodyBytes(system, _input) > _AI_BODY_BYTES; _cut++) {
       var _sys = String(system || '');
       var _tailAt = _sys.lastIndexOf(_AI_PROMPT_TAIL_MARKER);
       var _head = _tailAt >= 0 ? _sys.slice(0, _tailAt) : _sys;
       var _tail = _tailAt >= 0 ? _sys.slice(_tailAt) : '';
       if (_head.length <= floor) return;
-      var _over = _bodyBytes(system, _trimmedMessages) - _AI_BODY_BYTES;
+      var _over = _bodyBytes(system, _input) - _AI_BODY_BYTES;
       system = _head.slice(0, Math.max(floor, _head.length - Math.ceil(_over / 3) - 500)) + '\n…(참고 자료 일부 생략)' + _tail;
     }
   };
@@ -1238,16 +1239,24 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   var searchEnabledNow = opts.webSearch === true;
   if (window.AIO?.attachNativeSearch) reqBody = window.AIO.attachNativeSearch(reqBody, { enabled: searchEnabledNow, health: routeState.health, mustSearch: opts.mustSearch });
   if (reqBody.tools && window._aioAIBudgetPolicy) window._aioAIBudgetPolicy.preparePaidWebSearch({ serverKey: true, health: routeState.health, state: window });
+  // The data-tool loop (src/ai/tools/loop.js createToolSession), never beside hosted search: the Worker refuses the mix.
+  var _tools = opts.tools && !(reqBody.tools && reqBody.tools.length) && window.AIO && window.AIO.chatTools
+    ? window.AIO.chatTools.session(reqBody, opts.tools, { signal: _chatSignal, fit: function(input) { _cutSystem(8000, input); return system || ''; } }) : null;
+  var _armConnect = function() { connectionTimedOut = false; connectTimer = setTimeout(function() { connectionTimedOut = true; ctrl.abort(); }, timeoutMs); };
   var _claudeHeaders = { 'Content-Type': 'application/json' };
   _claudeHeaders[_aiContract.headers.appToken] = _aioAppToken();
-  if (_streamRequestId) _claudeHeaders[_aiContract.headers.idempotencyKey] = _streamRequestId + (opts.retryAttempt > 0 ? ':retry' + Math.min(2, opts.retryAttempt) : ''); // v57.61: a retry is a new paid attempt (reusing the key got 409) that the Worker counts as the same question
+  var _idempotencyKey = _streamRequestId ? _streamRequestId + (opts.retryAttempt > 0 ? ':retry' + Math.min(2, opts.retryAttempt) : '') : null; // v57.61: a retry is a new paid attempt (reusing the key got 409) that the Worker counts as the same question
   try {
+   for (;;) { // one pass per request; each tool round is its own paid attempt with its own key
+    if (_tools) reqBody = _tools.body;
+    if (_idempotencyKey) _claudeHeaders[_aiContract.headers.idempotencyKey] = _idempotencyKey + (_tools ? _tools.keySuffix() : '');
     var res = await _aioFetchClaudeWithRetry(_claudeTarget.url, {
       method: 'POST', signal: ctrl.signal, headers: _claudeHeaders, body: JSON.stringify(reqBody)
     }, true, 0, { signal: _chatSignal });
     if (!res.ok) {
       var errText = await res.text();
       clearTimeout(connectTimer);
+      if (_tools && _tools.refused(res.status)) { _armConnect(); continue; }
       var errMsg = 'API 오류 (' + res.status + ')';
       try {
         var j = JSON.parse(errText);
@@ -1268,6 +1277,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
     var stopReason = null;
     var sawMessageStop = false;
     var responseUsage = null;
+    if (_tools) _tools.beginRound();
     window._lastClaudeUsage = null;
 
     // v50.10: native web_search 인용/검색결과 수집 (사용자 출처 표면화). 요청 시작 시 리셋.
@@ -1314,6 +1324,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
           if (data === '[DONE]') continue;
           var evt;
           try { evt = JSON.parse(data); } catch (invalidEvent) { throw new Error('Invalid AI stream event'); }
+          if (_tools) _tools.observe(evt);
           if (evt.type === 'error' || evt.type === 'response.failed') {
             var providerError = evt.error || evt.response && evt.response.error || {};
             if (_streamState) _streamState.researchError = providerError.message || 'AI provider stream error';
@@ -1326,7 +1337,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
               stopReason = 'client_output_limit'; onChunk(fullText);
               void reader.cancel().catch(function() {}); break;
             }
-            onChunk(fullText);
+            if (!(_tools && _tools.hidingText())) onChunk(fullText); // a round that asks for data shows none of its text
           } else if (evt.type === 'response.output_text.annotation.added' && evt.annotation) {
             if (evt.annotation.type === 'url_citation') _pushWebCite(evt.annotation.url, evt.annotation.title);
           } else if (evt.type === 'response.completed' || evt.type === 'response.incomplete') {
@@ -1369,6 +1380,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
           }
         } catch(_) {}
       }
+      if (_tools && await _tools.advance(stopReason)) { _armConnect(); continue; } // the round asked for data: run it, ask again
       if (window.AIO && typeof window.AIO.recordAISLOSample === 'function') {
         var _aiEndedAt = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
         var _sloUsage = responseUsage || {};
@@ -1389,9 +1401,10 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         workerMaxTokens: isFinite(workerMaxTokens) && workerMaxTokens > 0 ? workerMaxTokens : null,
         extendedThinking: useExtendedThinking,
         outputTokens: responseUsage && Number.isInteger(responseUsage.output_tokens) ? responseUsage.output_tokens : null,
-        effort: (modelCfg && modelCfg.reasoningEffort) || null
+        effort: (modelCfg && modelCfg.reasoningEffort) || null, toolRounds: _tools ? _tools.rounds : null, toolCalls: _tools ? _tools.calls : null
       });
       _unlinkChatAbort();
+      return;
     } catch(streamErr) {
       try { void reader.cancel().catch(function() {}); } catch(e) {}
       if ((streamErr && streamErr.name === 'AbortError') || (_chatSignal && _chatSignal.aborted)) {
@@ -1411,7 +1424,9 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         onError(streamError.displayMessage || streamError.userMessage);
         _unlinkChatAbort();
       }
+      return;
     }
+   }
   } catch(err) {
     clearTimeout(connectTimer);
     _unlinkChatAbort();
@@ -4235,6 +4250,14 @@ async function chatSendUnified(_aioDispatchOptions) {
   try {
     sysPrompt += window.AIO.describeAnswerVisuals(window.AIO.chooseAnswerVisuals({ query: q, mode: _uniMode, canonical: (_uniQuestionPlan && _uniQuestionPlan.intent && _uniQuestionPlan.intent.intents) || [], tickers: detectedTickers }));
   } catch (_) {}
+  // The data tools (src/ai/tools/): every mode except quick, never beside hosted search. Their block leads the prompt, which
+  // trimming never cuts; their results join the reference text the answer's figures are checked against.
+  var _uniTools = window.AIO && window.AIO.chatTools && window.AIO.chatTools.offer({ mode: _uniMode, webSearch: _uniUseClaudeWebSearch }) ? window.AIO.chatTools : null;
+  if (_uniTools) sysPrompt = _uniTools.promptBlock() + sysPrompt;
+  if (_uniTools) modelOpts.tools = { onResults: function(results) { _uniReferenceText = _uniTools.reference(results, _uniReferenceText); }, onStatus: function(line) {
+    var pending = document.querySelector('#ai-panel-loading .lch-muted') || aiBubble; // the pending line says what is fetched
+    if (pending && _isCurrentUnifiedRun()) pending.textContent = line;
+  } };
   if (_uniUseClaudeWebSearch) {
     _appendAIMsg('ai', '<div class="ai-websearch-status" role="status" style="font-size:12px;color:var(--text-primary);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;margin-bottom:4px;">기존 자료를 보강하기 위해 웹검색 중, 출처 확인 후 답변</div>');
     sysPrompt += '\n\n【웹 리서치 지시 (통합 AI 패널)】\n공급망·밸류체인·TAM/시장규모·경쟁구조·기술해자·13F·사업구조·경영진 전략처럼 최신 확인이 필요한 정성 분석은 web_search 결과를 우선하라. 확인하지 못한 항목은 "확인 불가"로 남기고, 학습데이터 기반 추측을 금지한다.';
