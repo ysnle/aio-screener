@@ -1615,6 +1615,25 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check('v60.02 calls past the per-request budget are not run and say 한도', ran.used === 6 && ran.results.slice(0, 2).every((r) => r.ok) && ran.results.slice(2).every((r) => !r.ok && /한도/.test(r.text)) && ran.outputs.every((o, i) => o.call_id === `call_${i}`));
   const slow = await loop.runToolCalls([call('trend', { symbol: 'NVDA' }, 9)], { root, now: nowMs, limits: { ...loop.TOOL_LOOP_LIMITS, callTimeoutMs: 20 }, run: () => new Promise(() => {}) });
   check('v60.02 a tool that does not answer in time gives an output saying so', slow.results[0].ok === false && /시간/.test(slow.results[0].text));
+  // The assembled unified prompt (chatSendUnified's own statements): the tools block leads it when tools are offered.
+  const noSearch = { ai: { paidWebSearchEnabled: false, webSearchAvailable: false } };
+  const offered = promptKit.assemble('엔비디아와 AMD 실적을 비교 분석해줘', 'home', { health: noSearch });
+  const tailAt = offered.prompt.lastIndexOf('\n\n[AIO EXTERNAL EVIDENCE CONTRACT]');
+  check(`v60.02 an analysis question without search leads its prompt with the tools block (${offered.mode}/${offered.webSearch}/${offered.tools})`,
+    offered.tools === true && offered.webSearch === false && offered.prompt.startsWith(block) && offered.prompt.split('【추가 자료 요청 (도구)】').length === 2 && tailAt > block.length);
+  check('v60.02 the tools block adds no figure to the reference text the answer is checked against',
+    JSON.stringify(answerPublication.supportedNumbersFromText(answerPublication.answerReferenceText(offered.prompt))) === JSON.stringify(answerPublication.supportedNumbersFromText(answerPublication.answerReferenceText(offered.prompt.slice(block.length)))));
+  const quickAsk = promptKit.assemble('테슬라 PER 얼마야?', 'home', { health: noSearch });
+  check(`v60.02 a quick question gets no tools (${quickAsk.mode})`, quickAsk.mode === 'quick' && quickAsk.tools === false && !quickAsk.prompt.includes('【추가 자료 요청 (도구)】'));
+  const searchedAsk = promptKit.assemble('엔비디아 오늘 왜 떨어졌어?', 'home');
+  const log = await import('../src/ai/telemetry/answer-quality-log.js');
+  const box = new Map();
+  const store = { getItem: (k) => (box.has(k) ? box.get(k) : null), setItem: (k, v) => box.set(k, String(v)) };
+  const at = new Date(nowMs - DAY).toISOString();
+  const kept = log.recordAnswerQuality(store, { at, mode: 'analysis', toolRounds: 2, toolCalls: 5 }, nowMs) && log.recordAnswerQuality(store, { at, mode: 'quick' }, nowMs);
+  const toolSummary = log.summariseAnswerQuality(store, { now: nowMs });
+  check('v60.02 the answer-quality log keeps tool rounds and calls as counts', kept && JSON.parse(box.get(log.ANSWER_QUALITY_KEY))[0].toolRounds === 2 && toolSummary.toolCalls === 5 && toolSummary.toolAnswers === 1);
+  check(`v60.02 a question with hosted search attached gets no tools (${searchedAsk.webSearch}/${searchedAsk.toolChoice})`, searchedAsk.webSearch === true && searchedAsk.tools === false && !searchedAsk.prompt.includes('【추가 자료 요청 (도구)】'));
 }
 
 if (failures.length) {

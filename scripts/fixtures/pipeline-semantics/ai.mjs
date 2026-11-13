@@ -46,6 +46,30 @@ export const cases = [
     assert.match(result.text, /1987년 블랙 먼데이/);
     assert.ok(!JSON.stringify(recorded[0]).includes('코스피'), 'v59.99 no answer text is recorded');
   } },
+  { id: 'v60.02', name: 'a figure that came only from a data-tool result stays in the answer, and the tool rounds are recorded', run: async ({ load }) => {
+    const { installAIRequestPipeline } = await load('src/ai/response/request-pipeline.js');
+    const answerPublication = await load('src/ai/response/publication.js');
+    const { runTool } = await load('src/ai/tools/registry.js');
+    const session = new Date(Date.now() - 86400000).toISOString().slice(0, 10); // dated from the clock, not a fixed day
+    const toolRoot = { _aioNormalizeTickerInput: (raw) => String(raw || '').trim().toUpperCase(), _aioIsKnownTicker: (symbol) => symbol === 'NVDA',
+      _aioGetCanonicalScreenerRows: () => [{ sym: 'NVDA', name: 'NVIDIA', ret5d: -3.2, ret1m: -6.5, ret3m: 4.1, rsi: 28, pctFrom52wHigh: -12, pctFrom52wLow: 60, factorSessionDate: session }] };
+    const tool = await runTool('trend', '{"symbol":"NVDA"}', { root: toolRoot });
+    assert.ok(tool.ok && /1개월 -6\.5%/.test(tool.text), tool.text);
+    const recorded = [];
+    const root = { AIO_ARCH: { getAIOrchestrator: () => ({ answerPublication }) }, AIO: { recordAnswerQuality: (entry) => { recorded.push(entry); return true; } } };
+    installAIRequestPipeline(root, {});
+    const raw = '엔비디아는 최근 1개월 동안 -6.5% 움직였습니다. 금리 인하는 보통 성장주에 유리합니다.';
+    const injected = '【주입된 자료】 시장 폭 자료 없음';
+    const meta = { request: { requestId: 'q-tools', entrypoint: 'unified-chat', answerMode: 'analysis', searched: false }, currentSensitive: true, entrypoint: 'unified-chat',
+      completion: { truncated: false, outputTokens: 300, effort: 'medium', toolRounds: 1, toolCalls: 2 }, streamPhase: 'complete' };
+    const without = root._aioRunAIResponsePipeline(raw, { ...meta, referenceText: injected, record: false });
+    assert.doesNotMatch(without.text, /-6\.5%/, 'without the tool text the figure has no support');
+    // chatSendUnified's onResults puts the tool texts ahead of the injected blocks.
+    const withTool = root._aioRunAIResponsePipeline(raw, { ...meta, referenceText: tool.text + '\n\n' + injected });
+    assert.match(withTool.text, /1개월 동안 -6\.5% 움직였습니다/);
+    assert.equal(recorded.length, 1);
+    assert.equal(recorded[0].toolRounds, 1); assert.equal(recorded[0].toolCalls, 2);
+  } },
   { id: 'v59.52', name: 'chat sector and theme cues match words, not retail containing AI or a lowercase pronoun it', run: async ({ load }) => {
     const { runScreenerQuery, detectSectorQuery } = await load('src/ai/context/screener-query.js');
     const rows = [{ sym: 'NVDA', sector: 'Technology' }, { sym: 'WMT', sector: 'Consumer' }];

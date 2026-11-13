@@ -5,7 +5,7 @@
 export const ANSWER_QUALITY_KEY = 'aio_ai_answer_quality_v1';
 export const ANSWER_QUALITY_LIMIT = 300;
 const DAY_MS = 86400000;
-const COUNT_FIELDS = ['outputTokens', 'removedNumericSentences', 'removedEventSentences', 'droppedClaims', 'directiveReplacements', 'sentencesTotal'];
+const COUNT_FIELDS = ['outputTokens', 'removedNumericSentences', 'removedEventSentences', 'droppedClaims', 'directiveReplacements', 'sentencesTotal', 'toolRounds', 'toolCalls'];
 const FIELDS = new Set(['at', 'mode', 'effort', 'searched', 'truncated'].concat(COUNT_FIELDS));
 const LABEL = /^[A-Za-z0-9_.-]{1,32}$/;
 
@@ -66,6 +66,8 @@ export function summariseAnswerQuality(storage, { days = 14, now = Date.now() } 
     searchedAnswers: rows.filter((row) => row.searched).length,
     droppedClaims: sum(rows, 'droppedClaims'),
     directiveReplacements: sum(rows, 'directiveReplacements'),
+    toolAnswers: rows.filter((row) => row.toolCalls > 0).length,
+    toolCalls: sum(rows, 'toolCalls'),
     line
   };
 }

@@ -4279,6 +4279,23 @@ async function chatSendUnified(_aioDispatchOptions) {
   try {
     sysPrompt += window.AIO.describeAnswerVisuals(window.AIO.chooseAnswerVisuals({ query: q, mode: _uniMode, canonical: (_uniQuestionPlan && _uniQuestionPlan.intent && _uniQuestionPlan.intent.intents) || [], tickers: detectedTickers }));
   } catch (_) {}
+  // The data tools (src/ai/tools/): every mode except quick, never beside hosted search. Their block leads the prompt, where
+  // trimming never reaches; what they return joins the reference text the answer's figures are checked against.
+  var _uniTools = window.AIO && window.AIO.chatTools && window.AIO.chatTools.offer({ mode: _uniMode, webSearch: _uniUseClaudeWebSearch }) ? window.AIO.chatTools : null;
+  if (_uniTools) sysPrompt = _uniTools.promptBlock() + sysPrompt;
+  if (_uniTools) modelOpts.tools = {
+    onStatus: function(line) { // the pending line says what is being fetched, in plain Korean
+      if (!_isCurrentUnifiedRun()) return;
+      var pending = document.getElementById('ai-panel-loading');
+      var pendingLine = pending ? pending.querySelector('.lch-muted') : null;
+      if (pendingLine) pendingLine.textContent = line;
+      else if (aiBubble) aiBubble.innerHTML = '<span class="lch-muted" role="status">' + escHtml(line) + '</span>';
+    },
+    onResults: function(results) { // ahead of the injected blocks, so the reference figure limit never drops a tool's figures
+      var found = (results || []).filter(function(result) { return result && result.ok && result.text; }).map(function(result) { return result.text; });
+      if (found.length) _uniReferenceText = found.join('\n\n') + '\n\n' + _uniReferenceText;
+    }
+  };
   if (_uniUseClaudeWebSearch) {
     _appendAIMsg('ai', '<div class="ai-websearch-status" role="status" style="font-size:12px;color:var(--text-primary);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;margin-bottom:4px;">기존 자료를 보강하기 위해 웹검색 중, 출처 확인 후 답변</div>');
     sysPrompt += '\n\n【웹 리서치 지시 (통합 AI 패널)】\n공급망·밸류체인·TAM/시장규모·경쟁구조·기술해자·13F·사업구조·경영진 전략처럼 최신 확인이 필요한 정성 분석은 web_search 결과를 우선하라. 확인하지 못한 항목은 "확인 불가"로 남기고, 학습데이터 기반 추측을 금지한다.';
