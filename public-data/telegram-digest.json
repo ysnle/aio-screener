@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-14T13:22:20.022Z",
-  "attemptedAt": "2026-11-14T13:22:20.022Z",
-  "lastSuccessfulAt": "2026-11-14T13:22:20.022Z",
+  "generatedAt": "2026-11-14T14:21:21.863Z",
+  "attemptedAt": "2026-11-14T14:21:21.863Z",
+  "lastSuccessfulAt": "2026-11-14T14:21:21.863Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-31T13:22:14.725Z",
-  "until": "2026-11-14T13:22:14.725Z",
+  "since": "2026-10-31T14:21:15.168Z",
+  "until": "2026-11-14T14:21:15.168Z",
   "current24hWindow": {
     "start": "2026-11-12T23:00:00.000Z",
     "end": "2026-11-13T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1233,
-      "freshCount": 20,
-      "eligibleTextCount": 1177,
+      "count": 1235,
+      "freshCount": 40,
+      "eligibleTextCount": 1179,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 69278
+      "lastPostId": 69281
     },
     {
       "channel": "bornlupin",
@@ -116,30 +116,30 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 732,
-      "freshCount": 37,
-      "eligibleTextCount": 731,
+      "count": 733,
+      "freshCount": 38,
+      "eligibleTextCount": 732,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72133
+      "lastPostId": 72134
     }
   ],
-  "count": 2195,
-  "retainedItemCount": 415,
+  "count": 2198,
+  "retainedItemCount": 432,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2195,
-    "eligibleTextCount": 2138,
+    "observedCount": 2198,
+    "eligibleTextCount": 2141,
     "mediaOnlyCount": 57,
     "mediaAttachedCount": 936,
     "photoPostCount": 809,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
     "highSignalCount": 372,
-    "broadSignalCount": 859,
+    "broadSignalCount": 860,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
     "selectedRawCoveragePct": 17.4,
@@ -147,9 +147,9 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 772,
+    "semi": 561,
     "ai-policy": 124,
-    "semi": 560,
-    "market-note": 770,
     "geo": 350,
     "japan": 68,
     "earnings": 324,
@@ -165,9 +165,9 @@
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 267,
+    "NVDA": 268,
+    "TSLA": 44,
     "MSFT": 54,
-    "TSLA": 43,
     "GOOG": 67,
     "AMZN": 51,
     "AMD": 56,
@@ -253,8 +253,8 @@
     "6981.T": 2
   },
   "themes": [
-    "Market Notes (770 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
-    "Semiconductors/Memory (560 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
+    "Market Notes (772 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
+    "Semiconductors/Memory (561 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
     "Geopolitics (350 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Earnings/Corporate (324 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정...",
     "Macro/Rates (314 posts in 14-day research window): 2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
@@ -265,7 +265,7 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 267,
+      "count": 268,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     },
     {
@@ -295,7 +295,7 @@
     },
     {
       "key": "TSLA",
-      "count": 43,
+      "count": 44,
       "text": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,..."
     },
     {
@@ -358,7 +358,7 @@
       "topics": [
         "semi"
       ],
-      "count": 560,
+      "count": 561,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조...."
     },
     {
@@ -466,7 +466,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 770,
+      "count": 772,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     }
   ],
@@ -1686,6 +1686,24 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69281",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69281",
+      "datetime": "2026-11-14T13:35:43.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 60,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSLA"
+      ],
+      "summary": "미국 고위 당국자들에 따르면 트럼프 대통령은 다음 주 시진핑 중국 국가주석과의 회담에서 엔비디아 전 CEO 젠슨 황과 중국 스파이 의혹을 받는 앨리스 황의 관계를 거론하지 않을 전망. • 일론 머스크 방중..."
+    },
+    {
       "id": "HANAchina/72133",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72133",
@@ -2065,13 +2083,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": "로이터에 따르면 젠슨 황이 엔비디아 주요 경영진에게 메가스피드 전직 임원 앨리스 황과의 관계를 정상적인 사업상 교류라고 설명하며 혼외 관계에 대해 오도한 것으로 보도. 메가스피드는 엔비디아의 고객사. 로이터가...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "로이터에 따르면 젠슨 황이 엔비디아 주요 경영진에게 메가스피드 전직 임원 앨리스 황과의 관계를 정상적인 사업상 교류라고 설명하며 혼외 관계에 대해 오도한 것으로 보도. 메가스피드는 엔비디아의 고객사. 로이터가..."
     },
     {
       "id": "insidertracking/69248",
@@ -2082,6 +2100,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2090,11 +2109,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "엔비디아 이사회에 젠슨 황의 복귀를 촉구하는 공개서한이 등장했으며, 현재까지 8,000명 이상이 서명에 참여. >",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아 이사회에 젠슨 황의 복귀를 촉구하는 공개서한이 등장했으며, 현재까지 8,000명 이상이 서명에 참여. >"
     },
     {
       "id": "bornlupin/21152",
@@ -2228,6 +2246,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2236,11 +2255,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "CBS에 따르면 엔비디아 창업자 젠슨 황이 미국 의회에 출석해 선서 증언을 하기로 동의. 젠슨 황은 중국 당국의 정보원으로 의심되는 여성과의 혼외 관계를 둘러싼 논란으로 의원들의 소환 요구를 받은 가운데,...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "CBS에 따르면 엔비디아 창업자 젠슨 황이 미국 의회에 출석해 선서 증언을 하기로 동의. 젠슨 황은 중국 당국의 정보원으로 의심되는 여성과의 혼외 관계를 둘러싼 논란으로 의원들의 소환 요구를 받은 가운데,..."
     },
     {
       "id": "insidertracking/69233",
@@ -6545,20 +6563,6 @@
       "hasText": true,
       "summary": ">>Anthropic, 장기 영업이익률 35% 목표…창업자 7명 IPO서 총 17.5억달러 현금화 •Anthropic 경영진은 IPO 로드쇼 영상에서 장기적으로 조정 영업이익률 35% 이상을 달성할 수 있다고...",
       "lead": 3,
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/68956",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68956",
-      "datetime": "2026-11-10T21:31:47.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "market-note"
-      ],
-      "score": 74,
-      "hasText": true,
-      "summary": "11월 11일 미주인 브리핑 주요 이슈와 시장 흐름을 팟캐스트로 정리했습니다. 자막 안내 유튜브 영상에서 자막 버튼을 누르시면 자동으로 생성되는 자막과 함께 시청하실 수 있습니다. ※ 추후 시각화 자료도...",
       "tickers": []
     },
     {
