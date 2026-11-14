@@ -3,7 +3,7 @@
   "sourceSchemaVersion": "2.0",
   "artifactRole": "BOUNDED_PAGE_PROJECTION",
   "projectionPolicy": "Latest normalized annual facts reconciled for parent-company equity (P1402/P1449) plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path. Per-record uniform source/model restated by this header are trimmed; data serializes compactly (1 MiB bound headroom, P1470).",
-  "generatedAt": "2026-11-14T18:31:57.996Z",
+  "generatedAt": "2026-11-14T22:26:05.797Z",
   "source": "SEC EDGAR companyfacts",
   "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
   "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -14,13 +14,13 @@
   "domainReceipt": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "sec-fundamentals",
-    "runId": "gha:43627072252",
-    "attemptedAt": "2026-11-14T18:31:56.336Z",
+    "runId": "gha:43648037473",
+    "attemptedAt": "2026-11-14T22:26:04.207Z",
     "sourceRevision": "sec-company-tickers:d5232e162521cf623dcf7c607355e930adce5a6a885b48c3ae06a0441ff27314",
     "inputWatermarks": {
       "universe": null,
-      "screener": "2026-11-14T07:11:39.706Z",
-      "previousArtifact": "2026-11-14T07:05:46.987Z"
+      "screener": "2026-11-14T18:37:54.108Z",
+      "previousArtifact": "2026-11-14T18:31:57.996Z"
     },
     "batchLimit": 24,
     "counts": {
