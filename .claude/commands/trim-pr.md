@@ -25,7 +25,7 @@ Writers add more code than required; asking them to be concise up front does not
 - Give the reviewer a target ("find at least N lines or say why not"); open-ended cleanup stops too early.
 
 ## Tooling
-- `node scripts/dead-code.mjs report [js/<file>.js]` lists top-level names with no runtime reference (RULES-named ones are flagged keep; test/gate-only refs are listed). `node scripts/dead-code.mjs remove <file> <names>` deletes them CRLF-safely. Re-grep string-built references before removing.
+- `node scripts/dead-code.mjs report [js/<file>.js]` lists top-level names with no runtime reference (RULES-named ones are flagged keep; test/gate-only refs are listed). `node scripts/dead-code.mjs remove <file> <name,name>` deletes them CRLF-safely. Re-grep string-built references before removing.
 - Parallel trims: one worktree per file group (`git worktree add <dir> -b claude/vX.Y-<area> <base>`), disjoint ownership, integrate and gate once.
 
 ## Rules for the reviewer

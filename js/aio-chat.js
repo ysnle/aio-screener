@@ -4268,7 +4268,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (_uniTools) modelOpts.tools = { onResults: function(results) { _uniReferenceText = _uniTools.reference(results, _uniReferenceText); }, onStatus: function(line) { if (_uniStatus && _isCurrentUnifiedRun()) _uniStatus.stage('tools', line); } };
   if (_uniStatus) modelOpts.onStage = _uniStatus.hook; // callSharedAi reports request sent, stream activity and stream end
   if (_uniUseClaudeWebSearch) {
-    _appendAIMsg('ai', '<div class="ai-websearch-status" role="status" style="font-size:12px;color:var(--text-primary);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;margin-bottom:4px;">필요하면 웹검색으로 확인한 뒤 답변</div>');
+    _appendAIMsg('ai', '<div class="ai-websearch-status" role="status" style="font-size:12px;color:var(--color-text-primary);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;margin-bottom:4px;">필요하면 웹검색으로 확인한 뒤 답변</div>');
     modelOpts.webSearch = true;
     // mustSearch / searchContext (src/ai/research/native-search.js): otherwise the model decides whether to search.
     if (window.AIO && window.AIO.nativeSearchOptions) Object.assign(modelOpts, window.AIO.nativeSearchOptions({ decision: _uniResearchDecision || {}, mode: _uniMode, internalEvidenceReady: _uniSearchInternalReady }));
@@ -4363,7 +4363,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     // v46.10: 모델 배지
     var _bubbleParent = (aiBubble ? aiBubble.parentNode : null) || (streamEl ? streamEl.querySelector('.ai-msg-content') : null);
     if (_bubbleParent) {
-      var modelColor = selectedModelKey === 'luna-low' ? 'var(--data-purple)' : 'var(--text-muted)';
+      var modelColor = selectedModelKey === 'luna-low' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)';
       var badgeEl = document.createElement('div');
       badgeEl.style.cssText = 'font-size:12px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:2px 0 0;opacity:0.6;';
       badgeEl.textContent = selectedModelCfg.label || selectedModelKey;
@@ -4382,7 +4382,7 @@ async function chatSendUnified(_aioDispatchOptions) {
 
       // v46.10: 데이터 신뢰도 배지
       var _srcBadge = document.createElement('div');
-      _srcBadge.style.cssText = 'font-size:12px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;padding:3px 6px;background:var(--surface-1);border-radius:4px;';
+      _srcBadge.style.cssText = 'font-size:12px;color:var(--color-text-secondary);display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;padding:3px 6px;background:var(--surface-1);border-radius:4px;';
       _srcBadge.innerHTML = _aioChoosing ? _aioChoosing.sourceBadge(window, ctxId, { ticker: _uniTickerData, tickerText: tickerDataStr, technical: _uniTechnicalData, screener: !!_uniScreenerStr, domain: _uniDomainData, news: _uniNewsCtx, portfolio: _uniPortfolioData, web: !!_uniWebResult, aiWeb: _uniUseClaudeWebSearch, deep: _uniDeepData }) : ''; // v58.75: used evidence only
       if (_srcBadge.innerHTML) _bubbleParent.appendChild(_srcBadge);
 
@@ -4450,9 +4450,9 @@ async function chatSendUnified(_aioDispatchOptions) {
       var _retryNote = modelOpts.webSearch === true ? ', 웹 검색 없이' : ''; // P1756: retries run without web search — each searched attempt is billed and reserves search budget even on a timeout/5xx; the first attempt keeps search.
       if (_retried >= 1 && _currentIdx >= 0 && _currentIdx < _fallbackOrder.length - 1) {
         nextModel = _fallbackOrder[_currentIdx + 1];
-        _appendAIMsg('ai', '<div style="font-size:12px;color:var(--data-amber);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;">응답이 늦어 ' + (typeof getModelConfig === 'function' ? getModelConfig(nextModel).label : nextModel) + '로 다시 시도합니다' + _retryNote + '...</div>');
+        _appendAIMsg('ai', '<div style="font-size:12px;color:var(--color-text-warning);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;">응답이 늦어 ' + (typeof getModelConfig === 'function' ? getModelConfig(nextModel).label : nextModel) + '로 다시 시도합니다' + _retryNote + '...</div>');
       } else {
-        _appendAIMsg('ai', '<div style="font-size:12px;color:var(--data-amber);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;">다시 시도합니다' + _retryNote + ' (' + (_retried+1) + '/2)</div>');
+        _appendAIMsg('ai', '<div style="font-size:12px;color:var(--color-text-warning);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;">다시 시도합니다' + _retryNote + ' (' + (_retried+1) + '/2)</div>');
       }
       _uniRun.retryTimer = setTimeout(function() {
         if (_uniRun) _uniRun.retryTimer = null;

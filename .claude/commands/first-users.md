@@ -5,7 +5,7 @@ misled, fix the causes, then prove the fixes with a fresh run judged by an agent
 LimestoneHQ launch-QA prompt (2026-10-25) for AIO's audience: family and friends, mostly not investment professionals.
 
 ## Settle before spawning (subagents cannot ask)
-- **First success** per persona, from the 8 screens. Default: read today's one-line market conclusion and open its chart
+- **First success** per persona, from the 9 screens. Default: read today's one-line market conclusion and open its chart
   (오늘 → 시장 상태); search one US stock and read its chart and fundamentals (종목); add one holding (포트폴리오, local
   storage only); ask the AI panel one question. Change these only with the owner's OK.
 - Surface: `node .claude/skills/verify-aio/scripts/verify-aio.mjs launch` (127.0.0.1:8791, committed `public-data/`).

@@ -147,7 +147,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     if (price == null) {
       // P1499: raw prices are not republished (P715); an uncovered row shows a quiet dash, not a word on every line.
       const missing = text(documentRef, '—');
-      missing.style.color = 'var(--text-muted)';
+      missing.style.color = 'var(--color-text-secondary)';
       missing.title = '실시간 시세가 연결되지 않은 종목 — 공개 데이터에는 종목별 가격을 싣지 않습니다.';
       return missing;
     }
@@ -176,7 +176,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     const value = text(documentRef, formatScreenerPrice(price, currency));
     value.dataset.quoteFreshness = observedAt ? 'observed' : 'unverified';
     value.title = `${currency || '통화 미확인'}, ${stamp}, ${source || '출처 미확인'}, ${observedAt ? '행 자체 관측' : '현재성 미확인 — 전역 LIVE에 상속하지 않음'}`;
-    if (!observedAt) value.style.color = 'var(--text-muted)';
+    if (!observedAt) value.style.color = 'var(--color-text-secondary)';
     wrap.appendChild(value);
     if (!observedAt) {
       const note = documentRef.createElement('small');
@@ -191,7 +191,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
   if (['ret1m', 'ret3m', 'ret6m', 'pctSma50'].includes(key)) {
     const node = documentRef.createElement('span');
     node.textContent = returnText(row[key]);
-    node.style.color = finite(row[key]) == null ? 'var(--text-muted)' : returnColor(row[key]);
+    node.style.color = finite(row[key]) == null ? 'var(--color-text-secondary)' : returnColor(row[key]);
     return node;
   }
   if (key === 'rsi') return numberText(row.rsi, 1);
@@ -200,7 +200,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     const node = documentRef.createElement('span');
     node.textContent = multiple == null ? '—' : `${multiple.toFixed(1)}배`;
     node.title = multiple == null ? '50일선 거리 또는 일평균 변동폭 자료 없음' : `50일선 대비 ${Number(row.pctSma50).toFixed(1)}% ÷ 일평균 변동폭 ${Number(row.adrPct).toFixed(1)}% — ${EXTENSION_BANDS.nearBase}배 이하는 기준선 가까이, ${EXTENSION_BANDS.extended}배 이상은 확장, ${EXTENSION_BANDS.stretched}배 이상은 크게 확장된 구간(참고 구간)`;
-    node.style.color = multiple == null ? 'var(--text-muted)' : multiple >= EXTENSION_BANDS.stretched ? 'var(--data-red)' : multiple >= EXTENSION_BANDS.extended ? 'var(--data-amber)' : 'var(--text-primary)';
+    node.style.color = multiple == null ? 'var(--color-text-secondary)' : multiple >= EXTENSION_BANDS.stretched ? 'var(--color-text-error)' : multiple >= EXTENSION_BANDS.extended ? 'var(--color-text-warning)' : 'var(--color-text-primary)';
     return node;
   }
   if (key === 'pctFrom52wHigh') return returnText(row.pctFrom52wHigh);
@@ -214,13 +214,13 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     const value = finite(row.rvol20);
     const node = text(documentRef, value == null ? '—' : `${value.toFixed(2)}배`);
     node.title = value == null ? '거래량 자료 없음' : `마지막 거래일 거래량이 직전 20거래일 평균의 ${value.toFixed(2)}배${row.factorSessionDate ? ` (${row.factorSessionDate} 종가 기준)` : ''}`;
-    if (value == null) node.style.color = 'var(--text-muted)';
+    if (value == null) node.style.color = 'var(--color-text-secondary)';
     return node;
   }
   if (key === 'adrPct') {
     const value = finite(row.adrPct);
     const node = text(documentRef, value == null ? '—' : `${value.toFixed(1)}%`);
-    if (value == null) node.style.color = 'var(--text-muted)';
+    if (value == null) node.style.color = 'var(--color-text-secondary)';
     return node;
   }
   if (key === 'dollarVolume30d') {
@@ -230,14 +230,14 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     const label = usd != null ? usdKoreanText(usd)
       : native != null && nativeCurrency === 'KRW' ? `${Math.round(native / 1e8).toLocaleString('ko-KR')}억원` : '—';
     const node = text(documentRef, label);
-    if (label === '—') node.style.color = 'var(--text-muted)';
+    if (label === '—') node.style.color = 'var(--color-text-secondary)';
     return node;
   }
   if (key === 'pivotDist') {
     const pct = pivotDistancePct(row);
     const node = text(documentRef, pct == null ? '—' : returnText(pct));
     node.title = pct == null ? '피벗이 계산되지 않았거나 종가 자료가 없는 종목' : `마지막 확정 종가가 피벗(마지막 수축 구간의 고점)보다 ${Math.abs(pct).toFixed(1)}% ${pct >= 0 ? '위' : '아래'}${row.vcpStage ? `, 구조: ${vcpStageLabel(row.vcpStage)}` : ''} — 관찰 위치이며 매수 지점이 아닙니다`;
-    node.style.color = pct == null ? 'var(--text-muted)' : 'var(--text-primary)';
+    node.style.color = pct == null ? 'var(--color-text-secondary)' : 'var(--color-text-primary)';
     return node;
   }
   if (key === 'rs6m' || key === 'rs12m') {
@@ -247,7 +247,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     const months = key === 'rs6m' ? 6 : 12;
     const ret = finite(row[key === 'rs6m' ? 'ret6m' : 'ret12m']);
     node.title = pct == null ? `${months}개월 수익률이 없거나 순위 비교 대상이 아닌 종목` : `${months}개월 수익률 ${returnText(ret)} — 같은 시장 ${entry[`${key}Count`]}종목 중 백분위 ${pct}`;
-    if (pct == null) node.style.color = 'var(--text-muted)';
+    if (pct == null) node.style.color = 'var(--color-text-secondary)';
     return node;
   }
   if (FILING_KEYS.has(key)) {
@@ -259,14 +259,14 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     const filed = row._fundamentalFiledAt ? String(row._fundamentalFiledAt).slice(0, 10) : null;
     const earnings = key === 'pe' && row._valuationPeEarningsThrough ? `, 이익 ${row._valuationPeEarningsBasis === 'ttm' ? '최근 4개 분기 합' : '최근 회계연도'}(${row._valuationPeEarningsThrough}까지)` : '';
     node.title = value == null ? '공시 자료가 없거나 비정상 값이라 비움' : `${period ? `회계기간 종료 ${period}` : '회계기간 미확인'}${filed ? `, 공시 ${filed}` : ''}${earnings}`;
-    if (value == null) node.style.color = 'var(--text-muted)';
+    if (value == null) node.style.color = 'var(--color-text-secondary)';
     return node;
   }
   if (key === 'themeStage') {
     const stages = rowThemeStages(row);
     if (!stages?.length) {
       const node = text(documentRef, '—');
-      node.style.color = 'var(--text-muted)';
+      node.style.color = 'var(--color-text-secondary)';
       node.title = stages == null ? '테마 상태 자료가 최신이 아니라 표시하지 않습니다' : '추적하는 테마에 들어 있지 않은 종목';
       return node;
     }
@@ -280,7 +280,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     // first; the number is labelled as how many contraction rules are met, in a neutral colour.
     node.textContent = row.vcpScore == null ? '—' : `${vcpStageLabel(row.vcpStage)}, 충족도 ${row.vcpScore}`;
     node.title = '변동성 수축(VCP) 규칙 — 수축 횟수, 수축 깊이 감소, 거래량 감소 — 을 얼마나 충족하는지 0~100으로 합친 값입니다. 과거 성과로 검증된 매수 점수가 아닙니다.';
-    node.style.color = row.vcpScore == null ? 'var(--text-muted)' : 'var(--text-secondary)';
+    node.style.color = row.vcpScore == null ? 'var(--color-text-secondary)' : 'var(--color-text-secondary)';
     return node;
   }
   if (key === 'fwdPe') {
@@ -292,7 +292,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     const node = text(documentRef, view?.fwdPe != null ? (view.fwdPe > PE_MEANINGFUL_MAX ? `${PE_MEANINGFUL_MAX}배 초과` : `${numberText(view.fwdPe, 1)}배`) : view ? '적자 예상' : partial ? '수집 전' : '—');
     if (partial) node.title = `컨센서스는 실행마다 일부 종목씩 수집합니다(지금 ${coverage.covered}/${coverage.universeUs}종목). 다음 수집 차례에 채워집니다.`;
     else node.title = view ? `종가 ${view.price}${view.priceDate ? ` (${view.priceDate})` : ''} ÷ 아직 실적이 발표되지 않은 4개 분기(${view.fwdFrom}~${view.fwdTo}) 컨센서스 EPS 합 ${view.fwdEps}, 애널리스트 최소 ${view.minEstimates ?? '?'}명, ${view.asOf} 수집 — 참고값` : '컨센서스 자료 없음(미국 종목만, 애널리스트 추정이 있는 경우)';
-    if (!view) node.style.color = 'var(--text-muted)';
+    if (!view) node.style.color = 'var(--color-text-secondary)';
     return node;
   }
   if (key === 'mcap') {
@@ -301,7 +301,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     const reference = row.referenceMarketCap;
     if ((finite(native?.value) == null || ['BLOCKED', 'DENIED'].includes(native.rightsId)) && finite(reference?.billions) != null) {
       const node = text(documentRef, `${usdKoreanText(reference.billions * 1e9)}, 참고`);
-      node.title = `참고 시총 = SEC 발행주식수(${reference.sharesObservedAt || '기준일 미상'}) × 산출물 종가 — 크기 구간 필터에만 쓰고 팩터·판단에는 쓰지 않음 (P1318)`;
+      node.title = `참고 시총 = 발행주식수(${reference.sharesObservedAt || '기준일 미상'}) × 종가 — 크기 구간 필터에만 씀`;
       return node;
     }
     if (finite(native?.value) == null || ['BLOCKED', 'DENIED'].includes(native.rightsId)) return '—';
@@ -317,7 +317,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     node.className = 'scr-follow-through';
     node.textContent = summary.text;
     if (summary.title) node.title = summary.title;
-    if (summary.climax) node.style.color = 'var(--data-red)';
+    if (summary.climax) node.style.color = 'var(--color-text-error)';
     return node;
   }
   if (key === 'entry') {
@@ -338,10 +338,10 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     const newsEmpty = { 'rotation-pending': '순환 대기', 'fetch-failed': '수신 실패', 'no-verified-article': '확인된 기사 없음', 'not-covered': '수집 대상 아님' };
     // v57.55 review (E1-10): an empty memo is a quiet dash (its reason in the hover), not a word repeated down the column.
     memo.textContent = row.newsMemo ? row.newsMemo.slice(0, 70) : '—';
-    if (!row.newsMemo) memo.style.color = 'var(--text-muted)';
+    if (!row.newsMemo) memo.style.color = 'var(--color-text-secondary)';
     const newsSources = Array.isArray(row.newsMemoSources) ? row.newsMemoSources.filter(Boolean) : [];
     if (row.newsMemo) memo.title = `${row.newsMemo}${newsSources.length ? `\n출처: ${newsSources.join(', ')}` : ''}`;
-    else if (row.newsStatus === 'rotation-pending') memo.title = '종목 뉴스는 실행마다 일부 종목씩 돌아가며 수집합니다. 다음 차례에 갱신됩니다.';
+    else if (row.newsStatus === 'rotation-pending') memo.title = '종목 뉴스 수집 대기';
     else memo.title = newsEmpty[row.newsStatus] || '근거 미수신';
     const why = documentRef.createElement('button');
     why.type = 'button';
@@ -405,7 +405,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
         // P1319/N12: every stale cell used to repeat "YYYY-MM-DD · 참고", burying the numbers.
         // The cell is muted and marked; one table-level note states the date(s) once (renderStaleNote).
         td.dataset.staleAsOf = field.observedAt ? String(field.observedAt).slice(0, 10) : '시각 미확인';
-        td.style.color = 'var(--text-muted)';
+        td.style.color = 'var(--color-text-secondary)';
       }
     }
     tr.appendChild(td);
@@ -903,7 +903,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   // The rows and the count are on screen: readers that changed a filter (the AI condition card) take the count from here.
   documentRef.dispatchEvent?.(new (documentRef.defaultView?.CustomEvent || CustomEvent)('aio:screener-filtered', { detail: { count: filtered.length } }));
   const summary = documentRef.getElementById('scr-visible-summary');
-  if (summary) summary.textContent = `${MARKET_LABELS[listingMarket]}, ${filtered.length}종목 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시`;
+  if (summary) summary.textContent = filtered.length ? `${MARKET_LABELS[listingMarket]}, ${filtered.length}종목 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시` : `${MARKET_LABELS[listingMarket]}, 조건에 맞는 종목 없음`;
   renderStaleNote(documentRef, body);
   const loadMore = documentRef.getElementById('scr-load-more-wrap');
   if (loadMore) {
@@ -1039,7 +1039,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     : '';
   if (readiness) readiness.title = [previewNote ? previewNote.replace(/, $/, '') : null, previewConditions ? `내장 조건: ${previewConditions.builtin.map(item => item.text).join(', ') || '없음'} | 사용자 추가: ${previewConditions.user.map(item => item.text).join(', ') || '없음'}` : null, run?.runId ? `실행 ${String(run.runId).slice(0, 12)}` : null].filter(Boolean).join(' | ');
   if (readiness) readiness.textContent = state?.status === 'unavailable'
-    ? '데이터 상태: 산출물 미수신, 결과와 검증 수치를 표시하지 않습니다.'
+    ? '스크리너 자료를 받지 못해 결과와 검증 수치를 표시하지 않습니다.'
     : `${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요, ' : ''}종목 ${allRows.length}개 중 필수 자료 충족 ${readyCount}개, 조건 통과 ${passedCount}개, 자료 부족 ${unavailableCount}개(${MARKET_LABELS[listingMarket]} 범위), 지금 필터로 보이는 행 ${filtered.length}개. ${foreignNote}${identityNote}상대 순위는 연구용이며 매매 지시가 아닙니다.`;
   // LC-25: bind the executed judgment to the run that produced it and keep the table's display
   // scope separate. A preview is an unfixed run and is labeled as such; the pipeline entry and a
@@ -1072,8 +1072,8 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     // (coverage %, gate list) stays in the hover title.
     const label = (key) => FACTOR_LABELS[key]?.label || key;
     const shortReason = (key) => key === 'size' ? '시가총액 미수신' : ['value', 'quality'].includes(key) ? `재무 자료 커버리지 ${finite(ranking.factorCoverage?.[key]?.coveragePct) ?? '—'}%(기준 80%)` : '자료 부족';
-    coverage.textContent = active.length ? `활성 팩터 ${active.length}개: ${active.map(label).join(', ')}${omitted.length ? ` | 제외: ${omitted.map((key) => `${label(key)}(${shortReason(key)})`).join(', ')}` : ''}` : '활성 팩터 없음 — 서버 팩터 파일 미수신';
-    coverage.title = [omitted.map((key) => reasons[key] ? `${label(key)}: ${reasons[key]}` : '').filter(Boolean).join(' / '), hold ? `순위 보류 사유: ${hold.reason} — 이전 계산은 폐기됐습니다` : ''].filter(Boolean).join(' | ');
+    coverage.textContent = active.length ? `활성 팩터 ${active.length}개: ${active.map(label).join(', ')}${omitted.length ? ` | 제외: ${omitted.map((key) => `${label(key)}(${shortReason(key)})`).join(', ')}` : ''}` : '활성 팩터 없음 — 팩터 자료 미수신';
+    coverage.title = [omitted.map((key) => reasons[key] ? `${label(key)}: ${reasons[key]}` : '').filter(Boolean).join(' / '), hold ? `순위 보류 사유: ${hold.reason}` : ''].filter(Boolean).join(' | ');
   }
   if (holdEl) {
     // LC-73 style (P1449): when a re-rank is held, the visible summary (not just a tooltip)

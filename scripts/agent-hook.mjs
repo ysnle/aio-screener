@@ -72,6 +72,11 @@ if (mode === 'guard-command') {
   ];
   const match = gitBlocked.find(([pattern, , exempt]) => segments.some((segment) => pattern.test(segment) && !(exempt && exempt(segment)))) || blocked.find(([pattern]) => pattern.test(normalized));
   if (match) deny(match[1]);
+  // v57.82 pushed conflict markers: the push ran after a failed step because `;` and `|` do not stop on failure.
+  // A push is its own command, or follows `&&`.
+  if (new RegExp(String.raw`[;|][^&]*${GIT}push\b`, 'i').test(command.replace(/"[^"]*"|'[^']*'/g, '""').replace(/\|\|/g, '&&'))) {
+    deny('git push after ";" or "|" runs even when the step before it failed. Run the push as its own command, or after "&&".');
+  }
   process.exit(0);
 }
 

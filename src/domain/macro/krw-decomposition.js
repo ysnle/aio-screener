@@ -7,7 +7,7 @@ import { buildCloseSeries, closeBasis, sessionPointBack } from '../market/sessio
 import { MARKET_WINDOWS, closeChange } from '../market/session/market-windows.js';
 import { directionOf, signedText } from '../shared/number.js';
 
-export const KRW_RULE = Object.freeze({ sessions: MARKET_WINDOWS.rule, fitSessions: 250, step: MARKET_WINDOWS.week, minFit: 30, quietPct: 1 });
+export const KRW_RULE = Object.freeze({ sessions: MARKET_WINDOWS.rule, fitSessions: 250, step: MARKET_WINDOWS.week, minFit: 30, quietPct: 1, weakFitR2: 0.25 });
 
 const pct = (to, from) => (to / from - 1) * 100;
 const signed = (value, digits = 1) => signedText(value, digits, '%');
@@ -76,8 +76,10 @@ export function buildKrwDecomposition(history = [], { through = undefined } = {}
     korea: koreaPart > 0
       ? `달러 흐름으로 설명되는 몫은 ${signed(dollarPart)}뿐이고 ${signed(koreaPart)}는 달러로 설명되지 않습니다. 외국인 매도, 수출 둔화, 정책 차이 같은 원화 고유 요인일 가능성을 봐야 합니다.`
       : `달러 흐름으로 설명되는 몫은 ${signed(dollarPart)}이고 원화는 그보다 ${Math.abs(koreaPart).toFixed(1)}%p 더 강했습니다. 수출 대금, 외국인 자금, 당국 대응처럼 원화를 받친 고유 요인이 있었을 가능성이 있습니다.`,
-    both: `달러 몫 ${signed(dollarPart)}과 달러로 설명되지 않는 몫 ${signed(koreaPart)}이 함께 움직였습니다. 달러 전체 흐름과 원화 고유 요인을 같이 봐야 합니다.`
+    both: `달러 몫 ${signed(dollarPart)}와 달러로 설명되지 않는 몫 ${signed(koreaPart)}가 함께 움직였습니다. 달러 전체 흐름과 원화 고유 요인을 같이 봐야 합니다.`
   }[driver];
+  // How far the split can be trusted: a weak dollar relation leaves most of the won's move unexplained either way.
+  const fitNote = fit.r2 < KRW_RULE.weakFitR2 ? ` 다만 최근 1년 달러 지수가 원/달러 움직임을 설명한 비중이 ${Math.round(fit.r2 * 100)}%로 낮아, 이 나눔은 참고 수준입니다.` : '';
   let stocks = '';
   if (kospiMove != null) {
     if (koreaPart >= 1 && kospiMove < 0) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화 고유 약세와 주가 약세가 겹쳐 외국인 이탈 가능성을 확인할 구간입니다.`;
@@ -90,7 +92,7 @@ export function buildKrwDecomposition(history = [], { through = undefined } = {}
   return {
     available: true, from: start.date, to: end.date, sessions: n,
     krwMove, dxyMove, dollarPart, koreaPart, kospiMove, beta: fit.beta, r2: fit.r2, fitDays: fit.days, driver,
-    lead, why, stocks,
+    lead, why: `${why}${fitNote}`, stocks,
     method: `원/달러 5거래일 변화율을 달러 지수 5거래일 변화율에 회귀한 기울기입니다(직전 ${fit.days}거래일을 ${fit.windows}개 구간으로, 이번 ${n}거래일 제외). 두 종가의 마감 시각이 달라 하루 단위로는 관계가 흐려집니다. 달러 지수가 1% 움직일 때 원/달러는 평균 ${fit.beta.toFixed(2)}% 움직였고, 이 관계가 원/달러 5거래일 변화의 ${Math.round(fit.r2 * 100)}%를 설명했습니다. 달러 몫 = 기울기 × 달러 지수 ${n}거래일 변화, 달러로 설명되지 않는 몫 = 원/달러 변화 − 달러 몫(다른 통화의 움직임과 계산 오차도 들어 있습니다). 설명력이 낮을수록 나눈 값의 신뢰도도 낮습니다. 달러 지수에는 원화가 들어 있지 않아 달러 전체 흐름의 대리 지표로 씁니다. 달러로 설명되지 않는 몫이 어떤 이유(수출, 외국인 자금, 당국 대응 등)에서 나왔는지는 이 계산으로 가리지 않습니다.`
   };
 }

@@ -76,7 +76,7 @@ export function renderDebate(doc, profile) {
     for (const item of d.decides) { const li = el(doc, 'li'); li.append(el(doc, 'strong', item.when), doc.createTextNode(` ${item.what}`)); decide.append(li); }
     box.append(el(doc, 'h4', '판가름할 것', 'company-debate__sub'), decide);
   }
-  box.append(el(doc, 'p', `${profile.researchedAt ? `${profile.researchedAt} 조사한 ` : ''}회사 공시·발표 자료에 근거한 두 읽기이며, 어느 쪽이 맞다는 판단이나 매매 의견이 아닙니다. 근거 자료는 아래 '근거 자료'에 있습니다.`, 'company-story-small'));
+  box.append(el(doc, 'p', `${profile.researchedAt ? `${profile.researchedAt} 조사한 ` : ''}회사 공시·발표 자료에 근거한 두 읽기이며, 어느 쪽이 맞다는 판단이나 매매 의견이 아닙니다.`, 'company-story-small'));
   return box;
 }
 

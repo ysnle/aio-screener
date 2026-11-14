@@ -1,3 +1,4 @@
+import { signedText } from '../shared/number.js';
 // v59.56 (X-bookmark gap 2, 2026-11-01): the read model of public-data/tw-monthly-revenue.json
 // (scripts/fetch-tw-monthly-revenue.mjs, TWSE OpenAPI t187ap05_L). Taiwan's listed AI supply chain reports each month's
 // revenue by the 10th, a month or more before the US quarterly results it feeds; the AI 공급망 흐름 block sets it under
@@ -9,7 +10,7 @@ export const TW_MONTHLY_REVENUE_SCHEMA = 'tw-monthly-revenue.v1';
 const LATE_AFTER_DAY = 15;
 
 const pct = (now, before) => (now == null || before == null || before <= 0 ? null : Math.round((now / before - 1) * 1000) / 10);
-export const signedPct = (value) => (value == null ? '-' : `${value > 0 ? '+' : ''}${(Math.round(value * 10) / 10 || 0).toFixed(1)}%`);
+export const signedPct = (value) => (value == null ? '-' : signedText(value, 1, '%'));
 const monthLabel = (month) => `${Number(String(month).slice(5, 7))}월`;
 
 function monthsLate(month, nowMs) {

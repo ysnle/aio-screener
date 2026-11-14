@@ -36,7 +36,7 @@ setTimeout(function() {
     var txt = el.textContent.trim();
     if (_loadingPatterns.some(function(p) { return txt === p; })) {
       el.textContent = _fallbackMsg;
-      el.style.color = 'var(--text-muted)';
+      el.style.color = 'var(--color-text-secondary)';
       el.style.fontStyle = 'italic';
       el.style.fontSize = '12px';
       replaced++;
@@ -52,7 +52,7 @@ setTimeout(function() {
       var txt = el.textContent.trim();
       if (_loadingPatterns.some(function(p) { return txt === p; })) {
         el.textContent = _fallbackMsg;
-        el.style.color = 'var(--text-muted)';
+        el.style.color = 'var(--color-text-secondary)';
         el.style.fontStyle = 'italic';
         el.style.fontSize = '12px';
         total++;

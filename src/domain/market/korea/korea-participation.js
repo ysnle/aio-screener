@@ -4,7 +4,7 @@ import { latestCompletedKrSession, resolveMarketCalendarSession } from '../sessi
 import { buildGroupStrength, median } from '../../themes/group-strength.js';
 import { readRowNumber } from '../../../data/contracts/screener.js';
 import { KR_THEME_LABELS } from '../../themes/kr-themes.js';
-import { finiteNumber as finite } from '../../shared/number.js';
+import { finiteNumber as finite, signedText } from '../../shared/number.js';
 import { latestSessionRows } from '../../shared/session-date.js';
 import { breadthCounts } from '../breadth/breadth.js';
 // v59.46: the local contract read moved into the contract (readRowNumber); same display purpose.
@@ -17,7 +17,7 @@ export function koreanThemeGroups(map = {}, rows = []) {
 // P1723: the index's own 1- and 5-session change beside the same-session sample's median and the count of members down
 // 3% or more. A cap-weighted index far below the equal-weight median says the move sat in the largest names; the
 // sentence states the numbers and that reading, nothing about flows (net buying is not collected).
-const sgn = v => `${v>=0?'+':''}${v.toFixed(1)}%`;
+const sgn = (v) => signedText(v, 1, '%');
 // v57.81 (analysis audit 2026-10-15): 10/15 read "코스피 -7.6% vs 표본 중앙값 -6.5%(-3% 이하 175개 · 하락 221개)" with no
 // reading — the gap was inside the ±2%p tilt band — although 92% of the sample fell. How far a move spread is its own
 // reading: SPREAD_SHARE of the sample moving one way, or BIG_MOVE_SHARE moving 3% or more, is a move across the sample.
@@ -73,7 +73,7 @@ export function buildKoreaParticipation({ rows=[], themes={}, nowMs=Date.now(), 
   const typed=observed.map(row=>({...row,...Object.fromEntries(['ret1m','ret3m','ret6m','pctSma50'].map(key=>[key,read(row,key)]))}));
   const groups=buildGroupStrength({rows:typed,themes:koreanThemeGroups(themes,typed),market:'KR'}).groups.filter(g=>g.ret3m!=null).slice(0,5);
   const headline=!date ? '한국 종가 표본의 기준일을 확인하지 못했습니다.' : breadth50.pct == null ? '한국 표본의 이동평균 자료가 부족합니다.'
-    : `AIO 추적 종목(한국) ${observed.length}개 중 50일선 위 ${breadth50.pct.toFixed(1)}%${returns.ret3m!=null ? `, 3개월 수익률 중앙값 ${returns.ret3m>=0?'+':''}${returns.ret3m.toFixed(1)}%` : ''}.`;
+    : `AIO 추적 종목(한국) ${observed.length}개 중 50일선 위 ${breadth50.pct.toFixed(1)}%${returns.ret3m!=null ? `, 3개월 수익률 중앙값 ${sgn(returns.ret3m)}` : ''}.`;
   const session=date ? sessionRead({observed,date,index}) : null;
   return {available:!!date,date,latestDate:latest?.date||null,delayed:date!==latest?.date,population:population.length,observed:observed.length,excluded:population.length-observed.length,breadth50,breadth200,returns,groups,headline,session,
     watch:['코스피·코스닥 방향과 50·200일선 위 종목 비율이 함께 개선되는지 확인합니다. 지수만 오르면 소수 종목 집중 가능성을 점검합니다.',

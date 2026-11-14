@@ -123,12 +123,12 @@ export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.docu
         let abs = Math.abs(val);
         let bg, textC;
         if (val >= 0.99) {
-          bg = 'rgba(var(--ink-rgb),0.4)'; textC = 'var(--text-muted)';
+          bg = 'rgba(var(--ink-rgb),0.4)'; textC = 'var(--color-text-secondary)';
         } else {
           // v59.69 (visual audit): theme tokens, tint rising with |r| (darkest at the extremes, clear near 0), and the
           // primary text colour on every tint — the old hand-built RGB put white text on pale pink (below AA).
-          bg = 'color-mix(in srgb, ' + (val > 0 ? 'var(--data-red)' : 'var(--blue-11)') + ' ' + Math.round(abs * 40) + '%, transparent)';
-          textC = 'var(--text-primary)';
+          bg = 'color-mix(in srgb, ' + (val > 0 ? 'var(--color-text-error)' : 'var(--blue-11)') + ' ' + Math.round(abs * 40) + '%, transparent)';
+          textC = 'var(--color-text-primary)';
         }
         heatHtml += '<td class="wsl-rk-hv" data-heat-bg="' + bg + '" data-heat-fg="' + textC + '">' +
           (Math.abs(val - 1) < 0.001 ? '1.00' : val.toFixed(2)) + '</td>';

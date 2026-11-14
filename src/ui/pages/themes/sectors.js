@@ -67,7 +67,7 @@ export function renderKrThemeArtifact({ documentRef, root, store }) {
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
   // v58.79 section frame: the title carries the close as its chip; the shown-rows rule and the click hint are its hover.
   const heading = el('h2', '한국 테마 흐름 ', 'briefing-h2');
-  if (krClose) heading.append(asOfChip(documentRef, `${shortSession(krClose)} 종가`, `${shortSession(krClose)} 확정 종가 기준${read.usable.length > 12 ? `, 상위 6개와 하위 6개(전체 ${read.usable.length}개 중)` : ''}, 테마 이름을 누르면 구성 종목의 확정 종가 표가 열림`));
+  if (krClose) heading.append(asOfChip(documentRef, `${shortSession(krClose)} 종가`, `${shortSession(krClose)} 확정 종가 기준${read.usable.length > 12 ? `, 상위 6개와 하위 6개(전체 ${read.usable.length}개 중)` : ''}`));
   host.replaceChildren(heading, el('p', read.read, 'flow-lead'));
   const max = Math.max(1, ...read.usable.map((theme) => Math.abs(theme.ret1m)));
   // P1591 (T09/T10): the strongest and the weakest six both show (the reading names the weak ones), and bars
@@ -264,7 +264,7 @@ export function renderThemePerformanceBars({ documentRef, root, store, route }) 
   // v58.79 (layout over captions): the close date is the card head's chip; the column rule (right %p = SPY over the same
   // period, — = no value) is the bars' hover.
   host.title = `${period[1]} 수익률${close ? `, ${shortSession(close)} 미국 종가 기준` : ''}${spy != null ? `, 오른쪽 %p = 같은 기간 SPY(${signedText(spy, 2)}%) 대비` : ', SPY 같은 기간 값 대기'}, 값이 없는 섹터는 —, 오른쪽 끝 = 약 50거래일 회전 단계`;
-  const colors = { Leading: 'var(--data-green)', Improving: 'var(--text-secondary)', Weakening: 'var(--text-secondary)', Lagging: 'var(--data-amber)' }; // v58.53: the scatter's quadrant colours
+  const colors = { Leading: 'var(--color-text-success)', Improving: 'var(--color-text-secondary)', Weakening: 'var(--color-text-secondary)', Lagging: 'var(--color-text-warning)' }; // v58.53: the scatter's quadrant colours
   rows.forEach((row) => {
     const line = documentRef.createElement('div');
     line.dataset.themePerformanceRow = row.symbol;
@@ -304,7 +304,7 @@ export function renderThemePerformanceBars({ documentRef, root, store, route }) 
     badge.textContent = row.pct == null ? '대기' : (row.quadrant === 'Border' ? RRG_BORDER_LABEL : quadrantWord ? `50일 ${quadrantWord}` : '중립');
     if (quadrantWord) badge.title = `약 50거래일 상대강도 회전 단계 — 위 막대(${period[1]})와 다른 기간입니다`;
     badge.className = 'thp-perf-badge';
-    badge.style.color = row.pct == null ? 'var(--text-muted)' : colors[row.quadrant] || 'var(--text-muted)';
+    badge.style.color = row.pct == null ? 'var(--color-text-secondary)' : colors[row.quadrant] || 'var(--color-text-secondary)';
     line.append(symbol, label, track, value, vsSpy, badge);
     host.appendChild(line);
   });
@@ -443,7 +443,7 @@ export function createChip(documentRef, item, root) {
     chip.dataset.rrgReading = reading.label;
     const note = documentRef.createElement('span');
     note.textContent = `${reading.border ? `, ${reading.between} 사이` : ''}${item.recentReversal ? `, 최근 5거래일 ${item.recentReversal}` : ''}`;
-    note.style.color = 'var(--text-secondary)';
+    note.style.color = 'var(--color-text-secondary)';
     chip.append(note);
   }
   chip.className = detailId ? 'thp-chip thp-chip--detail' : 'thp-chip'; // v57.77 (a11y): the dashed border marks summary-only; opacity dropped the % below 4.5:1
@@ -461,7 +461,7 @@ export function createChip(documentRef, item, root) {
     chip.tabIndex = 0;
     chip.style.cursor = 'pointer';
     chip.setAttribute('aria-label', `${chip.textContent} — 상세 패널 없음, 세부 테마 순위로 이동`);
-    chip.title = '이 업종 자체의 상세 패널은 없습니다 — 눌러서 아래 세부 테마 순위에서 관련 테마와 대표 종목을 확인합니다.';
+    chip.title = '세부 테마 순위로 이동';
     const jump = () => documentRef.getElementById('theme-strength-board')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
     chip.addEventListener('click', jump);
     chip.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); jump(); } });

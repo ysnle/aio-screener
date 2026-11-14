@@ -172,10 +172,10 @@ assert.equal(nodes.get('home-fg-label').textContent, '미수신');
 renderHomeFearGreed({ sentimentValues: { fearGreed: 60 }, history: [{ date: '2026-10-12', spx: 7800, fg: 24.6 }] });
 assert.equal(nodes.get('home-fg-score').textContent, '25');
 assert.equal(nodes.get('home-fg-label').textContent, '공포');
-assert.equal(nodes.get('home-fg-score').style.color, 'var(--data-amber)');
+assert.equal(nodes.get('home-fg-score').style.color, 'var(--color-text-warning)', 'v60.07 fear reading takes the warning colour role');
 assert.equal(nodes.get('home-fg-score').getAttribute('data-observed-at'), '2026-10-12');
 renderHomeFearGreed({ sentimentValues: { fearGreed: 70 } });
-assert.equal(nodes.get('home-fg-score').style.color, 'var(--data-green)', 'T11 greed uses the theme token, not #86efac');
+assert.equal(nodes.get('home-fg-score').style.color, 'var(--color-text-success)', 'v60.07 T11 greed uses the colour role, not #86efac');
 // Late snapshot hydration reaches visible home: aio:serverDataLoaded alone (no store change) repaints the card.
 homeRoot._aioHistory = [{ date: '2026-10-12', spx: 7800, fg: 24.6 }];
 documentRef.dispatchEvent(fakeEvent('aio:serverDataLoaded'));

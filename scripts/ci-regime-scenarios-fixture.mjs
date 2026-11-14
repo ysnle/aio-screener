@@ -107,7 +107,7 @@ assert.equal(macroLinks.length, 1, 'v59.68 the flow section ends with exactly on
 }
 const vixCard = ids.get('regime-board').children.find(card => card.dataset.axis === 'volatility');
 const stressFold = descendants(vixCard).find(node => node.id === 'regime-stress-outcomes');
-assert.ok(stressFold?.tagName === 'details' && !descendants(page).some(node => node.id === 'regime-stress-outcomes' && node.parentElement !== vixCard), 'v57.76 the VIX past-outcome table folds inside the volatility card only');
+assert.ok(stressFold?.tagName === 'details' && !descendants(page).some(node => node.id === 'regime-stress-outcomes' && !descendants(vixCard).includes(node)), 'v57.76 the VIX past-outcome table folds inside the volatility card only');
 const css = readFileSync(new URL('../src/ui/styles/regime-quality.css', import.meta.url), 'utf8');
 assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && css.includes('@media (max-width: 900px)'), 'P1628 six-axis layout must fill desktop in two columns and stack compact screens');
 // P1723-P1727 (2026-10-13 market responsiveness): a rare KOSPI day reaches the briefing lead and the axis reads without

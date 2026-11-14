@@ -101,7 +101,9 @@ function ratesAndCredit(history, macroHistory) {
   else if (yieldBp >= 10 && widening) read = '금리와 스프레드가 함께 올라, 긴축 부담이 위험자산으로 번지는 조합입니다.';
   else if (yieldBp >= 10) read = '금리는 올랐지만 신용은 차분해, 경기나 물가 쪽 금리 상승으로 읽힙니다.';
   else if (widening) read = '금리는 크게 움직이지 않았는데 스프레드만 벌어져, 신용 쪽 경계가 따로 커지고 있습니다.';
-  else read = '금리와 신용 모두 큰 변화가 없습니다.';
+  else read = '20거래일로는 금리와 신용 모두 큰 변화가 없습니다.';
+  const weekBp = tnx.length > 5 ? (end.value - tnx.at(-6).value) * 100 : null;
+  if (weekBp != null && Math.abs(weekBp) >= RULES.rates.move20dBp / 2 && Math.abs(weekBp) > Math.abs(yieldBp)) read += ` 다만 최근 5거래일에만 10년 금리가 ${bp(weekBp)} 움직여, 변화는 이번 주에 몰려 있습니다.`;
   const map = quad(0.5 + yieldBp / 80, 0.5 + spreadBp / 80, ['금리 하락', '금리 상승'], ['스프레드 축소', '스프레드 확대'], ['완화', '경기·물가', '성장 걱정', '긴축 부담']);
   return { id: 'rates-credit', title: '금리와 신용', axes: ['rates', 'credit'], asOf: end.date || null, text: `${numbers} ${read}`, map };
 }

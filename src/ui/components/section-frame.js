@@ -77,7 +77,7 @@ export function closeChipText(text) {
  * A card's how-to-read note, one line down: a small "설명" fold instead of two or three lines under every chart.
  * Returns null for an empty note.
  */
-export function noteFold(doc, text, label = '설명') {
+export function noteFold(doc, text, label = '지표 정의') {
   if (!text) return null;
   const fold = el(doc, 'details', null, 'aio-note-fold');
   fold.append(el(doc, 'summary', label), el(doc, 'p', text, 'aio-note-fold__text'));

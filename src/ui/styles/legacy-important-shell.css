@@ -34,7 +34,7 @@
 .kr-theme-stat { font-size: 12px !important; }
 .stk-item { font-size: 12px !important; }
 .sr-only { position: absolute !important; height: 1px !important; margin: -1px !important; overflow: hidden !important; }
-body.dark-theme .scr-screen-chip.active { color:var(--bg-base) !important; }
+body.dark-theme .scr-screen-chip.active { color:var(--color-background-body) !important; }
 #rrg-canvas { max-height: 520px !important; width: 100% !important; }
 #page-sentiment canvas { width: 100% !important; max-width: 100% !important; max-height: 280px !important; }
 #page-sentiment [style*="display:grid"],
@@ -64,7 +64,7 @@ body.aio-dev-mode .aio-audit-widget { display:block !important; }
 .tg-live-feed { border-radius: var(--radius-element) !important; border-color: rgba(var(--ink-rgb),0.13) !important; background: transparent !important; box-shadow: none !important; }
 .tg-live-feed-hd { background: rgba(var(--ink-rgb),0.025) !important; border-bottom-color: rgba(var(--ink-rgb),0.08) !important; }
 .aio-source-badge { border-radius: var(--radius-full) !important; letter-spacing: 0 !important; }
-.aio-ai-context-btn { border-radius: var(--radius-element) !important; color: var(--accent-text) !important; }
+.aio-ai-context-btn { border-radius: var(--radius-element) !important; color: var(--color-accent) !important; }
 .aio-public-readiness { display: none !important; }
 body.aio-dev-mode .aio-public-readiness { display:grid !important; }
 #page-home .aio-page-advanced-toggle:not([data-user-fold]),
@@ -89,10 +89,10 @@ body.aio-dev-mode #page-technical .aio-page-advanced-toggle,
 body.aio-dev-mode #page-macro .aio-page-advanced-toggle,
 body.aio-dev-mode #page-fxbond .aio-page-advanced-toggle,
 body.aio-dev-mode #page-fundamental .aio-page-advanced-toggle,
-body.aio-dev-mode #page-themes .aio-page-advanced-toggle,
+body.aio-dev-mode #page-themes .aio-page-advanced-toggle:not([data-view-open]),
 body.aio-dev-mode #page-portfolio .aio-page-advanced-toggle,
 body.aio-dev-mode #page-market-news .aio-page-advanced-toggle,
-body.aio-dev-mode #page-screener .aio-page-advanced-toggle, .page .aio-page-advanced-toggle[data-user-fold] { display:block !important; }
+body.aio-dev-mode #page-screener .aio-page-advanced-toggle, .page .aio-page-advanced-toggle[data-user-fold]:not([data-view-open]) { display:block !important; }
 body:not(.aio-dev-mode) #market-pulse-bar, body:not(.aio-dev-mode) #aio-public-readiness, body:not(.aio-dev-mode) #snapshot-stale-warning, body:not(.aio-dev-mode) #live-source-static-badge, body:not(.aio-dev-mode) #server-data-age, body:not(.aio-dev-mode) #llm-header-badge, body:not(.aio-dev-mode) #llm-quota, body:not(.aio-dev-mode) #topbar-refresh-btn, body:not(.aio-dev-mode) #fund-earnings-calendar, body:not(.aio-dev-mode) #page-signal > details:not(.page-sources), body:not(.aio-dev-mode) .aio-operator-control, body:not(.aio-dev-mode) .page [id^="tg-feed-"]:not(#tg-feed-market-news) { display:none !important; }
 body:not(.aio-dev-mode) #page-home > details.aio-card { padding-top:0 !important; }
 #pf-freshness-strip { display:none !important; }
@@ -101,10 +101,10 @@ body:not(.aio-dev-mode) #page-home > details.aio-card { padding-top:0 !important
 #page-guide #guide-public-policy { margin-top:28px !important; }
 #glossary-modal > div { max-height:86vh !important; }
 #glossary-body .aio-glossary-item { padding:15px 0 !important; }
-#glossary-body .aio-glossary-term { color:var(--text-primary) !important; font-size:14px !important; }
+#glossary-body .aio-glossary-term { color:var(--color-text-primary) !important; font-size:14px !important; }
 .logo .aio-avatar { display:none !important; }
 .nav-icon { display:none !important; }
 .aio-page-dense-folded { display:none !important; }
 .aio-page-advanced-body .aio-page-dense-folded:not(.insight-box) { display:block !important; }
-button[data-filter-active="true"] { background: rgba(var(--ink-rgb),0.15) !important; border-color: rgba(var(--ink-rgb),0.45) !important; color: var(--accent) !important; font-weight: 600 !important; }
-.atlas-node-guide-boundary { color:var(--text-muted) !important; }
+button[data-filter-active="true"] { background: rgba(var(--ink-rgb),0.15) !important; border-color: rgba(var(--ink-rgb),0.45) !important; color: var(--color-accent) !important; font-weight: 600 !important; }
+.atlas-node-guide-boundary { color:var(--color-text-secondary) !important; }

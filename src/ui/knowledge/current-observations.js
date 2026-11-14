@@ -127,7 +127,7 @@ export function createCurrentObservationBlock(documentRef, rawArtifact, { page, 
     card.dataset.knowledgeObservationAllowedUse = observation.allowedUse || '';
     const value = element(documentRef, 'strong', 'knowledge-current-observation-value', observation.displayValue ?? String(observation.value ?? '—'));
     const meta = element(documentRef, 'div', 'knowledge-current-observation-meta', `${observation.label}, ${unitLabel(observation.unit)}`);
-    const dateLabel = observation.live ? `자동 갱신, 관측 ${observation.observedAt}` : observationDateLabel(observation);
+    const dateLabel = observation.live ? `관측 ${observation.observedAt}` : observationDateLabel(observation);
     const provenance = element(documentRef, 'p', 'knowledge-current-observation-provenance', `${sourceKindLabel(observation.sourceKind)}, ${dateLabel}` /* v57.84: usage chips (참고용 / 학습 참고 …) dropped; the date stays */);
     const source = element(documentRef, 'a', 'knowledge-current-observation-source', observation.source || observation.sourceId || '출처 보기');
     applySafeExternalLink(source, observation.sourceUrl);

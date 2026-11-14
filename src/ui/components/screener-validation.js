@@ -29,7 +29,7 @@ export function meanTStat(values) {
   return sd > 0 ? mean(xs) / (sd / Math.sqrt(n)) : null;
 }
 
-const pct = (value, digits = 2) => (value == null || !Number.isFinite(Number(value)) ? '—' : `${Number(value) >= 0 ? '+' : ''}${Number(value).toFixed(digits)}%`);
+const pct = (value, digits = 2) => (value == null || !Number.isFinite(Number(value)) ? '—' : signedText(Number(value), digits, '%'));
 
 export function summarizeValidation(history = [], status = null, liveWeights = null) {
   const rows = (Array.isArray(history) ? history : []).filter((row) => isIsoDay(String(row?.date || '')));

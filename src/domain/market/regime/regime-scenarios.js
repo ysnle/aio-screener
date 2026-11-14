@@ -226,9 +226,9 @@ export function buildKoreaRegimeObservations(input = {}, { nowMs = Date.now(), t
     const move = record?.date === last?.date ? krIndexMoveText(record) : '';
     return last ? { id, title, scope, series, asOf: last.date, last: last.value, change, unit: '지수 pt',
       stale: !!completed && last.date !== completed.date,
-      read: change == null ? `${move ? `${move}. ` : ''}1개월 변화를 계산할 완료 세션 기록이 부족합니다.` : `최근 ${KR_MONTH_SESSIONS}거래일(한국) ${signedText(change, 1)}%${move ? `, ${move}` : ''}. 이 지수 안 종목들이 같은 방향인지 한국 시장 폭과 함께 확인합니다.`, record,
+      read: change == null ? `${move ? `${move}. ` : ''}1개월 변화를 계산할 완료 세션 기록이 부족합니다.` : `최근 ${KR_MONTH_SESSIONS}거래일(한국) ${signedText(change, 1)}%${move ? `, ${move}` : ''}.`, record,
       // T20 (expert review 2026-10-13): the follow-up names the direction the index actually moved (-8.7% read "지수 상승이…").
-      observe: `미국장 기준일과 분리해 읽습니다. ${change == null ? '지수 움직임이 참여 종목의 같은 방향 움직임으로 이어지는지' : change >= 0 ? '지수 상승이 참여 종목 확대로 이어지는지' : '지수 하락이 종목 전반으로 퍼지는지, 일부 대형주에 그치는지'} 다음 한국 종가에서 확인합니다.` } : null;
+      observe: `${change == null ? '지수 움직임이 참여 종목의 같은 방향 움직임으로 이어지는지' : change >= 0 ? '지수 상승이 참여 종목 확대로 이어지는지' : '지수 하락이 종목 전반으로 퍼지는지, 일부 대형주에 그치는지'} 다음 한국 종가에서 확인합니다.` } : null;
   }).filter(Boolean);
   const fx = buildCloseSeries(input.history, 'usdkrw', { through }).filter(point => {
     const weekday = new Date(`${point.date}T12:00:00Z`).getUTCDay(); return weekday !== 0 && weekday !== 6;

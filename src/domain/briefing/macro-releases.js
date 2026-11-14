@@ -10,6 +10,23 @@ const RELEASE_OF = Object.freeze(Object.fromEntries(MACRO_GROUPS.flatMap((group)
 
 const kstDay = (ms) => new Date(ms + 9 * 3600000).toISOString().slice(0, 10);
 
+// A CPI month whose year-ago index does not exist (no October 2025 print) has no year-over-year figure, so the board
+// keeps the previous month; the release itself is in the index history, and its month-over-month change is shown.
+function cpiMonthOverMonth(macroHistory, due) {
+  const items = [['cpiIndex', 'CPI 전월 대비'], ['coreCpiIndex', '근원 CPI 전월 대비']].map(([field, label]) => {
+    const rows = (macroHistory?.series?.[field]?.observations || []).filter(([, value]) => Number.isFinite(value));
+    const [last, prev] = [rows.at(-1), rows.at(-2)];
+    if (!last || !prev || !prev[1]) return null;
+    const gap = (Date.parse(due) - Date.parse(last[0])) / DAY; // the print published on `due` is for the month before it
+    if (!(gap > 28 && gap < 62) || (Date.parse(last[0]) - Date.parse(prev[0])) / DAY > 32) return null;
+    const change = (last[1] / prev[1] - 1) * 100;
+    return { period: last[0], label, valueText: `${change > 0 ? '+' : ''}${change.toFixed(2)}%`, deltaText: null, targetText: null };
+  }).filter(Boolean);
+  if (!items.length) return null;
+  items.at(-1).targetText = '전년 대비는 1년 전 같은 달 지수가 없어 계산하지 않습니다';
+  return { period: items[0].period, items: items.map(({ period, ...item }) => item) };
+}
+
 /** Releases whose publication day (the board's `release.last`) is within `days` of now (KST), newest first. */
 export function recentMacroReleases(input, { nowMs = Date.now(), days = 2 } = {}) {
   const board = buildMacroBoard(input);
@@ -30,12 +47,14 @@ export function recentMacroReleases(input, { nowMs = Date.now(), days = 2 } = {}
   // listed — 'pending' — so a release day is never silent while the producer catches up (owner 2026-10-30).
   for (const id of Object.keys(MACRO_RELEASE_TITLES)) {
     const due = (Array.isArray(input?.schedules?.[id]) ? input.schedules[id] : []).filter((date) => date >= earliest && date <= today && Date.parse(`${date}T13:45:00Z`) <= nowMs).sort().pop();
-    if (due && (!byRelease.has(id) || byRelease.get(id).date < due)) byRelease.set(id, { id, title: MACRO_RELEASE_TITLES[id], date: due, period: null, next: null, items: [], pending: true });
+    if (!due || (byRelease.has(id) && byRelease.get(id).date >= due)) continue;
+    const month = id === 'us-cpi' ? cpiMonthOverMonth(input?.macroHistory, due) : null;
+    byRelease.set(id, month ? { id, title: MACRO_RELEASE_TITLES[id], date: due, period: month.period, next: null, items: month.items } : { id, title: MACRO_RELEASE_TITLES[id], date: due, period: null, next: null, items: [], pending: true });
   }
   return [...byRelease.values()].sort((a, b) => b.date.localeCompare(a.date));
 }
 
 /** The same read from the page globals 오늘, 뉴스 and 거시 share (the server macro cut, the calendar, the official schedules). */
 export function macroReleasesFor(root, options = {}) {
-  return recentMacroReleases({ macro: root?._aioServerMacro || null, releases: root?.AIO_MACRO_CALENDAR?.releases || {}, schedules: root?.AIO_MACRO_OFFICIAL_SCHEDULES || {} }, { nowMs: Date.now(), ...options });
+  return recentMacroReleases({ macro: root?._aioServerMacro || null, macroHistory: root?._aioMacroHistory || null, releases: root?.AIO_MACRO_CALENDAR?.releases || {}, schedules: root?.AIO_MACRO_OFFICIAL_SCHEDULES || {} }, { nowMs: Date.now(), ...options });
 }

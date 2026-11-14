@@ -357,7 +357,7 @@ export function paintMacroReleaseCards(doc, page, releases = []) {
     host = el(doc, 'section', null, 'briefing-block macro-section event-briefs');
     host.id = 'macro-recent-releases';
     host.setAttribute('aria-labelledby', 'macro-recent-releases-title');
-    const head = page?.querySelector(':scope > .page-head');
+    const head = page?.querySelector(':scope > .page-views') || page?.querySelector(':scope > .page-head');
     if (head) head.insertAdjacentElement('afterend', host); else page?.prepend(host);
   }
   const head = frameHead(doc, { title: '최근 공식 발표', titleId: 'macro-recent-releases-title', titleClass: 'briefing-h2' });

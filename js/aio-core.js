@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v60.06';
+const APP_VERSION = 'v60.12';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1082,13 +1082,13 @@ window._aioRenderValueSlot = function(el, state, value, meta) {
   var color = meta.color || '';
   if (state === 'pending') {
     text = meta.text || '수신 대기';
-    color = color || 'var(--text-muted)';
+    color = color || 'var(--color-text-secondary)';
   } else if (state === 'failed') {
     text = meta.text || '수신 실패';
-    color = color || 'var(--data-amber)';
+    color = color || 'var(--color-text-warning)';
   } else if (state === 'na') {
     text = meta.text || '해당 없음';
-    color = color || 'var(--text-muted)';
+    color = color || 'var(--color-text-secondary)';
   } else {
     state = 'value';
     text = text || '—';
@@ -1490,7 +1490,7 @@ window._aioTimerRegistry = window._aioTimerRegistry || {};
         var st = document.getElementById(preset.status);
         if (st && /로딩|Loading|loading|수집|지연|실패/i.test(st.textContent || '')) {
           st.textContent = '라이브 차트 미수신, 판단 보류';
-          st.style.color = 'var(--data-amber)';
+          st.style.color = 'var(--color-text-warning)';
         }
       }
       count++;
@@ -2020,7 +2020,7 @@ window._aioRenderSnapshotDates = function() {
         if (!target) return;
         if (!d) {
           target.textContent = '기준일 미수신';
-          target.style.color = 'var(--text-muted)';
+          target.style.color = 'var(--color-text-secondary)';
           return;
         }
         var lbl = window._aioStaleDaysLabel(d);
@@ -2368,15 +2368,7 @@ if (typeof document !== 'undefined') {
         }
         // v57.76: the SPY indicator card and the institutional brief were deleted, so there is nothing to reorder below the verdict.
       }
-      // v50.36: themes verdict-first — 경기 사이클 국면 판정(페이지 결론)을 헤더 직후로(RRG 차트보다 먼저).
-      var pth = document.getElementById('page-themes');
-      if (pth) {
-        var hdrTh = _directChildOf(pth, '.page-title');
-        var verdictTh = _directChildOf(pth, '#themes-verdict'); // P1431: the sector-rotation verdict replaced the textbook cycle map
-        if (hdrTh && verdictTh && verdictTh.parentElement === pth && hdrTh.nextElementSibling !== verdictTh) {
-          hdrTh.insertAdjacentElement('afterend', verdictTh);
-        }
-      }
+      // The themes verdict keeps its static place (header → view tabs → verdict); the runtime move put it above the tabs.
       return true;
     } catch(e) { return false; }
   };
@@ -2833,20 +2825,20 @@ window._aioUpdateFreshness = function() {
   var lastFetch = (window._lastFetch && (window._lastFetch.quote || window._lastFetch.liveQuotes)) ? (window._lastFetch.quote || window._lastFetch.liveQuotes) : null;
   if (!lastFetch) {
     if (dot) { dot.style.background = 'var(--gold-9)'; dot.style.boxShadow = 'none'; }
-    if (label) { label.textContent = '대기 중'; label.style.color = 'var(--text-muted)'; }
+    if (label) { label.textContent = '대기 중'; label.style.color = 'var(--color-text-secondary)'; }
     if (time) time.textContent = '갱신: 대기';
     return;
   }
   var ageSec = Math.round((now - lastFetch) / 1000);
   var ageMin = Math.round(ageSec / 60);
   var state, color, src;
-  if (ageSec < 90) { state = '시세 확인됨'; color = 'var(--data-green)'; }
-  else if (ageSec < 300) { state = '지연'; color = 'var(--data-amber)'; }
-  else if (ageSec < 1800) { state = '스테일'; color = 'var(--data-amber)'; }
-  else { state = '연결 끊김'; color = 'var(--data-red)'; }
+  if (ageSec < 90) { state = '시세 확인됨'; color = 'var(--color-text-success)'; }
+  else if (ageSec < 300) { state = '지연'; color = 'var(--color-text-warning)'; }
+  else if (ageSec < 1800) { state = '스테일'; color = 'var(--color-text-warning)'; }
+  else { state = '연결 끊김'; color = 'var(--color-text-error)'; }
   var source = (window._lastQuoteSource) ? window._lastQuoteSource : 'Yahoo';
   if (dot) { dot.style.background = color; dot.style.boxShadow = '0 0 6px ' + color; }
-  if (label) { label.textContent = state + ' (' + source + ')'; label.style.color = 'var(--text-primary)'; }
+  if (label) { label.textContent = state + ' (' + source + ')'; label.style.color = 'var(--color-text-primary)'; }
   if (time) time.textContent = '갱신: ' + (ageSec < 60 ? ageSec + '초 전' : ageMin + '분 전');
 };
 // v48.99: _aioPageBus 마이그 (P178)
@@ -2923,7 +2915,7 @@ if (typeof document !== 'undefined') {
     badge.title = title || (kind === 'live' ? '최근 실시간 시세 수신' : '실시간 시세가 아닌 참고 상태');
     if (labelEl) labelEl.textContent = label || (kind === 'live' ? 'LIVE' : '상태 확인');
     if (dot) {
-      var color = kind === 'live' ? 'var(--data-green)' : kind === 'partial' || kind === 'snapshot' ? 'var(--data-amber)' : 'var(--text-muted)';
+      var color = kind === 'live' ? 'var(--color-text-success)' : kind === 'partial' || kind === 'snapshot' ? 'var(--color-text-warning)' : 'var(--color-text-secondary)';
       dot.style.background = color;
       dot.style.boxShadow = 'none';
       dot.style.animation = 'none';
@@ -7549,17 +7541,17 @@ window._aioStaleDays = function(baseDate, nowTs) {
 window._aioStaleDaysLabel = function(baseDate, opts) {
   opts = opts || {};
   var days = window._aioStaleDays(baseDate, opts.nowTs);
-  if (days == null) return { days: null, text: (opts.fallback || '—'), color: 'var(--text-muted)' };
+  if (days == null) return { days: null, text: (opts.fallback || '—'), color: 'var(--color-text-secondary)' };
   var warnDays = (opts.warnDays != null) ? opts.warnDays : 14;
   var staleDays = (opts.staleDays != null) ? opts.staleDays : 30;
   var text, color;
   if (days <= 0) {
     text = '오늘 갱신';
-    color = 'var(--green)';
+    color = 'var(--color-text-success)';
   } else {
     var suffix = days > staleDays ? ' ' : days > warnDays ? ' (확인 필요)' : '';
     text = days + '일 경과' + suffix;
-    color = days > staleDays ? 'var(--data-red)' : days > warnDays ? 'var(--data-amber)' : 'var(--text-muted)';
+    color = days > staleDays ? 'var(--color-text-error)' : days > warnDays ? 'var(--color-text-warning)' : 'var(--color-text-secondary)';
   }
   return { days: days, text: text, color: color };
 };
@@ -7624,11 +7616,11 @@ window._aioStaticContentLifecycleHook = function(rootEl) {
       var label = st.ageDays + '일 경과';
       if (st.replaceDue) {
         span.textContent = label + ', 교체 권장 (' + replaceAt + '일+ 초과)';
-        span.style.color = 'var(--data-red)';
+        span.style.color = 'var(--color-text-error)';
         span.style.fontWeight = '700';
       } else if (st.archiveDue) {
         span.textContent = label + ', archive 단계 (' + archiveAt + '일+ 초과)';
-        span.style.color = 'var(--data-amber)';
+        span.style.color = 'var(--color-text-warning)';
         span.style.fontWeight = '600';
       } else {
         span.textContent = label + ' (fresh)';

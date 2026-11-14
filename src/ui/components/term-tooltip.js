@@ -21,6 +21,9 @@ export function placeTooltipBody(anchorRect, bodySize, viewport) {
   return { left: Math.round(left), top: Math.round(Math.max(MARGIN, top)), width: Math.round(width) };
 }
 
+export const HOVER_DELAY_MS = 300;
+export const HOVER_GRACE_MS = 400;
+
 export function installTermTooltips(documentRef, { root = globalThis } = {}) {
   if (!documentRef || documentRef.__aioTermTooltips) return () => {};
   documentRef.__aioTermTooltips = true;
@@ -48,6 +51,7 @@ export function installTermTooltips(documentRef, { root = globalThis } = {}) {
     if (body) body.removeAttribute('style');
     openTip.classList.remove('is-open');
     openTip = null;
+    closedAt = now();
     releasePopover(documentRef, close);
   };
 
@@ -70,8 +74,17 @@ export function installTermTooltips(documentRef, { root = globalThis } = {}) {
   };
 
   const tipFrom = (event) => event.target?.closest?.('.term-tooltip');
-  const onOver = (event) => { if (hoverSuppressed(root)) return; const tip = tipFrom(event); if (tip) open(tip); };
+  let hoverTimer = 0;
+  let closedAt = -Infinity;
+  const now = () => root.performance?.now?.() ?? Date.now();
+  const onOver = (event) => {
+    const tip = tipFrom(event);
+    if (!tip || tip === openTip || hoverSuppressed(root)) return;
+    root.clearTimeout(hoverTimer);
+    if (openTip || now() - closedAt < HOVER_GRACE_MS) open(tip); else hoverTimer = root.setTimeout(() => open(tip), HOVER_DELAY_MS);
+  };
   const onOut = (event) => {
+    root.clearTimeout(hoverTimer);
     const tip = tipFrom(event);
     if (tip && tip === openTip && !tip.contains(event.relatedTarget) && !tip.contains(documentRef.activeElement)) close();
   };

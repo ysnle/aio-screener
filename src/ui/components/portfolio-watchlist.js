@@ -5,6 +5,7 @@
 // unchanged. Storage and the list edits stay in aio-workspace.js, which passes the lists and the active id to the
 // window names that src/app/legacy-screen-bridges.js installs.
 import { escapeHtml } from '../html.js';
+import { signedText, directionOf } from '../../domain/shared/number.js';
 
 const SIGNAL_TONE = { BUY: ' is-buy', SELL: ' is-sell', WATCH: ' is-watch' };
 
@@ -42,10 +43,11 @@ function renderContent(lists, activeId, { documentRef, root }) {
     const d = ld[t.sym];
     if (!d && root.AIO && typeof root.AIO.registerLiveSymbol === 'function') root.AIO.registerLiveSymbol(t.sym, { reason: 'watchlist' }); // v57.81: a saved symbol outside the market set is quoted on the next refresh
     const db = dbMap[t.sym];
-    const price = d && d.price ? d.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+    const won = /\.K[SQ]$/.test(t.sym);
+    const price = d && d.price ? `${won ? '₩' : ''}${d.price.toLocaleString('en-US', { minimumFractionDigits: won ? 0 : 2, maximumFractionDigits: won ? 0 : 2 })}` : '—';
     const chg = d && d.pct != null ? d.pct : null;
-    const chgTone = chg !== null ? (chg >= 0 ? ' is-up' : ' is-down') : ' is-muted';
-    const chgStr = chg !== null ? `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%` : '—';
+    const chgTone = chg === null ? ' is-muted' : ({ up: ' is-up', down: ' is-down' })[directionOf(chg, 2)] || '';
+    const chgStr = chg !== null ? `${signedText(chg, 2)}%` : '—';
     const signal = db ? db.signal : '—';
     const nameStr = db ? db.name : '';
     const eSym = escapeHtml(t.sym); // v46.9: XSS 방어
@@ -55,7 +57,7 @@ function renderContent(lists, activeId, { documentRef, root }) {
       `<td class="wsl-wl-fig">${price}</td>` +
       `<td class="wsl-wl-fig${chgTone}">${chgStr}</td>` +
       `<td class="wsl-wl-ctr">${signal !== '—' ? `<span class="wsl-wl-sig${SIGNAL_TONE[signal] || ''}">${sigLabel}</span>` : '<span class="wsl-note">—</span>'}</td>` +
-      `<td class="wsl-wl-memo">${escapeHtml(t.note || '')}</td>` +
+      `<td class="wsl-wl-memo" title="${escapeHtml(t.note || '')}">${escapeHtml(t.note || '')}</td>` +
       '<td class="wsl-wl-ctr">' +
         `<button data-action="removeFromWatchlist" data-arg="${escapeHtml(eSym)}" data-stop="1" aria-label="${escapeHtml(eSym)} 관심 종목에서 삭제" class="aio-btn-table wsl-wl-del" title="삭제">삭제</button>` +
       '</td>' +

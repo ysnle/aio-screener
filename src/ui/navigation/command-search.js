@@ -71,6 +71,16 @@ export function matchScreens(query, hubs = ROUTE_HUBS) {
   return all.map((entry) => ({ entry, rank: score(entry) })).filter((row) => row.rank).sort((a, b) => b.rank - a.rank).map((row) => row.entry);
 }
 
+/** The views inside screens (page-views.js), read from the tab rows: { route, view, label } whose view name contains the query. */
+export function matchViews(query, doc) {
+  const q = normalize(query);
+  if (!q) return [];
+  return [...(doc?.querySelectorAll?.('.page[data-view] > .page-views > [data-view]') || [])]
+    .map((tab) => ({ route: tab.closest('.page').id.replace(/^page-/, ''), view: tab.dataset.view, name: tab.textContent.trim() }))
+    .filter((entry) => normalize(entry.name).includes(q))
+    .map((entry) => ({ ...entry, label: `${routeLabel(entry.route) || entry.route} › ${entry.name}` }));
+}
+
 /** Glossary terms: the term itself, then terms starting with the query, containing it, an alias, then the definition. */
 export function matchTerms(query, glossary = [], limit = GROUP_LIMIT.term) {
   const q = normalize(query);
@@ -198,7 +208,7 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
     opener = null; // the opened screen or entry takes focus; the dialog's close event fires after it and must not pull it back
     close();
     if (option.kind === 'stock') openStock(option.symbol);
-    else if (option.kind === 'screen') root.showPage?.(option.route);
+    else if (option.kind === 'screen') { if (option.view) root._aioShowPageView?.(`page-${option.route}`, option.view); root.showPage?.(option.route); }
     else if (option.kind === 'term') root.openGlossary?.(option.term);
     else if (option.kind === 'research') { if (option.entry.glossaryTerm) root.openGlossary?.(option.entry.glossaryTerm); else openKnowledgeResult(root, option.entry); }
     else if (option.kind === 'guide') { root.showPage?.('guide'); root.setTimeout?.(() => option.jump?.(option.id), 120); }
@@ -292,7 +302,7 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
       stock.pending = query.length >= 3 && /[A-Za-z]/.test(query) && stock.items.length < GROUP_LIMIT.stock;
     }
     groups.push(stock);
-    const screen = { id: 'screen', title: '화면', items: want('screen') ? matchScreens(query).slice(0, query ? GROUP_LIMIT.screen : 9).map((entry) => ({ kind: 'screen', route: entry.route, label: entry.label, meta: '' })) : [] };
+    const screen = { id: 'screen', title: '화면', items: want('screen') ? [...matchScreens(query), ...matchViews(query, documentRef)].slice(0, query ? GROUP_LIMIT.screen : 9).map((entry) => ({ kind: 'screen', route: entry.route, view: entry.view, label: entry.label, meta: '' })) : [] };
     if (scope === 'all' && !query) screen.items = []; // an empty box in 전체 shows the hint, not the menu twice
     groups.push(screen);
     const term = { id: 'term', title: '용어', items: want('term') ? matchTerms(query, root.GLOSSARY).map((entry) => ({ kind: 'term', term: entry.term, alias: entry.alias, label: entry.term, meta: firstSentence(entry.def) })) : [] };

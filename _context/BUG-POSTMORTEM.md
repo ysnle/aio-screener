@@ -39,6 +39,26 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2405 - v60.07 - 0으로 반올림되는 값에 부호와 등락 색이 붙음 (2026-11-14)
+
+- symptom/reproduction: 포트폴리오 손익이 '+$0'(상승색)이나 '-$0'(하락색)으로, 관심 종목 등락이 '+0.00%'로, 심리·매크로·종목 문장에 '+0', '+0bp', '-0.0%'가 찍힐 수 있었다. 값은 '0.0%'인데 색만 상승·하락인 칸도 있었다.
+- root_cause: 부호와 색을 각 화면이 자체 식(v >= 0 ? '+' : '')으로 계산했다. 공용 signedText/directionOf는 '찍힌 값' 기준(반올림 뒤 0이면 부호·방향 없음)인데 사본 20곳은 반올림 전 값을 봤다.
+- fix: 사본을 signedText로 바꾸고, 금액처럼 다른 포맷터가 찍는 값을 위해 signMark(부호)와 directionColor(색)를 src/domain/shared/number.js에 추가했다. 포트폴리오 표·요약, 종목 요약 손익, 관심 종목, 테마 상세, 심리, 매크로 챕터, 기업 스토리, 대만 월매출, 고용, 스크리너 검증, 브리핑, 한국 마감 주석, 차트 전략, 재무 읽기에 적용했다.
+- violated_rule: 화면 방향은 찍힌 값을 따른다 (plan 019) — 부호·색의 소유자는 shared/number.js 하나
+- prevention: ci-esm-core-unit-check가 signMark/directionColor의 0 반올림 동작을 검사한다. 화면 문구 검사(negative-zero)가 렌더된 '+0.0'류를 잡는다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs; 브라우저 표면 그룹
+- files: src/domain/shared/number.js, src/ui/pages/portfolio.js, src/ui/pages/entity.js, src/ui/components/portfolio-watchlist.js, src/ui/components/sentiment-board.js, src/ui/components/macro-chapters.js, src/domain/entity/company-story.js, src/ui/components/stock-read.js, src/domain/briefing/tw-monthly-revenue.js, src/ui/pages/market.js, src/ui/components/screener-validation.js, src/ui/pages/themes/detail.js, src/domain/briefing/market-read.js, src/domain/macro/macro-chapters.js, src/domain/news/kr-close-note.js, src/domain/technical/chart-strategies.js, src/ui/components/fiscal-read.js
+
+## P2404 - v60.07 - 한국 참여도 문장에 '+0.0%'가 찍힘 (2026-11-14)
+
+- symptom/reproduction: 시장 상태의 한국 문장이 '하루 수익률 중앙값 +0.0%'로 표시됐다(0으로 반올림되는 값에 부호).
+- root_cause: korea-participation.js가 부호 표기를 자체 한 줄 함수(v>=0이면 '+')로 갖고 있었다. 공용 signedText는 반올림 결과가 0이면 부호를 붙이지 않는데 이 사본은 그 규칙을 몰랐다.
+- fix: 자체 함수를 지우고 src/domain/shared/number.js의 signedText를 쓴다.
+- violated_rule: 화면 방향은 찍힌 값을 따른다 (plan 019) — 부호 표기의 소유자는 signedText 하나
+- prevention: browser-rendered-copy-lint의 negative-zero 검사가 이 문장을 잡았다(데이터가 0 근처일 때만 드러난다).
+- verification/residual: node scripts/qa-runner.mjs --group browser-surface
+- files: src/domain/market/korea/korea-participation.js
+
 ## P2403 - v60.06 - 레이어 스택: 팝오버 재등록 누수와 모달 위 창의 inert (2026-11-14)
 
 - symptom/reproduction: 값 위에서 마우스를 옮기면 그 뒤로 모든 화면에서 Escape가 듣지 않았다. 용어 사전을 연 채 검색창이나 단축키 도움말을 열면 그 창을 누르거나 입력할 수 없었다. 용어 팝오버에서 Escape를 누르면 포커스가 원래 단어로 돌아가지 않았다.

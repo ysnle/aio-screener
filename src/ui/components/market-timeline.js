@@ -83,6 +83,8 @@ function ensureSection(doc) {
   if (!page || !anchor) return null;
   section = el(doc, 'details', null, 'aio-section briefing-block sx-card news-card news-timeline');
   section.id = 'news-timeline';
+  section.dataset.viewOpen = ''; // the 시황 view's content (page-views.css)
+  section.open = true;
   const heading = el(doc, 'summary', '시간대별 시황 ', 'briefing-h2');
   heading.id = 'news-timeline-title';
   heading.append(asOfChip(doc, '하루 4번', '한국 시간 06·12·18·24시 회차, 지난 회차 보관'));

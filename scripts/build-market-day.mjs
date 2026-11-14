@@ -13,7 +13,7 @@ import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { loadThemeMaps } from './build-scenario-state.mjs';
 import { buildMarketDay } from '../src/domain/market/day/facts.js';
 import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
-import { HEADLINE_TRANSLATION_MAX, isCleanKoreanTitle, isFaithfulKoreanTitle } from './producer/market-narrative.mjs';
+import { HEADLINE_TRANSLATION_MAX, headlineStyle, isCleanKoreanTitle, isFaithfulKoreanTitle } from './producer/market-narrative.mjs';
 import { requestWorkersAiTranslation } from './lib/ai-shared-analysis.mjs';
 import { detectNarratives, narrativeDayLog, publishedNarratives } from '../src/domain/narrative/narratives.js';
 
@@ -54,7 +54,7 @@ export async function translateDayHeadlines(day, { previous = null, translate = 
     try { result = await translate(pending.map((fact) => fact.title.slice(0, 300))); } catch (_) { result = null; }
     if (Array.isArray(result?.translations) && result.translations.length === pending.length) {
       pending.forEach((fact, index) => {
-        const ko = typeof result.translations[index] === 'string' ? result.translations[index].replace(/\s+/g, ' ').trim() : '';
+        const ko = headlineStyle(typeof result.translations[index] === 'string' ? result.translations[index].replace(/\s+/g, ' ').trim() : '');
         if (ko.length <= 200 && isFaithfulKoreanTitle(fact.title, ko)) { fact.titleKo = ko; translated += 1; }
       });
     } else reason = result?.reason || 'workers-ai-unavailable';

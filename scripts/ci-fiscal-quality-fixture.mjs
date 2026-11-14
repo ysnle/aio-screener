@@ -112,7 +112,7 @@ assert.equal(lossBars.length, 2, 'P1627 both annual losses must be drawn');
 assert.ok(lossBars.every((bar) => parseFloat(bar.style.top) > 0 && parseFloat(bar.style.height) > 0), 'P1627 actual rendered loss bars must extend below the zero line');
 const css = readFileSync(new URL('../src/ui/styles/fiscal-quality.css', import.meta.url), 'utf8');
 assert.ok(css.includes('.fiscal-peers .stock-read-bar-row { display: grid; grid-template-columns: minmax(0, 1fr);'), 'P1627 compact peer rows must stack rather than collide');
-assert.ok(css.includes('var(--accent)') && css.includes('var(--text-primary)'), 'P1627 financial surfaces must use semantic dark/light colors');
+assert.ok(css.includes('var(--color-accent)') && css.includes('var(--color-text-primary)'), 'P1627 financial surfaces must use semantic dark/light colors');
 
 // P1627: complete a shared history read after the user already changed issuers.
 let resolveHistory;

@@ -303,7 +303,7 @@ function updateQuotaBadge() {
     if (progEl) { progEl.style.width = '0%'; progEl.className = 'llm-prog-fill empty'; }
     if (badge) badge.textContent = route.reason === 'NO_ROUTE' ? 'NO ROUTE' : '확인 필요';
     if (costEl) costEl.textContent = route.reason === 'NO_ROUTE' ? '운영자의 공용 AI 연결이 필요합니다.' : '공유 Worker 상태 확인 후 사용할 수 있습니다.';
-    if (hdrBadge) { hdrBadge.textContent = 'AI, ' + route.label; hdrBadge.style.color = 'var(--text-muted)'; hdrBadge.style.borderColor = 'var(--border)'; hdrBadge.style.background = 'var(--surface-3)'; }
+    if (hdrBadge) { hdrBadge.textContent = 'AI, ' + route.label; hdrBadge.style.color = 'var(--color-text-secondary)'; hdrBadge.style.borderColor = 'var(--color-border)'; hdrBadge.style.background = 'var(--surface-3)'; }
     return;
   }
 
@@ -327,8 +327,8 @@ function updateQuotaBadge() {
     const hdrText = 'AI, ' + model.label;
     hdrBadge.textContent = hdrText;
     hdrBadge.style.color = grade === 'green' ? 'var(--blue-11)' : grade === 'warn' ? 'var(--amber-11)' : 'var(--orange-11)';
-    hdrBadge.style.borderColor = grade === 'green' ? 'var(--accent-border)' : grade === 'warn' ? 'var(--amber-6)' : 'var(--data-red-soft)';
-    hdrBadge.style.background  = grade === 'green' ? 'var(--data-cyan-soft)' : grade === 'warn' ? 'var(--gold-3)' : 'var(--data-red-mid)';
+    hdrBadge.style.borderColor = grade === 'green' ? 'var(--color-border)' : grade === 'warn' ? 'var(--amber-6)' : 'var(--color-error-muted)';
+    hdrBadge.style.background  = grade === 'green' ? 'var(--data-cyan-soft)' : grade === 'warn' ? 'var(--gold-3)' : 'var(--color-error-muted)';
   }
 }
 
@@ -724,13 +724,6 @@ document.addEventListener('DOMContentLoaded', function() {
     inp.setAttribute('aria-label', inp.placeholder || inp.title || 'API 키 입력');
   });
 
-  // 12. onclick div에 role="button" + tabindex 보강
-  document.querySelectorAll('[onclick]:not([role])').forEach(function(el) {
-    if (el.tagName === 'BUTTON' || el.tagName === 'A') return;
-    el.setAttribute('role', 'button');
-    if (!el.getAttribute('tabindex')) el.setAttribute('tabindex', '0');
-  });
-
   // 13. 빈 텍스트 인터랙티브 요소에 명시적 aria-label 추가
   var classLabels = {
     'ai-ph-close': 'AI 패널 닫기',
@@ -786,7 +779,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // 19. 모든 인터랙티브 요소에 aria-label 일괄 보강
   var emojiLabel = {'Dark':'다크/라이트 테마 전환','Light':'다크/라이트 테마 전환','☰':'메뉴 열기','✕':'닫기','↻':'새로고침'};
-  document.querySelectorAll('button:not([aria-label]), [role="button"]:not([aria-label]), [onclick]:not([aria-label])').forEach(function(el) {
+  document.querySelectorAll('button:not([aria-label]), [role="button"]:not([aria-label])').forEach(function(el) {
     if (el.tagName === 'A') return;
     var text = el.textContent.trim();
     if (text.length <= 2 && emojiLabel[text]) { el.setAttribute('aria-label', emojiLabel[text]); return; }
@@ -842,7 +835,7 @@ function _itbNum(v, digits) {
 }
 
 function _itbBadge(label, tone) {
-  var color = tone === 'risk' ? 'var(--data-red)' : tone === 'warn' ? 'var(--data-amber)' : tone === 'bull' ? 'var(--data-green)' : 'var(--data-cyan)';
+  var color = tone === 'risk' ? 'var(--color-text-error)' : tone === 'warn' ? 'var(--color-text-warning)' : tone === 'bull' ? 'var(--color-text-success)' : 'var(--color-text-primary)';
   return '<span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;background:' + color + '1f;color:' + color + ';border:0.5px solid ' + color + '55;font-size:12px;font-weight:800;">' + escHtml(label) + '</span>';
 }
 

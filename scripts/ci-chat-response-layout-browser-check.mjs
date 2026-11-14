@@ -68,7 +68,7 @@ const baseCss = `
   --data-amber: #9b6500;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; min-height: 100%; background: #f4f0e8; color: var(--text-primary); }
+html, body { margin: 0; min-height: 100%; background: #f4f0e8; color: var(--color-text-primary); }
 body { font-family: Arial, sans-serif; }
 ${aiPanelCss}
 `;

@@ -151,7 +151,7 @@ function checkTile(doc, { name, tone = 'neutral', chip = null, stale = false, va
 // A net margin past ±100% (MSTR's bitcoin mark-to-market, IONQ's warrant revaluation) is not a margin a reader can use:
 // '순이익률 -2760.3%' says the loss is 27.6 times revenue, so it is said that way.
 function marginText(margin) {
-  return Math.abs(margin) >= 100 ? `순${margin < 0 ? '손실' : '이익'}이 매출의 ${(Math.abs(margin) / 100).toFixed(1)}배` : `순이익률 ${margin.toFixed(1)}%`;
+  return Math.abs(margin) >= 100 ? `순${margin < 0 ? '손실' : '이익'}이 매출의 ${(Math.abs(margin) / 100).toFixed(1)}배` : `순이익률 ${sharedSignedText(margin, 1, '%', { plus: false })}`;
 }
 function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null, krCompany = null, quarters = '') {
   const facts = read.facts || {};

@@ -86,7 +86,7 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   // v58.56 (#3): the first column of the default view numbers the rows by market cap (1 = largest of the rows shown). The
   // default order is market cap (v57.55), so it reads 1, 2, 3…; 전체 순위 moved beside 백분위. Its header sorts by 시총.
   // v58.80 (first-users F21): the header read '#' beside 전체 순위 and 백분위 and was taken for a rank; it is the row order.
-  { key: 'capOrder', label: '순서', headerLabel: '순서', sortAs: 'mcap', hint: '지금 정렬 기준에서의 순서 — 기본 정렬(시총 큰 순)에서는 시가총액 순서(1 = 가장 큼), 누르면 시총 순으로 정렬합니다', sortable: true, align: 'left', width: 44, group: 'identity' },
+  { key: 'capOrder', label: '순서', headerLabel: '순서', sortAs: 'mcap', hint: '지금 정렬 기준에서의 순서 — 기본 정렬(시총 큰 순)에서는 시가총액 순서(1 = 가장 큼)', sortable: true, align: 'left', width: 44, group: 'identity' },
   // 개편 v2 (3c): the ordinal among ranked rows (the same number the inspector and the stock summary quote).
   { key: 'screenRank', label: '전체 순위', hint: '같은 시장에서 순위가 매겨진 종목 사이의 순서 — 조건 화면과 표시 필터는 이 순서를 바꾸지 않습니다', sortable: true, align: 'left', width: 52, group: 'ranking' },
   // P1464: the value is a percentile among rows that pass the criteria — "점수 100" read as a perfect
@@ -112,7 +112,7 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'price', label: '가격', sortable: true, align: 'right', width: 60, group: 'market' },
   { key: 'pctFrom52wHigh', label: '52주 고점 대비', sortable: true, align: 'right', width: 96, group: 'market' },
   // 개편 v2 (3c): where the last close sits between the 52-week low and high (both distances come from the artifact).
-  { key: 'range52', label: '52주 위치', hint: '52주 저점(왼쪽)과 고점(오른쪽) 사이에서 마지막 종가의 위치 — 같은 산출물의 저점·고점 대비 거리로 계산', sortable: true, align: 'left', width: 92, group: 'market' },
+  { key: 'range52', label: '52주 위치', hint: '52주 저점(왼쪽)과 고점(오른쪽) 사이에서 마지막 종가의 위치', sortable: true, align: 'left', width: 92, group: 'market' },
   // v58.75 (persona review): one week — the move a swing trader checks first (ret5d is already in the artifact).
   { key: 'ret5d', label: '1주', hint: '최근 5거래일 수익률, 완료된 종가 기준', sortable: true, align: 'right', width: 64, group: 'market' },
   { key: 'ret1m', label: '1개월', sortable: true, align: 'right', width: 60, group: 'market' },
@@ -212,17 +212,17 @@ export function cell(documentRef, value, className = '') {
 export function returnText(value) { return finite(value) == null ? '—' : `${signedText(value, 1)}%`; }
 // The colour follows the sign returnText prints (one decimal): a return that rounds to 0.0% is neither up nor down.
 export function returnColor(value, digits = 1) {
-  if (finite(value) == null) return 'var(--text-muted)';
-  return ({ up: 'var(--dir-up)', down: 'var(--dir-down)' })[directionOf(value, digits)] || 'var(--text-primary)';
+  if (finite(value) == null) return 'var(--color-text-secondary)';
+  return ({ up: 'var(--color-data-up)', down: 'var(--color-data-down)' })[directionOf(value, digits)] || 'var(--color-text-primary)';
 }
 // v57.81: momentum and trend scores are z-scores inside the sector, so a sector-wide selloff leaves its best names high.
 // Green needs the absolute check too (bands.js bufferedTrend 'up'); otherwise a high score is shown in the neutral colour.
 export const SECTOR_RELATIVE_PRICE_FACTORS = new Set(['momentum', 'trend']);
-export function factorScoreColor(key, value, row, neutral = 'var(--text-primary)') {
+export function factorScoreColor(key, value, row, neutral = 'var(--color-text-primary)') {
   const score = finite(value);
-  if (score == null) return 'var(--text-muted)';
-  if (score >= 66) return !SECTOR_RELATIVE_PRICE_FACTORS.has(key) || bufferedTrend(row)?.id === 'up' ? 'var(--data-green)' : neutral;
-  return score >= 40 ? 'var(--data-amber)' : 'var(--data-red)';
+  if (score == null) return 'var(--color-text-secondary)';
+  if (score >= 66) return !SECTOR_RELATIVE_PRICE_FACTORS.has(key) || bufferedTrend(row)?.id === 'up' ? 'var(--color-text-success)' : neutral;
+  return score >= 40 ? 'var(--color-text-warning)' : 'var(--color-text-error)';
 }
 export function entryTiming(row) {
   const rank = finite(row.rank);

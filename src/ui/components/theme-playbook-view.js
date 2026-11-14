@@ -358,7 +358,7 @@ function themeCard(doc, root, row, screenerSector = null, { change = null, teach
   // v58.75 (persona review): each condition's definition was repeated in every card (15 times for 긴 추세 앞섬); the card
   // keeps the condition name and its result, the definitions sit once in 판정 규칙.
   const own = row.basisText.filter((text) => !text.startsWith(CREDIT_CONDITION)).map((text) => text.replace(/ \([^)]*\)/, ''));
-  evidence.append(el(doc, 'li', !row.state ? '조건: 단계가 보류돼 조건을 세지 않습니다.' : `조건: ${row.fit}${own.length ? ` — ${own.join(', ')}` : ''}`), el(doc, 'li', `과거 빈도: ${row.past}`));
+  evidence.append(el(doc, 'li', !row.state ? '조건: 단계가 보류돼 조건을 세지 않습니다.' : `조건: ${row.fit}${own.length ? ` — ${own.join(', ')}` : ''}`), pastLine(doc, row));
   card.append(el(doc, 'h4', '판단 근거', 'xr-h4'), evidence);
   if (row.thesis) {
     card.append(el(doc, 'h4', '핵심 논리와 점검 신호', 'xr-h4'), el(doc, 'p', `${row.thesis}. 논리가 깨지는 신호: ${row.breaks.join(', ')}.`, 'xr-reading'));
@@ -378,8 +378,16 @@ function themeCard(doc, root, row, screenerSector = null, { change = null, teach
     table.append(line);
   }
   if (ownChoices.length) card.append(table);
-  card.append(el(doc, 'p', `${CHOICE_WORDS.favored}: ${row.favored.map((key) => CHOICES[key]).join(', ') || '보류'} — ${row.favoredWhy}`, 'xr-reading'));
+  // The comparison rests on the scenario; where the stage's own record did not differ from an ordinary day, it says so.
+  card.append(el(doc, 'p', `${CHOICE_WORDS.favored}: ${row.favored.map((key) => CHOICES[key]).join(', ') || '보류'} — ${row.favoredWhy}${row.pastInformative === false ? ' 뚜렷한 우위가 아니라 시나리오가 맞을 때의 비교입니다.' : ''}`, 'xr-reading'));
   return themeCardTail(doc, root, row, card, screenerSector);
+}
+
+// A record that did not differ from an ordinary day is one short line; the counts behind it are its hover.
+function pastLine(doc, row) {
+  const line = el(doc, 'li', row.pastInformative === false ? '과거 빈도: 이 단계의 과거 기록은 평소와 구별되지 않았습니다.' : `과거 빈도: ${row.past}`);
+  if (row.pastInformative === false) line.title = row.past;
+  return line;
 }
 
 function themeCardTail(doc, root, row, card, screenerSector) {
@@ -685,10 +693,10 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   const fold = el(doc, 'details', null, 'tp-rules tp-table-fold');
   fold.dataset.market = market;
   const opened = root._aioTpTableOpen || (root._aioTpTableOpen = {});
-  fold.open = !!opened[market];
+  fold.open = opened[market] !== false; // open unless the reader closed it
   fold.addEventListener('toggle', () => { opened[market] = fold.open; });
   const summary = el(doc, 'summary', `${mkt({ market })} 테마 ${themes.length}개 — 단계, 근거, 대응별 득실 표`);
-  summary.title = `테마 이름을 누르면 근거·핵심 논리·자기만의 득실이 펼쳐집니다. 단계 흐름은 지금 단계가 이어진 거래일 수와 그 전 단계(최근 10거래일 기록 안), '바뀜'은 최근 3거래일 안에 단계가 달라진 테마입니다. 추이 선은 같은 기간 1개월 수익률의 흐름입니다. 마지막 거래일에 바뀐 테마와 '다른 선택'(같은 단계 다수와 ${CHOICE_WORDS.favored}이 다름)은 처음부터 펼쳐 둡니다(최대 4개).`;
+  summary.title = `단계 흐름은 지금 단계가 이어진 거래일 수와 그 전 단계(최근 10거래일 기록 안), '바뀜'은 최근 3거래일 안에 단계가 달라진 테마입니다. 추이 선은 같은 기간 1개월 수익률의 흐름입니다. 마지막 거래일에 바뀐 테마와 '다른 선택'(같은 단계 다수와 ${CHOICE_WORDS.favored}이 다름)은 처음부터 펼쳐 둡니다(최대 4개).`;
   fold.append(summary);
   fillOnOpen(fold, () => [buildTable()]);
   return fold;

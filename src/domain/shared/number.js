@@ -39,6 +39,10 @@ export function directionOf(value, digits = 1) {
   return number > 0 ? 'up' : 'down';
 }
 
+// The sign printed before an amount formatted elsewhere (money): nothing for a value that rounds to zero.
+export const signMark = (value, digits = 1) => ({ up: '+', down: '-' })[directionOf(value, digits)] || '';
+export const directionColor = (value, digits = 1, neutral = 'var(--color-text-primary)') => ({ up: 'var(--color-data-up)', down: 'var(--color-data-down)' })[directionOf(value, digits)] || neutral;
+
 // v58.74 (text audit): job counts arrive in thousands and were printed as "100천 명", "25천 명" and "5.1만 명" in one card.
 // Under 10천 the count stays in 천; from there it reads in 만 with at most one decimal.
 export function peopleText(thousands, { sign = false } = {}) {

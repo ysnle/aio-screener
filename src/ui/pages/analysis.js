@@ -56,7 +56,7 @@ function setText(documentRef, id, value, color = null) {
 // banded the rounded value while the colour banded the raw one ('극단적 공포' vs the sentiment card's '극단 공포'), and
 // greed used a hard-coded #b1f1cb (1.3:1 on ivory). The score is now the completed-close value (fgClose, computed by the
 // caller from the shared series), banded once by fearGreedBand, coloured with theme tokens.
-const FEAR_GREED_COLOR = Object.freeze({ '극단 공포': 'var(--data-red)', '공포': 'var(--data-amber)', '중립': 'var(--text-muted)', '탐욕': 'var(--data-green)', '극단 탐욕': 'var(--data-green)' });
+const FEAR_GREED_COLOR = Object.freeze({ '극단 공포': 'var(--color-text-error)', '공포': 'var(--color-text-warning)', '중립': 'var(--color-text-secondary)', '탐욕': 'var(--color-text-success)', '극단 탐욕': 'var(--color-text-success)' });
 function renderHomeFearGreed({ documentRef, sentimentValues, fgClose = null, fgStale = false }) {
   const element = documentRef?.getElementById('home-fg-score');
   if (!element) return;
@@ -66,7 +66,7 @@ function renderHomeFearGreed({ documentRef, sentimentValues, fgClose = null, fgS
   const label = documentRef?.getElementById('home-fg-label');
   if (label) label.textContent = known ? band.label : fgStale ? '오래됨' : '미수신';
   element.textContent = known ? String(Math.round(score)) : '—';
-  element.style.color = known ? FEAR_GREED_COLOR[band.label] : 'var(--text-muted)';
+  element.style.color = known ? FEAR_GREED_COLOR[band.label] : 'var(--color-text-secondary)';
   element.dataset.aioHomeFearGreedRenderer = 'native';
   element.setAttribute('data-source-kind', !known ? 'unavailable' : fgClose ? 'completed-close-history' : (sentimentValues?.fearGreedSourceKind || 'legacy-runtime'));
   element.setAttribute('data-source-label', !known ? 'sentiment unavailable' : fgClose ? 'completed-close history' : (sentimentValues?.fearGreedSource || 'sentiment state'));

@@ -477,3 +477,15 @@ export function wonMoveSentence(pct, { dxy20 = null } = {}) {
   if (size < edge) return ` 원화가 조금 ${weak ? '약해' : '강해'}졌습니다(원/달러 ${signedText(value, 1)}%, 환율 기준 ${edge}% 미만)${weak ? ' — 외국인 매도가 이어지는지 봅니다' : ''}.`;
   return ` 원/달러 ${signedText(value, 1)}%로 원화가 ${weak ? '약해졌습니다. 외국인에게는 환차손이라 한국 주식 매도 압력이 됩니다.' : '강해졌습니다. 외국인 수급에 우호적인 쪽입니다.'}`;
 }
+
+// Which part moved the 10-year over the week: the change split into the real yield and the inflation expectation.
+// Silent when the 10-year itself moved less than the line (RULES.rates.splitMoveMinBp).
+export function tenYearSplitDriver(week) {
+  const R = RULES.rates;
+  if (!week || Math.abs(week.n) < R.splitMoveMinBp) return '';
+  const real = Math.abs(week.r);
+  const expected = Math.abs(week.b);
+  const which = real >= expected * R.splitLeadRatio ? '물가 기대보다 실질금리(성장·정책·기간 프리미엄) 쪽이 움직였습니다.'
+    : expected >= real * R.splitLeadRatio ? '실질금리보다 물가 기대 쪽이 움직였습니다.' : '두 부분이 함께 움직였습니다.';
+  return `최근 1주 10년물 ${signedText(week.n, 0, 'bp')} 가운데 실질금리 ${signedText(week.r, 0, 'bp')}, 기대 인플레이션 ${signedText(week.b, 0, 'bp')} — ${which}`;
+}

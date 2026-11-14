@@ -60,7 +60,7 @@ export function amountScale(value, unit) {
   return /tn/i.test(u) ? v * 1000 : /mn/i.test(u) ? v / 1000 : v;
 }
 
-export const pctText = (value) => { const v = finite(value); return v == null ? null : `${trimZero(v.toFixed(1))}%`; };
+export const pctText = (value) => { const v = finite(value); return v == null ? null : Number(v.toFixed(1)) === 0 ? '0%' : `${trimZero(v.toFixed(1))}%`; };
 
 /** The last day of the period the story's `earnings` describe: the explicit `periodEnd`, else the end day in the
  * period text ('FY2026 (ended 2026-01-25)'). Null when neither says it ('Q3 2026 (2026-07~09, 3개월)'). */

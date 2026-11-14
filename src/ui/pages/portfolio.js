@@ -16,7 +16,7 @@ import { renderPortfolioValueTrend } from '../components/portfolio-value-trend.j
 import { renderPortfolioExposureBar } from '../components/portfolio-exposure-bar.js';
 import { installPlanCheck } from '../components/portfolio-plan-check.js';
 import { paintCashBox } from '../panels/portfolio-cash-entry.js';
-import { signedText, readNumber as finite } from '../../domain/shared/number.js';
+import { signedText, signMark, directionColor, readNumber as finite } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
 // RM-01 (2026-07-19): this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
@@ -105,8 +105,8 @@ function renderPortfolioHero(documentRef, surface) {
     valueElement.setAttribute('data-operational-use', 'reference-only');
   }
   if (pnlElement) {
-    pnlElement.textContent = totalPnl == null ? '—' : `${totalPnl >= 0 ? '+' : '-'}${formatMoney(totalPnl, surface.valuationCurrency || surface.declaredBaseCurrency || 'USD')}`;
-    pnlElement.style.color = totalPnl == null ? 'var(--text-dim)' : totalPnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
+    pnlElement.textContent = totalPnl == null ? '—' : `${signMark(totalPnl, 0)}${formatMoney(totalPnl, surface.valuationCurrency || surface.declaredBaseCurrency || 'USD')}`;
+    pnlElement.style.color = totalPnl == null ? 'var(--color-text-secondary)' : directionColor(totalPnl, 0);
     pnlElement.setAttribute('data-aio-portfolio-hero-renderer', 'native');
     pnlElement.setAttribute('data-source-kind', totalPnl == null ? 'unavailable' : 'portfolio-state');
     pnlElement.setAttribute('data-source-label', totalPnl == null ? 'portfolio-pnl-unavailable' : 'native-portfolio-totals');
@@ -323,9 +323,9 @@ function renderPortfolioSurface(documentRef, page, surface) {
   // 시세 갱신 and 전체 삭제; the page keeps the table's one empty state and only the add action.
   page.classList.toggle('pf-is-empty', heroEmpty);
   setSurfaceText(documentRef, 'pf-holding-count', surface.holdingCount ? `${surface.holdingCount}종목` : '—', surface.holdingCount || null, surface);
-  setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${signedText(surface.totalPnlPct, 1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--text-dim)' : surface.totalPnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)');
-  setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange, surface.declaredBaseCurrency), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--dir-up)' : 'var(--dir-down)');
-  setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `${signedText(surface.dailyPct, 2)}%`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--text-dim)' : surface.dailyChange >= 0 ? 'var(--dir-up)' : 'var(--dir-down)');
+  setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${signedText(surface.totalPnlPct, 1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--color-text-secondary)' : surface.totalPnl >= 0 ? 'var(--color-data-up)' : 'var(--color-data-down)');
+  setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange, surface.declaredBaseCurrency), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--color-text-secondary)' : surface.dailyChange >= 0 ? 'var(--color-data-up)' : 'var(--color-data-down)');
+  setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `${signedText(surface.dailyPct, 2)}%`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--color-text-secondary)' : surface.dailyChange >= 0 ? 'var(--color-data-up)' : 'var(--color-data-down)');
   // First-users run 4: with no day move yet the line read '1 종목, 오늘 — (—)'; it hides until a move exists.
   const dailyLine = documentRef?.getElementById('pf-daily-line');
   if (dailyLine) dailyLine.hidden = surface.dailyChange == null;
@@ -354,7 +354,7 @@ function renderPortfolioSurface(documentRef, page, surface) {
     : surface.costCurrencyState === 'cost-price-mismatch-converted' ? `, 원가/시세 불일치 — ${fxBasisLabel}로 환산` : '')
     + (surface.conversion?.costApplied ? ', 원가는 현재 환율로 환산 — 매수 이후 환율 효과 제외' : '');
   const currencyHeldActive = (surface.currencyState === 'mixed-without-conversion' || surface.costCurrencyState === 'cost-price-mismatch-held') && surface.readState === 'ready' && !!surface.holdingCount;
-  setSurfaceText(documentRef, 'pf-currency-note', currencyNoteBase === '—' ? '—' : currencyNoteBase + currencyHeld, surface.holdingCount || null, surface, currencyHeldActive ? 'var(--data-amber)' : 'var(--text-dim)');
+  setSurfaceText(documentRef, 'pf-currency-note', currencyNoteBase === '—' ? '—' : currencyNoteBase + currencyHeld, surface.holdingCount || null, surface, currencyHeldActive ? 'var(--color-text-warning)' : 'var(--color-text-secondary)');
 }
 
 function tableCell(documentRef, headerId, value, className = 'pfp-cell') {
@@ -486,7 +486,7 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     tickerCell.className = 'pfp-ticker';
     const ticker = documentRef.createElement('b');
     ticker.textContent = symbol;
-    ticker.style.color = 'var(--text-primary)';
+    ticker.style.color = 'var(--color-text-primary)';
     tickerCell.appendChild(ticker);
     if (holding?.memo) {
       const memo = documentRef.createElement('div');
@@ -539,24 +539,24 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     row.appendChild(costCell);
     // v57.81: one failure state for a holding whose quote and close both came back empty (any listed symbol is requested).
     const priceCellNode = tableCell(documentRef, 'pf-th-price', price == null ? (root && screenerRowsState(root) === 'loading' ? '가격 불러오는 중' : '가격 없음') : money(price, priceCurrency));
-    priceCellNode.style.color = price == null ? 'var(--text-muted)' : 'var(--text-primary)';
+    priceCellNode.style.color = price == null ? 'var(--color-text-secondary)' : 'var(--color-text-primary)';
     const closeDated = rowData.sourceKind === 'completed-close' && rowData.closeDate ? `, 실시간 시세 대신 ${rowData.closeDate} 종가` : '';
     priceCellNode.title = price == null ? '시세와 종가를 받지 못했습니다, 총자산과 손익 합계에서 뺐습니다' : `시세 통화 ${priceCurrency || '미확인'}${closeDated}`;
     if (price == null) priceCellNode.dataset.priceState = 'missing';
     row.appendChild(priceCellNode);
     // v59.51 (first-users run-6 #9): a bare '—' read as a missing calculation; an empty cell names why it is empty.
     const heldText = avgCost == null ? '매수가 없음' : price == null ? '가격 없음' : '보류';
-    const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? heldText : `${pnl >= 0 ? '+' : '-'}${money(Math.abs(pnl), pnlCurrency)}`, 'pfp-cell is-bold');
+    const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? heldText : `${signMark(pnl, 2)}${money(Math.abs(pnl), pnlCurrency)}`, 'pfp-cell is-bold');
     if (pnl == null) pnlCell.title = '손익 보류, 원가/시세 통화 불일치 또는 시세 미수신';
-    pnlCell.style.color = pnl == null ? 'var(--text-muted)' : pnl >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
+    pnlCell.style.color = pnl == null ? 'var(--color-text-secondary)' : directionColor(pnl, 2);
     row.appendChild(pnlCell);
     const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? heldText : `${signedText(pnlPct, 1)}%`, 'pfp-cell is-bold');
-    pctCell.style.color = pnlPct == null ? 'var(--text-muted)' : pnlPct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
+    pctCell.style.color = pnlPct == null ? 'var(--color-text-secondary)' : directionColor(pnlPct, 1);
     row.appendChild(pctCell);
     // v58.56: today's move of the holding — only from a live quote with a stated basis (the hero's 오늘 uses the same rule).
     const dayPct = rowData.dailyPctEligible && Number.isFinite(rowData.dailyPct) ? rowData.dailyPct : null;
     const dayCell = tableCell(documentRef, 'pf-th-day', dayPct == null ? (rowData.sourceKind === 'completed-close' ? '종가 기준' : '시세 대기') : `${signedText(dayPct, 2)}%`, 'pfp-cell');
-    dayCell.style.color = dayPct == null ? 'var(--text-muted)' : dayPct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
+    dayCell.style.color = dayPct == null ? 'var(--color-text-secondary)' : directionColor(dayPct, 2);
     if (dayPct == null) dayCell.title = rowData.sourceKind === 'completed-close' ? `${rowData.closeDate || ''} 종가로 평가 중 — 오늘 변화는 실시간 시세를 받으면 표시합니다`.trim() : '실시간 시세를 받으면 표시합니다';
     row.appendChild(dayCell);
     // P1176 (22 PFR01): `finite(0)`은 0이라 미설정 표시를 통과하지 못했다. legacy 테이블은 이미
@@ -573,7 +573,7 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
       const upsideNode = documentRef.createElement('div');
       upsideNode.textContent = `${signedText(upside, 1)}%`;
       upsideNode.className = 'pfp-upside';
-      upsideNode.style.color = upside >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
+      upsideNode.style.color = upside >= 0 ? 'var(--color-data-up)' : 'var(--color-data-down)';
       targetCell.appendChild(upsideNode);
     }
     row.appendChild(targetCell);

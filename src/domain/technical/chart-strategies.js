@@ -6,7 +6,7 @@
 // map (v59.46 P24-PRODUCT-01).
 import { swingPoints } from './price-levels.js';
 import { RULES } from '../rules/thresholds.js';
-import { finiteNumber as finite } from '../shared/number.js';
+import { signedText, finiteNumber as finite } from '../shared/number.js';
 
 const at = (series, back = 0) => (Array.isArray(series) ? finite(series[series.length - 1 - back]) : null);
 const pct = (a, b) => (a > 0 && b > 0 ? (a / b - 1) * 100 : null);
@@ -28,7 +28,7 @@ export function trendRead(analysis) {
   const facts = [
     structure ? `고점·저점: ${structure === 'up' ? '높아지는 고점과 저점' : structure === 'down' ? '낮아지는 고점과 저점' : '엇갈림'}` : null,
     order ? `이동평균: ${order === 'up' ? '종가 > 50일선 > 200일선' : order === 'down' ? '종가 < 50일선 < 200일선' : '혼조'}` : null,
-    slope50 != null ? `50일선 20거래일 기울기 ${slope50 >= 0 ? '+' : ''}${slope50.toFixed(1)}%` : null
+    slope50 != null ? `50일선 20거래일 기울기 ${signedText(slope50, 1, '%')}` : null
   ].filter(Boolean);
   // A turn: the last swing high (low) broken against the trend, or a 50/200 cross in the last 20 sessions.
   const lastHigh = highs.length ? bars[highs.at(-1)].high : null, lastLow = lows.length ? bars[lows.at(-1)].low : null;

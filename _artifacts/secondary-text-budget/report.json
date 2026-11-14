@@ -77,19 +77,9 @@
       ]
     },
     "signal": {
-      "total": 3980,
-      "secondary": 250,
+      "total": 997,
+      "secondary": 72,
       "lines": [
-        {
-          "chars": 42,
-          "classes": "sx-card__meta  mk-fold",
-          "text": "10/30 마감, 코스피 5,730.74 (-3.5%, 5거래일 +3.3%)"
-        },
-        {
-          "chars": 23,
-          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "기준 345bp(5일 전 340bp 대비)"
-        },
         {
           "chars": 22,
           "classes": "is-favorable mk-tally__legend mk-tally",
@@ -101,44 +91,24 @@
           "text": "10/30 미국 종가 기준, 6개 지표"
         },
         {
-          "chars": 20,
-          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "WTI 20일 +10%, 100.22"
-        },
-        {
-          "chars": 16,
-          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "3개월 VIX 역전 20.78"
-        },
-        {
-          "chars": 16,
-          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "1년 범위 80%, 5.04%"
-        },
-        {
-          "chars": 14,
-          "classes": "regime-radar-legend",
-          "text": "5거래일 전 (10/23)"
-        },
-        {
-          "chars": 14,
-          "classes": "regime-radar-legend",
-          "text": "20거래일 전 (10/2)"
-        },
-        {
           "chars": 13,
           "classes": "is-burden mk-tally__legend mk-tally",
           "text": "부담 1(달러와 원자재)"
         },
         {
-          "chars": 13,
-          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "50일선+1% 7,774"
+          "chars": 7,
+          "classes": "sx-card__meta  mk-fold",
+          "text": "세 흐름 보기"
         },
         {
-          "chars": 10,
-          "classes": "mk-axis__dist-basis mk-axis__dist mk-axis__row",
-          "text": "50일선 위 60%"
+          "chars": 5,
+          "classes": "sx-disclosure mk-hero__why mk-hero__main",
+          "text": "판정 근거"
+        },
+        {
+          "chars": 4,
+          "classes": "is-neutral mk-tally__legend mk-tally",
+          "text": "중립 2"
         }
       ],
       "frames": [
@@ -159,19 +129,11 @@
           "asof": "",
           "readings": [],
           "problems": []
-        },
-        {
-          "frame": "signal.synthesis",
-          "contract": null,
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
         }
       ]
     },
     "breadth": {
-      "total": 951,
+      "total": 993,
       "secondary": 49,
       "lines": [
         {
@@ -182,54 +144,54 @@
         {
           "chars": 2,
           "classes": "aio-note-fold trend-card",
-          "text": "설명"
+          "text": "기준"
         },
         {
           "chars": 2,
           "classes": "aio-note-fold trend-card breadth-lead",
-          "text": "설명"
+          "text": "기준"
         },
         {
           "chars": 2,
           "classes": "aio-note-fold trend-card",
-          "text": "설명"
+          "text": "기준"
         },
         {
           "chars": 2,
           "classes": "aio-note-fold trend-card",
-          "text": "설명"
+          "text": "기준"
         },
         {
           "chars": 2,
           "classes": "aio-note-fold trend-card",
-          "text": "설명"
+          "text": "기준"
         },
         {
           "chars": 2,
           "classes": "aio-note-fold trend-card",
-          "text": "설명"
+          "text": "기준"
         },
         {
           "chars": 2,
           "classes": "aio-note-fold trend-card breadth-lead",
-          "text": "설명"
+          "text": "기준"
         },
         {
           "chars": 2,
           "classes": "aio-note-fold trend-card",
-          "text": "설명"
+          "text": "기준"
         },
         {
           "chars": 2,
           "classes": "aio-note-fold trend-card",
-          "text": "설명"
+          "text": "기준"
         }
       ],
       "frames": []
     },
     "sentiment": {
-      "total": 976,
-      "secondary": 141,
+      "total": 1002,
+      "secondary": 165,
       "lines": [
         {
           "chars": 20,
@@ -272,30 +234,30 @@
           "text": "10/30 종가 -2.1%"
         },
         {
+          "chars": 8,
+          "classes": "fig-parts__item is-part-1 fig-parts__legend",
+          "text": "37.8% 강세"
+        },
+        {
+          "chars": 8,
+          "classes": "fig-parts__item is-part-2 fig-parts__legend",
+          "text": "20.8% 중립"
+        },
+        {
+          "chars": 8,
+          "classes": "fig-parts__item is-part-3 fig-parts__legend",
+          "text": "41.4% 약세"
+        },
+        {
           "chars": 5,
           "classes": "sx-kicker mk-senti-hero__main sx-card sx-card--hero mk-sub-hero mk-senti-hero",
           "text": "심리 종합"
-        },
-        {
-          "chars": 5,
-          "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/30"
-        },
-        {
-          "chars": 5,
-          "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/30"
-        },
-        {
-          "chars": 2,
-          "classes": "aio-basis-btn briefing-block market-temperature",
-          "text": "근거"
         }
       ],
       "frames": []
     },
     "briefing": {
-      "total": 1143,
+      "total": 1224,
       "secondary": 45,
       "lines": [
         {
@@ -329,18 +291,13 @@
       "frames": []
     },
     "macro": {
-      "total": 5271,
-      "secondary": 249,
+      "total": 1274,
+      "secondary": 181,
       "lines": [
         {
           "chars": 149,
           "classes": "page-subtitle  page-head",
           "text": "매크로 6요인 중 부담은 3개(물가, 통화정책, 유가·달러)이고, 성장·물가 국면은 방향 보류입니다. 다음 주요 발표는 11/6(금) 22:30 KST 고용보고서입니다. 지금 맞서는 시나리오를 가를 발표는 11/10(화) 22:30 KST CPI (소비자물가)입니다."
-        },
-        {
-          "chars": 22,
-          "classes": "sx-card__meta  mk-fold",
-          "text": "WTI, 금 종가 추이와 1년 범위 위치"
         },
         {
           "chars": 14,
@@ -353,68 +310,16 @@
           "text": "기준선 근처, 방향 보류"
         },
         {
-          "chars": 12,
-          "classes": "briefing-h2 briefing-block macro-section sx-card release-guide",
-          "text": "물가 · 고용 · 소비"
-        },
-        {
-          "chars": 10,
-          "classes": "release-guide__name release-guide__row",
-          "text": "소비자물가(CPI)"
-        },
-        {
-          "chars": 6,
-          "classes": "release-guide__name release-guide__row",
-          "text": "PCE 물가"
-        },
-        {
           "chars": 5,
-          "classes": "release-guide__name release-guide__row",
-          "text": "고용보고서"
-        },
-        {
-          "chars": 4,
-          "classes": "release-guide__name release-guide__row",
-          "text": "소매판매"
-        },
-        {
-          "chars": 3,
-          "classes": "release-guide__state is-burden release-guide__name release-guide__row",
-          "text": "끈적함"
-        },
-        {
-          "chars": 3,
-          "classes": "release-guide__state is-burden release-guide__name release-guide__row",
-          "text": "끈적함"
-        },
-        {
-          "chars": 2,
-          "classes": "release-guide__state is-bad release-guide__name release-guide__row",
-          "text": "급랭"
+          "classes": "aio-note-fold macro-chain-legend-fold",
+          "text": "▲▼ 기준"
         }
       ],
-      "frames": [
-        {
-          "frame": "macro.recent-releases",
-          "contract": null,
-          "hasHead": true,
-          "asof": "",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "macro.chapters",
-          "contract": null,
-          "hasHead": false,
-          "asof": "",
-          "readings": [],
-          "problems": []
-        }
-      ]
+      "frames": []
     },
     "fxbond": {
-      "total": 1785,
-      "secondary": 160,
+      "total": 1197,
+      "secondary": 137,
       "lines": [
         {
           "chars": 18,
@@ -447,33 +352,33 @@
           "text": "1개월 전, 10/1"
         },
         {
-          "chars": 11,
-          "classes": "briefing-h2-note briefing-h2 briefing-block rates-block",
-          "text": "10/30 종가 기준"
-        },
-        {
-          "chars": 8,
-          "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/30 종가"
-        },
-        {
-          "chars": 8,
-          "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/30 종가"
-        },
-        {
-          "chars": 8,
-          "classes": "basis-chip trend-card-tags trend-card",
-          "text": "10/30 종가"
+          "chars": 9,
+          "classes": "fig__title fig fig-bars rates-guide",
+          "text": "만기별 1주 변화"
         },
         {
           "chars": 6,
-          "classes": "rates-guide",
+          "classes": "rates-guide rates-curve-guide",
           "text": "수익률 곡선"
         },
         {
           "chars": 5,
           "classes": "rates-curve-key is-now rates-curve-legend rates-curve-wrap",
+          "text": "10/30"
+        },
+        {
+          "chars": 5,
+          "classes": "macro-stat-meta macro-stat macro-stat-grid",
+          "text": "10/29"
+        },
+        {
+          "chars": 5,
+          "classes": "aio-note-fold macro-stat",
+          "text": "지표 정의"
+        },
+        {
+          "chars": 5,
+          "classes": "macro-stat-meta macro-stat macro-stat-grid",
           "text": "10/30"
         }
       ],
@@ -486,115 +391,18 @@
       "frames": []
     },
     "themes": {
-      "total": 3248,
-      "secondary": 60,
+      "total": 891,
+      "secondary": 16,
       "lines": [
         {
           "chars": 16,
           "classes": "sx-row__meta sx-row sx-card sx-card--flush v2-themes-top",
           "text": "S&P 500 1주 -0.6%"
-        },
-        {
-          "chars": 6,
-          "classes": "tp-legend-item tp-legend tp-map-side",
-          "text": "축 범위 밖"
-        },
-        {
-          "chars": 5,
-          "classes": "sector-map-swatch is-d2 sector-map-legend aio-section sector-map aio-frame",
-          "text": "-1.5%"
-        },
-        {
-          "chars": 5,
-          "classes": "sector-map-swatch is-d1 sector-map-legend aio-section sector-map aio-frame",
-          "text": "-0.5%"
-        },
-        {
-          "chars": 5,
-          "classes": "sector-map-swatch is-u1 sector-map-legend aio-section sector-map aio-frame",
-          "text": "+0.5%"
-        },
-        {
-          "chars": 5,
-          "classes": "sector-map-swatch is-u2 sector-map-legend aio-section sector-map aio-frame",
-          "text": "+1.5%"
-        },
-        {
-          "chars": 5,
-          "classes": "tp-legend-item tp-legend tp-map-side",
-          "text": "영향 작음"
-        },
-        {
-          "chars": 3,
-          "classes": "sector-map-swatch is-d3 sector-map-legend aio-section sector-map aio-frame",
-          "text": "-3%"
-        },
-        {
-          "chars": 3,
-          "classes": "sector-map-swatch is-u3 sector-map-legend aio-section sector-map aio-frame",
-          "text": "+3%"
-        },
-        {
-          "chars": 2,
-          "classes": "tp-legend-item tp-legend tp-map-side",
-          "text": "수혜"
-        },
-        {
-          "chars": 2,
-          "classes": "tp-legend-item tp-legend tp-map-side",
-          "text": "부담"
-        },
-        {
-          "chars": 2,
-          "classes": "tp-legend-item tp-legend tp-map-side",
-          "text": "혼재"
         }
       ],
       "frames": [
         {
           "frame": "themes.rrg",
-          "contract": null,
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "themes.sector-map",
-          "contract": null,
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "themes.ranking",
-          "contract": null,
-          "hasHead": true,
-          "asof": "10/30 종가",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "themes.ai-chain",
-          "contract": null,
-          "hasHead": true,
-          "asof": "",
-          "readings": [],
-          "problems": []
-        },
-        {
-          "frame": "themes.capex-flow",
-          "contract": null,
-          "hasHead": true,
-          "asof": "2026-08 인용 자료",
-          "readings": [
-            53
-          ],
-          "problems": []
-        },
-        {
-          "frame": "themes.playbook",
           "contract": null,
           "hasHead": true,
           "asof": "10/30 종가",
@@ -627,14 +435,14 @@
       "frames": []
     },
     "ticker": {
-      "total": 186,
+      "total": 166,
       "secondary": 0,
       "lines": [],
       "frames": []
     },
     "market-news": {
-      "total": 2643,
-      "secondary": 288,
+      "total": 1200,
+      "secondary": 133,
       "lines": [
         {
           "chars": 32,
@@ -647,46 +455,6 @@
           "text": "EnergyNow.com, 11시간 전"
         },
         {
-          "chars": 20,
-          "classes": "market-slot-meta market-slot-head market-slot",
-          "text": "헤드라인 6건, 원/달러 +0.12%"
-        },
-        {
-          "chars": 20,
-          "classes": "market-slot-meta market-slot-head market-slot",
-          "text": "헤드라인 6건, 비트코인 +0.77%"
-        },
-        {
-          "chars": 20,
-          "classes": "market-slot-meta market-slot-head market-slot",
-          "text": "헤드라인 6건, 비트코인 -1.36%"
-        },
-        {
-          "chars": 19,
-          "classes": "market-slot-meta market-slot-head market-slot",
-          "text": "헤드라인 6건, VIX +6.30%"
-        },
-        {
-          "chars": 19,
-          "classes": "market-slot-meta market-slot-head market-slot",
-          "text": "헤드라인 6건, VIX +6.05%"
-        },
-        {
-          "chars": 19,
-          "classes": "market-slot-meta market-slot-head market-slot",
-          "text": "헤드라인 6건, 코스피 -5.35%"
-        },
-        {
-          "chars": 19,
-          "classes": "market-slot-meta market-slot-head market-slot",
-          "text": "헤드라인 6건, VIX +4.18%"
-        },
-        {
-          "chars": 19,
-          "classes": "market-slot-meta market-slot-head market-slot",
-          "text": "헤드라인 6건, VIX -1.49%"
-        },
-        {
           "chars": 17,
           "classes": "news-item-meta news-item-body news-item-card",
           "text": "Bloomberg, 12시간 전"
@@ -695,18 +463,29 @@
           "chars": 15,
           "classes": "news-item-meta news-item-body news-item-card",
           "text": "Reuters, 11시간 전"
+        },
+        {
+          "chars": 14,
+          "classes": "briefing-h2-note aio-asof briefing-h2 aio-section briefing-block sx-card news-card news-intraday-card",
+          "text": "10/31 08:00 이후"
+        },
+        {
+          "chars": 13,
+          "classes": "briefing-h2-note aio-asof briefing-h2 aio-section briefing-block sx-card news-card",
+          "text": "10/31 08:00까지"
+        },
+        {
+          "chars": 11,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "WSJ, 12시간 전"
+        },
+        {
+          "chars": 10,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "필드뉴스, 1일 전"
         }
       ],
-      "frames": [
-        {
-          "frame": "market-news.event-briefs",
-          "contract": null,
-          "hasHead": true,
-          "asof": "",
-          "readings": [],
-          "problems": []
-        }
-      ]
+      "frames": []
     },
     "principles": {
       "total": 36,
@@ -883,38 +662,13 @@
       "frames": []
     },
     "charts": {
-      "total": 1116,
-      "secondary": 43,
+      "total": 131,
+      "secondary": 13,
       "lines": [
         {
           "chars": 13,
           "classes": "page-subtitle  page-head",
           "text": "10/30 종가 · 일봉"
-        },
-        {
-          "chars": 6,
-          "classes": "aio-note-fold trend-card charts-card",
-          "text": "근거와 수치"
-        },
-        {
-          "chars": 6,
-          "classes": "aio-note-fold trend-card charts-card",
-          "text": "근거와 수치"
-        },
-        {
-          "chars": 6,
-          "classes": "aio-note-fold trend-card charts-card",
-          "text": "근거와 수치"
-        },
-        {
-          "chars": 6,
-          "classes": "aio-note-fold trend-card charts-card",
-          "text": "근거와 수치"
-        },
-        {
-          "chars": 6,
-          "classes": "aio-note-fold trend-card charts-card",
-          "text": "근거와 수치"
         }
       ],
       "frames": []

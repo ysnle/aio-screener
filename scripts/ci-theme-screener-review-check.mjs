@@ -49,7 +49,7 @@ try {
   // 테마 at desktop dark (3), phone light (15, 23, 24).
   for (const view of [{ id: 'desktop-dark', width: 1440, height: 1000, dark: true }, { id: 'tablet-dark', width: 768, height: 1024, dark: true }, { id: 'phone-light', width: 390, height: 844, dark: false, mobile: true }]) {
     const { context, page, errors } = await open(browser, view);
-    await page.evaluate(() => window.showPage('themes'));
+    await page.evaluate(() => { window.showPage('themes'); document.querySelectorAll('.page[data-view]').forEach((node) => { node.dataset.view = 'all'; }); }); // every view of the page
     await page.waitForFunction(() => document.querySelector('.capex-flow-seg') && document.querySelector('#theme-playbook .xr-lead') && document.querySelector('.sector-map-sector'), null, { timeout: 60000 });
     await page.evaluate(() => { const fold = document.getElementById('ai-capex-fold'); if (fold && 'open' in fold) fold.open = true; });
     const read = await page.evaluate(() => {
@@ -98,7 +98,7 @@ try {
   for (const dark of [false, true]) {
     const id = `phone-stale-${dark ? 'dark' : 'light'}`;
     const { context, page, errors } = await open(browser, { width: 390, height: 844, dark, mobile: true, clock: STALE_CLOCK });
-    await page.evaluate(() => window.showPage('themes'));
+    await page.evaluate(() => { window.showPage('themes'); document.querySelectorAll('.page[data-view]').forEach((node) => { node.dataset.view = 'all'; }); }); // every view of the page
     await page.waitForFunction(() => document.querySelectorAll('.v2-themes-top__row').length > 0, null, { timeout: 60000 });
     await page.waitForTimeout(800);
     const rows = await page.evaluate(() => ({

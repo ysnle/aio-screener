@@ -108,11 +108,12 @@ export function renderHomeDay({ documentRef: doc, root, store = null }) {
     parts.push(row);
   }
   const links = el(doc, 'div', null, 'home-day__links');
-  for (const [text, route] of [[`지난 24시간 전체 ${account.stories.length + account.more.length}건 → 브리핑`, 'briefing'], ...(narrLine ? [['이야기와 시나리오 → 시장 상태', 'signal']] : []), ['뉴스 전체 → 뉴스', 'market-news']]) {
+  for (const [text, route, view] of [[`지난 24시간 전체 ${account.stories.length + account.more.length}건 → 브리핑`, 'briefing'], ...(narrLine ? [['이야기와 시나리오 → 시장 상태', 'signal', 'story']] : []), ['뉴스 전체 → 뉴스', 'market-news']]) {
     const link = el(doc, 'button', text, 'flow-next-link');
     link.type = 'button';
     link.dataset.action = 'showPage';
     link.dataset.arg = route;
+    if (view) link.dataset.view = view;
     links.append(link);
   }
   parts.push(links);

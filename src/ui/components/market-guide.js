@@ -69,16 +69,7 @@ export function renderHomeGuide({ documentRef: doc, root, store = null, anchor =
   const d = guide.direction;
   const costs = d.costIfWrong.length ? el(doc, 'ul', null, 'mg-costs') : null;
   for (const cost of d.costIfWrong) costs.append(el(doc, 'li', `'${cost.short}'(${cost.fit}) 쪽으로 가면 — ${cost.text}${cost.trigger ? ` 확인: ${cost.trigger}` : ''}`));
-  const stance = el(doc, 'div', null, 'mg-stance');
-  // Feature audit 2026-11-02: '지향할 것/지양할 것' read as instructions to the reader; the lists are the scenario cost
-  // comparison's result and the traps, so the headings say that (AGENTS: conditional reasoning, never an instruction).
-  for (const [label, list, kind] of [['시나리오 비교에서 유리하게 적힌 쪽', guide.stance.pursue, 'pursue'], ['비용이 크게 적힌 쪽과 피할 함정', guide.stance.avoid, 'avoid']]) {
-    if (!list.length) continue;
-    const col = el(doc, 'div', null, 'mg-stance-col'); col.dataset.kind = kind;
-    const ul = el(doc, 'ul'); list.forEach((text) => ul.append(el(doc, 'li', text)));
-    col.append(el(doc, 'h3', label, 'xr-h4'), ul);
-    stance.append(col);
-  }
+  // The lean/avoid lists are on the face above the fold (연결해서 보면, market-synthesis); this card keeps the reasoning behind them.
   const lessons = el(doc, 'ul', null, 'mg-lessons');
   guide.lessons.forEach((lesson) => lessons.append(lessonItem(doc, root, lesson)));
   const library = el(doc, 'details', null, 'mg-library');
@@ -94,7 +85,6 @@ export function renderHomeGuide({ documentRef: doc, root, store = null, anchor =
     situation,
     el(doc, 'h3', '여러 시나리오를 함께 놓고 보면', 'xr-h4'), choiceTable(doc, d), el(doc, 'p', d.text, 'xr-reading'),
     ...(costs ? [el(doc, 'p', '이 판단이 빗나갈 때의 기회비용', 'mg-costs-label'), costs] : []),
-    stance,
     el(doc, 'h3', '오늘 해당하는 원칙', 'xr-h4'), lessons, library,
     el(doc, 'p', `${guide.note} 세부 종목 선택은 차트·기업·테마·스크리너에서 직접 합니다.`, 'xr-scope-note')
   );

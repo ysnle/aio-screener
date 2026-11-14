@@ -12,8 +12,8 @@ Four sizes: 12 · 14 · 18 · 28. A sentence a reader reads uses `--fs-reading` 
 dates, chips and table figures stay 12px. A rule that sizes a reading class names `var(--fs-reading)`; classes that
 inherit their size, and class-less `p`/`li` inside `.page`, are covered by one rule in `ui-states.css` §7. Weights stop
 at 600: hierarchy comes from size and colour (stylesheets only — CSS injected from `research-shell.js` and
-`analysis-frames.js` still carries 700). Text of 16px or less has no negative letter-spacing. Not adopted from astryx:
-its mobile reading base of 16px on coarse pointers (a fifth size; owner decision).
+`analysis-frames.js` still carries 700). Text of 16px or less has no negative letter-spacing. On coarse pointers below 1024px
+`--fs-reading` is 16px (astryx mobile-typography DR1: the reading base is at least the input minimum); labels stay 12px.
 
 ## Shape — radius follows role
 | Token | Value | Role |
@@ -56,6 +56,7 @@ AIO's own rule; astryx's theme-tokens INV7 is about generated projections, not c
 One definition in the `index.html` `:root, body` block; `body.dark-theme` restates only the roles whose Radix step
 differs (body, card, overlay, ink, status text, direction). Declaring on `body` too matters: a `var()` inside a custom
 property resolves where it is declared, so the roles re-resolve against the dark Radix scale on body.
+Consumers name the role (v60.07, `node scripts/codemod-color-roles.mjs`): 3,590 uses of old aliases were rewritten and 39 alias definitions removed. The aliases still defined (`--text-primary/-secondary/-muted/-dim`, `--border`, `--border-subtle`, `--bg-surface`, `--data-green/amber/red`, `--dir-up/down`, `--accent`, `--data-cyan/purple`, `--green`, `--red`) are read by name in scripts or tests; new code uses the role.
 | Role | Light → dark | Old names (aliases) |
 |---|---|---|
 | `--color-background-body` / `-surface` / `-card` / `-emphasized` | gold-2 / gold-2 / gold-1 / gold-3 → gold-1 / gold-2 / gold-2 / gold-3 | `--bg-base`, `--bg-surface`, `--bg-card`, `--bg-input`, `--bg-elevated` |

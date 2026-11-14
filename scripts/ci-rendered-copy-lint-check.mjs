@@ -78,7 +78,7 @@ export function signColourMismatches(selector) {
   const out = [];
   for (const el of document.querySelectorAll(`${selector} [style*="color"]`)) {
     const colour = el.style.color || '';
-    const got = /--dir-up/.test(colour) ? 'up' : /--dir-down/.test(colour) ? 'down' : /--text-primary/.test(colour) ? 'flat' : null;
+    const got = /--color-data-up/.test(colour) ? 'up' : /--color-data-down/.test(colour) ? 'down' : /--color-text-primary/.test(colour) ? 'flat' : null;
     const text = (el.textContent || '').trim();
     const match = got && !el.children.length && text.match(/^([+\-−]?)\d[\d,]*(?:\.\d+)?\s*(?:%p|%|bp)?$/);
     if (!match) continue;
@@ -142,7 +142,7 @@ if (isMain) {
     await page.evaluate(() => {
       const host = document.createElement('div');
       host.id = 'sign-colour-canary';
-      host.innerHTML = '<span style="color: var(--text-primary)">+0.04%</span><span style="color: var(--dir-up)">+0.04%</span><span style="color: var(--dir-down)">-1.2%p</span><span style="color: var(--text-primary)">0.00%</span>';
+      host.innerHTML = '<span style="color: var(--color-text-primary)">+0.04%</span><span style="color: var(--color-data-up)">+0.04%</span><span style="color: var(--color-data-down)">-1.2%p</span><span style="color: var(--color-text-primary)">0.00%</span>';
       document.querySelector('.page.active').appendChild(host);
     });
     const colourCanary = await page.evaluate(signColourMismatches, '#sign-colour-canary');

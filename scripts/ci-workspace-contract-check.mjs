@@ -90,6 +90,15 @@ for (const command of ['git push origin main --force', 'git push -f origin main'
   const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
   check(`guard denies "${command}" (v59.93)`, /"permissionDecision":"deny"/.test(out.stdout || ''));
 }
+// v60.07: a push chained with ";" or "|" runs after a failed step (the v57.82 conflict-marker push).
+for (const command of ['git merge origin/main; git push origin main', 'node scripts/qa-runner.mjs affected | tail -3; git push', 'git status | git push origin main']) {
+  const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
+  check(`guard denies "${command}" (v60.07)`, /"permissionDecision":"deny"/.test(out.stdout || ''));
+}
+for (const command of ['set -e && git push origin main 2>&1 | tail -3', 'git commit -m "merge; git push later" && git push', 'git fetch origin || git push origin main']) {
+  const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
+  check(`guard allows "${command}" (v60.07)`, !/deny/.test(out.stdout || ''));
+}
 for (const command of ['git push origin main', 'git push --follow-tags origin main', 'git push -u origin claude/thread', 'git reset --soft HEAD~1', 'git commit -m "notes" && git push', 'git push origin main\ngit log -f', 'git commit -m "fix: push origin main -f handling"']) {
   const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
   check(`guard allows "${command}" (v59.93)`, !/deny/.test(out.stdout || ''));

@@ -75,7 +75,7 @@ const sharedContract = read('.claude/skills/_shared/operating-contract.md');
 check('shared contract links governance', sharedContract.includes('_context/WORKFLOW-GOVERNANCE.md'));
 check('shared contract links index', sharedContract.includes('_context/INDEX.md'));
 check('shared contract links generated state', sharedContract.includes('_context/CURRENT-STATE.md'));
-check('shared contract owns R1 seven surfaces', /R1 as 7 synchronized surfaces/.test(sharedContract));
+check('v60.07 shared contract names bump-version as the owner of the R1 surfaces', /keep R1 as the surfaces that script patches/.test(sharedContract));
 check('shared contract owns skill gates', sharedContract.includes('ci-skill-contract-check.mjs') && sharedContract.includes('ci-workflow-compaction-check.mjs'));
 
 for (const skill of skills) {

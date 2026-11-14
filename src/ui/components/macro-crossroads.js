@@ -344,7 +344,7 @@ function changeLog(doc, state, open = false, checkedAt = null) {
   // v58.79: the "recomputed every refresh" caption became the fold's hover.
   // v59.70: an unchanged state keeps its published bytes, so the producer ledger's checkedAt is the last recomputation.
   const computedAt = checkedAt || state?.generatedAt;
-  box.title = `데이터 갱신마다 자동으로 다시 계산해 기록합니다${computedAt ? `(마지막 계산 ${shortDate(computedAt)})` : ''}`;
+  box.title = computedAt ? `마지막 계산 ${shortDate(computedAt)}` : '';
   return box;
 }
 

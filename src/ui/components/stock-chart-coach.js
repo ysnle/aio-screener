@@ -32,7 +32,7 @@ function lifecycleBand(doc, life) {
     const li = el(doc, 'li', `${index + 1} ${label}`);
     if (current) li.setAttribute('aria-current', 'step');
     Object.assign(li.style, { padding: '6px 4px', borderRadius: '4px', fontSize: '12px', textAlign: 'center', lineHeight: '1.3',
-      background: current ? 'var(--accent)' : 'var(--surface-2, var(--bg-surface))', color: current ? 'var(--bg-card)' : 'var(--text-secondary)', fontWeight: current ? '700' : '400' });
+      background: current ? 'var(--color-accent)' : 'var(--surface-2, var(--color-background-surface))', color: current ? 'var(--color-background-card)' : 'var(--color-text-secondary)', fontWeight: current ? '700' : '400' });
     band.append(li);
   });
   return band;
@@ -65,7 +65,7 @@ function checklistBlock(doc, root, sym, analysis, regime, tools) {
     mark.setAttribute('aria-label', word);
     mark.style.marginRight = '6px';
     const value = el(doc, 'span', ` — ${item.value}`);
-    value.style.color = 'var(--text-secondary)';
+    value.style.color = 'var(--color-text-secondary)';
     li.append(mark, el(doc, 'b', item.label), value);
     marks.append(li);
   }
@@ -148,20 +148,20 @@ function levelLadder(doc, levels) {
   box.setAttribute('aria-label', `현재가 기준 위 레벨 ${levels.above.length}개, 아래 레벨 ${levels.below.length}개의 위치`);
   Object.assign(box.style, { position: 'relative', height: '30px', margin: '8px 0 4px' });
   const track = el(doc, 'span');
-  Object.assign(track.style, { position: 'absolute', left: '0', right: '0', top: '14px', height: '2px', background: 'var(--border)' });
+  Object.assign(track.style, { position: 'absolute', left: '0', right: '0', top: '14px', height: '2px', background: 'var(--color-border)' });
   box.append(track);
   const at = (pct) => `${(50 + pct / max * 48).toFixed(1)}%`;
   for (const level of all) {
     const tick = el(doc, 'span');
     tick.title = `${sideWord(level)} ${signedText(level.pct, 1, '%')} (${kindsText(level)})`;
-    Object.assign(tick.style, { position: 'absolute', left: at(level.pct), top: '8px', width: '2px', height: '14px', background: 'var(--text-secondary)', transform: 'translateX(-1px)' });
+    Object.assign(tick.style, { position: 'absolute', left: at(level.pct), top: '8px', width: '2px', height: '14px', background: 'var(--color-text-secondary)', transform: 'translateX(-1px)' });
     box.append(tick);
   }
   const now = el(doc, 'span');
-  Object.assign(now.style, { position: 'absolute', left: '50%', top: '4px', width: '10px', height: '22px', borderRadius: '3px', background: 'var(--accent)', transform: 'translateX(-5px)' });
+  Object.assign(now.style, { position: 'absolute', left: '50%', top: '4px', width: '10px', height: '22px', borderRadius: '3px', background: 'var(--color-accent)', transform: 'translateX(-5px)' });
   box.append(now);
   const scale = el(doc, 'div', null, 'chart-level-scale');
-  Object.assign(scale.style, { display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-muted)' });
+  Object.assign(scale.style, { display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--color-text-secondary)' });
   scale.append(el(doc, 'span', `아래 ${signedText(-max, 1, '%')}`), el(doc, 'span', '현재가'), el(doc, 'span', `위 ${signedText(max, 1, '%')}`));
   const wrap = el(doc, 'div');
   wrap.append(box, scale);
@@ -180,7 +180,7 @@ function levelTable(doc, levels, price) {
   ['가격·종류', '현재가 대비', '반응'].forEach((label) => { const th = el(doc, 'th', label); th.scope = 'col'; headRow.append(th); });
   head.append(headRow);
   const body = el(doc, 'tbody');
-  const small = (textValue) => { const node = el(doc, 'small', textValue); Object.assign(node.style, { display: 'block', color: 'var(--text-muted)', fontSize: '12px', whiteSpace: 'normal' }); return node; };
+  const small = (textValue) => { const node = el(doc, 'small', textValue); Object.assign(node.style, { display: 'block', color: 'var(--color-text-secondary)', fontSize: '12px', whiteSpace: 'normal' }); return node; };
   const row = (level) => {
     const tr = el(doc, 'tr');
     const priceCell = el(doc, 'td');
@@ -332,13 +332,13 @@ function planCheck(doc, root, sym, levels, price, checkPricePlan) {
   const inputs = {};
   for (const [key, label] of PLAN_FIELDS) {
     const field = el(doc, 'label');
-    Object.assign(field.style, { display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '12px', color: 'var(--text-secondary)' });
+    Object.assign(field.style, { display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '12px', color: 'var(--color-text-secondary)' });
     const input = el(doc, 'input');
     input.type = 'number'; input.inputMode = 'decimal'; input.step = 'any'; input.min = '0';
     input.id = `chart-plan-${key}`;
     input.value = stored[key] != null ? String(stored[key]) : key === 'entry' ? String(Number((held ?? levels.close).toFixed((held ?? levels.close) >= 1000 ? 0 : 2))) : '';
     // Touch browsers zoom into inputs under 16px (owner rule: touch-input 16px).
-    Object.assign(input.style, { fontSize: '16px', padding: '6px 8px', border: '0.5px solid var(--border)', borderRadius: '6px', background: 'var(--bg-card)', color: 'var(--text-primary)', minWidth: '0' });
+    Object.assign(input.style, { fontSize: '16px', padding: '6px 8px', border: '0.5px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-background-card)', color: 'var(--color-text-primary)', minWidth: '0' });
     field.append(doc.createTextNode(key === 'entry' && held != null && stored.entry == null ? '진입가(보유 평균 단가)' : label), input);
     grid.append(field);
     inputs[key] = input;

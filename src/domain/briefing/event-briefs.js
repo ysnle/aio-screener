@@ -453,7 +453,10 @@ export function latestBriefFor(artifact, symbol, { nowMs = Date.now(), days = 10
  */
 export function homeBriefTiers(artifact, { nowMs = Date.now(), coreLimit = 4, notableLimit = 8, restLimit = 24 } = {}) {
   const live = briefsOf(artifact).filter((brief) => brief.status !== 'pending' && publishedMs(brief) <= nowMs + 3600000)
-    .sort((a, b) => publishedMs(b) - publishedMs(a));
+    .sort((a, b) => publishedMs(b) - publishedMs(a))
+    // One company's results filed twice on one day (two 6-K exhibits) are one event: the later filing stands.
+    .filter((brief, index, list) => brief.kind !== 'earnings' || !brief.symbol
+      || list.findIndex((other) => other.kind === 'earnings' && other.symbol === brief.symbol && other.eventDate === brief.eventDate) === index);
   const within = (brief, days) => nowMs - publishedMs(brief) <= days * DAY;
   // v59.44 (first live earnings week: 17 tier-1 lines): FOMC first; then the listed core names and moves of 15% or more,
   // newest first (INTC -23% after hours ahead of a two-day-old GOOGL); then the other tier-1 reports by the size of the move.

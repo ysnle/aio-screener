@@ -106,7 +106,7 @@ function scenarioExposureBox(doc, model) {
     if (pct > 0) {
       const seg = el(doc, 'span', pct >= 12 ? `${pct.toFixed(0)}%` : '', `pf-trend-seg${WIND_TONE[wind] ? ` is-${WIND_TONE[wind]}` : ''}`);
       seg.style.width = `${pct.toFixed(1)}%`;
-      if (!WIND_TONE[wind]) { seg.style.background = 'rgba(var(--ink-rgb),0.22)'; seg.style.color = 'var(--text-primary)'; }
+      if (!WIND_TONE[wind]) { seg.style.background = 'rgba(var(--ink-rgb),0.22)'; seg.style.color = 'var(--color-text-primary)'; }
       seg.title = `${label} ${pct.toFixed(1)}%`;
       bar.append(seg);
     }

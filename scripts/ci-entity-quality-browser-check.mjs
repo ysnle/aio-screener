@@ -116,7 +116,7 @@ try {
         await page.keyboard.press('Escape');
       }
       // Enter the actual summary action first. No technical route or chart fetch is invoked beforehand.
-      await page.evaluate(()=>window.showTicker('AEHR'));
+      await page.evaluate(()=>{ window.showTicker('AEHR'); document.querySelectorAll('.page[data-view]').forEach((node) => { node.dataset.view = 'all'; }); }); // every view of the page
       await page.waitForFunction(()=>document.getElementById('ticker-hero-price')?.textContent.includes('84.64')
         && document.getElementById('ticker-price-chart')?.dataset.tickerChartEnd === '2026-10-09'
         // v59.55 (C1): the price line is the shared SVG trend chart (no Chart.js hand-over to wait for).
@@ -212,7 +212,7 @@ try {
       observations.push({label,currencyFormat,priceBoundary:'Unreceived public quotes remain unavailable; no published price is promoted into a current quote.'});
       await captureLayout(page,`${label}/screener`);
 
-      await page.evaluate(()=>window.showTicker('AEHR'));
+      await page.evaluate(()=>{ window.showTicker('AEHR'); document.querySelectorAll('.page[data-view]').forEach((node) => { node.dataset.view = 'all'; }); }); // every view of the page
       await page.waitForFunction(()=>document.querySelector('.page.active')?.id==='page-ticker');
       await page.locator('#aio-hub-tabs [data-arg="fundamental"]').click();
       await page.waitForSelector('.fiscal-amount-table tbody tr', {timeout:20000, state:'attached'}); // 2026-10-14 audit #21: amount tables fold closed under the chart

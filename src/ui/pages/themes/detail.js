@@ -27,7 +27,7 @@ import { EARNINGS_CALENDAR } from '../../../data/artifact-registry.js';
 import { themeDayMoveRead, themeSpreadRead, themeBreadthRead } from '../../../domain/themes/theme-day-read.js';
 
 // The one-day readings' tones (src/domain/themes/theme-day-read.js) as the panel's text colours.
-const TONE_COLOR = Object.freeze({ muted: 'var(--text-muted)', neutral: 'var(--text-secondary)', favorable: 'var(--data-green)', caution: 'var(--data-amber)' });
+const TONE_COLOR = Object.freeze({ muted: 'var(--color-text-secondary)', neutral: 'var(--color-text-secondary)', favorable: 'var(--color-text-success)', caution: 'var(--color-text-warning)' });
 
 // v58.75 (persona review): the theme's representative ETF against SPY over the produced 100 sessions (rotationHistory
 // relativeStrength, rebased to 100 on the first session) — the line an RRG point summarises. No ETF, no chart.
@@ -574,7 +574,7 @@ export function memberTable(documentRef, root, members, { onSort, showGroup = fa
   const latestMemberSession = latestSessionRows(members, (member) => stampDay(member.row?.factorSessionDate)).basis;
   // v58.79: the close date stays; how to read the columns is its hover.
   const basis = make('p', basisDate || (latestMemberSession ? `${shortSession(latestMemberSession)} 종가 기준` : '종가 기준일 미확인'), 'thp-perf-basis');
-  basis.title = `열 제목을 누르면 정렬, 거래량 배수 = 최근 거래량 ÷ 20일 평균, ${roleMap ? "역할은 아래 '테마 안에서 종목 고르는 법'의 정의" : `3개월 순위는 이 표 안에서의 위치(기록 ${ranked.length}종목)`}`;
+  basis.title = `거래량 배수 = 최근 거래량 ÷ 20일 평균, ${roleMap ? "역할은 아래 '테마 안에서 종목 고르는 법'의 정의" : `3개월 순위는 이 표 안에서의 위치(기록 ${ranked.length}종목)`}`;
   if (sorted.length > 18) {
     const more = make('button', root._aioMemberAll ? '정렬 순 상위 15종목만 보기' : `전체 ${sorted.length}종목 보기`, 'theme-strength-more thp-member-more');
     more.type = 'button';
@@ -710,7 +710,7 @@ export function renderThemeDetailSpread({ documentRef, root, store, themeId = nu
     // catalyst, nor a reason to prefer the ETF. State the measured dispersion only.
     body.textContent = themeSpreadRead(rows[0].pct - rows[rows.length - 1].pct).text;
     const leaders = documentRef.createElement('div');
-    leaders.textContent = `최강 ${rows[0].symbol} ${signedText(rows[0].pct, 2)}%, 최약 ${rows[rows.length - 1].symbol} ${rows[rows.length - 1].pct >= 0 ? '+' : ''}${rows[rows.length - 1].pct.toFixed(2)}%`;
+    leaders.textContent = `최강 ${rows[0].symbol} ${signedText(rows[0].pct, 2)}%, 최약 ${rows[rows.length - 1].symbol} ${signedText(rows[rows.length - 1].pct, 2)}%`;
     leaders.className = 'thp-spread-leaders';
     body.appendChild(leaders);
   }

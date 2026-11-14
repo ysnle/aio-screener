@@ -6,8 +6,8 @@
 /* Sector breakdown bars */
 
 /* Positions table. The id outranks `.content table tbody tr` (0,1,3) and `.page table td` (0,1,2), which the inline styles beat. */
-#pf-positions-tbody td.pfp-empty { padding: 28px 16px; text-align: center; color: var(--text-muted); font-size: var(--fs-base); line-height: 1.8; }
-#pf-positions-tbody .pfp-empty-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+#pf-positions-tbody td.pfp-empty { padding: 28px 16px; text-align: center; color: var(--color-text-secondary); font-size: var(--fs-base); line-height: 1.8; }
+#pf-positions-tbody .pfp-empty-title { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 6px; }
 /* Screen audit 2026-10-20: on a phone the empty state was centred across the 680px table, so the button sat past the
    313px scroller ("첫 종"). Below tablet width it is pinned to the visible left edge of the scroller. */
 @media (max-width: 743px) {
@@ -26,9 +26,9 @@
   #pf-positions-tbody td.pfp-empty > .pfp-empty-actions { justify-content: flex-start; width: calc(100vw - 100px); }
   #pf-positions-tbody .pfp-empty-actions > .pfp-add { white-space: normal; text-align: left; }
 }
-#pf-positions-tbody > tr.pfp-row { border-bottom: 0.5px solid var(--border); cursor: pointer; }
+#pf-positions-tbody > tr.pfp-row { border-bottom: 0.5px solid var(--color-border); cursor: pointer; }
 #pf-positions-tbody td.pfp-ticker { padding: 8px 10px; font-size: var(--fs-base); }
-#pf-positions-tbody .pfp-memo { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px; }
+#pf-positions-tbody .pfp-memo { font-size: var(--fs-xs); color: var(--color-text-secondary); margin-top: 2px; }
 /* v58.80 (first-users run-3 B17): a 5,000-character memo with no spaces widened the table to 51,180px. */
 #pf-positions-tbody :is(.pfp-memo, .pfp-detail-memo, dd) { overflow-wrap: anywhere; word-break: break-word; }
 #pf-positions-tbody .pfp-detail-memo { max-height: 12em; overflow-y: auto; }
@@ -40,65 +40,65 @@
 #pf-positions-tbody .pfp-manage-btn { background: none; border: none; cursor: pointer; font-size: 12px; padding: 2px 4px; }
 
 /* Declared ledger coverage, ledger and FX-leg rows (src/ui/panels/portfolio-declarations.js) */
-#page-portfolio .pfp-decl-head { font-size: var(--fs-sm); color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
+#page-portfolio .pfp-decl-head { font-size: var(--fs-sm); color: var(--color-text-secondary); font-weight: 600; margin-bottom: 4px; }
 #page-portfolio .pfp-decl-options { display: flex; gap: 10px; flex-wrap: wrap; }
-#page-portfolio .pfp-decl-option { display: flex; gap: 4px; align-items: center; font-size: var(--fs-sm); color: var(--text-secondary); }
+#page-portfolio .pfp-decl-option { display: flex; gap: 4px; align-items: center; font-size: var(--fs-sm); color: var(--color-text-secondary); }
 #page-portfolio .pfp-decl-row { display: flex; gap: 8px; align-items: center; padding: 2px 0; }
 #page-portfolio .pfp-decl-row.is-unusable { opacity: 0.7; }
 #page-portfolio .pfp-figure { font-family: var(--font-mono); }
 
 /* Base-currency notes under the exposure and stress panels (src/ui/panels/portfolio-base-values.js) */
-#page-portfolio .pfp-base-blocked { font-size: var(--fs-base); color: var(--text-muted); padding: 8px 0; }
-#page-portfolio .pfp-base-excluded { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 4px; }
+#page-portfolio .pfp-base-blocked { font-size: var(--fs-base); color: var(--color-text-secondary); padding: 8px 0; }
+#page-portfolio .pfp-base-excluded { font-size: var(--fs-sm); color: var(--color-text-secondary); margin-top: 4px; }
 /* v58.52 매매일지 · 복기 (src/ui/panels/portfolio-trade-journal.js) */
-#pf-trades .pf-trade-form, #pf-trades .pf-trade-rules, #pf-trades .pf-trade-fold { border: 0.5px solid var(--border-subtle); border-radius: var(--radius-element); padding: 10px 14px; margin: 10px 0; background: var(--bg-card, transparent); }
-#pf-trades summary { cursor: pointer; font-weight: 600; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; }
+#pf-trades .pf-trade-form, #pf-trades .pf-trade-rules, #pf-trades .pf-trade-fold { border: 0.5px solid var(--color-border-muted); border-radius: var(--radius-element); padding: 10px 14px; margin: 10px 0; background: var(--color-background-card, transparent); }
+#pf-trades summary { cursor: pointer; font-weight: 600; color: var(--color-text-secondary); min-height: 28px; display: flex; align-items: center; }
 /* first-users run-3 B19: a flex summary loses its marker, so "거래 기록하기" (open from the start) read as a heading and the
    first click closed it. Every journal fold says what a click does, like .aio-page-advanced-toggle. */
-#pf-trades summary::after { width: auto; height: auto; border: 0; transform: none; content: '펼치기'; margin-left: auto; padding-left: 12px; color: var(--accent); font-size: var(--fs-sm, 12px); font-weight: 600; }
+#pf-trades summary::after { width: auto; height: auto; border: 0; transform: none; content: '펼치기'; margin-left: auto; padding-left: 12px; color: var(--color-accent); font-size: var(--fs-sm, 12px); font-weight: 600; }
 #pf-trades details[open] > summary::after { content: '접기'; }
 @media (pointer: coarse) { #pf-trades summary { min-height: 44px; } }
 #pf-trades .pf-trade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 12px; margin: 10px 0; }
-#pf-trades .pf-trade-field { display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-sm, 12px); color: var(--text-muted); min-width: 0; }
-#pf-trades .pf-trade-field input, #pf-trades .pf-trade-field select, #pf-trades .pf-trade-field textarea { min-height: 36px; padding: 6px 8px; border: 0.5px solid var(--border-subtle); border-radius: var(--radius-element); background: var(--bg-input, var(--bg-card, transparent)); color: var(--text-primary); font: inherit; width: 100%; box-sizing: border-box; }
+#pf-trades .pf-trade-field { display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-sm, 12px); color: var(--color-text-secondary); min-width: 0; }
+#pf-trades .pf-trade-field input, #pf-trades .pf-trade-field select, #pf-trades .pf-trade-field textarea { min-height: 36px; padding: 6px 8px; border: 0.5px solid var(--color-border-muted); border-radius: var(--radius-element); background: var(--color-background-card, var(--color-background-card, transparent)); color: var(--color-text-primary); font: inherit; width: 100%; box-sizing: border-box; }
 #pf-trades .pf-trade-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
 #pf-trades .pf-trade-actions button { min-height: 36px; padding: 6px 18px; }
 #pf-trades .pf-trade-block { margin: 14px 0; }
-#pf-trades .pf-trade-h3 { font-size: 14px; margin: 0 0 8px; color: var(--text-primary); }
-#pf-trades .pf-trade-h4 { font-size: 12px; margin: 12px 0 6px; color: var(--text-secondary); }
+#pf-trades .pf-trade-h3 { font-size: 14px; margin: 0 0 8px; color: var(--color-text-primary); }
+#pf-trades .pf-trade-h4 { font-size: 12px; margin: 12px 0 6px; color: var(--color-text-secondary); }
 #pf-trades .pf-trade-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-#pf-trades .pf-trade-card { border: 0.5px solid var(--border-subtle); border-radius: var(--radius-element); padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-#pf-trades .pf-trade-card-label, #pf-trades .pf-trade-card-sub { font-size: 12px; color: var(--text-muted); }
-#pf-trades .pf-trade-card-value { font-size: 14px; color: var(--text-primary); overflow-wrap: anywhere; }
+#pf-trades .pf-trade-card { border: 0.5px solid var(--color-border-muted); border-radius: var(--radius-element); padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+#pf-trades .pf-trade-card-label, #pf-trades .pf-trade-card-sub { font-size: 12px; color: var(--color-text-secondary); }
+#pf-trades .pf-trade-card-value { font-size: 14px; color: var(--color-text-primary); overflow-wrap: anywhere; }
 #pf-trades .pf-trade-notes, #pf-trades .pf-trade-mirror, #pf-trades .pf-trade-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
 #pf-trades .pf-trade-notes li { line-height: 1.65; padding-left: 10px;  }
-#pf-trades .pf-trade-notes li.is-burden { border-left-color: var(--data-red); }
+#pf-trades .pf-trade-notes li.is-burden { border-left-color: var(--color-text-error); }
 #pf-trades .pf-trade-mirror-row { line-height: 1.6; }
 #pf-trades .pf-trade-mirror-state { display: inline-block; min-width: 56px; margin-right: 6px; font-size: 12px; font-weight: 600; }
-#pf-trades .pf-trade-mirror-row.is-favorable .pf-trade-mirror-state { color: var(--data-green); }
-#pf-trades .pf-trade-mirror-row.is-burden .pf-trade-mirror-state { color: var(--data-red); }
-#pf-trades .pf-trade-mirror-row.is-unknown .pf-trade-mirror-state { color: var(--text-muted); }
-#pf-trades .pf-trade-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; padding: 6px 0; border-bottom: 0.5px solid var(--border-subtle); }
+#pf-trades .pf-trade-mirror-row.is-favorable .pf-trade-mirror-state { color: var(--color-text-success); }
+#pf-trades .pf-trade-mirror-row.is-burden .pf-trade-mirror-state { color: var(--color-text-error); }
+#pf-trades .pf-trade-mirror-row.is-unknown .pf-trade-mirror-state { color: var(--color-text-secondary); }
+#pf-trades .pf-trade-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; padding: 6px 0; border-bottom: 0.5px solid var(--color-border-muted); }
 #pf-trades .pf-trade-row-main { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-#pf-trades .pf-trade-row-sub { grid-column: 1; font-size: 12px; color: var(--text-muted); overflow-wrap: anywhere; }
+#pf-trades .pf-trade-row-sub { grid-column: 1; font-size: 12px; color: var(--color-text-secondary); overflow-wrap: anywhere; }
 #pf-trades .pf-trade-remove { grid-column: 2; grid-row: 1 / span 2; min-height: 32px; }
 /* v58.75 (persona review, spec F4·F5): 점검 기준 and 논지 점검 lists reuse the journal's mirror rows. */
 #pf-criteria { margin: 4px 0 12px; }
-#pf-criteria .pf-criteria-lead { margin: 0 0 8px; color: var(--text-secondary); }
+#pf-criteria .pf-criteria-lead { margin: 0 0 8px; color: var(--color-text-secondary); }
 #pf-criteria .pf-trade-mirror, #pf-thesis .pf-trade-mirror { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 6px; }
 #pf-criteria .pf-trade-mirror-row, #pf-thesis .pf-trade-mirror-row { line-height: 1.6; overflow-wrap: anywhere; }
 #pf-criteria .pf-trade-mirror-state, #pf-thesis .pf-trade-mirror-state { display: inline-block; min-width: 72px; margin-right: 6px; font-size: 12px; font-weight: 600; }
-#pf-criteria .is-favorable .pf-trade-mirror-state { color: var(--data-green); }
-#pf-criteria .is-burden .pf-trade-mirror-state, #pf-thesis .is-burden .pf-trade-mirror-state { color: var(--data-amber); }
-#pf-criteria .is-unknown .pf-trade-mirror-state, #pf-thesis .is-unknown .pf-trade-mirror-state { color: var(--text-muted); }
-#pf-checks .pf-checks-fold > summary { cursor: pointer; font-weight: 600; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; }
+#pf-criteria .is-favorable .pf-trade-mirror-state { color: var(--color-text-success); }
+#pf-criteria .is-burden .pf-trade-mirror-state, #pf-thesis .is-burden .pf-trade-mirror-state { color: var(--color-text-warning); }
+#pf-criteria .is-unknown .pf-trade-mirror-state, #pf-thesis .is-unknown .pf-trade-mirror-state { color: var(--color-text-secondary); }
+#pf-checks .pf-checks-fold > summary { cursor: pointer; font-weight: 600; color: var(--color-text-secondary); min-height: 28px; display: flex; align-items: center; }
 /* 내 계획 점검 (R:R) result lines */
 #pf-rr-fold .pf-rr-lines { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 4px; font-variant-numeric: tabular-nums; }
 
 /* v58.80 (first-users bundle 6): a refused number says why beside its field (src/ui/components/input-check.js). */
-.input-check-error { display: block; margin-top: 4px; font-size: var(--fs-min); color: var(--data-red); line-height: 1.4; }
-.pf-crosstab-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-element); background: var(--bg-elevated); }
-input[aria-invalid="true"] { border-color: var(--data-red); }
+.input-check-error { display: block; margin-top: 4px; font-size: var(--fs-min); color: var(--color-text-error); line-height: 1.4; }
+.pf-crosstab-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-element); background: var(--color-background-emphasized); }
+input[aria-invalid="true"] { border-color: var(--color-text-error); }
 /* v58.80 (first-users run-4): "예: AAPL, 애플" and the optional-field hints were cut off in 80–90px boxes. */
 @media (min-width: 744px) { #pf-add-ticker { width: 140px; } #pf-add-target { width: 120px; } }
 /* With the AI panel beside the page the holdings table clipped its last columns ("주식 중 비중" → "10"); it scrolls instead. */
@@ -110,9 +110,9 @@ input[aria-invalid="true"] { border-color: var(--data-red); }
 @media (max-width: 743px) {
   .page .sh-portfolio-holdings-table thead { display: none; }
   .page .sh-portfolio-holdings-table, .page .sh-portfolio-holdings-table tbody { display: block; width: 100%; }
-  .page .sh-portfolio-holdings-table tbody tr { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1); }
+  .page .sh-portfolio-holdings-table tbody tr { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--color-border); border-radius: 10px; background: var(--surface-1); }
   .page .sh-portfolio-holdings-table tbody td { display: flex; flex-direction: column; gap: 2px; padding: 0; border: 0; position: static; min-width: 0; text-align: left; white-space: normal; overflow-wrap: anywhere; }
-  .page .sh-portfolio-holdings-table tbody td[data-label]::before { content: attr(data-label); font-size: var(--fs-min); color: var(--text-muted); font-weight: 400; }
+  .page .sh-portfolio-holdings-table tbody td[data-label]::before { content: attr(data-label); font-size: var(--fs-min); color: var(--color-text-secondary); font-weight: 400; }
   .page .sh-portfolio-holdings-table tbody td[headers="pf-th-ticker"], .page .sh-portfolio-holdings-table tbody td[headers="pf-th-manage"] { grid-column: 1 / -1; }
   .page .sh-portfolio-holdings-table tbody td[headers="pf-th-manage"] { flex-direction: row; flex-wrap: wrap; gap: 8px; }
   .page .sh-portfolio-holdings-table tbody td[headers="pf-th-manage"] button { min-height: 44px; min-width: 44px; }
@@ -136,25 +136,25 @@ input[aria-invalid="true"] { border-color: var(--data-red); }
 #page-portfolio #pf-main > #pf-value-trend { order: -7; }
 #page-portfolio #pf-main > #pf-read { order: -7; }
 #page-portfolio #pf-main > #pf-exposure-bar { order: -7; }
-#page-portfolio #pf-main > .pf-first { box-sizing: border-box; min-width: 0; max-width: 100%; margin: 0 0 16px; padding: 18px 20px; border-radius: var(--radius-container); background: var(--bg-card); }
+#page-portfolio #pf-main > .pf-first { box-sizing: border-box; min-width: 0; max-width: 100%; margin: 0 0 16px; padding: 18px 20px; border-radius: var(--radius-container); background: var(--color-background-card); }
 #page-portfolio .pf-first-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
 #page-portfolio .pf-first-head .briefing-h2 { margin: 0; }
 #page-portfolio .pf-trend-body { min-height: 120px; }
 #page-portfolio .pf-trend-body .trend-chart-wrap { width: 100%; }
 #page-portfolio .pf-trend-body .trend-chart { width: 100%; height: auto; }
-#page-portfolio .pf-trend-lead { margin: 0 0 8px; font-size: 14px; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+#page-portfolio .pf-trend-lead { margin: 0 0 8px; font-size: 14px; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
 #page-portfolio .pf-trend-part { white-space: nowrap; }
-#page-portfolio .pf-trend-lead b.is-up { color: var(--dir-up); }
-#page-portfolio .pf-trend-lead b.is-down { color: var(--dir-down); }
-#page-portfolio .pf-trend-note { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
-#page-portfolio .pf-value-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px; font-size: 12px; color: var(--text-secondary); }
+#page-portfolio .pf-trend-lead b.is-up { color: var(--color-data-up); }
+#page-portfolio .pf-trend-lead b.is-down { color: var(--color-data-down); }
+#page-portfolio .pf-trend-note { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
+#page-portfolio .pf-value-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px; font-size: 12px; color: var(--color-text-secondary); }
 #page-portfolio .pf-value-legend svg { margin-right: 6px; vertical-align: middle; }
-#page-portfolio .pf-exposure-lead { margin: 0 0 10px; font-size: 14px; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+#page-portfolio .pf-exposure-lead { margin: 0 0 10px; font-size: 14px; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
 #page-portfolio .pf-exposure-track { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: rgba(var(--ink-rgb), 0.06); }
-#page-portfolio .pf-exposure-seg { display: block; height: 100%; min-width: 2px; box-shadow: inset -1px 0 0 var(--bg-card); }
+#page-portfolio .pf-exposure-seg { display: block; height: 100%; min-width: 2px; box-shadow: inset -1px 0 0 var(--color-background-card); }
 #page-portfolio .pf-exposure-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 10px 0 0; padding: 0; list-style: none; font-size: 12px; }
-#page-portfolio .pf-exposure-key { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); }
-#page-portfolio .pf-exposure-key b { color: var(--text-primary); font-variant-numeric: tabular-nums; }
+#page-portfolio .pf-exposure-key { display: inline-flex; align-items: center; gap: 6px; color: var(--color-text-secondary); }
+#page-portfolio .pf-exposure-key b { color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
 #page-portfolio .pf-exposure-swatch { width: 10px; height: 10px; border-radius: 2px; }
 #page-portfolio :is(.pf-exposure-seg, .pf-exposure-swatch).is-s1 { background: rgba(var(--ink-rgb), 0.82); }
 #page-portfolio :is(.pf-exposure-seg, .pf-exposure-swatch).is-s2 { background: rgba(var(--ink-rgb), 0.62); }
@@ -164,8 +164,8 @@ input[aria-invalid="true"] { border-color: var(--data-red); }
 #page-portfolio :is(.pf-exposure-seg, .pf-exposure-swatch).is-other { background: rgba(var(--ink-rgb), 0.12); }
 /* Inside a fold each former fold is a titled part. */
 #page-portfolio .pf-fold-part { margin: 0 0 20px; }
-#page-portfolio .pf-fold-part + .pf-fold-part { padding-top: 16px; border-top: 0.5px solid var(--border); }
-#page-portfolio .pf-fold-h { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+#page-portfolio .pf-fold-part + .pf-fold-part { padding-top: 16px; border-top: 0.5px solid var(--color-border); }
+#page-portfolio .pf-fold-h { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
 @media (max-width: 600px) {
   #page-portfolio #pf-main > .pf-first { padding: 14px 16px; }
 }

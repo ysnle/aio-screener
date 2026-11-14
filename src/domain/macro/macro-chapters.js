@@ -143,7 +143,7 @@ function labor(macroHistory, events) {
   return {
     id: 'labor', title: '고용 — 냉각과 꺾임의 구분', question: '경기 침체 위험',
     viz: { caption: '비농업 고용 증감 (천 명)', unit: '', points: changes.map((row, index) => ({ x: monthName(row.date), value: row.value, hot: index === changes.length - 1 })) },
-    now: `${monthName(changes.at(-1).date)} ${changes.at(-1).value >= 0 ? '+' : ''}${(changes.at(-1).value / 10).toFixed(1)}만 · 3개월 평균 ${avg3 >= 0 ? '+' : ''}${(avg3 / 10).toFixed(1)}만 · 실업률 ${rate.value.toFixed(1)}%${claims ? ` · 실업수당 청구 4주 평균 ${(claims.avg4 / 10000).toFixed(1)}만` : ''}`,
+    now: `${monthName(changes.at(-1).date)} ${signedText(changes.at(-1).value / 10, 1)}만 · 3개월 평균 ${signedText(avg3 / 10, 1)}만 · 실업률 ${rate.value.toFixed(1)}%${claims ? ` · 실업수당 청구 4주 평균 ${(claims.avg4 / 10000).toFixed(1)}만` : ''}`,
     mean: `${shape}.${tight}${wageYoy !== null ? ` 임금은 1년 전보다 ${wageYoy.toFixed(1)}% 올라 ${wageYoy >= 4 ? '물가를 다시 밀어 올릴 수 있는 속도입니다' : '물가를 밀어 올릴 정도는 아닙니다'}.` : ''}`,
     next: whenOf(next) || '발표 일정을 확인하지 못했습니다',
     flip: `${sahmLine ? `실업률 3개월 평균이 ${sahmLine}% 이상(Sahm ${G.sahmRecessionAt}%p)` : `Sahm 지표 ${G.sahmRecessionAt}%p 이상`}이 되거나 실업수당 청구 4주 평균이 1년 저점보다 ${G.claimsRiseAbovePct}% 이상${claimsLine ? `(${(claimsLine / 10000).toFixed(1)}만 건)` : ''} 늘면 침체 쪽으로 읽습니다.`,
@@ -322,7 +322,7 @@ function dollarChapter(history, macroHistory = null) {
   const read = strong ? '달러가 강해져 미국 밖의 돈줄이 조여지고, 원자재와 신흥국(한국 포함) 주식에 부담입니다'
     // Only what was computed: the 1-year position when it exists, otherwise that the range could not be read.
     : dxy.pct >= D.rise20dPct ? `달러가 ${signed(dxy.pct, 1)} 올랐지만 ${position == null ? '1년 범위를 확인하지 못해 범위 조건은 보지 않았고' : `1년 범위의 ${Math.round(position * 100)}% 위치로 상위 ${Math.round((1 - D.rangeHighAt) * 100)}%가 아니라`} 부담 기준(+${D.rise20dPct + D.bufferPct}%)에는 못 미칩니다`
-      : dxy.pct <= D.fall20dPct ? '달러가 약해져 미국 밖 자산과 원자재에 우호적인 쪽입니다' : '달러는 크게 움직이지 않았습니다';
+      : dxy.pct <= D.fall20dPct ? '달러가 약해져 미국 밖 자산과 원자재에 우호적인 쪽입니다' : `달러는 20거래일 ${signed(dxy.pct, 1)}로 부담 기준(+${D.rise20dPct}%) 안쪽입니다`;
   const carry = jpy && jpy.pct <= -3 ? ' 엔화가 빠르게 강해져(엔/달러 하락) 낮은 엔화 금리로 빌린 돈이 되돌아가는지(캐리 청산) 봐야 합니다.' : '';
   const won = krw ? wonMoveSentence(krw.pct, { dxy20: dxy.pct }) : ''; // v59.76: one reading with the 성장·한국 chapter
   return {

@@ -67,7 +67,7 @@ function changeOf(series, unit) {
   const last = steps.at(-1);
   const sd = stepStdev(steps.slice(-61, -1));
   const week = series.length >= 6 ? (unit === 'bp' ? (series.at(-1).value - series.at(-6).value) * 100 : (series.at(-1).value / series.at(-6).value - 1) * 100) : null;
-  return { change: round(last), week: round(week), z: sd ? round(last / sd) : null };
+  return { change: round(last, 4), week: round(week, 4), z: sd ? round(last / sd) : null }; // four decimals: a one-decimal print must not round twice
 }
 
 function priceFacts(history) {

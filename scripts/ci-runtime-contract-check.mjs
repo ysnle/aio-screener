@@ -1374,10 +1374,24 @@ check('QA-GLOSSARY-SWEEP/P1261 figure-carrying glossary entries and source rows 
 check('QA-GLOSSARY-SWEEP/P1261 every figure source row declares kind, source and condition', glossaryFigureSources.length > 0
   && glossaryFigureSources.every((r) => glossaryTermSet.has(r.term) && GLOSSARY_FIGURE_KINDS.has(r.kind) && r.src.trim().length > 0 && r.cond.trim().length > 0)
   && glossaryFigureSources.filter((r) => r.kind === '미검증-경험칙').every((r) => r.src.includes('미검증')));
+// v60.08: the tab row of a page and the style sheet that lists each view's sections name the same views.
+{
+  const viewCss = read('src/ui/styles/page-views.css');
+  const pagesWithViews = [...html.matchAll(/<div class="page" id="(page-[a-z-]+)"[^>]*data-view="([a-z]+)"/g)];
+  const drift = [];
+  for (const [, pageId, initial] of pagesWithViews) {
+    const at = html.indexOf(`id="${pageId}"`);
+    const row = html.slice(at, html.indexOf('</div>', html.indexOf('class="sx-seg page-views"', at)));
+    const tabs = [...row.matchAll(/role="tab"[^>]*data-view="([a-z]+)"/g)].map((match) => match[1]);
+    const listed = [...viewCss.matchAll(new RegExp(`#${pageId}:not\\(\\[data-view="([a-z]+)"\\]`, 'g'))].map((match) => match[1]).filter((view, index, all) => all.indexOf(view) === index); // a view may take more than one line
+    if (!tabs.includes(initial) || tabs.length < 2 || tabs.join() !== listed.join()) drift.push(`${pageId}: tabs ${tabs.join('/')} vs css ${listed.join('/')}`);
+  }
+  check('v60.08 each page view has a tab and a section list in page-views.css', pagesWithViews.length >= 2 && drift.length === 0, drift.join('; '));
+}
 // P1315/QA-UX-01: user-visible correctness regressions found by the 2026-09-28 full audit (V2-BLUEPRINT N1/N2/N5/N10/N24/N31).
 check('P1315 KR theme detail reads the optional KR_THEME_INSIGHTS global behind a typeof guard', !/var kti = KR_THEME_INSIGHTS\[/.test(krData) && /typeof KR_THEME_INSIGHTS !== 'undefined'/.test(krData));
 check('P1315 KR index cards carry no hardcoded direction class/colour; direction follows the live previous-close delta', !/kr-idx-card (?:up|down)"/.test(html) && !/id="kr-(?:kospi|kosdaq|krw)-price" style="color:var\(--(?:green|red)\)"/.test(html) && /_krIdxCard\.classList\.toggle\('up', atomicDelta > 0\)/.test(data));
-check('P1315 a11y direction classes carry colour, not only a glyph (v58.80: direction tokens, up red / down blue)', /\.a11y-up \{ color: var\(--dir-up\); \}/.test(html) && /\.a11y-dn \{ color: var\(--dir-down\); \}/.test(html));
+check('P1315 a11y direction classes carry colour, not only a glyph (v58.80: direction tokens, up red / down blue)', /\.a11y-up \{ color: var\(--color-data-up\); \}/.test(html) && /\.a11y-dn \{ color: var\(--color-data-down\); \}/.test(html));
 check('P1315 signal weight legend uses the canonical 심리 component (F&G + put/call), not 모멘텀/추세추종', !/모멘텀\(F&G·추세추종\)/.test(html + ui) && !/심리\(공포·탐욕·풋콜\) 25%/.test(html)); // P1392: the weighted legend left with the score
 const ctrlKProbe = await (async () => {
   // v59.59 roadmap 11: the keydown shortcuts moved from js/aio-ui.js to src/ui/navigation/screen-shortcuts.js.

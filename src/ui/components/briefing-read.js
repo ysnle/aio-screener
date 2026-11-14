@@ -23,6 +23,9 @@ import { marketInterpretation, screenerRowsForRoot } from '../../data/selectors/
 import { buildEarningsWeek, eventPreviews } from '../../domain/briefing/event-guide.js';
 import { historyWaitText } from './data-state.js';
 import { MACRO_HISTORY } from '../../data/artifact-registry.js';
+import { createTrendChart } from './trend-chart.js';
+import { buildCloseSeries } from '../../domain/market/session/close-series.js';
+import { signedText } from '../../domain/shared/number.js';
 
 // Only S&P 500 members: the weekly calendar lists hundreds of micro-caps.
 function universeNames(root) {
@@ -233,6 +236,25 @@ function forkNode(doc, split) {
   return li;
 }
 
+// The week sentence compares the 10-year yield with the S&P 500; the two paths it compares sit under it.
+const WEEK_FIGURE_SESSIONS = 21;
+function renderWeekFigure(doc, root, anchor, read) {
+  if (!anchor) return;
+  let host = doc.getElementById('briefing-read-figure');
+  const panels = !read.available ? [] : [['S&P 500', 'spx', (value) => value.toLocaleString('en-US', { maximumFractionDigits: 0 }), (to, from) => signedText((to / from - 1) * 100, 1, '%')], ['미 10년물 금리', 'tnx', (value) => `${value.toFixed(2)}%`, (to, from) => signedText((to - from) * 100, 0, 'bp')]]
+    .map(([title, field, format, change]) => ({ title, format, change, series: buildCloseSeries(root._aioHistory || [], field, { through: read.asOf || null }).slice(-WEEK_FIGURE_SESSIONS) }))
+    .filter((panel) => panel.series.length >= 5);
+  if (panels.length < 2) { host?.remove(); return; }
+  if (!host) { host = el(doc, 'div', null, 'fig-group briefing-read-figure'); host.id = 'briefing-read-figure'; anchor.after(host); }
+  host.replaceChildren(...panels.map((panel) => {
+    const figure = el(doc, 'figure', null, 'fig');
+    // The sentence above is about the last 5 sessions; the caption gives that change on the month the chart draws.
+    const last = panel.series.at(-1), weekAgo = panel.series.at(-6);
+    figure.append(el(doc, 'figcaption', `${panel.title} ${panel.format(last.value)}, 최근 5거래일 ${weekAgo ? panel.change(last.value, weekAgo.value) : '—'} (그림은 ${panel.series.length}거래일)`, 'fig__title'), createTrendChart(doc, { series: panel.series, format: panel.format, label: panel.title }));
+    return figure;
+  }));
+}
+
 export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs = Date.now() }) {
   const page = doc?.getElementById('page-briefing');
   if (!page) return;
@@ -304,6 +326,7 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
   if (headline) headline.textContent = read.available ? (read.headline || '눈에 띄는 신호가 없는 평범한 하루입니다.') : historyWaitText(root);
   const headlineReading = doc.getElementById('briefing-read-reading');
   if (headlineReading) headlineReading.replaceChildren(...(read.headlineReading ? [el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${read.headlineReading}`)] : []));
+  renderWeekFigure(doc, root, headlineReading, read);
   const points = doc.getElementById('briefing-read-points');
   if (points) points.replaceChildren(...(read.points || []).map((row) => statementNode(doc, 'li', row)));
 

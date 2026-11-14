@@ -1,12 +1,12 @@
 /* P1626: chart interpretation follows the plot; conditions remain separate and readable. */
-.chart-scenarios, .chart-volume-profile, .chart-analysis-logic { margin-top: 24px; padding-top: 16px; border-top: 0.5px solid var(--border); }
+.chart-scenarios, .chart-volume-profile, .chart-analysis-logic { margin-top: 24px; padding-top: 16px; border-top: 0.5px solid var(--color-border); }
 .chart-scenario { padding: 12px 0; }
-.chart-scenario h4 { margin: 0 0 6px; font-size: 12px; color: var(--text-primary); }
-.chart-scenario p, .chart-analysis-logic p { font-size: 12px; line-height: 1.7; color: var(--text-secondary); overflow-wrap: anywhere; }
+.chart-scenario h4 { margin: 0 0 6px; font-size: 12px; color: var(--color-text-primary); }
+.chart-scenario p, .chart-analysis-logic p { font-size: 12px; line-height: 1.7; color: var(--color-text-secondary); overflow-wrap: anywhere; }
 .chart-volume-zone { display: grid; grid-template-columns: minmax(110px, 1fr) minmax(60px, 2fr) 45px; gap: 8px; align-items: center; margin: 8px 0; font-size: 12px; font-variant-numeric: tabular-nums; }
 .chart-volume-track { background: var(--surface-3); height: 8px; display: block; }
-.chart-volume-track > span { display: block; height: 100%; background: var(--accent); }
-.chart-analysis-logic summary { font-size: 12px; cursor: pointer; color: var(--text-secondary); }
+.chart-volume-track > span { display: block; height: 100%; background: var(--color-accent); }
+.chart-analysis-logic summary { font-size: 12px; cursor: pointer; color: var(--color-text-secondary); }
 #stock-chart-evidence { min-width: 0; overflow-wrap: anywhere; }
 @media (max-width: 1100px) {
   .stock-chart-layout { grid-template-columns: minmax(0, 1fr); }
@@ -18,34 +18,34 @@
 /* P1634: Korean brokerage candle convention — rising red, falling blue. */
 :root, body { --candle-up: var(--red-9); --candle-down: var(--blue-9); }
 .stock-chart-intervals { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 10px; }
-.stock-chart-intervals button { font: inherit; font-size: 12px; padding: 5px 11px; border: 0.5px solid var(--border); border-radius: var(--radius-inner); background: transparent; color: var(--text-secondary); cursor: pointer; }
-.stock-chart-intervals button[aria-pressed="true"] { border-color: var(--text-primary); color: var(--text-primary); font-weight: 600; background: var(--surface-3, transparent); }
+.stock-chart-intervals button { font: inherit; font-size: 12px; padding: 5px 11px; border: 0.5px solid var(--color-border); border-radius: var(--radius-inner); background: transparent; color: var(--color-text-secondary); cursor: pointer; }
+.stock-chart-intervals button[aria-pressed="true"] { border-color: var(--color-text-primary); color: var(--color-text-primary); font-weight: 600; background: var(--surface-3, transparent); }
 @media (max-width: 520px) { .stock-chart-intervals { flex-wrap: nowrap; overflow-x: auto; gap: 4px; scrollbar-width: none; } .stock-chart-intervals button { flex: 0 0 auto; padding: 5px 9px; } }
-.stock-chart-interval-note { font-size: 12px; line-height: 1.65; color: var(--text-secondary); }
+.stock-chart-interval-note { font-size: 12px; line-height: 1.65; color: var(--color-text-secondary); }
 /* 2026-10-19 layout system: the market-comparison note under the chart title (src/ui/components/stock-chart.js); old inline 12px reads --fs-base. */
-.page .stock-chart-context { display: block; font-size: var(--fs-base); font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+.page .stock-chart-context { display: block; font-size: var(--fs-base); font-weight: 400; color: var(--color-text-secondary); margin-top: 2px; }
 
 /* v59.74 (owner 2026-11-07): chart layer chips, study panes, the read chips and the market candle strip (stock-chart-layers.js, market-candles.js). */
 .stock-chart-layers { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin: 6px 0 2px; }
 .stock-chart-layer-group, .stock-chart-layer-group.sx-seg { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px; max-width: 100%; }
 @media (max-width: 743px) { .stock-chart-layer-group.sx-seg > button { min-height: 36px !important; padding: 0 8px !important; } }
-.stock-chart-panes { width: 100%; } .stock-chart-pane { border-top: 1px solid var(--border-subtle); }
-.stock-chart-pane-label { position: absolute; top: 3px; left: 6px; z-index: 3; font-size: var(--fs-min); color: var(--text-secondary); pointer-events: none; font-variant-numeric: tabular-nums; }
-.stock-chart-layer-label { font-size: 12px; color: var(--text-muted); margin-right: 2px; }
+.stock-chart-panes { width: 100%; } .stock-chart-pane { border-top: 1px solid var(--color-border-muted); }
+.stock-chart-pane-label { position: absolute; top: 3px; left: 6px; z-index: 3; font-size: var(--fs-min); color: var(--color-text-secondary); pointer-events: none; font-variant-numeric: tabular-nums; }
+.stock-chart-layer-label { font-size: 12px; color: var(--color-text-secondary); margin-right: 2px; }
 .stock-chart-layer-group[data-tier="base"] button[aria-pressed="true"] { font-weight: 600; }
 .stock-chart-layer-read { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 6px; }
 .charts-candle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
 .charts-candle-card { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .charts-candle-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.charts-candle-title { margin: 0; font-size: 15px; } .charts-candle-name { font-size: 12px; color: var(--text-muted); }
+.charts-candle-title { margin: 0; font-size: 15px; } .charts-candle-name { font-size: 12px; color: var(--color-text-secondary); }
 .charts-candle-close { margin-left: auto; font-size: 12px; font-variant-numeric: tabular-nums; } .charts-candle-close.is-up { color: var(--candle-up); } .charts-candle-close.is-down { color: var(--candle-down); }
 .charts-candle-canvas { width: 100%; }
-.chart-chip { font-size: 12px; line-height: 1.4; padding: 1px 8px; border-radius: var(--radius-full); border: 1px solid var(--border-subtle); color: var(--text-secondary); white-space: nowrap; }
+.chart-chip { font-size: 12px; line-height: 1.4; padding: 1px 8px; border-radius: var(--radius-full); border: 1px solid var(--color-border-muted); color: var(--color-text-secondary); white-space: nowrap; }
 .chart-chip.is-up { color: var(--candle-up); border-color: currentColor; } .chart-chip.is-down { color: var(--candle-down); border-color: currentColor; }
 /* Weekly · daily · hourly trend strip under the interval buttons; the interval on screen is underlined. */
 .stock-chart-mtf { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 6px 0 2px; }
 .stock-chart-mtf[hidden] { display: none; }
-.stock-chart-mtf-label { font-size: 12px; color: var(--text-tertiary, var(--text-secondary)); margin-right: 2px; }
+.stock-chart-mtf-label { font-size: 12px; color: var(--text-tertiary, var(--color-text-secondary)); margin-right: 2px; }
 .stock-chart-mtf-chip { background: transparent; cursor: pointer; font: inherit; font-size: 12px; min-height: 24px; }
 .stock-chart-mtf-chip[aria-current="true"] { font-weight: 600; box-shadow: inset 0 -2px 0 currentColor; cursor: default; }
 .stock-chart-mtf-chip:focus-visible { outline: 2px solid var(--focus-ring, currentColor); outline-offset: 1px; }

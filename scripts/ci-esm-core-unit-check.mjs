@@ -4170,11 +4170,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     ['usable fx leg stays plain', usableFxRow.includes('USD→KRW') && !usableFxRow.includes('is-unusable') && !usableFxRow.includes('사용 불가')],
     ['unusable fx leg names the declared budget', fxMarkup.includes('지금은 쓰지 않음(입력한 지 72시간이 지났거나 기준 시각 이후 관측)') && fxMarkup.includes('is-unusable')],
     ['fx list indexes its remove buttons', fxMarkup.includes('data-arg="0"') && fxMarkup.includes('data-arg="1"')],
-    ['persist failure never reads as success', persistFail.ok === false && persistFail.tone === 'var(--data-amber)' && persistFail.text.includes('영구 저장 실패')],
+    ['persist failure never reads as success', persistFail.ok === false && persistFail.tone === 'var(--color-text-warning)' && persistFail.text.includes('영구 저장 실패')],
     ['persist failure must not borrow the invalid-entry wording', !persistFail.text.includes('FX leg는') && !persistFail.text.includes('날짜(YYYY-MM-DD)')],
     ['invalid fx names what is missing', invalidFx.text.includes('FX leg는 통화 2개')],
     ['invalid ledger names what is missing', invalidLedger.text.includes('원장 항목은 날짜(YYYY-MM-DD)')],
-    ['a durable success keeps its message', saved.ok === true && saved.tone === 'var(--text-muted)' && saved.text === '원장 항목을 삭제했습니다.'],
+    ['a durable success keeps its message', saved.ok === true && saved.tone === 'var(--color-text-secondary)' && saved.text === '원장 항목을 삭제했습니다.'],
     ['apply writes the list and reports it', applied === true && fakeList.innerHTML.includes('입력한 환율 없음')],
     ['apply without its elements reports false', appliedEmpty === false],
     ['fields read from the document', readBack['pf-fx-from'] === 'USD' && readBack['pf-fx-to'] === ''],
@@ -6392,7 +6392,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 {
   const { regimePulse } = await load('src/domain/briefing/regime-pulse.js');
   const burden = regimePulse({ available: true, overall: '부담 우세', counts: { burden: 4, favorable: 0 }, asOf: '2026-10-19' });
-  if (burden.value !== '부담 우세' || burden.label !== '부담 4, 양호 0, 10/19 종가' || burden.color !== 'var(--data-red)') fail(`pulse: the bar carries the regime verdict ${JSON.stringify(burden)}`);
+  if (burden.value !== '부담 우세' || burden.label !== '부담 4, 양호 0, 10/19 종가' || burden.color !== 'var(--color-text-error)') fail(`pulse: the bar carries the regime verdict ${JSON.stringify(burden)}`);
   if (regimePulse(null).value !== '판정 보류' || regimePulse({ available: true, overall: '판정 보류' }).label !== '종가 기록 대기') fail('pulse: no verdict is held, never a number');
 }
 
@@ -6999,14 +6999,15 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
       if (stray.defaultPrevented || openLayerCount(tabDoc) !== 0) fail('v60.06 a layer whose root is detached is dropped');
     }
     {
-      const { outlineLabel, currentSection, OUTLINE_ROUTES } = await load('src/ui/components/page-outline.js');
-      if (outlineLabel('미 국채 수익률 곡선 공식 — 11/12') !== '미 국채 수익률 곡선 공식') fail('v60.06 a section jump drops the date tail: ' + outlineLabel('미 국채 수익률 곡선 공식 — 11/12'));
-      if (outlineLabel('  ') !== '' || outlineLabel('아주 길게 이어지는 섹션 제목이 한 줄을 넘는 경우').length > 16) fail('v60.06 a section jump label is short and never blank text');
-      if (currentSection([-900, -40, 120, 800]) !== 2 || currentSection([300, 900]) !== 0 || currentSection([]) !== -1) fail('v60.06 the current section is the last heading above the top band');
-      if (!OUTLINE_ROUTES.includes('signal') || OUTLINE_ROUTES.includes('home')) fail('v60.06 section jumps are for long screens only');
+      if (existsSync(path.join(root, 'src/ui/components/page-outline.js'))) fail('v60.09 the section-jump row is gone: every long screen is cut into views');
+      const { topicName } = await load('src/ui/components/macro-chapters.js');
+      if (topicName('물가 — PCE · CPI') !== '물가' || topicName('성장 · 소비 · 한국') !== '성장 · 소비 · 한국') fail('v60.08 the topic picker shows the name before the dash');
       const { toastDuration, toastPriority, TOAST_MIN_MS, TOAST_MAX_MS } = await load('src/ui/behaviors/toast.js');
       if (toastDuration('저장했습니다') !== TOAST_MIN_MS || toastDuration('가'.repeat(400)) !== TOAST_MAX_MS) fail('v60.06 a toast stays between its floor and ceiling');
       if (toastDuration('가'.repeat(60)) <= TOAST_MIN_MS) fail('v60.06 a longer toast stays longer');
+      const { signMark, directionColor } = await load('src/domain/shared/number.js');
+      if (signMark(0.004, 2) !== '' || signMark(-0.4, 0) !== '' || signMark(-0.6, 0) !== '-' || signMark(12, 0) !== '+') fail('v60.07 an amount that rounds to zero carries no sign');
+      if (directionColor(-0.004, 2, 'n') !== 'n' || directionColor(1, 1) !== 'var(--color-data-up)') fail('v60.07 the colour follows the printed value');
       if (toastPriority('포트폴리오를 저장하지 못했습니다') !== 'assertive' || toastPriority('관심 종목에 추가했습니다') !== 'polite') fail('v60.06 a failure toast is announced at once');
     }
   }
@@ -7784,7 +7785,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     return { text: line.children[2].textContent, up: fill.classList.contains('is-up'), down: fill.classList.contains('is-down'), width: fill.style.width };
   };
   const { returnColor, returnText } = await load('src/ui/pages/screener/model.js');
-  const screenerReturn = (value) => ({ text: returnText(value), up: returnColor(value) === 'var(--dir-up)', down: returnColor(value) === 'var(--dir-down)' });
+  const screenerReturn = (value) => ({ text: returnText(value), up: returnColor(value) === 'var(--color-data-up)', down: returnColor(value) === 'var(--color-data-down)' });
   const labAnnual = (pct) => {
     const out = {};
     renderPortfolioBacktestLab({ ok: true, performance: {}, annualRows: [{ year: 2025, return: pct / 100, balance: 1, benchmarkReturn: null, benchmarkBalance: 1 }], settings: {}, warnings: [] }, { root: {}, documentRef: { getElementById: () => out } });

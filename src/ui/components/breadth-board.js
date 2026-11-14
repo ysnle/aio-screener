@@ -55,7 +55,7 @@ export const BREADTH_GROUPS = Object.freeze([
   { id: 'leadership', title: '강한 종목 수 — 신고가·신저가, 급등락', lead: 'hl' },
   // v59.51 (content audit): the group's S&P 500 chart left (the index line is the 시장 상태 trend axis chart); its 20-day
   // move against participation stays as the group's lead sentence (breadthFlow reads the spx series below).
-  { id: 'index', title: '지수 확인 — 분배일', lead: 'dd', face: [], more: '분배일 6개월 추이 보기' }
+  { id: 'index', title: '지수 확인 — 분배일', lead: 'dd', face: [], unfolded: true }
 ]);
 
 export function buildBreadthCards(history = []) {
@@ -228,7 +228,7 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
       box.append(el(doc, 'div', `${changes || '변화 기록 수집 중'}${lateStart}`, 'trend-card-change'),
         createTrendChart(doc, { series: points, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));
       // v58.79 (layout over captions): how to read the chart is one fold down, not lines under every card.
-      const note = noteFold(doc, card.note);
+      const note = noteFold(doc, card.note, '기준');
       if (note) box.append(note);
       if (card.drill) box.append(renderDrill(doc, root, card, root._aioBreadthContributors, basis));
       return box;
@@ -252,7 +252,12 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
       const faceGrid = el(doc, 'div', null, 'bb-face');
       faceGrid.append(...face.map((card) => { const box = renderCard(card); if (card.id === group.lead) box.classList.add('breadth-lead'); return box; }));
       section.append(el(doc, 'h2', group.title, 'breadth-group-title'), sectionLead(doc, `${flow.leads[group.id] || ''}${group.id === 'participation' ? sp500Read : ''}`.trim()), ...(face.length ? [faceGrid] : []));
-      if (rest.length) {
+      if (rest.length && group.unfolded) {
+        // A group with no lead chart shows its one chart instead of folding it under a text-only card.
+        const body = el(doc, 'div', null, 'trend-grid breadth-more-grid');
+        body.append(...rest.map(renderCard));
+        section.append(body);
+      } else if (rest.length) {
         const more = el(doc, 'details', null, 'breadth-more');
         more.dataset.group = group.id;
         more.open = openedGroups.has(group.id);

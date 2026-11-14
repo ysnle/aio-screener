@@ -22,6 +22,6 @@ export function renderHomeVix({ documentRef = globalThis.document, root = global
   // P1499: theme tokens, not the retired neon palette. P1367: one VIX band (aio-core _vixBand 18/25/32).
   // The one band (narrative.vixBand on RULES.volatility); this card kept its own 32/25/18 copy.
   const V = RULES.volatility;
-  valueEl.style.color = vp == null ? 'var(--text-muted)' : (vp >= V.highAt ? 'var(--data-red)' : vp >= V.stressAt ? 'var(--data-amber)' : vp >= V.calmBelow ? 'var(--text-secondary)' : 'var(--data-green)');
+  valueEl.style.color = vp == null ? 'var(--color-text-secondary)' : (vp >= V.highAt ? 'var(--color-text-error)' : vp >= V.stressAt ? 'var(--color-text-warning)' : vp >= V.calmBelow ? 'var(--color-text-secondary)' : 'var(--color-text-success)');
   if (statusEl) statusEl.textContent = vp == null ? '—' : vixBand(vp).label;
 }

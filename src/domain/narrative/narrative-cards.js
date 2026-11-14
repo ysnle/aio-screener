@@ -47,7 +47,7 @@ export function buildNarrativeCards({ narratives = null, crossroads = null, less
       .sort((a, b) => (b.gate?.met === true) - (a.gate?.met === true) || b.met / b.total - a.met / a.total);
     const lead = branches[0] || null;
     const support = branchSupport(lead);
-    const attention = [`리서치 채널 ${narratives.windowHours || 72}시간 ${story.telegramCount}건`, `24시간 ${story.recentCount}건(${TREND_WORDS[story.trend] || '비슷함'})`,
+    const attention = [`리서치 채널 언급 최근 ${Math.round((narratives.windowHours || 72) / 24)}일 ${story.telegramCount}건`, `그중 최근 하루 ${story.recentCount}건(언급 ${TREND_WORDS[story.trend] || '비슷함'})`,
       story.newsCount ? `뉴스 보도 ${story.newsCount}건` : null,
       story.rumorCount || story.unconfirmedCount ? `루머·익명 소식통 ${story.rumorCount + story.unconfirmedCount}건` : null].filter(Boolean).join(' · ');
     const movers = (story.movers || []).map((row) => `${row.sym} 5거래일 ${signedPct(row.ret5d)}`);

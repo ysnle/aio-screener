@@ -8,6 +8,8 @@
  * part of a ratcheted file (P1191 +201, P1194 +65) and the two lists must not drift apart.
  */
 
+import { readNumber } from '../../domain/shared/number.js';
+
 function escapeMarkup(value) {
   return String(value == null ? '' : value)
     .replace(/&/g, '&amp;')
@@ -54,7 +56,7 @@ export function ledgerListMarkup(ledger) {
   const row = (label, date, amount, action) => '<div class="pfp-decl-row">' +
     '<span class="pfp-figure">' + escapeMarkup(date) + '</span>' +
     '<span>' + label + '</span>' +
-    '<span class="pfp-figure">' + escapeMarkup(String(amount)) + '</span>' +
+    '<span class="pfp-figure">' + escapeMarkup(readNumber(amount)?.toLocaleString('en-US') ?? String(amount)) + '</span>' +
     '<button class="aio-btn-table" data-action="_aioRemoveLedgerEntry" data-arg="' + action + '" aria-label="원장 항목 삭제">삭제</button></div>';
   return ledger.transactions.map((tx, index) => row(tx.kind === 'withdrawal' ? '출금' : '입금', tx.date, tx.amount, `transaction:${index}`))
     .concat(ledger.valuations.map((mark, index) => row('평가액', mark.date, mark.amount, `valuation:${index}`)))
@@ -101,20 +103,20 @@ export function applyFxPanel({ documentRef, legsState, maxAgeMs = null } = {}) {
  */
 export function declarationStatus({ kind, phase, result, okMessage } = {}) {
   if (result && result.ok === true) {
-    return { text: okMessage || '선언을 저장했습니다.', tone: 'var(--text-muted)', ok: true };
+    return { text: okMessage || '선언을 저장했습니다.', tone: 'var(--color-text-secondary)', ok: true };
   }
-  if (phase === 'pending') return { text: '저장 중…', tone: 'var(--text-muted)', ok: null };
+  if (phase === 'pending') return { text: '저장 중…', tone: 'var(--color-text-secondary)', ok: null };
   if (phase === 'persist') {
-    return { text: '영구 저장 실패 — 변경이 확정되지 않았습니다. 새로고침 시 이전 값으로 되돌아올 수 있습니다.', tone: 'var(--data-amber)', ok: false };
+    return { text: '영구 저장 실패 — 변경이 확정되지 않았습니다. 새로고침 시 이전 값으로 되돌아올 수 있습니다.', tone: 'var(--color-text-warning)', ok: false };
   }
   if (kind === 'fx') {
-    return { text: 'FX leg는 통화 2개(3자리 코드)·0보다 큰 환율·관측 시각(YYYY-MM-DD)이 필요합니다.', tone: 'var(--data-amber)', ok: false };
+    return { text: 'FX leg는 통화 2개(3자리 코드)·0보다 큰 환율·관측 시각(YYYY-MM-DD)이 필요합니다.', tone: 'var(--color-text-warning)', ok: false };
   }
   return {
     text: result && result.reason === 'invalid-ledger-entry'
       ? '원장 항목은 날짜(YYYY-MM-DD)와 0보다 큰 금액이 필요합니다.'
       : '원장 변경을 적용하지 못했습니다: ' + ((result && result.reason) || 'unknown'),
-    tone: 'var(--data-amber)',
+    tone: 'var(--color-text-warning)',
     ok: false
   };
 }

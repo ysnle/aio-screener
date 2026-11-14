@@ -9,8 +9,8 @@
   "totals": {
     "localFinite": 2,
     "dateRegex": 41,
-    "rawRowRead": 88,
-    "nullAsZero": 72,
+    "rawRowRead": 87,
+    "nullAsZero": 71,
     "localEscape": 0,
     "localIndicator": 2,
     "publicDataPath": 0,
@@ -324,18 +324,6 @@
       "dateRegex": 2,
       "rawRowRead": 0,
       "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 0
-    },
-    "scripts/sync-screener-universe.mjs": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
       "publicDataPath": 0,
@@ -739,7 +727,7 @@
       "sessionBranch": 0,
       "verdictLiteral": 0
     },
-    "src/domain/market/indices/index-earnings.js": {
+    "src/domain/market/breadth/screener-breadth.js": {
       "localFinite": 0,
       "dateRegex": 0,
       "rawRowRead": 0,
@@ -751,19 +739,7 @@
       "sessionBranch": 0,
       "verdictLiteral": 0
     },
-    "src/domain/market/session/market-calendar.js": {
-      "localFinite": 0,
-      "dateRegex": 1,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 0
-    },
-    "src/domain/market/regime/market-flow.js": {
+    "src/domain/market/indices/index-earnings.js": {
       "localFinite": 0,
       "dateRegex": 0,
       "rawRowRead": 0,
@@ -787,7 +763,43 @@
       "sessionBranch": 0,
       "verdictLiteral": 0
     },
-    "src/domain/market/breadth/screener-breadth.js": {
+    "src/domain/market/regime/market-flow.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 1,
+      "localEscape": 0,
+      "localIndicator": 0,
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0,
+      "verdictLiteral": 0
+    },
+    "src/domain/market/session/market-calendar.js": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 0,
+      "localEscape": 0,
+      "localIndicator": 0,
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0,
+      "verdictLiteral": 0
+    },
+    "src/domain/market/signal/close-basis.js": {
+      "localFinite": 0,
+      "dateRegex": 1,
+      "rawRowRead": 0,
+      "nullAsZero": 1,
+      "localEscape": 0,
+      "localIndicator": 0,
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0,
+      "verdictLiteral": 0
+    },
+    "src/domain/market/signal/trading-score.js": {
       "localFinite": 0,
       "dateRegex": 0,
       "rawRowRead": 0,
@@ -960,30 +972,6 @@
       "dateRegex": 0,
       "rawRowRead": 1,
       "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 0
-    },
-    "src/domain/market/signal/close-basis.js": {
-      "localFinite": 0,
-      "dateRegex": 1,
-      "rawRowRead": 0,
-      "nullAsZero": 1,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 0
-    },
-    "src/domain/market/signal/trading-score.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
       "publicDataPath": 0,
@@ -1534,7 +1522,7 @@
     "src/ui/components/theme-playbook-view.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 23,
+      "rawRowRead": 22,
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,

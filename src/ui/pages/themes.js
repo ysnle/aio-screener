@@ -165,6 +165,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           const section = documentRef.getElementById(anchorId);
           const fold = section?.closest?.('details');
           if (fold) fold.open = true;
+          if (section) root._aioShowViewOf?.(section); // the section's view (page-views.js)
           section?.scrollIntoView?.({ block: 'start' });
         }
         const unsubscribe = store && subscribeToSlices(store, ['themes', 'screener'], renderNow);

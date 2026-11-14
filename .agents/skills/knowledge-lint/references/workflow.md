@@ -6,7 +6,7 @@ Use this reference when checking `_context/`, rules, postmortems, QA, commands, 
 
 1. Postmortem-to-rule mapping: every repeated P-pattern should map to a rule or explicit reason.
 2. Rule-to-QA mapping: every executable rule should have a QA or CI gate when practical.
-3. Code reality: referenced files, functions, pages, and gates should exist.
+3. Code reality: referenced files, functions, pages, and gates should exist, and each checkable rule or convention in an instruction file is marked against the code — **followed** (two examples), **contradicted** (the file and line where the code does otherwise, with a count) or **unverifiable**. Report only contradictions that change behaviour (commands, paths, order, data access, error handling, tests), not naming. A fresh subagent re-opens every cited line and drops what it cannot confirm. A contradicted line is edited to match the code unless it restates an `AGENTS.md` product decision or a `RULES.md` policy; then the code is the defect. (Agents follow a stale instruction file over the code in most choices unless told otherwise: Xu and Wu, arXiv 2610.30571.)
 4. Version/date currentness: current version and R1 surfaces should agree.
 5. Duplicate or contradictory rules: identify the active single source of truth.
 6. Catalog coverage: generated `_context/CONTEXT-CATALOG.json` must match every active `_context/*.md|json` file in both directions; `_context/INDEX.md` stays a compact read router rather than a second file inventory.

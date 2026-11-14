@@ -82,7 +82,7 @@ export function renderRRGStatus({ documentRef, root, store, route }) {
     status.textContent = items.length
       ? '섹터 회전 판정 보류, 상대강도 기록이 부족합니다'
       : '섹터 상대강도 기록 수신 대기';
-    status.style.color = 'var(--text-muted)';
+    status.style.color = 'var(--color-text-secondary)';
     return;
   }
   // Expert review M08: no grade or risk colour from the quadrant counts. The benchmark (SPY) is cap-weighted, so a
@@ -95,7 +95,7 @@ export function renderRRGStatus({ documentRef, root, store, route }) {
   status.textContent = `선도 ${counts.Leading}, 개선 ${counts.Improving}, 약화 ${counts.Weakening}, 후행 ${counts.Lagging}${counts.Border ? `, ${RRG_BORDER_LABEL} ${counts.Border}` : ''}`;
   status.title = `${rrgTrailLength(root) ? `꼬리 = 최근 ${rrgTrailLength(root)}거래일 경로(작은 점이 시작), 화살표 = 오늘 위치. ` : ''}속이 빈 점 = 놓인 구역과 판정이 다른 섹터(이름 옆에 판정)`;
   writeSectorCardChip(documentRef, root);
-  status.style.color = 'var(--text-dim)';
+  status.style.color = 'var(--color-text-secondary)';
 }
 
 // The card's one date chip follows what the card shows: the 고점 근처 bars read the screener's session; the period bars

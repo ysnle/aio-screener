@@ -120,7 +120,7 @@ try {
         check(await page.evaluate(() => document.getElementById('aio-basis-card')?.hidden === true), `${viewport.name}: a tap outside must close the basis card (v57.81)`);
       }
     }
-    await page.evaluate(() => window.showPage('signal', null));
+    await page.evaluate(() => { window.showPage('signal', null); document.getElementById('page-signal').dataset.view = 'all'; }); // every view of the page
     await page.waitForSelector('#regime-board .regime-axis');
     check(await page.locator('#regime-board .regime-axis').count() === 6, `${viewport.name}: six meaningful market axes absent (P1628)`);
     check(await page.locator('#regime-board .regime-axis-history svg').count() >= 4, `${viewport.name}: dated market charts absent (P1628)`);
@@ -192,7 +192,7 @@ try {
       await page.keyboard.press('Escape');
       check(!await page.locator('#glossary-modal').isVisible() && await page.locator(navReturn).evaluate((el) => document.activeElement === el), `${viewport.name}: glossary Escape failed to restore a visible focus (P1620)`);
     }
-    await page.evaluate(() => window.showPage('themes', null));
+    await page.evaluate(() => { window.showPage('themes', null); document.querySelectorAll('.page[data-view]').forEach((node) => { node.dataset.view = 'all'; }); }); // every view of the page
     await settle(page, () => !!document.querySelector('.theme-strength-table > tbody > tr[data-group]'));
     // v59.59: the route loop visits theme-detail, then leaves before 테마 mounts; a plain 테마 visit must open the overview,
     // not that pending detail (#themes?theme=defense hid every compare button and the click below timed out).

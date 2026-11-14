@@ -48,7 +48,7 @@ function polyline(values, x, y) {
 }
 
 function axisLabels(min, max, y, width, fmt) {
-  return [max, (max + min) / 2, min].map((value) => `<line x1="60" x2="${width - 6}" y1="${y(value).toFixed(1)}" y2="${y(value).toFixed(1)}" stroke="var(--chart-grid)"/><text x="56" y="${(y(value) + 4).toFixed(1)}" text-anchor="end" font-size="13" fill="var(--text-muted)">${esc(fmt(value))}</text>`).join('');
+  return [max, (max + min) / 2, min].map((value) => `<line x1="60" x2="${width - 6}" y1="${y(value).toFixed(1)}" y2="${y(value).toFixed(1)}" stroke="var(--chart-grid)"/><text x="56" y="${(y(value) + 4).toFixed(1)}" text-anchor="end" font-size="13" fill="var(--color-text-secondary)">${esc(fmt(value))}</text>`).join('');
 }
 
 async function loadBars(root, symbol, range) {
@@ -80,8 +80,8 @@ export async function buildPriceVisual({ documentRef: doc, root, symbol }) {
     `<path d="${polyline(ma50, x, y)}" fill="none" stroke="var(--chart-5)" stroke-width="1.4" stroke-dasharray="6 3"/>` +
     `<path d="${polyline(closes, x, y)}" fill="none" stroke="var(--chart-1)" stroke-width="1.8"/>` +
     `<circle cx="${x(span - 1).toFixed(1)}" cy="${y(last).toFixed(1)}" r="3" fill="var(--chart-1)"/>` +
-    `<text x="62" y="${H - 6}" font-size="13" fill="var(--text-muted)">${esc(analysis.bars[start].time)}</text>` +
-    `<text x="${W - 6}" y="${H - 6}" text-anchor="end" font-size="13" fill="var(--text-muted)">${esc(analysis.asOf)}</text>` +
+    `<text x="62" y="${H - 6}" font-size="13" fill="var(--color-text-secondary)">${esc(analysis.bars[start].time)}</text>` +
+    `<text x="${W - 6}" y="${H - 6}" text-anchor="end" font-size="13" fill="var(--color-text-secondary)">${esc(analysis.asOf)}</text>` +
     `</svg>`;
   const legend = `<div class="aav-legend"><span><svg width="18" height="6" aria-hidden="true" class="aav-legend-line"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--chart-1)" stroke-width="2"/></svg>종가</span><span><svg width="18" height="6" aria-hidden="true" class="aav-legend-line"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--chart-5)" stroke-width="2" stroke-dasharray=\"6 3\"/></svg>50일선</span><span><svg width="18" height="6" aria-hidden="true" class="aav-legend-line"><line x1="0" x2="18" y1="3" y2="3" stroke="var(--chart-3)" stroke-width="2" stroke-dasharray=\"2 3\"/></svg>200일선</span></div>`;
   const facts = [
@@ -127,8 +127,8 @@ export async function buildFundamentalsVisual({ documentRef: doc, root, symbol }
     const cx = 60 + slot * i + slot / 2;
     const margin = row.netIncome != null ? row.netIncome / row.revenue * 100 : null;
     bars += `<rect x="${(cx - barW / 2).toFixed(1)}" y="${y(row.revenue).toFixed(1)}" width="${barW.toFixed(1)}" height="${(H - bottom - y(row.revenue)).toFixed(1)}" fill="var(--chart-2)" rx="2"/>`;
-    bars += `<text x="${cx.toFixed(1)}" y="${(y(row.revenue) - 4).toFixed(1)}" text-anchor="middle" font-size="13" fill="var(--text-secondary)">${esc(money(row.revenue))}</text>`;
-    bars += `<text x="${cx.toFixed(1)}" y="${(H - bottom + 17).toFixed(1)}" text-anchor="middle" font-size="13" fill="var(--text-muted)">${esc(row.periodEnd.slice(2, 7).replace('-', '.'))}</text>`;
+    bars += `<text x="${cx.toFixed(1)}" y="${(y(row.revenue) - 4).toFixed(1)}" text-anchor="middle" font-size="13" fill="var(--color-text-secondary)">${esc(money(row.revenue))}</text>`;
+    bars += `<text x="${cx.toFixed(1)}" y="${(H - bottom + 17).toFixed(1)}" text-anchor="middle" font-size="13" fill="var(--color-text-secondary)">${esc(row.periodEnd.slice(2, 7).replace('-', '.'))}</text>`;
     if (margin != null) bars += `<text x="${cx.toFixed(1)}" y="${(H - bottom + 36).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="700" fill="${margin >= 0 ? 'var(--chart-4)' : 'var(--chart-8)'}">${esc(margin.toFixed(0))}%</text>`;
   });
   const first = rows[0], last = rows[rows.length - 1];
@@ -169,7 +169,7 @@ export async function buildRelativeVisual({ documentRef: doc, root, symbols }) {
   const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(lines.map((line) => line.symbol).join(', '))} 상대 수익률" class="aav-plot">` +
     axisLabels(min, max, y, W, (v) => v.toFixed(0)) +
     lines.map((line, i) => `<path d="${polyline(line.values, x, y)}" fill="none" stroke="${colors[i]}" stroke-width="1.8"${i === 2 ? ' stroke-dasharray="5 3"' : ''}/>`).join('') +
-    `<text x="62" y="${H - 6}" font-size="13" fill="var(--text-muted)">${esc(lines[0].from)}</text><text x="${W - 6}" y="${H - 6}" text-anchor="end" font-size="13" fill="var(--text-muted)">${esc(lines[0].to)}</text></svg>`;
+    `<text x="62" y="${H - 6}" font-size="13" fill="var(--color-text-secondary)">${esc(lines[0].from)}</text><text x="${W - 6}" y="${H - 6}" text-anchor="end" font-size="13" fill="var(--color-text-secondary)">${esc(lines[0].to)}</text></svg>`;
   const legend = `<div class="aav-legend">${lines.map((line, i) => `<span><span class="aav-swatch${i ? ` aav-swatch--${i}` : ''}"></span>${esc(line.symbol)} ${esc(signed(line.values[line.values.length - 1] - 100))}</span>`).join('')}</div>`;
   const { figure, body } = frame(doc, `최근 ${span - 1}거래일 상대 수익률 (시작일 = 100)`,
     `${lines[0].from}~${lines[0].to} 완료된 일봉 종가 기준입니다. 끝 날짜가 본문 수치의 기준일과 다르면 값도 다릅니다. 통화·시장이 다르면 각 시장의 현지 가격으로 계산했습니다.`);

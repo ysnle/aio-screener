@@ -29,7 +29,7 @@ Close every change with evidence, not notes only.
 - Skill prompt/eval changes require `node scripts/ci-skill-contract-check.mjs`; fixture PASS does not count as an independent behavioral run.
 - Codex mirror changes require `node scripts/sync-agent-skills.mjs --check`.
 - Agent/hook/workspace changes require `node scripts/ci-workspace-contract-check.mjs` and `node scripts/sync-agent-profiles.mjs --check` when profiles changed.
-- Versioned changes use `node scripts/bump-version.mjs <version>` and keep R1 as 7 synchronized surfaces.
+- Versioned changes use `node scripts/bump-version.mjs <version>` and keep R1 as the surfaces that script patches (its header lists them; `ci-version-check.mjs` verifies).
 - BUG/QA/RULES/CHANGELOG updates are required when the triggered skill says they are required.
 
 Use the strongest evidence actually available: static checks, runtime/headless checks, browser interaction, and external/live checks are distinct levels. Never promote one level to another in the final report.

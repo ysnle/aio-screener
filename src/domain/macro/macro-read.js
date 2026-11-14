@@ -190,7 +190,7 @@ function growthAxis({ macro, mh }) {
       : nfp != null ? gauge({ label: '일자리 증감 (최근 1개월, 천 명)', value: nfp, unit: '천 명', digits: 0, ...cuts(-100, 300, [0, G.payrollSolidK], ['burden', 'neutral', 'favorable'], [[0, '0'], [G.payrollSolidK, `${G.payrollSolidK / 10}만`]]) }) : null;
   return axis('growth', '성장 (고용, 소비)', state, {
     gauge: growthGauge,
-    headline: payrollTriggered && payroll ? `일자리 3개월 평균 ${peopleText(payroll.avg3, { sign: true })}` : sahm ? `Sahm ${sahm.value.toFixed(2)}%p` : unrate == null ? null : `실업률 ${unrate.toFixed(1)}%`,
+    headline: payrollTriggered && payroll ? `일자리 3개월 평균 ${peopleText(payroll.avg3, { sign: true })}` : sahm ? `실업률 1년 저점 대비 ${Number(sahm.value.toFixed(2)) > 0 ? '+' : ''}${sahm.value.toFixed(2)}%p` : unrate == null ? null : `실업률 ${unrate.toFixed(1)}%`,
     evidence: [
       ['실업률', unrate == null ? null : `${unrate.toFixed(1)}%${finite(macro.unemploymentDelta) != null ? ` (전월 ${signed(finite(macro.unemploymentDelta), 1, '%p')})` : ''}`],
       ['Sahm 지표', sahm ? `${sahm.value.toFixed(2)}%p (${G.sahmWatchAt}%p 이상이면 둔화, ${G.sahmRecessionAt}%p 이상이면 침체 신호)` : null],

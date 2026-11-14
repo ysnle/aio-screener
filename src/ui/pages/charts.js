@@ -51,7 +51,8 @@ function indexCard(doc, root, reading, latest) {
   // (or the double top's neck), not another tick.
   const whole = (value) => Math.round(value).toLocaleString('en-US');
   const levelName = Number.isFinite(reading.support?.value) ? '지지' : '목선';
-  box.append(createTrendChart(doc, { series: reading.series, refLines: refs, format: whole, refLabel: (value) => `${levelName} ${whole(value)}`, label: `${reading.label} 종가`, guide: { series: reading.ma50Series, label: '50일선' } }));
+  box.append(createTrendChart(doc, { series: reading.series, refLines: refs, format: whole, refLabel: (value) => `${levelName} ${whole(value)}`, label: `${reading.label} 종가`, guide: { series: reading.ma50Series, label: '50일선' }, longGuide: { series: reading.ma200Series } }));
+  if (reading.ma200Series?.length > 1) box.append(el(doc, 'p', '긴 점선 50일선, 촘촘한 점선 200일선', 'charts-legend'));
   const fold = noteFold(doc, reading.read, '근거와 수치');
   if (fold) {
     const list = el(doc, 'dl', null, 'charts-numbers');

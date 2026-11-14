@@ -3165,15 +3165,15 @@ window._aioRenderAuditWidget = function() {
           var realPct = entry.totalEntries ? Math.round(entry.realEntries / entry.totalEntries * 100) : 0;
           var ok = entry.realEntries >= 380 && entry.placeholderCount <= 8;
           var icon = ok ? '✓' : entry.realEntries >= 300 ? '!' : '✗';
-          var color = ok ? 'var(--data-green)' : entry.realEntries >= 300 ? 'var(--data-amber)' : 'var(--data-red)';
+          var color = ok ? 'var(--color-text-success)' : entry.realEntries >= 300 ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           var aliasTxt = r ? ' · alias ' + r.coveragePct + '%' : '';
           regEl.innerHTML = '<span style="color:' + color + ';">' + icon + '</span> REGISTRY <b>' + entry.realEntries + '</b> real / ' + entry.totalEntries + ' total (' + realPct + '%)' + aliasTxt;
         } else if (r) {
           var icon2 = r.coveragePct >= 80 ? '✓' : r.coveragePct >= 30 ? '!' : '✗';
-          var color2 = r.coveragePct >= 80 ? 'var(--data-green)' : r.coveragePct >= 30 ? 'var(--data-amber)' : 'var(--data-red)';
+          var color2 = r.coveragePct >= 80 ? 'var(--color-text-success)' : r.coveragePct >= 30 ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           regEl.innerHTML = '<span style="color:' + color2 + ';">' + icon2 + '</span> ticker alias <b>' + r.registeredCount + '</b>/' + r.uniqueTickers + ' (' + r.coveragePct + '%)';
         } else {
-          regEl.innerHTML = '<span style="color:var(--text-muted);">— ticker registry 미가용</span>';
+          regEl.innerHTML = '<span style="color:var(--color-text-secondary);">— ticker registry 미가용</span>';
         }
       } catch(e) { regEl.textContent = 'registry audit error'; }
     }
@@ -3184,10 +3184,10 @@ window._aioRenderAuditWidget = function() {
         var ws = window.AIO && window.AIO.getWebSearchAudit && window.AIO.getWebSearchAudit();
         if (ws) {
           var statusIcon = ws.enabled ? '' : '⊘';
-          var statusColor = ws.enabled ? 'var(--data-cyan)' : 'var(--text-muted)';
+          var statusColor = ws.enabled ? 'var(--color-text-primary)' : 'var(--color-text-secondary)';
           wsEl.innerHTML = '<span style="color:' + statusColor + ';">' + statusIcon + '</span> web_search 설정 ' + (ws.enabled ? '<b>ON</b>' : 'OFF') + (ws.chatReadiness === 'SHARED_WORKER' || (window._aioLastClaudeRouteState && window._aioLastClaudeRouteState.reason === 'SHARED_WORKER') ? ' · 공유 Worker에서는 차단(P1353)' : '') + ' · 호출 ' + ws.calls + '회'; // P1369: a preference is not availability
         } else {
-          wsEl.innerHTML = '<span style="color:var(--text-muted);">— web_search 미가용</span>';
+          wsEl.innerHTML = '<span style="color:var(--color-text-secondary);">— web_search 미가용</span>';
         }
       } catch(e) { wsEl.textContent = 'web_search audit error'; }
     }
@@ -3200,20 +3200,20 @@ window._aioRenderAuditWidget = function() {
           var pct = f.freshnessPct != null ? f.freshnessPct : (f.totalContexts ? Math.round((f.totalContexts - (f.staleCount || 0)) / f.totalContexts * 100) : null);
           if (pct != null) {
             var icon3 = pct >= 95 ? '✓' : pct >= 80 ? '!' : '✗';
-            var color3 = pct >= 95 ? 'var(--data-green)' : pct >= 80 ? 'var(--data-amber)' : 'var(--data-red)';
+            var color3 = pct >= 95 ? 'var(--color-text-success)' : pct >= 80 ? 'var(--color-text-warning)' : 'var(--color-text-error)';
             fEl.innerHTML = '<span style="color:' + color3 + ';">' + icon3 + '</span> 컨텍스트 신선도 <b>' + pct + '%</b>';
           } else if (typeof f.totalHits === 'number') {
             var activeHits = typeof f.currentHits === 'number' ? f.currentHits : f.totalHits;
             var archiveHits = typeof f.archiveHits === 'number' ? f.archiveHits : 0;
             var okFresh = activeHits === 0;
             var icon3b = okFresh ? '✓' : '!';
-            var color3b = okFresh ? 'var(--data-green)' : 'var(--data-amber)';
+            var color3b = okFresh ? 'var(--color-text-success)' : 'var(--color-text-warning)';
             fEl.innerHTML = '<span style="color:' + color3b + ';">' + icon3b + '</span> 컨텍스트 current stale <b>' + activeHits + '</b>건' + (archiveHits ? ' · archive ref ' + archiveHits + '건' : '');
           } else {
-            fEl.innerHTML = '<span style="color:var(--text-muted);">— freshness 측정 불가</span>';
+            fEl.innerHTML = '<span style="color:var(--color-text-secondary);">— freshness 측정 불가</span>';
           }
         } else {
-          fEl.innerHTML = '<span style="color:var(--text-muted);">— freshness audit 미가용</span>';
+          fEl.innerHTML = '<span style="color:var(--color-text-secondary);">— freshness audit 미가용</span>';
         }
       } catch(e) { fEl.textContent = 'freshness audit error'; }
     }
@@ -3224,10 +3224,10 @@ window._aioRenderAuditWidget = function() {
         var cc = window.AIO && window.AIO.auditAllChatContexts && window.AIO.auditAllChatContexts();
         if (cc) {
           var icon4 = cc.status === 'ok' ? '✓' : cc.status === 'warn' ? '!' : '✗';
-          var color4 = cc.status === 'ok' ? 'var(--data-green)' : cc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var color4 = cc.status === 'ok' ? 'var(--color-text-success)' : cc.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           ccEl.innerHTML = '<span style="color:' + color4 + ';">' + icon4 + '</span> 채팅 컨텍스트 <b>' + cc.validCount + '/' + cc.totalContexts + '</b> · 동적 ' + cc.dynamicCoveragePct + '%';
         } else {
-          ccEl.innerHTML = '<span style="color:var(--text-muted);">— CHAT_CONTEXTS audit 미가용</span>';
+          ccEl.innerHTML = '<span style="color:var(--color-text-secondary);">— CHAT_CONTEXTS audit 미가용</span>';
         }
       } catch(e) { ccEl.textContent = 'chatContexts audit error'; }
     }
@@ -3238,10 +3238,10 @@ window._aioRenderAuditWidget = function() {
         var af = window.AIO && window.AIO.getAnalysisFrameworkCoverageAudit && window.AIO.getAnalysisFrameworkCoverageAudit();
         if (af) {
           var icon5 = af.coveragePct >= 85 ? '✓' : af.coveragePct >= 60 ? '!' : '✗';
-          var color5 = af.coveragePct >= 85 ? 'var(--data-green)' : af.coveragePct >= 60 ? 'var(--data-amber)' : 'var(--data-red)';
+          var color5 = af.coveragePct >= 85 ? 'var(--color-text-success)' : af.coveragePct >= 60 ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           afEl.innerHTML = '<span style="color:' + color5 + ';">' + icon5 + '</span> 분석 프레임워크 <b>' + af.implementedCount + '/' + af.totalCount + '</b> · ' + af.coveragePct + '% · 부분 ' + (af.partialCount || 0);
         } else {
-          afEl.innerHTML = '<span style="color:var(--text-muted);">— framework audit 미가용</span>';
+          afEl.innerHTML = '<span style="color:var(--color-text-secondary);">— framework audit 미가용</span>';
         }
       } catch(e) { afEl.textContent = 'analysisFramework audit error'; }
     }
@@ -3252,10 +3252,10 @@ window._aioRenderAuditWidget = function() {
         var es = window.AIO && window.AIO.getEssenceAlignmentAudit && window.AIO.getEssenceAlignmentAudit();
         if (es) {
           var icon6 = es.status === 'ok' ? '✓' : es.status === 'warn' ? '!' : '✗';
-          var color6 = es.status === 'ok' ? 'var(--data-green)' : es.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var color6 = es.status === 'ok' ? 'var(--color-text-success)' : es.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           essenceEl.innerHTML = '<span style="color:' + color6 + ';">' + icon6 + '</span> 3대 본질 <b>' + es.overallScore + '</b>점 · 기관 ' + es.goals.institutionalAllInOne.score + ' · 운영 ' + es.goals.accurateFreshAutoOps.score + ' · 직관 ' + es.goals.intuitiveBeginnerUse.score;
         } else {
-          essenceEl.innerHTML = '<span style="color:var(--text-muted);">— essence audit 미가용</span>';
+          essenceEl.innerHTML = '<span style="color:var(--color-text-secondary);">— essence audit 미가용</span>';
         }
       } catch(e) { essenceEl.textContent = 'essence audit error'; }
     }
@@ -3267,11 +3267,11 @@ window._aioRenderAuditWidget = function() {
         var fs = window.AIO && window.AIO.getFullSurfaceAudit && window.AIO.getFullSurfaceAudit();
         if (fs) {
           var iconFs = fs.status === 'ok' ? '✓' : fs.status === 'warn' ? '!' : '✗';
-          var colorFs = fs.status === 'ok' ? 'var(--data-green)' : fs.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var colorFs = fs.status === 'ok' ? 'var(--color-text-success)' : fs.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           fsEl.title = fs.issueCount ? fs.issues.slice(0, 3).join(' | ') : 'Full surface audit passed';
           fsEl.innerHTML = '<span style="color:' + colorFs + ';">' + iconFs + '</span> full surface <b>' + fs.pageCount + '</b>p+' + (fs.totals.overlays || 0) + ' overlays · sections ' + fs.totals.sections + ' · sinks ' + fs.totals.dataSinks + ' · issues ' + fs.issueCount;
         } else {
-          fsEl.innerHTML = '<span style="color:var(--text-muted);">? full surface audit missing</span>';
+          fsEl.innerHTML = '<span style="color:var(--color-text-secondary);">? full surface audit missing</span>';
         }
       } catch(e) { fsEl.textContent = '? fullSurface audit error'; }
     }
@@ -3281,14 +3281,14 @@ window._aioRenderAuditWidget = function() {
         var dr = window.AIO && window.AIO.getDeepReviewAudit && window.AIO.getDeepReviewAudit();
         if (dr) {
           var iconDr = dr.status === 'ok' ? '✓' : dr.status === 'warn' ? '!' : '✗';
-          var colorDr = dr.status === 'ok' ? 'var(--data-green)' : dr.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var colorDr = dr.status === 'ok' ? 'var(--color-text-success)' : dr.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           var textTier = dr.tiers && dr.tiers.textMeaning ? dr.tiers.textMeaning : {};
           var intTier = dr.tiers && dr.tiers.interaction ? dr.tiers.interaction : {};
           var dataTier = dr.tiers && dr.tiers.dataMeaning ? dr.tiers.dataMeaning : {};
           drEl.title = (dr.issues || []).concat(dr.warnings || []).slice(0, 3).join(' | ') || 'Deep review audit passed';
           drEl.innerHTML = '<span style="color:' + colorDr + ';">' + iconDr + '</span> deep review text <b>' + (textTier.snippetCount || 0) + '</b> · input ' + (intTier.inputBindingIssueCount || 0) + ' · data ' + (dataTier.dataPageIssueCount || 0) + ' · issues ' + dr.issueCount;
         } else {
-          drEl.innerHTML = '<span style="color:var(--text-muted);">? deep review audit missing</span>';
+          drEl.innerHTML = '<span style="color:var(--color-text-secondary);">? deep review audit missing</span>';
         }
       } catch(e) { drEl.textContent = '? deepReview audit error'; }
     }
@@ -3298,13 +3298,13 @@ window._aioRenderAuditWidget = function() {
         var ff = window.AIO && window.AIO.getFourthFifthPassAudit && window.AIO.getFourthFifthPassAudit();
         if (ff) {
           var iconFf = ff.status === 'ok' ? '✓' : ff.status === 'warn' ? '!' : '✗';
-          var colorFf = ff.status === 'ok' ? 'var(--data-green)' : ff.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var colorFf = ff.status === 'ok' ? 'var(--color-text-success)' : ff.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           var dt = ff.passes && ff.passes.dataTruth ? ff.passes.dataTruth : {};
           var gf = ff.passes && ff.passes.goalFit ? ff.passes.goalFit : {};
           ffEl.title = (ff.issues || []).concat(ff.warnings || []).slice(0, 3).join(' | ') || 'Fourth/fifth pass audit passed';
           ffEl.innerHTML = '<span style="color:' + colorFf + ';">' + iconFf + '</span> 4/5 pass data <b>' + (dt.dataPageCount || 0) + '</b>p · goal ' + (gf.overallScore || ff.score || 0) + '점 · weak ' + ((dt.weakPageCount || 0) + (gf.weakPageCount || 0)) + ' · issues ' + ff.issueCount;
         } else {
-          ffEl.innerHTML = '<span style="color:var(--text-muted);">? fourth/fifth audit missing</span>';
+          ffEl.innerHTML = '<span style="color:var(--color-text-secondary);">? fourth/fifth audit missing</span>';
         }
       } catch(e) { ffEl.textContent = '? fourthFifth audit error'; }
     }
@@ -3314,13 +3314,13 @@ window._aioRenderAuditWidget = function() {
         var cfc = window.AIO && window.AIO.assertChatFunctionCoverage && window.AIO.assertChatFunctionCoverage();
         if (cfc) {
           var icon7 = cfc.status === 'ok' ? '✓' : cfc.status === 'warn' ? '!' : '✗';
-          var color7 = cfc.status === 'ok' ? 'var(--data-green)' : cfc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var color7 = cfc.status === 'ok' ? 'var(--color-text-success)' : cfc.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           var fnPart = '함수 <b>' + cfc.integratedFnCount + '/' + cfc.chatRelevantFnCount + '</b> (' + cfc.integrationPct + '%)';
           var ctxPart = '컨텍스트 ' + cfc.contextIntegrated + '/' + cfc.contextTotal + ' (' + cfc.contextIntegrationPct + '%)';
           var cachePart = cfc.cacheImplemented ? '캐시 ✓' : '캐시 ✗';
           cfcEl.innerHTML = '<span style="color:' + color7 + ';">' + icon7 + '</span> 채팅 통합 ' + fnPart + ' · ' + ctxPart + ' · ' + cachePart;
         } else {
-          cfcEl.innerHTML = '<span style="color:var(--text-muted);">— chatFunctionCoverage audit 미가용</span>';
+          cfcEl.innerHTML = '<span style="color:var(--color-text-secondary);">— chatFunctionCoverage audit 미가용</span>';
         }
       } catch(e) { cfcEl.textContent = 'chatFunctionCoverage error'; }
     }
@@ -3331,13 +3331,13 @@ window._aioRenderAuditWidget = function() {
         var tfh = window.AIO && window.AIO.assertTickerFetchHealth && window.AIO.assertTickerFetchHealth();
         if (tfh) {
           var icon8 = tfh.status === 'ok' ? '✓' : tfh.status === 'warn' ? '!' : '✗';
-          var color8 = tfh.status === 'ok' ? 'var(--data-green)' : tfh.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var color8 = tfh.status === 'ok' ? 'var(--color-text-success)' : tfh.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           var usPct = tfh.byCategory && tfh.byCategory.us ? tfh.byCategory.us.coveragePct : '—';
           var krPct = tfh.byCategory && tfh.byCategory.kr ? tfh.byCategory.kr.coveragePct : '—';
           var ccHits = tfh.chatTickerCache ? tfh.chatTickerCache.hitRatePct : '—';
           tfhEl.innerHTML = '<span style="color:' + color8 + ';">' + icon8 + '</span> 시세 fetch <b>' + tfh.liveDataHit + '/' + tfh.totalRegistry + '</b> (' + tfh.overallCoveragePct + '%) · US ' + usPct + '% · KR ' + krPct + '% · 캐시 hit ' + ccHits + '%';
         } else {
-          tfhEl.innerHTML = '<span style="color:var(--text-muted);">— tickerFetchHealth audit 미가용</span>';
+          tfhEl.innerHTML = '<span style="color:var(--color-text-secondary);">— tickerFetchHealth audit 미가용</span>';
         }
       } catch(e) { tfhEl.textContent = 'tickerFetchHealth error'; }
     }
@@ -3348,10 +3348,10 @@ window._aioRenderAuditWidget = function() {
         var ccc = window.AIO && window.AIO.getChatContextConsistencyAudit && window.AIO.getChatContextConsistencyAudit();
         if (ccc) {
           var icon9 = ccc.status === 'ok' ? '✓' : ccc.status === 'warn' ? '!' : '✗';
-          var color9 = ccc.status === 'ok' ? 'var(--data-green)' : ccc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var color9 = ccc.status === 'ok' ? 'var(--color-text-success)' : ccc.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           cccEl.innerHTML = '<span style="color:' + color9 + ';">' + icon9 + '</span> 프롬프트 구성 점검 <b>' + ccc.qualityScore + '/100</b> (규칙 문구 포함 여부 · 답변 품질 측정 아님) · 프레임 ' + ccc.contexts.instFwCoverage + '/' + ccc.contexts.total + ' · 시나리오 ' + (ccc.fetchChat.scenarioGuide ? '✓' : '✗') + ' · 시각 단서 ' + (ccc.fetchChat.visualCue ? '✓' : '✗');
         } else {
-          cccEl.innerHTML = '<span style="color:var(--text-muted);">— chatContextConsistency audit 미가용</span>';
+          cccEl.innerHTML = '<span style="color:var(--color-text-secondary);">— chatContextConsistency audit 미가용</span>';
         }
       } catch(e) { cccEl.textContent = 'chatContextConsistency error'; }
     }
@@ -3362,10 +3362,10 @@ window._aioRenderAuditWidget = function() {
         var cia = window.AIO && window.AIO.assertChatInteractivityAudit && window.AIO.assertChatInteractivityAudit();
         if (cia) {
           var iconA = cia.status === 'ok' ? '✓' : cia.status === 'warn' ? '!' : '✗';
-          var colorA = cia.status === 'ok' ? 'var(--data-green)' : cia.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var colorA = cia.status === 'ok' ? 'var(--color-text-success)' : cia.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           ciaEl.innerHTML = '<span style="color:' + colorA + ';">' + iconA + '</span> 인터랙티브 <b>' + cia.coveragePct + '%</b> · 함수 ' + cia.fnCount + '/' + cia.fnTotal + ' · 통합 ' + cia.integCount + '/' + cia.integTotal;
         } else {
-          ciaEl.innerHTML = '<span style="color:var(--text-muted);">— chatInteractivity audit 미가용</span>';
+          ciaEl.innerHTML = '<span style="color:var(--color-text-secondary);">— chatInteractivity audit 미가용</span>';
         }
       } catch(e) { ciaEl.textContent = 'chatInteractivity error'; }
     }
@@ -3376,11 +3376,11 @@ window._aioRenderAuditWidget = function() {
         var mc = window.AIO && window.AIO.assertMemoCoverageAudit && window.AIO.assertMemoCoverageAudit();
         if (mc) {
           var iconC = mc.status === 'ok' ? '✓' : mc.status === 'warn' ? '!' : '✗';
-          var colorC = mc.status === 'ok' ? 'var(--data-green)' : mc.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var colorC = mc.status === 'ok' ? 'var(--color-text-success)' : mc.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           var staleStr = mc.stalePct > 30 ? ' · stale ' + mc.stalePct + '%' : mc.stalePct > 10 ? ' · stale ' + mc.stalePct + '%' : ' · 신선';
           mcEl.innerHTML = '<span style="color:' + colorC + ';">' + iconC + '</span> MEMO <b>' + mc.withMemo + '/' + mc.totalRows + '</b> (' + mc.memoCoveragePct + '%)' + staleStr + ' · 통합 ' + (mc.chatIntegrated ? '✓' : '✗');
         } else {
-          mcEl.innerHTML = '<span style="color:var(--text-muted);">— memoCoverage audit 미가용</span>';
+          mcEl.innerHTML = '<span style="color:var(--color-text-secondary);">— memoCoverage audit 미가용</span>';
         }
       } catch(e) { mcEl.textContent = 'memoCoverage error'; }
     }
@@ -3392,10 +3392,10 @@ window._aioRenderAuditWidget = function() {
         var aq = window.AIO && window.AIO.assertChatAnswerQualityAudit && window.AIO.assertChatAnswerQualityAudit();
         if (aq) {
           var iconE = aq.status === 'ok' ? '✓' : aq.status === 'warn' ? '!' : '✗';
-          var colorE = aq.status === 'ok' ? 'var(--data-green)' : aq.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var colorE = aq.status === 'ok' ? 'var(--color-text-success)' : aq.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           aqEl.innerHTML = '<span style="color:' + colorE + ';">' + iconE + '</span> 답변 규칙 점검 <b>' + aq.overallScore + '점</b> (구조 기준 · 실제 답변 평가 아님) · 현재 ' + aq.freshness.score + ' · 정확 ' + aq.accuracy.score + ' · 직관 ' + aq.intuitiveness.score;
         } else {
-          aqEl.innerHTML = '<span style="color:var(--text-muted);">— answerQuality audit 미가용</span>';
+          aqEl.innerHTML = '<span style="color:var(--color-text-secondary);">— answerQuality audit 미가용</span>';
         }
       } catch(e) { aqEl.textContent = 'answerQuality error'; }
     }
@@ -3406,10 +3406,10 @@ window._aioRenderAuditWidget = function() {
         var xss = window.AIO && window.AIO.assertXssEscapeCoverageAudit && window.AIO.assertXssEscapeCoverageAudit();
         if (xss) {
           var iconX = xss.status === 'ok' ? '✓' : xss.status === 'warn' ? '!' : '✗';
-          var colorX = xss.status === 'ok' ? 'var(--data-green)' : xss.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var colorX = xss.status === 'ok' ? 'var(--color-text-success)' : xss.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           xssEl.innerHTML = '<span style="color:' + colorX + ';">' + iconX + '</span> XSS <b>' + xss.xssCoveragePct + '%</b> · 위험 ' + xss.unsafeAssignments + ' · hover ' + xss.inlineHoverHits + ' · lc-pair ' + xss.lineClampPairsOk;
         } else {
-          xssEl.innerHTML = '<span style="color:var(--text-muted);">— xssSurface audit 미가용</span>';
+          xssEl.innerHTML = '<span style="color:var(--color-text-secondary);">— xssSurface audit 미가용</span>';
         }
       } catch(e) { xssEl.textContent = 'xssSurface error'; }
     }
@@ -3420,10 +3420,10 @@ window._aioRenderAuditWidget = function() {
         var krt = window.AIO && window.AIO.assertKrTickerMappingAudit && window.AIO.assertKrTickerMappingAudit();
         if (krt) {
           var iconK = krt.status === 'ok' ? '✓' : krt.status === 'warn' ? '!' : '✗';
-          var colorK = krt.status === 'ok' ? 'var(--data-green)' : krt.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var colorK = krt.status === 'ok' ? 'var(--color-text-success)' : krt.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           krtEl.innerHTML = '<span style="color:' + colorK + ';">' + iconK + '</span> KR 매핑 <b>' + krt.checkedTickers + '</b> · 충돌 <b>' + krt.conflictCount + '</b> · known ' + krt.knownMappingChecked + '/' + (krt.knownMappingChecked - krt.knownMismatchCount);
         } else {
-          krtEl.innerHTML = '<span style="color:var(--text-muted);">— krTickerMapping audit 미가용</span>';
+          krtEl.innerHTML = '<span style="color:var(--color-text-secondary);">— krTickerMapping audit 미가용</span>';
         }
       } catch(e) { krtEl.textContent = 'krTickerMapping error'; }
     }
@@ -3434,7 +3434,7 @@ window._aioRenderAuditWidget = function() {
         var qr = window.AIO && window.AIO.assertQuantitativeRatioAudit && window.AIO.assertQuantitativeRatioAudit();
         if (qr) {
           var iconQ = qr.status === 'ok' ? '✓' : qr.status === 'no_data' ? '…' : qr.status === 'warn' ? '!' : '✗';
-          var colorQ = qr.status === 'ok' ? 'var(--data-green)' : qr.status === 'no_data' ? 'var(--text-muted)' : qr.status === 'warn' ? 'var(--data-amber)' : 'var(--data-red)';
+          var colorQ = qr.status === 'ok' ? 'var(--color-text-success)' : qr.status === 'no_data' ? 'var(--color-text-secondary)' : qr.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           if (qr.status === 'no_data') {
             qrEl.innerHTML = '<span style="color:' + colorQ + ';">' + iconQ + '</span> 정량 비율 (채팅 후 측정)';
           } else {
@@ -3450,7 +3450,7 @@ window._aioRenderAuditWidget = function() {
         var mca = window.AIO && window.AIO._aioRecomputeMacroCalendar && window.AIO._aioRecomputeMacroCalendar({ dryRun: true });
         if (mca) {
           var iconM = mca.advancedCount === 0 ? '✓' : '!';
-          var colorM = mca.advancedCount === 0 ? 'var(--data-green)' : 'var(--data-amber)';
+          var colorM = mca.advancedCount === 0 ? 'var(--color-text-success)' : 'var(--color-text-warning)';
           mcaEl.innerHTML = '<span style="color:' + colorM + ';">' + iconM + '</span> 거시 캘린더 · 대기 advance <b>' + mca.advancedCount + '</b> (dry-run)';
         }
       } catch(e) { mcaEl.textContent = 'macroCalendarAuto error'; }
@@ -3462,12 +3462,12 @@ window._aioRenderAuditWidget = function() {
         var dl = window.AIO && window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
         if (dl) {
           var iconL = dl.status === 'ok' ? '✓' : '!';
-          var colorL = dl.status === 'ok' ? 'var(--data-green)' : 'var(--data-amber)';
+          var colorL = dl.status === 'ok' ? 'var(--color-text-success)' : 'var(--color-text-warning)';
           var cl = dl.cellLevel || {};
-          var cellTxt = cl.status ? ' · cell ' + (cl.totalOrphans === 0 ? '<span style="color:var(--data-green);">0 끊김</span>' : '<span style="color:var(--data-red);">끊김 ' + cl.totalOrphans + '</span>') + ' (' + (cl.liveSinkTotal||0) + '+' + (cl.snapSinkTotal||0) + ' sink)' : '';
-          dlEl.innerHTML = '<span style="color:' + colorL + ';">' + iconL + '</span> 데이터 계보 자동 <b>' + dl.connected + '</b>/' + dl.total + ' · gap ' + dl.gap + ' · 수동 ' + dl.manual + (dl.broken > 0 ? ' · <span style="color:var(--data-red);">끊김 ' + dl.broken + '</span>' : '') + cellTxt;
+          var cellTxt = cl.status ? ' · cell ' + (cl.totalOrphans === 0 ? '<span style="color:var(--color-text-success);">0 끊김</span>' : '<span style="color:var(--color-text-error);">끊김 ' + cl.totalOrphans + '</span>') + ' (' + (cl.liveSinkTotal||0) + '+' + (cl.snapSinkTotal||0) + ' sink)' : '';
+          dlEl.innerHTML = '<span style="color:' + colorL + ';">' + iconL + '</span> 데이터 계보 자동 <b>' + dl.connected + '</b>/' + dl.total + ' · gap ' + dl.gap + ' · 수동 ' + dl.manual + (dl.broken > 0 ? ' · <span style="color:var(--color-text-error);">끊김 ' + dl.broken + '</span>' : '') + cellTxt;
         } else {
-          dlEl.innerHTML = '<span style="color:var(--text-muted);">— dataLineage audit 미가용</span>';
+          dlEl.innerHTML = '<span style="color:var(--color-text-secondary);">— dataLineage audit 미가용</span>';
         }
       } catch(e) { dlEl.textContent = 'dataLineage error'; }
     }
@@ -3481,12 +3481,12 @@ window._aioRenderAuditWidget = function() {
         row.dataset.auditPri = pri;
         if (pri === 0) {
           row.style.background = 'rgba(255,91,80,0.06)';
-          row.style.borderLeft = '2px solid var(--data-red)';
+          row.style.borderLeft = '2px solid var(--color-text-error)';
           row.style.paddingLeft = '6px';
           row.style.animation = 'aioAuditPulse 2s ease-in-out infinite';
         } else if (pri === 1) {
           row.style.background = 'rgba(255,163,26,0.04)';
-          row.style.borderLeft = '2px solid var(--data-amber)';
+          row.style.borderLeft = '2px solid var(--color-text-warning)';
           row.style.paddingLeft = '6px';
           row.style.animation = '';
         } else {
@@ -4863,7 +4863,7 @@ window._aioBuildSparklineSvg = async function(ticker, opts) {
       } catch(_) {}
     }
     if (closes.length < 5) {
-      return '<div style="font-size:10px;color:var(--text-muted);padding:4px 6px;">' + (typeof escHtml === 'function' ? escHtml(label) : label) + ' 차트 데이터 부족 (필요: 5+ closes)</div>';
+      return '<div style="font-size:10px;color:var(--color-text-secondary);padding:4px 6px;">' + (typeof escHtml === 'function' ? escHtml(label) : label) + ' 차트 데이터 부족 (필요: 5+ closes)</div>';
     }
     var min = Math.min.apply(null, closes);
     var max = Math.max.apply(null, closes);
@@ -4891,14 +4891,14 @@ window._aioBuildSparklineSvg = async function(ticker, opts) {
           '<path d="' + path + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>' +
         '</svg>' +
       '</div>' +
-      '<div style="font-size:11px;color:var(--text-secondary);line-height:1.4;">' +
+      '<div style="font-size:11px;color:var(--color-text-secondary);line-height:1.4;">' +
         '<div style="font-weight:700;color:var(--text-bright);">' + safeLabel + ' · ' + closes.length + '일</div>' +
         '<div style="color:' + color + ';font-family:var(--font-mono);font-weight:600;">' + lastText + ' (' + pctText + ')</div>' +
-        '<div style="color:var(--text-muted);font-size:10px;">range: ' + (min >= 1000 ? min.toFixed(0) : min.toFixed(2)) + ' ~ ' + (max >= 1000 ? max.toFixed(0) : max.toFixed(2)) + '</div>' +
+        '<div style="color:var(--color-text-secondary);font-size:10px;">range: ' + (min >= 1000 ? min.toFixed(0) : min.toFixed(2)) + ' ~ ' + (max >= 1000 ? max.toFixed(0) : max.toFixed(2)) + '</div>' +
       '</div>' +
     '</div>';
   } catch(e) {
-    return '<div style="font-size:10px;color:var(--data-amber);padding:4px 6px;">sparkline error: ' + (e && e.message || e) + '</div>';
+    return '<div style="font-size:10px;color:var(--color-text-warning);padding:4px 6px;">sparkline error: ' + (e && e.message || e) + '</div>';
   }
 };
 
@@ -6082,6 +6082,8 @@ window.AIO.getTelegramPageCoverageAudit = function() {
         var label = nameOf(el, root);
         if (!label) nameless.push({ id: el.id || '', selector: selectorFor(el, root), tag: el.tagName || '' });
         var tabindex = Number(el.getAttribute('tabindex'));
+        var roving = el.tabIndex < 0 && el.closest('[role="tablist"],[role="radiogroup"],[role="toolbar"]');
+        if (roving && roving.querySelector('[tabindex="0"],[aria-selected="true"]:not([tabindex="-1"])')) return;
         if (el.tabIndex < 0 || (!isFinite(tabindex) && el.tagName === 'DIV' && el.getAttribute('data-action'))) unfocusable.push({ id: el.id || '', selector: selectorFor(el, root), tag: el.tagName || '', tabindex: el.tabIndex });
         if (isFinite(tabindex) && tabindex > 0) positiveTabindex.push({ id: el.id || '', selector: selectorFor(el, root), tabindex: tabindex });
         if (active && el.getBoundingClientRect) {

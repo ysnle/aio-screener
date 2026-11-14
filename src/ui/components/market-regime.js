@@ -387,13 +387,16 @@ function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, o
   if (links.length) { const nav = el(doc, 'div', null, 'mk-axis__links'); nav.append(...links); facts.append(nav); }
   detail.append(facts);
   body.append(detail);
-  card.append(body);
-  // P1661 / v57.76: past outcomes after days with a similar VIX fold inside the volatility row (a direct child of it).
-  if (row.id === 'volatility') renderStressOutcomes({ documentRef: doc, root, host: card });
+  // Everything under the summary is one pane: beside the list on a wide screen (master-detail.js), under the row otherwise.
+  const pane = el(doc, 'div', null, 'md-pane mk-axis__pane');
+  pane.append(body);
+  card.append(pane);
+  // P1661 / v57.76: past outcomes after days with a similar VIX fold inside the volatility row.
+  if (row.id === 'volatility') renderStressOutcomes({ documentRef: doc, root, host: pane });
   // ④ evidence line: academic basis (authors · year), data source, validation state.
   const evidence = el(doc, 'p', null, 'sx-evidence mk-axis__evidence');
   evidence.append(el(doc, 'span', `학술 근거, ${AXIS_REFS[row.id] || '—'}`), el(doc, 'span', `데이터, ${AXIS_SOURCES[row.id] || '—'}`), el(doc, 'span', '검증 전 기준선'));
-  card.append(evidence);
+  pane.append(evidence);
   // Single-open accordion (README: openAxis); the choice survives a repaint of the board.
   card.addEventListener('toggle', () => {
     if (card.open) {
@@ -721,6 +724,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
     const section = doc.getElementById(anchorId);
     // v58.56 (re-audit #16): the Korea card is folded; a link that asks for it opens the fold first.
     const fold = section?.closest?.('details') || section?.querySelector?.(':scope > details');
+    if (section) root._aioShowViewOf?.(section);
     if (fold) fold.open = true;
     const heading = fold ? fold.closest('section') || fold : section?.previousElementSibling?.tagName === 'H2' ? section.previousElementSibling : section;
     heading?.scrollIntoView?.({ block: 'start' });
@@ -836,6 +840,7 @@ export function openSignalAxis(doc, root, axisId, { chart = false } = {}) {
   const land = () => {
     const axis = doc.querySelector?.(`:is(#regime-board, #regime-board-watch) .mk-axis[data-axis="${axisId}"]`);
     if (!axis) { if ((tries += 1) < 30) setTimeout(land, 100); return; }
+    root._aioShowViewOf?.(axis);
     axis.open = true;
     (chart ? axis.querySelector('.regime-axis-history') || axis : axis).scrollIntoView?.({ block: 'start' });
   };

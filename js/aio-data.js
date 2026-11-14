@@ -6371,7 +6371,7 @@ function applyLiveQuotes(quotes) {
         setTimeout(function() { el.classList.remove('aio-flash-up', 'aio-flash-down'); }, 950);
       }
       if (isStale) {
-        el.style.borderBottom = '2px dashed var(--yellow)';
+        el.style.borderBottom = '2px dashed var(--color-text-secondary)';
         el.title = `가격 갱신: ${new Date(window._quoteTimestamps[q.symbol]).toLocaleTimeString('ko-KR')} — 현재: ${new Date().toLocaleTimeString('ko-KR')}`;
       } else {
         el.style.borderBottom = '';
@@ -6428,7 +6428,7 @@ function applyLiveQuotes(quotes) {
         el.textContent = (atomicDelta >= 0 ? '▲ ' : '▼ ')
           + Math.abs(atomicDelta).toLocaleString('ko-KR', { maximumFractionDigits: 2 })
           + ' (' + (atomicPct >= 0 ? '+' : '') + atomicPct.toFixed(2) + '%)';
-        el.style.color = atomicDelta >= 0 ? 'var(--dir-up)' : 'var(--dir-down)'; var _krIdxCard = el.closest && el.closest('.kr-idx-card'); if (_krIdxCard) { _krIdxCard.classList.toggle('up', atomicDelta > 0); _krIdxCard.classList.toggle('down', atomicDelta < 0); } // P1315: card direction follows the live delta, never static markup
+        el.style.color = atomicDelta >= 0 ? 'var(--color-data-up)' : 'var(--color-data-down)'; var _krIdxCard = el.closest && el.closest('.kr-idx-card'); if (_krIdxCard) { _krIdxCard.classList.toggle('up', atomicDelta > 0); _krIdxCard.classList.toggle('down', atomicDelta < 0); } // P1315: card direction follows the live delta, never static markup
         el.setAttribute('data-source-kind', 'live');
         el.setAttribute('data-operational-use', 'decision');
         el.setAttribute('data-source-label', q._source || 'live:yahoo');
@@ -6451,7 +6451,7 @@ function applyLiveQuotes(quotes) {
         if (_futD && _futD.price) {
           document.querySelectorAll(`[data-idx-futures="${q.symbol}"]`).forEach(el => {
             var fPct = _futD.pct != null ? _futD.pct : 0;
-            var fColor = fPct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
+            var fColor = fPct >= 0 ? 'var(--color-data-up)' : 'var(--color-data-down)';
             var sessLabel = _usS2 === 'pre' ? '프리' : _usS2 === 'after' ? '애프터' : '시간외';
             el.innerHTML = '<span style="font-size:12px;color:var(--blue-11);">선물(' + sessLabel + ')</span> ' +
               '<span style="font-size:12px;color:' + fColor + ';font-family:var(--font-mono);">' +
@@ -6474,7 +6474,7 @@ function applyLiveQuotes(quotes) {
     const cardId = snapMap[q.symbol];
     if (cardId) {
       const card = document.getElementById(cardId);
-      if (card) card.style.borderLeftColor = pct >= 0 ? 'var(--dir-up)' : 'var(--dir-down)';
+      if (card) card.style.borderLeftColor = pct >= 0 ? 'var(--color-data-up)' : 'var(--color-data-down)';
     }
   });
   // VIX 별도 처리 — v45.6: _liveData/DATA_SNAPSHOT 폴백 추가

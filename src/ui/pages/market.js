@@ -247,7 +247,7 @@ function formatSnapshotMetric(key, metric) {
   if (metric.formatted) return metric.value;
   const value = finite(metric.value);
   if (value == null) return isPlaceholder(metric.value) ? null : String(metric.value);
-  if (metric.nfp || key === 'nfp') return `${value >= 0 ? '+' : ''}${Math.round(value).toLocaleString('en-US')}K`;
+  if (metric.nfp || key === 'nfp') return `${directionOf(value, 0) === 'up' ? '+' : directionOf(value, 0) === 'down' ? '-' : ''}${Math.abs(Math.round(value)).toLocaleString('en-US')}K`;
   if (metric.retail) return `${signedText(value, 2)}% MoM`;
   if (metric.wage) {
     const mom = metric.previous > 0 ? (value - metric.previous) / metric.previous * 100 : null;

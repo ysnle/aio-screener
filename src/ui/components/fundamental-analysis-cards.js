@@ -45,7 +45,7 @@ export function pendingNote(doc, what, items = '총자산·R&D') {
   const box = el(doc, 'div', null, 'v2-analysis-pending');
   box.setAttribute('role', 'status');
   box.append(el(doc, 'span', COLLECTION_PENDING_LABEL, 'sx-chip sx-chip--sm sx-chip--date'),
-    el(doc, 'p', `${what}에 필요한 ${items} 항목을 SEC 연간 공시에서 새로 수집하고 있습니다. 공시 갱신은 하루 다섯 번, 회차마다 일부 기업씩 진행되며 이 기업 차례가 오면 자동으로 표시됩니다. 그 전까지 값을 추정하지 않습니다.`, 'v2-analysis-pending__text'));
+    el(doc, 'p', `${what}에 필요한 ${items} 항목을 수집 중입니다. 들어오기 전까지 값을 추정하지 않습니다.`, 'v2-analysis-pending__text'));
   return box;
 }
 

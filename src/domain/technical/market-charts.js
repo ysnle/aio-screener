@@ -107,7 +107,8 @@ export function indexChartReading(history, field, label, { breadth = null } = {}
   const ma50Series = movingAverage(closes, 50);
   const ma50 = ma50Series.at(-1)?.value ?? null;
   const ma50Before = ma50Series.at(-21)?.value ?? null;
-  const ma200 = closes.length >= 200 ? movingAverage(closes, 200).at(-1).value : null;
+  const ma200Series = closes.length >= 200 ? movingAverage(closes, 200) : [];
+  const ma200 = ma200Series.at(-1)?.value ?? null;
   const close = closes.at(-1).value;
   const trend = trendOf({ close, ma50, ma200, ma50Before });
   const rsi = rsiOf(closes);
@@ -133,7 +134,7 @@ export function indexChartReading(history, field, label, { breadth = null } = {}
   const conclusion = `${withTopicParticle(label)} ${TREND_WORDS[trend]}${level ? `, 고점 대비 ${signed(level.fromHighPct)}` : ''}${Number.isFinite(ma50) ? `, 50일선 ${signed((close / ma50 - 1) * 100)}` : ''}${Number.isFinite(ma200) ? `, 200일선 ${signed((close / ma200 - 1) * 100)}` : ''}.`;
   return {
     field, label, asOf: closes.at(-1).date, close, trend, trendWord: TREND_WORDS[trend], rsi, ma50, ma200, high: level?.high || null, support, resistance, doubleTop: top || null,
-    series: closes.slice(-252), ma50Series: ma50Series.slice(-252), conclusion, volume: indexVolumeRead(history, field),
+    series: closes.slice(-252), ma50Series: ma50Series.slice(-252), ma200Series: ma200Series.slice(-252), conclusion, volume: indexVolumeRead(history, field),
     read: `${TREND_READ[trend]}${breadthRead}${momentum}${levels.length ? ` ${levels.join(', ')}입니다.` : ''}${pattern}`,
     numbers: [['종가', num(close)], ['50일선', Number.isFinite(ma50) ? num(ma50) : '—'], ['200일선', Number.isFinite(ma200) ? num(ma200) : '—'],
       ['1년 최고 종가', level ? `${num(level.high.value)} (${md(level.high.date)})` : '—'], ['RSI(14)', rsi === null ? '—' : rsi.toFixed(0)], ['50일선 20일 기울기', Number.isFinite(ma50Before) && ma50Before > 0 ? signed((ma50 / ma50Before - 1) * 100) : '—'], ['6개월 최저 종가', level?.support ? `${num(level.support.value)} (${md(level.support.date)})` : '—']]

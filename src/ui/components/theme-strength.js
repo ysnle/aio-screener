@@ -10,6 +10,7 @@ import { el } from './dom.js';
 import { sessionChipText } from './session-lag.js';
 import { asOfChip, closeChipText, markFrame } from './section-frame.js';
 import { attachScrollCue } from './scroll-cue.js';
+import { rankMoves } from './figures.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 import { screenerRowsState } from '../../data/shared-artifacts.js';
@@ -170,9 +171,16 @@ function detailTable(doc, root, model, ordered) {
   return { frame, scroll };
 }
 
+// The five sub-themes whose rank rose most from the 3-month to the 1-month ranking, and the five that fell most.
+function rankMoveFigure(doc, ranked) {
+  const moved = ranked.filter((group) => group.rank1m != null && group.rank3m != null && group.direction && group.direction !== 'steady');
+  const by = (sign) => moved.filter((group) => Math.sign(group.rank3m - group.rank1m) === sign).sort((a, b) => Math.abs(b.rank3m - b.rank1m) - Math.abs(a.rank3m - a.rank1m)).slice(0, 5);
+  const items = [...by(1), ...by(-1)].map((group) => ({ label: group.name, from: group.rank3m, to: group.rank1m }));
+  const total = Math.max(...ranked.map((group) => Math.max(group.rank1m ?? 0, group.rank3m ?? 0)));
+  return rankMoves(doc, items, { title: '순위가 크게 바뀐 테마 (3개월 순위 → 1개월 순위, 3개월에는 최근 1개월이 들어 있음)', total, fromLabel: '3개월', toLabel: '1개월' });
+}
+
 function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggle, onCompare, onOrder) {
-  const tableFold = host.querySelector(':scope > .theme-strength-table-fold');
-  const tableOpen = !!tableFold?.open;
   host.replaceChildren();
   // v58.79 section frame: title, the close as its chip (the full basis is the chip's hover), the period/order controls.
   const head = el(doc, 'div', null, 'theme-strength-head aio-frame-head');
@@ -204,7 +212,8 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   host.append(head);
   // P1681 (X03 follow-up): on a stale basis the list stays as a dated reference and the "now leading" reading is held.
   const lead = basis?.stale ? '최신 거래일 종가가 아직 반영되지 않아 지금의 주도·개선 판단은 보류합니다. 아래 순위는 기준일 시점의 참고 값입니다.' : themeStrengthLead(model, { stages: root?.__aioThemePlaybook?.themes || null });
-  if (lead) host.append(sectionLead(doc, lead));
+  // The reading is about the strong side; with the list flipped it says so.
+  if (lead) host.append(sectionLead(doc, weakestFirst && !basis?.stale ? `강한 순으로 보면, ${lead}` : lead));
   if (!model.groups.length) { const load = screenerRowsState(root); host.append(el(doc, 'p', load === 'ready' ? '이 보기에서 비교할 테마 수익률이 없습니다.' : `${dataStateText(load, '스크리너 수익률')}.`, 'briefing-empty')); return; } // v58.80 bundle 3
   // Ranked rows flip with the order; reference rows (small samples, no rank) stay after them either way.
   const ranked = model.groups.filter((group) => group.rank != null);
@@ -246,11 +255,14 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     footer.append(more);
   }
   host.append(footer);
+  const moves = rankMoveFigure(doc, ranked);
+  if (moves) host.append(moves);
   // The full multi-window table is fold depth (expert view): every window, S&P gap, 50일선, rank movement, constituents.
   const fold = el(doc, 'details', null, 'sx-disclosure theme-strength-table-fold');
-  fold.open = tableOpen;
+  fold.open = true; // the table is the 테마 순위 view's content (page-views.css)
+  fold.dataset.viewOpen = '';
   fold.append(el(doc, 'summary', '기간별 표와 순위 변화'));
-  const { frame, scroll } = detailTable(doc, root, model, ordered);
+  const { frame, scroll } = detailTable(doc, root, model, visible); // the same rows as the bars above; '전체' widens both
   host._aioScrollEdges?.disconnect?.();
   fold.append(frame);
   host.append(fold);

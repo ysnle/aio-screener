@@ -936,7 +936,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
         + ', CVaR ' + (varCertification.cvarCertification === 'certified' ? '인증됨' : '인증 보류(' + (varCertification.cvarCertificationReasons || []).join(', ') + ')') + '.',
       rfInvalid ? '무위험수익률(RF)은 연간 소수(decimal) 단위(-1, 1]만 허용합니다. 입력 단위가 잘못되어 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : rfAnnual == null ? '무위험수익률(RF)을 입력하지 않아 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : ('RF 가정: 연 소수 ' + rfAnnual.toFixed(6) + ' (' + (rfAnnual * 100).toFixed(2) + '%).'),
       '거래 가능한 실현 성과·매매 지시로 승격하지 않습니다.',
-      '무료 Yahoo chart 데이터 범위와 각 종목 상장일에 따라 시작 월이 자동 제한됩니다.',
+      '각 종목 상장일 이후부터 계산합니다.',
       // P1252 (BT-03): 원가 통화로 시세 값을 환산한 근거 추정은 공개한다 — 시세 통화 선언이
       // 원가 통화와 다르면 비중이 왜곡될 수 있다.
       priceCurrencyInferredMembers.length ? ('시세 통화가 선언되지 않은 멤버(' + priceCurrencyInferredMembers.join(', ') + ')는 원가 통화를 시세 값 환산의 통화로 사용했습니다(price-currency-inferred-from-cost) — 원가 통화가 실제 시세 통화와 다르면 시작 비중이 왜곡됩니다.') : null,

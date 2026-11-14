@@ -231,7 +231,8 @@ export function renderStockStrengths(doc, host, ctx) {
     const values = el(doc, 'div', null, 'v2-peer-rank__values');
     for (const fact of s.facts) {
       labels.append(el(doc, 'span', fact.label, 'v2-peer-rank__label'));
-      values.append(el(doc, 'span', `${fact.tied ? '공동 ' : ''}${fact.rank}/${fact.n}`, 'v2-peer-rank__value'));
+      // The value itself beside its place: '2/9' alone made the reader open the fold to learn what was being ranked.
+      values.append(el(doc, 'span', `${fact.valueText}, ${fact.tied ? '공동 ' : ''}${fact.rank}/${fact.n}`, 'v2-peer-rank__value'));
     }
     const plot = el(doc, 'div', null, 'v2-peer-rank__plot');
     plot.append(rankChart(doc, s.facts));

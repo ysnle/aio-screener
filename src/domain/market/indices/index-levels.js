@@ -24,6 +24,9 @@ export function sessionCloses(history, field) {
     const value = readNumber(row?.[field]);
     const session = historyFieldMeta(row, field)?.sessionDate || row?.date;
     if (!session || value === null || !weekday(session)) continue;
+    // A Sunday row is cut when currencies reopen (Sunday evening New York): its quote belongs to the new week, so it
+    // never replaces the Friday close already read (원/달러 5거래일 read -1.6% here and -2.1% in the close series).
+    if (bySession.has(session) && new Date(`${row.date}T12:00:00Z`).getUTCDay() === 0) continue;
     bySession.set(session, { date: session, value });
   }
   return [...bySession.values()].sort((a, b) => a.date.localeCompare(b.date));

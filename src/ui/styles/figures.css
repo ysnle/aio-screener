@@ -1,0 +1,43 @@
+/* v60.09: shared small figures (components/figures.js) — bar lists, a bar cut into parts, rank moves. */
+.fig { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.fig__title { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
+.fig-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px 32px; margin: 12px 0 16px; }
+
+.fig-bars__row { display: grid; grid-template-columns: minmax(96px, 148px) minmax(0, 1fr) 56px; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-secondary); }
+.fig-bars__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fig-bars__value, .fig-ranks__value { text-align: right; font-variant-numeric: tabular-nums; color: var(--color-text-primary); white-space: nowrap; }
+
+.fig-parts { max-width: 520px; width: 100%; }
+.fig-parts__bar { display: flex; gap: 2px; height: 12px; border-radius: var(--radius-full); overflow: hidden; }
+.fig-parts__seg { display: block; min-width: 4px; }
+.fig-parts__seg.is-part-1, .fig-parts__item.is-part-1::before { background: var(--color-text-primary); }
+.fig-parts__seg.is-part-2, .fig-parts__item.is-part-2::before { background: rgba(var(--ink-rgb), 0.38); }
+.fig-parts__seg.is-part-3, .fig-parts__item.is-part-3::before { background: rgba(var(--ink-rgb), 0.16); }
+.fig-parts__legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--color-text-secondary); }
+.fig-parts__item::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: var(--radius-full); }
+.fig-parts__item > b { color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+
+.fig-ranks { margin: 12px 0 16px; }
+.fig-ranks__row { display: grid; grid-template-columns: minmax(96px, 180px) minmax(0, 1fr) 92px; align-items: center; gap: 12px; font-size: 12px; color: var(--color-text-secondary); }
+.fig-ranks__label { color: var(--color-text-primary); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fig-ranks__track { position: relative; display: block; height: 12px; margin: 0 6px; }
+.fig-ranks__track::before { content: ''; position: absolute; left: 0; right: 0; top: 5px; height: 2px; border-radius: var(--radius-full); background: rgba(var(--ink-rgb), 0.08); }
+.fig-ranks__span { position: absolute; top: 5px; height: 2px; background: currentColor; }
+.fig-ranks__dot { position: absolute; top: 1px; width: 10px; height: 10px; margin-left: -5px; box-sizing: border-box; border-radius: var(--radius-full); border: 2px solid currentColor; background: var(--color-background-card, #fff); }
+.fig-ranks__dot.is-to { background: currentColor; }
+.fig-ranks__row.is-good > .fig-ranks__track { color: var(--color-text-success); }
+.fig-ranks__row.is-burden > .fig-ranks__track { color: var(--color-text-warning); }
+.fig-ranks__axis { display: grid; grid-template-columns: minmax(96px, 180px) minmax(0, 1fr) 92px; gap: 12px; font-size: 12px; color: var(--color-text-secondary); }
+.fig-ranks__axis > span { grid-row: 1; grid-column: 2; }
+.fig-ranks__axis > span:nth-child(2) { text-align: center; }
+.fig-ranks__axis > span:nth-child(3) { text-align: right; }
+@media (max-width: 600px) {
+  .fig-ranks__row { grid-template-columns: minmax(0, 1fr) 92px; }
+  .fig-ranks__track { grid-column: 1 / -1; grid-row: 2; }
+  .fig-ranks__axis { display: flex; justify-content: space-between; }
+}
+/* A figure with a period switch above it (자산군 수익률): the switch, then one plot at a readable width. */
+.rates-asset-bars { display: grid; gap: 12px; justify-items: start; margin: 12px 0 16px; }
+.rates-asset-bars > div:last-child { width: min(100%, 640px); }
+.fig-parts--ends .fig-parts__seg.is-part-2, .fig-parts--ends .fig-parts__item.is-part-2::before { background: rgba(var(--ink-rgb), 0.16); }
+.fig-parts--ends .fig-parts__seg.is-part-3, .fig-parts--ends .fig-parts__item.is-part-3::before { background: rgba(var(--ink-rgb), 0.55); }

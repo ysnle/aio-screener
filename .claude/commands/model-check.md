@@ -10,4 +10,4 @@ Use `.claude/skills` as canonical and, only after canonical skill edits or confi
 
 Run `.claude/skills/model-check/SKILL.md`.
 
-Run or maintain the bounded exhaustive model checks. Arguments: `ledger | history | narrative | all`; default the gates whose covered files the change touches.
+Run or maintain the bounded exhaustive model checks. Arguments: `ledger | history | narrative | market-session | scheduler | artifact-cache | all`; default the gates whose covered files the change touches.

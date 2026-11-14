@@ -139,14 +139,22 @@ export function slotSummaryStyleOk(text) {
   return value.split(/(?<=[.?!])\s+/).map((sentence) => sentence.replace(/[.?!]+$/, '').trim()).filter(Boolean).every((sentence) => /(?:니다|니까)$/.test(sentence));
 }
 
+// The size word is a rule, not the model's choice: a +0.8% index move was summarised as '큰 폭 상승' on a day that closed down.
+// Indexes and FX: under 0.5% 소폭, 1.5% or more 큰 폭; yields: under 5bp, 10bp or more; volatile series (VIX, crypto, oil) use three times the bar.
+export function moveSizeWord(move) {
+  const size = Math.abs(move.change);
+  const [small, large] = move.changeUnit === 'bp' ? [5, 10] : /\b(?:VIX|WTI)\b|변동성|비트코인|이더리움|원유|브렌트/i.test(move.label) ? [1.5, 4.5] : [0.5, 1.5];
+  return size < small ? '소폭' : size >= large ? '큰 폭' : '보통';
+}
+
 export function buildMarketSlotPrompt(slot) {
-  const moves = slot.moves.length ? slot.moves.map((move) => `- ${formatMove(move)} (${move.basis === 'previous-slot' ? '직전 회차 대비' : '전일 종가 대비'})`).join('\n') : '- 직전 회차 이후 움직인 주요 지표 없음';
+  const moves = slot.moves.length ? slot.moves.map((move) => `- ${formatMove(move)} (${move.basis === 'previous-slot' ? '직전 회차 대비' : '전일 종가 대비'}, 크기: ${moveSizeWord(move)})`).join('\n') : '- 직전 회차 이후 움직인 주요 지표 없음';
   const headlines = slot.headlines.length
     ? slot.headlines.map((row) => `- ${kstParts(Date.parse(row.publishedAt)).hm} KST ${row.verification === 'unconfirmed' ? '[미확인] ' : ''}${row.titleKo || row.title} [${row.source || 'unknown'}]`).join('\n')
     : '- 없음';
   return [
     `아래는 한국 시간 ${slot.label} 여섯 시간 동안의 시장 움직임과 그 사이 발행된 헤드라인이다. 이 시간대 시황을 한국어 2~3문장 평문으로 요약하라.`,
-    '순서: 무엇이 움직였나 → 헤드라인에 따르면 무엇이 배경으로 거론됐나 → 다음 회차의 쟁점("다음 회차의 쟁점은 …입니다."처럼 쓰고 "확인할 필요가 있습니다" 같은 당부는 쓰지 않는다). 수치는 화면에 따로 표시되므로 숫자·%·티커는 쓰지 말고 "큰 폭", "소폭"처럼 말로 쓴다.',
+    '순서: 무엇이 움직였나 → 헤드라인에 따르면 무엇이 배경으로 거론됐나 → 다음 회차의 쟁점("다음 회차의 쟁점은 …입니다."처럼 쓰고 "확인할 필요가 있습니다" 같은 당부는 쓰지 않는다). 수치는 화면에 따로 표시되므로 숫자·%·티커는 쓰지 않는다. 움직임의 크기는 MOVES 각 줄의 "크기"에 적힌 말만 쓴다("보통"은 수식어 없이 "올랐습니다/내렸습니다"로 쓴다). MOVES는 이 여섯 시간 동안의 변화이지 하루 종가 등락이 아니므로 "이 시간대에"라고 밝힌다.',
     '헤드라인에 없는 원인을 만들지 말고 "…보도에 따르면"으로 귀속하며(매체 이름은 쓰지 않는다 — 헤드라인 목록이 화면에 따로 있다) 한 가지 해석으로만 제시한다. [미확인] 항목은 같은 문장에 "미확인"을 쓴다. 매매 지시·추천·확신 표현은 쓰지 않는다. 제목·목록·마크다운 없이 쓴다.',
     // v58.74 (text audit A5): one register for every slot — the 10/22 12:00 slot ended in "-다" while the others used "-습니다".
     `문체: 모든 문장을 "-습니다/-입니다"로 끝낸다. 한 문장에 한 생각만 담고 쉼표는 세 개 이하, 세미콜론은 쓰지 않는다.${slot.headlines.length <= 1 ? ' 이 시간대 헤드라인은 1건 이하라 헤드라인이 적다고 쓴다.' : ' 헤드라인 수가 적다고 쓰지 않는다.'}`,

@@ -48,7 +48,7 @@ function datedShort(date) {
 // v58.80 run-5 (skeptic #5): `guide` is a second, dashed series the reading is measured against (the 50-day line under
 // the S&P 500 close); it sets the scale with the line, names itself at its right end and joins the hover readout.
 export function createTrendChart(doc, options = {}) {
-  const { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [], guide = null, width = DEFAULT_W, refLabel = null } = options;
+  const { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [], guide = null, longGuide = null, width = DEFAULT_W, refLabel = null } = options;
   // v59.70 (screen review #14): a level line that is not a round tick says what it is ("지지 27,192"), or it read as a
   // stray tick between the round ones.
   const refText = (ref) => (typeof refLabel === 'function' ? refLabel(ref) : format(ref).replace(/(\d)\.0+(?!\d)/, '$1'));
@@ -72,7 +72,9 @@ export function createTrendChart(doc, options = {}) {
   }
   const guidePoints = (guide?.series || []).filter((point) => Number.isFinite(point?.value) && point.date >= start && point.date <= end);
   const guideAt = new Map(guidePoints.map((point) => [point.date, point.value]));
-  const values = [...points.map((point) => point.value), ...guidePoints.map((point) => point.value)];
+  // A second, fainter reference line (the 200-day line); it carries no tag in the plot — the caller names it beside the chart.
+  const longPoints = (longGuide?.series || []).filter((point) => Number.isFinite(point?.value) && point.date >= start && point.date <= end);
+  const values = [...points.map((point) => point.value), ...guidePoints.map((point) => point.value), ...longPoints.map((point) => point.value)];
   let lo = domain ? domain[0] : Math.min(...values, ...refLines);
   let hi = domain ? domain[1] : Math.max(...values, ...refLines);
   if (hi === lo) { hi += 1; lo -= 1; }
@@ -178,6 +180,7 @@ export function createTrendChart(doc, options = {}) {
     svg.append(svgEl(doc, 'rect', { x: x0.toFixed(1), y: PAD.top, width: (x1 - x0).toFixed(1), height: plotH, class: `trend-chart-span is-${span.tone}` }));
   }
   // Line only (v58.53 개편 v2: no area fill; 1.6–2px round stroke in v2-market.css).
+  if (longPoints.length > 1) svg.append(svgEl(doc, 'path', { d: longPoints.map((point, index) => `${index ? 'L' : 'M'}${xd(point.date).toFixed(1)},${y(point.value).toFixed(1)}`).join(' '), class: 'trend-chart-guide is-long' }));
   if (guidePoints.length > 1) {
     svg.append(svgEl(doc, 'path', { d: guidePoints.map((point, index) => `${index ? 'L' : 'M'}${xd(point.date).toFixed(1)},${y(point.value).toFixed(1)}`).join(' '), class: 'trend-chart-guide' }));
     const tail = guidePoints[guidePoints.length - 1];

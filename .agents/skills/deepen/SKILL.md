@@ -26,9 +26,10 @@ Follow `.claude/skills/_shared/operating-contract.md`; reuse it if already read.
 
 1. Scope by change frequency: start from files that recent commits keep touching, or the area the user named.
 2. Look for friction: a decision checked at many call sites; globals that must be set, read and cleared in order; a fix that added entry points; tests that cut a function out of a classic script or pin source text because nothing has an interface to test.
-3. **Deletion test** for each suspect: delete the module in your head. Complexity that reappears across N callers means it earns its keep; complexity that just moves means it is a pass-through.
-4. Classify each dependency: in-process (merge and test directly), local stand-in, owned remote (port + in-memory adapter), true external (inject; offline adapter in the gate). **One adapter is a hypothetical seam, two is a real one**; do not add a port without the second adapter.
-5. Report candidates ranked Strong / Worth exploring / Speculative: files, problem, the module after, what is deleted, which findings it closes. Ask before carrying one out unless the user already chose.
+3. Ask of each pair of pieces: **should these change together?** Three wrong answers — hidden links (copies of a value or rule, a global one module sets and another reads, a call order callers must know), needless links (callers on internals, stable code importing volatile code, a general function with one caller's parameter) and surplus (pass-through wrappers, options that never vary, dead code). List every **special case** too: an `if` for one value, a parameter for one caller, a swallowed exception, a fixed wait or retry, a disabled test. Each is a requirement the design never accounted for; their count is the measure of how far the area is from done.
+4. **Deletion test** for each suspect: delete the module in your head. Complexity that reappears across N callers means it earns its keep; complexity that just moves means it is a pass-through.
+5. Classify each dependency: in-process (merge and test directly), local stand-in, owned remote (port + in-memory adapter), true external (inject; offline adapter in the gate). **One adapter is a hypothetical seam, two is a real one**; do not add a port without the second adapter.
+6. Report candidates ranked Strong / Worth exploring / Speculative as a decision log: one fix per entry, written above the `file:line` problems it removes (look for the one fix behind several problems; do not fix special cases one by one), then the module after and what is deleted. Ask before carrying one out unless the user already chose.
 
 ## Carry out
 

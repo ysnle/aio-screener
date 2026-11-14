@@ -682,7 +682,6 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
     // P1592 (F29): name what 'more' does and where the list ends, in reader terms.
     const moreButton = more.querySelector('[data-action="_aioNewsLoadMore"]');
     if (moreButton) moreButton.textContent = `${Math.min(12, Math.max(0, poolSize - displayed.length))}개 더 보기`;
-    more.title = `아래 사건 ${poolSize}건 중 아직 표시하지 않은 사건을 펼칩니다.`;
   }
 }
 

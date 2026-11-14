@@ -5635,7 +5635,8 @@
       // themes: 헤더 직후 = 사이클 국면 판정(결론)
       var ptH = document.getElementById('page-themes');
       var hdrH = dchild(ptH, '.page-title'), verH = dchild(ptH, '#themes-verdict'); // P1431
-      var themesOk = !!(hdrH && verH) && idxIn(ptH, verH) === idxIn(ptH, hdrH) + 1;
+      var tabsH = ptH && ptH.querySelector(':scope > .page-views'); // the view tabs sit between the header and the verdict
+      var themesOk = !!(hdrH && verH && tabsH) && idxIn(ptH, tabsH) === idxIn(ptH, hdrH) + 1 && idxIn(ptH, verH) === idxIn(ptH, tabsH) + 1;
       // 죽은 설명서 소스 정리: 전 페이지(guide 제외)에서 .aio-explain/.beginner-tip = 0
       var deadCount = 0;
       Array.prototype.forEach.call(document.querySelectorAll('[id^="page-"]'), function(pg){
@@ -6765,9 +6766,9 @@
       if (!page) { failures869.push(id + ':missing'); return; }
       if (page.querySelectorAll('.aio-fund').length) failures869.push(id + ':fund');
       Array.prototype.forEach.call(page.querySelectorAll('.aio-page-advanced-toggle'), function(el) { var uf869 = el.hasAttribute('data-user-fold'); // P1327/R672 -> v57.81: data-user-fold folds are shown to everyone, the rest stay developer-only
-        if (uf869 ? (getComputedStyle(el).display === 'none' && !el.dataset.pfEmptyHidden) : getComputedStyle(el).display !== 'none') failures869.push(id + ':' + (el.id || 'fold') + (uf869 ? ':user-fold-hidden' : ':advanced-visible'));
+        if (uf869 ? (getComputedStyle(el).display === 'none' && !el.dataset.pfEmptyHidden && !el.hasAttribute('data-view-open')) : getComputedStyle(el).display !== 'none') failures869.push(id + ':' + (el.id || 'fold') + (uf869 ? ':user-fold-hidden' : ':advanced-visible'));
       });
-    }); ['kr-integrated-themes','pf-check-fold'].forEach(function(f) { var n = document.getElementById(f); if (!n || !n.hasAttribute('data-user-fold') || (getComputedStyle(n).display === 'none' && !n.dataset.pfEmptyHidden)) failures869.push(f + ':user-fold-missing'); }); // v57.81 user folds; v58.75: a portfolio fold hidden by the empty state (data-pf-empty-hidden) is not dev-hidden; v59.51 (content audit): pf-ai-notes-fold retired with the in-page AI workbench; v59.70: the watchlist and risk tools are a part of the pf-check-fold user fold; wave2-b: the KR technical and macro folds are retired
+    }); ['kr-integrated-themes','pf-check-fold'].forEach(function(f) { var n = document.getElementById(f); if (!n || !n.hasAttribute('data-user-fold') || (getComputedStyle(n).display === 'none' && !n.dataset.pfEmptyHidden && !n.hasAttribute('data-view-open'))) failures869.push(f + ':user-fold-missing'); }); // v57.81 user folds; v58.75: a portfolio fold hidden by the empty state (data-pf-empty-hidden) is not dev-hidden; v59.51 (content audit): pf-ai-notes-fold retired with the in-page AI workbench; v59.70: the watchlist and risk tools are a part of the pf-check-fold user fold; wave2-b: the KR technical and macro folds are retired
     try {
       if (typeof window._aioOrganizeGuideChapters === 'function') window._aioOrganizeGuideChapters(); // v59.07: src/ui/components/guide-chapters.js
       if (typeof window._aioRenderPageFundamentals === 'function') failures869.push('retired-fund-renderer-present');

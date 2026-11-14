@@ -304,7 +304,9 @@ export function themeStrengthLead(model = null, { stages = null } = {}) {
   // P1591 (T06): a group already named among the top three is not repeated as "moving up", and
   // "반대로" is used only when the previous clause really is the contrast (cooling leaders).
   const named = new Set(groups.slice(0, 3).map((group) => group.id ?? group.name));
-  const improving = groups.filter((group) => group.direction === 'improving' && !named.has(group.id ?? group.name)).slice(0, 3);
+  // The largest rank gains first — the same order as the rank-move figure under the list, so the text names what it draws.
+  const improving = groups.filter((group) => group.direction === 'improving' && !named.has(group.id ?? group.name))
+    .sort((a, b) => ((b.rank3m ?? 0) - (b.rank1m ?? 0)) - ((a.rank3m ?? 0) - (a.rank1m ?? 0))).slice(0, 3);
   // v58.74: a rank fall whose last week beat the index is not '식는 중' (cybersecurity +11.3%, data/AI +9.5% on 10/23's week).
   const cooling = top.filter((group) => group.direction === 'weakening' && !(group.recent?.move > 0));
   const healthy = top.filter((group) => group.above50Pct != null && group.above50Pct >= 75).length;
@@ -327,7 +329,9 @@ export function themeStrengthLead(model = null, { stages = null } = {}) {
   for (const group of top) if (group.themeId) byTheme.set(group.themeId, [...(byTheme.get(group.themeId) || []), group]);
   const [themeId, members] = [...byTheme.entries()].sort((a, b) => b[1].length - a[1].length)[0] || [];
   const stageRow = members?.length >= 2 && Array.isArray(stages) ? stages.find((row) => row.market === 'US' && row.id === themeId && row.state) : null;
-  if (stageRow) parts.push(`상위 5개 중 ${members.length}개가 속한 ${withTopicParticle(stageRow.label)} 테마 시나리오에서 '${String(stageRow.stateLabel || '').split(' (')[0]}' 단계${/^중심 시나리오/.test(stageRow.windText || '') ? `이고 ${stageRow.windText.split(', 대안')[0]}` : ''}입니다`);
+  // The stage is the long trend; a short-window ranking led by a theme in a weak stage is said to be a rebound inside it.
+  const stageName = String(stageRow?.stateLabel || '').split(' (')[0];
+  if (stageRow) parts.push(`상위 5개 중 ${members.length}개가 속한 ${withTopicParticle(stageRow.label)} 긴 추세로 본 테마 시나리오에서 '${stageName}' 단계${/^중심 시나리오/.test(stageRow.windText || '') ? `이고 ${stageRow.windText.split(', 대안')[0]}` : ''}입니다${/약세|하락/.test(stageName) && model.windowLabel ? ` — ${model.windowLabel} 순위 상위는 그 안에서의 반등입니다` : ''}`);
   return `${parts.join('. ')}.`;
 }
 

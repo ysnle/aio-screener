@@ -85,7 +85,7 @@ function audit() {
     return false;
   };
   const folds = [...page.querySelectorAll('details > summary')]
-    .filter((s) => s.parentElement.firstElementChild === s && visible(s) && !marked(s))
+    .filter((s) => s.parentElement.firstElementChild === s && !s.parentElement.hasAttribute('data-view-open') && visible(s) && !marked(s))
     .map((s) => ({ sig: sig(s.parentElement), text: s.textContent.trim().slice(0, 30) }));
   // Owner decision (screen review #36): the screen, its tabs and its labels are 매크로; '거시' stays only in body sentences.
   const labels = [...page.querySelectorAll('h1, h2, h3, h4, summary, .aio-section-label, button, [role="tab"], .lu-gl-tag')]

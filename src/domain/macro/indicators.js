@@ -126,7 +126,7 @@ function buildHistoryItem(releases, schedules, item, macroHistory) {
     status: macroHistory?.series?.[item.history.field]?.stale ? 'stale' : 'observed',
     value: last.value,
     valueText: `${last.value.toFixed(digits)}${item.unit}`,
-    deltaText: prior ? `전월 대비 ${signed(last.value - prior.value, digits)}${item.deltaUnit}` : null,
+    deltaText: prior ? `${item.history.derive === 'yoy' ? '지난달 수치보다' : '전월 대비'} ${signed(last.value - prior.value, digits)}${item.deltaUnit}` : null,
     targetText: null,
     ...trendOf(item, series),
     meta
@@ -136,6 +136,12 @@ function buildHistoryItem(releases, schedules, item, macroHistory) {
 function buildItem(macro, releases, schedules, item, macroHistory = null) {
   if (item.historyOnly) return buildHistoryItem(releases, schedules, item, macroHistory);
   const keys = item.range || [item.key];
+  // The price indexes can arrive in the history file before the snapshot cut: a newer month there is the print to show.
+  if (item.history?.derive === 'yoy' && macroHistory) {
+    const newest = derivedSeries(macroHistory, item.history).at(-1);
+    const snapshot = isoDate(macro[`_asOf_${keys[0]}`]);
+    if (newest && snapshot && isoDate(newest.date) > snapshot) return buildHistoryItem(releases, schedules, item, macroHistory);
+  }
   const values = keys.map((key) => finite(macro[key]));
   const blsSeries = item.blsSeries ? macro._bls?.series?.[item.blsSeries] : null;
   const asOf = isoDate(macro[`_asOf_${keys[0]}`]) || isoDate(blsSeries?.observedAt) || null;
@@ -154,7 +160,7 @@ function buildItem(macro, releases, schedules, item, macroHistory = null) {
   const delta = rawDelta == null ? null : rawDelta * scale;
   let deltaText = null;
   if (item.priorPrint && delta != null) deltaText = `전월 ${item.people ? peopleText(value - delta, { sign: true }) : `${signed(value - delta, item.digits)}${item.unit}`}`;
-  else if (item.deltaUnit && delta != null && !item.range) deltaText = `전월 대비 ${signed(delta, item.digits)}${item.deltaUnit}`;
+  else if (item.deltaUnit && delta != null && !item.range) deltaText = `${item.history?.derive === 'yoy' ? '지난달 수치보다' : '전월 대비'} ${signed(delta, item.digits)}${item.deltaUnit}`;
   const targetGap = item.target != null ? value - item.target : null;
   const period = !asOf ? null : item.daily ? `${monthDay(asOf)} 기준` : `${Number(asOf.slice(5, 7))}월분`;
   const meta = [period, release.last && !item.daily ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${eventWhenText({ id: item.release, date: release.next })}` : null, sourceLabel(macro, keys[0]) || (blsSeries ? 'BLS' : null)].filter(Boolean).join(', ');

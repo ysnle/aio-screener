@@ -28,9 +28,9 @@ try {
     check(fallbacks > 0, `v59.70 re-review 7 ${viewport.name}: 오늘 draws a last-close index card to check`);
     check(!blank.length, `v59.70 re-review 7 ${viewport.name}: an index card from its last close leaves no blank day change`, blank.join(', '));
     // N5: the rates chapter bar labels fit their column.
-    await page.evaluate(() => window.showPage('macro'));
+    await page.evaluate(() => { window.showPage('macro'); document.getElementById('page-macro').dataset.view = 'all'; }); // every view of the page
     await page.waitForFunction(() => document.querySelectorAll('#page-macro .mx-ch__x').length > 0, null, { timeout: 30000 }).catch(() => {});
-    await page.evaluate(() => document.querySelectorAll('#page-macro .mx-ch details, #page-macro details.mx-ch__more').forEach((node) => { node.open = true; }));
+    await page.evaluate(() => document.querySelectorAll('#page-macro .mx-ch').forEach((node) => { node.hidden = false; })); // every topic, not only the picked one
     const labels = await page.evaluate(() => [...document.querySelectorAll('#page-macro .mx-ch__x')].filter((node) => node.offsetParent)
       .map((node) => ({ text: node.textContent, cut: node.scrollWidth > node.clientWidth + 1 })));
     check(labels.length > 0, `v59.70 re-review N5 ${viewport.name}: 매크로 draws chapter bar labels to check`);

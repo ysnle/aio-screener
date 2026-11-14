@@ -56,7 +56,7 @@ function twRevenue(doc, root, id, repaint) {
   for (const group of view.groups) {
     fold.push(el(doc, 'p', `${group.name} ${signedPct(group.yoyPct)} — ${group.members.map((m) => `${m.name} ${signedPct(m.yoyPct)}(지난달 대비 ${signedPct(m.momPct)})`).join(', ')}`, 'ai-chain__member-list'));
   }
-  fold.push(el(doc, 'p', '대만 상장사는 매달 10일까지 전월 매출을 공시합니다. 미국 분기 실적보다 먼저 나오는 수요 신호이고, 묶음 값은 회사별 금액을 더해 계산합니다. 출처: 대만증권거래소 OpenAPI.', 'ai-chain__member-list'));
+  fold.push(el(doc, 'p', '대만 상장사는 매달 10일까지 전월 매출을 공시합니다. 미국 분기 실적보다 먼저 나오는 수요 신호이고, 묶음 값은 회사별 금액을 더해 계산합니다.', 'ai-chain__member-list'));
   return { face, fold };
 }
 
@@ -159,7 +159,8 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   const faceReading = Number.isFinite(limit) ? (String(flow.reading).match(/^.*?다\.(?=\s|$)/)?.[0] || flow.reading) : fullReading;
   const wasOpen = !!host.querySelector(':scope > details:not(.ai-chain-per)')?.open;
   const fold = el(doc, 'details', null, 'ai-chain__members');
-  fold.open = wasOpen;
+  fold.open = wasOpen || !Number.isFinite(limit); // on 테마 the members are the AI 공급망 view's content
+  if (!Number.isFinite(limit)) fold.dataset.viewOpen = '';
   fold.append(el(doc, 'summary', Number.isFinite(limit) ? `전체 ${flow.groups.length}개 묶음과 종목` : '묶음별 종목 보기'));
   if (Number.isFinite(limit)) {
     fold.append(el(doc, 'p', fullReading, 'ai-chain__reading'));

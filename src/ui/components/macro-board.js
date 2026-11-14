@@ -16,7 +16,7 @@ import { renderNextSteps } from './page-flow.js';
 import { readMarketRegime } from './market-regime.js';
 import { latestMarketInterpretation, marketInterpretation } from '../../data/selectors/interpretation.js';
 import { buildMacroBoard } from '../../domain/macro/indicators.js';
-import { buildRatesFx, fxSideWord, sessionPointBack, signed, tenYearClose, TEN_YEAR_SOURCE } from '../../domain/macro/rates-fx.js';
+import { buildRatesFx, fxSideWord, sessionPointBack, signed, tenYearClose, tenYearSplitDriver, TEN_YEAR_SOURCE } from '../../domain/macro/rates-fx.js';
 import { createTrendChart } from './trend-chart.js';
 import { buildLiquidityGrowthGroups } from '../../domain/macro/liquidity-growth.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
@@ -40,6 +40,8 @@ import { volatilityChapter } from '../../domain/macro/volatility.js';
 import { renderIndexEarnings } from './index-earnings.js';
 import { gaugeBar, bandOf, TONE_WORD } from './gauge-bar.js';
 import { historyWaitText, serverDataWaitText } from './data-state.js';
+import { signedBarList } from './figures.js';
+import { signedScale } from './signed-bar.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -300,7 +302,8 @@ function renderRateStrip(doc, root) {
   const series = root?._aioMacroHistory?.series || {};
   const obs = (key) => new Map((series[key]?.observations || []).filter(([, value]) => Number.isFinite(value)));
   const nominal = obs('dgs10'), real = obs('realYield10'), bei = obs('breakeven10');
-  const common = [...nominal.keys()].filter((date) => real.has(date) && bei.has(date)).sort().at(-1) || null;
+  const commonDates = [...nominal.keys()].filter((date) => real.has(date) && bei.has(date)).sort();
+  const common = commonDates.at(-1) || null;
   const pct = (value) => `${value.toFixed(2)}%`;
   const dateChip = (date) => {
     const old = date && Date.now() - Date.parse(`${date}T00:00:00Z`) > 7 * 86400000;
@@ -319,7 +322,21 @@ function renderRateStrip(doc, root) {
     const marketTen = tenYearClose(root?._aioHistory || []);
     const later = marketTen && marketTen.date > common ? ` 화면의 10년물(${TEN_YEAR_SOURCE.label})은 ${shortDate(marketTen.date)} ${pct(marketTen.value)}로, 날짜와 계열이 달라 값이 조금 다릅니다.` : '';
     const value = basisValue(doc, `${pct(n)} ≈ ${pct(r)} + ${pct(b)}`, `10년물 명목 금리를 같은 날의 10년 실질금리(TIPS)와 기대 인플레이션(BEI)으로 나눈 값입니다. 세 값이 모두 있는 가장 최근 관측일(${shortDate(common)}) 기준입니다.${later}`, common);
-    tile.append(el(doc, 'span', '10년물 분해', 'mk-rate-tile__label'), value,
+    // What moved the 10-year: its change over one week and one month, split into the real-yield and inflation-expectation
+    // parts on the same two dates — the level split alone says nothing about which part is moving.
+    const moves = [[5, '1주'], [20, '1개월']].map(([sessions, name]) => {
+      const then = commonDates.at(-1 - sessions);
+      if (!then) return null;
+      const bp = (map) => (map.get(common) - map.get(then)) * 100;
+      return { name, then, n: bp(nominal), r: bp(real), b: bp(bei) };
+    }).filter(Boolean);
+    const figures = moves.map((move) => signedBarList(doc, [{ label: '10년물', value: move.n }, { label: '실질금리', value: move.r }, { label: '기대 인플레이션', value: move.b }],
+      { title: `${move.name} 변화 (${shortDate(move.then)} → ${shortDate(common)})`, unit: 'bp', digits: 0, max: signedScale(moves.flatMap((row) => [row.n, row.r, row.b]), 10) })).filter(Boolean);
+    const moveFigure = figures.length ? el(doc, 'div', null, 'fig-group') : null;
+    moveFigure?.append(...figures);
+    const week = moves[0];
+    const driver = tenYearSplitDriver(week);
+    tile.append(el(doc, 'span', '10년물 분해', 'mk-rate-tile__label'), value, ...(moveFigure ? [moveFigure] : []), ...(driver ? [el(doc, 'span', driver, 'mk-rate-tile__note')] : []),
       el(doc, 'span', `명목 ${pct(n)} = 국채 고정만기 10년(DGS10, ${shortDate(common)})`, 'mk-rate-tile__note'),
       el(doc, 'span', `10년 실질금리(TIPS) + 기대 인플레이션(BEI)${Math.abs(gap) >= 0.005 ? `, 나머지 ${signedText(gap, 2, '%p')}` : ''}`, 'mk-rate-tile__note'),
       // v58.74 (text audit): the expert's next step after the split — which part carries the level.
@@ -474,7 +491,7 @@ function chainNode(doc, node) {
 }
 
 const BRANCH_ROUTES = Object.freeze({
-  dollar: { route: 'fxbond', label: '금리와 환율에서 달러·원·엔 추이', why: '달러·원화·엔화의 6개월 종가 추이와 환율 참고 지표' },
+  dollar: { route: 'fxbond', view: 'fx', label: '금리와 환율에서 달러·원·엔 추이', why: '달러·원화·엔화의 6개월 종가 추이와 환율 참고 지표' },
   credit: { route: 'sentiment', label: '투자 심리에서 신용·변동성', why: '하이일드 스프레드와 VIX가 심리와 같은 쪽인지' }
 });
 
@@ -499,6 +516,7 @@ function renderChain(doc, chain) {
       link.type = 'button';
       link.dataset.action = 'showPage';
       link.dataset.arg = target.route;
+      if (target.view) link.dataset.view = target.view;
       link.title = target.why;
       box.append(link);
     }
@@ -509,7 +527,10 @@ function renderChain(doc, chain) {
   const moved = [...chain.nodes, ...chain.branches].filter((node) => node.impact === 'burden').map((node) => node.label.replace(/ \(.*\)$/, ''));
   const bridge = moved.length ? `이 경로에서 지금 부담 쪽으로 움직인 고리는 ${moved.join(', ')}입니다. 아래 향후 시나리오는 이 움직임이 어디로 이어지는지를 조건으로 셉니다.`
     : '이 경로에서 부담 쪽으로 뚜렷하게 움직인 고리는 없습니다. 아래 향후 시나리오는 어느 고리가 먼저 움직일지를 조건으로 셉니다.';
-  host.replaceChildren(row, links, branches, el(doc, 'p', bridge, 'macro-chain-bridge'), el(doc, 'p', chain.legend || '', 'briefing-footnote macro-chain-legend'));
+  const legend = el(doc, 'details', null, 'aio-note-fold macro-chain-legend-fold');
+  legend.append(el(doc, 'summary', '▲▼ 기준'), el(doc, 'p', chain.legend || '', 'briefing-footnote macro-chain-legend'));
+  legend.hidden = !chain.legend;
+  host.replaceChildren(row, links, branches, el(doc, 'p', bridge, 'macro-chain-bridge'), legend);
 }
 
 // P1427: growth × inflation as a 2 × 2 map — the current quadrant filled and marked, a known half shaded
@@ -587,6 +608,7 @@ function renderRegime(doc, read) {
   const host = doc.getElementById('macro-regime');
   if (!host) return;
   const r = read.regime;
+  host.closest('.mk-macro-top')?.classList.toggle('is-held', !r.available);
   const left = el(doc, 'div', null, 'macro-overview-map');
   left.append(quadrantChart(doc, r));
   // Expert review M12: which month each input describes, and a direction decided near its cut is called 근소.
@@ -925,6 +947,10 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
       for (const change of changes) cell.append(el(doc, 'span', change, 'rates-yield-change'));
       return cell;
     }));
+    // Which end of the curve moved this week: one bar per tenor on one scale, short end first.
+    const moves = signedBarList(doc, t.yields.filter((row) => row.week != null).map((row) => ({ label: row.label, value: row.week * 100 })), { title: '만기별 1주 변화', unit: 'bp', digits: 0 });
+    doc.getElementById('rates-yield-moves')?.remove();
+    if (moves) { moves.id = 'rates-yield-moves'; yieldRow.after(moves); }
   }
   const curveHost = doc.getElementById('rates-curve');
   if (curveHost) curveHost.replaceChildren(curveLegend(doc, t), curveSvg(doc, t.yields, t.previous));
@@ -1128,12 +1154,39 @@ function renderAssetPerformance(doc, root, basis) {
     tr.append(el(doc, 'td', row.label), el(doc, 'td', row.last ? `${row.last.value.toLocaleString('en-US', { maximumFractionDigits: 2 })} (${shortDate(row.last.date)})` : '—'), cell(row.m1), cell(row.m3), cell(row.ytd));
     table.append(tr);
   }
-  const fold = el(doc, 'details', null, 'aio-comp-secondary'); // v59.51: starts closed; the lead line above names the extremes
+  const fold = el(doc, 'details', null, 'aio-comp-secondary'); // the table is the 자산군 view's content (page-views.css)
+  fold.open = true;
+  fold.dataset.viewOpen = '';
   // v58.79 (layout over captions): the return method is the fold summary's hover, not a paragraph under the table.
   const returnsSummary = el(doc, 'summary', '자산별 1개월·3개월·올해 수익률');
   returnsSummary.title = '각 자산의 일별 종가로 계산한 가격 변화이며 배당·이자는 넣지 않았습니다. 1개월은 21거래일, 3개월은 63거래일 전 종가 대비이고, 코스피는 한국 거래일 기준입니다. 원/달러와 달러 지수는 환율이라 가장 강한·약한 자산 비교에서 뺐습니다.';
   fold.append(returnsSummary, table);
-  const parts = [title, lead, fold];
+  // One window at a time on one scale, strongest first; exchange rates (not held assets) sit last in grey. The lead
+  // names the 3-month order, so that window opens; the table keeps the closes.
+  const windows = [['1개월', 'm1'], ['3개월', 'm3'], ['올해', 'ytd']];
+  const bars = el(doc, 'div', null, 'rates-asset-bars');
+  const pick = el(doc, 'div', null, 'sx-seg');
+  pick.setAttribute('role', 'group');
+  pick.setAttribute('aria-label', '수익률 기간');
+  const plot = el(doc, 'div');
+  const draw = (key) => {
+    for (const button of pick.children) button.setAttribute('aria-pressed', String(button.dataset.window === key));
+    const strongest = (a, b) => (b[key] ?? -1e9) - (a[key] ?? -1e9);
+    const order = [...model.rows.filter((row) => row.investable).sort(strongest), ...model.rows.filter((row) => !row.investable).sort(strongest)];
+    const figure = signedBarList(doc, order.map((row) => ({ label: row.label.split(' (')[0], value: row[key], tone: row.investable ? 'dir' : 'flat' })),
+      { title: `${windows.find((entry) => entry[1] === key)[0]} 수익률, 높은 순 (회색은 환율 — 원/달러는 오르면 원화 약세)` });
+    plot.replaceChildren(...(figure ? [figure] : []));
+  };
+  for (const [label, key] of windows) {
+    const button = el(doc, 'button', label);
+    button.type = 'button';
+    button.dataset.window = key;
+    button.addEventListener('click', () => draw(key));
+    pick.append(button);
+  }
+  bars.append(pick, plot);
+  draw('m3');
+  const parts = [title, lead, bars, fold];
   if (model.corr.length >= 5) {
     const corrTitle = el(doc, 'h3', `S&P 500 – 미 장기채(TLT) ${CORR_WINDOW}거래일 상관`, 'trend-card-title');
     corrTitle.title = `표본: 두 종가가 모두 있는 ${model.jointSessions}거래일(${shortDate(model.corrFrom)}부터), 상관 ${model.corr.length}개 시점. 일간 수익률의 피어슨 상관이며 TLT 기록이 쌓인 만큼만 그립니다.`; // v58.79: sample size as the title's hover

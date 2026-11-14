@@ -276,6 +276,12 @@ const hasHangul = (text) => /[가-힣]/.test(String(text || ''));
 // v57.69 (P1803): the free model returned Korean lines with Thai, Hanja or Kana mixed in, and any one Hangul syllable
 // passed. A translation is kept only when it carries no other script and at least two Hangul syllables; a cached
 // translation from an earlier run is held to the same test so a bad one is not reused forever.
+// The free translation model ends a headline as running prose ("…승인하고 있다", "…이라고 말하고 있다"). A headline
+// states the event: the progressive ending is cut to the verb's noun, and "말하고 있다" becomes "밝혀".
+export const headlineStyle = (ko) => String(ko || '')
+  .replace(/(이라고|라고|다고) 말하고 있다[.]?$/, '$1 밝혀')
+  .replace(/([가-힣]{2,})하고 있다[.]?$/, (all, stem) => (stem.endsWith('말') ? all : stem));
+
 export const isCleanKoreanTitle = (text) => {
   const value = String(text || '');
   return (value.match(/[가-힣]/g) || []).length >= 2 && !/[฀-๿぀-ヿ㐀-䶿一-鿿Ѐ-ӿ؀-ۿ�]/.test(value);
@@ -339,7 +345,7 @@ export async function translateHeadlines(items, { previous = [], request = null,
   const accept = (strings) => {
     let count = 0;
     pending.forEach((item, index) => {
-      const ko = typeof strings[index] === 'string' ? strings[index].replace(/\s+/g, ' ').trim() : '';
+      const ko = headlineStyle(typeof strings[index] === 'string' ? strings[index].replace(/\s+/g, ' ').trim() : '');
       if (isFaithfulKoreanTitle(item.title, ko) && ko.length <= 200) { item.titleKo = ko; count += 1; }
     });
     return count;

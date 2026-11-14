@@ -2,7 +2,7 @@
 import { directionOf } from '../../../domain/shared/number.js';
 
 // v58.80: a change that rounds to zero is drawn in the text colour, not rising red or falling blue.
-export const dirColor = (value, digits = 1) => { const dir = directionOf(value, digits); return value == null ? 'var(--text-muted)' : dir === 'up' ? 'var(--dir-up)' : dir === 'down' ? 'var(--dir-down)' : 'var(--text-primary)'; };
+export const dirColor = (value, digits = 1) => { const dir = directionOf(value, digits); return value == null ? 'var(--color-text-secondary)' : dir === 'up' ? 'var(--color-data-up)' : dir === 'down' ? 'var(--color-data-down)' : 'var(--color-text-primary)'; };
 
 export const finiteOrNull = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
 // Published screener rows by symbol (the store's rows; ETFs included), for the period bars and the member tables.

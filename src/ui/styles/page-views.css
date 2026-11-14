@@ -1,0 +1,87 @@
+/* One route, several views (src/ui/navigation/page-views.js). The tab row sits under the page title; the page carries
+   data-view and each line below names the sections of one view. A section named in no line shows in every view, so
+   content a renderer adds later is never lost — it only needs a line here to belong to one view. */
+.sx-seg.page-views {
+  align-self: flex-start; max-width: 100%; overflow-x: auto; scrollbar-width: none; flex: 0 0 auto;
+  /* Stays in reach on a long view; the opaque backing keeps the text under it from showing through the tint. */
+  position: sticky; top: 0; z-index: 3;
+  background: linear-gradient(var(--sx-ink-a06), var(--sx-ink-a06)), var(--color-background-body);
+}
+.page-views > [data-view] { white-space: nowrap; }
+
+@media screen {
+/* 시장 상태: 지금 / 지표 / 이야기와 전망 / 한국 */
+#page-signal:not([data-view="now"], [data-view="all"]) > :is(.mk-hero, #regime-story, .mk-pair),
+#page-signal:not([data-view="axes"], [data-view="all"]) > :is(.mk-axes, .mk-radar, #regime-cross),
+#page-signal:not([data-view="story"], [data-view="all"]) > :is(#regime-narratives, #mk-synth-signal, .mk-depth),
+#page-signal:not([data-view="korea"], [data-view="all"]) > .mk-korea,
+/* 테마와 섹터: 요약 / 지도 / 테마 순위 / 시나리오 / AI 공급망 / 한국 */
+#page-themes:not([data-view="summary"], [data-view="all"]) > :is(#themes-verdict, #sector-map-fold),
+#page-themes:not([data-view="map"], [data-view="all"]) > #sector-map,
+#page-themes:not([data-view="rank"], [data-view="all"]) > #theme-strength-board,
+#page-themes:not([data-view="scenario"], [data-view="all"]) > .tp-section,
+#page-themes:not([data-view="ai"], [data-view="all"]) > :is(#themes-ai-chain, #ai-capex-fold),
+#page-themes:not([data-view="korea"], [data-view="all"]) > #kr-integrated-themes,
+/* 뉴스: 주요 / 발표 / 시황 / 전체 뉴스 / 시장 신호 — the filter and its count stay with the three lists it filters */
+#page-market-news:not([data-view="main"], [data-view="all"]) > :is(#news-intraday, #news-focus, #news-important),
+#page-market-news:not([data-view="releases"], [data-view="all"]) > #news-event-briefs,
+#page-market-news:not([data-view="timeline"], [data-view="all"]) > #news-timeline,
+#page-market-news:not([data-view="feed"], [data-view="all"]) > #news-feed-card,
+#page-market-news:not([data-view="signals"], [data-view="all"]) > #news-tg-card,
+#page-market-news:is([data-view="releases"], [data-view="timeline"]) > #news-filter-fold,
+#page-market-news:is([data-view="releases"], [data-view="timeline"]) #market-news-count,
+/* 종목: 지금 / 회사 / 메모 — the name and price, the search row and the start list stay in every view */
+#page-ticker:not([data-view="now"], [data-view="all"]) > :is(#ticker-read, #ticker-strength),
+#page-ticker:not([data-view="now"], [data-view="all"]) > .ticker-price-section > #ticker-price-panel,
+#page-ticker:not([data-view="company"], [data-view="all"]) > :is(#ticker-business-profile, #ticker-company-analysis),
+#page-ticker:not([data-view="memo"], [data-view="all"]) > [data-research-snapshots],
+#page-ticker:has(> #ticker-read[hidden]) > .page-views,
+/* 기술적 분석: 일봉 / 지수 추세 / 대표 종목 */
+#page-charts:not([data-view="candles"], [data-view="all"]) > #charts-market-candles,
+#page-charts:not([data-view="indexes"], [data-view="all"]) > #charts-indexes,
+#page-charts:not([data-view="stocks"], [data-view="all"]) > #charts-stocks,
+/* 금리와 환율: 금리 / 환율 / 자산군 */
+#page-fxbond:not([data-view="rates"], [data-view="all"]) > :is(.mk-curve-card, .rates-curve-guide, .rates-levels-section, #rates-strip-fold),
+#page-fxbond:not([data-view="fx"], [data-view="all"]) > :is(.rates-fx-section, .rates-other-fold),
+#page-fxbond:not([data-view="assets"], [data-view="all"]) > #rates-assets,
+/* 매크로: 요약 / 주제별 / 지표와 발표 */
+#page-macro:not([data-view="summary"], [data-view="all"]) > :is(.mk-macro-top, .macro-chain-section, #index-earnings, #macro-crossroads),
+#page-macro:not([data-view="topics"], [data-view="all"]) > #macro-chapters,
+#page-macro:not([data-view="releases"], [data-view="all"]) > :is(#macro-recent-releases, .release-guide, .macro-board-section, .macro-commodities-section) { display: none; }
+}
+
+/* A fold that is the whole content of its view: open, and its summary is a heading, not a control. */
+details[data-view-open] > summary { pointer-events: none; cursor: default; list-style: none; }
+details[data-view-open] > summary::-webkit-details-marker { display: none; }
+.page details[data-view-open]:is(.mk-fold, .sx-disclosure, .rates-guide, .aio-comp-secondary, .ai-chain__members, .aio-page-advanced-toggle, .news-card) > summary::after { content: none; }
+
+/* A list of fold rows beside one detail pane (src/ui/behaviors/master-detail.js). */
+@media (min-width: 1100px) {
+  [data-master-detail] { position: relative; --md-list: 44%; }
+  [data-master-detail] > * { max-width: var(--md-list); }
+  /* The pane scrolls inside itself so the list stays beside it: choosing another row never needs a scroll back up. */
+  [data-master-detail] details[open] > .md-pane { position: absolute; inset-block-start: 8px; inset-inline: calc(var(--md-list) + 16px) 8px; max-height: max(560px, calc(100dvh - 200px)); overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+  #page-signal [data-master-detail] .mk-axis > summary::after { content: none; }
+  /* The list keeps name, state, value and the distance to the next state; the two 5-day columns are in the pane. */
+  #page-signal [data-master-detail] :is(.mk-axes__head, .mk-axis__row) { grid-template-columns: 104px 60px minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+  #page-signal [data-master-detail] :is(.mk-axes__head, .mk-axis__row) > :nth-child(n+5) { display: none; }
+  #page-signal [data-master-detail] .mk-axis[open] { box-shadow: inset 3px 0 0 var(--color-text-primary); }
+  /* In the pane the chart and today's reading come first, the teaching text after them, all in one column. */
+  #page-signal [data-master-detail] .mk-axis__body { display: flex; flex-direction: column; gap: 16px; padding: 8px 8px 12px; }
+  #page-signal [data-master-detail] .mk-axis__detail { order: -1; grid-template-columns: minmax(0, 1fr); }
+  #page-signal [data-master-detail] .mk-axis__body > .sx-disclosure__card:has(.regime-read) { order: -2; }
+}
+
+/* 매크로 › 주제별: one topic at a time, picked from the row above it. */
+.mx-topics { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.mx-topics > button { min-height: 36px; padding: 0 14px; border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-background-card); color: var(--color-text-primary); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.mx-topics > button[aria-selected="true"] { background: var(--color-text-primary); border-color: var(--color-text-primary); color: var(--color-background-card); }
+.mx-topics > button:focus-visible { outline: var(--focus-outline-width) solid var(--color-text-primary); outline-offset: 2px; }
+#page-macro .mx-chapters__grid.is-single { display: block; }
+#page-macro div.mx-ch__more { margin: 16px 0 0; }
+.mx-ch__more-title { margin: 0 0 8px; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
+.mx-ch__step { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; }
+@media (max-width: 743px) {
+  .mx-topics { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
+  .mx-topics > button { min-height: 44px; }
+}

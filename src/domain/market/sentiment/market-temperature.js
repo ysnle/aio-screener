@@ -158,7 +158,7 @@ export function buildMarketTemperature(rows = [], { rules = TEMPERATURE_RULES } 
   return {
     asOf: dates[last],
     close: round(closes[last], 2),
-    change1d: round((closes[last] / closes[last - 1] - 1) * 100),
+    change1d: round((closes[last] / closes[last - 1] - 1) * 100, 4), // four decimals: a one-decimal print must not round twice
     // v58.80 (first-users bundle 1): raw at 4 places was rounded again on screen — the S&P 20-session return -1.546%
     // stored as -0.0155 printed -1.6% here beside -1.5% elsewhere. Six places keep the one rounding on the screen.
     components: TEMPERATURE_COMPONENTS.map(({ id, label }) => ({ id, label, score: ranks[id][last], raw: round(raw[id][last], 6) })),

@@ -76,7 +76,7 @@ export function renderFactorTab(documentRef, metadata) {
     bars.replaceChildren();
     const maxWeight = Math.max(1, ...factors.map((key) => Number(weights[key]) || 0));
     factors.forEach((key) => {
-      const item = FACTOR_LABELS[key] || { label: key, color: 'var(--text-secondary)', description: '' };
+      const item = FACTOR_LABELS[key] || { label: key, color: 'var(--color-text-secondary)', description: '' };
       const row = documentRef.createElement('div');
       row.className = 'scr-factor-row';
       row.title = item.description;
@@ -97,7 +97,7 @@ export function renderFactorTab(documentRef, metadata) {
       row.append(label, track, value);
       bars.appendChild(row);
     });
-    if (!factors.length) bars.appendChild(text(documentRef, '활성 팩터 없음 — 서버 산출물 미수신'));
+    if (!factors.length) bars.appendChild(text(documentRef, '활성 팩터 없음 — 팩터 자료 미수신'));
   }
   const regime = ranking.activeFactorRegime || '중립';
   const regimeNode = documentRef.getElementById('screener-regime-note');
@@ -182,7 +182,7 @@ export function renderBacktest(documentRef, metadata, root = globalThis, rows = 
   // 2026-10-13 review S05: the fingerprint proves the factor definition and weights; the IC/spread sample itself
   // pools the US and KR rows (n=986), so the sentence names the pooled sample instead of claiming one population.
   const parity = fingerprintMatches ? `현재 화면 순위와 같은 모델(같은 팩터 정의, 같은 가중 지문)로 과거 시점을 다시 매긴 결과입니다 — 순위는 시장별로 매기지만 IC·분위 수익률은 미국·한국 합산 표본(${backtest.n ?? '—'}종목)입니다`
-    : backtest.modelFingerprint == null ? '이 검증 기록은 계산 방식 기록이 생기기 전에 만들어져 지금 화면 순위와 같은 모델인지 확인할 수 없습니다 — 지금 순위의 검증으로 읽지 않습니다(다음 데이터 갱신부터 지문이 붙습니다)'
+    : backtest.modelFingerprint == null ? '이 검증 기록은 계산 방식 기록이 생기기 전에 만들어져 지금 화면 순위와 같은 모델인지 확인할 수 없습니다 — 지금 순위의 검증으로 읽지 않습니다'
       : '저장된 검증 기록의 계산 방식이 지금 화면 순위와 다릅니다(다른 가중치 프로필이거나 이전 모델) — 이 기록은 지금 순위의 검증으로 읽지 않습니다';
   const verdict = composite == null ? '종합 IC가 계산되지 않았습니다.'
     : composite > 0.03 && net != null && net > 0 ? `최근 ${rebalances ?? '—'}번의 시점에서 순위가 다음 21거래일 수익률과 약하게 같은 방향(IC ${composite.toFixed(3)})이었고 상위 20%가 하위보다 비용 후 ${net.toFixed(2)}% 앞섰습니다. 표본이 작아 우연과 구분되지는 않습니다.`
@@ -305,7 +305,7 @@ export function renderConditionalEvidence(documentRef, metadata) {
   header.className = 'scr-evidence-header';
   const title = documentRef.createElement('strong');
   title.textContent = evidence?.conditionLabel || '이 조건의 검증 자료';
-  title.style.color = 'var(--text-secondary)';
+  title.style.color = 'var(--color-text-secondary)';
   const badge = documentRef.createElement('span');
   badge.textContent = status;
   badge.className = `scr-evidence-badge ${evidence?.status === 'READY' ? 'scr-tone-up' : 'scr-tone-warn'}`;

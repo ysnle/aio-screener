@@ -54,8 +54,8 @@ export function createMetric(documentRef, label, value) {
 const MASTERS_EXTRA_STYLE = `
 .masters-ticker-lookup{margin:0}
 .masters-ticker-lookup .masters-search{display:block;margin:6px 0 0;min-width:0}
-.masters-ticker-lookup-input{width:100%;box-sizing:border-box;padding:9px 11px;border:0.5px solid var(--border);border-radius:4px;background:var(--surface-1);color:var(--text-primary);font-size:12px}
-.masters-ticker-lookup-input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.masters-ticker-lookup-input{width:100%;box-sizing:border-box;padding:9px 11px;border:0.5px solid var(--color-border);border-radius:4px;background:var(--surface-1);color:var(--color-text-primary);font-size:12px}
+.masters-ticker-lookup-input:focus{outline:2px solid var(--color-accent);outline-offset:1px}
 .masters-weight-bars{margin:12px 0 4px}
 .masters-weight-bars .af-bars{max-width:none}
 `;

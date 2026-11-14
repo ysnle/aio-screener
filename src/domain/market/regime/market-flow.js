@@ -93,6 +93,7 @@ export function buildMarketFlow({ rotationHistory = null, history = [], themes =
 // sub-themes, and the sectors whose sub-themes split (one up at least splitSidePct, one down at least splitSidePct, gap at
 // least themeSplitPp). Duplicate member sets (the same five chips listed under two themes) count once.
 const median = (values) => { const list = values.filter(Number.isFinite).sort((a, b) => a - b); if (!list.length) return null; const mid = Math.floor(list.length / 2); return list.length % 2 ? list[mid] : (list[mid - 1] + list[mid]) / 2; };
+const SAME_GROUP_SHARE = 0.8; // of the smaller group's members
 export function buildThemeFlow({ themes = [], rows = [], session = null } = {}) {
   const rule = RULES.leadership;
   const bySym = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.sym).map((row) => [String(row.sym).toUpperCase(), row]));
@@ -103,9 +104,12 @@ export function buildThemeFlow({ themes = [], rows = [], session = null } = {}) 
       const members = (sub.tickers || []).map((sym) => bySym.get(String(sym).toUpperCase()))
         .filter((row) => row && row.ret1d != null && Number.isFinite(Number(row.ret1d)) && (!session || row.factorSessionDate === session));
       if (members.length < MIN_GROUP_MEMBERS) continue;
-      const key = members.map((row) => String(row.sym).toUpperCase()).sort().join(',');
-      if (seen.has(key)) continue;
-      seen.add(key);
+      // Two parent themes can hold nearly the same sub-theme (반도체 'AI 칩/커스텀 ASIC', AI 인프라 'AI 칩/CPU' share four of five
+      // names); the first one listed stands for both, so one move is not ranked twice.
+      const syms = members.map((row) => String(row.sym).toUpperCase());
+      const twin = [...seen].some((other) => syms.filter((sym) => other.has(sym)).length >= Math.min(syms.length, other.size) * SAME_GROUP_SHARE);
+      if (twin) continue;
+      seen.add(new Set(syms));
       groups.push({ themeId: theme.id, theme: theme.nameKr || theme.id, name: sub.name, members: members.length, d1: median(members.map((row) => Number(row.ret1d))), rows: members });
     }
   }

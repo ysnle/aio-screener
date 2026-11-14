@@ -48,7 +48,7 @@ export function attachChartCompare({ doc, root, sym, instance, analysis }) {
   input.placeholder = '비교 티커';
   input.setAttribute('aria-label', '비교할 티커');
   input.autocomplete = 'off';
-  Object.assign(input.style, { fontSize: '16px', width: '7.5em', padding: '4px 8px', border: '0.5px solid var(--border)', borderRadius: '6px', background: 'var(--bg-card)', color: 'var(--text-primary)' });
+  Object.assign(input.style, { fontSize: '16px', width: '7.5em', padding: '4px 8px', border: '0.5px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-background-card)', color: 'var(--color-text-primary)' });
   const add = el(doc, 'button', '비교');
   add.type = 'submit';
   form.append(input, add);

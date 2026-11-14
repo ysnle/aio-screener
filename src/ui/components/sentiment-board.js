@@ -22,6 +22,7 @@ import { splitReading } from './market-regime.js';
 import { signedText, readNumber as finite } from '../../domain/shared/number.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { historyWaitText } from './data-state.js';
+import { partsBar } from './figures.js';
 
 // AAII published long-run averages (since 1987; https://www.aaii.com/sentimentsurvey): bullish 37.5%, neutral 31.5%, bearish 31.0%.
 const AAII_AVERAGE = Object.freeze({ bull: 37.5, bear: 31.0 });
@@ -86,6 +87,8 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       // v57.50 D24/C04: no sourced 45% '비관' cut-off exists, so the state is the distance from AAII's published long-run average.
       state: shown.bear == null ? null : judged(bear, { label: `약세 장기 평균 대비 ${signedPp(bear - AAII_AVERAGE.bear)}`, tone: LEVEL_TONE }),
       change: shown.bull == null ? '' : `강세 ${shown.bull.toFixed(1)}%${bull != null ? ` (평균 대비 ${signedPp(bull - AAII_AVERAGE.bull)})` : ''}, 장기 평균 강세 ${AAII_AVERAGE.bull.toFixed(1)}% / 약세 ${AAII_AVERAGE.bear.toFixed(1)}%`,
+      // The three answers as one bar; 중립 is the rest of the 100%.
+      parts: shown.bear == null || shown.bull == null ? null : [['강세', shown.bull], ['중립', Math.max(0, 100 - shown.bull - shown.bear)], ['약세', shown.bear]].map(([label, value]) => ({ label, value, text: `${value.toFixed(1)}%` })),
       note: '주간 발표 — 개인 투자자의 6개월 전망 설문 — 공포·탐욕 구간을 정하지 않고 장기 평균과의 차이로만 읽음' },
     // Ranked through the board's shared close basis, like every other card.
     compositeCard(computeCompositeFearGreed({
@@ -117,7 +120,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
       creditStress ? `하이일드 스프레드도 ${Math.round(hyBp)}bp로${hy20Stress && hy20 != null ? ` 20거래일 ${signedText(hy20, 0, 'bp')},` : ''}${hy5 != null ? ` 5일 ${signedText(hy5, 0, 'bp')}` : ''} ${hyBp < RULES.credit.tightBelowBp ? `넓어졌습니다(수준은 ${RULES.credit.tightBelowBp}bp 아래).` : '스트레스 구간입니다.'}` : null,
       volKnown && !volCalm ? (ratio >= RULES.volatility.invertedRatioAt ? `VIX가 3개월 VIX보다 높아 변동성 구조가 역전됐습니다(${ratio.toFixed(2)}).` : `VIX와 3개월 VIX의 차이가 역전 기준(${RULES.volatility.invertedRatioAt}) 가까이 좁혀졌습니다(${ratio.toFixed(2)}).`) : null,
       `비관이 설문·심리 지표를 넘어 ${[creditStress ? '회사채 스프레드' : null, volKnown && !volCalm ? '옵션 가격(변동성)' : null].filter(Boolean).join('와 ')}에도 반영된 모습입니다.`].filter(Boolean).join(' ');
-  else if (fearful && creditKnown && volKnown) synthesis = `${fearSource}는 비관 쪽이고 신용 스프레드(${Math.round(hyBp)}bp${hy20 != null ? `, 20거래일 ${hy20 >= 0 ? '+' : ''}${Math.round(hy20)}bp` : ''})는 중립(양호 조건 미충족)입니다 — 비관이 신용으로 번지는지 확인할 단계입니다.`;
+  else if (fearful && creditKnown && volKnown) synthesis = `${fearSource}는 비관 쪽이고 신용 스프레드(${Math.round(hyBp)}bp${hy20 != null ? `, 20거래일 ${signedText(hy20, 0, 'bp')}` : ''})는 중립(양호 조건 미충족)입니다 — 비관이 신용으로 번지는지 확인할 단계입니다.`;
   else if (fearful) synthesis =`${fearSource}는 비관 쪽이지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 비관이 번졌는지 확인하지 못했습니다.`;
   else if (greedy) synthesis = `낙관이 강합니다(F&G ${Math.round(fg)}).`;
   else if (fgBand) synthesis = `F&G는 ${Math.round(fg)}(${fgBand.label}) — 한쪽으로 치우치지 않은 상태입니다.`;
@@ -126,7 +129,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   // same paragraph instead of a separate footnote — one reading, level then direction then the survey.
   const fgThen = sessionPointBack(fgSeries, 20)?.value ?? null; // v59.45 (R1-01): sessions, not rows
   const fg20 = fg != null && fgThen != null ? Math.round(fg) - Math.round(fgThen) : null;
-  const direction = fg20 == null ? '' : Math.abs(fg20) < 5 ? ` F&G는 20거래일 전과 비슷한 수준(${fg20 >= 0 ? '+' : ''}${fg20})입니다.`
+  const direction = fg20 == null ? '' : Math.abs(fg20) < 5 ? ` F&G는 20거래일 전과 비슷한 수준(${signedText(fg20, 0)})입니다.`
     : ` F&G는 20거래일 전보다 ${Math.abs(fg20)} ${fg20 < 0 ? '낮아져 비관' : '높아져 낙관'} 쪽으로 움직였습니다.`;
   // v57.70 (2026-10-15 audit): "낙관 쪽으로 움직이는 중" on a day F&G fell 12 — a 5-point or larger last move against the
   // 20-session direction is said beside it.
@@ -224,6 +227,8 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
       if (card.state) tags.append(el(doc, 'span', card.state.label, `regime-state is-${card.state.tone} sx-chip sx-chip--sm sx-chip--${CHIP_TONE[card.state.tone] || 'neutral'}`));
       if (card.value !== '—') tags.append(el(doc, 'span', card.basis, 'basis-chip'));
       if (folded) { const summary = el(doc, 'summary'); summary.append(head, tags); box.append(summary); } else box.append(head, tags);
+      const parts = card.parts ? partsBar(doc, card.parts, { title: '응답 비율', share: false, ends: true }) : null;
+      if (parts) box.append(parts);
       if (card.change) box.append(el(doc, 'div', card.change, 'trend-card-change'));
       if (card.series) box.append(createTrendChart(doc, { series: card.series, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));
       // v57.77: providers moved from the hover (unreachable on a phone) to the page's 데이터 출처 fold (page-sources.js).
@@ -232,7 +237,7 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
       const rules = [...(card.note ? [el(doc, 'p', card.note)] : []), ...(card.rules ? [el(doc, 'h4', '판정 기준'), el(doc, 'p', card.rules)] : [])];
       const fold = deepDiveFold(doc, root, card.title.replace(/ \(.*\)$/, ''), SENTIMENT_DEEP_DIVES[card.id], rules); // P1660
       if (fold) box.append(fold);
-      else { const note = noteFold(doc, card.note); if (note) box.append(note); }
+      else { const note = noteFold(doc, card.note, '기준'); if (note) box.append(note); }
       return box;
     }));
   }

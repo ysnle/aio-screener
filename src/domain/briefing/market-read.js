@@ -371,7 +371,7 @@ export function creditDispersion(macroHistory, through = null) {
   const lowerRated = ccc != null && ccc.bp - hy.bp >= C.cccGap60dBp;
   if (hy.bp < C.widen60dBp && !lowerRated) return null;
   const md = (date) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`;
-  const sign = (v) => `${v >= 0 ? '+' : ''}${Math.round(v)}bp`;
+  const sign = (v) => signedText(v, 0, 'bp');
   const parts = [`하이일드 ${sign(hy.bp)}(${Math.round(hy.then)}→${Math.round(hy.now)}bp)`];
   if (ccc) parts.push(`CCC ${sign(ccc.bp)}`);
   if (ig) parts.push(`투자등급 ${sign(ig.bp)}(${Math.round(ig.now)}bp)`);
@@ -1180,7 +1180,8 @@ export function buildMarketRegime(input = {}) {
     const flip = state === 'unknown' ? null
       : state === 'favorable' ? `S&P 500이 50일선(${fmt(spx.ma50 * (1 + holdAbovePct / 100), 0)}) 아래로 마감하거나 50일선이 꺾이면 중립, 200일선-${buffer}%(${fmt(spx.ma200 * (1 - buffer / 100), 0)}) 아래면 부담`
         : state === 'burden' ? (leaderBreakUnder50 ? `S&P 500이 50일선(${fmt(spx.ma50, 0)}) 위로 마감하거나 주도 영역 이탈이 풀리면(SOXX가 50일선을 되찾고 5거래일 낙폭이 ${RULES.leadership.proxyDrop5dPct}% 안) 중립으로 바뀜`
-          : `S&P 500이 200일선-${buffer}%(${fmt(spx.ma200 * (1 - buffer / 100), 0)}) 위로 올라오고 하락하는 50일선보다 ${buffer}% 넘게 아래가 아니면 중립으로 바뀜`)
+          // The same level 가장 가까운 기준 finds (trendAt): with the leadership break confirmed, a close under the 50-day line is 부담 by itself.
+          : `S&P 500이 200일선-${buffer}%(${fmt(spx.ma200 * (1 - buffer / 100), 0)}) 위에 있고 ${leadership.break ? `50일선(${fmt(spx.ma50, 0)}) 위로 마감하면(주도 영역 이탈이 확인된 동안은 50일선 아래 마감이 곧 부담)` : `하락하는 50일선보다 ${buffer}% 넘게 아래(${fmt(down, 0)} 미만)가 아니면`} 중립으로 바뀜`)
           : `S&P 500이 상승하는 50일선보다 ${buffer}% 이상 위(${fmt(up, 0)} 이상)에서 마감하고 50일선이 200일선 위면 양호${capFlip}, 200일선보다 ${buffer}% 넘게 아래(${fmt(spx.ma200 * (1 - buffer / 100), 0)} 미만)이거나 하락하는 50일선보다 ${buffer}% 넘게 아래(${fmt(down, 0)} 미만)면 부담${leadership.break && gap50 != null && gap50 >= 0 ? `, 주도 영역 이탈이 확인된 동안은 50일선(${fmt(spx.ma50, 0)}) 아래로 마감하기만 해도 부담` : ''}`; // v58.55: the leadership-break path the rule applies is named
     const rows = [
       ['S&P 500', `${fmt(spx.value)} (20일 ${signed(pct(spx.value, spx.d20))})`, alignments.spx],
@@ -1325,7 +1326,7 @@ export function buildMarketRegime(input = {}) {
         vixPoint(V.stressAt, String(V.stressAt), `VIX ${V.stressAt}`),
         vixPoint(V.calmBelow, String(V.calmBelow), `VIX ${V.calmBelow}`),
         vixPoint(V.calmBelow - V.calmBufferPt, String(V.calmBelow - V.calmBufferPt), `VIX ${V.calmBelow - V.calmBufferPt}`),
-        ...(vix3mSame ? [vixPoint(vix3mSame * V.invertedRatioAt, `${fmt(vix3mSame * V.invertedRatioAt)}(3개월 VIX와 역전)`, `3개월 VIX 역전 ${fmt(vix3mSame)}`),
+        ...(vix3mSame ? [vixPoint(vix3mSame * V.invertedRatioAt, `${fmt(vix3mSame * V.invertedRatioAt)}(3개월 VIX와 역전)`, `역전 기준 ${fmt(vix3mSame * V.invertedRatioAt)}`),
           vixPoint(vix3mSame * V.calmRatioBelow, `${fmt(vix3mSame * V.calmRatioBelow)}(3개월 VIX의 ${V.calmRatioBelow}배)`, `VIX/3개월 ${V.calmRatioBelow}, ${fmt(vix3mSame * V.calmRatioBelow)}`)] : []),
         ...(vix.d5 ? [vixPoint(vix.d5 * (1 + V.spike5dPct / 100), `${fmt(vix.d5 * (1 + V.spike5dPct / 100))}(5거래일 +${V.spike5dPct}%)`, `5일 +${V.spike5dPct}%, ${fmt(vix.d5 * (1 + V.spike5dPct / 100))}`),
           vixPoint(vix.d5 * (1 + V.rise5dWatchPct / 100), `${fmt(vix.d5 * (1 + V.rise5dWatchPct / 100))}(5거래일 +${V.rise5dWatchPct}%)`, `5일 +${V.rise5dWatchPct}%, ${fmt(vix.d5 * (1 + V.rise5dWatchPct / 100))}`),
@@ -1412,13 +1413,16 @@ export function buildMarketRegime(input = {}) {
       ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} 오른 구간${tnx5 != null && tnx5 < 0 ? `(최근 5일은 ${signed(tnx5, 0, 'bp')} 되돌림)` : ''}${atHigh ? ', 1년 범위 상단' : ''}`
       : `1년 범위 상단에서 최근 5일 ${signed(tnx5, 0, 'bp')} 오른 장기금리`;
     const heldRead = held ? `장기금리가 ${tnx.yearPosition == null ? '' : `1년 범위 상단(${fmt(tnx.yearPosition * 100, 0)}%)에서 `}20거래일 ${signed(tnx20, 0, 'bp')}이고 최근 5일은 ${signed(tnx5, 0, 'bp')}${tnx5 != null && tnx5 < 0 ? ' 되돌렸지만' : '였지만'}, 범위 ${R.rangeExitAt * 100}% 아래로 내려오거나 20거래일 상승이 +${R.exit20dBp}bp 아래로 줄기 전까지는 할인율 부담으로 봅니다.${latch.since ? ` 부담 판정은 ${shortDate(latch.since)}부터 이어지고 있습니다.` : ''}` : null;
+    // A week that moved more than the 20-session window shows (a jump after a fall) is said beside the 20-session verdict.
+    const weekJump = tnx5 != null && tnx20 != null && Math.abs(tnx5) >= R.move20dBp / 2 && Math.abs(tnx5) > Math.abs(tnx20)
+      ? ` 다만 최근 5거래일에는 ${signed(tnx5, 0, 'bp')} ${tnx5 > 0 ? '뛰었습니다' : '내렸습니다'} — 20거래일 변화가 작은 것은 그 전의 ${tnx5 > 0 ? '하락' : '상승'}과 상쇄됐기 때문입니다.` : '';
     const read = heldRead || state === 'burden' ? heldRead || `${rateMove} — 주식 할인율 부담${realLed ? '. 실질금리 주도 여부는 5일 관측 기준이며(20일 전체를 분해한 자료는 없습니다), 최근 5일 상승분 대부분이 실질금리였습니다' : ''}.`
       : growthScare ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} 내렸지만 S&P 500도 ${signed(spxFall20)} 빠졌습니다 — 성장 걱정형 금리 하락이라 할인율 부담 감소로 보지 않습니다.`
       : state === 'favorable' ? '장기금리가 내려오는 구간 — 할인율 부담이 줄고 있습니다.'
         : state === 'unknown' ? (tnx ? '10년물 20일 변화를 계산할 기록이 부족합니다.' : staleRead('금리', alignments.tnx))
           // v57.55 review (E2-09): "+22bp" read as "뚜렷한 방향 없이" — below the burden bar is not the same as no direction.
           : (Math.abs(tnx20) >= RULES.rates.move20dBp / 2 ? `장기금리가 20거래일 ${signed(tnx20, 0, 'bp')} ${tnx20 > 0 ? '올랐지만' : '내렸지만'} 판정 기준(±${RULES.rates.move20dBp}bp)에는 못 미칩니다${atHigh ? ', 1년 범위 상단' : ''}.`
-            : '금리가 뚜렷한 방향 없이 움직이고 있습니다.') + neutralLevel;
+            : '금리가 뚜렷한 방향 없이 움직이고 있습니다.') + weekJump + neutralLevel;
     const flip = state === 'unknown' ? null
       // a growth-scare hold names what lifts it — the S&P 500 fall back inside the line.
       : growthScare ? `S&P 500의 20거래일 하락이 ${R.growthScareSpx20dPct}% 안으로 줄면(지금 ${signed(spxFall20)}) 금리 하락을 할인율 부담 감소(양호)로 읽고, 10년물 20일 +${RULES.rates.move20dBp}bp 이상이면 부담`

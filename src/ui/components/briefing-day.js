@@ -68,6 +68,6 @@ export function renderBriefingDay({ documentRef: doc, root }) {
     folds.push(fold(doc, `이유가 확인되지 않은 큰 움직임 ${account.unexplained.length}건`, [el(doc, 'p', '관련 보도나 같이 움직인 업종·가격이 없는 움직임입니다. 원인이 나오기 전까지는 추측하지 않습니다.', 'briefing-day-note'), list]));
   }
   const { facts, lead, major, noise } = account.coverage;
-  folds.push(el(doc, 'p', `${facts}건 · 핵심 ${lead} · 주요 ${major}`, 'briefing-day-coverage'));
+  folds.push(el(doc, 'p', `확인한 발표·기사 ${facts}건 가운데 핵심 ${lead}건, 주요 ${major}건`, 'briefing-day-coverage'));
   doc.getElementById('briefing-day-folds')?.replaceChildren(...folds);
 }

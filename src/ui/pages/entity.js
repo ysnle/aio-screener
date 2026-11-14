@@ -400,7 +400,7 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
       ? `원가 통화(${costCurrency})가 시세 통화와 달라 손익은 포트폴리오에서 환산합니다`
       : pnl == null
       ? '손익 계산 대기'
-      : `${pnl >= 0 ? '+' : '-'}${formatMoney(Math.abs(pnl), currency, { maximumFractionDigits: 0 })}${pnlPct == null ? '' : ` (${signedText(pnlPct, 1)}%)`}${livePrice == null && close ? `, ${Number(close.date.slice(5, 7))}/${Number(close.date.slice(8, 10))} 종가 기준` : ''}`;
+      : `${directionOf(pnl, 0) === 'up' ? '+' : directionOf(pnl, 0) === 'down' ? '-' : ''}${formatMoney(Math.abs(pnl), currency, { maximumFractionDigits: 0 })}${pnlPct == null ? '' : ` (${signedText(pnlPct, 1)}%)`}${livePrice == null && close ? `, ${Number(close.date.slice(5, 7))}/${Number(close.date.slice(8, 10))} 종가 기준` : ''}`;
     valueNode.dataset.aioTickerPnlRenderer = 'native';
     valueNode.setAttribute('data-source-kind', pnl == null ? 'unavailable' : 'portfolio-state');
     valueNode.setAttribute('data-source-label', pnl == null ? 'portfolio position or quote unavailable' : 'portfolio-state+entity-quote');
@@ -410,7 +410,7 @@ function renderTickerActivity(documentRef, root, state, portfolioState) {
     // v59.51 (content audit): a stock the reader does not hold shows no P&L line.
     pnlNode.hidden = !hasPosition;
     // v59.49: the direction class follows the sign (a loss carried the gain colour, 'pos', for any non-null P&L).
-    pnlNode.className = `pnl${pnl == null ? '' : pnl > 0 ? ' pos' : pnl < 0 ? ' neg' : ' neutral'}`;
+    pnlNode.className = `pnl${pnl == null ? '' : directionOf(pnl, 0) === 'up' ? ' pos' : directionOf(pnl, 0) === 'down' ? ' neg' : ' neutral'}`;
     pnlNode.dataset.aioTickerPnlRenderer = 'native';
     pnlNode.setAttribute('data-source-kind', pnl == null ? 'unavailable' : 'portfolio-state');
     pnlNode.setAttribute('data-source-label', pnl == null ? 'portfolio P&L unavailable' : 'portfolio-state+entity-quote');
@@ -806,6 +806,8 @@ function render({ root, documentRef, store, route, activeTickerTab = 'overview',
     renderTickerStart({ documentRef, root, portfolioState, show: !state?.id && !String(root?._currentTickerId || '').trim() });
     ensureResearchSnapshots({ documentRef, root, host: routeNode, kind: 'stock', collect: () => ({ kind: 'stock',
       symbol: state?.id, name: state?.name, quote: { ...state?.quote, basis: state?.quote?.changeBasis || 'unknown' } }) });
+    const memo = routeNode.querySelector(':scope > [data-research-snapshots="stock"]');
+    if (memo && memo.dataset.viewOpen == null) { memo.dataset.viewOpen = ''; memo.open = true; } // the 메모 view's content (page-views.css)
     renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange, state);
     renderTickerChart({ root, page: routeNode, state, requestedRange: tickerChartRange });
     renderWhyMoved(documentRef, root, state);

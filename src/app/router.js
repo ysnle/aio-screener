@@ -134,6 +134,8 @@ function entityIdFor(route, detail = {}) {
 // reopen the same subject. #ticker?sym=NVDA seeds the 종목 summary; #themes?theme=<id> seeds the theme detail.
 // Other query keys (knowledge context) are left untouched.
 const THEME_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$/;
+// A screen cut into views (src/ui/navigation/page-views.js) keeps the open one as ?view=; the first view has no key.
+const VIEW_PATTERN = /^[a-z][a-z0-9-]{0,31}$/;
 
 export function parseRouteDeepLink(hash, themeIds = null) {
   const match = String(hash || '').match(/^#([^?]*)(?:\?(.*))?$/);
@@ -149,7 +151,8 @@ export function parseRouteDeepLink(hash, themeIds = null) {
   // with the boot route); with the US theme ids an unknown or retired id names none, and the list stays.
   const legacy = rawRoute === 'theme-detail' ? legacyThemeDetailTarget(hash, themeIds) : null;
   const theme = rawRoute === 'themes' ? String(params.get('theme') || '').trim() : legacy?.themeId || '';
-  return Object.freeze({ routeId, entityId, themeId: THEME_ID_PATTERN.test(theme) ? theme : null, legacyTheme: !!legacy });
+  const view = String(params.get('view') || '');
+  return Object.freeze({ routeId, entityId, themeId: THEME_ID_PATTERN.test(theme) ? theme : null, legacyTheme: !!legacy, view: VIEW_PATTERN.test(view) ? view : null });
 }
 
 // The hash for `routeId` with `key` set to `value` (or removed when value is empty), keeping the other keys.
@@ -167,16 +170,35 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
   if (!location || typeof history?.replaceState !== 'function' || typeof runtimeRoot.addEventListener !== 'function') return () => {};
   const events = documentRef || runtimeRoot;
   const currentRoute = () => String(location.hash || '').match(/^#([^?]*)/)?.[1] || null;
-  const writeHash = (routeId, key, value) => {
+  const writeHash = (routeId, key, value, { push = false } = {}) => {
     const next = routeDeepLinkHash(location.hash, routeId, key, value);
     if (next === location.hash) return;
-    try { history.replaceState(history.state ?? null, '', `${location.pathname}${location.search}${next}`); } catch (_) {}
+    try { history[push ? 'pushState' : 'replaceState'](history.state ?? null, '', `${location.pathname}${location.search}${next}`); } catch (_) {}
+  };
+  // Views: the address names the open view of the current screen. A tab click is a history step (Back returns to the
+  // view before it); a screen opened without a view keeps the one the reader left there, and the address follows.
+  const viewPage = (routeId) => documentRef?.getElementById?.(`page-${routeId}`);
+  const viewsOf = (routeId) => [...(viewPage(routeId)?.querySelectorAll?.(':scope > .page-views > [data-view]') || [])].map((tab) => tab.dataset.view);
+  const writeView = (routeId, view, push) => writeHash(routeId, 'view', view && view !== viewsOf(routeId)[0] ? view : null, { push });
+  const applyView = (link) => {
+    const views = viewsOf(link.routeId);
+    if (!views.length) return;
+    if (link.view && !views.includes(link.view)) { writeHash(link.routeId, 'view', null); return; }
+    const view = link.view || views[0];
+    // Before the view module is installed (first load) the page element takes the view; the module reads it there.
+    if (typeof runtimeRoot._aioShowPageView === 'function') runtimeRoot._aioShowPageView(`page-${link.routeId}`, view);
+    else viewPage(link.routeId).dataset.view = view;
+  };
+  const onViewChanged = (event) => {
+    const routeId = String(event?.detail?.page || '').replace(/^page-/, '');
+    if (routeId && routeId === currentRoute()) writeView(routeId, event.detail.view, event.detail.byReader === true);
   };
   // Address → selection: the first load and every back/forward step.
   const themeIds = () => (Array.isArray(runtimeRoot.THEME_MAP) ? runtimeRoot.THEME_MAP.map((theme) => String(theme?.id || '')) : null);
   const applyAddress = () => {
     let link = parseRouteDeepLink(location.hash, themeIds());
     if (!link) return;
+    applyView(link);
     if (link.legacyTheme) {
       // The old detail address is read here once (the classic showPage copy is spent too) and written as #themes?theme=.
       try { delete runtimeRoot._aioThemeDetailHash; } catch (_) { /* frozen root */ }
@@ -219,7 +241,11 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
   const onCommit = () => {
     // v59.70: an old detail address set while 테마 was already open (no mount reads it) opens its theme on the commit.
     if (/^#theme-detail(?:[/?]|$)/.test(location.hash)) applyAddress();
-    if (!parseRouteDeepLink(location.hash)?.entityId) writeSubject();
+    const link = parseRouteDeepLink(location.hash);
+    if (!link?.entityId) writeSubject();
+    if (link?.view) applyView(link);
+    // A typed address (#ticker/AAPL) is rewritten by applyAddress with its subject; writing the view first would drop it.
+    else if (link && !location.hash.includes('/') && viewPage(link.routeId)?.dataset?.view) writeView(link.routeId, viewPage(link.routeId).dataset.view, false);
   };
   const onThemeShown = (event) => {
     const themeId = String(event?.detail?.themeId || '').trim();
@@ -232,6 +258,7 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
   events.addEventListener?.('aio:navigationCommitted', onCommit);
   events.addEventListener?.('aio:themeDetailShown', onThemeShown);
   events.addEventListener?.('aio:themeDetailClosed', onThemeClosed);
+  events.addEventListener?.('aio:pageViewChanged', onViewChanged);
   let bootTimer = null;
   try { bootTimer = setTimeout(applyAddress, 0); } catch (_) { applyAddress(); }
   return () => {
@@ -242,6 +269,7 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
     events.removeEventListener?.('aio:navigationCommitted', onCommit);
     events.removeEventListener?.('aio:themeDetailShown', onThemeShown);
     events.removeEventListener?.('aio:themeDetailClosed', onThemeClosed);
+    events.removeEventListener?.('aio:pageViewChanged', onViewChanged);
   };
 }
 

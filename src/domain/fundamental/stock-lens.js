@@ -215,7 +215,7 @@ export function buildPeerStrengths(rows = [], { max = 3 } = {}) {
     const side = (ahead + (tied - 1) / 2) / Math.max(1, values.length - 1); // 0 = best, 1 = worst (mid rank for ties)
     const versus = fact.better === 'low' ? (value < mid ? '보다 낮음' : value > mid ? '보다 높음' : '과 같음') : (value > mid ? '보다 높음' : value < mid ? '보다 낮음' : '과 같음');
     const vsMedian = value === mid ? 0 : (fact.better === 'high' ? value > mid : value < mid) ? 1 : -1;
-    facts.push({ id: fact.id, label: fact.label, value, rank, tied: tied > 1, n: values.length, median: mid, side, vsMedian,
+    facts.push({ id: fact.id, label: fact.label, value, valueText: show(value), rank, tied: tied > 1, n: values.length, median: mid, side, vsMedian,
       text: `${fact.label} ${show(value)}로 이 회사 포함 ${values.length}곳 중 ${tied > 1 ? '공동 ' : ''}${rank}위(동종 ${peerValues.length}곳 중앙값 ${show(mid)}${versus})${fact.id === 'fwdPe' ? (value < mid ? ', 이익 대비 가격 부담이 가벼운 편' : value > mid ? ', 이익 대비 가격 부담이 무거운 편' : '') : ''}` });
   }
   if (!facts.length) return null;
