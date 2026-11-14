@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-14T14:21:21.863Z",
-  "attemptedAt": "2026-11-14T14:21:21.863Z",
-  "lastSuccessfulAt": "2026-11-14T14:21:21.863Z",
+  "generatedAt": "2026-11-14T14:26:14.699Z",
+  "attemptedAt": "2026-11-14T14:26:14.699Z",
+  "lastSuccessfulAt": "2026-11-14T14:26:14.699Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-31T14:21:15.168Z",
-  "until": "2026-11-14T14:21:15.168Z",
+  "since": "2026-10-31T14:26:10.892Z",
+  "until": "2026-11-14T14:26:10.892Z",
   "current24hWindow": {
     "start": "2026-11-12T23:00:00.000Z",
     "end": "2026-11-13T23:00:00.000Z",
@@ -89,11 +89,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1235,
-      "freshCount": 40,
+      "freshCount": 20,
       "eligibleTextCount": 1179,
       "selectedCount": 124,
       "error": null,
@@ -113,11 +113,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 733,
-      "freshCount": 38,
+      "freshCount": 19,
       "eligibleTextCount": 732,
       "selectedCount": 125,
       "error": null,
@@ -125,7 +125,7 @@
     }
   ],
   "count": 2198,
-  "retainedItemCount": 432,
+  "retainedItemCount": 404,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -1968,14 +1968,14 @@
       "datetime": "2026-11-14T04:54:30.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 66,
       "hasText": true,
+      "summary": ">>전통적인 크리스마스 랠리, 올해 미국 증시에도 있을까? •미국 증시는 기술적·포지션 측면에서 동시에 회복된 이후 골드만삭스, Morgan Stanley, JPMorgan이 잇따라 연말 반등 신호를 내놓고...",
       "tickers": [
         "MS"
-      ],
-      "summary": ">>전통적인 크리스마스 랠리, 올해 미국 증시에도 있을까? •미국 증시는 기술적·포지션 측면에서 동시에 회복된 이후 골드만삭스, Morgan Stanley, JPMorgan이 잇따라 연말 반등 신호를 내놓고..."
+      ]
     },
     {
       "id": "bornlupin/21153",
@@ -2022,10 +2022,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>머스크 앞장서 청원 서명! 실리콘밸리, 젠슨 황 지지…“창업자를 복귀시켜라” •머스크가 공개적으로 청원에 공동 서명하며 젠슨 황의 엔비디아 복귀를 지지함. 한 청원 사이트의 서명자 수는 이미...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>머스크 앞장서 청원 서명! 실리콘밸리, 젠슨 황 지지…“창업자를 복귀시켜라” •머스크가 공개적으로 청원에 공동 서명하며 젠슨 황의 엔비디아 복귀를 지지함. 한 청원 사이트의 서명자 수는 이미..."
+      ]
     },
     {
       "id": "HANAchina/72106",
@@ -2036,16 +2036,15 @@
       "tags": [
         "earnings",
         "ai-policy",
-        "semi",
         "equity"
       ],
-      "lead": 2,
       "score": 61,
       "hasText": true,
+      "summary": ">>Anthropic 상장 로드쇼, CEO “시장 상황은 신경 쓰지 않는다”…“약속은 적게, 실적은 많이” •Anthropic이 IPO를 추진하는 가운데 CEO Amodei는 로드쇼에서 의도적으로 낮은 자세를...",
+      "lead": 3,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>Anthropic 상장 로드쇼, CEO “시장 상황은 신경 쓰지 않는다”…“약속은 적게, 실적은 많이” •Anthropic이 IPO를 추진하는 가운데 CEO Amodei는 로드쇼에서 의도적으로 낮은 자세를..."
+      ]
     },
     {
       "id": "HANAchina/72105",
@@ -2054,12 +2053,12 @@
       "datetime": "2026-11-14T01:31:56.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 72,
       "hasText": true,
+      "summary": ">>엔비디아 수장 교체가 AI 공급망에 영향…‘젠슨 황 이후’ 대만 수혜주 14개 (대만경제일보) •젠슨 황의 CEO 사임으로 AI 공급망 변화가 예상됨. 시장에서는 MediaTek, GUC 등 ASIC...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2071,8 +2070,7 @@
         "TSM",
         "2454.TW",
         "ASX"
-      ],
-      "summary": ">>엔비디아 수장 교체가 AI 공급망에 영향…‘젠슨 황 이후’ 대만 수혜주 14개 (대만경제일보) •젠슨 황의 CEO 사임으로 AI 공급망 변화가 예상됨. 시장에서는 MediaTek, GUC 등 ASIC..."
+      ]
     },
     {
       "id": "insidertracking/69253",
@@ -2083,13 +2081,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "로이터에 따르면 젠슨 황이 엔비디아 주요 경영진에게 메가스피드 전직 임원 앨리스 황과의 관계를 정상적인 사업상 교류라고 설명하며 혼외 관계에 대해 오도한 것으로 보도. 메가스피드는 엔비디아의 고객사. 로이터가...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "로이터에 따르면 젠슨 황이 엔비디아 주요 경영진에게 메가스피드 전직 임원 앨리스 황과의 관계를 정상적인 사업상 교류라고 설명하며 혼외 관계에 대해 오도한 것으로 보도. 메가스피드는 엔비디아의 고객사. 로이터가..."
+      ]
     },
     {
       "id": "insidertracking/69248",
@@ -2100,7 +2098,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2109,10 +2106,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 이사회에 젠슨 황의 복귀를 촉구하는 공개서한이 등장했으며, 현재까지 8,000명 이상이 서명에 참여. >",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 이사회에 젠슨 황의 복귀를 촉구하는 공개서한이 등장했으며, 현재까지 8,000명 이상이 서명에 참여. >"
+      ]
     },
     {
       "id": "bornlupin/21152",
@@ -2147,14 +2145,14 @@
         "semi",
         "equity"
       ],
-      "lead": 2,
       "score": 60,
       "hasText": true,
+      "summary": ">>소로스 펀드, 3분기 인텔·Meta 대거 확대…SK하이닉스 신규 편입, 엔비디아 축소 •3분기 소로스 펀드는 Intel을 273만 주 추가 매수해 보유량을 전분기 대비 27배 이상 늘렸고, Meta도 약...",
+      "lead": 2,
       "tickers": [
         "NVDA",
         "000660.KS"
-      ],
-      "summary": ">>소로스 펀드, 3분기 인텔·Meta 대거 확대…SK하이닉스 신규 편입, 엔비디아 축소 •3분기 소로스 펀드는 Intel을 273만 주 추가 매수해 보유량을 전분기 대비 27배 이상 늘렸고, Meta도 약..."
+      ]
     },
     {
       "id": "bornlupin/21151",
@@ -2180,18 +2178,17 @@
       "datetime": "2026-11-13T23:53:07.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "semi",
-        "equity"
+        "semi"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
+      "summary": ">>(인터뷰) 엔비디아 공급망 해자가 무너질까? •젠슨 황이 엔비디아를 떠나면서 그가 공들여 구축한 공급망 해자가 약화될 수 있다는 전망이 나옴. SemiAnalysis 창립자 Dylan Patel은...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "GOOG",
         "AMZN"
-      ],
-      "summary": ">>(인터뷰) 엔비디아 공급망 해자가 무너질까? •젠슨 황이 엔비디아를 떠나면서 그가 공들여 구축한 공급망 해자가 약화될 수 있다는 전망이 나옴. SemiAnalysis 창립자 Dylan Patel은..."
+      ]
     },
     {
       "id": "HANAchina/72099",
@@ -2201,14 +2198,13 @@
       "localDateKst": "2026-11-14",
       "tags": [
         "ai-policy",
-        "equity",
-        "macro"
+        "equity"
       ],
-      "lead": 2,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Anthropic은 왜 SpaceX보다 상장 가격을 보수적으로 책정하나 •SpaceX가 고정 가격 방식과 달리 Anthropic은 전통적인 기업설명회(로드쇼) 방식을 채택해 가격 결정권을 기관투자자에게 더..."
+      "summary": ">>Anthropic은 왜 SpaceX보다 상장 가격을 보수적으로 책정하나 •SpaceX가 고정 가격 방식과 달리 Anthropic은 전통적인 기업설명회(로드쇼) 방식을 채택해 가격 결정권을 기관투자자에게 더...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "bornlupin/21150",
@@ -2246,7 +2242,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2255,10 +2250,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "CBS에 따르면 엔비디아 창업자 젠슨 황이 미국 의회에 출석해 선서 증언을 하기로 동의. 젠슨 황은 중국 당국의 정보원으로 의심되는 여성과의 혼외 관계를 둘러싼 논란으로 의원들의 소환 요구를 받은 가운데,...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "CBS에 따르면 엔비디아 창업자 젠슨 황이 미국 의회에 출석해 선서 증언을 하기로 동의. 젠슨 황은 중국 당국의 정보원으로 의심되는 여성과의 혼외 관계를 둘러싼 논란으로 의원들의 소환 요구를 받은 가운데,..."
+      ]
     },
     {
       "id": "insidertracking/69233",
@@ -2507,13 +2503,13 @@
         "macro",
         "semi"
       ],
-      "lead": 3,
       "score": 73,
       "hasText": true,
+      "summary": ">>베센트: 에너지 충격을 이유로 금리 인상해서는 안 돼…이란 압박 계속, 엔비디아는 젠슨 황 없이도 성장 가능 •베센트는 현재의 인플레이션 압력을 ‘에너지 공급 충격’으로 규정하며, 연준이 단기적인 잡음성...",
+      "lead": 3,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>베센트: 에너지 충격을 이유로 금리 인상해서는 안 돼…이란 압박 계속, 엔비디아는 젠슨 황 없이도 성장 가능 •베센트는 현재의 인플레이션 압력을 ‘에너지 공급 충격’으로 규정하며, 연준이 단기적인 잡음성..."
+      ]
     },
     {
       "id": "HANAchina/72094",
@@ -2522,11 +2518,8 @@
       "datetime": "2026-11-13T20:11:53.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "macro",
-        "kr-market",
-        "flows"
+        "macro"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
       "media": {
@@ -2535,8 +2528,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>달러 강세의 귀환: DXY 주요 저항선 돌파, 숏 포지션 다시 큰 타격 •달러 인덱스가 주요 기술적 저항선을 돌파하며 2025년 4월 이후 최고 수준으로 상승. 미국 경제의 양호한 성과, 금리 우위 및..."
+      "summary": ">>달러 강세의 귀환: DXY 주요 저항선 돌파, 숏 포지션 다시 큰 타격 •달러 인덱스가 주요 기술적 저항선을 돌파하며 2025년 4월 이후 최고 수준으로 상승. 미국 경제의 양호한 성과, 금리 우위 및...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72093",
@@ -8753,13 +8747,13 @@
         "macro",
         "semi"
       ],
-      "lead": 3,
       "score": 73,
       "hasText": true,
+      "summary": ">>베센트: 에너지 충격을 이유로 금리 인상해서는 안 돼…이란 압박 계속, 엔비디아는 젠슨 황 없이도 성장 가능 •베센트는 현재의 인플레이션 압력을 ‘에너지 공급 충격’으로 규정하며, 연준이 단기적인 잡음성...",
+      "lead": 3,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>베센트: 에너지 충격을 이유로 금리 인상해서는 안 돼…이란 압박 계속, 엔비디아는 젠슨 황 없이도 성장 가능 •베센트는 현재의 인플레이션 압력을 ‘에너지 공급 충격’으로 규정하며, 연준이 단기적인 잡음성..."
+      ]
     },
     {
       "id": "HANAchina/72094",
@@ -8768,11 +8762,8 @@
       "datetime": "2026-11-13T20:11:53.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "macro",
-        "kr-market",
-        "flows"
+        "macro"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
       "media": {
@@ -8781,8 +8772,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>달러 강세의 귀환: DXY 주요 저항선 돌파, 숏 포지션 다시 큰 타격 •달러 인덱스가 주요 기술적 저항선을 돌파하며 2025년 4월 이후 최고 수준으로 상승. 미국 경제의 양호한 성과, 금리 우위 및..."
+      "summary": ">>달러 강세의 귀환: DXY 주요 저항선 돌파, 숏 포지션 다시 큰 타격 •달러 인덱스가 주요 기술적 저항선을 돌파하며 2025년 4월 이후 최고 수준으로 상승. 미국 경제의 양호한 성과, 금리 우위 및...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72093",
