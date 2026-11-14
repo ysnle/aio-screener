@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-14T04:21:30.805Z",
-  "attemptedAt": "2026-11-14T04:21:30.805Z",
-  "lastSuccessfulAt": "2026-11-14T04:21:30.805Z",
+  "generatedAt": "2026-11-14T05:21:47.712Z",
+  "attemptedAt": "2026-11-14T05:21:47.712Z",
+  "lastSuccessfulAt": "2026-11-14T05:21:47.712Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-31T04:21:25.021Z",
-  "until": "2026-11-14T04:21:25.021Z",
+  "since": "2026-10-31T05:21:42.601Z",
+  "until": "2026-11-14T05:21:42.601Z",
   "current24hWindow": {
     "start": "2026-11-12T23:00:00.000Z",
     "end": "2026-11-13T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1233,
-      "freshCount": 20,
-      "eligibleTextCount": 1177,
+      "count": 1232,
+      "freshCount": 40,
+      "eligibleTextCount": 1176,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 69257
+      "lastPostId": 69258
     },
     {
       "channel": "bornlupin",
@@ -116,30 +116,30 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 720,
+      "count": 722,
       "freshCount": 38,
-      "eligibleTextCount": 719,
+      "eligibleTextCount": 721,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72111
+      "lastPostId": 72113
     }
   ],
-  "count": 2187,
-  "retainedItemCount": 412,
+  "count": 2188,
+  "retainedItemCount": 421,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2187,
-    "eligibleTextCount": 2130,
+    "observedCount": 2188,
+    "eligibleTextCount": 2131,
     "mediaOnlyCount": 57,
-    "mediaAttachedCount": 924,
+    "mediaAttachedCount": 925,
     "photoPostCount": 800,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 372,
-    "broadSignalCount": 855,
+    "highSignalCount": 373,
+    "broadSignalCount": 856,
     "selectedRawCount": 371,
     "selectedEligibleCount": 371,
     "selectedRawCoveragePct": 17.4,
@@ -147,15 +147,15 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 765,
+    "macro": 314,
+    "semi": 559,
+    "market-note": 764,
     "geo": 353,
-    "semi": 558,
     "kr-market": 96,
     "equity": 138,
     "earnings": 325,
     "ai-policy": 123,
     "media-only": 55,
-    "macro": 313,
     "japan": 67,
     "flows": 57,
     "power": 283,
@@ -165,6 +165,7 @@
     "crypto": 2
   },
   "tickerCounts": {
+    "MS": 6,
     "NVDA": 257,
     "000660.KS": 26,
     "CRWD": 1,
@@ -191,7 +192,6 @@
     "SNOW": 1,
     "CRWV": 16,
     "MU": 27,
-    "MS": 5,
     "PLTR": 23,
     "LITE": 9,
     "COHR": 4,
@@ -253,11 +253,11 @@
     "6981.T": 2
   },
   "themes": [
-    "Market Notes (765 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
-    "Semiconductors/Memory (558 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
-    "Geopolitics (353 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Market Notes (764 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면...",
+    "Semiconductors/Memory (559 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave...",
+    "Geopolitics (353 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD...",
     "Earnings/Corporate (325 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정...",
-    "Macro/Rates (313 posts in 14-day research window): 2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
+    "Macro/Rates (314 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서 CIA 국장 존 랫클리프와 회동 · 고프먼, 마이애미에서 스티브 위트코프와 만날 예정 · 트럼프, 현재까지...",
     "AI Power/Grid (283 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (138 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (123 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
@@ -266,7 +266,7 @@
     {
       "key": "NVDA",
       "count": 257,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적 활동의 징후는 없다고 발표. 근본적인 장애 원인은 해결했지만 전체 서비스 복구 시점은 아직 제시하지 않음...."
     },
     {
       "key": "GOOG",
@@ -286,12 +286,12 @@
     {
       "key": "MSFT",
       "count": 53,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적 활동의 징후는 없다고 발표. 근본적인 장애 원인은 해결했지만 전체 서비스 복구 시점은 아직 제시하지 않음...."
     },
     {
       "key": "AMZN",
       "count": 52,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적 활동의 징후는 없다고 발표. 근본적인 장애 원인은 해결했지만 전체 서비스 복구 시점은 아직 제시하지 않음...."
     },
     {
       "key": "TSLA",
@@ -321,7 +321,7 @@
     {
       "key": "AVGO",
       "count": 18,
-      "text": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
+      "text": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한 반면 다우 +0.10% 상승. 장중 VIX가 21선까지 상승한 뒤 19.30으로 내려왔으나 전일 대비..."
     }
   ],
   "categories": [
@@ -331,8 +331,8 @@
       "topics": [
         "macro"
       ],
-      "count": 313,
-      "focus": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
+      "count": 314,
+      "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서 CIA 국장 존 랫클리프와 회동 · 고프먼, 마이애미에서 스티브 위트코프와 만날 예정 · 트럼프, 현재까지..."
     },
     {
       "id": "geo",
@@ -341,7 +341,7 @@
         "geo"
       ],
       "count": 353,
-      "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
+      "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD..."
     },
     {
       "id": "credit",
@@ -350,7 +350,7 @@
         "credit"
       ],
       "count": 81,
-      "focus": "네비우스(NBIS) 2026년 3분기 어닝콜 Q&A 중 질문: 최근 채권시장 여건이 좋지 않은데, 추가 자금이 필요할 경우 고객 선급금을 더 받을 수 있습니까? 경영진 답변: 가능합니다. 고객 선급금은 자금 수요에 대응하는 중요한 수단입니다. 네비우스는 수요가 충분했음에도 더 나은 계약 조건을 확보하기 위해 일부..."
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적 활동의 징후는 없다고 발표. 근본적인 장애 원인은 해결했지만 전체 서비스 복구 시점은 아직 제시하지 않음...."
     },
     {
       "id": "semi",
@@ -358,8 +358,8 @@
       "topics": [
         "semi"
       ],
-      "count": 558,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조...."
+      "count": 559,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave..."
     },
     {
       "id": "optical",
@@ -395,7 +395,7 @@
         "kr-market"
       ],
       "count": 96,
-      "focus": "No retained full-text sample; 96 observed posts in the 14-day research window."
+      "focus": "코스피 야간선물은 -0.72% 하락 마감"
     },
     {
       "id": "equity",
@@ -449,7 +449,7 @@
         "flows"
       ],
       "count": 57,
-      "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+      "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (31.70%) 2위: ALPHABET INC CL A (11.04%) 3위: PROSHARES ULTRAPRO..."
     },
     {
       "id": "insider",
@@ -466,8 +466,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 765,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
+      "count": 764,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면..."
     }
   ],
   "pageMap": {
@@ -727,8 +727,11 @@
       "localDateKst": "2026-11-14",
       "tags": [
         "flows",
-        "semi"
+        "macro",
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -737,8 +740,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -761,7 +762,8 @@
         "QQQ",
         "SOXX",
         "XLV"
-      ]
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "insidertracking/69228",
@@ -770,7 +772,10 @@
       "datetime": "2026-11-13T22:28:24.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -780,14 +785,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
       "tickers": [
         "NVDA",
         "MSFT",
         "AMZN",
         "ORCL",
         "SMCI"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     },
     {
       "id": "insidertracking/69227",
@@ -796,7 +801,9 @@
       "datetime": "2026-11-13T22:26:54.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
+        "credit",
         "macro",
+        "geo",
         "semi"
       ],
       "score": 100,
@@ -807,15 +814,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "MSFT",
         "AVGO",
         "AMZN",
         "APLD"
-      ]
+      ],
+      "summary": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
     },
     {
       "id": "insidertracking/69222",
@@ -824,14 +830,17 @@
       "datetime": "2026-11-13T22:20:54.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
       "id": "insidertracking/69221",
@@ -840,14 +849,17 @@
       "datetime": "2026-11-13T22:19:49.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
+        "credit",
+        "macro",
+        "geo",
         "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조...."
     },
     {
       "id": "insidertracking/69199",
@@ -1688,6 +1700,22 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72113",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72113",
+      "datetime": "2026-11-14T04:54:30.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "macro"
+      ],
+      "score": 66,
+      "hasText": true,
+      "tickers": [
+        "MS"
+      ],
+      "summary": ">>전통적인 크리스마스 랠리, 올해 미국 증시에도 있을까? •미국 증시는 기술적·포지션 측면에서 동시에 회복된 이후 골드만삭스, Morgan Stanley, JPMorgan이 잇따라 연말 반등 신호를 내놓고..."
+    },
+    {
       "id": "bornlupin/21153",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21153",
@@ -1981,8 +2009,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 17일 화요일 02:00 – 워시 연준 이사 연설 22:30 – 소매판매 (MoM) (10월) 22:30 – 근원 소매판매 (MoM)...",
-      "tickers": []
+      "tickers": [],
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 17일 화요일 02:00 – 워시 연준 이사 연설 22:30 – 소매판매 (MoM) (10월) 22:30 – 근원 소매판매 (MoM)..."
     },
     {
       "id": "insidertracking/69232",
@@ -1991,8 +2019,8 @@
       "datetime": "2026-11-13T22:39:20.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "earnings",
-        "semi"
+        "semi",
+        "earnings"
       ],
       "score": 51,
       "hasText": true,
@@ -2002,11 +2030,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "차주 실적 발표 리스트 월요일 장전: 바이두, 샤오펑, 타이슨푸드 화요일 장전: 디즈니, 홈디팟, 징동닷컴 > 화요일 장 마감후: 엔비디아 수요일 장전: 타겟, 로우스, TJX, ZIM 수요일 장 마감후:...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "차주 실적 발표 리스트 월요일 장전: 바이두, 샤오펑, 타이슨푸드 화요일 장전: 디즈니, 홈디팟, 징동닷컴 > 화요일 장 마감후: 엔비디아 수요일 장전: 타겟, 로우스, TJX, ZIM 수요일 장 마감후:..."
     },
     {
       "id": "insidertracking/69231",
@@ -2025,10 +2052,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 엔비디아에 집중",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 엔비디아에 집중"
     },
     {
       "id": "insidertracking/69230",
@@ -2038,8 +2065,11 @@
       "localDateKst": "2026-11-14",
       "tags": [
         "flows",
-        "semi"
+        "macro",
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -2048,8 +2078,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2072,7 +2100,8 @@
         "QQQ",
         "SOXX",
         "XLV"
-      ]
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "insidertracking/69229",
@@ -2081,11 +2110,11 @@
       "datetime": "2026-11-13T22:29:45.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "market-note"
+        "equity",
+        "healthcare"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · AerCap Holdings · American Savings Bank · Hamilton Insurance Group ·...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -2098,7 +2127,8 @@
         "EW",
         "WCN",
         "OGE"
-      ]
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · AerCap Holdings · American Savings Bank · Hamilton Insurance Group ·..."
     },
     {
       "id": "insidertracking/69228",
@@ -2107,7 +2137,10 @@
       "datetime": "2026-11-13T22:28:24.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -2117,14 +2150,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
       "tickers": [
         "NVDA",
         "MSFT",
         "AMZN",
         "ORCL",
         "SMCI"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     },
     {
       "id": "insidertracking/69227",
@@ -2133,7 +2166,9 @@
       "datetime": "2026-11-13T22:26:54.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
+        "credit",
         "macro",
+        "geo",
         "semi"
       ],
       "score": 100,
@@ -2144,15 +2179,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "MSFT",
         "AVGO",
         "AMZN",
         "APLD"
-      ]
+      ],
+      "summary": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
     },
     {
       "id": "insidertracking/69224",
@@ -2161,7 +2195,7 @@
       "datetime": "2026-11-13T22:23:38.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -2171,8 +2205,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 14일 미장 마감 S&P 500 - 7,561.67 -0.40% 다우 30 - 52,347.55 +0.10% 나스닥 - 25,136.27 -0.91% 러셀 2000 - 2,790.49...",
-      "tickers": []
+      "tickers": [],
+      "summary": "2026년 11월 14일 미장 마감 S&P 500 - 7,561.67 -0.40% 다우 30 - 52,347.55 +0.10% 나스닥 - 25,136.27 -0.91% 러셀 2000 - 2,790.49..."
     },
     {
       "id": "insidertracking/69222",
@@ -2181,14 +2215,17 @@
       "datetime": "2026-11-13T22:20:54.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
       "id": "insidertracking/69221",
@@ -2197,14 +2234,17 @@
       "datetime": "2026-11-13T22:19:49.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
+        "credit",
+        "macro",
+        "geo",
         "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조...."
     },
     {
       "id": "HANAchina/72097",
@@ -2345,7 +2385,9 @@
       "datetime": "2026-11-13T12:09:59.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "market-note"
+        "semi",
+        "power",
+        "healthcare"
       ],
       "score": 73,
       "hasText": true,
@@ -2355,11 +2397,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 서비스 장애가 지속되면서 지연된 이메일을 보호하기 위해 이메일...",
       "tickers": [
         "MSFT",
         "TSM"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 서비스 장애가 지속되면서 지연된 이메일을 보호하기 위해 이메일..."
     },
     {
       "id": "insidertracking/69215",
@@ -2368,15 +2410,18 @@
       "datetime": "2026-11-13T12:08:54.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "kr-market"
       ],
       "score": 90,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 마이크로소프트는 전 세계적으로 발생한 서비스 장애 원인에서 악의적 활동의 징후는 확인되지 않았다고 밝혀....",
       "tickers": [
         "NVDA",
         "MSFT"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 마이크로소프트는 전 세계적으로 발생한 서비스 장애 원인에서 악의적 활동의 징후는 확인되지 않았다고 밝혀...."
     },
     {
       "id": "HANAchina/72087",
@@ -2613,14 +2658,13 @@
       "datetime": "2026-11-13T05:24:38.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "geo",
-        "macro"
+        "geo"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>바클레이즈: 미·이란 ‘전쟁도 평화도 아닌’ 교착 상태가 트럼프 임기 종료까지 지속될 가능성에 대비해야 함 •바클레이즈는 미·이란 충돌이 1년 내 종료될 가능성이 50%를 밑돌며, ‘장기화’가 기본..."
+      "summary": ">>바클레이즈: 미·이란 ‘전쟁도 평화도 아닌’ 교착 상태가 트럼프 임기 종료까지 지속될 가능성에 대비해야 함 •바클레이즈는 미·이란 충돌이 1년 내 종료될 가능성이 50%를 밑돌며, ‘장기화’가 기본...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69200",
@@ -7287,20 +7331,6 @@
       ]
     },
     {
-      "id": "HANAchina/71820",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71820",
-      "datetime": "2026-11-09T08:01:17.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "market-note"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": ">>CITI, 성장 리스크 확대에 미국·기술주 투자의견 하향, 유럽 증시 상향 •CITI 전략은 거래 쏠림, 기업이익 증가세 둔화, AI 투자 전망의 불확실성을 이유로 방어적 투자 전략으로 전환. 미국 주식,...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21061",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21061",
@@ -8543,8 +8573,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 17일 화요일 02:00 – 워시 연준 이사 연설 22:30 – 소매판매 (MoM) (10월) 22:30 – 근원 소매판매 (MoM)...",
-      "tickers": []
+      "tickers": [],
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 17일 화요일 02:00 – 워시 연준 이사 연설 22:30 – 소매판매 (MoM) (10월) 22:30 – 근원 소매판매 (MoM)..."
     },
     {
       "id": "insidertracking/69232",
@@ -8553,8 +8583,8 @@
       "datetime": "2026-11-13T22:39:20.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "earnings",
-        "semi"
+        "semi",
+        "earnings"
       ],
       "score": 51,
       "hasText": true,
@@ -8564,11 +8594,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "차주 실적 발표 리스트 월요일 장전: 바이두, 샤오펑, 타이슨푸드 화요일 장전: 디즈니, 홈디팟, 징동닷컴 > 화요일 장 마감후: 엔비디아 수요일 장전: 타겟, 로우스, TJX, ZIM 수요일 장 마감후:...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "차주 실적 발표 리스트 월요일 장전: 바이두, 샤오펑, 타이슨푸드 화요일 장전: 디즈니, 홈디팟, 징동닷컴 > 화요일 장 마감후: 엔비디아 수요일 장전: 타겟, 로우스, TJX, ZIM 수요일 장 마감후:..."
     },
     {
       "id": "insidertracking/69231",
@@ -8587,10 +8616,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 엔비디아에 집중",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 엔비디아에 집중"
     },
     {
       "id": "insidertracking/69230",
@@ -8600,8 +8629,11 @@
       "localDateKst": "2026-11-14",
       "tags": [
         "flows",
-        "semi"
+        "macro",
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -8610,8 +8642,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -8634,7 +8664,8 @@
         "QQQ",
         "SOXX",
         "XLV"
-      ]
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "insidertracking/69229",
@@ -8643,11 +8674,11 @@
       "datetime": "2026-11-13T22:29:45.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "market-note"
+        "equity",
+        "healthcare"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · AerCap Holdings · American Savings Bank · Hamilton Insurance Group ·...",
       "tickers": [],
       "listTickers": [
         "AAPL",
@@ -8660,7 +8691,8 @@
         "EW",
         "WCN",
         "OGE"
-      ]
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · AerCap Holdings · American Savings Bank · Hamilton Insurance Group ·..."
     },
     {
       "id": "insidertracking/69228",
@@ -8669,7 +8701,10 @@
       "datetime": "2026-11-13T22:28:24.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -8679,14 +8714,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
       "tickers": [
         "NVDA",
         "MSFT",
         "AMZN",
         "ORCL",
         "SMCI"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     },
     {
       "id": "insidertracking/69227",
@@ -8695,7 +8730,9 @@
       "datetime": "2026-11-13T22:26:54.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
+        "credit",
         "macro",
+        "geo",
         "semi"
       ],
       "score": 100,
@@ -8706,15 +8743,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "MSFT",
         "AVGO",
         "AMZN",
         "APLD"
-      ]
+      ],
+      "summary": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
     },
     {
       "id": "insidertracking/69224",
@@ -8723,7 +8759,7 @@
       "datetime": "2026-11-13T22:23:38.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -8733,8 +8769,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 14일 미장 마감 S&P 500 - 7,561.67 -0.40% 다우 30 - 52,347.55 +0.10% 나스닥 - 25,136.27 -0.91% 러셀 2000 - 2,790.49...",
-      "tickers": []
+      "tickers": [],
+      "summary": "2026년 11월 14일 미장 마감 S&P 500 - 7,561.67 -0.40% 다우 30 - 52,347.55 +0.10% 나스닥 - 25,136.27 -0.91% 러셀 2000 - 2,790.49..."
     },
     {
       "id": "insidertracking/69222",
@@ -8743,14 +8779,17 @@
       "datetime": "2026-11-13T22:20:54.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
       "id": "insidertracking/69221",
@@ -8759,14 +8798,17 @@
       "datetime": "2026-11-13T22:19:49.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
+        "credit",
+        "macro",
+        "geo",
         "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조...."
     },
     {
       "id": "HANAchina/72097",
@@ -8907,7 +8949,9 @@
       "datetime": "2026-11-13T12:09:59.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "market-note"
+        "semi",
+        "power",
+        "healthcare"
       ],
       "score": 73,
       "hasText": true,
@@ -8917,11 +8961,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 서비스 장애가 지속되면서 지연된 이메일을 보호하기 위해 이메일...",
       "tickers": [
         "MSFT",
         "TSM"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 서비스 장애가 지속되면서 지연된 이메일을 보호하기 위해 이메일..."
     },
     {
       "id": "insidertracking/69215",
@@ -8930,15 +8974,18 @@
       "datetime": "2026-11-13T12:08:54.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "kr-market"
       ],
       "score": 90,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 마이크로소프트는 전 세계적으로 발생한 서비스 장애 원인에서 악의적 활동의 징후는 확인되지 않았다고 밝혀....",
       "tickers": [
         "NVDA",
         "MSFT"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 마이크로소프트는 전 세계적으로 발생한 서비스 장애 원인에서 악의적 활동의 징후는 확인되지 않았다고 밝혀...."
     },
     {
       "id": "HANAchina/72087",
@@ -9175,14 +9222,13 @@
       "datetime": "2026-11-13T05:24:38.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "geo",
-        "macro"
+        "geo"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>바클레이즈: 미·이란 ‘전쟁도 평화도 아닌’ 교착 상태가 트럼프 임기 종료까지 지속될 가능성에 대비해야 함 •바클레이즈는 미·이란 충돌이 1년 내 종료될 가능성이 50%를 밑돌며, ‘장기화’가 기본..."
+      "summary": ">>바클레이즈: 미·이란 ‘전쟁도 평화도 아닌’ 교착 상태가 트럼프 임기 종료까지 지속될 가능성에 대비해야 함 •바클레이즈는 미·이란 충돌이 1년 내 종료될 가능성이 50%를 밑돌며, ‘장기화’가 기본...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69200",
