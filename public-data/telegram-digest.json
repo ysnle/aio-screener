@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-13T23:52:03.569Z",
-  "attemptedAt": "2026-11-13T23:52:03.569Z",
-  "lastSuccessfulAt": "2026-11-13T23:52:03.569Z",
+  "generatedAt": "2026-11-14T00:52:05.846Z",
+  "attemptedAt": "2026-11-14T00:52:05.846Z",
+  "lastSuccessfulAt": "2026-11-14T00:52:05.846Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-30T23:51:58.583Z",
-  "until": "2026-11-13T23:51:58.583Z",
+  "since": "2026-10-31T00:52:00.227Z",
+  "until": "2026-11-14T00:52:00.227Z",
   "current24hWindow": {
     "start": "2026-11-12T23:00:00.000Z",
     "end": "2026-11-13T23:00:00.000Z",
@@ -92,88 +92,90 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1234,
+      "count": 1235,
       "freshCount": 40,
       "eligibleTextCount": 1179,
       "selectedCount": 121,
       "error": null,
-      "lastPostId": 69246
+      "lastPostId": 69252
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 232,
+      "count": 233,
       "freshCount": 40,
-      "eligibleTextCount": 232,
-      "selectedCount": 123,
+      "eligibleTextCount": 233,
+      "selectedCount": 124,
       "error": null,
-      "lastPostId": 21150
+      "lastPostId": 21152
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 720,
+      "count": 723,
       "freshCount": 38,
-      "eligibleTextCount": 719,
+      "eligibleTextCount": 722,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72098
+      "lastPostId": 72102
     }
   ],
-  "count": 2186,
+  "count": 2191,
   "retainedItemCount": 430,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2186,
-    "eligibleTextCount": 2130,
-    "mediaOnlyCount": 56,
-    "mediaAttachedCount": 918,
-    "photoPostCount": 795,
+    "observedCount": 2191,
+    "eligibleTextCount": 2134,
+    "mediaOnlyCount": 57,
+    "mediaAttachedCount": 921,
+    "photoPostCount": 798,
     "documentPostCount": 5,
     "imageOnlyCount": 5,
-    "highSignalCount": 375,
-    "broadSignalCount": 853,
-    "selectedRawCount": 369,
-    "selectedEligibleCount": 369,
+    "highSignalCount": 374,
+    "broadSignalCount": 858,
+    "selectedRawCount": 370,
+    "selectedEligibleCount": 370,
     "selectedRawCoveragePct": 17.3,
     "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 765,
+    "market-note": 766,
+    "media-only": 55,
+    "semi": 556,
+    "equity": 140,
+    "earnings": 326,
+    "ai-policy": 125,
     "macro": 316,
     "japan": 69,
-    "semi": 553,
-    "earnings": 326,
-    "geo": 355,
+    "geo": 354,
     "flows": 57,
     "power": 285,
-    "equity": 136,
     "healthcare": 59,
     "credit": 84,
     "kr-market": 95,
-    "ai-policy": 125,
-    "media-only": 54,
     "optical": 28,
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 251,
+    "NVDA": 255,
+    "000660.KS": 26,
+    "CRWD": 1,
+    "GOOG": 68,
+    "AMZN": 53,
     "MSFT": 53,
-    "AMZN": 52,
     "ORCL": 10,
     "SMCI": 8,
     "AVGO": 18,
     "APLD": 1,
-    "AMD": 55,
-    "GOOG": 67,
+    "AMD": 54,
     "TSM": 58,
     "319660.KQ": 1,
     "BE": 16,
@@ -187,11 +189,10 @@
     "NVO": 4,
     "DDOG": 1,
     "SNOW": 1,
-    "000660.KS": 25,
     "CRWV": 16,
     "MU": 27,
     "MS": 5,
-    "PLTR": 24,
+    "PLTR": 23,
     "LITE": 9,
     "COHR": 4,
     "BABA": 3,
@@ -253,24 +254,24 @@
     "BX": 1
   },
   "themes": [
-    "Market Notes (765 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면...",
-    "Semiconductors/Memory (553 posts in 14-day research window): [SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화...",
-    "Geopolitics (355 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD...",
+    "Market Notes (766 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면...",
+    "Semiconductors/Memory (556 posts in 14-day research window): [SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화...",
+    "Geopolitics (354 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD...",
     "Earnings/Corporate (326 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정 EBITDA $465.8M (예상 $353M) → 32.0% 상회 , 마진 47.5% • AI 클라우드...",
     "Macro/Rates (316 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서 CIA 국장 존 랫클리프와 회동 · 고프먼, 마이애미에서 스티브 위트코프와 만날 예정 · 트럼프, 현재까지...",
     "AI Power/Grid (285 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
-    "Equity/Analyst (136 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Equity/Analyst (140 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (125 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 251,
+      "count": 255,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적 활동의 징후는 없다고 발표. 근본적인 장애 원인은 해결했지만 전체 서비스 복구 시점은 아직 제시하지 않음...."
     },
     {
       "key": "GOOG",
-      "count": 67,
+      "count": 68,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면..."
     },
     {
@@ -280,17 +281,17 @@
     },
     {
       "key": "AMD",
-      "count": 55,
+      "count": 54,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
-      "key": "MSFT",
+      "key": "AMZN",
       "count": 53,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적 활동의 징후는 없다고 발표. 근본적인 장애 원인은 해결했지만 전체 서비스 복구 시점은 아직 제시하지 않음...."
     },
     {
-      "key": "AMZN",
-      "count": 52,
+      "key": "MSFT",
+      "count": 53,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적 활동의 징후는 없다고 발표. 근본적인 장애 원인은 해결했지만 전체 서비스 복구 시점은 아직 제시하지 않음...."
     },
     {
@@ -310,12 +311,12 @@
     },
     {
       "key": "000660.KS",
-      "count": 25,
+      "count": 26,
       "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화..."
     },
     {
       "key": "PLTR",
-      "count": 24,
+      "count": 23,
       "text": "팔란티어(PLTR) 2026년 3분기 어닝콜 1. 실적 및 성장률 매출 23.13억 달러, 전년 대비 +96%, 전분기 대비 +20%. 상장 이후 최고 성장률. 미국 매출 19.37억 달러, 전년 대비..."
     },
     {
@@ -340,7 +341,7 @@
       "topics": [
         "geo"
       ],
-      "count": 355,
+      "count": 354,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD..."
     },
     {
@@ -358,7 +359,7 @@
       "topics": [
         "semi"
       ],
-      "count": 553,
+      "count": 556,
       "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고 실행 실패 가능성 코어위브 실적을 통해 가중평균조달금리 하락, 임대가격 인상, 수주잔고 및 매출 성장세 강화..."
     },
     {
@@ -403,7 +404,7 @@
       "topics": [
         "equity"
       ],
-      "count": 136,
+      "count": 140,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -466,7 +467,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 765,
+      "count": 766,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면..."
     }
   ],
@@ -1705,6 +1706,125 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69248",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69248",
+      "datetime": "2026-11-14T00:22:51.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아 이사회에 젠슨 황의 복귀를 촉구하는 공개서한이 등장했으며, 현재까지 8,000명 이상이 서명에 참여. >"
+    },
+    {
+      "id": "bornlupin/21152",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21152",
+      "datetime": "2026-11-14T00:03:57.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "젠슨 황 엔비디아 CEO 복귀 청원 진행 중 일론 머스크, 엔비디아 주주로 공개 서명"
+    },
+    {
+      "id": "HANAchina/72101",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72101",
+      "datetime": "2026-11-13T23:54:41.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "semi",
+        "equity"
+      ],
+      "lead": 2,
+      "score": 60,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "000660.KS"
+      ],
+      "summary": ">>소로스 펀드, 3분기 인텔·Meta 대거 확대…SK하이닉스 신규 편입, 엔비디아 축소 •3분기 소로스 펀드는 Intel을 273만 주 추가 매수해 보유량을 전분기 대비 27배 이상 늘렸고, Meta도 약..."
+    },
+    {
+      "id": "bornlupin/21151",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21151",
+      "datetime": "2026-11-13T23:54:06.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "equity",
+        "earnings"
+      ],
+      "score": 59,
+      "hasText": true,
+      "tickers": [
+        "CRWD"
+      ],
+      "summary": "앤트로픽, 로드쇼 첫날인 화요일 마감 기준 공급 물량의 약 2배에 달하는 주문이 몰렸으며, 목요일 마감 기준으로는 6배 초과 청약(oversubscribed)을 기록 이는 로드쇼 이틀째에 2배 초과 청약을..."
+    },
+    {
+      "id": "HANAchina/72100",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72100",
+      "datetime": "2026-11-13T23:53:07.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "semi",
+        "equity"
+      ],
+      "lead": 1,
+      "score": 64,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "GOOG",
+        "AMZN"
+      ],
+      "summary": ">>(인터뷰) 엔비디아 공급망 해자가 무너질까? •젠슨 황이 엔비디아를 떠나면서 그가 공들여 구축한 공급망 해자가 약화될 수 있다는 전망이 나옴. SemiAnalysis 창립자 Dylan Patel은..."
+    },
+    {
+      "id": "HANAchina/72099",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72099",
+      "datetime": "2026-11-13T23:51:34.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "ai-policy",
+        "equity",
+        "macro"
+      ],
+      "lead": 2,
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>Anthropic은 왜 SpaceX보다 상장 가격을 보수적으로 책정하나 •SpaceX가 고정 가격 방식과 달리 Anthropic은 전통적인 기업설명회(로드쇼) 방식을 채택해 가격 결정권을 기관투자자에게 더..."
+    },
+    {
       "id": "bornlupin/21150",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21150",
@@ -2680,8 +2800,7 @@
       "datetime": "2026-11-13T01:21:18.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 56,
       "hasText": true,
@@ -2691,10 +2810,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>젠슨 황 퇴진, 14개 월가 투자은행 긴급 분석…“대체할 사람 없다”는 공통된 평가 •14개 월가 기관이 젠슨 황의 퇴진에 대해 긴급 분석을 내놓음. 이 가운데 3곳은 투자의견을 하향했고 6곳은 목표주가를...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 퇴진, 14개 월가 투자은행 긴급 분석…“대체할 사람 없다”는 공통된 평가 •14개 월가 기관이 젠슨 황의 퇴진에 대해 긴급 분석을 내놓음. 이 가운데 3곳은 투자의견을 하향했고 6곳은 목표주가를..."
+      ]
     },
     {
       "id": "HANAchina/72057",
@@ -5488,14 +5607,14 @@
       ],
       "score": 72,
       "hasText": true,
+      "summary": "미장 오버나이트 코어위브 +16.5% 네비우스 +11.4% 블룸에너지 +6% 마이크론 +4.7% AMD +4.4% 브로드컴 +3.2% 엔비디아 +2.4%",
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO",
         "MU",
         "BE"
-      ],
-      "summary": "미장 오버나이트 코어위브 +16.5% 네비우스 +11.4% 블룸에너지 +6% 마이크론 +4.7% AMD +4.4% 브로드컴 +3.2% 엔비디아 +2.4%"
+      ]
     },
     {
       "id": "insidertracking/68995",
@@ -6315,28 +6434,6 @@
       },
       "summary": "2026년 11월 11일 미장 마감 S&P 500 - 7,521.47 -0.38% 다우 30 - 52,271.57 -0.23% 나스닥 - 25,079.55 -0.69% 러셀 2000 - 2,818.43...",
       "tickers": []
-    },
-    {
-      "id": "insidertracking/68931",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68931",
-      "datetime": "2026-11-10T20:56:30.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "미국 레딧 관심도는 여전히 엔비디아 집중",
-      "tickers": [
-        "NVDA"
-      ]
     },
     {
       "id": "bornlupin/21097",
@@ -7231,41 +7328,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/71795",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71795",
-      "datetime": "2026-11-09T02:25:31.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": ">>중국 CICC : 미국 증시, 충분히 하락했나?” •CICC 증권은 나스닥과 필라델피아 반도체지수의 밸류에이션이 역사적 백분위 기준 각각 44%, 14%까지 하락했지만, 시장을 반등시킬 핵심 촉매가...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/71790",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71790",
-      "datetime": "2026-11-09T02:23:39.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "market-note"
-      ],
-      "score": 62,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 5,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>BofA Hartnett “미국 중간선거는 AI 정점의 신호”…월가의 강세장 신념이 하나씩 무너지고 있음 •BofA 수석 전략가 Hartnett은 미국 중간선거를 ‘AI 주식 집중도 정점’의 역사적...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21060",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21060",
@@ -7301,23 +7363,6 @@
       "hasText": true,
       "summary": "트럼프 \"이란 추가 공격 가능성 낮아\" 발언에 장 초반 국제유가 하락 도널드 트럼프 미국 대통령이 분쟁 종식을 위한 회담이 진전되는 한 이란에 대한 추가 공격을 명령할 가능성이 매우 낮다고 밝히면서, 월요일...",
       "tickers": []
-    },
-    {
-      "id": "HANAchina/71788",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71788",
-      "datetime": "2026-11-09T02:02:50.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "•대만가권지수 +5%까지 확대중 •지수늠 41,690pt, TSMC는 +5.15% 거래중",
-      "lead": 1,
-      "tickers": [
-        "TSM"
-      ]
     },
     {
       "id": "bornlupin/21058",
@@ -8513,40 +8558,6 @@
         "MRVL",
         "LITE"
       ]
-    },
-    {
-      "id": "bornlupin/20952",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20952",
-      "datetime": "2026-11-02T12:13:54.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "semi",
-        "optical"
-      ],
-      "score": 93,
-      "hasText": true,
-      "summary": "마벨 테크놀로지(Marvell Technology, $MRVL )가 루멘텀(Lumentum, $LITE )을 전액 주식 교환 방식으로 인수하는 최종 계약을 체결 차세대 AI 연결성(Connectivity)...",
-      "tickers": [
-        "MRVL",
-        "LITE"
-      ]
-    },
-    {
-      "id": "bornlupin/20950",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20950",
-      "datetime": "2026-11-02T11:47:45.000Z",
-      "localDateKst": "2026-11-02",
-      "tags": [
-        "geo",
-        "macro"
-      ],
-      "score": 74,
-      "hasText": true,
-      "summary": "트럼프 \"이란과의 합의가 이루어질지는 지켜봐야 합니다. 이란은 합의를 원하고 있습니다.\" \"이란 전쟁 기간 국제유가는 제가 예상했던 것보다 덜 상승했습니다.\" \"미국의 휘발유 가격은 갤런당 2달러 아래로...",
-      "lead": 1,
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -9476,8 +9487,7 @@
       "datetime": "2026-11-13T01:21:18.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "semi",
-        "earnings"
+        "market-note"
       ],
       "score": 56,
       "hasText": true,
@@ -9487,10 +9497,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>젠슨 황 퇴진, 14개 월가 투자은행 긴급 분석…“대체할 사람 없다”는 공통된 평가 •14개 월가 기관이 젠슨 황의 퇴진에 대해 긴급 분석을 내놓음. 이 가운데 3곳은 투자의견을 하향했고 6곳은 목표주가를...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 퇴진, 14개 월가 투자은행 긴급 분석…“대체할 사람 없다”는 공통된 평가 •14개 월가 기관이 젠슨 황의 퇴진에 대해 긴급 분석을 내놓음. 이 가운데 3곳은 투자의견을 하향했고 6곳은 목표주가를..."
+      ]
     },
     {
       "id": "HANAchina/72057",
