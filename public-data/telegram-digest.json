@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-14T09:21:56.130Z",
-  "attemptedAt": "2026-11-14T09:21:56.130Z",
-  "lastSuccessfulAt": "2026-11-14T09:21:56.130Z",
+  "generatedAt": "2026-11-14T10:21:43.229Z",
+  "attemptedAt": "2026-11-14T10:21:43.229Z",
+  "lastSuccessfulAt": "2026-11-14T10:21:43.229Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-31T09:21:50.798Z",
-  "until": "2026-11-14T09:21:50.798Z",
+  "since": "2026-10-31T10:21:35.837Z",
+  "until": "2026-11-14T10:21:35.837Z",
   "current24hWindow": {
     "start": "2026-11-12T23:00:00.000Z",
     "end": "2026-11-13T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1227,
+      "count": 1231,
       "freshCount": 40,
-      "eligibleTextCount": 1171,
+      "eligibleTextCount": 1175,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 69267
+      "lastPostId": 69272
     },
     {
       "channel": "bornlupin",
@@ -116,58 +116,60 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 724,
-      "freshCount": 38,
-      "eligibleTextCount": 723,
+      "count": 729,
+      "freshCount": 37,
+      "eligibleTextCount": 728,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72120
+      "lastPostId": 72126
     }
   ],
-  "count": 2183,
-  "retainedItemCount": 427,
+  "count": 2192,
+  "retainedItemCount": 428,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2183,
-    "eligibleTextCount": 2126,
+    "observedCount": 2192,
+    "eligibleTextCount": 2135,
     "mediaOnlyCount": 57,
-    "mediaAttachedCount": 929,
-    "photoPostCount": 804,
+    "mediaAttachedCount": 935,
+    "photoPostCount": 808,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
     "highSignalCount": 371,
-    "broadSignalCount": 857,
+    "broadSignalCount": 858,
     "selectedRawCount": 374,
     "selectedEligibleCount": 374,
-    "selectedRawCoveragePct": 17.6,
+    "selectedRawCoveragePct": 17.5,
     "selectedOfObservedPct": 17.1,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "geo": 352,
+    "market-note": 769,
+    "macro": 316,
+    "semi": 558,
+    "earnings": 324,
+    "geo": 351,
     "optical": 29,
     "flows": 58,
-    "market-note": 761,
-    "macro": 315,
-    "semi": 557,
-    "credit": 81,
+    "credit": 80,
     "ai-policy": 123,
     "japan": 67,
     "equity": 138,
     "healthcare": 57,
-    "power": 282,
+    "power": 281,
     "kr-market": 96,
-    "earnings": 323,
     "media-only": 55,
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 260,
+    "TSLA": 42,
+    "NVDA": 262,
+    "TSM": 59,
+    "2454.TW": 6,
     "000660.KS": 26,
-    "TSLA": 41,
     "MS": 6,
     "CRWD": 1,
     "GOOG": 66,
@@ -178,7 +180,6 @@
     "AVGO": 17,
     "APLD": 1,
     "AMD": 54,
-    "TSM": 58,
     "319660.KQ": 1,
     "BE": 16,
     "005930.KS": 32,
@@ -199,7 +200,6 @@
     "103590.KS": 1,
     "AAPL": 17,
     "GS": 4,
-    "2454.TW": 5,
     "RKLB": 2,
     "IRDM": 2,
     "WMT": 1,
@@ -253,19 +253,19 @@
     "6981.T": 2
   },
   "themes": [
-    "Market Notes (761 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면...",
-    "Semiconductors/Memory (557 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave...",
-    "Geopolitics (352 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD...",
-    "Earnings/Corporate (323 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정...",
-    "Macro/Rates (315 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서 CIA 국장 존 랫클리프와 회동 · 고프먼, 마이애미에서 스티브 위트코프와 만날 예정 · 트럼프, 현재까지...",
-    "AI Power/Grid (282 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
+    "Market Notes (769 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면...",
+    "Semiconductors/Memory (558 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
+    "Geopolitics (351 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Earnings/Corporate (324 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정...",
+    "Macro/Rates (316 posts in 14-day research window): 2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,...",
+    "AI Power/Grid (281 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (138 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (123 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 260,
+      "count": 262,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적 활동의 징후는 없다고 발표. 근본적인 장애 원인은 해결했지만 전체 서비스 복구 시점은 아직 제시하지 않음...."
     },
     {
@@ -275,7 +275,7 @@
     },
     {
       "key": "TSM",
-      "count": 58,
+      "count": 59,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -295,7 +295,7 @@
     },
     {
       "key": "TSLA",
-      "count": 41,
+      "count": 42,
       "text": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,..."
     },
     {
@@ -331,8 +331,8 @@
       "topics": [
         "macro"
       ],
-      "count": 315,
-      "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서 CIA 국장 존 랫클리프와 회동 · 고프먼, 마이애미에서 스티브 위트코프와 만날 예정 · 트럼프, 현재까지..."
+      "count": 316,
+      "focus": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,..."
     },
     {
       "id": "geo",
@@ -340,8 +340,8 @@
       "topics": [
         "geo"
       ],
-      "count": 352,
-      "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD..."
+      "count": 351,
+      "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
       "id": "credit",
@@ -349,7 +349,7 @@
       "topics": [
         "credit"
       ],
-      "count": 81,
+      "count": 80,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적 활동의 징후는 없다고 발표. 근본적인 장애 원인은 해결했지만 전체 서비스 복구 시점은 아직 제시하지 않음...."
     },
     {
@@ -358,8 +358,8 @@
       "topics": [
         "semi"
       ],
-      "count": 557,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave..."
+      "count": 558,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조...."
     },
     {
       "id": "optical",
@@ -376,7 +376,7 @@
       "topics": [
         "power"
       ],
-      "count": 282,
+      "count": 281,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -421,7 +421,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 323,
+      "count": 324,
       "focus": "네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정..."
     },
     {
@@ -466,7 +466,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 761,
+      "count": 769,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면..."
     }
   ],
@@ -830,17 +830,14 @@
       "datetime": "2026-11-13T22:20:54.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "geo"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
+      ]
     },
     {
       "id": "insidertracking/69221",
@@ -849,17 +846,14 @@
       "datetime": "2026-11-13T22:19:49.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
         "semi"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조...."
+      ]
     },
     {
       "id": "insidertracking/69199",
@@ -1700,6 +1694,49 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72124",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72124",
+      "datetime": "2026-11-14T10:04:56.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "lead": 1,
+      "score": 73,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 2,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>‘AI 중앙은행’ 조타수 잃었다…월가 “젠슨 황의 퇴진이 AI판 양적긴축 촉발할 것” 경고 (중국언론) •젠슨 황의 퇴진으로 지분 투자, 보증, 자사주 매입 등을 통해 5,000억달러가 넘는 규모의 AI..."
+    },
+    {
+      "id": "HANAchina/72121",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72121",
+      "datetime": "2026-11-14T09:23:35.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "score": 64,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSM",
+        "2454.TW"
+      ],
+      "summary": ">>젠슨 황 사임 충격 현실화? 기관 “서버 공급망 단기 영향 제한적, 장기적으로 규격 변화가 관건” (대만경제일보) •젠슨 황이 CEO에서 사임하고 CFO Colette Kress가 임시 CEO를 맡으면서..."
+    },
+    {
       "id": "HANAchina/72120",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72120",
@@ -2314,7 +2351,7 @@
       "datetime": "2026-11-13T22:23:38.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -2324,8 +2361,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 11월 14일 미장 마감 S&P 500 - 7,561.67 -0.40% 다우 30 - 52,347.55 +0.10% 나스닥 - 25,136.27 -0.91% 러셀 2000 - 2,790.49..."
+      "summary": "2026년 11월 14일 미장 마감 S&P 500 - 7,561.67 -0.40% 다우 30 - 52,347.55 +0.10% 나스닥 - 25,136.27 -0.91% 러셀 2000 - 2,790.49...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69222",
@@ -2334,17 +2371,14 @@
       "datetime": "2026-11-13T22:20:54.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "geo"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
+      ]
     },
     {
       "id": "insidertracking/69221",
@@ -2353,17 +2387,14 @@
       "datetime": "2026-11-13T22:19:49.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
         "semi"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조...."
+      ]
     },
     {
       "id": "HANAchina/72097",
@@ -2584,11 +2615,11 @@
         "ai-policy",
         "equity"
       ],
-      "lead": 2,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>SpaceX부터 Anthropic까지, 시장은 거대 기업 상장에 새로운 대응 전략을 마련 •시장의 거대 기업 상장 대응 전략은 ‘지수 편입 기대’를 중심으로 전개되고 있음. 새로운 규정에 따라 초대형..."
+      "summary": ">>SpaceX부터 Anthropic까지, 시장은 거대 기업 상장에 새로운 대응 전략을 마련 •시장의 거대 기업 상장 대응 전략은 ‘지수 편입 기대’를 중심으로 전개되고 있음. 새로운 규정에 따라 초대형...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/69212",
@@ -7238,46 +7269,6 @@
       ]
     },
     {
-      "id": "HANAchina/71826",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71826",
-      "datetime": "2026-11-09T09:46:27.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 3,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>젠슨 황의 엔비디아 지분 1,625억달러 중 1,495억달러는 부부 공동 신탁 및 재단이 보유 (중국언론) •엔비디아 연차보고서에 따르면 젠슨 황이 보유한 8.71억주 가운데 약 8.01억주는 아내...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "HANAchina/71825",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71825",
-      "datetime": "2026-11-09T09:44:36.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": ">>젠슨 황 후임자 부재 (중국언론) •젠슨 황이 33년간 엔비디아를 이끌었지만, 시가총액 4.5조달러에 달하는 회사에 명확한 CEO 후계자가 공개적으로 정해져 있지 않다는 지적이 나옴. 10명의 사외이사와...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "bornlupin/21063",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21063",
@@ -8723,7 +8714,7 @@
       "datetime": "2026-11-13T22:23:38.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -8733,8 +8724,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 11월 14일 미장 마감 S&P 500 - 7,561.67 -0.40% 다우 30 - 52,347.55 +0.10% 나스닥 - 25,136.27 -0.91% 러셀 2000 - 2,790.49..."
+      "summary": "2026년 11월 14일 미장 마감 S&P 500 - 7,561.67 -0.40% 다우 30 - 52,347.55 +0.10% 나스닥 - 25,136.27 -0.91% 러셀 2000 - 2,790.49...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69222",
@@ -8743,17 +8734,14 @@
       "datetime": "2026-11-13T22:20:54.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "geo"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
+      ]
     },
     {
       "id": "insidertracking/69221",
@@ -8762,17 +8750,14 @@
       "datetime": "2026-11-13T22:19:49.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
         "semi"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조...."
+      ]
     },
     {
       "id": "HANAchina/72097",
@@ -8993,11 +8978,11 @@
         "ai-policy",
         "equity"
       ],
-      "lead": 2,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>SpaceX부터 Anthropic까지, 시장은 거대 기업 상장에 새로운 대응 전략을 마련 •시장의 거대 기업 상장 대응 전략은 ‘지수 편입 기대’를 중심으로 전개되고 있음. 새로운 규정에 따라 초대형..."
+      "summary": ">>SpaceX부터 Anthropic까지, 시장은 거대 기업 상장에 새로운 대응 전략을 마련 •시장의 거대 기업 상장 대응 전략은 ‘지수 편입 기대’를 중심으로 전개되고 있음. 새로운 규정에 따라 초대형...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/69212",
