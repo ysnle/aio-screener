@@ -7,7 +7,7 @@
  "allowedUse": "reference-only",
  "weekStart": "2026-11-09",
  "weekEnd": "2026-11-16",
- "generatedAt": "2026-11-12T22:26:44.273Z",
+ "generatedAt": "2026-11-13T22:26:44.896Z",
  "largeCapCoverage": {
   "basis": "S&P 500 top 30 by index weight + universe ADR listings",
   "watchCount": 36,
@@ -51,16 +51,16 @@
     "accession": "0001652044-26-000080"
    },
    {
-    "symbol": "META",
-    "date": "2026-10-21",
-    "source": "SEC EDGAR 8-K Item 2.02",
-    "accession": "0001628280-26-066700"
-   },
-   {
     "symbol": "GOOG",
     "date": "2026-10-28",
     "source": "SEC EDGAR 8-K Item 2.02",
     "accession": "0001652044-26-000080"
+   },
+   {
+    "symbol": "META",
+    "date": "2026-10-21",
+    "source": "SEC EDGAR 8-K Item 2.02",
+    "accession": "0001628280-26-066700"
    },
    {
     "symbol": "LLY",
@@ -81,10 +81,10 @@
     "accession": "0001193125-26-452530"
    },
    {
-    "symbol": "MU",
-    "date": "2026-09-30",
+    "symbol": "AMD",
+    "date": "2026-11-03",
     "source": "SEC EDGAR 8-K Item 2.02",
-    "accession": "0000723125-26-000018"
+    "accession": "0000002488-26-000188"
    },
    {
     "symbol": "JPM",
@@ -93,10 +93,10 @@
     "accession": "0001628280-26-065582"
    },
    {
-    "symbol": "AMD",
-    "date": "2026-11-03",
+    "symbol": "MU",
+    "date": "2026-09-30",
     "source": "SEC EDGAR 8-K Item 2.02",
-    "accession": "0000002488-26-000188"
+    "accession": "0000723125-26-000018"
    },
    {
     "symbol": "V",
@@ -153,16 +153,16 @@
     "accession": "0001628280-26-067403"
    },
    {
-    "symbol": "MRK",
-    "date": "2026-10-29",
-    "source": "SEC EDGAR 8-K Item 2.02",
-    "accession": "0001104659-26-119825"
-   },
-   {
     "symbol": "UNH",
     "date": "2026-10-13",
     "source": "SEC EDGAR 8-K Item 2.02",
     "accession": "0000731766-26-000255"
+   },
+   {
+    "symbol": "MRK",
+    "date": "2026-10-29",
+    "source": "SEC EDGAR 8-K Item 2.02",
+    "accession": "0001104659-26-119825"
    },
    {
     "symbol": "GE",
@@ -189,7 +189,7 @@
   }
  },
  "upcomingWindow": {
-  "from": "2026-11-12",
+  "from": "2026-11-13",
   "to": "2026-12-18",
   "weeks": 6,
   "scope": "screener universe (US listings)",
@@ -198,12 +198,6 @@
  "upcomingGaps": [],
  "earningsDayGaps": [],
  "upcoming": {
-  "AMAT": "2026-11-12|amc",
-  "CSCO": "2026-11-12|amc",
-  "LAC": "2026-11-12|bmo",
-  "LUNR": "2026-11-12|bmo",
-  "NBIS": "2026-11-12|bmo",
-  "NU": "2026-11-12|amc",
   "ARMK": "2026-11-16|bmo",
   "BIDU": "2026-11-16|bmo",
   "PDD": "2026-11-16|bmo",
@@ -225,13 +219,13 @@
   "TJX": "2026-11-18|bmo",
   "UGI": "2026-11-18|amc",
   "WWD": "2026-11-18|amc",
-  "BABA": "2026-11-19|",
-  "ESTC": "2026-11-19|",
-  "INTU": "2026-11-19|",
+  "BABA": "2026-11-19|bmo",
+  "ESTC": "2026-11-19|amc",
+  "INTU": "2026-11-19|amc",
   "KEYS": "2026-11-19|amc",
   "NTES": "2026-11-19|bmo",
-  "WMG": "2026-11-19|amc",
-  "WMT": "2026-11-19|",
+  "WMG": "2026-11-19|bmo",
+  "WMT": "2026-11-19|bmo",
   "BJ": "2026-11-20|",
   "A": "2026-11-23|amc",
   "BURL": "2026-11-23|",
@@ -439,7 +433,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AIOT",
@@ -547,7 +541,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ANNX",
@@ -595,7 +589,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "APPS",
@@ -643,7 +637,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ASTS",
@@ -727,7 +721,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BAP",
@@ -751,7 +745,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BCAX",
@@ -895,7 +889,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CCAP",
@@ -1027,7 +1021,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CMPX",
@@ -1183,19 +1177,19 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "DAVA",
    "date": "2026-11-09",
-   "hour": "bmo",
-   "epsEstimate": 0.1062,
-   "revenueEstimate": 185864910,
+   "hour": null,
+   "epsEstimate": 0.1302,
+   "revenueEstimate": 184713503,
    "indexWeight": null,
    "epsActual": null,
    "revenueActual": null,
-   "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateFirstSeenAt": "2026-11-13T20:06:37.534Z",
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "DBIN",
@@ -1243,7 +1237,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "DFTX",
@@ -1663,7 +1657,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GPCR",
@@ -1711,7 +1705,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GSL",
@@ -1939,7 +1933,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "IFS",
@@ -2107,7 +2101,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "JTBK",
@@ -2139,7 +2133,7 @@
    "hour": "bmo",
    "epsEstimate": 1.6044,
    "revenueEstimate": 2622445052,
-   "indexWeight": 0.11,
+   "indexWeight": 0.1,
    "epsActual": 1.78,
    "revenueActual": 1761785000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
@@ -2203,7 +2197,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "LCID",
@@ -2287,7 +2281,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "LTRX",
@@ -2719,7 +2713,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "OCUL",
@@ -2779,7 +2773,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ONTO",
@@ -2871,7 +2865,7 @@
    "hour": "amc",
    "epsEstimate": 1.4767,
    "revenueEstimate": 6858446854,
-   "indexWeight": 0.06,
+   "indexWeight": 0.07,
    "epsActual": 1.91,
    "revenueActual": 6772000000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
@@ -2971,7 +2965,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PROK",
@@ -2983,7 +2977,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PRSO",
@@ -2995,7 +2989,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PUBM",
@@ -3043,7 +3037,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "QTRX",
@@ -3259,7 +3253,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SCM",
@@ -3403,7 +3397,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SLNCF",
@@ -3499,7 +3493,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "TDW",
@@ -3655,7 +3649,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "TRVI",
@@ -3991,7 +3985,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ZETA",
@@ -4111,7 +4105,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AEMD",
@@ -4123,7 +4117,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AERG",
@@ -4207,7 +4201,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AMPX",
@@ -4231,7 +4225,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ANGX",
@@ -4267,7 +4261,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AP",
@@ -4411,7 +4405,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AUID",
@@ -4567,7 +4561,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BNGO",
@@ -4651,7 +4645,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BRVE",
@@ -4831,7 +4825,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CCRN",
@@ -4843,7 +4837,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CDAQF",
@@ -4951,7 +4945,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CNTX",
@@ -5203,7 +5197,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ETOR",
@@ -5371,7 +5365,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GANX",
@@ -5443,7 +5437,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GLTK",
@@ -5611,7 +5605,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "HUMA",
@@ -5755,7 +5749,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "INO",
@@ -5803,7 +5797,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ITG",
@@ -5827,7 +5821,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "JBI",
@@ -5851,7 +5845,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "JSDA",
@@ -5923,7 +5917,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "KRMD",
@@ -6031,7 +6025,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "LGMK",
@@ -6043,7 +6037,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "LITB",
@@ -6127,7 +6121,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "LYRA",
@@ -6139,7 +6133,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "MANE",
@@ -6175,7 +6169,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "MCEM",
@@ -6391,7 +6385,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "NRGV",
@@ -6511,7 +6505,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "OVID",
@@ -6775,7 +6769,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "RDGL",
@@ -7015,7 +7009,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SND",
@@ -7099,7 +7093,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "STRS",
@@ -7195,7 +7189,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SYPR",
@@ -7639,7 +7633,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AEBI",
@@ -7687,7 +7681,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "APT",
@@ -7735,7 +7729,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ATLX",
@@ -7843,7 +7837,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BLNC",
@@ -7867,7 +7861,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BTCS",
@@ -7879,7 +7873,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CADL",
@@ -7891,7 +7885,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CAPC",
@@ -7939,7 +7933,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CHAC",
@@ -8107,7 +8101,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ECO",
@@ -8179,7 +8173,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ERAS",
@@ -8191,7 +8185,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "EVFM",
@@ -8251,7 +8245,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "FLNA",
@@ -8263,7 +8257,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "FLNG",
@@ -8287,7 +8281,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GGR",
@@ -8335,7 +8329,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GOGY",
@@ -8371,7 +8365,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GTHP",
@@ -8491,7 +8485,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "INKT",
@@ -8587,7 +8581,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "JFBC",
@@ -8647,7 +8641,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "LPAA",
@@ -8695,7 +8689,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "MCI",
@@ -8719,7 +8713,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "MITI",
@@ -8743,7 +8737,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "MRKR",
@@ -8755,7 +8749,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "MRMD",
@@ -8803,7 +8797,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "NIO",
@@ -8815,7 +8809,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "NIXX",
@@ -8959,7 +8953,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "OTCM",
@@ -9043,7 +9037,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PVCT",
@@ -9127,7 +9121,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "RDCM",
@@ -9187,7 +9181,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SBFM",
@@ -9199,7 +9193,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SFIO",
@@ -9295,7 +9289,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SMEV",
@@ -9331,7 +9325,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SPNS",
@@ -9343,7 +9337,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SSKN",
@@ -9355,7 +9349,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "STLY",
@@ -9379,7 +9373,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "STRR",
@@ -9523,7 +9517,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "TTEK",
@@ -9595,7 +9589,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "VLN",
@@ -9631,7 +9625,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "VYLR",
@@ -9667,18 +9661,18 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "XAIR",
    "date": "2026-11-11",
    "hour": "amc",
-   "epsEstimate": -3.3762,
-   "revenueEstimate": 2343960,
+   "epsEstimate": -2.5806,
+   "revenueEstimate": 3570000,
    "indexWeight": null,
-   "epsActual": -3.49,
-   "revenueActual": 2324000,
-   "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
+   "epsActual": -3.76,
+   "revenueActual": 2320000,
+   "estimateFirstSeenAt": "2026-11-13T20:06:37.534Z",
    "estimateLastSeenAt": "2026-11-11T22:26:54.846Z"
   },
   {
@@ -9739,7 +9733,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ABSI",
@@ -9775,7 +9769,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ACRV",
@@ -9787,7 +9781,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ACXP",
@@ -9811,7 +9805,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ADIG",
@@ -9876,12 +9870,12 @@
   {
    "symbol": "AFYA",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 2.1038,
    "revenueEstimate": 1016994570,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 2.25692,
+   "revenueActual": 1081741756,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -9907,7 +9901,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AIIR",
@@ -9943,7 +9937,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AIRJ",
@@ -9955,7 +9949,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AIRO",
@@ -9984,14 +9978,14 @@
   {
    "symbol": "AKTX",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -2.1318,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "ALDS",
@@ -10020,12 +10014,12 @@
   {
    "symbol": "ALMS",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -0.7619,
    "revenueEstimate": 1938000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.73,
+   "revenueActual": 1910000,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10036,8 +10030,8 @@
    "epsEstimate": -0.1326,
    "revenueEstimate": 527003,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.12,
+   "revenueActual": 570000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10071,9 +10065,9 @@
    "hour": "amc",
    "epsEstimate": 4.1345,
    "revenueEstimate": 10504570449,
-   "indexWeight": 0.48,
-   "epsActual": null,
-   "revenueActual": null,
+   "indexWeight": 0.46,
+   "epsActual": 4.16,
+   "revenueActual": 10409000000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10084,8 +10078,8 @@
    "epsEstimate": 0,
    "revenueEstimate": 14280000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.07,
+   "revenueActual": 6580000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10111,7 +10105,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ANDG",
@@ -10120,8 +10114,8 @@
    "epsEstimate": 1.1288,
    "revenueEstimate": 340308424,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 2.39,
+   "revenueActual": 337320000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10159,7 +10153,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ARWR",
@@ -10168,8 +10162,8 @@
    "epsEstimate": -1.6184,
    "revenueEstimate": 56955076,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -3.04,
+   "revenueActual": 37790000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10207,7 +10201,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ATNM",
@@ -10219,7 +10213,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ATPC",
@@ -10279,7 +10273,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AVAH",
@@ -10312,8 +10306,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 6.11,
+   "revenueActual": 2450000,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -10363,7 +10357,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BCDA",
@@ -10372,20 +10366,20 @@
    "epsEstimate": -0.1326,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.12,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-11T20:01:05.252Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
   {
    "symbol": "BCG",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.13,
+   "revenueActual": 50560000,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -10396,8 +10390,8 @@
    "epsEstimate": -0.0408,
    "revenueEstimate": 4284000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.01,
+   "revenueActual": 5510000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10411,7 +10405,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BCSS",
@@ -10444,8 +10438,8 @@
    "epsEstimate": -0.0918,
    "revenueEstimate": 76500,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.05,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10459,7 +10453,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BESS",
@@ -10471,7 +10465,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BFRG",
@@ -10483,7 +10477,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BICX",
@@ -10495,7 +10489,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BKTI",
@@ -10524,12 +10518,12 @@
   {
    "symbol": "BLNE",
    "date": "2026-11-12",
-   "hour": "bmo",
+   "hour": "amc",
    "epsEstimate": -0.0102,
    "revenueEstimate": 7912140,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.11,
+   "revenueActual": 3010000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10579,17 +10573,17 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BOLT",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -3.7587,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -2.25,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10603,7 +10597,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BRGX",
@@ -10636,8 +10630,8 @@
    "epsEstimate": -0.4386,
    "revenueEstimate": 7310340,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.53,
+   "revenueActual": 7640000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10651,7 +10645,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BTBT",
@@ -10696,8 +10690,8 @@
    "epsEstimate": 0.0306,
    "revenueEstimate": 4590000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.07,
+   "revenueActual": 5210000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10747,7 +10741,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CAEP",
@@ -10783,7 +10777,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CBRRF",
@@ -10804,8 +10798,8 @@
    "epsEstimate": -0.1446,
    "revenueEstimate": 218995927,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.13,
+   "revenueActual": 230870000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10816,8 +10810,8 @@
    "epsEstimate": -0.2754,
    "revenueEstimate": 1308660,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.29,
+   "revenueActual": 800000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10876,8 +10870,8 @@
    "epsEstimate": -0.0976,
    "revenueEstimate": 19094532,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.08,
+   "revenueActual": 19260000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -10930,18 +10924,6 @@
    "estimateLastSeenAt": null
   },
   {
-   "symbol": "CHAI",
-   "date": "2026-11-12",
-   "hour": null,
-   "epsEstimate": null,
-   "revenueEstimate": null,
-   "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
-   "estimateFirstSeenAt": null,
-   "estimateLastSeenAt": null
-  },
-  {
    "symbol": "CHEV",
    "date": "2026-11-12",
    "hour": null,
@@ -10975,7 +10957,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CLBT",
@@ -11023,7 +11005,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CMCL",
@@ -11071,7 +11053,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CNTB",
@@ -11083,7 +11065,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CNVS",
@@ -11095,7 +11077,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "COCP",
@@ -11107,7 +11089,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "COHN",
@@ -11140,8 +11122,8 @@
    "epsEstimate": -5.2428,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -1.94,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11176,8 +11158,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.12,
+   "revenueActual": 19030000,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -11187,9 +11169,9 @@
    "hour": "amc",
    "epsEstimate": 1.3524,
    "revenueEstimate": 18497270172,
-   "indexWeight": 0.6,
-   "epsActual": null,
-   "revenueActual": null,
+   "indexWeight": 0.61,
+   "epsActual": 1.4,
+   "revenueActual": 18517000000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11203,7 +11185,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CTGO",
@@ -11215,7 +11197,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CTSO",
@@ -11224,8 +11206,8 @@
    "epsEstimate": -0.918,
    "revenueEstimate": 10112790,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.58,
+   "revenueActual": 9730000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11239,7 +11221,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CURI",
@@ -11260,8 +11242,8 @@
    "epsEstimate": -0.1493,
    "revenueEstimate": 3871255,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.15,
+   "revenueActual": 3570000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11275,7 +11257,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CVSI",
@@ -11284,8 +11266,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0,
+   "revenueActual": 3030000,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -11308,8 +11290,8 @@
    "epsEstimate": -0.0606,
    "revenueEstimate": 5170190,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.43,
+   "revenueActual": 4320000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11352,12 +11334,12 @@
   {
    "symbol": "DCOY",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -2.6418,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -3.53,
+   "revenueActual": 310000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11380,8 +11362,8 @@
    "epsEstimate": -0.0102,
    "revenueEstimate": 20727165,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.05,
+   "revenueActual": 18970000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11404,8 +11386,8 @@
    "epsEstimate": -3.1008,
    "revenueEstimate": 13810800,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -3.71,
+   "revenueActual": 12170000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11419,7 +11401,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "DLO",
@@ -11428,8 +11410,8 @@
    "epsEstimate": 0.2222,
    "revenueEstimate": 416139018,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.23,
+   "revenueActual": 398050000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11440,8 +11422,8 @@
    "epsEstimate": -0.2117,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.21,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11452,8 +11434,8 @@
    "epsEstimate": -0.1326,
    "revenueEstimate": 6357150,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.13,
+   "revenueActual": 6450000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11503,7 +11485,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "DSHK",
@@ -11527,7 +11509,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "DYAI",
@@ -11536,8 +11518,8 @@
    "epsEstimate": -0.0459,
    "revenueEstimate": 1462343,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.05,
+   "revenueActual": 450000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11620,8 +11602,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.01,
+   "revenueActual": 40080000,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -11635,17 +11617,17 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ENSC",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -0.1224,
    "revenueEstimate": 1308996,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.13,
+   "revenueActual": 2180000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11743,19 +11725,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
-  },
-  {
-   "symbol": "FBLG",
-   "date": "2026-11-12",
-   "hour": null,
-   "epsEstimate": -0.6426,
-   "revenueEstimate": 0,
-   "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
-   "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "FBRX",
@@ -11767,7 +11737,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "FBYD",
@@ -11796,12 +11766,12 @@
   {
    "symbol": "FDMT",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -1.071,
    "revenueEstimate": 2754000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -1.08,
+   "revenueActual": 4150000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11827,7 +11797,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "FENC",
@@ -11860,8 +11830,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.13,
+   "revenueActual": 0,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -11899,7 +11869,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "FLO",
@@ -11908,8 +11878,8 @@
    "epsEstimate": 0.1533,
    "revenueEstimate": 1191329006,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.1,
+   "revenueActual": 1169060000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -11959,7 +11929,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "FRMI",
@@ -12019,7 +11989,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GBCS",
@@ -12043,7 +12013,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GCTS",
@@ -12052,8 +12022,8 @@
    "epsEstimate": -0.1632,
    "revenueEstimate": 1340280,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.09,
+   "revenueActual": 1070000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12076,8 +12046,8 @@
    "epsEstimate": -0.5431,
    "revenueEstimate": 42876852,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.66,
+   "revenueActual": 40880000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12103,7 +12073,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GMER",
@@ -12144,12 +12114,12 @@
   {
    "symbol": "GOVX",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -26.6832,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -10.56,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12199,7 +12169,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GTBP",
@@ -12211,7 +12181,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GTEC",
@@ -12232,8 +12202,8 @@
    "epsEstimate": -1.53,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -1.39,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12247,7 +12217,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "HAWK",
@@ -12256,8 +12226,8 @@
    "epsEstimate": 0.0051,
    "revenueEstimate": 57475296,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0,
+   "revenueActual": 59340000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12304,8 +12274,8 @@
    "epsEstimate": -0.0673,
    "revenueEstimate": 7996846,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.1,
+   "revenueActual": 6590000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12331,7 +12301,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "HQI",
@@ -12340,8 +12310,8 @@
    "epsEstimate": 0.2222,
    "revenueEstimate": 8788010,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.22,
+   "revenueActual": 8810000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12352,8 +12322,8 @@
    "epsEstimate": -0.1042,
    "revenueEstimate": 66569025,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.03,
+   "revenueActual": 72860000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12391,7 +12361,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "HYPD",
@@ -12412,8 +12382,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.1,
+   "revenueActual": 8039999,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -12427,7 +12397,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "IDN",
@@ -12436,8 +12406,8 @@
    "epsEstimate": 0.0051,
    "revenueEstimate": 5566110,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.02,
+   "revenueActual": 5740000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12472,8 +12442,8 @@
    "epsEstimate": -0.0816,
    "revenueEstimate": 5023500,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.05,
+   "revenueActual": 4030000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12484,8 +12454,8 @@
    "epsEstimate": 0.9804,
    "revenueEstimate": 2759301450,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 1.015416,
+   "revenueActual": 2983969152,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12496,8 +12466,8 @@
    "epsEstimate": -0.0714,
    "revenueEstimate": 2142000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.12,
+   "revenueActual": 2680000,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12508,8 +12478,8 @@
    "epsEstimate": -0.298,
    "revenueEstimate": 901596,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 1.43,
+   "revenueActual": 1480000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12520,8 +12490,8 @@
    "epsEstimate": -0.153,
    "revenueEstimate": 4539000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.02,
+   "revenueActual": 3090000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12583,7 +12553,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "IWSH",
@@ -12619,7 +12589,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "JCAP",
@@ -12628,8 +12598,8 @@
    "epsEstimate": 0.7385,
    "revenueEstimate": 178306924,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.83,
+   "revenueActual": 185510000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12700,8 +12670,8 @@
    "epsEstimate": -0.0024,
    "revenueEstimate": 675460053,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.03,
+   "revenueActual": 665340000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12720,12 +12690,12 @@
   {
    "symbol": "KOD",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -1.0723,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -1.05,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12763,7 +12733,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "KVAC",
@@ -12832,8 +12802,8 @@
    "epsEstimate": -0.0291,
    "revenueEstimate": 2031258,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.03,
+   "revenueActual": 1430000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12856,8 +12826,8 @@
    "epsEstimate": -0.1443,
    "revenueEstimate": 49862700,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.11,
+   "revenueActual": 44630000,
    "estimateFirstSeenAt": "2026-11-10T20:03:21.379Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12868,8 +12838,8 @@
    "epsEstimate": 0.1771,
    "revenueEstimate": 226191854,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.47,
+   "revenueActual": 237520000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12880,8 +12850,8 @@
    "epsEstimate": 0.1252,
    "revenueEstimate": 21078300,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.06,
+   "revenueActual": 20000000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -12991,7 +12961,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "LSF",
@@ -13000,8 +12970,8 @@
    "epsEstimate": 0.0202,
    "revenueEstimate": 45633486,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.03,
+   "revenueActual": 41950000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13027,7 +12997,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "LTUM",
@@ -13084,8 +13054,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -1.48,
+   "revenueActual": 58600000,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -13156,8 +13126,8 @@
    "epsEstimate": 0.0612,
    "revenueEstimate": 67796003,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.02,
+   "revenueActual": 67800000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13171,7 +13141,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "MACI",
@@ -13252,10 +13222,10 @@
    "epsEstimate": -0.0938,
    "revenueEstimate": 29322960,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.16,
+   "revenueActual": 22710000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "MGRX",
@@ -13294,18 +13264,6 @@
    "estimateLastSeenAt": null
   },
   {
-   "symbol": "MLSS",
-   "date": "2026-11-12",
-   "hour": null,
-   "epsEstimate": -0.0102,
-   "revenueEstimate": 2455650,
-   "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
-   "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
-  },
-  {
    "symbol": "MNPR",
    "date": "2026-11-12",
    "hour": "bmo",
@@ -13327,7 +13285,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "MOB",
@@ -13363,7 +13321,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "MOVE",
@@ -13396,8 +13354,8 @@
    "epsEstimate": -0.357,
    "revenueEstimate": 2277996,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.42,
+   "revenueActual": 3460000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13408,20 +13366,20 @@
    "epsEstimate": -1.2546,
    "revenueEstimate": 2142000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.88,
+   "revenueActual": 1510000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
   {
    "symbol": "MSGM",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 0.0816,
    "revenueEstimate": 3862740,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.06,
+   "revenueActual": 3780000,
    "estimateFirstSeenAt": "2026-11-10T20:03:21.379Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13536,12 +13494,12 @@
   {
    "symbol": "NCNA",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.35508499999999993,
+   "revenueActual": 0,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -13579,7 +13537,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "NEUP",
@@ -13591,7 +13549,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "NIQ",
@@ -13612,8 +13570,8 @@
    "epsEstimate": -2.1108,
    "revenueEstimate": 10479143,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -1.63,
+   "revenueActual": 9390000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13636,8 +13594,8 @@
    "epsEstimate": -0.0102,
    "revenueEstimate": 50829996,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.12,
+   "revenueActual": 69030000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13648,8 +13606,8 @@
    "epsEstimate": -0.0918,
    "revenueEstimate": 27701364,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.03,
+   "revenueActual": 23100000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13660,8 +13618,8 @@
    "epsEstimate": -0.0525,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.07,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13672,20 +13630,20 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.02,
+   "revenueActual": 3790000,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
   {
    "symbol": "NSPR",
    "date": "2026-11-12",
-   "hour": "bmo",
+   "hour": "amc",
    "epsEstimate": -0.1564,
    "revenueEstimate": 2036256,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.11,
+   "revenueActual": 2240000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13696,8 +13654,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.01,
+   "revenueActual": 0,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -13732,8 +13690,8 @@
    "epsEstimate": 0.2311,
    "revenueEstimate": 5855005305,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.22,
+   "revenueActual": 5820360000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13780,10 +13738,10 @@
    "epsEstimate": -0.3978,
    "revenueEstimate": 2555100,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -5.81,
+   "revenueActual": 2210000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "NVVE",
@@ -13824,12 +13782,12 @@
   {
    "symbol": "NXL",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -2.9391,
    "revenueEstimate": 75750,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -3.43,
+   "revenueActual": 80000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13864,8 +13822,8 @@
    "epsEstimate": -0.0629,
    "revenueEstimate": 89847424,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.09,
+   "revenueActual": 89070000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13879,7 +13837,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "OLOX",
@@ -13939,7 +13897,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "OTGA",
@@ -13984,8 +13942,8 @@
    "epsEstimate": 0.0758,
    "revenueEstimate": 158595250,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.2,
+   "revenueActual": 148970000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -13996,8 +13954,8 @@
    "epsEstimate": 0.306,
    "revenueEstimate": 65883840,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.57,
+   "revenueActual": 64930000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14059,7 +14017,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PED",
@@ -14068,8 +14026,8 @@
    "epsEstimate": 0.1818,
    "revenueEstimate": 32471500,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.19,
+   "revenueActual": 35540000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14092,8 +14050,8 @@
    "epsEstimate": -0.0909,
    "revenueEstimate": 22927000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.1,
+   "revenueActual": 21230000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14136,12 +14094,12 @@
   {
    "symbol": "PLRX",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -0.3774,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.39,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14152,8 +14110,8 @@
    "epsEstimate": -1.2911,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.89,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14203,29 +14161,29 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PRME",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -0.2483,
    "revenueEstimate": 1230120,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.22,
+   "revenueActual": 4210000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
   {
    "symbol": "PROP",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 0.1015,
    "revenueEstimate": 108324000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.17,
+   "revenueActual": 129500000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14263,7 +14221,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PTHS",
@@ -14323,7 +14281,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "QDMI",
@@ -14364,12 +14322,12 @@
   {
    "symbol": "QMCI",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 0,
    "revenueEstimate": 5793600,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0,
+   "revenueActual": 5600000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14443,7 +14401,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "REKR",
@@ -14452,8 +14410,8 @@
    "epsEstimate": -0.0204,
    "revenueEstimate": 14384040,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.02,
+   "revenueActual": 10900000,
    "estimateFirstSeenAt": "2026-11-10T20:03:21.379Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14500,8 +14458,8 @@
    "epsEstimate": -0.1479,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.12,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14524,8 +14482,8 @@
    "epsEstimate": 0.1868,
    "revenueEstimate": 155665240,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.21,
+   "revenueActual": 163640000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14575,7 +14533,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ROC",
@@ -14584,8 +14542,8 @@
    "epsEstimate": -0.0707,
    "revenueEstimate": 5555000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.03,
+   "revenueActual": 8010000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14647,7 +14605,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SBDS",
@@ -14812,8 +14770,8 @@
    "epsEstimate": 0.0408,
    "revenueEstimate": 142647000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.08,
+   "revenueActual": 135800000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14848,8 +14806,8 @@
    "epsEstimate": -0.0527,
    "revenueEstimate": 27999000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.05,
+   "revenueActual": 25670000,
    "estimateFirstSeenAt": "2026-11-11T20:01:05.252Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14872,8 +14830,8 @@
    "epsEstimate": -0.1275,
    "revenueEstimate": 165729090,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.62,
+   "revenueActual": 233780000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14884,8 +14842,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.05,
+   "revenueActual": 20160000,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -14908,20 +14866,20 @@
    "epsEstimate": -0.4692,
    "revenueEstimate": 5202000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.05,
+   "revenueActual": 5020000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
   {
    "symbol": "SMTI",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 0.0612,
    "revenueEstimate": 30260003,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.12,
+   "revenueActual": 28430000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14944,8 +14902,8 @@
    "epsEstimate": 0.6018,
    "revenueEstimate": 31110000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.75,
+   "revenueActual": 33060000,
    "estimateFirstSeenAt": "2026-11-11T20:01:05.252Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -14971,7 +14929,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SNYR",
@@ -14983,7 +14941,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SOBR",
@@ -15031,7 +14989,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SPB",
@@ -15064,8 +15022,8 @@
    "epsEstimate": -0.4779,
    "revenueEstimate": 408000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.39,
+   "revenueActual": 430000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15108,12 +15066,12 @@
   {
    "symbol": "SPRO",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -0.4794,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.16,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15124,22 +15082,10 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.28,
+   "revenueActual": 29690000,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
-  },
-  {
-   "symbol": "SPWR",
-   "date": "2026-11-12",
-   "hour": null,
-   "epsEstimate": -0.0102,
-   "revenueEstimate": 67728000,
-   "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
-   "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
   {
    "symbol": "SQFT",
@@ -15172,10 +15118,10 @@
    "epsEstimate": -0.0561,
    "revenueEstimate": 6746280,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.09,
+   "revenueActual": 5990000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "SSYS",
@@ -15220,8 +15166,8 @@
    "epsEstimate": -0.0306,
    "revenueEstimate": 306000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.09,
+   "revenueActual": 150000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15232,8 +15178,8 @@
    "epsEstimate": 2.5615,
    "revenueEstimate": 3804031523,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 2.594952,
+   "revenueActual": 4046601996,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15283,7 +15229,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "TACT",
@@ -15292,8 +15238,8 @@
    "epsEstimate": -0.0612,
    "revenueEstimate": 14178000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.04,
+   "revenueActual": 14440000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15316,8 +15262,8 @@
    "epsEstimate": -0.0812,
    "revenueEstimate": 4915336,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.35,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15403,7 +15349,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "TLNC",
@@ -15424,8 +15370,8 @@
    "epsEstimate": -0.0612,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.05,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15436,8 +15382,8 @@
    "epsEstimate": -0.0606,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.06,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15448,8 +15394,8 @@
    "epsEstimate": -4.3095,
    "revenueEstimate": 1585590,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -5.39,
+   "revenueActual": 1430000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15463,7 +15409,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "TOVX",
@@ -15547,7 +15493,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "TWAV",
@@ -15580,8 +15526,8 @@
    "epsEstimate": -0.0153,
    "revenueEstimate": 16710996,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.06,
+   "revenueActual": 10130000,
    "estimateFirstSeenAt": "2026-11-10T20:03:21.379Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15652,8 +15598,8 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.8,
+   "revenueActual": 495500000,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -15700,10 +15646,10 @@
    "epsEstimate": 1.6082,
    "revenueEstimate": 295338960,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 1.184883,
+   "revenueActual": 344405992,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "VISL",
@@ -15748,8 +15694,8 @@
    "epsEstimate": -0.357,
    "revenueEstimate": 720630,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.2,
+   "revenueActual": 1610000,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15772,8 +15718,8 @@
    "epsEstimate": -0.5073,
    "revenueEstimate": 6324438,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.49,
+   "revenueActual": 6910000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15808,8 +15754,8 @@
    "epsEstimate": -0.0627,
    "revenueEstimate": 4477800,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.19,
+   "revenueActual": 7620000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15820,8 +15766,8 @@
    "epsEstimate": -0.0816,
    "revenueEstimate": 1328040,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.1,
+   "revenueActual": 710000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15847,17 +15793,17 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "WATT",
    "date": "2026-11-12",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -0.357,
    "revenueEstimate": 3876000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.38,
+   "revenueActual": 3400000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15880,8 +15826,8 @@
    "epsEstimate": 0.2363,
    "revenueEstimate": 24437283,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.16,
+   "revenueActual": 21470000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15895,7 +15841,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "WSE",
@@ -15907,7 +15853,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "WTER",
@@ -15964,8 +15910,8 @@
    "epsEstimate": -0.4545,
    "revenueEstimate": 14847000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.52,
+   "revenueActual": 5550000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -15976,8 +15922,8 @@
    "epsEstimate": -0.1428,
    "revenueEstimate": 34170000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.04,
+   "revenueActual": 35310000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -16072,8 +16018,8 @@
    "epsEstimate": -0.2407,
    "revenueEstimate": 96406984,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -1.55,
+   "revenueActual": 84170000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
    "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
@@ -16123,7 +16069,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ZSPC",
@@ -16135,7 +16081,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ZSQR",
@@ -16159,7 +16105,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AIRE",
@@ -16171,7 +16117,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ARAI",
@@ -16180,10 +16126,10 @@
    "epsEstimate": -3.9168,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -3.37,
+   "revenueActual": 40000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "ASFH",
@@ -16207,7 +16153,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BEEM",
@@ -16219,7 +16165,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BFRI",
@@ -16231,19 +16177,19 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BKYI",
    "date": "2026-11-13",
-   "hour": null,
+   "hour": "bmo",
    "epsEstimate": -0.714,
    "revenueEstimate": 2448000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -4.01,
+   "revenueActual": 1480000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "BOXL",
@@ -16255,7 +16201,19 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
+  },
+  {
+   "symbol": "CHAI",
+   "date": "2026-11-13",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null,
+   "indexWeight": null,
+   "epsActual": null,
+   "revenueActual": null,
+   "estimateFirstSeenAt": null,
+   "estimateLastSeenAt": null
   },
   {
    "symbol": "CNTY",
@@ -16267,7 +16225,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CPPTL",
@@ -16324,10 +16282,10 @@
    "epsEstimate": 0.3165,
    "revenueEstimate": 11682670,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.73,
+   "revenueActual": 19920000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "EVTL",
@@ -16339,7 +16297,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "FSI",
@@ -16351,7 +16309,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GRML",
@@ -16380,14 +16338,14 @@
   {
    "symbol": "HURA",
    "date": "2026-11-13",
-   "hour": null,
+   "hour": "bmo",
    "epsEstimate": -0.1403,
    "revenueEstimate": 0,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.1,
+   "revenueActual": 0,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "INBX",
@@ -16399,7 +16357,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "KFII",
@@ -16420,10 +16378,10 @@
    "epsEstimate": -0.22,
    "revenueEstimate": 1165717,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.18,
+   "revenueActual": 2960000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "MITQ",
@@ -16432,9 +16390,21 @@
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.02,
+   "revenueActual": 6090000,
    "estimateFirstSeenAt": null,
+   "estimateLastSeenAt": null
+  },
+  {
+   "symbol": "MLSS",
+   "date": "2026-11-13",
+   "hour": "bmo",
+   "epsEstimate": -0.0102,
+   "revenueEstimate": 2455650,
+   "indexWeight": null,
+   "epsActual": -0.01,
+   "revenueActual": 2220000,
+   "estimateFirstSeenAt": "2026-11-13T20:06:37.534Z",
    "estimateLastSeenAt": null
   },
   {
@@ -16447,7 +16417,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "MSS",
@@ -16459,7 +16429,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "NDLS",
@@ -16468,10 +16438,10 @@
    "epsEstimate": -0.2142,
    "revenueEstimate": 119646000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.04,
+   "revenueActual": 120870000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "NYC",
@@ -16495,7 +16465,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "OSTX",
@@ -16507,7 +16477,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "OWLT",
@@ -16516,10 +16486,10 @@
    "epsEstimate": -0.0442,
    "revenueEstimate": 30561240,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.11,
+   "revenueActual": 30400000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "PAVM",
@@ -16528,10 +16498,10 @@
    "epsEstimate": -0.6018,
    "revenueEstimate": 25500,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.19,
+   "revenueActual": 40000,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "PETZ",
@@ -16555,7 +16525,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PWCM",
@@ -16564,10 +16534,10 @@
    "epsEstimate": -2.091,
    "revenueEstimate": 2040000,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.2,
+   "revenueActual": 1890000,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "RENX",
@@ -16579,7 +16549,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "RMIX",
@@ -16588,10 +16558,10 @@
    "epsEstimate": 0.085,
    "revenueEstimate": 148999692,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.01,
+   "revenueActual": 140960000,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "ROLR",
@@ -16603,7 +16573,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-11T20:01:05.252Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SBC",
@@ -16612,10 +16582,10 @@
    "epsEstimate": 0.1131,
    "revenueEstimate": 49383142,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": 0.15,
+   "revenueActual": 58580000,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T07:32:11.424Z"
   },
   {
    "symbol": "SNTW",
@@ -16702,14 +16672,26 @@
    "estimateLastSeenAt": null
   },
   {
+   "symbol": "XMAX",
+   "date": "2026-11-13",
+   "hour": null,
+   "epsEstimate": null,
+   "revenueEstimate": null,
+   "indexWeight": null,
+   "epsActual": null,
+   "revenueActual": null,
+   "estimateFirstSeenAt": null,
+   "estimateLastSeenAt": null
+  },
+  {
    "symbol": "XXI",
    "date": "2026-11-13",
    "hour": "bmo",
    "epsEstimate": null,
    "revenueEstimate": null,
    "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
+   "epsActual": -0.01,
+   "revenueActual": 0,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
   },
@@ -16723,7 +16705,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ALLR",
@@ -16735,7 +16717,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ACM",
@@ -16747,7 +16729,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ADNH",
@@ -16795,7 +16777,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AGSS",
@@ -16819,7 +16801,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ALCY",
@@ -16843,7 +16825,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ANTA",
@@ -16855,7 +16837,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "API",
@@ -16879,19 +16861,19 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "AYTU",
    "date": "2026-11-16",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -0.2618,
    "revenueEstimate": 13536756,
    "indexWeight": null,
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BAER",
@@ -16903,7 +16885,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BBXIA",
@@ -16927,7 +16909,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BRFH",
@@ -16939,7 +16921,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BXDC",
@@ -16951,7 +16933,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BZ",
@@ -16963,7 +16945,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "BZAI",
@@ -16975,7 +16957,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CCIF",
@@ -16987,7 +16969,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CEPL",
@@ -16999,7 +16981,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CISS",
@@ -17059,7 +17041,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CREX",
@@ -17071,43 +17053,43 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CSAI",
    "date": "2026-11-16",
-   "hour": null,
+   "hour": "bmo",
    "epsEstimate": -2.4633,
    "revenueEstimate": 2034900,
    "indexWeight": null,
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "CYPH",
    "date": "2026-11-16",
-   "hour": null,
+   "hour": "bmo",
    "epsEstimate": 0.0408,
    "revenueEstimate": 16524000,
    "indexWeight": null,
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "DARE",
    "date": "2026-11-16",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -0.2652,
    "revenueEstimate": 2058696,
    "indexWeight": null,
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "DMAA",
@@ -17155,7 +17137,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "DUOT",
@@ -17167,7 +17149,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "DVLT",
@@ -17179,19 +17161,19 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "EDBL",
    "date": "2026-11-16",
-   "hour": null,
+   "hour": "bmo",
    "epsEstimate": -1.9992,
    "revenueEstimate": 3160980,
    "indexWeight": null,
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ELWT",
@@ -17203,7 +17185,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-10T20:03:21.379Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "EMAT",
@@ -17215,7 +17197,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ENTA",
@@ -17227,7 +17209,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "EP",
@@ -17240,18 +17222,6 @@
    "revenueActual": null,
    "estimateFirstSeenAt": null,
    "estimateLastSeenAt": null
-  },
-  {
-   "symbol": "ESEA",
-   "date": "2026-11-16",
-   "hour": null,
-   "epsEstimate": 4.3275,
-   "revenueEstimate": 58493175,
-   "indexWeight": null,
-   "epsActual": null,
-   "revenueActual": null,
-   "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
   },
   {
    "symbol": "ESGH",
@@ -17275,19 +17245,19 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "FFAI",
    "date": "2026-11-16",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": -7.7928,
    "revenueEstimate": 1899240,
    "indexWeight": null,
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "FIRY",
@@ -17299,7 +17269,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-11T20:01:05.252Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "FOTB",
@@ -17335,7 +17305,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GALT",
@@ -17347,7 +17317,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GAME",
@@ -17359,7 +17329,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GELS",
@@ -17383,7 +17353,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GFUZ",
@@ -17407,7 +17377,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "GTCH",
@@ -17467,7 +17437,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "IDR",
@@ -17479,7 +17449,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "IMDX",
@@ -17491,7 +17461,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "INFQ",
@@ -17503,7 +17473,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "INVU",
@@ -17527,7 +17497,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "IVF",
@@ -17539,7 +17509,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "JFB",
@@ -17551,7 +17521,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "JTAI",
@@ -17563,7 +17533,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "KANP",
@@ -17611,7 +17581,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "LZMH",
@@ -17635,7 +17605,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "MGLD",
@@ -17659,7 +17629,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "NIU",
@@ -17671,7 +17641,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "NKLR",
@@ -17683,7 +17653,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "NRXP",
@@ -17695,7 +17665,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "NTZ",
@@ -17724,14 +17694,14 @@
   {
    "symbol": "OMER",
    "date": "2026-11-16",
-   "hour": null,
+   "hour": "amc",
    "epsEstimate": 0.0306,
    "revenueEstimate": 38012003,
    "indexWeight": null,
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "ONFO",
@@ -17767,7 +17737,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PARA",
@@ -17779,19 +17749,19 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PDCC",
    "date": "2026-11-16",
-   "hour": null,
+   "hour": "bmo",
    "epsEstimate": 0.2958,
    "revenueEstimate": 4187100,
    "indexWeight": null,
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PDD",
@@ -17803,7 +17773,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PERI",
@@ -17815,7 +17785,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "POCI",
@@ -17827,7 +17797,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-09T22:26:47.867Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "POET",
@@ -17839,7 +17809,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "POWL",
@@ -17851,7 +17821,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "POWW",
@@ -17863,7 +17833,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "PRPO",
@@ -17887,7 +17857,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "RSSS",
@@ -17899,7 +17869,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "RVPH",
@@ -17911,7 +17881,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SHAZ",
@@ -17923,7 +17893,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SLNH",
@@ -17935,7 +17905,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-10T20:03:21.379Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "SOAR",
@@ -17983,7 +17953,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "TMS",
@@ -17995,7 +17965,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "TOYO",
@@ -18007,7 +17977,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-11T20:01:05.252Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "TRAK",
@@ -18019,7 +17989,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "TRSO",
@@ -18043,7 +18013,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "TULP",
@@ -18067,7 +18037,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "USDE",
@@ -18091,7 +18061,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "VERF",
@@ -18108,14 +18078,14 @@
   {
    "symbol": "VERI",
    "date": "2026-11-16",
-   "hour": "amc",
+   "hour": "bmo",
    "epsEstimate": -0.1173,
    "revenueEstimate": 34621860,
    "indexWeight": null,
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "VIDA",
@@ -18163,7 +18133,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "WYY",
@@ -18175,7 +18145,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "XBP",
@@ -18187,7 +18157,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "XITO",
@@ -18223,19 +18193,19 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "XTND",
    "date": "2026-11-16",
-   "hour": null,
+   "hour": "bmo",
    "epsEstimate": -0.0408,
    "revenueEstimate": 35955000,
    "indexWeight": null,
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-12T20:30:56.871Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "XTNT",
@@ -18247,7 +18217,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-11T20:01:05.252Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "XXII",
@@ -18259,7 +18229,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-08T22:27:21.391Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   },
   {
    "symbol": "YALA",
@@ -18295,7 +18265,7 @@
    "epsActual": null,
    "revenueActual": null,
    "estimateFirstSeenAt": "2026-11-07T13:37:48.851Z",
-   "estimateLastSeenAt": "2026-11-12T22:26:48.578Z"
+   "estimateLastSeenAt": "2026-11-13T22:26:49.212Z"
   }
  ],
  "ipos": [
