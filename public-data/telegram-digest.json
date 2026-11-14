@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-14T06:21:25.932Z",
-  "attemptedAt": "2026-11-14T06:21:25.932Z",
-  "lastSuccessfulAt": "2026-11-14T06:21:25.932Z",
+  "generatedAt": "2026-11-14T07:22:16.655Z",
+  "attemptedAt": "2026-11-14T07:22:16.655Z",
+  "lastSuccessfulAt": "2026-11-14T07:22:16.655Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-31T06:21:21.241Z",
-  "until": "2026-11-14T06:21:21.241Z",
+  "since": "2026-10-31T07:22:09.348Z",
+  "until": "2026-11-14T07:22:09.348Z",
   "current24hWindow": {
     "start": "2026-11-12T23:00:00.000Z",
     "end": "2026-11-13T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1231,
+      "count": 1227,
       "freshCount": 40,
-      "eligibleTextCount": 1175,
+      "eligibleTextCount": 1171,
       "selectedCount": 122,
       "error": null,
-      "lastPostId": 69263
+      "lastPostId": 69264
     },
     {
       "channel": "bornlupin",
@@ -117,25 +117,25 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 721,
-      "freshCount": 39,
+      "freshCount": 40,
       "eligibleTextCount": 720,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72114
+      "lastPostId": 72115
     }
   ],
-  "count": 2186,
-  "retainedItemCount": 423,
+  "count": 2182,
+  "retainedItemCount": 424,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2186,
-    "eligibleTextCount": 2129,
+    "observedCount": 2182,
+    "eligibleTextCount": 2125,
     "mediaOnlyCount": 57,
-    "mediaAttachedCount": 926,
-    "photoPostCount": 801,
+    "mediaAttachedCount": 927,
+    "photoPostCount": 802,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
     "highSignalCount": 372,
@@ -147,25 +147,26 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 763,
     "semi": 559,
+    "equity": 138,
+    "japan": 67,
+    "healthcare": 60,
+    "market-note": 761,
     "power": 284,
     "macro": 314,
-    "geo": 353,
+    "geo": 350,
     "kr-market": 96,
-    "equity": 137,
-    "earnings": 325,
+    "earnings": 324,
     "ai-policy": 123,
     "media-only": 55,
-    "japan": 66,
     "flows": 57,
-    "healthcare": 59,
     "credit": 80,
     "optical": 28,
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 257,
+    "NVDA": 258,
+    "TSLA": 41,
     "MS": 6,
     "000660.KS": 26,
     "CRWD": 1,
@@ -183,7 +184,6 @@
     "005930.KS": 33,
     "066570.KS": 1,
     "MOD": 2,
-    "TSLA": 40,
     "AMAT": 6,
     "LLY": 4,
     "PFE": 2,
@@ -253,19 +253,19 @@
     "6981.T": 2
   },
   "themes": [
-    "Market Notes (763 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면...",
+    "Market Notes (761 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면...",
     "Semiconductors/Memory (559 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave...",
-    "Geopolitics (353 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD...",
-    "Earnings/Corporate (325 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정...",
+    "Geopolitics (350 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD...",
+    "Earnings/Corporate (324 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정...",
     "Macro/Rates (314 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서 CIA 국장 존 랫클리프와 회동 · 고프먼, 마이애미에서 스티브 위트코프와 만날 예정 · 트럼프, 현재까지...",
     "AI Power/Grid (284 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
-    "Equity/Analyst (137 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "Equity/Analyst (138 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (123 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 257,
+      "count": 258,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적 활동의 징후는 없다고 발표. 근본적인 장애 원인은 해결했지만 전체 서비스 복구 시점은 아직 제시하지 않음...."
     },
     {
@@ -295,7 +295,7 @@
     },
     {
       "key": "TSLA",
-      "count": 40,
+      "count": 41,
       "text": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,..."
     },
     {
@@ -340,7 +340,7 @@
       "topics": [
         "geo"
       ],
-      "count": 353,
+      "count": 350,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD..."
     },
     {
@@ -403,7 +403,7 @@
       "topics": [
         "equity"
       ],
-      "count": 137,
+      "count": 138,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -421,7 +421,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 325,
+      "count": 324,
       "focus": "네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정..."
     },
     {
@@ -430,7 +430,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 59,
+      "count": 60,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체..."
     },
     {
@@ -439,7 +439,7 @@
       "topics": [
         "japan"
       ],
-      "count": 66,
+      "count": 67,
       "focus": "11월 11일 닛케이225 지수가 3거래일 연속 상승. 최근 큰 폭의 조정을 겪은 AI 관련주에 대해 경제지표와 기업 실적이 일부 낙관론을 되살린 영향. 로이터가 수요일 발표한 조사에 따르면 일본의 11월..."
     },
     {
@@ -466,7 +466,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 763,
+      "count": 761,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면..."
     }
   ],
@@ -1699,6 +1699,26 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/72115",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72115",
+      "datetime": "2026-11-14T06:37:29.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "semi",
+        "equity",
+        "japan"
+      ],
+      "lead": 1,
+      "score": 55,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSLA"
+      ],
+      "summary": ">>트럼프, 다음 주 아시아 방문에 머스크 동행 예정…엔비디아·젠슨 황 언급은 피할 듯 •AP통신에 따르면 트럼프 대통령은 다음 주 아시아 방문에 머스크를 동행시킬 계획. 익명의 정부 관계자는 SpaceX와..."
+    },
     {
       "id": "insidertracking/69262",
       "channel": "insidertracking",
@@ -7277,29 +7297,6 @@
       },
       "summary": "[대만 10월 수출입: 수출 역대 최고치 경신] • 수출 967.6억 달러 (YoY +58.9%), 36개월 연속 플러스 성장 • 수입 688.9억 달러 (YoY +75.1%) • 무역수지: 278.8억 달러...",
       "tickers": []
-    },
-    {
-      "id": "HANAchina/71822",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71822",
-      "datetime": "2026-11-09T08:23:28.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "macro"
-      ],
-      "score": 77,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "중화권 마감 시황 (26.11.09, 월) 🇨🇳 중국 본토 증시는 10월 CPI가 0.7%, PPI가 5.7% 상승하며 완만한 물가 회복세를 보였으나, 거래대금 급감과 단기 차익 실현으로 오전 상승폭을...",
-      "tickers": [
-        "TSM",
-        "2454.TW"
-      ]
     },
     {
       "id": "bornlupin/21063",
