@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-14T14:26:14.699Z",
-  "attemptedAt": "2026-11-14T14:26:14.699Z",
-  "lastSuccessfulAt": "2026-11-14T14:26:14.699Z",
+  "generatedAt": "2026-11-14T15:21:38.863Z",
+  "attemptedAt": "2026-11-14T15:21:38.863Z",
+  "lastSuccessfulAt": "2026-11-14T15:21:38.863Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-10-31T14:26:10.892Z",
-  "until": "2026-11-14T14:26:10.892Z",
+  "since": "2026-10-31T15:21:31.239Z",
+  "until": "2026-11-14T15:21:31.239Z",
   "current24hWindow": {
     "start": "2026-11-12T23:00:00.000Z",
     "end": "2026-11-13T23:00:00.000Z",
@@ -89,15 +89,15 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1235,
-      "freshCount": 20,
-      "eligibleTextCount": 1179,
+      "count": 1236,
+      "freshCount": 40,
+      "eligibleTextCount": 1180,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 69281
+      "lastPostId": 69282
     },
     {
       "channel": "bornlupin",
@@ -113,51 +113,51 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 733,
-      "freshCount": 19,
-      "eligibleTextCount": 732,
+      "count": 735,
+      "freshCount": 39,
+      "eligibleTextCount": 734,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 72134
+      "lastPostId": 72136
     }
   ],
-  "count": 2198,
-  "retainedItemCount": 404,
+  "count": 2201,
+  "retainedItemCount": 433,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2198,
-    "eligibleTextCount": 2141,
+    "observedCount": 2201,
+    "eligibleTextCount": 2144,
     "mediaOnlyCount": 57,
     "mediaAttachedCount": 936,
     "photoPostCount": 809,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 372,
-    "broadSignalCount": 860,
+    "highSignalCount": 373,
+    "broadSignalCount": 861,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
     "selectedRawCoveragePct": 17.4,
-    "selectedOfObservedPct": 17,
+    "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 772,
+    "market-note": 773,
+    "credit": 79,
+    "earnings": 325,
+    "ai-policy": 125,
+    "equity": 139,
     "semi": 561,
-    "ai-policy": 124,
     "geo": 350,
     "japan": 68,
-    "earnings": 324,
-    "equity": 138,
     "macro": 314,
     "optical": 28,
     "flows": 58,
-    "credit": 78,
     "healthcare": 57,
     "power": 281,
     "kr-market": 95,
@@ -253,14 +253,14 @@
     "6981.T": 2
   },
   "themes": [
-    "Market Notes (772 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
+    "Market Notes (773 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
     "Semiconductors/Memory (561 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
     "Geopolitics (350 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Earnings/Corporate (324 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정...",
+    "Earnings/Corporate (325 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정...",
     "Macro/Rates (314 posts in 14-day research window): 2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
     "AI Power/Grid (281 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
-    "Equity/Analyst (138 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "AI Policy/Export Controls (124 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
+    "Equity/Analyst (139 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "AI Policy/Export Controls (125 posts in 14-day research window): >>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
   ],
   "catalysts": [
     {
@@ -349,7 +349,7 @@
       "topics": [
         "credit"
       ],
-      "count": 78,
+      "count": 79,
       "focus": "네비우스(NBIS) 2026년 3분기 어닝콜 Q&A 중 질문: 최근 채권시장 여건이 좋지 않은데, 추가 자금이 필요할 경우 고객 선급금을 더 받을 수 있습니까? 경영진 답변: 가능합니다. 고객 선급금은 자금 수요에 대응하는 중요한 수단입니다. 네비우스는 수요가 충분했음에도 더 나은 계약 조건을 확보하기 위해 일부..."
     },
     {
@@ -385,7 +385,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 124,
+      "count": 125,
       "focus": ">>AI 투자 열풍의 대조적 사례: Anthropic과 Google (대만공상시보) •글로벌 AI 산업이 상업화 초기 단계를 지나 ROI 검증 국면에 진입하면서 시장의 평가 기준이 변화. 월가와 기관투자자들은..."
     },
     {
@@ -403,7 +403,7 @@
       "topics": [
         "equity"
       ],
-      "count": 138,
+      "count": 139,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -421,7 +421,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 324,
+      "count": 325,
       "focus": "네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정..."
     },
     {
@@ -466,7 +466,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 772,
+      "count": 773,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     }
   ],
@@ -1686,6 +1686,21 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72136",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72136",
+      "datetime": "2026-11-14T14:40:40.000Z",
+      "localDateKst": "2026-11-14",
+      "tags": [
+        "credit",
+        "earnings"
+      ],
+      "score": 67,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>골드만삭스 중국 리튬배터리 산업체인 조사 : 시장 예상보다 훨씬 덜 비관적 •골드만삭스가 선전에서 5개 배터리 업체와 6개 소재업체 대상 Battery Corporate Day 진행. 조사 결과 배터리..."
+    },
+    {
       "id": "insidertracking/69281",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69281",
@@ -1968,14 +1983,14 @@
       "datetime": "2026-11-14T04:54:30.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 66,
       "hasText": true,
-      "summary": ">>전통적인 크리스마스 랠리, 올해 미국 증시에도 있을까? •미국 증시는 기술적·포지션 측면에서 동시에 회복된 이후 골드만삭스, Morgan Stanley, JPMorgan이 잇따라 연말 반등 신호를 내놓고...",
       "tickers": [
         "MS"
-      ]
+      ],
+      "summary": ">>전통적인 크리스마스 랠리, 올해 미국 증시에도 있을까? •미국 증시는 기술적·포지션 측면에서 동시에 회복된 이후 골드만삭스, Morgan Stanley, JPMorgan이 잇따라 연말 반등 신호를 내놓고..."
     },
     {
       "id": "bornlupin/21153",
@@ -2022,10 +2037,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>머스크 앞장서 청원 서명! 실리콘밸리, 젠슨 황 지지…“창업자를 복귀시켜라” •머스크가 공개적으로 청원에 공동 서명하며 젠슨 황의 엔비디아 복귀를 지지함. 한 청원 사이트의 서명자 수는 이미...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>머스크 앞장서 청원 서명! 실리콘밸리, 젠슨 황 지지…“창업자를 복귀시켜라” •머스크가 공개적으로 청원에 공동 서명하며 젠슨 황의 엔비디아 복귀를 지지함. 한 청원 사이트의 서명자 수는 이미..."
     },
     {
       "id": "HANAchina/72106",
@@ -2036,15 +2051,16 @@
       "tags": [
         "earnings",
         "ai-policy",
+        "semi",
         "equity"
       ],
+      "lead": 2,
       "score": 61,
       "hasText": true,
-      "summary": ">>Anthropic 상장 로드쇼, CEO “시장 상황은 신경 쓰지 않는다”…“약속은 적게, 실적은 많이” •Anthropic이 IPO를 추진하는 가운데 CEO Amodei는 로드쇼에서 의도적으로 낮은 자세를...",
-      "lead": 3,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>Anthropic 상장 로드쇼, CEO “시장 상황은 신경 쓰지 않는다”…“약속은 적게, 실적은 많이” •Anthropic이 IPO를 추진하는 가운데 CEO Amodei는 로드쇼에서 의도적으로 낮은 자세를..."
     },
     {
       "id": "HANAchina/72105",
@@ -2053,12 +2069,12 @@
       "datetime": "2026-11-14T01:31:56.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 72,
       "hasText": true,
-      "summary": ">>엔비디아 수장 교체가 AI 공급망에 영향…‘젠슨 황 이후’ 대만 수혜주 14개 (대만경제일보) •젠슨 황의 CEO 사임으로 AI 공급망 변화가 예상됨. 시장에서는 MediaTek, GUC 등 ASIC...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2070,7 +2086,8 @@
         "TSM",
         "2454.TW",
         "ASX"
-      ]
+      ],
+      "summary": ">>엔비디아 수장 교체가 AI 공급망에 영향…‘젠슨 황 이후’ 대만 수혜주 14개 (대만경제일보) •젠슨 황의 CEO 사임으로 AI 공급망 변화가 예상됨. 시장에서는 MediaTek, GUC 등 ASIC..."
     },
     {
       "id": "insidertracking/69253",
@@ -2081,13 +2098,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": "로이터에 따르면 젠슨 황이 엔비디아 주요 경영진에게 메가스피드 전직 임원 앨리스 황과의 관계를 정상적인 사업상 교류라고 설명하며 혼외 관계에 대해 오도한 것으로 보도. 메가스피드는 엔비디아의 고객사. 로이터가...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "로이터에 따르면 젠슨 황이 엔비디아 주요 경영진에게 메가스피드 전직 임원 앨리스 황과의 관계를 정상적인 사업상 교류라고 설명하며 혼외 관계에 대해 오도한 것으로 보도. 메가스피드는 엔비디아의 고객사. 로이터가..."
     },
     {
       "id": "insidertracking/69248",
@@ -2098,6 +2115,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2106,11 +2124,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "엔비디아 이사회에 젠슨 황의 복귀를 촉구하는 공개서한이 등장했으며, 현재까지 8,000명 이상이 서명에 참여. >",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아 이사회에 젠슨 황의 복귀를 촉구하는 공개서한이 등장했으며, 현재까지 8,000명 이상이 서명에 참여. >"
     },
     {
       "id": "bornlupin/21152",
@@ -2145,14 +2162,14 @@
         "semi",
         "equity"
       ],
+      "lead": 2,
       "score": 60,
       "hasText": true,
-      "summary": ">>소로스 펀드, 3분기 인텔·Meta 대거 확대…SK하이닉스 신규 편입, 엔비디아 축소 •3분기 소로스 펀드는 Intel을 273만 주 추가 매수해 보유량을 전분기 대비 27배 이상 늘렸고, Meta도 약...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "000660.KS"
-      ]
+      ],
+      "summary": ">>소로스 펀드, 3분기 인텔·Meta 대거 확대…SK하이닉스 신규 편입, 엔비디아 축소 •3분기 소로스 펀드는 Intel을 273만 주 추가 매수해 보유량을 전분기 대비 27배 이상 늘렸고, Meta도 약..."
     },
     {
       "id": "bornlupin/21151",
@@ -2178,17 +2195,18 @@
       "datetime": "2026-11-13T23:53:07.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "semi"
+        "semi",
+        "equity"
       ],
+      "lead": 1,
       "score": 64,
       "hasText": true,
-      "summary": ">>(인터뷰) 엔비디아 공급망 해자가 무너질까? •젠슨 황이 엔비디아를 떠나면서 그가 공들여 구축한 공급망 해자가 약화될 수 있다는 전망이 나옴. SemiAnalysis 창립자 Dylan Patel은...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "GOOG",
         "AMZN"
-      ]
+      ],
+      "summary": ">>(인터뷰) 엔비디아 공급망 해자가 무너질까? •젠슨 황이 엔비디아를 떠나면서 그가 공들여 구축한 공급망 해자가 약화될 수 있다는 전망이 나옴. SemiAnalysis 창립자 Dylan Patel은..."
     },
     {
       "id": "HANAchina/72099",
@@ -2198,13 +2216,14 @@
       "localDateKst": "2026-11-14",
       "tags": [
         "ai-policy",
-        "equity"
+        "equity",
+        "macro"
       ],
+      "lead": 2,
       "score": 57,
       "hasText": true,
-      "summary": ">>Anthropic은 왜 SpaceX보다 상장 가격을 보수적으로 책정하나 •SpaceX가 고정 가격 방식과 달리 Anthropic은 전통적인 기업설명회(로드쇼) 방식을 채택해 가격 결정권을 기관투자자에게 더...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>Anthropic은 왜 SpaceX보다 상장 가격을 보수적으로 책정하나 •SpaceX가 고정 가격 방식과 달리 Anthropic은 전통적인 기업설명회(로드쇼) 방식을 채택해 가격 결정권을 기관투자자에게 더..."
     },
     {
       "id": "bornlupin/21150",
@@ -2242,6 +2261,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2250,11 +2270,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "CBS에 따르면 엔비디아 창업자 젠슨 황이 미국 의회에 출석해 선서 증언을 하기로 동의. 젠슨 황은 중국 당국의 정보원으로 의심되는 여성과의 혼외 관계를 둘러싼 논란으로 의원들의 소환 요구를 받은 가운데,...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "CBS에 따르면 엔비디아 창업자 젠슨 황이 미국 의회에 출석해 선서 증언을 하기로 동의. 젠슨 황은 중국 당국의 정보원으로 의심되는 여성과의 혼외 관계를 둘러싼 논란으로 의원들의 소환 요구를 받은 가운데,..."
     },
     {
       "id": "insidertracking/69233",
@@ -2503,13 +2522,13 @@
         "macro",
         "semi"
       ],
+      "lead": 3,
       "score": 73,
       "hasText": true,
-      "summary": ">>베센트: 에너지 충격을 이유로 금리 인상해서는 안 돼…이란 압박 계속, 엔비디아는 젠슨 황 없이도 성장 가능 •베센트는 현재의 인플레이션 압력을 ‘에너지 공급 충격’으로 규정하며, 연준이 단기적인 잡음성...",
-      "lead": 3,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>베센트: 에너지 충격을 이유로 금리 인상해서는 안 돼…이란 압박 계속, 엔비디아는 젠슨 황 없이도 성장 가능 •베센트는 현재의 인플레이션 압력을 ‘에너지 공급 충격’으로 규정하며, 연준이 단기적인 잡음성..."
     },
     {
       "id": "HANAchina/72094",
@@ -7216,22 +7235,6 @@
       ]
     },
     {
-      "id": "HANAchina/71835",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71835",
-      "datetime": "2026-11-09T11:48:30.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "하나증권 중국테마전략 김성은(T.02-3771-7520) [중국 테마 전략] 대만 증시 반등, 추세 전환일까 자료: [대만 증시, 안정적인 펀더멘털에도 불구하고 고점 대비 약 20% 급락] 10월 초 TSMC...",
-      "tickers": [
-        "TSM"
-      ]
-    },
-    {
       "id": "bornlupin/21068",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21068",
@@ -8747,13 +8750,13 @@
         "macro",
         "semi"
       ],
+      "lead": 3,
       "score": 73,
       "hasText": true,
-      "summary": ">>베센트: 에너지 충격을 이유로 금리 인상해서는 안 돼…이란 압박 계속, 엔비디아는 젠슨 황 없이도 성장 가능 •베센트는 현재의 인플레이션 압력을 ‘에너지 공급 충격’으로 규정하며, 연준이 단기적인 잡음성...",
-      "lead": 3,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>베센트: 에너지 충격을 이유로 금리 인상해서는 안 돼…이란 압박 계속, 엔비디아는 젠슨 황 없이도 성장 가능 •베센트는 현재의 인플레이션 압력을 ‘에너지 공급 충격’으로 규정하며, 연준이 단기적인 잡음성..."
     },
     {
       "id": "HANAchina/72094",
