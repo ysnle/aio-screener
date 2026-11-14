@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v60.05';
+const APP_VERSION = 'v60.06';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2075,21 +2075,16 @@ window._aioTooltipToggle = function(el, e) {
   if (!el) return;
   if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
   var wasOpen = el.classList.contains('is-open');
-  // 다른 툴팁 모두 닫기
-  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); t.setAttribute('aria-expanded', 'false'); });
-  if (!wasOpen) el.classList.add('is-open');
-  el.setAttribute('aria-expanded', String(!wasOpen));
+  var closeAll = function() {
+    document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); t.setAttribute('aria-expanded', 'false'); });
+    if (window._aioTooltipRelease) { window._aioTooltipRelease(); window._aioTooltipRelease = null; }
+  };
+  closeAll();
+  if (wasOpen) return;
+  el.classList.add('is-open');
+  el.setAttribute('aria-expanded', 'true');
+  if (typeof window._aioOpenLayer === 'function') window._aioTooltipRelease = window._aioOpenLayer({ root: el, modal: false, outside: true, onDismiss: closeAll });
 };
-// 외부 클릭/ESC 닫기
-document.addEventListener('click', function(e) {
-  var isTooltip = e.target && e.target.closest && e.target.closest('.aio-tooltip');
-  if (isTooltip) return;
-  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ t.classList.remove('is-open'); t.setAttribute('aria-expanded', 'false'); });
-});
-document.addEventListener('keydown', function(e) {
-  if (e.key !== 'Escape') return;
-  document.querySelectorAll('.aio-tooltip.is-open').forEach(function(t){ e.preventDefault(); t.classList.remove('is-open'); t.setAttribute('aria-expanded', 'false'); });
-});
 
 // v57.77: the core-signal-live hook (CP1-CP8 re-render into the absent #cp*-detail DOM) was removed.
 

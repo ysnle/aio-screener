@@ -1,15 +1,15 @@
 // One tab stop per group of sibling choices. Tab enters a tab list, a radio group, a toolbar or a labelled group made
 // only of pressed-state buttons (a segmented control) at its chosen item and leaves on the next Tab; the arrow keys,
 // Home and End move inside it. Nothing is bound per group: a strip rebuilt by a re-render is picked up the next time
-// focus or a key reaches it.
-const GROUPS = '[role="tablist"],[role="radiogroup"],[role="toolbar"],[role="group"]';
+// focus or a key reaches it. A long run of sibling buttons opts in with data-roving.
+const GROUPS = '[role="tablist"],[role="radiogroup"],[role="toolbar"],[role="group"],[data-roving]';
 const PRESSABLE = 'button[aria-pressed],[role="button"][aria-pressed]';
 const OTHER_CONTROLS = 'a[href],input,select,textarea,button:not([aria-pressed]),[role="button"]:not([aria-pressed])';
 const ITEMS = {
   tablist: '[role="tab"]',
   radiogroup: '[role="radio"]',
 };
-const CHOSEN = '[aria-selected="true"],[aria-checked="true"],[aria-pressed="true"],[aria-current]';
+const CHOSEN = '[aria-selected="true"],[aria-checked="true"],[aria-pressed="true"],[aria-current]:not([aria-current="false"])';
 const KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
 
 function itemsOf(group) {

@@ -4,20 +4,13 @@
 /* Volatility card: research-library links under the current exposure */
 
 /* Sector breakdown bars */
-#pf-sector-breakdown .pfp-basis { font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 6px; }
-#pf-sector-breakdown .pfp-sector-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
-#pf-sector-breakdown .pfp-sector-label { width: 64px; font-size: var(--fs-sm); color: var(--text-secondary); text-align: right; flex-shrink: 0; font-weight: 600; }
-#pf-sector-breakdown .pfp-sector-track { flex: 1; height: 14px; background: var(--surface-3); border-radius: var(--radius-inner); overflow: hidden; }
-#pf-sector-breakdown .pfp-sector-fill { height: 100%; background: var(--text-secondary); border-radius: var(--radius-inner); }
-#pf-sector-breakdown .pfp-sector-pct { width: 42px; font-size: var(--fs-base); font-family: var(--font-mono); color: var(--text-secondary); font-weight: 700; text-align: right; }
-#pf-sector-breakdown .pfp-sector-empty { font-size: var(--fs-base); color: var(--text-muted); padding: 4px 0; }
 
 /* Positions table. The id outranks `.content table tbody tr` (0,1,3) and `.page table td` (0,1,2), which the inline styles beat. */
 #pf-positions-tbody td.pfp-empty { padding: 28px 16px; text-align: center; color: var(--text-muted); font-size: var(--fs-base); line-height: 1.8; }
-#pf-positions-tbody .pfp-empty-title { font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
+#pf-positions-tbody .pfp-empty-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
 /* Screen audit 2026-10-20: on a phone the empty state was centred across the 680px table, so the button sat past the
    313px scroller ("첫 종"). Below tablet width it is pinned to the visible left edge of the scroller. */
-@media (max-width: 760px) {
+@media (max-width: 743px) {
   #pf-positions-tbody td.pfp-empty { text-align: left; }
   #pf-positions-tbody td.pfp-empty > * { position: sticky; left: 16px; max-width: calc(100vw - 72px); }
   #pf-positions-tbody td.pfp-empty > button { display: inline-block; margin: 8px 0; }
@@ -26,7 +19,7 @@
 /* v58.75 (persona review): the empty state's three buttons wrap inside the visible width instead of running past a phone's edge. */
 #pf-positions-tbody .pfp-empty-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
 #pf-positions-tbody .pfp-empty-actions > .pfp-add { margin: 0; }
-@media (max-width: 760px) {
+@media (max-width: 743px) {
   /* responsive.css centres `.pf-empty-state td > div` at 60ch (1,1,2); on a phone the blocks start at the scroller's left edge
      instead and fit its visible width (viewport minus page gutters and the 16px inset on each side, measured at 375px). */
   #page-portfolio #pf-positions-tbody td.pfp-empty > * { margin-inline: 0; max-width: calc(100vw - 100px); box-sizing: border-box; }
@@ -40,7 +33,7 @@
 #pf-positions-tbody :is(.pfp-memo, .pfp-detail-memo, dd) { overflow-wrap: anywhere; word-break: break-word; }
 #pf-positions-tbody .pfp-detail-memo { max-height: 12em; overflow-y: auto; }
 #pf-positions-tbody td.pfp-cell { text-align: center; padding: 8px 6px; font-family: var(--font-mono); font-size: var(--fs-sm); }
-#pf-positions-tbody td.pfp-cell.is-bold { font-weight: 700; }
+#pf-positions-tbody td.pfp-cell.is-bold { font-weight: 600; }
 #pf-positions-tbody td.pfp-cell.is-sans { font-family: inherit; }
 #pf-positions-tbody .pfp-upside { font-size: var(--fs-xs); font-weight: 600; }
 #pf-positions-tbody td.pfp-manage { text-align: center; padding: 8px 6px; white-space: nowrap; }
@@ -59,7 +52,7 @@
 #page-portfolio .pfp-base-excluded { font-size: var(--fs-sm); color: var(--text-muted); margin-top: 4px; }
 /* v58.52 매매일지 · 복기 (src/ui/panels/portfolio-trade-journal.js) */
 #pf-trades .pf-trade-form, #pf-trades .pf-trade-rules, #pf-trades .pf-trade-fold { border: 0.5px solid var(--border-subtle); border-radius: var(--radius-element); padding: 10px 14px; margin: 10px 0; background: var(--bg-card, transparent); }
-#pf-trades summary { cursor: pointer; font-weight: 700; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; }
+#pf-trades summary { cursor: pointer; font-weight: 600; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; }
 /* first-users run-3 B19: a flex summary loses its marker, so "거래 기록하기" (open from the start) read as a heading and the
    first click closed it. Every journal fold says what a click does, like .aio-page-advanced-toggle. */
 #pf-trades summary::after { width: auto; height: auto; border: 0; transform: none; content: '펼치기'; margin-left: auto; padding-left: 12px; color: var(--accent); font-size: var(--fs-sm, 12px); font-weight: 600; }
@@ -81,7 +74,7 @@
 #pf-trades .pf-trade-notes li { line-height: 1.65; padding-left: 10px;  }
 #pf-trades .pf-trade-notes li.is-burden { border-left-color: var(--data-red); }
 #pf-trades .pf-trade-mirror-row { line-height: 1.6; }
-#pf-trades .pf-trade-mirror-state { display: inline-block; min-width: 56px; margin-right: 6px; font-size: 12px; font-weight: 700; }
+#pf-trades .pf-trade-mirror-state { display: inline-block; min-width: 56px; margin-right: 6px; font-size: 12px; font-weight: 600; }
 #pf-trades .pf-trade-mirror-row.is-favorable .pf-trade-mirror-state { color: var(--data-green); }
 #pf-trades .pf-trade-mirror-row.is-burden .pf-trade-mirror-state { color: var(--data-red); }
 #pf-trades .pf-trade-mirror-row.is-unknown .pf-trade-mirror-state { color: var(--text-muted); }
@@ -94,11 +87,11 @@
 #pf-criteria .pf-criteria-lead { margin: 0 0 8px; color: var(--text-secondary); }
 #pf-criteria .pf-trade-mirror, #pf-thesis .pf-trade-mirror { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 6px; }
 #pf-criteria .pf-trade-mirror-row, #pf-thesis .pf-trade-mirror-row { line-height: 1.6; overflow-wrap: anywhere; }
-#pf-criteria .pf-trade-mirror-state, #pf-thesis .pf-trade-mirror-state { display: inline-block; min-width: 72px; margin-right: 6px; font-size: 12px; font-weight: 700; }
+#pf-criteria .pf-trade-mirror-state, #pf-thesis .pf-trade-mirror-state { display: inline-block; min-width: 72px; margin-right: 6px; font-size: 12px; font-weight: 600; }
 #pf-criteria .is-favorable .pf-trade-mirror-state { color: var(--data-green); }
 #pf-criteria .is-burden .pf-trade-mirror-state, #pf-thesis .is-burden .pf-trade-mirror-state { color: var(--data-amber); }
 #pf-criteria .is-unknown .pf-trade-mirror-state, #pf-thesis .is-unknown .pf-trade-mirror-state { color: var(--text-muted); }
-#pf-checks .pf-checks-fold > summary { cursor: pointer; font-weight: 700; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; }
+#pf-checks .pf-checks-fold > summary { cursor: pointer; font-weight: 600; color: var(--text-secondary); min-height: 28px; display: flex; align-items: center; }
 /* 내 계획 점검 (R:R) result lines */
 #pf-rr-fold .pf-rr-lines { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 4px; font-variant-numeric: tabular-nums; }
 
@@ -107,14 +100,14 @@
 .pf-crosstab-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-element); background: var(--bg-elevated); }
 input[aria-invalid="true"] { border-color: var(--data-red); }
 /* v58.80 (first-users run-4): "예: AAPL, 애플" and the optional-field hints were cut off in 80–90px boxes. */
-@media (min-width: 701px) { #pf-add-ticker { width: 140px; } #pf-add-target { width: 120px; } }
+@media (min-width: 744px) { #pf-add-ticker { width: 140px; } #pf-add-target { width: 120px; } }
 /* With the AI panel beside the page the holdings table clipped its last columns ("주식 중 비중" → "10"); it scrolls instead. */
-@media (min-width: 701px) { #pf-holdings-table-section { overflow-x: auto; } #pf-holdings-table-section .sh-portfolio-holdings-table th { white-space: nowrap; } }
+@media (min-width: 744px) { #pf-holdings-table-section { overflow-x: auto; } #pf-holdings-table-section .sh-portfolio-holdings-table th { white-space: nowrap; } }
 
 /* v58.80 (first-users bundle 5): on a phone the holdings table is a list of cards. The sticky 종목 column overlapped
    "목표가" after a sideways swipe and 수정·삭제 sat off-screen at x 617–661; each row now wraps inside the screen, every value
    names its column, and the manage buttons sit on the card's last line at 44px (same 700px breakpoint as responsive.css). */
-@media (max-width: 700px) {
+@media (max-width: 743px) {
   .page .sh-portfolio-holdings-table thead { display: none; }
   .page .sh-portfolio-holdings-table, .page .sh-portfolio-holdings-table tbody { display: block; width: 100%; }
   .page .sh-portfolio-holdings-table tbody tr { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1); }
@@ -172,7 +165,7 @@ input[aria-invalid="true"] { border-color: var(--data-red); }
 /* Inside a fold each former fold is a titled part. */
 #page-portfolio .pf-fold-part { margin: 0 0 20px; }
 #page-portfolio .pf-fold-part + .pf-fold-part { padding-top: 16px; border-top: 0.5px solid var(--border); }
-#page-portfolio .pf-fold-h { margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--text-primary); }
+#page-portfolio .pf-fold-h { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
 @media (max-width: 600px) {
   #page-portfolio #pf-main > .pf-first { padding: 14px 16px; }
 }

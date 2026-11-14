@@ -51,7 +51,7 @@
   border: 0.5px solid var(--border-strong); border-radius: var(--radius-full); background: transparent; color: var(--text-secondary);
   font-weight: 500; cursor: pointer; 
 }
-.page :is(.news-sort-btn, .sector-map-tab, .stock-chart-intervals button, .regime-chart-selectors button):hover { border-color: var(--text-secondary); color: var(--text-primary); }
+@media (hover: hover) { .page :is(.news-sort-btn, .sector-map-tab, .stock-chart-intervals button, .regime-chart-selectors button):hover { border-color: var(--text-secondary); color: var(--text-primary); } }
 .page :is(.news-sort-btn.active, .news-sort-btn[aria-pressed="true"], .sector-map-tab.is-active, .stock-chart-intervals button[aria-pressed="true"], .regime-chart-selectors button[aria-pressed="true"]) {
   background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-card); font-weight: 600;
 }
@@ -61,11 +61,11 @@
 .regime-kr-participation { margin:24px 0; padding:24px; border:0.5px solid var(--border); border-radius:var(--radius-element); font-size:14px; line-height:1.7; background:var(--bg-surface); color:var(--text-primary); }
 /* v57.55 cleanup: one type scale — page 27 · section 18 (.briefing-h2) · card 16 · sub 14. This block used browser h2/h3 sizes (21px). */
 .regime-kr-participation > h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0 0 12px; }
-.regime-kr-participation > h3 { font-size: 14px; font-weight: 700; margin: 16px 0 6px; }
+.regime-kr-participation > h3 { font-size: 14px; font-weight: 600; margin: 16px 0 6px; }
 .regime-kr-metrics { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:8px 20px; }
 .regime-kr-metrics dd { margin:0; font-variant-numeric:tabular-nums; }
 .regime-kr-tickers { color:var(--text-secondary); font-size:12px; overflow-wrap:anywhere; }
-.regime-kr-participation summary, .company-analysis-expanded > summary { cursor:pointer; padding:12px 0; }
+.regime-kr-participation summary { cursor:pointer; padding:12px 0; }
 .aio-navigation-backdrop, .aio-navigation-close { display: none; }
 /* v57.54 (WCAG 2.5.8): the desktop sidebar toggle rendered 25×22. */
 #sidebar-toggle-btn { min-width: 24px; min-height: 24px; }
@@ -116,7 +116,7 @@
   .app { width: 100%; max-width: 100%; }
 }
 @media (max-width: 1023px) {
-  .sidebar, .sidebar.collapsed, body.aio-screener-focus .sidebar {
+  .sidebar, .sidebar.collapsed {
     position: fixed; inset: 0 auto 0 0; width: min(300px, 86vw); min-width: 0;
     height: 100dvh; z-index: 310; transform: translateX(-100%);
     overflow-y: auto; padding: 0; border-right: 1px solid var(--border);
@@ -169,7 +169,7 @@
   /* v57.55 cleanup: macro tiles cut their value line ("2년물이 기준금리보다 0.92%p…") on a phone; it wraps instead. */
   .page .aio-table-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 }
-@media (max-width: 700px) {
+@media (max-width: 743px) {
   .content { padding: 16px 12px calc(20px + env(safe-area-inset-bottom)); }
   .topbar { gap: 4px; }
   .topbar > div:first-child { flex: 1 1 100%; }
@@ -202,7 +202,6 @@
   /* The markup's inline flex-shrink:0 (desktop) kept this row at its full width on a phone, so the minmax(0, 1fr)
      status cell above could never give way and a longer status pushed the buttons past the edge. */
   .topbar-actions-right { width: auto; flex: 1 1 auto; min-width: 0; }
-  #home-score-hero .home-hero-divider { display: none; }
   /* Portfolio hero: two columns and no vertical divider on a phone (the three-column grid broke words). */
   #pf-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; min-width: 0; flex: 1 1 100%; }
   /* v58.80 (first-users bundle 5): the nine-column holdings table scrolled sideways at min-width 680px, its sticky 종목
@@ -255,7 +254,7 @@
 /* Codex review screenshots 2026-10-12: on a 390px phone the hub tabs were squeezed to 19px and broke one syllable
    per line ("요/약", "차/트"). Tabs keep their words whole and the row scrolls sideways instead. */
 .aio-hub-tab { white-space: nowrap; flex: 0 0 auto; }
-@media (max-width: 760px) {
+@media (max-width: 743px) {
   .aio-hub-tabs { gap: 18px; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .aio-hub-tabs::-webkit-scrollbar { display: none; }
   .aio-hub-tabs > * { flex: 0 0 auto; white-space: nowrap; }
@@ -294,8 +293,6 @@ body { word-break: keep-all; overflow-wrap: break-word; }
      13px on an iPad in landscape and the glossary search 14px at 844px. Inline sizes, `.aio-btn-table` and the
      `.page [style*="font-size:11px"]` floor (0,2,0) are !important, so this rule is :root-scoped (0,2,1). */
   /* At 16px the screener sort select ("시가총액 큰 순(시총 확인된 종목 먼저)") outgrew a 390px screen; it shrinks instead. */
-  .scr-market-scope label { max-width: 100%; min-width: 0; }
-  .scr-market-scope select { min-width: 0; flex: 0 1 auto; }
   :root :is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="button"], [type="submit"], [type="reset"], [type="image"]), select, textarea) { font-size: 16px !important; }
 }
 
@@ -313,11 +310,11 @@ body { word-break: keep-all; overflow-wrap: break-word; }
   @container (max-width: 271.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 23.5px; } }
   @container (max-width: 242.98px) { .page :is(.trend-chart:not(.is-actual-size), .rates-curve) text { font-size: 26px; } }
   @container (max-width: 439.98px) { .page .rates-curve .rates-curve-tenor.is-penult { text-anchor: end; } .page .rates-curve .rates-curve-tenor.is-last { text-anchor: end; transform: translateX(20px); } }
-  @container (max-width: 429.98px) { }
-  @container (max-width: 393.98px) { }
-  @container (max-width: 363.98px) { }
-  @container (max-width: 337.98px) { }
-  @container (max-width: 314.98px) { }
+  
+  
+  
+  
+  
 }
 /* v57.81: a table wider than its box fades the edge that has more columns (scroll-cue.js sets has-more-left/right on
    every .page .aio-table-scroll; the theme rank table keeps its own shaded frame). A mask, not an overlay, so cell
@@ -332,14 +329,14 @@ body { word-break: keep-all; overflow-wrap: break-word; }
   #page-portfolio .flow-next-link { white-space: normal; text-align: left; }
 }
 /* The phone screener header is a sideways sort bar (screener-quality.css); only a clipped "3" said it scrolled. */
-@media (max-width: 599px) {
+@media (max-width: 600px) {
   #screener-results-table .scr-registry-header.has-more-right { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), var(--black-a4)); mask-image: linear-gradient(to right, #000 calc(100% - 32px), var(--black-a4)); }
   #screener-results-table .scr-registry-header.has-more-left { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), var(--black-a4)); mask-image: linear-gradient(to left, #000 calc(100% - 32px), var(--black-a4)); }
   #screener-results-table .scr-registry-header.has-more-left.has-more-right { -webkit-mask-image: linear-gradient(to right, var(--black-a4), #000 32px, #000 calc(100% - 32px), var(--black-a4)); mask-image: linear-gradient(to right, var(--black-a4), #000 32px, #000 calc(100% - 32px), var(--black-a4)); }
 }
 /* v57.81: on a phone the holdings table scrolls and 수정/삭제 sit in its last column. The 종목 column stays pinned, so a
    row's actions are reached with the name still in view; the left fade gives way to the pinned column's edge shadow. */
-@media (max-width: 700px) {
+@media (max-width: 743px) {
   #page-portfolio .aio-table-scroll > table :is(th, td):first-child:not([colspan]) { position: sticky; left: 0; z-index: 1; background: var(--bg-card); }
   #page-portfolio .aio-table-scroll > table th:first-child:not([colspan]) { background: linear-gradient(var(--surface-1), var(--surface-1)), linear-gradient(var(--surface-1), var(--surface-1)) var(--bg-card); } /* th and its row both paint surface-1 */
   #page-portfolio .aio-table-scroll.has-more-left { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), var(--black-a4)); mask-image: linear-gradient(to right, #000 calc(100% - 32px), var(--black-a4)); }
@@ -350,17 +347,14 @@ body { word-break: keep-all; overflow-wrap: break-word; }
    accent" override over a 5% white surface (1.0:1); amber badges and chips hard-code #57513f, which is ~2.3:1 on the
    dark base; and the red token sat near 4.0:1 on cards at 12-14px. */
 body.dark-theme #page-screener .scr-screen-chip.active { color: var(--accent) !important; }
-body.dark-theme .aio-badge.is-amber,
-body.dark-theme .sp-neutral,
-body.dark-theme .btn-accent.--orange,
-body.dark-theme .scr-star.active { color: var(--text-secondary); }
+body.dark-theme .aio-badge.is-amber, body.dark-theme .scr-star.active { color: var(--text-secondary); }
 /* v57.55 review (5e): on a phone the screener's 관심·비교 + 백분위 columns took half the visible width before the symbol,
    and the sub-theme name column wrapped one word per line (rows 100–160px tall). Both tables already scroll sideways. */
-@media (max-width: 767px) {
+@media (max-width: 743px) {
   #page-screener table [data-column-key="watchlist"] { padding: 6px 2px; }
   #page-screener table [data-column-key="rank"] { padding: 6px 4px; }
   #page-screener .scr-row-actions { gap: 2px; }
-  .theme-strength-table td:nth-child(2) { min-width: 150px; }
+  #theme-strength-board .theme-strength-table td:nth-child(2) { min-width: 150px; }
 }
 /* v57.55 review (2b): a term's first use in reading text is a quiet dotted underline; pressing it shows one line of the glossary. */
 /* Live review 2026-10-14: vertical padding on an inline box widens the tap area to about 26px without moving the line box (1.2em content + 2 x (13px - 0.6em)). */
@@ -385,13 +379,11 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 /* v57.81: 비중 현황 | 섹터 배분. Both tracks shrink (minmax 0) and every child is bounded, so no control can push past its card;
    below 640px the two cards stack. Touch screens get 44px cash boxes at 16px (no iOS focus zoom). */
 .pf-weight-row > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pf-allocation-grid { display: grid; grid-template-columns: minmax(200px, 240px) minmax(0, 1fr); gap: 12px; margin-bottom: 14px; }
-.pf-allocation-card { min-width: 0; box-sizing: border-box; }
 .pf-cash-row { display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: center; gap: 6px; margin-bottom: 6px; font-size: 12px; color: var(--text-secondary); text-align: left; }
 .pf-cash-row > input { width: 100%; min-width: 0; box-sizing: border-box; padding: 6px 10px; background: var(--surface-3); border: 0.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 12px; font-family: var(--font-mono); }
 .pf-cash-total { font-size: 12px; line-height: 1.5; color: var(--text-muted); text-align: left; overflow-wrap: anywhere; }
 .pf-cash-total:empty { display: none; }
-@media (max-width: 640px) { .pf-allocation-grid { grid-template-columns: minmax(0, 1fr); } }
+
 @media (pointer: coarse) { .pf-cash-row > input { min-height: 44px; font-size: 14px; } }
 /* v57.91 (phone/iPad readability audit): sentence-length text set at 11px — the folded-section titles (한국 시장 — 한국
    거시 …, 관심종목 리스트 · 위험 계산 …), the theme-strength footnote and the sector status pill — read at 12px. Short
@@ -399,14 +391,13 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 .aio-page-advanced-toggle > summary { font-size: 12px; }
 .aio-page-advanced-toggle > summary:after { font-size: 12px; }
 .theme-strength-theme { font-size: 12px; }
-.status-pill { font-size: 12px !important; }
 @media (pointer: coarse), (max-width: 1100px) {
   .page .theme-strength-table .theme-strength-compare { min-height: 40px; min-width: 44px; font-size: 12px; }
 }
 /* v57.91 (phone audit): after a stock is chosen the search block sat between the stock header and its summary on three
    lines (repeated '종목 검색' label, input, a wrapped 분석 button). On a phone it is one input + button row with the
    quick picks below; the section heading already names it. */
-@media (max-width: 599px) {
+@media (max-width: 600px) {
   #page-ticker .aio-responsive-row:has(> #ticker-direct-search) { flex-wrap: wrap; gap: 8px; padding: 8px 10px !important; }
   #page-ticker .aio-responsive-row:has(> #ticker-direct-search) > span:first-child { display: none; }
   #page-ticker #ticker-direct-search { flex: 1 1 0; min-width: 0; width: auto; }
@@ -417,7 +408,7 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
    off-screen. Under 600px each sub-theme is a card: rank beside the name (with 비교), then the returns, 50일선 위 and rank
    change as labelled values in four even columns, members below. The header row is hidden (each value carries data-label); the member
    comparison opened by 비교 keeps its own sideways scroll. Wider screens keep the table. */
-@media (max-width: 599px) {
+@media (max-width: 600px) {
   .page .theme-strength-table { display: block; min-width: 0; width: 100%; }
   .page .theme-strength-table > thead { display: none; }
   .page .theme-strength-table > tbody { display: block; }
@@ -439,17 +430,15 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 @keyframes aio-release-reserve { to { min-height: 0; } }
 #home-daily-loop:not(:has(> .daily-block:not(:empty))) { animation: aio-release-reserve 0s linear 8s forwards; }
 #home-daily-loop:not(:has(> .daily-block:not(:empty))) { min-height: 160px; }
-@media (max-width: 1099px) {
+@media (max-width: 1100px) {
   #home-daily-loop:not(:has(> .daily-block:not(:empty))) { min-height: 270px; }
 }
-@media (max-width: 599px) {
+@media (max-width: 600px) {
   #home-daily-loop:not(:has(> .daily-block:not(:empty))) { min-height: 310px; }
 }
 /* v57.91 (visual readability audit): the big-move tiles on home carried an unexplained accent border; it now reads as a
    quieter outline with the word cue beside the label. The theme rank cards (above) also match the renamed 세부 테마 column. */
-.page .daily-move.is-big { border-color: var(--border-strong); }
-.page .daily-move.is-big .daily-move-label::after { content: ', 큰 폭'; color: var(--text-secondary); }
-@media (max-width: 599px) {
+@media (max-width: 600px) {
   .page .theme-strength-table > tbody > tr > td[data-label="세부 테마"]::before { content: none; }
   .page .theme-strength-table > tbody > tr > td[data-label="세부 테마"] { grid-column: 1 / -1; white-space: normal; }
 }
@@ -458,7 +447,6 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 .page svg.macro-quadrant { max-width: min(100%, 440px); margin-inline: auto; }
 /* v57.91 (desktop audit): the main 분석 button was a small pale 11px chip beside heavier quick picks; it is the primary
    action in ink. .btn-accent pins 11px with !important, hence the override here. */
-#page-ticker .btn-accent[data-action="tickerDirectSearchFromInput"] { background: var(--text-primary); color: var(--bg-base); border: 0.5px solid var(--text-primary); border-radius: var(--radius-inner); font-size: 14px !important; font-weight: 600; padding: 8px 16px; }
 /* v57.91 (desktop audit): the empty-portfolio storage notice ran as one ~850px grey line; its lines stop at 60ch, centred. */
 #page-portfolio .pf-empty-state td > div { max-width: 60ch; margin-inline: auto; }
 /* 2026-10-18 UI review (visual pass 2) */
@@ -466,7 +454,7 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
    which src/ui/components/news-controls.js sets on a pick and src/ui/pages/news.js keeps in sync (v59.90: no inline colours). */
 #news-filter-row { background: transparent; border: 0; padding: 0; gap: 8px 18px; }
 #news-filter-row .chip { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; font-size: 12px; border: 0.5px solid var(--border-strong); border-radius: var(--radius-full); background: transparent; color: var(--text-secondary); }
-#news-filter-row .chip:not([aria-pressed="true"]):hover { color: var(--text-primary); border-color: var(--text-secondary); } /* v59.90: hover skips the pressed chip, which is ink-filled */
+@media (hover: hover) { #news-filter-row .chip:not([aria-pressed="true"]):hover { color: var(--text-primary); border-color: var(--text-secondary); } } /* v59.90: hover skips the pressed chip, which is ink-filled */
 #news-filter-row .chip[aria-pressed="true"] { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-card); }
 #news-filter-row .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* Trend charts drawn narrower than ~380px (the 한국 시장 trio, phones) scaled their 13-unit axis text to ~8px. */
@@ -498,28 +486,17 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 @media (pointer: coarse) {
   .mg-lesson-more > summary, .aio-note-fold > summary { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
   #ai-panel .ai-session-head-btn, #ai-panel .ai-ph-close { min-width: 44px; min-height: 44px; }
-  #page-screener .scr-filter-close { min-width: 44px; }
   .sx-page-foot button { min-width: 44px; min-height: 44px; }
 }
 
 /* v59.55 (owner 11/1, alignment pass): one drawn fold chevron. The '⌄'/'⌃' glyphs sat below the row's centre line
    (their ink is at the bottom of the em box) and differed per font; a 7px rotated corner centres on any row. Same
    selectors as the glyph rules, later in the cascade, so word cues (펼치기·접기) with higher specificity keep their text. */
-.sx-disclosure > summary::after, .sx-disclosure__row::after, .leaders-line__more > summary::after, .mk-fold > summary::after,
-#page-sentiment details.trend-card > summary .trend-card-tags::after, #glossary-body .lu-gl-head::after,
-#page-guide .aio-guide-chapter > summary::after, #regime-kr-participation > details > summary::after, .kr-flows-basis > summary::after,
-#page-home .home-kr-line > summary::after, :is(#page-home, #page-signal) .market-lean > summary::after, :is(#page-briefing, #page-market-news) summary.market-slot-head::after,
-details.news-card > summary::after, .leaders-line__dist-fold > summary::after, .page .mg-lesson-more > summary::after,
-.news-evidence > summary::after, .rl-nav-list > summary::after, #scr-developer-drawer > summary::after {
+.sx-disclosure > summary::after, .leaders-line__more > summary::after, .mk-fold > summary::after, #page-sentiment details.trend-card > summary .trend-card-tags::after, #glossary-body .lu-gl-head::after, #page-guide .aio-guide-chapter > summary::after, #regime-kr-participation > details > summary::after, .kr-flows-basis > summary::after, #page-home .home-kr-line > summary::after, :is(#page-home, #page-signal) .market-lean > summary::after, :is(#page-briefing, #page-market-news) summary.market-slot-head::after, details.news-card > summary::after, .leaders-line__dist-fold > summary::after, .page .mg-lesson-more > summary::after, .news-evidence > summary::after, .rl-nav-list > summary::after, #scr-developer-drawer > summary::after {
   content: ''; display: inline-block; flex: none; align-self: center; width: 7px; height: 7px; margin-right: 3px;
   border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); font-size: 0;
 }
-.sx-disclosure[open] > summary::after, .sx-disclosure.is-open > .sx-disclosure__row::after, .leaders-line__more[open] > summary::after, .mk-fold[open] > summary::after,
-#page-sentiment details.trend-card[open] > summary .trend-card-tags::after, #glossary-body .aio-glossary-item[open] > .lu-gl-head::after,
-#page-guide .aio-guide-chapter[open] > summary::after, #regime-kr-participation > details[open] > summary::after, .kr-flows-basis[open] > summary::after,
-#page-home .home-kr-line[open] > summary::after, :is(#page-home, #page-signal) .market-lean[open] > summary::after, :is(#page-briefing, #page-market-news) details[open] > summary.market-slot-head::after,
-details.news-card[open] > summary::after, .leaders-line__dist-fold[open] > summary::after, .page .mg-lesson-more[open] > summary::after,
-.news-evidence[open] > summary::after, .rl-nav-list[open] > summary::after, #scr-developer-drawer[open] > summary::after {
+.sx-disclosure[open] > summary::after, .leaders-line__more[open] > summary::after, .mk-fold[open] > summary::after, #page-sentiment details.trend-card[open] > summary .trend-card-tags::after, #glossary-body .aio-glossary-item[open] > .lu-gl-head::after, #page-guide .aio-guide-chapter[open] > summary::after, #regime-kr-participation > details[open] > summary::after, .kr-flows-basis[open] > summary::after, #page-home .home-kr-line[open] > summary::after, :is(#page-home, #page-signal) .market-lean[open] > summary::after, :is(#page-briefing, #page-market-news) details[open] > summary.market-slot-head::after, details.news-card[open] > summary::after, .leaders-line__dist-fold[open] > summary::after, .page .mg-lesson-more[open] > summary::after, .news-evidence[open] > summary::after, .rl-nav-list[open] > summary::after, #scr-developer-drawer[open] > summary::after {
   content: ''; transform: translateY(2px) rotate(-135deg);
 }
 /* v59.70 (screen review #4): 뉴스's three fold cards (시간대별 시황·전체 뉴스·시장 신호) had no marker, the section
@@ -537,10 +514,10 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
    column, drawn chevron at the right. These were bare captions (테마 지도·AI 설비투자), a '펼치기' word box (한국 시장,
    포트폴리오 기록·도구) or a bordered '+' box (거시·금리 보조 섹션). */
 .page > details.sx-disclosure.sh-fold-mt16 { background: var(--bg-card); border-radius: var(--radius-container); margin: 16px 0; }
-.page > details.sx-disclosure.sh-fold-mt16 > summary { padding: 14px var(--sx-card-pad-x); font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.page > details.sx-disclosure.sh-fold-mt16 > summary { padding: 14px var(--sx-card-pad-x); font-size: 14px; font-weight: 600; color: var(--text-primary); }
 #page-themes #themes-ai-chain:not([hidden]) { background: var(--bg-card); border-radius: var(--radius-container); padding: 20px var(--sx-card-pad-x); }
 .aio-page-advanced-toggle { border: 0; border-radius: var(--radius-container); background: var(--bg-card); }
-.aio-page-advanced-toggle > summary { padding: 14px 48px 14px var(--sx-card-pad-x); font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.aio-page-advanced-toggle > summary { padding: 14px 48px 14px var(--sx-card-pad-x); font-size: 14px; font-weight: 600; color: var(--text-primary); }
 .aio-page-advanced-toggle > summary:after {
   content: ''; right: calc(var(--sx-card-pad-x) + 3px); width: 7px; height: 7px; border: solid var(--text-muted); border-width: 0 1.5px 1.5px 0;
   transform: translateY(-70%) rotate(45deg); font-size: 0;
@@ -554,7 +531,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 }
 .aio-comp-secondary[open] > summary:after { content: ''; transform: translateY(2px) rotate(-135deg); }
 #pf-holdings-table-section { padding-inline: var(--sx-card-pad-x) !important; }
-@media (max-width: 760px) {
+@media (max-width: 743px) {
   /* The empty state was a 134px cell inside the 680px scroller; it spans the card instead. */
   #pf-positions-tbody tr:has(> td.pfp-empty), #pf-positions-tbody td.pfp-empty { display: block; width: 100%; box-sizing: border-box; }
   #pf-positions-tbody td.pfp-empty > * { position: static; max-width: none; }
@@ -592,15 +569,14 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-ticker > .aio-section > .aio-section-hd, #page-ticker .ticker-start-title { padding-left: var(--sx-card-pad-x); }
 .page > details.sx-disclosure.sh-fold-mt16 > :not(summary) { padding: 0 var(--sx-card-pad-x) 16px; }
 /* Bare page-level folds: the native ▶ put their words 13px in; they take the text column and the drawn chevron. */
-#news-filter-fold > summary, .breadth-more > summary, #scr-weight-profiles > summary, #scr-data-status > summary {
+#news-filter-fold > summary, .breadth-more > summary, #scr-data-status > summary {
   list-style: none; display: flex; align-items: center; gap: 8px; padding-left: var(--sx-card-pad-x); cursor: pointer;
 }
-#news-filter-fold > summary::-webkit-details-marker, .breadth-more > summary::-webkit-details-marker,
-#scr-weight-profiles > summary::-webkit-details-marker, #scr-data-status > summary::-webkit-details-marker { display: none; }
-#news-filter-fold > summary::after, .breadth-more > summary::after, #scr-weight-profiles > summary::after, #scr-data-status > summary::after {
+#news-filter-fold > summary::-webkit-details-marker, .breadth-more > summary::-webkit-details-marker, #scr-data-status > summary::-webkit-details-marker { display: none; }
+#news-filter-fold > summary::after, .breadth-more > summary::after, #scr-data-status > summary::after {
   content: ''; width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg);
 }
-#news-filter-fold[open] > summary::after, .breadth-more[open] > summary::after, #scr-weight-profiles[open] > summary::after, #scr-data-status[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
+#news-filter-fold[open] > summary::after, .breadth-more[open] > summary::after, #scr-data-status[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
 /* The screener's data-status notes were the last 4px-radius outlined boxes; they take the soft tile like other notes. */
 .page :is(.sh-screener-data-status-panel, .sh-screener-readiness-note-panel) { border: 0; border-radius: var(--radius-container); background: var(--sx-ink-a03); padding: 10px var(--sx-card-pad-x); }
 #pf-holdings-table-section .sh-portfolio-holdings-table-row { padding-left: 0; padding-right: 0; }
@@ -610,20 +586,17 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 /* v59.55 (owner 11/1): 연결해서 보면 (market-synthesis.js), the closing card of every market screen. The chain is four
    steps with drawn arrows, the branches a three-up grid with a met/total meter, the stance two columns. */
 .page .mk-synth { margin-top: 16px; background: var(--bg-card); border-radius: var(--radius-container); padding: 20px var(--sx-card-pad-x); }
-.page .mk-synth__more { display: inline-flex; margin-top: 14px; }
-.page .mk-synth__page { margin: 0 0 6px; font-size: 14px; line-height: 1.7; color: var(--text-primary); }
-.page .mk-synth__page b { font-weight: 700; margin-right: 4px; }
-.page .mk-synth__sub { margin: 18px 0 10px; font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.page .mk-synth__sub { margin: 18px 0 10px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
 .page .mk-synth__chain { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 28px; }
 .page .mk-synth__step { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: var(--radius-container); background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); }
 .page .mk-synth__step:not(:last-child)::after { content: ''; position: absolute; right: -19px; top: 50%; width: 8px; height: 8px; border-top: 1.5px solid var(--text-muted); border-right: 1.5px solid var(--text-muted); transform: translateY(-50%) rotate(45deg); }
-.page .mk-synth__step-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
-.page .mk-synth__step-text { font-size: 12px; line-height: 1.6; color: var(--text-primary); }
+.page .mk-synth__step-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.page .mk-synth__step-text { font-size: var(--fs-reading); line-height: 1.6; color: var(--text-primary); }
 .page .mk-synth__branches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .page .mk-synth__branch { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: var(--radius-container); border: 0.5px solid rgba(var(--ink-rgb), 0.12); }
 .page .mk-synth__branch[data-role="중심"] { border-color: var(--text-primary); }
 .page .mk-synth__branch-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.page .mk-synth__role { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-full); background: var(--sx-ink-a06, rgba(0, 0, 0, 0.06)); color: var(--text-secondary); }
+.page .mk-synth__role { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-full); background: var(--sx-ink-a06, rgba(0, 0, 0, 0.06)); color: var(--text-secondary); }
 .page .mk-synth__branch[data-role="중심"] .mk-synth__role { background: var(--text-primary); color: var(--bg-card); }
 .page .mk-synth__branch-name { font-size: 14px; line-height: 1.5; }
 .page .mk-synth__meter { display: flex; gap: 3px; }
@@ -631,10 +604,10 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 .page .mk-synth__meter span.is-met { background: var(--text-primary); }
 .page .mk-synth__fit { font-size: 12px; color: var(--text-secondary); }
 .page .mk-synth__branch-lines { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; margin: 0; font-size: 12px; line-height: 1.55; }
-.page .mk-synth__branch-lines dt { font-weight: 700; color: var(--text-secondary); white-space: nowrap; }
+.page .mk-synth__branch-lines dt { font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
 .page .mk-synth__branch-lines dd { margin: 0; color: var(--text-primary); }
 .page .mk-synth__stance { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; }
-.page .mk-synth__stance-title { margin: 0 0 6px; font-size: 12px; font-weight: 700; }
+.page .mk-synth__stance-title { margin: 0 0 6px; font-size: 12px; font-weight: 600; }
 .page .mk-synth__stance-col.is-pursue .mk-synth__stance-title { color: var(--data-green, var(--text-primary)); }
 .page .mk-synth__stance-col.is-avoid .mk-synth__stance-title { color: var(--data-amber, var(--text-primary)); }
 .page .mk-synth__stance ul, .page .mk-synth__checks { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; line-height: 1.6; color: var(--text-primary); }
@@ -654,7 +627,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-macro .mx-chapters__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 12px; }
 #page-macro .mx-ch { display: flex; flex-direction: column; gap: 12px; padding: 18px var(--sx-card-pad-x, 22px); border-radius: 16px; background: var(--bg-card); box-shadow: 0 0 0 0.5px rgba(var(--ink-rgb), 0.08); }
 #page-macro .mx-ch__head { display: flex; flex-direction: column; gap: 2px; }
-#page-macro .mx-ch__title { margin: 0; font-size: 16px; font-weight: 700; color: var(--text-primary); }
+#page-macro .mx-ch__title { margin: 0; font-size: 16px; font-weight: 600; color: var(--text-primary); }
 #page-macro .mx-ch__q { font-size: 12px; color: var(--text-secondary); }
 #page-macro .mx-ch__body { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 18px; align-items: start; }
 #page-macro .mx-ch__viz { margin: 0; display: flex; flex-direction: column; gap: 4px; }
@@ -674,20 +647,20 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-macro .mx-ch__x { font-size: 11px; line-height: 1.25; text-align: center; color: var(--text-muted); word-break: keep-all; overflow-wrap: anywhere; padding-top: 2px; }
 #page-macro .mx-ch__cap { font-size: 11px; color: var(--text-muted); }
 #page-macro .mx-ch__text { display: flex; flex-direction: column; gap: 6px; }
-#page-macro .mx-ch__now { margin: 0; font-size: 14px; font-weight: 700; line-height: 1.5; color: var(--text-primary); font-variant-numeric: tabular-nums; }
-#page-macro .mx-ch__mean { margin: 0; font-size: 12px; line-height: 1.7; color: var(--text-primary); }
+#page-macro .mx-ch__now { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+#page-macro .mx-ch__mean { margin: 0; font-size: var(--fs-reading); line-height: 1.7; color: var(--text-primary); }
 #page-macro .mx-ch__today { margin: 0; padding: 6px 10px; border-left: 3px solid rgba(var(--ink-rgb), 0.18); font-size: 12px; line-height: 1.6; color: var(--text-primary); }
 #page-macro .mx-ch__today.is-lead { border-left-color: var(--accent); }
-#page-macro .mx-ch__today strong { font-weight: 700; color: var(--text-secondary); }
+#page-macro .mx-ch__today strong { font-weight: 600; color: var(--text-secondary); }
 #page-macro .mx-ch__next { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 4px 10px; margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); font-size: 12px; line-height: 1.55; }
-#page-macro .mx-ch__next dt { font-weight: 700; color: var(--text-secondary); }
+#page-macro .mx-ch__next dt { font-weight: 600; color: var(--text-secondary); }
 #page-macro .mx-ch__next dd { margin: 0; color: var(--text-primary); }
 #page-macro .mx-ch__more { margin: 0 -16px; }
 #page-macro .mx-ch__detail { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; margin: 4px 16px 0; font-size: 12px; line-height: 1.55; }
 #page-macro .mx-ch__detail dt { color: var(--text-secondary); }
 #page-macro .mx-ch__detail dd { margin: 0; font-variant-numeric: tabular-nums; }
 /* v59.70 (X bookmarks #4): credit tiers inside their own recorded range (macro-chapters.js rangeBands). */
-#page-macro .mx-ch__range-line { margin: 6px 16px 0; font-size: 12px; line-height: 1.6; color: var(--text-primary); }
+#page-macro .mx-ch__range-line { margin: 6px 16px 0; font-size: var(--fs-reading); line-height: 1.6; color: var(--text-primary); }
 #page-macro .mx-ch__range { display: grid; gap: 8px; margin: 8px 16px 10px; }
 #page-macro .mx-ch__range-row { display: grid; grid-template-columns: 64px minmax(0, 1fr) 92px; align-items: center; gap: 10px; font-size: 12px; }
 #page-macro .mx-ch__range-label { color: var(--text-secondary); }
@@ -701,23 +674,23 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 /* v59.56: the shared 'AI에게 묻기' row (components/ask-row.js) on screens without their own row style. */
 /* v59.56: 금리와 환율 '원화는 왜 움직였나' and 뉴스 '뉴스가 모이는 곳' — one picture, a short read, one fold. */
 #page-fxbond .fx-krw { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 16px; padding: 16px var(--sx-card-pad-x, 22px); border-radius: 14px; background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); }
-#page-fxbond .fx-krw__title { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-primary); }
+#page-fxbond .fx-krw__title { margin: 0; font-size: 15px; font-weight: 600; color: var(--text-primary); }
 :is(#page-fxbond .fx-krw, #page-market-news .news-focus) :is(.fx-krw__body, .news-focus__body) { display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr); gap: 18px; align-items: start; }
 #page-fxbond .fx-krw__viz, #page-market-news .news-focus__viz { margin: 0; display: flex; flex-direction: column; gap: 6px; }
 #page-fxbond .fx-krw__row { display: grid; grid-template-columns: 84px minmax(0, 1fr) 48px; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
 :is(#page-fxbond .fx-krw__val, #page-market-news .news-focus__val) { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-primary); }
 :is(#page-fxbond .fx-krw__cap, #page-market-news .news-focus__cap) { font-size: 11px; color: var(--text-muted); }
-:is(#page-fxbond .fx-krw__now, #page-market-news .news-focus__now) { margin: 0 0 6px; font-size: 14px; font-weight: 700; line-height: 1.5; color: var(--text-primary); font-variant-numeric: tabular-nums; }
-:is(#page-fxbond .fx-krw__mean, #page-market-news .news-focus__mean) { margin: 0; font-size: 12px; line-height: 1.7; color: var(--text-primary); }
+:is(#page-fxbond .fx-krw__now, #page-market-news .news-focus__now) { margin: 0 0 6px; font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+:is(#page-fxbond .fx-krw__mean, #page-market-news .news-focus__mean) { margin: 0; font-size: var(--fs-reading); line-height: 1.7; color: var(--text-primary); }
 #page-fxbond .fx-krw__more p { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 #page-market-news .news-focus__row { display: grid; grid-template-columns: 72px minmax(0, 1fr) 28px; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
 #page-market-news .news-focus__track { position: relative; display: block; height: 8px; border-radius: var(--radius-full); background: rgba(var(--ink-rgb), 0.05); }
 #page-market-news .news-focus__bar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--radius-full); background: rgba(var(--ink-rgb), 0.22); }
 #page-market-news .news-focus__bar.is-tied { background: var(--text-primary); }
 #page-market-news .news-focus__more { margin-top: 10px; }
-#page-market-news .news-focus__group-title { margin: 10px 0 4px; font-size: 12px; font-weight: 700; }
+#page-market-news .news-focus__group-title { margin: 10px 0 4px; font-size: 12px; font-weight: 600; }
 #page-market-news .news-focus__titles { margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.6; }
-#page-market-news .news-focus__check { margin: 4px 0 0; font-size: 12px; line-height: 1.55; color: var(--text-secondary); }
+#page-market-news .news-focus__check { margin: 4px 0 0; font-size: var(--fs-reading); line-height: 1.55; color: var(--text-secondary); }
 /* v59.70 (screen review #1): the phone rule repeats the two-column rule's selector, so it has the same weight and, coming later,
    wins (at (1,1,0) it lost to (1,2,0) and the read column was 4px wide on a phone). scripts/ci-phone-override-specificity-check.mjs */
 @media (max-width: 743px) { :is(#page-fxbond .fx-krw, #page-market-news .news-focus) :is(.fx-krw__body, .news-focus__body) { grid-template-columns: minmax(0, 1fr); } }
@@ -726,7 +699,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 
 /* v59.56 (screen review): on a phone the 투자 참고용 notice took ~130px above the page (three text lines, then the button on
    its own row). The button now sits beside the text, so the notice is as tall as its text. */
-@media (max-width: 640px) {
+@media (max-width: 600px) {
   #aio-first-visit-disclaimer.is-inline { flex-wrap: nowrap; gap: 10px !important; margin-bottom: 12px; }
   #aio-first-visit-disclaimer.is-inline .lu-dc-text { flex: 1 1 0 !important; font-size: 12px; line-height: 1.5; }
   #aio-first-visit-disclaimer.is-inline .lu-dc-btn { flex: 0 0 auto; padding: 0 12px !important; font-size: 12px; }
@@ -757,7 +730,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-briefing .briefing-day-stories { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 #page-briefing .briefing-day-story { padding: 8px 12px; border-left: 3px solid rgba(var(--ink-rgb), 0.18); }
 #page-briefing .briefing-day-story.is-lead { border-left-color: var(--accent); }
-#page-briefing .briefing-day-story__title { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-primary); }
+#page-briefing .briefing-day-story__title { margin: 0 0 4px; font-size: 15px; font-weight: 600; color: var(--text-primary); }
 #page-briefing .briefing-day-story__line { margin: 0; font-size: 14px; line-height: 1.6; color: var(--text-primary); }
 #page-briefing .briefing-day-evidence { margin: 6px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 #page-briefing .briefing-day-evidence-fold summary, #page-briefing .briefing-day-fold summary { font-size: 12px; cursor: pointer; color: var(--text-secondary); }
@@ -767,18 +740,16 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-signal .mk-cross__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 @media (min-width: 1024px) { #page-signal .mk-cross__list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 #page-signal .mk-cross__item { padding: 8px 12px; border-left: 3px solid rgba(var(--ink-rgb), 0.18); }
-#page-signal .mk-cross__title { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-primary); }
+#page-signal .mk-cross__title { margin: 0 0 4px; font-size: 15px; font-weight: 600; color: var(--text-primary); }
 #page-signal .mk-cross__asof { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
 #page-signal .mk-cross__text { margin: 0; font-size: 14px; line-height: 1.6; color: var(--text-primary); }
 /* v59.67 홈 오늘의 핵심: three story lines, then the movers as chips. */
-#page-home .home-day__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-#page-home .home-day__basis { font-size: 12px; color: var(--text-secondary); }
 #page-home .home-day__stories { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
 #page-home .home-day__story { padding-left: 10px; border-left: 3px solid rgba(var(--ink-rgb), 0.18); font-size: 14px; line-height: 1.6; }
 #page-home .home-day__story.is-lead { border-left-color: var(--accent); }
 #page-home .home-day__title { margin-right: 6px; color: var(--text-primary); }
 #page-home .home-day__line { color: var(--text-primary); }
-#page-home .home-day__narr { margin: 10px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+#page-home .home-day__narr { margin: 10px 0 0; font-size: var(--fs-reading); line-height: 1.6; color: var(--text-secondary); }
 #page-home .home-day__stocks { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 12px 0 8px; }
 #page-home .home-day__stocks-label { font-size: 12px; color: var(--text-secondary); margin-right: 4px; }
 #page-home .home-day__stock { display: inline-flex; gap: 6px; min-height: 32px; align-items: center; padding: 4px 10px; border: 1px solid rgba(var(--ink-rgb), 0.18); border-radius: var(--radius-element); background: transparent; color: var(--text-primary); font: inherit; font-size: 12px; cursor: pointer; font-variant-numeric: tabular-nums; }
@@ -789,7 +760,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-home .home-day__headline::before { content: ''; position: absolute; left: 0; top: 0.7em; width: 4px; height: 4px; border-radius: 50%; background: rgba(var(--ink-rgb), 0.4); }
 #page-home .home-day__links { display: flex; flex-wrap: wrap; gap: 4px 16px; }
 
-@media (max-width: 767px) { #page-home .home-day .flow-next-link, #page-home .home-hero-more { min-height: 44px; } }
+@media (max-width: 743px) { #page-home .home-day .flow-next-link, #page-home .home-hero-more { min-height: 44px; } }
 /* v59.68 story weight: the bar is the day's ranking at a glance (story-weight.js). */
 .story-weight { display: inline-flex; align-items: center; gap: 6px; flex: none; }
 .story-weight__bar { position: relative; width: 72px; height: 6px; border-radius: 3px; background: rgba(var(--ink-rgb), 0.10); overflow: hidden; }
@@ -804,7 +775,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-signal .mk-cross__cell { fill: rgba(var(--ink-rgb), 0.04); stroke: var(--bg-card, var(--bg-surface)); stroke-width: 2; }
 #page-signal .mk-cross__cell.is-now { fill: rgba(var(--ink-rgb), 0.12); }
 #page-signal .mk-cross__cell-label { font-size: var(--fs-min); fill: var(--text-secondary); }
-#page-signal .mk-cross__cell.is-now + .mk-cross__cell-label { fill: var(--text-primary); font-weight: 700; }
+#page-signal .mk-cross__cell.is-now + .mk-cross__cell-label { fill: var(--text-primary); font-weight: 600; }
 #page-signal .mk-cross__axis { font-size: var(--fs-min); fill: var(--text-secondary); }
 #page-signal .mk-cross__dot { fill: var(--accent); stroke: var(--bg-card, var(--bg-surface)); stroke-width: 2; }
 #page-charts .charts-card-volume { margin: 2px 0 6px; font-size: 12px; line-height: 1.55; color: var(--text-secondary); }

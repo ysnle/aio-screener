@@ -12,7 +12,7 @@
 #page-ticker #ticker-hero-name[data-hub-label]::before { display: none; }
 #page-ticker #ticker-hero-fullname { font-size: 14px; color: var(--text-secondary); }
 #page-ticker .sh-ticker-box { margin-left: 0; text-align: left; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
-#page-ticker .v2-stock-price { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+#page-ticker .v2-stock-price { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
 #page-ticker #ticker-hero-chg { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
 #page-ticker #ticker-hero-chg.up { color: var(--dir-up); }
 #page-ticker #ticker-hero-chg.down { color: var(--dir-down); }
@@ -48,8 +48,7 @@
   height: 28px; padding: 0 12px; border: 0; border-radius: var(--radius-full); background: var(--sx-ink-a06);
   color: var(--text-primary); font-size: 12px; 
 }
-#page-ticker .v2-stock-search .q-chip:hover { background: var(--sx-ink-a08) !important; }
-#page-ticker .v2-stock-search .sh-ticker-btn { height: 36px; border-radius: var(--radius-full) !important; border: 0 !important; background: var(--text-primary) !important; color: var(--bg-base) !important; padding: 0 16px; font-weight: 600; }
+@media (hover: hover) { #page-ticker .v2-stock-search .q-chip:hover { background: var(--sx-ink-a08) !important; } }
 #page-ticker:not(.is-empty) .aio-section:has(> .v2-stock-search) > .aio-section-hd { display: none; }
 
 /* ① Hero: the reading in one line, four checks, the 52-week bar. */
@@ -93,14 +92,12 @@
 /* Identity, company summary and the price panel follow the reading as soft cards. */
 #page-ticker .entity-business-profile { margin: 0 0 16px; padding: 20px var(--sx-card-pad-x); border: 0; border-radius: var(--radius-container); background: var(--bg-card); box-shadow:none; }
 #page-ticker > #ticker-price-panel { margin: 0 0 18px; }
-.company-analysis-route { border: 0 !important; border-radius: var(--radius-container) !important; background: var(--sx-ink-a03) !important;  }
-.company-analysis-route:hover, .company-analysis-route:focus-visible { background: var(--sx-ink-a06) !important; }
 
 /* ═══ 2. 종목 · 차트 (5f) ═══════════════════════════════════════════════ */
 /* ① the chart is the hero card; ② three reading cards; ③ reading, scenarios and volume zones as cards; ④ evidence fold. */
 #page-technical #stock-chart-section { border: 0; padding: 0; margin: 0 0 18px; }
 #page-technical .stock-chart-head { align-items: baseline; gap: 6px 12px; margin: 0 0 10px; }
-#page-technical .stock-chart-head .briefing-h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+#page-technical .stock-chart-head .briefing-h2 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
 #page-technical #stock-chart-status { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
 #page-technical .stock-chart-intervals.sx-seg { display: inline-flex; flex-wrap: wrap; gap: 0; margin: 0 0 12px; }
 #page-technical .stock-chart-intervals.sx-seg > button { border: 0; background: transparent; padding: 0 12px !important; }
@@ -119,7 +116,7 @@
 .v2-chart-reads { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .v2-chart-read { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; }
 .v2-chart-read__name { font-size: 12px; color: var(--text-secondary); }
-.v2-chart-read__value { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+.v2-chart-read__value { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--text-primary); }
 .v2-chart-read__detail { font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 .v2-chart-read__ref { font-size: 12px; color: var(--text-muted); }
 #page-technical :is(.v2-chart-body, .chart-scenarios, .chart-volume-profile) {
@@ -127,8 +124,8 @@
 }
 #page-technical .v2-chart-body { display: flex; flex-direction: column; gap: 10px; }
 #page-technical .chart-read-headline { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.55; color: var(--text-primary); }
-#page-technical :is(.chart-read-why, .chart-read-market, .regime-flip) { margin: 0; font-size: 12px; line-height: 1.7; color: var(--text-secondary); }
-#page-technical .chart-scenarios h3, #page-technical .chart-volume-profile h3 { margin: 0 0 4px; font-size: 14px; font-weight: 700; }
+#page-technical :is(.chart-read-why, .chart-read-market, .regime-flip) { margin: 0; font-size: var(--fs-reading); line-height: 1.7; color: var(--text-secondary); }
+#page-technical .chart-scenarios h3, #page-technical .chart-volume-profile h3 { margin: 0 0 4px; font-size: 14px; font-weight: 600; }
 #page-technical .chart-scenario { padding: 10px 0 0; }
 #page-technical .chart-volume-track { border-radius: var(--radius-full); background: var(--sx-ink-a05); overflow: hidden; }
 #page-technical .chart-volume-track > span { border-radius: var(--radius-full); background: var(--text-primary); opacity: 0.7; }
@@ -136,7 +133,7 @@
 #page-technical .chart-evidence-more > summary { font-size: 12px; color: var(--text-secondary); }
 #page-technical .chart-stage-step, #page-technical .chart-template-dot { border-radius: var(--radius-element); }
 #page-technical #tech-regime-summary { padding: 20px 22px; border-radius: var(--radius-container); background: var(--bg-card); box-shadow:none; }
-#page-technical .tech-regime-overall { font-family: var(--font-sans); font-size: 18px; font-weight: 700; }
+#page-technical .tech-regime-overall { font-family: var(--font-sans); font-size: 18px; font-weight: 600; }
 #page-technical #stock-chart-section > .briefing-footnote { margin: 10px 4px 0; font-size: 12px; color: var(--text-muted); }
 
 /* ═══ 3. 종목 · 재무 공시 (5g) ═══════════════════════════════════════════ */
@@ -177,7 +174,7 @@
 /* v59.70 (S15): three sections — 매출과 이익률 추세 · 현금흐름과 발생액 · SEC 연간 요약 (fiscal-read.js fiscalSection). */
 #page-fundamental .fiscal-section { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 #page-fundamental .fiscal-section + .fiscal-section { margin-top: 14px; }
-#page-fundamental .fiscal-section__title { margin: 0 2px; font-size: 17px; font-weight: 700; color: var(--text-primary); }
+#page-fundamental .fiscal-section__title { margin: 0 2px; font-size: 17px; font-weight: 600; color: var(--text-primary); }
 #page-fundamental .fiscal-section__sub { margin: 4px 0 0; font-size: 14px; font-weight: 600; color: var(--text-primary); }
 #page-fundamental :is(.fiscal-sec-fold, .fiscal-expert-fold, .fiscal-thesis-fold) > summary { font-size: 14px; font-weight: 600; color: var(--text-primary); }
 #page-fundamental .fiscal-sec-fold[open] { display: flex; flex-direction: column; gap: 12px; }
@@ -217,7 +214,7 @@
 .v2-dupont-eq__tile.is-driver { background: var(--sx-good-bg); box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.08); }
 .v2-dupont-eq__tile.is-result { background: rgba(var(--ink-rgb), 0.09); }
 .v2-dupont-eq__name { font-size: 12px; color: var(--text-secondary); }
-.v2-dupont-eq__value { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.v2-dupont-eq__value { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-primary); font-variant-numeric: tabular-nums; }
 .v2-dupont-eq__op { font-size: 18px; color: var(--text-muted); }
 .v2-dupont-table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
 .v2-dupont-table caption { caption-side: bottom; padding-top: 8px; text-align: left; font-size: 12px; color: var(--text-muted); }
@@ -225,17 +222,17 @@
 .v2-dupont-table thead th { border-top: 0; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
 .v2-dupont-table th[scope="row"], .v2-dupont-table thead th:first-child { text-align: left; font-weight: 500; }
 .v2-dupont-table tbody tr > * { background: transparent !important; }
-.v2-dupont-table tbody tr.is-driver > * { font-weight: 700; background: var(--sx-good-bg) !important; }
+.v2-dupont-table tbody tr.is-driver > * { font-weight: 600; background: var(--sx-good-bg) !important; }
 .v2-dupont-eq__formula { display: none; margin: 0; font-size: 12px; color: var(--text-muted); }
-.v2-dupont-table tr.is-result > * { font-weight: 700; }
+.v2-dupont-table tr.is-result > * { font-weight: 600; }
 .v2-rdcf-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .v2-rdcf-fact { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 12px 14px; border-radius: var(--radius-container); background: var(--sx-ink-a03); }
 .v2-rdcf-fact__name { font-size: 12px; color: var(--text-secondary); }
-.v2-rdcf-fact__value { font-size: 18px; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.v2-rdcf-fact__value { font-size: 18px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
 .v2-rdcf-fact__detail { font-size: 12px; line-height: 1.5; color: var(--text-muted); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .v2-rdcf-result { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: var(--radius-container); background: rgba(var(--ink-rgb), 0.06); }
 .v2-rdcf-result__name { font-size: 12px; color: var(--text-secondary); }
-.v2-rdcf-result__value { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.v2-rdcf-result__value { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; color: var(--text-primary); font-variant-numeric: tabular-nums; }
 .v2-rdcf-result__text { margin: 0; font-size: 14px; line-height: 1.7; color: var(--text-primary); text-wrap: pretty; }
 .v2-rdcf-result__sens { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-muted); }
 .v2-rdcf-result__sens:empty { display: none; }
@@ -247,7 +244,7 @@
 .v2-rdcf-control__note { font-size: 12px; color: var(--text-muted); }
 .v2-rdcf-reset { min-height: 36px; font-size: 12px; color: var(--text-secondary); text-decoration: underline; }
 .v2-rd { min-width: 0; }
-.v2-rd-none { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+.v2-rd-none { font-size: 18px; font-weight: 600; color: var(--text-primary); }
 .v2-rd-trend .v2-fiscal-trend__col:last-child .v2-fiscal-trend__bar { background: var(--text-primary); }
 .v2-fiscal-row.is-burden .v2-fiscal-row__value { color: var(--data-amber); }
 
@@ -266,7 +263,7 @@
 #page-themes .thp-chip { border: 0; border-radius: var(--radius-full); background: var(--bg-card); box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.08); }
 #page-themes .thp-chip.thp-chip--detail { box-shadow: inset 0 0 0 1px rgba(var(--ink-rgb), 0.16); }
 .v2-themes-principle { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
-.v2-themes-principle .sx-disclosure__text { font-size: 12px; line-height: 1.75; text-wrap: pretty; }
+.v2-themes-principle .sx-disclosure__text { font-size: var(--fs-reading); line-height: 1.75; text-wrap: pretty; }
 .v2-themes-principle .v2-themes-limit { color: var(--text-secondary); }
 .v2-themes-evidence { padding: 0; margin: 0; }
 .v2-themes-top { padding-bottom: 0; overflow: hidden; }
@@ -305,17 +302,17 @@
 }
 .page .thp-subtheme-card { border: 0; border-radius: var(--radius-container); background: var(--sx-ink-a03); padding: 12px 14px; }
 .page .thp-leader-card { border: 0; border-radius: var(--radius-container); background: var(--sx-ink-a03); padding: 10px 12px;  }
-.page .thp-leader-card:hover { background: var(--sx-ink-a06); }
+@media (hover: hover) { .page .thp-leader-card:hover { background: var(--sx-ink-a06); } }
 .page .thp-ticker-chip { border-radius: var(--radius-full); padding: 2px 8px; }
-.page .thp-summary-title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.page .thp-summary-title { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
 #theme-detail-panel .flow-next { box-shadow: none !important; background: var(--sx-ink-a03) !important; }
-.page .thp-detail-heading { font-size: 12px; font-weight: 700; }
+.page .thp-detail-heading { font-size: 12px; font-weight: 600; }
 
 /* Lessons and next steps on the stock and theme screens: soft cards and link rows (3d 'stockMore'). */
 :is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-lesson {
   border: 0; border-radius: var(--radius-container); background: var(--bg-card); box-shadow:none; padding: 16px 18px; gap: 6px;
 }
-:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-kind { border: 0 !important; border-radius: var(--radius-full); padding: 2px 9px; background: var(--sx-ink-a07); font-size: 12px; font-weight: 700; }
+:is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-kind { border: 0 !important; border-radius: var(--radius-full); padding: 2px 9px; background: var(--sx-ink-a07); font-size: 12px; font-weight: 600; }
 :is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-lesson[data-kind="trap"] .mg-kind { background: var(--sx-warn-bg); }
 :is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-lesson[data-kind="trust"] .mg-kind { background: var(--sx-good-bg); }
 :is(#page-ticker, #page-technical, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next {

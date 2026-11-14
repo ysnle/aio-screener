@@ -1,8 +1,12 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-13
+last_verified: 2026-11-14
 confidence: medium
 ---
+
+## v60.06 레이어 스택 검토 수정 (2026-11-14)
+
+- [x] QA-A11Y-06: 팝오버 재등록은 레이어를 남기지 않고, 모달 위에 연 창은 조작 가능하며, Tab은 가장 가까운 모달 안에 머문다 (v60.06 P2403). verify_by: node scripts/ci-esm-core-unit-check.mjs
 
 ## v60.05 공용 동작 계층 (2026-11-13)
 

@@ -145,6 +145,7 @@ function detailTable(doc, root, model, ordered) {
     tr.append(dirCell);
     const leaderCell = el(doc, 'td');
     const constituents = el(doc, 'div', null, 'theme-strength-constituents');
+    constituents.dataset.roving = ''; // one tab stop per row; arrows move between its tickers (behaviors/roving.js)
     for (const member of group.constituents) {
       const button = el(doc, 'button', member.sym, 'breadth-drill-symbol');
       button.type = 'button';
@@ -264,6 +265,7 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
     for (const group of model.excluded) {
       const line = el(doc, 'div'); line.append(el(doc, 'p', `${group.themeName} / ${group.name}, 전체 ${group.listed}개 중 수익률 ${group.members}개`, 'theme-strength-basis'));
       const symbols = el(doc, 'div', null, 'theme-strength-constituents');
+      symbols.dataset.roving = '';
       for (const symbol of group.constituents) {
         const button = el(doc, 'button', symbol, 'breadth-drill-symbol'); button.type = 'button';
         button.addEventListener('click', () => root?.showTicker?.(symbol)); symbols.append(button);

@@ -1,11 +1,11 @@
 {
   "schemaVersion": "aio-design-token-baseline.v1",
-  "generatedBy": "scripts/ci-design-token-ratchet-check.mjs",
+  "generatedBy": "scripts\\ci-design-token-ratchet-check.mjs",
   "note": "Per-stylesheet literal radius, off-scale font-size and !important counts. Shrink only; never raise a count or add a file.",
   "totals": {
-    "radiusLiteral": 37,
+    "radiusLiteral": 35,
     "offScale": 36,
-    "important": 462
+    "important": 440
   },
   "counts": {
     "index.html": {
@@ -23,20 +23,10 @@
       "offScale": 1,
       "important": 1
     },
-    "src/ui/styles/company-analysis.css": {
-      "radiusLiteral": 0,
-      "offScale": 0,
-      "important": 1
-    },
     "src/ui/styles/company-story.css": {
       "radiusLiteral": 7,
       "offScale": 3,
       "important": 3
-    },
-    "src/ui/styles/entity-quality.css": {
-      "radiusLiteral": 0,
-      "offScale": 0,
-      "important": 1
     },
     "src/ui/styles/legacy-core.css": {
       "radiusLiteral": 0,
@@ -56,7 +46,7 @@
     "src/ui/styles/legacy-important-shell.css": {
       "radiusLiteral": 0,
       "offScale": 2,
-      "important": 112
+      "important": 107
     },
     "src/ui/styles/legacy-kr.css": {
       "radiusLiteral": 0,
@@ -91,7 +81,7 @@
     "src/ui/styles/responsive.css": {
       "radiusLiteral": 9,
       "offScale": 16,
-      "important": 37
+      "important": 35
     },
     "src/ui/styles/screener-quality.css": {
       "radiusLiteral": 0,
@@ -111,22 +101,22 @@
     "src/ui/styles/soft-ui.css": {
       "radiusLiteral": 5,
       "offScale": 3,
-      "important": 155
+      "important": 154
     },
     "src/ui/styles/themes-page.css": {
-      "radiusLiteral": 1,
+      "radiusLiteral": 0,
       "offScale": 0,
       "important": 1
     },
     "src/ui/styles/ui-states.css": {
       "radiusLiteral": 0,
       "offScale": 0,
-      "important": 13
+      "important": 12
     },
     "src/ui/styles/v2-market.css": {
       "radiusLiteral": 0,
       "offScale": 3,
-      "important": 32
+      "important": 29
     },
     "src/ui/styles/v2-research.css": {
       "radiusLiteral": 1,
@@ -141,10 +131,10 @@
     "src/ui/styles/v2-stock.css": {
       "radiusLiteral": 2,
       "offScale": 1,
-      "important": 27
+      "important": 19
     },
     "src/ui/styles/v2-today.css": {
-      "radiusLiteral": 3,
+      "radiusLiteral": 2,
       "offScale": 2,
       "important": 23
     }

@@ -33,7 +33,7 @@ export function bindCombobox({ input, list, onClose } = {}) {
     input.setAttribute('aria-expanded', String(!list.hidden));
   };
   const onKey = (event) => {
-    if (event.isComposing) return;
+    if (event.isComposing || event.keyCode === 229) return; // WebKit reports the committing Enter as not composing
     const items = options();
     if (event.key === 'Escape') {
       if (list.hidden) return;

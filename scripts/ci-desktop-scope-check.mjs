@@ -67,7 +67,7 @@ const shellHtml = read('index.html');
 const uiJs = read('js/aio-ui.js');
 check('shell loads responsive stylesheet (P1618)', /src\/ui\/styles\/responsive\.css/.test(shellHtml));
 check('bootstrap installs responsive lifecycle (P1618)', /installResponsiveShell\(root, documentRef\)/.test(read('src/app/bootstrap.js')));
-check('responsive CSS covers phone and tablet widths (P1618)', /max-width:\s*700px/.test(read('src/ui/styles/responsive.css')) && /max-width:\s*1100px/.test(read('src/ui/styles/responsive.css')));
+check('responsive CSS covers phone and tablet widths (P1618)', /max-width:\s*743px/.test(read('src/ui/styles/responsive.css')) && /max-width:\s*1100px/.test(read('src/ui/styles/responsive.css')));
 check('responsive navigation retains Escape and focus handling (P1618)', /Escape/.test(read('src/ui/components/responsive-shell.js')) && /aria-modal/.test(read('src/ui/components/responsive-shell.js')));
 check('legacy mobile handlers do not duplicate responsive owner (P1618)', !/toggleMobileMenu|closeMobileMenu/.test(uiJs));
 

@@ -6939,6 +6939,76 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     if (nextOptionIndex('ArrowDown', -1, 4) !== 0 || nextOptionIndex('ArrowUp', -1, 4) !== 3) fail('v60.05 the first arrow enters the option list at its near end');
     if (nextOptionIndex('ArrowDown', 3, 4) !== 0 || nextOptionIndex('ArrowUp', 0, 4) !== 3) fail('v60.05 the option highlight wraps');
     if (nextOptionIndex('ArrowDown', -1, 0) !== -1) fail('v60.05 an empty option list has no highlight');
+    // v60.06 review: a popover claimed twice by the same closer keeps one layer, so Escape is free again after release.
+    {
+      const { claimPopover, releasePopover } = await load('src/ui/components/popover.js');
+      const keys = [];
+      const claimDoc = { body: { classList: { add() {}, remove() {} } }, addEventListener: (type, fn) => { if (type === 'keydown') keys.push(fn); } };
+      const closer = () => {};
+      claimPopover(claimDoc, closer);
+      claimPopover(claimDoc, closer);
+      releasePopover(claimDoc, closer);
+      const event = { key: 'Escape', defaultPrevented: false, preventDefault() { this.defaultPrevented = true; } };
+      keys.forEach((fn) => fn(event));
+      if (openLayerCount(claimDoc) !== 0 || event.defaultPrevented) fail('v60.06 a popover claimed twice leaves no layer behind: ' + openLayerCount(claimDoc));
+      // The user's dismissal is its own callback: Escape restores focus, a takeover by another popover does not.
+      const calls = [];
+      claimPopover(claimDoc, () => calls.push('quiet'), { dismiss: () => calls.push('dismiss') });
+      keys.forEach((fn) => fn({ key: 'Escape', preventDefault() {} }));
+      if (calls.join() !== 'dismiss') fail('v60.06 Escape on a popover runs its dismiss callback: ' + calls.join());
+    }
+    // A layer opened over a modal one is usable: the lower layer's inert flag comes off the new root and returns after.
+    {
+      const noListeners = { body: {}, addEventListener() {} };
+      const body = noListeners.body;
+      const node = (parent) => ({ parentElement: parent, inert: false, isConnected: true, id: '', children: [], querySelectorAll: () => [], contains: () => false, hasAttribute: () => false });
+      const lower = node(body), upper = node(body), page = node(body);
+      body.children = [lower, upper, page];
+      const closeLowerModal = openLayer({ root: lower, documentRef: noListeners, focus: false, onDismiss() {} });
+      if (!upper.inert || !page.inert || lower.inert) fail('v60.06 a modal layer makes its siblings inert');
+      const closeUpperModal = openLayer({ root: upper, documentRef: noListeners, focus: false, onDismiss() {} });
+      if (upper.inert || !lower.inert) fail('v60.06 a layer opened over a modal is not inert, and the modal under it is');
+      closeUpperModal();
+      if (!upper.inert || lower.inert) fail('v60.06 closing the upper layer gives the lower modal its page back');
+      closeLowerModal();
+      if (upper.inert || page.inert) fail('v60.06 closing the last modal leaves nothing inert');
+    }
+    // Tab stays inside the nearest modal layer even when a popover sits on top, and Shift+Tab from the root wraps.
+    {
+      const keys = [];
+      const tabDoc = { body: {}, activeElement: null, addEventListener: (type, fn) => { if (type === 'keydown') keys.push(fn); } };
+      const focused = [];
+      const item = (name) => ({ name, tabIndex: 0, closest: () => null, getClientRects: () => [1], focus() { focused.push(name); tabDoc.activeElement = this; } });
+      const first = item('first'), last = item('last');
+      const sheet = { isConnected: true, tabIndex: -1, querySelectorAll: () => [first, last], contains: (n) => n === first || n === last || n === sheet };
+      const closeSheet = openLayer({ root: sheet, documentRef: tabDoc, inert: false, focus: false, onDismiss() {} });
+      const closeTip = openLayer({ documentRef: tabDoc, modal: false, onDismiss() {} });
+      tabDoc.activeElement = last;
+      const forward = { key: 'Tab', shiftKey: false, prevented: false, preventDefault() { this.prevented = true; } };
+      keys.forEach((fn) => fn(forward));
+      if (!forward.prevented || focused.join() !== 'first') fail('v60.06 Tab wraps inside the modal under a popover: ' + focused.join());
+      tabDoc.activeElement = sheet;
+      keys.forEach((fn) => fn({ key: 'Tab', shiftKey: true, preventDefault() {} }));
+      if (focused.join() !== 'first,last') fail('v60.06 Shift+Tab from the sheet itself goes to its last control: ' + focused.join());
+      closeTip(); closeSheet();
+      // A layer whose root left the document is dropped instead of swallowing keys.
+      const gone = { isConnected: false, querySelectorAll: () => [], contains: () => false };
+      openLayer({ root: gone, documentRef: tabDoc, inert: false, focus: false, onDismiss() { fail('v60.06 a detached layer is not dismissed'); } });
+      const stray = { key: 'Escape', defaultPrevented: false, preventDefault() { this.defaultPrevented = true; } };
+      keys.forEach((fn) => fn(stray));
+      if (stray.defaultPrevented || openLayerCount(tabDoc) !== 0) fail('v60.06 a layer whose root is detached is dropped');
+    }
+    {
+      const { outlineLabel, currentSection, OUTLINE_ROUTES } = await load('src/ui/components/page-outline.js');
+      if (outlineLabel('미 국채 수익률 곡선 공식 — 11/12') !== '미 국채 수익률 곡선 공식') fail('v60.06 a section jump drops the date tail: ' + outlineLabel('미 국채 수익률 곡선 공식 — 11/12'));
+      if (outlineLabel('  ') !== '' || outlineLabel('아주 길게 이어지는 섹션 제목이 한 줄을 넘는 경우').length > 16) fail('v60.06 a section jump label is short and never blank text');
+      if (currentSection([-900, -40, 120, 800]) !== 2 || currentSection([300, 900]) !== 0 || currentSection([]) !== -1) fail('v60.06 the current section is the last heading above the top band');
+      if (!OUTLINE_ROUTES.includes('signal') || OUTLINE_ROUTES.includes('home')) fail('v60.06 section jumps are for long screens only');
+      const { toastDuration, toastPriority, TOAST_MIN_MS, TOAST_MAX_MS } = await load('src/ui/behaviors/toast.js');
+      if (toastDuration('저장했습니다') !== TOAST_MIN_MS || toastDuration('가'.repeat(400)) !== TOAST_MAX_MS) fail('v60.06 a toast stays between its floor and ceiling');
+      if (toastDuration('가'.repeat(60)) <= TOAST_MIN_MS) fail('v60.06 a longer toast stays longer');
+      if (toastPriority('포트폴리오를 저장하지 못했습니다') !== 'assertive' || toastPriority('관심 종목에 추가했습니다') !== 'polite') fail('v60.06 a failure toast is announced at once');
+    }
   }
   // run-5: after a route change hover waits for a real pointer move (a synthetic move has no movement).
   const { watchScroll, hoverSuppressed } = await load('src/ui/components/popover.js');

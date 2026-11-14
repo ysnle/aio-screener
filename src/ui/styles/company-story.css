@@ -2,7 +2,7 @@
 .company-story-one { font-weight:600; line-height:1.7; margin:4px 0 6px; overflow-wrap:anywhere; }
 .company-story-meta, .company-story-small { font-size:12px; line-height:1.6; color:var(--text-secondary); margin:4px 0; }
 .company-story-stale { font-size:12px; line-height:1.6; color:var(--data-amber); margin:4px 0; }
-.company-story-h3 { font-size:12px; font-weight:700; margin:14px 0 6px; }
+.company-story-h3 { font-size:12px; font-weight:600; margin:14px 0 6px; }
 .company-story-flow { list-style:none; margin:0; padding:0; display:grid; gap:6px; }
 .company-story-hop { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:4px 8px; align-items:center; padding:8px 12px; border-radius:10px; background:var(--sx-ink-a03); }
 .company-story-who { font-weight:600; font-size:12px; overflow-wrap:anywhere; }
@@ -47,8 +47,8 @@
 /* v59.74 (owner 2026-11-07): 핵심 쟁점, 돈과 기술의 흐름, 숫자 뒤의 구조, 이 업종이 돌아가는 방식 (src/ui/components/company-flow.js). */
 .company-debate { margin:14px 0 4px; padding:14px 16px; border-radius:var(--radius-container); background:var(--sx-ink-a03); }
 .company-debate__head { display:flex; flex-direction:column; gap:4px; }
-.company-debate__label { font-size:var(--fs-min); font-weight:700; letter-spacing:.02em; color:var(--text-secondary); }
-.company-debate__q { margin:0; font-size:15px; font-weight:700; line-height:1.6; overflow-wrap:anywhere; }
+.company-debate__label { font-size:var(--fs-min); font-weight:600; letter-spacing:.02em; color:var(--text-secondary); }
+.company-debate__q { margin:0; font-size:15px; font-weight:600; line-height:1.6; overflow-wrap:anywhere; }
 .company-debate__sides { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:10px; margin-top:10px; }
 .company-debate__side { min-width:0; padding:10px 12px; border-radius:10px; background:var(--bg-card); border-left:3px solid var(--chart-grid); }
 .company-debate__side--bull { border-left-color:var(--chart-1); }
@@ -65,7 +65,7 @@
 .company-flow-centre { align-self:center; display:flex; flex-direction:column; justify-content:center; gap:3px; padding:12px; border-radius:var(--radius-container); background:var(--bg-card); border:2px solid var(--accent); text-align:center; min-width:0; }
 .company-flow-centre b { font-size:16px; }
 .company-flow-col { min-width:0; padding:10px 12px; border-radius:var(--radius-container); background:var(--sx-ink-a03); }
-.company-flow-col__title { margin:0; font-size:12px; font-weight:700; }
+.company-flow-col__title { margin:0; font-size:12px; font-weight:600; }
 .company-flow-col__note { margin:2px 0 8px; font-size:var(--fs-min); color:var(--text-secondary); }
 .company-flow-chips { display:flex; flex-wrap:wrap; gap:6px; }
 .company-flow-chip { display:inline-flex; flex-direction:column; align-items:flex-start; gap:1px; max-width:100%; padding:5px 9px; border-radius:var(--radius-element); border:1px solid var(--chart-grid); background:var(--bg-card); color:var(--text-primary); font:inherit; font-size:12px; text-align:left; line-height:1.35; min-width:0; }
@@ -80,7 +80,7 @@ button.company-flow-chip { cursor:pointer; }
 .company-chain { list-style:none; margin:10px 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(78px,1fr)); gap:4px; }
 .company-chain__step { display:flex; flex-direction:column; gap:2px; padding:6px 6px; border-radius:6px; background:var(--sx-ink-a03); font-size:var(--fs-min); color:var(--text-secondary); min-width:0; }
 .company-chain__step.is-linked { color:var(--text-primary); }
-.company-chain__step.is-here { background:var(--accent); color:var(--bg-card); font-weight:700; }
+.company-chain__step.is-here { background:var(--accent); color:var(--bg-card); font-weight:600; }
 .company-chain__name { overflow-wrap:anywhere; }
 .company-chain__count { font-size:var(--fs-min); font-variant-numeric:tabular-nums; }
 .company-hood { margin-top:14px; }
@@ -91,7 +91,7 @@ button.company-flow-chip { cursor:pointer; }
 .company-industry__twist { border-left:3px solid var(--chart-grid); padding-left:10px; }
 .company-industry__open { margin-top:8px; }
 .company-flow-chip:focus-visible, .company-hood__item > summary:focus-visible, .company-industry__open:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-@media (max-width: 720px) {
+@media (max-width: 743px) {
   .company-flow-map { grid-template-columns:minmax(0,1fr); }
   .company-flow-arrow { justify-self:center; transform:rotate(90deg); }
   .company-flow-centre { order:0; }

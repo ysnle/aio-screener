@@ -976,10 +976,9 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     };
     documentRef?.addEventListener?.('click', onSkipLink);
     installLayers({ root });
-    // Not needed to draw the first screen.
-    let stopRoving = () => {};
-    import('../ui/behaviors/roving.js').then(({ installRoving }) => { stopRoving = installRoving({ root, documentRef }); }).catch(() => {});
-    import('../ui/behaviors/announce.js').then(({ installAnnouncements }) => installAnnouncements({ root, documentRef })).catch(() => {});
+    let stopAfterBoot = () => {};
+    let afterBootWanted = true;
+    import('./after-boot.js').then(({ installAfterBoot }) => { if (afterBootWanted) stopAfterBoot = installAfterBoot({ root, documentRef }); }).catch(() => {});
     if (root?.location?.hash === '#main-content') {
       try { root.history?.replaceState?.(root.history.state, '', `${root.location.pathname}${root.location.search}`); } catch (_) {}
     }
@@ -1116,7 +1115,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       clearInterval(timelineWatchdog);
       documentRef?.removeEventListener?.('visibilitychange', onVisibilityTimelineCheck);
       documentRef?.removeEventListener?.('click', onSkipLink);
-      stopRoving();
+      afterBootWanted = false;
+      stopAfterBoot();
       router.dispose();
       // Fable-advisor review (2026-07-21): drop any in-flight screener/entity fetch resolution
       // permanently once the app is torn down — see the generation-counter guard in those two

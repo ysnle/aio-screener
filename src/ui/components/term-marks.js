@@ -239,7 +239,7 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     opener = mark;
     mark.setAttribute('aria-expanded', 'true');
     documentRef.body.append(pop);
-    claimPopover(documentRef, closeQuiet);
+    claimPopover(documentRef, closeQuiet, { dismiss: () => close() });
     const viewport = { width: root.innerWidth || 1024, height: root.innerHeight || 768 };
     // The width is fixed first so the measured height is the wrapped height the popover will really have.
     pop.style.width = `${Math.min(320, viewport.width - EDGE * 2)}px`;
@@ -265,7 +265,6 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     if (pop && !pop.contains(event.target)) close();
   };
   const onKey = (event) => {
-    if (event.key === 'Escape' && pop) { event.preventDefault(); close(); return; }
     const mark = (event.key === 'Enter' || event.key === ' ') && event.target.closest?.('.aio-term');
     if (mark) { event.preventDefault(); open(mark); }
   };

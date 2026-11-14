@@ -19,6 +19,7 @@ import { ROUTE_HUBS, routeLabel } from './route-hubs.js';
 import { searchCandidates } from '../../domain/instruments/resolve-name.js';
 import { loadKnowledgeSearch, normalize, openKnowledgeResult } from '../knowledge/glossary-bridge.js';
 import { renderDataState } from '../components/data-state.js';
+import { openLayer } from '../behaviors/layers.js';
 
 export const COMMAND_SCOPES = Object.freeze([
   Object.freeze({ id: 'all', label: '전체' }),
@@ -160,7 +161,9 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
   const activeRoute = () => String((typeof root.AIO?.getActivePage === 'function' && root.AIO.getActivePage()) || documentRef?.querySelector?.('.page.active')?.id || '').replace(/^page-/, '');
   const say = (text) => { const node = status(); if (node) node.textContent = text || ''; };
 
+  let releaseLayer = () => {};
   function close() {
+    releaseLayer(); releaseLayer = () => {};
     const node = dialog();
     if (node?.open) node.close();
   }
@@ -345,9 +348,11 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
     if (!node || !field) return false;
     const { scope: wanted = 'all', query = '', note = '' } = typeof request === 'string' ? { scope: request } : (request || {});
     if (!node.open) {
-      const focused = documentRef.activeElement;
-      opener = focused && focused !== documentRef.body ? focused : null;
+      opener = root._aioFocusOrigin?.() || null;
       if (typeof node.showModal === 'function') node.showModal(); else node.setAttribute('open', '');
+      // Over the glossary or the narrow AI panel the dialog is the top layer: usable, and Escape closes it first.
+      releaseLayer();
+      releaseLayer = openLayer({ root: node, focus: false, onDismiss: close });
     }
     setScope(wanted);
     field.value = String(query || '');
@@ -381,6 +386,7 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
     // A press on the backdrop (the dialog element itself, outside the panel) closes it.
     node.addEventListener('click', (event) => { if (event.target === node) close(); });
     node.addEventListener('close', () => {
+      releaseLayer(); releaseLayer = () => {};
       clearTimeout(timer); seq += 1; options = []; active = -1; painted = null;
       field.setAttribute('aria-expanded', 'false');
       field.removeAttribute('aria-activedescendant');

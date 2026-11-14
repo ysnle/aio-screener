@@ -47,7 +47,7 @@ const STYLE = `
 .af-bar-fill.is-neg{background:var(--data-red)}
 .af-bar-value{text-align:right;font-variant-numeric:tabular-nums;color:var(--text-primary)}
 .af-bar-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media (max-width: 720px){.af-bar-row{grid-template-columns:minmax(0,110px) 1fr 56px}}
+@media (max-width: 743px){.af-bar-row{grid-template-columns:minmax(0,110px) 1fr 56px}}
 .af-calc{border:0.5px solid var(--border-subtle);border-radius:4px;padding:12px 14px;background:var(--surface-1);margin:4px 0 6px}
 .af-calc dl{display:grid;grid-template-columns:64px 1fr;gap:5px 12px;margin:0;font-size:12px;line-height:1.55}
 .af-calc dt{color:var(--text-muted)}

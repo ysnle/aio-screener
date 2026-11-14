@@ -47,7 +47,7 @@
 .page .regime-scenario-card li + li { margin-top: 6px; }
 .page .regime-quality-korea { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .page .regime-korea-value { font-size: 18px; font-variant-numeric: tabular-nums; color: var(--text-primary); margin: 8px 0; }
-@media (max-width: 1050px) {
+@media (max-width: 1100px) {
   .page .regime-scenario-grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 900px) {
@@ -66,7 +66,7 @@
 /* P1633: scenario outlook — likelihood, possibility and opportunity cost. */
 .page .regime-scenario-lead { font-size: 14px; font-weight: 600; line-height: 1.6; color: var(--text-primary); margin: 6px 0 16px; }
 .page .regime-scenario-card[data-lead="true"] { border-color: var(--text-primary); box-shadow:none; }
-.page .regime-scenario-card[data-likelihood="높음"] .regime-scenario-status { color: var(--text-primary); font-weight: 700; }
+.page .regime-scenario-card[data-likelihood="높음"] .regime-scenario-status { color: var(--text-primary); font-weight: 600; }
 .page .regime-scenario-reading { font-size: 14px; line-height: 1.7; color: var(--text-primary); margin: 12px 0 8px; }
 .page .regime-scenario-opportunity { font-size: 14px; line-height: 1.65; color: var(--text-secondary); margin: 0 0 10px; padding: 8px 10px; background: var(--surface-2, transparent); border-radius: var(--radius-inner); }
 .page .regime-scenario-list ul { margin: 4px 0 8px; padding-left: 18px; }
@@ -83,7 +83,7 @@
 .regime-radar-svg { width: 100%; height: auto; overflow: visible; padding: 0 12px; box-sizing: border-box; } /* side labels (신용 · 위험선호) draw a few px outside the viewBox */
 .regime-radar-ring { fill: none; stroke: var(--border-subtle); stroke-width: 1; }
 .regime-radar-spoke { stroke: var(--border-subtle); stroke-width: 1; }
-.regime-radar-label { font-size: 12px; font-weight: 700; fill: var(--text-primary); }
+.regime-radar-label { font-size: 12px; font-weight: 600; fill: var(--text-primary); }
 .regime-radar-value { font-size: 12px; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .regime-radar-shape { stroke-width: 2; }
 .regime-radar-shape.is-now { fill: color-mix(in srgb, var(--accent) 18%, transparent); stroke: var(--accent); }
@@ -96,12 +96,12 @@
 .regime-radar-swatch { display: inline-block; width: 18px; height: 0; border-top: 2px solid var(--accent); } /* v59.69: the legend matches the 2px shapes */
 .regime-radar-swatch.is-d5 { border-top: 2px dashed var(--blue-11); }
 .regime-radar-swatch.is-d20 { border-top: 2px dotted var(--text-muted); }
-@media (max-width: 760px) { .regime-radar-body { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 743px) { .regime-radar-body { grid-template-columns: minmax(0, 1fr); } }
 /* P1641: 오늘 sector bar. v58.80 (owner-delegated): a direction bar uses the direction tokens — rising red, falling
    blue, the same convention as the candles (P1634); v57.50 C25 had kept it green/red. */
 .home-sector-moves { margin: 18px 0; }
 .home-sector-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.home-sector-lead { font-size: 12px; line-height: 1.6; color: var(--text-secondary); margin: 4px 0 8px; }
+.home-sector-lead { font-size: var(--fs-reading); line-height: 1.6; color: var(--text-secondary); margin: 4px 0 8px; }
 .home-sector-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .home-sector-bars li { display: grid; grid-template-columns: 92px minmax(0, 1fr) 62px 68px; gap: 8px; align-items: center; font-size: 12px; }
 .home-sector-name { color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -136,7 +136,7 @@ button[data-basis], a[data-basis] { cursor: pointer; }
 .leaders-line__state { font-weight: 600; color: var(--text-secondary); }
 .leaders-line__state.is-burden { color: var(--data-amber); }
 .leaders-line__read { color: var(--text-secondary); flex-basis: 100%; }
-.leaders-line__evidence { margin-top: 2px; font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.leaders-line__evidence { margin-top: 2px; font-size: var(--fs-reading); color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 .leaders-line__part + .leaders-line__part { margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--border-subtle); }
 /* v58.80 run-5: the distribution part leads with one gauge (count against the warning line); the 25 bars are folded. */
 .leaders-line__dist-gauge { display: block; max-width: 420px; margin-top: 8px; }
@@ -159,8 +159,7 @@ button[data-basis], a[data-basis] { cursor: pointer; }
 .leaders-line__more[open] > summary::after { content: '⌃'; }
 .leaders-line__more > .leaders-line__part { margin-top: 8px; font-size: 12px; }
 .leaders-line__more h4.leaders-line__label { margin: 0 0 2px; font-size: 12px; }
-.leaders-line__more .leaders-line__read, .leaders-line__more .leaders-line__evidence, .leaders-line__method { margin: 2px 0; }
-.leaders-line__method { font-size: 12px; color: var(--text-muted); }
+.leaders-line__more .leaders-line__read, .leaders-line__more .leaders-line__evidence { margin: 2px 0; }
 .leaders-line__list { margin: 4px 0 0; padding-left: 18px; color: var(--text-secondary); line-height: 1.6; font-variant-numeric: tabular-nums; }
 
 /* P1661: past outcomes by VIX band */
@@ -170,10 +169,6 @@ button[data-basis], a[data-basis] { cursor: pointer; }
 .page .stress-bars { display: grid; gap: 8px; margin: 12px 0; }
 .page .stress-bar-row { display: grid; grid-template-columns: minmax(92px, 9rem) minmax(0, 1fr) minmax(150px, auto); align-items: center; gap: 10px; font-size: 14px; color: var(--text-secondary); padding: 2px 6px; border-radius: var(--radius); }
 .page .stress-bar-row.is-current { background: var(--surface-2, var(--black-a1)); color: var(--text-primary); font-weight: 600; outline: 1px solid var(--border-strong); }
-.page .stress-bar-track { height: 10px; background: var(--border); border-radius: var(--radius-inner); overflow: hidden; }
-.page .stress-bar { display: block; height: 100%; border-radius: var(--radius-inner); }
-.page .stress-bar.is-up { background: var(--dir-up); }
-.page .stress-bar.is-down { background: var(--dir-down); }
 .page .stress-bar-value { text-align: right; font-variant-numeric: tabular-nums; }
 @media (max-width: 600px) { .page .stress-bar-row, .page .regime-axis .stress-bar-row { grid-template-columns: 1fr; gap: 4px; } .page .stress-bar-value { text-align: left; } }
 
@@ -185,17 +180,16 @@ button[data-basis], a[data-basis] { cursor: pointer; }
 .sector-map-tab.is-active { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-card); font-weight: 600; }
 .sector-map-tab:disabled { opacity: .45; cursor: not-allowed; }
 .sector-map-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.sector-map-basis { font-size: 12px; color: var(--text-muted); margin: 4px 0 6px; line-height: 1.5; }
 .sector-map-lead { font-size: 14px; line-height: 1.65; color: var(--text-primary); margin: 0 0 12px; max-width: 72ch; }
 .sector-map-canvas { position: relative; width: 100%; background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius-inner); overflow: hidden; user-select: none; }
 .sector-map-sector { position: absolute; box-sizing: border-box; border: 0.5px solid var(--bg-card); pointer-events: none; z-index: 2; }
-.sector-map-sector-label { position: absolute; left: 4px; top: 1px; right: 4px; font-size: 12px; font-weight: 700; letter-spacing:0; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 16px; }
+.sector-map-sector-label { position: absolute; left: 4px; top: 1px; right: 4px; font-size: 12px; font-weight: 600; letter-spacing:0; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 16px; }
 .sector-map-tile { position: absolute; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; line-height: 1.15; text-align: center;  z-index: 1; }
 .sector-map-canvas > .sector-map-tile { font-size: var(--sector-tile-fs, 12px); } /* v57.81: label size from the layout, floor 11px; outranks the .page div font reset */
-.sector-map-tile strong { font-weight: 700; letter-spacing:0; }
+.sector-map-tile strong { font-weight: 600; letter-spacing:0; }
 .sector-map-tile span { font-size: max(12px, .78em); font-variant-numeric: tabular-nums; }
-.sector-map-tile:hover { filter: brightness(1.08) saturate(1.05); outline: 2px solid var(--text-primary); outline-offset: -2px; z-index: 3; }
-.sector-map-detail { font-size: 12px; color: var(--text-secondary); margin: 8px 0 6px; min-height: 1.5em; line-height: 1.5; }
+@media (hover: hover) { .sector-map-tile:hover { filter: brightness(1.08) saturate(1.05); outline: 2px solid var(--text-primary); outline-offset: -2px; z-index: 3; } }
+.sector-map-detail { font-size: var(--fs-reading); color: var(--text-secondary); margin: 8px 0 6px; min-height: 1.5em; line-height: 1.5; }
 .sector-map-legend { display: flex; gap: 2px; margin: 0 0 12px; max-width: 420px; }
 .sector-map-swatch { flex: 1; font-size: 12px; text-align: center; padding: 3px 0; font-variant-numeric: tabular-nums; }
 .sector-map-table { margin: 6px 0 0; }
@@ -209,7 +203,7 @@ body.dark-theme .sector-map .is-u3 { background: var(--red-9); color: var(--gold
 body.dark-theme .sector-map .is-n0 { background: var(--gold-4); color: var(--gold-12); }
 body.dark-theme .sector-map .is-d1 { background: var(--blue-4); color: var(--gold-12); } body.dark-theme .sector-map .is-d2 { background: var(--blue-7); color: var(--gold-12); } body.dark-theme .sector-map .is-d3 { background: var(--blue-9); color: var(--gold-1); }
 body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gold-11); }
-@media (max-width: 720px) { .sector-map-tab { padding: 5px 10px; } .sector-map-legend { max-width: none; } }
+@media (max-width: 743px) { .sector-map-tab { padding: 5px 10px; } .sector-map-legend { max-width: none; } }
 @media (prefers-reduced-motion: reduce) { .sector-map-tile { transition: none; } }
 
 /* P1742: 앞으로의 갈림길 — forward branches (거시 full, 오늘·시장 상태 compact). */
@@ -229,7 +223,7 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .xr-event-date { font-family: var(--font-mono); color: var(--text-primary); }
 .page .xr-event-name { color: var(--text-secondary); }
 .page .xr-map { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 0 12px; align-items: stretch; margin: 8px 0 18px; }
-.page .xr-map-now { display: flex; align-items: center; justify-content: center; border: 0.5px solid var(--text-primary); border-radius: var(--radius-element); font-weight: 700; font-size: 14px; color: var(--text-primary); background: var(--bg-card); }
+.page .xr-map-now { display: flex; align-items: center; justify-content: center; border: 0.5px solid var(--text-primary); border-radius: var(--radius-element); font-weight: 600; font-size: 14px; color: var(--text-primary); background: var(--bg-card); }
 .page .xr-map-branches { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .page .xr-map-branch { position: relative; padding: 0; border: 0.5px solid var(--border); border-radius: var(--radius-element); background: var(--bg-card); min-height: 44px; }
 .page .xr-map-branch::before { content: ''; position: absolute; left: -16px; top: 22px; width: 14px; border-top: 0.5px solid var(--border-strong); }
@@ -243,10 +237,8 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .xr-map-more::before { content: '▸ '; }
 .page .xr-branch[open] .xr-map-more::before { content: '▾ '; }
 .page .xr-branch-body { padding: 4px 12px 12px; border-top: 0.5px solid var(--border-subtle); }
-.page .xr-hub-note { font-size: 12px; line-height: 1.6; color: var(--text-secondary); margin: 2px 0 8px; }
 .page .xr-path.is-mixed { border-style: dashed; border-color: var(--text-primary); }
 /* Lead line of the compact block on 오늘·시장 상태 ("지금 구조: …", rendered by market-regime.js). */
-.page .xr-structure { font-size: 14px; font-weight: 600; line-height: 1.6; color: var(--text-primary); margin: 0 0 6px; }
 .page .xr-map-branch[data-lead="true"] { border-color: var(--text-primary); box-shadow:none; }
 .page .xr-map-head, .page .xr-branch-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .page .xr-map-title { font-weight: 600; font-size: 14px; color: var(--text-primary); }
@@ -290,7 +282,7 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .xr-explore { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
 .page .xr-explore-label { font-size: 14px; color: var(--text-secondary); }
 /* v57.91 (desktop audit): the full-width home card ran ~80 Korean characters a line; prose lines stop at a readable length. */
-@media (max-width: 760px) {
+@media (max-width: 743px) {
   .page .xr-paths { grid-template-columns: minmax(0, 1fr); }
   .page .xr-map { grid-template-columns: minmax(0, 1fr); }
   .page .xr-map-now { padding: 6px; margin-bottom: 8px; }
@@ -303,7 +295,7 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .macro-axis-branches { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 4px; }
 .page .macro-axis-branches-label { font-size: 12px; color: var(--text-secondary); }
 .page .macro-axis-branch { font-size: 12px; padding: 3px 9px; min-height: 28px; border: 0.5px solid var(--border); border-radius: var(--radius-inner); background: var(--bg-card); color: var(--text-primary); cursor: pointer; }
-.page .macro-axis-branch:hover { border-color: var(--text-primary); }
+@media (hover: hover) { .page .macro-axis-branch:hover { border-color: var(--text-primary); } }
 .page .macro-axis-branch:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
 /* v57.79 (375 review): segment text is a short label only and leaves the bar on a phone; values live in the legend line. */
 .page .capex-flow-bar { margin-bottom: 6px; }
@@ -313,7 +305,7 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 @media (max-width: 600px) { .capex-flow-seg-label { display: none; } .page .capex-flow-bar { height: 18px; } }
 /* v59.70 (screen review 3): the step-11 fills turn light in dark mode, so white labels fell to 1.8:1; the label takes
    the page background instead. The card head wraps between the layer name and '$N / $100', never inside either. */
-body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weight: 700; }
+body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weight: 600; }
 .capex-flow-card .trend-card-head { flex-wrap: wrap; row-gap: 2px; }
 .capex-flow-card .trend-card-title, .capex-flow-card .trend-card-value { white-space: nowrap; }
 .capex-flow-card .trend-card-value { font-size: 22px; }
@@ -352,13 +344,8 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .page .tp-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 12px; color: var(--text-secondary); margin: 2px 0 10px; }
 .page .tp-legend-item { display: inline-flex; align-items: center; gap: 6px; }
 .page .tp-swatch { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-.page .tp-legend-note { color: var(--text-muted); }
 .page .tp-stage { margin: 10px 0; border-top: 0.5px solid var(--border); padding-top: 8px; }
-.page .tp-stage-summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--text-primary); min-height: 32px; display: flex; align-items: center; }
 .page .tp-card { margin: 8px 0; padding: 10px 12px; border: 0.5px solid var(--border); border-radius: var(--radius-element); background: var(--bg-card); }
-.page .tp-card-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; cursor: pointer; min-height: 32px; }
-.page .tp-card-title { font-weight: 600; color: var(--text-primary); }
-.page .tp-card-num { font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); }
 .page .xr-tag.is-wind-tail { color: var(--data-green); border-color: var(--data-green); }
 .page .xr-tag.is-wind-head { color: var(--data-red); border-color: var(--data-red); }
 .page .xr-changes { margin: 18px 0; padding-top: 6px; border-top: 0.5px solid var(--border); }
@@ -374,19 +361,19 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .page .temp-tiles { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 12px 18px; margin: 12px 0 16px; }
 .page .temp-group { display: grid; gap: 6px; align-content: start; }
 .page .temp-group-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-.page .temp-tiles-group { font-size: 12px; font-weight: 700; color: var(--text-muted); letter-spacing:0; }
+.page .temp-tiles-group { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing:0; }
 .page .temp-tile { display: grid; gap: 6px; text-align: left; padding: 12px; border: 0.5px solid var(--border); border-radius: var(--radius); background: var(--bg-elevated); color: var(--text-primary); cursor: pointer; font: inherit; min-height: 44px;  }
-.page .temp-tile:hover { border-color: var(--border-strong); }
+@media (hover: hover) { .page .temp-tile:hover { border-color: var(--border-strong); } }
 .page .temp-tile:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
 .page .temp-tile.is-selected { border-color: var(--text-primary); box-shadow: inset 0 0 0 1px var(--text-primary); }
 .page .temp-tile.is-cold { background: rgba(var(--ink-rgb),0.05); }
 .page .temp-tile.is-hot { background: var(--data-amber-soft); }
-.page .temp-tile-name { font-size: 14px; font-weight: 700; }
+.page .temp-tile-name { font-size: 14px; font-weight: 600; }
 .page .temp-tile.is-sub { padding: 10px 12px; }
 .page .temp-tile.is-sub .temp-tile-spark { height: 26px; }
 .page .temp-tile-state { font-size: 12px; color: var(--text-secondary); }
-.page .temp-tile.is-cold .temp-tile-state { color: var(--text-primary); font-weight: 700; }
-.page .temp-tile.is-hot .temp-tile-state { color: var(--data-amber); font-weight: 700; }
+.page .temp-tile.is-cold .temp-tile-state { color: var(--text-primary); font-weight: 600; }
+.page .temp-tile.is-hot .temp-tile-state { color: var(--data-amber); font-weight: 600; }
 .page .temp-tile.is-stale .temp-tile-spark { opacity: .45; }
 .page .temp-tile.is-stale .temp-tile-state { color: var(--text-secondary); font-weight: 400; }
 .page .temp-tile-spark { display: grid; grid-template-columns: repeat(5, 1fr); align-items: end; gap: 3px; height: 34px; padding-bottom: 2px; border-bottom: 0.5px solid var(--border); background: linear-gradient(to top, rgba(var(--ink-rgb),0.07) 0 10%, transparent 10% 90%, var(--data-amber-faint) 90% 100%); }
@@ -416,10 +403,6 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 @media (max-width: 600px) { .page .temp-bar-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'label value' 'track track'; gap: 2px 8px; } .page .temp-bar-label { grid-area: label; } .page .temp-bar-value { grid-area: value; } .page .temp-bar-track { grid-area: track; } }
 /* v57.54 (owner review 2026-10-14): the compact forward block — structure line with its fit chip, the 반증 line in a
    quieter register, and the two paths as aligned cards (two columns from 720px, stacked on a phone). */
-.page .xr-structure .basis-chip { margin: 0 6px; vertical-align: 1px; }
-.page .xr-structure-note { font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin: 0 0 8px; }
-.page .xr-price.is-same { color: var(--text-primary); font-weight: 700; }
-.page .xr-price.is-against { color: var(--data-amber); }
 /* Live review 2026-10-14: the folded remainder of a long axis reading. */
 .page .regime-read-more { margin: -10px 0 14px; color: var(--text-secondary); }
 .page .regime-read-more summary { cursor: pointer; min-height: 28px; display: list-item; font-size: 12px; color: var(--text-secondary); }
@@ -457,18 +440,18 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .page .mg-concept-link:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
 .page .mg-library { margin: 4px 0 10px; }
 .page .mg-library-summary { cursor: pointer; font-size: 14px; color: var(--text-primary); min-height: 32px; padding: 4px 0; }
-@media (max-width: 640px) {
+@media (max-width: 600px) {
   .page .mg-situation { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .page .mg-situation dd { margin-bottom: 6px; }
   .page .mg-stance { grid-template-columns: minmax(0, 1fr); }
   .page .mg-lessons { grid-template-columns: minmax(0, 1fr); }
 }
 /* v58.37: portfolio stress panel (src/ui/panels/portfolio-stress.js) — classes, never below the 12px floor. */
-.pf-stress-head { font-size: var(--fs-min); font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
+.pf-stress-head { font-size: var(--fs-min); font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
 .pf-stress-sub { font-weight: 400; color: var(--text-muted); }
 .pf-stress-row { display: flex; justify-content: space-between; gap: 8px; font-size: var(--fs-min); padding: 2px 0; }
 .pf-stress-name { color: var(--text-secondary); }
-.pf-stress-value { font-weight: 700; color: var(--data-green); }
+.pf-stress-value { font-weight: 600; color: var(--data-green); }
 .pf-stress-value.is-down { color: var(--data-amber); }
 .pf-stress-value.is-severe { color: var(--data-red); }
 .pf-stress-band { color: var(--text-muted); font-weight: 400; }
@@ -495,7 +478,7 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .page .xr-choice { border-color: transparent; background: var(--sx-ink-a03, transparent); border-radius: var(--radius-element); }
 .page .xr-choice[data-favored="true"] { border-color: transparent; background: var(--sx-good-bg, transparent); }
 .page .xr-chain-step { border-radius: 6px; background: var(--sx-ink-a07, var(--bg-elevated)); }
-@media (max-width: 760px) { .page .xr-map { padding-left: 18px; } .page .xr-map::before { left: 4px; } .page .xr-map-now { margin-bottom: 0; } .page .xr-map-now::before { left: -19px; } .page .xr-map-branch::before { left: -18px; } }
+@media (max-width: 743px) { .page .xr-map { padding-left: 18px; } .page .xr-map::before { left: 4px; } .page .xr-map-now { margin-bottom: 0; } .page .xr-map-now::before { left: -19px; } .page .xr-map-branch::before { left: -18px; } }
 .page .theme-strength-table td.is-quiet:not(.is-sorted) { opacity: .72; } /* v58.78: 3개월 is context beside 1주·2주·1개월 */
 /* v58.81: market clock + Korea↔US link check, and the probabilistic lean (src/ui/components/session-lean.js) */
 .session-bridge { margin: 0 0 10px; padding: 8px 10px; border-left: 2px solid var(--border-subtle); font-size: 12px; line-height: 1.6; color: var(--text-secondary); overflow-wrap: anywhere; }
@@ -512,7 +495,7 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .market-lean__head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-height: 32px; cursor: pointer; }
 .market-lean__sub { margin: 8px 0 2px; font-size: 12px; font-weight: 600; color: var(--text-primary); }
 .market-lean__title { font-weight: 600; color: var(--text-primary); }
-.market-lean__state { font-weight: 700; color: var(--text-primary); }
+.market-lean__state { font-weight: 600; color: var(--text-primary); }
 .market-lean__state[data-score="-1"], .market-lean__state[data-score="-2"] { color: var(--data-amber); }
 .market-lean__read { margin: 2px 0 4px; color: var(--text-secondary); }
 .market-lean__items { margin: 0 0 4px; padding-left: 18px; color: var(--text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; }
@@ -521,7 +504,7 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .session-bridge__more summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); }
 /* v59.51 (시장 상태 two layers): a combination is its name on one line, its numbers open under it; the depth fold body. */
 .mk-combo__fold > summary { cursor: pointer; font-weight: 600; min-height: 28px; }
-.mk-combo__detail { margin: 4px 0 0; font-size: 12px; line-height: 1.7; color: var(--text-secondary); }
+.mk-combo__detail { margin: 4px 0 0; font-size: var(--fs-reading); line-height: 1.7; color: var(--text-secondary); }
 .mk-watch__item.is-more, .mk-watch__item.is-release { display: block; }
 .mk-watch__more { margin: 6px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.7; color: var(--text-secondary); }
 #page-signal .regime-depth-body { padding: 0 24px 20px; }
@@ -529,7 +512,7 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 #page-signal .mk-hero__why { margin: 4px -8px 0; }
 #page-signal .mk-hero__why > summary { grid-template-columns: auto auto; justify-content: start; gap: 6px; padding: 6px 8px; min-height: 32px; font-size: 12px; color: var(--text-secondary); }
 #page-signal .mk-hero__why > p { margin-left: 8px; margin-right: 8px; }
-#page-signal .mk-hero__why-text { margin: 4px 0 8px; font-size: 12px; line-height: 1.7; color: var(--text-secondary); }
+#page-signal .mk-hero__why-text { margin: 4px 0 8px; font-size: var(--fs-reading); line-height: 1.7; color: var(--text-secondary); }
 #page-signal .regime-depth-body #home-guide { margin-top: 20px; padding-top: 20px; border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); }
 
 /* v59.42: event briefs (오늘 '주요 발표 요약', 종목 '최근 실적 발표 요약'). */
@@ -537,9 +520,9 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .event-brief:first-of-type { border-top: 0; }
 .event-brief__head { margin: 0; font-size: 12px; }
 .event-brief__when { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-.event-brief__headline { margin: 2px 0 4px; font-size: 12px; color: var(--text-primary); }
+.event-brief__headline { margin: 2px 0 4px; font-size: var(--fs-reading); color: var(--text-primary); }
 .event-brief__figures, .event-brief__list { margin: 0 0 4px; padding-left: 18px; font-size: 12px; font-variant-numeric: tabular-nums; }
-.event-brief__sub { margin: 6px 0 2px; font-size: 12px; font-weight: 700; }
+.event-brief__sub { margin: 6px 0 2px; font-size: 12px; font-weight: 600; }
 .event-brief__note, .event-brief__source { margin: 4px 0 0; font-size: 12px; color: var(--text-secondary); }
 .event-brief__more summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); }
 .event-briefs--ticker { margin: 16px 0 0; }
@@ -547,7 +530,6 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .event-brief__reaction { margin: 0 0 4px; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .event-brief__reaction[data-direction="up"], .event-brief-row__move[data-direction="up"] { color: var(--dir-up); }
 .event-brief__reaction[data-direction="down"], .event-brief-row__move[data-direction="down"] { color: var(--dir-down); }
-.event-briefs__tier2 { margin: 10px 0 2px; font-size: 12px; font-weight: 700; color: var(--text-secondary); }
 .event-brief-rows { list-style: none; margin: 0; padding: 0; }
 .event-brief-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 5px 0; border-top: 0.5px solid var(--border-subtle); font-size: 12px; }
 .event-brief-row__name { font: inherit; font-weight: 600; color: var(--text-primary); background: none; border: 0; padding: 0; min-height: 24px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
@@ -571,15 +553,15 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .event-brief-row__fold .event-brief__more.is-inline { padding: 6px 0 0; }
 .event-briefs__all { margin-top: 8px; }
 .event-briefs__flows { margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--border); }
-.event-briefs__flows-title { margin: 0 0 4px; font-size: 14px; font-weight: 700; color: var(--text-primary); }
-.event-briefs__flows-text { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-primary); }
+.event-briefs__flows-title { margin: 0 0 4px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.event-briefs__flows-text { margin: 0; font-size: var(--fs-reading); line-height: 1.6; color: var(--text-primary); }
 .event-briefs__flows-text--next { margin-top: 8px; }
 .event-briefs__flows-bars { display: grid; gap: 6px; margin-top: 8px; max-width: 520px; }
 .event-briefs__flows-row { display: grid; grid-template-columns: 96px minmax(0, 1fr) 64px; align-items: center; gap: 10px; font-size: 12px; }
 .event-briefs__flows-label { color: var(--text-secondary); }
 .event-briefs__flows-value { text-align: right; font-variant-numeric: tabular-nums; }
 /* v59.44: AI supply chain by group — one-month median bar, last session beside it. */
-.ai-chain__reading { margin: 0 0 6px; font-size: 12px; color: var(--text-primary); }
+.ai-chain__reading { margin: 0 0 6px; font-size: var(--fs-reading); color: var(--text-primary); }
 .ai-chain__scale { margin: 0 0 4px; font-size: 12px; color: var(--text-secondary); text-align: right; }
 .ai-chain__bars { list-style: none; margin: 0; padding: 0; }
 .ai-chain__row { display: grid; grid-template-columns: minmax(0, 11em) minmax(32px, 1fr) auto auto; align-items: center; gap: 6px; padding: 3px 0; font-size: 12px; font-variant-numeric: tabular-nums; }
@@ -609,7 +591,7 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .event-brief__cell dd.is-empty { color: var(--text-secondary); }
 .event-brief__cell dd[data-direction="up"] { color: var(--dir-up); }
 .event-brief__cell dd[data-direction="down"] { color: var(--dir-down); }
-@media (max-width: 640px) { .event-brief__cells { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .event-brief__cells { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* v59.70: 데이터 출처와 읽는 범위 — one row per lens (question · basis · reading · limit · evidence screen). */
 .page-sources .page-lenses { list-style: none; margin: 8px 0 12px; padding: 0 var(--sx-card-pad-x, 22px); display: grid; gap: 10px; }
@@ -637,7 +619,7 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .mk-narr__chip.is-backed { color: var(--text-primary); font-weight: 600; }
 .mk-narr__line { margin: 2px 0 4px; line-height: 1.6; }
 .mk-narr__more > summary { cursor: pointer; font-size: 12px; color: var(--text-secondary); }
-.mk-narr__question, .mk-narr__attention, .mk-narr__frame, .mk-narr__why { margin: 6px 0 0; line-height: 1.6; font-size: 12px; }
+.mk-narr__question, .mk-narr__attention, .mk-narr__frame, .mk-narr__why { margin: 6px 0 0; line-height: 1.6; font-size: var(--fs-reading); }
 .mk-narr__frame.is-counter, .mk-narr__why { color: var(--text-secondary); }
 .mk-narr__scenario { margin-top: 10px; padding: 10px 12px; border: 0.5px solid var(--border); border-radius: var(--radius-element); background: var(--bg-card); }
 .mk-narr__scenario-head { margin: 0 0 6px; font-size: 12px; }
@@ -646,5 +628,5 @@ body.dark-theme .capex-flow-seg { color: var(--bg-base); filter: none; font-weig
 .mk-narr__facts dd { margin: 0; }
 .mk-narr__choices { margin: 4px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.6; }
 .mk-narr__choices .is-costly b { color: var(--text-secondary); }
-@media (max-width: 640px) { .mk-narr__facts { grid-template-columns: 1fr; } .mk-narr__facts dd { margin-bottom: 4px; } .mk-narr__bar-row { grid-template-columns: 38% 1fr auto; } }
+@media (max-width: 600px) { .mk-narr__facts { grid-template-columns: 1fr; } .mk-narr__facts dd { margin-bottom: 4px; } .mk-narr__bar-row { grid-template-columns: 38% 1fr auto; } }
 .mk-narr__change { margin: 4px 0 0; font-size: 12px; color: var(--text-primary); font-weight: 600; }

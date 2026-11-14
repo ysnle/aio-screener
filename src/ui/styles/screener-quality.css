@@ -1,11 +1,6 @@
 /* P1625: one persistent listing-market scope above all screener tabs. */
-.scr-market-scope { display:flex; flex-wrap:wrap; gap:12px; align-items:center; padding:12px 0; border-bottom:0.5px solid var(--border); }
-.scr-market-scope label { display:flex; align-items:center; gap:8px; color:var(--text-secondary); font-size:12px; }
-.scr-market-scope select { min-height:40px; max-width:100%; padding:6px 10px; background:var(--bg-elevated); color:var(--text-primary); border:0.5px solid var(--border); border-radius:var(--radius-element); }
-.scr-market-scope p { flex-basis:100%; margin:0; color:var(--text-secondary); line-height:1.6; font-size:12px; overflow-wrap:anywhere; }
-.scr-market-scope select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 /* v57.81: 종목 범위 control (hidden for the Korean market) and the core-only line in the validation tabs. */
-.scr-market-scope label[hidden], .scr-market-scope p[hidden], .scr-core-only-note[hidden] { display:none; }
+.scr-core-only-note[hidden] { display:none; }
 #scr-universe-scope { max-width:min(100%, 320px); }
 .scr-core-only-note { margin:0 0 10px; color:var(--text-secondary); font-size:12px; line-height:1.6; overflow-wrap:anywhere; }
 .scr-ranking-method { flex-basis:100%; max-width:100%; color:var(--text-secondary); font-size:12px; }
@@ -48,7 +43,6 @@
 .scr-compare-feedback > span { overflow-wrap: anywhere; }
 .scr-compare-feedback > button { flex: 0 0 auto; min-height: 36px; }
 @media (pointer: coarse) { .scr-compare-feedback > button { min-height: 44px; } }
-.scr-compare-btn[aria-pressed="true"] { background: var(--accent-soft, var(--surface-2)); }
 /* 2026-10-19 layout system: the screener page's inline `.style.cssText` strings moved here (src/ui/pages/screener.js).
    Old inline 10/11/12px read --fs-xs/sm/base: the sizes index.html's [style*=font-size] rules rendered them at. Computed values
    (column align/min-width, sticky left, bar widths, per-factor colours) stay single-property assignments in the page. */
@@ -58,12 +52,12 @@
 .scr-empty-actions { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
 .scr-tone-up { color: var(--data-green); }
 .scr-tone-warn { color: var(--data-amber); }
-.scr-rank-hold { font-size: var(--fs-xs); color: var(--data-amber); font-weight: 700; white-space: nowrap; }
+.scr-rank-hold { font-size: var(--fs-xs); color: var(--data-amber); font-weight: 600; white-space: nowrap; }
 .scr-rank-unranked { font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
-.scr-rank-value { font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-sm); color: var(--text-primary); }
+.scr-rank-value { font-family: var(--font-mono); font-weight: 600; font-size: var(--fs-sm); color: var(--text-primary); }
 .scr-rank-bar { height: 3px; background: var(--border-subtle); border-radius: var(--radius-inner); margin-top: 3px; overflow: hidden; }
 .scr-rank-fill { height: 100%; background: var(--text-muted); border-radius: var(--radius-inner); }
-.scr-sym-code { font-weight: 700; font-family: var(--font-mono); font-size: var(--fs-base); }
+.scr-sym-code { font-weight: 600; font-family: var(--font-mono); font-size: var(--fs-base); }
 .scr-sym-name { font-size: var(--fs-sm); color: var(--text-muted); }
 .scr-sic-tag { color: var(--text-muted); font-size: var(--fs-sm); }
 .scr-close-note, .scr-cell-note { display: block; font-size: var(--fs-sm); color: var(--text-muted); }
@@ -76,7 +70,7 @@
 .scr-factor-fill { height: 100%; opacity: .8; }
 .scr-factor-value { font-size: var(--fs-xs); color: var(--text-muted); text-align: right; }
 .scr-evidence-header { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 6px; }
-.scr-evidence-badge { font-size: var(--fs-xs); font-weight: 700; }
+.scr-evidence-badge { font-size: var(--fs-xs); font-weight: 600; }
 .scr-evidence-query { font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.45; margin-bottom: 8px; }
 .scr-evidence-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
 .scr-evidence-card { padding: 7px; border: 0.5px solid var(--border); border-radius: var(--radius-inner); background: var(--surface-1); }

@@ -493,12 +493,6 @@ function renderTickerControls(documentRef, page, activeTab = 'overview', request
   const range = TICKER_CHART_RANGES[requestedRange] ? requestedRange : '1m';
   page.dataset.activeTickerTab = tab;
   page.dataset.activeTickerRange = range;
-  page.querySelectorAll?.('[data-ticker-tab]').forEach((button) => {
-    const selected = button.getAttribute('data-ticker-tab') === tab;
-    button.classList?.toggle('active', selected);
-    button.setAttribute('aria-selected', selected ? 'true' : 'false');
-    button.tabIndex = selected ? 0 : -1;
-  });
   // P1449 (검토판·가격 기간): a range tab is clickable only when the available history can actually
   // span it. Being available decides the truth — the 1M/3M/6M/1Y tabs all showing the same few
   // observations read as "선택 기간 ≠ 확보 기간", which is exactly what the review caught.
@@ -999,33 +993,14 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
       if (route === 'ticker') {
         const page = documentRef?.getElementById('page-ticker');
         const onTickerControlClick = (event) => {
-          const tabButton = event?.target?.closest?.('[data-ticker-tab]');
           const rangeButton = event?.target?.closest?.('[data-ticker-range]');
-          if (!tabButton && !rangeButton) return;
-          if (tabButton) activeTickerTab = tabButton.getAttribute('data-ticker-tab') === 'chart' ? 'chart' : 'overview';
-          if (rangeButton) {
-            const requested = rangeButton.getAttribute('data-ticker-range');
-            if (TICKER_CHART_RANGES[requested]) tickerChartRange = requested;
-            activeTickerTab = 'chart';
-          }
+          if (!rangeButton) return;
+          const requested = rangeButton.getAttribute('data-ticker-range');
+          if (TICKER_CHART_RANGES[requested]) tickerChartRange = requested;
+          activeTickerTab = 'chart';
           event.preventDefault?.();
           event.stopImmediatePropagation?.();
           refresh();
-        };
-        const onTickerControlKeydown = (event) => {
-          const tabButton = event?.target?.closest?.('[data-ticker-tab]');
-          if (!tabButton || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event?.key)) return;
-          const tabs = [...page?.querySelectorAll?.('[data-ticker-tab]') || []];
-          if (!tabs.length) return;
-          const current = Math.max(0, tabs.indexOf(tabButton));
-          const next = event.key === 'Home' ? 0
-            : event.key === 'End' ? tabs.length - 1
-              : event.key === 'ArrowRight' ? (current + 1) % tabs.length
-                : (current - 1 + tabs.length) % tabs.length;
-          event.preventDefault?.();
-          activeTickerTab = tabs[next]?.getAttribute('data-ticker-tab') === 'chart' ? 'chart' : 'overview';
-          refresh();
-          tabs[next]?.focus?.();
         };
         const resetTickerView = () => {
           activeTickerTab = 'overview';
@@ -1033,10 +1008,8 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
           refresh();
         };
         eventTarget?.addEventListener?.('click', onTickerControlClick, true);
-        eventTarget?.addEventListener?.('keydown', onTickerControlKeydown, true);
         eventTarget?.addEventListener?.('aio:tickerViewReset', resetTickerView);
         bag.add(() => eventTarget?.removeEventListener?.('click', onTickerControlClick, true));
-        bag.add(() => eventTarget?.removeEventListener?.('keydown', onTickerControlKeydown, true));
         bag.add(() => eventTarget?.removeEventListener?.('aio:tickerViewReset', resetTickerView));
         if (page) page.dataset.aioTickerChartRenderer = 'native';
         ['ticker-hero-ext', 'ticker-hero-pnl', 'ticker-hero-value'].forEach((id) => { // v57.76: candle/entry symbol labels retired

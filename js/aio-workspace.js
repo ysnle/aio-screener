@@ -649,7 +649,7 @@ function showConfirmModal(title, msg, onConfirm, icon, onCancel) {
   };
   okBtn.addEventListener('click', okBtn._aioConfirmHandler);
   var modal = document.getElementById('aio-confirm-modal');
-  _confirmPreviousFocus = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
+  _confirmPreviousFocus = window._aioFocusOrigin ? window._aioFocusOrigin() : null;
   if (modal._aioTrapCleanup) modal._aioTrapCleanup();
   modal.style.display = 'flex'; modal.dataset.tone = /삭제|지우|초기화|제거|비우|덮어/.test(title + ' ' + msg) ? 'danger' : 'neutral'; // run-4: only removals are red
   modal._aioTrapCleanup = typeof window._aioModalTrap === 'function' ? window._aioModalTrap(modal, function() { closeConfirmModal('trap'); }) : null;
@@ -674,9 +674,10 @@ function closeConfirmModal(reason) {
 // value === null이면 취소, string이면 입력값 (빈 문자열 포함)
 function showPromptModal(title, label, defaultValue, onSubmit, opts) {
   opts = opts || {};
-  var previousFocus = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
+  var previousFocus = window._aioFocusOrigin ? window._aioFocusOrigin() : null;
   // 기존 모달 있으면 제거
   var old = document.getElementById('aio-prompt-modal');
+  if (old && old._aioTrapCleanup) { old._aioTrapCleanup(); old._aioTrapCleanup = null; }
   if (old && old.parentNode) old.parentNode.removeChild(old);
   var modal = document.createElement('div');
   modal.id = 'aio-prompt-modal';
@@ -1421,13 +1422,12 @@ function removeFromWatchlist(ticker) {
   refreshWatchlistUI(); // run-4 #12
 }
 
-
 // 간단 토스트 알림
 function showToast(msg) {
+  if (typeof window._aioToast === 'function') { window._aioToast(msg); return; }
   var toast = document.createElement('div');
   toast.className = 'aio-toast wsl-toast'; toast.textContent = String(msg == null ? '' : msg).replace(/\S{33,}/g, function(w) { return w.slice(0, 24) + '…'; }).slice(0, 320); // run-4 #10 // v57.81: .aio-toast stacks above the first-visit disclaimer; look: legacy-workspace.css
   document.body.appendChild(toast);
-  if (typeof window._aioAnnounce === 'function') window._aioAnnounce(toast.textContent);
   requestAnimationFrame(function() { toast.style.opacity = '1'; });
   setTimeout(function() {
     toast.style.opacity = '0';

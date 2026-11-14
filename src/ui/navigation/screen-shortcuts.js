@@ -64,8 +64,7 @@ export function createKeyboardHelp({ root = globalThis, documentRef = root?.docu
   function open() {
     const m = modal();
     if (!m) return;
-    const active = documentRef.activeElement;
-    m._aioPreviousFocus = active && active !== documentRef.body ? active : null;
+    m._aioPreviousFocus = root._aioFocusOrigin?.() || null;
     if (m._aioTrapCleanup) m._aioTrapCleanup();
     m.classList.add('active');
     m._aioTrapCleanup = typeof root._aioModalTrap === 'function' ? root._aioModalTrap(m, close) : null;

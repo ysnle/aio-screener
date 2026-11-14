@@ -23,15 +23,16 @@ export function placePopover(anchorRect, size, viewport) {
 let current = null;
 
 // A popover calls this as it opens, with the function that closes it; the one already open is closed first.
-export function claimPopover(documentRef, close) {
-  if (current && current.close !== close) {
+export function claimPopover(documentRef, close, { dismiss = close } = {}) {
+  if (current?.close === close) return;
+  if (current) {
     const previous = current;
     current = null;
     previous.release();
     try { previous.close(); } catch (_) { /* a broken closer never blocks the new popover */ }
   }
   // Escape closes the popover before anything under it (behaviors/layers.js).
-  current = { close, release: documentRef?.addEventListener ? openLayer({ documentRef, onDismiss: close, modal: false }) : () => {} };
+  current = { close, release: documentRef?.addEventListener ? openLayer({ documentRef, onDismiss: dismiss, modal: false }) : () => {} };
   documentRef?.body?.classList.add('aio-popover-open');
 }
 

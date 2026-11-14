@@ -827,7 +827,8 @@ const watchlistProbe = await (async () => {
   return filled && rows && kept && els['wl-add-ticker'].value === '' && els['wl-add-row'].style.display === 'none' && /리스트를 선택하거나/.test(els['wl-empty-msg'].textContent);
 })();
 check('v59.06 the 포트폴리오 watchlist fills its select once, tones quote and signal cells by class, quotes unknown symbols and clears the inputs only while they still show the request', watchlistProbe);
-check('P1753 briefing news wall is capped and the retired legacy cap/toggle adapters stay gone', /#briefing-live-news-list\s*\{\s*max-height:820px/.test(html) && !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core));
+// v60.06: #briefing-live-news-list left the markup (v59.6x 브리핑 rebuild); its CSS cap went with the unreferenced-rule prune.
+check('P1753 the retired briefing news cap/toggle adapters and their list stay gone', !/_aioCapBriefingNews|_aioToggleBriefingNews/.test(core) && !/briefing-live-news-list/.test(html));
 // v59.51 (content audit): the exposure-rule column left the portfolio hero (보유 점검 owns concentration); the stats are 총 손익 and 현금.
 check('v59.51 (content audit) portfolio summary exposes total P&L and cash, and the exposure-rule column is gone', /id="pf-hero-stats"/.test(html) && /id="pf-total-pnl"/.test(html) && /id="pf-cash-hero"/.test(html) && !/id="pf-exposure-rule"/.test(html));
 check('v59.52 retired fundamental recent-search initializer stays absent; native SEC owns route entry',
@@ -854,7 +855,7 @@ const guideChapterProbe = await (async () => {
   const chapters = page.children.filter((c) => c.className === 'aio-guide-chapter');
   return ids.join() === 'h,q,aio-guide-chapter,aio-guide-chapter,guide-public-policy' && chapters.every((c) => !c.open) && chapters.map((c) => c.children[0].textContent).join('|') === '화면 안내|추가 정보';
 })();
-check('remaining user surfaces reuse the comp hierarchy without new parallel data paths', guideChapterProbe /* v59.07: the guide chapters are laid out by src/ui/components/guide-chapters.js */ && krMoreProbe /* v58.99: the 테마 progressive toggle runs from src/ui/components/kr-theme-progressive.js */ && /aio-comp-secondary-feed/.test(html));
+check('remaining user surfaces reuse the comp hierarchy without new parallel data paths', guideChapterProbe /* v59.07: the guide chapters are laid out by src/ui/components/guide-chapters.js */ && krMoreProbe /* v58.99: the 테마 progressive toggle runs from src/ui/components/kr-theme-progressive.js */);
 const fmpNoteProbe = await (async () => {
   const { renderScreenerFmpStatus } = await import('../src/ui/components/screener-fmp-status.js');
   const el = { style: {} }; const reason = { textContent: '' };

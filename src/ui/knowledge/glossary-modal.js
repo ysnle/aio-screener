@@ -150,7 +150,7 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
     const modal = documentRef.getElementById('glossary-modal');
     if (!modal) return;
     const active = documentRef.activeElement;
-    if (modal.style.display === 'none') previousFocus = active && active !== documentRef.body ? active : null;
+    if (modal.style.display === 'none') previousFocus = root._aioFocusOrigin?.() || null;
     if (modal._aioTrapCleanup) modal._aioTrapCleanup();
     modal.style.display = '';
     category = 'all';

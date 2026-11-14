@@ -155,14 +155,12 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
     // First-users run 4: on touch a control's tap is its action; only non-interactive values open a card.
     if (el && !el.closest('button, a[href], input, select, textarea, summary, [role="button"], [data-action]')) show(el, 'touch'); else hide();
   };
-  const onKey = (event) => { if (event.key === 'Escape' && anchor) { event.preventDefault(); hide(); } };
 
   watchScroll(root);
   doc.addEventListener('pointerover', onOver);
   doc.addEventListener('pointerout', onOut);
   doc.addEventListener('focusin', onFocus);
   doc.addEventListener('pointerdown', onPointerDown, true);
-  doc.addEventListener('keydown', onKey);
   root.addEventListener?.('scroll', hide, true);
   doc.addEventListener('aio:pageShown', hide);
   // U01 (P1658): explained cards (article/section with a basis) were unreachable by keyboard. Each gets one small
@@ -204,7 +202,6 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
     doc.removeEventListener('pointerout', onOut);
     doc.removeEventListener('focusin', onFocus);
     doc.removeEventListener('pointerdown', onPointerDown, true);
-    doc.removeEventListener('keydown', onKey);
     root.removeEventListener?.('scroll', hide, true);
     doc.removeEventListener('aio:pageShown', hide);
     doc.removeEventListener('aio:pageShown', queueScan);

@@ -43,7 +43,7 @@ body { background: var(--bg-base); font-family: var(--font-sans); color: var(--t
 .logo::after { display: none !important; }
 .logo .sh-shell-sidebar-row { display: flex; align-items: baseline; }
 .logo .sh-shell-sidebar-grow { display: flex; align-items: baseline; gap: 6px; }
-.logo-mark { display: inline !important; font-family: var(--font-sans); font-size: 18px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+.logo-mark { display: inline !important; font-family: var(--font-sans); font-size: 18px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; }
 .logo-sub { display: inline !important; margin: 0; font-size: 12px; font-weight: 400; color: var(--text-secondary); letter-spacing: 0; }
 
 /* v58.68 (owner 2026-10-23): a shortcut hint is noise where there is no keyboard (phone, tablet). */
@@ -59,7 +59,7 @@ body { background: var(--bg-base); font-family: var(--font-sans); color: var(--t
 }
 .nav-item::before, .nav-item::after { display: none !important; }
 .nav-item .nav-icon { display: none !important; }
-.nav-item:not(.active):hover { background: var(--sx-ink-a05) !important; } /* v59.90: hover leaves the active item on its a08 fill */
+@media (hover: hover) { .nav-item:not(.active):hover { background: var(--sx-ink-a05) !important; } } /* v59.90: hover leaves the active item on its a08 fill */
 .nav-item.active { background: var(--sx-ink-a08); font-weight: 600; color: var(--text-primary); }
 .nav-divider { display: none; }
 .sh-shell-sidebar-pad4 { padding: 0; }
@@ -68,7 +68,7 @@ body { background: var(--bg-base); font-family: var(--font-sans); color: var(--t
   background: transparent; color: var(--text-secondary); font-size: 12px;
   text-align: left; justify-content: flex-start;
 }
-.sidebar-action-btn:hover { background: var(--sx-ink-a05) !important; color: var(--text-primary) !important; }
+@media (hover: hover) { .sidebar-action-btn:hover { background: var(--sx-ink-a05) !important; color: var(--text-primary) !important; } }
 
 /* AI status: one card at the bottom (dot + line); operator controls stay folded inside it. */
 .sidebar-footer { margin-top: auto; padding: 0; border: 0; background: none; }
@@ -83,9 +83,7 @@ body.dark-theme .sidebar-footer .llm-panel { background: var(--white-a1); }
 .llm-panel-header .llm-switch-label { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sidebar-ai-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--data-amber); }
 .llm-panel-header:has(.llm-switch-label.on) .sidebar-ai-dot { background: var(--data-green); }
-.sidebar-settings > summary { cursor: pointer; font-size: 12px; color: var(--text-muted); min-height: 24px; display: flex; align-items: center; }
-.sidebar-settings > summary:hover { color: var(--text-secondary); }
-.sidebar-settings-body { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
+
 .llm-panel-title { font-size: 12px; font-weight: 600; color: var(--text-primary); letter-spacing: 0; text-transform: none; }
 .llm-switch-label { font-size: 12px; color: var(--text-muted); }
 
@@ -106,7 +104,7 @@ body.dark-theme .sidebar-footer .llm-panel { background: var(--white-a1); }
   background: var(--sx-ink-a06); color: var(--text-primary); box-shadow: none;
   
 }
-.topbar .aio-btn-table:hover { background: var(--sx-ink-a08) !important; }
+@media (hover: hover) { .topbar .aio-btn-table:hover { background: var(--sx-ink-a08) !important; } }
 #topbar-ai-btn { background: var(--text-primary) !important; color: var(--bg-base) !important; }
 #topbar-ai-btn:hover, #topbar-ai-btn.active { filter: brightness(1.15); background: var(--text-primary) !important; color: var(--bg-base) !important; }
 
@@ -120,14 +118,14 @@ body.dark-theme .sidebar-footer .llm-panel { background: var(--white-a1); }
 .page-head { border: 0 !important; padding: 0 0 4px var(--sx-card-pad-x) !important; margin: 0 0 20px !important; align-items: flex-end; gap: 16px; }
 .page-head > div:has(> .page-title) { display: flex; flex-direction: column-reverse; gap: 4px; }
 .page-title {
-  font-family: var(--font-sans); font-size: 28px; font-weight: 700;
+  font-family: var(--font-sans); font-size: 28px; font-weight: 600;
   letter-spacing: -0.025em; line-height: 1.15; color: var(--text-primary);
 }
 .page-subtitle { margin: 0; font-size: 12px; font-weight: 400; color: var(--text-muted); }
 h2, .section-title, .widget-title, .aio-card-title, .section-header {
-  font-family: var(--font-sans); letter-spacing: -0.01em !important; text-transform: none;
+  font-family: var(--font-sans); text-transform: none;
 }
-.widget-title, .aio-card-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.widget-title, .aio-card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
 
 /* The hub tab row floats right so the page header shares its line (2b/3b). */
 .aio-hub-tabs {
@@ -145,7 +143,7 @@ h2, .section-title, .widget-title, .aio-card-title, .section-header {
   font: inherit; font-size: 12px; font-weight: 400; color: var(--text-secondary) !important;
   cursor: pointer; white-space: nowrap; 
 }
-.sx-seg > button:hover, .aio-hub-tab:hover { color: var(--text-primary) !important; }
+@media (hover: hover) { .sx-seg > button:hover, .aio-hub-tab:hover { color: var(--text-primary) !important; } }
 .sx-seg > [aria-pressed="true"], .sx-seg > [aria-current], .sx-seg > .is-active, .aio-hub-tab[aria-current="page"] {
   background: var(--bg-card) !important; color: var(--text-primary) !important; font-weight: 600;
   box-shadow:none;
@@ -166,14 +164,14 @@ h2, .section-title, .widget-title, .aio-card-title, .section-header {
 }
 .aio-card { padding: 20px 22px; }
 .aio-widget, .data-widget { padding: 16px 18px; margin-bottom: 14px; } /* v59.90: moved from index.html, where an important flag overrode the 20px 22px above */
-.aio-card.is-interactive:hover { background: var(--bg-card) !important; box-shadow:none !important; }
+@media (hover: hover) { .aio-card.is-interactive:hover { background: var(--bg-card) !important; box-shadow:none !important; } }
 #home-operator-note .aio-operator-note-card {
   border: 0; border-radius: var(--radius-container); background: var(--bg-card); box-shadow:none;
 }
 #home-operator-note .aio-operator-note-card { padding: 22px 26px; }
 #home-operator-note .aio-operator-note-kicker { color: var(--text-secondary); }
 
-.trend-card, .regime-axis, .macro-stat, .temp-tile, .thp-quadrant-card, .tp-card, .capex-flow-card, .masters-metric, .pf-allocation-card, .regime-scenario-card, .scr-funnel-step, .sh-base-panel, .sh-base-panel-s1, .empty-state, .stock-chart-evidence, .masters-detail-card, .rates-guide {
+.trend-card, .regime-axis, .macro-stat, .temp-tile, .thp-quadrant-card, .tp-card, .capex-flow-card, .masters-metric, .regime-scenario-card, .scr-funnel-step, .sh-base-panel-s1, .empty-state, .stock-chart-evidence, .masters-detail-card, .rates-guide {
   border: 0 !important; border-radius: var(--radius-container) !important; background: var(--sx-ink-a03) !important; box-shadow: none !important;
 }
 /* Owner 2026-10-25: .sector-map-tile left the soft-card list above — its !important ink background and 12px corners hid
@@ -189,7 +187,7 @@ details > summary { cursor: pointer; }
 .page th { font-weight: 600 !important; color: var(--color-text-secondary); font-size: 12px; letter-spacing: 0; text-transform: none; border-color: rgba(var(--ink-rgb), 0.06) !important; background: transparent !important; }
 .page td { border-color: rgba(var(--ink-rgb), 0.05) !important; }
 .page tbody tr {  }
-@media (hover: hover) { .page tbody tr:hover > td { background: var(--color-overlay-hover); } }
+@media (hover: hover) { @media (hover: hover) { .page tbody tr:hover > td { background: var(--color-overlay-hover); } } }
 
 /* v58.55: "이어서 볼 곳" links were white-space:nowrap (index.html), so a long label ran past the page edge when the
    column narrowed — CI caught it at 1024 beside the new iPad-landscape sidebar (sentiment, +9px with CI's CJK font).
@@ -197,14 +195,14 @@ details > summary { cursor: pointer; }
 .page .flow-next-link { white-space: normal; max-width: 100%; overflow-wrap: anywhere; text-align: left; }
 
 /* ═══ 4. Chips, buttons, inputs ═════════════════════════════════════════ */
-.aio-badge, .aio-source-badge, .aio-confidence-badge, .status-pill, .pill-chip, .freshness-badge {
+.aio-badge, .aio-source-badge, .freshness-badge {
   border-radius: var(--radius-full); letter-spacing: 0; text-transform: none; font-family: var(--font-sans);
 }
-.aio-btn-table, .aio-btn, .btn-ghost {
+.aio-btn-table, .btn-ghost {
   border-radius: var(--radius-element); font-family: var(--font-sans); letter-spacing: 0;
 }
 .page .aio-btn-table { border: 0; background: var(--sx-ink-a06) !important; color: var(--text-primary) !important; padding: 0 14px !important; font-weight: 600; }
-.page .aio-btn-table:hover { background: var(--sx-ink-a08) !important; }
+@media (hover: hover) { .page .aio-btn-table:hover { background: var(--sx-ink-a08) !important; } }
 .page .aio-btn-table.primary, .page .aio-btn-table.is-primary { background: var(--text-primary) !important; color: var(--bg-base) !important; }
 .page input[type="text"], .page input[type="search"], .page input[type="number"], .page input:not([type]), .page select, .page textarea,
 .llm-key-input, #ai-panel-inp {
@@ -232,7 +230,7 @@ details > summary { cursor: pointer; }
 .sx-card--flush { padding: 20px 8px 8px; }
 .sx-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 0 0 12px; }
 .sx-card--flush > .sx-card__head { padding: 0 16px 12px; }
-.sx-card__title { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: 0; color: var(--text-primary); }
+.sx-card__title { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: 0; color: var(--text-primary); }
 .sx-card__meta { font-size: 12px; color: var(--text-secondary); }
 /* v58.79 section frame (src/ui/components/section-frame.js): the head holds a title, one as-of chip and actions — no
    caption line; the body holds one reading of at most 240 characters. */
@@ -240,40 +238,36 @@ details > summary { cursor: pointer; }
 .aio-frame-head:has(> .aio-frame-actions) { justify-content: flex-start; } /* the chip sits by the title; actions take the right */
 .aio-frame-head > .sr-only + .aio-asof { margin-left: auto; }
 .aio-frame-visual { min-width: 0; } /* v59.70 (S24): a story frame's one visual; wide charts shrink instead of widening the card */
-.aio-asof { display: inline-flex; align-items: center; min-height: 22px; padding: 0 8px; border-radius: var(--radius-full); background: var(--sx-ink-a03); color: var(--text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.aio-asof { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border-radius: var(--radius-full); background: var(--sx-ink-a03); color: var(--text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .aio-asof[title] { cursor: help; }
 .aio-frame-actions { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
 .aio-note-fold { margin-top: 6px; }
 .aio-note-fold > summary { display: inline-flex; align-items: center; min-width: 24px; min-height: 24px; font-size: 12px; color: var(--text-muted); cursor: pointer; }
-.aio-note-fold__text { margin: 2px 0 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
-.macro-chain-rule { margin: 4px 0 8px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+.aio-note-fold__text { margin: 2px 0 0; font-size: var(--fs-reading); line-height: 1.6; color: var(--text-secondary); }
 .aio-frame-reading { margin: 0 0 12px; max-width: 72ch; font-size: 14px; line-height: 1.65; text-wrap: pretty; color: var(--text-primary); }
 .sx-tile { background: var(--sx-ink-a03); border-radius: var(--radius-container); padding: 16px 20px; }
 .sx-kicker { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
-.sx-verdict { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--text-primary); }
+.sx-verdict { font-size: 28px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; color: var(--text-primary); }
 .sx-lede { margin: 0; font-size: 18px; line-height: 1.6; letter-spacing: -0.01em; text-wrap: pretty; color: var(--text-primary); }
-.sx-kpi { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.sx-kpi { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .sx-meta { font-size: 12px; color: var(--text-muted); }
 .sx-up { color: var(--dir-up); }
 .sx-down { color: var(--dir-down); }
 .sx-grid { display: grid; gap: 14px; }
-.sx-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .sx-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.sx-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.sx-stack { display: flex; flex-direction: column; gap: 16px; }
 
 /* Capsule chips: 24–28px, verdict colours only (우호 / 부담 / 중립). Red is never a verdict colour. */
 .sx-chip {
   display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: var(--radius-full);
   background: var(--sx-ink-a07); color: var(--text-secondary); font-size: 12px; font-weight: 400; white-space: nowrap;
 }
-.sx-chip > b, .sx-chip__state { font-weight: 600; }
-.sx-chip--sm { height: 24px; padding: 0 8px; font-size: 12px; font-weight: 700; }
+.sx-chip > b { font-weight: 600; }
+.sx-chip--sm { height: 24px; padding: 0 8px; font-size: 12px; font-weight: 600; }
 .sx-chip--good { background: var(--sx-good-bg); }
-.sx-chip--good > b, .sx-chip--good.sx-chip--sm, .sx-chip--good .sx-chip__state { color: var(--data-green); }
+.sx-chip--good > b, .sx-chip--good.sx-chip--sm { color: var(--data-green); }
 .sx-chip--warn { background: var(--sx-warn-bg); }
-.sx-chip--warn > b, .sx-chip--warn.sx-chip--sm, .sx-chip--warn .sx-chip__state { color: var(--data-amber); }
-.sx-chip--neutral > b, .sx-chip--neutral .sx-chip__state { color: var(--text-secondary); }
+.sx-chip--warn > b, .sx-chip--warn.sx-chip--sm { color: var(--data-amber); }
+.sx-chip--neutral > b { color: var(--text-secondary); }
 .sx-chip--date { background: var(--sx-warn-bg); color: var(--amber-12); font-weight: 600; }
 .sx-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 
@@ -283,7 +277,7 @@ details > summary { cursor: pointer; }
   background: var(--sx-ink-a06); color: var(--text-primary); cursor: pointer; text-decoration: none;
   
 }
-.sx-btn:hover { background: var(--sx-ink-a08); }
+@media (hover: hover) { .sx-btn:hover { background: var(--sx-ink-a08); } }
 /* Press feedback (astryx user-states DR1, Button): the pressed wash composes over the resting fill instead of replacing it,
    and a button settles 2%. An unselected segment or tab takes the wash; the selected one keeps its raised surface (DR3).
    A disabled control never responds (DR2). */
@@ -294,38 +288,37 @@ details > summary { cursor: pointer; }
 :is(.sx-btn, .aio-btn-table, .aio-btn, #page-screener .scr-bar-button):active:not(:disabled, [aria-disabled="true"]) { transform: scale(0.98); }
 :is(.sx-btn, .aio-btn-table, .aio-btn, .btn-ghost):disabled { opacity: 0.5; cursor: not-allowed; }
 .sx-btn--primary { background: var(--text-primary); color: var(--bg-base); }
-.sx-btn--primary:hover { background: var(--text-primary); filter: brightness(1.15); }
+@media (hover: hover) { .sx-btn--primary:hover { background: var(--text-primary); filter: brightness(1.15); } }
 .sx-link { appearance: none; background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--text-secondary); cursor: pointer; text-decoration: none; }
-.sx-link:hover { color: var(--text-primary); }
+@media (hover: hover) { .sx-link:hover { color: var(--text-primary); } }
 
 /* Disclosure row: single-open accordion row; opened row tints and shows three white cards. */
 .sx-disclosure { border-radius: var(--radius-container);  }
-.sx-disclosure > summary, .sx-disclosure__row {
+.sx-disclosure > summary {
   list-style: none; display: grid; align-items: center; gap: 16px; padding: 14px 16px; border-radius: var(--radius-container); cursor: pointer;
 }
 /* v59.55 (finish review): one row — the label takes the width, a chip and the chevron sit after it. With no columns
    the chevron wrapped to a second row and a one-line fold stood 88px tall (브리핑 ×4, 테마 ×2, 스크리너, 거시 ×2).
    The 국면 판정 and 거시 6요인 table rows keep their own columns (this rule had pushed their cells off the header). */
-.sx-disclosure > summary:not(.mk-axis__row, .mk-maxis__row), .sx-disclosure__row { grid-auto-flow: column; grid-template-columns: minmax(0, 1fr); }
+.sx-disclosure > summary:not(.mk-axis__row, .mk-maxis__row) { grid-auto-flow: column; grid-template-columns: minmax(0, 1fr); }
 .sx-disclosure > summary::-webkit-details-marker { display: none; }
-.sx-disclosure > summary::after, .sx-disclosure__row::after { content: '⌄'; justify-self: end; color: var(--text-muted); font-size: 14px; }
-.sx-disclosure[open] > summary::after, .sx-disclosure.is-open > .sx-disclosure__row::after { content: '⌃'; }
-.sx-disclosure:hover { background: var(--sx-ink-a03); }
+.sx-disclosure > summary::after { content: '⌄'; justify-self: end; color: var(--text-muted); font-size: 14px; }
+.sx-disclosure[open] > summary::after { content: '⌃'; }
+@media (hover: hover) { .sx-disclosure:hover { background: var(--sx-ink-a03); } }
 .sx-disclosure[open], .sx-disclosure.is-open { background: var(--sx-ink-a03); }
 .sx-disclosure__body { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0 16px 16px; }
 .sx-disclosure__card { background: var(--bg-card); border-radius: var(--radius-container); padding: 16px 20px; }
-.sx-disclosure__label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; color: var(--text-secondary); }
-.sx-disclosure__text { margin: 0; font-size: 12px; line-height: 1.7; color: var(--text-primary); }
-.sx-evidence { display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 0 20px 16px; font-size: 12px; color: var(--text-muted); }
+.sx-disclosure__label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.sx-disclosure__text { margin: 0; font-size: var(--fs-reading); line-height: 1.7; color: var(--text-primary); }
+.sx-evidence { display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 0 20px 16px; font-size: var(--fs-reading); color: var(--text-muted); }
 
 /* Link rows at the foot of a card ("6개 축 근거와 읽은 값 →"). */
-.sx-rows { display: flex; flex-direction: column; }
 .sx-row {
   appearance: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%;
   padding: 12px 24px; border: 0; border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); background: none;
   font: inherit; font-size: 14px; color: var(--text-primary); text-align: left; cursor: pointer;
 }
-.sx-row:hover { background: var(--sx-ink-a03); }
+@media (hover: hover) { .sx-row:hover { background: var(--sx-ink-a03); } }
 .sx-row__meta { font-size: 12px; color: var(--text-secondary); }
 .sx-row__meta::after { content: ' →'; } /* run-3 I#23: '›' read as a fold; these rows open another screen (the app's link arrow) */
 
@@ -360,16 +353,11 @@ details > summary { cursor: pointer; }
 }
 
 /* Charts: thin round strokes, no fill, reference band. */
-.sx-spark { display: block; width: 100%; height: 36px; overflow: visible; }
-.sx-spark path { fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-.sx-band { fill: rgba(var(--ink-rgb), 0.05); }
 
 /* Loading skeleton appears only after 0.8s (5k). */
-.sx-skeleton { border-radius: var(--radius-container); background: var(--sx-ink-a06); opacity: 0; animation:sx-skel-in 1ms linear 800ms forwards; }
 @keyframes sx-skel-in { to { opacity: 1; } }
 @keyframes sx-skel-pulse { 50% { background: var(--sx-ink-a03); } }
 @media (prefers-reduced-motion: reduce) {
-  .sx-skeleton { animation: sx-skel-in 1ms linear 800ms forwards; }
   .sx-sheet, .sx-disclosure { transition: none; }
 }
 
@@ -385,7 +373,7 @@ details > summary { cursor: pointer; }
   font-size: 14px; line-height: 1.65; color: var(--text-secondary); z-index: 250 !important; /* above the tab bar (240), below the drawer (300/310); hidden while the AI panel is open */
 }
 #aio-first-visit-disclaimer .lu-dc-text { flex: none; }
-#aio-first-visit-disclaimer .lu-dc-title { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 700; color: var(--text-primary); }
+#aio-first-visit-disclaimer .lu-dc-title { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
 #aio-first-visit-disclaimer .lu-dc-btn {
   align-self: flex-end; height: var(--size-element-lg); padding: 0 16px; border: 0; border-radius: var(--radius-element);
   background: var(--text-primary); color: var(--bg-base); font-size: 14px; font-weight: 600;
@@ -421,7 +409,7 @@ body.aio-disclaimer-open .sidebar { padding-bottom: 16px !important; }
 }
 body #update-banner { padding: 12px 64px 12px 20px; }
 #scroll-top-btn { border: 0; background: var(--bg-card); box-shadow:none; color: var(--text-primary); }
-#scroll-top-btn:hover { background: var(--bg-card); box-shadow:none; }
+@media (hover: hover) { #scroll-top-btn:hover { background: var(--bg-card); box-shadow:none; } }
 .aio-toast { border-radius: var(--radius-container) !important; box-shadow: var(--sx-float-shadow) !important; }
 .sh-shell-confirm-modal-panel { border: 0; border-radius: var(--radius-container); box-shadow: var(--sx-float-shadow); padding: 24px; }
 #aio-confirm-modal { background: var(--black-a5) !important; }
@@ -488,7 +476,7 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none; }
     min-height: 44px; padding: 12px 2px 0; border: 0; background: none; font: inherit; font-size: 12px; color: var(--text-secondary);
     cursor: pointer;
   }
-  .sx-tabbar-item[aria-current="page"], .sx-tabbar-item[aria-expanded="true"] { color: var(--text-primary); font-weight: 700; }
+  .sx-tabbar-item[aria-current="page"], .sx-tabbar-item[aria-expanded="true"] { color: var(--text-primary); font-weight: 600; }
   .sx-tabbar-item[aria-current="page"]::before { content: ''; position: absolute; top: 4px; width: 5px; height: 5px; border-radius: 50%; background: var(--text-primary); }
   .sx-tabbar-item:focus-visible { outline: 2px solid var(--text-primary); outline-offset: -4px; border-radius: var(--radius-element); }
   .content { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important; }
@@ -522,8 +510,7 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none; }
   .sx-card { padding: 16px var(--sx-card-pad-x); }
   .sx-card--hero { padding: 20px var(--sx-card-pad-x); border-radius: var(--radius-container); }
   .sx-verdict { font-size: 28px; }
-  .sx-grid--3, .sx-grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .sx-grid--2 { grid-template-columns: minmax(0, 1fr); }
+  .sx-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sx-disclosure__body { grid-template-columns: minmax(0, 1fr); }
   .sx-row { padding: 14px 18px; }
   #aio-first-visit-disclaimer { width: calc(100vw - 24px); padding: 18px 18px; }
@@ -556,7 +543,7 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none; }
   #sidebar-toggle-btn { display: none !important; }
   .sidebar.collapsed ~ .main #sidebar-toggle-btn { display: inline-flex !important; align-items: center; justify-content: center; }
 }
-@media (max-width: 700px) {
+@media (max-width: 743px) {
   .topbar .topbar-actions-right { grid-template-columns: auto minmax(0, 1fr) auto auto; }
   .topbar #topbar-live-badge { margin-inline-end: -4px; padding: 0 2px 0 8px !important; }
   .topbar #live-quote-ts { justify-self: start; text-align: left; padding: 2px 8px 2px 4px; line-height: 1.2; }
@@ -611,7 +598,7 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none; }
 .zone-bar__band.is-burden.is-now { background: color-mix(in srgb, var(--data-amber) 34%, transparent); }
 .zone-bar__band.is-bad.is-now { background: color-mix(in srgb, var(--data-red) 30%, transparent); }
 .zone-bar__label { overflow: hidden; text-overflow: ellipsis; padding: 0 4px; }
-.zone-bar__pin { position: absolute; bottom: 100%; transform: translateX(-50%); padding-bottom: 4px; font-size: 12px; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.zone-bar__pin { position: absolute; bottom: 100%; transform: translateX(-50%); padding-bottom: 4px; font-size: 12px; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 /* v59.70 (screen review #21): the value is marked by two notches, at the track's top and bottom edges, so the line never
    cuts the band label written across the middle ('끈|적함'). */
 .zone-bar__pin::before, .zone-bar__pin::after { content: ''; position: absolute; left: 50%; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--text-primary); }
@@ -629,4 +616,4 @@ body.dark-theme #aio-first-visit-disclaimer { box-shadow:none; }
 .release-guide__name { display: grid; gap: 2px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
 .release-guide__state { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
 .release-guide__state.is-good { color: var(--data-green); } .release-guide__state.is-burden { color: var(--data-amber); } .release-guide__state.is-bad { color: var(--data-red); }
-@media (max-width: 640px) { .release-guide__row { grid-template-columns: minmax(0, 1fr); } .release-guide__name { grid-auto-flow: column; justify-content: start; gap: 8px; align-items: baseline; } }
+@media (max-width: 600px) { .release-guide__row { grid-template-columns: minmax(0, 1fr); } .release-guide__name { grid-auto-flow: column; justify-content: start; gap: 8px; align-items: baseline; } }

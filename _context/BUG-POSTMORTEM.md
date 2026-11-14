@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-13
+last_verified: 2026-11-14
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -38,6 +38,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 <!-- ledger-class-report:end -->
 
 ---
+
+## P2403 - v60.06 - 레이어 스택: 팝오버 재등록 누수와 모달 위 창의 inert (2026-11-14)
+
+- symptom/reproduction: 값 위에서 마우스를 옮기면 그 뒤로 모든 화면에서 Escape가 듣지 않았다. 용어 사전을 연 채 검색창이나 단축키 도움말을 열면 그 창을 누르거나 입력할 수 없었다. 용어 팝오버에서 Escape를 누르면 포커스가 원래 단어로 돌아가지 않았다.
+- root_cause: v60.05의 popover.js가 같은 닫기 함수로 다시 등록될 때 이전 레이어의 해제 함수를 덮어써 스택에 레이어가 남았다. layers.js는 모달을 열 때 형제 요소를 모두 inert로 만들면서, 그 뒤에 그 위로 열리는 창(검색 dialog, 도움말 모달)까지 포함했다. Tab 가두기와 바깥 누름은 맨 위 레이어만 봤고, 포커스 대상 선택자는 summary를 빼고 tabindex=-1 버튼을 넣었다. 팝오버는 '다른 팝오버에 밀려 닫힘'과 '사용자가 닫음'을 한 콜백으로 받았다.
+- fix: 같은 닫기 함수의 재등록은 기존 레이어를 유지한다. 레이어를 열 때 그 루트의 조상에서 아래 레이어가 건 inert를 걷고 닫을 때 되돌린다. 명령 검색 dialog도 스택에 등록한다. Tab은 가장 가까운 모달 레이어 안에 머물고(루트 자체에서 Shift+Tab 포함), 문서에서 떨어진 루트의 레이어는 버린다. 바깥 누름은 터치에서 탭의 click으로 판정하고 스크롤바는 무시한다. 팝오버는 사용자 닫기 콜백을 따로 받는다(용어 팝오버는 포커스를 단어로 돌려준다).
+- violated_rule: 한 동작의 소유자는 하나 (C 색인: 단일 소유자) — 소유자를 만들 때 그 위에 겹치는 경우를 모두 열거하지 않았다
+- prevention: ci-esm-core-unit-check: 같은 닫기 함수로 두 번 등록 후 해제하면 레이어 0개, Escape가 삼켜지지 않음; 모달 위에 연 레이어는 inert가 아니고 닫으면 원상 복구; 팝오버가 위에 있어도 Tab이 모달 안에서 돎; 떨어진 루트의 레이어는 버려짐. 이 검증은 수정 전 코드에서 실패했다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs 통과. 로컬 브라우저: 두 번 등록 후 해제 → 레이어 0, Escape 통과; 용어 사전 위 검색창 입력 가능, Escape는 검색창만 닫음; 전부 닫은 뒤 inert는 닫힌 AI 패널뿐; 용어 팝오버 Escape 후 포커스가 단어로 복귀.
+- files: src/ui/behaviors/layers.js, src/ui/components/popover.js, src/ui/components/term-marks.js, src/ui/navigation/command-search.js
 
 ## P2402 - v60.05 - 입력창에서 취소 버튼에 Enter를 누르면 값이 저장됨 (2026-11-13)
 

@@ -87,16 +87,12 @@ export function installDataStatusSurface(window = globalThis, document = globalT
         ' — 캐시 데이터 표시 중 ' +
         '<button id="btn-retry-all-apis" data-action="_retryAllFailedApis" class="lco-retry lco-retry-dead"> 수동 재연결</button>';
       banner.style.display = 'block';
-      banner.style.background = 'var(--red-4)';
-      banner.style.borderColor = 'var(--red-6)';
-      banner.style.color = 'var(--orange-11)';
+      banner.dataset.tone = 'danger';
     } else if (deadCount >= 1 || warnCount >= 2) {
       banner.innerHTML = '일부 데이터 소스(' + deadCount + '개 실패, ' + warnCount + '개 불안정)가 응답하지 않습니다. 해당 항목은 마지막 수신 데이터를 표시합니다.' +
         (deadCount >= 1 ? ' <button id="btn-retry-all-apis" data-action="_retryAllFailedApis" class="lco-retry lco-retry-warn"> 재연결</button>' : '');
       banner.style.display = 'block';
-      banner.style.background = 'var(--gold-3)';
-      banner.style.borderColor = 'var(--amber-6)';
-      banner.style.color = 'var(--amber-11)';
+      banner.dataset.tone = 'warn';
     } else {
       banner.style.display = 'none';
     }
@@ -124,14 +120,10 @@ export function installDataStatusSurface(window = globalThis, document = globalT
     el.setAttribute('data-source-kind', 'snapshot');
     if (coreLiveOk) {
       el.textContent = baseText + '실시간 시세가 들어오고 있어 이 자료는 참고용입니다.';
-      el.style.background = 'var(--green-3)';
-      el.style.borderColor = 'var(--blue-6)';
-      el.style.color = 'var(--data-cyan)';
+      el.dataset.tone = 'reference';
     } else {
       el.textContent = baseText + '실시간 시세를 일부 받지 못해 화면 숫자가 이 기준일 값일 수 있습니다.';
-      el.style.background = 'var(--red-3)';
-      el.style.borderColor = 'var(--red-6)';
-      el.style.color = 'var(--data-red)';
+      el.dataset.tone = 'stale';
     }
     return { status: coreLiveOk ? 'reference-only' : 'warn', hours: hrs, coreLiveOk: coreLiveOk, marketDataDate: marketDate, telegramDigestDate: digestDate };
   };
@@ -139,8 +131,7 @@ export function installDataStatusSurface(window = globalThis, document = globalT
   function updateDataStatusError(status, msg) {
     var panel = document.getElementById('data-status-panel');
     if (!panel) return;
-    var colors = {ok:'#3dd68c', warn:'#ffa057', error:'#e5484d'};
-    panel.style.color = colors[status] || 'var(--gold-11)';
+    panel.dataset.status = status === 'ok' || status === 'warn' || status === 'error' ? status : 'unknown';
     panel.innerHTML = (status === 'ok' ? '<span class="sd sd-g"></span>' : status === 'warn' ? '<span class="sd sd-y"></span>' : '<span class="sd sd-r"></span>') + ' ' + escHtml(msg);
   }
 

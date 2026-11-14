@@ -8,7 +8,6 @@
 /* Market-analysis sinks (#home-market-analysis, #briefing-ai-analysis — both in .page: old inline 11px rendered 13px) */
 .page [data-market-analysis-sink] .ai-analysis-scope { display: table; margin: 0 0 6px; font-size: var(--fs-sm); font-weight: 400; color: var(--text-muted); line-height: 1.6; }
 .page [data-market-analysis-sink] .ai-analysis-retained { font-size: var(--fs-sm); font-weight: 600; color: var(--text-muted); }
-.page [data-market-analysis-sink] .ai-analysis-note { margin-top: 6px; font-size: var(--fs-sm); font-weight: 400; color: var(--text-muted); line-height: 1.6; }
 /* Source-health retry button in #snapshot-stale-warning (#page-home: old inline 11px rendered 13px) */
 #snapshot-stale-warning .lco-retry { font-size: var(--fs-sm); padding: 2px 8px; border-radius: var(--radius-inner); cursor: pointer; margin-left: 8px; font-weight: 600; font-family: var(--font-mono);  }
 #snapshot-stale-warning .lco-retry-dead { background: var(--red-5); border: 0.5px solid var(--red-8); color: var(--red-12); }
