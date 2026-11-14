@@ -3,7 +3,7 @@
   "sourceSchemaVersion": "2.0",
   "artifactRole": "BOUNDED_PAGE_PROJECTION",
   "projectionPolicy": "Latest normalized annual facts reconciled for parent-company equity (P1402/P1449) plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path. Per-record uniform source/model restated by this header are trimmed; data serializes compactly (1 MiB bound headroom, P1470).",
-  "generatedAt": "2026-11-14T22:26:05.797Z",
+  "generatedAt": "2026-11-14T22:46:05.003Z",
   "source": "SEC EDGAR companyfacts",
   "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
   "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -14,18 +14,18 @@
   "domainReceipt": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "sec-fundamentals",
-    "runId": "gha:43648037473",
-    "attemptedAt": "2026-11-14T22:26:04.207Z",
+    "runId": "gha:43649757903",
+    "attemptedAt": "2026-11-14T22:46:02.039Z",
     "sourceRevision": "sec-company-tickers:d5232e162521cf623dcf7c607355e930adce5a6a885b48c3ae06a0441ff27314",
     "inputWatermarks": {
       "universe": null,
-      "screener": "2026-11-14T18:37:54.108Z",
-      "previousArtifact": "2026-11-14T18:31:57.996Z"
+      "screener": "2026-11-14T22:31:57.721Z",
+      "previousArtifact": "2026-11-14T22:26:05.797Z"
     },
     "batchLimit": 24,
     "counts": {
       "eligible": 856,
-      "attempted": 0,
+      "attempted": 1,
       "updated": 0,
       "retained": 846,
       "pendingEligible": 10
@@ -33,8 +33,8 @@
     "thisBatch": {
       "updated": 0,
       "terminalUnsupported": 0,
-      "transientFailed": 0,
-      "recorded": 0
+      "transientFailed": 1,
+      "recorded": 1
     },
     "ledger": {
       "total": 16,
@@ -44,8 +44,8 @@
     },
     "lastSuccessfulObservation": "2026-11-14T07:05:44.533Z",
     "publication": {
-      "status": "NOT_ATTEMPTED",
-      "reason": "no target was due in this batch",
+      "status": "NO_REFRESH_RETAINED",
+      "reason": "every attempted target failed; previously stored rows stay published",
       "allowsPartial": true,
       "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
       "terminalExcludedFromBatchFailures": true,
