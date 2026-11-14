@@ -34,7 +34,9 @@ async function readJson(file) {
 async function main() {
   const previous = await readJson(OUT);
   const previousAt = Date.parse(previous?.generatedAt || '') || 0;
-  if (process.env.US_LISTINGS_FORCE !== '1' && previousAt && Date.now() - previousAt < FRESH_MS) {
+  // A file whose SEC join failed is retried on the next run, not after the 20-hour window.
+  const joinPending = previous?.meta?.secJoin?.status === 'failed' && !!String(process.env.SEC_USER_AGENT || '').trim();
+  if (process.env.US_LISTINGS_FORCE !== '1' && !joinPending && previousAt && Date.now() - previousAt < FRESH_MS) {
     console.log(`[us-listings] fresh (${previous.generatedAt}) — skipping`);
     return;
   }
@@ -53,8 +55,11 @@ async function main() {
         joined = result.rows;
         secJoin = { status: 'joined', ...result.summary };
       } catch (error) {
-        secJoin = { status: 'failed', reason: String(error?.message || error).slice(0, 200) };
-        console.log(`::warning::us-listings SEC CIK join failed (${secJoin.reason}); cik stays null this cycle`);
+        // The CIKs already published stay with their symbols; only symbols new since then wait for the next join.
+        const known = new Map((previous?.columns?.sym || []).map((sym, index) => [sym, previous.columns.cik?.[index] || null]));
+        joined = rows.map((row) => ({ ...row, cik: known.get(row.sym) || null }));
+        secJoin = { status: 'failed', reason: String(error?.message || error).slice(0, 200), carried: joined.filter((row) => row.cik).length };
+        console.log(`::warning::us-listings SEC CIK join failed (${secJoin.reason}); ${secJoin.carried} CIKs carried from the previous file`);
       }
     } else {
       console.log('::notice::SEC_USER_AGENT is not set — us-listings publishes without CIKs');

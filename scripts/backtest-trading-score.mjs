@@ -183,7 +183,8 @@ export async function runBacktest(historyPath, outPath) {
   // 날짜별 upsert + 180일 캡 (updateBacktestHistory, fetch-data.mjs:886-909와 동일 패턴)
   let existing = [];
   try { const raw = JSON.parse(await readFile(outPath, 'utf8')); if (Array.isArray(raw.records)) existing = raw.records; } catch { /* 최초 실행 */ }
-  const byDate = new Map(existing.map(r => [r.date, r]));
+  const recomputedFrom = records.length ? records.map((r) => r.date).sort()[0] : null;
+  const byDate = new Map(existing.filter((r) => !recomputedFrom || r.date < recomputedFrom).map(r => [r.date, r]));
   for (const r of records) byDate.set(r.date, r); // 새 계산이 항상 최신 우선
   let merged = [...byDate.values()].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   if (merged.length > 180) merged = merged.slice(merged.length - 180);

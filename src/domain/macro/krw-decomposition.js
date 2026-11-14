@@ -63,7 +63,7 @@ export function buildKrwDecomposition(history = [], { through = undefined } = {}
   const koreaPart = krwMove - dollarPart;
   const kospiMove = kospi ? kospi.pct : null;
   const quiet = KRW_RULE.quietPct;
-  const wonWord = { up: '원화 약세', down: '원화 강세' }[directionOf(krwMove)] || '변화 없음';
+  const wonWord = { up: '원화 약세', down: '원화 강세' }[directionOf(Number(krwMove.toFixed(1)))] || '변화 없음';
   let driver;
   if (Math.abs(krwMove) < quiet && Math.abs(koreaPart) < quiet) driver = 'quiet';
   else if (Math.abs(koreaPart) < quiet || Math.abs(dollarPart) >= Math.abs(koreaPart) * 2) driver = 'dollar';

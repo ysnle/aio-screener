@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { backtestFactors, deriveCyclePublication, deriveFactorQuality, deriveTickerNewsLineage, writeMacroCalendar } from './fetch-data.mjs';
+import { mergeProducedMacroCalendar } from '../src/data/macro-calendar.js';
 import { FOMC_RECHECK_MS, buildIsmRuleEvents, deriveFedPolicyRate, parseFomcCalendarHtml, selectFomcMeetings } from './lib/official-calendars.mjs';
 import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForMarket } from '../src/domain/market/session/session-time.js';
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
@@ -2520,6 +2521,18 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     !selectFomcMeetings(parseFomcCalendarHtml(panel(2026, y2026.slice(0, 6))), now).ok
       && !selectFomcMeetings(parseFomcCalendarHtml(panel(2026, y2026) + panel(2027, y2027.slice(0, 7))), now).ok
       && selectFomcMeetings(parseFomcCalendarHtml(panel(2026, y2026)), now).ok);
+  {
+    const plain = (rows) => rows.map(([m, d]) => [m, d.replace('*', '')]);
+    const pending = selectFomcMeetings(parseFomcCalendarHtml(panel(2026, y2026) + panel(2027, plain(y2027))), now);
+    const partial = selectFomcMeetings(parseFomcCalendarHtml(panel(2026, y2026) + panel(2027, [...plain(y2027).slice(0, 7), y2027[7]])), now);
+    const currentUnmarked = selectFomcMeetings(parseFomcCalendarHtml(panel(2026, plain(y2026))), now);
+    const next = pending.events.filter((event) => event.date.startsWith('2027-'));
+    const merged = mergeProducedMacroCalendar({}, { generatedAt: '2026-11-13T00:00:00Z', schedules: {}, events: pending.events, meta: { fomcStatus: 'ok', fomcFetchedAt: '2026-11-13T00:00:00Z' } });
+    check('v60.14 a next-year FOMC panel without projection marks publishes its dates with sep unknown; a partly marked panel and an unmarked current year still fail closed',
+      pending.ok && next.length === 8 && next.every((event) => event.sep === null) && pending.events.filter((event) => event.date.startsWith('2026-') && event.sep === true).length === 4
+        && !partial.ok && !currentUnmarked.ok
+        && merged.fomc.accepted && merged.schedules['us-fomc'].includes('2027-12-08') && !Object.keys(merged.fomc.sep).some((date) => date.startsWith('2027-')), JSON.stringify({ pending: pending.reason, partial: partial.reason, currentUnmarked: currentUnmarked.reason }));
+  }
   const memory = new Map();
   let fetches = 0;
   const io = (text) => ({

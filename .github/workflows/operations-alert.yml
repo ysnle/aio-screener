@@ -4,7 +4,7 @@ name: Operations failure escalation
 # deduplicated recovery loop without editing source, dispatching work, or deploying.
 on:
   workflow_run:
-    workflows: ['CI', 'Deploy GitHub Pages', 'Data freshness watchdog', 'Knowledge base lint', 'Refresh market data', 'Refresh screener and SEC fundamentals', 'Deploy AI proxy', 'Deploy fast data plane', 'Browser live-data watchdog', 'Event briefs (FOMC and market-mover earnings)']
+    workflows: ['CI', 'Deploy GitHub Pages', 'Data freshness watchdog', 'Knowledge base lint', 'Refresh market data', 'Refresh screener and SEC fundamentals', 'Deploy AI proxy', 'Deploy fast data plane', 'Browser live-data watchdog', 'Event briefs (FOMC and market-mover earnings)', 'Annual exchange calendar review reminder']
     types: [completed]
 
 permissions:
@@ -54,7 +54,10 @@ jobs:
                 && candidate.head_repository?.full_name === `${owner}/${repo}`
                 && candidate.event !== 'pull_request'
                 && !['skipped', 'neutral', 'cancelled'].includes(candidate.conclusion))
-              .sort((left, right) => new Date(right.updated_at) - new Date(left.updated_at));
+              // v60.14: ordered by when a run started, not when its record was last touched. updated_at moves after
+              // completion, so an older run usually looked newest and this job stood down: 60 of 60 alert runs logged
+              // the stale line while CI failed 12 times in a row (11/12) and no issue opened.
+              .sort((left, right) => new Date(right.run_started_at || right.created_at) - new Date(left.run_started_at || left.created_at));
             if (recentRuns[0]?.id !== run.id) {
               core.info('Ignoring stale or unobserved completion; latest workflow state owns the alert.');
               return;
@@ -186,11 +189,12 @@ jobs:
               const sameSignatureSeen = String(existing.body || '').includes(signatureMarker)
                 || comments.some((comment) => String(comment.body || '').includes(signatureMarker));
               const reopened = existing.state !== 'open';
-              const escalation = consecutiveFailures === 2;
               const signatureChanged = !sameSignatureSeen;
               await github.rest.issues.update({ owner, repo, issue_number: existing.number, title, body, state: 'open' });
-              if (reopened || escalation || signatureChanged) {
-                const reason = reopened ? 'reopened' : escalation ? 'escalation-threshold' : 'failure-signature-changed';
+              // v60.14: one comment per failure signature. The streak reaching 2 again after every break repeated the
+              // same comment each 30 minutes (issue #4: 100 comments).
+              if (reopened || signatureChanged) {
+                const reason = reopened ? 'reopened' : 'failure-signature-changed';
                 await github.rest.issues.createComment({ owner, repo, issue_number: existing.number, body: `<!-- aio-operations-alert-signature:${failureSignature} -->\nOperations alert **${reason}**: [run ${run.id}](${runUrl}) concluded **${run.conclusion || 'unknown'}** at ${timestamp}. Failed jobs/gates: ${failedGateSummary}.` });
               }
             } else {

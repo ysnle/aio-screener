@@ -49,7 +49,7 @@ for (const key of ['all', 'us', 'kr']) {
   const retainedMarkets = payload.marketRetained && typeof payload.marketRetained === 'object' ? Object.keys(payload.marketRetained) : [];
   if (segment.retained && !(segment.retained.from && retainedMarkets.includes(key.toUpperCase()))) errors.push(`${key} breadth is retained without a matching marketRetained entry`);
   const coverageExempt = key === 'all' && retainedMarkets.length > 0;
-  if (!coverageExempt && (readNumber(segment.coveragePct) == null || Number(segment.coveragePct) < 80)) errors.push(`${key} breadth coverage below 80%`);
+  if (!coverageExempt && (readNumber(segment.coveragePct) == null || Number(segment.coveragePct) < 80)) errors.push(`${key} breadth coverage below 80% (${segment.sessionRows ?? '?'} of ${segment.universe ?? '?'} rows on the latest session, ${segment.rowsAnySession ?? '?'} fetched)`);
   if (!segment.observedAt || !Number.isFinite(new Date(segment.observedAt).getTime())) errors.push(`${key} breadth observedAt missing`);
 }
 if (!contract || contract.allowedUse !== 'research-relative-ranking-only' || contract.tradingSignal !== false) errors.push('research-only ranking contract missing');

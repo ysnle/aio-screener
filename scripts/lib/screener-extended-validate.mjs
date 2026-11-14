@@ -2,6 +2,7 @@
 // refresh workflow before commit (with freshness) and by the CI contract gate (structure only).
 import { EXTENDED_ROW_ENCODING, EXTENDED_SHARD_SCHEMA, expandShardRows, shardIdentityRows } from '../../src/data/screener-extended.js';
 import { readNumber } from '../../src/domain/shared/number.js';
+import { CONDITIONAL_FACTOR_FIELDS } from '../../src/domain/screener/price-factors.js';
 
 // Row keys every factor row carries (core and extended alike): lineage, session and price basis.
 export const EXTENDED_REQUIRED_ROW_KEYS = Object.freeze([
@@ -44,7 +45,7 @@ export function validateExtendedShard(shard, { coreData = null, now = Date.now()
   if (shard.factorTimeBasis !== 'bar-start') errors.push('factorTimeBasis must be bar-start');
   if (!shard.membership?.asOf || !shard.membership?.status) errors.push('membership asOf/status missing');
   // Schema parity with the core artifact: no field the core row schema does not have; every lineage key present.
-  const coreKeys = coreData ? new Set(Object.values(coreData).flatMap((row) => Object.keys(row || {}))) : null;
+  const coreKeys = coreData ? new Set([...CONDITIONAL_FACTOR_FIELDS, ...Object.values(coreData).flatMap((row) => Object.keys(row || {}))]) : null;
   for (const sym of symbols) {
     const row = data[sym];
     if ('price' in row) { errors.push(`row ${sym} publishes raw price (P715)`); break; }

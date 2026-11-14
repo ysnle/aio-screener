@@ -12,7 +12,7 @@ const KV_FREE_TIER_DAILY_LIMIT = 1000;
 const KV_WARNING_DAILY_TARGET = 500;
 const SCHEDULED_RUNS_PER_DAY = Math.ceil(24 * 60 * 60 * 1000 / SCHEDULE_INTERVAL_MS);
 const HEARTBEAT_LIVENESS_WRITES_PER_DAY = Math.ceil(24 * 60 * 60 * 1000 / HEARTBEAT_WRITE_INTERVAL_MS);
-const DISPATCH_RECEIPTS_PER_DAY = 48 + 2; // P1595: one receipt per half-hour fallback slot, plus the two daily screener slots.
+const DISPATCH_RECEIPTS_PER_DAY = 48 + 6; // P1595: one receipt per half-hour fallback slot, plus the six daily screener slots (v60.14: two backups, four retries).
 
 export const FAST_PLANE_WRITE_POLICY = Object.freeze({
   schedule: '*/5 * * * *',
@@ -20,6 +20,7 @@ export const FAST_PLANE_WRITE_POLICY = Object.freeze({
   heartbeatIntervalMs: HEARTBEAT_WRITE_INTERVAL_MS,
   kvFreeTierDailyLimit: KV_FREE_TIER_DAILY_LIMIT,
   warningDailyTarget: KV_WARNING_DAILY_TARGET,
+  dispatchReceiptsPerDay: DISPATCH_RECEIPTS_PER_DAY,
   // Normal upper bound: every run changes the current snapshot and the
   // heartbeat is written only at its 15-minute liveness interval.
   maxSuccessfulKvWritesPerDay: SCHEDULED_RUNS_PER_DAY + HEARTBEAT_LIVENESS_WRITES_PER_DAY + DISPATCH_RECEIPTS_PER_DAY,
@@ -36,9 +37,20 @@ export const REFRESH_DISPATCH_POLICY = Object.freeze({ workflow: 'refresh-data.y
 // The screener workflow's GitHub crons (06:53Z after the KR close, 21:53Z after the US close) are
 // best-effort too, so the same 5-minute cron backs them up 32 minutes later (07:25Z, 22:25Z): it
 // dispatches only when no run is active and none succeeded in the last 30 minutes, so an on-time
-// cron run is not repeated. refresh-screener has `workflow_dispatch: {}` with no inputs, so the body
-// is {ref} only; its receipt lives under its own KV key so the two dispatchers never dedupe each other.
-export const SCREENER_DISPATCH_POLICY = Object.freeze({ workflow: 'refresh-screener.yml', ref: 'main', slotTimesUtc: Object.freeze(['07:25', '22:25']), kvKey: 'scheduler:dispatch:screener', recentSuccessMs: 30 * 60000 });
+// cron run is not repeated. Its receipt lives under its own KV key so the two dispatchers never dedupe each other.
+export const SCREENER_DISPATCH_POLICY = Object.freeze({ workflow: 'refresh-screener.yml', ref: 'main', slotTimesUtc: Object.freeze(['07:25', '08:25', '09:25', '22:25', '23:25', '00:25']), kvKey: 'scheduler:dispatch:screener', recentSuccessMs: 150 * 60000 });
+// v60.14: a refused screener run (the validator fails closed) had no retry until the next cron, 6 h later; two gaps of 22-23 h
+// followed (11/10, 11/11). The two slots after each backup dispatch again only when no run succeeded in the last 150 minutes,
+// so a run that succeeded at the cron or the backup is never repeated.
+// v60.14: data-watchdog.yml runs after deploys and on a GitHub cron that fired 26 of 168 slots, so it went quiet exactly when
+// publishing stalled (two runs in the 14.7 h stall of 11/11-11/12). This cron dispatches it at :35 when none succeeded in
+// the last 50 minutes; it keeps no KV receipt.
+export const WATCHDOG_DISPATCH_POLICY = Object.freeze({ workflow: 'data-watchdog.yml', ref: 'main', slotMinutes: Object.freeze([35]), kvKey: null, recentSuccessMs: 50 * 60000 });
+const WATCHDOG_DISPATCH = Object.freeze({
+  workflow: WATCHDOG_DISPATCH_POLICY.workflow, ref: WATCHDOG_DISPATCH_POLICY.ref, kvKey: null, recentSuccessMs: WATCHDOG_DISPATCH_POLICY.recentSuccessMs,
+  isSlot: at => WATCHDOG_DISPATCH_POLICY.slotMinutes.includes(at.getUTCMinutes()),
+  body: () => ({ ref: WATCHDOG_DISPATCH_POLICY.ref })
+});
 // v59.81 (hosting review 2026-11-08): event-briefs.yml's GitHub cron (:07/:27/:47) ran 28 of 504 slots in 7 days, so the
 // same 5-minute cron dispatches it at :05/:25/:45 when no run is active and none succeeded in the last 15 minutes. It
 // keeps no KV receipt (kvKey null): its three slots an hour would push the normal KV write bound past the 500 target.
@@ -56,7 +68,7 @@ const REFRESH_DATA_DISPATCH = Object.freeze({
 const REFRESH_SCREENER_DISPATCH = Object.freeze({
   workflow: SCREENER_DISPATCH_POLICY.workflow, ref: SCREENER_DISPATCH_POLICY.ref, kvKey: SCREENER_DISPATCH_POLICY.kvKey, recentSuccessMs: SCREENER_DISPATCH_POLICY.recentSuccessMs,
   isSlot: at => SCREENER_DISPATCH_POLICY.slotTimesUtc.includes(at.toISOString().slice(11, 16)),
-  body: () => ({ ref: SCREENER_DISPATCH_POLICY.ref })
+  body: () => ({ ref: SCREENER_DISPATCH_POLICY.ref, inputs: { trigger: 'scheduler' } })
 });
 
 export async function dispatchRefreshData(options = {}) {
@@ -65,6 +77,10 @@ export async function dispatchRefreshData(options = {}) {
 
 export async function dispatchRefreshScreener(options = {}) {
   return dispatchWorkflow(REFRESH_SCREENER_DISPATCH, options);
+}
+
+export async function dispatchWatchdog(options = {}) {
+  return dispatchWorkflow(WATCHDOG_DISPATCH, options);
 }
 
 export async function dispatchEventBriefs(options = {}) {
@@ -360,5 +376,6 @@ export default {
     ctx.waitUntil(dispatchRefreshData({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));
     ctx.waitUntil(dispatchRefreshScreener({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));
     ctx.waitUntil(dispatchEventBriefs({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));
+    ctx.waitUntil(dispatchWatchdog({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));
   }
 };

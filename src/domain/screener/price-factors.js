@@ -310,8 +310,9 @@ export function isSessionComplete(date, segment, nowMs = Date.now()) {
 
 // The provider's 1y daily chart (one chart.result entry) as dated rows, exactly as the producer's fetchHistory builds
 // them: raw OHLC/volume, adjusted close kept separate, a missing value stays null, an empty close is a gap date.
-// v59.75: `closeDigits` keeps a quote convention finer than cents (EUR/USD 1.1544); every other caller keeps 2.
-export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOString(), closeDigits = 2 } = {}) {
+// v59.75: `closeDigits` keeps a quote convention finer than cents (EUR/USD 1.1544). Without it a price under 10 keeps four
+// decimals and the rest two.
+export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOString(), closeDigits = null } = {}) {
   const ts = res?.timestamp;
   const q0 = res?.indicators?.quote?.[0];
   const closes = q0?.close;
@@ -335,20 +336,21 @@ export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOStrin
     if (typeof c !== 'number' || !isFinite(c)) { if (Number.isFinite(ts[i])) out.nullCloseDates.push(new Date(ts[i] * 1000).toISOString().slice(0, 10)); continue; }
     const h = q0.high?.[i], l = q0.low?.[i], v = q0.volume?.[i];
     const a = Array.isArray(adjArr) ? adjArr[i] : undefined;
+    const digits = closeDigits ?? (Math.abs(c) < 10 ? 4 : 2);
     out.push({
       date: new Date(ts[i] * 1000).toISOString().slice(0, 10),
       observedAt: new Date(ts[i] * 1000).toISOString(),
       instrumentId: res.meta?.symbol || null,
       timeframe: res.meta?.dataGranularity || null,
       currency: res.meta?.currency || null,
-       close: round(c, closeDigits),
+       close: round(c, digits),
       // Missing adjusted-close evidence stays missing. A raw-close fallback
       // would silently turn a total-return backtest into a price-only test.
-      adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, closeDigits) : null,
+      adjClose: (typeof a === 'number' && isFinite(a) && a > 0) ? round(a, digits) : null,
        // Missing OHLC bars are unknown.  Falling back to close creates a
        // fabricated zero-range bar and can make ADR/VCP look complete.
-       high:   typeof h === 'number' && isFinite(h) ? round(h, closeDigits) : null,
-       low:    typeof l === 'number' && isFinite(l) ? round(l, closeDigits) : null,
+       high:   typeof h === 'number' && isFinite(h) ? round(h, digits) : null,
+       low:    typeof l === 'number' && isFinite(l) ? round(l, digits) : null,
        // Missing volume is unknown, not zero.  Zero is a real observation
        // for some instruments and would otherwise corrupt VCP/liquidity
        // factors while making a partial provider response look complete.
@@ -492,3 +494,6 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
   }
   return f;
 }
+
+/** Row fields written only when their condition holds; a validator may meet them on any row, core or extended. */
+export const CONDITIONAL_FACTOR_FIELDS = Object.freeze(['closeReconciliation', 'providerMissingSessions', 'partialSessionDropped']);

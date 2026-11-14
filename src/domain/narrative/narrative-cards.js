@@ -70,8 +70,9 @@ export function buildNarrativeCards({ narratives = null, crossroads = null, less
       favored: (item.favored || []).map(choiceName), favoredWhy: item.favoredWhy || null, costly: (item.costly || []).map(choiceName),
       choices: Object.entries(item.choices || {}).map(([key, text]) => ({ key, name: choiceName(key), text }))
     }));
+    // The chip names the scenario it grades (a story has no direction of its own).
     return { id: story.id, label: story.label || theme.label, question: theme.question || null, attention, movers, line, support,
-      supportWord: SUPPORT_WORDS[support], latestAt: story.latestAt || null, frame: lessonFrame(theme.frames, lessons), scenarios };
+      supportWord: lead && alt ? `${shortTitle(lead.title)} 쪽 ${SUPPORT_WORDS[support]}` : SUPPORT_WORDS[support], latestAt: story.latestAt || null, frame: lessonFrame(theme.frames, lessons), scenarios };
   });
   return { available: true, at: narratives.at || null, windowHours: narratives.windowHours || 72, cards };
 }

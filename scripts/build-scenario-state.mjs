@@ -163,8 +163,18 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   const { scored, lastScored } = scoreNewReleases(macroHistory, previous?.lastScored || {}, at);
   const eventOutcomes = [...(previous?.eventOutcomes || []), ...scored].slice(-MAX_EVENT_OUTCOMES);
   const themeDay = playbook.asOf;
-  const themeHistory = mergeThemeHistory(previous?.themeHistory || [], themeBackfill).filter((row) => row.date !== themeDay);
-  if (themeDay) themeHistory.push({ date: themeDay, themes: Object.fromEntries(snapshot.themes.map((row) => [themeKey(row), [row.ret1m == null ? null : Math.round(row.ret1m * 10) / 10, row.state]])) });
+  // Each market's themes are filed under that market's own session: the US basis date keyed every row, so a Korean
+  // session one day ahead was recorded a day late (KR 11/13 on the 11/12 and 11/13 rows, KR 11/12 nowhere).
+  const themeHistory = mergeThemeHistory(previous?.themeHistory || [], themeBackfill);
+  for (const row of snapshot.themes) {
+    const day = playbook.asOfByMarket?.[row.market] || themeDay;
+    if (!day) continue;
+    let entry = themeHistory.find((item) => item.date === day);
+    if (!entry) { entry = { date: day, themes: {} }; themeHistory.push(entry); }
+    delete entry.recomputed;
+    entry.themes[themeKey(row)] = [row.ret1m == null ? null : Math.round(row.ret1m * 10) / 10, row.state];
+  }
+  themeHistory.sort((a, b) => a.date.localeCompare(b.date));
   const payload = {
     schemaVersion: SCENARIO_STATE_SCHEMA, status: SCENARIO_STATE_CURRENT, generatedAt: at,
     sourceLabel: 'AIO 공개 산출물(거시 기록·확정 종가·스크리너)로 갱신마다 재계산',

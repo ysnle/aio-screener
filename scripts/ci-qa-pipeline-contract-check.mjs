@@ -629,6 +629,22 @@ check('v57.92 W06 default convergence branch propagates a settled CI failure',
       && /needs\.preflight\.result == 'success' && needs\.contracts\.result == 'success'/.test(attestHead)
       && /needs\.browser\.result == 'success' \|\| \(needs\.browser\.result == 'skipped' && needs\.preflight\.outputs\.reduced_scope == 'true'\)/.test(attestHead)
       && /github\.event_name != 'pull_request' && github\.ref_name == 'main'/.test(attestHead));
+  // v60.14: a producer runs, before its push, the groups this scope step will run on that commit. The map is declared
+  // once (originScopes) and must equal the scope step; each producer must call the profile for its own origin.
+  const scopes = manifest.originScopes || {};
+  const ciGroups = (origin) => {
+    const line = scopeStep.split('\n').find((row) => new RegExp('(?:^|[\\s|])' + origin + '(?:\\||\\))').test(row.trim().split(' ')[0]));
+    return line?.match(/groups='(\[[^']*\])'/)?.[1] || null;
+  };
+  const refreshDataSource = read('.github/workflows/refresh-data.yml');
+  const refreshScreenerSource = read('.github/workflows/refresh-screener.yml');
+  check('v60.14 originScopes equals the ci.yml scope step, and each producer runs its origin scope before the push',
+    Object.keys(scopes).length === 3
+      && Object.entries(scopes).every(([origin, groups]) => ciGroups(origin) === JSON.stringify(groups))
+      && refreshDataSource.includes('AIO_QA_CACHE_DIR="$RUNNER_TEMP/aio-qa" node scripts/qa-runner.mjs data-commit --origin refresh-data --except data --no-cache')
+      && refreshScreenerSource.includes('AIO_QA_CACHE_DIR="$RUNNER_TEMP/aio-qa" node scripts/qa-runner.mjs data-commit --origin refresh-screener --except data --no-cache')
+      && refreshDataSource.indexOf('qa-runner.mjs data-commit') < refreshDataSource.indexOf('verify-refresh-candidate.mjs --record')
+      && refreshScreenerSource.indexOf('qa-runner.mjs data-commit') < refreshScreenerSource.indexOf('verify-refresh-candidate.mjs --record'));
 }
 check('CI accepts exact refresh SHA and emits immutable attestation', /release_sha:/.test(ciSource) && /aio-release-attestation\.v1/.test(ciSource) && /actions\/upload-artifact@[0-9a-f]{40}/.test(ciSource));
 const releaseUploadStep = ciSource.match(/- name: Upload release attestation([\s\S]*?)(?=\n      - name:|\n\n  [a-z]|$)/)?.[1] || '';

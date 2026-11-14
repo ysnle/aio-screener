@@ -72,6 +72,17 @@ export function yoySeries(series) {
   }).filter(Boolean);
 }
 
+/**
+ * The latest year-over-year rate of a nominal series with the same month's price rise taken out. Nominal retail
+ * sales read 3%+ in 16 of 26 months while only 10 grew 1% after prices (2026-03: +3.6% nominal, +0.3% real). A month
+ * whose price index is missing has no real rate.
+ */
+export function realYoyLatest(nominal, prices) {
+  const row = yoySeries(nominal).at(-1);
+  const price = row ? yoySeries(prices).find((item) => item.date.slice(0, 7) === row.date.slice(0, 7)) : null;
+  return row && price ? { date: row.date, value: ((1 + row.value / 100) / (1 + price.value / 100) - 1) * 100, nominal: row.value } : null;
+}
+
 /** Three-month annualised pace — how fast prices rose over the last quarter, at a yearly rate. */
 export function annualised3m(series) {
   const last = series[series.length - 1];
@@ -160,6 +171,7 @@ function growthAxis({ macro, mh }) {
   const claims = claimsTrend(seriesOf(mh, 'initialClaims'));
   const retail = seriesOf(mh, 'retailSales');
   const retailYoy = lastOf(yoySeries(retail));
+  const retailReal = realYoyLatest(retail, seriesOf(mh, 'cpiIndex'));
   const nfp = finite(macro.nfp);
   const unrate = finite(macro.unemployment) ?? lastOf(unemployment)?.value ?? null;
   let state = 'neutral';
@@ -196,7 +208,7 @@ function growthAxis({ macro, mh }) {
       ['Sahm 지표', sahm ? `${sahm.value.toFixed(2)}%p (${G.sahmWatchAt}%p 이상이면 둔화, ${G.sahmRecessionAt}%p 이상이면 침체 신호)` : null],
       [payroll ? '일자리 3개월 평균' : '일자리 (최근 1개월)', payroll ? `${peopleText(payroll.avg3, { sign: true })} (그 전 3개월 ${peopleText(payroll.prior3, { sign: true })})` : nfp == null ? null : peopleText(nfp, { sign: true })],
       ['신규 실업수당 청구 (4주 평균)', claims ? `${(claims.avg4 / 10000).toFixed(1)}만 건 (1년 저점 대비 ${signed(claims.aboveLow, 0, '%')})` : null],
-      ['소매판매 (전년 대비, 명목)', retailYoy ? `${signed(retailYoy.value, 1, '%')}` : finite(macro.retailSales) == null ? null : `전월 대비 ${signed(finite(macro.retailSales), 1, '%')}`]
+      ['소매판매 (전년 대비, 명목)', retailYoy ? `${signed(retailYoy.value, 1, '%')}${retailReal && retailReal.date === retailYoy.date ? ` (물가 반영 ${signed(retailReal.value, 1, '%')})` : ''}` : finite(macro.retailSales) == null ? null : `전월 대비 ${signed(finite(macro.retailSales), 1, '%')}`]
     ],
     read,
     flip: state === 'unknown' ? null : `Sahm 지표 ${G.sahmRecessionAt}%p 이상 또는 일자리 3개월 평균 감소면 부담, Sahm ${G.sahmWatchAt}%p 미만이면서 3개월 평균 ${G.payrollSolidK / 10}만 명 이상이면 양호 (${G.payrollSolidK / 10}만 명은 노동력 증가를 흡수하는 수준으로 흔히 쓰는 기준)`,

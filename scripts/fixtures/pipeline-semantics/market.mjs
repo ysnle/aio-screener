@@ -164,7 +164,7 @@ export const cases = [
     const [label, test] = BRANCHES.find((x) => x.id === 'softland').conditions[0];
     assert.equal(test({ inflationDir: one }), true);
     assert.doesNotMatch(label({ inflationDir: one }), /PCE·CPI 모두/);
-    assert.match(label({ inflationDir: one }), /근원 PCE만 공개/);
+    assert.match(label({ inflationDir: one }), /근원 PCE만 비교 가능/, 'P2406 the single measure is named as the comparable one');
     assert.match(label({ inflationDir: both }), /PCE·CPI 모두/);
   } },
   { id: 'P18-CURVE-01', name: '다른 날짜의 공식 2s10s가 최신 곡선을 역전으로 뒤집지 않는다', run: async ({ load }) => {

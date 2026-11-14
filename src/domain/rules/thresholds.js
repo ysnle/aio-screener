@@ -145,7 +145,7 @@ export const RULES = Object.freeze({
   // v57.84: payrollSlowdownK is a step (3-month average this far under the prior 3 months = 둔화, the quadrant); payrollStallK is
   // a level (3-month average under 25k = 고용 급랭 condition) — one number had served both meanings. Initial claims (4-week
   // average) above their one-year low: claimsWatchAbovePct a watch level, claimsRiseAbovePct a clear rise (Sahm-style pair).
-  growth: Object.freeze({ sahmRecessionAt: 0.5, sahmWatchAt: 0.3, payrollSolidK: 100, payrollSlowdownK: 25, payrollStallK: 25, claimsWatchAbovePct: 10, claimsRiseAbovePct: 15 }),
+  growth: Object.freeze({ sahmRecessionAt: 0.5, sahmWatchAt: 0.3, payrollSolidK: 100, retailRealYoyPct: 1 /* after prices; the former nominal 3% line passed on inflation alone */, payrollSlowdownK: 25, payrollStallK: 25, claimsWatchAbovePct: 10, claimsRiseAbovePct: 15 }),
   // FOMC longer-run goal: 2% PCE inflation; core PCE 3% a clear miss; a 3-month pace 0.5pp above the year re-accelerating.
   inflation: Object.freeze({ targetPct: 2, nearTargetPct: 2.5, missPct: 3, reaccelPp: 0.5 }),
   // 2-year yield vs the policy midpoint: ±0.25pp is a heuristic band of one 25bp step. The 2-year also carries a term premium

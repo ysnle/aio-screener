@@ -3228,8 +3228,8 @@ window._aioStartServerDataPolling = _aioStartServerDataPolling;
 // ─────────────────────────────────────────────────────────────────────────
 async function _aioLoadHistory() {
   try {
-    var url = './public-data/history.json'; // v57.61 (perf): no ?t= — the no-cache fetch revalidates (304) instead of re-downloading 3MB each hour
-    var bp = window.__aioBootPrefetch && window.__aioBootPrefetch.history, pre = bp && !bp.taken ? (bp.taken = true, bp.res) : null; var r = await (pre ? pre.catch(function() { return fetch(url, { cache: 'no-cache' }); }) : fetch(url, { cache: 'no-cache' })); // the <head> boot prefetch (src/data/boot-prefetch.js), once
+    var gen = Date.parse(window._serverDataMeta && window._serverDataMeta.generatedAt || ''), url = './public-data/history.json' + (window._aioHistory && isFinite(gen) ? '?g=' + Math.floor(gen / 60000) : ''); // v57.61 (perf): no minute token (304 revalidation); a reload names the data.json cycle
+    var bp = window.__aioBootPrefetch && window.__aioBootPrefetch.history, pre = bp && !bp.taken ? (bp.taken = true, Date.now() - Number(bp.at) <= 5 * 60 * 1000 ? bp.res : null) : null; var r = await (pre ? pre.catch(function() { return fetch(url, { cache: 'no-cache' }); }) : fetch(url, { cache: 'no-cache' })); // the <head> boot prefetch (src/data/boot-prefetch.js), once
     if (!r.ok) return _aioHistoryFailed();
     var arr = await r.json(); if (typeof window.__aioReadHistoryRows === 'function') arr = window.__aioReadHistoryRows(arr); // v59.70 R2: v1 or history.v2 → rows (src/domain/market/indices/history-rows.js)
     if (!Array.isArray(arr) || !arr.length) return _aioHistoryFailed(Array.isArray(arr) ? 'empty' : '');

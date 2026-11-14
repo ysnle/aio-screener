@@ -440,10 +440,11 @@ export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['G
 // counts, a streak of consecutive runs without a usable current item and when it last had one; the watchdog warns when
 // a feed has had none for a day (a quiet Korean weekend morning is not a dead feed).
 // v59.57 (P-feed-quiet): per-source quiet allowance for low-cadence official feeds. It applies only while the feed still
-// answers and parses items ("no-current"); an error or an empty response keeps the default thresholds.
+// answers and parses items — none in the window ("no-current") or an in-window item the topic filter dropped ("ok",
+// kept 0: the 11/10 Fed row that failed 15 watchdog runs); an error or an empty response keeps the default thresholds.
 export const NEWS_FEED_QUIET_MAX_MS = Object.freeze(Object.fromEntries(NEWS_FEEDS.filter((feed) => feed.quietMaxHours > 0).map((feed) => [feed.source, feed.quietMaxHours * 3600000])));
 export function newsFeedQuietAllowanceMs(row, defaultMs) {
-  const quiet = row?.status === 'no-current' && Number(row?.parsed) > 0 ? Number(NEWS_FEED_QUIET_MAX_MS[row.source] || 0) : 0;
+  const quiet = ['no-current', 'ok'].includes(row?.status) && Number(row?.parsed) > 0 ? Number(NEWS_FEED_QUIET_MAX_MS[row.source] || 0) : 0;
   return Math.max(defaultMs, quiet);
 }
 // Why an in-window article missed the selection floor (P1504). Filter reasons come from scoreServerNewsItem.

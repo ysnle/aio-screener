@@ -1,4 +1,7 @@
 name: Refresh screener and SEC fundamentals
+# v60.14: the data-plane Worker's backup and retry dispatches carry trigger=scheduler; the run title shows it so the
+# 30-day SLO window counts them as scheduled delivery, as it does for refresh-data.yml.
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Refresh screener and SEC fundamentals · {0}', inputs.trigger || 'operator') || 'Refresh screener and SEC fundamentals' }}
 
 on:
   schedule:
@@ -12,6 +15,10 @@ on:
     - cron: '53 21 * * *'
   workflow_dispatch:
     inputs:
+      trigger:
+        description: 'scheduler = data-plane Worker dispatch; operator = manual run'
+        required: false
+        default: 'operator'
       retry:
         description: 'collision = one re-run from the new main after a push conflict (v58.71)'
         required: false
@@ -206,6 +213,11 @@ jobs:
            node scripts/ci-professional-data-gap-check.mjs
           node scripts/ci-static-data-contract-check.mjs
           node scripts/ci-operations-status-check.mjs
+          # v60.14: the groups ci.yml runs on a refresh-screener commit (preflight, core; the data group
+          # judges other lanes' freshness and stays with refresh-data). 11/12: a screener commit passed the list above and
+          # failed CI's data-pipeline gate, which stopped Pages for 14.7 h.
+          npm ci --no-audit --no-fund --ignore-scripts
+          AIO_QA_CACHE_DIR="$RUNNER_TEMP/aio-qa" node scripts/qa-runner.mjs data-commit --origin refresh-screener --except data --no-cache
           node scripts/verify-refresh-candidate.mjs --record "$RUNNER_TEMP/aio-refresh-screener-candidate.json"
 
       - name: Fail-closed promotion candidate gate before push
@@ -257,7 +269,7 @@ jobs:
       - name: Decide whether the extended shard is due
         id: due
         env:
-          SCREENER_EXTENDED_FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+          SCREENER_EXTENDED_FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.trigger != 'scheduler' && '1' || '' }}
         run: node scripts/screener-extended-due.mjs
 
       - name: Refresh extended membership (Russell 2000 holdings + Nasdaq symbol directory)

@@ -146,7 +146,10 @@ export function missingRecentUsSessions(hist, nowMs = Date.now(), lookbackDays =
 // filled" by that placeholder and dropped the real close. Such rows trigger the daily backfill, whose bars replace a
 // value from another session (mergeBackfillBars), so a gap left by an earlier run is repaired on the next refresh.
 // Korean fields (KRX holidays), 24/7 BTC and FX (their own day boundary) are not US sessions and are not checked.
-export const US_SESSION_HISTORY_FIELDS = Object.freeze(['spx', 'nasdaq', 'ndx', 'dow', 'rut', 'vix', 'tnx', 'dxy', 'wti', 'brent', 'gold', 'silver', 'tlt', 'smh', 'soxx', 'rsp']);
+// v60.13: derived from the column list (the hand-kept list missed sox, skew, vix3m, vvix and move, so their 11/13 close stayed
+// on the 11/14 row only).
+const NON_US_SESSION_FIELDS = new Set(['kospi', 'kosdaq', 'btc', 'usdkrw', 'usdjpy', 'eurusd', 'gbpusd', 'usdcny', 'audusd']);
+export const US_SESSION_HISTORY_FIELDS = Object.freeze(HIST_MARKET_FIELDS.filter((field) => !NON_US_SESSION_FIELDS.has(field)));
 export function heldUsSessionFields(hist, nowMs = Date.now(), lookbackDays = 10, fields = US_SESSION_HISTORY_FIELDS) {
   const basis = latestCompletedUsSession(nowMs);
   if (!basis?.date) return [];
@@ -427,7 +430,11 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
     const bySymQuote = {};
     const bySym = {};
     for (const q of data.quotes || []) {
-      const session = snapshotBySym.get(q.symbol)?.session || deriveMarketSession({
+      // A retained last-known-good snapshot (publication blocked this cycle) labels an earlier observation; its session
+      // belongs to this quote only when both describe the same print.
+      const snapshotRow = snapshotBySym.get(q.symbol);
+      const samePrint = snapshotRow && Date.parse(snapshotRow.observedAt || '') === Date.parse(q.observedAt || '');
+      const session = (samePrint && snapshotRow.session) || deriveMarketSession({
         instrumentId: q.symbol,
         observedAt: q.observedAt,
         providerSession: q.marketSession || q.marketState,
@@ -533,7 +540,10 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
         if (session) fieldMeta[field].sessionDate = session;
       }
     }
-    if (typeof data.fearGreed?.score === 'number') {
+    // A retained Fear & Greed value (source-planes fallback: stale-reference) is not a new observation; the row keeps
+    // only what the publisher's dated series gives it below.
+    const fgCurrent = typeof data.fearGreed?.score === 'number' && !['stale-reference', 'unavailable'].includes(data.fearGreed.status);
+    if (fgCurrent) {
       const rawAsOf = data.fearGreed.asOf;
       const asOfMs = typeof rawAsOf === 'number' ? (rawAsOf < 1e12 ? rawAsOf * 1000 : rawAsOf) : Date.parse(rawAsOf || '');
       fieldMeta.fg = historyMeta('fg', null, {
@@ -553,7 +563,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       cycleEnd: cycleEnd,
       marketSnapshotRevision: data.meta?.marketSnapshotRevision || marketSnapshot?.revision || null,
       ...fieldValues,
-      fg: (data.fearGreed && typeof data.fearGreed.score === 'number') ? data.fearGreed.score : null,
+      fg: fgCurrent ? data.fearGreed.score : null,
       fieldMeta,
     };
     let hist = [];

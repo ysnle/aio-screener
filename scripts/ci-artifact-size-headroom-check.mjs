@@ -9,6 +9,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SEC_LEDGER_PATH } from './lib/sec-ledger.mjs';
+import { ARTIFACTS } from '../src/data/artifact-registry.js';
 import { SEC_STORE_PART_MAX_BYTES } from './lib/sec-ledger-store.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -57,6 +58,14 @@ const BUDGETS = [
 
 // v58.81 (P2093, refresh 10/26): `--only <prefix>` checks one lane's budgets (the 13F lane runs it for `masters-`), so an
 // oversized lane file is caught inside its own degradable step and restored there instead of refusing the whole refresh.
+// v60.14: every file the browser reads with a byte cap (src/data/artifact-registry.js maxBytes) is watched at that cap —
+// above it the client refuses the file and the block goes empty. The hand list above covered 16 files; the registry
+// names the rest (macro-history, market-day, scenario-state, rotation-detail, ...), so a new descriptor is covered
+// the day it is added.
+for (const [id, entry] of Object.entries(ARTIFACTS)) {
+  if (entry.maxBytes > 0) BUDGETS.push({ id: `client-cap:${id}`, bytes: size(`public-data/${id}`), budget: entry.maxBytes });
+}
+
 const onlyIndex = process.argv.indexOf('--only');
 const only = onlyIndex > -1 ? String(process.argv[onlyIndex + 1] || '') : null;
 const failures = [];

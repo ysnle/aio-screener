@@ -14,6 +14,10 @@ const USABLE_FAST_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 // win over a fresh durable one. The Worker runs every five minutes, so its attemptedAt is a liveness signal; a fast-plane
 // snapshot older than this is no fresher than the durable one and the loader falls through to it.
 export const FAST_PLANE_MAX_AGE_MS = 2 * 60 * 60 * 1000;
+// Between two missed Worker crons and that limit the fast plane may already be behind the durable snapshot
+// (refreshed every 30 minutes), so the loader reads both and keeps the later one.
+export const FAST_PLANE_COMPARE_AFTER_MS = 10 * 60 * 1000;
+const publishedMs = (snapshot) => Date.parse(snapshot?.attemptedAt || snapshot?.generatedAt || '');
 
 // Ordered quote sources. The durable GitHub Actions snapshot is always present and
 // always last, so the fast plane can only add freshness — a disabled, unreachable,
@@ -82,6 +86,7 @@ export function createMarketSnapshotLoader({
   async function load() {
     const failures = [];
     let lastFailure = null;
+    let lagging = null;
     for (const source of currentSources()) {
       let result;
       try {
@@ -89,10 +94,15 @@ export function createMarketSnapshotLoader({
       } catch (error) {
         result = Object.freeze({ ok: false, source: source.id, snapshot: null, error: String(error?.message || 'snapshot_loader_failed') });
       }
-      if (result.ok) return result;
+      if (result.ok) {
+        const lag = source.id === 'fast-plane' ? Date.parse(clock.iso()) - publishedMs(result.snapshot) : 0;
+        if (lag > FAST_PLANE_COMPARE_AFTER_MS) { lagging = result; continue; }
+        return lagging && !(publishedMs(result.snapshot) > publishedMs(lagging.snapshot)) ? lagging : result;
+      }
       failures.push(`${source.id}:${result.error}`);
       lastFailure = result;
     }
+    if (lagging) return lagging;
     return Object.freeze({
       ok: false,
       snapshot: lastFailure?.snapshot

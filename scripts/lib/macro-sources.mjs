@@ -341,6 +341,13 @@ export async function fetchTreasuryYieldCurve(previous = null) {
     const parsed = parseTreasuryYieldCurveXml(`${xml}
 ${earlierXml}`, nowIso);
     if (!parsed) throw new Error('official Treasury XML feed contained no complete five-point curve');
+    // The earlier month alone is not this month's curve: a failed current-month request is a failed collection (retried
+    // next cycle, never cached as ok), and the newer of the earlier month and the retained copy is kept as stale.
+    if (!xml) {
+      const failureReason = 'current-month Treasury XML feed unavailable';
+      const retained = previous?.values && String(previous.observedAt || '') >= parsed.observedAt ? previous : parsed;
+      return { ...retained, status: 'stale', attemptedAt: nowIso, failureReason, cacheHit: false };
+    }
     return { ...parsed, attemptedAt: nowIso, cacheHit: false };
   } catch (error) {
     const failureReason = String(error?.message || error);

@@ -29,6 +29,103 @@ import { NEWS_FEEDS } from './lib/news-selection.mjs';
 
 const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
 
+// v60.13 pipeline review. Each case fails on the code before the fix.
+{
+  const { sessionCloses } = await import('../src/domain/market/indices/index-levels.js');
+  const { commonDateSplit } = await import('../src/domain/briefing/market-read.js');
+  const { US_SESSION_HISTORY_FIELDS } = await import('./producer/history.mjs');
+  const { newsFeedQuietAllowanceMs } = await import('./lib/news-selection.mjs');
+  const { CONDITIONAL_FACTOR_FIELDS } = await import('../src/domain/screener/price-factors.js');
+  // One completed-close reader: an exchange holiday copy is not a session and a weekend copy never replaces the Friday close.
+  const meta = (extra) => ({ observedAt: '2026-07-02T20:00:00Z', ...extra });
+  const closes = [
+    { date: '2026-07-01', eurusd: 1.10, fieldMeta: { eurusd: meta({ sessionDate: '2026-07-01', observationRelation: 'latest-completed-close' }) } },
+    { date: '2026-07-02', eurusd: 1.12, fieldMeta: { eurusd: meta({ sessionDate: '2026-07-02', observationRelation: 'latest-completed-close' }) } },
+    { date: '2026-07-03', eurusd: 1.12, fieldMeta: { eurusd: meta({ observationRelation: 'carried-forward', carriedFrom: '2026-07-02' }) } },
+    { date: '2026-07-04', eurusd: 1.09, fieldMeta: { eurusd: meta({ sessionDate: '2026-07-02', observationRelation: 'carried-forward', carriedFrom: '2026-07-02' }) } }
+  ];
+  assert.deepEqual(sessionCloses(closes, 'eurusd'), [{ date: '2026-07-01', value: 1.10 }, { date: '2026-07-02', value: 1.12 }], 'P2407 holiday and weekend copies are not closes');
+  // The held-session repair covers every US-session column.
+  for (const field of ['sox', 'skew', 'vix3m', 'vvix', 'move']) assert.ok(US_SESSION_HISTORY_FIELDS.includes(field), `P2408 ${field} is repaired like the other US-session columns`);
+  for (const field of ['kospi', 'btc', 'usdkrw']) assert.ok(!US_SESSION_HISTORY_FIELDS.includes(field), `P2408 ${field} is not a US session column`);
+  // A shared artifact reload bypasses the CDN copy, refuses an older copy and follows the data.json generation, not the clocks.
+  const urls = []; let stamp = '2026-11-14T07:00:00Z';
+  const root = { fetch: async (url) => { urls.push(String(url)); return new Response(JSON.stringify({ schemaVersion: 'x.v1', generatedAt: stamp }), { headers: { 'content-type': 'application/json' } }); },
+    _serverDataMeta: { generatedAt: '2020-01-01T00:00:00Z' } };
+  const item = { key: '_aioFixtureReload', url: './y.json', schemas: ['x.v1'], maxAgeMs: 3600000 };
+  await refreshSharedArtifact(root, item);
+  assert.equal(sharedArtifactIsStale(root, item.key, item), false, 'P2410 a copy loaded under the current generation is current');
+  root._serverDataMeta = { generatedAt: '2020-01-01T00:30:00Z' }; // a client clock far ahead of the producer's
+  assert.equal(sharedArtifactIsStale(root, item.key, item), true, 'P2410 a new data.json generation asks for a new copy whatever the clocks say');
+  stamp = '2026-11-14T06:30:00Z';
+  const older = await refreshSharedArtifact(root, item);
+  assert.equal(urls.at(-1).includes('t='), true, 'P2410 a reload carries the minute token');
+  assert.equal(older.payload.generatedAt, '2026-11-14T07:00:00Z', 'P2410 an older copy (the previous cycle from the CDN) is refused');
+  // The Fed feed answered and its one in-window item was dropped by the topic filter: quiet, not dead.
+  const fedDropped = { source: 'Federal Reserve', status: 'ok', parsed: 20, kept: 0, missStreak: 368, lastHealthyAt: '2026-11-02T08:00:00Z' };
+  assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: [fedDropped] } }, { nowMs: Date.parse('2026-11-10T00:40:00Z') }), [], 'P2411 an answering Fed feed keeps its quiet allowance');
+  assert.equal(newsFeedQuietAllowanceMs({ ...fedDropped, parsed: 0 }, 1), 1, 'P2411 an empty response keeps the default threshold');
+  assert.ok(CONDITIONAL_FACTOR_FIELDS.includes('partialSessionDropped'), 'P2411 conditional row fields are declared');
+  // One weekly credit change and a common-date real/breakeven split.
+  const obs = (rows) => ({ observations: rows });
+  const days = ['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13'];
+  const mh = { series: { realYield10: obs(days.slice(0, 9).map((d, i) => [d, 2 + i * 0.01])), breakeven10: obs(days.slice(1).map((d, i) => [d, 2.3 - i * 0.01])) } };
+  const split = commonDateSplit(mh, '2026-11-13');
+  assert.deepEqual([split.date, split.from], ['2026-11-12', '2026-11-05'], 'P2406 the split spans five common observations');
+  assert.ok(Math.abs(split.real5 - 0.05) < 1e-9 && Math.abs(split.breakeven5 + 0.05) < 1e-9, 'P2406 split on the latest common date');
+  const aligned = alignMarketInputs({ history: [], rates: { realAsOf: '2026-11-12', breakevenAsOf: '2026-11-13', realYield10Delta5: 0.2, breakeven10Delta5: 0 }, macroHistory: mh, now: Date.parse('2026-11-14T08:00:00Z') });
+  assert.ok(!aligned.r.splitHeld || aligned.r.realYield10Delta5 == null, 'P2406 a split is either computed on the common date or declared held');
+}
+
+// v60.14 proposals batch. Each case fails on the code before the change.
+{
+  const { creditState, leadershipBreakOf } = await import('../src/domain/briefing/market-read.js');
+  const { realYoyLatest } = await import('../src/domain/macro/macro-read.js');
+  const { createMarketSnapshotLoader, FAST_PLANE_COMPARE_AFTER_MS } = await import('../src/data/market-snapshot-loader.js');
+  // Credit: a calm high-yield level is not 양호 while the lowest grade pulls away; a 부담 is untouched.
+  const calm = { hyBp: 320, hy5: -28, hy20: -3 };
+  assert.equal(creditState(calm), 'favorable', 'v60.14 a calm high-yield spread alone is 양호');
+  assert.equal(creditState({ ...calm, lowerRated: true }), 'neutral', 'v60.14 CCC widening past high yield holds the credit verdict at 중립');
+  assert.equal(creditState({ hyBp: 470, hy5: 2, hy20: 5, lowerRated: true }), 'burden', 'v60.14 the CCC leg never lowers a 부담');
+  // Small caps: within 1% under the 200-day line is on the line, as the S&P 500 rule reads it.
+  const soxx = { date: '2026-11-13', value: 90, d5: 100, ma50: 100, yearMax: 120 };
+  const smallcaps = (value) => leadershipBreakOf({ soxx, rut: { date: '2026-11-13', value, ma200: 100 } }, '2026-11-13').confirmations.find((item) => item.id === 'smallcaps').ok;
+  assert.equal(smallcaps(99.2), false, 'v60.14 a Russell 2000 close 0.8% under its 200-day line is not a confirmed break');
+  assert.equal(smallcaps(98.9), true, 'v60.14 a Russell 2000 close more than 1% under its 200-day line confirms');
+  // Retail sales after prices; a month without its price index has no real rate.
+  const monthly = (start, values) => values.map((value, index) => ({ date: `${start + Math.floor(index / 12)}-${String(index % 12 + 1).padStart(2, '0')}-01`, value }));
+  const nominal = monthly(2025, [...Array(12).fill(100), ...Array(12).fill(104)]);
+  const prices = monthly(2025, [...Array(12).fill(100), ...Array(12).fill(103.5)]);
+  const real = realYoyLatest(nominal, prices);
+  assert.ok(real && Math.abs(real.value - (104 / 103.5 - 1) * 100) < 1e-9 && Math.abs(real.nominal - 4) < 1e-9, 'v60.14 real retail growth takes the same month price rise out');
+  assert.equal(realYoyLatest(nominal, prices.slice(0, -1)), null, 'v60.14 a month without its price index has no real rate');
+  // Fast plane against the durable snapshot: the later one wins once the fast plane lags two crons.
+  const base = JSON.parse(fs.readFileSync(new URL('../public-data/market-snapshot.json', import.meta.url), 'utf8'));
+  const nowMs = Date.parse('2026-11-14T08:00:00Z');
+  const snap = (minutesOld, mark) => ({ ...base, attemptedAt: new Date(nowMs - minutesOld * 60000).toISOString(), generatedAt: new Date(nowMs - minutesOld * 60000).toISOString(), revision: mark,
+    quotes: base.quotes.map((quote) => ({ ...quote, quality: 'CURRENT' })) });
+  const pick = async (fastOld, durableOld) => {
+    const calls = [];
+    const loader = createMarketSnapshotLoader({
+      httpClient: { requestJson: async (url) => { calls.push(url); return { ok: true, data: /fast\.example/.test(url) ? snap(fastOld, 'fast') : snap(durableOld, 'durable') }; } },
+      fastQuotesProvider: () => ({ enabled: true, baseUrl: 'https://fast.example', quotesPath: '/quotes' }),
+      clock: { iso: () => new Date(nowMs).toISOString() }
+    });
+    const result = await loader.load();
+    return { source: result.source, ok: result.ok, calls: calls.length };
+  };
+  assert.ok(FAST_PLANE_COMPARE_AFTER_MS === 10 * 60 * 1000, 'v60.14 the comparison starts after two missed Worker crons');
+  assert.deepEqual(await pick(3, 20), { source: 'fast-plane', ok: true, calls: 1 }, 'v60.14 a live fast plane is read alone');
+  assert.deepEqual(await pick(20, 5), { source: 'durable-snapshot', ok: true, calls: 2 }, 'v60.14 a lagging fast plane loses to a later durable snapshot');
+  assert.deepEqual(await pick(20, 40), { source: 'fast-plane', ok: true, calls: 2 }, 'v60.14 a lagging fast plane still wins over an older durable snapshot');
+  // First paint and the history reload.
+  const shell = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.ok(shell.includes("Date.now()-Date.parse(v.asOf+'T21:00:00Z')>432e6"), 'v60.14 a produced verdict more than five days old is not painted');
+  const legacyData = fs.readFileSync(new URL('../js/aio-data.js', import.meta.url), 'utf8');
+  assert.ok(legacyData.includes("'?g=' + Math.floor(gen / 60000)") && legacyData.includes('Date.now() - Number(bp.at) <= 5 * 60 * 1000'), 'v60.14 a history reload follows the data.json generation and the boot copy expires after five minutes');
+}
+
+
 // M14/E09: equal moving averages are not an order.
 assert.notEqual(movingAverageStructure({ value: 100, ma5: 100, ma10: 100, ma20: 100, ma50: 100, ma100: 100, ma200: 100 }).shortLabel, '정배열', 'M14: flat MAs are not 정배열');
 assert.ok(!/정배열|역배열/.test(JSON.stringify(intervalStructure(Array.from({ length: 250 }, () => ({ close: 100 }))))), 'E09: flat chart interval is not ordered');

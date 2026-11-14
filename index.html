@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-dcetiMnmzykJ62fwJokJeX84/mE7AMa66V4AAWPO+2s=' 'sha256-hB453Fuv8kpqS6159CAc7T0dC9Cy2aoimOhilm8sMLs=' 'sha256-v3Ltt8T74qKsusaW4qOU7+fc3Vh6lZpWxT4+/spZL2A=' 'sha256-NpjyrosmstKyDNh02519yCyscsffdauXitWR/1mEhjA=' 'sha256-Pqx9Lj21xXCJShGE7g+r1MOzSdfynfaG3Cr8U8xa/GI=' 'sha256-5T+3J2ebCwrckSHsspknjhujjTwoiEl+7Um1Ypvmmo8=' 'sha256-SzAsYP/ltyW+WyyJIgRctLebDFvR4gkmGz7JFj0IiDo=' 'sha256-iiczT/ykZdvftPVEUh/e3+mGJuQ0r9qVJemIINRWTXc=' 'sha256-AKMgdaSgzPhZrRBOdmYL8wEz0OJZVCge2WzBmjfbRlU=' https://cdn.jsdelivr.net/npm/dompurify@3.4.16/ https://unpkg.com/lightweight-charts@4.2.0/; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-dcetiMnmzykJ62fwJokJeX84/mE7AMa66V4AAWPO+2s=' 'sha256-hB453Fuv8kpqS6159CAc7T0dC9Cy2aoimOhilm8sMLs=' 'sha256-v3Ltt8T74qKsusaW4qOU7+fc3Vh6lZpWxT4+/spZL2A=' 'sha256-NpjyrosmstKyDNh02519yCyscsffdauXitWR/1mEhjA=' 'sha256-Pqx9Lj21xXCJShGE7g+r1MOzSdfynfaG3Cr8U8xa/GI=' 'sha256-5T+3J2ebCwrckSHsspknjhujjTwoiEl+7Um1Ypvmmo8=' 'sha256-txhW7oFRSSpVLDiYapSqn2vDC8i3chaPNiyIHVnEMss=' 'sha256-iiczT/ykZdvftPVEUh/e3+mGJuQ0r9qVJemIINRWTXc=' 'sha256-AKMgdaSgzPhZrRBOdmYL8wEz0OJZVCge2WzBmjfbRlU=' https://cdn.jsdelivr.net/npm/dompurify@3.4.16/ https://unpkg.com/lightweight-charts@4.2.0/; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <link rel="preload" as="style" href="src/ui/styles/responsive.css">
   <script>/* v58.80 F01: the first screens' verdict reads data.json and history.json; both start here, before any stylesheet or script, and their loaders take them once (src/data/boot-prefetch.js). */(function(){try{var m=Math.floor(Date.now()/60000),p=window.__aioBootPrefetch={},go=function(k,u){p[k]={url:u,minute:m,at:Date.now(),res:fetch(u,{cache:'no-cache',priority:'high'})};p[k].res.catch(function(){});};go('data','./public-data/data.json?t='+m);go('history','./public-data/history.json');}catch(_){}})();</script>
@@ -10,7 +10,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v60.12 — 올인원 투자 터미널</title>
+  <title>AIO Screener v60.14 — 올인원 투자 터미널</title>
   <meta name="description" content="source-aware 시장 분석, 시장 환경 참고 지표, 섹터 로테이션, 포트폴리오 관리를 한 곳에서. AI 교육·리서치 보조를 제공하는 올인원 투자 터미널.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -3314,7 +3314,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
   <!-- F01: the produced verdict (build-scenario-state, same interpretation as the screen) paints both verdicts before the
        bundles run; each screen's own render (market-regime.js) replaces every field it sets. v59.51 (run-6 #19): it runs after
        this hero is parsed — inside the 오늘 hero it resolved before #regime-overall existed, so 시장 상태 read '판정 대기'. -->
-  <script>(window._aioTodayVerdict||Promise.resolve(null)).then(function(v){var t=document.getElementById('home-hero-total'),m=/^\d{4}-(\d\d)-(\d\d)$/.exec(v&&v.asOf||'');if(!v||!v.overall||!m||!t||t.textContent!=='판정 대기')return;t.textContent=v.overall;t.dataset.firstPaint=v.asOf;var d=document.getElementById('home-hero-desc'),h=document.getElementById('home-hero-headline'),k=document.getElementById('home-date-label'),r=document.getElementById('regime-overall');if(d&&!d.textContent)d.textContent=v.heroLine||'';if(h)h.textContent=v.holdReason||'';if(r&&r.textContent==='판정 대기')r.textContent=v.overall;if(k){var day='';try{day=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',weekday:'long'}).format(new Date())+', '}catch(e){}k.textContent=day+(+m[1])+'/'+(+m[2])+' 미국 종가 기준'}});</script>
+  <script>(window._aioTodayVerdict||Promise.resolve(null)).then(function(v){var t=document.getElementById('home-hero-total'),m=/^\d{4}-(\d\d)-(\d\d)$/.exec(v&&v.asOf||'');/* v60.14: a produced verdict more than five days behind today is not painted (a stalled producer left the old one up until the closes loaded). */if(!v||!v.overall||!m||!t||t.textContent!=='판정 대기'||Date.now()-Date.parse(v.asOf+'T21:00:00Z')>432e6)return;t.textContent=v.overall;t.dataset.firstPaint=v.asOf;var d=document.getElementById('home-hero-desc'),h=document.getElementById('home-hero-headline'),k=document.getElementById('home-date-label'),r=document.getElementById('regime-overall');if(d&&!d.textContent)d.textContent=v.heroLine||'';if(h)h.textContent=v.holdReason||'';if(r&&r.textContent==='판정 대기')r.textContent=v.overall;if(k){var day='';try{day=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',weekday:'long'}).format(new Date())+', '}catch(e){}k.textContent=day+(+m[1])+'/'+(+m[2])+' 미국 종가 기준'}});</script>
   <section class="sx-card mk-axes" aria-labelledby="regime-axes-title" data-master-detail=".mk-axis">
     <h2 class="sr-only" id="regime-axes-title">미국 시장 6개 지표</h2>
     <div class="mk-axes__head" aria-hidden="true"><span>지표</span><span>판정</span><span>현재값</span><span>기준까지</span><span>5거래일 전</span><span>5일 변화</span></div>
@@ -5225,12 +5225,12 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=60.12" defer></script>
-  <script src="./js/aio-kr-data.js?v=60.12" defer></script>
-  <script src="./js/aio-pages.js?v=60.12" defer></script>
-  <script src="./js/aio-core.js?v=60.12" defer></script>
-  <script src="./js/aio-data.js?v=60.12" defer></script>
-  <script src="./js/aio-ui.js?v=60.12" defer></script>
+  <script src="./js/aio-workspace.js?v=60.14" defer></script>
+  <script src="./js/aio-kr-data.js?v=60.14" defer></script>
+  <script src="./js/aio-pages.js?v=60.14" defer></script>
+  <script src="./js/aio-core.js?v=60.14" defer></script>
+  <script src="./js/aio-data.js?v=60.14" defer></script>
+  <script src="./js/aio-ui.js?v=60.14" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -5288,7 +5288,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--color-data-up)">빨강</span>·내리면 <span style="color:var(--color-data-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v60.12</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--color-data-up)">빨강</span>·내리면 <span style="color:var(--color-data-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v60.14</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

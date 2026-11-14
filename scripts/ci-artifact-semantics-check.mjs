@@ -525,12 +525,14 @@ for (const retired of ['public-data/knowledge/quantitative-labs.json', 'public-d
     const ismEvents = macroCalendar.events.filter((event) => /^us-ism-(mfg|svc)$/.test(event?.calendarId || ''));
     const fomcDates = [...new Set(fomcEvents.map((event) => event.date))].sort().join();
     check('P1731 FOMC events are official, carry a boolean SEP flag and match the published schedule',
-      fomcEvents.every((event) => event.source === 'fed-official' && typeof event.sep === 'boolean' && event.startDate < event.date)
+      fomcEvents.every((event) => event.source === 'fed-official' && (typeof event.sep === 'boolean' || event.sep === null) && event.startDate < event.date)
         && (fomcEvents.length === 0 || ((macroCalendar.schedules?.['us-fomc'] || []).join() === fomcDates && (macroCalendar.schedules?.['us-fed-rate'] || []).join() === fomcDates)),
       `events=${fomcEvents.length}`);
     const years = [...new Set(fomcEvents.map((event) => event.date.slice(0, 4)))];
-    check('P1731 every published FOMC year has 8 meetings with 4 SEP meetings',
-      years.every((year) => fomcEvents.filter((event) => event.date.startsWith(year)).length === 8 && fomcEvents.filter((event) => event.date.startsWith(year) && event.sep).length === 4),
+    // v60.14: a later year the Fed has dated but not yet marked carries sep null on every meeting.
+    const sepUnknown = (year) => year !== years[0] && fomcEvents.filter((event) => event.date.startsWith(year)).every((event) => event.sep === null);
+    check('P1731 every published FOMC year has 8 meetings with 4 SEP meetings (v60.14: or none marked yet, after the first year)',
+      years.every((year) => fomcEvents.filter((event) => event.date.startsWith(year)).length === 8 && (sepUnknown(year) || fomcEvents.filter((event) => event.date.startsWith(year) && event.sep === true).length === 4)),
       years.join(','));
     check('P1731 FOMC status is declared with its check time', ['ok', 'stale', 'unavailable'].includes(macroCalendar.meta?.fomcStatus)
       && (macroCalendar.meta?.fomcStatus === 'ok') === (macroCalendar.meta?.fomcReason == null), JSON.stringify(macroCalendar.meta));

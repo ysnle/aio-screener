@@ -79,11 +79,11 @@ export function parseFomcCalendarHtml(html) {
   return { years, skipped };
 }
 
-function validateFomcYear(year, meetings) {
+function validateFomcYear(year, meetings, { sepPending = false } = {}) {
   if (!Array.isArray(meetings)) return `${year}-missing`;
   if (meetings.length !== FOMC_MEETINGS_PER_YEAR) return `${year}-meeting-count:${meetings.length}`;
   const sepCount = meetings.filter((meeting) => meeting.sep).length;
-  if (sepCount !== FOMC_SEP_MEETINGS_PER_YEAR) return `${year}-sep-count:${sepCount}`;
+  if (sepCount !== FOMC_SEP_MEETINGS_PER_YEAR && !(sepPending && sepCount === 0)) return `${year}-sep-count:${sepCount}`;
   for (let i = 0; i < meetings.length; i++) {
     if (!meetings[i].date.startsWith(`${year}-`)) return `${year}-date-outside-year:${meetings[i].date}`;
     if (i && meetings[i].date <= meetings[i - 1].date) return `${year}-not-ascending:${meetings[i].date}`;
@@ -93,6 +93,9 @@ function validateFomcYear(year, meetings) {
 
 // The current year must parse to exactly 8 meetings (4 with SEP); the next year is optional (the Fed posts it
 // mid-year) but, when its panel exists, must pass the same test. Any anomaly fails the whole parse closed.
+// v60.14: the Fed posts next year's dates before it marks the projection meetings (2027 panel, 2026-11-12: eight
+// meetings, no mark). That panel is accepted with sep null (not yet known); rejecting it had also taken the valid
+// current year off the screen. One to three marks is still an anomaly.
 export function selectFomcMeetings(parsed, nowMs = Date.now()) {
   const currentYear = new Date(nowMs).getUTCFullYear();
   const years = parsed?.years || {};
@@ -100,13 +103,14 @@ export function selectFomcMeetings(parsed, nowMs = Date.now()) {
   if (currentReason) return { ok: false, reason: currentReason, events: [], years: [] };
   const published = [currentYear];
   if (years[currentYear + 1] !== undefined) {
-    const nextReason = validateFomcYear(currentYear + 1, years[currentYear + 1]);
+    const nextReason = validateFomcYear(currentYear + 1, years[currentYear + 1], { sepPending: true });
     if (nextReason) return { ok: false, reason: nextReason, events: [], years: [] };
     published.push(currentYear + 1);
   }
-  const events = published.flatMap((year) => years[year].map((meeting) => ({
-    calendarId: 'us-fomc', date: meeting.date, startDate: meeting.startDate, source: 'fed-official', sep: meeting.sep
-  })));
+  const events = published.flatMap((year) => {
+    const sepKnown = years[year].some((meeting) => meeting.sep);
+    return years[year].map((meeting) => ({ calendarId: 'us-fomc', date: meeting.date, startDate: meeting.startDate, source: 'fed-official', sep: sepKnown ? meeting.sep : null }));
+  });
   return { ok: true, reason: null, events, years: published };
 }
 

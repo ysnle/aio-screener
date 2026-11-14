@@ -1,7 +1,7 @@
 // The credit judgement, its sentence and what would flip it, for the surfaces that speak about the HY spread outside
 // the 시장 상태 axis (매크로 신용 장, 시장 이야기). Both load with their routes, so this stays out of the boot set.
 import { RULES } from '../rules/thresholds.js';
-import { oasDelta20Bp, hyWidening20Record, creditState, creditCause, creditReleaseText } from './market-read.js';
+import { oasDelta20Bp, hyWidening20Record, creditState, creditCause, creditReleaseText, creditDispersion } from './market-read.js';
 
 /**
  * The credit judgement from the published OAS history alone — the same
@@ -14,8 +14,9 @@ export function creditJudgement(macroHistory, through = null) {
   const record = hyWidening20Record(macroHistory, through);
   const hyBp = hy20.level * 100, hy5 = hy20.d5, hy20Bp = hy20.value;
   const hy20Stress = record ? !!record.stress : (hy20Bp != null && hy20Bp >= RULES.credit.widen20dBp && hy20Bp >= RULES.credit.stress20dMultiple * RULES.credit.widen20dBp);
-  const state = creditState({ hyBp, hy5, hy20: hy20Bp, hy20Stress });
-  return { state, cause: creditCause({ hyBp, hy5, hy20Record: hy20Stress ? { stress: true } : null }), hyBp, hy5, hy20: hy20Bp, record, date: hy20.date };
+  const lowerRated = creditDispersion(macroHistory, through)?.lowerRated === true;
+  const state = creditState({ hyBp, hy5, hy20: hy20Bp, hy20Stress, lowerRated });
+  return { state, lowerRated, cause: creditCause({ hyBp, hy5, hy20Record: hy20Stress ? { stress: true } : null }), hyBp, hy5, hy20: hy20Bp, record, date: hy20.date };
 }
 
 /**
@@ -43,7 +44,7 @@ export function creditReading(j, { cccTail = false, ccc20 = null, ig20 = null } 
     return `하이일드가 20거래일 ${move(j.hy20)} 벌어져 자체 기록에서 빠른 확대입니다. ${levelNote}${tail}${igCalm}`;
   }
   if (j.hy20 != null && j.hy20 >= C.widen20dBp) return `하이일드가 20거래일 ${move(j.hy20)} 벌어져 경계 쪽으로 움직이고 있습니다.${tail}`;
-  if (cccTail) return '전체 하이일드는 조용하지만 가장 약한 CCC 등급이 먼저 벌어지고 있습니다. 이 확대가 하이일드 전체로 번지는지가 다음 관찰점입니다.';
+  if (cccTail || j.lowerRated) return '전체 하이일드는 조용하지만 가장 약한 CCC 등급이 먼저 벌어지고 있습니다. 이 확대가 하이일드 전체로 번지는지가 다음 관찰점입니다.';
   return j.state === 'favorable' ? '주가가 움직여도 스프레드가 넓어지지 않아 신용 문제는 아닙니다.' : '스프레드 수준·방향이 경계선입니다.';
 }
 
@@ -54,5 +55,5 @@ export function creditFlip(j) {
   // The release legs are the axis's own (creditReleaseText): every leg still open, with the latch's +15bp five-session
   // leg only while the 20-session latch holds.
   if (j.state === 'burden') return `${creditReleaseText({ hyBp: j.hyBp, hy5: j.hy5, hy20: j.hy20, latched: !!j.cause?.wide20 }).replace(/ 중립$/, '')} 부담을 풉니다.`;
-  return `하이일드 ${C.stressAtBp / 100}% 이상, 5거래일 +${C.widen5dBp}bp, 20거래일 확대가 자체 기록 상위 ${100 - C.stress20dPct}% 중 하나면 부담으로 바꿉니다.`;
+  return `${j.lowerRated && j.state === 'neutral' ? `CCC와 하이일드의 60거래일 확대 차이가 ${C.cccGap60dBp}bp 미만으로 줄면 양호로, ` : ''}하이일드 ${C.stressAtBp / 100}% 이상, 5거래일 +${C.widen5dBp}bp, 20거래일 확대가 자체 기록 상위 ${100 - C.stress20dPct}% 중 하나면 부담으로 바꿉니다.`;
 }

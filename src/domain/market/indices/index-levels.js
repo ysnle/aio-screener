@@ -6,31 +6,17 @@
 // an index.
 import { readNumber } from '../../shared/number.js';
 import { withTopicParticle } from '../../content/korean-particle.js';
-import { historyFieldMeta } from './history-meta.js';
+import { buildCloseSeries } from '../session/close-series.js';
 
 export const LEVEL_FIELDS = Object.freeze([['ndx', '나스닥100'], ['soxx', '반도체(SOXX)'], ['spx', 'S&P 500']]);
 
-const weekday = (date) => { const day = new Date(`${date}T12:00:00Z`).getUTCDay(); return day >= 1 && day <= 5; };
 const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
 const pct = (value, base) => (value / base - 1) * 100;
 
 /**
- * One close per US session for `field`, keyed by the field's own session date: history rows are dated in KST, so the
- * 11/3 row carries the 11/2 US close (fieldMeta.<field>.sessionDate) and the 11/2 row still held the 10/30 one.
+ * One close per session for `field`: the shared completed-close series (session/close-series.js).
  */
-export function sessionCloses(history, field) {
-  const bySession = new Map();
-  for (const row of Array.isArray(history) ? history : []) {
-    const value = readNumber(row?.[field]);
-    const session = historyFieldMeta(row, field)?.sessionDate || row?.date;
-    if (!session || value === null || !weekday(session)) continue;
-    // A Sunday row is cut when currencies reopen (Sunday evening New York): its quote belongs to the new week, so it
-    // never replaces the Friday close already read (원/달러 5거래일 read -1.6% here and -2.1% in the close series).
-    if (bySession.has(session) && new Date(`${row.date}T12:00:00Z`).getUTCDay() === 0) continue;
-    bySession.set(session, { date: session, value });
-  }
-  return [...bySession.values()].sort((a, b) => a.date.localeCompare(b.date));
-}
+export const sessionCloses = (history, field) => buildCloseSeries(Array.isArray(history) ? history : [], field);
 
 function doubleTop(closes) {
   const recent = closes.slice(-252);

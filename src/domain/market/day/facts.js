@@ -8,6 +8,7 @@
 import { readNumber, surprisePct, stdev } from '../../shared/number.js';
 import { readRowNumber } from '../../../data/contracts/screener.js';
 import { sessionCloses } from '../indices/index-levels.js';
+import { median as medianOf } from '../../themes/theme-medians.js';
 import { closeSessionMarket } from '../session/close-series.js';
 import { countOpenSessionsBetween } from '../session/market-calendar.js';
 import { companyMatcher } from '../../briefing/news-picks.js';
@@ -133,8 +134,7 @@ function groupFacts(screener, universe, themes) {
   for (const group of groups) {
     const moves = group.members.map((sym) => [sym, retOf(sym)]).filter(([, ret]) => ret !== null);
     if (moves.length < 4) continue;
-    const sorted = moves.map(([, ret]) => ret).sort((a, b) => a - b);
-    const median = sorted[Math.floor(sorted.length / 2)];
+    const median = medianOf(moves.map(([, ret]) => ret));
     const same = moves.filter(([, ret]) => Math.sign(ret) === Math.sign(median)).length / moves.length;
     if (Math.abs(median) < 2 || same < 0.7) continue;
     const lead = [...moves].sort((a, b) => Math.sign(median) * (b[1] - a[1])).slice(0, 3);

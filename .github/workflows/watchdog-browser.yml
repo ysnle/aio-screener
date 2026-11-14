@@ -88,7 +88,7 @@ jobs:
           attempt=1
           while :; do
             git fetch --depth=1 origin main
-            git checkout -q -B repin FETCH_HEAD
+            git checkout -q -f -B repin FETCH_HEAD
             # Someone re-pinned main after this run started: their pin is newer than this run's data; keep it.
             if ! git show FETCH_HEAD:architecture/browser-data-fixture.json | cmp -s - "$RUNNER_TEMP/tested-pin.json"; then
               echo "main was re-pinned since $TESTED_SHA; leaving it."

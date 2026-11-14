@@ -380,6 +380,16 @@ if (requestedGroup) {
     .flatMap((rule) => rule.gates || []);
   if (impactedGateIds.length) changedGateIds = [...new Set([...changedGateIds, ...impactedGateIds])];
   selectedGroups = ['preflight', ...impacted];
+} else if (profile === 'data-commit') {
+  // v60.14: what a data producer runs before it pushes — the groups ci.yml will run on that commit (preflight plus the
+  // origin's contract groups, read from qa-pipeline.json originScopes), minus the ones the job already ran (--except).
+  // Bot data commits passed the data group and then failed CI on gates outside it (data-pipeline 11/12,
+  // metric-consistency 11/10), which stopped Pages for 14.7 h and 6.8 h until a person fixed main.
+  const origin = option('--origin');
+  const scope = manifest.originScopes?.[origin];
+  if (!Array.isArray(scope)) { console.error(`[qa] data-commit needs --origin <${Object.keys(manifest.originScopes || {}).join('|')}>`); process.exit(2); }
+  const except = String(option('--except') || '').split(',').filter(Boolean);
+  selectedGroups = ['preflight', ...scope].filter((group) => !except.includes(group));
 } else if (profile === 'rerun-failed') {
   // P1265/E2-C6 P0: rerun the EXACT failed batch. `failed-batch.json` preserves the
   // failure set even when an unrelated successful run overwrote last-run.json (the

@@ -200,7 +200,7 @@ try {
   if (!/dispatchEventBriefs\(\{ env, scheduledTime/.test(worker)) fail('v59.81 the scheduled handler does not dispatch event briefs');
 }
 
-// Screener dispatch: refresh-screener at 07:25Z/22:25Z only (backup after the 06:53/21:53 crons), body {ref} (no inputs), own KV dedupe key.
+// Screener dispatch: refresh-screener at 07:25Z/22:25Z (backup after the 06:53/21:53 crons) plus two hourly retry slots each (v60.14), body {ref, inputs.trigger=scheduler}, own KV dedupe key.
 {
   const { dispatchRefreshScreener, dispatchRefreshData, SCREENER_DISPATCH_POLICY } = await import('../worker/data-plane.js');
   const store = new Map();
@@ -218,7 +218,7 @@ try {
   const bodies = posts.map(call => call.init.body);
   if (offSlot.dispatched || offSlot.reason !== 'not-a-dispatch-slot' || !krSlot.dispatched || krRepeat.reason !== 'duplicate-slot' || !usSlot.dispatched
       || posts.length !== 2 || !posts.every(call => /\/actions\/workflows\/refresh-screener\.yml\/dispatches$/.test(call.url))
-      || !bodies.every(body => body === JSON.stringify({ ref: 'main' }))
+      || !bodies.every(body => body === JSON.stringify({ ref: 'main', inputs: { trigger: 'scheduler' } }))
       || !store.has(SCREENER_DISPATCH_POLICY.kvKey) || store.has('scheduler:dispatch') || SCREENER_DISPATCH_POLICY.kvKey === 'scheduler:dispatch'
       || !calls.every(call => call.init?.redirect === 'manual')) fail(`screener dispatch contract regressed: ${JSON.stringify({ offSlot, krSlot, krRepeat, usSlot, bodies })}`);
   // The backup slot skips when the post-close cron run already succeeded (within 30 min) and fires when it did not.
@@ -229,6 +229,44 @@ try {
   store.clear();
   const cronMissed = await dispatchRefreshScreener({ env, scheduledTime: Date.parse('2026-10-01T22:25:00Z'), fetchImpl: runsAt('2026-10-01T18:40:00Z') });
   if (cronRan.dispatched || cronRan.reason !== 'recent-success' || !cronMissed.dispatched) fail(`screener backup dispatch must skip an on-time cron run and cover a missed one: ${JSON.stringify({ cronRan, cronMissed })}`);
+  // v60.14: a refused run is retried at the next two hourly slots; a run that succeeded at the cron or the backup is not repeated.
+  const failedRun = async (url, init) => init.method === 'POST' ? new Response(null, { status: 204 })
+    : Response.json({ workflow_runs: [{ id: 11, head_branch: 'main', status: 'completed', conclusion: 'failure', updated_at: '2026-10-01T07:40:00Z' }] });
+  const retrySlots = [];
+  for (const slot of ['08:25', '09:25', '23:25']) { store.clear(); retrySlots.push(await dispatchRefreshScreener({ env, scheduledTime: Date.parse(`2026-10-01T${slot}:00Z`), fetchImpl: failedRun })); }
+  store.clear();
+  const nextDayRetry = await dispatchRefreshScreener({ env, scheduledTime: Date.parse('2026-10-02T00:25:00Z'), fetchImpl: failedRun });
+  const settled = [];
+  for (const [slot, doneAt] of [['08:25', '2026-10-01T07:10:00Z'], ['09:25', '2026-10-01T07:10:00Z'], ['09:25', '2026-10-01T07:45:00Z'], ['23:25', '2026-10-01T22:10:00Z']]) { store.clear(); settled.push(await dispatchRefreshScreener({ env, scheduledTime: Date.parse(`2026-10-01T${slot}:00Z`), fetchImpl: runsAt(doneAt) })); }
+  if (!retrySlots.every(row => row.dispatched) || !nextDayRetry.dispatched || !settled.every(row => !row.dispatched && row.reason === 'recent-success')) fail(`v60.14 screener retry slots must re-dispatch after a failed run and stay quiet after a successful one: ${JSON.stringify({ retrySlots, nextDayRetry, settled })}`);
+  {
+    const { dispatchWatchdog, WATCHDOG_DISPATCH_POLICY, FAST_PLANE_WRITE_POLICY: writes } = await import('../worker/data-plane.js');
+    // v60.14: every five-minute slot of a day, each with an empty store and no earlier run — the receipts the two
+    // receipt-keeping dispatchers write must equal the number the KV write budget is computed from.
+    let receipts = 0;
+    const kept = [...store];
+    const accept = async (url, init) => init.method === 'POST' ? new Response(null, { status: 204 }) : Response.json({ workflow_runs: [] });
+    for (let minute = 0; minute < 1440; minute += 5) {
+      const scheduledTime = Date.parse('2026-10-01T00:00:00Z') + minute * 60000;
+      for (const dispatch of [dispatchRefreshData, dispatchRefreshScreener]) { store.clear(); await dispatch({ env, scheduledTime, fetchImpl: accept }); receipts += store.size; }
+    }
+    store.clear();
+    for (const [key, value] of kept) store.set(key, value);
+    if (receipts !== writes.dispatchReceiptsPerDay) fail(`v60.14 dispatch slots per day (${receipts}) must equal the receipts in the KV write budget (${writes.dispatchReceiptsPerDay})`);
+    const seen = [];
+    const quiet = async (url, init) => { seen.push({ url, init }); return init.method === 'POST' ? new Response(null, { status: 204 }) : Response.json({ workflow_runs: [] }); };
+    const keysBefore = [...store.keys()].join();
+    const off = await dispatchWatchdog({ env, scheduledTime: Date.parse('2026-10-01T13:30:00Z'), fetchImpl: quiet });
+    const due = await dispatchWatchdog({ env, scheduledTime: Date.parse('2026-10-01T13:35:00Z'), fetchImpl: quiet });
+    const fresh = await dispatchWatchdog({ env, scheduledTime: Date.parse('2026-10-01T13:35:00Z'), fetchImpl: runsAt('2026-10-01T13:05:00Z') });
+    const posted = seen.filter(call => call.init.method === 'POST');
+    const worker = fs.readFileSync(path.resolve(root, 'worker/data-plane.js'), 'utf8');
+    const watchdogWorkflow = fs.readFileSync(path.resolve(root, '.github/workflows/data-watchdog.yml'), 'utf8');
+    if (off.dispatched || !due.dispatched || fresh.dispatched || fresh.reason !== 'recent-success' || posted.length !== 1
+        || !posted[0].url.endsWith('/actions/workflows/data-watchdog.yml/dispatches') || posted[0].init.body !== JSON.stringify({ ref: 'main' })
+        || [...store.keys()].join() !== keysBefore || WATCHDOG_DISPATCH_POLICY.kvKey !== null || !worker.includes('dispatchWatchdog({ env, scheduledTime') || !watchdogWorkflow.includes('workflow_dispatch:')
+        || writes.maxSuccessfulKvWritesPerDay > writes.warningDailyTarget) fail(`v60.14 hourly watchdog dispatch contract regressed: ${JSON.stringify({ off, due, fresh, posts: posted.length, kv: [...store.keys()], writes: writes.maxSuccessfulKvWritesPerDay })}`);
+  }
   {
     const health = await (await dataPlane.fetch(new Request('https://fast.example/health'), env)).json();
     const screener = health.schedulerDispatch?.screenerDispatch;

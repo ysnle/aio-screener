@@ -61,8 +61,8 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   };
   const fg = c.fg;
   const ratio = isUsable(ratioAlign) ? shown.ratio : null;
-  const { hyBp, hy5, hy20, pcr, hy20Stress } = c;
-  const credit_ = creditState({ hyBp, hy5, hy20, pcr, hy20Stress }); // v57.81: the same 20-session record test as the axis (v59.70: pcr is a verdict input only, never shown)
+  const { hyBp, hy5, hy20, pcr, hy20Stress, lowerRated } = c;
+  const credit_ = creditState({ hyBp, hy5, hy20, pcr, hy20Stress, lowerRated }); // v57.81: the same 20-session record test as the axis (v59.70: pcr is a verdict input only, never shown)
   const bear = isUsable(aaiiAlign) ? shown.bear : null;
   const bull = bear == null ? null : shown.bull;
   const judged = (value, state) => value == null ? (state === undefined ? null : EXCLUDED) : state;

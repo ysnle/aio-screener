@@ -28,18 +28,13 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 605,
-      "secondary": 186,
+      "total": 554,
+      "secondary": 136,
       "lines": [
         {
           "chars": 53,
           "classes": "home-ahead__why home-ahead__item home-ahead__list",
           "text": "의회 구성이 정해집니다. 결과 전에는 변동성이 커지기 쉽고, 결과 뒤 되돌림이 나오는지 봅니다."
-        },
-        {
-          "chars": 50,
-          "classes": "home-hero-basis home-hero-main sx-card sx-card--hero home-hero",
-          "text": "10/30 지수는 내렸지만, 판정은 하루 등락이 아닌 50일선·20거래일 흐름 기준입니다."
         },
         {
           "chars": 30,
@@ -77,18 +72,18 @@
       ]
     },
     "signal": {
-      "total": 997,
-      "secondary": 72,
+      "total": 980,
+      "secondary": 63,
       "lines": [
-        {
-          "chars": 22,
-          "classes": "is-favorable mk-tally__legend mk-tally",
-          "text": "양호 3(시장 폭·금리·신용과 위험선호)"
-        },
         {
           "chars": 21,
           "classes": "page-subtitle  page-head",
           "text": "10/30 미국 종가 기준, 6개 지표"
+        },
+        {
+          "chars": 13,
+          "classes": "is-favorable mk-tally__legend mk-tally",
+          "text": "양호 2(시장 폭·금리)"
         },
         {
           "chars": 13,
@@ -108,7 +103,7 @@
         {
           "chars": 4,
           "classes": "is-neutral mk-tally__legend mk-tally",
-          "text": "중립 2"
+          "text": "중립 3"
         }
       ],
       "frames": [
@@ -190,7 +185,7 @@
       "frames": []
     },
     "sentiment": {
-      "total": 1002,
+      "total": 999,
       "secondary": 165,
       "lines": [
         {
@@ -279,19 +274,19 @@
       "frames": []
     },
     "technical": {
-      "total": 184,
+      "total": 181,
       "secondary": 32,
       "lines": [
         {
           "chars": 32,
           "classes": "theme-strength-basis tech-regime-head aio-section tech-regime",
-          "text": "10/30 미국 종가 기준, 양호 3, 중립 2, 부담 1"
+          "text": "10/30 미국 종가 기준, 양호 2, 중립 3, 부담 1"
         }
       ],
       "frames": []
     },
     "macro": {
-      "total": 1274,
+      "total": 1319,
       "secondary": 181,
       "lines": [
         {
@@ -391,7 +386,7 @@
       "frames": []
     },
     "themes": {
-      "total": 891,
+      "total": 888,
       "secondary": 16,
       "lines": [
         {

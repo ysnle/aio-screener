@@ -35,6 +35,11 @@
       "external"
     ]
   },
+  "originScopes": {
+    "refresh-data": ["core", "data", "knowledge"],
+    "refresh-screener": ["core", "data"],
+    "event-briefs": ["core", "data"]
+  },
   "workflowContracts": [
     {
       "workflow": ".github/workflows/refresh-data.yml",

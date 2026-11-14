@@ -108,6 +108,10 @@ async function updateBacktestHistory(backtest) {
     const idx = hist.findIndex((h) => h && h.date === today);
     if (idx >= 0) hist[idx] = rec; else hist.push(rec);   // 같은 날 재실행 = upsert(최신 실행 우선)
     hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    // The file is keyed by run date; a weekend or pre-close run repeats the last evaluation, and that repeat is not a new
+    // observation (19 of 111 entries were such copies).
+    const evaluation = (row) => JSON.stringify([row?.modelFingerprint, row?.n, row?.dates, row?.ic, row?.quantileSpread]);
+    hist = hist.filter((row, index) => index === 0 || evaluation(row) !== evaluation(hist[index - 1]));
     if (hist.length > 180) hist = hist.slice(hist.length - 180);   // ~6개월 cap (일 단위)
     await atomicWriteFile(BACKTEST_HIST, JSON.stringify(hist));
     return { days: hist.length, today, upsert: idx >= 0 ? 'update' : 'append' };

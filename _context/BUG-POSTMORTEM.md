@@ -39,6 +39,126 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2417 - v60.14 - 뒤처진 빠른 시세가 더 새 스냅샷을 이김, 첫 화면 판정에 나이 확인 없음, 기록 재적재가 이전 주기 사본을 읽음 (2026-11-14)
+
+- symptom/reproduction: Worker 시세가 2시간 안이면 30분마다 갱신되는 스냅샷보다 오래돼도 그대로 쓰였다. 첫 화면이 먼저 그리는 today-verdict.json은 며칠 묵어도 종가가 로드될 때까지 그대로 보였다. 열어 둔 탭의 history.json 재적재는 CDN의 10분 사본을 받아 새 data.json과 주기가 어긋날 수 있었다.
+- root_cause: 빠른 시세는 나이 상한만 보고 스냅샷과 비교하지 않았다. 첫 화면 스크립트는 날짜 형식만 확인했다. history 주소에 주기 표식이 없었다.
+- fix: 빠른 시세가 10분 넘게 뒤처지면 스냅샷도 읽어 더 새 쪽을 쓴다. 판정 파일이 닷새 넘게 지났으면 그리지 않는다. history 재적재는 data.json 생성 시각을 주소에 실어(주기당 한 번 바뀜) 같은 주기 사본을 받고, 부팅 사본은 5분 안에만 쓴다.
+- violated_rule: 더 새 자료가 있으면 그것을 쓴다 — 묵은 사본은 조용히 이기지 않는다
+- prevention: ci-codex-structure-regression-fixture: 빠른 시세 3분/20분, 스냅샷 5분/40분 조합에서 고르는 쪽과 요청 수를 검사한다. 첫 화면 나이 조건과 history 주소 규칙을 고정한다.
+- verification/residual: node scripts/ci-codex-structure-regression-fixture.mjs && node scripts/ci-fast-plane-consumer-gate.mjs
+- files: src/data/market-snapshot-loader.js, index.html, js/aio-data.js
+
+## P2416 - v60.14 - 주도주 문장이 오른 수치를 이탈 이유로 말함, 한국 비교가 뒤에 열린 미국장을 직전이라 함 (2026-11-14)
+
+- symptom/reproduction: "반도체(SOXX)가 5거래일 +9.4%로 주도주 이탈 판정입니다" — 실제 이유는 50일선보다 13.1% 아래인 것이다. 확인 신호 문장은 "4개 중 1개로, 판정 기준 2개를 채웠습니다"였다. 코스피 11/13 종가를 같은 날짜의 S&P 500 종가(서울 마감 6시간 뒤)와 견주며 직전 미국장이라고 했다.
+- root_cause: 주도주 문장이 약세 조건 두 개(5거래일 낙폭, 50일선 아래) 중 어느 쪽인지 가리지 않고 5거래일 수치를 넣었다. 유지 중인 판정의 확인 개수 문장이 진입 때 문구를 그대로 썼다. 한국 비교는 미국 최신 종가를 날짜 순서 확인 없이 썼다.
+- fix: 약세를 만든 조건을 문장에 적고, 판정이 풀리는 SOXX 수준(50일선-2%)을 조건에 적는다. 유지 중일 때는 "기준 아래지만 유지"라고 쓴다. 한국 세션과 견주는 미국 종가는 그 세션 날짜보다 앞선 마지막 종가다.
+- violated_rule: 문장은 찍힌 수치와 같은 방향을 말한다 (plan 019)
+- prevention: ci-scenario-guidance-fixture · ci-regime-scenarios-fixture가 주도주 문장과 판정을 고정한다. 실제 11/13 자료로 문장을 확인했다.
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs && node scripts/ci-regime-scenarios-fixture.mjs
+- files: src/domain/briefing/market-read.js
+
+## P2415 - v60.14 - 연준 일정 자동 수집이 내년 칸 형식 때문에 올해 일정까지 내려감 (2026-11-14)
+
+- symptom/reproduction: macro-calendar.json의 fomcStatus가 11/13부터 stale(parse-rejected:2027-sep-count:0)이었다. 이 상태에서는 화면이 연준 공식 일정 대신 수동 목록으로 돌아간다. 연준 페이지(11/12 갱신)의 2027년 칸은 8회 회의를 싣되 경제전망 표시(*)가 아직 없고, 마지막 회의가 12/8이 아니라 11/16~17이다.
+- root_cause: 내년 칸의 어떤 이상이든 전체를 거부하는 규칙이라, 날짜는 공표됐지만 전망 표시가 아직 없는 정상 상태까지 거부했다.
+- fix: 내년 칸이 8회이고 전망 표시가 하나도 없으면 날짜를 받아들이고 전망 여부는 미정(null)으로 둔다. 표시가 일부만 있거나 회의 수가 다르면 지금처럼 거부한다. 올해 칸 기준은 그대로다.
+- violated_rule: 한 부분의 미정이 확정된 부분을 화면에서 내리면 안 된다
+- prevention: ci-data-pipeline-contract-check: 표시 없는 내년 칸은 날짜만 발행, 일부 표시·표시 없는 올해 칸은 거부. ci-artifact-semantics-check가 발행물에서 같은 규칙을 본다.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs && node scripts/ci-artifact-semantics-check.mjs
+- files: scripts/lib/official-calendars.mjs, scripts/ci-data-pipeline-contract-check.mjs, scripts/ci-artifact-semantics-check.mjs
+
+## P2414 - v60.14 - 운영 알림이 매번 물러남, 감시·스크리너가 GitHub 예약에만 의존 (2026-11-14)
+
+- symptom/reproduction: 운영 알림 워크플로 최근 60회가 모두 "더 새 실행이 있다"며 물러났다. 데이터 감시는 GitHub 예약 168칸 중 26칸만 실행돼 11/11~11/12 14.7시간 정지 동안 두 번만 돌았다. 검증에서 거부된 스크리너 실행은 다음 예약(6시간 뒤)까지 재시도가 없어 22~23시간 공백이 두 번 생겼다.
+- root_cause: 알림이 실행 목록을 updated_at으로 정렬해, 알림 자신이 끝나는 동안 갱신된 다른 실행이 항상 더 새것으로 보였다. 감시와 스크리너 재시도는 GitHub 예약(최선 노력)에만 걸려 있었다.
+- fix: 알림은 시작 시각으로 정렬하고, 다시 열렸거나 서명이 바뀐 때만 댓글을 단다. 연간 거래소 달력 점검도 감시 대상에 넣었다. Worker 5분 cron이 매시 35분에 데이터 감시를 디스패치하고(최근 50분 안에 성공이 없을 때), 스크리너는 백업 뒤 두 시간 동안 매시 재시도 칸(08:25·09:25, 23:25·00:25 UTC)을 갖는다(최근 150분 안에 성공이 있으면 건너뜀). 스크리너 디스패치는 trigger=scheduler를 실어 SLO가 예약 실행으로 센다.
+- violated_rule: 자동화는 스스로 회복해야 한다 — 감시가 장애와 함께 조용해지면 안 된다
+- prevention: ci-data-plane-contract-check: 실패 뒤 재시도 칸이 디스패치하고 성공 뒤에는 조용한지, 감시 디스패치가 KV 기록 없이 한 번만 가는지, 하루 288칸 전수에서 영수증 수가 KV 쓰기 예산과 같은지 검사한다.
+- verification/residual: node scripts/ci-data-plane-contract-check.mjs && node scripts/ci-operations-alert-policy-check.mjs
+- files: .github/workflows/operations-alert.yml, worker/data-plane.js, .github/workflows/refresh-screener.yml, scripts/ci-data-plane-contract-check.mjs
+
+## P2413 - v60.14 - 데이터 커밋이 생산자 게이트를 통과한 뒤 CI에서 거부되어 배포가 멈춤 (2026-11-14)
+
+- symptom/reproduction: 11/10·11/12에 봇 데이터 커밋이 main에 올라간 뒤 CI의 다른 그룹 게이트(data-pipeline, metric-consistency)에서 실패했다. 이후 갱신 실행의 converge가 UNATTESTED_REVISION으로 계속 실패해 Pages가 14.7시간, 6.8시간 멈췄다. 최근 스크리너 실패 12건 중 7건, 시장 데이터 실패 8건 전부가 이 유형이다.
+- root_cause: 생산자는 push 전에 data 그룹(또는 손으로 고른 목록)만 돌리고, CI는 같은 커밋에 preflight·core·data(·knowledge)를 돌린다. 두 집합이 달라 생산자가 통과시킨 커밋을 CI가 거부할 수 있었다.
+- fix: qa-runner에 data-commit 프로필을 넣었다. origin별 CI 그룹을 architecture/qa-pipeline.json originScopes 한 곳에 두고, refresh-data와 refresh-screener가 push 전에 그 그룹을 CI와 같은 판정 기준(AIO_QA_ORIGIN=ci)으로 돌린다. 로컬 실측 93개 게이트 125초.
+- violated_rule: 생산자 게이트와 CI 게이트는 같은 집합이어야 한다 (failure-ledger: 원인 클래스를 게이트로 닫는다)
+- prevention: ci-qa-pipeline-contract-check: originScopes가 ci.yml 범위 단계와 같고, 두 생산자가 후보 기록 전에 자기 origin 프로필을 부르지 않으면 실패한다.
+- verification/residual: node scripts/ci-qa-pipeline-contract-check.mjs && node scripts/qa-runner.mjs data-commit --origin refresh-data --except data --no-cache
+- files: scripts/qa-runner.mjs, architecture/qa-pipeline.json, .github/workflows/refresh-data.yml, .github/workflows/refresh-screener.yml, scripts/ci-qa-pipeline-contract-check.mjs
+
+## P2412 - v60.13 - 합성 자료의 날짜·정밀도: 한국 테마 기록 하루 밀림, 백테스트 기록 중복·잔존, 1달러 미만 종목 수익률 양자화, 짝수 중앙값 (2026-11-14)
+
+- symptom/reproduction: 시나리오 상태의 한국 테마 기록이 미국 기준일로 적혀 한국 11/13이 두 번, 11/12는 없음. 팩터 검증 기록 111건 중 19건이 직전 평가의 복사본. 점수 백테스트 파일에 주말·휴장일 기록 30건 잔존. 0.18달러 종목의 5일 수익률이 -35처럼 정수로 떨어짐. 시장 하루 기록의 그룹 중앙값이 짝수 개일 때 위쪽 값.
+- root_cause: 기록 키가 평가된 거래일이 아니라 실행 날짜·다른 시장의 날짜였고, 일봉 종가를 소수 둘째 자리로 반올림했으며, 중앙값을 자체 계산했다.
+- fix: 테마 기록은 시장별 기준일에 적는다. 직전과 같은 평가는 새 날짜로 추가하지 않는다. 재계산 범위 안의 옛 기록은 재계산 결과로 대체한다. 10 미만 가격은 소수 넷째 자리까지 둔다. 공용 median을 쓴다.
+- violated_rule: 기록의 날짜는 그 값이 속한 거래일이다
+- prevention: ci-esm-core-unit-check: 가격 크기에 따른 자릿수(0.18449→0.1845, 152.337→152.34).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+- files: scripts/build-scenario-state.mjs, scripts/producer/screener.mjs, scripts/backtest-trading-score.mjs, src/domain/screener/price-factors.js, src/domain/market/day/facts.js
+
+## P2411 - v60.13 - 감시 워크플로 오탐: 응답하는 연준 피드를 죽은 피드로, 재고정 checkout 충돌, 확장 검증기의 조건부 열, 거래소 달력 연간 점검 (2026-11-14)
+
+- symptom/reproduction: 연준 피드가 20건을 정상 응답했는데 15회 연속 감시 실패(11/10~11/11). 브라우저 감시의 재고정 단계가 자기 고정 파일과 충돌해 실패(11/11). 확장 스크리너 검증이 partialSessionDropped 열 때문에 실패(11/11). 거래소 달력 연간 점검의 이슈 작업이 "not a git repository"로 실패(11/1).
+- root_cause: 조용한 공식 피드 유예가 status no-current에만 적용돼, 창 안 기사 1건이 주제 필터에 걸린 status ok 경우는 빠졌다. checkout이 작업 트리의 고정 파일을 덮지 못했다. 확장 검증기는 허용 열을 그때그때 핵심 행에 있는 열로 정해 실행 시각에 따라 달라졌다. 이슈 작업은 checkout 없이 gh를 불렀다.
+- fix: 응답하고 파싱되는 피드는 상태와 무관하게 유예를 받는다. checkout에 -f(고정 파일은 이미 임시 경로에 복사됨). 조건부 열 목록을 price-factors에 선언하고 검증기가 읽는다. 이슈 작업에 GH_REPO를 준다.
+- violated_rule: 게이트는 대상이 실제로 고장 났을 때만 실패한다 (실패 원장 우선)
+- prevention: ci-codex-structure-regression-fixture: 11/10 연준 행이 죽은 피드로 나오면 실패, 조건부 열 선언 확인.
+- verification/residual: node scripts/ci-codex-structure-regression-fixture.mjs && node scripts/ci-control-char-check.mjs
+- files: scripts/lib/news-selection.mjs, .github/workflows/watchdog-browser.yml, .github/workflows/exchange-calendar-review.yml, scripts/lib/screener-extended-validate.mjs, src/domain/screener/price-factors.js, scripts/validate-screener-artifact.mjs
+
+## P2410 - v60.13 - 공유 자료 재적재가 CDN의 이전 주기 사본을 받아 최신으로 취급 (2026-11-14)
+
+- symptom/reproduction: data.json은 새 주기인데 매크로 기록·시장 하루 기록·시나리오 상태 등은 10분 CDN 사본(이전 주기)을 받아 최대 60분 동안 최신으로 쓰였다. 기기 시계가 빠르면 재적재가 아예 일어나지 않았다.
+- root_cause: shared-artifacts.js가 재적재 때 분 단위 토큰을 붙이지 않았고, 받은 사본이 더 오래됐는지 보지 않았으며, 서버 생성 시각과 기기 시계를 직접 비교했다.
+- fix: 사본은 받은 시점의 data.json 생성 주기에 묶는다(주기가 바뀌면 다시 받음). 재적재는 data.json과 같은 분 토큰으로 원본을 읽고, 가진 것보다 오래된 사본은 받지 않는다.
+- violated_rule: 한 화면의 자료는 같은 주기에서 온다
+- prevention: ci-codex-structure-regression-fixture: 시계가 어긋나도 주기가 바뀌면 재적재, 재적재 주소의 토큰, 오래된 사본 거부.
+- verification/residual: node scripts/ci-codex-structure-regression-fixture.mjs
+- files: src/data/shared-artifacts.js
+
+## P2409 - v60.13 - 원천 실패가 정상처럼 기록됨: 국채 곡선 전월 자료, 상장 목록 CIK 전부 비움 (2026-11-14)
+
+- symptom/reproduction: 이번 달 국채 곡선 요청이 실패하면 지난달 마지막 곡선이 상태 ok로 기록돼 12시간 동안 다시 받지 않았다. SEC CIK 조인이 실패하면 상장 목록 전체의 CIK가 null로 발행되고 20시간 동안 재시도하지 않았다.
+- root_cause: 두 생산자 모두 부분 실패를 성공과 구분하지 않았다(빈 응답을 삼키고 남은 자료만으로 ok, 실패한 조인 결과로 덮어쓰기).
+- fix: 이번 달 요청이 실패하면 상태를 stale로 두고(다음 주기 재시도) 기존 값과 전월 값 중 최신을 유지한다. CIK 조인이 실패하면 이전 파일의 CIK를 종목별로 유지하고 다음 실행에서 바로 재시도한다.
+- violated_rule: 부분 실패는 마지막 정상 값을 지우거나 성공으로 표기하지 않는다 (P2143 계열)
+- prevention: 전용 게이트 없음 — 생산자별 실패 주입 검사는 제안 항목으로 남겼다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs
+- files: scripts/lib/macro-sources.mjs, scripts/build-us-listings.mjs
+
+## P2408 - v60.13 - history: 보류 세션 복구 목록에서 sox·skew·vix3m·vvix·move 빠짐, 묵은 Fear & Greed와 이전 스냅샷의 세션 표기 (2026-11-14)
+
+- symptom/reproduction: 11/13 행의 sox·skew가 11/12 값으로 남고 실제 11/13 종가는 11/14 행에만 있었다. 수집이 실패해 직전 값을 물려받은 Fear & Greed가 그날의 새 관측처럼 기록될 수 있었고, 스냅샷 발행이 막힌 주기에는 이전 스냅샷의 세션 표기가 새 시세에 붙었다.
+- root_cause: US_SESSION_HISTORY_FIELDS를 손으로 관리해 새 열이 빠졌다. fg 기록은 수집 상태(stale-reference)를 보지 않았고, 세션 표기는 스냅샷 행이 같은 관측인지 확인하지 않았다.
+- fix: 복구 대상 열을 열 목록에서 파생한다(한국·환율·BTC만 제외). fg는 이번 주기에 수집된 값만 쓴다. 스냅샷 세션 표기는 관측 시각이 같을 때만 쓰고 아니면 다시 판정한다.
+- violated_rule: 손으로 관리하는 병렬 목록 금지 — 정본에서 파생
+- prevention: ci-codex-structure-regression-fixture가 sox·skew·vix3m·vvix·move 포함과 한국·환율·BTC 제외를 확인한다.
+- verification/residual: node scripts/ci-codex-structure-regression-fixture.mjs && node scripts/ci-history-session-model-check.mjs
+- files: scripts/producer/history.mjs
+
+## P2407 - v60.13 - 종가 읽기 두 벌: 휴장일이 0% 거래일로, 주말 사본이 금요일 종가를 덮음 (2026-11-14)
+
+- symptom/reproduction: 지수 수준·시장 하루 기록·연결 읽기가 쓰는 sessionCloses가 휴장일(6/19, 7/3, 9/7 등)을 변동 0인 거래일로 세고, 토요일 사본 값으로 금요일 종가를 바꿨다(EUR/USD 11/6 1.1143, 제공처 일봉 1.1228; 브렌트 10/23 111.70, 일봉 116.72).
+- root_cause: index-levels.js가 공용 종가 계열(close-series.js buildCloseSeries)과 별도로 자체 읽기 함수를 갖고 있었고, 이어받은 값(carried-forward)과 거래소 달력을 보지 않았다.
+- fix: sessionCloses가 buildCloseSeries를 그대로 쓴다. 종가 읽기는 한 곳이다.
+- violated_rule: 같은 수치는 한 계산기에서 읽는다 (AGENTS 단일 출처)
+- prevention: ci-codex-structure-regression-fixture: 휴장일 사본·주말 사본이 종가로 읽히면 실패한다.
+- verification/residual: node scripts/ci-codex-structure-regression-fixture.mjs
+- files: src/domain/market/indices/index-levels.js
+
+## P2406 - v60.13 - 판정 문장·입력이 수치와 어긋남: 하이일드 주간 변화 두 정의, 실질금리 분해 버림, 유가·달러·금리 문장, 이야기 카드 표시 (2026-11-14)
+
+- symptom/reproduction: 하이일드 5거래일 변화가 경로에 따라 -12bp와 -28bp. 실질금리와 기대인플레이션 기준일이 하루 다르면 분해를 통째로 비움(11/12 주 상승은 전부 실질금리였는데 표시 없음). WTI 20일 -12.7%인데 "유가·달러가 중립 범위". 10년물이 한 주에 +29bp인데 "뚜렷한 방향 없이". "AI 수익성 의구심 — 지표가 뒷받침"이 반대 시나리오(성장 재가속) 덕에 붙음. 근원 CPI가 발표됐는데 "근원 PCE만 공개".
+- root_cause: 같은 개념을 두 경로가 따로 계산했고(관측 5개 전과 5거래일 전), 문장이 판정을 만든 조건을 읽지 않고 고정 문구를 썼다.
+- fix: 주간 변화는 20거래일 변화와 같은 계열·같은 정의로 읽는다. 분해는 두 계열의 공통 최신일에서 계산한다. 유가·달러 문장은 양호를 막은 쪽을 적고, 금리 문장은 주간 급변이 있으면 방향 없음이라 하지 않는다. 카드 표시에 어느 시나리오의 평가인지 적는다. 문구를 "만 비교 가능"으로 고쳤다. 판정 임계값은 그대로다.
+- violated_rule: 문장은 찍힌 수치와 같은 방향을 말한다 (plan 019)
+- prevention: ci-codex-structure-regression-fixture: 공통일 분해 계산과 기준일 불일치 처리.
+- verification/residual: node scripts/ci-codex-structure-regression-fixture.mjs && node scripts/ci-regime-scenarios-fixture.mjs
+- files: src/domain/briefing/market-read.js, src/domain/narrative/narrative-cards.js, src/domain/market/regime/macro-crossroads.js, src/domain/macro/krw-decomposition.js
+
 ## P2405 - v60.07 - 0으로 반올림되는 값에 부호와 등락 색이 붙음 (2026-11-14)
 
 - symptom/reproduction: 포트폴리오 손익이 '+$0'(상승색)이나 '-$0'(하락색)으로, 관심 종목 등락이 '+0.00%'로, 심리·매크로·종목 문장에 '+0', '+0bp', '-0.0%'가 찍힐 수 있었다. 값은 '0.0%'인데 색만 상승·하락인 칸도 있었다.

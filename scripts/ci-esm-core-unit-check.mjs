@@ -7278,12 +7278,16 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const { dailyRowsFromYahooChart } = await load('src/domain/screener/price-factors.js');
   const fxBar = { timestamp: [1783897200], indicators: { quote: [{ close: [1.15437], open: [1.15], high: [1.16], low: [1.14], volume: [0] }] }, meta: {} };
   const { barSessionDateForField } = await load('src/domain/market/session/history-session.js');
-  if (dailyRowsFromYahooChart(fxBar, { closeDigits: 4 })[0]?.close !== 1.1544 || dailyRowsFromYahooChart(fxBar)[0]?.close !== 1.15
+  if (dailyRowsFromYahooChart(fxBar, { closeDigits: 4 })[0]?.close !== 1.1544 || dailyRowsFromYahooChart(fxBar, { closeDigits: 2 })[0]?.close !== 1.15
     || barSessionDateForField('eurusd', '2026-07-12T23:00:00Z') !== '2026-07-13') fail('v59.75 fold currency history keeps four places and its London session day');
   // v59.94: high, low and adjusted close keep the close's digits, so a four-place FX bar never reads a high below its close.
   const fxBar4 = { timestamp: [1783897200], indicators: { quote: [{ close: [1.15444], open: [1.15], high: [1.15991], low: [1.15012], volume: [0] }], adjclose: [{ adjclose: [1.15444] }] }, meta: {} };
   const fxRow4 = dailyRowsFromYahooChart(fxBar4, { closeDigits: 4 })[0];
-  const fxRow2 = dailyRowsFromYahooChart(fxBar4)[0];
+  const fxRow2 = dailyRowsFromYahooChart(fxBar4, { closeDigits: 2 })[0];
+  // v60.13: without closeDigits a price under 10 keeps four places (a $0.18 listing read whole-number % returns), the rest two.
+  const pennyBar = { timestamp: [1783897200, 1783983600], indicators: { quote: [{ close: [0.18449, 152.337], high: [0.19, 153], low: [0.18, 151], volume: [1, 1] }] }, meta: {} };
+  const pennyRows = dailyRowsFromYahooChart(pennyBar);
+  if (pennyRows[0]?.close !== 0.1845 || pennyRows[1]?.close !== 152.34) fail(`v60.13 default bar digits follow the price: ${JSON.stringify(pennyRows.map((row) => row.close))}`);
   if (fxRow4?.close !== 1.1544 || fxRow4.high !== 1.1599 || fxRow4.low !== 1.1501 || fxRow4.adjClose !== 1.1544 || !(fxRow4.high >= fxRow4.close && fxRow4.close >= fxRow4.low)
     || fxRow2?.close !== 1.15 || fxRow2.high !== 1.16 || fxRow2.low !== 1.15 || fxRow2.adjClose !== 1.15) fail(`v59.94 daily bar high/low/adjClose keep the close digits: ${JSON.stringify({ fxRow4, fxRow2 })}`);
   // v59.94: repeated stale snapshot applies keep one waiting listener pair and one fallback timer for the stale banner.
