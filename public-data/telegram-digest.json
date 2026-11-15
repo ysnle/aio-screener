@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-15T14:51:25.933Z",
-  "attemptedAt": "2026-11-15T14:51:25.933Z",
-  "lastSuccessfulAt": "2026-11-15T14:51:25.933Z",
+  "generatedAt": "2026-11-15T14:56:33.867Z",
+  "attemptedAt": "2026-11-15T14:56:33.867Z",
+  "lastSuccessfulAt": "2026-11-15T14:56:33.867Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-01T14:51:20.723Z",
-  "until": "2026-11-15T14:51:20.723Z",
+  "since": "2026-11-01T14:56:28.623Z",
+  "until": "2026-11-15T14:56:28.623Z",
   "current24hWindow": {
     "start": "2026-11-13T23:00:00.000Z",
     "end": "2026-11-14T23:00:00.000Z",
@@ -82,11 +82,11 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1251,
-      "freshCount": 30,
+      "freshCount": 14,
       "eligibleTextCount": 1196,
       "selectedCount": 125,
       "error": null,
@@ -138,7 +138,7 @@
     }
   ],
   "count": 2195,
-  "retainedItemCount": 413,
+  "retainedItemCount": 400,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -1940,13 +1940,13 @@
         "semi",
         "power"
       ],
-      "lead": 2,
       "score": 59,
       "hasText": true,
+      "summary": "월스트리트저널(WSJ)에 따르면 동남아시아 전역의 대규모 데이터센터들이 미국의 수출 통제 허점을 활용해 중국 기업들에 엔비디아 기반 컴퓨팅 자원에 대한 접근을 제공한 것으로 나타남. 일부 데이터센터는 반도체...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "월스트리트저널(WSJ)에 따르면 동남아시아 전역의 대규모 데이터센터들이 미국의 수출 통제 허점을 활용해 중국 기업들에 엔비디아 기반 컴퓨팅 자원에 대한 접근을 제공한 것으로 나타남. 일부 데이터센터는 반도체..."
+      ]
     },
     {
       "id": "insidertracking/69311",
@@ -1957,7 +1957,6 @@
       "tags": [
         "macro",
         "semi",
-        "power",
         "earnings"
       ],
       "score": 81,
@@ -1968,10 +1967,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 16일~20일 미국 증시 주간 브리핑 이번 주 미국 증시는 연방공개시장위원회(FOMC) 회의록, 10월 소매판매, 엔비디아 실적을 중심으로 금리 전망과 AI 투자 수요를 재평가하는 구간....",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "2026년 11월 16일~20일 미국 증시 주간 브리핑 이번 주 미국 증시는 연방공개시장위원회(FOMC) 회의록, 10월 소매판매, 엔비디아 실적을 중심으로 금리 전망과 AI 투자 수요를 재평가하는 구간...."
+      ]
     },
     {
       "id": "HANAchina/72145",
@@ -2022,10 +2021,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도는 엔비디아, 비트코인에 집중",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 레딧 관심도는 엔비디아, 비트코인에 집중"
+      ]
     },
     {
       "id": "HANAchina/72141",
