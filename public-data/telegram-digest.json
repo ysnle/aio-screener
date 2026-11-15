@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-15T09:22:02.394Z",
-  "attemptedAt": "2026-11-15T09:22:02.394Z",
-  "lastSuccessfulAt": "2026-11-15T09:22:02.394Z",
+  "generatedAt": "2026-11-15T10:21:43.085Z",
+  "attemptedAt": "2026-11-15T10:21:43.085Z",
+  "lastSuccessfulAt": "2026-11-15T10:21:43.085Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-01T09:21:56.581Z",
-  "until": "2026-11-15T09:21:56.581Z",
+  "since": "2026-11-01T10:21:36.965Z",
+  "until": "2026-11-15T10:21:36.965Z",
   "current24hWindow": {
     "start": "2026-11-13T23:00:00.000Z",
     "end": "2026-11-14T23:00:00.000Z",
@@ -89,11 +89,11 @@
     },
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1255,
-      "freshCount": 26,
+      "freshCount": 14,
       "eligibleTextCount": 1199,
       "selectedCount": 125,
       "error": null,
@@ -116,23 +116,23 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 719,
+      "count": 720,
       "freshCount": 35,
-      "eligibleTextCount": 719,
+      "eligibleTextCount": 720,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 72158
+      "lastPostId": 72159
     }
   ],
-  "count": 2200,
-  "retainedItemCount": 422,
+  "count": 2201,
+  "retainedItemCount": 410,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2200,
-    "eligibleTextCount": 2144,
+    "observedCount": 2201,
+    "eligibleTextCount": 2145,
     "mediaOnlyCount": 56,
     "mediaAttachedCount": 944,
     "photoPostCount": 808,
@@ -143,10 +143,11 @@
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
     "selectedRawCoveragePct": 17.4,
-    "selectedOfObservedPct": 17,
+    "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 780,
     "semi": 558,
     "earnings": 325,
     "geo": 346,
@@ -155,7 +156,6 @@
     "japan": 68,
     "flows": 57,
     "healthcare": 57,
-    "market-note": 779,
     "macro": 312,
     "credit": 78,
     "power": 279,
@@ -254,7 +254,7 @@
     "6981.T": 1
   },
   "themes": [
-    "Market Notes (779 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
+    "Market Notes (780 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
     "Semiconductors/Memory (558 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
     "Geopolitics (346 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Earnings/Corporate (325 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의 개최. 미·중·러 정상 간 회동 여부가 최대 관심사. 중국 외교부는 3국 정상회동과 관련해 관련국과 소통...",
@@ -467,7 +467,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 779,
+      "count": 780,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     }
   ],
@@ -1872,7 +1872,6 @@
       "tags": [
         "macro",
         "semi",
-        "power",
         "earnings"
       ],
       "score": 81,
@@ -1883,10 +1882,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 16일~20일 미국 증시 주간 브리핑 이번 주 미국 증시는 연방공개시장위원회(FOMC) 회의록, 10월 소매판매, 엔비디아 실적을 중심으로 금리 전망과 AI 투자 수요를 재평가하는 구간....",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "2026년 11월 16일~20일 미국 증시 주간 브리핑 이번 주 미국 증시는 연방공개시장위원회(FOMC) 회의록, 10월 소매판매, 엔비디아 실적을 중심으로 금리 전망과 AI 투자 수요를 재평가하는 구간...."
+      ]
     },
     {
       "id": "HANAchina/72145",
@@ -1937,10 +1936,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도는 엔비디아, 비트코인에 집중",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 레딧 관심도는 엔비디아, 비트코인에 집중"
+      ]
     },
     {
       "id": "HANAchina/72141",
