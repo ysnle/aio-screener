@@ -1,0 +1,3275 @@
+{
+  "schemaVersion": "market-lean-risk.v1",
+  "generatedAt": "2026-11-15T13:06:56.661Z",
+  "criterion": "architecture/validation-gate-criteria.json#marketLeanRisk (declared before the first run)",
+  "methodology": {
+    "ruleVersion": "market-lean.v1",
+    "leanRules": {
+      "horizon": 21,
+      "minVoteN": 30,
+      "minRateN": 10,
+      "minEdgePp": 5,
+      "seMultiple": 1.5,
+      "conditionGap": 2
+    },
+    "interval": {
+      "method": "moving-block bootstrap over the held-out daily series",
+      "blockSessions": 63,
+      "resamples": 2000,
+      "seed": 20261115,
+      "level": 0.95
+    },
+    "window": 420,
+    "primary": {
+      "horizon": 21,
+      "drawdownPct": -5,
+      "lowBurden": 0,
+      "highBurdenMin": 2
+    },
+    "split": {
+      "heldOutFraction": 0.3333,
+      "embargoSessions": 21,
+      "heldOutFrom": "2020-08-03",
+      "halfBFrom": "2014-05-09"
+    }
+  },
+  "span": {
+    "from": "2008-03-17",
+    "to": "2026-11-13",
+    "sessions": 4697,
+    "heldOutFrom": "2020-08-03",
+    "halfBFrom": "2014-05-09",
+    "window": 420
+  },
+  "latestReading": {
+    "date": "2026-11-13",
+    "states": {
+      "trend": "burden",
+      "breadth": "unknown",
+      "volatility": "neutral",
+      "rates": "burden",
+      "credit": "favorable",
+      "commodities": "neutral"
+    },
+    "burden": 2,
+    "favourable": 1
+  },
+  "verdict": {
+    "pass": false,
+    "checks": {
+      "heldOutCases": {
+        "high": 48,
+        "low": 41,
+        "ok": true
+      },
+      "heldOutLowerAboveZero": {
+        "ci": [
+          -1.31,
+          23.9
+        ],
+        "ok": false
+      },
+      "firstTwoThirdsPositive": {
+        "point": 17.6,
+        "ok": true
+      },
+      "halfAPositive": {
+        "point": 19.88,
+        "ok": true
+      },
+      "halfBPositive": {
+        "point": 9.06,
+        "ok": true
+      }
+    }
+  },
+  "horizons": {
+    "h5": {
+      "all": {
+        "from": "2008-03-17",
+        "to": "2026-11-06",
+        "burden": {
+          "base": {
+            "days": 4692,
+            "cases": 939,
+            "evidence": "사례 939개",
+            "rvMedian": 12.17,
+            "mddMedian": -0.53,
+            "pDD5": 4.01,
+            "pDD8": 1.24,
+            "ret5th": -3.79,
+            "retMean": 0.22,
+            "retMedian": 0.39
+          },
+          "low": {
+            "days": 1604,
+            "cases": 393,
+            "evidence": "사례 393개",
+            "rvMedian": 9.16,
+            "mddMedian": -0.4,
+            "pDD5": 1.06,
+            "pDD8": 0.25,
+            "ret5th": -2.84,
+            "retMean": 0.11,
+            "retMedian": 0.31
+          },
+          "mid": {
+            "days": 1359,
+            "cases": 398,
+            "evidence": "사례 398개",
+            "rvMedian": 10.84,
+            "mddMedian": -0.4,
+            "pDD5": 1.32,
+            "pDD8": 0.37,
+            "ret5th": -2.93,
+            "retMean": 0.33,
+            "retMedian": 0.49
+          },
+          "high": {
+            "days": 1729,
+            "cases": 420,
+            "evidence": "사례 420개",
+            "rvMedian": 17.74,
+            "mddMedian": -0.92,
+            "pDD5": 8.85,
+            "pDD8": 2.83,
+            "ret5th": -5.12,
+            "retMean": 0.23,
+            "retMedian": 0.41
+          }
+        },
+        "net": {
+          "base": {
+            "days": 4692,
+            "cases": 939,
+            "evidence": "사례 939개",
+            "rvMedian": 12.17,
+            "mddMedian": -0.53,
+            "pDD5": 4.01,
+            "pDD8": 1.24,
+            "ret5th": -3.79,
+            "retMean": 0.22,
+            "retMedian": 0.39
+          },
+          "net>=+1": {
+            "days": 2031,
+            "cases": 495,
+            "evidence": "사례 495개",
+            "rvMedian": 8.73,
+            "mddMedian": -0.38,
+            "pDD5": 0.94,
+            "pDD8": 0.25,
+            "ret5th": -2.56,
+            "retMean": 0.12,
+            "retMedian": 0.28
+          },
+          "net0": {
+            "days": 893,
+            "cases": 336,
+            "evidence": "사례 336개",
+            "rvMedian": 11.58,
+            "mddMedian": -0.48,
+            "pDD5": 1.57,
+            "pDD8": 0.34,
+            "ret5th": -3.37,
+            "retMean": 0.22,
+            "retMedian": 0.39
+          },
+          "net<=-1": {
+            "days": 1768,
+            "cases": 435,
+            "evidence": "사례 435개",
+            "rvMedian": 18.05,
+            "mddMedian": -0.88,
+            "pDD5": 8.77,
+            "pDD8": 2.83,
+            "ret5th": -5.05,
+            "retMean": 0.33,
+            "retMedian": 0.62
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 7.79
+        },
+        "diffHighMinusLowDD8": {
+          "point": 2.58
+        },
+        "diffRvMedian": 8.58,
+        "diffRetMean": 0.12,
+        "knownAxes": [
+          4,
+          5
+        ]
+      },
+      "firstTwoThirds": {
+        "from": "2008-03-17",
+        "to": "2020-07-01",
+        "burden": {
+          "base": {
+            "days": 3096,
+            "cases": 620,
+            "evidence": "사례 620개",
+            "rvMedian": 11.74,
+            "mddMedian": -0.49,
+            "pDD5": 4.97,
+            "pDD8": 1.58,
+            "ret5th": -4.01,
+            "retMean": 0.18,
+            "retMedian": 0.38
+          },
+          "low": {
+            "days": 1069,
+            "cases": 262,
+            "evidence": "사례 262개",
+            "rvMedian": 8.64,
+            "mddMedian": -0.35,
+            "pDD5": 1.4,
+            "pDD8": 0.37,
+            "ret5th": -2.87,
+            "retMean": 0.07,
+            "retMedian": 0.3
+          },
+          "mid": {
+            "days": 888,
+            "cases": 257,
+            "evidence": "사례 257개",
+            "rvMedian": 10.13,
+            "mddMedian": -0.38,
+            "pDD5": 1.46,
+            "pDD8": 0.56,
+            "ret5th": -2.91,
+            "retMean": 0.29,
+            "retMedian": 0.45
+          },
+          "high": {
+            "days": 1139,
+            "cases": 273,
+            "evidence": "사례 273개",
+            "rvMedian": 18.9,
+            "mddMedian": -0.89,
+            "pDD5": 11.06,
+            "pDD8": 3.51,
+            "ret5th": -5.48,
+            "retMean": 0.19,
+            "retMedian": 0.41
+          }
+        },
+        "net": {
+          "base": {
+            "days": 3096,
+            "cases": 620,
+            "evidence": "사례 620개",
+            "rvMedian": 11.74,
+            "mddMedian": -0.49,
+            "pDD5": 4.97,
+            "pDD8": 1.58,
+            "ret5th": -4.01,
+            "retMean": 0.18,
+            "retMedian": 0.38
+          },
+          "net>=+1": {
+            "days": 1296,
+            "cases": 322,
+            "evidence": "사례 322개",
+            "rvMedian": 8.05,
+            "mddMedian": -0.33,
+            "pDD5": 1.23,
+            "pDD8": 0.39,
+            "ret5th": -2.53,
+            "retMean": 0.07,
+            "retMedian": 0.27
+          },
+          "net0": {
+            "days": 610,
+            "cases": 225,
+            "evidence": "사례 225개",
+            "rvMedian": 11.23,
+            "mddMedian": -0.5,
+            "pDD5": 1.64,
+            "pDD8": 0.49,
+            "ret5th": -3.47,
+            "retMean": 0.15,
+            "retMedian": 0.33
+          },
+          "net<=-1": {
+            "days": 1190,
+            "cases": 292,
+            "evidence": "사례 292개",
+            "rvMedian": 18.8,
+            "mddMedian": -0.83,
+            "pDD5": 10.76,
+            "pDD8": 3.45,
+            "ret5th": -5.44,
+            "retMean": 0.3,
+            "retMedian": 0.64
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 9.66
+        },
+        "diffHighMinusLowDD8": {
+          "point": 3.14
+        },
+        "diffRvMedian": 10.26,
+        "diffRetMean": 0.12,
+        "knownAxes": [
+          4
+        ]
+      },
+      "halfA": {
+        "from": "2008-03-17",
+        "to": "2014-04-08",
+        "burden": {
+          "base": {
+            "days": 1527,
+            "cases": 306,
+            "evidence": "사례 306개",
+            "rvMedian": 14.76,
+            "mddMedian": -0.71,
+            "pDD5": 6.35,
+            "pDD8": 2.03,
+            "ret5th": -4.48,
+            "retMean": 0.15,
+            "retMedian": 0.37
+          },
+          "low": {
+            "days": 391,
+            "cases": 96,
+            "evidence": "사례 96개",
+            "rvMedian": 10.83,
+            "mddMedian": -0.57,
+            "pDD5": 0.26,
+            "pDD8": 0,
+            "ret5th": -2.87,
+            "retMean": 0.06,
+            "retMedian": 0.27
+          },
+          "mid": {
+            "days": 395,
+            "cases": 111,
+            "evidence": "사례 111개",
+            "rvMedian": 11.65,
+            "mddMedian": -0.41,
+            "pDD5": 0.76,
+            "pDD8": 0,
+            "ret5th": -2.91,
+            "retMean": 0.48,
+            "retMedian": 0.59
+          },
+          "high": {
+            "days": 741,
+            "cases": 168,
+            "evidence": "사례 168개",
+            "rvMedian": 21.49,
+            "mddMedian": -1.09,
+            "pDD5": 12.55,
+            "pDD8": 4.18,
+            "ret5th": -6.17,
+            "retMean": 0.03,
+            "retMedian": 0.32
+          }
+        },
+        "net": {
+          "base": {
+            "days": 1527,
+            "cases": 306,
+            "evidence": "사례 306개",
+            "rvMedian": 14.76,
+            "mddMedian": -0.71,
+            "pDD5": 6.35,
+            "pDD8": 2.03,
+            "ret5th": -4.48,
+            "retMean": 0.15,
+            "retMedian": 0.37
+          },
+          "net>=+1": {
+            "days": 452,
+            "cases": 121,
+            "evidence": "사례 121개",
+            "rvMedian": 9.78,
+            "mddMedian": -0.5,
+            "pDD5": 0.22,
+            "pDD8": 0,
+            "ret5th": -2.54,
+            "retMean": 0.14,
+            "retMedian": 0.26
+          },
+          "net0": {
+            "days": 313,
+            "cases": 108,
+            "evidence": "사례 108개",
+            "rvMedian": 12.68,
+            "mddMedian": -0.5,
+            "pDD5": 1.6,
+            "pDD8": 0,
+            "ret5th": -3.56,
+            "retMean": 0.23,
+            "retMedian": 0.43
+          },
+          "net<=-1": {
+            "days": 762,
+            "cases": 178,
+            "evidence": "사례 178개",
+            "rvMedian": 20.98,
+            "mddMedian": -1.03,
+            "pDD5": 11.94,
+            "pDD8": 4.07,
+            "ret5th": -6.17,
+            "retMean": 0.13,
+            "retMedian": 0.44
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 12.29
+        },
+        "diffHighMinusLowDD8": {
+          "point": 4.18
+        },
+        "diffRvMedian": 10.65,
+        "diffRetMean": -0.03,
+        "knownAxes": [
+          4
+        ]
+      },
+      "halfB": {
+        "from": "2014-05-09",
+        "to": "2020-07-01",
+        "burden": {
+          "base": {
+            "days": 1548,
+            "cases": 310,
+            "evidence": "사례 310개",
+            "rvMedian": 9.29,
+            "mddMedian": -0.35,
+            "pDD5": 3.68,
+            "pDD8": 1.16,
+            "ret5th": -3.39,
+            "retMean": 0.19,
+            "retMedian": 0.38
+          },
+          "low": {
+            "days": 658,
+            "cases": 163,
+            "evidence": "사례 163개",
+            "rvMedian": 7.85,
+            "mddMedian": -0.28,
+            "pDD5": 2.13,
+            "pDD8": 0.61,
+            "ret5th": -2.84,
+            "retMean": 0.06,
+            "retMedian": 0.32
+          },
+          "mid": {
+            "days": 492,
+            "cases": 145,
+            "evidence": "사례 145개",
+            "rvMedian": 9.1,
+            "mddMedian": -0.36,
+            "pDD5": 2.03,
+            "pDD8": 1.02,
+            "ret5th": -2.85,
+            "retMean": 0.14,
+            "retMedian": 0.38
+          },
+          "high": {
+            "days": 398,
+            "cases": 105,
+            "evidence": "사례 105개",
+            "rvMedian": 16.04,
+            "mddMedian": -0.61,
+            "pDD5": 8.29,
+            "pDD8": 2.26,
+            "ret5th": -4.33,
+            "retMean": 0.48,
+            "retMedian": 0.51
+          }
+        },
+        "net": {
+          "base": {
+            "days": 1548,
+            "cases": 310,
+            "evidence": "사례 310개",
+            "rvMedian": 9.29,
+            "mddMedian": -0.35,
+            "pDD5": 3.68,
+            "pDD8": 1.16,
+            "ret5th": -3.39,
+            "retMean": 0.19,
+            "retMedian": 0.38
+          },
+          "net>=+1": {
+            "days": 827,
+            "cases": 198,
+            "evidence": "사례 198개",
+            "rvMedian": 7.29,
+            "mddMedian": -0.27,
+            "pDD5": 1.81,
+            "pDD8": 0.6,
+            "ret5th": -2.53,
+            "retMean": 0.03,
+            "retMedian": 0.28
+          },
+          "net0": {
+            "days": 294,
+            "cases": 116,
+            "evidence": "사례 116개",
+            "rvMedian": 9.54,
+            "mddMedian": -0.48,
+            "pDD5": 1.7,
+            "pDD8": 1.02,
+            "ret5th": -2.97,
+            "retMean": 0.06,
+            "retMedian": 0.25
+          },
+          "net<=-1": {
+            "days": 427,
+            "cases": 113,
+            "evidence": "사례 113개",
+            "rvMedian": 16.45,
+            "mddMedian": -0.56,
+            "pDD5": 8.67,
+            "pDD8": 2.34,
+            "ret5th": -4.42,
+            "retMean": 0.6,
+            "retMedian": 0.91
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 6.16
+        },
+        "diffHighMinusLowDD8": {
+          "point": 1.65
+        },
+        "diffRvMedian": 8.19,
+        "diffRetMean": 0.42,
+        "knownAxes": [
+          4
+        ]
+      },
+      "heldOut": {
+        "from": "2020-08-03",
+        "to": "2026-11-06",
+        "burden": {
+          "base": {
+            "days": 1575,
+            "cases": 315,
+            "evidence": "사례 315개",
+            "rvMedian": 12.66,
+            "mddMedian": -0.61,
+            "pDD5": 2.16,
+            "pDD8": 0.57,
+            "ret5th": -3.35,
+            "retMean": 0.29,
+            "retMedian": 0.41
+          },
+          "low": {
+            "days": 535,
+            "cases": 131,
+            "evidence": "사례 131개",
+            "rvMedian": 10.16,
+            "mddMedian": -0.45,
+            "pDD5": 0.37,
+            "pDD8": 0,
+            "ret5th": -2.62,
+            "retMean": 0.2,
+            "retMedian": 0.33
+          },
+          "mid": {
+            "days": 452,
+            "cases": 137,
+            "evidence": "사례 137개",
+            "rvMedian": 12.37,
+            "mddMedian": -0.47,
+            "pDD5": 1.11,
+            "pDD8": 0,
+            "ret5th": -2.94,
+            "retMean": 0.35,
+            "retMedian": 0.53
+          },
+          "high": {
+            "days": 588,
+            "cases": 145,
+            "evidence": "사례 145개",
+            "rvMedian": 16.09,
+            "mddMedian": -0.95,
+            "pDD5": 4.59,
+            "pDD8": 1.53,
+            "ret5th": -4.18,
+            "retMean": 0.32,
+            "retMedian": 0.42
+          }
+        },
+        "net": {
+          "base": {
+            "days": 1575,
+            "cases": 315,
+            "evidence": "사례 315개",
+            "rvMedian": 12.66,
+            "mddMedian": -0.61,
+            "pDD5": 2.16,
+            "pDD8": 0.57,
+            "ret5th": -3.35,
+            "retMean": 0.29,
+            "retMedian": 0.41
+          },
+          "net>=+1": {
+            "days": 735,
+            "cases": 173,
+            "evidence": "사례 173개",
+            "rvMedian": 10.15,
+            "mddMedian": -0.44,
+            "pDD5": 0.41,
+            "pDD8": 0,
+            "ret5th": -2.59,
+            "retMean": 0.21,
+            "retMedian": 0.32
+          },
+          "net0": {
+            "days": 268,
+            "cases": 107,
+            "evidence": "사례 107개",
+            "rvMedian": 12.77,
+            "mddMedian": -0.51,
+            "pDD5": 1.49,
+            "pDD8": 0,
+            "ret5th": -3.29,
+            "retMean": 0.3,
+            "retMedian": 0.53
+          },
+          "net<=-1": {
+            "days": 572,
+            "cases": 140,
+            "evidence": "사례 140개",
+            "rvMedian": 16.81,
+            "mddMedian": -0.98,
+            "pDD5": 4.72,
+            "pDD8": 1.57,
+            "ret5th": -4.16,
+            "retMean": 0.37,
+            "retMedian": 0.53
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 4.22
+        },
+        "diffHighMinusLowDD8": {
+          "point": 1.53
+        },
+        "diffRvMedian": 5.92,
+        "diffRetMean": 0.12,
+        "knownAxes": [
+          4,
+          5
+        ]
+      }
+    },
+    "h21": {
+      "all": {
+        "from": "2008-03-17",
+        "to": "2026-10-15",
+        "burden": {
+          "base": {
+            "days": 4676,
+            "cases": 223,
+            "evidence": "사례 223개",
+            "rvMedian": 13.22,
+            "mddMedian": -1.65,
+            "pDD5": 17.75,
+            "pDD8": 8.11,
+            "ret5th": -7.08,
+            "retMean": 0.9,
+            "retMedian": 1.5
+          },
+          "low": {
+            "days": 1601,
+            "cases": 119,
+            "evidence": "사례 119개",
+            "rvMedian": 10.77,
+            "mddMedian": -1.36,
+            "pDD5": 11.99,
+            "pDD8": 4.43,
+            "ret5th": -5.93,
+            "retMean": 0.56,
+            "retMedian": 1.24
+          },
+          "mid": {
+            "days": 1353,
+            "cases": 148,
+            "evidence": "사례 148개",
+            "rvMedian": 12.06,
+            "mddMedian": -1.44,
+            "pDD5": 12.05,
+            "pDD8": 3.7,
+            "ret5th": -5.57,
+            "retMean": 1.09,
+            "retMedian": 1.63
+          },
+          "high": {
+            "days": 1722,
+            "cases": 137,
+            "evidence": "사례 137개",
+            "rvMedian": 18.86,
+            "mddMedian": -2.37,
+            "pDD5": 27.58,
+            "pDD8": 14.98,
+            "ret5th": -8.91,
+            "retMean": 1.07,
+            "retMedian": 1.84
+          }
+        },
+        "net": {
+          "base": {
+            "days": 4676,
+            "cases": 223,
+            "evidence": "사례 223개",
+            "rvMedian": 13.22,
+            "mddMedian": -1.65,
+            "pDD5": 17.75,
+            "pDD8": 8.11,
+            "ret5th": -7.08,
+            "retMean": 0.9,
+            "retMedian": 1.5
+          },
+          "net>=+1": {
+            "days": 2026,
+            "cases": 143,
+            "evidence": "사례 143개",
+            "rvMedian": 10.75,
+            "mddMedian": -1.42,
+            "pDD5": 10.41,
+            "pDD8": 3.5,
+            "ret5th": -5.44,
+            "retMean": 0.5,
+            "retMedian": 1.11
+          },
+          "net0": {
+            "days": 890,
+            "cases": 135,
+            "evidence": "사례 135개",
+            "rvMedian": 13.03,
+            "mddMedian": -1.59,
+            "pDD5": 16.29,
+            "pDD8": 5.51,
+            "ret5th": -6.26,
+            "retMean": 0.92,
+            "retMedian": 1.62
+          },
+          "net<=-1": {
+            "days": 1760,
+            "cases": 140,
+            "evidence": "사례 140개",
+            "rvMedian": 18.68,
+            "mddMedian": -2.24,
+            "pDD5": 26.93,
+            "pDD8": 14.72,
+            "ret5th": -9.15,
+            "retMean": 1.35,
+            "retMedian": 2.37
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 15.59,
+          "ci": [
+            7.01,
+            25
+          ],
+          "used": 2000
+        },
+        "diffHighMinusLowDD8": {
+          "point": 10.55
+        },
+        "diffRvMedian": 8.09,
+        "diffRetMean": 0.51,
+        "knownAxes": [
+          4,
+          5
+        ],
+        "dropOne": {
+          "trend": {
+            "point": 13.82,
+            "ci": [
+              4.6,
+              23.79
+            ],
+            "highCases": 121,
+            "lowCases": 125
+          },
+          "volatility": {
+            "point": 17.75,
+            "ci": [
+              8.19,
+              28.58
+            ],
+            "highCases": 107,
+            "lowCases": 137
+          },
+          "rates": {
+            "point": 19.75,
+            "ci": [
+              9.96,
+              30.04
+            ],
+            "highCases": 103,
+            "lowCases": 128
+          },
+          "credit": {
+            "point": 15.63,
+            "ci": [
+              6.92,
+              25.1
+            ],
+            "highCases": 133,
+            "lowCases": 120
+          },
+          "commodities": {
+            "point": 22.2,
+            "ci": [
+              12.63,
+              32.96
+            ],
+            "highCases": 86,
+            "lowCases": 146
+          }
+        },
+        "volatilityAxisAlone": {
+          "groups": {
+            "base": {
+              "days": 4676,
+              "cases": 223,
+              "evidence": "사례 223개",
+              "rvMedian": 13.22,
+              "mddMedian": -1.65,
+              "pDD5": 17.75,
+              "pDD8": 8.11,
+              "ret5th": -7.08,
+              "retMean": 0.9,
+              "retMedian": 1.5
+            },
+            "burden": {
+              "days": 1519,
+              "cases": 118,
+              "evidence": "사례 118개",
+              "rvMedian": 20.02,
+              "mddMedian": -2.39,
+              "pDD5": 27.12,
+              "pDD8": 14.02,
+              "ret5th": -9.51,
+              "retMean": 1.71,
+              "retMedian": 2.87
+            },
+            "neutral": {
+              "days": 1071,
+              "cases": 139,
+              "evidence": "사례 139개",
+              "rvMedian": 13.06,
+              "mddMedian": -1.64,
+              "pDD5": 18.11,
+              "pDD8": 8.4,
+              "ret5th": -7.98,
+              "retMean": 0.66,
+              "retMedian": 1.55
+            },
+            "favorable": {
+              "days": 2086,
+              "cases": 145,
+              "evidence": "사례 145개",
+              "rvMedian": 10.3,
+              "mddMedian": -1.37,
+              "pDD5": 10.74,
+              "pDD8": 3.64,
+              "ret5th": -5.33,
+              "retMean": 0.44,
+              "retMedian": 1.07
+            }
+          },
+          "diffBurdenMinusNot": {
+            "point": 13.88,
+            "ci": [
+              6,
+              23.08
+            ],
+            "used": 2000
+          }
+        },
+        "vixBand": {
+          "base": {
+            "days": 4676,
+            "cases": 223,
+            "evidence": "사례 223개",
+            "rvMedian": 13.22,
+            "mddMedian": -1.65,
+            "pDD5": 17.75,
+            "pDD8": 8.11,
+            "ret5th": -7.08,
+            "retMean": 0.9,
+            "retMedian": 1.5
+          },
+          "<15": {
+            "days": 1453,
+            "cases": 98,
+            "evidence": "사례 98개",
+            "rvMedian": 9.6,
+            "mddMedian": -1.18,
+            "pDD5": 9.08,
+            "pDD8": 3.03,
+            "ret5th": -4.76,
+            "retMean": 0.52,
+            "retMedian": 1.05
+          },
+          "15-20": {
+            "days": 1590,
+            "cases": 130,
+            "evidence": "사례 130개",
+            "rvMedian": 12.41,
+            "mddMedian": -1.7,
+            "pDD5": 15.41,
+            "pDD8": 6.23,
+            "ret5th": -6.87,
+            "retMean": 0.62,
+            "retMedian": 1.47
+          },
+          "20-25": {
+            "days": 811,
+            "cases": 99,
+            "evidence": "사례 99개",
+            "rvMedian": 16.54,
+            "mddMedian": -1.87,
+            "pDD5": 22.32,
+            "pDD8": 11.1,
+            "ret5th": -8.43,
+            "retMean": 0.98,
+            "retMedian": 2.03
+          },
+          "25-30": {
+            "days": 378,
+            "cases": 59,
+            "evidence": "사례 59개",
+            "rvMedian": 19.66,
+            "mddMedian": -2.49,
+            "pDD5": 25.93,
+            "pDD8": 11.11,
+            "ret5th": -7.17,
+            "retMean": 2.36,
+            "retMedian": 3.52
+          },
+          "30+": {
+            "days": 444,
+            "cases": 39,
+            "evidence": "사례 39개",
+            "rvMedian": 29.47,
+            "mddMedian": -3.49,
+            "pDD5": 39.19,
+            "pDD8": 23.42,
+            "ret5th": -16.1,
+            "retMean": 1.77,
+            "retMedian": 3.19
+          }
+        },
+        "withinVolatilityStrata": {
+          "volBurden": {
+            "table": {
+              "base": {
+                "days": 1519,
+                "cases": 118,
+                "evidence": "사례 118개",
+                "rvMedian": 20.02,
+                "mddMedian": -2.39,
+                "pDD5": 27.12,
+                "pDD8": 14.02,
+                "ret5th": -9.51,
+                "retMean": 1.71,
+                "retMedian": 2.87
+              },
+              "other0": {
+                "days": 327,
+                "cases": 53,
+                "evidence": "사례 53개",
+                "rvMedian": 16.19,
+                "mddMedian": -1.23,
+                "pDD5": 14.37,
+                "pDD8": 4.28,
+                "ret5th": -5.66,
+                "retMean": 2.54,
+                "retMedian": 3.38
+              },
+              "other1": {
+                "days": 571,
+                "cases": 78,
+                "evidence": "사례 78개",
+                "rvMedian": 18.94,
+                "mddMedian": -2,
+                "pDD5": 22.42,
+                "pDD8": 10.51,
+                "ret5th": -6.91,
+                "retMean": 1.81,
+                "retMedian": 2.56
+              },
+              "other2+": {
+                "days": 621,
+                "cases": 59,
+                "evidence": "사례 59개",
+                "rvMedian": 24.91,
+                "mddMedian": -3.26,
+                "pDD5": 38.16,
+                "pDD8": 22.38,
+                "ret5th": -11.25,
+                "retMean": 1.18,
+                "retMedian": 2.25
+              }
+            },
+            "diff2plusMinus0": {
+              "point": 23.79,
+              "ci": [
+                9.91,
+                38.35
+              ],
+              "used": 2000
+            },
+            "diff1plusMinus0": {
+              "point": 16.25
+            }
+          },
+          "volNotBurden": {
+            "table": {
+              "base": {
+                "days": 3157,
+                "cases": 169,
+                "evidence": "사례 169개",
+                "rvMedian": 11.1,
+                "mddMedian": -1.45,
+                "pDD5": 13.24,
+                "pDD8": 5.26,
+                "ret5th": -6.16,
+                "retMean": 0.51,
+                "retMedian": 1.19
+              },
+              "other0": {
+                "days": 1601,
+                "cases": 119,
+                "evidence": "사례 119개",
+                "rvMedian": 10.77,
+                "mddMedian": -1.36,
+                "pDD5": 11.99,
+                "pDD8": 4.43,
+                "ret5th": -5.93,
+                "retMean": 0.56,
+                "retMedian": 1.24
+              },
+              "other1": {
+                "days": 1026,
+                "cases": 119,
+                "evidence": "사례 119개",
+                "rvMedian": 11.29,
+                "mddMedian": -1.5,
+                "pDD5": 11.31,
+                "pDD8": 3.51,
+                "ret5th": -5.56,
+                "retMean": 0.63,
+                "retMedian": 1.17
+              },
+              "other2+": {
+                "days": 530,
+                "cases": 69,
+                "evidence": "사례 69개",
+                "rvMedian": 11.91,
+                "mddMedian": -1.69,
+                "pDD5": 20.75,
+                "pDD8": 11.13,
+                "ret5th": -7.35,
+                "retMean": 0.14,
+                "retMedian": 0.93
+              }
+            },
+            "diff2plusMinus0": {
+              "point": 8.76,
+              "ci": [
+                -4.9,
+                20.19
+              ],
+              "used": 2000
+            },
+            "diff1plusMinus0": {
+              "point": 2.53
+            }
+          }
+        }
+      },
+      "firstTwoThirds": {
+        "from": "2008-03-17",
+        "to": "2020-07-01",
+        "burden": {
+          "base": {
+            "days": 3096,
+            "cases": 148,
+            "evidence": "사례 148개",
+            "rvMedian": 13.1,
+            "mddMedian": -1.61,
+            "pDD5": 18.35,
+            "pDD8": 9.01,
+            "ret5th": -7.44,
+            "retMean": 0.73,
+            "retMedian": 1.44
+          },
+          "low": {
+            "days": 1069,
+            "cases": 78,
+            "evidence": "사례 78개",
+            "rvMedian": 10.3,
+            "mddMedian": -1.32,
+            "pDD5": 12.25,
+            "pDD8": 5.24,
+            "ret5th": -6.01,
+            "retMean": 0.39,
+            "retMedian": 1.2
+          },
+          "mid": {
+            "days": 888,
+            "cases": 98,
+            "evidence": "사례 98개",
+            "rvMedian": 11.47,
+            "mddMedian": -1.25,
+            "pDD5": 10.92,
+            "pDD8": 3.6,
+            "ret5th": -5.66,
+            "retMean": 1.04,
+            "retMedian": 1.76
+          },
+          "high": {
+            "days": 1139,
+            "cases": 89,
+            "evidence": "사례 89개",
+            "rvMedian": 20.02,
+            "mddMedian": -2.56,
+            "pDD5": 29.85,
+            "pDD8": 16.77,
+            "ret5th": -9.73,
+            "retMean": 0.8,
+            "retMedian": 1.72
+          }
+        },
+        "net": {
+          "base": {
+            "days": 3096,
+            "cases": 148,
+            "evidence": "사례 148개",
+            "rvMedian": 13.1,
+            "mddMedian": -1.61,
+            "pDD5": 18.35,
+            "pDD8": 9.01,
+            "ret5th": -7.44,
+            "retMean": 0.73,
+            "retMedian": 1.44
+          },
+          "net>=+1": {
+            "days": 1296,
+            "cases": 94,
+            "evidence": "사례 94개",
+            "rvMedian": 10.18,
+            "mddMedian": -1.34,
+            "pDD5": 10.88,
+            "pDD8": 4.01,
+            "ret5th": -5.7,
+            "retMean": 0.28,
+            "retMedian": 1.03
+          },
+          "net0": {
+            "days": 610,
+            "cases": 90,
+            "evidence": "사례 90개",
+            "rvMedian": 12.68,
+            "mddMedian": -1.54,
+            "pDD5": 16.07,
+            "pDD8": 6.89,
+            "ret5th": -6.87,
+            "retMean": 0.75,
+            "retMedian": 1.64
+          },
+          "net<=-1": {
+            "days": 1190,
+            "cases": 94,
+            "evidence": "사례 94개",
+            "rvMedian": 19.28,
+            "mddMedian": -2.24,
+            "pDD5": 27.65,
+            "pDD8": 15.55,
+            "ret5th": -9.78,
+            "retMean": 1.21,
+            "retMedian": 2.2
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 17.6,
+          "ci": [
+            6.78,
+            30.26
+          ],
+          "used": 2000
+        },
+        "diffHighMinusLowDD8": {
+          "point": 11.53
+        },
+        "diffRvMedian": 9.72,
+        "diffRetMean": 0.41,
+        "knownAxes": [
+          4
+        ],
+        "dropOne": {
+          "trend": {
+            "point": 16.52,
+            "highCases": 74,
+            "lowCases": 83
+          },
+          "volatility": {
+            "point": 20.42,
+            "highCases": 69,
+            "lowCases": 90
+          },
+          "rates": {
+            "point": 21.7,
+            "highCases": 65,
+            "lowCases": 83
+          },
+          "commodities": {
+            "point": 22.63,
+            "highCases": 54,
+            "lowCases": 97
+          }
+        },
+        "volatilityAxisAlone": {
+          "groups": {
+            "base": {
+              "days": 3096,
+              "cases": 148,
+              "evidence": "사례 148개",
+              "rvMedian": 13.1,
+              "mddMedian": -1.61,
+              "pDD5": 18.35,
+              "pDD8": 9.01,
+              "ret5th": -7.44,
+              "retMean": 0.73,
+              "retMedian": 1.44
+            },
+            "burden": {
+              "days": 988,
+              "cases": 75,
+              "evidence": "사례 75개",
+              "rvMedian": 20.92,
+              "mddMedian": -2.71,
+              "pDD5": 28.74,
+              "pDD8": 16.19,
+              "ret5th": -10.67,
+              "retMean": 1.5,
+              "retMedian": 2.61
+            },
+            "neutral": {
+              "days": 643,
+              "cases": 90,
+              "evidence": "사례 90개",
+              "rvMedian": 12.45,
+              "mddMedian": -1.45,
+              "pDD5": 18.82,
+              "pDD8": 9.64,
+              "ret5th": -8.3,
+              "retMean": 0.58,
+              "retMedian": 1.76
+            },
+            "favorable": {
+              "days": 1465,
+              "cases": 99,
+              "evidence": "사례 99개",
+              "rvMedian": 9.96,
+              "mddMedian": -1.32,
+              "pDD5": 11.13,
+              "pDD8": 3.89,
+              "ret5th": -5.56,
+              "retMean": 0.27,
+              "retMedian": 0.98
+            }
+          },
+          "diffBurdenMinusNot": {
+            "point": 15.27
+          }
+        },
+        "vixBand": {
+          "base": {
+            "days": 3096,
+            "cases": 148,
+            "evidence": "사례 148개",
+            "rvMedian": 13.1,
+            "mddMedian": -1.61,
+            "pDD5": 18.35,
+            "pDD8": 9.01,
+            "ret5th": -7.44,
+            "retMean": 0.73,
+            "retMedian": 1.44
+          },
+          "<15": {
+            "days": 1177,
+            "cases": 76,
+            "evidence": "사례 76개",
+            "rvMedian": 9.26,
+            "mddMedian": -1.18,
+            "pDD5": 8.75,
+            "pDD8": 3.57,
+            "ret5th": -4.85,
+            "retMean": 0.39,
+            "retMedian": 0.98
+          },
+          "15-20": {
+            "days": 901,
+            "cases": 79,
+            "evidence": "사례 79개",
+            "rvMedian": 12.38,
+            "mddMedian": -1.56,
+            "pDD5": 18.2,
+            "pDD8": 7.1,
+            "ret5th": -7.74,
+            "retMean": 0.48,
+            "retMedian": 1.76
+          },
+          "20-25": {
+            "days": 454,
+            "cases": 55,
+            "evidence": "사례 55개",
+            "rvMedian": 16.78,
+            "mddMedian": -2.04,
+            "pDD5": 21.37,
+            "pDD8": 11.67,
+            "ret5th": -8.43,
+            "retMean": 1.06,
+            "retMedian": 2.08
+          },
+          "25-30": {
+            "days": 200,
+            "cases": 31,
+            "evidence": "사례 31개",
+            "rvMedian": 19.54,
+            "mddMedian": -2.23,
+            "pDD5": 20.5,
+            "pDD8": 8,
+            "ret5th": -6.39,
+            "retMean": 2.64,
+            "retMedian": 3.48
+          },
+          "30+": {
+            "days": 364,
+            "cases": 26,
+            "evidence": "사례 26개 · 참고",
+            "rvMedian": 30.64,
+            "mddMedian": -4.18,
+            "pDD5": 44.78,
+            "pDD8": 28.57,
+            "ret5th": -17.08,
+            "retMean": 0.98,
+            "retMedian": 2.3
+          }
+        },
+        "withinVolatilityStrata": {
+          "volBurden": {
+            "table": {
+              "base": {
+                "days": 988,
+                "cases": 75,
+                "evidence": "사례 75개",
+                "rvMedian": 20.92,
+                "mddMedian": -2.71,
+                "pDD5": 28.74,
+                "pDD8": 16.19,
+                "ret5th": -10.67,
+                "retMean": 1.5,
+                "retMedian": 2.61
+              },
+              "other0": {
+                "days": 181,
+                "cases": 33,
+                "evidence": "사례 33개",
+                "rvMedian": 16.19,
+                "mddMedian": -1.48,
+                "pDD5": 11.6,
+                "pDD8": 6.63,
+                "ret5th": -9.52,
+                "retMean": 2.44,
+                "retMedian": 3.55
+              },
+              "other1": {
+                "days": 433,
+                "cases": 53,
+                "evidence": "사례 53개",
+                "rvMedian": 20.66,
+                "mddMedian": -2.34,
+                "pDD5": 25.4,
+                "pDD8": 13.16,
+                "ret5th": -8.13,
+                "retMean": 1.79,
+                "retMedian": 2.53
+              },
+              "other2+": {
+                "days": 374,
+                "cases": 38,
+                "evidence": "사례 38개",
+                "rvMedian": 26.31,
+                "mddMedian": -3.63,
+                "pDD5": 40.91,
+                "pDD8": 24.33,
+                "ret5th": -15.69,
+                "retMean": 0.7,
+                "retMedian": 1.78
+              }
+            },
+            "diff2plusMinus0": {
+              "point": 29.31
+            },
+            "diff1plusMinus0": {
+              "point": 20.99
+            }
+          },
+          "volNotBurden": {
+            "table": {
+              "base": {
+                "days": 2108,
+                "cases": 111,
+                "evidence": "사례 111개",
+                "rvMedian": 10.62,
+                "mddMedian": -1.33,
+                "pDD5": 13.47,
+                "pDD8": 5.65,
+                "ret5th": -6.24,
+                "retMean": 0.37,
+                "retMedian": 1.16
+              },
+              "other0": {
+                "days": 1069,
+                "cases": 78,
+                "evidence": "사례 78개",
+                "rvMedian": 10.3,
+                "mddMedian": -1.32,
+                "pDD5": 12.25,
+                "pDD8": 5.24,
+                "ret5th": -6.01,
+                "retMean": 0.39,
+                "retMedian": 1.2
+              },
+              "other1": {
+                "days": 707,
+                "cases": 78,
+                "evidence": "사례 78개",
+                "rvMedian": 10.77,
+                "mddMedian": -1.2,
+                "pDD5": 10.75,
+                "pDD8": 2.83,
+                "ret5th": -5.29,
+                "retMean": 0.68,
+                "retMedian": 1.28
+              },
+              "other2+": {
+                "days": 332,
+                "cases": 42,
+                "evidence": "사례 42개",
+                "rvMedian": 10.7,
+                "mddMedian": -1.57,
+                "pDD5": 23.19,
+                "pDD8": 12.95,
+                "ret5th": -7.74,
+                "retMean": -0.37,
+                "retMedian": 0.54
+              }
+            },
+            "diff2plusMinus0": {
+              "point": 10.94
+            },
+            "diff1plusMinus0": {
+              "point": 2.47
+            }
+          }
+        }
+      },
+      "halfA": {
+        "from": "2008-03-17",
+        "to": "2014-04-08",
+        "burden": {
+          "base": {
+            "days": 1527,
+            "cases": 73,
+            "evidence": "사례 73개",
+            "rvMedian": 15.09,
+            "mddMedian": -2.02,
+            "pDD5": 23.25,
+            "pDD8": 11.46,
+            "ret5th": -9.26,
+            "retMean": 0.62,
+            "retMedian": 1.71
+          },
+          "low": {
+            "days": 391,
+            "cases": 28,
+            "evidence": "사례 28개 · 참고",
+            "rvMedian": 12.08,
+            "mddMedian": -1.59,
+            "pDD5": 15.35,
+            "pDD8": 4.09,
+            "ret5th": -6.03,
+            "retMean": 0.5,
+            "retMedian": 1.37
+          },
+          "mid": {
+            "days": 395,
+            "cases": 41,
+            "evidence": "사례 41개",
+            "rvMedian": 13.18,
+            "mddMedian": -1.44,
+            "pDD5": 8.61,
+            "pDD8": 2.53,
+            "ret5th": -4.69,
+            "retMean": 1.79,
+            "retMedian": 2.5
+          },
+          "high": {
+            "days": 741,
+            "cases": 49,
+            "evidence": "사례 49개",
+            "rvMedian": 21.19,
+            "mddMedian": -2.99,
+            "pDD5": 35.22,
+            "pDD8": 20.11,
+            "ret5th": -12.38,
+            "retMean": 0.05,
+            "retMedian": 1.25
+          }
+        },
+        "net": {
+          "base": {
+            "days": 1527,
+            "cases": 73,
+            "evidence": "사례 73개",
+            "rvMedian": 15.09,
+            "mddMedian": -2.02,
+            "pDD5": 23.25,
+            "pDD8": 11.46,
+            "ret5th": -9.26,
+            "retMean": 0.62,
+            "retMedian": 1.71
+          },
+          "net>=+1": {
+            "days": 452,
+            "cases": 37,
+            "evidence": "사례 37개",
+            "rvMedian": 11.61,
+            "mddMedian": -1.59,
+            "pDD5": 11.5,
+            "pDD8": 2.43,
+            "ret5th": -5.3,
+            "retMean": 0.44,
+            "retMedian": 1.17
+          },
+          "net0": {
+            "days": 313,
+            "cases": 39,
+            "evidence": "사례 39개",
+            "rvMedian": 14.46,
+            "mddMedian": -1.99,
+            "pDD5": 17.89,
+            "pDD8": 6.07,
+            "ret5th": -6.8,
+            "retMean": 0.96,
+            "retMedian": 2.01
+          },
+          "net<=-1": {
+            "days": 762,
+            "cases": 51,
+            "evidence": "사례 51개",
+            "rvMedian": 20.68,
+            "mddMedian": -2.67,
+            "pDD5": 32.41,
+            "pDD8": 19.03,
+            "ret5th": -12.09,
+            "retMean": 0.58,
+            "retMedian": 1.95
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 19.88,
+          "ci": [
+            1.32,
+            37.2
+          ],
+          "used": 2000
+        },
+        "diffHighMinusLowDD8": {
+          "point": 16.02
+        },
+        "diffRvMedian": 9.11,
+        "diffRetMean": -0.44,
+        "knownAxes": [
+          4
+        ],
+        "dropOne": {
+          "trend": {
+            "point": 18.87,
+            "highCases": 43,
+            "lowCases": 29
+          },
+          "volatility": {
+            "point": 24.65,
+            "highCases": 41,
+            "lowCases": 38
+          },
+          "rates": {
+            "point": 26.4,
+            "highCases": 40,
+            "lowCases": 30
+          },
+          "commodities": {
+            "point": 24.94,
+            "highCases": 32,
+            "lowCases": 36
+          }
+        },
+        "volatilityAxisAlone": {
+          "groups": {
+            "base": {
+              "days": 1527,
+              "cases": 73,
+              "evidence": "사례 73개",
+              "rvMedian": 15.09,
+              "mddMedian": -2.02,
+              "pDD5": 23.25,
+              "pDD8": 11.46,
+              "ret5th": -9.26,
+              "retMean": 0.62,
+              "retMedian": 1.71
+            },
+            "burden": {
+              "days": 716,
+              "cases": 45,
+              "evidence": "사례 45개",
+              "rvMedian": 21.16,
+              "mddMedian": -2.84,
+              "pDD5": 31.98,
+              "pDD8": 18.16,
+              "ret5th": -11.16,
+              "retMean": 0.98,
+              "retMedian": 2.22
+            },
+            "neutral": {
+              "days": 339,
+              "cases": 37,
+              "evidence": "사례 37개",
+              "rvMedian": 13.41,
+              "mddMedian": -1.57,
+              "pDD5": 18.29,
+              "pDD8": 9.44,
+              "ret5th": -9.08,
+              "retMean": 0.42,
+              "retMedian": 1.78
+            },
+            "favorable": {
+              "days": 472,
+              "cases": 35,
+              "evidence": "사례 35개",
+              "rvMedian": 11.2,
+              "mddMedian": -1.67,
+              "pDD5": 13.56,
+              "pDD8": 2.75,
+              "ret5th": -5.66,
+              "retMean": 0.21,
+              "retMedian": 0.98
+            }
+          },
+          "diffBurdenMinusNot": {
+            "point": 16.45
+          }
+        },
+        "vixBand": {
+          "base": {
+            "days": 1527,
+            "cases": 73,
+            "evidence": "사례 73개",
+            "rvMedian": 15.09,
+            "mddMedian": -2.02,
+            "pDD5": 23.25,
+            "pDD8": 11.46,
+            "ret5th": -9.26,
+            "retMean": 0.62,
+            "retMedian": 1.71
+          },
+          "<15": {
+            "days": 262,
+            "cases": 18,
+            "evidence": "사례 18개 · 참고",
+            "rvMedian": 10.65,
+            "mddMedian": -1.52,
+            "pDD5": 4.2,
+            "pDD8": 0,
+            "ret5th": -3.42,
+            "retMean": 0.76,
+            "retMedian": 1.09
+          },
+          "15-20": {
+            "days": 506,
+            "cases": 38,
+            "evidence": "사례 38개",
+            "rvMedian": 12.92,
+            "mddMedian": -1.62,
+            "pDD5": 19.37,
+            "pDD8": 5.93,
+            "ret5th": -7.63,
+            "retMean": 0.33,
+            "retMedian": 1.73
+          },
+          "20-25": {
+            "days": 330,
+            "cases": 35,
+            "evidence": "사례 35개",
+            "rvMedian": 16.43,
+            "mddMedian": -1.78,
+            "pDD5": 21.52,
+            "pDD8": 12.42,
+            "ret5th": -8.66,
+            "retMean": 0.76,
+            "retMedian": 1.98
+          },
+          "25-30": {
+            "days": 143,
+            "cases": 19,
+            "evidence": "사례 19개 · 참고",
+            "rvMedian": 18.72,
+            "mddMedian": -2.28,
+            "pDD5": 20.98,
+            "pDD8": 9.09,
+            "ret5th": -6.39,
+            "retMean": 2.7,
+            "retMedian": 3.44
+          },
+          "30+": {
+            "days": 286,
+            "cases": 19,
+            "evidence": "사례 19개 · 참고",
+            "rvMedian": 31.78,
+            "mddMedian": -5.18,
+            "pDD5": 50.7,
+            "pDD8": 31.82,
+            "ret5th": -17.15,
+            "retMean": -0.21,
+            "retMedian": 0.74
+          }
+        },
+        "withinVolatilityStrata": {
+          "volBurden": {
+            "table": {
+              "base": {
+                "days": 716,
+                "cases": 45,
+                "evidence": "사례 45개",
+                "rvMedian": 21.16,
+                "mddMedian": -2.84,
+                "pDD5": 31.98,
+                "pDD8": 18.16,
+                "ret5th": -11.16,
+                "retMean": 0.98,
+                "retMedian": 2.22
+              },
+              "other0": {
+                "days": 137,
+                "cases": 18,
+                "evidence": "사례 18개 · 참고",
+                "rvMedian": 16.1,
+                "mddMedian": -1.25,
+                "pDD5": 8.03,
+                "pDD8": 2.19,
+                "ret5th": -2.66,
+                "retMean": 3.57,
+                "retMedian": 3.71
+              },
+              "other1": {
+                "days": 258,
+                "cases": 31,
+                "evidence": "사례 31개",
+                "rvMedian": 20.68,
+                "mddMedian": -2.47,
+                "pDD5": 29.84,
+                "pDD8": 14.73,
+                "ret5th": -8.66,
+                "retMean": 0.85,
+                "retMedian": 1.84
+              },
+              "other2+": {
+                "days": 321,
+                "cases": 27,
+                "evidence": "사례 27개 · 참고",
+                "rvMedian": 26.53,
+                "mddMedian": -3.97,
+                "pDD5": 43.93,
+                "pDD8": 27.73,
+                "ret5th": -16.1,
+                "retMean": -0.03,
+                "retMedian": 1.23
+              }
+            },
+            "diff2plusMinus0": {
+              "point": 35.9
+            },
+            "diff1plusMinus0": {
+              "point": 29.62
+            }
+          },
+          "volNotBurden": {
+            "table": {
+              "base": {
+                "days": 811,
+                "cases": 43,
+                "evidence": "사례 43개",
+                "rvMedian": 12.22,
+                "mddMedian": -1.6,
+                "pDD5": 15.54,
+                "pDD8": 5.55,
+                "ret5th": -6.53,
+                "retMean": 0.3,
+                "retMedian": 1.31
+              },
+              "other0": {
+                "days": 391,
+                "cases": 28,
+                "evidence": "사례 28개 · 참고",
+                "rvMedian": 12.08,
+                "mddMedian": -1.59,
+                "pDD5": 15.35,
+                "pDD8": 4.09,
+                "ret5th": -6.03,
+                "retMean": 0.5,
+                "retMedian": 1.37
+              },
+              "other1": {
+                "days": 258,
+                "cases": 29,
+                "evidence": "사례 29개 · 참고",
+                "rvMedian": 11.76,
+                "mddMedian": -1.46,
+                "pDD5": 8.91,
+                "pDD8": 2.71,
+                "ret5th": -4.92,
+                "retMean": 0.85,
+                "retMedian": 1.7
+              },
+              "other2+": {
+                "days": 162,
+                "cases": 18,
+                "evidence": "사례 18개 · 참고",
+                "rvMedian": 13.52,
+                "mddMedian": -2.07,
+                "pDD5": 26.54,
+                "pDD8": 13.58,
+                "ret5th": -9.08,
+                "retMean": -1.06,
+                "retMedian": -0.5
+              }
+            },
+            "diff2plusMinus0": {
+              "point": 11.2
+            },
+            "diff1plusMinus0": {
+              "point": 0.37
+            }
+          }
+        }
+      },
+      "halfB": {
+        "from": "2014-05-09",
+        "to": "2020-07-01",
+        "burden": {
+          "base": {
+            "days": 1548,
+            "cases": 74,
+            "evidence": "사례 74개",
+            "rvMedian": 10.59,
+            "mddMedian": -1.32,
+            "pDD5": 13.76,
+            "pDD8": 6.72,
+            "ret5th": -6.06,
+            "retMean": 0.82,
+            "retMedian": 1.28
+          },
+          "low": {
+            "days": 658,
+            "cases": 49,
+            "evidence": "사례 49개",
+            "rvMedian": 8.85,
+            "mddMedian": -1.22,
+            "pDD5": 10.79,
+            "pDD8": 6.08,
+            "ret5th": -5.99,
+            "retMean": 0.28,
+            "retMedian": 1.11
+          },
+          "mid": {
+            "days": 492,
+            "cases": 56,
+            "evidence": "사례 56개",
+            "rvMedian": 10.42,
+            "mddMedian": -1.16,
+            "pDD5": 12.8,
+            "pDD8": 4.47,
+            "ret5th": -6.26,
+            "retMean": 0.42,
+            "retMedian": 1.12
+          },
+          "high": {
+            "days": 398,
+            "cases": 40,
+            "evidence": "사례 40개",
+            "rvMedian": 17.42,
+            "mddMedian": -1.66,
+            "pDD5": 19.85,
+            "pDD8": 10.55,
+            "ret5th": -5.65,
+            "retMean": 2.19,
+            "retMedian": 2.16
+          }
+        },
+        "net": {
+          "base": {
+            "days": 1548,
+            "cases": 74,
+            "evidence": "사례 74개",
+            "rvMedian": 10.59,
+            "mddMedian": -1.32,
+            "pDD5": 13.76,
+            "pDD8": 6.72,
+            "ret5th": -6.06,
+            "retMean": 0.82,
+            "retMedian": 1.28
+          },
+          "net>=+1": {
+            "days": 827,
+            "cases": 56,
+            "evidence": "사례 56개",
+            "rvMedian": 8.64,
+            "mddMedian": -1.21,
+            "pDD5": 10.76,
+            "pDD8": 4.96,
+            "ret5th": -5.89,
+            "retMean": 0.16,
+            "retMedian": 0.89
+          },
+          "net0": {
+            "days": 294,
+            "cases": 50,
+            "evidence": "사례 50개",
+            "rvMedian": 10.32,
+            "mddMedian": -1.27,
+            "pDD5": 14.29,
+            "pDD8": 7.82,
+            "ret5th": -6.81,
+            "retMean": 0.5,
+            "retMedian": 1.28
+          },
+          "net<=-1": {
+            "days": 427,
+            "cases": 42,
+            "evidence": "사례 42개",
+            "rvMedian": 17.3,
+            "mddMedian": -1.52,
+            "pDD5": 19.2,
+            "pDD8": 9.37,
+            "ret5th": -5.65,
+            "retMean": 2.32,
+            "retMedian": 2.53
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 9.06,
+          "ci": [
+            -2.42,
+            22.27
+          ],
+          "used": 2000
+        },
+        "diffHighMinusLowDD8": {
+          "point": 4.47
+        },
+        "diffRvMedian": 8.57,
+        "diffRetMean": 1.92,
+        "knownAxes": [
+          4
+        ],
+        "dropOne": {
+          "trend": {
+            "point": 7.35,
+            "highCases": 31,
+            "lowCases": 53
+          },
+          "volatility": {
+            "point": 9.07,
+            "highCases": 28,
+            "lowCases": 51
+          },
+          "rates": {
+            "point": 6.85,
+            "highCases": 25,
+            "lowCases": 52
+          },
+          "commodities": {
+            "point": 11.49,
+            "highCases": 22,
+            "lowCases": 60
+          }
+        },
+        "volatilityAxisAlone": {
+          "groups": {
+            "base": {
+              "days": 1548,
+              "cases": 74,
+              "evidence": "사례 74개",
+              "rvMedian": 10.59,
+              "mddMedian": -1.32,
+              "pDD5": 13.76,
+              "pDD8": 6.72,
+              "ret5th": -6.06,
+              "retMean": 0.82,
+              "retMedian": 1.28
+            },
+            "burden": {
+              "days": 271,
+              "cases": 29,
+              "evidence": "사례 29개 · 참고",
+              "rvMedian": 20.23,
+              "mddMedian": -2.29,
+              "pDD5": 20.3,
+              "pDD8": 11.07,
+              "ret5th": -7.98,
+              "retMean": 2.86,
+              "retMedian": 3.33
+            },
+            "neutral": {
+              "days": 301,
+              "cases": 52,
+              "evidence": "사례 52개",
+              "rvMedian": 11.4,
+              "mddMedian": -1.26,
+              "pDD5": 19.6,
+              "pDD8": 9.97,
+              "ret5th": -6.81,
+              "retMean": 0.75,
+              "retMedian": 1.69
+            },
+            "favorable": {
+              "days": 976,
+              "cases": 63,
+              "evidence": "사례 63개",
+              "rvMedian": 9.16,
+              "mddMedian": -1.19,
+              "pDD5": 10.14,
+              "pDD8": 4.51,
+              "ret5th": -5.56,
+              "retMean": 0.27,
+              "retMedian": 0.96
+            }
+          },
+          "diffBurdenMinusNot": {
+            "point": 7.92
+          }
+        },
+        "vixBand": {
+          "base": {
+            "days": 1548,
+            "cases": 74,
+            "evidence": "사례 74개",
+            "rvMedian": 10.59,
+            "mddMedian": -1.32,
+            "pDD5": 13.76,
+            "pDD8": 6.72,
+            "ret5th": -6.06,
+            "retMean": 0.82,
+            "retMedian": 1.28
+          },
+          "<15": {
+            "days": 898,
+            "cases": 57,
+            "evidence": "사례 57개",
+            "rvMedian": 8.38,
+            "mddMedian": -1.13,
+            "pDD5": 10.24,
+            "pDD8": 4.68,
+            "ret5th": -5.29,
+            "retMean": 0.25,
+            "retMedian": 0.86
+          },
+          "15-20": {
+            "days": 391,
+            "cases": 41,
+            "evidence": "사례 41개",
+            "rvMedian": 11.84,
+            "mddMedian": -1.5,
+            "pDD5": 16.88,
+            "pDD8": 8.7,
+            "ret5th": -7.78,
+            "retMean": 0.64,
+            "retMedian": 1.78
+          },
+          "20-25": {
+            "days": 124,
+            "cases": 20,
+            "evidence": "사례 20개 · 참고",
+            "rvMedian": 17.66,
+            "mddMedian": -2.66,
+            "pDD5": 20.97,
+            "pDD8": 9.68,
+            "ret5th": -6.07,
+            "retMean": 1.84,
+            "retMedian": 2.56
+          },
+          "25-30": {
+            "days": 57,
+            "cases": 12,
+            "evidence": "사례 12개 · 참고",
+            "rvMedian": 21.45,
+            "mddMedian": -2.14,
+            "pDD5": 19.3,
+            "pDD8": 5.26,
+            "ret5th": -5.33,
+            "retMean": 2.48,
+            "retMedian": 3.52
+          },
+          "30+": {
+            "days": 78,
+            "cases": 7,
+            "evidence": "사례 7개 · 참고",
+            "rvMedian": 27.46,
+            "mddMedian": -1.89,
+            "pDD5": 23.08,
+            "pDD8": 16.67,
+            "ret5th": -14.68,
+            "retMean": 5.35,
+            "retMedian": 5.44
+          }
+        },
+        "withinVolatilityStrata": {
+          "volBurden": {
+            "table": {
+              "base": {
+                "days": 271,
+                "cases": 29,
+                "evidence": "사례 29개 · 참고",
+                "rvMedian": 20.23,
+                "mddMedian": -2.29,
+                "pDD5": 20.3,
+                "pDD8": 11.07,
+                "ret5th": -7.98,
+                "retMean": 2.86,
+                "retMedian": 3.33
+              },
+              "other0": {
+                "days": 43,
+                "cases": 14,
+                "evidence": "사례 14개 · 참고",
+                "rvMedian": 17.52,
+                "mddMedian": -3.08,
+                "pDD5": 23.26,
+                "pDD8": 20.93,
+                "ret5th": -19.27,
+                "retMean": -1.18,
+                "retMedian": 2.42
+              },
+              "other1": {
+                "days": 175,
+                "cases": 22,
+                "evidence": "사례 22개 · 참고",
+                "rvMedian": 20.43,
+                "mddMedian": -2.25,
+                "pDD5": 18.86,
+                "pDD8": 10.86,
+                "ret5th": -5.65,
+                "retMean": 3.18,
+                "retMedian": 3.52
+              },
+              "other2+": {
+                "days": 53,
+                "cases": 11,
+                "evidence": "사례 11개 · 참고",
+                "rvMedian": 22.65,
+                "mddMedian": -1.75,
+                "pDD5": 22.64,
+                "pDD8": 3.77,
+                "ret5th": -2.64,
+                "retMean": 5.09,
+                "retMedian": 3.86
+              }
+            },
+            "diff2plusMinus0": {
+              "point": -0.61
+            },
+            "diff1plusMinus0": {
+              "point": -3.52
+            }
+          },
+          "volNotBurden": {
+            "table": {
+              "base": {
+                "days": 1277,
+                "cases": 68,
+                "evidence": "사례 68개",
+                "rvMedian": 9.81,
+                "mddMedian": -1.2,
+                "pDD5": 12.37,
+                "pDD8": 5.79,
+                "ret5th": -5.93,
+                "retMean": 0.38,
+                "retMedian": 1.09
+              },
+              "other0": {
+                "days": 658,
+                "cases": 49,
+                "evidence": "사례 49개",
+                "rvMedian": 8.85,
+                "mddMedian": -1.22,
+                "pDD5": 10.79,
+                "pDD8": 6.08,
+                "ret5th": -5.99,
+                "retMean": 0.28,
+                "retMedian": 1.11
+              },
+              "other1": {
+                "days": 449,
+                "cases": 49,
+                "evidence": "사례 49개",
+                "rvMedian": 10.15,
+                "mddMedian": -1.13,
+                "pDD5": 11.8,
+                "pDD8": 2.9,
+                "ret5th": -5.56,
+                "retMean": 0.58,
+                "retMedian": 1.05
+              },
+              "other2+": {
+                "days": 170,
+                "cases": 24,
+                "evidence": "사례 24개 · 참고",
+                "rvMedian": 10.39,
+                "mddMedian": -1.37,
+                "pDD5": 20,
+                "pDD8": 12.35,
+                "ret5th": -6.12,
+                "retMean": 0.28,
+                "retMedian": 0.72
+              }
+            },
+            "diff2plusMinus0": {
+              "point": 9.21
+            },
+            "diff1plusMinus0": {
+              "point": 3.26
+            }
+          }
+        }
+      },
+      "heldOut": {
+        "from": "2020-08-03",
+        "to": "2026-10-15",
+        "burden": {
+          "base": {
+            "days": 1559,
+            "cases": 75,
+            "evidence": "사례 75개",
+            "rvMedian": 13.57,
+            "mddMedian": -1.75,
+            "pDD5": 16.81,
+            "pDD8": 6.41,
+            "ret5th": -6.51,
+            "retMean": 1.18,
+            "retMedian": 1.58
+          },
+          "low": {
+            "days": 532,
+            "cases": 41,
+            "evidence": "사례 41개",
+            "rvMedian": 11.48,
+            "mddMedian": -1.37,
+            "pDD5": 11.47,
+            "pDD8": 2.82,
+            "ret5th": -5.4,
+            "retMean": 0.89,
+            "retMedian": 1.34
+          },
+          "mid": {
+            "days": 446,
+            "cases": 50,
+            "evidence": "사례 50개",
+            "rvMedian": 13.1,
+            "mddMedian": -1.83,
+            "pDD5": 14.8,
+            "pDD8": 4.04,
+            "ret5th": -5.53,
+            "retMean": 1.01,
+            "retMedian": 1.38
+          },
+          "high": {
+            "days": 581,
+            "cases": 48,
+            "evidence": "사례 48개",
+            "rvMedian": 17.2,
+            "mddMedian": -2.17,
+            "pDD5": 23.24,
+            "pDD8": 11.53,
+            "ret5th": -8.16,
+            "retMean": 1.58,
+            "retMedian": 2.13
+          }
+        },
+        "net": {
+          "base": {
+            "days": 1559,
+            "cases": 75,
+            "evidence": "사례 75개",
+            "rvMedian": 13.57,
+            "mddMedian": -1.75,
+            "pDD5": 16.81,
+            "pDD8": 6.41,
+            "ret5th": -6.51,
+            "retMean": 1.18,
+            "retMedian": 1.58
+          },
+          "net>=+1": {
+            "days": 730,
+            "cases": 49,
+            "evidence": "사례 49개",
+            "rvMedian": 11.48,
+            "mddMedian": -1.52,
+            "pDD5": 9.59,
+            "pDD8": 2.6,
+            "ret5th": -5.02,
+            "retMean": 0.9,
+            "retMedian": 1.3
+          },
+          "net0": {
+            "days": 265,
+            "cases": 44,
+            "evidence": "사례 44개",
+            "rvMedian": 13.73,
+            "mddMedian": -1.87,
+            "pDD5": 17.74,
+            "pDD8": 2.64,
+            "ret5th": -5.48,
+            "retMean": 1.05,
+            "retMedian": 1.39
+          },
+          "net<=-1": {
+            "days": 564,
+            "cases": 46,
+            "evidence": "사례 46개",
+            "rvMedian": 17.89,
+            "mddMedian": -2.34,
+            "pDD5": 25.71,
+            "pDD8": 13.12,
+            "ret5th": -8.39,
+            "retMean": 1.61,
+            "retMedian": 2.62
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 11.77,
+          "ci": [
+            -1.31,
+            23.9
+          ],
+          "used": 2000
+        },
+        "diffHighMinusLowDD8": {
+          "point": 8.71
+        },
+        "diffRvMedian": 5.73,
+        "diffRetMean": 0.69,
+        "knownAxes": [
+          4,
+          5
+        ],
+        "dropOne": {
+          "trend": {
+            "point": 9.8,
+            "ci": [
+              -4.12,
+              22.51
+            ],
+            "highCases": 46,
+            "lowCases": 42
+          },
+          "volatility": {
+            "point": 13.09,
+            "ci": [
+              -0.61,
+              26.4
+            ],
+            "highCases": 38,
+            "lowCases": 47
+          },
+          "rates": {
+            "point": 15.85,
+            "ci": [
+              0.62,
+              28.16
+            ],
+            "highCases": 38,
+            "lowCases": 45
+          },
+          "credit": {
+            "point": 11.63,
+            "ci": [
+              -1.74,
+              23.97
+            ],
+            "highCases": 44,
+            "lowCases": 42
+          },
+          "commodities": {
+            "point": 21.49,
+            "ci": [
+              5.47,
+              34.14
+            ],
+            "highCases": 32,
+            "lowCases": 49
+          }
+        },
+        "volatilityAxisAlone": {
+          "groups": {
+            "base": {
+              "days": 1559,
+              "cases": 75,
+              "evidence": "사례 75개",
+              "rvMedian": 13.57,
+              "mddMedian": -1.75,
+              "pDD5": 16.81,
+              "pDD8": 6.41,
+              "ret5th": -6.51,
+              "retMean": 1.18,
+              "retMedian": 1.58
+            },
+            "burden": {
+              "days": 510,
+              "cases": 43,
+              "evidence": "사례 43개",
+              "rvMedian": 18.87,
+              "mddMedian": -2.03,
+              "pDD5": 25.1,
+              "pDD8": 10.39,
+              "ret5th": -7.64,
+              "retMean": 1.96,
+              "retMedian": 3.04
+            },
+            "neutral": {
+              "days": 428,
+              "cases": 49,
+              "evidence": "사례 49개",
+              "rvMedian": 13.6,
+              "mddMedian": -2.05,
+              "pDD5": 17.06,
+              "pDD8": 6.54,
+              "ret5th": -7.78,
+              "retMean": 0.76,
+              "retMedian": 1.15
+            },
+            "favorable": {
+              "days": 621,
+              "cases": 46,
+              "evidence": "사례 46개",
+              "rvMedian": 10.92,
+              "mddMedian": -1.52,
+              "pDD5": 9.82,
+              "pDD8": 3.06,
+              "ret5th": -4.86,
+              "retMean": 0.83,
+              "retMedian": 1.31
+            }
+          },
+          "diffBurdenMinusNot": {
+            "point": 12.32,
+            "ci": [
+              1.21,
+              23.67
+            ],
+            "used": 2000
+          }
+        },
+        "vixBand": {
+          "base": {
+            "days": 1559,
+            "cases": 75,
+            "evidence": "사례 75개",
+            "rvMedian": 13.57,
+            "mddMedian": -1.75,
+            "pDD5": 16.81,
+            "pDD8": 6.41,
+            "ret5th": -6.51,
+            "retMean": 1.18,
+            "retMedian": 1.58
+          },
+          "<15": {
+            "days": 276,
+            "cases": 22,
+            "evidence": "사례 22개 · 참고",
+            "rvMedian": 10.5,
+            "mddMedian": -1.22,
+            "pDD5": 10.51,
+            "pDD8": 0.72,
+            "ret5th": -4.3,
+            "retMean": 1.06,
+            "retMedian": 1.67
+          },
+          "15-20": {
+            "days": 689,
+            "cases": 51,
+            "evidence": "사례 51개",
+            "rvMedian": 12.53,
+            "mddMedian": -1.79,
+            "pDD5": 11.76,
+            "pDD8": 5.08,
+            "ret5th": -6.16,
+            "retMean": 0.81,
+            "retMedian": 1.23
+          },
+          "20-25": {
+            "days": 350,
+            "cases": 43,
+            "evidence": "사례 43개",
+            "rvMedian": 16.45,
+            "mddMedian": -1.79,
+            "pDD5": 24,
+            "pDD8": 10.57,
+            "ret5th": -8.76,
+            "retMean": 0.8,
+            "retMedian": 1.44
+          },
+          "25-30": {
+            "days": 165,
+            "cases": 27,
+            "evidence": "사례 27개 · 참고",
+            "rvMedian": 21.65,
+            "mddMedian": -3.28,
+            "pDD5": 34.55,
+            "pDD8": 15.76,
+            "ret5th": -8.16,
+            "retMean": 1.76,
+            "retMedian": 3.17
+          },
+          "30+": {
+            "days": 79,
+            "cases": 12,
+            "evidence": "사례 12개 · 참고",
+            "rvMedian": 22.73,
+            "mddMedian": -1.93,
+            "pDD5": 13.92,
+            "pDD8": 0,
+            "ret5th": -1.93,
+            "retMean": 5.37,
+            "retMedian": 5.62
+          }
+        },
+        "withinVolatilityStrata": {
+          "volBurden": {
+            "table": {
+              "base": {
+                "days": 510,
+                "cases": 43,
+                "evidence": "사례 43개",
+                "rvMedian": 18.87,
+                "mddMedian": -2.03,
+                "pDD5": 25.1,
+                "pDD8": 10.39,
+                "ret5th": -7.64,
+                "retMean": 1.96,
+                "retMedian": 3.04
+              },
+              "other0": {
+                "days": 127,
+                "cases": 20,
+                "evidence": "사례 20개 · 참고",
+                "rvMedian": 16.74,
+                "mddMedian": -1.35,
+                "pDD5": 20.47,
+                "pDD8": 1.57,
+                "ret5th": -4.89,
+                "retMean": 2.19,
+                "retMedian": 2.9
+              },
+              "other1": {
+                "days": 136,
+                "cases": 25,
+                "evidence": "사례 25개 · 참고",
+                "rvMedian": 16.13,
+                "mddMedian": -1.22,
+                "pDD5": 13.24,
+                "pDD8": 2.21,
+                "ret5th": -4.53,
+                "retMean": 1.82,
+                "retMedian": 2.74
+              },
+              "other2+": {
+                "days": 247,
+                "cases": 21,
+                "evidence": "사례 21개 · 참고",
+                "rvMedian": 23.22,
+                "mddMedian": -2.89,
+                "pDD5": 34.01,
+                "pDD8": 19.43,
+                "ret5th": -9.15,
+                "retMean": 1.92,
+                "retMedian": 3.54
+              }
+            },
+            "diff2plusMinus0": {
+              "point": 13.54,
+              "ci": [
+                -6.33,
+                36.82
+              ],
+              "used": 1999
+            },
+            "diff1plusMinus0": {
+              "point": 6.16
+            }
+          },
+          "volNotBurden": {
+            "table": {
+              "base": {
+                "days": 1049,
+                "cases": 58,
+                "evidence": "사례 58개",
+                "rvMedian": 11.85,
+                "mddMedian": -1.67,
+                "pDD5": 12.77,
+                "pDD8": 4.48,
+                "ret5th": -5.93,
+                "retMean": 0.8,
+                "retMedian": 1.25
+              },
+              "other0": {
+                "days": 532,
+                "cases": 41,
+                "evidence": "사례 41개",
+                "rvMedian": 11.48,
+                "mddMedian": -1.37,
+                "pDD5": 11.47,
+                "pDD8": 2.82,
+                "ret5th": -5.4,
+                "retMean": 0.89,
+                "retMedian": 1.34
+              },
+              "other1": {
+                "days": 319,
+                "cases": 41,
+                "evidence": "사례 41개",
+                "rvMedian": 12.32,
+                "mddMedian": -1.96,
+                "pDD5": 12.54,
+                "pDD8": 5.02,
+                "ret5th": -6.16,
+                "retMean": 0.53,
+                "retMedian": 0.94
+              },
+              "other2+": {
+                "days": 198,
+                "cases": 27,
+                "evidence": "사례 27개 · 참고",
+                "rvMedian": 12.93,
+                "mddMedian": -1.93,
+                "pDD5": 16.67,
+                "pDD8": 8.08,
+                "ret5th": -6.7,
+                "retMean": 1,
+                "retMedian": 1.42
+              }
+            },
+            "diff2plusMinus0": {
+              "point": 5.2,
+              "ci": [
+                -6.48,
+                24.06
+              ],
+              "used": 2000
+            },
+            "diff1plusMinus0": {
+              "point": 2.65
+            }
+          }
+        }
+      }
+    },
+    "h63": {
+      "all": {
+        "from": "2008-03-17",
+        "to": "2026-08-17",
+        "burden": {
+          "base": {
+            "days": 4634,
+            "cases": 74,
+            "evidence": "사례 74개",
+            "rvMedian": 13.55,
+            "mddMedian": -3.05,
+            "pDD5": 33.06,
+            "pDD8": 20.26,
+            "ret5th": -11.03,
+            "retMean": 2.68,
+            "retMedian": 3.81
+          },
+          "low": {
+            "days": 1595,
+            "cases": 47,
+            "evidence": "사례 47개",
+            "rvMedian": 11.9,
+            "mddMedian": -2.64,
+            "pDD5": 28.71,
+            "pDD8": 15.55,
+            "ret5th": -8.93,
+            "retMean": 2.15,
+            "retMedian": 3.21
+          },
+          "mid": {
+            "days": 1349,
+            "cases": 61,
+            "evidence": "사례 61개",
+            "rvMedian": 12.81,
+            "mddMedian": -2.84,
+            "pDD5": 26.98,
+            "pDD8": 13.71,
+            "ret5th": -8.01,
+            "retMean": 3.04,
+            "retMedian": 3.75
+          },
+          "high": {
+            "days": 1690,
+            "cases": 57,
+            "evidence": "사례 57개",
+            "rvMedian": 17.76,
+            "mddMedian": -3.77,
+            "pDD5": 42.01,
+            "pDD8": 29.94,
+            "ret5th": -15.02,
+            "retMean": 2.91,
+            "retMedian": 4.94
+          }
+        },
+        "net": {
+          "base": {
+            "days": 4634,
+            "cases": 74,
+            "evidence": "사례 74개",
+            "rvMedian": 13.55,
+            "mddMedian": -3.05,
+            "pDD5": 33.06,
+            "pDD8": 20.26,
+            "ret5th": -11.03,
+            "retMean": 2.68,
+            "retMedian": 3.81
+          },
+          "net>=+1": {
+            "days": 2007,
+            "cases": 56,
+            "evidence": "사례 56개",
+            "rvMedian": 11.93,
+            "mddMedian": -2.77,
+            "pDD5": 28.45,
+            "pDD8": 14,
+            "ret5th": -8.7,
+            "retMean": 1.9,
+            "retMedian": 2.89
+          },
+          "net0": {
+            "days": 885,
+            "cases": 61,
+            "evidence": "사례 61개",
+            "rvMedian": 13.17,
+            "mddMedian": -2.95,
+            "pDD5": 28.81,
+            "pDD8": 17.85,
+            "ret5th": -9.54,
+            "retMean": 2.75,
+            "retMedian": 4.15
+          },
+          "net<=-1": {
+            "days": 1742,
+            "cases": 58,
+            "evidence": "사례 58개",
+            "rvMedian": 17.53,
+            "mddMedian": -3.55,
+            "pDD5": 40.53,
+            "pDD8": 28.7,
+            "ret5th": -14.15,
+            "retMean": 3.55,
+            "retMedian": 5.72
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 13.3
+        },
+        "diffHighMinusLowDD8": {
+          "point": 14.39
+        },
+        "diffRvMedian": 5.87,
+        "diffRetMean": 0.76,
+        "knownAxes": [
+          4,
+          5
+        ]
+      },
+      "firstTwoThirds": {
+        "from": "2008-03-17",
+        "to": "2020-05-01",
+        "burden": {
+          "base": {
+            "days": 3054,
+            "cases": 49,
+            "evidence": "사례 49개",
+            "rvMedian": 13.43,
+            "mddMedian": -3.18,
+            "pDD5": 33.6,
+            "pDD8": 21.48,
+            "ret5th": -12.75,
+            "retMean": 2.05,
+            "retMedian": 3.31
+          },
+          "low": {
+            "days": 1069,
+            "cases": 31,
+            "evidence": "사례 31개",
+            "rvMedian": 11.76,
+            "mddMedian": -2.71,
+            "pDD5": 29.65,
+            "pDD8": 16.09,
+            "ret5th": -11.88,
+            "retMean": 1.41,
+            "retMedian": 2.72
+          },
+          "mid": {
+            "days": 885,
+            "cases": 39,
+            "evidence": "사례 39개",
+            "rvMedian": 12.63,
+            "mddMedian": -3.05,
+            "pDD5": 26.33,
+            "pDD8": 15.03,
+            "ret5th": -8.23,
+            "retMean": 2.62,
+            "retMedian": 3.22
+          },
+          "high": {
+            "days": 1100,
+            "cases": 36,
+            "evidence": "사례 36개",
+            "rvMedian": 18.17,
+            "mddMedian": -4.1,
+            "pDD5": 43.27,
+            "pDD8": 31.91,
+            "ret5th": -21.52,
+            "retMean": 2.21,
+            "retMedian": 4.6
+          }
+        },
+        "net": {
+          "base": {
+            "days": 3054,
+            "cases": 49,
+            "evidence": "사례 49개",
+            "rvMedian": 13.43,
+            "mddMedian": -3.18,
+            "pDD5": 33.6,
+            "pDD8": 21.48,
+            "ret5th": -12.75,
+            "retMean": 2.05,
+            "retMedian": 3.31
+          },
+          "net>=+1": {
+            "days": 1296,
+            "cases": 37,
+            "evidence": "사례 37개",
+            "rvMedian": 11.88,
+            "mddMedian": -2.97,
+            "pDD5": 29.4,
+            "pDD8": 14.27,
+            "ret5th": -11.31,
+            "retMean": 1.19,
+            "retMedian": 2.43
+          },
+          "net0": {
+            "days": 610,
+            "cases": 40,
+            "evidence": "사례 40개",
+            "rvMedian": 12.67,
+            "mddMedian": -3,
+            "pDD5": 28.85,
+            "pDD8": 21.64,
+            "ret5th": -10.54,
+            "retMean": 2.01,
+            "retMedian": 3.75
+          },
+          "net<=-1": {
+            "days": 1148,
+            "cases": 38,
+            "evidence": "사례 38개",
+            "rvMedian": 17.58,
+            "mddMedian": -3.6,
+            "pDD5": 40.85,
+            "pDD8": 29.53,
+            "ret5th": -21.42,
+            "retMean": 3.04,
+            "retMedian": 5.46
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 13.62
+        },
+        "diffHighMinusLowDD8": {
+          "point": 15.82
+        },
+        "diffRvMedian": 6.4,
+        "diffRetMean": 0.8,
+        "knownAxes": [
+          4
+        ]
+      },
+      "halfA": {
+        "from": "2008-03-17",
+        "to": "2014-02-06",
+        "burden": {
+          "base": {
+            "days": 1485,
+            "cases": 24,
+            "evidence": "사례 24개 · 참고",
+            "rvMedian": 15.17,
+            "mddMedian": -3.79,
+            "pDD5": 40.2,
+            "pDD8": 25.79,
+            "ret5th": -15.87,
+            "retMean": 1.81,
+            "retMedian": 3.84
+          },
+          "low": {
+            "days": 349,
+            "cases": 12,
+            "evidence": "사례 12개 · 참고",
+            "rvMedian": 12.24,
+            "mddMedian": -2.73,
+            "pDD5": 34.96,
+            "pDD8": 15.47,
+            "ret5th": -10.04,
+            "retMean": 2.1,
+            "retMedian": 2.83
+          },
+          "mid": {
+            "days": 395,
+            "cases": 17,
+            "evidence": "사례 17개 · 참고",
+            "rvMedian": 12.85,
+            "mddMedian": -3.29,
+            "pDD5": 25.82,
+            "pDD8": 13.42,
+            "ret5th": -9.15,
+            "retMean": 3.67,
+            "retMedian": 4.69
+          },
+          "high": {
+            "days": 741,
+            "cases": 20,
+            "evidence": "사례 20개 · 참고",
+            "rvMedian": 20.37,
+            "mddMedian": -5.1,
+            "pDD5": 50.34,
+            "pDD8": 37.25,
+            "ret5th": -26.61,
+            "retMean": 0.69,
+            "retMedian": 3.8
+          }
+        },
+        "net": {
+          "base": {
+            "days": 1485,
+            "cases": 24,
+            "evidence": "사례 24개 · 참고",
+            "rvMedian": 15.17,
+            "mddMedian": -3.79,
+            "pDD5": 40.2,
+            "pDD8": 25.79,
+            "ret5th": -15.87,
+            "retMean": 1.81,
+            "retMedian": 3.84
+          },
+          "net>=+1": {
+            "days": 410,
+            "cases": 15,
+            "evidence": "사례 15개 · 참고",
+            "rvMedian": 12.38,
+            "mddMedian": -3.46,
+            "pDD5": 35.85,
+            "pDD8": 14.63,
+            "ret5th": -9.97,
+            "retMean": 1.73,
+            "retMedian": 2.19
+          },
+          "net0": {
+            "days": 313,
+            "cases": 18,
+            "evidence": "사례 18개 · 참고",
+            "rvMedian": 12.67,
+            "mddMedian": -3.32,
+            "pDD5": 29.71,
+            "pDD8": 20.45,
+            "ret5th": -10.54,
+            "retMean": 2.46,
+            "retMedian": 4.39
+          },
+          "net<=-1": {
+            "days": 762,
+            "cases": 21,
+            "evidence": "사례 21개 · 참고",
+            "rvMedian": 19.45,
+            "mddMedian": -4.56,
+            "pDD5": 46.85,
+            "pDD8": 33.99,
+            "ret5th": -26.59,
+            "retMean": 1.6,
+            "retMedian": 5.12
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 15.38
+        },
+        "diffHighMinusLowDD8": {
+          "point": 21.77
+        },
+        "diffRvMedian": 8.13,
+        "diffRetMean": -1.41,
+        "knownAxes": [
+          4
+        ]
+      },
+      "halfB": {
+        "from": "2014-05-09",
+        "to": "2020-05-01",
+        "burden": {
+          "base": {
+            "days": 1506,
+            "cases": 24,
+            "evidence": "사례 24개 · 참고",
+            "rvMedian": 12.3,
+            "mddMedian": -2.74,
+            "pDD5": 28.49,
+            "pDD8": 18.13,
+            "ret5th": -10.13,
+            "retMean": 2.18,
+            "retMedian": 3
+          },
+          "low": {
+            "days": 658,
+            "cases": 19,
+            "evidence": "사례 19개 · 참고",
+            "rvMedian": 11.65,
+            "mddMedian": -2.88,
+            "pDD5": 29.64,
+            "pDD8": 17.93,
+            "ret5th": -13.33,
+            "retMean": 0.76,
+            "retMedian": 2.37
+          },
+          "mid": {
+            "days": 489,
+            "cases": 22,
+            "evidence": "사례 22개 · 참고",
+            "rvMedian": 12.27,
+            "mddMedian": -2.87,
+            "pDD5": 26.79,
+            "pDD8": 16.36,
+            "ret5th": -7.97,
+            "retMean": 1.76,
+            "retMedian": 2.76
+          },
+          "high": {
+            "days": 359,
+            "cases": 16,
+            "evidence": "사례 16개 · 참고",
+            "rvMedian": 14.71,
+            "mddMedian": -2.23,
+            "pDD5": 28.69,
+            "pDD8": 20.89,
+            "ret5th": -9.85,
+            "retMean": 5.36,
+            "retMedian": 5.49
+          }
+        },
+        "net": {
+          "base": {
+            "days": 1506,
+            "cases": 24,
+            "evidence": "사례 24개 · 참고",
+            "rvMedian": 12.3,
+            "mddMedian": -2.74,
+            "pDD5": 28.49,
+            "pDD8": 18.13,
+            "ret5th": -10.13,
+            "retMean": 2.18,
+            "retMedian": 3
+          },
+          "net>=+1": {
+            "days": 827,
+            "cases": 21,
+            "evidence": "사례 21개 · 참고",
+            "rvMedian": 11.52,
+            "mddMedian": -2.97,
+            "pDD5": 28.3,
+            "pDD8": 15.11,
+            "ret5th": -12.5,
+            "retMean": 0.7,
+            "retMedian": 2.29
+          },
+          "net0": {
+            "days": 294,
+            "cases": 21,
+            "evidence": "사례 21개 · 참고",
+            "rvMedian": 12.7,
+            "mddMedian": -2.62,
+            "pDD5": 28.23,
+            "pDD8": 23.13,
+            "ret5th": -8.57,
+            "retMean": 1.47,
+            "retMedian": 3.11
+          },
+          "net<=-1": {
+            "days": 385,
+            "cases": 17,
+            "evidence": "사례 17개 · 참고",
+            "rvMedian": 14.49,
+            "mddMedian": -2.22,
+            "pDD5": 29.09,
+            "pDD8": 20.78,
+            "ret5th": -6.19,
+            "retMean": 5.89,
+            "retMedian": 5.8
+          }
+        },
+        "diffHighMinusLow": {
+          "point": -0.94
+        },
+        "diffHighMinusLowDD8": {
+          "point": 2.96
+        },
+        "diffRvMedian": 3.06,
+        "diffRetMean": 4.6,
+        "knownAxes": [
+          4
+        ]
+      },
+      "heldOut": {
+        "from": "2020-08-03",
+        "to": "2026-08-17",
+        "burden": {
+          "base": {
+            "days": 1517,
+            "cases": 25,
+            "evidence": "사례 25개 · 참고",
+            "rvMedian": 13.55,
+            "mddMedian": -2.88,
+            "pDD5": 33.09,
+            "pDD8": 18.66,
+            "ret5th": -8.06,
+            "retMean": 3.65,
+            "retMedian": 4.53
+          },
+          "low": {
+            "days": 526,
+            "cases": 16,
+            "evidence": "사례 16개 · 참고",
+            "rvMedian": 12.11,
+            "mddMedian": -2.49,
+            "pDD5": 26.81,
+            "pDD8": 14.45,
+            "ret5th": -6.26,
+            "retMean": 3.65,
+            "retMedian": 4.15
+          },
+          "mid": {
+            "days": 442,
+            "cases": 22,
+            "evidence": "사례 22개 · 참고",
+            "rvMedian": 12.88,
+            "mddMedian": -2.61,
+            "pDD5": 29.64,
+            "pDD8": 11.76,
+            "ret5th": -7.67,
+            "retMean": 3.67,
+            "retMedian": 4.63
+          },
+          "high": {
+            "days": 549,
+            "cases": 20,
+            "evidence": "사례 20개 · 참고",
+            "rvMedian": 15.95,
+            "mddMedian": -3.68,
+            "pDD5": 41.89,
+            "pDD8": 28.23,
+            "ret5th": -10.29,
+            "retMean": 3.62,
+            "retMedian": 5.15
+          }
+        },
+        "net": {
+          "base": {
+            "days": 1517,
+            "cases": 25,
+            "evidence": "사례 25개 · 참고",
+            "rvMedian": 13.55,
+            "mddMedian": -2.88,
+            "pDD5": 33.09,
+            "pDD8": 18.66,
+            "ret5th": -8.06,
+            "retMean": 3.65,
+            "retMedian": 4.53
+          },
+          "net>=+1": {
+            "days": 711,
+            "cases": 19,
+            "evidence": "사례 19개 · 참고",
+            "rvMedian": 12.03,
+            "mddMedian": -2.39,
+            "pDD5": 26.72,
+            "pDD8": 13.5,
+            "ret5th": -6.77,
+            "retMean": 3.2,
+            "retMedian": 3.9
+          },
+          "net0": {
+            "days": 260,
+            "cases": 21,
+            "evidence": "사례 21개 · 참고",
+            "rvMedian": 13.89,
+            "mddMedian": -3.07,
+            "pDD5": 30.38,
+            "pDD8": 10,
+            "ret5th": -4.96,
+            "retMean": 4.26,
+            "retMedian": 4.67
+          },
+          "net<=-1": {
+            "days": 546,
+            "cases": 19,
+            "evidence": "사례 19개 · 참고",
+            "rvMedian": 16.48,
+            "mddMedian": -3.66,
+            "pDD5": 42.67,
+            "pDD8": 29.49,
+            "ret5th": -10.99,
+            "retMean": 3.94,
+            "retMedian": 5.77
+          }
+        },
+        "diffHighMinusLow": {
+          "point": 15.09
+        },
+        "diffHighMinusLowDD8": {
+          "point": 13.78
+        },
+        "diffRvMedian": 3.84,
+        "diffRetMean": -0.03,
+        "knownAxes": [
+          4,
+          5
+        ]
+      }
+    }
+  }
+}

@@ -23,8 +23,31 @@
   "criteria": "architecture/validation-gate-criteria.json",
   "evidenceArtifact": "public-data/factor-backtest-longrun.json",
   "evidenceGeneratedAt": "2026-07-10T09:50:13.620Z",
+  "evidenceModelMatchesLive": false,
+  "evidenceModel": {
+    "factorRanksModelVersion": null,
+    "factorWeightsModelVersion": null,
+    "activeFactors": [
+      "kalman",
+      "lowvol",
+      "momentum",
+      "trend"
+    ]
+  },
+  "liveModel": {
+    "factorRanksModelVersion": "factor-ranks.v9",
+    "factorWeightsModelVersion": "factor-weights.v5",
+    "activeFactors": [
+      "kalman",
+      "lowvol",
+      "momentum",
+      "quality",
+      "trend",
+      "value"
+    ]
+  },
   "localContractStatus": "VERIFIED_LOCAL",
   "localContractEvidence": "scripts/ci-screener-workbench-contract.mjs",
-  "computedAt": "2026-11-04T02:00:46.064Z",
-  "observedAt": "2026-11-04T02:00:46.064Z"
+  "computedAt": "2026-11-15T13:19:21.380Z",
+  "observedAt": "2026-11-15T13:19:21.380Z"
 }

@@ -1,3 +1,8 @@
+## v60.20 (2026-11-15)
+- **Outcome stamp fixture (P2589):** the pre-push gate of the refresh lane holds once stress-outcomes.json carries its definition stamp, so the rebuilt VIX-band and scenario records can publish.
+- **Market-lean verdict published:** the research-backtest run of 2026-11-15 (Actions run 43716872941) is promoted to public-data — market-lean-backtest.json, market-lean-risk.json and the marketLean block of model-validation-status.json. Direction FAIL (held-out vs base: buy −0.18%p [−1.10, +0.56] over 38 cases, defend +0.48%p [−0.86, +2.17] over 33) and risk read FAIL (held-out +11.77%p [−1.31, +23.9], 48 vs 41 cases); 시장 상태 shows counts only and states the verdict. Both studies get a lineage policy.
+- R1 7곳 v60.20
+
 ## v60.19 (2026-11-15)
 - **AI 답변 수치의 근거 대조 (P2543/R752):** AI 답변의 숫자가 값만 같으면 다른 종목·지표·날짜의 자료로 통과하던 문제를 고쳤습니다. 이제 종목·지표·종가/장중 기준·방향·날짜까지 맞아야 '확인된 수치'와 표에 남습니다. 비교 표는 칸마다 그 행의 지표와 그 열의 종목으로 확인합니다. 개념 설명용 예시 숫자는 지금 수치의 근거가 되지 않습니다.
 - **검색을 요청한 질문은 실제로 검색 (P2544):** '검색해서 알려줘' 같은 질문에서 AI가 앱 자료만 읽고 검색 없이 답을 끝낼 수 있던 문제를 고쳤습니다. 앱 자료를 먼저 읽었더라도 아직 검색하지 않았으면 다음 요청은 검색만 허용합니다. 응답당 검색 2회 한도와 예산 장치는 그대로입니다.

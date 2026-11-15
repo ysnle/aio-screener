@@ -1465,7 +1465,8 @@ assert.ok(stressOutcomesCurrent({ ...stress, fingerprint: stressOutcomesFingerpr
   const regime = { available: true, asOf: '2026-11-13', counts: { favorable: 1, neutral: 2, burden: 3 } };
   const bands = [{ id: 'calm', horizons: { 21: { hitRate: 0.9, n: 400 } } }];
   const leanOf = (stressFile) => JSON.stringify(buildMarketLean({ regime, stress: stressFile, vix: 14 }));
-  assert.ok(leanOf({ ...stress, bands, all: { 21: { hitRate: 0.62 } } }) === leanOf(null) && leanOf({ ...stress, bands, all: { 21: { hitRate: 0.62 } }, fingerprint: stressOutcomesFingerprint() }) !== leanOf(null),
+  // The committed file is stamped once the Actions lane has rebuilt it, so the unstamped case removes the stamp itself.
+  assert.ok(leanOf({ ...stress, bands, all: { 21: { hitRate: 0.62 } }, fingerprint: undefined }) === leanOf(null) && leanOf({ ...stress, bands, all: { 21: { hitRate: 0.62 } }, fingerprint: stressOutcomesFingerprint() }) !== leanOf(null),
     'v60.18 the session lean ignores an unstamped stress-outcomes file and reads a stamped one');
   // Review v60.19 B7: a record withheld for its stamp stays on screen as one status line with its last date (AGENTS: a
   // designed source that failed stays visible), on the VIX-band fold and the correction card alike.

@@ -155,6 +155,9 @@ const POLICIES = {
   // v60.18: the AI reading's last rejected attempts (operator-side, not on Pages); written only when an attempt is rejected, so no age window
   'user-research-digest.json': { kind: 'research-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },
   'model-validation-status.json': { kind: 'research-horizon', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 * 90 },
+  // The two market-lean studies behind marketLean / marketLean.risk: research-backtest uploads them, a reviewed promotion commits them.
+  'market-lean-backtest.json': { kind: 'research-horizon', timestamp: ['generatedAt'], maxAgeHours: 24 * 120 },
+  'market-lean-risk.json': { kind: 'research-horizon', timestamp: ['generatedAt'], maxAgeHours: 24 * 120 },
   'operations-slo-window.json': { kind: 'operational-status', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 },
   'structural-data-research.json': { kind: 'research-reference', timestamp: ['checkedAt', 'generatedAt'], maxAgeHours: 24 * 14 }
 };

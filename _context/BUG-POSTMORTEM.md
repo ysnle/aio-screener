@@ -39,6 +39,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2589 - v60.20 - v60.20 the stamp fixture no longer assumes the committed stress record is unstamped (2026-11-15)
+
+- symptom/reproduction: The first refresh that rebuilt stress-outcomes.json on the new definition (operator dispatch, 2026-11-15 13:02Z) failed its pre-push gate: scenario-guidance-fixture 'the session lean ignores an unstamped stress-outcomes file and reads a stamped one'. The rebuilt records were not published, so the VIX-band and scenario cards stayed in the 'recomputed at the next refresh' state.
+- root_cause: The assertion built its unstamped case by spreading the committed public-data/stress-outcomes.json. That file had no fingerprint locally and in CI on the push commit, so the gate passed everywhere before the push; once the lane stamped the file, the 'unstamped' case carried the live stamp. A test input depended on the state of a published artifact that the same batch changes.
+- fix: scripts/ci-scenario-guidance-fixture.mjs: the unstamped case removes the fingerprint itself. Checked against stamped copies of both outcome files (scenario-guidance-fixture, decision-frame, market-lean-validation, esm-core-unit, ai-intelligence-contract pass).
+- violated_rule: A gate that reads a published artifact must hold for both the artifact as committed and the artifact as the next producer run writes it (pre-push producer parity).
+- prevention: The case no longer depends on the committed file's stamp; the other readers of the two outcome files in gates already branch on stamped/unstamped.
+- verification/residual: Local run of the five gates with both committed outcome files stamped in place and restored afterwards; the dispatched refresh is re-run after push.
+- files: scripts/ci-scenario-guidance-fixture.mjs
+
 ## P2588 - v60.19 - v60.19 the reader-boot check proves the hover load instead of counting any idle callback (2026-11-15)
 
 - symptom/reproduction: browser-ai-public failed in the full QA run on 'reader browser boots without the chat script and arms the idle load' after the glossary stopped loading at idle; an earlier thread had reported the failure as pre-existing without evidence.

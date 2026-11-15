@@ -1,0 +1,1137 @@
+{
+  "schemaVersion": "market-lean-backtest.v1",
+  "generatedAt": "2026-11-15T13:02:42.200Z",
+  "methodology": {
+    "ruleVersion": "market-lean.v1",
+    "leanRules": {
+      "horizon": 21,
+      "minVoteN": 30,
+      "minRateN": 10,
+      "minEdgePp": 5,
+      "seMultiple": 1.5,
+      "conditionGap": 2
+    },
+    "ruleTested": "us.score of buildMarketLean on buildMarketRegime (live functions, condition-count vote only)",
+    "pointInTime": "trailing 420 session rows per reading (history.json depth); HY OAS from the session after its date",
+    "sources": {
+      "yahoo": {
+        "spx": "^GSPC",
+        "nasdaq": "^IXIC",
+        "ndx": "^NDX",
+        "rut": "^RUT",
+        "vix": "^VIX",
+        "vix3m": "^VIX3M",
+        "tnx": "^TNX",
+        "dxy": "DX-Y.NYB",
+        "wti": "CL=F",
+        "gold": "GC=F",
+        "soxx": "SOXX"
+      },
+      "fred": "BAMLH0A0HYM2"
+    },
+    "outcome": "S&P 500 price return (no dividends), close to close",
+    "axesReconstructed": [
+      "trend",
+      "volatility",
+      "rates",
+      "commodities"
+    ],
+    "axesMissing": [
+      {
+        "id": "breadth",
+        "knownShare": 0,
+        "knownFrom": null,
+        "why": "S&P 500 구성 종목의 이동평균 위 비율은 무료 시점별 기록이 없음"
+      },
+      {
+        "id": "credit",
+        "knownShare": 0.16,
+        "knownFrom": "2023-12-13",
+        "why": "FRED가 ICE BofA 하이일드 스프레드를 최근 3년만 제공 — 그 기간에만 판정에 들어감"
+      }
+    ],
+    "axisCoverage": {
+      "trend": {
+        "knownSessions": 4697,
+        "share": 1,
+        "from": "2008-03-17"
+      },
+      "breadth": {
+        "knownSessions": 0,
+        "share": 0,
+        "from": null
+      },
+      "volatility": {
+        "knownSessions": 4697,
+        "share": 1,
+        "from": "2008-03-17"
+      },
+      "rates": {
+        "knownSessions": 4697,
+        "share": 1,
+        "from": "2008-03-17"
+      },
+      "credit": {
+        "knownSessions": 733,
+        "share": 0.16,
+        "from": "2023-12-13"
+      },
+      "commodities": {
+        "knownSessions": 4697,
+        "share": 1,
+        "from": "2008-03-17"
+      }
+    },
+    "frequencyItems": "not passed (VIX band never votes; no published temperature frequency clears its vote gate)",
+    "nonOverlap": "greedy per label: a case at or after the previous case + horizon",
+    "criteria": "architecture/validation-gate-criteria.json#marketLean",
+    "interval": {
+      "method": "moving-block bootstrap over the held-out daily series",
+      "blockSessions": 63,
+      "resamples": 2000,
+      "seed": 20261115,
+      "level": 0.95
+    },
+    "split": {
+      "heldOutFraction": 0.3333,
+      "heldOutFrom": "2020-08-03",
+      "embargoSessions": 21
+    }
+  },
+  "span": {
+    "from": "2008-03-17",
+    "to": "2026-11-13",
+    "sessions": 4697,
+    "sufficientSessions": 4697,
+    "scoreDays": {
+      "0": 2498,
+      "1": 1130,
+      "-1": 1069
+    }
+  },
+  "horizons": {
+    "h5": {
+      "all": {
+        "from": "2008-03-17",
+        "to": "2026-11-06",
+        "base": {
+          "days": 4692,
+          "cases": 939,
+          "effectiveN": 939,
+          "evidence": "사례 939개",
+          "level": "enough",
+          "hitRate": 59.85,
+          "median": 0.38,
+          "mean": 0.22,
+          "dailyMean": 0.22
+        },
+        "labels": {
+          "0": {
+            "days": 2493,
+            "cases": 612,
+            "effectiveN": 612,
+            "evidence": "사례 612개",
+            "level": "enough",
+            "hitRate": 60.78,
+            "median": 0.46,
+            "mean": 0.21,
+            "dailyMean": 0.28
+          },
+          "1": {
+            "days": 1130,
+            "cases": 304,
+            "effectiveN": 304,
+            "evidence": "사례 304개",
+            "level": "enough",
+            "hitRate": 59.21,
+            "median": 0.26,
+            "mean": 0.07,
+            "dailyMean": 0.06
+          },
+          "2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          },
+          "buy": {
+            "days": 1130,
+            "cases": 304,
+            "effectiveN": 304,
+            "evidence": "사례 304개",
+            "level": "enough",
+            "hitRate": 59.21,
+            "median": 0.26,
+            "mean": 0.07,
+            "dailyMean": 0.06
+          },
+          "neutral": {
+            "days": 2493,
+            "cases": 612,
+            "effectiveN": 612,
+            "evidence": "사례 612개",
+            "level": "enough",
+            "hitRate": 60.78,
+            "median": 0.46,
+            "mean": 0.21,
+            "dailyMean": 0.28
+          },
+          "defend": {
+            "days": 1069,
+            "cases": 267,
+            "effectiveN": 267,
+            "evidence": "사례 267개",
+            "level": "enough",
+            "hitRate": 59.55,
+            "median": 0.52,
+            "mean": 0.29,
+            "dailyMean": 0.24
+          },
+          "-1": {
+            "days": 1069,
+            "cases": 267,
+            "effectiveN": 267,
+            "evidence": "사례 267개",
+            "level": "enough",
+            "hitRate": 59.55,
+            "median": 0.52,
+            "mean": 0.29,
+            "dailyMean": 0.24
+          },
+          "-2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          }
+        }
+      },
+      "inSample": {
+        "from": "2008-03-17",
+        "to": "2020-07-01",
+        "base": {
+          "days": 3096,
+          "cases": 620,
+          "effectiveN": 620,
+          "evidence": "사례 620개",
+          "level": "enough",
+          "hitRate": 59.35,
+          "median": 0.36,
+          "mean": 0.18,
+          "dailyMean": 0.18
+        },
+        "labels": {
+          "0": {
+            "days": 1722,
+            "cases": 418,
+            "effectiveN": 418,
+            "evidence": "사례 418개",
+            "level": "enough",
+            "hitRate": 61,
+            "median": 0.44,
+            "mean": 0.11,
+            "dailyMean": 0.2
+          },
+          "1": {
+            "days": 655,
+            "cases": 183,
+            "effectiveN": 183,
+            "evidence": "사례 183개",
+            "level": "enough",
+            "hitRate": 60.11,
+            "median": 0.25,
+            "mean": 0.01,
+            "dailyMean": 0.02
+          },
+          "2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          },
+          "buy": {
+            "days": 655,
+            "cases": 183,
+            "effectiveN": 183,
+            "evidence": "사례 183개",
+            "level": "enough",
+            "hitRate": 60.11,
+            "median": 0.25,
+            "mean": 0.01,
+            "dailyMean": 0.02
+          },
+          "neutral": {
+            "days": 1722,
+            "cases": 418,
+            "effectiveN": 418,
+            "evidence": "사례 418개",
+            "level": "enough",
+            "hitRate": 61,
+            "median": 0.44,
+            "mean": 0.11,
+            "dailyMean": 0.2
+          },
+          "defend": {
+            "days": 719,
+            "cases": 177,
+            "effectiveN": 177,
+            "evidence": "사례 177개",
+            "level": "enough",
+            "hitRate": 61.02,
+            "median": 0.59,
+            "mean": 0.29,
+            "dailyMean": 0.25
+          },
+          "-1": {
+            "days": 719,
+            "cases": 177,
+            "effectiveN": 177,
+            "evidence": "사례 177개",
+            "level": "enough",
+            "hitRate": 61.02,
+            "median": 0.59,
+            "mean": 0.29,
+            "dailyMean": 0.25
+          },
+          "-2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          }
+        }
+      },
+      "heldOut": {
+        "from": "2020-08-03",
+        "to": "2026-11-06",
+        "base": {
+          "days": 1575,
+          "cases": 315,
+          "effectiveN": 315,
+          "evidence": "사례 315개",
+          "level": "enough",
+          "hitRate": 60.63,
+          "median": 0.45,
+          "mean": 0.29,
+          "dailyMean": 0.29
+        },
+        "labels": {
+          "0": {
+            "days": 750,
+            "cases": 190,
+            "effectiveN": 190,
+            "evidence": "사례 190개",
+            "level": "enough",
+            "hitRate": 60.53,
+            "median": 0.56,
+            "mean": 0.41,
+            "dailyMean": 0.43
+          },
+          "1": {
+            "days": 475,
+            "cases": 121,
+            "effectiveN": 121,
+            "evidence": "사례 121개",
+            "level": "enough",
+            "hitRate": 57.85,
+            "median": 0.26,
+            "mean": 0.16,
+            "dailyMean": 0.12
+          },
+          "2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          },
+          "buy": {
+            "days": 475,
+            "cases": 121,
+            "effectiveN": 121,
+            "evidence": "사례 121개",
+            "level": "enough",
+            "hitRate": 57.85,
+            "median": 0.26,
+            "mean": 0.16,
+            "dailyMean": 0.12
+          },
+          "neutral": {
+            "days": 750,
+            "cases": 190,
+            "effectiveN": 190,
+            "evidence": "사례 190개",
+            "level": "enough",
+            "hitRate": 60.53,
+            "median": 0.56,
+            "mean": 0.41,
+            "dailyMean": 0.43
+          },
+          "defend": {
+            "days": 350,
+            "cases": 90,
+            "effectiveN": 90,
+            "evidence": "사례 90개",
+            "level": "enough",
+            "hitRate": 56.67,
+            "median": 0.36,
+            "mean": 0.29,
+            "dailyMean": 0.21
+          },
+          "-1": {
+            "days": 350,
+            "cases": 90,
+            "effectiveN": 90,
+            "evidence": "사례 90개",
+            "level": "enough",
+            "hitRate": 56.67,
+            "median": 0.36,
+            "mean": 0.29,
+            "dailyMean": 0.21
+          },
+          "-2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          }
+        }
+      }
+    },
+    "h21": {
+      "all": {
+        "from": "2008-03-17",
+        "to": "2026-10-15",
+        "base": {
+          "days": 4676,
+          "cases": 223,
+          "effectiveN": 223,
+          "evidence": "사례 223개",
+          "level": "enough",
+          "hitRate": 65.02,
+          "median": 1.52,
+          "mean": 0.93,
+          "dailyMean": 0.9
+        },
+        "labels": {
+          "0": {
+            "days": 2484,
+            "cases": 182,
+            "effectiveN": 182,
+            "evidence": "사례 182개",
+            "level": "enough",
+            "hitRate": 67.58,
+            "median": 1.55,
+            "mean": 0.8,
+            "dailyMean": 0.91
+          },
+          "1": {
+            "days": 1129,
+            "cases": 101,
+            "effectiveN": 101,
+            "evidence": "사례 101개",
+            "level": "enough",
+            "hitRate": 65.35,
+            "median": 0.89,
+            "mean": 0.52,
+            "dailyMean": 0.54
+          },
+          "2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          },
+          "buy": {
+            "days": 1129,
+            "cases": 101,
+            "effectiveN": 101,
+            "evidence": "사례 101개",
+            "level": "enough",
+            "hitRate": 65.35,
+            "median": 0.89,
+            "mean": 0.52,
+            "dailyMean": 0.54,
+            "vsAll": {
+              "point": -0.36,
+              "ci": [
+                -1.04,
+                0.22
+              ],
+              "used": 2000
+            }
+          },
+          "neutral": {
+            "days": 2484,
+            "cases": 182,
+            "effectiveN": 182,
+            "evidence": "사례 182개",
+            "level": "enough",
+            "hitRate": 67.58,
+            "median": 1.55,
+            "mean": 0.8,
+            "dailyMean": 0.91
+          },
+          "defend": {
+            "days": 1063,
+            "cases": 93,
+            "effectiveN": 93,
+            "evidence": "사례 93개",
+            "level": "enough",
+            "hitRate": 64.52,
+            "median": 1.96,
+            "mean": 1.01,
+            "dailyMean": 1.26,
+            "vsAll": {
+              "point": 0.36,
+              "ci": [
+                -0.8,
+                1.55
+              ],
+              "used": 2000
+            }
+          },
+          "-1": {
+            "days": 1063,
+            "cases": 93,
+            "effectiveN": 93,
+            "evidence": "사례 93개",
+            "level": "enough",
+            "hitRate": 64.52,
+            "median": 1.96,
+            "mean": 1.01,
+            "dailyMean": 1.26
+          },
+          "-2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          }
+        },
+        "spreadBuyMinusDefend": {
+          "point": -0.72,
+          "ci": [
+            -2.41,
+            0.87
+          ],
+          "used": 2000
+        }
+      },
+      "inSample": {
+        "from": "2008-03-17",
+        "to": "2020-07-01",
+        "base": {
+          "days": 3096,
+          "cases": 148,
+          "effectiveN": 148,
+          "evidence": "사례 148개",
+          "level": "enough",
+          "hitRate": 65.54,
+          "median": 1.51,
+          "mean": 0.78,
+          "dailyMean": 0.73
+        },
+        "labels": {
+          "0": {
+            "days": 1722,
+            "cases": 124,
+            "effectiveN": 124,
+            "evidence": "사례 124개",
+            "level": "enough",
+            "hitRate": 64.52,
+            "median": 1.55,
+            "mean": 0.48,
+            "dailyMean": 0.78
+          },
+          "1": {
+            "days": 655,
+            "cases": 63,
+            "effectiveN": 63,
+            "evidence": "사례 63개",
+            "level": "enough",
+            "hitRate": 63.49,
+            "median": 0.86,
+            "mean": 0.45,
+            "dailyMean": 0.21
+          },
+          "2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          },
+          "buy": {
+            "days": 655,
+            "cases": 63,
+            "effectiveN": 63,
+            "evidence": "사례 63개",
+            "level": "enough",
+            "hitRate": 63.49,
+            "median": 0.86,
+            "mean": 0.45,
+            "dailyMean": 0.21,
+            "vsAll": {
+              "point": -0.52,
+              "ci": [
+                -1.38,
+                0.37
+              ],
+              "used": 2000
+            }
+          },
+          "neutral": {
+            "days": 1722,
+            "cases": 124,
+            "effectiveN": 124,
+            "evidence": "사례 124개",
+            "level": "enough",
+            "hitRate": 64.52,
+            "median": 1.55,
+            "mean": 0.48,
+            "dailyMean": 0.78
+          },
+          "defend": {
+            "days": 719,
+            "cases": 60,
+            "effectiveN": 60,
+            "evidence": "사례 60개",
+            "level": "enough",
+            "hitRate": 63.33,
+            "median": 1.55,
+            "mean": 0.93,
+            "dailyMean": 1.07,
+            "vsAll": {
+              "point": 0.34,
+              "ci": [
+                -1.5,
+                1.94
+              ],
+              "used": 2000
+            }
+          },
+          "-1": {
+            "days": 719,
+            "cases": 60,
+            "effectiveN": 60,
+            "evidence": "사례 60개",
+            "level": "enough",
+            "hitRate": 63.33,
+            "median": 1.55,
+            "mean": 0.93,
+            "dailyMean": 1.07
+          },
+          "-2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          }
+        },
+        "spreadBuyMinusDefend": {
+          "point": -0.86,
+          "ci": [
+            -3.14,
+            1.67
+          ],
+          "used": 2000
+        }
+      },
+      "heldOut": {
+        "from": "2020-08-03",
+        "to": "2026-10-15",
+        "base": {
+          "days": 1559,
+          "cases": 75,
+          "effectiveN": 75,
+          "evidence": "사례 75개",
+          "level": "enough",
+          "hitRate": 65.33,
+          "median": 1.81,
+          "mean": 1.23,
+          "dailyMean": 1.18
+        },
+        "labels": {
+          "0": {
+            "days": 741,
+            "cases": 58,
+            "effectiveN": 58,
+            "evidence": "사례 58개",
+            "level": "enough",
+            "hitRate": 70.69,
+            "median": 1.51,
+            "mean": 1.43,
+            "dailyMean": 1.07
+          },
+          "1": {
+            "days": 474,
+            "cases": 38,
+            "effectiveN": 38,
+            "evidence": "사례 38개",
+            "level": "enough",
+            "hitRate": 68.42,
+            "median": 1.02,
+            "mean": 0.64,
+            "dailyMean": 1
+          },
+          "2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          },
+          "buy": {
+            "days": 474,
+            "cases": 38,
+            "effectiveN": 38,
+            "evidence": "사례 38개",
+            "level": "enough",
+            "hitRate": 68.42,
+            "median": 1.02,
+            "mean": 0.64,
+            "dailyMean": 1,
+            "vsAll": {
+              "point": -0.18,
+              "ci": [
+                -1.1,
+                0.56
+              ],
+              "used": 2000
+            }
+          },
+          "neutral": {
+            "days": 741,
+            "cases": 58,
+            "effectiveN": 58,
+            "evidence": "사례 58개",
+            "level": "enough",
+            "hitRate": 70.69,
+            "median": 1.51,
+            "mean": 1.43,
+            "dailyMean": 1.07
+          },
+          "defend": {
+            "days": 344,
+            "cases": 33,
+            "effectiveN": 33,
+            "evidence": "사례 33개",
+            "level": "enough",
+            "hitRate": 66.67,
+            "median": 2.45,
+            "mean": 1.17,
+            "dailyMean": 1.66,
+            "vsAll": {
+              "point": 0.48,
+              "ci": [
+                -0.86,
+                2.17
+              ],
+              "used": 2000
+            }
+          },
+          "-1": {
+            "days": 344,
+            "cases": 33,
+            "effectiveN": 33,
+            "evidence": "사례 33개",
+            "level": "enough",
+            "hitRate": 66.67,
+            "median": 2.45,
+            "mean": 1.17,
+            "dailyMean": 1.66
+          },
+          "-2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          }
+        },
+        "spreadBuyMinusDefend": {
+          "point": -0.65,
+          "ci": [
+            -2.94,
+            1.28
+          ],
+          "used": 2000
+        }
+      }
+    },
+    "h63": {
+      "all": {
+        "from": "2008-03-17",
+        "to": "2026-08-17",
+        "base": {
+          "days": 4634,
+          "cases": 74,
+          "effectiveN": 74,
+          "evidence": "사례 74개",
+          "level": "enough",
+          "hitRate": 75.68,
+          "median": 3.6,
+          "mean": 2.86,
+          "dailyMean": 2.68
+        },
+        "labels": {
+          "0": {
+            "days": 2455,
+            "cases": 68,
+            "effectiveN": 68,
+            "evidence": "사례 68개",
+            "level": "enough",
+            "hitRate": 79.41,
+            "median": 3.81,
+            "mean": 2.61,
+            "dailyMean": 2.86
+          },
+          "1": {
+            "days": 1119,
+            "cases": 43,
+            "effectiveN": 43,
+            "evidence": "사례 43개",
+            "level": "enough",
+            "hitRate": 72.09,
+            "median": 2.48,
+            "mean": 1.99,
+            "dailyMean": 1.94
+          },
+          "2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          },
+          "buy": {
+            "days": 1119,
+            "cases": 43,
+            "effectiveN": 43,
+            "evidence": "사례 43개",
+            "level": "enough",
+            "hitRate": 72.09,
+            "median": 2.48,
+            "mean": 1.99,
+            "dailyMean": 1.94
+          },
+          "neutral": {
+            "days": 2455,
+            "cases": 68,
+            "effectiveN": 68,
+            "evidence": "사례 68개",
+            "level": "enough",
+            "hitRate": 79.41,
+            "median": 3.81,
+            "mean": 2.61,
+            "dailyMean": 2.86
+          },
+          "defend": {
+            "days": 1060,
+            "cases": 46,
+            "effectiveN": 46,
+            "evidence": "사례 46개",
+            "level": "enough",
+            "hitRate": 76.09,
+            "median": 5.23,
+            "mean": 3.28,
+            "dailyMean": 3.07
+          },
+          "-1": {
+            "days": 1060,
+            "cases": 46,
+            "effectiveN": 46,
+            "evidence": "사례 46개",
+            "level": "enough",
+            "hitRate": 76.09,
+            "median": 5.23,
+            "mean": 3.28,
+            "dailyMean": 3.07
+          },
+          "-2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          }
+        }
+      },
+      "inSample": {
+        "from": "2008-03-17",
+        "to": "2020-05-01",
+        "base": {
+          "days": 3054,
+          "cases": 49,
+          "effectiveN": 49,
+          "evidence": "사례 49개",
+          "level": "enough",
+          "hitRate": 75.51,
+          "median": 3.28,
+          "mean": 2.31,
+          "dailyMean": 2.05
+        },
+        "labels": {
+          "0": {
+            "days": 1718,
+            "cases": 45,
+            "effectiveN": 45,
+            "evidence": "사례 45개",
+            "level": "enough",
+            "hitRate": 77.78,
+            "median": 3.27,
+            "mean": 1.87,
+            "dailyMean": 2.36
+          },
+          "1": {
+            "days": 655,
+            "cases": 28,
+            "effectiveN": 28,
+            "evidence": "사례 28개 · 참고",
+            "level": "small",
+            "hitRate": 71.43,
+            "median": 2.22,
+            "mean": 0.92,
+            "dailyMean": 0.84
+          },
+          "2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          },
+          "buy": {
+            "days": 655,
+            "cases": 28,
+            "effectiveN": 28,
+            "evidence": "사례 28개 · 참고",
+            "level": "small",
+            "hitRate": 71.43,
+            "median": 2.22,
+            "mean": 0.92,
+            "dailyMean": 0.84
+          },
+          "neutral": {
+            "days": 1718,
+            "cases": 45,
+            "effectiveN": 45,
+            "evidence": "사례 45개",
+            "level": "enough",
+            "hitRate": 77.78,
+            "median": 3.27,
+            "mean": 1.87,
+            "dailyMean": 2.36
+          },
+          "defend": {
+            "days": 681,
+            "cases": 29,
+            "effectiveN": 29,
+            "evidence": "사례 29개 · 참고",
+            "level": "small",
+            "hitRate": 75.86,
+            "median": 4.44,
+            "mean": 2.48,
+            "dailyMean": 2.44
+          },
+          "-1": {
+            "days": 681,
+            "cases": 29,
+            "effectiveN": 29,
+            "evidence": "사례 29개 · 참고",
+            "level": "small",
+            "hitRate": 75.86,
+            "median": 4.44,
+            "mean": 2.48,
+            "dailyMean": 2.44
+          },
+          "-2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          }
+        }
+      },
+      "heldOut": {
+        "from": "2020-08-03",
+        "to": "2026-08-17",
+        "base": {
+          "days": 1517,
+          "cases": 25,
+          "effectiveN": 25,
+          "evidence": "사례 25개 · 참고",
+          "level": "small",
+          "hitRate": 64,
+          "median": 4.31,
+          "mean": 3.58,
+          "dailyMean": 3.65
+        },
+        "labels": {
+          "0": {
+            "days": 712,
+            "cases": 22,
+            "effectiveN": 22,
+            "evidence": "사례 22개 · 참고",
+            "level": "small",
+            "hitRate": 77.27,
+            "median": 4.5,
+            "mean": 3.65,
+            "dailyMean": 3.91
+          },
+          "1": {
+            "days": 464,
+            "cases": 15,
+            "effectiveN": 15,
+            "evidence": "사례 15개 · 참고",
+            "level": "small",
+            "hitRate": 73.33,
+            "median": 3.78,
+            "mean": 3.98,
+            "dailyMean": 3.48
+          },
+          "2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          },
+          "buy": {
+            "days": 464,
+            "cases": 15,
+            "effectiveN": 15,
+            "evidence": "사례 15개 · 참고",
+            "level": "small",
+            "hitRate": 73.33,
+            "median": 3.78,
+            "mean": 3.98,
+            "dailyMean": 3.48
+          },
+          "neutral": {
+            "days": 712,
+            "cases": 22,
+            "effectiveN": 22,
+            "evidence": "사례 22개 · 참고",
+            "level": "small",
+            "hitRate": 77.27,
+            "median": 4.5,
+            "mean": 3.65,
+            "dailyMean": 3.91
+          },
+          "defend": {
+            "days": 341,
+            "cases": 16,
+            "effectiveN": 16,
+            "evidence": "사례 16개 · 참고",
+            "level": "small",
+            "hitRate": 75,
+            "median": 6.62,
+            "mean": 4,
+            "dailyMean": 3.32
+          },
+          "-1": {
+            "days": 341,
+            "cases": 16,
+            "effectiveN": 16,
+            "evidence": "사례 16개 · 참고",
+            "level": "small",
+            "hitRate": 75,
+            "median": 6.62,
+            "mean": 4,
+            "dailyMean": 3.32
+          },
+          "-2": {
+            "days": 0,
+            "cases": 0,
+            "effectiveN": 0,
+            "evidence": "사례 0개 · 참고",
+            "level": "thin",
+            "hitRate": null,
+            "median": null,
+            "mean": null,
+            "dailyMean": null
+          }
+        }
+      }
+    }
+  }
+}
