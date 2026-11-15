@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-15T02:26:22.156Z",
-  "attemptedAt": "2026-11-15T02:26:22.156Z",
-  "lastSuccessfulAt": "2026-11-15T02:26:22.156Z",
+  "generatedAt": "2026-11-15T03:21:27.922Z",
+  "attemptedAt": "2026-11-15T03:21:27.922Z",
+  "lastSuccessfulAt": "2026-11-15T03:21:27.922Z",
   "collectionStatus": "partial",
   "successfulChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-01T02:26:17.170Z",
-  "until": "2026-11-15T02:26:17.170Z",
+  "since": "2026-11-01T03:21:21.942Z",
+  "until": "2026-11-15T03:21:21.942Z",
   "current24hWindow": {
     "start": "2026-11-13T23:00:00.000Z",
     "end": "2026-11-14T23:00:00.000Z",
@@ -92,12 +92,12 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1254,
-      "freshCount": 32,
-      "eligibleTextCount": 1198,
+      "count": 1245,
+      "freshCount": 33,
+      "eligibleTextCount": 1189,
       "selectedCount": 125,
       "error": null,
-      "lastPostId": 69315
+      "lastPostId": 69317
     },
     {
       "channel": "bornlupin",
@@ -116,59 +116,61 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 734,
+      "count": 733,
       "freshCount": 37,
       "eligibleTextCount": 733,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 72147
+      "lastPostId": 72151
     }
   ],
-  "count": 2215,
-  "retainedItemCount": 426,
+  "count": 2205,
+  "retainedItemCount": 428,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2215,
-    "eligibleTextCount": 2158,
-    "mediaOnlyCount": 57,
-    "mediaAttachedCount": 952,
-    "photoPostCount": 817,
+    "observedCount": 2205,
+    "eligibleTextCount": 2149,
+    "mediaOnlyCount": 56,
+    "mediaAttachedCount": 943,
+    "photoPostCount": 809,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 373,
-    "broadSignalCount": 859,
+    "highSignalCount": 374,
+    "broadSignalCount": 861,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
-    "selectedRawCoveragePct": 17.3,
-    "selectedOfObservedPct": 16.8,
+    "selectedRawCoveragePct": 17.4,
+    "selectedOfObservedPct": 16.9,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 788,
-    "equity": 141,
-    "macro": 316,
-    "semi": 558,
+    "earnings": 325,
+    "semi": 561,
+    "ai-policy": 126,
+    "equity": 142,
     "power": 282,
-    "earnings": 324,
-    "geo": 346,
+    "market-note": 780,
+    "macro": 316,
+    "geo": 344,
     "kr-market": 96,
-    "ai-policy": 124,
-    "japan": 69,
+    "japan": 68,
     "healthcare": 57,
     "credit": 78,
     "optical": 28,
     "flows": 58,
-    "media-only": 55,
+    "media-only": 54,
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 269,
+    "NVDA": 272,
+    "MSFT": 55,
+    "JD": 1,
+    "BIDU": 2,
     "TSM": 60,
     "TSLA": 43,
-    "MSFT": 54,
     "GOOG": 64,
     "AMZN": 50,
     "AMD": 54,
@@ -213,7 +215,6 @@
     "NYT": 1,
     "006400.KS": 1,
     "CAT": 1,
-    "BIDU": 1,
     "GOOGL": 5,
     "WDC": 2,
     "STX": 3,
@@ -253,20 +254,20 @@
     "6981.T": 2
   },
   "themes": [
-    "Market Notes (788 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
-    "Semiconductors/Memory (558 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
-    "Geopolitics (346 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Earnings/Corporate (324 posts in 14-day research window): 네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정...",
+    "Market Notes (780 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
+    "Semiconductors/Memory (561 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
+    "Geopolitics (344 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Earnings/Corporate (325 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의 개최. 미·중·러 정상 간 회동 여부가 최대 관심사. 중국 외교부는 3국 정상회동과 관련해 관련국과 소통...",
     "Macro/Rates (316 posts in 14-day research window): 2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
     "AI Power/Grid (282 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
-    "Equity/Analyst (141 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "AI Policy/Export Controls (124 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
+    "Equity/Analyst (142 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "AI Policy/Export Controls (126 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 269,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
+      "count": 272,
+      "text": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의 개최. 미·중·러 정상 간 회동 여부가 최대 관심사. 중국 외교부는 3국 정상회동과 관련해 관련국과 소통..."
     },
     {
       "key": "GOOG",
@@ -280,8 +281,8 @@
     },
     {
       "key": "MSFT",
-      "count": 54,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
+      "count": 55,
+      "text": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의 개최. 미·중·러 정상 간 회동 여부가 최대 관심사. 중국 외교부는 3국 정상회동과 관련해 관련국과 소통..."
     },
     {
       "key": "AMD",
@@ -340,7 +341,7 @@
       "topics": [
         "geo"
       ],
-      "count": 346,
+      "count": 344,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -358,7 +359,7 @@
       "topics": [
         "semi"
       ],
-      "count": 558,
+      "count": 561,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조...."
     },
     {
@@ -385,7 +386,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 124,
+      "count": 126,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
     },
     {
@@ -403,7 +404,7 @@
       "topics": [
         "equity"
       ],
-      "count": 141,
+      "count": 142,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -421,8 +422,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 324,
-      "focus": "네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정..."
+      "count": 325,
+      "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의 개최. 미·중·러 정상 간 회동 여부가 최대 관심사. 중국 외교부는 3국 정상회동과 관련해 관련국과 소통..."
     },
     {
       "id": "healthcare",
@@ -439,7 +440,7 @@
       "topics": [
         "japan"
       ],
-      "count": 69,
+      "count": 68,
       "focus": "11월 11일 닛케이225 지수가 3거래일 연속 상승. 최근 큰 폭의 조정을 겪은 AI 관련주에 대해 경제지표와 기업 실적이 일부 낙관론을 되살린 영향. 로이터가 수요일 발표한 조사에 따르면 일본의 11월..."
     },
     {
@@ -466,7 +467,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 788,
+      "count": 780,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     }
   ],
@@ -719,6 +720,29 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "HANAchina/72151",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72151",
+      "datetime": "2026-11-15T02:55:35.000Z",
+      "localDateKst": "2026-11-15",
+      "tags": [
+        "earnings",
+        "semi",
+        "ai-policy",
+        "equity"
+      ],
+      "lead": 4,
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "JD",
+        "BIDU"
+      ],
+      "summary": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
+    },
     {
       "id": "insidertracking/69230",
       "channel": "insidertracking",
@@ -1662,25 +1686,67 @@
       "tickers": [
         "TSM"
       ]
-    },
-    {
-      "id": "bornlupin/21100",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21100",
-      "datetime": "2026-11-10T23:13:45.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "earnings"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 1. 실적: 매출 급증, 수익성 개선 vs 이자비용 부담 • 매출 $37억(+168% YoY), 가이던스 상단 상회 • 수주잔고 약 $1,330억(+138%...",
-      "tickers": [
-        "NVDA"
-      ]
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/72151",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72151",
+      "datetime": "2026-11-15T02:55:35.000Z",
+      "localDateKst": "2026-11-15",
+      "tags": [
+        "earnings",
+        "semi",
+        "ai-policy",
+        "equity"
+      ],
+      "lead": 4,
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "JD",
+        "BIDU"
+      ],
+      "summary": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
+    },
+    {
+      "id": "HANAchina/72150",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72150",
+      "datetime": "2026-11-15T02:52:37.000Z",
+      "localDateKst": "2026-11-15",
+      "tags": [
+        "semi",
+        "ai-policy"
+      ],
+      "score": 61,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>누가 젠슨 황에게 ‘손을 썼나’? 루비오인가, Anthropic인가? (중국언론) •엔비디아 창업자 젠슨 황의 퇴임 배후에는 치밀하게 기획된 ‘사냥’이 있었던 것으로 의심. 국무장관 루비오가 CIA..."
+    },
+    {
+      "id": "insidertracking/69317",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69317",
+      "datetime": "2026-11-15T02:50:35.000Z",
+      "localDateKst": "2026-11-15",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "lead": 2,
+      "score": 59,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "월스트리트저널(WSJ)에 따르면 동남아시아 전역의 대규모 데이터센터들이 미국의 수출 통제 허점을 활용해 중국 기업들에 엔비디아 기반 컴퓨팅 자원에 대한 접근을 제공한 것으로 나타남. 일부 데이터센터는 반도체..."
+    },
     {
       "id": "insidertracking/69311",
       "channel": "insidertracking",
@@ -1965,13 +2031,13 @@
       ],
       "score": 68,
       "hasText": true,
+      "summary": "미국 나스닥 100 지수는 11월 9~13일 주간 기준 3.53% 상승. 주간 상승률 상위 종목은 AMD, 브로드컴, 모놀리식 파워 시스템즈가 주도했으며, 헬스케어, 인터넷 및 경기소비재 관련 종목들이 주요...",
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO",
         "MU"
-      ],
-      "summary": "미국 나스닥 100 지수는 11월 9~13일 주간 기준 3.53% 상승. 주간 상승률 상위 종목은 AMD, 브로드컴, 모놀리식 파워 시스템즈가 주도했으며, 헬스케어, 인터넷 및 경기소비재 관련 종목들이 주요..."
+      ]
     },
     {
       "id": "insidertracking/69274",
@@ -6455,22 +6521,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/68976",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68976",
-      "datetime": "2026-11-11T00:29:19.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "semi",
-        "ai-policy"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": "파이낸셜타임즈에 따르면 미국 상무부가 첨단 반도체를 중국으로 밀수한 의혹을 받는 싱가포르 소재 메가스피드를 수출통제 대상인 엔티티 리스트에 추가하는 절차를 지연 중. 여러 미국 정부 기관이 메가스피드의 엔티티...",
-      "lead": 2,
-      "tickers": []
-    },
-    {
       "id": "HANAchina/71917",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71917",
@@ -7085,37 +7135,6 @@
         "documents": []
       },
       "summary": ">>로봇으로 병뚜껑 돌리고 루빅스 큐브 풀고 그림까지! Fable 5.2의 피지컬 AI 능력 ‘놀라운 도약’ •Fable 5.2는 시뮬레이션 양팔 로봇 평가에서 64.9%의 점수를 기록, 전작 Fable...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/71868",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71868",
-      "datetime": "2026-11-10T03:16:49.000Z",
-      "localDateKst": "2026-11-10",
-      "tags": [
-        "earnings"
-      ],
-      "score": 66,
-      "hasText": true,
-      "summary": ">>AI 폭풍의 핵심: 주가 반토막 근접, ‘AI 클라우드 양대 강자’ CoreWeave·Nebius 실적 발표 임박 •CoreWeave와 Nebius 주가는 지난 한 달간 각각 40%, 36% 급락했으며,...",
-      "lead": 1,
-      "tickers": [
-        "CRWV"
-      ]
-    },
-    {
-      "id": "HANAchina/71856",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71856",
-      "datetime": "2026-11-10T00:30:42.000Z",
-      "localDateKst": "2026-11-10",
-      "tags": [
-        "market-note"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": ">>알루미늄 시장 공급 압박: LME 알루미늄 재고 30년래 최저치, 현물 프리미엄 수년래 고점 근접 •LME 알루미늄 재고는 올해 누적으로 56% 감소하며 1990년 이후 최저 수준으로 하락. 이에 따라...",
       "tickers": []
     },
     {
@@ -8663,13 +8682,13 @@
       ],
       "score": 68,
       "hasText": true,
+      "summary": "미국 나스닥 100 지수는 11월 9~13일 주간 기준 3.53% 상승. 주간 상승률 상위 종목은 AMD, 브로드컴, 모놀리식 파워 시스템즈가 주도했으며, 헬스케어, 인터넷 및 경기소비재 관련 종목들이 주요...",
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO",
         "MU"
-      ],
-      "summary": "미국 나스닥 100 지수는 11월 9~13일 주간 기준 3.53% 상승. 주간 상승률 상위 종목은 AMD, 브로드컴, 모놀리식 파워 시스템즈가 주도했으며, 헬스케어, 인터넷 및 경기소비재 관련 종목들이 주요..."
+      ]
     },
     {
       "id": "insidertracking/69274",
