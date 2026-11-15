@@ -1,12 +1,13 @@
 {
-  "generatedAt": "2026-11-15T12:21:49.303Z",
-  "attemptedAt": "2026-11-15T12:21:49.303Z",
-  "lastSuccessfulAt": "2026-11-15T12:21:49.303Z",
-  "collectionStatus": "partial",
+  "generatedAt": "2026-11-15T13:21:42.518Z",
+  "attemptedAt": "2026-11-15T13:21:42.518Z",
+  "lastSuccessfulAt": "2026-11-15T13:21:42.518Z",
+  "collectionStatus": "ok",
   "successfulChannelCount": 3,
+  "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-01T12:21:44.722Z",
-  "until": "2026-11-15T12:21:44.722Z",
+  "since": "2026-11-01T13:21:36.860Z",
+  "until": "2026-11-15T13:21:36.860Z",
   "current24hWindow": {
     "start": "2026-11-13T23:00:00.000Z",
     "end": "2026-11-14T23:00:00.000Z",
@@ -50,7 +51,11 @@
       "role": "asia-semi-flow",
       "region": "jp-us",
       "evidence": "secondary-public-mirror",
-      "publicMirror": "https://t.me/s/aetherjapanresearch"
+      "publicMirror": "https://t.me/s/aetherjapanresearch",
+      "retired": {
+        "since": "2026-10-26",
+        "reason": "public preview replaced by a contact card; no post list since 2026-10-26 20:52Z"
+      }
     },
     {
       "channel": "insidertracking",
@@ -76,27 +81,16 @@
   ],
   "channels": [
     {
-      "channel": "aetherjapanresearch",
-      "pages": 0,
-      "reachedOlder": false,
-      "reachedKnown": false,
-      "count": 0,
-      "freshCount": 0,
-      "eligibleTextCount": 0,
-      "selectedCount": 0,
-      "error": "first page parsed no posts",
-      "lastPostId": 26057
-    },
-    {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1257,
-      "freshCount": 29,
-      "eligibleTextCount": 1202,
+      "count": 1251,
+      "freshCount": 14,
+      "eligibleTextCount": 1196,
       "selectedCount": 125,
       "error": null,
+      "failingSince": null,
       "lastPostId": 69340
     },
     {
@@ -104,80 +98,99 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 226,
+      "count": 225,
       "freshCount": 20,
-      "eligibleTextCount": 226,
+      "eligibleTextCount": 225,
       "selectedCount": 124,
       "error": null,
+      "failingSince": null,
       "lastPostId": 21157
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 720,
-      "freshCount": 16,
-      "eligibleTextCount": 720,
+      "count": 717,
+      "freshCount": 36,
+      "eligibleTextCount": 717,
       "selectedCount": 124,
       "error": null,
-      "lastPostId": 72162
+      "failingSince": null,
+      "lastPostId": 72166
+    },
+    {
+      "channel": "aetherjapanresearch",
+      "retired": {
+        "since": "2026-10-26",
+        "reason": "public preview replaced by a contact card; no post list since 2026-10-26 20:52Z"
+      },
+      "pages": 0,
+      "reachedOlder": false,
+      "reachedKnown": false,
+      "count": 0,
+      "freshCount": 0,
+      "eligibleTextCount": 0,
+      "selectedCount": 0,
+      "error": null,
+      "failingSince": null,
+      "lastPostId": 26057
     }
   ],
-  "count": 2203,
-  "retainedItemCount": 413,
+  "count": 2193,
+  "retainedItemCount": 412,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2203,
-    "eligibleTextCount": 2148,
+    "observedCount": 2193,
+    "eligibleTextCount": 2138,
     "mediaOnlyCount": 55,
-    "mediaAttachedCount": 946,
-    "photoPostCount": 811,
+    "mediaAttachedCount": 941,
+    "photoPostCount": 806,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 373,
-    "broadSignalCount": 859,
+    "highSignalCount": 372,
+    "broadSignalCount": 857,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
     "selectedRawCoveragePct": 17.4,
-    "selectedOfObservedPct": 16.9,
+    "selectedOfObservedPct": 17,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "geo": 348,
-    "semi": 561,
-    "market-note": 781,
+    "market-note": 778,
+    "geo": 345,
+    "semi": 559,
     "macro": 313,
-    "power": 279,
+    "power": 278,
     "ai-policy": 129,
     "equity": 141,
-    "earnings": 323,
+    "earnings": 320,
     "japan": 67,
     "flows": 57,
     "healthcare": 57,
-    "credit": 78,
-    "kr-market": 94,
+    "credit": 77,
+    "kr-market": 93,
     "optical": 28,
     "media-only": 53,
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 272,
-    "GOOG": 64,
-    "MSFT": 54,
+    "NVDA": 271,
+    "GOOG": 63,
+    "MSFT": 53,
     "JD": 1,
     "BIDU": 2,
     "TSM": 60,
     "TSLA": 43,
-    "AMZN": 47,
+    "AMZN": 46,
     "AMD": 53,
-    "AVGO": 18,
+    "AVGO": 17,
     "MU": 28,
     "2454.TW": 6,
-    "000660.KS": 23,
+    "000660.KS": 22,
     "MS": 6,
     "CRWD": 1,
     "ORCL": 10,
@@ -185,7 +198,7 @@
     "APLD": 1,
     "319660.KQ": 1,
     "BE": 16,
-    "005930.KS": 29,
+    "005930.KS": 28,
     "066570.KS": 1,
     "MOD": 2,
     "AMAT": 6,
@@ -253,24 +266,24 @@
     "000990.KS": 1
   },
   "themes": [
-    "Market Notes (781 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
-    "Semiconductors/Memory (561 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
-    "Geopolitics (348 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Earnings/Corporate (323 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의 개최. 미·중·러 정상 간 회동 여부가 최대 관심사. 중국 외교부는 3국 정상회동과 관련해 관련국과 소통...",
+    "Market Notes (778 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
+    "Semiconductors/Memory (559 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조....",
+    "Geopolitics (345 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Earnings/Corporate (320 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의 개최. 미·중·러 정상 간 회동 여부가 최대 관심사. 중국 외교부는 3국 정상회동과 관련해 관련국과 소통...",
     "Macro/Rates (313 posts in 14-day research window): 2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
-    "AI Power/Grid (279 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
+    "AI Power/Grid (278 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (141 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (129 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 272,
+      "count": 271,
       "text": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의 개최. 미·중·러 정상 간 회동 여부가 최대 관심사. 중국 외교부는 3국 정상회동과 관련해 관련국과 소통..."
     },
     {
       "key": "GOOG",
-      "count": 64,
+      "count": 63,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면..."
     },
     {
@@ -280,7 +293,7 @@
     },
     {
       "key": "MSFT",
-      "count": 54,
+      "count": 53,
       "text": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의 개최. 미·중·러 정상 간 회동 여부가 최대 관심사. 중국 외교부는 3국 정상회동과 관련해 관련국과 소통..."
     },
     {
@@ -290,7 +303,7 @@
     },
     {
       "key": "AMZN",
-      "count": 47,
+      "count": 46,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     },
     {
@@ -299,18 +312,13 @@
       "text": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,..."
     },
     {
-      "key": "005930.KS",
-      "count": 29,
-      "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
-    },
-    {
       "key": "MU",
       "count": 28,
       "text": "11월 12일 미주인 브리핑 • 나스닥 1.58% 상승 · VIX 9.61% 하락 • 코어위브 25% 상승 마감 · AI 인프라주 동반 강세 • 마이크론·오라클·엔비디아 장중 급등 · 반도체 매수세 확대 •..."
     },
     {
-      "key": "000660.KS",
-      "count": 23,
+      "key": "005930.KS",
+      "count": 28,
       "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
@@ -319,8 +327,13 @@
       "text": "팔란티어(PLTR) 2026년 3분기 어닝콜 1. 실적 및 성장률 매출 23.13억 달러, 전년 대비 +96%, 전분기 대비 +20%. 상장 이후 최고 성장률. 미국 매출 19.37억 달러, 전년 대비..."
     },
     {
+      "key": "000660.KS",
+      "count": 22,
+      "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
+    },
+    {
       "key": "AVGO",
-      "count": 18,
+      "count": 17,
       "text": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
     }
   ],
@@ -340,7 +353,7 @@
       "topics": [
         "geo"
       ],
-      "count": 348,
+      "count": 345,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -349,7 +362,7 @@
       "topics": [
         "credit"
       ],
-      "count": 78,
+      "count": 77,
       "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
@@ -358,7 +371,7 @@
       "topics": [
         "semi"
       ],
-      "count": 561,
+      "count": 559,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 14일 🇺🇸 아메리카 • 미 재무장관 베센트는 첨단 AI 반도체의 중국 유출이 다수 발생하고 있다며 중국이 H100 이상의 첨단 칩을 확보해서는 안 된다고 강조...."
     },
     {
@@ -376,7 +389,7 @@
       "topics": [
         "power"
       ],
-      "count": 279,
+      "count": 278,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -394,8 +407,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 94,
-      "focus": "No retained full-text sample; 94 observed posts in the 14-day research window."
+      "count": 93,
+      "focus": "No retained full-text sample; 93 observed posts in the 14-day research window."
     },
     {
       "id": "equity",
@@ -421,7 +434,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 323,
+      "count": 320,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의 개최. 미·중·러 정상 간 회동 여부가 최대 관심사. 중국 외교부는 3국 정상회동과 관련해 관련국과 소통..."
     },
     {
@@ -440,7 +453,7 @@
         "japan"
       ],
       "count": 67,
-      "focus": "11월 11일 닛케이225 지수가 3거래일 연속 상승. 최근 큰 폭의 조정을 겪은 AI 관련주에 대해 경제지표와 기업 실적이 일부 낙관론을 되살린 영향. 로이터가 수요일 발표한 조사에 따르면 일본의 11월..."
+      "focus": ">>2나노 기술 차질… 일본 Rapidus 양산 지연 가능성 (대만경제일보) •일본 정부가 지원하는 Rapidus의 핵심 기술 개발이 지연되면서 2028년 3월까지 2나노 칩을 양산한다는 목표 달성이 어려워질..."
     },
     {
       "id": "flows",
@@ -466,7 +479,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 781,
+      "count": 778,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     }
   ],
@@ -1907,13 +1920,13 @@
         "semi",
         "power"
       ],
-      "lead": 2,
       "score": 59,
       "hasText": true,
+      "summary": "월스트리트저널(WSJ)에 따르면 동남아시아 전역의 대규모 데이터센터들이 미국의 수출 통제 허점을 활용해 중국 기업들에 엔비디아 기반 컴퓨팅 자원에 대한 접근을 제공한 것으로 나타남. 일부 데이터센터는 반도체...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "월스트리트저널(WSJ)에 따르면 동남아시아 전역의 대규모 데이터센터들이 미국의 수출 통제 허점을 활용해 중국 기업들에 엔비디아 기반 컴퓨팅 자원에 대한 접근을 제공한 것으로 나타남. 일부 데이터센터는 반도체..."
+      ]
     },
     {
       "id": "insidertracking/69311",
@@ -1924,7 +1937,6 @@
       "tags": [
         "macro",
         "semi",
-        "power",
         "earnings"
       ],
       "score": 81,
@@ -1935,10 +1947,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 16일~20일 미국 증시 주간 브리핑 이번 주 미국 증시는 연방공개시장위원회(FOMC) 회의록, 10월 소매판매, 엔비디아 실적을 중심으로 금리 전망과 AI 투자 수요를 재평가하는 구간....",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "2026년 11월 16일~20일 미국 증시 주간 브리핑 이번 주 미국 증시는 연방공개시장위원회(FOMC) 회의록, 10월 소매판매, 엔비디아 실적을 중심으로 금리 전망과 AI 투자 수요를 재평가하는 구간...."
+      ]
     },
     {
       "id": "HANAchina/72145",
@@ -1989,10 +2001,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도는 엔비디아, 비트코인에 집중",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 레딧 관심도는 엔비디아, 비트코인에 집중"
+      ]
     },
     {
       "id": "HANAchina/72141",
@@ -2001,15 +2013,16 @@
       "datetime": "2026-11-14T23:05:20.000Z",
       "localDateKst": "2026-11-15",
       "tags": [
-        "equity"
+        "equity",
+        "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": ">>SpaceX 맞춤형 신규 랙, CCL 업체에 신규 기회 (대만공상시보) •SpaceX의 맞춤형 AI 랙 ‘Kessel’은 기존 NVLink 구리선 모듈 대신 고다층 PCB 중간 백플레인을 적용할 것으로...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>SpaceX 맞춤형 신규 랙, CCL 업체에 신규 기회 (대만공상시보) •SpaceX의 맞춤형 AI 랙 ‘Kessel’은 기존 NVLink 구리선 모듈 대신 고다층 PCB 중간 백플레인을 적용할 것으로..."
     },
     {
       "id": "HANAchina/72140",
@@ -2018,12 +2031,12 @@
       "datetime": "2026-11-14T23:03:08.000Z",
       "localDateKst": "2026-11-15",
       "tags": [
-        "semi"
+        "semi",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 85,
       "hasText": true,
-      "summary": ">>젠슨 황 퇴임 이후 메모리 업체도 변화 : NVIDIA 우선 생산 배정에서 벗어날 가능성 (중국언론) •젠슨 황의 NVIDIA CEO 퇴임으로 AI 산업 공급망 전반의 기존 협력 관계가 재평가될 가능성이...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2032,7 +2045,8 @@
         "MU",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": ">>젠슨 황 퇴임 이후 메모리 업체도 변화 : NVIDIA 우선 생산 배정에서 벗어날 가능성 (중국언론) •젠슨 황의 NVIDIA CEO 퇴임으로 AI 산업 공급망 전반의 기존 협력 관계가 재평가될 가능성이..."
     },
     {
       "id": "HANAchina/72138",
@@ -2046,8 +2060,8 @@
       ],
       "score": 57,
       "hasText": true,
-      "summary": "~반도체 수출통제·희토류 공급·한·중 FTA 후속 협상 등 핵심 현안 주목",
-      "tickers": []
+      "tickers": [],
+      "summary": "~반도체 수출통제·희토류 공급·한·중 FTA 후속 협상 등 핵심 현안 주목"
     },
     {
       "id": "HANAchina/72137",
@@ -2058,11 +2072,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 67,
       "hasText": true,
-      "summary": ">>UBS : 미국 인플레이션 정점 통과, 연준은 2028년까지 긴축 유지 전망 •미국 전체 CPI는 5월 정점을 기록한 뒤 완만하게 둔화하고, 내년 봄부터 하락세가 빨라질 것으로 전망함. 근원 인플레이션은...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>UBS : 미국 인플레이션 정점 통과, 연준은 2028년까지 긴축 유지 전망 •미국 전체 CPI는 5월 정점을 기록한 뒤 완만하게 둔화하고, 내년 봄부터 하락세가 빨라질 것으로 전망함. 근원 인플레이션은..."
     },
     {
       "id": "insidertracking/69286",
@@ -2116,12 +2130,13 @@
       "datetime": "2026-11-14T14:40:40.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "market-note"
+        "credit",
+        "earnings"
       ],
       "score": 67,
       "hasText": true,
-      "summary": ">>골드만삭스 중국 리튬배터리 산업체인 조사 : 시장 예상보다 훨씬 덜 비관적 •골드만삭스가 선전에서 5개 배터리 업체와 6개 소재업체 대상 Battery Corporate Day 진행. 조사 결과 배터리...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>골드만삭스 중국 리튬배터리 산업체인 조사 : 시장 예상보다 훨씬 덜 비관적 •골드만삭스가 선전에서 5개 배터리 업체와 6개 소재업체 대상 Battery Corporate Day 진행. 조사 결과 배터리..."
     },
     {
       "id": "insidertracking/69281",
@@ -2148,17 +2163,17 @@
       "datetime": "2026-11-14T12:54:07.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "semi",
-        "ai-policy"
+        "ai-policy",
+        "semi"
       ],
+      "lead": 1,
       "score": 65,
       "hasText": true,
-      "summary": ">>(요약) 월가와 실리콘밸리, Anthropic 상장 강력 추진: ‘대마불사’ AI 수호전 •22개 주요 투자은행이 공동 주관하고, 엔비디아·마이크로소프트 등 7개 빅테크 기업이 상장 직후 260억달러를...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "MSFT"
-      ]
+      ],
+      "summary": ">>(요약) 월가와 실리콘밸리, Anthropic 상장 강력 추진: ‘대마불사’ AI 수호전 •22개 주요 투자은행이 공동 주관하고, 엔비디아·마이크로소프트 등 7개 빅테크 기업이 상장 직후 260억달러를..."
     },
     {
       "id": "insidertracking/69276",
@@ -2229,13 +2244,13 @@
         "ai-policy",
         "equity"
       ],
+      "lead": 4,
       "score": 61,
       "hasText": true,
-      "summary": ">>엔비디아 실적과 Anthropic의 1조 달러 IPO 연이어 등장, 다음 주 AI 투자에 더 큰 시험대 •젠슨 황 사임의 여파가 가시지 않은 가운데, 다음 주 AI 산업은 두 가지 중요한 시험대에 직면할...",
-      "lead": 4,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>엔비디아 실적과 Anthropic의 1조 달러 IPO 연이어 등장, 다음 주 AI 투자에 더 큰 시험대 •젠슨 황 사임의 여파가 가시지 않은 가운데, 다음 주 AI 산업은 두 가지 중요한 시험대에 직면할..."
     },
     {
       "id": "HANAchina/72124",
@@ -8519,11 +8534,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 67,
       "hasText": true,
-      "summary": ">>UBS : 미국 인플레이션 정점 통과, 연준은 2028년까지 긴축 유지 전망 •미국 전체 CPI는 5월 정점을 기록한 뒤 완만하게 둔화하고, 내년 봄부터 하락세가 빨라질 것으로 전망함. 근원 인플레이션은...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>UBS : 미국 인플레이션 정점 통과, 연준은 2028년까지 긴축 유지 전망 •미국 전체 CPI는 5월 정점을 기록한 뒤 완만하게 둔화하고, 내년 봄부터 하락세가 빨라질 것으로 전망함. 근원 인플레이션은..."
     },
     {
       "id": "insidertracking/69286",
@@ -8577,12 +8592,13 @@
       "datetime": "2026-11-14T14:40:40.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "market-note"
+        "credit",
+        "earnings"
       ],
       "score": 67,
       "hasText": true,
-      "summary": ">>골드만삭스 중국 리튬배터리 산업체인 조사 : 시장 예상보다 훨씬 덜 비관적 •골드만삭스가 선전에서 5개 배터리 업체와 6개 소재업체 대상 Battery Corporate Day 진행. 조사 결과 배터리...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>골드만삭스 중국 리튬배터리 산업체인 조사 : 시장 예상보다 훨씬 덜 비관적 •골드만삭스가 선전에서 5개 배터리 업체와 6개 소재업체 대상 Battery Corporate Day 진행. 조사 결과 배터리..."
     },
     {
       "id": "insidertracking/69281",
@@ -8609,17 +8625,17 @@
       "datetime": "2026-11-14T12:54:07.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "semi",
-        "ai-policy"
+        "ai-policy",
+        "semi"
       ],
+      "lead": 1,
       "score": 65,
       "hasText": true,
-      "summary": ">>(요약) 월가와 실리콘밸리, Anthropic 상장 강력 추진: ‘대마불사’ AI 수호전 •22개 주요 투자은행이 공동 주관하고, 엔비디아·마이크로소프트 등 7개 빅테크 기업이 상장 직후 260억달러를...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "MSFT"
-      ]
+      ],
+      "summary": ">>(요약) 월가와 실리콘밸리, Anthropic 상장 강력 추진: ‘대마불사’ AI 수호전 •22개 주요 투자은행이 공동 주관하고, 엔비디아·마이크로소프트 등 7개 빅테크 기업이 상장 직후 260억달러를..."
     },
     {
       "id": "insidertracking/69276",
@@ -8690,13 +8706,13 @@
         "ai-policy",
         "equity"
       ],
+      "lead": 4,
       "score": 61,
       "hasText": true,
-      "summary": ">>엔비디아 실적과 Anthropic의 1조 달러 IPO 연이어 등장, 다음 주 AI 투자에 더 큰 시험대 •젠슨 황 사임의 여파가 가시지 않은 가운데, 다음 주 AI 산업은 두 가지 중요한 시험대에 직면할...",
-      "lead": 4,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>엔비디아 실적과 Anthropic의 1조 달러 IPO 연이어 등장, 다음 주 AI 투자에 더 큰 시험대 •젠슨 황 사임의 여파가 가시지 않은 가운데, 다음 주 AI 산업은 두 가지 중요한 시험대에 직면할..."
     },
     {
       "id": "HANAchina/72124",
