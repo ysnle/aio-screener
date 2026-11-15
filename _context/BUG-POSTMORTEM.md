@@ -39,6 +39,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2502 - v60.17 - AI 시황 문장이 한 줄에서 기간 등락률을 소수 둘째 자리와 첫째 자리로 섞어 표시함 (2026-11-15)
+
+- symptom/reproduction: 브리핑의 시장 분석 문장이 '5거래일 +9.35%와 달리 50일선 대비 -13.1%'처럼 같은 줄에서 자릿수를 섞어 표시했고, 새 데이터로 고정본을 옮긴 뒤 CI의 화면 문구 검사(mixed-precision)가 실패함
+- root_cause: 모델에 주는 근거 줄은 소수 둘째 자리이고 주도 영역 요약은 첫째 자리여서 모델이 두 자릿수를 그대로 옮겨 씀. 브라우저 수신 경계(verifyServerMarketAnalysis)는 문장을 받은 그대로 화면에 넘김
+- fix: 기간 단어(대비·거래일·일·주·개월·년) 뒤의 등락률을 한 자리로 맞추는 spanPercentOneDecimal을 domain/content에 두고 수신 경계에서 full·oneLine에 적용. 하루 종가 등락률과 %p는 그대로 둠. 의미 검증은 원문으로 한 뒤 표시 문자열만 맞춤
+- violated_rule: 한 줄 안의 기간 등락률은 같은 자릿수로 표시한다
+- prevention: ci-runtime-contract-check에 혼용 문장이 한 자리로 맞춰지고 수신 경계가 그 함수를 거치는지 확인하는 assertion 추가
+- verification/residual: node scripts/ci-runtime-contract-check.mjs 통과, browser-rendered-copy-lint 그룹 통과
+- files: src/domain/content/percent-precision.js, src/data/server-market-analysis.js, scripts/ci-runtime-contract-check.mjs
+
 ## P2501 - v60.16 - 기준 등록표가 삭제된 함수를 구현으로 적고 있었다 (2026-11-15)
 
 - symptom/reproduction: AIO_FUNDAMENTAL_PAGE_CRITERIA의 macro-exposure·insider-activity·short-interest 행이 삭제된 computeMacroBeta·fetchFinnhubInsider·fetchFinnhubShortInterest를 implFn으로 적어 구현률이 93%로 집계됨

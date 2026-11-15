@@ -3,6 +3,7 @@
 // v52.75/WP-AI0: generated-but-unverified LLM prose never reaches a public sink. P846/P847: metadata alone never
 // certifies current-sensitive prose; the producer must supply typed metric identity/value/unit/asOf/source evidence and
 // every claim must cite an evidence id.
+import { spanPercentOneDecimal } from '../domain/content/percent-precision.js';
 
 function metricEvidenceValid(rows) {
   return rows.length >= 2 && rows.every((row) => row && row.metricId && row.unit && row.source && row.asOf && Number.isFinite(Number(row.value)) && !Number.isNaN(new Date(row.asOf).getTime()));
@@ -38,8 +39,8 @@ export function verifyServerMarketAnalysis(marketAnalysis, { fallbackGeneratedAt
   const disclosure = typeof ma.disclosure === 'string' ? ma.disclosure : null;
   const analysis = verified ? {
     status: 'verified',
-    full: ma.full || ma.oneLine,
-    oneLine: ma.oneLine || ma.full,
+    full: spanPercentOneDecimal(ma.full || ma.oneLine),
+    oneLine: spanPercentOneDecimal(ma.oneLine || ma.full),
     generatedAt,
     source,
     disclosure,

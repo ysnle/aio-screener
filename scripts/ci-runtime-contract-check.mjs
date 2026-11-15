@@ -1241,6 +1241,16 @@ const { verifyServerMarketAnalysis } = await import('../src/data/server-market-a
 const unverifiedProse = verifyServerMarketAnalysis({ full: 'prose', semanticStatus: 'pending', metricEvidence: [] }, { validatePublish: () => ({ blocked: false }) });
 check('WP-AI0: server market prose requires explicit semantic verification before sink selection', wpAi0SemanticGate && unverifiedProse.analysis === null && unverifiedProse.meta.status === 'blocked-unverified' && /_serverMarketAnalysis\.status === 'verified'/.test(core));
 check('WP-AI0: regression fixtures cover action block, educational pass, strong wording, disclosure metadata, and unverified market prose', /_testV5275PublicAIContract/.test(tests) && /T932/.test(tests) && /T933/.test(tests) && /T934/.test(tests) && /T935/.test(tests) && /T936/.test(tests));
+{
+  const { spanPercentOneDecimal } = await import('../src/domain/content/percent-precision.js');
+  const mixed = '압력은 반도체(SOXX) 11/13 종가 -3.67%이며, 5거래일 +9.35%와 달리 50일선 대비 -13.1%, 고점 대비 -31.62%, 20거래일 0.25%p입니다.';
+  const shown = spanPercentOneDecimal(mixed);
+  const ingest = readFileSync(new URL('../src/data/server-market-analysis.js', import.meta.url), 'utf8');
+  check('v60.17 server market prose shows a change over a span at one decimal and leaves the one-day close and %p alone',
+    shown === '압력은 반도체(SOXX) 11/13 종가 -3.67%이며, 5거래일 +9.4%와 달리 50일선 대비 -13.1%, 고점 대비 -31.6%, 20거래일 0.25%p입니다.'
+    && spanPercentOneDecimal(shown) === shown && spanPercentOneDecimal(null) === null
+    && /full: spanPercentOneDecimal\(/.test(ingest) && /oneLine: spanPercentOneDecimal\(/.test(ingest));
+}
 
 // v52.76 (WP-AI1): one request envelope/response pipeline across all public
 // AI entry points; retries must reuse the named completion handlers/request.
