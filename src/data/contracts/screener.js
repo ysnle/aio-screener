@@ -178,6 +178,7 @@ const FIELD_ROWS = [
   ['technical.kalmanConfidence', '칼만 추세 속도(불확실성 할인)', 'number', 'score', 'kalmanVelConf', 3],
   ['technical.vcpScore', 'VCP 점수', 'number', 'score', 'vcpScore', 3],
   ['technical.vcpStage', 'VCP 단계', 'enum', 'stage', 'vcpStage', 3],
+  ['technical.breakoutAgo', '돌파 뒤 거래일', 'number', 'sessions', 'breakoutAgo', 3],
   ['technical.ema8', 'EMA8', 'number', 'currency', 'ema8', 3],
   ['technical.ema21', 'EMA21', 'number', 'currency', 'ema21', 3],
   ['technical.ema60', 'EMA60', 'number', 'currency', 'ema60', 3],

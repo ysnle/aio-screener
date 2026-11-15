@@ -3,6 +3,8 @@
 // shell's data (js/aio-data.js KNOWN_TICKERS and KR_TICKER_MAP), handed in by src/app/compatibility-globals.js, which
 // installs the legacy name extractTickers. A question's tickers are a different reading: src/ai/entity/chat-tickers.js.
 
+import { issuerNameMentioned } from './stories.js';
+
 // v39.2: symbols that are English words ('ARM', 'KEYS') count only as $TICKER or (TICKER).
 const WORD_SYMBOLS = new Set(['ARM', 'ON', 'IT', 'A', 'F', 'V', 'C', 'U', 'X', 'D', 'E', 'K', 'T', 'ALL', 'RUN', 'LOW', 'KEY', 'FAST', 'REAL',
   'PLAY', 'FLEX', 'CAN', 'GE', 'HD', 'DE', 'BE', 'HAS', 'KEYS', 'TEL', 'TER', 'APH', 'CLS', 'JBL', 'DELL', 'AI']);
@@ -45,13 +47,6 @@ function inMarketContext(symbol, text) {
   return MARKET_WORDS.some((word) => context.includes(word));
 }
 
-// A one- or two-syllable Korean alias needs a non-Hangul edge and an end or a particle ('모델'의 '델' is not DELL).
-function koreanAliasIn(lowerText, alias) {
-  if (!lowerText.includes(alias)) return false;
-  if (alias.length >= 3 || !/^[가-힣]+$/.test(alias)) return true;
-  return new RegExp(`(?:^|[^가-힣])${escape(alias)}(?:$|[^가-힣]|(?:은|는|이|가|을|를|의|도|와|과|에|로|만)(?:$|[^가-힣]))`).test(lowerText);
-}
-
 // A broker cited as the source of a view ("..., Morgan Stanley says") is not the story's subject.
 function isAttribution(lowerText, name) {
   if (!/[a-z]/.test(name) || name.length < 4) return false;
@@ -71,16 +66,12 @@ export function articleTickers(item, { knownTickers = new Set(), nameMap = {} } 
     if (symbol.length <= 2 && !text.includes(`$${symbol}`)) continue;
     if (articleSymbolAllowed(symbol, text) && wordPattern(symbol).test(text) && inMarketContext(symbol, text)) found.add(symbol);
   }
-  // An English alias keeps word edges ('Artificial Intelligence' is not INTC); a Korean one uses koreanAliasIn.
+  // A name counts by the news issuer rule (stories.js issuerNameMentioned): a whole word, with a Korean particle or
+  // without ('Artificial Intelligence' is not INTC, '모델' not DELL, '애플라이드' not AAPL).
   const lowerText = text.toLowerCase();
   for (const [name, symbol] of Object.entries(nameMap)) {
     if (found.size >= 5) break;
-    const alias = String(name).toLowerCase();
-    if (/[^a-z0-9]/.test(alias)) {
-      if (koreanAliasIn(lowerText, alias) && !isAttribution(lowerText, alias)) found.add(symbol);
-    } else if (alias.length > 2 && lowerText.includes(alias) && wordPattern(alias).test(lowerText) && !isAttribution(lowerText, alias)) {
-      found.add(symbol);
-    }
+    if ((name.length > 2 || /[^a-z0-9]/i.test(name)) && issuerNameMentioned(text, name, symbol) && !isAttribution(lowerText, name.toLowerCase())) found.add(symbol);
   }
   return [...found];
 }

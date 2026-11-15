@@ -9,7 +9,7 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 import { parseFiscalHistory } from './fiscal-read.js';
 import { readMarketRegime } from './market-regime.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
-import { reconcileFiscalHistory, isLendingFinancial } from '../../domain/fundamental/fiscal-read.js';
+import { reconcileFiscalHistory, financialKind } from '../../domain/fundamental/fiscal-read.js';
 import { parseQuarterHistory, buildQuarterRead } from '../../domain/fundamental/quarter-read.js';
 import { buildTrailingYearRead, buildEarningsSchedule, buildMarginCashRead, buildThemePeers, buildRdRead, buildSurpriseRead, reverseDcfInputs, impliedGrowth, REVERSE_DCF_DEFAULTS } from '../../domain/fundamental/analysis-read.js';
 import { lensIdFor, buildLensRead, buildPeerStrengths, buildSituationRead, buildThesisFrame, buildWatchList, buildMarketLink, dailyBeta } from '../../domain/fundamental/stock-lens.js';
@@ -72,7 +72,7 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const marginCash = history.length ? buildMarginCashRead(history) : null;
   const schedule = market === 'US' ? buildEarningsSchedule({ symbol: sym, calendar: root?.[CALENDAR_KEY], consensus, calendarState: sharedArtifactState(root, CALENDAR_KEY) }) : null;
   const levels = typeof root?._aioPriceLevelsFor === 'function' ? root._aioPriceLevelsFor(sym) : null;
-  const financial = isLendingFinancial(sym, row?.sector);
+  const financial = financialKind(sym, row?.sector, sicCode);
   const close = Number(row?._valuationPrice ?? row?.valuationPrice) > 0 && hasLeadingIsoDay(String(row?.factorSessionDate || '')) ? { value: Number(row._valuationPrice ?? row.valuationPrice), date: String(row.factorSessionDate).slice(0, 10), shares: Number(row?._valuationSharesOutstanding) > 0 ? Number(row._valuationSharesOutstanding) : null, sharesObservedAt: row?._valuationSharesObservedAt || null } : null;
   const inputs = history.length ? reverseDcfInputs({ history, fundamentals: own, close, financial }) : null;
   const implied = inputs?.state === 'ready' ? impliedGrowth({ fcf: inputs.fcf, marketValue: inputs.marketValue, discountRate: REVERSE_DCF_DEFAULTS.discountRate, terminalGrowth: REVERSE_DCF_DEFAULTS.terminalGrowth }) : inputs ? { state: inputs.state } : null;

@@ -1869,8 +1869,8 @@
 
     // T415: _fetchTickerDataForChat 응답에 5 신규 라벨 — source 검증
     var fnSrc = window._fetchTickerDataForChat ? window._fetchTickerDataForChat.toString() : '';
-    var has5 = /\[FCF Yield/.test(fnSrc) && /\[Balance Sheet/.test(fnSrc) && /\[EV\/EBITDA/.test(fnSrc) && /\[Macro Beta/.test(fnSrc) && /\[Short Interest/.test(fnSrc);
-    _assert('T415 chat_fetch_5_new_labels: FCF/Balance/EV/Macro/Short 5 신규 라벨',
+    var has5 = /\[FCF Yield/.test(fnSrc) && /\[Balance Sheet/.test(fnSrc) && /\[EV\/EBITDA/.test(fnSrc) && !/\[Macro Beta|\.verdict|healthScore/.test(fnSrc) && /\[Short Interest/.test(fnSrc);
+    _assert('T415 chat_fetch_labels + v60.16: FCF/Balance/EV/Short 라벨, Macro Beta 줄과 고정 임계 판정 단어 없음',
       has5, '5 labels present=' + has5);
 
     // T416: Promise.allSettled + _withTimeout helper 정의
@@ -2792,9 +2792,9 @@
       badStruct ? 'violations=' + badStruct.violations.map(function(v){return v.rule;}).join(',') : 'audit missing');
     // T592 Pattern C: assertFetchFailureSurfacingAudit 함수 정의 + 17 promise 검증
     var fetchAudit = window.AIO && typeof window.AIO.assertFetchFailureSurfacingAudit === 'function' && window.AIO.assertFetchFailureSurfacingAudit();
-    _assert('T592 fetch_failure_surfacing_audit_v4975: assertFetchFailureSurfacingAudit + promiseDefined >= 14',
-      fetchAudit && fetchAudit.promiseDefined >= 14 && fetchAudit.hasUserVisibleFailLabel,
-      fetchAudit ? 'defined=' + fetchAudit.promiseDefined + '/17 visible=' + fetchAudit.hasUserVisibleFailLabel : 'audit missing');
+    _assert('T592 fetch_failure_surfacing_audit_v4975: assertFetchFailureSurfacingAudit + promiseDefined >= 13',
+      fetchAudit && fetchAudit.promiseDefined >= 13 && fetchAudit.hasUserVisibleFailLabel,
+      fetchAudit ? 'defined=' + fetchAudit.promiseDefined + '/16 visible=' + fetchAudit.hasUserVisibleFailLabel : 'audit missing');
     // T593 Pattern D: getChatHallucinationAudit에 신규 패턴 3개 (stale-md-date / stale-iso-date / vague-price-range / self-confess)
     var hallTest = window.AIO && window.AIO.getChatHallucinationAudit && window.AIO.getChatHallucinationAudit('2025년 초 학습 데이터 기준 NVDA는 약 $400~500대 베이스 형성. 5/22 종가, 4/15 어닝.');
     _assert('T593 hallucination_pattern_d_v4975: stale-md-date + self-confess + vague-price-range 모두 검출',
@@ -3936,22 +3936,22 @@
   // ── Group44: v49.36 페이지 15 기준 100% 커버 (7 신규 함수 + 가용성 갱신) ──
   function _testV4936Coverage100() {
     // T291: 신규 함수 정의 — v57.76: personal-key fetchFinnhubInsider / fetchFinnhubShortInterest removed (must stay absent)
-    var fns = ['computeFcfYield', 'computeBalanceSheetRatios', 'computeEvEbitda', 'computeMacroBeta', 'fetchSEC13F'], retired291 = ['fetchFinnhubInsider', 'fetchFinnhubShortInterest'];
+    var fns = ['computeFcfYield', 'computeBalanceSheetRatios', 'computeEvEbitda', 'fetchSEC13F'], retired291 = ['fetchFinnhubInsider', 'fetchFinnhubShortInterest', 'computeMacroBeta'];
     var allDefined = fns.every(function(fn) { return typeof window.AIO[fn] === 'function'; }) && retired291.every(function(fn) { return typeof window.AIO[fn] === 'undefined'; });
-    _assert('T291 v4936_funcs_defined + v57.76: 5 함수 정의, personal Finnhub insider/short fetchers absent',
+    _assert('T291 v4936_funcs_defined + v57.76 + v60.16: 4 함수 정의, personal Finnhub insider/short fetchers와 섹터 표 computeMacroBeta absent',
       allDefined, fns.filter(function(fn){return typeof window.AIO[fn] !== 'function';}).concat(retired291.filter(function(fn){return typeof window.AIO[fn] !== 'undefined';})).join(',') || 'all ok');
 
-    // T292: FUNDAMENTAL_PAGE_CRITERIA coverage 93%+ (14/15)
+    // T292: FUNDAMENTAL_PAGE_CRITERIA coverage 73% (11/15) — rows whose function was deleted read as not implemented
     var audit = window.AIO.getFundamentalPageCriteriaAudit();
-    _assert('T292 v4936_coverage_93: coveragePct >= 93%',
-      audit && audit.coveragePct >= 93,
+    _assert('T292 v4936_coverage_73: coveragePct === 73% (11/15)',
+      audit && audit.coveragePct === 73,
       audit ? 'coverage=' + audit.coveragePct + '%' : 'missing');
 
-    // T293: implFn 갱신 — fcf-yield, balance-sheet, ev-ebitda, insider-activity, institutional-flow, short-interest, macro-exposure
+    // T293: implFn — fcf-yield, balance-sheet, ev-ebitda, institutional-flow name a function; no row names a deleted one (retired291)
     var pc = window.AIO_FUNDAMENTAL_PAGE_CRITERIA;
-    var updatedKeys = ['fcf-yield', 'balance-sheet', 'ev-ebitda', 'insider-activity', 'institutional-flow', 'short-interest', 'macro-exposure'];
-    var allUpdated = updatedKeys.every(function(k) { return pc && pc.criteria[k] && pc.criteria[k].implFn != null; });
-    _assert('T293 v4936_implFn_updated: 7 keys implFn 모두 갱신 (null 해제)',
+    var updatedKeys = ['fcf-yield', 'balance-sheet', 'ev-ebitda', 'institutional-flow'];
+    var allUpdated = updatedKeys.every(function(k) { return pc && pc.criteria[k] && pc.criteria[k].implFn != null; }) && Object.keys(pc.criteria).every(function(k) { return retired291.indexOf(pc.criteria[k].implFn) < 0; });
+    _assert('T293 v4936_implFn_updated: 4 keys implFn 등록, 삭제된 함수명 0',
       allUpdated, updatedKeys.filter(function(k){return !pc.criteria[k].implFn;}).join(',') || 'all updated');
 
     // T294: 페이지 가용성 배지 /→ ✓ 갱신 (3개 제거)
@@ -3964,8 +3964,8 @@
 
     // T295 (v50.29 스펙 갱신): 커버리지 "박스"는 declutter로 제거 — audit 함수가 커버리지를 보고하는지 검증
     var covAudit = window.AIO && window.AIO.getFundamentalPageCriteriaAudit ? window.AIO.getFundamentalPageCriteriaAudit() : null;
-    _assert('T295 fund_criteria_coverage_audit: getFundamentalPageCriteriaAudit coveragePct ≥ 87 (박스는 declutter로 제거)',
-      !!covAudit && typeof covAudit.coveragePct === 'number' && covAudit.coveragePct >= 87,
+    _assert('T295 fund_criteria_coverage_audit: getFundamentalPageCriteriaAudit coveragePct ≥ 73 (박스는 declutter로 제거)',
+      !!covAudit && typeof covAudit.coveragePct === 'number' && covAudit.coveragePct >= 73,
       covAudit ? ('coverage=' + covAudit.coveragePct + '%') : 'audit missing');
 
     // T296: CIK_MAP 50+ 확장 (BAC, V, MA 등 신규 등록)
@@ -5000,7 +5000,7 @@
     try { if (tnfFn) { var _r = tnfFn('___NOSUCHTICKER___', {}); graceful = (_r === '' || typeof _r === 'string'); } } catch (e) { graceful = false; }
     // 함수 소스에 KR 코드→한글명 해석 + 영문 길이 가드(al.length >= 4) 존재 확인 (오탐 차단 로직 보존)
     var srcGuard = false;
-    try { var _s = tnfFn ? String(tnfFn) : ''; srcGuard = /KR_STOCK_DB/.test(_s) && /al\.length >= 4/.test(_s) && /isCJK/.test(_s); } catch (e) {}
+    try { var _s = tnfFn ? String(tnfFn) : ''; srcGuard = /KR_STOCK_DB/.test(_s) && /_aioCompanyMatcher/.test(_s) && !/isCJK|indexOf\(al\)/.test(_s); } catch (e) {}
     _assert('T782 v5015_ticker_news_cache_link: 개별기업 뉴스 캐시 연결 함수 정의 + KR_STOCK_DB 한글명 해석 + 영문≥4 오탐가드',
       tnfDefined && krInfra && graceful && srcGuard,
       'defined=' + tnfDefined + ' krInfra=' + krInfra + ' graceful=' + graceful + ' srcGuard=' + srcGuard);

@@ -3,14 +3,14 @@
 // one year's raw numbers. Inputs: the SEC FY series in the runtime summary (fiscalHistory) and the
 // screener row for price context (returns, P/E). A missing year or field drops its sentence.
 import { withObjectParticle } from '../content/korean-particle.js';
-import { finiteFact, isPriorAnnualPeriod, annualFilingStatus, fiscalYearLabel } from './period.js';
+import { finiteFact, isPriorAnnualPeriod, annualFilingStatus, fiscalYearLabel, isQuarterGap } from './period.js';
 import { signedText, usdKoreanText } from '../shared/number.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 // v57.81: a change inside this many %p (margin) or % (revenue) reads as flat in the text, so its tone is neutral too.
 export const FISCAL_FLAT_BAND = 2;
-const NON_LENDING_FINANCIALS = new Set(['V', 'MA', 'PYPL', 'FI', 'FIS', 'GPN', 'CPAY', 'JKHY', 'CME', 'ICE', 'NDAQ', 'CBOE', 'SPGI', 'MCO', 'MSCI', 'FDS', 'BLK', 'BX', 'KKR', 'APO', 'ARES', 'TROW', 'BEN', 'IVZ', 'AMP', 'BR']);
-export const isLendingFinancial = (symbol, sector) => /financ|bank/i.test(String(sector || '')) && !NON_LENDING_FINANCIALS.has(String(symbol || '').toUpperCase());
+import { financialKind } from './financial-kind.js';
+export { financialKind, isLendingFinancial } from './financial-kind.js';
 
 const finite = finiteFact;
 const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
@@ -41,7 +41,7 @@ export function reconcileFiscalHistory(history = [], fundamentals = null, symbol
   return rows;
 }
 
-// 2026-10-14 audit #2: the four latest consecutive fiscal quarters (about 3 months apart, no gap), newest last, or null.
+// 2026-10-14 audit #2: the four latest consecutive fiscal quarters (period.js isQuarterGap, no gap), newest last, or null.
 // A derived fourth quarter (FY − Q1..Q3) counts; nothing is estimated beyond the published quarters.
 // `field` is the value every quarter of the span must carry: net income by default (a margin or an income sum), revenue
 // for a revenue-only comparison (an issuer's oldest stored quarter is often a derived Q4 with revenue but no net income).
@@ -52,7 +52,7 @@ export function trailingQuarters(quarters = [], count = 4, { field = 'netIncome'
   const span = rows.slice(-count);
   for (let i = 1; i < span.length; i += 1) {
     const gapDays = (Date.parse(span[i].periodEnd) - Date.parse(span[i - 1].periodEnd)) / 86400000;
-    if (!(gapDays >= 75 && gapDays <= 105)) return null;
+    if (!isQuarterGap(gapDays)) return null;
   }
   return span.every((q) => finite(q[field]) != null) ? span : null;
 }
@@ -70,7 +70,7 @@ export function shareSplitBreaks(history = []) {
   return breaks;
 }
 
-export function buildFiscalRead({ symbol, fundamentals = null, row = null, quarters = [], now = null } = {}) {
+export function buildFiscalRead({ symbol, fundamentals = null, row = null, quarters = [], now = null, sic = null } = {}) {
   // P1627: a previous issuer's transient receipt cannot become this issuer's one-year fallback.
   if (fundamentals?.symbol && String(fundamentals.symbol).toUpperCase() !== String(symbol).toUpperCase()) fundamentals = null;
   // Before the runtime summary carries fiscalHistory, the latest FY facts still give a one-year reading.
@@ -139,11 +139,17 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       // v57.54 review: the four-quarter figure is the more current one, so it leads when it exists; the fiscal-year
       // PER (the screener's value factor basis) stays beside it, labelled.
       const ttmThrough = rowTtm ? String(row._valuationPeEarningsThrough).slice(0, 10) : ttm?.[ttm.length - 1]?.periodEnd;
+      // A one-off gain inside the PER's earnings (sec-valuation-basis secEarningsOneOff) is named beside the multiple it lowers.
+      const oneOffEnds = (Array.isArray(fundamentals?.earningsOneOff) ? fundamentals.earningsOneOff : []).filter((end) => isIsoDay(String(end)));
+      const oneOffNote = oneOffEnds.length ? `, ${oneOffEnds.map((end) => end.slice(0, 7)).join('·')} 분기 일회성 이익 포함` : '';
+      const lag = String(fundamentals?.peEarningsLag?.laterQuarter || row?._valuationPeEarningsLaterQuarter || '');
+      const laterQuarter = isIsoDay(lag) && lag > earningsEnd ? lag : null;
       const peText = pe == null ? '' : rowTtm
-        ? `, PER ${pe.toFixed(1)}배(최근 4개 분기 ${commonBasis ? '보통주 귀속 ' : '공시 '}순이익 합, ${ttmThrough.slice(0, 7)} 분기까지)`
+        ? `, PER ${pe.toFixed(1)}배(최근 4개 분기 ${commonBasis ? '보통주 귀속 ' : '공시 '}순이익 합, ${ttmThrough.slice(0, 7)} 분기까지${oneOffNote})`
         : peTtm != null
-          ? `, PER 약 ${peTtm.toFixed(1)}배(최근 4개 분기 합, ${ttmThrough.slice(0, 7)} 분기까지), ${fyLabel || '연간'} 기준 ${pe.toFixed(1)}배(${earningsBasis})`
-          : `, PER ${pe.toFixed(1)}배(${earningsBasis})`;
+          ? `, PER 약 ${peTtm.toFixed(1)}배(최근 4개 분기 합, ${ttmThrough.slice(0, 7)} 분기까지${oneOffNote}), ${fyLabel || '연간'} 기준 ${pe.toFixed(1)}배(${earningsBasis})`
+          // A newer quarter is on file than the earnings this PER is priced on (sec-valuation-basis secPeEarningsLag).
+          : `, PER ${pe.toFixed(1)}배(${earningsBasis}${oneOffNote}${laterQuarter ? `, ${laterQuarter.slice(0, 7)} 분기 공시는 미반영` : ''})`;
       points.push({ id: 'earnings', tone: niGrowth > FISCAL_FLAT_BAND ? 'favorable' : niGrowth < -FISCAL_FLAT_BAND ? 'burden' : 'neutral', title: '이익과 가격', /* v57.84: the same flat band as revenue and margin */
         // Codex review 2026-10-05: a PEG from last year's income growth cannot say whether the price is a
         // burden — that needs the growth ahead. The number is shown with its basis, without a verdict.
@@ -165,7 +171,9 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
   // v57.70 (2026-10-15 audit): Visa read "은행·금융사는 순이자마진(NIM)…". Payment networks, exchanges, rating/data
   // houses and asset managers sit in the Financials sector but take no deposits and make no loans; their cash flow is
   // read like any other company's.
-  const financial = isLendingFinancial(symbol, row?.sector);
+  const kind = financialKind(symbol, row?.sector, sic ?? row?.sic);
+  const financial = kind === 'lending';
+  const insurer = kind === 'insurer';
   const equityChange = latest?.equity > 0 && prevYear?.equity > 0 ? (latest.equity / prevYear.equity - 1) * 100 : null;
   const roeBasis = roeAvg != null ? '평균 자기자본 기준' : '기말 자기자본 기준';
   if (roe != null) points.push({ id: 'roe', tone: roe >= 20 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', title: '자본 효율', /* v57.84: green only where the text says 높은 (≥20) */
@@ -180,8 +188,17 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     points.push({ id: 'bank', tone: 'neutral', title: '금융사 재무',
       text: '은행·금융사는 순이자이익과 순이자마진(NIM), 예금 조달 비용, 대손비용, 자본비율(CET1)이 핵심입니다. 이 화면의 공시 수집본에는 이 항목들이 없어 판단하지 않으며, 분기 실적 자료와 10-K·10-Q 원문에서 확인합니다. 아래 영업현금흐름은 예금·대출 변화가 섞여 일반 기업처럼 읽지 않습니다.' });
   }
+  if (insurer && history.length) {
+    points.push({ id: 'insurer', tone: 'neutral', title: '보험사 재무',
+      text: '보험사는 합산비율(손해율+사업비율), 보험료 성장, 투자수익, 준비금이 핵심입니다. 이 화면의 공시 수집본에는 이 항목들이 없어 판단하지 않으며, 분기 실적 자료와 10-K·10-Q 원문에서 확인합니다. 아래 영업현금흐름은 먼저 받은 보험료와 나중에 나가는 보험금의 시차가 섞여 일반 기업처럼 읽지 않습니다.' });
+  }
   if (ocf != null && latest?.netIncome != null && financial) {
     points.push({ id: 'cash', tone: 'neutral', title: '현금흐름(참고)', text: `영업현금흐름 ${formatUsdShort(ocf)}, 순이익 ${formatUsdShort(latest.netIncome)} — 금융사의 영업현금흐름은 예금·대출·트레이딩 자산 증감이 섞여, 마이너스여도 현금이 부족하다는 뜻이 아닙니다.` });
+  } else if (ocf != null && latest?.netIncome != null && insurer) {
+    points.push({ id: 'cash', tone: 'neutral', title: '현금흐름(참고)', text: `영업현금흐름 ${formatUsdShort(ocf)}, 순이익 ${formatUsdShort(latest.netIncome)} — 보험사의 영업현금흐름은 보험료 수입과 보험금 지급의 시차, 준비금 증감이 섞여 순이익 대비 비율로 읽지 않습니다.` });
+  } else if (ocf != null && latest?.netIncome != null && kind === 'reit') {
+    // A REIT buys buildings through investing cash flow, not PP&E capex, and depreciation depresses its net income.
+    points.push({ id: 'cash', tone: 'neutral', title: '현금흐름(참고)', text: `영업현금흐름 ${formatUsdShort(ocf)}, 순이익 ${formatUsdShort(latest.netIncome)} — 리츠는 건물 매입이 설비투자가 아닌 투자활동으로 잡혀 잉여현금흐름을 계산하지 않습니다. 배당 여력은 FFO·AFFO로 확인합니다.` });
   } else if (ocf != null && latest?.netIncome != null) {
     // P1449: the OCF/netIncome ratio only means "earnings arrive as cash" when BOTH numbers are
     // positive. A net loss with an operating-cash outflow (or either sign flipped) divides to a

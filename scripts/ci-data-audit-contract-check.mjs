@@ -114,15 +114,38 @@ const calendars = await import('./lib/official-calendars.mjs');
   // A backtest that carries every piece of evidence passes; take any one away and both gates block again on it.
   const complete = {
     generatedAt: '2026-11-04T00:00:00Z', universe: { includesDelisted: true },
-    methodology: { universeBasis: 'point-in-time', corporateActions: 'adjusted', fundamentalsAsOf: 'filing-available-date', transactionCostBps: 10, returnsNetOfCost: true, capacity: { maxAdvShare: 0.05 }, excludedFactors: [], regimeWeightsValidated: true },
-    overallByHorizon: { fwd21d: { turnover: 0.3, icIR: {} } }
+    methodology: { universeBasis: 'point-in-time', corporateActions: 'adjusted', fundamentalsAsOf: 'filing-available-date', capacity: { maxAdvShare: 0.05 }, excludedFactors: [], regimeWeightsValidated: true },
+    executionModel: { transactionCostBps: 10 },
+    overallByHorizon: { fwd21d: { turnover: { rebalanceCount: 100, average: 0.3, maximum: 0.6 }, quantileSpreadNet: 0.1, icIR: {} } }
   };
   const pass = buildValidationGates({ criteria, backtest: complete, nowIso: '2026-11-04T00:00:00Z' });
   check('v59.70 R10 a backtest with every requirement passes both gates', pass.screenerGate.status === 'PASS' && pass.modelValidation.status === 'PASS' && pass.screenerGate.blockers.length === 0);
-  for (const [key, broken] of [['pointInTimeUniverse', { methodology: { ...complete.methodology, survivorshipBiasCaveat: 'present-day universe' } }], ['turnoverModeled', { overallByHorizon: { fwd21d: { icIR: {} } } }], ['liveBacktestParity', { methodology: { ...complete.methodology, excludedFactors: ['value'] } }]]) {
+  for (const [key, broken] of [['pointInTimeUniverse', { methodology: { ...complete.methodology, survivorshipBiasCaveat: 'present-day universe' } }], ['turnoverModeled', { overallByHorizon: { fwd21d: { quantileSpreadNet: 0.1, icIR: {} } } }], ['transactionCostsModeled', { executionModel: {} }], ['liveBacktestParity', { methodology: { ...complete.methodology, excludedFactors: ['value'] } }]]) {
     const one = buildValidationGates({ criteria, backtest: { ...complete, ...broken }, nowIso: '2026-11-04T00:00:00Z' });
     check(`v59.70 R10 a backtest missing ${key} blocks on that requirement alone`, one.screenerGate.status === 'BLOCKED' && JSON.stringify(one.screenerGate.blockers) === JSON.stringify([key]) && one.modelValidation.status === 'BLOCKED');
   }
+  // The turnover and cost tests read the fields the backtest writes (scripts/lib/factors.mjs): turnover is an object and
+  // the cost scenario is executionModel.transactionCostBps with a net spread. Those two alone never pass the gate.
+  const { judgeRequirements } = await import('./build-validation-gates.mjs');
+  const { backtestFactors } = await import('./lib/factors.mjs');
+  const days = Array.from({ length: 130 }, (_, i) => new Date(Date.UTC(2026, 0, 5) + i * 86400000).toISOString().slice(0, 10));
+  const stocks = Array.from({ length: 30 }, (_, s) => {
+    const closes = days.map((_, i) => 100 + s + Math.sin((i + s * 7) / 9) * (3 + s % 5) + i * (s % 4 - 1.5) * 0.05);
+    return { sym: `T${s}`, dates: days, closes, adjCloses: closes, adjustedCloseStatus: 'complete' };
+  });
+  const run = backtestFactors(stocks, { offsets: [63, 42, 21], fwdDays: 5 });
+  const produced = { generatedAt: '2026-11-14T00:00:00Z', executionModel: run.executionModel, methodology: { survivorshipBiasCaveat: 'present-day universe', excludedFactors: run.excludedFactors },
+    overallByHorizon: { fwd5d: { turnover: run.turnover, quantileSpreadNet: run.quantileSpreadNet, icIR: {} } } };
+  const judged = judgeRequirements(produced);
+  const producedGates = buildValidationGates({ criteria, backtest: produced, nowIso: '2026-11-14T00:00:00Z' });
+  check('v60.16 the turnover and cost requirements read what the backtest writes (turnover object, executionModel cost, net spread)',
+    run.turnover.rebalanceCount === 3 && judged.turnoverModeled === true && judged.transactionCostsModeled === true, JSON.stringify({ turnover: run.turnover, judged }));
+  check('v60.16 a measured turnover and cost scenario leave the gate BLOCKED on universe, delisting, filing dates, capacity and live parity',
+    producedGates.modelValidation.status === 'BLOCKED' && producedGates.screenerGate.status === 'BLOCKED'
+      && JSON.stringify(producedGates.modelValidation.blockers) === JSON.stringify(['pointInTimeUniverse', 'delistingAndCorporateAction', 'filingAvailableDate', 'liquidityCapacityModeled', 'liveBacktestParity']), JSON.stringify(producedGates.modelValidation.blockers));
+  check('v60.16 a bare turnover number or a methodology-only cost claim (the fields no backtest writes) meets neither requirement',
+    judgeRequirements({ methodology: { transactionCostBps: 10, returnsNetOfCost: true }, overallByHorizon: { fwd21d: { turnover: 0.3 } } }).turnoverModeled === false
+      && judgeRequirements({ methodology: { transactionCostBps: 10, returnsNetOfCost: true }, overallByHorizon: { fwd21d: { turnover: 0.3 } } }).transactionCostsModeled === false);
 }
 
 // R12: the research symbols are collected but never count toward the core floor.
@@ -355,7 +378,7 @@ const calendars = await import('./lib/official-calendars.mjs');
       AccountsReceivableNetCurrent: usd([fact(null, '2026-06-30', 6e9, ...q2), fact(null, '2026-09-30', 7.8e9, ...q3)]),
     } } }, 100);
   const pit = record?.pit?.observations || {};
-  check('v59.70 #8 the SEC normalizer collects quarter-end inventory and receivables', SEC_NORMALIZER_VERSION === 'sec-normalizer.2026-11-04' && record?.normalizerVersion === SEC_NORMALIZER_VERSION
+  check('v59.70 #8 the SEC normalizer collects quarter-end inventory and receivables', SEC_NORMALIZER_VERSION === 'sec-normalizer.2026-11-14' && record?.normalizerVersion === SEC_NORMALIZER_VERSION
     && pit.inventoryQ?.map((row) => row.value).sort().join(',') === '5000000000,6000000000' && pit.receivablesQ?.length === 2 && quarterlyHistory(pit) === '2026-06-30:7700:800:r:5000:6000;2026-09-30:9200:1200:r:6000:7800', quarterlyHistory(pit));
   const concept = { revenueQ: 'Revenues', netIncomeQ: 'NetIncomeLoss', inventoryQ: 'InventoryNet', receivablesQ: 'AccountsReceivableNetCurrent' };
   const q = (start, end, value, field) => ({ field, value, periodStart: start, periodEnd: end, filedAt: '2026-11-01', form: '10-Q', concept: concept[field] });
@@ -373,6 +396,227 @@ const calendars = await import('./lib/official-calendars.mjs');
   check('v59.70 #8 the working-capital read names balances growing faster than revenue', wc.available && Math.round(wc.inventory.pct) === 20 && Math.round(wc.receivables.pct) === 30
     && /재고 \+20\.0%, 매출채권 \+30\.0%\(분기 매출 \+19\.5%\)/.test(wc.headline) && /매출채권이 매출보다 빠르게 늘어/.test(wc.headline), wc.headline);
   check('v59.70 #8 not yet collected is not a reading', buildWorkingCapitalRead(parseQuarterHistory(legacy)).available === false);
+  // Eight quarters: the year-ago quarter decides "faster than revenue". Inventory +30% q/q but +5% y/y against revenue +10% y/y is seasonal.
+  const season = (end, revenue, inventory, receivables) => `${end}:${revenue}:100:r:${inventory}:${receivables}`;
+  const seasonal = buildWorkingCapitalRead(parseQuarterHistory([season('2024-12-31', 900, 800, 500), season('2025-03-31', 950, 900, 500), season('2025-06-30', 1000, 1000, 500), season('2025-09-30', 1000, 1238, 500),
+    season('2025-12-31', 1000, 900, 520), season('2026-03-31', 1050, 950, 520), season('2026-06-30', 1100, 1000, 520), season('2026-09-30', 1100, 1300, 700)].join(';')));
+  check('v60.16 the working-capital read judges balances against the same quarter a year earlier', seasonal.available && seasonal.fasterBasis === 'year-ago-quarter' && seasonal.faster.join() === '매출채권'
+    && Math.round(seasonal.inventory.pct) === 30 && Math.round(seasonal.yoy.inventory.pct) === 5 && /1년 전 같은 분기 대비 재고 \+5\.0%, 매출채권 \+40\.0%\(분기 매출 \+10\.0%\) — 매출채권이 매출보다 빠르게/.test(seasonal.headline) && /직전 분기 대비로는 재고 \+30\.0%/.test(seasonal.headline), seasonal.headline);
+}
+
+// Fundamentals logic review: one-off earnings in the P/E numerator, total debt, the financial kind by SIC code, one revenue
+// concept per series, P/B on the latest common equity, the latest cover share count, loss-makers named beside a layer median.
+{
+  const { normalizeSecCompanyFacts } = await import('../src/domain/fundamental/sec-normalize.js');
+  const { anchorConceptRows, SEC_FIELD_CONCEPT_PREFERENCE, SEC_TOTAL_DEBT_DERIVED_CONCEPT } = await import('../src/domain/fundamental/sec-earnings.js');
+  const { oneOffQuarters, reconcileSecValuationBasis } = await import('../src/domain/fundamental/sec-valuation-basis.js');
+  const { bestRevenueRowsByPeriod, deriveSecReport } = await import('../src/domain/fundamental/sec-report.js');
+  const { secFundamentalRowFields } = await import('../src/domain/fundamental/sec-row-fields.js');
+  const { financialKind, isLendingFinancial, buildFiscalRead } = await import('../src/domain/fundamental/fiscal-read.js');
+  const { reverseDcfInputs } = await import('../src/domain/fundamental/analysis-read.js');
+  const { layerValuation } = await import('../src/domain/themes/layer-valuation.js');
+  const { AI_CHAIN_THEMES } = await import('../src/domain/briefing/ai-chain-flow.js');
+  const fact = (start, end, val, form = '10-K', fp = 'FY', fy = 2025, filed = '2026-02-20') => ({ start, end, val, form, fp, fy, filed, accn: `0000-${end}-${form}` });
+  const usd = (rows) => ({ units: { USD: rows } });
+  const spans = [['2025-01-01', '2025-03-31', 2025, '2025-05-01'], ['2025-04-01', '2025-06-30', 2025, '2025-08-01'], ['2025-07-01', '2025-09-30', 2025, '2025-11-01'],
+    ['2026-01-01', '2026-03-31', 2026, '2026-05-01'], ['2026-04-01', '2026-06-30', 2026, '2026-08-01'], ['2026-07-01', '2026-09-30', 2026, '2026-11-01']];
+  const quarters = (values) => spans.map(([start, end, fy, filed], index) => fact(start, end, values[index], '10-Q', `Q${index % 3 + 1}`, fy, filed));
+  const instant = (end, val, form = '10-K', filed = '2026-02-20') => fact(null, end, val, form, form === '10-K' ? 'FY' : 'Q3', 2025, filed);
+  // The 2026-06 quarter carries a 5B gain: net income 6B on 10B revenue against a 10% usual margin and 1.5B operating income.
+  const record = normalizeSecCompanyFacts('FIX', { cik: 2488, entityName: 'Fixture Corp', facts: {
+    dei: { EntityCommonStockSharesOutstanding: { units: { shares: [instant('2026-02-01', 1.6e9), instant('2026-10-25', 1.5e9, '10-Q', '2026-11-01')] } } },
+    'us-gaap': {
+      Revenues: usd([fact('2025-01-01', '2025-12-31', 40e9), fact('2024-01-01', '2024-12-31', 36e9, '10-K', 'FY', 2024, '2025-02-20'), ...quarters([10e9, 10e9, 10e9, 10e9, 10e9, 10e9])]),
+      NetIncomeLoss: usd([fact('2025-01-01', '2025-12-31', 4e9), fact('2024-01-01', '2024-12-31', 3e9, '10-K', 'FY', 2024, '2025-02-20'), ...quarters([1e9, 1e9, 1e9, 1e9, 6e9, 1e9])]),
+      OperatingIncomeLoss: usd([fact('2025-01-01', '2025-12-31', 6e9), ...quarters([1.5e9, 1.5e9, 1.5e9, 1.5e9, 1.5e9, 1.5e9])]),
+      StockholdersEquity: usd([instant('2025-12-31', 50e9), fact(null, '2024-12-31', 45e9, '10-K', 'FY', 2024, '2025-02-20'), instant('2026-09-30', 60e9, '10-Q', '2026-11-01')]),
+      PreferredStockValue: usd([instant('2026-09-30', 5e9, '10-Q', '2026-11-01')]),
+      LongTermDebtNoncurrent: usd([instant('2025-12-31', 31e9)]),
+      LongTermDebtCurrent: usd([instant('2025-12-31', 9e9)]),
+    } } }, 100);
+  const pit = record?.pit?.observations || {};
+  check('v60.16 a quarter whose net income exceeds its operating income on a margin spike is a one-off in the P/E window', record?.peEarnings?.basis === 'ttm' && record.peEarnings.value === 9e9
+    && record.peEarnings.through === '2026-09-30' && JSON.stringify(record.earningsOneOff) === '["2026-06-30"]' && pit.operatingIncomeQ?.length === 6 && reconcileSecValuationBasis(record) === record,
+  JSON.stringify([record?.peEarnings, record?.earningsOneOff, pit.operatingIncomeQ?.length]));
+  const flat = (income, extra = {}) => income.map((netIncome, index) => ({ periodEnd: ['2024-12-31', '2025-03-31', '2025-06-30', '2025-09-30', '2025-12-31', '2026-03-31', '2026-06-30', '2026-09-30'][index], revenue: 100, netIncome, ...(extra[index] || {}) }));
+  check('v60.16 the one-off rule: a reverted spike, a latest-quarter spike only above operating income, not a seasonal peak or a sustained upswing',
+    oneOffQuarters(flat([10, 10, 10, 10, 10, 10, 60, 10])).join() === '2026-06-30'
+    && oneOffQuarters(flat([10, 10, 10, 10, 10, 10, 10, 60])).length === 0
+    && oneOffQuarters(flat([10, 10, 10, 10, 10, 10, 10, 60], { 7: { operatingIncome: 15 } })).join() === '2026-09-30'
+    && oneOffQuarters(flat([10, 10, 40, 10, 10, 10, 40, 10])).length === 0
+    && oneOffQuarters(flat([10, 10, 10, 10, 10, 30, 35, 40])).length === 0
+    && oneOffQuarters(flat([10, 10, 10, 10, 60])).length === 0);
+  const priced = secFundamentalRowFields(record, { price: 100, dollarVolume30d: 1.5e9, factorSessionDate: '2026-11-13', nowMs: Date.parse('2026-11-14T00:00:00Z') });
+  check('v60.16 the screener row carries peOneOff beside a P/E whose earnings hold a one-off gain', priced?.pe === 16.67 && priced.peOneOff === true
+    && secFundamentalRowFields({ ...record, earningsOneOff: undefined }, { price: 100, dollarVolume30d: 1.5e9, factorSessionDate: '2026-11-13', nowMs: Date.parse('2026-11-14T00:00:00Z') })?.peOneOff === undefined, JSON.stringify([priced?.pe, priced?.peOneOff]));
+  check('v60.16 P/B is priced on the latest quarter-end common equity (preferred stock removed), and says through when', record?.pbEquity?.value === 55e9 && record.pbEquity.periodEnd === '2026-09-30' && record.pbEquity.preferred === 5e9
+    && priced?.pb === 2.73 && priced.pbEquityThrough === '2026-09-30' && priced.pbEquityBasis === 'common' && record.roe === 8.4, JSON.stringify([record?.pbEquity, priced?.pb, priced?.pbEquityThrough, record?.roe]));
+  check('v60.16 a later 10-Q cover count replaces the 10-K count on the same basis', record?.sharesOutstanding === 1.5e9 && record.sharesBasis === 'dei-cover-latest' && record.sharesObservedAt === '2026-10-25' && priced?.valuationSharesOutstanding === 1.5e9,
+    JSON.stringify([record?.sharesOutstanding, record?.sharesBasis, record?.sharesObservedAt]));
+  const debt = anchorConceptRows(pit.longTermDebt, SEC_FIELD_CONCEPT_PREFERENCE.longTermDebt);
+  const debtRow = (concept, value, periodEnd = '2025-12-31') => ({ concept, value, periodEnd, filedAt: '2026-02-20' });
+  check('v60.16 debt is total debt: LongTermDebt first, else noncurrent + current portion of one filing; a partial total does not anchor', debt[0]?.value === 40e9 && debt[0].concept === SEC_TOTAL_DEBT_DERIVED_CONCEPT
+    && anchorConceptRows([debtRow('LongTermDebtNoncurrent', 31067), debtRow('LongTermDebt', 40294)], SEC_FIELD_CONCEPT_PREFERENCE.longTermDebt)[0].value === 40294
+    && anchorConceptRows([debtRow('LongTermDebtNoncurrent', 1765), debtRow('LongTermDebt', 150)], SEC_FIELD_CONCEPT_PREFERENCE.longTermDebt)[0].value === 1765, JSON.stringify(debt[0] || null));
+  const revenueRow = (concept, value, year) => ({ concept, value, periodStart: `${year}-01-01`, periodEnd: `${year}-12-31`, filedAt: `${year + 1}-02-10`, fiscalPeriod: 'FY' });
+  const contract = 'RevenueFromContractWithCustomerExcludingAssessedTax';
+  const series = bestRevenueRowsByPeriod([revenueRow(contract, 24948, 2025), revenueRow(contract, 24575, 2024), revenueRow('Revenues', 32681, 2023), revenueRow(contract, 24610, 2023), revenueRow('Revenues', 34229, 2022)]);
+  check('v60.16 the revenue series keeps the concept of its latest period; another concept fills only a period it never reported', series.map((row) => row.value).join() === '24948,24575,24610,34229', series.map((row) => `${row.concept}:${row.value}`).join());
+  check('v60.16 the SIC code decides the financial kind: insurers and insurance brokers are not lending financials',
+    financialKind('PGR', 'Financials', '6331') === 'insurer' && financialKind('AON', 'Financials', '6411') === null && financialKind('JPM', 'Financials', '6021') === 'lending'
+    && !isLendingFinancial('PGR', 'Financials', '6331') && isLendingFinancial('PGR', 'Financials') && isLendingFinancial('COIN', 'Financials', '6199') && financialKind('V', 'Financials', '7389') === null);
+  const history = [{ periodEnd: '2024-12-31', revenue: 70e9, netIncome: 6e9, equity: 25e9, operatingCashFlow: 14e9, capex: 0.3e9 }, { periodEnd: '2025-12-31', revenue: 80e9, netIncome: 8e9, equity: 30e9, operatingCashFlow: 16e9, capex: 0.3e9 }];
+  const insurer = buildFiscalRead({ symbol: 'PGR', sic: '6331', row: { sector: 'Financials', pe: 16.7, _valuationPeEarningsBasis: 'ttm', _valuationPeEarningsThrough: '2026-09-30', factorSessionDate: '2026-11-13' },
+    fundamentals: { symbol: 'PGR', earningsOneOff: ['2026-06-30'], fiscalHistory: history } });
+  const point = (id) => insurer.points.find((item) => item.id === id)?.text || '';
+  check('v60.16 an insurer reads its own questions, not the bank ones, and its cash flow is reference only', /합산비율/.test(point('insurer')) && !point('bank') && /보험사의 영업현금흐름/.test(point('cash')) && !/순이자마진/.test(insurer.points.map((item) => item.text).join(' '))
+    && reverseDcfInputs({ history, fundamentals: null, close: null, financial: 'insurer' }).state === 'financial' && /보험사/.test(reverseDcfInputs({ history, financial: 'insurer' }).reason), point('insurer').slice(0, 80));
+  check('v60.16 the PER names the quarter whose one-off gain is inside its earnings', /PER 16\.7배\(최근 4개 분기 공시 순이익 합, 2026-09 분기까지, 2026-06 분기 일회성 이익 포함\)/.test(point('earnings'))
+    && deriveSecReport({ symbol: 'FIX', observedAt: '2025-12-31', pe: 16.7, coverage: ['pe'], peEarnings: { basis: 'ttm' }, earningsOneOff: ['2026-06-30'] }).metrics.find((metric) => metric.key === 'pe')?.label === 'P/E(최근 4개 분기 순이익) · 일회성 이익 포함', point('earnings').slice(0, 160));
+  const now = Date.parse('2026-11-14T12:00:00Z');
+  const estimate = (trailing, forward) => ({ asOf: '2026-11-13T20:00:00Z', trailing: { eps: trailing }, fwd: { eps: forward } });
+  const lv = layerValuation({ now, themes: [{ id: AI_CHAIN_THEMES[0], subThemes: [{ name: 'L', tickers: ['AA', 'BB', 'CC', 'LOSS'] }] }],
+    rows: ['AA', 'BB', 'CC', 'LOSS'].map((sym) => ({ sym, factorSessionDate: '2026-11-13', _valuationPrice: 100 })),
+    consensus: { rows: { AA: estimate(5, 6), BB: estimate(4, 5), CC: estimate(2, 4), LOSS: estimate(-1, 0.5) } } });
+  check('v60.16 a layer median names the loss-making members it leaves out', lv.layers[0]?.measured === 3 && lv.layers[0].lossMakers.join() === 'LOSS' && lv.layers[0].trailingPe === 25, JSON.stringify(lv.layers[0] || lv.hidden[0] || null));
+}
+
+// The TTM chain: one row per quarter in the ledger, 12/16-week fiscal quarters, the newer of common and net income,
+// a P/E on older earnings than the filings hold says so, and the value factor reads the P/E numerator's own sign.
+{
+  const { normalizeSecCompanyFacts } = await import('../src/domain/fundamental/sec-normalize.js');
+  const { discreteQuarterSeries, trailingFourQuarters, secPeEarnings, SEC_COMMON_INCOME_CONCEPT } = await import('../src/domain/fundamental/sec-earnings.js');
+  const { reconcileSecValuationBasis, oneOffQuarters } = await import('../src/domain/fundamental/sec-valuation-basis.js');
+  const { secFundamentalRowFields } = await import('../src/domain/fundamental/sec-row-fields.js');
+  const { financialKind } = await import('../src/domain/fundamental/financial-kind.js');
+  const { cashMetrics } = await import('../src/domain/fundamental/cash-metrics.js');
+  const { buildFiscalRead } = await import('../src/domain/fundamental/fiscal-read.js');
+  const { reverseDcfInputs } = await import('../src/domain/fundamental/analysis-read.js');
+  const { computeFactorRanks } = await import('../src/domain/screener/factor-ranks.js');
+  const { MODEL_DEFAULT_WEIGHTS } = await import('../src/domain/screener/factor-weights.js');
+  const { strategyLenses } = await import('../src/domain/technical/chart-strategies.js');
+  const { buildValidationGates } = await import('./build-validation-gates.mjs');
+  const fact = (start, end, val, form, fp, fy, filed) => ({ start, end, val, form, fp, fy, filed, accn: `0000-${end}-${form}-${filed}` });
+  const usd = (rows) => ({ units: { USD: rows } });
+  // Each 2025 quarter is repeated as the comparative of seven later filings (21 rows): a 16-row cap dropped 2025 Q1.
+  const laterFilings = ['2025-05-01', '2025-08-01', '2025-11-01', '2026-02-20', '2026-05-01', '2026-08-01', '2026-09-01'];
+  const retagged = (start, end, val, fp) => laterFilings.map((filed) => fact(start, end, val, '10-Q', fp, 2025, filed));
+  const income = [fact('2025-01-01', '2025-12-31', 4e9, '10-K', 'FY', 2025, '2026-02-20'), fact('2024-01-01', '2024-12-31', 3e9, '10-K', 'FY', 2024, '2025-02-20'),
+    ...retagged('2025-01-01', '2025-03-31', 0.8e9, 'Q1'), ...retagged('2025-04-01', '2025-06-30', 1e9, 'Q2'), ...retagged('2025-07-01', '2025-09-30', 1e9, 'Q3'),
+    fact('2026-01-01', '2026-03-31', 1.3e9, '10-Q', 'Q1', 2026, '2026-05-01'), fact('2026-04-01', '2026-06-30', 1.5e9, '10-Q', 'Q2', 2026, '2026-08-01')];
+  const capped = normalizeSecCompanyFacts('FIX', { cik: 2488, entityName: 'Fixture Corp', facts: {
+    dei: { EntityCommonStockSharesOutstanding: { units: { shares: [fact(null, '2026-02-01', 1.6e9, '10-K', 'FY', 2025, '2026-02-20')] } } },
+    'us-gaap': { Revenues: usd(income.map((row) => ({ ...row, val: row.val * 10 }))), NetIncomeLoss: usd(income),
+      StockholdersEquity: usd([fact(null, '2025-12-31', 50e9, '10-K', 'FY', 2025, '2026-02-20'), fact(null, '2024-12-31', 45e9, '10-K', 'FY', 2024, '2025-02-20')]) } } }, 100);
+  const cappedQ = capped?.pit?.observations?.netIncomeQ || [];
+  check('v60.16 a quarter repeated in later filings is one ledger row, so the prior-year quarters stay and the TTM forms',
+    cappedQ.length === 5 && cappedQ.filter((row) => row.periodEnd === '2025-03-31').map((row) => row.filedAt).join() === '2026-09-01'
+      && capped.peEarnings?.basis === 'ttm' && capped.peEarnings.through === '2026-06-30' && capped.peEarnings.value === 1e9 + 1.2e9 + 1.3e9 + 1.5e9 && capped.peEarningsLag === undefined,
+    JSON.stringify([cappedQ.length, capped?.peEarnings]));
+
+  // A 12-12-12-16 fiscal year: 16-week first quarter, 12-week second and third, a 12-week fourth derived from the year.
+  const q = (start, end, value, concept = 'NetIncomeLoss') => ({ periodStart: start, periodEnd: end, value, filedAt: end, concept });
+  const weeks = [q('2025-02-02', '2025-05-24', 16), q('2025-05-25', '2025-08-16', 12), q('2025-08-17', '2025-11-08', 12), q('2026-02-01', '2026-05-23', 17), q('2026-05-24', '2026-08-15', 13)];
+  const year = [{ ...q('2025-02-02', '2026-01-31', 52), fiscalPeriod: 'FY' }];
+  const weekSeries = discreteQuarterSeries(weeks, year);
+  const weekTtm = secPeEarnings({ observedAt: '2026-01-31', pit: { observations: { netIncomeQ: weeks, netIncome: year } } });
+  const span = (days, count = 4) => Array.from({ length: count }, (_, i) => ({ periodEnd: new Date(Date.UTC(2025, 0, 1) + (i + 1) * (days + 1) * 86400000).toISOString().slice(0, 10), value: 1, days }));
+  check('v60.16 12- and 16-week fiscal quarters form a TTM, and four periods must cover one year',
+    weekSeries.map((row) => `${row.value}${row.derived ? 'd' : ''}`).join() === '16,12,12,12d,17,13' && weekTtm?.basis === 'ttm' && weekTtm.through === '2026-08-15' && weekTtm.value === 12 + 12 + 17 + 13
+      && trailingFourQuarters(span(90))?.length === 4 && trailingFourQuarters(span(119)) === null && trailingFourQuarters(span(77)) === null
+      && discreteQuarterSeries([q('2025-01-01', '2025-06-30', 5)], []).length === 0,
+    JSON.stringify([weekSeries.map((row) => row.value), weekTtm]));
+
+  // Common earnings tagged through 2026-03 with net income filed through 2026-09: the newer four quarters price the P/E.
+  const quarterEnds = [['2025-01-01', '2025-03-31'], ['2025-04-01', '2025-06-30'], ['2025-07-01', '2025-09-30'], ['2026-01-01', '2026-03-31'], ['2026-04-01', '2026-06-30'], ['2026-07-01', '2026-09-30']];
+  const series = (concept, count, value) => quarterEnds.slice(0, count).map(([start, end]) => q(start, end, value, concept));
+  const fy = (concept, value) => [{ ...q('2025-01-01', '2025-12-31', value, concept), fiscalPeriod: 'FY' }];
+  const lagging = { observedAt: '2025-12-31', netIncome: 40, pit: { observations: { netIncomeQ: series('NetIncomeLoss', 6, 10), netIncome: fy('NetIncomeLoss', 40),
+    netIncomeCommonQ: series(SEC_COMMON_INCOME_CONCEPT, 4, 9), netIncomeCommon: fy(SEC_COMMON_INCOME_CONCEPT, 36) } } };
+  const level = { ...lagging, pit: { observations: { ...lagging.pit.observations, netIncomeCommonQ: series(SEC_COMMON_INCOME_CONCEPT, 6, 9) } } };
+  check('v60.16 the P/E numerator is the four quarters that end latest; common earnings win only on a tie',
+    secPeEarnings(lagging)?.concept === 'net-income' && secPeEarnings(lagging).through === '2026-09-30' && secPeEarnings(level)?.concept === 'common' && secPeEarnings(level).through === '2026-09-30',
+    JSON.stringify([secPeEarnings(lagging), secPeEarnings(level)]));
+
+  // A missing quarter breaks the chain: the P/E stays on the fiscal year and the record and the row name the newer quarter.
+  const broken = reconcileSecValuationBasis({ observedAt: '2025-12-31', netIncome: 40, equity: -5, sharesOutstanding: 10, sharesCheck: 'consistent', sharesObservedAt: '2026-02-01', filedAt: '2026-02-20',
+    pit: { observations: { netIncomeQ: [q('2025-07-01', '2025-09-30', 10), q('2026-04-01', '2026-06-30', -30)], netIncome: fy('NetIncomeLoss', 40) } } });
+  const rowAt = { price: 100, dollarVolume30d: 30, factorSessionDate: '2026-11-13', nowMs: Date.parse('2026-11-14T00:00:00Z') };
+  const brokenRow = secFundamentalRowFields(broken, rowAt);
+  const lossRow = secFundamentalRowFields({ ...broken, peEarnings: { basis: 'ttm', value: -12, through: '2026-06-30' }, peEarningsLag: undefined, margin: 8, equity: 20 }, rowAt);
+  check('v60.16 a P/E priced on older earnings than the newest quarter on file says so, and the row marks a loss numerator and a book deficit',
+    broken.peEarningsLag?.laterQuarter === '2026-06-30' && broken.peEarningsLag.reason === 'quarter-chain-incomplete' && brokenRow?.peEarningsBasis === 'fy' && brokenRow.peEarningsLaterQuarter === '2026-06-30'
+      && brokenRow.pbDeficit === true && brokenRow.pb === undefined && brokenRow.peLoss === undefined
+      && lossRow?.peLoss === true && lossRow.pe === undefined && lossRow.margin === 8 && lossRow.pbDeficit === undefined && lossRow.peEarningsLaterQuarter === undefined,
+    JSON.stringify([broken.peEarningsLag, brokenRow, lossRow]));
+
+  const twoYears = [{ periodEnd: '2024-12-31', revenue: 70e9, netIncome: 6e9, equity: 25e9 }, { periodEnd: '2025-12-31', revenue: 80e9, netIncome: 8e9, equity: 30e9 }];
+  const perText = (peEarningsLag) => buildFiscalRead({ symbol: 'FIX', row: { sector: 'Technology', pe: 16.7, _fundamentalPeriodEnd: '2025-12-31', factorSessionDate: '2026-11-13' },
+    fundamentals: { symbol: 'FIX', fiscalHistory: twoYears, ...(peEarningsLag ? { peEarningsLag } : {}) } }).points.find((item) => item.id === 'earnings')?.text || '';
+  check('v60.16 the fiscal-year PER names the newer quarter its earnings do not hold', /PER 16\.7배\(FY2025 순이익 기준[^)]*, 2026-06 분기 공시는 미반영\)/.test(perText(broken.peEarningsLag)) && /PER 16\.7배/.test(perText(null)) && !/미반영/.test(perText(null)),
+    perText(broken.peEarningsLag).slice(0, 160));
+
+  // The value factor: a loss in the P/E earnings and a book deficit score their term 0 instead of leaving it out.
+  const golden = JSON.parse(read('architecture/fixtures/factor-ranks-golden.json'));
+  const base = golden.fixtures.find((fixture) => fixture.legacyOutput.summary && (fixture.legacyOutput.activeFactors || []).includes('value'));
+  const zValue = (mutate) => {
+    const rows = base.inputs.rows.map((row, index) => (index < 2 ? mutate({ ...row }, index) : row));
+    const ranked = computeFactorRanks({ rows, weights: MODEL_DEFAULT_WEIGHTS, weightsPolicy: 'model-default', momentumDefinition: 'blend-1-3-6', qualityDefinition: 'roe-margin-growth', now: Date.parse(golden.generatedAt) });
+    return base.inputs.rows.slice(0, 2).map((row) => ranked.rows.find((out) => out.sym === row.sym)?._z_value);
+  };
+  // Row 0: no P/E, a positive fiscal-year margin, P/B 2. Row 1: P/E 10, no P/B.
+  const shape = (row, index) => (index === 0 ? { ...row, pe: null, margin: 5, pb: 2, evEbitda: null } : { ...row, pe: 10, pb: null, evEbitda: null });
+  const plain = zValue(shape);
+  const marked = zValue((row, index) => ({ ...shape(row, index), ...(index === 0 ? { _valuationPeLoss: true } : { _valuationPbDeficit: true }) }));
+  check('v60.16 the value term scores a TTM loss and a book deficit 0 (the fiscal-year margin and a missing P/B no longer leave the term out)',
+    [...plain, ...marked].every((z) => typeof z === 'number') && marked[0] < plain[0] && marked[1] < plain[1], JSON.stringify({ plain, marked }));
+
+  // One-off: without the same quarter a year earlier a reverted spike is not flagged, nor is a margin that stays near its peak.
+  const flat = (values, ends) => values.map((netIncome, index) => ({ periodEnd: ends[index], revenue: 100, netIncome }));
+  const eightEnds = ['2024-12-31', '2025-03-31', '2025-06-30', '2025-09-30', '2025-12-31', '2026-03-31', '2026-06-30', '2026-09-30'];
+  check('v60.16 the one-off rule needs the year-ago quarter on file for a reverted spike, and a fall of at least half the excess',
+    oneOffQuarters(flat([10, 10, 10, 60, 10, 10], eightEnds.slice(2))).length === 0
+      && oneOffQuarters(flat([10, 10, 10, 60, 10, 10], eightEnds.slice(2)).map((row) => (row.netIncome === 60 ? { ...row, operatingIncome: 15 } : row))).join() === '2026-03-31'
+      && oneOffQuarters(flat([5, 5, 5, 5, 5, 5, 13, 10], eightEnds)).length === 0
+      && oneOffQuarters(flat([10, 10, 10, 10, 10, 10, 60, 10], eightEnds)).join() === '2026-06-30');
+  const losing = (gain) => reconcileSecValuationBasis({ observedAt: '2025-12-31', netIncome: -40, peEarnings: { basis: 'ttm', through: '2026-09-30', value: gain - 60 },
+    pit: { observations: { netIncomeQ: quarterEnds.map(([start, end], index) => q(start, end, index === 4 ? gain : -20)), netIncome: fy('NetIncomeLoss', -80),
+      revenueQ: quarterEnds.map(([start, end]) => q(start, end, 100, 'Revenues')), revenue: fy('Revenues', 400),
+      operatingIncomeQ: quarterEnds.map(([start, end]) => q(start, end, -20, 'OperatingIncomeLoss')), operatingIncome: fy('OperatingIncomeLoss', -80) } } });
+  check('v60.16 a gain inside four quarters that sum to a loss is not flagged (there is no P/E for it to lower)',
+    losing(30).earningsOneOff === undefined && JSON.stringify(losing(90).earningsOneOff) === '["2026-06-30"]', JSON.stringify([losing(30).earningsOneOff, losing(90).earningsOneOff]));
+
+  // One financial rule: the screener's cash conditions leave out what the fiscal read leaves out.
+  const years = [{ periodEnd: '2025-12-31', revenue: 100, operatingCashFlow: 30, capex: 10 }];
+  const at = { nowMs: Date.parse('2026-11-14T00:00:00Z') };
+  const reit = buildFiscalRead({ symbol: 'PLD', sic: '6798', row: { sector: 'Real Estate' }, fundamentals: { symbol: 'PLD', fiscalHistory: [
+    { periodEnd: '2024-12-31', revenue: 70e9, netIncome: 6e9, equity: 25e9, operatingCashFlow: 14e9, capex: 0.3e9 }, { periodEnd: '2025-12-31', revenue: 80e9, netIncome: 8e9, equity: 30e9, operatingCashFlow: 16e9, capex: 0.3e9 }] } });
+  check('v60.16 lenders, insurers and REITs are one definition: no FCF margin in the screener, no FCF read or reverse DCF on the page',
+    financialKind('PLD', 'Real Estate', '6798') === 'reit' && financialKind(null, null, '6211') === 'lending' && financialKind('BLK', null, '6282') === null && financialKind(null, null, '6411') === null
+      && cashMetrics(years, { ...at, sic: 6798 }) === null && cashMetrics(years, { ...at, sic: 6021 }) === null && cashMetrics(years, { ...at, sic: 6331 }) === null
+      && cashMetrics(years, { ...at, sic: 6411 })?.fcfMargin === 20 && cashMetrics(years, { ...at, sic: 6282, symbol: 'BLK' })?.fcfMargin === 20 && cashMetrics(years, { ...at, sic: 3674 })?.fcfMargin === 20
+      && /리츠/.test(reit.points.find((item) => item.id === 'cash')?.text || '') && !/잉여현금흐름 \$/.test(reit.points.find((item) => item.id === 'cash')?.text || '')
+      && reverseDcfInputs({ history: years, financial: 'reit' }).state === 'financial' && /리츠/.test(reverseDcfInputs({ history: years, financial: 'reit' }).reason),
+    reit.points.find((item) => item.id === 'cash')?.text);
+
+  // The pullback volume check reads the chart's volume basis: missing stays missing, the base ends before the five sessions.
+  const bars = (volumes) => volumes.map((volume, index) => ({ time: `d${index}`, open: 100, high: 101, low: 99, close: 100, volume }));
+  const lens = (volumes) => strategyLenses({ available: true, bars: bars(volumes), lines: {}, templateChecks: [], adrPct: 2 })[1].conditions.find(([label]) => /거래량 감소/.test(label));
+  const quiet = [...Array.from({ length: 55 }, () => 1000), 900, 900, 900, 900, 900];
+  check('v60.16 the pullback volume condition leaves a missing volume out and compares five sessions with the 50 before them',
+    lens(quiet)?.[1] === true && /직전 50일 평균/.test(lens(quiet)[0]) && lens([...quiet.slice(0, 55), null, null, null, 900, 900])?.[1] === null
+      && lens([...Array.from({ length: 55 }, () => 1000), 1100, 1100, 1100, 1100, 1100])?.[1] === false
+      && lens([...Array.from({ length: 55 }, (_, index) => (index < 45 ? 1000 : null)), 900, 900, 900, 900, 900])?.[1] === true
+      && lens([...Array.from({ length: 55 }, (_, index) => (index < 30 ? 1000 : null)), 900, 900, 900, 900, 900])?.[1] === null);
+
+  // The validation outputs name the model the evidence was run on beside the live one.
+  const criteria = JSON.parse(read('architecture/validation-gate-criteria.json'));
+  const onFile = buildValidationGates({ criteria, backtest: JSON.parse(read('public-data/factor-backtest-longrun.json')), nowIso: '2026-11-14T00:00:00Z' });
+  check('v60.16 the validation gate records that the evidence on file is a four-factor study, not the live model, and stays BLOCKED',
+    onFile.modelValidation.status === 'BLOCKED' && onFile.screenerGate.status === 'BLOCKED' && onFile.modelValidation.evidenceModelMatchesLive === false && onFile.screenerGate.evidenceModelMatchesLive === false
+      && onFile.modelValidation.evidenceModel.activeFactors.join() === 'kalman,lowvol,momentum,trend' && onFile.modelValidation.liveModel.activeFactors.includes('value')
+      && /^factor-ranks\./.test(onFile.modelValidation.liveModel.factorRanksModelVersion) && buildValidationGates({ criteria, backtest: null }).modelValidation.evidenceModelMatchesLive === false,
+    JSON.stringify([onFile.modelValidation.evidenceModel, onFile.modelValidation.liveModel]));
 }
 
 if (failures.length) {

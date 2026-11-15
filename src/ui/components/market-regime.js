@@ -539,6 +539,12 @@ function paintCrossReadings(doc, root, inputs) {
         item.append(title);
         if (row.map) item.append(crossMap(doc, row));
         item.append(el(doc, 'p', row.text, 'mk-cross__text'));
+        // Record ranks behind the row (depth-readouts `more`), folded: reference numbers, not part of any verdict.
+        if (row.more?.length) {
+          const fold = el(doc, 'details', null, 'regime-read-more');
+          fold.append(el(doc, 'summary', `1년 기록에서의 위치 ${row.more.length}개`), ...row.more.map((entry) => el(doc, 'p', `${entry.label}: ${entry.text}`, 'mk-cross__text')));
+          item.append(fold);
+        }
         return item;
       }));
     };

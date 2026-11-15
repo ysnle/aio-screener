@@ -12,7 +12,7 @@ export const PRESET_LESSONS = Object.freeze({
     favours: null
   },
   'preset-momentum': {
-    principle: '최근 3~12개월 많이 오른 종목이 한동안 더 오르는 경향(모멘텀, Jegadeesh·Titman 1993)을 이용합니다.',
+    principle: '많이 오른 종목이 한동안 더 오르는 경향(모멘텀, Jegadeesh·Titman 1993)에 기댑니다. 이 목록은 3개월 수익률이 플러스이고 종합 순위가 상위 40%인 종목을 3개월 수익률 순으로 놓습니다.',
     works: '추세가 이어지고 시장 참여가 넓은 시장에서 잘 통하는 편입니다.',
     fails: '하락장 뒤 급반등처럼 방향이 갑자기 바뀌는 구간에서는 크게 뒤처지기도 합니다(모멘텀 붕괴, Daniel·Moskowitz 2016).',
     failure: '이미 많이 오른 뒤 들어가 첫 조정에서 크게 밀리는 경우.',
@@ -31,7 +31,7 @@ export const PRESET_LESSONS = Object.freeze({
     principle: '덜 흔들리는 종목이 위험 대비 성과가 나쁘지 않았다는 저변동성 이상 현상(Baker·Bradley·Wurgler 2011)을 이용합니다.',
     works: '시장이 흔들리거나 내리는 구간에서 낙폭을 덜 받는 편입니다.',
     fails: '시장이 크게 오르는 구간에서는 덜 오릅니다. 금리가 빠르게 오를 때는 배당·채권 성격 종목이 함께 약해지기도 합니다.',
-    failure: '변동성이 낮은 이유가 거래가 적어서인 종목 — 거래대금을 같이 봅니다.',
+    failure: '변동성이 낮은 이유가 거래가 적어서인 종목 — 거래대금을 같이 봅니다. 기준(연 변동성 25% 이하)은 미국 대형주에 맞춘 절대값이라 한국 종목은 거의 통과하지 못합니다.',
     columns: ['lowvol', 'adrPct', 'dollarVolume30d'],
     favours: 'burden'
   },
@@ -52,7 +52,7 @@ export const PRESET_LESSONS = Object.freeze({
     favours: 'favorable'
   },
   'preset-breakout-volume': {
-    principle: '피벗 위 종가와 평소보다 많은 거래량이 같은 날 나온 종목 — 수요가 매물을 이겼다는 흔적으로 봅니다(오닐 피벗 돌파).',
+    principle: '최근 5거래일 안에 피벗 위 종가와 평소보다 많은 거래량이 같은 날 나온 종목 — 수요가 매물을 이겼다는 흔적으로 봅니다(오닐 피벗 돌파).',
     works: '시장 전체가 상승 추세이고 주도 업종이 분명할 때 잘 이어지는 편입니다.',
     fails: '박스권·약세 시장에서는 돌파 뒤 되돌림이 잦습니다.',
     failure: '돌파 뒤 종가가 피벗 아래로 돌아오는 실패한 돌파, 피벗에서 이미 멀리 오른 뒤(+5% 초과) 들어가는 경우.',

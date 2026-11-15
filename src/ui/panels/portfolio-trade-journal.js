@@ -153,6 +153,7 @@ function renderDynamic(doc, root, host, surface) {
     parts.push(box);
   }
   const s = review.stats;
+  const sells = new Set(closed.map((row) => row.sellId)).size;
   const summary = el(doc, 'section', null, 'pf-trade-block');
   summary.append(el(doc, 'h3', '끝난 거래의 결과', 'pf-trade-h3'));
   if (!s.n) {
@@ -161,7 +162,8 @@ function renderDynamic(doc, root, host, surface) {
     const cards = el(doc, 'div', null, 'pf-trade-cards');
     const card = (label, value, sub) => { const node = el(doc, 'div', null, 'pf-trade-card'); node.append(el(doc, 'span', label, 'pf-trade-card-label'), el(doc, 'strong', value, 'pf-trade-card-value'), sub ? el(doc, 'span', sub, 'pf-trade-card-sub') : ''); return node; };
     cards.append(
-      card('끝난 거래', `${s.n}건`, `이익 ${s.wins}, 손실 ${s.losses}`),
+      // One row per buy lot a sale closed (FIFO): a sale that closes three buys is three results, and the card says so.
+      card('끝난 거래', `${s.n}건`, `이익 ${s.wins}, 손실 ${s.losses}${sells < s.n ? `, 매수 기록 기준(매도 ${sells}회)` : ''}`),
       card('승률', s.winRate == null ? '—' : `${s.winRate.toFixed(0)}%`, review.small ? `${s.n}건 기록, 표본 적음` : null),
       card('평균 이익, 손실', `${pct(s.avgWinPct)}, ${pct(s.avgLossPct)}`, s.payoff == null ? null : `손익비 ${s.payoff.toFixed(2)}`),
       card('실현 손익', Object.entries(s.pnlByCurrency).map(([currency, amount]) => money(amount, currency)).join(', ') || '—', '수수료·세금 반영'),

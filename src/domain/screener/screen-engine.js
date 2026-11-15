@@ -337,6 +337,9 @@ export function createDefaultScreenDefinitions() {
     // The near-pivot list is not filtered on volume (a ±3% band name with heavy volume is still worth seeing); its name says
     // it is ordered by the quietest volume rather than claiming every row is drying up.
     preset('preset-pivot-quiet', '피벗 근접·거래 적은 순', 'pivot-quiet-observation', { type: 'enum', field: 'technical.vcpStage', values: ['near_pivot'], nullPolicy: 'unknown' }, ['technical.vcpScore', 'price.rvol20', 'technical.ema8', 'technical.ema21'], { field: 'price.rvol20', direction: 'asc' }),
-    preset('preset-breakout-volume', '돌파·거래 증가', 'breakout-volume-observation', { type: 'and', children: [{ type: 'enum', field: 'technical.vcpStage', values: ['breakout'], nullPolicy: 'unknown' }, { type: 'range', field: 'price.rvol20', min: 1.4, nullPolicy: 'unknown' }] }, ['technical.vcpScore', 'price.rvol20', 'technical.ema8', 'technical.ema21'], { field: 'price.rvol20', direction: 'desc' })
+    // A breakout is one session and its day already needs 1.4x volume (definitions.isBreakoutDay), so "stage is
+    // breakout today plus rvol20 >= 1.4" matched nothing. The preset reads the sessions since the breakout day; a row
+    // without the field (an artifact from before it was published) is unknown, never a rejection.
+    preset('preset-breakout-volume', '돌파·거래 증가', 'breakout-volume-observation', { type: 'range', field: 'technical.breakoutAgo', max: 5, nullPolicy: 'unknown' }, ['technical.breakoutAgo'], { field: 'technical.breakoutAgo', direction: 'asc' })
   ]);
 }

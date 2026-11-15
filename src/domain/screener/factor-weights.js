@@ -1,19 +1,19 @@
 // P763/ARX-10 follow-up: the factor-weight regime/profile resolver is pure.
 // Storage/profile lookup remains at the compatibility boundary; this module owns only the
 // deterministic weight math so native and legacy screener consumers cannot diverge.
-// v4 (2026-10-17 audit D6, owner-approved): the default model gives size no weight. Its only input is the live quote's
-// market cap, which the published artifacts never carry, so the declared 8% was renormalized away on every run — and
-// would have switched on, re-ranking every row, the moment live quotes reached 80% coverage. The applied default
-// weights are unchanged (size was never active). The key stays at 0 so user profiles that name size remain valid.
-export const FACTOR_WEIGHTS_MODEL_VERSION = 'factor-weights.v4';
+//
+// Default: five equal axes (trend = price against averages 10% + trend speed 10%). The former default was 0.93
+// correlated with momentum alone; it stays on record as the candidate-archive shadow model. Size has no input: 0.
+export const FACTOR_WEIGHTS_MODEL_VERSION = 'factor-weights.v5';
 
-const NEUTRAL = Object.freeze({ momentum: 0.27, trend: 0.20, lowvol: 0.16, size: 0, value: 0.10, quality: 0.09, kalman: 0.10 });
-const RISK_OFF = Object.freeze({ momentum: 0.12, trend: 0.18, lowvol: 0.28, size: 0.05, value: 0.10, quality: 0.18, kalman: 0.09 });
-const RISK_ON = Object.freeze({ momentum: 0.33, trend: 0.24, lowvol: 0.09, size: 0.08, value: 0.07, quality: 0.07, kalman: 0.12 });
-// P1449: the ranking model falls back to exactly this vector when its caller passes no weights
-// (factor-ranks.js imports it, backtestFactors passes it explicitly). One canonical model default —
-// the second hand-picked copy that drifted from it (P584/C1, P1443 gate blindness) is gone.
+const NEUTRAL = Object.freeze({ momentum: 0.20, trend: 0.10, lowvol: 0.20, size: 0, value: 0.20, quality: 0.20, kalman: 0.10 });
+export const LEGACY_BLEND_WEIGHTS = Object.freeze({ momentum: 0.27, trend: 0.20, lowvol: 0.16, size: 0, value: 0.10, quality: 0.09, kalman: 0.10 });
+const RISK_OFF = Object.freeze({ momentum: 0.10, trend: 0.08, lowvol: 0.30, size: 0, value: 0.18, quality: 0.27, kalman: 0.07 });
+const RISK_ON = Object.freeze({ momentum: 0.28, trend: 0.14, lowvol: 0.10, size: 0, value: 0.16, quality: 0.18, kalman: 0.14 });
 export const MODEL_DEFAULT_WEIGHTS = NEUTRAL;
+// 12-1 momentum drops the latest month's reversal; quality is profitability (ROE, net margin), not growth.
+export const MODEL_DEFAULT_DEFINITIONS = Object.freeze({ momentum: 'twelve-minus-one', value: 'positive-multiples', quality: 'profitability' });
+export const LEGACY_BLEND_DEFINITIONS = Object.freeze({ momentum: 'blend-1-3-6', value: 'positive-multiples', quality: 'roe-margin-growth' });
 
 function normalizeWeights(weights = {}) {
   const keys = Object.keys(weights);

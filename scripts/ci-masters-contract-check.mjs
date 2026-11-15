@@ -384,6 +384,46 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
   if (/\*\s*1000\b|\/\s*1000\b/.test((page + read('src/domain/masters/holdings-format.js')).replace(/Intl|toLocaleString|1e3|1000\) \/ 1000/g, ''))) fail('P1522 the masters page must never rescale a filed amount by 1,000');
 }
 
+// A split or a CUSIP change is not trading: the split is decided across filers, the CUSIP change inside one manager,
+// the runtime builder stamps the projection rows, and the page shows the held label instead of 증가 / 신규 + 전량 제외.
+{
+  const actions = await import('../src/domain/masters/corporate-actions.js');
+  const { displayActionOf } = await import('../src/domain/masters/holdings-format.js');
+  const comparison = (managerId, cusip, shares, priorShares, value, priorValue, extra = {}) => ({ managerId, reportPeriod: '2026-06-30', key: `${cusip}|${extra.putCall || ''}|SH`, cusipNormalized: cusip, shareType: 'SH', putCall: null, shares, priorShares, value, priorValue,
+    action: !priorShares ? 'NEW' : !shares ? 'EXITED' : shares > priorShares ? 'INCREASED' : shares < priorShares ? 'REDUCED' : 'UNCHANGED', ...extra });
+  // KLA 10:1 in a quarter where the price also doubled: value x2.1 is outside the single-row 0.6-1.6 window.
+  const split = ['a', 'b', 'c', 'd'].map((id, index) => comparison(id, 'KLA000001', 1000 * (index === 3 ? 5 : 10), 1000, 2100 * (index === 3 ? 0.5 : 1), 1000));
+  // An index add (shares x1.5, price flat) and a crash that filers bought (shares x1.6, price x0.5 for one filer only) stay as filed.
+  const indexAdd = ['a', 'b', 'c'].map((id) => comparison(id, 'RUS000001', 1500, 1000, 1600, 1000));
+  const loneBuyer = [comparison('a', 'DIP000001', 1600, 1000, 800, 1000), comparison('b', 'DIP000001', 1000, 1000, 500, 1000), comparison('c', 'DIP000001', 1000, 1000, 500, 1000)];
+  const suspects = actions.detectSplitSuspects([...split, ...indexAdd, ...loneBuyer]);
+  if (suspects.size !== 1 || !suspects.has('KLA000001|2026-06-30')) fail('v60.16 a split is the security whose filers share one share-count move against the price per share, and nothing else');
+  if (actions.detectSplitSuspects(split.slice(0, 2)).size !== 0) fail('v60.16 two filers are not enough to call a split');
+  const stamped = actions.annotateCorporateActions(split.filter((row) => row.managerId === 'd'), suspects)[0];
+  if (displayActionOf(split[0]) !== 'INCREASED' || displayActionOf(stamped) !== 'SPLIT_SUSPECT') fail('v60.16 a row of a split security reads 분할 의심 once stamped, whatever its own ratio (5x here is a real halving)');
+  const change = [
+    comparison('a', '438516205', 22778297, 0, 5e9, 0, { issuer: 'HONEYWELL INTL INC', titleOfClass: 'COM' }),
+    comparison('a', '438516106', 0, 48831876, 0, 9e9, { issuer: 'HONEYWELL INTL INC', titleOfClass: 'COM' }),
+    comparison('a', 'G2004J103', 96304948, 0, 2e9, 0, { issuer: 'CARNIVAL CORP LTD', titleOfClass: 'COMMON SHARES' }),
+    comparison('a', '143658300', 0, 89979406, 0, 2e9, { issuer: 'CARNIVAL CORP', titleOfClass: 'COMMON STOCK' }),
+    // Two funds of one trust, another share class and an option are different holdings.
+    comparison('a', '46429B515', 100, 0, 1000, 0, { issuer: 'ISHARES TR', titleOfClass: 'MSCI FINLAND ETF' }),
+    comparison('a', '464289123', 0, 100, 0, 1000, { issuer: 'ISHARES TR', titleOfClass: 'NEW ZEALAND ETF' }),
+    comparison('a', 'ALP000001', 100, 0, 1000, 0, { issuer: 'ALPHA INC', titleOfClass: 'CL A' }),
+    comparison('a', 'ALP000002', 0, 100, 0, 1000, { issuer: 'ALPHA INC', titleOfClass: 'CL B' }),
+    comparison('a', 'OPT000002', 100, 0, 1000, 0, { issuer: 'OPTION CO', titleOfClass: 'COM', putCall: 'Put' }),
+    comparison('a', 'OPT000001', 0, 100, 0, 1000, { issuer: 'OPTION CO', titleOfClass: 'COM' })
+  ];
+  const shown = actions.annotateCorporateActions(change, new Map()).map(displayActionOf);
+  if (shown.join(',') !== 'CUSIP_CHANGE,CUSIP_CHANGE,CUSIP_CHANGE,CUSIP_CHANGE,NEW,EXITED,NEW,EXITED,NEW,EXITED') fail(`v60.16 a CUSIP change pairs one exit with one entry of the same issuer and class only: ${shown.join(',')}`);
+  const paired = actions.annotateCorporateActions(change, new Map())[0];
+  if (paired.counterpartCusip !== '438516106' || paired.counterpartShares !== 48831876) fail('v60.16 the new-CUSIP row names the old CUSIP and its prior share count');
+  const builder = read('scripts/build-masters-runtime-artifacts.mjs');
+  if (!/detectSplitSuspects\(\[\.\.\.comparisonsByManager\.values\(\)\]\.flat\(\)\)/.test(builder) || !/compactProjectionRow\(withCorporateAction\(row\)\)/.test(builder) || !/compactHolding\(withCorporateAction\(row\)\)/.test(builder)) fail('v60.16 the runtime builder stamps splits (across every manager) and CUSIP changes on projection and top-holding rows');
+  const views = await import('../src/ui/pages/masters-views.js');
+  if (views.actionLabelOf({ putCall: 'Put' }, 'NEW') !== '풋 신규' || views.actionLabelOf({ putCall: 'Call' }, 'INCREASED') !== '콜 증가' || views.actionLabelOf({ putCall: null }, 'NEW') !== '신규 편입' || views.actionLabelOf({ putCall: 'Put' }, 'SPLIT_SUSPECT') !== '분할 의심, 수량 변화 보류') fail('v60.16 an option row names its instrument in the action label');
+}
+
 const result = {
   ok: true,
   readMode: staged ? 'GIT_INDEX' : 'WORKTREE',

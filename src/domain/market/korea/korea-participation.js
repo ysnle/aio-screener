@@ -58,10 +58,21 @@ function sessionRead({ observed, date, index }) {
   const sample = `AIO 추적 종목(한국) ${out.count}개 하루 수익률 중앙값 ${sgn(out.ret1d)}${out.ret1d > 0 ? `(+3% 이상 ${out.up3}개, 상승 ${day.rising}개)` : `(-3% 이하 ${out.down3}개, 하락 ${out.falling}개)`}`;
   const same = index?.date===date && finite(index?.d1)!=null;
   if (!same) { const spread = spreadWord(day); out.text = `${md} ${sample}${spread ? ` — 표본의 ${spread.share}%가 ${spread.dir==='down'?'내려 표본 전반으로 번진 하락':'올라 표본 전반으로 번진 상승'}입니다` : ''}.`; return out; }
-  const dayRead = gapReading(index.d1, day);
-  const weekRead = finite(index.d5)!=null && week5.median!=null && week5.count>=20 ? gapReading(index.d5, week5) : '';
-  const week = finite(index.d5)!=null && out.ret5d!=null ? ` 5거래일은 지수 ${sgn(index.d5)}, 표본 중앙값 ${sgn(out.ret5d)}${weekRead ? `로, ${weekRead}` : '입니다'}.` : '';
-  out.text = `코스피 ${md} ${sgn(index.d1)} vs ${sample}${dayRead ? ` — ${dayRead}` : ''}.${week}`;
+  // The index is KOSPI, so its gap is read against KOSPI-listed members only; KOSDAQ names keep their own median
+  // (2026-11-13: five-session median +1.4% for 148 .KS names, +8.2% for 91 .KQ names, +2.7% mixed).
+  const listed = suffix => observed.filter(row => String(row.sym).endsWith(suffix));
+  const of = (rows, key) => moveCounts(rows.map(row => read(row, key)).filter(v => v!=null));
+  const ks = listed('.KS'), kq = listed('.KQ');
+  const ksDay = of(ks,'ret1d'), ksWeek = of(ks,'ret5d'), kqDay = of(kq,'ret1d'), kqWeek = of(kq,'ret5d');
+  if (ksDay.count < 20) { out.text = `${md} ${sample}.`; return out; }
+  out.kospi = { count:ksDay.count, ret1d:ksDay.median, ret5d:ksWeek.median };
+  out.kosdaq = kqDay.count >= 20 ? { count:kqDay.count, ret1d:kqDay.median, ret5d:kqWeek.median } : null;
+  const ksSample = `AIO 추적 코스피 종목 ${ksDay.count}개 하루 수익률 중앙값 ${sgn(ksDay.median)}${ksDay.median > 0 ? `(+3% 이상 ${ksDay.up3}개, 상승 ${ksDay.rising}개)` : `(-3% 이하 ${ksDay.down3}개, 하락 ${ksDay.falling}개)`}`;
+  const dayRead = gapReading(index.d1, ksDay);
+  const weekRead = finite(index.d5)!=null && ksWeek.median!=null && ksWeek.count>=20 ? gapReading(index.d5, ksWeek) : '';
+  const week = finite(index.d5)!=null && ksWeek.median!=null ? ` 5거래일은 지수 ${sgn(index.d5)}, 표본 중앙값 ${sgn(ksWeek.median)}${weekRead ? `로, ${weekRead}` : '입니다'}.` : '';
+  const kosdaq = out.kosdaq ? ` 코스닥 종목 ${kqDay.count}개 중앙값은 하루 ${sgn(kqDay.median)}${kqWeek.median!=null ? `, 5거래일 ${sgn(kqWeek.median)}` : ''}.` : '';
+  out.text = `코스피 ${md} ${sgn(index.d1)} vs ${ksSample}${dayRead ? ` — ${dayRead}` : ''}.${week}${kosdaq}`;
   return out;
 }
 export function buildKoreaParticipation({ rows=[], themes={}, nowMs=Date.now(), index=null }={}) {

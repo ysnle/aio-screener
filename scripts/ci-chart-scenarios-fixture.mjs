@@ -46,7 +46,7 @@ assert.match(buildQuestionDomainContext({ ctxId: 'technical', query: 'RSI와 매
 // v57.84 (technical definitions): the chart, the screener producer, the summary and the themes screen read one definition.
 {
   const defs = await import('../src/domain/technical/definitions.js');
-  const { closesToFactors, _calcSetupScreenFields, _calcVCPServer } = await import('../src/domain/screener/price-factors.js');
+  const { closesToFactors, _calcSetupScreenFields, _calcVCPServer, VCP_BREAKOUT_LOOKBACK } = await import('../src/domain/screener/price-factors.js');
   const { extensionStateFor: profileState, EXTENSION_BANDS } = await import('../src/domain/screener/setup-profile.js');
   const { adrMultiple } = await import('../src/domain/technical/bands.js');
   const { RULES } = await import('../src/domain/rules/thresholds.js');
@@ -88,7 +88,22 @@ assert.match(buildQuestionDomainContext({ ctxId: 'technical', query: 'RSI와 매
   assert.equal(chart.weinstein.stage, defs.weinsteinStage(weekly).stage, 'v57.84 chart Weinstein = definitions.weinsteinStage');
   assert.equal(defs.weinsteinStage(Array.from({ length: 40 }, (_, i) => 100 + i)).stage, 2, 'v57.84 rising 30-week line with price above = stage 2');
   assert.equal(defs.weinsteinStage(Array.from({ length: 40 }, (_, i) => 200 - i * 2)).stage, 4, 'v57.84 falling 30-week line with price below = stage 4');
+  assert.equal(defs.weinsteinStage(Array.from({ length: 80 }, (_, i) => 100 * Math.pow(1.0018, i))).stage, 2, 'v60.15 a slow advance whose 30-week line never rose faster than the flat band is stage 2, not a top');
+  assert.equal(defs.weinsteinStage([...Array.from({ length: 60 }, (_, i) => 100 + i * 1.5), ...Array.from({ length: 26 }, (_, i) => 188 + (i % 2 ? 2 : -2))]).stage, 3, 'v60.15 a line that rose and then flattened is stage 3');
   assert.ok(chart.evidence.some(([label, text]) => label === '50일선 대비 일평균 변동폭 배수' && text.includes(`ADR${RULES.technical.adrPeriod}`)), 'v57.84 the chart row names its unit');
+  {
+    // v60.16: the crossing is part of the breakout day — a heavy up close ten sessions after the cross is not one, on the
+    // chart or in the screener.
+    const flat = Array.from({ length: 70 }, () => 100), vols = Array.from({ length: 70 }, () => 1000);
+    const cross = [...flat, 102], late = [...flat, ...Array.from({ length: 10 }, () => 102), 104];
+    assert.equal(defs.isBreakoutDay({ closes: cross, volumes: [...vols, 2000], i: 70, pivot: 101 }), true, 'v60.16 a heavy up close through the pivot is a breakout day');
+    assert.equal(defs.isBreakoutDay({ closes: late, volumes: [...vols, ...Array.from({ length: 10 }, () => 1000), 2000], i: 80, pivot: 101 }), false, 'v60.16 a heavy up close with no close at or below the pivot in the prior crossSessions is not a breakout day');
+    assert.equal(RULES.technical.breakout.crossSessions, VCP_BREAKOUT_LOOKBACK, 'v60.16 the screener lookback is the RULES crossing window');
+    // v60.16: today's volume is measured against the 50 sessions before it, not an average that contains it.
+    const prior = year.slice(-51, -1).map((bar) => bar.volume);
+    assert.ok(Math.abs(chart.volRatio - year.at(-1).volume / (prior.reduce((a, b) => a + b, 0) / prior.length)) < 1e-9, 'v60.16 chart volume ratio excludes today from its own average');
+    assert.ok(chart.evidence.some(([label]) => label === '거래량 (직전 50일 평균 대비)'), 'v60.16 the volume row names the prior-50 basis');
+  }
 }
 {
   // RRG: the reader's banded zone uses the producer's quadrant boundaries; one set of words and readings.

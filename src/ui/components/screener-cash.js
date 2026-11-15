@@ -12,7 +12,7 @@ export function requestCashMetrics(root, onReady) {
     for (const [symbol, text] of Object.entries(history)) {
       // issuerSic is "3674|Semiconductors & Related Devices"; the code decides the financials exclusion.
       const sic = Number.parseInt(String(root?._aioSecIssuerSic?.[symbol] ?? '').split('|')[0], 10);
-      const metrics = cashMetrics(parseFiscalHistory(text), { sic: Number.isFinite(sic) ? sic : null });
+      const metrics = cashMetrics(parseFiscalHistory(text), { sic: Number.isFinite(sic) ? sic : null, symbol });
       if (metrics) map.set(symbol.toUpperCase(), metrics);
     }
     root._aioScreenerCash = { source: history, map };

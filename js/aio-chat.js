@@ -1760,7 +1760,6 @@ var AIO_CHAT_SOURCE_REGISTRY = [
   { key:'fcf',          label:'FCF Yield',           fn:'computeFcfYield',               tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
   { key:'balance',      label:'대차대조표 비율',      fn:'computeBalanceSheetRatios',     tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
   { key:'evEbitda',     label:'EV/EBITDA',           fn:'computeEvEbitda',               tier:'fundamental', free:true, requiresKey:null, appliesTo:function(){return true;} },
-  { key:'macroBeta',    label:'거시 민감도(베타)',  fn:'computeMacroBeta',              tier:'fundamental', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'riskFactors',  label:'SEC 리스크요인(1A)',   fn:'fetchSECRiskFactors',           tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'supplyChain',  label:'공급망(10-K)',         fn:'fetchSECSupplyChain',           tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
   { key:'partnership',  label:'파트너십(8-K)',        fn:'fetchPartnershipAlerts',        tier:'qualitative', free:true,  requiresKey:null,         appliesTo:function(){return true;} },
@@ -1966,8 +1965,6 @@ async function _fetchTickerDataForChat(tickers, opts) {
     var fcfPromise         = _needsFundamentals && window.AIO && window.AIO.computeFcfYield ? _withTimeout(window.AIO.computeFcfYield(t).catch(function(){return null;}), _T, null) : null;
     var balancePromise     = _needsFundamentals && window.AIO && window.AIO.computeBalanceSheetRatios ? _withTimeout(window.AIO.computeBalanceSheetRatios(t).catch(function(){return null;}), _T, null) : null;
     var evEbitdaPromise    = _needsFundamentals && window.AIO && window.AIO.computeEvEbitda ? _withTimeout(window.AIO.computeEvEbitda(t).catch(function(){return null;}), _T, null) : null;
-    // v50.9 P482: computeMacroBeta는 동기 함수(plain object 반환) — Promise.resolve로 감싸야 .catch 가능. 미감쌈 시 TypeError로 _fetchTickerDataForChat 전체 reject(펀더멘털 블록 silent 누락).
-    var macroBetaPromise   = _needsFundamentals && window.AIO && window.AIO.computeMacroBeta ? _withTimeout(Promise.resolve(window.AIO.computeMacroBeta(t)).catch(function(){return null;}), _T, null) : null;
     // v49.66 P348 R121: fetchSECRiskFactors Dead code 해소 (#16 리스크 SEC 10-K Item 1A 직접 URL 인용)
     var riskFactorsPromise = (_needsFilings || _deepRequested) && window.AIO && window.AIO.fetchSECRiskFactors ? _withTimeout(window.AIO.fetchSECRiskFactors(t).catch(function(){return null;}), _T, null) : null;
     // v49.65 P340/P341 R116: 17 관점 분석 프레임워크 완성 — 6 신규 promise
@@ -2073,7 +2070,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
       try {
         var fcf = fcfPromise ? await fcfPromise : null;
         if (fcf && fcf.available && fcf.fcfYieldPct != null) {
-          results.push('  [FCF Yield] ' + Number(fcf.fcfYieldPct).toFixed(2) + '%, ' + fcf.verdict + ' (' + fcf.source + ') — ' + fcf.note);
+          results.push('  [FCF Yield] ' + Number(fcf.fcfYieldPct).toFixed(2) + '% (' + fcf.source + ')');
         }
       } catch(_fcfErr) {}
 
@@ -2084,9 +2081,7 @@ async function _fetchTickerDataForChat(tickers, opts) {
           var bLine = '  [Balance Sheet]';
           if (bal.netDebtToEbitda != null) bLine += ' Net Debt/EBITDA ' + Number(bal.netDebtToEbitda).toFixed(2) + 'x';
           if (bal.interestCoverage != null) bLine += ', Interest Coverage ' + Number(bal.interestCoverage).toFixed(1) + 'x';
-          bLine += ', ' + bal.healthScore;
           results.push(bLine);
-          if (bal.note) results.push('  [Balance 가이드] ' + bal.note);
         }
       } catch(_balErr) {}
 
@@ -2096,23 +2091,9 @@ async function _fetchTickerDataForChat(tickers, opts) {
         if (ev && ev.available && ev.evEbitda != null) {
           var evLine = '  [EV/EBITDA] ' + Number(ev.evEbitda).toFixed(1) + 'x';
           if (ev.sectorMedian != null) evLine += ' (sector median ' + Number(ev.sectorMedian).toFixed(1) + 'x)';
-          if (ev.verdict) evLine += ', ' + ev.verdict;
           results.push(evLine);
         }
       } catch(_evErr) {}
-
-      // v49.58 P320 R104 신규: Macro Beta (rate / dxy / oil 회귀)
-      try {
-        var mb = macroBetaPromise ? await macroBetaPromise : null;
-        if (mb && mb.available) {
-          var mbLine = '  [Macro Beta]';
-          if (mb.rateBeta != null) mbLine += ' rate ' + Number(mb.rateBeta).toFixed(2);
-          if (mb.dxyBeta != null) mbLine += ', dxy ' + Number(mb.dxyBeta).toFixed(2);
-          if (mb.oilBeta != null) mbLine += ', oil ' + Number(mb.oilBeta).toFixed(2);
-          if (mb.diversificationVerdict) mbLine += ' → ' + mb.diversificationVerdict;
-          results.push(mbLine);
-        }
-      } catch(_mbErr) {}
 
       // v49.71 P377 R135 신규: SCREENER_DB.memo + 신선도 자동 주입 (사용자 정직 질의 "MEMO 활용 + 신선도" 시정)
       try {
@@ -2726,26 +2707,23 @@ function _aioTickerNewsFromCache(ticker, opts) {
     var windowH = opts.windowHours || 168; // 기본 7일
     var sym = String(ticker || '').toUpperCase().replace(/\.(KS|KQ|KO)$/, '').trim();
     if (!sym || sym.length < 1) return '';
-    // 종목명 별칭 수집 — KR 코드→한글명(KR_STOCK_DB 기존 인프라) + 레지스트리 역매핑 + 원본
-    var aliases = [];
+    // 종목명 수집 — KR 코드→한글명(KR_STOCK_DB) + 레지스트리 영문명·한글명·별칭. 제목 대조는 뉴스 공통 규칙
+    // (src/domain/briefing/news-picks.js companyMatcher: 단어 경계, 조사, 고유명사)에 맡긴다.
+    var names = [], enName = '';
     var rawUpper = String(ticker || '').toUpperCase().trim();
-    function _addAlias(a) { a = String(a || '').toUpperCase().trim(); if (a && aliases.indexOf(a) === -1) aliases.push(a); }
-    _addAlias(sym); _addAlias(rawUpper);
     try {
       var _krCode = sym.replace(/\D/g, '');
       var _kdb = window.KR_STOCK_DB;
-      if (_kdb && /^\d{6}$/.test(_krCode) && _kdb[_krCode] && _kdb[_krCode].name) _addAlias(_kdb[_krCode].name); // 005930 → 삼성전자 (뉴스는 한글명으로 표기)
+      if (_kdb && /^\d{6}$/.test(_krCode) && _kdb[_krCode] && _kdb[_krCode].name) names.push(_kdb[_krCode].name); // 005930 → 삼성전자 (뉴스는 한글명으로 표기)
     } catch (_k) {}
     try {
       // P1339: registry is { entries: { TICKER: { en, kr, alt } } } (KR keys keep .KS/.KQ); a flat map never matched.
       var regEntries = (window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries) || {};
       var regEntry = regEntries[rawUpper] || regEntries[sym];
       // P1550: an alt that is another issuer's registry key ('ms' on MSFT vs Morgan Stanley 'MS') is not an alias of this one.
-      if (regEntry) [regEntry.en, regEntry.kr].concat(regEntry.alt || []).forEach(function(name) {
-        var up = String(name || '').toUpperCase();
-        if (up.length >= 2 && (up === sym || up === rawUpper || !regEntries[up])) _addAlias(name);
-      });
+      if (regEntry) { enName = regEntry.en || ''; [regEntry.kr].concat(regEntry.alt || []).forEach(function(name) { if (name && !regEntries[String(name).toUpperCase()]) names.push(name); }); }
     } catch (_a) {}
+    var matcher = typeof window._aioCompanyMatcher === 'function' ? window._aioCompanyMatcher(sym, enName, names) : null;
     var matched = [];
     for (var i = 0; i < cache.length; i++) {
       var it = cache[i];
@@ -2759,26 +2737,11 @@ function _aioTickerNewsFromCache(ticker, opts) {
         else if (typeof extractTickers === 'function') its = extractTickers(it) || [];
         for (var k = 0; k < its.length && !hit; k++) {
           var ts = String(its[k]).toUpperCase().replace(/^\$/, '').replace(/\.(KS|KQ|KO)$/, '');
-          if (aliases.indexOf(ts) !== -1) hit = true;
+          if (ts === sym || ts === rawUpper) hit = true;
         }
       } catch (_t) {}
-      // 2) 제목/본문 별칭 매칭 — CJK 한글명(부분일치) OR 6자리 코드 OR 영문 길이≥4(단어경계).
-      //    영문 2~3자(ON/AI/AMD/ARM 등)는 일반 단어 오탐 위험 → blob 스킵하고 구조화 extractTickers만 신뢰.
-      if (!hit) {
-        var blob = ((it.title || '') + ' ' + (it.desc || it.summary || it.description || '')).toUpperCase();
-        for (var a = 0; a < aliases.length && !hit; a++) {
-          var al = aliases[a];
-          var isCJK = /[가-힯一-鿿぀-ヿ]/.test(al);
-          if (isCJK) {
-            if (al.length >= 2 && blob.indexOf(al) !== -1) hit = true;
-          } else if (/^\d{6}$/.test(al)) {
-            if (blob.indexOf(al) !== -1) hit = true; // 6자리 종목코드는 변별력 충분
-          } else if (al.length >= 4) {
-            var re = new RegExp('(^|[^A-Z0-9])' + al.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^A-Z0-9]|$)');
-            if (re.test(blob)) hit = true;
-          }
-        }
-      }
+      // 2) 제목/본문의 티커·종목명 — 공통 규칙 한 곳
+      if (!hit && matcher) hit = matcher.test((it.title || '') + ' ' + (it.desc || it.summary || it.description || ''));
       if (hit) matched.push(it);
     }
     if (!matched.length) return '';

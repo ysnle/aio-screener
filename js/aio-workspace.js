@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // js/aio-workspace.js — P1136/R620: index.html 인라인 블록 A(1,992줄)에서 추출한 사용자 상태·워크스페이스 계층.
-// 포트폴리오(refreshPortfolioPrices/refreshPortfolioRisk/_pfPearson/
+// 포트폴리오(refreshPortfolioPrices/refreshPortfolioRisk/
 // share·MDD 라벨/shapre 라벨/exportPortfolio/importPortfolio), 백테스트 랩(runPortfolioBacktestLab;
 // 결과 렌더러는 src/ui/components/portfolio-backtest-lab.js), 워치리스트(getWatchlists/saveWatchlists/createWatchlist/switchWatchlist/
 // addToWatchlist; 화면은 src/ui/components/portfolio-watchlist.js), 투자 일지와 채팅 이력(PF_JOURNAL_KEY/CHAT_HISTORY_LS/
@@ -859,7 +859,7 @@ function refreshPortfolioLedgerPerformance() {
   if (accountPerf.status === 'ready') {
     // v57.92: a TWR whose flows fall between valuations is a boundary approximation — named as such, with the engine's reason.
     var twrApprox = accountPerf.twrExact === false;
-    html = '<b>실제 계좌 성과 TWR(기간 누적' + (twrApprox ? ', 근사' : '') + ') ' + _escHtmlSafe(perfPct(accountPerf.twr)) + ', MWR(연율) ' + _escHtmlSafe(perfPct(accountPerf.mwr)) + '</b> — ' // #6: different units, both named
+    html = '<b>실제 계좌 성과 TWR(기간 누적' + (twrApprox ? ', 근사' : '') + ') ' + _escHtmlSafe(perfPct(accountPerf.twr)) + ', MWR(' + (accountPerf.units.mwrShown === 'period-irr' ? '기간 누적, 1년 미만이라 연율화 안 함' : '연율') + ') ' + _escHtmlSafe(perfPct(accountPerf.mwrShown)) + '</b> — ' // #6: different units, both named
       + _escHtmlSafe(accountPerf.currency + ', ' + (accountPerf.flowTiming === 'start-of-period' ? '입출금 기간 시작 반영' : '입출금 기간 끝 반영') + ', ' + accountPerf.sample.periods + '기간 ' + accountPerf.sample.from + '~' + accountPerf.sample.to)
       + ((accountPerf.warnings || []).length ? ', ' + _escHtmlSafe(accountPerf.warnings.join(' ')) : '')
       + ' (시세 이력 검증과 무관하게 원장 규약 선언만으로 계산됩니다)';
@@ -889,7 +889,6 @@ async function refreshPortfolioRisk() {
   }
   if (!status('가격 데이터 요청 중...')) return;
   const riskEpoch = ++_pfRiskEpoch;
-  if (typeof _calcPortfolioVaR !== 'function') { try { await window._aioLoadTechnicalEngine?.(); } catch (_) {} } // the return statistics load with 포트폴리오's first run
   const riskHoldings = JSON.stringify(positions);
 
   const tickers = positions.map(function(p) { return p.ticker; });
@@ -961,6 +960,7 @@ async function refreshPortfolioRisk() {
     cashValue: cashValue,
     cashBalances: cashBalances, cashFx: _pfCash ? _pfCash.appFx() : null, // v57.81: one balance per currency, app USD/KRW close
     declarations: declarations, fxLegs: getPortfolioFxLegs(), // P1407: one base currency for weights
+    surface: window._aioPortfolioSurface, // a holding without a live quote is weighted from the value the valuation screen shows
     // P1445: completed USD/KRW closes so foreign holdings' returns include the currency move
     fxHistory: (window._aioHistory || []).map(function(r) { var m = r && r.fieldMeta && r.fieldMeta.usdkrw; return { date: String((m && m.observedAt) || (r && r.date) || '').slice(0, 10), value: r && r.usdkrw }; })
   }) : null;
@@ -968,7 +968,7 @@ async function refreshPortfolioRisk() {
     var holdCode = (assembled && assembled.code) || 'risk-input-unavailable';
     status((
       holdCode === 'missing-current'
-        ? '현재 시세가 없는 종목은 원가로 평가액을 대체하지 않습니다. 갱신 후 다시 시도하세요: ' + ((assembled && assembled.tickers) || []).join(', ') + '.'
+        ? '현재 시세도 최근 종가도 없는 종목은 원가로 평가액을 대체하지 않습니다. 갱신 후 다시 시도하세요: ' + ((assembled && assembled.tickers) || []).join(', ') + '.'
         : holdCode === 'no-current-value' ? '현재 평가액을 산출할 수 없어 리스크 계산을 보류합니다.'
           : holdCode === 'common-dates-insufficient' ? '종목 간 공통 거래일이 6일 미만이라 리스크 계산을 보류합니다.' : holdCode === 'currency-mixed-no-base' ? '통화가 다른 종목이 섞여 있어 기준 통화를 선언해야 비중·위험을 계산할 수 있습니다.' : holdCode === 'currency-unconverted' ? '환율 근거가 없거나 오래돼(' + ((assembled && assembled.pairs) || []).join(', ') + ') 비중·위험 계산을 보류합니다. 포트폴리오 설정에서 환율을 선언하세요.'
             : '위험 추정 입력을 확정하지 못해 보류합니다: ' + holdCode + '.'
@@ -978,71 +978,28 @@ async function refreshPortfolioRisk() {
   var returnsMap = assembled.returnsMap;
   var snapshot = assembled.snapshot;
   var estimate = assembled.estimate;
-  var minLen = assembled.minLen;
   if (!estimate || estimate.status !== 'ready') {
     status('위험 추정 입력을 확정하지 못해 보류합니다: ' +
       ((estimate && estimate.code) || (snapshot && snapshot.blocked && snapshot.blocked.code) || 'composition-snapshot-unavailable') + '.', true);
     return;
   }
-  var pfReturns = estimate.publishedReturns;
-
-  // 각 지표 계산
-  const var95  = (typeof _calcPortfolioVaR === 'function') ? _calcPortfolioVaR(pfReturns, 0.95) : null;
-  const var99  = (typeof _calcPortfolioVaR === 'function') ? _calcPortfolioVaR(pfReturns, 0.99) : null;
   // 22:PFR03 (E4): RF는 선언 입력에서만 온다. 미선언·무효면 Sharpe를 보류한다 —
   // 고정 상수를 라벨 뒤에 숨기지 않는다(P1182에서 제거).
   const rfAnnual = (estimate.rf && estimate.rf.status === 'accepted') ? estimate.rf.annualRate : null;
-  const sharpe = (typeof _calcSharpe === 'function') ? _calcSharpe(pfReturns, rfAnnual) : null;
-  const mddRes = (typeof _calcMaxDrawdown === 'function') ? _calcMaxDrawdown(pfReturns) : null;
-  const corrRes = (validTickers.length >= 2 && typeof _calcCorrelationMatrix === 'function')
-    ? _calcCorrelationMatrix(returnsMap) : null;
-  // v57.50 D04: a Korean and a US close on the same calendar date are ~16 hours apart, so pairing them day by day
-  // understates their co-movement. Mixed-market cells use 5-session (weekly) returns from the same common dates;
-  // fewer than 8 weekly pairs leaves the cell as '비동시' instead of a number.
-  if (corrRes && Array.isArray(corrRes.tickers) && Array.isArray(corrRes.matrix)) {
-    var _mktOfPf = function(sym) { return /\.(KS|KQ)$/i.test(String(sym || '')) ? 'KR' : 'US'; };
-    var _weeklyPf = function(sym) {
-      var px = historyMap[sym]; if (!px) return null;
-      var out = [];
-      for (var k = commonDates.length - 1; k - 5 >= 0; k -= 5) {
-        var a = px[commonDates[k - 5]], b = px[commonDates[k]];
-        if (!(a > 0) || !(b > 0)) return null;
-        out.unshift(b / a - 1);
-      }
-      return out;
-    };
-    corrRes.mixedMarket = corrRes.tickers.map(function(a) { return corrRes.tickers.map(function(b) { return _mktOfPf(a) !== _mktOfPf(b); }); });
-    corrRes.weeklyN = null;
-    corrRes.tickers.forEach(function(a, i) {
-      corrRes.tickers.forEach(function(b, j) {
-        if (i === j || !corrRes.mixedMarket[i][j]) return;
-        var wa = _weeklyPf(a), wb = _weeklyPf(b);
-        corrRes.matrix[i][j] = wa && wb && wa.length >= 8 ? _pfPearson(wa, wb) : null;
-        if (wa) corrRes.weeklyN = wa.length;
-      });
-    });
-  }
 
   // E4/P1191 → P1449: 원장 계좌 성과는 시세 이력과 무관한 자체 패널(pf-ledger-performance)로
   // 분리됐다(refreshPortfolioLedgerPerformance) — 시세 이력이 없어도 TWR/MWR에 도달한다.
   var accountPerf = window._lastPortfolioLedgerPerformance || null;
   window._lastPortfolioRiskEstimate = { estimate: estimate, snapshot: snapshot, accountPerformance: accountPerf, rfAnnual: rfAnnual, checkedAt: Date.now() };
-  window._aioRenderPortfolioRiskMetrics({ var95: var95, var99: var99, sharpe: sharpe, mddRes: mddRes,
-    corrRes: corrRes, validTickers: validTickers, n: minLen, rfAnnual: rfAnnual,
-    estimate: estimate, fxExcluded: !!(assembled && assembled.fxIncluded === false) }); // P1445
-  try { window._aioRenderPortfolioExposure(positions, returnsMap, corrRes); } catch(_) {}   // v50.54 3D · v59.59 the matrix's own cells
+  // The figures (VaR, CVaR, Sharpe, MDD, correlation, risk contribution) are src/domain/portfolio/risk-readout.js,
+  // computed by the panel from the estimate; a Korea+US book is measured on 5-session returns there.
+  var readout = window._aioRenderPortfolioRiskMetrics({ estimate: estimate, snapshot: snapshot, returnsMap: returnsMap, rfAnnual: rfAnnual,
+    referenceValued: assembled.referenceValued, fxExcluded: assembled.fxIncluded === false }); // P1445
+  try { window._aioRenderPortfolioExposure(positions, returnsMap, readout && readout.corr); } catch(_) {}   // v50.54 3D · v59.59 the matrix's own cells
   try { window._aioRenderPortfolioStress(positions, historyMap, commonDates); } catch(_) {} // v50.54 3E
   try { refreshPortfolioTechnicalRisk(); } catch(_) {}
 }
 
-// Pearson correlation for the risk matrix and the exposure panel's mean pairwise correlation (window._pfPearson).
-function _pfPearson(a, b) {
-  var n = Math.min(a.length, b.length); if (n < 3) return null;
-  a = a.slice(-n); b = b.slice(-n);
-  var ma = 0, mb = 0, i; for (i = 0; i < n; i++) { ma += a[i]; mb += b[i]; } ma /= n; mb /= n;
-  var num = 0, da = 0, dbb = 0; for (i = 0; i < n; i++) { var x = a[i] - ma, y = b[i] - mb; num += x * y; da += x * x; dbb += y * y; }
-  return (da > 0 && dbb > 0) ? num / Math.sqrt(da * dbb) : null;
-}
 // v59.04: the exposure panel and the stress panel placement moved to src/ui/components/portfolio-exposure.js
 // (window._aioRenderPortfolioExposure / _aioRenderPortfolioStress, installed by src/app/legacy-screen-bridges.js).
 function _escHtmlSafe(s){ return (typeof escHtml==='function') ? escHtml(String(s)) : String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
@@ -1059,18 +1016,21 @@ async function refreshPortfolioTechnicalRisk() {
   var _sf = window._aioPortfolioSurface, _sr = {}, _costOk = !!_sf && !(_sf.conversion && _sf.conversion.costHeld && _sf.conversion.costHeld.length); if (_sf && _sf.currencyState !== 'mixed-without-conversion') (_sf.rows || []).forEach(function(r) { _sr[r.symbol] = r; }); // #2: weights from the surface's base-currency values, not price × qty in each listing currency
   var enriched = positions.map(function(p) {
     var evidence = typeof _aioDecisionMetric === 'function' ? _aioDecisionMetric(p.ticker, 'price', null) : null;
-    var row = _sr[String(p.ticker || '').toUpperCase()], q = Number(p.qty), price = evidence && evidence.allowedUse === true && row && row.value > 0 && q > 0 ? row.value / q : null; // per-share base value; calcPositionTechnicalRisk multiplies it back by qty
+    var live = !!(evidence && evidence.allowedUse === true);
+    // The weight is the valuation screen's value: a live quote, else its completed close or delayed quote (valueSource).
+    var row = _sr[String(p.ticker || '').toUpperCase()], q = Number(p.qty), price = row && row.value > 0 && q > 0 && (live || /^(completed-close|delayed-reference-quote)$/.test(row.sourceKind)) ? row.value / q : null; // per-share base value; calcPositionTechnicalRisk multiplies it back by qty
     return Object.assign({}, p, {
       price: price, cost: price != null && _costOk && row.cost != null ? row.cost / q : null,
       value: price != null ? row.value : null,
-      currentQuoteAllowedUse: evidence && evidence.allowedUse === true,
-      quoteSourceKind: evidence && evidence.allowedUse === true ? 'live-quote' : 'unavailable',
-      quoteObservedAt: evidence && evidence.allowedUse === true ? evidence.ts : null
+      currentQuoteAllowedUse: live,
+      valueSource: price == null ? 'unavailable' : live ? 'live-quote' : row.sourceKind,
+      quoteSourceKind: live ? 'live-quote' : 'unavailable',
+      quoteObservedAt: live ? evidence.ts : null
     });
   });
   var totalValue = enriched.every(function(p) { return p.value != null && isFinite(p.value) && p.value >= 0; })
     ? enriched.reduce(function(s, p) { return s + p.value; }, 0) : null;
-  var tickers = enriched.slice().sort(function(a, b) { return (b.value || 0) - (a.value || 0); }).slice(0, 12);
+  var tickers = enriched; // every position is scored; the book-level read weights each by value and states its coverage
   el.innerHTML = '<div class="wsl-msg">포지션별 OHLCV와 기술 리스크를 산출하는 중입니다...</div>';
   var settled = await Promise.allSettled(tickers.map(async function(p) {
     var data = [];

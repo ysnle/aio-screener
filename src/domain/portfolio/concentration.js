@@ -54,7 +54,9 @@ export function concentrationPenaltyForWeight(weightPct) {
 // quote and otherwise withholds it. A position that declares its quote provenance here gets the same rule: a cached close,
 // a stored portfolio price or a reference-only quote is held back, whether it arrives as a price or as an explicit value.
 // A position with no provenance label keeps the pure-model contract (the caller vouches for its price), which the golden
-// fixtures and the not-yet-wired UI path rely on; wiring this model to the UI must pass the labels.
+// fixtures rely on. No screen calls this model: it is exported on the compatibility facade only, and the 포트폴리오 panel
+// reads technical-risk.js, which also admits a value from a completed close (valueSource). A screen that starts using
+// this model must pass the labels and decide the same question.
 function declaresNonDecisionQuote(position) {
   const kind = position?.quoteSourceKind ?? position?.priceSource;
   const allowed = position?.currentQuoteAllowedUse ?? position?.allowedUse;

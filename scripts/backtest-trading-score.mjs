@@ -37,6 +37,7 @@ import { fileURLToPath } from 'node:url';
 import { computeTradingScoreModel } from '../src/domain/market/signal/trading-score.js';
 import { spearman as spearmanWithMidranks } from './lib/rank-statistics.mjs';
 import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
+import { isCloseSessionDate } from '../src/domain/market/session/close-series.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 
@@ -59,31 +60,24 @@ const CLAMP = (v, lo, hi) => Math.max(lo, Math.min(hi, Number.isFinite(v) ? v : 
 // 낮아지고 재구성 점수도 소폭 이동한다. 의도된 정정이며 버그 아님(재현이 아니라 정렬).
 // 뉴스감성 보정은 과거 뉴스 데이터가 없어 완전히 생략(모델에 null/[] 전달 — "실패 시 두 보정
 // 모두 건너뜀"과 같은 경로).
-// hyg(HYG 종가, 달러)는 선택적 override를 받는다 — 기본값 78은 그대로라 기존 호출부
-// (fetch-data.mjs의 30분 cron 프로덕션 하네스, history.json 기반 단기 재구성)는 동작 무변화.
-// 장기(수년) 백테스트 스크립트만 실제 과거 HYG 종가를 넘겨 신용 스트레스 보정을 상수 대신
-// 진짜 값으로 재현할 수 있다. hyg(달러)→hyBp(bp) 근사는 그대로 유지(포뮬러가 아니라 이 데이터
-// 소스만의 입력 변환이므로 R352 대상 아님) — 다만 이제 모델의 hyBp 파라미터 하나로만 들어간다.
-export function reconstructScore({ vix, fg, dxy, tnx, wti, vvix, spxPrice, spx50ma, spx200ma, mode, hyg: hygOverride }) {
-  // v59.45 P9-BT-02: CLAMP maps a missing value to the lower bound, so a session without VIX scored as VIX 5 (the calmest
-  // band). A missing VIX stays missing; the model drops the volatility component and reports the lower coverage.
-  const clampedVix = typeof vix === 'number' && Number.isFinite(vix) ? CLAMP(vix, 5, 150) : null;
-  const clampedVvix = CLAMP(vvix ?? 100, 50, 250);
-  const clampedDxy = CLAMP(dxy ?? 104, 80, 130);
-  const clampedTnx = CLAMP(tnx ?? 4.3, 0, 8);
-  const oilPrice = CLAMP(wti ?? 0, 0, 300);
-  const clampedFg = CLAMP(fg, 0, 100);
-  const hyg = (typeof hygOverride === 'number' && isFinite(hygOverride)) ? hygOverride : 78;
-  const hyBp = (hyg > 0 && hyg < 90) ? Math.round((100 - hyg) * 15) : 0;
+// Credit (R343): the model's hyBp is the FRED HY OAS in bp. The former HYG-price proxy ((100 - HYG) * 15, with a
+// constant HYG 78 = 330 bp when the caller had no HYG) fed a fabricated, duration-contaminated spread into the
+// risk-appetite axis of every reconstructed score. A caller passes a measured OAS as `hyBp` or nothing; with nothing
+// the axis is missing and the model re-normalises over the components it has.
+// Every other input follows the same rule: a missing VIX, VVIX, DXY, 10-year yield or WTI stays missing (the former
+// defaults 100 / 104 / 4.3 / 0 scored a session without the reading as a calm one).
+export function reconstructScore({ vix, fg, dxy, tnx, wti, vvix, spxPrice, spx50ma, spx200ma, mode, hyBp = null }) {
+  const measured = (value, lo, hi) => (typeof value === 'number' && Number.isFinite(value) ? CLAMP(value, lo, hi) : null);
   const maCurrent = spx50ma != null && spx200ma != null;
 
   const model = computeTradingScoreModel({
     mode,
-    vix: clampedVix, vvix: clampedVvix, dxy: clampedDxy, tnx: clampedTnx, oilPrice, fg: clampedFg,
+    vix: measured(vix, 5, 150), vvix: measured(vvix, 50, 250), dxy: measured(dxy, 80, 130), tnx: measured(tnx, 0, 8),
+    oilPrice: measured(wti, 0, 300), fg: measured(fg, 0, 100),
     maCurrent, spx200ma: maCurrent ? spx200ma : null, spx50ma: maCurrent ? spx50ma : null, spxPrice,
     breadthAvailable: false, breadth200: null,
     pcr: null,
-    hyBp: hyBp > 0 ? hyBp : null,
+    hyBp: measured(hyBp, 0, 10000),
     newsSentimentScore: null, newsRiskSignals: []
   });
 
@@ -97,10 +91,13 @@ export function reconstructScore({ vix, fg, dxy, tnx, wti, vvix, spxPrice, spx50
 // ── history.json → 거래일(spx 존재)만 필터링, forward return + trailing MA 계산 ──
 // 2026-10-19 data audit: weekend/holiday rows repeat the last close (fieldMeta.spx.observationRelation 'carried-forward'),
 // so 30 of 180 records were one session scored twice and "5d" forward returns spanned calendar rows, not sessions.
-function buildTradingDaySeries(history) {
+// A row dated on a weekend or exchange holiday is never a session, whatever its field metadata says (rows written before
+// the metadata existed carry none).
+export function buildTradingDaySeries(history) {
   const seenSessions = new Set();
   return history.filter(d => {
     if (!d || typeof d.spx !== 'number' || !Number.isFinite(d.spx)) return false;
+    if (!isCloseSessionDate(String(d.date || ''), 'US')) return false;
     const meta = d.fieldMeta?.spx;
     if (meta?.observationRelation === 'carried-forward') return false;
     const session = meta?.sessionDate;
@@ -116,25 +113,37 @@ function trailingMA(series, idx, window) {
   return sum / window;
 }
 
-function forwardReturn(series, idx, daysAhead) {
-  const j = idx + daysAhead;
+function forwardReturn(series, idx, daysAhead, lag = 0) {
+  const i = idx + lag;
+  const j = i + daysAhead;
   if (j >= series.length) return null;
-  const cur = series[idx].spx, fut = series[j].spx;
+  const cur = series[i].spx, fut = series[j].spx;
   if (!cur || !fut) return null;
   return (fut - cur) / cur * 100;
 }
 
 // A sample-size floor is not a significance test. Keep the legacy boolean fail-closed until
 // this producer emits an actual CI or p-value with an explicitly reviewed method.
-export function summarizeTradingScoreBacktest(corr5d = {}, corr21d = {}) {
+// Daily rows with an n-session forward return overlap: n consecutive rows share most of one window, so the count of
+// independent observations is about rows / n (R1247). The floor is judged on that count, not on the row count.
+export const SCORE_BACKTEST_MIN_INDEPENDENT = 30;
+export function summarizeTradingScoreBacktest(corr5d = {}, corr21d = {}, lagged = {}) {
   const n5d = Number.isInteger(corr5d.n) ? corr5d.n : 0;
   const n21d = Number.isInteger(corr21d.n) ? corr21d.n : 0;
+  const nEff5d = Math.floor(n5d / 5);
+  const nEff21d = Math.floor(n21d / 21);
   return {
     n5d,
     corr5d: corr5d.rho ?? null,
     n21d,
     corr21d: corr21d.rho ?? null,
-    sampleSizeSufficient: n5d >= 30 && n21d >= 30,
+    nEff5d,
+    nEff21d,
+    sampleBasis: 'non-overlapping windows: rows / horizon sessions',
+    // Entry one session after the score's close (a score known only at the close cannot be traded at that close).
+    corr5dLag1: lagged.corr5d?.rho ?? null,
+    corr21dLag1: lagged.corr21d?.rho ?? null,
+    sampleSizeSufficient: nEff5d >= SCORE_BACKTEST_MIN_INDEPENDENT && nEff21d >= SCORE_BACKTEST_MIN_INDEPENDENT,
     significanceStatus: 'UNKNOWN',
     statisticallyMeaningful: false
   };
@@ -159,9 +168,12 @@ export async function runBacktest(historyPath, outPath) {
       subScores: { vol: result.volScore, mom: result.momScore, trend: result.trendScore, breadth: result.breadthScore, macro: result.macroScore },
       fwd5dReturn: forwardReturn(tradingDays, i, 5),
       fwd21dReturn: forwardReturn(tradingDays, i, 21),
+      fwd5dReturnLag1: forwardReturn(tradingDays, i, 5, 1),
+      fwd21dReturnLag1: forwardReturn(tradingDays, i, 21, 1),
       dataCompleteness: {
         vix: typeof d.vix === 'number', dxy: typeof d.dxy === 'number', tnx: typeof d.tnx === 'number',
         wti: typeof d.wti === 'number', vvix: typeof d.vvix === 'number',
+        hyOas: false, // history.json carries no FRED HY OAS; the risk-appetite axis is missing, never proxied (R343)
         trend200maAvailable: spx200ma != null,
         breadthPcrFellBackToUnavailable: true, // history.json에 이 필드들은 아예 없음 — 항상 참(RM-03: 중립 근사가 아니라 정직한 미수신)
         newsSentimentOmitted: true,
@@ -179,12 +191,17 @@ export async function runBacktest(historyPath, outPath) {
 
   const corr5d = spearman(records.map(r => [r.reconstructedScore, r.fwd5dReturn]));
   const corr21d = spearman(records.map(r => [r.reconstructedScore, r.fwd21dReturn]));
+  const lagged = {
+    corr5d: spearman(records.map(r => [r.reconstructedScore, r.fwd5dReturnLag1])),
+    corr21d: spearman(records.map(r => [r.reconstructedScore, r.fwd21dReturnLag1]))
+  };
 
   // 날짜별 upsert + 180일 캡 (updateBacktestHistory, fetch-data.mjs:886-909와 동일 패턴)
   let existing = [];
   try { const raw = JSON.parse(await readFile(outPath, 'utf8')); if (Array.isArray(raw.records)) existing = raw.records; } catch { /* 최초 실행 */ }
   const recomputedFrom = records.length ? records.map((r) => r.date).sort()[0] : null;
-  const byDate = new Map(existing.filter((r) => !recomputedFrom || r.date < recomputedFrom).map(r => [r.date, r]));
+  // Rows kept from an earlier file are held to the same session rule as new ones.
+  const byDate = new Map(existing.filter((r) => (!recomputedFrom || r.date < recomputedFrom) && isCloseSessionDate(String(r?.date || ''), 'US')).map(r => [r.date, r]));
   for (const r of records) byDate.set(r.date, r); // 새 계산이 항상 최신 우선
   let merged = [...byDate.values()].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   if (merged.length > 180) merged = merged.slice(merged.length - 180);
@@ -192,7 +209,9 @@ export async function runBacktest(historyPath, outPath) {
   const output = {
     generatedAt: new Date().toISOString(),
     note: 'Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/market/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.',
-    summary: summarizeTradingScoreBacktest(corr5d, corr21d),
+    summary: summarizeTradingScoreBacktest(corr5d, corr21d, lagged),
+    // What the reconstructed score rests on: no credit input (R343) and no breadth, so it is a volatility + trend + macro read.
+    inputs: { credit: 'none: no FRED HY OAS in history.json; the HYG-price proxy is not used', missingInputPolicy: 'missing stays missing (no neutral default)', rowBasis: 'completed US sessions only' },
     records: merged,
   };
   await writeFile(outPath, JSON.stringify(output, null, 1) + '\n', 'utf8');

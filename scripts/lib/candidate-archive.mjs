@@ -14,7 +14,7 @@ import { createScreenerProvider } from '../../src/data/providers/screener.js';
 import { normalizeScreener } from '../../src/data/normalize/screener.js';
 import { calculationRow } from '../../src/data/contracts/screener.js';
 import { computeFactorRanks } from '../../src/domain/screener/factor-ranks.js';
-import { MODEL_DEFAULT_WEIGHTS } from '../../src/domain/screener/factor-weights.js';
+import { MODEL_DEFAULT_WEIGHTS, LEGACY_BLEND_WEIGHTS, LEGACY_BLEND_DEFINITIONS } from '../../src/domain/screener/factor-weights.js';
 import { buildPopulationRankingIdentity, buildRankingIdentity } from '../../src/domain/screener/model-fingerprint.js';
 import { marketOfSymbol } from '../../src/domain/market/session/session-time.js';
 import { summarizeCandidateArchive } from '../../src/domain/screener/candidate-record.js';
@@ -47,16 +47,13 @@ export async function rankPublishedScreener({ root, now }) {
   const calculationRows = normalized.rows.map(calculationRow);
   const common = { fundamentalCoveragePct: Number(normalized.metadata?.fundamentalCoveragePct) || 0, fmpOk: !!normalized.metadata?.fmpOk, now, inputVersion: normalized.revision || 'candidate-archive' };
   const ranking = computeFactorRanks({ ...common, rows: calculationRows, weights: MODEL_DEFAULT_WEIGHTS, weightsPolicy: 'model-default' });
-  // 2026-10-16 review (owner: shadow record only): the candidate model is ranked on the same rows and recorded beside
-  // the default ranking. It is never shown; the two forward records decide whether it replaces the default.
-  let fiscal = null;
-  try { fiscal = JSON.parse(await readFile(new URL('public-data/sec-fiscal-history.json', root), 'utf8')); } catch (_) { /* no yields: value stays inactive */ }
-  const valuation = new Map((current.rows || []).map((row) => [row.sym, { price: row._valuationPrice, shares: row._valuationSharesOutstanding }]));
+  // The shadow model is ranked on the same rows and recorded beside the default ranking. It is never shown; the two
+  // forward records are what compares the models.
   const shadowRanking = computeFactorRanks({
     ...common,
-    rows: calculationRows.map((row) => ({ ...row, ...signedYields(row.sym, valuation.get(row.sym), fiscal, now) })),
+    rows: calculationRows,
     weights: CANDIDATE_SHADOW_MODEL.weights,
-    weightsPolicy: 'explicit',
+    weightsPolicy: CANDIDATE_SHADOW_MODEL.weightsPolicy,
     momentumDefinition: CANDIDATE_SHADOW_MODEL.momentumDefinition,
     valueDefinition: CANDIDATE_SHADOW_MODEL.valueDefinition,
     qualityDefinition: CANDIDATE_SHADOW_MODEL.qualityDefinition
@@ -64,20 +61,21 @@ export async function rankPublishedScreener({ root, now }) {
   return { ranking, shadowRanking, metadata: normalized.metadata || {} };
 }
 
-// The candidate model from _artifacts/screener-model-redesign-20261016/REPORT.md (V4): one momentum signal instead of
-// three overlapping price signals, low volatility, signed value and quality. Weights are the proposal, not fitted.
+// The shadow record is the default the page ranked with until the five-axis model replaced it (factor-weights.js):
+// the 1-3-6 momentum blend at .27, trend .20, trend speed .10, low volatility .16, value .10, quality (with revenue
+// growth) .09, renormalized over the active factors exactly as it ran. Its forward record continues from 2026-10-05, so
+// the two models are compared on the same sessions. A new id starts a new shadow record; the candidate-v1…v3 entries
+// (12-1 momentum, signed yields, profitability) stay in the archive under their own identity.
 export const CANDIDATE_SHADOW_MODEL = Object.freeze({
-  // v2 (expertise review 2026-10-19, audit D7): quality is profitability only, so the record can test growth-free quality.
-  // v3 (same review, D2): momentum is 12-1 (the year to one month ago) now that the factor history spans two years; 6-1
-  // was the stand-in while only a year of closes was fetched. A new id starts a new shadow record; earlier entries stay
-  // under their own identity.
-  id: 'candidate-v3',
-  weights: Object.freeze({ momentum: 0.35, lowvol: 0.15, value: 0.25, quality: 0.25 }),
-  momentumDefinition: 'twelve-minus-one',
-  valueDefinition: 'signed-yields',
-  qualityDefinition: 'profitability'
+  id: 'legacy-blend-v8',
+  weights: LEGACY_BLEND_WEIGHTS,
+  weightsPolicy: 'model-default',
+  momentumDefinition: LEGACY_BLEND_DEFINITIONS.momentum,
+  valueDefinition: LEGACY_BLEND_DEFINITIONS.value,
+  qualityDefinition: LEGACY_BLEND_DEFINITIONS.quality
 });
 
+// Inputs of the 'signed-yields' value definition (factor-ranks.js), which no recorded model uses at present.
 // TTM net income (last four reported/derived quarters) and the latest fiscal-year equity over close × SEC shares.
 // A loss gives a negative yield; a missing input stays missing (nothing is estimated). v57.88 (review): quarters or a
 // fiscal year that ended more than FUNDAMENTAL_MAX_PERIOD_AGE_DAYS before `now` (a filer that stopped reporting) stay missing.
@@ -279,10 +277,21 @@ export function upsertCandidateEntry(archive, entry) {
   return 'appended';
 }
 
+// The measurement rules, rewritten into the artifact on every update so the text follows the code.
+// Two limits are stated, not corrected: the return starts at the ranking session's own close (a list written after
+// that close could not be bought at it), and an entry is keyed by the US session, so across a US-only session two
+// entries carry the same Korean session and its window is in the day averages twice.
+export const CANDIDATE_ARCHIVE_POLICY = `Each completed session: the default-profile ranking the page computes, top and bottom fifth recorded before outcomes exist; outcome = equal-weight mean adjusted-close return over each stock's next ${CANDIDATE_FWD_SESSIONS} completed sessions in its own market, measured from the ranking session's own close (no execution lag), no costs. Rank IC per market from the whole ranked order. Entries are keyed by the US session date: when the Korean market adds no session between two entries, both carry the same Korean session, so day averages repeat that Korean window. Evidence counts only non-overlapping entries (each starts after the previous one's forward window ends), which removes such repeats. Symbol lists kept ${CANDIDATE_LIST_RETENTION_DAYS} days; outcomes kept.`;
+
+// Entries whose Korean session equals the previous entry's (the Korean leg adds no new observation).
+export function repeatedKoreanSessions(entries) {
+  return (entries || []).filter((entry, index) => index > 0 && entry?.sessionDates?.KR && entry.sessionDates.KR === entries[index - 1]?.sessionDates?.KR).map((entry) => entry.date);
+}
+
 export function emptyCandidateArchive() {
   return {
     schemaVersion: CANDIDATE_ARCHIVE_SCHEMA,
-    policy: `Each completed session: the default-profile ranking the page computes, top and bottom fifth recorded before outcomes exist; outcome = equal-weight mean adjusted-close return over each stock's next ${CANDIDATE_FWD_SESSIONS} completed sessions in its own market, no costs. Rank IC per market from the whole ranked order. Evidence counts only non-overlapping entries (each starts after the previous one's forward window ends). Symbol lists kept ${CANDIDATE_LIST_RETENTION_DAYS} days; outcomes kept.`,
+    policy: CANDIDATE_ARCHIVE_POLICY,
     allowedUse: 'research-validation-record; not a trading signal or performance claim',
     startedAt: null,
     generatedAt: null,
@@ -323,6 +332,8 @@ export async function updateCandidateArchive({ root, results, now = Date.now(), 
   const filled = fillCandidateOutcomes(archive, seriesBySymbol, { today: recordedAt.slice(0, 10) });
   archive.startedAt = archive.startedAt || archive.entries[0]?.recordedAt || null;
   archive.generatedAt = recordedAt;
+  archive.policy = CANDIDATE_ARCHIVE_POLICY;
+  archive.repeatedKoreanSessions = repeatedKoreanSessions(archive.entries);
   archive.summary = summarizeCandidateArchive(archive);
   await write(url, `${JSON.stringify(archive)}\n`);
   return { action, filled, entries: archive.entries.length, measured: archive.summary.measured, date: entry?.date || null };

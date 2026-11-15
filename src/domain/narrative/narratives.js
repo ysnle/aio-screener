@@ -15,6 +15,15 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 export const NARRATIVE_WINDOW_HOURS = 72;
 export const NARRATIVE_RECENT_HOURS = 24;
 export const NARRATIVE_MAX_THEMES = 5;
+// A trend compares the last 24 hours with the 48 before only when each side holds this many market-week hours.
+export const NARRATIVE_TREND_MIN_MARKET_HOURS = 12;
+// Hours of [from, to) inside the market week, Monday's Korean pre-open to Friday's US close: a weekday at UTC+2.
+// Exchange holidays are not read.
+const marketWeekHours = (from, to) => {
+  let hours = 0;
+  for (let at = from; at < to; at += 3600000) hours += new Date(at + 2 * 3600000).getUTCDay() % 6 ? 1 : 0;
+  return hours;
+};
 // v59.74 (site QA 11/7): the wire headlines are the third source. The midterm "블루웨이브" sell-off filled the news list
 // for two days while the stories read only relayed posts and mover memos, so it showed as a fading schedule item.
 // A headline weighs one post; at most this many count, so a syndicated burst cannot outweigh the research channels.
@@ -121,8 +130,12 @@ export function detectNarratives({ telegramDigest = null, screener = null, news 
     const earlier = tg.length - recent;
     // Attention change: the last 24 hours against the average day of the 48 before it. A story with no earlier posts is
     // new in the window; fewer than three posts is too few to call a trend.
-    const perDayBefore = earlier / Math.max(1, (windowHours - NARRATIVE_RECENT_HOURS) / 24);
-    const trend = tg.length < 3 ? 'few' : earlier === 0 ? 'new' : recent >= perDayBefore * 1.5 ? 'rising' : recent <= perDayBefore * 0.5 ? 'fading' : 'steady';
+    // Both sides are read per market-week hour, and a side that is mostly weekend gives no trend ('closed'): the
+    // research channels post little then, so a Sunday is not a story cooling and a Monday is not one heating up.
+    const openRecent = marketWeekHours(recentSince, nowMs), openBefore = marketWeekHours(nowMs - windowHours * 3600000, recentSince);
+    const comparable = Math.min(openRecent, openBefore) >= NARRATIVE_TREND_MIN_MARKET_HOURS;
+    const pace = comparable ? (recent / openRecent) / (earlier / openBefore) : null;
+    const trend = tg.length < 3 ? 'few' : earlier === 0 ? 'new' : !comparable ? 'closed' : pace >= 1.5 ? 'rising' : pace <= 0.5 ? 'fading' : 'steady';
     const checks = tg.map((post) => reportVerification(post.text));
     // A matching mover is the market voting on the story; it weighs as much as two relayed posts.
     const weight = tg.length + recent + tickers.length * 2 + Math.min(press.length, NARRATIVE_NEWS_WEIGHT_CAP);

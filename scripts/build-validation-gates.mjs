@@ -13,6 +13,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { finiteNumber as finite } from '../src/domain/shared/number.js';
+import { FACTOR_RANKS_MODEL_VERSION } from '../src/domain/screener/factor-ranks.js';
+import { FACTOR_WEIGHTS_MODEL_VERSION, MODEL_DEFAULT_WEIGHTS } from '../src/domain/screener/factor-weights.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const CRITERIA_PATH = path.join(ROOT, 'architecture/validation-gate-criteria.json');
@@ -25,11 +27,16 @@ export const REQUIREMENT_TESTS = Object.freeze({
   pointInTimeUniverse: (b) => b?.methodology?.universeBasis === 'point-in-time' && !b.methodology.survivorshipBiasCaveat,
   delistingAndCorporateAction: (b) => b?.universe?.includesDelisted === true && b?.methodology?.corporateActions === 'adjusted',
   filingAvailableDate: (b) => b?.methodology?.fundamentalsAsOf === 'filing-available-date' && !LOOKAHEAD.test(String(b.methodology.excludedFactorsReason || '')),
+  // The backtest writes turnover as { rebalanceCount, average, maximum } per horizon and the cost scenario as
+  // executionModel.transactionCostBps with a net-of-cost spread beside the gross one (scripts/lib/factors.mjs).
   turnoverModeled: (b) => {
     const rows = Object.values(b?.overallByHorizon || {});
-    return rows.length > 0 && rows.every((row) => finite(row?.turnover) != null);
+    return rows.length > 0 && rows.every((row) => finite(row?.turnover?.average) != null && finite(row?.turnover?.rebalanceCount) > 0);
   },
-  transactionCostsModeled: (b) => finite(b?.methodology?.transactionCostBps) != null && b.methodology.returnsNetOfCost === true,
+  transactionCostsModeled: (b) => {
+    const rows = Object.values(b?.overallByHorizon || {});
+    return finite(b?.executionModel?.transactionCostBps) != null && rows.length > 0 && rows.every((row) => finite(row?.quantileSpreadNet) != null);
+  },
   liquidityCapacityModeled: (b) => finite(b?.methodology?.capacity?.maxAdvShare) != null,
   liveBacktestParity: (b) => Array.isArray(b?.methodology?.excludedFactors) && b.methodology.excludedFactors.length === 0 && b.methodology.regimeWeightsValidated === true
 });
@@ -41,11 +48,33 @@ export function judgeRequirements(backtest, keys = Object.keys(REQUIREMENT_TESTS
 
 function reported(backtest, spec = {}) {
   const row = backtest?.overallByHorizon?.[spec.horizon]?.icIR?.[spec.factor] || null;
-  return row ? { horizon: spec.horizon, factor: spec.factor, n: finite(row.n), mean: finite(row.mean), icIR: finite(row.icIR), tStat: finite(row.tStat), ci95: Array.isArray(row.ci95) ? row.ci95 : null } : null;
+  // tStat/ci95 are the naive IID figures; the Newey-West pair is the one to read when forward windows overlap
+  // (null for a backtest written before it carried HAC inference).
+  return row ? { horizon: spec.horizon, factor: spec.factor, n: finite(row.n), mean: finite(row.mean), icIR: finite(row.icIR), tStat: finite(row.tStat), ci95: Array.isArray(row.ci95) ? row.ci95 : null,
+    inference: row.inference || 'naive-iid-normal-approximation', hacTStat: finite(row.hac?.hacTStat), hacCi95: Array.isArray(row.hac?.hacCi95) ? row.hac.hacCi95 : null } : null;
+}
+
+// The model the evidence was run on, beside the live ranking model. A study records its model in
+// methodology.modelFingerprint; one written before that is named by the factors it left out. Reported on both outputs
+// so a reader sees when the evidence on file describes another model; the status still follows the requirements.
+export function evidenceModelIdentity(backtest) {
+  const liveModel = { factorRanksModelVersion: FACTOR_RANKS_MODEL_VERSION, factorWeightsModelVersion: FACTOR_WEIGHTS_MODEL_VERSION,
+    activeFactors: Object.keys(MODEL_DEFAULT_WEIGHTS).filter((factor) => MODEL_DEFAULT_WEIGHTS[factor] > 0).sort() };
+  let stored = null;
+  try { stored = JSON.parse(backtest?.methodology?.modelFingerprint || 'null'); } catch { stored = null; }
+  const excluded = Array.isArray(backtest?.methodology?.excludedFactors) ? backtest.methodology.excludedFactors : null;
+  const evidenceModel = !backtest ? null : {
+    factorRanksModelVersion: stored?.factorRanksModelVersion ?? null,
+    factorWeightsModelVersion: stored?.factorWeightsModelVersion ?? null,
+    activeFactors: Array.isArray(stored?.activeFactors) ? [...stored.activeFactors].sort()
+      : excluded ? Object.keys(MODEL_DEFAULT_WEIGHTS).filter((factor) => MODEL_DEFAULT_WEIGHTS[factor] > 0 && !excluded.includes(factor)).sort() : null
+  };
+  return { evidenceModelMatchesLive: !!evidenceModel && JSON.stringify(evidenceModel) === JSON.stringify(liveModel), evidenceModel, liveModel };
 }
 
 export function buildValidationGates({ criteria, backtest = null, nowIso = new Date().toISOString() } = {}) {
   const met = judgeRequirements(backtest);
+  const model = evidenceModelIdentity(backtest);
   const blockersOf = (list) => (list || []).filter((key) => met[key] !== true);
   const flags = (list) => Object.fromEntries((list || []).map((key) => [key, met[key] === true]));
   const evidenceAt = backtest?.generatedAt || null;
@@ -65,6 +94,7 @@ export function buildValidationGates({ criteria, backtest = null, nowIso = new D
     criteria: 'architecture/validation-gate-criteria.json',
     evidenceArtifact: 'public-data/factor-backtest-longrun.json',
     evidenceGeneratedAt: evidenceAt,
+    ...model,
     localContractStatus: 'VERIFIED_LOCAL',
     localContractEvidence: 'scripts/ci-screener-workbench-contract.mjs',
     computedAt: nowIso,
@@ -87,6 +117,7 @@ export function buildValidationGates({ criteria, backtest = null, nowIso = new D
     // Reported, not judged: the IC row is shown beside the status; no threshold on it decides anything.
     predictive: reported(backtest, modelSpec.reported),
     backtestGeneratedAt: evidenceAt,
+    ...model,
     reason: modelBlockers.length
       ? `Predictive validity not established: the long-run backtest lacks ${modelBlockers.join(', ')} (present-day universe).`
       : 'The long-run backtest carries the evidence for every requirement.',

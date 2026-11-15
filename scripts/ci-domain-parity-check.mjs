@@ -192,7 +192,8 @@ for (const fixture of newsGolden.fixtures) {
   // The historical legacy fixtures contain title/empty-desc rows only. The
   // old output is kept as evidence of the unsafe parity that was retired.
   if (fixture.items.some((item) => String(item?.summary || item?.desc || '').trim().length >= 40)) fail(`NEWS_GOLDEN_FIXTURE_UNEXPECTED_ARTICLE:${fixture.name}`);
-  if (extractedSentiment.score !== 50 || extractedSentiment.total !== 0 || extractedRisk.length !== 0) {
+  // v60.16: no eligible article carries no score (the 50 baseline read as an observed neutral).
+  if (extractedSentiment.score !== null || extractedSentiment.sampleSufficient !== false || extractedSentiment.total !== 0 || extractedRisk.length !== 0) {
     fail(`NEWS_HEADLINE_BOUNDARY_MISMATCH:${fixture.name} sentiment=${JSON.stringify(extractedSentiment)} risk=${JSON.stringify(extractedRisk)}`);
   }
 }
@@ -274,6 +275,8 @@ for (const fixture of factorRanksGolden.fixtures) {
     // activeFactorWeights, exactly what the real wrapper would pass through after calling legacy
     // _aioFactorWeights() itself.
     weights: fixture.legacyOutput.activeFactorWeights,
+    // The golden dump is the legacy blend, so the parity run names its raw definitions (the model default is 12-1 / profitability).
+    momentumDefinition: 'blend-1-3-6', qualityDefinition: 'roe-margin-growth',
     regimeLabel: '중립 → 균형 가중',
     fundamentalCoveragePct: Number(serverScreener?.fundamentalCoveragePct || 0),
     fmpOk: !!serverScreener?.fmpOk,
@@ -418,10 +421,38 @@ const technicalGolden = JSON.parse(readFileSync(path.join(root, 'architecture/fi
   POSITION_RISK_SCENARIOS.forEach(({ name, positions, context }, i) => {
     const golden = technicalGolden.positions[i];
     const items = positions.map((p) => positionTechnicalRisk(p, p.ohlcv || [], context));
-    const d = diff(items.map((item) => strip(item, true)), golden.items, `${name}.items`)
-      || diff({ ...strip(portfolioTechnicalRisk(positions, items, context), true), items: undefined }, golden.portfolio, `${name}.portfolio`);
+    // v60.16: the holding-level read is the legacy one. The book-level read is value-weighted over the scored positions
+    // (technical-risk.js), so a scored book is compared on the fields that did not change and its figures are pinned below;
+    // a held book is still the legacy output (coveragePct is the one added field).
+    const book = { ...strip(portfolioTechnicalRisk(positions, items, context), true), items: undefined, coveragePct: undefined };
+    const legacyBook = { ...golden.portfolio };
+    if (golden.portfolio.heatScore != null) for (const key of ['state', 'heatScore', 'action', 'avgSellPressure', 'maxSellPressure']) { delete book[key]; delete legacyBook[key]; }
+    const d = diff(items.map((item) => strip(item, true)), golden.items, `${name}.items`) || diff(book, legacyBook, `${name}.portfolio`);
     if (d) fail(`POSITION_TECHNICAL_RISK_PARITY_MISMATCH:${d}`);
   });
+  {
+    // Scores 90/60/70 at weights 50/30/20: the average is weighted (77, not 73.3) and a position counts in the
+    // largest-score term in full from the equal-weight share up.
+    const { positions, context } = POSITION_RISK_SCENARIOS.find((scenario) => scenario.name === 'live_quotes_three');
+    const items = positions.map((p) => positionTechnicalRisk(p, p.ohlcv || [], context));
+    const book = portfolioTechnicalRisk(positions, items, context);
+    if (book.heatScore !== 86 || Math.abs(book.avgSellPressure - 77) > 1e-9 || book.maxSellPressure !== 90 || book.coveragePct !== 100) fail(`v60.16 POSITION_TECHNICAL_RISK_VALUE_WEIGHTED:${JSON.stringify({ heat: book.heatScore, avg: book.avgSellPressure, max: book.maxSellPressure, coverage: book.coveragePct })}`);
+    const item = (ticker, score, weightPct) => ({ ticker, score, action: 'X', state: 'CURRENT', weightPct });
+    const live = (ticker, value) => ({ ticker, qty: 1, price: value, value, currentQuoteAllowedUse: true });
+    // A 1% position scoring 90 beside 50% and 49% positions scoring 0 no longer reads 'TRIM_50' (heat 65).
+    const small = portfolioTechnicalRisk([live('A', 50), live('B', 49), live('C', 1)], [item('A', 0, 50), item('B', 0, 49), item('C', 90, 1)], { totalValue: 100 });
+    if (small.heatScore !== 21 || small.action !== 'NO_ADD_RAISE_STOP') fail(`v60.16 POSITION_TECHNICAL_RISK_SMALL_POSITION:${small.heatScore}/${small.action}`);
+    // Twelve of thirteen equal positions scored (92% of the value) is a read with its coverage, not a hold; under 80% holds.
+    const thirteen = Array.from({ length: 13 }, (_, i) => live(`T${i}`, 100));
+    const scored = (count) => thirteen.slice(0, count).map((p) => item(p.ticker, 20, 100 / 13));
+    const twelve = portfolioTechnicalRisk(thirteen, scored(12), { totalValue: 1300 });
+    const ten = portfolioTechnicalRisk(thirteen, scored(10), { totalValue: 1300 });
+    if (twelve.state !== 'PORTFOLIO_HEAT_NORMAL' || Math.abs(twelve.coveragePct - 1200 / 13) > 1e-9 || ten.state !== 'DATA_INSUFFICIENT' || ten.heatScore !== null) fail(`v60.16 POSITION_TECHNICAL_RISK_COVERAGE:${twelve.state}/${twelve.coveragePct}/${ten.state}`);
+    // A holding valued from a completed close is an exposure; a cached or stored price still is not.
+    const closeValued = positionTechnicalRisk({ ticker: 'NVDA', qty: 10, price: 150, value: 1500, valueSource: 'completed-close', ohlcv: positions[1].ohlcv }, positions[1].ohlcv, { totalValue: 3000 });
+    const stored = positionTechnicalRisk({ ticker: 'NVDA', qty: 10, price: 150, value: 1500, valueSource: 'portfolio-state' }, positions[1].ohlcv, { totalValue: 3000 });
+    if (closeValued.state !== 'CURRENT' || closeValued.weightPct !== 50 || stored.state !== 'DATA_INSUFFICIENT') fail(`v60.16 POSITION_TECHNICAL_RISK_CLOSE_VALUED:${closeValued.state}/${closeValued.weightPct}/${stored.state}`);
+  }
 }
 
 console.log(JSON.stringify({ ok: true, inputVersion, models: { signal: signal.modelVersion }, tradingScoreParity: { fixtures: golden.fixtures.length, modelVersion: computeTradingScoreModel({}).modelVersion }, rrgParity: { fixtures: rrgGolden.fixtures.length }, stageParity: { fixtures: stageGolden.fixtures.length }, newsHeadlineBoundary: { fixtures: newsGolden.fixtures.length, legacyParityIntentionallyRetired: true }, macroCurveParity: { fixtures: macroCurveGolden.fixtures.length }, portfolioConcentrationParity: { fixtures: portfolioGolden.fixtures.length }, factorRanksParity: { fixtures: factorRanksGolden.fixtures.length }, technicalSnapshotParity: { fixtures: technicalGolden.fixtures.length, positions: technicalGolden.positions.length } }));

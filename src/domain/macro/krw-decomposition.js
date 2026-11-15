@@ -6,6 +6,7 @@
 import { buildCloseSeries, closeBasis, sessionPointBack } from '../market/session/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../market/session/market-windows.js';
 import { directionOf, signedText } from '../shared/number.js';
+import { RULES } from '../rules/thresholds.js';
 
 export const KRW_RULE = Object.freeze({ sessions: MARKET_WINDOWS.rule, fitSessions: 250, step: MARKET_WINDOWS.week, minFit: 30, quietPct: 1, weakFitR2: 0.25 });
 
@@ -63,9 +64,13 @@ export function buildKrwDecomposition(history = [], { through = undefined } = {}
   const koreaPart = krwMove - dollarPart;
   const kospiMove = kospi ? kospi.pct : null;
   const quiet = KRW_RULE.quietPct;
-  const wonWord = { up: '원화 약세', down: '원화 강세' }[directionOf(Number(krwMove.toFixed(1)))] || '변화 없음';
+  // Inside the 환율 axis's flat band the won has no side, as wonMoveSentence reads the same move in the chapters.
+  const wonWord = Math.abs(krwMove) < RULES.fx.krwFlatPct ? '보합권' : { up: '원화 약세', down: '원화 강세' }[directionOf(Number(krwMove.toFixed(1)))] || '보합권';
+  // Two parts past the quiet line with opposite signs cancel each other: neither 'mostly the dollar' nor 'both pushed'.
+  const opposed = Math.sign(dollarPart) !== Math.sign(koreaPart) && Math.abs(dollarPart) >= quiet && Math.abs(koreaPart) >= quiet;
   let driver;
   if (Math.abs(krwMove) < quiet && Math.abs(koreaPart) < quiet) driver = 'quiet';
+  else if (opposed && Math.abs(koreaPart) < Math.abs(dollarPart) * 2) driver = 'offset';
   else if (Math.abs(koreaPart) < quiet || Math.abs(dollarPart) >= Math.abs(koreaPart) * 2) driver = 'dollar';
   else if (Math.abs(dollarPart) < quiet || Math.abs(koreaPart) >= Math.abs(dollarPart) * 2) driver = 'korea';
   else driver = 'both';
@@ -76,17 +81,20 @@ export function buildKrwDecomposition(history = [], { through = undefined } = {}
     korea: koreaPart > 0
       ? `달러 흐름으로 설명되는 몫은 ${signed(dollarPart)}뿐이고 ${signed(koreaPart)}는 달러로 설명되지 않습니다. 외국인 매도, 수출 둔화, 정책 차이 같은 원화 고유 요인일 가능성을 봐야 합니다.`
       : `달러 흐름으로 설명되는 몫은 ${signed(dollarPart)}이고 원화는 그보다 ${Math.abs(koreaPart).toFixed(1)}%p 더 강했습니다. 수출 대금, 외국인 자금, 당국 대응처럼 원화를 받친 고유 요인이 있었을 가능성이 있습니다.`,
-    both: `달러 몫 ${signed(dollarPart)}와 달러로 설명되지 않는 몫 ${signed(koreaPart)}가 함께 움직였습니다. 달러 전체 흐름과 원화 고유 요인을 같이 봐야 합니다.`
+    offset: koreaPart < 0
+      ? `달러 흐름대로면 원/달러는 ${signed(dollarPart)} 움직였을 텐데, 달러로 설명되지 않는 몫 ${signed(koreaPart)}가 반대로 작용해 ${signed(krwMove)}에 그쳤습니다. 수출 대금, 외국인 자금, 당국 대응처럼 원화를 받친 고유 요인이 달러 강세를 상쇄했을 가능성이 있습니다.`
+      : `달러 흐름대로면 원/달러는 ${signed(dollarPart)} 움직였을 텐데, 달러로 설명되지 않는 몫 ${signed(koreaPart)}가 반대로 작용해 ${signed(krwMove)}에 그쳤습니다. 달러 약세의 도움을 외국인 매도, 수출 둔화 같은 원화 고유 요인이 상쇄했을 가능성을 봐야 합니다.`,
+    both: `달러 몫 ${signed(dollarPart)}와 달러로 설명되지 않는 몫 ${signed(koreaPart)}가 같은 방향으로 겹쳤습니다. 달러 전체 흐름과 원화 고유 요인을 같이 봐야 합니다.`
   }[driver];
   // How far the split can be trusted: a weak dollar relation leaves most of the won's move unexplained either way.
   const fitNote = fit.r2 < KRW_RULE.weakFitR2 ? ` 다만 최근 1년 달러 지수가 원/달러 움직임을 설명한 비중이 ${Math.round(fit.r2 * 100)}%로 낮아, 이 나눔은 참고 수준입니다.` : '';
   let stocks = '';
   if (kospiMove != null) {
     if (koreaPart >= 1 && kospiMove < 0) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화 고유 약세와 주가 약세가 겹쳐 외국인 이탈 가능성을 확인할 구간입니다.`;
-    else if (koreaPart <= -1 && kospiMove > 0) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화 강세와 주가 강세가 겹쳐 외국인 유입 쪽 그림입니다.`;
-    else if (koreaPart <= -1 && kospiMove <= -5) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화는 강했는데 주가는 크게 내려, 환율이 하락의 이유는 아닙니다. 하락의 원인은 업종과 실적 쪽에서 찾습니다.`;
-    else if (koreaPart >= 1 && kospiMove >= 5) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화가 약한데도 주가가 올라, 환율 부담보다 다른 힘이 컸습니다.`;
-    else if (Math.abs(koreaPart) < 1 && Math.abs(kospiMove) >= 5) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화가 크게 흔들리지 않아 환율은 이 움직임의 이유가 아닙니다.`;
+    else if (koreaPart <= -1 && kospiMove > 0) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화 고유 강세와 주가 강세가 겹쳐 외국인 유입 쪽 그림입니다.`;
+    else if (koreaPart <= -1 && kospiMove <= -5) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화는 달러 흐름보다 강했는데 주가는 크게 내려, 환율이 하락의 이유는 아닙니다. 하락의 원인은 업종과 실적 쪽에서 찾습니다.`;
+    else if (koreaPart >= 1 && kospiMove >= 5) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화가 달러 흐름보다 약했는데도 주가가 올라, 환율 부담보다 다른 힘이 컸습니다.`;
+    else if (Math.abs(koreaPart) < 1 && Math.abs(kospiMove) >= 5) stocks = `코스피 ${n}거래일 ${signed(kospiMove)} — 원화 고유 움직임이 작아 환율은 이 움직임의 이유가 아닙니다.`;
     else stocks = `코스피는 ${n}거래일 ${signed(kospiMove)}입니다.`;
   }
   return {

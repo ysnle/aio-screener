@@ -50,8 +50,7 @@ export function rrgMoveOf(root, themeId) {
 
 // Same-session headlines that name a member which moved 2% or more (news-picks.js matcher: ticker or the company's own name).
 export function themeHeadlines(root, store, members, session) {
-  const span = session ? sessionNewsWindow(session) : null;
-  if (!span) return [];
+  if (!session || !sessionNewsWindow(session)) return [];
   const timeline = root?._serverMarketTimeline || {};
   const news = [...selectNewsItems(store?.getState?.() || {}), ...(Array.isArray(root?._serverNewsIntraday) ? root._serverNewsIntraday : []),
     ...(timeline.current?.headlines || []), ...(Array.isArray(timeline.slots) ? timeline.slots : []).flatMap((slot) => slot?.headlines || [])];
@@ -61,7 +60,8 @@ export function themeHeadlines(root, store, members, session) {
     .sort((a, b) => Math.abs(b.row.ret1d) - Math.abs(a.row.ret1d)).slice(0, 4);
   const out = [];
   for (const member of movers) {
-    const hit = headlineForCompany({ symbol: member.sym, name: member.row?.name || '' }, { news, telegram, signals: root?.AIO_TELEGRAM_SIGNALS || [], span });
+    const hit = headlineForCompany({ symbol: member.sym, name: member.row?.name || '', move: member.row.ret1d, aliases: [root?.AIO_TICKER_NAME_REGISTRY?.entries?.[member.sym]?.kr] },
+      { news, telegram, signals: root?.AIO_TELEGRAM_SIGNALS || [], session });
     const title = hit ? String(hit.kind === 'telegram' ? hit.text : hit.row?.titleKo || hit.row?.ko_title || hit.row?.title || '').trim() : '';
     if (title) out.push({ sym: member.sym, ret1d: member.row.ret1d, title: title.length > 90 ? `${title.slice(0, 87)}…` : title });
     if (out.length >= 2) break;

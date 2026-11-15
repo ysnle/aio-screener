@@ -1,0 +1,169 @@
+diff --git a/scripts/lib/factors.mjs b/scripts/lib/factors.mjs
+index d9f1c54b6..1a316b731 100644
+--- a/scripts/lib/factors.mjs
++++ b/scripts/lib/factors.mjs
+@@ -3,7 +3,7 @@
+ // re-exports them, so existing importers (backtest-factors-longrun, data gates) keep working unchanged.
+ import { percentileRank01, spearman } from './rank-statistics.mjs';
+ import { round } from './producer-math.mjs';
+-import { computeFactorRanks } from '../../src/domain/screener/factor-ranks.js';
++import { computeFactorRanks, momentumRawOf } from '../../src/domain/screener/factor-ranks.js';
+ import { MODEL_DEFAULT_WEIGHTS } from '../../src/domain/screener/factor-weights.js';
+ import { buildScreenerModelFingerprint } from '../../src/domain/screener/model-fingerprint.js';
+ // v57.81: the per-symbol price-factor math lives in src/domain/screener/price-factors.js (shared with the browser's
+@@ -228,14 +228,8 @@ export function backtestFactors(stockData, opts) {
+       if (!Number.isInteger(forwardIndex) || forwardIndex <= p || forwardIndex > c.length - 1) { missingForwardRows++; return; }
+       var f = closesToFactors(c.slice(0, p + 1)); if (!f) return;
+       var fwd = (c[p] > 0) ? (c[forwardIndex] / c[p] - 1) : null; if (!isNum(fwd) || !forwardDate) return;
+-      // 모멘텀: 1M(40%)+3M(40%)+6M(20%) — 6M은 추세(trend)와 중복 크므로 가중 축소
+-      var momParts = [
+-        isNum(f.ret1m) ? { v: f.ret1m, w: 0.4 } : null,
+-        isNum(f.ret3m) ? { v: f.ret3m, w: 0.4 } : null,
+-        isNum(f.ret6m) ? { v: f.ret6m, w: 0.2 } : null,
+-      ].filter(Boolean);
+-      var momSum = momParts.reduce(function(s,p){return s+p.w;},0);
+-      var mom = momParts.length ? momParts.reduce(function(s,p){return s+p.v*p.w;},0)/momSum : null;
++      // The live model's momentum definition (factor-ranks.js momentumRawOf) — one formula for the ranker and this IC.
++      var mom = momentumRawOf(f);
+       // P1443: the same trend definition as the live model (50-day 60%, 200-day 40%).
+       var trParts = [isNum(f.pctSma50) ? { v: f.pctSma50, w: 0.6 } : null, isNum(f.pctSma200) ? { v: f.pctSma200, w: 0.4 } : null].filter(Boolean);
+       var trW = trParts.reduce(function(sum, p){ return sum + p.w; }, 0);
+@@ -279,7 +273,7 @@ export function backtestFactors(stockData, opts) {
+       weights: MODEL_DEFAULT_WEIGHTS,
+       weightsPolicy: 'model-default',
+       rows: rows.map(function(r) {
+-        return { sym: r.sym, sector: sectorOf(r.sym), ret1m: r.f.ret1m, ret3m: r.f.ret3m, ret6m: r.f.ret6m,
++        return { sym: r.sym, sector: sectorOf(r.sym), ret1m: r.f.ret1m, ret3m: r.f.ret3m, ret6m: r.f.ret6m, ret12m: r.f.ret12m,
+           pctSma50: r.f.pctSma50, pctSma200: r.f.pctSma200, vol: r.f.vol, kalmanVel: r.f.kalmanVel, kalmanVelConf: r.f.kalmanVelConf,
+           adjustedCloseStatus: 'complete', observedAt: asOf, factorSourceKind: 'T3_PUBLIC_DELAYED',
+           factorAllowedUse: 'research-relative-ranking-only', factorQuality: { status: 'CURRENT' } };
+diff --git a/src/domain/screener/factor-ranks.js b/src/domain/screener/factor-ranks.js
+index 056fb49b0..a0a8b9a47 100644
+--- a/src/domain/screener/factor-ranks.js
++++ b/src/domain/screener/factor-ranks.js
+@@ -16,7 +16,7 @@
+ import { FRESHNESS_POLICY } from '../shared/freshness-policy.js';
+ import { normalizeAllowedUse } from '../../data/contracts/evidence.js';
+ import { canonicalSourceTier } from '../../data/contracts/source-kind.js';
+-import { MODEL_DEFAULT_WEIGHTS } from './factor-weights.js';
++import { MODEL_DEFAULT_WEIGHTS, MODEL_DEFAULT_DEFINITIONS } from './factor-weights.js';
+ import { screenerMarket, MARKET_POPULATION_POLICY } from './market-scope.js';
+ import { isSessionCurrent, latestCompletedSession } from '../market/session/market-calendar.js';
+ import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../fundamental/period.js';
+@@ -26,7 +26,8 @@ import { readRowNumber } from '../../data/contracts/screener.js';
+ // v7 (2026-10-16): funds, SPACs and sub-$1M 확장 names leave the ranked population (rankingPopulationExclusion).
+ // v8 (2026-10-17 audit, owner-approved): factor activation is judged on the core tier when 확장 rows are present, a
+ // zero-weight factor is not active in the model-default run, and outliers no longer mark the run 'partial'.
+-export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v8';
++// v9: the default raw definitions are factor-weights.js MODEL_DEFAULT_DEFINITIONS (12-1 momentum, profitability quality).
++export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v9';
+ export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
+ 
+ const DAY_MS = 86_400_000;
+@@ -84,10 +85,9 @@ function momRaw(row) {
+   return denom > 0 ? parts.reduce((sum, p) => sum + p.v * p.w, 0) / denom : null;
+ }
+ 
+-// 2026-10-16 review — candidate definitions, used only by the shadow record in the candidate archive (never the page's
+-// rank until a forward record supports them). 6-1 skips the latest month, whose reversal noise the 1-3-6 blend keeps.
+-// Signed yields (TTM earnings and book over market value, supplied by the caller) give a loss-maker a low value; with
+-// positive multiples only, a loss-maker's value is missing and renormalization reads it as average.
++// Alternative raw definitions, chosen by name (momentumDefinition / valueDefinition / qualityDefinition). 6-1 skips the
++// latest month, whose reversal noise the 1-3-6 blend keeps. Signed yields (TTM earnings and book over market value,
++// supplied by the caller) give a loss-maker a low value.
+ function momSixMinusOneRaw(row) {
+   const r6 = value(row, 'ret6m');
+   const r1 = value(row, 'ret1m');
+@@ -173,6 +173,16 @@ function profitabilityRaw(row) {
+   return parts.length ? avg(parts) : null;
+ }
+ 
++const MOMENTUM_DEFINITIONS = Object.freeze({ 'twelve-minus-one': momTwelveMinusOneRaw, 'six-minus-one': momSixMinusOneRaw, 'blend-1-3-6': momRaw });
++const VALUE_DEFINITIONS = Object.freeze({ 'positive-multiples': valueRaw, 'signed-yields': signedYieldValueRaw });
++const QUALITY_DEFINITIONS = Object.freeze({ profitability: profitabilityRaw, 'roe-margin-growth': qualityRaw });
++const definitionName = (table, name, fallback) => (Object.hasOwn(table, name) ? name : fallback);
++
++/** The raw momentum value of one row under a named definition — the ranker and the backtest read this one function. */
++export function momentumRawOf(row, definition = MODEL_DEFAULT_DEFINITIONS.momentum) {
++  return MOMENTUM_DEFINITIONS[definitionName(MOMENTUM_DEFINITIONS, definition, MODEL_DEFAULT_DEFINITIONS.momentum)](row);
++}
++
+ function kalmanRaw(row) {
+   const confidence = value(row, 'kalmanVelConf');
+   return confidence != null ? confidence : value(row, 'kalmanVel');
+@@ -449,12 +459,17 @@ function emptyResult({ inputVersion, regimeLabel, weights, reason = 'fewer than
+ function computeFactorRanksForPopulation({
+   rows = [], weights = null, regimeLabel = null, fundamentalCoveragePct = 0, fmpOk = false,
+   now = Date.now(), inputVersion = 'unknown', previousRanks = null, previousRegimeLabel = null, previousWeights = null,
+-  topPct = 20, weightsPolicy = null, momentumDefinition = 'blend-1-3-6', valueDefinition = 'positive-multiples', qualityDefinition = 'roe-margin-growth'
++  topPct = 20, weightsPolicy = null, momentumDefinition = MODEL_DEFAULT_DEFINITIONS.momentum, valueDefinition = MODEL_DEFAULT_DEFINITIONS.value, qualityDefinition = MODEL_DEFAULT_DEFINITIONS.quality
+ } = {}) {
+   const inputRows = Array.isArray(rows) ? rows : [];
+-  const momentumFn = momentumDefinition === 'twelve-minus-one' ? momTwelveMinusOneRaw : momentumDefinition === 'six-minus-one' ? momSixMinusOneRaw : momRaw;
+-  const valueFn = valueDefinition === 'signed-yields' ? signedYieldValueRaw : valueRaw;
+-  const qualityFn = qualityDefinition === 'profitability' ? profitabilityRaw : qualityRaw;
++  const factorDefinitions = Object.freeze({
++    momentum: definitionName(MOMENTUM_DEFINITIONS, momentumDefinition, MODEL_DEFAULT_DEFINITIONS.momentum),
++    value: definitionName(VALUE_DEFINITIONS, valueDefinition, MODEL_DEFAULT_DEFINITIONS.value),
++    quality: definitionName(QUALITY_DEFINITIONS, qualityDefinition, MODEL_DEFAULT_DEFINITIONS.quality)
++  });
++  const momentumFn = MOMENTUM_DEFINITIONS[factorDefinitions.momentum];
++  const valueFn = VALUE_DEFINITIONS[factorDefinitions.value];
++  const qualityFn = QUALITY_DEFINITIONS[factorDefinitions.quality];
+   const seenSymbols = new Set();
+   let duplicateRows = 0;
+   let missingIdentityRows = 0;
+@@ -830,7 +845,7 @@ function computeFactorRanksForPopulation({
+     requestedWeightCoveragePct,
+     weightsPolicy: explicitWeights ? 'explicit' : 'model-default',
+     coverageBasis,
+-    factorDefinitions: Object.freeze({ momentum: momentumFn === momRaw ? 'blend-1-3-6' : momentumFn === momTwelveMinusOneRaw ? 'twelve-minus-one' : 'six-minus-one', value: valueFn === valueRaw ? 'positive-multiples' : 'signed-yields', quality: qualityFn === qualityRaw ? 'roe-margin-growth' : 'profitability' }),
++    factorDefinitions,
+     rankingState: 'ranked',
+     rankingUnavailableReason: null,
+     inactiveFactorReasons: Object.freeze(inactiveFactorReasons),
+diff --git a/src/domain/screener/factor-weights.js b/src/domain/screener/factor-weights.js
+index 38628993d..e41111fde 100644
+--- a/src/domain/screener/factor-weights.js
++++ b/src/domain/screener/factor-weights.js
+@@ -1,19 +1,29 @@
+ // P763/ARX-10 follow-up: the factor-weight regime/profile resolver is pure.
+ // Storage/profile lookup remains at the compatibility boundary; this module owns only the
+ // deterministic weight math so native and legacy screener consumers cannot diverge.
+-// v4 (2026-10-17 audit D6, owner-approved): the default model gives size no weight. Its only input is the live quote's
+-// market cap, which the published artifacts never carry, so the declared 8% was renormalized away on every run — and
+-// would have switched on, re-ranking every row, the moment live quotes reached 80% coverage. The applied default
+-// weights are unchanged (size was never active). The key stays at 0 so user profiles that name size remain valid.
+-export const FACTOR_WEIGHTS_MODEL_VERSION = 'factor-weights.v4';
++//
++// The default model is five axes at 20% each: momentum, trend (price against its averages 10% + trend speed 10%), low
++// volatility, value and quality. The former default (momentum .27, trend .20, kalman .10, lowvol .16, value .10,
++// quality .09) put 62% of the applied weight on three price-trend readings whose cross-sectional correlation was 0.97
++// (momentum–trend) and 0.5 (either with trend speed): the composite correlated 0.93 with momentum alone and 0.06 with
++// value, so the "price and filings" rank was a momentum rank. Equal axes are the weighting that needs no return
++// forecast; the applied vector is not fitted. The former default stays on record as the shadow model
++// (scripts/lib/candidate-archive.mjs), so both forward records continue.
++// Size keeps weight 0: its only input is the live quote's market cap, which the published artifacts never carry.
++export const FACTOR_WEIGHTS_MODEL_VERSION = 'factor-weights.v5';
+ 
+-const NEUTRAL = Object.freeze({ momentum: 0.27, trend: 0.20, lowvol: 0.16, size: 0, value: 0.10, quality: 0.09, kalman: 0.10 });
+-const RISK_OFF = Object.freeze({ momentum: 0.12, trend: 0.18, lowvol: 0.28, size: 0.05, value: 0.10, quality: 0.18, kalman: 0.09 });
+-const RISK_ON = Object.freeze({ momentum: 0.33, trend: 0.24, lowvol: 0.09, size: 0.08, value: 0.07, quality: 0.07, kalman: 0.12 });
+-// P1449: the ranking model falls back to exactly this vector when its caller passes no weights
+-// (factor-ranks.js imports it, backtestFactors passes it explicitly). One canonical model default —
+-// the second hand-picked copy that drifted from it (P584/C1, P1443 gate blindness) is gone.
++const NEUTRAL = Object.freeze({ momentum: 0.20, trend: 0.10, lowvol: 0.20, size: 0, value: 0.20, quality: 0.20, kalman: 0.10 });
++export const LEGACY_BLEND_WEIGHTS = Object.freeze({ momentum: 0.27, trend: 0.20, lowvol: 0.16, size: 0, value: 0.10, quality: 0.09, kalman: 0.10 });
++const RISK_OFF = Object.freeze({ momentum: 0.10, trend: 0.08, lowvol: 0.30, size: 0, value: 0.18, quality: 0.27, kalman: 0.07 });
++const RISK_ON = Object.freeze({ momentum: 0.28, trend: 0.14, lowvol: 0.10, size: 0, value: 0.16, quality: 0.18, kalman: 0.14 });
++// One canonical model default: the ranking model falls back to exactly this vector and these raw definitions when its
++// caller passes none (factor-ranks.js imports both; the backtest and the candidate record pass them explicitly).
+ export const MODEL_DEFAULT_WEIGHTS = NEUTRAL;
++// Momentum is 12-1 (the year to one month ago, Jegadeesh-Titman): the 1-3-6 blend kept the latest month, whose
++// short-term reversal it mixed in, and tracked the distance-from-average trend reading at 0.97. Quality is
++// profitability (ROE, net margin); revenue growth is not quality and is read from its own column.
++export const MODEL_DEFAULT_DEFINITIONS = Object.freeze({ momentum: 'twelve-minus-one', value: 'positive-multiples', quality: 'profitability' });
++export const LEGACY_BLEND_DEFINITIONS = Object.freeze({ momentum: 'blend-1-3-6', value: 'positive-multiples', quality: 'roe-margin-growth' });
+ 
+ function normalizeWeights(weights = {}) {
+   const keys = Object.keys(weights);

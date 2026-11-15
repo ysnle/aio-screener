@@ -36,7 +36,7 @@ export const cases = [
   { id: 'P6-RANK-01', name: '이번에 순위를 매길 수 없는 행은 이전 실행의 순위·문구를 남기지 않는다', run: async ({ load }) => {
     const { computeFactorRanks } = await load('src/domain/screener/factor-ranks.js');
     const rows = Array.from({ length: 6 }, (_, i) => ({
-      sym: `F${i}`, sector: 'Technology', ret1m: i + 1, ret3m: i + 1, ret6m: i + 1, pctSma50: i + 1, pctSma200: i + 1, vol: i === 5 ? null : 20 + i,
+      sym: `F${i}`, sector: 'Technology', ret1m: i + 1, ret3m: i + 1, ret6m: i + 1, ret12m: i + 2, pctSma50: i + 1, pctSma200: i + 1, vol: i === 5 ? null : 20 + i,
       factorObservedAt: '2026-08-26T00:00:00Z', observedAt: '2026-08-26T00:00:00Z', factorSourceKind: 'T3_PUBLIC_DELAYED',
       factorAllowedUse: 'research-relative-ranking-only', factorQuality: { status: 'CURRENT', stale: false, decisionUse: false },
       rank: 99, quantSignal: 'old fixture rank'
@@ -83,7 +83,7 @@ export const cases = [
   } },
   { id: 'P9-BT-02', name: '점수 입력이 아닌 F&G 결측은 단기 검증 표본을 지우지 않고, VIX 결측은 VIX 5로 채우지 않는다', run: async ({ load }) => {
     const { reconstructScore, runBacktest } = await load('scripts/backtest-trading-score.mjs');
-    const base = { spxPrice: 95, spx50ma: 90, spx200ma: 100, dxy: 104, tnx: 4.3, wti: 70, vvix: 100, hyg: 78 };
+    const base = { spxPrice: 95, spx50ma: 90, spx200ma: 100, dxy: 104, tnx: 4.3, wti: 70, vvix: 100 };
     assert.equal(reconstructScore({ ...base, vix: null }).volScore, null);
     assert.equal(reconstructScore({ ...base, vix: 20 }).volScore, 62);
     const dir = await mkdtemp(join(tmpdir(), 'aio-score-bt-'));
@@ -92,7 +92,9 @@ export const cases = [
       await writeFile(join(dir, 'history.json'), JSON.stringify(history));
       await runBacktest(join(dir, 'history.json'), join(dir, 'out.json'));
       const out = JSON.parse(await readFile(join(dir, 'out.json'), 'utf8'));
-      assert.equal(out.records.length, 30);
+      // 30 weekdays from 2026-01-01 include New Year's Day and Martin Luther King Jr. Day: 28 sessions.
+      assert.equal(out.records.length, 28);
+      assert.ok(!out.records.some((row) => row.date === '2026-01-01' || row.date === '2026-01-19'));
     } finally { await rm(dir, { recursive: true, force: true }); }
   } },
   { id: 'P24-EARNINGS-01', name: '실적 일정 미확인(목록에 없음)은 발표가 그 뒤라는 충족으로 바꾸지 않고, 확인 불가 템플릿 항목은 충족이 아니다', run: async ({ load }) => {

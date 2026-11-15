@@ -1,5 +1,6 @@
 // P1466 (review 2026-10-04, "성과 원인 분해"): where the book's 3-month return came from, on the
-// current composition. For each holding with weight w (base-currency value ÷ invested + cash):
+// current composition. For each holding with weight w (its base-currency value at the start of the window — today's
+// value ÷ its 3-month base-currency growth — over the same start values of every holding plus cash):
 //   지수     w × m           its market's return (US: SPY adjusted; KR: KOSPI/KOSDAQ price index)
 //   섹터     w × (s − m)     its US sector ETF against the market (KR and unmapped: 0, stated)
 //   종목 선택 w × (r − s)     the stock against its sector (or market)

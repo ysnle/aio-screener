@@ -13,19 +13,13 @@ const BANDS = RULES.portfolio;
 const isEtf = (row) => !!row.stock && (row.stock.index === 'ETF' || row.stock.sector === 'ETF');
 const kindOf = (row) => (row.stock?.sector && row.stock.sector !== 'ETF' ? 'sector' : isEtf(row) ? 'etf' : 'none');
 
-/** Mean of the finite off-diagonal cells of a correlation matrix, else of pearson() over every pair of return series. */
-function meanPairwiseCorrelation({ matrix = null, returnsMap = null, pearson = null }) {
+/** Mean of the finite off-diagonal cells of the risk panel's correlation matrix (one return basis for every cell). */
+function meanPairwiseCorrelation(matrix) {
   let sum = 0; let count = 0;
   if (Array.isArray(matrix)) {
     for (let a = 0; a < matrix.length; a++) for (let b = a + 1; b < matrix.length; b++) {
       const c = matrix[a]?.[b];
       if (typeof c === 'number' && Number.isFinite(c)) { sum += c; count++; }
-    }
-  } else if (typeof pearson === 'function') {
-    const keys = Object.keys(returnsMap || {});
-    for (let a = 0; a < keys.length; a++) for (let b = a + 1; b < keys.length; b++) {
-      const c = pearson(returnsMap[keys[a]], returnsMap[keys[b]]);
-      if (c != null) { sum += c; count++; }
     }
   }
   return count > 0 ? sum / count : null;
@@ -33,10 +27,10 @@ function meanPairwiseCorrelation({ matrix = null, returnsMap = null, pearson = n
 
 /**
  * @param {{ rows: Array<{sym:string, value:number, stock:object|null}>, total: number, posSum: number,
- *   corrMatrix?: number[][]|null, returnsMap?: object|null, pearson?: Function|null, sectorLabel?: (s:string)=>string }} input
+ *   corrMatrix?: number[][]|null, sectorLabel?: (s:string)=>string }} input
  *   rows carry base-currency values; total is the panel's denominator (total assets with cash when known, else posSum).
  */
-export function deriveExposurePanel({ rows = [], total, posSum, corrMatrix = null, returnsMap = null, pearson = null, sectorLabel = (s) => s } = {}) {
+export function deriveExposurePanel({ rows = [], total, posSum, corrMatrix = null, sectorLabel = (s) => s } = {}) {
   const weighted = rows.map((row) => ({ ...row, w: row.value / total }));
   const bySector = new Map();
   for (const row of weighted) {
@@ -59,9 +53,8 @@ export function deriveExposurePanel({ rows = [], total, posSum, corrMatrix = nul
   const rankWeight = ranked.reduce((sum, row) => sum + row.w, 0);
   const avgRank = rankWeight > 0 ? Math.round(ranked.reduce((sum, row) => sum + row.stock.rank * row.w, 0) / rankWeight) : null;
   const rankCoverage = posSum > 0 ? Math.round(ranked.reduce((sum, row) => sum + (row.value || 0), 0) / posSum * 100) : null;
-  // From the risk panel's own matrix when it is passed — its KR–US cells are weekly (non-synchronous closes
-  // understate daily co-movement), so a daily average here read lower than the matrix beside it.
-  const avgCorr = meanPairwiseCorrelation({ matrix: corrMatrix, returnsMap, pearson });
+  // The risk panel's matrix is on one basis (daily, or 5-session for a Korea+US book), so the mean never mixes the two.
+  const avgCorr = meanPairwiseCorrelation(corrMatrix);
   const corrOver = avgCorr != null && avgCorr > BANDS.corrOver;
   const warnings = [];
   const lead = realSectors[0];

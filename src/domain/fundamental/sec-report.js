@@ -233,8 +233,7 @@ export function bestRevenueRowsByPeriod(rows = [], { filedOf = rowFiled } = {}) 
     if (!prev || filedOf(row) > filedOf(prev)) byConcept.set(concept, row);
     groups.set(key, byConcept);
   }
-  const chosen = [];
-  for (const byConcept of groups.values()) {
+  const pickOf = (byConcept) => {
     const candidates = [...byConcept.values()];
     const primary = candidates.filter((row) => !row.concept || PRIMARY_REVENUE.has(row.concept));
     const pool = primary.length ? primary : candidates;
@@ -243,10 +242,15 @@ export function bestRevenueRowsByPeriod(rows = [], { filedOf = rowFiled } = {}) 
     // it is the filer's own total and wins, so one filer's years never switch basis (STT FY2024: 13,000M reported vs
     // 13,079M derived would have mixed the growth base).
     const reported = pool.find((row) => row.concept !== SEC_BANK_NET_REVENUE_CONCEPT);
-    const pick = pool[0]?.concept === SEC_BANK_NET_REVENUE_CONCEPT && reported && rowValue(reported) >= rowValue(pool[0]) * 0.5 ? reported : pool[0];
-    chosen.push(pick);
-  }
-  return chosen.sort((a, b) => String(rowEnd(b)).localeCompare(String(rowEnd(a))) || filedOf(b).localeCompare(filedOf(a)));
+    return pool[0]?.concept === SEC_BANK_NET_REVENUE_CONCEPT && reported && rowValue(reported) >= rowValue(pool[0]) * 0.5 ? reported : pool[0];
+  };
+  // The series keeps the concept of its latest period wherever that concept reported the period; the per-period rule
+  // fills only a period it never reported. MMM FY2023 was read on Revenues 32,681M (before the spin-off restatement)
+  // beside FY2024 on customer-contract revenue 24,575M, a 25% fall that the same concept reads as flat (24,610M).
+  const newestFirst = (list) => list.sort((a, b) => String(rowEnd(b)).localeCompare(String(rowEnd(a))) || filedOf(b).localeCompare(filedOf(a)));
+  const periods = [...groups.values()];
+  const anchor = newestFirst(periods.map(pickOf))[0]?.concept;
+  return newestFirst(periods.map((byConcept) => (anchor && byConcept.get(anchor)) || pickOf(byConcept)));
 }
 
 // Heals a stored record (written before this policy) from its own PIT observations; idempotent. Revenue is
@@ -372,7 +376,8 @@ export function deriveSecReport(fundamentals = null) {
   const metrics = METRIC_DEFINITIONS
     .filter(([key]) => coverage.includes(key) && finite(input[key]) != null)
     // 2026-10-17 (logic audit D1): a P/E healed onto the last four quarters says so.
-    .map(([key, label, unit]) => Object.freeze({ key, label: key === 'pe' && input.peEarnings?.basis === 'ttm' ? 'P/E(최근 4개 분기 순이익)' : label, unit, value: finite(input[key]) }));
+    // A one-off gain in that numerator (sec-valuation-basis secEarningsOneOff) is named on the label.
+    .map(([key, label, unit]) => Object.freeze({ key, label: key !== 'pe' ? label : (input.peEarnings?.basis === 'ttm' ? 'P/E(최근 4개 분기 순이익)' : label) + (input.earningsOneOff?.length ? ' · 일회성 이익 포함' : ''), unit, value: finite(input[key]) }));
   const anomalies = detectAnomalies(input, metrics);
   const notApplicable = input.notApplicable === true || input.applicability === 'not-applicable';
   const classification = notApplicable ? 'not-applicable' : metrics.length > 0 ? 'current' : 'missing';

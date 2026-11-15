@@ -4,6 +4,7 @@ import { renderScreenerValidation, readValidationState, renderValidationHero } f
 import { buildPopulationRankingIdentity, liveScreenerModelFingerprint } from '../../../domain/screener/model-fingerprint.js';
 import { measuredCandidateEntries, summarizeCandidateArchive } from '../../../domain/screener/candidate-record.js';
 import { overlapSentence } from '../../../domain/screener/factor-overlap.js';
+import { longrunIcDecay, longrunStudyAge, marketIcRows } from '../../../domain/screener/validation-records.js';
 import { renderScreenerRead, reapplyScreenerNextLead } from '../../components/screener-read.js';
 import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { FACTOR_LABELS, describeStaleDates } from '../../../domain/screener/row-presentation.js';
@@ -151,11 +152,35 @@ export function renderBacktest(documentRef, metadata, root = globalThis, rows = 
   if (!panel) return;
   panel.replaceChildren();
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
+  const labels = { momentum: '모멘텀', trend: '추세', lowvol: '저변동', kalman: '추세 속도', composite: '종합 순위' };
+  const icBars = (ic) => {
+    const bars = el('div', null, 'scr-ic-bars');
+    // v59.69 (visual audit): half the track is 0.2 unless a value is larger — a larger IC used to clip silently at the edge.
+    const icMax = Math.max(0.2, ...Object.keys(labels).map((key) => Math.abs(finite(ic[key]) ?? 0)));
+    for (const [key, label] of Object.entries(labels)) {
+      const value = finite(ic[key]);
+      const line = el('div', null, 'scr-ic-row');
+      const track = el('div', null, 'scr-ic-track');
+      const dir = directionOf(value, 3);
+      const fill = el('span', null, `scr-ic-fill ${dir === 'up' ? 'is-up' : dir === 'down' ? 'is-down' : ''}`);
+      if (dir) { fill.style.width = `${Math.min(50, Math.abs(value) / icMax * 50).toFixed(1)}%`; fill.style[dir === 'up' ? 'left' : 'right'] = '50%'; }
+      track.append(fill);
+      line.append(el('span', label, 'scr-ic-label'), track, el('span', signedText(value, 3, '', { plus: false }), 'scr-ic-value'));
+      bars.append(line);
+    }
+    return bars;
+  };
+  const backtest = metadata?.backtest;
+  const marketIc = marketIcRows(backtest);
+  const marketName = { US: '미국', KR: '한국' };
+  const sampleOf = (row) => [row.dates != null ? `${row.dates}회` : null, row.meanStocks != null ? `평균 ${row.meanStocks}종목` : null].filter(Boolean).join(', ');
   if (metadata?.selectionMarket === 'KR') {
-    panel.append(el('p', '한국 시장 전용 사후 검증은 아직 없습니다. 미국/혼합 시장의 검증 수치를 한국 순위의 검증으로 표시하지 않습니다.', 'scr-empty-state'));
+    const kr = marketIc.find((row) => row.market === 'KR');
+    // The spread and the win count pool both markets, so the Korean view shows only what was measured on Korean rows alone.
+    if (kr) panel.append(el('p', `한국 종목만의 IC${sampleOf(kr) ? `(${sampleOf(kr)})` : ''} — 상위−하위 수익률 차이는 미국·한국 합산뿐이라 한국 순위의 검증으로 표시하지 않습니다.`, 'theme-strength-basis'), icBars(kr.ic));
+    else panel.append(el('p', '한국 시장 전용 사후 검증은 아직 없습니다. 미국/혼합 시장의 검증 수치를 한국 순위의 검증으로 표시하지 않습니다.', 'scr-empty-state'));
     return;
   }
-  const backtest = metadata?.backtest;
   const hasObservedIC = backtest?.ic && Object.values(backtest.ic).some((value) => finite(value) != null);
   if (!hasObservedIC) {
     const message = el('div', '검증 데이터 없음', 'scr-empty-state');
@@ -188,24 +213,10 @@ export function renderBacktest(documentRef, metadata, root = globalThis, rows = 
     : composite > 0.03 && net != null && net > 0 ? `최근 ${rebalances ?? '—'}번의 시점에서 순위가 다음 21거래일 수익률과 약하게 같은 방향(IC ${composite.toFixed(3)})이었고 상위 20%가 하위보다 비용 후 ${net.toFixed(2)}% 앞섰습니다. 표본이 작아 우연과 구분되지는 않습니다.`
       : `최근 ${rebalances ?? '—'}번의 시점에서 순위와 이후 수익률의 관계가 확인되지 않았습니다(종합 IC ${composite.toFixed(3)}, 상위−하위 비용 후 ${net == null ? '—' : `${net.toFixed(2)}%`}). 이 실험에서 순위의 우월성이 보이지 않았다는 뜻이며, 전략이 영구히 무효라는 증명은 아닙니다.`;
   panel.append(el('p', verdict, 'briefing-read-headline'), el('p', parity, 'theme-strength-basis'));
-  const labels = { momentum: '모멘텀', trend: '추세', lowvol: '저변동', kalman: '추세 속도', composite: '종합 순위' };
-  const bars = el('div', null, 'scr-ic-bars');
-  // v59.69 (visual audit): half the track is 0.2 unless a value is larger — a larger IC used to clip silently at the edge.
-  const icMax = Math.max(0.2, ...Object.keys(labels).map((key) => Math.abs(finite(ic[key]) ?? 0)));
-  for (const [key, label] of Object.entries(labels)) {
-    const value = finite(ic[key]);
-    const line = el('div', null, 'scr-ic-row');
-    const track = el('div', null, 'scr-ic-track');
-    const dir = directionOf(value, 3);
-    const fill = el('span', null, `scr-ic-fill ${dir === 'up' ? 'is-up' : dir === 'down' ? 'is-down' : ''}`);
-    if (dir) { fill.style.width = `${Math.min(50, Math.abs(value) / icMax * 50).toFixed(1)}%`; fill.style[dir === 'up' ? 'left' : 'right'] = '50%'; }
-    track.append(fill);
-    line.append(el('span', label, 'scr-ic-label'), track, el('span', signedText(value, 3, '', { plus: false }), 'scr-ic-value'));
-    bars.append(line);
-  }
-  panel.append(bars);
+  panel.append(icBars(ic));
   const facts = el('dl', null, 'regime-evidence');
   const add = (k, v) => facts.append(el('dt', k), el('dd', v));
+  if (marketIc.some((row) => row.composite != null)) add('시장별 종합 IC', marketIc.filter((row) => row.composite != null).map((row) => `${marketName[row.market] || row.market} ${signedText(row.composite, 3)}${sampleOf(row) ? `(${sampleOf(row)})` : ''}`).join(', '));
   add('상위−하위 20% (21거래일)', `비용 전 ${gross == null ? '—' : `${gross.toFixed(2)}%`}, 비용 후 ${net == null ? '—' : `${net.toFixed(2)}%`} (같은 ±1 노출 기준)`);
   add('상위가 하위를 앞선 횟수', wins == null ? '—' : `${winBasis} 기준 ${rebalances}번 중 ${wins}번 — 종목별 방향 적중률이 아니라 분위 수익률 차이가 양수였던 리밸런스의 비율입니다`);
   add('표본', `미국·한국 합산 ${backtest.n ?? '—'}종목, 리밸런스 ${rebalances ?? '—'}회, 현재 종목 구성(생존 편향), 거래비용은 가정값`);
@@ -218,7 +229,11 @@ export function renderBacktest(documentRef, metadata, root = globalThis, rows = 
   const hold = longrun?.walkForward?.holdout?.ic?.composite ?? longrun?.walkForward?.holdoutPeriod?.ic?.composite;
   const fwd21 = longrun?.overallByHorizon?.fwd21d?.ic?.composite;
   if (longrun) {
-    panel.append(el('p', `10년 연구(시가총액 상위 현재 생존 ${longrun.universe?.fullUniverseSize ?? 120}종목, 이전 모델): 21거래일 종합 IC ${fwd21 == null ? '—' : Number(fwd21).toFixed(3)}, 기준 기간 ${ref == null ? '—' : Number(ref).toFixed(3)}, 검증 기간(holdout) ${hold == null ? '—' : Number(hold).toFixed(3)}. 기간이 길어도 현재 살아남은 대형주만 담은 실험이라 검증된 전략이라고 부를 수 없습니다.`, 'theme-strength-basis'));
+    const age = longrunStudyAge(longrun);
+    const studied = age.ageDays == null ? '' : `${String(longrun.generatedAt).slice(0, 10)} 계산${age.stale ? `, ${age.ageDays}일 지나 지금 모델·종목 구성과 다를 수 있음` : ''}, `;
+    panel.append(el('p', `10년 연구(${studied}시가총액 상위 현재 생존 ${longrun.universe?.fullUniverseSize ?? 120}종목, 이전 모델): 21거래일 종합 IC ${fwd21 == null ? '—' : Number(fwd21).toFixed(3)}, 기준 기간 ${ref == null ? '—' : Number(ref).toFixed(3)}, 검증 기간(holdout) ${hold == null ? '—' : Number(hold).toFixed(3)}. 기간이 길어도 현재 살아남은 대형주만 담은 실험이라 검증된 전략이라고 부를 수 없습니다.`, 'theme-strength-basis'));
+    const decay = longrunIcDecay(longrun);
+    if (decay.length) panel.append(el('p', `보유 기간별 종합 IC — ${decay.map((row) => `${row.horizonDays}거래일 ${signedText(row.meanIc, 3)}${row.hacTStat == null ? '' : `(t ${row.hacTStat.toFixed(1)})`}`).join(', ')}`, 'theme-strength-basis'));
   }
   renderCandidateRecord(panel, el, root?._aioCandidateArchive, metadata?.populationRanking || metadata?.ranking);
 }

@@ -2,7 +2,9 @@
 // screener's published closes instead of the old per-holding Yahoo calls behind a 새로고침 button (js/aio-ui.js
 // updateBenchmarkChart, deleted). Each holding's return over 1·5·21·63·126·252 sessions (ret1d … ret12m, adjusted
 // closes) gives what today's book was worth that many sessions ago: B(h) = Σ V_i / (1 + r_i(h)) over Σ V_i, V_i the
-// holding's value now in the base currency and r_i its return in that currency (listing return × currency move). SPY's row gives the index on the same basis (dividends included). The
+// holding's value now in the base currency and r_i its return in that currency (listing return × currency move). SPY's
+// row gives the index with dividends, in dollars; `indexFxReturnOf` compounds it into the book's currency, so a won book
+// is compared with the index in won and the gap is not the exchange-rate move. The
 // chart starts at the longest window that at least 80% of the book's value can read; holdings without it are left
 // out and their share is named. Pure: rows in, points out. Not an account return (the composition is held fixed).
 import { finiteNumber as finite } from '../shared/number.js';
@@ -28,8 +30,10 @@ export const BENCHMARK_MIN_COVERAGE = 0.8;
  * @param {(symbol:string, key:string) => number|null} [input.fxReturnOf]  the % move of the holding's listing currency
  *   into the base currency over a window key; absent means every holding is in the base currency (0). A holding whose
  *   FX return is missing over a span is not covered over that span.
+ * @param {(key:string) => number|null} [input.indexFxReturnOf]  the % move of the index's currency into the base
+ *   currency over a window key; absent means the index is already in the base currency. A span without it is not read.
  */
-export function buildBenchmarkTrend({ holdings = [], returnOf, indexReturnOf, dateOf, asOf = null, fxReturnOf = null } = {}) {
+export function buildBenchmarkTrend({ holdings = [], returnOf, indexReturnOf, dateOf, asOf = null, fxReturnOf = null, indexFxReturnOf = null } = {}) {
   const book = new Map();
   for (const row of Array.isArray(holdings) ? holdings : []) {
     const value = finite(Number(row?.value));
@@ -42,17 +46,14 @@ export function buildBenchmarkTrend({ holdings = [], returnOf, indexReturnOf, da
   if (!asOf || typeof returnOf !== 'function' || typeof indexReturnOf !== 'function' || typeof dateOf !== 'function') return { available: false, reason: 'loading' };
   // A holding's return in the base currency: its listing-currency return compounded with the currency move.
   const fxOf = (symbol, key) => (typeof fxReturnOf === 'function' ? finite(fxReturnOf(symbol, key)) : 0);
-  const baseReturnOf = (symbol, key) => {
-    const local = finite(returnOf(symbol, key));
-    const fx = fxOf(symbol, key);
-    if (local == null || fx == null) return null;
-    return fx === 0 ? local : ((1 + local / 100) * (1 + fx / 100) - 1) * 100;
-  };
+  const compound = (local, fx) => (local == null || fx == null ? null : fx === 0 ? local : ((1 + local / 100) * (1 + fx / 100) - 1) * 100);
+  const baseReturnOf = (symbol, key) => compound(finite(returnOf(symbol, key)), fxOf(symbol, key));
+  const indexBaseReturnOf = (key) => compound(finite(indexReturnOf(key)), typeof indexFxReturnOf === 'function' ? finite(indexFxReturnOf(key)) : 0);
   // The longest window that 80% of the value can read, with every shorter window too (one fixed set of holdings).
   let chosen = null;
   for (let start = 0; start < BENCHMARK_WINDOWS.length && !chosen; start += 1) {
     const windows = BENCHMARK_WINDOWS.slice(start);
-    if (windows.some((span) => finite(indexReturnOf(span.key)) == null || !dateOf(span.sessions))) continue;
+    if (windows.some((span) => { const r = indexBaseReturnOf(span.key); return r == null || !(r > -100) || !dateOf(span.sessions); })) continue;
     const covered = [...book].filter(([symbol]) => windows.every((span) => { const r = baseReturnOf(symbol, span.key); return r != null && r > -100; }));
     const coveredValue = covered.reduce((sum, [, value]) => sum + value, 0);
     if (coveredValue / total >= BENCHMARK_MIN_COVERAGE) chosen = { windows, covered, coveredValue };
@@ -61,7 +62,7 @@ export function buildBenchmarkTrend({ holdings = [], returnOf, indexReturnOf, da
   const { windows, covered, coveredValue } = chosen;
   // Value of today's book `h` sessions ago relative to now, and the index the same way.
   const bookThen = (key) => covered.reduce((sum, [symbol, value]) => sum + value / (1 + baseReturnOf(symbol, key) / 100), 0) / coveredValue;
-  const indexThen = (key) => 1 / (1 + indexReturnOf(key) / 100);
+  const indexThen = (key) => 1 / (1 + indexBaseReturnOf(key) / 100);
   const stops = [...windows.map((span) => ({ date: dateOf(span.sessions), label: span.label, book: bookThen(span.key), index: indexThen(span.key) })), { date: asOf, label: '현재', book: 1, index: 1 }]
     .filter((stop, index, list) => !list.slice(0, index).some((other) => other.date === stop.date));
   const base = stops[0];

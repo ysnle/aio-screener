@@ -31,7 +31,14 @@ assert.ok(model.missing.includes('외국인·기관 순매수'),'P1628 FX direct
   assert.equal(shock.session.ret1d, -1, 'P1723 the sample 1-day median comes from the same session');
   assert.equal(shock.session.down3, 8, 'P1723 members down 3% or more are counted');
   // v57.81: every member fell, so the spread is read first; the size gap still names the large caps (pin "몰린 것으로 보입니다" -> "더 몰렸습니다").
-  assert.match(shock.session.text, /^코스피 10\/13 -5\.5% vs AIO 추적 종목\(한국\) 30개 하루 수익률 중앙값 -1\.0%.*표본 전반으로 번진 하락입니다 — 지수 하락 폭이 표본 중앙값보다 훨씬 커 시가총액이 큰 종목에 하락이 더 몰렸습니다\. 5거래일은 지수 -13\.8%, 표본 중앙값 -6\.0%로, /, `P1723 index vs sample sentence (${shock.session.text})`);
+  {
+    // v60.16: KOSPI is set against KOSPI-listed members only; KOSDAQ names (here far stronger) get their own median.
+    const kq = Array.from({ length: 25 }, (_, i) => ({ sym: `${String(300000 + i)}.KQ`, factorSessionDate: '2026-10-13', pctSma50: 1, pctSma200: 1, ret1m: 1, ret3m: 1, ret1d: 6, ret5d: 9 }));
+    const split = buildKoreaParticipation({ rows: [...sample, ...kq], themes, nowMs: Date.parse('2026-10-13T09:00:00Z'), index: { date: '2026-10-13', d1: -5.46, d5: -13.8 } }).session;
+    assert.ok(/AIO 추적 코스피 종목 30개 하루 수익률 중앙값 -1\.0%/.test(split.text) && /표본 중앙값 -6\.0%로/.test(split.text) && /코스닥 종목 25개 중앙값은 하루 \+6\.0%, 5거래일 \+9\.0%\.$/.test(split.text)
+      && split.kospi.ret5d === -6 && split.kosdaq.ret5d === 9, `v60.16 the KOSPI gap excludes KOSDAQ members (${split.text})`);
+  }
+  assert.match(shock.session.text, /^코스피 10\/13 -5\.5% vs AIO 추적 코스피 종목 30개 하루 수익률 중앙값 -1\.0%.*표본 전반으로 번진 하락입니다 — 지수 하락 폭이 표본 중앙값보다 훨씬 커 시가총액이 큰 종목에 하락이 더 몰렸습니다\. 5거래일은 지수 -13\.8%, 표본 중앙값 -6\.0%로, /, `P1723 index vs sample sentence (${shock.session.text})`);
   const other = buildKoreaParticipation({ rows: sample, themes, nowMs: Date.parse('2026-10-13T09:00:00Z'), index: { date: '2026-10-12', d1: -3 } });
   assert.ok(!/코스피/.test(other.session.text), 'P1723 an index close from another session is never set against the sample');
   const semi = shock.groups.find((group) => group.themeId === 'semi');

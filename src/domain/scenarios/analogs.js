@@ -51,7 +51,9 @@ const baseRate = (up, n) => n > 0 ? { baseN: n, baseUpPct: Math.round(up / n * 1
 
 export function summarise(outcomes, meta) {
   const sorted = [...outcomes].sort((a, b) => a - b);
-  const q = (p) => sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(p * (sorted.length - 1)))] : null;
+  // Linear interpolation between the two neighbours: the lower one alone made the median of an even count the
+  // lower-middle case (two cases -4% and +6% read -4%).
+  const q = (p) => { const at = p * (sorted.length - 1), lo = Math.floor(at); return sorted.length ? sorted[lo] + (at - lo) * ((sorted[lo + 1] ?? sorted[lo]) - sorted[lo]) : null; };
   const round = (value) => value == null ? null : Math.round(value * 10) / 10;
   return { n: outcomes.length, up: outcomes.filter((value) => value > 0).length, median: round(q(0.5)), p25: round(q(0.25)), p75: round(q(0.75)), ...meta };
 }
@@ -126,11 +128,15 @@ export function themeStateOutcomes(closes, { horizon = 63, benchmark = null, ben
   let baseN = 0, baseUp = 0;
   // v59.45 (P9-THEME-02): the base rate counts the same sessions a stage can be read on — with a benchmark, only those
   // where the index has all three closes (a stretch before the index existed is not part of either sample).
-  const testable = (i) => !bench || !!(bench.get(list[i - 126][0]) && bench.get(list[i - 21][0]) && bench.get(list[i][0]));
+  // A stage read against the index is scored against it too: the outcome is the proxy's return less the benchmark's
+  // over the same horizon ('excess'), and "up" means it beat the index. The proxy's own return kept the market's drift
+  // (SMH rose on 67% of all days), which the stage does not claim. Without a benchmark the outcome stays the own return.
+  const testable = (i) => !bench || !!(bench.get(list[i - 126][0]) && bench.get(list[i - 21][0]) && bench.get(list[i][0]) && bench.get(list[i + horizon][0]));
+  const outcome = (i) => (list[i + horizon][1] / list[i][1] - 1) * 100 - (bench ? (bench.get(list[i + horizon][0]) / bench.get(list[i][0]) - 1) * 100 : 0);
   let firstTestable = null, lastTestable = null;
   for (let i = 126; i + horizon < list.length; i += 1) {
     if (!testable(i)) continue;
-    baseN += 1; if (list[i + horizon][1] > list[i][1]) baseUp += 1;
+    baseN += 1; if (outcome(i) > 0) baseUp += 1;
     if (firstTestable == null) firstTestable = i;
     lastTestable = i;
   }
@@ -144,10 +150,10 @@ export function themeStateOutcomes(closes, { horizon = 63, benchmark = null, ben
       state = themeStateOf(trendAbs - (b2 / b0 - 1) * 100, recentAbs - (b2 / b1 - 1) * 100, { band: OUTCOME_BANDS.trend, recentBand: OUTCOME_BANDS.recent, absolute: trendAbs });
     } else state = themeStateOf(trendAbs, recentAbs);
     if (!state || i < next[state]) continue; // non-overlapping within each state
-    buckets[state].push((list[i + horizon][1] / list[i][1] - 1) * 100);
+    buckets[state].push(outcome(i));
     next[state] = i + horizon;
   }
-  const meta = { from: list[0]?.[0] || null, to: list[list.length - 1]?.[0] || null, horizon, basis: bench ? 'relative-banded' : 'absolute', ...baseRate(baseUp, baseN),
+  const meta = { from: list[0]?.[0] || null, to: list[list.length - 1]?.[0] || null, horizon, basis: bench ? 'relative-banded' : 'absolute', ...(bench ? { outcome: 'excess' } : {}), ...baseRate(baseUp, baseN),
     ...(bench ? { testableFrom: firstTestable == null ? null : list[firstTestable][0], testableTo: lastTestable == null ? null : list[lastTestable][0] } : {}) };
   return { ...Object.fromEntries(Object.entries(buckets).map(([state, values]) => [state, summarise(values, meta)])), basis: meta.basis,
     ...(bench ? { rule: THEME_STAGE_RULE, benchmark: benchmarkField } : {}) };
@@ -182,8 +188,11 @@ export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}
   // v57.79: a percentage needs at least 10 non-overlapping cases; below that the counts stand alone.
   const sharePct = Math.round(freq.up / freq.n * 100);
   const evidence = pastEvidence(freq);
+  // outcome 'excess' (themeStateOutcomes with a benchmark): the counts are sessions the proxy beat the index.
+  const excess = freq.outcome === 'excess';
+  const [rose, rise, rising, mid] = excess ? [`${freq.versus || '지수'}보다 더 올랐습니다`, '지수 초과', '지수를 앞서', '초과 수익 중앙값'] : ['올랐습니다', '상승', '올라', '중앙값'];
   // Not beyond the base rate: the counts and the base, without a share or median to anchor on.
-  if (evidence.informative === false) return `${label}: ${source}(${span})에서 서로 겹치지 않는 사례 ${freq.n}번의 이후 ${freq.horizon}거래일 흐름은 평소(같은 기록 전체 거래일의 ${freq.baseUpPct}% 상승)와 표본 오차 안에서 구별되지 않았습니다. 이 조건만으로는 방향을 말할 수 없습니다.${freq.n < 30 ? ' 30번 미만의 작은 표본입니다.' : ''}`;
-  const base = evidence.informative ? ` 비슷한 때 ${sharePct}%, 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 올라, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
-  return `${label}: ${source}(${span})에서 서로 겹치지 않는 사례 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 동안 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} 올랐습니다 (중앙값 ${signed(freq.median)}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : freq.n < 30 ? ' 30번 미만의 작은 표본이라 비율은 참고용입니다.' : ''}`; // R706: 10-29 cases carry a small-sample note (codex audit F09)
+  if (evidence.informative === false) return `${label}: ${source}(${span})에서 서로 겹치지 않는 사례 ${freq.n}번의 이후 ${freq.horizon}거래일 흐름은 평소(같은 기록 전체 거래일의 ${freq.baseUpPct}% ${rise})와 표본 오차 안에서 구별되지 않았습니다. 이 조건만으로는 방향을 말할 수 없습니다.${freq.n < 30 ? ' 30번 미만의 작은 표본입니다.' : ''}`;
+  const base = evidence.informative ? ` 비슷한 때 ${sharePct}%, 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 ${rising}, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
+  return `${label}: ${source}(${span})에서 서로 겹치지 않는 사례 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 동안 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} ${rose} (${mid} ${signed(freq.median)}${excess ? 'p' : ''}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : freq.n < 30 ? ' 30번 미만의 작은 표본이라 비율은 참고용입니다.' : ''}`; // R706: 10-29 cases carry a small-sample note (codex audit F09)
 }

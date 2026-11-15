@@ -14,7 +14,7 @@ import { fearGreedBand as publishedFearGreedBand } from '../../domain/market/sen
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { sentimentFlow } from '../../domain/market/story/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
-import { computeCompositeFearGreed } from '../../domain/market/sentiment/composite-fear-greed.js';
+import { computeCompositeFearGreed, shortRankSample } from '../../domain/market/sentiment/composite-fear-greed.js';
 import { el } from './dom.js';
 import { gaugeBar } from './gauge-bar.js';
 import { noteFold } from './section-frame.js';
@@ -166,6 +166,7 @@ function componentText(row) {
 function compositeCard(composite) {
   const spread = composite.spread;
   const shown = composite.status !== 'withheld' && spread;
+  const shortSample = shortRankSample(composite.components);
   const spreadLine = shown ? `요소 간 차이${spread.gap >= SPREAD_WIDE_AT ? ' 큼' : ''}: 최저 ${spread.low.label} ${Math.round(spread.low.score)}, 최고 ${spread.high.label} ${Math.round(spread.high.score)}` : '';
   return {
     id: 'composite', title: '공포·탐욕 구성 요소 순위 (참고)', // v59.55 (owner 11/1): a rank range ("0~94") as the big number read as nothing; the chip and the closed line say it.
@@ -176,8 +177,8 @@ function compositeCard(composite) {
     change: composite.components.map(componentText).join(', '),
     // P1593 (F97): every component is named, including the ones without data, so a partial set is not read as CNN's seven.
     // v57.77: one line on the card; how the percentiles are built and when the card is withheld sit in the fold (rules).
-    note: `${spreadLine ? `${spreadLine}, ` : ''}${composite.componentsReady ?? 7}개 요소의 1년 백분위를 나란히 놓은 참고값으로, 공포·탐욕 지수 값과 다릅니다`,
-    rules: '요소마다 최근 1년 백분위로 바꾸며 높을수록 낙관 쪽입니다(높을수록 불안한 변동성·정크본드 같은 요소는 뒤집어 계산). 한 점수로 평균하거나 공포·탐욕 구간을 붙이지 않고, 계산되는 요소가 4개 미만이면 표시하지 않습니다.'
+    note: `${spreadLine ? `${spreadLine}, ` : ''}${composite.componentsReady ?? 7}개 요소의 ${shortSample != null ? `최근 ${shortSample}거래일(짧은 요소 기준)` : '1년'} 백분위를 나란히 놓은 참고값으로, 공포·탐욕 지수 값과 다릅니다`,
+    rules: '요소마다 최근 1년(기록이 더 짧으면 있는 기간) 백분위로 바꾸며 높을수록 낙관 쪽입니다(높을수록 불안한 변동성·정크본드 같은 요소는 뒤집어 계산). 한 점수로 평균하거나 공포·탐욕 구간을 붙이지 않고, 계산되는 요소가 4개 미만이면 표시하지 않습니다.'
   };
 }
 export function renderSentimentBoard({ documentRef: doc, root }) {

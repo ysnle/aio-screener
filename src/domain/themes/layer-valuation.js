@@ -31,17 +31,21 @@ export function layerValuation({ themes = [], rows = [], consensus = null, now =
     for (const sub of theme.subThemes || []) {
       const listed = [...new Set((sub?.tickers || []).map((sym) => String(sym).toUpperCase()))].filter((sym) => !/\.K[SQ]$/.test(sym));
       const members = [];
+      // Members with a current estimate and close but a loss in either period have no PER and leave the median, so the
+      // median speaks for the profitable members only; the count and names travel with the layer.
+      const lossMakers = [];
       for (const sym of listed) {
         const est = estimates[sym];
         const row = bySym.get(sym);
         const price = row && closeCurrent(row) ? priceOf(row) : null;
         const trailingEps = finite(est?.trailing?.eps);
         const forwardEps = finite(est?.fwd?.eps);
-        if (!est || !estimateCurrent(est.asOf) || !(price > 0) || !(trailingEps > 0) || !(forwardEps > 0)) continue;
+        if (!est || !estimateCurrent(est.asOf) || !(price > 0)) continue;
+        if (!(trailingEps > 0) || !(forwardEps > 0)) { if (trailingEps != null && forwardEps != null) lossMakers.push(sym); continue; }
         if (!asOf || est.asOf > asOf) asOf = est.asOf;
         members.push({ sym, trailingPe: oneDecimal(price / trailingEps), forwardPe: oneDecimal(price / forwardEps) });
       }
-      const entry = { id: `${theme.id}:${sub.name}`, name: sub.name, listed: listed.length, measured: members.length };
+      const entry = { id: `${theme.id}:${sub.name}`, name: sub.name, listed: listed.length, measured: members.length, lossMakers };
       if (members.length < LAYER_PER_MIN_MEASURED || members.length < listed.length * LAYER_PER_MIN_COVERAGE) { hidden.push(entry); continue; }
       layers.push({ ...entry, trailingPe: oneDecimal(median(members.map((m) => m.trailingPe))), forwardPe: oneDecimal(median(members.map((m) => m.forwardPe))), members });
     }

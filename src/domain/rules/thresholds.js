@@ -1,5 +1,5 @@
 // P1428 (Codex review 2026-10-04 + owner): one table of the published judgement thresholds. 시장 상태,
-// 투자 심리, 거시 경제, 금리 · 환율, the transmission chain and every gauge read these numbers, so the same
+// 투자 심리, 매크로, 금리 · 환율, the transmission chain and every gauge read these numbers, so the same
 // observation can never be 부담 on one screen and calm on another (the chain once used oil ±5% beside
 // cards using +10%; 투자 심리 treated 350bp as credit stress while 시장 상태 used 450bp).
 // These are conventions with a stated source, not validated predictors; screens show them as 판정 기준.
@@ -63,11 +63,19 @@ export const RULES = Object.freeze({
   // a five-session rise of rise5dWatchPct or more holds it at 중립 (VIX 16.87 after +11.9% in a week read 양호, 1.1pt off 18).
   // v57.84 (macro threshold consolidation): complacentBelow — VIX under 14 beside extreme greed is the briefing's thin-hedging
   // reading (a low-volatility convention, not a validated predictor).
-  volatility: Object.freeze({ calmBelow: 18, stressAt: 25, highAt: 32, calmRatioBelow: 0.95, invertedRatioAt: 1, spike5dPct: 25, calmBufferPt: 1, rise5dWatchPct: 10, complacentBelow: 14 }),
+  // spikeFloor: the five-session +spike5dPct leg counts only with VIX at or above it — 20 is about the 80th percentile of
+  // the 2025-09~2026-11 record (19.8), so a jump from a low base (15.8 → 19.9) is not stress. Hysteresis like the other
+  // axes: once 부담, it holds until VIX is back under spikeFloor with the term structure un-inverted and the five-session
+  // rise under spike5dPct (latchSessions window).
+  volatility: Object.freeze({ calmBelow: 18, stressAt: 25, highAt: 32, calmRatioBelow: 0.95, invertedRatioAt: 1, spike5dPct: 25, spikeFloor: 20, latchSessions: 60, calmBufferPt: 1, rise5dWatchPct: 10, complacentBelow: 14 }),
   // 10-year Treasury: a 25bp move in 20 sessions, or the top 10% of its one-year range while still rising.
+  // Speed leg: a five-session rise at or above the shock5dPct percentile of the series' own five-session changes (never
+  // under shock5dMinBp; move20dBp while the record is shorter than recordMin) is 부담 whatever the 20-session change —
+  // 11/13: 4.86 → 5.15% in five sessions (+29bp, the record high) read 중립 on a 20-session +5bp. It holds until the
+  // five-session rise is back under shock5dExitBp.
   // v57.81 hysteresis: once 부담, it stays until the range position falls under rangeExitAt or the 20-session rise is
   // under exit20dBp (a 5-day dip of -9bp at 91% of the range flipped 부담 to 중립 and back on one week's sign).
-  rates: Object.freeze({ move20dBp: 25, rangeHighAt: 0.9, rangeExitAt: 0.8, exit20dBp: 10, latchSessions: 60, levelHighThird: 2 / 3, growthScareSpx20dPct: -3, splitMoveMinBp: 5, splitLeadRatio: 1.5 }), // v59.59: a yield fall with the S&P 500 down this much over the same 20 sessions is a growth scare, not relief
+  rates: Object.freeze({ move20dBp: 25, rangeHighAt: 0.9, rangeExitAt: 0.8, exit20dBp: 10, latchSessions: 60, shock5dPct: 95, shock5dMinBp: 15, shock5dExitBp: 10, recordMin: 120, levelHighThird: 2 / 3, growthScareSpx20dPct: -3, splitMoveMinBp: 5, splitLeadRatio: 1.5 }), // v59.59: a yield fall with the S&P 500 down this much over the same 20 sessions is a growth scare, not relief
   // ICE BofA US High Yield OAS: below 350bp tight, 450bp+ stressed, +25bp in five sessions a fast widening;
   // +15bp in five sessions is the early-watch level (P1449: HY 324bp +44bp must read as widening
   // stress forming, not calm), and ≤5bp / five sessions counts as calm for the smallcap reading.
@@ -79,8 +87,8 @@ export const RULES = Object.freeze({
   // stock cannot be "확장 4배" on the chart and something else in the screener (src/domain/technical/definitions.js).
   //   atrPeriod/adrPeriod: Wilder ATR(14) and the average daily range (high − low) ÷ that day's close over 20 sessions;
   //   rangeSessions: the 52-week window is the last 252 sessions; fullYearSessions: a record counts as a full year from 240
-  //   sessions — one calendar year is 251 US / 245 KR sessions and the producers fetch exactly one year (Yahoo range=1y),
-  //   so a 252 floor was never met and nulled every 52-week figure (v57.86); a listing under ~11.5 months stays labelled by
+  //   sessions — one calendar year is 251 US / 245 KR sessions and a one-year record (the extended universe; the main screener reads two years)
+  //   never met a 252 floor, which nulled every 52-week figure (v57.86); a listing under ~11.5 months stays labelled by
   //   its length (P1428);
   //   nearHighPct: an index or stock within 3% of its 52-week high is 고점권 (briefing and daily diff);
   //   extension: distance to the 50-day line in ADRs — 2 near the base, 4 extended, 7 stretched (setup-profile, v57.50 C20);
@@ -100,8 +108,9 @@ export const RULES = Object.freeze({
     // Audit 2026-10-17 (owner D6): one breakout day for the chart, the screener and the legacy snapshot — O'Neil's close above
     // the pivot, no more than maxAbovePct over it, up from the prior close, on volume ≥ volumeMultiple × the prior
     // volumeSessions average (the day excluded). The chart used a 50-day average that included the day; the screener a
-    // 20-day one, no ceiling, and an upper-half-of-range day counted as up.
-    breakout: Object.freeze({ volumeMultiple: 1.4, volumeSessions: 50, maxAbovePct: 5 }),
+    // 20-day one, no ceiling, and an upper-half-of-range day counted as up. crossSessions: a close at or below the pivot
+    // inside that many prior sessions makes the day a crossing (a heavy up day well after the cross is not a breakout).
+    breakout: Object.freeze({ volumeMultiple: 1.4, volumeSessions: 50, maxAbovePct: 5, crossSessions: 5 }),
     // v57.87 (owner X-bookmark read 2026-10-16): stock-level follow-through evidence (technical/follow-through.js).
     // Pocket pivot: an up close whose volume beats every down-close volume of the prior 10 sessions (Morales/Kacher).
     // Heavy down day: a close ≥ heavyDownPct (1%) lower on volume above the stock's own heavyDownAvgSessions (50) average
@@ -120,13 +129,15 @@ export const RULES = Object.freeze({
     // that much faster than HY (lower ratings repriced first).
     dispersionSessions: 60, widen60dBp: 50, cccGap60dBp: 150 }),
   // WTI against its own one-year range (P1394) and 20-session change; the dollar index 20-session change.
-  // v57.84: aboveYearAvgPct — WTI 25% above its one-year average is the second 유가 급등 test of the 거시 branches; turn5dPct — a
-  // five-session WTI move this large against the 20-session direction is named beside it (시장 axis and 거시 headline).
+  // v57.84: aboveYearAvgPct — WTI 25% above its one-year average is the second 유가 급등 test of the 매크로 branches; turn5dPct — a
+  // five-session WTI move this large against the 20-session direction is named beside it (시장 axis and 매크로 headline).
+  // Rise and fall lines are unequal in size but close in frequency: WTI's 20-session changes are skewed up, and over the
+  // year to 2026-11 +10% and -5% cut off 26% and 21% of the windows. No owner decision on the asymmetry is on record.
   oil: Object.freeze({ rise20dPct: 10, fall20dPct: -5, rangeHighAt: 0.85, aboveYearAvgPct: 25, turn5dPct: 3 }),
   // v57.81: a dollar rise counts as 부담 only bufferPct past rise20dPct, or past rise20dPct with the dollar index in the top
   // of its own one-year range (rangeHighAt) — DXY +2.23% against a 2.0% line read 부담 on 0.23pp.
   dollar: Object.freeze({ rise20dPct: 2, fall20dPct: -2, bufferPct: 0.5, rangeHighAt: 0.8 }),
-  // v58.80 (owner 2026-10-25): cross-asset relations read over 20 sessions on the 거시 asset card. A pair counts as moving
+  // v58.80 (owner 2026-10-25): cross-asset relations read over 20 sessions on the 매크로 asset card. A pair counts as moving
   // against its usual relation only when both legs pass their line; semisLeadPp names the semiconductor ETF as the driver.
   crossAsset: Object.freeze({ window: 20, oil20dPct: 5, rate20dBp: 10, stock20dPct: 1, bond20dPct: 1, gold20dPct: 2, dollar20dPct: 1, vixRise20dPct: 15, semisLeadPp: 5 }),
   // Won 20-session move; a yen rally of 3%+ in 20 sessions preceded the August 2024 carry unwind.
@@ -146,6 +157,10 @@ export const RULES = Object.freeze({
   // a level (3-month average under 25k = 고용 급랭 condition) — one number had served both meanings. Initial claims (4-week
   // average) above their one-year low: claimsWatchAbovePct a watch level, claimsRiseAbovePct a clear rise (Sahm-style pair).
   growth: Object.freeze({ sahmRecessionAt: 0.5, sahmWatchAt: 0.3, payrollSolidK: 100, retailRealYoyPct: 1 /* after prices; the former nominal 3% line passed on inflation alone */, payrollSlowdownK: 25, payrollStallK: 25, claimsWatchAbovePct: 10, claimsRiseAbovePct: 15 }),
+  // One month's payroll print (thousands), the release bands and the scenario triggers: under cold 급랭, under slow 둔화,
+  // from hot 과열. A single print is noisier than the 3-month average, so these are not the growth lines above
+  // (payrollSolidK, payrollStallK), which read the average.
+  payrollPrintK: Object.freeze({ cold: 50, slow: 75, hot: 200 }),
   // FOMC longer-run goal: 2% PCE inflation; core PCE 3% a clear miss; a 3-month pace 0.5pp above the year re-accelerating.
   inflation: Object.freeze({ targetPct: 2, nearTargetPct: 2.5, missPct: 3, reaccelPp: 0.5 }),
   // 2-year yield vs the policy midpoint: ±0.25pp is a heuristic band of one 25bp step. The 2-year also carries a term premium

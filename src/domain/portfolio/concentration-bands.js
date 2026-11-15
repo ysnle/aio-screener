@@ -11,7 +11,10 @@ const [REFERENCE_PCT, SECOND_PCT, ATTENTION_PCT] = BANDS.holdingPct;
 export const HOLDING_BAND_BASIS = `${REFERENCE_PCT}~${ATTENTION_PCT}% 참고, ${ATTENTION_PCT}% 초과 주의`;
 export const SECTOR_BAND_NOTE = `내부 구간 ${BANDS.sectorOver}% 초과`;
 export const HOLDING_LINE_PCT = ATTENTION_PCT;
+export const HOLDING_REFERENCE_PCT = REFERENCE_PCT;
 export const SECTOR_LINE_PCT = BANDS.sectorOver;
+// The effective number of holdings (1 / Σw²) of a book held in equal parts at the first holding tier: 10% each is 10.
+export const EFFECTIVE_N_LINE = 100 / REFERENCE_PCT;
 
 /** One holding's share (percent of the invested part): 'attention' above the line, 'info' above the first tier, else 'ok'. */
 export function holdingBand(pct) {

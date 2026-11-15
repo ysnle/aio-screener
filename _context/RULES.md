@@ -1061,7 +1061,7 @@ On entry, each of the 8 screens reloads the latest published artifacts and label
 같은 데이터의 계산 사용 기한을 두 곳(필드 레지스트리, 순위 모델)에 따로 두지 않는다. 연간 공시 수치는 FUNDAMENTAL_MAX_PERIOD_AGE_DAYS를 읽는다. 게이트: `ci-screener-workbench-contract`, `ci-candidate-archive-check`.
 
 ## R714. 기술 지표 정의는 technical/definitions.js 한 곳에서, RRG 사분면은 themes/rrg.js 한 곳에서 읽는다 (v57.85, P1871)
-SMA·EMA·ATR(Wilder)·ADR%·52주 범위(252봉 요건)·50일선 거리 배수와 구간·주봉·Weinstein 단계는 src/domain/technical/definitions.js의 함수를, 기간·구간·과열/돌파 배수는 RULES.technical을 사용한다. 게이트: `ci-chart-scenarios-fixture`, `ci-scenario-guidance-fixture`, `ci-data-pipeline-contract-check`.
+SMA·EMA·ATR(Wilder)·ADR%·52주 범위(252봉 창, 기록 240봉부터 1년으로 인정)·50일선 거리 배수와 구간·주봉·Weinstein 단계는 src/domain/technical/definitions.js의 함수를, 기간·구간·과열/돌파 배수는 RULES.technical을 사용한다. 게이트: `ci-chart-scenarios-fixture`, `ci-scenario-guidance-fixture`, `ci-data-pipeline-contract-check`.
 
 ## R695. A threshold that drives an alert has one owner and pinned copies (v57.30, P1534)
 VIX and Fear & Greed band edges are owned by src/domain/rules/thresholds.js. 게이트: `ci-domain-parity-check`.

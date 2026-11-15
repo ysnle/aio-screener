@@ -16,9 +16,9 @@ import { openLayer } from '../../behaviors/layers.js';
 // 개편 v2 (3c): author·year evidence for the factors the score weights. Only the listed studies; a factor without one
 // (추세, 추세 속도, 밸류) shows its definition and weight only.
 const FACTOR_EVIDENCE = Object.freeze({
-  momentum: '중기(3~12개월) 승자가 이후에도 앞서던 경향(Jegadeesh·Titman 1993) — 여기서는 1·3·6개월 수익률을 섞어 씁니다',
+  momentum: '중기(3~12개월) 승자가 이후에도 앞서던 경향(Jegadeesh·Titman 1993) — 여기서는 최근 1개월을 뺀 12개월 수익률을 씁니다',
   lowvol: '변동성이 낮은 종목의 위험 대비 수익이 더 높던 저변동 이상 현상(Ang 외 2006, Frazzini·Pedersen 2014)',
-  quality: '수익성이 높은 기업이 장기 초과수익을 내던 경향(Novy-Marx 2013, 매출총이익 기준) — 여기서는 ROE·마진·매출성장'
+  quality: '수익성이 높은 기업이 장기 초과수익을 내던 경향(Novy-Marx 2013, 매출총이익 기준) — 여기서는 ROE·순이익률'
 });
 
 // 개편 v2 (3c): the row's 1·3·6-month returns beside SPY's on the same close — one diverging scale, the gap on the right.

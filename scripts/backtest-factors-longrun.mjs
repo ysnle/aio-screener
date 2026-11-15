@@ -32,6 +32,7 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { backtestFactors } from './fetch-data.mjs';
 import { classifyRegime, spearmanWithCI } from './backtest-trading-score-longrun.mjs';
+import { LONGRUN_STALE_AFTER_DAYS, longrunStudyAge } from '../src/domain/screener/validation-records.js';
 import { hacLagFor, neweyWestMeanStats, extractFirstZipEntry, parseFrenchDailyFactorCsv, compareWithExternalFactor, EXTERNAL_MOMENTUM_CRITERION } from './lib/research-validation.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
@@ -50,6 +51,8 @@ const CONCURRENCY = 4; // scripts/fetch-data.mjs backfillHistory()와 동일한 
 const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
 const _yhSym = (s) => s.replace(/^([A-Z]+)\.([A-Z])$/, '$1-$2'); // BRK.B → BRK-B (fetch-data.mjs와 동일 규칙)
 const REBALANCE_STEP_DAYS = 21;
+// The study's age rule is the page's too (src/domain/screener/validation-records.js).
+export { LONGRUN_STALE_AFTER_DAYS, longrunStudyAge };
 // v58.83: external benchmark — Kenneth French Data Library daily momentum factor (primary source, free).
 const FRENCH_MOMENTUM_DAILY_URL = 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily_CSV.zip';
 
@@ -178,8 +181,22 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
   for (const fwd of FWD_HORIZONS) {
     const r = backtestFactors(stockData, { offsets: offsetsAsc, fwdDays: fwd, factorSpreads: fwd === 21 });
     if (fwd === 21) momentumWindows = r.factorSpreadByDate ? r.factorSpreadByDate.momentum : [];
-    overall[`fwd${fwd}d`] = { dates: r.dates, n: r.n, ic: r.ic, icIR: computeICIR(r.icByDate, fwd), quantileSpread: r.quantileSpread, quantileSpreadNet: r.quantileSpreadNet, turnover: r.turnover, hitRate: r.hitRate };
+    overall[`fwd${fwd}d`] = { dates: r.dates, n: r.n, ic: r.ic, icIR: computeICIR(r.icByDate, fwd), quantileSpread: r.quantileSpread, quantileSpreadNet: r.quantileSpreadNet,
+      // Mean of the per-rebalance net spreads (percent) with a Newey-West error: windows longer than the 21-day step overlap.
+      quantileSpreadNetHac: neweyWestMeanStats(r.quantileSpreadNetByDate, hacLagFor(r.quantileSpreadNetByDate.length, fwd, REBALANCE_STEP_DAYS)),
+      executionLag: r.executionLag, turnover: r.turnover, hitRate: r.hitRate };
   }
+  // IC decay across holding lengths for the one market this study covers. A disclosure row per horizon, not a claim of skill.
+  const icDecay = {
+    market: 'US',
+    allowedUse: 'disclosure-only; survivorship-biased universe',
+    rows: FWD_HORIZONS.map((fwd) => {
+      const row = overall[`fwd${fwd}d`];
+      const composite = row.icIR.composite || {};
+      return { horizonDays: fwd, rebalances: composite.n ?? null, meanIc: composite.mean ?? null, hacTStat: composite.hac?.hacTStat ?? null, hacCi95: composite.hac?.hacCi95 ?? null,
+        lag1Ic: row.executionLag?.icComposite ?? null, netSpreadPct: row.quantileSpreadNet, netSpreadHacCi95: row.quantileSpreadNetHac.hacCi95, averageTurnover: row.turnover?.average ?? null };
+    })
+  };
 
   // 21-day windows sampled every 21 days do not overlap, so each momentum long-short window is one
   // independent comparison against the published factor compounded over the same trading days.
@@ -227,6 +244,12 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
       scope: `Reduced-scope validation of the live factor ranking model's momentum/trend/lowvol/kalman(+composite) sub-formula, using top ${topN} tickers by market cap (of ${fullUniverseSize} in the full SCREENER_DB universe) with real ${range} daily history.`,
       excludedFactors: baselineRef.excludedFactors,
       excludedFactorsReason: baselineRef.excludedFactorsReason,
+      // The universe is chosen on the run date and applied to the whole lookback; a study older than staleAfterDays
+      // no longer describes the current model or universe and is shown with its date.
+      universeBasis: 'present-day-top-market-cap',
+      universeSelectedAt: new Date().toISOString().slice(0, 10),
+      market: 'US',
+      staleAfterDays: LONGRUN_STALE_AFTER_DAYS,
       survivorshipBiasCaveat: 'Uses TODAY\'s top-mcap universe applied retroactively over the full lookback window — any ticker that would have been delisted/acquired/failed during this period is entirely absent from the sample. This systematically tends to overstate momentum/quality-style factor performance in the finance literature. Not resolvable without paid point-in-time index-constituent history; NOT claimed as resolved or "passed" here.',
       subsetNotFullUniverse: `Uses top ${topN} by market cap, not the full ${fullUniverseSize}-ticker universe, to bound Yahoo Finance request volume (this repo's own fetch-data.mjs/ci.yml comments document a prior Yahoo IP-blocking incident from excess request volume).`,
       icIRNote: 'ICIR = mean(IC across rebalance dates) / stddev(IC across rebalance dates), with a t-stat and approximate 95% CI via the standard IC-IR normal approximation (t = ICIR * sqrt(dates), CI = mean ± 1.96*stddev/sqrt(dates)) — this is what Codex\'s WO-3 gate means by "IC/ICIR/t-stat", distinct from the pooled-cross-section Fisher-z CI used in the WO-2 score backtest.',
@@ -237,7 +260,10 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
     },
     universe: { requestedTop: topN, fetchedTickers: stockData.length, fullUniverseSize, dataRange: range, priceBasis: 'adjusted-close-only', adjustedCloseExcluded },
     rebalanceDates: { count: offsetsAsc.length, comparedToProductionBacktest: 6 },
+    // The cost scenario behind every quantileSpreadNet below (one-way bps on turnover; spread, impact and borrow are not modelled).
+    executionModel: baselineRef.executionModel,
     overallByHorizon: overall,
+    icDecay,
     walkForward,
     regimes,
     regimeUnmatchedDates,

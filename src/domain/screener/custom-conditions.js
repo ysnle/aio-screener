@@ -2,7 +2,8 @@
  * Custom screener conditions (owner request 2026-10-14: "5/10/20 정배열이면서 신고가", "VCP 수렴", 밸류에이션 조건).
  *
  * A reader picks conditions (or writes them as a sentence) and the table keeps only the rows that meet every one.
- * Each condition reads fields the screener artifact already publishes on the same completed-close series; a row
+ * Each condition reads fields the screener artifact already publishes from completed sessions (returns, volatility and
+ * RSI on dividend-adjusted closes; average distances, 52-week levels, ADR and patterns on raw closes); a row
  * without the field does not pass (it is counted as "자료 없음", never guessed). These narrow the table only —
  * they are not a rank, a recommendation or a backtested signal.
  *
@@ -47,10 +48,11 @@ export const CUSTOM_CONDITIONS = Object.freeze([
   // a mean-reversion read, not a bottom or an entry — the frame keeps the reversal low as the invalidation point.
   { id: 'down-extended', group: '패턴', label: '50일선 아래로 변동폭의 {n}배 이상 (하방 과확장, 바닥 신호 아님)', value: 4, unit: '배', fields: ['pctSma50', 'adrPct'],
     test: ({ pctSma50, adrPct }, n) => { const multiple = extensionMultiple(pctSma50, adrPct); return multiple != null && multiple <= -n; } },
-  { id: 'pocket-pivot', group: '후속·회복', label: '최근 10거래일 안 포켓 피벗 (상승일 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많음)', fields: ['pocketPivots10'],
+  { id: 'pocket-pivot', group: '후속·회복', label: '최근 10거래일 안 포켓 피벗 (10일선이나 50일선 위 상승일, 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많음)', fields: ['pocketPivots10'],
     test: ({ pocketPivots10: a }) => a >= 1 },
-  { id: 'early-base', group: '후속·회복', label: '초기 베이스 (추세가 다시 시작된 뒤 {n}번째 베이스 이하)', value: 2, unit: '번째', fields: ['baseCount'],
-    test: ({ baseCount: a }, n) => a >= 1 && a <= n },
+  { id: 'early-base', group: '후속·회복', label: '초기 베이스 (추세가 다시 시작된 뒤 {n}번째 베이스 이하)', value: 2, unit: '번째', fields: ['baseCount'], optional: ['baseCountLowerBound'],
+    // A count with no restart inside the fetched history is "N번째 이상": it cannot prove an early base.
+    test: ({ baseCount: a, baseCountLowerBound: open }, n) => open !== true && a >= 1 && a <= n },
   { id: 'few-heavy-down', group: '후속·회복', label: '최근 25거래일 거래량 실린 하락일 {n}일 이하', value: 4, unit: '일', fields: ['heavyDownDays25'],
     test: ({ heavyDownDays25: a }, n) => a <= n },
   { id: 'down-day-hold', group: '후속·회복', label: '지수 하락일에 지수보다 덜 빠진 날 {n}% 이상 (최근 60거래일)', value: 60, unit: '%', fields: ['downDayHoldPct'],

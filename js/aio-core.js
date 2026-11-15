@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v60.14';
+const APP_VERSION = 'v60.16';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -6275,7 +6275,7 @@ window.AIO.getStaticSeedFallbackAudit = function() {
 
 // ─────────────────────────────────────────────────────────────────
 // v49.36 신규: 7개 compute/fetch 함수 — fundamental 페이지 15 기준 100% 커버
-// FCF Yield / Balance Sheet / EV/EBITDA / Macro Beta / Insider / 13F / Short Interest
+// FCF Yield / Balance Sheet / EV/EBITDA / Insider / 13F / Short Interest
 // + 보조: CIK_MAP 확장 (S&P 500 30+) + Wikipedia 한국 종목 + FMP segments / SEC 8-K
 // R92 신규 (페이지 15 기준 100% 커버 의무)
 // ─────────────────────────────────────────────────────────────────
@@ -6308,9 +6308,7 @@ window.AIO.computeFcfYield = async function(ticker) {
     fcf: fcf,
     mcap: mcap,
     fcfYieldPct: yieldPct,
-    verdict: yieldPct == null ? 'unknown' : yieldPct >= 4 ? 'attractive' : yieldPct >= 2 ? 'fair' : 'low',
-    source: fcfSource + ' + Yahoo mcap',
-    note: '4%+ = 매력적 (Buyback+배당 유지 가능)'
+    source: fcfSource + ' + Yahoo mcap'
   };
 };
 
@@ -6339,8 +6337,6 @@ window.AIO.computeBalanceSheetRatios = async function(ticker, opts) {
     interestCoverage: interestCoverage,
     netDebt: fin.netDebt,
     ebitda: fin.ebitda,
-    healthScore: (netDebtToEbitda != null && netDebtToEbitda < 2.5 && interestCoverage != null && interestCoverage > 6) ? 'strong' : 'caution',
-    note: 'Net Debt/EBITDA < 2.5x AND Interest Coverage > 6x = 건전. 두 조건 모두 충족 시 strong.',
     source: 'Naver financials (FMP 보강 권장)'
   };
 };
@@ -6381,51 +6377,7 @@ window.AIO.computeEvEbitda = async function(ticker) {
     ebitda: fin.ebitda,
     evEbitda: evEbitda,
     peerCount: peerAvg,
-    verdict: evEbitda < 10 ? 'cheap' : evEbitda < 15 ? 'fair' : 'expensive',
-    note: 'EV/EBITDA < 10 cheap, 10~15 fair, 15+ expensive (섹터별 차이 있음 — peer comparison 정밀 비교 권장)',
     source: 'Naver + Yahoo mcap'
-  };
-};
-
-// (4) computeMacroBeta: 금리/달러/원자재 베타 — DATA_SNAPSHOT cross-asset
-window.AIO.computeMacroBeta = function(ticker, opts) {
-  opts = opts || {};
-  if (!ticker) return null;
-  ticker = ticker.toUpperCase().trim();
-  // 섹터 기반 휴리스틱 베타 — 실제 회귀는 historical 가격 데이터 필요 (v49.37+)
-  var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-  var row = db.find && db.find(function(r){ return r.sym === ticker; });
-  if (!row) return { ticker: ticker, available: false, reason: 'SCREENER_DB에 sector 미등록' };
-  // sector → typical macro beta (휴리스틱)
-  var sectorBetas = {
-    'Technology':    { rateBeta: -0.8, dxyBeta: -0.3, oilBeta: -0.1, note: '금리 민감 (성장주 듀레이션)' },
-    'Financials':    { rateBeta: +0.6, dxyBeta: +0.2, oilBeta: -0.1, note: '금리 수혜 (NIM)' },
-    'Energy':        { rateBeta: -0.1, dxyBeta: -0.4, oilBeta: +0.9, note: '유가 강한 양의 상관' },
-    'Materials':     { rateBeta: -0.2, dxyBeta: -0.6, oilBeta: +0.4, note: '달러 약세 + 원자재 수혜' },
-    'Consumer Discretionary': { rateBeta: -0.5, dxyBeta: -0.2, oilBeta: -0.3, note: '금리/유가 동시 민감' },
-    'Consumer Staples': { rateBeta: -0.2, dxyBeta: -0.1, oilBeta: -0.2, note: '방어주 — 낮은 베타' },
-    'Healthcare':    { rateBeta: -0.3, dxyBeta: -0.1, oilBeta: 0.0, note: '비교적 무관' },
-    'Utilities':     { rateBeta: -0.9, dxyBeta: 0.0, oilBeta: -0.2, note: '금리에 가장 민감 (배당주)' },
-    'Industrials':   { rateBeta: -0.3, dxyBeta: -0.3, oilBeta: +0.1, note: '복합 — 글로벌 수출 비중에 따라' },
-    'Communication Services': { rateBeta: -0.6, dxyBeta: -0.2, oilBeta: -0.1, note: '성장주 듀레이션' },
-    'Real Estate':   { rateBeta: -0.9, dxyBeta: -0.2, oilBeta: -0.1, note: 'REIT 금리 매우 민감' }
-  };
-  var beta = sectorBetas[row.sector] || { rateBeta: 0, dxyBeta: 0, oilBeta: 0, note: 'sector 매핑 없음 — 보수적 평가' };
-  // DATA_SNAPSHOT 현재값 활용해 노출 추정
-  var S = window.DATA_SNAPSHOT || {};
-  return {
-    ticker: ticker,
-    sector: row.sector,
-    available: true,
-    rateBeta: beta.rateBeta,
-    dxyBeta: beta.dxyBeta,
-    oilBeta: beta.oilBeta,
-    currentRate: S.tnx || null,
-    currentDxy: S.dxy || null,
-    currentOil: S.wti || null,
-    note: beta.note + ' (휴리스틱 — historical regression은 v49.37+ 신설)',
-    source: 'SCREENER_DB sector + heuristic table',
-    diversificationVerdict: (Math.abs(beta.rateBeta) > 0.7 || Math.abs(beta.dxyBeta) > 0.5 || Math.abs(beta.oilBeta) > 0.5) ? 'high-exposure' : 'low-exposure'
   };
 };
 
@@ -6834,13 +6786,13 @@ window.AIO_FUNDAMENTAL_PAGE_CRITERIA = {
     'balance-sheet':       { num: 6,  label: 'Balance Sheet',         description: 'Net Debt / EBITDA < 2.5x, Interest Coverage > 6x', dataSource: 'FMP /balance-sheet + Naver', implFn: 'computeBalanceSheetRatios', requires: ['netDebtEbitda','intCoverage'], frequency: 'quarterly', hallucinationRisk: 'low' },
     'valuation-pe':        { num: 7,  label: 'Valuation PE',          description: 'Forward PE vs 5Y 평균, PEG < 1.5',            dataSource: 'Yahoo + Naver consensus',       implFn: 'fetchNaverUSData|dynamicTickerLookup', requires: ['forwardPe','pe5yAvg','peg'], frequency: 'daily', hallucinationRisk: 'low' },
     'ev-ebitda':           { num: 8,  label: 'EV / EBITDA',           description: '동종 산업 대비 할인, 피어 비교 핵심',          dataSource: 'FMP + Naver + SCREENER_DB peer', implFn: 'computeEvEbitda', requires: ['evEbitda','peerEvEbitda'], frequency: 'quarterly', hallucinationRisk: 'low' },
-    'insider-activity':    { num: 9,  label: 'Insider Activity',      description: '임원 매수/매도 12주 누적. 매수 = 강력 신호',     dataSource: 'Finnhub /stock/insider-transactions', implFn: 'fetchFinnhubInsider', requires: ['insiderNet12w'], frequency: 'weekly', hallucinationRisk: 'medium', note: 'Finnhub key 필요' },
+    'insider-activity':    { num: 9,  label: 'Insider Activity',      description: '임원 매수/매도 12주 누적. 매수 = 강력 신호',     dataSource: 'Finnhub /stock/insider-transactions', implFn: null, requires: ['insiderNet12w'], frequency: 'weekly', hallucinationRisk: 'medium', note: '개인 키 조회 삭제 — 자동 수집 없음' },
     'institutional-flow':  { num: 10, label: 'Institutional Flow',    description: '13F 기관 보유 비중 변화, 주요 헤지펀드 편입',  dataSource: 'SEC 13F filings + WhaleWisdom',  implFn: 'fetchSEC13F', requires: ['institutional13f'], frequency: 'quarterly', hallucinationRisk: 'medium', note: 'AI가 URL fetch 필요' },
-    'short-interest':      { num: 11, label: 'Short Interest',        description: '5% 이하 정상, 15%+ 하방 압력/Squeeze',          dataSource: 'Finnhub /stock/metric', implFn: 'fetchFinnhubShortInterest', requires: ['shortInterestPct'], frequency: 'biweekly', hallucinationRisk: 'medium', note: 'Finnhub key 필요' },
+    'short-interest':      { num: 11, label: 'Short Interest',        description: '5% 이하 정상, 15%+ 하방 압력/Squeeze',          dataSource: 'Finnhub /stock/metric', implFn: null, requires: ['shortInterestPct'], frequency: 'biweekly', hallucinationRisk: 'medium', note: '개인 키 조회 삭제 — 자동 수집 없음' },
     'analyst-revisions':   { num: 12, label: 'Analyst Revisions',     description: '최근 90일 EPS 추정치 상향/하향 비율',          dataSource: 'Finnhub recommendation + Naver consensus', implFn: 'fetchFinnhubRecommendation|fetchNaverUSData', requires: ['epsRevisions90d'], frequency: 'weekly', hallucinationRisk: 'medium' },
     'earnings-beat-streak': { num: 13, label: 'Earnings Beat Streak', description: '최근 4분기 어닝 서프라이즈 연속성',             dataSource: 'Finnhub /earnings-surprises',   implFn: 'fetchFinnhubEarningsCalendar', requires: ['beatStreak4q'], frequency: 'quarterly', hallucinationRisk: 'low' },
     'industry-rank':       { num: 14, label: 'Industry Rank',         description: 'IBD 산업 랭킹 Top 30, 업종 순풍',              dataSource: 'IBD (유료) + 자체 RS computed', implFn: 'SCREENER_DB',   requires: ['industryRank'], frequency: 'weekly', hallucinationRisk: 'medium', note: 'IBD 유료 — SCREENER_DB.rsi 대체' },
-    'macro-exposure':      { num: 15, label: 'Macro Exposure',        description: '금리/달러/원자재 민감도, 포트폴리오 분산',     dataSource: 'DATA_SNAPSHOT cross-asset + sector heuristic beta', implFn: 'computeMacroBeta', requires: ['rateBeta','dxyBeta','oilBeta'], frequency: 'monthly', hallucinationRisk: 'low', note: '휴리스틱 — 정밀 historical regression은 v49.37+' }
+    'macro-exposure':      { num: 15, label: 'Macro Exposure',        description: '금리/달러/원자재 민감도, 포트폴리오 분산',     dataSource: 'DATA_SNAPSHOT cross-asset + sector heuristic beta', implFn: null, requires: ['rateBeta','dxyBeta','oilBeta'], frequency: 'monthly', hallucinationRisk: 'low', note: '섹터 표 휴리스틱 삭제 — 측정값 없음' }
   }
 };
 
@@ -6863,7 +6815,7 @@ window.AIO_ANALYSIS_FRAMEWORK_REGISTRY = {
     'chart-technical':   { num: 0,  label: '차트',                type: 'visual',       primarySource: 'TradingView iframe + Naver chart', implFn: 'tradingview-widget', freshness: 'realtime', aiHallucinationRisk: 'low' },
     'business-structure': { num: 1, label: '기업 개요 + 사업 구조', type: 'qualitative',  primarySource: 'SEC 10-K Item 1 + Wikipedia + Naver overview', implFn: 'fetchSECBusinessDescription|fetchWikipediaCompany|fetchNaverUSData', freshness: 'annual+manual', aiHallucinationRisk: 'medium' },
     'founding-growth':   { num: 2,  label: '창립 배경 & 성장 과정', type: 'qualitative',  primarySource: 'Wikipedia (founded/IPO) + News (성장 마일스톤)', implFn: 'fetchWikipediaCompany|fetchFinnhubCompanyNews', freshness: 'annual+event', aiHallucinationRisk: 'medium' },
-    'ceo-management':    { num: 3,  label: 'CEO/경영진 분석',    type: 'qualitative',  primarySource: 'Wikipedia + SEC DEF 14A + Insider 12주', implFn: 'fetchWikipediaCompany|fetchFinnhubInsider', freshness: 'annual', aiHallucinationRisk: 'high', note: '인사 변경 시 즉시 stale — NAMED_ENTITY_REGISTRY 연동 필요' },
+    'ceo-management':    { num: 3,  label: 'CEO/경영진 분석',    type: 'qualitative',  primarySource: 'Wikipedia + SEC DEF 14A + Insider 12주', implFn: 'fetchWikipediaCompany', freshness: 'annual', aiHallucinationRisk: 'high', note: '인사 변경 시 즉시 stale — NAMED_ENTITY_REGISTRY 연동 필요' },
     'business-model':    { num: 4,  label: '비즈니스 모델',       type: 'qualitative',  primarySource: 'SEC 10-K + Wikipedia',         implFn: 'fetchSECBusinessDescription|fetchWikipediaCompany', freshness: 'annual', aiHallucinationRisk: 'medium' },
     'revenue-structure': { num: 5,  label: '사업/수익 구조 (세그먼트)', type: 'quantitative', primarySource: 'FMP segments + 10-K segments', implFn: 'fetchFMPSegments|fetchSECBusinessDescription', freshness: 'quarterly', aiHallucinationRisk: 'medium' },
     'product-portfolio': { num: 6,  label: '제품 포트폴리오',     type: 'qualitative',  primarySource: 'FMP segments + Wikipedia + SEC', implFn: 'fetchFMPSegments|fetchWikipediaCompany|fetchSECBusinessDescription', freshness: 'quarterly+manual', aiHallucinationRisk: 'medium', note: 'v49.65: FMP segments 통합으로 high → medium' },
@@ -6876,7 +6828,7 @@ window.AIO_ANALYSIS_FRAMEWORK_REGISTRY = {
     'platform-ecosystem': { num: 13, label: '플랫폼 & 생태계 분석', type: 'qualitative+quantitative', primarySource: '3-source synthesis (SCREENER_DB.memo + FMP segments + Finnhub news)', implFn: 'fetchPlatformEcosystem', freshness: 'on-demand', aiHallucinationRisk: 'high', note: 'v49.65 신설 — dataConfidence: low (외부 API 없음, 합성 score)' },
     'partnership':       { num: 14, label: '협력 / 파트너십 분석', type: 'qualitative', primarySource: 'SEC 8-K Item 1.01 (Material Definitive Agreement) + Item 7.01 (Reg FD)', implFn: 'fetchPartnershipAlerts', freshness: 'event-driven', aiHallucinationRisk: 'low', note: 'v49.65: implFn 매핑 완성 (이전 plannedFn) — dataConfidence: high (8-K 의무 공시)' },
     'competition':       { num: 15, label: '경쟁 구조',           type: 'qualitative',  primarySource: 'SEC 10-K + Wikipedia + Naver + peers', implFn: 'fetchWikipediaCompany|fetchSECBusinessDescription', freshness: 'annual', aiHallucinationRisk: 'high' },
-    'risk-factors':      { num: 16, label: '리스크',              type: 'qualitative',  primarySource: 'SEC 10-K Item 1A + Short Interest', implFn: 'fetchSECRiskFactors|fetchFinnhubShortInterest', freshness: 'annual+weekly', aiHallucinationRisk: 'high', note: 'v49.34 신설 + v49.65 Short Interest 통합' },
+    'risk-factors':      { num: 16, label: '리스크',              type: 'qualitative',  primarySource: 'SEC 10-K Item 1A + Short Interest', implFn: 'fetchSECRiskFactors', freshness: 'annual+weekly', aiHallucinationRisk: 'high', note: 'v49.34 신설 + v49.65 Short Interest 통합' },
     'investment-thesis': { num: 17, label: '투자 포인트',          type: 'qualitative',  primarySource: 'Finnhub consensus + SCREENER_DB memo + Naver consensus + 위 16 관점 종합', implFn: 'fetchFinnhubRecommendation|fetchNaverUSData', freshness: 'weekly', aiHallucinationRisk: 'medium' }
   },
   // hallucination risk 분류

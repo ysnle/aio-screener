@@ -66,16 +66,26 @@ export function buildWorkingCapitalRead(quarters = []) {
   if (!latest || !prior || latest.inventory === undefined) return { available: false, collected: latest?.inventory !== undefined, rows: [] };
   const gap = (Date.parse(latest.periodEnd) - Date.parse(prior.periodEnd)) / DAY;
   if (!(gap >= 60 && gap <= 120)) return { available: false, collected: true, rows: [] };
-  const change = (field) => (Number.isFinite(latest[field]) && Number.isFinite(prior[field]) && prior[field] > 0 ? { from: prior[field], to: latest[field], pct: (latest[field] / prior[field] - 1) * 100 } : null);
+  const changeFrom = (base) => (field) => (Number.isFinite(latest[field]) && Number.isFinite(base?.[field]) && base[field] > 0 ? { from: base[field], to: latest[field], pct: (latest[field] / base[field] - 1) * 100 } : null);
+  const change = changeFrom(prior);
   const inventory = change('inventory'); const receivables = change('receivables'); const revenue = change('revenue');
   if (!inventory && !receivables) return { available: false, collected: true, rows: [] };
-  const faster = [inventory && revenue && inventory.pct > revenue.pct + 5 ? '재고' : null, receivables && revenue && receivables.pct > revenue.pct + 5 ? '매출채권' : null].filter(Boolean);
+  // Balances and sales both move with the season (a retailer stocks up before the holidays), so "faster than revenue" is
+  // judged against the same quarter a year earlier when it is on file; the step from the prior quarter stays beside it.
+  const sameQuarter = changeFrom(yearAgo(rows, latest));
+  const yoy = { inventory: sameQuarter('inventory'), receivables: sameQuarter('receivables'), revenue: sameQuarter('revenue') };
+  const seasonal = Boolean(yoy.revenue && (yoy.inventory || yoy.receivables));
+  const basis = seasonal ? yoy : { inventory, receivables, revenue };
+  const faster = [basis.inventory && basis.revenue && basis.inventory.pct > basis.revenue.pct + 5 ? '재고' : null, basis.receivables && basis.revenue && basis.receivables.pct > basis.revenue.pct + 5 ? '매출채권' : null].filter(Boolean);
   const part = (label, value) => (value ? `${label} ${signedText(value.pct, 1, '%')}` : null);
-  const parts = [part('재고', inventory), part('매출채권', receivables)].filter(Boolean).join(', ');
-  const headline = `${latest.periodEnd.slice(0, 7)} 분기 말, 직전 분기 대비 ${parts}${revenue ? `(분기 매출 ${signedText(revenue.pct, 1, '%')})` : ''}${faster.length ? ` — ${withSubjectParticle(faster.join('·'))} 매출보다 빠르게 늘어 현금이 묶였습니다` : ''}.`;
+  const partsOf = (set) => [part('재고', set.inventory), part('매출채권', set.receivables)].filter(Boolean).join(', ');
+  const tied = faster.length ? ` — ${withSubjectParticle(faster.join('·'))} 매출보다 빠르게 늘어 현금이 묶였습니다` : '';
+  const headline = seasonal
+    ? `${latest.periodEnd.slice(0, 7)} 분기 말, 1년 전 같은 분기 대비 ${partsOf(yoy)}(분기 매출 ${signedText(yoy.revenue.pct, 1, '%')})${tied}. 직전 분기 대비로는 ${partsOf({ inventory, receivables })}입니다.`
+    : `${latest.periodEnd.slice(0, 7)} 분기 말, 직전 분기 대비 ${partsOf({ inventory, receivables })}${revenue ? `(분기 매출 ${signedText(revenue.pct, 1, '%')})` : ''}${tied}.`;
   // The last quarters' balances for the bars, oldest first, with each step's change.
   const bars = rows.slice(-5).map((q, i, list) => ({ periodEnd: q.periodEnd, inventory: q.inventory ?? null, receivables: q.receivables ?? null,
     inventoryPct: i && Number.isFinite(q.inventory) && list[i - 1].inventory > 0 ? (q.inventory / list[i - 1].inventory - 1) * 100 : null,
     receivablesPct: i && Number.isFinite(q.receivables) && list[i - 1].receivables > 0 ? (q.receivables / list[i - 1].receivables - 1) * 100 : null }));
-  return { available: true, collected: true, latest, prior, inventory, receivables, revenue, faster, headline, rows: bars };
+  return { available: true, collected: true, latest, prior, inventory, receivables, revenue, yoy: seasonal ? yoy : null, fasterBasis: seasonal ? 'year-ago-quarter' : 'prior-quarter', faster, headline, rows: bars };
 }

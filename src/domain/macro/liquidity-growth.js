@@ -198,7 +198,7 @@ function liquidityGroup(macroHistory, { macro, referenceMs }) {
     const lowerRaw = readNumber(macro?.fedTargetLower);
     const lower = upper == null ? null : lowerRaw != null && readNumber(macro?.fedTargetUpper) === upper ? lowerRaw : upper - 0.25;
     const range = upper == null ? null : `${lower.toFixed(2)}–${upper.toFixed(2)}%`;
-    const where = upper == null ? null : last.value > upper ? `목표 범위 ${range} 위 ${((last.value - upper) * 100).toFixed(0)}bp` : last.value < lower ? `목표 범위 ${range} 아래 ${((lower - last.value) * 100).toFixed(0)}bp` : `목표 범위 ${range} 안`;
+    const where = upper == null ? null : last.value > upper ? `목표 범위 ${range} 위 ${((last.value - upper) * 100).toFixed(0)}bp` : last.value < lower ? `목표 범위 ${range} 아래 ${((lower - last.value) * 100).toFixed(0)}bp` : `목표 범위 ${range} 안, 하단 +${((last.value - lower) * 100).toFixed(0)}bp`;
     items.push(card({ id: 'sofr', label: 'SOFR 단기 자금 금리', series: sofr, asOf: last.date, unit: '%', frequency: frequencyOf(macroHistory, 'sofr', 'daily'), referenceMs, format: (value) => `${fmt(value, 2)}%`,
       valueText: `${fmt(last.value, 2)}%`, changeText: where,
       reading: '은행 간 하루짜리 담보 대출 금리입니다. 연준 목표 범위를 벗어나 튀면 단기 자금 시장의 긴장 신호로 봅니다.' }));

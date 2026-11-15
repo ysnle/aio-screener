@@ -134,7 +134,8 @@ const POLICIES = {
   'operations-status.json': { kind: 'operational-status', timestamp: ['generatedAt'], maxAgeHours: 24 },
   'reconciliation-status.json': { kind: 'operational-status', timestamp: ['generatedAt'], maxAgeHours: 24 },
   'score-backtest-history.json': { kind: 'research-history', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 14 },
-  'score-backtest-longrun.json': { kind: 'research-horizon', timestamp: ['generatedAt', 'meta.generatedAt'] },
+  // Manual research run like the factor study above; the same 120-day reference window (it had none).
+  'score-backtest-longrun.json': { kind: 'research-horizon', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 120 },
   'screener-universe.json': { kind: 'universe-reference', custom: 'universe-bulk-update' },
   'screener.json': { kind: 'research-screener', timestamp: ['asOf', 'meta.asOf'], maxAgeHours: 48 },
   'screener-validation-gate.json': { kind: 'research-validation-gate', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 * 90 },

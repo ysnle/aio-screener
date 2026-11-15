@@ -10,6 +10,7 @@
 import { monthChangeAt, seriesOf, yoySeries } from './macro-read.js';
 import { releaseActuals } from '../market/regime/macro-crossroads.js';
 import { policyCycle } from './macro-signals.js';
+import { RULES } from '../rules/thresholds.js';
 
 const INFLATION_FIRST_ABOVE = 2.5; // core PCE YoY, %
 
@@ -23,10 +24,12 @@ const PRICE_ZONES = (hiking = false) => [
   { below: Infinity, tone: 'bad', label: '재가속', read: hiking ? '추가 인상 압력이 커집니다' : '금리가 다시 오를 수 있습니다' }
 ];
 
+// The payroll cut points are the registry's one-month print lines (RULES.payrollPrintK), not literals of their own.
+const JOB = RULES.payrollPrintK;
 const JOB_ZONES = (inflationFirst, hiking = false) => [
-  { below: 50, tone: 'bad', label: '급랭', read: hiking ? '긴축이 끝날 수 있어도 이익 걱정이 앞섭니다(경기 침체 경계)' : '인하는 빨라져도 이익 걱정이 앞섭니다(경기 침체 경계)' },
-  { below: 75, tone: 'neutral', label: '둔화', read: hiking ? '추가 인상 압력은 줄지만 둔화가 이어지는지 봐야 합니다' : '인하 기대는 커지지만 둔화가 이어지는지 봐야 합니다' },
-  { below: 200, tone: 'good', label: '완만', read: '물가 부담 없이 경기가 버티는 구간입니다' },
+  { below: JOB.cold, tone: 'bad', label: '급랭', read: hiking ? '긴축이 끝날 수 있어도 이익 걱정이 앞섭니다(경기 침체 경계)' : '인하는 빨라져도 이익 걱정이 앞섭니다(경기 침체 경계)' },
+  { below: JOB.slow, tone: 'neutral', label: '둔화', read: hiking ? '추가 인상 압력은 줄지만 둔화가 이어지는지 봐야 합니다' : '인하 기대는 커지지만 둔화가 이어지는지 봐야 합니다' },
+  { below: JOB.hot, tone: 'good', label: '완만', read: '물가 부담 없이 경기가 버티는 구간입니다' },
   inflationFirst
     ? { below: Infinity, tone: 'burden', label: '과열', read: hiking ? '물가가 목표보다 높은 동안에는 추가 인상 압력이 커져 부담입니다' : '물가가 목표보다 높은 동안에는 인하가 늦어져 부담입니다' }
     : { below: Infinity, tone: 'good', label: '강함', read: '물가가 목표 부근이라 강한 고용은 성장으로 읽힙니다' }
@@ -59,8 +62,8 @@ const zoneOf = (zones, value) => zones.find((zone) => value < zone.below) || zon
 
 /**
  * One release's reading frame: its bands (with their numeric edges inside the drawn range), the latest value and the
- * band it fell in. A jobs report whose unemployment rate rose 0.2%p or more reads as 급랭 whatever the payroll number,
- * the slowdown trigger's second half.
+ * band it fell in. A jobs report whose unemployment rate rose 0.2%p or more reads as 급랭 when payrolls are also under
+ * the slow line; with solid payrolls the payroll band stays and the read names the rise.
  */
 export function releaseZones(id, macroHistory, { actuals = null, regime = undefined } = {}) {
   const spec = RELEASES[id];
@@ -81,7 +84,11 @@ export function releaseZones(id, macroHistory, { actuals = null, regime = undefi
   const raw = actual ? Number(spec.value(actual)) : NaN;
   const value = Number.isFinite(raw) ? raw : null;
   let now = value == null ? null : zoneOf(zones, value);
-  if (id === 'us-nfp' && actual?.unempDelta != null && actual.unempDelta >= 0.2 - 1e-9) now = zones[0];
+  // The slowdown trigger needs both halves (macro-crossroads: payrolls under the cold line and unemployment +0.2%p);
+  // the band is 급랭 only when the print is under the slow line too, else the payroll band stays and names the rate.
+  if (id === 'us-nfp' && now && actual?.unempDelta != null && actual.unempDelta >= 0.2 - 1e-9) {
+    now = value < JOB.slow ? zones[0] : { ...now, read: `${now.read} — 다만 실업률이 ${actual.unempDelta.toFixed(1)}%p 올라 다음 달 일자리와 함께 봅니다` };
+  }
   // a nominal retail print in 과열 that is mostly price (same-month headline CPI) says so — +0.8%
   // with CPI +0.65% is about +0.1% real, not demand overheating.
   if (id === 'us-retail' && now?.label === '과열' && actual?.period) {

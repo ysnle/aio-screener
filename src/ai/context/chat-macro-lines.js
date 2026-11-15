@@ -3,6 +3,7 @@
 // evidenceId. A live quote or an undated snapshot figure appears only when no typed row exists, and is labelled as
 // reference that the answer may not state as current.
 import { readNumber } from '../../domain/shared/number.js';
+import { heldMacroReleases } from './macro-release-evidence.js';
 
 const UNIT_TEXT = { percent: '%', bp: 'bp', thousands: '천 명', index: '', usd_per_barrel: '달러', usd_per_ounce: '달러', krw_per_usd: '원' };
 const signed = (v) => `${v > 0 ? '+' : ''}${v}`;
@@ -53,6 +54,10 @@ export function buildChatMacroLines({ ctxId, root = globalThis, timeLabel = '' }
     }
     const jobs = joinParts([cite(row('macro.unemployment'), '실업률'), cite(row('macro.nfp_change'), '비농업 고용 전월 대비', true), cite(row('macro.ahe_yoy'), '시간당 임금 전년 대비')]);
     if (jobs) lines.push(`• 고용(공식 발표): ${jobs}`);
+    // A release the producer could not refresh is not an evidence row; the line says so, with the value it still holds.
+    const kept = heldMacroReleases(root._aioServerMacro).filter((r) => r.period === 'month' && !row(r.metric))
+      .map((r) => `${r.label} ${r.value}${UNIT_TEXT[r.unit] ?? ''} (${r.asOf.slice(0, 7)} 기준월)`);
+    if (kept.length) lines.push(`• 최신 발표 미반영(이전 발표 값, 현재 수치로 쓰지 않음): ${kept.join(', ')}`);
     // The policy rate is the target range the screen shows (AIO.getFedPolicyRange); the next FOMC comes from the official calendar.
     try { (root.AIO?.buildChatPolicyLines?.({ root, includeKorea: ctxId === 'kr-macro' }) || []).forEach((line) => lines.push(line)); } catch {}
     const rates = rateLine(); if (rates) lines.push(rates);

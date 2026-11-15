@@ -18,11 +18,20 @@ export const TEMPERATURE_MARKETS = Object.freeze([
   Object.freeze({ id: 'nikkei', symbol: '^N225', label: '닛케이 225', region: 'jp' })
 ]);
 export const TEMPERATURE_COMPONENTS = Object.freeze([
-  Object.freeze({ id: 'trend', label: '125일선 거리', basis: '종가 ÷ 125거래일 평균 − 1' }),
-  Object.freeze({ id: 'range', label: '52주 범위 위치', basis: '(종가 − 52주 최저) ÷ (52주 최고 − 52주 최저)' }),
-  Object.freeze({ id: 'rsi', label: 'RSI 14일', basis: '14거래일 상대강도지수(와일더 평활)' }),
-  Object.freeze({ id: 'calm', label: '낮은 변동성', basis: '20거래일 일간 로그수익률 표준편차, 낮을수록 높은 순위' }),
-  Object.freeze({ id: 'ret20', label: '20일 수익률', basis: '종가 ÷ 20거래일 전 종가 − 1' })
+  Object.freeze({ id: 'trend', path: 'position', label: '125일선 거리', basis: '종가 ÷ 125거래일 평균 − 1' }),
+  Object.freeze({ id: 'range', path: 'position', label: '52주 범위 위치', basis: '(종가 − 52주 최저) ÷ (52주 최고 − 52주 최저)' }),
+  Object.freeze({ id: 'rsi', path: 'momentum', label: 'RSI 14일', basis: '14거래일 상대강도지수(와일더 평활)' }),
+  Object.freeze({ id: 'calm', path: 'volatility', label: '낮은 변동성', basis: '20거래일 일간 로그수익률 표준편차, 낮을수록 높은 순위' }),
+  Object.freeze({ id: 'ret20', path: 'momentum', label: '20일 수익률', basis: '종가 ÷ 20거래일 전 종가 − 1' })
+]);
+// Four of the five components are readings of one price series (raw pairwise correlation 0.65–0.96 on the 2026-11 record),
+// so three of them in a decile can be one observation counted three times. A path counts only when every component on it
+// sits in the decile; the count is published beside the component count (coldPaths / hotPaths). The state moves to the
+// path rule when rules.extremeMinPaths is set — the card's rule text and span shading must change in the same release.
+export const TEMPERATURE_PATHS = Object.freeze([
+  Object.freeze({ id: 'position', label: '가격 위치(125일선 거리·52주 범위)' }),
+  Object.freeze({ id: 'momentum', label: '최근 속도(RSI·20일 수익률)' }),
+  Object.freeze({ id: 'volatility', label: '변동성' })
 ]);
 export const TEMPERATURE_RULES = Object.freeze({
   rankWindow: 756, // three years of sessions: one year let a single long selloff redefine "normal"
@@ -87,7 +96,7 @@ function stats(returns) {
   const mean = returns.reduce((a, b) => a + b, 0) / n;
   const sd = n > 1 ? Math.sqrt(returns.reduce((a, b) => a + (b - mean) ** 2, 0) / (n - 1)) : null;
   return {
-    n, mean: round(mean), median: round(sorted[Math.floor((n - 1) / 2)]), p10: round(sorted[Math.floor(0.1 * (n - 1))]),
+    n, mean: round(mean), median: round((sorted[Math.floor((n - 1) / 2)] + sorted[Math.ceil((n - 1) / 2)]) / 2), p10: round(sorted[Math.floor(0.1 * (n - 1))]),
     hitRate: Math.round((returns.filter((r) => r > 0).length / n) * 100), sd: round(sd), se: sd == null ? null : round(sd / Math.sqrt(n))
   };
 }
@@ -108,11 +117,14 @@ export function buildMarketTemperature(rows = [], { rules = TEMPERATURE_RULES } 
   const counts = (i) => {
     if (!ready(i)) return null;
     const scores = TEMPERATURE_COMPONENTS.map(({ id }) => ranks[id][i]);
-    return { cold: scores.filter((s) => s <= rules.coldAtOrBelow).length, hot: scores.filter((s) => s >= rules.hotAtOrAbove).length, low: Math.min(...scores), high: Math.max(...scores) };
+    const paths = (test) => TEMPERATURE_PATHS.filter(({ id }) => TEMPERATURE_COMPONENTS.every((item, k) => item.path !== id || test(scores[k]))).length;
+    return { cold: scores.filter((s) => s <= rules.coldAtOrBelow).length, hot: scores.filter((s) => s >= rules.hotAtOrAbove).length,
+      coldPaths: paths((s) => s <= rules.coldAtOrBelow), hotPaths: paths((s) => s >= rules.hotAtOrAbove), low: Math.min(...scores), high: Math.max(...scores) };
   };
   const stateAt = (i) => {
     const c = counts(i);
     if (!c) return null;
+    if (rules.extremeMinPaths) return c.coldPaths >= rules.extremeMinPaths ? 'cold' : c.hotPaths >= rules.extremeMinPaths ? 'hot' : 'none';
     return c.cold >= rules.extremeMinComponents ? 'cold' : c.hot >= rules.extremeMinComponents ? 'hot' : 'none';
   };
   const states = Array.from({ length: n }, (_, i) => stateAt(i));
@@ -164,6 +176,8 @@ export function buildMarketTemperature(rows = [], { rules = TEMPERATURE_RULES } 
     components: TEMPERATURE_COMPONENTS.map(({ id, label }) => ({ id, label, score: ranks[id][last], raw: round(raw[id][last], 6) })),
     cold: now.cold,
     hot: now.hot,
+    coldPaths: now.coldPaths,
+    hotPaths: now.hotPaths,
     state: states[last],
     streak,
     week: snapshot(last - 5),

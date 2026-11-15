@@ -6,6 +6,7 @@
 // with it: a present-day universe means survivorship bias, so this is accountability, not proof.
 import { createTrendChart } from './trend-chart.js';
 import { liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
+import { marketIcRows } from '../../domain/screener/validation-records.js';
 import { el } from './dom.js';
 import { signedBar, signedScale } from './signed-bar.js';
 import { signedText, mean, stdev } from '../../domain/shared/number.js';
@@ -102,7 +103,7 @@ export function renderScreenerValidation({ documentRef: doc, root }) {
     host.append(el(doc, 'p', '사후 검증 기록 수신 대기', 'theme-strength-basis'));
   } else {
     if (!summary.modelMatch) host.append(el(doc, 'p', '이 기록은 지금 화면의 순위와 가중치·계산 방식이 다른 이전 모델로 계산되어, 지금 순위의 검증으로 읽지 않습니다.', 'theme-strength-basis'));
-    if (summary.series.length >= 2) host.append(createTrendChart(doc, { series: summary.series, refLines: [0], format: (value) => `${value.toFixed(1)}%`, label: '상위−하위 20% 수익률 차이(비용 반영, 같은 모델 기록만)' }));
+    if (summary.series.length >= 2) host.append(createTrendChart(doc, { series: summary.series, refLines: [0], format: (value) => `${value.toFixed(1)}%`, label: '상위−하위 20% 수익률 차이(비용 반영, 같은 모델 기록만, 이웃한 날은 같은 시점들을 하루 밀어 다시 계산해 서로 겹침)' }));
     else host.append(el(doc, 'p', `같은 모델로 계산된 기록이 ${summary.sameModelRecords}개뿐이라 추이 그림은 기록이 쌓인 뒤 표시합니다.`, 'theme-strength-basis'));
     host.append(el(doc, 'p', summary.distinguishable
       ? `최근 기록 ${summary.date}, 상위−하위 20% ${pct(summary.spreadNet)} — ${summary.rebalances}회 표본에서 우연의 범위(|t| ${VALIDATION_MIN_ABS_T})를 넘은 차이입니다.`
@@ -131,9 +132,13 @@ export function readValidationState({ metadata = null, root = null, listingMarke
   const gate = root?._aioScreenerValidationGate || null;
   const gateChip = !gate ? '검증 상태 없음' : gate.status === 'BLOCKED' ? '검증 요건 미충족' : null;
   const blockers = (Array.isArray(gate?.blockers) ? gate.blockers : []).map((key) => GATE_BLOCKER_WORDS[key] || key);
-  const base = { gate, gateChip, blockers, gateObservedAt: gate?.observedAt ? String(gate.observedAt).slice(0, 10) : null };
+  // The gate is judged from the long-run study; its date is the study's, not the day the judgement was recomputed.
+  const day = (value) => (value ? String(value).slice(0, 10) : null);
+  const base = { gate, gateChip, blockers, gateObservedAt: day(gate?.observedAt), gateEvidenceAt: day(gate?.evidenceGeneratedAt) };
   if (listingMarket === 'KR') {
-    return { ...base, state: 'kr', chips: [gateChip, '판단 불가'].filter(Boolean), sentence: `한국 순위는 아직 사후 검증 기록이 없어 판단 불가입니다 — 미국 검증을 한국 순위의 근거로 쓰지 않습니다.` };
+    // A record that measured Korean rows alone carries their IC only; the spread and the win count stay pooled.
+    const krIc = marketIcRows(metadata?.backtest).some((row) => row.market === 'KR');
+    return { ...base, state: 'kr', chips: [gateChip, '판단 불가'].filter(Boolean), sentence: `한국 순위는 ${krIc ? '한국 종목만의 IC 기록뿐이라' : '아직 사후 검증 기록이 없어'} 판단 불가입니다 — 미국 검증을 한국 순위의 근거로 쓰지 않습니다.` };
   }
   const backtest = metadata?.backtest || null;
   const dates = Array.isArray(backtest?.rebalanceDates) ? backtest.rebalanceDates : [];
@@ -150,11 +155,15 @@ export function readValidationState({ metadata = null, root = null, listingMarke
   const icT = finiteOrNull(backtest.ic?.compositeT);
   const liveFingerprint = liveScreenerModelFingerprint(metadata?.ranking?.appliedFactorWeights);
   const modelMatch = backtest.modelFingerprint != null && liveFingerprint != null && backtest.modelFingerprint === liveFingerprint;
-  const icByDate = Array.isArray(backtest.icByDate?.composite) ? backtest.icByDate.composite : [];
+  // The ranking is one model per market, so the per-date IC shown for US rows is the US-only series when the record
+  // carries it; an older record has only the series pooled over US and Korean rows, and says so.
+  const marketIc = Array.isArray(backtest.icByMarket?.US?.icByDate?.composite) && Array.isArray(backtest.icByMarket.US.dates) ? backtest.icByMarket.US : null;
+  const icByDate = marketIc ? marketIc.icByDate.composite : Array.isArray(backtest.icByDate?.composite) ? backtest.icByDate.composite : [];
   // v58.56 (#6): the producer names the dates its composite IC values belong to (a date with too few rows is skipped);
   // records before that keep the old positional reading only when the counts match.
-  const icDates = Array.isArray(backtest.icCompositeDates) && backtest.icCompositeDates.length === icByDate.length ? backtest.icCompositeDates
-    : icByDate.length === dates.length ? dates : [];
+  const icDates = marketIc ? marketIc.dates
+    : Array.isArray(backtest.icCompositeDates) && backtest.icCompositeDates.length === icByDate.length ? backtest.icCompositeDates
+      : icByDate.length === dates.length ? dates : [];
   // v58.56 (#6): one top-minus-bottom reading per rebalance (percent, gross; net = after the modelled turnover cost).
   const byDate = (key) => (Array.isArray(backtest[key]) ? backtest[key] : []);
   const spreadPoints = (Array.isArray(backtest.spreadDates) ? backtest.spreadDates : []).map((date, index) => ({
@@ -181,6 +190,7 @@ export function readValidationState({ metadata = null, root = null, listingMarke
     samples, net, wins, winsBasis: netRate != null ? '비용 후' : '비용 전', tStat, icT, distinguishable, modelMatch,
     fwdDays: finiteOrNull(backtest.fwdDays) ?? 21,
     asOf: backtest.asOf ? String(backtest.asOf).slice(0, 10) : null,
+    icScope: marketIc ? '미국 종목만' : '미국·한국 합산',
     points: icDates.map((date, index) => ({ date, ic: finiteOrNull(icByDate[index]) })).filter((point) => point.ic != null),
     spreadPoints
   };
@@ -242,7 +252,7 @@ export function renderValidationHero({ documentRef: doc, read }) {
       if (previous?.dataset.userToggled) fold.dataset.userToggled = '1';
       fold.open = previous?.dataset.userToggled ? previous.open : !spread.length;
       const summary = el(doc, 'summary', null);
-      summary.append(el(doc, 'span', '시점별 종합 IC', 'scr-vh-ic-title'), el(doc, 'span', `순위와 ${read.fwdDays}거래일 뒤 수익률의 순위상관, 0 = 관계 없음`, 'sx-meta'));
+      summary.append(el(doc, 'span', '시점별 종합 IC', 'scr-vh-ic-title'), el(doc, 'span', `${read.icScope}, 순위와 ${read.fwdDays}거래일 뒤 수익률의 순위상관, 0 = 관계 없음`, 'sx-meta'));
       summary.addEventListener('click', () => { fold.dataset.userToggled = '1'; });
       fold.append(summary);
       const body = el(doc, 'div', null, 'scr-vh-ic-body');
@@ -264,7 +274,7 @@ export function renderValidationHero({ documentRef: doc, read }) {
   const undecided = read.samples != null && !read.distinguishable
     ? ` 표본 ${read.samples}회${read.tStat == null ? '(t 미계산)' : `(t ${read.tStat.toFixed(2)})`}로는 이 기준에 못 미쳐, 순위는 계속 후보 목록으로 표시합니다.` : '';
   principle.append(el(doc, 'p', `요인 점수의 예측력은 정보 계수(IC) — 점수 순위와 이후 수익률 순위의 상관 — 로 잽니다. 학술 연구에서도 '발견된' 요인 상당수가 데이터 마이닝의 산물일 수 있어, 새 요인에는 t 값 3 이상을 요구해야 한다는 제안이 있습니다. ${rule}${undecided}`, 'sx-disclosure__text'));
-  if (read.gateChip) principle.append(el(doc, 'p', read.gate ? `검증 게이트 ${read.gateChip}${read.blockers.length ? ` — 아직 확인되지 않은 항목: ${read.blockers.join(', ')}` : ''}${read.gateObservedAt ? ` (${read.gateObservedAt} 기준)` : ''}.` : '검증 게이트 파일을 받지 못했습니다 — 없음.', 'scr-vh-gate'));
+  if (read.gateChip) principle.append(el(doc, 'p', read.gate ? `검증 게이트 ${read.gateChip}${read.blockers.length ? ` — 아직 확인되지 않은 항목: ${read.blockers.join(', ')}` : ''}${read.gateEvidenceAt ? ` (근거 연구 ${read.gateEvidenceAt}, 현재 살아남은 대형주 표본${read.gateObservedAt ? `; 판정 ${read.gateObservedAt}` : ''})` : read.gateObservedAt ? ` (${read.gateObservedAt} 기준)` : ''}.` : '검증 게이트 파일을 받지 못했습니다 — 없음.', 'scr-vh-gate'));
   const evidence = el(doc, 'div', null, 'sx-evidence scr-vh-evidence');
   evidence.append(el(doc, 'span', '근거, Grinold(1989) 기본 법칙, Harvey·Liu·Zhu(2016) …and the Cross-Section of Expected Returns'), el(doc, 'span', `데이터, 스크리너 결과 사후 검증${read.asOf ? ` ${read.asOf}` : ''}`), el(doc, 'span', `상태, ${read.chips.join(', ') || '기록 있음'}`));
   principle.append(evidence);

@@ -29,7 +29,8 @@ export function moveNewsRows(root, store, flow) {
   const news = [...selectNewsItems(store?.getState?.() || {}), ...(Array.isArray(root?._serverNewsIntraday) ? root._serverNewsIntraday : []),
     ...(timeline.current?.headlines || []), ...(Array.isArray(timeline.slots) ? timeline.slots : []).flatMap((slot) => slot?.headlines || [])];
   const names = symbolNames(root);
-  return moveHeadlineRows(flow.themes, { session: flow.session, news, telegram: Array.isArray(root?.AIO_TELEGRAM_CURRENT_ITEMS) ? root.AIO_TELEGRAM_CURRENT_ITEMS : [], signals: root?.AIO_TELEGRAM_SIGNALS || [], names });
+  return moveHeadlineRows(flow.themes, { session: flow.session, news, telegram: Array.isArray(root?.AIO_TELEGRAM_CURRENT_ITEMS) ? root.AIO_TELEGRAM_CURRENT_ITEMS : [], signals: root?.AIO_TELEGRAM_SIGNALS || [], names,
+    aliasesOf: (sym) => [root?.AIO_TICKER_NAME_REGISTRY?.entries?.[sym]?.kr] });
 }
 
 const kstStamp = (ms) => {

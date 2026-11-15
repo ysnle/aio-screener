@@ -184,7 +184,7 @@ function check(name, ok, detail) {
   const { buildMacroRead } = await load('src/domain/macro/macro-read.js');
   const mh = { schemaVersion: 'macro-history.v1', series: { sepLongRunFedFunds: { observations: [[new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10), 3.2]] } } };
   const policy = buildMacroRead({ macro: { fedTargetUpper: 6, fedTargetLower: 5.75, corePce: 2.5 }, macroHistory: mh }).axes.find((axis) => axis.id === 'policy');
-  check('v59.59 the policy axis names the Taylor rule SEP neutral rate', sepNeutral(mh)?.rStar === 1.2 && /중립 수준\(약 1\.2%\)/.test(policy?.read || ''), policy?.read);
+  check('v59.59 the policy axis names the Taylor rule SEP neutral rate', sepNeutral(mh)?.rStar === 1.2 && /중립 추정은 약 1\.2%/.test(policy?.read || ''), policy?.read);
 }
 
 if (failures.length) {

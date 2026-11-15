@@ -2,7 +2,8 @@
 // the stress panel placement (#pf-stress-panel) moved here from js/aio-workspace.js (v50.54 3D/3E). The reading (shares,
 // bands, warnings) is src/domain/portfolio/exposure-panel.js on RULES.portfolio; this module collects the base-currency rows
 // (P1445, window._pfBaseValues) and renders. refreshPortfolioRisk still collects the returns and history and calls the two window names that
-// src/app/legacy-screen-bridges.js installs; the pairwise correlation is the same window._pfPearson its matrix uses.
+// src/app/legacy-screen-bridges.js installs; 평균 상관 is the mean of the risk panel's own matrix (risk-readout.js), so
+// every cell it averages is on one return basis.
 import { escapeHtml } from '../html.js';
 import { deriveExposurePanel } from '../../domain/portfolio/exposure-panel.js';
 
@@ -26,7 +27,7 @@ export function renderPortfolioExposure(positions, returnsMap, { documentRef = g
   const total = surf.totalAssets != null && isFinite(surf.totalAssets) && surf.totalAssets >= posSum && surf.totalAssets > 0 ? surf.totalAssets : posSum;
   const basisNote = total === posSum ? '주식 부분 중' : '현금 포함 총자산 대비';
   if (total <= 0) { el.innerHTML = root._pfBaseNote(base); return; }
-  const model = deriveExposurePanel({ rows, total, posSum, corrMatrix: Array.isArray(corrRes?.matrix) ? corrRes.matrix : null, returnsMap, pearson: root._pfPearson,
+  const model = deriveExposurePanel({ rows, total, posSum, corrMatrix: Array.isArray(corrRes?.matrix) ? corrRes.matrix : null,
     sectorLabel: typeof root._aioPortfolioSectorLabel === 'function' ? root._aioPortfolioSectorLabel : (s) => s });
   const { avgCorr, avgRank, rankCoverage, top3 } = model;
   const secHtml = model.sectors.slice(0, 5).map((s) => {

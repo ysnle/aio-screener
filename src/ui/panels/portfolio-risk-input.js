@@ -16,6 +16,9 @@ export function holdingPriceCurrency(position, evidence = null) {
   return declared || listingCurrency(position?.listingSymbol || position?.ticker);
 }
 
+// The valuation screen's price sources that stand for today's value (surface.js holdingValue); a stored price does not.
+const REFERENCE_VALUE_KINDS = ['live-quote', 'completed-close', 'delayed-reference-quote'];
+
 export function assembleRiskEstimateInput({
   positions,
   priceEvidenceMap,
@@ -28,6 +31,7 @@ export function assembleRiskEstimateInput({
   declarations,
   fxLegs = [],
   fxHistory = null,
+  surface = null,
   nowIso
 }) {
   const dates = Array.isArray(commonDates) ? commonDates : [];
@@ -35,23 +39,38 @@ export function assembleRiskEstimateInput({
     return { ok: false, code: 'common-dates-insufficient' };
   }
 
-  // Cost is historical context, never a current-value fallback. Require a
-  // timestamped decision-authorized quote for each live portfolio weight.
+  // Cost is historical context, never a current-value fallback. A weight needs today's value, not a live tick: a
+  // holding without a decision-grade quote takes the value the valuation screen already shows for it (a completed
+  // close or a delayed quote, in the surface's one currency), and the result names that basis and its date.
   // Portfolio audit 2026-10-17: two lots of one ticker overwrote each other's value (AAPL 1 + 9 shares read 9 + 9), so the
   // map now sums every lot and keeps the total quantity for the unit price.
   const currentValueMap = {};
   const qtyByTicker = {};
   const missingCurrent = [];
   const currencyByTicker = {};
+  const valueCurrencyByTicker = {};
+  const referenceByTicker = {};
+  const surfaceUnit = surface && surface.currencyState !== 'mixed-without-conversion' ? String(surface.baseCurrency || surface.valuationCurrency || '').toUpperCase() : '';
+  const surfaceValue = {};
+  if (surfaceUnit) (surface.rows || []).forEach((row) => {
+    const entry = surfaceValue[row.symbol] || (surfaceValue[row.symbol] = { value: 0, date: null, kind: null, ok: true });
+    if (!(row.value > 0) || !REFERENCE_VALUE_KINDS.includes(row.sourceKind)) { entry.ok = false; return; }
+    entry.value += row.value;
+    entry.kind = row.sourceKind;
+    const date = String(row.closeDate || row.observedAt || '').slice(0, 10);
+    if (date && (!entry.date || date < entry.date)) entry.date = date;
+  });
   (Array.isArray(positions) ? positions : []).forEach((p) => {
     const evidence = priceEvidenceMap ? priceEvidenceMap[p.ticker] : null;
     const price = evidence && evidence.allowedUse === true ? finite(evidence.value) : null;
     currencyByTicker[p.ticker] = holdingPriceCurrency(p, evidence);
-    if (price == null || price <= 0) missingCurrent.push(p.ticker);
-    else {
-      currentValueMap[p.ticker] = (currentValueMap[p.ticker] || 0) + price * Number(p.qty);
-      qtyByTicker[p.ticker] = (qtyByTicker[p.ticker] || 0) + Number(p.qty);
-    }
+    qtyByTicker[p.ticker] = (qtyByTicker[p.ticker] || 0) + Number(p.qty);
+    if (price > 0) { currentValueMap[p.ticker] = (currentValueMap[p.ticker] || 0) + price * Number(p.qty); return; }
+    const reference = surfaceValue[String(p.ticker || '').toUpperCase()];
+    if (!reference || !reference.ok || !(reference.value > 0)) { missingCurrent.push(p.ticker); return; }
+    currentValueMap[p.ticker] = reference.value; // every lot of the ticker, already summed and in the surface's unit
+    valueCurrencyByTicker[p.ticker] = surfaceUnit;
+    referenceByTicker[p.ticker] = reference;
   });
   if (missingCurrent.length) {
     return { ok: false, code: 'missing-current', tickers: missingCurrent };
@@ -67,7 +86,7 @@ export function assembleRiskEstimateInput({
   const heldPairs = [];
   const asOfMs = Date.parse(nowIso || '') || Date.now();
   Object.entries(currentValueMap).forEach(([ticker, value]) => {
-    const from = currencyByTicker[ticker];
+    const from = valueCurrencyByTicker[ticker] || currencyByTicker[ticker];
     if (from === baseCurrency) { baseValueMap[ticker] = value; return; }
     const converted = convertWithDeclaredRates({ value, from, to: baseCurrency, legs: Array.isArray(fxLegs) ? fxLegs : [], asOfMs });
     // v59.45 (PASS23 P23-FX-01): the valuation screen converts a USD holding in a KRW account with the app's USD/KRW close
@@ -138,8 +157,8 @@ export function assembleRiskEstimateInput({
         // P1407: the base-currency unit value, so the snapshot's quantity × price is in one currency.
         price: currentValueMap[p.ticker] != null && qtyByTicker[p.ticker] > 0 ? currentValueMap[p.ticker] / qtyByTicker[p.ticker] : null,
         priceCurrency: currencyByTicker[p.ticker],
-        priceObservedAt: ev && ev.ts != null ? new Date(ev.ts).toISOString() : null,
-        priceSource: ev && ev.source != null ? String(ev.source) : null
+        priceObservedAt: referenceByTicker[p.ticker] ? referenceByTicker[p.ticker].date : ev && ev.ts != null ? new Date(ev.ts).toISOString() : null,
+        priceSource: referenceByTicker[p.ticker] ? referenceByTicker[p.ticker].kind : ev && ev.source != null ? String(ev.source) : null
       };
     }),
     cash: { amount: cashAmount, currency: cashCurrency },
@@ -180,9 +199,12 @@ export function assembleRiskEstimateInput({
   }) : null;
 
   const hasForeign = currencies.some((currency) => currency !== baseCurrency);
+  const references = Object.values(referenceByTicker);
   return {
     ok: true,
     valueCurrency: baseCurrency,
+    // Holdings weighted from the valuation screen's close or delayed quote instead of a live quote, and the oldest date.
+    referenceValued: references.length ? { count: references.length, total: Object.keys(currentValueMap).length, date: references.map((entry) => entry.date).filter(Boolean).sort()[0] || null } : null,
     // P1445: base-currency returns when the FX history covered the window; otherwise local and labelled.
     // v57.92: the question is whether any holding is priced outside the base, not how many currencies there are — one
     // USD holding in a KRW account returned the dollar move labelled as won, with no missing-FX warning.

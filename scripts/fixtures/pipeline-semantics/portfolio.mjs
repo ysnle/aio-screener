@@ -24,7 +24,7 @@ export const cases = [
     const panel = { innerHTML: '', insertAdjacentHTML(_position, text) { this.innerHTML += text; } };
     const root = { _aioGetCanonicalScreenerRows: () => [{ sym: 'XLE', index: 'ETF', sector: 'Energy' }, { sym: 'SPY', index: 'ETF', sector: 'ETF' }],
       _pfBaseValues: () => ({ rows: [{ sym: 'XLE', value: 100 }, { sym: 'SPY', value: 100 }] }),
-      _aioPortfolioSurface: { totalAssets: 200 }, _aioPortfolioSectorLabel: (sector) => sector === 'Energy' ? '에너지' : sector, _pfPearson: () => null, _pfBaseNote: () => '' };
+      _aioPortfolioSurface: { totalAssets: 200 }, _aioPortfolioSectorLabel: (sector) => sector === 'Energy' ? '에너지' : sector, _pfBaseNote: () => '' };
     renderPortfolioExposure([{ ticker: 'XLE' }, { ticker: 'SPY' }], {}, { documentRef: { getElementById: () => panel }, root });
     assert.match(panel.innerHTML, /에너지 섹터 50% 집중/);
     assert.doesNotMatch(panel.innerHTML, /ETF[^<]*섹터 100% 집중/);
@@ -327,7 +327,7 @@ export const cases = [
     const node = { innerHTML: '', insertAdjacentHTML(_, html) { this.innerHTML += html; } };
     const db = [{ sym: 'SPY', sector: 'ETF', rank: 10 }, { sym: 'QQQ', sector: 'ETF', rank: 12 }, { sym: 'NVDA', sector: 'Technology', rank: 1 }];
     const root = { _aioGetCanonicalScreenerRows: () => db, _pfBaseValues: (p) => ({ blocked: false, rows: p.map((x) => ({ sym: x.sym, value: x.value })) }),
-      _pfBaseNote: () => '', _pfPearson: () => null, _aioPortfolioSurface: { totalAssets: 100 }, _aioPortfolioSectorLabel: portfolioSectorLabel };
+      _pfBaseNote: () => '',_aioPortfolioSurface: { totalAssets: 100 }, _aioPortfolioSectorLabel: portfolioSectorLabel };
     renderPortfolioExposure([{ sym: 'SPY', value: 40 }, { sym: 'QQQ', value: 25 }, { sym: 'NVDA', value: 10 }, { sym: 'XYZW', value: 25 }], {}, { documentRef: { getElementById: () => node }, root });
     const text = node.innerHTML.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
     assert.doesNotMatch(text, /ETF\(여러 업종 묶음\) 섹터 \d+% 집중/);

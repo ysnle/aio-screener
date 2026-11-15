@@ -109,10 +109,10 @@ export function auctionSummary(compared = []) {
   const strong = recent.filter((row) => row.read === 'strong').map((row) => `${row.tenor}년물`);
   const head = `최근 3주 ${recent.length}건(${recent.map((row) => `${row.tenor}년`).join('·')})`;
   const why = '입찰 수요가 약하면 재무부가 더 높은 금리를 줘야 팔려 장기 금리를 밀어 올립니다.';
-  if (weak.length && !strong.length) return `${head} 중 ${weak.join('·')}이 같은 만기 직전 입찰보다 약하게 팔렸습니다. ${why}`;
-  if (strong.length && !weak.length) return `${head} 중 ${strong.join('·')}이 같은 만기 직전 입찰보다 강하게 팔렸습니다. 높은 금리에서 사려는 수요가 있다는 뜻입니다.`;
+  if (weak.length && !strong.length) return `${head} 중 ${weak.join('·')}이 같은 만기 최근 입찰 평균보다 약하게 팔렸습니다. ${why}`;
+  if (strong.length && !weak.length) return `${head} 중 ${strong.join('·')}이 같은 만기 최근 입찰 평균보다 강하게 팔렸습니다. 높은 금리에서 사려는 수요가 있다는 뜻입니다.`;
   if (weak.length && strong.length) return `${head}: ${weak.join('·')}은 평소보다 약하게, ${strong.join('·')}은 강하게 팔려 만기마다 엇갈렸습니다. ${why}`;
-  return `${head} 모두 같은 만기 직전 입찰과 비슷하게 팔렸습니다. 입찰 수요가 금리를 밀어 올린 흔적은 아직 없습니다.`;
+  return `${head} 모두 같은 만기 최근 입찰 평균과 비슷하게 팔렸습니다. 입찰 수요가 금리를 밀어 올린 흔적은 아직 없습니다.`;
 }
 
 export const AUCTION_METHOD = '미 재무부 TreasuryDirect 경매 결과(명목 이표채, TIPS·변동금리채 제외). 응찰률 = 응찰 총액 ÷ 발행액. 간접 낙찰 = 경쟁 낙찰액 중 간접 응찰자(딜러를 거친 해외·국내 기관) 비중. 같은 만기의 직전 6회 평균과 비교하며(응찰률 ±0.1배, 간접 낙찰 ±5%p), 발행 직전 거래 금리(when-issued)가 없어 테일은 계산하지 않습니다.';

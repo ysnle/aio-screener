@@ -48,8 +48,10 @@ export function correctionBaseRates(closes = [], rule = CORRECTION_RULE) {
 /**
  * Pure: the 시장 상태 trend-row line. `rates` is the published block; `nasdaq` the latest completed close and the
  * history's own record close (the producer runs weekly, so a newer record or a fresh 7% break comes from history).
+ * A correction stays open until the next record close: a rebound above -7% inside one is not "before a correction".
+ * `series` ([{ date, value }], the history closes) finds a break the weekly block has not seen yet.
  */
-export function correctionReading(rates, { close = null, closeDate = null, recordClose = null } = {}) {
+export function correctionReading(rates, { close = null, closeDate = null, recordClose = null, series = [] } = {}) {
   if (!rates?.n || !Number.isFinite(close)) return null;
   const high = Math.max(rates.high?.close || 0, Number.isFinite(recordClose) ? recordClose : 0);
   if (!(high > 0)) return null;
@@ -57,11 +59,20 @@ export function correctionReading(rates, { close = null, closeDate = null, recor
   const since = String(rates.from || '').slice(0, 4);
   const base = `${since}년 이후 나스닥 종합 ${rates.rule.depthPct}% 이상 조정 ${rates.n}번 중 ${rates.bear}번이 -${rates.rule.bearPct}%까지 갔습니다`;
   const fast = `${rates.rule.fastSessions}거래일 안에 -${rates.rule.depthPct}%가 된 빠른 조정은 ${rates.fastN}번 중 ${rates.fastBear}번`;
+  // The deepest close since the record: the published open episode while no newer record close exists, and any
+  // history close after the record date.
+  const published = rates.open && high <= (rates.high?.close || 0) ? rates.open.troughPct : null;
+  const peakDate = high > (rates.high?.close || 0) ? (series || []).find((point) => point.value === high)?.date : rates.high?.date;
+  const later = (series || []).filter((point) => peakDate && point.date > peakDate && Number.isFinite(point.value)).map((point) => (point.value / high - 1) * 100);
+  const trough = Math.min(depth, published ?? 0, ...later);
+  const open = trough <= -rates.rule.depthPct;
   const inCorrection = depth <= -rates.rule.depthPct;
   return {
-    depth, high, closeDate, inCorrection, n: rates.n, bear: rates.bear, fastN: rates.fastN, fastBear: rates.fastBear,
+    depth, high, closeDate, inCorrection, open, trough, n: rates.n, bear: rates.bear, fastN: rates.fastN, fastBear: rates.fastBear,
     lead: `나스닥 종합 고점 대비 ${depth.toFixed(1)}%`,
-    text: inCorrection ? `${base}. ${fast}.` : `${rates.rule.depthPct}% 조정 전입니다. ${base}.`,
+    text: inCorrection ? `${base}. ${fast}.`
+      : open ? `${rates.rule.depthPct}% 조정이 아직 끝나지 않았습니다(가장 깊은 종가 ${trough.toFixed(1)}%, 최고 종가를 넘어야 끝). ${base}. ${fast}.`
+        : `${rates.rule.depthPct}% 조정 전입니다. ${base}.`,
     definition: `정의: 직전 최고 종가보다 ${rates.rule.depthPct}% 이상 낮은 종가가 나오면 조정, 다음 최고 종가까지 한 번이라도 -${rates.rule.bearPct}%면 약세장. 판정 점수에는 넣지 않습니다.`,
   };
 }

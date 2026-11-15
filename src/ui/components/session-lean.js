@@ -118,6 +118,7 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
   const disclaimer = '시장 전체의 조건부 설명이며 개별 종목의 매수·매도 지시나 가격 예측이 아닙니다.';
   chip.title = disclaimer;
   const nodes = [head, el(doc, 'p', model.us.read, 'market-lean__read'), el(doc, 'h4', '근거', 'market-lean__sub'), items];
+  if (model.us.basis) nodes.push(el(doc, 'p', model.us.basis, 'market-lean__note'));
   if (model.us.flip) nodes.push(el(doc, 'p', `바뀌는 조건: ${model.us.flip}`, 'market-lean__note'));
   if (model.kr.available) {
     const list = el(doc, 'ul', null, 'market-lean__items');

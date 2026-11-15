@@ -105,6 +105,43 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const krw = buildKrwDecomposition(rows);
   const own = closeChange(rows, 'kospi', 20);
   if (!krw.available || !own || Math.abs(krw.kospiMove - own.pct) > 1e-9) fail(`v59.88 won decomposition KOSPI leg ${krw.kospiMove} differs from the KOSPI's own 20-session change ${own?.pct}`);
+  // A dollar part and a Korea part of opposite signs, both past the quiet line, are an offset — never 'both pushed' —
+  // and a won move inside the flat band has no side. The dollar index rises 1.6% over the last 20 sessions while the won
+  // ends 0.4% stronger.
+  const flatRows = rows.slice(0, 320).map((row) => ({ ...row }));
+  flatRows.slice(-21).forEach((row, i) => { row.dxy = flatRows.at(-21).dxy * (1 + 0.0008 * i); row.usdkrw = flatRows.at(-21).usdkrw * (1 - 0.0002 * i); });
+  const offset = buildKrwDecomposition(flatRows);
+  if (!offset.available || !(offset.dollarPart >= 1) || !(offset.koreaPart <= -1) || offset.driver !== 'offset' || /함께 움직였|같은 방향/.test(offset.why) || !/상쇄/.test(offset.why) || !/\(보합권\)/.test(offset.lead) || /원화는 강했는데/.test(offset.stocks)) {
+    fail(`v60.16 opposite-signed dollar and Korea parts read as an offset: ${JSON.stringify({ driver: offset.driver, dollar: offset.dollarPart, korea: offset.koreaPart, lead: offset.lead, why: offset.why })}`);
+  }
+}
+// Macro logic review: payroll print lines from the registry, the CCC tail on CCC's own record, and the rates fold's
+// short-end path and term-premium split.
+{
+  const { RULES } = await load('src/domain/rules/thresholds.js');
+  const { releaseZones } = await load('src/domain/macro/release-zones.js');
+  const { buildMacroChapters } = await load('src/domain/macro/macro-chapters.js');
+  const edges = releaseZones('us-nfp', null, { actuals: {}, regime: null }).bands.map((band) => band.to);
+  const P = RULES.payrollPrintK;
+  if (![P.cold, P.slow, P.hot].every((line) => edges.includes(line)) || /below: \d/.test(readFileSync(path.join(root, 'src/domain/macro/release-zones.js'), 'utf8').split('const JOB_ZONES')[1].split('const RETAIL_ZONES')[0])) {
+    fail(`v60.16 the payroll release bands read RULES.payrollPrintK, not literals of their own: ${JSON.stringify(edges)}`);
+  }
+  const days = []; for (let t = Date.UTC(2025, 5, 2); days.length < 330; t += 86400000) { const d = new Date(t); if (d.getUTCDay() % 6) days.push(d.toISOString().slice(0, 10)); }
+  const obs = (fn) => days.map((date, i) => [date, Number(fn(i).toFixed(4))]);
+  const last = days.length - 1;
+  const creditOf = (ccc) => buildMacroChapters({ macroHistory: { series: { hyOas: { observations: obs(() => 3) }, cccOas: { observations: obs(ccc) } } } }).chapters.find((row) => row.id === 'credit');
+  // CCC swinging ±100bp every 20 sessions all year: +60bp is ordinary for it. A CCC that sat still all year: +60bp is a tail.
+  const wave = (i) => { const phase = (((i - last) % 40) + 40) % 40; return 12 + (phase <= 20 ? phase : 40 - phase) * 0.05; };
+  const swinging = creditOf((i) => wave(i - 14));
+  const still = creditOf((i) => 12 + Math.max(0, i - (last - 20)) * 0.03);
+  if (!swinging || !still || /CCC 등급이/.test(swinging.mean) || !/CCC 등급이/.test(still.mean)) fail(`v60.16 the CCC tail is read against CCC's own 20-session record: ${JSON.stringify({ swinging: swinging?.now + ' / ' + swinging?.mean, still: still?.now + ' / ' + still?.mean })}`);
+  const flat = (value) => ({ observations: obs(() => value) });
+  const ratesFold = buildMacroChapters({ macroHistory: { series: { dgs10: { observations: obs((i) => 4.5 - (i > last - 20 ? (i - (last - 20)) * 0.01 : 0)) }, realYield10: flat(2), breakeven10: flat(2.3),
+    termPremium10: { observations: obs((i) => 0.9 - (i > last - 20 ? (i - (last - 20)) * 0.004 : 0)) }, dgs2: flat(4.405), dgs6mo: flat(4.105), dgs1: flat(4.205), fedTargetUpper: flat(4), fedTargetLower: flat(3.75) } } }).chapters.find((row) => row.id === 'rates');
+  const row = (label) => (ratesFold?.detail || []).find(([name]) => name.startsWith(label))?.[1] || '';
+  if (!/6개월 \+23bp · 1년 \+33bp · 2년 \+53bp — 추가 인상을 반영한 쪽/.test(row('정책금리 3.88% 대비')) || !/10년 -20bp = 기간 프리미엄 -8bp \+ 금리 경로 기대 -12bp/.test(row('10년 변화 나누기'))) {
+    fail(`v60.16 the rates fold names the short-end path against the target midpoint and splits the 10-year move by term premium: ${JSON.stringify(ratesFold?.detail)}`);
+  }
 }
 // P1358: durable derived rotation drives the native provider without exposing raw prices.
 {
@@ -526,7 +563,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
 {
   const { deriveFactorWeights } = await load('src/domain/screener/factor-weights.js');
   const neutral = deriveFactorWeights();
-  if (neutral.weights.momentum !== 0.27 || neutral.weights.lowvol !== 0.16 || neutral.regimeLabel !== '중립 → 균형 가중' || neutral.adaptiveApplied) fail(`factor-weights: neutral drifted, got ${JSON.stringify(neutral)}`);
+  if (neutral.weights.momentum !== 0.2 || neutral.weights.lowvol !== 0.2 || neutral.weights.value !== 0.2 || neutral.weights.quality !== 0.2 || neutral.weights.trend + neutral.weights.kalman !== 0.2 || neutral.regimeLabel !== '중립 → 균형 가중' || neutral.adaptiveApplied) fail(`factor-weights: neutral drifted, got ${JSON.stringify(neutral)}`);
   const defensive = deriveFactorWeights({ marketState: { riskScore: 65 } });
   if (JSON.stringify(defensive.weights) !== JSON.stringify(neutral.weights) || defensive.proposedWeights.lowvol <= neutral.weights.lowvol || defensive.proposedWeights.momentum >= neutral.weights.momentum || !defensive.regimeLabel.includes('미검증 후보') || defensive.adaptiveApplied) fail(`factor-weights: unvalidated risk-off proposal changed production weights or lost diagnostics, got ${JSON.stringify(defensive)}`);
   const promoted = deriveFactorWeights({ marketState: { riskScore: 65 }, promotion: { status: 'PROMOTED', liveBacktestParity: true, reviewApproved: true } });
@@ -548,7 +585,7 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const { deriveFactorWeights } = await load('src/domain/screener/factor-weights.js');
   const ko = deriveFactorWeights({ marketState: { riskScore: NaN, fgZone: '공포' } });
   const en = deriveFactorWeights({ marketState: { fgZone: 'extreme fear' } });
-  if (JSON.stringify(ko.proposedWeights) !== JSON.stringify(en.proposedWeights) || ko.proposedWeights.lowvol !== 0.28 || ko.weights.lowvol !== 0.16) fail('factor-weights: equivalent Korean/English regime proposals diverged or bypassed promotion');
+  if (JSON.stringify(ko.proposedWeights) !== JSON.stringify(en.proposedWeights) || ko.proposedWeights.lowvol !== 0.3 || ko.weights.lowvol !== 0.2) fail('factor-weights: equivalent Korean/English regime proposals diverged or bypassed promotion');
   for (const weights of [{ momentum: NaN }, { momentum: -1 }, { momentum: 0 }, { constructor: 1 }, { momentum: '1' }]) {
     let rejected = false;
     try { deriveFactorWeights({ profile: { weights } }); } catch (_) { rejected = true; }
@@ -1382,7 +1419,12 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   });
   if (completedCycle.analyzedCount !== 5 || completedCycle.score !== 50 || completedCycle.sourceCount !== 1 || completedCycle.sampleSufficient !== true) fail('LC-07/P1268: the displayed score/count/source projection diverged from the same completed-cycle items');
   const noEvidenceSummary = deriveNewsSummary({ items: [], now: fixedNewsNow });
-  if (noEvidenceSummary.score !== null || noEvidenceSummary.label !== '분석 보류' || computeNewsSentimentScore({ items: [], now: fixedNewsNow }).score !== 50) fail('LC-93/P1268: a producer baseline score of 50 leaked as an observed empty-sample score');
+  if (noEvidenceSummary.score !== null || noEvidenceSummary.label !== '분석 보류' || computeNewsSentimentScore({ items: [], now: fixedNewsNow }).score !== null || computeNewsSentimentScore({ items: [], now: fixedNewsNow }).sampleSufficient !== false) fail('LC-93/P1268 + v60.16: an empty sample must carry no score (a 50 baseline read as an observed neutral and marked the trading score as news-adjusted)');
+  // One net word reads alike on both sides, and plain direction words count.
+  const balancedNews = computeNewsSentimentScore({ items: newsItems([...Array.from({ length: 5 }, (_, k) => `Stocks rally on jobs data ${k}`), ...Array.from({ length: 5 }, (_, k) => `Shares hit by fear of tariffs ${k}`)]), now: fixedNewsNow });
+  if (balancedNews.score !== 50 || balancedNews.bullCount !== 5 || balancedNews.bearCount !== 5 || classifyNewsTextStance('Micron Stocks Fall 3.24% as NVIDIA Exit Tests Memory') !== 'warn'
+    || classifyNewsTextStance('연준 금리 인하 기대에 코스피 상승') !== 'bull' || classifyNewsTextStance('AMD Sinks 8.75% on Sector AI-Chip Sell-Off') !== 'bear' || classifyNewsTextStance('Fed holds rates steady') !== 'neut')
+    fail(`v60.16 headline stance must be symmetric and read direction words: ${JSON.stringify(balancedNews)}`);
   const { deriveConcentrationRisk, concentrationPenaltyForWeight } = await load('src/domain/portfolio/concentration.js');
   const concentration = deriveConcentrationRisk({ positions: [{ ticker: 'BAD', value: -100, qty: -2, price: -5 }] });
   if (concentration.totalValue < 0 || concentrationPenaltyForWeight(-10) !== 0) fail('portfolio: negative holding inputs produced risk weight');
@@ -1613,6 +1655,16 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         || account.unexplained[0]?.sym !== 'MYST' || !/동일가중/.test(account.opening) || account.ahead[0]?.label !== '고용보고서') {
         fail(`v59.65: briefing day account broke ${JSON.stringify({ oilStory, told, unexplained: account.unexplained, opening: account.opening })}`);
       }
+      // v60.16: a report posted after the move's session closed is evidence only as a recap that states the move's
+      // direction; a new story or filing after the close is not the reason for a move that was already made.
+      const late = (id, title, titleKo, at) => ({ id, kind: 'headline', title, titleKo, at, subjects: ['LT1'], rank: 'major', materiality: 40 });
+      const lateTold = buildDayAccount({ generatedAt: 'z', sessions: { us: D }, facts: [
+        { id: 's:lt1', kind: 'stock-move', subjects: ['LT1'], label: 'Late One', date: D, change: -6, rank: 'major', materiality: 50, explainedBy: ['subject'] },
+        late('h:before', 'Late One rating cut', '레이트원 투자의견 하향', `${D}T18:00:00Z`),
+        late('h:recap', 'Late One shares fall on margin miss', '레이트원, 마진 부진에 하락', `${D}T22:30:00Z`),
+        late('h:filing', 'Late One director files stock sale', '레이트원 이사, 주식 처분 신고', `${D}T21:30:00Z`),
+        late('h:night', 'Petition asks Late One board to act', '레이트원 이사회에 청원', '2026-11-03T04:00:00Z')] }).stories[0]?.evidence.map((report) => report.title) || [];
+      if (lateTold.join('|') !== '레이트원 투자의견 하향|레이트원, 마진 부진에 하락') fail(`v60.16 after-close reports: only a recap naming the direction stays: ${JSON.stringify(lateTold)}`);
       // v59.93: the equal-weight sentence follows the sign of both figures — an up day never reads "지수 하락", and a
       // rising equal-weight index never reads "덜 내렸습니다".
       const { indexLine } = await load('src/domain/briefing/day-account.js');
@@ -1679,6 +1731,19 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
           || !/지표가 더 맞는 쪽은 'aibust 제목'\(조건 충족 3\/4\)이고, 'reflation 제목'은 조건 충족 1\/4/.test(memCard?.line || '') || /맞다면/.test(memCard?.line || '')
           || !/지표로 아직 확인되지 않습니다/.test(oilCard?.line || '') || !/많이 오가는 것과 맞는 것은 다릅니다/.test(oilCard?.line || '')) {
           fail(`v59.70: narratives broke ${JSON.stringify({ memory, mem: memCard?.line, oil: oilCard?.line })}`);
+        }
+        // v60.16: a weekend is not a story cooling. Thursday and Friday carry six posts and the weekend none: read on
+        // Sunday the trend is 'closed' (the card says 주말 구간, the home line no trend); the same silence on a Thursday is fading.
+        {
+          const quiet = (nowQ) => {
+            const at = (hoursAgo) => ({ id: `q${hoursAgo}`, channel: 'c', datetime: new Date(nowQ - hoursAgo * 3600000).toISOString(), summary: 'D램 계약가 둔화', score: 1 });
+            return detectNarratives({ telegramDigest: { current24hItems: [30, 34, 38, 50, 54, 58].map(at) }, screener: { data: {} }, nowMs: nowQ });
+          };
+          const sunday = quiet(Date.parse('2026-11-15T03:00:00Z')), thursday = quiet(Date.parse('2026-11-12T12:00:00Z'));
+          const sundayCard = buildNarrativeCards({ narratives: publishedNarratives(sunday, { nowMs: nowN }), crossroads: { items: [] } }).cards[0];
+          if (sunday[0]?.trend !== 'closed' || thursday[0]?.trend !== 'fading' || !/최근 하루 0건\(주말 구간\)/.test(sundayCard?.attention || '')) {
+            fail(`v60.16: a weekend with no posts is not a fading story ${JSON.stringify({ sunday: sunday[0]?.trend, thursday: thursday[0]?.trend, card: sundayCard?.attention })}`);
+          }
         }
         // v59.74 (site QA 11/7): wire headlines are a source. A "blue wave" burst with no relayed post still forms the
         // politics story, its headline count is capped in the weight, and a headline outside the window is not counted.
@@ -1816,13 +1881,17 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         fail(`v59.70: earnings four cells broke ${JSON.stringify(four)}`);
       }
       // v59.69: release bands — with core PCE above 2.5% a 25만 jobs report is a burden (cuts wait), near target it is
-      // growth; a jobs report with unemployment up 0.2%p is 급랭 whatever the payroll; core CPI 0.33% is 끈적함.
+      // growth; core CPI 0.33% is 끈적함. v60.16: unemployment up 0.2%p is 급랭 only when payrolls are also under the
+      // slow line (the two-condition trigger of macro-crossroads); with payrolls above it the band stays and the read notes it.
       const { releaseZones } = await load('src/domain/macro/release-zones.js');
       const hot = (inflationFirst) => releaseZones('us-nfp', null, { actuals: { 'us-nfp': { period: '2026-09-01', payroll: 250, unempDelta: 0 } }, regime: { inflationFirst, corePceYoY: inflationFirst ? 3.1 : 2.1 } }).latest;
-      const sahm = releaseZones('us-nfp', null, { actuals: { 'us-nfp': { period: '2026-09-01', payroll: 120, unempDelta: 0.2 } }, regime: null }).latest;
+      const jobs = (payroll) => releaseZones('us-nfp', null, { actuals: { 'us-nfp': { period: '2026-09-01', payroll, unempDelta: 0.2 } }, regime: null }).latest;
+      const sahm = jobs(60), steady = jobs(120);
       const cpi = releaseZones('us-cpi', null, { actuals: { 'us-cpi': { period: '2026-09-01', coreMoM: 0.33 } }, regime: null }).latest;
-      if (hot(true).tone !== 'burden' || hot(false).tone !== 'good' || sahm.label !== '급랭' || cpi.label !== '끈적함') {
-        fail(`v59.69: release zones broke ${JSON.stringify({ hotFirst: hot(true), hotNear: hot(false), sahm, cpi })}`);
+      const crossroadsSource = readFileSync(new URL('../src/domain/market/regime/macro-crossroads.js', import.meta.url), 'utf8');
+      if (/payroll (?:<|>=?) (?:50|75|200)\b/.test(crossroadsSource) || !/JOB = RULES\.payrollPrintK/.test(crossroadsSource)) fail('v60.16 the payroll trigger lines come from RULES.payrollPrintK');
+      if (hot(true).tone !== 'burden' || hot(false).tone !== 'good' || sahm.label !== '급랭' || steady.label !== '완만' || !/실업률이 0\.2%p 올라/.test(steady.read) || cpi.label !== '끈적함') {
+        fail(`v59.69: release zones broke ${JSON.stringify({ hotFirst: hot(true), hotNear: hot(false), sahm, steady, cpi })}`);
       }
       // v59.67: 홈's movers — lead/major or a large index pull, ranked by rank then materiality, each symbol once.
       const { keyStocks } = await load('src/ui/components/home-day.js');
@@ -2143,7 +2212,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 {
   const { computeFactorRanks } = await load('src/domain/screener/factor-ranks.js');
   const baseRow = (sym, sector, seed, includeKalman = true) => ({
-    sym, sector, ret1m: seed, ret3m: seed * 0.8, ret6m: seed * 0.5, pctSma50: seed, pctSma200: seed * 0.6, vol: 20 - seed,
+    sym, sector, ret1m: seed, ret3m: seed * 0.8, ret6m: seed * 0.5, ret12m: seed * 3, pctSma50: seed, pctSma200: seed * 0.6, vol: 20 - seed,
     observedAt: '1970-01-01T00:00:00.000Z', factorObservedAt: '1970-01-01T00:00:00.000Z', factorSourceKind: 'T3_PUBLIC_DELAYED', factorAllowedUse: 'research-relative-ranking-only', factorQuality: { status: 'CURRENT', stale: false },
     ...(includeKalman ? { kalmanVelConf: seed / 10 } : {})
   });
@@ -2847,6 +2916,35 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const failed = series.slice(0, -25);
   for (let i = 1; i <= 25; i += 1) failed.push(160 - i * 1.2);
   if (ft.baseCount(failed)?.count !== 0) fail(`v57.88 a close below the last completed base low must restart the base count, got ${JSON.stringify(ft.baseCount(failed))}`);
+  // The count starts at the first close given, so without a restart after a full 52-week window it is a floor: the
+  // same last 245 closes read 2 bases with history and 1 without, and only the first says which it is.
+  const restarted = [...Array.from({ length: 260 }, (_, i) => 200 - i * 0.5), ...series];
+  if (base.lowerBound !== true || ft.baseCount(restarted)?.lowerBound !== false || ft.baseCount(restarted).count !== 2) fail(`v60.16 a base count with no restart inside the series is a lower bound, got ${JSON.stringify([base, ft.baseCount(restarted)])}`);
+  if (conditions.evaluateCondition({ id: 'early-base', value: 2 }, { baseCount: 2, baseCountLowerBound: true }, (row, key) => row[key] ?? null) !== false
+    || conditions.evaluateCondition({ id: 'early-base', value: 2 }, { baseCount: 2, baseCountLowerBound: false }, (row, key) => row[key] ?? null) !== true) fail('v60.16 a lower-bound base count cannot pass 초기 베이스');
+  if (!/베이스 2번째 이상/.test(presentation.followThroughSummary({ baseCount: 2, baseCountLowerBound: true }).text)) fail('v60.16 a lower-bound base count reads N번째 이상');
+  // Pocket pivot: the up day must close above its 10- or 50-day line. A heavy-volume bounce inside a downtrend is not one.
+  const slide = Array.from({ length: 80 }, (_, i) => 200 - i * 1.5);
+  const slideVol = Array.from({ length: 80 }, () => 100);
+  slide[79] = slide[78] + 0.5; slideVol[79] = 500;
+  const climb = Array.from({ length: 80 }, (_, i) => 100 + i + (i % 3 === 0 ? -1.5 : 0));
+  const climbVol = Array.from({ length: 80 }, () => 100); climbVol[79] = 500; climb[79] = climb[78] + 2;
+  if (ft.pocketPivotAgo(slide, slideVol).count !== 0 || ft.pocketPivotAgo(climb, climbVol).ago !== 0) fail(`v60.16 a pocket pivot needs a close above the 10- or 50-day line, got ${JSON.stringify([ft.pocketPivotAgo(slide, slideVol), ft.pocketPivotAgo(climb, climbVol)])}`);
+  {
+    // Price levels read raw closes: a stock 2% under its raw closing high is not a 52-week high because dividends
+    // lowered the adjusted history. Returns stay on adjusted closes.
+    const pf = await import('../src/domain/screener/price-factors.js');
+    const n = 260;
+    const raw = Array.from({ length: n }, (_, i) => (i === 100 ? 102 : 100));
+    const adjusted = raw.map((value, i) => value * (0.9 + 0.1 * i / (n - 1)));
+    const history = { sym: 'DIV', closes: raw, adjCloses: adjusted, highs: raw.map((v) => v + 1), lows: raw.map((v) => v - 1), volumes: raw.map(() => 1000),
+      dates: raw.map((_, i) => new Date(Date.UTC(2025, 0, 1 + i)).toISOString().slice(0, 10)), adjustedCloseStatus: 'complete', observedAt: '2025-09-17T13:30:00.000Z', nullCloseDates: [] };
+    const levelRow = pf.priceFactorRow(history, { computedAt: '2025-09-18T00:00:00.000Z' });
+    if (levelRow.pctFromCloseHigh52w !== -1.96 || !(pf.closesToFactors(adjusted).pctFromCloseHigh52w === 0) || !(levelRow.ret12m > 5)) fail(`v60.16 52-week closing high and average distances read raw closes while returns stay adjusted, got ${JSON.stringify([levelRow.pctFromCloseHigh52w, levelRow.ret12m])}`);
+    if (levelRow.breakoutAgo !== pf.BREAKOUT_SCAN_SESSIONS || pf.breakoutAgoOf(raw.slice(0, 40), raw, raw, raw) !== null) fail('v60.16 breakoutAgo is the scan length when no breakout day was found and null when the pattern cannot be computed');
+    const kr = pf.priceFactorRow({ ...history, sym: '005930.KS' }, { computedAt: '2025-09-18T00:00:00.000Z', benchmarks: new Map([['kr', { symbol: '^KS11', closeByDate: new Map(history.dates.map((date, i) => [date, 2000 + i])) }]]) });
+    if (kr.benchmarkSymbol !== '^KS11' || kr.benchmarkRet !== Number(((2259 / 2196 - 1) * 100).toFixed(2)) || levelRow.benchmarkRet !== undefined) fail(`v60.16 a Korean row carries its index's return over the same 3-month dates, got ${JSON.stringify([kr.benchmarkSymbol, kr.benchmarkRet])}`);
+  }
   // Climax: a run from 50 with nine up closes in the last ten and the year's largest gain at the end.
   const run = Array.from({ length: 250 }, (_, i) => 50 + i * 0.25);
   run[249] = run[248] * 1.08;
@@ -4445,6 +4543,84 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!p1258Ok || !p1258Holds || !p1258Over) {
     fail(`P1258 the assembled risk input must qualify, hold with codes, and refuse over-allocation, got ${JSON.stringify({ ok: { ok: p1258Happy.ok, minLen: p1258Happy.minLen, snap: p1258Happy.snapshot?.status, estimate: p1258Happy.estimate?.status, path: p1258Happy.exposurePath, weights: p1258Happy.strategyTargetWeights, replay: p1258Replay.snapshot?.compositionSnapshotId === p1258Happy.snapshot?.compositionSnapshotId }, missing: p1258Missing, noValue: p1258NoValue.code, short: p1258ShortGrid.code, over: p1258OverWeight.strategyTargetWeights })}`);
   }
+  // v60.16: a weight needs today's value, not a live tick. A holding without a decision-grade quote takes the value the
+  // valuation screen shows (completed close or delayed quote, in the surface's currency); a stored price still holds.
+  const closeSurface = (kind) => ({ currencyState: 'declared-single', baseCurrency: 'USD', rows: [
+    { symbol: 'AAA', value: 400, sourceKind: 'completed-close', closeDate: '2026-09-23' }, { symbol: 'AAA', value: 600, sourceKind: 'completed-close', closeDate: '2026-09-24' },
+    { symbol: 'BBB', value: 1000, sourceKind: kind, observedAt: '2026-09-24T06:30:00Z' }] });
+  const noLive = { ...p1258Input, positions: [{ ticker: 'AAA', qty: 4 }, { ticker: 'AAA', qty: 6 }, { ticker: 'BBB', qty: 5 }], priceEvidenceMap: {} };
+  const closeValued = assembleRiskEstimateInput({ ...noLive, surface: closeSurface('delayed-reference-quote') });
+  const storedPrice = assembleRiskEstimateInput({ ...noLive, surface: closeSurface('portfolio-state') });
+  const liveWins = assembleRiskEstimateInput({ ...p1258Input, surface: closeSurface('completed-close') });
+  const closeMembers = closeValued.snapshot?.members || [];
+  if (closeValued.ok !== true || closeValued.estimate?.status !== 'ready' || Math.abs(closeMembers.filter((m) => m.ticker === 'AAA').reduce((sum, m) => sum + m.resolvedWeight, 0) - 0.5) > 1e-12
+    || closeMembers.find((m) => m.ticker === 'BBB')?.priceSource !== 'delayed-reference-quote' || closeValued.referenceValued?.count !== 2 || closeValued.referenceValued?.date !== '2026-09-23'
+    || storedPrice.ok !== false || storedPrice.code !== 'missing-current' || storedPrice.tickers.join() !== 'BBB'
+    || liveWins.referenceValued !== null || liveWins.snapshot?.compositionSnapshotId !== p1258Happy.snapshot?.compositionSnapshotId) {
+    fail(`v60.16 risk weights must come from the valuation screen's close when no live quote exists, got ${JSON.stringify({ ok: closeValued.ok, code: closeValued.code, ref: closeValued.referenceValued, weights: closeMembers.map((m) => [m.ticker, m.resolvedWeight, m.priceSource]), stored: storedPrice.code, live: liveWins.referenceValued })}`);
+  }
+  // v60.16: the risk read-out. A Korea+US book is measured on non-overlapping 5-session returns; CVaR is never below
+  // VaR; risk contributions sum to 100%; a shifted (non-synchronous) pair reads its real co-movement on the 5-session basis.
+  const { buildRiskReadout, blockReturns, riskContributions } = await load('src/domain/portfolio/risk-readout.js');
+  const { _calcSharpe } = await load('src/domain/portfolio/return-stats.js');
+  let seed = 7; const rand = () => { seed = (seed * 48271) % 2147483647; return seed / 2147483647 - 0.5; };
+  const usDaily = Array.from({ length: 250 }, () => rand() * 0.04);
+  const krDaily = usDaily.map((_, i) => (i ? usDaily[i - 1] : 0) + rand() * 0.004); // the Korean close follows the previous US session
+  const bookDaily = usDaily.map((value, i) => 0.5 * value + 0.5 * krDaily[i]);
+  const members = (us, kr) => ({ members: [{ ticker: us, marketValue: 50 }, { ticker: kr, marketValue: 50 }] });
+  const mixedRead = buildRiskReadout({ estimate: { publishedReturns: bookDaily }, snapshot: members('SPY', '069500.KS'), returnsMap: { SPY: usDaily, '069500.KS': krDaily }, rfAnnual: 0.03 });
+  const sameRead = buildRiskReadout({ estimate: { publishedReturns: bookDaily }, snapshot: members('SPY', 'QQQ'), returnsMap: { SPY: usDaily, QQQ: krDaily }, rfAnnual: 0.03 });
+  const blocks = blockReturns([0.1, 0.1, -0.5, 0.2, 0.1], 2);
+  const shares = riskContributions([{ ticker: 'A', weight: 0.5 }, { ticker: 'B', weight: 0.5 }], { A: [0.02, -0.02, 0.02, -0.02], B: [0.01, -0.01, 0.01, -0.01] });
+  if (mixedRead.sessions !== 5 || mixedRead.n !== 50 || mixedRead.dailyN !== 250 || sameRead.sessions !== 1 || sameRead.n !== 250
+    || !(Math.abs(sameRead.corr.matrix[0][1]) < 0.25) || !(mixedRead.corr.matrix[0][1] > 0.6)
+    || !(mixedRead.cvar95 >= mixedRead.var95) || !(sameRead.cvar95 >= sameRead.var95)
+    || Math.abs(mixedRead.contributions.reduce((sum, row) => sum + row.contributionPct, 0) - 100) > 1e-9
+    || Math.abs(mixedRead.sharpe - _calcSharpe(blockReturns(bookDaily, 5), 0.03, 252 / 5)) > 1e-12 || Math.abs(sameRead.sharpe - _calcSharpe(bookDaily, 0.03)) > 1e-12
+    || blocks.length !== 2 || Math.abs(blocks[0] - (1.1 * 0.5 - 1)) > 1e-12 || Math.abs(blocks[1] - (1.2 * 1.1 - 1)) > 1e-12
+    || Math.abs(shares[0].contributionPct - 200 / 3) > 1e-9 || shares[0].ticker !== 'A') {
+    fail(`v60.16 the risk read-out must measure a Korea+US book on 5-session returns with CVaR and contributions, got ${JSON.stringify({ mixed: [mixedRead.sessions, mixedRead.n, mixedRead.corr?.matrix[0][1], mixedRead.var95, mixedRead.cvar95], same: [sameRead.sessions, sameRead.n, sameRead.corr?.matrix[0][1]], blocks, shares })}`);
+  }
+  // v60.16: 실질 분산 is the book's own concentration (effective number of holdings); the bond test is its own line,
+  // 채권 완충, and a book without bonds is not judged on it. A 30-stock equal-weight book used to read 기준 밖.
+  const { portfolioCriteria } = await load('src/ui/components/portfolio-checklist.js');
+  const criteria = (rows, types) => {
+    const model = portfolioCriteria({ surface: { rows, currencyState: 'declared-single', baseCurrency: 'USD' }, root: {}, checks: { breakdowns: { types }, checks: [] } });
+    return Object.fromEntries(model.items.map((item) => [item.id, item]));
+  };
+  const even = criteria(Array.from({ length: 30 }, (_, i) => ({ symbol: `S${i}`, value: 100, sector: 'Technology' })), [{ name: '개별 주식', value: 3000 }]);
+  const lumped = criteria([{ symbol: 'AAA', value: 900, sector: 'Technology' }, { symbol: 'BBB', value: 100, sector: 'Energy' }], [{ name: '개별 주식', value: 1000 }]);
+  const fund = criteria([{ symbol: 'QQQ', value: 900, sector: 'ETF' }, { symbol: 'BBB', value: 100, sector: 'Energy' }], [{ name: 'ETF', value: 900 }, { name: '개별 주식', value: 100 }]);
+  if (even.spread?.ok !== true || even.cushion?.ok !== null || even.cushion?.held !== '채권 없음' || even.cushion?.label !== '채권 완충' || lumped.spread?.ok !== false || fund.spread?.ok !== null || fund.spread?.held !== 'ETF 구성 미확인') {
+    fail(`v60.16 실질 분산 must read the book's concentration and leave a bond-less book unjudged on 채권 완충, got ${JSON.stringify({ even: [even.spread?.ok, even.cushion?.ok, even.cushion?.held], lumped: lumped.spread?.ok, fund: [fund.spread?.ok, fund.spread?.held] })}`);
+  }
+  // v60.16: the backtest lab's start. The December before the start year is the base month (the start year has twelve
+  // months); the start weights use the traded close and the USD/KRW month-end of that month, not today's declared rate.
+  const { buildPortfolioBacktestLab } = await load('src/domain/portfolio/backtest.js');
+  const monthly = (growth, rawFactor = 1) => {
+    const timestamps = []; const adjustedCloses = []; const closes = []; let value = 100;
+    for (let y = 2019; y <= 2026; y++) for (let mo = 0; mo < 12 && !(y === 2026 && mo > 9); mo++) { timestamps.push(Date.UTC(y, mo + 1, 0, 21) / 1000); value *= 1 + growth(mo); adjustedCloses.push(value); closes.push(value * rawFactor); }
+    return { timestamps, adjustedCloses, closes, backtestEligible: true, backtestPriceBasis: 'adjusted-close' };
+  };
+  const labPrices = { AAA: monthly((mo) => (mo % 2 ? 0.03 : -0.01), 2), BBB: monthly(() => 0.005), SPY: monthly((mo) => (mo % 3 ? 0.02 : -0.02)) };
+  const labAt = { startYear: 2020, rebalanceType: 'annual', asOfMs: Date.UTC(2026, 10, 14) };
+  const labRun = buildPortfolioBacktestLab(labPrices, [{ ticker: 'AAA', qty: 1 }, { ticker: 'BBB', qty: 1 }], labAt);
+  const decAdj = (ticker) => labPrices[ticker].adjustedCloses[11];
+  const rawWeight = 2 * decAdj('AAA') / (2 * decAdj('AAA') + decAdj('BBB'));
+  const fxAtStart = { usdkrw: Object.fromEntries(labPrices.AAA.timestamps.map((ts, i) => [new Date(ts * 1000).toISOString().slice(0, 10), i === 11 ? 1000 : 1500])) };
+  const krwLab = { ...labAt, baseCurrency: 'KRW', fxLegs: [{ from: 'USD', to: 'KRW', rate: 1500, observedAt: '2026-11-13T00:00:00Z', source: 'fixture' }] };
+  const krwPositions = [{ ticker: 'AAA', qty: 1, currency: 'USD' }, { ticker: 'BBB', qty: 1000, currency: 'KRW' }];
+  const withSeries = buildPortfolioBacktestLab(labPrices, krwPositions, { ...krwLab, fxSeries: fxAtStart });
+  const withoutSeries = buildPortfolioBacktestLab(labPrices, krwPositions, krwLab);
+  const startFxWeight = (rate) => 2 * decAdj('AAA') * rate / (2 * decAdj('AAA') * rate + 1000 * decAdj('BBB'));
+  if (labRun.ok !== true || labRun.settings.startMonth !== '2019-12' || labRun.annualRows[0].label !== '2020' || labRun.annualRows[0].months !== 12
+    || labRun.settings.startWeightPriceBasis !== 'raw-close' || Math.abs(labRun.weights.AAA - rawWeight) > 1e-12
+    || labRun.settings.turnoverMeasured !== true || labRun.settings.turnoverCosted !== false || !labRun.promotionBlockers.includes('turnover-measured-not-costed')
+    || !labRun.warnings.some((line) => line.includes('첫 달(2019-12)부터')) || labRun.warnings.some((line) => line.includes('상장일 이후부터'))
+    || withSeries.currencyAxis?.compositionFx?.basis !== 'start-month-end-series' || Math.abs(withSeries.weights.AAA - startFxWeight(1000)) > 1e-12
+    || withoutSeries.currencyAxis?.compositionFx?.basis !== 'declared-rate-as-of-run' || Math.abs(withoutSeries.weights.AAA - startFxWeight(1500)) > 1e-12 || !withoutSeries.warnings.some((line) => line.includes('지금 선언된 환율로 환산'))) {
+    fail(`v60.16 the backtest lab must start on the prior December with traded-close, start-month-FX weights, got ${JSON.stringify({ start: labRun.settings?.startMonth, first: labRun.annualRows?.[0]?.label, basis: labRun.settings?.startWeightPriceBasis, weight: labRun.weights?.AAA, fx: [withSeries.currencyAxis?.compositionFx, withSeries.weights?.AAA, withoutSeries.currencyAxis?.compositionFx, withoutSeries.weights?.AAA] })}`);
+  }
 }
 // ── P1192 — 완료 컷 행의 previous-completed-close 경계 ──────────────────────────────────────
 // 행의 완료 컷을 넘는 스탬프는 그 행에 실릴 수 없다(P1095). 값은 실제 확정 종가이므로 버리지 않고
@@ -4644,6 +4820,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (ids.some((id) => ['real-yield-led', 'breakeven-led', 'bear-steepening', 'bear-flattening', 'bull-steepening', 'bull-flattening'].includes(id))) fail('P1390 rate decomposition must stay silent without FRED inputs');
   const decomposed = buildMarketRead({ history: rows, credit: { hyBp: 308, hyAsOf: last, fg: 28, fgAsOf: last }, rates: { asOf: last, realYield10Delta5: 0.14, breakeven10Delta5: 0.03, dgs2Delta5: -0.02, dgs10Delta5: 0.17 } }).statements.map((row) => row.id);
   if (!decomposed.includes('real-yield-led') || !decomposed.includes('bear-steepening')) fail(`P1390 rate decomposition rules did not fire: ${decomposed}`);
+  // v60.16: the real/breakeven split ends on the FRED date; a day behind the 10-year quote, the sentence names its own window.
+  const splitText = (asOf) => buildMarketRead({ history: rows, credit: { hyBp: 308, hyAsOf: last, fg: 28, fgAsOf: last }, rates: { asOf, realYield10Delta5: 0.14, breakeven10Delta5: 0.03 } }).statements.find((row) => row.id === 'real-yield-led')?.text || '';
+  const priorSession = buildCloseSeries(rows, 'tnx').at(-2).date;
+  const dated = (date) => `10년물 ${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}까지 5거래일 변화 중`;
+  if (!splitText(last).startsWith(dated(last)) || !splitText(priorSession).startsWith(dated(priorSession))) fail(`v60.16 a split a session behind names its window: ${splitText(last)} | ${splitText(priorSession)}`);
   const texts = [read.headline, ...read.points.map((row) => row.text), ...read.drivers.flatMap((row) => row.reads.map((statement) => statement.text))];
   if (!read.headline || new Set(texts).size !== texts.length) fail('P1389 a statement must appear once on the page');
   // v57.77: a driver card for an asset the move chart draws carries only its level; the archived fact keeps the moves.
@@ -4741,17 +4922,50 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // that ticker in the app's sentence (channel-lines.js), never the post's text, and a post without one is passed over.
 {
   const { headlineForCompany, companyMatcher, pickImportantNews } = await load('src/domain/briefing/news-picks.js');
-  const window = { start: Date.parse('2026-10-23T00:00:00Z'), end: Date.parse('2026-10-24T12:00:00Z') };
+  const session = '2026-10-23';
   const at = '2026-10-23T15:00:00Z';
   const news = [{ title: 'Stocks slide as oil jumps', pubDate: at }, { title: 'Credo Technology shares sink after guidance cut', pubDate: at, source: 'Reuters' }, { title: 'Now is the time for AI', pubDate: at }];
-  const credo = headlineForCompany({ symbol: 'CRDO', name: 'Credo Technology Group' }, { news, span: window });
+  const credo = headlineForCompany({ symbol: 'CRDO', name: 'Credo Technology Group' }, { news, session });
   const telegram = [{ id: 'x/1', datetime: at, tickers: ['WDC'], summary: '프리마켓 동향 • SBAC (+9.3%) 상회 • Western Digital 목표주가 하향', url: 'https://t.me/x/1', channel: 'x' }];
   const signals = [{ kind: 'pt', post: 'x/1', ticker: 'WDC', broker: 'BofA', ptFrom: 120, ptTo: 100, currency: 'USD', direction: 'cut', date: '2026-10-23' }];
-  const wdc = headlineForCompany({ symbol: 'WDC', name: 'Western Digital' }, { news, telegram, signals, span: window });
-  if (headlineForCompany({ symbol: 'WDC', name: 'Western Digital' }, { news, telegram, span: window })) fail('v59.55 a channel post without an extracted fact must not show');
-  if (credo?.row?.source !== 'Reuters' || headlineForCompany({ symbol: 'NOW', name: 'ServiceNow' }, { news, span: window }) || wdc?.text !== 'BofA, WDC 목표주가 $120 → $100 하향'
+  const wdc = headlineForCompany({ symbol: 'WDC', name: 'Western Digital' }, { news, telegram, signals, session });
+  if (headlineForCompany({ symbol: 'WDC', name: 'Western Digital' }, { news, telegram, session })) fail('v59.55 a channel post without an extracted fact must not show');
+  if (credo?.row?.source !== 'Reuters' || headlineForCompany({ symbol: 'NOW', name: 'ServiceNow' }, { news, session }) || wdc?.text !== 'BofA, WDC 목표주가 $120 → $100 하향'
     || companyMatcher('AI', '')?.test('AI stocks') || pickImportantNews([{ topic: 'macro', score: 60 }, { topic: 'macro', score: 70 }, { topic: 'geo', score: 55 }, { topic: 'semi', score: 40 }], 3).length !== 2)
     fail(`v58.75 move headlines must match the company exactly: ${JSON.stringify({ credo: credo?.row?.title, wdc: wdc?.text })}`);
+  // A session's move is explained by what was reported before that market closed; the next morning's headline is not it.
+  const { sessionNewsWindow } = await load('src/domain/briefing/news-picks.js');
+  const nvda = [{ title: 'Nvidia shares slip as chip stocks retreat', pubDate: '2026-11-12T18:00:00Z' }, { title: 'Nvidia beats estimates, raises guidance after the bell', pubDate: '2026-11-12T21:25:00Z' },
+    { title: 'Nvidia jumps premarket on blowout forecast', pubDate: '2026-11-13T11:30:00Z' }];
+  const pick = (move, list = nvda) => headlineForCompany({ symbol: 'NVDA', name: 'NVIDIA', move }, { news: list, session: '2026-11-12' })?.row?.title || null;
+  const us = sessionNewsWindow('2026-11-12', 'US'), kr = sessionNewsWindow('2026-11-12', 'KR'), friday = sessionNewsWindow('2026-11-13', 'US');
+  if (pick(-2.1) !== nvda[0].title || pick(-2.1, nvda.slice(1)) !== null || pick(3, nvda.slice(1)) !== nvda[2].title || pick(null, nvda.slice(1)) !== null
+    || pick(-2, [{ title: 'Nvidia Moves Higher on AI demand', pubDate: '2026-11-12T15:00:00Z' }]) !== null
+    || new Date(us.start).toISOString() !== '2026-11-11T21:00:00.000Z' || new Date(us.end).toISOString() !== '2026-11-13T14:30:00.000Z'
+    || new Date(kr.start).toISOString() !== '2026-11-11T06:30:00.000Z' || new Date(friday.end).toISOString() !== '2026-11-16T14:30:00.000Z')
+    fail(`v60.16 a mover's headline must come from before that market's close (earliest first), or be an after-close recap that states the move's direction: ${JSON.stringify([pick(-2.1), pick(-2.1, nvda.slice(1)), pick(3, nvda.slice(1)), us, kr])}`);
+  // One issuer rule: any letter case, the Korean name, a cue for a legal name cut to one word; never a substring.
+  const named = (sym, name, text, aliases = []) => companyMatcher(sym, name, { aliases }).test(text);
+  if (!named('NVDA', 'NVIDIA', 'Gold falls as Nvidia slides') || !named('NVDA', 'NVIDIA', '뉴욕증시 혼조…엔비디아 2%↓') || !named('MU', 'Micron Technology', 'Micron, Other Memory Chip Stocks Fall')
+    || named('MU', 'Micron Technology', 'A micron-scale sensor') || named('AAPL', 'Apple', '애플라이드 머티리얼즈 주가 하락') || !named('AAPL', 'Apple', '애플, 신제품 공개')
+    || named('META', 'Meta Platforms', '메타버스 열풍') || named('META', 'Meta Platforms', 'A meta analysis of rates') || named('V', 'Visa', 'New visa rules for workers')
+    || !named('005930.KS', 'Samsung Electronics', '삼성전자가 3% 올랐다', ['삼성전자']) || companyMatcher('', '') !== null)
+    fail('v60.16 the mover matcher must follow the news issuer rule (letter case, Korean name, corporate cue), not a case-sensitive pattern');
+  // v60.16: the article reading (alias map) and the chat's stock-news filter read names by the same rule. A name is a
+  // whole word with a particle or a source suffix, never a substring; a Latin alias is a proper noun; a symbol that is
+  // also a glossed word is not read from "인공지능(AI)".
+  const { articleTickers } = await load('src/domain/news/article-tickers.js');
+  const lists = { knownTickers: new Set(['NVDA', 'V']), nameMap: { 카카오: '035720.KS', 삼성전자: '005930.KS', 테슬라: 'TSLA', visa: 'V', 엔비디아: 'NVDA', 델: 'DELL' } };
+  const read = (title) => articleTickers({ title }, lists).join();
+  const chat = (sym, name, aliases, text) => companyMatcher(sym, name, { aliases })?.test(text) === true;
+  const readings = [read('카카오뱅크 상장 첫날 급등'), read('삼성전자우 배당 확대'), read('테슬라이트 조명 신제품'), read('New visa rules for workers'),
+    read('엔비디아에 집중된 관심'), read('엔비디아발 충격'), read('Nvidia는 실적 발표, 엔비디아부터 본다'), read('델이 서버 신제품을 발표')];
+  if (readings.join('|') !== '||||NVDA|NVDA|NVDA|DELL'
+    || chat('DE', 'Deere', ['디어', 'deere'], '미디어텍 10월 매출 최고치') || chat('NVMI', 'Nova', ['노바'], 'GE 버노바 수주잔고 증가') || chat('AI', 'C3.ai', [], '인공지능(AI) 칩 시장')
+    || !chat('AI', 'C3.ai', [], 'C3.ai (AI) shares jump') || !chat('AMD', 'AMD', ['amd', 'advanced micro'], 'AMD는 애프터마켓 4% 상승') || !chat('GOOGL', 'Alphabet', ['알파벳', 'google'], 'Anthropic과 Google의 대조')
+    || chat('GOOGL', 'Alphabet', ['google'], 'how to google a ticker') || !chat('000660.KS', 'SK hynix', ['SK하이닉스'], 'SK하이닉스에 대한 기관 보유 현황') || !chat('TSM', 'Taiwan Semiconductor', ['tsmc'], 'TSMC가 DRAM 시장에 진출')
+    || !/_aioCompanyMatcher\(sym, enName, names\)/.test(readFileSync(path.join(root, 'js/aio-chat.js'), 'utf8')) || /koreanAliasIn/.test(readFileSync(path.join(root, 'src/domain/news/article-tickers.js'), 'utf8')))
+    fail(`v60.16 the article alias map and the chat stock-news filter must read names by the shared issuer rule: ${JSON.stringify(readings)}`);
 }
 // v58.75 ('고르는 법' E): the event chain names a live branch only from the headline's words; today's checks read the flip,
 // the 36-hour schedule and the lead's next trigger; the earnings week ranks by market value and keeps watched names; a
@@ -5204,7 +5418,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   // The canonical renormalization over the backtest's computable factors is pinned so a second
   // weights vector cannot drift in silently (the 37.0/27.4/21.9/13.7 vs 39.0/28.0/22.0/11.0 split).
   const renormed = renormalizedWeightsOver(MODEL_DEFAULT_WEIGHTS);
-  if (JSON.stringify(renormed) !== JSON.stringify({ momentum: 0.3699, trend: 0.274, lowvol: 0.2192, kalman: 0.137 })) {
+  if (JSON.stringify(renormed) !== JSON.stringify({ momentum: 0.3333, trend: 0.1667, lowvol: 0.3333, kalman: 0.1667 })) {
     fail(`P1449 the model-default renormalization shifted: ${JSON.stringify(renormed)}`);
   }
   const live = buildScreenerModelFingerprint();
@@ -5482,6 +5696,8 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (!/평소 관계/.test(goldRead({ pct: -4 }, { bp: 20 }, { pct: 0 }))) fail('v59.74 gold down with a 20bp real-yield rise is the usual relation');
   if (!/달러/.test(goldRead({ pct: 3 }, { bp: 2 }, { pct: -2 }))) fail('v59.74 a gold rise with a 2% weaker dollar names the dollar');
   if (!/크게 움직이지 않았습니다/.test(goldRead({ pct: 1 }, { bp: -30 }, { pct: 0 }))) fail('v59.74 a gold move under 2% is not read against rates');
+  const goldBig = goldRead({ pct: -7.1 }, { bp: 8 }, { pct: 1.5 });
+  if (!/평소 관계/.test(goldBig) || !/설명되는 크기를 넘어/.test(goldBig) || /설명되는 크기를 넘어/.test(goldRead({ pct: -4 }, { bp: 20 }, { pct: 0 }))) fail(`v60.16 gold -7.1% beside a +1.5% dollar fits in direction but not in size: ${goldBig}`);
   const { volatilityChapter } = await load('src/domain/macro/volatility.js');
   const days = Array.from({ length: 200 }, (_, i) => new Date(Date.UTC(2026, 0, 1 + i)).toISOString().slice(0, 10)).filter((d) => ![0, 6].includes(new Date(`${d}T12:00:00Z`).getUTCDay()));
   const rows = days.map((date, i) => ({ date, spx: 6000 + i, vix: i === days.length - 1 ? 30 : 15 + (i % 5), vix3m: i === days.length - 1 ? 27 : 18, vvix: 90 + (i % 10), move: i === days.length - 1 ? 140 : 80 + (i % 10) }));
@@ -5940,7 +6156,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     ['closesToFactors', factorsLib.closesToFactors, pf.closesToFactors], ['_calcVCPServer', factorsLib._calcVCPServer, pf._calcVCPServer], ['round', producerMath.round, pf.round],
     ['normalizeSecCompanyFacts', secProducer.normalizeSecCompanyFacts, secNorm.normalizeSecCompanyFacts]]) if (!a || a !== b) fail(`v57.81 producer ${label} must be the shared src function`);
   const producerText = readProducerSource(); // 2026-10-19: the screener lane lives in scripts/producer/screener.mjs
-  for (const call of ['dailyRowsFromYahooChart(res', 'priceHistoryFromRows(sym, fetched', 'priceFactorRow(r, { computedAt, fxSeries, indexReturns })', 'secFundamentalRowFields(row,']) if (!producerText.includes(call)) fail(`v57.81 the producer must build rows through ${call}`);
+  for (const call of ['dailyRowsFromYahooChart(res', 'priceHistoryFromRows(sym, fetched', 'priceFactorRow(r, { computedAt, fxSeries, indexReturns, benchmarks })', 'secFundamentalRowFields(row,']) if (!producerText.includes(call)) fail(`v57.81 the producer must build rows through ${call}`);
   const nowMs = Date.parse('2026-10-15T12:00:00Z');
   const computedAt = new Date(nowMs).toISOString();
   // The on-demand raw row equals the producer path run on the same chart.
@@ -6054,6 +6270,13 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (policyNode.dir !== 'up' || Math.abs(policyAxis.detail.pricing - 0.25) > 1e-9) fail(`macro audit 2026-10-17 the chain's policy node reads the same range midpoint as the policy axis: ${JSON.stringify({ policyNode, pricing: policyAxis.detail.pricing })}`);
   const belowTarget = mr.buildMacroRead({ macro: { corePce: 1.8 } }).axes.find((row) => row.id === 'inflation');
   if (/목표보다 높지만/.test(belowTarget.read)) fail(`macro audit 2026-10-17 core PCE under 2% is not read as above target: ${belowTarget.read}`);
+  // The sentence of a level-fired axis names the line the rule compares against, with the rule's own comparison (at or above).
+  const { RULES: levelRules } = await load('src/domain/rules/thresholds.js');
+  const realTight = mr.buildMacroRead({ macro: { fedTargetUpper: 5.25, fedTargetLower: 5.0, dgs2: 5.1, corePce: 3.0 } }).axes.find((row) => row.id === 'policy');
+  const atLevel = mr.buildMacroRead({ macro: { corePce: 3.12 } }).axes.find((row) => row.id === 'inflation');
+  if (realTight.state !== 'burden' || !realTight.read.includes(`긴축 기준(${levelRules.policy.restrictiveRealPct}%) 이상`) || /훨씬/.test(realTight.read)
+    || atLevel.state !== 'burden' || !/3\.1%\) 이상/.test(atLevel.read) || /넘었/.test(atLevel.read))
+    fail(`v60.16 a level-fired policy or inflation axis states the rule's line and comparison: ${JSON.stringify({ policy: realTight.read, inflation: atLevel.read })}`);
   const an = await load('src/domain/scenarios/analogs.js');
   const analogRows = Array.from({ length: 200 }, (_, i) => ({ date: `r${String(i).padStart(3, '0')}`, spx: 100 + i, ...(i >= 100 ? { wti: 50 } : {}) }));
   const analogFreq = an.analogOutcome(analogRows, an.BRANCH_ANALOGS.oilshock);
@@ -6255,10 +6478,11 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const { buildPortfolioBacktestLab } = await load('src/domain/portfolio/backtest.js');
   const keys = Array.from({ length: 15 }, (_, i) => `${2024 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`);
   const series = (values) => ({ timestamps: keys.map((k) => `${k}-28T00:00:00Z`), adjustedCloses: values, backtestEligible: true, backtestPriceBasis: 'adjusted-close' });
-  const krw = keys.map((_, i) => (i >= 2 ? 270000 : 135000)); // flat, then +100% in the second month
+  // 120,000 won is $100 at the start month's 1,200 — start weights convert at the start-month rate — so the book starts 50/50.
+  const krw = keys.map((_, i) => (i >= 2 ? 240000 : 120000)); // flat, then +100% in the second month
   const map = { AAA: series(krw), BBB: series(keys.map(() => 100)), SPY: series(keys.map(() => 100)) };
   const fx = { timestamps: keys.map((k) => `${k}-28T00:00:00Z`), closes: keys.map((_, i) => (i >= 1 ? 1320 : 1200)) };
-  const positions = [{ ticker: 'AAA', qty: 1, cost: 135000, currency: 'KRW', costCurrency: 'KRW' }, { ticker: 'BBB', qty: 1, cost: 100, currency: 'USD', costCurrency: 'USD' }];
+  const positions = [{ ticker: 'AAA', qty: 1, cost: 120000, currency: 'KRW', costCurrency: 'KRW' }, { ticker: 'BBB', qty: 1, cost: 100, currency: 'USD', costCurrency: 'USD' }];
   const opts = { baseCurrency: 'USD', rebalanceType: 'none', fxLegs: [{ from: 'KRW', to: 'USD', rate: 1 / 1350, observedAt: '2026-09-24T00:00:00Z', source: 'test-leg' }], fxSeries: { usdkrw: fx } };
   const run = buildPortfolioBacktestLab(map, positions, { ...opts, asOfMs: Date.parse('2026-09-25T00:00:00Z') });
   const [m1, m2] = run.baseCurrencyReturns?.months || [];
@@ -7441,6 +7665,135 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     fail(`v58.81 market lean: ${JSON.stringify({ today: today.us.label, mixed: mixed.us.label, up: up.us.label, none: none.us.label, small, tiny })}`);
 }
 
+// v60.16 (verdict review): a rebound inside an open correction is not "before a correction"; the lean says when only
+// the count decides; the correlation band is the sampling error; a thrust arms on the day the low is touched; the
+// depth row carries four record-relative read-outs.
+{
+  const { correctionReading } = await load('src/domain/scenarios/correction-base-rates.js');
+  const rates = { n: 12, bear: 4, fastN: 8, fastBear: 0, from: '1990-01-02', rule: { depthPct: 7, bearPct: 20, fastSessions: 20 }, high: { date: '2026-10-01', close: 100 }, open: null };
+  const at = (close, extra = {}, block = rates) => correctionReading(block, { close, recordClose: 100, ...extra });
+  const rebound = at(95, { series: [{ date: '2026-10-01', value: 100 }, { date: '2026-10-20', value: 90 }, { date: '2026-11-02', value: 95 }] });
+  const published = at(95, {}, { ...rates, open: { troughPct: -11.9 } });
+  const renewed = correctionReading({ ...rates, open: { troughPct: -11.9 } }, { close: 101, recordClose: 102, series: [{ date: '2026-11-10', value: 102 }, { date: '2026-11-11', value: 101 }] });
+  if (!rebound.open || rebound.inCorrection || Math.abs(rebound.trough + 10) > 1e-9 || !/7% 조정이 아직 끝나지 않았습니다\(가장 깊은 종가 -10\.0%/.test(rebound.text) || !/12번 중 4번/.test(rebound.text)
+    || !published.open || !/-11\.9%/.test(published.text) || at(95).open || !/7% 조정 전입니다/.test(at(95).text) || renewed.open || !/조정 전입니다/.test(renewed.text))
+    fail(`v60.16 a -5% close after a -10% close is still inside the correction until a new record close: ${JSON.stringify({ rebound: rebound.text, published: published.text, before: at(95).text, renewed: renewed.text })}`);
+  const { buildMarketLean, renderMarketLeanContext } = await load('src/domain/market/regime/market-lean.js');
+  const body = (hitRate) => ({ state: 'cold', asOf: '2026-10-23', outcomes: { cold: { h21: { n: 60, hitRate } }, all: { h21: { hitRate: 64 } } } });
+  const lean = (hitRate) => buildMarketLean({ regime: { available: true, asOf: '2026-10-23', counts: { favorable: 0, neutral: 3, burden: 3 } }, temperature: { retained: [], markets: { spx: body(hitRate) } } });
+  const quiet = lean(61), loud = lean(85);
+  if (quiet.us.measured || !/6개 지표 개수만으로 정한 기울기/.test(quiet.us.basis) || !/지금 나오지 않습니다/.test(quiet.us.basis) || !loud.us.measured || /개수만으로/.test(loud.us.basis) || !renderMarketLeanContext(quiet).includes(`구성: ${quiet.us.basis}`))
+    fail(`v60.16 the lean states when no frequency clears its gate and only the count decides: ${JSON.stringify({ quiet: quiet.us.basis, loud: loud.us.basis })}`);
+  const depth = await load('src/domain/market/regime/depth-readouts.js');
+  const { isCloseSessionDate } = await load('src/domain/briefing/market-read.js');
+  const sessions = [];
+  for (let t = Date.UTC(2025, 0, 2); sessions.length < 300; t += 86400000) { const date = new Date(t).toISOString().slice(0, 10); if (isCloseSessionDate(date, 'US')) sessions.push(date); }
+  // Stock and bond returns that share a small common part: |r| about 0.2 on 60 sessions is inside ±2/√60 = 0.26.
+  const noise = (i, k) => Math.sin(i * (k === 1 ? 12.9898 : 4.1414) + k) * 0.01;
+  let spx = 5000, tlt = 90;
+  const weak = sessions.map((date, i) => { spx *= 1 + noise(i, 1); tlt *= 1 + 0.2 * noise(i, 1) + noise(i, 2); return { date, spx, tlt, vix: 18, vix3m: 20, rsp: 100 + i * 0.01, tnx: 4 + i * 0.001, advanceRatio: 0.5 }; });
+  const corr = depth.stockBondCorrelation(weak);
+  const text = depth.depthReadout({ history: weak }).text;
+  if (Math.abs(corr.flat - 2 / Math.sqrt(60)) > 1e-9 || !(Math.abs(corr.value) > 0.1 && Math.abs(corr.value) < corr.flat) || !/뚜렷한 관계 없음\(±0\.26 안은 표본 오차\)/.test(text))
+    fail(`v60.16 a 60-session correlation inside ±2 standard errors (0.26) reads as no clear relation: ${JSON.stringify(corr)} ${text}`);
+  // The 10-session average first under 0.40 today: armed today with the whole window left.
+  const touch = sessions.map((date, i) => ({ date, advanceRatio: i < 290 ? 0.5 : 0.3 }));
+  const firstLow = Array.from({ length: 10 }, (_, k) => depth.breadthThrust(touch.slice(0, 291 + k))).find((row) => row?.armed);
+  if (!firstLow || firstLow.armed.date !== firstLow.asOf || firstLow.armed.remaining !== depth.DEPTH_RULES.thrust.sessions)
+    fail(`v60.16 a thrust arms on the session the low is touched, with the remaining sessions stated: ${JSON.stringify(firstLow)}`);
+  const macroHistory = { series: Object.fromEntries([['hyOas', 3], ['cccOas', 9], ['igOas', 1]].map(([id, level]) => [id, { observations: sessions.map((date, i) => [date, level + (id === 'cccOas' ? i * 0.004 : 0)]) }])) };
+  const row = depth.depthReadout({ history: weak, macroHistory });
+  const ids = row.more.map((item) => item.id);
+  if (!['rate-shock', 'concentration', 'credit-ladder', 'vol-structure'].every((id) => ids.includes(id)) || row.more.some((item) => !item.label || !item.text || /매수|매도/.test(item.text)) || !/CCC÷하이일드 \d\.\d\d배/.test(row.more.find((item) => item.id === 'credit-ladder').text))
+    fail(`v60.16 the depth row carries rate speed, concentration, the credit ladder and volatility structure as reference lines: ${JSON.stringify(row.more)}`);
+}
+
+// v60.16 (logic review): correlated readings are one vote — two index temperatures in the lean, the price legs of the
+// temperature itself — and a rank states the sample it was taken over.
+{
+  const { buildMarketLean } = await load('src/domain/market/regime/market-lean.js');
+  const body = (state) => ({ state, asOf: '2026-10-23', outcomes: { [state]: { h21: { n: 60, hitRate: 85 } }, all: { h21: { hitRate: 64 } } } });
+  const regime = { available: true, asOf: '2026-10-23', counts: { favorable: 2, neutral: 3, burden: 1 } };
+  const both = buildMarketLean({ regime, temperature: { retained: [], markets: { spx: body('cold'), nasdaq: body('cold'), kospi: body('cold'), kosdaq: body('cold') } } });
+  const one = buildMarketLean({ regime, temperature: { retained: [], markets: { spx: body('cold') } } });
+  if (both.us.score !== 1 || both.us.score !== one.us.score || both.kr.score !== 1 || both.us.items.filter((item) => item.vote > 0).length !== 2)
+    fail(`v60.16 S&P 500 and Nasdaq temperature voting the same way are one vote (both stay listed): ${JSON.stringify({ both: [both.us.score, both.kr.score], one: one.us.score })}`);
+  const temp = await load('src/domain/market/sentiment/market-temperature.js');
+  const dates = [];
+  for (let t = Date.UTC(2020, 0, 1); dates.length < 1300; t += 86400000) { const day = new Date(t).getUTCDay(); if (day && day < 6) dates.push(new Date(t).toISOString().slice(0, 10)); }
+  const wave = (i) => 100 * Math.exp(i * 0.0004) * (1 + 0.01 * Math.sin(i / 7) + 0.006 * Math.sin(i / 3.1));
+  const selloff = dates.map((date, i) => [date, i < 1285 ? wave(i) : wave(1284) * (1 - 0.018 * (i - 1284))]);
+  const cold = temp.buildMarketTemperature(selloff);
+  const pathOf = Object.fromEntries(temp.TEMPERATURE_COMPONENTS.map((item) => [item.id, item.path]));
+  const coldIds = cold.components.filter((row) => row.score <= temp.TEMPERATURE_RULES.coldAtOrBelow).map((row) => row.id);
+  const expected = temp.TEMPERATURE_PATHS.filter(({ id }) => temp.TEMPERATURE_COMPONENTS.filter((item) => item.path === id).every((item) => coldIds.includes(item.id))).length;
+  if (cold.coldPaths !== expected || cold.coldPaths > cold.cold || pathOf.trend !== pathOf.range || pathOf.rsi !== pathOf.ret20 || pathOf.calm === pathOf.trend)
+    fail(`v60.16 the temperature publishes how many independent paths are cold beside the component count: ${JSON.stringify({ cold: cold.cold, coldPaths: cold.coldPaths, expected })}`);
+  const pathRule = temp.buildMarketTemperature(selloff, { rules: { ...temp.TEMPERATURE_RULES, extremeMinPaths: 4 } });
+  if (pathRule.state !== 'none') fail('v60.16 with extremeMinPaths set the state follows the path count, not the component count');
+  const evenStats = temp.buildMarketTemperature(selloff).outcomes.all.h21;
+  if (!Number.isFinite(evenStats.median)) fail('v60.16 temperature outcome median stays finite');
+  const { computeCompositeFearGreed } = await load('src/domain/market/sentiment/composite-fear-greed.js');
+  const rows = dates.slice(0, 290).map((date, i) => ({ date, spx: 5000 + i * 3 + 40 * Math.sin(i / 5), vix: 15 + 3 * Math.sin(i / 9), tlt: 90 + Math.sin(i / 11) }));
+  const composite = computeCompositeFearGreed({ history: rows });
+  const momentum = composite.components.find((row) => row.id === 'momentum');
+  const volatility = composite.components.find((row) => row.id === 'volatility');
+  if (momentum?.sample !== momentum?.observations || !(momentum.sample < 252) || volatility?.sample !== Math.min(volatility.observations, 252))
+    fail(`v60.16 a composite rank carries its sample (a 125-day ratio on a 290-session record ranks over ~166, not a year): ${JSON.stringify({ momentum, volatility })}`);
+  const { sentimentReadOf } = await load('src/domain/briefing/market-read.js');
+  if (!sentimentReadOf(rows).composite.components.every((row) => row.status !== 'ok' || Number.isFinite(row.sample))) fail('v60.16 the sentiment read sees each rank sample');
+  // The story's credit clause prints the window that set its kind, and CCC running ahead of HY is not 'calm'.
+  const { creditLead } = await load('src/domain/market/story/market-story.js');
+  const hy = { bp: -10, toDate: '2025-11-25' };
+  const lines = {
+    month: creditLead({ kind: 'widening', hy, judgement: { hy20: 28, cause: {} } }),
+    week: creditLead({ kind: 'widening', hy: { ...hy, bp: 18 }, judgement: { hy20: 28, cause: {} } }),
+    level: creditLead({ kind: 'stress', hy, judgement: { hyBp: 470, hy20: 12, cause: { level: true } } }),
+    tail: creditLead({ kind: 'weak-tail', hy: { ...hy, bp: -28 }, cccTail: false, judgement: { lowerRated: true } }),
+    calm: creditLead({ kind: 'calm', hy, judgement: {} })
+  };
+  if (!/20거래일 \+28bp 벌어져 경계/.test(lines.month) || /-10bp/.test(lines.month) || !/^하이일드가 \+18bp 벌어져/.test(lines.week) || !/4\.70%로 부담 기준/.test(lines.level) || /-10bp 벌어져/.test(lines.level)
+    || !/CCC 등급이 석 달째/.test(lines.tail) || /신용 불안은 아닙니다/.test(lines.tail) || !/-10bp로 신용 불안은 아닙니다/.test(lines.calm))
+    fail(`v60.16 the story credit clause names the window that set it: ${JSON.stringify(lines)}`);
+  // Depth read-outs (reference only): a Zweig thrust on the advancing share, credit against equity, the stock–bond
+  // correlation sign and the variance premium, as one row under the paired readings.
+  const depth = await load('src/domain/market/regime/depth-readouts.js');
+  const { crossReadings } = await load('src/domain/market/regime/cross-readings.js');
+  const { isCloseSessionDate } = await load('src/domain/briefing/market-read.js');
+  const sessions = [];
+  for (let t = Date.UTC(2025, 0, 2); sessions.length < 300; t += 86400000) { const date = new Date(t).toISOString().slice(0, 10); if (isCloseSessionDate(date, 'US')) sessions.push(date); }
+  const ratio = (i) => i < 270 ? 0.5 : i < 285 ? 0.2 : 0.95;
+  const hist = sessions.map((date, i) => ({ date, spx: 5000 * (1 + 0.001 * i) * (i % 2 ? 1.004 : 0.996), tlt: 90 * (i % 2 ? 0.997 : 1.003), vix: 30, advanceRatio: ratio(i) }));
+  const at = (n) => depth.breadthThrust(hist.slice(0, n));
+  const fired = Array.from({ length: 15 }, (_, k) => at(286 + k)).find((row) => row?.fired);
+  if (at(270)?.fired || at(270)?.armed || !at(284)?.armed || !fired || !(fired.fired.from <= 0.40 && fired.fired.to >= 0.615) || at(300)?.armed)
+    fail(`v60.16 Zweig thrust: quiet, armed under 0.40, fired on the way to 0.615 within 10 sessions: ${JSON.stringify({ quiet: at(270), armed: at(284), fired })}`);
+  const slow = sessions.map((date, i) => ({ date, advanceRatio: i < 250 ? 0.2 : Math.min(0.95, 0.2 + (i - 250) * 0.012) }));
+  if (depth.breadthThrust(slow)?.fired) fail('v60.16 a recovery slower than 10 sessions is not a thrust');
+  const corr = depth.stockBondCorrelation(hist);
+  const vrp = depth.varianceRiskPremium(hist);
+  if (!(corr.value < -0.9) || !(vrp.realised > 0 && Math.abs(vrp.premium - (900 - vrp.realised ** 2)) < 1e-6)) fail(`v60.16 stock–bond correlation sign and VIX² − realised variance: ${JSON.stringify({ corr, vrp })}`);
+  const hyAt = (bp) => ({ series: { hyOas: { observations: sessions.map((date, i) => [date, 3 + (i >= 290 ? bp / 100 : 0)]) } } });
+  if (!depth.creditEquityDivergence(hist, hyAt(40))?.diverging || depth.creditEquityDivergence(hist, hyAt(5))?.diverging) fail('v60.16 credit–equity divergence needs the index near its high and a 20-session HY widening');
+  const row = crossReadings({ history: hist, macroHistory: hyAt(40) }).find((item) => item.id === 'depth');
+  if (!row || row.map || !/폭 급반전\(Zweig\)/.test(row.text) || !/신용·주가 엇갈림 — /.test(row.text) || !/주식·장기채 60일 상관 -/.test(row.text) || !/변동성 프리미엄/.test(row.text) || /매수|매도/.test(row.text))
+    fail(`v60.16 the depth row carries four read-outs and no order: ${row?.text}`);
+  // A bar that opened over a zone and closed under it broke through; only a bar that starts on its closing side reacts.
+  const { buildPriceLevels } = await load('src/domain/technical/price-levels.js');
+  const levelBars = (open) => Array.from({ length: 90 }, (_, i) => { const base = i > 70 ? 97 : 100; return i === 70 ? { time: `d${i}`, open, high: 103, low: 97, close: 97 } : { time: `d${i}`, open: base, high: base + 0.5, low: base - 0.5, close: base }; });
+  const lineReactions = (open) => buildPriceLevels(levelBars(open)).above.find((level) => level.kinds.includes('50일선'))?.reactions;
+  if (lineReactions(103) !== 0 || lineReactions(98.5) !== 1) fail(`v60.16 a break-through bar is not a reaction at the zone: ${lineReactions(103)} / ${lineReactions(98.5)}`);
+  // Earnings names moving with the index are stated as that; the story does not say they led it (no contribution measured).
+  const storySource = readFileSync(new URL('../src/domain/market/story/market-story.js', import.meta.url), 'utf8');
+  if (/실적 다음 날[^\n]*이끌었습니다/.test(storySource) || !/로 지수와 같은 방향이었습니다/.test(storySource)) fail('v60.16 the earnings clause states direction, not leadership');
+  // Breadth "narrow"/"broad" on the charts page are the cross-reading lines (RULES.breadthCross), not literals.
+  const chartsSource = readFileSync(new URL('../src/domain/technical/market-charts.js', import.meta.url), 'utf8');
+  if (!/\{ broadAbovePct, narrowBelowPct \} = RULES\.breadthCross/.test(chartsSource) || /above50 (?:<|>=) \d/.test(chartsSource)) fail('v60.16 market-charts reads breadth lines from RULES.breadthCross');
+  // The pair lines are the axis's own constants: VIX equal to its 3-month is inverted (ratio ≥ 1), F&G 75 is not yet 과열.
+  const edge = (vix, vix3m, fg) => crossReadings({ history: sessions.slice(0, 80).map((date) => ({ date, spx: 5000, vix, vix3m, fg })) }).find((item) => item.id === 'volatility-sentiment').text;
+  if (!/단기 불안이 큰 상태/.test(edge(20, 20, 50)) || /과열/.test(edge(15, 18, 75)) || !/과열/.test(edge(15, 18, 76))) fail(`v60.16 cross readings use RULES.volatility / RULES.fearGreed edges: ${edge(20, 20, 50)} | ${edge(15, 18, 75)}`);
+}
+
 // v58.84: the portfolio backup reminder appears only when there is something to lose and no backup in 30 days.
 {
   const { backupReminder, BACKUP_REMINDER_DAYS } = await load('src/data/portfolio-backup.js');
@@ -7634,6 +7987,12 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     const { buildChatMacroLines } = await load('src/ai/context/chat-macro-lines.js');
     const chat = buildChatMacroLines({ ctxId: 'macro', root: { _aioScreenBasisEvidence: () => [{ metric: 'macro.core_pce_yoy', value: 3.12, unit: 'percent', asOf: '2026-09-01', period: 'month', source: 'macro-release', evidenceId: 'mr:core_pce' }] }, timeLabel: 't' });
     if (!chat.some((line) => /근원 PCE 3\.12% \(2026-09 기준월, evidenceId=mr:core_pce\)/.test(line))) fail(`v59.85 the chat macro block cites the typed release row with its month and evidenceId: ${JSON.stringify(chat)}`);
+    // A release the producer could not refresh stays out of the evidence rows, and the block says so with the held value.
+    const heldMacro = { cpi: 3.7, _asOf_cpi: '2026-09-01', _freshness_cpi: 'stale-reference', pce: 3.6, _asOf_pce: '2026-09-01', _freshness_pce: 'observed' };
+    const heldRows = buildMacroReleaseEvidence({ macro: heldMacro, now: Date.parse('2026-11-14') });
+    const heldChat = buildChatMacroLines({ ctxId: 'macro', root: { _aioScreenBasisEvidence: () => heldRows, _aioServerMacro: heldMacro }, timeLabel: 't' });
+    if (heldRows.some((row) => row.metric === 'macro.cpi_yoy') || !heldChat.some((line) => /최신 발표 미반영.*CPI 전년 대비 3\.7% \(2026-09 기준월\)/.test(line)) || heldChat.some((line) => /미반영.*PCE/.test(line)))
+      fail(`v60.16 a stale release dropped from the AI evidence must be named as not yet reflected, with its held value and month: ${JSON.stringify(heldChat)}`);
     // Round 3: a core CPI pace whose year-ago month is missing has no same-month yoy beside it, and the direction row says
     // it read core PCE only; a +2.2% dollar near its 1-year low says where it sits, not '범위 중간'.
     const cpiGap = pceObs.filter(([date]) => date !== '2025-10-01');
@@ -7641,8 +8000,19 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     const gapRead = coreInflationRead({ mh: { series: { corePceIndex: { observations: pceObs }, coreCpiIndex: { observations: cpiGap } } } });
     const gapChapter = chapters85({ macroHistory: { series: { corePceIndex: { observations: pceObs }, coreCpiIndex: { observations: cpiGap } } } }).chapters.find((row) => row.id === 'inflation');
     const gapRow = (gapChapter?.detail || []).find(([label]) => label === '근원 CPI 3개월 연율')?.[1] || '';
-    if (gapRead.coreCpiYoy !== null || !gapRead.direction.single || gapRead.directionLabel !== '물가 방향 (근원 PCE만)' || !/같은 달 1년치 없음/.test(gapRow) || !/10월/.test(gapRow)
-      || !(gapChapter.detail || []).some(([label]) => label === '물가 방향 (근원 PCE만)')) fail(`v59.85 the core CPI pace pairs only with its own month: ${JSON.stringify({ yoy: gapRead.coreCpiYoy, label: gapRead.directionLabel, gapRow })}`);
+    // A missing 12-month base (October 2025) reads the 13-month change at a yearly rate and names the base month, so
+    // core CPI still counts toward the direction; with the 13- and 11-month bases missing too there is no yoy.
+    const exactYoy = coreInflationRead({ mh: { series: { corePceIndex: { observations: pceObs }, coreCpiIndex: { observations: pceObs } } } }).coreCpiYoy;
+    if (!gapRead.coreCpiYoy || !/25년 9월 대비 13개월 연율/.test(gapRead.coreCpiYoy.note) || Math.abs(gapRead.coreCpiYoy.value - exactYoy.value) > 0.5 || exactYoy.note !== ''
+      || gapRead.direction.single || gapRead.directionLabel !== '물가 방향 (PCE·CPI)' || !/25년 9월 대비 13개월 연율/.test(gapRow) || !/10월/.test(gapRow) || !/13개월 연율/.test(gapRead.direction.cpi?.text || '')) {
+      fail(`v60.16 a core CPI month without its 12-month base reads the 13-month base and names it: ${JSON.stringify({ yoy: gapRead.coreCpiYoy, exact: exactYoy, label: gapRead.directionLabel, gapRow })}`);
+    }
+    const cpiNone = pceObs.filter(([date]) => !['2025-09-01', '2025-10-01', '2025-11-01'].includes(date));
+    const noneRead = coreInflationRead({ mh: { series: { corePceIndex: { observations: pceObs }, coreCpiIndex: { observations: cpiNone } } } });
+    const noneChapter = chapters85({ macroHistory: { series: { corePceIndex: { observations: pceObs }, coreCpiIndex: { observations: cpiNone } } } }).chapters.find((row) => row.id === 'inflation');
+    const noneRow = (noneChapter?.detail || []).find(([label]) => label === '근원 CPI 3개월 연율')?.[1] || '';
+    if (noneRead.coreCpiYoy !== null || !noneRead.direction.single || noneRead.directionLabel !== '물가 방향 (근원 PCE만)' || !/같은 달 1년치 없음/.test(noneRow)
+      || !(noneChapter.detail || []).some(([label]) => label === '물가 방향 (근원 PCE만)')) fail(`v59.85 the core CPI pace pairs only with its own month: ${JSON.stringify({ yoy: noneRead.coreCpiYoy, label: noneRead.directionLabel, noneRow })}`);
     const dxyRows = []; for (let t = Date.UTC(2025, 9, 1); dxyRows.length < 260; t += 864e5) { const d = new Date(t); if (d.getUTCDay() % 6) dxyRows.push({ date: d.toISOString().slice(0, 10), dxy: dxyRows.length < 30 ? 110 : 100 }); }
     dxyRows.at(-1).dxy = 102.2;
     const dollar85 = chapters85({ history: dxyRows }).chapters.find((row) => row.id === 'dollar');
@@ -7851,6 +8221,28 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (opposite.kind === 'growth-fear' || /하락/.test(opposite.read) || /하락/.test(opposite.mean)) fail(`v59.97 a printed +11bp never reads as a fall because FRED fell: ${JSON.stringify(opposite)}`);
   const fredMoved = ratesCase(8, 11, 7, 4);
   if (fredMoved.kind !== 'flat' || !/큰 변화가 없습니다/.test(fredMoved.read) || !/큰 변화가 없습니다/.test(fredMoved.mean)) fail(`v59.97 a +8bp printed 10-year reads flat even when FRED moved +11bp: ${JSON.stringify(fredMoved)}`);
+  const hidden = ratesCase(1, 1, 12, -11); const hiddenDown = ratesCase(1, 1, -12, 11); const small = ratesCase(1, 1, 6, -5);
+  if (hidden.kind !== 'offset' || /큰 변화가 없습니다/.test(hidden.read) || !/실질금리 \+12bp를 기대인플레 -11bp가 상쇄/.test(hidden.read) || !/상쇄/.test(hidden.lead) || hiddenDown.kind !== 'offset' || small.kind !== 'flat' || !/큰 변화가 없습니다/.test(small.read))
+    fail(`v60.16 the week's rates line names two cancelling legs by the 매크로 chapter's rule: ${JSON.stringify({ hidden, hiddenDown: hiddenDown.kind, small: small.kind })}`);
+  // The week's weak CCC tail is CCC's own record: +30bp is a tail on a quiet record and an ordinary week on a wide one.
+  const { cccTailLine } = await load('src/domain/briefing/credit-reading.js');
+  const { RULES: tailRules } = await load('src/domain/rules/thresholds.js');
+  const long = []; let lt = Date.parse('2026-01-05T00:00:00Z');
+  while (long.length < 200) { const at = new Date(lt); if (at.getUTCDay() >= 1 && at.getUTCDay() <= 5) long.push(at.toISOString().slice(0, 10)); lt += 86400000; }
+  const tailCase = (swing) => {
+    const ccc = long.map((date, i) => [date, +(9 + swing * Math.sin(i / 2)).toFixed(4)]);
+    ccc[ccc.length - 1][1] = +(ccc[ccc.length - 6][1] + 0.30).toFixed(4);
+    const macroHistory = { series: { hyOas: { observations: long.map((date) => [date, 3]) }, cccOas: { observations: ccc } } };
+    const history = long.map((date, i) => ({ date, spx: 6000 + i, ndx: 20000 + i * 4, rsp: 180 + i * 0.02 }));
+    const credit = buildMarketStory({ history, macroHistory, nowMs: Date.parse(`${long.at(-1)}T23:00:00Z`) }).credit;
+    return { bp: Math.round(credit?.ccc?.bp), tail: credit?.cccTail, line: Math.round(cccTailLine(macroHistory, 5, tailRules.credit.widen5dBp, long.at(-1))) };
+  };
+  const quietTail = tailCase(0); const wideTail = tailCase(0.5);
+  if (quietTail.bp !== 30 || quietTail.tail !== true || quietTail.line !== tailRules.credit.widen5dBp || wideTail.bp !== 30 || wideTail.tail !== false || !(wideTail.line > 30))
+    fail(`v60.16 the story's weak CCC tail reads CCC's own five-session record with the axis floor: ${JSON.stringify({ quietTail, wideTail })}`);
+  if (/큰 변화가 없습니다/.test(hidden.mean) || !/실질금리 \+12bp를 기대인플레 -11bp가 상쇄/.test(hidden.mean) || !/할인율 부담은 커진/.test(hidden.mean) || !/물가 기대가 올라/.test(hiddenDown.mean) || !/큰 변화가 없습니다/.test(small.mean)) {
+    fail(`v60.16 a quiet 10-year whose real-yield and breakeven legs cancel names both legs: ${JSON.stringify({ hidden: hidden.mean, hiddenDown: hiddenDown.mean, small: small.mean })}`);
+  }
   const realUp = ratesCase(12, 12, 9, 3);
   if (realUp.kind !== 'real-up' || !/실질금리 상승/.test(realUp.read) || !/상승이 실질금리에서/.test(realUp.mean)) fail(`v59.97 both +12bp with a real-yield share of 0.75 keep the real-up reading: ${JSON.stringify(realUp)}`);
   // With the 10-year two sessions behind the S&P 500 close, the story and the rates axis quote one 5-session change.

@@ -36,16 +36,25 @@ export function portfolioValueTrend({ surface, rowOf, history = [] } = {}) {
     const fx = fxReturnInto(from, surface?.baseCurrency, usdkrwPct(key));
     return fx == null ? null : fx * 100;
   };
+  // SPY is priced in dollars: in a book counted in another currency the index carries the same currency move.
+  const bookUnit = String(surface?.baseCurrency || surface?.valuationCurrency || '').toUpperCase();
+  const indexFx = !!bookUnit && bookUnit !== 'USD';
+  const indexFxReturnOf = (key) => {
+    if (!indexFx) return 0;
+    const fx = fxReturnInto('USD', bookUnit, usdkrwPct(key));
+    return fx == null ? null : fx * 100;
+  };
   const model = buildBenchmarkTrend({
     holdings: rows,
     returnOf: (symbol, key) => readRowNumber(rowOf(symbol), key, 'calculation'),
     indexReturnOf: (key) => readRowNumber(spy, key, 'calculation'),
     dateOf: spx.length ? dateOf : null,
     asOf: spx.length ? asOf : null,
-    fxReturnOf
+    fxReturnOf,
+    indexFxReturnOf
   });
   if (!model.available) return model;
-  return { ...model, fxIncluded: [...convertedFrom.keys()].some((symbol) => !model.missing.includes(symbol)) };
+  return { ...model, fxIncluded: [...convertedFrom.keys()].some((symbol) => !model.missing.includes(symbol)), indexFxIncluded: indexFx };
 }
 
 const HOLD_TEXT = Object.freeze({
@@ -87,7 +96,7 @@ export function renderPortfolioValueTrend({ documentRef: doc, root, surface, row
     format: (value) => signed(value)
   });
   const parts = [lead, chart];
-  const notes = [`${model.points.slice(0, -1).map((point) => point.label).join('·')} 전 수정 종가(배당 포함)를 이은 선, 지금 비중을 그대로 들고 있었다고 본 값이라 계좌 수익률과 다릅니다.${model.fxIncluded ? ' 기준 통화와 다른 종목은 원/달러 종가 변화를 더한 환율 포함 수익률입니다.' : ''}`];
+  const notes = [`${model.points.slice(0, -1).map((point) => point.label).join('·')} 전 수정 종가(배당 포함)를 이은 선, 지금 비중을 그대로 들고 있었다고 본 값이라 계좌 수익률과 다릅니다.${model.fxIncluded ? ' 기준 통화와 다른 종목은 원/달러 종가 변화를 더한 환율 포함 수익률입니다.' : ''}${model.indexFxIncluded ? ' S&P 500도 같은 원/달러 변화를 더해 계좌 통화로 맞췄습니다.' : ''}`];
   if (model.missing.length) notes.unshift(`가격 기록이 ${model.window}에 못 미치는 ${model.missing.slice(0, 3).join(', ')}${model.missing.length > 3 ? ` 외 ${model.missing.length - 3}종목` : ''} 제외(평가액의 ${Math.max(1, Math.round((1 - model.coveredShare) * 100))}%).`);
   parts.push(el(doc, 'p', notes.join(' '), 'pf-trend-note'));
   body.replaceChildren(...parts);

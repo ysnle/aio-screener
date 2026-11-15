@@ -91,6 +91,11 @@ export default async function cases({ load }) {
     .map((title, k) => ({ title, source: 'Reuters', tier: 1, country: 'us', topic: 'macro', score: 95 - k, pubDate: at(3), link: `https://example.test/macro-${k}` }))
     .concat([['energy', 'Oil supply cut lifts crude'], ['geo', 'Border talks stall again'], ['earnings', 'Chipmaker beats revenue guide']].map(([topic, title], k) => ({ title, source: 'Reuters', tier: 1, country: 'us', topic, score: 80 - k, pubDate: at(3), link: `https://example.test/${topic}-${k}` })));
   out.push({ name: 'home-crowded-topic', input: crowded.map((item) => `${item.score} ${item.topic} ${item.title}`), output: show(selection.buildNewsSurfaceModel('home', crowded, { nowMs: NOW, ...WINDOW }, context)) });
+  // v60.16: the market-wide lead on 홈 follows the topic keys the producer emits (fxbond, credit), and the source tier
+  // (already in the score) is not added again: a tier-3 bond story 10 points behind leads a tier-1 chip story.
+  const lead = [['semi', 'Chip makers extend gains', 80, 1], ['fxbond', 'Dollar and Treasury yields climb', 70, 3], ['credit', 'Credit spreads widen on funding worry', 65, 3], ['equity', 'Retailer posts quarterly results', 78, 2]]
+    .map(([topic, title, score, tier], k) => ({ title, source: `Wire ${k}`, tier, country: 'us', topic, score, pubDate: at(3), link: `https://example.test/lead-${k}` }));
+  out.push({ name: 'home-lead-topics', input: lead.map((item) => `${item.score} tier ${item.tier} ${item.topic} ${item.title}`), output: show(selection.buildNewsSurfaceModel('home', lead, { nowMs: NOW, ...WINDOW }, context)) });
 
   const rule = [
     ['inflation report', 'nfl'], ['taxi drivers', 'tax'], ['new taxes on chips', 'tax'], ['ai chips rally', 'chip'], ['surgery partners', 'surge'],

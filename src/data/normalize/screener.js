@@ -94,6 +94,7 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     // v57.87 follow-through evidence (technical/follow-through.js)
     pocketPivotAgo: finite(row?.pocketPivotAgo), pocketPivots10: finite(row?.pocketPivots10), heavyDownDays25: finite(row?.heavyDownDays25),
     baseCount: finite(row?.baseCount), baseForming: typeof row?.baseForming === 'boolean' ? row?.baseForming : null, baseDepthPct: finite(row?.baseDepthPct),
+    baseCountLowerBound: row?.baseCountLowerBound ?? null, breakoutAgo: finite(row?.breakoutAgo),
     climaxSigns: Array.isArray(row?.climaxSigns) ? row?.climaxSigns.filter((sign) => typeof sign === 'string') : null,
     downDayHoldPct: finite(row?.downDayHoldPct), downDayExcessPp: finite(row?.downDayExcessPp), downDayCount: finite(row?.downDayCount),
     pe: finite(row?.pe),
@@ -129,6 +130,8 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     _valuationPeEarningsBasis: row?._valuationPeEarningsBasis || null,
     _valuationPeEarningsThrough: row?._valuationPeEarningsThrough || null,
     _valuationPeEarningsConcept: row?._valuationPeEarningsConcept || null,
+    _valuationPeOneOff: row?._valuationPeOneOff === true, _valuationPeLoss: row?._valuationPeLoss === true, _valuationPbDeficit: row?._valuationPbDeficit === true,
+    _valuationPeEarningsLaterQuarter: row?._valuationPeEarningsLaterQuarter || null,
     _valuationPbPrice: finite(row?._valuationPbPrice),
     _valuationPbPriceBasis: row?._valuationPbPriceBasis || null,
     _valuationSharesOutstanding: finite(row?._valuationSharesOutstanding),

@@ -20,7 +20,7 @@ export function renderCorrectionBaseRate({ documentRef: doc, root, host, onLoad 
   const history = root?._aioHistory || [];
   const series = buildCloseSeries(history, 'nasdaq', { through: closeBasis(history) });
   const last = series.at(-1);
-  const reading = correctionReading(rates, { close: last?.value, closeDate: last?.date, recordClose: Math.max(...series.map((point) => point.value)) });
+  const reading = correctionReading(rates, { close: last?.value, closeDate: last?.date, recordClose: Math.max(...series.map((point) => point.value)), series });
   if (!reading) return null;
   const box = el(doc, 'section', null, 'mk-correction');
   box.dataset.correctionBase = '';

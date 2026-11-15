@@ -3544,10 +3544,10 @@ const KR_TICKER_MAP = {
   'HD현대': '$HD현대',
   // ── 지수 / ETF ──
   '코스피': 'KOSPI', '코스닥': 'KOSDAQ',
-  '나스닥': 'QQQ', 'nasdaq': 'QQQ',
+  '나스닥': 'QQQ', '나스닥100': 'QQQ', 'nasdaq': 'QQQ',
   '다우': 'DIA', 'dow jones': 'DIA', 'dow': 'DIA',
   'S&P': 'SPY', 's&p 500': 'SPY', 's&p500': 'SPY',
-  '러셀': 'IWM', 'russell': 'IWM',
+  '러셀': 'IWM', '러셀2000': 'IWM', 'russell': 'IWM',
   '필라델피아반도체': 'SOXX', 'sox': 'SOXX',
 };
 

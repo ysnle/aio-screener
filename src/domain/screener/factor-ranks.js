@@ -16,7 +16,7 @@
 import { FRESHNESS_POLICY } from '../shared/freshness-policy.js';
 import { normalizeAllowedUse } from '../../data/contracts/evidence.js';
 import { canonicalSourceTier } from '../../data/contracts/source-kind.js';
-import { MODEL_DEFAULT_WEIGHTS } from './factor-weights.js';
+import { MODEL_DEFAULT_WEIGHTS, MODEL_DEFAULT_DEFINITIONS } from './factor-weights.js';
 import { screenerMarket, MARKET_POPULATION_POLICY } from './market-scope.js';
 import { isSessionCurrent, latestCompletedSession } from '../market/session/market-calendar.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../fundamental/period.js';
@@ -26,7 +26,8 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 // v7 (2026-10-16): funds, SPACs and sub-$1M 확장 names leave the ranked population (rankingPopulationExclusion).
 // v8 (2026-10-17 audit, owner-approved): factor activation is judged on the core tier when 확장 rows are present, a
 // zero-weight factor is not active in the model-default run, and outliers no longer mark the run 'partial'.
-export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v8';
+// v9: the default raw definitions are factor-weights.js MODEL_DEFAULT_DEFINITIONS (12-1 momentum, profitability quality).
+export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v9';
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
 
 const DAY_MS = 86_400_000;
@@ -84,10 +85,9 @@ function momRaw(row) {
   return denom > 0 ? parts.reduce((sum, p) => sum + p.v * p.w, 0) / denom : null;
 }
 
-// 2026-10-16 review — candidate definitions, used only by the shadow record in the candidate archive (never the page's
-// rank until a forward record supports them). 6-1 skips the latest month, whose reversal noise the 1-3-6 blend keeps.
-// Signed yields (TTM earnings and book over market value, supplied by the caller) give a loss-maker a low value; with
-// positive multiples only, a loss-maker's value is missing and renormalization reads it as average.
+// Alternative raw definitions, chosen by name (momentumDefinition / valueDefinition / qualityDefinition). 6-1 skips the
+// latest month, whose reversal noise the 1-3-6 blend keeps. Signed yields (TTM earnings and book over market value,
+// supplied by the caller) give a loss-maker a low value.
 function momSixMinusOneRaw(row) {
   const r6 = value(row, 'ret6m');
   const r1 = value(row, 'ret1m');
@@ -136,13 +136,20 @@ function valueRaw(row) {
     const numeric = finite(input);
     if (numeric != null && numeric > 0 && numeric < upper) parts.push(Math.max(0, Math.min(maxInverse, 1 / numeric)) / maxInverse);
   };
-  addInverse(value(row, 'pe'), 200, 0.20);
+  // A P/E whose trailing earnings hold a one-off gain is not an earnings yield; the term is left out, not scored.
+  const oneOff = row.peOneOff === true || row._valuationPeOneOff === true;
+  if (!oneOff) addInverse(value(row, 'pe'), 200, 0.20);
   // v59.71 (quant review): a loss-maker has no P/E (dropped upstream at net income ≤ 0), so its value read was P/B
-  // alone and a distressed low-P/B name ranked cheaper than a profitable peer. Losses (negative margin) score the
-  // earnings term 0 — no earnings yield — instead of leaving it out.
+  // alone and a distressed low-P/B name ranked cheaper than a profitable peer. A loss scores the earnings term 0 — no
+  // earnings yield — instead of leaving it out. The loss is the P/E numerator's own sign when the row carries it
+  // (peLoss: the last four quarters), else a negative fiscal-year margin (rows without that marker, Korea).
   const margin = value(row, 'margin');
-  if (value(row, 'pe') == null && margin != null && margin < 0) parts.push(0);
+  const loss = row.peLoss === true || row._valuationPeLoss === true || (margin != null && margin < 0);
+  if (value(row, 'pe') == null && loss) parts.push(0);
   addInverse(value(row, 'pb'), 50, 2.0);
+  // Negative or zero book equity is not cheap: the book term scores 0 like a loss, instead of dropping out and leaving
+  // the earnings yield alone (buyback-funded deficits read cheaper than peers scored on both terms).
+  if (value(row, 'pb') == null && (row.pbDeficit === true || row._valuationPbDeficit === true)) parts.push(0);
   // 2026-10-13 F11: EV/EBITDA is retired at the provider (no automated producer; 0 of 873 rows), so this term is
   // inert on live rows. The line stays only because the legacy-derived factor-ranks golden fixture
   // (architecture/fixtures/factor-ranks-golden.json) feeds evEbitda inputs; removing it needs a golden refresh.
@@ -171,6 +178,16 @@ function profitabilityRaw(row) {
   if (roe != null) parts.push(Math.max(-30, Math.min(60, roe)) / 60);
   if (margin != null) parts.push(Math.max(-20, Math.min(40, margin)) / 40);
   return parts.length ? avg(parts) : null;
+}
+
+const MOMENTUM_DEFINITIONS = Object.freeze({ 'twelve-minus-one': momTwelveMinusOneRaw, 'six-minus-one': momSixMinusOneRaw, 'blend-1-3-6': momRaw });
+const VALUE_DEFINITIONS = Object.freeze({ 'positive-multiples': valueRaw, 'signed-yields': signedYieldValueRaw });
+const QUALITY_DEFINITIONS = Object.freeze({ profitability: profitabilityRaw, 'roe-margin-growth': qualityRaw });
+const definitionName = (table, name, fallback) => (Object.hasOwn(table, name) ? name : fallback);
+
+/** The raw momentum value of one row under a named definition — the ranker and the backtest read this one function. */
+export function momentumRawOf(row, definition = MODEL_DEFAULT_DEFINITIONS.momentum) {
+  return MOMENTUM_DEFINITIONS[definitionName(MOMENTUM_DEFINITIONS, definition, MODEL_DEFAULT_DEFINITIONS.momentum)](row);
 }
 
 function kalmanRaw(row) {
@@ -449,12 +466,17 @@ function emptyResult({ inputVersion, regimeLabel, weights, reason = 'fewer than 
 function computeFactorRanksForPopulation({
   rows = [], weights = null, regimeLabel = null, fundamentalCoveragePct = 0, fmpOk = false,
   now = Date.now(), inputVersion = 'unknown', previousRanks = null, previousRegimeLabel = null, previousWeights = null,
-  topPct = 20, weightsPolicy = null, momentumDefinition = 'blend-1-3-6', valueDefinition = 'positive-multiples', qualityDefinition = 'roe-margin-growth'
+  topPct = 20, weightsPolicy = null, momentumDefinition = MODEL_DEFAULT_DEFINITIONS.momentum, valueDefinition = MODEL_DEFAULT_DEFINITIONS.value, qualityDefinition = MODEL_DEFAULT_DEFINITIONS.quality
 } = {}) {
   const inputRows = Array.isArray(rows) ? rows : [];
-  const momentumFn = momentumDefinition === 'twelve-minus-one' ? momTwelveMinusOneRaw : momentumDefinition === 'six-minus-one' ? momSixMinusOneRaw : momRaw;
-  const valueFn = valueDefinition === 'signed-yields' ? signedYieldValueRaw : valueRaw;
-  const qualityFn = qualityDefinition === 'profitability' ? profitabilityRaw : qualityRaw;
+  const factorDefinitions = Object.freeze({
+    momentum: definitionName(MOMENTUM_DEFINITIONS, momentumDefinition, MODEL_DEFAULT_DEFINITIONS.momentum),
+    value: definitionName(VALUE_DEFINITIONS, valueDefinition, MODEL_DEFAULT_DEFINITIONS.value),
+    quality: definitionName(QUALITY_DEFINITIONS, qualityDefinition, MODEL_DEFAULT_DEFINITIONS.quality)
+  });
+  const momentumFn = MOMENTUM_DEFINITIONS[factorDefinitions.momentum];
+  const valueFn = VALUE_DEFINITIONS[factorDefinitions.value];
+  const qualityFn = QUALITY_DEFINITIONS[factorDefinitions.quality];
   const seenSymbols = new Set();
   let duplicateRows = 0;
   let missingIdentityRows = 0;
@@ -830,7 +852,7 @@ function computeFactorRanksForPopulation({
     requestedWeightCoveragePct,
     weightsPolicy: explicitWeights ? 'explicit' : 'model-default',
     coverageBasis,
-    factorDefinitions: Object.freeze({ momentum: momentumFn === momRaw ? 'blend-1-3-6' : momentumFn === momTwelveMinusOneRaw ? 'twelve-minus-one' : 'six-minus-one', value: valueFn === valueRaw ? 'positive-multiples' : 'signed-yields', quality: qualityFn === qualityRaw ? 'roe-margin-growth' : 'profitability' }),
+    factorDefinitions,
     rankingState: 'ranked',
     rankingUnavailableReason: null,
     inactiveFactorReasons: Object.freeze(inactiveFactorReasons),

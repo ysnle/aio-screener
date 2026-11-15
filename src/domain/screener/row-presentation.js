@@ -7,12 +7,12 @@ import { finiteNumber as finite } from '../shared/number.js';
 
 
 export const FACTOR_LABELS = Object.freeze({
-  momentum: { label: '모멘텀', color: 'var(--color-text-success)', description: '1개월 40%·3개월 40%·6개월 20% 수익률' },
+  momentum: { label: '모멘텀', color: 'var(--color-text-success)', description: '최근 1개월을 뺀 12개월 수익률(12-1)' },
   trend: { label: '추세', color: 'var(--color-text-success)', description: '50일선 거리 60%·200일선 거리 40%' },
   lowvol: { label: '저변동', color: 'var(--color-text-primary)', description: '실현 변동성의 역순' },
   size: { label: '규모', color: 'var(--color-text-secondary)', description: '시가총액의 역순(작을수록 높음)' },
   value: { label: '밸류', color: 'var(--color-text-warning)', description: '저PER·저PBR — PER은 최근 4개 분기(TTM) 순이익, PBR은 최근 연간(FY) 자본 기준' },
-  quality: { label: '퀄리티', color: 'var(--color-text-warning)', description: 'ROE·마진·매출성장 — 최근 연간(FY) 공시 기준' },
+  quality: { label: '퀄리티', color: 'var(--color-text-warning)', description: 'ROE·순이익률 — 최근 연간(FY) 공시 기준' },
   // 2026-10-17 audit: kalmanVelConf is the filter's daily trend velocity discounted by its own uncertainty, and the discount
   // is 1~9% (median 2%) because the state covariance is in log units — it reads as a speed, not a confidence.
   kalman: { label: '추세 속도', color: 'var(--color-accent)', description: '칼만 필터로 추정한 최근 90거래일 추세의 하루 속도(불확실성만큼 소폭 할인)' }
@@ -116,11 +116,14 @@ export function followThroughSummary(row = {}) {
   const details = [];
   const base = num(row.baseCount);
   if (base != null) {
-    parts.push(base === 0 ? '베이스 전' : `베이스 ${base}번째${row.baseForming ? '(형성 중)' : ''}`);
+    // No trend restart inside the fetched history: earlier bases are unseen, so the count is a floor.
+    const open = row.baseCountLowerBound === true;
+    parts.push(base === 0 && !open ? '베이스 전' : `베이스 ${base}번째${open ? ' 이상' : ''}${row.baseForming ? '(형성 중)' : ''}`);
+    if (open) details.push('받은 기간 안에 추세가 다시 시작된 지점이 없어 그 전 베이스는 세지 못함');
     details.push(base === 0 ? '추세가 다시 시작된 뒤 아직 8% 이상 조정을 거친 베이스가 없음' : `추세가 다시 시작된 뒤 ${base}번째 베이스${row.baseForming ? ` — 지금 고점 대비 -${num(row.baseDepthPct) ?? '?'}% 조정 중` : ''}, 3번째 이후는 실패가 잦다는 것이 오닐 계열의 관찰`);
   }
   const pocket = num(row.pocketPivotAgo);
-  if (pocket != null) { parts.push(pocket === 0 ? '포켓 피벗 오늘' : `포켓 피벗 ${pocket}일 전`); details.push('상승일 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많았던 날'); }
+  if (pocket != null) { parts.push(pocket === 0 ? '포켓 피벗 오늘' : `포켓 피벗 ${pocket}일 전`); details.push('10일선이나 50일선 위에서 오른 날 가운데, 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많았던 날'); }
   const hold = num(row.downDayHoldPct);
   if (hold != null) { parts.push(`하락일 버팀 ${hold}%`); details.push(`최근 60거래일 지수 하락일 ${num(row.downDayCount) ?? '?'}일 중 지수보다 덜 빠진 비율 ${hold}%, 평균 초과 ${num(row.downDayExcessPp) ?? '?'}%p`); }
   const heavy = num(row.heavyDownDays25);

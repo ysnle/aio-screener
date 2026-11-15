@@ -586,6 +586,7 @@ export function createScreenerProvider({
           // v57.87 follow-through evidence (technical/follow-through.js)
           pocketPivotAgo: finite(factor.pocketPivotAgo), pocketPivots10: finite(factor.pocketPivots10), heavyDownDays25: finite(factor.heavyDownDays25),
           baseCount: finite(factor.baseCount), baseForming: typeof factor.baseForming === 'boolean' ? factor.baseForming : null, baseDepthPct: finite(factor.baseDepthPct),
+          baseCountLowerBound: factor.baseCountLowerBound ?? null, breakoutAgo: finite(factor.breakoutAgo),
           climaxSigns: Array.isArray(factor.climaxSigns) ? factor.climaxSigns.filter((sign) => typeof sign === 'string') : null,
           downDayHoldPct: finite(factor.downDayHoldPct), downDayExcessPp: finite(factor.downDayExcessPp), downDayCount: finite(factor.downDayCount),
           // P1652: P/E under 2 or P/B under 0.1 means earnings or equity near the whole market value — a share-class or
@@ -622,6 +623,10 @@ export function createScreenerProvider({
           _valuationPePriceBasis: factor.pePriceBasis || null,
           _valuationPeEarningsBasis: factor.peEarningsBasis || null, // 2026-10-17 D1: 'ttm' | 'fy'
           _valuationPeEarningsThrough: factor.peEarningsThrough || null,
+          _valuationPeOneOff: factor.peOneOff === true,
+          _valuationPeLoss: factor.peLoss === true,
+          _valuationPbDeficit: factor.pbDeficit === true,
+          _valuationPeEarningsLaterQuarter: factor.peEarningsLaterQuarter || null,
           _valuationPeEarningsConcept: factor.peEarningsConcept || null, // v58.20: 'common' when preferred dividends were deducted
           _valuationPbPrice: finite(factor.pbPrice),
           _valuationPbPriceBasis: factor.pbPriceBasis || null,

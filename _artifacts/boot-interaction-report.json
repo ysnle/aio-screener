@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-14T09:18:50.318Z",
-  "appRevision": "v60.14",
-  "gitHead": "a6a429c01b2e17f251a561ceb13db869e4677077",
+  "observedAt": "2026-11-15T03:16:19.007Z",
+  "appRevision": "v60.16",
+  "gitHead": "24b814ca3f471254ca63c4f6b429d3429cf6f1b5",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,88 +16,88 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "active DOM 3300 > 2500",
-    "max long task 242 > 200",
-    "decoded same-origin JS 2.73MB > 1.5MB"
+    "active DOM 3320 > 2500",
+    "max long task 257 > 200",
+    "decoded same-origin JS 2.76MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 272,
-    "dclMs": 319,
-    "loadMs": 402,
-    "maxLongTaskMs": 242,
-    "totalLongTaskMs": 972,
-    "longTaskCount": 8,
+    "fcpMs": 948,
+    "dclMs": 323,
+    "loadMs": 396,
+    "maxLongTaskMs": 257,
+    "totalLongTaskMs": 954,
+    "longTaskCount": 6,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 5397,
-    "activeRouteDomNodes": 3300,
+    "domNodes": 5434,
+    "activeRouteDomNodes": 3320,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 2867410,
-    "sameOriginScripts": 127,
+    "decodedJsBytes": 2895608,
+    "sameOriginScripts": 133,
     "crossOriginScripts": 1,
-    "resourceEntries": 199,
+    "resourceEntries": 205,
     "jsByKind": {
-      "esmBoot": 1490822,
-      "classicBoot": 1005658,
+      "esmBoot": 1499825,
+      "classicBoot": 1002311,
       "aiPanelBeforeUse": 0,
-      "postBootLazy": 370930
+      "postBootLazy": 393472
     },
     "aiPanelRequestsBeforeUse": [],
     "largestLazyFiles": [
       {
         "path": "js/aio-glossary.js",
         "bytes": 106744,
-        "startMs": 285
+        "startMs": 230
       },
       {
-        "path": "src/chunks/legacy-screen-bridges-HNY5E6I2.js",
-        "bytes": 44428,
-        "startMs": 285
+        "path": "src/chunks/legacy-screen-bridges-7IJ5TXTI.js",
+        "bytes": 47310,
+        "startMs": 231
       },
       {
         "path": "src/chunks/request-pipeline-DUN7AC6L.js",
         "bytes": 32349,
-        "startMs": 284
+        "startMs": 230
       },
       {
-        "path": "src/chunks/session-lean-JSPBELFL.js",
-        "bytes": 28279,
-        "startMs": 461
+        "path": "src/chunks/session-lean-WS3T7IJC.js",
+        "bytes": 29008,
+        "startMs": 447
       },
       {
-        "path": "src/chunks/analysis-BYHVXUNX.js",
-        "bytes": 23289,
-        "startMs": 308
+        "path": "src/chunks/analysis-Q5GZPEZD.js",
+        "bytes": 23322,
+        "startMs": 311
       },
       {
-        "path": "src/chunks/chunk-E5EV474V.js",
-        "bytes": 21118,
-        "startMs": 730
+        "path": "src/chunks/chunk-BOFZ4KMC.js",
+        "bytes": 22446,
+        "startMs": 706
+      },
+      {
+        "path": "src/chunks/cross-readings-VFE57B4Z.js",
+        "bytes": 15481,
+        "startMs": 2073
       },
       {
         "path": "src/chunks/deferred-screen-terms-MC33YZLB.js",
         "bytes": 10694,
-        "startMs": 372
-      },
-      {
-        "path": "src/chunks/chunk-W3HO5726.js",
-        "bytes": 9959,
-        "startMs": 730
+        "startMs": 368
       }
     ],
     "measuredBundle": "deploy",
     "aiPanelOnHover": [
       "js/aio-chat.js",
       "src/chunks/ai-profile-TZTRUY2P.js",
-      "src/chunks/chat-globals-QARLQARB.js",
+      "src/chunks/chat-globals-L6LLDPCR.js",
       "src/chunks/question-cues-4LSRCT6W.js",
       "src/chunks/supplied-materials-X5HSUEVZ.js"
     ],
-    "routeMs": 41,
-    "wallMs": 7873,
+    "routeMs": 20,
+    "wallMs": 9118,
     "totalExternalRequests": 43,
     "quoteRequests": 24,
-    "initialExternalRequests": 6,
+    "initialExternalRequests": 7,
     "initialQuoteRequests": 3,
     "bootObservationWindowMs": 2000,
     "onDemandChartLibrary": {
@@ -110,6 +110,6 @@
       "other": true,
       "noChartGlobal": true
     },
-    "decodedJsMb": 2.73
+    "decodedJsMb": 2.76
   }
 }

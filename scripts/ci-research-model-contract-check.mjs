@@ -1,7 +1,12 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { computeFactorRanks, FACTOR_RANKS_ALLOWED_USE, FACTOR_RANKS_MODEL_VERSION } from '../src/domain/screener/factor-ranks.js';
-import { summarizeTradingScoreBacktest } from './backtest-trading-score.mjs';
-import { nonOverlappingPhaseCorrelations } from './backtest-trading-score-longrun.mjs';
+import { isCloseSessionDate } from '../src/domain/market/session/close-series.js';
+import { summarizeTradingScoreBacktest, reconstructScore, runBacktest, buildTradingDaySeries } from './backtest-trading-score.mjs';
+import { nonOverlappingPhaseCorrelations, analyzeLongrunSeries, scoreLongrunCreditInput } from './backtest-trading-score-longrun.mjs';
+import { judgeRequirements } from './build-validation-gates.mjs';
 
 const errors = [];
 const check = (label, condition, detail) => { if (!condition) errors.push(label + (detail ? ': ' + detail : '')); };
@@ -15,9 +20,66 @@ check('model artifact exposes IC/ICIR/hit-rate/decile/drawdown/CI metrics', ['IC
 const phaseFixture = Array.from({ length: 20 }, (_, index) => ({ score: index, fwd5d: index }));
 const phaseResult = nonOverlappingPhaseCorrelations(phaseFixture, 'score', 'fwd5d', 5);
 check('overlapping forward returns cannot use pooled IID significance for promotion', phaseResult.phaseCount === 5 && phaseResult.signStablePositive === true && /pooled daily 95% CI alone is ineligible/.test(score));
-check('score backtest separates sample sufficiency from statistical significance', scoreSummary.sampleSizeSufficient === true && scoreSummary.significanceStatus === 'UNKNOWN' && scoreSummary.statisticallyMeaningful === false && /sampleSizeSufficient/.test(scoreHarness) && /statisticallyMeaningful:\s*false/.test(scoreHarness));
+// Daily rows with 21-session returns overlap, so 264 rows are 12 independent windows — not a sufficient sample.
+const longSummary = summarizeTradingScoreBacktest({ n: 700, rho: -0.1 }, { n: 700, rho: -0.2 });
+check('v60.16 score backtest judges the sample floor on non-overlapping windows, not on overlapping rows', scoreSummary.nEff5d === 56 && scoreSummary.nEff21d === 12 && scoreSummary.sampleSizeSufficient === false
+  && longSummary.nEff21d === 33 && longSummary.sampleSizeSufficient === true && longSummary.statisticallyMeaningful === false, JSON.stringify({ scoreSummary, longSummary }));
+check('v60.16 agreeing start phases are one finding: support needs the median phase interval to exclude zero', phaseResult.independentFindings === 1 && phaseResult.supportsPositive === false && phaseResult.medianPhase?.n === 4
+  && /count of agreeing phases is not a count of confirmations/.test(score), JSON.stringify({ median: phaseResult.medianPhase, supports: phaseResult.supportsPositive }));
+check('score backtest separates sample sufficiency from statistical significance', longSummary.sampleSizeSufficient === true && scoreSummary.significanceStatus === 'UNKNOWN' && scoreSummary.statisticallyMeaningful === false && /sampleSizeSufficient/.test(scoreHarness) && /statisticallyMeaningful:\s*false/.test(scoreHarness));
 check('point-in-time/survivorship limitation remains explicit', /survivorshipBiasCaveat/.test(factor) && /Not resolvable without paid point-in-time/.test(factor));
-check('cost/liquidity and live parity cannot silently promote the model', status.status === 'BLOCKED' && status.allowedUse === 'research-relative-ranking-only' && status.turnoverModeled === false && status.transactionCostsModeled === false && status.liquidityCapacityModeled === false && status.liveBacktestParity === false);
+// The score-history writer keeps completed US sessions only, including rows it carries over from the published file.
+{
+  const dir = await mkdtemp(join(tmpdir(), 'aio-score-history-'));
+  try {
+    const out = join(dir, 'score-backtest-history.json');
+    const published = JSON.parse(await readFile(new URL('../public-data/score-backtest-history.json', import.meta.url), 'utf8'));
+    // Seed with the published rows plus a weekend and a holiday row older than anything the run recomputes.
+    await writeFile(out, JSON.stringify({ records: [{ date: '2020-07-03', reconstructedScore: 50 }, { date: '2020-07-04', reconstructedScore: 50 }, { date: '2020-07-06', reconstructedScore: 50 }, ...published.records] }));
+    const rebuilt = await runBacktest(fileURLToPath(new URL('../public-data/history.json', import.meta.url)), out);
+    const offSession = rebuilt.records.filter((row) => !isCloseSessionDate(row.date, 'US')).map((row) => row.date);
+    check('v60.16 score-backtest-history rows fall on completed US sessions only (weekend and holiday rows are dropped on rebuild)', rebuilt.records.length > 100 && offSession.length === 0, offSession.slice(0, 8).join(' '));
+    const weekendRow = { date: '2026-11-07', spx: 7000, fieldMeta: {} };
+    check('v60.16 a weekend row without field metadata is not a session', buildTradingDaySeries([{ date: '2026-11-06', spx: 7000 }, weekendRow, { date: '2026-11-09', spx: 7010 }]).map((row) => row.date).join() === '2026-11-06,2026-11-09');
+    check('v60.16 the rebuilt summary carries the non-overlapping sample basis and the one-session-lag correlation', Number.isInteger(rebuilt.summary.nEff21d) && rebuilt.summary.nEff21d === Math.floor(rebuilt.summary.n21d / 21)
+      && 'corr21dLag1' in rebuilt.summary && rebuilt.inputs.credit.startsWith('none'), JSON.stringify(rebuilt.summary));
+  } finally { await rm(dir, { recursive: true, force: true }); }
+}
+
+// R343: no HYG-price credit proxy and no neutral default for a missing input.
+{
+  const base = { vix: 19, dxy: 104, tnx: 4.3, wti: 80, vvix: 100, spxPrice: 105, spx50ma: 100, spx200ma: 95, mode: 'default' };
+  const plain = reconstructScore(base);
+  check('v60.16 the reconstructed score has no credit input unless a measured HY OAS is passed (an HYG price is ignored)', plain.momScore === null && plain.componentMissing.includes('momentum')
+    && reconstructScore({ ...base, hyg: 60 }).total === plain.total && reconstructScore({ ...base, hyBp: 320 }).momScore === 70 && !/100 - hyg/.test(scoreHarness) && !/hyg/i.test(score.replace(/\/\/.*$/gm, '').replace(/'[^'\n]*'/g, '')),
+    JSON.stringify({ mom: plain.momScore, missing: plain.componentMissing }));
+  check('v60.16 a missing DXY or 10-year yield leaves the macro component missing instead of a neutral default', reconstructScore({ ...base, dxy: null }).macroScore === null && reconstructScore({ ...base, tnx: undefined }).macroScore === null
+    && reconstructScore({ ...base, vvix: null }).macroScore === plain.macroScore && reconstructScore(base).macroScore !== null);
+  // 400 synthetic sessions: enough for the 200-day average and a 63-session horizon.
+  let level = 5000, wave = 0;
+  const series = Array.from({ length: 400 }, (_, i) => {
+    wave = Math.sin(i / 23) * 6 + Math.cos(i / 7) * 3;
+    level *= 1 + Math.sin(i / 31) * 0.004 + Math.cos(i / 5) * 0.003;
+    return { date: `S${String(i).padStart(4, '0')}`, spx: level, vix: 20 + wave, vvix: 100 + wave, tnx: 4.2 + wave / 40, dxy: 104 + wave / 3, wti: 80 + wave };
+  });
+  const analysis = analyzeLongrunSeries(series, { generatedAt: '2026-11-14T00:00:00Z' });
+  const overall21 = analysis.overallCorrelations.fwd21d.composite;
+  check('v60.16 the long-run score study states it has no credit leg and labels a file without that field as the legacy HYG proxy', analysis.methodology.creditInput === 'none'
+    && scoreLongrunCreditInput(analysis) === 'none' && scoreLongrunCreditInput({ methodology: {} }) === 'legacy-hyg-proxy, not comparable to live');
+  check('v60.16 long-run score intervals rest on non-overlapping windows and keep the row-count interval only as a labelled comparison', Math.abs(overall21.nEff - overall21.n / 21) < 1 && Array.isArray(overall21.ci95NaiveIid)
+    && (overall21.ci95 === null || overall21.ci95[1] - overall21.ci95[0] > overall21.ci95NaiveIid[1] - overall21.ci95NaiveIid[0])
+    && analysis.walkForward.holdoutPeriod.corr21d_composite.nEff <= Math.ceil(analysis.walkForward.holdoutPeriod.n / 21), JSON.stringify(overall21));
+  const bands = analysis.calibration.fwd21d.bands;
+  check('v60.16 the calibration table is a disclosure: every band carries its non-overlapping count and reports no mean below the floor', analysis.calibration.fwd21d.allowedUse.startsWith('disclosure-only') && bands.length === 5
+    && bands.every((band) => Number.isInteger(band.nEff) && band.nEff <= band.n && (band.nEff >= analysis.calibration.fwd21d.minNEff ? band.meanReturn != null && band.se != null : band.meanReturn === null)), JSON.stringify(bands));
+  check('v60.16 the long-run score study reports the one-session execution lag beside the same-close correlation', analysis.executionLag.fwd21d.composite.n === overall21.n - 1 && typeof analysis.methodology.executionLag === 'string');
+}
+
+// Turnover and the cost scenario are judged from the fields the backtest writes, so those two flags follow the
+// published backtest; the status stays BLOCKED on the universe, capacity and live-parity requirements.
+const judgedFromBacktest = judgeRequirements(JSON.parse(await readFile(new URL('../public-data/factor-backtest-longrun.json', import.meta.url), 'utf8')));
+check('cost/liquidity and live parity cannot silently promote the model', status.status === 'BLOCKED' && status.allowedUse === 'research-relative-ranking-only' && status.pointInTimeUniverse === false && status.liquidityCapacityModeled === false && status.liveBacktestParity === false
+  && status.turnoverModeled === judgedFromBacktest.turnoverModeled && status.transactionCostsModeled === judgedFromBacktest.transactionCostsModeled, JSON.stringify(judgedFromBacktest));
 
 // RM-04: deterministic negative controls for the live cross-sectional ranker. These fixtures do
 // not claim predictive validity; they prove that quality metadata and conservative fallbacks are
@@ -29,6 +91,7 @@ const rankRow = (sym, sector, seed, overrides = {}) => ({
   ret1m: seed,
   ret3m: seed * 0.8,
   ret6m: seed * 0.5,
+  ret12m: seed * 1.5,
   pctSma50: seed,
   pctSma200: seed * 0.6,
   observedAt: '2026-08-26T00:00:00.000Z',

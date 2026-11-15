@@ -57,7 +57,8 @@ function temperatureItem(market, id, name, { retained = [], asOf = null } = {}) 
   const outcome = market.outcomes?.[market.state]?.h21;
   const base = market.outcomes?.all?.h21?.hitRate;
   if (!outcome) return null;
-  return frequencyEvidence({ id, label: `${name} 가격 온도`, condition: `${name} 가격 온도 '${market.state === 'cold' ? '차가움' : '뜨거움'}'(${market.asOf ? `${Number(market.asOf.slice(5, 7))}/${Number(market.asOf.slice(8, 10))} 기준, ` : ''}겹치지 않는 과거 구간)`, rate: outcome.hitRate, base, n: outcome.n, unit: '구간' });
+  const item = frequencyEvidence({ id, label: `${name} 가격 온도`, condition: `${name} 가격 온도 '${market.state === 'cold' ? '차가움' : '뜨거움'}'(${market.asOf ? `${Number(market.asOf.slice(5, 7))}/${Number(market.asOf.slice(8, 10))} 기준, ` : ''}겹치지 않는 과거 구간)`, rate: outcome.hitRate, base, n: outcome.n, unit: '구간' });
+  return item && { ...item, path: 'index-temperature' };
 }
 
 function stressItem(stress, vix) {
@@ -71,8 +72,11 @@ function stressItem(stress, vix) {
   return item && { ...item, vote: 0, reference: true, text: `${item.text.replace(/ — .*$/, '')} — 기간이 서로 겹치는 통계라 참고만 하고 판단에는 넣지 않음` };
 }
 
+// Items that share a `path` read one price series twice (S&P 500 and Nasdaq temperature, KOSPI and KOSDAQ): the same
+// direction from both is one vote, so two cold indices cannot turn 약한 매수 우위 into 매수 우위 by themselves.
 function combine(items) {
-  const votes = items.filter(Boolean).map((item) => item.vote).filter(Boolean);
+  const seen = new Set();
+  const votes = items.filter(Boolean).filter((item) => item.vote && !(item.path && seen.has(`${item.path}:${item.vote}`)) && (!item.path || seen.add(`${item.path}:${item.vote}`))).map((item) => item.vote);
   const up = votes.filter((v) => v > 0).length, down = votes.filter((v) => v < 0).length;
   if (up && down) return { key: 'mixed', score: up - down };
   const score = Math.max(-2, Math.min(2, up - down));
@@ -112,7 +116,13 @@ export function buildMarketLean({ regime = null, stress = null, temperature = nu
     : condition ? `부담이나 양호 쪽이 2개 이상 많아지면 조건 쪽 기울기가 생깁니다.` : null;
   // R697: when only the condition count votes, the label says so — a count is not a measured likelihood.
   const countOnly = usCombined.score !== 0 && usItems.every((item) => !item.vote || item.kind === 'count');
-  const us = { available: usItems.length > 0, market: 'US', key: usCombined.key, score: usCombined.score, countOnly, label: `${LEAN_LABELS[usCombined.key]}${countOnly ? ' (조건 기준)' : ''}`, items: usItems,
+  // What the lean is built from today. A frequency votes only past its noise gate; on the published record none of the
+  // temperature frequencies does, so the count alone decides and only the three middle labels can appear — said on the
+  // card instead of leaving a five-step scale implied.
+  const measured = usItems.some((item) => item.kind === 'frequency' && !item.reference && item.vote);
+  const basis = measured ? '6개 지표 개수와 기준을 넘은 과거 빈도로 정한 기울기입니다.'
+    : `지금은 기준(표본 ${LEAN_RULES.minVoteN}개 이상, 평소와 차이가 표준오차 ${LEAN_RULES.seMultiple}배·${LEAN_RULES.minEdgePp}%p 이상)을 넘는 과거 빈도가 없어 6개 지표 개수만으로 정한 기울기입니다. 그래서 '${LEAN_LABELS[2]}'·'${LEAN_LABELS[-2]}'·'${LEAN_LABELS.mixed}'은 지금 나오지 않습니다.`;
+  const us = { available: usItems.length > 0, market: 'US', key: usCombined.key, score: usCombined.score, countOnly, measured, basis, label: `${LEAN_LABELS[usCombined.key]}${countOnly ? ' (조건 기준)' : ''}`, items: usItems,
     read: leanRead(usCombined.key, usItems, baseRate), flip, choices: CHOICE_BY_LEAN[usCombined.key].map((id) => CHOICES[id]), horizon: LEAN_RULES.horizon, baseRate };
   const krItems = [temperatureItem(temperature?.markets?.kospi, 'temp-kospi', '코스피', { retained }), temperatureItem(temperature?.markets?.kosdaq, 'temp-kosdaq', '코스닥', { retained })].filter(Boolean);
   const krCombined = combine(krItems);
@@ -129,5 +139,5 @@ export function renderMarketLeanContext(model) {
   if (!model?.us?.available) return '';
   const part = (lean, title) => lean?.available ? [`${title}: ${lean.label}. ${lean.read || ''}`, ...lean.items.map((item) => `- ${item.label}: ${item.text}`)] : [];
   return [`[시장 기울기(매수·매도 우위), ${MARKET_LEAN_VERSION}] 시장 전체의 약 1개월(21거래일) 기울기. '(조건 기준)'이 붙으면 조건 개수만으로 기운 것이며 확률 근거가 아님. 지금 조건(개수)과 같은 기록의 과거 빈도(기저율·표본 수와 함께)만 사용하며 가격·목표가·개인 매매 지시가 아님.`,
-    ...part(model.us, '미국'), model.us.flip ? `바뀌는 조건: ${model.us.flip}` : '', `일반적으로 상대적으로 덜 불리한 선택(개인 보유 종목에 대한 지시 아님): ${model.us.choices.join(', ')}`, ...part(model.kr, '한국 참고')].filter(Boolean).join('\n');
+    ...part(model.us, '미국'), model.us.basis ? `구성: ${model.us.basis}` : '', model.us.flip ? `바뀌는 조건: ${model.us.flip}` : '', `일반적으로 상대적으로 덜 불리한 선택(개인 보유 종목에 대한 지시 아님): ${model.us.choices.join(', ')}`, ...part(model.kr, '한국 참고')].filter(Boolean).join('\n');
 }

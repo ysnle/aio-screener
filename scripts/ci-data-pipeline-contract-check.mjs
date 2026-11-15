@@ -273,13 +273,15 @@ const fetchData = readProducerSource();
       JSON.stringify({ bad: bad && { c: bad.sharesCheck, pe: bad.pe }, good: good && { c: good.sharesCheck, pe: good.pe } }));
     // v58.20 review B1: a split after the 10-K. The FY cover count (pre-split) passes the EPS check from the same filing,
     // so the post-split close used to price P/E at a tenth of its value. A later 10-Q cover count at a near-integer
-    // ratio replaces it; an ordinary buyback-sized change does not.
+    // ratio replaces it as a split. v60.16: an ordinary buyback-sized change is the newer count on the same basis
+    // (dei-cover-latest), and a jump outside 0.67–1.5 that is not a split keeps the 10-K count.
     const withLaterCover = (later) => { const f = facts(89213394); f.facts.dei.EntityCommonStockSharesOutstanding.units.shares.push({ val: later, form: '10-Q', fp: 'Q1', end: '2026-04-20', filed: '2026-04-28', accn: 'q1' }); return f; };
     const split = normalizeSecCompanyFacts('PKG', withLaterCover(89213394 * 10), 229.94 / 10, null);
     const buyback = normalizeSecCompanyFacts('PKG', withLaterCover(Math.round(89213394 * 0.97)), 229.94, null);
     check('v58.20 a share split after the 10-K prices P/E on the later post-split cover count, not the pre-split 10-K count',
       split?.sharesBasis === 'dei-cover-post-split' && split?.sharesOutstanding === 892133940 && split?.sharesSplitRatio === 10 && Math.abs(split?.pe - 26.5) < 0.2
-        && buyback?.sharesBasis === 'dei-cover' && buyback?.sharesOutstanding === 89213394,
+        && buyback?.sharesBasis === 'dei-cover-latest' && buyback?.sharesOutstanding === 86536992 && buyback?.sharesObservedAt === '2026-04-20'
+        && normalizeSecCompanyFacts('PKG', withLaterCover(Math.round(89213394 * 0.4)), 229.94, null)?.sharesBasis === 'dei-cover',
       JSON.stringify({ split: split && { b: split.sharesBasis, s: split.sharesOutstanding, r: split.sharesSplitRatio, pe: split.pe }, buyback: buyback && { b: buyback.sharesBasis, s: buyback.sharesOutstanding } }));
     // v59.70 (Sandisk 8:1, trading adjusted 2026-11-20): before any post-split filing exists, the chart's split event
     // scales the pre-split cover count to the split-adjusted close; a split before the count's date, or after the factor
@@ -1732,7 +1734,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && ttm.roe === 22.2 && ttm.roeBasis === 'average-equity' && ttm.equityPrior === 1600 && noPrior.roe === 20 && noPrior.roeBasis === 'year-end-equity' && noPrior.peEarnings == null
       && reconcileSecEarningsBasis(ttm) === ttm
       && priced?.pe === 2 && priced.peEarningsBasis === 'ttm' && priced.peEarningsThrough === '2026-06-30'
-      && debt.map((r) => r.value).join() === '8,7,5'
+      && debt.map((r) => r.value).join() === '9,6,5' /* v60.16: the series anchors on total debt (LongTermDebt), still one concept per series */
       && !/_parseSECFinancials\(/.test(chatSource) && !/_parseSECFinancials|fetchSEC/.test(readFileSync(new URL('../src/ui/components/fundamental-search.js', import.meta.url), 'utf8')) /* v59.51 (content audit): the 재무 공시 search is a selection hand-off; its legacy report and parse call left, so no second SEC parser may return there */ && !/window\.AIO\.(?:loadSecStatements|parseSecStatements)\s*=/.test(bridgeSource) /* v59.51 (content audit): the AIO.loadSecStatements / AIO.parseSecStatements bridge had no consumer left and was retired */;
     detail = JSON.stringify({ ttm: ttm.peEarnings, roe: [ttm.roe, ttm.roeBasis], common: withCommon.peEarnings?.value, noPrior: [noPrior.roe, noPrior.roeBasis], pe: priced?.pe, debt: debt.map((r) => r.value) });
   } catch (error) { detail = error.message; }
@@ -3047,7 +3049,13 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   check('v58.71 briefing move rows carry their own close date (WTI on its last bar, the S&P 500 on the latest session)',
     moveRows.find((row) => row.label === 'S&P 500')?.asOf === '2026-10-22' && moveRows.find((row) => row.label === 'WTI')?.asOf === '2026-10-21', JSON.stringify(moveRows));
   const chatCtx = await import('../src/ai/context/channel-signals.js');
-  const chatText = chatCtx.formatChannelSignalEvidence(digest.signals, { tickers: ['META'], market: true });
+  const chatNow = Date.parse('2026-10-23T03:00:00Z');
+  const chatText = chatCtx.formatChannelSignalEvidence(digest.signals, { tickers: ['META'], market: true, nowMs: chatNow });
+  // v60.16: a release or retail reading older than the 72-hour narrative window is not offered as the channels' current word.
+  const agedMarket = chatCtx.formatChannelSignalEvidence([{ kind: 'macro', date: '2026-10-14', name: '미국 실업률', actual: 4.1, forecast: 4.2 }, { kind: 'macro', date: '2026-10-22', name: '미국 CPI', actual: 3, forecast: 3.1 },
+    { kind: 'retail', side: 'buy', date: '2026-10-12', top10Share: 90, leveragedLongShare: 60 }], { market: true, nowMs: chatNow });
+  check('v60.16 chat: the market channel lines keep the 72-hour narrative window (an older release or retail row is left out)',
+    /2026-10-22 경제지표\] 미국 CPI/.test(agedMarket) && !/2026-10-14|서학개미/.test(agedMarket), agedMarket);
   const relayed = ts.mergeSignals([], [{ ...fromTo, key: 'a', date: '2026-10-21' }, { ...fromTo, key: 'b', date: '2026-10-22' }]);
   check('v58.71 chat: a ticker question gets its reported actions, a market question the releases and retail leverage, attributed as channel reports; one report relayed twice counts once',
     /\[2026-10-22 META\] Rosenblatt 목표주가 886 USD → 900 USD 상향/.test(chatText) && /서학개미 순매수\] 상위 10종목/.test(chatText) && /리서치 채널 보도에 따르면/.test(chatText)

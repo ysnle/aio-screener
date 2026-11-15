@@ -629,6 +629,10 @@ export function assessAccountPerformance(input) {
   cashflows.push({ years: terminalYears, amount: valuations[valuations.length - 1].amount });
   if (!flowResolvable || terminalYears == null) return blocked('account-flow-date-unparseable', '원장 거래 날짜를 해석할 수 없어 MWR를 계산하지 않습니다.');
   var mwr = _pfIrr(cashflows);
+  // Annualising a sample shorter than a year extrapolates it (one month at +5% reads +77.6% a year), so under a year
+  // the figure to show is the money-weighted return over the sample itself; `mwr` stays the annualised IRR.
+  var mwrAnnualized = terminalYears >= 1;
+  var mwrShown = mwr == null ? null : mwrAnnualized ? mwr : Math.pow(1 + mwr, terminalYears) - 1;
 
   var warnings = [];
   // v59.45 (PASS22): _pfIrr holds for several reasons (one-sided flows, no sign change in its search range, an
@@ -650,7 +654,8 @@ export function assessAccountPerformance(input) {
     sample: { from: firstDate, to: lastDate, periods: periods.length, years: terminalYears },
     // v57.48 expert review #6: the two numbers are on different units — TWR is the chained return over the
     // whole sample (not annualized), MWR is the annualized IRR. A display must name both units.
-    units: { twr: 'period-cumulative', mwr: 'annualized-irr' },
+    units: { twr: 'period-cumulative', mwr: 'annualized-irr', mwrShown: mwrAnnualized ? 'annualized-irr' : 'period-irr' },
+    mwrShown: mwrShown,
     conventions: { returnBasis: interiorFlows ? 'time-weighted-boundary-approximation' : 'time-weighted-subperiod-chain', flowTiming: flowTiming, annualization: 'actual-365', irrMethod: 'bisection' },
     twrExact: interiorFlows === 0,
     interiorFlowCount: interiorFlows,

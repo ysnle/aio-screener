@@ -231,6 +231,8 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
 // (public-data/sp500-weights.json, IVV holdings). No holdings → nothing renders; a missing input says 없음.
 let sp500Weights = null;
 let sp500Requested = false;
+/** The S&P 500 weights once loaded (null before); the 점검 criteria expand index trackers with the same file. */
+export const loadedSp500Weights = () => sp500Weights;
 function requestSp500Weights(root, onReady) {
   if (sp500Requested) return;
   sp500Requested = true;

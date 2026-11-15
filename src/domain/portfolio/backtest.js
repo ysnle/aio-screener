@@ -47,6 +47,9 @@ function _aioBtMonthEnds(series, cutMs) {
   // aliases are intentionally excluded; the producer must provide the
   // explicit adjustedCloses field alongside the observation timestamps.
   var closes = series && Array.isArray(series.adjustedCloses) ? series.adjustedCloses : [];
+  // The traded close of the same bar, when the series carries it: a market value is quantity × the price paid that day
+  // (`raw`); the dividend-adjusted close is for returns only.
+  var rawCloses = series && Array.isArray(series.closes) && series.closes.length === closes.length ? series.closes : null;
   for (var i = 0; i < Math.min(ts.length, closes.length); i++) {
     var close = _aioBtFinite(closes[i]);
     if (close === null || close <= 0) continue;
@@ -55,7 +58,8 @@ function _aioBtMonthEnds(series, cutMs) {
     var tsMs = _aioBtTimestampMs(ts[i]);
     if (cutMs != null && (tsMs == null || tsMs > cutMs)) continue;
     if (out[key] && out[key].tsMs != null && tsMs != null && out[key].tsMs > tsMs) continue;
-    out[key] = { value: close, tsMs: tsMs };
+    var rawClose = rawCloses ? _aioBtFinite(rawCloses[i]) : null;
+    out[key] = { value: close, tsMs: tsMs, raw: rawClose != null && rawClose > 0 ? rawClose : null };
   }
   return out;
 }
@@ -74,8 +78,8 @@ function _aioBtSortino(returns, rfAnnual) {
   // v51.86 P574/R265: downside deviation 의 분모를 "하방 관측 수(n_neg-1)" 가 아니라
   //   "전체 관측 수(N)" 로 사용한다 — Sortino & Price(1994) 및 Portfolio Visualizer 표준.
   //   기존 분모(n_neg-1)는 하방편차를 과대평가해 Sortino 를 표준 대비 ~46% 과소평가시켰다
-  //   (실측: 동일 24개월 시계열에서 0.83 vs 표준 1.54). 이 백테스트는 CLAUDE.md 에서
-  //   "Portfolio Visualizer 식" 이라 표방하므로 그 정의와 일치해야 한다. 분자는 하방 관측만
+  //   (실측: 동일 24개월 시계열에서 0.83 vs 표준 1.54). 이 랩의 지표는 Portfolio Visualizer 의
+  //   정의를 따르므로 Sortino 도 그 정의와 일치해야 한다. 분자는 하방 관측만
   //   제곱합(=Σ min(0, excess)^2)으로 이미 동일하고, 분모만 excess.length(=N)로 정정.
   var dd = Math.sqrt(downside.reduce(function(s, r) { return s + r * r; }, 0) / excess.length);
   if (dd < 1e-10) return null;
@@ -306,7 +310,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     return {
       ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
       decisionEligible: false, promotionEligible: false,
-      promotionBlockers: ['member-price-coverage-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+      promotionBlockers: ['member-price-coverage-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-measured-not-costed'],
       reason: 'member price series missing',
       model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
       priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
@@ -388,7 +392,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       return {
         ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
         decisionEligible: false, promotionEligible: false,
-        promotionBlockers: ['currency-conversion-basis-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        promotionBlockers: ['currency-conversion-basis-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-measured-not-costed'],
         reason: 'base-currency-undeclared', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
         currencyAxis: currencyAxis,
@@ -405,7 +409,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       return {
         ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
         decisionEligible: false, promotionEligible: false,
-        promotionBlockers: ['currency-conversion-basis-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        promotionBlockers: ['currency-conversion-basis-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-measured-not-costed'],
         reason: 'fx-rate-not-declared', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
         currencyAxis: currencyAxis,
@@ -435,12 +439,12 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     return {
       ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
       decisionEligible: false, promotionEligible: false,
-      promotionBlockers: ['adjusted-close-required', 'current-composition-retrospective', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+      promotionBlockers: ['adjusted-close-required', 'current-composition-retrospective', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-measured-not-costed'],
       reason: 'adjusted-close series required',
       model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
       priceBasis: 'adjusted-close-required',
       compositionDisclosure: 'current-composition-retrospective',
-      warnings: ['조정주가(adjusted close) 이력이 없어 성과 계산을 보류합니다: ' + missingAdjusted.join(', ') + '.', '원가·raw close를 조정주가 대신 사용하지 않습니다.', '거래비용·슬리피지·회전율을 모델링하지 않은 결과는 승격할 수 없습니다.']
+      warnings: ['조정주가(adjusted close) 이력이 없어 성과 계산을 보류합니다: ' + missingAdjusted.join(', ') + '.', '원가·raw close를 조정주가 대신 사용하지 않습니다.', '거래비용·슬리피지를 반영하지 않은 결과는 승격할 수 없습니다.']
     };
   }
   // Do not invent a risk-free rate. Gross return rows can still be shown,
@@ -449,10 +453,13 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
 
   var monthEnds = {};
   tickers.concat([benchmarkSymbol]).forEach(function(t) { monthEnds[t] = _aioBtMonthEnds(priceMap[t], asOfMs); });
+  // The December before the start year is the base month, so the start year's first return is January's and the year
+  // has all twelve months (a January base left it at eleven).
+  var baseMonth = (startYear - 1) + '-12';
   var common = Object.keys(monthEnds[benchmarkSymbol]).filter(function(k) {
     var y = Number(k.slice(0, 4));
     var benchmarkPoint = monthEnds[benchmarkSymbol][k];
-    return y >= startYear && y <= endYear && benchmarkPoint && benchmarkPoint.tsMs != null
+    return (y >= startYear || k === baseMonth) && y <= endYear && benchmarkPoint && benchmarkPoint.tsMs != null
       && tickers.every(function(t) {
         var point = monthEnds[t][k];
         return point && point.tsMs != null
@@ -469,7 +476,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     return {
       ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
       decisionEligible: false, promotionEligible: false,
-      promotionBlockers: ['synchronous-month-end-alignment-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+      promotionBlockers: ['synchronous-month-end-alignment-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-measured-not-costed'],
       reason: 'insufficient synchronously aligned monthly data', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
       priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
       warnings: ['동일 월 키라도 관측일 차이가 ' + maxAlignmentGapDays + '일을 넘는 자산은 결합하지 않습니다. 공통 동시 월말이 14개월 미만입니다.']
@@ -505,7 +512,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       return {
         ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
         decisionEligible: false, promotionEligible: false,
-        promotionBlockers: ['contiguous-monthly-grid-required', 'synchronous-month-end-alignment-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        promotionBlockers: ['contiguous-monthly-grid-required', 'synchronous-month-end-alignment-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-measured-not-costed'],
         reason: 'monthly grid has gaps and no contiguous window reaches 14 months',
         model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
@@ -529,6 +536,8 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   //  - sum 0: a cash-mode question, not a fallback trigger.
   var targetWeights = {};
   var targetWeightBasis = 'start-date-adjusted-close-market-value';
+  // Which close priced the start weights: the traded close, or the adjusted one when a series carries no traded close.
+  var startWeightPriceBasis = 'raw-close';
   // P1252 (BT-03): 원가 통화로 시세 값을 환산한 멤버 공개(명시 비중 경로에서는 비어 있다).
   var priceCurrencyInferredMembers = [];
   var specifiedTickers = tickers.filter(function(t) { return byTickerTargetWeight[t] != null; });
@@ -548,7 +557,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       return {
         ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
         decisionEligible: false, promotionEligible: false,
-        promotionBlockers: ['currency-conversion-basis-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        promotionBlockers: ['currency-conversion-basis-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-measured-not-costed'],
         reason: 'member-currency-undeclared', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
         currencyAxis: currencyAxis,
@@ -560,20 +569,34 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       };
     }
     var startMonth = common[0];
+    // The start weights are a start-date fact on both axes: the traded close of the start month (not the
+    // dividend-adjusted one, which understates a dividend payer's value back then) and the USD/KRW month-end of the
+    // same month when the series has it. Today's declared rate on start-month prices moved the allocation with a later
+    // quote (22:PFR01); it remains the fallback, and the axis says which was used.
+    var startFx = needsConversion ? (_aioBtFxMonthEndSeries(options.fxSeries) || {})[startMonth] : null;
+    var toBaseAtStart = function(amount, currency) {
+      var pair = startFx && amount != null && currency && baseCurrency ? currency + '/' + baseCurrency : null;
+      if (pair !== 'USD/KRW' && pair !== 'KRW/USD') return toBaseCurrency(amount, currency, 'price');
+      currencyAxis.compositionFx = { basis: 'start-month-end-series', month: startMonth, observedAt: startFx.observedAt, value: startFx.value };
+      currencyAxis.applied = true;
+      return pair === 'USD/KRW' ? amount * startFx.value : amount / startFx.value;
+    };
     // P1252 (BT-03): 분자는 **시세** 기준 시장가치다. 시세 통화가 없고 원가 통화만 있으면 원가
     // 통화로 시세 값을 환산하는 근거 추정이 된다 — 숨기지 않고 축에 공개한다(price-currency-inferred-
     // from-cost). 둘 다 없으면 위의 BT-02 보류가 이미 막는다.
     tickers.forEach(function(t) {
       var startPoint = monthEnds[t][startMonth];
-      var marketValue = startPoint && startPoint.value > 0 ? byTickerQty[t] * startPoint.value : null;
+      if (startPoint && startPoint.raw == null) startWeightPriceBasis = 'adjusted-close';
+      var marketValue = startPoint && startPoint.value > 0 ? byTickerQty[t] * (startPoint.raw != null ? startPoint.raw : startPoint.value) : null;
       // P1247: 비중의 분자는 **기준 통화로 환산된** 시장가치다. 환산 실패를 0으로눕히지 않는다 —
       // 0은 "제외 의도"이고 여기서는 환산 근거가 없다는 뜻이므로 아래에서 실행을 보류한다.
       var entry = currencyByTicker[t] || {};
       if (!entry.price && entry.cost && priceCurrencyInferredMembers.indexOf(t) < 0) priceCurrencyInferredMembers.push(t);
-      var marketValueBase = toBaseCurrency(marketValue, entry.price || entry.cost, 'price');
+      var marketValueBase = toBaseAtStart(marketValue, entry.price || entry.cost);
       targetWeightDenominator += marketValueBase || 0;
       targetWeights[t] = marketValueBase;
     });
+    if (needsConversion && !currencyAxis.compositionFx) currencyAxis.compositionFx = { basis: 'declared-rate-as-of-run', month: startMonth };
     if (priceCurrencyInferredMembers.length) {
       currencyAxis.priceValueBasis = 'price-currency-inferred-from-cost';
       currencyAxis.priceCurrencyInferredMembers = priceCurrencyInferredMembers.slice();
@@ -582,7 +605,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       return {
         ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
         decisionEligible: false, promotionEligible: false,
-        promotionBlockers: ['currency-conversion-basis-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        promotionBlockers: ['currency-conversion-basis-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-measured-not-costed'],
         reason: 'fx-conversion-unavailable', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
         currencyAxis: currencyAxis,
@@ -597,7 +620,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       return {
         ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
         decisionEligible: false, promotionEligible: false,
-        promotionBlockers: ['target-weight-basis-unavailable', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        promotionBlockers: ['target-weight-basis-unavailable', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-measured-not-costed'],
         reason: 'target weight basis unavailable', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
         warnings: ['원가 비중을 목표비중으로 대체하지 않습니다. 명시적 targetWeight 또는 시작 시점 조정주가×수량이 필요합니다.']
@@ -636,7 +659,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       return {
         ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false,
         decisionEligible: false, promotionEligible: false,
-        promotionBlockers: ['allocation-resolution-blocked', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-not-modeled'],
+        promotionBlockers: ['allocation-resolution-blocked', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-measured-not-costed'],
         reason: allocationBlocked.code, model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
         allocationBlocked: allocationBlocked,
@@ -855,7 +878,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     promotionBlockers: [
       'transaction-costs-not-modeled',
       'slippage-not-modeled',
-      'turnover-not-modeled',
+      'turnover-measured-not-costed',
       'current-composition-retrospective',
       'survivorship-and-membership-history-unavailable'
     ],
@@ -875,10 +898,12 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       initialAmount: initialAmount, startMonth: common[0], endMonth: common[common.length - 1], months: nMonths,
       rebalanceType: rebalanceType, benchmarkSymbol: benchmarkSymbol, rfAnnual: rfAnnual,
       rfAnnualUnit: 'decimal', rfInputStatus: rfInvalid ? 'invalid-rejected' : rfAnnual == null ? 'not-supplied' : 'accepted',
-      transactionCostBps: null, slippageBps: null, turnoverModeled: false,
+      // Turnover is measured at each rebalance (observedTargetTurnover) but no cost is charged for it.
+      transactionCostBps: null, slippageBps: null, turnoverMeasured: true, turnoverCosted: false,
       maxAlignmentGapDays: maxAlignmentGapDays, observedTargetTurnover: totalTurnover,
       turnoverBasis: 'half-sum-absolute-target-minus-realized-end-weight-at-rebalance',
       targetWeightBasis: targetWeightBasis,
+      startWeightPriceBasis: targetWeightBasis === 'explicit-target-weight' ? null : startWeightPriceBasis,
       // W07-E/P1146: state the grid the monthly statistics were actually computed on.
       gridGaps: gridGaps, excludedMonths: excludedMonths, partialMonthExcluded: partialMonth,
       monthlyGridBasis: gridGaps.length ? 'longest-contiguous-window' : 'contiguous'
@@ -925,7 +950,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       downsideCapture: downCapture
     },
     warnings: [
-      '조정주가 기반 총수익률의 참고용 추정치입니다. 세금·수수료·거래비용·슬리피지·회전율을 모델링하지 않았으며 gross 성과입니다. 이 누락은 승격 차단 사유입니다.',
+      '조정주가 기반 총수익률의 참고용 추정치입니다. 세금·수수료·거래비용·슬리피지를 반영하지 않은 gross 성과이며, 리밸런싱 회전율은 측정만 하고 비용으로 차감하지 않았습니다. 이 누락은 승격 차단 사유입니다.',
       '명시적 목표비중 또는 시작 시점 조정주가×수량 비중을 과거에 소급한 current-composition retrospective이며 원가 비중을 시장가 비중으로 오인하지 않습니다. 생존편향·구성 변경·상장 전 구간은 교정하지 않습니다.',
       '월말 관측일이 자산 간 ' + maxAlignmentGapDays + '일을 초과하는 월은 비동시성 편향 방지를 위해 제외했습니다.',
       // P1252 (BT-05): 경고는 실제 판정을 말한다 — 인증된 표본에 고정 "인증 보류"를 붙이지 않고,
@@ -936,11 +961,13 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
         + ', CVaR ' + (varCertification.cvarCertification === 'certified' ? '인증됨' : '인증 보류(' + (varCertification.cvarCertificationReasons || []).join(', ') + ')') + '.',
       rfInvalid ? '무위험수익률(RF)은 연간 소수(decimal) 단위(-1, 1]만 허용합니다. 입력 단위가 잘못되어 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : rfAnnual == null ? '무위험수익률(RF)을 입력하지 않아 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : ('RF 가정: 연 소수 ' + rfAnnual.toFixed(6) + ' (' + (rfAnnual * 100).toFixed(2) + '%).'),
       '거래 가능한 실현 성과·매매 지시로 승격하지 않습니다.',
-      '각 종목 상장일 이후부터 계산합니다.',
+      '모든 종목과 벤치마크의 월말 가격이 함께 있는 첫 달(' + common[0] + ')부터 계산합니다 — 가장 늦게 상장한 종목이 전체 시작 시점을 정합니다.',
       // P1252 (BT-03): 원가 통화로 시세 값을 환산한 근거 추정은 공개한다 — 시세 통화 선언이
       // 원가 통화와 다르면 비중이 왜곡될 수 있다.
       priceCurrencyInferredMembers.length ? ('시세 통화가 선언되지 않은 멤버(' + priceCurrencyInferredMembers.join(', ') + ')는 원가 통화를 시세 값 환산의 통화로 사용했습니다(price-currency-inferred-from-cost) — 원가 통화가 실제 시세 통화와 다르면 시작 비중이 왜곡됩니다.') : null,
-      needsConversion ? ('비중은 선언된 rate leg로 기준 통화(' + baseCurrency + ')로 환산했지만, 월별 수익률은 각 자산의 현지 통화 가격 경로에서 계산됩니다 — 기준 통화 수익률에는 관측 FX 시계열이 필요하며 이 결과에 포함되지 않았습니다.') : null
+      targetWeightBasis !== 'explicit-target-weight' && startWeightPriceBasis === 'adjusted-close' ? '실제 거래 종가가 없는 종목이 있어 시작 비중을 배당 조정 종가로 계산했습니다 — 배당이 큰 종목은 시작 비중이 실제보다 작게 잡힙니다.' : null,
+      needsConversion && currencyAxis.compositionFx && currencyAxis.compositionFx.basis === 'declared-rate-as-of-run' && targetWeightBasis !== 'explicit-target-weight' ? '시작 달(' + common[0] + ')의 원/달러 월말 값이 없어 시작 비중을 지금 선언된 환율로 환산했습니다 — 그 사이 환율이 움직인 만큼 시작 비중이 실제와 다릅니다.' : null,
+      needsConversion ? ('비중은 ' + (currencyAxis.compositionFx && currencyAxis.compositionFx.basis === 'start-month-end-series' ? '시작 달 원/달러 월말 값으로' : '선언된 rate leg로') + ' 기준 통화(' + baseCurrency + ')로 환산했지만, 월별 수익률은 각 자산의 현지 통화 가격 경로에서 계산됩니다 — 기준 통화 수익률에는 관측 FX 시계열이 필요하며 이 결과에 포함되지 않았습니다.') : null
     ].filter(Boolean)
   };
 };

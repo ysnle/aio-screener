@@ -195,6 +195,9 @@ export function impliedGrowth({ fcf, marketValue, discountRate, terminalGrowth, 
 // count and a dated completed close. Each missing piece is named; FCF ≤ 0 is not solved (no growth rate makes a negative
 // cash flow worth a positive price in this model).
 export function reverseDcfInputs({ history, fundamentals, close, financial = false, nowMs = Date.now() }) {
+  // `financial` is true or a financialKind ('lending' | 'insurer' | 'reit').
+  if (financial === 'reit') return { state: 'financial', reason: '리츠는 건물 매입이 설비투자가 아닌 투자활동으로 잡혀 영업현금흐름에서 설비투자를 뺀 값으로 가치를 계산하지 않습니다.' };
+  if (financial === 'insurer') return { state: 'financial', reason: '보험사는 영업현금흐름에 보험료 수입과 보험금 지급의 시차, 준비금 증감이 섞여 잉여현금흐름으로 가치를 계산하지 않습니다.' };
   if (financial) return { state: 'financial', reason: '은행·대출 금융사는 영업현금흐름에 예금·대출 증감이 섞여 잉여현금흐름으로 가치를 계산하지 않습니다.' };
   const latest = sorted(history).at(-1);
   if (!latest) return { state: 'missing', reason: 'SEC 연간 현금흐름 기록이 없어 계산하지 않습니다.' };

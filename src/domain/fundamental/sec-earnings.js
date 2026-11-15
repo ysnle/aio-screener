@@ -10,7 +10,7 @@
 //       (preferred dividends and participating securities removed); otherwise net income.
 //  D2 — ROE is net income over the average of the prior and current fiscal year-end equity (same concept); a missing
 //       or non-positive prior year falls back to year-end equity and says so (roeBasis 'year-end-equity').
-import { finiteFact as finite, isPriorAnnualPeriod } from './period.js';
+import { finiteFact as finite, isPriorAnnualPeriod, isQuarterSpan, isQuarterGap } from './period.js';
 
 export const SEC_EARNINGS_BASIS_VERSION = 'sec-earnings-basis.2026-10-17';
 export const SEC_COMMON_INCOME_CONCEPT = 'NetIncomeLossAvailableToCommonStockholdersBasic';
@@ -33,11 +33,14 @@ export const SEC_CAPITAL_CONCEPTS = Object.freeze({
 // The IFRS lines for the same items (an IFRS filer has no separate short-term investments concept here).
 export const SEC_IFRS_CAPITAL_CONCEPTS = Object.freeze({ grossProfit: ['GrossProfit'], operatingIncome: ['ProfitLossFromOperatingActivities'], cash: ['CashAndCashEquivalents'], shortTermInvestments: [],
   shareBasedCompensation: ['AdjustmentsForSharebasedPayments'], buybacks: ['PaymentsToAcquireOrRedeemEntitysShares'], dividends: ['DividendsPaidClassifiedAsFinancingActivities'] });
+// Noncurrent long-term debt plus the current portion of the same filing, for a filer that tags no LongTermDebt total.
+export const SEC_TOTAL_DEBT_DERIVED_CONCEPT = 'derived:LongTermDebtTotal';
 export const SEC_FIELD_CONCEPT_PREFERENCE = Object.freeze({
   netIncome: ['NetIncomeLoss', 'ProfitLossAttributableToOwnersOfParent', 'ProfitLoss'],
   operatingCashFlow: ['NetCashProvidedByUsedInOperatingActivities', 'NetCashProvidedByUsedInOperatingActivitiesContinuingOperations', 'CashFlowsFromUsedInOperatingActivities'],
   capex: ['PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireProductiveAssets', 'PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'],
-  longTermDebt: ['LongTermDebtNoncurrent', 'LongTermDebt'],
+  // Total debt first: LongTermDebt carries the current portion (MSFT FY2026 40,294M against 31,067M noncurrent).
+  longTermDebt: ['LongTermDebt', SEC_TOTAL_DEBT_DERIVED_CONCEPT, 'LongTermDebtNoncurrent'],
   researchAndDevelopment: SEC_RD_CONCEPTS,
   ...Object.fromEntries(Object.entries(SEC_CAPITAL_CONCEPTS).map(([field, list]) => [field, [...list, ...(SEC_IFRS_CAPITAL_CONCEPTS[field] || [])]]))
 });
@@ -57,8 +60,12 @@ export function anchorConcept(rows, preference = []) {
   if (!list.length) return null;
   const rank = (concept) => { const index = preference.indexOf(concept); return index < 0 ? preference.length : index; };
   const latestEnd = list.reduce((max, row) => (rowEnd(row) > max ? rowEnd(row) : max), '');
-  return list.filter((row) => rowEnd(row) === latestEnd)
-    .sort((a, b) => rank(a.concept) - rank(b.concept) || rowFiled(b).localeCompare(rowFiled(a)))[0].concept ?? null;
+  const latest = list.filter((row) => rowEnd(row) === latestEnd)
+    .sort((a, b) => rank(a.concept) - rank(b.concept) || rowFiled(b).localeCompare(rowFiled(a)));
+  // A debt total tagged below its own noncurrent part on the same date is a partial (TSCO LongTermDebt 150M against
+  // 1,765M noncurrent); it does not anchor the series.
+  const partial = (row) => row.concept === 'LongTermDebt' && latest.some((other) => other.concept === 'LongTermDebtNoncurrent' && rowValue(other) > rowValue(row));
+  return (latest.find((row) => !partial(row)) || latest[0]).concept ?? null;
 }
 export function anchorConceptRows(rows, preference = []) {
   const list = usableRows(rows);
@@ -69,17 +76,17 @@ export function anchorConceptRows(rows, preference = []) {
   return list.filter((row) => row.concept === anchor || !covered.has(key(row)));
 }
 
-// Discrete quarters (80–100 days, latest filing per period end), plus a fourth quarter derived from a fiscal year
-// (330+ days) that contains exactly three of them. Sorted oldest first.
+// Discrete quarters (latest filing per period end), plus a fourth quarter derived from a fiscal year (330+ days) that
+// contains exactly three of them. Sorted oldest first. A quarter is 77–119 days: 12- and 16-week fiscal quarters
+// (Kroger, Costco, AutoZone, CAVA) count beside the 13/14-week ones.
 export function discreteQuarterSeries(quarterRows, annualRows = []) {
   const byEnd = new Map();
   for (const row of Array.isArray(quarterRows) ? quarterRows : []) {
-    const days = durationDays(row);
-    if (rowValue(row) == null || !rowStart(row) || !(days >= 80 && days <= 100)) continue;
+    if (rowValue(row) == null || !rowStart(row) || !isQuarterSpan(durationDays(row))) continue;
     const prev = byEnd.get(rowEnd(row));
     if (!prev || rowFiled(row) > rowFiled(prev)) byEnd.set(rowEnd(row), row);
   }
-  const series = new Map([...byEnd].map(([end, row]) => [end, { periodEnd: end, value: rowValue(row), derived: false, concept: row.concept || null, availableAt: rowAvailable(row) }]));
+  const series = new Map([...byEnd].map(([end, row]) => [end, { periodEnd: end, value: rowValue(row), derived: false, concept: row.concept || null, availableAt: rowAvailable(row), days: durationDays(row) }]));
   const fiscal = new Map();
   for (const row of Array.isArray(annualRows) ? annualRows : []) {
     if (rowValue(row) == null || !rowStart(row) || !(durationDays(row) >= 330) || (row.fiscalPeriod && row.fiscalPeriod !== 'FY') || (row.fp && row.fp !== 'FY')) continue;
@@ -97,20 +104,24 @@ export function discreteQuarterSeries(quarterRows, annualRows = []) {
     if (series.has(end)) continue;
     const inside = [...byEnd.values()].filter((row) => rowEnd(row) > rowStart(fy) && rowEnd(row) < end);
     if (inside.length !== 3) continue;
-    series.set(end, { periodEnd: end, value: rowValue(fy) - inside.reduce((sum, row) => sum + rowValue(row), 0), derived: true, concept: fy.concept || null, availableAt: latestIso([rowAvailable(fy), ...inside.map(rowAvailable)]) });
+    const days = durationDays(fy) - inside.reduce((sum, row) => sum + durationDays(row) + 1, 0);
+    // The remainder of the year must itself be a quarter (a year holding three quarters and a gap is not netted).
+    if (!isQuarterSpan(days)) continue;
+    series.set(end, { periodEnd: end, value: rowValue(fy) - inside.reduce((sum, row) => sum + rowValue(row), 0), derived: true, concept: fy.concept || null, availableAt: latestIso([rowAvailable(fy), ...inside.map(rowAvailable)]), days });
   }
   return [...series.values()].sort((a, b) => a.periodEnd.localeCompare(b.periodEnd));
 }
 
-// The last four quarters when they are consecutive (period ends 75–105 days apart, 52/53-week years included).
+// The last four quarters when they are consecutive (period.js isQuarterGap) and together cover one year: 350–380 days,
+// so four periods that overlap or leave a hole (a mis-tagged half-year) never sum to a TTM.
 export function trailingFourQuarters(series) {
   const last = (Array.isArray(series) ? series : []).slice(-4);
   if (last.length !== 4) return null;
   for (let i = 1; i < 4; i += 1) {
-    const gap = (Date.parse(last[i].periodEnd) - Date.parse(last[i - 1].periodEnd)) / 86400000;
-    if (!(gap >= 75 && gap <= 105)) return null;
+    if (!isQuarterGap((Date.parse(last[i].periodEnd) - Date.parse(last[i - 1].periodEnd)) / 86400000)) return null;
   }
-  return last;
+  const covered = last.reduce((sum, q) => sum + q.days + 1, 0);
+  return covered >= 350 && covered <= 380 ? last : null;
 }
 
 function trailingEarnings(quarterRows, annualRows, fiscalEnd, preference) {
@@ -129,8 +140,10 @@ export function secPeEarnings(record) {
   const fiscalEnd = String(record?.observedAt || '').slice(0, 10);
   if (!observations || !fiscalEnd || (record.reportingCurrency && record.reportingCurrency !== 'USD')) return null;
   const common = trailingEarnings(observations.netIncomeCommonQ, observations.netIncomeCommon, fiscalEnd, [SEC_COMMON_INCOME_CONCEPT]);
-  if (common) return { basis: 'ttm', concept: 'common', ...common };
   const net = trailingEarnings(observations.netIncomeQ, observations.netIncome, fiscalEnd, SEC_FIELD_CONCEPT_PREFERENCE.netIncome);
+  // The newer four quarters price the P/E; common earnings win only when they run as late as net income
+  // (PLD tagged common earnings through 2026-03 with net income filed through 2026-09).
+  if (common && !(net?.through > common.through)) return { basis: 'ttm', concept: 'common', ...common };
   if (net) return { basis: 'ttm', concept: 'net-income', ...net };
   const fyCommon = (Array.isArray(observations.netIncomeCommon) ? observations.netIncomeCommon : [])
     .filter((row) => rowEnd(row) === fiscalEnd && durationDays(row) >= 300 && rowValue(row) != null)

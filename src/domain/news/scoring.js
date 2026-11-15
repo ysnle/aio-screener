@@ -3,8 +3,10 @@
 // wrapper read from its own globals (`newsCache`, `Date.now()`) is now an explicit parameter.
 // The formulas (bull/bear keyword scoring, sentiment banding, risk-signal thresholds) are
 // originally transcribed unchanged. v2 corrects lexical collisions and requires credit-stress context.
+// v3: one net word reads the same on either side, and the direction words of direction-words.js count.
 import { keywordHit } from './keyword-match.js';
-export const NEWS_SCORING_MODEL_VERSION = 'news-scoring.v2';
+import { UP_WORDS, DOWN_WORDS } from './direction-words.js';
+export const NEWS_SCORING_MODEL_VERSION = 'news-scoring.v3';
 export const MIN_NEWS_ANALYSIS_SAMPLE = 5;
 
 /** Keep only persisted chart points whose sample provenance matches this model and policy. */
@@ -20,8 +22,9 @@ export function normalizeNewsSentimentHistory(points, limit = 24) {
   }).slice(-maxPoints);
 }
 
-const BULL_KEYWORDS = ['surge', 'rally', 'beat', 'outperform', 'upgrade', 'record high', 'soar', 'market boom', 'bull', 'recovery', '급등', '상승', '호재', '상향', '돌파', '신고가', '반등', '회복'];
-const BEAR_KEYWORDS = ['crash', 'plunge', 'miss', 'downgrade', 'sell-off', 'collapse', 'fear', 'crisis', 'trade war', 'default', 'military', 'conflict', 'sanctions', '급락', '하락', '악재', '하향', '폭락', '위기', '전쟁', '부도'];
+// Beside the direction words (direction-words.js: surge, rally, fall, 상승, 하락 …), which count once per side.
+const BULL_KEYWORDS = ['beat', 'outperform', 'upgrade', 'record high', 'market boom', 'bull', 'recovery', '호재', '상향', '돌파', '신고가', '반등', '회복'];
+const BEAR_KEYWORDS = ['crash', 'miss', 'downgrade', 'sell-off', 'collapse', 'fear', 'crisis', 'trade war', 'default', 'military', 'conflict', 'sanctions', '악재', '하향', '폭락', '위기', '전쟁', '부도'];
 
 // English terms match words and common inflections, never substrings in names or unrelated words (keyword-match.js).
 const STANCE_FORMS = { suffix: '(?:s|es|d|ed|ing)' };
@@ -34,7 +37,10 @@ export function classifyNewsTextStance(text) {
   let bullScore = 0, bearScore = 0;
   BULL_KEYWORDS.forEach((kw) => { if (hasKeyword(t, kw)) bullScore++; });
   BEAR_KEYWORDS.forEach((kw) => { if (hasKeyword(t, kw)) bearScore++; });
-  if (bullScore > bearScore + 1) return 'bull';
+  if (UP_WORDS.test(t)) bullScore++;
+  if (DOWN_WORDS.test(t)) bearScore++;
+  // 'warn' is a one-word lean down, 'bear' two or more; one word up is 'bull'. The count below reads both sides alike.
+  if (bullScore > bearScore) return 'bull';
   if (bearScore > bullScore + 1) return 'bear';
   if (bearScore > bullScore) return 'warn';
   return 'neut';
@@ -123,7 +129,7 @@ function filterByKst0800Cycle(items, now) {
 export function computeNewsSentimentScore({ items = [], now = Date.now(), windowStart, windowEnd } = {}) {
   const empty = (label, total = 0) => Object.freeze({
     modelVersion: NEWS_SCORING_MODEL_VERSION,
-    score: total > 0 ? null : 50,
+    score: null,
     label,
     bullCount: 0,
     bearCount: 0,
@@ -194,14 +200,14 @@ export function computeNewsRiskSignals({ items = [], now = Date.now(), windowSta
   if (creditStress.length >= 3) riskSignals.push({ type: 'credit', level: 'high', label: '신용 스트레스 신호', impact: -12 });
 
   const earningsBull = topicEvidence.filter((i) => i.topic === 'earnings' && classifyNewsTextStance(i.title) === 'bull');
-  const earningsBear = topicEvidence.filter((i) => i.topic === 'earnings' && classifyNewsTextStance(i.title) === 'bear');
+  const earningsBear = topicEvidence.filter((i) => i.topic === 'earnings' && ['bear', 'warn'].includes(classifyNewsTextStance(i.title)));
   if (earningsBull.length > earningsBear.length + 3) riskSignals.push({ type: 'earnings', level: 'positive', label: '실적 시즌 긍정적', impact: 8 });
   else if (earningsBear.length > earningsBull.length + 3) riskSignals.push({ type: 'earnings', level: 'negative', label: '실적 시즌 부진', impact: -8 });
 
   return Object.freeze(riskSignals.map((signal) => Object.freeze(signal)));
 }
 
-/** Shared native-page summary projection; the scoring producer keeps its historical 50 baseline. */
+/** Shared native-page summary projection; no news and a thin sample both carry a null score. */
 export function deriveNewsSummary({ items = [], now = Date.now(), windowStart, windowEnd } = {}) {
   const rows = Array.isArray(items) ? items : [];
   const sentiment = computeNewsSentimentScore({ items: rows, now, windowStart, windowEnd });

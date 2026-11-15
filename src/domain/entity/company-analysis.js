@@ -1,5 +1,5 @@
 // P1624: one issuer model for every registered symbol; no example-symbol branches.
-import { buildFiscalRead, isLendingFinancial } from '../fundamental/fiscal-read.js';
+import { buildFiscalRead, financialKind } from '../fundamental/fiscal-read.js';
 import { deriveSecReport } from '../fundamental/sec-report.js';
 import { resolveInstrument, INSTRUMENT_REGISTRY } from '../instruments/instrument-registry.js';
 import { screenerMarket, marketRows, MARKET_POPULATION_POLICY } from '../screener/market-scope.js';
@@ -21,7 +21,7 @@ const safeUrl = safeSourceUrl;
 const signed = value => `${signedText(value, 1)}%`;
 const fact = (row, field, key) => row?.fieldReadiness ? finite(fieldValueForPurpose(row, field, 'display')) : finite(row?.[key]);
 
-export function buildCompanyAnalysis({ symbol, row = null, summary = null, profile = null, fundamentals = null, fiscalHistory = [], rows = [], themes = [], registry = INSTRUMENT_REGISTRY, nowMs = Date.now(), onDemand = null } = {}) {
+export function buildCompanyAnalysis({ symbol, row = null, summary = null, profile = null, fundamentals = null, fiscalHistory = [], rows = [], themes = [], registry = INSTRUMENT_REGISTRY, nowMs = Date.now(), onDemand = null, sic = null } = {}) {
   const id = sym(symbol);
   if (!id) return { modelVersion: COMPANY_ANALYSIS_MODEL_VERSION, available: false, symbol: null };
   const matchedRow = row && sym(row.sym || row.symbol) === id ? row : null;
@@ -69,13 +69,13 @@ export function buildCompanyAnalysis({ symbol, row = null, summary = null, profi
   const usableFundamentals = matchedFundamentals && officialFiling && matchedFundamentals.periodType === 'FY' && validDate(matchedFundamentals.observedAt)
     && Date.parse(matchedFundamentals.observedAt) <= nowMs && Number.isFinite(filingMs) && filingMs <= nowMs && report?.status === 'current' ? matchedFundamentals : null;
   const annualHistory = usableFundamentals ? (Array.isArray(fiscalHistory) ? fiscalHistory : []).filter(year => validDate(year.periodEnd) && Date.parse(year.periodEnd) <= nowMs && (!year.symbol || sym(year.symbol) === id)) : [];
-  const fiscal = buildFiscalRead({ symbol: id, fundamentals: usableFundamentals ? { ...usableFundamentals, fiscalHistory: annualHistory } : null, row: matchedRow });
+  const fiscal = buildFiscalRead({ symbol: id, fundamentals: usableFundamentals ? { ...usableFundamentals, fiscalHistory: annualHistory } : null, row: matchedRow, sic });
   const risks = [];
   const latest = fiscal.latest;
   if (finite(latest?.netIncome) < 0) risks.push({ id:'loss', text:`${latest.periodEnd} 연간 공시는 순손실입니다. 매출 성장과 순이익을 구분해서 확인합니다.` });
   if (fiscal.lastGrowth != null && fiscal.lastGrowth < 0) risks.push({ id:'revenue', text:`최근 회계연도 매출은 전년 대비 ${signed(fiscal.lastGrowth)}입니다.` });
   if (finite(latest?.equity) < 0) risks.push({ id:'equity', text:'공시 자기자본이 음수입니다. 일반적인 양(+)의 자기자본 ROE 해석을 적용하지 않습니다.' });
-  if (finite(latest?.operatingCashFlow) < 0 && !isLendingFinancial(matchedRow?.symbol || resolved?.symbol, matchedRow?.sector)) risks.push({ id:'cash', text:'최근 회계연도 영업현금흐름은 유출입니다. 원인과 다음 공시에서의 변화를 확인할 지점입니다.' });
+  if (finite(latest?.operatingCashFlow) < 0 && !financialKind(matchedRow?.symbol || resolved?.symbol, matchedRow?.sector, sic ?? matchedRow?.sic)) risks.push({ id:'cash', text:'최근 회계연도 영업현금흐름은 유출입니다. 원인과 다음 공시에서의 변화를 확인할 지점입니다.' });
   // v58.74 (text audit): the 50-day distance is the summary reading right above this list (with its own near-line rule),
   // so the list keeps only the observations that reading lacks.
   // v57.81: an on-demand row (out-of-universe listing) is not a registered universe row.

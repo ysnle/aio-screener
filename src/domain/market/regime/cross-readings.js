@@ -7,6 +7,7 @@ import { RULES } from '../../rules/thresholds.js';
 import { sessionCloses } from '../indices/index-levels.js';
 import { hyDelta20Bp } from '../../briefing/market-read.js';
 import { fearGreedBand } from '../sentiment/metrics.js';
+import { depthReadout } from './depth-readouts.js';
 
 const pct = (value, digits = 1) => signedText(value, digits, '%');
 const unit = (value) => Math.max(0.04, Math.min(0.96, value));
@@ -67,16 +68,18 @@ function volatilityAndSentiment(history, day) {
   const vixAt = lastDate(history, 'vix');
   const fg = lastValue(history, 'fg');
   if (vix === null) return null;
-  const inverted = vix3m !== null && vix > vix3m;
-  const numbers = [`VIX ${vix.toFixed(1)}${inverted ? '(3개월물보다 높아 단기 불안이 큰 상태)' : ''}`, fg !== null ? `공포·탐욕 지수 ${Math.round(fg)}` : null].filter(Boolean);
-  const stressed = inverted || vix >= 25;
+  // The lines are the volatility axis's and the F&G band's own (RULES), so a pair never disagrees with its card at an edge.
+  const V = RULES.volatility;
+  const inverted = vix3m !== null && vix3m > 0 && vix / vix3m >= V.invertedRatioAt;
+  const numbers = [`VIX ${vix.toFixed(1)}${inverted ? '(3개월물 이상이라 단기 불안이 큰 상태)' : ''}`, fg !== null ? `공포·탐욕 지수 ${Math.round(fg)}` : null].filter(Boolean);
+  const stressed = inverted || vix >= V.stressAt;
   // Extreme fear is the gauge's own band (published whole number under RULES.fearGreed.extremeFearBelow).
   const fearful = fg !== null && fearGreedBand(fg).label === '극단 공포';
   let read;
   if (stressed && fearful) read = '지수 불안과 심리 공포가 함께 높습니다. 과거에는 이런 겹침 뒤 반등이 자주 나왔지만, 신용 스프레드가 같이 벌어지면 예외입니다.';
   else if (stressed) read = '지수 변동성은 커졌지만 심리 지표는 아직 극단 공포가 아닙니다. 투매형 바닥 신호로 보기는 이릅니다.';
   else if (fearful) read = `심리 지수는 극단 공포 쪽인데 VIX는 큰 하락 대비를 보이지 않습니다. 겁은 났지만 투매는 아닌 상태라, 공포만으로 바닥이라고 보기는 어렵습니다.`;
-  else if (fg !== null && fg >= 75) read = '변동성은 낮고 심리는 과열 쪽입니다. 작은 악재에도 흔들리기 쉬운 자리입니다.';
+  else if (fg !== null && fg > RULES.fearGreed.extremeGreedAbove) read = '변동성은 낮고 심리는 과열 쪽입니다. 작은 악재에도 흔들리기 쉬운 자리입니다.';
   else read = '변동성과 심리 모두 중간 범위라, 어느 한쪽으로 치우친 신호는 없습니다.';
   const retail = (day?.facts || []).find((fact) => fact.kind === 'positioning' && fact.side === 'buy' && Number.isFinite(fact.leveragedLongShare));
   const crowd = retail && retail.leveragedLongShare >= 40
@@ -129,5 +132,5 @@ function koreaAndWon(history) {
 
 /** The pairs that have their inputs, in reading order. v59.70 (lens plan step 4): each carries asOf, its last close's session. */
 export function crossReadings({ history = [], macroHistory = null, day = null } = {}) {
-  return [trendAndBreadth(history), volatilityAndSentiment(history, day), ratesAndCredit(history, macroHistory), koreaAndWon(history)].filter(Boolean);
+  return [trendAndBreadth(history), volatilityAndSentiment(history, day), ratesAndCredit(history, macroHistory), koreaAndWon(history), depthReadout({ history, macroHistory })].filter(Boolean);
 }

@@ -104,10 +104,13 @@ export function buildPriceLevels(input = [], extra = {}, rules = PRICE_LEVEL_RUL
     const kinds = [...new Set(members.map((item) => item.kind))];
     // Reactions: bars of the last year whose high reached the zone from below and closed under it, or whose low reached it
     // from above and closed over it.
+    // The bar must start on the side it closes on (its open, else the previous close): a bar that opened over the zone and
+    // closed under it broke through, it did not turn at the zone.
     let reactions = 0;
     for (let i = from; i <= n; i++) {
       const bar = bars[i];
-      if ((bar.high >= low - touch && bar.close < low - touch) || (bar.low <= high + touch && bar.close > high + touch)) reactions += 1;
+      const start = finite(bar.open) ?? bars[i - 1]?.close ?? bar.close;
+      if ((bar.high >= low - touch && bar.close < low - touch && start <= high) || (bar.low <= high + touch && bar.close > high + touch && start >= low)) reactions += 1;
     }
     const pct = (price / close - 1) * 100;
     return { price, low, high, kinds, pct, adrMultiple: pct / adrPct, reactions, side: price > close ? 'above' : 'below', containsClose: low <= close && close <= high };

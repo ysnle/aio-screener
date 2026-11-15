@@ -56,6 +56,11 @@ export function annualFilingStatus(periodEnd, asOf) {
   return Object.freeze({ fyLabel: fiscalYearLabel(end), periodEnd: end, nextDueBy: new Date(dueMs).toISOString().slice(0, 10), overdue: Number.isFinite(asOfMs) && asOfMs > dueMs });
 }
 
+// One fiscal quarter: 13/14 weeks, or the 12- and 16-week quarters of a 12-12-12-16 year (77–119 days from start to end).
+// Consecutive quarter ends sit 75–125 days apart. The producer's quarter rows, the TTM chain and the page share these.
+export const isQuarterSpan = (days) => days >= 77 && days <= 119;
+export const isQuarterGap = (days) => days >= 75 && days <= 125;
+
 export function isPriorAnnualPeriod(current, prior) {
   const days = (Date.parse(current?.periodEnd || current?.end || '') - Date.parse(prior?.periodEnd || prior?.end || '')) / 86400000;
   // Matches the producer's supported annual duration range; a missing fiscal

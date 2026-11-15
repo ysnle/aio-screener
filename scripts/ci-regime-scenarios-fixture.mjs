@@ -174,4 +174,54 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   assert.equal(neutralRegime.axes.find((row) => row.id === 'credit').state, 'neutral', 'P1727 fixture: a 20-session widening makes credit neutral');
   assert.ok(scenarios.scenarios.find((item) => item.id === 'concentration').confirmed === false && outlook.items.find((item) => item.id === 'concentration').met === 4 && outlook.items.find((item) => item.id === 'concentration').total === 5, 'P1727 (v57.81: 5th check 주도 영역 유지) a neutral credit axis neither confirms 소수 종목 주도 nor counts as 신용 안정');
 }
+{
+  // v60.16: verdict rules — the rates speed leg, the volatility latch with a level floor on the spike leg, and the
+  // overall label as a function of the net count.
+  const { overallLabel, buildMarketRead } = await import('../src/domain/briefing/market-read.js');
+  const axisOf = (rows, id) => buildMarketRegime({ ...input, history: rows }).axes.find((row) => row.id === id);
+  // `path` is laid on the last sessions so that path[step] is the latest close; earlier sessions keep `before`.
+  const laid = (field, path, step, before, extra = {}) => history.map((row, index) => {
+    const at = step - (history.length - 1 - index);
+    return { ...row, ...extra, [field]: at >= 0 ? path[at] : typeof before === 'function' ? before(index) : before };
+  });
+  // Rates: a year high at 4.50, a slide to 3.85, then +28bp in five sessions — the 20-session change is small and the
+  // level is mid-range, so only the five-session leg can read it.
+  const slide = Array.from({ length: 15 }, (_, k) => 4.1 - 0.25 * (k + 1) / 15);
+  const jump = [1, 2, 3, 4, 5].map((k) => Number((3.85 + 0.056 * k).toFixed(3)));
+  const ratePath = [...slide, ...jump, ...Array(6).fill(jump.at(-1))];
+  const ratesAt = (step) => axisOf(laid('tnx', ratePath, step, (index) => index < 100 ? 4.5 : 4.1), 'rates');
+  const shock = ratesAt(19), shockHeld = ratesAt(22), shockOver = ratesAt(25);
+  assert.ok(shock.state === 'burden' && shock.shock?.now === true && /5거래일 \+28bp 뛰었습니다/.test(shock.read) && /5거래일 상승이 \+10bp 아래로 줄면/.test(shock.flip) && /\+15bp 이상이면 부담/.test(JSON.stringify(shock.evidence)),
+    `v60.16 a five-session +28bp rise is 부담 on a small 20-session change and names its leg: ${shock.state} ${shock.read} | ${shock.flip}`);
+  assert.ok(shock.flipDistance?.toward === 'neutral' && shock.flipDistance.value === -18, `v60.16 the speed leg's exit is the nearest flip (5 sessions ago +10bp): ${JSON.stringify(shock.flipDistance)}`);
+  assert.ok(shockHeld.state === 'burden' && shockHeld.shock?.now === false && /급등 부담 판정이 이어지고/.test(shockHeld.read), `v60.16 the speed leg holds until the rise is under +10bp: ${shockHeld.state} ${shockHeld.read}`);
+  assert.ok(shockOver.state === 'neutral' && shockOver.shock === null && /5거래일 \+15bp 이상\(자체 기록 상위 5%\)/.test(shockOver.flip) && /1년 범위 90% 이상에서 5일 상승/.test(shockOver.flip), `v60.16 the speed leg releases and the 중립 flip names all three legs: ${shockOver.state} ${shockOver.flip}`);
+  const heldRange = axisOf(laid('tnx', [4.5, 4.52, 4.54, 4.56, 4.58, 4.6, 4.59, 4.58, 4.57, 4.56], 9, 4.3), 'rates');
+  assert.ok(heldRange.state === 'burden' && /1년 범위 90% 이상에서는 5일 상승이 멈추고/.test(heldRange.flip), `v60.16 the 부담 flip names the range-position leg: ${heldRange.flip}`);
+  // Volatility: +39% in five sessions to 19.5 is under the floor; to 21 it is 부담 and holds while the spike is not unwound.
+  const calmBase = { vix3m: 23 };
+  const volAt = (path, step) => axisOf(laid('vix', path, step, 14, calmBase), 'volatility');
+  const lowSpike = volAt([15, 16, 17, 19, 19.5], 4);
+  assert.ok(lowSpike.state === 'neutral' && /20 아래라 부담으로 보지 않습니다/.test(lowSpike.read), `v60.16 a five-session spike that ends under VIX 20 is not 부담: ${lowSpike.state} ${lowSpike.read}`);
+  const spikePath = [15, 16, 17, 19, 21, 19.5, 19.4];
+  const [spikeOn, spikeHeld, spikeOff] = [4, 5, 6].map((step) => volAt(spikePath, step));
+  assert.ok(spikeOn.state === 'burden' && /한 주 사이 급등/.test(spikeOn.read), `v60.16 a five-session spike at or above VIX 20 is 부담: ${spikeOn.state} ${spikeOn.read}`);
+  assert.ok(spikeHeld.state === 'burden' && /부담 판정이 이어지고/.test(spikeHeld.read) && /VIX 20 미만/.test(spikeHeld.flip), `v60.16 부담 holds at 19.5 while the five-session rise is still +25%: ${spikeHeld.state} ${spikeHeld.read}`);
+  assert.equal(spikeOff.state, 'neutral', 'v60.16 the volatility 부담 lets go once VIX is under 20 and the spike is unwound');
+  const marketRead = readFileSync(new URL('../src/domain/briefing/market-read.js', import.meta.url), 'utf8');
+  assert.ok(!/vix5 >= 25\b/.test(marketRead) && !/VIX 25 이상 — 경계/.test(marketRead), 'v60.16 the volatility read takes its lines from RULES.volatility, not literals');
+  // Overall label: equal net counts read the same; a confirmed break is one 부담, a held-over one is not.
+  const holding = { state: 'holding' }, confirmed = { state: 'break', break: true, held: false }, heldOver = { state: 'break', break: true, held: true };
+  const label = (favorable, burden, leadership = holding) => overallLabel(favorable, burden, leadership).overall;
+  assert.deepEqual([label(2, 4), label(4, 2), label(0, 3), label(3, 0), label(1, 2), label(3, 3), label(4, 1)], ['다소 부담', '다소 양호', '부담 우세', '양호 우세', '혼조', '혼조', '양호 우세'], 'v60.16 the overall label is a function of the net count');
+  for (let favorable = 0; favorable <= 6; favorable += 1) for (let burden = 0; burden + favorable <= 6; burden += 1) {
+    const mirror = { '부담 우세': '양호 우세', '다소 부담': '다소 양호', '혼조': '혼조', '다소 양호': '다소 부담', '양호 우세': '부담 우세' };
+    assert.equal(label(favorable, burden), mirror[label(burden, favorable)], `v60.16 the overall label is symmetric at ${favorable}/${burden}`);
+  }
+  assert.deepEqual([label(1, 2, confirmed), label(1, 2, heldOver), label(1, 3, confirmed), label(4, 1, heldOver), label(4, 0, confirmed), label(4, 1, { state: 'weak' })], ['다소 부담', '혼조', '부담 우세', '혼조', '혼조', '혼조'],
+    'v60.16 a confirmed leadership break counts as one 부담; weak or broken leaders still cap a favourable label at 혼조');
+  // Briefing: a week's rate dip inside a 20-session rise is not read as rates supporting stocks.
+  const dipRead = (before) => buildMarketRead({ ...input, history: laid('tnx', [4.3, 4.3, 4.3, 4.3, 4.3, 4.28, 4.26, 4.24, 4.22, 4.2], 9, before) }).statements.find((row) => row.id === 'rates-down-stocks-up')?.reading;
+  assert.ok(/20거래일로는 금리가 \+10bp라/.test(dipRead(4.1)) && dipRead(4.3) === '금리 하락이 주가를 받치는 모습입니다.', `v60.16 rates-down-stocks-up checks the 20-session direction: ${dipRead(4.1)} | ${dipRead(4.3)}`);
+}
 console.log('[regime-scenarios] PASS P1628: six actual charts, conditional recovery/concentration/weakness, missing/stale holds, units/date bounds, KR holiday/KST separation, chart selection; P1723-P1727 Korean shock lead/axis notes, KRX daily change, mixed-date chip, WTI rebound, Brent hold, one credit rule. Offline.');

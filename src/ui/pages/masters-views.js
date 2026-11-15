@@ -15,8 +15,18 @@ const ACTION_LABELS = Object.freeze({
   UNCHANGED: '변화 없음',
   EXITED: '전량 제외',
   SPLIT_SUSPECT: '분할 의심, 수량 변화 보류',
+  CUSIP_CHANGE: 'CUSIP 변경, 수량 비교 보류',
   UNAVAILABLE: '비교 불가'
 });
+const HELD_ACTIONS = Object.freeze(['SPLIT_SUSPECT', 'CUSIP_CHANGE']);
+
+// An option row is a position in the contract, so its label names the instrument ("풋 신규", not a stock purchase).
+export function actionLabelOf(row, action) {
+  const label = ACTION_LABELS[action] || action || '비교 불가';
+  const instrument = /^put$/i.test(row?.putCall || '') ? '풋' : /^call$/i.test(row?.putCall || '') ? '콜' : '';
+  if (!instrument || HELD_ACTIONS.includes(action) || action === 'UNAVAILABLE') return label;
+  return `${instrument} ${action === 'NEW' ? '신규' : label}`;
+}
 
 export const VIEW_LABELS = Object.freeze({
   changes: '핵심 변화',
@@ -129,6 +139,7 @@ function issuerCell(documentRef, row, lookup = PLAIN_LOOKUP) {
 export function createChangeSummary(documentRef, verification, comparisonRows = []) {
   if (!verification?.priorReportPeriod) return null;
   const splitSuspects = comparisonRows.filter((row) => displayActionOf(row) === 'SPLIT_SUSPECT').length;
+  const cusipChanges = comparisonRows.filter((row) => row.action === 'NEW' && displayActionOf(row) === 'CUSIP_CHANGE').length;
   const summary = element(documentRef, 'div', 'masters-change-summary');
   summary.appendChild(element(documentRef, 'strong', 'masters-change-summary-title', `${verification.reportPeriod} 보고 주식 수 변화, 이전 보고분기 ${verification.priorReportPeriod}`));
   const counts = element(documentRef, 'div', 'masters-change-counts');
@@ -138,7 +149,7 @@ export function createChangeSummary(documentRef, verification, comparisonRows = 
   });
   summary.appendChild(counts);
   // #9: the counts are the filing's share deltas, not split-adjusted.
-  summary.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `주식 분할·병합 미보정 수량 기준${splitSuspects ? `, 불러온 행 중 분할 의심 ${splitSuspects}건이 증가·감소 수에 들어 있습니다` : ''}.`));
+  summary.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `주식 분할·병합 미보정 수량 기준${splitSuspects ? `, 불러온 행 중 분할 의심 ${splitSuspects}건이 증가·감소 수에 들어 있습니다` : ''}${cusipChanges ? `, CUSIP만 바뀐 ${cusipChanges}종목이 신규 편입·전량 제외 수에 들어 있습니다` : ''}.`));
   return summary;
 }
 
@@ -218,8 +229,8 @@ function createHoldingRow(documentRef, row, index, includeAction = true, lookup 
   values.forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
   if (includeAction) {
     const action = displayActionOf(row);
-    const prefix = row.actionConfidence === 'REVIEW_REQUIRED' && action !== 'SPLIT_SUSPECT' ? '신고 수량상 ' : '';
-    tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${action.toLowerCase()}`, `${prefix}${ACTION_LABELS[action] || action}`));
+    const prefix = row.actionConfidence === 'REVIEW_REQUIRED' && !HELD_ACTIONS.includes(action) ? '신고 수량상 ' : '';
+    tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${action.toLowerCase()}`, `${prefix}${actionLabelOf(row, action)}`));
   }
   tr.title = `${row.evidenceId || 'SEC reference'}, ${row.reportPeriod || ''}`;
   return tr;
@@ -257,11 +268,11 @@ export function createChangeLedger(documentRef, comparisonRows, state) {
   section.appendChild(element(documentRef, 'summary', 'masters-holdings-title', `분기별 변화 표, 행 ${comparisonRows.length}개 (증권·주식 유형·옵션별 집계)`));
   // v58.79: the classification method is one fold down, not an open paragraph above the ledger.
   const method = element(documentRef, 'details', 'aio-note-fold masters-method-fold');
-  method.append(element(documentRef, 'summary', '', '분류 방법'), element(documentRef, 'p', 'aio-note-fold__text', '두 보고분기의 신고 주식 수 차이로 나눈 분류입니다. 주식 분할·병합은 보정하지 않아, 주식 수는 크게 바뀌었는데 신고 가치가 비슷한 행은 분할 의심으로 따로 둡니다. 변화가 있는 행을 먼저 신고 가치 순으로 놓았고(왼쪽 번호는 표시 순서), 현재 가격·실제 매매·매매 신호·목표가를 뜻하지 않습니다.'));
+  method.append(element(documentRef, 'summary', '', '분류 방법'), element(documentRef, 'p', 'aio-note-fold__text', '두 보고분기의 신고 주식 수 차이로 나눈 분류입니다. 주식 분할·병합은 보정하지 않아, 여러 운용사의 주식 수가 함께 크게 바뀌고 주당 가치가 반대로 움직인 종목은 분할 의심으로 따로 둡니다. 같은 발행사의 증권 코드(CUSIP)만 바뀐 행은 전량 제외와 신규 편입 대신 CUSIP 변경으로 묶습니다. 변화가 있는 행을 먼저 신고 가치 순으로 놓았고(왼쪽 번호는 표시 순서), 현재 가격·실제 매매·매매 신호·목표가를 뜻하지 않습니다.'));
   section.appendChild(method);
   const filters = element(documentRef, 'div', 'masters-action-filters');
-  const splitSuspects = comparisonRows.filter((row) => displayActionOf(row) === 'SPLIT_SUSPECT').length;
-  ['ALL', 'NEW', 'INCREASED', 'REDUCED', 'UNCHANGED', 'EXITED', ...(splitSuspects ? ['SPLIT_SUSPECT'] : [])].forEach((action) => {
+  const held = HELD_ACTIONS.filter((action) => comparisonRows.some((row) => displayActionOf(row) === action));
+  ['ALL', 'NEW', 'INCREASED', 'REDUCED', 'UNCHANGED', 'EXITED', ...held].forEach((action) => {
     const label = action === 'ALL' ? '전체' : ACTION_LABELS[action];
     const filterButton = button(documentRef, `masters-action-filter${state.actionFilter === action ? ' is-active' : ''}`, label, 'change-filter', action);
     filterButton.setAttribute('aria-pressed', state.actionFilter === action ? 'true' : 'false');
@@ -282,8 +293,8 @@ export function createChangeLedger(documentRef, comparisonRows, state) {
     tr.appendChild(issuerCell(documentRef, row, state.securityLookup || PLAIN_LOOKUP));
     [formatReportedValue(row.value), formatter.format(row.shares || 0), formatDelta(row.sharesDelta, formatter), formatValueDelta(row.valueDelta)].forEach((value) => tr.appendChild(element(documentRef, 'td', '', value)));
     const shown = displayActionOf(row);
-    tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${String(shown).toLowerCase().replace(/_/g, '-')}`, `${ACTION_LABELS[shown] || shown || '비교 불가'}`));
-    tr.title = `${row.evidenceId || 'SEC comparison'}, 이전 보고분기 ${row.priorReportPeriod || '확인 필요'}, ${row.actionBasis || 'REPORTED_SHARE_DELTA'}, ${row.actionConfidence || 'REVIEW_REQUIRED'}`;
+    tr.appendChild(element(documentRef, 'td', `masters-action masters-action-${String(shown).toLowerCase().replace(/_/g, '-')}`, actionLabelOf(row, shown)));
+    tr.title = `${row.evidenceId || 'SEC comparison'}, 이전 보고분기 ${row.priorReportPeriod || '확인 필요'}, ${row.actionBasis || 'REPORTED_SHARE_DELTA'}, ${row.actionConfidence || 'REVIEW_REQUIRED'}${shown === 'CUSIP_CHANGE' && row.counterpartCusip ? `, ${row.action === 'NEW' ? '이전' : '새'} CUSIP ${row.counterpartCusip}` : ''}`;
     return tr;
   }, 'masters-comparison-table masters-holdings-table');
   section.append(filters, table, createPagination(documentRef, state.page, pageCount, filtered.length));

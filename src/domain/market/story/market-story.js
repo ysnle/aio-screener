@@ -16,7 +16,7 @@ import { buildCloseSeries, closeSessionMarket, alignInput, isUsable } from '../s
 import { MARKET_WINDOWS, closeChange } from '../session/market-windows.js';
 import { countOpenSessionsBetween } from '../session/market-calendar.js';
 import { oasDelta20Bp } from '../../briefing/market-read.js';
-import { creditJudgement, creditReading } from '../../briefing/credit-reading.js';
+import { creditJudgement, creditReading, cccTailLine } from '../../briefing/credit-reading.js';
 import { vixBand } from '../sentiment/narrative.js';
 
 // v59.70 (owner 11/4): one week, the same window as the verdict table's 5거래일 전 / 5일 변화 columns. The bars, the lead
@@ -24,8 +24,11 @@ import { vixBand } from '../sentiment/narrative.js';
 export const STORY_SESSIONS = MARKET_WINDOWS.week;
 export const STORY_RULE = Object.freeze({
   flatPct: 1, leaderMovePct: 2, leaderGapPct: 2, // concentration: |move| under flatPct is flat; NDX ±leaderMovePct with RSP leaderGapPct apart is narrow
-  cccTailBp: 25, oilPct: 5, goldPct: 3, koreaSemisPct: 3 // weak CCC tail, oil and gold moves, KOSPI tracking SOXX (the leadership proxy, v59.70)
+  oilPct: 5, goldPct: 3, koreaSemisPct: 3 // oil and gold moves, KOSPI tracking SOXX (the leadership proxy, v59.70)
 });
+// A quiet ten-year can hide two legs that cancel (real +12bp, breakeven -11bp): an offset when the legs point opposite
+// ways and either passed the rate line on its own. One rule for the week here and the 20 sessions of the 매크로 chapter.
+export const ratesLegsOffset = (real, be) => real.bp * be.bp < 0 && Math.max(Math.abs(real.bp), Math.abs(be.bp)) >= RULES.crossAsset.rate20dBp;
 
 // Dated events no collected calendar carries. v59.62: read from the one registry (briefing/scheduled-events.js); this
 // file kept its own copy of the midterm, so a moved or added date had to be written twice.
@@ -128,7 +131,7 @@ function ratesOf(macroHistory, history, from, to, sessions) {
   // Flat vs moved and the direction follow the printed ten-year span; the real/breakeven shares split the FRED total,
   // so they are read only when that total moved as far and the same way as the printed span.
   const moved = ten.bp; const d = fred.bp;
-  let kind = 'flat';
+  let kind = ratesLegsOffset(real, be) ? 'offset' : 'flat';
   if (Math.abs(moved) >= 10) {
     if (Math.abs(d) < 10 || Math.sign(d) !== Math.sign(moved)) kind = 'undivided';
     else {
@@ -158,10 +161,25 @@ function creditOf(macroHistory, from, to, sessions) {
   // the story never calls 'stress' what 시장 상태 and 매크로 call 중립, and its sentence is creditReading's.
   const C = RULES.credit;
   const judgement = creditJudgement(macroHistory, hy.toDate || to || null);
-  const cccTail = !!(ccc && ccc.bp >= STORY_RULE.cccTailBp);
+  // The weak tail is CCC's own record (cccTailLine), floored at the axis's five-session widening line.
+  const cccTail = !!(ccc && ccc.bp >= cccTailLine(macroHistory, sessions, C.widen5dBp, hy.toDate || to || null));
   const kind = judgement?.state === 'burden' ? 'stress'
-    : (judgement?.hy20 != null && judgement.hy20 >= C.widen20dBp) || hy.bp >= C.widenWatch5dBp ? 'widening' : cccTail ? 'weak-tail' : 'calm';
+    // lowerRated (CCC ahead of HY over 60 sessions) keeps the axis off 양호, so the story does not call it calm either.
+    : (judgement?.hy20 != null && judgement.hy20 >= C.widen20dBp) || hy.bp >= C.widenWatch5dBp ? 'widening' : cccTail || judgement?.lowerRated ? 'weak-tail' : 'calm';
   return { hy, ccc, kind, judgement, cccTail };
+}
+// The lead's credit clause names the window that set the kind: a level, the five-session move or the 20-session move.
+// The week's bp beside a 20-session judgement read '하이일드가 -10bp 벌어져 경계 쪽입니다' (2025-11-25).
+export function creditLead(credit, hySpan = '') {
+  const { kind, hy, judgement: j } = credit;
+  const C = RULES.credit;
+  const week = `${hySpan}${bpText(hy.bp)}`;
+  const month = j?.hy20 != null ? `20거래일 ${bpText(j.hy20)}` : week;
+  if (kind === 'stress') return j?.cause?.level ? `하이일드 스프레드가 ${(j.hyBp / 100).toFixed(2)}%로 부담 기준(${C.stressAtBp / 100}%) 위라 신용 쪽 경계가 필요합니다`
+    : `하이일드 스프레드가 ${j?.cause?.fast5 || hy.bp >= C.widenWatch5dBp ? week : month} 벌어져 신용 쪽 경계가 필요합니다`;
+  if (kind === 'widening') return `하이일드가 ${hy.bp >= C.widenWatch5dBp ? week : month} 벌어져 경계 쪽입니다`;
+  if (kind === 'weak-tail') return credit.cccTail ? `CCC 등급이 ${hySpan}먼저 벌어지는 중입니다` : `하이일드는 ${week}로 조용하지만 CCC 등급이 석 달째 더 벌어져 있습니다`;
+  return `하이일드 스프레드는 ${week}로 신용 불안은 아닙니다`;
 }
 
 const RATE_READ = Object.freeze({
@@ -176,6 +194,9 @@ const RATE_READ = Object.freeze({
   undivided: '실질금리·기대인플레로 나눠 읽을 수 없습니다',
   flat:'큰 변화가 없습니다'
 });
+const rateRead = (rates) => (rates.kind === 'offset'
+  ? `실질금리 ${bpText(rates.real.bp)}를 기대인플레 ${bpText(rates.be.bp)}가 상쇄한 결과로, ${rates.real.bp > 0 ? '할인율 부담은 커진 쪽입니다' : '물가 기대는 오른 쪽입니다'}`
+  : RATE_READ[rates.kind]);
 
 /** One brief per reported company in the window: its first-session reaction, the reported reason and a capex line. */
 export function earningsMovers(briefs, { from, to } = {}) {
@@ -242,17 +263,16 @@ function lead({ n, moves, concentration, drivers, rates, credit, asOf = null, bi
   else if (concentration.kind === 'broad-up') parts.push(`최근 ${n}거래일 S&P 500 ${f('spx')}, 동일가중 ${f('rsp')}로 상승이 고르게 퍼졌습니다.`);
   else if (concentration.kind === 'flat') parts.push(`최근 ${n}거래일 S&P 500 ${f('spx')}, 나스닥 100 ${f('ndx')}로 뚜렷한 방향이 없었습니다.`);
   if (bigDay) parts.push(bigDayText(bigDay));
-  if (drivers.length) parts.push(`실적 다음 날 ${drivers.map((row) => `${row.name} ${pctText(row.pct)}`).join(', ')}가 ${drivers[0].pct < 0 ? '하락' : '상승'}을 이끌었습니다.`);
+  // Same direction as the index on the session after its report; the index contribution is not measured here, so the
+  // sentence does not say the name led the move.
+  if (drivers.length) parts.push(`실적 다음 날 ${drivers.map((row) => `${row.name} ${pctText(row.pct)}`).join(', ')}로 지수와 같은 방향이었습니다.`);
   const tail = [];
   // v59.56 (screen review): the split comes from FRED, a session behind the closes; the span is named when it ends earlier.
   const tenSpan = rates && asOf && rates.ten.toDate < asOf ? `(${dayLabel(rates.ten.toDate).split('(')[0]}까지) ` : '';
-  if (rates && rates.kind !== 'flat') tail.push(`10년 금리 ${tenSpan}${bpText(rates.ten.bp)}는 ${RATE_READ[rates.kind]}`);
+  if (rates && rates.kind !== 'flat') tail.push(`10년 금리 ${tenSpan}${bpText(rates.ten.bp)}는 ${rateRead(rates)}`);
   // v59.70: the ICE spreads post a business day behind the closes too; the span is named the same way.
   const hySpan = credit && asOf && credit.hy.toDate < asOf ? `(${dayLabel(credit.hy.toDate).split('(')[0]}까지) ` : '';
-  if (credit) tail.push(credit.kind === 'stress' ? `하이일드 스프레드가 ${hySpan}${bpText(credit.hy.bp)} 벌어져 신용 쪽 경계가 필요합니다`
-    : credit.kind === 'widening' ? `하이일드가 ${hySpan}${bpText(credit.hy.bp)} 벌어져 경계 쪽입니다`
-      : credit.kind === 'weak-tail' ? `CCC 등급이 ${hySpan}먼저 벌어지는 중입니다`
-        : `하이일드 스프레드는 ${hySpan}${bpText(credit.hy.bp)}로 신용 불안은 아닙니다`);
+  if (credit) tail.push(creditLead(credit, hySpan));
   if (tail.length) parts.push(`${tail.join('. ')}.`);
   return parts.join(' ');
 }
@@ -261,7 +281,7 @@ function lead({ n, moves, concentration, drivers, rates, credit, asOf = null, bi
 function confirmations({ moves, rates, credit, macroHistory, history, asOf, start }) {
   const rows = [];
   if (rates) rows.push({ id: 'rates', label: '금리', value: `10년 ${rates.ten.from.toFixed(2)} → ${rates.ten.to.toFixed(2)}% (${bpText(rates.ten.bp)}) · 실질 ${bpText(rates.real.bp)} · 기대인플레 ${bpText(rates.be.bp)}`,
-    read: `${RATE_READ[rates.kind]}.${moves.tlt ? ` 장기 국채는 ${pctText(moves.tlt.pct)}입니다.` : ''}` });
+    read: `${rateRead(rates)}.${moves.tlt ? ` 장기 국채는 ${pctText(moves.tlt.pct)}입니다.` : ''}` });
   if (credit) {
     const tail = credit.ccc ? ` · CCC ${bpText(credit.ccc.bp)}` : '';
     const read = credit.judgement ? creditReading(credit.judgement, { cccTail: credit.cccTail })

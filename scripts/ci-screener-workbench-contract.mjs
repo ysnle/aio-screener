@@ -75,6 +75,7 @@ function fixtureRow(symbol, market, offset = 0) {
     kalmanVelConf: 0.7,
     vcpScore: 72,
     vcpStage: 'near_pivot',
+    breakoutAgo: 2,
     ema8: 101,
     ema21: 99,
     ema60: 94,
@@ -309,7 +310,8 @@ async function run() {
     fundamentalCoveragePct: artifact.fundamentalCoveragePct,
     expectedFundamentalCoverage
   });
-  assert(model.status === 'BLOCKED' && model.pointInTimeUniverse === false && model.transactionCostsModeled === false, 'G-SCR-09: model validation remains explicitly blocked');
+  // A modelled cost scenario is a measured fact of the backtest, not a blocker to pin; the universe and live-parity blockers are.
+  assert(model.status === 'BLOCKED' && model.pointInTimeUniverse === false && model.liveBacktestParity === false, 'G-SCR-09: model validation remains explicitly blocked');
   assert(validationGate.status === 'BLOCKED' && validationGate.pointInTimeUniverse === false, 'G-SCR-09: persistent validation gate is fail-closed');
   const contextCatalog = JSON.parse(fs.readFileSync(path.join(root, '_context/CONTEXT-CATALOG.json'), 'utf8'));
   const page = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
@@ -649,9 +651,9 @@ async function run() {
   // ⑤ 6 preset에 유효한 ranked/pass/fail/unavailable 행 — preview=execute, Why 설명, 저장/replay.
   {
     const goodRow = fixtureRow('PGOOD', 'US', 0);
-    const badRow = { ...fixtureRow('PFAIL', 'US', 5), rank: 10, ret3m: -8, ret1m: -5, pctSma50: -6, pctSma200: -9, vol: 60, roe: -3, margin: -12, revGrowth: -20, vcpScore: 5, vcpStage: 'not_stage2', rvol20: 0.3, kalmanVel: 0.1, ema8: 90, ema21: 95 };
+    const badRow = { ...fixtureRow('PFAIL', 'US', 5), rank: 10, ret3m: -8, ret1m: -5, pctSma50: -6, pctSma200: -9, vol: 60, roe: -3, margin: -12, revGrowth: -20, vcpScore: 5, vcpStage: 'not_stage2', breakoutAgo: 10, rvol20: 0.3, kalmanVel: 0.1, ema8: 90, ema21: 95 };
     const gapRow = fixtureRow('PGAP', 'US', 9);
-    const gapRequired = ['price.ret1m', 'price.ret3m', 'price.pctSma50', 'price.pctSma200', 'price.rsi14', 'price.volatility', 'price.rvol20', 'quality.roe', 'quality.margin', 'quality.revGrowth', 'technical.kalmanVelocity', 'technical.vcpScore', 'technical.vcpStage', 'technical.ema8', 'technical.ema21'];
+    const gapRequired = ['price.ret1m', 'price.ret3m', 'price.pctSma50', 'price.pctSma200', 'price.rsi14', 'price.volatility', 'price.rvol20', 'quality.roe', 'quality.margin', 'quality.revGrowth', 'technical.kalmanVelocity', 'technical.vcpScore', 'technical.vcpStage', 'technical.breakoutAgo', 'technical.ema8', 'technical.ema21'];
     const gapRowKeys = new Set(gapRequired.map((fieldId) => SCREENER_FIELD_REGISTRY.get(fieldId)?.rowKey).filter(Boolean));
     for (const rowKey of gapRowKeys) gapRow[rowKey] = null;
     gapRow.fieldReadiness = {
@@ -661,9 +663,15 @@ async function run() {
     };
     const presetRows = [goodRow, badRow, gapRow];
     for (const preset of createDefaultScreenDefinitions()) {
-      // v58.75: the breakout preset admits only the breakout stage, so its passing fixture is a breakout row (rvol20 1.4).
-      const rowsFor = preset.screenId === 'preset-breakout-volume' ? [{ ...goodRow, vcpStage: 'breakout' }, badRow, gapRow] : presetRows;
-      const input = { definition: preset, rows: rowsFor, snapshotId: 'preset-valid-set', providerSet: ['fixture'] };
+      // The breakout preset reads sessions since the breakout day: 2 passes, 10 (none in the scan) is rejected, and a
+      // row from an artifact without the field is unavailable, never a rejection.
+      const input = { definition: preset, rows: presetRows, snapshotId: 'preset-valid-set', providerSet: ['fixture'] };
+      if (preset.screenId === 'preset-breakout-volume') {
+        const { breakoutAgo: _absent, ...oldRow } = goodRow;
+        const oldFields = Object.fromEntries(Object.entries(goodRow.fieldReadiness.fields).filter(([fieldId]) => fieldId !== 'technical.breakoutAgo'));
+        const old = runScreen({ ...input, rows: [{ ...oldRow, fieldReadiness: { ...goodRow.fieldReadiness, fields: oldFields } }] });
+        assert(old.passed.length === 0 && old.rejected.length === 0 && old.unavailable.length === 1, 'v60.16 the breakout preset reads unavailable, not zero matches, on an artifact without breakoutAgo');
+      }
       const preview = runScreen(input);
       const executed = runScreen(input);
       assert(preview.resultHash === executed.resultHash && preview.run.calculationInputId === executed.run.calculationInputId,

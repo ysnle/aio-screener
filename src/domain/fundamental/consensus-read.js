@@ -18,6 +18,12 @@ export const CONSENSUS_PRICE_MOVE_PCT = 5;
 // what the forward consensus (12.94) leaves out, so a "same adjusted basis" comparison was not one. A forward sum 30%
 // or more below the trailing sum is not compared: both sums are shown, the trailing PER and the growth are not.
 export const CONSENSUS_BASIS_GAP = -30;
+// A reported quarter at least twice its own estimate with the forward sum 15% or more below the trailing sum is the same
+// mismatch at a smaller gap (GOOGL -29.4% with one quarter at 9.11 against an estimate of 2.88).
+export const CONSENSUS_ONE_OFF_GAP = -15;
+export const CONSENSUS_ONE_OFF_MULTIPLE = 2;
+const oneOffQuarter = (hist) => String(hist || '').split(';').map((part) => part.split(':')).find(([, actual, estimate]) =>
+  finite(estimate) > 0 && finite(actual) >= CONSENSUS_ONE_OFF_MULTIPLE * finite(estimate))?.[0] || null;
 const DAY_MS = 86400000;
 
 const signed = (value) => signedText(value, 0, '%');
@@ -50,8 +56,9 @@ export function consensusView(row, estimate, { now = Date.now() } = {}) {
     fwdPe: fwdEps > 0 ? price / fwdEps : null,
     ...(() => {
       const growth = trailingEps > 0 ? (fwdEps / trailingEps - 1) * 100 : null;
-      const basisGap = growth != null && growth <= CONSENSUS_BASIS_GAP;
-      return { trailingPe: trailingEps > 0 && !basisGap ? price / trailingEps : null, growth: basisGap ? null : growth, basisGap };
+      const oneOff = growth != null && growth <= CONSENSUS_ONE_OFF_GAP ? oneOffQuarter(estimate.hist) : null;
+      const basisGap = growth != null && (growth <= CONSENSUS_BASIS_GAP || oneOff != null);
+      return { trailingPe: trailingEps > 0 && !basisGap ? price / trailingEps : null, growth: basisGap ? null : growth, basisGap, oneOffQuarter: oneOff };
     })(),
     minEstimates: finite(estimate.fwd.minEstimates), up4w: finite(estimate.fwd.up4w) || 0, down4w: finite(estimate.fwd.down4w) || 0,
     // v59.45: both counts absent is "not collected", not "no change".
@@ -76,7 +83,7 @@ export function buildConsensusPoint(row, estimate, options = {}) {
     : '향후 4개 분기 적자 예상';
   const basis = `종가 ${usd(view.price)}${view.priceDate ? `(${view.priceDate})` : ''} ÷ 아직 실적이 발표되지 않은 4개 분기(${range}) 예상 EPS 합 ${usd(view.fwdEps)}`
     + (view.growth != null ? `, 직전 4개 분기 실적 ${usd(view.trailingEps)}와 같은 조정 EPS 기준으로 비교했습니다`
-      : view.basisGap ? `. 직전 4개 분기 실적 합 ${usd(view.trailingEps)}보다 30% 이상 낮아, 일회성 항목 포함 여부 등 같은 기준인지 확인되지 않으므로 성장률과 직전 PER은 표시하지 않습니다` : '');
+      : view.basisGap ? `. 직전 4개 분기 실적 합 ${usd(view.trailingEps)}보다 ${view.oneOffQuarter ? `크게 낮고 ${view.oneOffQuarter} 분기 실적이 당시 예상의 ${CONSENSUS_ONE_OFF_MULTIPLE}배를 넘어` : '30% 이상 낮아'}, 일회성 항목 포함 여부 등 같은 기준인지 확인되지 않으므로 성장률과 직전 PER은 표시하지 않습니다` : '');
   const revisions = !view.revisionsKnown ? '최근 4주 추정치 변경 자료 없음' : view.up4w || view.down4w ? `최근 4주 추정치 상향 ${view.up4w}, 하향 ${view.down4w}(향후 4개 분기 건수 합계)` /* v58.74: 32 up from 9 analysts read as impossible */ : '최근 4주 추정치 변경 없음';
   const cautions = [];
   if (view.minEstimates != null && view.minEstimates < CONSENSUS_THIN_ESTIMATES) cautions.push(`추정 애널리스트가 ${view.minEstimates}명뿐이라 흔들리기 쉽습니다`);

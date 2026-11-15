@@ -410,7 +410,7 @@ check(
     && /adjusted-close/.test(portfolioBacktest)
     && /current-composition-retrospective/.test(portfolioBacktest)
     && /transaction-costs-not-modeled/.test(portfolioBacktest)
-    && /turnoverModeled:\s*false/.test(portfolioBacktest)
+    && /turnoverMeasured:\s*true,\s*turnoverCosted:\s*false/.test(portfolioBacktest) && /turnover-measured-not-costed/.test(portfolioBacktest) // v60.16: turnover is measured at each rebalance, not costed
     && /monthlyRows/.test(portfolioBacktest)
     && /annualRows/.test(portfolioBacktest)
     && /drawdowns/.test(portfolioBacktest)
@@ -791,8 +791,8 @@ check('v59.51 (content audit): the 종목 factor fold (ticker-overview.js, _aioR
 const exposureProbe = await (async () => {
   const { renderPortfolioExposure } = await import('../src/ui/components/portfolio-exposure.js');
   const el = { insertAdjacentHTML: (_, html) => { el.note = html; } };
-  const root = { _pfBaseValues: () => ({ blocked: false, rows: [{ sym: 'NVDA', value: 70 }, { sym: 'MSFT', value: 30 }] }), _pfBaseNote: () => '[base]', _pfPearson: () => 0.8, _aioPortfolioSurface: { totalAssets: 100 }, _aioGetCanonicalScreenerRows: () => [{ sym: 'NVDA', sector: 'Tech', rank: 10 }, { sym: 'MSFT', sector: 'Tech', rank: 20 }] };
-  renderPortfolioExposure([{}, {}], { NVDA: [1], MSFT: [1] }, { root, documentRef: { getElementById: () => el } });
+  const root = { _pfBaseValues: () => ({ blocked: false, rows: [{ sym: 'NVDA', value: 70 }, { sym: 'MSFT', value: 30 }] }), _pfBaseNote: () => '[base]', _aioPortfolioSurface: { totalAssets: 100 }, _aioGetCanonicalScreenerRows: () => [{ sym: 'NVDA', sector: 'Tech', rank: 10 }, { sym: 'MSFT', sector: 'Tech', rank: 20 }] };
+  renderPortfolioExposure([{}, {}], { NVDA: [1], MSFT: [1] }, { root, documentRef: { getElementById: () => el }, corrRes: { matrix: [[1, 0.8], [0.8, 1]] } });
   return el.innerHTML.includes('Tech 섹터 100% 집중(&gt;40%), 상위 3종목 100% 집중(&gt;60%), 평균 상관 0.80') && el.innerHTML.includes('평균 퀀트 랭크</span><span class="wsl-b">13</span>') && el.note === '[base]';
 })();
 check('v59.04 the 포트폴리오 exposure panel weighs base-currency values over total assets and flags sector, top-3 and correlation limits', exposureProbe);
@@ -802,10 +802,24 @@ const riskPanelProbe = await (async () => {
   const el = { querySelectorAll: () => [cell], insertAdjacentHTML: (_, html) => { el.tail = html; } };
   const documentRef = { getElementById: () => el };
   const held = renderPortfolioRiskStatus('공통 거래일 <6일', true, { root: {}, documentRef }) && el.innerHTML === '<div class="wsl-msg is-warn">공통 거래일 &lt;6일</div>';
-  renderPortfolioRiskMetrics({ var95: 0.02, var99: 0.03, sharpe: null, mddRes: { mdd: 0.1 }, n: 60, fxExcluded: true, corrRes: { tickers: ['A', 'B'], matrix: [[1, 0.6], [0.6, 1]] } }, { root: {}, documentRef });
-  return held && el.innerHTML.includes('표본 최악일 (1일 손실)') && el.innerHTML.includes('<div class="wsl-rk-val is-muted">—</div>') && cell.style.background === 'rgba(1,2,3,0.4)' && cell.style.color === '#fff' && /환율 변동이 빠져/.test(el.tail);
+  // v60.16: the panel computes its figures from the estimate (risk-readout.js) and returns the read-out.
+  const wave = (shift, scale) => Array.from({ length: 60 }, (_, i) => Math.sin(i * 1.7 + shift) * scale);
+  const sample = (tickers) => {
+    const returnsMap = Object.fromEntries(tickers.map((ticker, k) => [ticker, wave(k, 0.01 * (k + 1))]));
+    const publishedReturns = wave(0, 0.01).map((_, i) => tickers.reduce((sum, ticker) => sum + returnsMap[ticker][i] / tickers.length, 0));
+    return { estimate: { publishedReturns, publishedScope: 'invested_sleeve', sample: { n: 60 } }, returnsMap, snapshot: { members: tickers.map((ticker) => ({ ticker, marketValue: 100 })) } };
+  };
+  const readout = renderPortfolioRiskMetrics({ ...sample(['A', 'B']), rfAnnual: null, fxExcluded: true, referenceValued: { count: 1, total: 2, date: '2026-11-13' } }, { root: {}, documentRef });
+  const daily = el.innerHTML;
+  const dailyOk = held && readout.sessions === 1 && readout.n === 60 && daily.includes('1일 VaR (95%)') && daily.includes('1일 CVaR (95%)') && daily.includes('표본 최악일 (1일 손실)') && daily.includes('<div class="wsl-rk-val is-muted">—</div>')
+    && daily.includes('종목별 위험 기여') && Math.abs(readout.contributions.reduce((sum, row) => sum + row.contributionPct, 0) - 100) < 1e-9 && readout.cvar95 >= readout.var95
+    && daily.includes('비중은 2종목 중 1종목 11/13 종가 평가액 기준') && readout.corr.matrix.length === 2
+    && cell.style.background === 'rgba(1,2,3,0.4)' && cell.style.color === '#fff' && /환율 변동이 빠져/.test(el.tail);
+  const mixed = renderPortfolioRiskMetrics({ ...sample(['A', '005930.KS']), rfAnnual: null }, { root: {}, documentRef });
+  const mixedOk = mixed.sessions === 5 && mixed.n === 12 && el.innerHTML.includes('5거래일 VaR (95%)') && el.innerHTML.includes('5거래일 수익률 12개') && el.innerHTML.includes('1일 환산 약') && !el.innerHTML.includes('1일 VaR');
+  return dailyOk && mixedOk;
 })();
-check('v59.05 the 포트폴리오 risk panel escapes its hold lines, reads a thin 99% sample as the worst day, colours matrix cells and notes excluded FX', riskPanelProbe);
+check('v59.05 the 포트폴리오 risk panel escapes its hold lines, reads a thin 99% sample as the worst day, colours matrix cells and notes excluded FX; v60.16 it adds CVaR, risk contribution and the close-valued weight basis, and measures a Korea+US book on 5-session returns', riskPanelProbe);
 const watchlistProbe = await (async () => {
   const { renderWatchlist, clearWatchlistInputs } = await import('../src/ui/components/portfolio-watchlist.js');
   const node = () => ({ style: {}, dataset: {}, children: [], appendChild(c) { this.children.push(c); } });
@@ -1738,6 +1752,10 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
     && ['NVDA', 'CAT'].every((t) => articleSymbolAllowed(t, `${t} rallies`))
     && articleTickers({ title: 'Former FTX COO joins NVDA board' }, { knownTickers }).join() === 'NVDA'
     && articleTickers({ title: '$COO shares jump' }, { knownTickers }).join() === 'COO';
+  // v60.16: a criteria row names its implementation; a function aio-tests T291 keeps absent (retired291) is not one.
+  const retiredFns = (tests.match(/retired291 = \[([^\]]+)\]/)?.[1] || '').match(/[A-Za-z0-9_]+/g) || [];
+  const staleImpl = [...read('js/aio-core.js').matchAll(/implFn: '([^']+)'/g)].flatMap((m) => m[1].split('|')).filter((name) => retiredFns.includes(name));
+  check('v60.16 no implFn row names a function the tests keep deleted', retiredFns.length >= 3 && staleImpl.length === 0, staleImpl.join(','));
   check('P1592/F26 officer titles and agency acronyms are not news tickers unless written as $TICKER/(TICKER), in local and cached paths',
     roleGate && /_aioArticleSymbolAllowed\(bare, text\)/.test(data));
   // v59.51 (content audit): the position donut and sector card left 포트폴리오 (the holdings table's 주식 중 비중 and 보유 점검

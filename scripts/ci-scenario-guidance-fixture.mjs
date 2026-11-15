@@ -964,6 +964,26 @@ console.log('scenario guidance fixture (basis card): PASS');
     const etf = days.map((date, i) => [date, 100 * (1 + 0.001 * i)]); const gspc = days.map((date, i) => [date, 100 * (1 + 0.0012 * i)]);
     assert.equal(outcomesOf(etf, { benchmark: gspc }).basis, 'relative-banded', 'v57.84 proxy outcomes with ^GSPC use the live relative rule');
     assert.equal(outcomesOf(etf).basis, 'absolute', 'v57.84 without the index the outcome basis says absolute');
+    {
+      // v60.16: a stage read against the index is scored against it — the proxy rises every session here but trails the
+      // index, so no case is "up" and the base rate is 0; without the index the own return is the outcome.
+      const { frequencyText, summarise, THEME_STATES } = await import('../src/domain/scenarios/analogs.js');
+      const lag = outcomesOf(etf, { benchmark: gspc, horizon: 20 });
+      const cases = Object.keys(THEME_STATES).map((state) => lag[state]).filter((row) => row.n > 0);
+      assert.ok(cases.length > 0 && cases.every((row) => row.outcome === 'excess' && row.up === 0 && row.median < 0 && row.baseUpPct === 0), `v60.16 proxy outcomes with a benchmark count sessions that beat it (${JSON.stringify(cases[0])})`);
+      const own = outcomesOf(etf, { horizon: 20 });
+      assert.ok(Object.keys(THEME_STATES).map((state) => own[state]).filter((row) => row.n > 0).every((row) => row.outcome === undefined && row.up === row.n), 'v60.16 without a benchmark the outcome stays the own return');
+      const text = frequencyText({ n: 20, up: 15, median: 2.1, p25: -1, p75: 4, horizon: 63, baseUpPct: 50, from: '2000-01-03', to: '2026-10-30', outcome: 'excess', subject: 'SMH', versus: 'S&P 500 동일가중' }, '대표 ETF');
+      assert.ok(/SMH가 S&P 500 동일가중보다 더 올랐습니다 \(초과 수익 중앙값 \+2\.1%p/.test(text) && /50%가 지수를 앞서/.test(text), `v60.16 an excess outcome is worded against the index (${text})`);
+      // v60.16: an even count takes the mean of the two middle cases (it took the lower one: -4 for [-4, 6]).
+      assert.equal(summarise([-4, 6], {}).median, 1, 'v60.16 the median of an even count interpolates');
+      assert.equal(summarise([1, 2, 30], {}).median, 2, 'v60.16 an odd count keeps the middle case');
+      assert.equal(summarise([0, 10, 20, 30, 40], {}).p25, 10, 'v60.16 quartiles on exact positions are unchanged');
+      // v60.16: the real yield is the 10-year less the breakeven — the fiscalsteep gate already tests that gap, so its
+      // pricing line is not independent confirmation.
+      const { BRANCHES: branchList } = await import('../src/domain/market/regime/macro-crossroads.js');
+      assert.equal(branchList.find((branch) => branch.id === 'fiscalsteep').pricingInConditions, true, 'v60.16 fiscalsteep pricing (real yield) restates its own gate condition');
+    }
     const absPast = buildThemePlaybook({ usGroups: [g('software', 'W1', { ret1m: 6.0, ret3m: 9.0, ret6m: 24.0, ret5d: 1.0, above50Pct: 65 })], crossroads: cross, credit: 'neutral', benchmarks: { US: spx },
       outcomes: { themes: { software: { symbol: 'IGV', basis: 'absolute', leading: { n: 20, up: 12, median: 3, horizon: 63 } } } } }).themes[0];
     assert.match(absPast.past, /다른 기준\(절대 수익률이거나/, 'v57.84 an absolute-basis proxy record is not compared with the relative stage');

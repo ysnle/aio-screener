@@ -1,6 +1,6 @@
 // P1436: 재무 공시's lead block — annual revenue and net income as bars, the margin under each year,
 // and the connected reading (growth → profitability → earnings vs price → price vs results).
-import { buildFiscalRead, formatUsdShort, reconcileFiscalHistory, shareSplitBreaks, isLendingFinancial } from '../../domain/fundamental/fiscal-read.js';
+import { buildFiscalRead, formatUsdShort, reconcileFiscalHistory, shareSplitBreaks, financialKind } from '../../domain/fundamental/fiscal-read.js';
 import { buildPeerRead } from '../../domain/fundamental/peer-read.js';
 import { buildQuarterRead, buildWorkingCapitalRead, parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
 import { renderNextSteps } from './page-flow.js';
@@ -215,7 +215,7 @@ function peerSection(doc, root, symbol, row, rows, fundamentals) {
     return parsed.get(sym);
   };
   const peers = rows.filter((item) => item?.sector === row.sector && item.sym !== symbol && history[item.sym]).map((item) => item.sym);
-  const read = buildPeerRead({ symbol, sector: row.sector, peers, seriesFor });
+  const read = buildPeerRead({ symbol, sector: row.sector, peers, seriesFor, sicFor: (sym) => issuerSic(root, sym) });
   if (!read.available) return null;
   const box = el(doc, 'div', null, 'fiscal-peers');
   box.append(el(doc, 'span', `같은 섹터와 비교, ${sectorLabel(row.sector)} ${read.peers}곳`, 'stock-read-vis-title'), el(doc, 'p', read.summary, 'briefing-read-headline'));
@@ -402,18 +402,20 @@ function sourceLink(doc, fundamentals, { filings = false } = {}) {
 // v58.55 (3d) → v59.51 (content audit): 듀폰 분해 beside 역 DCF, moved from 종목 요약 into the 투자 논지 틀 fold here. The
 // node is kept on the host and rebuilt only when its inputs change, so a re-render of the page never resets a slider the
 // reader is moving. `close` is the completed-session valuation close (entity.js), never the live quote.
+// issuerSic is "3674|Semiconductors & Related Devices"; the code is what financialKind reads.
+export const issuerSic = (root, symbol) => String(root?._aioSecIssuerSic?.[symbol] ?? '').split('|')[0] || null;
 function analysisPair(doc, root, host, analysis, { symbol, fundamentals, close, sector, series }) {
   const own = fundamentals && String(fundamentals.symbol || symbol).toUpperCase() === symbol ? fundamentals : null;
   if (!analysis || !own || /\.K[SQ]$/i.test(symbol)) return null;
   // The same precise latest year as the chart (reconcileFiscalHistory swaps the rounded USD-million row for the exact receipt).
   const history = typeof series === 'string' ? reconcileFiscalHistory(parseFiscalHistory(series), own, symbol) : [];
-  const financial = isLendingFinancial(symbol, sector);
+  const financial = financialKind(symbol, sector, issuerSic(root, symbol));
   const signature = JSON.stringify([symbol, series || '', own.sharesOutstanding ?? null, own.observedAt ?? null, own.sharesObservedAt ?? null, own.quality?.stale ?? null, history.at(-1) ?? null, close?.value ?? null, close?.date ?? null, close?.shares ?? null, financial]);
   if (host._aioAnalysisPair?.dataset.signature === signature) return host._aioAnalysisPair;
   const pair = el(doc, 'div', null, 'v2-stock-pair v2-analysis-pair');
   pair.dataset.signature = signature;
   pair.dataset.assetChain = analysis.assetChainState(history);
-  const dupont = history.length ? analysis.dupontCard(doc, history, { financial, fundamentals: own }) : null;
+  const dupont = history.length ? analysis.dupontCard(doc, history, { financial: financial === 'lending', fundamentals: own }) : null;
   const dcf = analysis.reverseDcfCard(doc, root, { history, fundamentals: own, close, financial, symbol });
   pair.append(...[dcf, dupont].filter(Boolean));
   host._aioAnalysisPair = pair.childElementCount ? pair : null;
@@ -454,7 +456,7 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
   const series = root?._aioSecFiscalHistory?.[symbol];
   const fundamentals = series ? { ...(state?.fundamentals || {}), fiscalHistory: parseFiscalHistory(series) } : state?.fundamentals || null;
   const quarterText = root?._aioSecQuarterHistory?.[symbol];
-  const read = buildFiscalRead({ symbol, fundamentals, row, quarters: quarterText ? parseQuarterHistory(quarterText) : [] });
+  const read = buildFiscalRead({ symbol, fundamentals, row, quarters: quarterText ? parseQuarterHistory(quarterText) : [], sic: issuerSic(root, symbol) });
   // v57.54: the forward view (consensus, reference only) follows the reported reading.
   if (!/\.K[SQ]$/.test(symbol)) {
     requestConsensusEstimates(root, () => renderFiscalRead({ documentRef: doc, root, state }));

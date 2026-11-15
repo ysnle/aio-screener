@@ -76,11 +76,23 @@ function _kalmanTrend(closes, vol) {
   const velConf = round(vel / (1 + Math.sqrt(Math.max(pt, 0))), 6);
   return { vel: round(vel, 6), pt: round(pt, 6), innovZ, velConf, scale: 'log_pct_day' };
 }
+// Where the last close sits against its own moving averages and 52-week closing high, on one close series. The
+// published row reads these from raw closes (priceFactorRow): on dividend-adjusted closes an old high sits lower by the
+// dividends paid since, so a close under the high people see on a chart read as a new high.
+export function priceLevelFactors(closes) {
+  const price = closes[closes.length - 1];
+  const distance = (n) => { const sma = closes.length >= n ? _mean(closes.slice(-n)) : null; return sma > 0 ? round((price / sma - 1) * 100, 2) : null; };
+  return {
+    pctSma50: distance(50),
+    pctSma200: distance(200),
+    pctSma5: distance(5), pctSma10: distance(10), pctSma20: distance(20),
+    // A 52-week closing high reads the 252-session window and needs RULES fullYearSessions (240) closes.
+    pctFromCloseHigh52w: closes.length >= RULES.technical.fullYearSessions ? (() => { const high = Math.max(...closes.slice(-RULES.technical.rangeSessions)); return high > 0 ? round((price / high - 1) * 100, 2) : null; })() : null,
+  };
+}
 export function closesToFactors(closes) {
   if (!Array.isArray(closes) || closes.length < 30) return null;
   const price = closes[closes.length - 1];
-  const sma50 = closes.length >= 50 ? _mean(closes.slice(-50)) : null;
-  const sma200 = closes.length >= 200 ? _mean(closes.slice(-200)) : null;
   const vol60 = _annVol(closes, 60);
   const kalman = _kalmanTrend(closes.slice(-90), vol60);
   return {
@@ -93,14 +105,10 @@ export function closesToFactors(closes) {
     // 2026-10-19 (expertise review D2): a full year (252 sessions back, so 253 closes) for 12-1 momentum; null below that.
     ret12m: _retPct(closes, 252),
     vol: vol60, rsi: _rsi14(closes),
-    pctSma50: (sma50 && sma50 > 0) ? round((price / sma50 - 1) * 100, 2) : null,
-    pctSma200: (sma200 && sma200 > 0) ? round((price / sma200 - 1) * 100, 2) : null,
-    // 2026-10-14 (owner: custom screener conditions): short averages and the 1-year closing high as distances on the
-    // same series, so "5/10/20 정배열" and "52주 신고가" are read without publishing a raw price (P715).
-    ...Object.fromEntries([5, 10, 20].map((n) => { const sma = _mean(closes.slice(-n)); return [`pctSma${n}`, sma > 0 ? round((price / sma - 1) * 100, 2) : null]; })),
-    // v57.84: a 52-week closing high reads the 252-session window and needs RULES fullYearSessions (240) closes.
-    pctFromCloseHigh52w: closes.length >= RULES.technical.fullYearSessions ? (() => { const high = Math.max(...closes.slice(-RULES.technical.rangeSessions)); return high > 0 ? round((price / high - 1) * 100, 2) : null; })() : null,
-    kalmanVel:    kalman ? kalman.vel     : null,
+    // 2026-10-14 (owner: custom screener conditions): the averages and the 1-year closing high as distances, so
+    // "5/10/20 정배열" and "52주 신고가" are read without publishing a raw price (P715).
+    ...priceLevelFactors(closes),
+    kalmanVel:   kalman ? kalman.vel     : null,
     kalmanPt:     kalman ? kalman.pt      : null,
     kalmanInnovZ: kalman ? kalman.innovZ  : null,
     kalmanVelConf:kalman ? kalman.velConf : null,
@@ -109,7 +117,7 @@ export function closesToFactors(closes) {
 }
 
 // v57.81: sessions back in which a close at or below the pivot makes today's close above it a breakout.
-export const VCP_BREAKOUT_LOOKBACK = 5;
+export const VCP_BREAKOUT_LOOKBACK = RULES.technical.breakout.crossSessions;
 // v51.68: VCP (Volatility Contraction Pattern) 서버 사이드 계산 — aio-core.js _calcVCP 대응
 export function _calcVCPServer(closes, highs, lows, volumes) {
   const n = closes.length;
@@ -151,8 +159,7 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   // +5% over the pivot). A close above the pivot on heavy volume that did not close up is 'pivot_down'; a close more than
   // +5% over it is 'extended', as on the chart.
   const B = RULES.technical.breakout;
-  const crossed = closes.slice(-1 - VCP_BREAKOUT_LOOKBACK, -1).some((value) => value <= pivot);
-  const brk = !!pivot && crossed && isBreakoutDay({ closes, volumes, i: n - 1, pivot });
+  const brk = !!pivot && isBreakoutDay({ closes, volumes, i: n - 1, pivot });
   const volumeBase = priorVolumeAverage(volumes, n - 1);
   const heavy = volumeBase != null && volumes[n - 1] >= B.volumeMultiple * volumeBase;
   const pivotDown = !brk && !!pivot && price > pivot && price <= pivot * (1 + B.maxAbovePct / 100) && heavy && !(closes[n - 2] > 0 && price > closes[n - 2]);
@@ -174,7 +181,23 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
            pctFrom52wHigh: pct52 !== null ? Math.round(pct52 * 10) / 10 : null };
 }
 
-// Phase 1: 심볼 배열 → 1y 가격 이력 fetch + 팩터 계산. results 배열은 backtest에 재사용.
+// A breakout is one session: the day after it the stage reads 'extended' or 'stage2_only', so a list of today's
+// breakouts is almost always empty. This scans the last BREAKOUT_SCAN_SESSIONS sessions, each judged on the bars
+// up to that day only. Returns sessions since the latest breakout day (0 = the last session), BREAKOUT_SCAN_SESSIONS
+// when there was none in the scan, null when the pattern cannot be computed.
+export const BREAKOUT_SCAN_SESSIONS = 10;
+export function breakoutAgoOf(closes, highs, lows, volumes, latest = undefined) {
+  const n = closes.length;
+  if (n < 60) return null;
+  for (let ago = 0; ago < BREAKOUT_SCAN_SESSIONS && n - ago >= 60; ago += 1) {
+    const end = n - ago;
+    const vcp = ago === 0 && latest !== undefined ? latest : _calcVCPServer(closes.slice(0, end), highs.slice(0, end), lows.slice(0, end), volumes.slice(0, end));
+    if (vcp?.vcpStage === 'breakout') return ago;
+  }
+  return BREAKOUT_SCAN_SESSIONS;
+}
+
+// Phase 1: 심볼 배열 → 2y 가격 이력 fetch + 팩터 계산. results 배열은 backtest에 재사용.
 // v53.91: materialize the observable pieces of the TradingView "best winners"
 // screen. These are evidence fields, not a buy score: missing source series
 // stays null and the setup layer fails closed.
@@ -308,7 +331,7 @@ export function isSessionComplete(date, segment, nowMs = Date.now()) {
   return Number(parts.hour) * 60 + Number(parts.minute) >= closeMinutes;
 }
 
-// The provider's 1y daily chart (one chart.result entry) as dated rows, exactly as the producer's fetchHistory builds
+// The provider's daily chart (one chart.result entry; the producer asks two years, the on-demand reader one) as dated rows, exactly as the producer's fetchHistory builds
 // them: raw OHLC/volume, adjusted close kept separate, a missing value stays null, an empty close is a gap date.
 // v59.75: `closeDigits` keeps a quote convention finer than cents (EUR/USD 1.1544). Without it a price under 10 keeps four
 // decimals and the rest two.
@@ -400,7 +423,9 @@ export function priceHistoryFromRows(sym, fetched, { providerMeta = null, nullCl
 // One symbol's published price-factor row from its completed-session history (the producer's per-result block).
 // `indexReturns` (optional): Map of 'us' | 'kr' | 'kq' (KOSDAQ listings) → Map(date → index one-session return %), for
 // the down-day resilience field; a listing whose market has no index series leaves it null.
-export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSeries = new Map(), indexReturns = null } = {}) {
+// `benchmarks` (optional): Map of the same keys → { symbol, closeByDate: Map(date → index close) }; a row whose first
+// and last sessions of the 3-month window both have an index close gets benchmarkRet over the same dates.
+export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSeries = new Map(), indexReturns = null, benchmarks = null } = {}) {
   if (!r || r.__error || !r.closes) return null;
   const quoteCurrencyOf = (item) => listingCurrencyOf(item?.sym, item?.providerMeta);
   const hasCompleteAdjusted = r.adjustedCloseStatus === 'complete'
@@ -412,6 +437,9 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
   const factorPriceSeries = hasCompleteAdjusted ? r.adjCloses : r.closes;
   const f = closesToFactors(factorPriceSeries);
   if (!f) return null;
+  // Returns, volatility and RSI stay on adjusted closes; price levels (average distances, the 52-week closing high) read
+  // the raw closes that the 52-week range, ADR and VCP already use.
+  if (hasCompleteAdjusted) Object.assign(f, priceLevelFactors(r.closes));
   {
     // P1683: a completed session with an empty provider close inside the 1- or 5-session window makes that
     // return span an extra session — publish null (the map greys it) instead of a mislabelled move.
@@ -421,10 +449,11 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
     if (gapInside(1)) f.ret1d = null;
     if (gapInside(5)) f.ret5d = null;
     if (gapInside(10)) f.ret10d = null;
-    // v51.68: VCP 패턴 인식 — OHLCV 60봉 이상일 때 계산 (raw close, 조정종가 아님 — 위 주석 참조)
+    // v51.68: VCP 패턴 인식 — OHLCV 60봉 이상일 때 계산 (raw close: 피벗·고점은 차트에 보이는 가격과 같아야 한다)
     if (r.closes.length >= 60 && r.highs && r.lows && r.volumes) {
       const vcp = _calcVCPServer(r.closes, r.highs, r.lows, r.volumes);
       if (vcp) { f.vcpScore = vcp.vcpScore; f.vcpStage = vcp.vcpStage; f.vcpPivot = vcp.pivotLevel; f.vcpContractions = vcp.contractionCount; f.vcpShrinking = vcp.latestShrinking; }
+      f.breakoutAgo = breakoutAgoOf(r.closes, r.highs, r.lows, r.volumes, vcp);
     }
     const setupFields = _calcSetupScreenFields(
       r.closes,
@@ -435,8 +464,15 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
     // v57.87: follow-through evidence (pocket pivot, heavy down days, base number, climax signs, down-day resilience) on
     // the factor price series with raw volume — technical/follow-through.js.
     // v57.88: a KOSDAQ listing is compared with KOSDAQ only — no silent fallback to KOSPI when ^KQ11 is missing.
+    const indexKey = /\.KQ$/i.test(String(r.sym || '')) ? 'kq' : sessionSegmentOfSymbol(r.sym);
     if (r.volumes && r.dates) Object.assign(f, followThroughFields({ dates: r.dates, closes: factorPriceSeries, volumes: r.volumes, gapDates: gaps },
-      indexReturns instanceof Map ? indexReturns.get(/\.KQ$/i.test(String(r.sym || '')) ? 'kq' : sessionSegmentOfSymbol(r.sym)) || null : null));
+      indexReturns instanceof Map ? indexReturns.get(indexKey) || null : null));
+    const benchmark = benchmarks instanceof Map ? benchmarks.get(indexKey) : null;
+    if (benchmark && f.ret3m != null && dates.length > 63) {
+      const from = benchmark.closeByDate.get(dates[dates.length - 64]);
+      const to = benchmark.closeByDate.get(dates[dates.length - 1]);
+      if (from > 0 && to > 0) { f.benchmarkRet = round((to / from - 1) * 100, 2); f.benchmarkSymbol = benchmark.symbol; }
+    }
     // Yahoo's KR suffix is part of the upstream instrument identifier. Persist
     // the quote currency with the derived price/liquidity fields so consumers
     // never have to infer that a numeric amount is USD.
@@ -468,8 +504,8 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
     f.backtestEligible = hasCompleteAdjusted;
     f.observedAt = r.observedAt;
     f.source = hasCompleteAdjusted
-      ? 'Yahoo chart 1y adjusted-close history'
-      : 'Yahoo chart 1y raw-close history (adjusted-close unavailable)';
+      ? 'Yahoo chart daily adjusted-close history'
+      : 'Yahoo chart daily raw-close history (adjusted-close unavailable)';
     f.sourceKind = 'T3_PUBLIC_DELAYED';
     f.allowedUse = 'research-relative-ranking-only';
     f.allowedUseCeiling = 'reference';

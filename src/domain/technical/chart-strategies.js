@@ -5,6 +5,7 @@
 // proposed entry, stop or target (R724) — each style names its own published rule; this stock's prices stay in the level
 // map (v59.46 P24-PRODUCT-01).
 import { swingPoints } from './price-levels.js';
+import { priorVolumeAverage } from './definitions.js';
 import { RULES } from '../rules/thresholds.js';
 import { signedText, finiteNumber as finite } from '../shared/number.js';
 
@@ -63,9 +64,12 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
   const near = (price, multiple = 1.5) => (price > 0 && adr ? Math.abs(close - price) <= adr * multiple : null);
   const templateMet = (analysis.templateChecks || []).filter(([, ok]) => ok === true).length;
   const stage = analysis.weinstein?.stage ?? null;
-  const vol5 = bars.slice(-5).reduce((sum, bar) => sum + (bar.volume || 0), 0) / 5;
-  const vol50 = bars.slice(-50).reduce((sum, bar) => sum + (bar.volume || 0), 0) / 50;
-  const quietPullback = vol5 > 0 && vol50 > 0 ? vol5 < vol50 : null;
+  // The chart read's own volume basis (definitions priorVolumeAverage): a missing volume stays missing, and the
+  // 50-session base ends before the five sessions it is compared with.
+  const volumes = bars.map((bar) => (finite(bar.volume) > 0 ? bar.volume : null));
+  const vol5 = priorVolumeAverage(volumes, n + 1, 5);
+  const vol50 = priorVolumeAverage(volumes, n - 4, RULES.technical.breakout.volumeSessions);
+  const quietPullback = vol5 && vol50 ? vol5 < vol50 : null;
   const hot = RULES.technical.rsi.overbought, cold = RULES.technical.rsi.oversold;
   const fmt = (value) => (value > 0 ? value.toFixed(value >= 1000 ? 0 : 2) : '—');
   const pack = (style, conditions, rules) => {
@@ -88,13 +92,13 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
     ], {
       stop: '피벗 아래로 다시 들어오거나 마지막 수축 저점 아래 종가 — 이 방식은 보통 진입가의 5~8% 안에 둡니다',
       target: '베이스 깊이만큼의 측정 이동폭, 또는 감수한 위험 폭의 2~3배 구간에서 이익 일부를 확정하는 것이 이 방식의 규칙입니다',
-      invalidation: '돌파한 날의 거래량이 평소의 1.5배에 못 미치거나, 며칠 안에 피벗 아래 종가'
+      invalidation: `돌파한 날의 거래량이 직전 ${RULES.technical.breakout.volumeSessions}거래일 평균의 ${RULES.technical.breakout.volumeMultiple}배에 못 미치거나, 며칠 안에 피벗 아래 종가`
     }),
     pack(STRATEGY_STYLES[1], [
       ['상승 추세 (종가 > 50일선 > 200일선)', sma50 && sma200 ? close > sma50 && sma50 > sma200 : null],
       [`21일 EMA 또는 50일선 근처로 되돌림 (일평균 변동폭 1.5배 이내)`, ema21 || sma50 ? (near(ema21) || near(sma50)) : null],
       [`RSI 40~60 (쉬는 구간)${rsi != null ? `, 지금 ${rsi.toFixed(0)}` : ''}`, rsi == null ? null : rsi >= 40 && rsi <= 60],
-      ['되돌림 동안 거래량 감소 (5일 평균 < 50일 평균)', quietPullback]
+      [`되돌림 동안 거래량 감소 (5일 평균 < 직전 ${RULES.technical.breakout.volumeSessions}일 평균)`, quietPullback]
     ], {
       stop: '직전 스윙 저점 아래, 또는 50일선 아래 종가',
       target: '직전 고점(최근 20거래일 고가) 재시험이 첫 기준, 넘으면 추세가 이어지는 동안 보유하는 것이 이 방식의 규칙입니다',

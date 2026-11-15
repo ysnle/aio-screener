@@ -5,8 +5,8 @@
     "pointInTimeUniverse": { "label": "point-in-time universe", "evidence": "methodology.universeBasis is 'point-in-time' and no methodology.survivorshipBiasCaveat" },
     "delistingAndCorporateAction": { "label": "delisted names and corporate actions", "evidence": "universe.includesDelisted is true and methodology.corporateActions is 'adjusted'" },
     "filingAvailableDate": { "label": "fundamentals as of filing availability", "evidence": "methodology.fundamentalsAsOf is 'filing-available-date' and no factor is excluded for look-ahead" },
-    "turnoverModeled": { "label": "turnover", "evidence": "every overallByHorizon entry has a finite turnover" },
-    "transactionCostsModeled": { "label": "transaction costs", "evidence": "methodology.transactionCostBps is a finite number and methodology.returnsNetOfCost is true" },
+    "turnoverModeled": { "label": "turnover", "evidence": "every overallByHorizon entry has turnover.average finite over at least one rebalance (turnover.rebalanceCount > 0)" },
+    "transactionCostsModeled": { "label": "transaction costs", "evidence": "executionModel.transactionCostBps is a finite number and every overallByHorizon entry has a finite quantileSpreadNet (a scenario one-way cost on turnover; spread, impact and borrow stay outside it)" },
     "liquidityCapacityModeled": { "label": "liquidity capacity", "evidence": "methodology.capacity.maxAdvShare is a finite number" },
     "liveBacktestParity": { "label": "live/backtest parity", "evidence": "methodology.excludedFactors is empty and methodology.regimeWeightsValidated is true" }
   },

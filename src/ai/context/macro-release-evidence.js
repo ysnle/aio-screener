@@ -34,6 +34,18 @@ const RELEASES = Object.freeze([
   { field: 'breakeven10', metric: 'macro.breakeven10', entity: 'US10Y_BREAKEVEN', label: '미 10년 기대인플레이션', unit: 'percent', digits: 2, period: 'day' }
 ]);
 
+const held = (macro, field) => unusableFreshness.test(String(macro[`_freshness_${field}`] || ''));
+
+/**
+ * The releases left out of the evidence rows because the producer could not refresh them: the value it still holds, with
+ * its reference month or date. Not evidence — the chat names them so a missing figure is not read as "no release".
+ */
+export function heldMacroReleases(macro) {
+  if (!macro || typeof macro !== 'object') return [];
+  return RELEASES.filter((def) => finite(macro[def.field]) && isDay(day(macro[`_asOf_${def.field}`])) && held(macro, def.field))
+    .map((def) => ({ metric: def.metric, label: def.label, value: round(macro[def.field], def.digits), unit: def.unit, period: def.period, asOf: day(macro[`_asOf_${def.field}`]) }));
+}
+
 function row({ metric, entity, label, value, unit, asOf, period, origin }) {
   return Object.freeze({
     evidenceId: `ev-macro-${metric.replace(/^macro\./, '').replace(/[^a-z0-9]+/gi, '-')}-${asOf}`,
@@ -55,7 +67,7 @@ export function buildMacroReleaseEvidence({ macro = null, macroHistory = null, n
   if (!macro || typeof macro !== 'object') return Object.freeze([]);
   const nowMs = readNumber(now) ?? Date.now();
   const out = [];
-  const usable = (field) => !unusableFreshness.test(String(macro[`_freshness_${field}`] || ''));
+  const usable = (field) => !held(macro, field);
   for (const def of RELEASES) {
     const value = finite(macro[def.field]) ? Number(macro[def.field]) : null;
     const asOf = day(macro[`_asOf_${def.field}`]);

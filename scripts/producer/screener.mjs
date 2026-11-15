@@ -94,6 +94,10 @@ async function updateBacktestHistory(backtest) {
       n: backtest.n,
       dates: backtest.dates,
       ic: backtest.ic,
+      // `ic` pools every market's rows; the per-market means and the one-session-lag reading ride beside it.
+      icBasis: backtest.icBasis,
+      icByMarket: Object.fromEntries(Object.entries(backtest.icByMarket || {}).map(([market, row]) => [market, { dates: row.dates.length, ic: row.ic }])),
+      executionLag: backtest.executionLag,
       quantileSpread: backtest.quantileSpread,
       quantileSpreadNet: backtest.quantileSpreadNet,
       transactionCostPct: backtest.transactionCostPct,
@@ -311,11 +315,15 @@ export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
   }
   // v57.87: index one-session returns for the down-day resilience field — S&P 500 for US listings, KOSPI / KOSDAQ for
   // Korean ones — on completed sessions only (the same guard as the factor histories).
+  // The same KOSPI / KOSDAQ bars give Korean rows a 3-month benchmark return (US rows read SPY's own row), so
+  // relative strength is not US-only.
   const indexReturns = new Map();
+  const benchmarks = new Map();
   for (const [key, symbol, segment] of [['us', '^GSPC', 'us'], ['kr', '^KS11', 'kr'], ['kq', '^KQ11', 'kr']]) {
     try {
       const bars = (await fetchHistory(symbol, '1y') || []).filter((bar) => bar && bar.close > 0 && bar.date && isSessionComplete(bar.date, segment));
       if (bars.length > 60) indexReturns.set(key, indexReturnsByDate({ dates: bars.map((bar) => bar.date), closes: bars.map((bar) => bar.close) }));
+      if (bars.length > 60 && segment === 'kr') benchmarks.set(key, { symbol, closeByDate: new Map(bars.map((bar) => [bar.date, bar.close])) });
     } catch { /* resilience stays unavailable for this market */ }
   }
   const data = {};
@@ -323,7 +331,7 @@ export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
   for (const r of results) {
     if (!r || r.__error || !r.closes) continue;
     // v57.81: shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
-    const f = priceFactorRow(r, { computedAt, fxSeries, indexReturns });
+    const f = priceFactorRow(r, { computedAt, fxSeries, indexReturns, benchmarks });
     if (f) {
       data[r.sym] = f; ok++;
     }
@@ -417,7 +425,7 @@ export function computeScreenerBreadth(syms, results, assetTypeOf = null, option
 
   return {
     schemaVersion: '1.0',
-    source: 'github-actions:yahoo-1y-adjusted-close',
+    source: 'github-actions:yahoo-2y-adjusted-close',
     method: 'unweighted share above trailing adjusted-close SMA; advance ratio excludes unchanged securities',
     decisionScope: 'research/reference; AIO screener universe, not official exchange breadth',
     segments: {
@@ -532,7 +540,7 @@ export function mergeSecIntoFactorRows(data, secData = {}) {
       // 메모리 한정 가격으로 재계산한 pe/pb는 계산 근거(가격·기저·발행주식·관측일)를
       // 행에 함께 남긴다. 발행 아티팩트에 원시가를 기록하지 않는다.
       // 2026-10-13 F04/F10: the verified share basis and the close it multiplies travel with the row.
-      ['pePrice','pePriceBasis','peEarningsBasis','peEarningsThrough','peEarningsConcept','pbPrice','pbPriceBasis','valuationPrice','valuationPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt','valuationSharesCheck','valuationSharesBasis','valuationSplitRatio','valuationSplitDate','valuationHeldReason'].forEach(key => {
+      ['pePrice','pePriceBasis','peEarningsBasis','peEarningsThrough','peEarningsConcept','peOneOff','peLoss','pbDeficit','peEarningsLaterQuarter','pbPrice','pbPriceBasis','pbEquityThrough','pbEquityBasis','valuationPrice','valuationPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt','valuationSharesCheck','valuationSharesBasis','valuationSplitRatio','valuationSplitDate','valuationHeldReason'].forEach(key => {
         if (sec[key] != null) data[sym][key] = sec[key];
       });
     }
@@ -732,7 +740,7 @@ export async function enrichScreener() {
     factorSessionDateByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.sessionDate])),
     factorBarStartByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.barStart])),
     factorComputedAt: computedAt,
-    source: 'github-actions:yahoo-1y',
+    source: 'github-actions:yahoo-2y',
     universe: syms.length,
     // v58.71: rows carried for a retained market count as published rows; marketRetained names them.
     ok: Object.keys(data).length,

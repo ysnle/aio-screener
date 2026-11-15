@@ -4,7 +4,7 @@
 // and the observations list as a closed expert fold.
 import { buildCompanyAnalysis } from '../../domain/entity/company-analysis.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
-import { parseFiscalHistory, requestFiscalHistory, dartLink } from './fiscal-read.js';
+import { parseFiscalHistory, requestFiscalHistory, dartLink, issuerSic } from './fiscal-read.js';
 import { koreanThemeGroups } from '../../domain/market/korea/korea-participation.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { krFundamentalPoints } from '../../domain/entity/kr-fundamentals.js';
@@ -65,7 +65,7 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state,
   const profile=businessProfileFor(id,row || {},summary || {});
   const fundamentals=state?.id===id && state?.fundamentals?.symbol?.toUpperCase()===id ? state.fundamentals : onDemand?.sec?.symbol===id ? onDemand.sec : null;
   const history=root?._aioSecFiscalHistory?.[id];
-  const model=buildCompanyAnalysis({symbol:id,row,rows,summary,profile,fundamentals,fiscalHistory:typeof history==='string' ? parseFiscalHistory(history) : Array.isArray(history) ? history : [],themes:[...(root?.THEME_MAP || []),...koreanThemeGroups(root?.KR_THEME_MAP||{},rows)],onDemand:onDemand?.status==='ready' ? onDemand : null});
+  const model=buildCompanyAnalysis({symbol:id,row,rows,summary,profile,fundamentals,fiscalHistory:typeof history==='string' ? parseFiscalHistory(history) : Array.isArray(history) ? history : [],themes:[...(root?.THEME_MAP || []),...koreanThemeGroups(root?.KR_THEME_MAP||{},rows)],onDemand:onDemand?.status==='ready' ? onDemand : null,sic:issuerSic(root,id)});
   root.__aioCompanyAnalysis = model;
   // P1630: the page re-renders on every quote tick. An unchanged model keeps its DOM so open
   // details and keyboard focus survive; a changed model restores both after rebuilding.

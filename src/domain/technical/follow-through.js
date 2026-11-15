@@ -9,7 +9,19 @@ export const FOLLOW_THROUGH_VERSION = 'follow-through.v1';
 const F = RULES.technical.followThrough;
 const ok = (value) => typeof value === 'number' && Number.isFinite(value) && value > 0;
 
-/** Sessions since the latest pocket pivot in the last `pocketWindow` sessions (0 = last session), or null for none. */
+// Simple average of the `length` closes ending at index i; null when a close is missing or the window is short.
+function averageAt(closes, i, length) {
+  if (i + 1 < length) return null;
+  let sum = 0;
+  for (let j = i + 1 - length; j <= i; j += 1) { if (!ok(closes[j])) return null; sum += closes[j]; }
+  return sum / length;
+}
+
+/**
+ * Sessions since the latest pocket pivot in the last `pocketWindow` sessions (0 = last session), or null for none.
+ * A pocket pivot (Morales·Kacher) is an up close above the 10- or 50-day line on more volume than the largest
+ * down-day volume of the prior ten sessions; without the moving-average leg half of all stocks had one.
+ */
 export function pocketPivotAgo(closes, volumes, window = F.pocketWindow) {
   const n = Math.min(closes?.length || 0, volumes?.length || 0);
   if (n < window * 2 + 1) return { ago: null, count: null };
@@ -17,6 +29,7 @@ export function pocketPivotAgo(closes, volumes, window = F.pocketWindow) {
   let count = 0;
   for (let i = n - window; i < n; i += 1) {
     if (!ok(closes[i]) || !ok(closes[i - 1]) || !ok(volumes[i]) || !(closes[i] > closes[i - 1])) continue;
+    if (![10, 50].some((length) => { const average = averageAt(closes, i, length); return average != null && closes[i] > average; })) continue;
     let maxDown = 0;
     let seen = 0;
     for (let j = i - window; j < i; j += 1) {
@@ -52,11 +65,13 @@ export function heavyDownDays(closes, volumes, window = F.heavyDownWindow) {
 }
 
 /**
- * The base number since the trend restarted: each pullback of ≥ basePullbackPct from a closing high that lasts
- * ≥ baseMinSessions and is then closed above counts one completed base; a pullback still open counts as the base
- * being formed. A close below the latest completed base's low (the base failed), a drawdown of resetDrawdownPct or a
- * new 52-week closing low restarts the count. Returns
- * { count, forming, depthPct } — count includes a base being formed; null below a year of closes.
+ * The base number: each pullback of ≥ basePullbackPct from a closing high that lasts ≥ baseMinSessions and is then
+ * closed above counts one completed base; a pullback still open counts as the base being formed. A close below the
+ * latest completed base's low (the base failed), a drawdown of resetDrawdownPct or a new 52-week closing low restarts
+ * the count. The count starts at the first close it is given, so it is "since the trend restarted" only when a restart
+ * happened inside the series with a full 52-week window behind it; otherwise bases before the first close are unseen
+ * and the count is a lower bound (JPM: 2 on two years of closes, 8 on five). Returns
+ * { count, forming, depthPct, lowerBound } — count includes a base being formed; null below a year of closes.
  */
 export function baseCount(closes) {
   const values = (closes || []).filter(ok);
@@ -67,7 +82,8 @@ export function baseCount(closes) {
   let pullbackLow = Infinity;
   let yearLow = values[0];
   let lastBaseLow = null;
-  const restart = (close) => { count = 0; high = close; pullbackStart = null; pullbackLow = Infinity; lastBaseLow = null; };
+  let restartedAt = null;
+  const restart = (close, i) => { count = 0; high = close; pullbackStart = null; pullbackLow = Infinity; lastBaseLow = null; restartedAt = i; };
   // v58.63: the producer passes two years of closes (FACTOR_HISTORY_RANGE), so the lowest close seen so far was a
   // two-year low and a new 52-week low above it never restarted the count. The low is the trailing rangeSessions span.
   const span = RULES.technical.rangeSessions;
@@ -78,8 +94,8 @@ export function baseCount(closes) {
     lowIndex.push(i - 1);
     while (lowIndex[0] < i - span) lowIndex.shift();
     yearLow = values[lowIndex[0]];
-    if (close < yearLow) { restart(close); continue; }
-    if (lastBaseLow != null && close < lastBaseLow) { restart(close); continue; }
+    if (close < yearLow) { restart(close, i); continue; }
+    if (lastBaseLow != null && close < lastBaseLow) { restart(close, i); continue; }
     if (close > high) {
       if (pullbackStart != null && (high - pullbackLow) / high * 100 >= F.basePullbackPct && i - pullbackStart >= F.baseMinSessions) { count += 1; lastBaseLow = pullbackLow; }
       high = close;
@@ -89,12 +105,12 @@ export function baseCount(closes) {
     }
     if (pullbackStart == null) pullbackStart = i;
     pullbackLow = Math.min(pullbackLow, close);
-    if ((high - pullbackLow) / high * 100 >= F.resetDrawdownPct) restart(close);
+    if ((high - pullbackLow) / high * 100 >= F.resetDrawdownPct) restart(close, i);
   }
   const last = values[values.length - 1];
   const depthPct = high > 0 ? Math.round((high - last) / high * 1000) / 10 : null;
   const forming = pullbackStart != null && (high - pullbackLow) / high * 100 >= F.basePullbackPct;
-  return { count: count + (forming ? 1 : 0), forming, depthPct };
+  return { count: count + (forming ? 1 : 0), forming, depthPct, lowerBound: !(restartedAt != null && restartedAt >= span) };
 }
 
 /**
@@ -178,6 +194,7 @@ export function followThroughFields({ dates, closes, volumes, gapDates = [] }, i
     pocketPivots10: pocket.count,
     heavyDownDays25: heavyDownDays(closes, volumes),
     baseCount: base ? base.count : null,
+    baseCountLowerBound: base ? base.lowerBound : null,
     baseForming: base ? base.forming : null,
     baseDepthPct: base ? base.depthPct : null,
     climaxSigns: climaxSigns(closes, volumes),

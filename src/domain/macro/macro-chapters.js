@@ -4,14 +4,14 @@
 // read. Every number comes from macro-history.json (FRED) or history.json; every sentence is chosen by a rule here.
 import { oneSessionDay } from '../market/day/one-session.js';
 import { readNumber, signedText } from '../shared/number.js';
-import { dayLabel } from '../market/story/market-story.js';
+import { dayLabel, ratesLegsOffset } from '../market/story/market-story.js';
 import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../market/session/market-windows.js';
 import { rateDifferential, sessionPointBack, wonMoveSentence } from './rates-fx.js';
 import { RULES } from '../rules/thresholds.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { oasDelta20Bp, oilCheckOf } from '../briefing/market-read.js';
-import { creditJudgement, creditReading, creditFlip } from '../briefing/credit-reading.js';
+import { creditJudgement, creditReading, creditFlip, cccTailLine } from '../briefing/credit-reading.js';
 import { dollarRiseBurden } from '../briefing/market-read.js';
 import { claimsTrend, coreInflationRead, monthChangeAt, monthIndex, monthOverMonth, sahmGap, yoySeries } from './macro-read.js';
 import { policyCycle } from './macro-signals.js';
@@ -97,7 +97,7 @@ function inflation(macroHistory, events) {
   const hot = hiking
     ? (three >= I.missPct ? '연준 목표 2%보다 한참 빠른 속도라 추가 인상 압력이 남아 있습니다' : three >= I.nearTargetPct ? '목표보다 조금 빨라 높은 금리가 오래 갈 쪽입니다' : '목표 근처라 추가 인상 근거는 약합니다')
     : three >= I.missPct ? '연준 목표 2%보다 한참 빠른 속도라 금리 인하 여지가 좁습니다' : three >= I.nearTargetPct ? '목표보다 조금 빨라 인하는 천천히 갈 쪽입니다' : '목표 근처라 연준이 금리를 내릴 여지가 있습니다';
-  const service = shelter && supercore && shelter.value >= 0.3 && supercore.value >= 0.3 ? ' 주거비와 주거 뺀 서비스가 함께 올라 서비스 물가가 다시 붙었습니다.' : '';
+  const service = shelter && supercore && shelter.value >= 0.3 && supercore.value >= 0.3 ? ' 주거비와 주거비 제외 서비스가 함께 올라 서비스 물가가 다시 붙었습니다.' : '';
   const next = nextOf(events, ['us-cpi', 'us-pce']);
   return {
     id: 'inflation', title: '물가 — PCE · CPI', question: hiking ? '연준의 추가 인상과 동결 사이' : '연준의 금리 인하 여지',
@@ -106,7 +106,7 @@ function inflation(macroHistory, events) {
     mean: `${turn}. ${hot}.${service}`,
     next: whenOf(next) || '발표 일정을 확인하지 못했습니다',
     flip: `근원 PCE·CPI의 3개월 연율이 함께 1년치보다 ${I.reaccelPp}%p 이상 빨라지면 재가속, 함께 그만큼 느려지면 둔화로 정해집니다 — 월 +0.2% 이하가 이어지면 3개월 연율은 약 2.4% 아래로 내려옵니다.`,
-    detail: [['근원 CPI 전월비', cpiMom ? `${signed(cpiMom.value)} (${monthName(cpiMom.date)})` : '—'], ['주거비 CPI', shelter ? signed(shelter.value) : '—'], ['주거 뺀 서비스(슈퍼코어)', supercore ? signed(supercore.value) : '—'], ['근원 CPI 3개월 연율', core.coreCpiPace ? `${core.coreCpiPace.value.toFixed(1)}% (${monthName(core.coreCpiPace.date)}${core.coreCpiYoy ? `, 1년치 ${core.coreCpiYoy.value.toFixed(1)}%` : ', 같은 달 1년치 없음'})` : '—'], [core.directionLabel || '물가 방향 (PCE·CPI)', d.label || '—']]
+    detail: [['근원 CPI 전월비', cpiMom ? `${signed(cpiMom.value)} (${monthName(cpiMom.date)})` : '—'], ['주거비 CPI', shelter ? signed(shelter.value) : '—'], ['주거비 제외 서비스', supercore ? signed(supercore.value) : '—'], ['근원 CPI 3개월 연율', core.coreCpiPace ? `${core.coreCpiPace.value.toFixed(1)}% (${monthName(core.coreCpiPace.date)}${core.coreCpiYoy ? `, 1년치 ${core.coreCpiYoy.value.toFixed(1)}%${core.coreCpiYoy.note}` : ', 같은 달 1년치 없음'})` : '—'], [core.directionLabel || '물가 방향 (PCE·CPI)', d.label || '—']]
   };
 }
 
@@ -171,7 +171,8 @@ function rates(macroHistory, events, history = []) {
   // shares split the FRED total, so they are read only when that total moved as far and the same way.
   const moved = market ? market.bp : ten.bp;
   const share = ten.bp ? real.bp / ten.bp : 0;
-  const kind = Math.abs(moved) < 10 ? 'flat'
+  // A quiet 10-year can hide two legs that cancel (real +12bp, breakeven -11bp): the story's rule (ratesLegsOffset).
+  const kind = Math.abs(moved) < 10 ? (ratesLegsOffset(real, be) ? 'offset' : 'flat')
     : Math.abs(ten.bp) < 10 || Math.sign(ten.bp) !== Math.sign(moved) ? 'undivided'
       : share >= 0.6 ? (moved < 0 ? 'growth' : 'tight') : be.bp / ten.bp >= 0.6 ? (moved < 0 ? 'relief' : 'fear') : 'mixed';
   // a real-yield-led fall is a growth scare only when stocks fell with it (the 금리 axis's
@@ -184,13 +185,29 @@ function rates(macroHistory, events, history = []) {
     : spx && spx.pct >= RULES.crossAsset.stock20dPct
       ? `하락이 거의 실질금리에서 나왔고 S&P 500은 ${signed(spx.pct, 1)} 올랐습니다. 긴축 기대가 물러나 할인율 부담이 줄어든 쪽입니다.`
       : '하락이 거의 실질금리에서 나왔습니다. 주가가 크게 움직이지 않아 성장 걱정인지 긴축 기대 후퇴인지는 아직 가르지 않습니다.';
-  const read = { flat: '20거래일 동안 큰 변화가 없습니다.', growth: growthRead,
+  const offsetRead = `10년 금리는 거의 그대로지만 속은 움직였습니다 — 실질금리 ${bp(real.bp)}를 기대인플레 ${bp(be.bp)}가 상쇄했습니다. ${real.bp > 0
+    ? '물가 기대는 내렸는데 실질금리가 올라, 성장주 할인율 부담은 커진 쪽입니다.' : '할인율 부담은 줄었지만 물가 기대가 올라, 물가 발표에 더 민감해지는 조합입니다.'}`;
+  const read = { flat: '20거래일 동안 큰 변화가 없습니다.', offset: offsetRead, growth: growthRead,
     tight: '상승이 실질금리에서 나왔습니다. 긴축 부담이 커져 성장주 할인율이 올라갑니다.', relief: '하락이 기대인플레에서 나와 물가 안도 쪽입니다.',
     fear: '상승이 기대인플레에서 나와 물가 걱정 쪽입니다.', mixed: '실질금리와 기대인플레가 함께 움직여 한쪽으로 읽기 어렵습니다.',
     undivided: '10년 금리가 움직였지만 실질금리·기대인플레로 나눠 읽을 수 없습니다.' }[kind];
   const next = nextOf(events, ['us-fed-rate']);
   // the term premium (Kim-Wright, about a week behind) keeps its own span on the bar label and in the numbers.
   const termLabel = term ? `기간 프리미엄(${shortDay(term.date)}까지)` : null;
+  // Fold read-outs. The path the short end implies: bills and the 2-year against the target midpoint (they carry a small
+  // term premium, so a direction, not a count of priced moves); the word follows the 2-year on the policy axis's line.
+  const latest = (id) => series(macroHistory, id).at(-1) || null;
+  const upper = latest('fedTargetUpper'); const lower = latest('fedTargetLower');
+  const mid = upper && lower ? (upper.value + lower.value) / 2 : null;
+  const legs = mid == null ? [] : [['6개월', latest('dgs6mo')], ['1년', latest('dgs1')], ['2년', latest('dgs2')]].filter(([, row]) => row).map(([name, row]) => [name, (row.value - mid) * 100]);
+  const gap2 = legs.find(([name]) => name === '2년')?.[1] ?? null;
+  const pathLine = RULES.policy.pricedMovePp * 100;
+  const path = legs.length < 2 || gap2 == null ? null
+    : `${legs.map(([name, gap]) => `${name} ${bp(gap)}`).join(' · ')} — ${gap2 >= pathLine ? '추가 인상을 반영한 쪽' : gap2 <= -pathLine ? '인하를 반영한 쪽' : '동결 부근'}`;
+  // How much of the 10-year move was term premium: both cut on the term premium's own (older) dates.
+  const tenTerm = term ? macroChange(macroHistory, 'dgs10', term.date) : null;
+  const termSplit = tenTerm && tenTerm.date === term.date && tenTerm.fromDate === term.fromDate
+    ? `${shortDay(term.fromDate)}→${shortDay(term.date)} 10년 ${bp(tenTerm.bp)} = 기간 프리미엄 ${bp(term.bp)} + 금리 경로 기대 ${bp(tenTerm.bp - term.bp)}` : null;
   const points = [['10년', market ? market.bp : ten.bp], ['실질', real.bp], ['기대인플레', be.bp], term ? [termLabel, term.bp] : null, two ? ['2년', two.bp] : null].filter(Boolean);
   return {
     id: 'rates', title: '연준 · 금리 — 움직인 이유', question: '금리 변화의 원인, 물가와 성장 걱정',
@@ -204,7 +221,8 @@ function rates(macroHistory, events, history = []) {
     flip: '기대인플레가 같이 움직이기 시작하면 해석이 물가 쪽으로 바뀝니다.',
     // each FRED leg names its own date — '2년 4.46%' (FRED, 11/5) sat undated beside the policy
     // card's 4.51% (Treasury, 11/6).
-    detail: [['10년 실질금리', `${real.to.toFixed(2)}% (${shortDay(real.date)})`], ['10년 기대인플레', `${be.to.toFixed(2)}% (${shortDay(be.date)})`], ['기간 프리미엄', term ? `${term.to.toFixed(2)}% (${shortDay(term.date)}, 20거래일 ${bp(term.bp)})` : '—'], ['2년 (FRED)', two ? `${two.to.toFixed(2)}% (${shortDay(two.date)})` : '—']]
+    detail: [['10년 실질금리', `${real.to.toFixed(2)}% (${shortDay(real.date)})`], ['10년 기대인플레', `${be.to.toFixed(2)}% (${shortDay(be.date)})`], ['기간 프리미엄', term ? `${term.to.toFixed(2)}% (${shortDay(term.date)}, 20거래일 ${bp(term.bp)})` : '—'], ['2년 (FRED)', two ? `${two.to.toFixed(2)}% (${shortDay(two.date)})` : '—'],
+      ...(path ? [[`정책금리 ${mid.toFixed(2)}% 대비 단기 금리`, path]] : []), ...(termSplit ? [['10년 변화 나누기', termSplit]] : [])]
   };
 }
 
@@ -236,10 +254,12 @@ function oil(history, macroHistory) {
   const beMoved = be && Math.abs(be.bp) >= C.rate20dBp;
   const sameWay = be && lead && Math.sign(be.bp) === Math.sign(lead.pct);
   const inflation = !be || !lead ? ''
-    : !oilMoved ? (beMoved ? ` 기대인플레는 ${bp(be.bp)} 움직였지만 유가 때문은 아닙니다 — 물가 발표나 성장 걱정 쪽에서 원인을 찾습니다.` : '')
-      : !beMoved ? ' 기대인플레는 크게 움직이지 않아 채권시장은 유가를 일시적으로 봅니다.'
-        : sameWay ? ` 기대인플레도 ${bp(be.bp)} 같은 쪽으로 움직여 채권시장이 유가를 물가에 반영하고 있습니다.`
-          : ` 기대인플레는 반대로 ${bp(be.bp)} 움직여, 채권시장은 유가보다 다른 요인(성장 걱정 등)을 더 크게 봅니다.`;
+    // The gauge is the 10-year breakeven (no 5-year series is collected); it reacts less to oil than shorter ones, so a
+    // quiet reading says only that oil has not reached long-run expectations.
+    : !oilMoved ? (beMoved ? ` 10년 기대인플레는 ${bp(be.bp)} 움직였지만 유가 때문은 아닙니다 — 물가 발표나 성장 걱정 쪽에서 원인을 찾습니다.` : '')
+      : !beMoved ? ` 10년 기대인플레는 ${bp(be.bp)}로 크게 움직이지 않았습니다 — 유가가 장기 물가 기대까지 옮겨 가지는 않았습니다.`
+        : sameWay ? ` 10년 기대인플레도 ${bp(be.bp)} 같은 쪽으로 움직여 채권시장이 유가를 물가에 반영하고 있습니다.`
+          : ` 10년 기대인플레는 반대로 ${bp(be.bp)} 움직여, 채권시장은 유가보다 다른 요인(성장 걱정 등)을 더 크게 봅니다.`;
   // Brent carries the seaborne/Middle East premium WTI does not; the two drifting apart says which supply story moved.
   // Both legs on the common close; when that is older than WTI's own last close, the comparison says which day it is.
   const gap = brent ? brent.pct - brent.wtiPct : null;
@@ -287,6 +307,7 @@ function metals(history, macroHistory) {
 // both. v59.74 (macro review): each leg counts only past the cross-asset lines (gold 2%, real yield 10bp, dollar 1%) and the
 // read names the leg that explains the move — gold -3.4% while the real yield fell 27bp and the dollar sat still read
 // '실질금리·달러와 크게 어긋나지 않았습니다', the opposite of what 금리와 환율 said about the same 20 sessions.
+const GOLD_EXCESS = 2;
 export function goldRead(gold, real, dollar) {
   const C = RULES.crossAsset;
   const g = gold.pct; const r = real ? real.bp : null; const d = dollar ? dollar.pct : null;
@@ -296,8 +317,13 @@ export function goldRead(gold, real, dollar) {
   const dollarMoved = d != null && Math.abs(d) >= C.dollar20dPct;
   const rateFits = rateMoved && Math.sign(r) !== Math.sign(g);
   const dollarFits = dollarMoved && Math.sign(d) !== Math.sign(g);
-  if (rateFits) return `금 ${up ? '상승' : '하락'}은 실질금리 ${bp(r)}와 맞는 평소 관계입니다 — 이자가 없는 금을 들고 있는 비용이 ${up ? '줄었' : '커졌'}습니다${dollarFits ? `. 달러(${signed(d, 1)})도 같은 쪽으로 거들었습니다` : ''}.`;
-  if (dollarFits) return `금 ${up ? '상승' : '하락'}은 달러 ${signed(d, 1)}와 맞는 평소 관계입니다${rateMoved ? ` — 실질금리(${bp(r)})는 오히려 반대 쪽이라 달러 쪽 설명이 큽니다` : ''}.`;
+  // The direction fitting is not the size fitting: gold more than GOLD_EXCESS times the fitting leg, each counted in its
+  // own line (over 4% of gold per 1% of dollar or per 10bp of real yield), is only partly explained by that leg.
+  const legSize = Math.max(rateFits ? Math.abs(r) / C.rate20dBp : 0, dollarFits ? Math.abs(d) / C.dollar20dPct : 0);
+  const excess = legSize > 0 && Math.abs(g) / C.gold20dPct >= GOLD_EXCESS * legSize
+    ? ` 다만 금의 폭(${signed(g, 1)})은 그 움직임만으로 설명되는 크기를 넘어, ${up ? '안전자산·중앙은행 매수 수요' : '많이 오른 자산부터 줄이는 포지션 정리'}가 겹쳤을 가능성이 있습니다(추정).` : '';
+  if (rateFits) return `금 ${up ? '상승' : '하락'}은 실질금리 ${bp(r)}와 맞는 평소 관계입니다 — 이자가 없는 금을 들고 있는 비용이 ${up ? '줄었' : '커졌'}습니다${dollarFits ? `. 달러(${signed(d, 1)})도 같은 쪽으로 거들었습니다` : ''}.${excess}`;
+  if (dollarFits) return `금 ${up ? '상승' : '하락'}은 달러 ${signed(d, 1)}와 맞는 평소 관계입니다${rateMoved ? ` — 실질금리(${bp(r)})는 오히려 반대 쪽이라 달러 쪽 설명이 큽니다` : ''}.${excess}`;
   if (rateMoved) {
     return up
       ? `실질금리가 ${bp(r)} 올랐는데도 금이 ${signed(g, 1)} 올랐습니다 — 금리로 설명되지 않는 안전자산·중앙은행 매수 쪽 수요입니다.`
@@ -415,7 +441,8 @@ function credit(macroHistory) {
   // The judgement, its sentence and its flip are market-read's (creditJudgement/creditReading/creditFlip).
   const judgement = creditJudgement(macroHistory);
   const state = judgement?.state || 'unknown';
-  const tail = !!(ccc && ccc.bp >= C.stress20dMultiple * C.widen20dBp); // CCC +50bp in 20 sessions, the axis's 2 × widen20dBp
+  // CCC widening faster than usual for CCC (cccTailLine, the HY record's rule), never under the axis's 2 × widen20dBp.
+  const tail = !!(ccc && ccc.bp >= cccTailLine(macroHistory, WINDOW, C.stress20dMultiple * C.widen20dBp));
   const mean = creditReading(judgement, { cccTail: tail, ccc20: ccc?.bp ?? null, ig20: ig?.bp ?? null });
   const flip = creditFlip(judgement);
   return {

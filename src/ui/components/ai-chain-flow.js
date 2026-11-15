@@ -89,8 +89,8 @@ function layerPerFold(doc, root, repaint) {
     const forward = el(doc, 'span', null, 'ai-chain-per__dot ai-chain-per__dot--forward');
     forward.style.left = at(layer.forwardPe);
     track.append(line, trailing, forward);
-    const label = `${layer.name}: 지난 4분기 ${times(layer.trailingPe)} → 다음 4분기 ${times(layer.forwardPe)}, ${layer.measured}/${layer.listed}종목`;
-    li.title = `${label} (${layer.members.map((m) => `${m.sym} ${times(m.trailingPe)}→${times(m.forwardPe)}`).join(', ')})`;
+    const label = `${layer.name}: 지난 4분기 ${times(layer.trailingPe)} → 다음 4분기 ${times(layer.forwardPe)}, ${layer.measured}/${layer.listed}종목${layer.lossMakers.length ? `, 적자 ${layer.lossMakers.length}종목 제외` : ''}`;
+    li.title = `${label} (${layer.members.map((m) => `${m.sym} ${times(m.trailingPe)}→${times(m.forwardPe)}`).join(', ')}${layer.lossMakers.length ? `; 적자 ${layer.lossMakers.join(', ')}` : ''})`;
     li.setAttribute('aria-label', label);
     li.append(el(doc, 'span', layer.name, 'ai-chain-per__name'), track, el(doc, 'span', `${times(layer.trailingPe)} → ${times(layer.forwardPe)}`, 'ai-chain-per__value'));
     list.append(li);
@@ -106,7 +106,9 @@ function layerPerFold(doc, root, repaint) {
   }
   axis.append(el(doc, 'span', '', 'ai-chain-per__name'), axisTrack, el(doc, 'span', '배', 'ai-chain-per__value'));
   const day = String(view.asOf || '').slice(5, 10).split('-').map(Number);
-  const legend = el(doc, 'p', `빈 점 지난 4분기 · 찬 점 다음 4분기 · 컨센서스 EPS${day[0] && day[1] ? ` ${day[0]}/${day[1]}` : ''} · 로그 축`, 'ai-chain__scale');
+  // The medians speak for the profitable members only; the face says how many loss-makers that leaves out.
+  const losses = new Set(view.layers.flatMap((layer) => layer.lossMakers)).size;
+  const legend = el(doc, 'p', `빈 점 지난 4분기 · 찬 점 다음 4분기 · 컨센서스 EPS${day[0] && day[1] ? ` ${day[0]}/${day[1]}` : ''} · 로그 축${losses ? ` · 적자 ${losses}종목 제외` : ''}`, 'ai-chain__scale');
   if (view.hidden.length) {
     legend.title = `표시하지 않은 층(양의 EPS 두 기간과 종가가 있는 종목이 ${LAYER_PER_MIN_MEASURED}개 미만이거나 상장 종목의 ${Math.round(LAYER_PER_MIN_COVERAGE * 100)}% 미만): ${view.hidden.map((layer) => `${layer.name} ${layer.measured}/${layer.listed}`).join(', ')}`;
   }

@@ -80,6 +80,10 @@ const usdReturns = { AAA: returns.AAA, CCC: { ret12m: 30, ret6m: -10, ret3m: 8, 
 const usdBook = buildBenchmarkTrend({ holdings: [{ symbol: 'AAA', value: 600 }, { symbol: 'CCC', value: 400 }], returnOf: (symbol, key) => usdReturns[symbol][key], indexReturnOf: (key) => index[key], dateOf: (n) => dates[n], asOf: '2026-11-03' });
 const usdPinned = [0, 38.959212, 43.225504, 58.323744, 61.648247, 63.910164, 64.556962];
 check('v59.97 model: a book in one currency keeps the same line as before the currency move was added', usdBook.available && usdBook.points.length === usdPinned.length && usdBook.points.every((point, i) => Math.abs(point.bookPct - usdPinned[i]) < 1e-5), JSON.stringify(usdBook.points?.map((point) => point.bookPct)));
+// The index is in dollars: in a won book it carries the same currency move, so an index fund shows no gap.
+const spyKrw = buildBenchmarkTrend({ holdings: [{ symbol: 'SPY', value: 100 }], returnOf: () => 10, indexReturnOf: () => 10, dateOf: (n) => dates[n], asOf: '2026-11-03', fxReturnOf: () => 8, indexFxReturnOf: () => 8 });
+check('v60.16 model: a KRW-base book that is all SPY (+10%, USD/KRW +8%) reads book and index +18.8% with no gap', spyKrw.available && Math.abs(spyKrw.bookPct - 18.8) < 1e-9 && Math.abs(spyKrw.indexPct - 18.8) < 1e-9 && Math.abs(spyKrw.gapPp) < 1e-9, JSON.stringify({ book: spyKrw.bookPct, index: spyKrw.indexPct, gap: spyKrw.gapPp }));
+check('v60.16 model: an index without a currency move for the window is not drawn in the wrong currency', buildBenchmarkTrend({ holdings: [{ symbol: 'SPY', value: 100 }], returnOf: () => 10, indexReturnOf: () => 10, dateOf: (n) => dates[n], asOf: '2026-11-03', fxReturnOf: () => 8, indexFxReturnOf: () => null }).available === false);
 check('v59.70 model: no holdings is the empty state, missing inputs the loading state', buildBenchmarkTrend({ holdings: [] }).reason === 'empty' && buildBenchmarkTrend({ holdings: [{ symbol: 'AAA', value: 1 }] }).reason === 'loading');
 
 // 5b. The component models: ① holds on mixed currency and waits for data; ③ splits the book by sector.
@@ -99,6 +103,15 @@ const converted = portfolioValueTrend({ surface: { currencyState: 'converted-wit
 const at3m = converted.points?.find((point) => point.label === '3개월');
 const book3m = at3m ? ((1 + converted.bookPct / 100) / (1 + at3m.bookPct / 100) - 1) * 100 : null;
 check('v59.97 ① a KRW-base book of one USD holding reads its 3-month return with the USD/KRW move (+15.5%, not +10.0%) and says so', converted.available && book3m != null && Math.abs(book3m - 15.5) < 0.05 && converted.fxIncluded === true, JSON.stringify({ available: converted.available, reason: converted.reason, book3m, fxIncluded: converted.fxIncluded }));
+const spyRows = { SPY: { factorSessionDate: '2026-11-03', ...index } };
+const spyWon = portfolioValueTrend({ surface: { currencyState: 'converted-with-declared-rates', baseCurrency: 'KRW', rows: [{ symbol: 'SPY', value: 1000, convertedFrom: 'USD' }] }, rowOf: (symbol) => spyRows[symbol] || null, history: fxHistory });
+const spyUsd = portfolioValueTrend({ surface: { currencyState: 'declared-single', baseCurrency: 'USD', rows: [{ symbol: 'SPY', value: 1000 }] }, rowOf: (symbol) => spyRows[symbol] || null, history: fxHistory });
+const wonOnly = portfolioValueTrend({ surface: { currencyState: 'undeclared-single-basis-assumed', baseCurrency: null, valuationCurrency: 'KRW', rows: [{ symbol: 'KR1', value: 1000 }] }, rowOf: (symbol) => (symbol === 'KR1' ? { ret12m: 0, ret6m: 0, ret3m: 0, ret1m: 0, ret5d: 0, ret1d: 0 } : spyRows[symbol] || null), history: fxHistory });
+check('v60.16 ① S&P 500 is compared in the book\'s currency: an all-SPY won book has no gap, a dollar book is unchanged, a won-only book reads the index in won',
+  spyWon.available && Math.abs(spyWon.gapPp) < 1e-9 && spyWon.indexFxIncluded === true && Math.abs(spyWon.indexPct - ((1.10 * 1.05) - 1) * 100) < 1e-6
+  && spyUsd.available && Math.abs(spyUsd.indexPct - 10) < 1e-9 && spyUsd.indexFxIncluded === false
+  && wonOnly.available && Math.abs(wonOnly.indexPct - 15.5) < 1e-6,
+  JSON.stringify({ won: [spyWon.bookPct, spyWon.indexPct, spyWon.gapPp], usd: spyUsd.indexPct, wonOnly: wonOnly.indexPct }));
 check('v59.70 ① and the model read no network', fetchCalls.length === 0, String(fetchCalls.length));
 globalThis.fetch = realFetch;
 const { portfolioExposure = () => ({}) } = await load('src/ui/components/portfolio-exposure-bar.js');

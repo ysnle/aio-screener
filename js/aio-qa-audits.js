@@ -1365,7 +1365,7 @@ window.AIO.assertMemoCoverageAudit = function() {
 // ─────────────────────────────────────────────────────────────────
 window.AIO.assertFetchFailureSurfacingAudit = function() {
   var src = (typeof window._fetchTickerDataForChat === 'function') ? window._fetchTickerDataForChat.toString() : '';
-  var keyFetches = ['sec', 'wiki', 'sec8K', 'fhNews', 'insider', 'thirteenF', 'fcf', 'balance', 'evEbitda', 'macroBeta', 'short', 'riskFactors', 'supplyChain', 'partnership', 'platform', 'moat', 'tam'];
+  var keyFetches = ['sec', 'wiki', 'sec8K', 'fhNews', 'insider', 'thirteenF', 'fcf', 'balance', 'evEbitda', 'short', 'riskFactors', 'supplyChain', 'partnership', 'platform', 'moat', 'tam'];
   var perFetch = keyFetches.map(function(name) {
     // 패턴: NAME + Promise 변수 + 실패/null 처리 검증
     var promiseVar = name + 'Promise';
@@ -1382,7 +1382,7 @@ window.AIO.assertFetchFailureSurfacingAudit = function() {
   var hasFailureSurfaceFn = typeof window._aioRenderFetchFailures === 'function';
   var hasUserVisibleFailLabel = src.indexOf('실패') >= 0;
   return {
-    status: promiseTotal >= 14 && hasUserVisibleFailLabel ? 'ok' : promiseTotal >= 10 ? 'warn' : 'fail',
+    status: promiseTotal >= 13 && hasUserVisibleFailLabel ? 'ok' : promiseTotal >= 10 ? 'warn' : 'fail',
     totalExpectedFetches: keyFetches.length,
     promiseDefined: promiseTotal,
     perFetch: perFetch,

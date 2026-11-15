@@ -33,7 +33,7 @@ if (/!\['IMPORTED_CURRENT', 'IMPORTED_PRIOR'\]\.includes\(period\.rowImportStatu
 
 // P1463: the validation identity follows the weights the screen ranks with.
 const fpDefault = liveScreenerModelFingerprint();
-if (liveScreenerModelFingerprint({ momentum: 0.369863, trend: 0.273973, lowvol: 0.219178, kalman: 0.136986 }) !== fpDefault) fail('P1463 applied default weights must match the default identity');
+if (liveScreenerModelFingerprint({ momentum: 0.333333, trend: 0.166667, lowvol: 0.333333, kalman: 0.166667 }) !== fpDefault) fail('P1463 applied default weights must match the default identity');
 if (liveScreenerModelFingerprint({ momentum: 0.6, trend: 0.1, lowvol: 0.1, kalman: 0.2 }) === fpDefault) fail('P1463 a profile with other weights must not read as the validated model');
 if (!/liveScreenerModelFingerprint\(metadata\?\.ranking\?\.appliedFactorWeights\)/.test(readScreenerPageSource())) fail('P1463 the 검증 view must pass the applied weights');
 if (buildRankingIdentity({ appliedFactorWeights: { momentum: 0.5, trend: 0.5 }, activeFactors: ['trend', 'momentum'] }) !== buildRankingIdentity({ appliedFactorWeights: { trend: 0.5, momentum: 0.5 }, activeFactors: ['momentum', 'trend'] })) fail('P1465 ranking identity must be order-independent');
@@ -129,7 +129,10 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   const perf = assessAccountPerformance({ ledger: { currency: 'USD', dayCount: 'actual-365', flowTiming: 'end-of-period', coverage, transactions: [{ date: '2026-03-01', kind: 'trade', amount: 0 }], valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2027-01-01', amount: 121 }] } });
   if (perf.status !== 'ready' || perf.units?.twr !== 'period-cumulative' || perf.units?.mwr !== 'annualized-irr') fail(`#6 account performance must name the TWR/MWR units: ${perf.status} ${JSON.stringify(perf.units)}`);
   const workspace = read('js/aio-workspace.js') + read('src/ui/components/portfolio-risk-metrics.js'); // v59.05: risk panel moved to src/
-  if (!/TWR\(기간 누적/.test(workspace) || !/MWR\(연율\)/.test(workspace)) fail('#6 the ledger panel must label TWR(기간 누적) and MWR(연율)');
+  if (!/TWR\(기간 누적/.test(workspace) || !/MWR\('[^\n]*'연율'\) \+ '\) '/.test(workspace)) fail('#6 the ledger panel must label TWR(기간 누적) and MWR(연율)');
+  // v60.16: a sample under one year shows the un-annualised money-weighted return and says so (one month at +5% read +77.62% a year).
+  const month = assessAccountPerformance({ ledger: { currency: 'USD', dayCount: 'actual-365', flowTiming: 'end-of-period', coverage, transactions: [{ date: '2026-01-02', kind: 'fee', amount: 0 }], valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2026-02-01', amount: 105 }] } });
+  if (perf.units.mwrShown !== 'annualized-irr' || Math.abs(perf.mwrShown - 0.21) > 1e-6 || month.units.mwrShown !== 'period-irr' || Math.abs(month.mwrShown - 0.05) > 1e-6 || !(month.mwr > 0.7)) fail(`v60.16 a sub-year MWR must be shown un-annualised and labelled: ${JSON.stringify({ year: [perf.units.mwrShown, perf.mwrShown], month: [month.units.mwrShown, month.mwrShown, month.mwr] })}`);
   // #8/#17/#16: thin 99% sample reads 표본 최악일 with the tail count; no Sharpe/MDD grades; internal codes folded.
   if (!/표본 최악일/.test(workspace) || !/thin99 = !\(n >= 100\)/.test(workspace)) fail('#8 a sub-100-day 99% VaR must read 표본 최악일');
   if (/'우수' : v >= 1 \? '양호'|'위험' : v >= 0\.15 \? '주의'/.test(workspace)) fail('#17 3-month Sharpe/MDD must not carry grades');

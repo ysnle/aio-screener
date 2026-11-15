@@ -42,7 +42,9 @@ function component(id, label, rawSeries, { invert = false, basis }) {
   const rank = percentileRank(values);
   if (rank == null) return Object.freeze({ id, label, status: 'insufficient-history', observations: values.length, needed: MIN_RANK_SAMPLE, basis });
   const latest = rawSeries[rawSeries.length - 1];
-  return Object.freeze({ id, label, status: 'ok', raw: Math.round(latest.value * 10000) / 10000, asOf: latest.date, score: invert ? Math.round((100 - rank) * 10) / 10 : rank, observations: values.length, basis });
+  // sample: the sessions the rank was taken over — under RANK_WINDOW while the record is shorter than the window plus the
+  // component's own warm-up (history.json keeps ~290 sessions, so a 125-day ratio ranks over ~166, not a year).
+  return Object.freeze({ id, label, status: 'ok', raw: Math.round(latest.value * 10000) / 10000, asOf: latest.date, score: invert ? Math.round((100 - rank) * 10) / 10 : rank, observations: values.length, sample: Math.min(values.length, RANK_WINDOW), basis });
 }
 
 function ratioToAverage(rows, field, length) {
@@ -75,6 +77,13 @@ function macroSeries(macroHistory, key) {
 // one-year ranks of components that disagree (e.g. 5 and 89) and banding the mean at CNN's 25/45/55/75 edges produced
 // a grade with no validation behind it. The model now returns each component's rank side by side and the spread
 // between the lowest and highest one; components without an observation stay listed as '자료 부족'.
+// The shortest ranking sample among the ready components, or null when every one covers the full window: the card
+// names the sessions it really ranked over instead of calling a shorter record a year.
+export function shortRankSample(components = []) {
+  const samples = components.filter((row) => row?.status === 'ok' && finite(row.sample) != null).map((row) => row.sample);
+  const shortest = samples.length ? Math.min(...samples) : null;
+  return shortest != null && shortest < RANK_WINDOW ? shortest : null;
+}
 export function compositeSpread(components = []) {
   const ready = components.filter((row) => row.status === 'ok' && Number.isFinite(row.score));
   if (ready.length < 2) return null;
@@ -138,7 +147,6 @@ export function computeCompositeFearGreed({ history = [], macroHistory = null } 
     componentsTotal: components.length,
     asOf: shown ? basis : null,
     spread: shown ? compositeSpread(components) : null,
-    components: Object.freeze(components),
-    method: '구성 요소별 최근 1년 백분위(높을수록 낙관 쪽)를 나란히 보여 준다. 평균 점수나 공포·탐욕 구간을 만들지 않으며 CNN 지수와 같은 값이 아니다.'
+    components: Object.freeze(components)
   });
 }

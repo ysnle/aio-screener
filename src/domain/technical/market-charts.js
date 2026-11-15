@@ -127,9 +127,11 @@ export function indexChartReading(history, field, label, { breadth = null } = {}
   // few names; an index under it with most members still above is a shallower, broad pullback.
   let breadthRead = '';
   if (breadth && Number.isFinite(breadth.above50) && Number.isFinite(ma50)) {
-    if (close > ma50 && breadth.above50 < 45) breadthRead = ` 다만 구성 종목 중 50일선 위는 ${breadth.above50.toFixed(0)}%뿐이라 소수 대형주가 지수를 받치고 있습니다.`;
-    else if (close < ma50 && breadth.above50 >= 55) breadthRead = ` 구성 종목의 ${breadth.above50.toFixed(0)}%는 아직 50일선 위라, 지수보다 시장 전체는 덜 무너졌습니다.`;
-    else if (close < ma50 && breadth.above50 < 35) breadthRead = ` 구성 종목 중 50일선 위가 ${breadth.above50.toFixed(0)}%로 줄어 하락이 넓게 퍼졌습니다.`;
+    // The index-and-breadth pair is 시장 상태's reading (cross-readings.js): one pair of lines, RULES.breadthCross.
+    const { broadAbovePct, narrowBelowPct } = RULES.breadthCross;
+    if (close > ma50 && breadth.above50 < narrowBelowPct) breadthRead = ` 다만 구성 종목 중 50일선 위는 ${breadth.above50.toFixed(0)}%뿐이라 소수 대형주가 지수를 받치고 있습니다.`;
+    else if (close < ma50 && breadth.above50 >= broadAbovePct) breadthRead = ` 구성 종목의 ${breadth.above50.toFixed(0)}%는 아직 50일선 위라, 지수보다 시장 전체는 덜 무너졌습니다.`;
+    else if (close < ma50 && breadth.above50 < narrowBelowPct) breadthRead = ` 구성 종목 중 50일선 위가 ${breadth.above50.toFixed(0)}%로 줄어 하락이 넓게 퍼졌습니다.`;
   }
   const conclusion = `${withTopicParticle(label)} ${TREND_WORDS[trend]}${level ? `, 고점 대비 ${signed(level.fromHighPct)}` : ''}${Number.isFinite(ma50) ? `, 50일선 ${signed((close / ma50 - 1) * 100)}` : ''}${Number.isFinite(ma200) ? `, 200일선 ${signed((close / ma200 - 1) * 100)}` : ''}.`;
   return {

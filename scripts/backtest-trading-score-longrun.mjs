@@ -10,7 +10,7 @@
 //           수년치 PIT 데이터를 구할 수 없어 이번 검증 대상에서 제외 — momScore/breadthScore/PCR/
 //           AAII 보정은 backtest-trading-score.mjs의 reconstructScore()가 이미 쓰는 것과 동일한
 //           중립 상수로 고정한다(근사가 아니라 기존 코드 경로 재현, 새 가정 추가 없음).
-//       (2) VIX/VVIX/SPX/TNX/DXY/WTI/HYG(신용 스트레스 대리) — Yahoo Finance chart API로 실제
+//       (2) VIX/VVIX/SPX/TNX/DXY/WTI (신용 축은 FRED HY OAS 다년치가 없어 결측으로 둔다 — HYG 가격 대리는 R343로 제거) — Yahoo Finance chart API로 실제
 //           10년치 일별 종가를 fetch 가능함을 사전 실측 확인(2016-07-11~2026-07-10, 7개 심볼
 //           전부 2500+ 포인트) — 이 6~7개 입력이 실제로 반영하는 volScore(25%)+trendScore(20%)+
 //           macroScore(10%) 및 신용/유가 보정을 진짜 다중 regime(2018 vol spike, 2020 COVID
@@ -35,7 +35,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { reconstructScore } from './backtest-trading-score.mjs';
-import { spearmanWithCI } from './lib/rank-statistics.mjs';
+import { spearmanWithCI, spearmanWithEffectiveCI, nonOverlappingCount } from './lib/rank-statistics.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 
@@ -49,7 +49,13 @@ const RANGE = argValue('range', '10y');
 const OUT_PATH = argValue('out', `${__dir}/../public-data/score-backtest-longrun.json`);
 
 const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
-const SYMBOLS = { spx: '^GSPC', vix: '^VIX', vvix: '^VVIX', tnx: '^TNX', dxy: 'DX-Y.NYB', wti: 'CL=F', hyg: 'HYG' };
+// No credit series: the model's credit input is the FRED HY OAS (R343) and no free multi-year history of it is fetched
+// here. The former HYG-price proxy is gone, so the risk-appetite axis is missing in both baseline and relative scores.
+const SYMBOLS = { spx: '^GSPC', vix: '^VIX', vvix: '^VVIX', tnx: '^TNX', dxy: 'DX-Y.NYB', wti: 'CL=F' };
+export const SCORE_LONGRUN_CREDIT_INPUT = 'none';
+// A file written before the proxy was removed carries no creditInput field; readers label it with this.
+export const SCORE_LONGRUN_LEGACY_CREDIT_INPUT = 'legacy-hyg-proxy, not comparable to live';
+export const scoreLongrunCreditInput = (artifact) => artifact?.methodology?.creditInput || SCORE_LONGRUN_LEGACY_CREDIT_INPUT;
 
 // ── Yahoo v8/chart 다일 종가 fetch (fetch-data.mjs의 fetchHistory()와 동일한 검증된 URL 패턴을
 //    이 스크립트 안에서 자체 재구현 — 프로덕션 cron 파일(fetch-data.mjs)은 건드리지 않는다) ──
@@ -93,7 +99,6 @@ function buildMergedSeries(seriesByField) {
     tnx: seriesByField.tnx.get(date) ?? null,
     dxy: seriesByField.dxy.get(date) ?? null,
     wti: seriesByField.wti.get(date) ?? null,
-    hyg: seriesByField.hyg.get(date) ?? null,
   }));
 }
 
@@ -118,10 +123,12 @@ export function trailingMax(series, idx, window, field = 'spx') {
   return max === -Infinity ? null : max;
 }
 
-function forwardReturn(series, idx, daysAhead, field = 'spx') {
-  const j = idx + daysAhead;
+// `lag` moves the entry `lag` sessions after the scored close (a score known at the close cannot be traded at it).
+function forwardReturn(series, idx, daysAhead, field = 'spx', lag = 0) {
+  const i = idx + lag;
+  const j = i + daysAhead;
   if (j >= series.length) return null;
-  const cur = series[idx][field], fut = series[j][field];
+  const cur = series[i][field], fut = series[j][field];
   if (typeof cur !== 'number' || typeof fut !== 'number' || !cur) return null;
   return (fut - cur) / cur * 100;
 }
@@ -138,7 +145,7 @@ export { spearmanWithCI };
 // 정직성 메모: percentile 밴드 경계([0.20,0.40,0.60,0.80,0.95] 등)는 데이터에 fit한 값이 아니라
 //     원 절대 밴드의 서수 구조를 보존한 손-지정 상수다(5밴드→5밴드). trailing-only라 look-ahead
 //     없음. HYG 달러가격 신용 판정·hyBp 변환은 라이브가 P713/P714에서 듀레이션 오염으로 이미
-//     제거했으므로 이 변형에도 넣지 않는다(baseline은 WO-2 결과와의 비교 가능성을 위해 원형 유지).
+//     제거했으므로 baseline·변형 어디에도 넣지 않는다(R343).
 const REL_WINDOW = 2520;   // 최대 10y trailing
 const REL_MIN_OBS = 252;   // 최소 1y 확보 전엔 판정 보류(null)
 
@@ -160,8 +167,8 @@ export function rollingPercentile(values, idx, window = REL_WINDOW, minObs = REL
 // v59.46 P9-BT-01 (owner 2026-10-31, "현행 모델로 다시"): relative-v2 changes ONLY the threshold units of the current
 // model. Each input's trailing percentile picks the band it falls in (the a-priori edges below keep the ordinal structure
 // of the absolute bands), and a representative level inside the matching absolute band of trading-score.js v5 goes into
-// the same reconstructScore() the baseline uses — same trend rule, same risk-appetite inputs (HY proxy, no PCR), same
-// missing-breadth handling and weights. The baseline-vs-relative gap is then the effect of percentile units alone.
+// the same reconstructScore() the baseline uses — same trend rule, same missing risk-appetite axis (no PCR, no credit
+// series), same missing-breadth handling and weights. The baseline-vs-relative gap is then the effect of percentile units alone.
 // relative-v1 (2026-07) froze the then-model and is kept only as a summary of the previous file (previousExperiment).
 const REL_LEVELS = Object.freeze({
   // [percentile upper edge, representative level] — levels sit inside the current model's bands (vix <15/18/22/27/35,
@@ -177,16 +184,20 @@ export function percentileLevel(field, p) {
   return REL_LEVELS[field].find(([edge]) => p < edge || (edge === Infinity))[1];
 }
 
-export function reconstructRelativeScore({ vixP, dxyP, tnxP, vvixP, wtiP, spxPrice, spx50ma, spx200ma, hyg = null }) {
+export function reconstructRelativeScore({ vixP, dxyP, tnxP, vvixP, wtiP, spxPrice, spx50ma, spx200ma }) {
   // warm-up/결측이면 판정 보류 — 상수 폴백으로 채우지 않는다(fail-closed).
   if (vixP == null || dxyP == null || tnxP == null) return null;
   const result = reconstructScore({
     vix: percentileLevel('vix', vixP), fg: 45, dxy: percentileLevel('dxy', dxyP), tnx: percentileLevel('tnx', tnxP),
     wti: percentileLevel('wti', wtiP), vvix: percentileLevel('vvix', vvixP),
-    spxPrice, spx50ma, spx200ma, mode: 'default', hyg
+    spxPrice, spx50ma, spx200ma, mode: 'default'
   });
   return { total: result.total, volScore: result.volScore, trendScore: result.trendScore, macroScore: result.macroScore };
 }
+
+const horizonOf = (returnField) => Number(String(returnField).match(/\d+/)?.[0] || 1);
+// Rows of one bucket in session order → how many of their forward windows do not overlap.
+const bucketNEff = (rows, horizon) => nonOverlappingCount(rows.map((r) => r.idx).sort((a, b) => a - b), horizon);
 
 function quantileSplit(records, scoreField, returnField, buckets = 3) {
   const clean = records.filter(r => r[scoreField] != null && r[returnField] != null);
@@ -195,14 +206,41 @@ function quantileSplit(records, scoreField, returnField, buckets = 3) {
   if (size < 5) return null; // 표본 부족 시 생략(허위 정밀도 방지)
   const low = sorted.slice(0, size);
   const high = sorted.slice(sorted.length - size);
+  const horizon = horizonOf(returnField);
   const meanRet = (arr) => arr.reduce((s, r) => s + r[returnField], 0) / arr.length;
   const hitRate = (arr) => Math.round((arr.filter(r => r[returnField] > 0).length / arr.length) * 1000) / 10;
   return {
     n: sorted.length,
-    bottomTercile: { n: low.length, meanReturn: Math.round(meanRet(low) * 100) / 100, hitRate: hitRate(low) },
-    topTercile: { n: high.length, meanReturn: Math.round(meanRet(high) * 100) / 100, hitRate: hitRate(high) },
-    unconditional: { meanReturn: Math.round(meanRet(clean) * 100) / 100, hitRate: hitRate(clean) },
+    bottomTercile: { n: low.length, nEff: bucketNEff(low, horizon), meanReturn: Math.round(meanRet(low) * 100) / 100, hitRate: hitRate(low) },
+    topTercile: { n: high.length, nEff: bucketNEff(high, horizon), meanReturn: Math.round(meanRet(high) * 100) / 100, hitRate: hitRate(high) },
+    unconditional: { nEff: bucketNEff(clean, horizon), meanReturn: Math.round(meanRet(clean) * 100) / 100, hitRate: hitRate(clean) },
     quantileSpread: Math.round((meanRet(high) - meanRet(low)) * 100) / 100,
+  };
+}
+
+// Calibration disclosure: fixed score bands → the forward return that followed, with the count of non-overlapping
+// windows behind each mean and its standard error on that count. A band with fewer than CALIBRATION_MIN_NEFF
+// independent windows reports no mean. It describes the past record; it is not a forecast for a band.
+export const CALIBRATION_BANDS = Object.freeze([[0, 40], [40, 50], [50, 60], [60, 70], [70, 101]]);
+export const CALIBRATION_MIN_NEFF = 8;
+export function calibrationTable(records, scoreField, returnField) {
+  const horizon = horizonOf(returnField);
+  const clean = records.filter((r) => r[scoreField] != null && r[returnField] != null);
+  const round2 = (value) => Math.round(value * 100) / 100;
+  return {
+    horizonDays: horizon,
+    allowedUse: 'disclosure-only; not a forecast',
+    minNEff: CALIBRATION_MIN_NEFF,
+    bands: CALIBRATION_BANDS.map(([lo, hi]) => {
+      const rows = clean.filter((r) => r[scoreField] >= lo && r[scoreField] < hi);
+      const nEff = bucketNEff(rows, horizon);
+      const band = `${lo}-${Math.min(hi, 100)}`;
+      if (nEff < CALIBRATION_MIN_NEFF) return { band, n: rows.length, nEff, meanReturn: null, se: null, hitRate: null };
+      const values = rows.map((r) => r[returnField]);
+      const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+      const sd = Math.sqrt(values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / Math.max(1, values.length - 1));
+      return { band, n: rows.length, nEff, meanReturn: round2(mean), se: round2(sd / Math.sqrt(nEff)), hitRate: Math.round(values.filter((value) => value > 0).length / values.length * 1000) / 10 };
+    })
   };
 }
 
@@ -210,6 +248,10 @@ function quantileSplit(records, scoreField, returnField, buckets = 3) {
 // observation makes Fisher intervals too narrow. Retain the pooled estimate for descriptive
 // continuity, but evaluate every possible non-overlapping phase separately. Promotion may use
 // only the conservative phase-stability result, never the pooled IID interval alone.
+// The phases are not independent of each other: phase k and k+1 share (h-1)/h of every forward window, so "all h
+// phases agree" is one finding repeated h times, and a count of significant phases is not a count of confirmations.
+// The decision reading is therefore one phase — the median-rho phase with its own interval (n = rows / h) — and
+// supportsPositive/supportsNegative require that interval to exclude zero as well as the sign agreement.
 export function nonOverlappingPhaseCorrelations(records, scoreField, returnField, horizonDays) {
   const step = Math.max(1, Math.trunc(Number(horizonDays) || 1));
   const phases = Array.from({ length: step }, (_, phase) => {
@@ -220,6 +262,10 @@ export function nonOverlappingPhaseCorrelations(records, scoreField, returnField
   const negative = phases.filter((result) => result.rho < 0).length;
   const significantPositive = phases.filter((result) => Array.isArray(result.ci95) && result.ci95[0] > 0).length;
   const significantNegative = phases.filter((result) => Array.isArray(result.ci95) && result.ci95[1] < 0).length;
+  const byRho = [...phases].sort((a, b) => a.rho - b.rho);
+  const median = byRho.length ? byRho[Math.floor((byRho.length - 1) / 2)] : null;
+  const signStablePositive = phases.length === step && positive === phases.length;
+  const signStableNegative = phases.length === step && negative === phases.length;
   return {
     horizonDays: step,
     phaseCount: phases.length,
@@ -228,8 +274,13 @@ export function nonOverlappingPhaseCorrelations(records, scoreField, returnField
     negativePhasePct: phases.length ? Math.round(negative / phases.length * 1000) / 10 : null,
     significantPositivePhases: significantPositive,
     significantNegativePhases: significantNegative,
-    signStablePositive: phases.length === step && positive === phases.length,
-    signStableNegative: phases.length === step && negative === phases.length,
+    signStablePositive,
+    signStableNegative,
+    phaseDependence: 'neighbouring phases share (h-1)/h of every forward window; agreement across phases is one finding, not h',
+    independentFindings: phases.length ? 1 : 0,
+    medianPhase: median ? { phase: median.phase, n: median.n, rho: median.rho, ci95: median.ci95 } : null,
+    supportsPositive: signStablePositive && Array.isArray(median?.ci95) && median.ci95[0] > 0,
+    supportsNegative: signStableNegative && Array.isArray(median?.ci95) && median.ci95[1] < 0,
     allowedUse: 'validation-diagnostic-only'
   };
 }
@@ -262,7 +313,13 @@ export async function runLongrunBacktest(range, outPath) {
   if (series.length < 300) {
     throw new Error(`insufficient merged series length (${series.length}) — Yahoo fetch likely degraded, aborting rather than reporting on a truncated window`);
   }
+  const output = analyzeLongrunSeries(series, { fetchCounts, previousExperiment });
+  await writeFile(outPath, JSON.stringify(output, null, 1) + '\n', 'utf8');
+  return output;
+}
 
+// The analysis of one merged daily series ({ date, spx, vix, vvix, tnx, dxy, wti }); no network, so gates can run it.
+export function analyzeLongrunSeries(series, { fetchCounts = null, previousExperiment = null, generatedAt = new Date().toISOString() } = {}) {
   // A-1 relative-v1: 필드별 값 배열(시리즈 인덱스 정렬)을 만들어 trailing percentile 사전계산
   const relFields = ['vix', 'dxy', 'tnx', 'vvix', 'wti'];
   const relValues = Object.fromEntries(relFields.map(f => [f, series.map(d => d[f])]));
@@ -275,12 +332,12 @@ export async function runLongrunBacktest(range, outPath) {
     // fg는 P1388(v4)부터 합성 점수 입력이 아니다 — 넘기는 45는 점수에 영향이 없다(호환 인자).
     const result = reconstructScore({
       vix: d.vix, fg: 45, dxy: d.dxy, tnx: d.tnx, wti: d.wti, vvix: d.vvix,
-      spxPrice: d.spx, spx50ma, spx200ma, mode: 'default', hyg: d.hyg,
+      spxPrice: d.spx, spx50ma, spx200ma, mode: 'default',
     });
     const pct = Object.fromEntries(relFields.map(f => [f, rollingPercentile(relValues[f], i)]));
     const rel = reconstructRelativeScore({
       vixP: pct.vix, dxyP: pct.dxy, tnxP: pct.tnx, vvixP: pct.vvix, wtiP: pct.wti,
-      spxPrice: d.spx, spx50ma, spx200ma, hyg: d.hyg,
+      spxPrice: d.spx, spx50ma, spx200ma,
     });
     records.push({
       date: d.date,
@@ -297,22 +354,33 @@ export async function runLongrunBacktest(range, outPath) {
       fwd5d: forwardReturn(series, i, 5),
       fwd21d: forwardReturn(series, i, 21),
       fwd63d: forwardReturn(series, i, 63),
+      fwd21dLag1: forwardReturn(series, i, 21, 'spx', 1),
+      fwd63dLag1: forwardReturn(series, i, 63, 'spx', 1),
     });
   }
 
   const horizons = ['fwd1d', 'fwd5d', 'fwd21d', 'fwd63d'];
   const subScores = ['composite', 'vol', 'trend', 'macro', 'compositeRel', 'volRel', 'macroRel'];
+  // Every interval below is on the count of non-overlapping forward windows (R1247); the session index rides along so
+  // subsets with gaps (regimes) count their own non-overlapping windows.
+  const corr = (rows, scoreField, returnField) => spearmanWithEffectiveCI(rows.map((r) => [r[scoreField], r[returnField], r.idx]), horizonOf(returnField));
 
   const overall = {};
   const nonOverlapping = {};
   for (const h of horizons) {
-    overall[h] = Object.fromEntries(subScores.map(s => [s, spearmanWithCI(records.map(r => [r[s], r[h]]))]));
-    const days = Number(h.match(/\d+/)?.[0] || 1);
+    overall[h] = Object.fromEntries(subScores.map(s => [s, corr(records, s, h)]));
+    const days = horizonOf(h);
     nonOverlapping[h] = {
       composite: nonOverlappingPhaseCorrelations(records, 'composite', h, days),
       compositeRel: nonOverlappingPhaseCorrelations(records, 'compositeRel', h, days)
     };
   }
+  // Entry one session after the scored close, beside the same-close figures above.
+  const executionLag = {
+    note: 'overallCorrelations enter at the close the score is computed from; these enter one session later',
+    fwd21d: { composite: corr(records, 'composite', 'fwd21dLag1'), compositeRel: corr(records, 'compositeRel', 'fwd21dLag1') },
+    fwd63d: { composite: corr(records, 'composite', 'fwd63dLag1'), compositeRel: corr(records, 'compositeRel', 'fwd63dLag1') }
+  };
 
   // walk-forward: 시간순 70/30 분할(reference/holdout) — "train"이 아님, 위 메모 참조.
   const splitIdx = Math.floor(records.length * 0.7);
@@ -322,16 +390,16 @@ export async function runLongrunBacktest(range, outPath) {
     referencePeriod: {
       dateRange: [referencePeriod[0]?.date, referencePeriod[referencePeriod.length - 1]?.date],
       n: referencePeriod.length,
-      corr21d_composite: spearmanWithCI(referencePeriod.map(r => [r.composite, r.fwd21d])),
-      corr21d_compositeRel: spearmanWithCI(referencePeriod.map(r => [r.compositeRel, r.fwd21d])),
-      corr63d_compositeRel: spearmanWithCI(referencePeriod.map(r => [r.compositeRel, r.fwd63d])),
+      corr21d_composite: corr(referencePeriod, 'composite', 'fwd21d'),
+      corr21d_compositeRel: corr(referencePeriod, 'compositeRel', 'fwd21d'),
+      corr63d_compositeRel: corr(referencePeriod, 'compositeRel', 'fwd63d'),
     },
     holdoutPeriod: {
       dateRange: [holdoutPeriod[0]?.date, holdoutPeriod[holdoutPeriod.length - 1]?.date],
       n: holdoutPeriod.length,
-      corr21d_composite: spearmanWithCI(holdoutPeriod.map(r => [r.composite, r.fwd21d])),
-      corr21d_compositeRel: spearmanWithCI(holdoutPeriod.map(r => [r.compositeRel, r.fwd21d])),
-      corr63d_compositeRel: spearmanWithCI(holdoutPeriod.map(r => [r.compositeRel, r.fwd63d])),
+      corr21d_composite: corr(holdoutPeriod, 'composite', 'fwd21d'),
+      corr21d_compositeRel: corr(holdoutPeriod, 'compositeRel', 'fwd21d'),
+      corr63d_compositeRel: corr(holdoutPeriod, 'compositeRel', 'fwd63d'),
     },
   };
 
@@ -343,8 +411,8 @@ export async function runLongrunBacktest(range, outPath) {
   const regimes = [...regimeGroups.entries()]
     .map(([label, rows]) => ({
       label, n: rows.length,
-      corr21d_composite: spearmanWithCI(rows.map(r => [r.composite, r.fwd21d])),
-      corr21d_compositeRel: spearmanWithCI(rows.map(r => [r.compositeRel, r.fwd21d])),
+      corr21d_composite: corr(rows, 'composite', 'fwd21d'),
+      corr21d_compositeRel: corr(rows, 'compositeRel', 'fwd21d'),
     }))
     .sort((a, b) => b.n - a.n);
 
@@ -353,28 +421,35 @@ export async function runLongrunBacktest(range, outPath) {
   const quantileRel21d = quantileSplit(records, 'compositeRel', 'fwd21d');
   const quantileRel63d = quantileSplit(records, 'compositeRel', 'fwd63d');
 
-  const output = {
-    generatedAt: new Date().toISOString(),
+  return {
+    generatedAt,
     methodology: {
-      scope: 'PARTIAL validation of computeTradingScore() — covers only volScore(VIX)+trendScore(SPX vs 50/200MA)+macroScore(DXY/TNX/HYG/VIX/oil) inputs, which are the ones with freely obtainable multi-year PIT history.',
+      scope: 'PARTIAL validation of computeTradingScore() — covers only volScore(VIX)+trendScore(SPX vs 50/200MA)+macroScore(DXY/TNX/VVIX/oil) inputs, which are the ones with freely obtainable multi-year PIT history.',
+      // Credit is judged only on the FRED HY OAS (R343). A file without this field was built with the HYG-price proxy.
+      creditInput: SCORE_LONGRUN_CREDIT_INPUT,
       // v59.46 P9-BT-01: described against the current model (trading-score v5), which the baseline path calls.
-      excludedInputs: ['risk appetite — put/call has no free multi-year history (null); HY spread is a HYG-price proxy, so the 25% risk-appetite axis rests on the proxy alone', 'breadth — no free multi-year history; the current model drops the missing breadth axis from the denominator (weights re-normalised), it is not held at a constant', 'Fear&Greed — not a composite input since P1388 (v4); the value passed is ignored', 'news sentiment correction — omitted, no historical news corpus'],
+      excludedInputs: ['risk appetite — put/call and the FRED HY OAS have no free multi-year history here, so the 25% risk-appetite axis is missing (dropped from the denominator); no HYG-price proxy stands in for it', 'breadth — no free multi-year history; the current model drops the missing breadth axis from the denominator (weights re-normalised), it is not held at a constant', 'Fear&Greed — not a composite input since P1388 (v4); the value passed is ignored', 'news sentiment correction — omitted, no historical news corpus'],
+      missingInputPolicy: 'a session without VVIX, DXY, the 10-year yield or WTI scores without that input; no neutral default is substituted',
+      inference: 'Every ci95 is a Fisher interval on nEff = the count of non-overlapping forward windows (rows / horizon; by session index inside regimes). hac is a Newey-West interval of the same rho at lag >= horizon - 1. ci95NaiveIid is the row-count interval kept for comparison only; it is too narrow and decides nothing.',
+      executionLag: 'overallCorrelations measure the forward return from the scored close; executionLag repeats 21/63-day rows with entry one session later.',
       fixedRuleNotFittedModel: 'computeTradingScore weights/thresholds are hand-set constants, not parameters fit to data. "referencePeriod"/"holdoutPeriod" below check temporal stability of a FIXED rule, not generalization of a fitted model — deliberately not called "train/test".',
       regimeClassification: 'Computed from the fetched data itself (trailing VIX level + trailing-252-day drawdown from rolling ATH) — not from hardcoded historical narrative dates, to avoid relying on memorized calendar boundaries.',
       dataSource: 'Yahoo Finance public chart API (query1/query2.finance.yahoo.com/v8/finance/chart), same endpoint pattern already used in production by scripts/fetch-data.mjs fetchHistory().',
-      dependenceControl: 'Pooled daily correlations are descriptive only because T+n returns overlap. nonOverlappingPhaseCorrelations evaluates every start phase at n-session spacing; promotion requires sign stability across all phases plus holdout consistency.',
+      dependenceControl: 'T+n returns sampled daily overlap. nonOverlappingPhaseCorrelations evaluates every start phase at n-session spacing, but the phases share (h-1)/h of each window, so their agreement is one finding. Promotion requires supportsPositive (sign agreement AND the median phase interval above zero) plus a holdout interval on nEff above zero.',
     },
     dataRange: { from: series[0].date, to: series[series.length - 1].date, tradingDays: series.length, perSymbolFetchCount: fetchCounts },
     overallCorrelations: overall,
     nonOverlappingPhaseCorrelations: nonOverlapping,
+    executionLag,
+    calibration: { fwd21d: calibrationTable(records, 'composite', 'fwd21d'), fwd63d: calibrationTable(records, 'composite', 'fwd63d') },
     walkForward,
     regimes,
     ablationNote: 'overallCorrelations above already reports vol/trend/macro sub-scores individually alongside the composite — that IS the ablation (isolates which sub-score, if any, carries signal vs the blended total).',
     relativeVariant: {
       name: 'relative-v2 (current model, 2026-10-31)',
       hypothesis: 'R298 — absolute thresholds (dxy>107, tnx>4.5, vix bands) fail to track structural regime shifts over 10y; replacing them with trailing rolling percentiles (window ≤2520d, warm-up ≥252d, trailing-only → no look-ahead) may restore a positive score↔forward-return relationship.',
-      design: 'Controlled comparison on the current model: baseline and relative both call reconstructScore() → trading-score.js v5 with the same trend, risk-appetite (HYG proxy) and missing-breadth inputs. Only the threshold unit differs: each of VIX/DXY/TNX/VVIX/WTI enters as a representative level of the absolute band its trailing percentile maps to. Percentile band edges ([0.20,0.40,0.60,0.80,0.95] for VIX; 0.80/0.90 DXY; 0.80 TNX/VVIX; 0.85/0.95 WTI) are hand-set a priori to keep the ordinal band structure — NOT fitted to returns.',
-      passCriterion: 'Positive rho must remain sign-stable across every non-overlapping T+21/T+63 start phase and consistent across walk-forward reference/holdout. A pooled daily 95% CI alone is ineligible because forward-return windows overlap. Anything else keeps the live score environment-descriptive and blocks formula promotion.',
+      design: 'Controlled comparison on the current model: baseline and relative both call reconstructScore() → trading-score.js v5 with the same trend rule and the same missing risk-appetite and breadth axes. Only the threshold unit differs: each of VIX/DXY/TNX/VVIX/WTI enters as a representative level of the absolute band its trailing percentile maps to. Percentile band edges ([0.20,0.40,0.60,0.80,0.95] for VIX; 0.80/0.90 DXY; 0.80 TNX/VVIX; 0.85/0.95 WTI) are hand-set a priori to keep the ordinal band structure — NOT fitted to returns.',
+      passCriterion: 'nonOverlappingPhaseCorrelations.supportsPositive at T+21 and T+63 (every start phase positive AND the median phase interval above zero) and a walk-forward holdout rho whose nEff interval is above zero. A pooled daily 95% CI alone is ineligible because forward-return windows overlap, and a count of agreeing phases is not a count of confirmations. Anything else keeps the live score environment-descriptive and blocks formula promotion.',
       warmupExcludedDays: records.filter(r => r.compositeRel == null).length,
     },
     previousExperiment,
@@ -384,11 +459,9 @@ export async function runLongrunBacktest(range, outPath) {
       'The live app\'s displayed composite score must stay labeled provisional/unvalidated regardless of this result, since its momScore/breadthScore/PCR/AAII inputs are not covered by this backtest.',
       'No transaction costs, slippage, or capacity constraints modeled — this measures statistical association with forward index returns only, not tradeable strategy performance.',
       'A significant correlation here would support only the macro/vol/trend sub-formula, not the full scoring system Codex\'s WO-2 gate describes.',
+      'calibration lists what followed each score band in this one 10-year sample with the non-overlapping window count behind it; it is a disclosure of the record, not an expected return.',
     ],
   };
-
-  await writeFile(outPath, JSON.stringify(output, null, 1) + '\n', 'utf8');
-  return output;
 }
 
 const __entryArg = process.argv[1] ? process.argv[1].replace(/\\/g, '/') : '';

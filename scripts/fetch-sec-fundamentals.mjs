@@ -17,6 +17,7 @@ import { reconcileSecRecord, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_M
 // out-of-universe issuer read); re-exported here so the gates and callers keep their imports.
 import { tickerKey, SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, SEC_SUCCESSOR_ISSUERS, mergeSuccessorCompanyFacts, mergeSuccessorSubmissions, classifyIssuerCapability, parseClassShareFacts, classInstanceUrl, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { secClassification } from '../src/domain/fundamental/sic-sector.js';
+import { reconcileSecValuationBasis } from '../src/domain/fundamental/sec-valuation-basis.js';
 export { SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, reportingBasis, classifyIssuerCapability, parseClassShareFacts, CLASS_EPS_TOLERANCE, selectClassDimensionedShares, classInstanceUrl, RECENT_FILING_WINDOW_DAYS, RECENT_FILING_MAX, recentFilingsFrom, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
@@ -484,7 +485,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
   const pruneLeavers = scope !== 'core' || universeSymbols.size >= 500;
   for (const [symbol, record] of Object.entries(data)) {
     if (etfSymbols.has(symbol) || (pruneLeavers && !universeSymbols.has(symbol))) { delete data[symbol]; etfPruned++; continue; }
-    const healed = reconcileSecRecord(record); // + 2026-10-17 D1/D2/D7 earnings basis
+    const healed = reconcileSecValuationBasis(reconcileSecRecord(record)); // + 2026-10-17 D1/D2/D7 earnings basis, one-off and P/B equity
     if (healed !== record) { data[symbol] = healed; healedCount++; }
   }
   for (const symbol of Object.keys(issuerSic)) if (etfSymbols.has(symbol) || !universeSymbols.has(symbol)) delete issuerSic[symbol];

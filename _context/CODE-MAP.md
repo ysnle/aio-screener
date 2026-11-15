@@ -90,8 +90,8 @@ privacy/release/retirement contracts are `src/storage/*` and
 `src/domain/macro/treasury-curve.js`, `src/domain/portfolio/concentration.js`,
 `src/domain/screener/factor-ranks.js`, and `src/domain/technical/stage.js` own
 the extracted pure formulas. Their legacy callers retain only explicit input
-resolution and compatibility projection; `src/domain/{macro/model,news/claims,portfolio/risk,technical/indicators}.js`
-are retired. `ci-domain-parity-check.mjs` covers five factor-ranks fixtures,
+resolution and compatibility projection; `src/domain/{macro/model,news/claims,technical/indicators}.js`
+are retired; `src/domain/portfolio/risk.js` is live (portfolio risk estimates and MWR display). `ci-domain-parity-check.mjs` covers five factor-ranks fixtures,
 including a real 873-row screener capture.
 
 ### ARX-10 P760 native screener cutover (2026-07-22)

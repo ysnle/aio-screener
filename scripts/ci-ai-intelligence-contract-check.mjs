@@ -1260,6 +1260,9 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check('v59.99 supported numbers: printed forms of an evidence value with its unit and sign',
     supported('180.25달러') && supported('180.3달러') && supported('180달러') && supported('$180.25') && supported('180.25') && supported('−1.2%') && supported('-1.20%') && supported('1.2%')
       && !supported('+1.2%') && !supported('180.251달러') && !supported('180.25%') && !supported('195달러'));
+  check('v60.16 supported numbers: a percentage-point figure (%p, %포인트) is not supported by a percent level of the same value',
+    supported('-1.2%') && !supported('-1.2%p') && !supported('1.2%포인트') && !supported('1.2퍼센트포인트')
+      && pub.figuresSupported('0.5%p', pub.supportedNumbersFromEvidence([{ ...rows[1], evidenceId: 'ev-gap', value: 0.5, unit: 'pp' }], nowMs)));
   check('v59.99 supported numbers: an integer under 100 needs a unit that agrees; counts and 조/억/만 are never supported',
     supported('1%') && !supported('1') && !supported('1배') && !supported('28배') && !supported('180억 달러') && !supported('3건'));
   check('v59.99 supported numbers: no publishable numeric row means no supported numbers',

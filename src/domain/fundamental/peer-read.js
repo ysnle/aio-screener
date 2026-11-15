@@ -4,7 +4,7 @@
 // for every issuer from its own latest fiscal year (and the year before), and the company is placed
 // by percentile among peers whose latest fiscal year ended within a year of its own.
 import { finiteFact, isPriorAnnualPeriod } from './period.js';
-import { isLendingFinancial } from './fiscal-read.js';
+import { financialKind } from './financial-kind.js';
 const finite = finiteFact;
 
 export const PEER_METRICS = Object.freeze([
@@ -59,13 +59,17 @@ const monthsApart = (a, b) => {
   return Number.isFinite(ta) && Number.isFinite(tb) ? Math.abs(ta - tb) / (30.44 * 86400000) : null;
 };
 
-export function buildPeerRead({ symbol, sector = null, seriesFor = () => null, peers = [], minPeers = 5 } = {}) {
+// `sicFor(symbol)` returns the issuer's SEC SIC code when the caller has it (fiscal-read financialKind).
+export function buildPeerRead({ symbol, sector = null, seriesFor = () => null, peers = [], minPeers = 5, sicFor = () => null } = {}) {
   const own = fiscalMetrics(seriesFor(symbol));
   if (!own || !sector) return { available: false, reason: !sector ? 'sector-unknown' : 'own-series-missing' };
   // P1627: banks' operating cash flows include deposit/loan/trading asset changes.
   // OCF minus capex remains an arithmetic fact, but it is not an industrial FCF
   // margin and cannot supply a higher-is-better financial-sector percentile.
-  const financial = isLendingFinancial(symbol, sector); // v57.84: one lending-financial rule (Visa is not a bank)
+  // One financial rule (Visa is not a bank); an insurer's float-driven cash flow is held from the FCF comparison too.
+  const cashHeld = (sym) => financialKind(sym, sector, sicFor(sym)) != null;
+  const financial = cashHeld(symbol);
+  const reit = financialKind(symbol, sector, sicFor(symbol)) === 'reit';
   const peerMetrics = (peers || [])
     .filter((peer) => peer && peer !== symbol)
     .map((peer) => ({ symbol: peer, metrics: fiscalMetrics(seriesFor(peer)) }))
@@ -73,11 +77,11 @@ export function buildPeerRead({ symbol, sector = null, seriesFor = () => null, p
   if (peerMetrics.length < minPeers) return { available: false, reason: 'too-few-peers', peers: peerMetrics.length };
   const rows = PEER_METRICS.map((metric) => {
     const value = finite(own[metric.id]);
-    if (financial && metric.id === 'fcfMargin') return { ...metric, label: '잉여현금 마진(금융사 비교 보류)', higherIs: null,
+    if (financial && metric.id === 'fcfMargin') return { ...metric, label: reit ? '잉여현금 마진(리츠 비교 보류)' : '잉여현금 마진(금융사 비교 보류)', higherIs: null,
       value, median: null, percentile: null, n: 0, reason: 'financial-cash-flow-not-comparable' };
     // v57.92: the same rule applies to the peer side — a card network's FCF margin was ranked against five banks' OCF−capex
     // (0th percentile) while the bank itself was held. Lending peers drop out of the FCF comparison set, so n shrinks.
-    const values = peerMetrics.filter((peer) => metric.id !== 'fcfMargin' || !isLendingFinancial(peer.symbol, sector))
+    const values = peerMetrics.filter((peer) => metric.id !== 'fcfMargin' || !cashHeld(peer.symbol))
       .map((peer) => finite(peer.metrics[metric.id])).filter((v) => v != null);
     if (value == null || values.length < minPeers) return { ...metric, value, median: median(values), percentile: null, n: values.length };
     return { ...metric, value, median: median(values), percentile: percentileAmong(value, values), n: values.length };
@@ -87,6 +91,6 @@ export function buildPeerRead({ symbol, sector = null, seriesFor = () => null, p
   const strong = ranked.filter((row) => row.percentile >= 75).map((row) => row.label);
   const weak = ranked.filter((row) => row.percentile <= 25).map((row) => row.label);
   const parts = [strong.length ? `상위 25% 안: ${strong.join(', ')}` : null, weak.length ? `하위 25% 안: ${weak.join(', ')}` : null].filter(Boolean);
-  const summary = `같은 섹터 SEC 공시 기업 ${peerMetrics.length}곳과 비교: ${parts.length ? parts.join(' / ') : '비교한 지표 모두 중간 범위(25~75%)'}.${financial ? ' 금융사의 영업현금흐름에는 예금·대출·트레이딩 자산 변화가 섞이므로 일반 기업의 영업 FCF와 구분하고, 잉여현금 마진 순위는 보류합니다.' : ''}`;
+  const summary = `같은 섹터 SEC 공시 기업 ${peerMetrics.length}곳과 비교: ${parts.length ? parts.join(' / ') : '비교한 지표 모두 중간 범위(25~75%)'}.${reit ? ' 리츠는 건물 매입이 설비투자로 잡히지 않아 잉여현금 마진 순위는 보류합니다.' : financial ? ' 금융사의 영업현금흐름에는 예금·대출·트레이딩 자산 변화가 섞이므로 일반 기업의 영업 FCF와 구분하고, 잉여현금 마진 순위는 보류합니다.' : ''}`;
   return { available: true, symbol, sector, peers: peerMetrics.length, rows, summary };
 }

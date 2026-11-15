@@ -858,9 +858,11 @@ function _itbActionLabel(action) {
 
 function _itbPortfolioObserved(result) {
   var items = (result && result.items) || [];
-  if (!items.length || result.heatScore == null) return '판단 보류';
+  var cov = result ? Number(result.coveragePct) : NaN; // the value share of the book the read measured, said only when it is not all of it
+  var measured = result && result.coveragePct != null && isFinite(cov) && Math.round(cov) < 100 ? ', 평가액 ' + Math.round(cov) + '% 측정' : '';
+  if (!items.length || result.heatScore == null) return '판단 보류' + measured;
   var hot = items.filter(function(it) { return it && it.action && it.action !== 'HOLD_CORE' && it.action !== 'WAIT'; }).length;
-  return '포지션 ' + items.length + '개 중 부담 신호 ' + hot + '개';
+  return '포지션 ' + items.length + '개 중 부담 신호 ' + hot + '개' + measured;
 }
 
 // P1546: the sell-pressure engine's 0-100 sum has no predictive validation, so the panel reports how many measured
@@ -871,8 +873,6 @@ function _itbObservedCount(sp) {
   var n = flags.filter(function(f) { return f !== 'TREND_HEALTHY_NO_EXIT_SIGNAL'; }).length;
   return n ? '확인된 조건 ' + n + '개' : '확인된 조건 없음';
 }
-
-// P1558 → v57.76: the Korean flag-label map (_itbFlagLabel) left with the brief panels that showed flag badges.
 
 function renderPortfolioTechnicalRisk(result) {
   var el = document.getElementById('pf-technical-risk');

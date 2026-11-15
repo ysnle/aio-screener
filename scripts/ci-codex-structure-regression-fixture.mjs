@@ -265,7 +265,7 @@ assert.equal(marketAnalysisLargeMove(fridaySpx, new Map([['spx', -1.09]]), weeke
 assert.equal(marketAnalysisLargeMove(fridaySpx, new Map([['spx', -1.09]]), { meta: { newsCycleStart: '2026-10-16T23:00:00.000Z' } }), true, 'the next-morning bundle still attributes it');
 const q = (start, end, value) => ({ start, end, val: value, filed: '2026-02-12' });
 const lhx = discreteQuarterSeries([q('2025-01-04', '2025-03-28', 5132), q('2025-03-29', '2025-06-27', 5426), q('2025-06-28', '2025-10-03', 5659), q('2025-10-04', '2026-01-02', 21865)], [q('2025-01-04', '2026-01-02', 21865)]);
-assert.deepEqual(lhx.at(-1), { periodEnd: '2026-01-02', value: 21865 - 5132 - 5426 - 5659, derived: true, concept: null, availableAt: '2026-02-12' }, 'a quarter carrying the full-year amount is replaced by FY − Q1..Q3');
+assert.deepEqual(lhx.at(-1), { periodEnd: '2026-01-02', value: 21865 - 5132 - 5426 - 5659, derived: true, concept: null, availableAt: '2026-02-12', days: 90 }, 'a quarter carrying the full-year amount is replaced by FY − Q1..Q3');
 const healthAt = '2026-10-19T12:00:00.000Z';
 const health1 = mergeNewsFeedHealth(null, [{ source: 'A', status: 'ok', kept: 3 }, { source: 'B', status: 'no-current', kept: 0 }], '2026-10-16T00:00:00.000Z');
 const health2 = mergeNewsFeedHealth(health1, [{ source: 'A', status: 'ok', kept: 2 }, { source: 'B', status: 'error', kept: 0 }], healthAt);
@@ -291,7 +291,10 @@ assert.match(dataSourceWarnings({ meta: { newsFeedHealth: idle } }, { nowMs: Dat
 assert.equal(newsFloorDropReason({ tier: 4, score: 50, topicHits: 2 }), 'low-quality-source');
 assert.equal(newsFloorDropReason({ tier: 2, score: 0, selectionReason: 'clickbait-filter' }), 'clickbait-filter');
 assert.equal(newsFloorDropReason({ tier: 2, score: 40, topicHits: 0 }), 'no-market-topic');
-for (const [text, level] of [['CoreWeave weighs debt sale, people familiar say', 'unconfirmed'], ['삼성전자 매각설 확산', 'rumor'], ['업계 관계자들이 전했다', 'unconfirmed'], ['Market Chatter: Oracle', 'rumor'], ['Nvidia beats estimates', 'reported']]) {
+for (const [text, level] of [['CoreWeave weighs debt sale, people familiar say', 'unconfirmed'], ['삼성전자 매각설 확산', 'rumor'], ['업계 관계자들이 전했다', 'unconfirmed'], ['Market Chatter: Oracle', 'rumor'], ['Nvidia beats estimates', 'reported'],
+  // v60.16: 건설·시설·증설 end in 설 and are not rumours; "알려졌다" marks a report unconfirmed only as the hearsay clause.
+  ['AI 데이터센터 건설 확산에 전력주 강세', 'reported'], ['반도체 시설 확산', 'reported'], ['파운드리 증설 제기', 'reported'], ['위기설 확산에 은행주 약세', 'rumor'], ['합병 설 돌아', 'rumor'],
+  ['삼성전자, 3분기 영업이익 12조로 알려졌다', 'reported'], ['연준 금리 인하 소식이 전해졌다', 'reported'], ['엔비디아가 인수를 검토 중인 것으로 알려졌다', 'unconfirmed'], ['감산에 합의했다고 전해졌다', 'unconfirmed']]) {
   assert.equal(reportVerification(text), level, `report verification: ${text}`);
   assert.equal(narrativeVerification(text), level, `narrative context uses the shared rule: ${text}`);
   assert.equal(newsHeadlineUnverified(text), level !== 'reported', `news bundle uses the shared rule: ${text}`);
@@ -456,6 +459,7 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
   assert.match(items.netLiquidity.reading, /뚜렷한 방향이 없습니다/, 'M05: a 4-week change inside ±1,000억 달러 has no direction');
   assert.match(items.netLiquidity.format(5986.7), /조 달러$/, 'M16: the net-liquidity range keeps 조 달러');
   assert.match(items.sofr.changeText, /목표 범위 3\.75–4\.00% 안/, 'M22: SOFR shows the target range');
+  assert.match(items.sofr.changeText, /안, 하단 \+12bp$/, 'v60.16: SOFR inside the target range says how far above the lower bound it sits');
   assert.equal(items.sofr.stale, false, 'M14: a 2-day-old daily series is current');
   assert.equal(buildLiquidityGrowthGroups(mh, { history, referenceMs: referenceMs + 6 * 86400000 }).flatMap((g) => g.items).find((i) => i.id === 'brent').stale, true, 'M14: a daily series 8 days old is stale');
   assert.ok(/ 현물 기준$/.test(items.brent.period) && items.brent.basis === 'spot' && /선물 종가와 숫자가 다를 수/.test(items.brent.reading)

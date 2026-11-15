@@ -14,7 +14,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
-  CANDIDATE_ARCHIVE_SCHEMA, CANDIDATE_SHADOW_MODEL, anchorSessionDates, buildCandidateEntry, buildShadowRecord, emptyCandidateArchive,
+  CANDIDATE_ARCHIVE_POLICY, CANDIDATE_ARCHIVE_SCHEMA, CANDIDATE_SHADOW_MODEL, repeatedKoreanSessions, anchorSessionDates, buildCandidateEntry, buildShadowRecord, emptyCandidateArchive,
   fillCandidateOutcomes, forwardReturn, rankPublishedScreener, signedYields, spearman, summarizeCandidateArchive, upsertCandidateEntry
 } from './lib/candidate-archive.mjs';
 import { buildPopulationRankingIdentity, buildRankingIdentity } from '../src/domain/screener/model-fingerprint.js';
@@ -108,10 +108,10 @@ summary = summarizeCandidateArchive(archive);
 if (summary.measured !== 1 || summary.identity !== identity) fail('summary identity drifted');
 
 // 7. Shadow record: same rows, its own definitions and identity, measured on the entry's dates, summarized apart.
-if (ranking.factorDefinitions?.momentum !== 'blend-1-3-6' || ranking.factorDefinitions?.value !== 'positive-multiples') fail('the default ranking must keep its own factor definitions');
+if (ranking.factorDefinitions?.momentum !== 'twelve-minus-one' || ranking.factorDefinitions?.value !== 'positive-multiples' || ranking.factorDefinitions?.quality !== 'profitability') fail('the default ranking must keep its own factor definitions');
 const shadow = buildShadowRecord({ shadowRanking });
 if (!shadow || shadow.model !== CANDIDATE_SHADOW_MODEL.id || !shadow.identity.startsWith(`${CANDIDATE_SHADOW_MODEL.id}:`)
-  || shadowRanking.factorDefinitions?.momentum !== 'twelve-minus-one' || shadowRanking.factorDefinitions?.value !== 'signed-yields' || shadowRanking.factorDefinitions?.quality !== 'profitability' || ranking.factorDefinitions?.quality !== 'roe-margin-growth') fail('shadow ranking/record missing or not the candidate model');
+  || shadowRanking.factorDefinitions?.momentum !== 'blend-1-3-6' || shadowRanking.factorDefinitions?.value !== 'positive-multiples' || shadowRanking.factorDefinitions?.quality !== 'roe-margin-growth' || shadow.identity === entry.identity) fail('shadow ranking/record missing or not the former default model');
 const loss = signedYields('X', { price: 10, shares: 1e6 }, { quarters: { X: '2025-03-31:1:-1:r;2025-06-30:1:-1:r;2025-09-30:1:-1:r;2025-12-31:1:-1:d' }, data: { X: '2025-12-31:4:-4:5::::1' } });
 if (loss.earningsYieldTtm !== -0.4 || loss.bookYield !== 0.5) fail(`signed yields must keep a loss negative: ${JSON.stringify(loss)}`);
 // v57.88 (review): a filer whose last quarter / fiscal year ended years ago has no current yield.
@@ -149,5 +149,18 @@ if (published) {
   if (!('independent' in (published.summary || {}))) delete recomputed.independent; // written by the next producer run
   if (JSON.stringify(recomputed) !== JSON.stringify(published.summary)) fail('published summary does not match its entries');
   if (published.entries.some((item) => item.outcome && item.outcome.costs !== 'not-modelled')) fail('outcome must declare costs not modelled');
+  // Entries are keyed by the US session; the Korean leg can repeat (30 published entries carried 4 repeats). The record
+  // names those entries, and the decision evidence never contains two entries of one Korean session.
+  const repeats = repeatedKoreanSessions(published.entries);
+  const measuredEntries = published.entries.filter((item) => item.outcome);
+  const chosen = new Set(independentEvidence(measuredEntries).dates);
+  const chosenKr = measuredEntries.filter((item) => chosen.has(item.date)).map((item) => item.sessionDates?.KR).filter(Boolean);
+  if (new Set(chosenKr).size !== chosenKr.length) fail(`v60.16 the non-overlapping evidence holds one Korean session twice: ${chosenKr.join(' ')}`);
+  if ('repeatedKoreanSessions' in published && JSON.stringify(published.repeatedKoreanSessions) !== JSON.stringify(repeats)) fail('v60.16 the published list of repeated Korean sessions does not match its entries');
+}
+{
+  const entries = [{ date: '2026-10-07', sessionDates: { US: '2026-10-07', KR: '2026-10-08' } }, { date: '2026-10-08', sessionDates: { US: '2026-10-08', KR: '2026-10-08' } }, { date: '2026-10-09', sessionDates: { US: '2026-10-09', KR: '2026-10-12' } }];
+  if (repeatedKoreanSessions(entries).join() !== '2026-10-08') fail('v60.16 an entry whose Korean session equals the previous entry\'s must be named as a repeat');
+  if (!/no execution lag/.test(CANDIDATE_ARCHIVE_POLICY) || !/same Korean session/.test(CANDIDATE_ARCHIVE_POLICY) || emptyCandidateArchive().policy !== CANDIDATE_ARCHIVE_POLICY) fail('v60.16 the archive policy must state the same-close entry and the repeated Korean session');
 }
 console.log(JSON.stringify({ ok: true, ranked: ranked.length, quintile: top.length, published: published ? published.entries.length : 'pending-first-run' }));

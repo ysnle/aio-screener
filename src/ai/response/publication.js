@@ -172,7 +172,7 @@ function countSentences(value) {
 
 // Supported numbers: the numeric values of the publishable evidence rows the model was given, each with its unit.
 // Search results reach this module only as document rows without a numeric value, so they add nothing here.
-var ROW_UNITS = { USD: 'USD', KRW: 'KRW', PERCENT: 'percent', '%': 'percent', PCT: 'percent', BP: 'bp', BPS: 'bp', X: 'multiple', MULTIPLE: 'multiple', '배': 'multiple', INDEX: 'point', POINT: 'point', POINTS: 'point', PT: 'point' };
+var ROW_UNITS = { USD: 'USD', KRW: 'KRW', PERCENT: 'percent', '%': 'percent', PCT: 'percent', PP: 'pp', '%P': 'pp', BP: 'bp', BPS: 'bp', X: 'multiple', MULTIPLE: 'multiple', '배': 'multiple', INDEX: 'point', POINT: 'point', POINTS: 'point', PT: 'point' };
 // With the question's entities, a row's figure belongs to the entity its ticker/entity field names when that is one of
 // them; a row about anything else (an index, a rate) supports every subject.
 export function supportedNumbersFromEvidence(rows, nowMs = Date.now(), { entities } = {}) {
@@ -323,9 +323,10 @@ function referencePieces(text, matchers) {
 // "52주", "10년물", "3개월"; "3거래일 연속" is a count and stays), an index name ("S&P 500", "나스닥 100") and a code
 // with digits ("US10Y", "H100", "2s10s").
 var NOT_A_FIGURE = /(?:https?:\/\/|www\.)\S+|(?<!\d)(?:19|20)\d{2}\s*(?:[-./]|년)\s*\d{1,2}(?:\s*(?:[-./]|월)\s*\d{1,2}\s*일?)?(?!\d)|(?<!\d)\d{1,2}\s*월\s*\d{1,2}\s*일|(?<!\d)(?:19|20)\d{2}\s*년(?:대)?|(?<!\d)\d{1,2}:\d{2}(?!\d)|(?:S&P|나스닥|러셀|코스피|코스닥|\b(?:Nasdaq|NASDAQ|Russell|KOSPI|KOSDAQ)\b)\s*(?:500|100|2000|200|150)(?![\d,.])|(?<![\d.,])\d+\s*(?:개월|개년|년물|년간|년|분기|주(?![가식당요])|거래일|일선|일(?![부반정본간]))(?!\s*(?:연속|째|만에))|(?<![A-Za-z])(?!\b(?:USD|KRW|US)\d)[A-Za-z]+\d[\dA-Za-z]*|\d+s\d+s|\d+-\b(?:year|month|week|day)\b/g;
-var WRITTEN_FIGURE = /(\$|₩|\b(?:USD|KRW|US\$)\s*)?([+\-−]?)(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<![A-Za-z])(%|퍼센트|percent\b|bps?\b|배|달러|dollars?\b|USD\b|원|KRW\b|포인트|pt\b|조|억|만|개|곳|건|명|종목|(?<=\d)x(?![A-Za-z0-9]))?/gi;
-// "41.2x" (an x glued to the digits) is a multiple, as "41.2배" is.
-var WRITTEN_UNITS = [[/^(?:%|퍼센트|percent)$/i, 'percent'], [/^bps?$/i, 'bp'], [/^(?:배|x)$/i, 'multiple'], [/^(?:\$|달러|dollars?|USD|US\$)$/i, 'USD'], [/^(?:₩|원|KRW)$/i, 'KRW'], [/^(?:포인트|pt)$/i, 'point']];
+var WRITTEN_FIGURE = /(\$|₩|\b(?:USD|KRW|US\$)\s*)?([+\-−]?)(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<![A-Za-z])(%p(?![A-Za-z])|(?:%|퍼센트)\s*포인트|%|퍼센트|percent\b|bps?\b|배|달러|dollars?\b|USD\b|원|KRW\b|포인트|pt\b|조|억|만|개|곳|건|명|종목|(?<=\d)x(?![A-Za-z0-9]))?/gi;
+// "41.2x" (an x glued to the digits) is a multiple, as "41.2배" is. "0.5%p" is a difference in percentage points, not a
+// 0.5% level, so a percent row does not support it.
+var WRITTEN_UNITS = [[/^(?:%p|(?:%|퍼센트)\s*포인트)$/i, 'pp'], [/^(?:%|퍼센트|percent)$/i, 'percent'], [/^bps?$/i, 'bp'], [/^(?:배|x)$/i, 'multiple'], [/^(?:\$|달러|dollars?|USD|US\$)$/i, 'USD'], [/^(?:₩|원|KRW)$/i, 'KRW'], [/^(?:포인트|pt)$/i, 'point']];
 function writtenUnit(word) {
   if (!word) return '';
   var hit = WRITTEN_UNITS.filter(function(pair) { return pair[0].test(word); })[0];

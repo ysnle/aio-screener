@@ -94,10 +94,6 @@ export function calcNewsImpactVector(item, env = {}) {
 /* ── scoreItem(): 뉴스 중요도 스코어링 (0~100+) ────────────────
    기관 리서치 데스크 기준: 1) 키워드 매칭 (매크로 > 테크 > 실적 > 분석) 2) 소스 신뢰도 (Tier 가중치)
    3) 신선도 (시간 감쇄) 4) 티커 언급 부스트 5) 중복/스팸 패널티 */
-const PREMIUM_SOURCES = ['Reuters','Bloomberg','WSJ','CNBC','MarketWatch','FT Markets','S&P Global','Barrons',
-  'CNN','NYT','BBC','Seeking Alpha','Yahoo Finance','Investing.com','Benzinga','The Block','Defense One',
-  'Nikkei Asia','SCMP','AP Business','Nasdaq','Forbes','Business Insider','Morningstar','The Economist',
-  'Kitco','DL News','CoinDesk','SemiAnalysis','TrendForce','Digitimes','EE Times'];
 // v34.1c: 시장을 주도하는 핵심 종목에 대한 뉴스를 우선 노출
 const MEGA_TICKERS = new Set([
   // US Mega Cap (시총 $500B+)
@@ -319,15 +315,11 @@ export function scoreItem(item, env = {}) {
   }
 
   // ── 2. 소스 신뢰도 가중치 ──
-  score += ({ 1: 15, 2: 8, 3: 3 })[item.tier] || 0;
-  if (PREMIUM_SOURCES.some((s) => (item.source || '').includes(s))) score += 5;
-  // v34.1c: US Tier1 외신 최우선, 한국은 콘텐츠 품질로만 판단
-  if (item.country === 'us' && item.tier === 1) score += 12;
-  else if (item.country !== 'kr' && item.tier === 1) score += 8;
-  else if (item.country !== 'kr' && item.tier === 2) score += 4;
-  if (item.country === 'kr' && item.tier === 2) score += 3; // v46.6: US 편향 완화
-  if (item.country === 'kr' && item.tier === 3) score -= 5; // v38.3 B3: 비금융 기사 유입 가능성 높은 소스
-  if ((item.source || '').includes('구글뉴스')) score += 4; // v29.1
+  // One source leg: the tier with its country policy (US tier 1 first; Korean tier 3 penalised for non-financial inflow).
+  // A premium-name bonus and a Google News bonus used to stack on it — the name list restated the tier, so a US wire
+  // took 32 points before any content.
+  const kr = item.country === 'kr', t = item.tier;
+  score += t === 1 ? (item.country === 'us' ? 27 : kr ? 15 : 23) : t === 2 ? (kr ? 11 : 12) : t === 3 ? (kr ? -2 : 3) : 0;
 
   // ── 3. 신선도 감쇄 (freshnessPoints; not cached) ──
   const freshness = freshnessPoints(item, env);
@@ -454,6 +446,7 @@ export const NEWS_TOPIC_GROUP_ORDER = [
   { key:'general',   label:'기타 뉴스',         icon:'' }
 ];
 
+const HOME_LEAD_TOPICS = new Set(['macro', 'geo', 'bond', 'fx', 'fxbond', 'credit', 'energy']);
 export const NEWS_SURFACE_CONTRACTS = {
   home: {
     surfaceId: 'home',
@@ -772,8 +765,10 @@ export function buildNewsSurfaceModel(surfaceId, items, opts = {}, env = {}) {
   });
 
   if (surfaceId === 'home') {
+    // Market-wide stories lead 홈. The keys are the ones rows carry: the producer's (macro, fxbond, credit, energy) and
+    // classifyTopic's (geo, bond, fx). The source tier is already inside the score and is not added again.
     deduped.forEach((i) => {
-      i._surfaceScore = i.score + (['macro','geo','bond','fx','energy'].indexOf(i.topic) >= 0 ? 20 : 0) + (i.sourceTier <= 2 ? 8 : 0);
+      i._surfaceScore = i.score + (HOME_LEAD_TOPICS.has(i.topic) ? 20 : 0);
       i.inclusionReason = inclusionReason(i, surfaceId);
     });
     deduped.sort((a, b) => (b._surfaceScore || 0) - (a._surfaceScore || 0));

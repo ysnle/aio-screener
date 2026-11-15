@@ -164,16 +164,18 @@ function _calcPortfolioVaR(returns, confidence) {
   return Math.max(0, -sorted[Math.min(sorted.length - 1, tailCount - 1)]);
 }
 
-function _calcSharpe(returns, rfRate) {
+// `periodsPerYear` is the return frequency: 252 for daily returns, 252 / 5 for 5-session returns.
+function _calcSharpe(returns, rfRate, periodsPerYear) {
   if (!returns || returns.length < 10 || typeof rfRate !== 'number' || !isFinite(rfRate) || rfRate <= -1) return null;
   var clean = returns.filter(function(r) { return typeof r === 'number' && isFinite(r); });
   if (clean.length < 10) return null;
-  var rfDaily = Math.pow(1 + rfRate, 1 / 252) - 1;
+  var periods = periodsPerYear > 0 ? periodsPerYear : 252;
+  var rfDaily = Math.pow(1 + rfRate, 1 / periods) - 1;
   var excess = clean.map(function(r) { return r - rfDaily; });
   var mean = _statMean(excess);
   var std = _statStdDev(excess);
   if (std < 1e-10) return null;  // v48.95 P1-9: near-zero std → null (division-by-zero 방지)
-  return (mean / std) * Math.sqrt(252);
+  return (mean / std) * Math.sqrt(periods);
 }
 
 /**

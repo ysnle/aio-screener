@@ -139,8 +139,8 @@ const buildNameMatcher = (name) => {
   return {
     get re() {
       if (!re) {
-        const particle = /[가-힣]/.test(name) ? '(?:은|는|이|가|을|를|의|와|과|도|에서|에게|으로|로)?' : '';
-        re = new RegExp(`(^|[^\\p{L}\\p{N}])(${escaped(name)})${particle}(?=$|[^\\p{L}\\p{N}])`, 'giu');
+        // A Korean particle or source suffix may follow any name ("엔비디아에 집중", "Nvidia는", "TSMC가", "엔비디아발 충격").
+        re = new RegExp(`(^|[^\\p{L}\\p{N}])(${escaped(name)})(?:은|는|이|가|을|를|의|와|과|도|만|뿐|에|에서|에게|으로|로|보다|부터|까지|발|향|측)?(?=$|[^\\p{L}\\p{N}])`, 'giu');
       }
       return re;
     },

@@ -3,13 +3,17 @@
 // The digest `signals` (scripts/lib/telegram-signals.mjs) are joined here: for the tickers in the question, every
 // reported target-price/rating action and quarter; for a market question, the latest releases against forecast and the
 // retail leverage share. Each line is a relayed report — the chat cites it as "리서치 채널 보도", not as AIO data.
+import { NARRATIVE_WINDOW_HOURS } from '../../domain/narrative/narratives.js';
 
 const DIRECTION = { raise: '상향', cut: '하향', hold: '유지', initiate: '신규', set: '제시' };
 const VERDICT = { beat: '상회', miss: '하회', inline: '부합' };
 const money = (value, currency) => (Number.isFinite(value) ? `${value.toLocaleString('en-US')}${currency === 'KRW' ? '원' : currency === 'USD' ? ' USD' : ` ${currency || ''}`}` : '?');
 
-/** Prompt lines ('' when nothing applies). `tickers` are the symbols the question resolved to. */
-export function formatChannelSignalEvidence(signals, { tickers = [], market = false, maxPerTicker = 6 } = {}) {
+/**
+ * Prompt lines ('' when nothing applies). `tickers` are the symbols the question resolved to. The market lines keep the
+ * narrative window (72 hours, KST dates): an older release or retail reading is not what the channels are saying now.
+ */
+export function formatChannelSignalEvidence(signals, { tickers = [], market = false, maxPerTicker = 6, nowMs = Date.now() } = {}) {
   const list = Array.isArray(signals) ? signals : [];
   if (!list.length) return '';
   const wanted = new Set((Array.isArray(tickers) ? tickers : []).map((sym) => String(sym || '').toUpperCase()).filter(Boolean));
@@ -24,11 +28,14 @@ export function formatChannelSignalEvidence(signals, { tickers = [], market = fa
     }
   }
   if (market) {
-    for (const release of list.filter((signal) => signal.kind === 'macro').slice(0, 3)) {
+    const since = new Date(nowMs - (NARRATIVE_WINDOW_HOURS - 9) * 3600000).toISOString().slice(0, 10);
+    const current = (signal) => String(signal.date || '') >= since;
+    const newest = (a, b) => String(b.date).localeCompare(String(a.date));
+    for (const release of list.filter((signal) => signal.kind === 'macro' && current(signal)).sort(newest).slice(0, 3)) {
       lines.push(`  [${release.date} 경제지표] ${release.name}: 실제 ${release.actual}${release.unit || ''} · 예상 ${release.forecast}${release.unit || ''}${release.previous != null ? ` · 이전 ${release.previous}${release.unit || ''}` : ''}`);
     }
-    const retail = list.filter((signal) => signal.kind === 'retail' && signal.side === 'buy').sort((a, b) => String(b.date).localeCompare(String(a.date)));
-    if (retail[0]) lines.push(`  [${retail[0].date} 서학개미 순매수] 상위 10종목 ${retail[0].top10Share}% · 레버리지 롱 ${retail[0].leveragedLongShare}%${retail[1] ? ` (직전 ${retail[1].date} ${retail[1].leveragedLongShare}%)` : ''}`);
+    const retail = list.filter((signal) => signal.kind === 'retail' && signal.side === 'buy').sort(newest);
+    if (retail[0] && current(retail[0])) lines.push(`  [${retail[0].date} 서학개미 순매수] 상위 10종목 ${retail[0].top10Share}% · 레버리지 롱 ${retail[0].leveragedLongShare}%${retail[1] ? ` (직전 ${retail[1].date} ${retail[1].leveragedLongShare}%)` : ''}`);
   }
   if (!lines.length) return '';
   return `telegram_channel_data (리서치 채널이 전한 수치 · 2차 자료 — 인용 시 "리서치 채널 보도에 따르면"으로 귀속하고 AIO가 확인한 값으로 쓰지 않는다; 목록에 없는 종목은 보도 없음이지 근거 없음이 아니다):\n${lines.join('\n')}\n`;

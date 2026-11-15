@@ -3,7 +3,7 @@
 // scripts/fetch-data.mjs enrichSecFundamentals so the browser's out-of-universe read builds the same fields; the
 // producer calls this per symbol. Returns null when nothing usable remains (the producer then skips the symbol).
 import { secSharesTrust } from './sec-report.js';
-import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
+import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, finiteFact } from './period.js';
 
 /**
  * v59.70 (Sandisk 8:1, trading adjusted from 2026-11-20): the close is split-adjusted, but the share count is the last
@@ -43,7 +43,9 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
     // (TTM), and earnings available to common when the filer tags them; the basis travels with the row.
     const earnings = row.peEarnings && Number.isFinite(Number(row.peEarnings.value)) ? row.peEarnings : null;
     const netIncome = earnings ? Number(earnings.value) : Number(row.netIncome);
-    const equity = Number(row.equity);
+    // P/B is priced on the latest reported common equity when the record carries it (sec-valuation-basis secPbEquity).
+    const pbEquity = row.pbEquity && finiteFact(row.pbEquity.value) != null ? row.pbEquity : null;
+    const equity = pbEquity ? Number(pbEquity.value) : Number(row.equity);
     const mcap = px * shares;
     if (Number.isFinite(netIncome) && netIncome > 0) {
       rec.pe = Math.round(mcap / netIncome * 100) / 100;
@@ -52,11 +54,17 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
       rec.peEarningsBasis = earnings?.basis || 'fy';
       rec.peEarningsThrough = earnings?.through || row.observedAt || null;
       if (earnings?.concept === 'common') rec.peEarningsConcept = 'common';
+      // The P/E numerator carries a one-off gain (sec-valuation-basis secEarningsOneOff): the row says so.
+      if (Array.isArray(row.earningsOneOff) && row.earningsOneOff.length) rec.peOneOff = true;
+      // A newer quarter is on file than the earnings this P/E is priced on (sec-valuation-basis secPeEarningsLag).
+      if (row.peEarningsLag?.laterQuarter > rec.peEarningsThrough) rec.peEarningsLaterQuarter = row.peEarningsLag.laterQuarter;
     }
     if (Number.isFinite(equity) && equity > 0) {
       rec.pb = Math.round(mcap / equity * 100) / 100;
       rec.pbPrice = px;
       rec.pbPriceBasis = 'adjusted-close';
+      rec.pbEquityThrough = pbEquity?.periodEnd || row.observedAt || null;
+      if (pbEquity?.preferred > 0) rec.pbEquityBasis = 'common';
     }
     // F10: the reference market cap needs only a close and a verified count, not positive earnings or equity.
     rec.valuationPrice = px;
@@ -76,13 +84,20 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
   // P1652: P/E under 2 or P/B under 0.1 is a share-class/unit mismatch (BRK-B, IBKR), not a valuation — and the
   // same share basis cannot size a reference market cap either.
   const shareBasisMismatch = (rec.pe != null && !(rec.pe >= 2)) || (rec.pb != null && !(rec.pb >= 0.1));
-  if (rec.pe != null && !(rec.pe >= 2)) ['pe', 'pePrice', 'pePriceBasis', 'peEarningsBasis', 'peEarningsThrough', 'peEarningsConcept'].forEach((key) => delete rec[key]);
-  if (rec.pb != null && !(rec.pb >= 0.1)) { delete rec.pb; delete rec.pbPrice; delete rec.pbPriceBasis; }
+  if (rec.pe != null && !(rec.pe >= 2)) ['pe', 'pePrice', 'pePriceBasis', 'peEarningsBasis', 'peEarningsThrough', 'peEarningsConcept', 'peOneOff', 'peEarningsLaterQuarter'].forEach((key) => delete rec[key]);
+  if (rec.pb != null && !(rec.pb >= 0.1)) ['pb', 'pbPrice', 'pbPriceBasis', 'pbEquityThrough', 'pbEquityBasis'].forEach((key) => delete rec[key]);
   if (shareBasisMismatch) {
     ['valuationPrice', 'valuationPriceBasis', 'valuationSharesOutstanding', 'valuationSharesObservedAt', 'valuationSharesCheck', 'valuationSharesBasis'].forEach((key) => delete rec[key]);
     rec.valuationHeldReason = 'share-class-or-unit-mismatch';
   }
   if (!trust.shares) rec.valuationHeldReason = trust.reason;
+  // Why a multiple is absent, on the same numerator and denominator that would have priced it: a loss in the P/E
+  // earnings (the last four quarters when they are the basis, not the fiscal-year margin) and non-positive common
+  // equity. The value factor scores both terms 0 from these markers; neither needs a price or a share count.
+  const peNumerator = finiteFact(row.peEarnings?.value) ?? finiteFact(row.netIncome);
+  if (peNumerator != null && peNumerator <= 0) rec.peLoss = true;
+  const pbDenominator = finiteFact(row.pbEquity?.value) ?? finiteFact(row.equity);
+  if (pbDenominator != null && pbDenominator <= 0) rec.pbDeficit = true;
   if (!['pe', 'pb', 'roe', 'margin', 'revGrowth', 'valuationSharesOutstanding'].some((key) => rec[key] != null)) return null;
   // v59.45 (pipeline review P19 future rows): a fiscal year ending after the session, or a filing time after now, is not a
   // current observation (2099/2100 read CURRENT); the report freshness gate (sec-report) already refuses them.

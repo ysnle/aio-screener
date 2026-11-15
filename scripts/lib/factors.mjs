@@ -3,7 +3,7 @@
 // re-exports them, so existing importers (backtest-factors-longrun, data gates) keep working unchanged.
 import { percentileRank01, spearman } from './rank-statistics.mjs';
 import { round } from './producer-math.mjs';
-import { computeFactorRanks } from '../../src/domain/screener/factor-ranks.js';
+import { computeFactorRanks, momentumRawOf } from '../../src/domain/screener/factor-ranks.js';
 import { MODEL_DEFAULT_WEIGHTS } from '../../src/domain/screener/factor-weights.js';
 import { buildScreenerModelFingerprint } from '../../src/domain/screener/model-fingerprint.js';
 // v57.81: the per-symbol price-factor math lives in src/domain/screener/price-factors.js (shared with the browser's
@@ -148,24 +148,14 @@ export function backtestFactors(stockData, opts) {
   var rebalanceDates = requestedRebalanceDates.filter(function(date){ return calendarDateSet.has(date); }).sort();
   var droppedRebalanceDates = requestedRebalanceDates.filter(function(date){ return rebalanceDates.indexOf(date) < 0; });
   var dateReadyRecords = datedStocks;
-  // v51.91 P586/C2: this backtest validates a *fixed* 4-factor subset, not the live ranking model
-  // (src/domain/screener/factor-ranks.js computeFactorRanks), whose marketState tilts are currently
-  // proposal-only; production ranks remain fixed at NEUTRAL until an explicit
-  // promotion record proves live/backtest parity and receives human review. The UI
-  // previously implied "종합 랭크가 검증 기반" (the live composite rank is what's validated) —
-  // that was not accurate. What IS validated here: momentum/trend/lowvol/kalman at
-  // the fixed NEUTRAL weights; proposal tilts are not validated or applied.
-  //   size/value/quality are excluded — not because they don't matter, but because backtesting
-  //   them here would either be infeasible or methodologically unsound with data this pipeline
-  //   actually has: size needs historical shares-outstanding (not fetched anywhere — mcap is a
-  //   hand-maintained static seed in SCREENER_DB, not a live time series); value/quality come from
-  //   FMP as today-only TTM snapshots (fetch-data.mjs:enrichFundamentals), so scoring a rebalance
-  //   147 days ago with today's P/E/ROE would be look-ahead bias — using information that wasn't
-  //   actually available at that date. Do not add them without solving those two problems first.
-  //   Weights below are the live NEUTRAL constant's momentum/trend/lowvol/kalman entries
-  //   (.27/.20/.16/.10, subset sum .73), renormalized to sum to 1 over just this subset — a single
-  //   source of truth instead of an independently hand-picked second weight set (see P584/C1 for
-  //   why two independent copies of the same "thing" drift apart over time).
+  // What this backtest validates: the live ranker (factor-ranks.js computeFactorRanks) at the model default weights
+  // (factor-weights.js MODEL_DEFAULT_WEIGHTS, passed explicitly below), run on the price factors only — momentum,
+  // trend, lowvol, kalman. The ranker renormalizes the default weights over the factors that have inputs, so no
+  // second weight vector lives here. It is not the full live model: size, value and quality carry no inputs.
+  //   size needs historical shares outstanding, which this pipeline does not fetch. value/quality are read from the
+  //   SEC filings as of today (the screener artifact holds one current P/E, P/B, ROE and margin per issuer, no
+  //   point-in-time series), so scoring a rebalance 147 days ago with them would be look-ahead bias. Do not add
+  //   them without solving those two problems first. Regime tilts are proposal-only and are not validated here.
   var sectorOf = opts && typeof opts.sectorOf === 'function' ? opts.sectorOf : function() { return null; };
   var liveActiveFactorsSeen = [];
   // P1449: model identity — the canonical string the UI compares against its live model before
@@ -176,7 +166,7 @@ export function backtestFactors(stockData, opts) {
     transactionCostBps: transactionCostBps
   });
   var EXCLUDED_FACTORS = ['size', 'value', 'quality'];
-  var EXCLUDED_FACTORS_REASON = 'size needs historical shares-outstanding data this pipeline does not fetch; value/quality are FMP today-only TTM snapshots with no historical time series, so backtesting them would use look-ahead information';
+  var EXCLUDED_FACTORS_REASON = 'size needs historical shares-outstanding data this pipeline does not fetch; value/quality are today-only readings of SEC filings with no point-in-time series, so backtesting them would use look-ahead information';
   var IC_FACTORS = ['momentum','trend','lowvol','kalman','composite'];
   var icS = {}, icN = {};
   // v52.50/WO-3: per-rebalance-date IC list (additive, existing icS/icN mean-only output unchanged) —
@@ -184,6 +174,17 @@ export function backtestFactors(stockData, opts) {
   // gate asks for explicitly and which a single averaged IC number cannot support.
   var icByDate = {};
   IC_FACTORS.forEach(function(k){ icS[k]=0; icN[k]=0; icByDate[k]=[]; });
+  // The ranking is one model per market (rank percentiles are computed inside each market), so the IC that speaks for
+  // a market's ranking is the rank correlation inside that market. The pooled figure above mixes USD and KRW returns
+  // and two rank scales; it is kept and labelled as pooled.
+  var IC_MARKETS = ['US', 'KR'];
+  var icMarket = {};
+  IC_MARKETS.forEach(function(market) {
+    icMarket[market] = { byDate: {}, dates: [], rows: 0 };
+    IC_FACTORS.forEach(function(k){ icMarket[market].byDate[k] = []; });
+  });
+  // Entry one session after the ranking close: a rank known only at the close cannot be bought at that close.
+  var lagIcComposite = [], lagSpreads = [];
   var spreadSum = 0, spreadNetSum = 0, costSum = 0, spreadN = 0, hit = 0, netHit = 0, hitN = 0;
   // v58.56 (#6): the per-rebalance values behind the averaged spread, so 사후 검증 can draw one top-minus-bottom bar per
   // date instead of only the mean. Every array below has one entry per date in spreadDates (same order).
@@ -228,21 +229,20 @@ export function backtestFactors(stockData, opts) {
       if (!Number.isInteger(forwardIndex) || forwardIndex <= p || forwardIndex > c.length - 1) { missingForwardRows++; return; }
       var f = closesToFactors(c.slice(0, p + 1)); if (!f) return;
       var fwd = (c[p] > 0) ? (c[forwardIndex] / c[p] - 1) : null; if (!isNum(fwd) || !forwardDate) return;
-      // 모멘텀: 1M(40%)+3M(40%)+6M(20%) — 6M은 추세(trend)와 중복 크므로 가중 축소
-      var momParts = [
-        isNum(f.ret1m) ? { v: f.ret1m, w: 0.4 } : null,
-        isNum(f.ret3m) ? { v: f.ret3m, w: 0.4 } : null,
-        isNum(f.ret6m) ? { v: f.ret6m, w: 0.2 } : null,
-      ].filter(Boolean);
-      var momSum = momParts.reduce(function(s,p){return s+p.w;},0);
-      var mom = momParts.length ? momParts.reduce(function(s,p){return s+p.v*p.w;},0)/momSum : null;
+      // The live model's momentum definition (factor-ranks.js momentumRawOf) — one formula for the ranker and this IC.
+      var mom = momentumRawOf(f);
       // P1443: the same trend definition as the live model (50-day 60%, 200-day 40%).
       var trParts = [isNum(f.pctSma50) ? { v: f.pctSma50, w: 0.6 } : null, isNum(f.pctSma200) ? { v: f.pctSma200, w: 0.4 } : null].filter(Boolean);
       var trW = trParts.reduce(function(sum, p){ return sum + p.w; }, 0);
       var tr = trW > 0 ? trParts.reduce(function(sum, p){ return sum + p.v * p.w; }, 0) / trW : null;
       var kalman = isNum(f.kalmanVelConf) ? f.kalmanVelConf : (isNum(f.kalmanVel) ? f.kalmanVel : null);
       var liquidity = _historicalLiquidity(s, p, liquidityWindowDays);
+      var lagStart = record.dateIndex.get(calendarDates[rebalanceCalendarIndex + 1]);
+      var lagEnd = record.dateIndex.get(calendarDates[rebalanceCalendarIndex + 1 + FWD]);
+      var fwdLag1 = Number.isInteger(lagStart) && Number.isInteger(lagEnd) && lagEnd > lagStart && c[lagStart] > 0 ? c[lagEnd] / c[lagStart] - 1 : null;
       rows.push({
+        market: marketOfRecord(record),
+        fwdLag1: isNum(fwdLag1) ? fwdLag1 : null,
         sym: s.sym || s.symbol || null,
         rebalanceDate: rebalanceDate,
         forwardDate: forwardDate,
@@ -279,7 +279,7 @@ export function backtestFactors(stockData, opts) {
       weights: MODEL_DEFAULT_WEIGHTS,
       weightsPolicy: 'model-default',
       rows: rows.map(function(r) {
-        return { sym: r.sym, sector: sectorOf(r.sym), ret1m: r.f.ret1m, ret3m: r.f.ret3m, ret6m: r.f.ret6m,
+        return { sym: r.sym, sector: sectorOf(r.sym), ret1m: r.f.ret1m, ret3m: r.f.ret3m, ret6m: r.f.ret6m, ret12m: r.f.ret12m,
           pctSma50: r.f.pctSma50, pctSma200: r.f.pctSma200, vol: r.f.vol, kalmanVel: r.f.kalmanVel, kalmanVelConf: r.f.kalmanVelConf,
           adjustedCloseStatus: 'complete', observedAt: asOf, factorSourceKind: 'T3_PUBLIC_DELAYED',
           factorAllowedUse: 'research-relative-ranking-only', factorQuality: { status: 'CURRENT' } };
@@ -294,15 +294,34 @@ export function backtestFactors(stockData, opts) {
     });
     var icC = _spearman(rows.map(function(r){ return r.comp; }), rows.map(function(r){ return r.fwd; }));
     if (isNum(icC)) { icS.composite += icC; icN.composite++; icByDate.composite.push(icC); icCompositeDates.push(rebalanceDate); }
+    IC_MARKETS.forEach(function(market) {
+      var marketRows = rows.filter(function(r){ return r.market === market; });
+      if (marketRows.length < 10) return;
+      var bucket = icMarket[market];
+      bucket.dates.push(rebalanceDate);
+      bucket.rows += marketRows.length;
+      [['mom','momentum'], ['trend','trend'], ['lowvol','lowvol'], ['kalman','kalman'], ['comp','composite']].forEach(function(pair) {
+        var ps = marketRows.filter(function(r){ return isNum(r[pair[0]]); });
+        var value = ps.length >= 10 ? _spearman(ps.map(function(r){ return r[pair[0]]; }), ps.map(function(r){ return r.fwd; })) : null;
+        bucket.byDate[pair[1]].push(isNum(value) ? round(value, 4) : null);
+      });
+    });
+    var lagRows = rows.filter(function(r){ return isNum(r.comp) && isNum(r.fwdLag1); });
+    var lagIc = lagRows.length >= 10 ? _spearman(lagRows.map(function(r){ return r.comp; }), lagRows.map(function(r){ return r.fwdLag1; })) : null;
+    if (isNum(lagIc)) lagIcComposite.push(lagIc);
     // 상하위 20% 분위 스프레드 & 방향 적중률. Rows without any observed
     // composite are excluded from portfolio construction; they cannot become
     // a hidden neutral holding through rank01's display fallback.
     var rankedRows = rows.filter(function(r){ return isNum(r.comp); });
     if (rankedRows.length < 2) return;
-    var sorted = rankedRows.slice().sort(function(a, b){ return a.comp - b.comp; });
+    // Equal composites at a quintile edge are ordered by symbol, so membership does not follow the input order.
+    var sorted = rankedRows.slice().sort(function(a, b){ return a.comp - b.comp || String(a.sym || '').localeCompare(String(b.sym || '')); });
     var q = Math.max(1, Math.floor(sorted.length / 5));
     var botM = _mean(sorted.slice(0, q).map(function(r){ return r.fwd; }));
     var topM = _mean(sorted.slice(-q).map(function(r){ return r.fwd; }));
+    var lagOf = function(list) { return _mean(list.map(function(r){ return r.fwdLag1; }).filter(isNum)); };
+    var lagTop = lagOf(sorted.slice(-q)), lagBottom = lagOf(sorted.slice(0, q));
+    if (isNum(lagTop) && isNum(lagBottom)) lagSpreads.push(lagTop - lagBottom);
     if (isNum(topM) && isNum(botM)) {
       var grossSpread = topM - botM;
       var positions = new Map();
@@ -343,6 +362,18 @@ export function backtestFactors(stockData, opts) {
     }
   });
   var ic = {}; IC_FACTORS.forEach(function(k){ ic[k] = icN[k] ? round(icS[k] / icN[k], 3) : null; });
+  var icByMarket = {};
+  IC_MARKETS.forEach(function(market) {
+    var bucket = icMarket[market];
+    if (!bucket.dates.length) return;
+    var means = {};
+    IC_FACTORS.forEach(function(k) {
+      var values = bucket.byDate[k].filter(isNum);
+      means[k] = values.length ? round(_mean(values), 3) : null;
+    });
+    icByMarket[market] = { dates: bucket.dates, meanStocks: Math.round(bucket.rows / bucket.dates.length), ic: means, icByDate: bucket.byDate };
+  });
+  var marketsMeasured = Object.keys(icByMarket);
   var calculationStatus = !calendarDates.length || !rebalanceDates.length || !spreadN
     ? 'BLOCKED'
     : (adjustedCloseExcluded > 0 || missingRebalanceRows > 0 || missingForwardRows > 0 ? 'PARTIAL' : 'COMPLETE');
@@ -408,6 +439,18 @@ export function backtestFactors(stockData, opts) {
     },
     ic: ic,
     icByDate: icByDate,
+    // `ic` is one rank correlation over every row. With two markets it is a pooled figure; icByMarket is the reading
+    // per market (each date aligned with icByMarket[market].dates, null where a factor had under 10 measured rows).
+    icBasis: marketsMeasured.length > 1 ? 'pooled-markets' : 'single-market',
+    icMarkets: marketsMeasured,
+    icByMarket: icByMarket,
+    executionLag: {
+      sessions: 1,
+      meaning: 'entry one session after the ranking close, same holding length; beside the same-close figures, not instead of them',
+      dates: lagIcComposite.length,
+      icComposite: lagIcComposite.length ? round(_mean(lagIcComposite), 3) : null,
+      quantileSpread: lagSpreads.length ? round(_mean(lagSpreads) * 100, 2) : null
+    },
     quantileSpread: spreadN ? round(spreadSum / spreadN * 100, 2) : null,
     quantileSpreadNet: spreadN ? round(spreadNetSum / spreadN * 100, 2) : null,
     // v58.56 (#6): per-date arrays aligned with spreadDates (percent; net = gross − modelled cost on that date's turnover).

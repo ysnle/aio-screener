@@ -1,6 +1,7 @@
 // v57.60: pure Masters (13F) registry, coverage and value formatters, moved out of src/ui/pages/masters.js
 // unchanged. No DOM here; the page imports these and keeps re-exporting the names it exported before.
 import { usdKoreanText } from '../shared/number.js';
+import { corporateActionOf } from './corporate-actions.js';
 
 // MF-05: holding rows are rendered only from a verified SEC EDGAR
 // filer/CIK/filing artifact; the registry itself never invents rows.
@@ -19,8 +20,13 @@ const MASTER_REGISTRY = Object.freeze([
 // implied per-share price moved by more than a quarter's plausible range (≤0.6× or ≥1.67×), the row is a split
 // suspect and its quantity change is held. The per-share condition keeps a real half-sale whose price rose
 // (shares ×0.48, value ×0.63 → per-share ×1.31) classified as 감소.
+// A split in a quarter where the price also rose leaves that value window (KLA 10:1, value ×2.1), and one row cannot
+// tell it from a purchase, so the runtime builder decides it across filers and stamps the row (corporate-actions.js).
+// The stamp wins; the single-row rule below covers securities with too few filers to compare.
 function displayActionOf(row) {
   const action = row?.action || 'UNAVAILABLE';
+  const stamped = corporateActionOf(row);
+  if (stamped) return stamped;
   if (action !== 'INCREASED' && action !== 'REDUCED') return action;
   const shares = Number(row.shares);
   const priorShares = Number(row.priorShares ?? (Number(row.shares) - Number(row.sharesDelta)));

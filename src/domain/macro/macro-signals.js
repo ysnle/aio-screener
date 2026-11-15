@@ -81,7 +81,7 @@ function measureDirection(name, input) {
   const dir = margin >= step ? 'up' : margin <= -step ? 'down' : 'flat';
   const month = monthOf(input.date);
   return { name, pace, yoy, margin, dir, date: input.date || null, month,
-    text: `${name}${month ? `(${month})` : ''} ${DIRECTION_WORD[dir]}(3개월 연율 ${pace.toFixed(1)}%, 전년 대비 ${yoy.toFixed(1)}%)` };
+    text: `${name}${month ? `(${month})` : ''} ${DIRECTION_WORD[dir]}(3개월 연율 ${pace.toFixed(1)}%, 전년 대비 ${yoy.toFixed(1)}%${input.note || ''})` };
 }
 
 /** Core inflation direction from core PCE and core CPI, each on its newest release. Both must point the same way past

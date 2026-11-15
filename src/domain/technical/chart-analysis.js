@@ -95,7 +95,10 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const rangeLabel = fullYear ? '52주' : `최근 ${range.sessions}거래일`;
   const high52 = range.high;
   const fromHigh = (last.close / high52 - 1) * 100;
-  const volRatio = vol50[n] && volumes[n] != null ? volumes[n] / vol50[n] : null;
+  // Today's volume against the 50 sessions before it (the breakout rule's basis): an average that includes today
+  // understates its own spike (a 3× day read 2.9×).
+  const prior50 = priorVolumeAverage(volumes, n, 50);
+  const volRatio = prior50 && volumes[n] != null ? volumes[n] / prior50 : null;
   const dryUp = vol50[n] && vol10[n] ? vol10[n] / vol50[n] : null;
   const aligned = ema21[n] != null && sma50[n] != null && sma200[n] != null && last.close > ema21[n] && ema21[n] > sma50[n] && sma50[n] > sma200[n];
   // P1397 events (owner-supplied chart material 2026-10-03): descriptive chart events, not orders.
@@ -249,7 +252,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     [`${benchmarkLabel} 대비 6개월`, rs == null ? '—' : `${signed(rs)}p (종목 ${signed(ret6)})`],
     ['상대강도선 (종목 ÷ 지수)', rsFromHigh == null ? '—' : rsAtHigh ? (rsLeadsPrice ? `신고가 — 가격(고점 대비 ${signed(fromHigh)})보다 먼저` : '신고가 (가격도 고점권)') : `자체 고점 대비 ${signed(rsFromHigh)} (${rsWindow.length >= TECH.fullYearSessions ? '1년' : `${rsWindow.length}거래일`} 기준)`],
     ['추세 강도 ADX', strength ? `${fmt(strength.adx, 0)} ${strength.adx >= 25 ? '(추세 뚜렷)' : strength.adx < 20 ? '(추세 약함)' : '(보통)'}` : '—'],
-    ['거래량 (50일 평균 대비)', volRatio == null ? '—' : `${fmt(volRatio * 100, 0)}%${dryUp != null ? `, 10일 평균 ${fmt(dryUp * 100, 0)}%${dryUp < 0.8 ? ' (거래 감소)' : ''}` : ''}`],
+    ['거래량 (직전 50일 평균 대비)', volRatio == null ? '—' : `${fmt(volRatio * 100, 0)}%${dryUp != null ? `, 10일 평균 ${fmt(dryUp * 100, 0)}%${dryUp < 0.8 ? ' (거래 감소)' : ''}` : ''}`],
     [`${rangeLabel} 고점 대비`, signed(fromHigh)],
     [TEMPLATE_LABEL, `${templatePass}/8 충족${templateChecks.some(([, ok]) => ok === false) ? `, 미충족: ${templateChecks.filter(([, ok]) => ok === false).map(([label]) => label).join(', ')}` : ''}${templateChecks.some(([, ok]) => ok == null) ? `, 확인 불가 ${templateChecks.filter(([, ok]) => ok == null).length}개(기록 부족)` : ''}`],
     // v57.50 C20: one set of bands (setup-profile EXTENSION_BANDS 2/4/7) for the chart, the screener and the summary.

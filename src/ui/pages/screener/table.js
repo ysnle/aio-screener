@@ -258,7 +258,12 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     const period = row._fundamentalPeriodEnd || null;
     const filed = row._fundamentalFiledAt ? String(row._fundamentalFiledAt).slice(0, 10) : null;
     const earnings = key === 'pe' && row._valuationPeEarningsThrough ? `, 이익 ${row._valuationPeEarningsBasis === 'ttm' ? '최근 4개 분기 합' : '최근 회계연도'}(${row._valuationPeEarningsThrough}까지)` : '';
-    node.title = value == null ? '공시 자료가 없거나 비정상 값이라 비움' : `${period ? `회계기간 종료 ${period}` : '회계기간 미확인'}${filed ? `, 공시 ${filed}` : ''}${earnings}`;
+    // What the multiple leaves out or cannot say: a one-off gain inside the earnings, a newer quarter not yet in them,
+    // and why a loss-maker or a deficit has no multiple at all.
+    const later = String(row._valuationPeEarningsLaterQuarter || '');
+    const peNotes = key !== 'pe' ? '' : `${row._valuationPeOneOff ? ', 일회성 이익 포함' : ''}${/^\d{4}-\d{2}/.test(later) && later > String(row._valuationPeEarningsThrough || '') ? `, ${later.slice(0, 7)} 분기 공시는 미반영` : ''}`;
+    const empty = key === 'pe' && row._valuationPeLoss ? '순손실이라 PER 없음' : key === 'pb' && row._valuationPbDeficit ? '자기자본이 0 이하라 PBR 없음' : '공시 자료가 없거나 비정상 값이라 비움';
+    node.title = value == null ? empty : `${period ? `회계기간 종료 ${period}` : '회계기간 미확인'}${filed ? `, 공시 ${filed}` : ''}${earnings}${peNotes}`;
     if (value == null) node.style.color = 'var(--color-text-secondary)';
     return node;
   }

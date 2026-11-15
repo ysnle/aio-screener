@@ -211,7 +211,7 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     basisText: conditions.map(([text, ok]) => `${text} ${ok == null ? '확인 불가' : ok ? '충족' : '미충족'}`),
     past: state === 'fading' ? '이 단계는 50일선 위 비율과 최근 5거래일을 함께 보는 판정이라 장기 기록(대표 ETF)과 같은 기준으로 비교하지 않습니다.'
       : proxySymbol && !proxyRelative ? `대표 ETF의 장기 기록은 아직 다른 기준(절대 수익률이거나 이전 밴드·기준 지수)으로 분류돼 있어, ${benchName} 대비인 지금 단계와 비교하지 않습니다(다음 장기 기록 갱신 때 같은 기준으로 다시 계산).`
-      : proxy ? frequencyText({ ...proxy, subject: proxySymbol }, `대표 ETF ${proxySymbol}가 같은 단계(${THEME_STATES[state].split(' (')[0]}, ${benchName} 대비 같은 기준)였을 때`, { source: '장기 일봉 기록' }) : '같은 단계의 장기 과거 기록(대표 ETF)이 없어 빈도를 말하지 않습니다.',
+      : proxy ? frequencyText({ ...proxy, subject: proxySymbol, versus: benchName }, `대표 ETF ${proxySymbol}가 같은 단계(${THEME_STATES[state].split(' (')[0]}, ${benchName} 대비 같은 기준)였을 때`, { source: '장기 일봉 기록' }) : '같은 단계의 장기 과거 기록(대표 ETF)이 없어 빈도를 말하지 않습니다.',
     // false: the same stage in the long record did not differ from an ordinary day, so the cost comparison has no base-rate support.
     pastInformative: state && state !== 'fading' && proxy && !(proxySymbol && !proxyRelative) ? pastEvidence(proxy).informative : null,
     positioning: '직접 자료는 없습니다 — 1개월 낙폭과 50일선 위 비율로 추정합니다.',

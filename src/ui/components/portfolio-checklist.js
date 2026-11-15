@@ -5,7 +5,7 @@
 // F5 '보유 종목 논지 점검' — per holding: is a thesis memo written, and which break signals are on now (below the 50-day
 // line, theme stage weak, estimate revisions turned down over 4 weeks, earnings within two weeks). No instruction.
 import { el } from './dom.js';
-import { portfolioLens, leadScenarioExposures } from './portfolio-read.js';
+import { portfolioLens, leadScenarioExposures, loadedSp500Weights } from './portfolio-read.js';
 import { readJournal } from '../panels/portfolio-trade-journal.js';
 import { normalizeRules } from '../../domain/portfolio/trade-journal.js';
 import { consensusRowFor, requestConsensusEstimates } from '../../data/consensus-estimates.js';
@@ -13,7 +13,7 @@ import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
 import { EARNINGS_CALENDAR, SCENARIO_STATE } from '../../data/artifact-registry.js';
-import { holdingBand, sectorBand, HOLDING_LINE_PCT, SECTOR_LINE_PCT } from '../../domain/portfolio/concentration-bands.js';
+import { holdingBand, sectorBand, HOLDING_LINE_PCT, SECTOR_LINE_PCT, EFFECTIVE_N_LINE, HOLDING_REFERENCE_PCT } from '../../domain/portfolio/concentration-bands.js';
 
 const EARNINGS_SOON_DAYS = 14;
 const THESIS_CHECKS = 4; // 50일선 · 테마 단계 · 이익 전망 · 실적일
@@ -32,7 +32,7 @@ function hostAfter(doc, id, anchorId, label) {
 }
 
 export function portfolioCriteria({ surface, root, checks = null, rules = {}, sectorLabel = (name) => name }) {
-  const lens = portfolioLens({ surface, stressInput: root?._aioPortfolioStressInput || null, history: root?._aioHistory || [], sectorLabel });
+  const lens = portfolioLens({ surface, stressInput: root?._aioPortfolioStressInput || null, history: root?._aioHistory || [], sp500: loadedSp500Weights(), sectorLabel });
   if (!lens.available) return { available: false };
   const r = normalizeRules(rules);
   const rows = (surface.rows || []).filter((row) => Number(row?.value) > 0);
@@ -42,6 +42,16 @@ export function portfolioCriteria({ surface, root, checks = null, rules = {}, se
   const single = checks?.checks?.find?.((check) => check.id === 'single-holding');
   const exposure = leadScenarioExposures(root, surface); // v59.51: a tie carries one exposure per tied branch
   const corr = lens.bonds?.correlation;
+  // 실질 분산 is read on the book's own concentration: the effective number of holdings after S&P 500 trackers are
+  // expanded into their members. An ETF that is not expanded still counts as one line, so a book that falls short only
+  // with such a fund in it is left unjudged instead of failed.
+  const look = lens.lookThrough;
+  const effectiveN = look ? look.effectiveN : lens.effectiveN;
+  const expanded = (row) => !!look && look.trackers.includes(String(row.symbol || '').toUpperCase());
+  const etfValue = checks?.breakdowns?.types?.find?.((type) => type.name === 'ETF')?.value ?? rows.filter((row) => row.sector === 'ETF').reduce((sum, row) => sum + Number(row.value), 0);
+  const unexpandedEtf = etfValue - rows.filter(expanded).reduce((sum, row) => sum + Number(row.value), 0) > total * 1e-9;
+  const spread = effectiveN >= EFFECTIVE_N_LINE ? true : unexpandedEtf ? null : false;
+  const bondPct = lens.bonds?.available ? lens.bonds.bondPct : null;
   const cashPct = Number.isFinite(Number(surface?.cashPct)) && surface?.cashPct != null ? Number(surface.cashPct) : null;
   const items = [
     { id: 'single', label: '한 종목 쏠림', principle: '한 종목이 크면 그 종목 하나의 일이 계좌 전체의 일이 됩니다.',
@@ -51,9 +61,12 @@ export function portfolioCriteria({ surface, root, checks = null, rules = {}, se
     { id: 'sector', label: '업종 쏠림', principle: '같은 업종은 같은 뉴스에 함께 움직여, 종목 수가 많아도 한 번에 흔들립니다.',
       value: lens.topSector ? `가장 큰 ${lens.topSector.name} ${lens.topSector.pct.toFixed(0)}%(주식 부분 중)` : '미확인',
       basis: `앱 점검선 ${SECTOR_LINE_PCT}% 이하`, ok: lens.topSector ? sectorBand(lens.topSector.pct) !== 'over' : null },
-    { id: 'cushion', label: '실질 분산', principle: '주식이 내리는 주에 함께 내리지 않는 부분이 있어야 분산이 실제로 작동합니다.',
-      value: `실질 종목 수 ${lens.effectiveN.toFixed(1)}개${corr?.available ? `, 채권 부분과 주식 부분의 주간 상관 ${corr.r.toFixed(2)}` : lens.bonds?.bondPct > 0 ? ', 상관은 가격 기록이 쌓이면 계산' : ', 채권 ETF 없음'}`,
-      basis: '채권 부분과 주식 부분의 상관이 0보다 작음', ok: corr?.available ? corr.r < 0 : lens.bonds?.available && !(lens.bonds.bondPct > 0) ? false : null },
+    { id: 'spread', label: '실질 분산', principle: '종목 수가 많아도 비중이 몇 종목에 몰리면 그 몇 종목이 계좌를 움직입니다.',
+      value: `실질 종목 수 ${effectiveN.toFixed(1)}개${look ? `(${look.trackers.join('·')} 속 종목까지 펼침), 상위 10종목 ${look.top10Pct.toFixed(0)}%` : `(보유 ${lens.holdings}종목)`}`,
+      basis: `실질 종목 수 ${EFFECTIVE_N_LINE}개 이상(종목당 ${HOLDING_REFERENCE_PCT}%씩 고르게 든 계좌와 같은 수준)`, ok: spread, held: spread == null ? 'ETF 구성 미확인' : null },
+    { id: 'cushion', label: '채권 완충', principle: '주식이 내리는 주에 함께 내리지 않는 부분이 있으면 낙폭이 줄어듭니다.',
+      value: bondPct == null ? '미확인' : !(bondPct > 0) ? '채권 ETF 없음' : `채권 ETF ${bondPct.toFixed(0)}%${corr?.available ? `, 주식 부분과의 주간 상관 ${corr.r.toFixed(2)}` : ', 상관은 가격 기록이 쌓이면 계산'}`,
+      basis: '채권 부분과 주식 부분의 주간 상관이 0보다 작음', ok: corr?.available ? corr.r < 0 : null, held: bondPct != null && !(bondPct > 0) ? '채권 없음' : null },
     { id: 'scenario', label: '시나리오 노출', principle: '한 시나리오가 틀어졌을 때 계좌의 절반 이상이 같은 쪽으로 맞지 않게 둡니다.',
       value: exposure ? `${exposure.items.map((item) => `'${item.name}'에서 부담 쪽 ${item.share.head.toFixed(0)}%`).join(', ')}${exposure.state === 'tie' ? '(시나리오 동률)' : ''}` : '미확인',
       basis: `부담 쪽 영역이 평가액의 절반 미만${exposure?.state === 'tie' ? ', 동률인 시나리오 모두' : ''}`, ok: exposure ? exposure.items.every((item) => item.share.head < 50) : null },

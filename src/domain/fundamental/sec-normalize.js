@@ -1,9 +1,10 @@
 // v57.81: the SEC companyfacts → annual-record normalizer, moved here from scripts/fetch-sec-fundamentals.mjs so
 // the browser can read an out-of-universe issuer's filing with the same functions (the producer imports and
 // re-exports them). Pure: companyfacts/submissions JSON in, one annual record out; no I/O.
-import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
+import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, isQuarterSpan, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
 import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, FOREIGN_ORDINARY_SHARE_FORMS, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS, SEC_BANK_NET_REVENUE_CONCEPT, SEC_IFRS_PRIMARY_REVENUE_CONCEPTS, SEC_IFRS_FALLBACK_REVENUE_CONCEPTS } from './sec-report.js';
-import { reconcileSecEarningsBasis, SEC_COMMON_INCOME_CONCEPT, SEC_RD_CONCEPTS, SEC_CAPITAL_CONCEPTS, SEC_IFRS_CAPITAL_CONCEPTS } from './sec-earnings.js';
+import { reconcileSecEarningsBasis, SEC_COMMON_INCOME_CONCEPT, SEC_RD_CONCEPTS, SEC_CAPITAL_CONCEPTS, SEC_IFRS_CAPITAL_CONCEPTS, SEC_TOTAL_DEBT_DERIVED_CONCEPT } from './sec-earnings.js';
+import { reconcileSecValuationBasis } from './sec-valuation-basis.js';
 export { SEC_RD_CONCEPTS };
 
 function round(n, digits = 2) {
@@ -52,6 +53,24 @@ function bankNetRevenueRows(companyFacts, currency = 'USD') {
   return rows;
 }
 
+// Total long-term debt for a filer that tags only the noncurrent line: noncurrent + current portion, paired within one
+// filing and balance-sheet date like the bank net revenue above. A date without both operands is not derived.
+const DEBT_CURRENT_CONCEPTS = ['LongTermDebtCurrent'];
+function totalDebtDerivedRows(companyFacts, basis) {
+  if (basis.taxonomy !== 'us-gaap') return [];
+  const key = (row) => `${row.accn || ''}|${row.end || ''}|${row.form || ''}`;
+  const current = new Map(factRows(companyFacts, 'us-gaap', DEBT_CURRENT_CONCEPTS, basis.currency).filter((row) => !row.start).map((row) => [key(row), row]));
+  if (!current.size) return [];
+  const rows = [];
+  for (const noncurrent of factRows(companyFacts, 'us-gaap', ['LongTermDebtNoncurrent'], basis.currency)) {
+    const a = finiteFact(noncurrent.val);
+    const b = finiteFact(current.get(key(noncurrent))?.val);
+    if (noncurrent.start || a == null || b == null) continue;
+    rows.push({ ...noncurrent, val: a + b, concept: SEC_TOTAL_DEBT_DERIVED_CONCEPT });
+  }
+  return rows;
+}
+
 // v6 (2026-10-16, owner-approved ratio-only model): the reporting basis is one taxonomy and one currency, and every
 // operand of a record comes from it, so margin, ROE and growth are same-currency ratios. A US-GAAP USD filer with a
 // current fiscal year keeps that basis unchanged; otherwise the basis with the newest annual revenue wins (TSM TWD IFRS,
@@ -64,7 +83,7 @@ const BASIS_CONCEPTS = Object.freeze({
     equity: ['StockholdersEquity', 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'],
     operatingCashFlow: ['NetCashProvidedByUsedInOperatingActivities', 'NetCashProvidedByUsedInOperatingActivitiesContinuingOperations'],
     capex: ['PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireProductiveAssets'],
-    longTermDebt: ['LongTermDebtNoncurrent', 'LongTermDebt'],
+    longTermDebt: ['LongTermDebt', 'LongTermDebtNoncurrent'],
     // v58.55: total assets (DuPont turnover/leverage, Sloan accrual denominator) and R&D expense (R&D ÷ revenue).
     totalAssets: ['Assets'],
     researchAndDevelopment: SEC_RD_CONCEPTS,
@@ -73,7 +92,9 @@ const BASIS_CONCEPTS = Object.freeze({
     ...SEC_CAPITAL_CONCEPTS,
     // v59.70 (X bookmarks #8): quarter-end inventory and trade receivables (a free-cash-flow drop that is working capital).
     inventory: ['InventoryNet'],
-    receivables: ['AccountsReceivableNetCurrent']
+    receivables: ['AccountsReceivableNetCurrent'],
+    // Preferred stock carried inside stockholders' equity (banks: JPM, BAC); common equity is the P/B denominator.
+    preferredEquity: ['PreferredStockValue', 'PreferredStockValueOutstanding']
   },
   // Parent-attributable profit and equity first (the ROE pair), the group totals only when the parent line is absent.
   'ifrs-full': {
@@ -194,7 +215,9 @@ const REPORT_RECENCY_MAX_DAYS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
 // v58.55 (2026-10-20): total assets and R&D expense observations (DuPont, Sloan accrual ratio, R&D ÷ revenue).
 // v58.75 (2026-10-24): gross profit, operating income, cash, short-term investments, stock compensation, buybacks, dividends.
 // v59.70 (2026-11-04, X bookmarks #8): quarter-end inventory and receivables from 10-Q/10-K balance sheets.
-export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-11-04';
+// 2026-11-14: quarterly operating income (one-off earnings check) and noncurrent + current long-term debt; quarter rows
+// are one per concept and period (twelve quarters) and 12/16-week fiscal quarters are read.
+export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-11-14';
 
 // The earliest instant a single operand could have been known: its accession acceptance time
 // when available, otherwise the filing date (which is a date, not an intraday time).
@@ -304,6 +327,22 @@ function compactPitRows(rows, field, acceptedMap, maxRows = 40) {
     }));
 }
 
+// Twelve quarters: the four of the TTM, the year before them (one-off and year-over-year reads) and the three that a
+// derived fourth quarter is netted against. The row cap only bounds a filer tagging several concepts per quarter.
+const QUARTER_PERIODS = 12;
+const QUARTER_ROW_CAP = 48;
+function latestFiledPerPeriod(rows, maxPeriods) {
+  const latest = new Map();
+  for (const row of rows) {
+    if (!row || !row.end || !row.filed || finiteFact(row.val) == null) continue;
+    const key = `${row.concept || ''}|${row.start || ''}|${row.end}`;
+    const prev = latest.get(key);
+    if (!prev || String(row.filed) > String(prev.filed)) latest.set(key, row);
+  }
+  const ends = new Set([...new Set([...latest.values()].map((row) => row.end))].sort().slice(-maxPeriods));
+  return [...latest.values()].filter((row) => ends.has(row.end));
+}
+
 function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS) {
   const concepts = BASIS_CONCEPTS[basis.taxonomy];
   const amountRows = (list) => factRows(companyFacts, basis.taxonomy, list, basis.currency);
@@ -311,9 +350,13 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
   // F05/F06: every revenue concept (and the v5 bank net revenue) is kept; consumers pick per period via bestRevenueRowsByPeriod.
   // Codex review 2026-10-05 (분기 추이): discrete-quarter facts (about three months) from 10-Q/10-K.
   // A fourth quarter is rarely tagged on its own; the projection derives it from FY minus Q1–Q3 and labels it.
-  const quarterly = (row) => { const days = durationDays(row); return /^(10-Q|10-K)(\/A)?$/.test(row.form || '') && days != null && days >= 80 && days <= 100; };
-  const revenueQRows = revenueFactRows(companyFacts, basis).filter(quarterly);
-  const incomeQRows = amountRows(concepts.income).filter(quarterly);
+  const quarterly = (row) => /^(10-Q|10-K)(\/A)?$/.test(row.form || '') && isQuarterSpan(durationDays(row));
+  // Every later 10-Q repeats a quarter as its comparative, so the rows of one quarter are reduced to the latest filing
+  // per concept and the newest QUARTER_PERIODS period ends are kept. A row cap alone let one re-tagged quarter push the
+  // prior-year quarters out (ETN's 2025-03 quarter held 7 of 16 rows), and the TTM chain fell back to the fiscal year.
+  const quarterRows = (rows) => latestFiledPerPeriod(rows.filter(quarterly), QUARTER_PERIODS);
+  const revenueQRows = quarterRows(revenueFactRows(companyFacts, basis));
+  const incomeQRows = quarterRows(amountRows(concepts.income));
   const revenueRows = revenueFactRows(companyFacts, basis).filter(row => {
     const days = durationDays(row);
     return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400;
@@ -333,7 +376,7 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
   const annualFy = (row) => { const days = durationDays(row); return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400; };
   const ocfRows = amountRows(concepts.operatingCashFlow).filter(annualFy);
   const capexRows = amountRows(concepts.capex).filter(annualFy);
-  const debtRows = amountRows(concepts.longTermDebt).filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
+  const debtRows = [...amountRows(concepts.longTermDebt), ...totalDebtDerivedRows(companyFacts, basis)].filter(row => /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || ''));
   // v58.55: year-end total assets from annual filings (each 10-K carries the current and prior balance sheet) and annual
   // R&D expense. Both arrays are written even when empty, so a record read by this normalizer says "not reported" apart
   // from an older record that never looked (the projection and the cards tell 미공시 from 수집 대기 by that).
@@ -360,13 +403,19 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
     totalAssets: compactPitRows(assetRows, 'totalAssets', acceptedMap, 24),
     researchAndDevelopment: compactPitRows(rdRows, 'researchAndDevelopment', acceptedMap, 30),
     ...capitalObservations,
-    revenueQ: compactPitRows(revenueQRows, 'revenueQ', acceptedMap, 16),
-    netIncomeQ: compactPitRows(incomeQRows, 'netIncomeQ', acceptedMap, 16),
+    revenueQ: compactPitRows(revenueQRows, 'revenueQ', acceptedMap, QUARTER_ROW_CAP),
+    netIncomeQ: compactPitRows(incomeQRows, 'netIncomeQ', acceptedMap, QUARTER_ROW_CAP),
+    // Quarterly operating income: the one-off earnings check compares a quarter's net income with it.
+    operatingIncomeQ: compactPitRows(quarterRows(amountRows(concepts.operatingIncome || [])), 'operatingIncomeQ', acceptedMap, QUARTER_ROW_CAP),
+    // Quarter-end equity and preferred stock from every periodic filing: P/B is priced on the latest reported balance
+    // sheet's common equity (sec-valuation-basis secPbEquity), not the fiscal year-end total.
+    equityQ: compactPitRows(amountRows(concepts.equity).filter(quarterEnd), 'equityQ', acceptedMap, 12),
+    preferredQ: compactPitRows(amountRows(concepts.preferredEquity || []).filter(quarterEnd), 'preferredQ', acceptedMap, 8),
     inventoryQ: compactPitRows(amountRows(concepts.inventory || []).filter(quarterEnd), 'inventoryQ', acceptedMap, 16),
     receivablesQ: compactPitRows(amountRows(concepts.receivables || []).filter(quarterEnd), 'receivablesQ', acceptedMap, 16),
     ...(commonRows.length ? {
       netIncomeCommon: compactPitRows(commonRows.filter(annualFy), 'netIncomeCommon', acceptedMap, 12),
-      netIncomeCommonQ: compactPitRows(commonRows.filter(quarterly), 'netIncomeCommonQ', acceptedMap, 16)
+      netIncomeCommonQ: compactPitRows(quarterRows(commonRows), 'netIncomeCommonQ', acceptedMap, QUARTER_ROW_CAP)
     } : {})
   };
   const all = Object.values(observations).flat();
@@ -395,6 +444,7 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
 // close. A split after that 10-K (NVDA 10:1, 2024-06) priced P/E 9.9 instead of ~99 and still read 'consistent',
 // because the EPS check uses the same pre-split filing. A later cover count (10-Q or 10-K) that differs from the
 // selected count by a near-integer ratio — the shareSplitBreaks rule in fiscal-read.js — is the post-split count.
+const LATEST_COVER_DRIFT_BAND = Object.freeze({ min: 0.67, max: 1.5 });
 const SPLIT_RATIO_MIN = 1.9;
 const SPLIT_RATIO_TOLERANCE = 0.06;
 function splitRatioOf(later, earlier) {
@@ -414,8 +464,13 @@ function selectShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedE
       && (shareGapDays(row.end, fiscalEnd) ?? Infinity) <= SEC_SHARES_MAX_GAP_DAYS)
     .sort((a, b) => String(b.end).localeCompare(String(a.end)) || String(b.filed).localeCompare(String(a.filed)))[0] || null;
   const ratio = later ? splitRatioOf(finiteFact(later.val), selected.value) : null;
-  if (ratio == null) return selected;
-  return { ...selected, row: later, value: finiteFact(later.val), basis: 'dei-cover-post-split', splitRatio: Math.round(ratio * 1000) / 1000 };
+  if (ratio != null) return { ...selected, row: later, value: finiteFact(later.val), basis: 'dei-cover-post-split', splitRatio: Math.round(ratio * 1000) / 1000 };
+  // The 10-K cover count is up to 15 months old at the next 10-K (buybacks and issuance moved it over 5% a year at 144
+  // of 651 issuers). A later 10-Q cover count on the same basis replaces it; a jump outside the band below is a class
+  // or unit change, not a year of buybacks, and keeps the 10-K count.
+  const drift = later && selected.basis === 'dei-cover' ? finiteFact(later.val) / selected.value : null;
+  if (drift != null && drift >= LATEST_COVER_DRIFT_BAND.min && drift <= LATEST_COVER_DRIFT_BAND.max) return { ...selected, row: later, value: finiteFact(later.val), basis: 'dei-cover-latest' };
+  return selected;
 }
 
 function selectReportedShareCount(companyFacts, currentRevenue, netIncome, eps, dilutedEpsRow = null, classFacts = null, symbol = '') {
@@ -695,7 +750,7 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     // P1587 + F03/F04: consistent | scale-mismatch (withheld) | unchecked | stale-period / unreported (no count
     // within 400 days of the fiscal year end — withheld, P/E·P/B·reference market cap stay empty)
     sharesCheck,
-    sharesBasis: Number.isFinite(sharesOutstanding) ? shareSelection.basis : null, // dei-cover | weighted-diluted | common-shares-outstanding | eps-implied | class-dimensioned-10k | dei-cover-post-split
+    sharesBasis: Number.isFinite(sharesOutstanding) ? shareSelection.basis : null, // dei-cover | weighted-diluted | common-shares-outstanding | eps-implied | class-dimensioned-10k | dei-cover-post-split | dei-cover-latest
     ...(shareSelection.splitRatio ? { sharesSplitRatio: shareSelection.splitRatio } : {}),
     // P1798: which class members fed a class-dimensioned count, or why the 10-K's class facts were withheld.
     ...(shareSelection.classMembers ? { sharesClassMembers: shareSelection.classMembers, sharesClassMethod: shareSelection.classMethod } : {}),
@@ -723,5 +778,5 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     if (Number.isFinite(record[key])) record.coverage.push(key);
   });
   // 2026-10-17 (logic audit D1/D2/D7): average-equity ROE and the TTM / common-earnings P/E numerator, by the same heal.
-  return reconcileSecEarningsBasis(record);
+  return reconcileSecValuationBasis(reconcileSecEarningsBasis(record));
 }

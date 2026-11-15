@@ -7,7 +7,6 @@
 import { RULES } from '../rules/thresholds.js';
 import { finiteNumber as finite } from '../shared/number.js';
 
-export const TECHNICAL_DEFINITIONS_VERSION = 'technical-definitions.v1';
 const T = RULES.technical;
 
 
@@ -182,7 +181,8 @@ export function priorVolumeAverage(volumes, i, sessions = T.breakout.volumeSessi
 }
 
 /**
- * Audit 2026-10-17 (owner D6): the one breakout-day test (RULES.technical.breakout). Session `i` closed above `pivot`, at
+ * Audit 2026-10-17 (owner D6): the one breakout-day test (RULES.technical.breakout). Session `i` closed above `pivot`
+ * after a close at or below it within crossSessions, at
  * most maxAbovePct over it, higher than the prior close, on volume ≥ volumeMultiple × the prior volumeSessions average.
  * `ceiling: false` drops the maxAbovePct cap (the chart's "did a breakout happen" check, whose state applies the cap).
  */
@@ -191,7 +191,9 @@ export function isBreakoutDay({ closes, volumes, i, pivot, ceiling = true }) {
   if (!(pivot > 0) || !(i > 0) || !Array.isArray(closes) || !Array.isArray(volumes)) return false;
   const close = closes[i], prior = closes[i - 1];
   const base = priorVolumeAverage(volumes, i);
-  return close > pivot && (!ceiling || close <= pivot * (1 + rule.maxAbovePct / 100)) && prior > 0 && close > prior
+  // The crossing lives here so the chart and the screener cannot differ on it.
+  const crossed = closes.slice(Math.max(0, i - rule.crossSessions), i).some((value) => value <= pivot);
+  return close > pivot && crossed && (!ceiling || close <= pivot * (1 + rule.maxAbovePct / 100)) && prior > 0 && close > prior
     && base != null && volumes[i] >= rule.volumeMultiple * base;
 }
 
@@ -204,7 +206,8 @@ export const WEINSTEIN_READS = Object.freeze({
 
 /**
  * Weinstein stage on weekly closes: the 30-week average and its 4-week slope. Flat (|slope| < 1%) is a base (1) or a
- * top (3) by whether the average stands above where it was 26 weeks ago; rising is 2 (a close under the still-rising
+ * top (3) by whether the average stands above where it was 26 weeks ago — a top also needs the line to have risen faster
+ * than the flat band inside that window, otherwise a slow advance with price over the line stays 2; rising is 2 (a close under the still-rising
  * line is a stage-2 pullback, `pullback: true` — v59.59: it used to read 3, but Weinstein's top is the line flattening,
  * and chart-strategies' exit rule says the same); falling is 4 under the line and 1 above it. The only reading that may be called 'n단계' (stage.js names the moving-
  * average order, not this).
@@ -219,7 +222,15 @@ export function weinsteinStage(closes, rules = T.weinstein) {
   const slope = (now / then - 1) * 100;
   const above = closes[wn] > now;
   const flat = Math.abs(slope) < rules.flatSlopePct;
-  const stage = flat ? (prior != null && now > prior ? 3 : 1) : slope > 0 ? 2 : (above ? 1 : 4);
+  // A top is a line that was rising and has flattened. A line that never rose faster than the flat band inside the
+  // lookback and still stands above its earlier level with price over it is a slow stage 2, not a top.
+  let rose = false;
+  for (let i = wn - rules.slopeWeeks; !rose && prior != null && i >= wn - rules.priorWeeks + rules.slopeWeeks; i -= 1) {
+    const from = w30[i - rules.slopeWeeks];
+    rose = w30[i] != null && from != null && (w30[i] / from - 1) * 100 >= rules.flatSlopePct;
+  }
+  const higher = prior != null && now > prior;
+  const stage = flat ? (higher ? (rose || !above || slope <= 0 ? 3 : 2) : 1) : slope > 0 ? 2 : (above ? 1 : 4);
   const pullback = stage === 2 && !above;
   return Object.freeze({ stage, slope, above, pullback, text: pullback ? '상승 추세 중 눌림 — 30주선은 아직 오르는데 가격이 그 아래로 내려온 단계(선이 평평해지면 천장 형성)' : WEINSTEIN_READS[stage] });
 }

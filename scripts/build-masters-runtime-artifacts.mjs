@@ -7,6 +7,7 @@ import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
 import { readManagerRows, writeManagerRows } from './lib/masters-manager-store.mjs';
 import { buildReferenceTickerMap, normalizeCusip, resolveExactTicker } from '../src/domain/instruments/ticker-exact.js';
+import { annotateCorporateActions, detectSplitSuspects } from '../src/domain/masters/corporate-actions.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mastersDir = path.join(root, 'public-data', 'masters');
@@ -43,6 +44,9 @@ const withTicker = (compact, row) => { const ticker = tickerExactOf(row); return
 const generatedAt = holdings.generatedAt || [holdings.reviewedAt, historyIndex.reviewedAt, historyRows.reviewedAt, issuerAggregates.reviewedAt].filter(Boolean).sort().at(-1) || '1970-01-01';
 const MANAGER_PROJECTION_ROW_LIMIT = 200;
 const MANAGER_PROJECTION_MAX_BYTES = 512 * 1024;
+const corporateActionFields = (row) => (row.corporateAction
+  ? { corporateAction: row.corporateAction, ...(row.counterpartCusip ? { counterpartCusip: row.counterpartCusip, counterpartShares: row.counterpartShares ?? null } : {}) }
+  : {});
 const compactProjectionRow = (row) => ({
   managerId: row.managerId,
   reportPeriod: row.reportPeriod,
@@ -67,14 +71,15 @@ const compactProjectionRow = (row) => ({
   comparisonStatus: row.comparisonStatus,
   evidenceId: row.evidenceId,
   sourceUrl: row.sourceUrl,
-  key: row.key
+  key: row.key,
+  ...corporateActionFields(row)
 });
-const managerShards = {};
-for (const manager of holdings.managers || []) {
+const managersDir = path.join(mastersDir, 'managers');
+// One manager's full rows: embedded in holdings.json, or read from its row store.
+async function managerStoreOf(manager) {
   const descriptor = holdings.managerShards?.[manager.id] || null;
   let managerRows = (holdings.allHoldings || []).filter((row) => row.managerId === manager.id);
   let managerComparisons = (holdings.comparisons || []).filter((row) => row.managerId === manager.id);
-  const managersDir = path.join(mastersDir, 'managers');
   if (!managerRows.length && descriptor?.fullRows > 0) {
     const existing = await readManagerRows(managersDir, manager.id);
     if (existing.managerId !== manager.id || existing.holdings?.length !== descriptor.fullRows || existing.comparisons?.length !== descriptor.comparisonRows) {
@@ -83,7 +88,25 @@ for (const manager of holdings.managers || []) {
     managerRows = existing.holdings;
     managerComparisons = existing.comparisons;
   }
-  managerRows = managerRows.map(rawHoldingRow);
+  return { descriptor, managerRows, managerComparisons };
+}
+// A split shows only across filers, so every manager's comparisons are read once before any projection is written.
+// The row stores stay as filed; the stamps go on the web projection and the top-holding rows.
+const corporateActionsByManager = new Map();
+{
+  const comparisonsByManager = new Map();
+  for (const manager of holdings.managers || []) comparisonsByManager.set(manager.id, (await managerStoreOf(manager)).managerComparisons);
+  const splitSuspects = detectSplitSuspects([...comparisonsByManager.values()].flat());
+  for (const [managerId, rows] of comparisonsByManager) {
+    corporateActionsByManager.set(managerId, new Map(annotateCorporateActions(rows, splitSuspects).filter((row) => row.corporateAction).map((row) => [row.key, corporateActionFields(row)])));
+  }
+}
+const withCorporateAction = (row) => ({ ...row, ...(corporateActionsByManager.get(row.managerId)?.get(row.key) || {}) });
+const managerShards = {};
+for (const manager of holdings.managers || []) {
+  const store = await managerStoreOf(manager);
+  const { descriptor, managerComparisons } = store;
+  const managerRows = store.managerRows.map(rawHoldingRow);
   await writeManagerRows(managersDir, {
     schema: 'masters-13f-manager-rows.v1',
     sourceKind: holdings.sourceKind,
@@ -115,7 +138,7 @@ for (const manager of holdings.managers || []) {
     fullRowsAvailable: managerRows.length,
     fullComparisonsAvailable: managerComparisons.length,
     holdings: managerRows.slice(0, MANAGER_PROJECTION_ROW_LIMIT).map((row) => withTicker(compactProjectionRow(row), row)),
-    comparisons: managerComparisons.slice(0, MANAGER_PROJECTION_ROW_LIMIT).map((row) => withTicker(compactProjectionRow(row), row))
+    comparisons: managerComparisons.slice(0, MANAGER_PROJECTION_ROW_LIMIT).map((row) => withTicker(compactProjectionRow(withCorporateAction(row)), row))
   };
   const projectionText = `${JSON.stringify(projection, null, 2)}\n`;
   const projectionBytes = Buffer.byteLength(projectionText);
@@ -166,9 +189,10 @@ const compactHolding = (row) => ({
   action: row.action,
   actionConfidence: row.actionConfidence,
   comparisonStatus: row.comparisonStatus,
-  key: row.key
+  key: row.key,
+  ...corporateActionFields(row)
 });
-const compactHoldings = (holdings.holdings || []).map((row) => withTicker(compactHolding(row), row));
+const compactHoldings = (holdings.holdings || []).map((row) => withTicker(compactHolding(withCorporateAction(row)), row));
 const runtimeHoldings = {
   schema: 'masters-13f-runtime-summary.v1',
   sourceSchema: holdings.schema,
