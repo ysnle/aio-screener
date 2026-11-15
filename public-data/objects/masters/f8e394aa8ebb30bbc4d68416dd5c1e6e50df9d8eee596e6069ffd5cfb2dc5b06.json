@@ -4037,6 +4037,7 @@
       "evidenceId": "sec.13f.0000949509.2026-06-30.366505105",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/13F_OCMLP_2Q2026.html",
       "key": "366505105||SH",
+      "corporateAction": "SPLIT_SUSPECT",
       "tickerExact": "GTX"
     },
     {
@@ -6401,7 +6402,10 @@
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000949509.2026-06-30.15102KAB6",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/13F_OCMLP_2Q2026.html",
-      "key": "15102KAB6||PRN"
+      "key": "15102KAB6||PRN",
+      "corporateAction": "CUSIP_CHANGE",
+      "counterpartCusip": "15102KAA8",
+      "counterpartShares": 600000
     },
     {
       "managerId": "oaktree-capital-management",
@@ -6480,7 +6484,10 @@
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000949509.2026-06-30.22410JAD8",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/13F_OCMLP_2Q2026.html",
-      "key": "22410JAD8||PRN"
+      "key": "22410JAD8||PRN",
+      "corporateAction": "CUSIP_CHANGE",
+      "counterpartCusip": "22410JAB2",
+      "counterpartShares": 26175000
     },
     {
       "managerId": "oaktree-capital-management",
@@ -6610,7 +6617,10 @@
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000949509.2026-06-30.501812AD3",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/13F_OCMLP_2Q2026.html",
-      "key": "501812AD3||PRN"
+      "key": "501812AD3||PRN",
+      "corporateAction": "CUSIP_CHANGE",
+      "counterpartCusip": "501812AB7",
+      "counterpartShares": 9138000
     },
     {
       "managerId": "oaktree-capital-management",
@@ -8099,7 +8109,10 @@
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000949509.2026-06-30.22410JAB2",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/13F_OCMLP_2Q2026.html",
-      "key": "22410JAB2||PRN"
+      "key": "22410JAB2||PRN",
+      "corporateAction": "CUSIP_CHANGE",
+      "counterpartCusip": "22410JAD8",
+      "counterpartShares": 6708000
     },
     {
       "managerId": "oaktree-capital-management",
@@ -8230,7 +8243,10 @@
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000949509.2026-06-30.501812AB7",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/13F_OCMLP_2Q2026.html",
-      "key": "501812AB7||PRN"
+      "key": "501812AB7||PRN",
+      "corporateAction": "CUSIP_CHANGE",
+      "counterpartCusip": "501812AD3",
+      "counterpartShares": 5650000
     },
     {
       "managerId": "oaktree-capital-management",
@@ -8777,7 +8793,10 @@
       "comparisonStatus": "VERIFIED_PRIOR_PERIOD",
       "evidenceId": "sec.13f.0000949509.2026-06-30.15102KAA8",
       "sourceUrl": "https://www.sec.gov/Archives/edgar/data/949509/000094950926000005/13F_OCMLP_2Q2026.html",
-      "key": "15102KAA8||PRN"
+      "key": "15102KAA8||PRN",
+      "corporateAction": "CUSIP_CHANGE",
+      "counterpartCusip": "15102KAB6",
+      "counterpartShares": 6250000
     },
     {
       "managerId": "oaktree-capital-management",
