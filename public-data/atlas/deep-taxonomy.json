@@ -34,7 +34,7 @@
         {"id":"lithography-china","title":"중국 DUV 검증 프레임","summary":"중국의 액침 DUV 관련 주장은 개발·시제품·고객 평가·출하·대량 양산 단계를 나눠 확인해야 한다.","mechanism":"노광 장비 본체뿐 아니라 광원·렌즈·정밀 구동부·제어·도포 장비·측정 장비·정비까지 갖춰져야 반복 생산과 가동률이 나온다.","observe":"모델 · 파장 · 개구수 · 정렬 오차 · 해상도 · 처리량 · 가동률 · 출하량","caution":"텔레그램이나 언론의 단일 보도만으로 양산 성공과 지속 공급을 확정하지 않는다.","children":["시제품","고객 평가","출하","대량 양산","정비·예비 부품"]},
         {"id":"wafer-process-flow","title":"전공정 전체 흐름","summary":"웨이퍼 준비에서 시작해 노광·증착·식각·이온 주입·세정·평탄화가 반복되며 트랜지스터층, 접점층, 배선층이 차례로 쌓인다.","mechanism":"층마다 막을 입히고, 무늬를 옮겨 깎아 낸 뒤, 측정과 세정을 반복해 트랜지스터와 배선을 쌓는다.","observe":"처리량 · 식각 선택비 · 균일도 · 결함 · 장비 간 편차 · 공정 시간","caution":"장비 시장을 노광 하나로만 설명하지 않고 공정 단계와 역할을 나눠 본다.","children":["증착(CVD·PVD·ALD)","도체·절연체 식각","이온 주입·열처리","세정·평탄화(CMP)","검사·측정"]}
       ],
-      "sources": [{"label":"ASML EUV Technology", "url":"https://www.asml.com/en/technology/all-about-euv"},{"label":"ASML Lithography Principles", "url":"https://www.asml.com/en/technology/lithography-principles"}]
+      "sources": [{"label":"ASML EUV Technology", "url":"https://www.asml.com/en/products/euv-lithography-systems"},{"label":"ASML Lithography Principles", "url":"https://www.asml.com/en/technology/lithography-principles"}]
     },
     {
       "id": "deep-packaging-test",

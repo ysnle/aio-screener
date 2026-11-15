@@ -138,6 +138,7 @@ export function buildServerDataMeta(d, { reconciliation, now = Date.now() } = {}
     marketAnalysisOk: m.marketAnalysisOk === true && m.marketAnalysisSemanticOk === true,
     // P1729: the AI panel names a blocked scheduled analysis or the retained previous verified one.
     marketAnalysisReason: m.marketAnalysisReason || null,
+    marketAnalysisBlockCause: m.marketAnalysisBlockCause || null,
     marketAnalysisRetained: m.marketAnalysisRetained || null,
     fmpHasKey: m.fmpHasKey != null ? !!m.fmpHasKey : null, // null: the screener step was skipped, so unknown
     fmpOk: !!m.fmpOk,

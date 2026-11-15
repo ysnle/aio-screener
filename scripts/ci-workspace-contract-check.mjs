@@ -239,7 +239,7 @@ check('operations alert body carries failed jobs/gates and a stable signature', 
   const script = operationsAlert.split('          script: |\n')[1].split('\n').map(line => line.replace(/^            /, '')).join('\n');
   const execute = new (Object.getPrototypeOf(async function () {}).constructor)('github', 'context', 'core', 'require', script);
   const run = { id: 9, workflow_id: 1, name: 'CI', head_branch: 'main', event: 'push', conclusion: 'failure', updated_at: '2026-10-10T12:00:00Z', head_repository: { full_name: 'ysnle/aio-screener' } };
-  async function scenario(current, runs, stepName = 'first', jobsFor = null, existing = null) {
+  async function scenario(current, runs, stepName = 'first', jobsFor = null, existing = null, workflowName = null) {
     const mutations = [];
     let jobReads = 0;
     const github = { rest: { actions: {
@@ -255,7 +255,7 @@ check('operations alert body carries failed jobs/gates and a stable signature', 
       if (jobsFor) return jobsFor(params.run_id);
       return [{ name: 'Shared long job prefix '.repeat(8), conclusion: 'failure', steps: [{ name: stepName, conclusion: 'failure' }] }];
     } };
-    await execute(github, { payload: { workflow_run: current }, repo: { owner: 'ysnle', repo: 'aio-screener' } }, { info() {} }, createRequire(import.meta.url));
+    await execute(github, { payload: { workflow_run: current, ...(workflowName ? { workflow: { name: workflowName } } : {}) }, repo: { owner: 'ysnle', repo: 'aio-screener' } }, { info() {} }, createRequire(import.meta.url));
     return { mutations, jobReads };
   }
   const history = [run, { ...run, id: 8, updated_at: '2026-10-10T11:00:00Z' }];
@@ -291,6 +291,11 @@ check('operations alert body carries failed jobs/gates and a stable signature', 
   check('v58.84 a lone pass after a failure keeps the alert open and silent; a second consecutive pass closes it', !lonePass.mutations.length && secondPass.mutations.some((m) => m.state === 'closed'));
   const streak = await scenario(refresh, [refresh, { ...refresh, id: 8, conclusion: 'success', updated_at: '2026-10-10T11:30:00Z' }, { ...refresh, id: 7, updated_at: '2026-10-10T11:00:00Z' }], 'first', (id) => (id === 8 ? skipJobs() : failJobs()));
   check('P1598 a skip run between two refresh failures does not break the failure streak', streak.mutations.some((m) => /Consecutive failures observed in latest 100 main runs: \*\*2\*\*/.test(m.body || '')));
+  // v60.18: the Worker's dispatches carry the run-name 'Refresh market data · scheduler' while the alert key is the workflow
+  // name; the streak filtered runs on that name, so two scheduler failures in a row counted as one and opened nothing.
+  const scheduled = { ...refresh, name: 'Refresh market data · scheduler', run_started_at: '2026-10-10T12:00:00Z' };
+  const schedulerStreak = await scenario(scheduled, [scheduled, { ...scheduled, id: 8, run_started_at: '2026-10-10T11:30:00Z', updated_at: '2026-10-10T11:37:00Z' }], 'first', failJobs, null, 'Refresh market data');
+  check('v60.18 two consecutive scheduler-dispatched refresh failures open the workflow alert', schedulerStreak.mutations.some((m) => /Consecutive failures observed in latest 100 main runs: \*\*2\*\*/.test(m.body || '') && /aio-operations-alert:Refresh market data -->/.test(m.body || '')), JSON.stringify(schedulerStreak.mutations.map((m) => (m.body || '').slice(0, 80))));
 }
 check('operations alert does not mutate source or dispatch deployments', !/(contents:\s*write|git\s+(?:commit|push)|createWorkflowDispatch|deploy-pages)/i.test(operationsAlert));
 const liveInvariant = read('scripts/ci-live-invariant-check.mjs');

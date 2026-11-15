@@ -87,10 +87,22 @@ jobs:
           case "$ci_event" in push|workflow_dispatch) ;; *) echo "::error::release CI must be a main push or dispatch"; exit 1;; esac
           [ "$ci_conclusion" = 'success' ] || { echo "::error::CI run $run_id concluded '$ci_conclusion', expected success"; exit 1; }
           [ "$ci_branch" = 'main' ] || { echo "::error::CI run $run_id ran on '$ci_branch', expected main"; exit 1; }
-          [ "$ci_sha" = "$expected_sha" ] || { echo "::error::CI run $run_id tested '$ci_sha', expected $expected_sha"; exit 1; }
+          # v60.19 (Codex audit convergence-proof): a dispatched CI run (release_sha) reports the branch head at dispatch as
+          # its head_sha, not the commit it checked out and tested; the release attestation (next step) names that commit.
+          # A push run tests its own head, so there the run SHA must equal the expectation; for a dispatched run the
+          # attestation decides: an operator-typed expected_sha must equal it, and an implicit one (blank input, or the
+          # workflow_run head) resolves to it. Either way only the attested SHA deploys.
+          explicit_sha=''
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ] && [ -n "$DISPATCH_SHA" ]; then explicit_sha="$expected_sha"; fi
+          if [ "$ci_event" = 'push' ]; then
+            [ "$ci_sha" = "$expected_sha" ] || { echo "::error::CI run $run_id tested '$ci_sha', expected $expected_sha"; exit 1; }
+          fi
 
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
           echo "expected_sha=$expected_sha" >> "$GITHUB_OUTPUT"
+          echo "explicit_sha=$explicit_sha" >> "$GITHUB_OUTPUT"
+          echo "ci_event=$ci_event" >> "$GITHUB_OUTPUT"
+          echo "ci_head_sha=$ci_sha" >> "$GITHUB_OUTPUT"
           echo "Resolved attested release: run=$run_id sha=$expected_sha branch=$ci_branch"
 
       - name: Download CI release attestation
@@ -106,11 +118,22 @@ jobs:
         env:
           WORKFLOW_SHA: ${{ steps.source.outputs.expected_sha }}
           EXPECTED_RUN_ID: ${{ steps.source.outputs.run_id }}
+          EXPLICIT_SHA: ${{ steps.source.outputs.explicit_sha }}
+          CI_EVENT: ${{ steps.source.outputs.ci_event }}
+          CI_HEAD_SHA: ${{ steps.source.outputs.ci_head_sha }}
         run: |
           set -euo pipefail
           file="$RUNNER_TEMP/release-attestation/aio-release-attestation.json"
           sha="$(node -e "const a=require(process.argv[1]); if(a.schemaVersion!=='aio-release-attestation.v1'||!/^([0-9a-f]{40})$/.test(a.testedSha)||String(a.runId)!==process.env.EXPECTED_RUN_ID||a.repository!==process.env.GITHUB_REPOSITORY) process.exit(1); process.stdout.write(a.testedSha)" "$file")"
-          test "$sha" = "$WORKFLOW_SHA"
+          # attested-release-rule:begin (run by scripts/ci-deployment-convergence-check.mjs)
+          if [ -n "${EXPLICIT_SHA:-}" ] && [ "$sha" != "$EXPLICIT_SHA" ]; then
+            echo "::error::CI run $EXPECTED_RUN_ID attested $sha, but the dispatch asked for $EXPLICIT_SHA (run head $CI_HEAD_SHA); only the attested SHA deploys"; exit 1
+          fi
+          if [ "$CI_EVENT" = 'push' ] && [ "$sha" != "$WORKFLOW_SHA" ]; then
+            echo "::error::CI push run $EXPECTED_RUN_ID attested $sha but tested its head $WORKFLOW_SHA"; exit 1
+          fi
+          if [ "$sha" != "$WORKFLOW_SHA" ]; then echo "::notice::dispatched CI run $EXPECTED_RUN_ID attested $sha (run head $CI_HEAD_SHA); deploying the attested SHA"; fi
+          # attested-release-rule:end
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
           # v59.78: a data-overlay release ships the refresh commit's data on the last code that passed full push CI.
           code_sha="$(node -e "const a=require(process.argv[1]); if(a.releaseMode==='data-overlay'){ if(!/^([0-9a-f]{40})$/.test(a.codeSha||'')) process.exit(1); process.stdout.write(a.codeSha); }" "$file")"

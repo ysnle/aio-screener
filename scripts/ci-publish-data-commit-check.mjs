@@ -176,6 +176,14 @@ for (const [id, set] of Object.entries(DATA_PUBLISH_SETS)) {
   check(`v59.85 ${set.workflow} publishes set ${id} through the shared publisher`, workflow.includes(`scripts/publish-data-commit.mjs --set ${id}`));
   check(`v59.85 set ${id} declares a collision workflow only with the collision policy`, (set.onRebaseFail === 'collision') === Boolean(set.collision));
   if (set.collision) check(`v59.85 ${set.collision.workflow} accepts the retry input the collision re-run sends`, /\n\s+retry:\n/.test(read(`.github/workflows/${set.collision.workflow}`)));
+  // v60.18: a collision re-run is the bot repeating its own cycle. Where the workflow takes a `trigger` input whose default
+  // is 'operator', a re-run sent without trigger=scheduler ran as an operator run: on 2026-11-15 01:31Z the screener
+  // retry forced the extended shard (SCREENER_EXTENDED_FORCE), refetched a current session 10 minutes after the last
+  // build and replaced 3,856 rows with 3,669, and the SLO window counted the retry as an operator run.
+  if (set.collision) {
+    const dispatchInputs = read(`.github/workflows/${set.collision.workflow}`).match(/workflow_dispatch:\n\s+inputs:\n([\s\S]*?)\n\S/)?.[1] || '';
+    if (/\n?\s+trigger:\n/.test(dispatchInputs)) check(`v60.18 set ${id} re-runs ${set.collision.workflow} as a scheduler run (trigger=scheduler), not the operator default`, set.collision.inputs?.trigger === 'scheduler', JSON.stringify(set.collision.inputs));
+  }
   for (const path of set.required) check(`v59.85 set ${id} required path ${path} is not also optional`, !set.optional.includes(path));
   for (const path of Object.keys(set.timestampOnly || {})) check(`v59.85 set ${id} timestamp-only rule names a staged path (${path})`, publishSetPaths(id).includes(path));
 }

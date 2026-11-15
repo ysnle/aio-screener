@@ -13,6 +13,8 @@ import { reportVerification } from '../../src/domain/news/report-verification.js
 
 // v59.70: the story registry and its detection live in src/domain/narrative/narratives.js, so the screens read the same
 // stories the prompt does (market-day.json `narratives`); this module keeps the prompt text built from them.
+// v60.19: a mover's 급등/급락 is its own volatility's grade (move-size.js), not the |5-session| ≥ 10% that admits it.
+import { annualVolMoveGrade, moveVerb } from '../../src/domain/market/session/move-size.js';
 import { NARRATIVE_WINDOW_HOURS, NARRATIVE_RECENT_HOURS, NARRATIVE_MAX_THEMES, NARRATIVE_MOVER_MIN_ABS_RET5D, NARRATIVE_THEMES, telegramPosts, moverMemos } from '../../src/domain/narrative/narratives.js';
 export { NARRATIVE_WINDOW_HOURS, NARRATIVE_RECENT_HOURS, NARRATIVE_MAX_THEMES, NARRATIVE_MOVER_MIN_ABS_RET5D, NARRATIVE_THEMES };
 export const NARRATIVE_SAMPLES_PER_THEME = 2;
@@ -110,14 +112,14 @@ export function buildNarrativeContext({ telegramDigest = null, screener = null, 
       latestAt: new Date(Math.max(...tg.map((post) => post.ts), ...tickers.map((row) => row.ts))).toISOString(),
       samples: samples.map((post) => ({ channel: post.channel, at: new Date(post.ts).toISOString(), verification: narrativeVerification(post.text),
         cites: [...new Set((post.text.match(CITED_RE) || []).map((name) => name.trim()))].slice(0, 2), text: clip(post.text, 150) })),
-      movers: tickers.slice(0, 3).map((row) => ({ sym: row.sym, direction: row.ret5d < 0 ? '5거래일 급락' : '5거래일 급등', verification: narrativeVerification(row.text), text: clip(row.headlines.find((line) => theme.re.test(line)) || row.headlines[0], 130) })),
+      movers: tickers.slice(0, 3).map((row) => ({ sym: row.sym, direction: `5거래일 ${moveVerb(row.ret5d, annualVolMoveGrade(row.ret5d, row.vol, 5))}`, verification: narrativeVerification(row.text), text: clip(row.headlines.find((line) => theme.re.test(line)) || row.headlines[0], 130) })),
       frame: frameLine(theme.frames) });
   }
   themes.sort((a, b) => b.weight - a.weight);
   const top = themes.slice(0, NARRATIVE_MAX_THEMES);
   const tag = (verification) => (verification === 'rumor' ? '[루머] ' : verification === 'unconfirmed' ? '[미확인·익명 소식통] ' : '');
   const lines = top.map((theme, index) => [
-    `${index + 1}) ${theme.label} — 최근 ${windowHours}시간 리서치 채널 ${theme.telegramCount}건(24시간 ${theme.recentCount}건) · 급등락 종목 헤드라인 ${theme.tickerCount}건`,
+    `${index + 1}) ${theme.label} — 최근 ${windowHours}시간 리서치 채널 ${theme.telegramCount}건(24시간 ${theme.recentCount}건) · 5거래일 ±${NARRATIVE_MOVER_MIN_ABS_RET5D}% 넘게 움직인 종목 헤드라인 ${theme.tickerCount}건`,
     ...theme.samples.map((sample) => `   - ${tag(sample.verification)}[채널 ${sample.channel} ${kst(Date.parse(sample.at))}${sample.cites.length ? ` · 인용: ${sample.cites.join('·')}` : ''}] ${sample.text}`),
     ...theme.movers.map((row) => `   - ${tag(row.verification)}[종목 헤드라인 ${row.sym} · ${row.direction}] ${row.text}`),
     theme.frame ? `   ${theme.frame}` : ''

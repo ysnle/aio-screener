@@ -15,6 +15,8 @@ export function applyMarketSnapshotToLegacy(root = globalThis, snapshot, { sourc
     : { source: 'snapshot:market-snapshot', policyKey: 'static_snapshot', reason: 'market-snapshot-fallback', delayed: true };
   let applied = 0;
   for (const quote of snapshot.quotes || []) {
+    // The published close's change is what a later live quote of the same session must not replace.
+    root.PriceStore?.notePublished?.(quote.instrumentId, { pct: quote.changePct, observedAt: quote.observedAt, previousClose: quote.previousValue, changeBasis: quote.changeBasis || quote.valueBasis });
     if (setLiveData(quote.instrumentId, {
       price: quote.value,
       pct: quote.changePct,

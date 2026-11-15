@@ -8,7 +8,7 @@ import { barsFromYahoo, completedBars } from '../../data/chart-bars.js';
 import { requestFiscalHistory, parseFiscalHistory } from './fiscal-read.js';
 import { crossroadsForRoot } from './macro-crossroads.js';
 import { themePlaybookForRoot } from './theme-playbook.js';
-import { readMarketRegime } from './market-regime.js';
+import { readMarketRegime } from '../../data/selectors/interpretation.js';
 import { CHOICES } from '../../domain/market/regime/macro-crossroads.js';
 import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';

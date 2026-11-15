@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-15T04:04:54.381Z",
-  "appRevision": "v60.17",
-  "gitHead": "82850169083bc8fe56f34b8d4abb350d1d464702",
+  "observedAt": "2026-11-15T11:54:55.756Z",
+  "appRevision": "v60.19",
+  "gitHead": "a3c588acecf5f193c9d9d635f8de7a83a6486c47",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -41,16 +41,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "VIX",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -67,8 +59,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "ETF",
+          "width": 21,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -157,23 +157,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 2,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "10년 기간 프리미엄 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        },
-        {
-          "id": "",
-          "text": "채권 변동성 (MOVE) 근거 보기",
-          "width": 1,
-          "height": 1,
-          "exception": "keyboard-focus-only"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -190,30 +175,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 3,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "PER",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 22,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -266,8 +229,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "ETF",
+          "width": 21,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -400,8 +371,30 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 3,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "PER",
+          "width": 21,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "SEC",
+          "width": 23,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 22,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },

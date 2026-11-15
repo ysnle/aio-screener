@@ -8,7 +8,7 @@ import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.
 import { refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
 import { selectNewsItems } from '../../state/selectors/news.js';
 import { usWeekendClosed } from '../../domain/market/session/market-calendar.js';
-import { EVENT_BRIEFS, KR_INDEX_WEIGHTS, MARKET_TEMPERATURE, STRESS_OUTCOMES } from '../../data/artifact-registry.js';
+import { EVENT_BRIEFS, KR_INDEX_WEIGHTS, MARKET_TEMPERATURE, STRESS_OUTCOMES, loadArtifact } from '../../data/artifact-registry.js';
 
 const VERDICT_WORDS = Object.freeze({ supports: '근거 맞음', partial: '일부 맞음', against: '근거 약함', unknown: '판단 보류' });
 
@@ -33,6 +33,7 @@ const LEAN_QUESTION = /우위|매수|매도|확률|가능성|유리|불리|앞�
 // currentRegime comes from the caller (market-regime.js) so this lazy chunk does not re-split the boot selectors.
 function exposeContextReaders(root, store, currentRegime) {
   if (!root || root.__aioMarketNowContext || typeof currentRegime !== 'function') return;
+  loadLeanValidation(root);
   root.__aioMarketNowContext = (text = '') => {
     const lean = () => { const regime = currentRegime(); return leanModel(root, regime?.available ? regime : null); };
     return [
@@ -42,11 +43,34 @@ function exposeContextReaders(root, store, currentRegime) {
   };
 }
 
+// The published lean verdict (model-validation-status.json `marketLean`) is read here, in the lazy chunk, and passed
+// as it is; market-lean.js decides what it allows. Until it arrives, or when it cannot load, the lean is not validated.
+// The load is one in-flight request per root, and every caller that passes a rerender while it is in
+// flight is repainted when it lands. Before, the AI context reader's first call (no rerender) marked the key loaded,
+// so the card painted after it never repainted when the verdict arrived.
+const LEAN_VALIDATION_KEY = '_aioLeanValidation';
+const leanValidationLoads = new WeakMap();
+function loadLeanValidation(root, rerender) {
+  if (!root) return;
+  if (root[LEAN_VALIDATION_KEY] === undefined) {
+    root[LEAN_VALIDATION_KEY] = null;
+    const listeners = new Set();
+    leanValidationLoads.set(root, listeners);
+    const settle = (status) => {
+      leanValidationLoads.delete(root);
+      root[LEAN_VALIDATION_KEY] = status || null;
+      if (status?.marketLean) for (const repaint of listeners) repaint();
+    };
+    loadArtifact(root, 'model-validation-status.json').then(settle, () => settle(null));
+  }
+  if (typeof rerender === 'function') leanValidationLoads.get(root)?.add(rerender);
+}
+
 function leanModel(root, regime) {
   // R670: the VIX band is read on the same completed US close as the verdict, not the after-hours print.
   const history = root?._aioHistory || [];
   const vix = buildCloseSeries(history, 'vix', { through: regime?.asOf || closeBasis(history) }).at(-1)?.value ?? null;
-  return buildMarketLean({ regime, stress: root?.[STRESS_OUTCOMES.key] || null, temperature: root?.[MARKET_TEMPERATURE.key] || null, vix });
+  return buildMarketLean({ regime, stress: root?.[STRESS_OUTCOMES.key] || null, temperature: root?.[MARKET_TEMPERATURE.key] || null, vix, validation: root?.[LEAN_VALIDATION_KEY] || null });
 }
 
 export function paintSessionBridge(doc, root, store, anchor, rerender = null) {
@@ -98,27 +122,36 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
   for (const spec of [STRESS_OUTCOMES, MARKET_TEMPERATURE]) {
     if (sharedArtifactIsStale(root, spec.key, spec)) refreshSharedArtifact(root, spec).then(({ changed }) => { if (changed && typeof rerender === 'function') rerender(); }).catch(() => {});
   }
+  loadLeanValidation(root, rerender);
   const model = leanModel(root, regime);
   let box = doc.getElementById('home-lean');
   if (!model.us.available) { if (box) box.hidden = true; return model; }
   // v59.51 (two layers; owner 2026-10-26 element, renamed): "매수·매도 우위" read as a timing call, so the face is one line —
   // the month-ahead tilt of the whole US market — and the base rate, the votes, what would change it and the Korea
-  // reference open under it. The "덜 불리한 선택" line is not shown (R724: no choice or timing beside a market call).
+  // reference open under it. market-lean.js maps no lean to a choice (R724), so there is no choice line to show.
   if (!box) { box = el(doc, 'details', null, 'market-lean'); box.id = 'home-lean'; anchor.insertAdjacentElement('afterend', box); }
   const head = el(doc, 'summary', null, 'market-lean__head');
   const chip = el(doc, 'span', model.us.label, 'market-lean__state');
   chip.dataset.score = model.us.key;
-  head.append(el(doc, 'span', '앞으로 한 달, 미국 시장 기울기', 'market-lean__title'), chip);
+  head.append(el(doc, 'span', model.us.spoken ? '앞으로 한 달, 미국 시장 기울기' : '미국 6개 지표 상태', 'market-lean__title'), chip);
+  if (model.us.frequency) head.append(el(doc, 'span', model.us.frequency, 'market-lean__note'));
+  // The VIX-band drawdown record beside the state (market-lean.js us.risk; '없음' until the weekly lane publishes it).
+  if (model.us.risk) {
+    const risk = el(doc, 'span', model.us.risk.text, 'market-lean__risk');
+    risk.dataset.state = model.us.risk.state;
+    head.append(risk);
+  }
   const items = el(doc, 'ul', null, 'market-lean__items');
   for (const item of model.us.items) {
     const li = el(doc, 'li', item.text, 'market-lean__item');
     li.dataset.vote = String(item.vote);
     items.append(li);
   }
-  const disclaimer = '시장 전체의 조건부 설명이며 개별 종목의 매수·매도 지시나 가격 예측이 아닙니다.';
+  const disclaimer = model.us.spoken ? '시장 전체의 조건부 설명이며 개별 종목의 매수·매도 지시나 가격 예측이 아닙니다.' : '시장 전체의 지표 상태이며 개별 종목의 매매 지시나 가격 예측이 아닙니다.';
   chip.title = disclaimer;
   const nodes = [head, el(doc, 'p', model.us.read, 'market-lean__read'), el(doc, 'h4', '근거', 'market-lean__sub'), items];
   if (model.us.basis) nodes.push(el(doc, 'p', model.us.basis, 'market-lean__note'));
+  if (model.us.countNote) nodes.push(el(doc, 'p', model.us.countNote, 'market-lean__note'));
   if (model.us.flip) nodes.push(el(doc, 'p', `바뀌는 조건: ${model.us.flip}`, 'market-lean__note'));
   if (model.kr.available) {
     const list = el(doc, 'ul', null, 'market-lean__items');

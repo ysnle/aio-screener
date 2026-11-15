@@ -1,6 +1,6 @@
 ---
 title: Operator runbook — provisioning and manual boundaries
-last_verified: 2026-10-26
+last_verified: 2026-11-15
 auto_refresh: false
 ---
 
@@ -15,9 +15,9 @@ auto_refresh: false
 | 화면 숫자가 오래됨(지연 표시) | 열린 `[Operations] Refresh market data` 이슈의 "Failed jobs/gates" | 실패한 단계 이름을 Claude에게 그대로 전달한다. 화면은 마지막 값과 날짜를 계속 보여 주므로 급하지 않다. |
 | 워치독 `pages-repository-revision`가 "data overlay on code …"를 적음 (v59.78) | `deployment.json`의 `releaseMode`·`codeSha`, main 최신 코드 커밋의 CI | 데이터는 정상 갱신 중이다(마지막 green 코드 위에 데이터만 올려 배포). 새 코드의 push CI 실패 원인을 고쳐 push하면 다음 갱신부터 직접 릴리스로 돌아온다. |
 | 사이트가 안 열리거나 깨짐 | Actions → Deploy GitHub Pages 최근 실행 | 직전 변경이 원인이면 §5a대로 `git revert` 후 push. 과거 SHA 재배포는 쓰지 않는다. |
-| AI가 답하지 않음 | `https://aio-proxy.zmfhd007.workers.dev/health` | `ai.ready`가 false면 `ai.configured`(OpenAI 키)와 `ai.killSwitch`를 본다. 월 예산이 소진됐다면 다음 달(UTC) 1일까지 거절하는 것이 정상이다. |
+| AI가 답하지 않음 | `https://aio-proxy.zmfhd007.workers.dev/health` | `ai.ready`가 false면 `ai.configured`(OpenAI 키)와 `ai.killSwitch`를 본다. 월 $20은 목표라 넘어도 거절하지 않는다(소유자 2026-10-27, `AI_MONTHLY_BUDGET_MODE=target`). 모든 요청이 거절되면 공급자 계정(선불 잔액 소진 HTTP 429 `credit_balance_exhausted`, 키 폐기·결제)을 먼저 본다 — 2026-11-10에 11시간 멈춘 원인이다. |
 | 주간 점검에 토큰 만료 | 이슈 표의 안내 | 토큰을 재발급해 같은 이름의 저장소 Secret을 교체한다. 디스패치 토큰은 교체 후 `deploy-data-plane.yml`을 수동 실행해야 Worker에 반영된다. |
-| 주간 점검에 AI 월 예산 80% | OpenAI 대시보드 Usage | 실제 청구액을 확인한다. OpenAI 프로젝트 Limits에 월 $20 한도를 걸어 두면 원장이 틀려도 청구는 거기서 멈춘다. |
+| 주간 점검에 AI 월 예산 80% | OpenAI 대시보드 Usage·Billing | 실제 청구액과 선불 잔액을 확인한다. 잔액이 바닥나면 공급자가 요청을 거절하므로 자동 충전(월 상한 포함)을 켜 두거나 미리 충전한다. 원장은 경고만 하고 막지 않는다. |
 | 주간 점검에 저장소 크기 | 이슈 표의 크기 | 900 MB 경고, 2 GB 조치. 큰 데이터 파일을 git 밖(Release 첨부 등)으로 옮기는 결정을 Claude와 논의한다. 이력 재작성은 되돌릴 수 없으므로 승인 없이 하지 않는다. |
 
 ## 일반 사용자 입력과 운영자 토큰의 구분 (P1607)
@@ -100,8 +100,8 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 - **가족 피드백 (v58.82, 로드맵 12)** — 각 화면 맨 아래 `이상해요` 버튼으로 가족이 짧은 글을 보낸다. 글에는 화면 이름과 앱 버전만 붙고, 공개 저장소·Actions 로그가 아니라 Worker(Durable Object)에 최근 300건까지 비공개로 남는다. 코드 없이 보내며, 연결(IP)마다 UTC 하루 10건·분당 5건까지다. 소유자는 앱의 연결 상태 카드 → `가족 피드백 보기`에 `AIO_OPERATOR_TOKEN`을 넣어 읽는다(토큰은 저장하지 않음). 같은 내용은 `curl -H "X-AIO-Operator-Token: …" https://<worker>/_ops/feedback`으로도 읽힌다. `보낸 사람`은 그날 연결의 HMAC 8자리 표시이며 IP 자체는 저장하지 않는다.
 - **선택 Worker 설정** `AIO_CRON_SECRET`(수동 `/admin/run`만), `AIO_APP_TOKEN`(공개 클라이언트 억제용), `AIO_DEV_ORIGINS`(개발 origin 추가). 자동 cron과 일반 사용자에게는 입력이 필요 없다. `deploy-ai-proxy.yml`의 명시적 수동 dispatch가 `OPENAI_API_KEY`·`AIO_AUTOMATION_TOKEN`·`BOK_API_KEY`·`KOSIS_API_KEY`를 게시한다. FRED 운영자 키는 Actions 수집/운영자 자신의 smoke용이며 사용자 대신 Worker에 게시하지 않는다.
 - **비공개 AI 사용량 관측(선택)** — `AIO_OPERATOR_TOKEN`을 `aio-proxy` Cloudflare Worker secret으로 설정하면 `GET /_ops/ai-usage`에서 현재 UTC 날짜의 공유 AI Durable Object 요청 수와 `AI_DAILY_CAP`을 확인할 수 있다. 최소 32자 무작위 값으로 발급하고 Cloudflare에 직접 `wrangler secret put AIO_OPERATOR_TOKEN --config worker/wrangler.proxy.toml`로 설정한다. 이 명령은 저장소의 정본 config를 사용하며, `.deploy.toml`은 CI runner 안에서만 생성된다. 저장소·워크플로 로그·공개 이슈에 값이나 응답을 복사하지 않는다. 미설정 또는 인증 실패는 404이며 `/health`에는 사용량·AI cap이 추가되지 않는다. 코드 배포 후 A5에서 secret 설정과 인증된 200 응답을 운영자가 확인해야 한다.
-- **월 AI 예산** — `AI_MONTHLY_BUDGET_USD=20`이며 코드에서 $20보다 큰 설정은 허용하지 않는다(소유자 승인 2026-10-11). 채팅·번역·Actions·배포 smoke가 같은 원장에 호출 최대 비용을 먼저 원자적으로 예약한다. 상한에 도달하면 추가 유료 요청을 차단한다. `AI_WEB_SEARCH_ENABLED=true`로 내부/무료 근거가 부족할 때 OpenAI 검색을 보강한다. 사용자별 검색 할당량은 없다. 요청당 도구 호출 최대 2회, 검색 호출당 $0.10의 정책 예약을 유지한다. 검색의 누적 청구 토큰 상한은 공개되지 않아 이 예약은 청구액 보장이나 실측 사용액이 아니다. 다른 앱에서 같은 프로젝트 키를 사용하면 Worker 원장 밖에서 청구되므로 AIO 전용 프로젝트와 키를 사용한다.
-- **OpenAI 추가 방어** — 전용 프로젝트의 월 한도를 $20로 두고 `Enforce a hard limit`을 켠다. 알림만 설정하면 차단이 아니다. 공급자 hard limit도 적용 지연으로 소액 초과 가능성이 있어 Worker의 요청 전 원자적 예약이 주 방어다. 공식 안내: [OpenAI spend limits](https://developers.openai.com/api/docs/guides/spend-limits). 세금·환전과 다른 프로젝트 사용은 Worker의 USD API 원장 범위 밖이다.
+- **월 AI 예산** — `AI_MONTHLY_BUDGET_USD=20`이며 코드에서 $20보다 큰 설정은 허용하지 않는다(소유자 승인 2026-10-11). 채팅·번역·Actions·배포 smoke가 같은 원장에 호출 최대 비용을 먼저 원자적으로 예약한다. 소유자 결정(2026-10-27)으로 $20은 목표다: `AI_MONTHLY_BUDGET_MODE=target`(worker/wrangler.proxy.toml)에서는 넘어도 요청을 거절하지 않고, 주간 운영 점검이 80%와 초과 때 경고한다. 설정을 지우거나 `hard`로 두면 예전처럼 상한에서 거절한다. `AI_WEB_SEARCH_ENABLED=true`로 내부/무료 근거가 부족할 때 OpenAI 검색을 보강한다. 사용자별 검색 할당량은 없다. 요청당 도구 호출 최대 2회, 검색 호출당 $0.10의 정책 예약을 유지한다. 검색의 누적 청구 토큰 상한은 공개되지 않아 이 예약은 청구액 보장이나 실측 사용액이 아니다. 다른 앱에서 같은 프로젝트 키를 사용하면 Worker 원장 밖에서 청구되므로 AIO 전용 프로젝트와 키를 사용한다.
+- **OpenAI 쪽 설정** — 앱의 원장은 경고만 하므로, 청구가 실제로 멈추는 곳은 공급자다. 선불 잔액이 바닥나면 모든 AI 요청이 HTTP 429로 거절된다(2026-11-10, 11시간). 자동 충전을 켜고 월 충전 상한을 정해 두는 것이 소유자 조치다. 프로젝트 월 한도(`Enforce a hard limit`)를 걸면 그 한도에서 AI가 멈춘다는 뜻이므로, 걸려면 $20보다 넉넉하게 둔다. 공식 안내: [OpenAI spend limits](https://developers.openai.com/api/docs/guides/spend-limits). 세금·환전과 다른 프로젝트 사용은 Worker의 USD API 원장 범위 밖이다.
 - **최초 전환 순서** — 운영자는 전용 프로젝트 키와 자동화 토큰을 Secret으로 등록한 후 성공한 main CI run id를 지정해 `deploy-ai-proxy.yml`을 명시적으로 실행한다. 공유 Worker `/health`의 provider/model/automationConfigured와 실제 upstream smoke 통과 후 Actions를 확인한다. 자동 코드 배포는 기존 Cloudflare Secret을 유지한다. 이 문서는 설정 절차이며 현재 Secret 등록·배포 완료를 뜻하지 않는다.
 - **릴레이 일일 캡** — `worker/wrangler.proxy.toml`의 `RELAY_DAILY_CAP`(기본 2000, 제공자별). 배포 전에 이 값을 조정하려면 toml을 수정한다.
 - **패스트 플레인 승격 플래그** — `architecture/worker-endpoints.json`의 `fastQuotes.rightsReviewed`(권리 검토 완료 시 `true`)와 `soakRequiredDays`. 7일 soak와 권리 검토가 끝나기 전에는 `public-config.json`의 `marketData.fastQuotes.enabled`가 `false`로 유지되며 브라우저는 패스트 플레인을 읽지 않는다. 이 승격은 손으로 켜지지 않는다 — `scripts/ci-fast-plane-consumer-gate.mjs`가 게시된 증거로 재파생해 검사한다.

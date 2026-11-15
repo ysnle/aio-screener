@@ -140,12 +140,20 @@ const documentRef = createFakeDocument();
 const nodes = documentRef.nodes;
 // P1392: the home card is the six-axis regime summary; without close history it waits instead of
 // inventing a state (the retired score summary asserted the same fail-closed behaviour).
-const { renderHomeRegime } = await import(new URL('../src/ui/components/market-regime.js', import.meta.url));
+const { renderHomeRegime } = await import(new URL('../src/ui/components/home-regime.js', import.meta.url));
 renderHomeRegime({ documentRef, root: { _aioHistory: [], DATA_SNAPSHOT: {} } });
 // P1619: an unavailable Nasdaq-100 cannot borrow the Nasdaq Composite close.
 // v59.51 (content audit): the KPI strip's NQ fallback cell (home-kpi-nq-fallback) is retired; the 나스닥 100 close fallback
 // now lives in the index strip card (closeFallback(history, INDEX_STRIP[1])), which reads only the ndx series.
-const { closeFallback, INDEX_STRIP } = await import(new URL('../src/ui/components/home-index-strip.js', import.meta.url));
+const { closeFallback, INDEX_STRIP, oneStripBasis } = await import(new URL('../src/ui/components/home-index-strip.js', import.meta.url));
+// v60.18 (weekly audit S12): one strip, one basis — a partial intraday read draws every card on the published close.
+{
+  const at = (day) => ({ session: { month: 11, day }, open: false });
+  assert.deepEqual(oneStripBasis([at(13), null, at(13), at(13)]), [null, null, null, null], 'v60.18 a strip with one card missing intraday draws all four on the published close');
+  assert.deepEqual(oneStripBasis([at(13), at(12), at(13), at(13)]), [null, null, null, null], 'v60.18 cards from two sessions never share a strip');
+  const full = [at(13), at(13), at(13), at(13)];
+  assert.equal(oneStripBasis(full), full, 'v60.18 four intraday cards of one session stay intraday');
+}
 assert.equal(INDEX_STRIP[1].close, 'ndx', 'v59.51 (content audit): P1619 the 나스닥 100 card falls back to the ndx close');
 assert.equal(closeFallback([{ date: '2026-10-09', spx: 7800, nasdaq: 27366 }], INDEX_STRIP[1]), null, 'v59.51 (content audit): P1619 no NDX history means no Composite fallback');
 const ndxFallback = closeFallback([{ date: '2026-10-08', spx: 7790, nasdaq: 27300, ndx: 30800 }, { date: '2026-10-09', spx: 7800, nasdaq: 27366, ndx: 31000 }], INDEX_STRIP[1]);

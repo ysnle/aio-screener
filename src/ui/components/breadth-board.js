@@ -7,7 +7,7 @@
 // confirmation (S&P 500 distribution days and the index itself). Definitions live in
 // src/domain/market/breadth/breadth-signals.js; this module only presents them.
 import { deepDiveFold } from './deep-dive.js';
-import { splitReading } from './market-regime.js';
+import { splitReading } from './reading-split.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
@@ -46,7 +46,7 @@ function difference(a, b) {
 }
 
 const count = (value) => Math.round(value).toLocaleString('en-US');
-const signedCount = (value) => `${value > 0 ? '+' : ''}${Math.round(value).toLocaleString('en-US')}`;
+const signedCount = (value) => `${{ up: '+', down: '-' }[directionOf(value, 0)] || ''}${Math.abs(Math.round(value)).toLocaleString('en-US')}`;
 
 // v57.77: each group shows one lead chart beside its reading; the other measures sit in a "나머지 지표 보기" fold.
 export const BREADTH_GROUPS = Object.freeze([

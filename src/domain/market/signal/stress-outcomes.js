@@ -64,8 +64,9 @@ export function buildStressOutcomes(spx = [], vix = [], { horizons = STRESS_HORI
   const sessions = spx.filter(([date, close]) => Number.isFinite(close) && close > 0).sort((a, b) => a[0].localeCompare(b[0]));
   const sessionIndex = new Map(sessions.map(([date], index) => [date, index]));
   const rows = sessions.filter(([date]) => vixByDate.has(date));
-  const perBand = new Map(STRESS_BANDS.map((band) => [band.id, { episodes: 0, clusters: 0, shortRuns: 0, runLength: 0, lastIndex: null, returns: Object.fromEntries(horizons.map((h) => [h, []])) }]));
+  const perBand = new Map(STRESS_BANDS.map((band) => [band.id, { episodes: 0, clusters: 0, shortRuns: 0, runLength: 0, lastIndex: null, returns: Object.fromEntries(horizons.map((h) => [h, []])), risk: [] }]));
   const all = Object.fromEntries(horizons.map((h) => [h, []]));
+  const allRisk = [];
   let previousBand = null;
   const closeRun = (bucket) => { if (bucket && bucket.runLength && bucket.runLength <= 3) bucket.shortRuns += 1; if (bucket) bucket.runLength = 0; };
   rows.forEach(([date, close]) => {
@@ -91,6 +92,8 @@ export function buildStressOutcomes(spx = [], vix = [], { horizons = STRESS_HORI
       bucket.returns[horizon].push(change);
       all[horizon].push(change);
     }
+    const window = stressWindowRisk(sessions, index, RISK_RULE.horizon);
+    if (window) { bucket.risk.push(window); allRisk.push(window); }
   });
   closeRun(previousBand ? perBand.get(previousBand) : null);
   return {
@@ -100,7 +103,31 @@ export function buildStressOutcomes(spx = [], vix = [], { horizons = STRESS_HORI
     clusterGapSessions: CLUSTER_GAP_SESSIONS,
     bands: STRESS_BANDS.map((band) => ({ id: band.id, label: band.label, episodes: perBand.get(band.id).episodes,
       clusters: perBand.get(band.id).clusters, shortRuns: perBand.get(band.id).shortRuns,
-      horizons: Object.fromEntries(horizons.map((h) => [h, summarize(perBand.get(band.id).returns[h], h)])) })),
-    all: Object.fromEntries(horizons.map((h) => [h, summarize(all[h], h)]))
+      horizons: Object.fromEntries(horizons.map((h) => [h, summarize(perBand.get(band.id).returns[h], h)])), risk: stressRiskSummary(perBand.get(band.id).risk) })),
+    all: Object.fromEntries(horizons.map((h) => [h, summarize(all[h], h)])),
+    allRisk: stressRiskSummary(allRisk)
   };
+}
+
+// The owner-approved VIX-band risk line: how deep the next month went, not only where it ended. For every day in a
+// band, the worst close within the next RISK_RULE.horizon sessions against that day's close (the drawdown); the record is
+// the share of days whose drawdown reached RISK_RULE.drawdownAtPct, the median and 5th-percentile 21-session return, and
+// the case count: windows taken greedily so no two overlap (the sample a share may be judged on, evidence-strength.js).
+// The rule of scripts/backtest-market-lean-risk.mjs (pDD5, retMedian, ret5th, cases), which measured it.
+export const RISK_RULE = Object.freeze({ horizon: 21, drawdownAtPct: -5 });
+export function stressWindowRisk(sessions, index, horizon) {
+  const base = sessions[index]?.[1];
+  if (!(base > 0) || !sessions[index + horizon]) return null;
+  let low = 0;
+  for (let k = 1; k <= horizon; k += 1) low = Math.min(low, (sessions[index + k][1] / base - 1) * 100);
+  return { index, drawdown: low, ret: (sessions[index + horizon][1] / base - 1) * 100 };
+}
+export function stressRiskSummary(windows,{ horizon = RISK_RULE.horizon, at = RISK_RULE.drawdownAtPct } = {}) {
+  if (!windows.length) return { horizon, drawdownAtPct: at, days: 0, cases: 0, drawdownShare: null, median: null, p05: null };
+  let cases = 0, next = -Infinity;
+  for (const { index } of [...windows].sort((a, b) => a.index - b.index)) if (index >= next) { cases += 1; next = index + horizon; }
+  const sorted = windows.map((row) => row.ret).sort((a, b) => a - b);
+  return { horizon, drawdownAtPct: at, days: windows.length, cases,
+    drawdownShare: round((windows.filter((row) => row.drawdown <= at).length / windows.length) * 100, 1),
+    median: round(percentile(sorted, 0.5)), p05: round(percentile(sorted, 0.05)) };
 }

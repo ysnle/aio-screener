@@ -2,12 +2,15 @@
 // Split out of scripts/fetch-data.mjs (pipeline redesign, 2026-10-19); fetch-data.mjs keeps the run order and re-exports
 // every name it exported before.
 import { readFile } from 'node:fs/promises';
-import { readFileSync, statSync } from 'node:fs';
+import { readFileSync, statSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { isAbsolute, join, relative, resolve } from 'node:path';
 import { RULES } from '../../src/domain/rules/thresholds.js';
 import { SHARED_AI_MODEL, requestSharedAnalysis, resolveSharedAiConfig } from '../lib/ai-shared-analysis.mjs';
 import { buildCloseSeries } from '../../src/domain/briefing/market-read.js';
-import { countOpenSessionsBetween } from '../../src/domain/market/session/market-calendar.js';
+import { completedSessionMoves, formatCompletedMove, inSessionMoves, moveSizeGrades, moveSizeLine, signedMove } from '../lib/market-analysis-moves.mjs';
+import { nextRejectionLog } from '../lib/market-analysis-rejections.mjs';
 import { buildMarketFlow } from '../../src/domain/market/regime/market-flow.js';
 import { HEADLINE_GLOSSARY_PAIRS } from '../../src/domain/briefing/headline-terms.js';
 import { expandScreenerArtifact } from '../../src/data/screener-extended.js';
@@ -16,6 +19,7 @@ import { readNarrativeContext } from '../lib/narrative-context.mjs';
 import { renderMarketScenarioModel } from '../../src/domain/market/regime/regime-scenarios.js';
 import { renderScenarioOutlookContext } from '../../src/domain/market/regime/scenario-outlook.js';
 import { renderMacroCrossroadsContext } from '../../src/domain/market/regime/macro-crossroads.js';
+import { branchDecisionFrame, decisionFrameContext } from '../../src/domain/scenarios/decision-frame.js';
 import { renderMarketGuideContext } from '../../src/domain/guide/market-guide.js';
 import { POLITICAL_EVENTS } from '../../src/domain/briefing/schedule.js';
 import { indexLevels, levelValue, levelsRead } from '../../src/domain/market/indices/index-levels.js';
@@ -24,9 +28,24 @@ import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
 import { buildMarketAnalysisPrompt, buildMarketAnalysisRetryPrompt, inflationDirectionLine } from '../lib/market-analysis-prompt.mjs';
 import { afterHoursContextLines, afterHoursSignature } from './after-hours.mjs';
 import { earningsContextLines, earningsContextSignature, readEventBriefs, cashflowContextLines, readBigtechCashflow } from './earnings-context.mjs';
-import { softenReaderDuty, salvageMarketAnalysis, inflationEasingContradicts, inflationReaccelContradicts, EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary } from '../lib/market-analysis-validate.mjs';
+import { softenReaderDuty, salvageMarketAnalysis, inflationEasingContradicts, inflationReaccelContradicts, EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, marketAnalysisBlockCause, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary, MARKET_DRIVER_SLOTS } from '../lib/market-analysis-validate.mjs';
 import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT, EARNINGS_CALENDAR_OUT, REPO_ROOT } from './paths.mjs';
 const SCREENER_OUT = `${REPO_ROOT}/public-data/screener.json`;
+// The rejected attempts of this run (scripts/lib/market-analysis-rejections.mjs) go outside the repository: in CI to
+// $RUNNER_TEMP, which refresh-data.yml uploads as a short-retention Actions artifact. P1719: rejected AI text stays out of
+// every published artifact and out of the repository. A missing log starts afresh; a failed write never fails the reading.
+// Review v60.19 B2: the path is read when the log is written ($RUNNER_TEMP in Actions), and the producer writes it by
+// default — production always passes `request`, so tying the log to "no request" meant it was never written. A path
+// inside the repository is refused (P1719: rejected AI text never enters the tree).
+export const marketAnalysisRejectionsPath = () => join(process.env.RUNNER_TEMP || tmpdir(), 'market-analysis-rejections.json');
+export const MARKET_ANALYSIS_REJECTIONS_OUT = marketAnalysisRejectionsPath();
+export function appendMarketAnalysisRejections(attempts, run, path = marketAnalysisRejectionsPath()) {
+  const inside = relative(resolve(REPO_ROOT), resolve(path));
+  if (!inside.startsWith('..') && !isAbsolute(inside)) { console.warn(`[fetch-data] marketAnalysis rejection log refused inside the repository: ${path}`); return; }
+  let previous = null;
+  try { previous = JSON.parse(readFileSync(path, 'utf8')); } catch { /* first log */ }
+  try { writeFileSync(path, `${JSON.stringify(nextRejectionLog(previous, attempts, run), null, 1)}\n`); } catch (error) { console.warn(`[fetch-data] marketAnalysis rejection log not written: ${error?.message || error}`); }
+}
 import { MACRO_HISTORY_OUT, MACRO_CALENDAR_OUT } from './macro-history.mjs';
 import { coreInflationRead } from '../../src/domain/macro/macro-read.js';
 import { readNumber } from '../../src/domain/shared/number.js';
@@ -34,10 +53,13 @@ import { readHistoryRows as expandHistoryRows } from '../../src/domain/market/in
 
 // v57.81: plain Korean values with their session ("10/14 종가"), never "SPX=… (ISO)"; the last verified reading rides along
 // as `lastVerified` so the next run can still keep it (retainVerifiedMarketAnalysis).
-function buildMarketAnalysisFallback(data, reason, metricEvidence = buildMarketAnalysisEvidence(data), newsEvidence = buildMarketAnalysisNewsEvidence(data), { previous = null, nowMs = Date.now() } = {}) {
-  const summary = plainMarketFallbackSummary(metricEvidence);
-  const fallback = buildStructuredMarketAnalysis({ data, text: summary, model: 'none', status: 'blocked', reason, metricEvidence, newsEvidence, semantic: { ok: false, issues: [reason], causalEvidenceCount: 0 } });
+// v60.18 (audit D2): the summary names the cause it has — a provider that did not answer is not "검증을 통과하지 못해" —
+// and, when a verified reading under 12 h old was not kept because this run's data contradict it, says so with its time.
+// `contradicted`: the caller re-checked that reading against this run's data and it failed.
+function buildMarketAnalysisFallback(data, reason, metricEvidence = buildMarketAnalysisEvidence(data), newsEvidence = buildMarketAnalysisNewsEvidence(data), { previous = null, nowMs = Date.now(), contradicted = false } = {}) {
   const lastVerified = lastVerifiedMarketAnalysis(previous, nowMs);
+  const summary = plainMarketFallbackSummary(metricEvidence, { reason, lastVerifiedAt: contradicted ? lastVerified?.generatedAt || null : null });
+  const fallback = buildStructuredMarketAnalysis({ data, text: summary, model: 'none', status: 'blocked', reason, metricEvidence, newsEvidence, semantic: { ok: false, issues: [reason], causalEvidenceCount: 0 } });
   return lastVerified ? { ...fallback, lastVerified } : fallback;
 }
 
@@ -129,7 +151,7 @@ export function marketFlowContext(data, history = [], nowMs = Date.now(), { scre
       t ? [t.strongLine, t.weakLine, t.splitLines.length ? `같은 업종 안에서 갈린 곳: ${t.splitLines.slice(0, 4).join(' / ')}` : '',
         // v58.74: the AI-chain sub-themes whose own members split (MU up, SNDK·WDC·STX down on 10/23)
         t.memberSplitLines?.length ? `같은 테마 안에서 갈린 종목: ${t.memberSplitLines.slice(0, 3).join(' / ')}` : ''].filter(Boolean).join(' · ') : '',
-      '— 지수의 움직임이 어느 업종·테마에 몰렸고 돈이 어디로 옮겨갔는지(버틴 쪽과 밀린 쪽)를 압력 단락에서 한 번 쓸 것. 업종 이동을 정치·선거 같은 원인으로 단정하지 말 것; 원인은 HEADLINE_CONTEXT 보도로만 붙인다.'].filter(Boolean).join('\n');
+      '— 지수의 움직임이 어느 업종·테마에 몰렸고 돈이 어디로 옮겨갔는지(버틴 쪽과 밀린 쪽)를 직전 완료 세션을 쓰는 줄에서 한 번 쓸 것. 업종 이동을 정치·선거 같은 원인으로 단정하지 말 것; 원인은 HEADLINE_CONTEXT 보도로만 붙인다.'].filter(Boolean).join('\n');
   } catch (_) {
     return '';
   }
@@ -138,35 +160,18 @@ export function marketFlowContext(data, history = [], nowMs = Date.now(), { scre
 // v57.87 (10/16 audit): on the session after KOSPI's -7.6% close the commentary spoke only of the next morning's
 // in-session rebound — METRIC_EVIDENCE carries the latest observation, so the completed crash close never reached the
 // prompt. A completed close that moved 3% in a session or 8% over five sessions travels as its own dated line.
+// v58.68/v58.71/v59.24: one-session changes only across consecutive sessions on each market's calendar, five-session
+// changes across exactly five, and a US close older than the latest S&P 500 close is left out (completedSessionMove).
+// v60.18 (weekly audit 2026-11-15 D4/D6): the fixed five-asset list with fixed edges let SOXX lead every reading while the
+// 10-year yield rose 29bp in five sessions. The declared registry (scripts/lib/market-analysis-moves.mjs) adds the
+// 10-year, gold and the dollar, sizes each move against its own volatility (one and five sessions) and lists the moves
+// largest first; the reading opens with the first one (validator: priorSessionMoveIssues).
 export const PRIOR_SESSION_MOVE_1D_PCT = RULES.largeMove.priorSession1dPct;
 export const PRIOR_SESSION_MOVE_5D_PCT = RULES.largeMove.priorSession5dPct;
+export const PRIOR_SESSION_MOVE_HEAD = '직전 완료 세션의 큰 움직임';
 export function priorSessionMoveLines(history = []) {
-  const md = (date) => String(date || '').slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/');
-  const signed = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
-  const lines = [];
-  // WTI too (10/16 audit): its in-session row is dropped from METRIC_EVIDENCE, so a +3% oil close never reached the prompt.
-  // v58.68 (owner 2026-10-23, US first): the 10/22 reading opened with KOSPI and never named the Nasdaq 100 or the
-  // semiconductor drop. The US lines come first, the Nasdaq 100 and SOXX join at the leadership 급락일 edges, and a US
-  // one-session change is written only across consecutive sessions (a missing 10/21 row made 10/20→10/22 look like a day).
-  const L = RULES.leadership;
-  // v58.71 (pipeline audit): KOSPI is checked on the KRX calendar and WTI on the US one (CME follows US holidays), and a
-  // five-session change needs exactly five sessions; a missing row made a two-session change read as "M/D 종가".
-  // v59.24 (live 2026-10-26 08:20 KST): CL=F reopens at 18:00 ET and Yahoo keeps Friday's settle as its previous close
-  // until the bar rolls, so the 08:00 KST reading opened with "WTI 10/23 종가 +3.82%" while oil had settled -1.46% on 10/26.
-  // A US line whose last close is older than the latest S&P 500 close is not the 직전 완료 세션 and is left out.
-  const usLatest = buildCloseSeries(history, 'spx').filter((point) => Number(point?.value) > 0).at(-1)?.date || null;
-  for (const [field, label, edge, market] of [['spx', 'S&P 500', PRIOR_SESSION_MOVE_1D_PCT, 'US'], ['ndx', '나스닥 100', L.shockNdx1dPct, 'US'], ['soxx', '반도체(SOXX)', L.shockSemis1dPct, 'US'], ['kospi', '코스피', PRIOR_SESSION_MOVE_1D_PCT, 'KR'], ['wti', 'WTI', PRIOR_SESSION_MOVE_1D_PCT, 'US']]) {
-    const series = buildCloseSeries(history, field).filter((point) => Number(point?.value) > 0);
-    if (series.length < 2) continue;
-    const last = series.at(-1), prior = series.at(-2), back5 = series.length >= 6 ? series.at(-6) : null;
-    if (market === 'US' && usLatest && last.date < usLatest) continue;
-    const consecutive = countOpenSessionsBetween(prior.date, last.date, market) === 1;
-    const d1 = consecutive ? (last.value / prior.value - 1) * 100 : null;
-    const d5 = back5 && countOpenSessionsBetween(back5.date, last.date, market) === 5 ? (last.value / back5.value - 1) * 100 : null;
-    if (!((d1 != null && Math.abs(d1) >= edge) || (d5 != null && Math.abs(d5) >= PRIOR_SESSION_MOVE_5D_PCT))) continue;
-    lines.push(`${label} ${md(last.date)} 종가${d1 != null ? ` ${signed(d1)}` : ''}${d5 != null ? ` (5거래일 ${signed(d5)})` : ''}`);
-  }
-  return lines.length ? `직전 완료 세션의 큰 움직임: ${lines.join(' · ')} — 이후 장중 반등·하락과 별개로, 해석의 첫 두 줄 안에 이 종가 변화를 날짜(M/D)와 함께 한 번 쓸 것.` : '';
+  const lines = completedSessionMoves(history).map(formatCompletedMove);
+  return lines.length ? `${PRIOR_SESSION_MOVE_HEAD}: ${lines.join(' · ')} — 움직임 크기 순이다. 이후 장중 반등·하락과 별개로, 해석의 첫 줄은 맨 앞 움직임으로 열고 그 종가 변화를 날짜(M/D)와 함께 첫 두 줄 안에 쓸 것.` : '';
 }
 
 // Owner 2026-10-21: the reading anchored on KOSPI's 10/20 close (-3.73%) and never said why the market fell or why it was
@@ -210,18 +215,23 @@ export function chartLevelsLine(history = []) {
   const levels = indexLevels(history);
   return levels.length ? `차트 위치: ${levels.map(levelValue).join(' · ')}. ${levelsRead(levels)}` : '';
 }
+// v60.18 (weekly audit 2026-11-15 D3): the three slots were labelled 압력 / 지금 / 확인·반증, and the model copied the
+// label into the reading ("압력은 SOXX 11/11 종가 +6.01%" on the week's largest up day). The slots carry ids that are not
+// Korean words (MARKET_DRIVER_SLOTS; the validator blocks an id left in the text as prompt-label-leak), and each move is
+// described by its own sign.
 export function marketDriversContext({ history = [], reversal = null, intradayRows = [], earningsLine = '', eventsLine = '', levelsLine = '' } = {}) {
-  const prior = priorSessionMoveLines(history).replace(/^직전 완료 세션의 큰 움직임: /, '').replace(/ — .*$/, '');
+  const prior = completedSessionMoves(history).map(formatCompletedMove).join(' · ');
   const kst = (iso) => new Date(Date.parse(iso) + 9 * 3600000).toISOString().slice(11, 16);
   const now = reversal
     ? `코스피 ${mdOf(reversal.closeDate)} 종가 ${signedPct(reversal.closeChangePct)} 뒤 장중 ${kst(reversal.observedAt)} KST 기준 ${signedPct(reversal.nowChangePct)} — 직전 완료 세션과 반대 방향`
     : '';
-  const intraday = intradayRows.map((row) => `${row.label} 장중 ${kst(row.observedAt)} KST 기준 ${signedPct(row.changePct)}`).join(' · ');
+  const intraday = intradayRows.map((row) => `${row.label} 장중 ${kst(row.observedAt)} KST 기준 ${signedMove(row.change, row.unit)}`).join(' · ');
+  const { close, live, next } = MARKET_DRIVER_SLOTS;
   return [
-    'MARKET_DRIVERS (해석의 뼈대 — 아래 세 칸을 이 순서로 채운다. 숫자는 METRIC_EVIDENCE·REGIME_CONTEXT·KOREA_LARGE_INTRADAY_MOVE와 아래 장중 값만 쓴다):',
-    `- 압력: ${prior || '직전 완료 세션의 큰 움직임 없음 — 가장 최근 완료 종가의 변화'} — 이 움직임에 대해 보도된 이유를 서로 다른 것으로 2~3개 쓴다. 이유마다 "10/20 WSJ 보도에 따르면 …"처럼 HEADLINE_CONTEXT 헤드라인의 날짜(M/D, date= 값)와 출처를 같은 문장에 붙이고, 그 이유가 무엇을 거쳐 어느 쪽(반도체·대형 기술주, 유가, 신용 등)에 닿았는지 한 구절로 잇는다.`,
-    `- 지금: ${[now, intraday].filter(Boolean).join(' · ') || NO_SESSION_ROW_NOW} — 이 움직임에 대해 보도된 이유를 1~3개, 같은 형식(날짜·출처)으로 쓴다. 장중 움직임의 이유는 08:00 이후 장중 속보(잠정)나 그 직전 미국 장 마감 뒤 헤드라인에서만 고르고 잠정이면 "잠정"을 쓴다. 압력의 이유와 지금의 이유를 한 문장에 섞지 않는다.`,
-    `- 확인·반증: ${[earningsLine || '다음 대형주 실적 일정 미수집', eventsLine, levelsLine].filter(Boolean).join(' / ')} — 지금 움직임이 이어지려면 무엇이 확인돼야 하고(예: 실적과 설비투자 전망이 반도체·대형 기술주로 이어지는지, 유가·신용이 같은 방향인지) 무엇이 나오면 되돌림으로 보는지 쓴다. 매매 지시·목표가 없이.`,
+    `MARKET_DRIVERS (해석의 뼈대 — 아래 세 칸을 이 순서로 채운다. 칸 이름 ${close}·${live}·${next}은 본문에 쓰지 않는다. 숫자는 METRIC_EVIDENCE·REGIME_CONTEXT·KOREA_LARGE_INTRADAY_MOVE와 아래 장중 값만 쓴다. 움직임은 부호대로 쓴다: 오른 값은 상승·반등, 내린 값은 하락·약세):`,
+    `- ${close} (직전 완료 세션, 움직임 크기 순 — 첫 줄은 맨 앞 움직임으로 연다): ${prior || '직전 완료 세션의 큰 움직임 없음 — 가장 최근 완료 종가의 변화'} — 이 움직임에 대해 보도된 이유를 서로 다른 것으로 2~3개 쓴다. 이유마다 "10/20 WSJ 보도에 따르면 …"처럼 HEADLINE_CONTEXT 헤드라인의 날짜(M/D, date= 값)와 출처를 같은 문장에 붙이고, 그 이유가 무엇을 거쳐 어느 쪽(반도체·대형 기술주, 금리, 유가, 신용 등)에 닿았는지 한 구절로 잇는다.`,
+    `- ${live} (지금 진행 중인 장): ${[now, intraday].filter(Boolean).join(' · ') || NO_SESSION_ROW_NOW} — 이 움직임에 대해 보도된 이유를 1~3개, 같은 형식(날짜·출처)으로 쓴다. 장중 움직임의 이유는 08:00 이후 장중 속보(잠정)나 그 직전 미국 장 마감 뒤 헤드라인에서만 고르고 잠정이면 "잠정"을 쓴다. 완료 세션의 이유와 지금 장의 이유를 한 문장에 섞지 않는다.`,
+    `- ${next} (확인·반증): ${[earningsLine || '다음 대형주 실적 일정 미수집', eventsLine, levelsLine].filter(Boolean).join(' / ')} — 지금 움직임이 이어지려면 무엇이 확인돼야 하고(예: 실적과 설비투자 전망이 반도체·대형 기술주로 이어지는지, 유가·신용이 같은 방향인지) 무엇이 나오면 되돌림으로 보는지 쓴다. 매매 지시·목표가 없이.`,
     '보도된 이유가 헤드라인에 없으면 지어내지 말고 "보도된 이유 미수집"이라고 쓴다. 헤드라인은 원인을 확정하지 않는다 — 한 가지 해석으로 쓴다.'
   ].join('\n');
 }
@@ -235,7 +245,9 @@ export function marketAnalysisCrossroadsContext(interpretation, state = null) {
     // Owner 2026-10-19: the shared market guide (the 오늘 card) so the narrative explains with the same synthesis.
     const { crossroads, guide } = interpretation || {};
     if (!crossroads) return '';
-    return [renderMacroCrossroadsContext(crossroads, { state }), scenarioStateThemeLines(state), guide ? renderMarketGuideContext(guide) : ''].filter(Boolean).join('\n');
+    // v60.19: the same decision-frame line chat gets (src/ai/context/market-content.js), not a second wording.
+    const frameText = (item) => decisionFrameContext(branchDecisionFrame(item, { cash: crossroads?.cash }));
+    return [renderMacroCrossroadsContext(crossroads, { state, frameText }), scenarioStateThemeLines(state), guide ? renderMarketGuideContext(guide) : ''].filter(Boolean).join('\n');
   } catch (_) { return ''; }
 }
 
@@ -380,7 +392,7 @@ function readEarningsCalendar() {
   try { return JSON.parse(readFileSync(EARNINGS_CALENDAR_OUT, 'utf8')); } catch (_) { return null; }
 }
 
-export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now(), history = null, narrative = null, earnings = undefined, eventBriefs = undefined, bigtechCashflow = undefined } = {}) {
+export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now(), history = null, narrative = null, earnings = undefined, eventBriefs = undefined, bigtechCashflow = undefined, recordRejections = appendMarketAnalysisRejections, validator = validateMarketAnalysisText } = {}) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   const newsEvidence = buildMarketAnalysisNewsEvidence(data);
   const keep = { previous, nowMs }; // v57.81: every fallback carries the last verified reading forward
@@ -419,6 +431,10 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
   // `request` is a fixture seam (ci contract); production always uses the shared Worker.
   if (!request && !resolveSharedAiConfig()) return buildMarketAnalysisFallback(data, 'shared-ai-not-configured', metricEvidence, newsEvidence, keep);
   const ask = request || requestSharedAnalysis;
+  // v60.18 (audit D2): a thrown provider failure (timeout, network) went straight to the plain fallback and never tried the
+  // previous verified reading. Every failure after this point goes through retainOrFallback; until the validator context
+  // exists it can only fall back (a reading is never kept without being re-checked against this run's data).
+  let retainOrFallback = (reason) => buildMarketAnalysisFallback(data, reason, metricEvidence, newsEvidence, keep);
   try {
     const changeOf = new Map(snapshotEvidenceRows(snapshot).filter(row => row?.evidenceId && readNumber(row.changePct) != null).map(row => [row.evidenceId, Number(row.changePct)]));
     // T08 (v57.48 review): the briefing shows completed closes, and the commentary under it opened with KOSPI/WTI/DXY/gold
@@ -454,7 +470,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     // v59.56: SEC quarterly cash flow (hyperscaler total + the night's big-tech reporters); `bigtechCashflow` is a fixture seam.
     const cashflowLines = cashflowContextLines(bigtechCashflow === undefined ? readBigtechCashflow() : bigtechCashflow, briefsInput, earningsCloseDate, { nowMs });
     const inflationDirection = marketAnalysisInflationDirection(data); // v59.85: the screen's core-inflation direction, one read for prompt and gates
-    const validate = (body) => validateMarketAnalysisText(body, data, snapshot, { context: [regimeContext, afterHoursLines, earningsLines, cashflowLines].filter(Boolean).join('\n'), history: historyRows, inflationDirection });
+    const validate = (body) => validator(body, data, snapshot, { context: [regimeContext, afterHoursLines, earningsLines, cashflowLines].filter(Boolean).join('\n'), history: historyRows, inflationDirection });
     // v57.75: a large equity move (KOSPI 3% / S&P 500 1%) lets the day's sentence be replaced once (dailyMarketSentence).
     // v57.81: computed before the prompt so the first attempt is told a cause must be attributed (the validator blocks
     // an unattributed reading on such a day; before, only the retry was told and both 10/15 05:55Z/07:52Z attempts failed).
@@ -470,16 +486,19 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
       .filter((row) => row && row.title && row.publishedAt)
       .map((row) => `- [08:00 이후 장중 속보(잠정)] ${row.title} [${row.source || 'unknown'}] date=${kstDay(row.publishedAt)} publishedAt=${row.publishedAt}`).join('\n');
     const reversal = marketAnalysisReversal(metricEvidence, changeOf, buildCompletedCloseBasis(metricEvidence, historyRows));
-    // Oil moved -2.6% in session on the Iran-talks headlines; an in-session oil move of 2% or more is offered with 장중 + time.
-    const intradayRows = metricEvidence.filter((row) => row.metricId === 'market.wti' && row.session && !MARKET_ANALYSIS_CLOSED_SESSIONS.includes(row.session) && Math.abs(changeOf.get(row.evidenceId)) >= 2)
-      .map((row) => ({ label: row.label, observedAt: row.observedAt, changePct: changeOf.get(row.evidenceId) }));
+    // Oil moved -2.6% in session on the Iran-talks headlines, so in-session oil was offered at ±2%. v60.18 (audit D3): it
+    // was the only in-session row, and on 11/11 the reading said the US session had no data with the S&P 500 +1.44%. The
+    // declared registry offers every in-session metric that reaches its own materiality (the S&P 500 always).
+    const intradayRows = inSessionMoves(metricEvidence, changeOf, historyRows, { closedSessions: MARKET_ANALYSIS_CLOSED_SESSIONS });
     const usCloseDate = buildCloseSeries(historyRows, 'spx').at(-1)?.date || null;
     const usCloseAt = usCloseDate ? `${mdOf(usCloseDate)} 16:00 ET` : null;
     const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate), eventsLine: upcomingPoliticalLine(), levelsLine: chartLevelsLine(historyRows) });
     const inflationLine = inflationDirectionLine(data?.macro || {}, { direction: inflationDirection }); // v57.75 / v59.85: INFLATION_DIRECTION on the screen's direction
     const model = SHARED_AI_MODEL;
+    const sizeGrades = moveSizeGrades(historyRows);
     const prompt = buildMarketAnalysisPrompt({ inflationLine, regimeContext, evidenceLines, koreaIntradayLines, intradayLines, usCloseAt, afterHoursLines, earningsLines,
-      cashflowLines, crossMarketIntradayLines, newsLines, headlineLines, driversContext, narrativeText: narrativeContext.text, largeMove, largeMoveDirection });
+      cashflowLines, crossMarketIntradayLines, newsLines, headlineLines, driversContext, narrativeText: narrativeContext.text, largeMove, largeMoveDirection,
+      moveSizeText: moveSizeLine(sizeGrades) }); // v60.19: the ledger's size grades; the validator reads the same
     // v57.75: the retained text is re-checked against this run's data — on 10/15 a reading verified before the crash
     // ("원화 강세", easing inflation) would otherwise be re-served for 12 h after the evidence turned.
     // v57.81: the full result goes back so a value quoted for an observation that has since moved a little is not fatal
@@ -493,27 +512,31 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const noteSentence = (candidate) => {
       if (candidate && !marketSentenceRejectReason(candidate, { inflationRising, inflationNotReaccelerating, largeMoveDirection: largeMove ? largeMoveDirection : null })) passingSentence = candidate;
     };
-    const retainOrFallback = (reason) => {
+    retainOrFallback = (reason) => {
       const carry = passingSentence ? { sentenceCandidate: passingSentence, largeMove, largeMoveDirection } : {};
-      const retained = retainVerifiedMarketAnalysis(previous, { reason, nowMs, revalidate: (summary) => validateMarketAnalysisText(summary, data, snapshot, { context: regimeContext, history: historyRows, inflationDirection }) });
+      const retained = retainVerifiedMarketAnalysis(previous, { reason, nowMs, revalidate: (summary) => validator(summary, data, snapshot, { context: regimeContext, history: historyRows, inflationDirection }) });
       if (retained) {
         console.warn(`[fetch-data] marketAnalysis retained previous verified analysis from ${retained.retained.from}`);
         return { ...retained, ...carry };
       }
-      return { ...buildMarketAnalysisFallback(data, reason, metricEvidence, newsEvidence, keep), ...carry };
+      return { ...buildMarketAnalysisFallback(data, reason, metricEvidence, newsEvidence, { ...keep, contradicted: true }), ...carry };
     };
     const result = await ask(prompt);
     if (!result.text) return retainOrFallback(result.reason || 'provider-empty');
     let { body: text, sentence: sentenceCandidate } = splitMarketSentence(result.text);
     noteSentence(sentenceCandidate);
     let semantic = validate(text);
-    // P1719: the rejected text goes to the Actions log only (400 chars), never into a public artifact.
+    // P1719: the rejected text goes to the Actions log (400 chars) and, whole, to this run's rejection log outside the
+    // repository (an Actions artifact), never into a published file. `recordRejections` defaults to that writer; a unit
+    // fixture turns it off explicitly (`recordRejections: null`) or passes its own (review v60.19 B2).
+    const rejected = [];
     // v57.81: an attribution block also logs the sentences that named news (300 chars), so the next block is diagnosable —
     // the 10/15 log cut off before the sentence the validator judged.
     const logRejected = (attempt, body, issues) => {
       const newsSentences = issues.includes('causal-attribution-missing')
         ? String(body || '').replace(/\[[^\]]*\]/g, '').split(/(?<=[.?!。])\s+|\n+/).filter((sentence) => /헤드라인|보도|기사|언론|속보|뉴스|according to|headline|reported/i.test(sentence)).join(' / ').replace(/\s+/g, ' ').slice(0, 300)
         : '';
+      rejected.push({ attempt, issues, text: body });
       console.warn(`[fetch-data] marketAnalysis ${attempt} blocked: ${issues.join(',').slice(0, 300)} :: ${String(body || '').replace(/\s+/g, ' ').slice(0, 400)}${issues.includes('causal-attribution-missing') ? ` :: news-sentences=${newsSentences || 'none'}` : ''}`);
     };
     const firstText = text;
@@ -521,7 +544,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     if (!semantic.ok) {
       // P1719: one retry with the validator's reasons; a second block is final for this run.
       logRejected('attempt-1', text, semantic.issues);
-      const retryPrompt = buildMarketAnalysisRetryPrompt(prompt, describeMarketAnalysisIssues(text, semantic.issues, metricEvidence, changeOf));
+      const retryPrompt = buildMarketAnalysisRetryPrompt(prompt, describeMarketAnalysisIssues(text, semantic.issues, metricEvidence, changeOf, { grades: sizeGrades }));
       const retry = await ask(retryPrompt).catch(() => ({ text: null }));
       if (retry.text) {
         ({ body: text, sentence: sentenceCandidate } = splitMarketSentence(retry.text));
@@ -542,11 +565,20 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
         }
       }
     }
+    if (rejected.length && typeof recordRejections === 'function') recordRejections(rejected, { nowMs, inputKey: attemptKey, contextKey: createHash('sha1').update(String(regimeContext || '')).digest('hex').slice(0, 16) });
     if (!text || !semantic.ok) return { ...retainOrFallback(semantic.issues.join(',')), blockedAttemptKey: attemptKey };
     return { ...buildStructuredMarketAnalysis({ data, text: softenReaderDuty(semantic.text || text), model, status: 'verified', reason: null, metricEvidence, newsEvidence, semantic }), ...(salvaged ? { salvaged } : {}), sentenceCandidate, largeMove, largeMoveDirection,
       narrativeSignature: inputSignature, narrativeThemes: narrativeContext.themes.map(({ id, label, telegramCount, recentCount, tickerCount }) => ({ id, label, telegramCount, recentCount, tickerCount })) };
   } catch (error) {
-    return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence, keep);
+    // Review v60.19 B6: retainOrFallback re-runs the validator on the kept reading; when the validator itself threw, it
+    // throws again here and fetch-data has no guard, so one validator bug failed the whole refresh. That second throw
+    // takes the plain fallback, named as a pipeline fault (validator-error → the 'pipeline' notice), not a provider one.
+    try {
+      return retainOrFallback(error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error');
+    } catch (validatorError) {
+      console.warn(`[fetch-data] marketAnalysis validator threw (${String(validatorError?.message || validatorError).slice(0, 200)}); plain fallback`);
+      return buildMarketAnalysisFallback(data, 'validator-error', metricEvidence, newsEvidence, keep);
+    }
   }
 }
 
@@ -571,12 +603,14 @@ export function applyMarketAnalysis(data, marketAnalysis, { previous = null, now
     data.meta.marketAnalysisNewsEvidenceCount = Array.isArray(marketAnalysis.newsEvidence) ? marketAnalysis.newsEvidence.length : 0;
     // P1594: retain the exact blocked reason, never substitute a credentials/budget guess.
     data.meta.marketAnalysisReason = marketAnalysis.status === 'verified' ? null : marketAnalysis.reason;
+    data.meta.marketAnalysisBlockCause = marketAnalysis.status === 'verified' ? null : marketAnalysisBlockCause(marketAnalysis.reason);
   } else {
     data.meta.marketAnalysisOk = false;
     data.meta.marketAnalysisSemanticOk = false;
     data.meta.marketAnalysisEvidenceCount = 0;
     data.meta.marketAnalysisNewsEvidenceCount = 0;
     data.meta.marketAnalysisReason = 'analysis-unavailable';
+    data.meta.marketAnalysisBlockCause = marketAnalysisBlockCause('analysis-unavailable');
   }
   return data;
 }

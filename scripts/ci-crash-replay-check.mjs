@@ -258,7 +258,7 @@ for (const [w, window] of WINDOWS.entries()) {
     const read = need(date, '2026-07');
     if (!read) continue;
     check(read.leadership.state === 'weak' || read.leadership.state === 'break', `v59.70 ${date}: SOXX 1년 고점 대비 ${read.leadership.offHigh?.toFixed(1)}%인데 주도 영역 ${read.leadership.state}`);
-    check(read.regime.conflicts.some((text) => /주도주 약세|주도 영역이 꺾이는/.test(text)), `${date}: 엇갈리는 신호에 주도주 약세가 없음`);
+    check(read.regime.conflicts.some((text) => /^주도주 약세 —|^주도 영역 이탈 —/.test(text)), `${date}: 엇갈리는 신호에 주도주 약세가 없음`);
     // v58.56 (re-audit #2): the 오늘 hero is one plain sentence — no rule brackets, no counts, at most ~45 characters; the
     // numbers stay in conflicts (the 6개 축 근거 fold).
     const hero = read.regime.heroLine || '';

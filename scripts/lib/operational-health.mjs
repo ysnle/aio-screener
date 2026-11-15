@@ -12,7 +12,8 @@ export const WATCHDOG_THRESHOLDS = Object.freeze({
   minSymbolsOk: 70,
   minNewsCount: 10,
   minTelegramCount: 100,
-  minHealthyTelegramChannels: 3,
+  // One expected (not retired) channel may fail; the floor follows the registry instead of a channel count.
+  maxFailingTelegramChannels: 1,
   // A news feed with no current item: a warning after a day, a failure after three (quiet feeds get their own allowance).
   newsFeedStaleMs: 24 * 3600000,
   newsFeedDeadMs: 72 * 3600000,
@@ -31,6 +32,15 @@ export function marketAnalysisDiagnostic(data) {
   if (data?.meta?.marketAnalysisOk) return 'verified';
   const analysis = data?.marketAnalysis;
   return String(analysis?.reason || data?.meta?.marketAnalysisReason || analysis?.semanticIssues?.join(',') || 'analysis-unavailable').slice(0, 600);
+}
+
+// v60.18: the AI provider refused the shared account (HTTP 401/402/403/429: exhausted credit, revoked key, billing). The
+// analysis lane cannot heal that itself, so the watchdog raises it as an operator error with the real cause; a validator
+// block, a retained or a salvaged reading is not a refusal.
+export function aiProviderRefusal(data) {
+  if (data?.meta?.marketAnalysisOk) return null;
+  const reason = marketAnalysisDiagnostic(data);
+  return /^provider-http-(401|402|403|429)\b/.test(reason) ? reason : null;
 }
 
 export function operationalSummary(result) {

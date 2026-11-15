@@ -5,7 +5,7 @@
 
 import { median as sharedMedian } from '../themes/theme-medians.js';
 import { selectProducedRotation } from '../themes/produced-rotation.js';
-import { readNumber as finite } from '../shared/number.js';
+import { readNumber as finite, signedText } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
 export const AI_CHAIN_THEMES = Object.freeze(['semiconductor', 'ai_infra', 'photonics']);
@@ -19,7 +19,7 @@ function median(values) {
   const value = sharedMedian(values);
   return value == null ? null : Math.round(value * 10) / 10;
 }
-const signed = (value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+const signed = (value) => signedText(value, 1, '%');
 
 /** Groups sorted weakest first over one month, and one sentence of counts. */
 // v59.45 (pipeline review P21-CHAIN-01): with `session` (the screener's US factor session, the date the block prints),
@@ -54,7 +54,7 @@ export function aiChainFlow({ themes = [], rows = [], session = null } = {}) {
 // contrast from the sector ETFs' last completed session (the produced rotation artifact 브리핑's sector bars read).
 const AI_SIDE = Object.freeze({ SMH: '반도체', IGV: '소프트웨어' });
 const DEFENSIVE = Object.freeze({ XLV: '헬스케어', XLP: '필수소비재', XLRE: '부동산', XLU: '유틸리티' });
-const pct = (value) => `${value > 0 ? '+' : ''}${(Math.round(value * 10) / 10 || 0).toFixed(1)}%`;
+const pct = (value) => signedText(value, 1, '%');
 
 export function defensiveContrast(rotation, nowMs = Date.now()) {
   const read = (map) => Object.entries(map).map(([symbol, label]) => ({ symbol, label, daily: selectProducedRotation(rotation, symbol, nowMs)?.dailyPct }))

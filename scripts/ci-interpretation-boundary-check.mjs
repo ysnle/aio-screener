@@ -35,7 +35,8 @@ const STAGES = {
 const EXCEPTIONS = {
   'src/domain/briefing/daily-diff.js': ['buildMarketRegime'], // axis flips compared on closes only, today vs the prior session (its headline says credit is left out)
   'src/domain/market/regime/regime-scenarios.js': ['buildMarketRegime', 'buildMarketScenarios'], // the stage's own default argument and its legacy render helper
-  'scripts/producer/theme-stage-backfill.mjs': ['buildThemePlaybook'] // v58.79: past sessions' theme stages from past closes (no macro inputs), not today's interpretation
+  'scripts/producer/theme-stage-backfill.mjs': ['buildThemePlaybook'], // v58.79: past sessions' theme stages from past closes (no macro inputs), not today's interpretation
+  'scripts/backtest-market-lean.mjs': ['buildMarketRegime'] // v60.19: the lean rule replayed on each past session's closes for its backtest, not today's interpretation
 };
 
 for (const file of files) {

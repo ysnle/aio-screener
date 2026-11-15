@@ -9,6 +9,9 @@ import { buildNarrativeCards, lessonFrame } from '../../domain/narrative/narrati
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { NARRATIVE_BY_ID } from '../../domain/narrative/narratives.js';
 import { MARKET_DAY } from '../../data/artifact-registry.js';
+import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
+import { GROUND_LABELS, branchDecisionFrame } from '../../domain/scenarios/decision-frame.js';
+import { decisionFrameBlock, favouredLine } from './decision-frame.js';
 
 const FACE_MAX = 3;
 const shortMd = (iso) => { const [, m, d] = String(iso || '').split('-'); return m && d ? `${Number(m)}/${Number(d)}` : ''; };
@@ -32,7 +35,9 @@ function attentionBars(doc, cards) {
   return list;
 }
 
-function scenarioBlock(doc, scenario) {
+// The story's scenario shows the same frame as its branch card on the map — the past line, the
+// payoff against an ordinary day and the favoured side with its ground — instead of a bare "상대적으로 유리" mark.
+function scenarioBlock(doc, scenario, frame = null) {
   const box = el(doc, 'div', null, 'mk-narr__scenario');
   box.append(el(doc, 'p', null, 'mk-narr__scenario-head'));
   box.firstChild.append(el(doc, 'b', scenario.title), doc.createTextNode(` · ${scenario.status} · ${scenario.supportWord}`));
@@ -41,27 +46,31 @@ function scenarioBlock(doc, scenario) {
     scenario.pricing ? ['시장 가격', scenario.pricing] : null,
     scenario.confirm.length ? ['맞다는 신호', scenario.confirm.join(' / ')] : null,
     scenario.breaks.length ? ['틀렸다는 신호', scenario.breaks.join(' / ')] : null,
-    scenario.past ? ['과거 빈도', scenario.past] : null
+    !frame && scenario.past ? ['과거 빈도', scenario.past] : null
   ].filter(Boolean);
   const dl = el(doc, 'dl', null, 'mk-narr__facts');
   for (const [term, text] of rows) dl.append(el(doc, 'dt', term), el(doc, 'dd', text));
   box.append(dl);
+  const frameBlock = frame ? decisionFrameBlock(doc, frame, { method: scenario.past || '', side: false }) : null;
+  if (frameBlock) box.append(frameBlock);
   if (scenario.choices.length) {
     box.append(el(doc, 'p', '이 시나리오에서 대응별 득실', 'event-brief__sub'));
     const ul = el(doc, 'ul', null, 'mk-narr__choices');
     for (const choice of scenario.choices) {
-      const mark = scenario.favored.includes(choice.name) ? '상대적으로 유리' : scenario.costly.includes(choice.name) ? '비용 큼' : '';
-      const li = el(doc, 'li', null, mark ? `is-${mark === '비용 큼' ? 'costly' : 'favored'}` : '');
+      const mark = scenario.favored.includes(choice.name) ? CHOICE_WORDS.favoredState : scenario.costly.includes(choice.name) ? CHOICE_WORDS.costlyState : '';
+      const li = el(doc, 'li', null, mark ? `is-${mark === CHOICE_WORDS.costlyState ? 'costly' : 'favored'}` : '');
       li.append(el(doc, 'b', `${choice.name}${mark ? ` (${mark})` : ''}`), doc.createTextNode(` ${choice.text}`));
       ul.append(li);
     }
     box.append(ul);
-    if (scenario.favoredWhy) box.append(el(doc, 'p', scenario.favoredWhy, 'mk-narr__why'));
+    const side = frame ? favouredLine(doc, frame) : null;
+    if (side) box.append(side);
+    else if (scenario.favoredWhy) box.append(el(doc, 'p', `${GROUND_LABELS['cost-hypothesis']} — ${scenario.favoredWhy}`, 'mk-narr__why'));
   }
   return box;
 }
 
-function storyItem(doc, card) {
+function storyItem(doc, card, frameOf = () => null) {
   const item = el(doc, 'li', null, 'mk-narr__story');
   item.dataset.support = card.support;
   const head = el(doc, 'p', null, 'mk-narr__story-head');
@@ -85,7 +94,7 @@ function storyItem(doc, card) {
       if (frame.counterclaim) frameSlot.append(el(doc, 'p', `반론: ${frame.counterclaim}`, 'mk-narr__frame is-counter'));
     });
   });
-  for (const scenario of card.scenarios) fold.append(scenarioBlock(doc, scenario));
+  for (const scenario of card.scenarios) fold.append(scenarioBlock(doc, scenario, frameOf(scenario.id)));
   item.append(fold);
   return item;
 }
@@ -124,14 +133,16 @@ export function renderMarketNarratives({ documentRef: doc, root, interpretation 
     const changeLine = change && (change.added?.length || change.dropped?.length)
       ? el(doc, 'p', `${shortMd(change.since)} 대비 ${[change.added?.length ? `새로 오른 이야기 ${names(change.added)}` : null, change.dropped?.length ? `빠진 이야기 ${names(change.dropped)}` : null].filter(Boolean).join(' · ')}`, 'mk-narr__change')
       : null;
+    const crossroads = interpretation?.crossroads;
+    const frameOf = (id) => branchDecisionFrame((crossroads?.items || []).find((item) => item.id === id), { cash: crossroads?.cash || null });
     const list = el(doc, 'ol', null, 'mk-narr__list');
-    cards.slice(0, FACE_MAX).forEach((card) => list.append(storyItem(doc, card)));
+    cards.slice(0, FACE_MAX).forEach((card) => list.append(storyItem(doc, card, frameOf)));
     const parts = [frameHead(doc, { title: '시장이 말하는 이야기', titleId: 'regime-narratives-title', asOf, asOfDetail: '공개 리서치 채널 4곳과 급등락 종목 헤드라인에서 이야기별 언급을 셉니다' }),
       attentionBars(doc, cards), legend, ...(changeLine ? [changeLine] : []), list];
     if (cards.length > FACE_MAX) {
       const more = el(doc, 'details', null, 'sx-disclosure mk-narr__rest');
       const rest = el(doc, 'ol', null, 'mk-narr__list');
-      cards.slice(FACE_MAX).forEach((card) => rest.append(storyItem(doc, card)));
+      cards.slice(FACE_MAX).forEach((card) => rest.append(storyItem(doc, card, frameOf)));
       more.append(el(doc, 'summary', `나머지 이야기 ${cards.length - FACE_MAX}개`), rest);
       parts.push(more);
     }

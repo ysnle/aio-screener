@@ -209,6 +209,25 @@ if (burnDown.retiredSentimentLegacyBadgeWriter && /badge\.textContent\s*=\s*'심
     }
   }
   if (missingSurfaceIds.length) fail(`route-owners declares surfaces that no longer exist (update the registry to what the native renderer writes): ${missingSurfaceIds.join(' | ')}`);
+  // v60.19 (Codex audit: 매크로 declared [data-live-price]/[data-live-chg], gone since the v59.51 restructure): an
+  // attribute selector scoped to a page must appear in that page's shell section or in a module the route names.
+  const missingScopedAttrs = [];
+  for (const [route, owner] of Object.entries(routeOwners.routes || {})) {
+    const modules = [...String(owner.nativeModule || '').matchAll(/src\/[\w/.-]+\.js/g)].map((m) => m[0]).filter((file) => fs.existsSync(path.join(root, file)));
+    for (const selector of [...(owner.nativePrimarySurface || []), ...(owner.nativeSecondarySurface || [])]) {
+      const scoped = String(selector).match(/^#(page-[\w-]+)\s+\[([\w-]+)(?:[~|^$*]?=[^\]]*)?\]$/);
+      if (!scoped) continue;
+      const [, pageId, attr] = scoped;
+      const start = shellHtml.indexOf(`id="${pageId}"`);
+      const next = start < 0 ? -1 : shellHtml.indexOf('<div class="page"', start + 1);
+      const section = start < 0 ? '' : shellHtml.slice(start, next < 0 ? undefined : next);
+      const camel = attr.replace(/^data-/, '').replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+      // Written, not read: setAttribute, a dataset assignment or markup the module builds (querySelector/getAttribute do not count).
+      const written = modules.some((file) => { const text = read(file); return new RegExp(`setAttribute\\(\\s*['"]${attr}['"]`).test(text) || new RegExp(`\\s${attr}="`).test(text) || (attr.startsWith('data-') && new RegExp(`dataset\\.${camel}\\s*=[^=]`).test(text)); });
+      if (!section.includes(`${attr}=`) && !section.includes(` ${attr}>`) && !written) missingScopedAttrs.push(`${route}: ${selector}`);
+    }
+  }
+  if (missingScopedAttrs.length) fail(`v60.19 route-owners declares page-scoped attribute surfaces that neither the page shell nor its modules write: ${missingScopedAttrs.join(' | ')}`);
 }
 // R352/F-01 ratchet: legacy symbols that must be absent are declared once in route-owners.json
 // (the single ownership source of truth) and enforced for every renderer-native route here,
@@ -278,7 +297,8 @@ if (!marketPageSource.includes('renderMacroBoard') || !marketPageSource.includes
   for (const marker of ['export function gaugeBar', 'function bandOf', 'function quadrantChart', 'macro-gauge-note']) {
     if (!macroBoardSource.includes(marker) && !gaugeSource.includes(marker)) fail(`P1427 거시 visual marker missing: ${marker}`);
   }
-  if (!read('src/domain/macro/macro-read.js').includes('function sharedGauges({ macro, rateFx, regime })')) fail('P1427 shared gauges must follow the deciding variable');
+  // v60.18: the credit gauge takes the one HY observation the 시장 상태 axis read (hyObs), not the macro snapshot.
+  if (!read('src/domain/macro/macro-read.js').includes('function sharedGauges({ rateFx, regime, hyObs })')) fail('P1427 shared gauges must follow the deciding variable');
   // v58.31: the read is the shared interpretation's macroRead stage (scripts/ci-interpretation-boundary-check.mjs).
   for (const marker of ['macroRead: read', 'readMarketRegime', "getElementById('macro-axes')", "getElementById('macro-chain')", "getElementById('rates-axes')", "getElementById('macro-commodities')"]) {
     if (!macroBoardSource.includes(marker)) fail(`P1426 거시 read marker missing: ${marker}`);
@@ -588,10 +608,30 @@ for (const retired of ['_aioRenderLegacyMarketHealth', '_aioLegacyHealthElement'
 // components/market-regime.js (owner decision 2026-10-02: the 0-100 score and its decision badge
 // are retired from user surfaces). analysis.js routes both to it; the score hero renderers stay gone.
 {
-  const regimeSource = read('src/ui/components/market-regime.js');
+  const regimeSource = read('src/ui/components/market-regime.js') + '\n' + read('src/ui/components/home-regime.js');
+  // v60.19: the 시장 상태 board is the signal route's code. analysis.js imported it statically, so 오늘 and 차트 downloaded
+  // its whole tree (axis rows, radar, crossroads, guide, deep dives) after boot. Only analysis.js loadRegimeBoard imports
+  // it (dynamically), and only the signal route's loader in src/app/bootstrap.js calls that.
+  const regimeImporters = srcFiles.map((file) => `src/${String(file).replace(/\\/g, '/')}`)
+    .filter((rel) => !rel.startsWith('src/chunks/') && (/from '[^']*\/market-regime\.js'/.test(read(rel)) || (rel !== 'src/ui/pages/analysis.js' && /import\('[^']*\/market-regime\.js'\)/.test(read(rel)))));
+  // v60.19 (Codex audit theme-race): the AI 공급망 board repaints when Taiwan revenue or consensus lands late; each
+  // callback rebuilt its own option list and the Taiwan one dropped `valuation`, wiping the open PER fold (14 rows).
+  // One repaint closure carries every option of the paint.
+  const chainSource = read('src/ui/components/ai-chain-flow.js');
+  const chainBody = chainSource.slice(chainSource.indexOf('function paintAiChain('));
+  const selfCalls = (chainBody.match(/paintAiChain\(doc, root, \{[^}]*\}\)/g) || []).slice(1); // [0] is the signature
+  if (selfCalls.length !== 1 || !/valuation \}\)$/.test(selfCalls[0]) || !/twRevenue\(doc, root, id, repaint\)/.test(chainBody) || !/layerPerFold\(doc, root, repaint\)/.test(chainBody)) fail(`v60.19 ai-chain-flow.js late-data repaints must share one closure with every option: ${selfCalls.join(' | ')}`);
+  // v60.19 (Codex audit fx-refresh-focus): a refresh re-render reset 자산군 1개월 to 3개월 and dropped focus to BODY. The
+  // behaviour is asserted in the browser (scripts/ci-architecture-browser-check.mjs, 매크로 자산군 after aio:refresh:done).
+  if (regimeImporters.length) fail(`v60.19 only the signal route loader imports market-regime.js: ${regimeImporters.join(', ')}`);
+  {
+    const analysisPage = await import(pathToFileURL(path.join(root, 'src/ui/pages/analysis.js')));
+    const board = await analysisPage.loadRegimeBoard();
+    if (typeof board?.renderRegimePage !== 'function' || analysisPage.loadRegimeBoard() !== analysisPage.loadRegimeBoard()) fail('v60.19 analysis.js loadRegimeBoard must load the 시장 상태 board once and hand over renderRegimePage');
+  }
   // v57.78: both renderers take the native store (the scenario outlook reads its rows in place) and home hands its
   // regime to the daily loop, so the market inputs are gathered once per home render.
-  for (const marker of ["import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../components/market-regime.js'", "page.dataset.aioSignalRenderer = 'native'", 'renderRegimePage({ documentRef, root, store })', "page.dataset.aioHomeRenderer = 'native'", 'const homeRegime = renderHomeRegime({ documentRef, root, store })', 'renderDailyLoop({ documentRef, root, store, regime: homeRegime })']) {
+  for (const marker of ["import { renderHomeRegime } from '../components/home-regime.js'", "import { readMarketRegime } from '../../data/selectors/interpretation.js'", "page.dataset.aioSignalRenderer = 'native'", 'renderRegimePage?.({ documentRef, root, store })', "page.dataset.aioHomeRenderer = 'native'", 'const homeRegime = renderHomeRegime({ documentRef, root, store })', 'renderDailyLoop({ documentRef, root, store, regime: homeRegime })']) {
     if (!analysisPageSource.includes(marker)) fail(`analysis.js regime routing marker missing: ${marker}`);
   }
   for (const marker of ["page.dataset.aioRegimeRenderer = 'native'", "hero.dataset.aioRegimeRenderer = 'native'", 'regime.holdReason', 'row.basis']) {
@@ -875,6 +915,16 @@ const { VERTICAL_SLICE_CONTRACTS, auditVerticalSliceContracts } = await import('
 const root = join(fileURLToPath(new URL('.', import.meta.url)), '..');
 const read = (file) => readFileSync(join(root, file), 'utf8');
 const fail = (message) => { throw new Error(message); };
+// v60.19 (Codex audit: docs said 19 routes while the registry has 20): the architecture docs that state the current route
+// count state the registry's.
+{
+  const stated = [
+    ['architecture/README.md', /contains (\d+) routes/],
+    ['_context/AIO-CURRENT-PRODUCT-ARCHITECTURE-CHARTER.md', /(\d+)개 라우트의 lifecycle/],
+    ['.claude/skills/post-edit-qa/references/tiers.md', /\((\d+) route ids;/]
+  ].map(([file, pattern]) => [file, Number(read(file).match(pattern)?.[1])]).filter(([, count]) => count !== ROUTE_IDS.length);
+  if (stated.length) fail(`v60.19 route count in docs differs from ROUTE_IDS (${ROUTE_IDS.length}): ${stated.map(([file, count]) => `${file}=${count}`).join(', ')}`);
+}
 
 const audit = auditVerticalSliceContracts(ROUTE_IDS);
 if (!audit.ok || audit.sliceCount !== 13 || audit.coveredRoutes.length !== ROUTE_IDS.length) fail(`vertical slice registry drifted: ${JSON.stringify(audit)}`);

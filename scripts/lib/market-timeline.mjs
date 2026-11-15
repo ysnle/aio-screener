@@ -7,6 +7,8 @@
 // and no minimum-news gate applies (the 10-item gate stays on the 24h bundle only).
 import { selectNewsIntraday } from './news-selection.mjs';
 import { readNumber } from '../../src/domain/shared/number.js';
+import { sessionCloses } from '../../src/domain/market/indices/index-levels.js';
+import { moveGrade, moveSizeWord as sizeWordOf, sessionStepSd } from '../../src/domain/market/session/move-size.js';
 
 export const MARKET_TIMELINE_SCHEMA = 'market-timeline.v1';
 export const MARKET_TIMELINE_POLICY = 'kst-6h-slots-sealed-once';
@@ -74,8 +76,26 @@ export function buildMarketSlotMarks(snapshot) {
   return marks;
 }
 
-// Moves inside the window: a quote whose observation advanced since the previous sealed marks. Without previous marks the
-// provider's change vs the previous close is used for quotes observed inside the window (first slot after a gap).
+// A slot holds only what was observed before its end. The seal runs after the end (about 20 minutes, later when a run is
+// missed), so the seal-time quotes of a 24-hour market (FX, crypto, futures) were observed after the window and were shown
+// as its moves — 41 of 51 moves on 2026-11-14. The in-progress slot keeps the latest quotes observed inside it on every
+// run (`current.marks`), and the seal reads those, plus seal-time quotes still observed before the end.
+export const MARKET_SLOT_OBSERVATION_POLICY = 'observed-before-slot-end';
+export function marksObservedBefore(marks, endMs) {
+  return Object.fromEntries(Object.entries(marks || {}).filter(([, mark]) => Date.parse(mark?.observedAt) < endMs));
+}
+// Per metric, the later observation of two mark sets (both already cut to one window).
+function latestMarks(...sets) {
+  const out = {};
+  for (const set of sets) for (const [metricId, mark] of Object.entries(set || {})) {
+    if (!out[metricId] || Date.parse(mark.observedAt) > Date.parse(out[metricId].observedAt)) out[metricId] = mark;
+  }
+  return out;
+}
+
+// Moves inside the window: a quote observed inside the window whose observation advanced since the previous sealed marks.
+// Without previous marks the provider's change vs the previous close is used for quotes observed inside the window (first
+// slot after a gap). A quote observed outside the window, or not after the previous mark, is not a move of this slot.
 export function marketSlotMoves(marks, previousMarks, window) {
   const moves = [];
   for (const [metricId, label] of MARKET_SLOT_METRICS) {
@@ -83,12 +103,13 @@ export function marketSlotMoves(marks, previousMarks, window) {
     if (!mark) continue;
     const before = previousMarks?.[metricId];
     const observedMs = Date.parse(mark.observedAt);
+    if (!(observedMs >= window.startMs && observedMs < window.endMs)) continue;
     let change = null;
     let basis = null;
-    if (before && readNumber(before.value) != null && before.observedAt !== mark.observedAt) {
+    if (before && readNumber(before.value) != null && Date.parse(before.observedAt) < observedMs) {
       change = mark.unit === 'percent' ? (mark.value - Number(before.value)) * 100 : (mark.value / Number(before.value) - 1) * 100;
       basis = 'previous-slot';
-    } else if (!before && Number.isFinite(mark.changePct) && observedMs >= window.startMs) {
+    } else if (!before && Number.isFinite(mark.changePct)) {
       change = mark.unit === 'percent' ? (mark.value - mark.value / (1 + mark.changePct / 100)) * 100 : mark.changePct;
       basis = 'previous-close';
     }
@@ -140,11 +161,18 @@ export function slotSummaryStyleOk(text) {
 }
 
 // The size word is a rule, not the model's choice: a +0.8% index move was summarised as '큰 폭 상승' on a day that closed down.
-// Indexes and FX: under 0.5% 소폭, 1.5% or more 큰 폭; yields: under 5bp, 10bp or more; volatile series (VIX, crypto, oil) use three times the bar.
+// It is the market-day ledger's one measure (RULES.moveMateriality): the move against the metric's own one-session sd
+// (sessionStepSd over its history.json closes, stamped on the move at the seal as `sd`), on the ledger's tiers —
+// context 소폭, minor/major 보통, lead 큰 폭. A six-hour move is measured against a whole session's sd, so 큰 폭 needs a
+// move a full session rarely makes. Without an sd (a short history) the word is 보통: no size is claimed.
+const SLOT_HISTORY_FIELDS = Object.freeze({ 'market.index.kospi': 'kospi', 'market.index.kosdaq': 'kosdaq', 'market.index.spx': 'spx', 'market.index.nasdaq': 'nasdaq',
+  'market.fx.usdkrw': 'usdkrw', 'market.rates.us10y': 'tnx', 'market.fx.dxy': 'dxy', 'market.commodity.wti': 'wti', 'market.commodity.gold': 'gold', 'market.crypto.btc': 'btc', 'market.volatility.vix': 'vix' });
+export function slotMoveSd(history, metricId, changeUnit) {
+  const field = SLOT_HISTORY_FIELDS[metricId];
+  return field && Array.isArray(history) && history.length ? sessionStepSd(sessionCloses(history, field), changeUnit === 'bp' ? 'bp' : 'pct') : null;
+}
 export function moveSizeWord(move) {
-  const size = Math.abs(move.change);
-  const [small, large] = move.changeUnit === 'bp' ? [5, 10] : /\b(?:VIX|WTI)\b|변동성|비트코인|이더리움|원유|브렌트/i.test(move.label) ? [1.5, 4.5] : [0.5, 1.5];
-  return size < small ? '소폭' : size >= large ? '큰 폭' : '보통';
+  return sizeWordOf(moveGrade(move?.change, readNumber(move?.sd)));
 }
 
 export function buildMarketSlotPrompt(slot) {
@@ -179,7 +207,7 @@ async function summarizeSlot(slot, request, nowMs) {
  * `pool` is the news plane's raw candidate pool (fetchNews(...).slotPool); null when this run reused the previous bundle.
  * Returns the timeline and `newHeadlines` (rows the caller may translate in place before summarizeMarketTimeline).
  */
-export function sealMarketTimeline({ previous = null, snapshot = null, pool = null, nowMs = Date.now() } = {}) {
+export function sealMarketTimeline({ previous = null, snapshot = null, pool = null, history = null, nowMs = Date.now() } = {}) {
   const prior = previous?.schemaVersion === MARKET_TIMELINE_SCHEMA && Array.isArray(previous.slots) ? previous : null;
   const slots = (prior?.slots || []).map((slot) => ({ ...slot }));
   const newsCollected = Array.isArray(pool);
@@ -191,12 +219,18 @@ export function sealMarketTimeline({ previous = null, snapshot = null, pool = nu
     const window = marketSlotWindow(endMs);
     const newest = index === pending.length - 1;
     const previousMarks = slots.map((slot) => slot.marks).find((value) => value && Object.keys(value).length) || null;
-    const slotMarks = newest && Object.keys(marks).length ? marks : null;
-    const moves = slotMarks ? marketSlotMoves(slotMarks, previousMarks, window) : [];
+    const kept = prior?.current?.end === window.end ? marksObservedBefore(prior.current.marks, endMs) : null;
+    const cut = latestMarks(kept, newest ? marksObservedBefore(marks, endMs) : null);
+    const slotMarks = Object.keys(cut).length ? cut : null;
+    // Each move carries the sd its size word is read against (moveSizeWord), so the sealed slot keeps its own basis.
+    const moves = (slotMarks ? marketSlotMoves(slotMarks, previousMarks, window) : []).map((move) => {
+      const sd = slotMoveSd(history, move.metricId, move.changeUnit);
+      return sd ? { ...move, sd: Math.round(sd * 1000) / 1000 } : move;
+    });
     const headlines = newsCollected ? selectMarketSlotHeadlines(pool, window) : [];
     const slot = {
       id: window.id, start: window.start, end: window.end, kstDate: window.kstDate, label: window.label, endLabel: window.endLabel,
-      sealedAt: iso(nowMs), late: nowMs - endMs > LATE_SEAL_MS, marks: slotMarks, moves, headlines,
+      sealedAt: iso(nowMs), late: nowMs - endMs > LATE_SEAL_MS, observationPolicy: MARKET_SLOT_OBSERVATION_POLICY, marks: slotMarks, moves, headlines,
       headlineCount: headlines.length, newsStatus: newsCollected ? 'collected' : 'unavailable', thin: headlines.length < 2,
     };
     // Two summary attempts for the newest slot (the seal run and the next); older catch-up slots keep this line.
@@ -208,6 +242,7 @@ export function sealMarketTimeline({ previous = null, snapshot = null, pool = nu
   const currentWindow = marketSlotWindow(marketSlotEndAtOrBefore(nowMs) + SLOT_MS);
   const current = {
     start: currentWindow.start, end: currentWindow.end, label: currentWindow.label, endLabel: currentWindow.endLabel, updatedAt: iso(nowMs),
+    marks: latestMarks(prior?.current?.end === currentWindow.end ? prior.current.marks : null, marksObservedBefore(marks, currentWindow.endMs)),
     headlines: newsCollected ? selectMarketSlotHeadlines(pool, { ...currentWindow, endMs: nowMs + 15 * 60000 }, MARKET_SLOT_CURRENT_HEADLINE_MAX)
       : (prior?.current?.end === currentWindow.end ? prior.current.headlines || [] : []),
   };
@@ -254,6 +289,9 @@ export function auditMarketTimeline(data) {
     if (index && !(ends[index - 1] > ends[index])) failures.push(`market-timeline-order:${slot?.id}`);
     if (!slot?.summary?.text) failures.push(`market-timeline-summary-missing:${slot?.id}`);
     if (slot?.summary?.source === 'shared-model' && !validateMarketSlotSummary(slot.summary.text)) failures.push(`market-timeline-summary-unverified:${slot?.id}`);
+    // Slots sealed under the observation policy may hold no mark or move observed at or after their end.
+    if (slot?.observationPolicy === MARKET_SLOT_OBSERVATION_POLICY && [...Object.values(slot.marks || {}), ...(slot.moves || [])].some((row) => !(Date.parse(row?.observedAt) < ends[index]))) failures.push(`market-timeline-observed-after-end:${slot?.id}`);
+    if (slot?.observationPolicy === MARKET_SLOT_OBSERVATION_POLICY && (slot.moves || []).some((row) => Date.parse(row?.observedAt) < start)) failures.push(`market-timeline-move-before-start:${slot?.id}`);
     if (!Array.isArray(slot?.headlines) || slot.headlines.length > MARKET_SLOT_HEADLINE_MAX || slot.headlines.some((row) => !row?.title || !Number.isFinite(Date.parse(row.publishedAt)) || Date.parse(row.publishedAt) < start || Date.parse(row.publishedAt) >= ends[index])) failures.push(`market-timeline-headlines:${slot?.id}`);
   });
   if (Number.isFinite(generatedMs)) {

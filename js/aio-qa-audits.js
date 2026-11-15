@@ -5008,18 +5008,20 @@ window.AIO.runEvidenceDeploymentGate = function(opts) {
 window.AIO.getTelegramPipelineAudit = function() {
   var sources = (window.AIO_NEWS_SOURCES || AIO_NEWS_SOURCES || []).filter(function(s) { return s && s.type === 'telegram'; });
   var all = (window._allNewsItems || newsCache || []).filter(function(it) { return it && (it._tgChannel || /TG|Telegram/i.test(String(it.feed || it.source || ''))); });
-  var aetherSource = sources.find(function(s) { return s.tgSlug === 'aetherjapanresearch'; }) || null;
-  var aetherItems = all.filter(function(it) { return it._tgChannel === 'aetherjapanresearch' || /Aether Japan/i.test(String(it.feed || it.source || '')); });
   var digest = window.AIO_TELEGRAM_WEEKLY_DIGEST || null;
   var digestMeta = window._aioTelegramDigestMeta || null;
   var memoOverlay = window._aioTelegramMemoOverlayAudit || (digestMeta && digestMeta.memoOverlay) || null;
   var pageCoverage = window.AIO.getTelegramPageCoverageAudit();
-  var requiredChannelSlugs = ['aetherjapanresearch', 'insidertracking', 'bornlupin', 'HANAchina'];
-  var sourceSlugs = sources.map(function(s) { return s && s.tgSlug; }).filter(Boolean);
-  var missingRequiredChannels = requiredChannelSlugs.filter(function(slug) { return sourceSlugs.indexOf(slug) < 0; });
-  var requiredSourcesReady = missingRequiredChannels.length === 0;
+  // Required = browser sources with a public mirror (ci-telegram-channels-check holds it equal to the active CHANNEL_CATALOG).
+  var requiredChannelSlugs = sources.filter(function(s) { return s && s.tgSlug && s.publicMirror; }).map(function(s) { return s.tgSlug; });
+  // Every channel whose posts the loaded digest carries needs a browser source; a channel that delivered nothing is held by
+  // ci-runtime-contract-check and the 72h failing-channel gate instead.
+  var digestCounts = digest && digest.counts || {};
+  var digestChannels = digest && Array.isArray(digest.sources) ? digest.sources.map(function(url) { return String(url).split('/').pop(); }).filter(function(slug) { return slug && Number(digestCounts[slug] || 0) > 0; }) : [];
+  var missingRequiredChannels = digestChannels.filter(function(slug) { return requiredChannelSlugs.indexOf(slug) < 0; });
+  var requiredSourcesReady = requiredChannelSlugs.length > 0 && missingRequiredChannels.length === 0;
   return {
-    status: requiredSourcesReady && pageCoverage.status === 'OK' ? 'OK' : (aetherSource ? 'DEGRADED' : 'MISSING_AETHER_SOURCE'),
+    status: requiredSourcesReady && pageCoverage.status === 'OK' ? 'OK' : 'DEGRADED',
     telegramSourceCount: sources.length,
     requiredChannelSlugs: requiredChannelSlugs,
     missingRequiredChannels: missingRequiredChannels,
@@ -5027,7 +5029,6 @@ window.AIO.getTelegramPipelineAudit = function() {
     sources: sources.map(function(s) {
       return { name: s.name, slug: s.tgSlug || null, tier: s.tier, topics: s.topics || [], publicMirror: s.publicMirror || ('https://t.me/s/' + (s.tgSlug || '')), pipelineRole: s.pipelineRole || 'telegram-fast-secondary' };
     }),
-    aether: aetherSource ? { url: aetherSource.url, publicMirror: aetherSource.publicMirror, role: aetherSource.pipelineRole, topics: aetherSource.topics } : null,
     digest: digest ? {
       dynamicLoaded: !!digest.dynamicDigestLoaded,
       status: digestMeta && digestMeta.status || (digest.dynamicDigestLoaded ? 'ready' : 'static-fallback'),
@@ -5052,7 +5053,6 @@ window.AIO.getTelegramPipelineAudit = function() {
     memoOverlay: memoOverlay,
     pageCoverage: pageCoverage,
     recentTelegramItems: all.length,
-    recentAetherItems: aetherItems.length,
     verificationPolicy: 'Telegram items are fast secondary inputs. Confirm with primary source or market data before presenting as live trade facts.'
   };
 };

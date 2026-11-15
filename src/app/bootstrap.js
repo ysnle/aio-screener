@@ -44,7 +44,7 @@ import { installResponsiveShell } from '../ui/components/responsive-shell.js';
 import { installChatLoader } from './chat-loader.js'; // v59.16 roadmap 11: the AI panel script loads after boot
 import { installChatSessions } from '../ui/components/chat-sessions.js'; // owner 2026-10-14: saved conversations
 import { installPanelContexts } from '../ai/context/panel-contexts.js'; // audit 2026-10-14: AI on masters/guide
-import { readMarketRegime } from '../ui/components/market-regime.js';
+import { readMarketRegime } from '../data/selectors/interpretation.js';
 import { collectMarketInputs } from '../data/selectors/market-inputs.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../domain/briefing/market-read.js';
 import { createCloseBasisEvidenceReader, closeBasisSubstituteFor, renderCloseBasisEvidenceContext } from '../ai/context/close-basis-evidence.js';
@@ -113,6 +113,8 @@ installChatLoader(window, document, { onLoaded: () => {
     };
     tick();
   }).catch(() => { /* the panel reports the failed dispatch */ }),
+  // The request/response pipeline the chat send waits for (src/app/compatibility-globals.js, loaded on first read).
+  window._aioAIPipelineReady,
   // Owner 2026-10-25: the 맞춤 profile and the touch chip fold live in the panel, outside the boot module budget. v59.70 (D1):
   // they load with the panel script, and the queued calls replay after them, so the first question carries the profile.
   import('../ui/components/ai-profile.js').then(({ installAIProfile }) => installAIProfile(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() })).catch(() => { /* answers fall back to the unset-profile line */ }),
@@ -133,8 +135,6 @@ import { classifyAIConduct, buildScopedConductFallback, getAIConductPolicy } fro
 import { coalesceMicrotask, createDeferredTaskQueue } from './lifecycle.js';
 import { renderPageSources } from '../ui/components/page-sources.js';
 import { syncHomeQuoteRow } from '../ui/components/home-kpi-trend.js';
-import { krIndexStressRows } from '../domain/portfolio/kr-stress.js';
-import { portfolioStressHtml } from '../ui/panels/portfolio-stress.js';
 import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../domain/research/reference-index.js';
 import { loadResearchCorpus } from '../domain/research/corpus-loader.js';
 import { coreReadsSettled, createCriticalDataGate, ROWS_FIRST_ROUTES } from './critical-data-gate.js';
@@ -309,8 +309,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // The Korean close label needs the daily record, which loads after the first top-bar render.
   root.addEventListener?.('aio:historyLoaded', () => { try { root.document?.dispatchEvent(new root.CustomEvent('aio:quoteTopbar', { detail: {} })); } catch (_) {} });
   root._aioLatestCompletedSessionDate = (market = 'US') => latestCompletedSession(market, clock.now())?.date || null;
-  root._aioKrIndexStress = () => krIndexStressRows(root._aioHistory || [], { now: clock.now() }); // v57.81: KOSPI's own worst moves for the stress panel
-  root._aioPortfolioStressHtml = (input) => portfolioStressHtml({ ...input, history: root._aioHistory || [], now: clock.now() }); // 2026-10-19: sensitivities from the book's own weekly returns
+  // The portfolio stress panel (src/ui/panels/portfolio-stress.js) is imported by its lazy route component
+  // (src/ui/components/portfolio-exposure.js), so its model is outside the boot bundle; the unused _aioKrIndexStress hook went.
   // P1339: when the live Yahoo 1y chart (autoUpdateMA) has not produced MAs, derive them from the
   // committed daily history so the trend input follows the close basis instead of holding the score.
   const applyHistoryMa = () => {
@@ -629,7 +629,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     })
   });
   modules.home = createLazyPage({ route: 'home', loader: () => import('../ui/pages/analysis.js'), factory: ({ createAnalysisPage }) => createAnalysisPage({ root, documentRef, store, route: 'home' }) });
-  modules.signal = createLazyPage({ route: 'signal', loader: () => import('../ui/pages/analysis.js'), factory: ({ createAnalysisPage }) => createAnalysisPage({ root, documentRef, store, route: 'signal' }) });
+  // The 시장 상태 board (market-regime.js and its tree) is the signal route's own code; 오늘 and 차트 do not load it.
+  modules.signal = createLazyPage({ route: 'signal', loader: () => import('../ui/pages/analysis.js').then((page) => page.loadRegimeBoard().then((board) => ({ ...page, renderRegimePage: board.renderRegimePage }))), factory: ({ createAnalysisPage, renderRegimePage }) => createAnalysisPage({ root, documentRef, store, route: 'signal', renderRegimePage }) });
   modules.technical = createLazyPage({ route: 'technical', loader: () => import('../ui/pages/analysis.js'), factory: ({ createAnalysisPage }) => createAnalysisPage({ root, documentRef, store, route: 'technical' }) });
   const router = createLifecycleRouter({ root: eventTarget, registry: createRouteRegistry({ modules }), context: { store, evidenceStore, legacy, clock, documentRef, runtimeRoot: root } });
 

@@ -96,8 +96,13 @@ export function installCompatibilityGlobals(root = globalThis) {
   installHomeStatusSurface(window, document);
   installPortfolioShellControls(window, document);
   installSharedRoute(window);
-  // v59.15 roadmap 11: the AI request/response pipeline (moved from js/aio-chat.js) loads right after boot, outside the boot set; translation and the chat send wait for it.
-  window._aioAIPipelineReady = import('../ai/response/request-pipeline.js').then((m) => { m.installAIRequestPipeline(window, document); }).catch(() => {});
+  // The AI request/response pipeline (moved from js/aio-chat.js) is panel code: only the chat send reads it. It loads with
+  // the panel (src/app/bootstrap.js installChatLoader `alongside`) or on the first read of _aioAIPipelineReady.
+  let aiPipeline = null;
+  Object.defineProperty(window, '_aioAIPipelineReady', {
+    configurable: true,
+    get: () => (aiPipeline ||= import('../ai/response/request-pipeline.js').then((m) => { m.installAIRequestPipeline(window, document); }).catch(() => { aiPipeline = null; }))
+  });
   // v59.70 (integration QA): a shared-AI reply is published through the answer orchestrator, which loads lazily beside the
   // panel (P4). A stream that finished before it loaded read a null parse ("reading 'plan'") and showed as a 502
   // "AI 서버를 일시적으로 사용할 수 없습니다", so js/aio-chat.js callSharedAi waits for both. The load promise is cached.

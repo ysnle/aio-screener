@@ -20,6 +20,7 @@ import { searchCandidates } from '../../domain/instruments/resolve-name.js';
 import { loadKnowledgeSearch, normalize, openKnowledgeResult } from '../knowledge/glossary-bridge.js';
 import { renderDataState } from '../components/data-state.js';
 import { openLayer } from '../behaviors/layers.js';
+import { nextOptionIndex } from '../behaviors/listbox.js';
 
 export const COMMAND_SCOPES = Object.freeze([
   Object.freeze({ id: 'all', label: '전체' }),
@@ -379,9 +380,12 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
     node._aioCommandBound = true;
     field.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => run(field.value), 90); });
     field.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowDown') { event.preventDefault(); setActive(active + 1); }
-      else if (event.key === 'ArrowUp') { event.preventDefault(); setActive(active - 1); }
-      else if (event.key === 'Enter') {
+      // The keys and the order are the shared listbox's (behaviors/listbox.js): Home and End move the highlight once one
+      // exists and are the caret's keys before that. Only the arrows were handled here, so Home/End did nothing.
+      if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key) && options.length && !((event.key === 'Home' || event.key === 'End') && active < 0)) {
+        event.preventDefault();
+        setActive(nextOptionIndex(event.key, active, options.length));
+      } else if (event.key === 'Enter') {
         // A Korean syllable still composing ends with this Enter; only the next one opens (iOS and Windows IME).
         if (event.isComposing || event.keyCode === 229) return;
         event.preventDefault();

@@ -22,8 +22,12 @@ export const CONSENSUS_BASIS_GAP = -30;
 // mismatch at a smaller gap (GOOGL -29.4% with one quarter at 9.11 against an estimate of 2.88).
 export const CONSENSUS_ONE_OFF_GAP = -15;
 export const CONSENSUS_ONE_OFF_MULTIPLE = 2;
-const oneOffQuarter = (hist) => String(hist || '').split(';').map((part) => part.split(':')).find(([, actual, estimate]) =>
-  finite(estimate) > 0 && finite(actual) >= CONSENSUS_ONE_OFF_MULTIPLE * finite(estimate))?.[0] || null;
+// Only the quarters summed into the trailing EPS can put a one-off into it: `hist` keeps up to eight reported quarters
+// (newest first), so an older spike outside trailing.from…trailing.to says nothing about this comparison. Without the
+// window the newest four stand in for it (the producer sums the newest four).
+const oneOffQuarter = (hist, { from, to } = {}) => String(hist || '').split(';').map((part) => part.split(':'))
+  .filter(([month], index) => (from && to ? month >= from && month <= to : index < 4))
+  .find(([, actual, estimate]) => finite(estimate) > 0 && finite(actual) >= CONSENSUS_ONE_OFF_MULTIPLE * finite(estimate))?.[0] || null;
 const DAY_MS = 86400000;
 
 const signed = (value) => signedText(value, 0, '%');
@@ -56,7 +60,7 @@ export function consensusView(row, estimate, { now = Date.now() } = {}) {
     fwdPe: fwdEps > 0 ? price / fwdEps : null,
     ...(() => {
       const growth = trailingEps > 0 ? (fwdEps / trailingEps - 1) * 100 : null;
-      const oneOff = growth != null && growth <= CONSENSUS_ONE_OFF_GAP ? oneOffQuarter(estimate.hist) : null;
+      const oneOff = growth != null && growth <= CONSENSUS_ONE_OFF_GAP ? oneOffQuarter(estimate.hist, estimate.trailing) : null;
       const basisGap = growth != null && (growth <= CONSENSUS_BASIS_GAP || oneOff != null);
       return { trailingPe: trailingEps > 0 && !basisGap ? price / trailingEps : null, growth: basisGap ? null : growth, basisGap, oneOffQuarter: oneOff };
     })(),

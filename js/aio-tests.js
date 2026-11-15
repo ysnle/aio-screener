@@ -1073,10 +1073,10 @@
     _assert('T144 v57.77 blowoff_top: test-only calcBlowoffTopChecklist stays retired', typeof window.calcBlowoffTopChecklist === 'undefined', typeof window.calcBlowoffTopChecklist);
 
     var audit = window.AIO && typeof window.AIO.getTelegramPipelineAudit === 'function' ? window.AIO.getTelegramPipelineAudit() : null;
-    var aetherOk = audit && audit.aether && audit.aether.publicMirror === 'https://t.me/s/aetherjapanresearch' && audit.verificationPolicy;
-    _assert('T145 telegram_pipeline: Aether source audited as secondary pipeline', !!aetherOk, audit && JSON.stringify(audit.aether));
-    var requiredChannelsOk = audit && Array.isArray(audit.requiredChannelSlugs) && audit.requiredChannelSlugs.length === 4 && audit.requiredChannelSlugs.indexOf('HANAchina') >= 0 && Array.isArray(audit.missingRequiredChannels) && audit.requiredSourcesReady === true;
-    _assert('T145b telegram_pipeline: four required channels and HANA source readiness audit', !!requiredChannelsOk, audit && JSON.stringify({ required: audit.requiredChannelSlugs, missing: audit.missingRequiredChannels, ready: audit.requiredSourcesReady }));
+    var secondaryOk = audit && audit.verificationPolicy && Array.isArray(audit.sources) && audit.sources.every(function(s) { return /^https:\/\/t\.me\/s\//.test(s.publicMirror); });
+    _assert('T145 telegram_pipeline: channels audited as secondary pipeline with public mirrors', !!secondaryOk, audit && JSON.stringify(audit.sources));
+    var requiredChannelsOk = audit && Array.isArray(audit.requiredChannelSlugs) && audit.requiredChannelSlugs.length > 0 && audit.requiredChannelSlugs.indexOf('HANAchina') >= 0 && Array.isArray(audit.missingRequiredChannels) && audit.requiredSourcesReady === true;
+    _assert('T145b telegram_pipeline: every digest channel has a browser source (HANA included; ci-telegram-channels-check holds the set to the active catalog)', !!requiredChannelsOk, audit && JSON.stringify({ required: audit.requiredChannelSlugs, missing: audit.missingRequiredChannels, ready: audit.requiredSourcesReady }));
   }
 
   function _testAutoOpsGovernance() {

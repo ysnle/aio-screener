@@ -10,7 +10,7 @@
 //       checkedAt,             // the last successful run that rewrote or confirmed it (content may be the same)
 //       basisSession,          // { US?, KR?, ... } trading session the content reflects, when the artifact says
 //       expectedEveryMinutes, staleAfterMinutes, workflow, producer,
-//       lastAttempt: { at, status: 'updated' | 'unchanged' | 'not-written' | 'missing' },
+//       lastAttempt: { at, status: 'updated' | 'unchanged' | 'not-written' | 'missing' | 'blocked' (absent while its blockedBy holds) },
 //       contractDrift?         // ['clock'] / ['basis:US', ...] when the present artifact no longer resolves a
 //     } } }                    // declared path (its producer changed shape); the watchdog names it
 //
@@ -65,7 +65,8 @@ export const ARTIFACT_FRESHNESS = Object.freeze({
   'sec-fiscal-history.json': auto('refresh-screener.yml', 'scripts/producer/screener.mjs', 6 * 60, 48 * 60),
   'earnings-calendar.json': auto('refresh-screener.yml', 'scripts/fetch-earnings-calendar.mjs', 6 * 60, 8 * 24 * 60),
   'consensus-estimates.json': auto('refresh-screener.yml', 'scripts/fetch-consensus-estimates.mjs', 6 * 60, 4 * 24 * 60),
-  'bigtech-cashflow.json': auto('refresh-screener.yml', 'scripts/fetch-bigtech-cashflow.mjs', 6 * 60, 4 * 24 * 60),
+  // Quarterly SEC filings: a rerun without a new filing moves only generatedAt and each issuer's fetchedAt.
+  'bigtech-cashflow.json': auto('refresh-screener.yml', 'scripts/fetch-bigtech-cashflow.mjs', 6 * 60, 4 * 24 * 60, { skipUnchanged: true, volatileKeys: ['generatedAt', 'issuers.*.fetchedAt'] }),
   'treasury-auctions.json': auto('refresh-screener.yml', 'scripts/fetch-treasury-auctions.mjs', 6 * 60, 4 * 24 * 60),
   'sp500-weights.json': auto('refresh-screener.yml', 'scripts/fetch-sp500-weights.mjs', 24 * 60, 8 * 24 * 60),
   'us-listings.json': auto('refresh-screener.yml', 'scripts/build-us-listings.mjs', 24 * 60, 4 * 24 * 60),
@@ -133,12 +134,16 @@ export function sameExceptVolatile(left, right, keys = []) {
   const strip = (value) => {
     if (!value || typeof value !== 'object') return value;
     const copy = JSON.parse(JSON.stringify(value));
-    for (const key of keys) {
-      const parts = String(key).split('.');
-      const last = parts.pop();
-      const parent = parts.reduce((node, part) => (node && typeof node === 'object' ? node[part] : undefined), copy);
-      if (parent && typeof parent === 'object') delete parent[last];
-    }
+    // A '*' part stands for every element (or member) at that level, so a per-row fetch clock
+    // (bigtech-cashflow issuers.*.fetchedAt) is volatile too.
+    const drop = (node, parts) => {
+      if (!node || typeof node !== 'object') return;
+      const [part, ...rest] = parts;
+      const children = part === '*' ? Object.values(node) : [node[part]];
+      if (!rest.length) { if (part === '*') Object.keys(node).forEach((name) => delete node[name]); else delete node[part]; return; }
+      for (const child of children) drop(child, rest);
+    };
+    for (const key of keys) drop(copy, String(key).split('.'));
     return copy;
   };
   return JSON.stringify(strip(left)) === JSON.stringify(strip(right));

@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 // P1661: weekly producer for public-data/stress-outcomes.json — what the S&P 500 did 21 and 63 sessions after
 // past days in each VIX band since 1990 (the VIX series starts 1990-01-02). Runs only in GitHub Actions
-// (refresh-data daily operator slot, skipped while the artifact is under 7 days old). On any fetch failure it
-// exits 0 and leaves the previous artifact untouched.
+// (refresh-data daily lane; weekly by design — skipped while the artifact is under 7 days old AND its definition stamp
+// matches the live code, src/domain/scenarios/outcome-fingerprints.js). On any fetch failure it exits 0 and leaves
+// the previous artifact untouched.
 import { readFile, writeFile, rename } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { buildStressOutcomes, STRESS_HORIZONS } from '../src/domain/market/signal/stress-outcomes.js';
+import { STRESS_OUTCOMES_SCHEMA, stressOutcomesCurrent, stressOutcomesFingerprint } from '../src/domain/scenarios/outcome-fingerprints.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(root, 'public-data', 'stress-outcomes.json');
@@ -35,13 +37,18 @@ async function dailyCloses(symbol) {
   return [];
 }
 
+/**
+ * The weekly skip keys on the definition stamp (bands, horizons, cluster gap, the table builder's source), not on a
+ * hand-written probe of the shape.
+ */
+export function skipRebuild(previous, nowMs = Date.now()) {
+  return previous?.status === 'current' && nowMs - Date.parse(previous.generatedAt || '') < REFRESH_AFTER_MS && stressOutcomesCurrent(previous);
+}
+
 async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
-  // v57.50 D07/D08: an artifact built before the cluster count and the standard error existed is rebuilt once,
-  // not kept for up to a week (the screen falls back to an approximate range until then).
-  const shapeCurrent = Array.isArray(previous?.bands) && previous.bands.every((band) => band?.clusters != null) && previous?.all?.['21']?.se != null;
-  if (shapeCurrent && previous?.status === 'current' && Date.now() - Date.parse(previous.generatedAt || '') < REFRESH_AFTER_MS && process.env.STRESS_FORCE !== '1') {
+  if (skipRebuild(previous) && process.env.STRESS_FORCE !== '1') {
     console.log(`[stress-outcomes] fresh (${previous.generatedAt}) — skipping`); return;
   }
   const [spx, vix] = await Promise.all([dailyCloses('^GSPC'), dailyCloses('^VIX')]);
@@ -50,7 +57,7 @@ async function main() {
   const today = new Date().toISOString().slice(0, 10);
   const completed = (rows) => rows.filter(([date]) => date < today);
   const table = buildStressOutcomes(completed(spx), completed(vix));
-  const payload = { schemaVersion: 'stress-outcomes.v1', status: 'current', generatedAt: new Date().toISOString(),
+  const payload = { schemaVersion: STRESS_OUTCOMES_SCHEMA, status: 'current', generatedAt: new Date().toISOString(), fingerprint: stressOutcomesFingerprint(),
     source: 'Yahoo Finance 일봉 종가 (^GSPC, ^VIX)', sourceKind: 'T3_PUBLIC_DELAYED', horizons: STRESS_HORIZONS,
     returnBasis: 'S&P 500 가격 수익률(배당 제외), 거래일 기준', ...table };
   const tmp = `${OUT}.tmp`;

@@ -4,7 +4,7 @@ import { syncScreenerNextLead } from '../../components/screener-read.js';
 import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { SCREENER_FIELD_REGISTRY, fieldValueForPurpose } from '../../../data/contracts/screener.js';
 import { FACTOR_LABELS, capFilterValue, numberText, visibleRank, rankGrade, vcpStageLabel, factorSessionLag, describeRankingHold, followThroughSummary } from '../../../domain/screener/row-presentation.js';
-import { MARKET_LABELS, screenerMarket, marketRankingMetadata, formatScreenerPrice } from '../../../domain/screener/market-scope.js';
+import { MARKET_LABELS, screenerMarket, marketPopulation, marketRankingMetadata, formatScreenerPrice } from '../../../domain/screener/market-scope.js';
 import { EXTENSION_BANDS } from '../../../domain/screener/setup-profile.js';
 import { consensusView, PE_MEANINGFUL_MAX } from '../../../domain/fundamental/consensus-read.js';
 import { parseConditionValue, conditionCoverage, availableConditionIds } from '../../../domain/screener/custom-conditions.js';
@@ -925,7 +925,11 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     const order = documentRef.getElementById('scr-order')?.selectedOptions?.[0]?.textContent || SCREENER_COLUMN_REGISTRY.find(column => column.key === sortState.column)?.label || '조건 순위';
     // 2026-10-14 audit #3: one denominator on this screen — the rows the ranking actually ranked (the same set the
     // reading's top 20% and the stock summary's rank use). Why the rest of the population is not ranked is folded.
-    const population = scopedRows(currentState.rows || [], listingMarket);
+    // The ranked market's population is its listed rows (marketPopulation); an overseas listing shown in the US list is
+    // named apart, so 모집단 is the universe size every screen quotes.
+    const listed = scopedRows(currentState.rows || [], listingMarket);
+    const population = marketPopulation(listed, listingMarket);
+    const overseas = listed.length - population.length;
     const screened = population.filter((row) => finite(row?.screenRank) != null).length;
     const rankedCount = screened || ranking.ranked || 0;
     // v57.81: which population the percentiles come from — the core universe or the extended one.
@@ -944,12 +948,11 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
       const funds = outside('fund');
       const spacs = outside('spac');
       const illiquid = outside('illiquid');
-      const foreign = outside('foreign');
       const thin = population.filter((row) => row?.screenStatus === 'passed' && row?.rankingEligibility === 'insufficient-row-factor-coverage').length;
       const unscored = population.filter((row) => row?.screenStatus === 'passed' && finite(row?.screenRank) == null && !row?.populationExclusion && row?.rankingEligibility !== 'insufficient-row-factor-coverage').length;
-      excluded.hidden = !(screened && left > 0);
-      excluded.querySelector('summary').textContent = `순위 밖 ${left}종목`;
-      excluded.querySelector('p').textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${population.length}종목 중 ${left}종목은 순위를 매기지 않습니다 — ${[funds ? `ETF·펀드 ${funds}` : null, spacs ? `SPAC ${spacs}` : null, illiquid ? `하루 거래대금 100만 달러 미만 ${illiquid}` : null, foreign ? `해외 상장 ${foreign}` : null, thin ? `공시 재무 등 팩터 근거 부족 ${thin}` : null, missing ? `필수 자료 부족 ${missing}` : null, rejected ? `조건 미통과 ${rejected}` : null, unscored ? `점수 계산 불가 ${unscored}` : null].filter(Boolean).join(', ') || '사유 미확인'}.`;
+      excluded.hidden = !(screened && (left > 0 || overseas > 0));
+      excluded.querySelector('summary').textContent = `순위 밖 ${left + overseas}종목`;
+      excluded.querySelector('p').textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${population.length}종목 중 ${left}종목은 순위를 매기지 않습니다 — ${[funds ? `ETF·펀드 ${funds}` : null, spacs ? `SPAC ${spacs}` : null, illiquid ? `하루 거래대금 100만 달러 미만 ${illiquid}` : null, thin ? `공시 재무 등 팩터 근거 부족 ${thin}` : null, missing ? `필수 자료 부족 ${missing}` : null, rejected ? `조건 미통과 ${rejected}` : null, unscored ? `점수 계산 불가 ${unscored}` : null].filter(Boolean).join(', ') || '사유 미확인'}.${overseas ? ` 해외 상장 ${overseas}종목은 거래 시간과 통화가 달라 목록에만 함께 표시합니다.` : ''}`;
     }
     const sessionLag = !(ranking.ranked > 0) ? factorSessionLag(listingMarket, currentState.metadata.factorSessionDateByMarket?.[listingMarket], Date.now()) : null;
     if (sessionLag) diagnostics.textContent += `, 가격 자료 ${sessionLag.session.slice(5).replace('-', '/')} 종가 기준, ${sessionLag.latest.slice(5).replace('-', '/')} ${sessionLag.label} 반영 대기`;

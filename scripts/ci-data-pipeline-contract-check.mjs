@@ -13,7 +13,7 @@ import { factorScopesByMarket, marketOfSymbol, sessionDateInMarket, timeZoneForM
 import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { SHARED_AI_MODEL, SHARED_AI_PROFILES as ANALYSIS_PROFILES, extractCompletedResponseText, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
-import { marketAnalysisDiagnostic, summarizeOperationalChecks, workflowCadence, operationalSummary, WATCHDOG_THRESHOLDS } from './lib/operational-health.mjs';
+import { marketAnalysisDiagnostic, aiProviderRefusal, summarizeOperationalChecks, workflowCadence, operationalSummary, WATCHDOG_THRESHOLDS } from './lib/operational-health.mjs';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 import { parseHoldings } from './fetch-sp500-weights.mjs';
 import { softenReaderDuty } from './lib/market-analysis-validate.mjs';
@@ -97,6 +97,14 @@ check('P1596 warnings cannot be reported as healthy', summarizeOperationalChecks
   && summarizeOperationalChecks([{ ok: true, severity: 'error' }]).status === 'PASS');
 check('P1596 AI diagnostics retain the actual semantic failure', marketAnalysisDiagnostic({ marketAnalysis: { reason: 'metric-value-mismatch:market.vix' } }) === 'metric-value-mismatch:market.vix'
   && marketAnalysisDiagnostic({ meta: { marketAnalysisOk: true } }) === 'verified');
+// v60.18: the 11/10 14:51Z refresh (be745561b) — blocked on provider-http-429 for 11 h — is an operator error in the
+// watchdog; a validator block or a verified reading is not.
+check('v60.18 a provider refusal of the shared AI account is named as an operator error; a validator block is not',
+  aiProviderRefusal({ meta: { marketAnalysisOk: false, marketAnalysisReason: 'provider-http-429' }, marketAnalysis: { status: 'blocked', reason: 'provider-http-429', semanticIssues: ['provider-http-429'] } }) === 'provider-http-429'
+  && aiProviderRefusal({ meta: { marketAnalysisOk: false }, marketAnalysis: { reason: 'session-wording-mismatch:market.semis' } }) === null
+  && aiProviderRefusal({ meta: { marketAnalysisOk: false }, marketAnalysis: { reason: 'provider-http-500' } }) === null
+  && aiProviderRefusal({ meta: { marketAnalysisOk: true }, marketAnalysis: { reason: 'provider-http-429' } }) === null
+  && /aiProviderRefusal\(data\)/.test(readFileSync(join(root, 'scripts/ci-external-pipeline-check.mjs'), 'utf8')));
 check('P1596 operational summary preserves nonblocking failures', operationalSummary({ status: 'DEGRADED', gateStatus: 'PASS', warnings: ['analysis-unavailable'] }).includes('analysis-unavailable')
   && /aio-operational-health/.test(read('.github/workflows/data-watchdog.yml')));
 {
@@ -483,12 +491,14 @@ check('P1421 refresh workflow fetches market data with official optional secrets
   const mp = await import('./lib/market-analysis-prompt.mjs');
   const packet = { regimeContext: 'R', evidenceLines: '- E', newsLines: '', headlineLines: '- H', driversContext: 'MARKET_DRIVERS x', largeMove: false };
   const ids = mp.marketAnalysisPromptSections(packet).filter(([, text]) => text != null).map(([id]) => id);
-  const full = mp.marketAnalysisPromptSections({ ...packet, inflationLine: 'INFLATION_DIRECTION: x', koreaIntradayLines: '- K', afterHoursLines: '- A', earningsLines: '- U', cashflowLines: '- C', crossMarketIntradayLines: '- X', narrativeText: 'N', largeMove: true })
-    .map(([id]) => id);
+  const full = mp.marketAnalysisPromptSections({ ...packet, inflationLine: 'INFLATION_DIRECTION: x', koreaIntradayLines: '- K', afterHoursLines: '- A', earningsLines: '- U', cashflowLines: '- C', crossMarketIntradayLines: '- X', narrativeText: 'N', largeMove: true, moveSizeText: 'MOVE_SIZE x' })
+    .filter(([, text]) => text != null).map(([id]) => id);
   const prompt = mp.buildMarketAnalysisPrompt(packet);
   check('v59.59 market-reading prompt sections: static rules, then REGIME_CONTEXT, then per-run evidence; optional blocks drop cleanly; sentence last',
     ids.indexOf('style') < ids.indexOf('regime') && ids.indexOf('regime') < ids.indexOf('metricEvidence') && ids.at(-1) === 'sentence'
-      && !ids.includes('koreaIntraday') && !ids.includes('narrative') && full.length === 24 && full.at(-1) === 'sentence'
+      && !ids.includes('koreaIntraday') && !ids.includes('narrative') && !ids.includes('moveSize') && full.length === 25 && full.at(-1) === 'sentence'
+      // v60.19: the per-run MOVE_SIZE grades follow MARKET_DRIVERS, after the cached prefix.
+      && full.indexOf('moveSize') === full.indexOf('drivers') + 1
       && !prompt.includes('\n\n\n\n') && prompt.startsWith('아래 근거로 시장 해석을') && prompt.includes('METRIC_EVIDENCE:\n- E')
       && mp.buildMarketAnalysisRetryPrompt(prompt, 'issue').startsWith(`${prompt}\n\nPREVIOUS_ATTEMPT_REJECTED`)
       && Object.keys(mp.marketAnalysisPromptSizes(packet)).length === ids.length && mp.inflationDirectionLine({}) === '', JSON.stringify(ids));
@@ -527,8 +537,8 @@ check('watchdog checks data and Telegram freshness', /pages-data-freshness/.test
 check('watchdog checks live Telegram channel coverage', /pages-telegram-coverage/.test(externalPipeline) && /lastPostId/.test(externalPipeline));
 check('watchdog freshness threshold tolerates transient Actions lag', /default:\s*'360'/.test(watchdog) && /AIO_LIVE_MAX_AGE_MIN:/.test(watchdog));
 // v59.59: the floors live in WATCHDOG_THRESHOLDS; pin their values and that the observer reads them.
-check('watchdog has core quality floors for public data', WATCHDOG_THRESHOLDS.minSymbolsOk === 70 && WATCHDOG_THRESHOLDS.minNewsCount === 10 && WATCHDOG_THRESHOLDS.minTelegramCount === 100 && WATCHDOG_THRESHOLDS.minHealthyTelegramChannels === 3
-  && ['minSymbolsOk', 'minNewsCount', 'minTelegramCount', 'minHealthyTelegramChannels'].every((key) => externalPipeline.includes(`WATCHDOG_THRESHOLDS.${key}`)));
+check('watchdog has core quality floors for public data', WATCHDOG_THRESHOLDS.minSymbolsOk === 70 && WATCHDOG_THRESHOLDS.minNewsCount === 10 && WATCHDOG_THRESHOLDS.minTelegramCount === 100 && WATCHDOG_THRESHOLDS.maxFailingTelegramChannels === 1
+  && ['minSymbolsOk', 'minNewsCount', 'minTelegramCount', 'maxFailingTelegramChannels'].every((key) => externalPipeline.includes(`WATCHDOG_THRESHOLDS.${key}`)));
 check('watchdog reports optional degraded services', /fearGreedOk/.test(externalPipeline) && /fredFetchOk/.test(externalPipeline) && /marketAnalysisOk/.test(externalPipeline));
 check('watchdog checks screener artifact health', /pages-screener-freshness/.test(externalPipeline) && WATCHDOG_THRESHOLDS.screenerMaxAgeMinutes === 48 * 60 && externalPipeline.includes('WATCHDOG_THRESHOLDS.screenerMaxAgeMinutes'));
 check('watchdog retains local data contracts', ['scripts/ci-market-snapshot-contract-check.mjs', 'scripts/ci-operations-status-check.mjs', 'scripts/ci-reconciliation-contract-check.mjs', 'scripts/ci-data-refresh-audit.mjs'].every((script) => watchdogScripts.includes(script)));
@@ -925,9 +935,9 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const warn = console.warn; console.warn = () => {};
   let retried; let retained; let expired;
   try {
-    retried = await genMarketAnalysis(withIntraday, snapshot, { previous, request: stub([bad, good]), nowMs: now, history: [] });
-    retained = await genMarketAnalysis(withIntraday, snapshot, { previous, request: stub([bad, bad]), nowMs: now, history: [] });
-    expired = await genMarketAnalysis(withIntraday, snapshot, { previous: { ...previous, generatedAt: '2026-10-12T20:00:00.000Z' }, request: stub([bad, bad]), nowMs: now, history: [] });
+    retried = await genMarketAnalysis(withIntraday, snapshot, { previous, request: stub([bad, good]), nowMs: now, history: [], recordRejections: null });
+    retained = await genMarketAnalysis(withIntraday, snapshot, { previous, request: stub([bad, bad]), nowMs: now, history: [], recordRejections: null });
+    expired = await genMarketAnalysis(withIntraday, snapshot, { previous: { ...previous, generatedAt: '2026-10-12T20:00:00.000Z' }, request: stub([bad, bad]), nowMs: now, history: [], recordRejections: null });
   } finally { console.warn = warn; }
   check('P1719 one retry carries the blocked reasons and values; a second block keeps a <=12h verified analysis marked retained; older falls back',
     retried.status === 'verified' && !retried.retained && /PREVIOUS_ATTEMPT_REJECTED/.test(prompts[1] || '') && /evidence SPX=7807\.24/.test(prompts[1] || '') && /7100/.test(prompts[1] || '')
@@ -940,7 +950,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const before = prompts.length;
     console.warn = () => {};
     let again;
-    try { again = await genMarketAnalysis(withIntraday, snapshot, { previous: retained, request: stub([good]), nowMs: now + 30 * 60000, history: [] }); } finally { console.warn = warn; }
+    try { again = await genMarketAnalysis(withIntraday, snapshot, { previous: retained, request: stub([good]), nowMs: now + 30 * 60000, history: [], recordRejections: null }); } finally { console.warn = warn; }
     check('v58.71 unchanged inputs after a blocked attempt make no model call and keep the retained reading',
       typeof retained?.blockedAttemptKey === 'string' && prompts.length === before && again?.blockedAttemptKey === retained.blockedAttemptKey && again?.retained?.from === previous.generatedAt,
       JSON.stringify({ key: retained?.blockedAttemptKey, calls: prompts.length - before, again: again?.retained }));
@@ -950,11 +960,11 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     // analysis, or a flagged one calls again.
     const { reusableMarketAnalysis } = await import('./fetch-data.mjs');
     const firstPrompts = prompts.length;
-    const fresh = await genMarketAnalysis(data, snapshot, { request: stub([good]), nowMs: now, history: [] });
-    const reusedRun = await genMarketAnalysis(data, snapshot, { previous: { ...fresh, generatedAt: '2026-10-13T08:00:00.000Z' }, request: stub([good]), nowMs: now, history: [] });
+    const fresh = await genMarketAnalysis(data, snapshot, { request: stub([good]), nowMs: now, history: [], recordRejections: null });
+    const reusedRun = await genMarketAnalysis(data, snapshot, { previous: { ...fresh, generatedAt: '2026-10-13T08:00:00.000Z' }, request: stub([good]), nowMs: now, history: [], recordRejections: null });
     const callsAfterReuse = prompts.length;
     const movedSnapshot = { quotes: snapshot.quotes.map((row) => row.instrumentId === '^GSPC' ? { ...row, evidenceId: 'market.index.spx:t2' } : row) };
-    const moved = await genMarketAnalysis(data, movedSnapshot, { previous: { ...fresh, generatedAt: '2026-10-13T08:00:00.000Z' }, request: stub([good]), nowMs: now, history: [] });
+    const moved = await genMarketAnalysis(data, movedSnapshot, { previous: { ...fresh, generatedAt: '2026-10-13T08:00:00.000Z' }, request: stub([good]), nowMs: now, history: [], recordRejections: null });
     check('P1751 market analysis reuse skips the model only for unchanged evidence/headlines under 12 h',
       fresh.status === 'verified' && reusedRun.generatedAt === '2026-10-13T08:00:00.000Z' && callsAfterReuse === firstPrompts + 1
         && moved.generatedAt !== '2026-10-13T08:00:00.000Z' && prompts.length === callsAfterReuse + 1
@@ -1098,6 +1108,19 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && /같은 기준인지 확인되지 않으므로 성장률과 직전 PER은 표시하지 않습니다/.test(gapText) && !/예상 이익 -35%/.test(gapText),
     JSON.stringify({ gap, same: { growth: same.growth, trailingPe: same.trailingPe } }));
 
+  // v60.19 (Codex numbers audit): the one-off guard reads only the quarters summed into the trailing EPS — an older
+  // fifth quarter outside trailing.from…to hid a trailing P/E of 10 and a growth of -20%.
+  const oneOffEst = (hist) => ({ asOf: '2026-11-13', fwd: { from: '2026-12', to: '2027-09', eps: 8, minEstimates: 10, up4w: 0, down4w: 0 }, trailing: { from: '2025-12', to: '2026-09', eps: 10 }, hist });
+  const oneOffRow = { valuationPrice: 100, factorSessionDate: '2026-11-13' };
+  const oneOffNow = Date.parse('2026-11-14T00:00:00Z');
+  const aligned = '2026-09:2.5:2.5;2026-06:2.5:2.5;2026-03:2.5:2.5;2025-12:2.5:2.5';
+  const olderSpike = consensusView(oneOffRow, oneOffEst(`${aligned};2025-09:6:2`), { now: oneOffNow });
+  const innerSpike = consensusView(oneOffRow, oneOffEst('2026-09:2.5:2.5;2026-06:6:2;2026-03:2.5:2.5;2025-12:2.5:2.5;2025-09:6:2'), { now: oneOffNow });
+  check('v60.19 a one-off quarter outside the trailing four does not hide the trailing P/E and growth; one inside still does',
+    olderSpike?.trailingPe === 10 && Math.round(olderSpike?.growth) === -20 && olderSpike?.oneOffQuarter === null
+      && innerSpike?.trailingPe === null && innerSpike?.growth === null && innerSpike?.oneOffQuarter === '2026-06',
+    JSON.stringify({ olderSpike, innerSpike }));
+
   const provider = createThemesProvider({
     readLiveData: () => ({}),
     readDefinitions: () => ({ themes: [{ id: 'care', nameKr: '헬스케어', leaders: ['A', 'B', 'C'], subThemes: [{ name: '제약', tickers: ['A', 'B', 'C'] }] }] }),
@@ -1234,7 +1257,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const source = readProducerSource();
   check('v57.75 a retained reading is re-validated against this run\'s data before it is served again',
     retainVerifiedMarketAnalysis(previous, { nowMs: now, revalidate: () => false }) === null && retainVerifiedMarketAnalysis(previous, { nowMs: now, revalidate: () => true })?.retained
-      && /retainVerifiedMarketAnalysis\(previous, \{ reason, nowMs, revalidate: \(summary\) => validateMarketAnalysisText\(summary, data, snapshot/.test(source));
+      && /retainVerifiedMarketAnalysis\(previous, \{ reason, nowMs, revalidate: \(summary\) => validator\(summary, data, snapshot/.test(source));
   check('v57.75 the KOSPI intraday cause comes only from post-08:00 headlines, the CPI direction is stated, and stale theme values are dated',
     /장중 원인 헤드라인 미수집/.test(source) && /USD\/KRW 상승 = 원화 약세/.test(source) && /INFLATION_DIRECTION: 미국 CPI/.test(source) && /거시 기준일 \$\{macroAsOf\}보다 오래된 값/.test(source)
       && /String\(r\.observedAt\)\.slice\(0, 10\) === sessionDay/.test(source));
@@ -1316,7 +1339,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   }
   const r14 = published.find((row) => row.date === '2026-10-14'), r15 = published.find((row) => row.date === '2026-10-15');
   const at0652 = r14 && r15 ? [...published.filter((row) => row.date < '2026-10-15'), { ...r14, date: '2026-10-15', cycleEnd: '2026-10-14T23:00:00.000Z', kospi: r15.kospi, kosdaq: r15.kosdaq, fieldMeta: { ...(r14.fieldMeta || {}), kospi: r15.fieldMeta?.kospi, kosdaq: r15.fieldMeta?.kosdaq } }] : null;
-  try { promptRun = await genMarketAnalysis(data, closedSnapshot, { request: stub([dated0652]), nowMs: Date.parse('2026-10-15T06:52:00.000Z'), history: at0652 }); } finally { console.warn = warn; }
+  try { promptRun = await genMarketAnalysis(data, closedSnapshot, { request: stub([dated0652]), nowMs: Date.parse('2026-10-15T06:52:00.000Z'), history: at0652, recordRejections: null }); } finally { console.warn = warn; }
   check('v57.81 VIX change is judged on the basis the prompt gave: the prompt\'s closed-row change is the validator\'s, and an in-session row also accepts its last completed close (duplicate history session ignored)',
     Math.abs((basis?.changePct ?? 0) - 10.478) < 0.01 && basis?.value === 16.87 && !sameBasis.length
       && noHistory.some((issue) => /market\.vix/.test(issue)) && intradayAsClose.includes('session-wording-mismatch:market.vix')
@@ -1332,8 +1355,9 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const crashTitle = '코스피 7% 폭락…사이드카 발동';
     const ranked = krIndexStoryFirst([{ title: '증시 폭락에 원·달러 환율 급등' }, { title: crashTitle }]);
     check('v57.87 a large completed close reaches the prompt dated and must be named; the KOSPI move headline takes the first Korean slot',
-      // v58.68: US lines (here SOXX's 5-session move, v59.70) come first; the KOSPI close still follows on the same line.
-      /직전 완료 세션의 큰 움직임: 반도체\(SOXX\) [^\n]* · 코스피 10\/15 종가 -7\.5\d%/.test(ctx) && !priorSessionMoveIssues(dated0652, { context: ctx }).length
+      // v60.18: the moves are listed by size against each one's own volatility (scripts/lib/market-analysis-moves.mjs) — the
+      // KOSPI crash close leads and SOXX's 5-session move follows on the same line; the reading opens with the lead.
+      /직전 완료 세션의 큰 움직임: 코스피 10\/15 종가 -7\.5\d%[^\n]* · 반도체\(SOXX\) 10\/14 종가/.test(ctx) && !priorSessionMoveIssues(dated0652, { context: ctx }).length
         && priorSessionMoveIssues('코스피 장중 13:05 KST 기준 +3.2% 반등', { context: ctx }).includes('prior-session-move-omitted')
         && ranked[0].title === crashTitle && /ko-index-move\+14/.test(scoreServerNewsItem({ title: crashTitle, source: '연합뉴스', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason),
       JSON.stringify({ line: ctx.match(/직전 완료 세션[^\n]*/)?.[0] || null, ranked: ranked.map((row) => row.title) }));
@@ -1357,10 +1381,10 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const { marketDriversContext, upcomingPoliticalLine } = await import('./producer/market-narrative.mjs');
     const electionWeek = marketDriversContext({ history: oilHistory, eventsLine: upcomingPoliticalLine(Date.parse('2026-10-29T02:00:00Z')) }); // v59.62: the midterm row (Knesset row expired)
     check('v58.74 an election inside the next week reaches the confirm/deny row; none after it',
-      /- 확인·반증:[^\n]*정치 일정: 11\/4 KST 미국 중간선거/.test(electionWeek) && upcomingPoliticalLine(Date.parse('2026-11-10T00:00:00Z')) === '', electionWeek.match(/- 확인·반증:[^\n]*/)?.[0] || '');
+      /- NEXT_CHECK \(확인·반증\):[^\n]*정치 일정: 11\/4 KST 미국 중간선거/.test(electionWeek) && upcomingPoliticalLine(Date.parse('2026-11-10T00:00:00Z')) === '', electionWeek.match(/- NEXT_CHECK[^\n]*/)?.[0] || '');
     const idle = marketDriversContext({ history: oilHistory });
     check('v58.72 with no market in session the drivers block does not claim the completed session had no intraday move',
-      !/장중 큰 움직임 없음/.test(idle) && /장중 큰 움직임이 없었다"고 쓰지 말 것/.test(idle), idle.match(/- 지금:[^\n]*/)?.[0] || idle.slice(0, 300));
+      !/장중 큰 움직임 없음/.test(idle) && /장중 큰 움직임이 없었다"고 쓰지 말 것/.test(idle), idle.match(/- LIVE_MOVE[^\n]*/)?.[0] || idle.slice(0, 300));
   }
   // (c) the last verified reading is kept, labelled with its time, while later attempts are blocked — also across a run
   // whose own fallback carried it — and dropped once the market has moved past a large move since it was written.
@@ -1376,11 +1400,11 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   console.warn = () => {};
   let kept; let fallback; let carried; let dropped;
   try {
-    kept = await genMarketAnalysis(data, at0555, { previous, request: stub([bad, bad]), nowMs: now, history: [] });
-    fallback = await genMarketAnalysis(data, at0555, { previous: null, request: stub([bad, bad]), nowMs: now, history: [] });
+    kept = await genMarketAnalysis(data, at0555, { previous, request: stub([bad, bad]), nowMs: now, history: [], recordRejections: null });
+    fallback = await genMarketAnalysis(data, at0555, { previous: null, request: stub([bad, bad]), nowMs: now, history: [], recordRejections: null });
     const blockedWithReading = { ...fallback, lastVerified: { ...previous } };
-    carried = await genMarketAnalysis(data, at0555, { previous: blockedWithReading, request: stub([bad, bad]), nowMs: Date.parse('2026-10-15T07:52:00.000Z'), history: [] });
-    dropped = await genMarketAnalysis(data, crashed, { previous, request: stub([bad, bad]), nowMs: now, history: [] });
+    carried = await genMarketAnalysis(data, at0555, { previous: blockedWithReading, request: stub([bad, bad]), nowMs: Date.parse('2026-10-15T07:52:00.000Z'), history: [], recordRejections: null });
+    dropped = await genMarketAnalysis(data, crashed, { previous, request: stub([bad, bad]), nowMs: now, history: [], recordRejections: null });
   } finally { console.warn = warn; }
   const exact = validateMarketAnalysisText(reading, data, at0555);
   check('v57.81 a verified reading is kept (labelled with its time) while later attempts are blocked, survives one blocked run, and is dropped after a large move',
@@ -2324,6 +2348,61 @@ check('getScreenerSymbols reads screener-universe.json, not source-text regex', 
   const future = spawnSync(process.execPath, ['--import', later, join(root, 'scripts/sync-screener-universe.mjs'), '--check'], { encoding: 'utf8' });
   check('v59.99 the screener-universe mirror does not change with the calendar', future.status === 0, (future.stdout + future.stderr).trim().slice(0, 400));
 }
+// v60.18 (failure class: a gate that expires): the v59.99 check above covered one generator. Every generator a gate runs
+// in --check mode compares a checked-in file with a rebuild, so each must give the same verdict 45 days and a year from
+// now; a clock-derived field in any of them stops every CI run, and with it Pages, on the day it flips (11/12: 14 h 44 m).
+// Discovered from scripts/ (a non-gate script that takes --check), so a new generator is covered without a list.
+{
+  const { spawn } = await import('node:child_process');
+  const { readdirSync } = await import('node:fs');
+  // Not generators: the agent hook and the cloud-session bootstrap take --check as a dry-run of their own work.
+  const NOT_GENERATORS = new Set(['agent-hook.mjs', 'cloud-session-setup.mjs']);
+  const generators = readdirSync(join(root, 'scripts')).filter((name) => name.endsWith('.mjs') && !name.startsWith('ci-') && !NOT_GENERATORS.has(name)
+    && /(^|[\s'"`])--check\b/.test(readFileSync(join(root, 'scripts', name), 'utf8')));
+  const shift = (days) => `data:text/javascript,const at=Date.now()+${days}*864e5;const Real=Date;globalThis.Date=class extends Real{constructor(...a){super(...(a.length?a:[at]));}static now(){return at;}};`;
+  const runCheck = (name, days) => new Promise((resolveRun) => {
+    const child = spawn(process.execPath, [...(days ? ['--import', shift(days)] : []), join(root, 'scripts', name), '--check'], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
+    let out = '';
+    child.stdout.on('data', (chunk) => { out += chunk; }); child.stderr.on('data', (chunk) => { out += chunk; });
+    child.on('close', (status) => resolveRun({ status, out: out.trim().slice(-300) }));
+  });
+  const verdicts = await Promise.all(generators.map(async (name) => [name, await Promise.all([0, 45, 366].map((days) => runCheck(name, days)))]));
+  check('v60.18 the clock-shift sweep found the check-mode generators', generators.includes('sync-screener-universe.mjs') && generators.includes('generate-workspace-state.mjs'), generators.join(','));
+  for (const [name, [now, later, year]] of verdicts) {
+    check(`v60.18 ${name} --check gives the same verdict 45 days and a year from now`, later.status === now.status && year.status === now.status,
+      `now=${now.status} +45d=${later.status} +366d=${year.status} ${(later.status !== now.status ? later : year).out}`);
+  }
+  // v60.19 (Codex audit research-expiry-v6016): the same class on the fast publish path. A hand-kept artifact the publish
+  // gates read (public-data/structural-data-research.json, refreshed by hand) going past its window must not stop the
+  // quote/news publish: refresh-data.yml's web-research gate gives the same verdict 45 days and a year from now. Only the
+  // hand-kept artifact ages: the producer-refreshed AAII row is set to 'unavailable' (its own warn path) in the copy.
+  const { mkdtempSync: mkTmp, writeFileSync: writeTmp, rmSync: rmTmp } = await import('node:fs');
+  const { tmpdir: tmpRoot } = await import('node:os');
+  const researchDir = mkTmp(join(tmpRoot(), 'aio-research-clock-'));
+  try {
+    const dataCopy = JSON.parse(read('public-data/data.json'));
+    dataCopy.marketSurveys = { ...(dataCopy.marketSurveys || {}), aaii: { status: 'unavailable', allowedUse: 'reference-only' } };
+    writeTmp(join(researchDir, 'data.json'), JSON.stringify(dataCopy));
+    const researchArgs = ['--data', join(researchDir, 'data.json'), '--evidence', join(root, 'public-data/structural-data-research.json')];
+    const research = await Promise.all([0, 45, 366].map((days) => new Promise((resolveRun) => {
+      const child = spawn(process.execPath, [...(days ? ['--import', shift(days)] : []), join(root, 'scripts/ci-web-research-contract-check.mjs'), ...researchArgs], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
+      let out = '';
+      child.stdout.on('data', (chunk) => { out += chunk; }); child.stderr.on('data', (chunk) => { out += chunk; });
+      child.on('close', (status) => resolveRun({ status, out: out.trim().slice(-300) }));
+    })));
+    check('v60.19 refresh-data.yml runs the web-research gate on the publish path', /node scripts\/ci-web-research-contract-check\.mjs/.test(read('.github/workflows/refresh-data.yml')));
+    check('v60.19 the publish-path web-research gate passes now, 45 days and a year from now (a stale hand-kept record warns, never blocks)',
+      research.every((run) => run.status === 0) && /"stale":true/.test(research[2].out), research.map((run, i) => `${[0, 45, 366][i]}d=${run.status} ${run.out}`).join(' | '));
+  } finally { rmTmp(researchDir, { recursive: true, force: true }); }
+  // ...and the operator hears about it ahead of time: 29 days before the 180-day window ends the expiry check raises
+  // the watchdog alert (the issue opens), before the value is held as expired.
+  const research = JSON.parse(read('public-data/structural-data-research.json'));
+  const aheadAt = new Date(Date.parse(research.checkedAt) + (180 - 29) * 864e5).toISOString();
+  const ahead = spawnSync(process.execPath, [join(root, 'scripts/ci-manual-reference-expiry-check.mjs'), '--now', aheadAt, '--github-output'], { cwd: root, encoding: 'utf8', env: { ...process.env, GITHUB_OUTPUT: join(tmpRoot(), `aio-expiry-${process.pid}.txt`) } });
+  const aheadOut = (() => { try { return readFileSync(join(tmpRoot(), `aio-expiry-${process.pid}.txt`), 'utf8'); } catch { return ''; } })();
+  check('v60.19 the expiry watchdog alerts 29 days before the structural research record expires', ahead.status === 0 && /alert=true/.test(aheadOut) && /due:structuralResearch@/.test(aheadOut), `${ahead.status} ${aheadOut} ${(ahead.stdout + ahead.stderr).slice(-300)}`);
+  rmTmp(join(tmpRoot(), `aio-expiry-${process.pid}.txt`), { force: true });
+}
 // ── P1449: 종목 identity — SCREENER_DB/registry name vs the issuer's own SEC entity name. ──
 // A ticker must name one issuer everywhere (P1339/R95/R85). The 2026-10 review caught 'A' being
 // labelled Avantor on themes/screener while the 재무 screen correctly showed Agilent (AVTR is a
@@ -2702,7 +2781,8 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const post = (id, hoursAgo, summary, score = 60) => ({ id: `ch/${id}`, channel: 'ch', datetime: new Date(at - hoursAgo * 3600000).toISOString(), score, summary });
   const telegramDigest = { current24hItems: [post(1, 2, 'CoreWeave 채권 급락, 데이터센터 채권 전반 매도 (블룸버그)'), post(2, 5, '코어위브 파산설 확산…관계자에 따르면 구조조정 검토')],
     broadItems: [post(3, 30, 'CXMT 증산으로 D램 가격 우려'), post(4, 40, '앤트로픽 IPO 밸류에이션 하향 (로이터)'), post(5, 100, '호르무즈 유조선 피격 — 창 밖')] };
-  const screener = { data: { CRWV: { ret5d: -25, dollarVolume30d: 3e9, newsMemo: '[10-17] CoreWeave Stock Faces A Debt Funding Test', newsObservedAt: new Date(at - 20 * 3600000).toISOString() },
+  // v60.19: 급락 is the mover's own-volatility grade (move-size.js): -25% in five sessions on a 60% annual vol is large.
+  const screener = { data: { CRWV: { ret5d: -25, vol: 60, dollarVolume30d: 3e9, newsMemo: '[10-17] CoreWeave Stock Faces A Debt Funding Test', newsObservedAt: new Date(at - 20 * 3600000).toISOString() },
     MSFT: { ret5d: -2, newsMemo: '[10-17] Microsoft and OpenAI', newsObservedAt: new Date(at - 20 * 3600000).toISOString() } } };
   const narrative = nc.buildNarrativeContext({ telegramDigest, screener, nowMs: at });
   check('v58.24 NARRATIVE_CONTEXT ranks the funding theme first, labels the rumour, keeps the 72h window, and names the reading note',
@@ -2809,6 +2889,40 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && audit(undefined, new Date(at).toISOString(), { marketTimelineSealed: [] }).failures.includes('market-timeline-missing')
       && audit(undefined, new Date(at).toISOString()).failures.length === 0,
     JSON.stringify([audit(first.timeline, new Date(at).toISOString()), audit(first.timeline, '2026-10-19T12:30:00.000Z')]));
+  // v60.19 (Codex numbers audit): a slot holds only observations made before its end. Runs every 30 minutes quote a 24-hour
+  // market at the run time, so the seal-time quote (about 20 minutes after the end) was shown as the slot's move — 41 of 51
+  // moves. The in-progress slot keeps its last in-window quotes and the seal reads those.
+  {
+    const btc = (value, observedAt) => ({ quotes: [{ metricId: 'market.crypto.btc', value, unit: 'usd', observedAt, session: 'CURRENT_SESSION' }, quote('market.index.kospi', 5000, '2026-10-19T06:30:00.000Z')] });
+    let tl = null;
+    const runs = [];
+    for (let ms = Date.parse('2026-10-19T03:20:00.000Z'); ms <= Date.parse('2026-10-19T15:20:00.000Z'); ms += 30 * 60000) {
+      const value = 100000 + (ms - Date.parse('2026-10-19T03:20:00.000Z')) / 60000; // rises one dollar a minute
+      tl = mt.sealMarketTimeline({ previous: tl, snapshot: btc(value, new Date(ms - 10000).toISOString()), pool: [], nowMs: ms }).timeline;
+      runs.push(ms);
+    }
+    const sealedSlots = tl.slots.filter((slot) => slot.observationPolicy === mt.MARKET_SLOT_OBSERVATION_POLICY);
+    const outside = sealedSlots.flatMap((slot) => [...Object.values(slot.marks || {}), ...slot.moves].filter((row) => !(Date.parse(row.observedAt) < Date.parse(slot.end)) || (slot.moves.includes(row) && Date.parse(row.observedAt) < Date.parse(slot.start))).map((row) => [slot.label, row.observedAt]));
+    const btcMove = sealedSlots.find((slot) => slot.end === '2026-10-19T15:00:00.000Z')?.moves.find((move) => move.metricId === 'market.crypto.btc');
+    const leaked = { ...tl, slots: [{ ...sealedSlots[0], moves: [{ metricId: 'market.crypto.btc', label: '비트코인', change: 1, changeUnit: 'pct', basis: 'previous-slot', observedAt: new Date(Date.parse(sealedSlots[0].end) + 21 * 60000).toISOString() }] }, ...tl.slots.slice(1)] };
+    check('v60.19 a sealed slot holds only quotes observed before its end; its move runs from the previous slot\'s last in-window quote; the audit fails a slot that does not',
+      sealedSlots.length >= 2 && outside.length === 0 && btcMove?.observedAt === '2026-10-19T14:49:50.000Z' && Math.abs(btcMove.change - (100690 / 100330 - 1) * 100) < 0.01
+        && audit(leaked, tl.updatedAt).failures.some((row) => row.startsWith('market-timeline-observed-after-end')) && audit(tl, tl.updatedAt).failures.length === 0,
+      JSON.stringify({ outside, btcMove, slots: sealedSlots.map((slot) => [slot.label, slot.moves.map((move) => move.observedAt)]) }));
+  }
+  // v60.19 (Codex numbers audit): the slot's size word is the ledger's materiality — the move against the metric's own
+  // session sd on the ledger tiers — never a fixed % edge ("+0.80%" passed as 큰 폭 under the old 0.5/1.5% edges).
+  {
+    const sessions = []; for (let d = Date.parse('2026-07-01T12:00:00Z'); sessions.length < 80; d += 86400000) { const day = new Date(d); if (![0, 6].includes(day.getUTCDay())) sessions.push(day.toISOString().slice(0, 10)); }
+    const spxRows = sessions.map((date, i) => ({ date, spx: i % 2 ? 6054 : 6000, fieldMeta: { spx: { sessionDate: date } } }));
+    const sd = mt.slotMoveSd(spxRows, 'market.index.spx', 'pct');
+    const word = (change, withSd = true) => mt.moveSizeWord({ metricId: 'market.index.spx', label: 'S&P 500', change, changeUnit: 'pct', ...(withSd ? { sd } : {}) });
+    const sealedWithSd = mt.sealMarketTimeline({ previous: first.timeline, snapshot: snapB, pool: [], history: [...spxRows, { date: '2026-10-19', kospi: 5100 }], nowMs: Date.parse('2026-10-19T09:17:00.000Z') }).timeline.slots[0].moves[0];
+    check('v60.19 the slot size word is the move against its own session sd on the ledger tiers; no sd claims no size',
+      sd > 0.8 && sd < 1 && word(0.8) === '보통' && word(0.3) === '소폭' && word(3) === '큰 폭' && word(0.8, false) === '보통' && word(3, false) === '보통'
+        && sealedWithSd?.metricId === 'market.index.kospi' && !('sd' in sealedWithSd),
+      JSON.stringify({ sd, words: [word(0.3), word(0.8), word(3)], sealedWithSd }));
+  }
   const view = (await import('../src/domain/market/story/market-timeline.js')).buildMarketTimelineView(next.timeline, Date.parse('2026-10-19T09:30:00.000Z'));
   check('v58.28 cadence: the briefing view lists the in-progress slot and the sealed slots newest first by KST day',
     view.available && view.current?.endLabel === '24:00' && view.groups[0]?.label === '오늘 10/19' && view.groups[0].slots[0].endLabel === '18:00'
@@ -2869,15 +2983,17 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const previous = { status: 'blocked', sentence: fx.data.marketAnalysis.sentence };
   const warn = console.warn; const log = console.log; console.warn = () => {}; console.log = () => {};
   let run;
-  try { run = await genMarketAnalysis(fx.data, fx.snapshot, { previous, request: stub, nowMs, history: fx.history, narrative: { text: '', signature: 'fixture', themes: [] }, earnings: fx.earnings }); } finally { console.warn = warn; console.log = log; }
+  try { run = await genMarketAnalysis(fx.data, fx.snapshot, { previous, request: stub, nowMs, history: fx.history, narrative: { text: '', signature: 'fixture', themes: [] }, earnings: fx.earnings, recordRejections: null }); } finally { console.warn = warn; console.log = log; }
   const published = applyMarketAnalysis({ ...fx.data, meta: { ...fx.data.meta } }, run, { previous, nowMs });
   check('v58.59 a blocked day still opens with its own sentence when the candidate passes the sentence gate (was no-new-candidate all morning)',
     run?.status !== 'verified' && published.marketAnalysis.sentence?.day === '2026-10-21' && published.marketAnalysis.sentence?.text === sentence && published.meta.marketSentenceReject === null,
     JSON.stringify({ status: run?.status, sentence: published.marketAnalysis.sentence, reject: published.meta.marketSentenceReject }));
   const prompt = prompts[0] || '';
+  // v60.18: the slots are ids (CLOSE_MOVE / LIVE_MOVE / NEXT_CHECK), never the Korean words the model copied ("압력은 …").
   check('v58.59 the prompt orders pressure -> current move -> confirm/deny with dated headlines and the next large-cap earnings',
-    /^MARKET_DRIVERS /m.test(prompt) && /^- 압력: 코스피 10\/20 종가 -3\.73%/m.test(prompt) && /^- 지금: 코스피 10\/20 종가 -3\.73% 뒤 장중 11:01 KST 기준 \+4\.48%/m.test(prompt)
-      && /WTI 장중 \d\d:\d\d KST 기준 -2\.62%/.test(prompt) && /^- 확인·반증: 다음 대형주 실적\(10\/21, 미국 시각\): 장 전 TMO \/ 장 마감 후 META·TSLA·LRCX/m.test(prompt)
+    /^MARKET_DRIVERS /m.test(prompt) && /^- CLOSE_MOVE \([^)]*\): 코스피 10\/20 종가 -3\.73%/m.test(prompt) && /^- LIVE_MOVE \([^)]*\): 코스피 10\/20 종가 -3\.73% 뒤 장중 11:01 KST 기준 \+4\.48%/m.test(prompt)
+      && !/^- (?:압력|지금|확인·반증):/m.test(prompt)
+      && /WTI 장중 \d\d:\d\d KST 기준 -2\.62%/.test(prompt) && /^- NEXT_CHECK \([^)]*\): 다음 대형주 실적\(10\/21, 미국 시각\): 장 전 TMO \/ 장 마감 후 META·TSLA·LRCX/m.test(prompt)
       && /Stocks Make a U-Turn on Hopes of U\.S\.-Iran Diplomacy \[WSJ\] date=10\/21/.test(prompt) && /직전 미국 장 마감\(10\/20 16:00 ET\) 뒤/.test(prompt)
       && nextEarningsLine({ earnings: [] }, '2026-10-20') === '', prompt.match(/^MARKET_DRIVERS[\s\S]{0,900}/m)?.[0] || 'no MARKET_DRIVERS');
 }
@@ -2926,7 +3042,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const stub = async (prompt) => { prompts.push(prompt); return { text: `${reading}\n${va.MARKET_SENTENCE_LABEL} 오늘의 반등은 AI 투자 기대의 복귀와 하락 뒤 숨 고르기 사이에 있다.` }; };
   const warn = console.warn; const log = console.log; console.warn = () => {}; console.log = () => {};
   let run;
-  try { run = await genMarketAnalysis(fx.data, snapshot, { previous: null, request: stub, nowMs, history: fx.history, narrative: { text: '', signature: 'fixture', themes: [] }, earnings: fx.earnings }); } finally { console.warn = warn; console.log = log; }
+  try { run = await genMarketAnalysis(fx.data, snapshot, { previous: null, request: stub, nowMs, history: fx.history, narrative: { text: '', signature: 'fixture', themes: [] }, earnings: fx.earnings, recordRejections: null }); } finally { console.warn = warn; console.log = log; }
   const prompt = prompts[0] || '';
   // The run builds its own REGIME_CONTEXT from the history tail, so its other verdict checks differ from the fixture
   // context; only the evidence tier's own issues are asserted absent here.
@@ -3259,6 +3375,23 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     writeData(committed);
     run = gate();
     check('v59.94 degradation gate passes with baseline none when the tree equals the only commit', run.status === 0 && /"baseline":"none"/.test(run.stdout), `${run.status} ${run.stdout}${run.stderr}`);
+    // v60.19 (Codex audit fred-repro-v6016): the same rules hold after a partial previous cycle, not only a healthy one.
+    writeData({ ...lkgLabel, fredFailedSeries: ['cpi'], fredSuccessfulSeries: fredNames.slice(1) });
+    git('add', '-A');
+    git('commit', '-q', '-m', 'partial');
+    writeData({ ...lkgLabel, fredFailedSeries: fredNames, fredSuccessfulSeries: [] });
+    run = gate();
+    check('v60.19 degradation gate refuses a key-present total FRED loss after a partial cycle', run.status === 1 && /every FRED series failed/.test(run.stderr), `${run.status} ${run.stdout}${run.stderr}`);
+    writeData({ ...lkgLabel, fredLkgSource: null, fredFailedSeries: ['cpi'], fredSuccessfulSeries: fredNames.slice(1) });
+    run = gate();
+    check('v60.19 degradation gate refuses an LKG carry without a source after a partial cycle', run.status === 1 && /without naming their source/.test(run.stderr), `${run.status} ${run.stdout}${run.stderr}`);
+    const carried = (macro) => writeFileSync(join(dir, 'public-data/data.json'), JSON.stringify({ meta: { ...lkgLabel, fredFailedSeries: ['cpi'], fredSuccessfulSeries: fredNames.slice(1) }, macro }));
+    carried({ cpi: 3.1, _source_cpi: 'last-known-good', _freshness_cpi: 'stale-reference' });
+    run = gate();
+    check('v60.19 degradation gate refuses a carried macro value without its observation date and origin', run.status === 1 && /carried macro values without/.test(run.stderr), `${run.status} ${run.stdout}${run.stderr}`);
+    carried({ cpi: 3.1, _source_cpi: 'last-known-good', _freshness_cpi: 'stale-reference', _asOf_cpi: '2026-09-01', _originSource_cpi: 'fred-official-primary' });
+    run = gate();
+    check('v60.19 degradation gate passes a partial cycle whose carried value keeps its date and origin', run.status === 0, `${run.status} ${run.stdout}${run.stderr}`);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 

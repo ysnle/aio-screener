@@ -1,4 +1,5 @@
 name: Event briefs (FOMC and market-mover earnings)
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Event briefs (FOMC and market-mover earnings) · {0}', inputs.trigger || 'operator') || 'Event briefs (FOMC and market-mover earnings)' }}
 
 # v59.42 (owner audit 2026-10-28): scripts/fetch-event-briefs.mjs writes public-data/event-briefs.json from the Fed
 # statement, the SEC 8-K/6-K Ex.99 of the mover list and the DART 공정공시, summarised by the shared Worker AI. A run
@@ -10,6 +11,12 @@ on:
     - cron: '7,27,47 * * * *'
   workflow_dispatch:
     inputs:
+      # v60.19: the data-plane Worker dispatch sets scheduler; the run title carries it for the SLO window.
+      trigger:
+        description: "operator or scheduler (the data-plane Worker)"
+        required: false
+        default: operator
+        type: string
       retry:
         description: "set by the run itself on a push collision (collision); empty otherwise"
         required: false

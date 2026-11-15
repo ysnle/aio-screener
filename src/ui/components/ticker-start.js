@@ -10,8 +10,11 @@ import { el } from './dom.js';
 
 const symbolOf = (row) => String(row?.sym || row?.symbol || '').trim().toUpperCase();
 
+// The company name beside the symbol, unless the name is the symbol itself. A case-insensitive test dropped 'Lyft' (LYFT).
+export const chipLabel = (symbol, name) => (name && name !== symbol ? `${symbol} ${name}` : symbol);
+
 function chip(doc, symbol, name) {
-  const button = el(doc, 'button', name && name.toUpperCase() !== symbol ? `${symbol} ${name}` : symbol, 'q-chip sh-clickable');
+  const button = el(doc, 'button', chipLabel(symbol, name), 'q-chip sh-clickable');
   button.type = 'button';
   button.dataset.action = 'showTicker';
   button.dataset.arg = symbol;

@@ -25,6 +25,7 @@ assert.equal(parseGithubTokenExpiration('next tuesday'), null, 'v58.84 unparseab
   const overTarget = evaluateWeeklyReview({ now: NOW, aiUsage: { configured: true, monthlyReservedMicroUsd: 23_000_000, monthlyBudgetMicroUsd: 20_000_000 } });
   const overFinding = overTarget.findings.find(finding => finding.id === 'ai-monthly-budget');
   assert.ok(overFinding.status === 'WARN' && /목표 예산을 넘었습니다/.test(overFinding.note) && /계속 동작/.test(overFinding.note) && !/\d+%/.test(overFinding.note), 'v59.27 a month past its $20 target warns that AI keeps answering, without the amount');
+  assert.ok(/선불 잔액/.test(overFinding.note) && /선불 잔액/.test(review.findings.find(finding => finding.id === 'ai-monthly-budget').note), 'v60.19 the 80% and over-target notes tell the operator to check the provider prepaid balance (11/10 credit_balance_exhausted)');
   assert.equal(review.needsAction, true, 'v58.84 a warning needs action');
   const body = renderWeeklyReviewMarkdown(review, WEEKLY_REVIEW_MARKER);
   assert.ok(body.startsWith(WEEKLY_REVIEW_MARKER), 'v58.84 the issue body carries the marker');

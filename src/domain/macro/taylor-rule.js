@@ -5,7 +5,7 @@
 // observation, so the reader picks 0.5% or 1.0% and the model also returns the rule across both. The result is a reference
 // point the policy rate is compared with — it never says what the Fed should or will do.
 import { seriesOf, yoySeries } from './macro-read.js';
-import { readNumber as finite } from '../shared/number.js';
+import { policyPricing } from './macro-read.js';
 
 // v58.56 (re-audit #14): the default r* is no longer a fixed pick but the FOMC's own dated estimate — the Summary of Economic
 // Projections' longer-run federal funds rate median (FRED FEDTARMDLR, one observation per SEP release) minus the 2% inflation
@@ -59,11 +59,9 @@ export function taylorRule({ macroHistory = null, macro = null, rStar = null, no
   // The CBO estimate for the quarter the unemployment reading falls in (the latest quarter on or before that month).
   const nrouRows = seriesOf(macroHistory, 'naturalUnemployment');
   const natural = unemployment ? nrouRows.filter((row) => row.date <= unemployment.date).at(-1) || null : nrouRows.at(-1) || null;
-  const upper = finite(macro?.fedTargetUpper);
-  const lower = finite(macro?.fedTargetLower);
-  const target = upper != null && lower != null && lower <= upper
-    ? { lower, upper, mid: (lower + upper) / 2, asOf: macro?._asOf_fedTargetUpper || null }
-    : null;
+  // One range reader for the policy axis and this comparison: both bounds of one observation date (fed-target-range.js).
+  const { lower, upper, mid } = policyPricing(macro || {});
+  const target = mid != null ? { lower, upper, mid, asOf: macro?._asOf_fedTargetUpper || null } : null;
   const missing = [
     inflation ? null : 'corePce',
     unemployment ? null : 'unemployment',

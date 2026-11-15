@@ -4,7 +4,7 @@
 // support the reading names), and a double top — two closing highs within 6% of each other at least 20 sessions apart
 // with the close now at (within 3%) or below the lowest close between them (the neck). No level is written by hand and no ETF price is inferred from
 // an index.
-import { readNumber } from '../../shared/number.js';
+import { readNumber, signedText } from '../../shared/number.js';
 import { withTopicParticle } from '../../content/korean-particle.js';
 import { buildCloseSeries } from '../session/close-series.js';
 
@@ -66,7 +66,7 @@ export function indexLevels(history) {
 }
 
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
-const signed = (value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+const signed = (value) => signedText(value, 1, '%');
 
 /** "나스닥100 고점 대비 -10.3% · 50일선 -5.9%" for one level. */
 export function levelValue(level) {

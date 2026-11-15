@@ -16,6 +16,8 @@ import { groupCashflowSentence } from '../../domain/fundamental/quarterly-cashfl
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
 import { krThemeLabel } from '../../domain/themes/kr-themes.js';
 import { el } from './dom.js';
+import { decisionFrameBlock, favouredLine, groundTag } from './decision-frame.js';
+import { branchDecisionFrame } from '../../domain/scenarios/decision-frame.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 import { BIGTECH_CASHFLOW, SCENARIO_OUTCOMES, SCENARIO_STATE, TREASURY_AUCTIONS } from '../../data/artifact-registry.js';
@@ -140,7 +142,7 @@ function branchMap(doc, root, model, openIds, { restOpen = false } = {}) {
     li.dataset.branch = item.id;
     // Every marked row carries the same mark; a tie also says so (data-tied), so no single row reads as the one 중심.
     if (leadIds.has(item.id)) { li.dataset.lead = 'true'; if (lead.state === 'tie') li.dataset.tied = 'true'; }
-    li.append(branchCard(doc, root, item, leadIds.has(item.id), openIds.has(item.id)));
+    li.append(branchCard(doc, root, item, leadIds.has(item.id), openIds.has(item.id), branchDecisionFrame(item, { cash: model.cash })));
     return li;
   };
   // v57.79: within the same rank the branches run by share of conditions met, so the heading's "조건 충족 순" holds.
@@ -252,7 +254,7 @@ function bigtechCashflowText(root) {
   return sentence ? `투자 자금 여력(SEC 분기 공시 기준, 조건에 넣지 않는 참고값): ${sentence}` : '';
 }
 
-function branchCard(doc, root, item, lead, open = false) {
+function branchCard(doc, root, item, lead, open = false, frame = null) {
   const card = el(doc, 'details', null, 'xr-branch');
   card.dataset.branch = item.id;
   if (lead) card.dataset.lead = 'true';
@@ -264,6 +266,9 @@ function branchCard(doc, root, item, lead, open = false) {
   const tags = el(doc, 'span', null, 'xr-map-tags');
   tags.append(el(doc, 'span', TONE[item.pricing.tone] || TONE.unknown, `xr-tag is-${item.pricing.tone}`),
     el(doc, 'span', `${CHOICE_WORDS.favored}: ${item.favored.map((key) => CHOICES[key]).join(', ')}`, 'xr-tag is-choice'));
+  // The favoured side always names its ground (비용 가설 unless the record backs it).
+  const ground = groundTag(doc, frame);
+  if (ground) tags.append(ground);
   // v57.84 (owner 2026-10-16): favored stays; a conflict with the past frequency is named beside it.
   if (item.pastConflict) tags.append(pastConflictTag(doc, item));
   summary.append(head, ...(sub ? [el(doc, 'span', sub, 'xr-map-sub')] : []), tags, el(doc, 'span', '근거와 선택지', 'xr-map-more'));
@@ -283,11 +288,15 @@ function branchCard(doc, root, item, lead, open = false) {
   const conditionList = el(doc, 'ul', null, 'xr-conditions');
   for (const text of item.basis) conditionList.append(el(doc, 'li', text));
   conditionItem.append(conditionList);
-  evidence.append(conditionItem, el(doc, 'li', `시장 가격: ${item.pricing.text}`), el(doc, 'li', `과거 빈도: ${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''}`));
+  evidence.append(conditionItem, el(doc, 'li', `시장 가격: ${item.pricing.text}`));
   // v59.56 (X bookmarks 11/01): the AI-capex funding gauge the authors read, from SEC quarterly filings — reference, not a condition.
   const cashflow = item.id === 'aibust' ? bigtechCashflowText(root) : '';
   if (cashflow) evidence.append(el(doc, 'li', cashflow));
   body.append(evidence);
+  // The past frequency is the frame's 가능성 line; the full sentence (span, definition, bridge) sits in its fold.
+  const frameBlock = decisionFrameBlock(doc, frame, { method: `${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''}`, side: false });
+  if (frameBlock) body.append(el(doc, 'h4', '과거 기록으로 본 득실', 'xr-h4'), frameBlock);
+  else body.append(el(doc, 'p', `과거 빈도: ${item.past.text}`, 'xr-reading'));
   if (item.triggers.length) {
     body.append(el(doc, 'h4', '확인할 발표', 'xr-h4'));
     const triggers = el(doc, 'ul', null, 'xr-triggers');
@@ -303,7 +312,7 @@ function branchCard(doc, root, item, lead, open = false) {
     if (item.favored.includes(key)) row.append(el(doc, 'span', CHOICE_WORDS.favored, 'xr-choice-flag'));
     table.append(row);
   }
-  body.append(table, el(doc, 'p', item.favoredWhy, 'xr-reading'));
+  body.append(table, favouredLine(doc, frame) || el(doc, 'p', item.favoredWhy, 'xr-reading'));
   const explore = el(doc, 'div', null, 'xr-explore');
   explore.append(el(doc, 'span', '종목은 직접 보기:', 'xr-explore-label'), ...item.explore.map((link) => { const b = linkButton(doc, root, link.label, link.route, link.route === 'themes' ? 'theme-playbook-title' : null); b.title = link.why; return b; }));
   body.append(explore);

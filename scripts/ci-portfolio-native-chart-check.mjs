@@ -103,6 +103,20 @@ const converted = portfolioValueTrend({ surface: { currencyState: 'converted-wit
 const at3m = converted.points?.find((point) => point.label === '3개월');
 const book3m = at3m ? ((1 + converted.bookPct / 100) / (1 + at3m.bookPct / 100) - 1) * 100 : null;
 check('v59.97 ① a KRW-base book of one USD holding reads its 3-month return with the USD/KRW move (+15.5%, not +10.0%) and says so', converted.available && book3m != null && Math.abs(book3m - 15.5) < 0.05 && converted.fxIncluded === true, JSON.stringify({ available: converted.available, reason: converted.reason, book3m, fxIncluded: converted.fxIncluded }));
+// v60.19 (Codex numbers audit P2463 follow-up): the currency leg spans the price leg's own two sessions. With the
+// basis-day USD/KRW close missing, 11/11→11/12 FX beside 11/12→11/13 prices read +21% for both at 100% coverage.
+{
+  const days = ['2026-11-06', '2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13'];
+  const legHistory = (fxEnd) => days.map((date) => ({ date, spx: 6000, ...(date === '2026-11-13' ? (fxEnd ? { usdkrw: 1100 } : {}) : { usdkrw: date === '2026-11-12' ? 1100 : 1000 }) }));
+  const legRows = { SPY: { factorSessionDate: '2026-11-13', ret1d: 10 }, AAA: { factorSessionDate: '2026-11-13', ret1d: 10 } };
+  const legSurface = { currencyState: 'converted-with-declared-rates', baseCurrency: 'KRW', rows: [{ symbol: 'AAA', value: 1000, convertedFrom: 'USD' }] };
+  const missingEnd = portfolioValueTrend({ surface: legSurface, rowOf: (symbol) => legRows[symbol] || null, history: legHistory(false) });
+  const alignedEnd = portfolioValueTrend({ surface: legSurface, rowOf: (symbol) => legRows[symbol] || null, history: legHistory(true) });
+  check('v60.19 ① price and USD/KRW legs on the same two dates: a missing basis-day FX close withholds the converted figure (stated), the aligned control reads +10%',
+    missingEnd.available === false && missingEnd.reason === 'fx-date' && missingEnd.fxAsOf === '2026-11-12'
+      && alignedEnd.available && Math.abs(alignedEnd.bookPct - 10) < 1e-9 && Math.abs(alignedEnd.indexPct - 10) < 1e-9 && alignedEnd.coveredShare === 1,
+    JSON.stringify({ missingEnd, aligned: { book: alignedEnd.bookPct, index: alignedEnd.indexPct } }));
+}
 const spyRows = { SPY: { factorSessionDate: '2026-11-03', ...index } };
 const spyWon = portfolioValueTrend({ surface: { currencyState: 'converted-with-declared-rates', baseCurrency: 'KRW', rows: [{ symbol: 'SPY', value: 1000, convertedFrom: 'USD' }] }, rowOf: (symbol) => spyRows[symbol] || null, history: fxHistory });
 const spyUsd = portfolioValueTrend({ surface: { currencyState: 'declared-single', baseCurrency: 'USD', rows: [{ symbol: 'SPY', value: 1000 }] }, rowOf: (symbol) => spyRows[symbol] || null, history: fxHistory });

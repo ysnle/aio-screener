@@ -40,10 +40,27 @@ export function hostedToolsOf(body) {
 
 /**
  * The tool fields of a request: the hosted tools first, then the data functions. The first request keeps a forced search
- * ('required'); later rounds are 'auto'; the last allowed request sets tool_choice 'none' so the model must answer.
+ * ('required'); later rounds are 'auto' (or searchFollowUpFields while a required search has not run); the last allowed
+ * request sets tool_choice 'none' so the model must answer.
  */
 export function toolRequestFields({ final = false, hosted = [], choice = 'auto' } = {}) {
   return { tools: [...hosted, ...toolDefinitions()], tool_choice: final ? 'none' : choice, parallel_tool_calls: true };
+}
+
+/**
+ * The follow-up of a request that must search when no search has run yet: the hosted tools alone with tool_choice
+ * 'required', so the only tool the model can call is the search. A 'required' first request is satisfied by a data
+ * function call alone, and the next request used to be 'auto', so an answer the reader asked to be searched could end
+ * with no search. The Worker's per-request search cap (max_tool_calls) is unchanged.
+ */
+export function searchFollowUpFields(hosted = []) {
+  return { tools: [...hosted], tool_choice: 'required', parallel_tool_calls: true };
+}
+
+/** Whether a response ran a hosted search: a web_search_call item in its output or in its streamed items. */
+export function searchedIn(response, streamedItems = []) {
+  const output = [...(Array.isArray(response?.output) ? response.output : []), ...(Array.isArray(streamedItems) ? streamedItems : [])];
+  return output.some((item) => item && item.type === 'web_search_call');
 }
 
 /**
@@ -99,19 +116,23 @@ export async function runToolCalls(calls, { root = globalThis, now = Date.now(),
  * the answer is final. `refused(status)` takes the fallback for a refused tools request. Rejects with an AbortError when
  * `signal` aborts while the calls run. When the plain body carries hosted search, every request keeps it beside the
  * functions: the provider runs the search calls inside a response (the Worker caps them per request), the client runs the
- * function calls, and the round and call limits count function calls only.
+ * function calls, and the round and call limits count function calls only. When the plain body must search (hosted
+ * search with tool_choice 'required') and the round's responses ran none, the next request offers the search alone
+ * (searchFollowUpFields), whatever the round count: a requested search is never skipped by a data call.
  */
 export function createToolSession(plainBody, hooks = {}, { root = globalThis, signal = null, fit = null, limits = TOOL_LOOP_LIMITS,
   run = (calls, options) => runToolCalls(calls, { ...options, root, limits }) } = {}) {
   const hosted = hostedToolsOf(plainBody);
-  let body = { ...plainBody, ...toolRequestFields({ hosted, choice: plainBody?.tool_choice === 'required' ? 'required' : 'auto' }) };
-  let rounds = 0, used = 0, fellBack = false, completed = null, streamed = [], hiding = false;
+  const mustSearch = hosted.length > 0 && plainBody?.tool_choice === 'required';
+  let body = { ...plainBody, ...toolRequestFields({ hosted, choice: mustSearch ? 'required' : 'auto' }) };
+  let rounds = 0, used = 0, fellBack = false, completed = null, streamed = [], hiding = false, searched = false;
   const fallback = () => { if (fellBack) return false; fellBack = true; body = plainBody; return true; };
   const hook = (name, value) => { try { if (typeof hooks?.[name] === 'function') hooks[name](value); } catch (_) { /* a closed panel */ } };
   return {
     get body() { return body; },
     get rounds() { return rounds; },
     get calls() { return used; },
+    get searched() { return searched; },
     keySuffix: () => (fellBack ? ':plain' : rounds ? `:r${rounds}` : ''),
     // Only a refusal that is about the tools is worth one request without them; any other 400 is the caller's error.
     refused: (status, detail = '') => status === 400 && /\b(?:tools?|functions?|web_search|search|schema)\b|(?<![가-힣])(?:웹검색|검색|도구)/i.test(String(detail)) && fallback(),
@@ -120,7 +141,8 @@ export function createToolSession(plainBody, hooks = {}, { root = globalThis, si
       if ((evt?.type === 'response.output_item.added' || evt?.type === 'response.output_item.done') && evt.item?.type === 'function_call') {
         hiding = true;
         if (evt.type === 'response.output_item.done') streamed.push(evt.item);
-      } else if (evt?.type === 'response.completed') completed = evt.response || null;
+      } else if (evt?.type === 'response.output_item.done' && evt.item?.type === 'web_search_call') searched = true;
+      else if (evt?.type === 'response.completed') { completed = evt.response || null; if (searchedIn(completed)) searched = true; }
     },
     hidingText: () => hiding,
     async advance(stopReason) {
@@ -135,7 +157,8 @@ export function createToolSession(plainBody, hooks = {}, { root = globalThis, si
       rounds += 1;
       hook('onResults', ran.results);
       const input = appendToolItems(body.input, asked, ran.outputs);
-      body = { ...body, ...(typeof fit === 'function' ? { instructions: fit(input) } : {}), input, ...toolRequestFields({ hosted, final: rounds >= limits.rounds || used >= limits.calls }) };
+      const fields = mustSearch && !searched ? searchFollowUpFields(hosted) : toolRequestFields({ hosted, final: rounds >= limits.rounds || used >= limits.calls });
+      body = { ...body, ...(typeof fit === 'function' ? { instructions: fit(input) } : {}), input, ...fields };
       return true;
     }
   };

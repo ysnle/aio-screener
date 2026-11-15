@@ -3,7 +3,7 @@
 // into the report, did the market or its group move the same way, and what the reports name (spending, execution,
 // management). Each rung is measured from the brief, the closes or the reported reasons; the conclusion is the first
 // rung that explains the move, and a move nothing explains says so instead of guessing.
-import { readNumber } from '../shared/number.js';
+import { readNumber, signedText } from '../shared/number.js';
 import { closeMoveBetween } from '../market/session/close-series.js';
 import { figureSurprise } from './event-briefs.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
@@ -132,7 +132,7 @@ export function reactionRead(brief, { row = null, history = [] } = {}) {
   const goodNumbers = sides.includes('beat') && !sides.includes('miss');
   const badNumbers = sides.includes('miss') && !sides.includes('beat');
   const tags = REASON_CLASSES.filter((cls) => cls.re.test(reasons)).map((cls) => cls.id);
-  const pctText = (value, digits = 1) => `${value > 0 ? '+' : ''}${value.toFixed(digits)}%`;
+  const pctText = (value, digits = 1) => signedText(value, digits, '%');
   // A surprise beyond ±100% (an estimate near zero) prints as the word, not a four-digit percentage.
   const side = (word, pct) => `${word} ${pct == null || Math.abs(pct) > 100 ? ({ beat: '상회', miss: '하회', inline: '부합' })[result[word === '매출' ? 'revenue' : 'eps']] || '' : pctText(pct)}`.trim();
   // The evidence strip: short facts in the order a reader weighs them; a fact with no data is left out.

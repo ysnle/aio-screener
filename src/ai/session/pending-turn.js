@@ -8,11 +8,18 @@ export const PENDING_PREVIEW_CHARS = 80;
 
 const safe = (fn, fallback) => { try { return fn(); } catch (_) { return fallback; } };
 
-/** Stores { sessionId, ctx, question, startedAt }; false when the store refuses or there is no question. */
-export function savePendingTurn(storage, { sessionId = null, ctx = '', question = '', startedAt } = {}) {
+// The screen address the question was asked on ("#ticker?sym=NVDA"): only an in-app hash is kept.
+const routeHash = (value) => { const text = String(value || ''); return /^#[A-Za-z0-9_-]/.test(text) && text.length <= 200 ? text : ''; };
+
+/**
+ * Stores { sessionId, ctx, route, question, startedAt }; false when the store refuses or there is no question. `ctx` is
+ * the panel context and `route` the screen address, so 다시 묻기 can ask again in the conversation and on the screen the
+ * question belongs to.
+ */
+export function savePendingTurn(storage, { sessionId = null, ctx = '', route = '', question = '', startedAt } = {}) {
   const text = String(question || '').trim();
   if (!storage || !text || !Number.isFinite(startedAt)) return false;
-  return safe(() => { storage.setItem(PENDING_TURN_KEY, JSON.stringify({ sessionId: sessionId ? String(sessionId) : null, ctx: String(ctx || ''), question: text, startedAt })); return true; }, false);
+  return safe(() => { storage.setItem(PENDING_TURN_KEY, JSON.stringify({ sessionId: sessionId ? String(sessionId) : null, ctx: String(ctx || ''), route: routeHash(route), question: text, startedAt })); return true; }, false);
 }
 
 /** The stored turn when it is younger than 15 minutes at `now`; an expired or unreadable one is removed and reads null. */
@@ -24,7 +31,7 @@ export function readPendingTurn(storage, { now = Date.now() } = {}) {
     clearPendingTurn(storage);
     return null;
   }
-  return { sessionId: turn.sessionId || null, ctx: String(turn.ctx || ''), question: turn.question, startedAt: Number(turn.startedAt) };
+  return { sessionId: turn.sessionId || null, ctx: String(turn.ctx || ''), route: routeHash(turn.route), question: turn.question, startedAt: Number(turn.startedAt) };
 }
 
 export function clearPendingTurn(storage) {

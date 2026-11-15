@@ -2,8 +2,9 @@ import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isTrustedDeploymentRun, resolveProvenanceRun } from './deployment-provenance.mjs';
+import { telegramDigestBoundary } from './lib/telegram-channels.mjs';
 import { ARTIFACT_FRESHNESS, freshnessLedgerPath, freshnessState } from '../src/data/contracts/artifact-freshness.js';
-import { summarizeOperationalChecks, marketAnalysisDiagnostic, workflowCadence, CADENCE_EVENTS, WATCHDOG_THRESHOLDS, operationalSummary, dataSourceWarnings, deadNewsFeeds } from './lib/operational-health.mjs';
+import { summarizeOperationalChecks, marketAnalysisDiagnostic, aiProviderRefusal, workflowCadence, CADENCE_EVENTS, WATCHDOG_THRESHOLDS, operationalSummary, dataSourceWarnings, deadNewsFeeds } from './lib/operational-health.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const args = process.argv.slice(2);
@@ -141,14 +142,21 @@ async function observeOnce() {
       check('pages-reconciliation', reconciliation?.categories?.length === 22 && !!reconciliation?.revision, `categories=${reconciliation?.categories?.length || 0}`);
       // 2026-10-26: one public channel's preview stopped parsing (aetherjapanresearch, "first page parsed no posts"
       // from 20:52Z) and this error check failed every release verification while the other three channels and the
-      // digest were healthy. Coverage needs three healthy channels; any failing channel stays visible as a warning.
-      const telegramChannels = Array.isArray(telegram?.channels) ? telegram.channels : [];
+      // digest were healthy. Coverage tolerates one failing expected channel; any failing channel stays visible as a warning.
+      // v60.18: a retired channel's row is published for lineage but not fetched; only expected channels count.
+      const telegramChannels = telegramDigestBoundary(telegram).activeRows;
       const telegramFailing = telegramChannels.filter((channel) => channel.error || !Number.isFinite(Number(channel.lastPostId)));
-      check('pages-telegram-coverage', Number(telegram?.count) >= WATCHDOG_THRESHOLDS.minTelegramCount && telegramChannels.length - telegramFailing.length >= WATCHDOG_THRESHOLDS.minHealthyTelegramChannels, `count=${telegram?.count || 0} channels=${telegramChannels.length} healthy=${telegramChannels.length - telegramFailing.length}`);
+      check('pages-telegram-coverage', Number(telegram?.count) >= WATCHDOG_THRESHOLDS.minTelegramCount && telegramChannels.length > telegramFailing.length && telegramFailing.length <= WATCHDOG_THRESHOLDS.maxFailingTelegramChannels, `count=${telegram?.count || 0} channels=${telegramChannels.length} healthy=${telegramChannels.length - telegramFailing.length}`);
       check('pages-telegram-channels (v59.09)', telegramChannels.length > 0 && !telegramFailing.length, telegramFailing.map((channel) => `${channel.channel}: ${channel.error || 'no lastPostId'}`).join('; ') || `channels=${telegramChannels.length}`, 'warning');
       if (!data?.meta?.fearGreedOk) result.warnings.push('live Fear & Greed provider is degraded; static fallback is active');
       if (!data?.meta?.fredHasKey || !data?.meta?.fredFetchOk) result.warnings.push('live FRED enrichment is unavailable or degraded');
       if (!data?.meta?.marketAnalysisOk) result.warnings.push(`live LLM market analysis blocked: ${marketAnalysisDiagnostic(data)}; typed fallback is active`);
+      // v60.18: a provider that refuses the shared account (HTTP 401/402/403/429: exhausted credit, revoked key) is an
+      // operator action, not a lane that heals itself. On 11/10 the analysis was blocked for 11 h on provider-http-429
+      // (credit_balance_exhausted) and only this warning said so; the one alert came from an unrelated deploy's smoke.
+      // A validator block (retained or salvaged reading) stays a warning.
+      const providerRefusal = aiProviderRefusal(data);
+      check('pages-ai-provider-account (v60.18)', !providerRefusal, providerRefusal ? `${providerRefusal}: the AI provider refused the shared account (check its billing/credit and key); the reading shows the typed fallback` : 'provider accepted the last analysis call', dataPlaneSeverity);
       result.warnings.push(...dataSourceWarnings(data));
       const deadFeeds = deadNewsFeeds(data);
       check('pages-news-feeds-alive (v58.29)', deadFeeds.length === 0, deadFeeds.length ? `no usable item for 72h+: ${deadFeeds.join(', ')}` : 'every news feed produced a current item within 72h', dataPlaneSeverity);
@@ -286,5 +294,9 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
 writeFileSync(reportPath, `${JSON.stringify(result, null, 2)}\n`);
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, operationalSummary(result));
 console.log(JSON.stringify(result, null, 2));
+// v60.18: the qa runner and the Actions annotation keep only the last lines of this output, which were the tail of the
+// GitHub block above; 20 red watchdog runs (11/09-11/15) named no failed check, and the report lived only in an artifact.
+// The failed error checks are therefore the last lines printed, one per check.
+for (const item of failures) console.log(`[external-pipeline] FAIL ${item.id}: ${String(item.detail || '').replace(/\s+/g, ' ').slice(0, 240)}`);
 console.log(`[external-pipeline] report=${reportPath}`);
 if (failures.length && mode !== 'observe') process.exit(1);

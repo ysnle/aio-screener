@@ -6,7 +6,7 @@
 // double top and the six-month support from index-levels.js. Breadth enters only where it changes the reading of a
 // trend (owner: "시장 폭만 본다고 해서 의미가 없듯이"). No target, entry or stop is ever named.
 import { usThenKorea } from '../market/session/session-time.js';
-import { readNumber } from '../shared/number.js';
+import { readNumber, signedText } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { sessionCloses, indexLevel } from '../market/indices/index-levels.js';
 import { withTopicParticle } from '../content/korean-particle.js';
@@ -23,7 +23,7 @@ export const TREND_WORDS = Object.freeze({ up: '상승 추세', pullback: '장�
 const SWING_SPAN = 5;
 
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
-const signed = (value, digits = 1) => `${value > 0 ? '+' : ''}${value.toFixed(digits)}%`;
+const signed = (value, digits = 1) => signedText(value, digits, '%');
 const num = (value) => Math.round(value).toLocaleString('en-US');
 
 export function movingAverage(closes, n) {
@@ -115,8 +115,11 @@ export function indexChartReading(history, field, label, { breadth = null } = {}
   const { highs, lows } = swingPointsOf(closes);
   const resistance = highs.filter((row) => row.value > close * 1.005).sort((a, b) => a.value - b.value)[0] || null;
   const support = lows.filter((row) => row.value < close * 0.995).sort((a, b) => b.value - a.value)[0] || null;
-  const momentum = rsi === null ? '' : rsi <= 30 ? ` RSI ${rsi.toFixed(0)}로 과매도권이라, 단기 반등이 자주 나오는 자리지만 추세가 바뀌었다는 뜻은 아닙니다.`
-    : rsi >= 70 ? ` RSI ${rsi.toFixed(0)}로 과열권이라 숨 고르기가 나오기 쉽습니다.` : '';
+  // The RSI band is a state; no published record backs a rebound or pause frequency after it,
+  // so the line carries no direction word ("반등이 자주", "숨 고르기가 나오기 쉽습니다" had no base rate or sample).
+  const { oversold, overbought } = RULES.technical.rsi;
+  const momentum = rsi === null ? '' : rsi <= oversold ? ` RSI ${rsi.toFixed(0)}로 과매도권(${oversold} 이하)입니다. 추세가 바뀌었다는 뜻은 아닙니다.`
+    : rsi >= overbought ? ` RSI ${rsi.toFixed(0)}로 과열권(${overbought} 이상)입니다. 추세가 끝났다는 뜻은 아닙니다.` : '';
   const levels = [support ? `아래 지지 후보는 ${md(support.date)} 저점 ${num(support.value)}(${signed((support.value / close - 1) * 100)})` : null,
     resistance ? `위 저항 후보는 ${md(resistance.date)} 고점 ${num(resistance.value)}(${signed((resistance.value / close - 1) * 100)})` : null].filter(Boolean);
   const top = level?.doubleTop;

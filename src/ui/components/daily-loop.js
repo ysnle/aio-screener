@@ -3,7 +3,7 @@
 // v59.51 (content audit 2026-10-31): 밤사이 핵심, 주요 발표 요약, 다가오는 일정, 오늘 확인할 3가지 and "지난 마감 이후 변화" left
 // 오늘 — each repeated a block on 뉴스, 브리핑 or the hero (same pickers, same rows). The links row says where they are.
 import { buildMyNames } from '../../domain/briefing/daily-diff.js';
-import { readMarketRegime } from './market-regime.js';
+import { readMarketRegime } from '../../data/selectors/interpretation.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
 import { el } from './dom.js';
 import { frameHead, markFrame } from './section-frame.js';

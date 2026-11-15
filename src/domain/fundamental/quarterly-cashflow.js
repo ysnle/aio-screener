@@ -170,7 +170,7 @@ export function groupCashflowSentence(group) {
   // A partial total is a different number (one missing spender moves the ratio), so it is not offered as the group's.
   if (!group?.complete) return '';
   const who = `빅테크 ${group.members.length}개사(${group.members.join('·')})`;
-  const prior = group.yearAgo ? ` — 1년 전 ${group.yearAgo.capexToOcfPct}%, 설비투자 ${group.capexYoyPct >= 0 ? '+' : ''}${group.capexYoyPct}%` : '';
+  const prior = group.yearAgo ? ` — 1년 전 ${group.yearAgo.capexToOcfPct}%, 설비투자 ${group.capexYoyPct > 0 ? '+' : ''}${group.capexYoyPct}%` : '';
   const mixed = group.endSpreadDays > 45 && group.endRange ? `(분기 끝 ${md(group.endRange[0])}~${md(group.endRange[1])} 혼재)` : '';
   return `${who} 최근 4분기${mixed} 합계 설비투자 ${usdB(group.capex)} ÷ 영업현금흐름 ${usdB(group.ocf)} = ${group.capexToOcfPct}%, 잉여현금흐름 ${usdB(group.fcf)}${prior}`;
 }
@@ -178,6 +178,6 @@ export function groupCashflowSentence(group) {
 /** One issuer line: twelve months to the latest quarter end, the SEC basis named. */
 export function issuerCashflowSentence(row) {
   if (!row?.ttm) return '';
-  const yoy = row.capexYoyPct == null ? '' : `, 설비투자 1년 전 대비 ${row.capexYoyPct >= 0 ? '+' : ''}${row.capexYoyPct}%`;
+  const yoy = row.capexYoyPct == null ? '' : `, 설비투자 1년 전 대비 ${row.capexYoyPct > 0 ? '+' : ''}${row.capexYoyPct}%`;
   return `${row.symbol}(${row.nameKo}) ${ym(row.ttm.end)} 분기까지 최근 4분기 영업현금흐름 ${usdB(row.ttm.ocf)} · 설비투자 ${usdB(row.ttm.capex)} · 잉여현금흐름 ${usdB(row.ttm.fcf)}(설비투자 ÷ 영업현금흐름 ${round1(row.ttm.capexToOcfPct)}%${yoy}; SEC ${md(row.ttm.filed)} 공시까지)`;
 }

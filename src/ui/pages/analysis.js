@@ -3,7 +3,8 @@ import { selectTechnical, selectSignal, selectHomeSummary } from '../../state/se
 import { subscribeToSlices } from '../../state/memoize.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
-import { renderRegimePage, renderHomeRegime, readMarketRegime } from '../components/market-regime.js';
+import { renderHomeRegime } from '../components/home-regime.js';
+import { readMarketRegime } from '../../data/selectors/interpretation.js';
 import { renderDailyLoop } from '../components/daily-loop.js';
 import { renderKoreaParticipation } from '../components/korea-participation.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../../domain/briefing/market-read.js';
@@ -16,6 +17,13 @@ import { historyWaitText } from '../components/data-state.js';
 // v59.75: the stock chart is a route-only chunk. Like createLazyPage (v57.55 S1-F14), a failed load (GitHub Pages 429, a
 // chunk missing after a deploy) is retried twice with a growing pause; after that the section says so instead of
 // keeping an empty canvas and 판정 대기. Only the import is caught: an error inside installStockChart still surfaces.
+// The 시장 상태 board is the signal route's own code (src/app/bootstrap.js loads it with that route). The import edge stays
+// in this lazy chunk: from the boot entry it re-split the shared chunks and added ~8 KB to the boot module set.
+let regimeBoardModule = null;
+export function loadRegimeBoard() {
+  return (regimeBoardModule ||= import('../components/market-regime.js').catch((error) => { regimeBoardModule = null; throw error; }));
+}
+
 let stockChartModule = null;
 function loadStockChart(delays = [1500, 6000]) {
   if (stockChartModule) return stockChartModule;
@@ -49,8 +57,10 @@ function setText(documentRef, id, value, color = null) {
   if (color) element.style.color = color;
 }
 
-// P1392: the score hero, adjustment rows and home score summary were retired; the 시장 상태
-// board and the home regime card are rendered by ../components/market-regime.js.
+// P1392: the score hero, adjustment rows and home score summary were retired; the 시장 상태 board is rendered by
+// ../components/market-regime.js, which the signal route's loader hands in (renderRegimePage), and the home hero by
+// ../components/home-regime.js. A static import of the board put its whole tree (axis rows, radar, crossroads, guide,
+// deep dives) in 오늘 and 차트 as well.
 
 // T09/T11 (expert review 2026-10-13): the home score was the intraday value beside a close-based '전일 대비', its label
 // banded the rounded value while the colour banded the raw one ('극단적 공포' vs the sentiment card's '극단 공포'), and
@@ -94,7 +104,7 @@ function renderTechnicalHealth({ documentRef, root }) {
   documentRef?.getElementById('tech-regime-summary')?.setAttribute('data-aio-tech-regime-renderer', 'native');
 }
 
-function render({ root, documentRef, store, route }) {
+function render({ root, documentRef, store, route, renderRegimePage }) {
   const technical = selectTechnical(store.getState());
   const signal = selectSignal(store.getState());
   const home = selectHomeSummary(store.getState());
@@ -132,18 +142,18 @@ function render({ root, documentRef, store, route }) {
     if (route === 'signal') {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioSignalRenderer = 'native';
-      renderRegimePage({ documentRef, root, store });
+      renderRegimePage?.({ documentRef, root, store });
       renderKoreaParticipation({ documentRef, root, store });
     }
   }
 }
 
-export function createAnalysisPage({ root = globalThis, documentRef, store, route = 'home' } = {}) {
+export function createAnalysisPage({ root = globalThis, documentRef, store, route = 'home', renderRegimePage = null } = {}) {
   return {
     route,
     mount() {
       const bag = createResourceBag();
-      const renderNow = () => render({ root, documentRef, store, route });
+      const renderNow = () => render({ root, documentRef, store, route, renderRegimePage });
       renderNow();
       bag.add(subscribeToSlices(store, ['analysis', 'sentiment', 'marketSnapshot'], renderNow));
       const eventTarget = documentRef || globalThis;

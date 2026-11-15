@@ -76,6 +76,65 @@ jobs:
           path: ${{ runner.temp }}/factor-backtest-longrun.json
           retention-days: 30
 
+      # Owner 2026-11-15: the 시장 기울기 lean rule replayed point-in-time through the live regime and lean functions
+      # (Yahoo daily closes + FRED HY OAS). Uploaded like the factor backtest; promoting it into
+      # public-data/market-lean-backtest.json is a reviewed change. Judged below into model-validation-status.json marketLean.
+      # Review v60.19 B3: the lean studies fetch Yahoo/FRED; the screener verdict above never depended on them. A failed
+      # study is optional to the judge (it records NOT_RUN for a missing input) and is reported as a warning below; the
+      # offline harness check stays a hard step.
+      - name: Offline checks for the market lean harness
+        if: ${{ hashFiles('scripts/backtest-market-lean.mjs') != '' }}
+        run: node scripts/ci-market-lean-validation-check.mjs
+
+      - name: Run market lean backtest
+        id: lean
+        if: ${{ hashFiles('scripts/backtest-market-lean.mjs') != '' }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          node scripts/backtest-market-lean.mjs "--out=$RUNNER_TEMP/market-lean-backtest.json" "--write-rows=$RUNNER_TEMP/market-lean-rows.json"
+
+      - name: Upload market lean backtest
+        if: ${{ steps.lean.outcome == 'success' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: market-lean-backtest
+          path: ${{ runner.temp }}/market-lean-backtest.json
+          retention-days: 30
+
+      # Review v60.19 A5: the risk read of the same count, on the criterion registered before its first run
+      # (validation-gate-criteria.json marketLeanRisk); it reuses the direction study's rows when they were fetched.
+      # Judged below into model-validation-status.json marketLean.risk; promotion into public-data/market-lean-risk.json
+      # is a reviewed change, as for the direction study.
+      - name: Run market lean risk backtest
+        id: leanrisk
+        if: ${{ hashFiles('scripts/backtest-market-lean-risk.mjs') != '' }}
+        continue-on-error: true
+        timeout-minutes: 12
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/market-lean-risk"
+          rows=()
+          if [ -f "$RUNNER_TEMP/market-lean-rows.json" ]; then rows=("--rows=$RUNNER_TEMP/market-lean-rows.json"); fi
+          node scripts/backtest-market-lean-risk.mjs "--out-dir=$RUNNER_TEMP/market-lean-risk" "${rows[@]}"
+
+      - name: Upload market lean risk backtest
+        if: ${{ steps.leanrisk.outcome == 'success' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: market-lean-risk
+          path: ${{ runner.temp }}/market-lean-risk/risk-result.json
+          retention-days: 30
+
+      - name: Report a failed lean study
+        if: ${{ steps.lean.outcome == 'failure' || steps.leanrisk.outcome == 'failure' }}
+        env:
+          LEAN: ${{ steps.lean.outcome }}
+          LEAN_RISK: ${{ steps.leanrisk.outcome }}
+        run: |
+          echo "::warning title=Market lean study failed::direction ${LEAN}, risk ${LEAN_RISK} — the judge records NOT_RUN for a missing study; the screener verdict is unaffected"
+          printf '\n## Market lean studies\n\n- direction: **%s** · risk: **%s** (a failed study is judged NOT_RUN)\n' "$LEAN" "$LEAN_RISK" >> "$GITHUB_STEP_SUMMARY"
+
       # v59.70 (data audit R10): judge the screener validation gate and the model validation status from this run's
       # backtest (architecture/validation-gate-criteria.json). Like the backtest, the result is uploaded, not committed.
       # The condition keeps a dispatch working on a checkout that predates the script.
@@ -83,7 +142,11 @@ jobs:
         if: ${{ hashFiles('scripts/build-validation-gates.mjs') != '' }}
         run: |
           set -euo pipefail
-          node scripts/build-validation-gates.mjs --backtest "$RUNNER_TEMP/factor-backtest-longrun.json" --out-dir "$RUNNER_TEMP"
+          lean=()
+          if [ -f "$RUNNER_TEMP/market-lean-backtest.json" ]; then lean+=(--lean-backtest "$RUNNER_TEMP/market-lean-backtest.json"); fi
+          if [ -f "$RUNNER_TEMP/market-lean-risk/risk-result.json" ]; then lean+=(--lean-risk "$RUNNER_TEMP/market-lean-risk/risk-result.json"); fi
+          node scripts/build-validation-gates.mjs --backtest "$RUNNER_TEMP/factor-backtest-longrun.json" "${lean[@]}" --out-dir "$RUNNER_TEMP"
+          node -e 'const l = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).marketLean || {}; const r = l.risk || {}; require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, `\n## Market lean verdict\n\n- status **${l.status}** · buy ${l.directions && l.directions.buy} · defend ${l.directions && l.directions.defend} · axes ${(l.axesReconstructed || []).join("/")} · blockers ${(l.blockers || []).join(", ") || "none"}\n- risk read **${r.status}** · held-out ${r.heldOut && r.heldOut.from}~${r.heldOut && r.heldOut.to} · interval ${r.heldOut && JSON.stringify(r.heldOut.ci)} · blockers ${(r.blockers || []).join(", ") || "none"}\n`);' "$RUNNER_TEMP/model-validation-status.json"
 
       - name: Upload validation gate judgement
         if: ${{ hashFiles('scripts/build-validation-gates.mjs') != '' }}

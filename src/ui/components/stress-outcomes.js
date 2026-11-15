@@ -9,6 +9,12 @@ import { el } from './dom.js';
 import { signedBar } from './signed-bar.js';
 import { signedText } from '../../domain/shared/number.js';
 import { STRESS_OUTCOMES } from '../../data/artifact-registry.js';
+import { outcomeRecordNote, stressOutcomesCurrent } from '../../domain/scenarios/outcome-fingerprints.js';
+import { evidenceStrength } from '../../domain/shared/evidence-strength.js';
+
+// Overlapping windows give about n/h independent ones (the producer's nEff); the shared evidence-strength rule says what
+// may be shown at that count (VIX 40+ one month ≈ 10, three months ≈ 3).
+const windowStrength = (stats, horizon) => evidenceStrength(Number.isFinite(stats?.nEff) ? stats.nEff : Number(stats?.n) / horizon, { approx: true });
 
 const pct = (value, digits = 1) => (Number.isFinite(value) ? signedText(value, digits, '%') : '—');
 const Z10 = 1.2816; // standard normal 10th percentile
@@ -51,8 +57,17 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
     section.hidden = true;
   }
   if (section.parentElement !== host) host.append(section);
-  const paint = (payload) => {
-    if (payload?.status !== 'current' || !Array.isArray(payload.bands) || !payload.bands.length) { section.hidden = true; return; }
+  const paint = (payload, { failed = false } = {}) => {
+    // A copy computed on another definition (no stamp, or another one) is not used until the producer rebuilds it.
+    // The fold stays, with one status line — the definition changed (and when it was last computed),
+    // or 없음 when the record failed or is unusable — instead of disappearing. Before the first load it stays hidden.
+    if (payload?.status !== 'current' || !stressOutcomesCurrent(payload) || !Array.isArray(payload.bands) || !payload.bands.length) {
+      if (!payload && !failed) { section.hidden = true; return; }
+      const restamped = !!payload && payload.status === 'current' && !stressOutcomesCurrent(payload);
+      section.replaceChildren(el(doc, 'summary', STRESS_TITLE), el(doc, 'p', outcomeRecordNote(payload, { restamped }), 'regime-read'));
+      section.hidden = false;
+      return;
+    }
     const history = root?._aioHistory || [];
     const vix = buildCloseSeries(history, 'vix', { through: closeBasis(history) }).at(-1) || null;
     const current = vix ? stressBandOf(vix.value) : null;
@@ -70,13 +85,14 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
       const row = el(doc, 'div', null, `stress-bar-row${band.id === current?.id ? ' is-current' : ''}`);
       row.setAttribute('role', 'listitem');
       // v59.69: a mean return can be negative — the shared two-sided bar keeps its side of the zero line.
-      const track = signedBar(doc, Number(stats.mean) || 0, scale);
+      const ev = windowStrength(stats, 21);
+      const track = signedBar(doc, ev.figures ? Number(stats.mean) || 0 : 0, scale);
       // T14 (expert review 2026-10-13): the sample behind each bar is on screen, not only in the hover.
       // v57.50 D07/D08: separate spells (re-entries within 21 sessions merged) and the ± range of the mean.
       const range = meanRange(stats, 21);
       row.append(el(doc, 'span', `${band.label}${band.id === current?.id ? ', 지금' : ''}`, 'stress-bar-label'), track,
-        el(doc, 'span', `${pct(stats.mean)}${range ? ` ±${range.half.toFixed(1)}%p` : ''}, 오른 비율 ${stats.hitRate ?? '—'}%, ${spellText(band, stats, 21)}`, 'stress-bar-value'));
-      row.title = `${band.label}: ${stats.n.toLocaleString('en-US')}거래일, 연속 구간 ${band.episodes}회${Number.isFinite(band.shortRuns) ? `(그중 3일 이하 ${band.shortRuns}회)` : ''}, 평균 범위는 겹치지 않는 한 달 약 ${Math.round(stats.n / 21)}개 기준 표준오차의 2배${range?.approx ? '(분위수로 근사)' : ''}, 하위 10% 결과 ${pct(stats.p10)}`;
+        el(doc, 'span', ev.figures ? `${pct(stats.mean)}${range ? ` ±${range.half.toFixed(1)}%p` : ''}, 오른 비율 ${stats.hitRate ?? '—'}%, ${ev.tag}` : ev.note, 'stress-bar-value'));
+      row.title = `${band.label}: ${stats.n.toLocaleString('en-US')}거래일, ${spellText(band, stats, 21)}, 연속 구간 ${band.episodes}회${Number.isFinite(band.shortRuns) ? `(그중 3일 이하 ${band.shortRuns}회)` : ''}, 평균 범위는 겹치지 않는 한 달 약 ${Math.round(stats.n / 21)}개 기준 표준오차의 2배${range?.approx ? '(분위수로 근사)' : ''}, 하위 10% 결과 ${pct(stats.p10)}`;
       chart.append(row);
     }
 
@@ -85,11 +101,14 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
     const allRange = meanRange(all, 21);
     const curRange = curStats ? meanRange(curStats, 21) : null;
     const curVsAll = curRange && allRange ? (overlaps(curRange, allRange) ? ` 이 구간 평균의 범위(±${curRange.half.toFixed(1)}%p)가 전체 평균 ${pct(all.mean)}의 범위와 겹쳐, 평균 차이는 구별되지 않습니다.` : ` 이 구간 평균의 범위(±${curRange.half.toFixed(1)}%p)는 전체 평균 ${pct(all.mean)}의 범위와 겹치지 않습니다.`) : ` 전체 평균은 ${pct(all.mean)}입니다.`;
-    const reading = cur && curStats?.n
-      ? `${Number(vix.date.slice(5, 7))}/${Number(vix.date.slice(8, 10))} 종가 VIX ${vix.value.toFixed(2)}은 ${cur.label} 구간입니다. ${from}년 이후 이 구간에 있던 날(${spellText(cur, curStats, 21)}) 뒤 한 달 동안 S&P 500은 평균 ${pct(curStats.mean)} 움직였고 ${curStats.hitRate}%는 올랐습니다. 나쁜 쪽 10%는 ${pct(curStats.p10)} 이하였습니다.${curVsAll}`
+    const curEv = curStats ? windowStrength(curStats, 21) : null;
+    const curHead = cur ? `${Number(vix.date.slice(5, 7))}/${Number(vix.date.slice(8, 10))} 종가 VIX ${vix.value.toFixed(2)}은 ${cur.label} 구간입니다.` : '';
+    const reading = cur && curStats?.n && !curEv.figures ? `${curHead} ${from}년 이후 이 구간은 겹치지 않는 한 달 ${curEv.note}`
+      : cur && curStats?.n
+      ? `${curHead} ${from}년 이후 이 구간에 있던 날(${curEv.tag}) 뒤 한 달 동안 S&P 500은 평균 ${pct(curStats.mean)} 움직였고 ${curStats.hitRate}%는 올랐습니다. 나쁜 쪽 10%는 ${pct(curStats.p10)} 이하였습니다.${curVsAll}`
       : `${from}년 이후 VIX 구간별로 그 뒤 한 달 동안 S&P 500이 실제로 어떻게 움직였는지입니다. 오늘의 VIX 종가가 없어 현재 구간은 표시하지 않습니다.`;
     // D08: name the bands whose mean range clears the overall range; when none does, the table shows no distinguishable gap.
-    const distinct = allRange ? rows.filter((band) => { const r = meanRange(month(band), 21); return r && !overlaps(r, allRange); }).map((band) => band.label) : [];
+    const distinct = allRange ? rows.filter((band) => { const r = meanRange(month(band), 21); return r && windowStrength(month(band), 21).figures && !overlaps(r, allRange); }).map((band) => band.label) : [];
     const distinctLine = !allRange ? '' : distinct.length
       ? ` 지금 표에서 평균의 범위가 전체 평균의 범위와 겹치지 않는 구간은 ${distinct.join(', ')}뿐이고, 나머지 구간 사이의 평균 차이는 구별되지 않습니다.`
       : ' 지금 표에서는 어느 구간도 평균의 범위가 전체 평균의 범위와 갈리지 않아, 구간 사이의 평균 차이는 구별되지 않습니다.';
@@ -99,7 +118,10 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
     deep.append(el(doc, 'h4', '불안한 구간 뒤의 결과를 읽는 원리'), el(doc, 'p', `변동성이 높을 때 투자자가 위험을 떠안는 대가로 더 큰 기대수익을 요구한다는 설명(위험 프리미엄)이 있습니다. 다만 이 표의 평균 차이가 그 증거가 되려면 구간 평균의 범위(±)가 서로 겹치지 않아야 합니다.${distinctLine} 같은 구간의 하위 10% 결과 손실 폭도 함께 봐야 결과의 폭을 읽을 수 있습니다.`));
     deep.append(el(doc, 'h4', '숫자를 믿을 수 있는 정도'), el(doc, 'p', `연속된 날은 뒤 한 달이 서로 겹치므로 거래일 수만큼 독립적인 사례가 있는 것이 아닙니다. 평균 옆의 ±는 겹치지 않는 한 달 수(거래일 ÷ 21)로 계산한 표준오차의 2배입니다. ${rows.some((band) => Number.isFinite(band.clusters)) ? `경계 근처에서 하루이틀 빠졌다 돌아온 진입은 ${CLUSTER_GAP_SESSIONS}세션 안의 재진입이면 하나의 군집으로 셉니다. ` : '경계 근처에서 하루이틀 빠졌다 돌아오는 진입이 많아, 진입 횟수 대신 겹치지 않는 한 달 수를 표본으로 적었습니다. '}VIX 30 이상은 표본이 적어 평균이 몇 번의 위기에 크게 좌우됩니다. 수익률은 배당을 뺀 가격 기준입니다.`));
     const table = el(doc, 'dl', null, 'regime-evidence');
-    for (const band of rows) { const q = quarter(band); const qr = meanRange(q, 63); table.append(el(doc, 'dt', `${band.label}, 석 달 뒤`), el(doc, 'dd', `평균 ${pct(q.mean)}${qr ? ` ±${qr.half.toFixed(1)}%p` : ''}, 오른 비율 ${q.hitRate ?? '—'}%, 하위 10% 결과 ${pct(q.p10)}`)); }
+    for (const band of rows) {
+      const q = quarter(band); const qr = meanRange(q, 63); const qe = windowStrength(q, 63);
+      table.append(el(doc, 'dt', `${band.label}, 석 달 뒤`), el(doc, 'dd', qe.figures ? `평균 ${pct(q.mean)}${qr ? ` ±${qr.half.toFixed(1)}%p` : ''}, 오른 비율 ${q.hitRate ?? '—'}%, 하위 10% 결과 ${pct(q.p10)}, ${qe.tag}` : qe.note));
+    }
     deep.append(el(doc, 'h4', '석 달 뒤 결과'), table);
     // P1745: the retired-score history paragraph was a changelog, not analysis — removed from the screen.
 
@@ -112,5 +134,5 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
     section.hidden = false;
   };
   paint(root?.[STRESS_OUTCOMES.key]);
-  refreshSharedArtifact(root, STRESS_OUTCOMES).then(({ payload, changed }) => { if (changed) paint(payload); }).catch(() => {});
+  refreshSharedArtifact(root, STRESS_OUTCOMES).then(({ payload, changed }) => { if (changed) paint(payload); }).catch(() => { if (!root?.[STRESS_OUTCOMES.key]) paint(null, { failed: true }); });
 }

@@ -173,9 +173,11 @@ console.log('scenario guidance fixture (basis card): PASS');
 // with opportunity cost — plus every theme by one rule, scored releases and the automated transition log.
 {
   const { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext, releaseActuals, scoreRelease, BRANCHES, CHOICES, BRANCH_NOTES } = await import('../src/domain/market/regime/macro-crossroads.js');
-  const { BRANCH_ANALOGS, analogOutcome, themeStateOutcomes, themeStateOf, THEME_STATES } = await import('../src/domain/scenarios/analogs.js');
+  const { BRANCH_ANALOGS, analogOutcome, themeStateOf, THEME_STATES } = await import('../src/domain/scenarios/analogs.js');
+  const { themeStateOutcomes } = await import('../src/domain/scenarios/outcome-history.js');
   const { EXPOSURE_TAGS, US_THEME_PROFILES, KR_THEME_PROFILES, windFor } = await import('../src/domain/scenarios/exposures.js');
-  const { buildThemePlaybook, renderThemePlaybookContext, rotationOf } = await import('../src/domain/scenarios/theme-playbook.js');
+  const { buildThemePlaybook, rotationOf } = await import('../src/domain/scenarios/theme-playbook.js');
+  const { renderThemePlaybookContext } = await import('../src/domain/scenarios/theme-playbook-context.js');
   const { buildMacroRead } = await import('../src/domain/macro/macro-read.js');
   const { loadThemeMaps, buildScenarioState, diffSnapshots, scoreNewReleases } = await import('./build-scenario-state.mjs');
   const { buildScenarioOutcomes } = await import('./build-scenario-outcomes.mjs');
@@ -259,15 +261,17 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.match(text, /최근 변화\(자동 기록\)/, 'P1743: the AI gets the automated transition log');
   assert.match(text, /지난 발표 판정\(자동\)/, 'P1743: the AI gets the scored releases');
   // Past frequency: non-overlapping episodes, long-history artifact preferred when it has a sample.
+  // A long-history record is read only under the live branch stamp (currentScenarioOutcomes), as a published one is.
+  const liveOutcomeStamps = (await import('../src/domain/scenarios/outcome-fingerprints.js')).scenarioOutcomeFingerprints();
   const synthetic = Array.from({ length: 200 }, (_, i) => ({ date: new Date(Date.UTC(2000, 0, 1) + i * 86400000).toISOString().slice(0, 10), spx: 100 + i, tnx: 4 + (i >= 30 ? 0.5 : 0) + (i >= 120 ? 0.5 : 0), vix: 15, wti: 70, dxy: 100 }));
   const freq = analogOutcome(synthetic, BRANCH_ANALOGS.reheat);
   assert.ok(freq.n >= 1 && freq.n <= 3, `P1743: overlapping windows are counted once per episode (n=${freq.n})`);
-  const longModel = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 41, up: 22, median: 0.4, p25: -2.1, p75: 2.9, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } });
+  const longModel = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { fingerprints: liveOutcomeStamps, sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 41, up: 22, median: 0.4, p25: -2.1, p75: 2.9, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } });
   assert.match(longModel.items.find((item) => item.id === 'reheat').past.text, /장기 일봉 기록\(1990년~2026년 10월\)에서 서로 겹치지 않는 사례 41번 중 22번/, 'P1743: long-history outcomes replace the one-year record');
   // v59.59 (AI token budget): one-line branches whose long-record frequency is within noise of the base rate share one
   // stated basis; each line keeps its label and case count, and the screen text (item.past.text) is unchanged.
   const noise = (n) => ({ n, up: Math.round(n * 0.64), median: 0.5, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 });
-  const noisyModel = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: Object.fromEntries(Object.keys(BRANCH_ANALOGS).map((id, i) => [id, noise(60 + i)])) } });
+  const noisyModel = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { fingerprints: liveOutcomeStamps, sourceLabel: '장기 일봉 기록', branches: Object.fromEntries(Object.keys(BRANCH_ANALOGS).map((id, i) => [id, noise(60 + i)])) } });
   const noisyText = renderMacroCrossroadsContext(noisyModel);
   const compacted = noisyModel.items.filter((item) => item.id !== noisyModel.leadId && item.id !== noisyModel.altId);
   assert.equal((noisyText.match(/과거 빈도 공통 기준/g) || []).length, 1, 'v59.59: the shared base-rate basis is stated once');
@@ -298,13 +302,13 @@ console.log('scenario guidance fixture (basis card): PASS');
   const oct16 = { soxxRel20: -7.6, leadershipBreak: true, payroll3: 51, payrollPrior3: 80, hy20: 53, oilSurging: true, sentimentRank: { percentile: 13, month: '8월', value: 51.7 }, wtiPosition: 0.8 };
   assert.equal(buildMacroCrossroads({ signals: oct16 }).leadId, 'aibust', '2026-10-19 with the leadership break the 10/16 tape leads with AI 투자 꺾임, not 유가 충격');
   // Audit 4: a past sample pointing opposite to the favoured choice carries one bridging sentence (no invented %).
-  const bridged = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 20, up: 19, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
-  const thin = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 4, up: 4, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } }).items.find((item) => item.id === 'reheat');
+  const bridged = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { fingerprints: liveOutcomeStamps, sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 20, up: 19, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
+  const thin = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { fingerprints: liveOutcomeStamps, sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 4, up: 4, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20 } } } }).items.find((item) => item.id === 'reheat');
   assert.ok(!thin.pastBridge && !/비슷한 때 \d+%/.test(thin.past?.text || ''), 'v57.79 fewer than 10 cases make no "mostly" claim and no hit-rate percentage');
   assert.match(bridged.pastBridge, /^과거 표본과 어긋남 — 비슷한 때 이후 20거래일 주가가 오른 비율이 같은 기록 전체 거래일보다 높았습니다\. 이 시나리오의 결론\(관망·방어 전환\)은 '금리가 더 오르는 시나리오'가 실제로 이어질 때의 비용 기준이며, 표본이 작습니다\.$/, 'v57.84 (audit 4, v57.79 small-sample note): the conflict bridge sentence');
   assert.ok(bridged.pastConflict?.lean === 'defensive', 'v57.84 favored wait/defend with 95% up against a 64% base (n 20) is a past-sample conflict');
   // Audit D1 (owner 2026-10-17): two standard errors, shared with frequencyText — 10/12 against 64% is sampling noise now.
-  const noisy = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 12, up: 10, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
+  const noisy = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { fingerprints: liveOutcomeStamps, sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 12, up: 10, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
   // v58.3x (macro audit D2/D7, owner 2026-10-19): within 2 SE the line gives the counts and the base, no share or median to anchor on.
   assert.ok(!noisy.pastConflict && !noisy.pastBridge && /표본 오차 안에서 구별되지 않았습니다/.test(noisy.past.text) && !/비슷한 때 \d+%|중앙값/.test(noisy.past.text) && /비슷한 시장 움직임으로 고른 비교/.test(readFileSync(new URL('../src/ui/components/macro-crossroads.js', import.meta.url), 'utf8')), 'audit D1/D2 (v58.74: the market-move basis is said once in the section lead): within 2 SE the frequency line says sampling noise');
   {
@@ -642,13 +646,15 @@ console.log('scenario guidance fixture (basis card): PASS');
   {
     // v57.83 codex audit F06: the macro chain and gauge name the 20-session record as the cause, never "수준이 부담".
     const { buildMacroRead } = await import('../src/domain/macro/macro-read.js');
+    const { buildMacroChain } = await import('../src/domain/macro/macro-chain.js');
     const mh = { schemaVersion: 'macro-history.v1', series: { hyOas: { observations: hyObs(rise) } } };
     const macroRead = buildMacroRead({ macro: { hyOAS: 3.16, hyOASDelta5: 0.13 }, macroHistory: mh, regime: { axes: [{ id: 'credit', state: 'burden' }] } });
-    const branch = macroRead.chain.branches.find((b) => b.id === 'credit');
+    const branch = buildMacroChain({ macro: { hyOAS: 3.16, hyOASDelta5: 0.13 }, macroHistory: mh, regime: { axes: [{ id: 'credit', state: 'burden' }] } }).branches.find((b) => b.id === 'credit');
     assert.ok(/20거래일 \+\d+bp 확대/.test(branch.effect) && !/수준이 부담/.test(branch.effect), `v57.83 the credit chain names the 20-session widening (${branch.effect})`);
     assert.match(macroRead.sharedGauges.credit.gauge.label, /20거래일 변화/, 'v57.83 the credit gauge draws the input that decided the burden');
-    const levelRead = buildMacroRead({ macro: { hyOAS: 4.8, hyOASDelta5: 0.02 }, macroHistory: mh, regime: { axes: [{ id: 'credit', state: 'burden' }] } });
-    assert.match(levelRead.chain.branches.find((b) => b.id === 'credit').effect, /스프레드 수준\(480bp\)이 부담 구간/, 'v57.83 a level burden still says the level');
+    // The level is the observation the axis read (its `observation`), never a snapshot beside another observation's change.
+    const levelAxis = { id: 'credit', state: 'burden', observation: { level: 480, change5: 2, change20: null, asOf: days.at(-1), source: 'snapshot' } };
+    assert.match(buildMacroChain({ macroHistory: mh, regime: { axes: [levelAxis] } }).branches.find((b) => b.id === 'credit').effect, /스프레드 수준\(480bp\)이 부담 구간/, 'v57.83 a level burden still says the level');
   }
   const latch = latchedState([{ date: 'a', value: 40 }, { date: 'b', value: 30 }, { date: 'c', value: 26 }], (p) => p.value >= 35, (p) => p.value < 25);
   const released = latchedState([{ date: 'a', value: 40 }, { date: 'b', value: 30 }, { date: 'c', value: 20 }], (p) => p.value >= 35, (p) => p.value < 25);
@@ -883,7 +889,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     return { date, spx: 6000 + wave(i, 40, 9), wti, brent: i < N - 21 ? wti + 3.4 : brent0 * (1 + 0.002 * k) };
   });
   const oilRead = buildMacroRead({ history: oilHistory });
-  const oilNode = oilRead.chain.nodes.find((node) => node.id === 'oil');
+  const oilNode = (await import('../src/domain/macro/macro-chain.js')).buildMacroChain({ history: oilHistory }).nodes.find((node) => node.id === 'oil');
   const oilModel = buildMacroCrossroads({ read: oilRead, history: oilHistory });
   const hubOil = oilModel.rateHub.pathsDown.find((path) => path.id === 'oil');
   assert.ok(oilRead.oil.held && oilNode.held && oilNode.impact === 'unknown' && hubOil.stateText === '혼재' && hubOil.ok == null
@@ -909,7 +915,8 @@ console.log('scenario guidance fixture (basis card): PASS');
 // with a band, slow-window labels name their window, and a five-session break beyond the series' own noise holds the
 // month's verdict. Numbers below are the 10/14 values the audit quoted.
 {
-  const { buildThemePlaybook, renderThemePlaybookContext, rotationOf } = await import('../src/domain/scenarios/theme-playbook.js');
+  const { buildThemePlaybook, rotationOf } = await import('../src/domain/scenarios/theme-playbook.js');
+  const { renderThemePlaybookContext } = await import('../src/domain/scenarios/theme-playbook-context.js');
   const { rrgRecentReading, rrgZone, rsRecentCheck, relativeBand, weeklyNoiseFromVol, recentMove } = await import('../src/domain/themes/recent-check.js');
   const { themeStagesFor, SCENARIO_STATE_CURRENT } = await import('../src/domain/scenarios/theme-stage.js');
   const { themeStrengthLead, themeDetailFlow, rotationFlow } = await import('../src/domain/market/story/page-flow.js');
@@ -945,7 +952,8 @@ console.log('scenario guidance fixture (basis card): PASS');
   {
     // v57.84 (owner decision, TECHNICAL-DEFINITIONS 3-1/3-2 안 A) on the 10/15 rows: in line with the index is 동행, ahead
     // of a falling index with a negative own trend is 상대 방어, and a 동행 row names its 1-month drift.
-    const { themeStateOf: stateOf, themeStateOutcomes: outcomesOf } = await import('../src/domain/scenarios/analogs.js');
+    const { themeStateOf: stateOf } = await import('../src/domain/scenarios/analogs.js');
+    const { themeStateOutcomes: outcomesOf } = await import('../src/domain/scenarios/outcome-history.js');
     const live = buildThemePlaybook({ usGroups: [g('energy', 'E1', { ret1m: 1.5, ret3m: 11.1, ret6m: 9.03, ret5d: 1.5, above50Pct: 71 }), g('staples', 'P2', { ret1m: 7.0 /* audit 2026-10-17 D4: beyond the 4.3%p 1-month band */, ret3m: 2, ret6m: 10.1, ret5d: 0.5, above50Pct: 83 })],
       krThemes: [{ id: 'battery', label: '2차전지', covered: 10, ret1m: -10.1, ret3m: -2.6, ret5d: -3, vol: 50, above50Pct: 30, basis: '2026-10-15' }],
       crossroads: cross, credit: 'neutral', benchmarks: { US: spx, KR: kospi } });
@@ -997,8 +1005,14 @@ console.log('scenario guidance fixture (basis card): PASS');
       const ew = buildThemePlaybook({ usGroups: theme, crossroads: cross, credit: 'neutral', history: hist }).themes[0];
       assert.equal(ew.relative?.field, 'rsp', `D5 the US stage reads against RSP when it has the theme's date (${ew.stateLabel})`);
       assert.match(ew.stateLabel, /S&P 500 동일가중 대비, 참고: S&P 500 대비 6개월 [+-]\d+\.\d%p/, `D5 the cap-weighted index is named beside it (${ew.stateLabel})`);
+      // v60.18 (weekly audit 2026-11-15 D5): the benchmark never switches. Without RSP the stage is withheld (it used to
+      // fall back to the S&P 500); with RSP a session behind the theme it is withheld as a benchmark lag, which the
+      // per-refresh producer carries over (heldThemeRow).
       const capOnly = buildThemePlaybook({ usGroups: theme, crossroads: cross, credit: 'neutral', history: hist.map(({ rsp, ...row }) => row) }).themes[0];
-      assert.ok(capOnly.relative?.field === 'spx' && /S&P 500 대비\)/.test(capOnly.stateLabel), `D5 without RSP the stage stays on the S&P 500 (${capOnly.stateLabel})`);
+      assert.ok(capOnly.state === null && capOnly.relative === null && !/S&P 500 대비/.test(capOnly.stateLabel), `v60.18 without RSP the stage is withheld, never read on the S&P 500 (${capOnly.stateLabel})`);
+      const lagging = buildThemePlaybook({ usGroups: theme, crossroads: cross, credit: 'neutral', history: hist.map((row, i, all) => (i === all.length - 1 ? (({ rsp, ...rest }) => rest)(row) : row)) }).themes[0];
+      assert.ok(lagging.state === null && lagging.relative === null && lagging.held?.reason === 'benchmark-lag' && lagging.held.benchmark === 'rsp' && /^판정 보류 \(S&P 500 동일가중 \d+\/\d+ 종가 반영 전\)$/.test(lagging.stateLabel),
+        `v60.18 RSP a session behind withholds the stage as a benchmark lag (${JSON.stringify({ state: lagging.state, held: lagging.held, label: lagging.stateLabel })})`);
       const oldRule = buildThemePlaybook({ usGroups: theme, crossroads: cross, credit: 'neutral', history: hist,
         outcomes: { themes: { software: { symbol: 'IGV', basis: 'relative-banded', leading: { n: 20, up: 12, median: 3, horizon: 63 } } } } }).themes[0];
       assert.match(oldRule.past, /다른 기준/, 'D4/D5 a past-stage count without the current rule stamp is not compared');
@@ -1030,7 +1044,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const ai = renderThemePlaybookContext(pb, { query: '반도체' });
   assert.match(ai, /미국 10\/14, 한국 10\/15 확정 종가/);
   assert.match(ai, /\[US\] 반도체: 추세 약화 확인 중[^\n]*\(5거래일 -12\.6%/, 'v57.81 the AI line names the window and the five-session move');
-  assert.doesNotMatch(ai, /거시 부담에도 주도: [^\n]*반도체/, 'v57.81 the AI cannot be told semis lead during the break');
+  assert.doesNotMatch(ai, /매크로 부담에도 주도:[^\n]*반도체/, 'v57.81 the AI cannot be told semis lead during the break');
   // Rotation headline: dated window, no tag claim on thin tags, a broken strong side carries its week.
   assert.match(pb.rotation.text, /^최근 1개월\(9\/15~10\/14\) 미국 테마/, `v57.81 the rotation names its window (${pb.rotation.text})`);
   const thin = rotationOf([1, 2, 3, 4].flatMap((i) => [{ market: 'US', id: `g${i}`, label: `g${i}`, ret1m: 9 - i, tags: ['growth'] }, { market: 'US', id: `e${i}`, label: `e${i}`, ret1m: -9 + i, tags: ['energy'] }]));
@@ -1109,9 +1123,10 @@ console.log('scenario guidance fixture (basis card): PASS');
   // v58.3x: a share is stated only beyond the base rate, so the note checks use a share that is (95% against 57%).
   const line = (n, share = 0.95) => frequencyText({ n, up: Math.round(n * share), median: 1.2, p25: -2, p75: 3, horizon: 63, from: '2015-01-02', to: '2026-10-14', baseUpPct: 57 }, '조건');
   for (const n of [10, 29, 30]) assert.ok(!/비슷한 때 \d+%|중앙값/.test(line(n, 0.6)) && /구별되지 않았습니다/.test(line(n, 0.6)), `v58.3x ${n} cases at 60% against 57%: no share, the base rate says it`);
-  assert.ok(!/비슷한 때/.test(line(9)) && /표본이 작아/.test(line(9)), 'v57.83 below 10 cases: counts only');
-  for (const n of [10, 29]) assert.ok(/비슷한 때/.test(line(n)) && /작은 표본/.test(line(n)), `v57.83 ${n} cases carry the small-sample note`);
-  assert.ok(/비슷한 때/.test(line(30)) && !/작은 표본|표본이 작아/.test(line(30)), 'v57.83 30 cases need no small-sample note');
+  // v60.18: the notes are the shared evidence-strength ones; below 10 the median is withheld too (counts only).
+  assert.ok(!/비슷한 때|중앙값/.test(line(9)) && /사례 9개라 비율·평균으로 말하지 않습니다/.test(line(9)), `v57.83/v60.18 below 10 cases: counts only (${line(9)})`);
+  for (const n of [10, 29]) assert.ok(/비슷한 때/.test(line(n)) && new RegExp(`사례 ${n}개라 참고로만 봅니다`).test(line(n)), `v57.83/v60.18 ${n} cases carry the 참고 note`);
+  assert.ok(/비슷한 때/.test(line(30)) && !/참고로만|비율·평균으로 말하지/.test(line(30)), 'v57.83 30 cases need no small-sample note');
   console.log('scenario guidance fixture (v57.83 R706 small-sample note at n 9/10/29/30): PASS');
 }
 
@@ -1348,7 +1363,7 @@ const logs = [];
 const warn = console.warn; const log = console.log;
 console.warn = (...parts) => logs.push(parts.join(' ')); console.log = (...parts) => logs.push(parts.join(' '));
 let run;
-try { run = await genMarketAnalysis(fx.data, fx.snapshot, { previous: null, request, nowMs: Date.parse(fx.nowMs), history: fx.history, narrative: { text: '', signature: 'fixture', themes: [] }, earnings: fx.earnings }); }
+try { run = await genMarketAnalysis(fx.data, fx.snapshot, { previous: null, request, nowMs: Date.parse(fx.nowMs), history: fx.history, narrative: { text: '', signature: 'fixture', themes: [] }, earnings: fx.earnings, recordRejections: null }); }
 finally { console.warn = warn; console.log = log; }
 const blockedLogs = logs.filter((line) => /marketAnalysis attempt-\d blocked: axis-state-contradiction:credit ::/.test(line));
 assert.ok(blockedLogs.length === 2, `v60.02 both attempts were blocked on the credit contradiction alone: ${logs.map((line) => line.slice(0, 120)).join(' | ')}`);
@@ -1359,5 +1374,137 @@ assert.equal(prompts.length, 2, 'v60.02 salvage makes no third request');
 assert.ok(logs.some((line) => line === '[fetch-data] marketAnalysis salvaged: removed 1 line(s) for axis-state-contradiction:credit'), 'v60.02 the run logs one salvage line');
 assert.equal(marketAnalysisOutcome(run, { requests: 2 }), 'salvaged', 'v60.02 the run meta counts a salvaged reading');
 console.log('market analysis salvage OK');
+}],
+// ── section theme-outcomes (v60.18, weekly audit 2026-11-15: one stage benchmark, definition stamps, evidence strength) ──
+['theme-outcomes', async () => {
+const { default: assert } = await import('node:assert/strict');
+const { readFileSync, existsSync, mkdtempSync, rmSync } = await import('node:fs');
+const { spawnSync } = await import('node:child_process');
+const { tmpdir } = await import('node:os');
+const path = await import('node:path');
+const { buildThemePlaybook } = await import('../src/domain/scenarios/theme-playbook.js');
+const { themeOutcomeCurrent, frequencyText, THEME_OUTCOME_HORIZON } = await import('../src/domain/scenarios/analogs.js');
+const { themeStateOutcomes } = await import('../src/domain/scenarios/outcome-history.js');
+const { scenarioOutcomeFingerprints, scenarioOutcomesCurrent, stressOutcomesFingerprint, stressOutcomesCurrent } = await import('../src/domain/scenarios/outcome-fingerprints.js');
+const { OUTCOME_STAMPS } = await import('../src/domain/scenarios/outcome-stamps.js');
+const { computeOutcomeStamps } = await import('./build-outcome-stamps.mjs');
+const { definitionFingerprint } = await import('../src/domain/shared/definition-fingerprint.js');
+const { evidenceStrength } = await import('../src/domain/shared/evidence-strength.js');
+const { skipRebuild: scenarioSkip } = await import('./build-scenario-outcomes.mjs');
+const { skipRebuild: stressSkip } = await import('./build-stress-outcomes.mjs');
+const { diffSnapshots, heldThemeRow } = await import('./build-scenario-state.mjs');
+const { validationVerdict } = await import('../src/ui/pages/screener/validation-tab.js');
+const cross = { available: true, tiedIds: [], leadId: 'softland', altId: 'reheat', items: [{ id: 'softland', title: '물가 둔화 — x', firmer: ['growth'], weaker: ['energy'] }, { id: 'reheat', title: '물가 재가속 — x', firmer: ['energy'], weaker: ['growth'] }] };
+const sessions = [];
+for (let t = Date.parse('2026-01-02T12:00:00Z'); sessions.length < 160; t += 86400000) { const d = new Date(t).getUTCDay(); if (d && d !== 6) sessions.push(new Date(t).toISOString().slice(0, 10)); }
+// RSP rises slower than the S&P 500, so a theme 18% up over six months is ahead of RSP (주도) but inside the band of the S&P 500 (동행).
+const hist = sessions.map((date, i) => ({ date, spx: 6000 * (1 + 0.0008 * i), rsp: 180 * (1 + 0.0002 * i) }));
+const group = (basis) => [{ themeId: 'software', themeName: '소프트웨어', name: 'W1', basis, current: true, ret1m: 6.0, ret3m: 9.0, ret6m: 18.0, ret5d: 1.0, above50Pct: 65 }];
+const snapshot = (pb, previous) => ({ themes: pb.themes.map((row) => heldThemeRow(row, previous) || { market: row.market, id: row.id, label: row.label, state: row.state, benchmark: row.relative?.field || null }) });
+// One evening: 22:21Z both on day N-1; 22:51Z the screener has day N while RSP is still on N-1; 23:21Z both on day N.
+const before = snapshot(buildThemePlaybook({ usGroups: group(sessions.at(-2)), crossroads: cross, credit: 'neutral', history: hist.slice(0, -1) }), null);
+const laggingHist = hist.map((row, i) => (i === hist.length - 1 ? { date: row.date, spx: row.spx } : row));
+const lagPb = buildThemePlaybook({ usGroups: group(sessions.at(-1)), crossroads: cross, credit: 'neutral', history: laggingHist });
+const lag = snapshot(lagPb, before);
+const after = snapshot(buildThemePlaybook({ usGroups: group(sessions.at(-1)), crossroads: cross, credit: 'neutral', history: hist }), lag);
+assert.equal(before.themes[0].state, 'leading', 'v60.18 fixture: ahead of RSP');
+assert.ok(lagPb.themes[0].relative === null && lagPb.themes[0].state === null, `v60.18 RSP a session behind: no stage on the S&P 500 in its place (${lagPb.themes[0].stateLabel})`);
+assert.ok(lag.themes[0].state === 'leading' && lag.themes[0].held?.reason === 'benchmark-lag', `v60.18 the per-refresh state keeps the previous stage while the benchmark lags (${JSON.stringify(lag.themes[0])})`);
+const evening = [...diffSnapshots(before, lag, 'a'), ...diffSnapshots(lag, after, 'b')].filter((row) => row.kind === 'theme');
+assert.deepEqual(evening, [], 'v60.18 one evening with the benchmark a session behind logs no stage change and no change back');
+assert.equal(diffSnapshots({ themes: [{ market: 'US', id: 'x', label: 'x', state: 'inline', benchmark: 'rsp' }] }, { themes: [{ market: 'US', id: 'x', label: 'x', state: 'leading', benchmark: 'rsp' }] }, 'c').filter((row) => row.kind === 'theme').length, 1, 'v60.18 a real stage change on the same benchmark is still logged');
+assert.equal(diffSnapshots({ themes: [{ market: 'US', id: 'x', label: 'x', state: 'inline', benchmark: 'spx' }] }, { themes: [{ market: 'US', id: 'x', label: 'x', state: 'leading', benchmark: 'rsp' }] }, 'd').filter((row) => row.kind === 'theme').length, 0, 'v60.18 stages on two benchmarks are not compared');
+// The magnitude word follows the theme's own move: +0.35% in five sessions while RSP rose 3.3% is falling behind, not 급락.
+const bench = (ret5d) => ({ US: { asOf: '2026-11-12', field: 'rsp', name: 'S&P 500 동일가중', ret5d, ret1m: 0, ret3m: 0, ret6m: 0, from: {} } });
+const theme = (ret5d) => [{ themeId: 'healthcare', themeName: '헬스케어', name: 'H', basis: '2026-11-12', current: true, ret1m: 6, ret3m: 9, ret6m: 20, ret5d, vol: 25, members: 30, above50Pct: 65 }];
+const behind = buildThemePlaybook({ usGroups: theme(0.35), crossroads: cross, credit: 'neutral', benchmarks: bench(3.3) }).themes[0];
+assert.ok(behind.contradicted && !/급락/.test(behind.stateLabel) && /S&P 500 동일가중보다 평소 1주 차이의 2배 넘게 뒤처짐/.test(behind.stateLabel), `v60.18 a relative-only break is named as falling behind (${behind.stateLabel})`);
+const crash = buildThemePlaybook({ usGroups: theme(-8), crossroads: cross, credit: 'neutral', benchmarks: bench(-1) }).themes[0];
+assert.match(crash.stateLabel, /평소 1주 움직임의 2배를 넘는 급락/, `v60.18 an own fall beyond its typical week is 급락 (${crash.stateLabel})`);
+// Definition stamps: the record is computed on the live definition or it is not read; the weekly skip keys on the stamp.
+const days = Array.from({ length: 400 }, (_, i) => new Date(Date.UTC(2024, 0, 1 + i)).toISOString().slice(0, 10));
+const etf = days.map((date, i) => [date, 100 * (1 + 0.001 * i)]), ew = days.map((date, i) => [date, 100 * (1 + 0.0012 * i)]);
+const record = { symbol: 'IGV', ...themeStateOutcomes(etf, { benchmark: ew, benchmarkField: 'rsp', horizon: THEME_OUTCOME_HORIZON }) };
+assert.deepEqual({ ...OUTCOME_STAMPS }, computeOutcomeStamps(), 'v60.18 outcome-stamps.js is behind the defining code — run node scripts/build-outcome-stamps.mjs --write');
+assert.ok(themeOutcomeCurrent(record, 'rsp') && !themeOutcomeCurrent(record, 'spx'), 'v60.18 a stamped record is current only for its own benchmark');
+assert.ok(themeStateOutcomes(etf, { benchmark: ew, benchmarkField: 'rsp', horizon: 20 }).fingerprint === null, 'v60.18 a record on another horizon carries no live stamp');
+assert.notEqual(definitionFingerprint('t', { code: [(a) => a + 1] }), definitionFingerprint('t', { code: [(a) => a - 1] }), 'v60.18 a change in a scoring function changes the stamp');
+assert.equal(definitionFingerprint('t', { b: 1, a: [Infinity] }), definitionFingerprint('t', { a: [Infinity], b: 1 }), 'v60.18 key order does not change the stamp');
+const committed = JSON.parse(readFileSync(new URL('../public-data/scenario-outcomes.json', import.meta.url), 'utf8'));
+const legacy = { symbol: 'IGV', basis: 'relative-banded', rule: 'theme-stage.v2', benchmark: 'rsp', leading: { n: 39, up: 29, median: 3, p25: -2, p75: 6, horizon: 63, baseUpPct: 64, from: '2004-01-02', to: '2026-11-13' } };
+const read = (outcomes) => buildThemePlaybook({ usGroups: [{ ...theme(1)[0], themeId: 'software' }], crossroads: cross, credit: 'neutral', benchmarks: bench(0), outcomes }).themes[0];
+assert.ok(/다른 기준/.test(read({ themes: { software: legacy } }).past) && read({ themes: { software: legacy } }).pastInformative === null, 'v60.18 a record with the old rule string but no live stamp is not read as the live stage record');
+{
+  const live = read({ themes: { software: { ...record, leading: { ...legacy.leading, outcome: 'excess' } } } });
+  assert.ok(live.state === 'leading' && /S&P 500 동일가중 대비 같은 기준/.test(live.past) && /지수 초과/.test(live.past), `v60.18 a stamped record is read with the excess wording (${live.state}: ${live.past})`);
+}
+const now = Date.parse('2026-11-15T06:00:00Z');
+const fresh = { status: 'current', generatedAt: '2026-11-14T14:00:00Z', corrections: { n: 40 }, themes: { software: legacy } };
+assert.equal(scenarioSkip(fresh, now), false, 'v60.18 a fresh copy computed on another definition is rebuilt, not kept a week');
+assert.equal(scenarioSkip({ ...fresh, fingerprints: scenarioOutcomeFingerprints(), themes: { software: record } }, now), true, 'v60.18 a fresh copy on the live definition is kept');
+assert.equal(scenarioSkip({ ...fresh, generatedAt: '2026-11-07T00:00:00Z', fingerprints: scenarioOutcomeFingerprints(), themes: { software: record } }, now), false, 'v60.18 a week-old copy is rebuilt');
+assert.ok(scenarioOutcomesCurrent({ fingerprints: scenarioOutcomeFingerprints(), themes: { software: record } }, 'rsp') && !scenarioOutcomesCurrent({ fingerprints: scenarioOutcomeFingerprints(), themes: { software: { ...record, benchmark: 'spx' } } }, 'rsp'), 'v60.18 a ^GSPC fallback row is not current (the next run retries RSP)');
+if (!committed.fingerprints) assert.equal(scenarioSkip(committed, Date.parse(committed.generatedAt) + 3600000), false, 'v60.18 the unstamped committed scenario-outcomes.json is rebuilt by the next Actions run');
+const stress = JSON.parse(readFileSync(new URL('../public-data/stress-outcomes.json', import.meta.url), 'utf8'));
+if (!stress.fingerprint) assert.ok(!stressOutcomesCurrent(stress) && stressSkip(stress, Date.parse(stress.generatedAt) + 3600000) === false, 'v60.18 the unstamped committed stress-outcomes.json is refused on screen and rebuilt');
+assert.ok(stressOutcomesCurrent({ ...stress, fingerprint: stressOutcomesFingerprint() }) && stressSkip({ ...stress, status: 'current', generatedAt: new Date(now - 86400000).toISOString(), fingerprint: stressOutcomesFingerprint() }, now), 'v60.18 a stamped stress copy is read and kept');
+// Every reader of the two files goes through the currentness view (currentScenarioOutcomes / currentStressOutcomes): the
+// 매크로 branches, the session lean, the correction base rate and the AI record tool use no part from another definition.
+{
+  const { buildMacroCrossroads } = await import('../src/domain/market/regime/macro-crossroads.js');
+  const { buildMarketLean } = await import('../src/domain/market/regime/market-lean.js');
+  const { currentScenarioOutcomes } = await import('../src/domain/scenarios/outcome-fingerprints.js');
+  const { BRANCH_ANALOGS } = await import('../src/domain/scenarios/analogs.js');
+  const long = { n: 12, up: 8, median: 2, p25: -1, p75: 4, horizon: 63, from: '2000-01-03', to: '2026-11-13', baseUpPct: 60 };
+  const branches = Object.fromEntries(Object.keys(BRANCH_ANALOGS).map((id) => [id, long]));
+  const sources = (outcomes) => buildMacroCrossroads({ outcomes }).items.map((item) => item.past?.source);
+  assert.ok(sources({ branches }).every((source) => source !== 'long') && sources({ branches, fingerprints: scenarioOutcomeFingerprints() }).every((source) => source === 'long'),
+    'v60.18 the 매크로 branches read the long-history record only when it carries the live branch stamp');
+  const view = currentScenarioOutcomes({ fingerprints: { ...scenarioOutcomeFingerprints(), corrections: 'old' }, branches, corrections: { n: 40 }, themes: { software: record, igv: legacy } });
+  assert.ok(view.branches === branches && view.corrections === null && Object.keys(view.themes).join() === 'software', 'v60.18 each part of scenario-outcomes is used only under its own live stamp');
+  const regime = { available: true, asOf: '2026-11-13', counts: { favorable: 1, neutral: 2, burden: 3 } };
+  const bands = [{ id: 'calm', horizons: { 21: { hitRate: 0.9, n: 400 } } }];
+  const leanOf = (stressFile) => JSON.stringify(buildMarketLean({ regime, stress: stressFile, vix: 14 }));
+  assert.ok(leanOf({ ...stress, bands, all: { 21: { hitRate: 0.62 } } }) === leanOf(null) && leanOf({ ...stress, bands, all: { 21: { hitRate: 0.62 } }, fingerprint: stressOutcomesFingerprint() }) !== leanOf(null),
+    'v60.18 the session lean ignores an unstamped stress-outcomes file and reads a stamped one');
+  // Review v60.19 B7: a record withheld for its stamp stays on screen as one status line with its last date (AGENTS: a
+  // designed source that failed stays visible), on the VIX-band fold and the correction card alike.
+  const { createFakeDocument } = await import('./lib/fake-dom.mjs');
+  const { renderStressOutcomes } = await import('../src/ui/components/stress-outcomes.js');
+  const { renderCorrectionBaseRate } = await import('../src/ui/components/correction-base-rate.js');
+  const { STRESS_OUTCOMES, SCENARIO_OUTCOMES } = await import('../src/data/artifact-registry.js');
+  const fresh = Date.now();
+  const sharedFresh = { [STRESS_OUTCOMES.key]: { loadedAt: fresh, failedAt: 0, inFlight: null }, [SCENARIO_OUTCOMES.key]: { loadedAt: fresh, failedAt: 0, inFlight: null } };
+  const unstamped = { ...stress, status: 'current', generatedAt: '2026-11-11T08:22:11.491Z', bands: [{ id: 'calm', label: 'VIX 15 미만', horizons: { 21: { n: 400, mean: 1, hitRate: 70 } } }], fingerprint: undefined };
+  const stressDoc = createFakeDocument();
+  const stressHost = stressDoc.getElementById('regime-vol-card');
+  renderStressOutcomes({ documentRef: stressDoc, root: { [STRESS_OUTCOMES.key]: unstamped, _aioHistory: [], __aioSharedArtifacts: sharedFresh }, host: stressHost });
+  const fold = stressDoc.getElementById('regime-stress-outcomes');
+  const correctionDoc = createFakeDocument();
+  const correctionHost = correctionDoc.getElementById('trend-slot');
+  const box = renderCorrectionBaseRate({ documentRef: correctionDoc, root: { [SCENARIO_OUTCOMES.key]: { generatedAt: '2026-11-14T14:26:18.472Z', corrections: { n: 40, bear: 9, events: [] } }, _aioHistory: [], __aioSharedArtifacts: sharedFresh, __aioCorrectionRequested: true }, host: correctionHost });
+  assert.ok(fold && fold.hidden === false && /정의가 바뀌어 다음 갱신 때 다시 계산합니다 \(마지막 계산 11\/11\)/.test(fold.textContent)
+    && box && /정의가 바뀌어 다음 갱신 때 다시 계산합니다 \(마지막 계산 11\/14\)/.test(box.textContent),
+    `review v60.19 a withheld weekly record states its state and last date instead of disappearing: ${fold?.hidden} ${fold?.textContent} / ${box?.textContent}`);
+}
+// The 매크로 domain is named 매크로 in the playbook's reasons and its AI lines (the screen-label browser gate reads rendered
+// labels only; these sentences render inside the theme rows and the AI context).
+{
+  const literals = readFileSync(new URL('../src/domain/scenarios/theme-playbook.js', import.meta.url), 'utf8').replace(/^\s*\/\/.*$/gm, '').match(/'[^'\n]*'|`[^`]*`/g) || [];
+  assert.deepEqual(literals.filter((text) => /거시/.test(text)), [], 'v60.18 the theme playbook says 매크로, not 거시');
+}
+// One evidence-strength rule: under 10 counts only, under 30 참고, an effective count is judged on the number shown.
+assert.deepEqual([9, 10, 29, 30].map((n) => evidenceStrength(n).level), ['thin', 'small', 'small', 'enough'], 'v60.18 evidence-strength floors 10 / 30');
+assert.ok(evidenceStrength(25.1, { approx: true }).tag === '사례 약 25개 · 참고' && evidenceStrength(9.9, { approx: true }).level === 'small' && evidenceStrength(3.3, { approx: true }).figures === false, 'v60.18 effective counts are rounded once and judged on that number');
+assert.ok(!/같은 방향/.test(validationVerdict({ composite: 0.04, net: 0.5, rebalances: 6 })) && /6번뿐/.test(validationVerdict({ composite: 0.04, net: 0.5, rebalances: 6 })), 'v60.18 six rebalances name no direction');
+assert.ok(/약하게 같은 방향/.test(validationVerdict({ composite: 0.04, net: 0.5, rebalances: 40 })) && /참고/.test(validationVerdict({ composite: 0.04, net: 0.5, rebalances: 20 })), 'v60.18 enough rebalances keep the verdict; 10-29 are marked 참고');
+assert.ok(!/중앙값/.test(frequencyText({ n: 6, up: 5, median: 4, p25: 1, p75: 6, horizon: 63, from: '2000-01-03', to: '2026-10-30', baseUpPct: 50 }, 'x')), 'v60.18 under 10 cases no median');
+// build-validation-gates writes into a directory it creates.
+const dir = mkdtempSync(path.join(tmpdir(), 'aio-gates-'));
+const out = path.join(dir, 'nested', 'gates');
+const run = spawnSync(process.execPath, [new URL('./build-validation-gates.mjs', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'), '--out-dir', out], { encoding: 'utf8' });
+assert.ok(run.status === 0 && existsSync(path.join(out, 'screener-validation-gate.json')) && existsSync(path.join(out, 'model-validation-status.json')), `v60.18 build-validation-gates creates a missing --out-dir (${run.status}: ${run.stderr})`);
+rmSync(dir, { recursive: true, force: true });
+console.log('theme outcomes fixture (v60.18 one benchmark, definition stamps, evidence strength): PASS');
 }],
 ]);

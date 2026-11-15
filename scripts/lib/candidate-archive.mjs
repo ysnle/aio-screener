@@ -15,7 +15,8 @@ import { normalizeScreener } from '../../src/data/normalize/screener.js';
 import { calculationRow } from '../../src/data/contracts/screener.js';
 import { computeFactorRanks } from '../../src/domain/screener/factor-ranks.js';
 import { MODEL_DEFAULT_WEIGHTS, LEGACY_BLEND_WEIGHTS, LEGACY_BLEND_DEFINITIONS } from '../../src/domain/screener/factor-weights.js';
-import { buildPopulationRankingIdentity, buildRankingIdentity } from '../../src/domain/screener/model-fingerprint.js';
+import { buildPopulationRankingIdentity } from '../../src/domain/screener/model-fingerprint.js';
+import { definitionFingerprint } from '../../src/domain/shared/definition-fingerprint.js';
 import { marketOfSymbol } from '../../src/domain/market/session/session-time.js';
 import { summarizeCandidateArchive } from '../../src/domain/screener/candidate-record.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../../src/domain/fundamental/period.js';
@@ -110,7 +111,9 @@ export function buildShadowRecord({ shadowRanking }) {
   const q = Math.floor(ranked.length / 5);
   return {
     model: CANDIDATE_SHADOW_MODEL.id,
-    identity: `${CANDIDATE_SHADOW_MODEL.id}:${buildRankingIdentity({ appliedFactorWeights: shadowRanking.appliedFactorWeights, activeFactors: Object.keys(shadowRanking.appliedFactorWeights || {}) })}`,
+    // A fingerprint of everything that defines the shadow model: its declared weights and formulas and, per market,
+    // the weights and formulas as applied. The US-only identity stayed the same when the Korean weights changed.
+    identity: definitionFingerprint(CANDIDATE_SHADOW_MODEL.id, { declared: CANDIDATE_SHADOW_MODEL, applied: buildPopulationRankingIdentity(shadowRanking) }),
     ranked: ranked.length,
     quintile: q,
     top: ranked.slice(0, q).map((row) => row.sym).join(','),

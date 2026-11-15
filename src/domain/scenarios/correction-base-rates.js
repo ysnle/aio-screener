@@ -3,6 +3,8 @@
 // the next record close; it is a bear market if any close in between was 20% under that record, and "fast" if the 7%
 // came within 28 sessions of the record. The packet recount (Yahoo ^IXIC 1986~2026) gave 40 corrections, 8 bear markets,
 // 32 fast, 4 of them bear. The counts are shown as "N번 중 N번" with this definition, never as a probability or a score.
+import { evidenceStrength } from '../shared/evidence-strength.js';
+
 export const CORRECTION_RULE = Object.freeze({ depthPct: 7, bearPct: 20, fastSessions: 28, since: '1986-01-01' });
 
 /** Pure: daily closes [[date, close]] → completed and open correction episodes under CORRECTION_RULE. */
@@ -46,6 +48,24 @@ export function correctionBaseRates(closes = [], rule = CORRECTION_RULE) {
 }
 
 /**
+ * Pure: the completed corrections whose deepest close reached `trough` (%, negative) and how many of them became bear
+ * markets — overall and, when `fast` is known, among the same speed. Counts only ("N번 중 M번"), with the shared sample note.
+ */
+export function depthReached(rates, trough, { fast = null } = {}) {
+  const events = Array.isArray(rates?.events) ? rates.events : [];
+  if (!events.length || !Number.isFinite(trough)) return null;
+  const deep = events.filter(([, low]) => Number.isFinite(low) && low <= trough);
+  const same = fast == null ? null : deep.filter(([, , isFast]) => !!isFast === !!fast);
+  const bear = (list) => list.filter(([, , , isBear]) => isBear).length;
+  const strength = evidenceStrength(deep.length);
+  const depthText = `${Math.abs(trough).toFixed(1)}%`;
+  const speed = same && same.length ? `, ${fast ? '빠른' : '느린'} 조정만 보면 ${same.length}번 중 ${bear(same)}번` : '';
+  return { trough, n: deep.length, bear: bear(deep), fast, fastN: same ? same.length : null, fastBear: same ? bear(same) : null, strength,
+    text: deep.length ? `-${depthText} 이상 내려갔던 과거 조정은 ${deep.length}번 중 ${bear(deep)}번이 -${rates.rule.bearPct}%까지 갔습니다${speed}${strength.reference ? ' (참고)' : ''}.`
+      : `지금보다 깊이 내려간 과거 조정은 없습니다.` };
+}
+
+/**
  * Pure: the 시장 상태 trend-row line. `rates` is the published block; `nasdaq` the latest completed close and the
  * history's own record close (the producer runs weekly, so a newer record or a fresh 7% break comes from history).
  * A correction stays open until the next record close: a rebound above -7% inside one is not "before a correction".
@@ -67,11 +87,15 @@ export function correctionReading(rates, { close = null, closeDate = null, recor
   const trough = Math.min(depth, published ?? 0, ...later);
   const open = trough <= -rates.rule.depthPct;
   const inCorrection = depth <= -rates.rule.depthPct;
+  // Inside a correction the past ones that reached the same depth are the comparable set —
+  // the unconditional count includes every 7% dip that stopped well short of today's trough.
+  const reached = open ? depthReached(rates, trough, { fast: rates.open && published != null ? rates.open.fast : null }) : null;
+  const reachedText = reached ? `${reached.text} ` : '';
   return {
-    depth, high, closeDate, inCorrection, open, trough, n: rates.n, bear: rates.bear, fastN: rates.fastN, fastBear: rates.fastBear,
+    depth, high, closeDate, inCorrection, open, trough, n: rates.n, bear: rates.bear, fastN: rates.fastN, fastBear: rates.fastBear, reached,
     lead: `나스닥 종합 고점 대비 ${depth.toFixed(1)}%`,
-    text: inCorrection ? `${base}. ${fast}.`
-      : open ? `${rates.rule.depthPct}% 조정이 아직 끝나지 않았습니다(가장 깊은 종가 ${trough.toFixed(1)}%, 최고 종가를 넘어야 끝). ${base}. ${fast}.`
+    text: inCorrection ? `${reachedText}${base}. ${fast}.`
+      : open ? `${rates.rule.depthPct}% 조정이 아직 끝나지 않았습니다(가장 깊은 종가 ${trough.toFixed(1)}%, 최고 종가를 넘어야 끝). ${reachedText}${base}. ${fast}.`
         : `${rates.rule.depthPct}% 조정 전입니다. ${base}.`,
     definition: `정의: 직전 최고 종가보다 ${rates.rule.depthPct}% 이상 낮은 종가가 나오면 조정, 다음 최고 종가까지 한 번이라도 -${rates.rule.bearPct}%면 약세장. 판정 점수에는 넣지 않습니다.`,
   };

@@ -2,7 +2,7 @@
 // the run's observable record: per-plane status, attempt/success clocks and counts. It is built from the source plane
 // registry's results only; the later stages (snapshot, analysis, cycle) add their own fields in fetch-data.mjs.
 import { readFile } from 'node:fs/promises';
-import { MINIMUM_CURRENT_NEWS, NEWS_FEEDS, mergeNewsFeedHealth, NEWS_INTRADAY_LABEL, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, getKst0800NewsCycle } from '../lib/news-selection.mjs';
+import { MINIMUM_CURRENT_NEWS, NEWS_FEEDS, NEWS_RANKING_RULE, mergeNewsFeedHealth, NEWS_INTRADAY_LABEL, NEWS_INTRADAY_MAX, NEWS_INTRADAY_POLICY, getKst0800NewsCycle } from '../lib/news-selection.mjs';
 import { REPO_ROOT } from './paths.mjs';
 import { planeFresh } from './source-planes.mjs';
 
@@ -90,6 +90,7 @@ export async function buildCollectionMeta({ t0, attemptedAt, generatedAt, previo
     newsIntradayCount: newsIntraday.length,
     newsIntradayMax: NEWS_INTRADAY_MAX,
     serverNewsScored: true,
+    newsRankingRule: NEWS_RANKING_RULE, // v60.18: which scoring/order the bundle was cut with (scripts/ci-news-ranking-check.mjs)
     newsScoreMin: newsScores.length ? Math.min(...newsScores) : null,
     newsScoreMax: newsScores.length ? Math.max(...newsScores) : null,
     marketSurveysStatus: marketSurveys ? 'web-research-captured-reference' : null,

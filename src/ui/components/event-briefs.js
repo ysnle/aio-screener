@@ -12,7 +12,7 @@ import { reactionRead, earningsCells } from '../../domain/briefing/reaction-read
 import { el } from './dom.js';
 import { directionOf, signedText, usdScaleWords } from '../../domain/shared/number.js';
 import { frameHead, markFrame } from './section-frame.js';
-import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, figureSurprise, koreanReleaseText, watchItem } from '../../domain/briefing/event-briefs.js';
+import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, figureSurprise, koreanReleaseText, watchItem, provisionalWaiting } from '../../domain/briefing/event-briefs.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { eventAftermath, beatButFell } from '../../domain/briefing/event-aftermath.js';
 import { signedBar, signedScale } from './signed-bar.js';
@@ -174,7 +174,8 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
   // A DART brief's table is read from the filing without AI; only its call points (when present) are AI-written.
   const aiWritten = (brief.ai || []).length > 0 || !!points?.points?.length || reasons.length > 0;
   // A provisional brief's figures are the provider's, never checked against a filing (reviewer, v59.44).
-  if (brief.status === 'provisional') source.append(doc.createTextNode(`. 수치는 제공처 집계로 공시 원문과 아직 대조하지 않았고, 원문이 나오면 원문 요약으로 바뀝니다. ${reasons.length ? '주가가 움직인 이유는 공용 AI가 보도에서 찾았고' : '이 내용은'} 매매 판단이 아닙니다.`));
+  // After the wait (PROVISIONAL_SUMMARY_WAIT_MS) the headline no longer promises a summary, nor does this line.
+  if (brief.status === 'provisional') source.append(doc.createTextNode(`. 수치는 제공처 집계로 공시 원문과 대조하지 않았고, ${provisionalWaiting(brief) ?'원문이 나오면 원문 요약으로 바뀝니다' : '원문 공시는 찾지 못했습니다'}. ${reasons.length ? '주가가 움직인 이유는 공용 AI가 보도에서 찾았고' : '이 내용은'} 매매 판단이 아닙니다.`));
   // P21-NUMBER-01: the check is that the same figure (with its unit and direction) stands in the quoted source sentence.
   else source.append(doc.createTextNode(`. 숫자는 원문 문장에 같은 숫자가 있는 것만 싣습니다${dropped ? `(확인되지 않은 항목 ${dropped}건 제외)` : ''}. ${aiWritten ? '요약은 공용 AI가 썼고' : '표는 공시 원문에서 그대로 읽었고'} 매매 판단이 아닙니다.`));
   more.append(source);

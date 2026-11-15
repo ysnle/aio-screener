@@ -39,6 +39,18 @@ export const COLUMN_FRAME_LINKS = Object.freeze({
 
 export const LESSONS = Object.freeze([
   // ── 공통 기초 ──
+  // The decision frame's five legs every scenario and plan card in the app is read by.
+  L({ id: 'decision-frame-legs', path: 'foundation', title: '판단의 다섯 칸: 가능성, 폭, 기회비용, 틀렸을 때, 근거 종류', issue: '시나리오 하나를 판단으로 옮길 때 빠지기 쉬운 칸',
+    answer: '"이 시나리오가 맞을 것 같다"는 말은 판단의 한 칸만 채운 것입니다. 앱의 시나리오 카드와 내 계획 점검은 같은 다섯 칸으로 읽습니다. 얼마나 자주 그렇게 됐는지(가능성), 맞을 때와 틀릴 때 얼마나 움직였는지(이익·손실 폭), 기다리면 무엇을 놓치는지(기회비용), 틀렸다고 볼 신호와 그때의 비용(틀렸을 때), 그리고 이 모두가 과거 기록인지 비용 가설인지(근거 종류)입니다. 칸이 비어 있으면 비어 있다고 적습니다.',
+    mechanism: [
+      '가능성은 같은 정의로 센 과거 빈도를 평소 비율·사례 수와 함께 봅니다. 사례가 10개 미만이면 개수만, 10~29개면 참고로 읽습니다. 조건 충족 수나 양호·부담 개수는 지금 상태이지 가능성이 아닙니다.',
+      '폭과 기회비용은 같은 기간으로 맞춥니다. 내 계획 점검에서 진입가~손절가 거리를 1로 두고 목표까지의 배수를 보면, 맞을 때의 이익과 틀릴 때의 손실을 한 줄에 놓게 됩니다. 기다리는 쪽의 비용은 그동안의 현금 수익과 놓친 상승입니다.',
+      '틀렸을 때 칸은 무효 조건입니다. 어떤 종가나 발표가 나오면 판단을 거두는지를 미리 적어 두면, 손실 폭이 그 지점에서 정해집니다. 근거 종류는 마지막에 붙는 꼬리표로, "비용 가설"은 시나리오가 맞는다고 놓고 선택별 비용을 비교한 규칙이라 과거 성과로 확인한 우위가 아닙니다.'
+    ],
+    reverse: '다섯 칸을 다 채워도 미래를 맞히는 것은 아닙니다. 과거 빈도는 지금과 다른 시기를 섞고, 비용 가설은 시나리오 자체가 틀리면 함께 틀립니다. 칸을 채우는 일이 확신을 만드는 것이 아니라 무엇을 모르는지를 드러내는 일이라는 점이 남습니다.',
+    channels: ['심리'], variables: ['과거 빈도와 평소 비율', '사례 수', '맞을 때·틀릴 때 폭', '기다리는 비용', '무효 조건', '근거 종류'],
+    indicators: [{ label: '매크로 시나리오 카드의 판단 칸', route: 'macro', routeLabel: '매크로' }, { label: '종목 차트의 내 계획 점검', route: 'ticker', routeLabel: '종목' }, { label: '시장 상태의 변동성 구간 낙폭 기록', route: 'signal', routeLabel: '시장 상태' }],
+    concepts: ['base-rate', 'expected-value'] }),
   L({ id: 'geo-mean', path: 'foundation', title: '평균 수익률과 실제 자산', issue: '산술평균 수익률과 실현 복리 수익률의 괴리',
     answer: "어느 펀드가 \"지난 2년 평균 수익률 0%\"라고 광고한다. 본전은 지켰다는 말처럼 들린다. 그런데 계좌를 열어 보면 100만 원이 75만 원이 되어 있다. 광고가 거짓말을 한 것은 아니다. 평균을 내는 방법이 하나가 아닐 뿐이다.",
     figure: { kind: 'flow', steps: ['100', '+50% → 150', '−50% → 75', '산술평균 0% · 실제 −25%'] },
@@ -458,7 +470,7 @@ export const LESSONS = Object.freeze([
 ]);
 
 export const PATHS = Object.freeze([
-  { id: 'foundation', title: '금융수학·통계', why: '평균·복리·%와 %p·기대값 — 이후 모든 수치 해석의 전제입니다.', lessons: ['geo-mean', 'real-relative', 'backtest-rejection', 'evidence-grades-falsifier', 'volatility-base-rates', 'headline-provenance'] },
+  { id: 'foundation', title: '금융수학·통계', why: '평균·복리·%와 %p·기대값 — 이후 모든 수치 해석의 전제입니다.', lessons: ['geo-mean', 'real-relative', 'backtest-rejection', 'evidence-grades-falsifier', 'volatility-base-rates', 'headline-provenance', 'decision-frame-legs'] },
   { id: 'accounting', title: '재무제표·회계', why: '이익·현금·자본의 연결 구조.', lessons: ['three-statements', 'measurement-scope-comparison', 'segment-sum-consolidated'] },
   { id: 'economy', title: '미시경제 기초', why: '가격·경쟁·진입장벽과 초과이익의 지속성.', lessons: ['elasticity', 'tech-vs-profit', 'ai-adoption-lag', 'value-capture-cost-of-capital'] },
   { id: 'money', title: '통화·신용·물가', why: '은행 신용 → 지출 → 물가 → 실질 소득의 전달 경로.', lessons: ['credit-money', 'macro-reading', 'crisis-response', 'policy-floor-limits', 'credit-distribution-refinancing', 'reserve-buffer-regime', 'liquidity-layers', 'private-credit-redemption', 'labor-inflation-split', 'forced-seller-chain', 'ai-infra-credit-ladder', 'counterparty-funding-chain', 'credit-stress-tiers', 'exposure-cap-policy-line'] },

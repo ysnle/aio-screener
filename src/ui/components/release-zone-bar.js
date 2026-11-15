@@ -5,7 +5,7 @@ import { releaseZones, RELEASE_ZONE_IDS } from '../../domain/macro/release-zones
 import { signedText } from '../../domain/shared/number.js';
 
 const valueText = (zone, value) => (zone.unit === '천 명'
-  ? `${value > 0 ? '+' : ''}${(value / 10).toFixed(1)}만`
+  ? signedText(value / 10, 1, '만')
   : signedText(value, zone.digits, zone.unit));
 const edgeText = (zone, value) => (zone.unit === '천 명' ? `${(value / 10).toFixed(1).replace(/\.0$/, '')}만` : `${value}`);
 

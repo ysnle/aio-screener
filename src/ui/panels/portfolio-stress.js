@@ -17,9 +17,10 @@ function line(name, impact, note = '') {
 }
 
 /**
- * @param {{ base: {rows: Array<{sym:string,value:number}>, currency?: string|null}, historyMap: object, commonDates: string[], history: object[], now?: number }} input
+ * @param {{ base: {rows: Array<{sym:string,value:number}>, currency?: string|null}, historyMap: object, commonDates: string[], history: object[], now?: number, krThrough?: string|null }} input
+ * `krThrough`: the latest completed KRX session on the app clock (when the caller has it); otherwise read from `now`.
  */
-export function portfolioStressHtml({ base, historyMap = {}, commonDates = [], history = [], now = Date.now() } = {}) {
+export function portfolioStressHtml({ base, historyMap = {}, commonDates = [], history = [], now = Date.now(), krThrough = null } = {}) {
   const rows = Array.isArray(base?.rows) ? base.rows : [];
   const total = rows.reduce((sum, row) => sum + (row.value || 0), 0);
   if (!(total > 0)) return '';
@@ -54,7 +55,7 @@ export function portfolioStressHtml({ base, historyMap = {}, commonDates = [], h
     const r2 = (fit) => (fit?.r2 == null ? '—' : fit.r2.toFixed(2));
     parts.push(`<div class="pf-stress-note pf-stress-method">${md(est.from)}~${md(est.to)} ${est.weeks}주의 주간 수익률을 요인 하나씩에 회귀한 기울기(지수 베타 ${f.equity ? f.equity.beta.toFixed(2) : '—'}, 설명력 R² 지수 ${r2(f.equity)}, 금리 ${r2(f.rate)}, 유가 ${r2(f.oil)}, 환율 ${r2(f.krw)})를 충격 크기만큼 키운 값입니다. 다른 요인이 함께 움직인 효과가 섞여 있고, 큰 충격은 과거 주간 관계를 넘어서는 외삽이라 예측이 아닙니다. 보유 시장 지수는 미국 종목 S&amp;P 500, 한국 종목 코스피를 비중대로 섞었습니다.</div>`);
   }
-  const kr = rows.some((row) => /\.(KS|KQ)$/i.test(row.sym)) ? krIndexStressRows(history, { now }) : [];
+  const kr = rows.some((row) => /\.(KS|KQ)$/i.test(row.sym)) ? krIndexStressRows(history, { now, through: krThrough }) : [];
   if (kr.length) {
     const krShare = rows.filter((row) => /\.(KS|KQ)$/i.test(row.sym)).reduce((sum, row) => sum + row.value, 0) / total;
     for (const row of kr) {

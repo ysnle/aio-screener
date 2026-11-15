@@ -14,6 +14,7 @@ import { marketRankingMetadata } from '../../../domain/screener/market-scope.js'
 import { refreshSharedArtifact } from '../../../data/shared-artifacts.js';
 import { renderNextSteps } from '../../components/page-flow.js';
 import { signedText, directionOf, finiteNumber as finite } from '../../../domain/shared/number.js';
+import { evidenceStrength } from '../../../domain/shared/evidence-strength.js';
 import { el } from './filters.js';
 import { REGIME_DESCRIPTIONS, cell, currentOverlap, scopedRows, selectedValue, text, withThemeStages } from './model.js';
 // 개편 v2 (3c/5h): the validation state before the table (amber banner) and the 사후 검증 summary. One reading of the
@@ -147,6 +148,19 @@ export function renderFactorTab(documentRef, metadata) {
 // correlation between the ranking and the next 21 sessions' return), the top-minus-bottom quintile spread
 // gross and net of cost on the same ±1 exposure, how many rebalances the top quintile actually beat the
 // bottom (not a per-stock direction accuracy), the 10-year 120-stock study, and what the result means.
+/**
+ * The verdict line over the rebalance count, through the shared evidence-strength rule: under its floor only the
+ * figures are named, with no direction word (six rebalances with IC 0.04 are not "약하게 같은 방향").
+ */
+export function validationVerdict({ composite = null, net = null, rebalances = null } = {}) {
+  if (composite == null) return '종합 IC가 계산되지 않았습니다.';
+  const ev = evidenceStrength(rebalances);
+  const figures = `종합 IC ${composite.toFixed(3)}, 상위−하위 비용 후 ${net == null ? '—' : `${net.toFixed(2)}%`}`;
+  if (!ev.figures) return `리밸런스 ${rebalances ?? 0}번뿐이라 순위와 이후 수익률의 방향을 말하지 않습니다(${figures}).`;
+  if (composite > 0.03 && net != null && net > 0) return `최근 ${rebalances}번의 시점에서 순위가 다음 21거래일 수익률과 약하게 같은 방향(IC ${composite.toFixed(3)})이었고 상위 20%가 하위보다 비용 후 ${net.toFixed(2)}% 앞섰습니다. 우연과 구분되지는 않습니다${ev.reference ? ` — ${ev.tag}` : ''}.`;
+  return `최근 ${rebalances}번의 시점에서 순위와 이후 수익률의 관계가 확인되지 않았습니다(${figures}). 이 실험에서 순위의 우월성이 보이지 않았다는 뜻이며, 전략이 영구히 무효라는 증명은 아닙니다.`;
+}
+
 export function renderBacktest(documentRef, metadata, root = globalThis, rows = null) {
   const panel = documentRef.getElementById('screener-backtest-panel');
   if (!panel) return;
@@ -209,9 +223,7 @@ export function renderBacktest(documentRef, metadata, root = globalThis, rows = 
   const parity = fingerprintMatches ? `현재 화면 순위와 같은 모델(같은 팩터 정의, 같은 가중 지문)로 과거 시점을 다시 매긴 결과입니다 — 순위는 시장별로 매기지만 IC·분위 수익률은 미국·한국 합산 표본(${backtest.n ?? '—'}종목)입니다`
     : backtest.modelFingerprint == null ? '이 검증 기록은 계산 방식 기록이 생기기 전에 만들어져 지금 화면 순위와 같은 모델인지 확인할 수 없습니다 — 지금 순위의 검증으로 읽지 않습니다'
       : '저장된 검증 기록의 계산 방식이 지금 화면 순위와 다릅니다(다른 가중치 프로필이거나 이전 모델) — 이 기록은 지금 순위의 검증으로 읽지 않습니다';
-  const verdict = composite == null ? '종합 IC가 계산되지 않았습니다.'
-    : composite > 0.03 && net != null && net > 0 ? `최근 ${rebalances ?? '—'}번의 시점에서 순위가 다음 21거래일 수익률과 약하게 같은 방향(IC ${composite.toFixed(3)})이었고 상위 20%가 하위보다 비용 후 ${net.toFixed(2)}% 앞섰습니다. 표본이 작아 우연과 구분되지는 않습니다.`
-      : `최근 ${rebalances ?? '—'}번의 시점에서 순위와 이후 수익률의 관계가 확인되지 않았습니다(종합 IC ${composite.toFixed(3)}, 상위−하위 비용 후 ${net == null ? '—' : `${net.toFixed(2)}%`}). 이 실험에서 순위의 우월성이 보이지 않았다는 뜻이며, 전략이 영구히 무효라는 증명은 아닙니다.`;
+  const verdict = validationVerdict({ composite, net, rebalances });
   panel.append(el('p', verdict, 'briefing-read-headline'), el('p', parity, 'theme-strength-basis'));
   panel.append(icBars(ic));
   const facts = el('dl', null, 'regime-evidence');

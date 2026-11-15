@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-15T03:54:43.636Z",
-  "appRevision": "v60.17",
-  "gitHead": "82850169083bc8fe56f34b8d4abb350d1d464702",
+  "observedAt": "2026-11-15T12:14:52.744Z",
+  "appRevision": "v60.19",
+  "gitHead": "a3c588acecf5f193c9d9d635f8de7a83a6486c47",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,85 +16,89 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "active DOM 3316 > 2500",
-    "max long task 356 > 200",
-    "decoded same-origin JS 2.76MB > 1.5MB"
+    "active DOM 3541 > 2500",
+    "max long task 279 > 200",
+    "decoded same-origin JS 2.61MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 388,
-    "dclMs": 463,
-    "loadMs": 540,
-    "maxLongTaskMs": 356,
-    "totalLongTaskMs": 826,
-    "longTaskCount": 5,
+    "fcpMs": 360,
+    "dclMs": 427,
+    "loadMs": 443,
+    "maxLongTaskMs": 279,
+    "totalLongTaskMs": 818,
+    "longTaskCount": 4,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 5416,
-    "activeRouteDomNodes": 3316,
+    "domNodes": 5635,
+    "activeRouteDomNodes": 3541,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 2895829,
-    "sameOriginScripts": 133,
+    "decodedJsBytes": 2735436,
+    "sameOriginScripts": 142,
     "crossOriginScripts": 1,
-    "resourceEntries": 205,
+    "resourceEntries": 215,
     "jsByKind": {
-      "esmBoot": 1500046,
-      "classicBoot": 1002311,
+      "esmBoot": 1382793,
+      "classicBoot": 1002065,
       "aiPanelBeforeUse": 0,
-      "postBootLazy": 393472
+      "postBootLazy": 350578
     },
     "aiPanelRequestsBeforeUse": [],
     "largestLazyFiles": [
       {
-        "path": "js/aio-glossary.js",
-        "bytes": 106744,
-        "startMs": 414
+        "path": "src/chunks/market-regime-H4E2E6FW.js",
+        "bytes": 47150,
+        "startMs": 1584
       },
       {
-        "path": "src/chunks/legacy-screen-bridges-7IJ5TXTI.js",
-        "bytes": 47310,
-        "startMs": 414
+        "path": "src/chunks/session-lean-TJUUCX4F.js",
+        "bytes": 34033,
+        "startMs": 533
       },
       {
-        "path": "src/chunks/request-pipeline-DUN7AC6L.js",
-        "bytes": 32349,
-        "startMs": 412
+        "path": "src/chunks/legacy-screen-bridges-5ZGEZKYD.js",
+        "bytes": 27183,
+        "startMs": 380
       },
       {
-        "path": "src/chunks/session-lean-WS3T7IJC.js",
-        "bytes": 29008,
-        "startMs": 672
+        "path": "src/chunks/analysis-CBOXIDI6.js",
+        "bytes": 23452,
+        "startMs": 410
       },
       {
-        "path": "src/chunks/analysis-Q5GZPEZD.js",
-        "bytes": 23322,
-        "startMs": 446
+        "path": "src/chunks/chunk-N3NLDXCV.js",
+        "bytes": 22418,
+        "startMs": 608
       },
       {
-        "path": "src/chunks/chunk-BOFZ4KMC.js",
-        "bytes": 22446,
-        "startMs": 1134
+        "path": "src/chunks/chunk-FK2RDFPF.js",
+        "bytes": 22219,
+        "startMs": 2472
       },
       {
-        "path": "src/chunks/cross-readings-VFE57B4Z.js",
-        "bytes": 15481,
-        "startMs": 1543
+        "path": "src/chunks/chunk-FS27KSW5.js",
+        "bytes": 16288,
+        "startMs": 2472
       },
       {
-        "path": "src/chunks/deferred-screen-terms-MC33YZLB.js",
-        "bytes": 10694,
-        "startMs": 539
+        "path": "src/chunks/cross-readings-2MIQDQOH.js",
+        "bytes": 15509,
+        "startMs": 2569
       }
     ],
     "measuredBundle": "deploy",
     "aiPanelOnHover": [
       "js/aio-chat.js",
       "src/chunks/ai-profile-TZTRUY2P.js",
-      "src/chunks/chat-globals-L6LLDPCR.js",
+      "src/chunks/chat-globals-DID4MYHM.js",
       "src/chunks/question-cues-4LSRCT6W.js",
-      "src/chunks/supplied-materials-X5HSUEVZ.js"
+      "src/chunks/request-pipeline-DUN7AC6L.js",
+      "src/chunks/supplied-materials-IDFFOHN4.js"
     ],
-    "routeMs": 81,
-    "wallMs": 8262,
+    "glossaryBeforeUse": false,
+    "termMarksBeforeGlossary": 22,
+    "glossaryOnTermHover": true,
+    "routeMs": 94,
+    "wallMs": 8254,
     "totalExternalRequests": 43,
     "quoteRequests": 24,
     "initialExternalRequests": 6,
@@ -110,6 +114,6 @@
       "other": true,
       "noChartGlobal": true
     },
-    "decodedJsMb": 2.76
+    "decodedJsMb": 2.61
   }
 }

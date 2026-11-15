@@ -6,6 +6,7 @@
 // every cell it averages is on one return basis.
 import { escapeHtml } from '../html.js';
 import { deriveExposurePanel } from '../../domain/portfolio/exposure-panel.js';
+import { portfolioStressHtml } from '../panels/portfolio-stress.js';
 
 
 export function renderPortfolioExposure(positions, returnsMap, { documentRef = globalThis.document, root = globalThis, corrRes = null } = {}) {
@@ -57,9 +58,13 @@ export function renderPortfolioStress(positions, historyMap, commonDates, { docu
   try { root.dispatchEvent(new CustomEvent('aio:portfolioStressInput')); } catch (_) {}
   const el = documentRef.getElementById('pf-stress-panel');
   if (!el) return;
-  if (!positions || !positions.length || typeof root._aioPortfolioStressHtml !== 'function') { el.innerHTML = ''; return; }
+  if (!positions || !positions.length) { el.innerHTML = ''; return; }
   const base = root._pfBaseValues(positions);
   if (base.blocked) { el.innerHTML = root._pfBaseNote(base); return; }
-  el.innerHTML = root._aioPortfolioStressHtml({ base, historyMap: historyMap || {}, commonDates: commonDates || [] });
+  // The stress panel model loads with this route chunk, not at boot. The KOSPI rows read through the
+  // latest completed KRX session on the app clock — root._aioLatestCompletedSessionDate, the clock reader bootstrap
+  // installs (createClock) — as the bootstrap-installed renderer did before it moved here; not the wall clock.
+  const krThrough = typeof root._aioLatestCompletedSessionDate === 'function' ? root._aioLatestCompletedSessionDate('KR') : null;
+  el.innerHTML = portfolioStressHtml({ base, historyMap: historyMap || {}, commonDates: commonDates || [], history: root._aioHistory || [], krThrough });
   el.insertAdjacentHTML('beforeend', root._pfBaseNote(base)); // P1445
 }

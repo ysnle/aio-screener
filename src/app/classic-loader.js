@@ -1,8 +1,9 @@
 // v59.70 P3 (legacy core wave 2): js/aio-glossary.js (the GLOSSARY literals, about 114 KB) is no longer a boot script.
 // Nothing reads GLOSSARY while the classic scripts evaluate: term marks, the glossary modal and the research shell read
-// it when they run. It loads once the page is idle after boot, on the first glossary open, or right away for automated
-// browsers (as the chat and the QA audits do). aio:glossaryReady tells the readers it has arrived.
-const IDLE_TIMEOUT_MS = 3000;
+// it when they run. It loads when a reader asks for it: a pointer or focus on a 용어 사전 button or a term mark, the
+// glossary modal, the command search or the research search; automated test browsers load it at once (as the chat and
+// the QA audits do). Term marks do not wait for it: they mark the fixed TERM_MARKS list, every target of which names a
+// real entry (pipeline-semantics RUN6-TERM-01). aio:glossaryReady tells the readers it has arrived.
 
 // The glossary carries the same cachebuster as the static shell scripts (bump-version patches those).
 function scriptVersion(doc) {
@@ -32,20 +33,15 @@ export function installGlossaryLoader(root = globalThis, doc = root.document) {
   root.AIO.loadGlossary = load;
   // v59.70 (post-boot budget): real glossary use (the modal, a search, a term mark) also brings the remaining screen terms.
   root.AIO.loadGlossaryFull = () => load().then(() => root._aioGlossaryFull?.());
-  // Pointing at or focusing a 용어 사전 button starts that load, so the first open does not wait for it.
+  // Pointing at or focusing a 용어 사전 button or a term mark starts that load, so the first open does not wait for it.
   const intent = (event) => {
-    if (!event.target?.closest?.('[data-action="openGlossary"]')) return;
+    if (!event.target?.closest?.('[data-action="openGlossary"], .aio-term')) return;
     doc.removeEventListener('pointerover', intent, true); doc.removeEventListener('focusin', intent, true);
     root.AIO.loadGlossaryFull().catch(() => {});
   };
   doc.addEventListener('pointerover', intent, true);
   doc.addEventListener('focusin', intent, true);
-  const soon = () => {
-    if (typeof root.requestIdleCallback === 'function') root.requestIdleCallback(() => { load().catch(() => {}); }, { timeout: IDLE_TIMEOUT_MS });
-    else root.setTimeout(() => { load().catch(() => {}); }, 1);
-  };
-  if (root.navigator?.webdriver) load().catch(() => {});
-  else if (doc.readyState === 'complete') soon();
-  else root.addEventListener('load', soon, { once: true });
+  // scripts/ci-boot-interaction-check.mjs sets __aioUserBoot to measure the boot a reader gets.
+  if (root.navigator?.webdriver && !root.__aioUserBoot) load().catch(() => {});
   return load;
 }

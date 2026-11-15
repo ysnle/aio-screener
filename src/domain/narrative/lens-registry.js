@@ -6,6 +6,7 @@
 // of implying a complete market. Pure: the browser adapter (src/ui/components/page-sources.js) gathers the inputs.
 import { readNumber } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
+import { marketPopulation } from '../screener/market-scope.js';
 
 const DAY = 86400000;
 const md = (iso) => { const m = /^\d{4}-(\d\d)-(\d\d)/.exec(String(iso || '')); return m ? `${Number(m[1])}/${Number(m[2])}` : null; };
@@ -27,8 +28,9 @@ const macroLast = (macroHistory, id) => {
 };
 const sessionsBehind = (date, nowMs) => (date ? Math.floor((nowMs - Date.parse(`${date}T21:00:00Z`)) / DAY) : null);
 const share = (rows, test) => ({ covered: rows.filter(test).length, total: rows.length });
-const usRows = (rows) => (rows || []).filter((row) => row?.market === 'US');
-const krRows = (rows) => (rows || []).filter((row) => row?.market === 'KR');
+// A market's universe is its listed rows (market-scope marketPopulation), the count the screener's 모집단 says too.
+const usRows = (rows) => marketPopulation((rows || []).filter(Boolean), 'US');
+const krRows = (rows) => marketPopulation((rows || []).filter(Boolean), 'KR');
 
 // A daily input more than STALE_DAYS calendar days behind the newest close is named as late on the lens.
 const STALE_DAYS = 5;

@@ -203,7 +203,7 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
 {
   const { buildMarketRead } = await load('src/domain/briefing/market-read.js');
   const { creditJudgement, creditReading } = await load('src/domain/briefing/credit-reading.js');
-  const { buildMacroRead } = await load('src/domain/macro/macro-read.js');
+  const { buildMacroChain } = await load('src/domain/macro/macro-chain.js');
   const { participationShift, ROTATION_TITLE, buildMarketScenarios } = await load('src/domain/market/regime/regime-scenarios.js');
   const { buildMarketInterpretation } = await load('src/domain/market/interpretation/market-interpretation.js');
   const data = json('public-data/data.json');
@@ -239,15 +239,15 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
       else if (creditChapter && !day) check(`v59.84 [${tag}] 매크로 신용 장 state is the axis state`, creditChapter.state === axis('credit').state, `${creditChapter.state} vs ${axis('credit').state}`);
       if (creditChapter && !day) check(`v59.84 [${tag}] 매크로 신용 장 flip offers no condition that already holds`, !(judgement.state === 'burden' && !judgement.cause.level && /% 아래로 내려오고/.test(creditChapter.flip || '')), creditChapter.flip);
     }
-    const macroAt = buildMacroRead({ macro, macroHistory, regime: reg, history: at });
-    const nodes = [...(macroAt?.chain?.nodes || []), ...(macroAt?.chain?.branches || [])];
+    const chainAt = buildMacroChain({ macro, macroHistory, regime: reg, history: at });
+    const nodes = [...(chainAt?.nodes || []), ...(chainAt?.branches || [])];
     for (const id of ['rates', 'credit']) {
       const node = nodes.find((row) => row.id === id); const state = axis(id)?.state;
       if (!node || !state || state === 'unknown' || node.held) continue;
       const expected = state === 'neutral' ? 'flat' : state;
       check(`v59.84 [${tag}] 매크로 연결 상자 ${id} node colours the axis state`, node.impact === expected, `${node.impact} vs axis ${state}`);
     }
-    if (axis('rates')?.state !== 'favorable') check(`v59.84 [${tag}] 연결 상자 never says the discount rate is easing while the rates axis is not 양호`, !(macroAt?.chain?.links || []).some((line) => /할인율 부담이 줄고/.test(line)), (macroAt?.chain?.links || []).join(' / '));
+    if (axis('rates')?.state !== 'favorable') check(`v59.84 [${tag}] 연결 상자 never says the discount rate is easing while the rates axis is not 양호`, !(chainAt?.links || []).some((line) => /할인율 부담이 줄고/.test(line)), (chainAt?.links || []).join(' / '));
     const read = buildMarketRead({ history: at, macroHistory, credit: hyAt ? { hyBp: hyAt.level * 100, hyDelta5Bp: hyAt.d5, hyAsOf: hyAt.date } : {}, now: day ? Date.parse(`${day}T23:00:00Z`) : Date.now() });
     const checks = JSON.stringify(read || {});
     if (axis('credit')?.state !== 'favorable') check(`v59.84 [${tag}] no check offers "양호 조건 상실" while credit is not 양호`, !/양호 조건 상실/.test(checks), (checks.match(/[^"]{0,60}양호 조건 상실[^"]{0,20}/) || [''])[0]);
@@ -315,6 +315,41 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
   }
 }
 
+// ── 8c. v60.18 (live freeze 11-10): the credit verdict took its level from the data.json snapshot and its 5-session change
+// from macro-history, so 오늘 and 매크로 split whenever the two sources sat one observation apart (42 CI failures, 7 h of no
+// deploy). On the pinned 11/6 close, with the product's own input builder, the snapshot is put one observation ahead of and
+// behind macro-history; the 시장 상태 axis, creditJudgement, the 매크로 credit chapter, tile and chain must read one observation.
+{
+  const { creditJudgement } = await load('src/domain/briefing/credit-reading.js');
+  const { buildMacroRead } = await load('src/domain/macro/macro-read.js');
+  const { buildMacroChain } = await load('src/domain/macro/macro-chain.js');
+  const { regimeMarketInput } = await load('src/domain/market/interpretation/inputs.js');
+  const day = pinned1106.closeDate;
+  const now = Date.parse(`${day}T23:00:00Z`);
+  const full = pinned1106.macroHistory;
+  const obs = full.series.hyOas.observations;
+  const behind = { ...full, series: { ...full.series, hyOas: { ...full.series.hyOas, observations: obs.slice(0, -1) } } };
+  const snapshotAt = (row, prior) => ({ ...(pinned1106.macro || {}), hyOAS: row[1], _asOf_hyOAS: row[0], hyOASDelta5: row[1] - prior[1] });
+  const cases = [
+    { name: 'snapshot one observation ahead of macro-history', macroHistory: behind, macro: snapshotAt(obs.at(-1), obs.at(-6)) },
+    { name: 'snapshot one observation behind macro-history', macroHistory: full, macro: snapshotAt(obs.at(-2), obs.at(-7)) }
+  ];
+  for (const { name, macroHistory: mh, macro } of cases) {
+    const input = regimeMarketInput({ macro, history: pinnedHistory, macroHistory: mh, nowMs: now });
+    const reg = buildMarketRegime(input);
+    const axis = (reg.axes || []).find((row) => row.id === 'credit');
+    const judgement = creditJudgement(mh, reg.asOf);
+    const chapter = (() => { const model = buildMacroChapters({ macroHistory: mh, history: pinnedHistory }); return (Array.isArray(model) ? model : model?.chapters || []).find((row) => row.id === 'credit'); })();
+    const tile = buildMacroRead({ macro, macroHistory: mh, regime: reg, history: pinnedHistory }).axes.find((row) => row.id === 'credit');
+    const branch = buildMacroChain({ macro, macroHistory: mh, regime: reg, history: pinnedHistory }).branches.find((row) => row.id === 'credit');
+    const o = axis?.observation;
+    check(`v60.18 [${name}] the credit axis reads one dated observation`, !!o && o.asOf === judgement?.date && Math.round(o.level) === Math.round(judgement.hyBp) && Math.round(o.change5) === Math.round(judgement.hy5), `${JSON.stringify(o)} vs ${JSON.stringify(judgement && { date: judgement.date, hyBp: judgement.hyBp, hy5: judgement.hy5 })}`);
+    check(`v60.18 [${name}] 오늘·시장 상태 credit is the 매크로 credit judgement and chapter`, axis?.state === judgement?.state && chapter?.state === judgement?.state, `${axis?.state} / ${judgement?.state} / ${chapter?.state}`);
+    check(`v60.18 [${name}] the 매크로 credit tile quotes the axis level`, num(tile?.headline, /하이일드 (\d+)bp/) === Math.round(judgement?.hyBp), `${tile?.headline} vs ${judgement?.hyBp}`);
+    check(`v60.18 [${name}] the 매크로 chain quotes the axis 5-session change`, num(branch?.value, /5거래일 ([+-−]?\d+)bp/) === Math.round(judgement?.hy5), `${branch?.value} vs ${judgement?.hy5}`);
+  }
+}
+
 // ── 9. v59.85 (chart review 2026-11-08): one trend vocabulary. The 기술적 분석 index cards, the stock table under them, the
 // 종목 page, the screener and the stock chart's chip/areas all read bands.js classifyTrend; on today's files a word is
 // never another screen's word for a different state, and an index card says the word the classifier gives its position.
@@ -344,6 +379,87 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
   const closes = bars.map((bar) => bar.close), mean = (n) => closes.slice(-n).reduce((a, b) => a + b, 0) / n;
   const row = { pctSma50: (closes.at(-1) / mean(50) - 1) * 100, pctSma200: (closes.at(-1) / mean(200) - 1) * 100, adrPct: bars.slice(-20).reduce((a, b) => a + (b.high - b.low) / b.close * 100, 0) / 20, ret5d: (closes.at(-1) / closes.at(-6) - 1) * 100 };
   check('v59.85 chart bars and the screener row read one trend word', trendOfBars(bars)?.label === bufferedTrend(row)?.label, `${trendOfBars(bars)?.label} vs ${bufferedTrend(row)?.label}`);
+}
+
+// ── v60.18 (weekly audit 2026-11-15): the week of 11/9–11/13 replayed on its own closes (market-close-2026-11-06.json plus
+// market-week-2026-11-13.json, the rows and FRED observations published through the 11/13 close). Each axis states its
+// level and its recent direction from their own numbers; the 10-year's five-session jump and the CCC leg hold; a
+// Saturday clock does not move a Friday verdict; the market-day ledger ranks a cumulative move.
+{
+  const week = json('architecture/fixtures/market-week-2026-11-13.json');
+  const weekRows = [...pinnedHistory.filter((row) => row.date <= '2026-11-06'), ...week.rows];
+  const macroThrough = (day) => ({ ...pinned1106.macroHistory, series: Object.fromEntries(Object.entries(pinned1106.macroHistory.series || {}).map(([id, item]) => [id,
+    { ...item, observations: [...(item.observations || []), ...(week.macroSeries[id]?.observations || [])].filter((row) => String(Array.isArray(row) ? row[0] : row?.date) <= day) }])) });
+  const at = (day, nowIso = `${day}T23:00:00Z`, fredThrough = day) => {
+    const mh = macroThrough(fredThrough);
+    const hyAt = oasDelta20Bp(mh, 'hyOas', day);
+    return buildMarketRegime({ history: weekRows.filter((row) => row.date <= day), macroHistory: mh, credit: hyAt ? { hyBp: hyAt.level * 100, hyDelta5Bp: hyAt.d5, hyAsOf: hyAt.date } : {}, now: Date.parse(nowIso) });
+  };
+  const read = (reg, id) => [...(reg.axes || []), ...(reg.watchAxes || [])].find((row) => row.id === id)?.read || '';
+  const days = { '2026-11-09': at('2026-11-09'), '2026-11-11': at('2026-11-11'), '2026-11-12': at('2026-11-12'), '2026-11-13': at('2026-11-13') };
+  // D6: SOXX +7.49% (11/9) and +6.01% (11/11) under its 50-day line, with the S&P 500 also under its line and rebounding
+  // (+2.35% on 11/9) — the hero composes both sides from level and direction and says a shared state once; never
+  // 약해지고 있다 and never a level state worded as ongoing weakness ("시장 전반 약세도 겹쳤습니다").
+  for (const day of ['2026-11-09', '2026-11-11']) {
+    const reg = days[day];
+    check(`v60.18 D6 [${day}] the hero says the leaders' and the index's shared rebound under the line once`, reg.heroLine === '주도주와 지수 모두 추세선 아래에서 반등 중입니다.', reg.heroLine);
+    for (const id of ['trend', 'leadership']) check(`v60.18 D6 [${day}] the ${id} read has no rising number inside a 약해지다 sentence`,
+      !read(reg, id).split(/(?<=[.다])\s/).some((sentence) => /약해(?:졌|지)/.test(sentence) && /\+\d/.test(sentence)), read(reg, id));
+  }
+  check('v60.18 D6 [11/9] the SOXX direction names the turn and the leg ending today', /SOXX는 11\/3 155\.00에서 -14\.9% 내려온 뒤 11\/5 131\.90부터 이틀 \+11\.3% 반등 중입니다/.test(read(days['2026-11-09'], 'leadership')), read(days['2026-11-09'], 'leadership'));
+  // A turn more than one day old: the leg from the window's latest extreme is the direction when it is at least a typical
+  // day (any number of sessions); a smaller one is a pause after the earlier leg, never "… 중".
+  const vol12 = read(days['2026-11-12'], 'volatility'), vol13 = read(days['2026-11-13'], 'volatility'), trend13 = read(days['2026-11-13'], 'trend');
+  check('v60.18 D6 [11/12] VIX 18.70 a day after the 17.49 low is a pause after the fall, not 하락 중', /VIX는 11\/5 28\.18에서 -38% 내려온 뒤 11\/11 17\.49부터 하루 \+7%로 방향이 뚜렷하지 않습니다/.test(vol12) && !/하락 중/.test(vol12), vol12);
+  check('v60.18 D6 [11/13] VIX 19.30 two up days off the 17.49 low reads 반등 중', /VIX는 11\/6 25\.64에서 -32% 내려온 뒤 11\/11 17\.49부터 이틀 \+10% 반등 중입니다/.test(vol13) && !/하락 중/.test(vol13), vol13);
+  check('v60.18 D6 [11/13] the S&P 500 two down closes off the 11/11 high reads 하락 중, not 반등 중', /S&P 500은 11\/6 7,376\.86에서 \+3\.3% 오른 뒤 11\/11 7,619\.38부터 이틀 -0\.8% 하락 중입니다/.test(trend13) && !/반등 중/.test(trend13), trend13);
+  check('v60.18 D6 [11/13] SOXX two down closes off the 11/11 high and the hero agree', /SOXX는 11\/6 136\.53에서 \+13\.8% 오른 뒤 11\/11 155\.40부터 이틀 -3\.9% 하락 중입니다/.test(read(days['2026-11-13'], 'leadership'))
+    && days['2026-11-13'].heroLine === '주도주와 지수 모두 추세선 아래에서 재하락 중입니다.', `${days['2026-11-13'].heroLine} | ${read(days['2026-11-13'], 'leadership')}`);
+  check('v60.18 D6 [11/12] both sides pausing after the rebound are said once', days['2026-11-12'].heroLine === '주도주와 지수 모두 추세선 아래에서 반등이 멈췄습니다.', days['2026-11-12'].heroLine);
+  // D8: VIX 17.49 on 11/11 against 16.61 on 11/4, across the 11/5 spike to 28.18 — the base is named and the leg is down.
+  const vol11 = read(days['2026-11-11'], 'volatility');
+  check('v60.18 D8 [11/11] the VIX rule names the base it compared with and the leg ending today', /5거래일 전\(11\/4 16\.61\)보다 \+5% 높아/.test(vol11) && /VIX는 11\/4 16\.61에서 \+70% 오른 뒤 11\/5 28\.18부터 나흘 -38% 하락 중입니다/.test(vol11) && !/5일 \+\d+% 올라/.test(vol11), vol11);
+  // D1: the year's largest five-session rise in the 10-year is 부담 on its own record (the speed leg), not 방향 없음.
+  for (const [day, jump] of [['2026-11-12', 26], ['2026-11-13', 29]]) {
+    const rates = (days[day].axes || []).find((row) => row.id === 'rates');
+    check(`v60.18 D1 [${day}] the 10-year +${jump}bp in five sessions is 부담 on the speed leg`, rates?.state === 'burden' && rates.shock?.d5 === jump && !/뚜렷한 방향 없이/.test(rates.read), `${rates?.state} ${rates?.read}`);
+  }
+  // D7 (credit): the intraday FRED print of 11/9 HY released the 20-session latch — 부담 to 중립 (the CCC leg), never 양호.
+  const before = at('2026-11-10', '2026-11-10T18:00:00Z', '2026-11-06'), after = at('2026-11-10', '2026-11-10T18:30:00Z', '2026-11-09');
+  const creditOf = (reg) => (reg.axes || []).find((row) => row.id === 'credit');
+  check('v60.18 D7 [11/10] the HY print moves credit one step (부담 → 중립 on the CCC leg)', creditOf(before)?.state === 'burden' && creditOf(after)?.state === 'neutral' && !/^스프레드가 낮고/.test(creditOf(after)?.read || ''), `${creditOf(before)?.state} → ${creditOf(after)?.state}: ${creditOf(after)?.read}`);
+  // D4: a Saturday clock over the same files gives the Friday verdict (the 11/14 count change was the v60.13–14 rule release).
+  const saturday = at('2026-11-13', '2026-11-14T10:25:00Z');
+  check('v60.18 D4 a Saturday clock does not move the 11/13 verdict', JSON.stringify(saturday.counts) === JSON.stringify(days['2026-11-13'].counts) && saturday.heroLine === days['2026-11-13'].heroLine && saturday.asOf === '2026-11-13',
+    `${JSON.stringify(saturday.counts)} vs ${JSON.stringify(days['2026-11-13'].counts)}`);
+  // D12: the market-day ledger ranks the 10-year's +29bp week (a +5bp day) by its five-session leg.
+  const ledger = buildMarketDay({ history: weekRows, macroHistory: macroThrough('2026-11-13'), nowMs: Date.parse('2026-11-13T23:57:00Z') });
+  const tnx = ledger.facts.find((fact) => fact.id === 'price:tnx:2026-11-13');
+  check('v60.18 D12 [11/13] the 10-year +29bp week leads the ledger on its cumulative leg', tnx?.rank === 'lead' && tnx.sizedBy === 'week' && tnx.week === 29 && tnx.change === 5, JSON.stringify(tnx && { rank: tnx.rank, m: tnx.materiality, z: tnx.z, zWeek: tnx.zWeek, sizedBy: tnx.sizedBy }));
+  const soxx13 = ledger.facts.find((fact) => fact.id === 'price:soxx:2026-11-13');
+  check('v60.18 D12 [11/13] a week given back today is not ranked on the week (SOXX +9.4% week, -3.67% day)', soxx13 && soxx13.weekCounts === false && soxx13.sizedBy === 'day', JSON.stringify(soxx13 && { zWeek: soxx13.zWeek, weekCounts: soxx13.weekCounts }));
+  const story = buildDayAccount({ ...ledger }).stories?.find((row) => row.kind === 'price' && /10년/.test(row.line || ''));
+  if (story) check('v60.18 D12 a week-ranked price story says its five-session leg', /5거래일 \+29bp로 평소 5거래일 변동의 \d\.\d배입니다/.test(story.line), story.line);
+}
+
+// ── v60.18 (weekly audit D7/D4): the 오늘 record the static shell paints first against the live code. today-verdict.json
+// written by v60.14 (1/4/1) stood beside the v60.16 screen's 1/3/2 with nothing naming the gap. The record carries the
+// model that wrote it (scripts/lib/verdict-model.mjs): a different model is named here as STALE-MODEL with both verdicts
+// (it converges on the next refresh-data run; producers do not run locally); the same model must give the same verdict
+// from the same published inputs at the record's own clock — a difference there is a session or input leak.
+{
+  const { verdictModelFingerprint, verdictRecordStatus } = await load('scripts/lib/verdict-model.mjs');
+  const { interpretationFromArtifacts } = await load('scripts/lib/market-interpretation-inputs.mjs');
+  const optional = (path) => { try { return json(path); } catch (_) { return null; } };
+  const record = optional('public-data/today-verdict.json');
+  if (!record) console.log('[metric-consistency] SKIP today-verdict: no published record');
+  else {
+    const regime = interpretationFromArtifacts({ data: optional('public-data/data.json'), history: json('public-data/history.json'), macroHistory,
+      screener: optional('public-data/screener.json'), nowMs: Date.parse(record.generatedAt) }).regime || {};
+    const seen = verdictRecordStatus(record, regime, verdictModelFingerprint());
+    if (seen.status === 'stale-model') console.log(`[metric-consistency] STALE-MODEL today-verdict.json (${record.generatedAt}) was written by ${seen.model || 'an unstamped pre-v60.18 model'}; live code is ${seen.liveModel}. Published ${seen.published} · live ${seen.live}${seen.same ? ' (same verdict)' : ''} — the next refresh-data run rewrites it`);
+    else check('v60.18 today-verdict.json matches the live code on the published inputs (same model, same verdict)', seen.status === 'match', `published ${seen.published} · live ${seen.live}`);
+  }
 }
 
 if (failures.length) {

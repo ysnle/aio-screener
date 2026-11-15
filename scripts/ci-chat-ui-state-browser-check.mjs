@@ -194,6 +194,7 @@ try {
     const cleared = { card: !!document.getElementById('ai-pending-turn'), kept: tab.has('aio_chat_pending_v1') };
     keep();
     const sent = [];
+    window._aiCurrentCtx = 'home'; // the panel context js/aio-chat.js keeps (a page-level var); the card asks on 'home'
     window.chatSendUnified = () => sent.push(document.getElementById('ai-panel-inp').value);
     kit.showPendingCard().querySelectorAll('button')[0].click();
     const asked = { sent, card: !!document.getElementById('ai-pending-turn'), kept: tab.has('aio_chat_pending_v1') };
@@ -206,6 +207,50 @@ try {
     asked: { sent: ['엔비디아 실적 발표 뒤 반도체 공급망 전체의 재고와 가격 흐름이 어떻게 달라졌는지 기업별로 나눠서 자세히 설명해 줘. 특히 메모리와 파운드리 쪽을 중심으로'], card: false, kept: false },
     expired: true
   }, 'v60.02 the reload card quotes the question (80 chars), 지우기 forgets it, 다시 묻기 sends it once, and it expires at 15 minutes');
+  // v60.19 (external audit, v60.16 Chromium repro): 다시 묻기 on a question kept from a saved 종목 conversation was sent
+  // into the open 매크로 conversation. It now reopens the question's conversation through the panel's session api
+  // (src/ui/components/chat-sessions.js restore), goes back to the question's screen address and sends once the panel
+  // reports that screen; a question from a conversation that was never saved is asked in a new conversation.
+  assert.deepEqual(await waiting.evaluate(async () => {
+    const { installChatSessions } = await import('/src/ui/components/chat-sessions.js');
+    const chat = await import('/src/ai/session/chat-sessions.js');
+    const device = new Map();
+    const deviceStore = { getItem: (k) => (device.has(k) ? device.get(k) : null), setItem: (k, v) => device.set(k, String(v)), removeItem: (k) => device.delete(k) };
+    chat.setConsent(deviceStore, true);
+    chat.appendTurn(deviceStore, { sessionId: 'saved-A', ctx: 'ticker', question: 'NVDA 실적은?', answer: 'A 답변', at: clock.t - 120_000 });
+    chat.appendTurn(deviceStore, { sessionId: 'saved-B', ctx: 'macro', question: '금리는?', answer: 'B 답변', at: clock.t - 60_000 });
+    deviceStore.setItem(chat.ACTIVE_KEY, 'saved-B');
+    const sessions = installChatSessions(window, document, { storage: deviceStore });
+    // The app's router as the fixture sees it: an address change shows its page and the panel takes its context.
+    window.addEventListener('hashchange', () => {
+      const id = location.hash.slice(1).split(/[?/]/)[0];
+      window._aiCurrentCtx = id;
+      document.getElementById('ai-panel-inp').value = ''; // updateAIPanelContext empties the box on a context change
+      document.dispatchEvent(new CustomEvent('aio:pageShown', { detail: id }));
+    });
+    const sent = [];
+    window.chatSendUnified = () => sent.push({ question: document.getElementById('ai-panel-inp').value, sessionId: sessions.sessionId, ctx: window._aiCurrentCtx, hash: location.hash, messages: getChatState().messages.map((m) => m.content) });
+    const ask = async (stored) => {
+      tab.set('aio_chat_pending_v1', JSON.stringify({ ...stored, startedAt: clock.t - 30_000 }));
+      kit.showPendingCard().querySelectorAll('button')[0].click();
+      for (let i = 0; i < 40 && sent.length < ask.count + 1; i += 1) await new Promise((resolve) => setTimeout(resolve, 25));
+      ask.count = sent.length;
+      return sent.at(-1) || null;
+    };
+    ask.count = 0;
+    history.replaceState(null, '', '#macro');
+    window._aiCurrentCtx = 'macro';
+    const saved = await ask({ sessionId: 'saved-A', ctx: 'ticker', route: '#ticker?sym=NVDA', question: '이 종목은?' });
+    history.replaceState(null, '', '#macro');
+    window._aiCurrentCtx = 'macro';
+    sessions.restore('saved-B');
+    const unsaved = await ask({ sessionId: null, ctx: 'macro', route: '#macro', question: '새 질문' });
+    return { saved, unsaved, kept: tab.has('aio_chat_pending_v1') };
+  }), {
+    saved: { question: '이 종목은?', sessionId: 'saved-A', ctx: 'ticker', hash: '#ticker?sym=NVDA', messages: ['NVDA 실적은?', 'A 답변'] },
+    unsaved: { question: '새 질문', sessionId: null, ctx: 'macro', hash: '#macro', messages: [] },
+    kept: false
+  }, 'v60.19 다시 묻기 asks in the question\'s own conversation and screen, never in the one open at the time');
   await waiting.close();
   console.log('Chat UI state Chromium fixture PASS: keyboard stop, cancelled turn isolation, route cancellation, stale epoch, completion cleanup, malformed/expired history isolation, retired history overlay absent (v59.42), waiting line in place and stopped with its run (v60.02). Offline isolated DOM evidence.');
 } finally { await browser.close(); }

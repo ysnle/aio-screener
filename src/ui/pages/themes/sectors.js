@@ -6,7 +6,7 @@ import { krThemeArtifactRead, krThemeLabel } from '../../../domain/themes/kr-the
 import { buildThemeFlow } from '../../../domain/market/regime/market-flow.js';
 import { RRG_BORDER_LABEL, RRG_QUADRANT_WORDS } from '../../../domain/themes/rrg.js';
 import { rrgRecentReading } from '../../../domain/themes/recent-check.js';
-import { readMarketRegime } from '../../components/market-regime.js';
+import { readMarketRegime } from '../../../data/selectors/interpretation.js';
 import { marketInterpretation } from '../../../data/selectors/interpretation.js';
 import { renderNextSteps } from '../../components/page-flow.js';
 import { signedText, directionOf, finiteNumber as finite } from '../../../domain/shared/number.js';

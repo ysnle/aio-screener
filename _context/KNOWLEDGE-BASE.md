@@ -154,7 +154,7 @@ confidence: high
 
 ## 2026-08-09 코드 구현 환류: Telegram 4채널 감사·공급망/전력/수급 프레임 보강
 
-- 네 채널을 역할별로 분리했다. Aether는 일본·미국 반도체/AI 인프라·수급, Insider Tracking은 미국 속보·기업·매크로, BornLupin은 한국 반도체·브로커 노트·ESS, HANA China는 중국·대만·신흥국 공급망 discovery 계층이다. 같은 뉴스의 재전달은 독립 확인으로 세지 않는다.
+- 네 채널을 역할별로 분리했다. Aether는 일본·미국 반도체/AI 인프라·수급, Insider Tracking은 미국 속보·기업·매크로, BornLupin은 한국 반도체·브로커 노트·ESS, HANA China는 중국·대만·신흥국 공급망 discovery 계층이다. 같은 뉴스의 재전달은 독립 확인으로 세지 않는다. (2026-11-15 갱신: `aetherjapanresearch`는 2026-10-26부터 공개 미리보기를 내지 않아 레지스트리에서 퇴역했다 — `scripts/lib/telegram-channels.mjs`의 `retired`. 수집 채널은 나머지다.)
 - 브라우저 공개 페이지는 실제 게시물 창을 직접 읽을 수 있었지만 Telegram 자체는 `REFERENCE / secondary`다. 라이브 재감사에서 Aether는 2026-08-07, Insider Tracking은 2026-08-03, BornLupin은 2026-08-05, HANA China는 2026-08-09 / Today가 보였다. HANA는 이번 라이브 관측에서는 `REFERENCE`로 보정하되, 게시물의 최신성이 현재 펀더멘털·신호·사실성을 보증하지 않는다. 자동 digest는 여전히 `collectionStatus=failed`인 보존 원장이다.
 - 공통 프레임은 `관찰 원문/시각 → canonical ticker/theme → 독립 primary 확인 → 촉매의 가격·거래량·breadth 수용 → 무효화/신선도 만료` Q1~Q5다. 구독자 수·전달량·목표가·forwarded 숫자는 신뢰도 또는 현재값이 아니다.
 - AI 인프라 논지는 총 capex만 보지 않고 `GPU workload → load ramp/peak-to-average → 전력·물·interconnection → 가동률/임대료 → OCF → 감가상각·리스·조달비용`으로 분해했다. HBM/NAND/LTA/첨단 패키징, 한국 전력·용수, 중국/대만 AI·EV·ESS도 같은 방식으로 직접 관찰과 검증 대상을 분리한다.

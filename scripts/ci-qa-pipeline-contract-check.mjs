@@ -587,7 +587,10 @@ check('Pages explicit hand-over re-asserts attestation conditions',
   && /workflow_dispatch:[\s\S]*?expected_sha/.test(pagesSource)
   && /actions\/runs\/\$run_id/.test(pagesSource)
   && /aio-release-attestation\.v1/.test(pagesSource)
-  && /test "\$sha" = "\$WORKFLOW_SHA"/.test(pagesSource));
+  // v60.19: the attested-SHA comparison is one delimited block that scripts/ci-deployment-convergence-check.mjs runs
+  // under bash on push and dispatch scenes; here only that the block exists and that check executes it.
+  && /# attested-release-rule:begin[\s\S]*?# attested-release-rule:end/.test(pagesSource)
+  && /attested-release-rule:begin/.test(read('scripts/ci-deployment-convergence-check.mjs')));
 check('convergence driver cannot bypass attestation or mutate repository state',
   /pages-deploy\.yml/.test(convergenceSource)
   && /aio-release-attestation/.test(convergenceSource)

@@ -53,9 +53,21 @@ export function resultsExhibit(fullText) {
   return docs.find((doc) => /^EX-99\.1$/i.test(doc.type)) || docs[0] || null;
 }
 
+/**
+ * v60.18 (weekly audit 2026-11-15, TSM 11/13): a foreign issuer files its quarter twice on 6-K, the results release on the
+ * day of the call and the reviewed interim financial statements weeks later (TSMC 10/15, then 11/13). The statements are
+ * the same quarter already reported, not a results event: the 11/13 brief was dated as that day's report, its price move
+ * read as the market's answer to it. Statements are told apart by what only they carry: an auditor's review report, a
+ * notes section, or line items that cite their notes ("INCOME FROM OPERATIONS (Note 37)").
+ */
+const STATEMENTS_HEADING_RE = /\b(?:independent\s+)?auditors?['’]?\s+review\s+report\b|\breport\s+on\s+(?:the\s+)?review\s+of\b|\bnotes\s+to\s+(?:the\s+)?(?:condensed\s+)?(?:consolidated\s+)?(?:interim\s+)?financial\s+statements\b/i;
+const NOTE_REFERENCE_RE = /\(\s*notes?\s+\d+/gi;
+export const looksLikeFinancialStatements = (text) => STATEMENTS_HEADING_RE.test(String(text || ''))
+  || (String(text || '').match(NOTE_REFERENCE_RE) || []).length >= 3;
+
 /** A 6-K exhibit (foreign issuers file no Item 2.02) counts as a results release only when it reads like one. */
 export const looksLikeQuarterlyResults = (text) => /\b(?:first|second|third|fourth)\s+quarter\b|\b[1-4]Q\s?\d{2}\b|\bQ[1-4]\s?\d{2,4}\b/i.test(text)
-  && /\b(?:net\s+)?revenues?\b/i.test(text) && /\b(?:earnings|results|net income)\b/i.test(text);
+  && /\b(?:net\s+)?revenues?\b/i.test(text) && /\b(?:earnings|results|net income)\b/i.test(text) && !looksLikeFinancialStatements(text);
 
 const codePointText = (code) => (Number.isInteger(code) && code >= 0 && code <= 0x10FFFF ? String.fromCodePoint(code) : ' ');
 

@@ -1,6 +1,6 @@
 ---
-verified_by: owner-decision extraction from AGENTS.md, CHANGELOG.md owner-attributed entries, RULES.md and project memory (2026-11-02, v59.58)
-last_verified: 2026-11-02
+verified_by: owner-decision extraction from AGENTS.md, CHANGELOG.md owner-attributed entries, RULES.md and project memory (2026-11-02, v59.58; memory rows and AGENTS one-line restructure 2026-11-15)
+last_verified: 2026-11-15
 confidence: medium
 target_version: version.json
 ---
@@ -29,9 +29,18 @@ target_version: version.json
 | 2026-11-01 | 작업 중 결정이 필요하면 Claude 권장안으로 진행하고 보고에 선택을 적는다. 되돌릴 수 없는 운영 변경은 여전히 묻는다 | 소유자 메시지 2026-11-01 15:20Z "중간 중간 내 결정이나 의사가 필요한 사항들은 일단 너의 권장안…으로 모두 진행해주고" | 유지 | AGENTS 협업 원칙 (2026-11-02 반영) |
 | 2026-11-01 | 모든 스레드가 끝나면 안전하게 통합(origin/main 병합, 생성물 충돌은 `resolve-generated-conflicts`)하고 커밋·push | 소유자 메시지 2026-11-01 15:20Z "전체 작업과 스레드 끝나면 안전하게 통합해서 커밋/Push까지", 15:52Z 재확인 | 유지 | AGENTS Non-negotiable boundaries·Change flow, CLAUDE.md 작업 규칙 (2026-11-02 반영) |
 | 2026-11-01 | 병렬 스레드는 버전을 올리지 않고 기록을 `_artifacts/pending-records/<스레드>/`에 두며 통합 때 `apply-pending-records`로 기록 | 메모리, v59.56 | 유지 | AGENTS Non-negotiable boundaries, CLAUDE.md 환경 주의 |
-| 2026-11-01 | 서브에이전트는 Sonnet 5.5. 실제 화면마다 데이터·로직·의도·개념·작은 시각 세부를 재검토한 뒤 품질 작업을 계속한다 | 소유자 메시지 2026-11-01 15:16Z "서브에이전트는 Sonnet 5.5로 해야 효율적일 것 같은데?" | 유지 | AGENTS Working agreement (2026-11-02 반영) |
+| 2026-11-01 | 서브에이전트는 Sonnet 5.5. 실제 화면마다 데이터·로직·의도·개념·작은 시각 세부를 재검토한 뒤 품질 작업을 계속한다 | 소유자 메시지 2026-11-01 15:16Z "서브에이전트는 Sonnet 5.5로 해야 효율적일 것 같은데?" | **서브에이전트 모델은 2026-11-15로 대체**, 화면 재검토는 유지 | AGENTS Working agreement (2026-11-02 반영) |
 | 2026-11-01 | 시장 분석 밖 X 북마크(코드 환경·스킬·디자인·모바일)는 목록으로 모아 별도 스레드. 북마크는 답글·스레드·인용까지 읽는다 | 메모리 | 유지 | 저장소 문서에 없음 |
 | 2026-11-01 | 작업은 순환으로: 각 순환의 결과와 다음 개선점을 보고 | 소유자 메시지 2026-11-01 15:52Z "Loop 형식으로 … 계속해서 개선해나갈수 있도록" | 유지 | 저장소 문서에 없음 |
+| 2026-10-14 | 배치마다 push 여부를 한 번 묻고 자동 push하지 않는다 | 메모리 ask-push-each-batch | **2026-11-01 배치 끝 상시 승인이 정본**(아래 어긋남 9) | AGENTS Non-negotiable boundaries |
+| 2026-10-15 | 판정 라벨은 실제 그 주 데이터와 대조한다: 숫자를 먼저 계산하고, 읽기 전용 에이전트로 모든 화면을 점검 | 메모리 verify-judgements-against-data | 유지 | 저장소 문서에 없음 |
+| 2026-10-31 | 구조 요청은 최근 7일 Actions 실패 원장을 원인별로 분류하는 데서 시작하고, 각 클래스를 옛 코드에서 실패하는 전수 게이트로 닫는다 | 메모리 failure-ledger-first | 유지 | RULES R733(세션 스윕 게이트), `scripts/ledger-class-report.mjs` |
+| 2026-11-14 | '전체/모두' 요청은 목록 전체를 한 번에: 중간엔 빠른 검사만, 끝에 전체 QA·bump·기록 한 번, 보고 하나 | 메모리 one-batch-no-stopping | 유지 | AGENTS Batches, CLAUDE.md 기록 순서 |
+| 2026-11-14 | 소유자가 Fable에게 작업 전체를 맡기면 리뷰도 Fable(model: fable)이 하고 Fable이 검증한다(Opus 리뷰어 기본값보다 우선) | 메모리 review-on-fable | 유지 | 저장소 문서에 없음 |
+| 2026-11-15 | 이번 배치는 Fable이 계획·리뷰, Opus 5.5(medium)가 실행 | 코디네이터 지시(소유자 2026-11-15) | 유지(이 배치 한정) | 저장소 문서에 없음 |
+| 2026-11-15 | 서브에이전트 기본값은 Opus 5.5, medium 또는 low effort | 코디네이터 전달 소유자 결정 "서브에이전트는 Opus 5.5 (medium or light)" | 유지 (2026-11-01 Sonnet 5.5 대체) | AGENTS Working agreement. `architecture/agent-profiles.json`은 모델을 고정하지 않아 재생성할 것 없음 |
+| 2026-11-15 | 배치 끝 push 직후, 그 배치가 낡게 만든 발행 산출물(정의 지문 변경·새 산출물 필드)의 refresh/outcome 워크플로 레인을 각각 한 번 dispatch하고 무엇을 돌렸는지 보고한다. 다른 dispatch·배포·설정 변경은 포함하지 않는다 | 코디네이터 전달 소유자 승인 2026-11-15 | 유지 | AGENTS Non-negotiable boundaries |
+| 2026-11-15 | AGENTS.md는 규칙 한 줄(규칙·날짜·R/게이트 id)로 쓰고 근거·이력·예시는 이 문서로 옮긴다. 두 원문 인용(Architecture first, 위임)은 그대로 | 코디네이터 전달 소유자 승인 2026-11-15 | 유지 | AGENTS 머리말, 아래 "AGENTS 규칙의 근거·예시" |
 
 ## 제품·범위
 
@@ -73,6 +82,14 @@ target_version: version.json
 | 2026-11-02 | 보이는 결정 헤더(R426)는 숨김 유지 — 권장안으로 진행(11-01 상시 규칙) | 이 문서 어긋남 7 | 유지 | RULES R426 |
 | 2026-10-25 | Ctrl+K는 화면에 보이는 검색창에만 포커스, 없으면 용어 사전 | P1315 주석(`screen-shortcuts.js`) | **2026-11-04 D4로 대체** | 코드 |
 | 2026-11-04 | D4: 검색창 4개(종목·도움말·용어 사전·Ctrl+K 포커스)를 명령 검색 하나로. Ctrl/⌘K는 어디서나 명령 검색(종목·화면·용어·도움말), 스크리너 표 필터는 `/` 키. 없는 기호는 추정하지 않고 '목록에 없음' | wave2 PLAN §5 D4(권장안) | 유지 | `src/ui/navigation/command-search.js`, `scripts/ci-search-surface-contract.mjs` |
+| 2026-10-03 | 섹션마다 시각 자료 하나 + 짧은 읽기 + 접힌 세부. 글만이나 차트만인 섹션은 두지 않는다 | 메모리 balanced-text-visual | 유지 | `scripts/ci-section-visual-contract.mjs`(종목 개요·재무), section-frame 계약(`scripts/ci-secondary-text-budget-check.mjs`) |
+| 2026-10-04 | 사용법 설명 글만 줄이고 분석·연결 설명은 남기거나 깊게. 화면마다 한 논리 흐름과 섹션 사이 다리 | 메모리 minimal-guidance-active-users | 유지 | 저장소 문서에 없음 |
+| 2026-10-05 | 읽기 분량: 블록당 3~5줄(약 130~230자), 이야기 형식. 여러 단계 주제만 길게 | 메모리 reading-length-standard | 유지 | `scripts/ci-secondary-text-budget-check.mjs`(보조 글 예산·라우트별 상한) |
+| 2026-10-06 | 화면 어디에도 이모지·이모티콘 없음, 단어로 표시 | 메모리 no-emoji | 유지 | `scripts/ci-control-char-check.mjs` |
+| 2026-10-06 | 숫자 옆에 제공자·URL 문구 없음. 날짜는 남기고 출처는 hover와 화면별 접힌 '데이터 출처'로 | 메모리 sources-off-screen | 유지 | `scripts/ci-architecture-browser-check.mjs`(접힌 데이터 출처) |
+| 2026-10-14 | 미국이 먼저, 한국은 '한국'으로 보조. 이미지로 받은 화면은 만들기 전에 기존 화면부터 찾는다 | 메모리 us-first-check-existing | 유지 | AGENTS Markets·코딩 규율 ① |
+| 2026-11-04 | 교과서 말투 금지: '읽는 법' 제목·규칙 문단·설명 문장 없이 짧은 숫자 + 상태 라벨 | 메모리 no-textbook-tone | 유지 | `scripts/lib/instruction-text-scan.mjs` howToReadIssues → `scripts/ci-instruction-text-ratchet-check.mjs` |
+| 2026-11-04 | 화면·탭·링크·라벨 이름은 '매크로'이고 '거시 경제'가 아니다(반복 지시). 금지 어휘 규칙 자체는 v59.69에 삭제 | 메모리 macro-name | 유지 | AGENTS Information architecture(매크로), 화면 이름은 `src/app/routes.js` |
 | 2026-11-07 | 질문은 긴 분석·설명·AI 생성 문단 안에서만 쓴다. 이해 확인·개념 확인 질문, 퀴즈·시뮬레이션·유치한 카드형 콘텐츠는 두지 않고, 제목·칩·라벨·카드 문장은 서술형으로 쓴다(뉴스 원문 제목·확인 대화상자·도움말 FAQ는 예외). 2026-10-15의 '오늘의 질문'은 '오늘의 쟁점'(서술문)으로 대체 | 소유자 메시지 2026-11-07 11:48Z·11:49Z | 유지 | AGENTS Screen design, `scripts/lib/market-analysis-validate.mjs` MARKET_SENTENCE_QUESTION, `scripts/ci-rendered-copy-lint-check.mjs` question-label |
 
 ## 데이터·원천
@@ -121,14 +138,26 @@ target_version: version.json
 |---|---|---|---|---|
 | 2026-11-12 | AI와 화면은 판단을 말해도 된다: 시장이나 특정 종목에 대해 근거가 어느 쪽을 지지하는지("현금 보유가 우위인 상황", "매수가 부담스러운 구간", "분할 매수하기 좋은 구간"), 시나리오 비교, 근거를 붙인 말로 된 가능성. 금지는 사용자에게 내리는 매매 명령(명령형·행동 권유·주문 가격/수량)과 지어낸 숫자 확률뿐이다. 본문의 현재 숫자는 주입 자료·검색 결과에 있으면 쓸 수 있고, 없는 숫자만 지운다 | 소유자 메시지 2026-11-12 ("AI에게 어느정도의 자율성은 부여해줘야 돼 … 매매 지시 금지만 … 확률적 사고와 가능성/시나리오를 기반으로 한 설명과 판단들은 사용자에게 얘기해도 된다"). 숫자 확률 금지는 에이전트 권장안으로 유지(소유자에게 알림) | 유지 (2026-10-12/13 "조건부 추론, 지시 아님, 가능성이라 부르지 않음"을 넓힘; R697·R698 개정) | AGENTS No grades or trade instructions, plans/044 |
 
+## AGENTS 규칙의 근거·예시
+
+2026-11-15 AGENTS.md를 규칙 한 줄 형식으로 바꾸며 옮긴 근거·예시다. 규칙 자체는 AGENTS에 남아 있다.
+
+- **협업 원칙(2026-10-01)의 근거**: 소유자는 개발·운영 비전문가이며 함께 판단하는 관계를 원한다.
+- **사용자 가치 우선(2026-10-20, 반복 지시)의 근거**: 이 저장소의 규칙·게이트·기준·과거 결정은 소유자와 이전 에이전트가 만든 작업물이지 정답이 아니다.
+- **매매 지시 금지(2026-10-24)의 예시**: 가르치는 '수준 지도'는 지지·저항 후보, 거래량 구간, 이동평균, ATR 거리다.
+- **판단 허용(2026-11-12)의 예시**: "분할 매수하기 좋은 구간"처럼 근거가 어느 쪽을 지지하는지 말하는 문장.
+- **생산자 정의(v57.84)의 근거**: 생산자 여부는 이름 접두어가 아니라 효과(외부 데이터 수집·`public-data/` 쓰기)로 판정한다.
+
 ## 확인이 필요한 어긋남
 
 아래 항목은 정본 문서와 소유자 결정이 다르게 읽히는 곳이다. 정본(AGENTS.md·CLAUDE.md)은 소유자 메시지로 뒷받침될 때만 고친다. 남은 확인 대기는 없다(2026-11-02). 새 어긋남은 아래에 번호를 이어 적는다.
 
 1. ~~배치 끝 push~~ — **해결 2026-11-02**: 소유자 메시지(2026-11-01 15:20Z·15:52Z)를 근거로 AGENTS.md·CLAUDE.md·ROADMAP.md를 "모든 스레드가 끝나면 통합하고 한 번 push, 배치 중간 push 없음"으로 바꿨다. 자동 커밋·배포 금지는 그대로다.
-2. ~~묻기와 권장안 진행의 경계~~ — **해결 2026-11-02**: 같은 메시지를 근거로 AGENTS 협업 원칙을 "판단이 필요한 선택(기능 제거·통합 포함)은 권장안으로 진행해 보고, 되돌릴 수 없는 운영 변경만 묻는다"로 바꿨다.
+2. ~~묻기와 권장안 진행의 경계~~ — **해결 2026-11-02**: 같은 메시지를 근거로 AGENTS 협업 원칙에 "판단이 필요한 선택은 권장안으로 진행해 보고, 되돌릴 수 없는 운영 변경만 묻는다"를 더했다. 2026-11-15 확인: 그 문구는 지금 AGENTS에 따로 없고, 같은 경계를 2026-11-11 위임 줄("구현·구조·정리·게이트는 근거를 밝혀 정하고 보고한다. 제품 방향·push·배포·되돌릴 수 없는 삭제와 운영 변경만 묻는다")이 담는다.
 3. ~~AI 예산 표현~~ — **해결 2026-11-02**: 소유자 메시지(2026-10-27 10:33Z)를 근거로 AGENTS Budget을 "경고하되 막지 않는다"로, 보호 장치 목록의 "AI 예산 상한/cap"을 "AI 예산 원장과 경고"로 바꿨다.
 4. ~~병렬 작업 흐름~~ — **권장안으로 진행 2026-11-02**(소유자 2026-11-02 02:55Z "남은 작업들 … 모두 진행해서 마무리"와 11-01 권장안 진행 규칙): AGENTS를 "병렬 스레드(2026-10-26부터 일상 배치 흐름)나 위험한 실험은 브랜치", CLAUDE.md를 "단일 작업은 PR 없음, 병렬 스레드는 브랜치 → 통합 때 병합, push는 배치 끝 한 번"으로 바꿨다.
 5. ~~서브에이전트 모델~~ — **해결 2026-11-02**: 소유자 메시지(2026-11-01 15:16Z)를 근거로 AGENTS Working agreement에 Sonnet 5.5를 적었다.
 6. ~~화면 설계 원칙~~ — **권장안으로 진행 2026-11-02**: v59.51의 소유자 원칙(2026-10-31)을 AGENTS Screen design에 "두 층: 초보자 결론을 먼저, 전문가 해설은 접힘"으로 더했다.
 7. ~~보이는 결정 헤더(R426)~~ — **권장안으로 진행 2026-11-02: 숨김 유지.** 화면마다 상태는 카드당 하나, 세부는 요청 시(AGENTS Honesty without clutter)라는 뒤 결정과 맞고, 두 층 원칙에서도 첫 면에 메타데이터를 더하지 않는다. 결정 헤더는 지금처럼 AI 문맥·게이트용 숨은 구조로 남는다. 코드 변경 없음. 보이게 하자는 소유자 요청이 오면 다시 연다.
+8. ~~서브에이전트 기본 모델~~ — **해결 2026-11-15**: AGENTS는 Sonnet 5.5(2026-11-01), 메모리는 읽기 전용 Opus low/medium(2026-10-13)과 Fable 리뷰(2026-11-14)로 달랐다. 소유자 결정 "서브에이전트는 Opus 5.5 (medium or light)"로 AGENTS를 Opus 5.5 medium/low로 바꿨다. 소유자가 Fable에게 작업 전체를 맡긴 경우의 Fable 리뷰(2026-11-14)는 그 경우에만 우선한다.
+9. ~~push 전 매번 묻기~~ — **정본 확인 2026-11-15**: 메모리 "배치마다 push를 한 번 묻는다"(2026-10-14)는 뒤에 나온 배치 끝 상시 승인(2026-11-01, AGENTS Non-negotiable boundaries)과 어긋난다. 뒤 결정이 정본이며 메모리는 낡은 기록이다.

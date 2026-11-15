@@ -35,8 +35,8 @@ export function worstSessionMove(series, n, market = 'KR') {
 }
 
 /** Rows for the stress panel: name, the KOSPI move (a fraction) and how it was measured. Empty without a record. */
-export function krIndexStressRows(history = [], { now = Date.now(), field = 'kospi' } = {}) {
-  const series = buildCloseSeries(history, field, { through: krSessionThrough(now) });
+export function krIndexStressRows(history = [], { now = Date.now(), through = null, field = 'kospi' } = {}) {
+  const series = buildCloseSeries(history, field, { through: through || krSessionThrough(now) });
   return WINDOWS.map((n) => worstSessionMove(series, n)).filter((move) => move && move.pct < 0).map((move) => ({
     name: `코스피 기록상 최악 ${move.sessions}거래일 (${md(move.from)}~${md(move.to)} ${move.pct.toFixed(1)}%)`,
     shock: move.pct / 100,

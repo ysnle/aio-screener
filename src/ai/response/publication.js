@@ -1,4 +1,5 @@
 // P1519: one evidence-publication policy shared by the legacy adapter and native ESM.
+import { stampDay } from '../../domain/shared/session-date.js';
 export function claimEvidenceId(row) {
   return String(row && (row.evidenceId || row.documentId || row.id) || '').trim();
 }
@@ -181,6 +182,16 @@ export function supportedNumbersFromEvidence(rows, nowMs = Date.now(), { entitie
     return evidenceCanPublish(row, nowMs) && typeof row.value === 'number' && isFinite(row.value) && String(row.scale || 'raw') === 'raw';
   }).map(function(row) {
     var number = { value: row.value, unit: ROW_UNITS[String(row.unit || '').trim().toUpperCase()] || '' };
+    // What the row says about its figure (see readWrittenFigures): its metric, basis, direction and day.
+    var metricText = String(row.metric || row.metricId || '');
+    var metric = figureMetric(metricText + ' ' + String(row.label || ''), number.unit);
+    if (metric) number.metric = metric;
+    var status = String(row.status || row.truthStatus || '').toLowerCase();
+    var basis = row.source === 'close-basis' || /^close\b/i.test(metricText) ? 'close' : status === 'live' ? 'intraday' : null;
+    if (basis) number.basis = basis;
+    if (CHANGE_METRIC.test(metricText)) number.moves = true;
+    var day = dayOf(row.asOf || row.observedAt);
+    if (day) number.dates = [day];
     if (ids) {
       var own = String(row.entity || row.entityId || row.ticker || row.symbol || '').trim().toUpperCase();
       number.entity = ids.indexOf(own) >= 0 ? own : null;
@@ -260,6 +271,13 @@ function soleEntity(text, matchers) {
 var QUARANTINED_ITEM = /^item\[\d+\][^\n]*? data=("(?:\\.|[^"\\])*")[ \t]*$/gm;
 var SECTION_RULE = /^\s*━{2,}/;
 var SECTION_HEAD_LINES = 3;
+// Material that declares itself reference-only (the knowledge block, src/ai/retrieval/knowledge.js: "currentClaimsAllowed
+// =false", educational definitions and worked examples) supports no current figure: a quoted item or a paragraph that
+// carries the marker is left out of the supporting figures.
+var REFERENCE_ONLY = /currentClaimsAllowed\s*=\s*false/;
+function currentMaterial(text) {
+  return REFERENCE_ONLY.test(text) ? text.split(/\n[ \t]*\n/).filter(function(part) { return !REFERENCE_ONLY.test(part); }).join('\n\n') : text;
+}
 function referenceRegions(text) {
   var regions = [];
   var start = 0;
@@ -269,11 +287,11 @@ function referenceRegions(text) {
     var decoded = null;
     try { decoded = JSON.parse(match[1]); } catch (_) { decoded = null; }
     if (typeof decoded !== 'string') continue;
-    regions.push(text.slice(start, match.index));
-    regions.push(decoded);
+    regions.push(currentMaterial(text.slice(start, match.index)));
+    regions.push(REFERENCE_ONLY.test(decoded) ? '' : decoded);
     start = match.index + match[0].length;
   }
-  regions.push(text.slice(start));
+  regions.push(currentMaterial(text.slice(start)));
   return regions;
 }
 function blockPieces(lines, matchers, pieces) {
@@ -320,9 +338,10 @@ function referencePieces(text, matchers) {
   return pieces;
 }
 // What is not a figure of the sentence: a link, a date or clock time, a window length that names a measure ("20거래일",
-// "52주", "10년물", "3개월"; "3거래일 연속" is a count and stays), an index name ("S&P 500", "나스닥 100") and a code
-// with digits ("US10Y", "H100", "2s10s").
-var NOT_A_FIGURE = /(?:https?:\/\/|www\.)\S+|(?<!\d)(?:19|20)\d{2}\s*(?:[-./]|년)\s*\d{1,2}(?:\s*(?:[-./]|월)\s*\d{1,2}\s*일?)?(?!\d)|(?<!\d)\d{1,2}\s*월\s*\d{1,2}\s*일|(?<!\d)(?:19|20)\d{2}\s*년(?:대)?|(?<!\d)\d{1,2}:\d{2}(?!\d)|(?:S&P|나스닥|러셀|코스피|코스닥|\b(?:Nasdaq|NASDAQ|Russell|KOSPI|KOSDAQ)\b)\s*(?:500|100|2000|200|150)(?![\d,.])|(?<![\d.,])\d+\s*(?:개월|개년|년물|년간|년|분기|주(?![가식당요])|거래일|일선|일(?![부반정본간]))(?!\s*(?:연속|째|만에))|(?<![A-Za-z])(?!\b(?:USD|KRW|US)\d)[A-Za-z]+\d[\dA-Za-z]*|\d+s\d+s|\d+-\b(?:year|month|week|day)\b/g;
+// "52주", "10년물", "3개월"; "3거래일 연속" is a count and stays), an index name ("S&P 500", "나스닥 100"), a code
+// with digits ("US10Y", "H100", "2s10s"), an indicator's parameters ("RSI(14)", "MACD(12,26,9)") and a month/day
+// ("11/12 종가").
+var NOT_A_FIGURE = /(?:https?:\/\/|www\.)\S+|(?<=\b[A-Za-z]{2,}\s?)\(\s*\d{1,3}(?:\s*,\s*\d{1,3})*\s*\)|(?<![\d/.,])(?:1[0-2]|0?[1-9])\/(?:3[01]|[12]\d|0?[1-9])(?![\d/.,])|(?<!\d)(?:19|20)\d{2}\s*(?:[-./]|년)\s*\d{1,2}(?:\s*(?:[-./]|월)\s*\d{1,2}\s*일?)?(?!\d)|(?<!\d)\d{1,2}\s*월\s*\d{1,2}\s*일|(?<!\d)(?:19|20)\d{2}\s*년(?:대)?|(?<!\d)\d{1,2}:\d{2}(?!\d)|(?:S&P|나스닥|러셀|코스피|코스닥|\b(?:Nasdaq|NASDAQ|Russell|KOSPI|KOSDAQ)\b)\s*(?:500|100|2000|200|150)(?![\d,.])|(?<![\d.,])\d+\s*(?:개월|개년|년물|년간|년|분기|주(?![가식당요])|거래일|일선|일(?![부반정본간]))(?!\s*(?:연속|째|만에))|(?<![A-Za-z])(?!\b(?:USD|KRW|US)\d)[A-Za-z]+\d[\dA-Za-z]*|\d+s\d+s|\d+-\b(?:year|month|week|day)\b/g;
 var WRITTEN_FIGURE = /(\$|₩|\b(?:USD|KRW|US\$)\s*)?([+\-−]?)(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<![A-Za-z])(%p(?![A-Za-z])|(?:%|퍼센트)\s*포인트|%|퍼센트|percent\b|bps?\b|배|달러|dollars?\b|USD\b|원|KRW\b|포인트|pt\b|조|억|만|개|곳|건|명|종목|(?<=\d)x(?![A-Za-z0-9]))?/gi;
 // "41.2x" (an x glued to the digits) is a multiple, as "41.2배" is. "0.5%p" is a difference in percentage points, not a
 // 0.5% level, so a percent row does not support it.
@@ -331,6 +350,96 @@ function writtenUnit(word) {
   if (!word) return '';
   var hit = WRITTEN_UNITS.filter(function(pair) { return pair[0].test(word); })[0];
   return hit ? hit[1] : 'unsupported';
+}
+
+// What a figure is about, read from the words beside it, on both sides of the check (the material the model was given
+// and the answer): the metric named closest before it, the price basis (a close or an intraday quote), the direction
+// its sentence gives it, and the dates of its material line. A written figure and a supporting one must agree on every
+// part both name; a part only one side names does not decide, so grounded prose that leaves a word out is kept.
+// The external audit of 2026-11-14 found one boundary in four shapes: a close certifying an "intraday" claim, an RSI
+// moved to the other column of a table, a falling figure written as a rise, and a figure from an educational example
+// reading as a current one. Each is a figure matched on its value alone.
+var METRIC_WORDS = [['ev_ebitda', /EV\s*\/\s*EBITDA/gi], ['peg', /\bPEG\b/gi], ['per', /\bPER\b|\bP\/E\b|주가\s*수익\s*비율/gi],
+  ['pbr', /\bPBR\b|\bP\/B\b/gi], ['psr', /\bPSR\b|\bP\/S\b/gi], ['roe', /\bROE\b/gi], ['rsi', /\bRSI\b/gi],
+  ['target', /목표\s*주?가|\btarget\b/gi], ['price', /주가|종가|현재가|가격|시세|\bprice\b|\bclose\b/gi]];
+// A price word names a metric only for a money figure: "주가 추이 · 5거래일 -8.5%" is a change, not a price.
+var MONEY_METRICS = { target: true, price: true };
+function lastWord(pairs, text) {
+  var best = null, bestEnd = -1;
+  pairs.forEach(function(pair) {
+    pair[1].lastIndex = 0;
+    var match;
+    while ((match = pair[1].exec(text))) { if (match.index + match[0].length > bestEnd) { bestEnd = match.index + match[0].length; best = pair[0]; } }
+  });
+  return best;
+}
+function firstWord(pairs, text) {
+  var best = null, bestAt = Infinity;
+  pairs.forEach(function(pair) {
+    pair[1].lastIndex = 0;
+    var match = pair[1].exec(text);
+    if (match && match.index < bestAt) { bestAt = match.index; best = pair[0]; }
+  });
+  return best;
+}
+export function figureMetric(context, unit) {
+  var metric = lastWord(METRIC_WORDS, String(context || ''));
+  return metric && MONEY_METRICS[metric] && unit !== 'USD' && unit !== 'KRW' ? null : metric;
+}
+var BASIS_WORDS = [['intraday', /장중|실시간|현재가|intraday|real[- ]?time|\blive\b/gi], ['close', /종가|마감|\bclosed?\b/gi]];
+var DIRECTION_WORDS = [[1, /올랐|오른|올라|오르|상승|급등|반등|뛰었|뛴|높아|높습|높은|늘었|늘어|증가|웃돌|\b(?:up|rose|gained|higher)\b/gi],
+  [-1, /내렸|내린|내려|내리|하락|급락|떨어|밀렸|빠졌|빠진|낮아|낮습|낮은|줄었|줄어|감소|밑돌|\b(?:down|fell|dropped|lower)\b/gi]];
+// A typed row whose metric is a change ("change.pct") carries a direction; a level ("price", "close.us10y") does not.
+var CHANGE_METRIC = /change|return|(?<![A-Za-z])(?:chg|delta|diff|gap)(?![A-Za-z])/i;
+// The days a material line names: "2026-11-12", "2026년 11월 12일", and a month/day without a year ("11/12", "11월 12일").
+function lineDates(line) {
+  var days = [];
+  var add = function(year, month, day) { days.push((year ? year : '-') + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0')); };
+  var match;
+  var iso = /(?<!\d)((?:19|20)\d{2})-(\d{2})-(\d{2})(?!\d)/g;
+  while ((match = iso.exec(line))) add(match[1], match[2], match[3]);
+  var korean = /(?:(?<!\d)((?:19|20)\d{2})\s*년\s*)?(?<!\d)(\d{1,2})\s*월\s*(\d{1,2})\s*일/g;
+  while ((match = korean.exec(line))) add(match[1], match[2], match[3]);
+  var short = /(?<![\d/.,])(1[0-2]|0?[1-9])\/(3[01]|[12]\d|0?[1-9])(?![\d/.,])/g;
+  while ((match = short.exec(line))) add(null, match[1], match[2]);
+  return Array.from(new Set(days));
+}
+function dayOf(value) {
+  var text = String(value || '').trim();
+  var day = stampDay(text);
+  if (day) return day;
+  var ms = Date.parse(text);
+  return Number.isFinite(ms) ? new Date(ms).toISOString().slice(0, 10) : null;
+}
+// A supporting figure against what the written one says about itself (`want`: subject, metric, basis, direction, day).
+function contextAgrees(number, want) {
+  if (!want) return true;
+  if (want.subject && number.entity && number.entity !== want.subject) return false;
+  if (want.metric && number.metric && number.metric !== want.metric) return false;
+  if (want.basis && number.basis && number.basis !== want.basis) return false;
+  if (want.direction && number.moves === true && number.value !== 0 && want.direction !== Math.sign(number.value)) return false;
+  if (want.day && Array.isArray(number.dates) && number.dates.length && !number.dates.some(function(day) {
+    return day === want.day || (day.charAt(0) === '-' && day.slice(1) === want.day.slice(4));
+  })) return false;
+  return true;
+}
+// The written figures of a text, each with what its own words say about it. `frame` adds what a table row and column
+// say (subject, and a label text read for the metric and the basis when the cell itself names neither).
+function readWrittenFigures(text, frame) {
+  frame = frame || {};
+  var bare = normaliseForDetection(text).replace(NOT_A_FIGURE, ' ');
+  var matches = Array.from(bare.matchAll(WRITTEN_FIGURE));
+  return matches.map(function(match, index) {
+    var unit = writtenUnit(match[4] || String(match[1] || '').trim());
+    var before = bare.slice(index ? matches[index - 1].index + matches[index - 1][0].length : 0, match.index);
+    var after = bare.slice(match.index + match[0].length, index + 1 < matches.length ? matches[index + 1].index : bare.length);
+    return { match: match, want: {
+      subject: frame.subject || null,
+      metric: figureMetric(before, unit) || (frame.label ? figureMetric(frame.label, unit) : null),
+      basis: lastWord(BASIS_WORDS, bare.slice(0, match.index)) || (frame.label ? lastWord(BASIS_WORDS, frame.label) : null),
+      direction: firstWord(DIRECTION_WORDS, after)
+    } };
+  });
 }
 // True when the text writes at least one figure and every figure equals a supported number in a printed form
 // (180.25 → "180.25", "180.3", "180"), with the sign it writes and a unit that agrees. An integer under 100 must be
@@ -353,23 +462,37 @@ export function answerReferenceText(systemPrompt) {
 // single subject: macro lines, rows naming several tickers, generic data). Without them the rows are as before.
 export function supportedNumbersFromText(text, { entities } = {}) {
   var matchers = entityMatchers(entities);
-  var pieces = matchers ? referencePieces(text, matchers) : [{ text: String(text || ''), entity: undefined }];
+  var pieces = matchers ? referencePieces(text, matchers) : referenceRegions(String(text || '')).map(function(region) { return { text: region, entity: undefined }; });
   var numbers = [];
   var seen = new Set();
+  // Each figure also carries what its line says about it (readWrittenFigures): the metric named before it, its basis
+  // (a basis word before it, else the first one after it on the line: "166.19달러 (2026-11-12 종가)") and the line's days.
   for (var piece of pieces) {
-    var bare = normaliseForDetection(piece.text).replace(NOT_A_FIGURE, ' ');
-    for (var match of bare.matchAll(WRITTEN_FIGURE)) {
-      var unit = writtenUnit(match[4] || String(match[1] || '').trim());
-      if (unit === 'unsupported') continue;
-      var size = Number(match[3].replace(/,/g, ''));
-      if (!isFinite(size)) continue;
-      var value = /^[-−]$/.test(match[2]) ? -size : size;
-      var key = value + '|' + unit + (matchers ? '|' + piece.entity : '');
-      if (seen.has(key)) continue;
-      seen.add(key);
-      var number = { value: value, unit: unit, signed: match[2] !== '' };
-      if (matchers) number.entity = piece.entity;
-      numbers.push(number);
+    for (var line of normaliseForDetection(piece.text).split('\n')) {
+      var bare = line.replace(NOT_A_FIGURE, ' ');
+      var dates = lineDates(line);
+      var matches = Array.from(bare.matchAll(WRITTEN_FIGURE));
+      for (var index = 0; index < matches.length; index += 1) {
+        var match = matches[index];
+        var unit = writtenUnit(match[4] || String(match[1] || '').trim());
+        if (unit === 'unsupported') continue;
+        var size = Number(match[3].replace(/,/g, ''));
+        if (!isFinite(size)) continue;
+        var value = /^[-−]$/.test(match[2]) ? -size : size;
+        var metric = figureMetric(bare.slice(index ? matches[index - 1].index + matches[index - 1][0].length : 0, match.index), unit);
+        var basis = lastWord(BASIS_WORDS, bare.slice(0, match.index)) || firstWord(BASIS_WORDS, bare.slice(match.index + match[0].length));
+        var key = [value, unit, matchers ? piece.entity : '', metric, basis, dates.join(',')].join('|');
+        if (seen.has(key)) continue;
+        seen.add(key);
+        var number = { value: value, unit: unit, signed: match[2] !== '' };
+        if (match[2] !== '') number.moves = true;
+        if (metric) number.metric = metric;
+        if (basis) number.basis = basis;
+        if (dates.length) number.dates = dates;
+        if (matchers) number.entity = piece.entity;
+        numbers.push(number);
+        if (numbers.length >= REFERENCE_FIGURE_LIMIT) break;
+      }
       if (numbers.length >= REFERENCE_FIGURE_LIMIT) break;
     }
     if (numbers.length >= REFERENCE_FIGURE_LIMIT) break;
@@ -380,9 +503,9 @@ function supportedNumbers(rows, referenceText, nowMs, entities) {
   var all = (supportedNumbersFromEvidence(rows, nowMs, { entities: entities }) || []).concat(supportedNumbersFromText(referenceText, { entities: entities }) || []);
   return all.length ? all : null;
 }
-// One written figure against the supported numbers; `subject` (an entity id) limits them to that subject's and the
-// subject-free ones.
-function figureSupported(match, numbers, subject) {
+// One written figure against the supported numbers; `want` (readWrittenFigures) limits them to the figures that agree
+// with what the answer's words say about it: its subject (or a subject-free figure), metric, basis and direction.
+function figureSupported(match, numbers, want) {
   var unit = writtenUnit(match[4] || String(match[1] || '').trim());
   if (unit === 'unsupported') return false;
   var digits = match[3].replace(/,/g, '');
@@ -393,7 +516,7 @@ function figureSupported(match, numbers, subject) {
   var bareSmall = /^\d{2}$/.test(digits) && !unit;
   var sign = match[2] === '' ? 0 : match[2] === '+' ? 1 : -1;
   return numbers.some(function(number) {
-    if (subject && number.entity && number.entity !== subject) return false;
+    if (!contextAgrees(number, want)) return false;
     if (bareSmall && number.unit !== '') return false;
     if (unit && number.unit !== unit) return false;
     // A figure the material wrote without a sign ("1.2% 하락") carries its direction in words, so it supports either sign.
@@ -402,8 +525,9 @@ function figureSupported(match, numbers, subject) {
     return written === size || ((String(size).split('.')[1] || '').length > places && Number(size.toFixed(places)) === written);
   });
 }
-// A typed claim's value against the supported numbers: the same subject (or a subject-free figure), an agreeing unit
-// when the claim's unit is one the material writes, the claim's sign, and the value as written or rounded.
+// A typed claim's value against the supported numbers: the same subject (or a subject-free figure), the metric and the
+// basis its metric and text name, a figure of the claim's day when the material dates the line, an agreeing unit when
+// the claim's unit is one the material writes, the claim's sign, and the value as written or rounded.
 function claimInReference(claim, numbers, entities) {
   if (!Array.isArray(numbers) || !numbers.length || typeof claim.value !== 'number' || !isFinite(claim.value)) return false;
   var matchers = entityMatchers(entities);
@@ -413,8 +537,10 @@ function claimInReference(claim, numbers, entities) {
   if (unit === 'unsupported') unit = '';
   var places = (String(Math.abs(claim.value)).split('.')[1] || '').length;
   var size = Math.abs(claim.value);
+  var words = normaliseForDetection(String(claim.metric || '') + ' ' + String(claim.text || ''));
+  var want = { subject: subject, metric: figureMetric(claim.metric, unit) || figureMetric(words, unit), basis: lastWord(BASIS_WORDS, words), day: dayOf(claim.asOf) };
   return numbers.some(function(number) {
-    if (subject && number.entity && number.entity !== subject) return false;
+    if (!contextAgrees(number, want)) return false;
     if (unit ? number.unit !== unit : number.unit !== '') return false;
     if (claim.value !== 0 && number.signed !== false && number.value !== 0 && Math.sign(claim.value) !== Math.sign(number.value)) return false;
     var given = Math.abs(number.value);
@@ -428,35 +554,69 @@ function writtenFigures(text) {
 // "이며", "but", "while".
 var CLAUSE_BREAK = /(?<!\d),|,(?!\d)|[;；]|반면|이고|이며|\bbut\b|\bwhile\b/i;
 // With `entities`, a sentence (or a clause of a sentence naming several) that names exactly one subject is supported
-// only by that subject's figures and the subject-free ones.
-export function figuresSupported(text, numbers, { entities } = {}) {
+// only by that subject's figures and the subject-free ones. `frame` is a table cell's row and column: its subject and
+// the label text whose metric and basis the cell's figures take when the cell names none (see stripNumericSentences).
+export function figuresSupported(text, numbers, { entities, frame } = {}) {
   if (!Array.isArray(numbers) || !numbers.length) return false;
   var matchers = entityMatchers(entities);
   var named = matchers ? namedEntities(text, matchers) : [];
-  var parts = named.length > 1 ? String(text || '').split(CLAUSE_BREAK).map(function(clause) { return { text: clause, subject: soleEntity(clause, matchers) }; })
-    : [{ text: String(text || ''), subject: named.length === 1 ? named[0] : null }];
+  var parts = frame ? [{ text: String(text || ''), frame: frame }]
+    : named.length > 1 ? String(text || '').split(CLAUSE_BREAK).map(function(clause) { return { text: clause, frame: { subject: soleEntity(clause, matchers) } }; })
+    : [{ text: String(text || ''), frame: { subject: named.length === 1 ? named[0] : null } }];
   var total = 0;
   var supported = parts.every(function(part) {
-    var figures = writtenFigures(part.text);
+    var figures = readWrittenFigures(part.text, part.frame);
     total += figures.length;
-    return figures.every(function(match) { return figureSupported(match, numbers, part.subject); });
+    return figures.every(function(figure) { return figureSupported(figure.match, numbers, figure.want); });
   });
   return total > 0 && supported;
 }
 
+// A claim's own text must not write a figure other than its value: "NVDA 오늘 장중 가격 999달러" with value 166.19 is
+// not a label of that value. Counts and the entity's own code are not figures of the value; 조/억/만 scale the number.
+var LABEL_MAGNITUDE = { '조': 1e12, '억': 1e8, '만': 1e4 };
+function claimLabelAgrees(claim) {
+  if (typeof claim.value !== 'number' || !isFinite(claim.value)) return true;
+  var size = Math.abs(claim.value);
+  var code = String(claim.entity || '').match(/^\d{6}/);
+  var text = code ? String(claim.text || '').split(code[0]).join(' ') : String(claim.text || '');
+  return writtenFigures(text).every(function(match) {
+    if (/^(?:개|곳|건|명|종목)$/.test(match[4] || '')) return true;
+    var digits = match[3].replace(/,/g, '');
+    var written = Number(digits);
+    var scale = LABEL_MAGNITUDE[match[4]];
+    if (scale) return Math.abs(written * scale - size) <= size * 0.005;
+    var places = (digits.split('.')[1] || '').length;
+    return written === size || Number(size.toFixed(places)) === written;
+  });
+}
+
 function stripNumericSentences(value, today, numbers, entities) {
   var removed = 0;
+  var matchers = entityMatchers(entities);
+  var header = null;
   var text = String(value || '').split('\n').map(function(line) {
-    if (!line.trim()) return '';
+    if (!line.trim()) { header = null; return ''; }
     // P1740: a markdown table keeps its rows; only an unverified current-number cell becomes "확인 필요". Dropping the
     // whole row left a header with no body. A cell whose every figure is a supported number keeps its value.
+    // A cell is checked as its row and column read it: the subject its column header (or its row label) names, and the
+    // metric and basis of its row label (or its column header). "| RSI | 58 | 26 |" under "| 기준 | NVDA | AMD |" needs
+    // NVDA's RSI 58, not any 58 in the material.
     if (/^\s*\|.*\|\s*$/.test(line)) {
       if (/^\s*\|[\s\-:|]+\|\s*$/.test(line)) return line;
-      return line.split('|').map(function(cell, index, cells) {
+      var cells = line.split('|');
+      var head = header;
+      if (!head) header = cells.map(function(cell) { return cell.trim(); });
+      var label = String(cells[1] || '').trim();
+      return cells.map(function(cell, index) {
         if (index === 0 || index === cells.length - 1) return cell;
-        return (hasCurrentNumericContent(cell) || /^\s*[+\-−]?\d[\d,.]*\s*$/.test(cell)) && !figuresSupported(cell, numbers) ? ' 확인 필요 ' : cell;
+        var column = head ? String(head[index] || '') : '';
+        var frame = index === 1 ? { subject: matchers ? soleEntity(label, matchers) : null }
+          : { subject: matchers ? soleEntity(column, matchers) || soleEntity(label, matchers) : null, label: [column, label].join(' ') };
+        return (hasCurrentNumericContent(cell) || /^\s*[+\-−]?\d[\d,.]*\s*$/.test(cell)) && !figuresSupported(cell, numbers, { entities: entities, frame: frame }) ? ' 확인 필요 ' : cell;
       }).join('|');
     }
+    header = null;
     var kept = splitAnswerSentences(line).filter(function(sentence) {
       // A current sentence stays when every figure it writes is in the evidence; one figure that is not removes it.
       var bare = sentence.replace(CITED_URL, ' ');
@@ -603,13 +763,19 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     // P1688 live check (2026-10-13): the model labelled exact registry copies type "market_data"; a claim that carries a
     // metric and a numeric value is numeric whatever its label, so it is validated (not dropped as untyped content).
     var numeric = /^(?:numeric|metric|percentage|probability)$/.test(type) || (type !== 'text' && !!(claim && claim.metric) && typeof (claim && claim.value) === 'number');
+    var labelAgrees = !numeric || claimLabelAgrees(claim);
     // A figure copied from the injected data or a tool result has no evidence id to cite, but it is in the material the
     // model was given for that subject: it is kept as a reference figure (its own text, dated) instead of being dropped
-    // as unverified. A figure that is nowhere in that material still fails below.
-    if (numeric && !ids.length && type !== 'probability' && claim.status !== 'blocked' && claim.asOf && claimInReference(claim, claimNumbers, entities)) {
+    // as unverified. A figure that is nowhere in that material, or only there for another metric, basis or day, still
+    // fails below, as does a claim whose text writes another figure than its value.
+    if (numeric && labelAgrees && !ids.length && type !== 'probability' && claim.status !== 'blocked' && claim.asOf && claimInReference(claim, claimNumbers, entities)) {
       referenceClaims.add(claim);
       return true;
     }
+    // The label check guards the claim's own text, which is published only on the reference path (no
+    // evidence id). An evidence-bound claim is published under its bound row's label (below), so a second figure in its
+    // text ("4.21% (전일 대비 +5bp)") is never shown and is no reason to drop a value the evidence proves.
+    if (!labelAgrees && !ids.length) reasons.push('claim-label-mismatch');
     if (numeric) {
       if (typeof claim.value !== 'number' || !isFinite(claim.value)) reasons.push('numeric-value');
       if (!claim.unit || !claim.asOf || !claim.source || !ids.length) reasons.push('traceability');

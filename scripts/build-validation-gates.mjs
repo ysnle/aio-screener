@@ -5,16 +5,25 @@
 // (public-data/factor-backtest-longrun.json, or the fresh one the research-backtest workflow writes). A status changes
 // only when every required requirement is met. Offline and deterministic; it never fetches.
 //
-//   node scripts/build-validation-gates.mjs [--backtest <factor-backtest-longrun.json>] [--out-dir <dir>] [--check]
+//   node scripts/build-validation-gates.mjs [--backtest <factor-backtest-longrun.json>] [--lean-backtest <market-lean-backtest.json>] [--lean-risk <risk-result.json>] [--out-dir <dir>] [--check]
 //
-// --check compares the computed status/allowedUse/blockers with the published files and exits 1 on a difference,
-// without writing.
+// model-validation-status.json also carries `marketLean`, the 시장 기울기 lean verdict (judgeMarketLean below), with the
+// risk read of the same count under `marketLean.risk` (judgeMarketLeanRisk). A missing study judges NOT_RUN.
+//
+// --check compares the status/allowedUse/blockers judged on --backtest with the gate files in --out-dir (default
+// public-data/) and exits 1 on a difference, without writing. The committed gate files are the judgement of the
+// committed backtest (public-data/factor-backtest-longrun.json), so `--check` with no --backtest is the CI question
+// "do the published gates match the published evidence?". With a fresh backtest from the manual research-backtest workflow
+// a difference is expected until that backtest is promoted into public-data/ and this script is rerun without --check
+// in the same reviewed change; the message names both evidence dates so the two cases are told apart.
+// --out-dir is created when missing.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { finiteNumber as finite } from '../src/domain/shared/number.js';
 import { FACTOR_RANKS_MODEL_VERSION } from '../src/domain/screener/factor-ranks.js';
 import { FACTOR_WEIGHTS_MODEL_VERSION, MODEL_DEFAULT_WEIGHTS } from '../src/domain/screener/factor-weights.js';
+import { MARKET_LEAN_VERSION, LEAN_RULES } from '../src/domain/market/regime/market-lean.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const CRITERIA_PATH = path.join(ROOT, 'architecture/validation-gate-criteria.json');
@@ -72,7 +81,7 @@ export function evidenceModelIdentity(backtest) {
   return { evidenceModelMatchesLive: !!evidenceModel && JSON.stringify(evidenceModel) === JSON.stringify(liveModel), evidenceModel, liveModel };
 }
 
-export function buildValidationGates({ criteria, backtest = null, nowIso = new Date().toISOString() } = {}) {
+export function buildValidationGates({ criteria, backtest = null, leanBacktest = null, leanRisk = null, nowIso = new Date().toISOString() } = {}) {
   const met = judgeRequirements(backtest);
   const model = evidenceModelIdentity(backtest);
   const blockersOf = (list) => (list || []).filter((key) => met[key] !== true);
@@ -128,7 +137,69 @@ export function buildValidationGates({ criteria, backtest = null, nowIso = new D
     computedAt: nowIso,
     observedAt: nowIso
   };
+  if (criteria.marketLean) modelValidation.marketLean = judgeMarketLean(leanBacktest, criteria.marketLean);
+  if (criteria.marketLean && criteria.marketLeanRisk) modelValidation.marketLean.risk = judgeMarketLeanRisk(leanRisk, criteria.marketLeanRisk);
   return { screenerGate, modelValidation };
+}
+
+// Review v60.19 A5: the risk read of the same count (does a burden-heavy count precede more -5% drawdowns?), judged like
+// the direction verdict — on the study scripts/backtest-market-lean-risk.mjs writes, by the criterion registered before
+// its first run (validation-gate-criteria.json `marketLeanRisk`). The checks are recomputed here from the study's
+// numbers; its own `verdict` is not read. market-lean.js builds the fold sentence from this block.
+export const LEAN_RISK_PATH = 'public-data/market-lean-risk.json';
+export function judgeMarketLeanRisk(study, spec) {
+  const head = { ruleVersion: MARKET_LEAN_VERSION, horizon: spec.horizon, criteria: 'architecture/validation-gate-criteria.json#marketLeanRisk', evidenceArtifact: spec.evidenceArtifact,
+    criterion: { drawdownPct: spec.drawdownPct, lowBurden: spec.groups.lowBurden, highBurdenMin: spec.groups.highBurdenMin, minEffectiveN: spec.minEffectiveN, level: spec.interval.level } };
+  if (!study) return { ...head, status: 'NOT_RUN', blockers: ['no-backtest'], checks: null, heldOut: null, evidenceGeneratedAt: null };
+  const m = study.methodology || {};
+  const numeric = (interval) => ['blockSessions', 'resamples', 'seed', 'level'].map((key) => interval?.[key]);
+  const blockers = [];
+  if (m.ruleVersion !== MARKET_LEAN_VERSION || JSON.stringify(m.leanRules) !== JSON.stringify(LEAN_RULES)) blockers.push('rule-differs-from-live');
+  if (JSON.stringify(numeric(m.interval)) !== JSON.stringify(numeric(spec.interval)) || m.split?.heldOutFraction !== spec.heldOutFraction || m.split?.embargoSessions !== spec.embargoSessions
+    || m.primary?.horizon !== spec.horizon || m.primary?.drawdownPct !== spec.drawdownPct || m.primary?.lowBurden !== spec.groups.lowBurden || m.primary?.highBurdenMin !== spec.groups.highBurdenMin) blockers.push('method-differs-from-criterion');
+  const h = study.horizons?.[`h${spec.horizon}`] || {};
+  const point = (span) => finite(h[span]?.diffHighMinusLow?.point);
+  const ci = h.heldOut?.diffHighMinusLow?.ci;
+  const high = finite(h.heldOut?.burden?.high?.cases) ?? 0, low = finite(h.heldOut?.burden?.low?.cases) ?? 0;
+  const checks = { heldOutCases: high >= spec.minEffectiveN && low >= spec.minEffectiveN,
+    heldOutLowerAboveZero: Array.isArray(ci) && ci.every((v) => finite(v) != null) && ci[0] > 0,
+    firstTwoThirdsPositive: point('firstTwoThirds') != null && point('firstTwoThirds') > 0,
+    halfAPositive: point('halfA') != null && point('halfA') > 0, halfBPositive: point('halfB') != null && point('halfB') > 0 };
+  return { ...head, status: !blockers.length && Object.values(checks).every(Boolean) ? 'PASS' : 'FAIL', blockers, checks,
+    heldOut: { from: h.heldOut?.from ?? null, to: h.heldOut?.to ?? null, highCases: high, lowCases: low, point: point('heldOut'), ci: Array.isArray(ci) ? ci : null },
+    evidenceGeneratedAt: study.generatedAt || null };
+}
+
+// The 시장 기울기 lean (owner 2026-11-15): one verdict per direction on the study scripts/backtest-market-lean.mjs writes,
+// by the criterion declared in validation-gate-criteria.json `marketLean` before the first run. market-lean.js reads
+// this block (model-validation-status.json `marketLean`) and speaks a direction only where `directions` says true.
+export const LEAN_BACKTEST_PATH = 'public-data/market-lean-backtest.json';
+export function judgeMarketLean(lean, spec) {
+  const head = { ruleVersion: MARKET_LEAN_VERSION, horizon: spec.horizon, criteria: 'architecture/validation-gate-criteria.json#marketLean', evidenceArtifact: spec.evidenceArtifact };
+  if (!lean) return { ...head, status: 'NOT_RUN', directions: { buy: false, defend: false }, blockers: ['no-backtest'], evidenceGeneratedAt: null };
+  const m = lean.methodology || {};
+  const blockers = [];
+  if (m.ruleVersion !== MARKET_LEAN_VERSION || JSON.stringify(m.leanRules) !== JSON.stringify(LEAN_RULES)) blockers.push('rule-differs-from-live');
+  if (!Array.isArray(m.axesReconstructed) || m.axesReconstructed.length < spec.minAxesReconstructed) blockers.push('too-few-axes');
+  if (JSON.stringify(m.interval) !== JSON.stringify(spec.interval) || m.split?.heldOutFraction !== spec.heldOutFraction || m.split?.embargoSessions !== spec.embargoSessions) blockers.push('method-differs-from-criterion');
+  const h = lean.horizons?.[`h${spec.horizon}`];
+  const judge = (name, sign) => {
+    const held = h?.heldOut?.labels?.[name], ins = h?.inSample?.labels?.[name];
+    const ci = held?.vsAll?.ci, point = ins?.vsAll?.point;
+    const checks = { heldOutCases: finite(held?.cases) != null && held.cases >= spec.minEffectiveN,
+      heldOutInterval: Array.isArray(ci) && ci.every((v) => finite(v) != null) && (sign > 0 ? ci[0] > 0 : ci[1] < 0),
+      inSampleSign: finite(point) != null && Math.sign(point) === sign };
+    return { pass: !blockers.length && Object.values(checks).every(Boolean), checks, heldOut: { cases: held?.cases ?? 0, vsAll: held?.vsAll ?? null }, inSample: { cases: ins?.cases ?? 0, vsAll: ins?.vsAll ?? null } };
+  };
+  const buy = judge('buy', 1), defend = judge('defend', -1);
+  // The past frequency shown beside a spoken direction: every replayed session, non-overlapping cases, beside the base.
+  const base = h?.all?.base?.hitRate;
+  const frequencies = Object.fromEntries(['2', '1', '0', '-1', '-2'].map((key) => [key, h?.all?.labels?.[key]])
+    .filter(([, row]) => finite(row?.hitRate) != null && finite(base) != null).map(([key, row]) => [key, { rate: row.hitRate, base, n: row.cases }]));
+  return { ...head, status: buy.pass && defend.pass ? 'PASS' : buy.pass || defend.pass ? 'PARTIAL' : 'FAIL',
+    directions: { buy: buy.pass, defend: defend.pass }, blockers, judged: { buy, defend }, frequencies,
+    span: { from: lean.span?.from ?? null, to: lean.span?.to ?? null, heldOutFrom: m.split?.heldOutFrom ?? null },
+    axesReconstructed: m.axesReconstructed || [], axesMissing: (m.axesMissing || []).map((row) => row.id), evidenceGeneratedAt: lean.generatedAt || null };
 }
 
 const entry = process.argv[1] ? path.resolve(process.argv[1]) : '';
@@ -140,19 +211,35 @@ if (entry === fileURLToPath(import.meta.url)) {
   const criteria = JSON.parse(fs.readFileSync(CRITERIA_PATH, 'utf8'));
   let backtest = null;
   try { backtest = JSON.parse(fs.readFileSync(backtestPath, 'utf8')); } catch { backtest = null; }
-  const built = buildValidationGates({ criteria, backtest });
+  // The lean study: --lean-backtest, or the promoted copy in public-data/ (absent until a reviewed promotion: NOT_RUN).
+  let leanBacktest = null;
+  try { leanBacktest = JSON.parse(fs.readFileSync(path.resolve(arg('--lean-backtest') || path.join(ROOT, LEAN_BACKTEST_PATH)), 'utf8')); } catch { leanBacktest = null; }
+  // The risk study the same way (--lean-risk, or the promoted public-data/market-lean-risk.json; absent: NOT_RUN).
+  let leanRisk = null;
+  try { leanRisk = JSON.parse(fs.readFileSync(path.resolve(arg('--lean-risk') || path.join(ROOT, LEAN_RISK_PATH)), 'utf8')); } catch { leanRisk = null; }
+  const built = buildValidationGates({ criteria, backtest, leanBacktest, leanRisk });
   const files = [[SCREENER_GATE_OUT, built.screenerGate], [MODEL_VALIDATION_OUT, built.modelValidation]];
   if (args.includes('--check')) {
-    const keyOf = (o) => JSON.stringify({ status: o?.status, allowedUse: o?.allowedUse, blockers: [...(o?.blockers || [])].sort(), predictiveValidation: o?.predictiveValidation ?? null });
+    // A file without the lean block reads as the lean not run (the published file predates the lean study).
+    const leanKey = (o) => o?.marketLean ? `${o.marketLean.status}:${o.marketLean.directions?.buy === true}:${o.marketLean.directions?.defend === true}:risk-${o.marketLean.risk?.status || 'NOT_RUN'}` : 'NOT_RUN:false:false:risk-NOT_RUN';
+    const keyOf = (o) => JSON.stringify({ status: o?.status, allowedUse: o?.allowedUse, blockers: [...(o?.blockers || [])].sort(), predictiveValidation: o?.predictiveValidation ?? null, ...(o?.schemaVersion === 'model-validation.v1' ? { lean: leanKey(o) } : {}) });
     let bad = 0;
     for (const [name, value] of files) {
       let published = null;
       try { published = JSON.parse(fs.readFileSync(path.join(outDir, name), 'utf8')); } catch { published = null; }
-      if (keyOf(published) !== keyOf(value)) { bad += 1; console.error(`${name}: published ${keyOf(published)} != computed ${keyOf(value)}`); }
+      if (keyOf(published) !== keyOf(value)) {
+        bad += 1;
+        const judgedOn = published?.evidenceGeneratedAt ?? published?.backtestGeneratedAt ?? null;
+        const evidence = judgedOn !== (backtest?.generatedAt || null)
+          ? ` — the published file was judged on the backtest of ${judgedOn || 'unknown date'}, this run on ${backtest?.generatedAt || 'no backtest'} (${path.relative(ROOT, backtestPath)}); promote that backtest and rerun without --check, or check against the backtest the file was judged on`
+          : ' — same evidence, different judgement: the criteria or the requirement tests changed; rerun without --check';
+        console.error(`${name}: published ${keyOf(published)} != computed ${keyOf(value)}${evidence}`);
+      }
     }
     if (bad) process.exit(1);
     console.log(`validation gates OK: ${built.screenerGate.status}/${built.modelValidation.status}`);
   } else {
+    fs.mkdirSync(outDir, { recursive: true });
     for (const [name, value] of files) fs.writeFileSync(path.join(outDir, name), `${JSON.stringify(value, null, 2)}\n`);
     console.log(`validation gates written: ${built.screenerGate.status}/${built.modelValidation.status} → ${outDir}`);
   }

@@ -11,7 +11,8 @@ import { renderMarketGuideContext } from '../../domain/guide/market-guide.js';
 import { latestCompletedUsSession } from '../../domain/market/session/market-calendar.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { renderMacroCrossroadsContext } from '../../domain/market/regime/macro-crossroads.js';
-import { renderThemePlaybookContext } from '../../domain/scenarios/theme-playbook.js';
+import { renderThemePlaybookContext } from '../../domain/scenarios/theme-playbook-context.js';
+import { branchDecisionFrame, decisionFrameContext } from '../../domain/scenarios/decision-frame.js';
 import { conditionLabel, parseConditionValue } from '../../domain/screener/custom-conditions.js';
 import { signedText } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
@@ -58,7 +59,9 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
   if (/앞으로|향후|전망|시나리오|대응|어떻게\s*(?:해야|하지|할까|될까)|뭘\s*해야|무엇을\s*해야|금리|물가|CPI|PCE|고용|연준|FOMC|유가|경기|침체|인하|인상/i.test(text) && root._aioHistory?.length) {
     try {
       // P1743: with the automated record (what changed since the last refreshes, how the latest releases scored).
-      const crossroads = renderMacroCrossroadsContext(marketInterpretation(root).crossroads, { state: root._aioScenarioState || null });
+      // The lead and alternative branches carry the decision frame (likelihood, payoff, cash, cost of being wrong, ground).
+      const model = marketInterpretation(root).crossroads;
+      const crossroads = renderMacroCrossroadsContext(model, { state: root._aioScenarioState || null, frameText: (item) => decisionFrameContext(branchDecisionFrame(item, { cash: model?.cash })) });
       if (crossroads) parts.push(crossroads);
     } catch (_) {}
   }
@@ -82,7 +85,8 @@ export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readD
       const { playbook } = marketInterpretation(root);
       const focused = blocks ? blocks.focusedThemeContext({ root, ctxId, query: text, playbook, rows: screenerRows || root.SCREENER_DB || [] }) : '';
       if (focused) parts.push(focused);
-      const themesBlock = renderThemePlaybookContext(playbook, { query: text });
+      const cash = marketInterpretation(root).crossroads?.cash || null;
+      const themesBlock = renderThemePlaybookContext(playbook, { query: text, cash });
       if (themesBlock) parts.push(themesBlock);
     } catch (_) {}
   }

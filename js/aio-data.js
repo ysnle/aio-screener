@@ -1351,7 +1351,7 @@ function _aioNormalizeTelegramDigestPayload(raw) {
   channelRows.forEach(function(ch) {
     if (ch && ch.channel) counts[ch.channel] = Number(ch.count || 0) || 0;
   });
-  var sources = channelRows.length ? channelRows.map(function(ch) {
+  var sources = channelRows.length ? channelRows.filter(function(ch) { return ch && !ch.retired; }).map(function(ch) {
     return 'https://t.me/s/' + ch.channel;
   }) : (base.sources || []);
   var windowLabel = _aioTelegramWindowLabel(raw.since, raw.until) || base.window || '';
@@ -1602,7 +1602,6 @@ _TG_CAT_MAP.flows = { label:'수급', cls:'tg-cat-macro' };
 _TG_CAT_MAP.insider = { label:'내부자', cls:'tg-cat-equity' };
 var _TG_CH_SRC = {
   // P1503: the channel's own handle plus its coverage, so a reader can find and judge the original.
-  aetherjapanresearch: '@aetherjapanresearch, 일본·아시아 반도체',
   insidertracking:     '@insidertracking, 미국 속보',
   bornlupin:           '@bornlupin, 한국 반도체·증권사 자료',
   HANAchina:           '@HANAchina, 중국·신흥국',
@@ -3285,7 +3284,6 @@ const AIO_NEWS_SOURCES = [
   {name:'TG BornLupin',              url:'https://rsshub.app/telegram/channel/bornlupin',             country:'us', tier:1, flag:'TG', topics:['macro','equity','semi','earnings'], type:'telegram', tgSlug:'bornlupin', publicMirror:'https://t.me/s/bornlupin', pipelineRole:'kr-semi-broker-notes'},  // v50.15: publicMirror 폴백 + pipelineRole(한국 반도체 sell-side 노트 집중)
   {name:'TG HANA China',             url:'https://rsshub.app/telegram/channel/HANAchina',            country:'cn', tier:1, flag:'TG', topics:['macro','equity','semi','power','optical','geo','japan','kr-market'], type:'telegram', tgSlug:'HANAchina', publicMirror:'https://t.me/s/HANAchina', pipelineRole:'china-em-supply-chain'},
   {name:'TG WalterBloomberg',       url:'https://rsshub.app/telegram/channel/walterbloomberg',       country:'us', tier:1, flag:'TG', topics:['macro','equity','earnings'],        type:'telegram', tgSlug:'walterbloomberg'},
-  {name:'TG Aether Japan Research',  url:'https://rsshub.app/telegram/channel/aetherjapanresearch',   country:'jp', tier:1, flag:'TG', topics:['macro','equity','semi','geo','japan'], type:'telegram', tgSlug:'aetherjapanresearch', publicMirror:'https://t.me/s/aetherjapanresearch', pipelineRole:'asia-semi-flow'},
   {name:'TG FirstSquawk',           url:'https://rsshub.app/telegram/channel/firstsquawk',           country:'us', tier:1, flag:'TG', topics:['macro','geo','energy','defense'],  type:'telegram', tgSlug:'firstsquawk'},
   {name:'TG FinancialJuice',        url:'https://rsshub.app/telegram/channel/financialjuicechannel', country:'us', tier:1, flag:'TG', topics:['macro','geo','energy'],            type:'telegram', tgSlug:'financialjuicechannel'},
 ];
@@ -4267,7 +4265,7 @@ async function fetchAllNews(forceRefresh = false) {
               it.feed = s.name;
               it._tgChannel = slug;
               it._pipeline = s.pipelineRole || 'telegram-fast-secondary';
-              it._verification = slug === 'aetherjapanresearch' ? 'secondary-source-confirm-before-live-like-use' : 'secondary-source';
+              it._verification = 'secondary-source';
             });
             return items.filter(it => isTelegramMsgRelevant((it.title||'') + ' ' + (it.desc||'')));
           };
@@ -6118,6 +6116,8 @@ function applyLiveQuotes(quotes) {
       else delete window._aioKrPendingQuotes[q.symbol];
       if (_krCheck.status === 'corrected') { var _krWarned = (window._aioPrevCloseWarned = window._aioPrevCloseWarned || {}), _krWarnKey = q.symbol + '|' + _krCheck.basisDate + '|' + _krCheck.providerPrev; if (!_krWarned[_krWarnKey]) { _krWarned[_krWarnKey] = 1; _aioLog('warn', 'data', q.symbol + ' 전일종가 불일치 — 제공처 ' + _krCheck.providerPrev + ' 대신 검증 기준(' + _krCheck.basisDate + ')으로 등락률 재계산 (같은 교정은 다시 기록하지 않음)'); } } // P1850 (codex F19): once per symbol, basis date and provider value (27x a session before)
     }
+    var _held = !_krCheck && window.PriceStore && window.PriceStore.heldCloseQuote ? window.PriceStore.heldCloseQuote(q, price) : null;
+    if (_held) { pct = _held.pct; hasPct = true; q = _held.quote; }
 
     // v31.8: PriceStore 검증 레이어 경유 (타입/범위/급변 전부 Store에서 처리)
     // KR 지수는 서버 Yahoo 배치와 브라우저 Naver가 합쳐진다. 프록시 캐시가 옛 값을

@@ -2,9 +2,10 @@
 //
 // v59.59 (AI lane refactor): the prompt was a 44-line array literal inside the 200-line generator, between the evidence
 // assembly and the retry logic, so its size could not be measured and a section could not be tested on its own. The
-// generator now assembles the packet (all values below are computed there) and this module only words it. The text is
+// generator now assembles the packet (all values below are computed there) and this module only words it. The text was
 // byte-identical to v59.58: every rule here was tuned on a live validator block (the comments name each one), so a
-// wording change belongs in its own release with a before/after run, not in a refactor.
+// wording change belongs in its own release with a before/after run, not in a refactor. v60.18 is such a release (slot
+// ids in 'order', citation placement in 'evidenceIds'; weekly audit 2026-11-15).
 //
 // Order is part of the contract: static rules first, then the slow-moving REGIME_CONTEXT, then the per-run evidence. The
 // provider caches a shared prompt prefix, so moving per-run lines above REGIME_CONTEXT would make every run pay for it.
@@ -41,14 +42,16 @@ export function inflationDirectionLine(macroNow = {}, { direction = null } = {})
  */
 export function marketAnalysisPromptSections({ inflationLine = '', regimeContext = '', evidenceLines = '', koreaIntradayLines = '', intradayLines = '', usCloseAt = null,
   afterHoursLines = '', earningsLines = '', cashflowLines = '', crossMarketIntradayLines = '', newsLines = '', headlineLines = '', driversContext = '',
-  narrativeText = '', largeMove = false, largeMoveDirection = null } = {}) {
+  narrativeText = '', largeMove = false, largeMoveDirection = null, moveSizeText = '' } = {}) {
   return [
   ['task', '아래 근거로 시장 해석을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 7~9줄 평문으로 쓴다. Write the whole answer in Korean.'],
-  ['order', '순서: (1) MARKET_DRIVERS의 압력·지금 두 칸 — 무엇이 얼마나 바뀌었고(완료 종가는 날짜 M/D와 METRIC_EVIDENCE·REGIME_CONTEXT의 change 값, 장중 값은 "장중 HH:MM KST") 그 움직임마다 보도된 이유가 무엇인가(이유마다 헤드라인 날짜·출처) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름 — 반드시 흐름·시나리오 이름과 함께("「이름」 — 조건 충족 n/m"), 숫자만 단독으로 쓰지 않는다. 단 REGIME_CONTEXT의 판정 문장이 "어느 흐름이라고 보기 이릅니다"·"중심 시나리오를 정하지 않습니다"라고 하면(시나리오 설명 속 "…라고 보기 이릅니다"는 판정이 아니다) 그 판정을 먼저 그대로 쓰고, 가장 많이 맞는 흐름은 "핵심 조건 미충족"과 함께만 언급하며 그 흐름을 결론처럼 쓰지 않는다 (4) 향후 시나리오: REGIME_CONTEXT의 【향후 시나리오】에서 다음 발표(날짜)과 조건이 가장 많이 맞는 시나리오, 시장 가격이 같은 방향인지, 금리 괴리가 있으면 그 뜻 — 인과(무엇이 무엇을 거쳐 주가에 닿는지)를 한 문장으로 (5) 그 시나리오라면 선택지(관망·분할 접근·보유 유지·방어 전환)별 기회비용과 상대적으로 유리한 쪽(중심 시나리오가 없으면 "유리한 쪽"을 정하지 말고 각 시나리오로 갈 때 무엇이 바뀌는지만), 반대 시나리오로 가면 무엇이 바뀌는지, 【테마 시나리오】가 있으면 그 시나리오에서 수혜·부담인 테마와 추세 속 조정 테마를 한 문장으로 (6) MARKET_DRIVERS의 확인·반증 칸: 다음에 확인할 것(일정 포함)과 이 해석이 틀렸다고 볼 반증 조건. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.'],
-  ['conduct', '가격·수량·시점·특정 종목 매매 지시(사라/팔아라, 목표가, "비중을 늘리세요" 같은 명령)는 쓰지 않는다. 대신 시나리오별 선택지의 기회비용과 "이 시나리오라면 상대적으로 유리한 쪽"은 REGIME_CONTEXT 근거로 쓴다(소유자 2026-10-13). 관측된 움직임과 시나리오 조건을 쓴 뒤, 지금 근거가 어느 쪽을 지지하는지와 그 이유를 한두 문장으로 쓴다(예: 현금·방어 우위 / 분할 접근 우위 / 판단 보류) — 그 근거와 판단을 바꿀 조건을 함께 쓴다(소유자 2026-11-12). "가능성이 더 높아 보입니다" 같은 말로 된 가능성은 같은 문장이나 바로 앞 문장에 근거(조건 충족 n/m · 시장 가격 방향 · 축 상태 · 표본 수가 있는 과거 빈도 · "…하면" 조건)가 있을 때만 쓰고, %·확률 숫자는 만들지 마라. 읽는 사람에게 명령하는 문장은 쓰지 않는다. 세부 종목 선택은 사용자가 차트·기업·테마·스크리너에서 한다고 밝혀도 된다.'],
+  ['order', '순서: (1) MARKET_DRIVERS의 CLOSE_MOVE·LIVE_MOVE 두 칸(칸 이름은 쓰지 않는다) — 첫 줄은 CLOSE_MOVE 맨 앞의 가장 큰 움직임으로 열고, 무엇이 얼마나 바뀌었고(완료 종가는 날짜 M/D와 METRIC_EVIDENCE·REGIME_CONTEXT의 change 값, 장중 값은 "장중 HH:MM KST") 그 움직임마다 보도된 이유가 무엇인가(이유마다 헤드라인 날짜·출처) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름 — 반드시 흐름·시나리오 이름과 함께("「이름」 — 조건 충족 n/m"), 숫자만 단독으로 쓰지 않는다. 단 REGIME_CONTEXT의 판정 문장이 "어느 흐름이라고 보기 이릅니다"·"중심 시나리오를 정하지 않습니다"라고 하면(시나리오 설명 속 "…라고 보기 이릅니다"는 판정이 아니다) 그 판정을 먼저 그대로 쓰고, 가장 많이 맞는 흐름은 "핵심 조건 미충족"과 함께만 언급하며 그 흐름을 결론처럼 쓰지 않는다 (4) 향후 시나리오: REGIME_CONTEXT의 【향후 시나리오】에서 다음 발표(날짜)과 조건이 가장 많이 맞는 시나리오, 시장 가격이 같은 방향인지, 금리 괴리가 있으면 그 뜻 — 인과(무엇이 무엇을 거쳐 주가에 닿는지)를 한 문장으로 (5) 그 시나리오라면 선택지(관망·분할 접근·보유 유지·방어 전환)별 기회비용과 상대적으로 유리한 쪽(중심 시나리오가 없으면 "유리한 쪽"을 정하지 말고 각 시나리오로 갈 때 무엇이 바뀌는지만), 반대 시나리오로 가면 무엇이 바뀌는지, 【테마 시나리오】가 있으면 그 시나리오에서 수혜·부담인 테마와 추세 속 조정 테마를 한 문장으로 (6) MARKET_DRIVERS의 NEXT_CHECK 칸: 다음에 확인할 것(일정 포함)과 이 해석이 틀렸다고 볼 반증 조건. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.'],
+  ['conduct', '가격·수량·시점·특정 종목 매매 지시(사라/팔아라, 목표가, "비중을 늘리세요" 같은 명령)는 쓰지 않는다. 대신 시나리오별 선택지의 기회비용과 "이 시나리오라면 상대적으로 유리한 쪽"은 REGIME_CONTEXT 근거로 쓴다(소유자 2026-10-13). 조건 충족 수(n/m)와 축 상태(양호·중립·부담 개수)는 지금 상태를 설명할 때만 쓴다 — 그 개수로 어느 쪽이 유리한지나 가능성을 말하지 않는다(그 개수는 다음 한 달을 가르는 공개된 검증 근거가 아니다, v60.19). 관측된 움직임과 시나리오 조건을 쓴 뒤 지금 근거가 어느 쪽을 지지하는지(예: 현금·방어 우위 / 분할 접근 우위 / 판단 보류)를 쓰려면, 또 "가능성이 더 높아 보입니다" 같은 말을 쓰려면, 같은 문장이나 바로 앞 문장에 다음 근거 중 하나를 둔다: 기저율·표본 수와 함께 쓴 과거 빈도, VIX 구간 기록, 시장 가격에 반영된 기대(선물·금리 가격), 또는 "…라는 비용 가설"이라고 이름 붙인 가설. 그런 근거가 없으면 판단 보류라고 쓴다. 판단을 바꿀 조건을 함께 쓴다(소유자 2026-11-12). %·확률 숫자는 만들지 마라. 읽는 사람에게 명령하는 문장은 쓰지 않는다. 세부 종목 선택은 사용자가 차트·기업·테마·스크리너에서 한다고 밝혀도 된다.'],
   ['changeFormat', '각 변화율은 반드시 그 지표 이름 바로 뒤에 쓴다(예: "코스피 -1.2%"). 다른 지표의 변화율을 앞 지표 이름에 붙이지 마라. 금리(10Y)의 변화는 bp로만 쓰고 %로 쓰지 마라(금리 수준만 % 단위).'],
   ['sessionWording', 'METRIC_EVIDENCE에는 완료된 종가만 들어 있다. 장중 값은 KOREA_LARGE_INTRADAY_MOVE·CROSS_MARKET_INTRADAY·MARKET_DRIVERS에 적힌 것만 쓴다. 장중 값을 언급하면 "장중"과 관측 시각(예: 13:05 KST)을 같은 문장에 쓰고 "마감·종가"라고 쓰지 마라.'],
-  ['evidenceIds', 'Every numeric claim must be supported by one or more supplied METRIC_EVIDENCE ids.'],
+  // v60.18 (weekly audit 2026-11-15 D5): ids are deleted before publication; the model put them (and words) inside brackets
+  // mid-sentence, and the published text read "이는입니다." and "(,)". Placement is part of the rule now.
+  ['evidenceIds', 'Every numeric claim must be supported by one or more supplied METRIC_EVIDENCE ids. 근거 id는 게시 전에 지워진다: 문장 마침표 바로 뒤에 [id; id]처럼 id만 넣어 붙이고, 대괄호 안에 낱말·설명을 넣지 않으며, 문장 중간이나 괄호( ) 안에 두지 않는다.'],
   ['vixFearGreed', 'Do not treat VIX and Fear&Greed as the same metric, and do not spend a sentence saying they differ. Do not invent missing values. Return 7-9 concise lines.'],
   // v58.74 (text audit A5): the reading kept "-다" lines beside "-습니다" ones and ran clauses together with semicolons.
   // Outlets stay named when a reported cause is cited (the reader can check it), but never inside a number's own clause.
@@ -75,9 +78,12 @@ export function marketAnalysisPromptSections({ inflationLine = '', regimeContext
   ['headlines', 'HEADLINE_CONTEXT (retained headlines — titles only; these are the only news material available):\n' + (headlineLines || 'none')
     + (intradayLines ? '\n08:00 이후 장중 속보(잠정 — 다음 08:00 묶음 전의 미확정 헤드라인, 인용 시 "잠정"으로 표시):\n' + intradayLines : '')],
   ['drivers', driversContext],
+  // v60.19 (one materiality vocabulary): the ledger's size grade per metric; the validator blocks a size word against it
+  // (market-analysis-validate.mjs moveSizeWordIssues). Per-run, so it sits after the cached prefix.
+  ['moveSize', moveSizeText || null],
   // Owner 2026-10-18: the stories the 08:00 bundle missed (AI funding, memory, deleveraging …) from AIO's own Telegram
   // digest and mover headlines, with the analysis note that says how to read each. Weighting, not evidence.
-  ['narrative', narrativeText ? 'NARRATIVE_CONTEXT (지난 72시간 2차 자료: 리서치 텔레그램 채널 중계와 5거래일 급등락 종목의 헤드라인. 사실 확정이 아니라 지금 시장이 어떤 이야기에 무게를 두는지 보여 주는 참고다. 쓰는 법: (a) 오늘의 긴장과 (2)~(6)의 주제를 고를 때 HEADLINE_CONTEXT의 건수만 보지 말고 REGIME_CONTEXT의 움직임 크기와 여기의 언급 비중을 함께 본다 (b) 인용하면 "리서치 채널 중계에 따르면"·"…보도에 따르면"으로 귀속하고 한 가지 해석으로 제시한다 (c) [루머]·[미확인·익명 소식통] 항목은 같은 문장에 "루머" 또는 "미확인"을 쓰고 원인으로 단정하지 않는다 (d) 여기의 숫자·종목명·티커는 METRIC_EVIDENCE가 아니므로 쓰지 않는다 (e) 같은 주제에 강세 측 반론이 있으면 함께 적어 한쪽으로 기울지 않는다 (f) "읽는 틀"은 그 주제를 확인하는 순서다 — 다음에 확인할 것(6)에 활용한다):\n' + narrativeText : null],
+  ['narrative', narrativeText ? 'NARRATIVE_CONTEXT (지난 72시간 2차 자료: 리서치 텔레그램 채널 중계와 5거래일 ±10% 넘게 움직인 종목의 헤드라인. 사실 확정이 아니라 지금 시장이 어떤 이야기에 무게를 두는지 보여 주는 참고다. 쓰는 법: (a) 오늘의 긴장과 (2)~(6)의 주제를 고를 때 HEADLINE_CONTEXT의 건수만 보지 말고 REGIME_CONTEXT의 움직임 크기와 여기의 언급 비중을 함께 본다 (b) 인용하면 "리서치 채널 중계에 따르면"·"…보도에 따르면"으로 귀속하고 한 가지 해석으로 제시한다 (c) [루머]·[미확인·익명 소식통] 항목은 같은 문장에 "루머" 또는 "미확인"을 쓰고 원인으로 단정하지 않는다 (d) 여기의 숫자·종목명·티커는 METRIC_EVIDENCE가 아니므로 쓰지 않는다 (e) 같은 주제에 강세 측 반론이 있으면 함께 적어 한쪽으로 기울지 않는다 (f) "읽는 틀"은 그 주제를 확인하는 순서다 — 다음에 확인할 것(6)에 활용한다):\n' + narrativeText : null],
   // v58.74 (audit 10/24): the reading dated a 10/23 04:14 GMT Reuters gold headline "같은 날(10/24)", stated '물가 재가속'
   // (1/4 conditions) as a fact, and repeated "Treasury haven" on a day the 10-year rose 4bp.
   ['datesAndScenarios', 'DATES_AND_SCENARIOS: 헤드라인을 인용할 때 날짜는 그 줄의 date= 값만 쓴다. 시나리오 이름(물가 재가속·AI 투자 꺾임 등)은 사실로 쓰지 말고 "…시나리오 조건 n/m"처럼 충족 수와 함께만 쓴다. 헤드라인이 말하는 방향(예: 국채 선호)이 같은 날 종가(예: 10년물 금리 상승)와 반대이면 그 차이를 함께 쓴다.'],

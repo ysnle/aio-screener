@@ -1,4 +1,5 @@
 name: Data freshness watchdog
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Data freshness watchdog · {0}', inputs.trigger || 'operator') || 'Data freshness watchdog' }}
 
 # Independent operating check. Local artifacts, Pages, proxy, fast plane and live
 # invariants share one aggregate profile, so one red plane never hides the others.
@@ -23,6 +24,13 @@ on:
         description: 'Maximum live artifact age in minutes.'
         required: false
         default: '360'
+      # v60.19: the data-plane Worker's :35 dispatch sets scheduler; the run title carries it so the SLO window counts that
+      # dispatch as the designed scheduler (scripts/build-operations-slo-window.mjs isAutomatedDispatch).
+      trigger:
+        description: "operator or scheduler (the data-plane Worker)"
+        required: false
+        default: operator
+        type: string
 
 permissions:
   actions: read
@@ -121,7 +129,8 @@ jobs:
       - name: Open, update or close the expiry issue
         env:
           GH_TOKEN: ${{ github.token }}
-          EXPIRED: ${{ steps.expiry.outputs.expired }}
+          # v60.19: alert = expired or inside the review window (the issue opens before a value goes stale).
+          ALERT: ${{ steps.expiry.outputs.alert }}
           DIGEST: ${{ steps.expiry.outputs.digest }}
         run: |
           set -euo pipefail
@@ -134,7 +143,7 @@ jobs:
           if [ -z "$open_issue" ]; then
             open_issue="$(jq -r --arg title "$title" '[.[] | select(.title == $title)] | sort_by(.createdAt) | last | .number // empty' <<< "$open_issues")"
           fi
-          if [ "$EXPIRED" = "true" ]; then
+          if [ "$ALERT" = "true" ]; then
             if [ -n "$open_issue" ]; then
               current_body="$(gh issue view "$open_issue" --json body --jq .body)"
               if printf '%s' "$current_body" | grep -qF "aio-manual-reference-expiry-digest:${DIGEST} "; then
@@ -148,8 +157,8 @@ jobs:
               echo "Created expiry issue"
             fi
           elif [ -n "$open_issue" ]; then
-            gh issue close "$open_issue" --comment "No manual reference value is past its window any more (watchdog run ${GITHUB_RUN_ID})."
+            gh issue close "$open_issue" --comment "No manual reference value is past or near its window any more (watchdog run ${GITHUB_RUN_ID})."
             echo "Closed expiry issue #${open_issue}"
           else
-            echo "No expired manual reference."
+            echo "No manual reference past or near its window."
           fi

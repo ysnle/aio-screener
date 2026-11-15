@@ -33,6 +33,28 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
     if (page && typeof root.updateAIPanelContext === 'function') { try { root.updateAIPanelContext(page); } catch (_) {} }
   };
   const cancel = (reason) => { try { root._aioCancelChatRequest?.(root._aiCurrentCtx, reason); } catch (_) {} };
+  // The two ways the open conversation changes: a saved one reopened (the list, a 다시 묻기 after a reload) or a new one.
+  const openSession = (session, reason) => {
+    cancel(reason);
+    setActive(session.id);
+    shared.messages.length = 0;
+    shared.messages.push(...sessionMessages(session));
+    repaint();
+  };
+  const startFresh = (reason) => {
+    cancel(reason);
+    shared.messages.length = 0;
+    setActive(null);
+    repaint();
+  };
+  // Makes `sessionId` the open conversation: nothing when it already is, the saved conversation when it is stored, and a
+  // new conversation otherwise (a question asked in a conversation that was never saved is asked again on its own).
+  api.restore = (id) => {
+    if (id && id === api.sessionId) return;
+    const saved = id && api.saved().find((session) => session.id === id);
+    if (saved) openSession(saved, 'session-switch');
+    else if (api.sessionId || shared.messages.length) startFresh('new-session');
+  };
 
   // v58.75 (persona review): panel glue moved out of js/aio-chat.js. (a) Moving to another screen while an answer is
   // being written keeps it (one shared conversation in a shell panel that stays mounted, also over a screen without an
@@ -129,11 +151,8 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
   function refreshHeader() { list.hidden = consentState(storage) === 'unasked'; }
   refreshHeader();
   fresh.addEventListener('click', () => {
-    cancel('new-session');
-    shared.messages.length = 0;
-    setActive(null);
+    startFresh('new-session');
     closeList();
-    repaint();
     doc.getElementById('ai-panel-inp')?.focus?.();
   });
 
@@ -177,11 +196,7 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
       const screens = [...new Set(session.turns.map((t) => SCREEN[t.ctx] || null).filter(Boolean))].slice(0, 3).join(', ');
       open.append(el(doc, 'span', session.title, 'ai-session-title'), el(doc, 'span', `${sessionWhen(session.updatedAt)}, 질문 ${session.turns.length}개${screens ? `, ${screens}` : ''}`, 'ai-session-meta'));
       open.addEventListener('click', () => {
-        cancel('session-switch');
-        setActive(session.id);
-        shared.messages.length = 0;
-        shared.messages.push(...sessionMessages(session));
-        repaint();
+        openSession(session, 'session-switch');
         closeList();
         doc.getElementById('ai-panel-inp')?.focus?.();
       });

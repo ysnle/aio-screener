@@ -103,7 +103,8 @@ export const LESSONS = Object.freeze([
     why: '참여가 좁은 상승은 주도 종목 몇 개가 꺾이면 지수 전체가 함께 흔들립니다.',
     live: (ctx) => {
       const L = ctx?.regime?.leadership;
-      if (L?.break) return `주도 영역이 꺾이는 신호가 확인됐습니다(${L.summary || '나스닥 100 약세'}).`;
+      // The break is a state; its summary carries the numbers (a +3.5% week read "꺾이는").
+      if (L?.break) return `주도 영역 이탈 판정입니다(${L.summary || 'SOXX 약세'}).`;
       if (axisState(ctx, 'trend') === 'favorable' && axisState(ctx, 'breadth') === 'burden') return '추세는 양호한데 시장 폭은 부담입니다 — 소수 종목이 지수를 받치는 모양입니다.';
       return null;
     }

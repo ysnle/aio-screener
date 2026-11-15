@@ -144,8 +144,9 @@ export const RULES = Object.freeze({
   // v57.81: a won move counts only when the 20-session change and the shift of the 20-session mean agree (meanShareOfBar of
   // the bar, same sign) — an endpoint on a one-day spike (9/17 1376.6) made a flat won read -2.5%. A KOSPI fall of
   // kospiContradict20dPct or more over 20 sessions (or a rare KOSPI day) holds a won-strength reading at 중립 (혼조).
-  // v57.84: krwFlatPct — a won move inside ±0.5% is 보합권 on every window (20-session card, 5-session sentence, the last session
-  // that holds a won-strength verdict at 중립).
+  // v57.84: krwFlatPct — the last-session won reversal that holds a won-strength verdict at 중립, and the won-only gap the
+  // 매크로 won sentence names. The word 보합권 is not this line; it is the move-size grade
+  // (src/domain/market/session/move-size.js, the won's own volatility) for every span.
   fx: Object.freeze({ krwMove20dPct: 2, yenRally20dPct: 3, meanShareOfBar: 0.5, kospiContradict20dPct: 5, krwFlatPct: 0.5 }),
   // v57.81: a Fear & Greed move of namedMovePt or more over one or five sessions is always named beside the 20-session read.
   // v59.70: the 심리 row counts composite components at a one-year extreme (ranks, never a mean — D02).
@@ -185,6 +186,23 @@ export const RULES = Object.freeze({
   // 3% about one in fifty; retune here, not at the call sites.
   largeMove: Object.freeze({ attributionUsPct: 1, attributionKospiPct: 3, priorSession1dPct: 3, priorSession5dPct: 8,
     dailyDiffIndexPct: 1, dailyDiffVixPt: 2, dailyDiffTnxBp: 8, dailyDiffBreadthPp: 5, dailyDiffOtherPct: 1.5, watchDayPct: 3 }),
+  // How material a price move is, against its own volatility — the market-day ledger's scale
+  // (src/domain/market/day/facts.js priceMove/priceMateriality; values unchanged from its literals). z = the last session's
+  // step / the sd of the sdSessions steps before it (minSteps needed); the weekSessions leg is the cumulative change over
+  // sd·√weekSessions and counts while the last step goes the same way (10년물 +29bp in five sessions read minor 23 on a
+  // +5bp day). points = the larger |z| × pointsPerSd, core gauges in full and the rest × secondaryShare; tiers lead/major/
+  // minor (below minor = context); unusualZ marks an unusual session. One table for every reader that ranks a move by size.
+  moveMateriality: Object.freeze({ sdSessions: 60, minSteps: 10, weekSessions: 5, pointsPerSd: 25, secondaryShare: 0.7, unusualZ: 2,
+    tiers: Object.freeze({ lead: 60, major: 35, minor: 15 }),
+    // soxx joins the core gauges: it is the leadership proxy the verdict caps on (owner 11/4) — +6.01% on 11/11 read minor 32
+    coreGauges: Object.freeze(['spx', 'ndx', 'soxx', 'kospi', 'tnx', 'dxy', 'wti', 'gold', 'hyOas', 'vix']) }),
+  // The AI market reading (scripts/lib/market-analysis-moves.mjs, market-analysis-validate.mjs), on the moveMateriality
+  // scale. inSessionZ: an in-session change is offered to the reading at this many one-session sd (about 2.2% for WTI,
+  // 4bp for the 10-year, 1% for gold this autumn); inSessionWtiPct is WTI's absolute edge when the history is too short
+  // for an sd (10/21). A verified reading is kept through a failed provider call for retainHours. A quoted figure whose
+  // observation was replaced is not an error while it moved less than largeMove.attribution* (equity) or
+  // retainDriftOtherPct (others); once the S&P 500 or KOSPI has moved largeMove.attribution* since the reading, it is not kept.
+  marketReading: Object.freeze({ inSessionZ: 0.75, inSessionWtiPct: 2, retainHours: 12, retainDriftOtherPct: 3 }),
   // CNN Fear & Greed integer bands: extreme fear 0-24, fear 25-44, neutral 45-55, greed 56-75, extreme greed 76-100
   // (as reproduced from CNN Business by https://www.nerdwallet.com/article/investing/what-is-the-fear-and-greed-index;
   // the index is published as a whole number, so a reading is rounded before it is banded).

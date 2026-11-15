@@ -24,6 +24,7 @@ import { collectRotationHistory } from './lib/rotation-history.mjs';
 import { resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 import { createAiUsage, marketAnalysisOutcome } from './producer/ai-usage.mjs';
 import { sealMarketTimeline, summarizeMarketTimeline } from './lib/market-timeline.mjs';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 import { compareUsdKrwCrossCheck } from './lib/macro-sources.mjs';
 import { deriveCyclePublication } from './lib/news-selection.mjs';
 import { degradePayloadAllowedUse } from '../src/data/contracts/evidence.js';
@@ -178,7 +179,9 @@ async function main() {
   // 2026-10-19 cadence: slots ending 06/12/18/24 KST are sealed once (never overwritten); their new headlines share the
   // translation call below, and one short slot summary follows the macro reading.
   let timelineRun = { timeline: previous?.marketTimeline || null, sealed: [], newHeadlines: [] };
-  try { timelineRun = sealMarketTimeline({ previous: previous?.marketTimeline, snapshot: marketSnapshotForConsumers, pool: news?.slotPool || null }); }
+  // The slot moves' size words are read against each metric's own session volatility (the history just written).
+  const timelineHistory = await readFile(HIST, 'utf8').then((text) => readHistoryRows(JSON.parse(text))).catch(() => []);
+  try { timelineRun = sealMarketTimeline({ previous: previous?.marketTimeline, snapshot: marketSnapshotForConsumers, pool: news?.slotPool || null, history: timelineHistory }); }
   catch (error) { console.warn(`[fetch-data] market timeline kept previous: ${error?.message || error}`); }
   if (timelineRun.timeline) data.marketTimeline = timelineRun.timeline;
   try {

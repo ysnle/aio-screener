@@ -235,10 +235,21 @@ export function selectSecBatch(sorted, limit, extra = 0, nowMs = Date.now(), ref
 // once it files a periodic report dated after that attempt. The daily index carries no form type, so any periodic form
 // counts (one extra read per quarter for such an issuer); the retry stamps a new attemptedAt, so one filing triggers once.
 export const SEC_NO_ANNUAL_REASON_CODES = Object.freeze(['required-us-gaap-annual-concepts-unavailable', 'required-ifrs-annual-concepts-unavailable']);
+// The daily index dates a filing by day only, so a filing dated the attempt's own UTC day may have been accepted after
+// it (a 10-K filed in the afternoon of a morning attempt) and counts. The retry stamps a later attemptedAt, so a
+// same-day filing triggers at most one more read (the next day, after the 24-hour spacing).
+// The index is read only SEC_FILING_LOOKBACK_DAYS back, so a filing seen while the retry waits (spacing, batch limit,
+// failed runs) is kept on the failure record as `filingSeenAt` and stays due after it leaves that window.
 export function filedAfterNoAnnualAttempt(priorFailure, periodicFiledAt) {
   if (priorFailure?.status !== 'TERMINAL_UNSUPPORTED' || !SEC_NO_ANNUAL_REASON_CODES.includes(priorFailure.reasonCode)) return false;
   const attempted = String(priorFailure.attemptedAt || priorFailure.failedAt || '').slice(0, 10);
-  return Boolean(periodicFiledAt && attempted && String(periodicFiledAt) > attempted);
+  const filed = [periodicFiledAt, priorFailure.filingSeenAt].map((value) => String(value || '').slice(0, 10)).sort().pop();
+  return Boolean(filed && attempted && filed >= attempted);
+}
+// Pure: the failure record to carry forward when this run sees a filing that makes it due but does not read it yet.
+export function noAnnualFilingCheckpoint(priorFailure, periodicFiledAt) {
+  if (!periodicFiledAt || !filedAfterNoAnnualAttempt(priorFailure, periodicFiledAt)) return null;
+  return String(priorFailure.filingSeenAt || '') >= String(periodicFiledAt) ? null : { ...priorFailure, filingSeenAt: String(periodicFiledAt) };
 }
 
 // Pure: a terminal failure recorded for a concept-set reason under an older concept set is rechecked; the terminal IFRS
@@ -343,7 +354,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
   ]));
   const recheckUnsupported = process.env.SEC_RECHECK_UNSUPPORTED === '1';
   const backfillExtra = scope === 'core' ? Math.max(0, Math.min(100, Number(process.env.SEC_BACKFILL_EXTRA ?? SEC_BACKFILL_EXTRA_DEFAULT) || 0)) : 0;
-  const dueTargets = eligible
+  const candidates = eligible
     .map(symbol => ({ symbol, periodicFiledAt: periodic.filers.get(tickerMap.get(tickerKey(symbol))?.cik) || null }))
     .map(({ symbol, periodicFiledAt }) => ({
       symbol,
@@ -369,6 +380,8 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
       priorFailure: previousFailureRecords.get(symbol) || null,
       conceptSetChanged: secConceptSetChanged(previousFailureRecords.get(symbol))
     }))
+    .map(row => ({ ...row, noAnnualRecheck: filedAfterNoAnnualAttempt(row.priorFailure, row.periodicFiledAt) }));
+  const dueTargets = candidates
     // v57.87: a successor registrant (SEC_SUCCESSOR_ISSUERS) is rechecked once per entry version with its predecessor's facts.
     .filter(row => isSecTargetDue(row, { now, force, successor: SEC_SUCCESSOR_ISSUERS[tickerMap.get(tickerKey(row.symbol))?.cik], recheckUnsupported, retryFailedNow }))
     // Prefer never-attempted and retryable candidates. Terminal taxonomy
@@ -376,11 +389,17 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     // 2026-10-16: a failure recorded under an older concept set is rechecked FIRST. It sorted last behind every due
     // record, and a normalizer bump makes ~750 records due at 24 per run, so GS/CRWD/VLO/ODFL/KHC/ARE/SJM (normalizable
     // since v3/v4) sat a month as failures. Each recheck stamps the current version, so this set is bounded.
-    .sort((a, b) => Number(b.conceptSetChanged) - Number(a.conceptSetChanged) || Number(Boolean(a.priorFailure)) - Number(Boolean(b.priorFailure)) || Number(b.newFiling) - Number(a.newFiling) || Number(b.sharesMissing) - Number(a.sharesMissing) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol));
+    .sort((a, b) => Number(b.conceptSetChanged) - Number(a.conceptSetChanged) || Number(b.noAnnualRecheck) - Number(a.noAnnualRecheck) || Number(Boolean(a.priorFailure)) - Number(Boolean(b.priorFailure)) || Number(b.newFiling) - Number(a.newFiling) || Number(b.sharesMissing) - Number(a.sharesMissing) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol));
   const targets = selectSecBatch(dueTargets, limit, fullRebuild || force ? 0 : backfillExtra, now, REFRESH_AFTER_MS);
 
   const data = { ...(previous.data || {}) };
   const failuresBySymbol = new Map([...previousFailureRecords.entries()]);
+  // A first annual filing seen now but not read this run (retry spacing, batch limit) stays due past the index window.
+  const targetSymbols = new Set(targets.map(row => row.symbol));
+  for (const row of candidates) {
+    const checkpoint = targetSymbols.has(row.symbol) ? null : noAnnualFilingCheckpoint(row.priorFailure, row.periodicFiledAt);
+    if (checkpoint) failuresBySymbol.set(row.symbol, checkpoint);
+  }
   let updated = 0;
   const attemptedAt = new Date(now).toISOString();
   const issuerSic = previous.issuerSic && typeof previous.issuerSic === 'object' ? { ...previous.issuerSic } : {};

@@ -33,7 +33,9 @@ export function buildLedger({ workflow, runStartedMs, nowIso = new Date().toISOS
     const prior = previous?.artifacts?.[file] || null;
     const current = readArtifact(file);
     if (!current) {
-      artifacts[file] = { ...base, producedAt: null, checkedAt: prior?.checkedAt || null, basisSession: null, lastAttempt: { at: nowIso, status: 'missing' } };
+      // v60.18: an artifact whose refresh path waits on an owner decision (blockedBy) is absent by design; it read
+      // "missing" on every run all week (kr-fundamentals.json) beside real gaps. It is recorded as blocked, with the reason.
+      artifacts[file] = { ...base, producedAt: null, checkedAt: prior?.checkedAt || null, basisSession: null, lastAttempt: { at: nowIso, status: entry.blockedBy ? 'blocked' : 'missing' }, ...(entry.blockedBy ? { blockedBy: entry.blockedBy } : {}) };
       continue;
     }
     let payload = current.payload;

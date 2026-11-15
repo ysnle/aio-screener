@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v60.17';
+const APP_VERSION = 'v60.19';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -10981,7 +10981,7 @@ var AIO_MANUAL_REFERENCE_EXPIRY_RULES = Object.freeze({
   // NAAIM retired from the screen (2026-10-13: the official page shows only an undated, three-month-delayed number that
   // cannot be verified against its page), so it carries no expiry item.
   krExports: Object.freeze({ label: '한국 수출 잠정치', where: 'public-data/data.json officialWebReferences.krExports', maxAgeDays: 15, producer: 'public-data/official-references.json items.krExports', screen: '수출 잠정치 문구를 기한 지남으로 보류' }),
-  structuralResearch: Object.freeze({ label: '구조 데이터 원천 조사 기록', where: 'public-data/structural-data-research.json', maxAgeDays: 180, reviewLeadDays: 30, producer: null, screen: '화면 노출 없음(원천 경계 근거), 만료 시 웹 조사 계약 gate가 배포를 막음' }),
+  structuralResearch: Object.freeze({ label: '구조 데이터 원천 조사 기록', where: 'public-data/structural-data-research.json', maxAgeDays: 180, reviewLeadDays: 30, producer: null, screen: '화면 노출 없음(원천 경계 근거), 만료 시 날짜를 단 참고 기록으로 남고 발행은 계속됨' }),
   schedule: Object.freeze({ label: '공식 발표 일정표', where: 'js/aio-core.js AIO_MACRO_OFFICIAL_SCHEDULES', graceDays: 0, reviewLeadDays: 21, producer: 'public-data/macro-calendar.json', screen: '그 발표의 다음 일정을 일정 확인 필요로 보류' }),
   holidays: Object.freeze({ label: '거래소 휴장일 표', where: 'src/domain/market/session/market-calendar.js + js/aio-core.js DATE_ENGINE', asOf: '2026-09-29', reviewLeadDays: 61, producer: null, screen: '미등록 연도는 거래일 판정을 unknown으로 보류' })
 });

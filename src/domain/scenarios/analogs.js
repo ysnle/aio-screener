@@ -1,6 +1,8 @@
 import { hasFinalConsonant } from '../content/korean-particle.js';
 import { relativeBand } from '../themes/recent-check.js';
 import { finiteNumber as finite } from '../shared/number.js';
+import { OUTCOME_STAMPS } from './outcome-stamps.js';
+import { evidenceStrength } from '../shared/evidence-strength.js';
 // P1743: one definition of "a similar market move in the past" per branch, shared by the weekly long-history producer
 // (scripts/build-scenario-outcomes.mjs, decades of daily closes) and the browser (AIO's own close record as fallback).
 // Episodes never overlap: after a hit, the scan jumps past its outcome window, so one long episode counts once.
@@ -21,17 +23,20 @@ export const BRANCH_ANALOGS = Object.freeze({
   fiscalsteep: { label: '10년물이 20거래일 25bp 이상 오르는데 S&P 500은 내릴 때 (장기 금리 부담 대용)', needs: ['tnx'], test: (v) => v.tnx20 >= 0.25 && v.spx20 < 0 }
 });
 
-/** rows: [{ date, spx, tnx?, vix?, wti?, dxy? }] ascending, completed closes only. */
-export function analogOutcome(rows, analog, { horizon = 20, lookback = 20 } = {}) {
+/**
+ * The one scan of a branch analog: the testable sessions (the base) and the non-overlapping case sessions. The browser's
+ * own-record fallback summarises it lean (analogOutcome); the weekly producer adds the base quartiles, drawdowns and the
+ * cash leg (outcome-history.js analogOutcomeHistory). rows: [{ date, spx, tnx?, vix?, wti?, dxy?, cash? }] ascending.
+ */
+export function analogScan(rows, analog, { horizon = 20, lookback = 20 } = {}) {
   const list = Array.isArray(rows) ? rows.filter((row) => finite(row?.spx) > 0) : [];
   if (list.length <= lookback + horizon) return null;
-  const outcomes = [];
   // Base rate: every session in the same window, condition or not, so the reader can see whether the condition adds anything.
   // Macro audit 2026-10-17: only sessions where the condition could be tested count — a base that also spans years before a
   // needed series starts (WTI, VIX, DXY) is a different sample from the cases it is set against.
   const testable = (i) => !analog.needs.some((field) => finite(list[i][field]) == null || finite(list[i - lookback][field]) == null);
-  let baseN = 0, baseUp = 0;
-  for (let i = lookback; i + horizon < list.length; i += 1) { if (!testable(i)) continue; baseN += 1; if (list[i + horizon].spx > list[i].spx) baseUp += 1; }
+  const base = [], cases = [];
+  for (let i = lookback; i + horizon < list.length; i += 1) if (testable(i)) base.push(i);
   for (let i = lookback; i + horizon < list.length; i += 1) {
     const now = list[i], then = list[i - lookback];
     if (!testable(i)) continue;
@@ -41,32 +46,27 @@ export function analogOutcome(rows, analog, { horizon = 20, lookback = 20 } = {}
     let hit = false;
     try { hit = analog.test(v) === true; } catch (_) { hit = false; }
     if (!hit) continue;
-    outcomes.push((list[i + horizon].spx / now.spx - 1) * 100);
+    cases.push(i);
     i += horizon;
   }
-  return summarise(outcomes, { from: list[0].date, to: list[list.length - 1].date, horizon, ...baseRate(baseUp, baseN) });
+  return { list, horizon, base, cases, ret: (i) => (list[i + horizon].spx / list[i].spx - 1) * 100,
+    meta: { from: list[0].date, to: list[list.length - 1].date, horizon, ...baseRate(base.filter((i) => list[i + horizon].spx > list[i].spx).length, base.length) } };
 }
 
-const baseRate = (up, n) => n > 0 ? { baseN: n, baseUpPct: Math.round(up / n * 100) } : {};
+export function analogOutcome(rows, analog, options = {}) {
+  const scan = analogScan(rows, analog, options);
+  return scan ? summarise(scan.cases.map(scan.ret), scan.meta) : null;
+}
 
+export const baseRate = (up, n) => n > 0 ? { baseN: n, baseUpPct: Math.round(up / n * 100) } : {};
+
+// Linear interpolation between the two neighbours: the lower one alone made the median of an even count the
+// lower-middle case (two cases -4% and +6% read -4%).
+export const quantile = (sorted, p) => { if (!sorted.length) return null; const at = p * (sorted.length - 1), lo = Math.floor(at); return sorted[lo] + (at - lo) * ((sorted[lo + 1] ?? sorted[lo]) - sorted[lo]); };
 export function summarise(outcomes, meta) {
   const sorted = [...outcomes].sort((a, b) => a - b);
-  // Linear interpolation between the two neighbours: the lower one alone made the median of an even count the
-  // lower-middle case (two cases -4% and +6% read -4%).
-  const q = (p) => { const at = p * (sorted.length - 1), lo = Math.floor(at); return sorted.length ? sorted[lo] + (at - lo) * ((sorted[lo + 1] ?? sorted[lo]) - sorted[lo]) : null; };
   const round = (value) => value == null ? null : Math.round(value * 10) / 10;
-  return { n: outcomes.length, up: outcomes.filter((value) => value > 0).length, median: round(q(0.5)), p25: round(q(0.25)), p75: round(q(0.75)), ...meta };
-}
-
-/** Align closes by date: { spx: [[date, value]], tnx: [...] } → [{ date, spx, tnx, ... }] on the S&P dates. */
-export function alignCloses(seriesByField) {
-  const maps = Object.fromEntries(Object.entries(seriesByField || {}).map(([field, rows]) => [field, new Map((rows || []).map(([date, value]) => [date, value]))]));
-  const base = seriesByField?.spx || [];
-  return base.map(([date, spx]) => {
-    const row = { date, spx };
-    for (const [field, map] of Object.entries(maps)) if (field !== 'spx' && map.has(date)) row[field] = map.get(date);
-    return row;
-  });
+  return { n: outcomes.length, up: outcomes.filter((value) => value > 0).length, median: round(quantile(sorted, 0.5)), p25: round(quantile(sorted, 0.25)), p75: round(quantile(sorted, 0.75)), ...meta };
 }
 
 /**
@@ -110,54 +110,22 @@ export function inlineDrift(recent, recentBand = 0) {
 }
 export const INLINE_DRIFT_LABELS = Object.freeze({ up: '1개월 앞서기 시작', down: '1개월 뒤처지기 시작' });
 /** ± bands the live screen uses (R714: recent-check.js relativeBand, not a second copy). */
-const OUTCOME_BANDS = Object.freeze({ trend: relativeBand('ret6m'), recent: relativeBand('ret1m') });
+export const OUTCOME_BANDS = Object.freeze({ trend: relativeBand('ret6m'), recent: relativeBand('ret1m') });
 // Audit 2026-10-17 (owner D4/D5): the stage rule a stored past-stage count was classified on. A count from another rule
 // (the 5%/yr bands, or the cap-weighted S&P 500 basis) is not compared with the live stage until the artifact is rebuilt.
 export const THEME_STAGE_RULE = 'theme-stage.v2';
+/** The horizon the weekly producer scores past stages on (sessions); part of the outcome fingerprint. */
+export const THEME_OUTCOME_HORIZON = 63;
+/** The history field the US stage reads against (theme-playbook.js THEME_BENCHMARKS.US) and the proxies are scored on. */
+export const THEME_OUTCOME_BENCHMARK = 'rsp';
 /**
- * Past stages of a proxy ETF and what followed. With `benchmark` ([[date, close]], ^GSPC) the stage is the live rule —
- * 6-month and 1-month returns less the index's with the same bands, and the ETF's own 6-month return for 상대 방어 —
- * and meta.basis is 'relative-banded'; without it the old absolute sign rule stays and basis is 'absolute' (the screen
- * then does not compare it with the live stage).
+ * A stored theme record usable for a live stage read against `benchmark`: the same index and the live definition stamp
+ * (outcome-stamps.js, generated by scripts/build-outcome-stamps.mjs over the parameters and the source of the functions
+ * below that classify and score it). A change in how a record is computed is then never read under the new wording —
+ * the own-return → excess outcome change once kept THEME_STAGE_RULE as it was.
  */
-export function themeStateOutcomes(closes, { horizon = 63, benchmark = null, benchmarkField = 'spx' } = {}) {
-  const list = (closes || []).filter(([, value]) => finite(value) > 0);
-  const bench = Array.isArray(benchmark) && benchmark.length ? new Map(benchmark.filter(([, v]) => finite(v) > 0)) : null;
-  const buckets = Object.fromEntries(Object.keys(THEME_STATES).map((state) => [state, []])); // 'fading' stays empty here
-  const next = Object.fromEntries(Object.keys(THEME_STATES).map((state) => [state, 0]));
-  let baseN = 0, baseUp = 0;
-  // v59.45 (P9-THEME-02): the base rate counts the same sessions a stage can be read on — with a benchmark, only those
-  // where the index has all three closes (a stretch before the index existed is not part of either sample).
-  // A stage read against the index is scored against it too: the outcome is the proxy's return less the benchmark's
-  // over the same horizon ('excess'), and "up" means it beat the index. The proxy's own return kept the market's drift
-  // (SMH rose on 67% of all days), which the stage does not claim. Without a benchmark the outcome stays the own return.
-  const testable = (i) => !bench || !!(bench.get(list[i - 126][0]) && bench.get(list[i - 21][0]) && bench.get(list[i][0]) && bench.get(list[i + horizon][0]));
-  const outcome = (i) => (list[i + horizon][1] / list[i][1] - 1) * 100 - (bench ? (bench.get(list[i + horizon][0]) / bench.get(list[i][0]) - 1) * 100 : 0);
-  let firstTestable = null, lastTestable = null;
-  for (let i = 126; i + horizon < list.length; i += 1) {
-    if (!testable(i)) continue;
-    baseN += 1; if (outcome(i) > 0) baseUp += 1;
-    if (firstTestable == null) firstTestable = i;
-    lastTestable = i;
-  }
-  for (let i = 126; i + horizon < list.length; i += 1) {
-    const trendAbs = (list[i][1] / list[i - 126][1] - 1) * 100;
-    const recentAbs = (list[i][1] / list[i - 21][1] - 1) * 100;
-    let state;
-    if (bench) {
-      if (!testable(i)) continue;
-      const b0 = bench.get(list[i - 126][0]), b1 = bench.get(list[i - 21][0]), b2 = bench.get(list[i][0]);
-      state = themeStateOf(trendAbs - (b2 / b0 - 1) * 100, recentAbs - (b2 / b1 - 1) * 100, { band: OUTCOME_BANDS.trend, recentBand: OUTCOME_BANDS.recent, absolute: trendAbs });
-    } else state = themeStateOf(trendAbs, recentAbs);
-    if (!state || i < next[state]) continue; // non-overlapping within each state
-    buckets[state].push(outcome(i));
-    next[state] = i + horizon;
-  }
-  const meta = { from: list[0]?.[0] || null, to: list[list.length - 1]?.[0] || null, horizon, basis: bench ? 'relative-banded' : 'absolute', ...(bench ? { outcome: 'excess' } : {}), ...baseRate(baseUp, baseN),
-    ...(bench ? { testableFrom: firstTestable == null ? null : list[firstTestable][0], testableTo: lastTestable == null ? null : list[lastTestable][0] } : {}) };
-  return { ...Object.fromEntries(Object.entries(buckets).map(([state, values]) => [state, summarise(values, meta)])), basis: meta.basis,
-    ...(bench ? { rule: THEME_STAGE_RULE, benchmark: benchmarkField } : {}) };
-}
+export const themeOutcomeCurrent = (record, benchmark) => !!record && !!benchmark && record.benchmark === benchmark && record.fingerprint === OUTCOME_STAMPS.themeStage;
+// themeStateOutcomes (the producer's stage scoring) lives in outcome-history.js, off the boot path.
 
 // One significance rule for every "differs from the base rate" reading (pastConflict, frequencyText): the share must sit
 // more than two binomial standard errors of the base rate (about 95%) away. Overlapping base-rate sessions make the true
@@ -171,11 +139,13 @@ export const beyondBaseRate = (share, base, n) => Math.abs(share - base) > BASE_
 // share is stated only when it sits beyond the base rate — otherwise the reader is told the move added no information.
 export const ANALOG_METHOD = 'market-move-proxy.v2';
 export function pastEvidence(freq) {
-  if (!freq || !(freq.n >= 1)) return { n: 0, informative: null, method: ANALOG_METHOD };
-  const hasBase = Number.isFinite(freq.up) && Number.isFinite(freq.baseUpPct) && freq.n >= 10;
+  if (!freq || !(freq.n >= 1)) return { n: 0, informative: null, method: ANALOG_METHOD, strength: evidenceStrength(0) };
+  // The floors are the shared evidence-strength rule (src/domain/shared/evidence-strength.js).
+  const strength = evidenceStrength(freq.n);
+  const hasBase = Number.isFinite(freq.up) && Number.isFinite(freq.baseUpPct) && strength.figures;
   const share = hasBase ? freq.up / freq.n : null;
   return { n: freq.n, up: freq.up ?? null, sharePct: share == null ? null : Math.round(share * 100), baseUpPct: hasBase ? freq.baseUpPct : null,
-    informative: hasBase ? beyondBaseRate(share, freq.baseUpPct / 100, freq.n) : null, small: freq.n < 30, method: ANALOG_METHOD };
+    informative: hasBase ? beyondBaseRate(share, freq.baseUpPct / 100, freq.n) : null, small: strength.reference, strength, method: ANALOG_METHOD };
 }
 
 export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}) {
@@ -192,7 +162,11 @@ export function frequencyText(freq, label, { source = 'AIO 종가 기록' } = {}
   const excess = freq.outcome === 'excess';
   const [rose, rise, rising, mid] = excess ? [`${freq.versus || '지수'}보다 더 올랐습니다`, '지수 초과', '지수를 앞서', '초과 수익 중앙값'] : ['올랐습니다', '상승', '올라', '중앙값'];
   // Not beyond the base rate: the counts and the base, without a share or median to anchor on.
-  if (evidence.informative === false) return `${label}: ${source}(${span})에서 서로 겹치지 않는 사례 ${freq.n}번의 이후 ${freq.horizon}거래일 흐름은 평소(같은 기록 전체 거래일의 ${freq.baseUpPct}% ${rise})와 표본 오차 안에서 구별되지 않았습니다. 이 조건만으로는 방향을 말할 수 없습니다.${freq.n < 30 ? ' 30번 미만의 작은 표본입니다.' : ''}`;
+  // One sample note for every outcome read-out (evidenceStrength) — under its floor the counts stand alone, with no
+  // share or median; below the full count the figures are marked 참고.
+  const note = evidence.strength.note ? ` ${evidence.strength.note}` : '';
+  if (evidence.informative === false) return `${label}: ${source}(${span})에서 서로 겹치지 않는 사례 ${freq.n}번의 이후 ${freq.horizon}거래일 흐름은 평소(같은 기록 전체 거래일의 ${freq.baseUpPct}% ${rise})와 표본 오차 안에서 구별되지 않았습니다. 이 조건만으로는 방향을 말할 수 없습니다.${note}`;
   const base = evidence.informative ? ` 비슷한 때 ${sharePct}%, 같은 기록 전체 거래일에서는 ${freq.baseUpPct}%가 ${rising}, 둘의 차이가 이 조건이 더하는 정보입니다.` : '';
-  return `${label}: ${source}(${span})에서 서로 겹치지 않는 사례 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 동안 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} ${rose} (${mid} ${signed(freq.median)}${excess ? 'p' : ''}${freq.p25 != null && freq.n >= 8 ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''}).${base}${freq.n < 10 ? ' 표본이 작아 경향 참고용입니다.' : freq.n < 30 ? ' 30번 미만의 작은 표본이라 비율은 참고용입니다.' : ''}`; // R706: 10-29 cases carry a small-sample note (codex audit F09)
+  const figures = evidence.strength.figures ? ` (${mid} ${signed(freq.median)}${excess ? 'p' : ''}${freq.p25 != null ? `, 가운데 절반 ${signed(freq.p25)}~${signed(freq.p75)}` : ''})` : '';
+  return `${label}: ${source}(${span})에서 서로 겹치지 않는 사례 ${freq.n}번 중 ${freq.up}번은 이후 ${freq.horizon}거래일 동안 ${hasFinalConsonant(freq.subject || 'S&P 500') ? `${freq.subject || 'S&P 500'}이` : `${freq.subject || 'S&P 500'}가`} ${rose}${figures}.${base}${note}`; // R706
 }

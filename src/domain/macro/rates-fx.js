@@ -462,12 +462,14 @@ export function fxSideWord(id, change, digits = 1) {
 }
 
 // P2288: one reading of a 20-session USD/KRW move for every 매크로 chapter, on the 환율 axis edges.
-export function wonMoveSentence(pct, { dxy20 = null } = {}) {
+// 보합권 is the move-size grade (src/domain/market/session/move-size.js, the won's own volatility), passed by the
+// caller that holds the history; without a grade no 보합권 is claimed.
+export function wonMoveSentence(pct, { dxy20 = null, grade = null } = {}) {
   const value = finite(pct);
   if (value == null) return '';
   const { krwFlatPct: flat, krwMove20dPct: edge } = RULES.fx;
   const weak = value > 0, size = Math.abs(value);
-  if (size < flat) return ' 원화는 보합권입니다.';
+  if (grade === 'small' || Number(value.toFixed(1)) === 0) return ' 원화는 보합권입니다.';
   // a won move with the dollar index standing still is the won's own (the decomposition on 금리와
   // 환율 attributes all of it to Korea-specific factors) — '조금 약해졌습니다' undersold it beside KOSPI -23.6%.
   const dollar = finite(dxy20);

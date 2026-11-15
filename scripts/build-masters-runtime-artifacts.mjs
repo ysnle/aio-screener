@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
+import { rawHoldingRow, securityMasterBoundary } from './lib/masters-raw-rows.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
 import { readManagerRows, writeManagerRows } from './lib/masters-manager-store.mjs';
@@ -309,8 +309,12 @@ await writeAtomic(path.join(mastersDir, 'history-index.json'), {
   runtimeShardSchema: 'masters-13f-manager-history-runtime.v1',
   managerShards: historyManagerShards
 });
+// The pending security-master counts are derived from the holdings just read, never carried from the previous files.
+const boundary = securityMasterBoundary(holdings);
+await writeAtomic(path.join(mastersDir, 'security-master.json'), { ...securityMaster, coverage: { ...securityMaster.coverage, ...boundary.coverage } });
 await writeAtomic(path.join(mastersDir, 'index.json'), {
   ...mastersIndex,
+  ...boundary.index,
   reviewedAt: holdings.reviewedAt,
   generatedAt,
   latestAvailablePeriod: holdings.latestAvailablePeriod,

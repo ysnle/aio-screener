@@ -1,6 +1,6 @@
 ---
 verified_by: local source review + ledger structure gates (ci-ledger-integrity, ci-record-fix, ci-workflow-compaction); live facts in CURRENT-STATE.md
-last_verified: 2026-11-09
+last_verified: 2026-11-15
 confidence: medium
 target_version: v57.79
 # 규칙 원장 — 원칙 18개(C1~C18)와 그 아래 R 규칙 (2026-10-31 v59.48 재구성)
@@ -11,6 +11,42 @@ target_version: v57.79
 ## 수신함 — 새 규칙은 여기 들어온다
 
 `node scripts/record-fix.mjs`는 새 규칙을 `## R<max+1>.` 헤딩으로 이 파일의 맨 위 `## R` 헤딩 바로 위에 넣는다. 그래서 이 수신함이 파일에서 첫 `## R` 헤딩을 가진다(가장 최근 규칙 하나는 앵커로 남긴다). 새 결함은 먼저 아래 원칙 중 어느 불변식을 어겼는지 보고, 그 원칙의 게이트에 케이스를 더해 막을 수 있으면 새 규칙을 만들지 않는다. 다음 정리 때 수신함 규칙을 해당 원칙 아래로 옮긴다. 핵심 규칙 색인은 수신함 바로 아래다.
+
+## R753. 합치는 수치는 같은 관측일 (v60.19, P2549)
+
+**Rule**: 두 수치를 곱하거나 평균하거나 한 기간에 묶을 때(환율×주가, 상·하단 평균, 슬롯 안 관측) 양쪽은 같은 관측일·같은 구간이어야 한다. 한쪽 날짜가 없으면 다른 날짜로 채우지 않고 그 값을 보류하고 이유를 쓴다.
+
+**Validation**: node scripts/ci-portfolio-native-chart-check.mjs; node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs (v60.19 날짜 경계 사례)
+
+## R752. AI 수치 근거는 값만이 아니라 무엇에 대한 수치인지로 대조 (v60.19, P2543)
+
+**Rule**: AI 답변(구조화 주장·본문·표 셀·도구 결과)의 수치는 근거와 값·단위뿐 아니라 종목·지표·기준(종가/장중)·방향·관측일이 양쪽이 말한 범위에서 모두 일치할 때만 남는다. 표 셀은 행 이름과 열 머리로 읽고, 참조 전용 자료(currentClaimsAllowed=false)는 현재 수치를 지지하지 않는다. 한쪽만 말한 부분으로 근거 있는 서술을 지우지 않는다.
+
+**Validation**: node scripts/ci-ai-intelligence-contract-check.mjs (v60.19 위조 주장·표 셀·부호·지표·기준·예시 사례와 오탐 0 사례)
+
+## R751. 수준과 방향은 각자의 숫자에서 나온다 (v60.18, P2538)
+
+**Rule**: 판정 문장은 수준 상태(선 아래·고점 대비)와 최근 방향(반등·하락·멈춤·횡보)을 따로 말한다. 방향은 src/domain/market/signal/recent-direction.js가 비교한 점(날짜·값)과 함께 쓰고, '… 중'은 오늘 끝나는 구간에만 쓴다. 수준 판정 문장에 진행형 술어(약해지고 있다·꺾이는·약세도 겹쳤다)를 붙이지 않는다. 숫자 없는 hero도 주도주와 지수 각각의 두 판독에서 같은 방식으로 단어를 고른다.
+
+**Validation**: node scripts/ci-metric-consistency-check.mjs (v60.18 week replay) · node scripts/ci-esm-core-unit-check.mjs
+
+## R750. Every past-outcome read-out takes its sample floor and note from evidenceStrength (v60.18, P2537)
+
+**Rule**: A shown past frequency, average or validation verdict states its case count through src/domain/shared/evidence-strength.js: under 10 (an effective count rounded once) only the counts, under 30 marked 참고. No site keeps its own floor or sample wording.
+
+**Validation**: node scripts/ci-scenario-guidance-fixture.mjs
+
+## R749. Weekly and cached artifacts are kept and read by their definition stamp (v60.18, P2535)
+
+**Rule**: A producer's freshness skip and every reader compare the artifact's definition stamp with the live one: a constant generated from the parameters and the source of the functions that compute it (scripts/build-outcome-stamps.mjs, gate-checked against the code), never a hand-bumped version string. A mismatched copy is rebuilt on the next run and refused or labelled on screen until then.
+
+**Validation**: node scripts/ci-scenario-guidance-fixture.mjs
+
+## R748. 판정 화면은 판정을 정한 다리를 다시 추정하지 않는다 (v60.18, P2513)
+
+**Rule**: 여러 다리로 판정이 날 수 있는 축은 판정 함수가 정한 다리와 값(axis.decidedBy)을 돌려주고, 다른 화면의 머리줄·게이지·기준 문장·연결 고리는 그 객체에서만 그린다. 소비 쪽에서 임계값으로 다리를 다시 고르지 않는다.
+
+**Validation**: node scripts/ci-regime-scenarios-fixture.mjs (v60.18 rates decided leg)
 
 ## R747. Freshness grades content by session lag, not only pipeline liveness (v59.85, P2312)
 
@@ -711,7 +747,7 @@ Every "?"/term explanation opens by hover, focus, click and Enter/Space, closes 
 자동 route matrix는 이름·키보드 구조·canvas·font·target·dialog·skip-link 위반만 인증한다. 24px 미만 target은 WCAG inline-text 예외와 실제 위반을 구분한다. 게이트: `ci-accessibility-matrix-check`.
 
 ## R502. Every golden route belongs to shared viewport and accessibility coverage (v54.38, P948)
-Every route in `architecture/golden-routes.json` (the 8 screens plus their legacy aliases) is in the shared viewport, accessibility and lifecycle inventories. 게이트: `ci-viewport-matrix-check`.
+Every route in `architecture/golden-routes.json` (the 9 screens plus their legacy aliases) is in the shared viewport, accessibility and lifecycle inventories. 게이트: `ci-viewport-matrix-check`.
 
 ## R488. Scope gates validate their direct inputs from the committed tree (v54.22)
 **Superseded by R669 (v57.79)**: the desktop-only scope this rule protected was reversed by P1618.
@@ -1017,13 +1053,13 @@ Event/result narratives are reusable context, not perpetual current signals.
 ## R190. 보이는 차트/지표/시세/수치/수식/텍스트 표면은 최신화 감사에 자동 편입한다 (v49.103 added, P466 root)
 
 ## R189. 5개 종합 페이지 개별 데이터는 page profile 심볼/태스크 union으로 최신화한다 (v49.102 added, P465 root)
-On entry, each of the 8 screens reloads the latest published artifacts and labels anything stale; it never produces data.
+On entry, each of the 9 screens reloads the latest published artifacts and labels anything stale; it never produces data.
 **IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 9화면(`architecture/route-owners.json`) 전체다.
 
 ## R188. 전체 데이터 최신화 진행률은 중앙 refresh state를 단일 진실 원천으로 표시한다 (v49.101 added, P464 root)
 
 ## R187. 매매 핵심 페이지(종합 5)는 진입 시 stale하면 즉시 재fetch 의무 (v49.98 added, P463 root)
-On entry, each of the 8 screens reloads the latest published artifacts and labels anything stale; it never produces data.
+On entry, each of the 9 screens reloads the latest published artifacts and labels anything stale; it never produces data.
 **IA 갱신 (v59.48)**: 제목의 종합 5·Critical-10 페이지 묶음은 8화면 이전 이름이다 — 대상은 지금 9화면(`architecture/route-owners.json`) 전체다.
 
 ## R172. MACRO_CALENDAR auto-advance 의무 (v49.83)
@@ -1915,8 +1951,8 @@ AI 호출(`callSharedAi`, v57.81에 `callClaude`에서 개명)이 최종 실패�
 
 ## R144. AI 채팅 멀티턴 윈도잉 + 요약 prepend 의무 (v49.74)
 
-## R143. AI 답변 품질 audit는 8화면 전체 평가 의무 (한국 섹션 포함) (v49.74; v59.48 제목 갱신)
-AI 답변 품질은 한국 섹션을 포함한 8화면 전체에서 평가한다 옛 제목의 11 페이지는 8화면 이전 구조다.
+## R143. AI 답변 품질 audit는 9화면 전체 평가 의무 (한국 섹션 포함) (v49.74; v59.48 제목 갱신)
+AI 답변 품질은 한국 섹션을 포함한 9화면 전체에서 평가한다. 옛 제목의 11 페이지는 9화면 이전 구조다.
 
 ## R142. 모든 정량 인용 시 (출처 · 기준일) 괄호 필수 (v49.73)
 

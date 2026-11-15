@@ -77,6 +77,17 @@ export function mergeSessions(rows, exchangeRows, marketId, nowMs = Date.now()) 
   return { rows: sessions.filter(([, close]) => close != null), gaps: sessions.filter(([date, close]) => close == null && date >= recentFrom).map(([date]) => date) };
 }
 
+/**
+ * Pure: the body to publish for one market. v60.18 (weekly audit D11): while Tokyo trades, Yahoo blanks the previous
+ * session's close, so the merged series ended a session early and the Nikkei basis stepped back every Tokyo morning (11/10
+ * 01:22Z: 11-09 → 11-06 with the 11/6 change -5.96%). A body whose basis is older than the published one is not newer
+ * information: the published body stays (listed as retained), as it does on a failed fetch.
+ */
+export function nextMarketBody(body, previousBody = null) {
+  if (body && !(previousBody?.asOf && body.asOf && body.asOf < previousBody.asOf)) return { body, retained: false };
+  return previousBody ? { body: previousBody, retained: true } : { body: null, retained: false };
+}
+
 async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
@@ -87,10 +98,10 @@ async function main() {
   const failed = [];
   for (const market of TEMPERATURE_MARKETS) {
     const { rows, gaps } = mergeSessions(await dailyCloses(market.symbol), await krExchangeCloses(market.id), market.id);
-    const body = buildMarketTemperature(rows);
-    if (body) markets[market.id] = { label: market.label, symbol: market.symbol, region: market.region, ...body, gaps };
-    else if (previous?.markets?.[market.id]) { markets[market.id] = previous.markets[market.id]; failed.push(market.id); }
-    else failed.push(market.id);
+    const built = buildMarketTemperature(rows);
+    const next = nextMarketBody(built && { label: market.label, symbol: market.symbol, region: market.region, ...built, gaps }, previous?.markets?.[market.id] || null);
+    if (next.body) markets[market.id] = next.body;
+    if (!next.body || next.retained) failed.push(market.id);
   }
   if (!Object.keys(markets).length || failed.length === TEMPERATURE_MARKETS.length) { console.warn('[market-temperature] no market fetched — artifact unchanged'); return; }
   const payload = {

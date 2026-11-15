@@ -70,6 +70,7 @@ export const DATA_PUBLISH_SETS = Object.freeze({
       'public-data/masters/filings.json',
       'public-data/masters/manager-catalog.json',
       'public-data/masters/index.json',
+      'public-data/masters/security-master.json', // its pending-boundary counts follow holdings.json (runtime builder)
       'public-data/masters/holdings.json',
       'public-data/masters/holdings-summary.json',
       'public-data/masters/history-index.json',
@@ -132,7 +133,9 @@ export const DATA_PUBLISH_SETS = Object.freeze({
     beforeCommit: ['node scripts/sec-fundamentals-store.mjs publish'],
     verifyCommit: [CANDIDATE_COMMIT],
     onRebaseFail: 'collision',
-    collision: { workflow: 'refresh-screener.yml', inputs: {} },
+    // v60.18: the re-run is the bot's own cycle, so it goes as a scheduler run; the operator default forced the extended
+    // shard to refetch a current session (2026-11-15 01:31Z: 3,856 rows replaced by 3,669).
+    collision: { workflow: 'refresh-screener.yml', inputs: { trigger: 'scheduler' } },
     ciOrigin: 'refresh-screener',
   }),
   'refresh-screener-extended': Object.freeze({
@@ -166,7 +169,7 @@ export const DATA_PUBLISH_SETS = Object.freeze({
     // Only this workflow writes these files, so a rebase cannot change them; the publisher's own parse check suffices.
     verifyCommit: [],
     onRebaseFail: 'collision',
-    collision: { workflow: 'event-briefs.yml', inputs: {} },
+    collision: { workflow: 'event-briefs.yml', inputs: { trigger: 'scheduler' } }, // v60.19: an automatic re-run, like the two above
     ciOrigin: 'event-briefs',
   }),
 });

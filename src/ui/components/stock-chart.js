@@ -2,7 +2,7 @@
 // already loaded by the shell) and an evidence panel with a setup state. No composite grade.
 import { TEMPLATE_LABEL, analyzeChart, benchmarkFieldFor, chartReading } from '../../domain/technical/chart-analysis.js';
 import { buildCloseSeries, maOrder } from '../../domain/briefing/market-read.js';
-import { readMarketRegime } from './market-regime.js';
+import { readMarketRegime } from '../../data/selectors/interpretation.js';
 import { emptyState } from './empty-state.js';
 import { renderNextSteps } from './page-flow.js';
 import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/chart-scenarios.js';

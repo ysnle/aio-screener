@@ -49,7 +49,9 @@ export const WATCHDOG_DISPATCH_POLICY = Object.freeze({ workflow: 'data-watchdog
 const WATCHDOG_DISPATCH = Object.freeze({
   workflow: WATCHDOG_DISPATCH_POLICY.workflow, ref: WATCHDOG_DISPATCH_POLICY.ref, kvKey: null, recentSuccessMs: WATCHDOG_DISPATCH_POLICY.recentSuccessMs,
   isSlot: at => WATCHDOG_DISPATCH_POLICY.slotMinutes.includes(at.getUTCMinutes()),
-  body: () => ({ ref: WATCHDOG_DISPATCH_POLICY.ref })
+  // v60.19: trigger=scheduler names it as the designed scheduler in the run title, so the SLO counts it (an operator
+  // dispatch keeps the default and stays excluded); data-watchdog.yml and event-briefs.yml declare the input.
+  body: () => ({ ref: WATCHDOG_DISPATCH_POLICY.ref, inputs: { trigger: 'scheduler' } })
 });
 // v59.81 (hosting review 2026-11-08): event-briefs.yml's GitHub cron (:07/:27/:47) ran 28 of 504 slots in 7 days, so the
 // same 5-minute cron dispatches it at :05/:25/:45 when no run is active and none succeeded in the last 15 minutes. It
@@ -58,7 +60,7 @@ export const EVENT_BRIEFS_DISPATCH_POLICY = Object.freeze({ workflow: 'event-bri
 const EVENT_BRIEFS_DISPATCH = Object.freeze({
   workflow: EVENT_BRIEFS_DISPATCH_POLICY.workflow, ref: EVENT_BRIEFS_DISPATCH_POLICY.ref, kvKey: null, recentSuccessMs: EVENT_BRIEFS_DISPATCH_POLICY.recentSuccessMs, cronIsFallback: true,
   isSlot: at => EVENT_BRIEFS_DISPATCH_POLICY.slotMinutes.includes(at.getUTCMinutes()),
-  body: () => ({ ref: EVENT_BRIEFS_DISPATCH_POLICY.ref })
+  body: () => ({ ref: EVENT_BRIEFS_DISPATCH_POLICY.ref, inputs: { trigger: 'scheduler' } })
 });
 const REFRESH_DATA_DISPATCH = Object.freeze({
   workflow: REFRESH_DISPATCH_POLICY.workflow, ref: REFRESH_DISPATCH_POLICY.ref, kvKey: 'scheduler:dispatch', recentSuccessMs: 25 * 60000, cronIsFallback: true,

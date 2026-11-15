@@ -12,7 +12,7 @@
   ],
   "boundary": "Search index of learning surfaces; titles and short texts only. Glossary entries are searched in the page itself.",
   "counts": {
-    "frame": 98,
+    "frame": 99,
     "column": 12,
     "principles-lesson": 112,
     "principles-node": 60,
@@ -21,6 +21,26 @@
     "manager": 38
   },
   "entries": [
+    {
+      "id": "frame:decision-frame-legs",
+      "surface": "frame",
+      "surfaceLabel": "분석 노트",
+      "title": "시나리오 하나를 판단으로 옮길 때 빠지기 쉬운 칸",
+      "text": "\"이 시나리오가 맞을 것 같다\"는 말은 판단의 한 칸만 채운 것입니다. 앱의 시나리오 카드와 내 계획 점검은 같은 다섯 칸으로 읽습니다. 얼마나 자주 그렇게 됐는지(가능성), 맞을 때와 틀릴 때 얼마나 움직였는지(이익·손실 폭), 기다리면 무엇을 놓치는지(기회비용),…",
+      "group": "금융수학·통계",
+      "keys": [
+        "판단의 다섯 칸: 가능성, 폭, 기회비용, 틀렸을 때, 근거 종류",
+        "base-rate",
+        "expected-value"
+      ],
+      "route": {
+        "page": "principles",
+        "params": {
+          "mode": "frames",
+          "node": "decision-frame-legs"
+        }
+      }
+    },
     {
       "id": "frame:geo-mean",
       "surface": "frame",

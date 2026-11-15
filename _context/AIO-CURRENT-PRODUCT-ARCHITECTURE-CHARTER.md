@@ -60,7 +60,7 @@ AIO는 한국어 자기주도 투자자를 위한 **증거 기반 관찰·스크
 
 ## 현재 구조의 역설계
 
-현재 앱은 GitHub Pages 정적 셸 위에 native ESM strangler를 얹은 legacy-first 하이브리드다. 19개 라우트의 lifecycle·renderer·data 소유권은 native로 표시되지만 chart는 일부, narrative는 거의 전부 legacy이고 `fullNativeOwner`는 아직 없다. `window.AIO_ARCH`와 runtime reader는 여전히 legacy 전역을 읽으므로 native 표시는 완전한 writer retirement를 뜻하지 않는다.
+현재 앱은 GitHub Pages 정적 셸 위에 native ESM strangler를 얹은 legacy-first 하이브리드다. 20개 라우트의 lifecycle·renderer·data 소유권은 native로 표시되지만 chart는 일부, narrative는 거의 전부 legacy이고 `fullNativeOwner`는 아직 없다. `window.AIO_ARCH`와 runtime reader는 여전히 legacy 전역을 읽으므로 native 표시는 완전한 writer retirement를 뜻하지 않는다.
 
 현재 병목은 독립 결함이 아니라 하나의 연결된 구조다.
 
@@ -122,7 +122,7 @@ AIO는 한국어 자기주도 투자자를 위한 **증거 기반 관찰·스크
 |---|---|---|---|
 | 제품 의도·전략 | AUDITED | 방향 교정 완료 | 연구 루프와 증거 철학은 유지하고 실시간 단말·주문·범용 AI 범위는 제외했다. |
 | 전체 시스템·신뢰 평면 | AUDITED | 가드레일 완료, 이행 중 | Pages·Cloudflare·데이터·지식·개인정보·AI·운영 증거를 일곱 평면으로 분리했다. |
-| 프런트엔드 레이어·라우트·런타임 소유권 | AUDITED | 구조 이행 필요 | 19개 라우트에 native 표시는 있으나 `fullNativeOwner`는 0이고 legacy writer/facade가 남았다. |
+| 프런트엔드 레이어·라우트·런타임 소유권 | AUDITED | 구조 이행 필요 | 20개 라우트에 native 표시는 있으나 `fullNativeOwner`는 0이고 legacy writer/facade가 남았다. |
 | 디자인·UI·UX·정보 구조 | AUDITED | 자동 증거 부분 완료, 사용자 검증 필요 | 정보 밀도와 연구 흐름은 강하지만 초기 인지 부하·거대 DOM·실사용자 검증이 남았다. |
 | 데이터·출처·신선도·권리 | AUDITED | 가드레일 완료, projection 이행 필요 | allowedUse 단조 제한과 missing/stale 경계는 강화했고 대형 원본의 브라우저 전달은 분리해야 한다. |
 | AI·개인정보·보안 | AUDITED | 가드레일 완료, 운영 검토 필요 | provider 전/출력 전 정책과 암호화 경계를 세웠지만 권리·관할·실서비스 관측은 별도다. |

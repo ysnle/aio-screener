@@ -2,7 +2,7 @@
 // (mix → rotation → trend health → past performance), and where to continue.
 import { buildScreenerRead } from '../../domain/screener/screener-read.js';
 import { summarizeValidation } from './screener-validation.js';
-import { readMarketRegime } from './market-regime.js';
+import { readMarketRegime } from '../../data/selectors/interpretation.js';
 import { renderNextSteps } from './page-flow.js';
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { el } from './dom.js';

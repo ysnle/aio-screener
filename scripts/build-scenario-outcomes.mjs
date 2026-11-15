@@ -7,20 +7,23 @@
 //              ETF did over the next 63 sessions after past days in each stage (주도 지속 / 추세 속 조정 / 반등 / 약세).
 //   corrections — v59.70 (X bookmarks #1): Nasdaq Composite 7% corrections since 1986 and how many became bear markets
 //              (src/domain/scenarios/correction-base-rates.js). ^IXIC is fetched on its own from 1986, not aligned with MARKET.
-// Runs only in GitHub Actions (refresh-data operator slot, skipped while the artifact is under 7 days old). On any
-// fetch failure it keeps the previous artifact. Adding a branch analog or a theme proxy needs no change here.
+// Runs only in GitHub Actions (refresh-data daily lane; weekly by design — skipped while the artifact is under 7 days old
+// AND its definition stamps match the live code, outcome-fingerprints.js). On any fetch failure it keeps the previous
+// artifact. Adding a branch analog or a theme proxy needs no change here.
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { ANALOG_METHOD, BRANCH_ANALOGS, analogOutcome, alignCloses, themeStateOutcomes, THEME_STAGE_RULE } from '../src/domain/scenarios/analogs.js';
+import { ANALOG_METHOD, BRANCH_ANALOGS, THEME_OUTCOME_HORIZON, THEME_OUTCOME_BENCHMARK } from '../src/domain/scenarios/analogs.js';
+import { alignCloses, analogOutcomeHistory, attachMonthlyRate, themeStateOutcomes } from '../src/domain/scenarios/outcome-history.js';
 import { THEME_PROXY_ETF } from '../src/domain/scenarios/exposures.js';
 import { CORRECTION_RULE, correctionBaseRates } from '../src/domain/scenarios/correction-base-rates.js';
+import { SCENARIO_OUTCOMES_SCHEMA, scenarioOutcomeFingerprints, scenarioOutcomesCurrent } from '../src/domain/scenarios/outcome-fingerprints.js';
 import { loadThemeMaps } from './build-scenario-state.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'public-data', 'scenario-outcomes.json');
-export const SCENARIO_OUTCOMES_SCHEMA = 'scenario-outcomes.v1';
+export { SCENARIO_OUTCOMES_SCHEMA };
 const HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
 const REFRESH_AFTER_MS = 7 * 86400000;
 const PERIOD1 = Date.UTC(1990, 0, 1) / 1000;
@@ -44,17 +47,23 @@ async function dailyCloses(symbol, minRows = 500, period1 = PERIOD1) {
   return [];
 }
 
-/** Pure: closes by field/symbol → the artifact body (tested by ci-scenario-guidance-fixture). */
-export function buildScenarioOutcomes({ market = {}, proxies = {}, themeProxy = {}, stageBenchmark = null, nasdaq = null } = {}) {
-  const rows = alignCloses(market);
+/**
+ * Pure: closes by field/symbol → the artifact body (tested by ci-scenario-guidance-fixture and ci-decision-frame-check).
+ * `fedFunds` ([['YYYY-MM', annual %]], macro-history.json long.series.fedFunds) gives each case its month's average policy
+ * rate, so a branch record carries what cash earned over the same sessions (labelled a monthly-average approximation).
+ */
+export function buildScenarioOutcomes({ market = {}, proxies = {}, themeProxy = {}, stageBenchmark = null, nasdaq = null, fedFunds = null } = {}) {
+  const rows = attachMonthlyRate(alignCloses(market), fedFunds);
   // ^TNX quotes the 10-year yield ×10 before 2005-ish on some feeds; values above 20 are rescaled to percent.
   for (const row of rows) if (row.tnx != null && row.tnx > 20) row.tnx /= 10;
   const branches = {};
+  // Each horizon keeps its own quartiles, drawdown and base fields (summariseOutcomes), not a hand-picked subset.
+  const sub = ({ from, to, label, ...record }) => record;
   for (const [id, analog] of Object.entries(BRANCH_ANALOGS)) {
-    const h20 = analogOutcome(rows, analog, { horizon: 20 });
+    const h20 = analogOutcomeHistory(rows, analog, { horizon: 20 });
     if (!h20) continue;
-    const h63 = analogOutcome(rows, analog, { horizon: 63 });
-    branches[id] = { ...h20, h63: h63 ? { n: h63.n, up: h63.up, median: h63.median, p25: h63.p25, p75: h63.p75, horizon: 63 } : null, label: analog.label };
+    const h63 = analogOutcomeHistory(rows, analog, { horizon: 63 });
+    branches[id] = { ...h20, h63: h63 ? sub(h63) : null, label: analog.label };
   }
   const themes = {};
   for (const [themeId, symbol] of Object.entries(themeProxy)) {
@@ -62,17 +71,26 @@ export function buildScenarioOutcomes({ market = {}, proxies = {}, themeProxy = 
     if (!closes?.length) continue;
     // v57.84 (owner decision): past stages on the live rule — returns less the index with the same bands (basis 'relative-banded').
     // Audit 2026-10-17 (owner D5): the live US stage reads against the equal-weight S&P 500 (RSP); ^GSPC only without it.
+    // A ^GSPC fallback row carries the ^GSPC stamp, so the screen does not read it against RSP and the next run retries.
     const ew = stageBenchmark?.length ? stageBenchmark : null;
-    themes[themeId] = { symbol, ...themeStateOutcomes(closes, { horizon: 63, benchmark: ew || market.spx || null, benchmarkField: ew ? 'rsp' : 'spx' }) };
+    themes[themeId] = { symbol, ...themeStateOutcomes(closes, { horizon: THEME_OUTCOME_HORIZON, benchmark: ew || market.spx || null, benchmarkField: ew ? THEME_OUTCOME_BENCHMARK : 'spx' }) };
   }
   return { branches, themes, corrections: nasdaq?.length ? correctionBaseRates(nasdaq) : null, from: rows[0]?.date || null, to: rows.at(-1)?.date || null };
+}
+
+/**
+ * The weekly skip. A copy is kept only while it is current, under 7 days old, carries the correction counts and was
+ * computed on today's definitions (file and per-theme stamps) — not on a hand-bumped rule string, which stayed the same
+ * across the own-return → excess outcome change and kept the old file a week.
+ */
+export function skipRebuild(previous, nowMs = Date.now()) {
+  return previous?.status === 'current' && !!previous.corrections && nowMs - Date.parse(previous.generatedAt || '') < REFRESH_AFTER_MS && scenarioOutcomesCurrent(previous, THEME_OUTCOME_BENCHMARK);
 }
 
 async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
-  const ruleCurrent = Object.values(previous?.themes || {}).every((theme) => theme?.rule === THEME_STAGE_RULE);
-  if (previous?.status === 'current' && ruleCurrent && previous?.corrections && Date.now() - Date.parse(previous.generatedAt || '') < REFRESH_AFTER_MS && process.env.SCENARIO_OUTCOMES_FORCE !== '1') {
+  if (skipRebuild(previous) && process.env.SCENARIO_OUTCOMES_FORCE !== '1') {
     console.log(`[scenario-outcomes] fresh (${previous.generatedAt}) — skipping`); return;
   }
   const today = new Date().toISOString().slice(0, 10);
@@ -85,10 +103,15 @@ async function main() {
   for (const symbol of new Set(Object.values(themeProxy))) proxies[symbol] = completed(await dailyCloses(symbol, 300));
   const stageBenchmark = completed(await dailyCloses('RSP', 2000));
   const nasdaq = completed(await dailyCloses('^IXIC', 9000, Date.parse(`${CORRECTION_RULE.since}T00:00:00Z`) / 1000));
-  const body = buildScenarioOutcomes({ market, proxies, themeProxy, stageBenchmark, nasdaq });
-  // A failed ^IXIC fetch keeps the previous week's correction counts instead of dropping the line.
-  if (!body.corrections && previous?.corrections) body.corrections = previous.corrections;
-  const payload = { schemaVersion: SCENARIO_OUTCOMES_SCHEMA, status: 'current', generatedAt: new Date().toISOString(),
+  // The committed monthly policy rate (FRED via the macro-history producer); without it the cash leg stays empty.
+  let fedFunds = null;
+  try { fedFunds = JSON.parse(await readFile(path.join(ROOT, 'public-data', 'macro-history.json'), 'utf8'))?.long?.series?.fedFunds?.observations || null; } catch { /* no cash leg */ }
+  const body = buildScenarioOutcomes({ market, proxies, themeProxy, stageBenchmark, nasdaq, fedFunds });
+  // A failed ^IXIC fetch keeps the previous week's correction counts instead of dropping the line — only when they were
+  // counted on the same definition.
+  const fingerprints = scenarioOutcomeFingerprints();
+  if (!body.corrections && previous?.corrections && previous?.fingerprints?.corrections === fingerprints.corrections) body.corrections = previous.corrections;
+  const payload = { schemaVersion: SCENARIO_OUTCOMES_SCHEMA, status: 'current', generatedAt: new Date().toISOString(), fingerprints,
     source: 'Yahoo Finance 일봉 종가 (^GSPC, ^IXIC, ^TNX, ^VIX, CL=F, DX-Y.NYB, RSP, 테마 대표 ETF)', sourceKind: 'T3_PUBLIC_DELAYED', sourceLabel: '장기 일봉 기록', method: ANALOG_METHOD, // owner 2026-10-19: market-move proxies; a share is read only beyond the base rate
     returnBasis: '가격 수익률(배당 제외), 거래일 기준 · 겹치지 않는 표본', ...body };
   await atomicWriteFile(OUT, JSON.stringify(payload));

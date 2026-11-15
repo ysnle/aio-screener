@@ -426,6 +426,28 @@ check('v59.44 a report with no hour is not timed against a session', () => {
   const brief = noHour.briefs.find((row) => row.symbol === 'INTC');
   same([brief?.status, brief?.reaction], ['provisional', undefined]);
 });
+// v60.18 (weekly audit 2026-11-15): NU said "원문 요약 정리 중" from 11/12 21:05Z for days, as CAMT/NVMI/OKLO did; the wait
+// had no bound. A day after the report the headline says the figures are the provider's; a filing found later still wins.
+{
+  const { PROVISIONAL_SUMMARY_WAIT_MS, overdueProvisional, provisionalWaiting } = await import('../src/domain/briefing/event-briefs.js');
+  const nuRow = { ...intcRow, date: sources.manifest.now.slice(0, 10) };
+  const opened = await buildEventBriefs({ ...base, previous: null, nowMs: nowMs + 2 * 3600000, earningsRows: [...base.earningsRows, nuRow], extended: storyMover });
+  const later = nowMs + PROVISIONAL_SUMMARY_WAIT_MS + 6 * 3600000;
+  // The calendar row has rolled off by then (earningsRows without it): the stored brief alone must close.
+  const closed = await buildEventBriefs({ ...base, previous: opened, nowMs: later, earningsRows: base.earningsRows, extended: storyMover });
+  const stillListed = await buildEventBriefs({ ...base, previous: opened, nowMs: later, earningsRows: [...base.earningsRows, { ...nuRow, revenueActual: 16600000000 }], extended: storyMover });
+  check('v60.18 a calendar-only brief stops saying 정리 중 after the wait, with or without its calendar row', () => {
+    const before = opened.briefs.find((row) => row.symbol === 'INTC');
+    ok(provisionalWaiting(before) && !overdueProvisional(before, Date.parse(opened.generatedAt)), before?.headline);
+    for (const run of [closed, stillListed]) {
+      const brief = run.briefs.find((row) => row.symbol === 'INTC');
+      same([brief?.status, brief?.headline, overdueProvisional(brief, Date.parse(run.generatedAt))], ['provisional', '인텔 실적 발표: 제공처 집계', false]);
+      ok(!run.briefs.some((row) => overdueProvisional(row, Date.parse(run.generatedAt))), 'no overdue placeholder in the produced artifact');
+    }
+    eq(closed.provisionalWaitMs, PROVISIONAL_SUMMARY_WAIT_MS);
+  });
+}
+
 // A story name that files on 6-K (ASML): its results 6-K is summarised; another 6-K is skipped.
 Object.assign(sources.manifest.secTickers, { ASML: 937966 });
 sources.manifest.secFilings['937966'] = [{ accession: 'asml-6k-results', form: '6-K', items: '', filingDate: '2026-10-28', acceptedAt: '2026-10-28T05:00:00.000Z' },
@@ -436,6 +458,23 @@ const foreign = await buildEventBriefs({ ...base, previous: null, nowMs, earning
 check('v59.44 a story name filing on 6-K is matched on its results 6-K only', () => {
   same(foreign.briefs.filter((row) => row.symbol === 'ASML').map((row) => [row.id, row.source?.title]), [['earnings-ASML-asml-6k-results', 'SEC 6-K EX-99.1']]);
 });
+// v60.18 (weekly audit 2026-11-15, TSM 11/13): TSMC's reviewed third-quarter statements (6-K weeks after the 10/15 release)
+// became a "3분기 실적" event on 11/13. The statements carry a review report, a notes section and note-cited line items.
+{
+  const { looksLikeQuarterlyResults, looksLikeFinancialStatements } = await import('./lib/sec-results-filings.mjs');
+  const statements = ['Taiwan Semiconductor Manufacturing Company Limited Consolidated Financial Statements for the Three Months and Nine Months Ended September 30, 2026 and 2025',
+    'INDEPENDENT AUDITORS\' REVIEW REPORT', 'CONSOLIDATED STATEMENTS OF COMPREHENSIVE INCOME', 'NET REVENUE (Notes 26 and 37) 1,494,243,284 100 third quarter',
+    'INCOME FROM OPERATIONS (Note 37) 876,445,164 59', 'NET INCOME 763,340,827', 'Diluted earnings per share $ 29.43 $ 17.44 (Note 30)',
+    'NOTES TO CONSOLIDATED FINANCIAL STATEMENTS'].join('\n');
+  const noteCitedOnly = statements.replace("INDEPENDENT AUDITORS' REVIEW REPORT", '').replace('NOTES TO CONSOLIDATED FINANCIAL STATEMENTS', '');
+  const release = readFileSync(resolve(fixtureDir, 'msft-ex991.synthetic.txt'), 'utf8');
+  check('v60.18 a 6-K of reviewed interim statements is not a results release; the release still is', () => {
+    eq(looksLikeQuarterlyResults(statements), false);
+    eq(looksLikeFinancialStatements(noteCitedOnly), true, 'three note-cited line items read as statements without the headings');
+    eq(looksLikeQuarterlyResults(release), true);
+    eq(looksLikeFinancialStatements('Net revenue grew 20% in the third quarter (see Note 1 below).'), false, 'one note mention in a release is not statements');
+  });
+}
 
 // v59.56: the market reading is handed the reports whose sessions closed on its US close (the 10/30 reading never saw them).
 check('v59.56 earnings context: the close\'s own reports and leaders first, figures and reasons from the brief', () => {
@@ -636,6 +675,23 @@ check('v59.56 cash-flow lane in the reading: the group line always, an issuer li
   check('v59.85 KR weights: a missed session is caught up before the next open', () => eq(due('2026-11-08T23:30:00Z', '2026-11-05'), true));
   check('v59.85 KR weights: the same session is not refetched', () => eq(due('2026-11-09T09:00:00Z', '2026-11-09'), false));
   check('v59.85 KR weights: a missed session is not caught up while the next one trades', () => eq(due('2026-11-10T01:00:00Z', '2026-11-06'), false));
+}
+
+// v60.18 artifact gate: the published file holds no calendar-only brief still saying "정리 중" past the wait, measured at its
+// own generatedAt. A file written before the bound existed (no provisionalWaitMs) is reported, not failed: the next
+// 20-minute event-briefs run rewrites it under the bound.
+{
+  const { overdueProvisional, PROVISIONAL_SUMMARY_WAIT_MS } = await import('../src/domain/briefing/event-briefs.js');
+  const published = JSON.parse(readFileSync(resolve(root, 'public-data/event-briefs.json'), 'utf8'));
+  const at = Date.parse(published.generatedAt);
+  const overdue = (published.briefs || []).filter((brief) => overdueProvisional(brief, at))
+    .map((brief) => `${brief.id} ${Math.round((at - Date.parse(brief.publishedAt)) / 3600000)}h`);
+  if (published.provisionalWaitMs == null) {
+    if (overdue.length) console.warn(`[event-briefs] artifact predates the v60.18 placeholder bound; ${overdue.length} overdue placeholder(s) close on the next run: ${overdue.join(', ')}`);
+  } else check('v60.18 the published artifact holds no placeholder older than the wait', () => {
+    eq(published.provisionalWaitMs, PROVISIONAL_SUMMARY_WAIT_MS);
+    same(overdue, []);
+  });
 }
 
 if (failures.length) {

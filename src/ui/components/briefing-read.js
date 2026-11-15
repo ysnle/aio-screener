@@ -447,9 +447,6 @@ function renderMoveChart(doc, anchor, moves) {
 
 function fmtMove(value, unit) {
   if (!Number.isFinite(value)) return '—';
-  const digits = unit === 'bp' ? 0 : 1;
-  // v58.69: 원/달러 -0.03% printed "-0.0%"; a move that rounds to zero is printed unsigned.
-  const text = value.toFixed(digits);
-  if (Number(text) === 0) return `${(0).toFixed(digits)}${unit}`;
-  return `${value > 0 ? '+' : ''}${text}${unit}`;
+  // A move that rounds to zero is printed unsigned (원/달러 -0.03% once read "-0.0%"); the shared formatter owns that rule.
+  return signedText(value, unit === 'bp' ? 0 : 1, unit);
 }

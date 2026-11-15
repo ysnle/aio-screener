@@ -18,6 +18,14 @@
 //   N4 no repeat  — the same inputs as a blocked attempt, within its sentence day, make no model call (P2000).
 //   N5 new day    — the first run of a new 08:00 KST sentence day never reuses without a model call.
 //   N6 quarantine — a narrative restored by lane quarantine is null or a verified reading within 12 h (P1986).
+//   N7 outage     — a provider that does not answer (an empty answer or a thrown timeout) never drops a verified reading
+//                   under 12 h that this run's validator still passes (v60.18: on 11/10 a 429 left 25 runs with figures
+//                   only, and a thrown failure went straight to the plain fallback).
+// Model answers (events): good, bad-good, bad-bad, salvage, empty (no text, e.g. HTTP 429) and throws (AbortError).
+// Not an event here: a validator that throws (review v60.19 B6) ends the run in the plain fallback (reason
+// validator-error) with no reading kept, which no invariant above can be broken by; ci-market-reading-week-fixture
+// checks that scene. The rejection log (recordRejections, written by default) and the validator seam are run with the
+// log off and the real validator here.
 //
 // Self-check (pstack create/maintain-formal-verification): the covered functions are fingerprinted in
 // architecture/model-check-coverage.json, and each VARIANT below (pre-P2000 and pre-P1986 code, a removed guard) must
@@ -52,6 +60,10 @@ const VARIANTS = [
   { label: '검증 없는 줄 빼기', expect: ['N1', 'N3'], chart: false, module: 'scripts/producer/market-narrative.mjs', replacements: [
     ['.find((row) => row.ok);', '.find((row) => row.ok) || { ok: true, text, removed: [], semantic: { ...semantic, ok: true } };'],
   ] },
+  // v60.18: before, a thrown provider failure skipped the retain path.
+  { label: 'v60.18 이전 코드(던진 실패는 바로 지표만)', expect: ['N7'], module: 'scripts/producer/market-narrative.mjs', replacements: [
+    ["return retainOrFallback(error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error');", "return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence, keep);"],
+  ] },
 ];
 
 // Fixture material from the P1719 scene (ci-data-pipeline-contract-check): the good answer passes, the bad one blocks.
@@ -72,7 +84,8 @@ const TIME_STEPS = {
 const SALVAGE_BAD_LINE = 'S&P 500은 7,100으로 마감했다.';
 const SALVAGEABLE = ['S&P 500은 10월 12일 7,807.24로 마감했다.', '코스피는 5.46% 하락했다.', SALVAGE_BAD_LINE, '위험 선호는 제한적이다.',
   '외국인 수급은 다음 관측으로 확인할 대목이다.', '다음 세션의 방향은 아직 정해지지 않았다.'].join('\n');
-const PROVIDERS = { good: [GOOD], 'bad-good': [BAD, GOOD], 'bad-bad': [BAD, BAD], salvage: [SALVAGEABLE, SALVAGEABLE], empty: [null] };
+const PROVIDERS = { good: [GOOD], 'bad-good': [BAD, GOOD], 'bad-bad': [BAD, BAD], salvage: [SALVAGEABLE, SALVAGEABLE], empty: [null], throws: [] };
+const OUTAGE = new Set(['empty', 'throws']);
 const EVENTS = [];
 for (const time of Object.keys(TIME_STEPS)) for (const inputs of ['same', 'changed']) for (const provider of Object.keys(PROVIDERS)) EVENTS.push({ time, inputs, provider });
 
@@ -124,11 +137,15 @@ async function explore({ genMarketAnalysis, applyMarketAnalysis, applyLaneQuaran
     const version = state.version + (event.inputs === 'changed' ? 1 : 0);
     const answers = [...PROVIDERS[event.provider]];
     let calls = 0;
-    const request = async () => { calls++; return { text: answers.shift() ?? null }; };
+    const request = async () => {
+      calls++;
+      if (event.provider === 'throws') { const error = new Error('timeout'); error.name = 'AbortError'; throw error; }
+      return { text: answers.shift() ?? null };
+    };
     clockMs = nowMs;
     const data = { meta: { generatedAt: new RealDate(nowMs).toISOString() }, news: [], macro: {} };
     const out = await genMarketAnalysis(data, snapshotFor(version), { previous: state.published, request, nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null,
-      eventBriefs: null, bigtechCashflow: null });
+      eventBriefs: null, bigtechCashflow: null, recordRejections: null });
     applyMarketAnalysis(data, out, { previous: state.published, nowMs });
     return { nowMs, version, published: data.marketAnalysis, meta: data.meta, calls };
   }
@@ -158,10 +175,13 @@ async function explore({ genMarketAnalysis, applyMarketAnalysis, applyLaneQuaran
     const newDay = sentenceDay(next.nowMs) !== sentenceDay(prev.nowMs);
     if (newDay && prev.published && next.calls === 0) note('N5-new-day-without-call', trace, reading?.generatedAt);
     if (!reading) note('N0-no-reading-published', trace, next.meta);
+    // N7: the fixture's good answer passes on every snapshot version, so a verified candidate under 12 h always revalidates.
+    const candidate = prev.published?.status === 'verified' ? prev.published : prev.published?.lastVerified || null;
+    if (next.calls > 0 && OUTAGE.has(event.provider) && verifiedOk(candidate, next.nowMs) && reading?.status !== 'verified') note('N7-outage-dropped-verified-reading', trace, reading?.reason);
     const aged = prev.published?.status === 'verified' && !ageOk(prev.published, next.nowMs) ? '검증본이 12시간 넘게 지나 ' : '';
     const label = repeated ? '같은 막힌 입력인데 모델을 다시 호출'
       : next.calls === 0 ? (prev.published?.blockedAttemptKey && sameInputs ? `${aged}막힌 입력 그대로 → 모델 호출 없음` : '자료 변화 없음 → 모델 호출 없이 재사용')
-      : `${aged}모델 답 ${event.provider === 'salvage' ? '틀린 줄을 빼고 검증 통과' : PASSING.has(event.provider) ? '검증 통과' : '불합격'}`;
+      : OUTAGE.has(event.provider) ? `${aged}제공처 응답 없음` : `${aged}모델 답 ${event.provider === 'salvage' ? '틀린 줄을 빼고 검증 통과' : PASSING.has(event.provider) ? '검증 통과' : '불합격'}`;
     next.card = cardState(reading, next.nowMs, seen);
     chart.add(prev.card, next.card, label, variant, trace.join('>'));
   }
@@ -267,9 +287,9 @@ if (dir) {
     command: 'node scripts/ci-narrative-lifecycle-model-check.mjs --chart <폴더>',
     reading: [
       `홈의 AI 시황 해설은 30분마다 다시 만들어집니다. 카드에 보일 수 있는 상태는 다섯 가지입니다. 새로 검증된 해설, 재사용, 직전 검증본, 확인된 지표만, 해설 없음입니다. 모델 답이 검증을 통과하지 못하면 12시간 안의 직전 검증본을 보여 주고, 그마저 없으면 지표만 보여 줍니다.`,
-      `이 그림은 실제 해설 생성기를 연속 ${DEPTH}회까지 모든 조합(${real.runs.toLocaleString('en-US')}회 실행)으로 돌려 얻은 전이입니다. 빨간 선은 과거 결함을 그때 코드로 재현한 경로입니다. P2000은 막힌 입력으로 모델을 계속 다시 부르던 결함이고, P1986은 레인 격리가 검증 안 된 해설을 되돌리던 결함입니다. 초록 선은 지금 코드가 같은 상황에서 가는 경로입니다. 현재 코드는 여섯 규칙 모두 위반 0건입니다.`,
+      `이 그림은 실제 해설 생성기를 연속 ${DEPTH}회까지 모든 조합(${real.runs.toLocaleString('en-US')}회 실행)으로 돌려 얻은 전이입니다. 빨간 선은 과거 결함을 그때 코드로 재현한 경로입니다. P2000은 막힌 입력으로 모델을 계속 다시 부르던 결함이고, P1986은 레인 격리가 검증 안 된 해설을 되돌리던 결함입니다. 초록 선은 지금 코드가 같은 상황에서 가는 경로입니다. 현재 코드는 일곱 규칙 모두 위반 0건입니다.`,
     ],
   });
 }
-console.log(JSON.stringify({ ok: true, depth: DEPTH, runs: real.runs, states: real.states, outcomes: Object.fromEntries(real.outcomes), invariants: ['N1', 'N2', 'N3', 'N4', 'N5', 'N6'],
+console.log(JSON.stringify({ ok: true, depth: DEPTH, runs: real.runs, states: real.states, outcomes: Object.fromEntries(real.outcomes), invariants: ['N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7'],
   variants: variantResults.map(({ variant, broken }) => ({ variant, broken })), synced: sync, chartEdges: chart.edgeCount() }));

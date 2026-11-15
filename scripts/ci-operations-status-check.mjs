@@ -10,7 +10,12 @@ const { default: fs } = await import('node:fs');
 const { default: path } = await import('node:path');
 const { fileURLToPath } = await import('node:url');
 const { OPERATIONS_STATUS, DOMAIN_RECEIPT_PUBLICATION_STATUS, createOperationsStatus, validateOperationsStatus } = await import('../src/data/contracts/operations.js');
-const { deriveDurableFreshness, deriveDomainStatus, deriveFastQuoteAvailability, deriveFredProviderStatus, derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence } = await import('./build-operations-status.mjs');
+const { deriveDurableFreshness, deriveDomainStatus, deriveFastQuoteAvailability, deriveFredProviderStatus, derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence, deriveOverall } = await import('./build-operations-status.mjs');
+// v60.18: overall follows the blockers (it was OPERATOR_REQUIRED all week with blockers []); every combination of the two inputs.
+for (const durableOk of [true, false]) for (const blockers of [[], ['ai_proxy_deploy_or_readiness_required']]) {
+  const expected = !durableOk ? 'BLOCKED' : blockers.length ? 'OPERATOR_REQUIRED' : 'CURRENT';
+  if (deriveOverall({ durableOk, blockers }) !== expected) throw new Error(`[operations-status] v60.18 overall for durableOk=${durableOk} blockers=${blockers.length} must be ${expected}`);
+}
 const { buildDomainReceipt } = await import('./lib/domain-receipt.mjs');
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');

@@ -18,10 +18,12 @@ export function formatPayrollChange(thousands) {
   return `${value > 0 ? '+' : value < 0 ? '-' : ''}${Number((Math.abs(value) / 10).toFixed(1)).toLocaleString('en-US')}만 명`;
 }
 
+// '직전' names the month of the print it shows: a held September CPI read as the latest release beside the next date.
+const printMonth = (snap, key) => { const month = Number(String(snap?._fieldTs?.[`macro_${key}`] || '').slice(5, 7)); return month ? `(${month}월분)` : ''; };
 const RELEASE_PROFILES = Object.freeze({
   'us-nfp': { label: '미국 고용보고서 (비농업 고용·실업률)', et: [8, 30], why: '고용이 강하면 금리를 높게 둘 근거가 커져 금리·달러 상승 요인', last: (snap) => formatPayrollChange(snap.nfp) != null && snap.unemployment != null ? `직전 ${formatPayrollChange(snap.nfp)}, 실업률 ${snap.unemployment}%` : null },
-  'us-cpi': { label: '미국 소비자물가 (CPI)', et: [8, 30], why: '예상보다 높으면 금리 상승·성장주 부담', last: (snap) => snap.cpi != null ? `직전 ${snap.cpi}%, 근원 ${snap.coreCpi ?? '—'}%` : null },
-  'us-pce': { label: '미국 PCE 물가', et: [8, 30], why: '연준이 가장 중시하는 물가 지표', last: (snap) => snap.pce != null ? `직전 ${snap.pce}%, 근원 ${snap.corePce ?? '—'}%` : null },
+  'us-cpi': { label: '미국 소비자물가 (CPI)', et: [8, 30], why: '예상보다 높으면 금리 상승·성장주 부담', last: (snap) => snap.cpi != null ? `직전 ${snap.cpi}%${printMonth(snap, 'cpi')}, 근원 ${snap.coreCpi ?? '—'}%${printMonth(snap, 'coreCpi')}` : null },
+  'us-pce': { label: '미국 PCE 물가', et: [8, 30], why: '연준이 가장 중시하는 물가 지표', last: (snap) => snap.pce != null ? `직전 ${snap.pce}%${printMonth(snap, 'pce')}, 근원 ${snap.corePce ?? '—'}%${printMonth(snap, 'corePce')}` : null },
   'us-ism-mfg': { label: 'ISM 제조업 지수', et: [10, 0], why: '50 위면 제조업 확장, 경기 방향 확인', last: (snap) => snap.ismPmi != null ? `직전 ${snap.ismPmi}` : null },
   'us-ism-svc': { label: 'ISM 서비스업 지수', et: [10, 0], why: '미국 경제의 대부분인 서비스 경기 확인', last: (snap) => snap.ismSvc != null ? `직전 ${snap.ismSvc}` : null },
   'us-retail': { label: '미국 소매판매', et: [8, 30], why: '소비 경기 확인', last: (snap) => snap.retailSales != null ? `직전 ${snap.retailSales}%` : null },

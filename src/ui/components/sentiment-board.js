@@ -18,7 +18,7 @@ import { computeCompositeFearGreed, shortRankSample } from '../../domain/market/
 import { el } from './dom.js';
 import { gaugeBar } from './gauge-bar.js';
 import { noteFold } from './section-frame.js';
-import { splitReading } from './market-regime.js';
+import { splitReading } from './reading-split.js';
 import { signedText, readNumber as finite } from '../../domain/shared/number.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { historyWaitText } from './data-state.js';

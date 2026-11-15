@@ -417,7 +417,13 @@ let sequence = null;
   assert.equal(quiet.requests.length, 1, 'v60.02 an answer without calls is one request'); assert.equal(quiet.done[0][1].searchCalls, 0, 'v60.02 an attached search the model did not run counts zero calls');
   assert.equal(searchStatusText({ attached: true, citationCount: 0, searchCalls: quiet.done[0][1].searchCalls }), '웹검색 없이 앱 자료와 일반 지식으로 답했습니다.', 'v60.02 an answer that neither searched nor called says not searched');
   const forced = await scenario({ responses: [asks([call('trend', { symbol: 'NVDA' }, 1)]), answer('강제 검색 뒤 답합니다')], webSearch: true, mustSearch: true });
-  assert.deepEqual(forced.requests.map((body) => body.tool_choice), ['required', 'auto'], 'v60.02 a forced search is required on the first request only');
+  // v60.19 (external audit): a forced search satisfied by a data call alone kept the search owed; the follow-up was
+  // 'auto' and the answer ended with no search. The follow-up now offers the search alone, still required.
+  assert.deepEqual(forced.requests.map((body) => body.tool_choice), ['required', 'required'], 'v60.19 a forced search not yet run stays required on the follow-up');
+  assert.deepEqual(forced.requests[1].tools.map((tool) => tool.type), ['web_search'], 'v60.19 the follow-up of a forced search that has not run offers the search alone');
+  forced.requests.forEach((body) => assert(prepareOpenAiBudget(body, searchOn).searchReserveMicroUsd > 0, 'v60.19 both forced-search requests pass the Worker admission'));
+  const forcedSearched = await scenario({ responses: [searched([call('trend', { symbol: 'NVDA' }, 1)], '검색과 자료 요청', 'https://example.com/a'), answer('검색 뒤 답합니다')], webSearch: true, mustSearch: true });
+  assert.deepEqual(forcedSearched.requests.map((body) => body.tool_choice), ['required', 'auto'], 'v60.19 once the forced search ran, the next round is auto with the functions');
   const plain = await scenario({ responses: [answer('검색 없이 답합니다')], webSearch: false });
   assert(plain.requests[0].tools.every((tool) => tool.type === 'function') && plain.done[0][1].searchCalls === null, 'v60.02 without search the functions still go and no search count is reported');
   const refused = await scenario({ responses: [{ status: 400, message: 'hosted search cannot mix with custom functions' }, answer('검색만으로 답합니다')], webSearch: true });

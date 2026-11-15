@@ -39,7 +39,8 @@ export function readPreviousPlanes(previous) {
     fredDexkous: previous && previous.providerCrossChecks && previous.providerCrossChecks.fx && previous.providerCrossChecks.fx.official || null,
     marketSurveys: previous && previous.marketSurveys || null,
     fearGreed: previous && previous.fearGreed || null,
-    news: previous && Array.isArray(previous.news) ? previous.news : null
+    news: previous && Array.isArray(previous.news) ? previous.news : null,
+    newsIntraday: previous && Array.isArray(previous.newsIntraday) ? previous.newsIntraday : null
   };
 }
 
@@ -60,7 +61,8 @@ export function sourcePlanes({ prior, attemptedAt, env = process.env, blsRelease
         attemptedAt, fetchedAt: null, failureReason: 'fear-greed-plane-failed'
       }) },
     // 2026-10-19: same-cycle articles stay candidates (carriedNewsCandidates).
-    { id: 'news', label: 'news', run: () => fetchNews(Date.parse(attemptedAt), { carry: prior.news }),
+    // v60.18: the macro calendar's release dates let a headline naming the day's scheduled release rank as the day's story.
+    { id: 'news', label: 'news', run: () => fetchNews(Date.parse(attemptedAt), { carry: prior.news, carryIntraday: prior.newsIntraday, schedules: blsReleaseSchedules }),
       fallback: () => (prior.news && prior.news.length ? prior.news : []) },
     // v59.70: the Cboe put/call plane is deleted (owner 11/4: Cboe terms forbid storing and redistributing its statistics).
     { id: 'bls', label: 'BLS', run: () => fetchBlsSeries(prior.bls, { releaseSchedules: blsReleaseSchedules }),

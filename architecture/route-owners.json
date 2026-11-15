@@ -204,8 +204,6 @@
       "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-macro #macro-board",
-        "#page-macro [data-live-price]",
-        "#page-macro [data-live-chg]",
         "#page-macro #macro-regime"
       ],
       "nativeSecondarySurface": [
@@ -214,7 +212,8 @@
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
-        "js/aio-data.js: shared live quote/snapshot passes fence native macro elements (WTI/Gold cells and the KR section)"
+        "js/aio-data.js: shared live quote/snapshot passes fence native macro elements (WTI/Gold cells and the KR section)",
+        "v60.19 (Codex audit, verify-aio registry): 매크로 shows official releases only since the v59.51 restructure; it has no live price/change cells, so #page-macro [data-live-price]/[data-live-chg] left the declared surfaces"
       ],
       "notes": "P1425 (owner review 2026-10-03) rebuilt 거시 경제 as one native board; rates/FX/credit moved to the 금리 · 환율 tab.",
       "p1425Boundary": "macro-board.js renders the official monthly releases (policy rate, inflation, labor, consumption/housing) from the published data.json macro block with reference month, release date, next release and source. The legacy storyline, regime pill, thermometer, scenario tree, economic calendar, yield-curve canvas and FRED browser charts were deleted with their DOM.",

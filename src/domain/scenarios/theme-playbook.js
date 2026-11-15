@@ -11,14 +11,12 @@
 // Rotation is read from all themes at once: which exposure tags gained and lost over the month.
 // No price, size, timing or named stock; stock-level selection stays on the theme, chart, company and screener screens.
 import { median } from '../themes/theme-medians.js'; // v59.70 (R9)
-import { CHOICE_WORDS } from '../content/choice-words.js';
 import { creditStable } from '../market/interpretation/concepts.js';
 import { withSubjectParticle, withDirectionParticle } from '../content/korean-particle.js';
 import { EXPOSURE_TAGS, WIND_LABELS, themeProfile, windFor } from './exposures.js';
-import { THEME_STATES, THEME_STAGE_RULE, themeStateOf, frequencyText, pastEvidence, inlineDrift, INLINE_DRIFT_LABELS } from './analogs.js';
-import { CHOICES } from '../market/regime/macro-crossroads.js';
+import { THEME_STATES, THEME_OUTCOME_BENCHMARK, themeOutcomeCurrent, themeStateOf, frequencyText, pastEvidence, inlineDrift, INLINE_DRIFT_LABELS } from './analogs.js';
 import { scenarioLead } from '../market/regime/scenario-lead.js';
-import { marketWindowReturns, recentMove, recentMoveText, relativeBand, weeklyNoiseFromVol, WINDOW_LABELS } from '../themes/recent-check.js';
+import { marketWindowReturns, recentMove, recentMoveText, relativeBand, weeklyNoiseFromVol, NOISE_MULTIPLE, WINDOW_LABELS } from '../themes/recent-check.js';
 import { signedText, finiteNumber as finite } from '../shared/number.js';
 
 // v58.75: the playbook version lives in theme-stage.js (v59.45), re-exported here for every existing import.
@@ -30,8 +28,12 @@ const shortDay = (date) => { const [, m, d] = String(date || '').split('-').map(
 /** The index each market's themes are measured against (history field, reader name). */
 // Audit 2026-10-17 (owner D5): a theme's stage is an equal-weight median, so the US stage reads against the equal-weight
 // S&P 500 (RSP) — against the cap-weighted index a few mega-caps leading put almost every theme behind at once. The
-// cap-weighted S&P 500 is shown beside it, and stays the basis while RSP has no close or six-month window on that date.
-export const THEME_BENCHMARKS = Object.freeze({ US: { field: 'rsp', name: 'S&P 500 동일가중', fallback: { field: 'spx', name: 'S&P 500' } }, KR: { field: 'kospi', name: '코스피' } });
+// cap-weighted S&P 500 is shown beside it as a reference only.
+// The stage never switches benchmark: a cap-weighted stand-in while RSP had no close on the theme's date (every evening
+// between the screener refresh at 22:31Z and the 23:00Z cut) flipped eight US stages for 30 minutes and logged each flip
+// twice. With the benchmark a session behind the theme the stage is withheld for that read (row.held), and the
+// per-refresh producer keeps the previous stage (build-scenario-state.mjs heldThemeRow).
+export const THEME_BENCHMARKS = Object.freeze({ US: { field: THEME_OUTCOME_BENCHMARK, name: 'S&P 500 동일가중', reference: { field: 'spx', name: 'S&P 500' } }, KR: { field: 'kospi', name: '코스피' } });
 const BENCHMARK_NAMES = Object.freeze({ rsp: 'S&P 500 동일가중', spx: 'S&P 500', kospi: '코스피' });
 // v57.81: a leading trend needs the 50-day share condition or at least this many met conditions to stay 주도 지속.
 export const LEAD_CONFIRM_MET = 3;
@@ -52,21 +54,21 @@ const FAVOURED = {
   inline: { tail: ['hold'], head: ['wait'], mixed: ['wait'], none: ['wait'] }
 };
 const WHY = {
-  leading: { tail: '추세와 거시 수혜가 같은 방향이라 보유를 이어 가는 쪽의 기회비용이 작습니다.',
-    head: '추세는 강하지만 거시 부담이 있어, 보유를 이어 가는 비용은 그 부담이 실제 실적으로 번지는지에 달려 있습니다.',
+  leading: { tail: '추세와 매크로 수혜가 같은 방향이라 보유를 이어 가는 쪽의 기회비용이 작습니다.',
+    head: '추세는 강하지만 매크로 부담이 있어, 보유를 이어 가는 비용은 그 부담이 실제 실적으로 번지는지에 달려 있습니다.',
     other: '추세가 살아 있는 동안에는 보유를 이어 가는 쪽의 기회비용이 작습니다.' },
   fading: { other: '긴 추세는 지수보다 앞서 있지만 50일선 위 종목 비율·조건·최근 5거래일 흐름이 받쳐 주지 않아, 이것들이 회복되는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.' },
-  pullback: { tail: '긴 추세가 살아 있고 거시상 수혜인 조정은, 나눠 들어가는 쪽이 바닥 시점을 맞히지 않고도 다음 상승을 놓치지 않는 조합입니다. 구조 가설이 깨지는 신호가 나오면 멈춥니다.',
-    head: '긴 추세가 살아 있어도 거시 부담 속 조정은 더 깊어질 수 있어, 부담이 약해지는 것을 기다리는 쪽의 비용이 작습니다.',
+  pullback: { tail: '긴 추세가 살아 있고 매크로상 수혜인 조정은, 나눠 들어가는 쪽이 바닥 시점을 맞히지 않고도 다음 상승을 놓치지 않는 조합입니다. 구조 가설이 깨지는 신호가 나오면 멈춥니다.',
+    head: '긴 추세가 살아 있어도 매크로 부담 속 조정은 더 깊어질 수 있어, 부담이 약해지는 것을 기다리는 쪽의 비용이 작습니다.',
     other: '조정이 쉬어 가기로 끝나면 비켜 서 있는 쪽이, 추세 붕괴로 이어지면 새로 들어간 쪽이 비용을 치릅니다. 둘을 가르는 기준은 50일선 위 종목 비율입니다.' },
-  rebound: { tail: '하락 추세 속 반등이지만 거시 수혜가 있어, 반등이 추세 전환으로 이어지는지가 나눠 들어가는 득실을 가릅니다.',
+  rebound: { tail: '하락 추세 속 반등이지만 매크로 수혜가 있어, 반등이 추세 전환으로 이어지는지가 나눠 들어가는 득실을 가릅니다.',
     head: '부담 속 반등은 짧게 끝나는 경우가 많아, 추세 전환이 확인될 때까지 기다리는 쪽의 비용이 작습니다.',
     other: '하락 추세 속 반등은 전환인지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.' },
-  weak: { tail: '거시 수혜에도 약세가 이어지면 업종 고유의 문제가 있을 수 있습니다. 새로 들어가는 비용은 그 원인(실적·업황)이 일시적인지 구조적인지에 달려 있습니다.',
-    head: '약세와 거시 부담이 겹쳐 기다림의 비용이 가장 작은 조합입니다.',
+  weak: { tail: '매크로 수혜에도 약세가 이어지면 업종 고유의 문제가 있을 수 있습니다. 새로 들어가는 비용은 그 원인(실적·업황)이 일시적인지 구조적인지에 달려 있습니다.',
+    head: '약세와 매크로 부담이 겹쳐 기다림의 비용이 가장 작은 조합입니다.',
     other: '긴 추세와 1개월이 모두 지수보다 뒤처져, 50일선 위 종목 비율이 되살아나기 전까지는 기다리는 쪽의 비용이 작습니다.' },
   defensive: { other: '지수보다 덜 빠졌을 뿐 긴 추세 수익률이 0 이하라 주도로 읽지 않습니다. 지수 하락이 멈추고 이 테마의 긴 추세가 플러스로 돌아서는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.' },
-  inline: { tail: '거시 수혜 성격이지만 가격은 아직 지수와 비슷하게 움직여, 보유의 득실은 지수 보유와 비슷합니다. 이 테마만의 우위는 긴 추세가 지수보다 앞서기 시작하는지로 갈립니다.',
+  inline: { tail: '매크로 수혜 성격이지만 가격은 아직 지수와 비슷하게 움직여, 보유의 득실은 지수 보유와 비슷합니다. 이 테마만의 우위는 긴 추세가 지수보다 앞서기 시작하는지로 갈립니다.',
     other: '지수와 비슷한 폭으로 움직여 이 테마만의 우위가 확인되지 않습니다. 새로 들어가는 판단은 긴 추세가 지수보다 앞서기 시작한 뒤가 비용이 작습니다.' }
 };
 // v58.74 (text audit): the stage fold prints these once; a card repeats a line only when its own text differs.
@@ -121,7 +123,22 @@ function relativeStage({ ret1m, ret3m, ret6m, basis, benchmark }) {
   const recentX = ret1m == null || !bench ? null : ret1m - bench.ret1m;
   const band = relativeBand(trendKey), recentBand = relativeBand('ret1m');
   const state = bench ? themeStateOf(trendX, recentX, { band, recentBand, absolute: trend }) : null;
-  return { trendKey, trend, bench, trendX, recentX, band, recentBand, state, drift: state === 'inline' ? inlineDrift(recentX, recentBand) : null };
+  // The benchmark's latest close is a session behind the theme's (the screener landed before the index cut): no stage on
+  // two dates, and no other index in its place.
+  const lag = !bench && benchmark?.asOf && basis && benchmark.asOf < basis ? benchmark.asOf : null;
+  return { trendKey, trend, bench, trendX, recentX, band, recentBand, state, lag, drift: state === 'inline' ? inlineDrift(recentX, recentBand) : null };
+}
+
+// The magnitude word follows the theme's own five-session move against its own typical week. The break itself is read on
+// the relative move (recentMove), so a theme up 0.3% while the index rose 3.2% breaks without falling: that is named as
+// falling behind / pulling ahead of the index, never 급락.
+function ownBreak(recent, ownNoise, side) {
+  const limit = finite(ownNoise) == null ? null : NOISE_MULTIPLE * ownNoise;
+  return !recent.relative || (limit != null && (side === 'down' ? recent.ret5d <= -limit : recent.ret5d >= limit));
+}
+function breakWord(recent, ownNoise, benchName, side) {
+  if (ownBreak(recent, ownNoise, side)) return `평소 1주 움직임의 2배를 넘는 ${side === 'down' ? '급락' : '반등'}`;
+  return `${benchName}보다 평소 1주 차이의 2배 넘게 ${side === 'down' ? '뒤처짐' : '앞섬'}`;
 }
 
 function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = null, memberCount = 1, above50, basis, benchmark = null, groups = [], members = null, crossroads, credit, outcomes, heavyweights = null, heavyweightNote = '' }) {
@@ -179,23 +196,26 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
   const shakyPullback = !deep && state === 'pullback' && (recent?.broken || (trend != null && trend <= 0));
   const favored = deep || shakyPullback ? ['wait'] : state === 'leading' ? (met >= LEAD_CONFIRM_MET ? ['hold'] : ['hold', 'wait']) : state ? FAVOURED[state][wind.lead] : [];
   const why = deep ? '1개월 낙폭이 그 전까지 오른 폭의 절반을 넘어, 쉬어 가기보다 추세가 꺾이는 신호일 수 있습니다. 낙폭이 멈추고 50일선 위 종목 비율이 회복되는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.'
-    : shakyPullback ? (recent?.broken ? '최근 5거래일 낙폭이 평소 1주 움직임의 2배를 넘어, 조정이 멈췄는지 확인하기 전에 나눠 들어가면 하락을 함께 떠안을 수 있습니다. 5거래일 흐름이 안정되고 50일선 위 종목 비율이 회복되는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.'
+    : shakyPullback ? (recent?.broken ? `최근 5거래일 ${ownBreak(recent, weeklyNoise, 'down') ? '낙폭이 평소 1주 움직임의 2배를 넘어' : `${benchName}보다 평소 1주 차이의 2배 넘게 뒤처져`}, 조정이 멈췄는지 확인하기 전에 나눠 들어가면 하락을 함께 떠안을 수 있습니다. 5거래일 흐름이 안정되고 50일선 위 종목 비율이 회복되는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.`
       : `${WINDOW_LABELS[trendKey]} 자체 수익률이 0 이하라 지수보다 덜 빠졌을 뿐 오르는 추세는 아닙니다. 1개월 낙폭이 멈추는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.`)
     // v58.74 (text audit): 추세 약화 named all three reasons even when only one failed; it names the ones that did.
     : state === 'fading' ? `긴 추세는 지수보다 앞서 있지만 ${withSubjectParticle([fadeReasons.length ? '50일선 위 종목 비율과 충족 조건 수' : null, recent?.broken ? '최근 5거래일 흐름' : null].filter(Boolean).join(', ') || '확인 조건')} 받쳐 주지 않습니다. 회복되는지 확인하기 전까지는 기다리는 쪽의 비용이 작습니다.`
     : state ? (WHY[state][wind.lead] || WHY[state].other) : '';
   // v57.84 (owner decision 3-2): the proxy's past stages count only when they were classified on the live rule.
   // Audit 2026-10-17 (D4/D5): and on the same bands and benchmark (an artifact without a rule stamp predates both).
-  const proxyOutcome = outcomes?.themes?.[id];
-  const proxyRelative = proxyOutcome?.basis === 'relative-banded' && proxyOutcome.rule === THEME_STAGE_RULE && (proxyOutcome.benchmark || 'spx') === (bench?.field || THEME_BENCHMARKS[market]?.field);
-  const proxy = state && state !== 'fading' && proxyRelative ? outcomes?.themes?.[id]?.[state] : null;
-  const proxySymbol = outcomes?.themes?.[id]?.symbol;
+  // And only when the record's definition stamp (rule, bands, horizon, benchmark, outcome basis and the scoring code) is
+  // the live one. The weekly producer builds US proxies only, so a Korean theme with the same id never reads a US ETF's record.
+  const proxyOutcome = market === 'US' ? outcomes?.themes?.[id] : null;
+  const proxyRelative = themeOutcomeCurrent(proxyOutcome, bench?.field || THEME_BENCHMARKS[market]?.field);
+  const proxy = state && state !== 'fading' && proxyRelative ? proxyOutcome[state] : null;
+  const proxySymbol = proxyOutcome?.symbol;
   const windowName = `${WINDOW_LABELS[trendKey]}·1개월, ${bench ? `${benchName} 대비` : '절대 수익률(지수 비교 불가)'}${reference ? `, 참고: ${reference.name} 대비 ${WINDOW_LABELS[trendKey]} ${pct(reference.trend).replace(/%$/, '%p')}` : ''}`;
   const recentClause = recent && (contradicted || recent.broken)
-    ? `, ${recentMoveText(recent, { benchmarkName: benchName })}${contradicted ? `, 평소 1주 움직임의 2배를 넘는 ${upClaim ? '급락' : '반등'} — 1개월 판정 보류` : ''}`
+    ? `, ${recentMoveText(recent, { benchmarkName: benchName })}${contradicted ? `, ${breakWord(recent, weeklyNoise, benchName, upClaim ? 'down' : 'up')} — 1개월 판정 보류` : ''}`
     : '';
   const shortName = state ? `${THEME_STATES[state].split(' (')[0]}${drift && !contradicted ? `, ${INLINE_DRIFT_LABELS[drift]}` : ''}` : null;
-  const stateLabel = !state ? (heavyHeld ? `판정 보류 — 거래대금 상위 종목이 ${benchName}보다 더 빠져, 동일가중 중앙값만으로 앞섰다고 보지 않습니다` : bench ? '판정 보류' : `판정 보류 (${benchName} 종가가 테마 기준일과 맞지 않음)`)
+  const stateLabel = !state ? (heavyHeld ? `판정 보류 — 거래대금 상위 종목이 ${benchName}보다 더 빠져, 동일가중 중앙값만으로 앞섰다고 보지 않습니다`
+    : bench ? '판정 보류' : stage.lag ? `판정 보류 (${benchName} ${shortDay(basis)} 종가 반영 전)` : `판정 보류 (${benchName} 종가가 테마 기준일과 맞지 않음)`)
     : `${shortName} (${windowName}${fadeReasons.length ? `, ${fadeReasons.join(', ')}` : ''})${contradicted ? '' : midNote(state, ret6m, ret3m)}${recentClause}`;
   const choices = state ? { ...CHOICE_TEXT[state], ...(state === 'leading' ? { stage: leadingStageText(above50) } : {}) } : {};
   return {
@@ -203,6 +223,8 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     market, id, label, tags, tagLabels: tags.map((tag) => EXPOSURE_TAGS[tag]), thesis: profile?.thesis || null, breaks: profile?.breaks || [],
     ret1m, ret3m, ret6m, ret5d, above50, basis, members, state, stateLabel, recent, contradicted, weeklyNoise,
     relative: bench ? { name: benchName, field: bench.field || null, trendKey, trend: trendX, recent: recentX, band, recentBand, reference } : null,
+    // Withheld only because the benchmark's close is a session behind — the per-refresh state keeps the last stage.
+    held: stage.lag ? { reason: 'benchmark-lag', benchmark: benchmark?.field || null, benchmarkAsOf: stage.lag } : null,
     wind, // v59.56 (text pass): a tie names its branches once and says 'both' when their wind is the same.
     windText: scenario.state === 'tie' ? `중심 시나리오 ${withSubjectParticle(leadNames)} 동률이며 ${new Set(leadWinds).size === 1 ? `${leadWinds.length === 2 ? '두' : '모든'} 경우 모두 ${WIND_LABELS[leadWinds[0]]}` : leads.map((item, index) => `${scenario.names[index]}에서는 ${WIND_LABELS[leadWinds[index]]}`).join(', ')}`
       : lead ? `중심 시나리오 ${scenario.names[0]}에서 ${WIND_LABELS[wind.lead]}${alt ? `, 대안 시나리오 '${alt.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.alt]}` : ''}` : '시나리오 판단 보류',
@@ -210,10 +232,12 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     fit: known.length < 2 ? '판단 보류' : `조건 충족 ${met}/${conditions.length}`, met, total: conditions.length, known: known.length,
     basisText: conditions.map(([text, ok]) => `${text} ${ok == null ? '확인 불가' : ok ? '충족' : '미충족'}`),
     past: state === 'fading' ? '이 단계는 50일선 위 비율과 최근 5거래일을 함께 보는 판정이라 장기 기록(대표 ETF)과 같은 기준으로 비교하지 않습니다.'
-      : proxySymbol && !proxyRelative ? `대표 ETF의 장기 기록은 아직 다른 기준(절대 수익률이거나 이전 밴드·기준 지수)으로 분류돼 있어, ${benchName} 대비인 지금 단계와 비교하지 않습니다(다음 장기 기록 갱신 때 같은 기준으로 다시 계산).`
+      : proxySymbol && !proxyRelative ? `대표 ETF의 장기 기록은 아직 다른 기준(절대 수익률이거나 이전 밴드·기준 지수·계산 방식)으로 분류돼 있어, ${benchName} 대비인 지금 단계와 비교하지 않습니다(다음 장기 기록 갱신 때 같은 기준으로 다시 계산).`
       : proxy ? frequencyText({ ...proxy, subject: proxySymbol, versus: benchName }, `대표 ETF ${proxySymbol}가 같은 단계(${THEME_STATES[state].split(' (')[0]}, ${benchName} 대비 같은 기준)였을 때`, { source: '장기 일봉 기록' }) : '같은 단계의 장기 과거 기록(대표 ETF)이 없어 빈도를 말하지 않습니다.',
     // false: the same stage in the long record did not differ from an ordinary day, so the cost comparison has no base-rate support.
     pastInformative: state && state !== 'fading' && proxy && !(proxySymbol && !proxyRelative) ? pastEvidence(proxy).informative : null,
+    // The record itself, for the frame's legs (decision-frame.js themeDecisionFrame).
+    pastRecord: proxy || null,
     positioning: '직접 자료는 없습니다 — 1개월 낙폭과 50일선 위 비율로 추정합니다.',
     groups
   };
@@ -244,15 +268,15 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
   }
   const usBasis = [...byTheme.values()].flat().map((g) => g.basis).filter(Boolean).sort().at(-1) || null;
   const krBasis = krThemes.filter((theme) => theme?.covered >= 3).map((theme) => theme?.basis).filter(Boolean).sort().at(-1) || null;
+  // One benchmark per market, always; the reference index is shown only on the benchmark's own date.
   const benchFor = (market, through) => {
     if (!(Array.isArray(history) && history.length && through)) return null;
     const spec = THEME_BENCHMARKS[market];
     const read = (side) => ({ ...marketWindowReturns(history, side.field, { through }), name: side.name });
     const primary = read(spec);
-    const usable = primary.asOf === through && finite(primary.ret1m) != null && finite(primary.ret6m) != null;
-    if (!spec.fallback) return primary;
-    const fallback = read(spec.fallback);
-    return usable ? { ...primary, reference: fallback.asOf === through ? fallback : null } : fallback;
+    if (!spec.reference) return primary;
+    const reference = read(spec.reference);
+    return { ...primary, reference: primary.asOf && reference.asOf === primary.asOf ? reference : null };
   };
   const benchmarks = { US: given?.US ?? benchFor('US', usBasis), KR: given?.KR ?? benchFor('KR', krBasis) };
   const rows = [];
@@ -391,20 +415,4 @@ export function rotationOf(rows, { period = null, benchRet5d = null } = {}) {
   return { tags, gainers: [...main.up, ...(sub?.up || [])], losers: [...main.down, ...(sub?.down || [])], market: scope, text };
 }
 
-/** Theme block for the AI: rotation, the notable combinations, and the themes a question names (or the most notable). */
-export function renderThemePlaybookContext(model, { query = '' } = {}) {
-  if (!model?.available) return '';
-  const named = model.themes.filter((row) => row.label && query.includes(row.label.split(/[ /·]/)[0]));
-  const notable = [...model.highlights.structuralPullbacks.slice(0, 4), ...model.highlights.headwindLeaders.slice(0, 2), ...model.highlights.tailwindLaggards.slice(0, 2), ...model.rotation.gainers.slice(0, 2), ...model.rotation.losers.slice(0, 2)];
-  const picked = [...new Map([...named, ...notable].map((row) => [`${row.market}:${row.id}`, row])).values()].slice(0, 10);
-  // v57.81: every line names its windows and carries the last five sessions, so the AI cannot call a theme leading
-  // from the month while the week broke.
-  const line = (row) => `- [${row.market}] ${row.label}: ${row.stateLabel} (5거래일 ${pct(row.ret5d ?? null)}, 1개월 ${pct(row.ret1m)}${row.ret3m != null ? `, 3개월 ${pct(row.ret3m)}` : ''}${row.ret6m != null ? `, 6개월 ${pct(row.ret6m)}` : ''}${row.above50 != null ? `, 50일선 위 ${row.above50}%` : ''}). 성격: ${row.tagLabels.join(', ') || '미분류'}. 거시: ${row.windText}. ${row.fit} [${row.basisText.join(', ')}]. ${CHOICE_WORDS.favored}: ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy} 과거: ${row.past}${row.thesis ? ` 구조 가설: ${row.thesis}. 가설이 깨지는 신호: ${row.breaks.join(', ')}.` : ''}`;
-  const withWeek = (r) => `${marketWord(r)} ${r.label}(${r.market === 'KR' ? '3개월' : '6개월'}·1개월 기준, ${recentMoveText(r.recent, { benchmarkName: r.relative?.name || '지수' }) || '최근 5거래일 —'})`;
-  return [`【테마 시나리오 — 모든 테마를 같은 규칙으로(${model.asOfText || `${model.asOf || '기준일 미확인'} 확정 종가`}), 단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500, 한국 코스피)와 비교하고 최근 5거래일로 점검】`, `가격 기준 강약 이동(자금 유출입 자료 아님): ${model.rotation.text}`,
-    model.highlights.structuralPullbacks.length ? `추세 속 조정 + 중심 시나리오에서 역풍 아님: ${model.highlights.structuralPullbacks.slice(0, 6).map((r) => `${marketWord(r)} ${r.label}(${pct(r.ret1m)})`).join(', ')}` : '',
-    model.highlights.headwindLeaders.length ? `거시 부담에도 주도: ${model.highlights.headwindLeaders.map(withWeek).join(', ')} — 업종 고유 동력(실적·구조 수요) 확인 필요` : '',
-    ...picked.map(line),
-    '단계가 \'추세 약화 확인 중\'이거나 최근 5거래일이 1개월 판정과 반대인 테마는 \'주도\'라고 쓰지 마라 — 5거래일 움직임을 함께 써라.',
-    '레버리지·포지션 쏠림은 직접 자료가 없다 — 주장하려면 웹 출처를 붙이고, 없으면 가격 단서(낙폭·50일선 위 비율)로만 말하라. 세부 종목은 테마 상세·차트·기업·스크리너에서 사용자가 고른다.'].filter(Boolean).join('\n');
-}
+// The AI context block of the playbook (renderThemePlaybookContext) lives in theme-playbook-context.js, off the boot path.

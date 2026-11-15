@@ -9,7 +9,7 @@
 //   once it appears. v59.85: the transcript PDF is parsed (lib/pdf-text.mjs) and, once readable, the summary is rewritten
 //   from it (basis 'transcript', 'preliminary' until the final copy).
 // - Earnings of the fixed mover list (src/domain/briefing/event-briefs.js MARKET_MOVERS): US issuers from the 8-K
-//   Item 2.02 Ex.99.1 (6-K exhibit for TSMC) on EDGAR; Korean issuers from the DART 연결재무제표기준영업(잠정)실적 공정공시,
+//   Item 2.02 Ex.99.1 on EDGAR (a foreign issuer's results 6-K exhibit, once it reads like quarterly results); Korean issuers from the DART 연결재무제표기준영업(잠정)실적 공정공시,
 //   whose table is parsed directly. The call is summarised from the issuer's pages and wires (basis 'news-report').
 //
 // The shared Worker AI (gpt-6-luna) writes the Korean summary as structured items, each with the source sentence it
@@ -33,7 +33,7 @@ export { EARNINGS_SCHEMA, FOMC_SCHEMA, POINTS_SCHEMA, TRANSCRIPT_SCHEMA, REASONS
 import {
   EVENT_BRIEFS_SCHEMA, withoutTradeMarks, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
   parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, epsComparisonBasis, estimateAiCostUsd, AI_RATE_CARD,
-  MOVER_BY_SYMBOL, briefHeadline, isKoreanHeadline, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable, watchItem
+  MOVER_BY_SYMBOL, briefHeadline, isKoreanHeadline, provisionalHeadline, PROVISIONAL_SUMMARY_WAIT_MS, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable, watchItem
 } from '../src/domain/briefing/event-briefs.js';
 import { readNumber, usdScaleWords } from '../src/domain/shared/number.js';
 import { isIsoDay } from '../src/domain/shared/session-date.js';
@@ -229,7 +229,7 @@ export const parseAiPayload = parseSharedJsonPayload;
 // ---- AI request bodies: scripts/lib/event-brief-prompts.mjs (schemas, prompts and their shared rules) ----------------
 
 /** A calendar row that already carries actuals, shown before the filing is summarised (basis 'provider'). */
-export function provisionalBrief(row, mover, { source = null, sourceUrl = null } = {}) {
+export function provisionalBrief(row, mover, { source = null, sourceUrl = null, nowMs = null } = {}) {
   const at = row.hour === 'bmo' ? etWallClockMs(row.date, 7, 0) : row.hour === 'amc' ? etWallClockMs(row.date, 16, 5) : etWallClockMs(row.date, 12, 0);
   const figures = [];
   // v59.45 (pipeline review P21-PROVISIONAL-01): a numeric string from the provider is a number; '' and null stay missing.
@@ -249,7 +249,7 @@ export function provisionalBrief(row, mover, { source = null, sourceUrl = null }
     ...(mover.layer ? { layer: mover.layer } : {}), eventDate: row.date, publishedAt: new Date(at).toISOString(),
     // No report hour: before or after the close is unknown, so no session can be named for the price (reviewer, v59.44).
     ...(row.hour === 'bmo' || row.hour === 'amc' ? {} : { timing: 'unknown' }),
-    headline: `${mover.nameKo} 실적 발표: 원문 요약 정리 중`, figures, details: [], guidance: [], watch: [], dropped: [], ai: [],
+    headline: provisionalHeadline(mover.nameKo, new Date(at).toISOString(), nowMs), figures, details: [], guidance: [], watch: [], dropped: [], ai: [],
     source: { kind: 'PROVIDER', title: `${source || 'Finnhub'} 실적 집계`, url: sourceUrl } };
 }
 
@@ -543,11 +543,17 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     // v59.45 (pipeline review P21-PROVISIONAL-01): the provider's figures can still change before the filing is summarised;
     // each run rebuilds them from the latest row and keeps the price follow-up and reasons already gathered.
     const prior = briefs.get(id);
-    const fresh = provisionalBrief(row, mover, { source: earningsSource, sourceUrl: earningsSourceUrl });
+    const fresh = provisionalBrief(row, mover, { source: earningsSource, sourceUrl: earningsSourceUrl, nowMs });
     if (!prior) briefs.set(id, fresh);
     else if (prior.status === 'provisional' && JSON.stringify(prior.figures) !== JSON.stringify(fresh.figures)) {
       briefs.set(id, { ...prior, figures: fresh.figures, headline: fresh.headline, source: fresh.source, providerRevisedAt: nowIso });
     }
+  }
+  // v60.18: a stored calendar-only brief past the wait (its calendar row may have rolled off) closes its "정리 중" headline.
+  for (const [id, brief] of briefs) {
+    if (brief.status !== 'provisional') continue;
+    const headline = provisionalHeadline(brief.nameKo, brief.publishedAt, nowMs);
+    if (headline !== brief.headline) briefs.set(id, { ...brief, headline });
   }
 
   // P2137: a headline copied in English from the release, or the bare "실적 발표", is rebuilt from the checked figures.
@@ -663,6 +669,8 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     allowedUse: 'reference',
     basis: 'Primary sources: federalreserve.gov statements, SEC EDGAR 8-K/6-K Ex.99, DART 공정공시. Call and press-conference points are report-based until a transcript is available. Figures not found in the fetched source are dropped.',
     status, aiReason, errors: errors.slice(0, 20),
+    // v60.18: the wait after which a calendar-only brief stops saying "정리 중" (the artifact gate reads it).
+    provisionalWaitMs: PROVISIONAL_SUMMARY_WAIT_MS,
     costLedger: { month, requests: monthEntries.length, estimatedUsd: Math.round(monthEntries.reduce((sum, entry) => sum + (entry.estimatedUsd || 0), 0) * 1e4) / 1e4,
       rateCard: AI_RATE_CARD, perBriefEstimateUsd: { withoutSearch: 0.003, withOneSearch: 0.018 } },
     skippedFilings: [...skipped].slice(-200),

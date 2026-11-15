@@ -114,6 +114,21 @@ check('v59.70 no shell binding takes a browser key (reload, find, address bar, t
 // 4. The module's pure parts: screens from the menu table, glossary ranking, no symbol guessing.
 check('v59.70 시장 폭 finds the breadth screen first', search.matchScreens('시장 폭')[0]?.route === 'breadth', JSON.stringify(search.matchScreens('시장 폭')[0]));
 check('v59.70 the glossary ranks the term itself first', search.matchTerms('PER', [{ term: 'PEG', def: 'PER을 성장률로 나눈 값' }, { term: 'PER (주가수익비율)', def: '주가 ÷ 주당순이익' }])[0]?.term === 'PER (주가수익비율)');
+// v60.19 (Codex audit): the command search handled only the arrows; Home and End did nothing. Its option keys are the
+// shared listbox's (behaviors/listbox.js nextOptionIndex), every one of them.
+{
+  const { createFakeDocument } = await import('./lib/fake-dom.mjs');
+  const doc = createFakeDocument();
+  const cmd = search.createCommandSearch({ root: { document: doc, setTimeout, clearTimeout }, documentRef: doc });
+  cmd.install();
+  await cmd.run('시장');
+  const input = doc.getElementById('aio-command-input');
+  const count = doc.getElementById('aio-command-results').querySelectorAll('[role="option"]').length;
+  const press = (key) => { input.dispatchEvent({ type: 'keydown', key, preventDefault() {} }); return input.getAttribute('aria-activedescendant'); };
+  const walk = ['End', 'Home', 'ArrowDown', 'ArrowUp'].map(press);
+  check('v60.19 the command search moves its highlight with End/Home/ArrowDown/ArrowUp (shared listbox rule)',
+    count >= 3 && walk.join() === [`aio-cmd-opt-${count - 1}`, 'aio-cmd-opt-0', 'aio-cmd-opt-1', 'aio-cmd-opt-0'].join(), JSON.stringify({ count, walk }));
+}
 check('v59.70 a typed symbol is offered only when no candidate is already it', search.typedSymbol('nvda', [{ symbol: 'NVDA' }]) === null && search.typedSymbol('ZZZZQ', []) === 'ZZZZQ' && search.typedSymbol('애플 주식', []) === null && search.typedSymbol('005930', [{ symbol: '005930.KS' }]) === null);
 
 if (failures.length) {

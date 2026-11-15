@@ -7,7 +7,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ARTIFACT_FRESHNESS, MANUAL_ARTIFACTS, freshnessLedgerPath, freshnessState, livenessState, sessionLagState, artifactContractDrift } from '../src/data/contracts/artifact-freshness.js';
+import { ARTIFACT_FRESHNESS, MANUAL_ARTIFACTS, freshnessLedgerPath, freshnessState, livenessState, sessionLagState, artifactContractDrift, sameExceptVolatile } from '../src/data/contracts/artifact-freshness.js';
 import { workflowPublishes } from './lib/data-publish-sets.mjs';
 import { buildLedger } from './write-freshness-ledger.mjs';
 import { readArtifactFreshness } from '../src/data/freshness.js';
@@ -102,8 +102,34 @@ for (const written of [true, false]) for (const skip of [true, false]) for (cons
     row.lastAttempt.status === expectStatus && row.checkedAt === expectChecked && (restored.length === 1) === (expectStatus === 'unchanged'),
     JSON.stringify({ status: row.lastAttempt.status, checkedAt: row.checkedAt, restored }));
 }
+// v60.18: every registered artifact absent from the tree reads 'blocked' exactly when its refresh path waits on an owner
+// decision (blockedBy), else 'missing'; a per-row fetch clock ('*' part) is volatile, so bigtech-cashflow's quarterly
+// filings no longer make a commit when only generatedAt and the issuers' fetchedAt moved (8 of 8 commits 11/08-11/15).
+for (const workflow of new Set(Object.values(ARTIFACT_FRESHNESS).map((entry) => entry.workflow))) {
+  const absent = buildLedger({ workflow, runStartedMs: 0, nowIso: '2026-11-15T01:38:00.000Z', previous: null, readArtifact: () => null, wasWritten: () => false, headArtifact: () => null, writeArtifact: () => {} });
+  for (const [file, row] of Object.entries(absent.artifacts)) {
+    const blockedBy = ARTIFACT_FRESHNESS[file].blockedBy || null;
+    check(`v60.18 an absent ${file} reads ${blockedBy ? 'blocked with its reason' : 'missing'}`, row.lastAttempt.status === (blockedBy ? 'blocked' : 'missing') && (row.blockedBy || null) === blockedBy, JSON.stringify(row.lastAttempt));
+  }
+}
+{
+  const issuer = (fetchedAt) => ({ symbol: 'MSFT', fetchedAt, quarters: [{ end: '2026-09-30', ocf: 1 }] });
+  const head = { generatedAt: '2026-11-14T22:46:46.780Z', issuers: [issuer('2026-11-14T22:46:46.780Z'), issuer('2026-11-14T22:46:46.780Z')] };
+  const rerun = { generatedAt: '2026-11-15T01:32:58.797Z', issuers: [issuer('2026-11-15T01:32:58.797Z'), issuer('2026-11-15T01:32:58.797Z')] };
+  const filed = { ...rerun, issuers: [rerun.issuers[0], { ...issuer('2026-11-15T01:32:58.797Z'), quarters: [{ end: '2026-09-30', ocf: 2 }] }] };
+  const restored = [];
+  const ledgerFor = (payload) => buildLedger({ workflow: 'refresh-screener.yml', runStartedMs: 0, nowIso: '2026-11-15T01:38:00.000Z', previous: null,
+    readArtifact: (name) => (name === 'bigtech-cashflow.json' ? { payload } : null), wasWritten: (name) => name === 'bigtech-cashflow.json',
+    headArtifact: () => ({ bytes: Buffer.from(JSON.stringify(head)), payload: head }), writeArtifact: (name) => restored.push(name) }).artifacts['bigtech-cashflow.json'];
+  const same = ledgerFor(rerun); const changed = ledgerFor(filed);
+  check('v60.18 a bigtech-cashflow rerun that moved only its fetch clocks keeps the published bytes; a new filing is written',
+    same.lastAttempt.status === 'unchanged' && same.producedAt === head.generatedAt && changed.lastAttempt.status === 'updated' && restored.join() === 'bigtech-cashflow.json',
+    JSON.stringify({ same: same.lastAttempt, changed: changed.lastAttempt, restored }));
+  check('v60.18 a volatile key with a * part drops that key from every element and nothing else',
+    sameExceptVolatile(head, rerun, ['generatedAt', 'issuers.*.fetchedAt']) && !sameExceptVolatile(head, filed, ['generatedAt', 'issuers.*.fetchedAt']) && !sameExceptVolatile(head, rerun, ['generatedAt']));
+}
 const now = Date.parse('2026-11-04T12:00:00Z');
-const grade = (minutesAgo, every = 30, staleAfter = 720) => freshnessState({ checkedAt: new Date(now - minutesAgo * 60000).toISOString(), expectedEveryMinutes: every, staleAfterMinutes: staleAfter }, now);
+const grade =(minutesAgo, every = 30, staleAfter = 720) => freshnessState({ checkedAt: new Date(now - minutesAgo * 60000).toISOString(), expectedEveryMinutes: every, staleAfterMinutes: staleAfter }, now);
 check('v59.70 freshnessState grades current, late, stale and unknown', grade(10) === 'current' && grade(90) === 'late' && grade(800) === 'stale' && freshnessState({}, now) === 'unknown');
 // The screens' reader grades the same row the same way, and a missing secret reads as blocked, not stale.
 const fakeRoot = {

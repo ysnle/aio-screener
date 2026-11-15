@@ -9,14 +9,18 @@ import { COMMON_WORD_ISSUER_NAMES } from '../src/domain/news/stories.js';
 import { cleanTelegramText } from './lib/telegram-text.mjs';
 import { telegramMedia, mediaClassifierText, mediaCoverage } from './lib/telegram-media.mjs';
 import { buildUniverseIndex, extractPostSignals, mergeSignals } from './lib/telegram-signals.mjs';
+import { activeTelegramChannels, telegramSourceCatalog, telegramCollectionStatus, channelFailingSince } from './lib/telegram-channels.mjs';
 
+// v60.18: a channel whose public preview is gone is retired with the date and the reason (scripts/lib/telegram-channels.mjs);
+// it is not fetched and does not count toward the run's expected channels. Delete `retired` to re-enable it.
 const CHANNEL_CATALOG = [
-  { slug:'aetherjapanresearch', role:'asia-semi-flow', region:'jp-us', evidence:'secondary-public-mirror' },
+  { slug:'aetherjapanresearch', role:'asia-semi-flow', region:'jp-us', evidence:'secondary-public-mirror',
+    retired:{ since:'2026-10-26', reason:'public preview replaced by a contact card; no post list since 2026-10-26 20:52Z' } },
   { slug:'insidertracking', role:'us-fast-breaking', region:'us-global', evidence:'secondary-public-mirror' },
   { slug:'bornlupin', role:'kr-semi-broker-notes', region:'kr-global', evidence:'secondary-public-mirror' },
   { slug:'HANAchina', role:'china-em-supply-chain', region:'cn-tw-em', evidence:'secondary-public-mirror' },
 ];
-const CHANNELS = CHANNEL_CATALOG.map(x => x.slug);
+const CHANNELS = activeTelegramChannels(CHANNEL_CATALOG);
 const DEFAULT_DAYS = 14;
 const PAGE_LIMIT = Number(process.env.TG_PAGE_LIMIT || 50);
 const UA = {
@@ -519,8 +523,11 @@ const current24hObservedItems = observedItems.filter(it => {
   const d = new Date(it.datetime);
   return d >= marketCycle.start && d < marketCycle.end;
 });
-const successfulChannelCount = channels.filter(c => !c.error).length;
-const collectionStatus = successfulChannelCount === CHANNELS.length ? 'ok' : successfulChannelCount > 0 ? 'partial' : 'failed';
+const { successfulChannelCount, collectionStatus, activeChannelCount } = telegramCollectionStatus(channels, CHANNELS);
+// A retired channel keeps a row (not fetched, no error, its last known post id) so the catalog and the channel list match.
+const retiredChannelRows = () => CHANNEL_CATALOG.filter(x => x.retired).map(x => ({ channel:x.slug, retired:{ since:x.retired.since, reason:x.retired.reason },
+  pages:0, reachedOlder:false, reachedKnown:false, count:observedItems.filter(it => it.channel === x.slug).length, freshCount:0, eligibleTextCount:0,
+  selectedCount:0, error:null, failingSince:null, lastPostId:previousLastPostId.get(x.slug) ?? null }));
 const attemptedAt = new Date().toISOString();
 const previousLastSuccessfulAt = previousDigest?.lastSuccessfulAt || previousDigest?.generatedAt || null;
 const lastSuccessfulAt = collectionStatus === 'failed' ? previousLastSuccessfulAt : attemptedAt;
@@ -621,6 +628,7 @@ const digest = {
   lastSuccessfulAt,
   collectionStatus,
   successfulChannelCount,
+  activeChannelCount,
   windowKind:'research-14d',
   since: since.toISOString(),
   until: now.toISOString(),
@@ -636,14 +644,15 @@ const digest = {
     lastPostIds:current24hObservedItems.slice(0, 20).map(it => it.id),
   },
   source: 'telegram-public-mirror',
-  sourceCatalog: CHANNEL_CATALOG.map(x => ({ channel:x.slug, role:x.role, region:x.region, evidence:x.evidence, publicMirror:`https://t.me/s/${x.slug}` })),
+  sourceCatalog: telegramSourceCatalog(CHANNEL_CATALOG),
   channels: channels.map(c => {
     const observed = observedItems.filter(it => it.channel === c.channel);
     return { channel:c.channel, pages:c.pages, reachedOlder:c.reachedOlder, reachedKnown:!!c.reachedKnown,
       count:observed.length, freshCount:c.items.length, eligibleTextCount:observed.filter(it => it.hasText).length,
       selectedCount:[...selectedRawIds].filter(id => String(id).startsWith(`${c.channel}/`)).length,
-      error:c.error || null, lastPostId:Number.isFinite(c.lastPostId) ? c.lastPostId : (previousLastPostId.get(c.channel) ?? null) };
-  }),
+      error:c.error || null, failingSince:channelFailingSince(c, previousDigest, attemptedAt),
+      lastPostId:Number.isFinite(c.lastPostId) ? c.lastPostId : (previousLastPostId.get(c.channel) ?? null) };
+  }).concat(retiredChannelRows()),
   count: observedItems.length,
   retainedItemCount: items.length,
   observedLineageArtifact: 'public-data/telegram-observed.json', // P1683: the rows behind `count` (producer state)
@@ -698,12 +707,14 @@ const outputDigest = collectionStatus === 'failed' && previousDigest && Number(p
       attemptedAt,
       collectionStatus:'failed',
       successfulChannelCount:0,
-      sourceCatalog: CHANNEL_CATALOG.map(x => ({ channel:x.slug, role:x.role, region:x.region, evidence:x.evidence, publicMirror:`https://t.me/s/${x.slug}` })),
+      activeChannelCount,
+      sourceCatalog: telegramSourceCatalog(CHANNEL_CATALOG),
       channels: CHANNELS.map(slug => {
         const prior = (previousDigest.channels || []).find(ch => ch && ch.channel === slug) || { channel:slug, pages:0, reachedOlder:false, reachedKnown:false, count:0, eligibleTextCount:0, selectedCount:0, lastPostId:null };
         const failed = channels.find(row => row.channel === slug);
-        return Object.assign({}, prior, { error:failed && failed.error || 'collection failed', freshCount:0 });
-      })
+        const error = failed && failed.error || 'collection failed';
+        return Object.assign({}, prior, { error, failingSince:channelFailingSince({ channel:slug, error }, previousDigest, attemptedAt), freshCount:0 });
+      }).concat(retiredChannelRows())
     })
   : digest;
 // P1683: a failed run re-publishes the previous digest, whose lineage now arrives through `prev.observedItems`;

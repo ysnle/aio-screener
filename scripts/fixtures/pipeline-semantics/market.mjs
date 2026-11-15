@@ -231,7 +231,7 @@ export const cases = [
     assert.equal(themeCriteria({ row: {}, members }).items.find((item) => item.id === 'heat').met, null);
   } },
   { id: 'P9-THEME-02', name: '테마 기본 빈도는 비교지수가 있는 같은 기간으로 센다', run: async ({ load }) => {
-    const { themeStateOutcomes } = await load('src/domain/scenarios/analogs.js');
+    const { themeStateOutcomes } = await load('src/domain/scenarios/outcome-history.js');
     const dates = Array.from({ length: 2500 }, (_, i) => new Date(Date.UTC(2000, 0, 1 + i)).toISOString().slice(0, 10));
     const a = dates.map((date, i) => [date, 100 * 1.002 ** i]);
     const b = dates.map((date, i) => [date, i < 1500 ? 10000 - i : 100 * 1.002 ** i]);

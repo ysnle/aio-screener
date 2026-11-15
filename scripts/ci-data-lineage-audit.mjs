@@ -152,6 +152,7 @@ const POLICIES = {
   'telegram-digest.json': { kind: 'reference-digest', timestamp: ['generatedAt', 'lastSuccessfulAt', 'meta.generatedAt'], maxAgeHours: 12 },
   'telegram-observed.json': { kind: 'producer-state', timestamp: ['generatedAt'], maxAgeHours: 24 * 3 }, // P1683: lineage rows behind telegram-digest count (refresh-data)
   'telegram-reference-window.json': { kind: 'research-reference', timestamp: ['reviewedAt', 'generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },
+  // v60.18: the AI reading's last rejected attempts (operator-side, not on Pages); written only when an attempt is rejected, so no age window
   'user-research-digest.json': { kind: 'research-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },
   'model-validation-status.json': { kind: 'research-horizon', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 * 90 },
   'operations-slo-window.json': { kind: 'operational-status', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 },

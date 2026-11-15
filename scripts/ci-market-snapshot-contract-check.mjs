@@ -346,6 +346,30 @@ if (!loaderSource.includes('snapshot_not_published') || !loaderSource.includes('
 }
 const bridgeSource = fs.readFileSync(path.join(root, 'src/legacy/market-snapshot-bridge.js'), 'utf8');
 if (!bridgeSource.includes("policyKey: 'static_snapshot'") || !bridgeSource.includes('market-snapshot-fallback')) fail('legacy bridge does not preserve snapshot provenance');
+// v60.18 (weekly audit D2): the published close's change stays until a live quote observed after that close arrives. Yahoo
+// spark answered DX-Y.NYB -0.001% at 2026-11-13T21:59:59Z — the published close's own time — and the home strip read 0.00%
+// over the completed session's +0.23%. The live overwrite (js/aio-data.js applyLiveQuotes) asks PriceStore.publishedChange.
+{
+  const { installValidationStores } = await import(pathToFileURL(path.join(root, 'src/data/quality/validation-stores.js')).href);
+  const { applyMarketSnapshotToLegacy } = await import(pathToFileURL(path.join(root, 'src/legacy/market-snapshot-bridge.js')).href);
+  const win = { AIO: {} };
+  const { PriceStore } = installValidationStores(win);
+  win._aioSetLiveData = () => true;
+  applyMarketSnapshotToLegacy(win, { status: 'published', revision: 'r1', generatedAt: '2026-11-15T05:21:06.550Z', quotes: [
+    { instrumentId: 'DX-Y.NYB', value: 103.411, previousValue: 103.17, changePct: 0.2336, observedAt: '2026-11-13T21:59:59.000Z', changeBasis: 'provider-previous-value' }
+  ] });
+  const held = PriceStore.publishedChange('DX-Y.NYB', '2026-11-13T21:59:59.000Z');
+  if (!held || held.pct !== 0.2336 || held.previousClose !== 103.17) fail(`v60.18 a live quote of the published close's own session replaced its change: ${JSON.stringify(held)}`);
+  if (!PriceStore.publishedChange('DX-Y.NYB', null)) fail('v60.18 a live quote with no observation time cannot show it is newer than the published close');
+  if (PriceStore.publishedChange('DX-Y.NYB', '2026-11-16T14:35:00.000Z') !== null) fail('v60.18 a live quote of a newer session must replace the published change');
+  if (PriceStore.publishedChange('^TNX', '2026-11-13T21:59:59.000Z') !== null) fail('v60.18 a symbol with no published close is not held');
+  const rebased = PriceStore.heldCloseQuote({ symbol: 'DX-Y.NYB', _atomicObservedAt: '2026-11-13T21:59:59.000Z', regularMarketChangePercent: -0.001 }, 103.411);
+  if (!rebased || rebased.pct !== 0.2336 || rebased.quote.regularMarketPreviousClose !== 103.17 || Math.abs(rebased.quote.regularMarketChange - 0.241) > 1e-9) fail(`v60.18 the held quote is re-based on the published close: ${JSON.stringify(rebased)}`);
+  if (PriceStore.heldCloseQuote({ symbol: 'DX-Y.NYB', _atomicObservedAt: '2026-11-16T14:35:00.000Z' }, 104) !== null) fail('v60.18 a newer-session quote is not re-based');
+  const live = fs.readFileSync(path.join(root, 'js/aio-data.js'), 'utf8');
+  const apply = live.slice(live.indexOf('function applyLiveQuotes('), live.indexOf('PriceStore.set(q.symbol, price, pct'));
+  if (!/PriceStore\.heldCloseQuote\(q, price\)/.test(apply)) fail('v60.18 applyLiveQuotes must ask PriceStore.heldCloseQuote before it stores and paints a live change');
+}
 const refresh = fs.readFileSync(path.join(root, '.github/workflows/refresh-data.yml'), 'utf8');
 // v59.85: the staged set is the refresh-data publish set (scripts/lib/data-publish-sets.mjs).
 if (!refresh.includes('scripts/publish-data-commit.mjs --set refresh-data') || !workflowPublishes('refresh-data.yml', 'public-data/market-snapshot.json') || !workflowPublishes('refresh-data.yml', 'public-data/market-snapshot-status.json')) fail('refresh workflow does not publish snapshot artifacts');

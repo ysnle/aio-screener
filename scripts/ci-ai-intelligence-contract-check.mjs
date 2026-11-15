@@ -20,6 +20,7 @@ import { classifyAIConduct, classifyAIRequest, auditAIResponse, getAIConductPoli
 import { createAIAnswerOrchestrator } from '../src/ai/orchestrator/answer-orchestrator.js';
 import { createAIKnowledgeIndex, retrieveAIKnowledge } from '../src/ai/retrieval/knowledge.js';
 import { evaluateEvidenceUse } from '../src/ai/policy/evidence-use.js';
+import { scenarioOutcomeFingerprints } from '../src/domain/scenarios/outcome-fingerprints.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -469,7 +470,18 @@ check('claim-binding-strips-model-invented-citations', bind(bindingClaim).plan.c
 check('claim-binding-unknown-status-fails-closed', bind(bindingClaim, [{ ...bindingRow, status: 'unreviewed' }]).plan.claims.claims.length === 0);
 check('claim-binding-document-id-cannot-validate-invented-number', bind(bindingClaim, [{ ...bindingRow, value: null, unit: 'document' }]).plan.claims.claims.length === 0);
 check('claim-binding-snippet-cannot-publish', bind(bindingClaim, [{ ...bindingRow, contentDepth: 'SNIPPET' }]).plan.claims.claims.length === 0);
-check('claim-binding-numeric-prose-cannot-smuggle-conflicting-value', !bind({ ...bindingClaim, text: '주가는 999 USD' }).plan.claims.claims[0].text.includes('999'));
+// v60.19 (external audit): a reference claim whose own text writes another figure than its value is dropped (below).
+// Review v60.19 A3: an evidence-bound claim is published under its bound label, so its prose cannot smuggle a figure —
+// it is relabelled, not dropped: "미국 10년물 금리 4.21% (전일 대비 +5bp)" bound to the 4.21 row is kept as that row.
+{
+  const smuggled = bind({ ...bindingClaim, text: '주가는 999 USD' });
+  check('claim-binding-numeric-prose-cannot-smuggle-conflicting-value', smuggled.plan.claims.claims.length === 1 && smuggled.plan.claims.claims[0].text === 'NVDA · price'
+    && !JSON.stringify(smuggled.plan.claims).includes('999'), JSON.stringify(smuggled.plan.claims));
+  const tenYearRow = { evidenceId: 'ev1', metric: 'close.us10y', ticker: '', scale: 'raw', value: 4.21, unit: '%', asOf: '2026-11-13T21:00:00Z', source: 'FRED', sourceUrl: 'https://fred.stlouisfed.org/series/DGS10', status: 'ok', label: '미국 10년물 금리 종가' };
+  const tenYear = bind({ claimId: 'us10y', type: 'numeric', metric: 'close.us10y', value: 4.21, unit: '%', asOf: tenYearRow.asOf, source: 'FRED', text: '미국 10년물 금리 4.21% (전일 대비 +5bp)', evidenceIds: ['ev1'] }, [tenYearRow]);
+  check('review-v60.19 an evidence-bound claim with a second figure in its text is kept under its row label, not dropped as claim-label-mismatch',
+    tenYear.plan.claims.claims.length === 1 && tenYear.plan.claims.claims[0].text === '미국 10년물 금리 종가' && !tenYear.droppedClaims.length, JSON.stringify(tenYear.droppedClaims));
+}
 check('claim-binding-text-type-cannot-bypass-numeric-contract', bind({ ...bindingClaim, type: 'text', text: '현재 주가 999 USD' }).plan.claims.claims.length === 0);
 const relabeledDoc = createEvidenceDocument({ canonicalUrl: 'https://example.com/a', publisher: 'sec.gov', source: 'SEC official', sourceTier: 'PRIMARY_OFFICIAL', contentDepth: 'EXCERPT' });
 check('research-untrusted-label-cannot-promote-host', relabeledDoc.sourceTier === 'SECONDARY' && relabeledDoc.publisher === 'example.com');
@@ -1606,6 +1618,57 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check('v60.04 without reference material nothing changes: the claims are dropped and the dated sentences removed',
     noReference.droppedClaims.length === given.length && keptSentences.slice(0, 2).every((line) => !noReference.plan.summary.includes(line)));
 }
+// v60.19 (external audit 2026-11-14, AI 답변의 사실 검증): a figure was matched on its value alone. With app material for
+// NVDA's 11/12 close (166.19), "NVDA 오늘 장중 가격 999달러: 166.19USD" was listed under 확인된 수치, and a NVDA/AMD table
+// with the two RSI values swapped passed; earlier reviews found a sign flip, a metric swap and an educational example
+// read as a current value. One reading of what a figure is about (subject, metric, basis, direction, day) now runs for
+// structured claims, body prose, table cells and tool text alike.
+{
+  const pub = await import('../src/ai/response/publication.js');
+  const nowMs = Date.parse('2026-11-14T12:00:00Z');
+  const entities = ['NVDA', 'AMD'];
+  const reference = 'NVDA 종가 166.19달러 (2026-11-12 종가).\n\nAMD 종가 585.30달러 (2026-11-12 종가).\n\nNVDA RSI 26 (2026-11-12 종가).\n\nAMD RSI 58 (2026-11-12 종가).\n\nNVDA 1개월 -24.9%, PER 24.1배, 목표가 $220.50';
+  const claim = { claimId: 'c1', type: 'numeric', metric: 'price', entity: 'NVDA', value: 166.19, unit: 'USD', asOf: '2026-11-12', source: '앱 자료', status: 'verified', allowedUse: 'reference', text: 'NVDA 종가', evidenceIds: [] };
+  const publish = (claims, ref = reference) => pub.buildPublishableAnswerPlan({ summary: '', sections: [], claims: { claims } }, [], true, { nowMs, referenceText: ref, entities });
+  const body = (text, ref = reference) => pub.buildPublishableAnswerPlan({ summary: text, sections: [], claims: { claims: [] } }, [], true, { nowMs, referenceText: ref, entities }).plan.summary;
+  const table = (a, b) => pub.buildPublishableAnswerPlan({ summary: '', sections: [{ title: '비교', body: `| 기준 | NVDA | AMD |\n|---|---|---|\n| RSI | ${a} | ${b} |` }], claims: { claims: [] } }, [], true, { nowMs, referenceText: reference, entities }).plan.sections[0]?.body || '';
+  check('v60.19 a reference claim that matches the material on subject, metric, basis, day and value is kept', publish([claim]).plan.claims.claims.length === 1);
+  const forged = { label999: { text: 'NVDA 오늘 장중 가격 999달러' }, intraday: { text: 'NVDA 오늘 장중 가격' }, otherDay: { asOf: '2026-11-14' }, otherMetric: { metric: '목표가', text: 'NVDA 목표가' } };
+  for (const [name, patch] of Object.entries(forged)) {
+    const out = publish([{ ...claim, ...patch }]);
+    check(`v60.19 a reference claim with a forged ${name} is dropped, not listed`, out.plan.claims.claims.length === 0 && out.droppedClaims.length === 1, JSON.stringify(out.droppedClaims));
+  }
+  check('v60.19 the dropped label names its reason', publish([{ ...claim, ...forged.label999 }]).droppedClaims[0].reasons.includes('claim-label-mismatch'));
+  check('v60.19 a table cell is checked as its row metric and column subject read it: the right RSI order stays, a swapped one is replaced',
+    /\| RSI \| 26 \| 58 \|/.test(table(26, 58)) && /\| RSI \| 확인 필요 \| 확인 필요 \|/.test(table(58, 26)), table(58, 26));
+  const shapes = [
+    ['a falling figure written as a rise', 'NVDA는 한 달 동안 24.9% 하락했습니다.', 'NVDA는 한 달 동안 24.9% 상승했습니다.'],
+    ['a target price written as the price', 'NVDA의 목표가는 220.50달러입니다.', 'NVDA의 주가는 220.50달러입니다.'],
+    ['a close written as an intraday quote', 'NVDA는 166.19달러입니다.', 'NVDA는 오늘 장중 166.19달러입니다.']
+  ];
+  for (const [name, right, wrong] of shapes) {
+    check(`v60.19 body prose: ${name} is removed and the grounded sentence stays`, body(right) === right && body(wrong) === '', `${body(right)} / ${body(wrong)}`);
+  }
+  const example = 'NVDA 종가 166.19달러 (2026-11-12 종가).\n\n[AIO KNOWLEDGE REFERENCE v1]\nsourceKind=REFERENCE | currentClaimsAllowed=false | surfaces=개념\n- [개념] PER\n  적용 예시: PER 35배인 기업은 이익의 35년치 가격이다.';
+  const quarantined = 'NVDA 종가 166.19달러\n\n[AIO UNTRUSTED DATA START kind=KNOWLEDGE_REFERENCE security=x]\nitem[0] sourceKind=UNTRUSTED quarantined=false flags=none data='
+    + JSON.stringify('[AIO KNOWLEDGE REFERENCE v1]\nsourceKind=REFERENCE | currentClaimsAllowed=false\n  적용 예시: PER 35배') + '\n[AIO UNTRUSTED DATA END kind=KNOWLEDGE_REFERENCE]';
+  check('v60.19 a figure only in reference-only material (currentClaimsAllowed=false, raw or quoted) supports no current sentence',
+    body('현재 NVDA의 PER은 35배입니다.', example) === '' && body('현재 NVDA의 PER은 35배입니다.', quarantined) === '' && body('NVDA는 166.19달러입니다.', example) === 'NVDA는 166.19달러입니다.');
+  // False positives: grounded sentences and a comparison table on the injected block shapes chatSendUnified sends stay whole.
+  const blocks = await import('./fixtures/answer-subject-blocks.mjs');
+  const wrapped = pub.answerReferenceText(blocks.wrappedReference(promptKit.window.AIO.buildAIUntrustedBlock));
+  const grounded = ['엔비디아는 180.25달러로 1.23% 올랐습니다.', 'NVDA의 RSI는 48로 중립 구간입니다.', '목표가 220.50달러 기준 업사이드는 22.3%입니다.',
+    '5거래일 동안 2.1% 올랐고 한 달 동안 6.2% 내렸습니다.', '엔비디아는 52주 고점 대비 9.8% 낮은 위치입니다.', 'NVDA는 50일선 183.10달러 아래, 200일선 162.00달러 위에 있습니다.',
+    'NVDA의 EV/EBITDA는 33.0배로 섹터 중앙값 19.2배보다 높습니다.', 'AMD는 142.10달러로 0.84% 내렸습니다.', '11월 11일 종가 기준 NVDA는 180.25달러입니다.',
+    'NVDA의 현재가는 180.25달러입니다.', 'AMD의 RSI(14)는 52.0입니다.', 'AMD는 3개월 동안 4.0% 하락했습니다.', 'SPX는 6,812.4, VIX는 15.2입니다.',
+    '미국 10년물은 4.95%입니다.', 'NVDA의 FCF Yield는 2.10%입니다.', 'AMD의 목표가는 175.00달러이고 업사이드는 23.2%입니다.', '엔비디아는 3개월 동안 8.4% 올랐습니다.'];
+  const groundedTable = '| 기준 | NVDA | AMD |\n|---|---|---|\n| 종가 | $180.25 | $142.10 |\n| RSI | 48 | 52 |\n| 1개월 | -6.2% | +3.3% |\n| EV/EBITDA | 33.0x | 41.2x |';
+  const onBlocks = (summary, sectionBody) => pub.buildPublishableAnswerPlan({ summary, sections: sectionBody ? [{ title: '비교', body: sectionBody }] : [], claims: { claims: [] } }, [], true,
+    { nowMs: Date.parse('2026-11-12T03:00:00Z'), referenceText: wrapped, entities: blocks.SUBJECT_ENTITIES }).plan;
+  const removedGrounded = grounded.filter((sentence) => !onBlocks(sentence).summary.includes(sentence));
+  check(`v60.19 no false positive on grounded prose over the injected blocks (${grounded.length - removedGrounded.length}/${grounded.length} kept)`, removedGrounded.length === 0, removedGrounded.join(' | '));
+  check('v60.19 no false positive on a grounded comparison table over the injected blocks', onBlocks('', groundedTable).sections[0]?.body === groundedTable, onBlocks('', groundedTable).sections[0]?.body);
+}
 // v60.02 (plan 045, owner 2026-11-12 "think, reason and judge for itself"): the chat's data tools. Each tool wraps a
 // reader the screens use; the fixture root is dated from the real clock so no case depends on today's date.
 {
@@ -1644,8 +1707,8 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
       __aioCompanyStories: { rows: { NVDA: { researchedAt: iso(20) } }, context: { NVDA: '【NVDA 기업 분석】 데이터센터 매출 비중이 커진 구조다.' }, inFlight: {}, failed: {}, entries: {} },
       _aioCompanyProfileIndex: { profiles: [{ symbol: 'NVDA', file: 'NVDA.json', researchedAt: iso(20) }] },
       _aioConsensusEstimates: { rows: { NVDA: { asOf: `${iso(2)}T22:00:00Z`, fwd: { from: iso(-30).slice(0, 7), to: iso(-300).slice(0, 7), eps: 6.2, minEstimates: 30, up4w: 9, down4w: 1, hi: 6.8, lo: 5.6 }, trailing: { eps: 4.4 } } } },
-      [SCENARIO_OUTCOMES.key]: { schemaVersion: 'scenario-outcomes.v1', sourceLabel: '장기 일봉 기록', to: iso(6), branches: { reheat: { n: 139, up: 81, median: 1, p25: -1.4, p75: 3.7, from: '1990-01-02', to: iso(6), horizon: 20, baseN: 9182, baseUpPct: 64 } },
-        themes: { semiconductor: { symbol: 'SMH', leading: { n: 39, up: 29, median: 6.2, p25: -0.9, p75: 10.5, from: '2000-06-05', to: iso(6), horizon: 63, baseN: 5730, baseUpPct: 67 } } } },
+      [SCENARIO_OUTCOMES.key]: { schemaVersion: 'scenario-outcomes.v1', fingerprints: scenarioOutcomeFingerprints(), sourceLabel: '장기 일봉 기록', to: iso(6), branches: { reheat: { n: 139, up: 81, median: 1, p25: -1.4, p75: 3.7, from: '1990-01-02', to: iso(6), horizon: 20, baseN: 9182, baseUpPct: 64 } },
+        themes: { semiconductor: { symbol: 'SMH', fingerprint: scenarioOutcomeFingerprints().themes, leading: { n: 39, up: 29, median: 6.2, p25: -0.9, p75: 10.5, from: '2000-06-05', to: iso(6), horizon: 63, baseN: 5730, baseUpPct: 67 } } } },
       _aioTickerNewsFromCache: (symbol, opts) => (symbol === 'NVDA' ? `  [NVDA 종목 뉴스, 최근 ${Math.round(opts.windowHours / 24)}일, 1건 중 Top 1]\n    1. [fixture, 3h전] 엔비디아 데이터센터 매출 전망 상향` : ''),
       _buildNewsContext: (ctx, query) => (/금리/.test(query) ? '【최근 시장 뉴스】\n1. [fixture, 2h전] 금리 경로 재평가' : ''),
       ...extra
@@ -1701,6 +1764,16 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     ['Korean listing has no SEC filings', await run('fundamentals', { symbol: '005930' }), /미국 상장/]
   ];
   for (const [label, result, reason] of bad) check(`v60.02 ${label} → ok:false with a Korean reason (${result.text})`, result.ok === false && reason.test(result.text) && Array.isArray(result.entities));
+  // Review v60.19 B4: a branch record published under another definition stamp answers with that state, not "no record".
+  {
+    const restampedRoot = fixtureRoot();
+    restampedRoot[SCENARIO_OUTCOMES.key] = { ...restampedRoot[SCENARIO_OUTCOMES.key], fingerprints: { ...scenarioOutcomeFingerprints(), branches: 'branch-analogs:older' }, corrections: { episodes: [] } };
+    const restamped = await registry.runTool('scenario_record', '{"id":"reheat"}', { root: restampedRoot, now: nowMs });
+    const correction = await registry.runTool('scenario_record', '{"id":"correction"}', { root: { ...restampedRoot, [SCENARIO_OUTCOMES.key]: { ...restampedRoot[SCENARIO_OUTCOMES.key], fingerprints: { ...scenarioOutcomeFingerprints(), corrections: 'correction-base-rates:older' } } }, now: nowMs });
+    check(`review v60.19 a branch or correction record under another definition says the definition changed and the record follows at the next regeneration (${restamped.text} / ${correction.text})`,
+      restamped.ok === true && /다른 기준으로 계산돼 있어 쓰지 않습니다\(다음 주간 갱신 때 다시 계산\)/.test(restamped.text) && !/기록이 없는 id/.test(restamped.text)
+        && correction.ok === true && /나스닥 조정 횟수 기록은 지금 정의와 다른 기준/.test(correction.text));
+  }
   const throwing = fixtureRoot({ _aioScreenBasisEvidence: () => { throw new Error('boom'); }, AIO: { readPublicFundamentals: async () => { throw new Error('offline'); }, formatSecResearchEvidence }, _aioRunScreenerQuery: () => { throw new Error('boom'); } });
   let threw = false;
   try {
@@ -1786,6 +1859,32 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     try { mixedBudget = prepareOpenAiBudget(first, { AI_WEB_SEARCH_ENABLED: 'true', AI_MAX_OUTPUT_TOKENS: '16384' }); } catch (error) { mixedError = error.message; }
     check(`v60.02 the mixed first request (search + ${first.tools.length - 1} functions, ${first.tool_choice}) passes prepareOpenAiBudget ${mixedError}`,
       mixedBudget !== null && first.tools[0].type === 'web_search' && first.tools.slice(1).every((tool) => tool.type === 'function') && first.tool_choice === 'required' && mixedBudget.searchReserveMicroUsd > 0);
+    // v60.19 (external audit, AI 도구·복구): 'required' was satisfied by a data function call alone and the next request
+    // was 'auto', so an answer the reader asked to be searched ended with no search. While a required search has not run,
+    // the follow-up offers the search alone (tool_choice 'required'); once one ran, the rounds go on as before.
+    const fakeRun = async (calls, { used }) => ({ outputs: calls.map((call) => ({ type: 'function_call_output', call_id: call.call_id, output: 'AAPL 종가 자료' })), results: [], used: used + calls.length });
+    const functionOnly = { type: 'response.completed', response: { output: [{ type: 'function_call', call_id: 'c1', name: 'trend', arguments: '{"symbol":"AAPL"}' }] } };
+    const owed = loop.createToolSession(attached, {}, { run: fakeRun });
+    owed.beginRound(); owed.observe(functionOnly);
+    const owedAgain = await owed.advance('end_turn');
+    let owedBudget = null, owedError = '';
+    try { owedBudget = prepareOpenAiBudget(owed.body, { AI_WEB_SEARCH_ENABLED: 'true', AI_MAX_OUTPUT_TOKENS: '16384' }); } catch (error) { owedError = error.message; }
+    check(`v60.19 a required search not yet run makes the follow-up search-only and required (${owed.body.tool_choice}, ${owed.body.tools.map((tool) => tool.type).join('+')}) ${owedError}`,
+      owedAgain === true && owed.body.tool_choice === 'required' && owed.body.tools.length === 1 && owed.body.tools[0].type === 'web_search' && owed.body.max_tool_calls === 2
+        && owedBudget !== null && owedBudget.searchReserveMicroUsd > 0 && owed.body.input.some((item) => item.type === 'function_call_output'));
+    owed.beginRound(); owed.observe({ type: 'response.output_item.done', item: { type: 'web_search_call', status: 'completed' } });
+    owed.observe({ type: 'response.completed', response: { output: [{ type: 'web_search_call' }, { type: 'message' }] } });
+    check('v60.19 the search-only follow-up is the last request once its search ran', (await owed.advance('end_turn')) === false && owed.searched === true);
+    const searchedFirst = loop.createToolSession(attached, {}, { run: fakeRun });
+    searchedFirst.beginRound();
+    searchedFirst.observe({ type: 'response.completed', response: { output: [{ type: 'web_search_call' }, ...functionOnly.response.output] } });
+    await searchedFirst.advance('end_turn');
+    check('v60.19 a first response that searched and called a function continues with search and the functions (auto)',
+      searchedFirst.body.tool_choice === 'auto' && searchedFirst.body.tools[0].type === 'web_search' && searchedFirst.body.tools.slice(1).length > 0 && searchedFirst.body.tools.slice(1).every((tool) => tool.type === 'function'));
+    const optional = loop.createToolSession({ ...attached, tool_choice: 'auto' }, {}, { run: fakeRun });
+    optional.beginRound(); optional.observe(functionOnly);
+    await optional.advance('end_turn');
+    check('v60.19 an optional search (auto) is never forced', optional.body.tool_choice === 'auto' && optional.body.tools.some((tool) => tool.type === 'function'));
     if (process.env.AIO_BUDGET_NUMBERS && mixedBudget) {
       const searchOnly = prepareOpenAiBudget(attached, { AI_WEB_SEARCH_ENABLED: 'true', AI_MAX_OUTPUT_TOKENS: '16384' });
       const { tools: _t, max_tool_calls: _m, ...plain } = first;
@@ -1845,7 +1944,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const t0 = 2_000_000;
   const long = '엔비디아 실적 발표 뒤 반도체 공급망 전체의 재고와 가격 흐름이 어떻게 달라졌는지 기업별로 나눠서 자세히 설명해 줘. 특히 메모리와 파운드리 쪽을 중심으로';
   check('v60.02 a pending turn is stored under one key with its session, screen, question and start', pt.savePendingTurn(tab, { sessionId: 's1', ctx: 'home', question: long, startedAt: t0 }) === true
-    && JSON.stringify(JSON.parse(box.get(pt.PENDING_TURN_KEY))) === JSON.stringify({ sessionId: 's1', ctx: 'home', question: long, startedAt: t0 }));
+    && JSON.stringify(JSON.parse(box.get(pt.PENDING_TURN_KEY))) === JSON.stringify({ sessionId: 's1', ctx: 'home', route: '', question: long, startedAt: t0 }));
   check('v60.02 a pending turn reads back within 15 minutes', pt.readPendingTurn(tab, { now: t0 + 14 * 60_000 })?.question === long);
   check('v60.02 a pending turn expires at 15 minutes and is removed', pt.readPendingTurn(tab, { now: t0 + 15 * 60_000 }) === null && !box.has(pt.PENDING_TURN_KEY));
   pt.savePendingTurn(tab, { ctx: 'home', question: '짧은 질문', startedAt: t0 });
@@ -1856,6 +1955,12 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     && pt.savePendingTurn(tab, { question: '미래', startedAt: t0 + 60_000 }) && pt.readPendingTurn(tab, { now: t0 }) === null);
   check('v60.02 an empty question or a refusing store keeps nothing', pt.savePendingTurn(tab, { question: '  ', startedAt: t0 }) === false
     && pt.savePendingTurn({ setItem() { throw new Error('quota'); } }, { question: 'q', startedAt: t0 }) === false && pt.savePendingTurn(null, { question: 'q', startedAt: t0 }) === false);
+  // v60.19 (external audit): the screen address is kept too, so 다시 묻기 asks on the question's own screen; only an in-app hash.
+  pt.savePendingTurn(tab, { sessionId: 's1', ctx: 'ticker', route: '#ticker?sym=NVDA', question: '이 종목은?', startedAt: t0 });
+  const routed = pt.readPendingTurn(tab, { now: t0 });
+  pt.savePendingTurn(tab, { ctx: 'ticker', route: 'https://example.com/#x', question: '이 종목은?', startedAt: t0 });
+  check('v60.19 a pending turn keeps its screen address, and nothing that is not an in-app hash',
+    routed?.route === '#ticker?sym=NVDA' && routed.ctx === 'ticker' && pt.readPendingTurn(tab, { now: t0 })?.route === '');
   const preview = pt.pendingQuestionPreview(long);
   check(`v60.02 the card quotes at most 80 characters of the question (${preview.length})`, preview.length <= 80 && preview.length >= 70 && preview.endsWith('…') && long.startsWith(preview.slice(0, -1)) && pt.pendingQuestionPreview(' 짧은\n질문 ') === '짧은 질문');
 }

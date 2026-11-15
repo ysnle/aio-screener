@@ -7,15 +7,12 @@ import * as newsControls from '../ui/components/news-controls.js';
 import { setSectorPerfView } from '../ui/components/sector-perf-view.js';
 import { setRRGView } from '../ui/components/rrg-view.js';
 import { ensureKrThemeProgressive } from '../ui/components/kr-theme-progressive.js';
-import { renderPortfolioRiskMetrics, renderPortfolioRiskStatus } from '../ui/components/portfolio-risk-metrics.js';
 import { renderScreenerFmpStatus } from '../ui/components/screener-fmp-status.js';
 import { organizeGuideChapters } from '../ui/components/guide-chapters.js';
-import { renderWatchlist, readWatchlistSelect, readWatchlistInputs, clearWatchlistInputs } from '../ui/components/portfolio-watchlist.js';
 import { createFundamentalSearch } from '../ui/components/fundamental-search.js';
 import { installGlossaryModal } from '../ui/knowledge/glossary-modal.js';
 import { bindRefreshProgress, createGlobalRefresh } from '../ui/components/refresh-progress.js';
 import { createEarningsCalendar } from '../ui/components/earnings-calendar.js';
-import { renderPortfolioBacktestLab, renderPortfolioBacktestStatus, varCertLabel } from '../ui/components/portfolio-backtest-lab.js';
 import { renderPipelineStatus, renderPublicReadiness } from '../ui/components/pipeline-status.js';
 
 export function installLegacyScreenBridges(root, documentRef) {
@@ -41,28 +38,14 @@ export function installLegacyScreenBridges(root, documentRef) {
   // v58.99 테마 · 섹터: the 한국 테마 '테마 더 보기' toggle (initKoreaThemes calls it; idempotent).
   root._aioEnsureKrThemeProgressive = () => ensureKrThemeProgressive(at);
   root._aioEnsureKrThemeProgressive();
-  // v59.03 포트폴리오: the 백테스트 랩 status line and result (runPortfolioBacktestLab reports after a click), VaR label.
-  root._aioRenderPortfolioBacktestLab = (model) => renderPortfolioBacktestLab(model, at);
-  root._aioRenderPortfolioBacktestStatus = (text, warn) => renderPortfolioBacktestStatus(text, warn, at);
-  root._aioBtVarCertLabel = varCertLabel;
-  // v59.04 포트폴리오: the 익스포저·집중도 and stress panels (refreshPortfolioRisk calls them). Only the portfolio route
-  // draws them, so their renderer and its concentration reading load on the first call, not in the boot window.
-  const exposure = () => import('../ui/components/portfolio-exposure.js');
-  const drawLater = (draw) => { exposure().then(draw).catch(() => {}); };
-  root._aioRenderPortfolioExposure = (positions, returnsMap, corrRes = null) => drawLater((m) => m.renderPortfolioExposure(positions, returnsMap, { ...at, corrRes }));
-  root._aioRenderPortfolioStress = (positions, historyMap, commonDates) => drawLater((m) => m.renderPortfolioStress(positions, historyMap, commonDates, at));
-  // v59.05 포트폴리오: the 리스크 지표 panel and its status lines; a refreshPortfolioRisk that ran before this module
-  // loaded is repeated now.
-  root._aioRenderPortfolioRiskStatus = (text, warn) => renderPortfolioRiskStatus(text, warn, at);
-  root._aioRenderPortfolioRiskMetrics = (data) => renderPortfolioRiskMetrics(data, at);
-  if (root._aioPortfolioRiskPending && typeof root.refreshPortfolioRisk === 'function') { root._aioPortfolioRiskPending = false; root.refreshPortfolioRisk(); }
-  // v59.06 포트폴리오: the 관심 종목 리스트 view and the reads of its select and add inputs; a view refresh that ran
-  // before this module loaded is repeated now.
-  root._aioRenderWatchlist = (lists, activeId, mode) => renderWatchlist(lists, activeId, mode, at);
-  root._aioReadWatchlistSelect = () => readWatchlistSelect(at);
-  root._aioReadWatchlistInputs = () => readWatchlistInputs(at);
-  root._aioClearWatchlistInputs = (typed) => clearWatchlistInputs(typed, at);
-  if (root._aioWatchlistPending && typeof root.refreshWatchlistUI === 'function') { root._aioWatchlistPending = false; root.refreshWatchlistUI(); }
+  // 포트폴리오 (백테스트 랩, 리스크 지표, 익스포저·스트레스, 관심 종목): only that route draws them, so their renderers (with
+  // the risk readout and the return statistics) install from their own chunk when it is shown, or at once for automated
+  // browsers, as the AI panel and the glossary do. A refresh asked before that is marked pending and repeated on install.
+  let portfolioBridges = null;
+  const loadPortfolioBridges = () => (portfolioBridges ||= import('./portfolio-screen-bridges.js')
+    .then((m) => m.installPortfolioScreenBridges(root, documentRef))
+    .catch(() => { portfolioBridges = null; }));
+  if ((root.navigator?.webdriver && !root.__aioUserBoot) || documentRef.getElementById('page-portfolio')?.classList?.contains('active')) loadPortfolioBridges();
   // v59.07 도움말: the chapter layout (guide.js runs it on mount; the headless T869 test calls this name).
   root._aioOrganizeGuideChapters = () => { const page = documentRef.getElementById('page-guide'); if (page) organizeGuideChapters(documentRef, page); };
   // 오늘: the 데이터 파이프라인 상태 bar and the developer-mode 공개 준비 panel (src/ui/components/pipeline-status.js).
@@ -96,11 +79,12 @@ export function installLegacyScreenBridges(root, documentRef) {
     readinessTimer = root.setTimeout(() => { readinessTimer = 0; root._aioRenderPublicReadiness(); }, Math.max(0, Number(delay) || 0));
   };
   root.addEventListener?.('aio:liveQuotes', () => root._aioSchedulePublicReadiness(250));
-  root.addEventListener?.('aio:pageShown', (e) => {
+  // showPage dispatches aio:pageShown on the document without bubbling (js/aio-core.js), so a window listener never ran.
+  documentRef.addEventListener?.('aio:pageShown', (e) => {
     const detail = e && e.detail;
     const pageId = typeof detail === 'string' ? detail : detail && (detail.pageId || detail.id || detail.route);
     if (pageId === 'home') root._aioSchedulePublicReadiness(100);
-    if (pageId === 'portfolio') root._aioLoadTechnicalEngine?.().catch(() => {}); // warm the risk engine as 포트폴리오 opens
+    if (pageId === 'portfolio') { loadPortfolioBridges(); root._aioLoadTechnicalEngine?.().catch(() => {}); } // its renderers and the risk engine load as 포트폴리오 opens
   });
   if (root._serverDataMeta) root._aioRenderPipelineStatus();
   root._aioSchedulePublicReadiness(1500);

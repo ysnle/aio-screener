@@ -105,7 +105,7 @@ export function moverMemos(screener, { nowMs, windowHours = NARRATIVE_WINDOW_HOU
     const ts = Date.parse(row.newsObservedAt || row.newsTs || '');
     if (!Number.isFinite(ret5d) || Math.abs(ret5d) < NARRATIVE_MOVER_MIN_ABS_RET5D || !Number.isFinite(ts) || ts < since) continue;
     const liquidity = readRowNumber(row, 'dollarVolume30d') ?? readRowNumber(row, 'tradedValue30d') ?? readRowNumber(row, 'dollarVolume') ?? 0;
-    out.push({ kind: 'ticker', id: `ticker:${sym}`, sym, ts, ret5d, liquidity, score: Math.abs(ret5d) * Math.log10(Math.max(10, liquidity)), headlines, text: headlines.join(' · ') });
+    out.push({ kind: 'ticker', id: `ticker:${sym}`, sym, ts, ret5d, vol: readRowNumber(row, 'vol'), liquidity,score: Math.abs(ret5d) * Math.log10(Math.max(10, liquidity)), headlines, text: headlines.join(' · ') });
   }
   return out.sort((a, b) => b.score - a.score).slice(0, 40);
 }

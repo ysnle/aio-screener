@@ -4,8 +4,7 @@
 import { BENCHMARK_WINDOWS, buildBenchmarkTrend } from '../../domain/portfolio/benchmark-trend.js';
 import { fxReturnInto } from '../../domain/portfolio/attribution.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
-import { buildCloseSeries, sessionPointBack } from '../../domain/market/session/close-series.js';
-import { closeChange } from '../../domain/market/session/market-windows.js';
+import { buildCloseSeries, closeMoveBetween, sessionPointBack } from '../../domain/market/session/close-series.js';
 import { signedText } from '../../domain/shared/number.js';
 import { createTrendChart } from './trend-chart.js';
 import { renderDataState } from './data-state.js';
@@ -25,9 +24,16 @@ export function portfolioValueTrend({ surface, rowOf, history = [] } = {}) {
   // A holding converted into the base currency carries the USD/KRW close move over the same window as its return.
   const convertedFrom = new Map(rows.filter((row) => row.convertedFrom).map((row) => [row.symbol, row.convertedFrom]));
   const sessionsOf = new Map(BENCHMARK_WINDOWS.map((span) => [span.key, span.sessions]));
+  // The currency leg spans the same two sessions as the price leg (the window's start session and the basis close).
+  // A USD/KRW close missing on either date leaves that span without a currency move: the converted figure is withheld
+  // and the holding is not covered, never a move from other dates (11/11→11/12 FX beside 11/12→11/13 prices read +21%).
   const fxMoves = new Map();
   const usdkrwPct = (key) => {
-    if (!fxMoves.has(key)) fxMoves.set(key, asOf ? closeChange(history, 'usdkrw', sessionsOf.get(key), { through: asOf })?.pct ?? null : null);
+    if (!fxMoves.has(key)) {
+      const from = asOf && spx.length ? dateOf(sessionsOf.get(key)) : null;
+      const move = from ? closeMoveBetween(history, 'usdkrw', from, asOf, { exactTo: true }) : null;
+      fxMoves.set(key, move && move.fromDate === from ? move.pct : null);
+    }
     return fxMoves.get(key);
   };
   const fxReturnOf = (symbol, key) => {
@@ -53,8 +59,11 @@ export function portfolioValueTrend({ surface, rowOf, history = [] } = {}) {
     fxReturnOf,
     indexFxReturnOf
   });
-  if (!model.available) return model;
-  return { ...model, fxIncluded: [...convertedFrom.keys()].some((symbol) => !model.missing.includes(symbol)), indexFxIncluded: indexFx };
+  const needsFx = indexFx || convertedFrom.size > 0;
+  const fxAsOf = needsFx && asOf ? buildCloseSeries(history, 'usdkrw', { through: asOf }).at(-1)?.date || null : null;
+  const fxBehind = needsFx && !!asOf && fxAsOf !== asOf;
+  if (!model.available) return fxBehind && model.reason === 'coverage' ? { available: false, reason: 'fx-date', asOf, fxAsOf } : model;
+  return { ...model, fxIncluded: [...convertedFrom.keys()].some((symbol) => !model.missing.includes(symbol)), indexFxIncluded: indexFx, fxBehind, fxAsOf };
 }
 
 const HOLD_TEXT = Object.freeze({
@@ -75,7 +84,8 @@ export function renderPortfolioValueTrend({ documentRef: doc, root, surface, row
   if (!model.available) {
     if (model.reason === 'empty') { host.hidden = true; return model; }
     host.hidden = false;
-    if (model.reason === 'loading') renderDataState(body, { state: 'loading', lines: 4, timeoutText: '종가 기록을 받지 못해 비교를 그리지 못했습니다.' });
+    if (model.reason === 'fx-date') renderDataState(body, { state: 'empty', text: `원/달러 ${model.asOf} 종가가 아직 없어(마지막 ${model.fxAsOf || '없음'}) 환율을 포함한 비교를 보류합니다.` });
+    else if (model.reason === 'loading') renderDataState(body, { state: 'loading', lines: 4, timeoutText: '종가 기록을 받지 못해 비교를 그리지 못했습니다.' });
     else renderDataState(body, { state: 'empty', text: HOLD_TEXT[model.reason] || HOLD_TEXT.coverage });
     return model;
   }
@@ -97,7 +107,7 @@ export function renderPortfolioValueTrend({ documentRef: doc, root, surface, row
   });
   const parts = [lead, chart];
   const notes = [`${model.points.slice(0, -1).map((point) => point.label).join('·')} 전 수정 종가(배당 포함)를 이은 선, 지금 비중을 그대로 들고 있었다고 본 값이라 계좌 수익률과 다릅니다.${model.fxIncluded ? ' 기준 통화와 다른 종목은 원/달러 종가 변화를 더한 환율 포함 수익률입니다.' : ''}${model.indexFxIncluded ? ' S&P 500도 같은 원/달러 변화를 더해 계좌 통화로 맞췄습니다.' : ''}`];
-  if (model.missing.length) notes.unshift(`가격 기록이 ${model.window}에 못 미치는 ${model.missing.slice(0, 3).join(', ')}${model.missing.length > 3 ? ` 외 ${model.missing.length - 3}종목` : ''} 제외(평가액의 ${Math.max(1, Math.round((1 - model.coveredShare) * 100))}%).`);
+  if (model.missing.length) notes.unshift(`${model.fxBehind ? `원/달러 ${model.asOf} 종가가 없어 환산하지 못했거나 ` : ''}가격 기록이 ${model.window}에 못 미치는 ${model.missing.slice(0, 3).join(', ')}${model.missing.length > 3 ? ` 외 ${model.missing.length - 3}종목` : ''} 제외(평가액의 ${Math.max(1, Math.round((1 - model.coveredShare) * 100))}%).`);
   parts.push(el(doc, 'p', notes.join(' '), 'pf-trend-note'));
   body.replaceChildren(...parts);
   // The chart is drawn at the body's width (labels keep their size); a width change of more than 40px draws it again.

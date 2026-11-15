@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { computeFactorRanks } from '../src/domain/screener/factor-ranks.js';
-import { marketRows, screenerMarket, formatScreenerPrice, MARKET_POPULATION_POLICY } from '../src/domain/screener/market-scope.js';
+import { listingMarket, marketPopulation, marketRows, screenerMarket, formatScreenerPrice, MARKET_POPULATION_POLICY } from '../src/domain/screener/market-scope.js';
+import { LENSES } from '../src/domain/narrative/lens-registry.js';
 import { filterRows, sortRows } from '../src/ui/pages/screener.js';
 import { buildGroupStrength } from '../src/domain/themes/group-strength.js';
 import { normalizeScreener } from '../src/data/normalize/screener.js';
@@ -60,6 +61,17 @@ assert.equal(published.rows[0].rank, null, 'P1625: unavailable rerank cannot ret
 
 // Actual artifact audit is local read-only evidence, not a forced PLTR ranking expectation.
 const artifact = expandScreenerArtifact(JSON.parse(readFileSync(new URL('../public-data/screener.json', import.meta.url))));
+// v60.18: one universe size. Overseas listings (Tokyo, Taiwan) are shown in the US list but are no market's population, so
+// the screener's 모집단 and the 시장 폭 lens's "미국 N종목" are the same count (918 vs 914 counted them on one side only).
+{
+  const tokyo = { sym: '8035.T', listingMarket: 'INTL', currency: 'JPY' };
+  assert.ok(listingMarket(tokyo) === 'INTL' && screenerMarket(tokyo) === 'US' && listingMarket({ sym: 'TSM', market: 'US' }) === 'US', 'v60.18 an overseas listing is shown in the US list and listed as INTL');
+  const rowsAll = Object.entries(artifact.data || {}).map(([sym, row]) => ({ ...row, sym }));
+  const breadth = LENSES.find((lens) => lens.id === 'breadth');
+  const scope = breadth.measure({ history: [{ date: '2026-11-13', breadth50: 50 }], screenerRows: rowsAll })?.scope || '';
+  const usCount = Number((scope.match(/미국 (\d+)종목/) || [])[1]);
+  assert.ok(usCount === marketPopulation(rowsAll, 'US').length && marketRows(rowsAll, 'US').length - usCount === rowsAll.filter((row) => listingMarket(row) === 'INTL').length, `v60.18 the lens and the screener count the same US universe: ${scope} vs ${marketPopulation(rowsAll, 'US').length}`);
+}
 const pltr = artifact.data?.PLTR;
 assert.ok(pltr, 'P1625: PLTR remains in the published screener artifact');
 assert.equal(typeof pltr.ret3m, 'number', 'P1625: PLTR return evidence is present');

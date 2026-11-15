@@ -8,6 +8,7 @@ import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
 import { MARKET_TEMPERATURE } from '../../data/artifact-registry.js';
+import { evidenceStrength } from '../../domain/shared/evidence-strength.js';
 
 // A value that rounds to zero prints without a sign ('-0.0%' read as a fall).
 const pct = (value, digits = 1) => { if (!Number.isFinite(value)) return '—'; const text = Math.abs(value).toFixed(digits); return Number(text) === 0 ? `${text}%` : `${value > 0 ? '+' : '-'}${text}%`; };
@@ -40,10 +41,12 @@ export function temperatureEvidence(market, state = market.state) {
   const spell = market.outcomes?.[state]?.h63;
   const all = market.outcomes?.all?.h63;
   const label = STATE_LABEL[state];
-  if (!spell?.n || spell.n < 10 || !all?.n) return `${from}년 이후 ${label} 구간에서 서로 겹치지 않는 석 달이 ${spell?.n || 0}번뿐이라 그 뒤 결과를 평균으로 요약하지 않습니다.`;
+  // The floors and the 참고 note are the shared evidence-strength rule.
+  const ev = evidenceStrength(spell?.n);
+  if (!ev.figures || !all?.n) return `${from}년 이후 ${label} 구간에서 서로 겹치지 않는 석 달이 ${spell?.n || 0}번뿐이라 그 뒤 결과를 평균으로 요약하지 않습니다.`;
   const half = 2 * (spell.se || 0), allHalf = 2 * (all.se || 0);
   const overlap = spell.mean - half <= all.mean + allHalf && all.mean - allHalf <= spell.mean + half;
-  const small = spell.n < 30 ? ' 30번 미만의 작은 표본입니다.' : '';
+  const small = ev.note ? ` ${ev.note}` : '';
   return `${from}년 이후 ${label} 구간이 시작된 첫날 중 서로 겹치지 않는 ${spell.n}번의 석 달(63거래일) 동안 평균 ${pct(spell.mean)} ±${half.toFixed(1)}%p, 오른 비율 ${spell.hitRate}%, 하위 10% 결과 ${pct(spell.p10)}였습니다. 아무 날에나 시작한 석 달은 평균 ${pct(all.mean)} ±${allHalf.toFixed(1)}%p라 ${overlap ? '두 범위가 겹쳐 평균 차이는 구별되지 않습니다' : '두 범위가 겹치지 않습니다'}.${small}`;
 }
 

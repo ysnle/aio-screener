@@ -2,7 +2,7 @@
 // and the connected reading under them, then where the same question continues.
 import { DATA_STATE_CHIPS, dataStateText } from '../../domain/content/data-state.js';
 import { buildStockRead } from '../../domain/entity/stock-read.js';
-import { readMarketRegime } from './market-regime.js';
+import { readMarketRegime } from '../../data/selectors/interpretation.js';
 import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
 import { benchmarkRowFor } from '../../domain/market/indices/benchmarks.js';

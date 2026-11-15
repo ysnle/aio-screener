@@ -3,8 +3,10 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const DATA_PATH = resolve(ROOT, 'public-data/data.json');
-const EVIDENCE_PATH = resolve(ROOT, 'public-data/structural-data-research.json');
+// --data / --evidence read other copies (the clock-shift sweep in ci-data-pipeline-contract-check uses them).
+const argPath = (name) => { const at = process.argv.indexOf(name); return at > 0 && process.argv[at + 1] ? resolve(process.argv[at + 1]) : null; };
+const DATA_PATH = argPath('--data') || resolve(ROOT, 'public-data/data.json');
+const EVIDENCE_PATH = argPath('--evidence') || resolve(ROOT, 'public-data/structural-data-research.json');
 const MAX_AGE_DAYS = 180;
 const REQUIRED_IDS = [
   'aaii',
@@ -43,7 +45,11 @@ if (evidence.source !== 'official-web-research') fail(`unexpected evidence sourc
 const checkedAt = parseDate(evidence.checkedAt, 'evidence.checkedAt');
 const ageDays = (Date.now() - checkedAt.getTime()) / 86400000;
 if (ageDays < -1) fail(`evidence.checkedAt is in the future: ${evidence.checkedAt}`);
-if (ageDays > MAX_AGE_DAYS) fail(`official WebSearch evidence is stale: ${ageDays.toFixed(1)}d > ${MAX_AGE_DAYS}d`);
+// v60.19 (Codex audit research-expiry-v6016): this is a hand-kept artifact on the fast publish path. Past its window it
+// is reported, not a publish stop: the evidence becomes a dated reference (stale below), the manual-reference registry
+// holds it as expired, and the data watchdog's expiry issue opens 30 days ahead (reviewLeadDays) and again on expiry.
+const stale = ageDays > MAX_AGE_DAYS;
+if (stale) console.warn(`::warning::official WebSearch evidence is past its ${MAX_AGE_DAYS}-day window (checked ${evidence.checkedAt}, ${ageDays.toFixed(1)}d): kept as a dated reference; publish continues`);
 
 const entries = Array.isArray(evidence.entries) ? evidence.entries : [];
 const ids = entries.map(row => row && row.id).filter(Boolean);
@@ -131,6 +137,7 @@ console.log(JSON.stringify({
   ok: true,
   checkedAt: evidence.checkedAt,
   ageDays: Number(ageDays.toFixed(2)),
+  stale,
   evidenceEntries: entries.length,
   marketSurveys: { aaii: aaii.status, naaim: naaim ? 'retired-carried' : 'retired', investorsIntelligence: surveys.investorsIntelligence.status },
   officialReferences: exportsItem ? { krExports: exportsItem.status } : 'not-yet-written',

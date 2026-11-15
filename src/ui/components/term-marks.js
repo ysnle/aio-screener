@@ -123,9 +123,11 @@ export function firstSentence(definition) {
  * textContent nor its ancestry changes during the pass.
  */
 export function markTerms(page, glossary, documentRef = page?.ownerDocument) {
-  if (!page || !documentRef || !Array.isArray(glossary)) return 0;
-  const entries = new Map(glossary.map((entry) => [entry?.term, entry]));
-  const pending = TERM_MARKS.filter(([text, term]) => entries.has(term) && !page.querySelector(`.aio-term[data-term="${CSS.escape(text)}"]`));
+  if (!page || !documentRef) return 0;
+  // Before js/aio-glossary.js has loaded (it loads on intent) the fixed list is trusted: every TERM_MARKS target names an
+  // entry of the assembled glossary (pipeline-semantics RUN6-TERM-01). Once it has, a target without an entry is skipped.
+  const entries = Array.isArray(glossary) ? new Set(glossary.map((entry) => entry?.term)) : null;
+  const pending = TERM_MARKS.filter(([text, term]) => (!entries || entries.has(term)) && !page.querySelector(`.aio-term[data-term="${CSS.escape(text)}"]`));
   if (!pending.length) return 0;
   const anyTerm = new RegExp(pending.map(([text]) => escape(text)).join('|'));
   const nodes = [];
@@ -211,7 +213,17 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     if (pop && opener === mark) return;
     close({ restore: false });
     const entry = (root.GLOSSARY || []).find((item) => item?.term === mark.dataset.glossaryTerm);
-    if (!entry) return;
+    if (!entry) {
+      // The mark was placed before the glossary arrived: open once it has (a hover that left meanwhile does not).
+      if (!Array.isArray(root.GLOSSARY) && typeof root.AIO?.loadGlossaryFull === 'function' && !mark.dataset.termWaiting) {
+        mark.dataset.termWaiting = '1';
+        root.AIO.loadGlossaryFull().catch(() => {}).then(() => {
+          delete mark.dataset.termWaiting;
+          if (mark.isConnected && Array.isArray(root.GLOSSARY) && (focus || mark.matches(':hover'))) open(mark, { focus });
+        });
+      }
+      return;
+    }
     pop = documentRef.createElement('div');
     pop.className = 'aio-term-pop';
     pop.setAttribute('role', 'dialog');

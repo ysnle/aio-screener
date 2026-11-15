@@ -239,6 +239,15 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
     assert.equal(dueAt(row(terminal('required-us-gaap-annual-concepts-unavailable', '2026-10-16T12:00:00.000Z'), '0001990001')), false, 'v59.97 one filing triggers one retry');
     // The retry goes through the normal 24-hour spacing.
     assert.equal(sec.isSecTargetDue(row(terminal('required-us-gaap-annual-concepts-unavailable', '2026-10-14T23:30:00.000Z'), '0001990001'), { now: Date.parse('2026-10-15T06:00:00Z') }), false, 'v59.97 the retry keeps the 24-hour failure spacing');
+    // v60.19 (Codex numbers audit): a 10-K dated the attempt's own UTC day (morning attempt, afternoon filing) is due.
+    assert.equal(dueAt(row(terminal('required-us-gaap-annual-concepts-unavailable', '2026-10-15T09:00:00.000Z'), '0001990001')), true, 'v60.19 a first annual filing dated the attempt\'s own UTC day is due on the next run');
+    // v60.19: a filing seen while the retry waits is kept on the failure record and stays due after the index window.
+    const waiting = terminal('required-us-gaap-annual-concepts-unavailable', '2026-10-15T09:00:00.000Z');
+    const kept = sec.noAnnualFilingCheckpoint(waiting, '2026-10-15');
+    assert.equal(kept?.filingSeenAt, '2026-10-15', 'v60.19 the seen filing date is checkpointed on the failure record');
+    assert.equal(sec.isSecTargetDue({ ...row(kept, '0009999999'), periodicFiledAt: null }, { now: Date.parse('2026-10-30T00:00:00Z') }), true, 'v60.19 a checkpointed first annual filing stays due after it leaves the 7-day index window');
+    assert.equal(sec.noAnnualFilingCheckpoint(kept, '2026-10-15'), null, 'v60.19 an unchanged checkpoint is not rewritten');
+    assert.equal(dueAt(row({ ...terminal('required-us-gaap-annual-concepts-unavailable', '2026-10-16T12:00:00.000Z') }, '0001990001')), false, 'v60.19 the retry after the filing day ends it (the new record has no checkpoint)');
   }
 
   // Rendering: pending (8 columns) and collected (10 columns) through the real renderers.

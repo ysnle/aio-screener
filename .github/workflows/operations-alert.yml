@@ -121,7 +121,11 @@ jobs:
             // observed run also succeeded; a lone pass between failures leaves it open and quiet.
             // A deploy workflow runs only when its inputs change, so its second success can be days away; its success is a
             // verified step (workSteps), which is the evidence the hysteresis asks a second run for.
-            if (succeeded && existing && existing.state === 'open' && !workSteps[workflow]) {
+            // v60.19 (Codex audit): one rule for every scheduled lane. Event briefs has a work step too (so a stand-down slot
+            // is not a recovery) but runs every 20 minutes like the refresh lanes; it closed on one success, so it follows
+            // the two-success rule. Only the three deploy workflows close on one verified success.
+            const deployWorkflows = ['Deploy GitHub Pages', 'Deploy AI proxy', 'Deploy fast data plane'];
+            if (succeeded && existing && existing.state === 'open' && !deployWorkflows.includes(workflow)) {
               for (const candidate of recentRuns.filter((item) => item.id !== run.id)) {
                 if (candidate.conclusion === 'success' && !(await observedWork(candidate.id))) continue;
                 if (candidate.conclusion !== 'success') {
@@ -162,9 +166,12 @@ jobs:
             // P1598: hashing the whole payload avoids collisions after a shared 72-byte prefix.
             const failureSignature = require('node:crypto').createHash('sha256')
               .update(JSON.stringify({ conclusion: run.conclusion || 'unknown', failedJobs })).digest('hex');
+            // v60.18: recentRuns already lists this workflow only (workflow_id). The name filter compared the run-name with
+            // the workflow name, so 'Refresh market data · scheduler' runs (the Worker's 30-minute cycle) never counted
+            // toward a streak and a scheduler-only failure streak stayed at 1; the order is the start time, as above.
             const sameWorkflowRuns = recentRuns
-              .filter((candidate) => candidate.name === workflow && candidate.id !== run.id)
-              .sort((left, right) => new Date(right.updated_at) - new Date(left.updated_at));
+              .filter((candidate) => candidate.id !== run.id)
+              .sort((left, right) => new Date(right.run_started_at || right.created_at) - new Date(left.run_started_at || left.created_at));
             let consecutiveFailures = 1;
             for (const candidate of sameWorkflowRuns) {
               if (candidate.conclusion === 'success') {

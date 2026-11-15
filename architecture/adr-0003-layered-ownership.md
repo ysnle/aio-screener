@@ -1,6 +1,7 @@
 # ADR-0003: 계층별 단일 소유자 구조 (전체 리팩토링 설계)
 
-- 상태: 제안 (소유자 검토 대기, 2026-11-09)
+- 상태: 채택·구현 (S0~S7, v59.87~v59.88, 2026-11-09; 상태 표기 2026-11-15 갱신). 남은 사본은 각 단계의 래칫 게이트(`ci-shared-primitive-ratchet-check` 등)가 줄어들기만 허용한다.
+- 제안일: 2026-11-09 (소유자 검토 대기였던 원래 상태)
 - 근거 원칙: AGENTS.md "Architecture first (owner 2026-11-09)" — 기능은 담당 계층에 자연스럽게 놓고, 자리가 없으면 덧붙이지 말고 먼저 리팩토링안을 낸다.
 - 선행 문서: `adr-0001`(strangler 기반), `adr-0002`(store 접근 계약), `README.md`(source adapter → validation → canonical evidence store → selector/view model → route UI)
 

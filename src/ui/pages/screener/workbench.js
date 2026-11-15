@@ -1,6 +1,6 @@
 // Screener workbench: saved screens, ScreenDefinition preview/run/replay (developer surface).
 import { PRESET_LESSONS, presetMarketLine } from '../../../domain/screener/preset-lessons.js';
-import { readMarketRegime } from '../../components/market-regime.js';
+import { readMarketRegime } from '../../../data/selectors/interpretation.js';
 import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../../domain/screener/saved-screens.js';
 import { createScreenDefinition } from '../../../data/contracts/screener.js';

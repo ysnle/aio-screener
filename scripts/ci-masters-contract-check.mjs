@@ -420,6 +420,21 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
   if (paired.counterpartCusip !== '438516106' || paired.counterpartShares !== 48831876) fail('v60.16 the new-CUSIP row names the old CUSIP and its prior share count');
   const builder = read('scripts/build-masters-runtime-artifacts.mjs');
   if (!/detectSplitSuspects\(\[\.\.\.comparisonsByManager\.values\(\)\]\.flat\(\)\)/.test(builder) || !/compactProjectionRow\(withCorporateAction\(row\)\)/.test(builder) || !/compactHolding\(withCorporateAction\(row\)\)/.test(builder)) fail('v60.16 the runtime builder stamps splits (across every manager) and CUSIP changes on projection and top-holding rows');
+  // v60.18 (run 43652766608, 11/14; lane red since 11/06): index.json and security-master.json carried their pending
+  // boundary counts from the previous files, so the first full chain after a new 13F quarter changed the rows failed
+  // 'security-master normalization boundary drifted' and the lane went into backoff ahead of the 11/16 deadline. The
+  // counts come from the holdings the builder read: a quarter that adds a CUSIP and an issuer moves both artifacts.
+  {
+    const { securityMasterBoundary } = await import('./lib/masters-raw-rows.mjs');
+    const quarter = { allHoldings: [{ cusip: '037833100', issuer: 'APPLE INC' }, { cusipNormalized: '037833100', issuer: 'APPLE INC' }, { cusip: '67066G104', issuer: 'NVIDIA CORP' }, { cusip: null, issuer: '' }] };
+    const derived = securityMasterBoundary(quarter);
+    if (derived.index.rawUniqueCusips !== 2 || derived.index.rawUniqueIssuerNames !== 2 || derived.coverage.rawUniqueCusips !== 2 || derived.coverage.recordsPublished !== 0 || derived.index.mappedRows !== 0) fail(`v60.18 the security-master boundary counts the holdings it is given: ${JSON.stringify(derived)}`);
+    const live = securityMasterBoundary(holdings);
+    if (live.index.rawUniqueCusips !== rawUniqueCusips || live.index.rawUniqueIssuerNames !== rawUniqueIssuerNames) fail('v60.18 the shared security-master boundary and this gate count the same rows');
+    if (!/const boundary = securityMasterBoundary\(holdings\)/.test(builder) || !/'security-master\.json'\), \{ \.\.\.securityMaster, coverage: \{ \.\.\.securityMaster\.coverage, \.\.\.boundary\.coverage \} \}/.test(builder) || !/\.\.\.mastersIndex,\n\s+\.\.\.boundary\.index,/.test(builder)) fail('v60.18 the runtime builder writes the derived boundary into security-master.json and index.json');
+    const { publishSetPaths } = await import('./lib/data-publish-sets.mjs');
+    if (!publishSetPaths('refresh-data').includes('public-data/masters/security-master.json')) fail('v60.18 the refresh-data publish set stages security-master.json with index.json');
+  }
   const views = await import('../src/ui/pages/masters-views.js');
   if (views.actionLabelOf({ putCall: 'Put' }, 'NEW') !== '풋 신규' || views.actionLabelOf({ putCall: 'Call' }, 'INCREASED') !== '콜 증가' || views.actionLabelOf({ putCall: null }, 'NEW') !== '신규 편입' || views.actionLabelOf({ putCall: 'Put' }, 'SPLIT_SUSPECT') !== '분할 의심, 수량 변화 보류') fail('v60.16 an option row names its instrument in the action label');
 }

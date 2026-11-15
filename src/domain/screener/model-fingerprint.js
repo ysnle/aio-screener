@@ -79,11 +79,14 @@ export function buildScreenerModelFingerprint({
 // P1465: identity of a ranking as it was actually applied (the candidate archive records it per
 // day). Built from the ranking result itself — applied weights over the factors that were active —
 // so the archive and the screen compare the model that ran, not a declared default.
-export function buildRankingIdentity({ appliedFactorWeights = null, activeFactors = null } = {}) {
+// The factor definitions the ranking ran with (momentum/value/quality formulas) are part of the model: two rankings
+// with the same weights over different momentum formulas are different models.
+export function buildRankingIdentity({ appliedFactorWeights = null, activeFactors = null, factorDefinitions = null } = {}) {
   const active = Array.isArray(activeFactors) ? [...activeFactors].map(String).sort() : [];
   if (!active.length || !appliedFactorWeights || typeof appliedFactorWeights !== 'object') return null;
   const applied = Object.fromEntries(active.map((factor) => [factor, Math.round((Number(appliedFactorWeights[factor]) || 0) * 10000) / 10000]));
-  return JSON.stringify(canonicalize({ factorRanksModelVersion: FACTOR_RANKS_MODEL_VERSION, factorWeightsModelVersion: FACTOR_WEIGHTS_MODEL_VERSION, populationPolicy: RANKING_POPULATION_POLICY, activeFactors: active, appliedWeights: applied }));
+  const definitions = factorDefinitions && typeof factorDefinitions === 'object' && Object.keys(factorDefinitions).length ? { factorDefinitions } : {};
+  return JSON.stringify(canonicalize({ factorRanksModelVersion: FACTOR_RANKS_MODEL_VERSION, factorWeightsModelVersion: FACTOR_WEIGHTS_MODEL_VERSION, populationPolicy: RANKING_POPULATION_POLICY, activeFactors: active, appliedWeights: applied, ...definitions }));
 }
 
 // 2026-10-17 audit: a ranking over more than one market is one model per market (P1625). The candidate record pools
@@ -93,7 +96,7 @@ export function buildRankingIdentity({ appliedFactorWeights = null, activeFactor
 export function buildPopulationRankingIdentity(ranking = null) {
   const byMarket = ranking?.byMarket && typeof ranking.byMarket === 'object' ? ranking.byMarket : null;
   const markets = byMarket ? Object.keys(byMarket).filter((market) => byMarket[market]?.available !== false).sort() : [];
-  const identityOf = (result) => buildRankingIdentity({ appliedFactorWeights: result?.appliedFactorWeights, activeFactors: result?.activeFactors });
+  const identityOf = (result) => buildRankingIdentity({ appliedFactorWeights: result?.appliedFactorWeights, activeFactors: result?.activeFactors, factorDefinitions: result?.factorDefinitions });
   if (markets.length <= 1) return identityOf(markets.length ? byMarket[markets[0]] : ranking);
   const parts = Object.fromEntries(markets.map((market) => [market, identityOf(byMarket[market])]).filter(([, identity]) => identity));
   return Object.keys(parts).length ? JSON.stringify(canonicalize({ byMarket: parts })) : null;

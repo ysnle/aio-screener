@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { validateKnowledgeAuthoringCorpus, SOURCE_PRESERVED_STATUS, SEMANTIC_REFERENCE_STATUS } from './lib/knowledge-authoring-contract.mjs';
+import { telegramDigestBoundary } from './lib/telegram-channels.mjs';
 
 const root = process.cwd();
 const strict = process.argv.includes('--strict');
@@ -107,14 +108,10 @@ const checks = [
   { check: 'atlas domain source packets are 19 and connected', pass: atlasIndex.domainSourcePacketArtifact === 'public-data/atlas/domain-source-packets.json' && atlasIndex.domainSourcePackets === 19 && atlasDomainPackets.status === 'REFERENCE_CONNECTED' && atlasDomainPackets.packets.length === 19 && atlasDomainPackets.packets.every((packet) => packet.sources?.length === 3) },
   { check: 'atlas domain structural claim ledger is 57 and current claims remain zero', pass: atlasIndex.domainClaimLedgerArtifact === 'public-data/atlas/domain-claim-ledger.json' && atlasIndex.domainStructuralClaims === 57 && atlasIndex.domainCurrentClaims === 0 && atlasDomainClaims.claims.length === 57 && atlasDomainClaims.counts?.currentClaims === 0 },
   { check: 'atlas taxonomy node coverage is 95 with connected relationships', pass: atlasIndex.taxonomyNodeCoverageArtifact === 'public-data/atlas/taxonomy-node-coverage.json' && atlasIndex.taxonomyNodeCoverage === 95 && atlasTaxonomyCoverage.nodes.length === 95 && atlasTaxonomyCoverage.coverage?.currentClaims === 0 && atlasTaxonomyCoverage.relationshipModel?.status === 'STRUCTURAL_RELATIONSHIPS_CONNECTED' && atlasTaxonomyCoverage.relationshipModel.domainChains.length === 19 && atlasTaxonomyCoverage.relationshipModel.domainChains.reduce((sum, chain) => sum + (chain.nodeIds?.length || 0), 0) === 95 && atlasTaxonomyCoverage.relationshipModel.crossDomainEdges.length === 22 },
-  { check: 'telegram digest contains all 4 requested channels with explicit partial-failure lineage', pass:
-      atlasIndex.telegramReferenceArtifact === 'public-data/telegram-digest.json' && atlasIndex.telegramReferenceChannels === 4 &&
-      telegramReference.channels.length === 4 && telegramReference.sourceCatalog?.length === 4 &&
-      telegramReference.sourceCatalog.every((source) => telegramReference.channels.some((row) => row.channel === source.channel)) &&
-      (telegramReference.collectionStatus === 'failed' ||
-       (telegramReference.collectionStatus === 'ok' && telegramReference.successfulChannelCount === 4) ||
-       (telegramReference.collectionStatus === 'partial' && telegramReference.successfulChannelCount > 0 && telegramReference.successfulChannelCount < 4 &&
-        telegramReference.channels.filter((row) => row.error).length === 4 - telegramReference.successfulChannelCount)) },
+  // v60.18: counts come from the published catalog (retired channels stay in it, marked, and are not expected).
+  { check: 'telegram digest contains every catalog channel with explicit partial-failure lineage', pass:
+      atlasIndex.telegramReferenceArtifact === 'public-data/telegram-digest.json' && atlasIndex.telegramReferenceChannels === telegramDigestBoundary(telegramReference).catalogCount &&
+      telegramDigestBoundary(telegramReference).catalogMatchesRows && telegramDigestBoundary(telegramReference).collectionConsistent },
   { check: 'atlas evidence registry is 23 sources/14 claims/7 edges', pass: atlasIndex.primarySources === 23 && atlasIndex.evidenceClaims === 14 && research.sources.length === 23 && research.claims.length === 14 && research.edges.length === 7 },
   { check: 'atlas player/product reference registry is 21/22/23', pass: atlasIndex.referencePlayers === 21 && atlasIndex.referenceProducts === 22 && atlasIndex.referenceSources === 23 && playerProduct.players.length === 21 && playerProduct.products.length === 22 && playerProduct.sources.length === 23 },
   { check: 'atlas player/product currentness overlay is 21/22', pass: atlasIndex.playerProductCurrentnessArtifact === 'public-data/atlas/player-product-currentness.json' && playerProductCurrentness.players.length === 21 && playerProductCurrentness.products.length === 22 && playerProductCurrentness.products.every((item) => item.productionStatus && item.asOf) },

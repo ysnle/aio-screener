@@ -169,9 +169,12 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
     if (others.length) fold.append(barList(others));
   }
   // Taiwan's monthly revenue opens the member lists: a short block, read before the long US lists.
-  const tw = twRevenue(doc, root, id, () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit }));
+  // One repaint for every late arrival (Taiwan revenue, consensus): it carries every option of this paint. The Taiwan
+  // callback dropped `valuation`, so revenue landing after the PER fold removed the fold and its rows.
+  const repaint = () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit, valuation });
+  const tw = twRevenue(doc, root, id, repaint);
   if (tw) fold.append(...tw.fold);
-  const perFold = valuation ? layerPerFold(doc, root, () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit, valuation })) : null;
+  const perFold = valuation ? layerPerFold(doc, root, repaint) : null;
   if (perFold) perFold.open = !!host.querySelector(':scope > details.ai-chain-per')?.open;
   if (!Number.isFinite(limit)) fold.append(el(doc, 'p', '종목 옆 숫자는 한 달 수익률, 괄호 안은 지난 거래일입니다.', 'ai-chain__member-list'));
   for (const group of flow.groups) {

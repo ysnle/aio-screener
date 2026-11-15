@@ -1,8 +1,8 @@
-// P1425 (owner review 2026-10-03): the 거시 hub as two native boards.
-// P1426: 거시 경제 now leads with the growth × inflation regime, six equity-impact axes (growth, inflation
+// P1425 (owner review 2026-10-03): the 매크로 hub as two native boards.
+// P1426: 매크로 now leads with the growth × inflation regime, six equity-impact axes (growth, inflation
 // and policy rules here; rates, oil/dollar and credit shared with 시장 상태), the oil → inflation →
 // policy → rates → valuation chain, then the indicator cards with 24-month trends and oil/gold charts.
-//   거시 경제 (route macro)  — official monthly releases grouped as 정책금리 · 물가 · 고용 · 소비·주택,
+//   매크로 (route macro)  — official monthly releases grouped as 정책금리 · 물가 · 고용 · 소비·주택,
 //                              each card with reference month, release date, next release and source.
 //   금리 · 환율 (route fxbond) — Treasury curve, real yield / breakeven / HY spread, and the dollar,
 //                              won, yen and 10Y on the completed-close basis with six-month charts.
@@ -12,9 +12,9 @@ import { renderReleaseGuide } from './release-zone-bar.js';
 import { alignInput, alignmentLabel, buildCloseSeries, closeBasis, closeSessionMarket, sessionPointBack as closePointBack } from '../../domain/briefing/market-read.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { macroNextSteps, ratesNextSteps, seriesOf } from '../../domain/macro/macro-read.js';
+import { buildMacroChain } from '../../domain/macro/macro-chain.js';
 import { renderNextSteps } from './page-flow.js';
-import { readMarketRegime } from './market-regime.js';
-import { latestMarketInterpretation, marketInterpretation } from '../../data/selectors/interpretation.js';
+import { latestMarketInterpretation, marketInterpretation, readMarketRegime } from '../../data/selectors/interpretation.js';
 import { buildMacroBoard } from '../../domain/macro/indicators.js';
 import { buildRatesFx, fxSideWord, sessionPointBack, signed, tenYearClose, tenYearSplitDriver, TEN_YEAR_SOURCE } from '../../domain/macro/rates-fx.js';
 import { createTrendChart } from './trend-chart.js';
@@ -250,7 +250,7 @@ function axisCard(doc, row, root = null, open = false) {
     facts.append(el(doc, 'h4', '지금 숫자'), list);
   }
   if (row.flip) facts.append(el(doc, 'p', `판정 기준: ${row.flip}`, 'regime-flip'));
-  // The forward branches whose conditions this axis tests (BRANCHES[].axes) — each opens that branch on 거시.
+  // The forward branches whose conditions this axis tests (BRANCHES[].axes) — each opens that branch on 매크로.
   const branches = BRANCHES.filter((branch) => (branch.axes || []).includes(row.id));
   if (branches.length) {
     const strip = el(doc, 'div', null, 'macro-axis-branches');
@@ -287,7 +287,7 @@ function axisCard(doc, row, root = null, open = false) {
 
 // v58.53 개편 v2 (3e): the rate strip — the Fisher split of the 10-year yield (DGS10 ≈ DFII10 + T10YIE on one shared FRED
 // date). v58.55: the design's Taylor-rule tile, now that CBO's natural rate (FRED NROU) is collected — see taylorTile below.
-// v59.51 (content audit): the strip moved from 거시 to a closed fold on 금리와 환율 beside the real-yield and breakeven
+// v59.51 (content audit): the strip moved from 매크로 to a closed fold on 금리와 환율 beside the real-yield and breakeven
 // cards it splits; its 10-year − 3-month tile left (the curve card there already states the same T10Y3M value).
 function basisValue(doc, text, explanation, asOf) {
   const node = el(doc, 'b', text, 'mk-rate-tile__value');
@@ -586,7 +586,7 @@ function quadrantChart(doc, regime) {
   }
   add('text', { x: pad.left + cw, y: H - 6, 'text-anchor': 'middle', class: 'macro-quadrant-axis' }, '← 성장 둔화, 성장 견조 →');
   add('text', { x: 10, y: pad.top + ch, 'text-anchor': 'middle', transform: `rotate(-90 10 ${pad.top + ch})`, class: 'macro-quadrant-axis' }, '← 물가 속도 둔화, 물가 속도 상승 →');
-  svg.setAttribute('aria-label', current ? `거시 국면: ${regime.label}` : '거시 국면 판정 보류');
+  svg.setAttribute('aria-label', current ? `매크로 국면: ${regime.label}` : '매크로 국면 판정 보류');
   return svg;
 }
 
@@ -701,7 +701,7 @@ function renderCommodities(doc, root, oil = null) {
 // v58.75 hide-and-name step for them is gone with them.
 
 // Expert review M11: the 한국 시장 fold's 1-year range and 3-month move of the won, from the completed-close history.
-// v59.70 (D5): renderKoreaWon left with the 한국 거시 fold; the 시장 상태 한국 board draws 원/달러.
+// v59.70 (D5): renderKoreaWon left with the 한국 매크로 fold; the 시장 상태 한국 board draws 원/달러.
 
 // v58.74 (text audit C1): the page opens with its through-line — which factors weigh, whether the quadrant is set, which
 // branch fits best and the release that decides next — so the sections below read as steps of one argument.
@@ -731,7 +731,8 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   const board = buildMacroBoard({ macro: root._aioServerMacro || null, releases: root.AIO_MACRO_CALENDAR?.releases || {}, schedules: root.AIO_MACRO_OFFICIAL_SCHEDULES || {}, macroHistory });
   readMarketRegime(root); // keeps the macro-history refresh request
   renderReleaseGuide(doc, root);
-  const { regime, macroRead: read, crossroads } = marketInterpretation(root); // owner 2026-10-19: the shared macro read (same as the branches)
+  const interpretation = marketInterpretation(root); // owner 2026-10-19: the shared macro read (same as the branches)
+  const { regime, macroRead: read, crossroads } = interpretation;
   const basis = doc.getElementById('macro-board-basis');
   if (basis) {
     basis.textContent = board.available ? macroThroughLine(read, crossroads) || '공식 발표와 미국 종가 기준' : serverDataWaitText(root);
@@ -746,15 +747,16 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     const openId = typeof root.__aioOpenMacro === 'string' ? root.__aioOpenMacro : '';
     axesHost.replaceChildren(...read.axes.map((row) => axisCard(doc, row, root, row.id === openId)));
   }
-  renderChain(doc, read.chain);
-  // v59.51: the S&P 500 earnings read (revision breadth, forward PER, equity risk premium) sits on 거시, where the
-  // real yield it is measured against is judged; the component owns its host (#index-earnings in the 거시 shell).
-  try { renderIndexEarnings({ documentRef: doc, root }); } catch (_) { /* the index earnings read never takes 거시 down */ }
+  // The chain reads the inputs the interpretation's macro read was built from (buildMacroRead's), on this route only.
+  renderChain(doc, buildMacroChain({ macro: root._aioServerMacro || null, macroHistory: interpretation.inputs?.macroHistory || null, regime: regime?.available ? regime : null, history: interpretation.inputs?.history || [] }));
+  // v59.51: the S&P 500 earnings read (revision breadth, forward PER, equity risk premium) sits on 매크로, where the
+  // real yield it is measured against is judged; the component owns its host (#index-earnings in the 매크로 shell).
+  try { renderIndexEarnings({ documentRef: doc, root }); } catch (_) { /* the index earnings read never takes 매크로 down */ }
   host.replaceChildren(...board.groups.map((group) => {
     const section = el(doc, 'section', null, 'macro-group');
     section.dataset.group = group.id;
     const grid = () => { const node = el(doc, 'div', null, 'macro-stat-grid');
-    node.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.deltaText, item.targetText, item.trendText], meta: item.meta, note: item.note, status: item.status, series: item.series, direction: item.direction, unit: item.unit, format: item.people ? (value) => peopleText(value, { sign: true }) : null })));
+    node.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.deltaText, item.targetText, item.trendText], meta: item.meta, note: item.note, status: item.status, staleText: item.held?.chip || null, series: item.series, direction: item.direction, unit: item.unit, format: item.people ? (value) => peopleText(value, { sign: true }) : null }))); // v60.18 (D3): the board's one reason for a previous release
     return node; };
     section.append(groupFold(doc, root, group.id, group.title, group.fact, group.items.length, () => [grid()]));
     return section;
@@ -918,14 +920,14 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   const model = buildRatesFx({ macro: root._aioServerMacro || null, history: root._aioHistory || [], macroHistory: root._aioMacroHistory || null });
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   const t = model.treasury;
-  // P1426: the equity-impact axes for this tab — policy from the 거시 read, the rest shared with 시장 상태.
+  // P1426: the equity-impact axes for this tab — policy from the 매크로 read, the rest shared with 시장 상태.
   const axesHost = doc.getElementById('rates-axes');
   readMarketRegime(root); // keeps the macro-history refresh request
   const { regime, macroRead: read } = marketInterpretation(root); // owner 2026-10-19: the shared macro read
   if (axesHost) {
     const byId = Object.fromEntries(read.axes.map((row) => [row.id, row]));
     const fxAxis = regime.available ? regime.axes.find((row) => row.id === 'korea') : null;
-    // P1505: only the FX axis is unique to this tab; the other four are on the 거시 경제 six-axis board.
+    // P1505: only the FX axis is unique to this tab; the other four are on the 매크로 six-axis board.
     void byId;
     const rows = [fxAxis && { ...fxAxis, shared: true, gauge: read.sharedGauges?.korea?.gauge || null, headline: read.sharedGauges?.korea?.headline || null, link: '원화가 약해지면 외국인이 한국 주식을 팔 유인이 커지고 수입 물가가 오릅니다. 엔화가 짧은 기간에 급등하면 엔으로 빌려 투자한 자금(엔 캐리)이 청산되며 전 세계 위험자산이 함께 흔들릴 수 있습니다.' }].filter(Boolean);
     axesHost.replaceChildren(...rows.map((row) => axisCard(doc, row, root)));
@@ -988,7 +990,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     // P1427: each level card carries its one-year daily line from the FRED history (text + picture).
     const historyField = { realYield10: 'realYield10', breakeven10: 'breakeven10', hyOAS: 'hyOas' };
     // v58.75 (persona review): the high-yield spread card was the fourth copy of the same series (시장 상태 credit axis with
-    // its chart, the 거시 credit factor, 투자 심리's card); here it is one dated line pointing to the judgement on 시장 상태.
+    // its chart, the 매크로 credit factor, 투자 심리's card); here it is one dated line pointing to the judgement on 시장 상태.
     levels.replaceChildren(...model.real.map((row) => {
       const full = seriesOf(root._aioMacroHistory, historyField[row.id]).map((point) => ({ date: point.date, value: row.id === 'hyOAS' ? point.value * 100 : point.value }));
       const daily = full.slice(-260);
@@ -1169,7 +1171,10 @@ function renderAssetPerformance(doc, root, basis) {
   pick.setAttribute('role', 'group');
   pick.setAttribute('aria-label', '수익률 기간');
   const plot = el(doc, 'div');
+  // The reader's window lives on the section host, which a refresh re-render keeps (its children are rebuilt), so a
+  // normal refresh no longer resets 1개월 to 3개월; focus returns to the same button (behaviors/focus-continuity.js).
   const draw = (key) => {
+    host.dataset.assetWindow = key;
     for (const button of pick.children) button.setAttribute('aria-pressed', String(button.dataset.window === key));
     const strongest = (a, b) => (b[key] ?? -1e9) - (a[key] ?? -1e9);
     const order = [...model.rows.filter((row) => row.investable).sort(strongest), ...model.rows.filter((row) => !row.investable).sort(strongest)];
@@ -1185,7 +1190,7 @@ function renderAssetPerformance(doc, root, basis) {
     pick.append(button);
   }
   bars.append(pick, plot);
-  draw('m3');
+  draw(windows.some((entry) => entry[1] === host.dataset.assetWindow) ? host.dataset.assetWindow : 'm3');
   const parts = [title, lead, bars, fold];
   if (model.corr.length >= 5) {
     const corrTitle = el(doc, 'h3', `S&P 500 – 미 장기채(TLT) ${CORR_WINDOW}거래일 상관`, 'trend-card-title');
@@ -1233,7 +1238,7 @@ function allocationPrinciples(doc, root, model, nowCorr) {
 }
 
 // v58.75 (persona review): the equity risk premium (S&P 500 forward earnings yield − 10-year real yield) sits beside the
-// real-yield card it depends on — the same indexEarnings stage 거시 renders in full (src/domain/market/indices/index-earnings.js).
+// real-yield card it depends on — the same indexEarnings stage 매크로 renders in full (src/domain/market/indices/index-earnings.js).
 function renderErpLine(doc, root) {
   const levels = doc.getElementById('rates-levels');
   if (!levels) return;

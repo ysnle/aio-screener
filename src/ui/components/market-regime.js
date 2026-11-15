@@ -4,16 +4,17 @@ import { renderHomeGuide } from './market-guide.js';
 import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { renderStressOutcomes } from './stress-outcomes.js';
 import { deepDiveLinks } from './deep-dive.js';
-import { alignInput, buildCloseSeries, closeBasis, isUsable, sessionPointBack } from '../../domain/briefing/market-read.js';
-import { krSeparateCheckTone } from '../../domain/market/korea/kr-index-record.js';
+import { alignInput, buildCloseSeries, hyObservation, isUsable, sessionPointBack } from '../../domain/briefing/market-read.js';
+import { koreaIndexParts, requestRegimeMacroHistory, summaryLine } from './home-regime.js';
+import { splitReading } from './reading-split.js';
 import { previousRegime } from '../../domain/briefing/daily-diff.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { regimeFlow } from '../../domain/market/story/page-flow.js';
 import { renderNextSteps, openRouteSection } from './page-flow.js';
 import { createTrendChart } from './trend-chart.js';
-import { refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
-import { buildRegimeAxisHistory, buildKoreaRegimeObservations, buildKoreaIndexSeries } from '../../domain/market/regime/regime-scenarios.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { buildRegimeAxisHistory, buildKoreaRegimeObservations } from '../../domain/market/regime/regime-scenarios.js';
 import { renderRegimeRadar } from './regime-radar.js';
 import { renderMacroCrossroads, showCrossroadsSection } from './macro-crossroads.js';
 import { el } from './dom.js';
@@ -22,22 +23,6 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { historyWaitText } from './data-state.js';
-import { MACRO_HISTORY } from '../../data/artifact-registry.js';
-
-// Live review 2026-10-14 (owner reading standard: 3–5 lines, ~130–230자 per block): a longer reading keeps its first
-// sentences on the face (up to ~200자, cut at a sentence end) and folds the rest under '이어서 읽기'.
-export function splitReading(text, { max = 230, lead = 200, min = 60 } = {}) {
-  const value = String(text || '').trim();
-  if (value.length <= max) return { lead: value, rest: '' };
-  let cut = -1;
-  const pattern = /[.?!)](?=\s)/g;
-  for (let match = pattern.exec(value); match; match = pattern.exec(value)) {
-    const end = match.index + 1;
-    if (end > lead) break;
-    if (end >= min && (match[0] !== ')' || value[match.index - 1] === '.')) cut = end;
-  }
-  return cut < 0 ? { lead: value, rest: '' } : { lead: value.slice(0, cut), rest: value.slice(cut).trim() };
-}
 
 function readingNodes(doc, text, className, topic = '') {
   const { lead, rest } = splitReading(text);
@@ -53,21 +38,6 @@ function readingNodes(doc, text, className, topic = '') {
   return nodes;
 }
 
-// v57.55 review (E1-02/B4-F7): the credit axis needs the 20-session HY change from macro-history. Only 오늘 and 시장 상태
-// asked for it, so the 차트 tab and 포트폴리오 judged credit without it ('양호 3' beside '양호 2 · 중립 2'). Every reader
-// now asks for the same record (deduplicated in-flight) and redraws once it lands.
-export function readMarketRegime(root, onHistory = null) {
-  if (root && sharedArtifactIsStale(root, MACRO_HISTORY.key, MACRO_HISTORY)) {
-    refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => { if (changed && typeof onHistory === 'function') onHistory(); }).catch(() => {});
-  }
-  return marketInterpretation(root).regime;
-}
-
-function summaryLine(regime) {
-  const { favorable, neutral, burden, unknown } = regime.counts;
-  return `양호 ${favorable}, 중립 ${neutral}, 부담 ${burden}${unknown ? `, 확인 불가 ${unknown}` : ''}`;
-}
-
 // P1505 (owner 2026-10-06: no source text on the face of the screen): each axis keeps its source as a hover title and
 // in the page-level 데이터 출처 fold, so a user checking a number can still find the series.
 const AXIS_SOURCES = Object.freeze({
@@ -81,15 +51,6 @@ const AXIS_SOURCES = Object.freeze({
   sentiment: '자체 종합 심리 지표 구성 요소 (S&P 500·VIX·TLT·스크리너 등락 종목·FRED OAS)',
   leadership: '반도체 ETF SOXX·동일가중 S&P 500 RSP 일봉 종가 (Yahoo Finance)'
 });
-
-// v57.50 D01: home reads the same credit axis (20-session HY change from macro-history) as 시장 상태; without it home
-// showed '집중 유지 4/4' with credit '양호' while 시장 상태 showed 3/4 with credit '중립'.
-function requestRegimeMacroHistory(root, doc, pageId = 'page-signal', rerender = () => renderRegimePage({ documentRef: doc, root })) {
-  if (!sharedArtifactIsStale(root, MACRO_HISTORY.key, MACRO_HISTORY)) return;
-  refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => {
-    if (changed && doc.getElementById(pageId)?.classList?.contains('active')) rerender();
-  }).catch(() => {});
-}
 
 function chartPanel(doc, charts, range) {
   if (!charts.length || !range) return null;
@@ -276,10 +237,9 @@ export function fiveDayChange(id, inputs, asOf) {
   if (id === 'rates') return delta('tnx', 'bp');
   if (id === 'commodities') return delta('dxy', 'pct');
   if (id === 'credit') {
-    // Only the 5-session change the credit axis itself admits (aligned to the close basis, like take(..., alignments.hy)).
-    const hy5 = Number(inputs?.credit?.hyDelta5Bp);
-    const usable = inputs?.credit?.hyDelta5Bp != null && Number.isFinite(hy5) && isUsable(alignInput(inputs?.credit?.hyAsOf, asOf));
-    return usable ? signedText(hy5, 0, 'bp') : null;
+    // The 5-session change of the one observation the credit axis reads (hyObservation), admitted on the same alignment.
+    const obs = hyObservation({ macroHistory: inputs?.macroHistory || null, credit: inputs?.credit || null, through: asOf });
+    return obs?.change5 != null && isUsable(alignInput(obs.asOf, asOf)) ? signedText(obs.change5, 0, 'bp') : null;
   }
   return null;
 }
@@ -739,23 +699,6 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   return regime;
 }
 
-// P1651: home summarized only the six US axes, so a -3.6% KOSPI day (-8.4% over five KRX sessions) after the US
-// close appeared only as a small ticker number. One line states the latest completed KRX session on its own date.
-// v58.56: shared by the 오늘 line and the folded 한국 시장 summary on 시장 상태.
-function koreaIndexParts(history) {
-  const part = (field, title) => {
-    const series = buildKoreaIndexSeries(history, field);
-    // v59.45 (R1-01): one and five KRX sessions back, counted on the calendar (a missing close no longer stretches them).
-    const last = series.at(-1), prev = sessionPointBack(series, 1, 'KR'), prior5 = sessionPointBack(series, 5, 'KR');
-    if (!last) return null;
-    const pctOf = (base) => base?.value > 0 ? (last.value / base.value - 1) * 100 : null;
-    const signed = (v) => v == null ? null : `${signedText(v, 1)}%`;
-    const d1 = signed(pctOf(prev)), d5 = signed(pctOf(prior5));
-    return { date: last.date, title, d1, text: `${title} ${last.value.toLocaleString('en-US', { maximumFractionDigits: 2 })}${d1 ? ` (${d1}${d5 ? `, 5거래일 ${d5}` : ''})` : ''}`, d5: pctOf(prior5) };
-  };
-  return { kospi: part('kospi', '코스피'), kosdaq: part('kosdaq', '코스닥') };
-}
-
 // v58.68 (owner 2026-10-23): the AI·semiconductor leaders' own verdict, shown under the six-axis verdict on 오늘 and
 // 시장 상태 (domain/market/regime/leadership-verdict.js). It names the leaders' state; the six-axis count is unchanged.
 // The money-flow part (domain/market/regime/market-flow.js) follows it: where the session's money went across sectors and
@@ -811,31 +754,8 @@ function paintLeadershipLine(doc, id, verdict, flow = null, { flowOnFace = false
   node.hidden = false;
 }
 
-// v59.51 (two layers): the face is one plain line (한국 m/d 마감: 코스피 -3.5%, 코스닥 -3.8%); the levels, the five-session
-// changes, the record check and the market-clock bridge (session-lean.js) open under it.
-function paintKoreaLine(doc, root) {
-  const line = doc.getElementById('home-kr-line');
-  if (!line) return;
-  const history = root._aioHistory || [];
-  const { kospi, kosdaq } = koreaIndexParts(history);
-  if (!kospi) { line.hidden = true; return; }
-  const [, month, day] = kospi.date.split('-').map(Number);
-  // The separate-check clause is the domain's reading (record tail first, then the 5-session line); the US tally is unchanged.
-  const tone = krSeparateCheckTone(history, kospi, { now: Date.now() });
-  const summary = line.querySelector(':scope > summary');
-  const detail = doc.getElementById('home-kr-detail');
-  if (summary) summary.textContent = `한국 ${month}/${day} 마감: ${[kospi, kosdaq].filter((part) => part?.d1).map((part) => `${part.title} ${part.d1}`).join(', ') || kospi.text}`;
-  if (detail) detail.textContent = `한국장 ${month}/${day} 마감, ${[kospi.text, kosdaq?.text].filter(Boolean).join(', ')}${tone}`;
-  line.dataset.observedAt = kospi.date;
-  line.dataset.market = 'KR';
-  line.title = '한국 정규장 확정 종가 기준입니다. 미국 6개 지표의 양호·중립·부담 합계에는 넣지 않습니다.';
-  line.hidden = false;
-}
-
 let correctionBaseRate = null; // v59.70: the correction base rate loads with the opened trend row, outside the boot set
 let sessionLean = null;
-let homeAhead = null;
-
 // v59.51 (first-users run-6 #10): one way from 오늘 to an axis on 시장 상태. The axis is asked for before the route renders
 // (root.__aioOpenAxis, which renderRegimePage keeps open), then the view lands on what was asked — the axis chart for the
 // "지수 차트" link (it landed two screens above the chart), the axis row for a chip. It retries while 시장 상태 paints.
@@ -851,70 +771,4 @@ export function openSignalAxis(doc, root, axisId, { chart = false } = {}) {
     (chart ? axis.querySelector('.regime-axis-history') || axis : axis).scrollIntoView?.({ block: 'start' });
   };
   setTimeout(land, 60);
-}
-
-// Day-over-day axis flips (two completed US closes) as an arrow on the changed chip; the full sentence is the chip's hover
-// and a line in the 근거 fold. It replaced the "지난 마감 이후 변화" fold, whose quote tiles repeated the quote row.
-
-// Home: one line plus the axis states, linking to the full board.
-// v57.78 perf: the market inputs are gathered once per render (they were gathered for the regime, again for the
-// scenarios, and a third time by the daily loop); the returned regime is handed to renderDailyLoop. The macro-history
-// request readMarketRegime made is the same deduplicated request requestRegimeMacroHistory makes below.
-export function renderHomeRegime({ documentRef: doc, root, store = null }) {
-  const hero = doc?.getElementById('home-score-hero');
-  if (!hero) return null;
-  const interpretation = marketInterpretation(root, { store });
-  const { regime } = interpretation;
-  requestRegimeMacroHistory(root, doc, 'page-home', () => renderHomeRegime({ documentRef: doc, root, store }));
-  const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
-  // v58.55 (design 2b): the page kicker above the 오늘 title — today's date (KST) · the close the verdict is based on.
-  // F01: the static shell may have painted the produced verdict (index.html, today-verdict.json); an unavailable regime
-  // (closes still loading) leaves it, and the first real render takes the fields over.
-  const heroTotal = doc.getElementById('home-hero-total');
-  const held = !regime.available && !!heroTotal?.dataset?.firstPaint;
-  if (!held && heroTotal?.dataset) delete heroTotal.dataset.firstPaint;
-  const kicker = held ? null : doc.getElementById('home-date-label');
-  if (kicker) {
-    let today = '';
-    try { today = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'long' }).format(new Date()); } catch (_) { today = ''; }
-    const text = [today, regime.available && regime.asOf ? `${shortDate(regime.asOf)} 미국 종가 기준` : ''].filter(Boolean).join(', ');
-    if (text) kicker.textContent = text;
-  }
-  if (!held) set('home-hero-total', regime.available ? regime.overall : '판정 대기');
-  // v58.79 (owner 2026-10-25, layout over captions): the close date is in the page subtitle and the six counts are the
-  // axis chips below, so this line speaks only when the verdict is held (why), or when the latest session moved against the
-  // verdict (horizonLine: which horizon the verdict is on, beside index cards that show the day); empty (hidden) otherwise.
-  if (!held) set('home-hero-headline', regime.available ? (regime.holdReason || (regime.overall === '판정 보류' ? `미국 6개 지표 ${summaryLine(regime)}` : '') || regime.horizonLine?.text || '') : historyWaitText(root));
-  const basisLine = held ? null : doc.getElementById('home-hero-headline');
-  if (basisLine) basisLine.title = regime.available && !regime.holdReason && regime.horizonLine ? regime.horizonLine.detail : '';
-  // v58.56 (re-audit #2): the hero sentence is the regime's one plain line (heroLine); the full conflict sentences with
-  // their numbers and rules move into the 6개 축 근거 fold under the axis chips.
-  if (!held) set('home-hero-desc', regime.heroLine || '');
-  // v59.68 (owner 2026-11-03, 홈 = prices, stocks, news): the axis chips, 판정 근거, the leaders line and the month tilt
-  // left 오늘 for 시장 상태 (renderRegimePage); the verdict word and its sentence stay, with one link there.
-  paintKoreaLine(doc, root);
-  // v58.81 (owner 2026-10-26): the market clock with the Korea↔US link check, then the probabilistic lean, under the verdict.
-  // Loaded after first paint (boot budget); the module also hands the AI context its two readers.
-  // 다음 일정 beside the verdict: the dated items of 시장 상태's week list (a lazy chunk).
-  (homeAhead ||= import('./home-ahead.js')).then((mod) => mod.renderHomeAhead({ documentRef: doc, root, interpretation })).catch(() => { homeAhead = null; });
-  (sessionLean ||= import('./session-lean.js')).then((mod) => mod.paintHome(doc, root, store, regime, () => renderHomeRegime({ documentRef: doc, root, store }), () => marketInterpretation(root, { store }).regime)).catch(() => { sessionLean = null; });
-  // v59.51: the futures cells' cash-close fallback (P1429/H01, a MutationObserver per cell) is gone — the index strip above
-  // carries the closes, and a futures chip shows only a live quote on an open CME week (home-kpi-trend.js syncHomeQuoteRow).
-  // P1428: the F&G day change on home uses the completed-close history, the same basis as 투자 심리
-  // (it used CNN's own previous_close, so the two screens showed +3 and +2 for the same 31).
-  const fgDelta = doc.getElementById('home-fg-delta');
-  if (fgDelta) {
-    const history = root._aioHistory || [];
-    const fg = buildCloseSeries(history, 'fg', { through: closeBasis(history) });
-    const change = fg.length > 1 ? Math.round(fg[fg.length - 1].value) - Math.round(fg[fg.length - 2].value) : null;
-    // v59.70 (screen review #13): '전일 0' read as a previous value of 0.
-    fgDelta.textContent = change == null ? '' : change === 0 ? '전일과 같음' : `전일 대비 ${change > 0 ? '+' : ''}${change}`;
-    fgDelta.className = 'aio-metric-delta';
-    fgDelta.dataset.aioFgDeltaRenderer = 'native';
-  }
-  // v59.51 (content audit): the forward block and today's guide (crossroads + guide, ~9k characters folded) moved to 시장
-  // 상태 (renderRegimePage); 오늘 keeps one link to it (daily-loop.js renderHomeLinks).
-  hero.dataset.aioRegimeRenderer = 'native';
-  hero.dataset.state = regime.available ? 'regime' : 'pending';
-  return regime;
 }

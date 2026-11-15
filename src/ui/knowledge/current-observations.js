@@ -95,8 +95,11 @@ export function liveCurrentObservations(artifact, root) {
       return close ? live(row, close.value, close.date, close.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : row;
     }
     if (/^fed-funds-midpoint-/.test(row.id)) {
-      const lower = finite(snapshot.fedTargetLower), upper = finite(snapshot.fedTargetUpper);
-      return lower != null && upper != null ? macroLive(row, 'fedTargetLower', (lower + upper) / 2, ts.macro_fedTargetLower || null, `${((lower + upper) / 2).toFixed(3)}%`, SOURCES.FED) : row;
+      // Both bounds from one observation date, and neither a held last-known-good value.
+      const range = fedTargetRange(snapshot.fedTargetLower, snapshot.fedTargetUpper, ts.macro_fedTargetLower, ts.macro_fedTargetUpper);
+      if (!range || !range.asOf) return row;
+      const out = macroLive(row, 'fedTargetUpper', range.mid, range.asOf, `${range.mid.toFixed(3)}%`, SOURCES.FED);
+      return out !== row && snapshot._fedTargetLower_src === 'last-known-good' ? { ...out, allowedUse: 'reference-only', live: false } : out;
     }
     if (/^bls-cpi-/.test(row.id)) return macroLive(row, 'cpi', finite(snapshot.cpi), ts.macro_cpi ? `${ts.macro_cpi.slice(0, 7)} 기준월` : null, finite(snapshot.cpi) == null ? null : `${snapshot.cpi}% YoY`, SOURCES.BLS);
     if (/^bls-core-cpi-/.test(row.id)) return macroLive(row, 'coreCpi', finite(snapshot.coreCpi), ts.macro_coreCpi ? `${ts.macro_coreCpi.slice(0, 7)} 기준월` : null, finite(snapshot.coreCpi) == null ? null : `${snapshot.coreCpi}% YoY`, SOURCES.BLS);
@@ -147,3 +150,4 @@ export function validateCurrentObservationsArtifact(artifact) {
 import { applySafeExternalLink } from './safe-external-link.js';
 import { finiteNumber as finite } from '../../domain/shared/number.js';
 import { historyFieldMeta } from '../../domain/market/indices/history-meta.js';
+import { fedTargetRange } from '../../domain/macro/fed-target-range.js';

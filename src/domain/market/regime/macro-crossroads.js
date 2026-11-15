@@ -16,6 +16,7 @@ import { RULES } from '../../rules/thresholds.js';
 import { changeBand, bandDirection, changeOverDays, inflationDirection, oilDivergence, sentimentRank, MACRO_SIGNAL_RULES } from '../../macro/macro-signals.js';
 import { BRANCH_ANALOGS, analogOutcome, frequencyText, BASE_RATE_SE, pastEvidence } from '../../scenarios/analogs.js';
 import { EXPOSURE_TAGS } from '../../scenarios/exposures.js';
+import { currentScenarioOutcomes } from '../../scenarios/outcome-fingerprints.js';
 import { signedText, finiteNumber as finite } from '../../shared/number.js';
 import { buildCrossAssetRelations } from '../../macro/cross-asset-relations.js';
 import { isoDay } from '../../shared/session-date.js';
@@ -364,7 +365,7 @@ export const BRANCHES = Object.freeze([
     triggers: [['us-nfp', `일자리 ${JOB.cold / 10}만~${JOB.slow / 10}만 명 (채용 둔화)`, (a) => a.payroll >= JOB.cold && a.payroll < JOB.slow]],
     pricing: deltaPricing('soxxRel20', 'SOXX − S&P 500 20거래일', '%p', 1, false), pricingInConditions: true, /* v57.84: the pricing series is one of the conditions, so it is not independent confirmation */
     choices: { wait: 'AI 투자 기대가 꺾이는 동안 기다리는 비용은 작습니다. 이익 하향은 몇 분기에 걸쳐 확인되는 경향이 있어 서둘러 놓치는 것이 적습니다.', stage: '분할 접근의 비용은 하이일드 스프레드 확대가 멈추고 빅테크 설비투자 지침이 확인되기 전에 큽니다. 그 전의 "싸 보임"은 이익이 더 내려갈 수 있다는 점을 놓칩니다.', hold: '보유는 AI 설비투자에 매출이 직접 걸린 반도체·데이터센터·광통신 비중부터 점검합니다.', defend: '방어 업종이 상대적으로 버팁니다. 다만 금리 민감 배당주는 장기 금리가 함께 오르면 기대만큼 지켜 주지 못합니다.' },
-    favored: ['wait', 'defend'], favoredWhy: 'AI 투자 꺾임은 이익 하향이 늦게 끝나는 경향이 있어, 확인 전 진입은 되돌림 폭이 컸던 구간이고 기다림의 비용(현금 이자로 일부 상쇄)은 작습니다.',
+    favored: ['wait', 'defend'], favoredWhy: 'AI 투자 꺾임은 이익 하향이 늦게 끝나는 경향이 있어, 확인 전 진입은 하향이 이어질 때의 하락을 떠안고 기다림의 비용(현금 이자로 일부 상쇄)은 작습니다.',
     costly: ['stage'],
     explore: [['themes', '테마와 섹터', '반도체·AI 인프라 테마의 단계와 약화 신호'], ['signal', '시장 상태', '하이일드 스프레드와 시장 폭이 함께 나빠지는지']] },
   // v57.75: the owner's US chain (recession → cuts and deficit spending → long rates up) as a measurable branch —
@@ -422,11 +423,13 @@ const andParticle = (text) => (lastBatchim(text) ? '과' : '와');
 // disagree; 56% against a 64% base over 73 cases is sampling noise, not a contradiction). Needs the app-wide floor of 10
 // non-overlapping cases.
 const PAST_CONFLICT_SE = BASE_RATE_SE;
+/** Which way a set of favoured choices leans: 'defensive' (all wait/defend), 'risky' (none of them), else null. */
+export const favoredLean = (favored) => (!favored?.length ? null : favored.every((key) => DEFENSIVE_CHOICES.has(key)) ? 'defensive' : favored.every((key) => !DEFENSIVE_CHOICES.has(key)) ? 'risky' : null);
 export function pastConflict(branch, past) {
   if (!past || !(past.n >= 10) || !Number.isFinite(past.up) || !Number.isFinite(past.baseUpPct)) return null;
-  const defensive = branch.favored.every((key) => DEFENSIVE_CHOICES.has(key));
-  const risky = branch.favored.every((key) => !DEFENSIVE_CHOICES.has(key));
-  if (!defensive && !risky) return null;
+  const lean = favoredLean(branch.favored);
+  if (!lean) return null;
+  const defensive = lean === 'defensive';
   const share = past.up / past.n;
   const base = past.baseUpPct / 100;
   const margin = PAST_CONFLICT_SE * Math.sqrt(base * (1 - base) / past.n);
@@ -452,7 +455,8 @@ function pastBridge(branch, past) {
  * @param {object} [input.outcomes] published scenario-outcomes.v1 (long-history analogs)
  * @param {object} [input.signals] v57.81: observed values that replace the computed ones (fixtures and what-if checks)
  */
-export function buildMacroCrossroads({ read = null, macroHistory = null, history = [], events: rawEvents = [], outcomes = null, previousLeadId = null, signals = null } = {}) {
+export function buildMacroCrossroads({ read = null, macroHistory = null, history = [], events: rawEvents = [], outcomes: published = null, previousLeadId = null, signals = null } = {}) {
+  const outcomes = currentScenarioOutcomes(published); // branch records from another definition are not used
   const events = (rawEvents || []).map((event) => ({ ...event, when: eventWhenText(event), atMs: releaseAtMs(event.id, event.date) }));
   const computed = buildScenarioSignals({ read, macroHistory, history });
   const s = signals ? { ...computed, ...signals, bands: { ...computed.bands, ...(signals.bands || {}) } } : computed;
@@ -596,10 +600,14 @@ export function scoreRelease(eventId, actual) {
   return matched;
 }
 
-/** The AI context: the same branches the screens show, in a compact block. */
-export function renderMacroCrossroadsContext(model, { state = null } = {}) {
+/**
+ * The AI context: the same branches the screens show, in a compact block. `frameText(item)` (the lazy AI context
+ * builder passes src/domain/scenarios/decision-frame.js) replaces the lead and alternative lines' past frequency and
+ * favoured side with the decision frame; this boot module does not import the frame.
+ */
+export function renderMacroCrossroadsContext(model, { state = null, frameText = null } = {}) {
   if (!model?.available) return '';
-  const lines = [`【향후 시나리오 — 거시 시나리오(${model.asOf || '기준일 미확인'} 관측 기준, 예측 아님)】`, model.headline,
+  const lines = [`【향후 시나리오 — 매크로 시나리오(${model.asOf || '기준일 미확인'} 관측 기준, 예측 아님)】`, model.headline,
     `금리 허브: ${model.rateHub.now || '금리 기록 대기'}. ${model.rateHub.whyHigherHurts}${model.rateHub.pricingNote ? ` ${model.rateHub.pricingNote}` : ''}`];
   if (model.rateHub.tension) lines.push(`괴리: ${model.rateHub.tension}`);
   if (model.relations?.reading) lines.push(`평소 관계와 어긋난 곳(${model.relations.asOf || '기준일 미확인'} 종가): ${model.relations.reading}`);
@@ -624,8 +632,11 @@ export function renderMacroCrossroadsContext(model, { state = null } = {}) {
     : item.past?.n ? item.past.text : '비교 표본 없음');
   for (const item of ordered) {
     const detailed = rank(item) > 0; // lead and alternative in full; the rest stay one line so themes fit the same budget
+    const frame = detailed && frameText ? frameText(item) : '';
+    const evidence = frame ? `판단 틀: ${frame}.` : `과거 빈도: ${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''}`;
+    const side = frame ? '' : ` 이 시나리오에서 ${CHOICE_WORDS.favored}(비용 가설 — 과거 성과로 검증한 우위 아님): ${item.favored.map((key) => CHOICES[key]).join(', ')} (${item.favoredWhy})${item.pastConflict ? ` [과거 표본과 어긋남: 비슷한 때 ${item.pastConflict.sharePct}% 상승, 전체 ${item.pastConflict.basePct}%]` : ''}`;
     lines.push(detailed
-      ? `- ${item.title}: ${item.status || item.fit} [${item.basis.join(', ')}]. 인과: ${item.chain.join(' → ')}. 강해지는 쪽: ${item.impact.firmer}; 약해지는 쪽: ${item.impact.weaker}${item.impact.mixed ? `; 혼재: ${item.impact.mixed}` : ''}. 시장 가격: ${item.pricing.text.replace(/\.$/, '')}. 과거 빈도: ${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''} 확인 일정: ${item.triggers.map((t) => `${t.when} — ${t.text}`).join('; ') || '일정 없음(시장 지표로 확인)'}. 선택지: ${Object.entries(item.choices).map(([key, text]) => `${CHOICES[key]} — ${text}`).join(' / ')} 이 시나리오에서 ${CHOICE_WORDS.favored}(비용 가설 — 과거 성과로 검증한 우위 아님): ${item.favored.map((key) => CHOICES[key]).join(', ')} (${item.favoredWhy})${item.pastConflict ? ` [과거 표본과 어긋남: 비슷한 때 ${item.pastConflict.sharePct}% 상승, 전체 ${item.pastConflict.basePct}%]` : ''}${item.checks?.length ? ` 더 확인할 것(참고): ${item.checks.join('; ')}.` : ''}${item.invalidation?.length ? ` 이 읽기가 빗나가는 조건: ${item.invalidation.join('; ')}.` : ''}`
+      ? `- ${item.title}: ${item.status || item.fit} [${item.basis.join(', ')}]. 인과: ${item.chain.join(' → ')}. 강해지는 쪽: ${item.impact.firmer}; 약해지는 쪽: ${item.impact.weaker}${item.impact.mixed ? `; 혼재: ${item.impact.mixed}` : ''}. 시장 가격: ${item.pricing.text.replace(/\.$/, '')}. ${evidence} 확인 일정: ${item.triggers.map((t) => `${t.when} — ${t.text}`).join('; ') || '일정 없음(시장 지표로 확인)'}. 선택지: ${Object.entries(item.choices).map(([key, text]) => `${CHOICES[key]} — ${text}`).join(' / ')}${side}${item.checks?.length ? ` 더 확인할 것(참고): ${item.checks.join('; ')}.` : ''}${!frame && item.invalidation?.length ? ` 이 읽기가 빗나가는 조건: ${item.invalidation.join('; ')}.` : ''}`
       // v57.88 (screen audit): the one-line branches carried no past frequency, so the reading said "과거 빈도와 표본 수는
       // 제공되지 않아" while the screen showed 138 cases — the count line is kept short but present.
       : `- ${item.title}: ${item.status || item.fit}. 인과: ${item.chain.join(' → ')}. 과거 빈도: ${pastLine(item)}. 시장 가격: ${item.pricing.tone === 'same' ? '이 시나리오 쪽' : item.pricing.tone === 'against' ? '반대쪽' : item.pricing.tone === 'neutral' ? '중립' : '보류'}. 이 시나리오라면 ${CHOICE_WORDS.favored}(비용 가설): ${item.favored.map((key) => CHOICES[key]).join(', ')}${item.pastConflict ? ' (과거 표본과 어긋남)' : ''}`);
@@ -633,6 +644,6 @@ export function renderMacroCrossroadsContext(model, { state = null } = {}) {
   const macroLog = macroTransitions(state);
   if (macroLog.length) lines.push(`최근 변화(자동 기록): ${macroLog.slice(-6).map((t) => `${String(t.at).slice(5, 10)} ${t.text}`).join(' / ')}`);
   if (state?.eventOutcomes?.length) lines.push(`지난 발표 판정(자동): ${state.eventOutcomes.slice(-4).map((e) => `${e.name} ${e.period}: ${e.actualText} → ${e.matched.length ? `${e.matched.map((m) => m.title).join('·')} 기준 충족` : '어느 시나리오의 기준도 아님'}`).join(' / ')}`);
-  lines.push('규칙: 조건 충족 수는 가능성이 아니라 개수다. 각 시나리오는 세 근거(조건 충족 수·시장 가격 방향·과거 빈도와 표본 수)를 나란히 말하고 %·확률 숫자를 만들지 마라. 선택지별 기회비용과 ' + CHOICE_WORDS.favored + '은 말하되, 가격·수량·시점·특정 종목 매매 지시는 하지 말고 세부 선별은 차트·기업·테마·스크리너 화면에서 사용자가 하도록 안내하라.');
+  lines.push('규칙: 조건 충족 수와 축 상태는 지금 상태의 묘사이지 가능성·우위의 근거가 아니다. 가능성이나 우위를 말할 때 근거는 기저율·표본 수가 붙은 과거 빈도, 시장 가격 방향, 이름을 밝힌 비용 가설뿐이며 %·확률 숫자를 만들지 마라. 선택지별 기회비용과 ' + CHOICE_WORDS.favored + '은 말하되, 가격·수량·시점·특정 종목 매매 지시는 하지 말고 세부 선별은 차트·기업·테마·스크리너 화면에서 사용자가 하도록 안내하라.');
   return lines.join('\n');
 }

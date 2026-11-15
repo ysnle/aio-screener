@@ -150,6 +150,18 @@ const watchdogRuns = JSON.stringify(watchdog.jobs.browser);
 check(`v59.70 watchdog-browser runs twice a day: ${crons.join(' ')}`, hours.length === 2);
 check('v59.70 watchdog-browser runs every CI browser group on live data', JSON.stringify(watchdog.jobs.browser.strategy.matrix.group) === JSON.stringify(ci.jobs.browser.strategy.matrix.group) && !/browser-data-fixture|AIO_BROWSER_CLOCK_AT|AIO_BROWSER_DATA_ROOT/.test(watchdogRuns));
 check('v59.70 CI and the watchdog install Chromium the same way', steps.some((step) => step.uses === './.github/actions/setup-browser-gates') && watchdog.jobs.browser.steps.some((step) => step.uses === './.github/actions/setup-browser-gates'));
+// v60.18 (run 42944927002, 11/11): the repin step writes the new pin into the tracked fixture file before it switches to
+// main's head, so a plain checkout refused ("local changes would be overwritten") and the watchdog went red after every
+// shard had passed. Every branch switch after the pin is written must be forced and put the saved pin back afterwards.
+{
+  const repinRun = (watchdog.jobs.repin?.steps || []).map((step) => step.run || '').find((run) => /browser-data-fixture\.mjs pin/.test(run)) || '';
+  const afterPin = repinRun.slice(repinRun.indexOf('browser-data-fixture.mjs pin'));
+  const switches = afterPin.match(/git (?:checkout|switch)\b[^\n]*/g) || [];
+  check('v60.18 the repin step forces every branch switch after writing the pin and restores the saved pin',
+    repinRun && switches.length > 0 && switches.every((line) => /\s-(?:f|-force|-discard-changes)\b|\s-q -f\b/.test(line))
+      && /cp "\$RUNNER_TEMP\/browser-data-fixture\.json" architecture\/browser-data-fixture\.json/.test(afterPin.slice(afterPin.indexOf(switches.at(-1) || '\u0000'))),
+    switches.join(' | '));
+}
 const alert = loadYaml(readFileSync(join(root, '.github/workflows/operations-alert.yml'), 'utf8'));
 check('v59.70 operations-alert opens an issue when watchdog-browser fails', (alert.on?.workflow_run?.workflows || []).includes(watchdog.name));
 

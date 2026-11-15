@@ -5,7 +5,8 @@ import { collectMarketInputs } from './market-inputs.js';
 import { buildMarketInterpretation } from '../../domain/market/interpretation/market-interpretation.js';
 import { CONSENSUS_KEY } from '../consensus-estimates.js';
 import { indexEarningsInput, interpretationInput } from '../../domain/market/interpretation/inputs.js';
-import { SCENARIO_OUTCOMES, SCENARIO_STATE } from '../artifact-registry.js';
+import { MACRO_HISTORY, SCENARIO_OUTCOMES, SCENARIO_STATE } from '../artifact-registry.js';
+import { refreshSharedArtifact, sharedArtifactIsStale } from '../shared-artifacts.js';
 
 // The native store, registered once by bootstrap, so every caller reads the same typed rows in place (v57.77 perf: the
 // legacy bridge snapshots them). A caller may still pass its own store (fixtures, the AI's row view). An empty native
@@ -88,4 +89,16 @@ export function marketInterpretation(root, { store = null, nowMs = Date.now() } 
   const value = buildMarketInterpretation(input);
   cache.set(root, { key, value });
   return value;
+}
+
+/**
+ * The 시장 상태 regime for `root`, asking for macro-history when it is stale (the credit axis reads its 20-session HY change).
+ * `onHistory` runs when the refreshed history changed. A data selector, so boot reads the regime without loading the
+ * 시장 상태 page component.
+ */
+export function readMarketRegime(root, onHistory = null) {
+  if (root && sharedArtifactIsStale(root, MACRO_HISTORY.key, MACRO_HISTORY)) {
+    refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => { if (changed && typeof onHistory === 'function') onHistory(); }).catch(() => {});
+  }
+  return marketInterpretation(root).regime;
 }

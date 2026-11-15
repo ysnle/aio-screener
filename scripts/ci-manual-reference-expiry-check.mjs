@@ -167,13 +167,16 @@ console.log('| id | status | asOf | expires | where |');
 for (const item of audit.items) console.log(`| ${item.id} | ${item.status} | ${md(item.asOf)} | ${md(item.expiresAt)} | ${item.where} |`);
 const expired = audit.items.filter((item) => item.held);
 const due = audit.items.filter((item) => item.status === 'due');
-const digest = expired.map((item) => `${item.id}@${item.expiresAt}`).sort().join(',');
+// v60.19: the watchdog issue opens when a value enters its review window (reviewLeadDays), not only once it has expired,
+// so the operator hears about a hand-kept artifact before it goes stale (the 180-day structural research record had no
+// warning before its expiry would have stopped the publish path). The digest names the due items too.
+const digest = [...expired.map((item) => `${item.id}@${item.expiresAt}`), ...due.map((item) => `due:${item.id}@${item.expiresAt}`)].sort().join(',');
 if (option('--json')) writeFileSync(option('--json'), JSON.stringify({ ...audit, digest }, null, 2));
 if (option('--issue-body')) {
   const lines = [
     '<!-- aio-manual-reference-expiry -->',
     `<!-- aio-manual-reference-expiry-digest:${digest || 'none'} -->`,
-    `## Expired manual references (${audit.today} KST)`,
+    expired.length ? `## Expired manual references (${audit.today} KST)` : `## Manual references due for review (${audit.today} KST)`,
     '',
     'These hand-kept values passed their window. The screen already holds them as "기한 지남"; update the value (or let the producer artifact publish a verified one) and the next watchdog run closes this issue.',
     '',
@@ -188,7 +191,7 @@ if (option('--issue-body')) {
   writeFileSync(option('--issue-body'), lines.join('\n') + '\n');
 }
 if (args.includes('--github-output') && process.env.GITHUB_OUTPUT) {
-  appendFileSync(process.env.GITHUB_OUTPUT, `expired=${expired.length ? 'true' : 'false'}\nexpired_count=${expired.length}\ndigest=${digest || 'none'}\n`);
+  appendFileSync(process.env.GITHUB_OUTPUT, `expired=${expired.length ? 'true' : 'false'}\nexpired_count=${expired.length}\nalert=${expired.length || due.length ? 'true' : 'false'}\ndigest=${digest || 'none'}\n`);
 }
 if (expired.length) console.warn(`WARN P1736 expired manual references (held on screen as 기한 지남): ${expired.map((item) => `${item.id}(expired after ${item.expiresAt})`).join(', ')}`);
 if (announcementLag) console.warn('WARN P1736 data.json meta.officialReferencesCheckedAt lags public-data/official-references.json by a run (the next refresh announces it)');

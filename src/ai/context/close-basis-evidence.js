@@ -94,7 +94,7 @@ export function buildCloseBasisEvidence(input = {}) {
     }
   }
   if (finite(c?.hyBp) && alignments?.hy?.date) {
-    out.push(row({ metric: 'close.hy_oas', entity: 'HY_OAS', label: '하이일드 스프레드', value: round(c.hyBp, 0), unit: 'bp', date: alignments.hy.date, observedAt: input.credit?.hyAsOf || alignments.hy.date, basis, alignment: alignments.hy.status, market: 'US' }));
+    out.push(row({ metric: 'close.hy_oas', entity: 'HY_OAS', label: '하이일드 스프레드', value: round(c.hyBp, 0), unit: 'bp', date: alignments.hy.date, observedAt: c.hyObservation?.asOf || alignments.hy.date, basis, alignment: alignments.hy.status, market: 'US' }));
   }
   return Object.freeze(out);
 }

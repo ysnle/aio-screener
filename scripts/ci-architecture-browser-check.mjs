@@ -365,6 +365,26 @@ try {
   });
   if (!rulesShared) throw new Error('P1428 shared rule table missing or changed without updating the guide');
   if (fxbondRoute.boardRenderer !== 'native' || !['4.85%', '4.99%', '5.11%', '5.45%', '5.40%'].every(((at) => (v) => (at = fxbondRoute.yields.indexOf(v, at) + 1) > 0)(0)) || fxbondRoute.yields.length > 12 /* P1685 key tenors in order; v58.56 curve carries up to 11 maturities */ || fxbondRoute.curveDots !== fxbondRoute.yields.length || !/\+0\.26%p/.test(fxbondRoute.spreads) || !/\+0\.41%p/.test(fxbondRoute.spreads) || !/0\.26%p 높습니다/.test(fxbondRoute.curveFact) ||fxbondRoute.levels !== 2 + (fxbondRoute.premiumCard ? 1 : 0) + (fxbondRoute.moveCard ? 1 : 0) /* v58.75: the high-yield card became a line pointing to 시장 상태; v59.74: MOVE card when history carries it */ || fxbondRoute.impactAxes.join(',') !== 'korea' /* P1505: duplicated macro axes removed */ || fxbondRoute.fxCards.join(',') !== 'dxy,usdkrw,usdjpy' /* v59.51: the 10-year close card left; the curve carries today's level */ || fxbondRoute.retired.length || fxbondRoute.rawLiveSinkCount !== fxbondRoute.nativeLiveSinkCount) throw new Error(`P1425 금리와 환율 board failed: ${JSON.stringify(fxbondRoute)}`);
+  // v60.19 (Codex audit fx-refresh-focus): a normal refresh re-render rebuilds the 자산군 section; the reader's window and
+  // focus survive it (the window on the section host, focus through behaviors/focus-continuity.js installed after boot).
+  const assetRefresh = await page.evaluate(async () => {
+    window.showPage?.('fxbond');
+    for (let waited = 0; !document.getElementById('page-fxbond')?.classList.contains('active') && waited < 3000; waited += 50) await new Promise((resolve) => setTimeout(resolve, 50));
+    window._aioShowPageView?.('page-fxbond', 'assets');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const before = document.querySelector('#rates-assets .sx-seg button[data-window="m1"]');
+    if (!before) return { missing: true };
+    before.click();
+    before.focus();
+    const focusedBefore = document.activeElement === before;
+    document.dispatchEvent(new Event('aio:refresh:done'));
+    window.dispatchEvent(new Event('aio:refresh:done'));
+    for (let waited = 0; before.isConnected && waited < 3000; waited += 50) await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const pressed = document.querySelector('#rates-assets .sx-seg button[aria-pressed="true"]');
+    return { focusedBefore, rebuilt: !before.isConnected, pressed: pressed?.dataset.window || null, focused: document.activeElement === pressed, active: document.activeElement?.tagName };
+  });
+  if (!assetRefresh.rebuilt || assetRefresh.pressed !== 'm1' || !assetRefresh.focused) throw new Error(`v60.19 자산군 window or focus lost on a refresh re-render: ${JSON.stringify(assetRefresh)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('breadth'));
   await page.waitForFunction(() => document.getElementById('page-breadth')?.dataset.aioArchitectureRoute === 'breadth');
   // P1395: the breadth page is the native trend-card board (P1416: ten dated series in three groups + one judgement).

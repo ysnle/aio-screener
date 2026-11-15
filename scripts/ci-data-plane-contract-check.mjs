@@ -195,7 +195,7 @@ try {
     : Response.json({ workflow_runs: [{ id: 3, head_branch: 'main', status: 'completed', conclusion: 'success', updated_at: '2026-10-01T13:38:00Z' }] }) });
   const posts = calls.filter(call => call.init.method === 'POST');
   if (offSlot.dispatched || !slot.dispatched || recent.dispatched || recent.reason !== 'recent-success' || puts.length
-      || posts.length !== 1 || !/\/actions\/workflows\/event-briefs\.yml\/dispatches$/.test(posts[0].url) || posts[0].init.body !== JSON.stringify({ ref: 'main' })
+      || posts.length !== 1 || !/\/actions\/workflows\/event-briefs\.yml\/dispatches$/.test(posts[0].url) || posts[0].init.body !== JSON.stringify({ ref: 'main', inputs: { trigger: 'scheduler' } })
       || policy.maxSuccessfulKvWritesPerDay >= policy.warningDailyTarget) fail(`v59.81 event-briefs dispatch contract regressed: ${JSON.stringify({ offSlot, slot, recent, puts })}`);
   if (!/dispatchEventBriefs\(\{ env, scheduledTime/.test(worker)) fail('v59.81 the scheduled handler does not dispatch event briefs');
 }
@@ -263,7 +263,7 @@ try {
     const worker = fs.readFileSync(path.resolve(root, 'worker/data-plane.js'), 'utf8');
     const watchdogWorkflow = fs.readFileSync(path.resolve(root, '.github/workflows/data-watchdog.yml'), 'utf8');
     if (off.dispatched || !due.dispatched || fresh.dispatched || fresh.reason !== 'recent-success' || posted.length !== 1
-        || !posted[0].url.endsWith('/actions/workflows/data-watchdog.yml/dispatches') || posted[0].init.body !== JSON.stringify({ ref: 'main' })
+        || !posted[0].url.endsWith('/actions/workflows/data-watchdog.yml/dispatches') || posted[0].init.body !== JSON.stringify({ ref: 'main', inputs: { trigger: 'scheduler' } })
         || [...store.keys()].join() !== keysBefore || WATCHDOG_DISPATCH_POLICY.kvKey !== null || !worker.includes('dispatchWatchdog({ env, scheduledTime') || !watchdogWorkflow.includes('workflow_dispatch:')
         || writes.maxSuccessfulKvWritesPerDay > writes.warningDailyTarget) fail(`v60.14 hourly watchdog dispatch contract regressed: ${JSON.stringify({ off, due, fresh, posts: posted.length, kv: [...store.keys()], writes: writes.maxSuccessfulKvWritesPerDay })}`);
   }
@@ -404,6 +404,24 @@ try {
     }
   });
   if (!recovered.ok || firstHostCalls !== fallbackCalls || fallbackCalls !== recovered.snapshot.coverage.required) fail('P1518 body timeout must recover through the alternate host');
+}
+
+// v60.19 (Codex audit: SLO accounting): every workflow the data-plane Worker dispatches is the designed scheduler, and the
+// SLO window can only tell that from an operator run by the run title (isAutomatedDispatch). The watchdog and event-briefs
+// dispatches carried no trigger, so a Worker-dispatched watchdog run was excluded as manual (observed 0). Each dispatched
+// workflow declares the trigger input and puts it in its run-name; the Worker sends trigger=scheduler.
+{
+  const worker = fs.readFileSync(path.resolve(root, 'worker/data-plane.js'), 'utf8');
+  const { isAutomatedDispatch } = await import('./build-operations-slo-window.mjs');
+  const dispatched = [...new Set([...worker.matchAll(/workflow: '([a-z0-9-]+\.yml)'/g)].map((m) => m[1]))];
+  if (dispatched.length < 4) fail(`v60.19 the Worker dispatch policies were not found (${dispatched.join(',')})`);
+  for (const file of dispatched) {
+    const yaml = fs.readFileSync(path.resolve(root, '.github/workflows', file), 'utf8');
+    const name = yaml.match(/^name: (.+)$/m)?.[1]?.trim();
+    if (!/^run-name: .*inputs\.trigger/m.test(yaml) || !/\n      trigger:\r?\n/.test(yaml)) fail(`v60.19 ${file} must declare a trigger input and carry it in run-name`);
+    if (!isAutomatedDispatch({ event: 'workflow_dispatch', display_title: `${name} · scheduler` })) fail(`v60.19 the SLO window does not count a Worker-dispatched ${file} run`);
+  }
+  if ((worker.match(/inputs: \{ trigger: (?:'scheduler'|REFRESH_DISPATCH_POLICY\.trigger) \}/g) || []).length < dispatched.length) fail('v60.19 every Worker dispatch body sends trigger=scheduler');
 }
 
 console.log(JSON.stringify({ ok: true, worker: 'cron+kv', kvSmoke: 'health/fixture-pass', qg: ['QG-01', 'QG-06', 'QG-08'], deploy: 'exact-CI-attested-auto+rollback' }));

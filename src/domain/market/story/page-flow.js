@@ -79,10 +79,10 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
   if (participation && leaderBreak && b50d20 != null && b50d20 >= 10) participation += ' 참여는 넓어지는데 주도주는 이탈 중입니다. 돈이 주도주에서 다른 업종으로 옮겨 가는 순환인지, 동반 약세의 앞 단계인지는 주도 영역 판정과 함께 봅니다.';
 
   const leadership = hl == null && mv == null
-    ? '신고가·신저가와 4% 급등락 기록이 아직 쌓이는 중이라 이 묶음은 판정 근거로 쓰지 않습니다 — 위 참여도가 주 근거입니다.'
+    ? '신고가·신저가와 하루 4% 넘는 등락 기록이 아직 쌓이는 중이라 이 묶음은 판정 근거로 쓰지 않습니다 — 위 참여도가 주 근거입니다.'
     // T13 (expert review 2026-10-13): one day's count is an observation of today, not a trend ("넓어지는 쪽", "투매").
     : [hl == null ? null : hl > 0 ? `최근 마감일 기준 52주 신고가가 신저가보다 ${round(hl)}개 많습니다` : hl < 0 ? `최근 마감일 기준 52주 신저가가 신고가보다 ${round(-hl)}개 많습니다` : '최근 마감일 기준 신고가와 신저가가 같은 수입니다',
-      mv == null ? null : mv > 0 ? `최근 5일 동안 4% 넘게 급등한 종목이 급락 종목보다 ${round(mv)}개 많아 상승 쪽이 우세합니다` : mv < 0 ? `최근 5일 동안 4% 넘게 급락한 종목이 급등 종목보다 ${round(-mv)}개 많아 하락 쪽이 우세합니다` : '최근 5일 급등·급락 종목 수가 같습니다'
+      mv == null ? null : mv > 0 ? `최근 5일 동안 하루 4% 넘게 오른 종목이 4% 넘게 내린 종목보다 ${round(mv)}개 많아 상승 쪽이 우세합니다` : mv < 0 ? `최근 5일 동안 하루 4% 넘게 내린 종목이 4% 넘게 오른 종목보다 ${round(-mv)}개 많아 하락 쪽이 우세합니다` : '최근 5일 하루 4% 넘게 오른 종목과 내린 종목 수가 같습니다'
     ].filter(Boolean).join('. ') + '. 하루·5일 집계라 확산이나 이탈의 추세인지는 며칠 이어지는지로 확인합니다.';
 
   let index = 'S&P 500과 참여도를 같은 기간으로 비교할 기록이 부족합니다.';
@@ -99,7 +99,7 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
           // bottoming condition, not the verdict.
           : spx20 <= 0 && up ? (regime?.axes?.find((row) => row.id === 'breadth')?.state === 'burden' ? '지수는 쉬지만 참여는 20거래일 전보다 넓어졌습니다 — 낮은 수준에서의 회복이라 참여 수준 자체는 아직 부담 판정이고, 바닥 다지기인지는 이 회복이 이어지는지로 확인합니다' : '지수는 쉬지만 참여는 오히려 넓어졌습니다. 바닥 다지기의 한 조건이며, 이 회복이 이어지는지로 확인합니다')
             // P1591 (M05): index up / participation down but smaller than the -10%p gap rule.
-            : spx20 > 0 && down ? '지수는 올랐지만 참여는 소폭 줄었습니다 — 아직 큰 괴리(10%p 이상 감소)는 아닙니다'
+            : spx20 > 0 && down ? '지수는 올랐지만 참여는 줄었습니다 — 괴리 기준(10%p 이상 감소)에는 못 미칩니다'
               : !up && !down ? `참여 비율의 20거래일 변화가 ±${zone}%p 안이라 지수 움직임을 참여가 확인하지도 부정하지도 않습니다` : '지수와 참여가 모두 거의 변하지 않았습니다';
     const ddText = dd == null ? '' : ddRecord?.pct == null ? ` 최근 25거래일 분배일은 ${round(dd)}회입니다.`
       : ` 최근 25거래일 분배일은 ${round(dd)}회로, 이 사이트가 기록한 ${ddRecord.n}거래일 가운데 ${recordRankPhrase(ddRecord.pct)}입니다${ddRecord.provisional ? `(기록이 ${RECORD_FULL_YEAR}거래일이 안 돼 잠정)` : ''}.`;

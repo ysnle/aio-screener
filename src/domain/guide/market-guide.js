@@ -15,7 +15,7 @@ import { pastEvidence } from '../scenarios/analogs.js';
 import { CHOICES } from '../market/regime/macro-crossroads.js';
 import { scenarioLead } from '../market/regime/scenario-lead.js';
 import { activeScheduledEvents } from '../briefing/scheduled-events.js';
-import { CHOICE_WORDS } from '../content/choice-words.js';
+import { CHOICE_WORDS, GROUND_LABELS } from '../content/choice-words.js';
 import { selectLessons, LESSON_KINDS } from './lessons.js';
 import { hasFinalConsonant, withObjectParticle } from '../content/korean-particle.js';
 
@@ -115,7 +115,9 @@ function stanceOf({ direction, leadPath, lessons }) {
   if (leadPath?.firmer && !/없음/.test(leadPath.firmer)) pursue.push(`'${leadPath.short}'에서 강해지는 쪽(${leadPath.firmer})이 실제로 버티는지 테마·섹터에서 확인`);
   if (leadPath?.triggers?.[0]) pursue.push(`다음 확인 신호를 미리 적어 두기: ${leadPath.triggers[0].when} — ${leadPath.triggers[0].text}`);
   const costly = direction.tally.filter((row) => row.costlyIn.length && row.key !== robust);
-  for (const row of costly.slice(0, 2)) avoid.push(`${row.key === 'stage' ? '서두른 ' : ''}'${row.name}' — ${row.costlyIn.map((name) => `'${name}'`).join('·')} 시나리오로 가면 손해가 큰 선택입니다`);
+  // A rule-table cost is the decision frame's cost hypothesis (src/domain/scenarios/decision-frame.js), never a
+  // past result: the line carries that ground label.
+  for (const row of costly.slice(0, 2)) avoid.push(`${row.key === 'stage' ? '서두른 ' : ''}'${row.name}' — ${row.costlyIn.map((name) => `'${name}'`).join('·')} 시나리오로 가면 손해가 큰 선택입니다(${GROUND_LABELS['cost-hypothesis']})`);
   if (leadPath?.weaker && leadPath.weaker !== '—') avoid.push(`'${leadPath.short}'에서 약해지는 쪽(${leadPath.weaker})에 한 번에 몰기`);
   for (const lesson of lessons.filter((row) => row.kind === 'trap' && row.reason).slice(0, 2)) avoid.push(`${lesson.title}에 속기`);
   return { pursue: pursue.slice(0, 3), avoid: avoid.slice(0, 4) };

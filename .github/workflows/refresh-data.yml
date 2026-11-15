@@ -94,6 +94,10 @@ jobs:
       cancel-in-progress: false
     outputs:
       sha: ${{ steps.commit.outputs.sha }}
+      lane_alert: ${{ steps.daily-lane-alert.outputs.state }}
+      lane_failures: ${{ steps.daily-lane-alert.outputs.failures }}
+      lane_failed_at: ${{ steps.daily-lane-alert.outputs.failed_at }}
+      lane_polled_at: ${{ steps.daily-lane-alert.outputs.polled_at }}
     # Includes waiting for the dispatched CI run to produce its attestation
     # before handing the run id to Pages (see ensure-live-convergence.mjs).
     timeout-minutes: 45
@@ -136,6 +140,17 @@ jobs:
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
           AIO_OBSERVE_PROXY_HEALTH: '1'
         run: node scripts/fetch-data.mjs
+
+      # P1719: rejected AI market-reading attempts stay out of the repository and of Pages; the producer writes this run's
+      # attempts to $RUNNER_TEMP and they are kept here for a few days (the job log carries the issue list and text too).
+      - name: Upload rejected AI reading attempts
+        if: ${{ always() && !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: market-analysis-rejections-${{ github.run_id }}
+          path: ${{ runner.temp }}/market-analysis-rejections.json
+          if-no-files-found: ignore
+          retention-days: 3
 
       - name: Capture redacted market snapshot diagnostics
         id: snapshot-diagnostic
@@ -207,13 +222,15 @@ jobs:
           echo "mode=$mode" >> "$GITHUB_OUTPUT"
           echo "Daily lane due=$due mode=$mode reason=$reason"
 
-      - name: Refresh past stress-band outcomes (daily lane, P1661)
+      # Both outcome producers are weekly: the daily lane only gives them a chance to run, and each exits early while its
+      # artifact is under 7 days old and its definition stamp matches the code (scripts/build-stress-outcomes.mjs header).
+      - name: Refresh past stress-band outcomes (weekly producer, offered on the daily lane, P1661)
         id: stress-outcomes
         if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' }}
         continue-on-error: true
         run: node scripts/build-stress-outcomes.mjs
 
-      - name: Refresh long-history scenario outcomes (daily lane, P1743)
+      - name: Refresh long-history scenario outcomes (weekly producer, offered on the daily lane, P1743)
         id: scenario-outcomes
         if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' }}
         continue-on-error: true
@@ -504,6 +521,56 @@ jobs:
         with:
           path: .cache/daily-lane
           key: daily-lane-marker-${{ github.run_id }}-${{ github.run_attempt }}
+
+      # The 13F lane is degradable (its failure keeps the last publish and the cycle still commits), so its failures never
+      # reached the operations alert: it failed from 11/06 to 11/15 with only warnings. From the third failure in a row the
+      # daily-lane-alert job below keeps one issue open until a published poll clears the count. Review v60.19 B1: this
+      # step never ends the run red — a red run made the cron fallback run a second full cycle after every dispatch.
+      - name: Read the 13F lane alert state
+        id: daily-lane-alert
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: node scripts/daily-lane-age.mjs --alert-state
+
+  # Review v60.19 B1: the persistent 13F lane failure as an alert signal, the issue path data-watchdog uses for
+  # manual-reference expiry (one open issue found by its body marker; opened or updated while the lane keeps failing,
+  # closed after a published poll). It never changes the refresh run's conclusion.
+  daily-lane-alert:
+    needs: refresh
+    if: ${{ !cancelled() && (needs.refresh.outputs.lane_alert == 'open' || needs.refresh.outputs.lane_alert == 'clear') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    continue-on-error: true # an issue API failure must not turn the data cycle red either
+    permissions:
+      issues: write
+    steps:
+      - name: Open, update or close the 13F lane issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          STATE: ${{ needs.refresh.outputs.lane_alert }}
+          FAILURES: ${{ needs.refresh.outputs.lane_failures }}
+          FAILED_AT: ${{ needs.refresh.outputs.lane_failed_at }}
+          POLLED_AT: ${{ needs.refresh.outputs.lane_polled_at }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          marker="<!-- aio-daily-lane-failure -->"
+          title="[AIO] 13D/G·13F lane failing"
+          open_issues="$(gh issue list --state open --limit 200 --json number,title,body,createdAt)"
+          open_issue="$(jq -r --arg m "$marker" '[.[] | select((.body // "") | contains($m))] | sort_by(.createdAt) | last | .number // empty' <<< "$open_issues")"
+          if [ "$STATE" = "open" ]; then
+            body="$(printf '%s\n<!-- aio-daily-lane-failures:%s -->\n## 13D/G·13F lane failing\n\n- Consecutive failures: **%s** (last %s)\n- Last published poll: %s\n- Its files stay at the last publish; the lane retries on its backoff (1, 2, 4, then 8 h).\n- Newest run: %s (read its "Refresh weekly SEC 13F and daily 13D-G discovery" step)\n\nThis issue closes after a published poll clears the count.' "$marker" "$FAILURES" "$FAILURES" "${FAILED_AT:-unknown}" "${POLLED_AT:-unknown}" "$RUN_URL")"
+            if [ -z "$open_issue" ]; then
+              gh issue create --title "$title" --body "$body"
+            elif ! gh issue view "$open_issue" --json body --jq .body | grep -qF "aio-daily-lane-failures:${FAILURES} "; then
+              gh issue edit "$open_issue" --title "$title" --body "$body"
+            else
+              echo "13F lane issue #${open_issue} already lists ${FAILURES} failures"
+            fi
+          elif [ -n "$open_issue" ]; then
+            gh issue close "$open_issue" --comment "A published 13D/G·13F poll cleared the failure count (${POLLED_AT:-unknown}; run ${RUN_URL})."
+          fi
 
   converge:
     needs: [cadence, refresh]

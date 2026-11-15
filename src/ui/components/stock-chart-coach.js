@@ -390,6 +390,11 @@ export function priceLevelSection(doc, root, sym, levels, currency, instance, ch
   const lead = [up ? `가장 가까운 저항 후보는 ${signedText(up.pct, 1, '%')} 위 ${price(up.price)}(${kindsText(up)})` : '현재가 위에는 지도 위 레벨이 없고',
     down ? `지지 후보는 ${signedText(down.pct, 1, '%')} 아래 ${price(down.price)}(${kindsText(down)})입니다` : '아래에는 지도 위 레벨이 없습니다'].join(', ');
   section.append(el(doc, 'p', `${lead}.`, 'xr-reading'));
+  // Both distances in the stock's own ATR(14), side by side — a state of the chart, not a ratio
+  // of reward to risk (the reader's own entry, stop and target belong to 내 계획 점검).
+  const atrAway = (level) => (level && levels.atr > 0 ? Math.abs(level.price - levels.close) / levels.atr : null);
+  const upAtr = atrAway(up), downAtr = atrAway(down);
+  if (upAtr != null || downAtr != null) section.append(el(doc, 'p', `ATR(14) 기준 거리: 위 저항 후보까지 ${upAtr == null ? '없음' : `${upAtr.toFixed(1)}배`}, 아래 지지 후보까지 ${downAtr == null ? '없음' : `${downAtr.toFixed(1)}배`}.`, 'xr-reading chart-levels-atr'));
   section.append(levelLadder(doc, levels), levelTable(doc, levels, price));
   if (instance?.setLevels) {
     const toggle = el(doc, 'label', null, 'chart-level-toggle');

@@ -3,6 +3,7 @@ import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { createOperationsStatus, validateOperationsStatus } from '../src/data/contracts/operations.js';
 
 import { describeDomainReceipt } from './lib/domain-receipt.mjs';
+import { aiProviderRefusal } from './lib/operational-health.mjs';
 
 export const OPERATIONS_STATUS_OUT = new URL('../public-data/operations-status.json', import.meta.url);
 const ROUTE_OWNERS_PATH = new URL('../architecture/route-owners.json', import.meta.url);
@@ -25,6 +26,13 @@ export function deriveOperationalState({ configured = false, healthy = false, st
   if (!observed) return 'NOT_OBSERVED';
   if (stale) return 'STALE';
   return healthy ? 'CONFIGURED_HEALTHY' : 'CONFIGURED_BROKEN';
+}
+
+// v60.18: `overall` asks for an operator only while an operator blocker is open. It was the constant OPERATOR_REQUIRED
+// whenever the durable plane published, so it read the same all week (11/09-11/15) with blockers [] and told nobody anything.
+export function deriveOverall({ durableOk = false, blockers = [] } = {}) {
+  if (!durableOk) return 'BLOCKED';
+  return blockers.length ? 'OPERATOR_REQUIRED' : 'CURRENT';
 }
 
 export async function readRouteOwners() {
@@ -529,13 +537,15 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   if (quoteAvailability.availability !== 'AVAILABLE') blockers.push('fast_plane_soak_and_rights_review_required');
   if (fastConfig.rightsReviewed !== true) blockers.push('provider_rights_review_required');
   if (!proxyHealthy) blockers.push('ai_proxy_deploy_or_readiness_required');
+  // v60.18: the Worker can be healthy while the provider refuses the shared account (11/10: credit_balance_exhausted, 11 h).
+  if (aiProviderRefusal(data)) blockers.push('ai_provider_account_refused');
   if (secCoverage.coveragePct < 80) blockers.push('sec_fundamentals_coverage_below_80_percent');
   const status = createOperationsStatus({
     generatedAt: now,
     appRevision: version.version,
     dataRevision: snapshot.revision || `public-data:${data?.meta?.generatedAt || 'unknown'}`,
     evidenceRevision: 'evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1',
-    overall: durableOk ? 'OPERATOR_REQUIRED' : 'BLOCKED',
+    overall: deriveOverall({ durableOk, blockers }),
     // P1173 (17 작업 단위 5): `overall`은 durable 한 축에서만 파생되므로 browser가 UNKNOWN이어도 바뀌지
     // 않는다. 그 사실을 숨기지 않도록 집계의 범위를 명시하고, 기능별로 사용 가능 범위·관측시각·누락
     // 이유를 따로 발행한다. 전역 정상 배지 대신 "무엇을 지금 쓸 수 있고 무엇이 왜 비었는지"를 남긴다.

@@ -10,6 +10,8 @@ import { isConditionalNumericSentence } from '../../src/ai/response/publication.
 import { RULES } from '../../src/domain/rules/thresholds.js';
 import { readNumber } from '../../src/domain/shared/number.js';
 import { stripEvidenceIds } from '../../src/domain/briefing/evidence-text.js';
+import { moveMetricByLabel, moveSizeGrades, MOVE_SIZE_HEAD } from './market-analysis-moves.mjs';
+import { moveSizeWord } from '../../src/domain/market/session/move-size.js';
 
 const MARKET_ANALYSIS_QUOTE_DEFS = [
   { symbol: '^GSPC', metricId: 'market.spx', label: 'SPX', unit: 'index', aliases: ['S&P 500'] },
@@ -33,7 +35,10 @@ export function snapshotEvidenceRows(snapshot) {
   return [...(snapshot?.quotes || []), ...(snapshot?.evidenceQuotes || [])];
 }
 // v57.81: the completed-close series in history.json for each quote (see buildCompletedCloseBasis).
-const MARKET_ANALYSIS_HISTORY_FIELDS = Object.freeze({ 'market.spx': 'spx', 'market.vix': 'vix', 'market.us10y': 'tnx', 'market.dxy': 'dxy', 'market.wti': 'wti', 'market.gold': 'gold', 'market.kospi': 'kospi' });
+// v60.18 (weekly audit 2026-11-15): SOXX had no series here, so while it traded in session the prompt's own line
+// "반도체(SOXX) 11/9 종가 +7.49%" could not be matched to a completed close — session-wording-mismatch:market.semis was the
+// most frequent block of the week (24 runs, 10 of the 16 salvages) and it is what dropped the retained reading on 11/10.
+const MARKET_ANALYSIS_HISTORY_FIELDS = Object.freeze({ 'market.spx': 'spx', 'market.vix': 'vix', 'market.us10y': 'tnx', 'market.dxy': 'dxy', 'market.wti': 'wti', 'market.gold': 'gold', 'market.kospi': 'kospi', 'market.semis': 'soxx' });
 const MARKET_ANALYSIS_MACRO_DEFS = [
   // Audit D9 (owner 2026-10-17): `basis` tells the model what the number measures, so "CPI 3.7%" is written as a
   // year-over-year rate and NFP as a monthly change in thousands (the validator matches these values in the same units).
@@ -246,10 +251,22 @@ export function analysisMetricMentions(text) {
     const clause = body.slice(hit.end, stop).split(/(?<!\d)[.。](?!\d)|\n|[;；]/)[0];
     const sentenceStart = Math.max(body.lastIndexOf('.', hit.start), body.lastIndexOf('\n', hit.start), body.lastIndexOf('。', hit.start)) + 1;
     const sentenceEnd = body.slice(hit.end).search(/(?<!\d)[.。](?!\d)|\n/);
-    return { ...hit, clause, sentence: body.slice(sentenceStart, sentenceEnd < 0 ? body.length : hit.end + sentenceEnd) };
+    // `lead`: the sentence's words before this mention (v60.18 direction check: "압력은 반도체(SOXX) … +6.01%").
+    return { ...hit, clause, lead: body.slice(sentenceStart, hit.start), sentence: body.slice(sentenceStart, sentenceEnd < 0 ? body.length : hit.end + sentenceEnd) };
   });
 }
 
+// v60.18: the direction a signed move is called by — the predicate right after the number ("+6.01%로 하락") and a topic
+// word that opens the sentence before the metric ("압력은 반도체(SOXX) … +6.01%", the MARKET_DRIVERS slot label copied as
+// a subject). Narrow on purpose: 확대/축소 and 폭 compounds ("하락 폭을 줄였다") say nothing about the sign.
+// A noun stem counts only as this number's predicate ("하락했다", "약세로", "반등세"), not as a noun of the next phrase
+// ("-4.38%로 반등과 유가 하락이 두드러졌습니다" lists the day's moves).
+const AS_PREDICATE = String.raw`(?=했|하[였며고는여]|해|세|로|를\s?보|[.,。]|\s*$)`;
+const DIRECTION_AFTER_DOWN = new RegExp(String.raw`^\s?(?:으로|로|나|이나|가량|정도|씩)?\s?(?:크게|소폭|다시|더)?\s?(?:(?:하락|급락|폭락|약세)${AS_PREDICATE}|내렸|내린|내려|떨어|밀렸|밀린|밀려|빠졌|빠진)`);
+const DIRECTION_AFTER_UP = new RegExp(String.raw`^\s?(?:으로|로|나|이나|가량|정도|씩)?\s?(?:크게|소폭|다시|더)?\s?(?:(?:상승|급등|폭등|반등|강세)${AS_PREDICATE}|올랐|오른|올라|뛰었|뛴|치솟)`);
+// The topic qualifies the metric named right after it (no number or comma between), not a later one in the sentence.
+const DIRECTION_TOPIC_DOWN = /^\s*(?:압력|하락|급락|약세|부진)\s?(?:은|는|:|：)[^\d,，.;；]{0,14}$/;
+const DIRECTION_TOPIC_UP = /^\s*(?:상승|급등|반등|강세)\s?(?:은|는|:|：)[^\d,，.;；]{0,14}$/;
 const ANALYSIS_UP = /(?:상승|오른|올라|올랐|급등|반등|강세|높아|뛴|확대)/;
 const ANALYSIS_DOWN = /(?:하락|내린|내려|내렸|떨어|급락|약세|낮아|빠진|축소)/;
 const RATE_LEVEL_PHRASE = /^\s*(?:에|로|까지|선|대|를|을)?\s*(?:근접|가까|육박|접근|다가|도달|이르|닿|넘|돌파|상회|하회|웃돌|밑돌|수준|부근|안팎)/;
@@ -314,6 +331,7 @@ export function validateAnalysisMetricMentions(text, metricEvidence = [], change
     const closedBp = rate && closed ? toBp(closed.value, closed.changePct) : null;
     let usedIntraday = false;
     let levelSeen = false;
+    let directionTopicSeen = false; // the opening topic word qualifies the clause's first signed move only
     let previousEnd = -1;
     for (const match of mention.clause.matchAll(/([+\-−±]?)(\d[\d,]*(?:\.\d+)?)\s*(%포인트|%p|bps|bp|포인트|%)?/gi)) {
       const [, sign, digits, suffix = ''] = match;
@@ -330,6 +348,16 @@ export function validateAnalysisMetricMentions(text, metricEvidence = [], change
       previousEnd = match.index + match[0].length;
       const magnitude = Number(digits.replace(/,/g, ''));
       if (!Number.isFinite(magnitude)) continue;
+      // v60.18 (weekly audit 2026-11-15): a direction word attached to a signed move must agree with its sign
+      // ("+6.01%로 하락", "압력은 반도체(SOXX) 11/11 종가 +6.01%"). Only the predicate right after the number and the
+      // sentence's opening topic are read, so "금리 +10bp 상승이 주가에 하락 압력" is not a contradiction.
+      if ((sign === '+' || sign === '-' || sign === '−') && /^(?:%|bps?)$/i.test(suffix)) {
+        const signed = sign === '+' ? 1 : -1;
+        const stated = DIRECTION_AFTER_UP.test(after) ? 1 : DIRECTION_AFTER_DOWN.test(after) ? -1
+          : !directionTopicSeen ? (DIRECTION_TOPIC_UP.test(mention.lead) ? 1 : DIRECTION_TOPIC_DOWN.test(mention.lead) ? -1 : 0) : 0;
+        directionTopicSeen = true;
+        if (stated && stated !== signed) issues.push(`direction-sign-contradiction:${row.metricId}`);
+      }
       // A rate level the text approaches or crosses ("10년물 금리가 5%에 근접한 가운데 주가가 내렸다") is a level: the
       // direction word after it belongs to the next subject, so it is not read as the rate's own change in percent.
       const levelPhrase = rate && suffix === '%' && !sign && RATE_LEVEL_PHRASE.test(after);
@@ -446,6 +474,8 @@ function analysisContextHasNumber(context, value) {
 }
 
 const ANALYSIS_REFERENCE_LEVEL = /^\s*[(（]?\s*(?:\d+\s*일\s*(?:선|이동평균|평균)|이동평균|이평|고점|저점|평균|전일|직전|지지|저항|대비|52주)/;
+const DATED_BASE_BEFORE = /(?:\d{1,2}\/\d{1,2}|\d{1,2}월\s?\d{1,2}일)\s*(?:종가\s*)?$/;
+const DATED_BASE_AFTER = /^\s*\)?\s*(?:에서|부터|보다|대비|이후)/;
 export function analysisNumberMarkedAsReference(body, value) {
   const forms = new Set([String(value), Number(value).toLocaleString('en-US', { maximumFractionDigits: 6 })]);
   const text = String(body || '');
@@ -456,6 +486,10 @@ export function analysisNumberMarkedAsReference(body, value) {
       const before = text.slice(Math.max(0, match.index - 16), match.index);
       if (/(?:일선|이동평균|이평|고점|저점|평균|전일|직전|지지|저항|52주)\s*$|(?:일선|이동평균|고점|저점)\D{0,6}$/.test(before)) return true;
       if (ANALYSIS_REFERENCE_LEVEL.test(text.slice(match.index + match[0].length))) return true;
+      // v60.18: REGIME_CONTEXT now gives a move's dated base ("SOXX는 11/6 136.53에서 +13.8% 오른 뒤", "5거래일 전(11/4
+      // 16.61)보다 +5% 높아"); copied verbatim it failed metric-value-mismatch. A dated level the move starts from is a
+      // reference; a dated level written as the current one ("S&P 500 11/14 7,650입니다") still is not.
+      if (DATED_BASE_BEFORE.test(before) && DATED_BASE_AFTER.test(text.slice(match.index + match[0].length))) return true;
     }
   }
   return false;
@@ -780,6 +814,8 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   if (metricEvidence.some((row) => row.metricId === 'market.kospi' && Math.abs(changes.get(row.evidenceId)) >= KOREA_MOVE_MENTION_PCT)
     && !/코스피|코스닥|KOSPI|KOSDAQ/i.test(body)) issues.push('korea-move-unaddressed');
   issues.push(...priorSessionMoveIssues(body, { context }));
+  issues.push(...moveSizeWordIssues(body, { grades: moveSizeGrades(history) }));
+  issues.push(...publishedTextIssues(body));
   issues.push(...noLeadIssues(body, { context }));
   issues.push(...reversalDriverIssues(body, { reversal: marketAnalysisReversal(metricEvidence, changes, closedBasis) }));
   return {
@@ -1019,15 +1055,91 @@ export function buildStructuredMarketAnalysis({ data, text, model, status, reaso
 
 // v57.87: REGIME_CONTEXT names a completed close that moved 3% in a session or 8% over five (priorSessionMoveLines);
 // the reading names that index with the close's date. A text about the next session's rebound alone left out the crash.
+// v60.18 (weekly audit 2026-11-15 D5): the validator read the model's text with its citations, the page publishes it
+// without them (plainReading), and the model had put ids and words inside brackets mid-sentence. Removing them left
+// "…+9.35%였으며, 이는입니다." (8006cca6b), "신호입니다(,)." (6cd4c25a6) and "+6.01%(, 5거래일 +3.50%)" (4abfc0caf), all
+// published as verified. The published form itself must be well formed: no empty or unbalanced bracket, no stacked
+// punctuation, no particle fused to the copula, no sentence ending on a connective.
+const MALFORMED_PUBLISHED = Object.freeze([
+  /[(（[]\s*[,，;；.。·、:：\s]*[)）\]]/, // an empty or punctuation-only bracket
+  /[,，;；]\s*[,，;；.。)）]|[(（]\s*[,，;；.。]/, // punctuation stacked where a citation was removed
+  /[가-힣](?:는|을|를)(?:입니다|습니다)|이는\s?(?:입니다|습니다)/, // "이는입니다": the clause between them was removed
+  /^[\s,，;；.。)）\]]/ // a sentence opening on the tail of a removed bracket
+]);
+const DANGLING_END = /(?:으며|이며|며|지만|으나|는데|면서)[\s,，]*[.。]?\s*$/;
+export function publishedTextIssues(body) {
+  for (const line of plainReading(String(body || '')).split('\n')) {
+    if ((line.match(/[(（]/g) || []).length !== (line.match(/[)）]/g) || []).length || /[[\]]/.test(line)) return ['published-text-malformed'];
+    for (const sentence of line.split(/(?<=[.!?。])\s+/).filter(Boolean)) {
+      if (MALFORMED_PUBLISHED.some((pattern) => pattern.test(sentence)) || DANGLING_END.test(sentence)) return ['published-text-malformed'];
+    }
+  }
+  return [];
+}
+
+// v60.18 (weekly audit 2026-11-15 D6): the list is in order of size (scripts/lib/market-analysis-moves.mjs), and the
+// reading's first two lines carry the first item — its name and its close date. Before, only S&P 500 / 코스피 / WTI were
+// checked anywhere in the text, so the opening line could stay on SOXX all week while the 10-year made the week's move.
+// v60.19 (one materiality vocabulary): a size word in the reading agrees with the ledger's grade for that metric
+// (moveSizeGrades, the prompt's MOVE_SIZE block): 급락 for a move the ledger grades ordinary is blocked, and so is 소폭 for
+// one it grades large. Read only where it is unambiguous — a sentence that names exactly one declared metric, is about a
+// completed close (no 장중/시간외, and no other date than that close's), on the five-session leg when it says so.
+const LARGE_MOVE_WORD = /급등|급락|폭등|폭락|급반등|큰\s?폭(?:으로|의)?\s?(?:상승|하락|올|내|오르|떨어|뛰)|크게\s?(?:올|오르|내리|내렸|내려|떨어|빠지|빠졌|빠져|밀리|밀렸|밀려|뛰|상승|하락)/;
+const SMALL_MOVE_WORD = /소폭|약보합|강보합|보합(?:권|세)?/;
+const WEEK_LEG = /5\s?거래일|한\s?주|일주일|주간|닷새/;
+// Review v60.19 A1: a size word belongs to the metric only as that metric's own predicate — the same clause, after the
+// name, with nothing between them but the move's own date, close and number. "엔비디아가 급락했지만 S&P 500은 …",
+// "금리 급등 우려에도 S&P 500은 …", "…지난주 급락분을 되돌렸습니다" and "코스닥이 급락한 가운데 코스피는 소폭 …" were
+// read as the S&P 500's or the KOSPI's 급락 and blocked a correct reading. Anything else between the name and the word
+// (a company, another asset, a 우려/전망 noun, a past period) leaves the sentence unread: a guard for clear contradictions only.
+const MOVE_CLAUSE_BREAK = /(?<=[가-힣])(?:지만|가운데|에도|반면|면서|는데|으나)(?=[\s,]|$)|(?<=[가-힣])(?:고|며)\s|[,，;；]/;
+const MOVE_NAME_TAIL = /^(?:\s?\([^)]*\))?\s?(?:금리|국채(?:\s?금리)?|수익률|지수|가격)?(?:은|는|이|가|도|의|만)?/;
+const MOVE_GAP_TOKEN = /^(?:[+\-−]?[\d.,/:]+(?:%|bp|p|포인트)?(?:로|으로|에|의|가|이|나|만|씩|째)?|종가(?:가|는|로|에|기준)?|하루(?:\s?만에|새|에)?|거래일(?:간|째|동안|만에)?|5거래일(?:간|째|동안|만에)?|한|주|주간|일주일(?:간|동안)?|닷새(?:간|동안)?|동안|만에|기준(?:으로)?|대비|이번|직전|세션|다시|더|또|모두|함께|일제히|연속|이틀|사흘)$/;
+function sizeWordBound(clause, nameEnd, word) {
+  const rest = clause.slice(nameEnd);
+  const match = word.exec(rest);
+  if (!match || /^\s?분/.test(rest.slice(match.index + match[0].length))) return false;
+  const gap = rest.slice(0, match.index).replace(MOVE_NAME_TAIL, '').trim();
+  return !gap || gap.split(/\s+/).every((token) => MOVE_GAP_TOKEN.test(token));
+}
+function moveNameEnd(clause, row) {
+  const label = clause.indexOf(row.label);
+  if (label >= 0) return label + row.label.length;
+  const match = new RegExp(row.name.source, row.name.flags.replace('g', '')).exec(clause);
+  return match ? match.index + match[0].length : -1;
+}
+export function moveSizeWordIssues(body, { grades = [] } = {}) {
+  const issues = [];
+  const sentences = String(body || '').replace(/\[[^\]\n]*\]/g, ' ').split(/\n+|(?<=[.!?])\s+/).map((row) => row.trim()).filter(Boolean);
+  for (const sentence of sentences) {
+    if ((!LARGE_MOVE_WORD.test(sentence) && !SMALL_MOVE_WORD.test(sentence)) || /장중|시간외|선물/.test(sentence)) continue;
+    const dates = [...sentence.matchAll(/(?<![\d/])(\d{1,2})\/(\d{1,2})(?!\d)/g)].map((m) => `${String(m[1]).padStart(2, '0')}-${String(m[2]).padStart(2, '0')}`);
+    for (const clause of sentence.split(MOVE_CLAUSE_BREAK).filter(Boolean)) {
+      const named = grades.filter((row) => row.name.test(clause));
+      if (named.length !== 1) continue;
+      const row = named[0];
+      if (dates.some((md) => md !== row.date.slice(5))) continue;
+      const nameEnd = moveNameEnd(clause, row);
+      if (nameEnd < 0) continue;
+      const large = sizeWordBound(clause, nameEnd, LARGE_MOVE_WORD), small = sizeWordBound(clause, nameEnd, SMALL_MOVE_WORD);
+      const grade = WEEK_LEG.test(clause) ? row.week : row.day;
+      if (!grade || (!large && !small)) continue;
+      if ((large && grade !== 'large') || (small && grade === 'large')) issues.push(`move-size-word-contradicts-ledger:${row.field}`);
+    }
+  }
+  return issues;
+}
+
 export function priorSessionMoveIssues(body, { context = '' } = {}) {
   const line = String(context || '').match(/^직전 완료 세션의 큰 움직임: ([^\n]*?) — /m);
   if (!line) return [];
-  const text = String(body || '');
-  for (const match of line[1].matchAll(/(S&P 500|코스피|WTI) (\d{1,2}\/\d{1,2}) 종가/g)) {
-    const name = match[1] === '코스피' ? /코스피|KOSPI/i : match[1] === 'WTI' ? /WTI|서부\s?텍사스유|유가/i : /S&P\s?500|S&P|에스앤피/i;
-    if (!name.test(text) || !new RegExp(String.raw`(?<![\d/])${match[2].replace('/', '\\/')}(?!\d)`).test(text)) return ['prior-session-move-omitted'];
-  }
-  return [];
+  const lead = line[1].split(' · ')[0] || '';
+  const match = /^(.+?) (\d{1,2})\/(\d{1,2}) 종가/.exec(lead);
+  const metric = match ? moveMetricByLabel(match[1]) : null;
+  if (!metric) return [];
+  const opening = String(body || '').replace(/\[[^\]\n]*\]/g, ' ').split(/\n+/).map((row) => row.trim()).filter(Boolean).slice(0, 2).join('\n');
+  const dated = new RegExp(String.raw`(?<![\d/])${match[2]}\/${match[3]}(?!\d)|${match[2]}월\s?${match[3]}일`).test(opening);
+  return metric.name.test(opening) && dated ? [] : ['prior-session-move-omitted'];
 }
 
 // v57.87 (10/16 audit): the screen said no flow and no central scenario qualified ("보기 이릅니다", "중심 시나리오를
@@ -1068,22 +1180,33 @@ const MARKET_ANALYSIS_ISSUE_HELP = Object.freeze({
   'korea-move-unaddressed': 'KOSPI moved 3% or more; add one line on it with its change (장중이면 "장중 HH:MM KST 기준")',
   'reversal-drivers-missing': 'the last completed close and the current session moved in opposite directions; give the reported reasons for the fall and for the rebound in separate sentences, each attributed to a dated headline ("10/20 WSJ 보도에 따르면 …")',
   'no-lead-overstated': 'REGIME_CONTEXT says no flow or central scenario qualifies yet; say so first ("아직 중심 흐름·시나리오를 정하기 이르다"), mention the best-matching one only with "핵심 조건 미충족", and do not name a favoured choice',
-  'prior-session-move-omitted': 'REGIME_CONTEXT lists a large completed-close move (직전 완료 세션의 큰 움직임); name that index with its close date (M/D) and change in one of the first two lines, separately from any in-session move',
+  'prior-session-move-omitted': 'REGIME_CONTEXT lists the completed-close moves by size (직전 완료 세션의 큰 움직임); open the reading with the first one — its name, close date (M/D) and change in one of the first two lines, separately from any in-session move',
+  'direction-sign-contradiction': 'a direction word contradicts the sign of the move it describes; a positive change is a rise (상승·반등), a negative one a fall (하락·약세) — and do not open a sentence with a slot name such as 압력',
+  'prompt-label-leak': 'a prompt section or slot name (METRIC_EVIDENCE, MARKET_DRIVERS, CLOSE_MOVE, LIVE_MOVE, NEXT_CHECK …) was left in the text; write the content without the label',
+  'published-text-malformed': 'citations are deleted before publication and the remaining text was broken (empty brackets, a word fused to 입니다, a dangling 이며/지만); put [id; id] only after a sentence period, ids only, never inside a sentence or inside ( )',
   'axis-state-contradiction': 'a state word (양호/안정/부담) contradicts the axis state in REGIME_CONTEXT; use the packet state for that axis',
   'cross-market-session-dates-missing': 'KOSPI and the US index closed on different sessions; name both dates (M/D) in the sentence that compares them',
   'theme-lead-claim-after-5d-drop': 'the packet shows that theme or sector down 3% or more over the last five sessions; do not say it leads (주도) — name its five-session drop in that sentence or describe it as a longer-window lead under pressure',
-  'leadership-claim-during-break': 'REGIME_CONTEXT says 주도 영역 이탈(leadershipBreak): 예; do not say semiconductors/AI lead — name the recent drop of the leaders (나스닥 100 5거래일 변화) and the Russell 2000 against its 200-day line in that sentence'
+  'move-size-word-contradicts-ledger': 'a size word disagrees with MOVE_SIZE for that metric: 급등·급락·폭등·폭락·큰 폭·크게 only where MOVE_SIZE grades the move 큰 폭, 소폭·보합 only where it grades it 소폭; for a 보통 move write the direction and the number with no size word',
+  'leadership-claim-during-break':'REGIME_CONTEXT says 주도 영역 이탈(leadershipBreak): 예; do not say semiconductors/AI lead — name the recent drop of the leaders (나스닥 100 5거래일 변화) and the Russell 2000 against its 200-day line in that sentence'
 });
 
 // P1719: what the validator blocked, in terms the model can act on — the issue, the metric's evidence value and change,
 // and the level the validator read after the label. Appended once to the retry prompt.
-export function describeMarketAnalysisIssues(text, issues = [], metricEvidence = [], changes = new Map()) {
+// Review v60.19 A2: a size-word block names the metric and the ledger's grade (`grades`, moveSizeGrades of the run's
+// history), so the retry knows which word to drop.
+export function describeMarketAnalysisIssues(text, issues = [], metricEvidence = [], changes = new Map(), { grades = [] } = {}) {
   const defs = [...MARKET_ANALYSIS_QUOTE_DEFS, ...MARKET_ANALYSIS_MACRO_DEFS];
   const allLabels = defs.flatMap((def) => [def.label, ...(def.aliases || [])]);
   return [...new Set(issues)].slice(0, 8).map((issue) => {
-    const metricId = String(issue).split(':')[1] || '';
+    const [code, metricId = ''] = String(issue).split(':');
     const row = metricEvidence.find((item) => item.metricId === metricId);
-    const help = MARKET_ANALYSIS_ISSUE_HELP[issue] || MARKET_ANALYSIS_ISSUE_HELP[String(issue).split(':')[0]]; // v57.81: axis-keyed issues
+    const help = MARKET_ANALYSIS_ISSUE_HELP[issue] || MARKET_ANALYSIS_ISSUE_HELP[code]; // v57.81: axis-keyed issues
+    if (code === 'move-size-word-contradicts-ledger') {
+      const graded = grades.find((item) => item.field === metricId);
+      const ledger = graded ? `; ledger grade for ${graded.label}: 하루 ${graded.day ? moveSizeWord(graded.day) : '등급 없음'}${graded.week ? `, 5거래일 ${moveSizeWord(graded.week)}` : ''}` : '';
+      return `- ${issue}: ${help}${ledger}`;
+    }
     if (!row) return `- ${issue}${help ? `: ${help}` : ''}`;
     const def = defs.find((item) => item.metricId === metricId);
     const read = def ? analysisLevelsAfterLabels(text, [def.label, ...(def.aliases || [])], { allLabels, unit: row.unit }) : [];
@@ -1095,7 +1218,7 @@ export function describeMarketAnalysisIssues(text, issues = [], metricEvidence =
   }).join('\n');
 }
 
-export const MARKET_ANALYSIS_RETAIN_MAX_MS = 12 * 3600000;
+export const MARKET_ANALYSIS_RETAIN_MAX_MS = RULES.marketReading.retainHours * 3600000;
 // P1719 (coordinator decision 2026-10-13): when the retry is also blocked, the previous verified analysis is kept for up
 // to 12 hours from its own generatedAt. It keeps status/semanticStatus 'verified' (every consumer — client sink,
 // meta.marketAnalysisOk, operations status — reads those) and carries `retained` so a surface can say
@@ -1109,11 +1232,18 @@ export const MARKET_ANALYSIS_RETAIN_MAX_MS = 12 * 3600000;
 // that has since been replaced is not an error while the market has moved less than a large move since then (1% for
 // the equity indices, 3% otherwise). Every other rule (KOSPI move named, cause attributed, inflation direction) still
 // re-runs on this run's data.
-export const MARKET_ANALYSIS_RETAIN_DRIFT_PCT = Object.freeze({ equity: LARGE_MOVE_ATTRIBUTION_PCT, other: 3 });
+export const MARKET_ANALYSIS_RETAIN_DRIFT_PCT = Object.freeze({ equity: RULES.largeMove.attributionUsPct, other: RULES.marketReading.retainDriftOtherPct });
+// v60.18 (weekly audit 2026-11-15 D2): on CPI day the provider answered 429 from 13:51Z. The 12:51Z reading was kept twice,
+// then at 14:51Z the US session opened, SOXX turned in-session, and its correct "반도체(SOXX) 종가 +7.49%" failed
+// session-wording-mismatch — the reading was dropped and 25 runs (11 h) showed figures only. These rules judge how a text
+// words the session state of an observation at the time it is written; a retained reading is shown with its own time, so
+// they are not re-run on it. Rules that new data can contradict (values beyond drift, a new large move left out, an axis
+// state, the inflation direction) still are.
+export const RETAINED_AS_OF_ISSUES = Object.freeze(['session-wording-mismatch', 'intraday-time-missing']);
 export function retainedReadingIssues(previous, result) {
   const then = new Map((Array.isArray(previous?.metricEvidence) ? previous.metricEvidence : []).map((row) => [row?.metricId, row]));
   const now = new Map((Array.isArray(result?.metricEvidence) ? result.metricEvidence : []).map((row) => [row?.metricId, row]));
-  return (Array.isArray(result?.issues) ? result.issues : []).filter((issue) => {
+  return (Array.isArray(result?.issues) ? result.issues : []).filter((issue) => !RETAINED_AS_OF_ISSUES.includes(String(issue).split(':')[0])).filter((issue) => {
     const metricId = /^metric-(?:value|change)-mismatch:(.+)$/.exec(String(issue))?.[1];
     const before = metricId ? then.get(metricId) : null;
     const after = metricId ? now.get(metricId) : null;
@@ -1123,7 +1253,19 @@ export function retainedReadingIssues(previous, result) {
     const equity = metricId === 'market.spx' || metricId === 'market.kospi' || EVIDENCE_TIER_METRIC_IDS.includes(metricId);
     const limit = equity ? MARKET_ANALYSIS_RETAIN_DRIFT_PCT.equity : MARKET_ANALYSIS_RETAIN_DRIFT_PCT.other;
     return !(Number.isFinite(moved) && moved < limit);
-  });
+  }).concat(movedSinceReading(then, now));
+}
+// v60.18: a reading that never quoted the S&P 500 or KOSPI survived any move in them (the attribution rule is met by any
+// attributed sentence). Once either index has moved a large move since the reading's own evidence (the attribution
+// edges: S&P 500 1%, KOSPI 3%), the reading describes another market and is not shown as the current one.
+const RETAIN_INDEX_MOVE_PCT = Object.freeze({ 'market.spx': RULES.largeMove.attributionUsPct, 'market.kospi': RULES.largeMove.attributionKospiPct });
+function movedSinceReading(then, now) {
+  return Object.entries(RETAIN_INDEX_MOVE_PCT).filter(([metricId, limit]) => {
+    const before = then.get(metricId), after = now.get(metricId);
+    if (!before || !after || before.evidenceId === after.evidenceId) return false;
+    const moved = Math.abs(Number(after.value) / Number(before.value) - 1) * 100;
+    return Number.isFinite(moved) && moved >= limit;
+  }).map(([metricId]) => `market-moved-since-reading:${metricId}`);
 }
 
 // v57.81: a blocked run carries the last verified reading as `lastVerified`, so one blocked run does not lose it for the
@@ -1191,11 +1333,22 @@ export function plainMarketObservation(row) {
   const kst = _partsIn(row.observedAt, 'Asia/Seoul');
   return `${name} ${value}(${kst.md} ${kst.hm} 장중)`;
 }
-export function plainMarketFallbackSummary(metricEvidence = []) {
+// v60.18 (weekly audit 2026-11-15 D2): every blocked run said "자동 검증을 통과하지 못해", also the 25 runs on 11/10 whose
+// provider answered HTTP 429 and never returned a text. The cause is named from the reason; a verified reading under 12 h
+// old that was not kept (this run's data contradict it) is named with its time, so the reader knows an earlier one exists.
+// The cause is also published (meta.marketAnalysisBlockCause) so the client notice names it instead of a setup step.
+// Review v60.19 B6: 'validator-error' (the validator threw) is a pipeline fault, not a reading that failed validation.
+export const marketAnalysisBlockCause = (reason) => (String(reason || '') === 'shared-ai-not-configured' ? 'not-configured'
+  : /^provider-|^analysis-unavailable$/.test(String(reason || '')) ? 'provider'
+    : String(reason || '') === 'validator-error' ? 'pipeline'
+      : String(reason || '') === 'metric-evidence-insufficient' ? 'evidence' : 'validation');
+export function plainMarketFallbackSummary(metricEvidence = [], { reason = null, lastVerifiedAt = null } = {}) {
   const observed = (Array.isArray(metricEvidence) ? metricEvidence : []).map(plainMarketObservation).filter(Boolean).slice(0, 4).join(' · ');
-  return observed
-    ? `이번 갱신의 시장 해석이 자동 검증을 통과하지 못해 확인된 지표만 보여 드립니다 — ${observed}. 해석은 다음 갱신에서 검증되면 다시 표시됩니다.`
-    : '이번 갱신에는 확인된 지표가 부족해 시장 해석을 보류합니다.';
+  if (!observed) return '이번 갱신에는 확인된 지표가 부족해 시장 해석을 보류합니다.';
+  const cause = { provider: '이번 갱신에는 AI 해석 제공처가 응답하지 않아', 'not-configured': '공용 AI 연결이 설정되지 않아', pipeline: '이번 갱신의 자동 검증 단계에 오류가 있어' }[marketAnalysisBlockCause(reason)] || '이번 갱신의 시장 해석이 자동 검증을 통과하지 못해';
+  const at = Date.parse(lastVerifiedAt || '');
+  const earlier = Number.isFinite(at) ? (() => { const kst = _partsIn(new Date(at).toISOString(), 'Asia/Seoul'); return ` ${kst.md} ${kst.hm} KST에 검증된 해석은 그 뒤 지표가 바뀌어 지금 해석으로 쓰지 않습니다.`; })() : '';
+  return `${cause} 확인된 지표만 보여 드립니다 — ${observed}.${earlier} 해석은 다음 갱신에서 검증되면 다시 표시됩니다.`;
 }
 
 // Every 30-minute refresh used to call the model even when nothing it reads had moved (nights, weekends). A verified,
@@ -1229,7 +1382,10 @@ const SENTENCE_LABEL_LINE = /^\s*(?:[-*]\s*)?(?:\*\*|__)?\s*오늘의\s*한\s*�
 // Live 2026-10-21: the verified reading showed "(METRIC_EVIDENCE: market.index.kospi:…)", "(REGIME_CONTEXT)" and
 // "(MARKET_DRIVERS)" — the model cited the prompt's section names, and the page stripped only the id. A cited id becomes
 // the bracket citation the page already reads; a bare section name is dropped. Any label left blocks the reading.
-export const PROMPT_SECTION_LABEL = /\b(?:METRIC_EVIDENCE|REGIME_CONTEXT|MARKET_DRIVERS|HEADLINE_CONTEXT|NEWS_EVIDENCE)\b/;
+// v60.18 (weekly audit 2026-11-15): the MARKET_DRIVERS slots were 압력 / 지금 / 확인·반증 — Korean words the model copied
+// into the reading as content ("압력은 SOXX +6.01%"). They are ids now, prompt labels like the section names.
+export const MARKET_DRIVER_SLOTS = Object.freeze({ close: 'CLOSE_MOVE', live: 'LIVE_MOVE', next: 'NEXT_CHECK' });
+export const PROMPT_SECTION_LABEL = new RegExp(String.raw`\b(?:METRIC_EVIDENCE|REGIME_CONTEXT|MARKET_DRIVERS|HEADLINE_CONTEXT|NEWS_EVIDENCE|${MOVE_SIZE_HEAD}|${Object.values(MARKET_DRIVER_SLOTS).join('|')})\b`);
 export function normalizePromptLabels(text) {
   return String(text || '')
     .replace(/\s*\(\s*(?:METRIC_EVIDENCE|NEWS_EVIDENCE|HEADLINE_CONTEXT)\s*[:：]\s*([^)]+?)\s*\)/g, (_, ids) => `[${ids}]`)
@@ -1241,8 +1397,23 @@ export function normalizePromptLabels(text) {
     .replace(/\bREGIME_CONTEXT\b/g, '[regime-context]')
     .replace(/\s*\b(?:METRIC_EVIDENCE|MARKET_DRIVERS|HEADLINE_CONTEXT|NEWS_EVIDENCE)\b/g, '');
 }
+// v60.18 (weekly audit 2026-11-15 S3): the task line asks for Korean only ("반드시 한국어로만"), and the model read that as
+// "no Latin letters": 11/12-11/13 readings wrote 에이아이, 씨엔비씨 and 에스앤피500 beside AI and S&P 500 in other lines and
+// on every other screen (9e92f0a1d: 17 times in one reading). The site writes these names in Latin; the spelled-out forms
+// are put back here, where the provider's text enters the artifact (body and sentence alike).
+const SPELLED_LATIN_TERMS = Object.freeze([
+  [/에스앤피\s?(?:500|오백)/g, 'S&P 500'],
+  [/에스앤피/g, 'S&P'],
+  [/에이아이/g, 'AI'],
+  [/씨엔비씨/g, 'CNBC']
+]);
+export function normalizeSpelledLatinTerms(text) {
+  let out = String(text || '');
+  for (const [spelled, latin] of SPELLED_LATIN_TERMS) out = out.replace(spelled, latin);
+  return out;
+}
 export function splitMarketSentence(text) {
-  const lines = normalizePromptLabels(text).split('\n');
+  const lines = normalizeSpelledLatinTerms(normalizePromptLabels(text)).split('\n');
   const index = lines.findIndex((line) => SENTENCE_LABEL_LINE.test(line));
   if (index < 0) return { body: lines.join('\n'), sentence: null };
   let sentence = lines[index].replace(SENTENCE_LABEL_LINE, '').trim();

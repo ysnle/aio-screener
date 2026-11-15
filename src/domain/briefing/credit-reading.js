@@ -1,8 +1,8 @@
 // The credit judgement, its sentence and what would flip it, for the surfaces that speak about the HY spread outside
 // the 시장 상태 axis (매크로 신용 장, 시장 이야기). Both load with their routes, so this stays out of the boot set.
 import { RULES } from '../rules/thresholds.js';
-import { readNumber } from '../shared/number.js';
-import { oasDelta20Bp, hyWidening20Record, creditState, creditCause, creditReleaseText, creditDispersion, RECORD_FULL_YEAR } from './market-read.js';
+import { readNumber, signedText } from '../shared/number.js';
+import { hyObservation, hyWidening20Record, creditState, creditCause, creditReleaseText, creditDispersion, RECORD_FULL_YEAR } from './market-read.js';
 
 /**
  * The credit judgement from the published OAS history alone — the same
@@ -10,14 +10,14 @@ import { oasDelta20Bp, hyWidening20Record, creditState, creditCause, creditRelea
  * speaks about the HY spread (매크로 신용 장, 시장 이야기) reads this and creditReading below; none re-derives it.
  */
 export function creditJudgement(macroHistory, through = null) {
-  const hy20 = oasDelta20Bp(macroHistory, 'hyOas', through);
-  if (!hy20) return null;
+  const obs = hyObservation({ macroHistory, through });
+  if (!obs) return null;
   const record = hyWidening20Record(macroHistory, through);
-  const hyBp = hy20.level * 100, hy5 = hy20.d5, hy20Bp = hy20.value;
+  const hyBp = obs.level, hy5 = obs.change5, hy20Bp = obs.change20;
   const hy20Stress = record ? !!record.stress : (hy20Bp != null && hy20Bp >= RULES.credit.widen20dBp && hy20Bp >= RULES.credit.stress20dMultiple * RULES.credit.widen20dBp);
   const lowerRated = creditDispersion(macroHistory, through)?.lowerRated === true;
   const state = creditState({ hyBp, hy5, hy20: hy20Bp, hy20Stress, lowerRated });
-  return { state, lowerRated, cause: creditCause({ hyBp, hy5, hy20Record: hy20Stress ? { stress: true } : null }), hyBp, hy5, hy20: hy20Bp, record, date: hy20.date };
+  return { state, lowerRated, cause: creditCause({ hyBp, hy5, hy20Record: hy20Stress ? { stress: true } : null }), hyBp, hy5, hy20: hy20Bp, record, date: obs.asOf };
 }
 
 /**
@@ -40,7 +40,7 @@ export function creditReading(j, { cccTail = false, ccc20 = null, ig20 = null } 
   if (!j || j.state === 'unknown') return '신용 지표 판정 보류 — 스프레드 기록을 기다립니다.';
   const C = RULES.credit;
   const pct = (bpValue) => `${(bpValue / 100).toFixed(2)}%`;
-  const move = (value) => `${value > 0 ? '+' : ''}${Math.round(value)}bp`;
+  const move = (value) => signedText(value, 0, 'bp');
   const levelNote = `수준 ${pct(j.hyBp)}는 부담 기준 ${C.stressAtBp / 100}% 아래입니다.`;
   const tail = cccTail ? ` 가장 약한 CCC 등급이 ${ccc20 != null ? `${move(ccc20)}로 ` : ''}더 빠르게 벌어져, 약한 기업부터 조달 비용이 오르는 모습입니다.` : '';
   // investment grade standing still while HY/CCC widen says the pressure sits in the weaker borrowers.

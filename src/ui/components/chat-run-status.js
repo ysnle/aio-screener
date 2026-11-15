@@ -18,6 +18,9 @@ function nextPaint(root, doc) {
   });
 }
 
+// How long 다시 묻기 waits for the panel to reach the question's screen before leaving the question in the box unsent.
+const PANEL_ARRIVAL_MS = 4000;
+
 // The device store is handed in by the app layer (`storage()` returns this tab's own store).
 export function createChatRunKit(root = globalThis, doc = root.document, { now = () => Date.now(), storage = () => null } = {}) {
   let card = null;
@@ -31,7 +34,7 @@ export function createChatRunKit(root = globalThis, doc = root.document, { now =
    */
   function begin({ node, ctx = '', question = '' } = {}) {
     removeCard();
-    savePendingTurn(storage(), { sessionId: root.__aioChatSessions?.sessionId || null, ctx, question, startedAt: now() });
+    savePendingTurn(storage(), { sessionId: root.__aioChatSessions?.sessionId || null, ctx, route: root.location?.hash || '', question, startedAt: now() });
     root.addEventListener?.('beforeunload', onLeave);
     const progress = createRunProgress({ now });
     const line = node?.querySelector?.('.lch-muted') || node || null;
@@ -77,9 +80,32 @@ export function createChatRunKit(root = globalThis, doc = root.document, { now =
     };
   }
 
+  // 다시 묻기 asks in the conversation and on the screen the question belongs to. The conversation is restored through
+  // the panel's session api; a question from another screen first goes back to its address (the app's own deep link),
+  // and is sent once the panel reports that screen. If the panel does not get there, the question waits in the box and is
+  // not sent on the wrong screen.
+  function askAgain(turn) {
+    root.__aioChatSessions?.restore?.(turn.sessionId);
+    const send = () => {
+      const input = doc.getElementById('ai-panel-inp');
+      if (!input || input.disabled) return false;
+      input.value = turn.question;
+      if (turn.ctx && root._aiCurrentCtx !== turn.ctx) return false;
+      root.chatSendUnified?.();
+      return true;
+    };
+    if (!turn.ctx || root._aiCurrentCtx === turn.ctx || !root.location) { send(); return; }
+    let timer = null;
+    const done = () => { doc.removeEventListener?.('aio:pageShown', onShown); root.clearTimeout?.(timer); };
+    const onShown = () => root.setTimeout?.(() => { if (root._aiCurrentCtx === turn.ctx) { done(); send(); } }, 0);
+    doc.addEventListener?.('aio:pageShown', onShown);
+    timer = root.setTimeout?.(() => { done(); send(); }, PANEL_ARRIVAL_MS) ?? null;
+    root.location.hash = turn.route || `#${turn.ctx}`;
+  }
+
   /**
    * After a reload: a question younger than 15 minutes that never got its answer gets one card above the question box.
-   * 다시 묻기 puts it in the box and sends it in the open conversation; 지우기 forgets it. Returns the card or null.
+   * 다시 묻기 sends it again in its own conversation and screen (askAgain); 지우기 forgets it. Returns the card or null.
    */
   function showPendingCard() {
     const turn = readPendingTurn(storage(), { now: now() });
@@ -95,12 +121,10 @@ export function createChatRunKit(root = globalThis, doc = root.document, { now =
     const again = el(doc, 'button', '다시 묻기', 'ai-session-btn is-primary'); again.type = 'button';
     const forget = el(doc, 'button', '지우기', 'ai-session-btn'); forget.type = 'button';
     again.addEventListener('click', () => {
-      const input = doc.getElementById('ai-panel-inp');
-      if (!input || input.disabled) return;
+      if (!doc.getElementById('ai-panel-inp')) return;
       removeCard();
       clearPendingTurn(storage());
-      input.value = turn.question;
-      root.chatSendUnified?.();
+      askAgain(turn);
     });
     forget.addEventListener('click', () => { removeCard(); clearPendingTurn(storage()); });
     row.append(again, forget);

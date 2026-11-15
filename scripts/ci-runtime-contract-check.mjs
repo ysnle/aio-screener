@@ -162,7 +162,24 @@ check('Telegram page coverage audit spans all 17 routes (v53.7 P725)', /getTeleg
 check('tests cover Telegram digest memo injection', /T831[\s\S]{0,2200}SCREENER_DB memo/.test(tests) && /_telegramMemoOverlay/.test(tests));
 check('Telegram page feeds cover fundamental/themes pages (v59.70 D5: KR technical feed retired)', /id="tg-feed-fundamental"/.test(html) && /id="tg-feed-themes"/.test(html) && !/id="tg-feed-theme-detail"/.test(html) /* v58.76: the legacy theme-detail page is retired */); // v59.70 (D5): tg-feed-kr-technical left with the 한국 시장 추세 fold
 check('Telegram page routing includes credit and AI infrastructure tags by page', /'fundamental':\s*\[[^\]]*'semi'[^\]]*'credit'/.test(data) && /'themes':\s*\[[^\]]*'power'[^\]]*'credit'/.test(data) && /'fxbond':\s*\[[^\]]*'credit'/.test(data) && /'kr-technical':\s*\[[^\]]*'semi'/.test(data) && /'credit':\s*\{\s*label:/.test(data));
-check('Telegram runtime audits four required channels including HANA China',/tgSlug:'HANAchina'/.test(data) && /requiredChannelSlugs/.test(core) && /missingRequiredChannels/.test(core) && /requiredSourcesReady/.test(core));
+check('v60.18 Telegram runtime audits its required channels including HANA China',/tgSlug:'HANAchina'/.test(data) && /requiredChannelSlugs/.test(core) && /missingRequiredChannels/.test(core) && /requiredSourcesReady/.test(core));
+{
+  // v60.18: the browser's mirrored Telegram sources are the digest's channels (the audit's required set). They must equal the
+  // producer's active CHANNEL_CATALOG, so retiring a channel there (aetherjapanresearch, 2026-11-15) retires it here too;
+  // the browser had kept requesting a preview that answers with a contact card. Neither list may name a retired slug.
+  const producer = read('scripts/fetch-telegram-digest.mjs');
+  const catalogBody = producer.match(/const CHANNEL_CATALOG = \[([\s\S]*?)\n\];/)?.[1] || '';
+  const catalogRows = [...catalogBody.matchAll(/\{\s*slug:'([^']+)'([\s\S]*?)\}\s*(?:,|$)/g)];
+  const retired = catalogRows.filter((m) => /retired:\{/.test(m[2])).map((m) => m[1]);
+  const active = catalogRows.map((m) => m[1]).filter((slug) => !retired.includes(slug)).sort();
+  const sourcesBody = data.match(/const AIO_NEWS_SOURCES = \[([\s\S]*?)\n\];/)?.[1] || '';
+  const mirrored = [...sourcesBody.matchAll(/tgSlug:'([^']+)',\s*publicMirror:'https:\/\/t\.me\/s\/\1'/g)].map((m) => m[1]).sort();
+  const browserSlugs = [...sourcesBody.matchAll(/tgSlug:'([^']+)'/g)].map((m) => m[1]);
+  const retiredLeft = retired.filter((slug) => browserSlugs.includes(slug) || new RegExp(`=== '${slug}'`).test(data) || new RegExp(`=== '${slug}'`).test(core) || new RegExp(`=== '${slug}'`).test(read('src/data/providers/telegram-direct.js')));
+  check('v60.18 browser Telegram sources with a public mirror equal the producer active catalog, and no retired slug is requested or special-cased',
+    catalogRows.length >= 2 && active.length > 0 && JSON.stringify(mirrored) === JSON.stringify(active) && retiredLeft.length === 0,
+    `active=${active.join(',')} browser-mirrored=${mirrored.join(',')} retired-left=${retiredLeft.join(',')}`);
+}
 check('Telegram market-note digest tag is consumed by briefing and market-news pages', /'briefing':\s*\[[^\]]*'market-note'/.test(data) && /'market-news':\s*\[[^\]]*'market-note'/.test(data));
 if (exists('public-data/telegram-digest.json')) {
   try {
@@ -964,7 +981,7 @@ const screenerAt = html.indexOf('id="page-screener"');
 // participation card, flip tile, axis chips and the link row left the page (시장 상태, 브리핑, 테마와 섹터 own them).
 const homeOrder = ['home-date-label', 'home-score-hero', 'home-index-strip', 'home-cross-assets', 'home-day', 'home-daily-loop', 'home-my-names'].map((id) => html.indexOf(`id="${id}"`));
 const homeRetired = ['home-quote-basis', 'home-kpi-strip', 'home-schedule', 'home-daily-changes', 'home-ai-chain', 'home-participation', 'home-hero-flips', 'home-hero-components', 'home-next'].every((id) => html.indexOf(`id="${id}"`) < 0);
-check('v59.68 home static order: date, verdict hero, index strip, cross assets, 오늘의 핵심, daily loop, 내 종목; retired quote-basis/KPI/schedule/close-change/AI chain/participation/flips/chips/next ids absent; no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && homeRetired && html.indexOf('id="home-market-summary-banner"') < 0 &&!/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/market-regime.js')));
+check('v59.68 home static order: date, verdict hero, index strip, cross assets, 오늘의 핵심, daily loop, 내 종목; retired quote-basis/KPI/schedule/close-change/AI chain/participation/flips/chips/next ids absent; no runtime reorder (P1322/P1494)', homeOrder.every((at, i) => at > 0 && (i === 0 || at > homeOrder[i - 1])) && homeRetired && html.indexOf('id="home-market-summary-banner"') < 0 &&!/crossAssets\.insertAdjacentElement\('afterend', anchorH\)/.test(core) && /hero\.dataset\.state = regime\.available/.test(read('src/ui/components/home-regime.js')));
 // v57.77: the screener reads, then filters, then shows the table; the ranking validation lives once inside the
 // 과거 검증 tab, and the weight-profile and data-status folds sit below the tab panels.
 // v59.70 (S12): the condition row and its panels sit in the 순위 view above the table; the developer drawer (and the
@@ -1015,7 +1032,7 @@ check('EF-06: VIX term-structure seed fallback values render a distinguishable n
   || /ratioSeries = vix\.filter\(\(point\) => vix3m\.get\(point\.date\)\)/.test(read('src/ui/components/sentiment-board.js')) /* P1396: no seed path exists */
   || (sentimentDomain.includes('export function vixTermStructure') && sentimentDomain.includes('blocked: true') && /points:\s*(?:Object\.freeze\()?\{ short, spot, medium, long \}/.test(sentimentDomain) && sentimentPage.includes('summary.vixTermStructure.regime') && sentimentPage.includes('canvas.dataset.aioRenderer')));
 check('EF-14: news source names are guarded by a non-Latin/non-Hangul script check separate from the title translation guard, so an untranslated source name cannot leak raw', /function _aioSafeSourceLabel/.test(data) && /root\._aioSafeSourceLabel\(item\?\.source/.test(read('src/ui/pages/news.js'))); // P1411: guard moved to the native news card
-check('EF-15/P1428: the home F&G day change uses the completed-close history, the same basis as 투자 심리 (not CNN previous_close)', !/_aioSetDeltaEl\('home-fg-delta'/.test(data) && /aioFgDeltaRenderer = 'native'/.test(read('src/ui/components/market-regime.js')) && /buildCloseSeries\(history, 'fg'/.test(read('src/ui/components/market-regime.js')));
+check('EF-15/P1428: the home F&G day change uses the completed-close history, the same basis as 투자 심리 (not CNN previous_close)', !/_aioSetDeltaEl\('home-fg-delta'/.test(data) && /aioFgDeltaRenderer = 'native'/.test(read('src/ui/components/home-regime.js')) && /buildCloseSeries\(history, 'fg'/.test(read('src/ui/components/home-regime.js')));
 check('v59.70 (D5): the 한국 거시 and 한국 시장 추세 folds are retired; 기준금리·물가·수출 sit on the 시장 상태 한국 board', !/id="kr-integrated-macro"|id="kr-integrated-technical"|kr-macro-bokrate-freshness|tg-feed-kr-technical|tg-feed-kr-macro/.test(html) && !exists('src/ui/components/macro-next-release.js') && /koreaPolicyCard\(root\.DATA_SNAPSHOT\)/.test(read('src/ui/components/market-regime.js')));
 check('headless tests cover Batch 3 efficacy fixes (EF-06/07/14/16)', /_testV5242Batch3Efficacy/.test(tests) && /T879/.test(tests) && /T880/.test(tests) && /T881/.test(tests) && /T883/.test(tests));
 
@@ -1661,7 +1678,7 @@ check('P1118: signal presentation carries the reconciliation terms',
 // board is native-owned and states each axis's evidence and flip condition.
 check('P1118: signal page renders post-composite adjustments in a native-owned sink',
   !/id="score-adjustments-container"/.test(html)
-    && /renderRegimePage\(\{ documentRef, root, store \}\)/.test(read('src/ui/pages/analysis.js')) // v57.78: the store is passed through
+    && /renderRegimePage\?\.\(\{ documentRef, root, store \}\)/.test(read('src/ui/pages/analysis.js')) // v57.78: the store is passed through
     && /export function buildMarketRegime/.test(read('src/domain/briefing/market-read.js'))
     && /id="regime-board"/.test(html));
 

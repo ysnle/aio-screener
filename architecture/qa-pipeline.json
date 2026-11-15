@@ -492,6 +492,26 @@
           "remedy": "v59.42 event briefs: the producer runs on scripts/fixtures/event-briefs only; a dropped-figure or basis failure means a number now reaches a brief without being in its fetched source"
         },
         {
+          "id": "news-ranking",
+          "script": "scripts/ci-news-ranking-check.mjs",
+          "remedy": "v60.18 news ranking: score by subject (strongest rule + one cross-subject bonus), session recency, the day's scheduled release; floors hold seats but do not go first; publish in rank order; carry the closed intraday slot"
+        },
+        {
+          "id": "telegram-channels",
+          "script": "scripts/ci-telegram-channels-check.mjs",
+          "remedy": "v60.18 Telegram registry: an active channel failing for 72h is fixed or retired in CHANNEL_CATALOG (retired:{since,reason}); collection status counts active channels only"
+        },
+        {
+          "id": "ai-spelled-terms",
+          "script": "scripts/ci-ai-spelled-terms-check.mjs",
+          "remedy": "v60.18 provider text enters through splitMarketSentence; a newly observed Hangul spelling of a Latin name joins normalizeSpelledLatinTerms"
+        },
+        {
+          "id": "market-reading-week",
+          "script": "scripts/ci-market-reading-week-fixture.mjs",
+          "remedy": "v60.18 AI market reading on the stored 11/10-11/13 inputs: an outage keeps the last reading this run still verifies, moves come from MARKET_MOVE_METRICS by size against their own volatility, slot ids never reach the text, a signed number's direction word matches its sign, and the published (citation-stripped) text is well formed"
+        },
+        {
           "id": "boot-budget",
           "script": "scripts/ci-boot-bundle-budget-check.mjs",
           "remedy": "move the new static import behind import(); a budget raise in architecture/boot-budget.json needs a reason in the commit"
@@ -901,7 +921,9 @@
             "public-data/sec-fundamentals.json",
             "public-data/sec-fundamentals-summary.json",
             "public-data/screener-universe.json",
-            "public-data/screener.json"
+            "public-data/screener.json",
+            "public-data/data.json",
+            "public-data/structural-data-research.json"
           ]
         },
         {
@@ -960,12 +982,27 @@
           "liveData": "content"
         },
         {
+          "id": "decision-frame-check",
+          "script": "scripts/ci-decision-frame-check.mjs",
+          "remedy": "v60.19 판단 틀: every scenario-like card and the AI read one frame (src/domain/scenarios/decision-frame.js) — likelihood beside base and n, payoff beside an ordinary day, cash and index as opportunity cost, past drawdown when wrong, and the favoured side's ground (비용 가설 unless the record backs it)"
+        },
+        {
           "id": "interpretation-boundary-check",
           "script": "scripts/ci-interpretation-boundary-check.mjs"
         },
         {
           "id": "crash-replay-check",
           "script": "scripts/ci-crash-replay-check.mjs"
+        },
+        {
+          "id": "market-lean-validation",
+          "script": "scripts/ci-market-lean-validation-check.mjs",
+          "remedy": "v60.19 시장 기울기: a direction word (매수/매도/방어/우위) appears only for a direction model-validation-status.json marketLean passed, with its past frequency beside it; the backtest harness (scripts/backtest-market-lean.mjs) replays through the live functions on the trailing 420 rows"
+        },
+        {
+          "id": "move-size-word",
+          "script": "scripts/ci-move-size-word-check.mjs",
+          "remedy": "v60.19 one materiality vocabulary: a size word (급등/급락/큰 폭/소폭/보합권/크게 …) is the grade of src/domain/market/session/move-size.js (the move against its own volatility); a sentence that compares against a policy line names the line instead"
         },
         {
           "id": "lookahead-check",
@@ -1154,7 +1191,7 @@
         {
           "id": "narrative-lifecycle-model",
           "script": "scripts/ci-narrative-lifecycle-model-check.mjs",
-          "timeoutMs": 240000
+          "timeoutMs": 420000
         },
         {
           "id": "market-session-model",
@@ -1828,7 +1865,8 @@
           "inputs": [
             ".github/workflows/**",
             "_context/OPERATOR-RUNBOOK.md",
-            "_context/CONTEXT-CATALOG.json"
+            "_context/CONTEXT-CATALOG.json",
+            "worker/wrangler.proxy.toml"
           ]
         },
         {
@@ -2937,7 +2975,8 @@
         "cloudflare"
       ],
       "gates": [
-        "data-plane"
+        "data-plane",
+        "operator-provisioning"
       ]
     },
     {
@@ -3310,6 +3349,7 @@
         "src/ui/navigation/route-hubs.js",
         "src/data/stock-subject-store.js",
         "src/domain/market/indices/history-meta.js",
+        "src/domain/macro/fed-target-range.js",
         ".github/workflows/knowledge-build-candidate.yml"
       ],
       "groups": [

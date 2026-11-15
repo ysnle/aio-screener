@@ -403,13 +403,13 @@ const { SENTIMENT_DEEP_DIVES } = await import('../src/domain/content/board-deep-
 for (const id of ['fg', 'term', 'hy', 'aaii', 'composite']) assert.ok(SENTIMENT_DEEP_DIVES[id]?.blocks.length >= 2, `P1663: ${id} deep dive`); // v59.70: pcr retired with its card
 // v58.53: 시장 상태 opens each axis into the design's three cards (원리 / 지금 읽기 / 한계) built from the same
 // axis-deep-dives blocks, and keeps the shared link renderer (deepDiveLinks) — still one source, no per-board copy.
-for (const file of ['sentiment-board.js', 'breadth-board.js', 'market-regime.js', 'macro-board.js']) assert.ok(/deepDiveFold\(|deepDiveLinks\(/.test(fs.readFileSync(new URL(`../src/ui/components/${file}`, import.meta.url), 'utf8')), `P1663: ${file} uses the shared fold`);
+for (const file of ['sentiment-board.js', 'breadth-board.js', 'market-regime.js', 'macro-board.js']) assert.ok(RegExp('deepDiveFold\\(|deepDiveLinks\\(').test(fs.readFileSync(new URL(`../src/ui/components/${file}`, import.meta.url), 'utf8')), `P1663: ${file} uses the shared fold`);
 
 // P1664: a product-surface edit outside the knowledge routes does not pull the knowledge browser shard; viewport gates run pages together.
 const qaManifest = JSON.parse(fs.readFileSync(new URL('../architecture/qa-pipeline.json', import.meta.url), 'utf8'));
 const surfaceRule = qaManifest.impactRules.find((rule) => rule.patterns.includes('src/ui/**'));
 assert.ok(surfaceRule && !surfaceRule.groups.includes('browser-knowledge') && surfaceRule.groups.includes('browser-viewport'), 'P1664: src/ui edits select viewport but not the knowledge shard');
-for (const file of ['ci-responsive-browser-check.mjs', 'ci-viewport-matrix-check.mjs']) assert.ok(/Promise\.all\((RESPONSIVE_QA_VIEWPORTS|VIEWPORTS)\.map/.test(fs.readFileSync(new URL(`./${file}`, import.meta.url), 'utf8')), `P1664: ${file} runs viewports together`);
+for (const file of ['ci-responsive-browser-check.mjs', 'ci-viewport-matrix-check.mjs']) assert.ok(RegExp('Promise\\.all\\((RESPONSIVE_QA_VIEWPORTS|VIEWPORTS)\\.map').test(fs.readFileSync(new URL(`./${file}`, import.meta.url), 'utf8')), `P1664: ${file} runs viewports together`);
 // P1665: the watchdog's own previous run is a warning, and a missing Worker dispatch token triggers a data-plane redeploy.
 assert.ok(/selfObservation = mode === 'watchdog' && id === 'watchdog'/.test(fs.readFileSync(new URL('./ci-external-pipeline-check.mjs', import.meta.url), 'utf8')), 'P1665: watchdog does not latch on its own failure');
 assert.ok(/scheduler-dispatch-token-missing/.test(fs.readFileSync(new URL('../.github/workflows/deploy-data-plane.yml', import.meta.url), 'utf8')), 'P1665: missing dispatch token repairs the Worker');
@@ -423,6 +423,33 @@ for (const file of ['refresh-data.yml', 'refresh-screener.yml']) {
 }
 const watchdogWf = loadYaml(fs.readFileSync(new URL('../.github/workflows/data-watchdog.yml', import.meta.url), 'utf8'));
 assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes('Deploy GitHub Pages'), 'P1666: watchdog follows each Pages deploy');
+
+// v60.18 (weekly audit D3): one reason for "why is this figure the previous release", decided where the board is assembled
+// and rendered by the card chip and the '최근 공식 발표' block. The October CPI index was collected, but October 2025 was
+// never published, so the year-over-year stays on September — the card read '이번 수집 실패, 직전 발표값'.
+{
+  const { buildMacroBoard } = await import('../src/domain/macro/indicators.js');
+  const { recentMacroReleases } = await import('../src/domain/briefing/macro-releases.js');
+  const months = Array.from({ length: 26 }, (_, i) => new Date(Date.UTC(2024, 8 + i, 1)).toISOString().slice(0, 10)).filter((date) => date !== '2025-10-01');
+  const index = (base) => ({ frequency: 'monthly', observations: months.map((date, i) => [date, base * 1.003 ** i]) });
+  const macroHistory = { schemaVersion: 'macro-history.v1', series: { cpiIndexNsa: index(310), coreCpiIndexNsa: index(320), cpiIndex: index(311), coreCpiIndex: index(321) } };
+  const macro = { cpi: 3.7, _asOf_cpi: '2026-09-01', _source_cpi: 'last-known-good', _originSource_cpi: 'fred-official-primary', _freshness_cpi: 'stale-reference',
+    coreCpi: 2.6, _asOf_coreCpi: '2026-09-01', _source_coreCpi: 'last-known-good', _originSource_coreCpi: 'fred-official-primary', _freshness_coreCpi: 'stale-reference', _comparatorGapSeries: ['cpi', 'coreCpi'] };
+  const schedules = { 'us-cpi': ['2026-10-14', '2026-11-10'] };
+  const cpiCard = (input) => buildMacroBoard(input).groups.find((group) => group.id === 'inflation').items.find((item) => item.id === 'cpi');
+  const gap = cpiCard({ macro, macroHistory, schedules });
+  assert.equal(gap.held?.kind, 'comparator-gap', 'v60.18 a comparator-gap CPI is held for that reason, not as a failed fetch');
+  assert.equal(gap.held.chip, '10월분은 1년 전 같은 달 지수가 없어 9월분 표시', `v60.18 the CPI chip names the collected month and the one shown: ${gap.held.chip}`);
+  assert.ok(!/last-known-good/.test(gap.meta), `v60.18 a kept value names its source, never the merge marker: ${gap.meta}`);
+  const failed = cpiCard({ macro: { ...macro, _comparatorGapSeries: [] }, macroHistory, schedules });
+  assert.equal(failed.held?.kind, 'fetch-failed', 'v60.18 without a comparator gap a stale-reference value is a failed fetch');
+  const release = recentMacroReleases({ macro, macroHistory, schedules }, { nowMs: Date.parse('2026-11-10T14:30:00Z') }).find((row) => row.id === 'us-cpi');
+  assert.equal(release?.items.at(-1)?.targetText, gap.held.sentence, 'v60.18 the 최근 공식 발표 block reads the board\'s reason');
+  // The same class on the 통화정책 axis: a 부담 decided by the real policy rate is headed by that rate.
+  const { buildMacroRead } = await import('../src/domain/macro/macro-read.js');
+  const policy = buildMacroRead({ macro: { fedTargetUpper: 4, fedTargetLower: 3.75, dgs2: 3.9, corePce: 1.5 } }).axes.find((row) => row.id === 'policy');
+  assert.ok(policy.state === 'burden' && policy.headline === '실질 기준금리 2.4%', `v60.18 a real-rate 부담 is headed by the real rate: ${policy.state} ${policy.headline}`);
+}
 
 // Expert review 2026-10-13 (거시 · 금리, M03-M06/M12-M14/M16/M18/M22, M01 consumers): synthetic counterexamples.
 {
@@ -441,7 +468,9 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
     treasuryAccount: { frequency: 'weekly', observations: Array.from({ length: 10 }, (_, i) => [wk(i), 900000]) },
     reverseRepo: { frequency: 'daily', observations: Array.from({ length: 10 }, (_, i) => [wk(i), 1]) },
     sofr: { frequency: 'daily', observations: weekdays.map((d) => [d, 3.87]) },
+    // v60.19: both bounds of one date (fed-target-range.js); the old upper − 0.25 width is no longer assumed.
     fedTargetUpper: { frequency: 'daily', observations: [[day(0), 4]] },
+    fedTargetLower: { frequency: 'daily', observations: [[day(0), 3.75]] },
     brent: { frequency: 'daily', observations: weekdays.map((d, i) => [d, 90 * (i < weekdays.length - 10 ? 1 : 1.25)]) }
   } };
   const lastWeekday = weekdays.at(-1);
@@ -469,7 +498,8 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
   const spotOnly = brentWtiCheck(mh, history.map(({ brent, ...row }) => row));
   assert.ok(spotOnly.basis === 'spot' && spotOnly.spread == null && !spotOnly.diverges && /비교하거나/.test(spotOnly.sentence), 'P1726: spot Brent is never set against the WTI future (no spread, no divergence)');
   const read = buildMacroRead({ macroHistory: mh, history, rateFx: { wti20: -8 } });
-  const oilNode = read.chain.nodes.find((n) => n.id === 'oil');
+  const { buildMacroChain } = await import('../src/domain/macro/macro-chain.js');
+  const oilNode = buildMacroChain({ macroHistory: mh, history, rateFx: { wti20: -8 } }).nodes.find((n) => n.id === 'oil');
   assert.ok(oilNode.impact === 'unknown' && /브렌트/.test(oilNode.value), 'M06: the WTI oil node is not coloured favourable while Brent spikes');
   assert.ok(read.axes.find((a) => a.id === 'commodities').caveat, 'M06: the oil/dollar axis carries the Brent caveat');
   // M01 consumers: a Sunday row is not a session, so "1 session back" from Monday is Friday.

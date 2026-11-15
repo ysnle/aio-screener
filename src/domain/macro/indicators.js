@@ -75,7 +75,9 @@ function signed(value, digits) {
 }
 
 function sourceLabel(macro, key) {
-  const raw = macro[`_source_${key}`] || macro[`_originSource_${key}`] || null;
+  // A kept value names its original source, never the merge marker ('9월분, 10/14 발표, last-known-good' on the face).
+  const kept = macro[`_source_${key}`] === 'last-known-good';
+  const raw = (kept ? null : macro[`_source_${key}`]) || macro[`_originSource_${key}`] || null;
   return raw ? SOURCE_LABELS[raw] || raw : null;
 }
 
@@ -121,9 +123,11 @@ function buildHistoryItem(releases, schedules, item, macroHistory) {
   const prior = monthsBack(series, last.date, 1);
   const digits = item.digits ?? 1;
   const meta = [`${Number(asOf.slice(5, 7))}월분`, release.last ? `${monthDay(release.last)} 발표` : null, release.next ? `다음 ${eventWhenText({ id: item.release, date: release.next })}` : null, 'FRED'].filter(Boolean).join(', ');
+  const held = previousReleaseReason({ stale: !!macroHistory?.series?.[item.history.field]?.stale });
   return {
     ...base,
-    status: macroHistory?.series?.[item.history.field]?.stale ? 'stale' : 'observed',
+    status: held ? 'stale' : 'observed',
+    held,
     value: last.value,
     valueText: `${last.value.toFixed(digits)}${item.unit}`,
     deltaText: prior ? `${item.history.derive === 'yoy' ? '지난달 수치보다' : '전월 대비'} ${signed(last.value - prior.value, digits)}${item.deltaUnit}` : null,
@@ -131,6 +135,32 @@ function buildHistoryItem(releases, schedules, item, macroHistory) {
     ...trendOf(item, series),
     meta
   };
+}
+
+const monthOf = (date) => Number(String(date || '').slice(5, 7)) || null;
+
+/**
+ * Why a card shows the previous release instead of a newer one — one reason, decided where the
+ * board is assembled, which the indicator card's chip and the '최근 공식 발표' block both render.
+ *   comparator-gap — the newer month was collected, but its year-ago index was never published (no October 2025 CPI), so
+ *                    the year-over-year stays on the previous month (the producer lists it in macro._comparatorGapSeries);
+ *   fetch-failed   — this collection did not refresh the value (last-known-good / stale-reference, or a kept history).
+ * The October CPI card read '이번 수집 실패, 직전 발표값' while the BLS October index had been collected.
+ */
+export function previousReleaseReason({ macro = {}, key = null, item = null, macroHistory = null, asOf = null, stale = false } = {}) {
+  const gap = key && Array.isArray(macro?._comparatorGapSeries) && macro._comparatorGapSeries.includes(key);
+  if (gap) {
+    const rows = item?.history?.field ? macroHistory?.series?.[item.history.field]?.observations || [] : [];
+    const collected = isoDate(rows.at(-1)?.[0]) || isoDate(macro?._bls?.series?.[key]?.observedAt) || null;
+    const newer = collected && asOf && collected.slice(0, 7) > asOf.slice(0, 7) ? monthOf(collected) : null;
+    const shown = monthOf(asOf);
+    return {
+      kind: 'comparator-gap', newerMonth: newer, shownMonth: shown,
+      chip: newer && shown ? `${newer}월분은 1년 전 같은 달 지수가 없어 ${shown}월분 표시` : '1년 전 같은 달 지수가 없어 직전 발표값',
+      sentence: `${newer ? `${newer}월분 ` : ''}전년 대비는 1년 전 같은 달 지수가 없어 계산하지 않습니다`
+    };
+  }
+  return stale ? { kind: 'fetch-failed', chip: '이번 수집 실패, 직전 발표값', sentence: '이번 수집에서 새 값을 받지 못해 직전 발표값을 씁니다' } : null;
 }
 
 function buildItem(macro, releases, schedules, item, macroHistory = null) {
@@ -148,8 +178,11 @@ function buildItem(macro, releases, schedules, item, macroHistory = null) {
   const release = releaseInfo({ releases, schedules, id: item.release, asOf, daily: item.daily, releasedAt: item.release === 'us-pce' ? macro._bea?.releasedAt : null });
   const base = { id: item.id, label: item.label, note: item.note, unit: item.unit, people: item.people === true, release, asOf };
   if (values.some((value) => value == null)) return { ...base, status: 'missing', valueText: '—', deltaText: null, meta: '수집된 값이 없습니다.' };
+  // A range is one observation: both bounds of the same date (fed-target-range.js), never an old bound beside a new one.
+  if (item.range && new Set(keys.map((key) => isoDate(macro[`_asOf_${key}`]))).size > 1) return { ...base, status: 'missing', valueText: '—', deltaText: null, meta: '상단과 하단의 기준일이 달라 표시하지 않습니다.' };
   const freshness = macro[`_freshness_${keys[0]}`];
-  const stale = freshness && freshness !== 'observed';
+  const held = previousReleaseReason({ macro, key: keys[0], item, macroHistory, asOf, stale: !!freshness && freshness !== 'observed' });
+  const stale = !!held;
   const scale = item.scale || 1;
   const value = values[0] * scale;
   const valueText = item.range
@@ -167,6 +200,7 @@ function buildItem(macro, releases, schedules, item, macroHistory = null) {
   return {
     ...base,
     status: stale ? 'stale' : 'observed',
+    held,
     value,
     valueText,
     deltaText,

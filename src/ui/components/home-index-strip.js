@@ -184,6 +184,15 @@ function card(doc, root, spec, model, failed) {
   return node;
 }
 
+/** The cards of one strip share one basis. With every card's 5-minute bars from the same session
+ *  the strip is that session's ETFs; otherwise every card draws the published index close — a phone run that read SPY
+ *  live (-0.36%) beside three index closes (-1.22%) mixed the ETF and the index in one row. */
+export function oneStripBasis(models = []) {
+  const day = (model) => (model ? `${model.session.month}/${model.session.day}` : null);
+  const first = day(models[0]);
+  return first && models.every((model) => day(model) === first) ? models : models.map(() => null);
+}
+
 /** Fetches the four sessions and draws the strip; returns the models (null where a fetch failed). */
 function paintPlaceholder(doc, root, host, failed = false) {
   if (host.childElementCount) return;
@@ -220,7 +229,8 @@ export async function renderHomeIndexStrip({ documentRef: doc, root }) {
   const read = (spec) => Promise.resolve().then(() => fetchBars(spec.sym, '1d', '5m')).then((payload) => sessionModel(payload)).catch(() => null);
   host._aioIndexPending = read(INDEX_STRIP[0])
     .then((first) => (first ? Promise.all(INDEX_STRIP.slice(1).map(read)).then((rest) => [first, ...rest]) : INDEX_STRIP.map(() => null)))
-    .then((models) => {
+    .then((read) => {
+      const models = oneStripBasis(read);
       const basis = models.find(Boolean);
       const when = basis ? `${basis.session.month}/${basis.session.day}(${WEEKDAY_KO[basis.session.weekday] || ''})` : '';
       const fallback = basis ? null : closeFallback(root?._aioHistory, INDEX_STRIP[0]);
@@ -232,7 +242,7 @@ export async function renderHomeIndexStrip({ documentRef: doc, root }) {
       host.dataset.session = basis ? `${basis.session.month}/${basis.session.day}` : '';
       host.dataset.models = basis ? 'live' : 'fallback';
       clearTimeout(host._aioIndexTimer);
-      if (basis?.open) {
+      if (read.some((model) => model?.open)) { // a card that missed an open session is retried with the others
         host._aioIndexTimer = setTimeout(() => {
           if (host.isConnected && doc.getElementById('page-home')?.classList.contains('active') && doc.visibilityState !== 'hidden') renderHomeIndexStrip({ documentRef: doc, root });
         }, REFRESH_MS);

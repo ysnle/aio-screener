@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateKnowledgeAuthoringCorpus, SOURCE_PRESERVED_STATUS, SEMANTIC_REFERENCE_STATUS } from './lib/knowledge-authoring-contract.mjs';
+import { telegramDigestBoundary } from './lib/telegram-channels.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -106,17 +107,31 @@ const deepCorpus = JSON.stringify(deepTaxonomy);
 const requiredDeepConcepts = ['3nm', '2nm', '18A', 'DUV', 'EUV', 'High-NA', '유리기판', 'Photonics', 'Open Weights', 'HBM', 'CXL', 'AIDC', 'World Model', 'Artemis'];
 if (data.deepTaxonomyTopics !== 10 || data.deepTaxonomyBranches !== 50 || data.deepTaxonomyAnchors !== 56 || deepTaxonomy.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || deepTaxonomy.topics.length !== 10 || deepBranchCount !== 50 || deepAnchorIds.size !== 56 || deepTaxonomy.topics.some((topic) => !topic.title || !topic.relation || !topic.why || !topic.anchorNodeIds?.length || !topic.branches?.length || topic.branches.some((branch) => !branch.title || !branch.summary || !branch.mechanism || !branch.observe || !branch.caution || !branch.children?.length)) || requiredDeepConcepts.some((concept) => !deepCorpus.includes(concept))) errors.push('deep taxonomy coverage');
 const telegramLineageCount = telegramReference.retainedItemCount ?? telegramReference.observedItems?.length ?? null;
-const telegramChannelCount = telegramReference.channels?.length ?? 0;
-const telegramErrorCount = telegramReference.channels?.filter((channel) => channel.error).length ?? 0;
-const telegramCatalogMatchesChannels = telegramReference.sourceCatalog?.length === 4
-  && telegramReference.sourceCatalog.every((source) => telegramReference.channels?.some((channel) => channel.channel === source.channel));
-const telegramCollectionBoundary = telegramReference.collectionStatus === 'failed'
-  || (telegramReference.collectionStatus === 'ok' && telegramReference.successfulChannelCount === 4 && telegramErrorCount === 0)
-  || (telegramReference.collectionStatus === 'partial'
-    && telegramReference.successfulChannelCount > 0
-    && telegramReference.successfulChannelCount < 4
-    && telegramErrorCount === 4 - telegramReference.successfulChannelCount);
-if (data.telegramReferenceArtifact !== 'public-data/telegram-digest.json' || data.telegramReferenceChannels !== 4 || data.telegramObservedLineage !== telegramLineageCount || !telegramCollectionBoundary || telegramChannelCount !== 4 || !telegramCatalogMatchesChannels || telegramReference.channels.some((channel) => !channel.channel || channel.error === undefined)) errors.push('telegram discovery coverage');
+// v60.18: counts come from the published catalog (a retired channel stays in it, marked, and is not expected), not a literal.
+const telegramBoundary = telegramDigestBoundary(telegramReference);
+{
+  // Fixtures: the pre-retirement four-channel digest and the post-retirement shape (three expected rows plus the retired
+  // row the producer keeps for lineage), across ok / partial / failed. The literal-4 rule this replaced rejects the
+  // healthy post-retirement digest.
+  const cat = (retire) => ['a', 'b', 'c', 'd'].map((channel) => ({ channel, ...(retire && channel === 'a' ? { retired: { since: '2026-10-26', reason: 'gone' } } : {}) }));
+  const rows = (errs, retire) => ['a', 'b', 'c', 'd'].map((channel) => ({ channel, error: errs.includes(channel) ? 'x' : null, ...(retire && channel === 'a' ? { retired: {} } : {}) }));
+  const fixtures = [
+    [{ sourceCatalog: cat(false), channels: rows(['a'], false), collectionStatus: 'partial', successfulChannelCount: 3 }, true],
+    [{ sourceCatalog: cat(false), channels: rows([], false), collectionStatus: 'ok', successfulChannelCount: 4 }, true],
+    [{ sourceCatalog: cat(true), channels: rows([], true), collectionStatus: 'ok', successfulChannelCount: 3 }, true],
+    [{ sourceCatalog: cat(true), channels: rows(['b'], true), collectionStatus: 'partial', successfulChannelCount: 2 }, true],
+    [{ sourceCatalog: cat(true), channels: rows(['b', 'c', 'd'], true), collectionStatus: 'failed', successfulChannelCount: 0 }, true],
+    [{ sourceCatalog: cat(true), channels: rows(['b'], true), collectionStatus: 'ok', successfulChannelCount: 3 }, false],
+    [{ sourceCatalog: cat(true), channels: rows([], true).slice(1), collectionStatus: 'ok', successfulChannelCount: 3 }, false],
+  ];
+  fixtures.forEach(([digest, expected], i) => {
+    const b = telegramDigestBoundary(digest);
+    if ((b.catalogMatchesRows && b.collectionConsistent) !== expected) errors.push(`v60.18 telegram digest boundary fixture ${i} should ${expected ? 'pass' : 'fail'}`);
+  });
+  const literalFour = (d) => d.collectionStatus === 'ok' && d.successfulChannelCount === 4;
+  if (literalFour(fixtures[2][0])) errors.push('v60.18 telegram fixture: the literal-4 rule unexpectedly accepts the post-retirement digest');
+}
+if (data.telegramReferenceArtifact !== 'public-data/telegram-digest.json' || data.telegramReferenceChannels !== telegramBoundary.catalogCount || data.telegramObservedLineage !== telegramLineageCount || !telegramBoundary.collectionConsistent || !telegramBoundary.catalogMatchesRows || telegramReference.channels.some((channel) => !channel.channel || channel.error === undefined)) errors.push('telegram discovery coverage');
 if (data.referencePlayers !== 21 || data.referenceProducts !== 22 || data.referenceSources !== 23 || playerProduct.players.length !== 21 || playerProduct.products.length !== 22 || playerProduct.sources.length !== 23 || playerProduct.publication !== 'EDUCATIONAL_REFERENCE_ONLY') errors.push('player/product registry counts or publication boundary');
 if (data.playerProductCurrentnessArtifact !== 'public-data/atlas/player-product-currentness.json' || data.currentnessPlayers !== 21 || data.currentnessProducts !== 22 || currentness.status !== 'REFERENCE_CURRENTNESS_CONNECTED' || currentness.players.length !== 21 || currentness.products.length !== 22 || currentness.products.some((product) => !product.productionStatus || !product.asOf || !product.statusBasis) || currentness.freshnessStatus !== 'CADENCE_JUDGED_AT_RUNTIME' || currentness.coverage?.officialCheckedRows !== 43 || currentness.coverage?.currentNumericClaims !== 0 || currentness.coverage?.productionVolumeClaims !== 0 || currentness.coverage?.generationSpecificVerifiedClaims !== 0 || currentness.coverage?.financialClaims !== 0 || !atlas.includes('mergePlayerProductCurrentness')) errors.push('player/product currentness coverage or freshness boundary');
 // v57.83 codex audit F17: one currentness policy — the artifact carries dates and points at the runtime cadence; it does

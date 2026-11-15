@@ -1,8 +1,56 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-14
+last_verified: 2026-11-15
 confidence: medium
 ---
+
+## v60.19 AI 수치 근거 대조 (2026-11-15)
+
+- [x] QA-AI-FIG-01: v60.19 앱 자료와 종목·지표·기준·날짜가 어긋난 AI 수치(장중이라 쓴 종가, 뒤바뀐 표 열, 반대 방향, 예시 숫자)는 게시되지 않고, 근거와 맞는 문장·표는 그대로 남는다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-AI-SEARCH-01: v60.19 검색을 요청한 질문에서 첫 응답이 앱 함수만 부르면 다음 요청은 웹검색 도구만 담은 required 요청이다. verify_by: node scripts/ci-ai-chat-reliability-contract-check.mjs
+- [x] QA-AI-SEARCH-LIVE-01: v60.19 배포 뒤 검색해서 알려줘 형태의 종목 질문 한 건에서 응답 상태줄이 웹검색 보강을 말하고 searchCalls가 1 이상이다. verify_by: 배포본 AI 패널에서 검색 요청 질문 1건, 답변 아래 상태줄과 answer-quality 로그 searched 확인
+- [x] QA-AI-RETRY-01: v60.19 새로고침 뒤 다시 묻기는 질문이 속한 저장 대화와 화면(주소)으로 보내고, 저장되지 않은 대화의 질문은 새 대화로 보낸다. verify_by: node scripts/ci-chat-ui-state-browser-check.mjs
+- [x] QA-AI-RETRY-LIVE-01: v60.19 배포본에서 종목 화면 질문 중 새로고침, 매크로로 이동, 다시 묻기를 누르면 종목 화면으로 돌아가 같은 대화에서 답한다. verify_by: 배포본 AI 패널 수동 확인(대화 저장 동의 상태)
+- [x] QA-CONS-OOQ-01: v60.19 컨센서스의 일회성 분기 판정은 직전 4개 분기 합계 안의 분기만 본다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-SEC-1STANNUAL-01: v60.19 연차 없음 발행사의 첫 10-K/20-F는 UTC 날짜 경계와 7일 목록창에 상관없이 다음 실행에서 읽힌다. verify_by: node scripts/ci-fiscal-quality-fixture.mjs
+- [x] QA-SHADOW-ID-01: v60.19 그림자·기본 순위 모델 식별자는 시장별 적용 가중치와 팩터 공식이 바뀌면 바뀐다. verify_by: node scripts/ci-candidate-archive-check.mjs
+- [x] QA-PF-FXLEG-01: v60.19 포트폴리오 S&P 비교의 환율 다리는 가격 다리와 같은 두 날짜이고, 기준일 환율이 없으면 환산 수치를 보류한다. verify_by: node scripts/ci-portfolio-native-chart-check.mjs
+- [x] QA-FED-RANGE-01: v60.19 연준 목표 범위·중간값은 상·하단이 같은 관측일일 때만 계산·표시된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-CPI-DERIVED-01: v60.19 1년 전 같은 달 지수가 없는 달의 CPI 연율은 '13개월 연율'과 기준월로 표시되고, 화면의 지난 CPI·PCE 발표값은 기준월을 단다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-TIMELINE-WINDOW-01: v60.19 봉인된 시황 슬롯의 시세와 움직임은 모두 그 슬롯 창 안에서 관측된 값이다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-SIZE-WORD-01: v60.19 시황 슬롯 요약의 크기 말은 지표 자기 변동성 대비 움직임의 원장 등급에서 정해진다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-MATERIALITY-EXPLAINS-01: v60.19 업종·종목을 움직인 가격(driver)은 그 움직임의 점수 일부를 받아 원장과 AI 시황 순위에 반영된다. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-market-reading-week-fixture.mjs
+- [x] QA-OPS-DOC-01: v60.19 운영 런북은 AI 월 예산을 경고 목표로 설명하고(차단 문구 없음), 주간 점검의 80%·초과 알림은 공급자 선불 잔액을 확인하라고 안내한다. verify_by: node scripts/ci-operator-secrets-contract-check.mjs; node scripts/ci-operations-weekly-review-check.mjs
+- [x] QA-MOVE-SIZE-01: v60.19 크기 단어(보합권·소폭·큰 폭·크게·급등·급락)는 src/domain/market/session/move-size.js 등급에서만 고르고, 고정 숫자 비교로 크기 단어를 고르는 코드는 게이트가 실패시킨다. verify_by: node scripts/ci-move-size-word-check.mjs
+- [x] QA-VIX-RISK-01: v60.19 VIX 구간 낙폭 줄은 src/domain/market/signal/vix-band-record.js 한 곳에서 읽고(시장 상태·AI 도구 공용), 기준율과 겹치지 않는 사례 수를 함께 쓰며, 지문이 다르거나 기록이 없으면 없음으로 표시하고 방향 단어를 쓰지 않는다. verify_by: node scripts/ci-market-lean-validation-check.mjs; node scripts/ci-esm-core-unit-check.mjs
+- [ ] QA-VIX-RISK-02: v60.19 다음 주간 stress-outcomes 갱신 뒤 public-data/stress-outcomes.json이 새 지문(stress-outcomes:aa7e90509d8d94d0)과 밴드별 risk를 싣고, 시장 상태 카드와 VIX 낙폭 줄이 기록 없음 대신 숫자를 보인다. verify_by: node scripts/ci-market-lean-validation-check.mjs (갱신된 산출물로)
+- [x] QA-LEAN-01: v60.19 시장 기울기는 model-validation-status.json marketLean이 통과시킨 방향만 방향 단어로 말하고 그 옆에 과거 빈도·사례 수를 둔다. 판정이 없거나 실패면 '양호 n · 중립 n · 부담 n'과 사유만, 선택지는 없다. verify_by: node scripts/ci-market-lean-validation-check.mjs
+- [ ] QA-LEAN-02: v60.19 research-backtest.yml을 실행한 뒤 market-lean-backtest 산출물과 validation-gates의 marketLean 판정을 검토하고, 승격할 때 public-data/market-lean-backtest.json과 model-validation-status.json을 같은 검토 변경으로 올린다. verify_by: node scripts/build-validation-gates.mjs --check
+
+## v60.18 매크로 판정 다리 (v60.18) (2026-11-15)
+
+- [x] QA-MACRO-LEG-01: v60.18 5거래일 급등으로 금리가 부담인 날 매크로 '금리, 할인율' 머리줄·연결 고리·▲▼ 기준이 모두 5거래일 값과 그 진입선을 말한다. verify_by: node scripts/ci-regime-scenarios-fixture.mjs
+- [x] QA-LIVE-CHG-01: v60.18 같은 세션 실시간 시세는 발행 종가 등락을 바꾸지 않고, 다음 세션 관측은 바꾼다. verify_by: node scripts/ci-market-snapshot-contract-check.mjs
+- [ ] QA-LIVE-CHG-LIVE-01: v60.18 배포 뒤 첫 주말 배포본 홈 교차자산 줄 달러 지수 등락이 브리핑·market-snapshot.json 값과 같다. verify_by: 배포본 홈 #home-cross-assets [data-live-chg="DX-Y.NYB"]와 public-data/market-snapshot.json changePct 대조
+- [x] QA-MACRO-HELD-01: v60.18 기준월 공백으로 전년 대비가 직전 달인 물가 카드는 공백 이유와 표시 달을 말하고, '최근 공식 발표'는 같은 이유 문장을 쓴다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
+- [x] QA-HOME-STRIP-01: v60.18 홈 지수 줄의 네 카드는 모두 같은 세션 ETF이거나 모두 발행 종가다. verify_by: node scripts/ci-desktop-continuity-check.mjs
+- [x] QA-THEME-BENCH-01: v60.18 미국 테마 단계는 언제나 S&P 500 동일가중 대비이고, 그 종가가 한 세션 늦은 갱신에서는 판정 보류로 두며 상태 산출물은 직전 단계를 유지해 변화 기록에 되돌림이 남지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [ ] QA-THEME-BENCH-LIVE-01: v60.18 push 뒤 첫 22:5xZ refresh-data 실행의 scenario-state.json: 미국 테마 행이 held(benchmark-lag)로 직전 단계를 유지하고, 23:2xZ 실행의 transitions에 그날 테마 단계 되돌림이 없다. verify_by: git show <22:5xZ·23:2xZ 커밋>:public-data/scenario-state.json 의 themes[].held 와 transitions 확인
+- [x] QA-THEME-BREAKWORD-01: v60.18 테마 단계 문구의 급락·반등은 테마 자신의 5거래일 움직임이 평소 1주 움직임의 2배를 넘을 때만 쓰고, 지수 대비로만 넘으면 뒤처짐·앞섬으로 쓴다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-OUTCOME-STAMP-01: v60.18 scenario-outcomes.json·stress-outcomes.json은 정의 지문이 맞을 때만 주간 건너뛰기·화면 표시가 되고, 지문이 다르면 다음 실행에서 다시 만든다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [ ] QA-OUTCOME-STAMP-LIVE-01: v60.18 push 뒤 첫 refresh-data 일일 레인 실행이 scenario-outcomes.json(fingerprints, 테마 행 fingerprint, outcome 'excess')과 stress-outcomes.json(fingerprint)을 다시 쓰고, 테마 화면 과거 기록과 VIX 구간 표가 다시 보인다. verify_by: git log -1 -- public-data/scenario-outcomes.json public-data/stress-outcomes.json 와 두 파일의 fingerprint 필드 확인
+- [x] QA-GATES-OUTDIR-01: v60.18 build-validation-gates.mjs는 없는 --out-dir를 만들고, --check 불일치는 두 백테스트 날짜를 함께 말한다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-EVIDENCE-STRENGTH-01: v60.18 테마 단계·분기 빈도·VIX 구간 표·시장 온도·스크리너 검증 문장의 표본 하한과 참고 표시는 evidenceStrength 하나에서 나온다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-VERDICT-DIR-01: v60.18 11/9·11/11 재생 hero는 '주도주와 지수 모두 추세선 아래에서 반등 중입니다.', 11/12는 '…반등이 멈췄습니다.', 11/13은 '…재하락 중입니다.'이고, 어떤 축 문장도 '+숫자'와 '약해지다'를 한 문장에 함께 쓰지 않는다. verify_by: node scripts/ci-metric-consistency-check.mjs
+- [x] QA-VERDICT-DIR-02: v60.18 11/12 VIX 18.70은 '11/11 17.49부터 하루 +7%로 방향이 뚜렷하지 않습니다', 11/13 VIX 19.30은 '11/11 17.49부터 이틀 +10% 반등 중', 11/13 S&P 500은 '11/11 7,619.38부터 이틀 -0.8% 하락 중'이다. verify_by: node scripts/ci-metric-consistency-check.mjs
+- [ ] QA-VERDICT-DIR-LIVE-01: v60.18 push 뒤 첫 refresh-data의 today-verdict.json heroLine이 그날 SOXX·S&P 500의 50일선 위치와 마지막 구간 방향(반등 중/재하락 중/멈춤)을 같은 단어로 쓴다. verify_by: git show <첫 refresh 커밋>:public-data/today-verdict.json 과 history.json SOXX·S&P 500 대조
+- [x] QA-VERDICT-VIX-01: v60.18 11/11 재생의 변동성 축은 5거래일 기준점(11/4 16.61)을 밝히고 방향을 'VIX는 11/4 16.61에서 +70% 오른 뒤 11/5 28.18부터 나흘 -38% 하락 중'으로 따로 쓴다. verify_by: node scripts/ci-metric-consistency-check.mjs
+- [x] QA-VERDICT-MODEL-01: v60.18 today-verdict.json의 model이 현재 코드와 다르면 ci-metric-consistency-check가 STALE-MODEL과 두 판정을 출력하고, 같으면 공개 입력으로 다시 계산한 판정과 같아야 통과한다. verify_by: node scripts/ci-metric-consistency-check.mjs
+- [ ] QA-VERDICT-MODEL-LIVE-01: v60.18 push 뒤 첫 refresh-data의 today-verdict.json에 model이 있고 ci-metric-consistency-check가 STALE-MODEL 없이 통과한다. verify_by: git pull 뒤 node scripts/ci-metric-consistency-check.mjs
+- [x] QA-MARKETDAY-CUM-01: v60.18 11/13 재생 원장에서 10년물(하루 +5bp, 5거래일 +29bp)이 lead이고 sizedBy가 week이며, 주간을 하루가 되돌린 SOXX는 하루 기준이다. verify_by: node scripts/ci-metric-consistency-check.mjs
+- [ ] QA-MARKETDAY-CUM-LIVE-01: v60.18 push 뒤 첫 refresh-data의 market-day.json 가격 사실에 zWeek·weekCounts·sizedBy가 있고 rules 문구가 5거래일 다리를 말한다. verify_by: git show <첫 refresh 커밋>:public-data/market-day.json
+- [ ] QA-TEMP-BASIS-01: v60.18 push 뒤 도쿄 오전(00:00~06:00Z) refresh-data의 market-temperature.json 닛케이 asOf가 직전 산출물보다 과거가 아니다(그때는 retained에 nikkei). verify_by: git log -p public-data/market-temperature.json 의 markets.nikkei.asOf 연속 확인
+- [x] QA-VERDICT-WEEK-01: v60.18 11/12·11/13 재생 금리 축이 속도 다리 부담(5거래일 +26/+29bp)이고 '뚜렷한 방향 없이'를 쓰지 않으며, 11/10 FRED 11/9 게시 전후 신용은 부담→중립, 11/14 10:25Z 시계의 11/13 판정은 금요일 판정과 같다. verify_by: node scripts/ci-metric-consistency-check.mjs
 
 ## v60.06 레이어 스택 검토 수정 (2026-11-14)
 

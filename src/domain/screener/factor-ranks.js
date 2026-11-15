@@ -17,7 +17,7 @@ import { FRESHNESS_POLICY } from '../shared/freshness-policy.js';
 import { normalizeAllowedUse } from '../../data/contracts/evidence.js';
 import { canonicalSourceTier } from '../../data/contracts/source-kind.js';
 import { MODEL_DEFAULT_WEIGHTS, MODEL_DEFAULT_DEFINITIONS } from './factor-weights.js';
-import { screenerMarket, MARKET_POPULATION_POLICY } from './market-scope.js';
+import { listingMarket, screenerMarket, MARKET_POPULATION_POLICY } from './market-scope.js';
 import { isSessionCurrent, latestCompletedSession } from '../market/session/market-calendar.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../fundamental/period.js';
 import { finiteNumber as finite } from '../shared/number.js';
@@ -906,7 +906,7 @@ export function rankingPopulationExclusion(row) {
 export function computeFactorRanks(input = {}) {
   // v57.51 F07/V04: Tokyo/Taiwan listings (listingMarket INTL) stay visible in the US list but are not ranked against
   // the US cross-section — a different session calendar and currency are not one comparison population.
-  const isIntl = (row) => [row?.market, row?.listingMarket, row?.instrumentRef?.market].some((value) => String(value || '').toUpperCase() === 'INTL') || /\.(T|TWO?)$/i.test(String(row?.sym || row?.symbol || ''));
+  const isIntl = (row) => listingMarket(row || {}) === 'INTL';
   const excludedRows = [];
   const populationExclusions = { fund: 0, spac: 0, illiquid: 0, foreign: 0 };
   const rows = (Array.isArray(input.rows) ? input.rows : []).filter((row) => {

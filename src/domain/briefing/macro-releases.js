@@ -12,7 +12,7 @@ const kstDay = (ms) => new Date(ms + 9 * 3600000).toISOString().slice(0, 10);
 
 // A CPI month whose year-ago index does not exist (no October 2025 print) has no year-over-year figure, so the board
 // keeps the previous month; the release itself is in the index history, and its month-over-month change is shown.
-function cpiMonthOverMonth(macroHistory, due) {
+function cpiMonthOverMonth(macroHistory, due, held = null) {
   const items = [['cpiIndex', 'CPI 전월 대비'], ['coreCpiIndex', '근원 CPI 전월 대비']].map(([field, label]) => {
     const rows = (macroHistory?.series?.[field]?.observations || []).filter(([, value]) => Number.isFinite(value));
     const [last, prev] = [rows.at(-1), rows.at(-2)];
@@ -23,7 +23,8 @@ function cpiMonthOverMonth(macroHistory, due) {
     return { period: last[0], label, valueText: `${change > 0 ? '+' : ''}${change.toFixed(2)}%`, deltaText: null, targetText: null };
   }).filter(Boolean);
   if (!items.length) return null;
-  items.at(-1).targetText = '전년 대비는 1년 전 같은 달 지수가 없어 계산하지 않습니다';
+  // The board's reason (indicators.js previousReleaseReason) — the card and this block say the same thing.
+  if (held?.kind === 'comparator-gap') items.at(-1).targetText = held.sentence;
   return { period: items[0].period, items: items.map(({ period, ...item }) => item) };
 }
 
@@ -48,7 +49,8 @@ export function recentMacroReleases(input, { nowMs = Date.now(), days = 2 } = {}
   for (const id of Object.keys(MACRO_RELEASE_TITLES)) {
     const due = (Array.isArray(input?.schedules?.[id]) ? input.schedules[id] : []).filter((date) => date >= earliest && date <= today && Date.parse(`${date}T13:45:00Z`) <= nowMs).sort().pop();
     if (!due || (byRelease.has(id) && byRelease.get(id).date >= due)) continue;
-    const month = id === 'us-cpi' ? cpiMonthOverMonth(input?.macroHistory, due) : null;
+    const cpiHeld = board.groups.flatMap((group) => group.items).find((item) => item.id === 'cpi')?.held || null;
+    const month = id === 'us-cpi' ? cpiMonthOverMonth(input?.macroHistory, due, cpiHeld) : null;
     byRelease.set(id, month ? { id, title: MACRO_RELEASE_TITLES[id], date: due, period: month.period, next: null, items: month.items } : { id, title: MACRO_RELEASE_TITLES[id], date: due, period: null, next: null, items: [], pending: true });
   }
   return [...byRelease.values()].sort((a, b) => b.date.localeCompare(a.date));

@@ -103,6 +103,15 @@ if (existsSync(CATALOG)) {
   check(`${RUNBOOK} is cataloged as a targeted reference`, entry?.kind === 'targeted-map' && entry?.readPolicy === 'targeted');
 }
 
+// v60.19 (Codex audit: AI-OPERATIONS): the runbook told the operator the $20 month was a hard block ("상한에 도달하면 추가
+// 유료 요청을 차단한다") while the deployed Worker runs it as a target (owner 2026-10-27). Doc follows the shipped mode.
+{
+  const proxyToml = existsSync('worker/wrangler.proxy.toml') ? readFileSync('worker/wrangler.proxy.toml', 'utf8') : '';
+  if (/^AI_MONTHLY_BUDGET_MODE\s*=\s*"target"/m.test(proxyToml)) {
+    const stale = ['추가 유료 요청을 차단한다', '다음 달(UTC) 1일까지 거절하는 것이 정상', '청구는 거기서 멈춘다'].filter((phrase) => runbook.includes(phrase));
+    check(`v60.19 the runbook describes the $20 month as a target that warns, not a block (stale: ${stale.join(' / ')})`, !stale.length && /AI_MONTHLY_BUDGET_MODE=target/.test(runbook));
+  }
+}
 if (failures.length) {
   console.error('Operator provisioning contract failed:');
   failures.forEach((failure) => console.error(` - ${failure}`));

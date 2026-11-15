@@ -112,6 +112,17 @@ if (ranking.factorDefinitions?.momentum !== 'twelve-minus-one' || ranking.factor
 const shadow = buildShadowRecord({ shadowRanking });
 if (!shadow || shadow.model !== CANDIDATE_SHADOW_MODEL.id || !shadow.identity.startsWith(`${CANDIDATE_SHADOW_MODEL.id}:`)
   || shadowRanking.factorDefinitions?.momentum !== 'blend-1-3-6' || shadowRanking.factorDefinitions?.value !== 'positive-multiples' || shadowRanking.factorDefinitions?.quality !== 'roe-margin-growth' || shadow.identity === entry.identity) fail('shadow ranking/record missing or not the former default model');
+// v60.19 (Codex numbers audit): the shadow identity is a fingerprint of every market's applied model and its formulas —
+// a Korean-only weight change or a formula change starts a new shadow record (it read the US weights alone).
+{
+  const shadowWith = (market, patch) => ({ ...shadowRanking, byMarket: { ...(shadowRanking.byMarket || { US: shadowRanking }), [market]: { ...(shadowRanking.byMarket?.[market] || shadowRanking), ...patch } } });
+  const krChanged = buildShadowRecord({ shadowRanking: shadowWith('KR', { appliedFactorWeights: { momentum: 1 }, activeFactors: ['momentum'] }) });
+  const formulaChanged = buildShadowRecord({ shadowRanking: shadowWith('US', { factorDefinitions: { ...shadowRanking.factorDefinitions, momentum: 'twelve-minus-one' } }) });
+  if (!/^legacy-blend-v\d+:[0-9a-f]{16}$/.test(shadow.identity) || krChanged?.identity === shadow.identity || formulaChanged?.identity === shadow.identity
+    || buildShadowRecord({ shadowRanking })?.identity !== shadow.identity) fail(`v60.19 the shadow identity must fingerprint every market's applied weights and formulas: ${JSON.stringify({ shadow: shadow.identity, kr: krChanged?.identity, formula: formulaChanged?.identity })}`);
+  const definitionsChanged = { ...ranking, byMarket: { US: { ...(ranking.byMarket?.US || ranking), factorDefinitions: { ...ranking.factorDefinitions, momentum: 'blend-1-3-6' } } } };
+  if (buildPopulationRankingIdentity(definitionsChanged) === buildPopulationRankingIdentity({ ...ranking, byMarket: { US: ranking.byMarket?.US || ranking } })) fail('v60.19 the ranking identity must change with the factor formulas');
+}
 const loss = signedYields('X', { price: 10, shares: 1e6 }, { quarters: { X: '2025-03-31:1:-1:r;2025-06-30:1:-1:r;2025-09-30:1:-1:r;2025-12-31:1:-1:d' }, data: { X: '2025-12-31:4:-4:5::::1' } });
 if (loss.earningsYieldTtm !== -0.4 || loss.bookYield !== 0.5) fail(`signed yields must keep a loss negative: ${JSON.stringify(loss)}`);
 // v57.88 (review): a filer whose last quarter / fiscal year ended years ago has no current yield.

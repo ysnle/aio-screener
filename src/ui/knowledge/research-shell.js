@@ -264,7 +264,8 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   const run = async () => {
     const query = input.value.trim();
     if (query.length < 2) { results.replaceChildren(); closeResults(); return; }
-    const index = await loadIndex(root);
+    // The 용어 사전 rows need js/aio-glossary.js, which loads on intent (src/app/classic-loader.js).
+    const [index] = await Promise.all([loadIndex(root), Promise.resolve().then(() => root.AIO?.loadGlossaryFull?.()).catch(() => {})]);
     if (input.value.trim() !== query) return;
     const concepts = conceptMatches(query);
     const pool = [...concepts, ...glossaryMatches(root, query, new Set(concepts.map((item) => normalize(item.title)))), ...searchKnowledgeIndex(index, query, 40)];

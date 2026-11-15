@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assertNoPlaceholderSecUserAgents, parse13fAmendmentMetadata, recentOwnershipRows, recentSubmissionRows, select13fFilings } from './lib/sec-edgar.mjs';
 import { is13FFilingSeason, slimDiscoveryManager } from './lib/13f-discovery.mjs';
-import { failureMarker, inRetryBackoff, retryBackoffHours } from './daily-lane-age.mjs';
+import { failureMarker, inRetryBackoff, retryBackoffHours, persistentLaneFailure, laneAlertState, PERSISTENT_FAILURES } from './daily-lane-age.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -121,5 +121,25 @@ const lastFailure = Date.parse('2026-10-26T10:00:00Z');
 const marker3 = failureMarker(failureMarker(failureMarker({ polledAt: '2026-10-25T09:00:00Z' }, lastFailure), lastFailure), lastFailure);
 if (marker3.failures !== 3 || marker3.polledAt !== '2026-10-25T09:00:00Z' || retryBackoffHours(3) !== 4 || retryBackoffHours(9) !== 8 || retryBackoffHours(0) !== 0
   || !inRetryBackoff({ marker: marker3, now: lastFailure + 3.9 * 3600000 }) || inRetryBackoff({ marker: marker3, now: lastFailure + 4 * 3600000 }) || inRetryBackoff({ marker: { polledAt: '2026-10-25T09:00:00Z' }, now: lastFailure })) fail('daily-lane failure backoff is wrong');
+// v60.18: a degradable lane that keeps failing must reach the operations alert (11/06-11/15 failed with warnings only).
+// Exhaustive over 0..6 consecutive failures, plus the step that turns the count into a red run without continue-on-error.
+for (let n = 0; n <= 6; n += 1) {
+  let m = { polledAt: '2026-10-25T09:00:00Z' };
+  for (let i = 0; i < n; i += 1) m = failureMarker(m, lastFailure);
+  if (Boolean(persistentLaneFailure(m)) !== (n >= PERSISTENT_FAILURES)) fail(`v60.18 ${n} consecutive 13F lane failures ${n >= PERSISTENT_FAILURES ? 'do not raise' : 'raise'} the persistent-failure alert`);
+}
+if (persistentLaneFailure({ polledAt: '2026-11-15T00:00:00Z' })) fail('v60.18 a published poll does not clear the persistent 13F failure');
+// Review v60.19 B1: the persistent failure is an alert signal (one open issue), not a red refresh run.
+{
+  const read = workflow.match(/- name: Read the 13F lane alert state\n([\s\S]*?)(?=\n\s*- name:|\n\S|\n {2}\w)/);
+  const saveAt = workflow.indexOf('name: Save daily-lane poll marker');
+  const job = workflow.split(/\n(?=  [a-z][\w-]*:\n)/).find((part) => part.startsWith('\n  daily-lane-alert:') || part.startsWith('  daily-lane-alert:')) || '';
+  if (!read || !/daily-lane-age\.mjs --alert-state/.test(read[1]) || !/continue-on-error: true/.test(read[1]) || workflow.indexOf('name: Read the 13F lane alert state') < saveAt || /--raise-persistent/.test(workflow)
+    || !/issues: write/.test(job) || !/continue-on-error: true/.test(job) || !/aio-daily-lane-failure/.test(job) || !/gh issue create/.test(job) || !/gh issue close/.test(job) || !/lane_alert == 'clear'/.test(job))
+    fail('review v60.19 a persisting 13F lane failure keeps one issue open (daily-lane-alert job) and never ends the refresh run red');
+  for (const [marker, state] of [[{ polledAt: '2026-10-25T09:00:00Z', failures: 3 }, 'open'], [{ polledAt: '2026-11-15T00:00:00Z' }, 'clear'], [{ failures: 2 }, 'unchanged'], [{}, 'unchanged']]) {
+    if (laneAlertState(marker).state !== state) fail(`review v60.19 13F lane alert state for ${JSON.stringify(marker)} is ${laneAlertState(marker).state}, want ${state}`);
+  }
+}
 if (!/daily-lane-age\.mjs --record-failure/.test(workflow) || !/age_hours" == "backoff"/.test(workflow) || !/steps\.daily-lane-failure-write\.outcome == 'success'/.test(workflow)) fail('refresh workflow does not back off a failed 13F lane');
 console.log(JSON.stringify({ ok: true, fixture13FForms: 4, ownershipEvents: ownershipRows.length, notice: selected.latestSubmission.form, holdings: selected.latestHoldings.form, priorPeriod: selected.priorHoldings.periodOfReport }));

@@ -152,8 +152,8 @@ export function installTelegramCollector(window = globalThis) {
             tier: 1,
             flag: '',
             _tgChannel: channelSlug,
-            _pipeline: channelSlug === 'aetherjapanresearch' ? 'asia-semi-flow' : 'telegram-fast-secondary',
-            _verification: channelSlug === 'aetherjapanresearch' ? 'secondary-source-confirm-before-live-like-use' : 'secondary-source',
+            _pipeline: 'telegram-fast-secondary',
+            _verification: 'secondary-source',
           });
         });
         if (items.length) {

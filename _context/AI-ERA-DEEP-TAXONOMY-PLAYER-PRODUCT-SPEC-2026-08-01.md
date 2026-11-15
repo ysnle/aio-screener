@@ -835,7 +835,7 @@ Telegram 표본에서 `발전소 부지/기존 송전망 재사용`, `가스관�
 
 ### 기존 애플리케이션 상태
 
-- 현재 코드/테스트에 정식 Telegram pipeline source로 명시된 핵심 채널은 `aetherjapanresearch`, `insidertracking`, `bornlupin` 3개다.
+- 현재 코드/테스트에 정식 Telegram pipeline source로 명시된 핵심 채널은 `aetherjapanresearch`, `insidertracking`, `bornlupin` 3개다. (2026-11-15 갱신: `aetherjapanresearch`는 2026-10-26부터 공개 미리보기가 없어 퇴역 — `scripts/lib/telegram-channels.mjs` `retired`.)
 - `Onionfarmer`, `survival_DoPB`를 runtime source로 추가하는 것은 이번 DESIGN_ONLY 범위가 아니다.
 - 향후 추가 시 권리·retention·중복 forwarding·source identity·24h lane·staleness gate를 먼저 검토한다.
 

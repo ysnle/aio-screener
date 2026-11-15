@@ -5,7 +5,7 @@
 // company, a date or a level by hand: what is unusual is decided by the size of a move against its own recent
 // volatility, and what a move is linked to is decided by shared subjects (the same ticker, a member of the same group)
 // or a shared topic. A move with no subject link is kept and marked unexplained instead of being given a guessed cause.
-import { readNumber, surprisePct, stdev } from '../../shared/number.js';
+import { readNumber, surprisePct } from '../../shared/number.js';
 import { readRowNumber } from '../../../data/contracts/screener.js';
 import { sessionCloses } from '../indices/index-levels.js';
 import { median as medianOf } from '../../themes/theme-medians.js';
@@ -15,6 +15,8 @@ import { companyMatcher } from '../../briefing/news-picks.js';
 import { SCHEDULED_EVENTS } from '../../briefing/scheduled-events.js';
 import { releaseAtMs } from '../../briefing/schedule.js';
 import { EVENT_NAMES } from '../regime/macro-crossroads.js';
+import { RULES } from '../../rules/thresholds.js';
+import { sessionStep, sessionStepSd, spanStepSd, materialityRank } from '../session/move-size.js';
 
 export const MARKET_DAY_VERSION = 'market-day.v1';
 const HOUR = 3600000;
@@ -55,34 +57,60 @@ const WORD_TOPICS = Object.freeze([
   ['korea', /\b(?:kospi|kosdaq|korea|samsung|sk hynix)\b|코스피|코스닥|삼성|하이닉스/i], ['crypto', /\b(?:bitcoin|crypto|ether(?:eum)?)\b|비트코인/i]
 ]);
 
-// A step's volatility needs ten prior steps; a flat series (0) has none.
-const stepStdev = (values) => (values.length < 10 ? null : stdev(values) || null);
+// The size scale (session step, its sd, the tiers) lives in ../session/move-size.js, shared with every sentence that names
+// a size; priceMove reads the sd for the session that just closed (the series before that close), the in-session AI
+// reading for the open session.
+const MOVE = RULES.moveMateriality;
+export { sessionStep, sessionStepSd, materialityRank };
 const round = (value, digits = 2) => (Number.isFinite(value) ? Number(value.toFixed(digits)) : null);
 const stampOf = (row) => Date.parse(row?.publishedAt || row?.pubDate || row?.datetime || row?.eventTime || '');
 const topicsOf = (text, base = []) => [...new Set([...base, ...WORD_TOPICS.filter(([, re]) => re.test(text)).map(([topic]) => topic)])];
 
-/** A change and how unusual it is: the last step against the standard deviation of the 60 steps before it. */
-function changeOf(series, unit) {
-  if (series.length < 12) return null;
-  const steps = series.slice(1).map((row, i) => (unit === 'bp' ? (row.value - series[i].value) * 100 : (row.value / series[i].value - 1) * 100));
-  const last = steps.at(-1);
-  const sd = stepStdev(steps.slice(-61, -1));
-  const week = series.length >= 6 ? (unit === 'bp' ? (series.at(-1).value - series.at(-6).value) * 100 : (series.at(-1).value / series.at(-6).value - 1) * 100) : null;
-  return { change: round(last, 4), week: round(week, 4), z: sd ? round(last / sd) : null }; // four decimals: a one-decimal print must not round twice
+/**
+ * A change and how unusual it is (RULES.moveMateriality): the last step against the standard deviation of the sdSessions
+ * steps before it (z), and the weekSessions cumulative change against that sd·√weekSessions (zWeek). The
+ * cumulative leg counts (weekCounts) while the last step goes the same way — the move is still extending; a
+ * week made by one earlier day and given back today is that earlier day's story. Exported for every reader that ranks a
+ * price move by size (the AI reading's 큰 움직임 list), so the scale lives in one place.
+ * @param {{date:string,value:number}[]} series session closes, oldest first
+ * @param {'pct'|'bp'} unit
+ */
+export function priceMove(series, unit) {
+  if (!Array.isArray(series) || series.length < MOVE.minSteps + 2) return null;
+  const last = sessionStep(unit, series.at(-2).value, series.at(-1).value);
+  const sd = spanStepSd(series, 1, unit);
+  const n = MOVE.weekSessions;
+  const week = series.length > n ? sessionStep(unit, series.at(-1 - n).value, series.at(-1).value) : null;
+  const sdWeek = spanStepSd(series, n, unit); // the five-session leg on the steps before it, as every grade
+  const zWeek = sdWeek && week != null ? week / (sdWeek * Math.sqrt(n)) : null;
+  const weekCounts = zWeek != null && last !== 0 && Math.sign(last) === Math.sign(week);
+  // four decimals: a one-decimal print must not round twice
+  return { change: round(last, 4), week: round(week, 4), z: sd ? round(last / sd) : null, zWeek: round(zWeek), weekCounts };
+}
+
+/** The larger of the session's and the counted five-session |z| — the size a price fact is ranked by — and which leg it is. */
+export function priceMoveSize(move) {
+  const day = Math.abs(move?.z ?? 0), week = move?.weekCounts ? Math.abs(move.zWeek ?? 0) : 0;
+  return week > day ? { size: week, leg: 'week' } : { size: day, leg: 'day' };
+}
+
+/** Points 0-100 for a price move (core gauges in full, others × secondaryShare) and its tier. */
+export function priceMateriality(move, asset) {
+  return clamp(priceMoveSize(move).size * MOVE.pointsPerSd * (MOVE.coreGauges.includes(asset) ? 1 : MOVE.secondaryShare));
 }
 
 function priceFacts(history) {
   const out = [];
   for (const asset of ASSETS) {
     const series = sessionCloses(history, asset.field);
-    const move = changeOf(series, asset.unit);
+    const move = priceMove(series, asset.unit);
     if (!move) continue;
     const last = series.at(-1);
     // v59.70 (screen review 7·8): a day move is one session. A close the producer carried forward drops out of the series,
     // and the step over the gap (WTI 10/30→11/3, 나스닥100 the same) read as that day's -7.7% / -0.7%; no fact then.
     if (countOpenSessionsBetween(series.at(-2).date, last.date, closeSessionMarket(asset.field) || 'US') !== 1) continue;
     out.push({ id: `price:${asset.field}:${last.date}`, kind: 'price', asset: asset.field, label: asset.label, assetKind: asset.kind, date: last.date,
-      value: round(last.value, asset.unit === 'bp' ? 3 : 2), unit: asset.unit, valueUnit: asset.unit === 'bp' ? '%' : 'level', changeUnit: asset.unit, ...move, topics: asset.topics, subjects: [], weight: Math.abs(move.z ?? 0) });
+      value: round(last.value, asset.unit === 'bp' ? 3 : 2), unit: asset.unit, valueUnit: asset.unit === 'bp' ? '%' : 'level', changeUnit: asset.unit, ...move, topics: asset.topics, subjects: [], weight: priceMoveSize(move).size });
   }
   return out;
 }
@@ -91,11 +119,11 @@ function macroFacts(macroHistory) {
   const out = [];
   for (const series of MACRO_SERIES) {
     const rows = (macroHistory?.series?.[series.id]?.observations || []).map(([date, value]) => ({ date, value: readNumber(value) })).filter((row) => row.value !== null);
-    const move = changeOf(rows, 'bp');
+    const move = priceMove(rows, 'bp');
     if (!move) continue;
     const last = rows.at(-1);
     out.push({ id: `price:${series.id}:${last.date}`, kind: 'price', asset: series.id, label: series.label, assetKind: 'macro', date: last.date,
-      value: round(last.value, 3), unit: 'bp', valueUnit: '%', changeUnit: 'bp', ...move, topics: series.topics, subjects: [], weight: Math.abs(move.z ?? 0) });
+      value: round(last.value, 3), unit: 'bp', valueUnit: '%', changeUnit: 'bp', ...move, topics: series.topics, subjects: [], weight: priceMoveSize(move).size });
   }
   return out;
 }
@@ -328,15 +356,19 @@ function threadsOf(facts, links) {
 
 // ── Materiality (owner 2026-11-03: "경중을 따져서 중요한 데이터는 중요한 곳에 … 쓸모없는 정보를 중요한 것처럼 하지 말아줘") ──
 // Each fact gets 0–100 from what it is worth to the market, never from how loudly it is written:
-//  - a price: its move against its own volatility, a core gauge (the index, the 10-year, the dollar, oil, gold, HY
-//    spread, VIX, KOSPI) counting fully and a secondary one at 70%;
+//  - a price: its move against its own volatility (the session, or the five-session leg while it still extends), a core
+//    gauge (the index, the 10-year, the dollar, oil, gold, HY spread, VIX, KOSPI) counting fully and a secondary one at
+//    70% (RULES.moveMateriality);
 //  - a stock: the larger of its own surprise (|z| scaled by liquidity) and its pull on the S&P 500 (index bp);
 //  - a group: its median move times how one-sided it was; a reported quarter: index weight and surprise; a deal: its
 //    size; an upcoming item: index weight, or the release's standing (jobs, CPI, FOMC, PCE) or a major dated event;
 //  - a headline or report: its source tier, raised to part of the largest move it is linked to (a story is as important
-//    as what it moved). Machine-written stock-page items are noise and leave the ledger.
-// Tiers: lead >= 60, major >= 35, minor >= 15, below that the fact is context only.
-const CORE_GAUGES = new Set(['spx', 'ndx', 'kospi', 'tnx', 'dxy', 'wti', 'gold', 'hyOas', 'vix']);
+//    as what it moved). Machine-written stock-page items are noise and leave the ledger;
+//  - what a price explains: a price that drives a group or a stock the same way that day (GROUP_DRIVERS, the driver
+//    link) is raised to part of the largest move it drives, by the same rule as a story. Index weight reaches it through
+//    that move (a stock's pull on the S&P 500 in index bp). On 11/11 the chip index (+6.01%, z 1.85) ranked below the
+//    dollar (z 2.11) while the chip groups it drives led the day; its own z said nothing of what it moved.
+// Tiers (RULES.moveMateriality.tiers): lead >= 60, major >= 35, minor >= 15, below that the fact is context only.
 const MAJOR_RELEASES = new Set(['us-nfp', 'us-cpi', 'us-fed-rate', 'us-pce']);
 export const HEADLINE_NOISE = /\b(?:stock forecasts?|price, chart|tokenized (?:stock|bstock)s?|price \([A-Z]+\/USD\) today|outperforms competitors|underperforms (?:\w+ )?when compared to competitors|(?:sells|buys) \$[\d,]+ (?:in|of|worth)|executes (?:sale|purchase) of|position in|stake (?:raised|lowered|trimmed|boosted)|shares (?:sold|bought|acquired) by|stock quote|stock price today|should you buy)\b/i;
 const clamp = (value) => Math.max(0, Math.min(100, Math.round(value)));
@@ -344,7 +376,7 @@ let NOW_MS = Date.now();
 const nearness = (fact) => { const days = (Date.parse(`${fact.date}T12:00:00Z`) - NOW_MS) / DAY; return days <= 2 ? 1 : Math.max(1 / 3, 1 - (days - 2) / 12); };
 function ownMateriality(fact) {
   switch (fact.kind) {
-    case 'price': return clamp(Math.abs(fact.z ?? 0) * 25 * (CORE_GAUGES.has(fact.asset) ? 1 : 0.7));
+    case 'price': return priceMateriality(fact, fact.asset);
     case 'stock-move': {
       const liquidity = Math.max(0.3, Math.min(1, Math.log10((fact.dollarVolume30d || 1e8) / 1e8) / 2));
       return clamp(Math.max(Math.abs(fact.z) * 18 * liquidity, Math.abs(fact.indexBp || 0) * 3));
@@ -364,15 +396,22 @@ function ownMateriality(fact) {
   }
 }
 const SHARE_OF_MOVE = { subject: 0.8, member: 0.7, driver: 0.8, topic: 0.4 };
+// Credit flows from a move to what explains it: an event, or the price that drives it. Never from one move to a peer.
+const explainsLink = (cause, link) => !MOVE_KINDS.has(cause.kind) || (cause.kind === 'price' && link.basis === 'driver');
 function scoreMateriality(facts, links) {
   const byId = new Map(facts.map((fact) => [fact.id, fact]));
-  for (const fact of facts) fact.materiality = ownMateriality(fact);
+  for (const fact of facts) { fact.materiality = ownMateriality(fact); delete fact.explains; }
+  // Own points first for every fact, then the raise, read from the moves' own points (a raised price never raises again).
+  const own = new Map(facts.map((fact) => [fact.id, fact.materiality]));
   for (const link of links) {
     const cause = byId.get(link.from); const move = byId.get(link.to);
-    if (!cause || !move || !SHARE_OF_MOVE[link.basis] || MOVE_KINDS.has(cause.kind)) continue;
-    cause.materiality = Math.max(cause.materiality, clamp(move.materiality * SHARE_OF_MOVE[link.basis]));
+    if (!cause || !move || !SHARE_OF_MOVE[link.basis] || !explainsLink(cause, link)) continue;
+    const raised = clamp(own.get(move.id) * SHARE_OF_MOVE[link.basis]);
+    if (raised <= cause.materiality) continue;
+    cause.materiality = raised;
+    if (cause.kind === 'price') cause.explains = { id: move.id, basis: link.basis, points: own.get(move.id), own: own.get(cause.id) };
   }
-  for (const fact of facts) fact.rank = fact.materiality >= 60 ? 'lead' : fact.materiality >= 35 ? 'major' : fact.materiality >= 15 ? 'minor' : 'context';
+  for (const fact of facts) fact.rank = materialityRank(fact.materiality);
 }
 
 /**
@@ -433,12 +472,12 @@ export function buildMarketDay({ history = [], screener = null, universe = [], n
   for (const fact of facts) if (fact.kind === 'stock-move' || fact.kind === 'group-move') {
     fact.explainedBy = [...new Set(links.filter((link) => link.to === fact.id && ['subject', 'member', 'driver'].includes(link.basis)).map((link) => link.basis))];
   }
-  for (const fact of facts) { if (fact.kind === 'price') fact.unusual = Math.abs(fact.z ?? 0) >= 2; fact.weight = fact.materiality; }
+  for (const fact of facts) { if (fact.kind === 'price') { fact.unusual = Math.abs(fact.z ?? 0) >= MOVE.unusualZ; fact.sizedBy = priceMoveSize(fact).leg; } fact.weight = fact.materiality; }
   facts.sort((a, b) => b.materiality - a.materiality);
   return {
     schemaVersion: MARKET_DAY_VERSION, generatedAt: new Date(nowMs).toISOString(),
     sessions: { us: screener?.factorSessionDateByMarket?.US || null, kr: screener?.factorSessionDateByMarket?.KR || null },
-    rules: 'materiality 0-100 (lead>=60, major>=35, minor>=15); price z = last step / sd of the 60 before; stock move |1d|>=4% and >=1.5x ADR on $200M+ volume, or >=5bp of the S&P 500; group median >=2% with 70% same sign; headlines 36h; machine-written stock-page items dropped',
+    rules: 'materiality 0-100 (lead>=60, major>=35, minor>=15); price z = last step / sd of the 60 before, or the 5-session change / (sd x sqrt 5) while the last step goes the same way (the larger counts); stock move |1d|>=4% and >=1.5x ADR on $200M+ volume, or >=5bp of the S&P 500; group median >=2% with 70% same sign; headlines 36h; machine-written stock-page items dropped',
     counts: Object.fromEntries([...new Set(facts.map((fact) => fact.kind))].map((kind) => [kind, facts.filter((fact) => fact.kind === kind).length])),
     dropped: { noise: noise.length },
     facts, links, threads: threadsOf(facts, links)

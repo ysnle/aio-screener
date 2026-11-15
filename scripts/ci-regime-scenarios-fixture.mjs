@@ -196,6 +196,29 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   assert.ok(shock.flipDistance?.toward === 'neutral' && shock.flipDistance.value === -18, `v60.16 the speed leg's exit is the nearest flip (5 sessions ago +10bp): ${JSON.stringify(shock.flipDistance)}`);
   assert.ok(shockHeld.state === 'burden' && shockHeld.shock?.now === false && /급등 부담 판정이 이어지고/.test(shockHeld.read), `v60.16 the speed leg holds until the rise is under +10bp: ${shockHeld.state} ${shockHeld.read}`);
   assert.ok(shockOver.state === 'neutral' && shockOver.shock === null && /5거래일 \+15bp 이상\(자체 기록 상위 5%\)/.test(shockOver.flip) && /1년 범위 90% 이상에서 5일 상승/.test(shockOver.flip), `v60.16 the speed leg releases and the 중립 flip names all three legs: ${shockOver.state} ${shockOver.flip}`);
+  // v60.18 (weekly audit D1): the rates axis reports the leg that decided it, and the 매크로 headline, chain node, chain
+  // sentence and legend render from that one object — a 5-session +29bp 부담 was headed '10년물 20거래일 +5bp'.
+  {
+    const { buildMacroRead } = await import('../src/domain/macro/macro-read.js');
+    const shockRows = laid('tnx', ratePath, 19, (index) => index < 100 ? 4.5 : 4.1);
+    const regime = buildMarketRegime({ ...input, history: shockRows });
+    const rates = regime.axes.find((row) => row.id === 'rates');
+    assert.ok(rates.decidedBy?.leg === 'speed' && rates.decidedBy.d5 === rates.shock.d5 && rates.decidedBy.line === rates.shock.enterBp && rates.decidedBy.held === false,
+      `v60.18 the rates verdict returns the leg that decided it: ${JSON.stringify(rates.decidedBy)}`);
+    const read = buildMacroRead({ regime, history: shockRows });
+    const tile = read.axes.find((row) => row.id === 'rates');
+    const chain = (await import('../src/domain/macro/macro-chain.js')).buildMacroChain({ regime, history: shockRows });
+    const node = chain.nodes.find((row) => row.id === 'rates');
+    const d5 = `+${Math.round(rates.shock.d5)}bp`;
+    assert.ok(tile.state === 'burden' && tile.headline === `10년물 5거래일 ${d5}` && /5거래일 변화/.test(tile.gauge?.label || ''),
+      `v60.18 the 매크로 rates headline names the 5-session leg that decided 부담: ${tile.headline} | ${tile.gauge?.label}`);
+    assert.ok(node.value === `5거래일 ${d5}` && node.dir === 'up' && chain.links.some((line) => line.startsWith(`10년물 5거래일 ${d5}(20거래일 `)),
+      `v60.18 the chain node and its sentence read the same leg: ${node.value} ${node.dir} | ${chain.links.join(' / ')}`);
+    assert.ok(new RegExp(`10년물 20일 ±25bp 또는 5거래일 \\+${Math.round(rates.decidedBy.shockAt)}bp 이상`).test(chain.legend),
+      `v60.18 the chain legend names the 5-session leg, not only the 20-session rule: ${chain.legend}`);
+    const calm = buildMacroRead({ regime: buildMarketRegime({ ...input, history: laid('tnx', ratePath, 25, (index) => index < 100 ? 4.5 : 4.1) }), history: shockRows });
+    assert.ok(/^10년물 20거래일 /.test(calm.axes.find((row) => row.id === 'rates').headline || ''), 'v60.18 a 중립 rates tile still reads the 20-session change');
+  }
   const heldRange = axisOf(laid('tnx', [4.5, 4.52, 4.54, 4.56, 4.58, 4.6, 4.59, 4.58, 4.57, 4.56], 9, 4.3), 'rates');
   assert.ok(heldRange.state === 'burden' && /1년 범위 90% 이상에서는 5일 상승이 멈추고/.test(heldRange.flip), `v60.16 the 부담 flip names the range-position leg: ${heldRange.flip}`);
   // Volatility: +39% in five sessions to 19.5 is under the floor; to 21 it is 부담 and holds while the spike is not unwound.

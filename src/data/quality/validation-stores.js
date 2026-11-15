@@ -116,6 +116,27 @@ export function installValidationStores(window = globalThis) {
       }
       return true;
     },
+    // The published close's change, per symbol, as the market-snapshot bridge projected it.
+    _published: {},
+    notePublished(sym, close) {
+      const observedMs = Date.parse(close.observedAt || '');
+      if (sym && close.pct != null && Number.isFinite(close.pct) && observedMs) this._published[sym] = { ...close, observedMs, previousClose: close.previousClose > 0 ? close.previousClose : null };
+    },
+    /** The published close's change while a live quote is not observed after that close (same session or older), else null.
+     *  Yahoo spark gave DX-Y.NYB -0.001% at 2026-11-13T21:59:59Z — the published close's own time — against a same-session
+     *  tick, and the home strip printed 0.00% over the completed session's +0.23%. A quote with no observation time cannot
+     *  show it is newer, so the published change stays. */
+    publishedChange(sym, observedAt) {
+      const close = this._published[sym];
+      return close && !(Date.parse(observedAt || '') > close.observedMs) ? close : null;
+    },
+    /** A live quote re-based on the published close it may not replace (publishedChange): { pct, quote }, else null. */
+    heldCloseQuote(q, price) {
+      const close = this.publishedChange(q?.symbol, q?._atomicObservedAt);
+      if (!close) return null;
+      const prev = close.previousClose;
+      return { pct: close.pct, quote: { ...q, regularMarketPreviousClose: prev, chartPreviousClose: prev, regularMarketChange: prev ? price - prev : null, changeBasis: close.changeBasis } };
+    },
     get(sym) {
       const d = this._data[sym];
       if (!d) return null;

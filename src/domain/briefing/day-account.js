@@ -135,7 +135,11 @@ export function buildDayAccount(day, { briefs = null } = {}) {
       // A theme and the sector of the same members are one move: the theme (Korean name) speaks for both.
       const groups = driven.filter((fact, index) => !driven.slice(0, index).some((other) => [...groupMembers(other)].filter((sym) => groupMembers(fact).has(sym)).length >= Math.min(groupMembers(fact).size, groupMembers(other).size) / 2));
       story.title = `${family ? family.name : seed.label} ${seed.change >= 0 ? family?.up || '상승' : family?.down || '하락'}`;
-      const times = Number.isFinite(seed.z) ? `평소 하루 변동의 ${Math.abs(seed.z).toFixed(1)}배입니다.` : '';
+      // A fact the ledger ranked on its five-session leg (sizedBy 'week') says that leg — the day
+      // is the same sign by the rule, and "평소 하루 변동의 0.9배" would not say why it leads.
+      const byWeek = seed.sizedBy === 'week' && Number.isFinite(seed.zWeek) && Number.isFinite(seed.week);
+      const times = byWeek ? `5거래일 ${(seed.changeUnit || seed.unit) === 'bp' ? bp(seed.week) : pct(seed.week)}로 평소 5거래일 변동의 ${Math.abs(seed.zWeek).toFixed(1)}배입니다.`
+        : Number.isFinite(seed.z) ? `평소 하루 변동의 ${Math.abs(seed.z).toFixed(1)}배입니다.` : '';
       // v59.70 (screen review 8): the close date leads, so this day move is not read against a live quote chip or a week figure.
       story.line = `${seed.date ? `${md(seed.date)} 종가 ` : ''}${kin.map((fact) => `${fact.label} ${move(fact)}`).join(', ')}.${times ? (kin.length > 1 ? ` 가장 큰 변화(${seed.label})는 ${times}` : ` ${times}`) : ''}`;
       if (groups.length) story.why.push(`같이 움직인 업종은 ${groups.slice(0, 2).map((fact) => `${fact.label}(${pct(fact.change)})`).join(', ')}입니다.`);
@@ -151,7 +155,7 @@ export function buildDayAccount(day, { briefs = null } = {}) {
       // Leaders already told in an earlier story (MRVL under 광통신 and again under AI 인프라) are not repeated.
       const leaders = moved.slice(0, 3).map((fact) => `${fact.subjects[0]} ${pct(fact.change)}${volTag(fact)}`);
       story.title = `${seed.label} ${seed.change >= 0 ? '상승' : '하락'}`;
-      story.line = `업종 중간값 ${pct(seed.change)}${leaders.length ? `, 크게 움직인 종목은 ${leaders.join(', ')}` : ''}.`;
+      story.line = `업종 중간값 ${pct(seed.change)}${leaders.length ? `, 가장 많이 움직인 종목은 ${leaders.join(', ')}` : ''}.`;
       const drivers = into(seed.id).filter((link) => link.basis === 'driver').map((link) => byId.get(link.from)).filter(Boolean);
       const drivenBy = drivers.map((fact) => claimed.get(fact.id)).find(Boolean);
       if (drivers.length) story.why.push(`${drivers[0].label} ${move(drivers[0])}와 같은 방향입니다.`);

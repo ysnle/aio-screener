@@ -22,5 +22,78 @@
     "metrics": ["IC", "ICIR", "hitRate", "decileSpread", "drawdown", "confidenceInterval"],
     "passAllowedUse": "decision-with-validation",
     "blockedAllowedUse": "research-relative-ranking-only"
+  },
+  "marketLean": {
+    "note": "Declared 2026-11-15 before the first run of scripts/backtest-market-lean.mjs (owner approval the same day): the 시장 기울기 lean shows a direction word (매수 쪽 / 방어 쪽) only for a direction this criterion passes; otherwise it shows the condition counts. Judged by scripts/build-validation-gates.mjs into model-validation-status.json `marketLean`. Not to be changed after reading a result.",
+    "evidenceArtifact": "public-data/market-lean-backtest.json",
+    "horizon": 21,
+    "heldOutFraction": 0.3333,
+    "embargoSessions": 21,
+    "minEffectiveN": 30,
+    "minAxesReconstructed": 4,
+    "interval": {
+      "method": "moving-block bootstrap over the held-out daily series",
+      "blockSessions": 63,
+      "resamples": 2000,
+      "seed": 20261115,
+      "level": 0.95
+    },
+    "directions": {
+      "buy": {
+        "scores": [
+          1,
+          2
+        ],
+        "statistic": "mean 21-session S&P 500 return on buy-lean sessions minus the mean on all sessions of the same span",
+        "pass": "held-out: non-overlapping buy-lean cases >= minEffectiveN and the interval lower bound > 0; in-sample: the point estimate > 0"
+      },
+      "defend": {
+        "scores": [
+          -1,
+          -2
+        ],
+        "statistic": "mean 21-session S&P 500 return on defend-lean sessions minus the mean on all sessions of the same span",
+        "pass": "held-out: non-overlapping defend-lean cases >= minEffectiveN and the interval upper bound < 0; in-sample: the point estimate < 0"
+      }
+    },
+    "reported": [
+      "hit rate beside the base rate",
+      "median",
+      "buy-minus-defend spread with its interval",
+      "5- and 63-session horizons"
+    ],
+    "why": "Against the all-session mean, not zero, because the index drifts up on about two sessions in three and a lean claims a change to that drift. The held-out last third (after an embargo of one horizon) is the judged part because the rule constants were set by hand on the history before it; the in-sample sign must agree so a held-out fluke cannot pass alone. The block bootstrap carries the overlap of 21-session windows and volatility clustering; 63 sessions is three horizons. 30 non-overlapping cases is the evidence-strength full line (src/domain/shared/evidence-strength.js). Each direction is judged on its own because each is its own claim. At least 4 of the 6 axes must be reconstructed (the live rule needs 4 to show a count at all), and the verdict names the axes it ran on."
+  },
+  "marketLeanRisk": {
+    "note": "Declared 2026-11-15 09:33 UTC, before any risk statistic was computed (registered here unchanged from the pre-registration note of that run). Hypothesis: the six-US-axis condition count describes risk, not direction — sessions with more burdened (부담) axes are followed by more frequent deep drawdowns over the next 21 sessions than sessions with none. Study: scripts/backtest-market-lean-risk.mjs on the daily axis states of scripts/backtest-market-lean.mjs replayLean; judged by scripts/build-validation-gates.mjs into model-validation-status.json `marketLean.risk`; the 시장 상태 fold states that verdict. No revision of groups, target, threshold or horizon after results.",
+    "evidenceArtifact": "public-data/market-lean-risk.json",
+    "readings": "the daily axis states of replayLean (live buildMarketRegime on the trailing 420 rows; HY OAS from the session after its date; breadth unknown; credit only the last ~3 years); only sessions where the lean has a count (score != null, >= 4 known axes); burdened count = number of known US axes in state 'burden'",
+    "groups": { "low": "0 burdened axes", "mid": "1 burdened axis", "high": "2 or more burdened axes", "lowBurden": 0, "highBurdenMin": 2 },
+    "horizon": 21,
+    "drawdownPct": -5,
+    "target": "D5 = 1 if the maximum drawdown of the S&P 500 close over the next 21 sessions, measured from the reading day's close (min over k=1..21 of close[i+k]/close[i] - 1), is <= -5%, else 0",
+    "statistic": "P(D5 | HIGH) - P(D5 | LOW), in percentage points, over all daily readings of the span (overlapping windows; the bootstrap handles dependence)",
+    "heldOutFraction": 0.3333,
+    "embargoSessions": 21,
+    "minEffectiveN": 30,
+    "interval": {
+      "method": "moving-block bootstrap over the span's daily series in session order",
+      "blockSessions": 63,
+      "resamples": 2000,
+      "seed": 20261115,
+      "level": 0.95
+    },
+    "split": "held-out = last third of the 21-session readings (the direction harness's splitAt); first two thirds = readings before splitAt - 21 (embargo), further split at its middle reading into halves A and B with a 21-session embargo before B",
+    "pass": [
+      "held-out: HIGH and LOW each have >= 30 non-overlapping cases, and the 95% interval lower bound > 0",
+      "first two thirds: point estimate > 0",
+      "second guard (the held-out third was already looked at, for returns, in the direction test): point estimate > 0 in half A and in half B separately"
+    ],
+    "otherwise": "FAIL (including too few cases)",
+    "reported": [
+      "P(drawdown <= -8%)", "median max drawdown", "realised volatility", "5th percentile and mean of the 21-session return per group",
+      "net-count groups", "drop-one-axis table", "the volatility axis alone and the VIX band", "burdened count among non-volatility axes within volatility-axis strata",
+      "the same targets at 5 and 63 sessions (reference only)"
+    ]
   }
 }

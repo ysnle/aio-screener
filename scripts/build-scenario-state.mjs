@@ -22,6 +22,7 @@ import { withDirectionParticle } from '../src/domain/content/korean-particle.js'
 import { LESSON_BY_ID } from '../src/domain/guide/lessons.js';
 import { scenarioLead } from '../src/domain/market/regime/scenario-lead.js';
 import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
+import { verdictModelFingerprint } from './lib/verdict-model.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PD = (name) => path.join(ROOT, 'public-data', name);
@@ -71,6 +72,19 @@ export function mergeThemeHistory(recorded = [], backfill = null) {
   return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
+/**
+ * A theme whose stage the playbook withheld only because its benchmark's close is a
+ * session behind (row.held, e.g. RSP before the 23:00Z cut while the screener already has the day) keeps the previous
+ * snapshot's stage on its own basis, marked held, so the next read on the common date is compared with the last real one.
+ * Without a previous stage on the same benchmark the withheld row stands as it is.
+ */
+export function heldThemeRow(row, previous) {
+  if (!row?.held) return null;
+  const old = (previous?.themes || []).find((item) => themeKey(item) === themeKey(row));
+  if (!old?.state || !old.benchmark || old.benchmark !== row.held.benchmark) return null;
+  return { ...old, held: { reason: row.held.reason, benchmarkAsOf: row.held.benchmarkAsOf, basis: row.basis || null } };
+}
+
 /** What changed between two snapshots, as plain sentences. */
 export function diffSnapshots(previous, current, at) {
   if (!previous) return [];
@@ -113,6 +127,10 @@ export function diffSnapshots(previous, current, at) {
   const stageMoves = [];
   for (const row of current.themes || []) {
     const old = themesBefore.get(themeKey(row));
+    // A move is logged only between two stages read against the same benchmark; a
+    // row carried over (held) is the previous stage itself, not a reading. A snapshot from before the benchmark was
+    // stamped compares nothing for one refresh.
+    if (!old?.benchmark || old.benchmark !== row.benchmark || row.held) continue;
     // v57.86 (live review): market names in words (no [US]/[KR] codes) and one line per theme move.
     const line = `${row.market === 'KR' ? '한국' : '미국'} ${row.label}: ${THEME_STATES[old?.state]?.split(' (')[0]} → ${THEME_STATES[row.state]?.split(' (')[0]}`;
     if (old && old.state && row.state && old.state !== row.state && !stageMoves.includes(line)) stageMoves.push(line);
@@ -152,7 +170,7 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
     crossroads: { asOf: crossroads.asOf, headline: crossroads.headline, leadId: crossroads.leadId, altId: crossroads.altId, tiedIds: crossroads.tiedIds || [], tension: crossroads.rateHub?.tension || null,
       nextEvent: crossroads.nextEvent, pathsDown: (crossroads.rateHub?.pathsDown || []).map((row) => ({ id: row.id, label: row.label, ok: row.ok })),
       items: (crossroads.items || []).map((item) => ({ id: item.id, title: item.title, met: item.met, total: item.total, known: item.known, fit: item.fit, conditions: item.conditions, pricingTone: item.pricing?.tone || 'unknown', favored: item.favored, pastN: item.past?.n ?? 0, pastSource: item.past?.source || null })) },
-    themes: (playbook.themes || []).map((row) => ({ market: row.market, id: row.id, label: row.label, state: row.state, stateLabel: row.stateLabel, ret5d: row.ret5d ?? null, ret1m: row.ret1m, ret3m: row.ret3m, ret6m: row.ret6m, above50: row.above50, basis: row.basis || null, windLead: row.wind.lead, windAlt: row.wind.alt, favored: row.favored, fit: row.fit })),
+    themes: (playbook.themes || []).map((row) => heldThemeRow(row, previous) || ({ market: row.market, id: row.id, label: row.label, state: row.state, stateLabel: row.stateLabel, ret5d: row.ret5d ?? null, ret1m: row.ret1m, ret3m: row.ret3m, ret6m: row.ret6m, above50: row.above50, basis: row.basis || null, benchmark: row.relative?.field || null, windLead: row.wind.lead, windAlt: row.wind.alt, favored: row.favored, fit: row.fit })),
     rotation: { text: playbook.rotation?.text || '', top: playbook.rotation?.tags?.length >= 2 ? { strong: playbook.rotation.tags[0].label, weak: playbook.rotation.tags.at(-1).label, scope: playbook.rotation.market || null } : null, tags: playbook.rotation?.tags || [] },
     guide: guide?.available ? { asOf: guide.asOf, headline: guide.headline, leadId: guide.leadId, tiedIds: guide.tiedIds || [], robust: guide.direction.robust, split: guide.direction.split,
       tally: guide.direction.tally.map((row) => ({ key: row.key, favoredIn: row.favoredIn, costlyIn: row.costlyIn })), situation: guide.situation, stance: guide.stance,
@@ -167,6 +185,7 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   // session one day ahead was recorded a day late (KR 11/13 on the 11/12 and 11/13 rows, KR 11/12 nowhere).
   const themeHistory = mergeThemeHistory(previous?.themeHistory || [], themeBackfill);
   for (const row of snapshot.themes) {
+    if (row.held) continue; // a carried stage belongs to its own earlier day, which already holds it
     const day = playbook.asOfByMarket?.[row.market] || themeDay;
     if (!day) continue;
     let entry = themeHistory.find((item) => item.date === day);
@@ -186,17 +205,19 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
     themeHistory: themeHistory.sort((a, b) => a.date.localeCompare(b.date)).slice(-MAX_THEME_DAYS)
   };
   // Not part of scenario-state.json (non-enumerable): main() writes it as its own 1 KB artifact.
-  Object.defineProperty(payload, 'todayVerdict', { value: todayVerdictFrom(interpretation.regime, at), enumerable: false });
+  Object.defineProperty(payload, 'todayVerdict', { value: todayVerdictFrom(interpretation.regime, at, verdictModelFingerprint()), enumerable: false });
   return payload;
 }
 
 // First-users F01 (run-5 phone): on slow 3G the 오늘 verdict waited ~40 s for 1.9 MB of scripts and history. The static
 // shell paints this record (the same interpretation the screen computes) until the screen's own render replaces it.
 export const TODAY_VERDICT_SCHEMA = 'today-verdict.v1';
-export function todayVerdictFrom(regime, at) {
+// v60.18 (weekly audit D7): `model` names the code that computed it (scripts/lib/verdict-model.mjs), so a record written by
+// older rules is visible beside the screen's recomputation instead of a silent 1/4/1 next to 1/3/2.
+export function todayVerdictFrom(regime, at, model = null) {
   if (!regime?.available || !regime.overall || !regime.asOf) return null;
   return { schemaVersion: TODAY_VERDICT_SCHEMA, generatedAt: at, asOf: regime.asOf, overall: regime.overall,
-    heroLine: regime.heroLine || '', holdReason: regime.holdReason || null, counts: regime.counts || null };
+    heroLine: regime.heroLine || '', holdReason: regime.holdReason || null, counts: regime.counts || null, model };
 }
 
 async function main() {

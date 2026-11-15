@@ -17,6 +17,8 @@ import { CHOICES } from '../../domain/market/regime/macro-crossroads.js';
 import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { stageChoiceText, LEAD_CONFIRM_MET, ABOVE50_FLOOR } from '../../domain/scenarios/theme-playbook.js';
+import { GROUND_LABELS, themeDecisionFrame } from '../../domain/scenarios/decision-frame.js';
+import { decisionFrameBlock, favouredLine } from './decision-frame.js';
 
 const CREDIT_CONDITION = '신용 안정';
 const CHOICE_TEXT_OF = (state) => stageChoiceText(state);
@@ -35,7 +37,8 @@ function stageChoiceTable(doc, stage, list) {
     const favored = list.filter((row) => row.favored.includes(key)).length;
     if (favored) line.dataset.favored = 'true';
     line.append(el(doc, 'span', CHOICES[key], 'xr-choice-name'), el(doc, 'span', text, 'xr-choice-text'));
-    if (favored) line.append(el(doc, 'span', favored === list.length ? CHOICE_WORDS.favored : `${CHOICE_WORDS.favored}, ${favored}개 테마`, 'xr-choice-flag'));
+    // A stage-level tally of the rule table is a cost hypothesis by construction.
+    if (favored) line.append(el(doc, 'span', `${favored === list.length ? CHOICE_WORDS.favored : `${CHOICE_WORDS.favored}, ${favored}개 테마`} · ${GROUND_LABELS['cost-hypothesis']}`, 'xr-choice-flag'));
     table.append(line);
   }
   wrap.append(table);
@@ -358,8 +361,13 @@ function themeCard(doc, root, row, screenerSector = null, { change = null, teach
   // v58.75 (persona review): each condition's definition was repeated in every card (15 times for 긴 추세 앞섬); the card
   // keeps the condition name and its result, the definitions sit once in 판정 규칙.
   const own = row.basisText.filter((text) => !text.startsWith(CREDIT_CONDITION)).map((text) => text.replace(/ \([^)]*\)/, ''));
-  evidence.append(el(doc, 'li', !row.state ? '조건: 단계가 보류돼 조건을 세지 않습니다.' : `조건: ${row.fit}${own.length ? ` — ${own.join(', ')}` : ''}`), pastLine(doc, row));
+  // The stage's past record is the frame's 가능성 line, beside its payoff, cost and ground.
+  const frame = themeDecisionFrame(row, { cash: marketInterpretation(root)?.crossroads?.cash || null });
+  evidence.append(el(doc, 'li', !row.state ? '조건: 단계가 보류돼 조건을 세지 않습니다.' : `조건: ${row.fit}${own.length ? ` — ${own.join(', ')}` : ''}`));
+  if (!frame) evidence.append(pastLine(doc, row));
   card.append(el(doc, 'h4', '판단 근거', 'xr-h4'), evidence);
+  const frameBlock = frame ? decisionFrameBlock(doc, frame, { method: row.past, side: false }) : null;
+  if (frameBlock) card.append(frameBlock);
   if (row.thesis) {
     card.append(el(doc, 'h4', '핵심 논리와 점검 신호', 'xr-h4'), el(doc, 'p', `${row.thesis}. 논리가 깨지는 신호: ${row.breaks.join(', ')}.`, 'xr-reading'));
   }
@@ -379,7 +387,7 @@ function themeCard(doc, root, row, screenerSector = null, { change = null, teach
   }
   if (ownChoices.length) card.append(table);
   // The comparison rests on the scenario; where the stage's own record did not differ from an ordinary day, it says so.
-  card.append(el(doc, 'p', `${CHOICE_WORDS.favored}: ${row.favored.map((key) => CHOICES[key]).join(', ') || '보류'} — ${row.favoredWhy}${row.pastInformative === false ? ' 뚜렷한 우위가 아니라 시나리오가 맞을 때의 비교입니다.' : ''}`, 'xr-reading'));
+  card.append(favouredLine(doc, frame) || el(doc, 'p', `${CHOICE_WORDS.favored}: 보류 — ${row.favoredWhy}`, 'xr-reading'));
   return themeCardTail(doc, root, row, card, screenerSector);
 }
 
@@ -613,7 +621,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
     const choiceLine = stage === 'held' ? '' : [...counts].sort((a, b) => b[1] - a[1]).map(([key, n]) => `${key ? key.split('+').map((k) => CHOICES[k].split(' (')[0]).join('·') : '보류'} ${n}개`).join(', ');
     const definition = THEME_STATES[stage]?.match(/\((.*)\)$/)?.[1];
     stageCell.append(el(doc, 'span', `${stage === 'held' ? '판정 보류' : stageName(stage)}, ${list.length}개`, 'tp-stage-name'),
-      el(doc, 'span', `${definition ? `${definition}.` : '단계 판정의 조건이 맞지 않아 보류한 테마입니다(이유는 행을 눌러 확인).'}${choiceLine ? ` 조건별 득실로 ${CHOICE_WORDS.favored}: ${choiceLine}.` : ''}`, 'tp-stage-note'));
+      el(doc, 'span', `${definition ? `${definition}.` : '단계 판정의 조건이 맞지 않아 보류한 테마입니다(이유는 행을 눌러 확인).'}${choiceLine ? ` 조건별 득실로 ${CHOICE_WORDS.favored}(${GROUND_LABELS['cost-hypothesis']}): ${choiceLine}.` : ''}`, 'tp-stage-note'));
     if (stage !== 'held') {
       const fold = el(doc, 'details', null, 'tp-stage-choices-fold');
       fold.dataset.stage = `${market}:${stage}`;
@@ -750,6 +758,7 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
   const row = themeId ? root?.__aioThemePlaybook?.themes?.find((item) => item.market === 'US' && item.id === themeId) : null;
   host.hidden = !row;
   if (!row) { host.replaceChildren(); return null; }
+  const detailFrame = themeDecisionFrame(row, { cash: marketInterpretation(root)?.crossroads?.cash || null });
   const link = (label, onClick) => { const b = el(doc, 'button', `${label} →`, 'flow-next-link'); b.type = 'button'; b.addEventListener('click', onClick); return b; };
   const links = el(doc, 'div', null, 'xr-explore');
   // v59.51: the detail is a view of its own, so the comparison link closes it before scrolling to the section.
@@ -773,7 +782,8 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
     Object.assign(el(doc, 'p', [row.ret5d != null ? `5거래일 ${pct(row.ret5d)}` : null, `1개월 ${pct(row.ret1m)}`, row.ret6m != null ? `6개월 ${pct(row.ret6m)}` : null, row.fit].filter(Boolean).join(', '), 'xr-basis'), { title: row.stateLabel }),
     // v59.51 (two layers): this read sits in the expert fold, so the RRG-vs-stage basis is printed, not a hover.
     ...(conflict ? [el(doc, 'p', `RRG ${conflict.etf} '${conflict.word}', 단계 '${conflict.stage}' — ${rrgBasisText(row.relative?.name)}.`, 'xr-reading tp-rrg-fact')] : []),
-    el(doc, 'p', `매크로 영향: ${row.windText}. ${CHOICE_WORDS.favored}: ${row.favored.map((key) => CHOICES[key]).join(', ') || '판단 보류'} — ${row.favoredWhy}`, 'xr-reading'),
+    el(doc, 'p', `매크로 영향: ${row.windText}.`, 'xr-reading'),
+    ...[detailFrame ? decisionFrameBlock(doc, detailFrame, { method: row.past }) : el(doc, 'p', `${CHOICE_WORDS.favored}: 판단 보류 — ${row.favoredWhy}`, 'xr-reading')].filter(Boolean),
     ...(row.thesis ? [el(doc, 'p', `핵심 논리: ${row.thesis}. 점검 신호: ${row.breaks.join(', ')}.`, 'xr-reading')] : []),
     // v59.51 (R724): the participation share as a criterion — what a high or low share means — not which members to check first.
     ...(row.above50 != null ? [el(doc, 'p', row.above50 === 0

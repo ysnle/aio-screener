@@ -15,12 +15,14 @@ import { creditJudgement, creditReading, creditFlip, cccTailLine } from '../brie
 import { dollarRiseBurden } from '../briefing/market-read.js';
 import { claimsTrend, coreInflationRead, monthChangeAt, monthIndex, monthOverMonth, sahmGap, yoySeries } from './macro-read.js';
 import { policyCycle } from './macro-signals.js';
+import { fedTargetRange } from './fed-target-range.js';
 import { formatKstWhen, releaseAtMs } from '../briefing/schedule.js';
 import { volatilityChapter } from './volatility.js';
+import { closeMoveGrade } from '../market/session/move-size.js';
 
 // v59.56: the shared signedText, so a 20-session +0.04% prints 0.0%, never '+0.0%'.
 const signed = (value, digits = 2, unit = '%') => signedText(value, digits, unit);
-const bp = (value) => `${value > 0 ? '+' : ''}${Math.round(value)}bp`;
+const bp = (value) => signedText(value, 0, 'bp');
 
 function series(macroHistory, id) {
   return (macroHistory?.series?.[id]?.observations || []).filter(([day, value]) => day && readNumber(value) !== null).map(([day, value]) => ({ date: day, value: Number(value) }));
@@ -44,7 +46,8 @@ const WINDOW = MARKET_WINDOWS.rule;
 const shortDay = (date) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`;
 function historySpan(history, field) {
   const change = closeChange(history, field, WINDOW);
-  return change ? { from: change.from.value, to: change.to.value, pct: change.pct } : null;
+  // grade: the move against the series' own volatility (move-size.js), the one source of every size word below.
+  return change ? { from: change.from.value, to: change.to.value, pct: change.pct, grade: closeMoveGrade(history, field, change.pct, { sessions: WINDOW, through: change.to.date }) } : null;
 }
 // FRED daily observations; `through` cuts every leg of a decomposition at one common date.
 function macroChange(macroHistory, id, through = null) {
@@ -106,7 +109,7 @@ function inflation(macroHistory, events) {
     mean: `${turn}. ${hot}.${service}`,
     next: whenOf(next) || '발표 일정을 확인하지 못했습니다',
     flip: `근원 PCE·CPI의 3개월 연율이 함께 1년치보다 ${I.reaccelPp}%p 이상 빨라지면 재가속, 함께 그만큼 느려지면 둔화로 정해집니다 — 월 +0.2% 이하가 이어지면 3개월 연율은 약 2.4% 아래로 내려옵니다.`,
-    detail: [['근원 CPI 전월비', cpiMom ? `${signed(cpiMom.value)} (${monthName(cpiMom.date)})` : '—'], ['주거비 CPI', shelter ? signed(shelter.value) : '—'], ['주거비 제외 서비스', supercore ? signed(supercore.value) : '—'], ['근원 CPI 3개월 연율', core.coreCpiPace ? `${core.coreCpiPace.value.toFixed(1)}% (${monthName(core.coreCpiPace.date)}${core.coreCpiYoy ? `, 1년치 ${core.coreCpiYoy.value.toFixed(1)}%${core.coreCpiYoy.note}` : ', 같은 달 1년치 없음'})` : '—'], [core.directionLabel || '물가 방향 (PCE·CPI)', d.label || '—']]
+    detail: [['근원 CPI 전월비', cpiMom ? `${signed(cpiMom.value)} (${monthName(cpiMom.date)})` : '—'], ['주거비 CPI', shelter ? signed(shelter.value) : '—'], ['주거비 제외 서비스', supercore ? signed(supercore.value) : '—'], ['근원 CPI 3개월 연율', core.coreCpiPace ? `${core.coreCpiPace.value.toFixed(1)}% (${monthName(core.coreCpiPace.date)}${core.coreCpiYoy ? `, ${core.coreCpiYoy.derived ? core.coreCpiYoy.label : '1년치'} ${core.coreCpiYoy.value.toFixed(1)}%${core.coreCpiYoy.note}` : ', 같은 달 1년치 없음'})` : '—'], [core.directionLabel || '물가 방향 (PCE·CPI)', d.label || '—']]
   };
 }
 
@@ -134,7 +137,7 @@ function labor(macroHistory, events) {
   const shape = recession ? `실업률 3개월 평균이 1년 저점보다 ${sahm.value.toFixed(2)}%p 높아 Sahm 경기침체 신호(${G.sahmRecessionAt}%p)를 넘었습니다`
     : layoffs ? `실업수당 청구(4주 평균)가 1년 저점보다 ${Math.round(claims.aboveLow)}% 늘어 해고가 늘고 있습니다. 둔화가 침체 쪽으로 옮겨 가는지 봐야 합니다`
       : watch ? `실업률이나 실업수당 청구가 1년 저점에서 올라오기 시작해 주의 구간입니다(Sahm ${sahm ? sahm.value.toFixed(2) : '—'}%p, 침체 신호 ${G.sahmRecessionAt}%p 전)`
-        : avg3 < G.payrollSolidK ? '채용은 크게 줄었지만 해고는 늘지 않았습니다. "덜 뽑는 둔화"이지 "자르는 침체"는 아직 아닙니다' : '고용이 꾸준히 늘어 경기 걱정은 크지 않습니다';
+        : avg3 < G.payrollSolidK ? `일자리 증가가 3개월 평균 ${G.payrollSolidK / 10}만 명 아래로 줄었지만 해고는 늘지 않았습니다. "덜 뽑는 둔화"이지 "자르는 침체"는 아직 아닙니다` : '고용이 꾸준히 늘어 경기 걱정은 크지 않습니다';
   // below the natural-rate estimate the market is still tight — the reason strong jobs keep rates high, not only growth.
   const tight = natural && rate.value < natural.value && !recession && !layoffs ? ` 실업률(${rate.value.toFixed(1)}%)이 자연실업률 추정(${natural.value.toFixed(1)}%)보다 낮아 노동시장은 아직 빠듯한 쪽입니다.` : '';
   const next = nextOf(events, ['us-nfp']);
@@ -198,7 +201,7 @@ function rates(macroHistory, events, history = []) {
   // term premium, so a direction, not a count of priced moves); the word follows the 2-year on the policy axis's line.
   const latest = (id) => series(macroHistory, id).at(-1) || null;
   const upper = latest('fedTargetUpper'); const lower = latest('fedTargetLower');
-  const mid = upper && lower ? (upper.value + lower.value) / 2 : null;
+  const mid = fedTargetRange(lower?.value, upper?.value, lower?.date, upper?.date)?.mid ?? null; // both bounds of one date
   const legs = mid == null ? [] : [['6개월', latest('dgs6mo')], ['1년', latest('dgs1')], ['2년', latest('dgs2')]].filter(([, row]) => row).map(([name, row]) => [name, (row.value - mid) * 100]);
   const gap2 = legs.find(([name]) => name === '2년')?.[1] ?? null;
   const pathLine = RULES.policy.pricedMovePp * 100;
@@ -243,9 +246,10 @@ function oil(history, macroHistory) {
   // used ±10% for the headline and 5% for 'moved', so WTI -7.3% read '움직이지 않았습니다' and '유가를 물가에 반영' together,
   // and Brent -6.1% beside WTI -1.1% was ignored.
   const div = brent ? { held: !!check.held, kind: check.kind, text: check.text } : { held: false, kind: null, text: null };
-  const lead = !div.held ? { name: 'WTI', pct: wti.pct } : ['brent-led', 'brent-rise'].includes(div.kind) ? { name: '브렌트', pct: brent.pct } : null;
+  const lead = !div.held ? { name: 'WTI', pct: wti.pct, grade: wti.grade } : ['brent-led', 'brent-rise'].includes(div.kind)
+    ? { name: '브렌트', pct: brent.pct, grade: closeMoveGrade(history, 'brent', brent.pct, { sessions: WINDOW, through: brent.date }) } : null;
   const read = !lead ? `두 유가가 엇갈려 한쪽으로 읽지 않습니다 — ${String(div.text || '').replace(/^20거래일 /, '').replace(/\.$/, '')}`
-    : lead.pct >= O.rise20dPct ? `유가(${lead.name} ${signed(lead.pct, 1)})가 크게 올라 다음 달 헤드라인 물가를 밀어 올리고 소비 여력은 줄입니다`
+    : lead.pct >= O.rise20dPct ? `유가(${lead.name} ${signed(lead.pct, 1)})가 ${lead.grade === 'large' ? '크게 ' : ''}올라 다음 달 헤드라인 물가를 밀어 올리고 소비 여력은 줄입니다`
       : lead.pct <= O.fall20dPct ? `유가(${lead.name} ${signed(lead.pct, 1)})가 내려 물가 부담은 줄지만, 공급이 아니라 수요가 줄어서라면 경기 둔화 신호입니다`
         : lead.pct >= C.oil20dPct ? `유가(${lead.name} ${signed(lead.pct, 1)})가 올랐지만 물가 경로를 바꿀 폭(+${O.rise20dPct}%)에는 못 미칩니다`
           : '유가는 물가 경로를 바꿀 만큼 움직이지 않았습니다';
@@ -257,7 +261,7 @@ function oil(history, macroHistory) {
     // The gauge is the 10-year breakeven (no 5-year series is collected); it reacts less to oil than shorter ones, so a
     // quiet reading says only that oil has not reached long-run expectations.
     : !oilMoved ? (beMoved ? ` 10년 기대인플레는 ${bp(be.bp)} 움직였지만 유가 때문은 아닙니다 — 물가 발표나 성장 걱정 쪽에서 원인을 찾습니다.` : '')
-      : !beMoved ? ` 10년 기대인플레는 ${bp(be.bp)}로 크게 움직이지 않았습니다 — 유가가 장기 물가 기대까지 옮겨 가지는 않았습니다.`
+      : !beMoved ? ` 10년 기대인플레는 ${bp(be.bp)}로 판정 기준(${C.rate20dBp}bp) 안입니다 — 유가가 장기 물가 기대까지 옮겨 가지는 않았습니다.`
         : sameWay ? ` 10년 기대인플레도 ${bp(be.bp)} 같은 쪽으로 움직여 채권시장이 유가를 물가에 반영하고 있습니다.`
           : ` 10년 기대인플레는 반대로 ${bp(be.bp)} 움직여, 채권시장은 유가보다 다른 요인(성장 걱정 등)을 더 크게 봅니다.`;
   // Brent carries the seaborne/Middle East premium WTI does not; the two drifting apart says which supply story moved.
@@ -265,8 +269,8 @@ function oil(history, macroHistory) {
   const gap = brent ? brent.pct - brent.wtiPct : null;
   const asOf = brent && wtiDate && brent.date !== wtiDate ? `${Number(brent.date.slice(5, 7))}/${Number(brent.date.slice(8, 10))} 종가 기준 ` : '';
   const spread = !lead || gap == null || Math.abs(gap) < C.oil20dPct ? ''
-    : gap < 0 ? ` ${asOf}브렌트(${signed(brent.pct, 1)})가 WTI(${signed(brent.wtiPct, 1)})보다 크게 내려, 중동·해상 운송 같은 해외 공급 위험의 값이 빠졌습니다.`
-      : ` ${asOf}브렌트(${signed(brent.pct, 1)})가 WTI(${signed(brent.wtiPct, 1)})보다 크게 올라, 중동·해상 운송 같은 해외 공급 위험의 값이 붙었습니다.`;
+    : gap < 0 ? ` ${asOf}브렌트(${signed(brent.pct, 1)})가 WTI(${signed(brent.wtiPct, 1)})보다 더 내려, 중동·해상 운송 같은 해외 공급 위험의 값이 빠졌습니다.`
+      : ` ${asOf}브렌트(${signed(brent.pct, 1)})가 WTI(${signed(brent.wtiPct, 1)})보다 더 올라, 중동·해상 운송 같은 해외 공급 위험의 값이 붙었습니다.`;
   return {
     id: 'oil', title: '유가 — 물가와 경기 사이', question: '유가가 보내는 물가 신호와 경기 신호',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: 'WTI', value: wti.pct, hot: !lead || lead.name === 'WTI' }, brent ? { x: '브렌트', value: brent.pct, hot: lead?.name === '브렌트' } : null].filter(Boolean) },
@@ -311,7 +315,8 @@ const GOLD_EXCESS = 2;
 export function goldRead(gold, real, dollar) {
   const C = RULES.crossAsset;
   const g = gold.pct; const r = real ? real.bp : null; const d = dollar ? dollar.pct : null;
-  if (Math.abs(g) < C.gold20dPct) return `금은 20거래일 ${signed(g, 1)}로 크게 움직이지 않았습니다.`;
+  // The cross-asset lines are attribution lines (which leg counts), not a size word: the sentence names the line.
+  if (Math.abs(g) < C.gold20dPct) return `금은 20거래일 ${signed(g, 1)}로 금리·달러와 견주는 기준(±${C.gold20dPct}%) 안입니다.`;
   const up = g > 0;
   const rateMoved = r != null && Math.abs(r) >= C.rate20dBp;
   const dollarMoved = d != null && Math.abs(d) >= C.dollar20dPct;
@@ -329,8 +334,8 @@ export function goldRead(gold, real, dollar) {
       ? `실질금리가 ${bp(r)} 올랐는데도 금이 ${signed(g, 1)} 올랐습니다 — 금리로 설명되지 않는 안전자산·중앙은행 매수 쪽 수요입니다.`
       : `실질금리가 ${bp(r)} 내렸는데도 금은 ${signed(g, 1)} 빠졌습니다 — 금리·달러로는 설명되지 않아, 많이 오른 자산부터 줄이는 포지션 정리 쪽으로 읽습니다(추정).`;
   }
-  return up ? `실질금리·달러가 크게 움직이지 않았는데 금이 ${signed(g, 1)} 올라 안전자산이나 중앙은행 매수 쪽입니다.`
-    : `실질금리·달러가 크게 움직이지 않았는데 금이 ${signed(g, 1)} 빠져 포지션 정리 쪽입니다(추정).`;
+  return up ? `실질금리·달러가 기준(${C.rate20dBp}bp, ${C.dollar20dPct}%) 안에서 움직였는데 금이 ${signed(g, 1)} 올라 안전자산이나 중앙은행 매수 쪽입니다.`
+    : `실질금리·달러가 기준(${C.rate20dBp}bp, ${C.dollar20dPct}%) 안에서 움직였는데 금이 ${signed(g, 1)} 빠져 포지션 정리 쪽입니다(추정).`;
 }
 
 function dollarChapter(history, macroHistory = null) {
@@ -349,8 +354,10 @@ function dollarChapter(history, macroHistory = null) {
     // Only what was computed: the 1-year position when it exists, otherwise that the range could not be read.
     : dxy.pct >= D.rise20dPct ? `달러가 ${signed(dxy.pct, 1)} 올랐지만 ${position == null ? '1년 범위를 확인하지 못해 범위 조건은 보지 않았고' : `1년 범위의 ${Math.round(position * 100)}% 위치로 상위 ${Math.round((1 - D.rangeHighAt) * 100)}%가 아니라`} 부담 기준(+${D.rise20dPct + D.bufferPct}%)에는 못 미칩니다`
       : dxy.pct <= D.fall20dPct ? '달러가 약해져 미국 밖 자산과 원자재에 우호적인 쪽입니다' : `달러는 20거래일 ${signed(dxy.pct, 1)}로 부담 기준(+${D.rise20dPct}%) 안쪽입니다`;
-  const carry = jpy && jpy.pct <= -3 ? ' 엔화가 빠르게 강해져(엔/달러 하락) 낮은 엔화 금리로 빌린 돈이 되돌아가는지(캐리 청산) 봐야 합니다.' : '';
-  const won = krw ? wonMoveSentence(krw.pct, { dxy20: dxy.pct }) : ''; // v59.76: one reading with the 성장·한국 chapter
+  // The 환율 axis's yen-rally line (RULES.fx.yenRally20dPct) decides when the carry check is worth naming; the size word
+  // comes from the yen's own volatility.
+  const carry = jpy && jpy.pct <= -RULES.fx.yenRally20dPct ? ` 엔화가 ${jpy.grade === 'large' ? '빠르게 ' : ''}강해져(엔/달러 ${signed(jpy.pct, 1)}) 낮은 엔화 금리로 빌린 돈이 되돌아가는지(캐리 청산) 봐야 합니다.` : '';
+  const won = krw ? wonMoveSentence(krw.pct, { dxy20: dxy.pct, grade: krw.grade }) : ''; // v59.76: one reading with the 성장·한국 chapter
   return {
     id: 'dollar', title: '달러 · 환율 — 세계 돈줄의 방향', question: '달러가 세계 유동성을 조이는지 푸는지',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: '달러지수', value: dxy.pct, hot: true }, jpy ? { x: '엔/달러', value: jpy.pct } : null, krw ? { x: '원/달러', value: krw.pct } : null].filter(Boolean) },
@@ -474,7 +481,7 @@ function growthKorea(macroHistory, history, events) {
   if (!kospi && !sentiment) return null;
   const korea = kospi && semis && Math.abs(kospi.pct - semis.pct) < 4 && Math.abs(semis.pct) >= 5 ? `코스피(${signed(kospi.pct, 1)})가 미국 반도체(SOXX ${signed(semis.pct, 1)})와 같은 폭으로 움직여, 한국은 AI 반도체 업황에 묶여 있습니다`
     : kospi ? `코스피는 20거래일 ${signed(kospi.pct, 1)}입니다` : '';
-  const won = krw ? wonMoveSentence(krw.pct, { dxy20: historySpan(history, 'dxy')?.pct ?? null }) : '';
+  const won = krw ? wonMoveSentence(krw.pct, { dxy20: historySpan(history, 'dxy')?.pct ?? null, grade: krw.grade }) : '';
   const next = nextOf(events, ['us-retail']);
   const spending = !retail ? ''
     // the wording follows the real change itself: near flat reads 버티는 정도, below it 줄었습니다, clearly above it 늘었다.

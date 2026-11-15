@@ -240,6 +240,86 @@ export function serverNewsHeadlineMonthStale(headline, nowMs = Date.now()) {
   return ((current - named + 12) % 12) >= 2 && ((current - named + 12) % 12) <= 6;
 }
 const SERVER_NEWS_POLITICS_MARKET_RE = /\b(stocks?|markets?|investors?|wall street|economy|economic|tax(?:es)?|spending|deficit|tariffs?|data cent(?:er|re)s?|energy|oil|fed)\b/i;
+
+// v60.18 (weekly audit 11/09-11/15): what an item is about, not how many keywords it hits.
+// - Rules that name a subject (rates, chips, a company's earnings...) count once: the strongest one scores, a second distinct
+//   subject adds CROSS_SUBJECT_POINTS. Summing every hit let "Nvidia Stock Falls as Citi Trims Price Target Ahead of Earnings"
+//   (analyst + chips + mega-cap + earnings + "stock") outrank the CPI-day market story on 11/10 (84 vs 59-69).
+// - Broad market vocabulary (CONTEXT_RULES) is context, not a subject: it keeps an article above the topic floor but is not
+//   one of the two subjects a tier-3 headline needs. "Dollar rate in Pakistan today … open market Rs279.50" passed that rule on
+//   11/14 through "dollar" + "market" and took a 거시 floor seat.
+// - A headline whose subject is the market as a whole moving (index, the market, yields) or that names a release scheduled
+//   for its day (the macro calendar) is what explains the session, and ranks above a single-name note.
+export const NEWS_RANKING_RULE = 'subject-session-v1'; // published as meta.newsRankingRule
+const CONTEXT_RULES = new Set(['market-general']);
+const CROSS_SUBJECT_POINTS = 4;
+const MARKET_SCOPE_POINTS = 10;
+const SCHEDULED_EVENT_POINTS = 8;
+const MARKET_SCOPE_RE = new RegExp([
+  String.raw`(?:(?:^|\b(?:u\.s\.|us|global|asian|european|world|chip|tech|bank)\s)stocks|\b(?:wall st(?:reet)?|s&p 500|nasdaq|dow(?: jones)?|equities|stock market|markets|treasur(?:y|ies)|bond yields?|(?:10|30)-year(?: treasury)? yields?))\b[^|]{0,40}\b(?:rall(?:y|ies|ied)|rebound(?:s|ed)?|u-turn|slump(?:s|ed)?|slides?|slid|tumble[sd]?|plunge[sd]?|surge[sd]?|sinks?|sank|falls?|fell|drops?|dropped|rises?|rose|climb(?:s|ed)?|gain(?:s|ed)?|jump(?:s|ed)?|mixed|sell-?off|rout|nears?|tops?|hits?|wrap)\b`,
+  // a group of stocks moving together ("sparks AI cloud stock rally", "chip stock selloff"), not one name rising
+  String.raw`\bstocks? (?:rall(?:y|ies)|sell-?off|rout|slump|plunge|surge)\b`,
+  String.raw`(?:뉴욕증시|美\s?증시|미\s?증시|코스피|코스닥|증시|국채\s?금리|장기\s?금리)[^|]{0,24}(?:급등|급락|반등|하락|상승|약세|강세|출렁|마감|최고|최저)`
+].join('|'), 'i');
+// Release names per macro-calendar schedule id (public-data/macro-calendar.json `schedules`).
+const SCHEDULED_EVENT_NAMES = Object.freeze({
+  'us-cpi': /\b(?:cpi|consumer prices?|inflation (?:report|data|reading))\b|소비자\s?물가|물가/i,
+  'us-nfp': /\b(?:payrolls?|jobs report|nonfarm|unemployment rate)\b|고용\s?(?:지표|보고서)|실업률/i,
+  'us-pce': /\bpce\b|개인소비지출/i,
+  'us-retail': /\bretail sales\b|소매\s?판매/i,
+  'us-fomc': /\b(?:fomc|fed (?:decision|meeting|holds|cuts|raises|hikes)|rate decision|powell)\b|금리\s?결정|파월/i,
+  'us-ism-mfg': /\b(?:ism|pmi)\b|구매관리자/i,
+  'us-ism-svc': /\b(?:ism|pmi)\b|구매관리자/i,
+});
+const NY_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' });
+const nyDate = (ms) => NY_DATE.format(new Date(ms));
+/** Schedule ids whose date is the item's New York publication date. */
+export function scheduledEventsOn(schedules, ms) {
+  if (!schedules || !Number.isFinite(ms) || ms <= 0) return [];
+  const day = nyDate(ms);
+  return Object.entries(schedules).filter(([id, dates]) => SCHEDULED_EVENT_NAMES[id] && Array.isArray(dates) && dates.includes(day)).map(([id]) => id);
+}
+
+// Session clock (weekdays; holidays are not modelled: on one the "session" is empty and only the gradient shifts by a day).
+// US cash session 09:30-16:00 New York, Korean 09:00-15:30 KST.
+function nyOffsetHours(y, m, d) {
+  const hourAtNoonUtc = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', hourCycle: 'h23' }).format(new Date(Date.UTC(y, m, d, 12))));
+  return 12 - hourAtNoonUtc;
+}
+function sessionOn(market, y, m, d) {
+  const weekday = new Date(Date.UTC(y, m, d)).getUTCDay();
+  if (weekday === 0 || weekday === 6) return null;
+  if (market === 'kr') return { openMs: Date.UTC(y, m, d, 0, 0), closeMs: Date.UTC(y, m, d, 6, 30) };
+  const offset = nyOffsetHours(y, m, d);
+  return { openMs: Date.UTC(y, m, d, 9 + offset, 30), closeMs: Date.UTC(y, m, d, 16 + offset, 0) };
+}
+/** The latest session of `market` that opened at or before `anchorMs`, and the one before it. */
+export function latestNewsSessions(market, anchorMs) {
+  const found = [];
+  const start = new Date(anchorMs + (market === 'kr' ? KST_OFFSET_MS : 0));
+  for (let back = 0; back < 10 && found.length < 2; back += 1) {
+    const day = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate() - back));
+    const session = sessionOn(market, day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate());
+    if (session && session.openMs <= anchorMs) found.push(session);
+  }
+  return { current: found[0] || null, previous: found[1] || null };
+}
+/**
+ * Recency against the session the item covers, not hours before the cut: coverage after the latest session's close (the
+ * wrap) 18, during it 15, between it and the previous close (pre-market, the other market's hours, a 08:30 ET release) 10,
+ * during the previous session 4, older 2 within 48 h and -8 beyond.
+ */
+export function newsSessionRecency(ts, anchorMs, market = 'us') {
+  if (!(ts > 0) || !Number.isFinite(anchorMs)) return 2;
+  if (ts > anchorMs) return 18;
+  const { current, previous } = latestNewsSessions(market === 'kr' ? 'kr' : 'us', anchorMs);
+  if (current && ts >= current.closeMs && current.closeMs <= anchorMs) return 18;
+  if (current && ts >= current.openMs) return 15;
+  if (previous && ts >= previous.closeMs) return 10;
+  if (previous && ts >= previous.openMs) return 4;
+  return (anchorMs - ts) / 3600000 <= 48 ? 2 : -8;
+}
+
 export function scoreServerNewsItem(item) {
   // 2026-10-19 data audit: Google's raw title ends in " - <publisher>", so "… - Anthropic" or "… - Egypt Oil & Gas"
   // matched topic rules through the publisher's name (H04: topic evidence is the headline alone).
@@ -258,24 +338,33 @@ export function scoreServerNewsItem(item) {
   score += tierBonus;
   reasons.push(`source-tier${sourceTier}${tierBonus >= 0 ? '+' : ''}${tierBonus}`);
 
-  const ageH = item.ts ? ((item.scoringNowMs || Date.now()) - item.ts) / 3600000 : 48;
-  const recency = ageH <= 1 ? 18 : ageH <= 6 ? 12 : ageH <= 24 ? 6 : ageH <= 48 ? 2 : -8;
+  const recency = newsSessionRecency(item.ts, item.scoringNowMs || Date.now(), item.country === 'kr' || item.topic === 'kr' ? 'kr' : 'us');
   score += recency;
   reasons.push(`recency${recency >= 0 ? '+' : ''}${recency}`);
 
-  let topicHits = 0;
-  for (const rule of [...SERVER_NEWS_PRIORITY_RULES, ...SERVER_NEWS_PRIORITY_RULES_KO]) {
-    if (rule.re.test(headline)) {
-      score += rule.points;
-      topicHits += 1;
-      reasons.push(`${rule.label}+${rule.points}`);
-    }
+  const matched = [...SERVER_NEWS_PRIORITY_RULES, ...SERVER_NEWS_PRIORITY_RULES_KO].filter((rule) => rule.re.test(headline));
+  const subjects = matched.filter((rule) => !CONTEXT_RULES.has(rule.label)).sort((a, b) => b.points - a.points);
+  const context = matched.filter((rule) => CONTEXT_RULES.has(rule.label));
+  let topicHits = matched.length;
+  let subjectHits = subjects.length;
+  if (subjects.length) {
+    score += subjects[0].points;
+    reasons.push(`${subjects[0].label}+${subjects[0].points}`);
+    if (subjects.length >= 2) { score += CROSS_SUBJECT_POINTS; reasons.push(`cross-subject+${CROSS_SUBJECT_POINTS}`); }
+    for (const rule of [...subjects.slice(1), ...context]) reasons.push(`${rule.label}+0`);
+  } else if (context.length) {
+    score += context[0].points;
+    reasons.push(`${context[0].label}+${context[0].points}`);
   }
   // 2026-10-19 data audit: the 10/19 bundle carried a county voting guide, a senate rally and a protest under the
   // midterm rule alone. An election headline is market news only when it also names a market topic.
-  if (topicHits === 1 && /politics-elections\+/.test(reasons[reasons.length - 1]) && !SERVER_NEWS_POLITICS_MARKET_RE.test(headline)) topicHits = 0;
+  if (matched.length === 1 && matched[0].label === 'politics-elections' && !SERVER_NEWS_POLITICS_MARKET_RE.test(headline)) { topicHits = 0; subjectHits = 0; }
+  if (topicHits > 0 && MARKET_SCOPE_RE.test(headline)) { score += MARKET_SCOPE_POINTS; reasons.push(`market-scope+${MARKET_SCOPE_POINTS}`); }
+  const events = topicHits > 0 ? scheduledEventsOn(item.scheduleDates, item.ts).filter((id) => SCHEDULED_EVENT_NAMES[id].test(headline)) : [];
+  if (events.length) { score += SCHEDULED_EVENT_POINTS; reasons.push(`scheduled-${events[0]}+${SCHEDULED_EVENT_POINTS}`); }
   // P1504: a headline that touches no market topic is not market news, whatever feed returned it.
   item.topicHits = topicHits;
+  item.subjectHits = subjectHits;
 
   if (newsHeadlineUnverified(text)) {
     score -= 8;
@@ -301,7 +390,7 @@ export function scoreServerNewsItem(item) {
   }
 
   score = Math.max(0, Math.min(100, Math.round(score)));
-  return { score, selectionReason: reasons.slice(0, 7).join(' | ') };
+  return { score, selectionReason: reasons.slice(0, 10).join(' | ') };
 }
 
 function serverNewsSourceTierLabel(tier) {
@@ -492,8 +581,31 @@ export function carriedNewsCandidates(carry, cycle) {
   return out;
 }
 
-// The 08:00 bundle from scored candidates: Korean reserved slots, per-topic floors, then the score-ordered fill, under
-// the per-source, same-event and topic caps. Pure, so the expect suite can print what a fixed pool publishes.
+/**
+ * v60.18 (weekly audit D5): the previous run's post-08:00 rows that the new cut has closed over, rebuilt as candidates.
+ * The intraday slot says its articles "fall inside the next bundle's window", but the bundle was rebuilt from a fresh search
+ * at the cut, so on 11/09 the four wraps of the +2.35% session it held at 22:24Z (Reuters "Wall St jumps as oil slide cools
+ * inflation worries", AP, WSJ, Yahoo) were in neither list at 23:24Z (7564d42d6).
+ */
+export function carriedIntradayCandidates(intraday, cycle) {
+  if (!Array.isArray(intraday) || !cycle) return [];
+  const out = [];
+  for (const row of intraday) {
+    const ts = Date.parse(row?.publishedAt || '');
+    if (!row?.title || !row?.link || !Number.isFinite(ts) || ts < cycle.startMs || ts >= cycle.endMs) continue;
+    out.push({
+      title: row.title, link: row.link, source: row.source, _sourceRaw: '', guid: null, sourceArticleId: null, fetchedAt: null,
+      pubDate: new Date(ts).toUTCString(), ts, topic: row.topic, country: row.market || row.country, feedTier: row.tier, feedSource: row.feedSource || null,
+      scoringNowMs: cycle.endMs, newsCyclePolicy: cycle.policy, newsCycleStart: cycle.start, newsCycleEnd: cycle.end,
+      newsCycleLabel: cycle.label, carried: true,
+    });
+  }
+  return out;
+}
+
+// The 08:00 bundle from scored candidates: Korean reserved slots, the score-ordered fill holding back the seats the per-topic
+// floors still need, then the floors, under the per-source, same-event and topic caps; published in rank order. Pure, so
+// the expect suite can print what a fixed pool publishes.
 export function selectNewsBundle(items, krItems) {
   // US/글로벌: 점수순 정렬, 한국: 최신순 정렬
   // Equal scores go to the better-tier publisher first, so a topic cap keeps Reuters over a blog repeating it.
@@ -510,8 +622,9 @@ export function selectNewsBundle(items, krItems) {
   // the 476 rows published since 10/20, 103 of their 139 publishers once. At most TIER3_CAP slots, and outside the Korean
   // seats (few Korean outlets) a tier-3 headline needs two topic hits; tier 1-2 candidates fill the rest.
   let tier3Taken = 0;
+  // v60.18: the two hits are two subjects; broad market vocabulary is context (scoreServerNewsItem CONTEXT_RULES).
   const tier3Blocked = (it, needTwoHits = true) => Number(it.tier) >= 3
-    && (tier3Taken >= NEWS_TIER3_CAP || (needTwoHits && !(it.topicHits >= 2)));
+    && (tier3Taken >= NEWS_TIER3_CAP || (needTwoHits && !((it.subjectHits ?? it.topicHits) >= 2)));
   // Owner 2026-10-12: one event, one slot. Two outlets reporting the same story (same specific figure, or nearly
   // the same headline) used two of the slots; the higher-scored one is kept because candidates arrive score-ordered.
   const pickedGrams = [];
@@ -574,36 +687,52 @@ export function selectNewsBundle(items, krItems) {
     seen.add(k);
     pushItem(it);
   }
-  // P1373: score-only ranking let semis/macro/geo fill every slot (fxbond and credit got 0 of 40).
-  // Reserve a small floor per under-covered topic before the score-ordered fill.
-  for (const [topic, floor] of NEWS_FEED_FLOORS) {
-    let taken = 0;
-    for (const it of items) {
-      if (taken >= floor || out.length >= 40) break;
-      if (it.topic !== topic && it.feedSource !== topic) continue;
-      if (sourceFull(it) || topicFull(it) || tier3Blocked(it)) continue;
-      const k = newsArticleKey(it);
-      if (seen.has(k) || sameEvent(it)) continue;
-      seen.add(k);
-      pushItem(it);
-      taken += 1;
-    }
-  }
-  // 나머지 슬롯을 US/글로벌 뉴스로 채움
-  for (const it of items) {
-    if (out.length >= 40) break;
-    if (sourceFull(it) || topicFull(it) || tier3Blocked(it)) continue;
+  // P1373: score-only ranking let semis/macro/geo fill every slot (fxbond and credit got 0 of 40), so each under-covered
+  // topic keeps a small floor of seats.
+  // v60.18 (weekly audit D5): the floors are reserved capacity, not first turn. Filled before the score order, their
+  // lower-scored picks used the per-source and same-entity caps first: on 11/09 the gold/crude floor rows filled `oil`, so
+  // "Wall St jumps as oil slide cools inflation worries" and AP's "US stocks rally …" were capped out at seat 22 of 40.
+  // Now the score order runs first and only holds back as many seats as the floors still need; the floors then take theirs.
+  const floorLeft = new Map(NEWS_FEED_FLOORS);
+  const floorOf = (it) => [it.feedSource, it.topic].find((key) => (floorLeft.get(key) || 0) > 0) || null;
+  const floorDemand = () => [...floorLeft.values()].reduce((sum, left) => sum + left, 0);
+  const admit = (it) => {
+    if (sourceFull(it) || topicFull(it) || tier3Blocked(it)) return false;
     const k = newsArticleKey(it);
-    if (seen.has(k) || sameEvent(it)) continue;
+    if (seen.has(k) || sameEvent(it)) return false;
     seen.add(k);
     pushItem(it);
+    const floor = floorOf(it);
+    if (floor) floorLeft.set(floor, floorLeft.get(floor) - 1);
+    return true;
+  };
+  const passed = new Set();
+  for (const it of items) {
+    if (out.length >= 40) break;
+    if (!floorOf(it) && 40 - out.length <= floorDemand()) { passed.add(it); continue; }
+    admit(it);
   }
+  for (const [topic] of NEWS_FEED_FLOORS) {
+    for (const it of items) {
+      if (!(floorLeft.get(topic) > 0) || out.length >= 40) break;
+      if (it.topic !== topic && it.feedSource !== topic) continue;
+      admit(it);
+    }
+  }
+  // 나머지 슬롯을 US/글로벌 뉴스로 채움 (seats a floor held back but could not fill)
+  for (const it of items) {
+    if (out.length >= 40) break;
+    if (passed.has(it)) admit(it);
+  }
+  // v60.18: reserved Korean seats and topic floors decide which articles get in, not where they stand. The bundle was
+  // published in seat order, so a Korean index story of 11/11 08:05Z stood first ahead of every scored US story (dc712a5e9).
+  out.sort((a, b) => (b.score || 0) - (a.score || 0) || (a.tier || 9) - (b.tier || 9) || String(b.eventTime || '').localeCompare(String(a.eventTime || '')));
   return { out, carriedPicked, carriedRows };
 }
 
 // P1720: the caller passes the run's attempt time so the collected cycle and meta.newsCycleEnd are one cut even when a
 // run straddles 08:00 KST (23:00Z); otherwise newsIntraday is picked against the previous cut and fails the gate.
-export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
+export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntraday = null, schedules = null } = {}) {
   const cycle = getKst0800NewsCycle(nowMs);
   const items = [];    // US/글로벌 피드
   const krItems = [];  // 한국 전용 (reserved slot)
@@ -640,7 +769,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
         if (isFinite(t) && t >= cycle.endMs) {
           intradayCandidates.push({ title: p.title, link: p.link, source: p.source || feed.source, _sourceRaw: p._sourceRaw,
             guid: p.guid, sourceArticleId: p.sourceArticleId, ts: t, topic: isKr ? 'kr' : feed.topic, country: feed.country,
-            feedTier: feed.tier, feedSource: feed.source });
+            feedTier: feed.tier, feedSource: feed.source, scheduleDates: schedules });
         }
         if (!isFinite(t) || t < cycle.startMs || t >= cycle.endMs) continue;
         health.inWindow += 1;
@@ -653,6 +782,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
           tier: getServerNewsSourceTier(p.source || feed.source, feed.tier),
           feedTier: feed.tier,
           feedSource: feed.source,
+          scheduleDates: schedules,
           scoringNowMs: cycle.endMs,
           newsCyclePolicy: cycle.policy,
           newsCycleStart: cycle.start,
@@ -679,7 +809,8 @@ export async function fetchNews(nowMs = Date.now(), { carry = null } = {}) {
   // ranking drifts as the window ages, so the 10/19 bundle shrank from 40 to 32 between 01:21Z and 11:17Z and a manual
   // re-run once found 3. Articles the previous run already published for this same cycle stay candidates (re-scored
   // under the current rules, so a tightened filter still drops them); fresh results only add to the pool.
-  for (const row of carriedNewsCandidates(carry, cycle)) {
+  for (const row of [...carriedNewsCandidates(carry, cycle), ...carriedIntradayCandidates(carryIntraday, cycle)]) {
+    row.scheduleDates = schedules;
     Object.assign(row, scoreServerNewsItem(row));
     if (!(row.topicHits > 0) || row.tier >= 4 || !(row.score > 0)) continue;
     (row.topic === 'kr' ? krItems : items).push(row);

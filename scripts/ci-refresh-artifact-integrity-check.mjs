@@ -48,6 +48,25 @@ if (degradedFred) {
   console.error('refresh artifact integrity failed: FRED success regressed; an LKG payload may be consumed locally but cannot be committed as the new public cycle');
   process.exit(1);
 }
+// v60.19 (Codex audit): the rules below hold whatever the previous cycle was. A partial cycle followed by a total loss,
+// or by an LKG carry with no source, passed because only a healthy previous cycle was compared.
+if (currentMeta.fredHasKey === true && fredSuccessfulCount === 0) {
+  console.error('refresh artifact integrity failed: every FRED series failed with the key present; the cycle cannot publish as refreshed');
+  process.exit(1);
+}
+if (currentMeta.fredLkgUsed === true && !(typeof currentMeta.fredLkgSource === 'string' && currentMeta.fredLkgSource.length > 0)) {
+  console.error('refresh artifact integrity failed: FRED values were carried over without naming their source (fredLkgSource)');
+  process.exit(1);
+}
+// Every carried macro value keeps its own observation date and the source that observed it.
+const macro = current.macro && typeof current.macro === 'object' ? current.macro : {};
+const unattributed = Object.keys(macro).filter((key) => key.startsWith('_source_') && macro[key] === 'last-known-good')
+  .map((key) => key.slice('_source_'.length))
+  .filter((field) => !/^\d{4}-\d{2}(-\d{2})?$/.test(String(macro[`_asOf_${field}`] || '')) || !macro[`_originSource_${field}`]);
+if (unattributed.length) {
+  console.error(`refresh artifact integrity failed: carried macro values without their observation date or origin: ${unattributed.join(', ')}`);
+  process.exit(1);
+}
 if (degradedQuote) {
   console.error(`refresh artifact integrity failed: quote coverage regressed ${previousMeta.symbolsOk} -> ${currentMeta.symbolsOk}`);
   process.exit(1);

@@ -4,7 +4,7 @@
 // briefs (event-briefs.json) and the earnings calendar; nothing here names a date, a company or a level by hand except
 // SCHEDULED_EVENTS.
 import { MOVER_BY_SYMBOL } from '../../briefing/market-movers.js';
-import { readNumber } from '../../shared/number.js';
+import { readNumber, signedText } from '../../shared/number.js';
 import { RULES } from '../../rules/thresholds.js';
 import { earningsFilterMs, releaseAtMs } from '../../briefing/schedule.js';
 import { policyCycle } from '../../macro/macro-signals.js';
@@ -53,8 +53,8 @@ export function dayLabel(date) {
   const [, m, d] = String(date || '').split('-').map(Number);
   return m && d ? `${m}/${d}(${DAYS[new Date(`${date}T12:00:00Z`).getUTCDay()]})` : '';
 }
-const pctText = (value, digits = 1) => `${value > 0 ? '+' : ''}${value.toFixed(digits)}%`;
-const bpText = (value) => `${value > 0 ? '+' : ''}${Math.round(value)}bp`;
+const pctText = (value, digits = 1) => signedText(value, digits, '%');
+const bpText = (value) => signedText(value, 0, 'bp');
 
 // The US sessions: weekday rows with an S&P 500 close (weekend rows carry Friday forward). Feature audit 2026-11-02: a
 // weekday row written before that day's close carries the prior close (fieldMeta.spx.sessionDate is the earlier day),

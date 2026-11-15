@@ -16,6 +16,25 @@ export const CALL_SEARCH_MAX_ATTEMPTS = 2;
 
 export { MARKET_MOVERS, MOVER_BY_SYMBOL };
 
+// A calendar-only brief said "원문 요약 정리 중" until its filing was summarised, with no
+// limit, so a report whose filing the SEC lane never reads (NU, NVMI, CAMT on 6-K; OKLO) kept the promise for days (NU from
+// 11/12 21:05Z, CAMT from 11/04). An issuer's release is on EDGAR the day it reports; a day later the wait is closed: the
+// brief keeps the provider's figures and says so, and a filing that still turns up inside the watch window replaces it.
+export const PROVISIONAL_SUMMARY_WAIT_MS = 24 * 3600000; // 72 runs of the 20-minute event-briefs schedule
+const PROVISIONAL_WAITING = '원문 요약 정리 중';
+const PROVISIONAL_CLOSED = '제공처 집계';
+/** The headline of a calendar-only brief: waiting for the filing, or (after the wait) the provider's figures only. */
+export function provisionalHeadline(nameKo, publishedAt, nowMs = null) {
+  const closed = Number.isFinite(nowMs) && nowMs - (Date.parse(publishedAt || '') || nowMs) > PROVISIONAL_SUMMARY_WAIT_MS;
+  return `${nameKo} 실적 발표: ${closed ? PROVISIONAL_CLOSED : PROVISIONAL_WAITING}`;
+}
+/** A calendar-only brief whose headline still promises the filing's summary ("정리 중"). */
+export const provisionalWaiting = (brief) => brief?.status === 'provisional' && String(brief.headline || '').endsWith(PROVISIONAL_WAITING);
+/** A brief still promising a summary past the wait, as of `atMs` (the artifact gate and tests). */
+export function overdueProvisional(brief, atMs) {
+  return provisionalWaiting(brief) && atMs - (Date.parse(brief.publishedAt || '') || atMs) > PROVISIONAL_SUMMARY_WAIT_MS;
+}
+
 /** 1 = shown in full on 오늘 (FOMC, the core movers); 2 = one line (other movers and the story names). */
 // v59.44 (owner 2026-10-30, "현재 AI 시장에서 중요한 종목"): weight comes from where a name sits on the AI chain and how
 // hard the market took its report, not from its index weight. The company-story layers outside the chain are folded.

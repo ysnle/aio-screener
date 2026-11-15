@@ -1,0 +1,218 @@
+id,workflow,event,createdAt,cause
+42431276387,Data freshness watchdog,schedule,2026-11-08T00:46:19Z,qa:watchdog-browser-data-pin-drift
+42432030913,Data freshness watchdog,workflow_run,2026-11-08T00:56:19Z,qa:watchdog-browser-data-pin-drift
+42436349442,Data freshness watchdog,workflow_run,2026-11-08T01:56:00Z,qa:watchdog-browser-data-pin-drift
+42440561442,Data freshness watchdog,workflow_run,2026-11-08T02:55:49Z,qa:watchdog-browser-data-pin-drift
+42444738482,Data freshness watchdog,workflow_run,2026-11-08T03:56:08Z,qa:watchdog-browser-data-pin-drift
+42448764835,Data freshness watchdog,workflow_run,2026-11-08T04:56:07Z,qa:watchdog-browser-data-pin-drift
+42452687101,Data freshness watchdog,workflow_run,2026-11-08T05:56:12Z,qa:watchdog-browser-data-pin-drift
+42453104299,Data freshness watchdog,workflow_run,2026-11-08T06:02:35Z,qa:watchdog-browser-data-pin-drift
+42456655369,Data freshness watchdog,workflow_run,2026-11-08T06:55:01Z,qa:watchdog-browser-data-pin-drift
+42457858696,CI,pull_request,2026-11-08T07:12:55Z,qa:generated-state
+42457860656,CI,push,2026-11-08T07:12:57Z,qa:generated-state
+42457922140,Data freshness watchdog,workflow_run,2026-11-08T07:13:50Z,qa:watchdog-knowledge-lint
+42458751607,Refresh screener and SEC fundamentals,workflow_dispatch,2026-11-08T07:25:40Z,converge:UNATTESTED_REVISION
+42459044788,Data freshness watchdog,schedule,2026-11-08T07:30:10Z,qa:watchdog-knowledge-lint
+42459265769,CI,workflow_dispatch,2026-11-08T07:33:12Z,unclassified
+42459631866,Data freshness watchdog,workflow_run,2026-11-08T07:38:38Z,watchdog:preserved-failure(previous)
+42459760816,Data freshness watchdog,workflow_run,2026-11-08T07:40:38Z,watchdog:preserved-failure(previous)
+42459881923,Data freshness watchdog,workflow_run,2026-11-08T07:42:27Z,watchdog:preserved-failure(previous)
+42460399270,Data freshness watchdog,workflow_run,2026-11-08T07:50:15Z,watchdog:preserved-failure(previous)
+42460596304,Data freshness watchdog,workflow_run,2026-11-08T07:53:16Z,watchdog:preserved-failure(previous)
+42460687278,Data freshness watchdog,workflow_run,2026-11-08T07:54:37Z,watchdog:preserved-failure(previous)
+42460769048,Data freshness watchdog,workflow_run,2026-11-08T07:55:51Z,watchdog:preserved-failure(previous)
+42461368904,Data freshness watchdog,workflow_run,2026-11-08T08:04:39Z,watchdog:preserved-failure(previous)
+42461678487,Data freshness watchdog,workflow_run,2026-11-08T08:09:01Z,watchdog:preserved-failure(previous)
+42461826946,Data freshness watchdog,workflow_run,2026-11-08T08:11:04Z,watchdog:preserved-failure(previous)
+42462227536,Data freshness watchdog,workflow_run,2026-11-08T08:16:32Z,watchdog:preserved-failure(previous)
+42462761205,Data freshness watchdog,workflow_run,2026-11-08T08:23:51Z,watchdog:preserved-failure(previous)
+42466740668,CodeQL,dynamic,2026-11-08T09:20:08Z,codeql-cli-download
+42480198913,Event briefs (FOMC and market-mover earnings),workflow_dispatch,2026-11-08T12:25:40Z,git-push-rejected
+42489926980,Refresh market data,schedule,2026-11-08T14:27:52Z,converge:UNATTESTED_REVISION
+42490251755,CI,workflow_dispatch,2026-11-08T14:31:50Z,qa:interpretation-boundary-check
+42493218937,CI,pull_request,2026-11-08T15:07:49Z,qa:patch-comment-ratchet
+42497282801,CI,pull_request,2026-11-08T15:55:59Z,qa:browser-boot
+42506370295,CI,pull_request,2026-11-08T17:43:23Z,qa:narrative-lifecycle-model
+42548483487,Browser live-data watchdog,schedule,2026-11-09T02:00:09Z,qa:browser-contrast-focus
+42551054405,Live user journey,push,2026-11-09T02:27:37Z,live-journey:browser-errors
+42556341184,Live user journey,push,2026-11-09T03:25:39Z,live-journey:browser-errors
+42556539058,Deploy GitHub Pages,workflow_dispatch,2026-11-09T03:27:53Z,pages-deploy-timeout
+42559162829,Live user journey,workflow_dispatch,2026-11-09T03:57:42Z,live-journey:browser-errors
+42559227322,Live user journey,push,2026-11-09T03:58:30Z,live-journey:browser-errors
+42563163118,Live user journey,push,2026-11-09T04:41:05Z,live-journey:browser-errors
+42565625913,Live user journey,push,2026-11-09T05:09:10Z,live-journey:browser-errors
+42567005748,CI,pull_request,2026-11-09T05:23:13Z,qa:generated-state
+42567007881,Live user journey,push,2026-11-09T05:23:14Z,live-journey:browser-errors
+42578182472,Refresh screener and SEC fundamentals,schedule,2026-11-09T07:15:36Z,validator:all breadth coverage below 80%
+42578738369,Refresh market data,workflow_dispatch,2026-11-09T07:20:41Z,converge:UNATTESTED_REVISION
+42579130676,CI,workflow_dispatch,2026-11-09T07:24:21Z,qa:metric-consistency
+42579275160,Refresh screener and SEC fundamentals,workflow_dispatch,2026-11-09T07:25:41Z,converge:UNATTESTED_REVISION
+42579370332,CI,workflow_dispatch,2026-11-09T07:26:34Z,qa:metric-consistency
+42580646933,CI,workflow_dispatch,2026-11-09T07:38:48Z,qa:metric-consistency
+42581870063,Refresh market data,workflow_dispatch,2026-11-09T07:50:41Z,converge:UNATTESTED_REVISION
+42582454251,CI,workflow_dispatch,2026-11-09T07:56:17Z,qa:metric-consistency
+42582703067,CI,pull_request,2026-11-09T07:58:42Z,qa:metric-consistency
+42582745998,CodeQL,push,2026-11-09T07:59:07Z,codeql-cli-download
+42582904470,CI,pull_request,2026-11-09T08:00:34Z,qa:browser-boot
+42594007917,Data freshness watchdog,workflow_run,2026-11-09T09:30:54Z,qa:live-invariants
+42603476112,Data freshness watchdog,workflow_run,2026-11-09T10:45:48Z,qa:external-pipeline
+42653611290,Data freshness watchdog,workflow_run,2026-11-09T16:19:45Z,qa:external-pipeline
+42654233145,Data freshness watchdog,workflow_run,2026-11-09T16:23:15Z,qa:external-pipeline
+42671067909,CI,workflow_dispatch,2026-11-09T18:06:42Z,unclassified
+42673207555,Refresh market data,workflow_dispatch,2026-11-09T18:20:41Z,converge:UNATTESTED_REVISION
+42673575787,CI,pull_request,2026-11-09T18:23:14Z,unclassified
+42673616283,Operations failure escalation,workflow_run,2026-11-09T18:23:28Z,unclassified
+42673717386,Data freshness watchdog,workflow_run,2026-11-09T18:24:12Z,unclassified
+42673815958,CI,pull_request,2026-11-09T18:24:52Z,unclassified
+42673815646,CodeQL,pull_request,2026-11-09T18:24:52Z,unclassified
+42673967309,Operations failure escalation,workflow_run,2026-11-09T18:25:53Z,unclassified
+42674079594,CI,workflow_dispatch,2026-11-09T18:26:39Z,unclassified
+42730068083,Data freshness watchdog,workflow_run,2026-11-10T00:40:19Z,qa:external-pipeline
+42730263119,CI,pull_request,2026-11-10T00:41:52Z,qa:browser-rendered-copy-lint
+42731304225,Data freshness watchdog,workflow_run,2026-11-10T00:50:03Z,qa:external-pipeline
+42737336919,Data freshness watchdog,schedule,2026-11-10T01:39:34Z,qa:external-pipeline
+42755346559,Browser live-data watchdog,schedule,2026-11-10T04:21:29Z,qa:browser-rendered-copy-lint
+42762303243,Data freshness watchdog,workflow_run,2026-11-10T05:28:03Z,qa:external-pipeline
+42762953024,Data freshness watchdog,workflow_run,2026-11-10T05:34:15Z,qa:external-pipeline
+42763235868,Data freshness watchdog,workflow_run,2026-11-10T05:36:55Z,qa:external-pipeline
+42764455456,Data freshness watchdog,workflow_run,2026-11-10T05:48:51Z,qa:external-pipeline
+42764925999,Data freshness watchdog,workflow_run,2026-11-10T05:53:27Z,qa:external-pipeline
+42795843373,Data freshness watchdog,schedule,2026-11-10T10:03:15Z,qa:external-pipeline
+42827482974,Deploy AI proxy,workflow_run,2026-11-10T13:45:45Z,ai-proxy:upstream 429 credit_balance_exhausted
+42827575008,Data freshness watchdog,workflow_run,2026-11-10T13:46:19Z,qa:external-pipeline
+42827763586,Data freshness watchdog,workflow_run,2026-11-10T13:47:32Z,qa:external-pipeline
+42870293878,Data freshness watchdog,schedule,2026-11-10T17:57:59Z,qa:external-pipeline
+42874233479,Refresh market data,workflow_dispatch,2026-11-10T18:20:41Z,converge:UNATTESTED_REVISION
+42874698546,CI,workflow_dispatch,2026-11-10T18:23:26Z,qa:metric-consistency
+42875166347,CI,workflow_dispatch,2026-11-10T18:26:12Z,qa:metric-consistency
+42877607203,Refresh market data,schedule,2026-11-10T18:40:39Z,converge:UNATTESTED_REVISION
+42878119921,CI,workflow_dispatch,2026-11-10T18:43:46Z,qa:metric-consistency
+42878580954,CI,workflow_dispatch,2026-11-10T18:46:29Z,qa:metric-consistency
+42879281294,Refresh market data,workflow_dispatch,2026-11-10T18:50:41Z,converge:UNATTESTED_REVISION
+42879723349,CI,workflow_dispatch,2026-11-10T18:53:21Z,qa:metric-consistency
+42881884540,CI,workflow_dispatch,2026-11-10T19:06:13Z,qa:metric-consistency
+42884310525,Refresh market data,workflow_dispatch,2026-11-10T19:20:41Z,converge:UNATTESTED_REVISION
+42884817604,CI,workflow_dispatch,2026-11-10T19:23:40Z,qa:metric-consistency
+42885244690,CI,workflow_dispatch,2026-11-10T19:26:14Z,qa:metric-consistency
+42888576120,CI,workflow_dispatch,2026-11-10T19:46:14Z,qa:metric-consistency
+42889310886,Refresh market data,workflow_dispatch,2026-11-10T19:50:41Z,converge:UNATTESTED_REVISION
+42889877337,CI,workflow_dispatch,2026-11-10T19:54:06Z,qa:metric-consistency
+42891215755,Refresh screener and SEC fundamentals,schedule,2026-11-10T20:02:05Z,converge:UNATTESTED_REVISION
+42891913725,CI,workflow_dispatch,2026-11-10T20:06:15Z,qa:metric-consistency
+42892211419,CI,workflow_dispatch,2026-11-10T20:08:00Z,qa:metric-consistency
+42894352739,Refresh market data,workflow_dispatch,2026-11-10T20:20:41Z,converge:UNATTESTED_REVISION
+42894858984,CI,workflow_dispatch,2026-11-10T20:23:46Z,qa:metric-consistency
+42895273964,CI,workflow_dispatch,2026-11-10T20:26:17Z,qa:metric-consistency
+42898521079,CI,workflow_dispatch,2026-11-10T20:46:16Z,qa:metric-consistency
+42899218155,Refresh market data,workflow_dispatch,2026-11-10T20:50:41Z,converge:UNATTESTED_REVISION
+42899698859,CI,workflow_dispatch,2026-11-10T20:53:44Z,qa:metric-consistency
+42901718409,CI,workflow_dispatch,2026-11-10T21:06:12Z,qa:metric-consistency
+42904116509,Refresh market data,workflow_dispatch,2026-11-10T21:20:41Z,converge:UNATTESTED_REVISION
+42904623873,CI,workflow_dispatch,2026-11-10T21:23:46Z,qa:metric-consistency
+42905021145,CI,workflow_dispatch,2026-11-10T21:26:12Z,qa:metric-consistency
+42908235204,CI,workflow_dispatch,2026-11-10T21:46:14Z,qa:metric-consistency
+42908941676,Refresh market data,workflow_dispatch,2026-11-10T21:50:41Z,converge:UNATTESTED_REVISION
+42909408119,CI,workflow_dispatch,2026-11-10T21:53:39Z,qa:metric-consistency
+42911384709,CI,workflow_dispatch,2026-11-10T22:06:16Z,qa:metric-consistency
+42913679132,Refresh market data,workflow_dispatch,2026-11-10T22:20:41Z,converge:UNATTESTED_REVISION
+42914141296,CI,workflow_dispatch,2026-11-10T22:23:39Z,qa:metric-consistency
+42914458219,Refresh screener and SEC fundamentals,workflow_dispatch,2026-11-10T22:25:41Z,converge:UNATTESTED_REVISION
+42914530578,CI,workflow_dispatch,2026-11-10T22:26:10Z,qa:metric-consistency
+42915568385,CI,workflow_dispatch,2026-11-10T22:32:55Z,qa:metric-consistency
+42916772838,CI,workflow_dispatch,2026-11-10T22:40:51Z,qa:metric-consistency
+42917561847,CI,workflow_dispatch,2026-11-10T22:46:10Z,qa:metric-consistency
+42918237535,Refresh market data,workflow_dispatch,2026-11-10T22:50:41Z,converge:UNATTESTED_REVISION
+42918570904,CI,workflow_dispatch,2026-11-10T22:53:01Z,qa:metric-consistency
+42920482134,CI,workflow_dispatch,2026-11-10T23:06:12Z,qa:metric-consistency
+42922570946,Refresh market data,workflow_dispatch,2026-11-10T23:20:41Z,converge:UNATTESTED_REVISION
+42922995880,CI,workflow_dispatch,2026-11-10T23:23:41Z,qa:metric-consistency
+42923352900,CI,workflow_dispatch,2026-11-10T23:26:16Z,qa:metric-consistency
+42924259670,Data freshness watchdog,schedule,2026-11-10T23:32:51Z,qa:external-pipeline
+42925803079,Refresh market data,schedule,2026-11-10T23:44:18Z,converge:UNATTESTED_REVISION
+42926053688,CI,workflow_dispatch,2026-11-10T23:46:10Z,qa:metric-consistency
+42926272379,CI,workflow_dispatch,2026-11-10T23:47:51Z,qa:metric-consistency
+42926648363,Refresh market data,workflow_dispatch,2026-11-10T23:50:41Z,converge:UNATTESTED_REVISION
+42927344557,CI,workflow_dispatch,2026-11-10T23:55:59Z,qa:metric-consistency
+42928671063,CI,workflow_dispatch,2026-11-11T00:06:13Z,qa:metric-consistency
+42930594720,Refresh market data,workflow_dispatch,2026-11-11T00:20:41Z,converge:UNATTESTED_REVISION
+42931000839,CI,workflow_dispatch,2026-11-11T00:23:44Z,qa:metric-consistency
+42931339084,CI,workflow_dispatch,2026-11-11T00:26:17Z,qa:metric-consistency
+42934098837,Deploy AI proxy,workflow_run,2026-11-11T00:47:27Z,ai-proxy:upstream 429 credit_balance_exhausted
+42934149846,Data freshness watchdog,workflow_run,2026-11-11T00:47:52Z,qa:external-pipeline
+42934400185,Data freshness watchdog,workflow_run,2026-11-11T00:49:52Z,qa:external-pipeline
+42939348638,Refresh screener and SEC fundamentals,schedule,2026-11-11T01:29:41Z,validator:all breadth coverage below 80%
+42944927002,Browser live-data watchdog,schedule,2026-11-11T02:16:55Z,repin:checkout-conflict
+43092296406,Refresh screener and SEC fundamentals,workflow_dispatch,2026-11-11T19:59:40Z,validator:row AACG has fields outside the core row schema: partialSessionDropped
+43130257525,Refresh market data,workflow_dispatch,2026-11-12T00:50:40Z,converge:UNATTESTED_REVISION
+43130686267,CI,workflow_dispatch,2026-11-12T00:54:11Z,qa:data-pipeline
+43131480740,Refresh market data,schedule,2026-11-12T01:00:54Z,converge:UNATTESTED_REVISION
+43131801975,CI,workflow_dispatch,2026-11-12T01:03:34Z,qa:data-pipeline
+43132107316,CI,workflow_dispatch,2026-11-12T01:06:05Z,qa:data-pipeline
+43133860905,Refresh market data,workflow_dispatch,2026-11-12T01:20:41Z,converge:UNATTESTED_REVISION
+43134238953,CI,workflow_dispatch,2026-11-12T01:23:57Z,qa:data-pipeline
+43137273228,Refresh market data,workflow_dispatch,2026-11-12T01:50:41Z,converge:UNATTESTED_REVISION
+43137621270,CI,workflow_dispatch,2026-11-12T01:53:48Z,qa:data-pipeline
+43140740529,Refresh market data,workflow_dispatch,2026-11-12T02:20:41Z,converge:UNATTESTED_REVISION
+43141035996,CI,workflow_dispatch,2026-11-12T02:23:14Z,qa:data-pipeline
+43142234495,Refresh screener and SEC fundamentals,schedule,2026-11-12T02:33:24Z,converge:UNATTESTED_REVISION
+43142923623,CI,workflow_dispatch,2026-11-12T02:39:30Z,qa:data-pipeline
+43143660002,CI,workflow_dispatch,2026-11-12T02:46:06Z,qa:data-pipeline
+43144169135,Refresh market data,workflow_dispatch,2026-11-12T02:50:41Z,converge:UNATTESTED_REVISION
+43144437640,CI,workflow_dispatch,2026-11-12T02:53:09Z,qa:data-pipeline
+43147564654,Refresh market data,workflow_dispatch,2026-11-12T03:20:41Z,converge:AWAITING_CI_ATTESTATION
+43147933288,CI,workflow_dispatch,2026-11-12T03:23:56Z,qa:data-pipeline
+43147980326,Browser live-data watchdog,schedule,2026-11-12T03:24:20Z,qa:browser-entity-quality
+43154170963,Refresh market data,workflow_dispatch,2026-11-12T04:20:40Z,converge:UNATTESTED_REVISION
+43154469731,CI,workflow_dispatch,2026-11-12T04:23:21Z,qa:data-pipeline
+43157420385,Refresh market data,workflow_dispatch,2026-11-12T04:50:41Z,converge:UNATTESTED_REVISION
+43157831968,CI,workflow_dispatch,2026-11-12T04:54:37Z,qa:data-pipeline
+43160753956,Refresh market data,workflow_dispatch,2026-11-12T05:20:40Z,converge:UNATTESTED_REVISION
+43161081444,CI,workflow_dispatch,2026-11-12T05:23:34Z,qa:data-pipeline
+43164061153,Refresh market data,workflow_dispatch,2026-11-12T05:50:40Z,converge:UNATTESTED_REVISION
+43164362790,CI,workflow_dispatch,2026-11-12T05:53:28Z,qa:data-pipeline
+43167476888,Refresh market data,workflow_dispatch,2026-11-12T06:20:41Z,converge:UNATTESTED_REVISION
+43167762660,CI,workflow_dispatch,2026-11-12T06:23:07Z,qa:data-pipeline
+43170976833,Refresh market data,workflow_dispatch,2026-11-12T06:50:41Z,converge:UNATTESTED_REVISION
+43171315300,CI,workflow_dispatch,2026-11-12T06:53:40Z,qa:data-pipeline
+43174560064,Refresh market data,workflow_dispatch,2026-11-12T07:20:41Z,converge:UNATTESTED_REVISION
+43174931692,CI,workflow_dispatch,2026-11-12T07:23:41Z,qa:data-pipeline
+43175183280,Refresh screener and SEC fundamentals,workflow_dispatch,2026-11-12T07:25:41Z,converge:UNATTESTED_REVISION
+43175293334,CI,workflow_dispatch,2026-11-12T07:26:33Z,qa:data-pipeline
+43176022087,CI,workflow_dispatch,2026-11-12T07:32:34Z,qa:data-pipeline
+43177202246,CI,workflow_dispatch,2026-11-12T07:42:11Z,qa:data-pipeline
+43177734843,Refresh screener and SEC fundamentals,schedule,2026-11-12T07:46:27Z,converge:UNATTESTED_REVISION
+43178260578,Refresh market data,workflow_dispatch,2026-11-12T07:50:41Z,converge:UNATTESTED_REVISION
+43178483662,CI,workflow_dispatch,2026-11-12T07:52:30Z,qa:data-pipeline
+43178850738,Refresh market data,workflow_dispatch,2026-11-12T07:55:27Z,converge:UNATTESTED_REVISION
+43179486387,CI,workflow_dispatch,2026-11-12T08:00:41Z,qa:data-pipeline
+43182163637,Refresh market data,workflow_dispatch,2026-11-12T08:20:41Z,converge:UNATTESTED_REVISION
+43182580429,CI,workflow_dispatch,2026-11-12T08:23:47Z,qa:data-pipeline
+43186283632,Refresh market data,workflow_dispatch,2026-11-12T08:50:41Z,converge:UNATTESTED_REVISION
+43186675723,CI,workflow_dispatch,2026-11-12T08:53:31Z,qa:data-pipeline
+43190626366,Refresh market data,workflow_dispatch,2026-11-12T09:20:41Z,converge:UNATTESTED_REVISION
+43191021345,CI,workflow_dispatch,2026-11-12T09:23:20Z,qa:data-pipeline
+43195046928,Refresh market data,workflow_dispatch,2026-11-12T09:50:40Z,converge:UNATTESTED_REVISION
+43195441569,CI,workflow_dispatch,2026-11-12T09:53:24Z,qa:data-pipeline
+43199521777,Refresh market data,workflow_dispatch,2026-11-12T10:20:41Z,converge:UNATTESTED_REVISION
+43199897431,CI,workflow_dispatch,2026-11-12T10:23:11Z,qa:data-pipeline
+43203924864,Refresh market data,workflow_dispatch,2026-11-12T10:50:41Z,converge:UNATTESTED_REVISION
+43204278538,CI,workflow_dispatch,2026-11-12T10:53:09Z,qa:data-pipeline
+43208332241,Refresh market data,workflow_dispatch,2026-11-12T11:20:41Z,converge:UNATTESTED_REVISION
+43208873525,CI,workflow_dispatch,2026-11-12T11:24:22Z,qa:data-pipeline
+43212625480,Refresh market data,workflow_dispatch,2026-11-12T11:50:40Z,converge:UNATTESTED_REVISION
+43213090648,CI,workflow_dispatch,2026-11-12T11:53:58Z,qa:data-pipeline
+43217031516,Refresh market data,workflow_dispatch,2026-11-12T12:20:41Z,converge:UNATTESTED_REVISION
+43217364890,CI,workflow_dispatch,2026-11-12T12:22:55Z,qa:data-pipeline
+43221642285,Refresh market data,workflow_dispatch,2026-11-12T12:50:42Z,converge:UNATTESTED_REVISION
+43222168539,CI,workflow_dispatch,2026-11-12T12:54:06Z,qa:data-pipeline
+43222673291,Data freshness watchdog,schedule,2026-11-12T12:57:23Z,qa:external-pipeline
+43224065182,CI,workflow_dispatch,2026-11-12T13:06:06Z,qa:data-pipeline
+43226384313,Refresh market data,workflow_dispatch,2026-11-12T13:20:41Z,converge:UNATTESTED_REVISION
+43226882574,CI,workflow_dispatch,2026-11-12T13:23:46Z,qa:data-pipeline
+43231184491,Refresh market data,workflow_dispatch,2026-11-12T13:50:40Z,converge:UNATTESTED_REVISION
+43231704666,CI,workflow_dispatch,2026-11-12T13:53:54Z,qa:data-pipeline
+43455230073,Browser live-data watchdog,schedule,2026-11-13T15:42:04Z,qa:browser-rendered-copy-lint
+43543115717,Refresh screener and SEC fundamentals,schedule,2026-11-14T01:52:17Z,validator:us breadth coverage below 80%
+43547787010,Browser live-data watchdog,schedule,2026-11-14T02:42:35Z,qa:browser-rendered-copy-lint
+43672788909,CI,push,2026-11-15T03:32:00Z,qa:browser-rendered-copy-lint
+43673336819,Data freshness watchdog,workflow_run,2026-11-15T03:39:22Z,qa:external-pipeline

@@ -11,6 +11,7 @@ import { sessionPointBack } from './rates-fx.js';
 import { BRENT_WTI_SPREAD_HOLD_USD, brentWtiFromSeries, changeOverDays, MACRO_SIGNAL_RULES } from './macro-signals.js';
 import { readNumber, signedText } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
+import { fedTargetRange } from './fed-target-range.js';
 
 const seriesOf = (macroHistory, field) => (macroHistory?.series?.[field]?.observations || [])
   .map(([date, value]) => ({ date, value: value == null || value === '' ? NaN : Number(value) })) // v59.45: Number(null) is 0, not a reading
@@ -193,10 +194,12 @@ function liquidityGroup(macroHistory, { macro, referenceMs }) {
   if (sofr.length >= 6) {
     const last = sofr.at(-1);
     // M22: the target range the reading refers to, on the SOFR date.
-    const upper = atOrBefore(seriesOf(macroHistory, 'fedTargetUpper'), last.date)?.value ?? readNumber(macro?.fedTargetUpper);
-    // v59.59: a null lower bound is missing (Number(null) is 0 and printed a 0.00–4.00% range), so it falls back to upper − 0.25.
-    const lowerRaw = readNumber(macro?.fedTargetLower);
-    const lower = upper == null ? null : lowerRaw != null && readNumber(macro?.fedTargetUpper) === upper ? lowerRaw : upper - 0.25;
+    // Both bounds of one date (fed-target-range.js): the history pair on or before the SOFR date, else the snapshot pair.
+    // A missing bound is not filled in (the former upper − 0.25 was an assumed width, not an observation).
+    const hi = atOrBefore(seriesOf(macroHistory, 'fedTargetUpper'), last.date), lo = atOrBefore(seriesOf(macroHistory, 'fedTargetLower'), last.date);
+    const pair = fedTargetRange(lo?.value, hi?.value, lo?.date, hi?.date) || fedTargetRange(macro?.fedTargetLower, macro?.fedTargetUpper, macro?._asOf_fedTargetLower, macro?._asOf_fedTargetUpper);
+    const upper = pair?.upper ?? null;
+    const lower = pair?.lower ?? null;
     const range = upper == null ? null : `${lower.toFixed(2)}–${upper.toFixed(2)}%`;
     const where = upper == null ? null : last.value > upper ? `목표 범위 ${range} 위 ${((last.value - upper) * 100).toFixed(0)}bp` : last.value < lower ? `목표 범위 ${range} 아래 ${((lower - last.value) * 100).toFixed(0)}bp` : `목표 범위 ${range} 안, 하단 +${((last.value - lower) * 100).toFixed(0)}bp`;
     items.push(card({ id: 'sofr', label: 'SOFR 단기 자금 금리', series: sofr, asOf: last.date, unit: '%', frequency: frequencyOf(macroHistory, 'sofr', 'daily'), referenceMs, format: (value) => `${fmt(value, 2)}%`,
