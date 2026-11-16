@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-16T03:51:50.563Z",
-  "attemptedAt": "2026-11-16T03:51:50.563Z",
-  "lastSuccessfulAt": "2026-11-16T03:51:50.563Z",
+  "generatedAt": "2026-11-16T04:21:33.009Z",
+  "attemptedAt": "2026-11-16T04:21:33.009Z",
+  "lastSuccessfulAt": "2026-11-16T04:21:33.009Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-02T03:51:45.339Z",
-  "until": "2026-11-16T03:51:45.339Z",
+  "since": "2026-11-02T04:21:27.442Z",
+  "until": "2026-11-16T04:21:27.442Z",
   "current24hWindow": {
     "start": "2026-11-14T23:00:00.000Z",
     "end": "2026-11-15T23:00:00.000Z",
@@ -85,22 +85,22 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1247,
+      "count": 1246,
       "freshCount": 38,
-      "eligibleTextCount": 1193,
-      "selectedCount": 128,
+      "eligibleTextCount": 1192,
+      "selectedCount": 129,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69394
+      "lastPostId": 69395
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 215,
+      "count": 214,
       "freshCount": 17,
-      "eligibleTextCount": 215,
+      "eligibleTextCount": 214,
       "selectedCount": 122,
       "error": null,
       "failingSince": null,
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 723,
+      "count": 722,
       "freshCount": 38,
-      "eligibleTextCount": 723,
+      "eligibleTextCount": 722,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72200
+      "lastPostId": 72202
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,55 +137,55 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2185,
+  "count": 2182,
   "retainedItemCount": 433,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2185,
-    "eligibleTextCount": 2131,
+    "observedCount": 2182,
+    "eligibleTextCount": 2128,
     "mediaOnlyCount": 54,
-    "mediaAttachedCount": 931,
-    "photoPostCount": 797,
+    "mediaAttachedCount": 929,
+    "photoPostCount": 795,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
     "highSignalCount": 369,
-    "broadSignalCount": 862,
-    "selectedRawCount": 375,
-    "selectedEligibleCount": 375,
-    "selectedRawCoveragePct": 17.6,
+    "broadSignalCount": 861,
+    "selectedRawCount": 376,
+    "selectedEligibleCount": 376,
+    "selectedRawCoveragePct": 17.7,
     "selectedOfObservedPct": 17.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 768,
     "semi": 565,
-    "macro": 312,
+    "ai-policy": 127,
+    "equity": 145,
+    "market-note": 766,
+    "macro": 311,
     "credit": 76,
-    "japan": 67,
-    "geo": 347,
+    "japan": 66,
+    "geo": 346,
     "kr-market": 97,
     "optical": 29,
     "power": 274,
-    "earnings": 316,
+    "earnings": 314,
     "flows": 54,
     "media-only": 52,
-    "ai-policy": 126,
-    "equity": 144,
     "healthcare": 55,
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 286,
+    "NVDA": 288,
+    "MSFT": 55,
+    "AMZN": 50,
     "GOOG": 63,
-    "AMZN": 49,
     "TSM": 60,
     "AMD": 50,
     "TSLA": 45,
     "005930.KS": 28,
-    "MSFT": 54,
     "MU": 29,
     "ARM": 2,
     "JD": 1,
@@ -239,7 +239,7 @@
     "HUM": 1,
     "IONQ": 2,
     "BCS": 2,
-    "285A.T": 4,
+    "285A.T": 3,
     "QCOM": 1,
     "SN": 1,
     "MRVL": 6,
@@ -264,19 +264,19 @@
     "007660.KS": 1
   },
   "themes": [
-    "Market Notes (768 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
+    "Market Notes (766 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
     "Semiconductors/Memory (565 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국...",
-    "Geopolitics (347 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Earnings/Corporate (316 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "Macro/Rates (312 posts in 14-day research window): 2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
+    "Geopolitics (346 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Earnings/Corporate (314 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Macro/Rates (311 posts in 14-day research window): 2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
     "AI Power/Grid (274 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
-    "Equity/Analyst (144 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "AI Policy/Export Controls (126 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
+    "Equity/Analyst (145 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "AI Policy/Export Controls (127 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 286,
+      "count": 288,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국..."
     },
     {
@@ -291,18 +291,18 @@
     },
     {
       "key": "MSFT",
-      "count": 54,
+      "count": 55,
       "text": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
+    },
+    {
+      "key": "AMZN",
+      "count": 50,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국..."
     },
     {
       "key": "AMD",
       "count": 50,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
-    },
-    {
-      "key": "AMZN",
-      "count": 49,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국..."
     },
     {
       "key": "TSLA",
@@ -342,7 +342,7 @@
       "topics": [
         "macro"
       ],
-      "count": 312,
+      "count": 311,
       "focus": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
     },
     {
@@ -351,7 +351,7 @@
       "topics": [
         "geo"
       ],
-      "count": 347,
+      "count": 346,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -396,7 +396,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 126,
+      "count": 127,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
     },
     {
@@ -414,7 +414,7 @@
       "topics": [
         "equity"
       ],
-      "count": 144,
+      "count": 145,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -432,7 +432,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 316,
+      "count": 314,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -450,7 +450,7 @@
       "topics": [
         "japan"
       ],
-      "count": 67,
+      "count": 66,
       "focus": "지금 가마쿠라 슬램덩크 건널목에 와 있습니다! 여러분의 영광의 시대는 바로 지금입니다 포기하지마세요! 일본에서 반등을 기원하고 가겠습니다ㅎ 화이팅!"
     },
     {
@@ -477,7 +477,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 768,
+      "count": 766,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     }
   ],
@@ -1692,6 +1692,43 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72202",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72202",
+      "datetime": "2026-11-16T04:07:54.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "semi",
+        "ai-policy",
+        "equity"
+      ],
+      "lead": 1,
+      "score": 69,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "AMZN"
+      ],
+      "summary": ">>트럼프 정부, Nvidia 등 20여개 기업을 AI ‘국가 대표기업’ 명단에 포함할 예정 •Amazon, Microsoft, OpenAI, Anthropic도 해당 인증을 받을 예정임. 트럼프 정부의 국가..."
+    },
+    {
+      "id": "insidertracking/69395",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69395",
+      "datetime": "2026-11-16T04:06:43.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "트럼프 행정부, 엔비디아를 AI 분야의 '국가 대표 기업'으로 지정할 예정 - WSJ"
+    },
+    {
       "id": "insidertracking/69394",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69394",
@@ -2125,8 +2162,8 @@
       "localDateKst": "2026-11-16",
       "tags": [
         "macro",
+        "earnings",
         "semi",
-        "kr-market",
         "equity"
       ],
       "score": 92,
@@ -2137,14 +2174,15 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치...",
+      "lead": 4,
       "tickers": [
         "NVDA",
         "TSLA",
         "MSFT",
         "AMZN",
         "MU"
-      ],
-      "summary": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
+      ]
     },
     {
       "id": "insidertracking/69347",
@@ -6365,23 +6403,6 @@
       ]
     },
     {
-      "id": "insidertracking/69037",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69037",
-      "datetime": "2026-11-11T20:56:54.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 12일 🇺🇸 아메리카 • 미국과 중국의 외교 수장 간 소통 재개. 루비오 미 국무장관과 왕이 중국 외교부장은 통화를 갖고 미·중 정상 간 교류와 양국 관계를 논의....",
-      "tickers": [
-        "NVDA",
-        "AMZN"
-      ]
-    },
-    {
       "id": "HANAchina/71978",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71978",
@@ -6859,21 +6880,6 @@
         "NVDA",
         "MSFT"
       ]
-    },
-    {
-      "id": "HANAchina/71921",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71921",
-      "datetime": "2026-11-11T00:46:49.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "macro"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": ">>필라델피아 연은 총재 Paulson, 점진적 금리 인상 지지하지만 인플레이션이 여전히 목표치를 웃도는 수준에 “고착”돼 있다고 경고 •근원 인플레이션이 2.5~3% 구간에 “고착”돼 있으며,...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/21102",
@@ -8703,8 +8709,8 @@
       "localDateKst": "2026-11-16",
       "tags": [
         "macro",
+        "earnings",
         "semi",
-        "kr-market",
         "equity"
       ],
       "score": 92,
@@ -8715,14 +8721,15 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치...",
+      "lead": 4,
       "tickers": [
         "NVDA",
         "TSLA",
         "MSFT",
         "AMZN",
         "MU"
-      ],
-      "summary": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
+      ]
     },
     {
       "id": "insidertracking/69347",
