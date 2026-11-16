@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-16T02:21:40.872Z",
-  "attemptedAt": "2026-11-16T02:21:40.872Z",
-  "lastSuccessfulAt": "2026-11-16T02:21:40.872Z",
+  "generatedAt": "2026-11-16T02:51:50.177Z",
+  "attemptedAt": "2026-11-16T02:51:50.177Z",
+  "lastSuccessfulAt": "2026-11-16T02:51:50.177Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-02T02:21:34.518Z",
-  "until": "2026-11-16T02:21:34.518Z",
+  "since": "2026-11-02T02:51:45.580Z",
+  "until": "2026-11-16T02:51:45.580Z",
   "current24hWindow": {
     "start": "2026-11-14T23:00:00.000Z",
     "end": "2026-11-15T23:00:00.000Z",
@@ -82,12 +82,12 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1253,
-      "freshCount": 37,
-      "eligibleTextCount": 1199,
+      "count": 1249,
+      "freshCount": 19,
+      "eligibleTextCount": 1195,
       "selectedCount": 128,
       "error": null,
       "failingSince": null,
@@ -98,9 +98,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 222,
+      "count": 221,
       "freshCount": 17,
-      "eligibleTextCount": 222,
+      "eligibleTextCount": 221,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 720,
-      "freshCount": 36,
-      "eligibleTextCount": 720,
+      "count": 726,
+      "freshCount": 38,
+      "eligibleTextCount": 726,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72192
+      "lastPostId": 72198
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,21 +137,21 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2195,
-  "retainedItemCount": 431,
+  "count": 2196,
+  "retainedItemCount": 421,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2195,
-    "eligibleTextCount": 2141,
+    "observedCount": 2196,
+    "eligibleTextCount": 2142,
     "mediaOnlyCount": 54,
-    "mediaAttachedCount": 939,
-    "photoPostCount": 804,
+    "mediaAttachedCount": 937,
+    "photoPostCount": 803,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 373,
+    "highSignalCount": 372,
     "broadSignalCount": 867,
     "selectedRawCount": 377,
     "selectedEligibleCount": 377,
@@ -160,21 +160,21 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "macro": 315,
-    "geo": 349,
     "market-note": 772,
+    "macro": 315,
+    "credit": 78,
+    "japan": 67,
+    "geo": 348,
     "kr-market": 97,
     "semi": 567,
     "optical": 29,
     "power": 277,
     "earnings": 319,
     "flows": 56,
-    "japan": 66,
     "media-only": 52,
     "ai-policy": 126,
     "equity": 145,
     "healthcare": 57,
-    "credit": 77,
     "crypto": 2
   },
   "tickerCounts": {
@@ -268,7 +268,7 @@
   "themes": [
     "Market Notes (772 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
     "Semiconductors/Memory (567 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국...",
-    "Geopolitics (349 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Geopolitics (348 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Earnings/Corporate (319 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "Macro/Rates (315 posts in 14-day research window): 2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
     "AI Power/Grid (277 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
@@ -353,7 +353,7 @@
       "topics": [
         "geo"
       ],
-      "count": 349,
+      "count": 348,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -362,7 +362,7 @@
       "topics": [
         "credit"
       ],
-      "count": 77,
+      "count": 78,
       "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
@@ -452,7 +452,7 @@
       "topics": [
         "japan"
       ],
-      "count": 66,
+      "count": 67,
       "focus": "지금 가마쿠라 슬램덩크 건널목에 와 있습니다! 여러분의 영광의 시대는 바로 지금입니다 포기하지마세요! 일본에서 반등을 기원하고 가겠습니다ㅎ 화이팅!"
     },
     {
@@ -1696,6 +1696,21 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72194",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72194",
+      "datetime": "2026-11-16T02:30:11.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "credit",
+        "japan"
+      ],
+      "score": 62,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>모건스탠리, 글로벌 주식에 ‘최대폭 비중확대’ 권고…AI 자본지출 사이클 여전히 견조 •모건스탠리는 AI 자본지출 사이클이 여전히 견조하다고 판단하며 글로벌 주식에 ‘최대폭 비중확대’를 권고. AI..."
+    },
+    {
       "id": "HANAchina/72192",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72192",
@@ -2012,13 +2027,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "서울경제신문에 따르면 삼성전자가 미국 텍사스 공장에서 스페이스X의 스타링크 위성용 반도체 생산을 추진 중. 삼성전자는 스타링크 위성의 레이저 통신 시스템에 사용되는 STM32V8 마이크로컨트롤러를 생산할...",
+      "lead": 1,
       "tickers": [
         "005930.KS"
-      ],
-      "summary": "서울경제신문에 따르면 삼성전자가 미국 텍사스 공장에서 스페이스X의 스타링크 위성용 반도체 생산을 추진 중. 삼성전자는 스타링크 위성의 레이저 통신 시스템에 사용되는 STM32V8 마이크로컨트롤러를 생산할..."
+      ]
     },
     {
       "id": "insidertracking/69368",
@@ -2027,8 +2042,7 @@
       "datetime": "2026-11-15T22:04:35.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "geo",
-        "power"
+        "market-note"
       ],
       "score": 53,
       "hasText": true,
@@ -2038,8 +2052,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "미국 해군 구축함 스프루언스(DDG-111)와 마이클 머피(DDG-112)가 각각 357일과 346일간의 장기 배치를 마치고 이번 주 본국으로 복귀. 이는 미 해군의 기존 표준 배치 기간인 6~7개월이 사실상..."
+      "summary": "미국 해군 구축함 스프루언스(DDG-111)와 마이클 머피(DDG-112)가 각각 357일과 346일간의 장기 배치를 마치고 이번 주 본국으로 복귀. 이는 미 해군의 기존 표준 배치 기간인 6~7개월이 사실상...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69367",
@@ -2050,7 +2064,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -2059,8 +2072,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "월스트리트저널에 따르면 미국 정보당국 분석가들은 이란이 현재 1,500~2,500발의 미사일을 보유한 것으로 평가. 미국 관리들은 발사 준비가 완료된 미사일과 보관 중인 미사일의 수량을 정확히 파악하기 어려워..."
+      "summary": "월스트리트저널에 따르면 미국 정보당국 분석가들은 이란이 현재 1,500~2,500발의 미사일을 보유한 것으로 평가. 미국 관리들은 발사 준비가 완료된 미사일과 보관 중인 미사일의 수량을 정확히 파악하기 어려워...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69361",
@@ -2071,7 +2085,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -2080,8 +2093,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)..."
+      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69353",
@@ -2091,8 +2105,8 @@
       "localDateKst": "2026-11-16",
       "tags": [
         "macro",
+        "earnings",
         "semi",
-        "kr-market",
         "equity"
       ],
       "score": 92,
@@ -2103,14 +2117,15 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치...",
+      "lead": 4,
       "tickers": [
         "NVDA",
         "TSLA",
         "MSFT",
         "AMZN",
         "MU"
-      ],
-      "summary": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
+      ]
     },
     {
       "id": "insidertracking/69347",
@@ -2396,11 +2411,11 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>반도체주 4월 이후 최대 주간 상승폭 기록, 헤지펀드는 고점에서 매도 (중국언론) •반도체주가 주간 2.5% 반등하며 4월 이후 최대 주간 상승폭을 기록했음. 기술주 롱·숏 비율은 사상 최저 수준으로..."
+      "summary": ">>반도체주 4월 이후 최대 주간 상승폭 기록, 헤지펀드는 고점에서 매도 (중국언론) •반도체주가 주간 2.5% 반등하며 4월 이후 최대 주간 상승폭을 기록했음. 기술주 롱·숏 비율은 사상 최저 수준으로...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72152",
@@ -2409,10 +2424,8 @@
       "datetime": "2026-11-15T04:40:49.000Z",
       "localDateKst": "2026-11-15",
       "tags": [
-        "macro",
-        "credit"
+        "macro"
       ],
-      "lead": 1,
       "score": 74,
       "hasText": true,
       "media": {
@@ -2421,8 +2434,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>지난주 시장의 ‘의외의 현상’: 미 국채 수익률과 기술주 동반 상승 •노무라증권 전략가 Matsuzawa는 미국 기술주 상승이 기술적 반등에 가까우며, 시장이 AI 투자에 대한 신뢰를 다시 구축한 것은..."
+      "summary": ">>지난주 시장의 ‘의외의 현상’: 미 국채 수익률과 기술주 동반 상승 •노무라증권 전략가 Matsuzawa는 미국 기술주 상승이 기술적 반등에 가까우며, 시장이 AI 투자에 대한 신뢰를 다시 구축한 것은...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72151",
@@ -6864,23 +6878,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/71917",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71917",
-      "datetime": "2026-11-11T00:11:12.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "power"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "• 마이크로소프트(MSFT)를 필두로 한 미국 클라우드·소프트웨어 기업 및 업계 단체(ITI)가 트럼프 행정부(백악관 OSTP, NSC, FCC)를 상대로 AI 데이터센터 핵심 부품인 중국산 광트랜시버의 수입...",
-      "lead": 1,
-      "tickers": [
-        "MSFT"
-      ]
-    },
-    {
       "id": "bornlupin/21102",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21102",
@@ -8629,13 +8626,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "서울경제신문에 따르면 삼성전자가 미국 텍사스 공장에서 스페이스X의 스타링크 위성용 반도체 생산을 추진 중. 삼성전자는 스타링크 위성의 레이저 통신 시스템에 사용되는 STM32V8 마이크로컨트롤러를 생산할...",
+      "lead": 1,
       "tickers": [
         "005930.KS"
-      ],
-      "summary": "서울경제신문에 따르면 삼성전자가 미국 텍사스 공장에서 스페이스X의 스타링크 위성용 반도체 생산을 추진 중. 삼성전자는 스타링크 위성의 레이저 통신 시스템에 사용되는 STM32V8 마이크로컨트롤러를 생산할..."
+      ]
     },
     {
       "id": "insidertracking/69368",
@@ -8644,8 +8641,7 @@
       "datetime": "2026-11-15T22:04:35.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "geo",
-        "power"
+        "market-note"
       ],
       "score": 53,
       "hasText": true,
@@ -8655,8 +8651,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "미국 해군 구축함 스프루언스(DDG-111)와 마이클 머피(DDG-112)가 각각 357일과 346일간의 장기 배치를 마치고 이번 주 본국으로 복귀. 이는 미 해군의 기존 표준 배치 기간인 6~7개월이 사실상..."
+      "summary": "미국 해군 구축함 스프루언스(DDG-111)와 마이클 머피(DDG-112)가 각각 357일과 346일간의 장기 배치를 마치고 이번 주 본국으로 복귀. 이는 미 해군의 기존 표준 배치 기간인 6~7개월이 사실상...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69367",
@@ -8667,7 +8663,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -8676,8 +8671,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "월스트리트저널에 따르면 미국 정보당국 분석가들은 이란이 현재 1,500~2,500발의 미사일을 보유한 것으로 평가. 미국 관리들은 발사 준비가 완료된 미사일과 보관 중인 미사일의 수량을 정확히 파악하기 어려워..."
+      "summary": "월스트리트저널에 따르면 미국 정보당국 분석가들은 이란이 현재 1,500~2,500발의 미사일을 보유한 것으로 평가. 미국 관리들은 발사 준비가 완료된 미사일과 보관 중인 미사일의 수량을 정확히 파악하기 어려워...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69361",
@@ -8688,7 +8684,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -8697,8 +8692,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)..."
+      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69353",
@@ -8708,8 +8704,8 @@
       "localDateKst": "2026-11-16",
       "tags": [
         "macro",
+        "earnings",
         "semi",
-        "kr-market",
         "equity"
       ],
       "score": 92,
@@ -8720,14 +8716,15 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치...",
+      "lead": 4,
       "tickers": [
         "NVDA",
         "TSLA",
         "MSFT",
         "AMZN",
         "MU"
-      ],
-      "summary": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
+      ]
     },
     {
       "id": "insidertracking/69347",
@@ -9013,11 +9010,11 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>반도체주 4월 이후 최대 주간 상승폭 기록, 헤지펀드는 고점에서 매도 (중국언론) •반도체주가 주간 2.5% 반등하며 4월 이후 최대 주간 상승폭을 기록했음. 기술주 롱·숏 비율은 사상 최저 수준으로..."
+      "summary": ">>반도체주 4월 이후 최대 주간 상승폭 기록, 헤지펀드는 고점에서 매도 (중국언론) •반도체주가 주간 2.5% 반등하며 4월 이후 최대 주간 상승폭을 기록했음. 기술주 롱·숏 비율은 사상 최저 수준으로...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72152",
@@ -9026,10 +9023,8 @@
       "datetime": "2026-11-15T04:40:49.000Z",
       "localDateKst": "2026-11-15",
       "tags": [
-        "macro",
-        "credit"
+        "macro"
       ],
-      "lead": 1,
       "score": 74,
       "hasText": true,
       "media": {
@@ -9038,8 +9033,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>지난주 시장의 ‘의외의 현상’: 미 국채 수익률과 기술주 동반 상승 •노무라증권 전략가 Matsuzawa는 미국 기술주 상승이 기술적 반등에 가까우며, 시장이 AI 투자에 대한 신뢰를 다시 구축한 것은..."
+      "summary": ">>지난주 시장의 ‘의외의 현상’: 미 국채 수익률과 기술주 동반 상승 •노무라증권 전략가 Matsuzawa는 미국 기술주 상승이 기술적 반등에 가까우며, 시장이 AI 투자에 대한 신뢰를 다시 구축한 것은...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72151",
