@@ -52,9 +52,13 @@ try {
       overflow: document.documentElement.scrollWidth > window.innerWidth + 2
     };
   });
-  // v59.71: fixture re-pinned to 9a270474 — two managers have filed the 2026-09-30 13F, 35 are still on the prior quarter.
+  // During a filing season the pinned data moves managers from the prior quarter to the new one with every re-pin, so
+  // the split is read as an invariant: every 13F filer is either on the latest quarter or counted as missing it.
+  const [coverageData, coverageState, currentFull, staleFull, previewOnly, metadataOnly, methodOnly, officialPrinciples, verifiedRecords, latestMissing] = overview.coverage.split(',');
+  const coverageHolds = coverageData === 'partial' && coverageState === 'partial' && Number(currentFull) >= 1 && Number(currentFull) + Number(staleFull) === 37
+    && staleFull === latestMissing && [previewOnly, metadataOnly, methodOnly, officialPrinciples, verifiedRecords].join(',') === '0,0,1,2,0';
   if (!overview.active || !overview.shell || overview.managers !== 38 || overview.styleGroups < 6 || overview.topRows !== 10 || overview.fullRows !== '0'
-    || overview.coverage !== 'partial,partial,2,35,0,0,1,2,0,35' || !overview.changeSummary.includes('2026-03-31') || !/13F로 알 수 없는 것/.test(overview.styleAside)
+    || !coverageHolds || !overview.changeSummary.includes('2026-03-31') || !/13F로 알 수 없는 것/.test(overview.styleAside)
     || overview.nanCells || overview.devCopy || overview.overflow) throw new Error(`overview contract failed: ${JSON.stringify(overview)}`);
 
   await page.locator('#page-masters [data-masters-action="style-overview"]').click();

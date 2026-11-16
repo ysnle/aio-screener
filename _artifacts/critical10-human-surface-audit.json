@@ -8,7 +8,7 @@
     {
       "routeId": "home",
       "status": "ok",
-      "focusableCount": 15,
+      "focusableCount": 16,
       "pageTitle": "오늘",
       "audit": {
         "status": "ok",
@@ -31,7 +31,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:32.844Z"
+          "generatedAt": "2026-11-16T02:37:35.912Z"
         },
         "accessibility": {
           "status": "ok",
@@ -54,9 +54,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:32.861Z"
+          "generatedAt": "2026-11-16T02:37:35.926Z"
         },
-        "generatedAt": "2026-11-16T02:13:32.861Z"
+        "generatedAt": "2026-11-16T02:37:35.926Z"
       },
       "tabSequence": [
         {
@@ -104,7 +104,7 @@
         {
           "tag": "SPAN",
           "id": "",
-          "name": "WTI88.56-0.18 (-0.20%)",
+          "name": "WTI88.25-0.31 (-0.35%)",
           "tabindex": "0"
         },
         {
@@ -122,44 +122,14 @@
         {
           "tag": "SPAN",
           "id": "",
-          "name": "달러 지수103.41+0.23%",
+          "name": "달러 지수103.45—",
           "tabindex": "0"
         },
         {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "AVGO-4.8%",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "AMD-8.8%",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "NVDA-2.0%",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "지난 24시간 전체 10건 → 브리핑",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "이야기와 시나리오 → 시장 상태",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "뉴스 전체 → 뉴스",
-          "tabindex": ""
+          "tag": "SPAN",
+          "id": "home-kospi-chip",
+          "name": "코스피 11/16 10:30 지연5,154.54-2.57%",
+          "tabindex": "0"
         },
         {
           "tag": "BUTTON",
@@ -202,6 +172,36 @@
           "id": "",
           "name": "오늘 페이지",
           "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "시장 상태 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "매크로 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "기술적 분석 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "테마와 섹터 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "스크리너 페이지",
+          "tabindex": "0"
         }
       ]
     },
@@ -231,7 +231,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:34.206Z"
+          "generatedAt": "2026-11-16T02:37:37.308Z"
         },
         "accessibility": {
           "status": "ok",
@@ -254,21 +254,15 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:34.224Z"
+          "generatedAt": "2026-11-16T02:37:37.326Z"
         },
-        "generatedAt": "2026-11-16T02:13:34.224Z"
+        "generatedAt": "2026-11-16T02:37:37.326Z"
       },
       "tabSequence": [
         {
           "tag": "BUTTON",
           "id": "",
           "name": "지금",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "주도주",
           "tabindex": "0"
         },
         {
@@ -402,13 +396,19 @@
           "id": "",
           "name": "포트폴리오 페이지",
           "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "리서치 라이브러리 페이지",
+          "tabindex": "0"
         }
       ]
     },
     {
       "routeId": "breadth",
       "status": "ok",
-      "focusableCount": 24,
+      "focusableCount": 29,
       "pageTitle": "시장 폭",
       "audit": {
         "status": "ok",
@@ -431,7 +431,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:34.696Z"
+          "generatedAt": "2026-11-16T02:37:37.767Z"
         },
         "accessibility": {
           "status": "ok",
@@ -454,9 +454,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:34.704Z"
+          "generatedAt": "2026-11-16T02:37:37.775Z"
         },
-        "generatedAt": "2026-11-16T02:13:34.704Z"
+        "generatedAt": "2026-11-16T02:37:37.775Z"
       },
       "tabSequence": [
         {
@@ -607,11 +607,11 @@
     },
     {
       "routeId": "sentiment",
-      "status": "warn",
-      "focusableCount": 25,
+      "status": "ok",
+      "focusableCount": 10,
       "pageTitle": "투자 심리",
       "audit": {
-        "status": "warn",
+        "status": "ok",
         "hierarchy": {
           "status": "ok",
           "pagesChecked": 1,
@@ -631,86 +631,39 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:35.054Z"
+          "generatedAt": "2026-11-16T02:37:38.129Z"
         },
         "accessibility": {
-          "status": "warn",
+          "status": "ok",
           "pagesChecked": 1,
           "issueCount": 0,
-          "warningCount": 1,
+          "warningCount": 0,
           "blockers": [],
-          "warnings": [
-            "small-targets:3"
-          ],
+          "warnings": [],
           "pages": [
             {
               "pageId": "sentiment",
               "pageExists": true,
               "active": true,
               "blockers": [],
-              "warnings": [
-                "small-targets:3"
-              ],
+              "warnings": [],
               "nameless": [],
               "unfocusable": [],
               "positiveTabindex": [],
-              "smallTargets": [
-                {
-                  "id": "",
-                  "selector": "#page-sentiment section.sx-card.sx-card--hero > div.mk-senti-hero__main > p.mk-sub-hero__lede > span.aio-term",
-                  "width": 21,
-                  "height": 28
-                },
-                {
-                  "id": "",
-                  "selector": "#page-sentiment section.sx-card.sx-card--hero > p.flow-lead.mk-sub-hero__flip > span.aio-term",
-                  "width": 21,
-                  "height": 28
-                },
-                {
-                  "id": "",
-                  "selector": "#page-sentiment section.briefing-block.market-temperature > button.aio-basis-btn",
-                  "width": 1,
-                  "height": 1
-                }
-              ],
+              "smallTargets": [],
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:35.057Z"
+          "generatedAt": "2026-11-16T02:37:38.135Z"
         },
-        "generatedAt": "2026-11-16T02:13:35.057Z"
+        "generatedAt": "2026-11-16T02:37:38.135Z"
       },
       "tabSequence": [
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "공포·탐욕",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "bp",
-          "tabindex": "0"
-        },
         {
           "tag": "SUMMARY",
           "id": "",
           "name": "이어서 읽기",
           "tabindex": ""
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "하이일드 스프레드",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "VIX",
-          "tabindex": "0"
         },
         {
           "tag": "SUMMARY",
@@ -746,12 +699,6 @@
           "tag": "SUMMARY",
           "id": "",
           "name": "S&P 500 — 다섯 요소 순위와 2년 종가",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "지수별 가격 온도 (참고) 근거 보기",
           "tabindex": ""
         },
         {
@@ -825,13 +772,43 @@
           "id": "",
           "name": "종목 페이지",
           "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "포트폴리오 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "리서치 라이브러리 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "용어 사전 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sidebar-theme-btn",
+          "name": "다크 모드로 전환",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sidebar-kbd-btn",
+          "name": "단축키 보기 (?)",
+          "tabindex": ""
         }
       ]
     },
     {
       "routeId": "briefing",
       "status": "ok",
-      "focusableCount": 14,
+      "focusableCount": 22,
       "pageTitle": "브리핑",
       "audit": {
         "status": "ok",
@@ -854,7 +831,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:35.893Z"
+          "generatedAt": "2026-11-16T02:37:38.934Z"
         },
         "accessibility": {
           "status": "ok",
@@ -877,9 +854,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:35.899Z"
+          "generatedAt": "2026-11-16T02:37:38.940Z"
         },
-        "generatedAt": "2026-11-16T02:13:35.899Z"
+        "generatedAt": "2026-11-16T02:37:38.940Z"
       },
       "tabSequence": [
         {
@@ -889,33 +866,21 @@
           "tabindex": "0"
         },
         {
-          "tag": "SPAN",
+          "tag": "SUMMARY",
           "id": "",
-          "name": "하이일드 스프레드",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "CCC",
-          "tabindex": "0"
+          "name": "관련 보도 1건",
+          "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
-          "name": "그 밖에 움직인 것 4건",
+          "name": "그 밖에 움직인 것 5건",
           "tabindex": ""
         },
         {
           "tag": "SUMMARY",
           "id": "",
           "name": "실적 발표 뒤 움직임 1건",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "이유가 확인되지 않은 큰 움직임 1건",
           "tabindex": ""
         },
         {
@@ -1025,6 +990,18 @@
           "id": "",
           "name": "KST",
           "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "FOMC",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "briefing-schedule-title",
+          "name": "날짜별 일정, 한국 시간",
+          "tabindex": ""
         }
       ]
     },
@@ -1054,7 +1031,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:36.829Z"
+          "generatedAt": "2026-11-16T02:37:39.854Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1077,9 +1054,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:36.832Z"
+          "generatedAt": "2026-11-16T02:37:39.857Z"
         },
-        "generatedAt": "2026-11-16T02:13:36.832Z"
+        "generatedAt": "2026-11-16T02:37:39.857Z"
       },
       "tabSequence": [
         {
@@ -1254,7 +1231,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:37.253Z"
+          "generatedAt": "2026-11-16T02:37:40.281Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1277,9 +1254,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:37.274Z"
+          "generatedAt": "2026-11-16T02:37:40.304Z"
         },
-        "generatedAt": "2026-11-16T02:13:37.274Z"
+        "generatedAt": "2026-11-16T02:37:40.304Z"
       },
       "tabSequence": [
         {
@@ -1430,11 +1407,11 @@
     },
     {
       "routeId": "fxbond",
-      "status": "warn",
-      "focusableCount": 18,
+      "status": "ok",
+      "focusableCount": 8,
       "pageTitle": "금리와 환율",
       "audit": {
-        "status": "warn",
+        "status": "ok",
         "hierarchy": {
           "status": "ok",
           "pagesChecked": 1,
@@ -1454,49 +1431,32 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:38.125Z"
+          "generatedAt": "2026-11-16T02:37:41.120Z"
         },
         "accessibility": {
-          "status": "warn",
+          "status": "ok",
           "pagesChecked": 1,
           "issueCount": 0,
-          "warningCount": 1,
+          "warningCount": 0,
           "blockers": [],
-          "warnings": [
-            "small-targets:2"
-          ],
+          "warnings": [],
           "pages": [
             {
               "pageId": "fxbond",
               "pageExists": true,
               "active": true,
               "blockers": [],
-              "warnings": [
-                "small-targets:2"
-              ],
+              "warnings": [],
               "nameless": [],
               "unfocusable": [],
               "positiveTabindex": [],
-              "smallTargets": [
-                {
-                  "id": "",
-                  "selector": "#page-fxbond div.rates-curve-row > div.rates-curve-side > p.rates-curve-fact > span.aio-term",
-                  "width": 20,
-                  "height": 28
-                },
-                {
-                  "id": "",
-                  "selector": "#page-fxbond div.rates-curve-side > p.rates-curve-fact > strong > span.aio-term",
-                  "width": 17,
-                  "height": 28
-                }
-              ],
+              "smallTargets": [],
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:38.126Z"
+          "generatedAt": "2026-11-16T02:37:41.126Z"
         },
-        "generatedAt": "2026-11-16T02:13:38.126Z"
+        "generatedAt": "2026-11-16T02:37:41.126Z"
       },
       "tabSequence": [
         {
@@ -1671,7 +1631,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:38.506Z"
+          "generatedAt": "2026-11-16T02:37:41.545Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1694,9 +1654,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:38.511Z"
+          "generatedAt": "2026-11-16T02:37:41.550Z"
         },
-        "generatedAt": "2026-11-16T02:13:38.511Z"
+        "generatedAt": "2026-11-16T02:37:41.550Z"
       },
       "tabSequence": [
         {
@@ -1871,7 +1831,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:39.054Z"
+          "generatedAt": "2026-11-16T02:37:42.096Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1894,9 +1854,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-16T02:13:39.075Z"
+          "generatedAt": "2026-11-16T02:37:42.118Z"
         },
-        "generatedAt": "2026-11-16T02:13:39.075Z"
+        "generatedAt": "2026-11-16T02:37:42.118Z"
       },
       "tabSequence": [
         {
@@ -2047,6 +2007,6 @@
     }
   ],
   "consoleErrors": [],
-  "generatedAt": "2026-11-16T02:13:31.568Z",
+  "generatedAt": "2026-11-16T02:37:34.557Z",
   "status": "pass"
 }
