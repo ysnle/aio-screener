@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-16T12:21:33.087Z",
-  "attemptedAt": "2026-11-16T12:21:33.087Z",
-  "lastSuccessfulAt": "2026-11-16T12:21:33.087Z",
+  "generatedAt": "2026-11-16T13:22:32.233Z",
+  "attemptedAt": "2026-11-16T13:22:32.233Z",
+  "lastSuccessfulAt": "2026-11-16T13:22:32.233Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-02T12:21:29.044Z",
-  "until": "2026-11-16T12:21:29.044Z",
+  "since": "2026-11-02T13:22:26.847Z",
+  "until": "2026-11-16T13:22:26.847Z",
   "current24hWindow": {
     "start": "2026-11-14T23:00:00.000Z",
     "end": "2026-11-15T23:00:00.000Z",
@@ -82,12 +82,12 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1239,
-      "freshCount": 37,
-      "eligibleTextCount": 1187,
+      "count": 1234,
+      "freshCount": 20,
+      "eligibleTextCount": 1182,
       "selectedCount": 130,
       "error": null,
       "failingSince": null,
@@ -98,9 +98,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 204,
+      "count": 203,
       "freshCount": 17,
-      "eligibleTextCount": 204,
+      "eligibleTextCount": 203,
       "selectedCount": 121,
       "error": null,
       "failingSince": null,
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 722,
-      "freshCount": 17,
-      "eligibleTextCount": 722,
+      "count": 718,
+      "freshCount": 35,
+      "eligibleTextCount": 718,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72225
+      "lastPostId": 72229
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,44 +137,44 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2165,
-  "retainedItemCount": 416,
+  "count": 2155,
+  "retainedItemCount": 417,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2165,
-    "eligibleTextCount": 2113,
+    "observedCount": 2155,
+    "eligibleTextCount": 2103,
     "mediaOnlyCount": 52,
-    "mediaAttachedCount": 931,
-    "photoPostCount": 803,
+    "mediaAttachedCount": 928,
+    "photoPostCount": 801,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 367,
-    "broadSignalCount": 861,
+    "highSignalCount": 364,
+    "broadSignalCount": 856,
     "selectedRawCount": 376,
     "selectedEligibleCount": 376,
-    "selectedRawCoveragePct": 17.8,
+    "selectedRawCoveragePct": 17.9,
     "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 765,
-    "geo": 336,
-    "macro": 311,
-    "semi": 565,
-    "power": 276,
-    "ai-policy": 125,
+    "market-note": 762,
+    "power": 275,
     "credit": 77,
+    "geo": 333,
+    "macro": 310,
+    "semi": 563,
+    "ai-policy": 123,
     "media-only": 50,
-    "earnings": 310,
+    "earnings": 308,
     "kr-market": 95,
     "flows": 54,
     "healthcare": 54,
-    "optical": 30,
+    "optical": 28,
     "insider": 1,
-    "equity": 141,
+    "equity": 140,
     "japan": 60,
     "crypto": 2
   },
@@ -184,21 +184,21 @@
     "AMZN": 52,
     "BIDU": 3,
     "CAT": 2,
-    "TSM": 63,
+    "TSM": 62,
     "2454.TW": 7,
     "AMD": 51,
-    "GOOG": 60,
+    "GOOG": 59,
     "MU": 30,
     "MSFT": 54,
     "005930.KS": 28,
-    "TSLA": 45,
+    "TSLA": 44,
     "ARM": 2,
     "JD": 1,
     "AVGO": 16,
     "000660.KS": 20,
     "MS": 4,
     "CRWD": 1,
-    "ORCL": 9,
+    "ORCL": 8,
     "SMCI": 8,
     "APLD": 1,
     "319660.KQ": 1,
@@ -212,12 +212,12 @@
     "DDOG": 1,
     "SNOW": 1,
     "CRWV": 16,
-    "PLTR": 18,
-    "LITE": 6,
+    "PLTR": 17,
+    "LITE": 4,
     "COHR": 4,
     "BABA": 3,
     "103590.KS": 1,
-    "AAPL": 15,
+    "AAPL": 14,
     "GS": 3,
     "RKLB": 2,
     "IRDM": 2,
@@ -243,7 +243,7 @@
     "285A.T": 2,
     "QCOM": 1,
     "SN": 1,
-    "MRVL": 4,
+    "MRVL": 3,
     "MPWR": 1,
     "GFS": 1,
     "CVS": 1,
@@ -259,44 +259,43 @@
     "CIEN": 1,
     "MTCH": 1,
     "ON": 1,
-    "BWXT": 1,
-    "T": 1
+    "BWXT": 1
   },
   "themes": [
-    "Market Notes (765 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
-    "Semiconductors/Memory (565 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국...",
-    "Geopolitics (336 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Macro/Rates (311 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한...",
-    "Earnings/Corporate (310 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "AI Power/Grid (276 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
-    "Equity/Analyst (141 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "AI Policy/Export Controls (125 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
+    "Market Notes (762 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
+    "Semiconductors/Memory (563 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로...",
+    "Geopolitics (333 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Macro/Rates (310 posts in 14-day research window): 2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
+    "Earnings/Corporate (308 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "AI Power/Grid (275 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
+    "Equity/Analyst (140 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
+    "AI Policy/Export Controls (123 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
       "count": 300,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
       "key": "TSM",
-      "count": 63,
+      "count": 62,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
       "key": "GOOG",
-      "count": 60,
+      "count": 59,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면..."
     },
     {
       "key": "MSFT",
       "count": 54,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
       "key": "AMZN",
       "count": 52,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
       "key": "AMD",
@@ -305,18 +304,18 @@
     },
     {
       "key": "TSLA",
-      "count": 45,
+      "count": 44,
       "text": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,..."
     },
     {
       "key": "MU",
       "count": 30,
-      "text": "11월 12일 미주인 브리핑 • 나스닥 1.58% 상승 · VIX 9.61% 하락 • 코어위브 25% 상승 마감 · AI 인프라주 동반 강세 • 마이크론·오라클·엔비디아 장중 급등 · 반도체 매수세 확대 •..."
+      "text": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
     },
     {
       "key": "005930.KS",
       "count": 28,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
       "key": "000660.KS",
@@ -325,7 +324,7 @@
     },
     {
       "key": "PLTR",
-      "count": 18,
+      "count": 17,
       "text": "팔란티어(PLTR) 2026년 3분기 어닝콜 1. 실적 및 성장률 매출 23.13억 달러, 전년 대비 +96%, 전분기 대비 +20%. 상장 이후 최고 성장률. 미국 매출 19.37억 달러, 전년 대비..."
     },
     {
@@ -341,8 +340,8 @@
       "topics": [
         "macro"
       ],
-      "count": 311,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
+      "count": 310,
+      "focus": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
     },
     {
       "id": "geo",
@@ -350,7 +349,7 @@
       "topics": [
         "geo"
       ],
-      "count": 336,
+      "count": 333,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -368,8 +367,8 @@
       "topics": [
         "semi"
       ],
-      "count": 565,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국..."
+      "count": 563,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
       "id": "optical",
@@ -377,8 +376,8 @@
       "topics": [
         "optical"
       ],
-      "count": 30,
-      "focus": "No retained full-text sample; 30 observed posts in the 14-day research window."
+      "count": 28,
+      "focus": "No retained full-text sample; 28 observed posts in the 14-day research window."
     },
     {
       "id": "power",
@@ -386,7 +385,7 @@
       "topics": [
         "power"
       ],
-      "count": 276,
+      "count": 275,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -395,7 +394,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 125,
+      "count": 123,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
     },
     {
@@ -413,7 +412,7 @@
       "topics": [
         "equity"
       ],
-      "count": 141,
+      "count": 140,
       "focus": "슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS..."
     },
     {
@@ -431,7 +430,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 310,
+      "count": 308,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -476,7 +475,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 765,
+      "count": 762,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     }
   ],
@@ -736,20 +735,18 @@
       "datetime": "2026-11-16T05:36:27.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "macro",
-        "geo",
         "semi",
-        "power"
+        "ai-policy"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로...",
       "tickers": [
         "NVDA",
         "MSFT",
         "AMZN",
         "005930.KS"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
+      ]
     },
     {
       "id": "insidertracking/69342",
@@ -1691,6 +1688,22 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72227",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72227",
+      "datetime": "2026-11-16T12:36:06.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "power",
+        "credit"
+      ],
+      "lead": 2,
+      "score": 70,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>블랙스톤 산하 데이터센터 기업 자금조달 60% 축소…AI 금융시장 냉기, 투자등급 채권으로 확산 (중국언론) •블랙스톤 산하 데이터센터 운영업체 QTS는 당초 8억 달러 규모의 자금조달을 계획했으나..."
+    },
+    {
       "id": "insidertracking/69424",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69424",
@@ -2052,6 +2065,7 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "하버드대학교 기금 3분기 포트폴리오 공개 • 하버드 기금, 스페이스X 보유 주식 33.74% 매도·약 6억 5,800만 달러 축소, 여전히 포트폴리오 비중 32.71%로 1위 • 하버드 기금, TSMC 보유량...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2060,8 +2074,7 @@
         "GOOG",
         "AVGO",
         "TSM"
-      ],
-      "summary": "하버드대학교 기금 3분기 포트폴리오 공개 • 하버드 기금, 스페이스X 보유 주식 33.74% 매도·약 6억 5,800만 달러 축소, 여전히 포트폴리오 비중 32.71%로 1위 • 하버드 기금, TSMC 보유량..."
+      ]
     },
     {
       "id": "insidertracking/69400",
@@ -2080,11 +2093,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "베일리 기포드 3분기 포트폴리오 공개 • 베일리 기포드, 엔비디아 1억 5,627만 달러 추가 매수·총 97억 2,300만 달러 보유, 포트폴리오 비중 9.18%로 1위 • 베일리 기포드, 램리서치 11억...",
       "tickers": [
         "NVDA",
         "AMZN"
-      ],
-      "summary": "베일리 기포드 3분기 포트폴리오 공개 • 베일리 기포드, 엔비디아 1억 5,627만 달러 추가 매수·총 97억 2,300만 달러 보유, 포트폴리오 비중 9.18%로 1위 • 베일리 기포드, 램리서치 11억..."
+      ]
     },
     {
       "id": "insidertracking/69398",
@@ -2093,10 +2106,7 @@
       "datetime": "2026-11-16T05:58:26.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "macro",
-        "semi",
-        "equity",
-        "earnings"
+        "market-note"
       ],
       "score": 87,
       "hasText": true,
@@ -2106,11 +2116,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "11월 16일 미국 증시 프리마켓 브리핑 미국 지수선물은 기술주 중심 약세. 다우 선물 -0.19%, S&P500 선물 -0.55%, 나스닥100 선물 -1.16%, 러셀2000 선물 -0.52% 기록 중이며...",
       "tickers": [
         "NVDA",
         "MU"
-      ],
-      "summary": "11월 16일 미국 증시 프리마켓 브리핑 미국 지수선물은 기술주 중심 약세. 다우 선물 -0.19%, S&P500 선물 -0.55%, 나스닥100 선물 -1.16%, 러셀2000 선물 -0.52% 기록 중이며..."
+      ]
     },
     {
       "id": "insidertracking/69397",
@@ -2119,20 +2129,18 @@
       "datetime": "2026-11-16T05:36:27.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "macro",
-        "geo",
         "semi",
-        "power"
+        "ai-policy"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로...",
       "tickers": [
         "NVDA",
         "MSFT",
         "AMZN",
         "005930.KS"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
+      ]
     },
     {
       "id": "HANAchina/72202",
@@ -2145,15 +2153,15 @@
         "ai-policy",
         "equity"
       ],
+      "lead": 1,
       "score": 69,
       "hasText": true,
-      "summary": ">>트럼프 정부, Nvidia 등 20여개 기업을 AI ‘국가 대표기업’ 명단에 포함할 예정 •Amazon, Microsoft, OpenAI, Anthropic도 해당 인증을 받을 예정임. 트럼프 정부의 국가...",
-      "lead": 3,
       "tickers": [
         "NVDA",
         "MSFT",
         "AMZN"
-      ]
+      ],
+      "summary": ">>트럼프 정부, Nvidia 등 20여개 기업을 AI ‘국가 대표기업’ 명단에 포함할 예정 •Amazon, Microsoft, OpenAI, Anthropic도 해당 인증을 받을 예정임. 트럼프 정부의 국가..."
     },
     {
       "id": "insidertracking/69395",
@@ -2166,10 +2174,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "트럼프 행정부, 엔비디아를 AI 분야의 '국가 대표 기업'으로 지정할 예정 - WSJ",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 행정부, 엔비디아를 AI 분야의 '국가 대표 기업'으로 지정할 예정 - WSJ"
+      ]
     },
     {
       "id": "insidertracking/69394",
@@ -2180,7 +2188,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
       "media": {
@@ -2189,10 +2196,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아, AI 기업 지원 자금 삭감 예정; '무제한 ATM' 시대 종말의 위기 젠슨 황 CEO는 퇴임에 앞서 엔비디아가 AI 경제를 지원하는 방식을 재편하기 시작했습니다. 황 CEO가 승인했던 일부 투자...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아, AI 기업 지원 자금 삭감 예정; '무제한 ATM' 시대 종말의 위기 젠슨 황 CEO는 퇴임에 앞서 엔비디아가 AI 경제를 지원하는 방식을 재편하기 시작했습니다. 황 CEO가 승인했던 일부 투자..."
+      ]
     },
     {
       "id": "HANAchina/72194",
@@ -2201,12 +2209,13 @@
       "datetime": "2026-11-16T02:30:11.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "market-note"
+        "credit",
+        "japan"
       ],
       "score": 62,
       "hasText": true,
-      "summary": ">>모건스탠리, 글로벌 주식에 ‘최대폭 비중확대’ 권고…AI 자본지출 사이클 여전히 견조 •모건스탠리는 AI 자본지출 사이클이 여전히 견조하다고 판단하며 글로벌 주식에 ‘최대폭 비중확대’를 권고. AI...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>모건스탠리, 글로벌 주식에 ‘최대폭 비중확대’ 권고…AI 자본지출 사이클 여전히 견조 •모건스탠리는 AI 자본지출 사이클이 여전히 견조하다고 판단하며 글로벌 주식에 ‘최대폭 비중확대’를 권고. AI..."
     },
     {
       "id": "HANAchina/72192",
@@ -2215,7 +2224,7 @@
       "datetime": "2026-11-16T02:06:11.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -2225,8 +2234,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "[중 국 10월 경제지표: 모든 지표 예상 하회] •10월 산업생산 YoY+4.8% (예상 YoY +5.3% / 9월 +5.5%) •10월 소매판매 YoY+0.4% (예상 YoY+0.8%/ 9월 +1.1%)...",
-      "tickers": []
+      "tickers": [],
+      "summary": "[중 국 10월 경제지표: 모든 지표 예상 하회] •10월 산업생산 YoY+4.8% (예상 YoY +5.3% / 9월 +5.5%) •10월 소매판매 YoY+0.4% (예상 YoY+0.8%/ 9월 +1.1%)..."
     },
     {
       "id": "insidertracking/69388",
@@ -2235,17 +2244,15 @@
       "datetime": "2026-11-16T01:41:22.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "kr-market",
-        "geo",
-        "semi"
+        "semi",
+        "kr-market"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": "지금 미국 선물이랑 코스피 하락 이유 · 엔비디아, 젠슨 황 CEO 퇴진 이후 리더십 불확실성 지속 · 젠슨 황, CEO 복귀를 검토 중이라는 보도 · 콜레트 크레스 임시 CEO가 회사 경영을 이끌 준비...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "지금 미국 선물이랑 코스피 하락 이유 · 엔비디아, 젠슨 황 CEO 퇴진 이후 리더십 불확실성 지속 · 젠슨 황, CEO 복귀를 검토 중이라는 보도 · 콜레트 크레스 임시 CEO가 회사 경영을 이끌 준비..."
+      ]
     },
     {
       "id": "HANAchina/72190",
@@ -2259,9 +2266,8 @@
       ],
       "score": 55,
       "hasText": true,
-      "summary": "•중국증시 개장 다수 태양광 종목 하한가 •로봇, 반도체, CPO 관련주 동반 약세",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국증시 개장 다수 태양광 종목 하한가 •로봇, 반도체, CPO 관련주 동반 약세"
     },
     {
       "id": "HANAchina/72188",
@@ -6775,28 +6781,6 @@
       "hasText": true,
       "summary": ">‘공급 과잉 거래’ 다시 등장! JPMorgan : 미·이란 합의 시 브렌트유 70달러 중반까지 하락 가능 •JPMorgan은 연방정부 자금이 곧 소진될 상황으로, 트럼프 행정부에 남은 협상 기간이 3주에...",
       "tickers": []
-    },
-    {
-      "id": "HANAchina/71959",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71959",
-      "datetime": "2026-11-11T08:21:00.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "market-note"
-      ],
-      "score": 81,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "중화권 마감 시황 (26.11.11, 수) 🇨🇳 중국 본토 증시는 연중 최대 쇼핑 축제인 ‘광군제’ 본행사일을 맞아 전통 유통·소비재 대신 AI 숏폼 및 디지털 소비로 무게추가 옮겨간 가운데, 오후 들어...",
-      "tickers": [
-        "TSM"
-      ]
     },
     {
       "id": "bornlupin/21113",

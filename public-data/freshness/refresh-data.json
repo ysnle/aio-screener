@@ -1,18 +1,18 @@
 {
  "schemaVersion": "aio-freshness.v1",
  "workflow": "refresh-data.yml",
- "writtenAt": "2026-11-16T12:21:46.830Z",
+ "writtenAt": "2026-11-16T13:22:41.922Z",
  "artifacts": {
   "data.json": {
    "expectedEveryMinutes": 30,
    "staleAfterMinutes": 720,
    "workflow": "refresh-data.yml",
    "producer": "scripts/fetch-data.mjs",
-   "producedAt": "2026-11-16T12:21:07.653Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "producedAt": "2026-11-16T13:21:52.328Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": null,
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "updated"
    }
   },
@@ -22,13 +22,13 @@
    "workflow": "refresh-data.yml",
    "producer": "scripts/producer/history.mjs",
    "producedAt": "2026-11-15T23:00:00.000Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": {
     "US": "2026-11-13",
     "KR": "2026-11-16"
    },
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "updated"
    }
   },
@@ -37,11 +37,11 @@
    "staleAfterMinutes": 1440,
    "workflow": "refresh-data.yml",
    "producer": "scripts/fetch-data.mjs",
-   "producedAt": "2026-11-16T12:21:07.653Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "producedAt": "2026-11-16T13:21:52.328Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": null,
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "updated"
    }
   },
@@ -50,12 +50,12 @@
    "staleAfterMinutes": 5760,
    "workflow": "refresh-data.yml",
    "producer": "scripts/producer/macro-history.mjs",
-   "producedAt": "2026-11-16T10:21:07.264Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "producedAt": "2026-11-16T13:21:52.332Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": null,
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
-    "status": "unchanged"
+    "at": "2026-11-16T13:22:41.922Z",
+    "status": "updated"
    }
   },
   "rotation-detail.json": {
@@ -64,10 +64,10 @@
    "workflow": "refresh-data.yml",
    "producer": "scripts/fetch-data.mjs",
    "producedAt": "2026-11-13T21:51:03.354Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": null,
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "unchanged"
    }
   },
@@ -76,12 +76,12 @@
    "staleAfterMinutes": 5760,
    "workflow": "refresh-data.yml",
    "producer": "scripts/fetch-data.mjs",
-   "producedAt": "2026-11-16T00:21:36.602Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "producedAt": "2026-11-16T13:21:52.332Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": null,
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
-    "status": "unchanged"
+    "at": "2026-11-16T13:22:41.922Z",
+    "status": "updated"
    }
   },
   "telegram-digest.json": {
@@ -89,11 +89,11 @@
    "staleAfterMinutes": 720,
    "workflow": "refresh-data.yml",
    "producer": "scripts/fetch-telegram-digest.mjs",
-   "producedAt": "2026-11-16T12:21:33.087Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "producedAt": "2026-11-16T13:22:32.233Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": null,
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "updated"
    }
   },
@@ -106,7 +106,7 @@
    "checkedAt": "2026-11-16T03:52:00.561Z",
    "basisSession": null,
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "not-written"
    }
   },
@@ -116,10 +116,10 @@
    "workflow": "refresh-data.yml",
    "producer": "scripts/build-market-temperature.mjs",
    "producedAt": "2026-11-16T06:52:18.689Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": null,
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "unchanged"
    }
   },
@@ -129,13 +129,13 @@
    "workflow": "refresh-data.yml",
    "producer": "scripts/build-scenario-state.mjs",
    "producedAt": "2026-11-16T07:51:40.996Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": {
     "US": "2026-11-13",
     "KR": "2026-11-16"
    },
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "unchanged"
    }
   },
@@ -145,12 +145,12 @@
    "workflow": "refresh-data.yml",
    "producer": "scripts/build-scenario-state.mjs",
    "producedAt": "2026-11-16T02:51:59.137Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": {
     "US": "2026-11-13"
    },
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "unchanged"
    }
   },
@@ -159,14 +159,14 @@
    "staleAfterMinutes": 2880,
    "workflow": "refresh-data.yml",
    "producer": "scripts/build-market-day.mjs",
-   "producedAt": "2026-11-16T12:21:46.624Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "producedAt": "2026-11-16T13:22:41.615Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": {
     "US": "2026-11-13",
     "KR": "2026-11-16"
    },
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "updated"
    }
   },
@@ -179,7 +179,7 @@
    "checkedAt": "2026-11-15T13:40:55.833Z",
    "basisSession": null,
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "not-written"
    }
   },
@@ -192,7 +192,7 @@
    "checkedAt": "2026-11-15T13:40:55.833Z",
    "basisSession": null,
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "not-written"
    }
   },
@@ -201,11 +201,11 @@
    "staleAfterMinutes": 1440,
    "workflow": "refresh-data.yml",
    "producer": "scripts/build-reconciliation-status.mjs",
-   "producedAt": "2026-11-16T12:21:28.343Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "producedAt": "2026-11-16T13:22:25.868Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": null,
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "updated"
    }
   },
@@ -214,11 +214,11 @@
    "staleAfterMinutes": 1440,
    "workflow": "refresh-data.yml",
    "producer": "scripts/build-operations-status.mjs",
-   "producedAt": "2026-11-16T12:21:28.363Z",
-   "checkedAt": "2026-11-16T12:21:46.830Z",
+   "producedAt": "2026-11-16T13:22:25.881Z",
+   "checkedAt": "2026-11-16T13:22:41.922Z",
    "basisSession": null,
    "lastAttempt": {
-    "at": "2026-11-16T12:21:46.830Z",
+    "at": "2026-11-16T13:22:41.922Z",
     "status": "updated"
    }
   }
