@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-16T21:51:55.365Z",
-  "attemptedAt": "2026-11-16T21:51:55.365Z",
-  "lastSuccessfulAt": "2026-11-16T21:51:55.365Z",
+  "generatedAt": "2026-11-16T22:21:46.498Z",
+  "attemptedAt": "2026-11-16T22:21:46.498Z",
+  "lastSuccessfulAt": "2026-11-16T22:21:46.498Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-02T21:51:52.465Z",
-  "until": "2026-11-16T21:51:52.465Z",
+  "since": "2026-11-02T22:21:40.101Z",
+  "until": "2026-11-16T22:21:40.101Z",
   "current24hWindow": {
     "start": "2026-11-14T23:00:00.000Z",
     "end": "2026-11-15T23:00:00.000Z",
@@ -85,39 +85,39 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1216,
+      "count": 1219,
       "freshCount": 40,
-      "eligibleTextCount": 1161,
+      "eligibleTextCount": 1164,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69447
+      "lastPostId": 69451
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 200,
-      "freshCount": 17,
-      "eligibleTextCount": 200,
+      "count": 201,
+      "freshCount": 37,
+      "eligibleTextCount": 201,
       "selectedCount": 120,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21160
+      "lastPostId": 21165
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 714,
-      "freshCount": 17,
-      "eligibleTextCount": 714,
+      "count": 719,
+      "freshCount": 35,
+      "eligibleTextCount": 719,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72231
+      "lastPostId": 72236
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,58 +137,60 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2130,
-  "retainedItemCount": 414,
+  "count": 2139,
+  "retainedItemCount": 431,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2130,
-    "eligibleTextCount": 2075,
+    "observedCount": 2139,
+    "eligibleTextCount": 2084,
     "mediaOnlyCount": 55,
-    "mediaAttachedCount": 910,
-    "photoPostCount": 783,
+    "mediaAttachedCount": 911,
+    "photoPostCount": 784,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 356,
-    "broadSignalCount": 845,
+    "highSignalCount": 357,
+    "broadSignalCount": 848,
     "selectedRawCount": 372,
     "selectedEligibleCount": 372,
     "selectedRawCoveragePct": 17.9,
-    "selectedOfObservedPct": 17.5,
+    "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "media-only": 53,
-    "market-note": 754,
-    "geo": 326,
-    "earnings": 299,
-    "semi": 561,
-    "healthcare": 55,
-    "macro": 305,
+    "market-note": 761,
+    "semi": 564,
+    "optical": 26,
     "power": 270,
+    "media-only": 53,
+    "geo": 325,
+    "earnings": 298,
+    "healthcare": 55,
+    "macro": 304,
     "credit": 76,
     "kr-market": 94,
     "ai-policy": 120,
     "flows": 52,
-    "optical": 25,
     "insider": 1,
     "equity": 139,
     "japan": 59,
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 303,
-    "AMD": 51,
+    "NVDA": 306,
+    "AMZN": 53,
+    "PLTR": 13,
+    "MU": 30,
+    "TSM": 62,
+    "BE": 15,
+    "AMD": 50,
     "META": 2,
-    "AMZN": 52,
     "BIDU": 3,
     "CAT": 2,
-    "TSM": 61,
     "2454.TW": 7,
     "GOOG": 56,
-    "MU": 29,
     "MSFT": 53,
     "005930.KS": 28,
     "TSLA": 43,
@@ -202,7 +204,6 @@
     "SMCI": 7,
     "APLD": 1,
     "319660.KQ": 1,
-    "BE": 15,
     "066570.KS": 1,
     "MOD": 2,
     "AMAT": 6,
@@ -212,7 +213,6 @@
     "DDOG": 1,
     "SNOW": 1,
     "CRWV": 16,
-    "PLTR": 13,
     "LITE": 2,
     "COHR": 4,
     "BABA": 2,
@@ -259,11 +259,11 @@
     "CIEN": 1
   },
   "themes": [
-    "Market Notes (754 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
-    "Semiconductors/Memory (561 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로...",
-    "Geopolitics (326 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Macro/Rates (305 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q 기반 양자 오류정정 알고리즘이 기존 대비 최대 13,000배 빠른 디코딩 성능을 구현했다고 발표하고,...",
-    "Earnings/Corporate (299 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Market Notes (761 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
+    "Semiconductors/Memory (564 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로...",
+    "Geopolitics (325 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Macro/Rates (304 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q 기반 양자 오류정정 알고리즘이 기존 대비 최대 13,000배 빠른 디코딩 성능을 구현했다고 발표하고,...",
+    "Earnings/Corporate (298 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (270 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (139 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (120 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
@@ -271,12 +271,12 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 303,
+      "count": 306,
       "text": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서 트럼프·푸틴·시진핑 3자 회담 개최 예정이라고 발표 · 트럼프·푸틴 양자회담도 11월 19일 추진 중이며 형식과 장소는 조율..."
     },
     {
       "key": "TSM",
-      "count": 61,
+      "count": 62,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -285,18 +285,18 @@
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면..."
     },
     {
+      "key": "AMZN",
+      "count": 53,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
+    },
+    {
       "key": "MSFT",
       "count": 53,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
-      "key": "AMZN",
-      "count": 52,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
-    },
-    {
       "key": "AMD",
-      "count": 51,
+      "count": 50,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -306,7 +306,7 @@
     },
     {
       "key": "MU",
-      "count": 29,
+      "count": 30,
       "text": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
     },
     {
@@ -337,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 305,
+      "count": 304,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q 기반 양자 오류정정 알고리즘이 기존 대비 최대 13,000배 빠른 디코딩 성능을 구현했다고 발표하고,..."
     },
     {
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 326,
+      "count": 325,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 561,
+      "count": 564,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
@@ -373,8 +373,8 @@
       "topics": [
         "optical"
       ],
-      "count": 25,
-      "focus": "No retained full-text sample; 25 observed posts in the 14-day research window."
+      "count": 26,
+      "focus": "No retained full-text sample; 26 observed posts in the 14-day research window."
     },
     {
       "id": "power",
@@ -401,7 +401,7 @@
         "kr-market"
       ],
       "count": 94,
-      "focus": "코스피 야간선물 -1.8% 하락 마감"
+      "focus": ">>대만 증시, 역대 두 번째 최대 낙폭…외국인•기관 1,140억TWD 순매도 (대만경제일보) •대만 증시는 16일 Nvidia 칩 국가안보 논란이 확대되면서 2,635.04pt(-6.03%) 급락한 41,040로 마감. 역대 두 번째 큰 낙폭, 거래대금은 TWD 8,450.57억 기록. 기관은 총 TWD..."
     },
     {
       "id": "equity",
@@ -427,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 299,
+      "count": 298,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 754,
+      "count": 761,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     }
   ],
@@ -1085,12 +1085,15 @@
       "datetime": "2026-11-12T13:37:06.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "네비우스(NBIS) 2026년 3분기 어닝콜 Q&A 중 질문: 최근 채권시장 여건이 좋지 않은데, 추가 자금이 필요할 경우 고객 선급금을 더 받을 수 있습니까? 경영진 답변: 가능합니다. 고객 선급금은 자금...",
-      "tickers": []
+      "tickers": [],
+      "summary": "네비우스(NBIS) 2026년 3분기 어닝콜 Q&A 중 질문: 최근 채권시장 여건이 좋지 않은데, 추가 자금이 필요할 경우 고객 선급금을 더 받을 수 있습니까? 경영진 답변: 가능합니다. 고객 선급금은 자금..."
     },
     {
       "id": "bornlupin/21130",
@@ -1099,12 +1102,14 @@
       "datetime": "2026-11-12T12:32:29.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "earnings"
+        "earnings",
+        "credit",
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -1113,7 +1118,8 @@
         "PLTR",
         "DDOG",
         "SNOW"
-      ]
+      ],
+      "summary": "네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정..."
     },
     {
       "id": "insidertracking/69126",
@@ -1639,7 +1645,10 @@
       "datetime": "2026-11-16T08:11:16.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "optical",
+        "power"
       ],
       "score": 89,
       "hasText": true,
@@ -1649,12 +1658,12 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "중화권 마감 시황 (26.11.16, 월) 🇨🇳 중국 본토 증시는 10월 실물경제 지표 부진에 따른 내수 회복 지연 우려와 글로벌 AI 하드웨어 투매 여파로 일제히 조정 마감. 상하이종합지수는 0.87%...",
       "tickers": [
         "NVDA",
         "TSM",
         "2454.TW"
-      ]
+      ],
+      "summary": "중화권 마감 시황 (26.11.16, 월) 🇨🇳 중국 본토 증시는 10월 실물경제 지표 부진에 따른 내수 회복 지연 우려와 글로벌 AI 하드웨어 투매 여파로 일제히 조정 마감. 상하이종합지수는 0.87%..."
     },
     {
       "id": "bornlupin/21100",
@@ -1712,6 +1721,105 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/72236",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72236",
+      "datetime": "2026-11-16T22:18:40.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>트럼프, 젠슨 황 복귀 지지… Nvidia 이사회는 당장은 검토하지 않음 •트럼프는 월요일 “나는 젠슨 황의 복직에 반대하지 않는다”며 “많은 사람들이 젠슨 황의 복귀를 원하고 있으며, 이는 분명 나쁜..."
+    },
+    {
+      "id": "HANAchina/72235",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72235",
+      "datetime": "2026-11-16T22:17:32.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "semi",
+        "optical"
+      ],
+      "lead": 1,
+      "score": 64,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>Nvidia, 과학 컴퓨팅 확대! Rubin HPC GPU 출시, AI 에이전트의 슈퍼컴퓨팅 재편에 베팅 •Rubin HPC는 GPU 1개당 5만 개 이상의 CUDA 코어를 탑재하며 과학 컴퓨팅에 최적화,..."
+    },
+    {
+      "id": "HANAchina/72234",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72234",
+      "datetime": "2026-11-16T22:16:21.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "market-note"
+      ],
+      "score": 75,
+      "hasText": true,
+      "tickers": [],
+      "listTickers": [
+        "AAPL",
+        "GOOG",
+        "COF",
+        "DAL",
+        "VRSN",
+        "LEN"
+      ],
+      "summary": ">>아벨이 이끄는 버크셔, 주택·항공주 추가 매수… BofA·Capital One은 계속 매도, 신규 ‘앱 리퍼비시 업체’ 투자 •3분기 버크셔가 보유한 주택건설업체 Lennar A종 주식은 2분기 대비 거의..."
+    },
+    {
+      "id": "bornlupin/21164",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21164",
+      "datetime": "2026-11-16T22:08:13.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 56,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아( $NVDA )는 3분기에 스페이스X( $SPCX ) 주식 약 770만 주를 추가로 매입 보유 지분이 6.3% 증가해 총 1억 3,050만 주(약 197억 달러 규모)"
+    },
+    {
+      "id": "insidertracking/69449",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69449",
+      "datetime": "2026-11-16T22:02:41.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "score": 72,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "MU",
+        "TSM",
+        "BE"
+      ],
+      "summary": "시추에이셔널 어웨어니스 3분기 포트폴리오 공개 > AI 반도체·데이터센터 관련주 대거 정리 • 시추에이셔널 어웨어니스, 샤론AI(SHAZ) 약 1억 4,605만 달러 추가 매수·총 4억 4,067만 달러..."
+    },
     {
       "id": "insidertracking/69438",
       "channel": "insidertracking",
@@ -2244,12 +2352,15 @@
       "datetime": "2026-11-16T08:11:38.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "market-note"
+        "macro",
+        "kr-market",
+        "flows",
+        "healthcare"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "하나증권 신흥국전략 김근아 (T. 02-3771-7698) [2027년 인도·아세안 주식시장 전망] 비관하기엔 늦고, 낙관하기엔 이르다 자료: > [인도] 대외 불확실성 완화로 하방 위험 축소, 점진적 비중...",
-      "tickers": []
+      "tickers": [],
+      "summary": "하나증권 신흥국전략 김근아 (T. 02-3771-7698) [2027년 인도·아세안 주식시장 전망] 비관하기엔 늦고, 낙관하기엔 이르다 자료: > [인도] 대외 불확실성 완화로 하방 위험 축소, 점진적 비중..."
     },
     {
       "id": "HANAchina/72210",
@@ -2258,7 +2369,10 @@
       "datetime": "2026-11-16T08:11:16.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "optical",
+        "power"
       ],
       "score": 89,
       "hasText": true,
@@ -2268,12 +2382,12 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "중화권 마감 시황 (26.11.16, 월) 🇨🇳 중국 본토 증시는 10월 실물경제 지표 부진에 따른 내수 회복 지연 우려와 글로벌 AI 하드웨어 투매 여파로 일제히 조정 마감. 상하이종합지수는 0.87%...",
       "tickers": [
         "NVDA",
         "TSM",
         "2454.TW"
-      ]
+      ],
+      "summary": "중화권 마감 시황 (26.11.16, 월) 🇨🇳 중국 본토 증시는 10월 실물경제 지표 부진에 따른 내수 회복 지연 우려와 글로벌 AI 하드웨어 투매 여파로 일제히 조정 마감. 상하이종합지수는 0.87%..."
     },
     {
       "id": "HANAchina/72209",
@@ -2282,19 +2396,20 @@
       "datetime": "2026-11-16T07:42:35.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "semi",
         "kr-market",
-        "flows"
+        "flows",
+        "semi",
+        "optical"
       ],
+      "lead": 2,
       "score": 85,
       "hasText": true,
-      "summary": ">>대만 증시, 역대 두 번째 최대 낙폭…외국인•기관 1,140억TWD 순매도 (대만경제일보) •대만 증시는 16일 Nvidia 칩 국가안보 논란이 확대되면서 2,635.04pt(-6.03%) 급락한...",
-      "lead": 3,
       "tickers": [
         "NVDA",
         "TSM",
         "2454.TW"
-      ]
+      ],
+      "summary": ">>대만 증시, 역대 두 번째 최대 낙폭…외국인•기관 1,140억TWD 순매도 (대만경제일보) •대만 증시는 16일 Nvidia 칩 국가안보 논란이 확대되면서 2,635.04pt(-6.03%) 급락한..."
     },
     {
       "id": "insidertracking/69405",
@@ -2326,15 +2441,18 @@
       "datetime": "2026-11-16T06:37:02.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "optical",
+        "equity"
       ],
       "score": 85,
       "hasText": true,
-      "summary": ">>대만 가권지수는 전 거래일 대비 -6.03% 급락 마감, 대만 증시 역사상 두번째로 큰 낙폭 기록 (대만경제일보) • 장 초반부터 약세로 출발해 낙폭을 키웠으며, 시장이 기대했던...",
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": ">>대만 가권지수는 전 거래일 대비 -6.03% 급락 마감, 대만 증시 역사상 두번째로 큰 낙폭 기록 (대만경제일보) • 장 초반부터 약세로 출발해 낙폭을 키웠으며, 시장이 기대했던..."
     },
     {
       "id": "HANAchina/72207",
@@ -2343,8 +2461,10 @@
       "datetime": "2026-11-16T06:28:01.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "semi"
+        "semi",
+        "optical"
       ],
+      "lead": 1,
       "score": 80,
       "hasText": true,
       "media": {
@@ -2353,8 +2473,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>엔비디아 젠슨 황 CEO의 사임 발표에 따른 대만 반도체 업계의 반응과 주요 전망 • TSMC 등 대형 파운드리와의 기존 협력 및 2028년 '파인만(Feynman)' 세대까지의 제품 로드맵은 차질 없이...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
@@ -2363,7 +2481,8 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ]
+      ],
+      "summary": ">>엔비디아 젠슨 황 CEO의 사임 발표에 따른 대만 반도체 업계의 반응과 주요 전망 • TSMC 등 대형 파운드리와의 기존 협력 및 2028년 '파인만(Feynman)' 세대까지의 제품 로드맵은 차질 없이..."
     },
     {
       "id": "insidertracking/69401",
@@ -2470,15 +2589,15 @@
         "ai-policy",
         "equity"
       ],
+      "lead": 1,
       "score": 69,
       "hasText": true,
-      "summary": ">>트럼프 정부, Nvidia 등 20여개 기업을 AI ‘국가 대표기업’ 명단에 포함할 예정 •Amazon, Microsoft, OpenAI, Anthropic도 해당 인증을 받을 예정임. 트럼프 정부의 국가...",
-      "lead": 3,
       "tickers": [
         "NVDA",
         "MSFT",
         "AMZN"
-      ]
+      ],
+      "summary": ">>트럼프 정부, Nvidia 등 20여개 기업을 AI ‘국가 대표기업’ 명단에 포함할 예정 •Amazon, Microsoft, OpenAI, Anthropic도 해당 인증을 받을 예정임. 트럼프 정부의 국가..."
     },
     {
       "id": "insidertracking/69395",
@@ -5068,13 +5187,14 @@
         "power",
         "kr-market"
       ],
+      "lead": 2,
       "score": 71,
       "hasText": true,
-      "summary": "삼성전자, 데이터센터 냉각 전문기업 모딘(Modine) 인수 협상 중 삼성전자(Samsung Electronics Co.)가 데이터센터 냉각 시스템 제조업체인 모딘 매뉴팩처링(Modine...",
       "tickers": [
         "005930.KS",
         "MOD"
-      ]
+      ],
+      "summary": "삼성전자, 데이터센터 냉각 전문기업 모딘(Modine) 인수 협상 중 삼성전자(Samsung Electronics Co.)가 데이터센터 냉각 시스템 제조업체인 모딘 매뉴팩처링(Modine..."
     },
     {
       "id": "insidertracking/69186",
@@ -5139,13 +5259,14 @@
       "datetime": "2026-11-12T23:46:42.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
+        "power",
+        "kr-market",
         "earnings"
       ],
       "score": 61,
       "hasText": true,
-      "summary": "[NH/백준기] 스몰캡 - 지엔씨에너지 [NH/스몰캡(목진원)] [지엔씨에너지] ★수주잔고 7,264억원, 실적은 어차피 따라온다 3Q26 Review: 매출은 최대, 이익은 일회성·시차 요인에 발목 3분기...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "[NH/백준기] 스몰캡 - 지엔씨에너지 [NH/스몰캡(목진원)] [지엔씨에너지] ★수주잔고 7,264억원, 실적은 어차피 따라온다 3Q26 Review: 매출은 최대, 이익은 일회성·시차 요인에 발목 3분기..."
     },
     {
       "id": "bornlupin/21141",
@@ -5156,10 +5277,9 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 72,
       "hasText": true,
-      "summary": "엔비디아 독점 약화, TPU·ASIC 부상 가능성 젠슨 황이 없는 엔비디아는 향후 GPU 개발 속도와 산업 기술 표준을 주도하는 영향력에 변화가 발생할 수 있습니다. - 엔비디아는 GPU 성능, CUDA...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "MSFT",
@@ -5168,7 +5288,8 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ]
+      ],
+      "summary": "엔비디아 독점 약화, TPU·ASIC 부상 가능성 젠슨 황이 없는 엔비디아는 향후 GPU 개발 속도와 산업 기술 표준을 주도하는 영향력에 변화가 발생할 수 있습니다. - 엔비디아는 GPU 성능, CUDA..."
     },
     {
       "id": "insidertracking/69182",
@@ -5621,14 +5742,16 @@
       "datetime": "2026-11-12T21:06:49.000Z",
       "localDateKst": "2026-11-13",
       "tags": [
-        "earnings"
+        "earnings",
+        "semi"
       ],
+      "lead": 1,
       "score": 81,
       "hasText": true,
-      "summary": "어플라이드 머티어리얼즈 $AMAT 2026 회계연도 4분기 실적 매출: 104억 1천만 달러 (예상치 103억 달러 상회), 전년 동기 대비 53% 증가 조정 주당순이익(EPS): 4.16달러 (예상치...",
       "tickers": [
         "AMAT"
-      ]
+      ],
+      "summary": "어플라이드 머티어리얼즈 $AMAT 2026 회계연도 4분기 실적 매출: 104억 1천만 달러 (예상치 103억 달러 상회), 전년 동기 대비 53% 증가 조정 주당순이익(EPS): 4.16달러 (예상치..."
     },
     {
       "id": "insidertracking/69150",
@@ -5755,10 +5878,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "엔비디아 CEO 교체 발표, 젠슨 황 사임에 따라 콜레트 크레스 CFO가 임시 CEO",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아 CEO 교체 발표, 젠슨 황 사임에 따라 콜레트 크레스 CFO가 임시 CEO"
     },
     {
       "id": "bornlupin/21136",
@@ -5771,12 +5894,11 @@
       ],
       "score": 56,
       "hasText": true,
-      "summary": "네비우스(NBIS) 2026년 3분기 어닝콜 Q&A 중 질문) Vineland 데이터센터의 공급 지연 원인은 무엇이며, 다른 데이터센터에도 문제가 있습니까? 경영진 답변: 핵심 원인은 전력 공급 문제입니다....",
-      "lead": 1,
       "tickers": [
         "MSFT",
         "BE"
-      ]
+      ],
+      "summary": "네비우스(NBIS) 2026년 3분기 어닝콜 Q&A 중 질문) Vineland 데이터센터의 공급 지연 원인은 무엇이며, 다른 데이터센터에도 문제가 있습니까? 경영진 답변: 핵심 원인은 전력 공급 문제입니다...."
     },
     {
       "id": "insidertracking/69142",
@@ -5805,12 +5927,15 @@
       "datetime": "2026-11-12T13:37:06.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "네비우스(NBIS) 2026년 3분기 어닝콜 Q&A 중 질문: 최근 채권시장 여건이 좋지 않은데, 추가 자금이 필요할 경우 고객 선급금을 더 받을 수 있습니까? 경영진 답변: 가능합니다. 고객 선급금은 자금...",
-      "tickers": []
+      "tickers": [],
+      "summary": "네비우스(NBIS) 2026년 3분기 어닝콜 Q&A 중 질문: 최근 채권시장 여건이 좋지 않은데, 추가 자금이 필요할 경우 고객 선급금을 더 받을 수 있습니까? 경영진 답변: 가능합니다. 고객 선급금은 자금..."
     },
     {
       "id": "bornlupin/21134",
@@ -5821,15 +5946,15 @@
       "tags": [
         "healthcare"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
-      "summary": "일라이 릴리(Eli Lilly), 중국의 먹는 비만 치료제 승인에 주가 상승 1. 중국 내 경구용 비만약 '오포글리프론' 승인 및 주가 상승 중국 의약품 규제 당국이 일라이 릴리의 경구용 비만 치료제인...",
-      "lead": 1,
       "tickers": [
         "LLY",
         "PFE",
         "NVO"
-      ]
+      ],
+      "summary": "일라이 릴리(Eli Lilly), 중국의 먹는 비만 치료제 승인에 주가 상승 1. 중국 내 경구용 비만약 '오포글리프론' 승인 및 주가 상승 중국 의약품 규제 당국이 일라이 릴리의 경구용 비만 치료제인..."
     },
     {
       "id": "insidertracking/69139",
@@ -5858,15 +5983,16 @@
       "datetime": "2026-11-12T13:25:16.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "power"
+        "power",
+        "equity",
+        "earnings"
       ],
       "score": 57,
       "hasText": true,
-      "summary": "네비우스(NBIS) 2026년 3분기 어닝콜 중 데이터센터 건설 지연과 2027년 확장 관련 -뉴저지를 포함한 일부 코로케이션 데이터센터 건설이 지연되고 있습니다. 일부 용량의 가동 일정이 2027년으로...",
-      "lead": 1,
       "tickers": [
         "MSFT"
-      ]
+      ],
+      "summary": "네비우스(NBIS) 2026년 3분기 어닝콜 중 데이터센터 건설 지연과 2027년 확장 관련 -뉴저지를 포함한 일부 코로케이션 데이터센터 건설이 지연되고 있습니다. 일부 용량의 가동 일정이 2027년으로..."
     },
     {
       "id": "bornlupin/21131",
@@ -5885,12 +6011,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "Roman Chernin - Nebius 공동창업자, CBO 3분기 실적과 주주 서한이 발표되었습니다! 요약하자면: 자본적 지출(CAPEX)을 충당하는 선급금이 포함된 120억 달러 규모의 신규 계약 체결....",
-      "lead": 1,
       "tickers": [
         "DDOG",
         "SNOW"
-      ]
+      ],
+      "summary": "Roman Chernin - Nebius 공동창업자, CBO 3분기 실적과 주주 서한이 발표되었습니다! 요약하자면: 자본적 지출(CAPEX)을 충당하는 선급금이 포함된 120억 달러 규모의 신규 계약 체결...."
     },
     {
       "id": "bornlupin/21130",
@@ -5899,12 +6024,14 @@
       "datetime": "2026-11-12T12:32:29.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "earnings"
+        "earnings",
+        "credit",
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -5913,7 +6040,8 @@
         "PLTR",
         "DDOG",
         "SNOW"
-      ]
+      ],
+      "summary": "네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정..."
     },
     {
       "id": "insidertracking/69129",
@@ -6245,15 +6373,16 @@
       "datetime": "2026-11-12T06:37:56.000Z",
       "localDateKst": "2026-11-12",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
+      "lead": 1,
       "score": 81,
       "hasText": true,
-      "summary": "폭스콘(Hon Hai) 2026년 3분기 실적 견조한 AI 서버 수요에 힘입어 2026년 3분기 매출, 영업이익, 순이익 모두 시장 예상치를 크게 상회 엔비디아의 최대 서버 제조사이자 애플의 최대 아이폰...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "폭스콘(Hon Hai) 2026년 3분기 실적 견조한 AI 서버 수요에 힘입어 2026년 3분기 매출, 영업이익, 순이익 모두 시장 예상치를 크게 상회 엔비디아의 최대 서버 제조사이자 애플의 최대 아이폰..."
     },
     {
       "id": "HANAchina/72014",
@@ -6334,29 +6463,6 @@
       "summary": "젠슨 황·엔비디아 관련 정리 - 2026년 11월 12일 젠슨 황 추가 혼외관계 보도 · 뉴욕타임스, 젠슨 황이 자신에게 직접 보고하는 엔비디아 임원과 혼외관계를 가졌다고 보도 · 해당 임원은 엔비디아...",
       "tickers": [
         "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69104",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69104",
-      "datetime": "2026-11-12T05:19:05.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "market-note"
-      ],
-      "score": 97,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 2,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 12일 미국 증시 프리마켓 브리핑 미국 지수선물은 기술주 중심 약세. 다우 선물 +0.12%, S&P500 선물 -0.42%, 나스닥100 선물 -1.04%, 러셀2000 선물 -0.04%를...",
-      "tickers": [
-        "NVDA",
-        "GOOG"
       ]
     },
     {
@@ -6793,61 +6899,6 @@
       "summary": ">>Anthropic 대규모 계정 정리…Claude 강력한 계정 차단 정책 11월 12일부터 전면 시행 •Anthropic은 11월 12일부터 더 엄격한 리스크 관리 정책을 시행함. 사용자의 실제 물리적...",
       "lead": 1,
       "tickers": []
-    },
-    {
-      "id": "HANAchina/71971",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71971",
-      "datetime": "2026-11-11T11:54:26.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "semi"
-      ],
-      "score": 65,
-      "hasText": true,
-      "summary": "•Morgan Stanley, Nvidia를 ‘최선호주’에서 제외…‘비중확대’는 유지 •Baird, Nvidia 목표주가 500달러→200달러로 하향…투자의견 ‘중립’으로 하향",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "MS"
-      ]
-    },
-    {
-      "id": "HANAchina/71969",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71969",
-      "datetime": "2026-11-11T11:33:07.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": ">>젠슨 황 스캔들에 음모론 확산…애널리스트 “배후에 정치적 움직임 의심, 추가 악재 나올 수도” (대만경제일보) •Nvidia 젠슨 황의 불륜설과 상대 여성이 중국 스파이와 연관됐다는 의혹으로 사임 압박이...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "HANAchina/71963",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71963",
-      "datetime": "2026-11-11T10:11:40.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "semi",
-        "optical"
-      ],
-      "score": 72,
-      "hasText": true,
-      "summary": ">>엔비디아 Rubin Ultra가 얼마나 많은 CPO 수요를 만들어낼까? Bernstein : 단일 Pod 광학 부품 가치 5배 증가 •Bernstein은 엔비디아 Rubin Ultra 아키텍처로 인해...",
-      "lead": 2,
-      "tickers": [
-        "NVDA",
-        "LITE",
-        "COHR"
-      ]
     },
     {
       "id": "bornlupin/21113",
@@ -8517,23 +8568,6 @@
       "hasText": true,
       "summary": "팔란티어(PLTR) 2026년 3분기 어닝콜 Q&A 세션 Q. Sovereign AI 부트캠프가 고객 확보에 매우 효과적인 것으로 보인다. 기업들이 부트캠프에 참여한 뒤 실제 유료 고객으로 전환되는 과정에서...",
       "tickers": [
-        "PLTR"
-      ]
-    },
-    {
-      "id": "bornlupin/20959",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20959",
-      "datetime": "2026-11-02T23:27:10.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "earnings"
-      ],
-      "score": 87,
-      "hasText": true,
-      "summary": "팔란티어(PLTR) 2026년 3분기 어닝콜 1. 실적 및 성장률 매출 23.13억 달러, 전년 대비 +96%, 전분기 대비 +20%. 상장 이후 최고 성장률. 미국 매출 19.37억 달러, 전년 대비...",
-      "tickers": [
-        "NVDA",
         "PLTR"
       ]
     }
