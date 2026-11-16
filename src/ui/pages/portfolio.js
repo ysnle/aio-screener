@@ -707,21 +707,19 @@ function renderFirstScreen(documentRef, root, surface, bySymbol) {
   renderPortfolioExposureBar({ documentRef, surface, sectorLabel: portfolioSectorLabel });
 }
 
-// Sections that need holdings: hidden while the portfolio is empty (a journal or note that already holds entries stays).
-// v59.70 (S16): 기록 and 점검 are the two folds that need holdings; 설정 (security, base currency) stays.
-const EMPTY_HIDDEN_IDS = Object.freeze(['pf-freshness-strip', 'pf-records-fold', 'pf-check-fold', 'pf-value-trend', 'pf-exposure-bar']);
+// 거래와 현금 기록은 첫 보유 종목을 추가하기 전에도 쓸 수 있다.
+const EMPTY_HIDDEN_IDS = Object.freeze(['pf-freshness-strip', 'pf-check-fold', 'pf-value-trend', 'pf-exposure-bar']);
 const PREVIEW_SHOWN = new Set(['pf-value-trend', 'pf-exposure-bar']);
-const EMPTY_KEEP = Object.freeze({
-  'pf-records-fold': (node) => Boolean(node.querySelector('[data-trade-id]'))
-});
 function syncEmptyState(documentRef, root, page, { empty, preview }) {
   if (!page || !documentRef) return;
   page.dataset.pfEmpty = String(empty);
+  // Keep real trading and cash forms out of the unsaved example.
+  documentRef.getElementById('pf-records-fold')?.toggleAttribute('hidden', preview);
   for (const id of EMPTY_HIDDEN_IDS) {
     const node = documentRef.getElementById(id);
     if (!node) continue;
     // The example preview shows the first screen it fills (chart, exposure) like a real book.
-    const hide = empty && !EMPTY_KEEP[id]?.(node) && !(preview && PREVIEW_SHOWN.has(id));
+    const hide = empty && !(preview && PREVIEW_SHOWN.has(id));
     if (hide) { if (!node.hidden) { node.hidden = true; node.dataset.pfEmptyHidden = '1'; } } else if (node.dataset.pfEmptyHidden) { node.hidden = false; delete node.dataset.pfEmptyHidden; }
   }
   const section = documentRef.getElementById('pf-holdings-table-section');

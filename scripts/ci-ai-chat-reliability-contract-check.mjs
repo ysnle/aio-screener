@@ -430,6 +430,16 @@ let sequence = null;
   assert.deepEqual(refused.requests[1].tools.map((tool) => tool.type), ['web_search'], 'v60.02 a Worker that refuses the mix gets the search-only request once');
   assert.deepEqual(refused.keys, ['fixture-tools', 'fixture-tools:plain'], 'v60.02 the search-only fallback has its own idempotency key');
 }
+// (7b) v60.21 (live 2026-11-16): a searched answer was published with a span missing between a word and a citation's host
+// ("조금씩 다dia.com](…))"). The completed response's own text is the answer; the deltas only show progress.
+{
+  const whole = '조금씩 다릅니다. 매출 컨센서스는 549억 달러입니다 ([investor.nvidia.com](https://investor.nvidia.com/x?utm_source=openai))';
+  const gapped = '조금씩 다dia.com](https://investor.nvidia.com/x?utm_source=openai))';
+  const r = await scenario({ responses: [sse([{ type: 'response.output_text.delta', delta: gapped }, { type: 'response.completed', response: { status: 'completed', output: [{ type: 'message', role: 'assistant', content: [{ type: 'output_text', text: whole }] }], usage } }])], tools: false, webSearch: true });
+  assert.equal(r.done[0][0], whole, 'v60.21 the completed response text is the answer, not the concatenated deltas');
+  const noCopy = await scenario({ responses: [sse([{ type: 'response.output_text.delta', delta: '델타만 옵니다' }, { type: 'response.completed', response: { status: 'completed', output: [], usage } }])], tools: false });
+  assert.equal(noCopy.done[0][0], '델타만 옵니다', 'v60.21 a completed event without message text keeps the streamed text');
+}
 // (8) v60.02 (plan 050): the waiting line's stages follow the real stream — (a) a plain answer, (b) a searched answer
 // the request must search for, (c) one tool round. The clock is fixed; only the order of stages is read.
 {

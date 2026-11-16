@@ -1284,6 +1284,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
     var decoder = new TextDecoder();
     var buffer = '';
     var fullText = '';
+    var completedText = null; // the completed response's own output text; the deltas are for progress only
     var stopReason = null;
     var sawMessageStop = false;
     var responseUsage = null;
@@ -1360,6 +1361,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
               if (output && output.type === 'web_search_call') _searchCalls++;
               (output.content || []).forEach(function(content) {
                 (content.annotations || []).forEach(function(annotation) { if (annotation.type === 'url_citation') _pushWebCite(annotation.url, annotation.title); });
+                if (output.type === 'message' && content && content.type === 'output_text' && typeof content.text === 'string') completedText = (completedText || '') + content.text;
               });
             });
           }
@@ -1403,7 +1405,9 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         });
       }
       await _stage('ended'); // the checking line paints before the filters run
-      onDone(fullText, {
+      // The completed response's text is the answer whenever the provider sends it: a searched answer was published with a
+      // span missing between a word and a citation's host ("조금씩 다dia.com](…))"), which no filter here removes.
+      onDone(completedText || fullText, {
         stopReason: stopReason || 'end_turn',
         truncated: stopReason === 'max_tokens' || stopReason === 'max_output_tokens' || stopReason === 'incomplete' || stopReason === 'client_output_limit',
         requestedMaxTokens: requestedMaxTokens,
@@ -4305,7 +4309,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       ? _aioEvaluateAIResearchGate({ questionPlan: _uniQuestionPlan, requestId: _uniRequestId, required: _uniResearchRequired, externalResult: _uniWebResult, nativeCitations: _uniUseClaudeWebSearch ? _aioAIRequestCitations(_uniRequestId) : [], error: _uniWebResult ? null : (_uniResearchFailure || _aioAIRequestResearchError(_uniRequestId)) })
       : { required: _uniResearchRequired, ready: !_uniResearchRequired, reason: 'research-gate-unavailable' };
     var _uniDoneResult = (typeof _aioRunAIResponsePipeline === 'function')
-       ? _aioRunAIResponsePipeline(fullText, { referenceText: _uniReferenceText, entities: detectedTickers, request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, researchGate: _uniResearchGate, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, analysisAudit: _uniAnalysisAudit, completion: completion || null, streamPhase: 'complete' })
+       ? _aioRunAIResponsePipeline(fullText, { referenceText: _uniReferenceText, entities: detectedTickers, searchCitations: _searchAttached ? _aioAIRequestCitations(_uniRequestId) : [], request: _uniAIRequest, questionPlan: _uniQuestionPlan, researchRequired: _uniResearchRequired, researchGate: _uniResearchGate, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, chatEvidence: typeof _uniEvidence !== 'undefined' ? _uniEvidence : null, researchResult: _uniWebResult, retrievalAudit: _uniRetrievalAudit, contextBudgetAudit: _uniContextBudgetAudit, analysisAudit: _uniAnalysisAudit, completion: completion || null, streamPhase: 'complete' })
       : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
     var visible = _uniDoneResult.text;
     var _publicGate = _uniDoneResult.actionGate;

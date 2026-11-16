@@ -33,6 +33,7 @@ import { registerInterpretationStore } from '../data/selectors/interpretation.js
 import { installScreenShortcuts } from '../ui/navigation/screen-shortcuts.js';
 import { applyLegacyThemeDetailAddress } from '../ui/navigation/theme-detail.js';
 import { installRouteScrollMemory } from '../ui/navigation/scroll-memory.js';
+import { installPageViews } from '../ui/navigation/page-views.js';
 import { installShellOverlays } from '../ui/components/shell-overlays.js';
 import { installLayers } from '../ui/behaviors/layers.js';
 import { installColorTheme } from '../ui/components/color-theme.js';
@@ -985,6 +986,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     }
     // W00-B: the initial route commits through the same typed boundary. router.start()
     // first so observers of aio:navigationCommitted see the very first commit.
+    const stopPageViews = installPageViews({ root, documentRef });
     const stopHubTabs = installRouteHubTabs({ root, documentRef, activeRoute: () => router.active() }); // 8-screen IA
     // v59.68 (owner 2026-11-03, "cut helper text"): the per-screen principles fold (owner 2026-10-19) left the screens;
     // the lessons stay in 리서치 라이브러리 (domain/guide/lessons.js).
@@ -1063,6 +1065,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopConnectionPanel();
       stopAskPanel();
       stopResponsiveShell();
+      stopPageViews();
       deferredTasks.stop();
       navigation.restore();
       stopQuotes();

@@ -2,22 +2,52 @@
   "schemaVersion": "aio-model-check-coverage.v1",
   "gates": {
     "history-session-model": {
-      "syncedAt": "0f316fd",
+      "syncedAt": "139297bc0",
       "covers": [
         {
           "module": "scripts/producer/history.mjs",
           "name": "holdRepeatedSessions",
-          "fingerprint": "83c6ced650983481"
+          "fingerprint": "b1a33d107a6999d4"
         },
         {
           "module": "scripts/producer/history.mjs",
           "name": "mergeBackfillBars",
-          "fingerprint": "b1d3677e3cc50c9e"
+          "fingerprint": "df26d04bfc4cd82d"
+        },
+        {
+          "module": "scripts/producer/history.mjs",
+          "name": "keepDisplacedSessions",
+          "fingerprint": "2b399b8e436d7067"
+        },
+        {
+          "module": "scripts/producer/history.mjs",
+          "name": "dropSessionlessReads",
+          "fingerprint": "b378c255e1f17e27"
+        },
+        {
+          "module": "scripts/producer/history.mjs",
+          "name": "withHistorySession",
+          "fingerprint": "c4420004165ef2ab"
+        },
+        {
+          "module": "src/domain/market/session/history-session.js",
+          "name": "observationSessionDate",
+          "fingerprint": "3c6f5fac3c9055c5"
+        },
+        {
+          "module": "src/domain/market/session/history-session.js",
+          "name": "historyObservationSession",
+          "fingerprint": "7028b0c07599c7c7"
+        },
+        {
+          "module": "src/domain/market/session/history-session.js",
+          "name": "historyHeldSessionDate",
+          "fingerprint": "a204cae827724e29"
         }
       ]
     },
     "narrative-lifecycle-model": {
-      "syncedAt": "a3c588ace",
+      "syncedAt": "139297bc0",
       "covers": [
         {
           "module": "scripts/producer/market-narrative.mjs",
@@ -43,6 +73,11 @@
           "module": "scripts/lib/market-analysis-validate.mjs",
           "name": "lastVerifiedMarketAnalysis",
           "fingerprint": "869576ba3a89a12a"
+        },
+        {
+          "module": "scripts/lib/market-analysis-validate.mjs",
+          "name": "retainedReadingIssues",
+          "fingerprint": "a6ea96194cecac45"
         },
         {
           "module": "scripts/lib/lane-quarantine.mjs",

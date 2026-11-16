@@ -1161,7 +1161,34 @@ async function main() {
       return localStorage.getItem('aio_portfolio_cash_balances');
     });
     check('v59.21 cash_save_keeps_typed_amount_through_a_refill', refillRace === '[{"currency":"KRW","amount":5000},{"currency":"USD","amount":700}]', String(refillRace));
-    if (!isLive) await runUsListingHoldingFixture(browser, check);
+    if (!isLive) {
+      await runUsListingHoldingFixture(browser, check);
+      const journal = await browser.newPage({ viewport: { width: 390, height: 900 }, serviceWorkers: 'block' });
+      try {
+        await journal.addInitScript(() => localStorage.setItem('aio_disclaimer_ack_v1', '1'));
+        await journal.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
+        await journal.goto(`${baseUrl}/index.html#portfolio`, { waitUntil: 'domcontentloaded' });
+        const records = journal.locator('#page-portfolio[data-pf-empty="true"] #pf-records-fold > summary');
+        await records.waitFor();
+        await journal.getByRole('button', { name: /예시로 미리 보기/ }).click();
+        await journal.getByRole('button', { name: '미리 보기 끝내기' }).waitFor();
+        check('v60.21 sample preview hides real ledger controls', !await records.isVisible());
+        await journal.getByRole('button', { name: '미리 보기 끝내기' }).click();
+        await records.click();
+        await journal.locator('#pf-trade-symbol').fill('AAPL');
+        await journal.locator('#pf-trade-qty').fill('1');
+        await journal.locator('#pf-trade-price').fill('100');
+        const mood = journal.locator('#pf-trade-mood');
+        const reason = journal.locator('#pf-trade-reason');
+        await mood.selectOption('fomo');
+        await reason.selectOption('trend');
+        await journal.locator('[data-trade-action="add"]').click();
+        await journal.getByText(/AAPL 기록을 저장했습니다/).waitFor();
+        check('v60.21 first trade is reachable and the next reason and mood start neutral', (await mood.inputValue()) === '' && (await reason.inputValue()) === 'other');
+      } finally {
+        await journal.close();
+      }
+    }
     report.page = await page.evaluate(() => ({ encryptedMarker: localStorage.getItem('aio_portfolio_data')?.slice(0, 9), optOut: localStorage.getItem('aio_portfolio_vault_optout') }));
   } catch (error) {
     report.errors.push(String(error && error.stack || error));

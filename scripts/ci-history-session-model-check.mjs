@@ -15,6 +15,20 @@
 //   B1 backfill    — a bar never overwrites a completed record of its own session and always replaces another session's.
 //                    A carried-forward placeholder is another session's value (v59.74), so a bar always replaces it.
 //
+// Provider stamps on days without a session (live 2026-11-15: Yahoo restamped the closed won at Sunday 03:30Z, a New
+// York Saturday; that "11/14 session" was moved into the 11/14 row by the keeper and the time contract refused all 14 runs
+// until the UTC date rolled). For each field calendar — FX (weekdays, London bars), a US-listed index over a weekend and
+// over Thanksgiving, a Korean index over Christmas and the weekend after it, and BTC (every day a session) — every
+// sequence of up to three runs from that scene's run times, each reading one of: the last close's own stamp, a restamp at
+// the run time with the same or another value, a previous-close read stamped at the recorded bar's open, or one stamped
+// at the next session's open, is driven through the producer's own run order (withHistorySession intake →
+// dropSessionlessReads → keepDisplacedSessions → the updateHistory upsert, mirrored here → holdRepeatedSessions), from a
+// history with and without a row for the last session. After every run:
+//   T1 time        — no row holds a value observed after the end of the row's UTC day (the time contract's refusal).
+//   T2 session day — no row names a sessionDate that is not a session day of its field.
+//   T3 no session  — a read stamped on a day without a session gains, loses or changes no session's owner value.
+//   T4 own rule    — a read stamped on a session day (every BTC day) is never held as one that names no session.
+//
 // Self-check (pstack create/maintain-formal-verification): the covered functions are fingerprinted in
 // architecture/model-check-coverage.json, and each VARIANT below (the pre-P2011 code, a removed guard) must break its
 // invariant, so a pass here is a pass of a check that can fail. When covered code changes: re-read the model above
@@ -22,6 +36,7 @@
 // `node scripts/ci-history-session-model-check.mjs --sync`. `--chart <dir>` writes the owner's statechart (Mermaid).
 import { mkdirSync } from 'node:fs';
 import * as history from './producer/history.mjs';
+import * as historySession from '../src/domain/market/session/history-session.js';
 import { chartDir, createStatechart, importVariant, verifyCoverage, writeChart } from './lib/model-check-kit.mjs';
 
 const GATE = 'history-session-model';
@@ -45,11 +60,24 @@ const VARIANTS = [
     ["const firstSettled = !wasSettled && meta.observationRelation === 'latest-completed-close';", 'const firstSettled = false;'],
   ] },
   { label: '보류 행 건너뛰기 제거', expect: ['H1'], chart: false, replacements: [
-    ["if (!session || meta.observationRelation === 'carried-forward') continue;", 'if (!session) continue;'],
+    ["if (meta.observationRelation === 'carried-forward') continue;", ''],
   ] },
   { label: '백필 세션 대조 제거', expect: ['B1'], chart: false, replacements: [
     ['&& (!ownSession || ownSession === barSession)) continue;', ') continue;'],
   ] },
+];
+
+// The session owner before the 11/15 fix: a stamp's own day was its session, whatever the calendar said.
+const OLD_SESSION_OWNER = { 'src/domain/market/session/history-session.js': [
+  ['return day && isSessionDay(day, field) ? day : null;', 'return day;'],
+  ['if (named) return isSessionDay(named, field) ? named : null;', 'if (named) return named;'],
+] };
+const KEEPER_TIME_GUARD = ['if (!(Date.parse(meta.observedAt) <= Date.parse(`${session}T23:59:59.999Z`))) continue;', ''];
+const OFF_SESSION_VARIANTS = [
+  { label: '11/15 이전 코드', expect: ['T1', 'T2', 'T3'], replacements: [KEEPER_TIME_GUARD], deps: OLD_SESSION_OWNER },
+  { label: '보관 단계 시간 경계 제거', expect: ['T1'], replacements: [KEEPER_TIME_GUARD] },
+  { label: '세션 없는 날 판정 제거', expect: ['T2', 'T3'], replacements: [], deps: OLD_SESSION_OWNER },
+  { label: '세션 있는 읽기까지 보류', expect: ['T4'], replacements: [['if (!session) {', "if (!session || meta.observationRelation === 'latest-completed-close') {"]] },
 ];
 
 const cells = [null];
@@ -171,6 +199,114 @@ function explore({ holdRepeatedSessions, mergeBackfillBars }, chart, variant) {
   return { violations, states, transitions };
 }
 
+// ── Provider stamps on days without a session ──
+// last: the last session before the closed days; closeAt: its closing stamp; barOpen / nextOpen: the open of its own daily
+// bar and of the next session's bar (a previous-close read is stamped at one of them); runs: the refresh instants (UTC).
+const OFF_SESSION_SCENES = [
+  { field: 'usdkrw', before: '2026-11-12', last: '2026-11-13', closeAt: '2026-11-13T22:33:36.000Z', barOpen: '2026-11-13T00:00:00.000Z', nextOpen: '2026-11-16T00:00:00.000Z',
+    runs: ['2026-11-13T23:51:00.000Z', '2026-11-14T03:21:00.000Z', '2026-11-14T23:21:00.000Z', '2026-11-15T03:21:00.000Z', '2026-11-15T17:20:00.000Z', '2026-11-15T22:30:00.000Z', '2026-11-16T00:21:00.000Z'] },
+  { field: 'spx', before: '2026-11-12', last: '2026-11-13', closeAt: '2026-11-13T21:00:00.000Z', barOpen: '2026-11-13T14:30:00.000Z', nextOpen: '2026-11-16T14:30:00.000Z',
+    runs: ['2026-11-13T23:51:00.000Z', '2026-11-14T03:21:00.000Z', '2026-11-15T17:20:00.000Z', '2026-11-15T23:30:00.000Z', '2026-11-16T14:50:00.000Z', '2026-11-16T23:51:00.000Z'] },
+  { field: 'spx', before: '2026-11-24', last: '2026-11-25', closeAt: '2026-11-25T21:00:00.000Z', barOpen: '2026-11-25T14:30:00.000Z', nextOpen: '2026-11-27T14:30:00.000Z',
+    runs: ['2026-11-25T23:51:00.000Z', '2026-11-26T03:21:00.000Z', '2026-11-26T17:20:00.000Z', '2026-11-26T23:51:00.000Z', '2026-11-27T14:50:00.000Z', '2026-11-27T19:00:00.000Z'] },
+  { field: 'kospi', before: '2026-12-23', last: '2026-12-24', closeAt: '2026-12-24T06:30:00.000Z', barOpen: '2026-12-24T00:00:00.000Z', nextOpen: '2026-12-28T00:00:00.000Z',
+    runs: ['2026-12-24T23:51:00.000Z', '2026-12-25T03:21:00.000Z', '2026-12-26T03:21:00.000Z', '2026-12-27T17:20:00.000Z', '2026-12-28T00:21:00.000Z', '2026-12-28T07:00:00.000Z'] },
+  { field: 'btc', before: '2026-11-12', last: '2026-11-13', closeAt: '2026-11-13T23:50:00.000Z', barOpen: '2026-11-13T00:00:00.000Z', nextOpen: '2026-11-14T00:00:00.000Z',
+    runs: ['2026-11-14T03:21:00.000Z', '2026-11-15T03:21:00.000Z', '2026-11-15T17:20:00.000Z', '2026-11-16T00:21:00.000Z'] },
+];
+const { isHistorySessionDay } = historySession; // the declared field calendars are the spec's calendar
+const RESTAMP_LAG_MS = 10 * 60000;
+const DAY_FORMAT = new Map();
+// The day a stamp names (spec side): Seoul for Korean indices, UTC for BTC and midnight-UTC stamps, New York otherwise.
+function stampDay(field, at) {
+  if (field === 'btc' || /T00:00:00(\.000)?Z$/.test(at)) return at.slice(0, 10);
+  const zone = field === 'kospi' || field === 'kosdaq' ? 'Asia/Seoul' : 'America/New_York';
+  if (!DAY_FORMAT.has(zone)) DAY_FORMAT.set(zone, new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }));
+  return DAY_FORMAT.get(zone).format(new Date(at));
+}
+const readsFor = (scene, at) => [
+  { kind: '마지막 종가 스탬프', relation: 'latest-completed-close', stamp: scene.closeAt, value: 100 },
+  { kind: '실행 시각 재스탬프(같은 값)', relation: 'latest-completed-close', stamp: new Date(Date.parse(at) - RESTAMP_LAG_MS).toISOString(), value: 100 },
+  { kind: '실행 시각 재스탬프(다른 값)', relation: 'latest-completed-close', stamp: new Date(Date.parse(at) - RESTAMP_LAG_MS).toISOString(), value: 101 },
+  { kind: '전일 종가(자기 봉 개시)', relation: 'previous-completed-close', stamp: scene.barOpen, value: 100, sessionDate: scene.last },
+  ...(Date.parse(scene.nextOpen) <= Date.parse(at) ? [{ kind: '전일 종가(다음 봉 개시)', relation: 'previous-completed-close', stamp: scene.nextOpen, value: 100, sessionDate: scene.last }] : []),
+];
+const fieldMetaOf = (relation, observedAt, extra = {}) => ({
+  observedAt, fetchedAt: observedAt, lastSuccessfulAt: observedAt, source: 'model', sourceKind: 'model', allowedUse: 'completed-market-series',
+  marketSession: 'COMPLETED', valueBasis: relation, observationRelation: relation,
+  observedAtSource: relation === 'previous-completed-close' ? 'provider-previous-close' : 'provider-current', ...extra,
+});
+function seedRows(scene, withLast) {
+  const rows = [{ date: scene.before, [scene.field]: 99, fieldMeta: { [scene.field]: fieldMetaOf('latest-completed-close', `${scene.before}${scene.closeAt.slice(10)}`, { sessionDate: scene.before }) } }];
+  if (withLast) rows.push({ date: scene.last, [scene.field]: 100, fieldMeta: { [scene.field]: fieldMetaOf('latest-completed-close', scene.closeAt, { sessionDate: scene.last }) } });
+  return rows;
+}
+// One refresh in updateHistory's order. The upsert line is updateHistory's own (it is not a separate function).
+function refresh(mod, rows, field, at, read) {
+  const today = at.slice(0, 10);
+  const meta = mod.withHistorySession({ ...fieldMetaOf(read.relation, read.stamp, read.sessionDate ? { sessionDate: read.sessionDate } : {}), fetchedAt: at, lastSuccessfulAt: at }, field);
+  const rec = { date: today, [field]: read.value, fieldMeta: { [field]: meta } };
+  mod.dropSessionlessReads(rows, today, rec, { fields: [field] });
+  mod.keepDisplacedSessions(rows, today, rec, { fields: [field] });
+  const idx = rows.findIndex((row) => row.date === today);
+  if (idx >= 0) rows[idx] = { ...rows[idx], ...rec, fieldMeta: { ...(rows[idx].fieldMeta || {}), ...rec.fieldMeta } }; else rows.push(rec);
+  mod.holdRepeatedSessions(rows, { at, fields: [field] });
+  rows.sort((a, b) => a.date.localeCompare(b.date));
+}
+function ownerValues(rows, field) {
+  const owners = new Map();
+  for (const row of rows) {
+    const meta = row.fieldMeta?.[field];
+    if (typeof row[field] !== 'number' || !meta || meta.observationRelation === 'carried-forward' || !meta.sessionDate || owners.has(meta.sessionDate)) continue;
+    owners.set(meta.sessionDate, row[field]);
+  }
+  return owners;
+}
+
+function exploreOffSession(mod) {
+  const violations = new Map();
+  const seen = new Set();
+  let transitions = 0;
+  const note = (kind, trail, rows) => {
+    const entry = violations.get(kind) || { count: 0, example: null };
+    entry.count++;
+    if (!entry.example) entry.example = { trail, rows };
+    violations.set(kind, entry);
+  };
+  const check = (scene, read, before, after, trail) => {
+    const { field } = scene;
+    for (const row of after) {
+      const meta = row.fieldMeta?.[field];
+      if (typeof row[field] !== 'number' || !meta) continue;
+      if (Date.parse(meta.observedAt) > Date.parse(`${row.date}T23:59:59.999Z`)) note(`T1:${field}:observed-after-row`, trail, after);
+      if (meta.sessionDate && !isHistorySessionDay(meta.sessionDate, field)) note(`T2:${field}:not-a-session-day`, trail, after);
+      if (meta.heldReason === 'no-session-on-stamp-day' && isHistorySessionDay(stampDay(field, meta.observedAt), field)) note(`T4:${field}:session-read-held`, trail, after);
+    }
+    if (!read.sessionDate && !isHistorySessionDay(stampDay(field, read.stamp), field)) {
+      const was = ownerValues(before, field);
+      const now = ownerValues(after, field);
+      if (was.size !== now.size || [...was].some(([session, value]) => now.get(session) !== value)) note(`T3:${field}:owner-changed`, trail, after);
+    }
+  };
+  const walk = (scene, rows, from, trail) => {
+    seen.add(`${scene.field}:${JSON.stringify(rows)}`);
+    if (trail.length === 4) return; // the seed label and up to three runs
+    for (let i = from; i < scene.runs.length; i++) {
+      const at = scene.runs[i];
+      for (const read of readsFor(scene, at)) {
+        const next = clone(rows);
+        refresh(mod, next, scene.field, at, read);
+        transitions++;
+        const step = [...trail, `${at.slice(5, 16)} ${read.kind} ${read.stamp.slice(5, 19)}`];
+        check(scene, read, rows, next, step);
+        walk(scene, next, i + 1, step);
+      }
+    }
+  };
+  for (const scene of OFF_SESSION_SCENES) for (const withLast of [true, false]) walk(scene, seedRows(scene, withLast), 0, [withLast ? '마지막 세션 행 있음' : '마지막 세션 행 없음']);
+  return { violations, states: seen.size, transitions };
+}
+
 const describe = (violations) => [...violations].map(([kind, { count, example }]) => `${kind} x${count}: ${JSON.stringify(example).slice(0, 900)}`);
 const chart = createStatechart({ title: 'history.json 한 세션의 기록 (실제 코드 전수 탐색)', nodes: CHART_NODES });
 
@@ -192,10 +328,32 @@ for (const variant of VARIANTS) {
   variantResults.push({ variant: variant.label, broken });
 }
 
+const offSession = exploreOffSession(history);
+if (offSession.states < 1000) fail(`off-session state space collapsed: ${offSession.states} states`);
+if (offSession.violations.size) {
+  for (const line of describe(offSession.violations)) console.error(`[${GATE}] ${line}`);
+  fail(`${offSession.violations.size} off-session invariant(s) violated over ${offSession.states} states`);
+}
+for (const variant of OFF_SESSION_VARIANTS) {
+  const mod = await importVariant(MODULE, variant.replacements, variant.label, { deps: variant.deps || {} });
+  const run = exploreOffSession(mod);
+  const broken = [...new Set([...run.violations.keys()].map((kind) => kind.split(':')[0]))].sort();
+  const missed = variant.expect.filter((id) => !broken.includes(id));
+  if (missed.length) fail(`variant "${variant.label}" should break ${missed.join(', ')} but the check passed it (broken: ${broken.join(', ') || 'none'}) — the model lost the power to fail`);
+  variantResults.push({ variant: variant.label, broken });
+}
+
+const SESSION_MODULE = 'src/domain/market/session/history-session.js';
 const sync = process.argv.includes('--sync');
 const drift = verifyCoverage(GATE, [
   { module: MODULE, name: 'holdRepeatedSessions', fn: history.holdRepeatedSessions },
   { module: MODULE, name: 'mergeBackfillBars', fn: history.mergeBackfillBars },
+  { module: MODULE, name: 'keepDisplacedSessions', fn: history.keepDisplacedSessions },
+  { module: MODULE, name: 'dropSessionlessReads', fn: history.dropSessionlessReads },
+  { module: MODULE, name: 'withHistorySession', fn: history.withHistorySession },
+  { module: SESSION_MODULE, name: 'observationSessionDate', fn: historySession.observationSessionDate },
+  { module: SESSION_MODULE, name: 'historyObservationSession', fn: historySession.historyObservationSession },
+  { module: SESSION_MODULE, name: 'historyHeldSessionDate', fn: historySession.historyHeldSessionDate },
 ], { sync });
 if (drift.length) fail(`covered code changed — re-read the model in this file's header against it, update the model, then rerun with --sync:\n  ${drift.join('\n  ')}`);
 
@@ -211,4 +369,4 @@ if (dir) {
     ],
   });
 }
-console.log(JSON.stringify({ ok: true, states: real.states, transitions: real.transitions, invariants: ['H1', 'H2', 'H3', 'H4', 'B1'], variants: variantResults, synced: sync, chartEdges: chart.edgeCount() }));
+console.log(JSON.stringify({ ok: true, states: real.states, transitions: real.transitions, offSession: { states: offSession.states, transitions: offSession.transitions }, invariants: ['H1', 'H2', 'H3', 'H4', 'B1', 'T1', 'T2', 'T3', 'T4'], variants: variantResults, synced: sync, chartEdges: chart.edgeCount() }));

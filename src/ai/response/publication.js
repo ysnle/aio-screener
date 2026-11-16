@@ -83,6 +83,54 @@ export function splitAnswerSentences(line) {
   return pieces.map(function(piece) { return piece.trim(); }).filter(Boolean);
 }
 
+// An inline web citation as the search model writes it: "([investor.nvidia.com](https://…?utm_source=openai))". A piece
+// that is nothing but citations belongs to the sentence before it, so a removed sentence takes its sources with it.
+var INLINE_LINK = /\[([^\[\]\n]*)\]\((https?:\/\/[^)\s]+)\)/g;
+var CITATION_ONLY = /^\(?\s*(?:\[[^\[\]\n]*\]\(https?:\/\/[^)\s]+\)\s*[,;·]?\s*)+\)?[.!?。]*$/;
+function answerSentences(line) {
+  return splitAnswerSentences(line).reduce(function(out, piece) {
+    if (out.length && CITATION_ONLY.test(piece)) out[out.length - 1] += ' ' + piece;
+    else out.push(piece);
+    return out;
+  }, []);
+}
+// The tail of a link whose opening bracket is gone ("…dia.com](https://…))") is never published as text: whole links stay
+// (the bubble renders them), the broken tail goes (its source is in the reference list under the answer).
+var LINK_TAIL = /[A-Za-z0-9.\-]*\]\(https?:\/\/[^)\s]+\)\)?/g;
+var LINK_MASK = /\uE000(\d+)\uE001/g;
+export function tidyInlineCitations(value) {
+  var links = [];
+  var masked = String(value || '').replace(INLINE_LINK, function(all) { links.push(all); return '\uE000' + (links.length - 1) + '\uE001'; });
+  return masked.replace(LINK_TAIL, '').replace(/[ \t]+$/gm, '').replace(LINK_MASK, function(all, index) { return links[Number(index)]; });
+}
+// A current figure the reader asked to be searched is published when its sentence cites one of this request's web
+// sources (plan 044: "a current figure must exist in what the model was given — injected evidence, search citations").
+// It is not when the sentence derives the figure itself, or when an AIO figure for the same subject, metric and unit
+// says otherwise. Table cells and typed claims never take search figures (AGENTS: search never feeds tables or scores).
+var DERIVED_FIGURE = /(?:계산|환산|합치면|합산|더하면|빼면|나누면|곱하면|평균하면|차이(?:는|가)|격차(?:는|가)|이므로|따라서|즉,?\s)/;
+function citationUrlSet(citations) {
+  var urls = (Array.isArray(citations) ? citations : []).map(function(item) { return claimSourceUrl(typeof item === 'string' ? item : item && item.url); }).filter(Boolean);
+  return urls.length ? new Set(urls) : null;
+}
+function citesSearchSource(sentence, urls) {
+  return !!urls && Array.from(String(sentence || '').matchAll(INLINE_LINK)).some(function(match) { return urls.has(claimSourceUrl(match[2])); });
+}
+function contradictsReference(text, numbers, entities) {
+  if (!Array.isArray(numbers) || !numbers.length) return false;
+  var matchers = entityMatchers(entities);
+  var named = matchers ? namedEntities(text, matchers) : [];
+  return readWrittenFigures(text, { subject: named.length === 1 ? named[0] : null }).some(function(figure) {
+    var unit = writtenUnit(figure.match[4] || String(figure.match[1] || '').trim());
+    if (!figure.want.metric || figureSupported(figure.match, numbers, figure.want)) return false;
+    return numbers.some(function(number) { return number.metric === figure.want.metric && number.unit === unit && (number.entity || null) === (figure.want.subject || null); });
+  });
+}
+function searchedSentenceKept(sentence, urls, numbers, entities) {
+  if (!citesSearchSource(sentence, urls)) return false;
+  var text = String(sentence).replace(INLINE_LINK, ' $1 ').replace(CITED_URL, ' ');
+  return !DERIVED_FIGURE.test(normaliseForDetection(text)) && !contradictsReference(text, numbers, entities);
+}
+
 // P1740: a threshold inside a condition ("VIX가 20을 넘으면", "RSI 70 이상이면 과매수로 본다", "if yields top 5%")
 // is a rule, not an observation. Stripping every sentence with a number removed exactly the invalidation levels and
 // confirmation signals the answer contract asks for. A sentence is a condition only when it has a conditional
@@ -591,8 +639,9 @@ function claimLabelAgrees(claim) {
   });
 }
 
-function stripNumericSentences(value, today, numbers, entities) {
+function stripNumericSentences(value, today, numbers, entities, searchUrls) {
   var removed = 0;
+  var searched = 0;
   var matchers = entityMatchers(entities);
   var header = null;
   var text = String(value || '').split('\n').map(function(line) {
@@ -617,19 +666,20 @@ function stripNumericSentences(value, today, numbers, entities) {
       }).join('|');
     }
     header = null;
-    var kept = splitAnswerSentences(line).filter(function(sentence) {
+    var kept = answerSentences(line).filter(function(sentence) {
       // A current sentence stays when every figure it writes is in the evidence; one figure that is not removes it.
       var bare = sentence.replace(CITED_URL, ' ');
       // With reference material in hand, a sentence whose only numbers are dates or window lengths ("11월 12일 종가
       // 기준 자료입니다") states no figure to check and stays.
       var nothingToCheck = Array.isArray(numbers) && numbers.length > 0 && writtenFigures(bare).length === 0;
       var current = numericClaimKind(sentence, { today: today }) === 'current' && !nothingToCheck && !figuresSupported(bare, numbers, { entities: entities });
+      if (current && searchedSentenceKept(sentence, searchUrls, numbers, entities)) { searched += 1; return true; }
       if (current) removed += 1;
       return !current;
     }).join(' ');
     return kept || null;
   }).filter(function(line) { return line !== null; }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
-  return { text: text, removed: removed };
+  return { text: text, removed: removed, searched: searched };
 }
 
 export function stripUnverifiedCurrentNumericSentences(value, { today } = {}) {
@@ -666,12 +716,12 @@ export function stripUnverifiedCurrentEventSentences(value, isBound, { today } =
   var nowMs = todayMs(today);
   var text = String(value || '').split('\n').map(function(line) {
     if (!line.trim() || /^\s*\|.*\|\s*$/.test(line)) return line;
-    var kept = splitAnswerSentences(line).filter(function(sentence) {
+    var kept = answerSentences(line).filter(function(sentence) {
       var bare = sentence.replace(CITED_URL, ' ');
       var normalised = normaliseForDetection(bare);
       var event = CURRENT_EVENT.test(bare) && !GENERAL_OR_HISTORICAL.test(bare) && !isConditionalNumericSentence(bare) && !CONDITIONAL_MARKER.test(bare.replace(NON_CONDITIONAL_MYEON, ' '))
         && !isDatedPast(normalised, nowMs) && !isFixedFact(normalised)
-        && !(typeof isBound === 'function' && isBound(bare));
+        && !(typeof isBound === 'function' && isBound(bare, sentence));
       if (event) dropped += 1;
       return !event;
     }).join(' ');
@@ -690,18 +740,21 @@ function currentEventSentenceUnbound(value, rows) {
 // current-event rule as the plan path. `options.evidenceCount` omitted keeps the old two-argument behaviour.
 // The result carries what the filters removed: { text, removedNumericSentences, removedEventSentences, sentencesTotal }.
 function guardFallback(text, currentSensitive, options) {
-  var result = { text: text, removedNumericSentences: 0, removedEventSentences: 0, sentencesTotal: countSentences(text) };
+  var result = { text: tidyInlineCitations(text), removedNumericSentences: 0, removedEventSentences: 0, searchedSentences: 0, sentencesTotal: countSentences(text) };
   if (!currentSensitive) return result;
   var today = options && options.today;
   var entities = options && Array.isArray(options.entities) ? answerEntities(options.entities, options.nameEntries) : null;
   var numbers = options && supportedNumbers(options.evidenceRows, options.referenceText, todayMs(today), entities);
-  var numeric = stripNumericSentences(text, today, numbers, entities);
+  var searchUrls = citationUrlSet(options && options.searchCitations);
+  var numeric = stripNumericSentences(result.text, today, numbers, entities, searchUrls);
   result.text = numeric.text;
   result.removedNumericSentences = numeric.removed;
+  result.searchedSentences = numeric.searched;
+  var cited = function(bare, sentence) { return searchedSentenceKept(sentence, searchUrls, numbers, entities); };
   var events = null;
-  if (options && options.evidenceCount === 0 && !numbers) events = stripUnverifiedCurrentEventSentences(numeric.text, null, { today: today });
+  if (options && options.evidenceCount === 0 && !numbers) events = stripUnverifiedCurrentEventSentences(numeric.text, searchUrls ? cited : null, { today: today });
   // v58.77 AI-01: with evidence rows handed in, an event sentence must name what one of them covers (same as the plan path).
-  else if (options && (Array.isArray(options.evidenceRows) || numbers)) events = stripUnverifiedCurrentEventSentences(numeric.text, function(sentence) { return eventBoundToEvidence(sentence, options.evidenceRows || []) || figuresSupported(sentence, numbers, { entities: entities }); }, { today: today });
+  else if (options && (Array.isArray(options.evidenceRows) || numbers)) events = stripUnverifiedCurrentEventSentences(numeric.text, function(sentence, whole) { return eventBoundToEvidence(sentence, options.evidenceRows || []) || figuresSupported(sentence, numbers, { entities: entities }) || cited(sentence, whole); }, { today: today });
   if (events) { result.text = events.text; result.removedEventSentences = events.dropped; }
   return result;
 }
@@ -731,12 +784,24 @@ export function extractAnswerFallbackResult(rawText, currentSensitive, options) 
 // were confirmed (close-basis or live) and only the rest was withheld.
 const NUMERIC_DROP_REASONS = ['answer-plan-claim-degraded', 'current-numeric-claim-unverified', 'typed-claim-validation'];
 const CURRENT_GAP_REASONS = ['market-session-evidence-unavailable', 'current-evidence-limited', 'research-evidence-unavailable', 'research-freshness-unverified'];
-export function summarizeAnswerLimitations(reasons = [], { publishedClaimCount = 0 } = {}) {
+// The line is the one owner of what happened to the figures; the search status line under the panel says only whether a
+// search ran and how many sources it cited. `search` ({ searchedSentences, removedNumericSentences }) is given when this
+// answer's search cited sources: then the line never says "일반 설명만" — it says which figures are the searched ones.
+var REMOVAL_REASONS = ['answer-plan-claim-degraded', 'typed-claim-validation'];
+function searchedFiguresPhrase(list, search, numericDropped, currentGap) {
+  var removed = Number(search.removedNumericSentences) > 0 || list.some(function(reason) { return REMOVAL_REASONS.indexOf(reason) >= 0; });
+  if (Number(search.searchedSentences) > 0) return removed ? '웹검색 출처가 붙은 수치만 표시 — AIO가 확인한 값 아님' : '웹검색 출처의 수치 — AIO가 확인한 값 아님, 링크 원문 기준';
+  if (removed) return '출처가 붙지 않은 최신 수치는 뺌 — 아래 참고 링크 원문 확인';
+  return numericDropped || currentGap ? '최신 수치는 아래 참고 링크 원문 기준' : '';
+}
+export function summarizeAnswerLimitations(reasons = [], { publishedClaimCount = 0, search = null } = {}) {
   var list = Array.from(new Set(Array.isArray(reasons) ? reasons.map(String) : []));
   var phrases = [];
   var numericDropped = list.some(function(reason) { return NUMERIC_DROP_REASONS.indexOf(reason) >= 0; });
   var currentGap = list.some(function(reason) { return CURRENT_GAP_REASONS.indexOf(reason) >= 0; });
-  if (publishedClaimCount > 0 && (numericDropped || currentGap)) phrases.push(numericDropped ? '일부 최신 수치 확인 안 됨 — 확인된 값만 표시' : '표시한 값 외의 최신 수치는 확인 안 됨');
+  var searchedLine = search ? searchedFiguresPhrase(list, search, numericDropped, currentGap) : '';
+  if (search) { if (searchedLine) phrases.push(searchedLine); }
+  else if (publishedClaimCount > 0 && (numericDropped || currentGap)) phrases.push(numericDropped ? '일부 최신 수치 확인 안 됨 — 확인된 값만 표시' : '표시한 값 외의 최신 수치는 확인 안 됨');
   else if (numericDropped || currentGap) phrases.push('최신 수치 확인 안 됨 — 일반 설명만');
   if (list.indexOf('suitability-context-missing') >= 0) phrases.push('투자 성향 정보 없음 — 조건부 분석');
   if (list.indexOf('model-output-truncated') >= 0) phrases.push('응답 길이 한도 — 일부만 표시');
@@ -745,7 +810,7 @@ export function summarizeAnswerLimitations(reasons = [], { publishedClaimCount =
   return phrases.length ? '※ ' + phrases.join(' · ') : '';
 }
 
-export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive, { nowMs = Date.now(), referenceText = '', entities = null, nameEntries = null } = {}) {
+export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive, { nowMs = Date.now(), referenceText = '', entities = null, nameEntries = null, searchCitations = null } = {}) {
   entities = Array.isArray(entities) ? answerEntities(entities, nameEntries) : null;
   if (!plan) return { plan: null, droppedClaims: [], unboundEvidenceIds: [] };
   var rows = (Array.isArray(bindingEvidence) ? bindingEvidence : []).filter(row => evidenceCanPublish(row, nowMs));
@@ -825,29 +890,33 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
   });
   var eventsDropped = 0;
   var numericRemoved = 0;
+  var searchedKept = 0;
   var sentencesTotal = 0;
   var noEvidence = currentSensitive && rows.length === 0;
   var noSupport = noEvidence && !referenceText;
   var numbers = supportedNumbers(rows, referenceText, nowMs, entities);
+  var searchUrls = citationUrlSet(searchCitations);
   var stripNumeric = function(text) {
-    var out = stripNumericSentences(text, nowMs, numbers, entities);
+    var out = stripNumericSentences(text, nowMs, numbers, entities, searchUrls);
     numericRemoved += out.removed;
+    searchedKept += out.searched;
     return out.text;
   };
+  var cited = function(bare, sentence) { return searchedSentenceKept(sentence, searchUrls, numbers, entities); };
   var clean = function(text) {
-    var out = stripNumeric(text);
+    var out = stripNumeric(tidyInlineCitations(text));
     // An event sentence whose figures are all in the evidence ("오늘 −1.2% 내렸지만") is bound by those values.
-    var events = stripUnverifiedCurrentEventSentences(out, noSupport ? null : function(sentence) { return eventBoundToEvidence(sentence, rows) || figuresSupported(sentence, numbers, { entities: entities }); }, { today: nowMs });
+    var events = stripUnverifiedCurrentEventSentences(out, noSupport ? (searchUrls ? cited : null) : function(sentence, whole) { return eventBoundToEvidence(sentence, rows) || figuresSupported(sentence, numbers, { entities: entities }) || cited(sentence, whole); }, { today: nowMs });
     eventsDropped += events.dropped;
     return events.text;
   };
   sentencesTotal += countSentences(plan.summary);
-  var summary = currentSensitive ? clean(plan.summary) : String(plan.summary || '').trim();
+  var summary = currentSensitive ? clean(plan.summary) : tidyInlineCitations(plan.summary).trim();
   var sections = (Array.isArray(plan.sections) ? plan.sections : []).map(function(section) {
-    if (typeof section === 'string') { sentencesTotal += countSentences(section); return currentSensitive ? clean(section) : section; }
+    if (typeof section === 'string') { sentencesTotal += countSentences(section); return currentSensitive ? clean(section) : tidyInlineCitations(section); }
     if (!section || typeof section !== 'object') return null;
     sentencesTotal += countSentences(section.body);
-    return Object.assign({}, section, { title: currentSensitive ? stripNumeric(section.title) : section.title, body: currentSensitive ? clean(section.body) : section.body });
+    return Object.assign({}, section, { title: currentSensitive ? stripNumeric(section.title) : section.title, body: currentSensitive ? clean(section.body) : tidyInlineCitations(section.body) });
   }).filter(function(section) { return typeof section === 'string' ? !!section.trim() : !!(section && section.title && section.body); });
   if (eventsDropped) droppedClaims.push({ claimId: null, reasons: ['current-event-unverified'], count: eventsDropped });
   return {
@@ -857,6 +926,6 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     }) }),
     droppedClaims: droppedClaims,
     unboundEvidenceIds: Array.from(new Set(unboundEvidenceIds)),
-    filterCounts: { removedNumericSentences: numericRemoved, removedEventSentences: eventsDropped, sentencesTotal: sentencesTotal }
+    filterCounts: { removedNumericSentences: numericRemoved, removedEventSentences: eventsDropped, searchedSentences: searchedKept, sentencesTotal: sentencesTotal }
   };
 }

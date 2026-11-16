@@ -563,7 +563,10 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   const headline = held ? (partial ? `핵심 조건이 충족된 시나리오가 없어 중심 시나리오를 정하지 않습니다 — 조건이 가장 많이 맞는 '${short(partial)}'도 핵심 조건(${partial.gate.labels[0].split(' (')[0]})은 ${partial.gate.met === false ? '충족하지 못했습니다' : '확인할 수 없습니다'}.${nextEvent ? ` 다음 발표: ${nextEvent.when} ${nextEvent.name}.` : ''}` : '조건을 확인할 관측이 부족하거나 뚜렷하게 맞는 시나리오가 없어 판단을 보류합니다.')
     : tied.length >= 2 ? `조건 충족이 같은${sameFit ? `(${lead.met}/${lead.total})` : ''} 시나리오가 ${COUNT_WORDS[tied.length] || `${tied.length}개`}입니다 — ${tiedText.slice(0, -1).join(', ')}${andParticle(tiedText.at(-2))} ${tiedText.at(-1)}. ${(decidingEvent || nextEvent) ? `${(decidingEvent || nextEvent).when} ${(decidingEvent || nextEvent).name} 발표가 ${tied.length === 2 ? '둘을' : '이 시나리오들을'} 가릅니다.${decidingEvent ? ` 그 전에 ${nextEvent.when} ${nextEvent.name}이 조건 수를 바꿀 수 있습니다.` : ''}` : '다음 발표가 이 시나리오들을 가릅니다.'}`
     : `지금 조건이 가장 많이 맞는 시나리오는 '${short(lead)}'(${lead.fit})입니다.${lead.pricing.tone === 'same' && !lead.pricingInConditions ? ' 시장 가격도 같은 방향입니다.' : lead.pricing.tone === 'against' ? ' 다만 시장 가격은 반대 방향입니다.' : ''}${alt ? ` 대안 시나리오: '${short(alt)}'(${alt.fit}${pricedSame(alt) ? ', 시장 가격은 이쪽' : ''}).` : ''}${nextEvent ? ` 다음 발표: ${nextEvent.when} ${nextEvent.name}.` : ''}`;
-  return { available: items.some((item) => item.known >= 2), version: MACRO_CROSSROADS_VERSION, asOf: s.asOf, held, headline,
+  // Which record the items' past lines are read from: the published long record (by its build time) or AIO's own closes.
+  // A screen that drew the branch frames before the long record arrived repaints when this changes.
+  const pastRecord = `${[...new Set(items.map((item) => item.past.source || 'none'))].sort().join('+')}${outcomes?.branches ? `@${outcomes.generatedAt || ''}` : ''}`;
+  return { available: items.some((item) => item.known >= 2), version: MACRO_CROSSROADS_VERSION, asOf: s.asOf, pastRecord, held, headline,
     leadId: held ? null : lead.id, altId: alt?.id || null, tiedIds: tied.length >= 2 ? tied.map((item) => item.id) : [], items, rateHub, relations, events, nextEvent, decidingEvent, cash: s.cash ? { value: s.cash.value, date: s.cash.date } : null };
 }
 

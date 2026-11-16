@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { deriveMarketSession } from '../build-market-snapshot.mjs';
 import { atomicWriteFile } from '../lib/atomic-write.mjs';
 import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession } from '../../src/ai/time/market-session.js';
-import { barSessionDateForField, historyFieldSessionDate, observationSessionDate } from '../../src/domain/market/session/history-session.js';
+import { barSessionDateForField, historyFieldSessionDate, historyHeldSessionDate, historyObservationSession } from '../../src/domain/market/session/history-session.js';
 import { round } from '../lib/producer-math.mjs';
 import { isSessionComplete } from '../../src/domain/screener/price-factors.js';
 import { compareUsdKrwCrossCheck } from '../lib/macro-sources.mjs';
@@ -255,9 +255,11 @@ export function mergeBackfillBars(hist, byDate, fields = HIST_FIELDS) {
         // completed record. historyFieldSessionDate returns null for it and the observedAt fallback read the placeholder's
         // fetch stamp (11/2 14:30Z) as an 11/2 session, so the held-session backfill kept the 10/30 close it came to replace.
         const carried = meta?.observationRelation === 'carried-forward';
-        const ownSession = meta && !carried ? (historyFieldSessionDate(meta, f) || observationSessionDate(f, meta.observedAt)) : null;
+        const ownSession = meta && !carried ? historyObservationSession(meta, f) : null;
+        // A value whose day names no session (a weekend restamp of Friday's price) is no bar's completed record either.
+        const offSession = meta && !carried && !ownSession && historyHeldSessionDate(meta, f) != null;
         const barSession = byDate[date].fieldMeta?.[f]?.sessionDate || date;
-        if (!carried && readNumber(existing[f]) != null && meta?.valueBasis && (!ownSession || ownSession === barSession)) continue;
+        if (!carried && !offSession && readNumber(existing[f]) != null && meta?.valueBasis && (!ownSession || ownSession === barSession)) continue;
         existing[f] = byDate[date][f];
         if (byDate[date].fieldMeta?.[f]) existing.fieldMeta[f] = byDate[date].fieldMeta[f];
       }
@@ -326,10 +328,27 @@ export function holdRepeatedSessions(hist, { at = new Date().toISOString(), fiel
       const value = row[field];
       const meta = row.fieldMeta?.[field];
       if (typeof value !== 'number' || !Number.isFinite(value) || !meta?.observedAt) continue;
-      const session = historyFieldSessionDate(meta, field) || observationSessionDate(field, meta.observedAt);
+      const session = historyObservationSession(meta, field);
       const wasSettled = settled.has(session);
       if (session && (meta.observationRelation === 'latest-completed-close' || meta.heldRelation === 'latest-completed-close')) settled.add(session);
-      if (!session || meta.observationRelation === 'carried-forward') continue;
+      if (meta.observationRelation === 'carried-forward') continue;
+      if (!session) {
+        // A read whose day names no session (Yahoo's weekend restamp of the won at Friday's price, 11/15 03:30Z) is not
+        // an observation: held as a copy of the last session it can repeat, so it owns, settles and revises nothing.
+        const repeats = historyHeldSessionDate(meta, field);
+        if (!repeats) continue;
+        row.fieldMeta[field] = {
+          ...meta,
+          allowedUse: 'reference-only',
+          observationRelation: 'carried-forward',
+          heldRelation: meta.observationRelation || null,
+          heldReason: 'no-session-on-stamp-day',
+          carriedFrom: owners.get(repeats)?.date || null,
+          sessionDate: repeats,
+        };
+        held.push({ date: row.date, field, session: repeats, carriedFrom: owners.get(repeats)?.date || null });
+        continue;
+      }
       const owner = owners.get(session);
       if (!owner) { owners.set(session, row); continue; }
       const ownerMeta = owner.fieldMeta[field];
@@ -371,7 +390,7 @@ export function keepDisplacedSessions(hist, today, rec, { fields = HIST_MARKET_F
   const rows = Array.isArray(hist) ? hist : [];
   const current = rows.find((row) => row?.date === today);
   if (!current) return [];
-  const sessionOf = (meta, field) => (meta?.observedAt ? historyFieldSessionDate(meta, field) || observationSessionDate(field, meta.observedAt) : null);
+  const sessionOf = (meta, field) => (meta?.observedAt ? historyObservationSession(meta, field) : null);
   const kept = [];
   for (const field of fields) {
     const value = current[field];
@@ -380,6 +399,10 @@ export function keepDisplacedSessions(hist, today, rec, { fields = HIST_MARKET_F
     const session = sessionOf(meta, field);
     const incoming = sessionOf(rec?.fieldMeta?.[field], field);
     if (!session || !incoming || incoming === session || !/^\d{4}-\d{2}-\d{2}$/.test(session) || session >= today) continue;
+    // The time contract (ci-history-field-time-contract-check) refuses a row holding a value observed after its UTC day,
+    // so a close stamped after its session's row ended is not moved there (that session's daily bar, when the backfill
+    // runs, is the row's record).
+    if (!(Date.parse(meta.observedAt) <= Date.parse(`${session}T23:59:59.999Z`))) continue;
     const owned = rows.some((row) => row !== current && typeof row?.[field] === 'number' && row.fieldMeta?.[field]?.observationRelation !== 'carried-forward' && sessionOf(row.fieldMeta?.[field], field) === session);
     if (owned) continue;
     let target = rows.find((row) => row?.date === session);
@@ -394,6 +417,35 @@ export function keepDisplacedSessions(hist, today, rec, { fields = HIST_MARKET_F
     kept.push({ field, session, value, ...(placeholder ? { replacedPlaceholder: true } : {}) });
   }
   return kept;
+}
+
+// A read that names no session (withHistorySession left none: a weekend or holiday restamp of the last close) is not an
+// observation, so it never replaces a value today's row already holds — the upsert would drop that row's session close
+// (or its held copy) for it. Without a value on the row it is written and holdRepeatedSessions holds it. Removes such
+// fields from `rec` before keepDisplacedSessions and the upsert; returns the fields it removed.
+export function dropSessionlessReads(hist, today, rec, { fields = HIST_MARKET_FIELDS } = {}) {
+  const current = (Array.isArray(hist) ? hist : []).find((row) => row?.date === today);
+  if (!current || !rec?.fieldMeta) return [];
+  const dropped = [];
+  for (const field of fields) {
+    const meta = rec.fieldMeta[field];
+    if (!meta || typeof rec[field] !== 'number' || historyObservationSession(meta, field)) continue;
+    if (typeof current[field] !== 'number' || !Number.isFinite(current[field]) || !historyHeldSessionDate(meta, field)) continue;
+    delete rec[field];
+    delete rec.fieldMeta[field];
+    dropped.push(field);
+  }
+  return dropped;
+}
+
+// v57.81: every completed close names its session. A previous close takes the provider bar's own trading date (v57.70)
+// or, when the provider gave none, the session its bar-boundary stamp determines; a closing print takes its
+// exchange-local date. A print stamped on a day its market has no session names none (historyObservationSession) and is
+// held by holdRepeatedSessions. The intake step of updateHistory, exported for the history session model.
+export function withHistorySession(meta, field) {
+  if (!meta || meta.sessionDate) return meta;
+  const session = historyObservationSession(meta, field);
+  return session ? { ...meta, sessionDate: session } : meta;
 }
 
 export function usPreOpenIndexPrint(symbol, observedAt) {
@@ -531,14 +583,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       const value = pickField(field, sym);
       if (value === null) continue;
       fieldValues[field] = value;
-      fieldMeta[field] = historyMeta(field, bySymQuote[sym]);
-      // v57.81: every completed close names its session. A previous close takes the provider bar's own trading date
-      // (v57.70) or, when the provider gave none, the session its bar-boundary stamp determines; a closing print takes
-      // its exchange-local date. holdRepeatedSessions then compares sessions, not row dates.
-      if (!fieldMeta[field].sessionDate) {
-        const session = historyFieldSessionDate(fieldMeta[field], field) || observationSessionDate(field, fieldMeta[field].observedAt);
-        if (session) fieldMeta[field].sessionDate = session;
-      }
+      fieldMeta[field] = withHistorySession(historyMeta(field, bySymQuote[sym]), field);
     }
     // A retained Fear & Greed value (source-planes fallback: stale-reference) is not a new observation; the row keeps
     // only what the publisher's dated series gives it below.
@@ -614,6 +659,8 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       try { const bf = await backfillHistory(hist, thinAux); hist = bf.hist; backfilled = bf.added; console.log(`[fetch-data] aux history backfill ${thinAux.join(',')}: +${bf.added}`); } catch (e) { console.warn('[fetch-data] aux backfill 실패(무시):', e && e.message || e); }
     }
     hist = carryForwardHistoryEvidence(hist);
+    const sessionless = dropSessionlessReads(hist, today, rec);
+    if (sessionless.length) console.log(`[fetch-data] history: ${sessionless.length} read(s) stamped on a day without a session kept out of today's row (${sessionless.join(', ')})`);
     const displaced = keepDisplacedSessions(hist, today, rec);
     if (displaced.length) console.log(`[fetch-data] history: kept ${displaced.length} session close(s) in their own rows before the upsert (${displaced.map((row) => `${row.field} ${row.session}`).join(', ')})`);
     const idx = hist.findIndex(h => h && h.date === today);

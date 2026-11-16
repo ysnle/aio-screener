@@ -4,7 +4,9 @@
 // Loaded with the entity route and the lazy analysis cards (never the boot set). Readings come from
 // src/domain/fundamental/stock-lens.js; this file gathers the page's existing inputs and draws them.
 import { shortDate } from '../../domain/content/date-labels.js';
+import { setResearchHandoff } from '../../app/research-handoff.js';
 import { el } from './dom.js';
+import { focusResearchMemo } from './research-snapshots.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { parseFiscalHistory } from './fiscal-read.js';
 import { marketInterpretation, readMarketRegime } from '../../data/selectors/interpretation.js';
@@ -142,20 +144,16 @@ const shortList = (doc, items, keep = 3) => {
 
 // The memo entry (existing '이 종목의 메모, 당시 근거 저장' panel): open it, scroll to it and, when the draft is empty, start it
 // with the thesis template so the reader writes their own conditions.
-export function openThesisMemo(doc, root, template = '') {
-  const go = () => {
-    const panel = doc.querySelector?.('#page-ticker [data-research-snapshots="stock"]');
-    if (!panel) return false;
-    panel.open = true;
-    const note = panel.querySelector('textarea');
-    if (note && !note.value && template) note.value = template.slice(0, 2000);
-    panel.scrollIntoView?.({ block: 'center' });
-    note?.focus?.();
-    return true;
-  };
-  if (doc.getElementById?.('page-ticker')?.classList?.contains('active')) { go(); return; }
-  root?.showPage?.('ticker');
-  setTimeout(go, 400);
+function openThesisMemo(doc, root, symbol, template) {
+  const page = doc.getElementById('page-ticker');
+  if (page?.classList.contains('active')) {
+    root._aioShowPageView(page.id, 'memo', { byReader: true });
+    focusResearchMemo(page.querySelector('[data-research-snapshots="stock"]'), template);
+    return;
+  }
+  setResearchHandoff({ root, routeId: 'ticker', context: { symbol, memoTemplate: template } });
+  root._aioShowPageView(page.id, 'memo');
+  root.showTicker(symbol);
 }
 export function thesisTemplate(ctx) {
   const t = ctx?.thesis;
@@ -172,9 +170,9 @@ export function renderStockContext(doc, root, host, ctx) {
     host.append(line);
   }
   const actions = el(doc, 'div', null, 'v2-stock-context__actions');
-  const memo = el(doc, 'button', '내 논지·메모 저장', 'aio-btn-table');
+  const memo = el(doc, 'button', '내 논지·메모 열기', 'aio-btn-table');
   memo.type = 'button';
-  memo.addEventListener('click', () => openThesisMemo(doc, root, thesisTemplate(stockLensContext(root, ctx.sym, { fundamentals: root.__aioLensFundamentals?.[ctx.sym] || null }))));
+  memo.addEventListener('click', () => openThesisMemo(doc, root, ctx.sym, thesisTemplate(stockLensContext(root, ctx.sym, { fundamentals: root.__aioLensFundamentals?.[ctx.sym] || null }))));
   actions.append(memo);
   if (typeof root?._aioWLToggle === 'function') {
     // v58.80 (first-users run-3 B15): the button never changed state; it now says whether the stock is in a 관심 종목
@@ -320,7 +318,7 @@ export function thesisCard(doc, root, ctx) {
   card.append(fold(doc, '수익까지 이어지는 두 경로, 성립과 깨짐', t.paths.flatMap((path) => [[`${path.label}, 성립`, path.holds], [`${path.label}, 깨짐`, path.fails]])));
   const save = el(doc, 'button', '이 틀로 내 논지 메모 시작', 'aio-btn-table');
   save.type = 'button';
-  save.addEventListener('click', () => openThesisMemo(doc, root, thesisTemplate(ctx)));
+  save.addEventListener('click', () => openThesisMemo(doc, root, ctx.sym, thesisTemplate(ctx)));
   card.append(save);
   return card;
 }

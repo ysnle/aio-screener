@@ -4,12 +4,13 @@
 //
 // Builds a throwaway git repository in os.tmpdir() with a synthetic data-bot vs version-branch conflict
 // on the three generated manifests and resolves it in all three polarities (version branch <- main,
-// local main <- version branch, rebase). Asserts the code side keeps appRevision / workerRevision /
+// local main <- version branch, rebase), each also with origin/main advanced by a fetch while the merge
+// waits, and checks the exit status contract (manual conflict, appRevision mismatch, parity gate). Asserts the code side keeps appRevision / workerRevision /
 // operations planes.browser.revision while the data side keeps dataRevision / generatedAt / status, plus
 // direct unit cases: a generic "revision" outside planes.browser stays data-owned, and an unclassified
 // manifest field stops the merge. Never touches this repository's tree.
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -44,7 +45,29 @@ function writeTree(dir, state) {
   writeFileSync(join(dir, 'public-data/operations-status.json'), json(operations(state)));
 }
 
-function scenario(name, steps) {
+// A background fetch (IDE/desktop auto-fetch) can advance origin/main while the merge waits for resolution:
+// the merge's MERGE_HEAD is then an ancestor of origin/main, not equal to it. Simulated with plumbing
+// (a new data commit on top of main, published as origin/main) so the working tree stays mid-merge.
+const advanceOrigin = (ok) => {
+  const tree = ok('rev-parse', 'refs/remotes/origin/main^{tree}').stdout.trim();
+  const parent = ok('rev-parse', 'refs/remotes/origin/main').stdout.trim();
+  const next = ok('commit-tree', tree, '-p', parent, '-m', 'later data refresh').stdout.trim();
+  ok('update-ref', 'refs/remotes/origin/main', next);
+};
+
+// The resolver runs its parity gate from its own scripts/ directory, so a gate outcome is exercised by
+// running a copy of the two resolver modules next to a stub gate inside the throwaway repository.
+const withStubGate = (dir, exitCode) => {
+  mkdirSync(join(dir, 'scripts'), { recursive: true });
+  for (const file of ['resolve-generated-conflicts.mjs', 'resolve-data-manifest-merge.mjs']) copyFileSync(join(repo, 'scripts', file), join(dir, 'scripts', file));
+  writeFileSync(join(dir, 'scripts', 'ci-release-revision-check.mjs'), `process.exit(${exitCode});\n`);
+  return join(dir, 'scripts', 'resolve-generated-conflicts.mjs');
+};
+
+// opts.after(ok, dir) runs between the conflicting merge and the resolver; opts.gate (an exit code) runs the
+// resolver with a stub parity gate instead of --skip-gates; opts.manual adds a conflicting non-generated
+// file; opts.fails ({ pattern, nothingWritten }) expects a non-zero exit, so `set -e` callers stop.
+function scenario(name, steps, opts = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'aio-generated-conflict-'));
   const emptyConfig = join(dir, '..', `${dir.split(/[\\/]/).pop()}.gitconfig`);
   writeFileSync(emptyConfig, '');
@@ -54,16 +77,29 @@ function scenario(name, steps) {
   const ok = (...args) => { const r = git(...args); if (r.status !== 0) throw new Error(`git ${args.join(' ')}: ${r.stderr || r.stdout}`); return r; };
   try {
     ok('init', '-q', '-b', 'main');
-    writeTree(dir, base); ok('add', '-A'); ok('commit', '-qm', 'base');
+    const note = (text) => { if (opts.manual) writeFileSync(join(dir, 'notes.txt'), `${text}\n`); };
+    writeTree(dir, base); note('base'); ok('add', '-A'); ok('commit', '-qm', 'base');
     ok('checkout', '-qb', 'ver');
-    writeTree(dir, code); ok('add', '-A'); ok('commit', '-qm', 'bump v1.02');
+    writeTree(dir, code); note('code side'); ok('add', '-A'); ok('commit', '-qm', 'bump v1.02');
     ok('checkout', '-q', 'main');
-    writeTree(dir, data); writeFileSync(join(dir, 'version.json'), `${JSON.stringify({ version: base.app }, null, 2)}\n`);
+    writeTree(dir, data); note('data side'); writeFileSync(join(dir, 'version.json'), `${JSON.stringify({ version: base.app }, null, 2)}\n`);
     ok('add', '-A'); ok('commit', '-qm', 'data refresh');
     ok('update-ref', 'refs/remotes/origin/main', 'main');
     const conflict = steps(git, ok);
     check(`R626 ${name}: synthetic merge conflicts`, conflict.status !== 0, conflict.stdout);
-    const run = spawnSync(process.execPath, [resolver, '--skip-gates'], { cwd: dir, env, encoding: 'utf8' });
+    if (opts.after) opts.after(ok, dir);
+    const args = opts.gate === undefined ? [resolver, '--skip-gates'] : [withStubGate(dir, opts.gate)];
+    const run = spawnSync(process.execPath, args, { cwd: dir, env, encoding: 'utf8' });
+    if (opts.fails) {
+      check(`R626 ${name}: resolver exits non-zero`, run.status !== 0 && run.status !== null, `status ${run.status}`);
+      check(`R626 ${name}: failure names its cause`, opts.fails.pattern.test(run.stderr), run.stderr);
+      if (opts.fails.nothingWritten) {
+        const markers = ['architecture/asset-manifest.json', 'architecture/release-manifest.json', 'public-data/operations-status.json']
+          .filter((file) => /^<{7} /m.test(readFileSync(join(dir, file), 'utf8')));
+        check(`R626 ${name}: nothing written (all three manifests still carry conflict markers)`, markers.length === 3, markers.join(', '));
+      }
+      return;
+    }
     check(`R626 ${name}: resolver exits 0`, run.status === 0, `${run.stderr}${run.stdout}`);
     if (run.status !== 0) return;
     check(`R626 ${name}: all three generated manifests actually conflicted`, ['asset-manifest.json', 'release-manifest.json', 'operations-status.json']
@@ -94,8 +130,20 @@ if (gitVersion.status !== 0) {
   process.exit(1);
 }
 scenario('version branch <- origin/main (main = theirs)', (git, ok) => { ok('checkout', '-q', 'ver'); return git('merge', '--no-edit', 'main'); });
+const mergeMainIntoVer = (git, ok) => { ok('checkout', '-q', 'ver'); return git('merge', '--no-edit', 'main'); };
+scenario('version branch <- origin/main, origin/main advanced by a fetch before resolving (main = theirs)', mergeMainIntoVer, { after: advanceOrigin });
 scenario('local main <- version branch (main = ours)', (git) => git('merge', '--no-edit', 'ver'));
+scenario('local main <- version branch, origin/main advanced before resolving (main = ours)', (git) => git('merge', '--no-edit', 'ver'), { after: advanceOrigin });
 scenario('rebase version branch onto main (main = ours)', (git, ok) => { ok('checkout', '-q', 'ver'); return git('rebase', 'main'); });
+scenario('rebase version branch onto main, origin/main advanced before resolving (main = ours)', (git, ok) => { ok('checkout', '-q', 'ver'); return git('rebase', 'main'); }, { after: advanceOrigin });
+// Exit status contract: every failure is non-zero so a piped or `set -e` caller stops.
+scenario('exit: a non-generated conflict needs manual resolution', mergeMainIntoVer, { manual: true, fails: { pattern: /needs manual resolution: notes\.txt/ } });
+scenario('exit: resolved appRevision disagrees with version.json', mergeMainIntoVer, {
+  after: (ok, dir) => writeFileSync(join(dir, 'version.json'), `${JSON.stringify({ version: 'v1.09' }, null, 2)}\n`),
+  fails: { pattern: /resolved appRevision v1\.02 != version\.json v1\.09/, nothingWritten: true }
+});
+scenario('exit: the release parity gate fails after resolution', mergeMainIntoVer, { gate: 1, fails: { pattern: /failed after resolution/ } });
+scenario('exit: the release parity gate passes after resolution', mergeMainIntoVer, { gate: 0 });
 
 // Direct unit cases for path-sensitive ownership.
 const healthBlock = [
@@ -132,4 +180,4 @@ if (errors.length) {
   for (const error of errors) console.error(` - ${error}`);
   process.exit(1);
 }
-console.log(`Generated-conflict fixture OK: ${checks} checks (merge both directions + rebase, path-owned planes.browser.revision, unclassified stop, diff3).`);
+console.log(`Generated-conflict fixture OK: ${checks} checks (merge both directions + rebase, origin advanced mid-merge, exit status, path-owned planes.browser.revision, unclassified stop, diff3).`);

@@ -158,7 +158,7 @@ export function parseRouteDeepLink(hash, themeIds = null) {
 // The hash for `routeId` with `key` set to `value` (or removed when value is empty), keeping the other keys.
 export function routeDeepLinkHash(hash, routeId, key, value) {
   const match = String(hash || '').match(/^#([^?]*)(?:\?(.*))?$/);
-  const params = new URLSearchParams(match && match[1] === routeId ? match[2] || '' : '');
+  const params = new URLSearchParams(match?.[1].split('/')[0] === routeId ? match[2] || '' : '');
   if (value == null || value === '') params.delete(key); else params.set(key, String(value));
   const query = params.toString();
   return `#${routeId}${query ? `?${query}` : ''}`;
@@ -211,7 +211,12 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
     if (link.entityId && (/^#[a-z]+\//.test(location.hash) || resolved)) writeHash(link.routeId, 'sym', link.entityId); // canonical address
     if (link.entityId && link.routeId === 'ticker') {
       const current = String(runtimeRoot.AIO?.state?._currentTickerSym || runtimeRoot._currentTickerSym || '').toUpperCase();
-      if (current !== link.entityId && typeof runtimeRoot.showTicker === 'function') runtimeRoot.showTicker(link.entityId);
+      if (current !== link.entityId && typeof runtimeRoot.showTicker === 'function') {
+        // This entry already came from a link or history. The classic selector must reuse it,
+        // including a memo view or other query keys, when it updates the company on this page.
+        try { history.replaceState({ ...(history.state || {}), page: link.routeId }, '', location.href); } catch (_) {}
+        runtimeRoot.showTicker(link.entityId);
+      }
     } else if (link.entityId) {
       // 차트 and 재무 공시 select without leaving their route; showTicker would move to the 요약 screen.
       setStockSubject({ root: runtimeRoot, documentRef, symbol: link.entityId });

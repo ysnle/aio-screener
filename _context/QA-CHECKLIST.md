@@ -1,8 +1,17 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-15
+last_verified: 2026-11-16
 confidence: medium
 ---
+
+## v60.21 history 주말 재스탬프 (2026-11-16)
+
+- [x] QA-HIST-WEEKEND-01: v60.21 주말·휴장일에 공급자가 다시 찍은 시각의 값은 어느 세션의 종가도 되지 않고(보류 행), 어떤 행도 그 행의 UTC 날짜가 끝난 뒤 관측한 값을 담지 않는다(FX·미국 지수·코스피·BTC 달력별 전수 탐색). verify_by: node scripts/ci-history-session-model-check.mjs
+- [x] QA-HIST-WEEKEND-LIVE-01: v60.21 push 뒤 첫 주말(토·일) 갱신이 모두 게시되고, history.json의 토·일 행 usdkrw가 carried-forward(heldReason no-session-on-stamp-day 또는 session-already-recorded)이며 sessionDate가 금요일이다. verify_by: 주말 Refresh market data 실행 결과와 public-data/history.json 토·일 행 fieldMeta.usdkrw 확인
+- [x] QA-AI-SEARCH-FIG-01: v60.21 웹검색 답변에서 이 요청의 출처를 같은 문장에 단 수치는 링크와 함께 남고(표 칸·확인된 수치 목록 제외), 출처 없는 수치·다른 URL·모델 계산·AIO 값과 어긋난 수치는 문장째 빠지며 그 문장의 인용도 함께 빠진다. 여는 줄은 검색 수치를 'AIO가 확인한 값 아님'으로 밝히고 '일반 설명만'을 쓰지 않는다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-AI-SEARCH-FIG-LIVE-01: v60.21 push 뒤 배포판 AI 패널(홈)에서 '엔비디아 이번 주 실적 발표의 시장 예상치를 검색해서 알려줘'의 답이 컨센서스 수치를 출처 링크와 함께 보여 주거나 일관된 보류 문구를 쓰고, 답 본문에 '](https://' 같은 링크 원문이 남지 않는다. verify_by: 배포판에서 같은 질문 1회, getChatState().messages.at(-1).content와 말풍선 확인
+- [x] QA-NARR-RECORD-01: v60.21 시장이 말하는 이야기의 시나리오 판단 틀은 장기 기록이 늦게 도착해도 같은 갈림길의 시나리오와 가이드 판단 틀과 같은 기록·같은 문장이고, AI 답변 블록은 그 기록을 기다린다. verify_by: node scripts/ci-decision-frame-check.mjs
+- [x] QA-NARR-RECORD-LIVE-01: v60.21 push 뒤 배포판 시장 상태 → 이야기와 전망에서 이야기 섹션과 시나리오 섹션의 같은 갈림길 '가능성' 줄이 같고(장기 일봉 기록), 'AIO 종가 기록' 줄이 이야기 섹션에만 남지 않는다. verify_by: 배포판 시장 상태 새로고침 1회 뒤 두 섹션의 판단 틀 텍스트 비교
 
 ## v60.19 AI 수치 근거 대조 (2026-11-15)
 

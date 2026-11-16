@@ -1,5 +1,5 @@
 import { createResourceBag } from '../../app/lifecycle.js';
-import { ensureResearchSnapshots } from '../components/research-snapshots.js';
+import { ensureResearchSnapshots, focusResearchMemo } from '../components/research-snapshots.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { parseKnowledgeTargetContext } from '../../app/knowledge-route-state.js';
 import { selectEntityState } from '../../state/selectors/entity.js';
@@ -804,16 +804,19 @@ function render({ root, documentRef, store, route, activeTickerTab = 'overview',
     renderTickerActivity(documentRef, root, state, portfolioState);
     renderTickerNavigation(documentRef, state, root);
     renderTickerStart({ documentRef, root, portfolioState, show: !state?.id && !String(root?._currentTickerId || '').trim() });
-    ensureResearchSnapshots({ documentRef, root, host: routeNode, kind: 'stock', collect: () => ({ kind: 'stock',
+    const memo = ensureResearchSnapshots({ documentRef, root, host: routeNode, kind: 'stock', collect: () => ({ kind: 'stock',
       symbol: state?.id, name: state?.name, quote: { ...state?.quote, basis: state?.quote?.changeBasis || 'unknown' } }) });
-    const memo = routeNode.querySelector(':scope > [data-research-snapshots="stock"]');
     if (memo && memo.dataset.viewOpen == null) { memo.dataset.viewOpen = ''; memo.open = true; } // the 메모 view's content (page-views.css)
+    const requestedId = String(root?._currentTickerId || '').trim().toUpperCase();
+    if (state?.id && state.id === requestedId && routeNode.matches('.active[data-view="memo"]')) {
+      const handoff = consumeResearchHandoff({ root, routeId: 'ticker', symbol: state.id });
+      if (handoff) focusResearchMemo(memo, handoff.context.memoTemplate);
+    }
     renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange, state);
     renderTickerChart({ root, page: routeNode, state, requestedRange: tickerChartRange });
     renderWhyMoved(documentRef, root, state);
     // Review (v58.53): the 재무 tile tells a pending or failed SEC projection apart from a confirmed absence. The provider
     // dispatches only after the projection settles, so a synced symbol without fundamentalsMeta means the load failed.
-    const requestedId = String(root?._currentTickerId || '').trim().toUpperCase();
     const fundamentalsState = entityFundamentalsState(state, { requestedId, onDemandStatus: state?.id ? root?._aioOnDemandSymbol?.(state.id)?.status : null });
     renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '', fundamentals: state?.fundamentals, fundamentalsState }); // P1434; v57.51 N20 recent filings
     renderStockLens(documentRef, root, state); // v58.75 ('고르는 법' layer B)

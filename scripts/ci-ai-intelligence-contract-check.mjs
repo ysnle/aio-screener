@@ -1965,6 +1965,65 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check(`v60.02 the card quotes at most 80 characters of the question (${preview.length})`, preview.length <= 80 && preview.length >= 70 && preview.endsWith('…') && long.startsWith(preview.slice(0, -1)) && pt.pendingQuestionPreview(' 짧은\n질문 ') === '짧은 질문');
 }
 
+// v60.21 (live 2026-11-16, 홈 AI panel, "엔비디아 이번 주 실적 발표의 시장 예상치를 검색해서 알려줘"): the status line said
+// "웹검색으로 보강해 답했습니다(출처 2건)" while the answer dropped the searched consensus figures, kept a citation whose
+// sentence was removed, published a link tail "…dia.com](https://…))" and opened "최신 수치 확인 안 됨 — 일반 설명만".
+// AI_PUBLICATION_MODULE=<path> runs the publication part on another copy (the negative control on the old one).
+{
+  const { pathToFileURL } = await import('node:url');
+  const pub = process.env.AI_PUBLICATION_MODULE ? await import(pathToFileURL(process.env.AI_PUBLICATION_MODULE).href) : answerPublication;
+  const nowMs = Date.parse('2026-11-16T03:00:00Z');
+  const u1 = 'https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Sets-Conference-Call-for-Third-Quarter-Financial-Results/?utm_source=openai';
+  const u2 = 'https://d18rn0p25nwr6d.cloudfront.net/CIK-0001045810/f5480f45-6334-4bc0-8d27-1daea2e78598.pdf?utm_source=openai';
+  const c1 = `([investor.nvidia.com](${u1}))`, c2 = `([d18rn0p25nwr6d.cloudfront.net](${u2}))`;
+  const searchCitations = [{ url: u1, title: 'NVIDIA IR' }, { url: u2, title: 'NVIDIA CFO commentary' }];
+  const consensus = `LSEG 집계 매출 컨센서스는 약 549억 달러, 조정 EPS 컨센서스는 1.25달러입니다 ${c1}`;
+  const guidance = `회사 가이던스는 매출 540억 달러 ±2%입니다. ${c2}`;
+  const summary = [`엔비디아는 **2026년 11월 17일 화요일 장 마감 후** 회계연도 2027년 3분기 실적을 발표할 예정입니다. 집계처별로 매출 추정치가 조금씩 다릅니다. ${consensus}`,
+    `따라서 시장의 매출 예상은 회사가 제시한 범위 안에 있습니다. EPS 추정은 애널리스트 컨센서스이며 회사의 공식 가이던스와는 구분됩니다. ${guidance}`,
+    '**기준 시각:** 2026년 11월 16일 KST 검색. 실적 발표 전 컨센서스라 발표 전까지 바뀔 수 있습니다.'].join('\n\n');
+  const plan = { schemaVersion: 'answer-plan.v1', summary, sections: [], claims: { claims: [] }, citations: [] };
+  const searched = pub.buildPublishableAnswerPlan(plan, [], true, { nowMs, searchCitations });
+  check('v60.21 a searched figure whose sentence cites this request\'s web source is published with its link',
+    searched.plan.summary.includes(consensus) && searched.plan.summary.includes(guidance) && searched.filterCounts?.searchedSentences === 2 && searched.filterCounts.removedNumericSentences === 0);
+  const fallback = typeof pub.extractAnswerFallbackResult === 'function' ? pub.extractAnswerFallbackResult(summary, true, { evidenceCount: 0, today: nowMs, searchCitations }) : null;
+  check('v60.21 the fallback path keeps the same searched figures', !!fallback && fallback.text.includes(consensus) && fallback.searchedSentences === 2);
+  const unsearched = pub.buildPublishableAnswerPlan(plan, [], true, { nowMs });
+  check('v60.21 without this request\'s sources the figures are removed as before, each with the citation attached to it',
+    !/549억|1\.25달러|540억/.test(unsearched.plan.summary) && !/cloudfront|investor\.nvidia/.test(unsearched.plan.summary) && /구분됩니다\.\n\n/.test(unsearched.plan.summary + '\n\n'));
+  const live = `집계처별로 매출 추정치가 조금씩 다dia.com](${u1}))\n\nEPS 추정은 회사의 공식 가이던스와는 구udfront.net](${u2}))`;
+  const tidied = pub.buildPublishableAnswerPlan({ ...plan, summary: live }, [], true, { nowMs, searchCitations }).plan.summary;
+  check('v60.21 a link tail without its opening bracket is never published as text; whole links stay', !/\]\(https?:/.test(tidied) && pub.buildPublishableAnswerPlan({ ...plan, summary: `안내는 ${c1} 참고.` }, [], false, { nowMs }).plan.summary.includes(c1));
+  const keep = (sentence, options = {}) => pub.buildPublishableAnswerPlan({ ...plan, summary: sentence }, [], true, { nowMs, searchCitations, referenceText: '엔비디아 종가 $180.25 (2026-11-14 종가)', entities: ['NVDA'], nameEntries: { NVDA: { en: 'NVIDIA', kr: '엔비디아' } }, ...options }).plan.summary.includes(sentence);
+  check('v60.21 the search rule does not loosen the drop: uncited, cited to another URL, derived by the model, or against an AIO figure',
+    !keep('엔비디아 조정 EPS 컨센서스는 1.25달러입니다.') && !keep('엔비디아 조정 EPS 컨센서스는 1.25달러입니다 ([x.com](https://x.com/made-up)).')
+      && !keep(`두 집계처의 차이는 3억 달러입니다 ${c1}.`) && !keep(`엔비디아 주가는 175달러입니다 ${c1}.`) && keep(`엔비디아 조정 EPS 컨센서스는 1.25달러입니다 ${c1}.`));
+  const cell = pub.buildPublishableAnswerPlan({ ...plan, summary: '', sections: [{ title: '예상치', body: `| 항목 | 값 |\n|---|---|\n| 매출 | 549억 달러 ${c1} |` }] }, [], true, { nowMs, searchCitations }).plan.sections[0]?.body || '';
+  check('v60.21 a table cell never takes a searched figure (search never feeds tables)', /확인 필요/.test(cell) && !/549억/.test(cell));
+  const reasons = ['current-numeric-claim-unverified', 'market-session-evidence-unavailable', 'research-freshness-unverified'];
+  const banner = (search) => pub.summarizeAnswerLimitations(reasons, { publishedClaimCount: 0, search });
+  check('v60.21 the limitation line owns what happened to searched figures and never says 일반 설명만 beside a cited search',
+    banner({ searchedSentences: 2, removedNumericSentences: 0 }) === '※ 웹검색 출처의 수치 — AIO가 확인한 값 아님, 링크 원문 기준'
+      && banner({ searchedSentences: 1, removedNumericSentences: 1 }) === '※ 웹검색 출처가 붙은 수치만 표시 — AIO가 확인한 값 아님'
+      && banner({ searchedSentences: 0, removedNumericSentences: 2 }) === '※ 출처가 붙지 않은 최신 수치는 뺌 — 아래 참고 링크 원문 확인'
+      && banner(null) === '※ 최신 수치 확인 안 됨 — 일반 설명만');
+  // The browser path: the request pipeline hands this request's citations to the publication step and the line.
+  const orchestrator = createAIAnswerOrchestrator({ now: () => new Date(nowMs) });
+  const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
+  const coreSource = read('js/aio-core.js');
+  const ctx = vm.createContext({ URL, console, window: { AIO: {}, AIO_ARCH: { getAIOrchestrator: () => orchestrator, parseAIAnswerPlan: (text, options = {}) => orchestrator.parseAnswerPlanText(text, options), renderAIAnswerPlan: (value, options = {}) => orchestrator.renderAnswerPlan(value, options) } }, _AIO_PUBLIC_AI_POLICY: { label: 'AI 도우미', status: 'research-assistant' } });
+  vm.runInContext(coreSource.slice(coreSource.indexOf('var _AIO_CLAIM_SCHEMA_VERSION'), coreSource.indexOf('function _aioClaimEvidenceList')), ctx);
+  vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioAIClaimEvidenceId('), chatSource.indexOf('function _aioPublicAIActionPolicyPrompt(')), ctx);
+  vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioPublicAIFormatAsOf('), chatSource.indexOf('function _aioAppendAIPublicDisclosure(')), ctx);
+  const raw = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary, claims: [], sections: [], citations: [], followUps: [] }) + '[/AI_ANSWER_PLAN]';
+  const request = { requestId: 'fixture-searched-consensus', entrypoint: 'unified-chat', pipelineVersion: 'fixture', validatorVersion: 'fixture', blockPolicyVersion: 'fixture' };
+  const run = (citations) => ctx._aioRunAIResponsePipeline(raw, { request, questionPlan: { currentSensitive: true }, currentSensitive: true, evidence: [], record: false, streamPhase: 'complete', stripChips: false, searchCitations: citations });
+  const piped = run(searchCitations);
+  check('v60.21 the panel answer shows the searched consensus with its sources and one coherent line',
+    piped.text.startsWith('※ 웹검색 출처의 수치 — AIO가 확인한 값 아님, 링크 원문 기준') && piped.text.includes('549억 달러') && piped.text.includes(c1) && !/일반 설명만|\]\(https?:\/\/[^)]*\)\)(?!\))[^\n]*\]\(/.test(piped.text) && (piped.text.match(/※/g) || []).length === 1);
+  check('v60.21 an answer without search keeps today\'s withheld line', run([]).text.startsWith('※ 최신 수치 확인 안 됨 — 일반 설명만'));
+}
+
 if (failures.length) {
   console.error(`AI intelligence contract failed (${failures.length})`);
   failures.forEach((failure) => console.error(`- ${failure}`));

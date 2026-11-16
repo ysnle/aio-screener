@@ -789,6 +789,7 @@
             "scripts/resolve-worker-rollback-version.mjs",
             "scripts/worker-deploy-impact.mjs",
             "scripts/ci-external-pipeline-check.mjs",
+            "scripts/deployment-provenance.mjs",
             "scripts/ci-live-invariant-check.mjs",
             "scripts/build-operations-status.mjs",
             "scripts/ci-cloudflare-deployment-contract-check.mjs"
@@ -2696,6 +2697,8 @@
         "architecture/worker-endpoints.json",
         "worker/wrangler.proxy.toml",
         "scripts/ci-external-pipeline-check.mjs",
+        "scripts/deployment-provenance.mjs",
+        ".github/workflows/pages-deploy.yml",
         "scripts/lib/operational-health.mjs",
         "scripts/ci-live-invariant-check.mjs"
       ],

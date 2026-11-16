@@ -2,7 +2,6 @@
 import { installRoving } from '../ui/behaviors/roving.js';
 import { installAnnouncements } from '../ui/behaviors/announce.js';
 import { installToast } from '../ui/behaviors/toast.js';
-import { installPageViews } from '../ui/navigation/page-views.js';
 import { installMasterDetail } from '../ui/behaviors/master-detail.js';
 import { installFocusContinuity } from '../ui/behaviors/focus-continuity.js';
 
@@ -17,6 +16,6 @@ function followThemeColor(root, documentRef) {
 export function installAfterBoot({ root, documentRef }) {
   installAnnouncements({ root, documentRef });
   installToast({ root, documentRef });
-  const stops = [installRoving({ root, documentRef }), installPageViews({ root, documentRef }), installMasterDetail({ root, documentRef }), installFocusContinuity({ root, documentRef }), followThemeColor(root, documentRef)];
+  const stops = [installRoving({ root, documentRef }), installMasterDetail({ root, documentRef }), installFocusContinuity({ root, documentRef }), followThemeColor(root, documentRef)];
   return () => stops.forEach((stop) => stop());
 }

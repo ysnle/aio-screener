@@ -1,7 +1,7 @@
 import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isTrustedDeploymentRun, resolveProvenanceRun } from './deployment-provenance.mjs';
+import { ciReleaseTrust, isTrustedDeploymentRun, readZipEntry, resolveProvenanceRun } from './deployment-provenance.mjs';
 import { telegramDigestBoundary } from './lib/telegram-channels.mjs';
 import { ARTIFACT_FRESHNESS, freshnessLedgerPath, freshnessState } from '../src/data/contracts/artifact-freshness.js';
 import { summarizeOperationalChecks, marketAnalysisDiagnostic, aiProviderRefusal, workflowCadence, CADENCE_EVENTS, WATCHDOG_THRESHOLDS, operationalSummary, dataSourceWarnings, deadNewsFeeds } from './lib/operational-health.mjs';
@@ -31,6 +31,18 @@ async function fetchJson(url, options = {}) {
   try { body = await response.json(); } catch {}
   if (!response.ok) throw new Error(`${url} HTTP ${response.status}`);
   return { status: response.status, body, headers: Object.fromEntries(response.headers.entries()) };
+}
+
+// The fetch edge of the CI trust check: the run's aio-release-attestation artifact (7-day retention). Listing is public;
+// the archive download needs a token with actions:read, which the watchdog and Pages jobs have and a local run may not.
+async function readReleaseAttestation(runId, headers) {
+  if (!headers.Authorization) return { attestation: null, unavailable: 'reading the aio-release-attestation artifact needs GITHUB_TOKEN with actions:read (not set)' };
+  const listing = await fetchJson(`https://api.github.com/repos/ysnle/aio-screener/actions/runs/${runId}/artifacts?name=aio-release-attestation`, { headers });
+  const artifact = (listing.body?.artifacts || []).find((entry) => entry.name === 'aio-release-attestation' && entry.expired === false);
+  if (!artifact) return { attestation: null, unavailable: 'the run has no unexpired aio-release-attestation artifact' };
+  const response = await fetch(artifact.archive_download_url, { headers, signal: AbortSignal.timeout(20_000) });
+  if (!response.ok) return { attestation: null, unavailable: `artifact download HTTP ${response.status}` };
+  return { attestation: JSON.parse(readZipEntry(Buffer.from(await response.arrayBuffer()), 'aio-release-attestation.json')) };
 }
 
 const ageMinutes = (value) => value ? Math.round((Date.now() - new Date(value).getTime()) / 60000) : null;
@@ -235,8 +247,19 @@ async function observeOnce() {
       if (result.pages?.sourceSha && result.pages?.attestationRunId) {
         // P1351: exact run IDs remain verifiable even when the discovery list is stale/truncated.
         const readExact = async (runId) => (await fetchJson(`https://api.github.com/repos/ysnle/aio-screener/actions/runs/${runId}`, { headers: githubHeaders })).body;
+        // The CI run is trusted by the deploy's own rule on its attestation artifact (deployment-provenance.mjs ciReleaseTrust):
+        // a dispatched run's head_sha is the branch head at dispatch, not the commit it tested and Pages deployed.
+        const ciRunId = result.pages.attestationRunId;
+        try {
+          const run = await resolveProvenanceRun(observedWorkflowRuns.ci?.runs, ciRunId, readExact);
+          const { attestation, unavailable } = await readReleaseAttestation(ciRunId, githubHeaders);
+          const trust = ciReleaseTrust({ run, runId: ciRunId, repository: 'ysnle/aio-screener', attestation, unavailable, deployedSha: result.pages.sourceSha });
+          // Without a token the artifact cannot be read (local runs); the verdict stays untrusted, as a warning there.
+          check('pages-source-matches-attested-ci (v60.21)', trust.trusted, `run=${ciRunId} deployed=${result.pages.sourceSha} ${trust.reason}`, attestation || githubHeaders.Authorization ? 'error' : 'warning');
+        } catch (error) {
+          check('pages-source-matches-attested-ci (v60.21)', false, `verification-unavailable run=${ciRunId}: ${error.message}`);
+        }
         for (const [key, id, name, runs] of [
-          ['pages-source-matches-attested-ci', result.pages.attestationRunId, 'CI', observedWorkflowRuns.ci?.runs],
           ['pages-deployment-run-provenance', result.pages.deploymentRunId, 'Deploy GitHub Pages', observedWorkflowRuns.pages?.runs]
         ]) {
           try {

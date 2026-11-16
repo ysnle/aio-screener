@@ -169,6 +169,28 @@
         "hash": "#fundamental?sym=MSFT"
       },
       "problems": []
+    },
+    {
+      "route": "ticker",
+      "tab": "개요",
+      "sym": "NVDA",
+      "form": "path",
+      "view": "memo",
+      "hash": "#ticker/NVDA?view=memo",
+      "state": {
+        "active": "page-ticker",
+        "tab": "개요",
+        "subject": "",
+        "hash": "#ticker?view=memo&sym=NVDA"
+      },
+      "problems": []
+    },
+    {
+      "route": "ticker",
+      "form": "cold fiscal CTA",
+      "sym": "NVDA",
+      "hash": "#ticker?view=memo&demo=123&sym=AAPL",
+      "problems": []
     }
   ],
   "failures": []

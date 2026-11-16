@@ -127,6 +127,59 @@ const crossroads = buildMacroCrossroads({ signals, outcomes });
   check('v60.19copy: the story cards show the past line with its base beside it', /가능성: 20거래일 뒤 오른 경우 \d+%\(73번 중 41번\), 평소 64%/.test(text));
 }
 
+// ── load order (live 2026-11-16) ──
+// 시장 상태 showed one branch with two records: the story section kept the frame it drew from AIO's own closes before
+// scenario-outcomes.json arrived ("1번 중 1번 오름"), the scenario section repainted with the long record ("73번 중 41번").
+{
+  const narrativesPath = process.env.DECISION_FRAME_NARRATIVES || 'src/ui/components/market-narratives.js';
+  const { renderMarketNarratives } = await load(narrativesPath);
+  const { marketInterpretation } = await load('src/data/selectors/interpretation.js');
+  const { MARKET_DAY } = await load('src/data/artifact-registry.js');
+  const { buildNarrativeCards } = await load('src/domain/narrative/narrative-cards.js');
+  const doc = createFakeDocument();
+  const holder = doc.createElement('div');
+  const grid = doc.createElement('div'); grid.className = 'mk-axes';
+  holder.append(grid);
+  const realQuery = doc.querySelector?.bind(doc);
+  doc.querySelector = (selector) => (selector === '#page-signal .mk-axes' ? grid : realQuery?.(selector));
+  grid.insertAdjacentElement = grid.insertAdjacentElement || ((where, node) => { holder.insertBefore(node, where === 'beforebegin' ? grid : null); return node; });
+  const published = { schemaVersion: 'scenario-outcomes.v1', generatedAt: '2026-11-15T13:37:26.418Z', ...outcomes };
+  let deliver = () => {};
+  const arrived = new Promise((resolve) => { deliver = resolve; });
+  const root = { fetch: async () => { await arrived; return new Response(JSON.stringify(published), { status: 200, headers: { 'content-type': 'application/json' } }); } };
+  const story = (id, count) => ({ id, label: id, telegramCount: count, recentCount: 1, trend: 'steady', newsCount: 0, rumorCount: 0, unconfirmedCount: 0, movers: [] });
+  root[MARKET_DAY.key] = { narratives: { at: '2026-11-16T00:00:00Z', windowHours: 72, stories: [story('ai-funding-credit', 9), story('ai-profitability', 7)] } };
+  const before = marketInterpretation(root);
+  const section = renderMarketNarratives({ documentRef: doc, root, interpretation: before });
+  const ids = [...new Set(buildNarrativeCards({ narratives: root[MARKET_DAY.key].narratives, crossroads: before.crossroads }).cards.slice(0, 3).flatMap((card) => card.scenarios.map((row) => row.id)))];
+  const shortFace = (id) => decisionFrameText(branchDecisionFrame(before.crossroads.items.find((item) => item.id === id), { cash: before.crossroads.cash })).face[0];
+  check('v60.21load: before the long record the story frame is the own-close one', ids.length > 0 && ids.every((id) => section.textContent.includes(shortFace(id))), { ids, text: section.textContent.slice(0, 200) });
+  // The scenario section asks for the same record (refreshScenarioArtifacts); the story section must not depend on it.
+  const { refreshSharedArtifact } = await load('src/data/shared-artifacts.js');
+  const { SCENARIO_OUTCOMES } = await load('src/data/artifact-registry.js');
+  const scenarioSectionLoad = refreshSharedArtifact(root, SCENARIO_OUTCOMES);
+  deliver();
+  await scenarioSectionLoad;
+  for (let turn = 0; turn < 20; turn += 1) await new Promise((resolve) => setTimeout(resolve, 0));
+  const after = marketInterpretation(root).crossroads;
+  check('v60.21load: the crossroads model names which record its items carry', before.crossroads.pastRecord === 'local' && after.pastRecord === `long@${published.generatedAt}`, { before: before.crossroads.pastRecord, after: after.pastRecord });
+  // The scenario section draws branchDecisionFrame over the same interpretation; the regime page may also repaint the story.
+  renderMarketNarratives({ documentRef: doc, root, interpretation: marketInterpretation(root) });
+  const shown = doc.getElementById('regime-narratives')?.textContent || section.textContent;
+  const scenarioFace = (id) => decisionFrameText(branchDecisionFrame(after.items.find((item) => item.id === id), { cash: after.cash })).face[0];
+  check('v60.21load: once the record arrives the story frame equals the scenario frame for the same branch', ids.every((id) => shown.includes(scenarioFace(id)) && /73번 중 41번/.test(scenarioFace(id))) && !ids.some((id) => shown.includes(shortFace(id))),
+    { faces: ids.map(scenarioFace), text: shown.slice(0, 300) });
+  // The AI context reads the same interpretation: a question waits for the record beside the answer blocks.
+  const { buildQuestionDomainContext } = await load('src/ai/context/market-content.js');
+  let deliverAi = () => {};
+  const aiArrived = new Promise((resolve) => { deliverAi = resolve; });
+  const aiRoot = { fetch: async () => { await aiArrived; return new Response(JSON.stringify(published), { status: 200, headers: { 'content-type': 'application/json' } }); } };
+  const ready = buildQuestionDomainContext.loadBlocks(aiRoot);
+  deliverAi();
+  await ready;
+  check('v60.21load: the AI answer blocks wait for the long record, so the chat quotes the record the screen shows', marketInterpretation(aiRoot).crossroads.pastRecord === `long@${published.generatedAt}`, marketInterpretation(aiRoot).crossroads.pastRecord);
+}
+
 // ── artifact ──
 {
   const committed = JSON.parse(readFileSync(path.join(root, 'public-data/scenario-outcomes.json'), 'utf8'));

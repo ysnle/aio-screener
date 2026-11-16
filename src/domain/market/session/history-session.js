@@ -32,6 +32,7 @@ const BAR_ZONE = Object.freeze({
 // Exchange-calendar sessions for listed indices; futures, FX and DXY trade on US holidays (weekday sessions); BTC daily.
 const FIELD_CALENDAR = Object.freeze({
   spx: 'US', nasdaq: 'US', ndx: 'US', dow: 'US', rut: 'US', vix: 'US', vix3m: 'US', vvix: 'US', tnx: 'US', tlt: 'US', smh: 'US', soxx: 'US', rsp: 'US',
+  xlp: 'US', xlu: 'US', xlv: 'US', sox: 'US', move: 'US', skew: 'US', vix9d: 'US',
   kospi: 'KR', kosdaq: 'KR',
 });
 
@@ -53,6 +54,11 @@ function isSessionDay(date, field) {
   if (!market) return true;
   const status = resolveMarketCalendarSession({ market, date }).status;
   return status !== 'closed' && status !== 'holiday';
+}
+
+/** True when `date` is a session day of the field's market (the calendar the session lane dates history values on). */
+export function isHistorySessionDay(date, field) {
+  return isoDay(date) ? isSessionDay(date, field) : false;
 }
 
 function shiftDate(date, days) {
@@ -143,17 +149,48 @@ export function barSessionDateForField(field, observedAt) {
   return zone && Number.isFinite(observedMs) ? localDate(observedMs, zone) : null;
 }
 
-/**
- * Session of a completed-close observation dated by its own time: the Seoul date for Korean indices, the UTC date for
- * BTC, the New York date for everything else (a midnight-UTC stamp already names its date, as the readers treat it).
- */
-export function observationSessionDate(field, observedAt) {
+// The day a completed-close observation names by its own time: the Seoul date for Korean indices, the UTC date for
+// BTC, the New York date for everything else (a midnight-UTC stamp already names its date, as the readers treat it).
+function observationDay(field, observedAt) {
   const text = String(observedAt || '');
   const ms = Date.parse(text);
   if (!Number.isFinite(ms)) return null;
   if (FIELD_CALENDAR[field] === 'KR') return localDate(ms, 'Asia/Seoul');
   if (field === 'btc' || /T00:00:00(\.000)?Z$/.test(text)) return new Date(ms).toISOString().slice(0, 10);
   return localDate(ms, 'America/New_York');
+}
+
+/**
+ * Session of a completed-close observation dated by its own time (observationDay). A day the field's market has no
+ * session names none: Yahoo restamps a closed FX pair on the weekend with Friday's price (KRW=X 11/15 03:30Z, a New York
+ * Saturday), and such a stamp is not a new close of any session. The readers (close-series, the Korean index series)
+ * already drop observations dated on a closed day; the producer reads the same null.
+ */
+export function observationSessionDate(field, observedAt) {
+  const day = observationDay(field, observedAt);
+  return day && isSessionDay(day, field) ? day : null;
+}
+
+/**
+ * The session a history value is an observation of, for the producer's session lane (intake, keeper, hold, backfill):
+ * the session the row names or its stamp determines (historyFieldSessionDate), else its observation's own session day.
+ * Null when the day named is not a session day of the field (weekend; listed-index and KRX holidays; BTC trades daily) —
+ * such a value owns, settles and displaces no session.
+ */
+export function historyObservationSession(meta, field) {
+  const named = historyFieldSessionDate(meta, field);
+  if (named) return isSessionDay(named, field) ? named : null;
+  return observationSessionDate(field, meta?.observedAt);
+}
+
+/**
+ * The last session a value that names no session can repeat: the session on or before the day it names (the stamp's
+ * observation day when the row names none). Null when the value names no day at all.
+ */
+export function historyHeldSessionDate(meta, field) {
+  const named = historyFieldSessionDate(meta, field) || observationDay(field, meta?.observedAt);
+  if (!named) return null;
+  return isSessionDay(named, field) ? named : previousHistorySession(named, field);
 }
 
 /** True when the field value is a held copy of an earlier row's session, not an observation. */

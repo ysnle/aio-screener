@@ -9,7 +9,7 @@ export function viewNames(page) {
 }
 
 export function installPageViews({ root = globalThis, documentRef = root?.document } = {}) {
-  if (!documentRef?.addEventListener) return () => {};
+  if (!documentRef?.addEventListener || !documentRef.querySelector) return () => {};
   // A fold that is the whole content of its view opens with the view and is no longer a control.
   const openFolds = (page) => {
     for (const fold of page.querySelectorAll('details[data-view-open]')) {
@@ -81,7 +81,7 @@ export function installPageViews({ root = globalThis, documentRef = root?.docume
   documentRef.addEventListener('click', onLink, true);
   documentRef.addEventListener('aio:navigationCommitted', restore);
   root.addEventListener?.('aio:navigationCommitted', restore);
-  root._aioShowPageView = (pageId, view) => show(documentRef.getElementById(pageId), view);
+  root._aioShowPageView = (pageId, view, options) => show(documentRef.getElementById(pageId), view, options);
   root._aioShowViewOf = showViewOf;
   restore();
   return () => {

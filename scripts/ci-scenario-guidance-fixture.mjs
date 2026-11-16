@@ -762,12 +762,16 @@ console.log('scenario guidance fixture (basis card): PASS');
   {
     // v59.99 (plan 044, owner 2026-11-12): judgement and likelihood in words are allowed with their ground in the same or
     // the previous sentence; a likelihood standing alone, a numeric probability and an order are still blocked.
+    // v60.21: the ground is one of the kinds the prompt names (src/domain/content/likelihood-grounds.js); a met-condition
+    // count, an axis state, a signed move or a bare condition describes the present and no longer grounds a likelihood.
     const { validateAnalysisAdmission, softenReaderDuty } = await import('./lib/market-analysis-validate.mjs');
     const axes = 'trend: favorable — x\nbreadth: favorable — x\nvolatility: neutral — x\ncredit: favorable — x\nrates: neutral — x';
-    const grounded = ['조건 충족 3/4이고 시장 폭도 양호해 반등 가능성이 더 높아 보입니다.', '과거 73건 중 41건에서 20거래일 뒤 올랐습니다. 이번에도 반등 가능성이 더 큽니다.', '신용이 안정적인 동안은 분할 접근이 우위입니다.',
-      // the same rule where the old validator detected the likelihood and blocked it
-      '시장 폭이 양호해 반등 가능성이 높습니다.', '과거 73건 중 41건에서 20거래일 뒤 올랐습니다. 이번에도 반등 가능성이 높습니다.', '금리가 더 내려가면 반등 가능성이 높습니다.', 'S&P 500이 -1.2% 내렸습니다. 반등 가능성은 낮아 보입니다.'];
-    for (const text of grounded) assert.deepEqual(validateAnalysisAdmission(text), [], `v59.99 a likelihood or stance with its ground passes: ${text}`);
+    const grounded = ['과거 73건 중 41건에서 20거래일 뒤 올라 평소 55%보다 잦았습니다. 이번에도 반등 가능성이 더 큽니다.', '신용이 안정적인 동안은 분할 접근이 우위입니다.',
+      '과거 73건 중 41건에서 20거래일 뒤 올라 평소 55%보다 잦았습니다. 이번에도 반등 가능성이 높습니다.', '시장 가격도 인하 쪽으로 움직여 금리 하락 가능성이 더 높아 보입니다.'];
+    for (const text of grounded) assert.deepEqual(validateAnalysisAdmission(text), [], `v60.21 a likelihood or stance with a ground kind passes: ${text}`);
+    const stateOnly = ['조건 충족 3/4이고 시장 폭도 양호해 반등 가능성이 더 높아 보입니다.', '시장 폭이 양호해 반등 가능성이 높습니다.', '과거 73건 중 41건에서 20거래일 뒤 올랐습니다. 이번에도 반등 가능성이 높습니다.',
+      '금리가 더 내려가면 반등 가능성이 높습니다.', 'S&P 500이 -1.2% 내렸습니다. 반등 가능성은 낮아 보입니다.'];
+    for (const text of stateOnly) assert.deepEqual(validateAnalysisAdmission(text), ['likelihood-qualitative'], `v60.21 a count, an axis state, a count without its base, a bare condition or a move is not a ground: ${text}`);
     assert.deepEqual(validateAnalysisAdmission('반등 가능성이 높습니다.'), ['likelihood-qualitative'], 'v59.99 a likelihood standing alone is still blocked');
     assert.deepEqual(validateAnalysisAdmission('변동성 확대 가능성이 높습니다.'), ['likelihood-qualitative'], 'v59.99 the forecast state itself is not its own ground');
     assert.deepEqual(validateAnalysisAdmission('반면 반등 가능성이 높습니다.'), ['likelihood-qualitative'], 'v59.99 반면 is not a condition');

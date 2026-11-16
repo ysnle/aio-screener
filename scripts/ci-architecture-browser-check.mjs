@@ -375,6 +375,8 @@ try {
     const before = document.querySelector('#rates-assets .sx-seg button[data-window="m1"]');
     if (!before) return { missing: true };
     before.click();
+    const summary = () => document.querySelector('#rates-assets .rates-curve-fact')?.textContent || '';
+    const summaryBefore = summary();
     before.focus();
     const focusedBefore = document.activeElement === before;
     document.dispatchEvent(new Event('aio:refresh:done'));
@@ -382,9 +384,10 @@ try {
     for (let waited = 0; before.isConnected && waited < 3000; waited += 50) await new Promise((resolve) => setTimeout(resolve, 50));
     await new Promise((resolve) => setTimeout(resolve, 50));
     const pressed = document.querySelector('#rates-assets .sx-seg button[aria-pressed="true"]');
-    return { focusedBefore, rebuilt: !before.isConnected, pressed: pressed?.dataset.window || null, focused: document.activeElement === pressed, active: document.activeElement?.tagName };
+    return { focusedBefore, rebuilt: !before.isConnected, pressed: pressed?.dataset.window || null, focused: document.activeElement === pressed, active: document.activeElement?.tagName, summaryBefore, summaryAfter: summary() };
   });
   if (!assetRefresh.rebuilt || assetRefresh.pressed !== 'm1' || !assetRefresh.focused) throw new Error(`v60.19 자산군 window or focus lost on a refresh re-render: ${JSON.stringify(assetRefresh)}`);
+  if (!assetRefresh.summaryBefore.startsWith('최근 1개월') || !assetRefresh.summaryAfter.startsWith('최근 1개월')) throw new Error(`v60.21 자산군 요약이 선택 기간과 다릅니다: ${JSON.stringify(assetRefresh)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('breadth'));
   await page.waitForFunction(() => document.getElementById('page-breadth')?.dataset.aioArchitectureRoute === 'breadth');
   // P1395: the breadth page is the native trend-card board (P1416: ten dated series in three groups + one judgement).

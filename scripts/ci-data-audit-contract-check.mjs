@@ -354,6 +354,12 @@ const calendars = await import('./lib/official-calendars.mjs');
   const briefs = [...Array.from({ length: 10 }, (_, i) => brief(5, i < 6 ? -2 : 1)), ...Array.from({ length: 4 }, () => brief(-5, -3))];
   const beats = beatButFell(briefs);
   check('v59.70 호재 무반응: 10 beats, 6 fell, beside all reports', beats?.beats === 10 && beats.fell === 6 && beats.share === 60 && beats.reports === 14 && beats.allFell === 10, JSON.stringify(beats));
+  const nine = beatButFell(briefs.filter((_, index) => index !== 9));
+  const thirty = beatButFell([...briefs, ...Array.from({ length: 20 }, () => brief(5, 1))]);
+  check('v60.21 호재 무반응: nine counts only, ten rates with a small sample note, thirty rates with base', nine?.beats === 9
+    && nine.fell === 6 && nine.allFell === 10 && nine.share === null && nine.base === null && !nine.text.includes('%')
+    && beats.base === 71 && beats.text.includes('표본이 적습니다')
+    && thirty?.beats === 30 && thirty.base === 29 && !thirty.text.includes('표본이 적습니다'), JSON.stringify({ nine, beats, thirty }));
   const { HIST_FIELD_PLAUSIBILITY } = await import('./producer/history.mjs');
   check('v59.70 history keeps XLP, XLU and XLV closes', ['xlp', 'xlu', 'xlv'].every((field) => Array.isArray(HIST_FIELD_PLAUSIBILITY[field])));
 }

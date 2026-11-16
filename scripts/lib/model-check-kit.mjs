@@ -11,7 +11,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -84,7 +84,26 @@ let variantSeq = 0;
  * Import a copy of `module` (repo-relative) with each [find, replace] applied once. A find that is missing or appears
  * more than once throws: the variant no longer describes the code and must be rewritten with the model.
  */
-export async function importVariant(module, replacements, label) {
+export async function importVariant(module, replacements, label, { deps = {} } = {}) {
+  const written = [];
+  try {
+    // A dependency variant: the module's import of `dep` is pointed at a variant copy of it, so a rule that lives in a
+    // module the covered function imports can be varied too.
+    const depReplacements = Object.entries(deps).map(([dep, depReplace]) => {
+      const tmp = writeVariant(dep, depReplace, label);
+      written.push(tmp);
+      const spec = relative(dirname(join(REPO_ROOT, module)), join(REPO_ROOT, dep)).replace(/\\/g, '/');
+      return [`from '${spec.startsWith('.') ? spec : `./${spec}`}'`, `from '${pathToFileURL(tmp).href}'`];
+    });
+    const tmp = writeVariant(module, [...replacements, ...depReplacements], label);
+    written.push(tmp);
+    return await import(pathToFileURL(tmp).href);
+  } finally {
+    for (const tmp of written) { try { unlinkSync(tmp); } catch (_) { /* already gone */ } }
+  }
+}
+
+function writeVariant(module, replacements, label) {
   const path = join(REPO_ROOT, module);
   let source = readFileSync(path, 'utf8');
   for (const [find, replace] of replacements) {
@@ -95,7 +114,7 @@ export async function importVariant(module, replacements, label) {
   source = source.replace(/(\bfrom\s+|\bimport\s*\(\s*)(['"])(\.{1,2}\/[^'"]+)\2/g, (_, lead, quote, spec) => `${lead}${quote}${pathToFileURL(resolve(dirname(path), spec)).href}${quote}`);
   const tmp = join(tmpdir(), `aio-model-variant-${process.pid}-${++variantSeq}.mjs`);
   writeFileSync(tmp, source);
-  try { return await import(pathToFileURL(tmp).href); } finally { try { unlinkSync(tmp); } catch (_) { /* already gone */ } }
+  return tmp;
 }
 
 /**

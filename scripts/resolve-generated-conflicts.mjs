@@ -24,18 +24,22 @@ const version = JSON.parse(readFileSync('version.json', 'utf8')).version;
 if (!/^v\d+\.\d+$/.test(version || '')) throw new Error(`version.json has no usable version: ${version}`);
 
 // The merge runs in either direction: origin/main into a version branch (main = theirs) or a version
-// branch into local main (main = ours). The side that contains origin/main is the data side.
+// branch into local main (main = ours). The side on origin/main's published history is the data side.
 const dataSide = detectDataSide();
 const conflicted = execFileSync('git', ['diff', '--name-only', '--diff-filter=U'], { encoding: 'utf8' }).split(/\r?\n/).filter(Boolean);
 const manual = conflicted.filter((file) => !GENERATED.has(file));
 const generated = conflicted.filter((name) => GENERATED.has(name));
-// Resolve everything in memory first: one unclassified field or invalid result writes nothing.
+// Resolve and validate everything in memory first: an unclassified field, an invalid result or an
+// appRevision that disagrees with version.json writes nothing.
 const resolved = generated.map((file) => ({ file, ...resolveConflictText(readFileSync(file, 'utf8'), { file, dataSide }) }));
-for (const { file, text, blocks } of resolved) {
+for (const { file, text } of resolved) {
   const appRevision = JSON.parse(text).appRevision;
   if (appRevision !== undefined && appRevision !== version) {
-    throw new Error(`${file}: resolved appRevision ${appRevision} != version.json ${version} — run node scripts/bump-version.mjs ${version} after the merge`);
+    console.error(`${file}: resolved appRevision ${appRevision} != version.json ${version} (data side = ${dataSide}) — nothing written; if the data side is wrong rerun node scripts/resolve-data-manifest-merge.mjs --data-side ours|theirs, otherwise run node scripts/bump-version.mjs ${version} after the merge`);
+    process.exit(1);
   }
+}
+for (const { file, text, blocks } of resolved) {
   writeFileSync(file, text);
   execFileSync('git', ['add', file]);
   console.log(`resolved ${file}: ${blocks} block(s), field-level (data side = ${dataSide}, appRevision ${version})`);

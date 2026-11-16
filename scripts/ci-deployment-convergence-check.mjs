@@ -51,21 +51,43 @@ if (!live.includes('live deployment exposes an exact source SHA') || !live.inclu
 if (!operations.includes('proxySourceSha') || !operations.includes('fastSourceSha')) fail('operations status does not preserve independently deployed Worker identities');
 // v60.19 (Codex audit convergence-proof): a dispatched CI run reports the branch head at dispatch as head_sha, not the
 // commit it tested. Pages compared that head with the expectation, so a dispatch whose head had moved could not hand
-// over. The rule now lives in one block of the Validate step; run it as the runner would (bash) on the audit's scenes.
+// over. The rule now lives in one block of the Validate step (attestation validation included); run it as the runner
+// would (bash, through deployment-provenance.mjs runAttestedReleaseRule) on the audit's scenes.
 {
-  const { spawnSync } = await import('node:child_process');
-  const rule = pages.match(/# attested-release-rule:begin[^\n]*\n([\s\S]*?)\n\s*# attested-release-rule:end/)?.[1];
-  if (!rule) fail('v60.19 pages-deploy.yml has no attested-release-rule block');
+  const { attestedReleaseRule, ciReleaseTrust, runAttestedReleaseRule } = await import('./deployment-provenance.mjs');
+  let rule = null;
+  try { rule = attestedReleaseRule(pages); } catch (error) { fail(`v60.19 ${error.message}`); }
+  if (!/aio-release-attestation\.v1/.test(rule)) fail('v60.21 the attested-release-rule block does not include the attestation validation it shares with the watchdog');
   if (/\[ "\$ci_sha" = "\$expected_sha" \] \|\|/.test(pages.split('# v60.19 (Codex audit convergence-proof)')[0] || '')) fail('v60.19 the resolve step still compares a dispatched run head with the expectation');
   const A = 'a'.repeat(40), B = 'b'.repeat(40), C = 'c'.repeat(40);
-  const scene = (env) => spawnSync('bash', ['-c', `set -euo pipefail\n${rule.replace(/^ {10}/gm, '')}`], { encoding: 'utf8', env: { ...process.env, EXPECTED_RUN_ID: '123', ...env } });
-  const implicit = scene({ sha: A, WORKFLOW_SHA: B, EXPLICIT_SHA: '', CI_EVENT: 'workflow_dispatch', CI_HEAD_SHA: B });
-  const explicitOther = scene({ sha: A, WORKFLOW_SHA: C, EXPLICIT_SHA: C, CI_EVENT: 'workflow_dispatch', CI_HEAD_SHA: B });
-  const explicitSame = scene({ sha: A, WORKFLOW_SHA: A, EXPLICIT_SHA: A, CI_EVENT: 'workflow_dispatch', CI_HEAD_SHA: B });
-  const pushOther = scene({ sha: A, WORKFLOW_SHA: B, EXPLICIT_SHA: '', CI_EVENT: 'push', CI_HEAD_SHA: B });
-  if (implicit.status !== 0) fail(`v60.19 a dispatched CI run whose head moved must deploy its attested SHA: ${implicit.stdout}${implicit.stderr}`);
-  if (explicitOther.status === 0 || !explicitOther.stdout.includes(A) || !explicitOther.stdout.includes(C)) fail(`v60.19 a dispatch asking for another SHA must fail naming both: ${explicitOther.stdout}`);
-  if (explicitSame.status !== 0) fail(`v60.19 a dispatch asking for the attested SHA deploys it: ${explicitSame.stdout}${explicitSame.stderr}`);
-  if (pushOther.status === 0) fail('v60.19 a push CI run whose attestation differs from its head must not deploy');
+  const repository = 'ysnle/aio-screener';
+  const attestation = (testedSha, runId = '123') => ({ schemaVersion: 'aio-release-attestation.v1', testedSha, runId, repository });
+  const scene = ({ sha, ...rest }) => runAttestedReleaseRule({ attestation: attestation(sha), runId: 123, repository, ...rest }, rule);
+  const implicit = scene({ sha: A, workflowSha: B, ciEvent: 'workflow_dispatch', ciHeadSha: B });
+  const explicitOther = scene({ sha: A, workflowSha: C, explicitSha: C, ciEvent: 'workflow_dispatch', ciHeadSha: B });
+  const explicitSame = scene({ sha: A, workflowSha: A, explicitSha: A, ciEvent: 'workflow_dispatch', ciHeadSha: B });
+  const pushOther = scene({ sha: A, workflowSha: B, ciEvent: 'push', ciHeadSha: B });
+  if (!implicit.ok || implicit.sha !== A) fail(`v60.19 a dispatched CI run whose head moved must deploy its attested SHA: ${implicit.output}`);
+  if (explicitOther.ok || !explicitOther.output.includes(A) || !explicitOther.output.includes(C)) fail(`v60.19 a dispatch asking for another SHA must fail naming both: ${explicitOther.output}`);
+  if (!explicitSame.ok) fail(`v60.19 a dispatch asking for the attested SHA deploys it: ${explicitSame.output}`);
+  if (pushOther.ok) fail('v60.19 a push CI run whose attestation differs from its head must not deploy');
+  if (runAttestedReleaseRule({ attestation: attestation(A, '999'), runId: 123, repository, ciEvent: 'push', ciHeadSha: A }, rule).ok) fail('v60.21 an attestation from another CI run must not release');
+
+  // v60.21: the watchdog's CI trust (pages-source-matches-attested-ci) is the same rule with the deployed SHA as the
+  // required SHA. The run's head_sha alone called a correct dispatched release untrusted and an unattested one trusted.
+  const ciRun = (event, headSha) => ({ id: 123, name: 'CI', head_branch: 'main', head_repository: { full_name: repository }, head_sha: headSha, event, status: 'completed', conclusion: 'success' });
+  const trust = (event, headSha, attestedSha, deployedSha) => ciReleaseTrust({ run: ciRun(event, headSha), runId: 123, repository, attestation: attestedSha ? attestation(attestedSha) : null, unavailable: attestedSha ? '' : 'artifact expired', deployedSha }, rule);
+  const scenes = [
+    ['push CI, attested head deployed', trust('push', A, A, A), true],
+    ['push CI whose attestation differs from its head', trust('push', B, A, A), false],
+    ['dispatched CI, head unchanged', trust('workflow_dispatch', A, A, A), true],
+    ['dispatched CI, head moved, attested SHA deployed', trust('workflow_dispatch', B, A, A), true],
+    ['dispatched CI, head moved, unattested head deployed', trust('workflow_dispatch', B, A, B), false],
+    ['dispatched CI, another SHA deployed', trust('workflow_dispatch', A, A, C), false],
+    ['missing attestation', trust('workflow_dispatch', A, null, A), false],
+    ['failed CI run', ciReleaseTrust({ run: { ...ciRun('push', A), conclusion: 'failure' }, runId: 123, repository, attestation: attestation(A), deployedSha: A }, rule), false]
+  ];
+  for (const [name, verdict, expected] of scenes) if (verdict.trusted !== expected) fail(`v60.21 watchdog CI trust, ${name}: expected ${expected ? 'trusted' : 'untrusted'}, got ${verdict.reason}`);
+  if (!/attestation-unavailable[^\n]*artifact expired/.test(scenes[6][1].reason)) fail(`v60.21 a missing attestation must name why: ${scenes[6][1].reason}`);
 }
 console.log(JSON.stringify({ ok: true, status: policy.status, planes: Object.keys(policy.planes), liveCertification: 'OPERATOR_REQUIRED' }));

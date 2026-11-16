@@ -100,6 +100,18 @@ if (!errors.length) {
       && !sw.includes('./js/aio-tests.js'));
   check('Pages staging copies the explicit runtime list', publicRuntimeScripts.every(file => pagesWorkflow.includes(file)) && !pagesWorkflow.includes('rsync -a js/'));
   check('Pages staging copies public AI config', pagesWorkflow.includes('public-config.json'));
+  check('v60.21 Pages stages a Korean missing-page recovery link',
+    allowlist.publicRootAllowlist.includes('404.html')
+      && /\bcp\s+[^\r\n]*\b404\.html\b[^\r\n]*pages-dist/.test(pagesWorkflow)
+      && /<html lang="ko">/.test(text('404.html'))
+      && /href="\/aio-screener\/#home"/.test(text('404.html')));
+  const shareImage = existsSync(path('og-image.png')) ? readFileSync(path('og-image.png')) : Buffer.alloc(0);
+  check('v60.21 Open Graph and X use a staged 1200×630 PNG',
+    allowlist.publicRootAllowlist.includes('og-image.png')
+      && /\bcp\s+[^\r\n]*\bog-image\.png\b[^\r\n]*pages-dist/.test(pagesWorkflow)
+      && ['og:image', 'twitter:image'].every((name) => html.includes(`"${name}" content="https://ysnle.github.io/aio-screener/og-image.png"`))
+      && shareImage.length >= 24 && shareImage.subarray(0, 8).toString('hex') === '89504e470d0a1a0a'
+      && shareImage.readUInt32BE(16) === 1200 && shareImage.readUInt32BE(20) === 630);
   check('Pages allowlist excludes Worker source', Array.isArray(allowlist.excludedFromPagesArtifact) && allowlist.excludedFromPagesArtifact.includes('cloudflare-worker-proxy.js'));
   check('Pages artifact excludes canonical bulk ledgers and publishes recursive bounded projections', allowlist.publicRootAllowlist.includes('public-data/**/*.json')
     && ['public-data/sec-fundamentals.json', 'public-data/masters/holdings.json', 'public-data/masters/history-holdings.json', 'public-data/masters/issuer-aggregates.json', 'public-data/masters/managers/**'].every((file) => allowlist.excludedFromPagesArtifact.includes(file))

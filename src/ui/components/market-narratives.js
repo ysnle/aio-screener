@@ -8,7 +8,8 @@ import { frameHead, markFrame } from './section-frame.js';
 import { buildNarrativeCards, lessonFrame } from '../../domain/narrative/narrative-cards.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { NARRATIVE_BY_ID } from '../../domain/narrative/narratives.js';
-import { MARKET_DAY } from '../../data/artifact-registry.js';
+import { MARKET_DAY, SCENARIO_OUTCOMES } from '../../data/artifact-registry.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { GROUND_LABELS, branchDecisionFrame } from '../../domain/scenarios/decision-frame.js';
 import { decisionFrameBlock, favouredLine } from './decision-frame.js';
@@ -113,11 +114,14 @@ export function renderMarketNarratives({ documentRef: doc, root, interpretation 
     section.hidden = true;
     (story && story.parentNode === axes.parentNode ? story : axes).insertAdjacentElement(story ? 'afterend' : 'beforebegin', section);
   }
-  const again = () => renderMarketNarratives({ documentRef: doc, root, interpretation });
+  // A repaint reads the interpretation again: the one handed in was built before the artifact that triggered it arrived.
+  const again = () => renderMarketNarratives({ documentRef: doc, root, interpretation: marketInterpretation(root) });
   const day = root?.[MARKET_DAY.key];
   if (!day) { refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) again(); }).catch(() => {}); return section; }
+  // The story frames read the branch records, as the scenario section does: when the long record arrives, both repaint.
+  if (!root[SCENARIO_OUTCOMES.key]) refreshSharedArtifact(root, SCENARIO_OUTCOMES).then(({ changed }) => { if (changed) again(); }).catch(() => {});
   {
-    const key = [day.narratives?.at, interpretation?.crossroads?.asOf, interpretation?.crossroads?.leadId].join('|');
+    const key = [day.narratives?.at, interpretation?.crossroads?.asOf, interpretation?.crossroads?.leadId, interpretation?.crossroads?.pastRecord].join('|');
     if (section.dataset.signature === key && section.childElementCount) return section;
     const model = buildNarrativeCards({ narratives: day.narratives, crossroads: interpretation?.crossroads });
     section.hidden = !model.available;

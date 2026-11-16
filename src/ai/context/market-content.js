@@ -16,6 +16,8 @@ import { branchDecisionFrame, decisionFrameContext } from '../../domain/scenario
 import { conditionLabel, parseConditionValue } from '../../domain/screener/custom-conditions.js';
 import { signedText } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { SCENARIO_OUTCOMES } from '../../data/artifact-registry.js';
 
 // P1621: share page-independent selection between both legacy chat callers.
 export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readDomain = () => '', tickers = [], blocks = null } = {}) {
@@ -122,7 +124,17 @@ export function loadChoosingBlocks() {
   if (!choosingBlocks) choosingBlocks = import('./choosing-blocks.js').catch(() => { choosingBlocks = null; return null; });
   return choosingBlocks;
 }
-buildQuestionDomainContext.loadBlocks = loadChoosingBlocks;
+// The branch frames the answer quotes read the same long record the screens draw (macro-crossroads pastFor): a question
+// asked before any screen loaded scenario-outcomes.json waits for it briefly beside the blocks, else the AI would quote
+// AIO's own short close record while 시장 상태 shows the long one.
+const RECORD_WAIT_MS = 2500;
+function scenarioRecordReady(root) {
+  if (!root || typeof root !== 'object' || root[SCENARIO_OUTCOMES.key]) return Promise.resolve();
+  let timer = null;
+  const waited = new Promise((resolve) => { timer = setTimeout(resolve, RECORD_WAIT_MS); });
+  return Promise.race([refreshSharedArtifact(root, SCENARIO_OUTCOMES).catch(() => null), waited]).finally(() => clearTimeout(timer));
+}
+buildQuestionDomainContext.loadBlocks = (root = globalThis) => Promise.all([loadChoosingBlocks(), scenarioRecordReady(root)]).then(([blocks]) => blocks);
 
 export function buildMarketContentContext({ query = '', history = [], themes = [], rows = [] } = {}) {
   const parts = [];

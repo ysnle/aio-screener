@@ -25,8 +25,8 @@
 // Polarity: during `git rebase`, `--ours` is the UPSTREAM (the bot) and `--theirs` is the commit being
 // replayed (this branch); during `git merge origin/main` on a version branch it is the other way round.
 // The data side is therefore an explicit input (--data-side ours|theirs). Without the flag the script
-// asks git which side carries origin/main (the rule resolve-generated-conflicts.mjs uses) and falls
-// back to `ours` (rebase polarity) when that cannot be determined.
+// asks git whether the merged-in commit lies on origin/main's history (detectDataSide, the rule
+// resolve-generated-conflicts.mjs uses) and falls back to `ours` (rebase polarity) otherwise.
 //
 // Usage:
 //   git rebase origin/main            # or: git merge origin/main
@@ -145,13 +145,20 @@ export function resolveConflictText(text, { file, dataSide = 'ours' }) {
   return { text: resolved, blocks };
 }
 
-/** Which conflict side carries origin/main (the data bot's line): 'ours' or 'theirs'. */
+/**
+ * Which conflict side is the data bot's line: 'theirs' when the commit being merged in (MERGE_HEAD) lies
+ * on origin/main's published history and HEAD does not, otherwise 'ours' (merge of a version branch into
+ * main, or rebase polarity). The test is "MERGE_HEAD is an ancestor of origin/main", not the reverse: a
+ * background fetch can advance origin/main while the merge waits for resolution, and the merged tip is
+ * then behind origin/main rather than equal to it.
+ */
 export function detectDataSide(cwd = process.cwd()) {
   const git = (args) => { try { execFileSync('git', args, { cwd, stdio: 'ignore' }); return true; } catch { return false; } };
   if (!git(['rev-parse', '--verify', '--quiet', 'refs/remotes/origin/main'])) return 'ours';
-  const mainInHead = git(['merge-base', '--is-ancestor', 'origin/main', 'HEAD']);
-  const mainInMerge = git(['rev-parse', '--verify', '--quiet', 'MERGE_HEAD']) && git(['merge-base', '--is-ancestor', 'origin/main', 'MERGE_HEAD']);
-  return mainInMerge && !mainInHead ? 'theirs' : 'ours';
+  if (!git(['rev-parse', '--verify', '--quiet', 'MERGE_HEAD'])) return 'ours';
+  const mergeOnMain = git(['merge-base', '--is-ancestor', 'MERGE_HEAD', 'refs/remotes/origin/main']);
+  const headOnMain = git(['merge-base', '--is-ancestor', 'HEAD', 'refs/remotes/origin/main']);
+  return mergeOnMain && !headOnMain ? 'theirs' : 'ours';
 }
 
 function main(argv) {

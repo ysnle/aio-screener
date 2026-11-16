@@ -17,9 +17,9 @@ export function setResearchHandoff({ root = globalThis, routeId = null, context 
 }
 
 // Same-route one-shot consume. Different-route handoffs are left for their own route.
-export function consumeResearchHandoff({ root = globalThis, routeId = null } = {}) {
+export function consumeResearchHandoff({ root = globalThis, routeId = null, symbol = null } = {}) {
   const handoff = root?.[HANDOFF_KEY];
   if (!handoff || handoff.routeId !== routeId) return null;
   delete root[HANDOFF_KEY];
-  return handoff;
+  return !symbol || handoff.context.symbol === symbol ? handoff : null;
 }

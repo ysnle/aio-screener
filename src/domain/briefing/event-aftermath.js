@@ -66,9 +66,12 @@ export function beatButFell(briefs = [], { minBeats = 8 } = {}) {
   if (beats.length < minBeats) return null;
   const fell = beats.filter((row) => row.fell).length;
   const allFell = rows.filter((row) => row.fell).length;
-  const share = Math.round(fell / beats.length * 100); const base = Math.round(allFell / rows.length * 100);
+  const showRates = beats.length >= 10;
+  const share = showRates ? Math.round(fell / beats.length * 100) : null;
+  const base = showRates ? Math.round(allFell / rows.length * 100) : null;
+  const smallSample = showRates && beats.length < 30 ? ' 호재 사례 표본이 적습니다.' : '';
   return {
     beats: beats.length, fell, share, reports: rows.length, allFell, base,
-    text: `추정치를 넘긴 실적 ${beats.length}건 중 ${fell}건(${share}%)이 다음 거래일 하락, 전체 ${rows.length}건 중 ${allFell}건(${base}%).`,
+    text: `수집한 실적 발표 중 추정치를 넘긴 ${beats.length}건에서 발표를 반영한 첫 거래일 종가가 하락한 경우는 ${fell}건${showRates ? `(${share}%)` : ''}, 전체 ${rows.length}건에서는 ${allFell}건${showRates ? `(${base}%)` : ''}입니다.${smallSample}`,
   };
 }

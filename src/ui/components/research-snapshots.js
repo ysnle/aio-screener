@@ -1,11 +1,20 @@
 import { researchSnapshotStore } from '../../data/research-snapshots.js';
+
+export function focusResearchMemo(panel, template = '') {
+  const note = panel?.querySelector('textarea');
+  if (!note) return;
+  panel.open = true;
+  if (!note.value && template) note.value = template.slice(0, note.maxLength);
+  panel.scrollIntoView({ block: 'center' });
+  note.focus({ preventScroll: true });
+}
 const basisLabel = (basis) => ({ 'regular-session-close': '미국 정규장 종가', 'regular-close-delta': '직전 미국 정규장 종가 대비',
   'previous-regular-close': '직전 미국 정규장 종가 대비', 'provider-previous-value': '공급자가 제공한 직전 값 대비', 'daily-close-reference': '일별 종가 참고값',
   unknown: '가격 기준 미제공', unavailable: '가격 기준 미제공' })[basis] || (basis && !/^[a-z0-9-]+$/.test(basis) ? basis : '가격 기준 확인 필요');
 export function ensureResearchSnapshots({ documentRef: doc, root, host, kind, collect }) {
   if (!host) return;
   let panel = host.querySelector(`[data-research-snapshots="${kind}"]`);
-  if (panel) { panel._update(collect); return; } // Preserve a draft only for its issuer/session.
+  if (panel) { panel._update(collect); return panel; } // Preserve a draft only for its issuer/session.
   panel = doc.createElement('details'); panel.dataset.researchSnapshots = kind; // styles: src/ui/styles/entity-quality.css
   const title = doc.createElement('summary');
   title.textContent = kind === 'briefing' ? '브리핑 저장본, 날짜별 확인' : '이 종목의 메모, 당시 근거 저장';
@@ -71,4 +80,5 @@ export function ensureResearchSnapshots({ documentRef: doc, root, host, kind, co
   const sources = host.querySelector(':scope > details.page-sources');
   if (sources) host.insertBefore(panel, sources); else host.appendChild(panel);
   draw();
+  return panel;
 }

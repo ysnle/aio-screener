@@ -1140,11 +1140,12 @@ function renderAssetPerformance(doc, root, basis) {
   const title = el(doc, 'h2', '자산군 성과와 주식·채권 상관', 'briefing-h2');
   title.id = 'rates-assets-title';
   if (model.basis) title.append(el(doc, 'span', `${shortDate(model.basis)} 종가 기준`, 'briefing-h2-note'));
-  const ranked = model.rows.filter((row) => row.investable && row.m3 != null).sort((a, b) => b.m3 - a.m3);
-  if (!ranked.length) { host.replaceChildren(title, el(doc, 'div', '자산별 종가 기록을 불러오는 중입니다.', 'briefing-empty')); return; }
+  const windows = [['1개월', 'm1'], ['3개월', 'm3'], ['올해', 'ytd']];
+  if (!model.rows.some((row) => row.last)) { host.replaceChildren(title, el(doc, 'div', '자산별 종가 기록을 불러오는 중입니다.', 'briefing-empty')); return; }
   const nowCorr = model.corr.at(-1) || null;
   const corrText = nowCorr ? ` S&P 500과 미 장기채의 최근 ${CORR_WINDOW}거래일 상관은 ${nowCorr.value.toFixed(2)}입니다.` : '';
-  const lead = el(doc, 'p', `최근 3개월 가장 강한 자산은 ${ranked[0].label}(${signed(ranked[0].m3, 1, '%')}), 가장 약한 자산은 ${ranked.at(-1).label}(${signed(ranked.at(-1).m3, 1, '%')})입니다.${corrText}`, 'rates-curve-fact');
+  const lead = el(doc, 'p', null, 'rates-curve-fact');
+  lead.setAttribute('aria-live', 'polite');
   const table = el(doc, 'table', null, 'macro-regime-inputs');
   const head = el(doc, 'tr');
   const ytdFrom = model.rows.find((row) => row.field === 'spx')?.ytdFrom;
@@ -1163,9 +1164,7 @@ function renderAssetPerformance(doc, root, basis) {
   const returnsSummary = el(doc, 'summary', '자산별 1개월·3개월·올해 수익률');
   returnsSummary.title = '각 자산의 일별 종가로 계산한 가격 변화이며 배당·이자는 넣지 않았습니다. 1개월은 21거래일, 3개월은 63거래일 전 종가 대비이고, 코스피는 한국 거래일 기준입니다. 원/달러와 달러 지수는 환율이라 가장 강한·약한 자산 비교에서 뺐습니다.';
   fold.append(returnsSummary, table);
-  // One window at a time on one scale, strongest first; exchange rates (not held assets) sit last in grey. The lead
-  // names the 3-month order, so that window opens; the table keeps the closes.
-  const windows = [['1개월', 'm1'], ['3개월', 'm3'], ['올해', 'ytd']];
+  // One window at a time on one scale, strongest first; exchange rates sit last in grey.
   const bars = el(doc, 'div', null, 'rates-asset-bars');
   const pick = el(doc, 'div', null, 'sx-seg');
   pick.setAttribute('role', 'group');
@@ -1176,10 +1175,18 @@ function renderAssetPerformance(doc, root, basis) {
   const draw = (key) => {
     host.dataset.assetWindow = key;
     for (const button of pick.children) button.setAttribute('aria-pressed', String(button.dataset.window === key));
-    const strongest = (a, b) => (b[key] ?? -1e9) - (a[key] ?? -1e9);
-    const order = [...model.rows.filter((row) => row.investable).sort(strongest), ...model.rows.filter((row) => !row.investable).sort(strongest)];
+    const period = windows.find((entry) => entry[1] === key)[0];
+    const ranked = model.rows.filter((row) => Number.isFinite(row[key])).sort((a, b) => b[key] - a[key]);
+    const assets = ranked.filter((row) => row.investable);
+    const order = [...assets, ...ranked.filter((row) => !row.investable)];
+    const valueOf = (row) => `${row.label}(${signed(row[key], 1, '%')})`;
+    const label = key === 'ytd' ? '올해' : `최근 ${period}`;
+    const summary = assets.length > 1 ? `${label} 가장 강한 자산은 ${valueOf(assets[0])}, 가장 약한 자산은 ${valueOf(assets.at(-1))}입니다.`
+      : assets.length === 1 ? `${label} 수익률을 계산할 수 있는 자산은 ${valueOf(assets[0])} 한 종목입니다.`
+        : `${label} 수익률을 비교할 자산 기록이 아직 없습니다.`;
+    lead.textContent = summary + corrText;
     const figure = signedBarList(doc, order.map((row) => ({ label: row.label.split(' (')[0], value: row[key], tone: row.investable ? 'dir' : 'flat' })),
-      { title: `${windows.find((entry) => entry[1] === key)[0]} 수익률, 높은 순 (회색은 환율 — 원/달러는 오르면 원화 약세)` });
+      { title: `${period} 수익률, 높은 순 (회색은 환율 — 원/달러는 오르면 원화 약세)` });
     plot.replaceChildren(...(figure ? [figure] : []));
   };
   for (const [label, key] of windows) {

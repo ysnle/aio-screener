@@ -12,6 +12,7 @@ import { readNumber } from '../../src/domain/shared/number.js';
 import { stripEvidenceIds } from '../../src/domain/briefing/evidence-text.js';
 import { moveMetricByLabel, moveSizeGrades, MOVE_SIZE_HEAD } from './market-analysis-moves.mjs';
 import { moveSizeWord } from '../../src/domain/market/session/move-size.js';
+import { LIKELIHOOD_GROUNDS, likelihoodGroundOf } from '../../src/domain/content/likelihood-grounds.js';
 
 const MARKET_ANALYSIS_QUOTE_DEFS = [
   { symbol: '^GSPC', metricId: 'market.spx', label: 'SPX', unit: 'index', aliases: ['S&P 500'] },
@@ -416,39 +417,31 @@ export function softenReaderDuty(text) {
 // M06: typed admission for the claims the prompt forbids or the evidence can disprove. These are blocking issues.
 const ANALYSIS_TRADE_INSTRUCTION = /(?:매수|매도|매집|손절|익절|진입|청산)(?:하세요|하십시오|해라|하라|할\s*때입니다|하시길)|(?:사세요|파세요|사라(?![지졌진질져])|팔아라|담으세요|비중을\s*(?:늘리|줄이)세요)|목표\s*가(?:는|를)?\s*\$?\d|\b(?:buy|sell)\s+now\b/i;
 const ANALYSIS_PROBABILITY = /\d+(?:\.\d+)?\s*%\s*(?:의\s*)?(?:확률|가능성|승률)|(?:확률|가능성|승률)(?:은|이|는|로|이\s*약)?\s*(?:약\s*)?\d+(?:\.\d+)?\s*%/;
-// The ground a likelihood in words may stand on (owner 2026-11-12), in its own sentence or the one before it: a condition
-// count n/m; a record with its count ("과거 73건 중 41건", "표본 52"); an axis named with its state ("시장 폭도 양호",
-// "신용이 안정적인"); a signed change ("+1.2%", "-12bp"); or an explicit condition
-// ("…하면", "…라면"). A date such as "10/16" is not a condition count.
-const LIKELIHOOD_GROUND = [
-  /(?:충족|조건)\D{0,6}\d+\s*\/\s*\d+|\d+\s*\/\s*\d+\s*(?:충족|조건)/,
-  /\d+\s*(?:건|번|회|차례)\s*중\s*\d+|(?:과거|표본)\D{0,6}\d+\s*(?:건|번|회|차례|개)?/,
-  /(?:추세|시장\s?폭|신용|변동성|금리)(?:이|가|은|는|도)?\s?(?:[가-힣]+\s)?(?:양호|불안정|(?<!불)안정|약화|악화|개선|상승|하락|확대|축소|유지|이탈|회복|둔화|진정|부담)/,
-  /[+\-−]\d+(?:\.\d+)?\s*(?:%|(?<![A-Za-z])bp\b)/,
-  /[가-힣]면(?=[\s,])/
-];
-const NOT_A_CONDITION = /(?:따르면|의하면|반면|측면|전면|국면|표면|화면|단면|정면|방면|양면|평면|내면|외면|장면)/g;
-// The likelihood's own words ("변동성 확대 가능성이 높습니다") are what is forecast, not its ground: only the text before
-// them, and the sentence before, are read. A condition count anywhere in the sentence counts, as before.
-const likelihoodHasGround = (sentence, previous) => {
-  const before = sentence.replace(/(?:[가-힣]+\s?)?(?:가능성|확률)[\s\S]*$/, '').replace(NOT_A_CONDITION, ' ');
-  return LIKELIHOOD_GROUND[0].test(sentence) || LIKELIHOOD_GROUND.some((ground) => ground.test(before) || ground.test(previous.replace(NOT_A_CONDITION, ' ')));
-};
+// A likelihood in words stands on one of the ground kinds the prompt names (src/domain/content/likelihood-grounds.js), in
+// its own sentence or the one before it. "더 높아 보입니다" is the prompt's own example, so a degree word between the
+// particle and the adjective is read too.
+const LIKELIHOOD_WORDS = /(?:가능성|확률)(?:이|은|도)?\s?(?:(?:더|더욱|훨씬|조금|다소|상대적으로|가장)\s)?(?:높|낮|크|작|커|적)/;
+const REPORTED_LIKELIHOOD = /(?:가능성|확률)(?:이|은|도)?\s?(?:(?:더|더욱|훨씬|조금|다소|상대적으로|가장)\s)?(?:높|낮|크|작|커|적)[가-힣]{0,4}?(?:다는|다고|라는|라고)\s?(?:[가-힣]+\s)?(?:발언|보도|언급|관측|전언|소식|입장|발표)/;
+const analysisSentences = (body) => String(body ?? '').replace(/\[[^\]]*\]/g, '').split(/(?<=[.?!。])\s+|\n+/);
+/** The sentences whose own likelihood word has no ground kind in that sentence or the one before it. */
+export function ungroundedLikelihoodSentences(body) {
+  const sentences = analysisSentences(body);
+  return sentences.filter((sentence, index) => {
+    // A likelihood inside an attributed statement ("추가 공격 가능성이 낮다는 발언이 … 거론됐고") is the report's content,
+    // not this reading's own forecast.
+    const reported = REPORTED_LIKELIHOOD.test(sentence) && /보도|발언|전했|밝혔|말했|따르면|거론/.test(sentence);
+    return LIKELIHOOD_WORDS.test(sentence) && !reported && !likelihoodGroundOf(`${sentences[index - 1] || ''} ${sentence}`);
+  });
+}
 export function validateAnalysisAdmission(body, { changes = new Map(), context = '' } = {}) {
   const issues = [];
   if (ANALYSIS_TRADE_INSTRUCTION.test(body)) issues.push('trade-instruction');
   if (ANALYSIS_PROBABILITY.test(body)) issues.push('probability-claim');
-  // v57.75: likelihood in words ("반등 가능성이 높습니다") and past frequency without a sample size ("과거엔 대부분 반등")
-  // are the same claims without the evidence the owner's rule asks for (conditions n/m, frequency with n).
-  let previous = '';
-  for (const sentence of body.replace(/\[[^\]]*\]/g, '').split(/(?<=[.?!。])\s+|\n+/)) {
-    // A likelihood inside an attributed statement ("추가 공격 가능성이 낮다는 발언이 … 거론됐고") is the report's content,
-    // not this reading's own forecast.
-    const reportedLikelihood = /(?:가능성|확률)(?:이|은|도)?\s?(?:높|낮|크|작|커|적)[가-힣]{0,4}?(?:다는|다고|라는|라고)\s?(?:[가-힣]+\s)?(?:발언|보도|언급|관측|전언|소식|입장|발표)/.test(sentence)
-      && /보도|발언|전했|밝혔|말했|따르면|거론/.test(sentence);
-    if (/(?:가능성|확률)(?:이|은|도)?\s?(?:높|낮|크|작|커|적)/.test(sentence) && !reportedLikelihood && !likelihoodHasGround(sentence, previous)) issues.push('likelihood-qualitative');
+  // A likelihood in words without its ground kind, and a past frequency without a sample size ("과거엔 대부분 반등"), are
+  // claims without the evidence the owner's rule asks for.
+  if (ungroundedLikelihoodSentences(body).length) issues.push('likelihood-qualitative');
+  for (const sentence of analysisSentences(body)) {
     if (/과거/.test(sentence) && /대부분|대체로|자주|흔히/.test(sentence) && !/\d+\s*(?:번|회|건|차례)|표본/.test(sentence)) issues.push('frequency-without-sample');
-    previous = sentence;
   }
   // Condition counts must be well-formed and, when a regime context was supplied, appear in it.
   for (const match of body.matchAll(/(\d+)\s*\/\s*(\d+)\s*(?:개)?\s*(?:조건|충족)|(?:조건|부합|충족)\s*(\d+)\s*\/\s*(\d+)/g)) { // T06: "현재 조건 충족 n/m" (v57.72 wording; 부합 kept for older text)
@@ -1188,6 +1181,7 @@ const MARKET_ANALYSIS_ISSUE_HELP = Object.freeze({
   'cross-market-session-dates-missing': 'KOSPI and the US index closed on different sessions; name both dates (M/D) in the sentence that compares them',
   'theme-lead-claim-after-5d-drop': 'the packet shows that theme or sector down 3% or more over the last five sessions; do not say it leads (주도) — name its five-session drop in that sentence or describe it as a longer-window lead under pressure',
   'move-size-word-contradicts-ledger': 'a size word disagrees with MOVE_SIZE for that metric: 급등·급락·폭등·폭락·큰 폭·크게 only where MOVE_SIZE grades the move 큰 폭, 소폭·보합 only where it grades it 소폭; for a 보통 move write the direction and the number with no size word',
+  'likelihood-qualitative': `a likelihood word (가능성·확률이 높/낮/크/작) has no ground in its sentence or the sentence before it. A met-condition count (조건 충족 n/m), an axis state (양호·중립·부담) or a signed move describes the present and is not a ground. Put one of these in the same or the previous sentence: ${LIKELIHOOD_GROUNDS.map((kind) => kind.label).join(' / ')}; without one, drop the likelihood word and keep the state description (판단 보류)`,
   'leadership-claim-during-break':'REGIME_CONTEXT says 주도 영역 이탈(leadershipBreak): 예; do not say semiconductors/AI lead — name the recent drop of the leaders (나스닥 100 5거래일 변화) and the Russell 2000 against its 200-day line in that sentence'
 });
 
@@ -1206,6 +1200,10 @@ export function describeMarketAnalysisIssues(text, issues = [], metricEvidence =
       const graded = grades.find((item) => item.field === metricId);
       const ledger = graded ? `; ledger grade for ${graded.label}: 하루 ${graded.day ? moveSizeWord(graded.day) : '등급 없음'}${graded.week ? `, 5거래일 ${moveSizeWord(graded.week)}` : ''}` : '';
       return `- ${issue}: ${help}${ledger}`;
+    }
+    if (code === 'likelihood-qualitative') {
+      const quoted = ungroundedLikelihoodSentences(text).slice(0, 2).map((sentence) => `"${sentence.trim().slice(0, 160)}"`);
+      return `- ${issue}: ${help}${quoted.length ? `; sentence without a ground: ${quoted.join(' / ')}` : ''}`;
     }
     if (!row) return `- ${issue}${help ? `: ${help}` : ''}`;
     const def = defs.find((item) => item.metricId === metricId);
@@ -1239,7 +1237,10 @@ export const MARKET_ANALYSIS_RETAIN_DRIFT_PCT = Object.freeze({ equity: RULES.la
 // words the session state of an observation at the time it is written; a retained reading is shown with its own time, so
 // they are not re-run on it. Rules that new data can contradict (values beyond drift, a new large move left out, an axis
 // state, the inflation direction) still are.
-export const RETAINED_AS_OF_ISSUES = Object.freeze(['session-wording-mismatch', 'intraday-time-missing']);
+// Whether a likelihood sentence names a ground kind is read from the text alone, so new data cannot change it; it differs
+// on re-check only when the ground list changed after the reading was verified. Such a reading stays the dated 직전
+// 검증본 until a new reading passes or 12 hours end, instead of the figures-only fallback.
+export const RETAINED_AS_OF_ISSUES = Object.freeze(['session-wording-mismatch', 'intraday-time-missing', 'likelihood-qualitative']);
 export function retainedReadingIssues(previous, result) {
   const then = new Map((Array.isArray(previous?.metricEvidence) ? previous.metricEvidence : []).map((row) => [row?.metricId, row]));
   const now = new Map((Array.isArray(result?.metricEvidence) ? result.metricEvidence : []).map((row) => [row?.metricId, row]));

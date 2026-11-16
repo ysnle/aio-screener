@@ -59,7 +59,7 @@ function buildSkeleton(doc, host, root) {
     field(doc, '수량', input(doc, 'pf-trade-qty', { type: 'number', min: '0', step: 'any' })),
     field(doc, '가격', input(doc, 'pf-trade-price', { type: 'number', min: '0', step: 'any' })),
     field(doc, '수수료·세금', input(doc, 'pf-trade-fee', { type: 'number', min: '0', step: 'any', placeholder: '0' })),
-    field(doc, '이유', select(doc, 'pf-trade-reason', Object.entries(TRADE_REASONS))),
+    field(doc, '이유', select(doc, 'pf-trade-reason', [['other', TRADE_REASONS.other], ...Object.entries(TRADE_REASONS).filter(([key]) => key !== 'other')])),
     field(doc, '그때 마음', select(doc, 'pf-trade-mood', [['', '적지 않음'], ...Object.entries(TRADE_MOODS)])),
     field(doc, '손절 가격(매수 시)', input(doc, 'pf-trade-stop', { type: 'number', min: '0', step: 'any' })),
     field(doc, '목표 가격(매수 시)', input(doc, 'pf-trade-target', { type: 'number', min: '0', step: 'any' }))
@@ -245,7 +245,12 @@ export function installTradeJournal({ documentRef: doc, root, getSurface = () =>
       if (trade.error) { setStatus(doc, FIELD_ERRORS[trade.error] || '입력을 확인하세요'); doc.getElementById(`pf-trade-${trade.error}`)?.focus?.(); return; }
       journal.trades.push(trade);
       const ok = await persist(doc, root, normalizeJournal(journal), `${trade.date} ${trade.side === 'buy' ? '매수' : '매도'} ${trade.symbol} 기록을 저장했습니다.`, rerender);
-      if (ok) ['pf-trade-symbol', 'pf-trade-qty', 'pf-trade-price', 'pf-trade-fee', 'pf-trade-stop', 'pf-trade-target', 'pf-trade-note'].forEach((id) => { const node = doc.getElementById(id); if (node) node.value = ''; });
+      if (ok) {
+        for (const field of ['symbol', 'qty', 'price', 'fee', 'stop', 'target', 'note', 'mood', 'reason']) {
+          const control = doc.getElementById(`pf-trade-${field}`);
+          if (control) control.value = field === 'reason' ? 'other' : '';
+        }
+      }
     } else if (action === 'remove') {
       const id = button.dataset.tradeId;
       if (typeof root?.confirm === 'function' && !root.confirm('이 거래 기록을 삭제할까요?')) return;
