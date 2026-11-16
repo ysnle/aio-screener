@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-16T05:21:49.388Z",
-  "attemptedAt": "2026-11-16T05:21:49.388Z",
-  "lastSuccessfulAt": "2026-11-16T05:21:49.388Z",
+  "generatedAt": "2026-11-16T05:51:43.191Z",
+  "attemptedAt": "2026-11-16T05:51:43.191Z",
+  "lastSuccessfulAt": "2026-11-16T05:51:43.191Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-02T05:21:44.772Z",
-  "until": "2026-11-16T05:21:44.772Z",
+  "since": "2026-11-02T05:51:39.114Z",
+  "until": "2026-11-16T05:51:39.114Z",
   "current24hWindow": {
     "start": "2026-11-14T23:00:00.000Z",
     "end": "2026-11-15T23:00:00.000Z",
@@ -82,25 +82,25 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1242,
-      "freshCount": 19,
-      "eligibleTextCount": 1189,
-      "selectedCount": 129,
+      "count": 1243,
+      "freshCount": 38,
+      "eligibleTextCount": 1190,
+      "selectedCount": 128,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69395
+      "lastPostId": 69397
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 213,
+      "count": 212,
       "freshCount": 17,
-      "eligibleTextCount": 213,
+      "eligibleTextCount": 212,
       "selectedCount": 122,
       "error": null,
       "failingSince": null,
@@ -111,9 +111,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 718,
+      "count": 716,
       "freshCount": 20,
-      "eligibleTextCount": 718,
+      "eligibleTextCount": 716,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
@@ -137,62 +137,62 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2173,
-  "retainedItemCount": 408,
+  "count": 2171,
+  "retainedItemCount": 423,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2173,
-    "eligibleTextCount": 2120,
+    "observedCount": 2171,
+    "eligibleTextCount": 2118,
     "mediaOnlyCount": 53,
-    "mediaAttachedCount": 926,
-    "photoPostCount": 792,
+    "mediaAttachedCount": 925,
+    "photoPostCount": 791,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 368,
-    "broadSignalCount": 857,
-    "selectedRawCount": 376,
-    "selectedEligibleCount": 376,
+    "highSignalCount": 367,
+    "broadSignalCount": 856,
+    "selectedRawCount": 375,
+    "selectedEligibleCount": 375,
     "selectedRawCoveragePct": 17.7,
     "selectedOfObservedPct": 17.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 564,
+    "macro": 309,
+    "geo": 345,
+    "semi": 563,
+    "power": 274,
+    "market-note": 762,
     "ai-policy": 125,
     "equity": 144,
-    "market-note": 763,
-    "macro": 309,
-    "credit": 76,
+    "credit": 75,
     "japan": 65,
-    "geo": 345,
-    "kr-market": 96,
+    "kr-market": 95,
     "optical": 29,
-    "power": 273,
-    "earnings": 313,
-    "flows": 53,
+    "earnings": 312,
+    "flows": 52,
     "media-only": 51,
     "healthcare": 55,
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 288,
-    "MSFT": 54,
-    "AMZN": 50,
+    "NVDA": 289,
+    "MSFT": 55,
+    "AMZN": 51,
+    "005930.KS": 28,
     "GOOG": 63,
     "TSM": 60,
     "AMD": 50,
     "TSLA": 45,
-    "005930.KS": 28,
     "MU": 29,
     "ARM": 2,
     "JD": 1,
     "BIDU": 2,
     "AVGO": 16,
     "2454.TW": 6,
-    "000660.KS": 21,
+    "000660.KS": 20,
     "MS": 6,
     "CRWD": 1,
     "ORCL": 9,
@@ -209,12 +209,12 @@
     "DDOG": 1,
     "SNOW": 1,
     "CRWV": 16,
-    "PLTR": 19,
+    "PLTR": 18,
     "LITE": 8,
     "COHR": 4,
     "BABA": 3,
     "103590.KS": 1,
-    "AAPL": 16,
+    "AAPL": 15,
     "GS": 4,
     "RKLB": 2,
     "IRDM": 2,
@@ -239,7 +239,7 @@
     "HUM": 1,
     "IONQ": 2,
     "BCS": 2,
-    "285A.T": 3,
+    "285A.T": 2,
     "QCOM": 1,
     "SN": 1,
     "MRVL": 6,
@@ -264,20 +264,20 @@
     "007660.KS": 1
   },
   "themes": [
-    "Market Notes (763 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
-    "Semiconductors/Memory (564 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국...",
+    "Market Notes (762 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
+    "Semiconductors/Memory (563 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국...",
     "Geopolitics (345 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Earnings/Corporate (313 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "Macro/Rates (309 posts in 14-day research window): 2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
-    "AI Power/Grid (273 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
+    "Earnings/Corporate (312 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Macro/Rates (309 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한...",
+    "AI Power/Grid (274 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (144 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (125 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 288,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국..."
+      "count": 289,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
     },
     {
       "key": "GOOG",
@@ -291,13 +291,13 @@
     },
     {
       "key": "MSFT",
-      "count": 54,
-      "text": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
+      "count": 55,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
     },
     {
       "key": "AMZN",
-      "count": 50,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국..."
+      "count": 51,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
     },
     {
       "key": "AMD",
@@ -317,16 +317,16 @@
     {
       "key": "005930.KS",
       "count": 28,
-      "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
     },
     {
       "key": "000660.KS",
-      "count": 21,
+      "count": 20,
       "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
       "key": "PLTR",
-      "count": 19,
+      "count": 18,
       "text": "팔란티어(PLTR) 2026년 3분기 어닝콜 1. 실적 및 성장률 매출 23.13억 달러, 전년 대비 +96%, 전분기 대비 +20%. 상장 이후 최고 성장률. 미국 매출 19.37억 달러, 전년 대비..."
     },
     {
@@ -343,7 +343,7 @@
         "macro"
       ],
       "count": 309,
-      "focus": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
     },
     {
       "id": "geo",
@@ -360,7 +360,7 @@
       "topics": [
         "credit"
       ],
-      "count": 76,
+      "count": 75,
       "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
@@ -369,7 +369,7 @@
       "topics": [
         "semi"
       ],
-      "count": 564,
+      "count": 563,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국..."
     },
     {
@@ -387,7 +387,7 @@
       "topics": [
         "power"
       ],
-      "count": 273,
+      "count": 274,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -405,7 +405,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 96,
+      "count": 95,
       "focus": "지금 미국 선물이랑 코스피 하락 이유 · 엔비디아, 젠슨 황 CEO 퇴진 이후 리더십 불확실성 지속 · 젠슨 황, CEO 복귀를 검토 중이라는 보도 · 콜레트 크레스 임시 CEO가 회사 경영을 이끌 준비 중이라고 보도 · 블룸버그, 베선트 재무장관의 경영진 “쇄신” 요구로 엔비디아 CEO 선임 과정에 논란 발생 ·..."
     },
     {
@@ -432,7 +432,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 313,
+      "count": 312,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -459,7 +459,7 @@
       "topics": [
         "flows"
       ],
-      "count": 53,
+      "count": 52,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -477,7 +477,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 763,
+      "count": 762,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     }
   ],
@@ -730,6 +730,28 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/69397",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69397",
+      "datetime": "2026-11-16T05:36:27.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "AMZN",
+        "005930.KS"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
+    },
     {
       "id": "insidertracking/69342",
       "channel": "insidertracking",
@@ -1286,37 +1308,6 @@
       ]
     },
     {
-      "id": "insidertracking/68933",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68933",
-      "datetime": "2026-11-10T21:02:07.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "macro"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 11일 미국 증시 브리핑 10월 CPI가 예상보다 강하게 나오면서 연준의 추가 긴축 우려가 재점화됐고 미국 증시는 약세 마감. S&P 500 -0.38%, 다우 -0.23%, 나스닥...",
-      "lead": 1,
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "MSFT",
-        "GOOG",
-        "AVGO",
-        "AMZN",
-        "MU",
-        "TSM"
-      ]
-    },
-    {
       "id": "bornlupin/21054",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21054",
@@ -1691,6 +1682,28 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/69397",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69397",
+      "datetime": "2026-11-16T05:36:27.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "AMZN",
+        "005930.KS"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
+    },
     {
       "id": "HANAchina/72202",
       "channel": "HANAchina",
@@ -2076,13 +2089,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "서울경제신문에 따르면 삼성전자가 미국 텍사스 공장에서 스페이스X의 스타링크 위성용 반도체 생산을 추진 중. 삼성전자는 스타링크 위성의 레이저 통신 시스템에 사용되는 STM32V8 마이크로컨트롤러를 생산할...",
-      "lead": 1,
       "tickers": [
         "005930.KS"
-      ]
+      ],
+      "summary": "서울경제신문에 따르면 삼성전자가 미국 텍사스 공장에서 스페이스X의 스타링크 위성용 반도체 생산을 추진 중. 삼성전자는 스타링크 위성의 레이저 통신 시스템에 사용되는 STM32V8 마이크로컨트롤러를 생산할..."
     },
     {
       "id": "insidertracking/69368",
@@ -2091,7 +2104,8 @@
       "datetime": "2026-11-15T22:04:35.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "market-note"
+        "geo",
+        "power"
       ],
       "score": 53,
       "hasText": true,
@@ -2101,8 +2115,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 해군 구축함 스프루언스(DDG-111)와 마이클 머피(DDG-112)가 각각 357일과 346일간의 장기 배치를 마치고 이번 주 본국으로 복귀. 이는 미 해군의 기존 표준 배치 기간인 6~7개월이 사실상...",
-      "tickers": []
+      "tickers": [],
+      "summary": "미국 해군 구축함 스프루언스(DDG-111)와 마이클 머피(DDG-112)가 각각 357일과 346일간의 장기 배치를 마치고 이번 주 본국으로 복귀. 이는 미 해군의 기존 표준 배치 기간인 6~7개월이 사실상..."
     },
     {
       "id": "insidertracking/69367",
@@ -2113,6 +2127,7 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -2121,9 +2136,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "월스트리트저널에 따르면 미국 정보당국 분석가들은 이란이 현재 1,500~2,500발의 미사일을 보유한 것으로 평가. 미국 관리들은 발사 준비가 완료된 미사일과 보관 중인 미사일의 수량을 정확히 파악하기 어려워...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "월스트리트저널에 따르면 미국 정보당국 분석가들은 이란이 현재 1,500~2,500발의 미사일을 보유한 것으로 평가. 미국 관리들은 발사 준비가 완료된 미사일과 보관 중인 미사일의 수량을 정확히 파악하기 어려워..."
     },
     {
       "id": "insidertracking/69361",
@@ -2134,6 +2148,7 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -2142,9 +2157,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)..."
     },
     {
       "id": "insidertracking/69353",
@@ -6371,28 +6385,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/69038",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69038",
-      "datetime": "2026-11-11T20:59:08.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "geo"
-      ],
-      "score": 76,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 12일 트럼프·이란 · 트럼프 “이란은 절대 핵무기를 갖지 못할 것” 발언 · 트럼프 “우리는 이란에서 승리했다” 발언 · WSJ, 트럼프가 JD...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "HANAchina/71978",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71978",
@@ -8615,13 +8607,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "서울경제신문에 따르면 삼성전자가 미국 텍사스 공장에서 스페이스X의 스타링크 위성용 반도체 생산을 추진 중. 삼성전자는 스타링크 위성의 레이저 통신 시스템에 사용되는 STM32V8 마이크로컨트롤러를 생산할...",
-      "lead": 1,
       "tickers": [
         "005930.KS"
-      ]
+      ],
+      "summary": "서울경제신문에 따르면 삼성전자가 미국 텍사스 공장에서 스페이스X의 스타링크 위성용 반도체 생산을 추진 중. 삼성전자는 스타링크 위성의 레이저 통신 시스템에 사용되는 STM32V8 마이크로컨트롤러를 생산할..."
     },
     {
       "id": "insidertracking/69368",
@@ -8630,7 +8622,8 @@
       "datetime": "2026-11-15T22:04:35.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "market-note"
+        "geo",
+        "power"
       ],
       "score": 53,
       "hasText": true,
@@ -8640,8 +8633,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 해군 구축함 스프루언스(DDG-111)와 마이클 머피(DDG-112)가 각각 357일과 346일간의 장기 배치를 마치고 이번 주 본국으로 복귀. 이는 미 해군의 기존 표준 배치 기간인 6~7개월이 사실상...",
-      "tickers": []
+      "tickers": [],
+      "summary": "미국 해군 구축함 스프루언스(DDG-111)와 마이클 머피(DDG-112)가 각각 357일과 346일간의 장기 배치를 마치고 이번 주 본국으로 복귀. 이는 미 해군의 기존 표준 배치 기간인 6~7개월이 사실상..."
     },
     {
       "id": "insidertracking/69367",
@@ -8652,6 +8645,7 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -8660,9 +8654,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "월스트리트저널에 따르면 미국 정보당국 분석가들은 이란이 현재 1,500~2,500발의 미사일을 보유한 것으로 평가. 미국 관리들은 발사 준비가 완료된 미사일과 보관 중인 미사일의 수량을 정확히 파악하기 어려워...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "월스트리트저널에 따르면 미국 정보당국 분석가들은 이란이 현재 1,500~2,500발의 미사일을 보유한 것으로 평가. 미국 관리들은 발사 준비가 완료된 미사일과 보관 중인 미사일의 수량을 정확히 파악하기 어려워..."
     },
     {
       "id": "insidertracking/69361",
@@ -8673,6 +8666,7 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -8681,9 +8675,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)..."
     },
     {
       "id": "insidertracking/69353",
