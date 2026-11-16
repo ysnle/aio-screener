@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-16T15:51:49.394Z",
-  "attemptedAt": "2026-11-16T15:51:49.394Z",
-  "lastSuccessfulAt": "2026-11-16T15:51:49.394Z",
+  "generatedAt": "2026-11-16T16:22:12.737Z",
+  "attemptedAt": "2026-11-16T16:22:12.737Z",
+  "lastSuccessfulAt": "2026-11-16T16:22:12.737Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-02T15:51:44.578Z",
-  "until": "2026-11-16T15:51:44.578Z",
+  "since": "2026-11-02T16:22:08.758Z",
+  "until": "2026-11-16T16:22:08.758Z",
   "current24hWindow": {
     "start": "2026-11-14T23:00:00.000Z",
     "end": "2026-11-15T23:00:00.000Z",
@@ -108,11 +108,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 714,
-      "freshCount": 35,
+      "freshCount": 17,
       "eligibleTextCount": 714,
       "selectedCount": 126,
       "error": null,
@@ -138,7 +138,7 @@
     }
   ],
   "count": 2149,
-  "retainedItemCount": 416,
+  "retainedItemCount": 405,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -404,7 +404,7 @@
         "kr-market"
       ],
       "count": 94,
-      "focus": ">>대만 증시, 역대 두 번째 최대 낙폭…외국인•기관 1,140억TWD 순매도 (대만경제일보) •대만 증시는 16일 Nvidia 칩 국가안보 논란이 확대되면서 2,635.04pt(-6.03%) 급락한 41,040로 마감. 역대 두 번째 큰 낙폭, 거래대금은 TWD 8,450.57억 기록. 기관은 총 TWD..."
+      "focus": "코스피 야간선물"
     },
     {
       "id": "equity",
@@ -1613,10 +1613,7 @@
       "datetime": "2026-11-16T08:11:16.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "power"
+        "market-note"
       ],
       "score": 89,
       "hasText": true,
@@ -1626,12 +1623,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.16, 월) 🇨🇳 중국 본토 증시는 10월 실물경제 지표 부진에 따른 내수 회복 지연 우려와 글로벌 AI 하드웨어 투매 여파로 일제히 조정 마감. 상하이종합지수는 0.87%...",
       "tickers": [
         "NVDA",
         "TSM",
         "2454.TW"
-      ],
-      "summary": "중화권 마감 시황 (26.11.16, 월) 🇨🇳 중국 본토 증시는 10월 실물경제 지표 부진에 따른 내수 회복 지연 우려와 글로벌 AI 하드웨어 투매 여파로 일제히 조정 마감. 상하이종합지수는 0.87%..."
+      ]
     },
     {
       "id": "bornlupin/21100",
@@ -1951,15 +1948,12 @@
       "datetime": "2026-11-16T08:11:38.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "macro",
-        "kr-market",
-        "flows",
-        "healthcare"
+        "market-note"
       ],
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": "하나증권 신흥국전략 김근아 (T. 02-3771-7698) [2027년 인도·아세안 주식시장 전망] 비관하기엔 늦고, 낙관하기엔 이르다 자료: > [인도] 대외 불확실성 완화로 하방 위험 축소, 점진적 비중..."
+      "summary": "하나증권 신흥국전략 김근아 (T. 02-3771-7698) [2027년 인도·아세안 주식시장 전망] 비관하기엔 늦고, 낙관하기엔 이르다 자료: > [인도] 대외 불확실성 완화로 하방 위험 축소, 점진적 비중...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72210",
@@ -1968,10 +1962,7 @@
       "datetime": "2026-11-16T08:11:16.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "power"
+        "market-note"
       ],
       "score": 89,
       "hasText": true,
@@ -1981,12 +1972,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.16, 월) 🇨🇳 중국 본토 증시는 10월 실물경제 지표 부진에 따른 내수 회복 지연 우려와 글로벌 AI 하드웨어 투매 여파로 일제히 조정 마감. 상하이종합지수는 0.87%...",
       "tickers": [
         "NVDA",
         "TSM",
         "2454.TW"
-      ],
-      "summary": "중화권 마감 시황 (26.11.16, 월) 🇨🇳 중국 본토 증시는 10월 실물경제 지표 부진에 따른 내수 회복 지연 우려와 글로벌 AI 하드웨어 투매 여파로 일제히 조정 마감. 상하이종합지수는 0.87%..."
+      ]
     },
     {
       "id": "HANAchina/72209",
@@ -1995,20 +1986,19 @@
       "datetime": "2026-11-16T07:42:35.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "kr-market",
-        "flows",
         "semi",
-        "optical"
+        "kr-market",
+        "flows"
       ],
-      "lead": 2,
       "score": 85,
       "hasText": true,
+      "summary": ">>대만 증시, 역대 두 번째 최대 낙폭…외국인•기관 1,140억TWD 순매도 (대만경제일보) •대만 증시는 16일 Nvidia 칩 국가안보 논란이 확대되면서 2,635.04pt(-6.03%) 급락한...",
+      "lead": 3,
       "tickers": [
         "NVDA",
         "TSM",
         "2454.TW"
-      ],
-      "summary": ">>대만 증시, 역대 두 번째 최대 낙폭…외국인•기관 1,140억TWD 순매도 (대만경제일보) •대만 증시는 16일 Nvidia 칩 국가안보 논란이 확대되면서 2,635.04pt(-6.03%) 급락한..."
+      ]
     },
     {
       "id": "insidertracking/69405",
@@ -2041,18 +2031,15 @@
       "datetime": "2026-11-16T06:37:02.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "equity"
+        "market-note"
       ],
       "score": 85,
       "hasText": true,
+      "summary": ">>대만 가권지수는 전 거래일 대비 -6.03% 급락 마감, 대만 증시 역사상 두번째로 큰 낙폭 기록 (대만경제일보) • 장 초반부터 약세로 출발해 낙폭을 키웠으며, 시장이 기대했던...",
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": ">>대만 가권지수는 전 거래일 대비 -6.03% 급락 마감, 대만 증시 역사상 두번째로 큰 낙폭 기록 (대만경제일보) • 장 초반부터 약세로 출발해 낙폭을 키웠으며, 시장이 기대했던..."
+      ]
     },
     {
       "id": "HANAchina/72207",
@@ -2061,10 +2048,8 @@
       "datetime": "2026-11-16T06:28:01.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "semi",
-        "optical"
+        "semi"
       ],
-      "lead": 1,
       "score": 80,
       "hasText": true,
       "media": {
@@ -2073,6 +2058,8 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>엔비디아 젠슨 황 CEO의 사임 발표에 따른 대만 반도체 업계의 반응과 주요 전망 • TSMC 등 대형 파운드리와의 기존 협력 및 2028년 '파인만(Feynman)' 세대까지의 제품 로드맵은 차질 없이...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
@@ -2081,8 +2068,7 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>엔비디아 젠슨 황 CEO의 사임 발표에 따른 대만 반도체 업계의 반응과 주요 전망 • TSMC 등 대형 파운드리와의 기존 협력 및 2028년 '파인만(Feynman)' 세대까지의 제품 로드맵은 차질 없이..."
+      ]
     },
     {
       "id": "insidertracking/69401",
@@ -2189,15 +2175,15 @@
         "ai-policy",
         "equity"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": ">>트럼프 정부, Nvidia 등 20여개 기업을 AI ‘국가 대표기업’ 명단에 포함할 예정 •Amazon, Microsoft, OpenAI, Anthropic도 해당 인증을 받을 예정임. 트럼프 정부의 국가...",
+      "lead": 3,
       "tickers": [
         "NVDA",
         "MSFT",
         "AMZN"
-      ],
-      "summary": ">>트럼프 정부, Nvidia 등 20여개 기업을 AI ‘국가 대표기업’ 명단에 포함할 예정 •Amazon, Microsoft, OpenAI, Anthropic도 해당 인증을 받을 예정임. 트럼프 정부의 국가..."
+      ]
     },
     {
       "id": "insidertracking/69395",
@@ -2245,13 +2231,12 @@
       "datetime": "2026-11-16T02:30:11.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "credit",
-        "japan"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>모건스탠리, 글로벌 주식에 ‘최대폭 비중확대’ 권고…AI 자본지출 사이클 여전히 견조 •모건스탠리는 AI 자본지출 사이클이 여전히 견조하다고 판단하며 글로벌 주식에 ‘최대폭 비중확대’를 권고. AI..."
+      "summary": ">>모건스탠리, 글로벌 주식에 ‘최대폭 비중확대’ 권고…AI 자본지출 사이클 여전히 견조 •모건스탠리는 AI 자본지출 사이클이 여전히 견조하다고 판단하며 글로벌 주식에 ‘최대폭 비중확대’를 권고. AI...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72192",
@@ -2260,7 +2245,7 @@
       "datetime": "2026-11-16T02:06:11.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -2270,8 +2255,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "[중 국 10월 경제지표: 모든 지표 예상 하회] •10월 산업생산 YoY+4.8% (예상 YoY +5.3% / 9월 +5.5%) •10월 소매판매 YoY+0.4% (예상 YoY+0.8%/ 9월 +1.1%)..."
+      "summary": "[중 국 10월 경제지표: 모든 지표 예상 하회] •10월 산업생산 YoY+4.8% (예상 YoY +5.3% / 9월 +5.5%) •10월 소매판매 YoY+0.4% (예상 YoY+0.8%/ 9월 +1.1%)...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69388",
