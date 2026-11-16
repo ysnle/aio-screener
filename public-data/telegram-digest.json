@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-16T07:51:39.077Z",
-  "attemptedAt": "2026-11-16T07:51:39.077Z",
-  "lastSuccessfulAt": "2026-11-16T07:51:39.077Z",
+  "generatedAt": "2026-11-16T08:21:34.848Z",
+  "attemptedAt": "2026-11-16T08:21:34.848Z",
+  "lastSuccessfulAt": "2026-11-16T08:21:34.848Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-02T07:51:33.832Z",
-  "until": "2026-11-16T07:51:33.832Z",
+  "since": "2026-11-02T08:21:30.014Z",
+  "until": "2026-11-16T08:21:30.014Z",
   "current24hWindow": {
     "start": "2026-11-14T23:00:00.000Z",
     "end": "2026-11-15T23:00:00.000Z",
@@ -82,12 +82,12 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1247,
-      "freshCount": 37,
-      "eligibleTextCount": 1196,
+      "count": 1243,
+      "freshCount": 17,
+      "eligibleTextCount": 1192,
       "selectedCount": 130,
       "error": null,
       "failingSince": null,
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 716,
+      "count": 718,
       "freshCount": 38,
-      "eligibleTextCount": 716,
+      "eligibleTextCount": 718,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72209
+      "lastPostId": 72212
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2172,
-  "retainedItemCount": 429,
+  "count": 2170,
+  "retainedItemCount": 416,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2172,
-    "eligibleTextCount": 2121,
+    "observedCount": 2170,
+    "eligibleTextCount": 2119,
     "mediaOnlyCount": 51,
-    "mediaAttachedCount": 932,
-    "photoPostCount": 801,
+    "mediaAttachedCount": 930,
+    "photoPostCount": 800,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 370,
-    "broadSignalCount": 857,
+    "highSignalCount": 371,
+    "broadSignalCount": 860,
     "selectedRawCount": 377,
     "selectedEligibleCount": 377,
     "selectedRawCoveragePct": 17.8,
@@ -160,28 +160,29 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "kr-market": 96,
-    "flows": 53,
-    "semi": 567,
-    "optical": 32,
-    "market-note": 768,
+    "power": 275,
+    "earnings": 313,
+    "macro": 312,
+    "kr-market": 97,
+    "flows": 54,
+    "healthcare": 54,
+    "semi": 568,
+    "optical": 33,
+    "market-note": 765,
     "insider": 1,
-    "macro": 310,
     "equity": 145,
-    "earnings": 312,
-    "geo": 341,
-    "power": 273,
+    "geo": 339,
     "ai-policy": 124,
     "credit": 75,
     "japan": 63,
     "media-only": 49,
-    "healthcare": 53,
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 295,
-    "TSM": 63,
-    "2454.TW": 7,
+    "CAT": 2,
+    "NVDA": 296,
+    "TSM": 64,
+    "2454.TW": 8,
     "AMD": 51,
     "GOOG": 62,
     "AMZN": 52,
@@ -229,7 +230,6 @@
     "META": 1,
     "NYT": 1,
     "006400.KS": 1,
-    "CAT": 1,
     "GOOGL": 4,
     "WDC": 2,
     "STX": 3,
@@ -263,24 +263,24 @@
     "T": 2
   },
   "themes": [
-    "Market Notes (768 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
-    "Semiconductors/Memory (567 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국...",
-    "Geopolitics (341 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Earnings/Corporate (312 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "Macro/Rates (310 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한...",
-    "AI Power/Grid (273 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
+    "Market Notes (765 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
+    "Semiconductors/Memory (568 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국...",
+    "Geopolitics (339 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Earnings/Corporate (313 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Macro/Rates (312 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한...",
+    "AI Power/Grid (275 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (145 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (124 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 295,
+      "count": 296,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
     },
     {
       "key": "TSM",
-      "count": 63,
+      "count": 64,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -341,7 +341,7 @@
       "topics": [
         "macro"
       ],
-      "count": 310,
+      "count": 312,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
     },
     {
@@ -350,7 +350,7 @@
       "topics": [
         "geo"
       ],
-      "count": 341,
+      "count": 339,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -368,7 +368,7 @@
       "topics": [
         "semi"
       ],
-      "count": 567,
+      "count": 568,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국..."
     },
     {
@@ -377,7 +377,7 @@
       "topics": [
         "optical"
       ],
-      "count": 32,
+      "count": 33,
       "focus": ">>중국 광통신 다시 살아나나? Microsoft 발언에 CPO 관련주 일제히 급등 •Microsoft 등 미국 기업들이 트럼프 행정부에 광모듈 규제에 반대하는 로비를 벌이고 있으며, 해당 조치가 데이터센터..."
     },
     {
@@ -386,7 +386,7 @@
       "topics": [
         "power"
       ],
-      "count": 273,
+      "count": 275,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -404,7 +404,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 96,
+      "count": 97,
       "focus": ">>대만 증시, 역대 두 번째 최대 낙폭…외국인•기관 1,140억TWD 순매도 (대만경제일보) •대만 증시는 16일 Nvidia 칩 국가안보 논란이 확대되면서 2,635.04pt(-6.03%) 급락한 41,040로 마감. 역대 두 번째 큰 낙폭, 거래대금은 TWD 8,450.57억 기록. 기관은 총 TWD..."
     },
     {
@@ -431,7 +431,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 312,
+      "count": 313,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -440,7 +440,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 53,
+      "count": 54,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체..."
     },
     {
@@ -458,7 +458,7 @@
       "topics": [
         "flows"
       ],
-      "count": 53,
+      "count": 54,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -476,7 +476,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 768,
+      "count": 765,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     }
   ],
@@ -1646,6 +1646,33 @@
       ]
     },
     {
+      "id": "HANAchina/72210",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72210",
+      "datetime": "2026-11-16T08:11:16.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "macro",
+        "semi",
+        "optical",
+        "power"
+      ],
+      "score": 89,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "TSM",
+        "2454.TW"
+      ],
+      "summary": "중화권 마감 시황 (26.11.16, 월) 🇨🇳 중국 본토 증시는 10월 실물경제 지표 부진에 따른 내수 회복 지연 우려와 글로벌 AI 하드웨어 투매 여파로 일제히 조정 마감. 상하이종합지수는 0.87%..."
+    },
+    {
       "id": "bornlupin/21100",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21100",
@@ -1660,27 +1687,70 @@
       "tickers": [
         "NVDA"
       ]
-    },
-    {
-      "id": "bornlupin/21002",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21002",
-      "datetime": "2026-11-04T12:04:08.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "semi",
-        "equity",
-        "earnings"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": "스티펠(Stifel) , AMD, 투자의견 '매수(Buy)'를 유지, 목표주가를 700달러에서 725달러로 상향 \"AMD는 2026 회계연도 3분기에 시장 예상치를 상회하는 실적과 함께 가이던스를...",
-      "tickers": [
-        "AMD"
-      ]
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/72212",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72212",
+      "datetime": "2026-11-16T08:13:27.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "power",
+        "earnings"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [
+        "CAT"
+      ],
+      "summary": ">>AI 인프라주 4.2조 달러 증발, ‘삽을 파는 잔치’는 끝났나? •6월 이후 Caterpillar는 44% 하락했고, Oklo는 49% 폭락했음. 애널리스트들은 근본적인 원인으로 투자자들이 전통 산업재를..."
+    },
+    {
+      "id": "HANAchina/72211",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72211",
+      "datetime": "2026-11-16T08:11:38.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "macro",
+        "kr-market",
+        "flows",
+        "healthcare"
+      ],
+      "score": 60,
+      "hasText": true,
+      "tickers": [],
+      "summary": "하나증권 신흥국전략 김근아 (T. 02-3771-7698) [2027년 인도·아세안 주식시장 전망] 비관하기엔 늦고, 낙관하기엔 이르다 자료: > [인도] 대외 불확실성 완화로 하방 위험 축소, 점진적 비중..."
+    },
+    {
+      "id": "HANAchina/72210",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72210",
+      "datetime": "2026-11-16T08:11:16.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "macro",
+        "semi",
+        "optical",
+        "power"
+      ],
+      "score": 89,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "TSM",
+        "2454.TW"
+      ],
+      "summary": "중화권 마감 시황 (26.11.16, 월) 🇨🇳 중국 본토 증시는 10월 실물경제 지표 부진에 따른 내수 회복 지연 우려와 글로벌 AI 하드웨어 투매 여파로 일제히 조정 마감. 상하이종합지수는 0.87%..."
+    },
     {
       "id": "HANAchina/72209",
       "channel": "HANAchina",
@@ -1978,17 +2048,15 @@
       "datetime": "2026-11-16T01:41:22.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "kr-market",
-        "geo",
-        "semi"
+        "semi",
+        "kr-market"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": "지금 미국 선물이랑 코스피 하락 이유 · 엔비디아, 젠슨 황 CEO 퇴진 이후 리더십 불확실성 지속 · 젠슨 황, CEO 복귀를 검토 중이라는 보도 · 콜레트 크레스 임시 CEO가 회사 경영을 이끌 준비...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "지금 미국 선물이랑 코스피 하락 이유 · 엔비디아, 젠슨 황 CEO 퇴진 이후 리더십 불확실성 지속 · 젠슨 황, CEO 복귀를 검토 중이라는 보도 · 콜레트 크레스 임시 CEO가 회사 경영을 이끌 준비..."
+      ]
     },
     {
       "id": "HANAchina/72190",
@@ -2058,10 +2126,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 오버나잇",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 오버나잇"
+      ]
     },
     {
       "id": "HANAchina/72184",
@@ -2087,13 +2155,12 @@
       "datetime": "2026-11-16T00:20:12.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "macro",
         "power"
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": "안녕하세요 이준호입니다. 국내 데이터센터 트래킹 페이지 공유드립니다. 상단은 국내 데이터센터 지도로 기업명 검색하셔서 보시면 되고 하단은 발표 일자, 수정 일자로 최근 업데이트된 정보 보실 수 있습니다...."
+      "summary": "안녕하세요 이준호입니다. 국내 데이터센터 트래킹 페이지 공유드립니다. 상단은 국내 데이터센터 지도로 기업명 검색하셔서 보시면 되고 하단은 발표 일자, 수정 일자로 최근 업데이트된 정보 보실 수 있습니다....",
+      "tickers": []
     },
     {
       "id": "insidertracking/69379",
@@ -2104,13 +2171,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "스콧 베선트 미국 재무장관, 일요일 엔비디아 이사회에 젠슨 황의 경영 복귀 가능성을 차단하고 외부에서 새로운 최고경영자를 영입할 것을 촉구. 엔비디아가 첨단 인공지능 반도체의 중국 기업 판매를 지원했다는...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "스콧 베선트 미국 재무장관, 일요일 엔비디아 이사회에 젠슨 황의 경영 복귀 가능성을 차단하고 외부에서 새로운 최고경영자를 영입할 것을 촉구. 엔비디아가 첨단 인공지능 반도체의 중국 기업 판매를 지원했다는..."
+      ]
     },
     {
       "id": "insidertracking/69376",
@@ -2129,10 +2196,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 버거형, 누나들은 엔비디아에 집중도 몰빵",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 버거형, 누나들은 엔비디아에 집중도 몰빵"
+      ]
     },
     {
       "id": "HANAchina/72181",
@@ -2268,13 +2335,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "서울경제신문에 따르면 삼성전자가 미국 텍사스 공장에서 스페이스X의 스타링크 위성용 반도체 생산을 추진 중. 삼성전자는 스타링크 위성의 레이저 통신 시스템에 사용되는 STM32V8 마이크로컨트롤러를 생산할...",
+      "lead": 1,
       "tickers": [
         "005930.KS"
-      ],
-      "summary": "서울경제신문에 따르면 삼성전자가 미국 텍사스 공장에서 스페이스X의 스타링크 위성용 반도체 생산을 추진 중. 삼성전자는 스타링크 위성의 레이저 통신 시스템에 사용되는 STM32V8 마이크로컨트롤러를 생산할..."
+      ]
     },
     {
       "id": "insidertracking/69368",
@@ -2488,13 +2555,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>젠슨 황 퇴임 후, 베선트 “엔비디아에 대대적인 개편 필요” •스콧 베선트는 젠슨 황이 해임된 이후 엔비디아의 경영진이 “대대적인 개편”을 겪어야 한다고 밝혔음. •베선트는 엔비디아가 회사 외부에서 새로운...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 퇴임 후, 베선트 “엔비디아에 대대적인 개편 필요” •스콧 베선트는 젠슨 황이 해임된 이후 엔비디아의 경영진이 “대대적인 개편”을 겪어야 한다고 밝혔음. •베선트는 엔비디아가 회사 외부에서 새로운..."
+      ]
     },
     {
       "id": "HANAchina/72168",
@@ -2503,7 +2570,7 @@
       "datetime": "2026-11-15T13:34:40.000Z",
       "localDateKst": "2026-11-15",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
@@ -2513,8 +2580,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>BofA Hartnett: 강달러가 글로벌 유동성에 충격, 위험자산은 당분간 진입하기 어려워, 전환점은 내년 봄으로 연기 •BofA 전략가 Hartnett는 위험회피 입장을 유지하며 진입 시점을 내년..."
+      "summary": ">>BofA Hartnett: 강달러가 글로벌 유동성에 충격, 위험자산은 당분간 진입하기 어려워, 전환점은 내년 봄으로 연기 •BofA 전략가 Hartnett는 위험회피 입장을 유지하며 진입 시점을 내년...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69339",
@@ -6794,60 +6861,6 @@
       ]
     },
     {
-      "id": "HANAchina/71932",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71932",
-      "datetime": "2026-11-11T03:07:54.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "earnings",
-        "ai-policy",
-        "equity"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": ">>Anthropic IPO 로드쇼 PPT : ‘컴퓨팅’ 49회, ‘안전’ 27회 언급, 매출 1년 만에 12배 증가, 장기 이익률 목표 35% •Anthropic IPO 로드쇼 영상에서 ‘컴퓨팅’이 49회...",
-      "lead": 3,
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/71931",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71931",
-      "datetime": "2026-11-11T03:05:26.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "market-note"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": ">>(음성) CoreWeave 컨콜 : 2027년 수요가 생산능력의 10배 •CoreWeave는 2027년 말 기준 적격 수요가 가용 생산능력의 10배에 달할 것으로 전망함. 2028년 수요는 아직 상장되지...",
-      "tickers": [
-        "CRWV"
-      ]
-    },
-    {
-      "id": "HANAchina/71927",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71927",
-      "datetime": "2026-11-11T02:03:00.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "ai-policy",
-        "equity"
-      ],
-      "score": 72,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 3,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>1조 달러 vs 1조4,000억 달러? Anthropic IPO 밸류에이션의 비밀 곧 밝혀질 전망 (중국언론) •밸류에이션 논란의 핵심은 산정 기준의 차이에 있음. 유통주식 기준 기업가치는 약 1조 달러,...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21107",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21107",
@@ -8613,13 +8626,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "서울경제신문에 따르면 삼성전자가 미국 텍사스 공장에서 스페이스X의 스타링크 위성용 반도체 생산을 추진 중. 삼성전자는 스타링크 위성의 레이저 통신 시스템에 사용되는 STM32V8 마이크로컨트롤러를 생산할...",
+      "lead": 1,
       "tickers": [
         "005930.KS"
-      ],
-      "summary": "서울경제신문에 따르면 삼성전자가 미국 텍사스 공장에서 스페이스X의 스타링크 위성용 반도체 생산을 추진 중. 삼성전자는 스타링크 위성의 레이저 통신 시스템에 사용되는 STM32V8 마이크로컨트롤러를 생산할..."
+      ]
     },
     {
       "id": "insidertracking/69368",
@@ -8833,13 +8846,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>젠슨 황 퇴임 후, 베선트 “엔비디아에 대대적인 개편 필요” •스콧 베선트는 젠슨 황이 해임된 이후 엔비디아의 경영진이 “대대적인 개편”을 겪어야 한다고 밝혔음. •베선트는 엔비디아가 회사 외부에서 새로운...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 퇴임 후, 베선트 “엔비디아에 대대적인 개편 필요” •스콧 베선트는 젠슨 황이 해임된 이후 엔비디아의 경영진이 “대대적인 개편”을 겪어야 한다고 밝혔음. •베선트는 엔비디아가 회사 외부에서 새로운..."
+      ]
     },
     {
       "id": "HANAchina/72168",
@@ -8848,7 +8861,7 @@
       "datetime": "2026-11-15T13:34:40.000Z",
       "localDateKst": "2026-11-15",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
@@ -8858,8 +8871,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>BofA Hartnett: 강달러가 글로벌 유동성에 충격, 위험자산은 당분간 진입하기 어려워, 전환점은 내년 봄으로 연기 •BofA 전략가 Hartnett는 위험회피 입장을 유지하며 진입 시점을 내년..."
+      "summary": ">>BofA Hartnett: 강달러가 글로벌 유동성에 충격, 위험자산은 당분간 진입하기 어려워, 전환점은 내년 봄으로 연기 •BofA 전략가 Hartnett는 위험회피 입장을 유지하며 진입 시점을 내년...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69339",
