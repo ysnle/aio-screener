@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-16T20:52:05.881Z",
-  "attemptedAt": "2026-11-16T20:52:05.881Z",
-  "lastSuccessfulAt": "2026-11-16T20:52:05.881Z",
+  "generatedAt": "2026-11-16T21:22:17.930Z",
+  "attemptedAt": "2026-11-16T21:22:17.930Z",
+  "lastSuccessfulAt": "2026-11-16T21:22:17.930Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-02T20:52:02.100Z",
-  "until": "2026-11-16T20:52:02.100Z",
+  "since": "2026-11-02T21:22:12.952Z",
+  "until": "2026-11-16T21:22:12.952Z",
   "current24hWindow": {
     "start": "2026-11-14T23:00:00.000Z",
     "end": "2026-11-15T23:00:00.000Z",
@@ -82,25 +82,25 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1234,
-      "freshCount": 20,
-      "eligibleTextCount": 1182,
-      "selectedCount": 130,
+      "count": 1228,
+      "freshCount": 38,
+      "eligibleTextCount": 1176,
+      "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69425
+      "lastPostId": 69435
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 201,
+      "count": 200,
       "freshCount": 17,
-      "eligibleTextCount": 201,
+      "eligibleTextCount": 200,
       "selectedCount": 120,
       "error": null,
       "failingSince": null,
@@ -137,41 +137,41 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2149,
-  "retainedItemCount": 405,
+  "count": 2142,
+  "retainedItemCount": 418,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2149,
-    "eligibleTextCount": 2097,
+    "observedCount": 2142,
+    "eligibleTextCount": 2090,
     "mediaOnlyCount": 52,
-    "mediaAttachedCount": 928,
-    "photoPostCount": 801,
+    "mediaAttachedCount": 921,
+    "photoPostCount": 794,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 362,
-    "broadSignalCount": 851,
-    "selectedRawCount": 376,
-    "selectedEligibleCount": 376,
-    "selectedRawCoveragePct": 17.9,
-    "selectedOfObservedPct": 17.5,
+    "highSignalCount": 358,
+    "broadSignalCount": 849,
+    "selectedRawCount": 372,
+    "selectedEligibleCount": 372,
+    "selectedRawCoveragePct": 17.8,
+    "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 561,
-    "ai-policy": 123,
-    "market-note": 762,
+    "semi": 563,
+    "macro": 308,
+    "geo": 332,
     "power": 273,
-    "credit": 77,
-    "geo": 331,
-    "macro": 309,
-    "media-only": 50,
-    "earnings": 306,
+    "credit": 76,
+    "market-note": 760,
     "kr-market": 94,
+    "healthcare": 55,
+    "ai-policy": 120,
+    "media-only": 50,
+    "earnings": 299,
     "flows": 53,
-    "healthcare": 54,
     "optical": 25,
     "insider": 1,
     "equity": 140,
@@ -179,19 +179,19 @@
     "crypto": 2
   },
   "tickerCounts": {
+    "NVDA": 302,
     "AMD": 52,
-    "NVDA": 301,
     "META": 2,
     "AMZN": 52,
     "BIDU": 3,
     "CAT": 2,
     "TSM": 61,
     "2454.TW": 7,
-    "GOOG": 58,
+    "GOOG": 56,
     "MU": 30,
-    "MSFT": 54,
+    "MSFT": 53,
     "005930.KS": 28,
-    "TSLA": 44,
+    "TSLA": 43,
     "ARM": 2,
     "JD": 1,
     "AVGO": 16,
@@ -212,7 +212,7 @@
     "DDOG": 1,
     "SNOW": 1,
     "CRWV": 16,
-    "PLTR": 17,
+    "PLTR": 13,
     "LITE": 2,
     "COHR": 4,
     "BABA": 2,
@@ -256,26 +256,23 @@
     "NVS": 1,
     "RACE": 1,
     "SNDK": 1,
-    "CIEN": 1,
-    "MTCH": 1,
-    "ON": 1,
-    "BWXT": 1
+    "CIEN": 1
   },
   "themes": [
-    "Market Notes (762 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
-    "Semiconductors/Memory (561 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로...",
-    "Geopolitics (331 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Macro/Rates (309 posts in 14-day research window): 2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
-    "Earnings/Corporate (306 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Market Notes (760 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
+    "Semiconductors/Memory (563 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국...",
+    "Geopolitics (332 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Macro/Rates (308 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q 기반 양자 오류정정 알고리즘이 기존 대비 최대 13,000배 빠른 디코딩 성능을 구현했다고 발표하고,...",
+    "Earnings/Corporate (299 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (273 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (140 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "AI Policy/Export Controls (123 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
+    "AI Policy/Export Controls (120 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 301,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
+      "count": 302,
+      "text": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서 트럼프·푸틴·시진핑 3자 회담 개최 예정이라고 발표 · 트럼프·푸틴 양자회담도 11월 19일 추진 중이며 형식과 장소는 조율..."
     },
     {
       "key": "TSM",
@@ -284,13 +281,13 @@
     },
     {
       "key": "GOOG",
-      "count": 58,
+      "count": 56,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면..."
     },
     {
       "key": "MSFT",
-      "count": 54,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
+      "count": 53,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
     },
     {
       "key": "AMD",
@@ -300,11 +297,11 @@
     {
       "key": "AMZN",
       "count": 52,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
     },
     {
       "key": "TSLA",
-      "count": 44,
+      "count": 43,
       "text": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,..."
     },
     {
@@ -315,7 +312,7 @@
     {
       "key": "005930.KS",
       "count": 28,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
     },
     {
       "key": "000660.KS",
@@ -323,14 +320,14 @@
       "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
-      "key": "PLTR",
-      "count": 17,
-      "text": "팔란티어(PLTR) 2026년 3분기 어닝콜 1. 실적 및 성장률 매출 23.13억 달러, 전년 대비 +96%, 전분기 대비 +20%. 상장 이후 최고 성장률. 미국 매출 19.37억 달러, 전년 대비..."
-    },
-    {
       "key": "AVGO",
       "count": 16,
       "text": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
+    },
+    {
+      "key": "BE",
+      "count": 16,
+      "text": "민주당 블루웨이브와 AI 투자 1. 민주당이 연방 상원(52~54석)과 하원(약 250석), 그리고 텍사스 주지사까지 승리했지만, 미국 AI 투자가 정체될 가능성은 낮음 2. 미국의 AI 주도권 유지에는..."
     }
   ],
   "categories": [
@@ -340,8 +337,8 @@
       "topics": [
         "macro"
       ],
-      "count": 309,
-      "focus": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
+      "count": 308,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q 기반 양자 오류정정 알고리즘이 기존 대비 최대 13,000배 빠른 디코딩 성능을 구현했다고 발표하고,..."
     },
     {
       "id": "geo",
@@ -349,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 331,
+      "count": 332,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -358,8 +355,8 @@
       "topics": [
         "credit"
       ],
-      "count": 77,
-      "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
+      "count": 76,
+      "focus": "2026년 11월 17일 미국 증시 브리핑 미국 증시는 AI·반도체 밸류에이션과 투자 지속성에 대한 우려가 재부각되며 위험회피 흐름 확대. S&P 500 -1.92%, 다우 -1.41%, 나스닥 -2.49%, 러셀2000 -1.76%로 동반 하락했으며 VIX는 22.14% 급등한 23.57 기록. 기술주 약세가..."
     },
     {
       "id": "semi",
@@ -367,8 +364,8 @@
       "topics": [
         "semi"
       ],
-      "count": 561,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
+      "count": 563,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국..."
     },
     {
       "id": "optical",
@@ -394,7 +391,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 123,
+      "count": 120,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
     },
     {
@@ -404,7 +401,7 @@
         "kr-market"
       ],
       "count": 94,
-      "focus": "코스피 야간선물"
+      "focus": "코스피 야간선물 -1.8% 하락 마감"
     },
     {
       "id": "equity",
@@ -430,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 306,
+      "count": 299,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -439,7 +436,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 54,
+      "count": 55,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체..."
     },
     {
@@ -475,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 762,
+      "count": 760,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     }
   ],
@@ -729,24 +726,143 @@
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
     {
+      "id": "insidertracking/69434",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69434",
+      "datetime": "2026-11-16T21:19:56.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "AMD",
+        "TSLA",
+        "CAT",
+        "GOOG",
+        "AMZN"
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q..."
+    },
+    {
+      "id": "insidertracking/69433",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69433",
+      "datetime": "2026-11-16T21:18:56.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "AMD",
+        "TSLA",
+        "MSFT",
+        "AMZN",
+        "UNH",
+        "NFLX",
+        "PEP",
+        "BX",
+        "ELV",
+        "GIS"
+      ],
+      "summary": "2026년 11월 17일 미국 증시 브리핑 미국 증시는 AI·반도체 밸류에이션과 투자 지속성에 대한 우려가 재부각되며 위험회피 흐름 확대. S&P 500 -1.92%, 다우 -1.41%, 나스닥 -2.49%,..."
+    },
+    {
+      "id": "insidertracking/69427",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69427",
+      "datetime": "2026-11-16T21:09:27.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서..."
+    },
+    {
+      "id": "insidertracking/69426",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69426",
+      "datetime": "2026-11-16T21:08:38.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "TSLA",
+        "GOOG",
+        "005930.KS",
+        "000660.KS",
+        "T"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 17일 🇺🇸 아메리카 • 미국 상무부는 첨단 AI 반도체와 서버에 대한 원격 접근을 제한하는 새로운 수출통제 규정을 발표. 중국 등 수출통제 대상국이 제3국..."
+    },
+    {
       "id": "insidertracking/69397",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69397",
       "datetime": "2026-11-16T05:36:27.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
+        "macro",
+        "geo",
         "semi",
-        "ai-policy"
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로...",
       "tickers": [
         "NVDA",
         "MSFT",
         "AMZN",
         "005930.KS"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
       "id": "insidertracking/69342",
@@ -1198,39 +1314,6 @@
       ]
     },
     {
-      "id": "insidertracking/68992",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68992",
-      "datetime": "2026-11-11T03:46:04.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "earnings"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "코어위브(CRWV) Q3 2026 어닝콜 요약 긍정 요인: • 폭발적인 매출 성장 및 마진 개선. 3분기 매출은 37억달러로 전년 대비 168% 증가하며 가이던스 상회. 조정 영업이익은 3억7,900만달러로...",
-      "lead": 1,
-      "tickers": [
-        "CRWV"
-      ]
-    },
-    {
-      "id": "insidertracking/68964",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68964",
-      "datetime": "2026-11-10T22:56:14.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "코어위브 컨퍼런스콜 관련 정리 - 2026년 11월 11일 수요·공급 · 코어위브, 2027년까지 사실상 대부분의 공급 용량이 판매됐다고 설명 · 현재까지 제시한 2028년 공급 용량도 모두 판매 ·...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "bornlupin/21098",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21098",
@@ -1246,61 +1329,6 @@
       "tickers": [
         "NVDA",
         "CRWV"
-      ]
-    },
-    {
-      "id": "insidertracking/68940",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68940",
-      "datetime": "2026-11-10T21:09:53.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "earnings"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "CoreWeave 2026년 3분기 실적 요약 실적 • 매출 $36.61억, 전년 $13.65억 대비 +168% • 영업이익 $2.07억, 전년 $5,200만 • 영업이익률 6%, 전년 4% • 순손실...",
-      "tickers": [
-        "NVDA",
-        "CRWV"
-      ]
-    },
-    {
-      "id": "insidertracking/68934",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68934",
-      "datetime": "2026-11-10T21:03:26.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 위ix닷컴 (WIX) — AI 기반 개방형 웹 제작 플랫폼 ‘Studio Two’를 출시했으며, 니르 조하르를 공동 CEO로...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "MSFT",
-        "GOOG",
-        "AVGO",
-        "AMZN",
-        "MU",
-        "TSM",
-        "ADBE",
-        "TEAM"
       ]
     },
     {
@@ -1686,6 +1714,202 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/69435",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69435",
+      "datetime": "2026-11-16T21:21:21.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "미국 레딧 관심도 엔비디아에 여전히 집중"
+    },
+    {
+      "id": "insidertracking/69434",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69434",
+      "datetime": "2026-11-16T21:19:56.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "AMD",
+        "TSLA",
+        "CAT",
+        "GOOG",
+        "AMZN"
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q..."
+    },
+    {
+      "id": "insidertracking/69433",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69433",
+      "datetime": "2026-11-16T21:18:56.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "AMD",
+        "TSLA",
+        "MSFT",
+        "AMZN",
+        "UNH",
+        "NFLX",
+        "PEP",
+        "BX",
+        "ELV",
+        "GIS"
+      ],
+      "summary": "2026년 11월 17일 미국 증시 브리핑 미국 증시는 AI·반도체 밸류에이션과 투자 지속성에 대한 우려가 재부각되며 위험회피 흐름 확대. S&P 500 -1.92%, 다우 -1.41%, 나스닥 -2.49%,..."
+    },
+    {
+      "id": "insidertracking/69430",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69430",
+      "datetime": "2026-11-16T21:13:17.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "macro"
+      ],
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "2026년 11월 17일 미장 마감 S&P 500 - 7,416.59 -1.92% 다우 30 - 51,608.17 -1.41% 나스닥 - 24,509.76 -2.49% 러셀 2000 - 2,741.51..."
+    },
+    {
+      "id": "insidertracking/69429",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69429",
+      "datetime": "2026-11-16T21:11:38.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "geo"
+      ],
+      "score": 55,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "현재 CBS의 '60 Minutes'를 운영하는 새로운 책임자들은 이전 책임자들보다 훨씬 더 형편없다. 최근 방송에서 이란과의 전쟁 초기 공격에 관한 내용을 다뤘지만, 사실관계를 정확하게 전달하지 않았다...."
+    },
+    {
+      "id": "insidertracking/69428",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69428",
+      "datetime": "2026-11-16T21:10:40.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "macro",
+        "healthcare"
+      ],
+      "lead": 1,
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": "연준 인사 발언 관련 정리 - 2026년 11월 17일 케빈 워시 연준 의장 · 연준의 역할은 신기술에 대해 올바른 질문을 하고 향후 상황에 대비하는 것이라고 발언 · 슈퍼인텔리전스가 경제와 연준에 상당한..."
+    },
+    {
+      "id": "insidertracking/69427",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69427",
+      "datetime": "2026-11-16T21:09:27.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서..."
+    },
+    {
+      "id": "insidertracking/69426",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69426",
+      "datetime": "2026-11-16T21:08:38.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "TSLA",
+        "GOOG",
+        "005930.KS",
+        "000660.KS",
+        "T"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 17일 🇺🇸 아메리카 • 미국 상무부는 첨단 AI 반도체와 서버에 대한 원격 접근을 제한하는 새로운 수출통제 규정을 발표. 중국 등 수출통제 대상국이 제3국..."
+    },
     {
       "id": "HANAchina/72231",
       "channel": "HANAchina",
@@ -2087,7 +2311,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "하버드대학교 기금 3분기 포트폴리오 공개 • 하버드 기금, 스페이스X 보유 주식 33.74% 매도·약 6억 5,800만 달러 축소, 여전히 포트폴리오 비중 32.71%로 1위 • 하버드 기금, TSMC 보유량...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2096,7 +2319,8 @@
         "GOOG",
         "AVGO",
         "TSM"
-      ]
+      ],
+      "summary": "하버드대학교 기금 3분기 포트폴리오 공개 • 하버드 기금, 스페이스X 보유 주식 33.74% 매도·약 6억 5,800만 달러 축소, 여전히 포트폴리오 비중 32.71%로 1위 • 하버드 기금, TSMC 보유량..."
     },
     {
       "id": "insidertracking/69400",
@@ -2115,11 +2339,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "베일리 기포드 3분기 포트폴리오 공개 • 베일리 기포드, 엔비디아 1억 5,627만 달러 추가 매수·총 97억 2,300만 달러 보유, 포트폴리오 비중 9.18%로 1위 • 베일리 기포드, 램리서치 11억...",
       "tickers": [
         "NVDA",
         "AMZN"
-      ]
+      ],
+      "summary": "베일리 기포드 3분기 포트폴리오 공개 • 베일리 기포드, 엔비디아 1억 5,627만 달러 추가 매수·총 97억 2,300만 달러 보유, 포트폴리오 비중 9.18%로 1위 • 베일리 기포드, 램리서치 11억..."
     },
     {
       "id": "insidertracking/69398",
@@ -2128,7 +2352,10 @@
       "datetime": "2026-11-16T05:58:26.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "equity",
+        "earnings"
       ],
       "score": 87,
       "hasText": true,
@@ -2138,11 +2365,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "11월 16일 미국 증시 프리마켓 브리핑 미국 지수선물은 기술주 중심 약세. 다우 선물 -0.19%, S&P500 선물 -0.55%, 나스닥100 선물 -1.16%, 러셀2000 선물 -0.52% 기록 중이며...",
       "tickers": [
         "NVDA",
         "MU"
-      ]
+      ],
+      "summary": "11월 16일 미국 증시 프리마켓 브리핑 미국 지수선물은 기술주 중심 약세. 다우 선물 -0.19%, S&P500 선물 -0.55%, 나스닥100 선물 -1.16%, 러셀2000 선물 -0.52% 기록 중이며..."
     },
     {
       "id": "insidertracking/69397",
@@ -2151,18 +2378,20 @@
       "datetime": "2026-11-16T05:36:27.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
+        "macro",
+        "geo",
         "semi",
-        "ai-policy"
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로...",
       "tickers": [
         "NVDA",
         "MSFT",
         "AMZN",
         "005930.KS"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
       "id": "HANAchina/72202",
@@ -2196,10 +2425,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "트럼프 행정부, 엔비디아를 AI 분야의 '국가 대표 기업'으로 지정할 예정 - WSJ",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 행정부, 엔비디아를 AI 분야의 '국가 대표 기업'으로 지정할 예정 - WSJ"
     },
     {
       "id": "insidertracking/69394",
@@ -6173,28 +6402,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/69095",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69095",
-      "datetime": "2026-11-12T02:05:55.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "엘리자베스 워런과 크리스 쿤스 미국 상원의원은 민주당의 의회 장악을 앞두고, 트럼프 행정부에 엔비디아의 대중국 반도체 수출과 관련된 모든 문서를 보존할 것을 요청.",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "HANAchina/71997",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71997",
@@ -6255,23 +6462,6 @@
       ]
     },
     {
-      "id": "insidertracking/69090",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69090",
-      "datetime": "2026-11-12T00:52:46.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "11월 12일 폴리마켓에서 엔비디아 CEO 젠슨 황이 해임되거나 자진 사임할 것으로 예상하는 시장 확률이 사상 최고치인 85%까지 상승. 젠슨 황의 혼외 관계 관련 소식이 처음 보도된 이후 엔비디아 시가총액은...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "HANAchina/71991",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71991",
@@ -6310,46 +6500,6 @@
         "NVDA",
         "005930.KS",
         "000660.KS"
-      ]
-    },
-    {
-      "id": "insidertracking/69087",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69087",
-      "datetime": "2026-11-12T00:23:35.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "credit",
-        "macro",
-        "semi"
-      ],
-      "score": 86,
-      "hasText": true,
-      "summary": "블룸버그에 따르면 코어위브가 투자등급 대출을 통해 최소 40억 달러 조달 계획. 모건스탠리와 미쓰비시UFJ파이낸셜그룹이 이번 거래를 주도하며, GPU와 고객 계약을 담보로 활용할 예정. 금리는 7~7.5%...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/69085",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69085",
-      "datetime": "2026-11-12T00:12:36.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 2,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "넥스트 엔비디아 CEO에 Ian Buck (이안 벅)이 거론되는데..... 엔비디아 하이퍼스케일 및 고성능 컴퓨팅(HPC) 부문 부사장이라고 하네요. > 근데 관상이 ㅋㅋㅋㅋ",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
       ]
     },
     {
@@ -6401,45 +6551,6 @@
       ]
     },
     {
-      "id": "insidertracking/69083",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69083",
-      "datetime": "2026-11-11T23:39:23.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "$NVDA - 엔비디아, 새로운 CEO 발굴을 위해 외부 기업과 협력 중",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69081",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69081",
-      "datetime": "2026-11-11T23:36:05.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "엔비디아 영향으로 지수선물 하락 전환 국장에서는 별일 없길 바랍니다 진짜...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "bornlupin/21121",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21121",
@@ -6475,22 +6586,6 @@
       ]
     },
     {
-      "id": "insidertracking/69080",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69080",
-      "datetime": "2026-11-11T23:28:35.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "로이터 소식통에 따르면 엔비디아 이사회가 수요일 회의를 열고 젠슨 황 CEO의 해임 여부를 결정할 예정.",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "HANAchina/71986",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71986",
@@ -6517,29 +6612,6 @@
       "hasText": true,
       "summary": ">>최저 30% 가격에 Token 판매! AI 모델 업체, 사상 처음 ‘광군제’ 할인 경쟁 •11월 11일 톈마오몰의 ‘톈마오 AI 스페이스’에서 Zhipu, MiniMax, Qwen AI, Qoder 등...",
       "tickers": []
-    },
-    {
-      "id": "insidertracking/69078",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69078",
-      "datetime": "2026-11-11T23:14:04.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "semi"
-      ],
-      "score": 55,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "애프터마켓 현황 상승장 마감하고 젠슨황이 테크쪽에 똥물 뿌림. 브로드컴, AMD는 상승",
-      "tickers": [
-        "AMD",
-        "AVGO"
-      ]
     },
     {
       "id": "HANAchina/71984",
