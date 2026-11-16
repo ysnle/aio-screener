@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-16T06:21:43.092Z",
-  "attemptedAt": "2026-11-16T06:21:43.092Z",
-  "lastSuccessfulAt": "2026-11-16T06:21:43.092Z",
+  "generatedAt": "2026-11-16T06:52:12.244Z",
+  "attemptedAt": "2026-11-16T06:52:12.244Z",
+  "lastSuccessfulAt": "2026-11-16T06:52:12.244Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-02T06:21:38.375Z",
-  "until": "2026-11-16T06:21:38.375Z",
+  "since": "2026-11-02T06:52:07.708Z",
+  "until": "2026-11-16T06:52:07.708Z",
   "current24hWindow": {
     "start": "2026-11-14T23:00:00.000Z",
     "end": "2026-11-15T23:00:00.000Z",
@@ -85,22 +85,22 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1241,
-      "freshCount": 38,
-      "eligibleTextCount": 1188,
-      "selectedCount": 129,
+      "count": 1244,
+      "freshCount": 37,
+      "eligibleTextCount": 1191,
+      "selectedCount": 130,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69400
+      "lastPostId": 69405
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 211,
+      "count": 210,
       "freshCount": 17,
-      "eligibleTextCount": 211,
+      "eligibleTextCount": 210,
       "selectedCount": 122,
       "error": null,
       "failingSince": null,
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 718,
-      "freshCount": 36,
-      "eligibleTextCount": 718,
+      "count": 720,
+      "freshCount": 37,
+      "eligibleTextCount": 720,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72206
+      "lastPostId": 72208
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,55 +137,56 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2170,
+  "count": 2174,
   "retainedItemCount": 429,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2170,
-    "eligibleTextCount": 2117,
+    "observedCount": 2174,
+    "eligibleTextCount": 2121,
     "mediaOnlyCount": 53,
-    "mediaAttachedCount": 925,
-    "photoPostCount": 793,
+    "mediaAttachedCount": 928,
+    "photoPostCount": 797,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 368,
-    "broadSignalCount": 857,
-    "selectedRawCount": 376,
-    "selectedEligibleCount": 376,
+    "highSignalCount": 370,
+    "broadSignalCount": 860,
+    "selectedRawCount": 377,
+    "selectedEligibleCount": 377,
     "selectedRawCoveragePct": 17.8,
     "selectedOfObservedPct": 17.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 564,
-    "market-note": 762,
-    "macro": 310,
+    "semi": 568,
+    "insider": 1,
+    "market-note": 763,
+    "macro": 311,
+    "optical": 31,
     "equity": 145,
     "earnings": 313,
     "geo": 344,
     "power": 273,
-    "ai-policy": 125,
+    "ai-policy": 124,
     "credit": 75,
-    "japan": 64,
+    "japan": 63,
     "kr-market": 95,
-    "optical": 29,
     "flows": 52,
     "media-only": 51,
     "healthcare": 54,
     "crypto": 2
   },
   "tickerCounts": {
-    "NVDA": 291,
+    "NVDA": 294,
+    "TSM": 62,
+    "AMD": 51,
+    "GOOG": 63,
     "AMZN": 52,
     "MU": 30,
     "MSFT": 55,
     "005930.KS": 28,
-    "GOOG": 62,
-    "TSM": 60,
-    "AMD": 50,
     "TSLA": 45,
     "ARM": 2,
     "JD": 1,
@@ -193,7 +194,7 @@
     "AVGO": 16,
     "2454.TW": 6,
     "000660.KS": 20,
-    "MS": 6,
+    "MS": 5,
     "CRWD": 1,
     "ORCL": 9,
     "SMCI": 8,
@@ -215,7 +216,7 @@
     "BABA": 3,
     "103590.KS": 1,
     "AAPL": 15,
-    "GS": 4,
+    "GS": 3,
     "RKLB": 2,
     "IRDM": 2,
     "WMT": 1,
@@ -259,33 +260,32 @@
     "MTCH": 1,
     "ON": 1,
     "BWXT": 1,
-    "T": 2,
-    "MFG": 1
+    "T": 2
   },
   "themes": [
-    "Market Notes (762 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
-    "Semiconductors/Memory (564 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국...",
+    "Market Notes (763 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적...",
+    "Semiconductors/Memory (568 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국...",
     "Geopolitics (344 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Earnings/Corporate (313 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "Macro/Rates (310 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한...",
+    "Macro/Rates (311 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한...",
     "AI Power/Grid (273 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (145 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "AI Policy/Export Controls (125 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
+    "AI Policy/Export Controls (124 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 291,
+      "count": 294,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
     },
     {
       "key": "GOOG",
-      "count": 62,
+      "count": 63,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 13일 > 새벽 6시~오후 2시 기준 🇺🇸 아메리카 • 뉴욕 연은 윌리엄스 총재는 미국 경제가 견조한 성장세를 유지하고 있지만 과열 상태는 아니라고 평가. 반면..."
     },
     {
       "key": "TSM",
-      "count": 60,
+      "count": 62,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -300,7 +300,7 @@
     },
     {
       "key": "AMD",
-      "count": 50,
+      "count": 51,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -341,7 +341,7 @@
       "topics": [
         "macro"
       ],
-      "count": 310,
+      "count": 311,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로 지정하는 프로그램을 추진할 예정이라고 WSJ가 보도. 미국의 AI 산업 경쟁력과 전략 기술 육성을 위한..."
     },
     {
@@ -368,7 +368,7 @@
       "topics": [
         "semi"
       ],
-      "count": 564,
+      "count": 568,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 16일 🇺🇸 아메리카 • 미 의회는 엔비디아 사태 이후 첨단 AI 반도체의 중국 유입을 차단하기 위한 수출통제 강화 입법을 가속화. 미 당국은 엔비디아의 대중국..."
     },
     {
@@ -377,7 +377,7 @@
       "topics": [
         "optical"
       ],
-      "count": 29,
+      "count": 31,
       "focus": ">>중국 광통신 다시 살아나나? Microsoft 발언에 CPO 관련주 일제히 급등 •Microsoft 등 미국 기업들이 트럼프 행정부에 광모듈 규제에 반대하는 로비를 벌이고 있으며, 해당 조치가 데이터센터..."
     },
     {
@@ -395,7 +395,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 125,
+      "count": 124,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
     },
     {
@@ -449,7 +449,7 @@
       "topics": [
         "japan"
       ],
-      "count": 64,
+      "count": 63,
       "focus": "지금 가마쿠라 슬램덩크 건널목에 와 있습니다! 여러분의 영광의 시대는 바로 지금입니다 포기하지마세요! 일본에서 반등을 기원하고 가겠습니다ㅎ 화이팅!"
     },
     {
@@ -467,8 +467,8 @@
       "topics": [
         "insider"
       ],
-      "count": 0,
-      "focus": "No retained full-text sample; 0 observed posts in the 14-day research window."
+      "count": 1,
+      "focus": "No retained full-text sample; 1 observed posts in the 14-day research window."
     },
     {
       "id": "market-note",
@@ -476,7 +476,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 762,
+      "count": 763,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — Microsoft 365 글로벌 장애의 원인을 해킹이 아닌 서버 상태 점검 실패로 파악했으며 악의적..."
     }
   ],
@@ -1682,6 +1682,108 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69405",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69405",
+      "datetime": "2026-11-16T06:47:09.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "semi",
+        "insider"
+      ],
+      "lead": 1,
+      "score": 61,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아 이사 마크 스티븐스가 젠슨 황 CEO 사임 약 2개월 전 주식 매도로 9억 4,700만 달러 현금화. 미국 증권거래위원회(SEC) 공시에서 엔비디아 이사이자 회사의 두 번째로 큰 개인 주주인 마크..."
+    },
+    {
+      "id": "HANAchina/72208",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72208",
+      "datetime": "2026-11-16T06:37:02.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "macro",
+        "semi",
+        "optical",
+        "equity"
+      ],
+      "score": 85,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSM"
+      ],
+      "summary": "• 대만 가권지수는 전 거래일 대비 -6.03% 급락 마감, 대만 증시 역사상 두번째초 큰 낙폭 기록 • 장 초반부터 약세로 출발해 낙폭을 키웠으며, 시장이 기대했던 국가금융안정기금(국안기금)의 개입 효과는..."
+    },
+    {
+      "id": "HANAchina/72207",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72207",
+      "datetime": "2026-11-16T06:28:01.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "semi",
+        "optical"
+      ],
+      "lead": 1,
+      "score": 80,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "GOOG",
+        "TSM"
+      ],
+      "relatedTickers": [
+        "AVGO"
+      ],
+      "summary": ">>엔비디아 젠슨 황 CEO의 사임 발표에 따른 대만 반도체 업계의 반응과 주요 전망 • TSMC 등 대형 파운드리와의 기존 협력 및 2028년 '파인만(Feynman)' 세대까지의 제품 로드맵은 차질 없이..."
+    },
+    {
+      "id": "insidertracking/69401",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69401",
+      "datetime": "2026-11-16T06:23:28.000Z",
+      "localDateKst": "2026-11-16",
+      "tags": [
+        "semi"
+      ],
+      "score": 72,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 2,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "AMD",
+        "MSFT",
+        "GOOG",
+        "AVGO",
+        "TSM"
+      ],
+      "summary": "하버드대학교 기금 3분기 포트폴리오 공개 • 하버드 기금, 스페이스X 보유 주식 33.74% 매도·약 6억 5,800만 달러 축소, 여전히 포트폴리오 비중 32.71%로 1위 • 하버드 기금, TSMC 보유량..."
+    },
+    {
       "id": "insidertracking/69400",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69400",
@@ -2203,7 +2305,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -2212,8 +2313,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)..."
+      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69353",
@@ -6323,67 +6425,6 @@
       ]
     },
     {
-      "id": "insidertracking/69046",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69046",
-      "datetime": "2026-11-11T21:09:04.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "healthcare"
-      ],
-      "score": 68,
-      "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Adaptive Biotechnologies · Amneal Pharmaceuticals · Axogen · Azenta · Edwards...",
-      "tickers": [],
-      "listTickers": [
-        "AAPL",
-        "META",
-        "KO",
-        "TMO",
-        "ICE",
-        "DD",
-        "FAST",
-        "EW",
-        "KDP",
-        "DGX",
-        "VTRS",
-        "HAS",
-        "AHR"
-      ]
-    },
-    {
-      "id": "insidertracking/69044",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69044",
-      "datetime": "2026-11-11T21:07:09.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 코어위브 (CRWV) — GPU 컴퓨팅을 넘어 AI 워크로드용 완전관리형 PostgreSQL 서비스 ‘CoreWeave...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "TSLA",
-        "MSFT",
-        "GOOG",
-        "META",
-        "AMZN",
-        "ORCL",
-        "SMCI",
-        "CRWV"
-      ]
-    },
-    {
       "id": "HANAchina/71978",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71978",
@@ -6815,51 +6856,6 @@
       "tickers": [
         "MU",
         "BE"
-      ]
-    },
-    {
-      "id": "HANAchina/71923",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71923",
-      "datetime": "2026-11-11T01:15:55.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>지난주 미 국채로 피신했던 투자자들, 이번 주 또 뒤통수 맞음 •지난주 안전자산을 찾아 미 국채로 몰려든 투자자들이 이번 주 강한 반전 직면. 예상치를 웃돈 CPI와 연준 당국자들의 잇따른 매파적 발언이...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/71922",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71922",
-      "datetime": "2026-11-11T01:13:55.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "semi"
-      ],
-      "score": 55,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>엔비디아 계속 급락, 이틀간 시가총액 4,300억 달러 증발, 마이크로소프트 한때 글로벌 2위 탈환 •엔비디아는 10거래일 동안 시가총액이 1조2,000억 달러 증발, 역사적 고점 대비 약 2조 달러를...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "MSFT"
       ]
     },
     {
@@ -8670,7 +8666,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -8679,8 +8674,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)..."
+      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69353",
