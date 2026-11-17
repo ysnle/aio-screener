@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-17T04:27:07.577Z",
-  "attemptedAt": "2026-11-17T04:27:07.577Z",
-  "lastSuccessfulAt": "2026-11-17T04:27:07.577Z",
+  "generatedAt": "2026-11-17T05:21:39.636Z",
+  "attemptedAt": "2026-11-17T05:21:39.636Z",
+  "lastSuccessfulAt": "2026-11-17T05:21:39.636Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-03T04:27:03.777Z",
-  "until": "2026-11-17T04:27:03.777Z",
+  "since": "2026-11-03T05:21:35.411Z",
+  "until": "2026-11-17T05:21:35.411Z",
   "current24hWindow": {
     "start": "2026-11-15T23:00:00.000Z",
     "end": "2026-11-16T23:00:00.000Z",
@@ -85,23 +85,23 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1216,
-      "freshCount": 39,
-      "eligibleTextCount": 1160,
-      "selectedCount": 126,
+      "count": 1218,
+      "freshCount": 38,
+      "eligibleTextCount": 1161,
+      "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69485
+      "lastPostId": 69493
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 192,
+      "count": 191,
       "freshCount": 17,
-      "eligibleTextCount": 192,
-      "selectedCount": 118,
+      "eligibleTextCount": 191,
+      "selectedCount": 117,
       "error": null,
       "failingSince": null,
       "lastPostId": 21167
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 718,
+      "count": 719,
       "freshCount": 38,
-      "eligibleTextCount": 718,
+      "eligibleTextCount": 719,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72268
+      "lastPostId": 72270
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,72 +137,72 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2126,
-  "retainedItemCount": 431,
+  "count": 2128,
+  "retainedItemCount": 429,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2126,
-    "eligibleTextCount": 2070,
-    "mediaOnlyCount": 56,
-    "mediaAttachedCount": 909,
-    "photoPostCount": 780,
+    "observedCount": 2128,
+    "eligibleTextCount": 2071,
+    "mediaOnlyCount": 57,
+    "mediaAttachedCount": 908,
+    "photoPostCount": 778,
     "documentPostCount": 7,
     "imageOnlyCount": 5,
     "highSignalCount": 355,
-    "broadSignalCount": 846,
-    "selectedRawCount": 370,
-    "selectedEligibleCount": 370,
-    "selectedRawCoveragePct": 17.9,
-    "selectedOfObservedPct": 17.4,
+    "broadSignalCount": 847,
+    "selectedRawCount": 368,
+    "selectedEligibleCount": 368,
+    "selectedRawCoveragePct": 17.8,
+    "selectedOfObservedPct": 17.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 751,
     "semi": 566,
+    "earnings": 284,
+    "media-only": 55,
+    "macro": 299,
+    "geo": 323,
+    "power": 270,
+    "market-note": 752,
+    "ai-policy": 121,
     "kr-market": 94,
     "credit": 77,
-    "macro": 299,
-    "japan": 57,
-    "ai-policy": 121,
-    "media-only": 54,
+    "japan": 56,
     "equity": 140,
-    "power": 271,
-    "earnings": 284,
     "flows": 49,
-    "geo": 322,
     "insider": 2,
-    "optical": 26,
+    "optical": 25,
     "healthcare": 53,
     "crypto": 1
   },
   "tickerCounts": {
-    "NVDA": 312,
-    "AMD": 52,
+    "NVDA": 314,
+    "MSFT": 56,
+    "AMD": 51,
     "GOOG": 57,
-    "MSFT": 55,
     "AMZN": 53,
     "TSM": 65,
     "PLTR": 9,
     "SNDK": 3,
     "TSLA": 43,
-    "MU": 31,
+    "MU": 30,
     "BE": 16,
     "META": 2,
     "BIDU": 3,
     "CAT": 2,
     "2454.TW": 6,
-    "005930.KS": 27,
+    "005930.KS": 26,
     "ARM": 2,
     "JD": 1,
     "AVGO": 15,
-    "000660.KS": 19,
+    "000660.KS": 18,
     "MS": 3,
     "CRWD": 1,
     "ORCL": 8,
-    "SMCI": 7,
+    "SMCI": 6,
     "APLD": 1,
     "319660.KQ": 1,
     "066570.KS": 1,
@@ -258,20 +258,20 @@
     "RACE": 1
   },
   "themes": [
-    "Market Notes (751 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
+    "Market Notes (752 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
     "Semiconductors/Memory (566 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q...",
-    "Geopolitics (322 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Macro/Rates (299 posts in 14-day research window): 2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
+    "Geopolitics (323 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Macro/Rates (299 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년 엔비디아에 관련 거래 기록을 요청했으며, 엔비디아는 같은 해 6월 메가스피드를 판매 제한 명단에 추가....",
     "Earnings/Corporate (284 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "AI Power/Grid (271 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
+    "AI Power/Grid (270 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (140 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (121 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 312,
-      "text": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서..."
+      "count": 314,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년 엔비디아에 관련 거래 기록을 요청했으며, 엔비디아는 같은 해 6월 메가스피드를 판매 제한 명단에 추가...."
     },
     {
       "key": "TSM",
@@ -285,7 +285,7 @@
     },
     {
       "key": "MSFT",
-      "count": 55,
+      "count": 56,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
@@ -295,7 +295,7 @@
     },
     {
       "key": "AMD",
-      "count": 52,
+      "count": 51,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -305,17 +305,17 @@
     },
     {
       "key": "MU",
-      "count": 31,
+      "count": 30,
       "text": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
     },
     {
       "key": "005930.KS",
-      "count": 27,
+      "count": 26,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
       "key": "000660.KS",
-      "count": 19,
+      "count": 18,
       "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
@@ -337,7 +337,7 @@
         "macro"
       ],
       "count": 299,
-      "focus": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년 엔비디아에 관련 거래 기록을 요청했으며, 엔비디아는 같은 해 6월 메가스피드를 판매 제한 명단에 추가...."
     },
     {
       "id": "geo",
@@ -345,7 +345,7 @@
       "topics": [
         "geo"
       ],
-      "count": 322,
+      "count": 323,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -372,8 +372,8 @@
       "topics": [
         "optical"
       ],
-      "count": 26,
-      "focus": "No retained full-text sample; 26 observed posts in the 14-day research window."
+      "count": 25,
+      "focus": "No retained full-text sample; 25 observed posts in the 14-day research window."
     },
     {
       "id": "power",
@@ -381,7 +381,7 @@
       "topics": [
         "power"
       ],
-      "count": 271,
+      "count": 270,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -444,7 +444,7 @@
       "topics": [
         "japan"
       ],
-      "count": 57,
+      "count": 56,
       "focus": "지금 가마쿠라 슬램덩크 건널목에 와 있습니다! 여러분의 영광의 시대는 바로 지금입니다 포기하지마세요! 일본에서 반등을 기원하고 가겠습니다ㅎ 화이팅!"
     },
     {
@@ -471,7 +471,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 751,
+      "count": 752,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서..."
     }
   ],
@@ -724,6 +724,25 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/69489",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69489",
+      "datetime": "2026-11-17T05:07:54.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년..."
+    },
     {
       "id": "insidertracking/69434",
       "channel": "insidertracking",
@@ -1274,35 +1293,6 @@
       ]
     },
     {
-      "id": "insidertracking/68998",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/68998",
-      "datetime": "2026-11-11T05:19:59.000Z",
-      "localDateKst": "2026-11-11",
-      "tags": [
-        "macro"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 11일 미국 증시 프리마켓 브리핑 미국 지수선물은 전일 예상보다 강한 CPI 충격에도 기술주 중심으로 반등. 나스닥100 선물 +1.35%, S&P500 선물 +0.65%, 다우 선물...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "AVGO",
-        "MU",
-        "TSM",
-        "005930.KS",
-        "000660.KS"
-      ]
-    },
-    {
       "id": "bornlupin/21098",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21098",
@@ -1682,27 +1672,148 @@
       ]
     },
     {
-      "id": "bornlupin/20970",
+      "id": "bornlupin/21050",
       "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20970",
-      "datetime": "2026-11-03T04:44:13.000Z",
-      "localDateKst": "2026-11-03",
+      "url": "https://t.me/bornlupin/21050",
+      "datetime": "2026-11-08T02:34:57.000Z",
+      "localDateKst": "2026-11-08",
       "tags": [
-        "semi",
-        "flows"
+        "power",
+        "equity"
       ],
-      "score": 89,
+      "score": 88,
       "hasText": true,
-      "summary": "대만 팀그룹: 메모리 공급 부족 2028년 하반기까지 지속 전망 1. 메모리 공급 부족 장기화 - 메모리 수급이 균형을 회복하는 시점은 최소 2028년 하반기로 예상. - 공급 부족이 가장 심각한 시기는...",
-      "lead": 1,
+      "summary": "The Information) AI 데이터센터 건설 지연, 마이크로소프트, 아마존, 구글 3대 기업은 오히려 수혜 Microsoft(MSFT), Amazon(AMZN), Alphabet(GOOGL)은 오히려...",
       "tickers": [
-        "MU",
-        "005930.KS",
-        "000660.KS"
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "AMZN",
+        "GOOGL"
       ]
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/69493",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69493",
+      "datetime": "2026-11-17T05:15:43.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "내일 새벽 장 마감후, 엔비디아 실적 발표 예정입니다."
+    },
+    {
+      "id": "insidertracking/69490",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69490",
+      "datetime": "2026-11-17T05:12:21.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 95,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 2,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "MSFT"
+      ],
+      "summary": "2026년 11월 17일 미국 증시 프리마켓 브리핑 미국 증시 선물은 혼조세. 다우 선물 -0.31%, S&P500 선물 -0.05%, 나스닥100 선물 +0.26%, 러셀2000 선물 -0.32%로 기술주..."
+    },
+    {
+      "id": "insidertracking/69489",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69489",
+      "datetime": "2026-11-17T05:07:54.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년..."
+    },
+    {
+      "id": "insidertracking/69487",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69487",
+      "datetime": "2026-11-17T05:00:45.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "geo",
+        "power"
+      ],
+      "score": 53,
+      "hasText": true,
+      "media": {
+        "kind": "video",
+        "photoCount": 0,
+        "videoCount": 1,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "젤렌스키 우크라이나 대통령은 러시아가 북한으로부터 매달 수십 발 규모의 탄도미사일을 추가로 공급받고 있다고 경고. 젤렌스키 대통령은 “불행히도 러시아는 북한으로부터 더 많은 탄도미사일을 공급받고 있으며, 매달..."
+    },
+    {
+      "id": "insidertracking/69486",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69486",
+      "datetime": "2026-11-17T04:42:03.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "score": 68,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "피셔 인베스트먼트 3분기 포트폴리오 공개 (켄 피셔) > 엔비디아·애플 추가 매수! GE버노바·팔로알토 대폭 확대하고 중기 국채 ETF는 31억 달러 매도 • 피셔 인베스트먼트, 엔비디아 약 212억 달러..."
+    },
+    {
+      "id": "HANAchina/72269",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72269",
+      "datetime": "2026-11-17T04:27:58.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "ai-policy"
+      ],
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>유니트리 왕싱싱: 로봇의 미래 컴퓨팅 수요, 예상보다 훨씬 클 가능성 •왕싱싱 회장은 로봇 산업이 빠르게 발전하는 배경에 AI 모델의 활용 확대가 있다고 설명함. 현재 가장 큰 과제는 모델의 일반화..."
+    },
     {
       "id": "HANAchina/72267",
       "channel": "HANAchina",
@@ -2177,12 +2288,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "시추에이셔널 어웨어니스 3분기 포트폴리오 공개 > AI 반도체·데이터센터 관련주 대거 정리 • 시추에이셔널 어웨어니스, 샤론AI(SHAZ) 약 1억 4,605만 달러 추가 매수·총 4억 4,067만 달러...",
       "tickers": [
         "MU",
         "TSM",
         "BE"
-      ],
-      "summary": "시추에이셔널 어웨어니스 3분기 포트폴리오 공개 > AI 반도체·데이터센터 관련주 대거 정리 • 시추에이셔널 어웨어니스, 샤론AI(SHAZ) 약 1억 4,605만 달러 추가 매수·총 4억 4,067만 달러..."
+      ]
     },
     {
       "id": "insidertracking/69438",
@@ -2472,10 +2583,10 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>트럼프: 젠슨 황은 국가안보를 해치지 않았다 •미국 대통령 트럼프는 젠슨 황이 국가안보를 해치지 않았다고 밝힘. 트럼프는 “젠슨 황이 Nvidia로 돌아와 CEO직을 회복한다면 나도 개의치 않을 것”이라고...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>트럼프: 젠슨 황은 국가안보를 해치지 않았다 •미국 대통령 트럼프는 젠슨 황이 국가안보를 해치지 않았다고 밝힘. 트럼프는 “젠슨 황이 Nvidia로 돌아와 CEO직을 회복한다면 나도 개의치 않을 것”이라고..."
+      ]
     },
     {
       "id": "HANAchina/72227",
@@ -6444,91 +6555,6 @@
       ]
     },
     {
-      "id": "insidertracking/69125",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69125",
-      "datetime": "2026-11-12T12:10:51.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "macro"
-      ],
-      "score": 87,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 12일 > 오후 3시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 미국 국경으로 향하는 이주민 행렬을 멕시코가 차단하지 않을 경우 멕시코에 대한 관세를 즉시...",
-      "tickers": [
-        "NVDA",
-        "AMZN"
-      ]
-    },
-    {
-      "id": "insidertracking/69123",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69123",
-      "datetime": "2026-11-12T09:02:40.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "semi"
-      ],
-      "score": 64,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "프리마켓 개장 엔비디아 -7% AMD, 브로드컴 상승",
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "AVGO"
-      ]
-    },
-    {
-      "id": "insidertracking/69121",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69121",
-      "datetime": "2026-11-12T09:01:35.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "Fed Rates Outlook 2026 3 hikes: 66.1% probability Upcoming Fed Decisions December : 25 bps hike (86.5%) January : 25...",
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/69118",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69118",
-      "datetime": "2026-11-12T08:48:30.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "market-note"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": "젠슨 황에게 불륜女 소개한 비즈니스맨 알고 보니 남편이었다 (조선일보, 2026.11.12) - WSJ 보도에 따르면 젠슨 황에게 앨리스 황을 소개한 인물은 10년간 비즈니스 관계였던 중국인 사업가 캉...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69117",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69117",
-      "datetime": "2026-11-12T08:46:57.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "market-note"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": "김정식 조선로동당 중앙위원회 제1부부장 담화 발표 > (평양 11월 12일발 조선중앙통신) 김정식 조선로동당 중앙위원회 제1부부장은 12일 다음과 같은 담화를 발표하였다. 아시아태평양지역에서의 해상패권을 노린...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/72033",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72033",
@@ -6785,23 +6811,6 @@
       "tickers": [
         "NVDA",
         "CRWV"
-      ]
-    },
-    {
-      "id": "HANAchina/71992",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71992",
-      "datetime": "2026-11-12T00:58:52.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "semi"
-      ],
-      "score": 71,
-      "hasText": true,
-      "summary": "•Bernstein, Nvidia 투자의견 ‘시장수익률 상회’에서 ‘중립’으로 하향 •목표주가 400달러→200달러 하향",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
       ]
     },
     {
@@ -8487,26 +8496,6 @@
       "tickers": [
         "PLTR"
       ]
-    },
-    {
-      "id": "bornlupin/20970",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20970",
-      "datetime": "2026-11-03T04:44:13.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "semi",
-        "flows"
-      ],
-      "score": 89,
-      "hasText": true,
-      "summary": "대만 팀그룹: 메모리 공급 부족 2028년 하반기까지 지속 전망 1. 메모리 공급 부족 장기화 - 메모리 수급이 균형을 회복하는 시점은 최소 2028년 하반기로 예상. - 공급 부족이 가장 심각한 시기는...",
-      "lead": 1,
-      "tickers": [
-        "MU",
-        "005930.KS",
-        "000660.KS"
-      ]
     }
   ],
   "current24hItems": [
@@ -8640,12 +8629,12 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "시추에이셔널 어웨어니스 3분기 포트폴리오 공개 > AI 반도체·데이터센터 관련주 대거 정리 • 시추에이셔널 어웨어니스, 샤론AI(SHAZ) 약 1억 4,605만 달러 추가 매수·총 4억 4,067만 달러...",
       "tickers": [
         "MU",
         "TSM",
         "BE"
-      ],
-      "summary": "시추에이셔널 어웨어니스 3분기 포트폴리오 공개 > AI 반도체·데이터센터 관련주 대거 정리 • 시추에이셔널 어웨어니스, 샤론AI(SHAZ) 약 1억 4,605만 달러 추가 매수·총 4억 4,067만 달러..."
+      ]
     },
     {
       "id": "insidertracking/69438",
@@ -8935,10 +8924,10 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>트럼프: 젠슨 황은 국가안보를 해치지 않았다 •미국 대통령 트럼프는 젠슨 황이 국가안보를 해치지 않았다고 밝힘. 트럼프는 “젠슨 황이 Nvidia로 돌아와 CEO직을 회복한다면 나도 개의치 않을 것”이라고...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>트럼프: 젠슨 황은 국가안보를 해치지 않았다 •미국 대통령 트럼프는 젠슨 황이 국가안보를 해치지 않았다고 밝힘. 트럼프는 “젠슨 황이 Nvidia로 돌아와 CEO직을 회복한다면 나도 개의치 않을 것”이라고..."
+      ]
     },
     {
       "id": "HANAchina/72227",
