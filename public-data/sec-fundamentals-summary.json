@@ -3,7 +3,7 @@
   "sourceSchemaVersion": "2.0",
   "artifactRole": "BOUNDED_PAGE_PROJECTION",
   "projectionPolicy": "Latest normalized annual facts reconciled for parent-company equity (P1402/P1449) plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path. Per-record uniform source/model restated by this header are trimmed; data serializes compactly (1 MiB bound headroom, P1470).",
-  "generatedAt": "2026-11-17T07:36:27.679Z",
+  "generatedAt": "2026-11-17T08:33:26.074Z",
   "source": "SEC EDGAR companyfacts",
   "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
   "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -14,27 +14,27 @@
   "domainReceipt": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "sec-fundamentals",
-    "runId": "gha:44039922213",
-    "attemptedAt": "2026-11-17T07:36:00.263Z",
-    "sourceRevision": "sec-company-tickers:d5232e162521cf623dcf7c607355e930adce5a6a885b48c3ae06a0441ff27314",
+    "runId": "gha:44047691870",
+    "attemptedAt": "2026-11-17T08:33:24.060Z",
+    "sourceRevision": "sec-company-tickers:efa5abb79b88cbc8ba37436f4fde08d3be450651f6986e53ae794e339e6d08d5",
     "inputWatermarks": {
       "universe": null,
-      "screener": "2026-11-17T04:19:38.459Z",
-      "previousArtifact": "2026-11-17T07:28:11.040Z"
+      "screener": "2026-11-17T07:41:43.001Z",
+      "previousArtifact": "2026-11-17T07:36:27.679Z"
     },
     "batchLimit": 24,
     "counts": {
       "eligible": 856,
-      "attempted": 57,
-      "updated": 57,
-      "retained": 789,
+      "attempted": 1,
+      "updated": 0,
+      "retained": 846,
       "pendingEligible": 10
     },
     "thisBatch": {
-      "updated": 57,
+      "updated": 0,
       "terminalUnsupported": 0,
-      "transientFailed": 0,
-      "recorded": 0
+      "transientFailed": 1,
+      "recorded": 1
     },
     "ledger": {
       "total": 16,
@@ -44,8 +44,8 @@
     },
     "lastSuccessfulObservation": "2026-11-17T07:36:00.263Z",
     "publication": {
-      "status": "SUCCESS",
-      "reason": "every attempted target was updated",
+      "status": "NO_REFRESH_RETAINED",
+      "reason": "every attempted target failed; previously stored rows stay published",
       "allowsPartial": true,
       "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
       "terminalExcludedFromBatchFailures": true,
