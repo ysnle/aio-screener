@@ -174,7 +174,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/pages-dist/js" "$RUNNER_TEMP/pages-dist/src" "$RUNNER_TEMP/pages-dist/public-data"
-          cp index.html 404.html sw.js version.json og-image.svg og-image.png robots.txt sitemap.xml public-artifact-manifest.json public-config.json _headers "$RUNNER_TEMP/pages-dist/"
+          cp index.html 404.html offline.html sw.js version.json og-image.svg og-image.png robots.txt sitemap.xml public-artifact-manifest.json public-config.json _headers "$RUNNER_TEMP/pages-dist/"
           cp js/aio-core.js js/aio-data.js js/aio-ui.js js/aio-chat.js js/aio-glossary.js js/aio-pages.js js/aio-kr-data.js js/aio-workspace.js "$RUNNER_TEMP/pages-dist/js/"
           rsync -a src/ "$RUNNER_TEMP/pages-dist/src/"
           # Canonical bulk ledgers stay producer-side until retention-managed object storage is
@@ -212,7 +212,7 @@ jobs:
           node scripts/build-pages-bundle.mjs "$RUNNER_TEMP/pages-dist" --manifest "$RUNNER_TEMP/aio-bundle-manifest.json"
           # v57.54: key the service worker's cache-first shell on the shipped code, so a code fix released under the
           # same version string still reaches returning readers; data-only deploys keep the hash (no cache churn).
-          code_hash="$(cd "$RUNNER_TEMP/pages-dist" && find index.html js src -type f | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -c1-12)"
+          code_hash="$(cd "$RUNNER_TEMP/pages-dist" && find index.html offline.html js src -type f | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -c1-12)"
           grep -q "^const SW_CODE_HASH = 'local';$" "$RUNNER_TEMP/pages-dist/sw.js" || { echo "::error::sw.js SW_CODE_HASH placeholder missing"; exit 1; }
           sed -i "s/^const SW_CODE_HASH = 'local';$/const SW_CODE_HASH = '${code_hash}';/" "$RUNNER_TEMP/pages-dist/sw.js"
           echo "service worker code hash: ${code_hash}"

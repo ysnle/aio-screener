@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-16
+last_verified: 2026-11-17
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -38,6 +38,46 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 <!-- ledger-class-report:end -->
 
 ---
+
+## P2604 - v60.23 - 웹검색과 앱 가격 도구의 기준일 출처가 혼합됨 (2026-11-17)
+
+- symptom/reproduction: 공시 원문과 함께 답한 앱 조회 기준일에도 공시 웹 출처가 붙고 잘못된 종가 날짜가 통과했다.
+- root_cause: 모델의 답변 검사까지 성공 도구의 종목·기준일이 구조화된 값으로 전달되지 않아 날짜만 있는 문장이 자료나 링크의 존재에 기대어 통과했다.
+- fix: 성공한 도구의 기준일과 종목을 현재 요청의 완료 메타로 전달하고 앱의 주가 흐름 기준일을 같은 종목의 실제 도구 결과에 연결한다. 앱 자료와 웹 출처를 각각 표시하고 검증 불가 시 그 상태를 명시한다.
+- violated_rule: 앱 수치와 웹 근거의 출처를 일대일로 연결하고 없는 자료는 확인 불가로 표시한다.
+- prevention: 구조화 답변과 대체 답변에 틀린 날짜, 다른 종목, 자료 부재를 주입하고 웹 공시 링크를 별도로 보존하는지 검증한다.
+- verification/residual: ci-ai-intelligence-contract-check.mjs 및 ci-ai-chat-reliability-contract-check.mjs 통과. 공개 유료 호출은 기존 재현의 기록을 참조한다.
+- files: src/ai/tools/registry.js, src/ai/tools/loop.js, src/ai/response/request-pipeline.js, src/ai/response/publication.js, js/aio-chat.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2603 - v60.23 - 시장 상태의 숨겨진 시나리오 상세 선행 렌더링 (2026-11-17)
+
+- symptom/reproduction: 첫 시장 상태 탭에서도 시나리오와 읽는 법을 먼저 렌더해 활성 DOM 3,601개가 생성됐다.
+- root_cause: 뷰 컨트롤러가 HTML details를 열린 상태로 유지하고 CSS로 탭을 숨겼다. 상세 렌더러는 탭 선택 대신 details.open을 읽었다.
+- fix: 시나리오 렌더를 시장 상태 이야기 보기의 활성화에 연결하고 매크로와 외부 진입에서 같은 보기 선택을 사용한다. 시나리오 맵의 호스트는 시장 상태 하나가 소유한다.
+- violated_rule: 숨은 상세는 실제 진입 시 로드하고 딥링크와 탭 탐색은 동일한 소유권을 사용한다.
+- prevention: ci-boot-interaction-check.mjs가 초기 숨은 DOM, 보기 전환, 히스토리, 직접 주소, 매크로 첫 진입을 확인한다.
+- verification/residual: Pages 번들 로컬 예비 측정에서 활성 DOM 3,601→2,257개. 초기 JS 전송량 목표는 별도 문제로 남았다.
+- files: src/ui/components/market-regime.js, src/ui/components/macro-crossroads.js, scripts/ci-boot-interaction-check.mjs
+
+## P2602 - v60.23 - 첫 서비스워커 제어 직후 받은 앱 문서의 부팅 자산 불일치 (2026-11-17)
+
+- symptom/reproduction: 공개 v60.21 첫 방문 직후 오프라인 전환에서 서비스워커가 HTML을 200으로 반환했으나 필수 스타일과 스크립트가 없어 탐색이 무너졌다.
+- root_cause: 제어권 취득은 최소 설치 파일의 완료만 보장했다. 문서 폴백은 배포 번들의 실제 의존성이나 자식 요청의 코드 세대를 확인하지 않았다.
+- fix: Pages 빌드가 배포 문서와 가변 URL의 바이트 지문 및 정적 청크 경로를 워커에 채운다. 완전한 문서는 같은 캐시 세대의 자산 URL에 연결한다. 불완전하면 원래 경로를 유지하는 한국어 연결 복구를 제공한다.
+- violated_rule: 오류 폴백은 실제로 실행할 수 있는 발행본과 정직한 차단 상태를 제공한다.
+- prevention: 실제 Pages 번들의 Chromium으로 최초 제어 직후 단절, 원래 주소 재시도, 예열된 재진입, 문서만 503인 장애, 불일치 바이트를 검증한다.
+- verification/residual: 수정 전 첫 단절 200≠503. 수정 후 Chromium 1440px·390px에서 초기 복구 503, 예열과 부분 장애에서 앱 200, 불일치 503, 스크립트 오류 0건.
+- files: sw.js, offline.html, scripts/build-pages-bundle.mjs, scripts/lib/pages-bundle-config.mjs, scripts/ci-service-worker-offline-browser-check.mjs, scripts/ci-service-worker-cache-policy-check.mjs, architecture/qa-pipeline.json, public-artifact-manifest.json, .github/workflows/pages-deploy.yml
+
+## P2601 - v60.22 - 시장 이야기의 지연된 과거 기록이 열린 상세와 포커스를 초기화 (2026-11-16)
+
+- symptom/reproduction: 시장 상태 이야기 상세를 키보드로 열고 과거 기록 응답을 받으면 열린 상세가 닫히고 포커스가 BODY로 이동했다. 공개 v60.21에서 응답 지연으로 재현했다.
+- root_cause: 과거 기록이 도착하면 이야기 섹션 전체를 다시 만들었고, 같은 이야기·가지의 펼침 상태와 포커스를 DOM 교체 전에 보존할 식별자가 없었다.
+- fix: 이야기 및 가지의 상세에 안정적인 식별자를 부여하고, 같은 아이디의 열린 상태와 탐색 포커스를 복원하며 새 근거를 표시한다.
+- violated_rule: 비동기 데이터 갱신은 사용자 탐색과 근거 읽기 위치를 유지한다.
+- prevention: ci-architecture-browser-check.mjs에서 실제 시나리오 기록 요청을 지연시켜 키보드로 연 상세·포커스가 이력 갱신 뒤에도 유지되는지 검증한다.
+- verification/residual: 공개 v60.21 Chromium에서 지연 재현 실패 확인. 수정 환경의 1440px Chromium·WebKit과 390px WebKit에서 local→long 갱신 중 열린 상태와 포커스 유지 확인.
+- files: src/ui/components/market-narratives.js, scripts/ci-architecture-browser-check.mjs
 
 ## P2600 - v60.21 - v60.21 the watchdog trusted a CI run by its head_sha while Pages deploys the SHA in the run's attestation (2026-11-16)
 

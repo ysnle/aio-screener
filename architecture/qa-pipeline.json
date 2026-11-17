@@ -2378,6 +2378,11 @@
           "timeoutMs": 180000
         },
         {
+          "id": "browser-offline-shell",
+          "script": "scripts/ci-service-worker-offline-browser-check.mjs",
+          "timeoutMs": 180000
+        },
+        {
           "id": "browser-sa04",
           "script": "scripts/ci-sa-04-boot-network-budget.mjs",
           "timeoutMs": 180000,

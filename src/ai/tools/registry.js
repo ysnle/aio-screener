@@ -27,7 +27,7 @@ function capText(text, limit) {
 }
 
 /**
- * Runs one tool call. Resolves to { ok, text, entities }; never throws. `text` is capped (the tool's own cap, at most
+ * Runs one tool call. Resolves with { ok, text, entities } and `asOf` on success. `text` is capped (the tool's own cap, at most
  * TOOL_TEXT_HARD_CAP) and ends with the as-of date of what it returned. A failure's text is a short Korean reason.
  */
 export async function runTool(name, argsJson, { root = globalThis, now = Date.now(), signal = null } = {}) {
@@ -40,9 +40,10 @@ export async function runTool(name, argsJson, { root = globalThis, now = Date.no
   try { out = await tool.run(args, { root, now: Number.isFinite(now) ? now : Date.now(), signal }); } catch (_) { return failed('자료를 읽는 중 오류가 나서 이 자료는 없습니다.'); }
   if (!out || out.error || typeof out.text !== 'string' || !out.text.trim()) return failed(scrub(out?.error || '자료를 찾지 못했습니다.'));
   if (typeof out.asOf !== 'string' || !out.asOf.trim()) return failed('자료의 기준일을 확인하지 못해 쓰지 않습니다.');
-  const tail = `\n(기준: ${scrub(out.asOf.trim())})`;
+  const asOf = scrub(out.asOf.trim());
+  const tail = `\n(기준: ${asOf})`;
   const limit = Math.min(TOOL_TEXT_HARD_CAP, Number.isInteger(tool.maxChars) ? tool.maxChars : TOOL_TEXT_DEFAULT_CAP);
-  return { ok: true, text: capText(scrub(out.text.trim()), limit - tail.length) + tail, entities: Array.isArray(out.entities) ? out.entities.filter((id) => typeof id === 'string') : [] };
+  return { ok: true, text: capText(scrub(out.text.trim()), limit - tail.length) + tail, asOf, entities: Array.isArray(out.entities) ? out.entities.filter((id) => typeof id === 'string') : [] };
 }
 
 /** The panel's one line while tools run, from each call's short label (no tool names, no JSON). */

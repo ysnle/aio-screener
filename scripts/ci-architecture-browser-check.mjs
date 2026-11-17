@@ -867,7 +867,40 @@ try {
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, boot, quoteTopbar, sentimentRoute, guideRoute, contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRetired, fundamentalRoute, portfolioRoute, homeSurface, roundTripEvidence, routeRoundTrip: true, browserErrors: 0 }));
+  // v60.22: a late history record changes the story's evidence while the reader is inside its disclosure.
+  const storyPage = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT, serviceWorkers: 'block' });
+  let releaseHistory;
+  const heldHistory = new Promise((resolve) => { releaseHistory = resolve; });
+  try {
+    await storyPage.addInitScript(() => localStorage.setItem('aio_disclaimer_ack_v1', '1'));
+    await storyPage.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
+    await storyPage.route('**/public-data/scenario-outcomes.json*', async (route) => { await heldHistory; await route.fallback(); });
+    await storyPage.goto(`${baseUrl}#signal?view=story`, { waitUntil: 'domcontentloaded' });
+    const summary = storyPage.locator('#regime-narratives .mk-narr__more > summary').first();
+    await summary.focus();
+    await summary.press('Enter');
+    const before = await summary.evaluate((node) => ({
+      id: node.parentElement.id,
+      open: node.parentElement.open,
+      focused: document.activeElement === node,
+      pending: !window._aioScenarioOutcomes
+    }));
+    if (!before.id || !before.open || !before.focused || !before.pending) throw new Error(`v60.22 story late-record fixture did not reach an open pending disclosure: ${JSON.stringify(before)}`);
+    releaseHistory();
+    await storyPage.waitForFunction(() => {
+      const outcomes = window._aioScenarioOutcomes;
+      return outcomes?.generatedAt && document.getElementById('regime-narratives')?.dataset.signature?.includes(outcomes.generatedAt);
+    });
+    const preserved = await storyPage.evaluate((id) => {
+      const fold = document.getElementById(id);
+      return fold?.open && document.activeElement === fold.querySelector(':scope > summary');
+    }, before.id);
+    if (!preserved) throw new Error('v60.22 the updated outcome record closed the story or removed keyboard focus');
+  } finally {
+    releaseHistory();
+    await storyPage.close();
+  }
+  console.log(JSON.stringify({ ok: true, boot, quoteTopbar, sentimentRoute, guideRoute, contentRoutes, macroRoute, fxbondRoute, breadthRoute, technicalRoute, signalRoute, homeRoute, themesRoute, themeDetailRoute, tickerRoute, optionsRetired, fundamentalRoute, portfolioRoute, homeSurface, roundTripEvidence, routeRoundTrip: true, lateStoryDisclosure: true, browserErrors: 0 }));
 } finally {
   await closeAll({ browser, server });
 }

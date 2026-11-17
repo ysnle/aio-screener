@@ -93,7 +93,7 @@ function untilAborted(promise, signal) {
 /**
  * Runs one round's calls in parallel. Calls past the request's remaining budget are not run; each gets an output saying
  * the limit was reached. Rejects with an AbortError when `signal` aborts. Resolves to
- * { outputs: function_call_output items, results: [{ name, ok, text, entities }], used: calls run so far }.
+ * { outputs: function_call_output items, results: [{ name, ok, text, asOf, entities }], used: calls run so far }.
  */
 export async function runToolCalls(calls, { root = globalThis, now = Date.now(), used = 0, signal = null, limits = TOOL_LOOP_LIMITS, run = runTool } = {}) {
   const room = Math.max(0, limits.calls - used);
@@ -102,7 +102,7 @@ export async function runToolCalls(calls, { root = globalThis, now = Date.now(),
     : Promise.resolve({ ok: false, text: `이 질문의 자료 요청 한도(${limits.calls}건)를 넘어 실행하지 않았습니다. 지금 있는 자료로 답하세요.`, entities: [] })))), signal);
   return {
     outputs: calls.map((call, index) => ({ type: 'function_call_output', call_id: call.call_id, output: String(results[index]?.text || '') })),
-    results: calls.map((call, index) => ({ name: call.name, ok: results[index]?.ok === true, text: String(results[index]?.text || ''), entities: results[index]?.entities || [] })),
+    results: calls.map((call, index) => ({ name: call.name, ok: results[index]?.ok === true, text: String(results[index]?.text || ''), asOf: results[index]?.asOf || null, entities: results[index]?.entities || [] })),
     used: used + Math.min(calls.length, room)
   };
 }
@@ -126,13 +126,15 @@ export function createToolSession(plainBody, hooks = {}, { root = globalThis, si
   const mustSearch = hosted.length > 0 && plainBody?.tool_choice === 'required';
   let body = { ...plainBody, ...toolRequestFields({ hosted, choice: mustSearch ? 'required' : 'auto' }) };
   let rounds = 0, used = 0, fellBack = false, completed = null, streamed = [], hiding = false, searched = false;
-  const fallback = () => { if (fellBack) return false; fellBack = true; body = plainBody; return true; };
+  const toolBasis = [];
+  const fallback = () => { if (fellBack) return false; fellBack = true; body = plainBody; toolBasis.length = 0; return true; };
   const hook = (name, value) => { try { if (typeof hooks?.[name] === 'function') hooks[name](value); } catch (_) { /* a closed panel */ } };
   return {
     get body() { return body; },
     get rounds() { return rounds; },
     get calls() { return used; },
     get searched() { return searched; },
+    get basis() { return toolBasis.slice(); },
     keySuffix: () => (fellBack ? ':plain' : rounds ? `:r${rounds}` : ''),
     // Only a refusal that is about the tools is worth one request without them; any other 400 is the caller's error.
     refused: (status, detail = '') => status === 400 && /\b(?:tools?|functions?|web_search|search|schema)\b|(?<![가-힣])(?:웹검색|검색|도구)/i.test(String(detail)) && fallback(),
@@ -155,6 +157,7 @@ export function createToolSession(plainBody, hooks = {}, { root = globalThis, si
       if (signal?.aborted) throw signal.reason || abortError();
       used = ran.used;
       rounds += 1;
+      for (const { name, ok, asOf, entities } of ran.results) if (ok && asOf) toolBasis.push({ name, asOf, entities });
       hook('onResults', ran.results);
       const input = appendToolItems(body.input, asked, ran.outputs);
       const fields = mustSearch && !searched ? searchFollowUpFields(hosted) : toolRequestFields({ hosted, final: rounds >= limits.rounds || used >= limits.calls });

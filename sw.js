@@ -5,12 +5,15 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v60.21';
-const SW_BUILD = '2026-11-16T10:48:00+09:00';
+const SW_VERSION = 'v60.23';
+const SW_BUILD = '2026-11-17T09:59:00+09:00';
 // v57.54 review: code can ship without a version bump (post-deploy fixes), so the cache-first shell is also keyed
 // on the shipped code. pages-deploy.yml replaces 'local' with a hash of the staged index.html + js/ + src/; a data-only
 // deploy keeps the same hash (no cache churn), a code change renames SHELL_CACHE and the old one is deleted on activate.
 const SW_CODE_HASH = 'local';
+// Filled from the actual staged bundle. The unbundled development shell has no published offline boot contract.
+const OFFLINE_BOOT = null;
+const OFFLINE_ASSET_PARAM = 'aio-offline-shell';
 const SHELL_CACHE = 'aio-shell-' + SW_VERSION + '-' + SW_CODE_HASH;
 const DATA_CACHE  = 'aio-data-'  + SW_VERSION;
 // v59.80 (hosting review 2026-11-08): esbuild names each split chunk by its content hash (src/chunks/<name>-<HASH>.js,
@@ -21,23 +24,12 @@ const CHUNK_CACHE = 'aio-chunks';
 const CHUNK_CACHE_MAX = 600;
 const HASHED_CHUNK_RE = /\/src\/chunks\/[^/?#]+-[A-Z0-9]{8}\.js$/;
 
-// Only the bounded critical shell is installed atomically. The larger registry
-// below is a publication/dependency audit aid; route/ESM modules are cached only
-// after the browser actually requests them.
-//
-// Critical precache = the unversioned files EVERY route needs to boot (shell documents,
-// public config + bootstrap). Classic scripts are not precached: index.html requests them as
-// `./js/<name>.js?v=<version>` and cache.match compares the query string, so a precached `./js/<name>.js`
-// entry would never answer those requests. The versioned shell branch below stores each script under its
-// requested URL on first fetch. Modules extracted out of index.html's inline blocks
-// are deliberately NOT precached here: one entry per extraction would push the list past its
-// 12-entry bound and make the atomic `cache.addAll` fail-prone for files the initial route may
-// never need. They are served from the request-driven runtime cache (RUNTIME_SHELL_PATH_RE /
-// isRuntimeShell) which fills on first fetch — and index.html requests every runtime script on
-// every load, so the cache is warm after the first visit.
+// Installation is bounded. The initial online visit can finish downloading classic scripts, CSS and
+// split modules before the worker takes control. CacheStorage warms on controlled requests.
 const CRITICAL_SHELL_ASSETS = [
   './',
   './index.html',
+  './offline.html',
   './version.json',
   './public-config.json',
   './src/app/bootstrap.js'
@@ -47,6 +39,61 @@ const RUNTIME_SHELL_PATH_RE = /\/(?:js|src)\//;
 const SHELL_ASSET_VERSION = SW_VERSION.replace(/^v/, '');
 function isVersionedShellUrl(reqUrl) {
   return /\.js$/.test(reqUrl.pathname) && reqUrl.searchParams.get('v') === SHELL_ASSET_VERSION;
+}
+
+async function hasExpectedBytes(response, sha256) {
+  if (!response?.ok) return false;
+  const digest = await crypto.subtle.digest('SHA-256', await response.arrayBuffer());
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('') === sha256;
+}
+
+function bindCachedBootAssets(html) {
+  // Only the generated boot tags are rewritten. Inline scripts keep their original CSP hashes.
+  return html.replace(/<(?:script|link)\b[^>]*>/g, (tag) => tag.replace(/\b(src|href)="((?:\.\/)?[^"]+)"/g, (attribute, name, url) => {
+    const path = url.replace(/^\.\//, '');
+    if (!Object.hasOwn(OFFLINE_BOOT.shell, path)) return attribute;
+    return `${name}="${url}${url.includes('?') ? '&' : '?'}${OFFLINE_ASSET_PARAM}=${SHELL_CACHE}"`;
+  }));
+}
+
+async function readBoundBootAsset(url, scopeUrl) {
+  if (url.searchParams.get(OFFLINE_ASSET_PARAM) === SHELL_CACHE && OFFLINE_BOOT) {
+    url.searchParams.delete(OFFLINE_ASSET_PARAM);
+    const path = url.pathname.slice(scopeUrl.pathname.length) + url.search;
+    if (Object.hasOwn(OFFLINE_BOOT.shell, path)) {
+      try {
+        const shell = await caches.open(SHELL_CACHE);
+        const response = await shell.match(url);
+        if (response && await hasExpectedBytes(response.clone(), OFFLINE_BOOT.shell[path])) return response;
+      } catch (_) { /* unavailable cache */ }
+    }
+  }
+  return new Response('Offline shell asset unavailable', { status: 503 });
+}
+
+async function recoverAppDocument(request, scopeUrl) {
+  const shell = await caches.open(SHELL_CACHE).catch(() => null);
+  if (shell && OFFLINE_BOOT) {
+    try {
+      // Both navigation aliases and query variants share the same staged document.
+      const document = await shell.match(request) || await shell.match(new URL('./index.html', scopeUrl));
+      if (document && await hasExpectedBytes(document.clone(), OFFLINE_BOOT.document)) {
+        const chunks = await caches.open(CHUNK_CACHE);
+        const ready = await Promise.all([
+          ...Object.entries(OFFLINE_BOOT.shell).map(async ([path, hash]) => hasExpectedBytes(await shell.match(new URL(path, scopeUrl)), hash)),
+          ...OFFLINE_BOOT.chunks.map(async (path) => Boolean((await chunks.match(new URL(path, scopeUrl)))?.ok))
+        ]);
+        if (ready.every(Boolean)) return new Response(bindCachedBootAssets(await document.text()), {
+          headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' }
+        });
+      }
+    } catch (_) { /* unavailable cache: serve recovery */ }
+  }
+  const recovery = await shell?.match(new URL('./offline.html', scopeUrl)).catch(() => null);
+  return new Response(recovery?.body || '연결을 확인한 뒤 이 페이지를 다시 불러와 주세요.', {
+    status: 503,
+    headers: { 'Content-Type': recovery ? 'text/html; charset=utf-8' : 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }
+  });
 }
 
 
@@ -260,6 +307,11 @@ self.addEventListener('fetch', function(event) {
   // 1) 앱 셸 — Network-First (응답 후 캐시 갱신, 오프라인 시 캐시 폴백)
   const reqUrl = new URL(url);
   const scopeUrl = new URL(self.registration.scope);
+  if (reqUrl.origin === scopeUrl.origin && reqUrl.pathname.startsWith(scopeUrl.pathname)
+      && RUNTIME_SHELL_PATH_RE.test(reqUrl.pathname) && reqUrl.searchParams.has(OFFLINE_ASSET_PARAM)) {
+    event.respondWith(readBoundBootAsset(reqUrl, scopeUrl));
+    return;
+  }
   const isCriticalShell = CRITICAL_SHELL_ASSETS.some(function(asset) {
     const rel = asset.replace(/^\.\//, '');
     if (!rel) {
@@ -270,6 +322,8 @@ self.addEventListener('fetch', function(event) {
   });
   const isRuntimeShell = reqUrl.origin === scopeUrl.origin && RUNTIME_SHELL_PATH_RE.test(reqUrl.pathname);
   const isShell = isCriticalShell || isRuntimeShell;
+  const isAppDocument = request.mode === 'navigate' && reqUrl.origin === scopeUrl.origin
+    && [scopeUrl.pathname, scopeUrl.pathname.replace(/\/$/, ''), new URL('./index.html', scopeUrl).pathname].includes(reqUrl.pathname);
   // P1755: a classic script whose ?v= names THIS worker's version is immutable for this release
   // (R1 bump-version rewrites both together), so it is served cache-first from this version's
   // SHELL_CACHE. A version bump renames SHELL_CACHE (old caches are deleted on activate), and a URL
@@ -329,9 +383,12 @@ self.addEventListener('fetch', function(event) {
         }
         // v58.82: a reachable origin answering 5xx (a Pages/CDN outage page) is as unusable as no network — the cached
         // copy is used when there is one, otherwise the error passes through.
-        if (resp && resp.status >= 500) return caches.match(request).then(function(cached) { return cached || resp; });
+        if (resp && resp.status >= 500) return isAppDocument
+          ? recoverAppDocument(request, scopeUrl)
+          : caches.match(request).then(function(cached) { return cached || resp; });
         return resp;
       }).catch(function() {
+        if (isAppDocument) return recoverAppDocument(request, scopeUrl);
         return caches.match(request).then(function(cached) {
           return cached || new Response('Offline shell asset unavailable', { status: 503, statusText: 'Service Unavailable' });
         });

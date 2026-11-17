@@ -21,7 +21,7 @@ import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import * as esbuild from 'esbuild';
 
-import { GLOBAL_SCRIPTS, ESM_ENTRY, STYLE_ENTRY, GLOBAL_TARGET, esmBundleOptions, styleBundleOptions, bootOutputs } from './lib/pages-bundle-config.mjs';
+import { GLOBAL_SCRIPTS, CLASSIC_BOOT_SCRIPTS, ESM_ENTRY, STYLE_ENTRY, GLOBAL_TARGET, esmBundleOptions, styleBundleOptions, bootOutputs } from './lib/pages-bundle-config.mjs';
 
 const TOP_LEVEL_FN_RE = /^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm;
 
@@ -139,7 +139,27 @@ const preloadLinks = preloadOrder.map((file) => `  <link rel="modulepreload" hre
 const moduleTag = indexHtml.search(/<script type="module" src="\.\/src\/app\/bootstrap\.js[^"]*"><\/script>/);
 const insertAt = moduleTag >= 0 ? indexHtml.lastIndexOf('\n', moduleTag) + 1 : -1;
 if (insertAt <= 0) throw new Error('index.html: no bootstrap module script to announce the boot modules before');
-fs.writeFileSync(indexPath, indexHtml.slice(0, insertAt) + preloadLinks + indexHtml.slice(insertAt));
+const publishedIndex = indexHtml.slice(0, insertAt) + preloadLinks + indexHtml.slice(insertAt);
+fs.writeFileSync(indexPath, publishedIndex);
+
+// The worker uses the actual boot URL (including the classic script query) and bytes for mutable paths.
+// The split chunks already have content-addressed URLs and use a separate cache.
+const classicUrls = [...publishedIndex.matchAll(/<script\b[^>]*\ssrc="\.\/([^"]+)"/g)].map((match) => match[1]);
+const shellAssets = [...CLASSIC_BOOT_SCRIPTS.map((file) => {
+  const matches = classicUrls.filter((url) => url.split('?')[0] === file);
+  if (matches.length !== 1 || !matches[0].includes('?v=')) throw new Error(`Offline boot has no versioned script URL for ${file}`);
+  return matches[0];
+}), STYLE_ENTRY, ESM_ENTRY];
+const offlineBoot = {
+  document: sha256(publishedIndex),
+  shell: Object.fromEntries(shellAssets.map((url) => [url, sha256(fs.readFileSync(path.join(dist, url.split('?')[0])))])),
+  chunks: preloadOrder.slice(1)
+};
+const workerPath = path.join(dist, 'sw.js');
+const worker = fs.readFileSync(workerPath, 'utf8');
+const marker = /^const OFFLINE_BOOT = null;$/m;
+if (!marker.test(worker)) throw new Error('sw.js: offline boot placeholder missing');
+fs.writeFileSync(workerPath, worker.replace(marker, `const OFFLINE_BOOT = ${JSON.stringify(offlineBoot)};`));
 
 const builtFiles = [...GLOBAL_SCRIPTS, ...Object.keys(outputs).filter((file) => file.endsWith('.js')).sort(), STYLE_ENTRY, 'index.html'];
 const manifest = {

@@ -80,6 +80,41 @@ async function verifyOnDemandChartLibrary(browserInstance) {
   }
 }
 
+// v60.10 view-link contract: delayed work follows the selected view, including address and cross-route navigation.
+async function verifyScenarioView(page) {
+  const view = () => page.locator('#page-signal').getAttribute('data-view');
+  const map = page.locator('#regime-depth-fold #macro-crossroads');
+  const guide = page.locator('#regime-depth-fold #home-guide');
+  await page.locator('#page-signal .page-views button[data-view="story"]').click();
+  await page.waitForURL((url) => url.hash === '#signal?view=story');
+  await map.waitFor({ state: 'visible' });
+  await guide.waitFor({ state: 'visible' });
+  await page.goBack();
+  await page.waitForURL((url) => url.hash === '#signal');
+  const back = await view();
+  await page.goForward();
+  await page.waitForURL((url) => url.hash === '#signal?view=story');
+  await map.waitFor({ state: 'visible' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await map.waitFor({ state: 'visible' });
+  const direct = await view();
+  await page.goto(`${baseUrl}#macro`, { waitUntil: 'domcontentloaded' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  const branchLink = page.locator('#page-macro #macro-axes .macro-axis-branch').first();
+  await branchLink.waitFor({ state: 'attached' });
+  const macroOwnsMap = await page.locator('#page-macro #macro-crossroads').count();
+  const unvisited = (await map.count()) === 0;
+  if (!(await branchLink.isVisible())) {
+    const summary = branchLink.locator('xpath=ancestor::details[1]/summary');
+    await summary.click();
+  }
+  await branchLink.click();
+  await page.waitForURL((url) => url.hash === '#signal?view=story');
+  await page.waitForFunction(() => document.activeElement?.closest('#regime-depth-fold .xr-branch[open]'));
+  const crossRoute = await view();
+  return { passed: back === 'now' && direct === 'story' && crossRoute === 'story' && unvisited && !macroOwnsMap, back, direct, crossRoute, unvisited, macroOwnsMap };
+}
+
 // v57.62: shared lifecycle — resolves only on the server ready line; the server is closed even if launch throws.
 const server = await startLocalServer(port, { label: 'boot-interaction/server', env: stageDir ? { AIO_SERVE_ROOT: join(stageDir, 'pages') } : {} });
 let browser;
@@ -152,6 +187,7 @@ try {
       longTaskObservationWindowMs: bootWindowMs,
       domNodes: document.getElementsByTagName('*').length,
       activeRouteDomNodes: document.querySelector('.page.active')?.getElementsByTagName('*').length || 0,
+      scenarioDepthDeferred: !document.querySelector('#regime-depth-fold :is(#macro-crossroads, #home-guide)'),
       activePage: document.querySelector('.page.active')?.id || '',
       bootStatusPresent: !!document.getElementById('aio-boot-status'),
       // Codex audit F14 (2026-10-15): decodedJsMbMax had no measurement. Same-origin scripts (classic + native ESM)
@@ -213,11 +249,13 @@ try {
   result.initialQuoteRequests = initialQuoteRequests.length;
   result.bootObservationWindowMs = BOOT_OBSERVATION_WINDOW_MS;
   result.onDemandChartLibrary = await verifyOnDemandChartLibrary(browser);
+  result.scenarioView = await verifyScenarioView(page).catch((error) => ({ passed: false, reason: error.message }));
   const failures = [];
   if (result.fcpMs == null || result.fcpMs > 2500) failures.push(`FCP ${result.fcpMs}ms > 2500ms`);
   if (result.routeMs > 2000) failures.push(`initial route ${result.routeMs}ms > 2000ms`);
   if (result.maxLongTaskMs > 2500) failures.push(`max long task ${result.maxLongTaskMs}ms > 2500ms`);
   if (result.activePage !== 'page-signal') failures.push(`route did not activate signal (${result.activePage})`);
+  if (!result.scenarioDepthDeferred || !result.scenarioView.passed) failures.push(`scenario view deferred mount or navigation failed (${JSON.stringify(result.scenarioView)})`);
   if (result.bootStatusPresent) failures.push('boot status did not hard-release');
   if (!measureSource) {
     // v59.70 (owner D1): the AI panel script and reference corpus wait for an AI control; hovering it starts both.

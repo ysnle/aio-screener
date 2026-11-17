@@ -1415,7 +1415,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         workerMaxTokens: isFinite(workerMaxTokens) && workerMaxTokens > 0 ? workerMaxTokens : null,
         extendedThinking: useExtendedThinking,
         outputTokens: responseUsage && Number.isInteger(responseUsage.output_tokens) ? responseUsage.output_tokens : null,
-        effort: (modelCfg && modelCfg.reasoningEffort) || null, toolRounds: _tools ? _tools.rounds : null, toolCalls: _tools ? _tools.calls : null, searchCalls: _searchCalls
+        effort: (modelCfg && modelCfg.reasoningEffort) || null, toolRounds: _tools ? _tools.rounds : null, toolCalls: _tools ? _tools.calls : null, toolBasis: _tools ? _tools.basis : [], searchCalls: _searchCalls
       });
       _unlinkChatAbort();
       return;
@@ -1427,7 +1427,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         return;
       }
       if (streamErr.message === 'chunk_timeout') {
-        if (fullText) onDone(fullText, { stopReason: 'chunk_timeout', truncated: true, requestedMaxTokens: requestedMaxTokens, effectiveMaxTokens: effectiveMaxTokens, workerMaxTokens: isFinite(workerMaxTokens) && workerMaxTokens > 0 ? workerMaxTokens : null, extendedThinking: useExtendedThinking });
+        if (fullText) onDone(fullText, { stopReason: 'chunk_timeout', truncated: true, requestedMaxTokens: requestedMaxTokens, effectiveMaxTokens: effectiveMaxTokens, workerMaxTokens: isFinite(workerMaxTokens) && workerMaxTokens > 0 ? workerMaxTokens : null, extendedThinking: useExtendedThinking, toolBasis: _tools ? _tools.basis : [] });
         else {
           var chunkTimeout = _aioChatError({ message: 'chunk_timeout', status: 408 }, 408);
           onError(chunkTimeout.displayMessage || chunkTimeout.userMessage);

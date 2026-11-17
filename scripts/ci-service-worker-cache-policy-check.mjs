@@ -15,7 +15,7 @@ const block = source.match(/const CRITICAL_SHELL_ASSETS = \[([\s\S]*?)\n\];/)?.[
 const critical = [...block.matchAll(/['"]([^'"]+)['"]/g)].map((match) => match[1]);
 if (!critical.length || critical.length > 12) fail(`critical precache count must be 1..12, got ${critical.length}`);
 if (critical.some((asset) => /^https?:\/\//.test(asset))) fail('external CDN assets must not block service-worker install');
-for (const required of ['./', './index.html', './version.json', './src/app/bootstrap.js']) {
+for (const required of ['./', './index.html', './offline.html', './version.json', './src/app/bootstrap.js']) {
   if (!critical.includes(required)) fail(`critical asset missing: ${required}`);
 }
 const installBlock = source.slice(source.indexOf("self.addEventListener('install'"), source.indexOf("self.addEventListener('activate'"));
@@ -306,7 +306,7 @@ if (/javascript|index\.html|aio-core\.js|sw\.js/.test(coreTable)) fail('the core
   if (deadEntries.length) fail(`v59.98 precached script entries never answer the page's own request offline: ${deadEntries.join(', ')}`);
 }
 const deployYml = fs.readFileSync('.github/workflows/pages-deploy.yml', 'utf8');
-if (!/code_hash=.*find index\.html js src -type f/.test(deployYml) || !/s\/\^const SW_CODE_HASH = 'local';\$\//.test(deployYml)) fail('v57.54 pages-deploy no longer stamps the shipped-code hash into sw.js');
+if (!/code_hash=.*find index\.html offline\.html js src -type f/.test(deployYml) || !/s\/\^const SW_CODE_HASH = 'local';\$\//.test(deployYml)) fail('v57.54 pages-deploy no longer stamps the shipped-code hash into sw.js');
 
 console.log(`Service-worker cache policy OK: ${critical.length} critical assets; ${routedPaths.length} routed artifacts all have a client consumer; ${CORE_DATA_ARTIFACTS.length} consumed core artifacts are age-bounded with their own TTL; route modules are request-driven.`);
 }],

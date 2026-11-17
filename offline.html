@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-T2i20Mt38ORYWWSHl2Yk9ZgIpYVuW9cT4BZi0Lxk6qo='; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <title>연결을 확인해 주세요 | AIO Screener</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { margin: 0; }
+    main { max-width: 34rem; margin: 12vh auto 0; padding: 0 1.5rem; line-height: 1.6; }
+    h1 { font-size: clamp(1.5rem, 5vw, 2rem); }
+    button { min-height: 2.75rem; padding: .5rem 1rem; font: inherit; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>연결을 확인해 주세요</h1>
+    <p>AIO Screener 화면을 불러오지 못했습니다. 네트워크 연결을 확인한 뒤 다시 시도하면 원래 화면이 열립니다.</p>
+    <button type="button" id="retry">다시 시도</button>
+  </main>
+  <script>document.getElementById("retry").addEventListener("click", () => location.reload());</script>
+</body>
+</html>

@@ -9,7 +9,7 @@ import { CHOICES, EVENT_NAMES, fomcDecisionDate, macroTransitions } from '../../
 import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
-import { frameHead, markFrame, noteFold, setAsOf } from './section-frame.js';
+import { noteFold } from './section-frame.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { auctionLine, latestByTenor, AUCTION_METHOD } from '../../domain/macro/treasury-auctions.js';
 import { groupCashflowSentence } from '../../domain/fundamental/quarterly-cashflow.js';
@@ -165,24 +165,24 @@ function branchMap(doc, root, model, openIds, { restOpen = false } = {}) {
   return map;
 }
 
-// v59.68: the scenario map lives in 시장 상태's scenario fold; opening it shows the page and unfolds it.
-function openScenarioFold(doc) {
-  const fold = doc?.getElementById?.('regime-depth-fold');
-  if (fold) fold.open = true;
+function showScenarioView(doc, root) {
+  const page = doc?.getElementById?.('page-signal');
+  const isCurrent = page?.classList.contains('active');
+  root?._aioShowPageView?.('page-signal', 'story', { byReader: isCurrent });
+  if (!isCurrent) root?.showPage?.('signal');
 }
 
 /** Open 시장 상태 at the scenario map. The blocks above can still grow after the route change, so the scroll repeats. */
 export function showCrossroadsSection(doc, root) {
-  root?.showPage?.('signal');
-  for (const delay of [80, 400, 1200]) setTimeout(() => { openScenarioFold(doc); doc?.getElementById?.('macro-crossroads')?.scrollIntoView?.({ block: 'start' }); }, delay);
+  showScenarioView(doc, root);
+  for (const delay of [80, 400, 1200]) setTimeout(() => doc?.getElementById?.('macro-crossroads')?.scrollIntoView?.({ block: 'start' }), delay);
 }
 
 /** Open one branch's detail on 시장 상태 (from the 매크로 factor cards or another screen) and bring it into view. */
 export function openCrossroadsBranch(doc, root, branchId) {
   const reveal = () => {
-    const card = doc?.querySelector?.(`.xr-branch[data-branch="${branchId}"]`);
+    const card = doc?.querySelector?.(`#regime-depth-fold .xr-branch[data-branch="${branchId}"]`);
     if (!card) return false;
-    openScenarioFold(doc);
     const fold = card.closest?.('.xr-map-rest');
     if (fold) fold.open = true;
     card.open = true;
@@ -190,9 +190,8 @@ export function openCrossroadsBranch(doc, root, branchId) {
     card.querySelector('summary')?.focus?.({ preventScroll: true });
     return true;
   };
-  const onSignal = doc?.getElementById('page-signal')?.classList?.contains('active');
-  if (onSignal !== false && reveal()) return;
-  root?.showPage?.('signal');
+  showScenarioView(doc, root);
+  if (reveal()) return;
   // The scenario map may still be mounting after the route change: try a few times, then give up quietly.
   const retry = (delays) => { if (!delays.length) return; setTimeout(() => { if (!reveal()) retry(delays.slice(1)); }, delays[0]); };
   retry([80, 300, 900]);
@@ -357,24 +356,8 @@ function changeLog(doc, state, open = false, checkedAt = null) {
   return box;
 }
 
-/** Full section on 거시. */
-export function renderMacroCrossroads({ documentRef: doc, root, regime = null, host = null } = {}) {
-  let target = host || doc?.getElementById('macro-crossroads');
-  // The section is created here (the shell stays unchanged). v57.76: 거시 reads current state first — 지금의 거시 국면 →
-  // 거시 6요인 → 어떻게 연결되나 — and the scenarios follow the chain, before 경제 지표 and 유가·금.
-  const after = !target ? doc?.getElementById('macro-chain')?.closest('section') : null;
-  if (after) {
-    const section = el(doc, 'section', null, 'briefing-block macro-section xr-section');
-    section.setAttribute('aria-labelledby', 'macro-crossroads-title');
-    // v58.79 section frame: title + observation-date chip (the method sentence is the chip's hover).
-    const title = frameHead(doc, { title: '향후 시나리오 — 다음 발표로 확인', titleId: 'macro-crossroads-title', titleClass: 'briefing-h2' });
-    markFrame(section, 'macro.crossroads');
-    target = el(doc, 'div');
-    target.id = 'macro-crossroads';
-    // v57.76: one bridge line ties the branches to the chain right above.
-    section.append(title, target);
-    after.insertAdjacentElement('afterend', section);
-  }
+/** Render the scenario map in the host which 시장 상태 mounts. */
+export function renderMacroCrossroads({ documentRef: doc, root, regime = null, host: target } = {}) {
   if (!target) return null;
   const model = crossroadsForRoot(root, { regime });
   root.__aioMacroCrossroads = model;
@@ -385,8 +368,6 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   const pathsOpen = !!target.querySelector('details.xr-paths-fold')?.open;
   const changesOpen = !!target.querySelector('details.xr-changes')?.open;
   if (!model.available) { target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead')); return model; }
-  setAsOf(doc, target.parentElement?.querySelector(':scope > .aio-frame-head'), model.asOf ? `${shortDate(model.asOf)} 관측` : '기준일 미확인',
-    '갈래마다 조건 충족 수, 시장 가격 방향, 과거 빈도를 나란히 놓고 다음 발표에서 무엇이 갈래를 가르는지 적었습니다. 과거 빈도는 시나리오 조건이 아니라 비슷한 시장 움직임으로 고른 비교입니다.');
   // The rate hub (why rates lead, the proxy caveat once) comes first; the map below opens each branch in place.
   // v57.79 (UI review): the heading says what the list is (ordered by conditions met), not how to use it.
   const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — 조건 충족 순`, 'xr-h3');

@@ -292,7 +292,8 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var referenceText = typeof meta.referenceText === 'string' ? meta.referenceText : '';
     // This request's web sources (url_citation annotations): a figure whose sentence cites one is a searched figure.
     var searchCitations = Array.isArray(meta.searchCitations) ? meta.searchCitations : [];
-    var publishablePlan = _aioBuildPublishableAnswerPlan(answerPlanAudit.plan, bindingEvidence, currentSensitive, { referenceText: referenceText, entities: meta.entities, nameEntries: window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries, searchCitations: searchCitations });
+    var toolBasis = Array.isArray(meta.completion?.toolBasis) ? meta.completion.toolBasis : null;
+    var publishablePlan = _aioBuildPublishableAnswerPlan(answerPlanAudit.plan, bindingEvidence, currentSensitive, { referenceText: referenceText, entities: meta.entities, nameEntries: window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries, searchCitations: searchCitations, toolBasis: toolBasis });
     var answerPlanBindingAudit = {
       ok: publishablePlan.droppedClaims.length === 0,
       evidenceCount: bindingIds.size,
@@ -309,7 +310,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     } else if (isPartialStream) {
       visible = 'AI 답변을 구성하고 근거를 검증하는 중…';
     } else {
-      filterCounts = _aioExtractAIAnswerFallbackResult(raw, currentSensitive, { evidenceCount: bindingIds.size, evidenceRows: bindingEvidence.filter(_aioEvidenceCanPublish), referenceText: referenceText, entities: meta.entities, nameEntries: window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries, searchCitations: searchCitations });
+      filterCounts = _aioExtractAIAnswerFallbackResult(raw, currentSensitive, { evidenceCount: bindingIds.size, evidenceRows: bindingEvidence.filter(_aioEvidenceCanPublish), referenceText: referenceText, entities: meta.entities, nameEntries: window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries, searchCitations: searchCitations, toolBasis: toolBasis });
       visible = filterCounts.text;
     }
     if (!visible && !isPartialStream) visible = '답변 형식이 완성되지 않아 검증 가능한 문장을 복구하지 못했습니다. 같은 질문을 다시 보내면 간결한 형식으로 재시도합니다.';
@@ -433,7 +434,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     }
     if (limitationNotes.length && gate.blocked !== true) {
       var limitationSummary = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication?.summarizeAnswerLimitations;
-      var searchSummary = searchCitations.length ? { searchedSentences: filterCounts && filterCounts.searchedSentences, removedNumericSentences: filterCounts && filterCounts.removedNumericSentences } : null;
+      var searchSummary = searchCitations.length ? { searchedSentences: filterCounts && filterCounts.searchedSentences, removedNumericSentences: filterCounts && filterCounts.removedNumericSentences, toolDates: filterCounts && filterCounts.toolDates } : null;
       var limitationLine = limitationSummary ? limitationSummary((gate.limitations || []).concat(gate.unverifiedNumericNotice ? ['current-numeric-claim-unverified'] : []), { publishedClaimCount: publishedClaims.length, search: searchSummary }) : '';
       if (!limitationLine && !searchSummary) limitationLine = '※ 확인 안 된 부분이 있어 조건부로 설명합니다';
       gate = Object.assign({}, gate, { text: (limitationLine ? limitationLine + '\n\n' : '') + gate.text, limitationNotes: limitationNotes });

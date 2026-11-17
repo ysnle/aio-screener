@@ -2024,6 +2024,39 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check('v60.21 an answer without search keeps today\'s withheld line', run([]).text.startsWith('※ 최신 수치 확인 안 됨 — 일반 설명만'));
 }
 
+// v60.23: the filing's web citation cannot establish the trading date of an app trend lookup.
+{
+  const nowMs = Date.parse('2026-11-16T12:00:00Z');
+  const url = 'https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm';
+  const filing = `Apple 최근 연차 공시 [SEC 10-K](${url})를 확인했습니다.`;
+  const referenceText = '[주가 추이] AAPL: 5거래일 +2.4%\n(기준: 2026-11-13 종가)';
+  const toolBasis = [{ name: 'trend', asOf: '2026-11-13 종가', entities: ['AAPL'] }];
+  const text = `${filing}\nAAPL 최근 5거래일 흐름 기준일: 2026년 11월 14일 종가 기준 — 앱 자료 도구 조회 완료. ([sec.gov](${url}))\n2008년 금융위기 때 S&P 500은 약 57% 하락했습니다.`;
+  const plan = { schemaVersion: 'answer-plan.v1', summary: text, sections: [], claims: { claims: [] }, citations: [] };
+  const opts = { nowMs, today: nowMs, referenceText, entities: ['AAPL'], searchCitations: [{ url }], toolBasis, evidenceCount: 0 };
+  const structured = answerPublication.buildPublishableAnswerPlan(plan, [], true, opts);
+  const fallback = answerPublication.extractAnswerFallbackResult(text.replace(`([sec.gov](${url}))`, '(sec.gov)'), true, opts);
+  const correct = (value) => value.includes(filing) && value.includes('AAPL') && value.includes('2026-11-13 종가')
+    && value.includes('출처는 AIO 앱의 주가 추이 자료') && value.includes('2008년 금융위기')
+    && !/11월 14일|\(sec\.gov\)|\[sec\.gov\]/.test(value);
+  check('v60.23 mixed app trend date uses only the matching tool basis in structured and fallback prose',
+    correct(structured.plan.summary) && correct(fallback.text), JSON.stringify({ structured: structured.plan.summary, fallback: fallback.text }));
+  const split = `AAPL 최근 5거래일 주가 흐름의 기준일은 2026년 11월 14일 종가입니다. 앱 자료 도구에서 조회했습니다. ([sec.gov](${url}))`;
+  const table = `| 항목 | 값 | 출처 |\n| --- | --- | --- |\n| AAPL 최근 5거래일 주가 흐름 기준일 | 2026년 11월 14일 종가 기준 | 앱 자료 도구 조회 완료. ([sec.gov](${url})) |`;
+  for (const form of [split, table]) {
+    const mixed = `${filing}\n${form}`;
+    const publicText = answerPublication.buildPublishableAnswerPlan({ ...plan, summary: mixed }, [], true, opts).plan.summary;
+    const freeText = answerPublication.extractAnswerFallbackResult(mixed, true, opts).text;
+    check('v60.23 table and adjacent app attribution bind a date without replacing the filing link', [publicText, freeText].every((value) => value.includes(filing)
+      && value.includes('2026-11-13 종가') && value.includes('AIO 앱의 주가 추이 자료') && !/11월 14일|\[sec\.gov\]/.test(value)),
+    JSON.stringify({ publicText, freeText }));
+  }
+  const wrongTool = answerPublication.extractAnswerFallbackResult(text, true, { ...opts, toolBasis: [{ ...toolBasis[0], entities: ['MSFT'] }] });
+  const noTool = answerPublication.extractAnswerFallbackResult(text, true, { ...opts, toolBasis: [] });
+  check('v60.23 a web link or another company tool cannot stand in for a missing matching app result',
+    [wrongTool, noTool].every((item) => item.text.includes(filing) && /앱 자료에서 확인하지 못했습니다/.test(item.text) && !/11월 14일|2026-11-13 종가/.test(item.text)));
+}
+
 if (failures.length) {
   console.error(`AI intelligence contract failed (${failures.length})`);
   failures.forEach((failure) => console.error(`- ${failure}`));

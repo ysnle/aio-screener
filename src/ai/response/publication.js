@@ -639,10 +639,33 @@ function claimLabelAgrees(claim) {
   });
 }
 
-function stripNumericSentences(value, today, numbers, entities, searchUrls) {
+const APP_TOOL_SOURCE = /(?:앱|AIO)\s*(?:의\s*)?자료\s*도구/i;
+const TREND_BASIS = /주가\s*(?:추이|흐름)|(?:최근\s*)?\d+\s*거래일\s*(?:주가\s*)?(?:추이|흐름)/;
+const BARE_CITATION_HOST = /^\((?:[a-z0-9-]+\.)+[a-z]{2,}\)[.!?。]*$/i;
+const APP_TREND_CREDIT = 'AIO 앱의 주가 추이 자료';
+
+// A date-only app trend claim uses the successful tool's subject and basis. Unrelated historical dates and web dates
+// retain their normal path. A search citation is not a source for the result of the app call.
+function bindAppTrendBasis(sentence, bare, toolBasis, matchers) {
+  if (!Array.isArray(toolBasis) || !APP_TOOL_SOURCE.test(bare) || !TREND_BASIS.test(bare)
+      || !/기준일|종가\s*기준/.test(bare) || !lineDates(bare).length || writtenFigures(bare).length) return null;
+  const entity = matchers && soleEntity(bare, matchers);
+  const dates = new Set(toolBasis.filter((row) => entity && row?.name === 'trend'
+    && row.entities?.includes(entity) && /^\d{4}-\d{2}-\d{2} 종가$/.test(row.asOf)).map((row) => row.asOf));
+  const prefix = sentence.match(/^(?:[-*+]\s+|\d+[.)]\s+)/)?.[0] || '';
+  if (dates.size !== 1) return { text: `${prefix}해당 주가 추이의 기준일은 앱 자료에서 확인하지 못했습니다.`, date: null };
+  const [date] = dates;
+  return { text: `${prefix}${entity} 주가 추이 기준일은 ${date}입니다. 출처는 ${APP_TREND_CREDIT}입니다.`, date };
+}
+
+function stripNumericSentences(value, today, numbers, entities, searchUrls, toolBasis) {
   var removed = 0;
   var searched = 0;
+  var toolDates = 0;
   var matchers = entityMatchers(entities);
+  var toolMatchers = Array.isArray(toolBasis)
+    ? entityMatchers((entities || []).concat(toolBasis.flatMap((row) => row?.entities || [])))
+    : null;
   var header = null;
   var text = String(value || '').split('\n').map(function(line) {
     if (!line.trim()) { header = null; return ''; }
@@ -656,6 +679,19 @@ function stripNumericSentences(value, today, numbers, entities, searchUrls) {
       var cells = line.split('|');
       var head = header;
       if (!head) header = cells.map(function(cell) { return cell.trim(); });
+      const basis = bindAppTrendBasis(line, line.replace(CITED_URL, ' '), toolBasis, toolMatchers);
+      if (basis) {
+        if (basis.date) toolDates += 1;
+        return cells.map((cell) => {
+          const bare = cell.replace(CITED_URL, ' ');
+          const hasDate = lineDates(bare).length > 0;
+          const hasSource = APP_TOOL_SOURCE.test(bare) || bare !== cell || BARE_CITATION_HOST.test(bare.trim());
+          if (hasDate && hasSource) return ` ${basis.text} `;
+          if (hasDate) return ` ${basis.date || '기준일 확인 불가'} `;
+          if (hasSource) return ` ${basis.date ? APP_TREND_CREDIT : '앱 자료 확인 불가'} `;
+          return cell;
+        }).join('|');
+      }
       var label = String(cells[1] || '').trim();
       return cells.map(function(cell, index) {
         if (index === 0 || index === cells.length - 1) return cell;
@@ -666,20 +702,36 @@ function stripNumericSentences(value, today, numbers, entities, searchUrls) {
       }).join('|');
     }
     header = null;
-    var kept = answerSentences(line).filter(function(sentence) {
+    var appBasisBefore = false;
+    let boundAttribution = -1;
+    var kept = answerSentences(line).flatMap(function(sentence, index, sentences) {
+      if (index === boundAttribution) return [];
+      if (appBasisBefore && BARE_CITATION_HOST.test(sentence)) return [];
+      appBasisBefore = false;
       // A current sentence stays when every figure it writes is in the evidence; one figure that is not removes it.
       var bare = sentence.replace(CITED_URL, ' ');
+      let basis = bindAppTrendBasis(sentence, bare, toolBasis, toolMatchers);
+      const next = sentences[index + 1];
+      if (!basis && next?.search(APP_TOOL_SOURCE) === 0) {
+        basis = bindAppTrendBasis(sentence, `${bare} ${next.replace(CITED_URL, ' ')}`, toolBasis, toolMatchers);
+        if (basis) boundAttribution = index + 1;
+      }
+      if (basis) {
+        appBasisBefore = true;
+        if (basis.date) toolDates += 1;
+        return [basis.text];
+      }
       // With reference material in hand, a sentence whose only numbers are dates or window lengths ("11월 12일 종가
       // 기준 자료입니다") states no figure to check and stays.
       var nothingToCheck = Array.isArray(numbers) && numbers.length > 0 && writtenFigures(bare).length === 0;
       var current = numericClaimKind(sentence, { today: today }) === 'current' && !nothingToCheck && !figuresSupported(bare, numbers, { entities: entities });
-      if (current && searchedSentenceKept(sentence, searchUrls, numbers, entities)) { searched += 1; return true; }
+      if (current && searchedSentenceKept(sentence, searchUrls, numbers, entities)) { searched += 1; return [sentence]; }
       if (current) removed += 1;
-      return !current;
+      return current ? [] : [sentence];
     }).join(' ');
     return kept || null;
   }).filter(function(line) { return line !== null; }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
-  return { text: text, removed: removed, searched: searched };
+  return { text: text, removed: removed, searched: searched, toolDates: toolDates };
 }
 
 export function stripUnverifiedCurrentNumericSentences(value, { today } = {}) {
@@ -740,16 +792,17 @@ function currentEventSentenceUnbound(value, rows) {
 // current-event rule as the plan path. `options.evidenceCount` omitted keeps the old two-argument behaviour.
 // The result carries what the filters removed: { text, removedNumericSentences, removedEventSentences, sentencesTotal }.
 function guardFallback(text, currentSensitive, options) {
-  var result = { text: tidyInlineCitations(text), removedNumericSentences: 0, removedEventSentences: 0, searchedSentences: 0, sentencesTotal: countSentences(text) };
+  var result = { text: tidyInlineCitations(text), removedNumericSentences: 0, removedEventSentences: 0, searchedSentences: 0, toolDates: 0, sentencesTotal: countSentences(text) };
   if (!currentSensitive) return result;
   var today = options && options.today;
   var entities = options && Array.isArray(options.entities) ? answerEntities(options.entities, options.nameEntries) : null;
   var numbers = options && supportedNumbers(options.evidenceRows, options.referenceText, todayMs(today), entities);
   var searchUrls = citationUrlSet(options && options.searchCitations);
-  var numeric = stripNumericSentences(result.text, today, numbers, entities, searchUrls);
+  var numeric = stripNumericSentences(result.text, today, numbers, entities, searchUrls, options?.toolBasis);
   result.text = numeric.text;
   result.removedNumericSentences = numeric.removed;
   result.searchedSentences = numeric.searched;
+  result.toolDates = numeric.toolDates;
   var cited = function(bare, sentence) { return searchedSentenceKept(sentence, searchUrls, numbers, entities); };
   var events = null;
   if (options && options.evidenceCount === 0 && !numbers) events = stripUnverifiedCurrentEventSentences(numeric.text, searchUrls ? cited : null, { today: today });
@@ -790,6 +843,7 @@ const CURRENT_GAP_REASONS = ['market-session-evidence-unavailable', 'current-evi
 var REMOVAL_REASONS = ['answer-plan-claim-degraded', 'typed-claim-validation'];
 function searchedFiguresPhrase(list, search, numericDropped, currentGap) {
   var removed = Number(search.removedNumericSentences) > 0 || list.some(function(reason) { return REMOVAL_REASONS.indexOf(reason) >= 0; });
+  if (Number(search.toolDates) > 0) return '주가 추이 기준일은 앱 자료, 웹검색 내용은 링크 원문 기준' + (removed ? ' · 확인되지 않은 일부 수치 제외' : '');
   if (Number(search.searchedSentences) > 0) return removed ? '웹검색 출처가 붙은 수치만 표시 — AIO가 확인한 값 아님' : '웹검색 출처의 수치 — AIO가 확인한 값 아님, 링크 원문 기준';
   if (removed) return '출처가 붙지 않은 최신 수치는 뺌 — 아래 참고 링크 원문 확인';
   return numericDropped || currentGap ? '최신 수치는 아래 참고 링크 원문 기준' : '';
@@ -810,7 +864,7 @@ export function summarizeAnswerLimitations(reasons = [], { publishedClaimCount =
   return phrases.length ? '※ ' + phrases.join(' · ') : '';
 }
 
-export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive, { nowMs = Date.now(), referenceText = '', entities = null, nameEntries = null, searchCitations = null } = {}) {
+export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensitive, { nowMs = Date.now(), referenceText = '', entities = null, nameEntries = null, searchCitations = null, toolBasis = null } = {}) {
   entities = Array.isArray(entities) ? answerEntities(entities, nameEntries) : null;
   if (!plan) return { plan: null, droppedClaims: [], unboundEvidenceIds: [] };
   var rows = (Array.isArray(bindingEvidence) ? bindingEvidence : []).filter(row => evidenceCanPublish(row, nowMs));
@@ -891,15 +945,17 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
   var eventsDropped = 0;
   var numericRemoved = 0;
   var searchedKept = 0;
+  var toolDates = 0;
   var sentencesTotal = 0;
   var noEvidence = currentSensitive && rows.length === 0;
   var noSupport = noEvidence && !referenceText;
   var numbers = supportedNumbers(rows, referenceText, nowMs, entities);
   var searchUrls = citationUrlSet(searchCitations);
   var stripNumeric = function(text) {
-    var out = stripNumericSentences(text, nowMs, numbers, entities, searchUrls);
+    var out = stripNumericSentences(text, nowMs, numbers, entities, searchUrls, toolBasis);
     numericRemoved += out.removed;
     searchedKept += out.searched;
+    toolDates += out.toolDates;
     return out.text;
   };
   var cited = function(bare, sentence) { return searchedSentenceKept(sentence, searchUrls, numbers, entities); };
@@ -926,6 +982,6 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     }) }),
     droppedClaims: droppedClaims,
     unboundEvidenceIds: Array.from(new Set(unboundEvidenceIds)),
-    filterCounts: { removedNumericSentences: numericRemoved, removedEventSentences: eventsDropped, searchedSentences: searchedKept, sentencesTotal: sentencesTotal }
+    filterCounts: { removedNumericSentences: numericRemoved, removedEventSentences: eventsDropped, searchedSentences: searchedKept, toolDates: toolDates, sentencesTotal: sentencesTotal }
   };
 }

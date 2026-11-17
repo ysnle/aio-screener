@@ -38,7 +38,7 @@ function attentionBars(doc, cards) {
 
 // The story's scenario shows the same frame as its branch card on the map — the past line, the
 // payoff against an ordinary day and the favoured side with its ground — instead of a bare "상대적으로 유리" mark.
-function scenarioBlock(doc, scenario, frame = null) {
+function scenarioBlock(doc, storyId, scenario, frame = null) {
   const box = el(doc, 'div', null, 'mk-narr__scenario');
   box.append(el(doc, 'p', null, 'mk-narr__scenario-head'));
   box.firstChild.append(el(doc, 'b', scenario.title), doc.createTextNode(` · ${scenario.status} · ${scenario.supportWord}`));
@@ -53,7 +53,10 @@ function scenarioBlock(doc, scenario, frame = null) {
   for (const [term, text] of rows) dl.append(el(doc, 'dt', term), el(doc, 'dd', text));
   box.append(dl);
   const frameBlock = frame ? decisionFrameBlock(doc, frame, { method: scenario.past || '', side: false }) : null;
-  if (frameBlock) box.append(frameBlock);
+  if (frameBlock) {
+    frameBlock.querySelector('details').id = `market-story-${storyId}-scenario-${scenario.id}`;
+    box.append(frameBlock);
+  }
   if (scenario.choices.length) {
     box.append(el(doc, 'p', '이 시나리오에서 대응별 득실', 'event-brief__sub'));
     const ul = el(doc, 'ul', null, 'mk-narr__choices');
@@ -78,6 +81,7 @@ function storyItem(doc, card, frameOf = () => null) {
   head.append(el(doc, 'b', card.label), el(doc, 'span', card.supportWord, `mk-narr__chip is-${card.support}`));
   item.append(head, el(doc, 'p', card.line, 'mk-narr__line'));
   const fold = el(doc, 'details', null, 'mk-narr__more');
+  fold.id = `market-story-${card.id}`;
   fold.append(el(doc, 'summary', '근거·시나리오·대응 보기'));
   if (card.question) fold.append(el(doc, 'p', `쟁점: ${card.question}`, 'mk-narr__question'));
   fold.append(el(doc, 'p', `관심: ${card.attention}${card.movers.length ? ` · 헤드라인이 이 이야기를 다룬 급등락 종목 ${card.movers.join(', ')}` : ''}`, 'mk-narr__attention'));
@@ -95,7 +99,7 @@ function storyItem(doc, card, frameOf = () => null) {
       if (frame.counterclaim) frameSlot.append(el(doc, 'p', `반론: ${frame.counterclaim}`, 'mk-narr__frame is-counter'));
     });
   });
-  for (const scenario of card.scenarios) fold.append(scenarioBlock(doc, scenario, frameOf(scenario.id)));
+  for (const scenario of card.scenarios) fold.append(scenarioBlock(doc, card.id, scenario, frameOf(scenario.id)));
   item.append(fold);
   return item;
 }
@@ -126,6 +130,10 @@ export function renderMarketNarratives({ documentRef: doc, root, interpretation 
     const model = buildNarrativeCards({ narratives: day.narratives, crossroads: interpretation?.crossroads });
     section.hidden = !model.available;
     if (!model.available) { section.replaceChildren(); return section; }
+    // The artifact owns the evidence, while a stable story or branch owns the reader's disclosure state.
+    const openFolds = new Set([...section.querySelectorAll('details[id][open]')].map((fold) => fold.id));
+    const active = doc.activeElement;
+    const focusedFold = active?.matches('summary') && section.contains(active) ? active.parentElement.id : null;
     const cards = model.cards.map((card) => ({ ...card, total: (day.narratives.stories.find((row) => row.id === card.id) || {}).telegramCount || 0,
       recent: (day.narratives.stories.find((row) => row.id === card.id) || {}).recentCount || 0 }));
     const at = new Date(Date.parse(model.at) + 9 * 3600000);
@@ -145,12 +153,19 @@ export function renderMarketNarratives({ documentRef: doc, root, interpretation 
       attentionBars(doc, cards), legend, ...(changeLine ? [changeLine] : []), list];
     if (cards.length > FACE_MAX) {
       const more = el(doc, 'details', null, 'sx-disclosure mk-narr__rest');
+      more.id = 'market-story-rest';
       const rest = el(doc, 'ol', null, 'mk-narr__list');
       cards.slice(FACE_MAX).forEach((card) => rest.append(storyItem(doc, card, frameOf)));
       more.append(el(doc, 'summary', `나머지 이야기 ${cards.length - FACE_MAX}개`), rest);
       parts.push(more);
     }
     section.replaceChildren(...parts);
+    for (const fold of section.querySelectorAll('details[id]')) fold.open = openFolds.has(fold.id);
+    const focus = focusedFold && doc.getElementById(focusedFold);
+    if (focus) {
+      for (let ancestor = focus.parentElement.closest('details'); ancestor; ancestor = ancestor.parentElement.closest('details')) ancestor.open = true;
+      focus.querySelector(':scope > summary').focus({ preventScroll: true });
+    }
     markFrame(section, 'signal.narratives');
     section.dataset.signature = key;
   }
