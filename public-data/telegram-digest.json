@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-17T08:22:03.280Z",
-  "attemptedAt": "2026-11-17T08:22:03.280Z",
-  "lastSuccessfulAt": "2026-11-17T08:22:03.280Z",
+  "generatedAt": "2026-11-17T08:51:29.086Z",
+  "attemptedAt": "2026-11-17T08:51:29.086Z",
+  "lastSuccessfulAt": "2026-11-17T08:51:29.086Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-03T08:21:58.476Z",
-  "until": "2026-11-17T08:21:58.476Z",
+  "since": "2026-11-03T08:51:25.421Z",
+  "until": "2026-11-17T08:51:25.421Z",
   "current24hWindow": {
     "start": "2026-11-15T23:00:00.000Z",
     "end": "2026-11-16T23:00:00.000Z",
@@ -82,12 +82,12 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1211,
-      "freshCount": 38,
-      "eligibleTextCount": 1157,
+      "count": 1209,
+      "freshCount": 19,
+      "eligibleTextCount": 1155,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
@@ -108,12 +108,12 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 721,
-      "freshCount": 38,
-      "eligibleTextCount": 721,
+      "count": 720,
+      "freshCount": 20,
+      "eligibleTextCount": 720,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
@@ -137,50 +137,50 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2122,
-  "retainedItemCount": 425,
+  "count": 2119,
+  "retainedItemCount": 396,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2122,
-    "eligibleTextCount": 2068,
+    "observedCount": 2119,
+    "eligibleTextCount": 2065,
     "mediaOnlyCount": 54,
-    "mediaAttachedCount": 904,
-    "photoPostCount": 775,
+    "mediaAttachedCount": 902,
+    "photoPostCount": 773,
     "documentPostCount": 7,
     "imageOnlyCount": 5,
-    "highSignalCount": 358,
-    "broadSignalCount": 849,
+    "highSignalCount": 357,
+    "broadSignalCount": 848,
     "selectedRawCount": 369,
     "selectedEligibleCount": 369,
-    "selectedRawCoveragePct": 17.8,
+    "selectedRawCoveragePct": 17.9,
     "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
     "geo": 321,
-    "semi": 566,
+    "semi": 565,
     "earnings": 285,
     "equity": 138,
-    "market-note": 751,
-    "kr-market": 95,
+    "market-note": 749,
+    "kr-market": 94,
     "power": 270,
     "credit": 79,
-    "macro": 300,
+    "macro": 299,
     "ai-policy": 121,
     "media-only": 52,
     "japan": 56,
     "flows": 49,
     "insider": 2,
-    "optical": 25,
+    "optical": 24,
     "healthcare": 53,
     "crypto": 1
   },
   "tickerCounts": {
     "NVDA": 314,
-    "TSM": 67,
+    "TSM": 66,
     "SPGI": 1,
     "000660.KS": 19,
     "MSFT": 56,
@@ -259,10 +259,10 @@
     "RACE": 1
   },
   "themes": [
-    "Market Notes (751 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
-    "Semiconductors/Memory (566 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q...",
+    "Market Notes (749 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
+    "Semiconductors/Memory (565 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q...",
     "Geopolitics (321 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Macro/Rates (300 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년 엔비디아에 관련 거래 기록을 요청했으며, 엔비디아는 같은 해 6월 메가스피드를 판매 제한 명단에 추가....",
+    "Macro/Rates (299 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년 엔비디아에 관련 거래 기록을 요청했으며, 엔비디아는 같은 해 6월 메가스피드를 판매 제한 명단에 추가....",
     "Earnings/Corporate (285 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (270 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (138 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
@@ -276,7 +276,7 @@
     },
     {
       "key": "TSM",
-      "count": 67,
+      "count": 66,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -337,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 300,
+      "count": 299,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년 엔비디아에 관련 거래 기록을 요청했으며, 엔비디아는 같은 해 6월 메가스피드를 판매 제한 명단에 추가...."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 566,
+      "count": 565,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q..."
     },
     {
@@ -373,8 +373,8 @@
       "topics": [
         "optical"
       ],
-      "count": 25,
-      "focus": "No retained full-text sample; 25 observed posts in the 14-day research window."
+      "count": 24,
+      "focus": "No retained full-text sample; 24 observed posts in the 14-day research window."
     },
     {
       "id": "power",
@@ -400,7 +400,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 95,
+      "count": 94,
       "focus": "•중국 신용 잔고 vs KOSPI •4월 이후 완전히 동행"
     },
     {
@@ -464,7 +464,7 @@
         "insider"
       ],
       "count": 2,
-      "focus": "버크셔 해서웨이 내부자, 추가 불타기 매수 버크셔 주식 매도는 없음"
+      "focus": "No retained full-text sample; 2 observed posts in the 14-day research window."
     },
     {
       "id": "market-note",
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 751,
+      "count": 749,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서..."
     }
   ],
@@ -2080,7 +2080,7 @@
       "datetime": "2026-11-17T02:00:24.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -2090,8 +2090,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>모건스탠리 “리스크를 받아들여라” 강조 - AI 연산 투자 지출은 “늦어질 뿐, 줄어들지는 않을 것”, 글로벌 주식 최대 비중확대 요•모건스탠리는 글로벌 주식 비중을 최대 수준의 비중확대로 조정했으며,..."
+      "summary": ">>모건스탠리 “리스크를 받아들여라” 강조 - AI 연산 투자 지출은 “늦어질 뿐, 줄어들지는 않을 것”, 글로벌 주식 최대 비중확대 요•모건스탠리는 글로벌 주식 비중을 최대 수준의 비중확대로 조정했으며,...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69470",
@@ -2110,10 +2110,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 오버나잇",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 오버나잇"
+      ]
     },
     {
       "id": "HANAchina/72255",
@@ -2124,7 +2124,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -2133,8 +2132,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "•중국 파운더리, 반도체 장비는 강세 •SMIC +5%(좌), 북방화창 +4%(우) •반면, 유니트리 -5%, CXMT -3.8%"
+      "summary": "•중국 파운더리, 반도체 장비는 강세 •SMIC +5%(좌), 북방화창 +4%(우) •반면, 유니트리 -5%, CXMT -3.8%",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72254",
@@ -2143,15 +2143,13 @@
       "datetime": "2026-11-17T01:38:26.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "flows"
+        "semi"
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>역사상 처음! 도이체방크 “칩 달러”가 “석유 달러”를 대체, 글로벌 금융 시스템이 “위험한 폐쇄고리”에 빠져 •도이체방크는 글로벌 반도체 무역액이 사상 처음으로 석유·천연가스 무역액을 넘어섰으며,..."
+      "summary": ">>역사상 처음! 도이체방크 “칩 달러”가 “석유 달러”를 대체, 글로벌 금융 시스템이 “위험한 폐쇄고리”에 빠져 •도이체방크는 글로벌 반도체 무역액이 사상 처음으로 석유·천연가스 무역액을 넘어섰으며,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69468",
@@ -2161,17 +2159,15 @@
       "localDateKst": "2026-11-17",
       "tags": [
         "semi",
-        "power",
-        "geo",
-        "ai-policy"
+        "power"
       ],
-      "lead": 2,
       "score": 84,
       "hasText": true,
+      "summary": "미국 정부가 브라질 데이터센터 운영업체의 엔비디아 등 미국 기업이 생산한 첨단 인공지능(AI) 칩 구매에 사전 허가를 요구할 예정. 해당 조치는 인도네시아, 말레이시아, 싱가포르, 태국에도 적용. 미국 정부는...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 정부가 브라질 데이터센터 운영업체의 엔비디아 등 미국 기업이 생산한 첨단 인공지능(AI) 칩 구매에 사전 허가를 요구할 예정. 해당 조치는 인도네시아, 말레이시아, 싱가포르, 태국에도 적용. 미국 정부는..."
+      ]
     },
     {
       "id": "HANAchina/72249",
@@ -2180,13 +2176,12 @@
       "datetime": "2026-11-17T00:37:18.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">> 미국 상무부, 첨단 AI 칩에 대한 원격 접근을 겨냥한 규정 발표 • 중국·마카오(국가 그룹 D:5)에 본사나 모회사를 둔 기업에 총 처리 성능(TPP) 1,200만 초과 수준의 AI 연산 자원을..."
+      "summary": ">> 미국 상무부, 첨단 AI 칩에 대한 원격 접근을 겨냥한 규정 발표 • 중국·마카오(국가 그룹 D:5)에 본사나 모회사를 둔 기업에 총 처리 성능(TPP) 1,200만 초과 수준의 AI 연산 자원을...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72246",
@@ -2195,12 +2190,12 @@
       "datetime": "2026-11-17T00:29:07.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중국 내수 소비 경기, 바닥에서 반전 가능성… 가격 인상 체인·제조·AI 체인의 구조적 호조 지속 (화타이) •화타이증권은 10월 전 산업 경기지수가 회복했으며, 대분류 업종 중 중류 소재, 필수소비,..."
+      "summary": ">>중국 내수 소비 경기, 바닥에서 반전 가능성… 가격 인상 체인·제조·AI 체인의 구조적 호조 지속 (화타이) •화타이증권은 10월 전 산업 경기지수가 회복했으며, 대분류 업종 중 중류 소재, 필수소비,...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72245",
@@ -2211,14 +2206,14 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
+      "summary": "• TSMC 이사회는 기존 신흥사업펀드(2억 달러)보다 규모를 대폭 키운 5억 달러 한도의 'TSMC 벤처스' 설립을 승인. 첫 행보로 미국 반도체·AI 전문 펀드인 '매버릭 실리콘 펀드 II'에 500만...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "• TSMC 이사회는 기존 신흥사업펀드(2억 달러)보다 규모를 대폭 키운 5억 달러 한도의 'TSMC 벤처스' 설립을 승인. 첫 행보로 미국 반도체·AI 전문 펀드인 '매버릭 실리콘 펀드 II'에 500만..."
+      ]
     },
     {
       "id": "HANAchina/72242",
@@ -2227,20 +2222,18 @@
       "datetime": "2026-11-16T23:44:36.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy"
+        "semi"
       ],
-      "lead": 1,
       "score": 86,
       "hasText": true,
+      "summary": "• 트럼프 행정부는 이르면 1주일 내에 엔비디아, 아마존, 마이크로소프트, 오픈AI, 앤트로픽 등 20여 개 기업으로 구성된 명단을 발표할 예정. 선정된 기업은 해외 사업 지원, 수출 허가 신속 심사, 연방...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "MSFT",
         "AMZN",
         "TSM"
-      ],
-      "summary": "• 트럼프 행정부는 이르면 1주일 내에 엔비디아, 아마존, 마이크로소프트, 오픈AI, 앤트로픽 등 20여 개 기업으로 구성된 명단을 발표할 예정. 선정된 기업은 해외 사업 지원, 수출 허가 신속 심사, 연방..."
+      ]
     },
     {
       "id": "HANAchina/72239",
@@ -2277,10 +2270,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 시총 3등됨",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 시총 3등됨"
+      ]
     },
     {
       "id": "HANAchina/72237",
