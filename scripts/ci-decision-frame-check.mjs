@@ -3,7 +3,8 @@
 // an ordinary day, cash and index as the opportunity cost, the cost of being wrong, and the ground of the favoured side.
 //   producer  buildScenarioOutcomes on a small synthetic history writes base quartiles, drawdown and cash fields
 //   frame     buildDecisionFrame on fixtures: distinct / not distinct, n < 10, 10–29, missing quartiles, conflict, past-record
-//   copy      the shared renderer and the 시장 상태 story cards name the ground beside every favoured side
+//   copy      the shared renderer and the 시장 상태 story cards keep the ground of every favoured side inside the frame —
+//             v60.24 (owner 2026-11-17): in its fold (근거 종류) and the side line's title, no longer as a face tag
 //   artifact  the committed scenario-outcomes.json is read only under its stamps (old definition → no long record)
 // DECISION_FRAME_NARRATIVES=<module path> mounts another market-narratives renderer (the negative control on the old one).
 import path from 'node:path';
@@ -56,7 +57,7 @@ const cash = { value: 3.88, date: '2026-11-13', label: 'SOFR' };
   const plain = buildDecisionFrame({ record: record(), favored: ['hold', 'stage'], why: '성장 기대형 금리 상승', invalidation: ['물가 재가속'], cash });
   const text = decisionFrameText(plain);
   check('v60.19frame: 56% against a 64% base over 73 cases is not distinct and says so beside the base', plain.likelihood.distinct === false && /56%\(73번 중 41번\), 평소 64% — 평소와 구별 안 됨/.test(text.face[0]), text.face[0]);
-  check('v60.19frame: a rule-table favourite whose record is not distinct stands on 비용 가설', plain.favoured.ground === 'cost-hypothesis' && /비용 가설/.test(text.tag) && /과거 성과로 확인한 우위가 아닙니다/.test(text.ground), text.tag);
+  check('v60.24frame: a rule-table favourite whose record is not distinct stands on 비용 가설 — named in the ground note, not in the side tag', plain.favoured.ground === 'cost-hypothesis' && text.groundLabel === '비용 가설' && text.tag === '보유 유지, 분할 접근' && /^비용 가설 — .*과거 성과로 확인한 우위가 아닙니다/.test(text.ground), text);
   check('v60.19frame: payoff is two magnitudes beside an ordinary day, never one ratio or an expected value', /좋았던 25%는 \+2\.7% 이상, 나빴던 25%는 -1\.2% 이하 \(평소 \+3\.1% \/ -1\.0%\)/.test(text.face[1]) && !/손익비|기대값|배 유리/.test(JSON.stringify(text)), text.face[1]);
   check('v60.19frame: cash over the same sessions from today\'s rate and the case months\' median', plain.opportunity.cashReturn === 0.31 && /현금 약 \+0\.31%/.test(text.opportunity[0]) && /\+0\.25%/.test(text.opportunity[1]), text.opportunity);
   check('v60.19frame: the cost of being wrong is the drawdown share beside the base', plain.wrong.cost.drawdownShare === 12 && /-5% 넘게 빠진 경우 12%\(73번 중 9번\), 평소 14%/.test(text.wrong[1]), text.wrong);
@@ -69,7 +70,8 @@ const cash = { value: 3.88, date: '2026-11-13', label: 'SOFR' };
   check('v60.19frame: 10–29 cases give figures marked 참고 and never 과거 기록', small.likelihood.strength.reference && /· 참고/.test(decisionFrameText(small).face[0]) && small.favoured.ground === 'cost-hypothesis');
   const thin = buildDecisionFrame({ record: record({ n: 7, up: 5, dd5: 2 }), favored: ['wait'], why: 'x' });
   const thinText = decisionFrameText(thin);
-  check('v60.19frame: under 10 cases counts only — no share, no payoff, no drawdown share', !/%\(/.test(thinText.face[0]) && /7번 중 5번/.test(thinText.face[0]) && thin.payoff === null && thin.wrong.cost === null && /사례가 적어/.test(thinText.face[1]), thinText);
+  check('v60.24frame: under 10 cases counts only on a one-line face — no share, no payoff, no drawdown share, no sample note', !/%\(/.test(thinText.face[0]) && /7번 중 5번/.test(thinText.face[0]) && thin.payoff === null && thin.wrong.cost === null && thinText.face.length === 1 && !/사례가 적어|말하지 않/.test(thinText.face.join(' ')), thinText);
+  check('v60.24frame: a thin record\'s sample note is the evidenceStrength note for the fold, and the AI line still carries it', thinText.sample === '사례 7개라 비율·평균으로 말하지 않습니다.' && decisionFrameContext(thin).includes(thinText.sample), thinText.sample);
   const bare = buildDecisionFrame({ record: { n: 40, up: 30, horizon: 20, baseUpPct: 64, median: 2 }, favored: ['hold'], why: 'x' });
   const bareText = decisionFrameText(bare);
   check('v60.19frame: missing quartiles, drawdown and cash give 없음 legs, nothing estimated', bare.payoff === null && bare.wrong.cost === null && /이익·손실 폭: 없음/.test(bareText.face[1]) && bareText.opportunity.join() === '기회비용: 없음' && bare.missing.includes('payoff') && bare.missing.includes('wrong'), bareText);
@@ -92,14 +94,18 @@ const outcomes = { fingerprints: scenarioOutcomeFingerprints(), sourceLabel: '�
   branches: Object.fromEntries(Object.keys(BRANCH_ANALOGS).map((id) => [id, { ...record(), from: '1990-01-02', to: '2026-11-13', label: BRANCH_ANALOGS[id].label }])), themes: {} };
 const crossroads = buildMacroCrossroads({ signals, outcomes });
 {
-  const { decisionFrameBlock, favouredLine, groundTag } = await load('src/ui/components/decision-frame.js');
+  const { decisionFrameBlock, favouredLine } = await load('src/ui/components/decision-frame.js');
   const doc = createFakeDocument();
   const item = crossroads.items.find((row) => row.id === 'volshock');
   const frame = branchDecisionFrame(item, { cash: crossroads.cash || cash });
   const block = decisionFrameBlock(doc, frame, { method: item.past.text });
   const words = block.textContent;
   check('v60.19copy: the branch card frame shows 가능성 and 이익·손실 폭 first, the fold holds 기회비용 and 틀렸을 때', block.children[0].textContent.startsWith('가능성:') && block.children[1].textContent.startsWith('이익·손실 폭:') && /기회비용/.test(words) && /틀렸을 때/.test(words) && /빗나가는 조건/.test(words), words);
-  check('v60.19copy: the favoured side carries its ground', /분할 접근, 관망 · 비용 가설/.test(favouredLine(doc, frame).textContent) && groundTag(doc, frame).textContent === '비용 가설');
+  const side = favouredLine(doc, frame);
+  const fold = block.querySelector('details')?.textContent || '';
+  const face = [...block.children].filter((node) => node.tagName !== 'DETAILS').map((node) => node.textContent).join(' ');
+  check('v60.24copy: the favoured side reads the choice and reason; its ground kind is in the frame\'s fold and the line\'s title, not on the face', /^분할 접근, 관망 — /.test(side.textContent) && !/비용 가설|과거 기록/.test(side.textContent) && /^비용 가설 — /.test(side.title)
+    && /근거 종류비용 가설 — /.test(fold) && !/비용 가설|근거 종류|사례가 적어/.test(face), { side: side.textContent, face });
   check('v60.19copy: no emoji, no 거시, no 손익비, no question in the frame text', !/[\u{1F300}-\u{1FAFF}☀-➿]/u.test(words) && !/거시|손익비|\?/.test(words), words);
 }
 {
@@ -123,8 +129,37 @@ const crossroads = buildMacroCrossroads({ signals, outcomes });
   const text = section?.textContent || '';
   const favouredMentions = (text.match(/비용이 작은 쪽|비용이 작음|상대적으로 유리/g) || []).length;
   check('v60.19copy: the story cards render their scenarios', /이 시나리오에서 대응별 득실/.test(text), text.slice(0, 200));
-  check('v60.19copy: every favoured side on the story cards names its ground (비용 가설) and none reads 상대적으로 유리', favouredMentions > 0 && !/상대적으로 유리/.test(text) && (text.match(/비용 가설/g) || []).length >= (text.match(/이 시나리오에서 대응별 득실/g) || []).length, { favouredMentions, ground: (text.match(/비용 가설/g) || []).length });
+  const scenarioBoxes = [...(section?.querySelectorAll('.mk-narr__scenario') || [])].filter((box) => /이 시나리오에서 대응별 득실/.test(box.textContent));
+  const sideTexts = [...(section?.querySelectorAll('.df-side, .mk-narr__why') || [])].map((node) => node.textContent);
+  check('v60.24copy: every story scenario with a favoured side keeps its ground in the frame fold (근거 종류), the side lines carry no ground tag, and none reads 상대적으로 유리',
+    favouredMentions > 0 && !/상대적으로 유리/.test(text) && scenarioBoxes.length > 0 && scenarioBoxes.every((box) => /근거 종류(비용 가설|과거 기록) — /.test(box.querySelector('details')?.textContent || ''))
+      && sideTexts.length >= scenarioBoxes.length && sideTexts.every((line) => !/비용 가설|과거 기록/.test(line)), { favouredMentions, scenarios: scenarioBoxes.length, sideTexts });
   check('v60.19copy: the story cards show the past line with its base beside it', /가능성: 20거래일 뒤 오른 경우 \d+%\(73번 중 41번\), 평소 64%/.test(text));
+}
+
+// ── v60.24 guide and theme lines (owner 2026-11-17): the ground kind is not glued onto face lines outside the frame ──
+{
+  const { buildMarketGuide, renderMarketGuideContext } = await load('src/domain/guide/market-guide.js');
+  const { buildMarketRegime } = await load('src/domain/briefing/market-read.js');
+  const { readHistoryRows } = await load('src/domain/market/indices/history-rows.js');
+  const rows = readHistoryRows(JSON.parse(readFileSync(path.join(root, 'public-data/history.json'), 'utf8')));
+  const regime = buildMarketRegime({ history: rows, credit: { hyBp: 315, hyDelta5Bp: -9 }, rates: {} });
+  const guide = buildMarketGuide({ regime, crossroads, nowMs: Date.parse('2026-11-16T00:00:00Z') });
+  const costLines = guide.stance?.avoid?.slice(0, guide.stance.costAvoid) || [];
+  const ai = renderMarketGuideContext(guide);
+  check('v60.24guide: the 피할 쪽 cost lines read plain on the screen, and the AI block still names their ground (비용 가설)', costLines.length > 0 && costLines.every((line) => /손해가 큰 선택입니다$/.test(line) && !/비용 가설/.test(line))
+    && costLines.every((line) => ai.includes(`${line}(비용 가설)`)), { costLines, ai: ai.split('\n').find((line) => line.startsWith('- 지양')) });
+  // The 테마 stage header note and the stage choice-table flag, through the view's own builders.
+  const { stageNote, stageChoiceTable } = await load('src/ui/components/theme-playbook-view.js');
+  const { GROUND_NOTES } = await load('src/domain/scenarios/decision-frame.js');
+  const { THEME_STATES } = await load('src/domain/scenarios/analogs.js');
+  const doc = createFakeDocument();
+  const stage = Object.keys(THEME_STATES)[0];
+  const note = stageNote(doc, stage, '보유 유지·관망 2개');
+  const flags = [...stageChoiceTable(doc, stage, [{ favored: ['hold', 'wait'] }, { favored: ['wait'] }]).querySelectorAll('.xr-choice-flag')];
+  check('v60.24theme: the 테마 stage note and choice flags read without the ground label, which is their title', /조건별 득실로 .*: 보유 유지·관망 2개\.$/.test(note.textContent) && !/비용 가설|과거 기록/.test(note.textContent)
+    && note.title === GROUND_NOTES['cost-hypothesis'] && flags.length > 0 && flags.every((flag) => !/비용 가설|과거 기록/.test(flag.textContent) && flag.title === GROUND_NOTES['cost-hypothesis']),
+  { note: note.textContent, flags: flags.map((flag) => [flag.textContent, flag.title]) });
 }
 
 // ── load order (live 2026-11-16) ──

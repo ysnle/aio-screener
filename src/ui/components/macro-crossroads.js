@@ -16,7 +16,7 @@ import { groupCashflowSentence } from '../../domain/fundamental/quarterly-cashfl
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
 import { krThemeLabel } from '../../domain/themes/kr-themes.js';
 import { el } from './dom.js';
-import { decisionFrameBlock, favouredLine, groundTag } from './decision-frame.js';
+import { decisionFrameBlock, favouredLine } from './decision-frame.js';
 import { branchDecisionFrame } from '../../domain/scenarios/decision-frame.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
@@ -265,9 +265,6 @@ function branchCard(doc, root, item, lead, open = false, frame = null) {
   const tags = el(doc, 'span', null, 'xr-map-tags');
   tags.append(el(doc, 'span', TONE[item.pricing.tone] || TONE.unknown, `xr-tag is-${item.pricing.tone}`),
     el(doc, 'span', `${CHOICE_WORDS.favored}: ${item.favored.map((key) => CHOICES[key]).join(', ')}`, 'xr-tag is-choice'));
-  // The favoured side always names its ground (비용 가설 unless the record backs it).
-  const ground = groundTag(doc, frame);
-  if (ground) tags.append(ground);
   // v57.84 (owner 2026-10-16): favored stays; a conflict with the past frequency is named beside it.
   if (item.pastConflict) tags.append(pastConflictTag(doc, item));
   summary.append(head, ...(sub ? [el(doc, 'span', sub, 'xr-map-sub')] : []), tags, el(doc, 'span', '근거와 선택지', 'xr-map-more'));

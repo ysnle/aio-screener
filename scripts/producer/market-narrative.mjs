@@ -530,14 +530,9 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     // repository (an Actions artifact), never into a published file. `recordRejections` defaults to that writer; a unit
     // fixture turns it off explicitly (`recordRejections: null`) or passes its own (review v60.19 B2).
     const rejected = [];
-    // v57.81: an attribution block also logs the sentences that named news (300 chars), so the next block is diagnosable —
-    // the 10/15 log cut off before the sentence the validator judged.
     const logRejected = (attempt, body, issues) => {
-      const newsSentences = issues.includes('causal-attribution-missing')
-        ? String(body || '').replace(/\[[^\]]*\]/g, '').split(/(?<=[.?!。])\s+|\n+/).filter((sentence) => /헤드라인|보도|기사|언론|속보|뉴스|according to|headline|reported/i.test(sentence)).join(' / ').replace(/\s+/g, ' ').slice(0, 300)
-        : '';
       rejected.push({ attempt, issues, text: body });
-      console.warn(`[fetch-data] marketAnalysis ${attempt} blocked: ${issues.join(',').slice(0, 300)} :: ${String(body || '').replace(/\s+/g, ' ').slice(0, 400)}${issues.includes('causal-attribution-missing') ? ` :: news-sentences=${newsSentences || 'none'}` : ''}`);
+      console.warn(`[fetch-data] marketAnalysis ${attempt} blocked: ${issues.join(',').slice(0, 300)} :: ${String(body || '').replace(/\s+/g, ' ').slice(0, 400)}`);
     };
     const firstText = text;
     let salvaged = null;

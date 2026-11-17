@@ -116,11 +116,14 @@ function stanceOf({ direction, leadPath, lessons }) {
   if (leadPath?.triggers?.[0]) pursue.push(`다음 확인 신호를 미리 적어 두기: ${leadPath.triggers[0].when} — ${leadPath.triggers[0].text}`);
   const costly = direction.tally.filter((row) => row.costlyIn.length && row.key !== robust);
   // A rule-table cost is the decision frame's cost hypothesis (src/domain/scenarios/decision-frame.js), never a
-  // past result: the line carries that ground label.
-  for (const row of costly.slice(0, 2)) avoid.push(`${row.key === 'stage' ? '서두른 ' : ''}'${row.name}' — ${row.costlyIn.map((name) => `'${name}'`).join('·')} 시나리오로 가면 손해가 큰 선택입니다(${GROUND_LABELS['cost-hypothesis']})`);
+  // past result. The screen line reads plain — `note` (the stance headings' title and the
+  // guide card's scope note) already says these are counted cost comparisons, not odds; the AI block names the ground
+  // kind on the first `costAvoid` lines.
+  for (const row of costly.slice(0, 2)) avoid.push(`${row.key === 'stage' ? '서두른 ' : ''}'${row.name}' — ${row.costlyIn.map((name) => `'${name}'`).join('·')} 시나리오로 가면 손해가 큰 선택입니다`);
+  const costAvoid = avoid.length;
   if (leadPath?.weaker && leadPath.weaker !== '—') avoid.push(`'${leadPath.short}'에서 약해지는 쪽(${leadPath.weaker})에 한 번에 몰기`);
   for (const lesson of lessons.filter((row) => row.kind === 'trap' && row.reason).slice(0, 2)) avoid.push(`${lesson.title}에 속기`);
-  return { pursue: pursue.slice(0, 3), avoid: avoid.slice(0, 4) };
+  return { pursue: pursue.slice(0, 3), avoid: avoid.slice(0, 4), costAvoid };
 }
 
 /**
@@ -193,7 +196,7 @@ export function renderMarketGuideContext(guide) {
   lines.push(`- 선택지 집계(핵심 조건을 갖춘 시나리오별 '유리'·'비용 큼' 표시를 센 것, 확률 아님): ${d.tally.map((row) => `${row.name} 유리 ${row.favoredIn.length}·비용 큼 ${row.costlyIn.length}`).join(' / ')}. ${d.text}`);
   for (const cost of d.costIfWrong) lines.push(`- 빗나갈 때의 기회비용: '${cost.short}'(${cost.fit}) 쪽으로 가면 — ${cost.text}${cost.trigger ? ` 확인: ${cost.trigger}` : ''}`);
   if (guide.stance.pursue.length) lines.push(`- 지향: ${guide.stance.pursue.join(' / ')}`);
-  if (guide.stance.avoid.length) lines.push(`- 지양: ${guide.stance.avoid.join(' / ')}`);
+  if (guide.stance.avoid.length) lines.push(`- 지양: ${guide.stance.avoid.map((text, i) => (i < (guide.stance.costAvoid || 0) ? `${text}(${GROUND_LABELS['cost-hypothesis']})` : text)).join(' / ')}`);
   for (const lesson of guide.lessons) lines.push(`- [${LESSON_KINDS[lesson.kind]}] ${lesson.title}: ${lesson.principle}${lesson.reason ? ` (근거: ${lesson.reason})` : ''}`);
   lines.push('규칙: 이 종합을 따라 설명하되, 선택지 집계를 확률로 바꾸지 말고 독자의 보유 종목에 대한 매매·비중·가격·시점 지시로 바꾸지 마라. 태도·전략·속지 말 것은 위 원칙과 오늘 근거로만 말하라.');
   return lines.join('\n');

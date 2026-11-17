@@ -299,16 +299,20 @@ await section('v60.21 likelihood ground', async () => {
   const { buildDecisionFrame, decisionFrameText, decisionFrameContext } = await import('../src/domain/scenarios/decision-frame.js');
   const { vixBandRiskLine } = await import('../src/domain/market/signal/vix-band-record.js');
   const { evidenceStrength } = await import('../src/domain/shared/evidence-strength.js');
-  const admission = (text) => va.validateAnalysisAdmission(text);
+  // v60.24 (owner 2026-11-17): the ground kinds are measured, not enforced — an ungrounded likelihood is a warning
+  // (analysisInterpretationWarnings) and the admission stays empty; the prompt asks the model to say the ground is thin.
+  const admission = (text) => [...va.validateAnalysisAdmission(text), ...va.analysisInterpretationWarnings(text)];
   const conduct = marketAnalysisPromptSections({}).find(([id]) => id === 'conduct')?.[1] || '';
   check('v60.21 the prompt names every ground kind of the registry, and the count is not one', LIKELIHOOD_GROUNDS.length === 4
     && LIKELIHOOD_GROUNDS.every((kind) => conduct.includes(kind.label)) && /조건 충족 수\(n\/m\)와 축 상태[^.]*가능성을 말하지 않는다/.test(conduct), conduct);
+  check('v60.24 the prompt asks for a judgement even on a thin ground, said in the sentence, instead of withholding it',
+    /근거가 얇아도 쓴다/.test(conduct) && /근거는 얇지만/.test(conduct) && !/판단 보류라고 쓴다/.test(conduct) && /판단을 바꿀 조건을 함께 쓴다/.test(conduct) && /%·확률 숫자는 만들지 마라/.test(conduct), conduct);
   const countOnly = ['현재 흐름은 6개 중 4개 조건 충족입니다. 반등 가능성이 더 높아 보입니다.', '6개 중 4개 조건 충족이라 반등 가능성이 높습니다.', '조건 충족 4/6이라 평소처럼 반등 가능성이 높습니다.'];
-  check('v60.21 a likelihood grounded only in the met-condition count is rejected', countOnly.every((text) => admission(text).includes('likelihood-qualitative')),
+  check('v60.24 a likelihood grounded only in the met-condition count is warned, not blocked',
+    countOnly.every((text) => !va.validateAnalysisAdmission(text).length && va.analysisInterpretationWarnings(text).join() === 'likelihood-qualitative'),
     JSON.stringify(countOnly.map((text) => [text, admission(text)])));
   const help = va.describeMarketAnalysisIssues(countOnly[0], ['likelihood-qualitative']);
-  check('v60.21 the retry help quotes the sentence without a ground and lists every allowed kind',
-    help.includes('"반등 가능성이 더 높아 보입니다."') && LIKELIHOOD_GROUNDS.every((kind) => help.includes(kind.label)) && /drop the likelihood word/.test(help), help);
+  check('v60.24 no retry help is written for an interpretation warning (it never reaches a retry)', help === '- likelihood-qualitative', help);
   const frame = decisionFrameText(buildDecisionFrame({ record: { n: 138, up: 80, baseUpPct: 55, horizon: 20 }, favored: ['hold'], why: '소비 재가속이 이익 기대를 받칩니다' }));
   const side = decisionFrameContext(buildDecisionFrame({ record: null, favored: ['hold'], why: '소비 재가속이 이익 기대를 받칩니다' }));
   const vix = vixBandRiskLine({ state: 'current', vix: 25.6, label: '높음', band: { label: '높음' }, from: '1990-01-02', horizon: 21, drawdownAtPct: -5,
@@ -326,26 +330,40 @@ await section('v60.21 likelihood ground', async () => {
   const state = ['현재 흐름은 6개 중 4개 조건 충족입니다.', '「성장 재가속」 — 조건 충족 3/4이며 추세는 부담, 시장 폭은 양호입니다.'];
   check('v60.21 a sentence that reports the count without a likelihood word passes', state.every((text) => !admission(text).length), JSON.stringify(state.map(admission)));
 
-  // Retention: a reading verified under the old ground list is still the dated 직전 검증본, not the figures-only fallback.
+  // Retention: a reading carrying an ungrounded likelihood re-checks clean (a warning only), so it stays the dated 직전 검증본.
   const { data, snapshot, previous } = fx.outage;
   const nowMs = Date.parse(fx.outage.nowMs);
   const oldHabit = { ...previous, full: `${previous.full}\n${countOnly[0]}`, summary: `${previous.summary}\n${countOnly[0]}` };
   const revalidate = (summary) => va.validateMarketAnalysisText(summary, data, snapshot, { history: fx.outage.history });
-  const raw = revalidate(oldHabit.full).issues;
+  const base = revalidate(previous.full);
+  const recheck = revalidate(oldHabit.full);
   const kept = va.retainVerifiedMarketAnalysis(oldHabit, { reason: 'analysis-blocked', nowMs, revalidate });
-  check('v60.21 the published 11/10 reading has no ungrounded likelihood, and the old-habit copy fails only that rule on re-check yet is kept with its own time',
-    !va.ungroundedLikelihoodSentences(previous.full).length && raw.includes('likelihood-qualitative') && !va.retainedReadingIssues(oldHabit, { ...revalidate(oldHabit.full) }).length
-      && kept?.status === 'verified' && kept.retained?.from === previous.generatedAt, JSON.stringify({ raw, kept: kept?.retained }));
+  check('v60.24 the published 11/10 reading has no ungrounded likelihood; the copy with one adds only a warning on re-check and is kept with its own time',
+    !base.warnings.includes('likelihood-qualitative') && recheck.warnings.includes('likelihood-qualitative') && recheck.issues.join() === base.issues.join() && !va.retainedReadingIssues(oldHabit, recheck).length
+      && kept?.status === 'verified' && kept.retained?.from === previous.generatedAt, JSON.stringify({ base: base.issues, recheck: [recheck.issues, recheck.warnings], kept: kept?.retained }));
   const run = (request) => quiet(() => genMarketAnalysis(data, snapshot, { previous: oldHabit, request, nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null, recordRejections: null }));
-  const blockedTwice = await run(async () => ({ text: '반등 가능성이 높습니다.' }));
+  const blockedTwice = await run(async () => ({ text: '반등 확률은 70%입니다.' }));
   const noAnswer = await run(async () => ({ text: null, reason: 'provider-http-429' }));
-  check('v60.21 a blocked retry and a provider outage keep the old-habit reading as the 직전 검증본, not the plain fallback',
+  check('v60.24 a retry blocked by an invented probability and a provider outage keep the reading as the 직전 검증본, not the plain fallback',
     blockedTwice?.status === 'verified' && blockedTwice.retained?.from === previous.generatedAt && noAnswer?.status === 'verified' && noAnswer.retained?.from === previous.generatedAt,
     JSON.stringify({ b: [blockedTwice?.status, blockedTwice?.reason], n: [noAnswer?.status, noAnswer?.reason] }));
+  // A fresh answer: its rejections name only fact-class rules (the 11/10 text has session-wording lines on this run's
+  // data), never the ungrounded likelihood, and the published reading carries that as a warning. The one-call publish of
+  // a reading whose only finding is the likelihood is N8 in ci-narrative-lifecycle-model-check.
+  const rejectedIssues = [];
+  const fresh = await quiet(() => genMarketAnalysis(data, snapshot, { previous: null, request: async () => ({ text: oldHabit.full }), nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null,
+    recordRejections: (rows) => rejectedIssues.push(...rows.flatMap((row) => row.issues)) }));
+  check('v60.24 an ungrounded likelihood is never a rejection reason and rides on the published reading as a warning',
+    fresh?.status === 'verified' && rejectedIssues.length > 0 && !rejectedIssues.some((issue) => ['likelihood-qualitative', 'frequency-without-sample', 'causal-attribution-missing'].includes(issue))
+      && (fresh.semanticWarnings || []).includes('likelihood-qualitative'),
+    JSON.stringify({ status: fresh?.status, reason: fresh?.reason, rejectedIssues, warnings: fresh?.semanticWarnings }));
+  const ordered = await run(async () => ({ text: `${previous.full}\n지금 매수하세요.` }));
+  check('v60.24 the same reading with an order to the reader is still blocked (kept as the 직전 검증본, not published fresh)',
+    ordered?.retained?.from === previous.generatedAt, JSON.stringify({ status: ordered?.status, reason: ordered?.reason, retained: ordered?.retained }));
 });
 
 if (failures.length) {
   console.error(`[market-reading-week-fixture] FAIL (${failures.length})\n - ${failures.join('\n - ')}`);
   process.exit(1);
 }
-console.log('[market-reading-week-fixture] OK: 11/10 outage retention, 11/11 in-session slot, slot ids and direction rule, 11/14 lead and ledger agreement, published-form rule, rejection log, likelihood ground kinds');
+console.log('[market-reading-week-fixture] OK: 11/10 outage retention, 11/11 in-session slot, slot ids and direction rule, 11/14 lead and ledger agreement, published-form rule, rejection log, likelihood ground kinds measured as warnings');

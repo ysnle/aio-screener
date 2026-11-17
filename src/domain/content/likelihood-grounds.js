@@ -1,7 +1,9 @@
 // The kinds of ground a likelihood in words ("가능성이 더 높아 보입니다") or a favoured side may stand on in the AI market
 // reading, in one list: the prompt's conduct line names each kind by `label` (scripts/lib/market-analysis-prompt.mjs) and
-// the validator admits a likelihood only when one kind's `patterns` all match its sentence or the sentence before it
-// (scripts/lib/market-analysis-validate.mjs). A kind added, renamed or removed here changes both at once.
+// the validator counts a likelihood as grounded when one kind's `patterns` all match its sentence or the sentence before
+// it (scripts/lib/market-analysis-validate.mjs). A kind added, renamed or removed here changes both at once.
+// A likelihood without a listed ground is a warning (likelihood-qualitative), not a block; the prompt asks the model to
+// say in the sentence that the ground is thin.
 // A met-condition count (n/m), an axis state (양호·중립·부담), a signed move or a bare condition ("…하면") describe the
 // present; the six-axis count failed its pre-registered backtest (model-validation-status.json marketLean), so none of
 // them is a kind. The patterns read the wording the model is given: the decision frame (decision-frame.js

@@ -250,8 +250,7 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .xr-tag.is-against { color: var(--color-text-error); border-color: var(--color-text-error); }
 .page .xr-tag.is-past-conflict { color: var(--color-text-warning); border-color: var(--color-text-warning); }
 .page .xr-tag.is-choice { color: var(--color-text-success); border-color: var(--color-text-success); }
-/* Decision frame (src/ui/components/decision-frame.js): two face lines, the ground tag, one fold. */
-.page .xr-tag.is-ground { border-style: dashed; }
+/* Decision frame (src/ui/components/decision-frame.js): two face lines, one fold (ground kind and sample note live there). */
 .page .df-frame { margin: 8px 0; max-width: 920px; }
 .page .df-line { font-size: 14px; line-height: 1.6; margin: 4px 0; color: var(--color-text-primary); overflow-wrap: anywhere; }
 .page .df-line.is-conflict { color: var(--color-text-warning); }

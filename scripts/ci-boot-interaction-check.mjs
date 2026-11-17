@@ -188,6 +188,9 @@ try {
       domNodes: document.getElementsByTagName('*').length,
       activeRouteDomNodes: document.querySelector('.page.active')?.getElementsByTagName('*').length || 0,
       scenarioDepthDeferred: !document.querySelector('#regime-depth-fold :is(#macro-crossroads, #home-guide)'),
+      // v60.24: the deferred story view defers its DOM, not its data — the AI context and the lead's tie-keeping read
+      // scenario-state.json on the default (now) view too.
+      scenarioStateLoaded: !!window._aioScenarioState?.schemaVersion,
       activePage: document.querySelector('.page.active')?.id || '',
       bootStatusPresent: !!document.getElementById('aio-boot-status'),
       // Codex audit F14 (2026-10-15): decodedJsMbMax had no measurement. Same-origin scripts (classic + native ESM)
@@ -256,6 +259,7 @@ try {
   if (result.maxLongTaskMs > 2500) failures.push(`max long task ${result.maxLongTaskMs}ms > 2500ms`);
   if (result.activePage !== 'page-signal') failures.push(`route did not activate signal (${result.activePage})`);
   if (!result.scenarioDepthDeferred || !result.scenarioView.passed) failures.push(`scenario view deferred mount or navigation failed (${JSON.stringify(result.scenarioView)})`);
+  if (!result.scenarioStateLoaded) failures.push('v60.24 scenario-state.json was not loaded on the default 시장 신호 view (the story view defers DOM only)');
   if (result.bootStatusPresent) failures.push('boot status did not hard-release');
   if (!measureSource) {
     // v59.70 (owner D1): the AI panel script and reference corpus wait for an AI control; hovering it starts both.

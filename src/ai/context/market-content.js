@@ -17,7 +17,7 @@ import { conditionLabel, parseConditionValue } from '../../domain/screener/custo
 import { signedText } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { SCENARIO_OUTCOMES } from '../../data/artifact-registry.js';
+import { SCENARIO_OUTCOMES, SCENARIO_STATE } from '../../data/artifact-registry.js';
 
 // P1621: share page-independent selection between both legacy chat callers.
 export function buildQuestionDomainContext({ ctxId, query = '', root = {}, readDomain = () => '', tickers = [], blocks = null } = {}) {
@@ -126,13 +126,17 @@ export function loadChoosingBlocks() {
 }
 // The branch frames the answer quotes read the same long record the screens draw (macro-crossroads pastFor): a question
 // asked before any screen loaded scenario-outcomes.json waits for it briefly beside the blocks, else the AI would quote
-// AIO's own short close record while 시장 상태 shows the long one.
+// AIO's own short close record while 시장 상태 shows the long one. scenario-state.json the same way — its
+// automated change log and release scores ("최근 변화", "지난 발표 판정") and the published lead the interpretation keeps
+// on a tie, on any screen.
 const RECORD_WAIT_MS = 2500;
 function scenarioRecordReady(root) {
-  if (!root || typeof root !== 'object' || root[SCENARIO_OUTCOMES.key]) return Promise.resolve();
+  if (!root || typeof root !== 'object') return Promise.resolve();
+  const missing = [SCENARIO_OUTCOMES, SCENARIO_STATE].filter((spec) => !root[spec.key]);
+  if (!missing.length) return Promise.resolve();
   let timer = null;
   const waited = new Promise((resolve) => { timer = setTimeout(resolve, RECORD_WAIT_MS); });
-  return Promise.race([refreshSharedArtifact(root, SCENARIO_OUTCOMES).catch(() => null), waited]).finally(() => clearTimeout(timer));
+  return Promise.race([Promise.all(missing.map((spec) => refreshSharedArtifact(root, spec).catch(() => null))), waited]).finally(() => clearTimeout(timer));
 }
 buildQuestionDomainContext.loadBlocks = (root = globalThis) => Promise.all([loadChoosingBlocks(), scenarioRecordReady(root)]).then(([blocks]) => blocks);
 

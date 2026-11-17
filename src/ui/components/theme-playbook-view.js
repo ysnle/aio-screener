@@ -17,7 +17,7 @@ import { CHOICES } from '../../domain/market/regime/macro-crossroads.js';
 import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { stageChoiceText, LEAD_CONFIRM_MET, ABOVE50_FLOOR } from '../../domain/scenarios/theme-playbook.js';
-import { GROUND_LABELS, themeDecisionFrame } from '../../domain/scenarios/decision-frame.js';
+import { GROUND_NOTES, themeDecisionFrame } from '../../domain/scenarios/decision-frame.js';
 import { decisionFrameBlock, favouredLine } from './decision-frame.js';
 
 const CREDIT_CONDITION = '신용 안정';
@@ -26,7 +26,15 @@ const CHOICE_TEXT_OF = (state) => stageChoiceText(state);
 // so the same name read +9.9% in the sector line and +7.0% here. Where the names collide the theme says '테마'.
 const SECTOR_NAMES = new Set(Object.values(SECTOR_ETF_LABELS));
 export const themeBasketLabel = (label) => (SECTOR_NAMES.has(String(label || '')) ? `${label} 테마` : label);
-function stageChoiceTable(doc, stage, list) {
+/** The stage header's definition and favoured-choice tally; the tally's ground kind (a cost hypothesis) is its title. */
+export function stageNote(doc, stage, choiceLine = '') {
+  const definition = THEME_STATES[stage]?.match(/\((.*)\)$/)?.[1];
+  const note = el(doc, 'span', `${definition ? `${definition}.` : '단계 판정의 조건이 맞지 않아 보류한 테마입니다(이유는 행을 눌러 확인).'}${choiceLine ? ` 조건별 득실로 ${CHOICE_WORDS.favored}: ${choiceLine}.` : ''}`, 'tp-stage-note');
+  if (choiceLine) note.title = GROUND_NOTES['cost-hypothesis'];
+  return note;
+}
+
+export function stageChoiceTable(doc, stage, list) {
   const wrap = el(doc, 'div', null, 'tp-stage-choices');
   const texts = Object.entries(CHOICE_TEXT_OF(stage));
   if (!texts.length) return wrap;
@@ -37,8 +45,8 @@ function stageChoiceTable(doc, stage, list) {
     const favored = list.filter((row) => row.favored.includes(key)).length;
     if (favored) line.dataset.favored = 'true';
     line.append(el(doc, 'span', CHOICES[key], 'xr-choice-name'), el(doc, 'span', text, 'xr-choice-text'));
-    // A stage-level tally of the rule table is a cost hypothesis by construction.
-    if (favored) line.append(el(doc, 'span', `${favored === list.length ? CHOICE_WORDS.favored : `${CHOICE_WORDS.favored}, ${favored}개 테마`} · ${GROUND_LABELS['cost-hypothesis']}`, 'xr-choice-flag'));
+    // A stage-level tally of the rule table is a cost hypothesis by construction; the flag names it on hover.
+    if (favored) line.append(Object.assign(el(doc, 'span', favored === list.length ? CHOICE_WORDS.favored : `${CHOICE_WORDS.favored}, ${favored}개 테마`, 'xr-choice-flag'), { title: GROUND_NOTES['cost-hypothesis'] }));
     table.append(line);
   }
   wrap.append(table);
@@ -619,9 +627,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
     for (const row of list) counts.set(favoredKey(row), (counts.get(favoredKey(row)) || 0) + 1);
     const majority = [...counts].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
     const choiceLine = stage === 'held' ? '' : [...counts].sort((a, b) => b[1] - a[1]).map(([key, n]) => `${key ? key.split('+').map((k) => CHOICES[k].split(' (')[0]).join('·') : '보류'} ${n}개`).join(', ');
-    const definition = THEME_STATES[stage]?.match(/\((.*)\)$/)?.[1];
-    stageCell.append(el(doc, 'span', `${stage === 'held' ? '판정 보류' : stageName(stage)}, ${list.length}개`, 'tp-stage-name'),
-      el(doc, 'span', `${definition ? `${definition}.` : '단계 판정의 조건이 맞지 않아 보류한 테마입니다(이유는 행을 눌러 확인).'}${choiceLine ? ` 조건별 득실로 ${CHOICE_WORDS.favored}(${GROUND_LABELS['cost-hypothesis']}): ${choiceLine}.` : ''}`, 'tp-stage-note'));
+    stageCell.append(el(doc, 'span', `${stage === 'held' ? '판정 보류' : stageName(stage)}, ${list.length}개`, 'tp-stage-name'), stageNote(doc, stage, choiceLine));
     if (stage !== 'held') {
       const fold = el(doc, 'details', null, 'tp-stage-choices-fold');
       fold.dataset.stage = `${market}:${stage}`;

@@ -125,8 +125,10 @@ function contradictsReference(text, numbers, entities) {
     return numbers.some(function(number) { return number.metric === figure.want.metric && number.unit === unit && (number.entity || null) === (figure.want.subject || null); });
   });
 }
-function searchedSentenceKept(sentence, urls, numbers, entities) {
-  if (!citesSearchSource(sentence, urls)) return false;
+// Owner 2026-11-17 ("validation should not block"): the citation may sit on another sentence of the same block
+// (paragraph, list item); a block with no citation of this request still loses its searched figures.
+function searchedSentenceKept(sentence, urls, numbers, entities, block) {
+  if (!citesSearchSource(sentence, urls) && !citesSearchSource(block, urls)) return false;
   var text = String(sentence).replace(INLINE_LINK, ' $1 ').replace(CITED_URL, ' ');
   return !DERIVED_FIGURE.test(normaliseForDetection(text)) && !contradictsReference(text, numbers, entities);
 }
@@ -644,18 +646,35 @@ const TREND_BASIS = /주가\s*(?:추이|흐름)|(?:최근\s*)?\d+\s*거래일\s*
 const BARE_CITATION_HOST = /^\((?:[a-z0-9-]+\.)+[a-z]{2,}\)[.!?。]*$/i;
 const APP_TREND_CREDIT = 'AIO 앱의 주가 추이 자료';
 
-// A date-only app trend claim uses the successful tool's subject and basis. Unrelated historical dates and web dates
-// retain their normal path. A search citation is not a source for the result of the app call.
+// A close-basis date written for a ticker's price trend is compared with this request's successful tool rows
+// for that ticker (any tool whose asOf is "YYYY-MM-DD 종가": trend, price_history, technicals). The same date keeps the
+// sentence as written; another date is replaced by the tool's. A ticker with no such row, several dates, or tickers
+// whose dates differ leave the sentence to the normal path. A row naming several tickers (technicals) carries the
+// latest of their dates, so it can confirm a written date but never rewrite one. A search citation is not a source for
+// the result of the app call: it is taken off a bound sentence.
+const CITATION_PIECE = /\(?\s*\[[^\[\]\n]*\]\(https?:\/\/[^)\s]+\)\s*\)?|\((?:[a-z0-9-]+\.)+[a-z]{2,}\)|(?:https?:\/\/|www\.)\S+/gi;
+const withoutCitations = (text) => String(text).replace(CITATION_PIECE, ' ').replace(/\s+([.,!?。])/g, '$1').replace(/\s{2,}/g, ' ').trim();
+function tickerCloseDates(toolBasis, entity) {
+  const rows = toolBasis.filter((row) => row?.entities?.includes(entity) && typeof row.asOf === 'string' && isoDay(row.asOf.slice(0, 10)) && row.asOf.slice(10) === ' 종가');
+  const own = rows.filter((row) => row.entities.length === 1);
+  return { dates: new Set((own.length ? own : rows).map((row) => row.asOf.slice(0, 10))), shared: !own.length };
+}
 function bindAppTrendBasis(sentence, bare, toolBasis, matchers) {
-  if (!Array.isArray(toolBasis) || !APP_TOOL_SOURCE.test(bare) || !TREND_BASIS.test(bare)
-      || !/기준일|종가\s*기준/.test(bare) || !lineDates(bare).length || writtenFigures(bare).length) return null;
-  const entity = matchers && soleEntity(bare, matchers);
-  const dates = new Set(toolBasis.filter((row) => entity && row?.name === 'trend' && row.entities?.includes(entity)
-    && typeof row.asOf === 'string' && isoDay(row.asOf.slice(0, 10)) && row.asOf.slice(10) === ' 종가').map((row) => row.asOf));
+  if (!Array.isArray(toolBasis) || !toolBasis.length || !matchers || !TREND_BASIS.test(bare)
+      || !/기준일|종가\s*기준/.test(bare) || writtenFigures(bare).length) return null;
+  const written = lineDates(bare);
+  const tickers = namedEntities(bare, matchers);
+  if (!written.length || !tickers.length) return null;
+  const found = tickers.map((entity) => tickerCloseDates(toolBasis, entity));
+  const dates = new Set(found.flatMap((item) => [...item.dates]));
+  if (found.some((item) => item.dates.size !== 1) || dates.size !== 1) return null;
+  const [day] = dates;
+  // A written day without a year ("11월 13일") agrees on month and day.
+  const agrees = written.every((value) => value === day || (value.startsWith('--') && value.slice(1) === day.slice(4)));
+  if (agrees) return { text: withoutCitations(sentence), date: `${day} 종가`, kept: true };
+  if (found.some((item) => item.shared)) return null;
   const prefix = sentence.match(/^(?:[-*+]\s+|\d+[.)]\s+)/)?.[0] || '';
-  if (dates.size !== 1) return { text: `${prefix}해당 주가 추이의 기준일은 앱 자료에서 확인하지 못했습니다.`, date: null };
-  const [date] = dates;
-  return { text: `${prefix}${entity} 주가 추이 기준일은 ${date}입니다. 출처는 ${APP_TREND_CREDIT}입니다.`, date };
+  return { text: `${prefix}${tickers.join('·')} 주가 추이 기준일은 ${day} 종가입니다. 출처는 ${APP_TREND_CREDIT}입니다.`, date: `${day} 종가`, kept: false };
 }
 
 function stripNumericSentences(value, today, numbers, entities, searchUrls, toolBasis) {
@@ -681,14 +700,16 @@ function stripNumericSentences(value, today, numbers, entities, searchUrls, tool
       if (!head) header = cells.map(function(cell) { return cell.trim(); });
       const basis = bindAppTrendBasis(line, line.replace(CITED_URL, ' '), toolBasis, toolMatchers);
       if (basis) {
-        if (basis.date) toolDates += 1;
+        toolDates += 1;
         return cells.map((cell) => {
           const bare = cell.replace(CITED_URL, ' ');
+          const cites = bare !== cell || BARE_CITATION_HOST.test(bare.trim());
+          if (basis.kept) return cites ? ` ${withoutCitations(cell) || APP_TREND_CREDIT} ` : cell;
           const hasDate = lineDates(bare).length > 0;
-          const hasSource = APP_TOOL_SOURCE.test(bare) || bare !== cell || BARE_CITATION_HOST.test(bare.trim());
+          const hasSource = APP_TOOL_SOURCE.test(bare) || cites;
           if (hasDate && hasSource) return ` ${basis.text} `;
-          if (hasDate) return ` ${basis.date || '기준일 확인 불가'} `;
-          if (hasSource) return ` ${basis.date ? APP_TREND_CREDIT : '앱 자료 확인 불가'} `;
+          if (hasDate) return ` ${basis.date} `;
+          if (hasSource) return ` ${APP_TREND_CREDIT} `;
           return cell;
         }).join('|');
       }
@@ -712,20 +733,20 @@ function stripNumericSentences(value, today, numbers, entities, searchUrls, tool
       var bare = sentence.replace(CITED_URL, ' ');
       let basis = bindAppTrendBasis(sentence, bare, toolBasis, toolMatchers);
       const next = sentences[index + 1];
-      if (!basis && next?.search(APP_TOOL_SOURCE) === 0) {
-        basis = bindAppTrendBasis(sentence, `${bare} ${next.replace(CITED_URL, ' ')}`, toolBasis, toolMatchers);
-        if (basis) boundAttribution = index + 1;
-      }
+      const attribution = next?.search(APP_TOOL_SOURCE) === 0;
+      if (!basis && attribution) basis = bindAppTrendBasis(sentence, `${bare} ${next.replace(CITED_URL, ' ')}`, toolBasis, toolMatchers);
       if (basis) {
+        // The app attribution sentence after it belongs to it: kept without its web link, or folded into the rewrite.
+        if (attribution) boundAttribution = index + 1;
         appBasisBefore = true;
-        if (basis.date) toolDates += 1;
-        return [basis.text];
+        toolDates += 1;
+        return basis.kept && attribution ? [basis.text, withoutCitations(next)] : [basis.text];
       }
       // With reference material in hand, a sentence whose only numbers are dates or window lengths ("11월 12일 종가
       // 기준 자료입니다") states no figure to check and stays.
       var nothingToCheck = Array.isArray(numbers) && numbers.length > 0 && writtenFigures(bare).length === 0;
       var current = numericClaimKind(sentence, { today: today }) === 'current' && !nothingToCheck && !figuresSupported(bare, numbers, { entities: entities });
-      if (current && searchedSentenceKept(sentence, searchUrls, numbers, entities)) { searched += 1; return [sentence]; }
+      if (current && searchedSentenceKept(sentence, searchUrls, numbers, entities, line)) { searched += 1; return [sentence]; }
       if (current) removed += 1;
       return current ? [] : [sentence];
     }).join(' ');
@@ -773,7 +794,7 @@ export function stripUnverifiedCurrentEventSentences(value, isBound, { today } =
       var normalised = normaliseForDetection(bare);
       var event = CURRENT_EVENT.test(bare) && !GENERAL_OR_HISTORICAL.test(bare) && !isConditionalNumericSentence(bare) && !CONDITIONAL_MARKER.test(bare.replace(NON_CONDITIONAL_MYEON, ' '))
         && !isDatedPast(normalised, nowMs) && !isFixedFact(normalised)
-        && !(typeof isBound === 'function' && isBound(bare, sentence));
+        && !(typeof isBound === 'function' && isBound(bare, sentence, line));
       if (event) dropped += 1;
       return !event;
     }).join(' ');
@@ -803,11 +824,11 @@ function guardFallback(text, currentSensitive, options) {
   result.removedNumericSentences = numeric.removed;
   result.searchedSentences = numeric.searched;
   result.toolDates = numeric.toolDates;
-  var cited = function(bare, sentence) { return searchedSentenceKept(sentence, searchUrls, numbers, entities); };
+  var cited = function(bare, sentence, block) { return searchedSentenceKept(sentence, searchUrls, numbers, entities, block); };
   var events = null;
   if (options && options.evidenceCount === 0 && !numbers) events = stripUnverifiedCurrentEventSentences(numeric.text, searchUrls ? cited : null, { today: today });
   // v58.77 AI-01: with evidence rows handed in, an event sentence must name what one of them covers (same as the plan path).
-  else if (options && (Array.isArray(options.evidenceRows) || numbers)) events = stripUnverifiedCurrentEventSentences(numeric.text, function(sentence, whole) { return eventBoundToEvidence(sentence, options.evidenceRows || []) || figuresSupported(sentence, numbers, { entities: entities }) || cited(sentence, whole); }, { today: today });
+  else if (options && (Array.isArray(options.evidenceRows) || numbers)) events = stripUnverifiedCurrentEventSentences(numeric.text, function(sentence, whole, block) { return eventBoundToEvidence(sentence, options.evidenceRows || []) || figuresSupported(sentence, numbers, { entities: entities }) || cited(sentence, whole, block); }, { today: today });
   if (events) { result.text = events.text; result.removedEventSentences = events.dropped; }
   return result;
 }
@@ -843,7 +864,8 @@ const CURRENT_GAP_REASONS = ['market-session-evidence-unavailable', 'current-evi
 var REMOVAL_REASONS = ['answer-plan-claim-degraded', 'typed-claim-validation'];
 function searchedFiguresPhrase(list, search, numericDropped, currentGap) {
   var removed = Number(search.removedNumericSentences) > 0 || list.some(function(reason) { return REMOVAL_REASONS.indexOf(reason) >= 0; });
-  if (Number(search.toolDates) > 0) return '주가 추이 기준일은 앱 자료, 웹검색 내용은 링크 원문 기준' + (removed ? ' · 확인되지 않은 일부 수치 제외' : '');
+  // Searched figures beside an app date still say they are not AIO's.
+  if (Number(search.toolDates) > 0) return (Number(search.searchedSentences) > 0 ? '주가 추이 기준일은 앱 자료 · 웹검색 수치는 AIO가 확인한 값 아님, 링크 원문 기준' : '주가 추이 기준일은 앱 자료, 웹검색 내용은 링크 원문 기준') + (removed ? ' · 확인되지 않은 일부 수치 제외' : '');
   if (Number(search.searchedSentences) > 0) return removed ? '웹검색 출처가 붙은 수치만 표시 — AIO가 확인한 값 아님' : '웹검색 출처의 수치 — AIO가 확인한 값 아님, 링크 원문 기준';
   if (removed) return '출처가 붙지 않은 최신 수치는 뺌 — 아래 참고 링크 원문 확인';
   return numericDropped || currentGap ? '최신 수치는 아래 참고 링크 원문 기준' : '';
@@ -958,11 +980,11 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     toolDates += out.toolDates;
     return out.text;
   };
-  var cited = function(bare, sentence) { return searchedSentenceKept(sentence, searchUrls, numbers, entities); };
+  var cited = function(bare, sentence, block) { return searchedSentenceKept(sentence, searchUrls, numbers, entities, block); };
   var clean = function(text) {
     var out = stripNumeric(tidyInlineCitations(text));
     // An event sentence whose figures are all in the evidence ("오늘 −1.2% 내렸지만") is bound by those values.
-    var events = stripUnverifiedCurrentEventSentences(out, noSupport ? (searchUrls ? cited : null) : function(sentence, whole) { return eventBoundToEvidence(sentence, rows) || figuresSupported(sentence, numbers, { entities: entities }) || cited(sentence, whole); }, { today: nowMs });
+    var events = stripUnverifiedCurrentEventSentences(out, noSupport ? (searchUrls ? cited : null) : function(sentence, whole, block) { return eventBoundToEvidence(sentence, rows) || figuresSupported(sentence, numbers, { entities: entities }) || cited(sentence, whole, block); }, { today: nowMs });
     eventsDropped += events.dropped;
     return events.text;
   };

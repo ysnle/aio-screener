@@ -2051,10 +2051,73 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
       && value.includes('2026-11-13 종가') && value.includes('AIO 앱의 주가 추이 자료') && !/11월 14일|\[sec\.gov\]/.test(value)),
     JSON.stringify({ publicText, freeText }));
   }
+  // v60.24: a ticker with no close-basis row of its own leaves the sentence to the normal path (the same text as without
+  // any tool rows); the app never says it could not confirm a date it was not asked for.
   const wrongTool = answerPublication.extractAnswerFallbackResult(text, true, { ...opts, toolBasis: [{ ...toolBasis[0], entities: ['MSFT'] }] });
   const noTool = answerPublication.extractAnswerFallbackResult(text, true, { ...opts, toolBasis: [] });
-  check('v60.23 a web link or another company tool cannot stand in for a missing matching app result',
-    [wrongTool, noTool].every((item) => item.text.includes(filing) && /앱 자료에서 확인하지 못했습니다/.test(item.text) && !/11월 14일|2026-11-13 종가/.test(item.text)));
+  const untouched = answerPublication.extractAnswerFallbackResult(text, true, { ...opts, toolBasis: null });
+  check('v60.24 another company\'s tool row or no row leaves the sentence to the normal path, never "확인하지 못했습니다"',
+    [wrongTool, noTool].every((item) => item.text === untouched.text && item.text.includes(filing) && !/확인하지 못했습니다/.test(item.text)), JSON.stringify({ wrongTool: wrongTool.text, untouched: untouched.text }));
+}
+
+// v60.24 (review of v60.23): the date check compares, it does not match a phrase. price_history and technicals write the
+// same "YYYY-MM-DD 종가" basis as trend; two tickers on one date keep the sentence; a wrong date without "앱 자료 도구" is
+// still corrected. AI_PUBLICATION_MODULE=<path> runs this block on another copy (the negative control on the old one).
+{
+  const { pathToFileURL } = await import('node:url');
+  const pub = process.env.AI_PUBLICATION_MODULE ? await import(pathToFileURL(process.env.AI_PUBLICATION_MODULE).href) : answerPublication;
+  const nowMs = Date.parse('2026-11-16T12:00:00Z');
+  const url = 'https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/aapl-20260926.htm';
+  const opts = { nowMs, today: nowMs, referenceText: '[주가 추이] AAPL: 5거래일 +2.4%\n(기준: 2026-11-13 종가)', entities: ['AAPL', 'MSFT'], searchCitations: [{ url }], evidenceCount: 0 };
+  const run = (text, toolBasis) => pub.extractAnswerFallbackResult(text, true, { ...opts, toolBasis }).text;
+  const row = (name, entities, day = '2026-11-13') => ({ name, asOf: `${day} 종가`, entities });
+  const history = 'AAPL 최근 20거래일 주가 흐름의 기준일은 2026-11-13 종가입니다. 앱 자료 도구에서 조회했습니다.';
+  check('v60.24 a matching close date from price_history or technicals keeps the sentence as written',
+    run(history, [row('price_history', ['AAPL'])]) === history && run(history, [row('technicals', ['AAPL'])]) === history);
+  const pair = 'AAPL과 MSFT의 최근 5거래일 주가 추이 기준일은 2026년 11월 13일 종가입니다. 앱 자료 도구에서 조회했습니다.';
+  check('v60.24 two tickers whose own rows share the written date keep the sentence',
+    run(pair, [row('trend', ['AAPL']), row('trend', ['MSFT'])]) === pair && run(pair, [row('technicals', ['AAPL', 'MSFT'])]) === pair);
+  const unphrased = run('AAPL 주가 추이 기준일은 2026년 11월 14일 종가 기준입니다.', [row('trend', ['AAPL'])]);
+  check('v60.24 a wrong close date is replaced by the tool\'s without the "앱 자료 도구" phrase', unphrased.includes('2026-11-13 종가') && !/11월 14일/.test(unphrased), unphrased);
+  const cited = run(`${history} ([sec.gov](${url}))`, [row('trend', ['AAPL'])]);
+  check('v60.24 a kept app date drops the web link beside it (search is not its source)', cited === history, cited);
+  const split = 'AAPL과 MSFT의 최근 5거래일 주가 추이 기준일은 2026년 11월 14일 종가입니다.';
+  check('v60.24 tickers on different dates, or a shared row that disagrees, leave the sentence to the normal path',
+    run(split, [row('trend', ['AAPL']), row('trend', ['MSFT'], '2026-11-12')]) === run(split, null) && run(split, [row('technicals', ['AAPL', 'MSFT'])]) === run(split, null));
+  const banner = (search) => pub.summarizeAnswerLimitations(['current-numeric-claim-unverified'], { publishedClaimCount: 0, search });
+  check('v60.24 searched figures beside an app date still say they are not AIO\'s',
+    /AIO가 확인한 값 아님/.test(banner({ searchedSentences: 1, removedNumericSentences: 0, toolDates: 1 })) && !/AIO가 확인한 값 아님/.test(banner({ searchedSentences: 0, removedNumericSentences: 0, toolDates: 1 })));
+  // Owner 2026-11-17 ("validation should not block"): a searched figure is kept when its block (paragraph, list item)
+  // cites this request's source; a block with no such citation still loses it.
+  const u1 = 'https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Sets-Conference-Call/?utm_source=openai';
+  const c1 = `([investor.nvidia.com](${u1}))`;
+  const range = '집계처별 매출 추정치는 540억~560억 달러 범위입니다.';
+  const point = `LSEG 집계 컨센서스는 이 범위 안의 549억 달러입니다 ${c1}`;
+  const plan = { schemaVersion: 'answer-plan.v1', summary: '', sections: [], claims: { claims: [] }, citations: [] };
+  const publish = (summary) => pub.buildPublishableAnswerPlan({ ...plan, summary }, [], true, { nowMs, searchCitations: [{ url: u1 }] }).plan.summary;
+  check('v60.24 a cited paragraph keeps its uncited sibling figure sentence', publish(`${range} ${point}`).includes(range));
+  const apart = publish(`${range}\n\n${point}`);
+  check('v60.24 a paragraph with no citation of this request still loses its searched figure', !apart.includes('540억') && apart.includes('549억'), apart);
+}
+
+// v60.24: 시장 신호 paints its scenario detail only in the story view since v60.23, and that paint was the only loader of
+// scenario-state.json — an AI question on the default view lost "최근 변화(자동 기록)" and "지난 발표 판정(자동)". The question
+// path now waits for scenario-state.json as it waits for scenario-outcomes.json, whatever the screen loaded.
+// AI_CONTEXT_MODULE=<path> runs this part on another copy of market-content.js (the negative control on the old one).
+{
+  const { pathToFileURL } = await import('node:url');
+  const { SCENARIO_OUTCOMES, SCENARIO_STATE } = await import('../src/data/artifact-registry.js');
+  const contentModule = process.env.AI_CONTEXT_MODULE ? await import(pathToFileURL(process.env.AI_CONTEXT_MODULE).href) : await import('../src/ai/context/market-content.js');
+  const served = { 'scenario-outcomes.json': JSON.parse(read('public-data/scenario-outcomes.json')), 'scenario-state.json': JSON.parse(read('public-data/scenario-state.json')) };
+  const requested = [];
+  const fresh = { fetch: async (url) => {
+    const name = String(url).split('?')[0].split('/').pop();
+    requested.push(name);
+    return served[name] ? new Response(JSON.stringify(served[name]), { status: 200, headers: { 'content-type': 'application/json' } }) : new Response('', { status: 404 });
+  } };
+  await contentModule.buildQuestionDomainContext.loadBlocks(fresh);
+  check('v60.24 an AI question on any screen waits for scenario-state.json beside scenario-outcomes.json',
+    fresh[SCENARIO_STATE.key]?.schemaVersion === served['scenario-state.json'].schemaVersion && !!fresh[SCENARIO_OUTCOMES.key] && requested.includes('scenario-state.json'));
 }
 
 if (failures.length) {

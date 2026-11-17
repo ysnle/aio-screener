@@ -12,7 +12,7 @@ import { readNumber } from '../../src/domain/shared/number.js';
 import { stripEvidenceIds } from '../../src/domain/briefing/evidence-text.js';
 import { moveMetricByLabel, moveSizeGrades, MOVE_SIZE_HEAD } from './market-analysis-moves.mjs';
 import { moveSizeWord } from '../../src/domain/market/session/move-size.js';
-import { LIKELIHOOD_GROUNDS, likelihoodGroundOf } from '../../src/domain/content/likelihood-grounds.js';
+import { likelihoodGroundOf } from '../../src/domain/content/likelihood-grounds.js';
 
 const MARKET_ANALYSIS_QUOTE_DEFS = [
   { symbol: '^GSPC', metricId: 'market.spx', label: 'SPX', unit: 'index', aliases: ['S&P 500'] },
@@ -415,6 +415,9 @@ export function softenReaderDuty(text) {
 }
 
 // M06: typed admission for the claims the prompt forbids or the evidence can disprove. These are blocking issues.
+// v60.24 (owner 2026-11-17: sentence validation should not block; connecting thin evidence and saying so is part of the
+// job): an interpretation whose ground is thin is not a fact the data can disprove. A likelihood word without a ground
+// kind and a past frequency without a sample are measured as warnings (analysisInterpretationWarnings), never blocked.
 const ANALYSIS_TRADE_INSTRUCTION = /(?:매수|매도|매집|손절|익절|진입|청산)(?:하세요|하십시오|해라|하라|할\s*때입니다|하시길)|(?:사세요|파세요|사라(?![지졌진질져])|팔아라|담으세요|비중을\s*(?:늘리|줄이)세요)|목표\s*가(?:는|를)?\s*\$?\d|\b(?:buy|sell)\s+now\b/i;
 const ANALYSIS_PROBABILITY = /\d+(?:\.\d+)?\s*%\s*(?:의\s*)?(?:확률|가능성|승률)|(?:확률|가능성|승률)(?:은|이|는|로|이\s*약)?\s*(?:약\s*)?\d+(?:\.\d+)?\s*%/;
 // A likelihood in words stands on one of the ground kinds the prompt names (src/domain/content/likelihood-grounds.js), in
@@ -424,7 +427,7 @@ const LIKELIHOOD_WORDS = /(?:가능성|확률)(?:이|은|도)?\s?(?:(?:더|더�
 const REPORTED_LIKELIHOOD = /(?:가능성|확률)(?:이|은|도)?\s?(?:(?:더|더욱|훨씬|조금|다소|상대적으로|가장)\s)?(?:높|낮|크|작|커|적)[가-힣]{0,4}?(?:다는|다고|라는|라고)\s?(?:[가-힣]+\s)?(?:발언|보도|언급|관측|전언|소식|입장|발표)/;
 const analysisSentences = (body) => String(body ?? '').replace(/\[[^\]]*\]/g, '').split(/(?<=[.?!。])\s+|\n+/);
 /** The sentences whose own likelihood word has no ground kind in that sentence or the one before it. */
-export function ungroundedLikelihoodSentences(body) {
+function ungroundedLikelihoodSentences(body) {
   const sentences = analysisSentences(body);
   return sentences.filter((sentence, index) => {
     // A likelihood inside an attributed statement ("추가 공격 가능성이 낮다는 발언이 … 거론됐고") is the report's content,
@@ -433,16 +436,18 @@ export function ungroundedLikelihoodSentences(body) {
     return LIKELIHOOD_WORDS.test(sentence) && !reported && !likelihoodGroundOf(`${sentences[index - 1] || ''} ${sentence}`);
   });
 }
+/** Interpretation-class warnings: a likelihood in words without its ground kind, a past frequency without a sample size
+ *  ("과거엔 대부분 반등"). Measured on the published reading (semanticWarnings); they never block it. */
+export function analysisInterpretationWarnings(body) {
+  const warnings = [];
+  if (ungroundedLikelihoodSentences(body).length) warnings.push('likelihood-qualitative');
+  if (analysisSentences(body).some((sentence) => /과거/.test(sentence) && /대부분|대체로|자주|흔히/.test(sentence) && !/\d+\s*(?:번|회|건|차례)|표본/.test(sentence))) warnings.push('frequency-without-sample');
+  return warnings;
+}
 export function validateAnalysisAdmission(body, { changes = new Map(), context = '' } = {}) {
   const issues = [];
   if (ANALYSIS_TRADE_INSTRUCTION.test(body)) issues.push('trade-instruction');
   if (ANALYSIS_PROBABILITY.test(body)) issues.push('probability-claim');
-  // A likelihood in words without its ground kind, and a past frequency without a sample size ("과거엔 대부분 반등"), are
-  // claims without the evidence the owner's rule asks for.
-  if (ungroundedLikelihoodSentences(body).length) issues.push('likelihood-qualitative');
-  for (const sentence of analysisSentences(body)) {
-    if (/과거/.test(sentence) && /대부분|대체로|자주|흔히/.test(sentence) && !/\d+\s*(?:번|회|건|차례)|표본/.test(sentence)) issues.push('frequency-without-sample');
-  }
   // Condition counts must be well-formed and, when a regime context was supplied, appear in it.
   for (const match of body.matchAll(/(\d+)\s*\/\s*(\d+)\s*(?:개)?\s*(?:조건|충족)|(?:조건|부합|충족)\s*(\d+)\s*\/\s*(\d+)/g)) { // T06: "현재 조건 충족 n/m" (v57.72 wording; 부합 kept for older text)
     const met = Number(match[1] ?? match[3]); const total = Number(match[2] ?? match[4]);
@@ -683,6 +688,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   const closedBasis = buildCompletedCloseBasis(metricEvidence, history);
   const levelTolerance = (unit, value) => Math.max(unit === 'percent' ? 0.15 : 0.5, Math.abs(Number(value)) * 0.02);
   issues.push(...validateAnalysisAdmission(body, { changes, context }));
+  warnings.push(...analysisInterpretationWarnings(body));
   // P1372: "a concise Korean market analysis" produced an English analysis *of the Korean
   // market*. The product is Korean; English prose is not publishable.
   // P1585: count prose only — the prompt asks for evidence ids, and tickers (SPX, VIX, DXY, WTI)
@@ -763,18 +769,15 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   const causalEvidence = buildMarketAnalysisNewsEvidence(data);
   const headlineContext = buildMarketAnalysisHeadlineContext(data);
   // v57.69 (2026-10-15 crash audit): on 10/14 (S&P 500 -1.11%, KOSPI -5%) the published reading carried no cause at all
-  // while the retained headlines named hot CPI and AI selling. On a large move with headlines available, an
-  // unattributed reading is blocked (the retry is told to name the headline); on a quiet day it stays a disclosure.
+  // while the retained headlines named hot CPI and AI selling. On a large move with headlines available, an unattributed
+  // reading is flagged. v60.24 (owner 2026-11-17): naming a cause is interpretation, so the flag is a warning, not a block.
   const largeMove = marketAnalysisLargeMove(metricEvidence, changes, data);
   // v57.75 (AI pipeline audit): the check read the raw body, so a citation id ("[headline:...]") counted as attribution and
   // a sentence that refused to name any cause ("원인으로 단정할 수 없습니다") passed on a −7.8% KOSPI day. It now reads the
   // prose without citation brackets and needs one attributing sentence that is not a refusal.
   const attributed = analysisAttributesCause(body);
-  if (largeMove && headlineContext.length > 0 && !attributed) issues.push('causal-attribution-missing');
-  else if (causalClaim && causalEvidence.length === 0) {
-    if (headlineContext.length === 0) warnings.push('causal-evidence-missing');
-    else if (!attributed) warnings.push('causal-attribution-missing');
-  }
+  if (headlineContext.length > 0 && !attributed && (largeMove || (causalClaim && causalEvidence.length === 0))) warnings.push('causal-attribution-missing');
+  else if (causalClaim && causalEvidence.length === 0 && headlineContext.length === 0) warnings.push('causal-evidence-missing');
   // v57.69: the reading said 장기금리 하락은 "물가 둔화 경로와 일치" the day CPI rose 3.4% → 3.7%. With headline or core
   // CPI rising, an assertion that inflation is easing is blocked; scenario titles in 「」 and conditionals are not assertions.
   const macroNow = data?.macro || {};
@@ -810,7 +813,8 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   issues.push(...moveSizeWordIssues(body, { grades: moveSizeGrades(history) }));
   issues.push(...publishedTextIssues(body));
   issues.push(...noLeadIssues(body, { context }));
-  issues.push(...reversalDriverIssues(body, { reversal: marketAnalysisReversal(metricEvidence, changes, closedBasis) }));
+  // v60.24 (owner 2026-11-17): naming the reported reasons of a reversal is interpretation, like cause attribution — a warning.
+  warnings.push(...reversalDriverIssues(body, { reversal: marketAnalysisReversal(metricEvidence, changes, closedBasis) }));
   return {
     ok: issues.length === 0,
     issues: Array.from(new Set(issues)),
@@ -1168,10 +1172,8 @@ export function reversalDriverIssues(body, { reversal = null } = {}) {
 
 // v57.69: retry guidance for the rules that carry no metric id.
 const MARKET_ANALYSIS_ISSUE_HELP = Object.freeze({
-  'causal-attribution-missing': 'the market moved sharply; name at least one HEADLINE_CONTEXT headline as the reported cause ("헤드라인에 따르면 …", "… 보도") and keep it one reading among alternatives',
   'inflation-direction-contradicts-evidence': 'CPI or core CPI rose in the latest release; do not describe inflation as easing — describe the rate move without an inflation-easing claim',
   'korea-move-unaddressed': 'KOSPI moved 3% or more; add one line on it with its change (장중이면 "장중 HH:MM KST 기준")',
-  'reversal-drivers-missing': 'the last completed close and the current session moved in opposite directions; give the reported reasons for the fall and for the rebound in separate sentences, each attributed to a dated headline ("10/20 WSJ 보도에 따르면 …")',
   'no-lead-overstated': 'REGIME_CONTEXT says no flow or central scenario qualifies yet; say so first ("아직 중심 흐름·시나리오를 정하기 이르다"), mention the best-matching one only with "핵심 조건 미충족", and do not name a favoured choice',
   'prior-session-move-omitted': 'REGIME_CONTEXT lists the completed-close moves by size (직전 완료 세션의 큰 움직임); open the reading with the first one — its name, close date (M/D) and change in one of the first two lines, separately from any in-session move',
   'direction-sign-contradiction': 'a direction word contradicts the sign of the move it describes; a positive change is a rise (상승·반등), a negative one a fall (하락·약세) — and do not open a sentence with a slot name such as 압력',
@@ -1181,7 +1183,6 @@ const MARKET_ANALYSIS_ISSUE_HELP = Object.freeze({
   'cross-market-session-dates-missing': 'KOSPI and the US index closed on different sessions; name both dates (M/D) in the sentence that compares them',
   'theme-lead-claim-after-5d-drop': 'the packet shows that theme or sector down 3% or more over the last five sessions; do not say it leads (주도) — name its five-session drop in that sentence or describe it as a longer-window lead under pressure',
   'move-size-word-contradicts-ledger': 'a size word disagrees with MOVE_SIZE for that metric: 급등·급락·폭등·폭락·큰 폭·크게 only where MOVE_SIZE grades the move 큰 폭, 소폭·보합 only where it grades it 소폭; for a 보통 move write the direction and the number with no size word',
-  'likelihood-qualitative': `a likelihood word (가능성·확률이 높/낮/크/작) has no ground in its sentence or the sentence before it. A met-condition count (조건 충족 n/m), an axis state (양호·중립·부담) or a signed move describes the present and is not a ground. Put one of these in the same or the previous sentence: ${LIKELIHOOD_GROUNDS.map((kind) => kind.label).join(' / ')}; without one, drop the likelihood word and keep the state description (판단 보류)`,
   'leadership-claim-during-break':'REGIME_CONTEXT says 주도 영역 이탈(leadershipBreak): 예; do not say semiconductors/AI lead — name the recent drop of the leaders (나스닥 100 5거래일 변화) and the Russell 2000 against its 200-day line in that sentence'
 });
 
@@ -1200,10 +1201,6 @@ export function describeMarketAnalysisIssues(text, issues = [], metricEvidence =
       const graded = grades.find((item) => item.field === metricId);
       const ledger = graded ? `; ledger grade for ${graded.label}: 하루 ${graded.day ? moveSizeWord(graded.day) : '등급 없음'}${graded.week ? `, 5거래일 ${moveSizeWord(graded.week)}` : ''}` : '';
       return `- ${issue}: ${help}${ledger}`;
-    }
-    if (code === 'likelihood-qualitative') {
-      const quoted = ungroundedLikelihoodSentences(text).slice(0, 2).map((sentence) => `"${sentence.trim().slice(0, 160)}"`);
-      return `- ${issue}: ${help}${quoted.length ? `; sentence without a ground: ${quoted.join(' / ')}` : ''}`;
     }
     if (!row) return `- ${issue}${help ? `: ${help}` : ''}`;
     const def = defs.find((item) => item.metricId === metricId);
@@ -1237,10 +1234,7 @@ export const MARKET_ANALYSIS_RETAIN_DRIFT_PCT = Object.freeze({ equity: RULES.la
 // words the session state of an observation at the time it is written; a retained reading is shown with its own time, so
 // they are not re-run on it. Rules that new data can contradict (values beyond drift, a new large move left out, an axis
 // state, the inflation direction) still are.
-// Whether a likelihood sentence names a ground kind is read from the text alone, so new data cannot change it; it differs
-// on re-check only when the ground list changed after the reading was verified. Such a reading stays the dated 직전
-// 검증본 until a new reading passes or 12 hours end, instead of the figures-only fallback.
-export const RETAINED_AS_OF_ISSUES = Object.freeze(['session-wording-mismatch', 'intraday-time-missing', 'likelihood-qualitative']);
+export const RETAINED_AS_OF_ISSUES = Object.freeze(['session-wording-mismatch', 'intraday-time-missing']);
 export function retainedReadingIssues(previous, result) {
   const then = new Map((Array.isArray(previous?.metricEvidence) ? previous.metricEvidence : []).map((row) => [row?.metricId, row]));
   const now = new Map((Array.isArray(result?.metricEvidence) ? result.metricEvidence : []).map((row) => [row?.metricId, row]));

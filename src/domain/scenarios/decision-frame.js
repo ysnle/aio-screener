@@ -23,7 +23,6 @@ import { signedText, finiteNumber as finite } from '../shared/number.js';
 
 export const DECISION_FRAME_VERSION = 'decision-frame.v1';
 const SESSIONS_PER_YEAR = 252;
-export { GROUND_LABELS };
 export const GROUND_NOTES = Object.freeze({
   'cost-hypothesis': '비용 가설 — 시나리오가 맞는다고 놓고 선택마다 치를 비용을 비교한 규칙입니다. 과거 성과로 확인한 우위가 아닙니다.',
   'past-record': `과거 기록 — 겹치지 않는 사례 ${EVIDENCE_FULL}개 이상에서 평소와 구별된 빈도가 같은 쪽을 가리킵니다.`,
@@ -94,7 +93,7 @@ export function themeDecisionFrame(row, { cash = null } = {}) {
 
 /**
  * The frame as short statements — the one wording every renderer and the AI use. `face` is at most two lines (가능성,
- * 이익·손실 폭); the rest belongs in a fold.
+ * 이익·손실 폭; one for a thin record); the rest — the sample note, the ground kind — belongs in a fold.
  */
 export function decisionFrameText(frame) {
   if (!frame) return null;
@@ -103,13 +102,16 @@ export function decisionFrameText(frame) {
   const rose = L?.relative ? '지수보다 더 오른' : '오른';
   const unit = (L?.relative || P?.relative) ? '%p' : '%';
   const likelihood = !L ? '가능성: 과거 기록 없음'
-    : !L.strength.figures ? `가능성: 비슷한 때 ${L.n}번 중 ${L.up}번 ${L.relative ? '지수를 앞섬' : '오름'} — 사례가 적어 비율로 말하지 않음`
+    : !L.strength.figures ? `가능성: 비슷한 때 ${L.n}번 중 ${L.up}번 ${L.relative ? '지수를 앞섬' : '오름'}`
       : `가능성: ${h} 뒤 ${rose} 경우 ${L.upShare}%(${L.n}번 중 ${L.up}번)${L.baseUpShare != null ? `, 평소 ${L.baseUpShare}%` : ', 평소 비율 없음'}${L.distinct === false ? ' — 평소와 구별 안 됨' : ''}${L.strength.reference ? ' · 참고' : ''}`;
-  const payoff = !P ? `이익·손실 폭: ${L && !L.strength.figures ? '사례가 적어 말하지 않음' : '없음'}`
+  // A thin record shows its counts only; why the share and
+  // the spread are withheld is the fold's 표본 line (evidenceStrength note), not a face line.
+  const thin = !!L && !L.strength.figures;
+  const payoff = thin ? null : !P ? '이익·손실 폭: 없음'
     : `이익·손실 폭: 좋았던 25%는 ${pct(P.gain, unit)} 이상, 나빴던 25%는 ${pct(P.loss, unit)} 이하${has(P.baseGain) && has(P.baseLoss) ? ` (평소 ${pct(P.baseGain, unit)} / ${pct(P.baseLoss, unit)})` : ' (평소 폭 없음)'}`;
   const groundLabel = GROUND_LABELS[F.ground] || '';
-  const tag = F.ground === 'none' ? '' : `${F.names.join(', ')} · ${groundLabel}`;
-  const why = F.ground === 'none' ? '' : `${groundLabel} — ${F.why}`.trim();
+  // The side line names the choice and its reason; the ground kind is the fold's 근거 종류 row and the line's title.
+  const tag = F.ground === 'none' ? '' : F.names.join(', ');
   const opportunity = [
     O.cashReturn != null ? `같은 ${h} 현금 약 ${signedText(O.cashReturn, 2, '%')}(오늘 ${O.cashLabel || '단기 금리'} ${O.cashRate.toFixed(2)}% 기준${O.cashDate ? `, ${O.cashDate.slice(5).replace('-', '/')}` : ''})` : null,
     O.pastCashMedian != null ? `과거 같은 사례 때 현금 중앙값 ${signedText(O.pastCashMedian, 2, '%')}(그달 평균 정책금리로 근사)` : null,
@@ -121,7 +123,7 @@ export function decisionFrameText(frame) {
   const tradeoff = frame.tradeoff === 'better-odds-deeper-dips' ? '오른 경우와 중앙값은 평소보다 컸지만, 그 사이 크게 빠진 경우도 평소보다 많았습니다.' : '';
   const conflict = F.conflict ? `과거 표본과 어긋남 — 비슷한 때 ${F.conflict.sharePct}%, 평소 ${F.conflict.basePct}%(${F.conflict.n}번)` : '';
   return {
-    face: [likelihood, payoff], tag, groundLabel, why, reason: F.ground === 'none' ? '' : F.why || '', conflict, tradeoff,
+    face: [likelihood, payoff].filter(Boolean), sample: L?.strength.note || '', tag, groundLabel, reason: F.ground === 'none' ? '' : F.why || '', conflict, tradeoff,
     opportunity: opportunity.length ? opportunity : ['기회비용: 없음'],
     wrong: [W.invalidation.length ? `빗나가는 조건: ${W.invalidation.join('; ')}` : '빗나가는 조건: 없음', cost],
     ground: GROUND_NOTES[F.ground] || ''
@@ -133,5 +135,5 @@ export function decisionFrameContext(frame) {
   const text = decisionFrameText(frame);
   if (!text) return '';
   const side = frame.favoured.ground === 'none' ? `${CHOICE_WORDS.favored} 없음` : `${CHOICE_WORDS.favored} ${frame.favoured.names.join(', ')}(근거 종류: ${text.groundLabel}${frame.favoured.ground === 'cost-hypothesis' ? ', 과거 성과로 확인한 우위 아님' : ''}) — ${frame.favoured.why}`;
-  return [...text.face, `기회비용: ${text.opportunity.join(', ')}`, `틀렸을 때 — ${text.wrong.join(' / ')}`, text.tradeoff, side, text.conflict].filter(Boolean).join('. ').replace(/\.\./g, '.');
+  return [...text.face, text.sample, `기회비용: ${text.opportunity.join(', ')}`, `틀렸을 때 — ${text.wrong.join(' / ')}`, text.tradeoff, side, text.conflict].filter(Boolean).join('. ').replace(/\.\./g, '.');
 }

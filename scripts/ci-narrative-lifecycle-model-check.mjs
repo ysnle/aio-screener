@@ -21,10 +21,10 @@
 //   N7 outage     — a provider that does not answer (an empty answer or a thrown timeout) never drops a verified reading
 //                   under 12 h that this run's validator still passes (v60.18: on 11/10 a 429 left 25 runs with figures
 //                   only, and a thrown failure went straight to the plain fallback).
-//   N8 rule change — a verified reading under 12 h whose only issue on re-check is a rule read from the text alone
-//                   (RETAINED_AS_OF_ISSUES, e.g. a likelihood ground list narrowed after it was written) is not dropped to
-//                   the plain fallback by a blocked or unanswered run. Explored from a seed reading that carries a
-//                   likelihood grounded only on the met-condition count, at VARIANT_DEPTH.
+//   N8 interpretation — v60.24 (owner 2026-11-17: sentence validation does not block): an answer whose only finding is
+//                   interpretation-class (a likelihood grounded only on the met-condition count) publishes verified on
+//                   one model call with the finding as a warning, and that reading under 12 h is not dropped to the
+//                   plain fallback by a later blocked or unanswered run. Explored from that seed answer, at VARIANT_DEPTH.
 // Model answers (events): good, bad-good, bad-bad, salvage, empty (no text, e.g. HTTP 429) and throws (AbortError).
 // Not an event here: a validator that throws (review v60.19 B6) ends the run in the plain fallback (reason
 // validator-error) with no reading kept, which no invariant above can be broken by; ci-market-reading-week-fixture
@@ -68,9 +68,9 @@ const VARIANTS = [
   { label: 'v60.18 이전 코드(던진 실패는 바로 지표만)', expect: ['N7'], module: 'scripts/producer/market-narrative.mjs', replacements: [
     ["return retainOrFallback(error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error');", "return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence, keep);"],
   ] },
-  // The likelihood ground list narrowed without its retention exemption: the seed reading falls to the plain fallback.
-  { label: '근거 목록만 좁히고 보존 예외 없음', expect: ['N8'], chart: false, seed: true, module: 'scripts/producer/market-narrative.mjs', replacements: [],
-    deps: { 'scripts/lib/market-analysis-validate.mjs': [["'intraday-time-missing', 'likelihood-qualitative']", "'intraday-time-missing']"]] } },
+  // v60.24: an interpretation finding made blocking again: the seed answer is retried and not published.
+  { label: '해석 문장을 다시 막음', expect: ['N8'], chart: false, seed: true, module: 'scripts/producer/market-narrative.mjs', replacements: [],
+    deps: { 'scripts/lib/market-analysis-validate.mjs': [['warnings.push(...analysisInterpretationWarnings(body));', 'issues.push(...analysisInterpretationWarnings(body));']] } },
 ];
 
 // Fixture material from the P1719 scene (ci-data-pipeline-contract-check): the good answer passes, the bad one blocks.
@@ -91,12 +91,13 @@ const TIME_STEPS = {
 const SALVAGE_BAD_LINE = 'S&P 500은 7,100으로 마감했다.';
 const SALVAGEABLE = ['S&P 500은 10월 12일 7,807.24로 마감했다.', '코스피는 5.46% 하락했다.', SALVAGE_BAD_LINE, '위험 선호는 제한적이다.',
   '외국인 수급은 다음 관측으로 확인할 대목이다.', '다음 세션의 방향은 아직 정해지지 않았다.'].join('\n');
-// A line the validator rejected only after the ground list narrowed (a likelihood on the met-condition count alone).
+// An interpretation-class line: a likelihood on the met-condition count alone (a warning since v60.24, not a block).
 const OLD_HABIT = '현재 흐름은 6개 중 4개 조건 충족이다. 반등 가능성이 더 높아 보인다.';
-const PROVIDERS = { good: [GOOD], 'bad-good': [BAD, GOOD], 'bad-bad': [BAD, BAD], salvage: [SALVAGEABLE, SALVAGEABLE], empty: [null], throws: [] };
+// 'interpretive' answers the seed run only; it is not an event of the exploration.
+const PROVIDERS = { good: [GOOD], 'bad-good': [BAD, GOOD], 'bad-bad': [BAD, BAD], salvage: [SALVAGEABLE, SALVAGEABLE], empty: [null], throws: [], interpretive: [`${GOOD}\n${OLD_HABIT}`] };
 const OUTAGE = new Set(['empty', 'throws']);
 const EVENTS = [];
-for (const time of Object.keys(TIME_STEPS)) for (const inputs of ['same', 'changed']) for (const provider of Object.keys(PROVIDERS)) EVENTS.push({ time, inputs, provider });
+for (const time of Object.keys(TIME_STEPS)) for (const inputs of ['same', 'changed']) for (const provider of Object.keys(PROVIDERS).filter((id) => id !== 'interpretive')) EVENTS.push({ time, inputs, provider });
 
 // What the home reading card shows, and what each run did, in the owner's words.
 const CHART_NODES = {
@@ -187,7 +188,7 @@ async function explore({ genMarketAnalysis, applyMarketAnalysis, applyLaneQuaran
     // N7: the fixture's good answer passes on every snapshot version, so a verified candidate under 12 h always revalidates.
     const candidate = prev.published?.status === 'verified' ? prev.published : prev.published?.lastVerified || null;
     if (next.calls > 0 && OUTAGE.has(event.provider) && verifiedOk(candidate, next.nowMs) && reading?.status !== 'verified') note('N7-outage-dropped-verified-reading', trace, reading?.reason);
-    if (next.calls > 0 && !PASSING.has(event.provider) && String(candidate?.full || '').includes(OLD_HABIT) && verifiedOk(candidate, next.nowMs) && reading?.status !== 'verified') note('N8-narrowed-rule-dropped-verified-reading', trace, reading?.reason);
+    if (next.calls > 0 && !PASSING.has(event.provider) && String(candidate?.full || '').includes(OLD_HABIT) && verifiedOk(candidate, next.nowMs) && reading?.status !== 'verified') note('N8-interpretation-dropped-verified-reading', trace, reading?.reason);
     const aged = prev.published?.status === 'verified' && !ageOk(prev.published, next.nowMs) ? '검증본이 12시간 넘게 지나 ' : '';
     const label = repeated ? '같은 막힌 입력인데 모델을 다시 호출'
       : next.calls === 0 ? (prev.published?.blockedAttemptKey && sameInputs ? `${aged}막힌 입력 그대로 → 모델 호출 없음` : '자료 변화 없음 → 모델 호출 없이 재사용')
@@ -223,10 +224,14 @@ async function explore({ genMarketAnalysis, applyMarketAnalysis, applyLaneQuaran
   let states = 0;
   let frontier = [{ nowMs: BASE_MS, version: 0, published: null, generated: [], trace: [], card: 'start' }];
   if (seed) {
-    // The seed: a verified reading as the old ground list admitted it (the good answer plus OLD_HABIT).
-    const first = await step(frontier[0], { time: 'tick', inputs: 'same', provider: 'good' });
-    const published = { ...first.published, full: `${first.published.full}\n${OLD_HABIT}`, summary: `${first.published.summary}\n${OLD_HABIT}` };
-    frontier = [{ nowMs: first.nowMs, version: 0, published, generated: [published.generatedAt], trace: ['seed/old-habit'], card: 'fresh' }];
+    // The seed: the model answers the good text plus OLD_HABIT; it must publish verified on one call, warning carried (N8).
+    const first = await step(frontier[0], { time: 'tick', inputs: 'same', provider: 'interpretive' });
+    const published = first.published;
+    if (!(published?.status === 'verified' && !published.retained && first.calls === 1 && String(published.full || '').includes(OLD_HABIT)
+      && (published.semanticWarnings || []).includes('likelihood-qualitative') && !(published.semanticIssues || []).length)) {
+      note('N8-interpretation-blocked-fresh-answer', ['seed/interpretive'], { status: published?.status, reason: published?.reason, calls: first.calls });
+    }
+    frontier = [{ nowMs: first.nowMs, version: 0, published, generated: [published?.generatedAt].filter(Boolean), trace: ['seed/interpretive'], card: published?.status === 'verified' ? 'fresh' : 'fallback' }];
   }
   for (let level = 1; level <= depth; level++) {
     const nextFrontier = new Map();
@@ -259,9 +264,10 @@ const warn = console.warn; const log = console.log;
 let real;
 let realSeed;
 const variantResults = [];
-// The seed must still exercise the narrowed rule: on the fixture snapshot its only issue is the likelihood ground.
-const seedIssues = validate.validateMarketAnalysisText(`${GOOD}\n${OLD_HABIT}`, { meta: { generatedAt: new RealDate(BASE_MS).toISOString() }, news: [], macro: {} }, snapshotFor(0), { history: [] }).issues;
-if (seedIssues.join(',') !== 'likelihood-qualitative') fail(`the old-habit seed no longer fails only the likelihood ground on re-check: ${seedIssues.join(', ') || 'passes'}`);
+// The seed must still exercise the interpretation class: on the fixture snapshot it has no issue and only the likelihood
+// warning (v60.24).
+const seedCheck = validate.validateMarketAnalysisText(`${GOOD}\n${OLD_HABIT}`, { meta: { generatedAt: new RealDate(BASE_MS).toISOString() }, news: [], macro: {} }, snapshotFor(0), { history: [] });
+if (seedCheck.issues.length || seedCheck.warnings.join(',') !== 'likelihood-qualitative') fail(`v60.24 the interpretive seed is no longer issue-free with only the likelihood warning: issues ${seedCheck.issues.join(', ') || 'none'}; warnings ${seedCheck.warnings.join(', ') || 'none'}`);
 globalThis.Date = SimulatedDate;
 console.warn = () => {}; console.log = () => {};
 try {
@@ -298,7 +304,7 @@ const drift = verifyCoverage(GATE, [
   { module: 'scripts/lib/market-analysis-validate.mjs', name: 'reusableMarketAnalysis', fn: validate.reusableMarketAnalysis },
   { module: 'scripts/lib/market-analysis-validate.mjs', name: 'retainVerifiedMarketAnalysis', fn: validate.retainVerifiedMarketAnalysis },
   { module: 'scripts/lib/market-analysis-validate.mjs', name: 'lastVerifiedMarketAnalysis', fn: validate.lastVerifiedMarketAnalysis },
-  // The re-check filter decides which issues drop a kept reading; its exempt list is RETAINED_AS_OF_ISSUES (seed, N8).
+  // The re-check filter decides which issues drop a kept reading; its exempt list is RETAINED_AS_OF_ISSUES.
   { module: 'scripts/lib/market-analysis-validate.mjs', name: 'retainedReadingIssues', fn: validate.retainedReadingIssues },
   { module: 'scripts/lib/lane-quarantine.mjs', name: 'applyLaneQuarantine', fn: lanes.applyLaneQuarantine },
 ], { sync });

@@ -16,7 +16,7 @@ import { createTrendChart } from './trend-chart.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildRegimeAxisHistory, buildKoreaRegimeObservations } from '../../domain/market/regime/regime-scenarios.js';
 import { renderRegimeRadar } from './regime-radar.js';
-import { renderMacroCrossroads, showCrossroadsSection } from './macro-crossroads.js';
+import { refreshScenarioArtifacts, renderMacroCrossroads, showCrossroadsSection } from './macro-crossroads.js';
 import { el } from './dom.js';
 import { markFrame } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
@@ -675,6 +675,9 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       depthFold.__aioPaintDepth = paintDepth;
     }
     if (showsDepth(page.dataset.view)) paintDepth();
+    // The story view defers its DOM, not its data. The scenario artifacts load on every view (the AI context and
+    // the lead's tie-keeping read scenario-state.json); an arrival repaints the depth only while it is on screen.
+    else refreshScenarioArtifacts(root, () => { if (showsDepth(page.dataset.view) && page.classList.contains('active')) paintDepth(); });
   }
   renderNextSteps(doc, doc.getElementById('regime-next'), regimeFlow({ regime, groups: root.__aioScenarioOutlook?.rotation || {} }).next); // P1431, I02
   // P1727: a link that asked for a section of this page (the briefing's Korea sentence -> 한국 시장) shows it once.

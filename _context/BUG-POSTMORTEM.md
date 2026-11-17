@@ -39,6 +39,36 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2607 - v60.24 - v60.24 searched figures beside an app trend date keep the 'AIO가 확인한 값 아님' notice (2026-11-17)
+
+- symptom/reproduction: When an answer showed both an app trend date and searched figures, the limitation line read '주가 추이 기준일은 앱 자료, 웹검색 내용은 링크 원문 기준' and dropped 'AIO가 확인한 값 아님'.
+- root_cause: searchedFiguresPhrase returned the toolDates line before checking searchedSentences.
+- fix: src/ai/response/publication.js searchedFiguresPhrase: with app dates and searched figures the line is '주가 추이 기준일은 앱 자료 · 웹검색 수치는 AIO가 확인한 값 아님, 링크 원문 기준'; app dates alone keep the old line.
+- violated_rule: Shown searched figures always say they are not AIO-verified.
+- prevention: ci-ai-intelligence-contract-check (v60.24): the banner for searchedSentences 1 + toolDates 1 contains 'AIO가 확인한 값 아님' and the toolDates-only banner does not; fails on the previous module.
+- verification/residual: ci-ai-intelligence-contract-check exit 0.
+- files: src/ai/response/publication.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2606 - v60.24 - v60.24 an app trend close date is checked against this request's close-basis tool rows, not matched by phrase (2026-11-17)
+
+- symptom/reproduction: A correct close-basis date from price_history or technicals, or two tickers on one date, was rewritten to '해당 주가 추이의 기준일은 앱 자료에서 확인하지 못했습니다.'; a wrong date written without '앱 자료 도구' ('…기준일은 2026년 11월 14일 종가 기준입니다') was published unchanged.
+- root_cause: bindAppTrendBasis accepted only rows named 'trend', required one sole ticker, fired only on the APP_TOOL_SOURCE phrase, and on no match wrote its own 'could not confirm' sentence.
+- fix: src/ai/response/publication.js: for a date-only sentence stating a ticker's trend close date, each named ticker is looked up in this request's successful rows whose asOf is 'YYYY-MM-DD 종가' (any tool). Same date: kept as written, web links taken off. Different date: the tool's date is written. No row, several dates, tickers on different dates, or a multi-ticker row that disagrees: the normal path, as with no tool rows. toolBasis null is unchanged.
+- violated_rule: A check compares the claim with its source; a phrase is not a source and a missing source is not a negative finding.
+- prevention: ci-ai-intelligence-contract-check (v60.24): price_history and technicals rows keep a matching sentence, two tickers on one date keep it, a wrong date without the phrase is corrected, a kept date drops its web link, other-ticker and no-row cases equal the no-tool output; these fail on the previous module (AI_PUBLICATION_MODULE).
+- verification/residual: ci-ai-intelligence-contract-check, ci-pipeline-semantics-check, ci-ai-chat-reliability-contract-check, shared-primitive/regex/instruction-text ratchets exit 0.
+- files: src/ai/response/publication.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2605 - v60.24 - v60.24 the AI context and the lead's tie-keeping read scenario-state.json on the default 시장 신호 view again (2026-11-17)
+
+- symptom/reproduction: Since the story view deferred the scenario detail (v60.23), a default visit to 시장 신호 (now view) never loaded scenario-state.json: root._aioScenarioState stayed empty, so the AI context lost '최근 변화(자동 기록)' and '지난 발표 판정(자동)' and the interpretation lost the published previous lead it keeps on a tie.
+- root_cause: The only loader of scenario-state.json on that route was refreshScenarioArtifacts inside renderMacroCrossroads/renderHomeGuide, which moved behind the story-view paint together with the DOM; the AI question path waited only for scenario-outcomes.json.
+- fix: src/ui/components/market-regime.js: when the depth is not painted, the signal render starts refreshScenarioArtifacts and repaints the depth on arrival only while the story/all view is on screen (DOM stays deferred). src/ai/context/market-content.js: the question path waits (2.5 s cap) for scenario-state.json beside scenario-outcomes.json, so a question on any screen has it.
+- violated_rule: A deferred view defers DOM, not the data other consumers read.
+- prevention: ci-boot-interaction-check (v60.24): scenario-state.json is loaded after a default boot without opening the story tab (failed on the previous code with scenarioStateLoaded false). ci-ai-intelligence-contract-check (v60.24): loadBlocks on a fresh root fetches scenario-state.json (fails on the previous market-content.js via AI_CONTEXT_MODULE).
+- verification/residual: ci-boot-interaction-check (active DOM 2,256), ci-ai-intelligence-contract-check, ci-boot-bundle-budget-check exit 0.
+- files: src/ui/components/market-regime.js, src/ai/context/market-content.js, scripts/ci-boot-interaction-check.mjs, scripts/ci-ai-intelligence-contract-check.mjs
+
 ## P2604 - v60.23 - 웹검색과 앱 가격 도구의 기준일 출처가 혼합됨 (2026-11-17)
 
 - symptom/reproduction: 공시 원문과 함께 답한 앱 조회 기준일에도 공시 웹 출처가 붙고 잘못된 종가 날짜가 통과했다.

@@ -11,7 +11,7 @@ import { NARRATIVE_BY_ID } from '../../domain/narrative/narratives.js';
 import { MARKET_DAY, SCENARIO_OUTCOMES } from '../../data/artifact-registry.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
-import { GROUND_LABELS, branchDecisionFrame } from '../../domain/scenarios/decision-frame.js';
+import { GROUND_NOTES, branchDecisionFrame } from '../../domain/scenarios/decision-frame.js';
 import { decisionFrameBlock, favouredLine } from './decision-frame.js';
 
 const FACE_MAX = 3;
@@ -37,7 +37,7 @@ function attentionBars(doc, cards) {
 }
 
 // The story's scenario shows the same frame as its branch card on the map — the past line, the
-// payoff against an ordinary day and the favoured side with its ground — instead of a bare "상대적으로 유리" mark.
+// payoff against an ordinary day and the favoured side with its reason (ground kind in the fold) — instead of a bare "상대적으로 유리" mark.
 function scenarioBlock(doc, storyId, scenario, frame = null) {
   const box = el(doc, 'div', null, 'mk-narr__scenario');
   box.append(el(doc, 'p', null, 'mk-narr__scenario-head'));
@@ -69,7 +69,7 @@ function scenarioBlock(doc, storyId, scenario, frame = null) {
     box.append(ul);
     const side = frame ? favouredLine(doc, frame) : null;
     if (side) box.append(side);
-    else if (scenario.favoredWhy) box.append(el(doc, 'p', `${GROUND_LABELS['cost-hypothesis']} — ${scenario.favoredWhy}`, 'mk-narr__why'));
+    else if (scenario.favoredWhy) box.append(Object.assign(el(doc, 'p', scenario.favoredWhy, 'mk-narr__why'), { title: GROUND_NOTES['cost-hypothesis'] }));
   }
   return box;
 }

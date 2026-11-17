@@ -994,16 +994,17 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const hot = { meta: { generatedAt: '2026-10-15T00:21:00.000Z' }, news, macro: { cpiDelta: 0.3 } };
   const v = (text, data = hot) => validateMarketAnalysisText(text, data, snapshot).issues;
   const ok = v('Reuters 헤드라인에 따르면 뜨거운 물가 지표에 S&P 500은 1.11% 하락한 7,718.94로 마감했다. 코스피는 09:20 KST 장중 6.21% 급락했다.');
-  const noCause = v('S&P 500은 1.11% 하락한 7,718.94로 마감했다. 코스피는 09:20 KST 장중 6.21% 급락했다.');
+  // v60.24 (owner 2026-11-17): a missing cause on a large move is interpretation — a warning, no longer a block.
+  const { issues: noCause, warnings: noCauseWarnings } = validateMarketAnalysisText('S&P 500은 1.11% 하락한 7,718.94로 마감했다. 코스피는 09:20 KST 장중 6.21% 급락했다.', hot, snapshot);
   const easing = v('보도에 따르면 S&P 500은 1.11% 하락했다. 장기금리 하락은 물가 둔화 경로와 일치한다. 코스피는 09:20 KST 장중 6.21% 급락했다.');
   const quotedPath = v('보도에 따르면 S&P 500은 1.11% 하락했다. 「물가 둔화」 경로는 이번 발표로 멀어졌다. 코스피는 09:20 KST 장중 6.21% 급락했다.');
   const noKorea = v('보도에 따르면 S&P 500은 1.11% 하락한 7,718.94로 마감했다.');
   const cooling = v('보도에 따르면 S&P 500은 1.11% 하락했다. 장기금리 하락은 물가 둔화 경로와 일치한다. 코스피는 09:20 KST 장중 6.21% 급락했다.', { ...hot, macro: { cpiDelta: -0.2 } });
-  check('P1800 a large move needs a headline-attributed cause, a hot CPI cannot be read as easing, and a 3%+ KOSPI move is named',
-    !ok.length && noCause.includes('causal-attribution-missing') && easing.includes('inflation-direction-contradicts-evidence')
+  check('v60.24 P1800 a large move without a headline-attributed cause is warned, not blocked; a hot CPI cannot be read as easing, and a 3%+ KOSPI move is named',
+    !ok.length && !noCause.length && noCauseWarnings.includes('causal-attribution-missing') && easing.includes('inflation-direction-contradicts-evidence')
       && !quotedPath.includes('inflation-direction-contradicts-evidence') && noKorea.includes('korea-move-unaddressed')
       && !cooling.includes('inflation-direction-contradicts-evidence'),
-    JSON.stringify({ ok, noCause, easing, quotedPath, noKorea, cooling }));
+    JSON.stringify({ ok, noCause, noCauseWarnings, easing, quotedPath, noKorea, cooling }));
   const source = readProducerSource();
   check('P1800 an in-session KOSPI move of 3% or more reaches the prompt labelled 장중 with its KST time',
     /const koreaIntradayLines = metricEvidence/.test(source) && /KOREA_LARGE_INTRADAY_MOVE \(장중 지연 값/.test(source)
@@ -1241,17 +1242,23 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     { instrumentId: '^KS11', evidenceId: 'market.index.kospi:c', value: 5635.83, changePct: -6.21, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-15T00:20:00.000Z', session: 'DELAYED_IN_SESSION' }
   ] };
   const hot = { meta: { generatedAt: '2026-10-15T00:21:00.000Z' }, news: [{ title: 'Nasdaq ends sharply lower as hot inflation data stokes rate-hike bets', source: 'Reuters', link: 'https://example.test/cpi', pubDate: '2026-10-14T21:00:00.000Z', score: 80 }], macro: { cpiDelta: 0.3 } };
-  const v = (text) => validateMarketAnalysisText(text, hot, snapshot).issues;
+  // v60.24 (owner 2026-11-17): these are interpretation-class findings — measured as warnings, never blocking; an
+  // invented probability and an order in the same reading still block.
+  const v = (text) => { const result = validateMarketAnalysisText(text, hot, snapshot); return result.issues.length ? ['blocked', ...result.issues] : result.warnings; };
   const tail = ' 코스피는 09:20 KST 장중 6.21% 급락했다.';
   const idOnly = v('S&P 500은 1.11% 하락했다 [headline:abc123].' + tail);
   const refusal = v('보도만으로는 하락 원인을 단정할 수 없다. S&P 500은 1.11% 하락했다.' + tail);
   const named = v('Reuters 헤드라인에 따르면 뜨거운 물가 지표에 S&P 500은 1.11% 하락했다.' + tail);
   const likely = v('Reuters 헤드라인에 따르면 S&P 500은 1.11% 하락했다. 반등 가능성이 높다.' + tail);
   const frequent = v('Reuters 헤드라인에 따르면 S&P 500은 1.11% 하락했다. 과거엔 대부분 반등했다.' + tail);
-  check('v57.75 attribution needs a non-refusing attributing sentence, and likelihood/frequency claims need n/m or a sample',
+  const odds = v('Reuters 헤드라인에 따르면 S&P 500은 1.11% 하락했다. 반등 확률은 70%다.' + tail);
+  const order = v('Reuters 헤드라인에 따르면 S&P 500은 1.11% 하락했다. 지금 매수하세요.' + tail);
+  check('v60.24 attribution needs a non-refusing attributing sentence and likelihood/frequency claims need a ground or a sample — as warnings that publish; invented odds and orders still block',
     idOnly.includes('causal-attribution-missing') && refusal.includes('causal-attribution-missing') && !named.includes('causal-attribution-missing')
-      && likely.includes('likelihood-qualitative') && frequent.includes('frequency-without-sample'),
-    JSON.stringify({ idOnly, refusal, named, likely, frequent }));
+      && likely.includes('likelihood-qualitative') && frequent.includes('frequency-without-sample')
+      && ![idOnly, refusal, named, likely, frequent].some((row) => row.includes('blocked'))
+      && odds[0] === 'blocked' && odds.includes('probability-claim') && order[0] === 'blocked' && order.includes('trade-instruction'),
+    JSON.stringify({ idOnly, refusal, named, likely, frequent, odds, order }));
   const previous = { status: 'verified', semanticStatus: 'verified', semanticIssues: [], summary: 'x', generatedAt: '2026-10-15T00:00:00.000Z' };
   const now = Date.parse('2026-10-15T01:00:00.000Z');
   const source = readProducerSource();
@@ -1291,17 +1298,19 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     { instrumentId: '^KS11', evidenceId: 'market.index.kospi:d71ff855', value: 5554.27, changePct: -7.5646, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-15T06:31:20.000Z', session: 'MARKET_CLOSED' }
   ] };
   const issues = (text, snapshot = closedSnapshot, options = {}) => validateMarketAnalysisText(text, data, snapshot, options).issues;
+  const warnings = (text) => validateMarketAnalysisText(text, data, closedSnapshot).warnings;
   // (a) a large-move day with the cause attributed publishes; a hedge after a comma does not erase the attribution.
   const recorded0652 = '완료 종가에서 코스피 -7.56%, 변동성지수 +10.48%, 미국 주가지수 -1.11%, 미국 10년물 금리 -2.7bp로 변했습니다 [market.index.kospi:d71ff855; market.volatility.vix:d94fc971; market.index.spx:7890d4bb; market.rates.us10y:487c3511]. 헤드라인에 따르면 뜨거운 물가와 인공지능 매도세가 미국 주가 하락의 배경으로 거론됐지만, 이는 가능한 해석 중 하나입니다.';
   const hedged = issues('S&P 500 -1.11%, 코스피 -7.56%로 마감했다. 헤드라인에 따르면 뜨거운 물가가 하락 배경으로 거론됐지만, 확정 원인은 확인되지 않았다.');
   const intradayNews = issues('S&P 500 -1.11%, 코스피 -7.56%로 마감했다. 08:00 이후 장중 속보(잠정)는 반도체 대형주 급락을 전했다.');
-  const bareRefusal = issues('S&P 500 -1.11%, 코스피 -7.56%로 마감했다. 보도만으로는 하락 원인을 단정할 수 없다.');
+  const refusalText = 'S&P 500 -1.11%, 코스피 -7.56%로 마감했다. 보도만으로는 하락 원인을 단정할 수 없다.';
+  const bareRefusal = issues(refusalText);
   const brackets = issues('코스피 -7.57%로 급락했고 [da45da46], S&P 500 -1.11%로 하락했으며 [7890d4bb], 미 10년물 금리 -2.7bp로 내렸습니다 [487c3511]. 헤드라인에 따르면 뜨거운 물가가 배경으로 거론됐다.');
   const listed = issues('S&P 500 -1.11%, 공포·탐욕 지수 32점, VIX +10.48%, 미 10년물 금리 -2.7bp, 코스피 -7.56%였다. 헤드라인에 따르면 뜨거운 물가가 배경으로 거론됐다.');
   const wrongVix = issues('VIX +12.5%, 코스피 -7.56%로 마감했다. 헤드라인에 따르면 뜨거운 물가가 배경으로 거론됐다.');
-  check('v57.81 a large-move day with the cause attributed publishes: hedge after a comma, post-08:00 속보, list items and citation brackets do not block; a bare refusal and a wrong VIX move still do',
+  check('v60.24 a large-move day with the cause attributed publishes: hedge after a comma, post-08:00 속보, list items and citation brackets do not block; a bare refusal is warned (not blocked) and a wrong VIX move still blocks',
     !issues(recorded0652).length && !hedged.length && !intradayNews.length && !brackets.length && !listed.length
-      && bareRefusal.includes('causal-attribution-missing') && wrongVix.includes('metric-change-mismatch:market.vix')
+      && !bareRefusal.includes('causal-attribution-missing') && warnings(refusalText).includes('causal-attribution-missing') && wrongVix.includes('metric-change-mismatch:market.vix')
       && analysisAttributesCause('Reuters 헤드라인에 따르면 물가가 배경이다.') && !analysisAttributesCause('[headline:x] 원인으로 단정할 수 없다.'),
     JSON.stringify({ recorded0652: issues(recorded0652), hedged, intradayNews, bareRefusal, brackets, listed, wrongVix }));
   // (b) VIX change on the same basis the model was given. At 07:52Z the VIX row was AFTER_HOURS (17.52, +3.85%); the
@@ -1407,8 +1416,9 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     dropped = await genMarketAnalysis(data, crashed, { previous, request: stub([bad, bad]), nowMs: now, history: [], recordRejections: null });
   } finally { console.warn = warn; }
   const exact = validateMarketAnalysisText(reading, data, at0555);
-  check('v57.81 a verified reading is kept (labelled with its time) while later attempts are blocked, survives one blocked run, and is dropped after a large move',
-    kept?.status === 'verified' && kept.retained?.from === verifiedAt && /metric-value-mismatch|causal-attribution/.test(kept.retained?.reason || '')
+  // v60.24: the blocked attempt's reason is its wrong KOSPI change (a fact); the missing cause is a warning since then.
+  check('v60.24 a verified reading is kept (labelled with its time) while later attempts are blocked on a fact, survives one blocked run, and is dropped after a large move',
+    kept?.status === 'verified' && kept.retained?.from === verifiedAt && /metric-(?:value|change)-mismatch/.test(kept.retained?.reason || '') && !/causal-attribution/.test(kept.retained?.reason || '')
       && exact.issues.includes('metric-change-mismatch:market.kospi') && !retainedReadingIssues(previous, exact).length
       && fallback?.status === 'blocked' && !fallback.lastVerified
       && carried?.status === 'verified' && carried.retained?.from === verifiedAt && !carried.lastVerified
@@ -1517,10 +1527,11 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && /newsContentPolicy:\s*MARKET_ANALYSIS_NEWS_CONTENT_POLICY/.test(fetchDataSource)
       && /contentDepth:\s*'headline-only'/.test(fetchDataSource)
       && !/contentDepth:\s*'(?:excerpt|article|full)'/.test(fetchDataSource));
-  check('causal evidence that the policy makes impossible is a warning, never a block',
+  check('v60.24 causal evidence that the policy makes impossible, a missing attribution even on a large move, and missing reversal reasons are warnings, never a block',
     /warnings\.push\('causal-attribution-missing'\)/.test(fetchDataSource)
       && /warnings\.push\('causal-evidence-missing'\)/.test(fetchDataSource)
-      && !/issues\.push\('causal-evidence-missing'\)/.test(fetchDataSource)
+      && !/issues\.push\('causal-(?:evidence|attribution)-missing'\)/.test(fetchDataSource)
+      && /warnings\.push\(\.\.\.reversalDriverIssues\(/.test(fetchDataSource) && !/issues\.push\(\.\.\.reversalDriverIssues\(/.test(fetchDataSource)
       && /export function buildMarketAnalysisHeadlineContext/.test(fetchDataSource)
       && /HEADLINE_CONTEXT/.test(fetchDataSource)
       && /헤드라인에 따르면/.test(fetchDataSource));
@@ -2966,10 +2977,12 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     credit: issuesOf(reading.replace('추세 부담 조건은 아직 빠져 있다', '신용은 안정적이다')),
     lead: issuesOf(reading.replace('시장 상태는 다소 부담이고', '반도체와 AI가 여전히 시장을 주도한다.'))
   };
-  check('v58.59 a reversal-day reading with dated reasons for the fall and the rebound publishes; one attributed sentence, a wrong core CPI, a wrong credit state or a bare "semis lead" still block',
-    !issuesOf(reading).length && issuesOf(oneSided).includes('reversal-drivers-missing')
+  // v60.24 (owner 2026-11-17): reasons for a reversal are interpretation — one attributed sentence is warned, not blocked.
+  const warningsOf = (text) => va.validateMarketAnalysisText(text, fx.data, fx.snapshot, opts).warnings;
+  check('v60.24 a reversal-day reading with dated reasons for the fall and the rebound publishes; one attributed sentence is warned (reversal-drivers-missing), not blocked; a wrong core CPI, a wrong credit state or a bare "semis lead" still block',
+    !issuesOf(reading).length && !warningsOf(reading).includes('reversal-drivers-missing') && !issuesOf(oneSided).includes('reversal-drivers-missing') && warningsOf(oneSided).includes('reversal-drivers-missing')
       && stillBlocked.coreCpi.includes('metric-value-mismatch:macro.core-cpi') && stillBlocked.credit.includes('axis-state-contradiction:credit') && stillBlocked.lead.includes('leadership-claim-during-break'),
-    JSON.stringify({ reading: issuesOf(reading), oneSided: issuesOf(oneSided), stillBlocked }));
+    JSON.stringify({ reading: issuesOf(reading), oneSided: issuesOf(oneSided), oneSidedWarnings: warningsOf(oneSided), stillBlocked }));
   const titles = va.buildMarketAnalysisHeadlineContext(fx.data).map((row) => row.title);
   check('v58.59 HEADLINE_CONTEXT seats the market-wrap and spending headlines before filling by feed (WSJ U-turn, SpaceX capex); single-stock movers do not take those seats',
     titles.includes('Stocks Make a U-Turn on Hopes of U.S.-Iran Diplomacy') && titles.includes('SpaceX says its capex could double this quarter as AI spending grows')

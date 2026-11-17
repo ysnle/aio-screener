@@ -742,16 +742,18 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.deepEqual(axisStateClaimIssues('추세는 양호합니다.', { context: packet }), ['axis-state-contradiction:trend']);
   {
     // Rejections seen in the 2026-11-11 replay of production inputs: each of these blocked a whole reading.
-    const { validateAnalysisAdmission, validateAnalysisMetricMentions } = await import('./lib/market-analysis-validate.mjs');
+    const { validateAnalysisAdmission, validateAnalysisMetricMentions, analysisInterpretationWarnings } = await import('./lib/market-analysis-validate.mjs');
     const axes = 'trend: burden — x\nbreadth: favorable — x\nvolatility: neutral — x\ncredit: favorable — x\nrates: neutral — x';
     assert.deepEqual(axisStateClaimIssues('시장 폭은 양호하고 신용·변동성은 안정적입니다.', { context: axes }), [], 'v59.99 안정 fits a neutral axis (it contradicts only 부담)');
     assert.deepEqual(axisStateClaimIssues('신용·변동성은 안정적입니다.', { context: axes.replace('volatility: neutral', 'volatility: burden') }), ['axis-state-contradiction:volatility'], 'v59.99 안정 still contradicts a 부담 axis');
     assert.deepEqual(axisStateClaimIssues('변동성은 양호합니다.', { context: axes }), ['axis-state-contradiction:volatility'], 'v59.99 양호 still names one state');
     assert.deepEqual(axisStateClaimIssues('시장 폭 부담과 신용 또는 변동성 부담이 빠져 있어 동반 약세로 확정하기 이릅니다.', { context: axes }), [], 'v59.99 a burden the clause says is absent is not a claim');
     assert.deepEqual(axisStateClaimIssues('시장 폭 부담이 뚜렷합니다.', { context: axes }), ['axis-state-contradiction:breadth'], 'v59.99 an asserted burden is still checked');
-    assert.deepEqual(validateAnalysisAdmission('11/11 월스트리트저널 보도에 따르면 이란에 대한 추가 공격 가능성이 낮다는 발언이 유가 하락 재료로 거론됐습니다.'), [], 'v59.99 a likelihood inside an attributed statement is the report, not a forecast');
-    assert.deepEqual(validateAnalysisAdmission('반등 가능성이 높습니다.'), ['likelihood-qualitative'], 'v59.99 the reading\'s own likelihood is still blocked');
-    assert.deepEqual(validateAnalysisAdmission('반등 가능성이 높다는 해석입니다.'), ['likelihood-qualitative'], 'v59.99 an unattributed "…다는 해석" is still blocked');
+    const reported = '11/11 월스트리트저널 보도에 따르면 이란에 대한 추가 공격 가능성이 낮다는 발언이 유가 하락 재료로 거론됐습니다.';
+    assert.ok(!validateAnalysisAdmission(reported).length && !analysisInterpretationWarnings(reported).length, 'v59.99 a likelihood inside an attributed statement is the report, not a forecast');
+    for (const text of ['반등 가능성이 높습니다.', '반등 가능성이 높다는 해석입니다.']) {
+      assert.ok(!validateAnalysisAdmission(text).length && analysisInterpretationWarnings(text).join() === 'likelihood-qualitative', `v60.24 the reading's own ungrounded likelihood is a warning, not a block: ${text}`);
+    }
     const tenYear = [{ metricId: 'market.us10y', evidenceId: 'us10y:1', unit: 'percent', value: 4.95, label: '미국 10년물 금리' }];
     const change = new Map([['us10y:1', 2.4]]);
     const rateIssues = (text) => validateAnalysisMetricMentions(text, tenYear, change, { context: '4.95' });
@@ -764,17 +766,22 @@ console.log('scenario guidance fixture (basis card): PASS');
     // the previous sentence; a likelihood standing alone, a numeric probability and an order are still blocked.
     // v60.21: the ground is one of the kinds the prompt names (src/domain/content/likelihood-grounds.js); a met-condition
     // count, an axis state, a signed move or a bare condition describes the present and no longer grounds a likelihood.
-    const { validateAnalysisAdmission, softenReaderDuty } = await import('./lib/market-analysis-validate.mjs');
+    // v60.24 (owner 2026-11-17): an ungrounded likelihood is measured as a warning and never blocks; a numeric probability
+    // and an order still block.
+    const { validateAnalysisAdmission, softenReaderDuty, analysisInterpretationWarnings } = await import('./lib/market-analysis-validate.mjs');
     const axes = 'trend: favorable — x\nbreadth: favorable — x\nvolatility: neutral — x\ncredit: favorable — x\nrates: neutral — x';
     const grounded = ['과거 73건 중 41건에서 20거래일 뒤 올라 평소 55%보다 잦았습니다. 이번에도 반등 가능성이 더 큽니다.', '신용이 안정적인 동안은 분할 접근이 우위입니다.',
       '과거 73건 중 41건에서 20거래일 뒤 올라 평소 55%보다 잦았습니다. 이번에도 반등 가능성이 높습니다.', '시장 가격도 인하 쪽으로 움직여 금리 하락 가능성이 더 높아 보입니다.'];
-    for (const text of grounded) assert.deepEqual(validateAnalysisAdmission(text), [], `v60.21 a likelihood or stance with a ground kind passes: ${text}`);
+    for (const text of grounded) assert.ok(!validateAnalysisAdmission(text).length && !analysisInterpretationWarnings(text).length, `v60.21 a likelihood or stance with a ground kind passes without a warning: ${text}`);
     const stateOnly = ['조건 충족 3/4이고 시장 폭도 양호해 반등 가능성이 더 높아 보입니다.', '시장 폭이 양호해 반등 가능성이 높습니다.', '과거 73건 중 41건에서 20거래일 뒤 올랐습니다. 이번에도 반등 가능성이 높습니다.',
       '금리가 더 내려가면 반등 가능성이 높습니다.', 'S&P 500이 -1.2% 내렸습니다. 반등 가능성은 낮아 보입니다.'];
-    for (const text of stateOnly) assert.deepEqual(validateAnalysisAdmission(text), ['likelihood-qualitative'], `v60.21 a count, an axis state, a count without its base, a bare condition or a move is not a ground: ${text}`);
-    assert.deepEqual(validateAnalysisAdmission('반등 가능성이 높습니다.'), ['likelihood-qualitative'], 'v59.99 a likelihood standing alone is still blocked');
-    assert.deepEqual(validateAnalysisAdmission('변동성 확대 가능성이 높습니다.'), ['likelihood-qualitative'], 'v59.99 the forecast state itself is not its own ground');
-    assert.deepEqual(validateAnalysisAdmission('반면 반등 가능성이 높습니다.'), ['likelihood-qualitative'], 'v59.99 반면 is not a condition');
+    const warnedOnly = (text) => !validateAnalysisAdmission(text).length && analysisInterpretationWarnings(text).join() === 'likelihood-qualitative';
+    for (const text of stateOnly) assert.ok(warnedOnly(text), `v60.24 a count, an axis state, a count without its base, a bare condition or a move is not a ground: warned, not blocked: ${text}`);
+    for (const text of ['반등 가능성이 높습니다.', '변동성 확대 가능성이 높습니다.', '반면 반등 가능성이 높습니다.']) {
+      assert.ok(warnedOnly(text), `v60.24 a likelihood alone, the forecast state as its own ground, or 반면 is warned, not blocked: ${text}`);
+    }
+    assert.ok(!validateAnalysisAdmission('과거엔 대부분 반등했습니다.').length && analysisInterpretationWarnings('과거엔 대부분 반등했습니다.').join() === 'frequency-without-sample'
+      && !analysisInterpretationWarnings('과거 73건 중 대부분 반등했습니다.').length, 'v60.24 a past frequency without a sample is warned, not blocked; with a count it is not warned');
     assert.deepEqual(validateAnalysisAdmission('상승 확률은 60%입니다.'), ['probability-claim'], 'v59.99 a numeric probability is still blocked');
     assert.deepEqual(validateAnalysisAdmission('지금 매수하세요.'), ['trade-instruction'], 'v59.99 an order is still blocked');
     const stance = ['지금은 현금·방어 우위입니다.', '지금은 주식 매수가 부담스러운 구간입니다.', '분할 접근이 유리한 구간입니다.', '방어 업종이 유리한 국면입니다.', '관망의 비용이 작습니다.', '추격 매수의 비용이 큽니다.'];
