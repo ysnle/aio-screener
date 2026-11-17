@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-17T09:51:35.593Z",
-  "attemptedAt": "2026-11-17T09:51:35.593Z",
-  "lastSuccessfulAt": "2026-11-17T09:51:35.593Z",
+  "generatedAt": "2026-11-17T10:22:10.973Z",
+  "attemptedAt": "2026-11-17T10:22:10.973Z",
+  "lastSuccessfulAt": "2026-11-17T10:22:10.973Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-03T09:51:29.485Z",
-  "until": "2026-11-17T09:51:29.485Z",
+  "since": "2026-11-03T10:22:06.900Z",
+  "until": "2026-11-17T10:22:06.900Z",
   "current24hWindow": {
     "start": "2026-11-15T23:00:00.000Z",
     "end": "2026-11-16T23:00:00.000Z",
@@ -85,23 +85,23 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1220,
+      "count": 1222,
       "freshCount": 39,
-      "eligibleTextCount": 1164,
+      "eligibleTextCount": 1166,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69508
+      "lastPostId": 69510
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 190,
+      "count": 188,
       "freshCount": 17,
-      "eligibleTextCount": 190,
-      "selectedCount": 117,
+      "eligibleTextCount": 188,
+      "selectedCount": 116,
       "error": null,
       "failingSince": null,
       "lastPostId": 21167
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 721,
+      "count": 722,
       "freshCount": 38,
-      "eligibleTextCount": 721,
+      "eligibleTextCount": 722,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72284
+      "lastPostId": 72285
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,37 +137,37 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2131,
-  "retainedItemCount": 425,
+  "count": 2132,
+  "retainedItemCount": 422,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2131,
-    "eligibleTextCount": 2075,
+    "observedCount": 2132,
+    "eligibleTextCount": 2076,
     "mediaOnlyCount": 56,
-    "mediaAttachedCount": 910,
-    "photoPostCount": 781,
+    "mediaAttachedCount": 911,
+    "photoPostCount": 782,
     "documentPostCount": 7,
     "imageOnlyCount": 5,
-    "highSignalCount": 358,
+    "highSignalCount": 357,
     "broadSignalCount": 851,
-    "selectedRawCount": 370,
-    "selectedEligibleCount": 370,
+    "selectedRawCount": 369,
+    "selectedEligibleCount": 369,
     "selectedRawCoveragePct": 17.8,
-    "selectedOfObservedPct": 17.4,
+    "selectedOfObservedPct": 17.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 755,
+    "semi": 570,
+    "ai-policy": 123,
+    "earnings": 285,
+    "market-note": 756,
     "media-only": 54,
-    "semi": 569,
-    "ai-policy": 122,
     "power": 271,
     "kr-market": 95,
-    "geo": 320,
-    "earnings": 285,
+    "geo": 319,
     "equity": 138,
     "credit": 79,
     "macro": 298,
@@ -179,7 +179,8 @@
     "crypto": 1
   },
   "tickerCounts": {
-    "NVDA": 318,
+    "NVDA": 319,
+    "JD": 2,
     "MSFT": 57,
     "GOOG": 57,
     "AMZN": 54,
@@ -188,7 +189,7 @@
     "SPGI": 1,
     "000660.KS": 19,
     "AMD": 51,
-    "PLTR": 8,
+    "PLTR": 7,
     "SNDK": 3,
     "TSLA": 43,
     "BE": 16,
@@ -198,7 +199,6 @@
     "2454.TW": 6,
     "005930.KS": 26,
     "ARM": 2,
-    "JD": 1,
     "AVGO": 15,
     "MS": 3,
     "CRWD": 1,
@@ -259,19 +259,19 @@
     "RACE": 1
   },
   "themes": [
-    "Market Notes (755 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
-    "Semiconductors/Memory (569 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q...",
-    "Geopolitics (320 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Market Notes (756 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
+    "Semiconductors/Memory (570 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q...",
+    "Geopolitics (319 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Macro/Rates (298 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년 엔비디아에 관련 거래 기록을 요청했으며, 엔비디아는 같은 해 6월 메가스피드를 판매 제한 명단에 추가....",
     "Earnings/Corporate (285 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (271 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (138 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
-    "AI Policy/Export Controls (122 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
+    "AI Policy/Export Controls (123 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 318,
+      "count": 319,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년 엔비디아에 관련 거래 기록을 요청했으며, 엔비디아는 같은 해 6월 메가스피드를 판매 제한 명단에 추가...."
     },
     {
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 320,
+      "count": 319,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 569,
+      "count": 570,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q..."
     },
     {
@@ -391,7 +391,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 122,
+      "count": 123,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
     },
     {
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 755,
+      "count": 756,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서..."
     }
   ],
@@ -1695,6 +1695,24 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/69510",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69510",
+      "datetime": "2026-11-17T10:13:34.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "semi",
+        "ai-policy"
+      ],
+      "lead": 2,
+      "score": 61,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아 이사회가 국가안보 및 수출통제 감독을 위한 신규 위원회 설립. 위원회는 수잔 노라 존슨 이사가 위원장을 맡고, 스티븐 닐과 존 다비리가 위원으로 참여. 엔비디아의 국가안보 및 글로벌 무역 규정 준수..."
+    },
     {
       "id": "insidertracking/69505",
       "channel": "insidertracking",
@@ -6686,26 +6704,6 @@
       ]
     },
     {
-      "id": "insidertracking/69129",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69129",
-      "datetime": "2026-11-12T12:17:54.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "트럼프 트루스 소셜 발언 > 민주당은 미국 역사상, 아니 세계 역사상 가장 부패하고 반미적인 정치 지도자들과 정치꾼들로 구성된 집단 중 하나가 이끌고 있다. 이들은 민주당이 장악한 주들에서 벌어진 대규모 부패...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/72033",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72033",
@@ -8492,22 +8490,6 @@
         "AMZN",
         "WULF",
         "HUT"
-      ]
-    },
-    {
-      "id": "bornlupin/20972",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/20972",
-      "datetime": "2026-11-03T10:10:19.000Z",
-      "localDateKst": "2026-11-03",
-      "tags": [
-        "market-note"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "파이퍼 샌들러(Piper Sandler), 팔란티어( $PLTR ) , 목표주가를 231달러에서 235달러로 상향 , ‘비중확대’ 투자의견을 유지 “ 팔란티어의 미국 상업 부문(US Commercial) 분기...",
-      "tickers": [
-        "PLTR"
       ]
     }
   ],
