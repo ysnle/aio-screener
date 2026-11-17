@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-17T17:21:56.180Z",
-  "attemptedAt": "2026-11-17T17:21:56.180Z",
-  "lastSuccessfulAt": "2026-11-17T17:21:56.180Z",
+  "generatedAt": "2026-11-17T17:52:18.925Z",
+  "attemptedAt": "2026-11-17T17:52:18.925Z",
+  "lastSuccessfulAt": "2026-11-17T17:52:18.925Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-03T17:21:51.467Z",
-  "until": "2026-11-17T17:21:51.467Z",
+  "since": "2026-11-03T17:52:14.668Z",
+  "until": "2026-11-17T17:52:14.668Z",
   "current24hWindow": {
     "start": "2026-11-15T23:00:00.000Z",
     "end": "2026-11-16T23:00:00.000Z",
@@ -108,11 +108,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 730,
-      "freshCount": 39,
+      "freshCount": 19,
       "eligibleTextCount": 730,
       "selectedCount": 127,
       "error": null,
@@ -138,7 +138,7 @@
     }
   ],
   "count": 2132,
-  "retainedItemCount": 408,
+  "retainedItemCount": 399,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -2004,14 +2004,14 @@
       "datetime": "2026-11-17T11:22:02.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>CXMT: 올해 1-3분기 글로벌 DRAM 제품 공급 부족 지속 •CXMT는 실적 설명회에서 회사의 사업 발전은 한편으로 시장 수요 급증에 따른 것이며, 다른 한편으로는 회사의 규모 효과가 점차 발휘되고..."
+      "summary": ">>CXMT: 올해 1-3분기 글로벌 DRAM 제품 공급 부족 지속 •CXMT는 실적 설명회에서 회사의 사업 발전은 한편으로 시장 수요 급증에 따른 것이며, 다른 한편으로는 회사의 규모 효과가 점차 발휘되고...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "bornlupin/21170",
@@ -2158,13 +2158,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "**Nvidia, 중국 AI 칩 원격 접근 관련 고객사에 법적 리스크 경고 Nvidia warns chip buyers of legal risks tied to China AI access, CNBC...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "**Nvidia, 중국 AI 칩 원격 접근 관련 고객사에 법적 리스크 경고 Nvidia warns chip buyers of legal risks tied to China AI access, CNBC..."
+      ]
     },
     {
       "id": "insidertracking/69500",
@@ -2196,9 +2195,7 @@
       "datetime": "2026-11-17T08:12:12.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "geo",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 75,
       "hasText": true,
@@ -2208,11 +2205,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.17, 화) 🇨🇳 중국 본토 증시는 미국 상무부(BIS)의 첨단 AI 칩 원격 접속 통제 강화 발표 속 반도체 자립화 테마가 오전 상승을 견인했으나, 오후 들어 차익 매물이...",
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.11.17, 화) 🇨🇳 중국 본토 증시는 미국 상무부(BIS)의 첨단 AI 칩 원격 접속 통제 강화 발표 속 반도체 자립화 테마가 오전 상승을 견인했으나, 오후 들어 차익 매물이..."
+      ]
     },
     {
       "id": "HANAchina/72279",
@@ -2221,12 +2218,12 @@
       "datetime": "2026-11-17T08:04:52.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "equity"
+        "semi"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": ">>AI 급락 전, 월가 거물들 엇갈린 행보: 브리지워터·소로스, 3분기 Nvidia 대폭 매도…‘돈나무 언니’·Tepper는 역으로 매수 확대, Druckenmiller는 Sandisk·TSMC 전량 매도...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2235,8 +2232,7 @@
         "SNDK",
         "STX",
         "INTC"
-      ],
-      "summary": ">>AI 급락 전, 월가 거물들 엇갈린 행보: 브리지워터·소로스, 3분기 Nvidia 대폭 매도…‘돈나무 언니’·Tepper는 역으로 매수 확대, Druckenmiller는 Sandisk·TSMC 전량 매도..."
+      ]
     },
     {
       "id": "HANAchina/72275",
@@ -2245,16 +2241,13 @@
       "datetime": "2026-11-17T07:47:45.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "power",
-        "credit",
-        "macro",
-        "ai-policy"
+        "power"
       ],
-      "lead": 1,
       "score": 87,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력..."
+      "summary": ">>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72274",
@@ -2266,11 +2259,11 @@
         "macro",
         "credit"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>노무라 : 한국 금리 커브, 2027년 초 스티프닝 예상 •노무라증권은 2027년 1월 말까지 한국 2년물과 10년물 국채 금리 스프레드가 25bp까지 확대될 전망. 노무라는 기관들이 5.5bp의 스프레드..."
+      "summary": ">>노무라 : 한국 금리 커브, 2027년 초 스티프닝 예상 •노무라증권은 2027년 1월 말까지 한국 2년물과 10년물 국채 금리 스프레드가 25bp까지 확대될 전망. 노무라는 기관들이 5.5bp의 스프레드...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/72273",
@@ -2279,16 +2272,15 @@
       "datetime": "2026-11-17T06:18:34.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": ">>칩 설계업계 관계자: TSMC 등 파운드리 업체로부터 가격 인상 통보 받아, 인상폭 10%-20% 이상 (대만공상시보) •칩 설계업계 관계자에 따르면 파운드리 업체로부터 가격 조정 통보를 받았으며,...",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": ">>칩 설계업계 관계자: TSMC 등 파운드리 업체로부터 가격 인상 통보 받아, 인상폭 10%-20% 이상 (대만공상시보) •칩 설계업계 관계자에 따르면 파운드리 업체로부터 가격 조정 통보를 받았으며,..."
+      ]
     },
     {
       "id": "HANAchina/72271",
@@ -2299,7 +2291,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2308,10 +2299,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "•CXMT vs SK하이닉스 •완벽한 동행중",
+      "lead": 1,
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "•CXMT vs SK하이닉스 •완벽한 동행중"
+      ]
     },
     {
       "id": "insidertracking/69493",
@@ -2424,8 +2416,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>유니트리 왕싱싱: 로봇의 미래 컴퓨팅 수요, 예상보다 훨씬 클 가능성 •왕싱싱 회장은 로봇 산업이 빠르게 발전하는 배경에 AI 모델의 활용 확대가 있다고 설명함. 현재 가장 큰 과제는 모델의 일반화..."
+      "summary": ">>유니트리 왕싱싱: 로봇의 미래 컴퓨팅 수요, 예상보다 훨씬 클 가능성 •왕싱싱 회장은 로봇 산업이 빠르게 발전하는 배경에 AI 모델의 활용 확대가 있다고 설명함. 현재 가장 큰 과제는 모델의 일반화...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72267",
@@ -2434,9 +2426,7 @@
       "datetime": "2026-11-17T03:53:54.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "credit",
-        "macro",
-        "japan"
+        "macro"
       ],
       "score": 64,
       "hasText": true,
@@ -2446,8 +2436,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>골드만삭스 5개 보고서가 모두 같은 결론: AI 잔치는 막바지에 가까워지고 있으며, 시장이 경제보다 취약 •데이터는 이러한 판단을 뒷받침하고 있음. AI는 미국 GDP 성장의 21%만 기여했지만, S&P..."
+      "summary": ">>골드만삭스 5개 보고서가 모두 같은 결론: AI 잔치는 막바지에 가까워지고 있으며, 시장이 경제보다 취약 •데이터는 이러한 판단을 뒷받침하고 있음. AI는 미국 GDP 성장의 21%만 기여했지만, S&P...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72266",
@@ -2458,7 +2448,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 78,
       "hasText": true,
       "media": {
@@ -2467,6 +2456,8 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>JPMorgan: CUDA 해자가 무너지고 있음, 엔비디아가 직면한 진짜 도전은 CEO 퇴임에 그치지 않아 •JPMorgan은 엔비디아의 2026년 연산 협정 내 점유율이 28%에 불과하며, AMD와...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
@@ -2474,8 +2465,7 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>JPMorgan: CUDA 해자가 무너지고 있음, 엔비디아가 직면한 진짜 도전은 CEO 퇴임에 그치지 않아 •JPMorgan은 엔비디아의 2026년 연산 협정 내 점유율이 28%에 불과하며, AMD와..."
+      ]
     },
     {
       "id": "HANAchina/72265",
