@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-17T10:22:10.973Z",
-  "attemptedAt": "2026-11-17T10:22:10.973Z",
-  "lastSuccessfulAt": "2026-11-17T10:22:10.973Z",
+  "generatedAt": "2026-11-17T10:51:45.526Z",
+  "attemptedAt": "2026-11-17T10:51:45.526Z",
+  "lastSuccessfulAt": "2026-11-17T10:51:45.526Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-03T10:22:06.900Z",
-  "until": "2026-11-17T10:22:06.900Z",
+  "since": "2026-11-03T10:51:42.496Z",
+  "until": "2026-11-17T10:51:42.496Z",
   "current24hWindow": {
     "start": "2026-11-15T23:00:00.000Z",
     "end": "2026-11-16T23:00:00.000Z",
@@ -85,13 +85,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1222,
-      "freshCount": 39,
-      "eligibleTextCount": 1166,
+      "count": 1224,
+      "freshCount": 40,
+      "eligibleTextCount": 1167,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69510
+      "lastPostId": 69512
     },
     {
       "channel": "bornlupin",
@@ -108,11 +108,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 722,
-      "freshCount": 38,
+      "freshCount": 20,
       "eligibleTextCount": 722,
       "selectedCount": 127,
       "error": null,
@@ -137,20 +137,20 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2132,
-  "retainedItemCount": 422,
+  "count": 2134,
+  "retainedItemCount": 412,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2132,
-    "eligibleTextCount": 2076,
-    "mediaOnlyCount": 56,
-    "mediaAttachedCount": 911,
-    "photoPostCount": 782,
+    "observedCount": 2134,
+    "eligibleTextCount": 2077,
+    "mediaOnlyCount": 57,
+    "mediaAttachedCount": 912,
+    "photoPostCount": 783,
     "documentPostCount": 7,
-    "imageOnlyCount": 5,
+    "imageOnlyCount": 6,
     "highSignalCount": 357,
     "broadSignalCount": 851,
     "selectedRawCount": 369,
@@ -160,14 +160,14 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "media-only": 55,
+    "geo": 320,
     "semi": 570,
     "ai-policy": 123,
     "earnings": 285,
     "market-note": 756,
-    "media-only": 54,
     "power": 271,
     "kr-market": 95,
-    "geo": 319,
     "equity": 138,
     "credit": 79,
     "macro": 298,
@@ -261,7 +261,7 @@
   "themes": [
     "Market Notes (756 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
     "Semiconductors/Memory (570 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q...",
-    "Geopolitics (319 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Geopolitics (320 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Macro/Rates (298 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년 엔비디아에 관련 거래 기록을 요청했으며, 엔비디아는 같은 해 6월 메가스피드를 판매 제한 명단에 추가....",
     "Earnings/Corporate (285 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (271 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 319,
+      "count": 320,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -2120,11 +2120,11 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•중국 반도체 과창50지수 +3.18% •소부장, 파운드리, AI칩 최상위"
+      "summary": "•중국 반도체 과창50지수 +3.18% •소부장, 파운드리, AI칩 최상위",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69477",
@@ -2152,17 +2152,17 @@
         "semi",
         "equity"
       ],
-      "lead": 2,
       "score": 72,
       "hasText": true,
+      "summary": ">>드러켄밀러, 반도체주 매도하고 SpaceX 비중 확대 •드러켄밀러가 이끄는 Duquesne 패밀리오피스의 3분기 13F 자료에 따르면, AMD, SanDisk, Alphabet을 전량 매도했음. 동시에...",
+      "lead": 2,
       "tickers": [
         "AMD",
         "GOOG",
         "TSM",
         "PLTR",
         "SNDK"
-      ],
-      "summary": ">>드러켄밀러, 반도체주 매도하고 SpaceX 비중 확대 •드러켄밀러가 이끄는 Duquesne 패밀리오피스의 3분기 13F 자료에 따르면, AMD, SanDisk, Alphabet을 전량 매도했음. 동시에..."
+      ]
     },
     {
       "id": "insidertracking/69474",
@@ -2188,7 +2188,7 @@
       "datetime": "2026-11-17T02:00:24.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -2198,8 +2198,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>모건스탠리 “리스크를 받아들여라” 강조 - AI 연산 투자 지출은 “늦어질 뿐, 줄어들지는 않을 것”, 글로벌 주식 최대 비중확대 요•모건스탠리는 글로벌 주식 비중을 최대 수준의 비중확대로 조정했으며,..."
+      "summary": ">>모건스탠리 “리스크를 받아들여라” 강조 - AI 연산 투자 지출은 “늦어질 뿐, 줄어들지는 않을 것”, 글로벌 주식 최대 비중확대 요•모건스탠리는 글로벌 주식 비중을 최대 수준의 비중확대로 조정했으며,...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69470",
@@ -2232,7 +2232,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -2241,8 +2240,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "•중국 파운더리, 반도체 장비는 강세 •SMIC +5%(좌), 북방화창 +4%(우) •반면, 유니트리 -5%, CXMT -3.8%"
+      "summary": "•중국 파운더리, 반도체 장비는 강세 •SMIC +5%(좌), 북방화창 +4%(우) •반면, 유니트리 -5%, CXMT -3.8%",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72254",
@@ -2251,15 +2251,13 @@
       "datetime": "2026-11-17T01:38:26.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "flows"
+        "semi"
       ],
       "score": 67,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>역사상 처음! 도이체방크 “칩 달러”가 “석유 달러”를 대체, 글로벌 금융 시스템이 “위험한 폐쇄고리”에 빠져 •도이체방크는 글로벌 반도체 무역액이 사상 처음으로 석유·천연가스 무역액을 넘어섰으며,..."
+      "summary": ">>역사상 처음! 도이체방크 “칩 달러”가 “석유 달러”를 대체, 글로벌 금융 시스템이 “위험한 폐쇄고리”에 빠져 •도이체방크는 글로벌 반도체 무역액이 사상 처음으로 석유·천연가스 무역액을 넘어섰으며,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69468",
@@ -2288,13 +2286,12 @@
       "datetime": "2026-11-17T00:37:18.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">> 미국 상무부, 첨단 AI 칩에 대한 원격 접근을 겨냥한 규정 발표 • 중국·마카오(국가 그룹 D:5)에 본사나 모회사를 둔 기업에 총 처리 성능(TPP) 1,200만 초과 수준의 AI 연산 자원을..."
+      "summary": ">> 미국 상무부, 첨단 AI 칩에 대한 원격 접근을 겨냥한 규정 발표 • 중국·마카오(국가 그룹 D:5)에 본사나 모회사를 둔 기업에 총 처리 성능(TPP) 1,200만 초과 수준의 AI 연산 자원을...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72246",
@@ -2303,12 +2300,12 @@
       "datetime": "2026-11-17T00:29:07.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중국 내수 소비 경기, 바닥에서 반전 가능성… 가격 인상 체인·제조·AI 체인의 구조적 호조 지속 (화타이) •화타이증권은 10월 전 산업 경기지수가 회복했으며, 대분류 업종 중 중류 소재, 필수소비,..."
+      "summary": ">>중국 내수 소비 경기, 바닥에서 반전 가능성… 가격 인상 체인·제조·AI 체인의 구조적 호조 지속 (화타이) •화타이증권은 10월 전 산업 경기지수가 회복했으며, 대분류 업종 중 중류 소재, 필수소비,...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72245",
@@ -2319,14 +2316,14 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
+      "summary": "• TSMC 이사회는 기존 신흥사업펀드(2억 달러)보다 규모를 대폭 키운 5억 달러 한도의 'TSMC 벤처스' 설립을 승인. 첫 행보로 미국 반도체·AI 전문 펀드인 '매버릭 실리콘 펀드 II'에 500만...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "• TSMC 이사회는 기존 신흥사업펀드(2억 달러)보다 규모를 대폭 키운 5억 달러 한도의 'TSMC 벤처스' 설립을 승인. 첫 행보로 미국 반도체·AI 전문 펀드인 '매버릭 실리콘 펀드 II'에 500만..."
+      ]
     },
     {
       "id": "HANAchina/72242",
