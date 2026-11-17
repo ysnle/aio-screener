@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-17T20:21:43.192Z",
-  "attemptedAt": "2026-11-17T20:21:43.192Z",
-  "lastSuccessfulAt": "2026-11-17T20:21:43.192Z",
+  "generatedAt": "2026-11-17T20:52:18.322Z",
+  "attemptedAt": "2026-11-17T20:52:18.322Z",
+  "lastSuccessfulAt": "2026-11-17T20:52:18.322Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-03T20:21:40.037Z",
-  "until": "2026-11-17T20:21:40.037Z",
+  "since": "2026-11-03T20:52:14.052Z",
+  "until": "2026-11-17T20:52:14.052Z",
   "current24hWindow": {
     "start": "2026-11-15T23:00:00.000Z",
     "end": "2026-11-16T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1218,
-      "freshCount": 20,
-      "eligibleTextCount": 1161,
+      "count": 1232,
+      "freshCount": 40,
+      "eligibleTextCount": 1173,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69530
+      "lastPostId": 69545
     },
     {
       "channel": "bornlupin",
@@ -137,41 +137,41 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2132,
-  "retainedItemCount": 399,
+  "count": 2146,
+  "retainedItemCount": 417,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2132,
-    "eligibleTextCount": 2075,
-    "mediaOnlyCount": 57,
-    "mediaAttachedCount": 903,
-    "photoPostCount": 777,
+    "observedCount": 2146,
+    "eligibleTextCount": 2087,
+    "mediaOnlyCount": 59,
+    "mediaAttachedCount": 911,
+    "photoPostCount": 779,
     "documentPostCount": 7,
     "imageOnlyCount": 6,
-    "highSignalCount": 357,
-    "broadSignalCount": 853,
+    "highSignalCount": 360,
+    "broadSignalCount": 856,
     "selectedRawCount": 369,
     "selectedEligibleCount": 369,
-    "selectedRawCoveragePct": 17.8,
-    "selectedOfObservedPct": 17.3,
+    "selectedRawCoveragePct": 17.7,
+    "selectedOfObservedPct": 17.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 756,
-    "semi": 576,
-    "macro": 301,
-    "japan": 59,
+    "market-note": 760,
+    "geo": 316,
+    "media-only": 57,
+    "semi": 579,
+    "macro": 303,
+    "japan": 60,
+    "kr-market": 94,
     "power": 273,
     "ai-policy": 125,
     "equity": 137,
     "earnings": 286,
-    "geo": 308,
     "optical": 25,
-    "kr-market": 93,
-    "media-only": 55,
     "credit": 79,
     "flows": 48,
     "insider": 2,
@@ -179,7 +179,8 @@
     "crypto": 1
   },
   "tickerCounts": {
-    "NVDA": 322,
+    "MSFT": 57,
+    "NVDA": 323,
     "GOOG": 60,
     "BA": 1,
     "AMZN": 56,
@@ -188,7 +189,6 @@
     "MU": 32,
     "000660.KS": 19,
     "JD": 2,
-    "MSFT": 56,
     "TSM": 66,
     "SPGI": 1,
     "AMD": 48,
@@ -257,10 +257,10 @@
     "CPNG": 1
   },
   "themes": [
-    "Market Notes (756 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
-    "Semiconductors/Memory (576 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고 분석함. 2026년 이후 글로벌 주요 프런티어 AI 연구소가 배정할 컴퓨팅 계약에서 Nvidia GPU 점유율은...",
-    "Geopolitics (308 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Macro/Rates (301 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동 인공지능 이니셔티브를 출범시키고 핵심 광물 분야에서 새로운 협정을 체결했다고 밝혀. • 트럼프 대통령은 중국...",
+    "Market Notes (760 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
+    "Semiconductors/Memory (579 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고 분석함. 2026년 이후 글로벌 주요 프런티어 AI 연구소가 배정할 컴퓨팅 계약에서 Nvidia GPU 점유율은...",
+    "Geopolitics (316 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Macro/Rates (303 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동 인공지능 이니셔티브를 출범시키고 핵심 광물 분야에서 새로운 협정을 체결했다고 밝혀. • 트럼프 대통령은 중국...",
     "Earnings/Corporate (286 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (273 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (137 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
@@ -269,7 +269,7 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 322,
+      "count": 323,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동 인공지능 이니셔티브를 출범시키고 핵심 광물 분야에서 새로운 협정을 체결했다고 밝혀. • 트럼프 대통령은 중국..."
     },
     {
@@ -283,14 +283,14 @@
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동 인공지능 이니셔티브를 출범시키고 핵심 광물 분야에서 새로운 협정을 체결했다고 밝혀. • 트럼프 대통령은 중국..."
     },
     {
+      "key": "MSFT",
+      "count": 57,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
+    },
+    {
       "key": "AMZN",
       "count": 56,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동 인공지능 이니셔티브를 출범시키고 핵심 광물 분야에서 새로운 협정을 체결했다고 밝혀. • 트럼프 대통령은 중국..."
-    },
-    {
-      "key": "MSFT",
-      "count": 56,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
       "key": "AMD",
@@ -335,7 +335,7 @@
       "topics": [
         "macro"
       ],
-      "count": 301,
+      "count": 303,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동 인공지능 이니셔티브를 출범시키고 핵심 광물 분야에서 새로운 협정을 체결했다고 밝혀. • 트럼프 대통령은 중국..."
     },
     {
@@ -344,7 +344,7 @@
       "topics": [
         "geo"
       ],
-      "count": 308,
+      "count": 316,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -362,7 +362,7 @@
       "topics": [
         "semi"
       ],
-      "count": 576,
+      "count": 579,
       "focus": ">>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고 분석함. 2026년 이후 글로벌 주요 프런티어 AI 연구소가 배정할 컴퓨팅 계약에서 Nvidia GPU 점유율은..."
     },
     {
@@ -398,7 +398,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 93,
+      "count": 94,
       "focus": "코스피 야간선물 상승 확대"
     },
     {
@@ -443,7 +443,7 @@
       "topics": [
         "japan"
       ],
-      "count": 59,
+      "count": 60,
       "focus": "트럼프 대통령이 쿼드 정상회의에서 나렌드라 모디 인도 총리, 다카이치 사나에 일본 총리, 앤서니 앨버니지 호주 총리와 회동. 트럼프 대통령은 “이 국가들과의 파트너십은 전 세계에서 가장 중요한 협력 관계 중 일부입니다”라고 강조."
     },
     {
@@ -470,7 +470,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 756,
+      "count": 760,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서..."
     }
   ],
@@ -1697,6 +1697,63 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69533",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69533",
+      "datetime": "2026-11-17T20:38:00.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "geo",
+        "semi"
+      ],
+      "score": 66,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "지난 1주일 동안, 저는 친구들, 업계 동료들, 그리고 한 번도 만나본 적 없는 사람들의 사랑과 지지에 압도당했습니다. 제 가족과 저에게 친절을 베풀어준 모든 분들께 감사드립니다. 그것은 제게 세상..."
+    },
+    {
+      "id": "insidertracking/69532",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69532",
+      "datetime": "2026-11-17T20:35:26.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "japan"
+      ],
+      "score": 79,
+      "hasText": true,
+      "tickers": [],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 18일 트럼프·태국 · 트럼프 “태국과의 무역 협정은 훌륭한 협정이 될 것” · 트럼프 “태국은 미국 수출품에 대한 모든 관세를 철폐하고 실질적인..."
+    },
+    {
+      "id": "insidertracking/69531",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69531",
+      "datetime": "2026-11-17T20:32:21.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "kr-market"
+      ],
+      "score": 87,
+      "hasText": true,
+      "tickers": [],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 18일 🇺🇸 아메리카 • 세인트루이스 연은 무살렘 총재는 높은 인플레이션이 지속될 위험이 상당하다며 2027년 봄 이전까지 여러 차례 금리 인상이 필요할 가능성이..."
+    },
+    {
       "id": "HANAchina/72305",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72305",
@@ -2108,7 +2165,7 @@
       "datetime": "2026-11-17T09:33:14.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 72,
       "hasText": true,
@@ -2118,14 +2175,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "브리지워터 3분기 포트폴리오 공개 (레이 달리오) • 브리지워터, SPY 약 14억 6,200만 달러·IVV 약 11억 4,400만 달러 매도·VOO도 약 2억 6,800만 달러 축소·S&P500 ETF...",
       "tickers": [
         "NVDA",
         "MSFT",
         "GOOG",
         "AMZN",
         "MU"
-      ]
+      ],
+      "summary": "브리지워터 3분기 포트폴리오 공개 (레이 달리오) • 브리지워터, SPY 약 14억 6,200만 달러·IVV 약 11억 4,400만 달러 매도·VOO도 약 2억 6,800만 달러 축소·S&P500 ETF..."
     },
     {
       "id": "insidertracking/69504",
@@ -2134,7 +2191,8 @@
       "datetime": "2026-11-17T09:27:49.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi"
+        "semi",
+        "ai-policy"
       ],
       "score": 61,
       "hasText": true,
@@ -2144,10 +2202,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 상무부와 법무부가 싱가포르 기업 메가스피드에 대한 수사 진행 상황을 공동 발표. 미 상무부는 민감한 반도체의 우회 반출 가능성을 선제적으로 모니터링하는 과정에서 의심스러운 활동을 포착한 뒤, 2024년...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 상무부와 법무부가 싱가포르 기업 메가스피드에 대한 수사 진행 상황을 공동 발표. 미 상무부는 민감한 반도체의 우회 반출 가능성을 선제적으로 모니터링하는 과정에서 의심스러운 활동을 포착한 뒤, 2024년..."
     },
     {
       "id": "HANAchina/72282",
@@ -6649,48 +6707,6 @@
       ]
     },
     {
-      "id": "insidertracking/69152",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69152",
-      "datetime": "2026-11-12T21:07:37.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "엔비디아는 4% 하락 마감",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69151",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69151",
-      "datetime": "2026-11-12T21:06:59.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 13일 미장 마감 S&P 500 - 7,592.40 -0.35% 다우 30 - 52,297.09 -0.36% 나스닥 - 25,366.09 -0.39% 러셀 2000 - 2,799.98...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21138",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21138",
@@ -6704,28 +6720,6 @@
       "summary": "어플라이드 머티어리얼즈 $AMAT 2026 회계연도 4분기 실적 매출: 104억 1천만 달러 (예상치 103억 달러 상회), 전년 동기 대비 53% 증가 조정 주당순이익(EPS): 4.16달러 (예상치...",
       "tickers": [
         "AMAT"
-      ]
-    },
-    {
-      "id": "insidertracking/69150",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69150",
-      "datetime": "2026-11-12T21:05:47.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "트럼프 SNS 발언 > [2026-11-13 오전 12:29] 이제 훌륭한 일을 해온 엔비디아 CEO 젠슨 황이 사임했으니, 그의 자리를 대신할 사람은 단 한 명뿐이다. 바로 애플의 팀 쿡이다. 전설이 전설을...",
-      "tickers": [
-        "NVDA"
       ]
     },
     {
