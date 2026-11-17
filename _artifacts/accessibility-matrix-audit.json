@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-17T01:14:34.070Z",
-  "appRevision": "v60.23",
-  "gitHead": "d1494747cd085c99dfc66381da8ad12012ebb141",
+  "observedAt": "2026-11-17T02:30:02.624Z",
+  "appRevision": "v60.24",
+  "gitHead": "2564290389bfafbffc2a72c84ceae79fa19e606e",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -41,8 +41,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "VIX",
+          "width": 18,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -50,7 +58,7 @@
       "routeId": "breadth",
       "active": true,
       "nameless": [],
-      "selectCount": 0,
+      "selectCount": 2,
       "selectsWithoutName": [],
       "positiveTabindex": [],
       "canvasCount": 0,
@@ -149,8 +157,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "10년 기간 프리미엄 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "채권 변동성 (MOVE) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -167,30 +190,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 3,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "PER",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "SEC",
-          "width": 23,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        },
-        {
-          "id": "",
-          "text": "EPS",
-          "width": 22,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
@@ -207,8 +208,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "ETF",
+          "width": 21,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        },
+        {
+          "id": "",
+          "text": "EPS",
+          "width": 22,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -243,16 +259,8 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 1,
-      "smallTargetExceptions": [
-        {
-          "id": "",
-          "text": "ETF",
-          "width": 21,
-          "height": 28,
-          "exception": "wcag-inline-text"
-        }
-      ],
+      "smallTargetExceptionCount": 0,
+      "smallTargetExceptions": [],
       "skipLink": true,
       "modalContracts": []
     },
