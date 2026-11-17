@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-17T08:51:29.086Z",
-  "attemptedAt": "2026-11-17T08:51:29.086Z",
-  "lastSuccessfulAt": "2026-11-17T08:51:29.086Z",
+  "generatedAt": "2026-11-17T09:21:59.791Z",
+  "attemptedAt": "2026-11-17T09:21:59.791Z",
+  "lastSuccessfulAt": "2026-11-17T09:21:59.791Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-03T08:51:25.421Z",
-  "until": "2026-11-17T08:51:25.421Z",
+  "since": "2026-11-03T09:21:53.983Z",
+  "until": "2026-11-17T09:21:53.983Z",
   "current24hWindow": {
     "start": "2026-11-15T23:00:00.000Z",
     "end": "2026-11-16T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1209,
-      "freshCount": 19,
-      "eligibleTextCount": 1155,
-      "selectedCount": 125,
+      "count": 1214,
+      "freshCount": 39,
+      "eligibleTextCount": 1159,
+      "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69497
+      "lastPostId": 69502
     },
     {
       "channel": "bornlupin",
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 720,
-      "freshCount": 20,
-      "eligibleTextCount": 720,
+      "count": 722,
+      "freshCount": 38,
+      "eligibleTextCount": 722,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72280
+      "lastPostId": 72283
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,40 +137,40 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2119,
-  "retainedItemCount": 396,
+  "count": 2126,
+  "retainedItemCount": 426,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2119,
-    "eligibleTextCount": 2065,
-    "mediaOnlyCount": 54,
-    "mediaAttachedCount": 902,
-    "photoPostCount": 773,
+    "observedCount": 2126,
+    "eligibleTextCount": 2071,
+    "mediaOnlyCount": 55,
+    "mediaAttachedCount": 905,
+    "photoPostCount": 776,
     "documentPostCount": 7,
     "imageOnlyCount": 5,
     "highSignalCount": 357,
-    "broadSignalCount": 848,
-    "selectedRawCount": 369,
-    "selectedEligibleCount": 369,
+    "broadSignalCount": 850,
+    "selectedRawCount": 370,
+    "selectedEligibleCount": 370,
     "selectedRawCoveragePct": 17.9,
     "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "media-only": 53,
+    "market-note": 752,
+    "semi": 567,
+    "power": 271,
+    "kr-market": 95,
     "geo": 321,
-    "semi": 565,
     "earnings": 285,
     "equity": 138,
-    "market-note": 749,
-    "kr-market": 94,
-    "power": 270,
     "credit": 79,
     "macro": 299,
     "ai-policy": 121,
-    "media-only": 52,
     "japan": 56,
     "flows": 49,
     "insider": 2,
@@ -179,7 +179,7 @@
     "crypto": 1
   },
   "tickerCounts": {
-    "NVDA": 314,
+    "NVDA": 316,
     "TSM": 66,
     "SPGI": 1,
     "000660.KS": 19,
@@ -259,19 +259,19 @@
     "RACE": 1
   },
   "themes": [
-    "Market Notes (749 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
-    "Semiconductors/Memory (565 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q...",
+    "Market Notes (752 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
+    "Semiconductors/Memory (567 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q...",
     "Geopolitics (321 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Macro/Rates (299 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년 엔비디아에 관련 거래 기록을 요청했으며, 엔비디아는 같은 해 6월 메가스피드를 판매 제한 명단에 추가....",
     "Earnings/Corporate (285 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "AI Power/Grid (270 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
+    "AI Power/Grid (271 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (138 posts in 14-day research window): 슈퍼마이크로(SMCI) FY2027 1분기 어닝콜 1. 실적 및 가이던스 대폭 상향 매출 199억 달러(+298% YoY, +79% QoQ). 기존 가이던스 145억~155억 달러 크게 상회. 조정 EPS...",
     "AI Policy/Export Controls (121 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 Gemini 4 Hydrogen을 전 세계 검색 사용자에게 출시. 복잡한 다단계 질문 처리와 검색..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 314,
+      "count": 316,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 미국 상무부는 2024년부터 메가스피드의 대중국 반도체 수출통제 위반 의혹을 조사해 왔다고 밝혀. 2025년 엔비디아에 관련 거래 기록을 요청했으며, 엔비디아는 같은 해 6월 메가스피드를 판매 제한 명단에 추가...."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 565,
+      "count": 567,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q..."
     },
     {
@@ -382,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 270,
+      "count": 271,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -400,8 +400,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 94,
-      "focus": "•중국 신용 잔고 vs KOSPI •4월 이후 완전히 동행"
+      "count": 95,
+      "focus": "코스피 야간선물 개장"
     },
     {
       "id": "equity",
@@ -464,7 +464,7 @@
         "insider"
       ],
       "count": 2,
-      "focus": "No retained full-text sample; 2 observed posts in the 14-day research window."
+      "focus": "버크셔 해서웨이 내부자, 추가 불타기 매수 버크셔 주식 매도는 없음"
     },
     {
       "id": "market-note",
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 749,
+      "count": 752,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서..."
     }
   ],
@@ -1696,6 +1696,47 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72282",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72282",
+      "datetime": "2026-11-17T09:17:53.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "**Nvidia, 중국 AI 칩 원격 접근 관련 고객사에 법적 리스크 경고 Nvidia warns chip buyers of legal risks tied to China AI access, CNBC..."
+    },
+    {
+      "id": "insidertracking/69500",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69500",
+      "datetime": "2026-11-17T09:14:54.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "lead": 1,
+      "score": 59,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "월스트리트저널에 따르면 엔비디아 직원들이 젠슨 황의 CEO 복귀를 지지하기 위해 캘리포니아 산타클라라 본사에서 시위를 진행하는 방안을 검토 중. 엔비디아 개발자 기술 담당 수석 디렉터 나데르 칼릴은 이사회와..."
+    },
+    {
       "id": "HANAchina/72280",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72280",
@@ -2080,7 +2121,7 @@
       "datetime": "2026-11-17T02:00:24.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -2090,8 +2131,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>모건스탠리 “리스크를 받아들여라” 강조 - AI 연산 투자 지출은 “늦어질 뿐, 줄어들지는 않을 것”, 글로벌 주식 최대 비중확대 요•모건스탠리는 글로벌 주식 비중을 최대 수준의 비중확대로 조정했으며,...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>모건스탠리 “리스크를 받아들여라” 강조 - AI 연산 투자 지출은 “늦어질 뿐, 줄어들지는 않을 것”, 글로벌 주식 최대 비중확대 요•모건스탠리는 글로벌 주식 비중을 최대 수준의 비중확대로 조정했으며,..."
     },
     {
       "id": "insidertracking/69470",
@@ -2110,10 +2151,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "엔비디아 오버나잇",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아 오버나잇"
     },
     {
       "id": "HANAchina/72255",
@@ -2124,6 +2165,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -2132,9 +2174,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "•중국 파운더리, 반도체 장비는 강세 •SMIC +5%(좌), 북방화창 +4%(우) •반면, 유니트리 -5%, CXMT -3.8%",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 파운더리, 반도체 장비는 강세 •SMIC +5%(좌), 북방화창 +4%(우) •반면, 유니트리 -5%, CXMT -3.8%"
     },
     {
       "id": "HANAchina/72254",
@@ -2143,13 +2184,15 @@
       "datetime": "2026-11-17T01:38:26.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi"
+        "macro",
+        "semi",
+        "kr-market",
+        "flows"
       ],
       "score": 67,
       "hasText": true,
-      "summary": ">>역사상 처음! 도이체방크 “칩 달러”가 “석유 달러”를 대체, 글로벌 금융 시스템이 “위험한 폐쇄고리”에 빠져 •도이체방크는 글로벌 반도체 무역액이 사상 처음으로 석유·천연가스 무역액을 넘어섰으며,...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>역사상 처음! 도이체방크 “칩 달러”가 “석유 달러”를 대체, 글로벌 금융 시스템이 “위험한 폐쇄고리”에 빠져 •도이체방크는 글로벌 반도체 무역액이 사상 처음으로 석유·천연가스 무역액을 넘어섰으며,..."
     },
     {
       "id": "insidertracking/69468",
@@ -2159,15 +2202,17 @@
       "localDateKst": "2026-11-17",
       "tags": [
         "semi",
-        "power"
+        "power",
+        "geo",
+        "ai-policy"
       ],
+      "lead": 2,
       "score": 84,
       "hasText": true,
-      "summary": "미국 정부가 브라질 데이터센터 운영업체의 엔비디아 등 미국 기업이 생산한 첨단 인공지능(AI) 칩 구매에 사전 허가를 요구할 예정. 해당 조치는 인도네시아, 말레이시아, 싱가포르, 태국에도 적용. 미국 정부는...",
-      "lead": 2,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 정부가 브라질 데이터센터 운영업체의 엔비디아 등 미국 기업이 생산한 첨단 인공지능(AI) 칩 구매에 사전 허가를 요구할 예정. 해당 조치는 인도네시아, 말레이시아, 싱가포르, 태국에도 적용. 미국 정부는..."
     },
     {
       "id": "HANAchina/72249",
@@ -2176,12 +2221,13 @@
       "datetime": "2026-11-17T00:37:18.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "market-note"
+        "semi",
+        "power"
       ],
       "score": 60,
       "hasText": true,
-      "summary": ">> 미국 상무부, 첨단 AI 칩에 대한 원격 접근을 겨냥한 규정 발표 • 중국·마카오(국가 그룹 D:5)에 본사나 모회사를 둔 기업에 총 처리 성능(TPP) 1,200만 초과 수준의 AI 연산 자원을...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">> 미국 상무부, 첨단 AI 칩에 대한 원격 접근을 겨냥한 규정 발표 • 중국·마카오(국가 그룹 D:5)에 본사나 모회사를 둔 기업에 총 처리 성능(TPP) 1,200만 초과 수준의 AI 연산 자원을..."
     },
     {
       "id": "HANAchina/72246",
@@ -2190,12 +2236,12 @@
       "datetime": "2026-11-17T00:29:07.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>중국 내수 소비 경기, 바닥에서 반전 가능성… 가격 인상 체인·제조·AI 체인의 구조적 호조 지속 (화타이) •화타이증권은 10월 전 산업 경기지수가 회복했으며, 대분류 업종 중 중류 소재, 필수소비,...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>중국 내수 소비 경기, 바닥에서 반전 가능성… 가격 인상 체인·제조·AI 체인의 구조적 호조 지속 (화타이) •화타이증권은 10월 전 산업 경기지수가 회복했으며, 대분류 업종 중 중류 소재, 필수소비,..."
     },
     {
       "id": "HANAchina/72245",
@@ -2206,14 +2252,14 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
-      "summary": "• TSMC 이사회는 기존 신흥사업펀드(2억 달러)보다 규모를 대폭 키운 5억 달러 한도의 'TSMC 벤처스' 설립을 승인. 첫 행보로 미국 반도체·AI 전문 펀드인 '매버릭 실리콘 펀드 II'에 500만...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "• TSMC 이사회는 기존 신흥사업펀드(2억 달러)보다 규모를 대폭 키운 5억 달러 한도의 'TSMC 벤처스' 설립을 승인. 첫 행보로 미국 반도체·AI 전문 펀드인 '매버릭 실리콘 펀드 II'에 500만..."
     },
     {
       "id": "HANAchina/72242",
@@ -6649,27 +6695,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/69126",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69126",
-      "datetime": "2026-11-12T12:13:06.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "power",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
-      "lead": 1,
-      "tickers": [
-        "AMD",
-        "MSFT",
-        "AMZN",
-        "TSM"
-      ]
-    },
-    {
       "id": "HANAchina/72033",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72033",
@@ -6789,22 +6814,6 @@
       "tickers": [
         "NVDA"
       ]
-    },
-    {
-      "id": "HANAchina/72014",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72014",
-      "datetime": "2026-11-12T06:14:16.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "macro",
-        "kr-market"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": ">>BOJ 심의위원 아사다 도이치로 •BOJ는 환율을 직접 관리하지 않기 때문에 달러·엔이 어느수준이 적절한지에 대해서는 언급할수 없음 •정책금리가 정책 목표에 부합하는 수준에 도달하더라도, 이후 추가 금리...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/21123",
