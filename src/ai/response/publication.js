@@ -1,5 +1,5 @@
 // P1519: one evidence-publication policy shared by the legacy adapter and native ESM.
-import { stampDay } from '../../domain/shared/session-date.js';
+import { isoDay, stampDay } from '../../domain/shared/session-date.js';
 export function claimEvidenceId(row) {
   return String(row && (row.evidenceId || row.documentId || row.id) || '').trim();
 }
@@ -639,7 +639,7 @@ function claimLabelAgrees(claim) {
   });
 }
 
-const APP_TOOL_SOURCE = /(?:앱|AIO)\s*(?:의\s*)?자료\s*도구/i;
+const APP_TOOL_SOURCE = /(?:앱|\bAIO\b)\s*(?:의\s*)?자료\s*도구/i;
 const TREND_BASIS = /주가\s*(?:추이|흐름)|(?:최근\s*)?\d+\s*거래일\s*(?:주가\s*)?(?:추이|흐름)/;
 const BARE_CITATION_HOST = /^\((?:[a-z0-9-]+\.)+[a-z]{2,}\)[.!?。]*$/i;
 const APP_TREND_CREDIT = 'AIO 앱의 주가 추이 자료';
@@ -650,8 +650,8 @@ function bindAppTrendBasis(sentence, bare, toolBasis, matchers) {
   if (!Array.isArray(toolBasis) || !APP_TOOL_SOURCE.test(bare) || !TREND_BASIS.test(bare)
       || !/기준일|종가\s*기준/.test(bare) || !lineDates(bare).length || writtenFigures(bare).length) return null;
   const entity = matchers && soleEntity(bare, matchers);
-  const dates = new Set(toolBasis.filter((row) => entity && row?.name === 'trend'
-    && row.entities?.includes(entity) && /^\d{4}-\d{2}-\d{2} 종가$/.test(row.asOf)).map((row) => row.asOf));
+  const dates = new Set(toolBasis.filter((row) => entity && row?.name === 'trend' && row.entities?.includes(entity)
+    && typeof row.asOf === 'string' && isoDay(row.asOf.slice(0, 10)) && row.asOf.slice(10) === ' 종가').map((row) => row.asOf));
   const prefix = sentence.match(/^(?:[-*+]\s+|\d+[.)]\s+)/)?.[0] || '';
   if (dates.size !== 1) return { text: `${prefix}해당 주가 추이의 기준일은 앱 자료에서 확인하지 못했습니다.`, date: null };
   const [date] = dates;

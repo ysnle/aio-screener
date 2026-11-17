@@ -100,10 +100,13 @@ assert.ok(!descendants(page).some(node => node.id === 'signal-crossroads' || Str
 const macroLinks = descendants(page).filter(node => node.tagName === 'button' && node.textContent === '다음 발표별 시나리오 전체');
 assert.equal(macroLinks.length, 1, 'v59.68 the flow section ends with exactly one link line to the scenario map');
 {
-  const shown = []; root.showPage = (route) => shown.push(route);
+  const shown = [];
+  root.showPage = (route) => shown.push(route);
+  root._aioShowPageView = (pageId, view) => shown.push([pageId, view]);
   macroLinks[0].listeners.click();
-  assert.deepEqual(shown, ['signal'], 'v59.68 the scenario link stays on 시장 상태 (root.showPage signal)');
+  assert.deepEqual(shown, [['page-signal', 'story']], 'v60.23 the scenario link activates the owning story view without navigating away');
   delete root.showPage;
+  delete root._aioShowPageView;
 }
 const vixCard = ids.get('regime-board').children.find(card => card.dataset.axis === 'volatility');
 const stressFold = descendants(vixCard).find(node => node.id === 'regime-stress-outcomes');

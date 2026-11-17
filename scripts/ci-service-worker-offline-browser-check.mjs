@@ -57,24 +57,24 @@ try {
       await page.goto(origin + path, { waitUntil: 'load' });
       await page.waitForFunction(() => !!navigator.serviceWorker.controller);
       await waitForMacro();
-      assert.equal(navigations, 1, 'First control must occur on the original document');
+      assert.equal(navigations, 1, 'P2602 first control must occur on the original document');
       const shellAsset = (file) => page.evaluate(async (name) => {
         const cache = await caches.open((await caches.keys()).find((key) => key.startsWith('aio-shell-')));
         return Boolean(await cache.match(name));
       }, file);
-      assert.equal(await shellAsset('/src/ui/styles/responsive.css'), false, 'The first visit did not warm the stylesheet in CacheStorage');
+      assert.equal(await shellAsset('/src/ui/styles/responsive.css'), false, 'P2602 the first visit did not warm the stylesheet in CacheStorage');
 
       await context.setOffline(true);
       const cold = await page.reload({ waitUntil: 'domcontentloaded' });
-      assert.equal(cold.status(), 503, 'The worker must serve an honest offline recovery document');
+      assert.equal(cold.status(), 503, 'P2602 the worker must serve an honest offline recovery document');
       await page.getByRole('heading', { name: '연결을 확인해 주세요' }).waitFor();
-      assert.equal(page.url(), origin + path, 'Offline recovery must retain the original route and query');
-      assert.deepEqual(errors, [], 'The incomplete app must not execute any scripts');
+      assert.equal(page.url(), origin + path, 'P2602 offline recovery must retain the original route and query');
+      assert.deepEqual(errors, [], 'P2602 the incomplete app must not execute any scripts');
 
       await context.setOffline(false);
       await page.getByRole('button', { name: '다시 시도' }).click();
       await waitForMacro();
-      assert.equal(page.url(), origin + path, 'Retry must open the original route');
+      assert.equal(page.url(), origin + path, 'P2602 retry must open the original route');
       await page.waitForFunction(async () => {
         const cache = await caches.open((await caches.keys()).find((key) => key.startsWith('aio-shell-')));
         const urls = [...document.querySelectorAll('script[src*="?v="], link[rel="stylesheet"][href^="src/"], script[type="module"][src], link[rel="modulepreload"]')]
@@ -85,17 +85,17 @@ try {
 
       await context.setOffline(true);
       const warmed = await page.goto(origin + '/?offline-check=2#macro?view=releases', { waitUntil: 'domcontentloaded' });
-      assert.equal(warmed.status(), 200, 'A complete cached release must remain usable through the root alias');
+      assert.equal(warmed.status(), 200, 'P2602 a complete cached release must remain usable through the root alias');
       await waitForMacro();
-      assert.deepEqual(errors, [], 'The warmed application must boot without errors');
+      assert.deepEqual(errors, [], 'P2602 the warmed application must boot without errors');
 
       await context.setOffline(false);
       documentDown = true;
       const partialOutage = await page.reload({ waitUntil: 'domcontentloaded' });
-      assert.equal(partialOutage.status(), 200, 'Keep serving the validated cached release in a partial origin outage');
+      assert.equal(partialOutage.status(), 200, 'P2602 serve the validated cached release in a partial origin outage');
       await waitForMacro();
-      assert.equal(unboundBootstrapRequests, 0, 'Cached HTML must load its cached bootstrap even when the origin serves another generation');
-      assert.deepEqual(errors, []);
+      assert.equal(unboundBootstrapRequests, 0, 'P2602 cached HTML must load its cached bootstrap even when the origin serves another generation');
+      assert.deepEqual(errors, [], 'P2602 a partial outage must not execute another shell generation');
       documentDown = false;
       await context.setOffline(true);
       await page.evaluate(async () => {
@@ -103,7 +103,7 @@ try {
         await shell.put('/src/ui/styles/responsive.css', new Response('/* different release */', { headers: { 'Content-Type': 'text/css' } }));
       });
       const mismatched = await page.reload({ waitUntil: 'domcontentloaded' });
-      assert.equal(mismatched.status(), 503, 'A cached URL with bytes from another release is insufficient');
+      assert.equal(mismatched.status(), 503, 'P2602 a cached URL with bytes from another release is insufficient');
       await page.getByRole('heading', { name: '연결을 확인해 주세요' }).waitFor();
       console.log(JSON.stringify({ width, cold: cold.status(), warmed: warmed.status(), partialOutage: partialOutage.status(), mismatched: mismatched.status(), recoveredRoute: path, errors }));
     } finally {

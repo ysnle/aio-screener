@@ -371,8 +371,9 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   // The rate hub (why rates lead, the proxy caveat once) comes first; the map below opens each branch in place.
   // v57.79 (UI review): the heading says what the list is (ordered by conditions met), not how to use it.
   const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — 조건 충족 순`, 'xr-h3');
+  const basis = el(doc, 'p', '과거 빈도는 비슷한 시장 움직임으로 고른 비교입니다.', 'xr-reading');
   // v58.79: the closing "세부 종목 선택은 …" caption left; the screen names no price, size or timing by construction (R724).
-  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), timeline(doc, model), rateHub(doc, model, pathsOpen, root), mapHead, branchMap(doc, root, model, openIds, { restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key], changesOpen, root?._aioArtifactFreshness?.('scenario-state.json')?.checkedAt)].filter(Boolean));
+  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), timeline(doc, model), rateHub(doc, model, pathsOpen, root), mapHead, basis, branchMap(doc, root, model, openIds, { restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key], changesOpen, root?._aioArtifactFreshness?.('scenario-state.json')?.checkedAt)].filter(Boolean));
   target.dataset.aioCrossroads = 'native';
   if (focused) target.querySelector(`.xr-branch[data-branch="${focused}"] > summary`)?.focus?.({ preventScroll: true }); // a repaint keeps keyboard focus
   return model;
