@@ -89,5 +89,8 @@ export function ledgerFacts(day) {
   // The account's date label is the US session of its price bars.
   const spx = (day?.facts || []).find((fact) => fact.kind === 'price' && fact.asset === 'spx');
   if (spx?.date) facts['us-session'] = { asOf: spx.date, values: {} };
+  // The stock and group moves can sit one session behind the index bars; their label is checked against their own dates.
+  const moverDates = (day?.facts || []).filter((fact) => fact.kind === 'stock-move' || fact.kind === 'group-move').map((fact) => fact.date).filter(Boolean).sort();
+  if (moverDates.length) facts['us-movers'] = { asOf: moverDates[moverDates.length - 1], values: {} };
   return facts;
 }

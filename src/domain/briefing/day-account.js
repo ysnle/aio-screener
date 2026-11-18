@@ -31,7 +31,18 @@ const weekClaim = (fact) => claim({ subject: subjectOf(fact), measure: 'week5d',
 /** A price fact's size on the leg the ledger ranked it by (the session, or the five-session leg). */
 const legSize = (fact) => Math.abs((fact.sizedBy === 'week' ? fact.zWeek : fact.z) ?? 0);
 /** 가장 큰 변화: the fact's size (its ledger leg) is the largest of its price family. */
-const largestClaim = (fact, family) => claim({ subject: subjectOf(fact), measure: 'size', word: 'largest', asOf: fact.date, rank: { among: `family:${family?.id}` } });
+// The stories' date label. Index bars and the stock and group moves come from different sources, so the index can be
+// one session ahead of the movers; then the label names both sessions instead of dating the index by the movers.
+function sessionLabel(day, facts) {
+  const movers = day.sessions?.us || null;
+  const index = facts.find((fact) => fact.kind === 'price' && fact.asset === 'spx')?.date || null;
+  const session = (subject, asOf) => claim({ subject, measure: 'session', asOf });
+  if (!movers) return NOTHING;
+  if (!index || index === movers) return say('{session.date} 마감', { session: session('us-session', movers) });
+  return say('지수 {index.date} 마감, 종목 {movers.date} 마감', { index: session('us-session', index), movers: session('us-movers', movers) });
+}
+
+const largestClaim =(fact, family) => claim({ subject: subjectOf(fact), measure: 'size', word: 'largest', asOf: fact.date, rank: { among: `family:${family?.id}` } });
 /** A group's named members ({sym, change}): its leaders under a superlative, or its main movers. */
 const memberClaim = (group, movers, word) => claim({ subject: subjectOf(group), measure: 'change1d', word, asOf: group.date, ...(CLAIM_WORDS[word].rank ? { rank: { among: subjectOf(group) } } : {}),
   figures: movers.map((row) => ({ value: row.change, unit: 'pct', basis: 'member', label: row.sym })) });
@@ -279,7 +290,7 @@ export function buildDayAccount(day, { briefs = null } = {}) {
   const face = stories.filter((story) => story.rank !== 'minor').slice(0, 6);
   const counts = facts.reduce((acc, fact) => { acc[fact.rank] = (acc[fact.rank] || 0) + 1; return acc; }, {});
   const opening = indexSaid(facts);
-  const asOf = day.sessions?.us ? say('{session.date} 마감', { session: claim({ subject: 'us-session', measure: 'session', asOf: day.sessions.us }) }) : NOTHING;
+  const asOf = sessionLabel(day, facts);
   return {
     available: true,
     opening: opening.text,

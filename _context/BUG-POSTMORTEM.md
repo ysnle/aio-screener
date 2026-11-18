@@ -39,6 +39,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2685 - v60.30 - v60.30 오늘·브리핑 이야기 날짜 표기가 지수 세션을 종목 세션 날짜로 적음 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 병합 뒤 자료에서 일일 요약의 날짜 표기가 '11/16 마감'인데 그 아래 지수 문장은 11/17 종가였다. 지수 가격은 11/17, 종목·묶음 등락은 스크리너 세션인 11/16이었다.
+- root_cause: src/domain/briefing/day-account.js: 날짜 표기를 원장의 sessions.us(스크리너 팩터 세션) 하나로 찍었다. 지수 봉과 종목 등락은 원천이 달라 한 세션 어긋날 수 있는데 표기는 하나뿐이었다.
+- fix: sessionLabel: 지수 가격 사실의 날짜와 종목 세션이 같으면 'M/D 마감', 다르면 '지수 M/D 마감, 종목 M/D 마감'으로 둘 다 적고 각자 주장(us-session, us-movers)을 갖는다. scripts/lib/claim-facts.mjs가 us-movers를 종목·묶음 등락 사실의 날짜로 확인한다.
+- violated_rule: 날짜 표기는 그 아래 수치가 나온 자료의 날짜와 같아야 한다.
+- prevention: scripts/ci-sentence-claim-replay-check.mjs (v60.30) f-asof: 게시된 원장에서 날짜 표기 주장이 지수 가격 사실과 종목 등락 사실의 날짜와 각각 일치해야 한다. 고치기 전 코드는 병합된 자료에서 1건 실패한다.
+- verification/residual: ci-sentence-claim-replay-check, ci-esm-core-unit-check, ci-market-reading-week-fixture, ci-boot-bundle-budget-check exit 0. 로컬 브라우저 오늘 화면에서 '지수 11/17 마감, 종목 11/16 마감' 확인.
+- files: src/domain/briefing/day-account.js, scripts/lib/claim-facts.mjs
+
 ## P2684 - v60.30 - v60.30 Korean theme criteria count only the criteria that apply, and an unknown dot differs from an unmet one (2026-11-18)
 
 - symptom/reproduction: Every Korean theme in the 시나리오 table read "x/6, 미확인 3" (e.g. "3/6, 미확인 3"), and the dots drew an unknown criterion the same as an unmet one.
