@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-18T09:21:55.422Z",
-  "attemptedAt": "2026-11-18T09:21:55.422Z",
-  "lastSuccessfulAt": "2026-11-18T09:21:55.422Z",
+  "generatedAt": "2026-11-18T09:52:02.570Z",
+  "attemptedAt": "2026-11-18T09:52:02.570Z",
+  "lastSuccessfulAt": "2026-11-18T09:52:02.570Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-04T09:21:49.981Z",
-  "until": "2026-11-18T09:21:49.981Z",
+  "since": "2026-11-04T09:51:58.616Z",
+  "until": "2026-11-18T09:51:58.616Z",
   "current24hWindow": {
     "start": "2026-11-16T23:00:00.000Z",
     "end": "2026-11-17T23:00:00.000Z",
@@ -82,12 +82,12 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1209,
-      "freshCount": 39,
-      "eligibleTextCount": 1151,
+      "count": 1205,
+      "freshCount": 20,
+      "eligibleTextCount": 1147,
       "selectedCount": 128,
       "error": null,
       "failingSince": null,
@@ -98,9 +98,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 181,
+      "count": 180,
       "freshCount": 20,
-      "eligibleTextCount": 181,
+      "eligibleTextCount": 180,
       "selectedCount": 120,
       "error": null,
       "failingSince": null,
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 728,
-      "freshCount": 18,
+      "freshCount": 34,
       "eligibleTextCount": 728,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72354
+      "lastPostId": 72357
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2118,
-  "retainedItemCount": 413,
+  "count": 2113,
+  "retainedItemCount": 415,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2118,
-    "eligibleTextCount": 2060,
+    "observedCount": 2113,
+    "eligibleTextCount": 2055,
     "mediaOnlyCount": 58,
-    "mediaAttachedCount": 888,
-    "photoPostCount": 757,
+    "mediaAttachedCount": 885,
+    "photoPostCount": 755,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
     "highSignalCount": 351,
-    "broadSignalCount": 863,
+    "broadSignalCount": 861,
     "selectedRawCount": 374,
     "selectedEligibleCount": 374,
     "selectedRawCoveragePct": 18.2,
@@ -160,25 +160,25 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 740,
-    "semi": 604,
-    "kr-market": 91,
     "macro": 297,
+    "semi": 604,
     "earnings": 281,
+    "market-note": 736,
+    "kr-market": 91,
     "flows": 49,
-    "equity": 134,
+    "equity": 133,
     "healthcare": 50,
     "credit": 78,
     "ai-policy": 127,
     "geo": 295,
-    "power": 267,
+    "power": 266,
     "media-only": 56,
     "optical": 24,
     "japan": 57,
     "insider": 2
   },
   "tickerCounts": {
-    "NVDA": 363,
+    "NVDA": 364,
     "TSM": 67,
     "2454.TW": 7,
     "GOOG": 61,
@@ -193,7 +193,7 @@
     "MRVL": 2,
     "CRWV": 17,
     "AMZN": 56,
-    "MSFT": 55,
+    "MSFT": 54,
     "ORCL": 8,
     "BA": 1,
     "005930.KS": 26,
@@ -255,25 +255,25 @@
     "INTC": 1
   },
   "themes": [
-    "Market Notes (740 posts in 14-day research window): 2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000...",
-    "Semiconductors/Memory (604 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%, 74.9%로 높은 수익성 유지하며 영업이익과 EPS도 사상 최고치 기록. • Vera Rubin 폭발적 초기...",
-    "Macro/Rates (297 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며 필리핀이 알래스카 LNG 프로젝트의 주요 협력국이 될 수 있다고 밝혀. 또한 필리핀과의 정상회담 이후 대규모...",
+    "Market Notes (736 posts in 14-day research window): 2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000...",
+    "Semiconductors/Memory (604 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
+    "Macro/Rates (297 posts in 14-day research window): 2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우...",
     "Geopolitics (295 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Earnings/Corporate (281 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "AI Power/Grid (267 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
-    "Equity/Analyst (134 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
+    "Earnings/Corporate (281 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
+    "AI Power/Grid (266 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
+    "Equity/Analyst (133 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
     "AI Policy/Export Controls (127 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 363,
+      "count": 364,
       "text": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     },
     {
       "key": "TSM",
       "count": 67,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며 필리핀이 알래스카 LNG 프로젝트의 주요 협력국이 될 수 있다고 밝혀. 또한 필리핀과의 정상회담 이후 대규모..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며..."
     },
     {
       "key": "GOOG",
@@ -287,7 +287,7 @@
     },
     {
       "key": "MSFT",
-      "count": 55,
+      "count": 54,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로..."
     },
     {
@@ -334,7 +334,7 @@
         "macro"
       ],
       "count": 297,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며 필리핀이 알래스카 LNG 프로젝트의 주요 협력국이 될 수 있다고 밝혀. 또한 필리핀과의 정상회담 이후 대규모..."
+      "focus": "2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우..."
     },
     {
       "id": "geo",
@@ -361,7 +361,7 @@
         "semi"
       ],
       "count": 604,
-      "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%, 74.9%로 높은 수익성 유지하며 영업이익과 EPS도 사상 최고치 기록. • Vera Rubin 폭발적 초기..."
+      "focus": ">>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고..."
     },
     {
       "id": "optical",
@@ -378,7 +378,7 @@
       "topics": [
         "power"
       ],
-      "count": 267,
+      "count": 266,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -405,7 +405,7 @@
       "topics": [
         "equity"
       ],
-      "count": 134,
+      "count": 133,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두..."
     },
     {
@@ -424,7 +424,7 @@
         "earnings"
       ],
       "count": 281,
-      "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
+      "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
     },
     {
       "id": "healthcare",
@@ -468,7 +468,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 740,
+      "count": 736,
       "focus": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     }
   ],
@@ -754,19 +754,16 @@
       "datetime": "2026-11-18T05:11:56.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며...",
       "tickers": [
         "NVDA",
         "TSM",
         "009150.KS"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며..."
+      ]
     },
     {
       "id": "insidertracking/69592",
@@ -775,18 +772,17 @@
       "datetime": "2026-11-18T02:36:45.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
+        "earnings",
         "semi",
-        "credit",
-        "optical",
         "power"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
+      ]
     },
     {
       "id": "insidertracking/69553",
@@ -1677,6 +1673,25 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72357",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72357",
+      "datetime": "2026-11-18T09:49:16.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 63,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>“AI 중앙은행”이 양적긴축에 돌입! Nvidia 신임 CEO, 투자 문턱 높이며 Neocloud 자금줄 위기 •Nvidia 임시 CEO Kress는 실적발표에서 투자와 보증을 엄격하게 평가하겠다고..."
+    },
+    {
       "id": "insidertracking/69631",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69631",
@@ -1948,10 +1963,7 @@
       "datetime": "2026-11-18T05:28:21.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "equity"
+        "market-note"
       ],
       "score": 83,
       "hasText": true,
@@ -1961,10 +1973,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 18일 (수) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 50,767.30 (+0.01%) • S&P500: 7,349.50...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 18일 (수) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 50,767.30 (+0.01%) • S&P500: 7,349.50..."
+      ]
     },
     {
       "id": "insidertracking/69609",
@@ -1999,19 +2011,16 @@
       "datetime": "2026-11-18T05:11:56.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며...",
       "tickers": [
         "NVDA",
         "TSM",
         "009150.KS"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며..."
+      ]
     },
     {
       "id": "HANAchina/72339",
@@ -2042,13 +2051,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "디인포메이션에 따르면 엔비디아의 오랜 영업 총괄 출신 제이 푸리가 주요 고객사와의 관계를 관리했으며, 여기에는 앨리스 황도 포함. 앨리스 황의 사업 네트워크는 수출 제한 대상인 엔비디아 AI 칩 최소 75억...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "디인포메이션에 따르면 엔비디아의 오랜 영업 총괄 출신 제이 푸리가 주요 고객사와의 관계를 관리했으며, 여기에는 앨리스 황도 포함. 앨리스 황의 사업 네트워크는 수출 제한 대상인 엔비디아 AI 칩 최소 75억..."
+      ]
     },
     {
       "id": "insidertracking/69598",
@@ -2059,13 +2068,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "세마포에 따르면 엔비디아 이사회 일부 구성원들의 반대에도 불구하고, 일부 이사들이 젠슨 황의 복귀를 계속 추진 중.",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "세마포에 따르면 엔비디아 이사회 일부 구성원들의 반대에도 불구하고, 일부 이사들이 젠슨 황의 복귀를 계속 추진 중."
+      ]
     },
     {
       "id": "insidertracking/69597",
@@ -2074,16 +2082,15 @@
       "datetime": "2026-11-18T02:50:51.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 60,
       "hasText": true,
+      "summary": "미국 레딧 분위기 모음 (젠슨황 관련) > NVDA - 젠슨 없는 엔비디아? 집단 멘붕 · 엔비디아 이사회가 젠슨 황 CEO 복귀 가능성을 배제했다는 게시물이 핵심 · “젠슨을 다시 데려와라” · “내 주식은...",
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "미국 레딧 분위기 모음 (젠슨황 관련) > NVDA - 젠슨 없는 엔비디아? 집단 멘붕 · 엔비디아 이사회가 젠슨 황 CEO 복귀 가능성을 배제했다는 게시물이 핵심 · “젠슨을 다시 데려와라” · “내 주식은..."
+      ]
     },
     {
       "id": "insidertracking/69595",
@@ -2102,8 +2109,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "» 글로벌 펀드매니저들의 11월 기술주 비중확대 항목 응답 비율이 전월대비 약 25%p 하락. 2006년 6월 이후 최대 감소폭 기록 [BofA Global Fund Manager Survey] » AI 투자..."
+      "summary": "» 글로벌 펀드매니저들의 11월 기술주 비중확대 항목 응답 비율이 전월대비 약 25%p 하락. 2006년 6월 이후 최대 감소폭 기록 [BofA Global Fund Manager Survey] » AI 투자...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69592",
@@ -2112,18 +2119,17 @@
       "datetime": "2026-11-18T02:36:45.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
+        "earnings",
         "semi",
-        "credit",
-        "optical",
         "power"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
+      ]
     },
     {
       "id": "bornlupin/21186",
@@ -2161,7 +2167,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
       "media": {
@@ -2170,10 +2175,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 상승분 거의 모두 반납. 애프터: +4.75% → +0.26%",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 상승분 거의 모두 반납. 애프터: +4.75% → +0.26%"
+      ]
     },
     {
       "id": "insidertracking/69588",
@@ -2206,13 +2212,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": ">>젠슨 황이 엔비디아 복귀하려면 , 먼저 ‘이사회부터 제거’ 필요 (중국언론) •젠슨 황이 엔비디아를 떠난 지 불과 5일 만에 CEO 복귀 의사를 공개적으로 밝혔지만, 엔비디아 이사회는 그를 다시 기용할...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>젠슨 황이 엔비디아 복귀하려면 , 먼저 ‘이사회부터 제거’ 필요 (중국언론) •젠슨 황이 엔비디아를 떠난 지 불과 5일 만에 CEO 복귀 의사를 공개적으로 밝혔지만, 엔비디아 이사회는 그를 다시 기용할..."
     },
     {
       "id": "insidertracking/69585",
@@ -2242,11 +2248,10 @@
       ],
       "score": 56,
       "hasText": true,
-      "summary": "•대만가권지수 개장 4만선 회복 •40,720pt(+1.6%), TSMC +1.8%",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "•대만가권지수 개장 4만선 회복 •40,720pt(+1.6%), TSMC +1.8%"
     },
     {
       "id": "insidertracking/69579",
@@ -6829,29 +6834,6 @@
       "score": 56,
       "hasText": true,
       "summary": ">>중국 유명 투자자 단융핑: 현재 엔비디아 매도하지 않을 것, 젠슨 황은 ‘그림자 CEO’로 영향력 유지 가능 (중국언론) •단융핑은 중국의 대표적인 장기 투자자로, 엔비디아의 젠슨 황 사임에 대해...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "HANAchina/72075",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72075",
-      "datetime": "2026-11-13T05:57:00.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "“회사를 이끌던 사람을 다시 데려오자” 엔비디아 직원들, 젠슨 황 복귀 촉구 (중국언론) •엔비디아 직원들이 젠슨 황의 복귀를 집단적으로 지지하고 있음. 사내 ‘의견함’ 게시글에는 1,600개 이상의 댓글이...",
       "lead": 1,
       "tickers": [
         "NVDA"
