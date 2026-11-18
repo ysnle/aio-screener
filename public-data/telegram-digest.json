@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-18T00:21:52.839Z",
-  "attemptedAt": "2026-11-18T00:21:52.839Z",
-  "lastSuccessfulAt": "2026-11-18T00:21:52.839Z",
+  "generatedAt": "2026-11-18T00:52:08.716Z",
+  "attemptedAt": "2026-11-18T00:52:08.716Z",
+  "lastSuccessfulAt": "2026-11-18T00:52:08.716Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-04T00:21:47.909Z",
-  "until": "2026-11-18T00:21:47.909Z",
+  "since": "2026-11-04T00:52:03.876Z",
+  "until": "2026-11-18T00:52:03.876Z",
   "current24hWindow": {
     "start": "2026-11-16T23:00:00.000Z",
     "end": "2026-11-17T23:00:00.000Z",
@@ -82,11 +82,11 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1231,
-      "freshCount": 40,
+      "freshCount": 20,
       "eligibleTextCount": 1172,
       "selectedCount": 125,
       "error": null,
@@ -98,9 +98,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 183,
+      "count": 182,
       "freshCount": 20,
-      "eligibleTextCount": 183,
+      "eligibleTextCount": 182,
       "selectedCount": 120,
       "error": null,
       "failingSince": null,
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 725,
-      "freshCount": 20,
+      "freshCount": 35,
       "eligibleTextCount": 725,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72316
+      "lastPostId": 72319
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2139,
-  "retainedItemCount": 404,
+  "count": 2138,
+  "retainedItemCount": 401,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2139,
-    "eligibleTextCount": 2080,
+    "observedCount": 2138,
+    "eligibleTextCount": 2079,
     "mediaOnlyCount": 59,
-    "mediaAttachedCount": 898,
-    "photoPostCount": 768,
+    "mediaAttachedCount": 899,
+    "photoPostCount": 769,
     "documentPostCount": 6,
     "imageOnlyCount": 6,
     "highSignalCount": 351,
-    "broadSignalCount": 862,
+    "broadSignalCount": 861,
     "selectedRawCount": 372,
     "selectedEligibleCount": 372,
     "selectedRawCoveragePct": 17.9,
@@ -160,16 +160,16 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 755,
+    "market-note": 756,
     "semi": 590,
     "power": 274,
-    "macro": 302,
+    "macro": 301,
     "earnings": 284,
     "credit": 75,
     "ai-policy": 126,
     "geo": 307,
-    "kr-market": 94,
-    "flows": 48,
+    "kr-market": 93,
+    "flows": 47,
     "equity": 132,
     "healthcare": 51,
     "media-only": 57,
@@ -253,10 +253,10 @@
     "INTC": 1
   },
   "themes": [
-    "Market Notes (755 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
+    "Market Notes (756 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
     "Semiconductors/Memory (590 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고 분석함. 2026년 이후 글로벌 주요 프런티어 AI 연구소가 배정할 컴퓨팅 계약에서 Nvidia GPU 점유율은...",
     "Geopolitics (307 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Macro/Rates (302 posts in 14-day research window): 2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우 -1.81%, 나스닥 -1.24%, 러셀2000 -1.42% 기록. VIX는 12.77% 급등한 25.84로 상승하며...",
+    "Macro/Rates (301 posts in 14-day research window): 2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우...",
     "Earnings/Corporate (284 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (274 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (132 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
@@ -331,8 +331,8 @@
       "topics": [
         "macro"
       ],
-      "count": 302,
-      "focus": "2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우 -1.81%, 나스닥 -1.24%, 러셀2000 -1.42% 기록. VIX는 12.77% 급등한 25.84로 상승하며..."
+      "count": 301,
+      "focus": "2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우..."
     },
     {
       "id": "geo",
@@ -394,7 +394,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 94,
+      "count": 93,
       "focus": "홈디포(HD) Q3 2026 어닝콜 요약 긍정 요인: • 견조한 매출 및 EPS 성장. 3분기 매출은 434억달러로 전년 대비 4.9% 증가. 조정 희석 EPS는 3.86달러로 3.2% 증가하며 어려운 주택시장에서도 실적 방어력 확인. • 광범위한 판매 성장. 동일점포매출은 2.2% 증가했으며 16개 상품군 중..."
     },
     {
@@ -448,7 +448,7 @@
       "topics": [
         "flows"
       ],
-      "count": 48,
+      "count": 47,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -466,7 +466,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 755,
+      "count": 756,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서..."
     }
   ],
@@ -727,9 +727,7 @@
       "localDateKst": "2026-11-18",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "power"
+        "semi"
       ],
       "score": 100,
       "hasText": true,
@@ -739,6 +737,8 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우...",
+      "lead": 2,
       "tickers": [],
       "relatedTickers": [
         "AVGO"
@@ -751,8 +751,7 @@
         "AMZN",
         "CRM",
         "CRWV"
-      ],
-      "summary": "2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우..."
+      ]
     },
     {
       "id": "HANAchina/72303",
@@ -2269,13 +2268,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "머디워터스가 엔비디아에 대한 공매도 포지션 공개. 머디워터스에 따르면 센리 첸으로 확인된 여성은 일부 사진 태그에서 센리 푸리로도 표기됐으며, 2024년부터 2026년까지 아제이 K. 푸리와 함께 공개석상에서...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "머디워터스가 엔비디아에 대한 공매도 포지션 공개. 머디워터스에 따르면 센리 첸으로 확인된 여성은 일부 사진 태그에서 센리 푸리로도 표기됐으며, 2024년부터 2026년까지 아제이 K. 푸리와 함께 공개석상에서..."
+      ]
     },
     {
       "id": "bornlupin/21173",
@@ -2313,10 +2312,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "머디워터스 공매도 기관, 엔비디아 공매도 리포트 보고. 머디워터스는 예전에 중국 루이싱커피 회계조작 잡아내서 주가 폭락+상장 폐지까지 이끌어낸 네임드 기업으로 유명합니다.",
+      "lead": 3,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "머디워터스 공매도 기관, 엔비디아 공매도 리포트 보고. 머디워터스는 예전에 중국 루이싱커피 회계조작 잡아내서 주가 폭락+상장 폐지까지 이끌어낸 네임드 기업으로 유명합니다."
+      ]
     },
     {
       "id": "insidertracking/69554",
@@ -2325,13 +2325,11 @@
       "datetime": "2026-11-17T21:03:14.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy",
-        "equity"
+        "market-note"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) · 세일즈포스 (CRM) — ‘Copilotforce’를 발표해 세일즈포스의 고객 컨텍스트와 영업...",
       "tickers": [],
       "relatedTickers": [
         "AVGO"
@@ -2344,8 +2342,7 @@
         "GOOG",
         "META",
         "AMZN"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) · 세일즈포스 (CRM) — ‘Copilotforce’를 발표해 세일즈포스의 고객 컨텍스트와 영업..."
+      ]
     },
     {
       "id": "insidertracking/69553",
@@ -2355,9 +2352,7 @@
       "localDateKst": "2026-11-18",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "power"
+        "semi"
       ],
       "score": 100,
       "hasText": true,
@@ -2367,6 +2362,8 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우...",
+      "lead": 2,
       "tickers": [],
       "relatedTickers": [
         "AVGO"
@@ -2379,8 +2376,7 @@
         "AMZN",
         "CRM",
         "CRWV"
-      ],
-      "summary": "2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우..."
+      ]
     },
     {
       "id": "insidertracking/69552",
@@ -2393,10 +2389,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "SEC, 젠슨 황 CEO의 사임과 관련하여 엔비디아에 대한 조사를 진행 중 – WSJ",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "SEC, 젠슨 황 CEO의 사임과 관련하여 엔비디아에 대한 조사를 진행 중 – WSJ"
+      ]
     },
     {
       "id": "insidertracking/69551",
@@ -2408,7 +2404,6 @@
         "semi",
         "healthcare"
       ],
-      "lead": 2,
       "score": 56,
       "hasText": true,
       "media": {
@@ -2417,10 +2412,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도 엔비디아, 그리고 SLS (바이오주...오늘 154% 올랐네요...) 갑자기 관심도에 나온거보니 급등주인 것 같습니다.",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 레딧 관심도 엔비디아, 그리고 SLS (바이오주...오늘 154% 올랐네요...) 갑자기 관심도에 나온거보니 급등주인 것 같습니다."
+      ]
     },
     {
       "id": "insidertracking/69550",
@@ -2433,6 +2428,8 @@
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Guardian Pharmacy Services · Integer Holdings · Organon & Co. · Progyny · SELLAS Life...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "COST",
@@ -2442,8 +2439,7 @@
         "TFX",
         "IBN",
         "DRI"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Guardian Pharmacy Services · Integer Holdings · Organon & Co. · Progyny · SELLAS Life..."
+      ]
     },
     {
       "id": "insidertracking/69547",
@@ -2457,10 +2453,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "8분뒤에 종료이긴하지만 엔비디아 실적 발표로 인해서 일단 미리 마감합니다!",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "8분뒤에 종료이긴하지만 엔비디아 실적 발표로 인해서 일단 미리 마감합니다!"
+      ]
     },
     {
       "id": "insidertracking/69546",
@@ -2469,7 +2465,7 @@
       "datetime": "2026-11-17T20:52:08.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -2479,8 +2475,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 11월 18일 미장 마감 S&P 500 - 7,316.65 -1.35% 다우 30 - 50,672.18 -1.81% 나스닥 - 24,204.89 -1.24% 러셀 2000 - 2,704.11..."
+      "summary": "2026년 11월 18일 미장 마감 S&P 500 - 7,316.65 -1.35% 다우 30 - 50,672.18 -1.81% 나스닥 - 24,204.89 -1.24% 러셀 2000 - 2,704.11...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69533",
@@ -2649,11 +2645,11 @@
         "semi",
         "ai-policy"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
-      "summary": ">>미국의 첨단 반도체 원격 접근 제한 조치 발표에 대한 중국 상무부의 발언 •중국 상무부는 관련 상황을 주시하고 있다고 밝힘. 미국이 국가안보 개념을 확대 해석하고 수출통제를 남용해 중국 기업과 다른 국가...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국의 첨단 반도체 원격 접근 제한 조치 발표에 대한 중국 상무부의 발언 •중국 상무부는 관련 상황을 주시하고 있다고 밝힘. 미국이 국가안보 개념을 확대 해석하고 수출통제를 남용해 중국 기업과 다른 국가..."
     },
     {
       "id": "HANAchina/72292",
@@ -2663,13 +2659,14 @@
       "localDateKst": "2026-11-17",
       "tags": [
         "earnings",
-        "semi"
+        "semi",
+        "power"
       ],
+      "lead": 2,
       "score": 65,
       "hasText": true,
-      "summary": ">>CXMT 3Q 실적 설명회: 주요 고객사와 장기공급계약 협의, 엣지 AI 메모리가 확장의 핵심 동력 •CXMT는 AI가 주도하는 구조적 수요 증가에 대응해 여러 주요 고객사와 장기공급계약(LTA)을...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>CXMT 3Q 실적 설명회: 주요 고객사와 장기공급계약 협의, 엣지 AI 메모리가 확장의 핵심 동력 •CXMT는 AI가 주도하는 구조적 수요 증가에 대응해 여러 주요 고객사와 장기공급계약(LTA)을..."
     },
     {
       "id": "insidertracking/69530",
@@ -2752,15 +2749,18 @@
       "datetime": "2026-11-17T12:03:45.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "power",
+        "japan"
       ],
       "score": 85,
       "hasText": true,
-      "summary": ">>APEC 선전 정상회의, 미중 관계 일시적 휴전 속 아태 기업들의 재편 (대만경제일보) •미중 정상회담 : 11월 19일 선전에서 트럼프·시진핑·푸틴 3국 정상회담 및 미중 정상회담 개최 예정. 미중러...",
       "tickers": [
         "GOOG",
         "BA"
-      ]
+      ],
+      "summary": ">>APEC 선전 정상회의, 미중 관계 일시적 휴전 속 아태 기업들의 재편 (대만경제일보) •미중 정상회담 : 11월 19일 선전에서 트럼프·시진핑·푸틴 3국 정상회담 및 미중 정상회담 개최 예정. 미중러..."
     },
     {
       "id": "insidertracking/69523",
@@ -2817,13 +2817,13 @@
         "ai-policy",
         "equity"
       ],
+      "lead": 1,
       "score": 54,
       "hasText": true,
-      "summary": "•Anthropic: 나스닥 글로벌 셀렉트 마켓에 A종 보통주 상장이 승인됐으며, 주식 코드는 ‘ANT’ •Amazon은 발행된 N종 주식의 48.2%를 보유. Amazon은 발행 주식의 23.8%를 보유...",
-      "lead": 2,
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": "•Anthropic: 나스닥 글로벌 셀렉트 마켓에 A종 보통주 상장이 승인됐으며, 주식 코드는 ‘ANT’ •Amazon은 발행된 N종 주식의 48.2%를 보유. Amazon은 발행 주식의 23.8%를 보유..."
     },
     {
       "id": "HANAchina/72286",
@@ -2832,14 +2832,14 @@
       "datetime": "2026-11-17T11:22:02.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "earnings",
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>CXMT: 올해 1-3분기 글로벌 DRAM 제품 공급 부족 지속 •CXMT는 실적 설명회에서 회사의 사업 발전은 한편으로 시장 수요 급증에 따른 것이며, 다른 한편으로는 회사의 규모 효과가 점차 발휘되고...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>CXMT: 올해 1-3분기 글로벌 DRAM 제품 공급 부족 지속 •CXMT는 실적 설명회에서 회사의 사업 발전은 한편으로 시장 수요 급증에 따른 것이며, 다른 한편으로는 회사의 규모 효과가 점차 발휘되고..."
     },
     {
       "id": "bornlupin/21170",
@@ -2986,12 +2986,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "**Nvidia, 중국 AI 칩 원격 접근 관련 고객사에 법적 리스크 경고 Nvidia warns chip buyers of legal risks tied to China AI access, CNBC...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "**Nvidia, 중국 AI 칩 원격 접근 관련 고객사에 법적 리스크 경고 Nvidia warns chip buyers of legal risks tied to China AI access, CNBC..."
     },
     {
       "id": "insidertracking/69500",
@@ -9073,13 +9074,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "머디워터스가 엔비디아에 대한 공매도 포지션 공개. 머디워터스에 따르면 센리 첸으로 확인된 여성은 일부 사진 태그에서 센리 푸리로도 표기됐으며, 2024년부터 2026년까지 아제이 K. 푸리와 함께 공개석상에서...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "머디워터스가 엔비디아에 대한 공매도 포지션 공개. 머디워터스에 따르면 센리 첸으로 확인된 여성은 일부 사진 태그에서 센리 푸리로도 표기됐으며, 2024년부터 2026년까지 아제이 K. 푸리와 함께 공개석상에서..."
+      ]
     },
     {
       "id": "bornlupin/21173",
@@ -9117,10 +9118,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "머디워터스 공매도 기관, 엔비디아 공매도 리포트 보고. 머디워터스는 예전에 중국 루이싱커피 회계조작 잡아내서 주가 폭락+상장 폐지까지 이끌어낸 네임드 기업으로 유명합니다.",
+      "lead": 3,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "머디워터스 공매도 기관, 엔비디아 공매도 리포트 보고. 머디워터스는 예전에 중국 루이싱커피 회계조작 잡아내서 주가 폭락+상장 폐지까지 이끌어낸 네임드 기업으로 유명합니다."
+      ]
     },
     {
       "id": "insidertracking/69554",
@@ -9129,13 +9131,11 @@
       "datetime": "2026-11-17T21:03:14.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy",
-        "equity"
+        "market-note"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) · 세일즈포스 (CRM) — ‘Copilotforce’를 발표해 세일즈포스의 고객 컨텍스트와 영업...",
       "tickers": [],
       "relatedTickers": [
         "AVGO"
@@ -9148,8 +9148,7 @@
         "GOOG",
         "META",
         "AMZN"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) · 세일즈포스 (CRM) — ‘Copilotforce’를 발표해 세일즈포스의 고객 컨텍스트와 영업..."
+      ]
     },
     {
       "id": "insidertracking/69553",
@@ -9159,9 +9158,7 @@
       "localDateKst": "2026-11-18",
       "tags": [
         "macro",
-        "geo",
-        "semi",
-        "power"
+        "semi"
       ],
       "score": 100,
       "hasText": true,
@@ -9171,6 +9168,8 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우...",
+      "lead": 2,
       "tickers": [],
       "relatedTickers": [
         "AVGO"
@@ -9183,8 +9182,7 @@
         "AMZN",
         "CRM",
         "CRWV"
-      ],
-      "summary": "2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우..."
+      ]
     },
     {
       "id": "insidertracking/69552",
@@ -9197,10 +9195,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "SEC, 젠슨 황 CEO의 사임과 관련하여 엔비디아에 대한 조사를 진행 중 – WSJ",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "SEC, 젠슨 황 CEO의 사임과 관련하여 엔비디아에 대한 조사를 진행 중 – WSJ"
+      ]
     },
     {
       "id": "insidertracking/69551",
@@ -9212,7 +9210,6 @@
         "semi",
         "healthcare"
       ],
-      "lead": 2,
       "score": 56,
       "hasText": true,
       "media": {
@@ -9221,10 +9218,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도 엔비디아, 그리고 SLS (바이오주...오늘 154% 올랐네요...) 갑자기 관심도에 나온거보니 급등주인 것 같습니다.",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 레딧 관심도 엔비디아, 그리고 SLS (바이오주...오늘 154% 올랐네요...) 갑자기 관심도에 나온거보니 급등주인 것 같습니다."
+      ]
     },
     {
       "id": "insidertracking/69550",
@@ -9237,6 +9234,8 @@
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Guardian Pharmacy Services · Integer Holdings · Organon & Co. · Progyny · SELLAS Life...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "COST",
@@ -9246,8 +9245,7 @@
         "TFX",
         "IBN",
         "DRI"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Guardian Pharmacy Services · Integer Holdings · Organon & Co. · Progyny · SELLAS Life..."
+      ]
     },
     {
       "id": "insidertracking/69547",
@@ -9261,10 +9259,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "8분뒤에 종료이긴하지만 엔비디아 실적 발표로 인해서 일단 미리 마감합니다!",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "8분뒤에 종료이긴하지만 엔비디아 실적 발표로 인해서 일단 미리 마감합니다!"
+      ]
     },
     {
       "id": "insidertracking/69546",
@@ -9273,7 +9271,7 @@
       "datetime": "2026-11-17T20:52:08.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -9283,8 +9281,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 11월 18일 미장 마감 S&P 500 - 7,316.65 -1.35% 다우 30 - 50,672.18 -1.81% 나스닥 - 24,204.89 -1.24% 러셀 2000 - 2,704.11..."
+      "summary": "2026년 11월 18일 미장 마감 S&P 500 - 7,316.65 -1.35% 다우 30 - 50,672.18 -1.81% 나스닥 - 24,204.89 -1.24% 러셀 2000 - 2,704.11...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69533",
@@ -9453,11 +9451,11 @@
         "semi",
         "ai-policy"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
-      "summary": ">>미국의 첨단 반도체 원격 접근 제한 조치 발표에 대한 중국 상무부의 발언 •중국 상무부는 관련 상황을 주시하고 있다고 밝힘. 미국이 국가안보 개념을 확대 해석하고 수출통제를 남용해 중국 기업과 다른 국가...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국의 첨단 반도체 원격 접근 제한 조치 발표에 대한 중국 상무부의 발언 •중국 상무부는 관련 상황을 주시하고 있다고 밝힘. 미국이 국가안보 개념을 확대 해석하고 수출통제를 남용해 중국 기업과 다른 국가..."
     },
     {
       "id": "HANAchina/72292",
@@ -9467,13 +9465,14 @@
       "localDateKst": "2026-11-17",
       "tags": [
         "earnings",
-        "semi"
+        "semi",
+        "power"
       ],
+      "lead": 2,
       "score": 65,
       "hasText": true,
-      "summary": ">>CXMT 3Q 실적 설명회: 주요 고객사와 장기공급계약 협의, 엣지 AI 메모리가 확장의 핵심 동력 •CXMT는 AI가 주도하는 구조적 수요 증가에 대응해 여러 주요 고객사와 장기공급계약(LTA)을...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>CXMT 3Q 실적 설명회: 주요 고객사와 장기공급계약 협의, 엣지 AI 메모리가 확장의 핵심 동력 •CXMT는 AI가 주도하는 구조적 수요 증가에 대응해 여러 주요 고객사와 장기공급계약(LTA)을..."
     },
     {
       "id": "insidertracking/69530",
@@ -9536,15 +9535,18 @@
       "datetime": "2026-11-17T12:03:45.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "power",
+        "japan"
       ],
       "score": 85,
       "hasText": true,
-      "summary": ">>APEC 선전 정상회의, 미중 관계 일시적 휴전 속 아태 기업들의 재편 (대만경제일보) •미중 정상회담 : 11월 19일 선전에서 트럼프·시진핑·푸틴 3국 정상회담 및 미중 정상회담 개최 예정. 미중러...",
       "tickers": [
         "GOOG",
         "BA"
-      ]
+      ],
+      "summary": ">>APEC 선전 정상회의, 미중 관계 일시적 휴전 속 아태 기업들의 재편 (대만경제일보) •미중 정상회담 : 11월 19일 선전에서 트럼프·시진핑·푸틴 3국 정상회담 및 미중 정상회담 개최 예정. 미중러..."
     },
     {
       "id": "insidertracking/69523",
@@ -9601,13 +9603,13 @@
         "ai-policy",
         "equity"
       ],
+      "lead": 1,
       "score": 54,
       "hasText": true,
-      "summary": "•Anthropic: 나스닥 글로벌 셀렉트 마켓에 A종 보통주 상장이 승인됐으며, 주식 코드는 ‘ANT’ •Amazon은 발행된 N종 주식의 48.2%를 보유. Amazon은 발행 주식의 23.8%를 보유...",
-      "lead": 2,
       "tickers": [
         "AMZN"
-      ]
+      ],
+      "summary": "•Anthropic: 나스닥 글로벌 셀렉트 마켓에 A종 보통주 상장이 승인됐으며, 주식 코드는 ‘ANT’ •Amazon은 발행된 N종 주식의 48.2%를 보유. Amazon은 발행 주식의 23.8%를 보유..."
     },
     {
       "id": "HANAchina/72286",
@@ -9616,14 +9618,14 @@
       "datetime": "2026-11-17T11:22:02.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "earnings",
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>CXMT: 올해 1-3분기 글로벌 DRAM 제품 공급 부족 지속 •CXMT는 실적 설명회에서 회사의 사업 발전은 한편으로 시장 수요 급증에 따른 것이며, 다른 한편으로는 회사의 규모 효과가 점차 발휘되고...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>CXMT: 올해 1-3분기 글로벌 DRAM 제품 공급 부족 지속 •CXMT는 실적 설명회에서 회사의 사업 발전은 한편으로 시장 수요 급증에 따른 것이며, 다른 한편으로는 회사의 규모 효과가 점차 발휘되고..."
     },
     {
       "id": "bornlupin/21170",
@@ -9770,12 +9772,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "**Nvidia, 중국 AI 칩 원격 접근 관련 고객사에 법적 리스크 경고 Nvidia warns chip buyers of legal risks tied to China AI access, CNBC...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "**Nvidia, 중국 AI 칩 원격 접근 관련 고객사에 법적 리스크 경고 Nvidia warns chip buyers of legal risks tied to China AI access, CNBC..."
     },
     {
       "id": "insidertracking/69500",
