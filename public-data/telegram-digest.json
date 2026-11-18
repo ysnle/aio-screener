@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-18T13:21:47.720Z",
-  "attemptedAt": "2026-11-18T13:21:47.720Z",
-  "lastSuccessfulAt": "2026-11-18T13:21:47.720Z",
+  "generatedAt": "2026-11-18T13:51:52.088Z",
+  "attemptedAt": "2026-11-18T13:51:52.088Z",
+  "lastSuccessfulAt": "2026-11-18T13:51:52.088Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-04T13:21:44.392Z",
-  "until": "2026-11-18T13:21:44.392Z",
+  "since": "2026-11-04T13:51:47.390Z",
+  "until": "2026-11-18T13:51:47.390Z",
   "current24hWindow": {
     "start": "2026-11-16T23:00:00.000Z",
     "end": "2026-11-17T23:00:00.000Z",
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 722,
-      "freshCount": 18,
-      "eligibleTextCount": 722,
+      "count": 726,
+      "freshCount": 38,
+      "eligibleTextCount": 726,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72362
+      "lastPostId": 72366
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2097,
-  "retainedItemCount": 396,
+  "count": 2101,
+  "retainedItemCount": 412,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2097,
-    "eligibleTextCount": 2037,
+    "observedCount": 2101,
+    "eligibleTextCount": 2041,
     "mediaOnlyCount": 60,
     "mediaAttachedCount": 871,
     "photoPostCount": 739,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
     "highSignalCount": 346,
-    "broadSignalCount": 853,
+    "broadSignalCount": 855,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
     "selectedRawCoveragePct": 18.3,
@@ -160,19 +160,19 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "earnings": 276,
+    "earnings": 277,
+    "healthcare": 53,
+    "macro": 293,
+    "equity": 133,
     "market-note": 729,
     "media-only": 58,
     "semi": 605,
     "power": 263,
     "japan": 56,
-    "macro": 291,
     "kr-market": 88,
-    "healthcare": 52,
     "geo": 291,
     "ai-policy": 129,
     "flows": 49,
-    "equity": 132,
     "credit": 78,
     "optical": 22,
     "insider": 2
@@ -257,11 +257,11 @@
   "themes": [
     "Market Notes (729 posts in 14-day research window): 2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000...",
     "Semiconductors/Memory (605 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
-    "Macro/Rates (291 posts in 14-day research window): 애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와 Agent 365·Copilot Workspaces, 멀티모델 AI 전략을 장기 AI 도입 및 수익화의 핵심...",
+    "Macro/Rates (293 posts in 14-day research window): 애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와 Agent 365·Copilot Workspaces, 멀티모델 AI 전략을 장기 AI 도입 및 수익화의 핵심...",
     "Geopolitics (291 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Earnings/Corporate (276 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
+    "Earnings/Corporate (277 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
     "AI Power/Grid (263 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
-    "Equity/Analyst (132 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
+    "Equity/Analyst (133 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
     "AI Policy/Export Controls (129 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
   ],
   "catalysts": [
@@ -333,7 +333,7 @@
       "topics": [
         "macro"
       ],
-      "count": 291,
+      "count": 293,
       "focus": "애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와 Agent 365·Copilot Workspaces, 멀티모델 AI 전략을 장기 AI 도입 및 수익화의 핵심..."
     },
     {
@@ -405,7 +405,7 @@
       "topics": [
         "equity"
       ],
-      "count": 132,
+      "count": 133,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두..."
     },
     {
@@ -423,7 +423,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 276,
+      "count": 277,
       "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
     },
     {
@@ -432,7 +432,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 52,
+      "count": 53,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체..."
     },
     {
@@ -1672,6 +1672,36 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72365",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72365",
+      "datetime": "2026-11-18T13:45:02.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "macro"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>고금리 지속 압박에 글로벌 신용시장 스트레스 테스트… 부도 확산 가능성 (중국언론) •블룸버그 런던 글로벌 신용 포럼에서 여러 자산운용사 고위 관계자들은 글로벌 신용시장에 대한 압력이 계속 커지고 있다고..."
+    },
+    {
+      "id": "HANAchina/72364",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72364",
+      "datetime": "2026-11-18T13:35:13.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "macro"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>연준 이사 월러: 1월 금리 인상 신호를 내고 싶지 않다면 12월에 50bp 인상해야 함"
+    },
+    {
       "id": "HANAchina/72362",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72362",
@@ -2109,9 +2139,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "•중국증시 오후장 하드 테크 강하게 반등 •반도체 과창50 +3%, 컴퓨팅 관련주 급등 •다수 PCB 대표주 상한가 기록",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국증시 오후장 하드 테크 강하게 반등 •반도체 과창50 +3%, 컴퓨팅 관련주 급등 •다수 PCB 대표주 상한가 기록"
     },
     {
       "id": "insidertracking/69611",
@@ -2186,17 +2215,18 @@
       "datetime": "2026-11-18T04:22:57.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "semi"
+        "semi",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 69,
       "hasText": true,
-      "summary": ">>엔비디아 임시 CEO, AI 공급망 투자 더욱 신중하게 검토 •엔비디아 임시 CEO Colette Kress는 향후 AI 공급망 투자에 대해 더욱 “신중하고 엄격하게” 심사할 것이라고 밝힘. 엔비디아는...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "MRVL",
         "CRWV"
-      ]
+      ],
+      "summary": ">>엔비디아 임시 CEO, AI 공급망 투자 더욱 신중하게 검토 •엔비디아 임시 CEO Colette Kress는 향후 AI 공급망 투자에 대해 더욱 “신중하고 엄격하게” 심사할 것이라고 밝힘. 엔비디아는..."
     },
     {
       "id": "insidertracking/69602",
@@ -2368,13 +2398,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": ">>젠슨 황이 엔비디아 복귀하려면 , 먼저 ‘이사회부터 제거’ 필요 (중국언론) •젠슨 황이 엔비디아를 떠난 지 불과 5일 만에 CEO 복귀 의사를 공개적으로 밝혔지만, 엔비디아 이사회는 그를 다시 기용할...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>젠슨 황이 엔비디아 복귀하려면 , 먼저 ‘이사회부터 제거’ 필요 (중국언론) •젠슨 황이 엔비디아를 떠난 지 불과 5일 만에 CEO 복귀 의사를 공개적으로 밝혔지만, 엔비디아 이사회는 그를 다시 기용할..."
     },
     {
       "id": "insidertracking/69585",
@@ -2404,11 +2434,10 @@
       ],
       "score": 56,
       "hasText": true,
-      "summary": "•대만가권지수 개장 4만선 회복 •40,720pt(+1.6%), TSMC +1.8%",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "•대만가권지수 개장 4만선 회복 •40,720pt(+1.6%), TSMC +1.8%"
     },
     {
       "id": "insidertracking/69579",
@@ -6857,36 +6886,6 @@
         "AVGO",
         "AMZN"
       ]
-    },
-    {
-      "id": "HANAchina/72087",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72087",
-      "datetime": "2026-11-13T11:45:28.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>Token 해외 사업으로 버는 돈이 급등하는 스토리지 비용을 따라가지 못함 •Menlo Ventures에 따르면 미국 기업의 오픈소스 모델 지출 중 89%가 중국 모델로 향하지만, 오픈소스 모델은 기업의...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/72085",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72085",
-      "datetime": "2026-11-13T11:19:19.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "ai-policy",
-        "equity"
-      ],
-      "score": 50,
-      "hasText": true,
-      "summary": ">>SpaceX부터 Anthropic까지, 시장은 거대 기업 상장에 새로운 대응 전략을 마련 •시장의 거대 기업 상장 대응 전략은 ‘지수 편입 기대’를 중심으로 전개되고 있음. 새로운 규정에 따라 초대형...",
-      "lead": 2,
-      "tickers": []
     },
     {
       "id": "bornlupin/21143",
