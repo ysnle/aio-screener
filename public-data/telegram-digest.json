@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-18T21:21:40.887Z",
-  "attemptedAt": "2026-11-18T21:21:40.887Z",
-  "lastSuccessfulAt": "2026-11-18T21:21:40.887Z",
+  "generatedAt": "2026-11-18T21:51:56.939Z",
+  "attemptedAt": "2026-11-18T21:51:56.939Z",
+  "lastSuccessfulAt": "2026-11-18T21:51:56.939Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-04T21:21:37.247Z",
-  "until": "2026-11-18T21:21:37.247Z",
+  "since": "2026-11-04T21:51:52.478Z",
+  "until": "2026-11-18T21:51:52.478Z",
   "current24hWindow": {
     "start": "2026-11-16T23:00:00.000Z",
     "end": "2026-11-17T23:00:00.000Z",
@@ -82,29 +82,29 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 3,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1210,
-      "freshCount": 60,
-      "eligibleTextCount": 1149,
+      "count": 1194,
+      "freshCount": 40,
+      "eligibleTextCount": 1134,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69674
+      "lastPostId": 69675
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 181,
+      "count": 182,
       "freshCount": 37,
-      "eligibleTextCount": 181,
+      "eligibleTextCount": 182,
       "selectedCount": 120,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21190
+      "lastPostId": 21191
     },
     {
       "channel": "HANAchina",
@@ -137,56 +137,57 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2118,
-  "retainedItemCount": 439,
+  "count": 2103,
+  "retainedItemCount": 416,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2118,
-    "eligibleTextCount": 2057,
-    "mediaOnlyCount": 61,
-    "mediaAttachedCount": 878,
-    "photoPostCount": 742,
+    "observedCount": 2103,
+    "eligibleTextCount": 2043,
+    "mediaOnlyCount": 60,
+    "mediaAttachedCount": 867,
+    "photoPostCount": 736,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 345,
-    "broadSignalCount": 857,
+    "highSignalCount": 346,
+    "broadSignalCount": 856,
     "selectedRawCount": 370,
     "selectedEligibleCount": 370,
-    "selectedRawCoveragePct": 18,
-    "selectedOfObservedPct": 17.5,
+    "selectedRawCoveragePct": 18.1,
+    "selectedOfObservedPct": 17.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "geo": 295,
-    "market-note": 734,
-    "media-only": 59,
-    "semi": 609,
-    "macro": 292,
-    "earnings": 278,
-    "ai-policy": 134,
-    "equity": 137,
+    "semi": 610,
     "power": 262,
-    "kr-market": 89,
-    "healthcare": 54,
-    "japan": 56,
+    "earnings": 276,
     "flows": 49,
+    "market-note": 729,
+    "geo": 292,
+    "media-only": 58,
+    "macro": 291,
+    "ai-policy": 134,
+    "equity": 136,
+    "kr-market": 88,
+    "healthcare": 53,
+    "japan": 56,
     "credit": 77,
     "optical": 22,
     "insider": 2
   },
   "tickerCounts": {
+    "NVDA": 375,
+    "MU": 32,
+    "TSM": 68,
     "PANW": 1,
-    "NVDA": 374,
     "DIS": 1,
     "TFX": 1,
     "DRI": 1,
     "MSFT": 58,
     "PLTR": 5,
     "373220.KS": 1,
-    "TSM": 67,
     "009150.KS": 3,
     "AMKR": 1,
     "SNPS": 1,
@@ -210,7 +211,6 @@
     "ORCL": 7,
     "BA": 1,
     "BIDU": 4,
-    "MU": 31,
     "JD": 2,
     "SPGI": 1,
     "SNDK": 2,
@@ -259,24 +259,24 @@
     "285A.T": 1
   },
   "themes": [
-    "Market Notes (734 posts in 14-day research window): 2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000...",
-    "Semiconductors/Memory (609 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획 수립과 리스크 관리 개선을 지원하도록 기능을 확대. • 마이크로소프트 (MSFT) — 바이트댄스에 추가로...",
-    "Geopolitics (295 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Macro/Rates (292 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) • 나스닥: 24,452.46 (+0.51%) • 러셀 2000: 2,715.80 (+0.52%) • VIX:...",
-    "Earnings/Corporate (278 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
+    "Market Notes (729 posts in 14-day research window): 2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000...",
+    "Semiconductors/Memory (610 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획 수립과 리스크 관리 개선을 지원하도록 기능을 확대. • 마이크로소프트 (MSFT) — 바이트댄스에 추가로...",
+    "Geopolitics (292 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Macro/Rates (291 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) • 나스닥: 24,452.46 (+0.51%) • 러셀 2000: 2,715.80 (+0.52%) • VIX:...",
+    "Earnings/Corporate (276 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
     "AI Power/Grid (262 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
-    "Equity/Analyst (137 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
+    "Equity/Analyst (136 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
     "AI Policy/Export Controls (134 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 374,
+      "count": 375,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) • 나스닥: 24,452.46 (+0.51%) • 러셀 2000: 2,715.80 (+0.52%) • VIX:..."
     },
     {
       "key": "TSM",
-      "count": 67,
+      "count": 68,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며..."
     },
     {
@@ -306,7 +306,7 @@
     },
     {
       "key": "MU",
-      "count": 31,
+      "count": 32,
       "text": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
     },
     {
@@ -337,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 292,
+      "count": 291,
       "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) • 나스닥: 24,452.46 (+0.51%) • 러셀 2000: 2,715.80 (+0.52%) • VIX:..."
     },
     {
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 295,
+      "count": 292,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 609,
+      "count": 610,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획 수립과 리스크 관리 개선을 지원하도록 기능을 확대. • 마이크로소프트 (MSFT) — 바이트댄스에 추가로..."
     },
     {
@@ -400,7 +400,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 89,
+      "count": 88,
       "focus": "코스피 야간선물 -1.5% 하락"
     },
     {
@@ -409,7 +409,7 @@
       "topics": [
         "equity"
       ],
-      "count": 137,
+      "count": 136,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두..."
     },
     {
@@ -427,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 278,
+      "count": 276,
       "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
     },
     {
@@ -436,7 +436,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 54,
+      "count": 53,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체..."
     },
     {
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 734,
+      "count": 729,
       "focus": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     }
   ],
@@ -1696,6 +1696,28 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/21191",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21191",
+      "datetime": "2026-11-18T21:35:05.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "semi",
+        "power",
+        "earnings",
+        "flows"
+      ],
+      "lead": 1,
+      "score": 77,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MU",
+        "TSM"
+      ],
+      "summary": "마이크론 CEO·CTO - TomorrowX Summit 발언 26년 11월 18일(미국 현지시간) 1. 메모리 수급·실적 — 산제이 메흐로트라 CEO • 고객 수요는 여전히 강하고, 공급은 타이트하며, 가격..."
+    },
+    {
       "id": "insidertracking/69665",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69665",
@@ -2096,14 +2118,12 @@
       "datetime": "2026-11-18T11:38:26.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "macro",
-        "geo",
         "ai-policy"
       ],
       "score": 77,
       "hasText": true,
-      "tickers": [],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부는 미국 기업의 중국산 AI 모델 사용 여부를 공개하도록 의무화하는 방안을 검토 중이라고..."
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부는 미국 기업의 중국산 AI 모델 사용 여부를 공개하도록 의무화하는 방안을 검토 중이라고...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21189",
@@ -2200,10 +2220,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "프리마켓 엔비디아 +3%",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "프리마켓 엔비디아 +3%"
+      ]
     },
     {
       "id": "insidertracking/69629",
@@ -2214,11 +2234,10 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "Fed Rates Outlook 2026 3 hikes: 69.0% probability Upcoming Fed Decisions December : 25 bps hike (93.5%) January : 25..."
+      "summary": "Fed Rates Outlook 2026 3 hikes: 69.0% probability Upcoming Fed Decisions December : 25 bps hike (93.5%) January : 25...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69628",
@@ -2231,10 +2250,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "기업 공시 자료에 따르면 엔비디아의 전 CEO 젠슨 황이 회사 이사회 구성원 2명을 지명할 수 있는 권한을 유지하고 있는 것으로 확인.",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "기업 공시 자료에 따르면 엔비디아의 전 CEO 젠슨 황이 회사 이사회 구성원 2명을 지명할 수 있는 권한을 유지하고 있는 것으로 확인."
+      ]
     },
     {
       "id": "HANAchina/72354",
@@ -2272,7 +2291,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
       "media": {
@@ -2281,10 +2299,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 오버나잇. 오늘 아침에 5% 상승 → 1%대로 밀렸다가 다시 2.4% 상승중",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 오버나잇. 오늘 아침에 5% 상승 → 1%대로 밀렸다가 다시 2.4% 상승중"
+      ]
     },
     {
       "id": "insidertracking/69624",
@@ -2303,10 +2322,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도 엔비디아 > 앤트로픽",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 레딧 관심도 엔비디아 > 앤트로픽"
+      ]
     },
     {
       "id": "HANAchina/72353",
@@ -2398,7 +2418,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 82,
       "hasText": true,
       "media": {
@@ -2407,14 +2426,14 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "젠슨 황 스캔들 이후 엔비디아(NVDA) 월가 애널리스트 평가 • UBS: $300 → $240 (-20.0%) • Morgan Stanley: $300 → $267 (-11.0%) • TD Cowen:...",
       "tickers": [
         "NVDA",
         "GS",
         "WFC",
         "MS",
         "BCS"
-      ],
-      "summary": "젠슨 황 스캔들 이후 엔비디아(NVDA) 월가 애널리스트 평가 • UBS: $300 → $240 (-20.0%) • Morgan Stanley: $300 → $267 (-11.0%) • TD Cowen:..."
+      ]
     },
     {
       "id": "insidertracking/69618",
@@ -2425,13 +2444,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "폴리티코에 따르면 미국 공화당 상원의원들이 국가안보 관련 논란으로 엔비디아의 첨단 AI 칩 판매와 중국과의 관계에 대한 우려가 커지자 감독 강화를 추진 중. 의원들은 엔비디아가 새롭게 설립한 수출 규정 준수...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "폴리티코에 따르면 미국 공화당 상원의원들이 국가안보 관련 논란으로 엔비디아의 첨단 AI 칩 판매와 중국과의 관계에 대한 우려가 커지자 감독 강화를 추진 중. 의원들은 엔비디아가 새롭게 설립한 수출 규정 준수..."
+      ]
     },
     {
       "id": "HANAchina/72342",
@@ -6780,15 +6799,14 @@
       "datetime": "2026-11-13T23:54:06.000Z",
       "localDateKst": "2026-11-14",
       "tags": [
-        "equity",
-        "earnings"
+        "market-note"
       ],
       "score": 59,
       "hasText": true,
+      "summary": "앤트로픽, 로드쇼 첫날인 화요일 마감 기준 공급 물량의 약 2배에 달하는 주문이 몰렸으며, 목요일 마감 기준으로는 6배 초과 청약(oversubscribed)을 기록 이는 로드쇼 이틀째에 2배 초과 청약을...",
       "tickers": [
         "CRWD"
-      ],
-      "summary": "앤트로픽, 로드쇼 첫날인 화요일 마감 기준 공급 물량의 약 2배에 달하는 주문이 몰렸으며, 목요일 마감 기준으로는 6배 초과 청약(oversubscribed)을 기록 이는 로드쇼 이틀째에 2배 초과 청약을..."
+      ]
     },
     {
       "id": "HANAchina/72100",
@@ -8535,20 +8553,6 @@
         "documents": []
       },
       "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이...",
-      "tickers": []
-    },
-    {
-      "id": "bornlupin/21004",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21004",
-      "datetime": "2026-11-04T22:09:00.000Z",
-      "localDateKst": "2026-11-05",
-      "tags": [
-        "earnings"
-      ],
-      "score": 77,
-      "hasText": true,
-      "summary": "ARM 2027 회계연도 2분기 실적 매출: 14억 4,000만 달러 (예상치 13억 8,000만 달러 상회), 전년 동기 대비 27% 증가 조정 주당순이익(EPS): 0.52달러 (예상치 0.47달러...",
       "tickers": []
     }
   ],
