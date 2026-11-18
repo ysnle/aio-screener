@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-18T20:21:36.429Z",
-  "attemptedAt": "2026-11-18T20:21:36.429Z",
-  "lastSuccessfulAt": "2026-11-18T20:21:36.429Z",
+  "generatedAt": "2026-11-18T20:52:26.511Z",
+  "attemptedAt": "2026-11-18T20:52:26.511Z",
+  "lastSuccessfulAt": "2026-11-18T20:52:26.511Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-04T20:21:31.948Z",
-  "until": "2026-11-18T20:21:31.948Z",
+  "since": "2026-11-04T20:52:21.424Z",
+  "until": "2026-11-18T20:52:21.424Z",
   "current24hWindow": {
     "start": "2026-11-16T23:00:00.000Z",
     "end": "2026-11-17T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1194,
-      "freshCount": 20,
-      "eligibleTextCount": 1134,
-      "selectedCount": 127,
+      "count": 1196,
+      "freshCount": 39,
+      "eligibleTextCount": 1136,
+      "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69643
+      "lastPostId": 69645
     },
     {
       "channel": "bornlupin",
@@ -137,54 +137,55 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2101,
-  "retainedItemCount": 396,
+  "count": 2103,
+  "retainedItemCount": 411,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2101,
-    "eligibleTextCount": 2041,
+    "observedCount": 2103,
+    "eligibleTextCount": 2043,
     "mediaOnlyCount": 60,
     "mediaAttachedCount": 871,
     "photoPostCount": 739,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 344,
-    "broadSignalCount": 854,
-    "selectedRawCount": 373,
-    "selectedEligibleCount": 373,
-    "selectedRawCoveragePct": 18.3,
-    "selectedOfObservedPct": 17.8,
+    "highSignalCount": 346,
+    "broadSignalCount": 856,
+    "selectedRawCount": 372,
+    "selectedEligibleCount": 372,
+    "selectedRawCoveragePct": 18.2,
+    "selectedOfObservedPct": 17.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "geo": 291,
+    "semi": 607,
+    "ai-policy": 132,
+    "healthcare": 54,
+    "macro": 292,
     "power": 262,
-    "ai-policy": 130,
     "equity": 134,
     "earnings": 278,
     "market-note": 730,
-    "healthcare": 53,
-    "macro": 291,
     "media-only": 58,
-    "semi": 605,
     "japan": 56,
     "kr-market": 88,
-    "geo": 289,
     "flows": 49,
     "credit": 78,
     "optical": 22,
     "insider": 2
   },
   "tickerCounts": {
+    "NVDA": 371,
+    "MSFT": 58,
+    "PLTR": 5,
     "373220.KS": 1,
-    "NVDA": 369,
     "TSM": 67,
     "009150.KS": 3,
     "AMKR": 1,
     "SNPS": 1,
-    "MSFT": 56,
     "CRM": 1,
     "NKE": 1,
     "WDAY": 1,
@@ -208,7 +209,6 @@
     "MU": 31,
     "JD": 2,
     "SPGI": 1,
-    "PLTR": 4,
     "SNDK": 2,
     "TSLA": 39,
     "BE": 13,
@@ -257,24 +257,24 @@
   },
   "themes": [
     "Market Notes (730 posts in 14-day research window): 2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000...",
-    "Semiconductors/Memory (605 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
-    "Macro/Rates (291 posts in 14-day research window): 애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와 Agent 365·Copilot Workspaces, 멀티모델 AI 전략을 장기 AI 도입 및 수익화의 핵심...",
-    "Geopolitics (289 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Semiconductors/Memory (607 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
+    "Macro/Rates (292 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp 인상을 선호했으며, 2명의 위원은 향후 물가 지표가 악화될 경우 12월 25bp를 초과하는 인상도 검토할 수...",
+    "Geopolitics (291 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Earnings/Corporate (278 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
     "AI Power/Grid (262 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "Equity/Analyst (134 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
-    "AI Policy/Export Controls (130 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
+    "AI Policy/Export Controls (132 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 369,
-      "text": "애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와 Agent 365·Copilot Workspaces, 멀티모델 AI 전략을 장기 AI 도입 및 수익화의 핵심..."
+      "count": 371,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp 인상을 선호했으며, 2명의 위원은 향후 물가 지표가 악화될 경우 12월 25bp를 초과하는 인상도 검토할 수..."
     },
     {
       "key": "TSM",
       "count": 67,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며 필리핀이 알래스카 LNG 프로젝트의 주요 협력국이 될 수 있다고 밝혀. 또한 필리핀과의 정상회담 이후 대규모..."
     },
     {
       "key": "GOOG",
@@ -283,8 +283,8 @@
     },
     {
       "key": "MSFT",
-      "count": 56,
-      "text": "애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와 Agent 365·Copilot Workspaces, 멀티모델 AI 전략을 장기 AI 도입 및 수익화의 핵심..."
+      "count": 58,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp 인상을 선호했으며, 2명의 위원은 향후 물가 지표가 악화될 경우 12월 25bp를 초과하는 인상도 검토할 수..."
     },
     {
       "key": "AMZN",
@@ -334,8 +334,8 @@
       "topics": [
         "macro"
       ],
-      "count": 291,
-      "focus": "애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와 Agent 365·Copilot Workspaces, 멀티모델 AI 전략을 장기 AI 도입 및 수익화의 핵심..."
+      "count": 292,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp 인상을 선호했으며, 2명의 위원은 향후 물가 지표가 악화될 경우 12월 25bp를 초과하는 인상도 검토할 수..."
     },
     {
       "id": "geo",
@@ -343,7 +343,7 @@
       "topics": [
         "geo"
       ],
-      "count": 289,
+      "count": 291,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -361,7 +361,7 @@
       "topics": [
         "semi"
       ],
-      "count": 605,
+      "count": 607,
       "focus": ">>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고..."
     },
     {
@@ -388,7 +388,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 130,
+      "count": 132,
       "focus": "아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
     },
     {
@@ -433,7 +433,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 53,
+      "count": 54,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체..."
     },
     {
@@ -723,6 +723,27 @@
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
     {
+      "id": "insidertracking/69644",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69644",
+      "datetime": "2026-11-18T20:49:28.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "PLTR"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
+    },
+    {
       "id": "insidertracking/69636",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69636",
@@ -777,16 +798,19 @@
       "datetime": "2026-11-18T05:11:56.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며...",
       "tickers": [
         "NVDA",
         "TSM",
         "009150.KS"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며..."
     },
     {
       "id": "insidertracking/69592",
@@ -1219,33 +1243,6 @@
       ]
     },
     {
-      "id": "insidertracking/69155",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69155",
-      "datetime": "2026-11-12T21:11:44.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,...",
-      "lead": 2,
-      "tickers": [
-        "NVDA",
-        "TSLA",
-        "MSFT",
-        "GOOG"
-      ]
-    },
-    {
       "id": "bornlupin/21135",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21135",
@@ -1672,6 +1669,47 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/69645",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69645",
+      "datetime": "2026-11-18T20:50:32.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "geo",
+        "semi",
+        "ai-policy",
+        "healthcare"
+      ],
+      "score": 80,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT"
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 19일 트럼프·푸틴·시진핑 회담 · 미국 당국자, 트럼프가 중국에서 푸틴과 일대일 회담을 가질 예정이라고 확인 · 크렘린, APEC 본회의 이후..."
+    },
+    {
+      "id": "insidertracking/69644",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69644",
+      "datetime": "2026-11-18T20:49:28.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "ai-policy"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "PLTR"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
+    },
     {
       "id": "HANAchina/72370",
       "channel": "HANAchina",
@@ -2110,6 +2148,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 82,
       "hasText": true,
       "media": {
@@ -2118,14 +2157,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "젠슨 황 스캔들 이후 엔비디아(NVDA) 월가 애널리스트 평가 • UBS: $300 → $240 (-20.0%) • Morgan Stanley: $300 → $267 (-11.0%) • TD Cowen:...",
       "tickers": [
         "NVDA",
         "GS",
         "WFC",
         "MS",
         "BCS"
-      ]
+      ],
+      "summary": "젠슨 황 스캔들 이후 엔비디아(NVDA) 월가 애널리스트 평가 • UBS: $300 → $240 (-20.0%) • Morgan Stanley: $300 → $267 (-11.0%) • TD Cowen:..."
     },
     {
       "id": "insidertracking/69618",
@@ -2136,13 +2175,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "폴리티코에 따르면 미국 공화당 상원의원들이 국가안보 관련 논란으로 엔비디아의 첨단 AI 칩 판매와 중국과의 관계에 대한 우려가 커지자 감독 강화를 추진 중. 의원들은 엔비디아가 새롭게 설립한 수출 규정 준수...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "폴리티코에 따르면 미국 공화당 상원의원들이 국가안보 관련 논란으로 엔비디아의 첨단 AI 칩 판매와 중국과의 관계에 대한 우려가 커지자 감독 강화를 추진 중. 의원들은 엔비디아가 새롭게 설립한 수출 규정 준수..."
     },
     {
       "id": "HANAchina/72342",
@@ -2166,7 +2205,10 @@
       "datetime": "2026-11-18T05:28:21.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "equity"
       ],
       "score": 83,
       "hasText": true,
@@ -2176,10 +2218,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 18일 (수) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 50,767.30 (+0.01%) • S&P500: 7,349.50...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 18일 (수) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 50,767.30 (+0.01%) • S&P500: 7,349.50..."
     },
     {
       "id": "insidertracking/69609",
@@ -2214,16 +2256,19 @@
       "datetime": "2026-11-18T05:11:56.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며...",
       "tickers": [
         "NVDA",
         "TSM",
         "009150.KS"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며..."
     },
     {
       "id": "HANAchina/72339",
@@ -6740,43 +6785,6 @@
         "NVDA",
         "MSFT"
       ]
-    },
-    {
-      "id": "insidertracking/69243",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69243",
-      "datetime": "2026-11-13T23:02:56.000Z",
-      "localDateKst": "2026-11-14",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "CBS에 따르면 엔비디아 창업자 젠슨 황이 미국 의회에 출석해 선서 증언을 하기로 동의. 젠슨 황은 중국 당국의 정보원으로 의심되는 여성과의 혼외 관계를 둘러싼 논란으로 의원들의 소환 요구를 받은 가운데,...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69233",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69233",
-      "datetime": "2026-11-13T22:42:42.000Z",
-      "localDateKst": "2026-11-14",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 17일 화요일 02:00 – 워시 연준 이사 연설 22:30 – 소매판매 (MoM) (10월) 22:30 – 근원 소매판매 (MoM)...",
-      "tickers": []
     },
     {
       "id": "HANAchina/72097",
