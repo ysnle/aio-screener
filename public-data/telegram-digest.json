@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-18T07:21:38.873Z",
-  "attemptedAt": "2026-11-18T07:21:38.873Z",
-  "lastSuccessfulAt": "2026-11-18T07:21:38.873Z",
+  "generatedAt": "2026-11-18T07:52:04.448Z",
+  "attemptedAt": "2026-11-18T07:52:04.448Z",
+  "lastSuccessfulAt": "2026-11-18T07:52:04.448Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-04T07:21:33.716Z",
-  "until": "2026-11-18T07:21:33.716Z",
+  "since": "2026-11-04T07:51:58.836Z",
+  "until": "2026-11-18T07:51:58.836Z",
   "current24hWindow": {
     "start": "2026-11-16T23:00:00.000Z",
     "end": "2026-11-17T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1206,
-      "freshCount": 19,
-      "eligibleTextCount": 1148,
+      "count": 1205,
+      "freshCount": 39,
+      "eligibleTextCount": 1147,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69622
+      "lastPostId": 69623
     },
     {
       "channel": "bornlupin",
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 726,
+      "count": 729,
       "freshCount": 34,
-      "eligibleTextCount": 726,
+      "eligibleTextCount": 729,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72346
+      "lastPostId": 72350
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,18 +137,18 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2113,
-  "retainedItemCount": 411,
+  "count": 2115,
+  "retainedItemCount": 426,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2113,
-    "eligibleTextCount": 2055,
+    "observedCount": 2115,
+    "eligibleTextCount": 2057,
     "mediaOnlyCount": 58,
-    "mediaAttachedCount": 883,
-    "photoPostCount": 753,
+    "mediaAttachedCount": 884,
+    "photoPostCount": 754,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
     "highSignalCount": 352,
@@ -160,16 +160,16 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 741,
+    "semi": 599,
+    "earnings": 280,
     "equity": 134,
-    "semi": 598,
     "healthcare": 50,
     "credit": 78,
     "ai-policy": 127,
-    "market-note": 739,
-    "macro": 300,
+    "macro": 299,
     "geo": 297,
     "power": 268,
-    "earnings": 279,
     "media-only": 56,
     "optical": 25,
     "kr-market": 90,
@@ -178,8 +178,8 @@
     "insider": 2
   },
   "tickerCounts": {
+    "NVDA": 357,
     "GOOG": 61,
-    "NVDA": 356,
     "GS": 3,
     "WFC": 1,
     "MS": 4,
@@ -255,11 +255,11 @@
     "INTC": 1
   },
   "themes": [
-    "Market Notes (739 posts in 14-day research window): 2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000...",
-    "Semiconductors/Memory (598 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
-    "Macro/Rates (300 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며 필리핀이 알래스카 LNG 프로젝트의 주요 협력국이 될 수 있다고 밝혀. 또한 필리핀과의 정상회담 이후 대규모...",
+    "Market Notes (741 posts in 14-day research window): 2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000...",
+    "Semiconductors/Memory (599 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%, 74.9%로 높은 수익성 유지하며 영업이익과 EPS도 사상 최고치 기록. • Vera Rubin 폭발적 초기...",
+    "Macro/Rates (299 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며 필리핀이 알래스카 LNG 프로젝트의 주요 협력국이 될 수 있다고 밝혀. 또한 필리핀과의 정상회담 이후 대규모...",
     "Geopolitics (297 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Earnings/Corporate (279 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
+    "Earnings/Corporate (280 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (268 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (134 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
     "AI Policy/Export Controls (127 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
@@ -267,7 +267,7 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 356,
+      "count": 357,
       "text": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     },
     {
@@ -333,7 +333,7 @@
       "topics": [
         "macro"
       ],
-      "count": 300,
+      "count": 299,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며 필리핀이 알래스카 LNG 프로젝트의 주요 협력국이 될 수 있다고 밝혀. 또한 필리핀과의 정상회담 이후 대규모..."
     },
     {
@@ -360,8 +360,8 @@
       "topics": [
         "semi"
       ],
-      "count": 598,
-      "focus": ">>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고..."
+      "count": 599,
+      "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%, 74.9%로 높은 수익성 유지하며 영업이익과 EPS도 사상 최고치 기록. • Vera Rubin 폭발적 초기..."
     },
     {
       "id": "optical",
@@ -423,8 +423,8 @@
       "topics": [
         "earnings"
       ],
-      "count": 279,
-      "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
+      "count": 280,
+      "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
       "id": "healthcare",
@@ -468,7 +468,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 739,
+      "count": 741,
       "focus": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     }
   ],
@@ -775,17 +775,18 @@
       "datetime": "2026-11-18T02:36:45.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "earnings",
         "semi",
+        "credit",
+        "optical",
         "power"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-      "lead": 2,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
     },
     {
       "id": "insidertracking/69553",
@@ -1687,6 +1688,29 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72348",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72348",
+      "datetime": "2026-11-18T07:29:55.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>젠슨 황 후계자 윤곽 나오나? ‘CUDA의 아버지’ Ian Buck, 처음으로 Nvidia 실적발표 컨퍼런스콜 등장 •‘CUDA의 아버지’ Ian Buck이 처음으로 Nvidia 실적발표 컨퍼런스콜에..."
+    },
+    {
       "id": "HANAchina/72344",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72344",
@@ -1881,12 +1905,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "세마포에 따르면 엔비디아 이사회 일부 구성원들의 반대에도 불구하고, 일부 이사들이 젠슨 황의 복귀를 계속 추진 중.",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "세마포에 따르면 엔비디아 이사회 일부 구성원들의 반대에도 불구하고, 일부 이사들이 젠슨 황의 복귀를 계속 추진 중."
     },
     {
       "id": "insidertracking/69597",
@@ -1895,15 +1920,16 @@
       "datetime": "2026-11-18T02:50:51.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "미국 레딧 분위기 모음 (젠슨황 관련) > NVDA - 젠슨 없는 엔비디아? 집단 멘붕 · 엔비디아 이사회가 젠슨 황 CEO 복귀 가능성을 배제했다는 게시물이 핵심 · “젠슨을 다시 데려와라” · “내 주식은...",
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "미국 레딧 분위기 모음 (젠슨황 관련) > NVDA - 젠슨 없는 엔비디아? 집단 멘붕 · 엔비디아 이사회가 젠슨 황 CEO 복귀 가능성을 배제했다는 게시물이 핵심 · “젠슨을 다시 데려와라” · “내 주식은..."
     },
     {
       "id": "insidertracking/69595",
@@ -1922,8 +1948,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "» 글로벌 펀드매니저들의 11월 기술주 비중확대 항목 응답 비율이 전월대비 약 25%p 하락. 2006년 6월 이후 최대 감소폭 기록 [BofA Global Fund Manager Survey] » AI 투자...",
-      "tickers": []
+      "tickers": [],
+      "summary": "» 글로벌 펀드매니저들의 11월 기술주 비중확대 항목 응답 비율이 전월대비 약 25%p 하락. 2006년 6월 이후 최대 감소폭 기록 [BofA Global Fund Manager Survey] » AI 투자..."
     },
     {
       "id": "insidertracking/69592",
@@ -1932,17 +1958,18 @@
       "datetime": "2026-11-18T02:36:45.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "earnings",
         "semi",
+        "credit",
+        "optical",
         "power"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
-      "summary": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-      "lead": 2,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
     },
     {
       "id": "bornlupin/21186",
@@ -1980,6 +2007,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
       "media": {
@@ -1988,11 +2016,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "엔비디아 상승분 거의 모두 반납. 애프터: +4.75% → +0.26%",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아 상승분 거의 모두 반납. 애프터: +4.75% → +0.26%"
     },
     {
       "id": "insidertracking/69588",
@@ -2011,10 +2038,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "엔비디아 상승분 반납중....",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아 상승분 반납중...."
     },
     {
       "id": "HANAchina/72333",
@@ -2044,11 +2071,11 @@
       ],
       "score": 60,
       "hasText": true,
-      "summary": "마이크로소프트가 새로운 코발트 200 가상머신을 애저에서 정식 출시. 코발트 200은 Arm 네오버스 CSS V3 기반의 마이크로소프트 2세대 자체 설계 Arm CPU를 탑재했으며, 데이터베이스와 웹 서비스,...",
       "tickers": [
         "AMD",
         "MSFT"
-      ]
+      ],
+      "summary": "마이크로소프트가 새로운 코발트 200 가상머신을 애저에서 정식 출시. 코발트 200은 Arm 네오버스 CSS V3 기반의 마이크로소프트 2세대 자체 설계 Arm CPU를 탑재했으며, 데이터베이스와 웹 서비스,..."
     },
     {
       "id": "HANAchina/72326",
@@ -2250,13 +2277,13 @@
         "earnings",
         "semi"
       ],
-      "lead": 2,
       "score": 51,
       "hasText": true,
+      "summary": "•Nvidia 임시 CEO: 2028회계연도까지 기업용 사업 매출이 두 배 이상 증가할 것으로 예상 •모든 FCF는 주주들에게 돌려줄 것임. •수요와 공급 여건이 최신 가이던스를 뒷받침",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "•Nvidia 임시 CEO: 2028회계연도까지 기업용 사업 매출이 두 배 이상 증가할 것으로 예상 •모든 FCF는 주주들에게 돌려줄 것임. •수요와 공급 여건이 최신 가이던스를 뒷받침"
+      ]
     },
     {
       "id": "insidertracking/69576",
@@ -2284,13 +2311,13 @@
         "semi",
         "power"
       ],
-      "lead": 2,
       "score": 69,
       "hasText": true,
+      "summary": ">>Nvidia 우려 일단 완화…지난 분기 매출 1,000억 달러 첫 돌파, 이번 분기 가이던스도 시장 예상 상회 •Nvidia는 3분기 매출과 EPS, 데이터센터 매출이 모두 시장 예상치를 웃돌았으며 전년비...",
+      "lead": 3,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>Nvidia 우려 일단 완화…지난 분기 매출 1,000억 달러 첫 돌파, 이번 분기 가이던스도 시장 예상 상회 •Nvidia는 3분기 매출과 EPS, 데이터센터 매출이 모두 시장 예상치를 웃돌았으며 전년비..."
+      ]
     },
     {
       "id": "HANAchina/72307",
@@ -2301,17 +2328,16 @@
       "tags": [
         "earnings",
         "semi",
-        "power",
-        "ai-policy"
+        "power"
       ],
-      "lead": 3,
       "score": 83,
       "hasText": true,
+      "summary": ">>Nvidia 논란 속 리사 수, 젠슨 황에 ‘좋아요’…AMD 데이터센터 사업 내년 매출 비중 80% 전망 •AMD CEO 리사 수는 Nvidia를 “대단한 기업”이라고 평가하며 젠슨 황은 업계 전체의...",
+      "lead": 3,
       "tickers": [
         "NVDA",
         "AMD"
-      ],
-      "summary": ">>Nvidia 논란 속 리사 수, 젠슨 황에 ‘좋아요’…AMD 데이터센터 사업 내년 매출 비중 80% 전망 •AMD CEO 리사 수는 Nvidia를 “대단한 기업”이라고 평가하며 젠슨 황은 업계 전체의..."
+      ]
     },
     {
       "id": "bornlupin/21181",
@@ -6878,24 +6904,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/72069",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72069",
-      "datetime": "2026-11-13T03:36:09.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "semi",
-        "japan"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": ">>TSMC, 5억 달러 규모 벤처캐피털 펀드 설립 계획… 반도체 스타트업 지원 •닛케이 아시아에 따르면, TSMC 공동운영책임자 장샤오창은 TSMC가 반도체 스타트업을 지원하고 투자 범위를 확대하기 위해...",
-      "lead": 2,
-      "tickers": [
-        "TSM"
-      ]
-    },
-    {
       "id": "bornlupin/21143",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21143",
@@ -8692,13 +8700,13 @@
         "earnings",
         "semi"
       ],
-      "lead": 2,
       "score": 51,
       "hasText": true,
+      "summary": "•Nvidia 임시 CEO: 2028회계연도까지 기업용 사업 매출이 두 배 이상 증가할 것으로 예상 •모든 FCF는 주주들에게 돌려줄 것임. •수요와 공급 여건이 최신 가이던스를 뒷받침",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "•Nvidia 임시 CEO: 2028회계연도까지 기업용 사업 매출이 두 배 이상 증가할 것으로 예상 •모든 FCF는 주주들에게 돌려줄 것임. •수요와 공급 여건이 최신 가이던스를 뒷받침"
+      ]
     },
     {
       "id": "insidertracking/69576",
@@ -8726,13 +8734,13 @@
         "semi",
         "power"
       ],
-      "lead": 2,
       "score": 69,
       "hasText": true,
+      "summary": ">>Nvidia 우려 일단 완화…지난 분기 매출 1,000억 달러 첫 돌파, 이번 분기 가이던스도 시장 예상 상회 •Nvidia는 3분기 매출과 EPS, 데이터센터 매출이 모두 시장 예상치를 웃돌았으며 전년비...",
+      "lead": 3,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>Nvidia 우려 일단 완화…지난 분기 매출 1,000억 달러 첫 돌파, 이번 분기 가이던스도 시장 예상 상회 •Nvidia는 3분기 매출과 EPS, 데이터센터 매출이 모두 시장 예상치를 웃돌았으며 전년비..."
+      ]
     },
     {
       "id": "HANAchina/72307",
@@ -8743,17 +8751,16 @@
       "tags": [
         "earnings",
         "semi",
-        "power",
-        "ai-policy"
+        "power"
       ],
-      "lead": 3,
       "score": 83,
       "hasText": true,
+      "summary": ">>Nvidia 논란 속 리사 수, 젠슨 황에 ‘좋아요’…AMD 데이터센터 사업 내년 매출 비중 80% 전망 •AMD CEO 리사 수는 Nvidia를 “대단한 기업”이라고 평가하며 젠슨 황은 업계 전체의...",
+      "lead": 3,
       "tickers": [
         "NVDA",
         "AMD"
-      ],
-      "summary": ">>Nvidia 논란 속 리사 수, 젠슨 황에 ‘좋아요’…AMD 데이터센터 사업 내년 매출 비중 80% 전망 •AMD CEO 리사 수는 Nvidia를 “대단한 기업”이라고 평가하며 젠슨 황은 업계 전체의..."
+      ]
     },
     {
       "id": "bornlupin/21181",
