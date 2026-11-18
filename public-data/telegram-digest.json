@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-18T04:21:36.205Z",
-  "attemptedAt": "2026-11-18T04:21:36.205Z",
-  "lastSuccessfulAt": "2026-11-18T04:21:36.205Z",
+  "generatedAt": "2026-11-18T04:52:11.933Z",
+  "attemptedAt": "2026-11-18T04:52:11.933Z",
+  "lastSuccessfulAt": "2026-11-18T04:52:11.933Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-04T04:21:31.260Z",
-  "until": "2026-11-18T04:21:31.260Z",
+  "since": "2026-11-04T04:52:06.776Z",
+  "until": "2026-11-18T04:52:06.776Z",
   "current24hWindow": {
     "start": "2026-11-16T23:00:00.000Z",
     "end": "2026-11-17T23:00:00.000Z",
@@ -85,22 +85,22 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1210,
+      "count": 1209,
       "freshCount": 40,
-      "eligibleTextCount": 1151,
+      "eligibleTextCount": 1150,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69603
+      "lastPostId": 69606
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 183,
+      "count": 182,
       "freshCount": 20,
-      "eligibleTextCount": 183,
+      "eligibleTextCount": 182,
       "selectedCount": 121,
       "error": null,
       "failingSince": null,
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 726,
-      "freshCount": 35,
-      "eligibleTextCount": 726,
+      "count": 728,
+      "freshCount": 37,
+      "eligibleTextCount": 728,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72338
+      "lastPostId": 72340
     },
     {
       "channel": "aetherjapanresearch",
@@ -138,7 +138,7 @@
     }
   ],
   "count": 2119,
-  "retainedItemCount": 421,
+  "retainedItemCount": 424,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -147,12 +147,12 @@
     "observedCount": 2119,
     "eligibleTextCount": 2060,
     "mediaOnlyCount": 59,
-    "mediaAttachedCount": 891,
+    "mediaAttachedCount": 890,
     "photoPostCount": 759,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 350,
-    "broadSignalCount": 861,
+    "highSignalCount": 351,
+    "broadSignalCount": 862,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
     "selectedRawCoveragePct": 18.1,
@@ -160,25 +160,27 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 737,
-    "semi": 596,
+    "market-note": 736,
+    "macro": 301,
+    "semi": 597,
+    "ai-policy": 127,
     "earnings": 283,
     "media-only": 57,
     "credit": 76,
     "optical": 26,
     "power": 271,
-    "ai-policy": 126,
     "equity": 134,
-    "macro": 300,
     "kr-market": 91,
     "healthcare": 50,
-    "geo": 302,
+    "geo": 301,
     "flows": 46,
     "japan": 58,
     "insider": 2
   },
   "tickerCounts": {
-    "NVDA": 352,
+    "NVDA": 353,
+    "MRVL": 2,
+    "CRWV": 17,
     "TSM": 66,
     "AMZN": 56,
     "AMD": 38,
@@ -215,7 +217,6 @@
     "NVO": 4,
     "DDOG": 1,
     "SNOW": 1,
-    "CRWV": 16,
     "LITE": 2,
     "COHR": 4,
     "BABA": 2,
@@ -246,26 +247,25 @@
     "285A.T": 1,
     "QCOM": 1,
     "SN": 1,
-    "MRVL": 1,
     "MPWR": 1,
     "GFS": 1,
     "CVS": 1,
     "INTC": 1
   },
   "themes": [
-    "Market Notes (737 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
-    "Semiconductors/Memory (596 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%, 74.9%로 높은 수익성 유지하며 영업이익과 EPS도 사상 최고치 기록. • Vera Rubin 폭발적 초기...",
-    "Geopolitics (302 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Macro/Rates (300 posts in 14-day research window): 2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우...",
+    "Market Notes (736 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
+    "Semiconductors/Memory (597 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%, 74.9%로 높은 수익성 유지하며 영업이익과 EPS도 사상 최고치 기록. • Vera Rubin 폭발적 초기...",
+    "Macro/Rates (301 posts in 14-day research window): 2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우...",
+    "Geopolitics (301 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Earnings/Corporate (283 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (271 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (134 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
-    "AI Policy/Export Controls (126 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
+    "AI Policy/Export Controls (127 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 352,
+      "count": 353,
       "text": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%, 74.9%로 높은 수익성 유지하며 영업이익과 EPS도 사상 최고치 기록. • Vera Rubin 폭발적 초기..."
     },
     {
@@ -309,14 +309,14 @@
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
+      "key": "CRWV",
+      "count": 17,
+      "text": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러..."
+    },
+    {
       "key": "000660.KS",
       "count": 16,
       "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
-    },
-    {
-      "key": "CRWV",
-      "count": 16,
-      "text": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러..."
     },
     {
       "key": "BE",
@@ -331,7 +331,7 @@
       "topics": [
         "macro"
       ],
-      "count": 300,
+      "count": 301,
       "focus": "2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우..."
     },
     {
@@ -340,7 +340,7 @@
       "topics": [
         "geo"
       ],
-      "count": 302,
+      "count": 301,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -358,7 +358,7 @@
       "topics": [
         "semi"
       ],
-      "count": 596,
+      "count": 597,
       "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%, 74.9%로 높은 수익성 유지하며 영업이익과 EPS도 사상 최고치 기록. • Vera Rubin 폭발적 초기..."
     },
     {
@@ -385,7 +385,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 126,
+      "count": 127,
       "focus": "아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
     },
     {
@@ -395,7 +395,7 @@
         "kr-market"
       ],
       "count": 91,
-      "focus": "홈디포(HD) Q3 2026 어닝콜 요약 긍정 요인: • 견조한 매출 및 EPS 성장. 3분기 매출은 434억달러로 전년 대비 4.9% 증가. 조정 희석 EPS는 3.86달러로 3.2% 증가하며 어려운 주택시장에서도 실적 방어력 확인. • 광범위한 판매 성장. 동일점포매출은 2.2% 증가했으며 16개 상품군 중..."
+      "focus": "•위안화 고시환율 가치 2022년 이후 최고"
     },
     {
       "id": "equity",
@@ -466,7 +466,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 737,
+      "count": 736,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서..."
     }
   ],
@@ -1710,6 +1710,26 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72339",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72339",
+      "datetime": "2026-11-18T04:22:57.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "semi",
+        "ai-policy"
+      ],
+      "lead": 1,
+      "score": 69,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MRVL",
+        "CRWV"
+      ],
+      "summary": ">>엔비디아 임시 CEO, AI 공급망 투자 더욱 신중하게 검토 •엔비디아 임시 CEO Colette Kress는 향후 AI 공급망 투자에 대해 더욱 “신중하고 엄격하게” 심사할 것이라고 밝힘. 엔비디아는..."
+    },
+    {
       "id": "insidertracking/69602",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69602",
@@ -2448,13 +2468,13 @@
       "datetime": "2026-11-17T21:16:46.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "kr-market",
         "earnings"
       ],
       "score": 61,
       "hasText": true,
-      "tickers": [],
-      "summary": "홈디포(HD) Q3 2026 어닝콜 요약 긍정 요인: • 견조한 매출 및 EPS 성장. 3분기 매출은 434억달러로 전년 대비 4.9% 증가. 조정 희석 EPS는 3.86달러로 3.2% 증가하며 어려운..."
+      "summary": "홈디포(HD) Q3 2026 어닝콜 요약 긍정 요인: • 견조한 매출 및 EPS 성장. 3분기 매출은 434억달러로 전년 대비 4.9% 증가. 조정 희석 EPS는 3.86달러로 3.2% 증가하며 어려운...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69561",
@@ -2467,8 +2487,9 @@
       ],
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "디즈니(DIS) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 연간 실적 성장. FY26 매출은 전년 대비 7%, 전체 사업부 영업이익은 10%, 조정 EPS는 16% 증가. 4분기 사업부 영업이익도..."
+      "summary": "디즈니(DIS) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 연간 실적 성장. FY26 매출은 전년 대비 7%, 전체 사업부 영업이익은 10%, 조정 EPS는 16% 증가. 4분기 사업부 영업이익도...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69557",
@@ -6904,28 +6925,6 @@
       ]
     },
     {
-      "id": "HANAchina/72064",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72064",
-      "datetime": "2026-11-13T02:29:15.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "semi",
-        "ai-policy"
-      ],
-      "score": 77,
-      "hasText": true,
-      "summary": ">>(영상) 리사 수는 무능한 인텔을 꺾었지만, 젠슨 황 후계자는 7대 강적과 맞서야 함 •Dylan Patel은 엔비디아의 차기 CEO가 OpenAI, Broadcom, Google, Anthropic,...",
-      "lead": 2,
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "GOOG",
-        "AVGO",
-        "AMZN"
-      ]
-    },
-    {
       "id": "bornlupin/21143",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21143",
@@ -9063,13 +9062,13 @@
       "datetime": "2026-11-17T21:16:46.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "kr-market",
         "earnings"
       ],
       "score": 61,
       "hasText": true,
-      "tickers": [],
-      "summary": "홈디포(HD) Q3 2026 어닝콜 요약 긍정 요인: • 견조한 매출 및 EPS 성장. 3분기 매출은 434억달러로 전년 대비 4.9% 증가. 조정 희석 EPS는 3.86달러로 3.2% 증가하며 어려운..."
+      "summary": "홈디포(HD) Q3 2026 어닝콜 요약 긍정 요인: • 견조한 매출 및 EPS 성장. 3분기 매출은 434억달러로 전년 대비 4.9% 증가. 조정 희석 EPS는 3.86달러로 3.2% 증가하며 어려운...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69561",
@@ -9082,8 +9081,9 @@
       ],
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "디즈니(DIS) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 연간 실적 성장. FY26 매출은 전년 대비 7%, 전체 사업부 영업이익은 10%, 조정 EPS는 16% 증가. 4분기 사업부 영업이익도..."
+      "summary": "디즈니(DIS) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 연간 실적 성장. FY26 매출은 전년 대비 7%, 전체 사업부 영업이익은 10%, 조정 EPS는 16% 증가. 4분기 사업부 영업이익도...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69557",
