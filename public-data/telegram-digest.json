@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-18T21:51:56.939Z",
-  "attemptedAt": "2026-11-18T21:51:56.939Z",
-  "lastSuccessfulAt": "2026-11-18T21:51:56.939Z",
+  "generatedAt": "2026-11-18T22:21:59.973Z",
+  "attemptedAt": "2026-11-18T22:21:59.973Z",
+  "lastSuccessfulAt": "2026-11-18T22:21:59.973Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-04T21:51:52.478Z",
-  "until": "2026-11-18T21:51:52.478Z",
+  "since": "2026-11-04T22:21:54.888Z",
+  "until": "2026-11-18T22:21:54.888Z",
   "current24hWindow": {
     "start": "2026-11-16T23:00:00.000Z",
     "end": "2026-11-17T23:00:00.000Z",
@@ -85,22 +85,22 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1194,
+      "count": 1193,
       "freshCount": 40,
-      "eligibleTextCount": 1134,
+      "eligibleTextCount": 1132,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69675
+      "lastPostId": 69677
     },
     {
       "channel": "bornlupin",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 182,
-      "freshCount": 37,
-      "eligibleTextCount": 182,
+      "count": 181,
+      "freshCount": 20,
+      "eligibleTextCount": 181,
       "selectedCount": 120,
       "error": null,
       "failingSince": null,
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2103,
-  "retainedItemCount": 416,
+  "count": 2101,
+  "retainedItemCount": 408,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2103,
-    "eligibleTextCount": 2043,
-    "mediaOnlyCount": 60,
+    "observedCount": 2101,
+    "eligibleTextCount": 2040,
+    "mediaOnlyCount": 61,
     "mediaAttachedCount": 867,
     "photoPostCount": 736,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 346,
-    "broadSignalCount": 856,
+    "highSignalCount": 344,
+    "broadSignalCount": 854,
     "selectedRawCount": 370,
     "selectedEligibleCount": 370,
     "selectedRawCoveragePct": 18.1,
@@ -160,14 +160,14 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 610,
-    "power": 262,
-    "earnings": 276,
+    "media-only": 59,
+    "market-note": 728,
+    "semi": 608,
+    "power": 261,
+    "earnings": 275,
     "flows": 49,
-    "market-note": 729,
-    "geo": 292,
-    "media-only": 58,
-    "macro": 291,
+    "geo": 291,
+    "macro": 290,
     "ai-policy": 134,
     "equity": 136,
     "kr-market": 88,
@@ -179,13 +179,13 @@
   },
   "tickerCounts": {
     "NVDA": 375,
-    "MU": 32,
+    "MU": 31,
     "TSM": 68,
     "PANW": 1,
     "DIS": 1,
     "TFX": 1,
     "DRI": 1,
-    "MSFT": 58,
+    "MSFT": 56,
     "PLTR": 5,
     "373220.KS": 1,
     "009150.KS": 3,
@@ -207,7 +207,7 @@
     "WWD": 1,
     "MRVL": 1,
     "CRWV": 17,
-    "AMZN": 56,
+    "AMZN": 55,
     "ORCL": 7,
     "BA": 1,
     "BIDU": 4,
@@ -259,12 +259,12 @@
     "285A.T": 1
   },
   "themes": [
-    "Market Notes (729 posts in 14-day research window): 2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000...",
-    "Semiconductors/Memory (610 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획 수립과 리스크 관리 개선을 지원하도록 기능을 확대. • 마이크로소프트 (MSFT) — 바이트댄스에 추가로...",
-    "Geopolitics (292 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Macro/Rates (291 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) • 나스닥: 24,452.46 (+0.51%) • 러셀 2000: 2,715.80 (+0.52%) • VIX:...",
-    "Earnings/Corporate (276 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "AI Power/Grid (262 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "Market Notes (728 posts in 14-day research window): 애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와...",
+    "Semiconductors/Memory (608 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획 수립과 리스크 관리 개선을 지원하도록 기능을 확대. • 마이크로소프트 (MSFT) — 바이트댄스에 추가로...",
+    "Geopolitics (291 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Macro/Rates (290 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) • 나스닥: 24,452.46 (+0.51%) • 러셀 2000: 2,715.80 (+0.52%) • VIX:...",
+    "Earnings/Corporate (275 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
+    "AI Power/Grid (261 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "Equity/Analyst (136 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
     "AI Policy/Export Controls (134 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
   ],
@@ -280,18 +280,18 @@
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며..."
     },
     {
-      "key": "MSFT",
-      "count": 58,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp 인상을 선호했으며, 2명의 위원은 향후 물가 지표가 악화될 경우 12월 25bp를 초과하는 인상도 검토할 수..."
-    },
-    {
       "key": "GOOG",
       "count": 58,
       "text": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     },
     {
-      "key": "AMZN",
+      "key": "MSFT",
       "count": 56,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp 인상을 선호했으며, 2명의 위원은 향후 물가 지표가 악화될 경우 12월 25bp를 초과하는 인상도 검토할 수..."
+    },
+    {
+      "key": "AMZN",
+      "count": 55,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
@@ -306,7 +306,7 @@
     },
     {
       "key": "MU",
-      "count": 32,
+      "count": 31,
       "text": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
     },
     {
@@ -337,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 291,
+      "count": 290,
       "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) • 나스닥: 24,452.46 (+0.51%) • 러셀 2000: 2,715.80 (+0.52%) • VIX:..."
     },
     {
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 292,
+      "count": 291,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 610,
+      "count": 608,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획 수립과 리스크 관리 개선을 지원하도록 기능을 확대. • 마이크로소프트 (MSFT) — 바이트댄스에 추가로..."
     },
     {
@@ -382,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 262,
+      "count": 261,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -427,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 276,
+      "count": 275,
       "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
     },
     {
@@ -472,8 +472,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 729,
-      "focus": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
+      "count": 728,
+      "focus": "애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와..."
     }
   ],
   "pageMap": {
@@ -812,20 +812,17 @@
       "datetime": "2026-11-18T11:41:22.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "kr-market"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와...",
       "tickers": [
         "NVDA",
         "MSFT",
         "CRM",
         "NKE"
-      ],
-      "summary": "애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와..."
+      ]
     },
     {
       "id": "insidertracking/69609",
@@ -2096,20 +2093,17 @@
       "datetime": "2026-11-18T11:41:22.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "kr-market"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와...",
       "tickers": [
         "NVDA",
         "MSFT",
         "CRM",
         "NKE"
-      ],
-      "summary": "애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와..."
+      ]
     },
     {
       "id": "insidertracking/69633",
@@ -3898,21 +3892,18 @@
       "datetime": "2026-11-17T11:18:19.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "earnings",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": "[단독] 아이폰 원가 40% 메모리 …'슈퍼甲' 애플, 결국 삼전닉스에 SOS 삼성전자·애플 'D램 장기 공급' 계약 임박 아마존·구글 등 美대표 빅테크 메모리 업체와 속속 장기 계약 협력사 쥐어짜던 애플도...",
       "tickers": [
         "GOOG",
         "AMZN",
         "MU",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "[단독] 아이폰 원가 40% 메모리 …'슈퍼甲' 애플, 결국 삼전닉스에 SOS 삼성전자·애플 'D램 장기 공급' 계약 임박 아마존·구글 등 美대표 빅테크 메모리 업체와 속속 장기 계약 협력사 쥐어짜던 애플도..."
+      ]
     },
     {
       "id": "insidertracking/69515",
@@ -3953,13 +3944,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "엔비디아 이사회, 국가안보 및 수출 통제 감독 위원회 신설 ​이 위원회는 수잔 노라 존슨(Suzanne Nora Johnson) 이사가 위원장을 맡고, 스티븐 닐(Stephen Neal)과 존 다비리(John...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 이사회, 국가안보 및 수출 통제 감독 위원회 신설 ​이 위원회는 수잔 노라 존슨(Suzanne Nora Johnson) 이사가 위원장을 맡고, 스티븐 닐(Stephen Neal)과 존 다비리(John..."
+      ]
     },
     {
       "id": "insidertracking/69510",
@@ -4655,18 +4645,17 @@
       "datetime": "2026-11-16T22:22:09.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 81,
       "hasText": true,
+      "summary": "레오폴드 아셴브레너 Situational Awareness 3분기(9월 30일 기준 13F 공시) 현물 주식을 대거 처분하며 포트폴리오 규모를 202억 달러에서 15.8억 달러로 92% 축소 핵심 포지션 변화...",
       "tickers": [
         "MU",
         "TSM",
         "BE",
         "SNDK"
-      ],
-      "summary": "레오폴드 아셴브레너 Situational Awareness 3분기(9월 30일 기준 13F 공시) 현물 주식을 대거 처분하며 포트폴리오 규모를 202억 달러에서 15.8억 달러로 92% 축소 핵심 포지션 변화..."
+      ]
     },
     {
       "id": "HANAchina/72236",
@@ -4733,13 +4722,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "엔비디아( $NVDA )는 3분기에 스페이스X( $SPCX ) 주식 약 770만 주를 추가로 매입 보유 지분이 6.3% 증가해 총 1억 3,050만 주(약 197억 달러 규모)",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아( $NVDA )는 3분기에 스페이스X( $SPCX ) 주식 약 770만 주를 추가로 매입 보유 지분이 6.3% 증가해 총 1억 3,050만 주(약 197억 달러 규모)"
+      ]
     },
     {
       "id": "insidertracking/69449",
@@ -5817,14 +5805,12 @@
       "datetime": "2026-11-15T22:33:10.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "macro",
-        "geo"
+        "macro"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": "베센트 미 재무장관 “12월 인플레이션 큰 폭 하락 예상…근원 인플레이션은 연준 목표에 근접” (폭스뉴스 인터뷰) 스콧 베센트 미국 재무장관이 12월 인플레이션의 큰 폭 하락을 전망하며,..."
+      "summary": "베센트 미 재무장관 “12월 인플레이션 큰 폭 하락 예상…근원 인플레이션은 연준 목표에 근접” (폭스뉴스 인터뷰) 스콧 베센트 미국 재무장관이 12월 인플레이션의 큰 폭 하락을 전망하며,...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72174",
@@ -6048,17 +6034,16 @@
       "datetime": "2026-11-15T20:47:31.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "semi",
-        "geo"
+        "semi"
       ],
-      "lead": 1,
       "score": 70,
       "hasText": true,
+      "summary": "젠슨 황, 측근들과 엔비디아 CEO 복귀 논의 FT는 복수의 관계자를 인용해 젠슨 황이 측근들과 엔비디아 CEO 복귀 가능성을 논의했다고 보도했습니다. 황의 사임 이후 실리콘밸리에서는 이사회가 그를 다시...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "ARM"
-      ],
-      "summary": "젠슨 황, 측근들과 엔비디아 CEO 복귀 논의 FT는 복수의 관계자를 인용해 젠슨 황이 측근들과 엔비디아 CEO 복귀 가능성을 논의했다고 보도했습니다. 황의 사임 이후 실리콘밸리에서는 이사회가 그를 다시..."
+      ]
     },
     {
       "id": "HANAchina/72171",
@@ -6192,11 +6177,10 @@
         "semi",
         "earnings"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "DRAM 내년 상반기 공급 부족 심화, 모듈 업체 출하 조절로 대응 ​메모리 업체들의 3분기 실적이 잇따라 발표된 가운데 제조사들은 사상 최대 이익을 경신한 반면, 모듈 업체들의 실적은 엇갈리는 양상을..."
+      "summary": "DRAM 내년 상반기 공급 부족 심화, 모듈 업체 출하 조절로 대응 ​메모리 업체들의 3분기 실적이 잇따라 발표된 가운데 제조사들은 사상 최대 이익을 경신한 반면, 모듈 업체들의 실적은 엇갈리는 양상을...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69327",
@@ -6663,11 +6647,11 @@
       "localDateKst": "2026-11-14",
       "tags": [
         "semi",
-        "kr-market",
         "equity"
       ],
       "score": 85,
       "hasText": true,
+      "summary": "소로스 펀드 매니지먼트(Soros Fund Management) 2026년 3분기(9월 30일 기준, 11월 13일 공시) 13F 보고서 매수 및 비중 확대 (Buy & Add) 메모리, CPU 반도체, AI...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -6680,8 +6664,7 @@
         "DDOG",
         "CLS",
         "MKTX"
-      ],
-      "summary": "소로스 펀드 매니지먼트(Soros Fund Management) 2026년 3분기(9월 30일 기준, 11월 13일 공시) 13F 보고서 매수 및 비중 확대 (Buy & Add) 메모리, CPU 반도체, AI..."
+      ]
     },
     {
       "id": "HANAchina/72108",
@@ -6759,7 +6742,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -6768,10 +6750,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "젠슨 황 엔비디아 CEO 복귀 청원 진행 중 일론 머스크, 엔비디아 주주로 공개 서명",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "젠슨 황 엔비디아 CEO 복귀 청원 진행 중 일론 머스크, 엔비디아 주주로 공개 서명"
+      ]
     },
     {
       "id": "HANAchina/72101",
@@ -9638,21 +9620,18 @@
       "datetime": "2026-11-17T11:18:19.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "earnings",
-        "japan"
+        "semi"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": "[단독] 아이폰 원가 40% 메모리 …'슈퍼甲' 애플, 결국 삼전닉스에 SOS 삼성전자·애플 'D램 장기 공급' 계약 임박 아마존·구글 등 美대표 빅테크 메모리 업체와 속속 장기 계약 협력사 쥐어짜던 애플도...",
       "tickers": [
         "GOOG",
         "AMZN",
         "MU",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "[단독] 아이폰 원가 40% 메모리 …'슈퍼甲' 애플, 결국 삼전닉스에 SOS 삼성전자·애플 'D램 장기 공급' 계약 임박 아마존·구글 등 美대표 빅테크 메모리 업체와 속속 장기 계약 협력사 쥐어짜던 애플도..."
+      ]
     },
     {
       "id": "insidertracking/69515",
@@ -9693,13 +9672,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "엔비디아 이사회, 국가안보 및 수출 통제 감독 위원회 신설 ​이 위원회는 수잔 노라 존슨(Suzanne Nora Johnson) 이사가 위원장을 맡고, 스티븐 닐(Stephen Neal)과 존 다비리(John...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 이사회, 국가안보 및 수출 통제 감독 위원회 신설 ​이 위원회는 수잔 노라 존슨(Suzanne Nora Johnson) 이사가 위원장을 맡고, 스티븐 닐(Stephen Neal)과 존 다비리(John..."
+      ]
     },
     {
       "id": "insidertracking/69510",
