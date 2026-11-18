@@ -2,8 +2,8 @@
   "schemaVersion": "masters-13f.v1",
   "sourceKind": "REFERENCE",
   "status": "REFERENCE_ROWS_CONNECTED",
-  "reviewedAt": "2026-11-15",
-  "generatedAt": "2026-11-15T13:39:18.735Z",
+  "reviewedAt": "2026-11-18",
+  "generatedAt": "2026-11-18T16:42:54.566Z",
   "latestAvailablePeriod": "2026-09-30",
   "metadataStatus": "REFERENCE_METADATA_CONNECTED",
   "metadataArtifact": "public-data/masters/filings.json",
@@ -22,11 +22,11 @@
   "xSearchStatus": "UNREADABLE_BY_BROWSER_TOOL",
   "holdingsArtifact": "public-data/masters/holdings.json",
   "verifiedFilerMetadata": 37,
-  "holdingRowsPublished": 366,
-  "fullRowsAvailable": 197581,
+  "holdingRowsPublished": 365,
+  "fullRowsAvailable": 198132,
   "reconciledManagers": 37,
-  "comparisonRowsPublished": 366,
-  "fullComparisonRowsAvailable": 90842,
+  "comparisonRowsPublished": 365,
+  "fullComparisonRowsAvailable": 91424,
   "reconciledComparisons": 37,
   "historyIndexArtifact": "public-data/masters/history-index.json",
   "historyHoldingsArtifact": "public-data/masters/history-holdings.json",
@@ -34,15 +34,15 @@
   "historyRowsImported": 12339,
   "historyRowImportStatus": "FILING_HISTORY_ROWS_CONNECTED",
   "normalizationStatus": "PENDING_VERIFIED_SECURITY_MASTER",
-  "rawUniqueCusips": 1143,
-  "rawUniqueIssuerNames": 1178,
+  "rawUniqueCusips": 1132,
+  "rawUniqueIssuerNames": 1148,
   "mappedRows": 0,
   "securityMasterArtifact": "public-data/masters/security-master.json",
   "issuerAggregateArtifact": "public-data/masters/issuer-aggregates.json",
   "issuerAggregateStatus": "RAW_CUSIP_MULTI_QUARTER_CONNECTED",
-  "issuerAggregateRecords": 2628,
-  "issuerAggregateReviewQueue": 318,
-  "issuerAggregateReviewedAt": "2026-11-15",
+  "issuerAggregateRecords": 2641,
+  "issuerAggregateReviewQueue": 322,
+  "issuerAggregateReviewedAt": "2026-11-18",
   "policy": "SEC EDGAR filing and information-table XML are the canonical source for 13F profiles. Method-only educators such as Mark Minervini are visibly separated and never receive filer, CIK, accession, holdings, or reported-value rows. Do not publish holdings before filer, CIK, accession, report period, and summary reconciliation pass.",
   "managers": [
     {
@@ -61,7 +61,7 @@
       "id": "goldman-sachs-group",
       "displayName": "Goldman Sachs",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "jpmorgan-chase",
@@ -97,13 +97,13 @@
       "id": "t-rowe-price",
       "displayName": "T. Rowe Price",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "wellington-management",
       "displayName": "Wellington Management",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "dimensional-fund-advisors",
@@ -115,7 +115,7 @@
       "id": "berkshire-hathaway",
       "displayName": "Warren Buffett",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "soros-fund-management",
@@ -127,19 +127,19 @@
       "id": "bridgewater-associates",
       "displayName": "Ray Dalio",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "duquesne-family-office",
       "displayName": "Stanley Druckenmiller",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "appaloosa-management",
       "displayName": "David Tepper",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "oaktree-capital-management",
@@ -151,13 +151,13 @@
       "id": "citadel-advisors",
       "displayName": "Ken Griffin / Seth Levy",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "millennium-management",
       "displayName": "Millennium Management",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "renaissance-technologies",
@@ -169,13 +169,13 @@
       "id": "two-sigma-investments",
       "displayName": "Two Sigma",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "tudor-investment",
       "displayName": "Tudor Investment",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "pershing-square",
@@ -187,49 +187,49 @@
       "id": "starboard-value",
       "displayName": "Starboard Value",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "trian-fund-management",
       "displayName": "Trian Fund Management",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "valueact-holdings",
       "displayName": "ValueAct",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "third-point",
       "displayName": "Daniel Loeb",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "elliott-investment-management",
       "displayName": "Paul Singer",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "tci-fund-management",
       "displayName": "Chris Hohn",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "viking-global-investors",
       "displayName": "Andreas Halvorsen",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "tiger-global-management",
       "displayName": "Chase Coleman",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "ark-investment-management",
@@ -247,7 +247,7 @@
       "id": "situational-awareness",
       "displayName": "Leopold Aschenbrenner",
       "profileType": "LIVE_13F",
-      "status": "STALE_REFERENCE"
+      "status": "VERIFIED_ROWS"
     },
     {
       "id": "baupost-group",
@@ -279,37 +279,17 @@
   "nextStep": "MF-05 issuer/ticker/share-class/corporate-action normalization and sector mapping before portfolio-weight labels; raw SEC history rows remain reference-only.",
   "lastSuccessfulArtifact": "2026-09-02T12:06:32.826Z",
   "staleReferenceManagers": [
-    "goldman-sachs-group",
-    "t-rowe-price",
-    "wellington-management",
-    "berkshire-hathaway",
-    "bridgewater-associates",
-    "duquesne-family-office",
-    "appaloosa-management",
     "oaktree-capital-management",
-    "citadel-advisors",
-    "millennium-management",
-    "two-sigma-investments",
-    "tudor-investment",
     "pershing-square",
-    "starboard-value",
-    "trian-fund-management",
-    "valueact-holdings",
-    "third-point",
-    "elliott-investment-management",
-    "tci-fund-management",
-    "viking-global-investors",
-    "tiger-global-management",
-    "situational-awareness",
     "scion-asset-management"
   ],
   "runtimeHoldingsArtifact": "public-data/masters/holdings-summary.json",
-  "runtimeHoldingsBytes": 263936,
+  "runtimeHoldingsBytes": 263198,
   "managerShardCount": 37,
   "historyManagerShardCount": 7,
   "tickerIndexArtifact": "public-data/masters/ticker-index-reference.json",
   "tickerIndexStatus": "REFERENCE_ONLY",
-  "tickerIndexReferenceCount": 49,
-  "tickerIndexMatchedRows": 142,
-  "tickerIndexGeneratedAt": "2026-11-15T13:39:18.735Z"
+  "tickerIndexReferenceCount": 48,
+  "tickerIndexMatchedRows": 137,
+  "tickerIndexGeneratedAt": "2026-11-18T16:42:54.566Z"
 }
