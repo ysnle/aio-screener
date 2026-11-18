@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-18T08:52:25.326Z",
-  "attemptedAt": "2026-11-18T08:52:25.326Z",
-  "lastSuccessfulAt": "2026-11-18T08:52:25.326Z",
+  "generatedAt": "2026-11-18T09:21:55.422Z",
+  "attemptedAt": "2026-11-18T09:21:55.422Z",
+  "lastSuccessfulAt": "2026-11-18T09:21:55.422Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-04T08:52:21.536Z",
-  "until": "2026-11-18T08:52:21.536Z",
+  "since": "2026-11-04T09:21:49.981Z",
+  "until": "2026-11-18T09:21:49.981Z",
   "current24hWindow": {
     "start": "2026-11-16T23:00:00.000Z",
     "end": "2026-11-17T23:00:00.000Z",
@@ -88,10 +88,10 @@
       "count": 1209,
       "freshCount": 39,
       "eligibleTextCount": 1151,
-      "selectedCount": 127,
+      "selectedCount": 128,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69628
+      "lastPostId": 69632
     },
     {
       "channel": "bornlupin",
@@ -138,7 +138,7 @@
     }
   ],
   "count": 2118,
-  "retainedItemCount": 412,
+  "retainedItemCount": 413,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -153,23 +153,23 @@
     "imageOnlyCount": 5,
     "highSignalCount": 351,
     "broadSignalCount": 863,
-    "selectedRawCount": 373,
-    "selectedEligibleCount": 373,
-    "selectedRawCoveragePct": 18.1,
-    "selectedOfObservedPct": 17.6,
+    "selectedRawCount": 374,
+    "selectedEligibleCount": 374,
+    "selectedRawCoveragePct": 18.2,
+    "selectedOfObservedPct": 17.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 604,
     "market-note": 740,
+    "semi": 604,
     "kr-market": 91,
+    "macro": 297,
     "earnings": 281,
     "flows": 49,
     "equity": 134,
     "healthcare": 50,
     "credit": 78,
     "ai-policy": 127,
-    "macro": 297,
     "geo": 295,
     "power": 267,
     "media-only": 56,
@@ -178,7 +178,7 @@
     "insider": 2
   },
   "tickerCounts": {
-    "NVDA": 362,
+    "NVDA": 363,
     "TSM": 67,
     "2454.TW": 7,
     "GOOG": 61,
@@ -196,7 +196,7 @@
     "MSFT": 55,
     "ORCL": 8,
     "BA": 1,
-    "005930.KS": 27,
+    "005930.KS": 26,
     "BIDU": 4,
     "MU": 31,
     "000660.KS": 16,
@@ -204,7 +204,7 @@
     "SPGI": 1,
     "PLTR": 6,
     "SNDK": 2,
-    "TSLA": 41,
+    "TSLA": 40,
     "BE": 14,
     "META": 2,
     "CAT": 2,
@@ -267,7 +267,7 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 362,
+      "count": 363,
       "text": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     },
     {
@@ -292,7 +292,7 @@
     },
     {
       "key": "TSLA",
-      "count": 41,
+      "count": 40,
       "text": "2026년 11월 13일 미국 증시 브리핑 미국 증시는 엔비디아 CEO 사임 충격과 연준의 추가 긴축 우려가 겹치며 하락 마감. S&P 500 -0.35%, 다우 -0.36%, 나스닥 -0.39%,..."
     },
     {
@@ -307,7 +307,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 27,
+      "count": 26,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
@@ -397,7 +397,7 @@
         "kr-market"
       ],
       "count": 91,
-      "focus": "No retained full-text sample; 91 observed posts in the 14-day research window."
+      "focus": "코스피 야간선물 일단 양전 시작"
     },
     {
       "id": "equity",
@@ -1677,6 +1677,43 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69631",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69631",
+      "datetime": "2026-11-18T09:03:54.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "semi"
+      ],
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "프리마켓 엔비디아 +3%"
+    },
+    {
+      "id": "insidertracking/69629",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69629",
+      "datetime": "2026-11-18T09:00:40.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "macro"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "Fed Rates Outlook 2026 3 hikes: 69.0% probability Upcoming Fed Decisions December : 25 bps hike (93.5%) January : 25..."
+    },
+    {
       "id": "insidertracking/69628",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69628",
@@ -2155,10 +2192,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 상승분 반납중....",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 상승분 반납중...."
+      ]
     },
     {
       "id": "HANAchina/72333",
@@ -6578,76 +6615,6 @@
       "summary": "미국 레딧 관심도 엔비디아에 집중",
       "tickers": [
         "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69230",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69230",
-      "datetime": "2026-11-13T22:35:03.000Z",
-      "localDateKst": "2026-11-14",
-      "tags": [
-        "flows",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-      "lead": 1,
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "GOOG",
-        "META",
-        "TSM",
-        "BE",
-        "GOOGL",
-        "LLY",
-        "V",
-        "GS",
-        "INTC",
-        "PANW",
-        "IONQ",
-        "CRWV",
-        "SHOP",
-        "STT",
-        "FSLR",
-        "QQQ",
-        "SOXX",
-        "XLV"
-      ]
-    },
-    {
-      "id": "insidertracking/69229",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69229",
-      "datetime": "2026-11-13T22:29:45.000Z",
-      "localDateKst": "2026-11-14",
-      "tags": [
-        "market-note"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · AerCap Holdings · American Savings Bank · Hamilton Insurance Group ·...",
-      "tickers": [],
-      "listTickers": [
-        "AAPL",
-        "META",
-        "JNJ",
-        "COST",
-        "PG",
-        "KO",
-        "RSG",
-        "EW",
-        "WCN",
-        "OGE"
       ]
     },
     {
