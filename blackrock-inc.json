@@ -1,0 +1,110 @@
+{
+  "schema": "masters-13f-manager-rows-index.v1",
+  "sourceKind": "SEC_EDGAR",
+  "reviewedAt": "2026-11-15",
+  "generatedAt": "2026-11-15T13:39:18.735Z",
+  "managerId": "blackrock-inc",
+  "cik": "0002012383",
+  "latestFiling": {
+    "form": "13F-HR",
+    "baseForm": "13F-HR",
+    "isAmendment": false,
+    "accession": "0002012383-26-003985",
+    "filedAt": "2026-11-13",
+    "acceptedAt": "2026-11-13T20:52:08.000Z",
+    "periodOfReport": "2026-09-30",
+    "primaryDocument": "xslForm13F_X02/primary_doc.xml",
+    "primaryDocDescription": null,
+    "indexUrl": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003985/0002012383-26-003985-index.html",
+    "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003985/xslForm13F_X02/primary_doc.xml",
+    "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003985/xslForm13F_X02/primary_doc.xml",
+    "informationTableXml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003985/form13fInfoTable.xml",
+    "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/2012383/000201238326003985/form13fInfoTable.html"
+  },
+  "priorFiling": null,
+  "verification": {
+    "reportPeriod": "2026-09-30",
+    "cover": {
+      "reportCalendarOrQuarter": "09-30-2026",
+      "tableEntryTotal": 50911,
+      "tableValueTotal": 6791591104981,
+      "isAmendment": false,
+      "amendmentType": null,
+      "amendmentNumber": null,
+      "filingManager": "BlackRock, Inc."
+    },
+    "fullRowCount": 50911,
+    "parsedValueTotal": 6791591104981,
+    "reportedPositionCount": 5805,
+    "top5ConcentrationPct": 21.85433826761796,
+    "top10ConcentrationPct": 30.608568425275003,
+    "turnoverProxyPct": 7.915006258176878,
+    "turnoverProxyPolicy": "ONE_HALF_SUM_ABSOLUTE_REPORTED_VALUE_WEIGHT_CHANGE",
+    "valueDelta": 0,
+    "valueReconciliationStatus": "EXACT",
+    "countReconciled": true,
+    "priorReportPeriod": "2026-06-30",
+    "priorFullRowCount": 49968,
+    "priorParsedValueTotal": 6729538649155,
+    "priorCountReconciled": true,
+    "comparisonRowCount": 6062,
+    "comparisonActionCounts": {
+      "REDUCED": 2095,
+      "INCREASED": 2871,
+      "NEW": 366,
+      "UNCHANGED": 473,
+      "EXITED": 257
+    },
+    "corporateActionReviewStatus": "REVIEW_REQUIRED",
+    "amendmentSemantics": {
+      "status": "ORIGINAL",
+      "type": null,
+      "number": null,
+      "policy": "ORIGINAL_ROWS",
+      "chain": [
+        {
+          "accession": "0002012383-26-003985",
+          "type": "ORIGINAL",
+          "role": "ORIGINAL",
+          "rows": 50911
+        }
+      ]
+    },
+    "priorAmendmentSemantics": {
+      "status": "ORIGINAL",
+      "type": null,
+      "number": null,
+      "policy": "ORIGINAL_ROWS",
+      "chain": [
+        {
+          "accession": "0002012383-26-003238",
+          "type": "ORIGINAL",
+          "role": "ORIGINAL",
+          "rows": 49968
+        }
+      ]
+    },
+    "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
+    "valueUnit": "USD as reported by Form 13F information table",
+    "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
+  },
+  "rowSchema": "masters-13f-manager-rows.v1",
+  "holdingsCount": 50911,
+  "comparisonsCount": 6062,
+  "parts": [
+    {
+      "path": "blackrock-inc.part-1.json",
+      "holdings": 30433,
+      "comparisons": 0,
+      "bytes": 33487956,
+      "sha256": "ea05cb6d3a74134003619d77be8d8b3c9b71fef6122fd874d45998aad9e430c3"
+    },
+    {
+      "path": "blackrock-inc.part-2.json",
+      "holdings": 20478,
+      "comparisons": 6062,
+      "bytes": 28149911,
+      "sha256": "7813f83d6fd4657ae3e95da73a655110fe37ef2714d5fcb951a37cb1e2f22c99"
+    }
+  ]
+}
