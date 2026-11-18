@@ -120,8 +120,9 @@ export function createTrendChart(doc, options = {}) {
   // v59.55 (C1): a window under two months (the stock chart's 1개월) has at most one month start, often none inside the
   // plot; it labels three observation days (M/D) at a quarter, half and three quarters instead.
   if (months < 2) {
-    for (const share of [0.2, 0.5, 0.8]) {
-      const point = points[Math.round((points.length - 1) * share)];
+    // Distinct observation days only: two points used to label the second day twice.
+    for (const index of [...new Set([0.2, 0.5, 0.8].map((share) => Math.round((points.length - 1) * share)))]) {
+      const point = points[index];
       const xm = xd(point.date);
       svg.append(svgEl(doc, 'line', { x1: xm, x2: xm, y1: PAD.top + plotH, y2: PAD.top + plotH + 4, class: 'trend-chart-baseline' }));
       const text = svgEl(doc, 'text', { x: xm, y: H - 8, 'text-anchor': 'middle', class: 'trend-chart-axis' });

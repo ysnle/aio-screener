@@ -10,9 +10,27 @@ function locationUrl(locationLike) {
   return new URL(`https://aio-screener.local${pathname}${search}${hash}`);
 }
 
-export function parseKnowledgeRouteState(locationLike) {
+// 2026-11-18: a research page's open document lives in its own hash query (#atlas?mode=taxonomy&node=…), the convention of
+// #ticker?sym= and #themes?view=. It used to live in location.search, so leaving the page by a plain #route link kept
+// the atlas keys in every later address (?mode=taxonomy&node=…#guide). An old ?mode=…#atlas link is still read on
+// entry, once: the hash query wins when it carries any route key, and the next write moves the keys into the hash.
+function hashParts(url) {
+  const match = String(url.hash || '').match(/^#([^?]*)(?:\?(.*))?$/);
+  return { route: String(match?.[1] || '').split('/')[0], params: new URLSearchParams(match?.[2] || '') };
+}
+
+export function knowledgeRouteParams(locationLike) {
   const url = locationUrl(locationLike);
-  const values = Object.fromEntries(ROUTE_KEYS.map((key) => [key, url.searchParams.get(key) || '']));
+  const { params } = hashParts(url);
+  const source = ROUTE_KEYS.some((key) => params.has(key)) ? params : url.searchParams;
+  const out = new URLSearchParams();
+  for (const key of ROUTE_KEYS) { const value = source.get(key); if (value) out.set(key, value); }
+  return out;
+}
+
+export function parseKnowledgeRouteState(locationLike) {
+  const params = knowledgeRouteParams(locationLike);
+  const values = Object.fromEntries(ROUTE_KEYS.map((key) => [key, params.get(key) || '']));
   const step = values.step === '' ? null : Number(values.step);
   return Object.freeze({
     mode: values.mode || null,
@@ -63,28 +81,37 @@ export function parseKnowledgeTargetContext({ root = globalThis, locationLike = 
   });
 }
 
-export function serializeKnowledgeRouteState(locationLike, state = {}) {
+// The address with `state` as the route's hash query. Other hash keys (knowledgeNode, return) stay; route keys left in
+// location.search by an old link are dropped. `page` names the writer: when the address already shows another route
+// (the reader left before a late write), the address is returned unchanged, so no page writes into another's address.
+export function serializeKnowledgeRouteState(locationLike, state = {}, { page = null } = {}) {
   const url = locationUrl(locationLike);
-  for (const key of ROUTE_KEYS) url.searchParams.delete(key);
+  const { route, params } = hashParts(url);
+  const current = `${url.pathname}${url.search}${url.hash}`;
+  if (page && route && route !== page) return current;
+  const target = page || route;
+  for (const key of ROUTE_KEYS) { url.searchParams.delete(key); params.delete(key); }
   for (const key of ROUTE_KEYS) {
     const value = state[key];
     if (value == null || value === '') continue;
-    url.searchParams.set(key, String(value));
+    params.set(key, String(value));
   }
-  const query = url.searchParams.toString();
-  return `${url.pathname}${query ? `?${query}` : ''}${url.hash}`;
+  const search = url.searchParams.toString();
+  const query = params.toString();
+  return `${url.pathname}${search ? `?${search}` : ''}${target ? `#${target}${query ? `?${query}` : ''}` : ''}`;
 }
 
-export function replaceKnowledgeRouteState({ root = globalThis, locationLike = root.location, historyLike = root.history, state = {} } = {}) {
-  const nextUrl = serializeKnowledgeRouteState(locationLike, state);
-  if (typeof historyLike?.replaceState === 'function') historyLike.replaceState(historyLike.state || null, '', nextUrl);
+export function replaceKnowledgeRouteState({ root = globalThis, locationLike = root.location, historyLike = root.history, state = {}, page = null } = {}) {
+  const nextUrl = serializeKnowledgeRouteState(locationLike, state, { page });
+  const current = `${locationLike?.pathname || ''}${locationLike?.search || ''}${locationLike?.hash || ''}`;
+  if (nextUrl !== current && typeof historyLike?.replaceState === 'function') historyLike.replaceState(historyLike.state || null, '', nextUrl);
   return nextUrl;
 }
 
 // first-users run-2 R2-17: opening a document on the same page only replaced the URL, so Back left the library. Opening
 // one adds a history entry (the same page state), and the page re-reads the URL when Back returns to it.
-export function pushKnowledgeRouteState({ root = globalThis, locationLike = root.location, historyLike = root.history, state = {} } = {}) {
-  const nextUrl = serializeKnowledgeRouteState(locationLike, state);
+export function pushKnowledgeRouteState({ root = globalThis, locationLike = root.location, historyLike = root.history, state = {}, page = null } = {}) {
+  const nextUrl = serializeKnowledgeRouteState(locationLike, state, { page });
   const current = `${locationLike?.pathname || ''}${locationLike?.search || ''}${locationLike?.hash || ''}`;
   if (nextUrl !== current && typeof historyLike?.pushState === 'function') historyLike.pushState(historyLike.state || null, '', nextUrl);
   return nextUrl;
@@ -112,15 +139,15 @@ export function navigateKnowledgeTarget({ root = globalThis, target = {} } = {})
   return true;
 }
 
-// v57.50 I17/I18: a link into a research page with a selection (?mode=concept&node=…#principles). Pushing the URL
-// and then calling showPage lost the selection — showPage strips the knowledge keys from the search part of a plain
-// route URL before the page mounts — so the page opened on its default view. The pending route URL is the one
-// showPage pushes as is.
+// v57.50 I17/I18: a link into a research page with a selection (#principles?mode=concept&node=…). Pushing the URL
+// and then calling showPage lost the selection — showPage writes a plain #route address before the page mounts — so
+// the page opened on its default view. The pending route URL is the one showPage pushes as is. 2026-11-18: the selection
+// is the target route's hash query, and the old search part is not carried.
 export function knowledgeRouteHref({ root = globalThis, page, params = {} } = {}) {
   const query = new URLSearchParams();
   for (const [key, value] of Object.entries(params || {})) if (value != null && value !== '') query.set(key, String(value));
-  const search = query.toString();
-  return `${root?.location?.pathname || ''}${search ? `?${search}` : ''}#${page}`;
+  const hash = query.toString();
+  return `${root?.location?.pathname || ''}#${page}${hash ? `?${hash}` : ''}`;
 }
 
 export function navigateKnowledgeRoute({ root = globalThis, page, params = {} } = {}) {

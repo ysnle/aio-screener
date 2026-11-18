@@ -3,21 +3,23 @@ import { compileScreenDefinition } from '../../../domain/screener/screen-engine.
 import { syncScreenerNextLead } from '../../components/screener-read.js';
 import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { SCREENER_FIELD_REGISTRY, fieldValueForPurpose } from '../../../data/contracts/screener.js';
-import { FACTOR_LABELS, capFilterValue, numberText, visibleRank, rankGrade, vcpStageLabel, factorSessionLag, describeRankingHold, followThroughSummary } from '../../../domain/screener/row-presentation.js';
+import { FACTOR_LABELS, POPULATION_EXCLUSION_TEXT, capFilterValue, numberText, visibleRank, rankGrade, vcpStageLabel, factorSessionLag, describeRankingHold, followThroughSummary, sessionHoldLine, filingBasisLabel } from '../../../domain/screener/row-presentation.js';
+import { overallRankedCount } from '../../../domain/screener/overall-rank.js';
 import { MARKET_LABELS, screenerMarket, marketPopulation, marketRankingMetadata, formatScreenerPrice } from '../../../domain/screener/market-scope.js';
 import { EXTENSION_BANDS } from '../../../domain/screener/setup-profile.js';
+import { LATEST_SESSION_VOLUME_BASIS } from '../../../domain/screener/price-factors.js';
 import { consensusView, PE_MEANINGFUL_MAX } from '../../../domain/fundamental/consensus-read.js';
 import { parseConditionValue, conditionCoverage, availableConditionIds } from '../../../domain/screener/custom-conditions.js';
 import { requestConsensusEstimates, consensusRowFor, CONSENSUS_KEY } from '../../../data/consensus-estimates.js';
 import { screenerRowsState } from '../../../data/shared-artifacts.js';
-import { dataStateText } from '../../../domain/content/data-state.js';
+import { DATA_STATE_CHIPS, dataStateText } from '../../../domain/content/data-state.js';
 import { RANKING_CONTRACTS } from '../../../data/screener-extended.js';
 import { usdKoreanText, finiteNumber as finite } from '../../../domain/shared/number.js';
 import { isoDay, stampDay } from '../../../domain/shared/session-date.js';
 import { shortDate } from '../../../domain/content/date-labels.js';
 import { renderDataState } from '../../components/data-state.js';
-import { FILTER_FIELD_LABELS, describeFilterAst, filterRows, renderFilterChips, renderFunnel, syncScreenerControlAvailability, syncUniverseScopeControl } from './filters.js';
-import { CASH_CONDITION_IDS, COLUMN_PRESETS, FIELD_BY_COLUMN, FILING_KEYS, PRESET_SHORT_LABELS, SCREENER_COLUMN_REGISTRY, SECTOR_RELATIVE_PRICE_FACTORS, cell, customRead, entryTiming, extensionMultiple, factorScoreColor, liveRow, marketReturnPercentiles, pivotDistancePct, range52Position, requestCashMetrics, returnColor, returnText, rowThemeStages, scopedRows, screenerRuntime, selectedValue, sortRows, text } from './model.js';
+import { FILTER_FIELD_LABELS, describeFilterAst, filterRows, passedOnlyApplied, renderFilterChips, renderFunnel, syncScreenerControlAvailability, syncUniverseScopeControl } from './filters.js';
+import { COLUMN_PRESETS, conditionSourceStates, requestConditionSources, sourcedConditionIdsFor, FIELD_BY_COLUMN, FILING_KEYS, PRESET_SHORT_LABELS, SCREENER_COLUMN_REGISTRY, SECTOR_RELATIVE_PRICE_FACTORS, cell, customRead, entryTiming, extensionMultiple, factorScoreColor, liveRow, marketReturnPercentiles, pivotDistancePct, range52Position, returnColor, returnText, rowThemeStages, scopedRows, screenerRuntime, selectedValue, sortRows, text } from './model.js';
 import { renderBacktest, renderConditionalEvidence, renderFactorTab, renderStaleNote, renderValidationState } from './validation-tab.js';
 function createRankNode(documentRef, row, hold = null) {
   const wrap = documentRef.createElement('div');
@@ -42,7 +44,7 @@ function createRankNode(documentRef, row, hold = null) {
   if (rank == null) {
     wrap.appendChild(text(documentRef, '—'));
     // 2026-10-16: a fund, a SPAC or a thinly traded 확장 name is shown but not compared with operating companies.
-    const excluded = { fund: 'ETF·펀드는 기업 주식과 같은 기준으로 비교하지 않아 순위에서 뺐습니다.', spac: '기업인수목적회사(SPAC)는 신탁 현금이라 주가가 거의 움직이지 않아 순위에서 뺐습니다.', illiquid: '하루 평균 거래대금이 100만 달러 미만이라 확장 순위에서 뺐습니다.', foreign: '도쿄·대만 상장 종목은 거래일과 통화가 달라 미국 종목과 같은 순위로 비교하지 않습니다.' }[row.populationExclusion];
+    const excluded = POPULATION_EXCLUSION_TEXT[row.populationExclusion]?.long;
     if (excluded) wrap.title = excluded;
   } else {
     const value = documentRef.createElement('div');
@@ -64,7 +66,7 @@ function createRankNode(documentRef, row, hold = null) {
   return wrap;
 }
 
-export function createColumnContent(documentRef, row, key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols, rankHold, capOrder } = {}) {
+export function createColumnContent(documentRef, row, key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols, rankHold, capOrder, quoteRequestState } = {}) {
   const live = liveRow(row, readLiveData);
   row = live;
   const inWatchlist = (readWatchlist?.() || []).includes(row.sym);
@@ -90,8 +92,10 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     return node;
   }
   if (key === 'rank') return createRankNode(documentRef, row, rankHold);
-  if (key === 'screenRank') {
-    const ordinal = rankHold || row.screenStatus !== 'passed' ? null : finite(row.screenRank);
+  if (key === 'overallRank') {
+    // The overall order (unrounded composite inside the market), whatever screen is active; only a held
+    // ranking hides it. The active screen's own order is the 순서 column.
+    const ordinal = rankHold ? null : finite(row.overallRank);
     const node = text(documentRef, ordinal == null ? '—' : String(ordinal));
     node.className = 'scr-ordinal';
     return node;
@@ -145,6 +149,23 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
   if (key === 'price') {
     const price = finite(live.price);
     if (price == null) {
+      // The page's own quote request for this row (createQuoteRequester): in flight reads loading, a request that ended
+      // without this symbol's quote reads as not received.
+      const requestState = quoteRequestState?.(row.sym || row.symbol);
+      if (requestState === 'loading') {
+        const pending = text(documentRef, DATA_STATE_CHIPS.loading);
+        pending.dataset.quoteState = 'loading';
+        pending.setAttribute('aria-busy', 'true');
+        pending.style.color = 'var(--color-text-secondary)';
+        return pending;
+      }
+      if (requestState === 'failed') {
+        const failed = text(documentRef, '—');
+        failed.dataset.quoteState = 'failed';
+        failed.style.color = 'var(--color-text-secondary)';
+        failed.title = dataStateText('failed', '시세');
+        return failed;
+      }
       // P1499: raw prices are not republished (P715); an uncovered row shows a quiet dash, not a word on every line.
       const missing = text(documentRef, '—');
       missing.style.color = 'var(--color-text-secondary)';
@@ -162,7 +183,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
       note.className = 'scr-close-note';
       note.dataset.closeDay = md;
       cell.appendChild(note);
-      cell.title = `${currency || '통화 미확인'}, ${md ? `${md} ` : ''}확정 종가(수정 종가), 실시간 시세가 아닙니다`;
+      cell.title = `${currency || '통화 미확인'}, ${md ? `${md} ` : ''}${row.priceCloseKind === 'quote' ? '정규장 종가' : '확정 종가(수정 종가)'}, 실시간 시세가 아닙니다`;
       return cell;
     }
     const observedAt = row.priceObservedAt || row.priceObserved || null;
@@ -258,12 +279,19 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     const period = row._fundamentalPeriodEnd || null;
     const filed = row._fundamentalFiledAt ? String(row._fundamentalFiledAt).slice(0, 10) : null;
     const earnings = key === 'pe' && row._valuationPeEarningsThrough ? `, 이익 ${row._valuationPeEarningsBasis === 'ttm' ? '최근 4개 분기 합' : '최근 회계연도'}(${row._valuationPeEarningsThrough}까지)` : '';
+    // P/B equity is the latest filed balance sheet, which can be a quarter newer than the fiscal year above.
+    const equity = key === 'pb' && row._valuationPbEquityThrough ? `, 자본 ${String(row._valuationPbEquityThrough).slice(0, 10)} 재무상태표${row._valuationPbEquityBasis === 'common' ? '(우선주 제외 보통주 자본)' : ''}` : '';
     // What the multiple leaves out or cannot say: a one-off gain inside the earnings, a newer quarter not yet in them,
     // and why a loss-maker or a deficit has no multiple at all.
     const later = String(row._valuationPeEarningsLaterQuarter || '');
     const peNotes = key !== 'pe' ? '' : `${row._valuationPeOneOff ? ', 일회성 이익 포함' : ''}${/^\d{4}-\d{2}/.test(later) && later > String(row._valuationPeEarningsThrough || '') ? `, ${later.slice(0, 7)} 분기 공시는 미반영` : ''}`;
     const empty = key === 'pe' && row._valuationPeLoss ? '순손실이라 PER 없음' : key === 'pb' && row._valuationPbDeficit ? '자기자본이 0 이하라 PBR 없음' : '공시 자료가 없거나 비정상 값이라 비움';
-    node.title = value == null ? empty : `${period ? `회계기간 종료 ${period}` : '회계기간 미확인'}${filed ? `, 공시 ${filed}` : ''}${earnings}${peNotes}`;
+    // 2026-11-18: margin and revenue growth name their own period (the latest four quarters or the fiscal year); ROE is the fiscal year.
+    const quarterly = (key === 'margin' || key === 'revGrowth') && (row[`_${key}Basis`] ?? row[`${key}Basis`]) === 'ttm';
+    const basis = key === 'margin' || key === 'revGrowth' || key === 'roe' ? `, ${filingBasisLabel(row, key)} 기준` : '';
+    node.title = value == null ? empty : quarterly
+      ? `${filingBasisLabel(row, key)} 합 기준${key === 'revGrowth' ? ', 직전 4개 분기 대비' : ''}`
+      : `${period ? `회계기간 종료 ${period}` : '회계기간 미확인'}${filed ? `, 공시 ${filed}` : ''}${basis}${earnings}${equity}${peNotes}`;
     if (value == null) node.style.color = 'var(--color-text-secondary)';
     return node;
   }
@@ -363,7 +391,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
 
 const MONO_COLUMNS = new Set(['price', 'pctFrom52wHigh', 'rank', 'momentum', 'trend', 'lowvol', 'value', 'quality', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'kalman', 'vcpScore', 'mcap', 'fwdPe',
   'ret5d', 'rs6m', 'rs12m', 'rvol20', 'adrPct', 'dollarVolume30d', 'pivotDist', 'pe', 'pb', 'roe', 'margin', 'revGrowth']); // v58.75: the new fact columns
-function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold, capOrder } = {}) {
+function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold, capOrder, quoteRequestState } = {}) {
   const tr = documentRef.createElement('tr');
   const symbol = row.sym || row.symbol;
   tr.className = `aio-hover-row${selectedSymbols?.has(symbol) ? ' is-selected' : ''}`;
@@ -392,7 +420,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
       td.style.fontFamily = 'var(--font-mono)';
       td.style.fontVariantNumeric = 'tabular-nums';
     }
-    const content = createColumnContent(documentRef, row, column.key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols, rankHold, capOrder });
+    const content = createColumnContent(documentRef, row, column.key, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, compareSymbols, rankHold, capOrder, quoteRequestState });
     td.appendChild(content && content.nodeType ? content : text(documentRef, content));
     const fieldId = FIELD_BY_COLUMN.get(column.key);
     const field = fieldId && row.fieldReadiness?.fields?.[fieldId];
@@ -519,7 +547,7 @@ let sortCache = null;
 function filterAndSortRows(rows, documentRef, { readWatchlist, readAliases, sortState, readLiveData }) {
   const values = FILTER_CONTROL_IDS.map((id) => selectedValue(documentRef, id));
   const watchlistOnly = !!documentRef.getElementById('scr-watchlist-only')?.checked;
-  const passedOnly = !!documentRef.getElementById('scr-passed-only')?.checked;
+  const passedOnly = passedOnlyApplied(documentRef);
   const trackedFilter = !values[4].trim() && !parseConditionValue(values[10]).some((item) => item.id === 'fwdpe-max');
   const filterKey = [...values, watchlistOnly, passedOnly, watchlistOnly ? (readWatchlist?.() || []).join(',') : ''].join('\u0001');
   let filtered;
@@ -539,11 +567,11 @@ function filterAndSortRows(rows, documentRef, { readWatchlist, readAliases, sort
 // and watchlist marks, rank hold, live quote fields and (with the Forward PER column) estimate. A re-render that changes
 // nothing then leaves the table alone, so focus, hover and a click in flight are not lost to a rebuilt row.
 const tableRowCache = new WeakMap();
-function tableRowInputs(row, { readLiveData, readWatchlist, selectedSymbols, compareSymbols, visibleColumns, rankHold, capOrder }, columnsKey) {
+function tableRowInputs(row, { readLiveData, readWatchlist, selectedSymbols, compareSymbols, visibleColumns, rankHold, capOrder, quoteRequestState }, columnsKey) {
   const symbol = row.sym || row.symbol;
   const live = readLiveData?.()?.[row.sym] || {};
   const inputs = [row, columnsKey, !!selectedSymbols?.has(symbol), !!compareSymbols?.has(row.sym), (readWatchlist?.() || []).includes(row.sym), rankHold ? `hold:${rankHold.reason}` : '',
-    live.currency, live.marketCapCurrency, live.price, live.marketCap, live.observedAt, live.ts, live.source, live.revision, capOrder?.get(symbol) ?? null];
+    live.currency, live.marketCapCurrency, live.price, live.marketCap, live.observedAt, live.ts, live.source, live.revision, capOrder?.get(symbol) ?? null, quoteRequestState?.(symbol) ?? null];
   if (visibleColumns.some((column) => column.key === 'fwdPe')) {
     const estimates = screenerRuntime.consensusRoot?.[CONSENSUS_KEY];
     inputs.push(estimates, consensusRowFor(screenerRuntime.consensusRoot, symbol), estimates?.coverage?.covered, estimates?.coverage?.universeUs);
@@ -624,12 +652,20 @@ function sortOrderText(sortState) {
   const { column, ascending } = sortState || {};
   if (column === 'mcap') return ascending ? '시총 작은 순' : '시총 큰 순';
   if (column === 'screenRank') return '조건 순위 순';
+  if (column === 'overallRank') return '전체 순위 순';
   if (column === 'sym' || column === 'sector') return `${column === 'sym' ? '종목' : '섹터'} 이름 순`;
   const label = SCREENER_COLUMN_REGISTRY.find((item) => item.key === column)?.label || column;
   return `${label} ${ascending ? '낮은 순' : '높은 순'}`;
 }
 let tableStatusCompiled = { definition: null, compiled: null };
-function renderTableStatus(documentRef, { status, scopeRows, filtered, definition, sortState, passedOnly, readLiveData, onExplain }) {
+// The newest session's US volume is the provider's figure at calculation time, which ran a few percent under the
+// final one (price-factors LATEST_SESSION_VOLUME_BASIS); the data-basis fold says so. The artifact's own statement
+// (metadata.volumeBasis) names the markets; an artifact without one is read with the producer's declared basis.
+function provisionalVolumeNote(metadata, market) {
+  const markets = Array.isArray(metadata?.volumeBasis?.markets) ? metadata.volumeBasis.markets : LATEST_SESSION_VOLUME_BASIS.markets;
+  return markets.includes(market) ? '가장 최근 거래일의 거래량은 자료 제공처의 잠정치라, 다음 거래일 갱신 전까지 거래량 배수가 몇 % 낮게 나올 수 있습니다. ' : '';
+}
+function renderTableStatus(documentRef, { status, scopeRows, filtered, definition, sortState, passedOnly, rankHeld = null, readLiveData, onExplain }) {
   const host = documentRef.getElementById('scr-table-status');
   if (!host) return;
   if (status === 'unavailable' || !scopeRows.length) { host.hidden = true; return; }
@@ -639,8 +675,9 @@ function renderTableStatus(documentRef, { status, scopeRows, filtered, definitio
   const unavailable = scopeRows.filter((row) => row.screenStatus === 'unavailable').length;
   const shortNote = unavailable ? ` · 자료 부족 ${unavailable}` : '';
   // The phone line uses the screen's one-word name (균형) so the line and its 빠진 대형주 link fit one row.
-  const leadFor = (name, conditionWord) => (passedOnly
-    ? `${name}${conditionWord} 통과 ${passed}종목${shortNote}${filtered.length !== passed ? `, ${filtered.length}종목 표시` : ''}`
+  // With no rank in this market the list shows unranked: the one notice replaces the screen counts.
+  const leadFor = (name, conditionWord) => (rankHeld ? `${filtered.length}종목, ${rankHeld}` : passedOnly
+    ?`${name}${conditionWord} 통과 ${passed}종목${shortNote}${filtered.length !== passed ? `, ${filtered.length}종목 표시` : ''}`
     : `${name} 기준 ${scopeRows.length}종목 전체, 통과 ${passed}${shortNote}${filtered.length !== scopeRows.length ? `, ${filtered.length}종목 표시` : ''}`);
   const fullName = definition?.name || '선택 조건';
   const shortName = PRESET_SHORT_LABELS[definition?.screenId] || fullName;
@@ -693,7 +730,7 @@ function renderTableStatus(documentRef, { status, scopeRows, filtered, definitio
       .map((entry) => ({ row: entry.row, reason: failedConditionText(entry.row, definition, tableStatusCompiled.compiled) }));
   }
   let back = host.querySelector('.scr-passed-back');
-  if (!passedOnly && definition) {
+  if (!passedOnly && definition && !rankHeld) {
     if (!back) {
       back = documentRef.createElement('button');
       back.type = 'button';
@@ -758,7 +795,7 @@ function renderTableStatus(documentRef, { status, scopeRows, filtered, definitio
   note.replaceChildren(documentRef.createTextNode(`이 시장 시총 상위 ${DROPPED_CAP_POOL}개 중 지금 조건 화면을 통과하지 못한 종목입니다. `), showAll);
 }
 
-export function render({ documentRef, root = globalThis, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null, previewResult = null, onDataChange = null, onRetry = null }) {
+export function render({ documentRef, root = globalThis, store, readLiveData, readWatchlist, readAliases, sortState, visibleLimit, onWatchlistToggle, onExplain, onCompare, onVisibleSymbols, quoteRequestState, selectedSymbols, compareSymbols, columnPreset = 'discovery', customColumns = [], rowsOverride = null, workbenchResult = null, previewResult = null, onDataChange = null, onRetry = null }) {
   const rawState = selectScreenerState(store?.getState?.() || {});
   const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
   const currentState = { ...rawState, metadata: { ...rawState?.metadata, populationRanking: rawState?.metadata?.ranking || null, ranking: marketRankingMetadata(rawState?.metadata, listingMarket) } };
@@ -793,16 +830,23 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   // Forward PER loads on demand, so it stays offered for 미국 even before the estimates arrive.
   if (screenerRuntime.availableCache.rows !== scopeRows.length || screenerRuntime.availableCache.market !== listingMarket || screenerRuntime.availableCache.source !== rows || screenerRuntime.availableCache.signals !== root?.AIO_TELEGRAM_SIGNALS) {
     screenerRuntime.availableCache = { rows: scopeRows.length, market: listingMarket, source: rows, signals: root?.AIO_TELEGRAM_SIGNALS, ids: availableConditionIds(scopeRows, customRead) };
-    if (listingMarket === 'US') { screenerRuntime.availableCache.ids.add('fwdpe-max'); CASH_CONDITION_IDS.forEach((id) => screenerRuntime.availableCache.ids.add(id)); }
+    sourcedConditionIdsFor(listingMarket).forEach((id) => screenerRuntime.availableCache.ids.add(id));
   }
-  const coverageCounts = conditionCoverage(scopeRows, custom, customRead);
-  screenerRuntime.customPanel?.update(coverageCounts, filtered.length, screenerRuntime.availableCache.ids);
+  // A chosen condition whose declared source is still loading has no result yet — its count reads loading, not 0; a
+  // source that failed says so instead.
+  const sourceStates = conditionSourceStates(root, custom);
+  const coverageCounts = conditionCoverage(scopeRows, custom, customRead).map((count) => (sourceStates.has(count.id) && sourceStates.get(count.id).state !== 'ready' ? { ...count, source: sourceStates.get(count.id) } : count));
+  const sourcesPending = [...sourceStates.values()].some((item) => item.state === 'loading');
+  screenerRuntime.customPanel?.update(coverageCounts, sourcesPending ? null : filtered.length, screenerRuntime.availableCache.ids);
+  // One ranked count per market (rows carrying an overall rank) for the header, the population line and the drawer.
+  const marketRankedCount = overallRankedCount(currentState.rows || rows, listingMarket);
+  const sessionLine = sessionHoldLine(listingMarket, { rankedCount: marketRankedCount, factorSessionDate: currentState.metadata?.factorSessionDateByMarket?.[listingMarket] || null });
   {
     // The 섹터 select in the bar reads as a set chip once a sector is chosen.
     documentRef.getElementById('scr-sector')?.classList.toggle('is-set', !!selectedValue(documentRef, 'scr-sector'));
   }
-  if (visibleColumns.some((column) => column.key === 'fwdPe') || sortState.column === 'fwdPe' || custom.some((item) => item.id === 'fwdpe-max')) requestConsensusEstimates(root, onDataChange);
-  if (custom.some((item) => CASH_CONDITION_IDS.includes(item.id))) requestCashMetrics(root, onDataChange);
+  if (visibleColumns.some((column) => column.key === 'fwdPe') || sortState.column === 'fwdPe') requestConsensusEstimates(root, onDataChange);
+  requestConditionSources(root, custom, onDataChange);
   const table = documentRef.getElementById('screener-results-table');
   renderTableHeader(documentRef, table, visibleColumns, sortState);
   // v58.56 (4b): the phone's one-line rows apply to the default columns only (screener-quality.css).
@@ -817,7 +861,9 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
       const lead = filtered.find((row) => row.screenStatus === 'passed') || null;
       syncScreenerNextLead(documentRef, lead, { scoped: filtered.length !== rows.length || sortState.column !== 'rank' });
     }
-    if (!workbenchResult?.run) onVisibleSymbols?.(visible.map((row) => row.sym || row.symbol).filter(Boolean));
+    // A run's frozen result keeps its rows and order; the price cell is a display overlay on them, so its rows ask too.
+    onVisibleSymbols?.(visible.map((row) => row.sym || row.symbol).filter(Boolean),
+      visible.filter((row) => finite(liveRow(row, readLiveData).price) == null).map((row) => row.sym || row.symbol).filter(Boolean));
     if (!visible.length) {
       body.replaceChildren();
       tableRowCache.delete(body);
@@ -848,7 +894,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
           ? `${MARKET_LABELS[listingMarket] || listingMarket} ${listingRows.length}종목 모두 필수 지표가 최신 거래일 기준이 아니어서 순위 판정을 보류했습니다 — 데이터 갱신 후 표시됩니다`
           : capFilter && capHeld > 0
           ? `조건을 충족한 0건 / 시총 정보가 없어 판정 보류 ${capHeld}건 — 시총 적격 ${rows.length - capHeld}/${rows.length}, 적용 컷 ${capLabel}`
-          : '조건에 맞는 종목이 없습니다';
+          : sessionLine?.table || '조건에 맞는 종목이 없습니다';
       // P1592 (F02): say what the search ran over and offer the way back, instead of one dead sentence.
       const searchRaw = selectedValue(documentRef, 'scr-text-search').trim();
       const searchText = searchRaw.length > 40 ? `${searchRaw.slice(0, 40)}…` : searchRaw; // first-users run 4 (breaker #16): a 5,000-char query ran off-screen
@@ -860,13 +906,13 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
       const stateCell = cell(documentRef, '', 'scr-empty-cell');
       stateCell.colSpan = visibleColumns.length;
       empty.appendChild(stateCell);
-      const loading = (state?.status === 'unavailable' && !rowsFailed) || factorsPending;
-      renderDataState(stateCell, loading ? { state: 'loading', lines: 4, timeoutText: '스크리너 자료를 받지 못했습니다', onRetry }
+      const loading = (state?.status === 'unavailable' && !rowsFailed) || factorsPending || sourcesPending;
+      renderDataState(stateCell, loading ? { state: 'loading', lines: 4, timeoutText: sourcesPending ? '조건에 필요한 재무 자료를 받지 못했습니다' : '스크리너 자료를 받지 못했습니다', onRetry }
         : rowsFailed ? { state: 'error', text: scopedMessage, onRetry }
           : { state: 'empty', text: scopedMessage });
       stateCell.dataset.scrState = loading ? 'loading' : rowsFailed ? 'error' : 'empty';
       // v58.80 first-users run-2: while the factor file is still arriving, "clear the filters" is not the way out.
-      if (state?.status !== 'unavailable' && !factorsPending) {
+      if (state?.status !== 'unavailable' && !factorsPending && !sourcesPending) {
         const actions = documentRef.createElement('div');
         actions.className = 'scr-empty-actions';
         const action = (label, name, arg) => {
@@ -881,7 +927,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
         if (searchText) actions.appendChild(action('검색어 지우기', 'clear-filter', 'scr-text-search'));
         // v58.80 run-5 (breaker #1): 'RSI 30 이하' matched 68 stocks, the table showed 0 inside 실행 통과만, and the only way out
         // ('모두 지우기') also deleted the condition. The narrower scope is offered first and keeps the condition.
-        if (documentRef.getElementById('scr-passed-only')?.checked) actions.appendChild(action("'조건 통과만' 끄고 전체에서 찾기", 'clear-filter', 'scr-passed-only'));
+        if (passedOnlyApplied(documentRef)) actions.appendChild(action("'조건 통과만' 끄고 전체에서 찾기", 'clear-filter', 'scr-passed-only'));
         actions.appendChild(action('조건 모두 지우기', 'reset-all-filters'));
         empty.firstChild.appendChild(actions);
       }
@@ -891,7 +937,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
       // rank, so "#" is the row's place in the order the table is sorted by; under the default 시총 sort that is the cap order.
       const capOrder = !visibleColumns.some((column) => column.key === 'capOrder') ? null
         : sortState.column === 'mcap' ? capOrderMap(filtered, readLiveData) : new Map(filtered.map((row, index) => [row.sym || row.symbol, index + 1]));
-      const nodes = tableRowNodes(documentRef, body, visible, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, capOrder, rankHold: currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root._aioRankingHold || null });
+      const nodes = tableRowNodes(documentRef, body, visible, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, capOrder, quoteRequestState, rankHold: currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root._aioRankingHold || null });
       const children = body.children;
       if (children.length !== nodes.length || nodes.some((node, index) => children[index] !== node)) body.replaceChildren(...nodes);
       shareCloseDay(documentRef, table, body);
@@ -903,12 +949,18 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     }
   }
   const count = documentRef.getElementById('screener-result-count');
-  if (count) count.textContent = String(filtered.length);
-  renderTableStatus(documentRef, { status: state?.status, scopeRows, filtered, definition: chosenDefinition, sortState, passedOnly: !!documentRef.getElementById('scr-passed-only')?.checked, readLiveData, onExplain });
+  if (count) {
+    // The count is followed by the '종목' text node in the shell; while a condition's source loads both read as loading.
+    count.textContent = sourcesPending ? '조건 자료 불러오는 중' : String(filtered.length);
+    const unit = count.nextSibling;
+    if (unit?.nodeType === 3) unit.textContent = sourcesPending ? '' : '종목';
+    count.parentElement?.setAttribute('aria-busy', sourcesPending ? 'true' : 'false');
+  }
+  renderTableStatus(documentRef, { status: state?.status, scopeRows, filtered, definition: chosenDefinition, sortState, passedOnly: passedOnlyApplied(documentRef), rankHeld: sessionLine?.table || null, readLiveData, onExplain });
   // The rows and the count are on screen: readers that changed a filter (the AI condition card) take the count from here.
-  documentRef.dispatchEvent?.(new (documentRef.defaultView?.CustomEvent || CustomEvent)('aio:screener-filtered', { detail: { count: filtered.length } }));
+  documentRef.dispatchEvent?.(new (documentRef.defaultView?.CustomEvent || CustomEvent)('aio:screener-filtered', { detail: sourcesPending ? { pending: true } : { count: filtered.length } }));
   const summary = documentRef.getElementById('scr-visible-summary');
-  if (summary) summary.textContent = filtered.length ? `${MARKET_LABELS[listingMarket]}, ${filtered.length}종목 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시` : `${MARKET_LABELS[listingMarket]}, 조건에 맞는 종목 없음`;
+  if (summary) summary.textContent = sourcesPending ? `${MARKET_LABELS[listingMarket]}, 조건 자료 불러오는 중` : filtered.length ? `${MARKET_LABELS[listingMarket]}, ${filtered.length}종목 중 ${Math.min(visibleLimit.value, filtered.length)}개 표시` : `${MARKET_LABELS[listingMarket]}, 조건에 맞는 종목 없음`;
   renderStaleNote(documentRef, body);
   const loadMore = documentRef.getElementById('scr-load-more-wrap');
   if (loadMore) {
@@ -917,7 +969,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     const moreButton = loadMore.querySelector('[data-aio-screener-action="load-more"]');
     if (moreButton) moreButton.textContent = `${Math.min(12, Math.max(0, filtered.length - visibleLimit.value))}개 더 보기`;
   }
-  if (summary && filtered.length && visibleLimit.value >= filtered.length) summary.textContent = `${MARKET_LABELS[listingMarket]}, ${filtered.length}종목 모두 표시`;
+  if (summary && !sourcesPending && filtered.length && visibleLimit.value >= filtered.length) summary.textContent = `${MARKET_LABELS[listingMarket]}, ${filtered.length}종목 모두 표시`;
   const diagnostics = documentRef.getElementById('scr-population-note');
   if (diagnostics) {
     const ranking = currentState.metadata.ranking;
@@ -930,8 +982,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     const listed = scopedRows(currentState.rows || [], listingMarket);
     const population = marketPopulation(listed, listingMarket);
     const overseas = listed.length - population.length;
-    const screened = population.filter((row) => finite(row?.screenRank) != null).length;
-    const rankedCount = screened || ranking.ranked || 0;
+    const rankedCount = overallRankedCount(population, listingMarket);
     // v57.81: which population the percentiles come from — the core universe or the extended one.
     const contract = RANKING_CONTRACTS[rawState?.metadata?.universeScope === 'extended' ? 'extended' : 'core'];
     // v58.79: the counts stay on screen; the order (already in its select) and the weights are the line's hover.
@@ -940,19 +991,22 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     diagnostics.dataset.rankingContract = contract.id;
     const excluded = documentRef.getElementById('scr-population-excluded');
     if (excluded) {
-      const left = population.length - rankedCount;
-      const missing = population.filter((row) => row?.screenStatus === 'unavailable').length;
-      const rejected = population.filter((row) => row?.screenStatus === 'rejected').length;
-      // 2026-10-16: funds, SPACs and sub-$1M 확장 names are left out of the ranked population by design.
-      const outside = (reason) => population.filter((row) => row?.screenStatus === 'passed' && row?.populationExclusion === reason).length;
-      const funds = outside('fund');
-      const spacs = outside('spac');
-      const illiquid = outside('illiquid');
-      const thin = population.filter((row) => row?.screenStatus === 'passed' && row?.rankingEligibility === 'insufficient-row-factor-coverage').length;
-      const unscored = population.filter((row) => row?.screenStatus === 'passed' && finite(row?.screenRank) == null && !row?.populationExclusion && row?.rankingEligibility !== 'insufficient-row-factor-coverage').length;
-      excluded.hidden = !(screened && (left > 0 || overseas > 0));
+      // The reasons partition the rows without an overall rank, so they add up to the count left out.
+      const unranked = population.filter((row) => finite(row?.overallRank) == null);
+      const left = unranked.length;
+      // 2026-10-16: funds, SPACs and sub-$1M 확장 names are left out of the ranked population by design (and
+      // prices pinned by a pending acquisition).
+      const exclusionParts = Object.entries(POPULATION_EXCLUSION_TEXT).map(([reason, label]) => {
+        const n = unranked.filter((row) => row?.populationExclusion === reason).length;
+        return n ? `${label.short} ${n}` : null;
+      });
+      const open = unranked.filter((row) => !row?.populationExclusion);
+      const thin = open.filter((row) => row?.rankingEligibility === 'insufficient-row-factor-coverage').length;
+      const missing = open.filter((row) => row?.rankingEligibility !== 'insufficient-row-factor-coverage' && row?.screenStatus === 'unavailable').length;
+      const unscored = open.length - thin - missing;
+      excluded.hidden = !(rankedCount && (left > 0 || overseas > 0));
       excluded.querySelector('summary').textContent = `순위 밖 ${left + overseas}종목`;
-      excluded.querySelector('p').textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${population.length}종목 중 ${left}종목은 순위를 매기지 않습니다 — ${[funds ? `ETF·펀드 ${funds}` : null, spacs ? `SPAC ${spacs}` : null, illiquid ? `하루 거래대금 100만 달러 미만 ${illiquid}` : null, thin ? `공시 재무 등 팩터 근거 부족 ${thin}` : null, missing ? `필수 자료 부족 ${missing}` : null, rejected ? `조건 미통과 ${rejected}` : null, unscored ? `점수 계산 불가 ${unscored}` : null].filter(Boolean).join(', ') || '사유 미확인'}.${overseas ? ` 해외 상장 ${overseas}종목은 거래 시간과 통화가 달라 목록에만 함께 표시합니다.` : ''}`;
+      excluded.querySelector('p').textContent = `${MARKET_LABELS[listingMarket]} 모집단 ${population.length}종목 중 ${left}종목은 순위를 매기지 않습니다 — ${[...exclusionParts, thin ? `공시 재무 등 팩터 근거 부족 ${thin}` : null, missing ? `필수 자료 부족 ${missing}` : null, unscored ? `점수 계산 불가 ${unscored}` : null].filter(Boolean).join(', ') || '사유 미확인'}.${overseas ? ` 해외 상장 ${overseas}종목은 거래 시간과 통화가 달라 목록에만 함께 표시합니다.` : ''}`;
     }
     const sessionLag = !(ranking.ranked > 0) ? factorSessionLag(listingMarket, currentState.metadata.factorSessionDateByMarket?.[listingMarket], Date.now()) : null;
     if (sessionLag) diagnostics.textContent += `, 가격 자료 ${sessionLag.session.slice(5).replace('-', '/')} 종가 기준, ${sessionLag.latest.slice(5).replace('-', '/')} ${sessionLag.label} 반영 대기`;
@@ -1028,8 +1082,9 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   // v59.70 (screen review 16): the kicker, the status line and the drawer's '전체 N위 / M' used four totals with no link
   // between them. The kicker names the chain (collected → computed → ranked), the drawer reads against the same ranked
   // count, and the status line's 조건 통과 is the subset of that.
-  const rankedRows = scopedRows(currentState?.rows || rows, listingMarket).filter((row) => finite(row?.screenRank) != null).length; // the drawer's source
-  if (kickerCounts) kickerCounts.textContent = state?.status === 'unavailable' || !allRows.length ? '' : `${allRows.length}종목 중 ${readyCount}종목 계산, ${rankedRows}종목 순위`;
+  // The ranked count is the rows carrying an overall rank (the drawer's denominator); with none because the
+  // market's close is behind, the reason replaces the bare 0.
+  if (kickerCounts) kickerCounts.textContent = state?.status === 'unavailable' || !allRows.length ? '' : `${readyCount === allRows.length ? '' : `${allRows.length}종목 중 `}${readyCount}종목 계산, ${sessionLine?.header || `${marketRankedCount}종목 순위`}`;
   // P1167 (15 D05): 정적 유니버스가 MIC·assetType을 발행하지 않으면 식별 미확인 행이 남는다. 가격 조회
   // 성공과 식별 metadata 확인을 같은 것으로 읽지 않도록 미확인 수와 누락 필드를 함께 표시한다.
   // v58.74 (owner decision INTL, resolved on the recommended option): Tokyo/Taiwan listings stay in the table for their
@@ -1048,7 +1103,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   if (readiness) readiness.title = [previewNote ? previewNote.replace(/, $/, '') : null, previewConditions ? `내장 조건: ${previewConditions.builtin.map(item => item.text).join(', ') || '없음'} | 사용자 추가: ${previewConditions.user.map(item => item.text).join(', ') || '없음'}` : null, run?.runId ? `실행 ${String(run.runId).slice(0, 12)}` : null].filter(Boolean).join(' | ');
   if (readiness) readiness.textContent = state?.status === 'unavailable'
     ? '스크리너 자료를 받지 못해 결과와 검증 수치를 표시하지 않습니다.'
-    : `${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요, ' : ''}종목 ${allRows.length}개 중 필수 자료 충족 ${readyCount}개, 조건 통과 ${passedCount}개, 자료 부족 ${unavailableCount}개(${MARKET_LABELS[listingMarket]} 범위), 지금 필터로 보이는 행 ${filtered.length}개. ${foreignNote}${identityNote}상대 순위는 연구용이며 매매 지시가 아닙니다.`;
+    : `${state?.metadata?.artifactFreshnessStatus === 'stale' || state?.metadata?.factorFreshnessStatus === 'stale' ? '갱신 지연: 원자료는 기준일과 함께 표시하고 계산은 필드별로 확인합니다. ' : ''}${state?.metadata?.universeFreshnessStatus === 'stale' ? '종목 목록 최신성 확인 필요, ' : ''}종목 ${allRows.length}개 중 필수 자료 충족 ${readyCount}개, 조건 통과 ${passedCount}개, 자료 부족 ${unavailableCount}개(${MARKET_LABELS[listingMarket]} 범위), 지금 필터로 보이는 행 ${filtered.length}개. ${foreignNote}${identityNote}${provisionalVolumeNote(state?.metadata, listingMarket)}상대 순위는 연구용이며 매매 지시가 아닙니다.`;
   // LC-25: bind the executed judgment to the run that produced it and keep the table's display
   // scope separate. A preview is an unfixed run and is labeled as such; the pipeline entry and a
   // user run are different origins over the same artifact.
@@ -1064,7 +1119,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     runRowCount: allRows.length,
     runId: run?.runId,
     origin: runOrigin,
-    passedOnly: !!documentRef.getElementById('scr-passed-only')?.checked
+    passedOnly: passedOnlyApplied(documentRef)
   });
   renderFilterChips(documentRef);
   syncUniverseScopeControl(documentRef, root, rawState, listingMarket);
@@ -1112,32 +1167,39 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   if (rankingState.activeFactorRegime && documentRef.getElementById('screener-regime-note')) documentRef.getElementById('screener-regime-note').textContent = rankingState.activeFactorRegime;
 }
 
-/** Live quotes for the visible rows (throttled, retried while most rows lack a quote). */
+// One request carries at most one provider batch: the quote fetch asks its provider 20 symbols per call
+// (js/aio-data.js _yfBatchFetch); rows past it are asked on the next render, which the answer itself triggers.
+export const QUOTE_REQUEST_LIMIT = 20;
+/** Quotes for the rendered rows. Every rendered row is registered (registerLiveSymbol), so it joins every later quote run; the rows with no
+ *  price from any source are asked now from the one quote owner (src/data/quote-demand.js), which joins or queues them.
+ *  Per symbol the page keeps what its own request did — loading, or failed when the answer did not carry it. */
 export function createQuoteRequester(ctx) {
-  const { documentRef, root, store, page, bag, workbench, sortState, visibleLimit, columnState, selectedSymbols, compareSymbols, liveReader, watchlistReader, profileReader, onWatchlistToggle, onProfileChange, onUniverseScopeChange } = ctx;
-      let visibleQuoteSignature = '';
-      let visibleQuoteRequestedAt = 0;
-      // v57.86 (live review): a run that met another quotes run in flight (skipped, or fetchLiveQuotes returned at once) left
-      // the rows unquoted behind the 55-second throttle; while most requested rows still lack a quote it retries.
-      ctx.requestVisibleQuotes = (symbols, attempt = 0) => {
-        const requested = [...new Set((Array.isArray(symbols) ? symbols : []).map((symbol) => String(symbol || '').trim().toUpperCase()).filter(Boolean))].slice(0, 120);
-        if (!requested.length) return;
-        requested.forEach((symbol) => root?.AIO?.registerLiveSymbol?.(symbol, { reason: 'screener-visible-row' }));
-        const signature = requested.join('|');
-        const nowMs = Date.now();
-        if (!attempt && signature === visibleQuoteSignature && nowMs - visibleQuoteRequestedAt < 55_000) return; // only a retry passes the throttle
-        if (root?._aioBootPhase?.quoteReady === false || typeof root?.AIO?.runScheduledRefresh !== 'function') return;
-        visibleQuoteSignature = signature;
-        visibleQuoteRequestedAt = nowMs;
-        Promise.resolve(root.AIO.runScheduledRefresh({
-          keys: ['quotes'],
-          symbols: requested,
-          pageId: 'screener',
-          reason: 'screener-visible-quotes'
-        })).then(() => {
-          if (attempt < 3 && requested.filter((symbol) => !(Number(root?._liveData?.[symbol]?.price) > 0)).length > requested.length / 2) {
-            setTimeout(() => { if (ctx.mountActive) ctx.requestVisibleQuotes(requested, attempt + 1); }, 4000); // v57.88: not after leaving the page
-          }
-        }).catch(() => {});
-      };
+  const { root } = ctx;
+  const asked = new Map(); // symbol -> 'loading' | 'received' | 'failed'
+  ctx.quoteRequestState = (symbol) => asked.get(String(symbol || '').toUpperCase()) || null;
+  ctx.requestVisibleQuotes = (rendered, unpriced) => {
+    const norm = (list) => [...new Set((Array.isArray(list) ? list : []).map((symbol) => String(symbol || '').trim().toUpperCase()).filter(Boolean))];
+    norm(rendered).forEach((symbol) => root?.AIO?.registerLiveSymbol?.(symbol, { reason: 'screener-visible-row' }));
+    const demand = root?.__aioQuoteDemand;
+    // Nothing at boot (the boot budget has no headroom) and nothing from a hidden tab; the next render asks.
+    if (typeof demand?.request !== 'function' || root?._aioBootPhase?.quoteReady === false || root?.document?.hidden) return;
+    // Once per symbol and visit: a symbol the answer did not carry is registered, so every later periodic fetch asks it
+    // again without this page adding a fetch of its own.
+    const want = norm(unpriced).filter((symbol) => !asked.has(symbol)).slice(0, QUOTE_REQUEST_LIMIT);
+    if (!want.length) return;
+    // While the owner waits out a failed fetch's retry delay a new request would cut it short; the rows read as not
+    // received and joining that retry (they are registered) brings their quotes.
+    if (demand.state?.()?.retryPending) {
+      want.forEach((symbol) => asked.set(symbol, 'failed'));
+      return;
+    }
+    want.forEach((symbol) => asked.set(symbol, 'loading'));
+    let answer = null;
+    try { answer = demand.request(want); } catch (_) { /* a throwing owner reads as a failed request below */ }
+    Promise.resolve(answer).catch(() => null).then(() => {
+      const live = ctx.liveReader?.() || {};
+      want.forEach((symbol) => asked.set(symbol, Number(live[symbol]?.price) > 0 ? 'received' : 'failed'));
+      if (ctx.mountActive) ctx.renderNow();
+    });
+  };
 }

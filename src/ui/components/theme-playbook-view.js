@@ -65,7 +65,7 @@ import { NOTE_TITLES, researchForTheme } from '../../domain/knowledge/theme-rese
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
-import { themeCriteria, memberRoles, roleExamples, themeScenarioSplit } from '../../domain/scenarios/theme-criteria.js';
+import { themeCriteria, memberRoles, roleExamples, themeScenarioSplit, criteriaCellText, compareCriteria } from '../../domain/scenarios/theme-criteria.js';
 import { CONSENSUS_KEY, requestConsensusEstimates } from '../../data/consensus-estimates.js';
 import { EARNINGS_CALENDAR, MACRO_HISTORY, SCENARIO_STATE } from '../../data/artifact-registry.js';
 
@@ -242,12 +242,26 @@ export function scenarioSplitText(split) {
   if (!split || (!split.favorable.length && !split.unfavorable.length)) return '';
   return `조건부 시나리오: ${split.favorable.length ? `유리해지는 경우 — ${split.favorable.join(', ')}` : '뚜렷하게 유리해지는 시나리오 없음'}; ${split.unfavorable.length ? `불리해지는 경우 — ${split.unfavorable.join(', ')}` : '뚜렷하게 불리해지는 시나리오 없음'}.`;
 }
-function loadTeachArtifacts(root, repaint) {
+// 2026-11-18 (헬스케어 "4/6" in the table, "6개 중 5개" in its detail): criteria 3·4 read the consensus and earnings-calendar
+// artifacts, which arrive after the first paint. The table used to repaint only when its own request replaced a copy, so
+// a copy another screen (theme detail, stock page) had loaded first left the table on counts computed without it. Now a
+// paint records which copies it read (teachPaintKey) and the load repaints, once both requests settle, when that differs.
+const artifactStamp = (payload) => (payload ? String(payload.generatedAt || 'loaded') : '');
+/** True while the teach artifacts are still loading for the first time (their counts are not final). */
+export function teachArtifactsPending(root) {
+  return root?._aioTeachArtifacts !== 'settled' && !(root?.[CONSENSUS_KEY] && root?.[EARNINGS_CALENDAR.key]);
+}
+/** Which consensus / calendar copies (and load state) a paint read. */
+export function teachPaintKey(root) {
+  return [artifactStamp(root?.[CONSENSUS_KEY]), artifactStamp(root?.[EARNINGS_CALENDAR.key]), teachArtifactsPending(root) ? 'pending' : 'settled'].join('|');
+}
+/** Loads both artifacts after the first paint; `onSettled` runs once both requests have settled (loaded or failed). */
+export function loadTeachArtifacts(root, onSettled, delayMs = 1500) {
   const view = root?.setTimeout ? root : globalThis;
   view.setTimeout(() => {
-    requestConsensusEstimates(root, repaint);
-    refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed }) => { if (changed) repaint(); }).catch(() => {});
-  }, 1500);
+    Promise.all([requestConsensusEstimates(root), refreshSharedArtifact(root, EARNINGS_CALENDAR).catch(() => null)])
+      .finally(() => { if (root) root._aioTeachArtifacts = 'settled'; onSettled?.(); });
+  }, delayMs);
 }
 
 // v58.75 (persona review): the last ten recorded sessions of a theme's stage (scenario-state.json themeHistory), the live
@@ -295,9 +309,19 @@ export function stageRun(days) {
   for (let i = known.length - 1; i >= 0; i -= 1) { if (known[i].state === now.state) sessions += 1; else { from = { state: known[i].state, date: known[i].date }; break; } }
   return { state: now.state, sessions, from, atLeast: !from };
 }
+/** One dot per applicable criterion — met (filled), unmet (faint), unknown (hollow ring) — in that order; the count beside it is the text. */
+export function criteriaDots(doc, criteria) {
+  const dots = el(doc, 'span', null, 'tp-criteria-dots');
+  dots.setAttribute('aria-hidden', 'true');
+  const state = (item) => (item.met === true ? 'is-met' : item.met === false ? 'is-unmet' : 'is-unknown');
+  const order = { 'is-met': 0, 'is-unmet': 1, 'is-unknown': 2 };
+  for (const name of (criteria?.items || []).map(state).sort((a, b) => order[a] - order[b])) dots.append(el(doc, 'i', null, name));
+  return dots;
+}
+
 // v58.78 (owner 2026-10-25, "10거래일 단계는 왜 저렇게"): seven stage colours in ten 9px cells could not be read. The cell
 // says the run in words and a small line draws the theme's 1-month return over the same sessions.
-function stageFlowCell(doc, days, change) {
+export function stageFlowCell(doc, days, change) {
   const cell = el(doc, 'td', null, 'tp-row-flow');
   const run = stageRun(days);
   if (!run) { cell.textContent = '기록 없음'; return cell; }
@@ -305,7 +329,8 @@ function stageFlowCell(doc, days, change) {
   cell.append(el(doc, 'span', text, 'tp-flow-text'));
   const note = recomputedNote(days);
   if (note) cell.title = note;
-  if (change) cell.append(el(doc, 'span', '최근 바뀜', 'tp-flow-chip'));
+  // A word space in the DOM, not only the chip's margin: copy and screen readers got "'동행'에서최근 바뀜".
+  if (change) cell.append(doc.createTextNode(' '), el(doc, 'span', '최근 바뀜', 'tp-flow-chip'));
   return cell;
 }
 function returnSpark(doc, days) {
@@ -523,7 +548,8 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
     const repaint = () => renderThemePlaybook({ documentRef: doc, root, store });
     refreshScenarioArtifacts(root, repaint);
     refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => { if (changed) repaint(); }).catch(() => {});
-    loadTeachArtifacts(root, repaint); // v58.75: criteria 3·4 (estimate revisions, earnings) — after the first paint
+    // v58.75: criteria 3·4 (estimate revisions, earnings) — after the first paint; 2026-11-18: repaint when the paint read other copies.
+    loadTeachArtifacts(root, () => { if (doc.getElementById('theme-playbook')?.dataset.teachKey !== teachPaintKey(root)) repaint(); });
   }
   const { crossroads, playbook } = themePlaybookForRoot(root, store);
   root.__aioThemePlaybook = playbook;
@@ -542,7 +568,8 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   const benchText = ['US', 'KR'].map((market) => playbook.benchmarks?.[market]).filter((b) => b && (b.ret1m != null || b.ret3m != null || b.ret6m != null))
     .map((b) => `${b.name} ${[b.field === 'kospi' || b.name === '코스피' ? (b.ret3m != null ? `3개월 ${pct(b.ret3m)}` : null) : (b.ret6m != null ? `6개월 ${pct(b.ret6m)}` : null), b.ret1m != null ? `1개월 ${pct(b.ret1m)}` : null].filter(Boolean).join(', ')}`).join(', ');
   const basis = el(doc, 'p', `${playbook.asOfText || `${playbook.asOf ? `${playbook.asOf} ` : ''}확정 종가`}, 테마 ${playbook.themes.length}개${playbook.rotation?.market === '한국' ? ' (미국 테마 수익률을 받기 전이라 한국만)' : ''}, ${scenario.state === 'tie' ? `중심 시나리오 ${scenario.names.join('·')} 동률 기준(동률이면 수혜·부담은 동률인 시나리오 모두에서 같을 때만 정하고, 다르면 혼재)` : scenario.items.length ? `중심 시나리오 ${scenario.names[0]} 기준` : '중심 시나리오 미정'}. 단계는 긴 추세(미국 6개월, 한국 3개월)와 1개월을 같은 기간 지수와 비교해 정합니다${benchText ? `(같은 기간 ${benchText})` : ''}.${creditEntry ? ` 신용 조건은 시장 전체에 하나라 모든 테마에 같게 적용됩니다: ${creditEntry}.` : ''}`, 'xr-basis');
-  // v59.70: a US basis behind the latest session reads as a dated reference (the chip says 반영 전).
+  // v59.70: a US basis behind the latest session reads as a dated reference (the chip says 반영 전). 2026-11-18: the short
+  // session form fits the chip whole with the market prefix ("미국 11/16 종가, 11/17 반영 전").
   setAsOf(doc, host.parentElement?.querySelector(':scope > .aio-frame-head'), playbook.lagging?.US ? `미국 ${sessionChipText(playbook.asOfByMarket?.US)}` : closeChipText(playbook.asOfText || (playbook.asOf ? `${playbook.asOf} 확정 종가` : '')), basis.textContent);
   const rulesFold = el(doc, 'details', null, 'tp-rules');
   rulesFold.append(el(doc, 'summary', '기준과 판정 규칙'), basis, el(doc, 'p', `단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 동일가중 — 기록이 없으면 S&P 500, 한국 코스피)와 비교해 정하고(1개월 ±${relativeBand('ret1m')}%p, 6개월 ±${relativeBand('ret6m')}%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 수혜·부담은 테마 성격이 중심 시나리오에 유리한지 불리한지로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis'),
@@ -583,7 +610,10 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   let interpretation = null;
   try { interpretation = marketInterpretation(root, { store }); } catch (_) { interpretation = null; }
   const teachOf = new Map(playbook.themes.map((row) => [`${row.market}:${row.id}`, themeTeachFor({ root, store, market: row.market, themeId: row.id, playbook, interpretation })]));
-  const criteriaSort = root._aioTpCriteriaSort === 'asc' || root._aioTpCriteriaSort === 'desc' ? root._aioTpCriteriaSort : null;
+  host.dataset.teachKey = teachPaintKey(root); // 2026-11-18: the copies these counts read
+  // 2026-11-18: while criteria 3·4 are still loading the counts are not final, so the sort waits for them.
+  const teachPending = teachArtifactsPending(root);
+  const criteriaSort = !teachPending && (root._aioTpCriteriaSort === 'asc' || root._aioTpCriteriaSort === 'desc') ? root._aioTpCriteriaSort : null;
   const krHost = doc.getElementById('kr-theme-stage-host');
   for (const node of krHost ? krHost.querySelectorAll('.tp-stage-choices-fold[open]') : []) openStages.add(node.dataset.stage);
   // v59.51 (content audit): one table per market — the US table folds under the map, the Korean one sits in the 한국 fold.
@@ -599,6 +629,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   criteriaButton.type = 'button';
   criteriaButton.title = '전문가 기준 6개(다기간 상대강도, 참여 폭, 이익 전망, 촉매, 과열 아님, 시나리오 적합) 중 충족한 수 — 단계 안에서 정렬';
   criteriaButton.dataset.sortKey = `criteria-${market}`;
+  if (teachPending) { criteriaButton.disabled = true; criteriaButton.title += ' (이익 전망·실적 일정을 받는 중)'; }
   criteriaButton.addEventListener('click', () => {
     const next = criteriaSort === 'desc' ? 'asc' : criteriaSort === 'asc' ? null : 'desc';
     root._aioTpCriteriaSort = next;
@@ -613,8 +644,8 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   const groups = [...Object.keys(THEME_STATES).map((stage) => [stage, themes.filter((row) => row.state === stage).sort((a, b) => b.ret1m - a.ret1m)]),
     // v57.88 (screen audit): a held theme (state null — e.g. 한국 원전·건설) keeps its own group with the hold reason.
     ['held', themes.filter((row) => !THEME_STATES[row.state]).sort((a, b) => (b.ret1m ?? -Infinity) - (a.ret1m ?? -Infinity))]].filter(([, list]) => list.length);
-  const metOf = (row) => teachOf.get(`${row.market}:${row.id}`)?.criteria?.met ?? -1;
-  if (criteriaSort) for (const [, list] of groups) list.sort((a, b) => (metOf(b) - metOf(a)) * (criteriaSort === 'desc' ? 1 : -1));
+  const criteriaOf = (row) => teachOf.get(`${row.market}:${row.id}`)?.criteria || null;
+  if (criteriaSort) for (const [, list] of groups) list.sort((a, b) => compareCriteria(criteriaOf(a), criteriaOf(b), criteriaSort));
   const favoredKey = (row) => row.favored.join('+');
   let exceptions = 0;
   for (const [stage, list] of groups) {
@@ -674,7 +705,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
       tr.lastChild.append(el(doc, 'span', WIND_LABELS[row.wind.lead], `xr-tag is-wind-${row.wind.lead}`));
       const teach = teachOf.get(key);
       const criteriaCell = el(doc, 'td', null, 'is-num tp-row-criteria');
-      if (teach?.criteria) { const dots = el(doc, 'span', null, 'tp-criteria-dots'); dots.setAttribute('aria-hidden', 'true'); for (let i = 0; i < 6; i += 1) dots.append(el(doc, 'i', null, i < teach.criteria.met ? 'is-met' : '')); criteriaCell.append(dots, el(doc, 'span', `${teach.criteria.met}/6`)); } else criteriaCell.textContent = '—';
+      if (teach?.criteria) { criteriaCell.append(criteriaDots(doc, teach.criteria), el(doc, 'span', teachPending && teach.criteria.known < teach.criteria.total ? `${teach.criteria.met}/${teach.criteria.total}, 확인 중` : criteriaCellText(teach.criteria))); } else criteriaCell.textContent = '—';
       if (teach?.criteria) criteriaCell.title = teach.criteria.headline;
       tr.append(criteriaCell);
       [...tr.children].forEach((cell, index) => { cell.dataset.label = cols[index]; });

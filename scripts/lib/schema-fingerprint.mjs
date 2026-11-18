@@ -34,8 +34,9 @@ function shape(value, depth, maxDepth) {
 
 // Union of two structures. A scalar and a container keep the container; 'e' adds nothing.
 function merge(left, right) {
-  if (left === undefined || left === 'e') return right;
+  if (left === undefined) return right;
   if (right === undefined || right === 'e') return left;
+  if (left === 'e') return right;
   if (typeof left === 'string') return typeof right === 'string' ? (left === '…' || right === '…' ? '…' : 's') : right;
   if (typeof right === 'string') return left;
   if (Array.isArray(left) && Array.isArray(right)) return ['a', merge(left[1], right[1])];

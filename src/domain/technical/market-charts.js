@@ -14,6 +14,8 @@ import { TREND_PHASE_LABELS, bufferedTrend, classifyTrend, trendKey } from './ba
 import { rallyAttemptRead } from '../market/regime/rally-attempt.js';
 import { RULES } from '../rules/thresholds.js';
 import { rsiWilder } from './definitions.js';
+import { stampDay } from '../shared/session-date.js';
+import { closeSessionMarket } from '../market/session/close-series.js';
 
 export const CHART_INDEXES = Object.freeze([['ndx', '나스닥100'], ['spx', 'S&P 500'], ['soxx', '반도체(SOXX)'], ['rut', '러셀2000'], ['kospi', '코스피'], ['kosdaq', '코스닥']]);
 // The index cards say the words the stock table under them, the 종목 page and the stock
@@ -155,6 +157,17 @@ export function latestBreadth(history) {
   return null;
 }
 
+/**
+ * The page's close date: the latest completed bar the US index cards draw. The Korean cards close earlier in the day, so
+ * during the US session their newer close (11/18) must not date the page while the US cards still draw 11/17; a card on
+ * another date says its own. Without a US card, the latest drawn bar.
+ */
+export function chartsPageBasis(readings) {
+  const dates = (list) => list.map((reading) => reading?.asOf).filter(Boolean).sort().at(-1) || null;
+  const all = Array.isArray(readings) ? readings : [];
+  return dates(all.filter((reading) => closeSessionMarket(reading?.field) === 'US')) || dates(all);
+}
+
 export function indexChartReadings(history) {
   const breadth = latestBreadth(history);
   return CHART_INDEXES.map(([field, label]) => indexChartReading(history, field, label, { breadth: field === 'spx' ? breadth : null })).filter(Boolean);
@@ -181,9 +194,20 @@ export function coreStockRows({ screener = null, indexWeights = [], day = null, 
     // v59.71: '고점 대비' is the 종목·스크리너·테마 field (pctFrom52wHigh, the 52-week intraday high), not the close high.
     const trend = trendKey(buffered) || 'unknown';
     rows.push({ sym, name: names.get(sym) || sym, group: top.includes(sym) ? 'weight' : 'mover', ret1d: readRowNumber(row, 'ret1d'), vs50, vs200,
-      fromHigh: readRowNumber(row, 'pctFrom52wHigh'), rsi: readRowNumber(row, 'rsi'), rvol: readRowNumber(row, 'rvol20'), trend, trendWord: buffered?.label || TREND_WORDS.unknown });
+      fromHigh: readRowNumber(row, 'pctFrom52wHigh'), rsi: readRowNumber(row, 'rsi'), rvol: readRowNumber(row, 'rvol20'), trend, trendWord: buffered?.label || TREND_WORDS.unknown,
+      session: stampDay(row?.factorSessionDate) });
   }
   return rows;
+}
+
+/**
+ * the US session the stock table's rows were computed on, when it is behind the page's
+ * index close `asOf` (the header read "11/17 종가" over rows of 11/16); null when they match or nothing is dated.
+ */
+export function stockTableSessionBehind(rows, asOf) {
+  const day = String(asOf || '').slice(0, 10);
+  const latest = (Array.isArray(rows) ? rows : []).filter((row) => row?.session && !/\.K[SQ]$/i.test(String(row.sym || ''))).map((row) => row.session).sort().at(-1) || null;
+  return latest && day && latest < day ? latest : null;
 }
 
 /** The screen's opening line: how many of the indexes are in each trend, the weakest one named. */

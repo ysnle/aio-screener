@@ -21,6 +21,7 @@ import { finite, closeSessionMarket, isCloseSessionDate, buildCloseSeries, close
 import { buildLeadershipVerdict } from '../market/regime/leadership-verdict.js';
 import { MARKET_WINDOWS } from '../market/session/market-windows.js';
 import { signedText } from '../shared/number.js';
+import { claim, say, NOTHING, digitsApart, figureDigits, printedValue } from '../shared/claim.js';
 import { withSubjectParticle } from '../content/korean-particle.js';
 import { breadthScopeOf } from '../market/breadth/screener-breadth.js';
 import { isIsoDay } from '../shared/session-date.js';
@@ -54,6 +55,15 @@ const pct = (now, then) => now != null && then ? (now / then - 1) * 100 : null;
 // "20-session rise under +10bp" exit read it as under the line (10/16: 부담 → 중립 on a rounding artifact).
 export const bp = (now, then) => now != null && then != null ? Math.round((now - then) * 1e6) / 1e4 : null;
 const signed = (value, digits = 1, unit = '%') => value == null ? '—' : signedText(value, digits, unit);
+// The converted statements print their figures, dates and judgement words only through claims; the replay gate
+// (scripts/ci-sentence-claim-replay-check.mjs) checks each against the close history on every session on disk.
+// A figure a word places strictly above or below a line prints with the decimals that keep it apart from that line
+// (digitsApart): 39.7 under a line of 40 is "39.7%", never "40%".
+const strictLine = (compare) => Number.isFinite(compare?.threshold) && (compare.relation === 'above' || compare.relation === 'below');
+const closeClaim = (subject, stat, measure, value, unit, label, { word = null, compare = null } = {}) => claim({ subject, measure, word, asOf: stat?.date, compare,
+  figures: [{ value, unit, basis: measure, label, ...(strictLine(compare) ? { digits: digitsApart(value, compare.threshold, figureDigits({ unit })) } : {}) }] });
+/** " (M/D 종가 대비)": the close a 20-session change is measured from. */
+const sinceClose = (subject, stat) => (stat?.d20Date ? say(' ({base.date} 종가 대비)', { base: claim({ subject, measure: 'base20d', asOf: stat.d20Date }) }) : NOTHING);
 const fmt = (value, digits = 2) => value == null ? '—' : value.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
 // P1633 (owner 2026-10-12): short-term trend = price > 5 > 10 > 20-day averages, long-term trend =
@@ -442,6 +452,19 @@ export function creditCause({ hyBp = null, hy5 = null, hy20Record = null } = {})
   return { level, fast5, wide20, primary };
 }
 
+// Which 양호 conditions of creditState a 중립 reading misses, each with its value and the line it misses. A 중립 sentence
+// names these instead of guessing a cause — a CCC gap alone holds 중립 while the level and 20-session change are quiet.
+export function creditNeutralCause({ hyBp = null, hy5 = null, hy20 = null, lowerRated = false, cccGapBp = null } = {}) {
+  const C = RULES.credit;
+  const bp = (value) => signedText(value, 0, 'bp');
+  const misses = [];
+  if (finite(hyBp) != null && hyBp >= C.tightBelowBp) misses.push(`수준 ${Math.round(hyBp)}bp(양호는 ${C.tightBelowBp}bp 미만)`);
+  if (finite(hy5) != null && hy5 > C.calm5dBp) misses.push(`5거래일 ${bp(hy5)}(양호는 +${C.calm5dBp}bp 이하)`);
+  if (finite(hy20) != null && hy20 >= C.widen20dBp) misses.push(`20거래일 ${bp(hy20)}(양호는 +${C.widen20dBp}bp 미만)`);
+  if (lowerRated) misses.push(`CCC와 하이일드의 60관측 확대 차이${finite(cccGapBp) != null ? ` ${Math.round(cccGapBp)}bp` : ''}(양호는 ${C.cccGap60dBp}bp 미만)`);
+  return misses;
+}
+
 // The one release condition of a credit 부담, naming only the legs still to clear. While the 20-session widening latch
 // holds (hy20Stress) it lets go only with the 20-session change under +25bp and five sessions under +15bp; without the
 // latch the 부담 comes from the level or a five-session widening of +25bp, so those are the legs (creditState).
@@ -593,6 +616,9 @@ export function buildMarketRead(input = {}) {
   const B = RULES.briefing;
   // text = what the numbers show; reading = the interpretation, worded as a hypothesis.
   const add = (id, weight, text, axis, { check = null, reading = null } = {}) => statements.push({ id, weight, text, reading, axis, check });
+  // A converted statement: text, reading and check composed from claims (src/domain/shared/claim.js), which it keeps.
+  const addSaid = (id, weight, axis, { text, reading = null, check = null }) => statements.push({ id, weight, text: text.text, reading: reading ? reading.text : null, axis, check: check ? check.text : null,
+    claims: [...new Set([text, reading, check].flatMap((part) => part?.claims || []))] });
   const win20 = (stat) => (stat?.d20Date ? ` (${shortDate(stat.d20Date)} 종가 대비)` : '');
 
   const spx5 = pct(spx.value, spx.d5);
@@ -681,9 +707,19 @@ export function buildMarketRead(input = {}) {
   const historyWho = breadthScopeOf(input.history).sp500 ? 'S&P 500 구성 종목' : 'AIO 추적 종목(미국)';
   const narrowWho = members ? 'S&P 500 구성 종목' : historyWho;
   if (b50 != null && spxFromHigh != null) {
-    if (spxFromHigh > -RULES.technical.nearHighPct && narrowB50 < RULES.breadth.weakBelow) add('narrow-rally', 85, `S&P 500은 1년 고점 대비 ${signed(spxFromHigh)}로 고점권인데 ${narrowWho} 중 50일선 위 종목은 ${fmt(narrowB50, 0)}%뿐입니다.`, 'index', { reading: '지수 상승이 일부 대형주에 집중된 좁은 장세일 수 있습니다.', check: `${narrowWho} 중 50일선 위 비율이 ${RULES.breadth.weakBelow}% 위로 회복되는지(현재 ${fmt(narrowB50, 0)}%) — 회복 없이 대형주가 꺾이면 지수 하락 폭이 커질 수 있음` });
-    else if (b50 >= RULES.breadth.broadAtLeast && spx20 != null && spx20 > 0) add('broad-rally', 55, `${historyWho} 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 상승이 대형주에 그치지 않고 넓게 퍼져 있습니다.`, 'index');
-    else if (b50 < B.broadWeakBelow && spx20 != null && spx20 < 0) add('broad-weakness', 70, `${historyWho} 중 50일선 위 ${fmt(b50, 0)}%, S&P 500 20일 ${signed(spx20)}${win20(spx)} — 약세가 시장 전반에 퍼져 있습니다.`, 'index');
+    if (spxFromHigh > -RULES.technical.nearHighPct && narrowB50 < RULES.breadth.weakBelow) {
+      const high = closeClaim('spx', spx, 'fromYearHigh', spxFromHigh, 'pct', '1년 고점 대비', { word: 'near-high', compare: { threshold: -RULES.technical.nearHighPct, relation: 'above' } });
+      const narrow = closeClaim(members ? 'sp500-members' : 'breadth50', members ? spx : s.breadth50, 'above50', narrowB50, 'share', '50일선 위', { word: 'only-below', compare: { threshold: RULES.breadth.weakBelow, relation: 'below' } });
+      addSaid('narrow-rally', 85, 'index', { text: say('S&P 500은 {high.label} {high}로 {high.word}인데 {who} 중 {narrow.label} 종목은 {narrow}{narrow.word}입니다.', { high, who: narrowWho, narrow }),
+        reading: say('지수 상승이 일부 대형주에 집중된 좁은 장세일 수 있습니다.'), check: say('{who} 중 {narrow.label} 비율이 {narrow.threshold} 위로 회복되는지(현재 {narrow}) — 회복 없이 대형주가 꺾이면 지수 하락 폭이 커질 수 있음', { who: narrowWho, narrow }) });
+    } else if ((b50 >= RULES.breadth.broadAtLeast && spx20 != null && spx20 > 0) || (b50 < B.broadWeakBelow && spx20 != null && spx20 < 0)) {
+      // The participation word asserts the index's own 20-session direction (compare.against).
+      const broad = spx20 > 0;
+      const share = closeClaim('breadth50', s.breadth50, 'above50', b50, 'share', '50일선 위', { word: broad ? 'broad-rise' : 'broad-fall',
+        compare: { against: 'spx', measure: 'change20d', threshold: broad ? RULES.breadth.broadAtLeast : B.broadWeakBelow, relation: broad ? 'atLeast' : 'below' } });
+      addSaid(broad ? 'broad-rally' : 'broad-weakness', broad ? 55 : 70, 'index', { text: say('{who} 중 {share.label} {share}, {index.label} {index}{since} — {share.word}.',
+        { who: historyWho, share, index: closeClaim('spx', spx, 'change20d', spx20, 'pct', 'S&P 500 20일'), since: sinceClose('spx', spx) }) });
+    }
   }
   // P1416: leadership and distribution (definitions in src/domain/market/breadth/breadth-signals.js).
   const nh = s.breadthNewHighs?.date === spx.date ? s.breadthNewHighs.value : null;
@@ -718,7 +754,12 @@ export function buildMarketRead(input = {}) {
   const ndx20 = s.nasdaq ? pct(s.nasdaq.value, s.nasdaq.d20) : null;
   const rut20 = s.rut ? pct(s.rut.value, s.rut.d20) : null;
   // C25: this series is the Nasdaq Composite; the home KPI cell is the Nasdaq-100 — each names its own index.
-  if (ndx20 != null && spx20 != null && Math.abs(ndx20 - spx20) >= B.techGap20dPp) add(ndx20 > spx20 ? 'tech-leads' : 'tech-lags', 50, `나스닥 종합 20일 ${signed(ndx20)}${win20(s.nasdaq) === win20(spx) ? '' : win20(s.nasdaq)}, S&P 500 ${signed(spx20)}${win20(spx)} — ${ndx20 > spx20 ? '기술주가 상승을 주도합니다' : '기술주가 시장보다 약합니다'}.`, 'index');
+  if (ndx20 != null && spx20 != null && Math.abs(ndx20 - spx20) >= B.techGap20dPp) {
+    const leads = ndx20 > spx20;
+    const tech = closeClaim('nasdaq', s.nasdaq, 'change20d', ndx20, 'pct', '나스닥 종합 20일', { word: leads ? 'tech-leads' : 'tech-lags', compare: { against: 'spx', relation: leads ? 'above' : 'below' } });
+    addSaid(leads ? 'tech-leads' : 'tech-lags', 50, 'index', { text: say('{tech.label} {tech}{techSince}, {index.label} {index}{since} — {tech.word}.', { tech, techSince: s.nasdaq?.d20Date === spx.d20Date ? NOTHING : sinceClose('nasdaq', s.nasdaq),
+      index: closeClaim('spx', spx, 'change20d', spx20, 'pct', 'S&P 500'), since: sinceClose('spx', spx) }) });
+  }
   if (leaders.break || leaders.state === 'weak') {
     const soxx = leaders.proxyStat, soxxHigh = leaders.offHigh;
     const n = leaders.confirmations.length;
@@ -758,8 +799,16 @@ export function buildMarketRead(input = {}) {
   const spxDay = pct(spx.value, spx.d1);
   if (adv != null && spxDay != null && s.advanceRatio.date === spx.date) {
     const advPct = adv <= 1 ? adv * 100 : adv;
-    if (spxDay <= -B.derisk1dPct && advPct < B.deriskAdvanceBelow) add('broad-derisking', 65, `S&P 500 ${signed(spxDay)}, 상승 종목 ${fmt(advPct, 0)}%.`, 'index', { reading: '특정 섹터가 아닌 시장 전반의 고른 위험 축소로 보입니다.' });
-    else if (spxDay > 0 && advPct < B.defendedAdvanceBelow) add('index-defended', /* v57.84: a falling index is not 'defended' */ 62, `S&P 500 ${signed(spxDay)}인데 상승 종목은 ${fmt(advPct, 0)}%.`, 'index', { reading: '지수와 다수 종목의 방향이 갈렸습니다 — 시가총액이 큰 일부 종목이 지수를 받쳤는지 테마 화면의 S&P 500 지도에서 종목별 기여로 확인합니다.' });
+    // The participation word asserts the index's own session direction (compare.against): a falling index is not 'defended'.
+    const advancers = (word, threshold) => closeClaim('advanceRatio', s.advanceRatio, 'advancers', advPct, 'share', '상승 종목', { word, compare: { against: 'spx', measure: 'change1d', threshold, relation: 'below' } });
+    const index = closeClaim('spx', spx, 'change1d', spxDay, 'pct', 'S&P 500');
+    if (spxDay <= -B.derisk1dPct && advPct < B.deriskAdvanceBelow) {
+      const adv = advancers('broad-derisking', B.deriskAdvanceBelow);
+      addSaid('broad-derisking', 65, 'index', { text: say('{index.label} {index}, {adv.label} {adv}.', { index, adv }), reading: say('{adv.word}.', { adv }) });
+    } else if (spxDay > 0 && advPct < B.defendedAdvanceBelow) {
+      const adv = advancers('index-defended', B.defendedAdvanceBelow);
+      addSaid('index-defended', 62, 'index', { text: say('{index.label} {index}인데 {adv.label}은 {adv}.', { index, adv }), reading: say('{adv.word} — 시가총액이 큰 일부 종목이 지수를 받쳤는지 테마 화면의 S&P 500 지도에서 종목별 기여로 확인합니다.', { adv }) });
+    }
   }
 
   // 4. Fear gauge vs credit: is the fear priced in credit too?
@@ -788,12 +837,34 @@ export function buildMarketRead(input = {}) {
   } else if (fg != null && fg > RULES.fearGreed.extremeGreedAbove && vix && vix.value < RULES.volatility.complacentBelow) {
     add('complacency', 60, `공포·탐욕 ${fmt(fg, 0)}(${fearGreedBand(fg).label})·VIX ${fmt(vix.value)}.`, 'risk', { reading: '낙관이 강하고 변동성 대비가 얇은 상태입니다.' });
   }
-  if (hyWeek != null && hyWeek >= RULES.credit.widenWatch5dBp && hyBp != null && hyBp < RULES.credit.stressAtBp && !statements.some((row) => row.id === 'fear-with-credit-widening')) add('credit-widening', 72, `하이일드 스프레드 5일 ${signed(hyWeek, 0, 'bp')} 확대(${fmt(hyBp, 0)}bp).`, 'risk', { reading: hyWeek >= RULES.credit.widen5dBp ? '자금 조달 여건이 빠듯해지는 신호입니다.' : '자금 조달 여건이 빠듯해지는지 지켜볼 움직임입니다.', check: '하이일드 스프레드 확대가 이어지는지 — 이어지면 주식보다 신용이 먼저 위험을 반영' });
-  if (hyBp != null && hyBp >= RULES.credit.stressAtBp) add('credit-stress', 85, `하이일드 스프레드 ${fmt(hyBp, 0)}bp(${RULES.credit.stressAtBp}bp 이상 스트레스 구간).`, 'risk', { reading: '신용 시장이 위험을 가격에 반영하고 있습니다.' });
-  if (vix && s.vix3m && s.vix3m.date === vix.date && vix.value / s.vix3m.value >= RULES.volatility.invertedRatioAt) add('vix-inversion', 75, `VIX(${fmt(vix.value)})가 3개월 VIX(${fmt(s.vix3m.value)})보다 높은 역전 상태입니다.`, 'risk', { reading: '단기 스트레스가 중기 기대보다 큽니다.' });
+  const hyAsOf = c.hyObservation?.asOf ?? input.credit?.hyAsOf;
+  const hyLevel = (word = null) => claim({ subject: 'hy', measure: 'level', word, asOf: hyAsOf, figures: [{ value: hyBp, unit: 'spread', basis: 'level', label: '하이일드 스프레드' }],
+    ...(word ? { compare: { threshold: RULES.credit.stressAtBp, relation: 'atLeast' } } : {}) });
+  if (hyWeek != null && hyWeek >= RULES.credit.widenWatch5dBp && hyBp != null && hyBp < RULES.credit.stressAtBp && !statements.some((row) => row.id === 'fear-with-credit-widening')) {
+    const widen = claim({ subject: 'hy', measure: 'change5d', word: 'widening-watch', asOf: hyAsOf, compare: { threshold: RULES.credit.widenWatch5dBp, relation: 'atLeast' }, figures: [{ value: hyWeek, unit: 'bp', basis: 'change5d', label: '하이일드 스프레드 5일' }] });
+    addSaid('credit-widening', 72, 'risk', { text: say('{widen.label} {widen} {widen.word}({level}).', { widen, level: hyLevel() }),
+      reading: say(hyWeek >= RULES.credit.widen5dBp ? '자금 조달 여건이 빠듯해지는 신호입니다.' : '자금 조달 여건이 빠듯해지는지 지켜볼 움직임입니다.'), check: say('하이일드 스프레드 확대가 이어지는지 — 이어지면 주식보다 신용이 먼저 위험을 반영') });
+  }
+  if (hyBp != null && hyBp >= RULES.credit.stressAtBp) {
+    const level = hyLevel('stress-zone');
+    addSaid('credit-stress', 85, 'risk', { text: say('{level.label} {level}({level.threshold} 이상 {level.word}).', { level }), reading: say('신용 시장이 위험을 가격에 반영하고 있습니다.') });
+  }
+  if (vix && s.vix3m && s.vix3m.date === vix.date && vix.value / s.vix3m.value >= RULES.volatility.invertedRatioAt) {
+    const front = closeClaim('vix', vix, 'level', vix.value, 'level', 'VIX', { word: 'inverted', compare: { against: 'vix3m', relation: 'above' } });
+    const back = closeClaim('vix3m', s.vix3m, 'level', s.vix3m.value, 'level', '3개월 VIX');
+    // "보다 높은" is said of the two printed levels: at a ratio of exactly 1 (20.37 and 20.37) nothing is inverted yet.
+    if (printedValue(front.figures[0]) > printedValue(back.figures[0])) addSaid('vix-inversion', 75, 'risk', { text: say('{front.label}({front})가 {back.label}({back})보다 높은 {front.word}입니다.', { front, back }),
+      reading: say('단기 스트레스가 중기 기대보다 큽니다.') });
+  }
   if (tnx?.yearPosition != null && tnx.yearPosition >= B.yearExtremeAt && vix && vix.value < RULES.volatility.calmBelow /* v57.84: the volatility axis calm line, was 20 */) add('orderly-at-rate-high', 58, `10년물 금리는 1년 최고권인데 VIX는 ${fmt(vix.value)}.`, 'risk', { reading: '금리 부담에도 공포성 매도 신호는 아직 없습니다.' });
   const vix5 = vix ? pct(vix.value, vix.d5) : null;
-  if (vix5 != null && vix5 >= RULES.volatility.spike5dPct) add('vix-spike', 75, `VIX 5일 ${signed(vix5, 0)} 급등(${fmt(vix.value)}).`, 'risk');
+  if (vix5 != null && vix5 >= RULES.volatility.spike5dPct) {
+    // The +25% line decides that the statement is made; 급등 is said only of a move that is large for VIX's own five
+    // sessions (move-size.js), the same size scale as every other size word.
+    const large = closeMoveGrade(input.history, 'vix', vix5, { sessions: 5, through: vix.date }) === 'large';
+    const spike = claim({ subject: 'vix', measure: 'change5d', word: large ? 'spike' : 'rise', asOf: vix.date, compare: { threshold: RULES.volatility.spike5dPct, relation: 'atLeast' }, figures: [{ value: vix5, unit: 'pct', digits: 0, basis: 'change5d', label: 'VIX 5일' }] });
+    addSaid('vix-spike', 75, 'risk', { text: say('{spike.label} {spike} {spike.word}({level}).', { spike, level: closeClaim('vix', vix, 'level', vix.value, 'level', 'VIX') }) });
+  }
 
   // 5. Dollar and gold.
   const dxy5 = s.dxy ? pct(s.dxy.value, s.dxy.d5) : null;

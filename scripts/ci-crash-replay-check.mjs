@@ -14,21 +14,7 @@ import { computeTradingScoreModel } from '../src/domain/market/signal/trading-sc
 import { buildMarketTemperature } from '../src/domain/market/sentiment/market-temperature.js';
 import { openSessionDatesBetween } from '../src/domain/market/session/market-calendar.js';
 import { RULES } from '../src/domain/rules/thresholds.js';
-
-// v59.97: the frozen 2026 replay fixture (one array per field over its session dates) back to history rows. A breadth
-// field's eligible denominator returns as its fieldMeta, the only provenance the regime reads from these rows.
-function replayFixtureRows(fixture) {
-  const dates = Array.isArray(fixture?.dates) ? fixture.dates : [];
-  const series = fixture?.series || {};
-  return dates.map((date, i) => {
-    const row = { date };
-    for (const [field, values] of Object.entries(series)) if (Number.isFinite(values?.[i])) row[field] = values[i];
-    for (const [field, byDate] of Object.entries(fixture?.eligible || {})) {
-      if (Number.isFinite(byDate?.[date])) (row.fieldMeta ||= {})[field] = { eligible: byDate[date] };
-    }
-    return row;
-  });
-}
+import { replayFixtureRows } from './lib/replay-inputs.mjs'; // the frozen 2026 closes back to history rows
 
 // [date, S&P 500 close, VIX close, HY OAS bp]
 const WINDOWS = [

@@ -16,6 +16,7 @@ import { signedText, usdKoreanText } from '../../domain/shared/number.js';
 import { sectorLabel } from '../../domain/screener/sector-label.js';
 import { refreshSharedArtifact, sharedArtifactState } from '../../data/shared-artifacts.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
+import { debtLabel } from '../../domain/fundamental/sec-earnings.js';
 
 // The provider earnings calendar (week rows + the v58.75 six-week `upcoming` map), shared with the company summary.
 
@@ -56,7 +57,7 @@ export function requestFiscalHistory(root, onReady, key = 'default') {
   // P1440: the summary manifest names the fiscal artifact once the producer has written it.
   loadArtifact(root, 'sec-fundamentals-summary.manifest.json')
     .then((manifest) => (`./${manifest?.fiscalHistory?.path}` === artifactUrl('sec-fiscal-history.json') ? loadArtifact(root, 'sec-fiscal-history.json') : null))
-    .then((artifact) => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistoryFailed = false; root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; root._aioSecIssuerSic = artifact?.issuerSic && typeof artifact.issuerSic === 'object' ? artifact.issuerSic : null; })
+    .then((artifact) => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistoryFailed = false; root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; root._aioSecIssuerSic = artifact?.issuerSic && typeof artifact.issuerSic === 'object' ? artifact.issuerSic : null; root._aioSecDebtBasis = artifact?.debtBasis && typeof artifact.debtBasis === 'object' ? artifact.debtBasis : null; root._aioSecDebtCurrent = artifact?.debtCurrent && typeof artifact.debtCurrent === 'object' ? artifact.debtCurrent : null; })
     .catch(() => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistoryFailed = true; root._aioSecFiscalHistory = null; })
     .finally(() => { root._aioSecFiscalHistoryRequested = false; const ready = Object.values(root._aioSecFiscalHistoryOnReady || {}); delete root._aioSecFiscalHistoryOnReady; ready.forEach((fn) => fn?.()); });
 }
@@ -144,7 +145,7 @@ function fiscalChart(doc, rows, { quarter = false } = {}) {
   return wrap;
 }
 
-function fiscalTable(doc, rows, { quarter = false } = {}) {
+function fiscalTable(doc, rows, { quarter = false, debtBasis = null } = {}) {
   const region = el(doc, 'div', null, 'fiscal-table-scroll');
   region.tabIndex = 0;
   region.setAttribute('role', 'region');
@@ -158,7 +159,7 @@ function fiscalTable(doc, rows, { quarter = false } = {}) {
   const shareValues = rows.map((year) => number(year.shares)).filter((value) => value != null);
   const shareDigits = shareValues.length && Math.max(...shareValues) < 1e8 ? 1 : 0;
   const definitions = quarter ? [['periodEnd', '분기 말'], ['revenue', '매출'], ['netIncome', '순이익'], ['margin', '순이익률']]
-    : [['periodEnd', '회계연도 말'], ['revenue', '매출'], ['netIncome', '순이익'], ['operatingCashFlow', '영업현금흐름'], ['capex', '설비투자'], ['fcf', '잉여현금흐름'], ['equity', '자기자본(기말)'], ['longTermDebt', '장기부채'], ['shares', splitBreaks.length ? '주식 수(분할 미조정)' : '주식 수']];
+    : [['periodEnd', '회계연도 말'], ['revenue', '매출'], ['netIncome', '순이익'], ['operatingCashFlow', '영업현금흐름'], ['capex', '설비투자'], ['fcf', '잉여현금흐름'], ['equity', '자기자본(기말)'], ['longTermDebt', debtLabel(debtBasis)], ['shares', splitBreaks.length ? '주식 수(분할 미조정)' : '주식 수']];
   for (const [, label] of definitions) { const th = el(doc, 'th', label); th.scope = 'col'; headRow.append(th); }
   head.append(headRow); table.append(head);
   const body = el(doc, 'tbody');
@@ -404,6 +405,11 @@ function sourceLink(doc, fundamentals, { filings = false } = {}) {
 // reader is moving. `close` is the completed-session valuation close (entity.js), never the live quote.
 // issuerSic is "3674|Semiconductors & Related Devices"; the code is what financialKind reads.
 export const issuerSic = (root, symbol) => String(root?._aioSecIssuerSic?.[symbol] ?? '').split('|')[0] || null;
+// The artifact's debtBasis map lists only the lease-inclusive issuers; every other symbol is long-term debt only.
+export const debtBasisFor = (root, symbol) => root?._aioSecDebtBasis?.[symbol] === 'lease-inclusive' ? 'lease-inclusive' : 'long-term';
+// The debtCurrent map lists the issuers whose debt figure leaves out the part due within a year; an artifact written before
+// the map existed says nothing (null), so the page makes no claim about that part.
+export const debtCurrentFor = (root, symbol) => (root?._aioSecDebtCurrent ? (root._aioSecDebtCurrent[symbol] === 'excluded' ? 'excluded' : 'included') : null);
 function analysisPair(doc, root, host, analysis, { symbol, fundamentals, close, sector, series }) {
   const own = fundamentals && String(fundamentals.symbol || symbol).toUpperCase() === symbol ? fundamentals : null;
   if (!analysis || !own || /\.K[SQ]$/i.test(symbol)) return null;
@@ -456,7 +462,8 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
   const series = root?._aioSecFiscalHistory?.[symbol];
   const fundamentals = series ? { ...(state?.fundamentals || {}), fiscalHistory: parseFiscalHistory(series) } : state?.fundamentals || null;
   const quarterText = root?._aioSecQuarterHistory?.[symbol];
-  const read = buildFiscalRead({ symbol, fundamentals, row, quarters: quarterText ? parseQuarterHistory(quarterText) : [], sic: issuerSic(root, symbol) });
+  const debtBasis = debtBasisFor(root, symbol);
+  const read = buildFiscalRead({ symbol, fundamentals, row, quarters: quarterText ? parseQuarterHistory(quarterText) : [], sic: issuerSic(root, symbol), debtBasis });
   // v57.54: the forward view (consensus, reference only) follows the reported reading.
   if (!/\.K[SQ]$/.test(symbol)) {
     requestConsensusEstimates(root, () => renderFiscalRead({ documentRef: doc, root, state }));
@@ -511,7 +518,7 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
     const annualPanel = el(doc, 'div', null, 'fiscal-view-annual');
     if (read.history.length >= 2) annualPanel.append(fiscalChart(doc, read.history));
     const splitNote = shareSplitBreaks(read.history).length ? ' 주식 수는 분할을 조정하지 않은 값이라, * 표시 해의 차이는 주식 분할입니다.' : '';
-    annualPanel.append(tableFold(doc, `연간 금액표 보기, ${read.history.length}개 회계연도`, fiscalTable(doc, read.history),
+    annualPanel.append(tableFold(doc, `연간 금액표 보기, ${read.history.length}개 회계연도`, fiscalTable(doc, read.history, { debtBasis }),
       el(doc, 'p', `잉여현금흐름 = 영업현금흐름 − 설비투자. 주식 수는 회계연도 종료 뒤 공시 표지의 관측값으로, 평균 유통주식 수와 다릅니다.${splitNote}`, 'theme-strength-basis')));
     if (root._aioSecFiscalPrecision?.decimalPlaces !== 3 && series) {
       const precision = el(doc, 'details', null, 'fiscal-method-details');

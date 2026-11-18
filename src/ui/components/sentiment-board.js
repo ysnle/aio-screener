@@ -33,6 +33,15 @@ const EXCLUDED = Object.freeze({ label: '판정 제외', tone: 'unknown' });
 // v57.50 D19 (coordinator decision): a sentiment level (F&G, put/call, AAII) is shown as a level in the neutral tone —
 // greed or call-heavy trading is not "good" (green) and fear is not "bad" (red). Only the credit card keeps its tone.
 const LEVEL_TONE = 'neutral';
+/** The VIX ÷ 3-month VIX sentence, told against its printed two-decimal value: over 1 is inverted, 1.00 is at the edge. */
+export function termRatioLine(ratio) {
+  const edge = RULES.volatility.invertedRatioAt;
+  const shown = ratio.toFixed(2);
+  const at = Number(shown);
+  if (at > edge) return `VIX ÷ 3개월 VIX 비율(${shown})이 역전 기준(${edge})을 넘어 변동성 구조가 역전됐습니다.`;
+  if (at === edge) return `VIX ÷ 3개월 VIX 비율(${shown})이 역전 기준(${edge})에 닿았습니다.`;
+  return `VIX ÷ 3개월 VIX 비율(${shown})이 역전 기준(${edge})에 가까워졌습니다.`;
+}
 export function fearGreedBand(value) {
   if (value == null) return null;
   const band = publishedFearGreedBand(value);
@@ -118,7 +127,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, sna
   else if (fearful && (creditStress || (volKnown && !volCalm))) // v58.74 (text audit): one sentence held three nested parentheses; the mood, the spread and the volatility curve each get one.
     synthesis = [`${fearSource}로 비관 쪽입니다.`,
       creditStress ? `하이일드 스프레드도 ${Math.round(hyBp)}bp로${hy20Stress && hy20 != null ? ` 20거래일 ${signedText(hy20, 0, 'bp')},` : ''}${hy5 != null ? ` 5일 ${signedText(hy5, 0, 'bp')}` : ''} ${hyBp < RULES.credit.tightBelowBp ? `넓어졌습니다(수준은 ${RULES.credit.tightBelowBp}bp 아래).` : '스트레스 구간입니다.'}` : null,
-      volKnown && !volCalm ? (ratio >= RULES.volatility.invertedRatioAt ? `VIX가 3개월 VIX보다 높아 변동성 구조가 역전됐습니다(${ratio.toFixed(2)}).` : `VIX와 3개월 VIX의 차이가 역전 기준(${RULES.volatility.invertedRatioAt}) 가까이 좁혀졌습니다(${ratio.toFixed(2)}).`) : null,
+      volKnown && !volCalm ? termRatioLine(ratio) : null,
       `비관이 설문·심리 지표를 넘어 ${[creditStress ? '회사채 스프레드' : null, volKnown && !volCalm ? '옵션 가격(변동성)' : null].filter(Boolean).join('와 ')}에도 반영된 모습입니다.`].filter(Boolean).join(' ');
   else if (fearful && creditKnown && volKnown) synthesis = `${fearSource}는 비관 쪽이고 신용 스프레드(${Math.round(hyBp)}bp${hy20 != null ? `, 20거래일 ${signedText(hy20, 0, 'bp')}` : ''})는 중립(양호 조건 미충족)입니다 — 비관이 신용으로 번지는지 확인할 단계입니다.`;
   else if (fearful) synthesis =`${fearSource}는 비관 쪽이지만 ${[!creditKnown ? '신용 스프레드' : null, !volKnown ? '변동성 구조' : null].filter(Boolean).join('·')} 자료가 기준일에 없어 비관이 번졌는지 확인하지 못했습니다.`;

@@ -597,6 +597,13 @@ export function createScreenerProvider({
           // 2026-10-13 F05: a margin above 100% is a revenue-subtotal artifact (ESS 7,491%), held until re-normalized.
           margin: fundamentalHeld(factor) || finite(factor.margin) > SEC_MARGIN_HOLD_ABOVE_PCT ? null : finite(factor.margin),
           revGrowth: fundamentalHeld(factor) ? null : finite(factor.revGrowth),
+          // 2026-11-18: 'ttm' (latest four quarters) | 'fy' and the end date of each; an artifact without them is FY.
+          _marginBasis: factor.marginBasis || null, _marginThrough: factor.marginThrough || null,
+          _revGrowthBasis: factor.revGrowthBasis || null, _revGrowthThrough: factor.revGrowthThrough || null,
+          // 2026-11-18: cash dividends per share with ex-dates in the last 365 days (listing currency) and their yield on the
+          // latest completed close; absent when the history carried no dividend evidence.
+          dividendTtm: finite(factor.dividendTtm), dividendYieldPct: finite(factor.dividendYieldPct),
+          dividendLastExDate: factor.dividendLastExDate || null, dividendCount12m: finite(factor.dividendCount12m), dividendBasis: factor.dividendBasis || null,
           _fundamentalHeldReason: fundamentalHeld(factor) ? 'period-too-old' : null,
           newsMemo: factor.newsMemo || null,
           // v57.51 N02/N21: only an issuer-verified memo reaches AI context; the status names why a cell is empty.
@@ -630,6 +637,8 @@ export function createScreenerProvider({
           _valuationPeEarningsConcept: factor.peEarningsConcept || null, // v58.20: 'common' when preferred dividends were deducted
           _valuationPbPrice: finite(factor.pbPrice),
           _valuationPbPriceBasis: factor.pbPriceBasis || null,
+          _valuationPbEquityThrough: factor.pbEquityThrough || null,
+          _valuationPbEquityBasis: factor.pbEquityBasis || null,
           _valuationSharesOutstanding: finite(factor.valuationSharesOutstanding),
           _valuationSharesObservedAt: factor.valuationSharesObservedAt || null,
           identityObservedAt: isExtended ? (extendedArtifact.membership?.generatedAt || null) : universeLastBulkUpdate || identity.validFrom || null,
@@ -763,6 +772,9 @@ export function createScreenerProvider({
           factorSessionDateByMarket: artifact.factorSessionDateByMarket && typeof artifact.factorSessionDateByMarket === 'object' ? { ...artifact.factorSessionDateByMarket } : null,
           factorBarStartByMarket: artifact.factorBarStartByMarket && typeof artifact.factorBarStartByMarket === 'object' ? { ...artifact.factorBarStartByMarket } : null,
           factorComputedAt: artifact.factorComputedAt || null,
+          // Which markets' newest-session volume is the provider's provisional figure (price-factors.js
+          // LATEST_SESSION_VOLUME_BASIS); older artifacts carry none.
+          volumeBasis: artifact.volumeBasis && typeof artifact.volumeBasis === 'object' ? { ...artifact.volumeBasis, markets: Array.isArray(artifact.volumeBasis.markets) ? [...artifact.volumeBasis.markets] : [], fields: Array.isArray(artifact.volumeBasis.fields) ? [...artifact.volumeBasis.fields] : [] } : null,
           // 2026-10-13 S&P 500 map weights (absent until the producer embeds them).
           indexWeights: artifact.indexWeights && Array.isArray(artifact.indexWeights.rows) ? artifact.indexWeights : null,
           universe: Number(artifact.universe) || coreSymbols.length,

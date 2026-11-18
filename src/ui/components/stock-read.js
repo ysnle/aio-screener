@@ -7,12 +7,13 @@ import { renderNextSteps } from './page-flow.js';
 import { emptyState } from './empty-state.js';
 import { benchmarkRowFor } from '../../domain/market/indices/benchmarks.js';
 import { marketRows, screenerMarket } from '../../domain/screener/market-scope.js';
+import { stockThemes, themeCatalogFor } from '../../domain/entity/primary-theme.js';
+import { overallRankedCount } from '../../domain/screener/overall-rank.js';
 import { currentRotationItems } from '../../domain/themes/produced-rotation.js';
 import { countOpenSessionsBetween, latestCompletedSession } from '../../domain/market/session/market-calendar.js';
 import { SCENARIO_STATE, loadArtifact } from '../../data/artifact-registry.js';
 import { themeStagesFor, themeMarketOf } from '../../domain/scenarios/theme-stage.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { koreanThemeGroups } from '../../domain/market/korea/korea-participation.js';
 import { summarizeValidation } from './screener-validation.js';
 import { el } from './dom.js';
 import { askRow } from './ask-row.js';
@@ -117,20 +118,15 @@ function call(root, name, fallback) {
   try { const fn = root?.[name]; return typeof fn === 'function' ? (fn() ?? fallback) : fallback; } catch (_) { return fallback; }
 }
 
+// The US theme rows for the rotation point and the theme link, primary first (primary-theme.js owns the order).
 function themesFor(root, symbol) {
-  const map = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [];
-  return map.filter((theme) => (Array.isArray(theme.leaders) && theme.leaders.includes(symbol))
-    || (theme.subThemes || []).some((sub) => Array.isArray(sub.tickers) && sub.tickers.includes(symbol)))
-    .map((theme) => ({ id: theme.id, label: theme.nameKr || theme.id, etf: theme.etf || null }));
+  return stockThemes(Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [], symbol).map(({ id, label, etf }) => ({ id, label, etf }));
 }
 
 // 2026-10-14 audit #5: the theme ids this symbol belongs to (US THEME_MAP; KR_THEME_MAP for KRX listings), the same
 // association the company card uses, so both read the same stage rows.
 function themeIdsFor(root, symbol, rows) {
-  if (/\.K[SQ]$/i.test(symbol)) {
-    return koreanThemeGroups(root?.KR_THEME_MAP || {}, rows).filter((group) => group.subThemes.some((sub) => sub.tickers.includes(symbol))).map((group) => group.id);
-  }
-  return themesFor(root, symbol).map((theme) => theme.id);
+  return stockThemes(themeCatalogFor(symbol, { themeMap: root?.THEME_MAP, krThemeMap: root?.KR_THEME_MAP, rows }), symbol).map((theme) => theme.id);
 }
 
 // v58.53 개편 v2 (3d): four check tiles — 추세 · 위치 · 재무 · 위험. Each prints a short value from the same row (or the
@@ -162,7 +158,7 @@ function stockChecks(doc, read, sym, fundamentals, fundamentalsState = null, krC
     tiles.push(checkTile(doc, { name: '추세', tone: tone('trend'), value: facts.trendLabel, detail: lines.join(', ') }));
   }
   if (read.position != null) {
-    tiles.push(checkTile(doc, { name: '위치', tone: tone('range'), value: `52주 범위 ${Math.round(read.position * 100)}%`, detail: ['0%는 1년 최저, 100%는 최고', read.high != null ? `52주 고점 대비 ${signedText(read.high)}` : null].filter(Boolean).join(', ') }));
+    tiles.push(checkTile(doc, { name: '위치', tone: tone('range'), chip: read.points.find((point) => point.id === 'range')?.zone, value: `52주 범위 ${Math.round(read.position * 100)}%`, detail: ['0%는 1년 최저, 100%는 최고', read.high != null ? `52주 고점 대비 ${signedText(read.high)}` : null].filter(Boolean).join(', ') }));
   }
   // 재무: the SEC annual record (US); a KRX listing reads DART; an ETF (no 재무 공시 next step) has no company filings.
   const isFund = !read.next.some((step) => step.route === 'fundamental');
@@ -273,19 +269,17 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const rows = call(root, '_aioGetCanonicalScreenerRows', []);
   const list = marketRows(Array.isArray(rows) ? rows : [], screenerMarket({ sym }));
   const rawRow = list.find((item) => item?.sym === sym) || null;
-  // 2026-10-14 audit #3/#13: one denominator with the screener — the rows its ranking actually ranked (screenRank).
-  // Without a screen result the factor-eligible ordering is the fallback (the same model, before conditions).
-  // v57.54: a KR row carried a screenRank from another market's run (삼성전자 "890/239"). The rank is this market's
-  // ordinal inside the same row set as its denominator, never the raw field.
-  const screened = list.filter(item => Number.isFinite(item?.screenRank)).sort((a, b) => a.screenRank - b.screenRank);
-  const ranked = screened.length ? screened : list.filter(item => item.rankingEligibility === 'eligible' && Number.isFinite(item.rank)).sort((a,b) => b.rank-a.rank);
-  const rank = rawRow ? ranked.findIndex(item => item.sym === sym) : -1;
+  // One rank and denominator with the screener: the row's overall rank (overall-rank.js, the order by the unrounded
+  // composite inside its own market) over the rows of this market that carry one. The active screen's own order
+  // (screenRank) is a different list. A KR row once carried another market's rank (삼성전자 "890/239"); the denominator
+  // is this market's rows only, so a rank outside it is never shown.
+  const rankedInMarket = overallRankedCount(list, screenerMarket({ sym }));
   // v57.81 (owner 2026-10-15): a US listing outside the published universe is read on demand with the screener's own
   // formulas (src/data/on-demand-symbol.js) instead of "기록 없음"; its row has no published rank.
   const onDemand = !rawRow && list.length && screenerMarket({ sym }) !== 'KR' ? onDemandRecord(root, sym, () => {
     if (host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, ...host._aioReadArgs });
   }) : null;
-  const row = rawRow ? { ...rawRow, screenRank: rank >= 0 ? rank+1 : null } : onDemand?.status === 'ready' && onDemand.row ? { ...onDemand.row, screenRank: null } : null;
+  const row = rawRow ? rawRow : onDemand?.status === 'ready' && onDemand.row ? { ...onDemand.row, overallRank: null } : null;
   // P1447: compare with the stock's own market index (KOSPI/KOSDAQ for KRX listings) over the same windows.
   // 2026-10-13 review S07: cut the index at the row's own factor session (same-date comparison), and say how many
   // sessions behind the market's latest completed close that factor session is.
@@ -309,7 +303,7 @@ export function renderStockRead({ documentRef: doc, root, symbol, fundamentals =
   const validation = market === 'US' && (root?._aioScreenerBacktestHistory || []).length ? summarizeValidation(root._aioScreenerBacktestHistory, root?._aioModelValidationStatus || null, root?._aioRankingWeights || null) : null;
   refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && host.isConnected !== false && host.dataset.aioStockReadSymbol === sym) renderStockRead({ documentRef: doc, root, symbol: sym, ...host._aioReadArgs }); }).catch(() => {});
   const themeStages = themeStagesFor(root, { symbol: sym, themeIds: themeIdsFor(root, sym, Array.isArray(rows) ? rows : []) });
-  const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), themeStages, regime: readMarketRegime(root), universeSize: ranked.length || null, validation, sessionLag, holding: holdingFor(root, sym), thirteenF, fundamentals });
+  const read = buildStockRead({ symbol: sym, row, benchmark: alignedBenchmark, rotation, themes: themesFor(root, sym), themeStages, regime: readMarketRegime(root), universeSize: rankedInMarket || null, validation, sessionLag, holding: holdingFor(root, sym), thirteenF, fundamentals });
   if (title && read.available && read.name && read.name !== sym) title.textContent = `종목, ${read.name} (${sym})`;
   host.replaceChildren(el(doc, 'h2', '이 종목의 지금', 'briefing-h2 sr-only'));
   if (!read.available) {

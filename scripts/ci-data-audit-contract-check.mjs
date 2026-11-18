@@ -384,7 +384,7 @@ const calendars = await import('./lib/official-calendars.mjs');
       AccountsReceivableNetCurrent: usd([fact(null, '2026-06-30', 6e9, ...q2), fact(null, '2026-09-30', 7.8e9, ...q3)]),
     } } }, 100);
   const pit = record?.pit?.observations || {};
-  check('v59.70 #8 the SEC normalizer collects quarter-end inventory and receivables', SEC_NORMALIZER_VERSION === 'sec-normalizer.2026-11-14' && record?.normalizerVersion === SEC_NORMALIZER_VERSION
+  check('v59.70 #8 the SEC normalizer collects quarter-end inventory and receivables', SEC_NORMALIZER_VERSION === 'sec-normalizer.2026-11-18' && record?.normalizerVersion === SEC_NORMALIZER_VERSION
     && pit.inventoryQ?.map((row) => row.value).sort().join(',') === '5000000000,6000000000' && pit.receivablesQ?.length === 2 && quarterlyHistory(pit) === '2026-06-30:7700:800:r:5000:6000;2026-09-30:9200:1200:r:6000:7800', quarterlyHistory(pit));
   const concept = { revenueQ: 'Revenues', netIncomeQ: 'NetIncomeLoss', inventoryQ: 'InventoryNet', receivablesQ: 'AccountsReceivableNetCurrent' };
   const q = (start, end, value, field) => ({ field, value, periodStart: start, periodEnd: end, filedAt: '2026-11-01', form: '10-Q', concept: concept[field] });
@@ -576,6 +576,14 @@ const calendars = await import('./lib/official-calendars.mjs');
   const marked = zValue((row, index) => ({ ...shape(row, index), ...(index === 0 ? { _valuationPeLoss: true } : { _valuationPbDeficit: true }) }));
   check('v60.16 the value term scores a TTM loss and a book deficit 0 (the fiscal-year margin and a missing P/B no longer leave the term out)',
     [...plain, ...marked].every((z) => typeof z === 'number') && marked[0] < plain[0] && marked[1] < plain[1], JSON.stringify({ plain, marked }));
+  // v60.26: the value term is monotone in the multiple — a dearer P/E or P/B never reads cheaper. Row 0 carries P/B 1.42
+  // (ICHR 2026-11-16) with P/E 150 / 359.7, row 1 P/E 20 with P/B 10 / 88.8 (MA). The former 200 / 50 bounds dropped the
+  // term, so the dearer multiple scored on the other term alone and ranked cheaper (ICHR value 89).
+  const multiples = (pe0, pb1) => zValue((row, index) => (index === 0 ? { ...row, pe: pe0, pb: 1.42, margin: 5, evEbitda: null } : { ...row, pe: 20, pb: pb1, evEbitda: null }));
+  const moderate = multiples(150, 10);
+  const extreme = multiples(359.7, 88.8);
+  check('v60.26 a P/E at or above 200 or a P/B at or above 50 scores its small inverse instead of leaving the term out (value is monotone in the multiple)',
+    [...moderate, ...extreme].every((z) => typeof z === 'number') && extreme[0] < moderate[0] && extreme[1] < moderate[1], JSON.stringify({ moderate, extreme }));
 
   // One-off: without the same quarter a year earlier a reverted spike is not flagged, nor is a margin that stays near its peak.
   const flat = (values, ends) => values.map((netIncome, index) => ({ periodEnd: ends[index], revenue: 100, netIncome }));

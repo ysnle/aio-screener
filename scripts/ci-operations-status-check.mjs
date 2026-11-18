@@ -10,7 +10,14 @@ const { default: fs } = await import('node:fs');
 const { default: path } = await import('node:path');
 const { fileURLToPath } = await import('node:url');
 const { OPERATIONS_STATUS, DOMAIN_RECEIPT_PUBLICATION_STATUS, createOperationsStatus, validateOperationsStatus } = await import('../src/data/contracts/operations.js');
-const { deriveDurableFreshness, deriveDomainStatus, deriveFastQuoteAvailability, deriveFredProviderStatus, derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence, deriveOverall } = await import('./build-operations-status.mjs');
+const { deriveDurableFreshness, deriveDomainStatus, deriveFastQuoteAvailability, deriveFredProviderStatus, deriveFundamentalRankingAvailability, derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence, deriveOverall } = await import('./build-operations-status.mjs');
+// v60.25: a later market refresh cannot renew the independent SEC observation.
+const secObserved = '2026-11-16T22:36:15.988Z';
+const secReceipt = { lastSuccessfulObservation: secObserved };
+const coveredSec = { coveragePct: 80 };
+const ranking = deriveFundamentalRankingAvailability(coveredSec, secReceipt, false);
+if (ranking.asOf !== secObserved || ranking.availability !== 'DEGRADED' || !ranking.missingReason) throw new Error('[operations-status] v60.25 retained SEC observation or degraded reason lost');
+if (deriveFundamentalRankingAvailability(coveredSec, null, true).asOf !== null) throw new Error('[operations-status] v60.25 unobserved SEC ranking was dated');
 // v60.18: overall follows the blockers (it was OPERATOR_REQUIRED all week with blockers []); every combination of the two inputs.
 for (const durableOk of [true, false]) for (const blockers of [[], ['ai_proxy_deploy_or_readiness_required']]) {
   const expected = !durableOk ? 'BLOCKED' : blockers.length ? 'OPERATOR_REQUIRED' : 'CURRENT';

@@ -4,6 +4,7 @@
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { latestCompletedSession } from '../market/session/market-calendar.js';
 import { finiteNumber as finite } from '../shared/number.js';
+import { fiscalYearLabel } from '../fundamental/period.js';
 
 
 export const FACTOR_LABELS = Object.freeze({
@@ -11,8 +12,9 @@ export const FACTOR_LABELS = Object.freeze({
   trend: { label: '추세', color: 'var(--color-text-success)', description: '50일선 거리 60%·200일선 거리 40%' },
   lowvol: { label: '저변동', color: 'var(--color-text-primary)', description: '실현 변동성의 역순' },
   size: { label: '규모', color: 'var(--color-text-secondary)', description: '시가총액의 역순(작을수록 높음)' },
-  value: { label: '밸류', color: 'var(--color-text-warning)', description: '저PER·저PBR — PER은 최근 4개 분기(TTM) 순이익, PBR은 최근 연간(FY) 자본 기준' },
-  quality: { label: '퀄리티', color: 'var(--color-text-warning)', description: 'ROE·순이익률 — 최근 연간(FY) 공시 기준' },
+  // PBR's equity is the latest filed balance sheet (a quarter when one was filed after the fiscal year).
+  value: { label: '밸류', color: 'var(--color-text-warning)', description: '저PER·저PBR — PER은 최근 4개 분기(TTM) 순이익, PBR은 가장 최근에 공시된 재무상태표(분기 포함)의 자본 기준' },
+  quality: { label: '퀄리티', color: 'var(--color-text-warning)', description: 'ROE·순이익률 — ROE는 최근 연간(FY), 순이익률은 최근 4개 분기(없으면 최근 연간) 공시 기준' },
   // 2026-10-17 audit: kalmanVelConf is the filter's daily trend velocity discounted by its own uncertainty, and the discount
   // is 1~9% (median 2%) because the state covariance is in log units — it reads as a speed, not a confidence.
   kalman: { label: '추세 속도', color: 'var(--color-accent)', description: '칼만 필터로 추정한 최근 90거래일 추세의 하루 속도(불확실성만큼 소폭 할인)' }
@@ -87,6 +89,27 @@ export function factorSessionLag(market, factorSessionDate, now = Date.now()) {
   return { session, latest: latest.date, label: market === 'KR' ? '한국장' : '미국장' };
 }
 
+// When no row of the selected market carries a rank because that market's factor session is behind its latest
+// completed session, the header and the table say so instead of a bare 0 or '조건에 맞는 종목이 없습니다'. The header's
+// close-basis stamp already names the market and the close date, so neither line repeats them: the header carries the
+// reason once, the table a short notice for the unranked list it shows.
+export function sessionHoldLine(market, { rankedCount = 0, factorSessionDate = null, now = Date.now() } = {}) {
+  if (rankedCount > 0) return null;
+  return factorSessionLag(market, factorSessionDate, now)
+    ? { header: '순위 보류(최신 거래일 종가 대기)', table: '순위 보류 — 최신 거래일 종가가 들어오면 순위를 매깁니다' }
+    : null;
+}
+
+// Why a row is outside the ranked population (factor-ranks populationExclusion): a short label for the counts and the
+// sentence for the rank cell's hover. 'pinned' — a price held by a pending acquisition.
+export const POPULATION_EXCLUSION_TEXT = Object.freeze({
+  fund: Object.freeze({ short: 'ETF·펀드', long: 'ETF·펀드는 기업 주식과 같은 기준으로 비교하지 않아 순위에서 뺐습니다.' }),
+  spac: Object.freeze({ short: 'SPAC', long: '기업인수목적회사(SPAC)는 신탁 현금이라 주가가 거의 움직이지 않아 순위에서 뺐습니다.' }),
+  illiquid: Object.freeze({ short: '하루 거래대금 100만 달러 미만', long: '하루 평균 거래대금이 100만 달러 미만이라 확장 순위에서 뺐습니다.' }),
+  foreign: Object.freeze({ short: '해외 상장', long: '도쿄·대만 상장 종목은 거래일과 통화가 달라 미국 종목과 같은 순위로 비교하지 않습니다.' }),
+  pinned: Object.freeze({ short: '가격 고정', long: '인수 진행 등으로 가격이 고정돼 순위에서 제외' })
+});
+
 export function describeRankingHold(hold, { factorSessionDate = null, market = 'US', now = Date.now() } = {}) {
   if (!hold || !hold.reason) return null;
   // Codex review 2026-10-05: when the price inputs are simply one session behind, say that — not a
@@ -132,3 +155,50 @@ export function followThroughSummary(row = {}) {
   if (signs.length) { parts.push(`클라이맥스 징후 ${signs.length}`); details.push(`긴 상승 뒤 징후: ${signs.map((sign) => CLIMAX_SIGN_LABELS[sign]).join(', ')}`); }
   return { text: parts.length ? parts.join(', ') : '—', title: details.join('\n'), climax: signs.length };
 }
+
+// 2026-11-18: the time basis of a row's filing figures, for the cell titles and the inspector. A row without a basis field
+// (artifacts before 2026-11-18) is the fiscal year. ROE is always the fiscal year (equity is annual in the store).
+const basisField = (row, field) => row?.[`_${field}Basis`] ?? row?.[`${field}Basis`] ?? null;
+const throughField = (row, field) => row?.[`_${field}Through`] ?? row?.[`${field}Through`] ?? null;
+const fyText = (periodEnd) => fiscalYearLabel(periodEnd) || '최근 회계연도';
+export function filingBasisLabel(row = {}, field) {
+  const periodEnd = row._fundamentalPeriodEnd ?? row.fundamentalPeriodEnd ?? null;
+  if (field === 'pe') {
+    const through = row._valuationPeEarningsThrough ?? row.peEarningsThrough ?? null;
+    return (row._valuationPeEarningsBasis ?? row.peEarningsBasis) === 'ttm' ? `최근 4개 분기${through ? `(${String(through).slice(0, 7)} 분기까지)` : ''}` : fyText(through || periodEnd);
+  }
+  if (field === 'margin' || field === 'revGrowth') {
+    const through = throughField(row, field);
+    return basisField(row, field) === 'ttm' ? `최근 4개 분기${through ? `(${String(through).slice(0, 7)} 분기까지)` : ''}` : fyText(through || periodEnd);
+  }
+  return fyText(periodEnd);
+}
+const sameBasis = (row, field) => {
+  const peTtm = (row._valuationPeEarningsBasis ?? row.peEarningsBasis) === 'ttm';
+  const fieldTtm = basisField(row, field) === 'ttm';
+  const peThrough = String(row._valuationPeEarningsThrough ?? row.peEarningsThrough ?? '').slice(0, 10);
+  return peTtm === fieldTtm && (!peTtm || peThrough === String(throughField(row, field) || '').slice(0, 10));
+};
+// One short line when the P/E's earnings and the margin beside it disagree in sign on different periods (a TTM profit beside
+// a fiscal-year loss, or the reverse); null when they agree or share one period.
+export function filingBasisMismatch(row = {}) {
+  const margin = readRowNumber(row, 'margin');
+  const pe = readRowNumber(row, 'pe');
+  const loss = row._valuationPeLoss === true || row.peLoss === true;
+  if (margin == null || sameBasis(row, 'margin')) return null;
+  if (pe != null && pe > 0 && margin < 0) return `PER은 ${filingBasisLabel(row, 'pe')} 흑자 기준, 순이익률은 ${filingBasisLabel(row, 'margin')} 적자`;
+  if (pe == null && loss && margin > 0) return `${filingBasisLabel(row, 'pe')} 순손실로 PER 없음, 순이익률은 ${filingBasisLabel(row, 'margin')} 흑자`;
+  return null;
+}
+// The filing figures' periods in one line (the inspector's hover title).
+export function filingBasisSummary(row = {}) {
+  const parts = [];
+  if (readRowNumber(row, 'pe') != null || row._valuationPeLoss === true || row.peLoss === true) parts.push(`PER ${filingBasisLabel(row, 'pe')}`);
+  if (readRowNumber(row, 'margin') != null) parts.push(`순이익률 ${filingBasisLabel(row, 'margin')}`);
+  if (readRowNumber(row, 'revGrowth') != null) parts.push(`매출 성장 ${filingBasisLabel(row, 'revGrowth')}${basisField(row, 'revGrowth') === 'ttm' ? '(직전 4개 분기 대비)' : '(전년 대비)'}`);
+  if (readRowNumber(row, 'roe') != null) parts.push(`ROE ${filingBasisLabel(row, 'roe')}`);
+  return parts.join(', ');
+}
+
+// 2026-11-18 (owner: 배당수익률): the dividend token lives in a leaf module the ticker header reads too.
+export { dividendYieldText } from './dividend-text.js';

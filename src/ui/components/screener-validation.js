@@ -1,6 +1,6 @@
 // P1419 (open-source comparison: xang1234 "Backtest" page validates published picks): how the
 // screener's ranking has done after the fact. Source: public-data/backtest-history.json — each daily
-// record re-runs six past rebalances (147 … 42 sessions ago, 21-session hold) and reports the top
+// record re-runs the past rebalances of model-fingerprint.js BACKTEST_REBALANCE_OFFSETS (21-session hold) and reports the top
 // quintile minus bottom quintile forward return (net of the modelled cost) and how often the top
 // quintile won. The predictive-validity status (public-data/model-validation-status.json) is shown
 // with it: a present-day universe means survivorship bias, so this is accountability, not proof.
@@ -39,7 +39,13 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
   // computed by the same model as the latest record belong on it.
   const lastFingerprint = last?.modelFingerprint != null ? String(last.modelFingerprint) : null;
   const sameModel = rows.filter((row) => String(row.modelFingerprint ?? '') === (lastFingerprint ?? ''));
-  const series = sameModel.filter((row) => finiteOrNull(row.quantileSpreadNet) != null).map((row) => ({ date: row.date, value: finiteOrNull(row.quantileSpreadNet) }));
+  // One date basis for every point: the session each record measured when all of them carry it, otherwise the run day
+  // for all (a weekend run of Friday's close is keyed by the run day). One point per date, the latest record winning.
+  const measured = sameModel.filter((row) => finiteOrNull(row.quantileSpreadNet) != null);
+  const seriesBasis = measured.length && measured.every((row) => isIsoDay(String(row.session || ''))) ? 'session' : 'run';
+  const byDay = new Map();
+  for (const row of measured) byDay.set(seriesBasis === 'session' ? row.session : row.date, finiteOrNull(row.quantileSpreadNet));
+  const series = [...byDay].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([date, value]) => ({ date, value }));
   let pooledMarkets = false;
   try { pooledMarkets = /market-separated/.test(JSON.parse(lastFingerprint || '{}').populationPolicy || ''); } catch (_) { pooledMarkets = false; }
   // v57.81: the one count basis for every "N회 중 M회 앞섬" (screener read, stock read, 과거 검증 tab): net of cost.
@@ -71,6 +77,7 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
     winsBasis: 'net',
     ic: last?.ic?.composite ?? null,
     series,
+    seriesBasis,
     sameModelRecords: sameModel.length,
     pooledMarkets,
     modelMatch,
@@ -103,7 +110,7 @@ export function renderScreenerValidation({ documentRef: doc, root }) {
     host.append(el(doc, 'p', '사후 검증 기록 수신 대기', 'theme-strength-basis'));
   } else {
     if (!summary.modelMatch) host.append(el(doc, 'p', '이 기록은 지금 화면의 순위와 가중치·계산 방식이 다른 이전 모델로 계산되어, 지금 순위의 검증으로 읽지 않습니다.', 'theme-strength-basis'));
-    if (summary.series.length >= 2) host.append(createTrendChart(doc, { series: summary.series, refLines: [0], format: (value) => `${value.toFixed(1)}%`, label: '상위−하위 20% 수익률 차이(비용 반영, 같은 모델 기록만, 이웃한 날은 같은 시점들을 하루 밀어 다시 계산해 서로 겹침)' }));
+    if (summary.series.length >= 2) host.append(createTrendChart(doc, { series: summary.series, refLines: [0], format: (value) => `${value.toFixed(1)}%`, label: `상위−하위 20% 수익률 차이(비용 반영, 같은 모델 기록만, ${summary.seriesBasis === 'session' ? '날짜는 계산에 쓴 마지막 거래일' : '날짜는 계산을 돌린 날'}, 이웃한 날은 같은 시점들을 하루 밀어 다시 계산해 서로 겹침)` }));
     else host.append(el(doc, 'p', `같은 모델로 계산된 기록이 ${summary.sameModelRecords}개뿐이라 추이 그림은 기록이 쌓인 뒤 표시합니다.`, 'theme-strength-basis'));
     host.append(el(doc, 'p', summary.distinguishable
       ? `최근 기록 ${summary.date}, 상위−하위 20% ${pct(summary.spreadNet)} — ${summary.rebalances}회 표본에서 우연의 범위(|t| ${VALIDATION_MIN_ABS_T})를 넘은 차이입니다.`

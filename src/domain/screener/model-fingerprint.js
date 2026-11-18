@@ -8,12 +8,41 @@
 // Pure module usable in both the producer (node) and the browser runtime.
 import { FACTOR_RANKS_MODEL_VERSION } from './factor-ranks.js';
 import { FACTOR_WEIGHTS_MODEL_VERSION, MODEL_DEFAULT_WEIGHTS } from './factor-weights.js';
+import { PRICE_FACTOR_MIN_CLOSES } from './price-factors.js';
 
 // The backtest validates this 4-factor subset of the live model (size/value/quality are
 // documented exclusions — no point-in-time data; see fetch-data.mjs EXCLUDED_FACTORS_REASON).
 export const BACKTEST_ACTIVE_FACTORS = Object.freeze(['momentum', 'trend', 'lowvol', 'kalman']);
-export const BACKTEST_REBALANCE_OFFSETS = Object.freeze([147, 126, 105, 84, 63, 42]);
+// Why each live factor outside that subset is left out, as a reason code (the producer lists these keys as its
+// excluded factors; the page words the codes). 2026-11-18: quality's live inputs moved to the latest four quarters
+// (factor-ranks.js QUALITY_INPUT_BASIS); the quarter history is no more point-in-time than the fiscal year was, so the
+// reason and this fingerprint (which covers only the price factors) are unchanged.
+export const BACKTEST_EXCLUDED_FACTOR_REASONS = Object.freeze({
+  size: 'no-historical-shares-outstanding',
+  value: 'no-point-in-time-fundamentals',
+  quality: 'no-point-in-time-fundamentals'
+});
 export const BACKTEST_FWD_DAYS = 21;
+// Sessions of close history the active factors read before a rebalance: the longest of their windows
+// (price-factors.js PRICE_FACTOR_MIN_CLOSES — 12-1 momentum reads the close 252 sessions back).
+export const BACKTEST_FACTOR_LOOKBACK_SESSIONS = Math.max(...BACKTEST_ACTIVE_FACTORS.map((factor) => PRICE_FACTOR_MIN_CLOSES[factor])) - 1;
+// Completed sessions in the producer's 2-year factor history (screener.mjs FACTOR_HISTORY_RANGE '2y'; the published
+// backtest calendar holds 500 dates).
+export const BACKTEST_HISTORY_SESSIONS = 500;
+
+/**
+ * Rebalance offsets (sessions before the last calendar date, oldest first): one every `fwdDays`, so the forward
+ * windows do not overlap; the newest leaves a full forward window and the oldest leaves the full factor lookback.
+ * A study with several holding lengths passes its longest as `newestOffset` and its rebalance spacing as `step`.
+ */
+export function deriveRebalanceOffsets({ historySessions = BACKTEST_HISTORY_SESSIONS, lookbackSessions = BACKTEST_FACTOR_LOOKBACK_SESSIONS, fwdDays = BACKTEST_FWD_DAYS, newestOffset = fwdDays, step = fwdDays } = {}) {
+  const offsets = [];
+  for (let offset = newestOffset; historySessions - 1 - offset >= lookbackSessions; offset += step) offsets.push(offset);
+  return Object.freeze(offsets.reverse());
+}
+export const BACKTEST_REBALANCE_OFFSETS = deriveRebalanceOffsets();
+// A symbol enters the production backtest with a close at the oldest rebalance date (offset sessions before the last).
+export const BACKTEST_MIN_SERIES_CLOSES = BACKTEST_REBALANCE_OFFSETS[0] + 1;
 export const BACKTEST_PRICE_BASIS = 'adjusted-close-required';
 export const BACKTEST_TRANSACTION_COST_BPS = 20;
 export const RANKING_POPULATION_POLICY = 'market-separated.v1'; // P1625: US/KR percentile cohorts are independent.
@@ -33,6 +62,24 @@ export function renormalizedWeightsOver(weights = MODEL_DEFAULT_WEIGHTS, activeF
     const value = Number(weights?.[factor]);
     return [factor, Math.round((Number.isFinite(value) && value > 0 ? value : 0) / total * 10000) / 10000];
   })));
+}
+
+/**
+ * How much of a live weight vector the backtest re-ranks: the weighted factors it covers, the weighted factors it
+ * leaves out, and the share of the live weight those left-out factors carry (0..1, null without positive weights).
+ */
+export function backtestFactorCoverage(weights = MODEL_DEFAULT_WEIGHTS, activeFactors = BACKTEST_ACTIVE_FACTORS) {
+  const weighted = Object.entries(weights && typeof weights === 'object' ? weights : {})
+    .map(([factor, value]) => [factor, Number(value)])
+    .filter(([, value]) => Number.isFinite(value) && value > 0);
+  const total = weighted.reduce((sum, [, value]) => sum + value, 0);
+  const covered = weighted.filter(([factor]) => activeFactors.includes(factor));
+  const excluded = weighted.filter(([factor]) => !activeFactors.includes(factor));
+  return Object.freeze({
+    covered: covered.map(([factor]) => factor),
+    excluded: excluded.map(([factor]) => factor),
+    excludedShare: total > 0 ? excluded.reduce((sum, [, value]) => sum + value, 0) / total : null
+  });
 }
 
 // Canonical, key-sorted JSON string of the model identity — stored in the artifact

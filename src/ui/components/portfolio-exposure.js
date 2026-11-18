@@ -6,6 +6,7 @@
 // every cell it averages is on one return basis.
 import { escapeHtml } from '../html.js';
 import { deriveExposurePanel } from '../../domain/portfolio/exposure-panel.js';
+import { holdingListingKey } from '../../domain/portfolio/fx.js';
 import { portfolioStressHtml } from '../panels/portfolio-stress.js';
 
 
@@ -14,16 +15,18 @@ export function renderPortfolioExposure(positions, returnsMap, { documentRef = g
   if (!el) return;
   if (!positions || !positions.length) { el.innerHTML = ''; return; }
   const db = typeof root._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() : [];
+  // v57.50 review R1 (C24): weights over total assets including cash, the denominator of the native sector bars and the
+  // 포트폴리오 해석; without a known total the panel falls back to the position sum and says so. Cash is not a sector.
+  const surf = root._aioPortfolioSurface || {};
+  // The listing each holding was resolved to once by the portfolio reader (surface rows), not a second resolution.
+  const listingOf = new Map((Array.isArray(surf.rows) ? surf.rows : []).map((row) => [String(row?.symbol || '').toUpperCase(), holdingListingKey(row)]));
   const find = (sym) => {
-    const listing = root._aioResolveHoldingInput?.(sym)?.listingSymbol || sym;
+    const listing = listingOf.get(String(sym || '').toUpperCase()) || sym;
     return db.find((row) => row.sym === sym || row.sym === listing) || null;
   };
   const base = root._pfBaseValues(positions);
   if (base.blocked) { el.innerHTML = root._pfBaseNote(base); return; }
   const rows = base.rows.map((r) => ({ sym: r.sym, value: r.value, stock: find(r.sym) }));
-  // v57.50 review R1 (C24): weights over total assets including cash, the denominator of the native sector bars and the
-  // 포트폴리오 해석; without a known total the panel falls back to the position sum and says so. Cash is not a sector.
-  const surf = root._aioPortfolioSurface || {};
   const posSum = rows.reduce((s, r) => s + (r.value || 0), 0);
   const total = surf.totalAssets != null && isFinite(surf.totalAssets) && surf.totalAssets >= posSum && surf.totalAssets > 0 ? surf.totalAssets : posSum;
   const basisNote = total === posSum ? '주식 부분 중' : '현금 포함 총자산 대비';

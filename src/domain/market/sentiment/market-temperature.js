@@ -7,6 +7,7 @@
 // Pure function shared by the producer (scripts/build-market-temperature.mjs) and the unit check.
 import { isIsoDay } from '../../shared/session-date.js';
 import { percentileOf } from '../../shared/percentile.js';
+import { latestCompletedSession } from '../session/market-calendar.js';
 
 export const MARKET_TEMPERATURE_SCHEMA = 'market-temperature.v1';
 // US first (AIO is a US-market screener); Korea and Japan follow as the secondary read.
@@ -198,12 +199,22 @@ export function buildMarketTemperature(rows = [], { rules = TEMPERATURE_RULES } 
 // When every fetch fails the artifact is left unchanged, so the markets agree with each
 // other and the comparison above flags none of them. An artifact not rewritten for two days (the producer runs every
 // refresh, weekends included), or a body more than ten calendar days old (past the longest Korean and Japanese holiday
-// breaks), is stale too.
+// breaks), is stale too. A retained body is stale only when it is behind the session its market had completed when the
+// artifact was written (the registered US/KRX calendars; a market without one is held against the newest other close):
+// a failed Nikkei fetch at 10:52 Tokyo time still holds the latest Nikkei close.
+const CALENDAR_MARKET = Object.freeze({ us: 'US', kr: 'KR' });
 export function staleMarketIds(payload, markets, nowMs = Date.now()) {
   const newest = Math.max(...markets.map((item) => Date.parse(item.asOf)).filter(Number.isFinite));
   const retained = new Set(Array.isArray(payload?.retained) ? payload.retained : []);
   const generated = Date.parse(payload?.generatedAt || '');
   const artifactStale = Number.isFinite(generated) && nowMs - generated > 2 * 86400000;
-  return new Set(markets.filter((item) => artifactStale || retained.has(item.id) || newest - Date.parse(item.asOf) > 7 * 86400000
+  const writtenAt = Number.isFinite(generated) ? generated : nowMs;
+  const behindItsSession = (item) => {
+    const calendar = CALENDAR_MARKET[item.region || TEMPERATURE_MARKETS.find((def) => def.id === item.id)?.region];
+    if (!calendar) return Date.parse(item.asOf) < newest;
+    const latest = latestCompletedSession(calendar, writtenAt)?.date;
+    return !latest || String(item.asOf) < latest;
+  };
+  return new Set(markets.filter((item) => artifactStale || (retained.has(item.id) && behindItsSession(item)) || newest - Date.parse(item.asOf) > 7 * 86400000
     || nowMs - Date.parse(item.asOf) > 10 * 86400000).map((item) => item.id));
 }

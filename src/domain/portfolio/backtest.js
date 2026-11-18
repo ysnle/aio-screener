@@ -188,7 +188,7 @@ function _aioBtBaseCurrencyMonthlyReturns(input) {
       months: months || [],
       disclosure: status === 'ready'
         ? label + ' — 현지 통화 수익률과 다른 결과입니다(같은 수로 읽지 마세요).'
-        : label + ' 보류 — ' + (reason || 'fx-unavailable') + ' (추정하지 않음)'
+        : label + ' — 같은 기간 원/달러 월말 환율이 없어 계산하지 않았습니다(추정하지 않음).'
     };
   };
   if (!needsConversion) {
@@ -260,7 +260,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     return {
       ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false, decisionEligible: false, promotionEligible: false,
       promotionBlockers: ['rebalance-policy-unrecognized'], reason: 'rebalance type unrecognized', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
-      warnings: ['리밸런싱 방식(' + rebalanceType + ')을 알 수 없어 백테스트를 계산하지 않습니다.']
+      warnings: ['리밸런싱 방식(' + rebalanceType + ')을 알 수 없어 실행하지 않았습니다 — 매년·분기마다·매달·안 함 중 하나를 고르면 실행됩니다.']
     };
   }
   var maxAlignmentGapDays = Number.isFinite(Number(options.maxAlignmentGapDays)) && Number(options.maxAlignmentGapDays) >= 0
@@ -315,10 +315,12 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
       priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
       allocationBlocked: { code: 'member-price-series-missing', members: missingPriceMembers.slice(), intended: intendedTickers.slice() },
-      warnings: ['가격 이력이 없어 실행을 보류합니다: ' + missingPriceMembers.join(', ') + '.', '보유 멤버를 제외 의도로 간주해 재분배하지 않습니다 — 새 정의로 명시하거나 가격 이력을 채운 뒤 다시 실행하세요.']
+      // One plain sentence — which holdings had no price record and what to do; the coverage rule (a missing series
+      // is not an exclusion, so the rest is not re-weighted) is kept in allocationBlocked.
+      warnings: ['가격 기록을 받지 못한 종목(' + missingPriceMembers.join(', ') + ')이 있어 실행하지 않았습니다 — 나머지 종목만으로 비중을 다시 나누지 않으며, 그 종목의 가격 기록이 들어오면 실행됩니다.']
     };
   }
-  if (!tickers.length) return { ok: false, reason: 'no valid portfolio price series', warnings: ['가격 이력이 있는 포지션이 없습니다.'] };
+  if (!tickers.length) return { ok: false, reason: 'no valid portfolio price series', warnings: ['가격 기록이 있는 보유 종목이 없어 실행하지 않았습니다 — 보유 종목의 가격 기록이 들어오면 실행됩니다.'] };
 
   // ── P1247 (E3/E4): 통화축 ───────────────────────────────────────────────────────────────────
   // 구성은 환산 주장이다. `qty × 시작가`는 각 멤버의 **자기 통화**로 표시된 시장가치이므로 통화가 다르면
@@ -397,11 +399,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
         currencyAxis: currencyAxis,
         allocationBlocked: { code: 'base-currency-undeclared', memberCurrencies: memberCurrencies.slice() },
-        warnings: [
-          '보유 멤버의 통화가 섞여 있어(' + memberCurrencies.join(', ') + ') 시작 시점 시장가치 비중에 기준 통화가 필요합니다.',
-          '통화를 선언하지 않은 채 서로 다른 통화 금액을 1:1로 더하지 않았습니다 — 미확인 통화는 USD라는 뜻이 아닙니다.',
-          '단위 없는 명시 목표비중을 입력하면 비중은 환산 없이도 성립합니다(수익률은 현지 통화 가중으로 표시).'
-        ]
+        warnings: ['통화가 다른 종목(' + memberCurrencies.join(', ') + ')이 섞여 있어 시작 비중을 정하지 못해 실행하지 않았습니다 — 계좌 기준 통화를 입력하거나 종목마다 목표 비중을 넣으면 실행됩니다.']
       };
     }
     if (!fxLegs.length) {
@@ -414,15 +412,12 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
         currencyAxis: currencyAxis,
         allocationBlocked: { code: 'fx-rate-not-declared', baseCurrency: baseCurrency, memberCurrencies: memberCurrencies.slice() },
-        warnings: [
-          '기준 통화 ' + baseCurrency + '로 환산할 관측 rate leg가 선언되지 않았습니다.',
-          'rate 없이 서로 다른 통화를 합산하지 않았습니다 — 포트폴리오 선언에서 FX leg(쌍·관측 rate·관측 시각)를 추가한 뒤 다시 실행하세요.'
-        ]
+        warnings: ['기준 통화(' + baseCurrency + ')로 바꿀 환율 기록이 없어 시작 비중을 정하지 못해 실행하지 않았습니다 — 환율 기록에 통화쌍과 환율을 넣거나 종목마다 목표 비중을 넣으면 실행됩니다.']
       };
     }
     return null;
   };
-  if (!priceMap || !priceMap[benchmarkSymbol]) return { ok: false, reason: 'missing benchmark', warnings: [benchmarkSymbol + ' 벤치마크 가격 이력이 없습니다.'] };
+  if (!priceMap || !priceMap[benchmarkSymbol]) return { ok: false, reason: 'missing benchmark', warnings: ['비교 지수(' + benchmarkSymbol + ') 가격 기록을 받지 못해 실행하지 않았습니다 — 그 가격 기록이 들어오거나 다른 비교 지수를 고르면 실행됩니다.'] };
 
   // Returns require a corporate-action-adjusted series.  A raw close is still
   // useful for charting, but silently substituting it here would understate
@@ -444,7 +439,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
       priceBasis: 'adjusted-close-required',
       compositionDisclosure: 'current-composition-retrospective',
-      warnings: ['조정주가(adjusted close) 이력이 없어 성과 계산을 보류합니다: ' + missingAdjusted.join(', ') + '.', '원가·raw close를 조정주가 대신 사용하지 않습니다.', '거래비용·슬리피지를 반영하지 않은 결과는 승격할 수 없습니다.']
+      warnings: ['배당을 반영한 가격 기록을 받지 못한 종목(' + missingAdjusted.join(', ') + ')이 있어 실행하지 않았습니다 — 매수 단가나 배당 미반영 가격으로 대신 계산하지 않으며, 그 기록이 들어오면 실행됩니다.']
     };
   }
   // Do not invent a risk-free rate. Gross return rows can still be shown,
@@ -479,7 +474,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       promotionBlockers: ['synchronous-month-end-alignment-required', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-measured-not-costed'],
       reason: 'insufficient synchronously aligned monthly data', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
       priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
-      warnings: ['동일 월 키라도 관측일 차이가 ' + maxAlignmentGapDays + '일을 넘는 자산은 결합하지 않습니다. 공통 동시 월말이 14개월 미만입니다.']
+      warnings: ['모든 종목과 비교 지수의 월말 가격이 함께 있는 달이 14개월이 안 돼 실행하지 않았습니다 — 최근 상장한 종목을 빼거나 기록이 14개월 넘게 쌓이면 실행됩니다.']
     };
   }
 
@@ -517,7 +512,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
         model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
         gridGaps: gridGaps,
-        warnings: ['월별 그리드에 결측 구간이 있어 연속 구간이 14개월 미만입니다.', '여러 달 수익률을 한 달 표본으로 압축하거나 결측을 채우지 않습니다.']
+        warnings: ['가격 기록이 빠진 달이 있어 끊김 없이 이어진 기간이 14개월이 안 돼 실행하지 않았습니다 — 빠진 달을 채워 넣지 않으며, 기록이 이어진 종목으로만 구성하면 실행됩니다.']
       };
     }
     common = chosenMonths;
@@ -562,10 +557,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
         currencyAxis: currencyAxis,
         allocationBlocked: { code: 'member-currency-undeclared', members: undeclaredCurrencyMembers.slice(), intended: intendedTickers.slice() },
-        warnings: [
-          '통화가 선언되지 않은 멤버: ' + undeclaredCurrencyMembers.join(', ') + ' — 미확인 통화는 기준 통화라는 뜻이 아닙니다.',
-          '시작 시점 시장가치를 추정 환산하지 않고 시작 배분 전체를 보류합니다. 각 멤버의 시세·원가 통화를 선언한 뒤 다시 실행하세요.'
-        ]
+        warnings: ['통화를 알 수 없는 종목(' + undeclaredCurrencyMembers.join(', ') + ')이 있어 시작 비중을 정하지 못해 실행하지 않았습니다 — 기준 통화로 가정하지 않으며, 그 종목의 매수 단가 통화를 입력하면 실행됩니다.']
       };
     }
     var startMonth = common[0];
@@ -610,10 +602,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
         currencyAxis: currencyAxis,
         allocationBlocked: { code: 'fx-conversion-unavailable', held: currencyAxis.held.slice() },
-        warnings: [
-          '시작 시점 시장가치를 기준 통화로 환산하지 못해 비중을 만들지 않았습니다: ' + currencyAxis.held.map(function(entry) { return entry.pair + '(' + entry.reason + ')'; }).join(', ') + '.',
-          '환산 실패를 0이나 제외로 바꾸지 않습니다 — 선언한 leg의 관측 시각·창을 확인하거나 통화쌍을 추가한 뒤 다시 실행하세요.'
-        ]
+        warnings: ['기준 통화로 바꿀 환율이 없거나 오래된 통화쌍(' + currencyAxis.held.map(function(entry) { return entry.pair; }).join(', ') + ')이 있어 시작 비중을 정하지 못해 실행하지 않았습니다 — 환율 기록에 그 통화쌍을 최근 날짜로 넣으면 실행됩니다.']
       };
     }
     if (!(targetWeightDenominator > 0) || tickers.some(function(t) { return !(targetWeights[t] > 0); })) {
@@ -623,7 +612,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
         promotionBlockers: ['target-weight-basis-unavailable', 'transaction-costs-not-modeled', 'slippage-not-modeled', 'turnover-measured-not-costed'],
         reason: 'target weight basis unavailable', model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
         priceBasis: 'adjusted-close-required', compositionDisclosure: 'current-composition-retrospective',
-        warnings: ['원가 비중을 목표비중으로 대체하지 않습니다. 명시적 targetWeight 또는 시작 시점 조정주가×수량이 필요합니다.']
+        warnings: ['시작 달 가격으로 평가할 수 없는 종목이 있어 시작 비중을 정하지 못해 실행하지 않았습니다 — 매수 단가로 대신하지 않으며, 종목마다 목표 비중을 넣거나 그 가격 기록이 들어오면 실행됩니다.']
       };
     }
     tickers.forEach(function(t) { targetWeights[t] = targetWeights[t] / targetWeightDenominator; });
@@ -634,23 +623,20 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     var allocationWarnings = null;
     if (unspecifiedTickers.length) {
       allocationBlocked = { code: 'partial-allocation-unresolved', specified: specifiedTickers.slice(), unspecified: unspecifiedTickers.slice() };
-      allocationWarnings = [
-        '부분 배분은 보류입니다 — 미지정 멤버: ' + unspecifiedTickers.join(', ') + '.',
-        '이건 제외가 아닙니다: 모든 멤버의 목표비중을 명시하거나 잔여비중 정책을 별도로 지정하세요. 잔여를 시장가치로 암묵 재분배하지 않습니다.'
-      ];
+      allocationWarnings = ['목표 비중이 비어 있는 종목(' + unspecifiedTickers.join(', ') + ')이 있어 실행하지 않았습니다 — 빈 몫을 다른 종목에 나누지 않으며, 모든 종목에 합 100%로 넣거나 모두 비우면 지금 보유 수량으로 실행됩니다.'];
     } else if (!(targetWeightDenominator > 0)) {
       allocationBlocked = { code: 'explicit-zero-allocation', members: tickers.slice(), sum: targetWeightDenominator };
       // P1252 (BT-08): 이 엔진은 전액투자 전략만 지원한다 — 목표비중 합계가 100%여야 하고 현금
       // 배분 모드는 없다. 존재하지 않는 "현금 100% 모드"를 안내하지 않는다.
-      allocationWarnings = ['모든 목표비중이 0입니다 — 명시적 0은 제외 의도이며, 이 엔진은 전액투자 전략만 지원하므로(목표비중 합계가 100%여야 하며 현금 배분 모드는 제공하지 않습니다) 실행할 수 없습니다.', '제외된 종목을 시장가치로 되살리지 않습니다.'];
+      allocationWarnings = ['목표 비중이 모두 0이라 실행하지 않았습니다 — 0은 그 종목을 빼라는 뜻으로 읽고 현금 몫은 계산하지 않으며, 합이 100%가 되게 넣으면 실행됩니다.'];
     } else if (targetWeightDenominator > 100 + 1e-9) {
       allocationBlocked = { code: 'invalid-allocation-sum', members: tickers.slice(), sum: targetWeightDenominator };
-      allocationWarnings = ['목표비중 합계가 100을 넘습니다 (' + Math.round(targetWeightDenominator * 100) / 100 + ') — 비율로 눌러 정규화하지 않습니다.'];
+      allocationWarnings = ['목표 비중 합계가 ' + Math.round(targetWeightDenominator * 100) / 100 + '%라 실행하지 않았습니다 — 비율로 줄여 맞추지 않으며, 합이 100%가 되면 실행됩니다.'];
     } else if (targetWeightDenominator < 100 - 1e-9) {
       allocationBlocked = { code: 'partial-allocation-unresolved', specified: specifiedTickers.slice(), unspecified: [], sum: targetWeightDenominator };
       // P1252 (BT-08): "현금 비중을 명시하세요"는 존재하지 않는 입력을 안내한다 — 이 엔진은
       // 전액투자 전략만 지원한다(목표비중 합계 100%, 현금 배분 모드 없음).
-      allocationWarnings = ['목표비중 합계가 100보다 작습니다 (' + Math.round(targetWeightDenominator * 100) / 100 + ') — 잔여비중 정책 없이 잔여를 분배하지 않습니다. 이 엔진은 전액투자 전략만 지원합니다: 목표비중 합계가 100%여야 하며 현금 배분 모드는 제공하지 않습니다.'];
+      allocationWarnings = ['목표 비중 합계가 ' + Math.round(targetWeightDenominator * 100) / 100 + '%라 실행하지 않았습니다 — 남는 몫을 다른 종목이나 현금에 나누지 않으며, 합이 100%가 되면 실행됩니다.'];
     } else {
       targetWeightBasis = 'explicit-target-weight';
       tickers.forEach(function(t) { targetWeights[t] = (byTickerTargetWeight[t] || 0) / targetWeightDenominator; });
@@ -784,6 +770,9 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   // P1252 (BT-06): 최고/최저 연도는 **전체 연도만** 후보로 삼는다 — 연중 시작한 창의 2개월 부분
   // 연도가 "최악의 해"로 발행되는 것을 막는다. 전체 연도가 없으면 best/worst는 null이다.
   var annualReturns = annualRows.filter(function(r) { return !r.partialYear; }).map(function(r) { return r.return; });
+  // The benchmark column of the same summary — best/worst full year and the deepest drawdown of its own
+  // month-end balances, on the same months and the same full-year rule.
+  var benchmarkAnnualReturns = annualRows.filter(function(r) { return !r.partialYear; }).map(function(r) { return r.benchmarkReturn; });
   var cleanMonthly = monthlyReturns.slice().sort(function(a, b) { return a - b; });
   var var5 = cleanMonthly.length ? Math.max(0, -_quantileR7(cleanMonthly, 0.05)) : null;
   var tail = cleanMonthly.filter(function(r) { return r <= _quantileR7(cleanMonthly, 0.05); });
@@ -831,6 +820,8 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   var downCapture = downB != null && downP != null && downB !== 0 ? downP / downB : null;
   var mddRows = _aioBtWorstDrawdowns(monthlyRows, common[0], initialAmount);
   var mdd = mddRows.length ? mddRows[0].drawdown : 0;
+  var benchmarkMddRows = _aioBtWorstDrawdowns(monthlyRows.map(function(r) { return { month: r.month, balance: r.benchmarkBalance }; }), common[0], initialAmount);
+  var benchmarkMdd = benchmarkMddRows.length ? benchmarkMddRows[0].drawdown : 0;
   var portVar = Math.pow(_statStdDev(monthlyReturns), 2);
   var netGain = endBalance - initialAmount;
   var totalTurnover = monthlyRows.reduce(function(sum, row) { return sum + Number(row.turnover || 0); }, 0);
@@ -931,6 +922,9 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       bestYear: annualReturns.length ? Math.max.apply(null, annualReturns) : null,
       worstYear: annualReturns.length ? Math.min.apply(null, annualReturns) : null,
       maxDrawdown: mdd,
+      benchmarkBestYear: benchmarkAnnualReturns.length ? Math.max.apply(null, benchmarkAnnualReturns) : null,
+      benchmarkWorstYear: benchmarkAnnualReturns.length ? Math.min.apply(null, benchmarkAnnualReturns) : null,
+      benchmarkMaxDrawdown: benchmarkMdd,
       sharpe: sharpe,
       sharpeBasis: rfAnnual == null ? 'unavailable-risk-free-rate-not-supplied' : 'monthly-arithmetic-excess-return-over-monthly-sample-stdev-annualized-sqrt12',
       sortino: sortino,
@@ -950,24 +944,20 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       downsideCapture: downCapture
     },
     warnings: [
-      '조정주가 기반 총수익률의 참고용 추정치입니다. 세금·수수료·거래비용·슬리피지를 반영하지 않은 gross 성과이며, 리밸런싱 회전율은 측정만 하고 비용으로 차감하지 않았습니다. 이 누락은 승격 차단 사유입니다.',
-      '명시적 목표비중 또는 시작 시점 조정주가×수량 비중을 과거에 소급한 current-composition retrospective이며 원가 비중을 시장가 비중으로 오인하지 않습니다. 생존편향·구성 변경·상장 전 구간은 교정하지 않습니다.',
-      '월말 관측일이 자산 간 ' + maxAlignmentGapDays + '일을 초과하는 월은 비동시성 편향 방지를 위해 제외했습니다.',
-      // P1252 (BT-05): 경고는 실제 판정을 말한다 — 인증된 표본에 고정 "인증 보류"를 붙이지 않고,
-      // 보류면 실제 certificationReasons를 나열한다.
-      // v57.92 E06: VaR and CVaR are certified separately — the tail mean can be unstable while the quantile is not.
-      'VaR/CVaR 표본 ' + varCertification.sampleN + '개·꼬리 ' + varCertification.tailN + '개 — VaR '
-        + (varCertification.certification === 'certified' ? '인증됨(표본 안정성 통과)' : '인증 보류(' + (varCertification.certificationReasons || []).join(', ') + ')')
-        + ', CVaR ' + (varCertification.cvarCertification === 'certified' ? '인증됨' : '인증 보류(' + (varCertification.cvarCertificationReasons || []).join(', ') + ')') + '.',
-      rfInvalid ? '무위험수익률(RF)은 연간 소수(decimal) 단위(-1, 1]만 허용합니다. 입력 단위가 잘못되어 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : rfAnnual == null ? '무위험수익률(RF)을 입력하지 않아 Sharpe·Sortino·Alpha를 산출하지 않았습니다.' : ('RF 가정: 연 소수 ' + rfAnnual.toFixed(6) + ' (' + (rfAnnual * 100).toFixed(2) + '%).'),
-      '거래 가능한 실현 성과·매매 지시로 승격하지 않습니다.',
-      '모든 종목과 벤치마크의 월말 가격이 함께 있는 첫 달(' + common[0] + ')부터 계산합니다 — 가장 늦게 상장한 종목이 전체 시작 시점을 정합니다.',
+      // The reader's words, not the model's governance terms (gross, retrospective, 승격, 인증). The facts stay:
+      // costs not charged, turnover measured only, today's book applied to the past, months dropped for date gaps.
+      // VaR/CVaR sample and certification are on their table row, so they are not repeated here.
+      '배당을 다시 투자한 수정 종가로 계산한 참고용 추정입니다. 세금·수수료·거래비용은 빼지 않았고, 리밸런싱 때 사고판 양은 재기만 하고 비용으로 빼지 않았습니다.',
+      '지금 보유 구성을 과거에 그대로 적용한 결과라, 그 사이 상장폐지나 구성 변경은 반영하지 않습니다.',
+      '종목 사이 월말 날짜가 ' + maxAlignmentGapDays + '일 넘게 어긋난 달은 뺐습니다.',
+      rfInvalid ? '무위험 수익률 입력을 읽지 못해 샤프·소르티노·알파를 계산하지 않았습니다.' : rfAnnual == null ? '무위험 수익률을 입력하지 않아 샤프·소르티노·알파를 계산하지 않았습니다.' : ('무위험 수익률은 입력한 연 ' + (rfAnnual * 100).toFixed(2) + '%를 전 기간에 같게 썼습니다.'),
+      '모든 종목과 벤치마크의 월말 가격이 함께 있는 첫 달(' + common[0] + ')부터 계산합니다 — 가장 늦게 상장한 종목이 시작 시점을 정합니다.',
       // P1252 (BT-03): 원가 통화로 시세 값을 환산한 근거 추정은 공개한다 — 시세 통화 선언이
       // 원가 통화와 다르면 비중이 왜곡될 수 있다.
-      priceCurrencyInferredMembers.length ? ('시세 통화가 선언되지 않은 멤버(' + priceCurrencyInferredMembers.join(', ') + ')는 원가 통화를 시세 값 환산의 통화로 사용했습니다(price-currency-inferred-from-cost) — 원가 통화가 실제 시세 통화와 다르면 시작 비중이 왜곡됩니다.') : null,
+      priceCurrencyInferredMembers.length ? ('시세 통화를 입력하지 않은 종목(' + priceCurrencyInferredMembers.join(', ') + ')은 매수 단가 통화를 시세 통화로 썼습니다 — 둘이 다르면 시작 비중이 틀어집니다.') : null,
       targetWeightBasis !== 'explicit-target-weight' && startWeightPriceBasis === 'adjusted-close' ? '실제 거래 종가가 없는 종목이 있어 시작 비중을 배당 조정 종가로 계산했습니다 — 배당이 큰 종목은 시작 비중이 실제보다 작게 잡힙니다.' : null,
       needsConversion && currencyAxis.compositionFx && currencyAxis.compositionFx.basis === 'declared-rate-as-of-run' && targetWeightBasis !== 'explicit-target-weight' ? '시작 달(' + common[0] + ')의 원/달러 월말 값이 없어 시작 비중을 지금 선언된 환율로 환산했습니다 — 그 사이 환율이 움직인 만큼 시작 비중이 실제와 다릅니다.' : null,
-      needsConversion ? ('비중은 ' + (currencyAxis.compositionFx && currencyAxis.compositionFx.basis === 'start-month-end-series' ? '시작 달 원/달러 월말 값으로' : '선언된 rate leg로') + ' 기준 통화(' + baseCurrency + ')로 환산했지만, 월별 수익률은 각 자산의 현지 통화 가격 경로에서 계산됩니다 — 기준 통화 수익률에는 관측 FX 시계열이 필요하며 이 결과에 포함되지 않았습니다.') : null
+      needsConversion ? ('시작 비중은 ' + (currencyAxis.compositionFx && currencyAxis.compositionFx.basis === 'start-month-end-series' ? '시작 달 원/달러 월말 값으로' : '입력한 환율로') + ' ' + baseCurrency + '로 환산했고, 월별 수익률은 각 종목의 현지 통화 가격으로 계산했습니다 — 환율 변동은 이 수익률에 들어 있지 않습니다.') : null
     ].filter(Boolean)
   };
 };

@@ -103,6 +103,10 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     roe: finite(row?.roe),
     margin: finite(row?.margin),
     revGrowth: finite(row?.revGrowth),
+    _marginBasis: row?._marginBasis || null, _marginThrough: row?._marginThrough || null, // 2026-11-18: 'ttm' | 'fy' (absent = FY)
+    _revGrowthBasis: row?._revGrowthBasis || null, _revGrowthThrough: row?._revGrowthThrough || null,
+    dividendTtm: finite(row?.dividendTtm), dividendYieldPct: finite(row?.dividendYieldPct), dividendLastExDate: row?.dividendLastExDate || null,
+    dividendCount12m: finite(row?.dividendCount12m), dividendBasis: row?.dividendBasis || null,
     newsMemo: row?.newsMemo || null,
     newsMemoVerified: row?.newsMemoVerified === true,
     newsMemoSources: Array.isArray(row?.newsMemoSources) ? [...row.newsMemoSources] : [],
@@ -134,6 +138,9 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     _valuationPeEarningsLaterQuarter: row?._valuationPeEarningsLaterQuarter || null,
     _valuationPbPrice: finite(row?._valuationPbPrice),
     _valuationPbPriceBasis: row?._valuationPbPriceBasis || null,
+    // The balance sheet the P/B equity was read from (its period end) and 'common' when preferred equity was taken out.
+    _valuationPbEquityThrough: row?._valuationPbEquityThrough || null,
+    _valuationPbEquityBasis: row?._valuationPbEquityBasis || null,
     _valuationSharesOutstanding: finite(row?._valuationSharesOutstanding),
     _valuationSharesObservedAt: row?._valuationSharesObservedAt || null,
     identityObservedAt: row?.identityObservedAt || null,

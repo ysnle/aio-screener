@@ -694,6 +694,38 @@ check('v59.56 cash-flow lane in the reading: the group line always, an issuer li
   });
 }
 
+// v60.26 (cross-screen, live 2026-11-18): the four earnings cells are decided in the domain and agree with the brief.
+{
+  const { earningsCells, earningsCellLines } = await import('../src/domain/briefing/reaction-read.js');
+  const { koreanReleaseText } = await import('../src/domain/briefing/event-briefs.js');
+  const cellsOf = (brief) => Object.fromEntries((earningsCellLines(earningsCells(brief)) || []).map((cell) => [cell.term, cell]));
+  const eps = (value, estimate, extra = {}) => ({ metric: 'eps_diluted', label: '희석 EPS', value, estimate: { value: estimate, surprisePct: 1, basis: 'provider-consensus-reference', actualBasis: 'reported', ...extra } });
+  check('v60.26 a latest-trade reaction fills the 주가 반응 cell with its session word (NVDA 11/18 read 없음 beside +4.8%)', () => {
+    const nvda = { kind: 'earnings', symbol: 'NVDA', figures: [eps('$1.30', 1.25)], reaction: { basis: 'latest-trade', baseDate: '2026-11-18', extendedPct: 4.8, extendedAt: '2026-11-18T22:30:00Z', sessions: 0 } };
+    const cell = cellsOf(nvda)['주가 반응'];
+    same(cell?.lines, ['시간외 +4.8%']);
+    eq(cell.direction, 'up');
+    ok(earningsCells(nvda).reaction, 'the cell carries the move, so the reaction line under the card is not drawn again');
+    const open = { ...nvda, reaction: { ...nvda.reaction, extendedPct: -2.1, extendedAt: '2026-11-19T15:00:00Z' } };
+    same(cellsOf(open)['주가 반응'].lines, ['장중 -2.1%']);
+  });
+  check('v60.26 with no estimate the 발표 cell shows the headline figure and 예상 says 비교 자료 없음 (삼성전자 10/29 read 없음/없음)', () => {
+    const samsung = { kind: 'earnings', symbol: '005930.KS', headline: '2026년 3분기 잠정 실적: 영업이익 107.44조원(전분기 대비 +20.06%)',
+      figures: [{ metric: 'revenue', label: '매출액', value: '195.25조원' }, { metric: 'operating_income', label: '영업이익', value: '107.44조원' }],
+      reaction: { basis: 'close', baseDate: '2026-10-28', firstDate: '2026-10-29', firstPct: -4.1, latestPct: -9.9, sessions: 5 } };
+    const cells = cellsOf(samsung);
+    same(cells['발표']?.lines, ['영업이익 107.44조원']);
+    same(cells['예상']?.lines, ['비교 자료 없음']);
+  });
+  check('v60.26 a negative EPS reads -$ in both the estimate and the actual (EPS $-0.07 / EPS $(0.12))', () => {
+    const loss = { kind: 'earnings', symbol: 'XYZ', figures: [eps('$(0.12)', -0.07, { providerActual: -0.11 })], reaction: { basis: 'close', baseDate: '2026-11-17', firstDate: '2026-11-18', firstPct: -3, latestPct: -3, sessions: 1 } };
+    const cells = cellsOf(loss);
+    same(cells['예상']?.lines, ['EPS -$0.07']);
+    like(cells['발표']?.lines?.[0] || '', /^EPS -\$0\.12 \(.*조정 -\$0\.11 기준\)$/);
+    eq(koreanReleaseText('희석 EPS $(0.12)'), '희석 EPS -$0.12');
+  });
+}
+
 if (failures.length) {
   console.error(`[event-briefs] ${failures.length} failure(s):\n- ${failures.join('\n- ')}`);
   process.exit(1);

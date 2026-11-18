@@ -6,7 +6,7 @@
 
 export const EVENT_BRIEFS_SCHEMA = 'event-briefs.v1';
 
-import { surprisePct, readNumber } from '../shared/number.js';
+import { surprisePct, readNumber, usdPerShareText } from '../shared/number.js';
 import { MARKET_MOVERS, MOVER_BY_SYMBOL } from './market-movers.js';
 import { resolveMarketCalendarSession } from '../market/session/market-calendar.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
@@ -340,7 +340,7 @@ export function figureSurprise(figure, figures = [], { provisional = false } = {
   if (!basis) return null;
   if (provider != null) {
     const pct = surprisePct(provider, Number(estimate.value));
-    return pct == null ? null : { pct, note: provider !== basis.actual ? `(조정 $${provider} 기준)` : '', basis: 'provider' };
+    return pct == null ? null : { pct, note: provider !== basis.actual ? `(조정 ${usdPerShareText(provider)} 기준)` : '', basis: 'provider' };
   }
   const pct = surprisePct(basis.actual, Number(estimate.value));
   if (pct == null) return null;
@@ -379,6 +379,8 @@ const OBJECT_AFTER_DALLAR = { 을: '를', 이: '가', 은: '는', 과: '와', �
 
 export function koreanReleaseText(text) {
   return String(text ?? '')
+    // an accountant's "$(0.12)" and a "$-0.12" read "-$0.12", the sign style of usdPerShareText.
+    .replace(new RegExp(String.raw`\$\s*(?:\(\s*${NUM}\s*\)|-\s*${NUM})`, 'g'), (m, a, b) => `-$${a || b}`)
     .replace(/(\d+)-(\d)\/(\d)\s*(?:to|~|–|-)\s*(\d+)(?:-(\d)\/(\d))?\s*percent/gi, (m, a, b, c, d, e, f) => `${fraction(a, b, c)}~${e ? fraction(d, e, f) : Number(d)}%`)
     .replace(/(\d+(?:\.\d+)?)\s*(?:to|~|–)\s*(\d+(?:\.\d+)?)\s*percent/gi, '$1~$2%')
     .replace(/\bbetween\s+(?=[$\d])/gi, '')
@@ -504,14 +506,30 @@ export function releaseSession(publishedAt, { market = 'US', dateOnly = false } 
   const ms = Date.parse(publishedAt || '');
   if (!Number.isFinite(ms)) return null;
   if (dateOnly && hasLeadingIsoDay(String(publishedAt))) return { releaseDate: String(publishedAt).slice(0, 10), afterClose: false };
-  const [zone, defaultClose] = EXCHANGE_ZONE[market] || EXCHANGE_ZONE.US;
-  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
-    .formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
-  const hour = Number(parts.hour) + Number(parts.minute) / 60;
-  const releaseDate = `${parts.year}-${parts.month}-${parts.day}`;
-  const day = resolveMarketCalendarSession({ market: market === 'KR' ? 'KR' : 'US', date: releaseDate });
+  const defaultClose = (EXCHANGE_ZONE[market] || EXCHANGE_ZONE.US)[1];
+  const { date: releaseDate, hour, day } = exchangeClock(ms, market);
   const closeHour = day.status === 'open' && /^\d{2}:\d{2}$/.test(day.close || '') ? Number(day.close.slice(0, 2)) + Number(day.close.slice(3)) / 60 : defaultClose;
   return { releaseDate, afterClose: !dateOnly && hour >= closeHour };
+}
+
+/** The exchange date, the hour (decimal) and that day's registered session for a moment. */
+function exchangeClock(ms, market = 'US') {
+  const [zone] = EXCHANGE_ZONE[market] || EXCHANGE_ZONE.US;
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+    .formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
+  const date = `${parts.year}-${parts.month}-${parts.day}`;
+  return { date, hour: Number(parts.hour) + Number(parts.minute) / 60, hm: `${parts.hour}:${parts.minute}`, day: resolveMarketCalendarSession({ market: market === 'KR' ? 'KR' : 'US', date }) };
+}
+
+/**
+ * the word for a latest-trade reaction — '장중' when the trade fell inside that exchange
+ * day's regular session (a session still open), otherwise '시간외' (after the close or before the open).
+ */
+export function latestTradeWord(reaction, { market = 'US' } = {}) {
+  const ms = Date.parse(reaction?.extendedAt || '');
+  if (!Number.isFinite(ms)) return '시간외';
+  const { hm, day } = exchangeClock(ms, market);
+  return day.status === 'open' && day.open && day.close && hm >= day.open && hm < day.close ? '장중' : '시간외';
 }
 
 const pctOf = (close, base) => Math.round((close / base - 1) * 1000) / 10;

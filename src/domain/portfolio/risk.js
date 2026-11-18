@@ -14,6 +14,7 @@
  */
 
 import { calendarDate } from './trade-journal.js';
+import { readNumber } from '../shared/number.js';
 
 const EXPOSURE_HISTORY_MODES = ['actual_account_history', 'current_composition_retrospective', 'fixed_target_weight_strategy'];
 
@@ -184,8 +185,8 @@ function _pfResolveStrategyWeights(targetWeights, memberSeries) {
   for (var i = 0; i < memberSeries.length; i += 1) {
     var ticker = memberSeries[i].ticker;
     if (!Object.prototype.hasOwnProperty.call(targetWeights, ticker)) return null;
-    var weight = Number(targetWeights[ticker]);
-    if (!isFinite(weight) || weight < 0 || weight > 1) return null;
+    var weight = readNumber(targetWeights[ticker]);
+    if (weight == null || weight < 0 || weight > 1) return null;
     weights.push(weight);
     declared[ticker] = weight;
     sum += weight;
@@ -528,23 +529,23 @@ export function assessAccountPerformance(input) {
     return { status: 'blocked', code: code, twr: null, mwr: null, irr: null, requiredInputs: requiredInputs, message: message };
   };
   if (!ledger || !Array.isArray(ledger.transactions) || !ledger.transactions.length) {
-    return blocked('ledger-not-available', '실제 계좌 성과(TWR/MWR)는 거래·입출금 원장 없이 계산하지 않습니다.');
+    return blocked('ledger-not-available', '거래·입출금 원장이 없어 계산하지 않았습니다 — 계좌 원장에 입출금과 기간 평가액을 넣으면 계산합니다.');
   }
   var coverage = ledger.coverage && typeof ledger.coverage === 'object' ? ledger.coverage : {};
   var missingInputs = requiredInputs.filter(function(name) { return coverage[name] !== true; });
-  if (missingInputs.length) return blocked('account-input-incomplete', '원장이 필수 입력을 선언하지 않았습니다: ' + missingInputs.join(', '));
+  if (missingInputs.length) return blocked('account-input-incomplete', '원장 포함 범위에 체크하지 않은 항목이 있어 계산하지 않았습니다 — 원장이 매매·입출금·배당·비용·환율·기간 평가액을 모두 담고 포함 범위가 모두 체크되면 계산합니다.');
 
   var currency = ledger.currency != null ? String(ledger.currency) : null;
   var dayCount = ledger.dayCount != null ? String(ledger.dayCount) : null;
   var flowTiming = ledger.flowTiming;
   if (!currency || dayCount !== 'actual-365' || (flowTiming !== 'start-of-period' && flowTiming !== 'end-of-period')) {
-    return blocked('account-convention-required', '계좌 성과는 통화·dayCount(actual-365)·현금흐름 시점(start-of-period|end-of-period)을 선언해야 계산합니다.');
+    return blocked('account-convention-required', '계좌 통화나 입출금 반영 시점이 정해지지 않아 계산하지 않았습니다 — 계좌 기준 통화를 넣고 원장의 입출금 반영 시점을 고르면 계산합니다.');
   }
 
   var valuations = (Array.isArray(ledger.valuations) ? ledger.valuations : [])
     .map(function(mark) { return { date: mark && mark.date != null ? String(mark.date) : null, amount: mark && mark.amount != null ? Number(mark.amount) : null }; })
     .filter(function(mark) { return mark.date != null && isFinite(mark.amount); });
-  if (valuations.length < 2) return blocked('account-valuation-marks-required', '기간 평가액(valuation marks)이 2개 미만이라 TWR/MWR를 계산하지 않습니다.');
+  if (valuations.length < 2) return blocked('account-valuation-marks-required', '기간 평가액이 2개보다 적어 계산하지 않았습니다 — 기간 시작과 끝의 계좌 평가액을 넣으면 계산합니다.');
   if (!valuations.every(function(mark, index) { return index === 0 || valuations[index - 1].date < mark.date; })) {
     return blocked('account-valuation-marks-unordered', '기간 평가액 날짜가 오름차순이 아니어서 기간 수익률을 연결하지 않습니다.');
   }

@@ -46,6 +46,24 @@ export function fiscalYearShortLabel(periodEnd) {
   const label = fiscalYearLabel(periodEnd);
   return label ? `FY${label.slice(-2)}` : null;
 }
+// The one quarter label on 재무 공시 — the year-month of the SEC quarter end ('2026-08' for a quarter ended
+// 2026-08-02). The consensus source names the same fiscal quarter by its own month ('2026-07'); secQuarterLabel maps such
+// a month to the SEC quarter end nearest its month end within 45 days, or returns null (the caller keeps the source label).
+export const quarterLabel = (periodEnd) => (isIsoDay(String(periodEnd || '').slice(0, 10)) ? String(periodEnd).slice(0, 7) : null);
+const QUARTER_ALIGN_DAYS = 45;
+export function secQuarterLabel(month, quarters = []) {
+  const m = /^(\d{4})-(\d{2})$/.exec(String(month || ''));
+  if (!m) return null;
+  const anchor = Date.UTC(Number(m[1]), Number(m[2]), 0);
+  let best = null;
+  for (const quarter of Array.isArray(quarters) ? quarters : []) {
+    const end = String(quarter?.periodEnd || '').slice(0, 10);
+    if (!isIsoDay(end)) continue;
+    const gap = Math.abs(Date.parse(`${end}T00:00:00Z`) - anchor) / 86400000;
+    if (gap <= QUARTER_ALIGN_DAYS && (!best || gap < best.gap)) best = { gap, end };
+  }
+  return best ? quarterLabel(best.end) : null;
+}
 export function annualFilingStatus(periodEnd, asOf) {
   const end = String(periodEnd || '').slice(0, 10);
   if (!isIsoDay(end)) return null;

@@ -7,6 +7,7 @@
 import { readNumber } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { marketPopulation } from '../screener/market-scope.js';
+import { breadthScopeOf } from '../market/breadth/screener-breadth.js';
 
 const DAY = 86400000;
 const md = (iso) => { const m = /^\d{4}-(\d\d)-(\d\d)/.exec(String(iso || '')); return m ? `${Number(m[1])}/${Number(m[2])}` : null; };
@@ -48,13 +49,20 @@ export const LENSES = Object.freeze([
     id: 'breadth', label: '시장 폭', home: 'breadth',
     question: '지수 상승에 참여한 종목의 넓이',
     reading: '지수가 올라도 평균선 위 종목이 적으면 소수 대형주가 끈 움직임이다. 동일가중 지수와의 차이를 함께 본다.',
-    data: ['스크리너 유니버스 미국 종목의 수정 종가(종목마다 같은 무게)', '동일가중 S&P 500(RSP) 종가'],
-    limits: ['거래소 전체 집계가 아니라 유니버스 기준이다.', '평균선 위 비율과 평균선이 오르면서 그 위에 있는 비율(10거래일 전보다 높은 50일선)은 다른 값이다. 내리는 선 위의 종목은 하락 추세 속 반등일 수 있다.'],
+    // the counted population is the history row's own fieldMeta (S&P 500 members after the switch), the
+    // same reader the 시장 폭 page uses (breadthScopeOf); `measure` names it, these lines stay true for either population.
+    data: ['평균선 판정 대상 종목의 수정 종가(종목마다 같은 무게)', '동일가중 S&P 500(RSP) 종가'],
+    limits: ['거래소 전체나 공식 지수 집계가 아니라 대상 종목을 직접 센 값이다.', '평균선 위 비율과 평균선이 오르면서 그 위에 있는 비율(10거래일 전보다 높은 50일선)은 다른 값이다. 내리는 선 위의 종목은 하락 추세 속 반등일 수 있다.'],
     measure: ({ history, screenerRows }) => {
       const last = historyFieldLast(history, 'breadth50');
-      const us = share(usRows(screenerRows), (row) => readRowNumber(row, 'pctSma50') !== null);
+      if (!last) return null;
       const rising = historyFieldLast(history, 'breadth50Rising');
-      return last ? { asOf: last.date, scope: [us.total ? `미국 ${us.total}종목 중 ${us.covered}종목` : null, rising ? null : '오르는 50일선 위 비율은 첫 계산 전'].filter(Boolean).join(', ') || null } : null;
+      const scope = breadthScopeOf(history, 'breadth50');
+      // A row written before the switch carries no scope: it counted the screener's US universe, read from the rows.
+      const us = scope.sp500 ? null : share(usRows(screenerRows), (row) => readRowNumber(row, 'pctSma50') !== null);
+      const counted = scope.sp500 ? (scope.eligible ? `S&P 500 ${scope.eligible}개 종목` : 'S&P 500 구성 종목') : us.total ? `미국 ${us.total}종목 중 ${us.covered}종목` : null;
+      return { asOf: last.date, scope: [counted, rising ? null : '오르는 50일선 위 비율은 첫 계산 전'].filter(Boolean).join(', ') || null,
+        data: [`${scope.label}의 수정 종가(종목마다 같은 무게)`, '동일가중 S&P 500(RSP) 종가'] };
     }
   },
   {
@@ -188,7 +196,7 @@ export function pageLensReads(routeId, inputs = {}) {
     const lens = LENS_BY_ID[id];
     let measured = null;
     try { measured = lens.measure({ ...inputs, nowMs }); } catch (_) { measured = null; }
-    return { id, label: lens.label, question: lens.question, reading: lens.reading, data: lens.data, limits: lens.limits, home: lens.home,
+    return { id, label: lens.label, question: lens.question, reading: lens.reading, data: measured?.data || lens.data, limits: lens.limits, home: lens.home,
       asOf: measured?.asOf ? md(measured.asOf) : null, scope: measured?.scope || null, late: measured?.late || null };
   });
 }

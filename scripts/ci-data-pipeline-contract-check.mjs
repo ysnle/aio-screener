@@ -107,6 +107,13 @@ check('v60.18 a provider refusal of the shared AI account is named as an operato
   && /aiProviderRefusal\(data\)/.test(readFileSync(join(root, 'scripts/ci-external-pipeline-check.mjs'), 'utf8')));
 check('P1596 operational summary preserves nonblocking failures', operationalSummary({ status: 'DEGRADED', gateStatus: 'PASS', warnings: ['analysis-unavailable'] }).includes('analysis-unavailable')
   && /aio-operational-health/.test(read('.github/workflows/data-watchdog.yml')));
+const retainedReading = reason => ({
+  meta: { marketAnalysisOk: true, marketAnalysisRetained: { reason } },
+  marketAnalysis: { status: 'verified', retained: { reason } }
+});
+check('v60.25 preserving the prior reading retains the reason the new AI call failed',
+  aiProviderRefusal(retainedReading('provider-http-429')) === 'provider-http-429'
+  && aiProviderRefusal(retainedReading('metric-value-mismatch:market.vix')) === null);
 {
   const now = Date.parse('2026-10-10T12:00:00Z');
   const run = minutes => ({ head_branch: 'main', event: 'schedule', created_at: new Date(now - minutes * 60000).toISOString() });
@@ -1848,6 +1855,64 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('W09-B/P1148: derived SEC ratios inherit the latest operand availability, not the revenue filing only', ok, detail.slice(0, 500));
 }
 {
+  // v60.26 (LHX): the SEC fiscal year is the newest annual period end across revenue and net income, and a 10-K full-year
+  // revenue tagged on a quarter span is the year's annual revenue, never a quarter (scripts/fixtures/sec-fiscal-anchor-cases.mjs).
+  const results = {};
+  try {
+    const { normalizeSecCompanyFacts } = await import('../src/domain/fundamental/sec-normalize.js');
+    const cases = await import('./fixtures/sec-fiscal-anchor-cases.mjs');
+    results.a = cases.incomeNewerCase(normalizeSecCompanyFacts);
+    results.b = cases.misSpannedFullYearCase(normalizeSecCompanyFacts);
+    results.c = cases.ordinaryFilerCase(normalizeSecCompanyFacts);
+  } catch (error) { results.error = error.message; }
+  check('v60.26 SEC net income newer than revenue anchors the fiscal year on the income year; revenue, margin and growth stay empty', results.a?.ok === true, (results.a?.detail || results.error || '').slice(0, 400));
+  check('v60.26 SEC full-year revenue tagged on a quarter span (LHX FY2025) is the annual revenue and never a quarter row', results.b?.ok === true, (results.b?.detail || results.error || '').slice(0, 400));
+  check('v60.26 SEC ordinary filer with a real fourth quarter in its 10-K is unchanged', results.c?.ok === true, (results.c?.detail || results.error || '').slice(0, 400));
+}
+{
+  // v60.28 (debt coverage): 304 of 795 issuers had no latest-year long-term debt because they tag only the lease-inclusive
+  // debt lines. The cases run the normalizer and the fiscal-history projection together (scripts/fixtures/sec-debt-concept-cases.mjs).
+  const results = {};
+  try {
+    const { normalizeSecCompanyFacts } = await import('../src/domain/fundamental/sec-normalize.js');
+    const { fiscalHistory, fiscalDebtBasis, fiscalDebtCurrent } = await import('./lib/sec-fiscal-history.mjs');
+    const cases = await import('./fixtures/sec-debt-concept-cases.mjs');
+    const code = { normalize: normalizeSecCompanyFacts, fiscalHistory, fiscalDebtBasis, fiscalDebtCurrent };
+    results.a = cases.leaseOnlyCase(code);
+    results.b = cases.conceptSwitchCase(code);
+    results.c = cases.partialAndInstrumentCase(code);
+    results.e = cases.currentCoverageCase(code);
+    // Every concept the debt column can anchor on has its coverage from the taxonomy pairs the normalizer derives totals
+    // from: the noncurrent operand of each pair leaves the current part out, every other debt concept is a total.
+    const { DEBT_DERIVED_PAIRS } = await import('../src/domain/fundamental/sec-normalize.js');
+    const { secDebtCurrentCoverage, SEC_FIELD_CONCEPT_PREFERENCE } = await import('../src/domain/fundamental/sec-earnings.js');
+    const noncurrentOperands = new Set(DEBT_DERIVED_PAIRS.map(([noncurrent]) => noncurrent));
+    const coverage = Object.fromEntries(SEC_FIELD_CONCEPT_PREFERENCE.longTermDebt.map((concept) => [concept, secDebtCurrentCoverage(concept)]));
+    results.f = { ok: Object.entries(coverage).every(([concept, value]) => value === (noncurrentOperands.has(concept) ? 'excluded' : 'included'))
+      && DEBT_DERIVED_PAIRS.every(([, current, total]) => coverage[total] === 'included' && !SEC_FIELD_CONCEPT_PREFERENCE.longTermDebt.includes(current)), detail: JSON.stringify(coverage) };
+    // The readers name the lease-inclusive basis, and a lender's or insurer's debt is not read on the debt-to-equity scale.
+    const { buildFiscalRead } = await import('../src/domain/fundamental/fiscal-read.js');
+    const { buildMarginCashRead } = await import('../src/domain/fundamental/analysis-read.js');
+    const history = [{ periodEnd: '2024-12-31', revenue: 70e9, netIncome: 6e9, equity: 25e9, longTermDebt: 20e9 }, { periodEnd: '2025-12-31', revenue: 80e9, netIncome: 8e9, equity: 30e9, longTermDebt: 22e9 }];
+    const debtPoint = (args) => (buildFiscalRead({ fundamentals: { fiscalHistory: history }, ...args })?.points || []).find((point) => point.id === 'debt')?.text || null;
+    const lease = debtPoint({ symbol: 'IND', sic: '3674', debtBasis: 'lease-inclusive' });
+    const plain = debtPoint({ symbol: 'IND', sic: '3674' });
+    const bank = debtPoint({ symbol: 'BNK', sic: '6021' });
+    const insurer = debtPoint({ symbol: 'INS', sic: '6331' });
+    const capitalRow = (periodEnd, extra) => ({ periodEnd, revenue: 80e9, netIncome: 8e9, capitalChain: true, cash: 10e9, shortTermInvestments: 0, longTermDebt: 22e9, ...extra });
+    const cashRead = buildMarginCashRead([capitalRow('2025-12-31')], { debtBasis: 'lease-inclusive' });
+    results.d = { ok: /^장기부채\(리스 포함\) /.test(lease || '') && /^장기부채 /.test(plain || '') && bank === null && insurer === null
+      && cashRead?.cash?.debtBasis === 'lease-inclusive' && buildMarginCashRead([capitalRow('2025-12-31')])?.cash?.debtBasis === 'long-term',
+    detail: JSON.stringify({ lease, plain, bank, insurer, basis: cashRead?.cash?.debtBasis }) };
+  } catch (error) { results.error = error.message; }
+  check('v60.28 SEC debt: a filer tagging only LongTermDebtAndCapitalLeaseObligations(+Current) gets a lease-inclusive total every year', results.a?.ok === true, (results.a?.detail || results.error || '').slice(0, 400));
+  check('v60.28 SEC debt: a filer that switched to the lease-inclusive lines is anchored on them; a year only the debt-only concept reported stays empty', results.b?.ok === true, (results.b?.detail || results.error || '').slice(0, 400));
+  check('v60.28 SEC debt: a lease-inclusive total below its noncurrent part does not anchor; instrument-level tags never become the debt figure', results.c?.ok === true, (results.c?.detail || results.error || '').slice(0, 400));
+  check('v60.28 SEC debt readers: the lease-inclusive basis is named; a lender or insurer gets no debt-to-equity point', results.d?.ok === true, (results.d?.detail || results.error || '').slice(0, 400));
+  check('v60.30 SEC debt: the part due within a year is marked missing only for a noncurrent concept tagged without its current portion', results.e?.ok === true, (results.e?.detail || results.error || '').slice(0, 400));
+  check('v60.30 SEC debt: each anchorable debt concept\'s current-portion coverage follows the taxonomy pairs (noncurrent operand excluded, totals included)', results.f?.ok === true, (results.f?.detail || results.error || '').slice(0, 400));
+}
+{
   let ok = false;
   let detail = '';
   try {
@@ -2076,6 +2141,78 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     detail = JSON.stringify({ aligned: { status: aligned.status, dateAlignment: aligned.dateAlignment, rebalanceDates: aligned.rebalanceDates }, missingAdjusted: { status: missingAdjusted.status, adjustedCloseStatus: missingAdjusted.adjustedCloseStatus, adjustedCloseExcluded: missingAdjusted.adjustedCloseExcluded }, noDates: { status: noDates.status, blockingReason: noDates.blockingReason } });
   } catch (error) { detail = error.message; }
   check('factor backtest aligns cross-sections by common dates and fails closed without dates', ok, detail.slice(0, 1400));
+}
+// v60.26: the production rebalance sample is every non-overlapping forward window the 2-year history supports, defined
+// once in model-fingerprint.js; the factor library reads it instead of keeping a 1-year-era literal.
+{
+  let detail = '';
+  let ok = false;
+  try {
+    const fp = await import('../src/domain/screener/model-fingerprint.js');
+    const offsets = fp.BACKTEST_REBALANCE_OFFSETS;
+    const fwd = fp.BACKTEST_FWD_DAYS;
+    const lookback = fp.BACKTEST_FACTOR_LOOKBACK_SESSIONS;
+    const history = fp.BACKTEST_HISTORY_SESSIONS;
+    const asc = Array.isArray(offsets) ? [...offsets].sort((a, b) => a - b) : [];
+    const factorsSource = read('scripts/lib/factors.mjs');
+    const shape = asc.length >= 2 && Number.isInteger(fwd) && Number.isInteger(lookback) && Number.isInteger(history)
+      && asc.every((offset, index) => index === 0 || offset - asc[index - 1] === fwd)
+      && asc[0] === fwd
+      && history - 1 - asc[asc.length - 1] >= lookback
+      && history - 1 - (asc[asc.length - 1] + fwd) < lookback
+      && !/\[\s*\d+\s*(,\s*\d+\s*){2,}\]/.test(factorsSource.match(/var OFFSETS = [^;]*;/)?.[0] || '[0,0,0]')
+      && /opts\.offsets \|\| BACKTEST_REBALANCE_OFFSETS/.test(factorsSource);
+    // A 500-session synthetic history: the default offsets must all land and every one must be scored.
+    const dates = [];
+    for (let day = Date.parse('2024-11-18T00:00:00Z'); dates.length < 500; day += 86400000) { const weekday = new Date(day).getUTCDay(); if (weekday && weekday < 6) dates.push(new Date(day).toISOString().slice(0, 10)); }
+    const stocks = Array.from({ length: 30 }, (_, index) => {
+      let price = 50 + index;
+      const closes = dates.map((_, day) => (price *= 1 + Math.sin((day + 1) * (index + 3) / 11) * 0.012 + (index - 15) * 0.00004));
+      return { sym: `RB${index}`, dates, closes, adjCloses: closes.slice(), volumes: closes.map(() => 1e6), adjustedCloseStatus: 'complete' };
+    });
+    const bt = backtestFactors(stocks);
+    const scored = bt.dateAlignment?.requestedCount === asc.length && bt.dateAlignment?.usedCount === asc.length
+      && bt.rebalancesCounted === asc.length && bt.missingForwardRows === 0 && bt.missingRebalanceRows === 0
+      && bt.icByDate?.momentum?.length === asc.length;
+    ok = shape && scored;
+    detail = JSON.stringify({ offsets, fwd, lookback, history, shape, requested: bt.dateAlignment?.requestedCount, used: bt.dateAlignment?.usedCount, counted: bt.rebalancesCounted, momentumDates: bt.icByDate?.momentum?.length, missingForward: bt.missingForwardRows });
+  } catch (error) { detail = error.message; }
+  check('v60.26 the backtest rebalance offsets are non-overlapping forward windows from one definition: the newest leaves a full forward window, the oldest the 12-1 lookback on a 500-session history, and factors.mjs keeps no second literal',
+    ok, detail.slice(0, 900));
+}
+// v60.26: a backtest rebalance scores each price factor only when the symbol's history covers that factor's own window
+// (price-factors.js PRICE_FACTOR_MIN_CLOSES). A symbol with 64-199 closes used to get a trend from the 50-day average
+// alone and a Kalman speed from fewer than 90 bars; the producer's series filter and the 10-year study's offsets read the
+// same shared constants instead of the retired 147-session offset and a fixed 63.
+{
+  let detail = '';
+  let ok = false;
+  try {
+    const pf = await import('../src/domain/screener/price-factors.js');
+    const fp = await import('../src/domain/screener/model-fingerprint.js');
+    const dates = [];
+    for (let day = Date.parse('2026-01-05T00:00:00Z'); dates.length < 120; day += 86400000) { const weekday = new Date(day).getUTCDay(); if (weekday && weekday < 6) dates.push(new Date(day).toISOString().slice(0, 10)); }
+    const stocks = Array.from({ length: 12 }, (_, index) => {
+      let price = 40 + index;
+      const closes = dates.map((_, day) => (price *= 1 + Math.sin((day + 1) * (index + 3) / 9) * 0.015 + (index - 6) * 0.0003));
+      return { sym: `LB${index}`, dates, closes, adjCloses: closes.slice(), volumes: closes.map(() => 1e6), adjustedCloseStatus: 'complete' };
+    });
+    // Offset 40 → 80 closes at the rebalance (under the 90-bar Kalman window); offset 21 → 99 closes (under 200 for trend).
+    const bt = backtestFactors(stocks, { offsets: [40, 21], fwdDays: 5 });
+    const counts = Object.fromEntries(['momentum', 'trend', 'lowvol', 'kalman'].map((factor) => [factor, bt.icByDate?.[factor]?.length ?? null]));
+    const min = pf.PRICE_FACTOR_MIN_CLOSES || {};
+    const producer = read('scripts/producer/screener.mjs');
+    const longrun = read('scripts/backtest-factors-longrun.mjs');
+    ok = counts.momentum === 0 && counts.trend === 0 && counts.kalman === 1 && counts.lowvol === 2
+      && min.momentum === pf.PRICE_FACTOR_WINDOWS.ret12m + 1 && min.trend === pf.PRICE_FACTOR_WINDOWS.sma200 && min.kalman === pf.PRICE_FACTOR_WINDOWS.kalman && min.lowvol === pf.PRICE_FACTOR_WINDOWS.vol + 1
+      && fp.BACKTEST_FACTOR_LOOKBACK_SESSIONS === min.momentum - 1
+      && fp.BACKTEST_MIN_SERIES_CLOSES === fp.BACKTEST_REBALANCE_OFFSETS[0] + 1
+      && /closes\.length >= BACKTEST_MIN_SERIES_CLOSES/.test(producer) && !/closes\.length >= \d+\), \{/.test(producer)
+      && /deriveRebalanceOffsets\(/.test(longrun) && !/for \(let off = \d+;/.test(longrun);
+    detail = JSON.stringify({ counts, min, lookback: fp.BACKTEST_FACTOR_LOOKBACK_SESSIONS, minSeries: fp.BACKTEST_MIN_SERIES_CLOSES, missingRebalanceRows: bt.missingRebalanceRows });
+  } catch (error) { detail = error.message; }
+  check('v60.26 a backtest rebalance scores each price factor only over its own full lookback (trend 200 closes, Kalman 90, volatility 61, 12-1 momentum 253), and the producer filter and the 10-year offsets derive from the shared constants',
+    ok, detail.slice(0, 900));
 }
 // P586/C2: backtest must self-disclose that it does not cover the live model's size/value/quality
 // factors or its regime-adaptive weights, and the client panel must actually surface that disclosure
@@ -3406,6 +3543,163 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     run = gate();
     check('v60.19 degradation gate passes a partial cycle whose carried value keeps its date and origin', run.status === 0, `${run.status} ${run.stdout}${run.stderr}`);
   } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+
+// v60.26 (producer accuracy, XOM ex-dividend 2026-11-16 $1.07): a run ~100 minutes after the close read the dividend in
+// events.dividends while the provider's adjusted closes before the ex-date were still raw, so ret1d read -2.18 (total
+// return -1.56) and every horizon and RSI carried the dividend as a price drop. The 08:37Z run had it applied. Both
+// shapes must give the same adjusted series and returns; raw-close fields stay on raw closes.
+{
+  const pf = await import('../src/domain/screener/price-factors.js');
+  const exTs = 1794839400; // 2026-11-16T14:30Z, the bar and the dividend event share it
+  const n = 40;
+  const ts = Array.from({ length: n }, (_, i) => exTs - (n - 1 - i) * 86400);
+  const closes = Array.from({ length: n }, (_, i) => Number((150 + i * 0.5).toFixed(2)));
+  closes[n - 2] = 170.59; closes[n - 1] = 166.87;
+  const older = { j: 10, amount: 0.99 };
+  const fLatest = 1 - 1.07 / closes[n - 2];
+  const fOlder = 1 - older.amount / closes[older.j - 1];
+  const adj = (latestApplied) => closes.map((c, i) => Number((c * (i < n - 1 && latestApplied ? fLatest : 1) * (i < older.j ? fOlder : 1)).toFixed(2)));
+  const chart = (adjclose) => ({ meta: { symbol: 'XOM', currency: 'USD', exchangeTimezoneName: 'America/New_York' }, timestamp: ts,
+    indicators: { quote: [{ close: closes, high: closes.map((c) => c + 1), low: closes.map((c) => c - 1), volume: closes.map(() => 1e7) }], adjclose: [{ adjclose }] },
+    events: { dividends: { [ts[older.j]]: { amount: older.amount, date: ts[older.j] }, [exTs]: { amount: 1.07, date: exTs } } } });
+  const nowMs = Date.parse('2026-11-17T08:37:00Z');
+  const build = (adjclose) => {
+    const fetched = pf.dailyRowsFromYahooChart(chart(adjclose), { fetchedAt: '2026-11-16T22:40:00Z' });
+    const history = pf.priceHistoryFromRows('XOM', fetched, { providerMeta: fetched.meta, nullCloseDates: fetched.nullCloseDates, market: 'us', nowMs });
+    return { fetched, history, row: pf.priceFactorRow(history, { computedAt: '2026-11-16T22:40:00Z' }) };
+  };
+  const stale = build(adj(false));
+  const applied = build(adj(true));
+  const maxGap = Math.max(...stale.history.adjCloses.map((v, i) => Math.abs(v - applied.history.adjCloses[i])));
+  check('v60.26 a dividend listed on the latest session but not yet in the adjusted closes is applied once; ret1d is the total return (-1.56, not -2.18)',
+    stale.fetched.dividends?.length === 2 && stale.fetched.dividends[1].date === '2026-11-16' && stale.fetched.dividends[1].amount === 1.07
+      && stale.row?.ret1d === -1.56 && applied.row?.ret1d === -1.56 && maxGap < 0.011
+      && stale.row.ret1m === applied.row.ret1m && stale.row.rsi === applied.row.rsi
+      && JSON.stringify(stale.history.dividendAdjustmentFilled) === '["2026-11-16"]',
+    JSON.stringify({ dividends: stale.fetched.dividends, ret1d: [stale.row?.ret1d, applied.row?.ret1d], rsi: [stale.row?.rsi, applied.row?.rsi], maxGap, filled: stale.history.dividendAdjustmentFilled }));
+  check('v60.26 an adjusted series the provider has already adjusted is left as is (no double adjustment, older dividends included)',
+    applied.history.dividendAdjustmentFilled === undefined && applied.history.adjCloses.every((v, i) => v === adj(true)[i])
+      && typeof pf.completeDividendAdjustment === 'function' && pf.completeDividendAdjustment(applied.history.dates, applied.history.closes, applied.history.adjCloses, applied.fetched.dividends).filled.length === 0,
+    JSON.stringify({ filled: applied.history.dividendAdjustmentFilled }));
+  check('v60.26 the dividend fill touches adjusted closes only; raw-close levels (averages, 52-week range, ADR, VCP inputs) are unchanged',
+    JSON.stringify(stale.history.closes) === JSON.stringify(closes) && stale.row.pctSma5 === applied.row.pctSma5 && stale.row.pctSma20 === applied.row.pctSma20
+      && stale.row.adrPct === applied.row.adrPct && stale.row.ema21 === applied.row.ema21,
+    JSON.stringify({ pctSma5: [stale.row?.pctSma5, applied.row?.pctSma5], adr: [stale.row?.adrPct, applied.row?.adrPct] }));
+  // The KR close reconciliation rebuilds the rows, so the producer reads the chart's dividends first and passes them on.
+  const producerText = readFileSync(new URL('./producer/screener.mjs', import.meta.url), 'utf8');
+  check('v60.26 the producer passes the chart dividends to priceHistoryFromRows across the KR close reconciliation',
+    /const dividends = Array\.isArray\(fetched\?\.dividends\)/.test(producerText) && /priceHistoryFromRows\(sym, fetched, \{[^}]*dividends \}\)/.test(producerText));
+  // The fill has nothing to read unless the daily-history request asks the provider for dividend events.
+  check('v60.26 the daily history request names dividend events beside splits, so the chart carries the dividends the fill reads',
+    /events=split,div'/.test(readFileSync(new URL('./producer/quotes.mjs', import.meta.url), 'utf8')));
+  // Gap 3: the newest session's US volume is the provider's provisional figure; both artifacts state that basis.
+  const basis = pf.LATEST_SESSION_VOLUME_BASIS;
+  const extendedText = readFileSync(new URL('./producer/screener-extended.mjs', import.meta.url), 'utf8');
+  check('v60.26 core and extended screener artifacts publish volumeBasis: the latest session volume is provider-provisional at factorComputedAt',
+    basis?.latestSession === 'provider-provisional-at-factorComputedAt' && basis.markets?.includes('US') && ['lastVolume', 'rvol20', 'dollarVolume'].every((field) => basis.fields?.includes(field))
+      && producerText.includes('volumeBasis: LATEST_SESSION_VOLUME_BASIS') && extendedText.includes('volumeBasis: LATEST_SESSION_VOLUME_BASIS'),
+    JSON.stringify(basis || null));
+}
+
+// v60.28 (screener basis + dividends): a row's P/E was the latest four quarters while its margin and revenue growth were
+// the fiscal year (AVGO 23.9% FY growth beside +48.7% over four quarters; 29 rows with a positive P/E beside a negative
+// margin). The producer now derives both from the issuer's quarter series (the 재무 공시 function) and names the basis;
+// rows publish the trailing-year cash dividend. Synthetic ledger records and charts; every check fails on v60.27 code.
+{
+  const { secQuartersOf, mergeSecIntoFactorRows } = await import('./producer/screener.mjs');
+  const { secFundamentalRowFields } = await import('../src/domain/fundamental/sec-row-fields.js');
+  const { buildThemePeers } = await import('../src/domain/fundamental/analysis-read.js');
+  const { rowFactContractErrors } = await import('../src/domain/screener/row-facts-contract.js');
+  const pf = await import('../src/domain/screener/price-factors.js');
+  const ends = ['2024-09-30', '2024-12-31', '2025-03-31', '2025-06-30', '2025-09-30', '2025-12-31', '2026-03-31', '2026-06-30'];
+  const startOf = (end) => new Date(Date.parse(end) - 90 * 86400000).toISOString().slice(0, 10);
+  const obs = (field, end, value, concept, fiscalPeriod, start = startOf(end)) => ({ field, value, periodStart: start, periodEnd: end, filedAt: end, acceptedAt: `${end}T21:00:00.000Z`, form: fiscalPeriod === 'FY' ? '10-K' : '10-Q', fiscalPeriod, concept });
+  // Year one: revenue 100 and a loss of 5 per quarter; year two: revenue 150 and income 15 (TTM margin 10%, growth +50%).
+  const quarterly = (q, i) => i < 4 ? q(100, -5) : q(150, 15);
+  const observations = {
+    revenueQ: ends.map((end, i) => quarterly((r) => obs('revenueQ', end, r * 1e6, 'Revenues', 'Q'), i)),
+    netIncomeQ: ends.map((end, i) => quarterly((_, n) => obs('netIncomeQ', end, n * 1e6, 'NetIncomeLoss', 'Q'), i)),
+    revenue: [obs('revenue', '2025-06-30', 400e6, 'Revenues', 'FY', '2024-07-01')],
+    netIncome: [obs('netIncome', '2025-06-30', -20e6, 'NetIncomeLoss', 'FY', '2024-07-01')]
+  };
+  const record = { symbol: 'TTMX', observedAt: '2025-06-30', periodType: 'FY', fetchedAt: '2026-08-20T00:00:00Z', filedAt: '2025-08-15', revenue: 400e6, netIncome: -20e6, margin: -5, revGrowth: 10, roe: 12, pit: { observations } };
+  const quarters = secQuartersOf(record);
+  const rec = secFundamentalRowFields(record, { quarters, nowMs: Date.parse('2026-09-01T00:00:00Z') });
+  check('v60.28 the producer reads the issuer quarters (8 from the PIT observations) and prices margin and revenue growth on the latest four quarters with their basis',
+    quarters.length === 8 && rec?.margin === 10 && rec.marginBasis === 'ttm' && rec.marginThrough === '2026-06-30'
+      && rec.revGrowth === 50 && rec.revGrowthBasis === 'ttm' && rec.revGrowthThrough === '2026-06-30' && rec.roe === 12 && rec.fundamentalPeriod === 'FY',
+    JSON.stringify({ quarters: quarters.length, rec: rec && { margin: rec.margin, marginBasis: rec.marginBasis, revGrowth: rec.revGrowth, revGrowthBasis: rec.revGrowthBasis } }));
+  const compact = secFundamentalRowFields({ ...record, pit: { observationsDropped: 'extended-ledger-compact' } }, { quarters: secQuartersOf({ pit: {} }), nowMs: Date.parse('2026-09-01T00:00:00Z') });
+  const subtotal = secFundamentalRowFields({ ...record, marginHeld: { value: 140, reason: 'margin-above-100pct-revenue-subtotal' }, margin: undefined, revGrowth: undefined }, { quarters, nowMs: Date.parse('2026-09-01T00:00:00Z') });
+  const lagging = secFundamentalRowFields({ ...record, observedAt: '2026-09-30', fetchedAt: '2026-11-20T00:00:00Z' }, { quarters, nowMs: Date.parse('2026-11-25T00:00:00Z') });
+  check('v60.28 without quarters (compact extended ledger), with a withheld revenue subtotal, or with quarters ending before the fiscal year, the row keeps the FY path and says fy',
+    compact?.margin === -5 && compact.marginBasis === 'fy' && compact.marginThrough === '2025-06-30' && compact.revGrowthBasis === 'fy'
+      && subtotal?.margin === undefined && subtotal?.marginBasis === undefined && subtotal?.revGrowth === undefined
+      && lagging?.marginBasis === 'fy' && lagging.margin === -5,
+    JSON.stringify({ compact: compact && [compact.margin, compact.marginBasis], subtotal: subtotal && [subtotal.margin, subtotal.marginBasis], lagging: lagging && [lagging.margin, lagging.marginBasis] }));
+  // v60.30: the compact extended ledger keeps the quarter string (compactSecRecord quarterHistory), so an extended row reads the
+  // same four quarters as a core row instead of falling back to its fiscal year.
+  {
+    const { compactSecRecord } = await import('./fetch-sec-fundamentals.mjs');
+    const kept = compactSecRecord(record);
+    const extendedRow = secFundamentalRowFields(kept, { quarters: secQuartersOf(kept), nowMs: Date.parse('2026-09-01T00:00:00Z') });
+    check('v60.30 a compact extended-ledger record keeps the eight-quarter string and its row takes the core row\'s four-quarter basis',
+      !kept.pit?.observations && typeof kept.quarterHistory === 'string' && JSON.stringify(secQuartersOf(kept)) === JSON.stringify(quarters)
+        && extendedRow?.marginBasis === 'ttm' && extendedRow.margin === rec.margin && extendedRow.revGrowth === rec.revGrowth && extendedRow.revGrowthThrough === rec.revGrowthThrough,
+      JSON.stringify({ quarterHistory: kept.quarterHistory, row: extendedRow && [extendedRow.margin, extendedRow.marginBasis, extendedRow.revGrowth] }));
+  }
+  const merged = mergeSecIntoFactorRows({ TTMX: { ret1m: 1 } }, { TTMX: rec });
+  check('v60.28 the SEC merge carries each figure\'s basis and end date with it, and the validator accepts the row', merged.TTMX.marginBasis === 'ttm' && merged.TTMX.revGrowthThrough === '2026-06-30'
+    && rowFactContractErrors({ ...merged.TTMX, fundamentalPeriodEnd: '2025-06-30' }).length === 0
+    && rowFactContractErrors({ margin: 3, marginBasis: 'quarterly', marginThrough: '2026-06-30' }).length === 1
+    && rowFactContractErrors({ margin: 3, marginBasis: 'ttm', marginThrough: '2025-03-31', fundamentalPeriodEnd: '2025-06-30' }).length === 1
+    && rowFactContractErrors({ margin: 3, roe: 1, pe: 20 }).length === 0, JSON.stringify(merged.TTMX));
+  // Peer comparison: four-quarter figures only when this company and at least 70% of the group have them, never mixed.
+  const theme = [{ id: 'fix', nameKr: '테마', leaders: ['AAA', 'BBB', 'CCC', 'DDD', 'EEE'] }];
+  const seriesFor = (s) => [{ periodEnd: '2024-06-30', revenue: 350e6, netIncome: 1e6, equity: 90e6, shares: 1e7 }, { periodEnd: '2025-06-30', revenue: 400e6, netIncome: -20e6, equity: 100e6, operatingCashFlow: 10e6, capex: 2e6, shares: 1e7 }];
+  const peersWith = (withQuarters) => buildThemePeers({ symbol: 'AAA', themes: theme, rows: [], seriesFor, quartersFor: (s) => (withQuarters.includes(s) ? quarters : null) });
+  const most = peersWith(['AAA', 'BBB', 'CCC', 'DDD']);
+  const few = peersWith(['AAA', 'BBB']);
+  check('v60.28 the ticker peer comparison ranks growth and margin on four quarters when 70%+ of the group has them (the rest left out), else on fiscal years for everyone',
+    most?.basis?.growth?.basis === 'ttm' && most.rows[0].growth === 50 && most.rows[0].margin === 10 && most.rows.find((row) => row.sym === 'EEE')?.growth === null
+      && JSON.stringify(most.basis.growth.leftOut) === '["EEE"]'
+      && few?.basis?.growth?.basis === 'fy' && few.basis.growth.withTtm === 2 && Math.abs(few.rows[0].growth - (400 / 350 - 1) * 100) < 1e-9 && few.rows[0].margin === -5 && few.rows.every((row) => !('_ttm' in row)),
+    JSON.stringify({ most: most?.basis, few: few?.basis, rows: most?.rows?.map((row) => [row.sym, row.growth, row.margin]) }));
+  // Dividends: four 1.00 payments a year on a 100 close; zero only when events were requested over a full year.
+  const day = 86400;
+  const lastTs = Date.parse('2026-11-16T14:30:00Z') / 1000;
+  const n = 400; // calendar-day bars, so the history reaches back past the 365-day window
+  const ts = Array.from({ length: n }, (_, i) => lastTs - (n - 1 - i) * day);
+  const closes = Array.from({ length: n }, () => 100);
+  const payDays = [n - 20, n - 110, n - 200, n - 380]; // the oldest ex-date is 379 days back, outside the window
+  const chart = (dividends, length = n) => ({ meta: { symbol: 'DIVX', currency: 'USD', exchangeTimezoneName: 'America/New_York' }, timestamp: ts.slice(-length),
+    indicators: { quote: [{ close: closes.slice(-length), high: closes.slice(-length), low: closes.slice(-length), volume: closes.slice(-length).map(() => 1e6) }], adjclose: [{ adjclose: closes.slice(-length) }] },
+    ...(dividends ? { events: { dividends: Object.fromEntries(payDays.map((i) => [ts[i], { amount: 1, date: ts[i] }])) } } : {}) });
+  const rowOf = (res, dividendEvents) => {
+    const fetched = pf.dailyRowsFromYahooChart(res, { fetchedAt: '2026-11-17T00:00:00Z', dividendEvents });
+    return pf.priceFactorRow(pf.priceHistoryFromRows('DIVX', fetched, { providerMeta: fetched.meta, nullCloseDates: fetched.nullCloseDates, market: 'us', nowMs: Date.parse('2026-11-17T08:00:00Z') }), { computedAt: '2026-11-17T08:00:00Z' });
+  };
+  const paid = rowOf(chart(true), true);
+  const none = rowOf(chart(false), true);
+  const unasked = rowOf(chart(false), false);
+  const short = rowOf(chart(false, 200), true);
+  const lastPay = new Date(ts[payDays[0]] * 1000).toISOString().slice(0, 10);
+  check('v60.28 a row publishes the trailing-year cash dividend per share, its yield on the latest completed close, the last ex-date and the count (ex-dates 365 days back)',
+    paid?.dividendTtm === 3 && paid.dividendYieldPct === 3 && paid.dividendCount12m === 3 && paid.dividendLastExDate === lastPay && paid.dividendBasis === 'yahoo-chart-events-ex-date'
+      && !pf.DIVIDEND_FACT_FIELDS.some((field) => /price|close/i.test(field)) && rowFactContractErrors(paid).length === 0,
+    JSON.stringify(paid && pf.DIVIDEND_FACT_FIELDS.map((field) => paid[field])));
+  check('v60.28 no dividend in the year is 0 only when the request asked for dividend events over a full year; otherwise the fields are absent',
+    none?.dividendTtm === 0 && none.dividendYieldPct === 0 && none.dividendCount12m === 0 && none.dividendLastExDate === undefined
+      && pf.DIVIDEND_FACT_FIELDS.every((field) => unasked?.[field] === undefined && short?.[field] === undefined),
+    JSON.stringify({ none: none && pf.DIVIDEND_FACT_FIELDS.map((field) => none[field]), unasked: unasked?.dividendTtm, short: short?.dividendTtm }));
+  check('v60.28 the validator refuses a dividend yield above 40% or facts that disagree, and the fields are conditional row fields',
+    rowFactContractErrors({ ...paid, dividendYieldPct: 41 }).length === 1 && rowFactContractErrors({ ...paid, dividendTtm: 0 }).length >= 1 && rowFactContractErrors({ ...none, dividendLastExDate: '2026-01-01' }).length === 1
+      && pf.DIVIDEND_FACT_FIELDS.every((field) => pf.CONDITIONAL_FACTOR_FIELDS.includes(field)));
+  const screenerText = readFileSync(new URL('./producer/screener.mjs', import.meta.url), 'utf8');
+  check('v60.28 the daily history marks its dividend request and the producer keeps that mark across the KR close rebuild',
+    /dividendEvents: true/.test(readFileSync(new URL('./producer/quotes.mjs', import.meta.url), 'utf8'))
+      && /const dividendEventsRequested = fetched\?\.dividendEventsRequested === true/.test(screenerText) && /priceHistoryFromRows\(sym, fetched, \{[^}]*dividendEventsRequested[^}]*\}\)/.test(screenerText));
 }
 
 if (errors.length) {

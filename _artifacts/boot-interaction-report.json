@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-17T02:21:31.062Z",
-  "appRevision": "v60.24",
-  "gitHead": "2564290389bfafbffc2a72c84ceae79fa19e606e",
+  "observedAt": "2026-11-18T13:26:27.253Z",
+  "appRevision": "v60.30",
+  "gitHead": "133a12eb629d5d7a4016bf5bfa4360a9a1c1cc6c",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,91 +16,90 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 293 > 200",
-    "total long task 1069 > 1000",
-    "decoded same-origin JS 2.61MB > 1.5MB"
+    "max long task 294 > 200",
+    "decoded same-origin JS 2.58MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 884,
-    "dclMs": 308,
-    "loadMs": 319,
-    "maxLongTaskMs": 293,
-    "totalLongTaskMs": 1069,
-    "longTaskCount": 8,
+    "fcpMs": 876,
+    "dclMs": 306,
+    "loadMs": 313,
+    "maxLongTaskMs": 294,
+    "totalLongTaskMs": 949,
+    "longTaskCount": 6,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 4358,
-    "activeRouteDomNodes": 2256,
+    "domNodes": 4340,
+    "activeRouteDomNodes": 2232,
     "scenarioDepthDeferred": true,
     "scenarioStateLoaded": true,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 2735793,
-    "sameOriginScripts": 142,
+    "decodedJsBytes": 2708425,
+    "sameOriginScripts": 146,
     "crossOriginScripts": 1,
-    "resourceEntries": 215,
+    "resourceEntries": 219,
     "jsByKind": {
-      "esmBoot": 1385566,
-      "classicBoot": 1002065,
+      "esmBoot": 1354456,
+      "classicBoot": 1002470,
       "aiPanelBeforeUse": 0,
-      "postBootLazy": 348162
+      "postBootLazy": 351499
     },
     "aiPanelRequestsBeforeUse": [],
     "largestLazyFiles": [
       {
-        "path": "src/chunks/market-regime-EAD422S2.js",
-        "bytes": 47297,
-        "startMs": 1971
+        "path": "src/chunks/market-regime-YUQ75FC3.js",
+        "bytes": 47348,
+        "startMs": 1997
       },
       {
-        "path": "src/chunks/session-lean-T5UYNE2O.js",
+        "path": "src/chunks/session-lean-ZYWVFO4B.js",
         "bytes": 34033,
-        "startMs": 375
+        "startMs": 395
       },
       {
-        "path": "src/chunks/legacy-screen-bridges-XTNFBAH6.js",
+        "path": "src/chunks/legacy-screen-bridges-CPQ262IA.js",
         "bytes": 27183,
-        "startMs": 216
+        "startMs": 215
       },
       {
-        "path": "src/chunks/analysis-2I4SMCGD.js",
-        "bytes": 23452,
-        "startMs": 296
+        "path": "src/chunks/analysis-JRE5BVAZ.js",
+        "bytes": 23503,
+        "startMs": 294
       },
       {
-        "path": "src/chunks/chunk-EFMDF5VV.js",
-        "bytes": 22418,
-        "startMs": 620
+        "path": "src/chunks/chunk-C2DYZFQX.js",
+        "bytes": 22799,
+        "startMs": 618
       },
       {
-        "path": "src/chunks/chunk-4QVTIYX5.js",
-        "bytes": 22219,
-        "startMs": 1977
+        "path": "src/chunks/chunk-7PTFQNCZ.js",
+        "bytes": 22455,
+        "startMs": 2005
       },
       {
-        "path": "src/chunks/cross-readings-CKWFEVQT.js",
+        "path": "src/chunks/cross-readings-GDGDXJIR.js",
         "bytes": 15509,
-        "startMs": 2048
+        "startMs": 2076
       },
       {
-        "path": "src/chunks/chunk-SLA2HKU6.js",
+        "path": "src/chunks/chunk-K6J7YUWR.js",
         "bytes": 15452,
-        "startMs": 1978
+        "startMs": 2005
       }
     ],
     "measuredBundle": "deploy",
     "aiPanelOnHover": [
       "js/aio-chat.js",
       "src/chunks/ai-profile-TZTRUY2P.js",
-      "src/chunks/chat-globals-KYSKDKF6.js",
+      "src/chunks/chat-globals-YD2WDTSO.js",
       "src/chunks/question-cues-4LSRCT6W.js",
-      "src/chunks/request-pipeline-UK2EEVO5.js",
+      "src/chunks/request-pipeline-MXW2TTNP.js",
       "src/chunks/supplied-materials-IDFFOHN4.js"
     ],
     "glossaryBeforeUse": false,
-    "termMarksBeforeGlossary": 23,
+    "termMarksBeforeGlossary": 25,
     "glossaryOnTermHover": true,
-    "routeMs": 95,
-    "wallMs": 9147,
+    "routeMs": 20,
+    "wallMs": 9183,
     "totalExternalRequests": 43,
     "quoteRequests": 24,
     "initialExternalRequests": 7,
@@ -124,6 +123,6 @@
       "unvisited": true,
       "macroOwnsMap": 0
     },
-    "decodedJsMb": 2.61
+    "decodedJsMb": 2.58
   }
 }

@@ -31,6 +31,7 @@ export default {
       const bars = await p.$eval('#sector-perf-tabs button[aria-pressed="true"]', (n) => n.textContent.trim());
       const hero = await p.$eval('#rrg-rotation-read', (n) => n.textContent);
       if (pressed !== '1주' || bars !== '1주' || !hero.includes('1주,')) throw new Error(`default window differs: ranking ${pressed}, bars ${bars}, hero ${hero.slice(0, 40)}`);
+      await p.getByRole('tab', { name: '테마 순위', exact: true }).click();
       // v59.70: one ranked bar list per window; a row opens its members (bar, gap to median, equal-weight share).
       const tab = p.locator('#theme-strength-board .theme-strength-periods button', { hasText: '1일' });
       if (await tab.isEnabled()) await tab.click();
@@ -44,6 +45,7 @@ export default {
     ['섹터 막대 고점 근처 → 1주 복귀, AI 공급망 층별 PER', async (p) => {
       // v59.70 (X bookmarks #2, #7): the metric tab draws 11 share bars and dates the card chip on the screener session;
       // 1주 brings the period bars back. The layer PER fold lists the covered layers with two multiples each.
+      await p.getByRole('tab', { name: '요약', exact: true }).click();
       await p.click('#sector-perf-tabs button[data-period="near52"]');
       await p.waitForFunction(() => document.getElementById('sector-perf-bars')?.dataset.metric === 'near52', null, { timeout: 8000 });
       const shares = await p.$$eval('#sector-perf-bars .thp-perf-bar--share', (n) => n.length);
@@ -52,6 +54,7 @@ export default {
       await p.click('#sector-perf-tabs button[data-period="1w"]');
       await p.waitForFunction(() => !document.getElementById('sector-perf-bars')?.dataset.metric, null, { timeout: 8000 });
       const fold = p.locator('#themes-ai-chain details.ai-chain-per');
+      await p.getByRole('tab', { name: 'AI 공급망', exact: true }).click();
       await fold.waitFor({ state: 'attached', timeout: 20000 });
       await fold.locator('summary').click();
       const layers = await p.$$eval('#themes-ai-chain .ai-chain-per__row', (n) => n.map((row) => row.getAttribute('aria-label')));
@@ -61,6 +64,7 @@ export default {
     ['S&P 500 지도 → 구성 종목 확인', async (p) => {
       // 2026-11-02: #sector-map is an open section; #sector-map-fold now holds only the day's splits and is hidden without them.
       // 2026-10-13: the map paints after the screener rows land; the tile detail line names the member.
+      await p.getByRole('tab', { name: '지도', exact: true }).click();
       await p.waitForFunction(() => document.querySelectorAll('#sector-map .sector-map-tile').length > 50, null, { timeout: 20000 });
       const tiles = await p.$$eval('#sector-map .sector-map-tile', (n) => n.length);
       const tile = p.locator('#sector-map .sector-map-tile[data-sym]').first();
@@ -71,12 +75,13 @@ export default {
       return { tiles, sym, detail: detail.slice(0, 90) };
     }],
     ['AI 설비투자 흐름 펼치기 → 설명과 근거', async (p) => {
-      await p.locator('#ai-capex-fold > summary').click();
+      await p.getByRole('tab', { name: 'AI 공급망', exact: true }).click();
       return expectText(p, '#ai-capex-flow', { min: 80 });
     }],
     ['첫 테마 열기 → 같은 화면 안 상세 패널', async (p) => {
       // v57.76: the quadrant chips sit in the 사분면별 섹터 fold under the scatter chart.
       // v59.70: the sector card opens on its bars (등락); the scatter and its fold are the 회전 view.
+      await p.getByRole('tab', { name: '요약', exact: true }).click();
       await p.locator('#themes-verdict-tabs [data-view="rrg"]').click();
       await p.locator('#rrg-quadrant-fold > summary').click();
       const t = p.locator(CHIP).first();

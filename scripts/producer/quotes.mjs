@@ -472,7 +472,7 @@ export const FOUR_PLACE_QUOTES = Object.freeze(new Set(['EURUSD=X', 'GBPUSD=X', 
 export async function fetchHistory(symbol, range = '6mo') {
   for (const host of YAHOO_HOSTS) {
     try {
-      const url = host + '/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=1d&range=' + range + '&events=split';
+      const url = host + '/v8/finance/chart/' + encodeURIComponent(symbol) + '?interval=1d&range=' + range + '&events=split,div';
       const j = await fetchJSON(url, {}, 2);
       const res = j?.chart?.result?.[0];
       const ts = res?.timestamp;
@@ -490,7 +490,8 @@ export async function fetchHistory(symbol, range = '6mo') {
       const adjArr = res?.indicators?.adjclose?.[0]?.adjclose;
       if (!Array.isArray(ts) || !Array.isArray(closes)) throw new Error('no history arrays');
       // v57.81: the row assembly is shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
-      return dailyRowsFromYahooChart(res, { fetchedAt, closeDigits: FOUR_PLACE_QUOTES.has(symbol) ? 4 : 2 });
+      // v60.28: the URL names events=div, so an absent dividend list is evidence of none (dividendFacts).
+      return dailyRowsFromYahooChart(res, { fetchedAt, closeDigits: FOUR_PLACE_QUOTES.has(symbol) ? 4 : 2, dividendEvents: true });
     } catch (e) { /* 호스트 폴백 */ }
   }
   return [];

@@ -1,5 +1,6 @@
 import { createResourceBag } from '../../app/lifecycle.js';
-import { screenerRowsState } from '../../data/shared-artifacts.js';
+import { screenerRowsState, refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { MACRO_HISTORY } from '../../data/artifact-registry.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
@@ -16,6 +17,8 @@ import { renderPortfolioValueTrend } from '../components/portfolio-value-trend.j
 import { renderPortfolioExposureBar } from '../components/portfolio-exposure-bar.js';
 import { installPlanCheck } from '../components/portfolio-plan-check.js';
 import { paintCashBox } from '../panels/portfolio-cash-entry.js';
+import { paintRiskFreeFill } from '../panels/portfolio-rf-fill.js';
+import { marketInterpretation, readMarketRegime } from '../../data/selectors/interpretation.js';
 import { signedText, signMark, directionColor, readNumber as finite } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
@@ -199,7 +202,7 @@ function screenerCloseOf(root, bySymbol, onDemand = new Map()) {
     const price = closeField(row);
     const own = onDemand.get(String(symbol || '').toUpperCase())?.lastClose;
     if ((price == null || price <= 0) && own) return { price: own.price, date: own.date };
-    if (price != null && price > 0) return { price, date: row?.factorSessionDate || null };
+    if (price != null && price > 0) return { price, date: row?.factorSessionDate || null, changePct: finite(row?.ret1d) };
     return null;
   };
 }
@@ -267,7 +270,9 @@ const closeNote = (surface) => {
   const stale = surface?.staleCloseCount || 0;
   const oldest = String(surface?.oldestCloseDate || '');
   const oldMd = isIsoDay(oldest) ? `${Number(oldest.slice(5, 7))}/${Number(oldest.slice(8, 10))} ` : '';
-  return `${n ? `, ${n}종목은 실시간 시세 대신 ${md}종가 기준` : ''}${stale ? `, 이 중 ${stale}종목은 일주일 넘은 ${oldMd}종가` : ''}${delayed ? `, ${delayed}종목은 지연 시세(참고) 기준` : ''}`;
+  // Every holding on the close: the count is already at the head of the line, so it is not said twice.
+  const all = n > 0 && n === surface?.holdingCount;
+  return `${n ? (all ? `, 모두 ${md}종가 기준` : `, ${n}종목은 실시간 시세 대신 ${md}종가 기준`) : ''}${stale ? `, 이 중 ${stale}종목은 일주일 넘은 ${oldMd}종가` : ''}${delayed ? `, ${delayed}종목은 지연 시세(참고) 기준` : ''}`;
 };
 
 function screenerSectorOf(bySymbol) {
@@ -554,10 +559,14 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     pctCell.style.color = pnlPct == null ? 'var(--color-text-secondary)' : directionColor(pnlPct, 1);
     row.appendChild(pctCell);
     // v58.56: today's move of the holding — only from a live quote with a stated basis (the hero's 오늘 uses the same rule).
+    // A holding valued on a close shows that close's own session change, dated, instead of a phrase.
     const dayPct = rowData.dailyPctEligible && Number.isFinite(rowData.dailyPct) ? rowData.dailyPct : null;
-    const dayCell = tableCell(documentRef, 'pf-th-day', dayPct == null ? (rowData.sourceKind === 'completed-close' ? '종가 기준' : '시세 대기') : `${signedText(dayPct, 2)}%`, 'pfp-cell');
-    dayCell.style.color = dayPct == null ? 'var(--color-text-secondary)' : directionColor(dayPct, 2);
-    if (dayPct == null) dayCell.title = rowData.sourceKind === 'completed-close' ? `${rowData.closeDate || ''} 종가로 평가 중 — 오늘 변화는 실시간 시세를 받으면 표시합니다`.trim() : '실시간 시세를 받으면 표시합니다';
+    const closeDay = dayPct == null && rowData.sourceKind === 'completed-close' && isIsoDay(String(rowData.closeDate || '')) ? rowData.closeDate : null;
+    const closePct = closeDay && Number.isFinite(rowData.closeChangePct) ? rowData.closeChangePct : null;
+    const shownPct = dayPct ?? closePct;
+    const dayCell = tableCell(documentRef, 'pf-th-day', shownPct == null ? (closeDay ? '종가 기준' : '시세 대기') : `${signedText(shownPct, 2)}%${closePct != null ? ` (${Number(closeDay.slice(5, 7))}/${Number(closeDay.slice(8, 10))})` : ''}`, 'pfp-cell');
+    dayCell.style.color = shownPct == null ? 'var(--color-text-secondary)' : directionColor(shownPct, 2);
+    if (dayPct == null) dayCell.title = closeDay ? `${closeDay} 종가의 전 거래일 대비 변화 — 오늘 변화는 실시간 시세를 받으면 표시합니다` : '실시간 시세를 받으면 표시합니다';
     row.appendChild(dayCell);
     // P1176 (22 PFR01): `finite(0)`은 0이라 미설정 표시를 통과하지 못했다. legacy 테이블은 이미
     // `target > 0`을 "설정됨"으로 정의하므로(js/aio-workspace.js), native도 같은 정의를 쓴다 —
@@ -689,7 +698,18 @@ function render({ root, documentRef, store }) {
   renderPortfolioCriteria({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel });
   renderThesisCheck({ documentRef, root, surface: empty ? null : surface, holdings: state?.holdings || [], bySymbol, rerender: () => rerenderPortfolio?.() });
   renderTradeJournal({ documentRef, root, surface }); // v58.52
+  renderRiskFreeFill(documentRef, root);
   syncEmptyState(documentRef, root, page, { empty, preview: false });
+}
+
+// The risk-free box offers the published short rate (SOFR, the shared macro reading's cash rate) as a one-click
+// entry; the macro history is asked for when stale and the button appears once it arrives.
+function renderRiskFreeFill(documentRef, root, { request = true } = {}) {
+  let cash = null;
+  try { readMarketRegime(root, () => rerenderPortfolio?.()); cash = marketInterpretation(root).crossroads?.cash || null; } catch (_) { cash = null; }
+  paintRiskFreeFill({ documentRef, cash, save: (id, value) => root?.savePortfolioAssumption?.(id, value) });
+  // The rate comes from the macro history, which this route does not otherwise load: ask once and paint the button alone.
+  if (!cash && request) refreshSharedArtifact(root, MACRO_HISTORY).then(() => renderRiskFreeFill(documentRef, root, { request: false })).catch(() => {});
 }
 
 // v58.75 (persona review): six large caps from different sectors of the screener universe (ETFs carry no published

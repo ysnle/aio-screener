@@ -448,16 +448,27 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
 // (it converges on the next refresh-data run; producers do not run locally); the same model must give the same verdict
 // from the same published inputs at the record's own clock — a difference there is a session or input leak.
 {
-  const { verdictModelFingerprint, verdictRecordStatus } = await load('scripts/lib/verdict-model.mjs');
+  const { verdictModelFingerprint, verdictRecordStatus, inputsNewerThanRecord } = await load('scripts/lib/verdict-model.mjs');
+  // v60.26: a verdict written before an input was republished is not a same-inputs comparison (the screener lane's deadlock).
+  {
+    const written = { generatedAt: '2026-11-17T21:21:58.253Z', asOf: '2026-11-17', overall: '부담 우세', heroLine: 'x', counts: { favorable: 1, neutral: 2, burden: 3 }, model: 'm' };
+    const moved = { ...written, counts: { favorable: 0, neutral: 3, burden: 3 } };
+    const newer = inputsNewerThanRecord(written, { 'screener.json': '2026-11-17T22:40:00.000Z' });
+    check('v60.26 a screener published after the verdict record is named as a newer input', newer.join() === 'screener.json' && inputsNewerThanRecord(written, { 'screener.json': '2026-11-17T08:38:41.545Z' }).length === 0, newer.join());
+    check('v60.26 a different verdict over a newer input is input-newer, and a mismatch when no input is newer',
+      verdictRecordStatus(written, moved, 'm', { newerInputs: newer }).status === 'input-newer' && verdictRecordStatus(written, moved, 'm').status === 'mismatch' && verdictRecordStatus(written, written, 'm', { newerInputs: newer }).status === 'match');
+  }
   const { interpretationFromArtifacts } = await load('scripts/lib/market-interpretation-inputs.mjs');
   const optional = (path) => { try { return json(path); } catch (_) { return null; } };
   const record = optional('public-data/today-verdict.json');
   if (!record) console.log('[metric-consistency] SKIP today-verdict: no published record');
   else {
+    const screener = optional('public-data/screener.json');
     const regime = interpretationFromArtifacts({ data: optional('public-data/data.json'), history: json('public-data/history.json'), macroHistory,
-      screener: optional('public-data/screener.json'), nowMs: Date.parse(record.generatedAt) }).regime || {};
-    const seen = verdictRecordStatus(record, regime, verdictModelFingerprint());
-    if (seen.status === 'stale-model') console.log(`[metric-consistency] STALE-MODEL today-verdict.json (${record.generatedAt}) was written by ${seen.model || 'an unstamped pre-v60.18 model'}; live code is ${seen.liveModel}. Published ${seen.published} · live ${seen.live}${seen.same ? ' (same verdict)' : ''} — the next refresh-data run rewrites it`);
+      screener, nowMs: Date.parse(record.generatedAt) }).regime || {};
+    const seen = verdictRecordStatus(record, regime, verdictModelFingerprint(), { newerInputs: inputsNewerThanRecord(record, { 'screener.json': screener?.asOf }) });
+    if (seen.status === 'input-newer') console.log(`[metric-consistency] INPUT-NEWER today-verdict.json (${record.generatedAt}) predates ${seen.newerInputs.join(', ')} (${screener?.asOf}); the next refresh-data run rewrites it. Published ${seen.published} · live ${seen.live}`);
+    else if (seen.status === 'stale-model') console.log(`[metric-consistency] STALE-MODEL today-verdict.json (${record.generatedAt}) was written by ${seen.model || 'an unstamped pre-v60.18 model'}; live code is ${seen.liveModel}. Published ${seen.published} · live ${seen.live}${seen.same ? ' (same verdict)' : ''} — the next refresh-data run rewrites it`);
     else check('v60.18 today-verdict.json matches the live code on the published inputs (same model, same verdict)', seen.status === 'match', `published ${seen.published} · live ${seen.live}`);
   }
 }

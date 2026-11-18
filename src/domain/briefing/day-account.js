@@ -4,31 +4,60 @@
 // neighbours — the members of a group, the headlines about its subject, the groups the price drives, the same-family
 // prices — and a fact belongs to one story only, in materiality order. What moved hard with nothing linked to it is kept
 // apart as unexplained; what is still ahead is a dated list. Nothing is scored here: rank and materiality are the ledger's.
-import { signedText, usdKoreanText } from '../shared/number.js';
 import { usThenKorea, marketOfSymbol } from '../market/session/session-time.js';
 import { resolveMarketCalendarSession } from '../market/session/market-calendar.js';
 import { UP_WORDS, DOWN_WORDS } from '../news/direction-words.js';
-const pct = (value, digits = 1) => signedText(value, digits, '%');
-const bp = (value) => signedText(value, 0, 'bp');
+import { CLAIM_WORDS, claim, say, sayJoin, NOTHING } from '../shared/claim.js';
+import { readNumber } from '../shared/number.js';
+// Every figure, date and judgement word of the account is printed from a claim (src/domain/shared/claim.js), so the
+// replay gate (scripts/ci-sentence-claim-replay-check.mjs) can check each word against the ledger it came from.
 const md = (date) => { const text = String(date || ''); return text.length >= 10 ? `${Number(text.slice(5, 7))}/${Number(text.slice(8, 10))}` : text; };
-// v59.71 (owner 11/07 '거래량'): a stock move on at least twice its 20-session turnover says so beside the price.
-const volTag = (fact) => (Number.isFinite(fact?.rvol) && fact.rvol >= 2 ? `(거래량 ${fact.rvol.toFixed(1)}배)` : '');
-const move = (fact) => ((fact.changeUnit || fact.unit) === 'bp' ? bp(fact.change) : pct(fact.change));
 const RANK_ORDER = Object.freeze({ lead: 0, major: 1, minor: 2, context: 3 });
 
-// Prices told together: one story per family, named by the family and the direction that matters for it.
+// The subject a fact's claims are about: an asset, a stock, a group.
+const subjectOf = (fact) => (fact.kind === 'price' ? fact.asset : fact.kind === 'group-move' ? fact.group : fact.subjects?.[0]) || fact.id;
+const unitOf = (fact) => ((fact.changeUnit || fact.unit) === 'bp' ? 'bp' : 'pct');
+/** A fact's one-session change (a group's median member), printed under `label`. */
+const changeClaim = (fact, { word = null, label = fact.label, unit = unitOf(fact), compare = null, basis = fact.kind === 'group-move' ? 'median' : 'change1d' } = {}) =>
+  claim({ subject: subjectOf(fact), measure: 'change1d', word, asOf: fact.date, compare, figures: [{ value: fact.change, unit, basis, label }] });
+/** A one-figure claim on another measure of the fact (a surprise, a size multiple, a pull on the index). */
+const figureClaim = (fact, measure, value, unit, label) => claim({ subject: subjectOf(fact), measure, asOf: fact.date, figures: [{ value, unit, basis: measure, label }] });
+// v59.71 (owner 11/07 '거래량'): a stock move on at least twice its 20-session turnover says so beside the price.
+const volTag = (fact) => (Number.isFinite(fact?.rvol) && fact.rvol >= 2 ? say('(거래량 {v})', { v: figureClaim(fact, 'rvol20', fact.rvol, 'x', '거래량') }) : NOTHING);
+const named = (fact, word = null) => say('{name} {move}', { name: fact.label, move: changeClaim(fact, { word }) });
+/** The five-session leg and its size against the usual five-session move. */
+const weekClaim = (fact) => claim({ subject: subjectOf(fact), measure: 'week5d', asOf: fact.date, figures: [{ value: fact.week, unit: unitOf(fact), basis: 'week5d', label: '5거래일' },
+  { value: Math.abs(fact.zWeek), unit: 'x', basis: 'zWeek', label: '평소 5거래일 변동' }] });
+/** A price fact's size on the leg the ledger ranked it by (the session, or the five-session leg). */
+const legSize = (fact) => Math.abs((fact.sizedBy === 'week' ? fact.zWeek : fact.z) ?? 0);
+/** 가장 큰 변화: the fact's size (its ledger leg) is the largest of its price family. */
+const largestClaim = (fact, family) => claim({ subject: subjectOf(fact), measure: 'size', word: 'largest', asOf: fact.date, rank: { among: `family:${family?.id}` } });
+/** A group's named members ({sym, change}): its leaders under a superlative, or its main movers. */
+const memberClaim = (group, movers, word) => claim({ subject: subjectOf(group), measure: 'change1d', word, asOf: group.date, ...(CLAIM_WORDS[word].rank ? { rank: { among: subjectOf(group) } } : {}),
+  figures: movers.map((row) => ({ value: row.change, unit: 'pct', basis: 'member', label: row.sym })) });
+/** A stock's pull on the S&P 500 in index bp, when it is 5bp or more. */
+const indexPull = (fact) => (Number.isFinite(fact.indexBp) && Math.abs(fact.indexBp) >= 5 ? figureClaim(fact, 'indexBp', fact.indexBp, 'bp', 'S&P 500') : null);
+/** A story field set from composed text; the story keeps every claim it prints. */
+function tell(story, field, said) {
+  if (field === 'why') story.why.push(said.text); else story[field] = said.text;
+  story.claims.push(...said.claims);
+}
+
+// Prices told together: one story per family, named by the family and the direction (a CLAIM_WORDS id) that matters for it.
 const FAMILIES = Object.freeze([
-  { id: 'oil', name: '유가', assets: ['wti', 'brent'], up: '상승', down: '하락', topics: ['energy'] },
-  { id: 'credit', name: '신용 스프레드', assets: ['igOas', 'hyOas', 'cccOas'], up: '확대', down: '축소', topics: ['credit'] },
-  { id: 'rates', name: '금리', assets: ['tnx', 'dgs2', 'realYield10', 'breakeven10'], up: '상승', down: '하락', topics: ['rates', 'inflation'] },
-  { id: 'dollar', name: '달러', assets: ['dxy', 'usdjpy', 'usdkrw'], up: '강세', down: '약세', topics: ['fx'] },
-  { id: 'metals', name: '금과 은', assets: ['gold', 'silver'], up: '상승', down: '하락', topics: ['metals'] },
-  { id: 'vol', name: '변동성', assets: ['vix'], up: '확대', down: '진정', topics: [] },
-  { id: 'crypto', name: '비트코인', assets: ['btc'], up: '상승', down: '하락', topics: ['crypto'] },
-  { id: 'us', name: '미국 지수', assets: ['spx', 'ndx', 'soxx', 'rut', 'rsp'], up: '상승', down: '하락' },
-  { id: 'kr', name: '한국 증시', assets: ['kospi', 'kosdaq'], up: '상승', down: '하락' }
+  { id: 'oil', name: '유가', assets: ['wti', 'brent'], up: 'rise', down: 'fall', topics: ['energy'] },
+  { id: 'credit', name: '신용 스프레드', assets: ['igOas', 'hyOas', 'cccOas'], up: 'widen', down: 'narrow', topics: ['credit'] },
+  { id: 'rates', name: '금리', assets: ['tnx', 'dgs2', 'realYield10', 'breakeven10'], up: 'rise', down: 'fall', topics: ['rates', 'inflation'] },
+  { id: 'dollar', name: '달러', assets: ['dxy', 'usdjpy', 'usdkrw'], up: 'strong', down: 'weak', topics: ['fx'] },
+  { id: 'metals', name: '금과 은', assets: ['gold', 'silver'], up: 'rise', down: 'fall', topics: ['metals'] },
+  { id: 'vol', name: '변동성', assets: ['vix'], up: 'widen', down: 'calm', topics: [] },
+  { id: 'crypto', name: '비트코인', assets: ['btc'], up: 'rise', down: 'fall', topics: ['crypto'] },
+  { id: 'us', name: '미국 지수', assets: ['spx', 'ndx', 'soxx', 'rut', 'rsp'], up: 'rise', down: 'fall' },
+  { id: 'kr', name: '한국 증시', assets: ['kospi', 'kosdaq'], up: 'rise', down: 'fall' }
 ]);
 const FAMILY_OF = new Map(FAMILIES.flatMap((family) => family.assets.map((asset) => [asset, family])));
+/** The family a price asset is told in (the replay checks 가장 큰 변화 within it). */
+export const priceFamilyOf = (asset) => FAMILY_OF.get(asset)?.id || null;
 const SEED_KINDS = new Set(['price', 'group-move', 'stock-move', 'earnings', 'deal', 'event']);
 
 const byMateriality = (a, b) => (RANK_ORDER[a.rank] ?? 9) - (RANK_ORDER[b.rank] ?? 9) || (b.materiality || 0) - (a.materiality || 0);
@@ -59,28 +88,29 @@ const evidenceOf = (fact) => ({ title: fact.titleKo || fact.title, original: fac
 const HANGUL_PAIR = /[가-힣].*[가-힣]/;
 const shownKorean = (fact) => HANGUL_PAIR.test(fact?.titleKo || '') || HANGUL_PAIR.test(fact?.title || '');
 
-/** The opening line: both markets' indexes, with the equal-weight S&P 500 read against the index (who carried the move). */
-export function indexLine(facts) {
+/** The opening line composed from its claims ({text, claims}). */
+export function indexSaid(facts) {
   const price = (asset) => facts.find((fact) => fact.kind === 'price' && fact.asset === asset);
   const us = ['spx', 'ndx', 'soxx'].map(price).filter(Boolean);
   const kr = ['kospi', 'kosdaq'].map(price).filter(Boolean);
+  const listed = (list) => sayJoin(list.map((fact) => say('{name} {move}', { name: fact.label, move: changeClaim(fact, { unit: 'pct' }) })), ', ');
   const parts = [];
-  if (us.length) parts.push(`미국은 ${us.map((fact) => `${fact.label} ${pct(fact.change)}`).join(', ')}`);
-  if (kr.length) parts.push(`한국은 ${kr.map((fact) => `${fact.label} ${pct(fact.change)}`).join(', ')}`);
-  if (!parts.length) return '';
+  if (us.length) parts.push(say('미국은 {list}', { list: listed(us) }));
+  if (kr.length) parts.push(say('한국은 {list}', { list: listed(kr) }));
+  if (!parts.length) return NOTHING;
   const spx = price('spx'); const rsp = price('rsp');
-  let breadth = '';
+  let breadth = NOTHING;
   if (spx && rsp && Math.abs(rsp.change - spx.change) >= 0.8) {
     // The wording follows the sign of both figures: "지수 하락" only on a day the index fell, "덜 내렸습니다" only
     // when the equal-weight index also fell.
-    const rest = spx.change >= 0 ? '지수보다 나머지 종목이 더 강했습니다'
-      : rsp.change > 0 ? '지수 하락은 시가총액이 큰 종목에 더 실렸고 나머지 종목은 오히려 올랐습니다'
-        : '지수 하락은 시가총액이 큰 종목에 더 실렸고 나머지 종목은 덜 내렸습니다';
-    breadth = rsp.change > spx.change ? ` 동일가중 S&P 500은 ${pct(rsp.change)}로, ${rest}.`
-      : ` 동일가중 S&P 500은 ${pct(rsp.change)}로, 지수보다 나머지 종목이 더 약했습니다.`;
+    const word = rsp.change <= spx.change ? 'rest-weaker' : spx.change >= 0 ? 'rest-stronger' : rsp.change > 0 ? 'cap-fall-rest-rose' : 'cap-fall-rest-less';
+    const rest = changeClaim(rsp, { word, unit: 'pct', label: '동일가중 S&P 500', compare: { against: subjectOf(spx), relation: CLAIM_WORDS[word].relation } });
+    breadth = say(' 동일가중 S&P 500은 {rest}로, {rest.word}.', { rest });
   }
-  return `${parts.join('. ')}.${breadth}`;
+  return say('{parts}.{breadth}', { parts: sayJoin(parts, '. '), breadth });
 }
+/** The opening line: both markets' indexes, with the equal-weight S&P 500 read against the index (who carried the move). */
+export const indexLine = (facts) => indexSaid(facts).text;
 
 function linkIndex(links) {
   const from = new Map(); const to = new Map();
@@ -107,7 +137,7 @@ export function reportFor(briefs, sym, date) {
 
 export function buildDayAccount(day, { briefs = null } = {}) {
   const facts = Array.isArray(day?.facts) ? day.facts : [];
-  if (!facts.length) return { available: false, opening: '', coverage: null, stories: [], more: [], unexplained: [], reported: [], ahead: [] };
+  if (!facts.length) return { available: false, opening: '', claims: { opening: [], asOf: [] }, coverage: null, asOf: '', stories: [], more: [], unexplained: [], reported: [], ahead: [] };
   const byId = new Map(facts.map((fact) => [fact.id, fact]));
   const { out, into } = linkIndex(day.links);
   const claimed = new Map(); // fact id -> story id
@@ -118,13 +148,13 @@ export function buildDayAccount(day, { briefs = null } = {}) {
     .map((id) => byId.get(id)).filter((fact) => fact && shownKorean(fact) && fact.rank !== 'context' && !claimed.has(fact.id) && (fact.wordTopics || []).some((topic) => topics.includes(topic))
       && (!afterClose(fact, seed) || agrees(fact, seed.change, seed))).sort(byMateriality);
   const stories = [];
-  const claim = (story, list) => { for (const fact of list) if (fact && !claimed.has(fact.id)) claimed.set(fact.id, story.id); };
+  const assign = (story, list) => { for (const fact of list) if (fact && !claimed.has(fact.id)) claimed.set(fact.id, story.id); };
   const groupMembers = (fact) => new Set(fact.members || []);
 
   for (const seed of facts.filter((fact) => SEED_KINDS.has(fact.kind) && fact.kind !== 'price' || (fact.kind === 'price' && FAMILY_OF.get(fact.asset)?.id !== 'us' && FAMILY_OF.get(fact.asset)?.id !== 'kr')).sort(byMateriality)) {
     if (claimed.has(seed.id) || !['lead', 'major', 'minor'].includes(seed.rank)) continue;
     // v59.68: direction is the lead fact's own sign (a spread widening is +), for the story's weight bar; not a tone.
-    const story = { id: `story:${seed.id}`, rank: seed.rank, materiality: seed.materiality || 0, direction: Math.sign(Number(seed.change) || 0), kind: seed.kind, title: '', line: '', why: [], evidence: [], related: [] };
+    const story = { id: `story:${seed.id}`, rank: seed.rank, materiality: seed.materiality || 0, direction: Math.sign(Number(seed.change) || 0), kind: seed.kind, title: '', line: '', why: [], evidence: [], related: [], claims: [] };
     if (seed.kind === 'price') {
       const family = FAMILY_OF.get(seed.asset);
       const kin = facts.filter((fact) => fact.kind === 'price' && FAMILY_OF.get(fact.asset) === family && fact.rank !== 'context' && !claimed.has(fact.id)).sort(byMateriality);
@@ -134,71 +164,95 @@ export function buildDayAccount(day, { briefs = null } = {}) {
         .sort((a, b) => Number(String(b.group).startsWith('theme:')) - Number(String(a.group).startsWith('theme:')) || byMateriality(a, b));
       // A theme and the sector of the same members are one move: the theme (Korean name) speaks for both.
       const groups = driven.filter((fact, index) => !driven.slice(0, index).some((other) => [...groupMembers(other)].filter((sym) => groupMembers(fact).has(sym)).length >= Math.min(groupMembers(fact).size, groupMembers(other).size) / 2));
-      story.title = `${family ? family.name : seed.label} ${seed.change >= 0 ? family?.up || '상승' : family?.down || '하락'}`;
+      tell(story, 'title', say('{name} {move.word}', { name: family ? family.name : seed.label, move: changeClaim(seed, { word: seed.change >= 0 ? family?.up || 'rise' : family?.down || 'fall' }) }));
       // A fact the ledger ranked on its five-session leg (sizedBy 'week') says that leg — the day
       // is the same sign by the rule, and "평소 하루 변동의 0.9배" would not say why it leads.
-      const byWeek = seed.sizedBy === 'week' && Number.isFinite(seed.zWeek) && Number.isFinite(seed.week);
-      const times = byWeek ? `5거래일 ${(seed.changeUnit || seed.unit) === 'bp' ? bp(seed.week) : pct(seed.week)}로 평소 5거래일 변동의 ${Math.abs(seed.zWeek).toFixed(1)}배입니다.`
-        : Number.isFinite(seed.z) ? `평소 하루 변동의 ${Math.abs(seed.z).toFixed(1)}배입니다.` : '';
+      // 가장 큰 변화 is the family member whose move is largest against its own volatility, on the leg the ledger sized
+      // it by. That is not always the lead: the lead is the most material, and a core gauge (the dollar index, the 10-year,
+      // HY) counts more than a secondary one, so "가장 큰 변화(달러지수)" stood beside a larger 엔/달러 move.
+      const largest = kin.reduce((best, fact) => (legSize(fact) > legSize(best) ? fact : best), seed);
+      const byWeek = largest.sizedBy === 'week' && Number.isFinite(largest.zWeek) && Number.isFinite(largest.week);
+      const times = byWeek ? say('5거래일 {week}로 평소 5거래일 변동의 {week.1}입니다.', { week: weekClaim(largest) })
+        : Number.isFinite(largest.z) ? say('평소 하루 변동의 {z}입니다.', { z: figureClaim(largest, 'z1d', Math.abs(largest.z), 'x', '평소 하루 변동') }) : NOTHING;
       // v59.70 (screen review 8): the close date leads, so this day move is not read against a live quote chip or a week figure.
-      story.line = `${seed.date ? `${md(seed.date)} 종가 ` : ''}${kin.map((fact) => `${fact.label} ${move(fact)}`).join(', ')}.${times ? (kin.length > 1 ? ` 가장 큰 변화(${seed.label})는 ${times}` : ` ${times}`) : ''}`;
-      if (groups.length) story.why.push(`같이 움직인 업종은 ${groups.slice(0, 2).map((fact) => `${fact.label}(${pct(fact.change)})`).join(', ')}입니다.`);
+      const tail = !times.text ? NOTHING : kin.length > 1 ? say(' {largest.word}({name})는 {times}', { largest: largestClaim(largest, family), name: largest.label, times }) : say(' {times}', { times });
+      tell(story, 'line', say('{date}{kin}.{tail}', { date: seed.date ? say('{seed.date} 종가 ', { seed: changeClaim(seed) }) : NOTHING, kin: sayJoin(kin.map((fact) => named(fact)), ', '), tail }));
+      if (groups.length) {
+        const moved = groups.slice(0, 2).map((fact) => changeClaim(fact, { word: 'moved-with', unit: 'pct', compare: { against: subjectOf(seed) } }));
+        tell(story, 'why', say('{first.word} 업종은 {list}입니다.', { first: moved[0], list: sayJoin(moved.map((group, i) => say('{name}({group})', { name: groups[i].label, group })), ', ') }));
+      }
       const reports = topicHeadlines(ids, family?.topics || [], seed).slice(0, 2);
       story.evidence = reports.map(evidenceOf);
-      claim(story, [...kin, ...driven, ...reports]);
-      for (const group of driven) claim(story, (group.members || []).map((sym) => facts.find((fact) => fact.kind === 'stock-move' && fact.subjects?.[0] === sym)));
+      assign(story,[...kin, ...driven, ...reports]);
+      for (const group of driven) assign(story,(group.members || []).map((sym) => facts.find((fact) => fact.kind === 'stock-move' && fact.subjects?.[0] === sym)));
     } else if (seed.kind === 'group-move') {
       const members = seed.members || [];
       const moved = facts.filter((fact) => fact.kind === 'stock-move' && members.includes(fact.subjects?.[0]) && !claimed.has(fact.id)).sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
       const siblings = facts.filter((fact) => fact.kind === 'group-move' && fact.id !== seed.id && !claimed.has(fact.id)
         && (fact.members || []).filter((sym) => members.includes(sym)).length >= Math.min((fact.members || []).length, members.length) / 2);
-      // Leaders already told in an earlier story (MRVL under 광통신 and again under AI 인프라) are not repeated.
-      const leaders = moved.slice(0, 3).map((fact) => `${fact.subjects[0]} ${pct(fact.change)}${volTag(fact)}`);
-      story.title = `${seed.label} ${seed.change >= 0 ? '상승' : '하락'}`;
-      story.line = `업종 중간값 ${pct(seed.change)}${leaders.length ? `, 가장 많이 움직인 종목은 ${leaders.join(', ')}` : ''}.`;
+      // The group's own leaders are its largest members' moves in the median's direction; the stock-move facts are only
+      // the members big enough to matter to the index, so they are named as such when the group carries no leaders.
+      const stockOf = (sym) => facts.find((fact) => fact.kind === 'stock-move' && fact.subjects?.[0] === sym);
+      const ownLeaders = (Array.isArray(seed.leaders) ? seed.leaders : []).filter((lead) => lead?.sym && readNumber(lead.change) !== null);
+      const movers = ownLeaders.length
+        ? ownLeaders.slice(0, 3).map((lead) => ({ sym: lead.sym, change: readNumber(lead.change), stock: stockOf(lead.sym) }))
+        : moved.slice(0, 3).map((fact) => ({ sym: fact.subjects[0], change: fact.change, stock: fact }));
+      const leaders = memberClaim(seed, movers, ownLeaders.length ? (seed.change >= 0 ? 'most-rose' : 'most-fell') : 'main-movers');
+      tell(story, 'title', say('{name} {median.word}', { name: seed.label, median: changeClaim(seed, { word: seed.change >= 0 ? 'rise' : 'fall', unit: 'pct' }) }));
+      tell(story, 'line', say('업종 중간값 {median}{leaders}.', { median: changeClaim(seed, { unit: 'pct', label: '업종 중간값' }),
+        leaders: movers.length ? say(', {leaders.word} 종목은 {list}', { leaders, list: sayJoin(movers.map((row, i) => say('{sym} {leaders.' + i + '}{vol}', { sym: row.sym, leaders, vol: volTag(row.stock) })), ', ') }) : NOTHING }));
       const drivers = into(seed.id).filter((link) => link.basis === 'driver').map((link) => byId.get(link.from)).filter(Boolean);
       const drivenBy = drivers.map((fact) => claimed.get(fact.id)).find(Boolean);
-      if (drivers.length) story.why.push(`${drivers[0].label} ${move(drivers[0])}와 같은 방향입니다.`);
+      if (drivers.length) tell(story, 'why', say('{name} {driver}와 {driver.word}입니다.', { name: drivers[0].label, driver: changeClaim(drivers[0], { word: 'same-way', compare: { against: subjectOf(seed) } }) }));
       story.joins = drivenBy || null;
       const reports = headlinesAbout(members, seed.change, seed).slice(0, 3);
       story.evidence = reports.map(evidenceOf);
       story.related = moved.slice(0, 6).map((fact) => ({ sym: fact.subjects[0], label: fact.label, change: fact.change }));
-      claim(story, [seed, ...moved, ...siblings, ...reports]);
+      assign(story,[seed, ...moved, ...siblings, ...reports]);
     } else if (seed.kind === 'earnings') {
       const sym = seed.subjects?.[0];
       const stock = facts.find((fact) => fact.kind === 'stock-move' && fact.subjects?.[0] === sym && !claimed.has(fact.id));
-      const result = [Number.isFinite(seed.epsSurprise) ? `주당순이익은 예상보다 ${pct(seed.epsSurprise)}` : null, Number.isFinite(seed.revenueSurprise) ? `매출은 ${pct(seed.revenueSurprise)}` : null].filter(Boolean);
-      story.title = `${seed.label} 실적`;
-      story.line = `${result.length ? `${result.join(', ')}.` : '실적을 발표했습니다.'}${stock ? ` 주가 ${pct(stock.change)}${volTag(stock)}${Number.isFinite(stock.indexBp) && Math.abs(stock.indexBp) >= 5 ? `(S&P 500에 ${bp(stock.indexBp)})` : ''}.` : ''}`;
+      const result = sayJoin([Number.isFinite(seed.epsSurprise) ? say('주당순이익은 예상보다 {eps}', { eps: figureClaim(seed, 'epsSurprise', seed.epsSurprise, 'pct', '주당순이익') }) : NOTHING,
+        Number.isFinite(seed.revenueSurprise) ? say('매출은 {revenue}', { revenue: figureClaim(seed, 'revenueSurprise', seed.revenueSurprise, 'pct', '매출') }) : NOTHING], ', ');
+      tell(story, 'title', say('{name} 실적', { name: seed.label }));
+      tell(story, 'line', say('{result}{stock}', { result: result.text ? say('{result}.', { result }) : say('실적을 발표했습니다.'),
+        stock: stock ? say(' 주가 {move}{vol}{pull}.', { move: changeClaim(stock, { unit: 'pct', label: '주가' }), vol: volTag(stock), pull: indexPull(stock) ? say('(S&P 500에 {pull})', { pull: indexPull(stock) }) : NOTHING }) : NOTHING }));
       const reports = headlinesAbout([sym], stock?.change, stock).slice(0, 3);
       story.evidence = reports.map(evidenceOf);
-      claim(story, [seed, stock, ...reports]);
+      assign(story,[seed, stock, ...reports]);
     } else if (seed.kind === 'deal') {
       // v59.70 (screen review #11): a deal fact carries acquirer/target/terms but no label, so the generic branch told it
       // as an empty title and line under its reports.
       const name = (sym) => facts.find((fact) => fact.subjects?.[0] === sym && fact.kind !== 'headline' && fact.label)?.label || sym;
       const reports = headlinesAbout(seed.subjects || [], NaN).slice(0, 3);
-      story.title = `${name(seed.acquirer)}, ${name(seed.target)} 인수`;
-      const terms = [Number.isFinite(seed.valueUsd) && seed.valueUsd > 0 ? `규모 ${usdKoreanText(seed.valueUsd)}` : null,
-        seed.payment === 'stock' ? '주식 교환' : seed.payment === 'cash' ? '현금 인수' : null,
-        Number.isFinite(seed.premiumPct) ? `프리미엄 ${pct(seed.premiumPct)}` : null].filter(Boolean);
-      story.line = terms.length ? `${terms.join(', ')}.` : '';
+      tell(story, 'title', say('{acquirer}, {target} 인수', { acquirer: name(seed.acquirer), target: name(seed.target) }));
+      const terms = sayJoin([Number.isFinite(seed.valueUsd) && seed.valueUsd > 0 ? say('규모 {value}', { value: figureClaim(seed, 'dealValue', seed.valueUsd, 'usd', '규모') }) : NOTHING,
+        say(seed.payment === 'stock' ? '주식 교환' : seed.payment === 'cash' ? '현금 인수' : ''),
+        Number.isFinite(seed.premiumPct) ? say('프리미엄 {premium}', { premium: figureClaim(seed, 'dealPremium', seed.premiumPct, 'pct', '프리미엄') }) : NOTHING], ', ');
+      tell(story, 'line', terms.text ? say('{terms}.', { terms }) : NOTHING);
       story.evidence = reports.map(evidenceOf);
-      claim(story, [seed, ...reports]);
+      assign(story,[seed, ...reports]);
     } else {
       const sym = seed.subjects?.[0];
       if (seed.kind === 'stock-move' && !(seed.explainedBy || []).length) continue; // told below as unexplained
       const reports = sym ? headlinesAbout([sym], seed.change, seed.kind === 'stock-move' ? seed : null).slice(0, 3) : [];
       // A stock that also reported: its results are the story's first reason.
       const results = seed.kind === 'stock-move' ? facts.find((fact) => fact.kind === 'earnings' && fact.subjects?.[0] === sym && !claimed.has(fact.id)) : null;
-      const resultText = results ? [Number.isFinite(results.epsSurprise) ? `주당순이익 예상 대비 ${pct(results.epsSurprise)}` : null, Number.isFinite(results.revenueSurprise) ? `매출 ${pct(results.revenueSurprise)}` : null].filter(Boolean).join(', ') : '';
-      if (results) claim(story, [results]);
-      story.title = seed.kind === 'stock-move' ? `${seed.label} ${pct(seed.change)}` : seed.label || seed.title || '';
-      story.line = seed.kind === 'stock-move'
-        ? `${resultText ? `실적 발표(${resultText}) 뒤의 움직임입니다. ` : ''}${Number.isFinite(seed.indexBp) && Math.abs(seed.indexBp) >= 5 ? `S&P 500 지수에 ${bp(seed.indexBp)}만큼 영향을 줬습니다.` : `평소 움직임의 ${Math.abs(seed.z || 0).toFixed(1)}배입니다.`}${(seed.explainedBy || []).includes('driver') ? ' 업종이 따르는 가격과 같은 방향입니다.' : ''}`
-        : seed.why || '';
+      const resultText = results ? sayJoin([Number.isFinite(results.epsSurprise) ? say('주당순이익 예상 대비 {eps}', { eps: figureClaim(results, 'epsSurprise', results.epsSurprise, 'pct', '주당순이익') }) : NOTHING,
+        Number.isFinite(results.revenueSurprise) ? say('매출 {revenue}', { revenue: figureClaim(results, 'revenueSurprise', results.revenueSurprise, 'pct', '매출') }) : NOTHING], ', ') : NOTHING;
+      if (results) assign(story,[results]);
+      if (seed.kind === 'stock-move') {
+        tell(story, 'title', named(seed));
+        tell(story, 'line', say('{results}{size}{driver}', { results: resultText.text ? say('실적 발표({results}) 뒤의 움직임입니다. ', { results: resultText }) : NOTHING,
+          size: indexPull(seed) ? say('S&P 500 지수에 {pull}만큼 영향을 줬습니다.', { pull: indexPull(seed) }) : say('평소 움직임의 {z}입니다.', { z: figureClaim(seed, 'z1d', Math.abs(seed.z || 0), 'x', '평소 움직임') }),
+          driver: (seed.explainedBy || []).includes('driver') ? ' 업종이 따르는 가격과 같은 방향입니다.' : '' }));
+      } else {
+        // An event's own label and reason, as the ledger wrote them.
+        story.title = seed.label || seed.title || '';
+        story.line = seed.why || '';
+      }
       story.evidence = reports.map(evidenceOf);
-      claim(story, [seed, ...reports]);
+      assign(story,[seed, ...reports]);
     }
     if (!story.title) continue; // a seed kind with no wording here is not shown as a bare weight bar
     stories.push(story);
@@ -224,10 +278,17 @@ export function buildDayAccount(day, { briefs = null } = {}) {
     .map((fact) => ({ date: fact.date, label: fact.label, why: fact.why || (fact.hour === 'amc' ? '장 마감 후 실적' : fact.hour === 'bmo' ? '장 시작 전 실적' : ''), rank: fact.rank }));
   const face = stories.filter((story) => story.rank !== 'minor').slice(0, 6);
   const counts = facts.reduce((acc, fact) => { acc[fact.rank] = (acc[fact.rank] || 0) + 1; return acc; }, {});
+  const opening = indexSaid(facts);
+  const asOf = day.sessions?.us ? say('{session.date} 마감', { session: claim({ subject: 'us-session', measure: 'session', asOf: day.sessions.us }) }) : NOTHING;
   return {
     available: true,
-    opening: indexLine(facts),
+    opening: opening.text,
+    // what the opening line and the date label claim (each story carries its own claims)
+    claims: { opening: opening.claims, asOf: asOf.claims },
     coverage: { facts: facts.length, lead: counts.lead || 0, major: counts.major || 0, noise: day.dropped?.noise || 0, generatedAt: day.generatedAt || null, session: day.sessions?.us || null },
+    // the one dated label of these stories — 오늘's 오늘의 핵심 and 브리핑's 지난 24시간 both
+    // print it, so the briefing no longer sits its 11/16 movers under the page's 11/17 close line with no date.
+    asOf: asOf.text,
     stories: face,
     more: stories.filter((story) => !face.includes(story)).slice(0, 12),
     unexplained,

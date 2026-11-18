@@ -49,8 +49,8 @@ try {
   await page.waitForFunction(() => document.querySelector('#page-atlas .af-article')?.dataset.atlasNode === 'compute-gpu');
   const atlasArrival = await page.evaluate(() => ({
     hash: location.hash,
-    mode: new URL(location.href).searchParams.get('mode'),
-    node: new URL(location.href).searchParams.get('node'),
+    mode: new URLSearchParams(location.hash.split('?')[1] || '').get('mode'),
+    node: new URLSearchParams(location.hash.split('?')[1] || '').get('node'),
     title: document.querySelector('#page-atlas .af-article .af-issue')?.textContent || '',
     arrival: document.querySelector('#page-atlas .atlas-arrival-context')?.textContent || ''
   }));
@@ -60,7 +60,7 @@ try {
   await dismissDisclaimer(page);
   await page.waitForFunction(() => document.getElementById('page-atlas')?.classList.contains('active') && document.querySelector('#page-atlas .atlas-arrival-context'));
   await page.waitForFunction(() => document.querySelector('#page-atlas .af-article')?.dataset.atlasNode === 'compute-gpu');
-  const atlasReloadPersisted = await page.evaluate(() => new URL(location.href).searchParams.get('node') === 'compute-gpu' && location.hash.includes('knowledgeNode=compute-gpu'));
+  const atlasReloadPersisted = await page.evaluate(() => new URLSearchParams(location.hash.split('?')[1] || '').get('node') === 'compute-gpu' && location.hash.includes('knowledgeNode=compute-gpu'));
   if (!atlasReloadPersisted) throw new Error(`atlas destination was not reload-persistent: ${page.url()}`);
 
   await openColumnChapter(page, 'market-expectations-prices');
@@ -69,7 +69,7 @@ try {
   await page.waitForFunction(() => document.querySelector('#page-masters .masters-detail-tab[aria-pressed="true"]')?.dataset.mastersValue === 'changes');
   const mastersArrival = await page.evaluate(() => ({
     hash: location.hash,
-    mode: new URL(location.href).searchParams.get('mode'),
+    mode: new URLSearchParams(location.hash.split('?')[1] || '').get('mode'),
     arrival: document.querySelector('#page-masters .masters-arrival-context')?.textContent || '',
     activeTab: document.querySelector('#page-masters .masters-detail-tab[aria-pressed="true"]')?.textContent || ''
   }));

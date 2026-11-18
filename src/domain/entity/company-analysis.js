@@ -21,7 +21,7 @@ const safeUrl = safeSourceUrl;
 const signed = value => `${signedText(value, 1)}%`;
 const fact = (row, field, key) => row?.fieldReadiness ? finite(fieldValueForPurpose(row, field, 'display')) : finite(row?.[key]);
 
-export function buildCompanyAnalysis({ symbol, row = null, summary = null, profile = null, fundamentals = null, fiscalHistory = [], rows = [], themes = [], registry = INSTRUMENT_REGISTRY, nowMs = Date.now(), onDemand = null, sic = null } = {}) {
+export function buildCompanyAnalysis({ symbol, row = null, summary = null, profile = null, fundamentals = null, fiscalHistory = [], rows = [], themes = [], registry = INSTRUMENT_REGISTRY, nowMs = Date.now(), onDemand = null, sic = null, debtBasis = null } = {}) {
   const id = sym(symbol);
   if (!id) return { modelVersion: COMPANY_ANALYSIS_MODEL_VERSION, available: false, symbol: null };
   const matchedRow = row && sym(row.sym || row.symbol) === id ? row : null;
@@ -69,7 +69,7 @@ export function buildCompanyAnalysis({ symbol, row = null, summary = null, profi
   const usableFundamentals = matchedFundamentals && officialFiling && matchedFundamentals.periodType === 'FY' && validDate(matchedFundamentals.observedAt)
     && Date.parse(matchedFundamentals.observedAt) <= nowMs && Number.isFinite(filingMs) && filingMs <= nowMs && report?.status === 'current' ? matchedFundamentals : null;
   const annualHistory = usableFundamentals ? (Array.isArray(fiscalHistory) ? fiscalHistory : []).filter(year => validDate(year.periodEnd) && Date.parse(year.periodEnd) <= nowMs && (!year.symbol || sym(year.symbol) === id)) : [];
-  const fiscal = buildFiscalRead({ symbol: id, fundamentals: usableFundamentals ? { ...usableFundamentals, fiscalHistory: annualHistory } : null, row: matchedRow, sic });
+  const fiscal = buildFiscalRead({ symbol: id, fundamentals: usableFundamentals ? { ...usableFundamentals, fiscalHistory: annualHistory } : null, row: matchedRow, sic, debtBasis });
   const risks = [];
   const latest = fiscal.latest;
   if (finite(latest?.netIncome) < 0) risks.push({ id:'loss', text:`${latest.periodEnd} 연간 공시는 순손실입니다. 매출 성장과 순이익을 구분해서 확인합니다.` });

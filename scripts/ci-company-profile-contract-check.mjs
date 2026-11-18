@@ -10,7 +10,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { AI_LAYERS, STORY_UNITS, moneyText, storyFreshness, storyPeriodEnd, withConfirmedReport, isCompanyStory } from '../src/domain/entity/company-story.js';
 import { debateIssues } from '../src/domain/entity/company-debate.js';
-import { buildCompanyGraph, companyNeighbourhood, COMPANY_GRAPH_SCHEMA } from '../src/domain/entity/company-graph.js';
+import { buildCompanyGraph, companyNeighbourhood, counterpartiesNamedIn, COMPANY_GRAPH_SCHEMA } from '../src/domain/entity/company-graph.js';
 import { companiesNamedIn } from '../src/domain/entity/company-aliases.js';
 import { existsSync } from 'node:fs';
 import { LAYER_INDUSTRY, SYMBOL_INDUSTRY } from '../src/domain/entity/industry-links.js';
@@ -154,6 +154,24 @@ assert.deepEqual(near.buyers, [], 'v59.74 a company named after the dash of a cu
 assert.deepEqual(companyNeighbourhood(tiny, 'TSM').partners.map((r) => r.symbol), ['ASML'], 'v59.74 a partner line is a partnership, not a payment');
 assert.deepEqual(near.rivals.map((r) => r.symbol), ['AMD'], 'v59.74 rivals come from the competition arenas');
 assert.equal(tiny.nodes.AMD.name, 'Advanced Micro Devices', 'v59.74 the short name drops the legal suffix');
+// v60.28: names inside a parenthetical that qualifies a named subject are that subject's relationships, not edges of the
+// story's company; a bracketed member list under a category head still links its members.
+{
+  const marvell = 'Marvell (AWS Trainium·Microsoft Maia 협력으로 보도)';
+  const graph = buildCompanyGraph([
+    { symbol: 'AVGO', name: 'Broadcom Inc.', competition: { arenas: [{ arena: '맞춤형 AI 가속기 설계 파트너 (XPU/ASIC)', rivals: [marvell, 'MediaTek'] }] },
+      aiChain: { sellsTo: ['클라우드 (Google, Meta)'], dependsOn: ['장비·파운드리 (TSMC 첨단 웨이퍼, ASE·Amkor·SPIL 패키징)'] },
+      make: { partners: ['TSMC - 웨이퍼 생산 (파운드리)', 'Jabil (Microsoft 협력 조립)'] }, sell: { customers: ['Fluidstack(Google 보증) - 임대', '네오클라우드(이름 미공개, AMD 신용 보증)'] } },
+    ...['MRVL', 'AMZN', 'MSFT', 'GOOGL', 'META', 'TSM', 'ASX', 'AMKR', 'AMD', 'JBL'].map((symbol) => ({ symbol, name: symbol }))
+  ]);
+  const near = companyNeighbourhood(graph, 'AVGO');
+  assert.deepEqual(near.rivals.map((r) => r.symbol), ['MRVL'], 'v60.28 a rival line links its subject (Marvell), not the partners in its parenthetical (AWS, Microsoft)');
+  assert.deepEqual(near.buyers.map((r) => r.symbol).sort(), ['GOOGL', 'META'], 'v60.28 a category head links its bracketed members; a guarantor in brackets (보증) is not a customer');
+  assert.deepEqual(near.partners.map((r) => r.symbol).sort(), ['AMKR', 'ASX', 'JBL', 'TSM'], 'v60.28 a partner line with a named subject ignores the bracketed company');
+  assert.deepEqual(counterpartiesNamedIn(marvell, 'AVGO'), ['MRVL'], 'v60.28 the competitor subject is the name before the parenthetical');
+  assert.deepEqual(counterpartiesNamedIn('AMD (Instinct MI450·Helios, OpenAI 6GW 계약)', 'NVDA'), ['AMD'], 'v60.28 a rival’s customer contract does not make the customer a rival');
+  assert.deepEqual(counterpartiesNamedIn('케이블 MVNO (Comcast, Charter', 'VZ'), ['CMCSA'], 'v60.28 an unclosed bracket still lists its members');
+}
 
 if (failures.length) {
   console.error(`company profile contract FAIL (${failures.length}):\n- ${failures.slice(0, 40).join('\n- ')}`);

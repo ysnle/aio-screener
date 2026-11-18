@@ -239,7 +239,7 @@
 .page .tp-row-flag { font-weight: 400; color: var(--color-text-secondary); }
 .page .tp-row-flow { min-width: 170px; }
 .page .tp-flow-text { color: var(--color-text-primary); }
-.page .tp-flow-chip { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: var(--radius-full); font-size: 12px; background: var(--sx-warn-bg); color: var(--amber-12, var(--color-text-warning)); white-space: nowrap; }
+.page .tp-flow-chip { display: inline-block; margin-left: 2px; padding: 1px 7px; border-radius: var(--radius-full); font-size: 12px; background: var(--sx-warn-bg); color: var(--amber-12, var(--color-text-warning)); white-space: nowrap; }
 .page .tp-row-flow .tp-row-drift { display: block; margin-top: 2px; }
 .page .tp-row-spark { white-space: nowrap; }
 .page .tp-spark { width: 84px; height: 24px; vertical-align: middle; overflow: visible; }
@@ -254,6 +254,7 @@
 .page .tp-criteria-dots { display: inline-flex; gap: 2px; margin-right: 6px; vertical-align: middle; }
 .page .tp-criteria-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--sx-ink-a07); }
 .page .tp-criteria-dots i.is-met { background: var(--color-text-primary); }
+.page .tp-criteria-dots i.is-unknown { background: transparent; box-shadow: inset 0 0 0 1px var(--color-text-secondary); }
 .page .tp-table .thp-member-sort { font: inherit; font-weight: 600; padding: 0; min-height: 24px; background: none; border: 0; color: inherit; cursor: pointer; white-space: nowrap; }
 .page .tp-table .thp-member-sort:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 .page .xr-tag.is-wind-tail { color: var(--color-text-success); background: var(--sx-good-bg, transparent); border-color: transparent; }

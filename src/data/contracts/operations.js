@@ -4,8 +4,8 @@ export const OPERATIONS_STATUS = Object.freeze(['CURRENT', 'DEGRADED', 'BLOCKED'
 export const RIGHTS_STATUS = Object.freeze(['VERIFIED', 'REVIEW_REQUIRED', 'OPERATOR_REQUIRED', 'UNAVAILABLE', 'UNKNOWN']);
 export const OPERATIONAL_STATE_CODES = Object.freeze(['NOT_CONFIGURED', 'CONFIGURED_HEALTHY', 'CONFIGURED_BROKEN', 'STALE', 'NOT_OBSERVED', 'RIGHTS_REVIEW_REQUIRED']);
 // P1173 (17 작업 단위 5): `overall`/`planes.*.status` says what an operator's pipeline is doing. It does
-// not say which features a user can actually rely on right now, and it is derived from the durable plane
-// alone — so a browser plane that was never observed leaves `overall` unchanged. Feature availability is
+// not say which features a user can actually rely on right now. Overall reflects durable health and
+// open operator blockers. A browser plane that was never observed leaves it unchanged. Feature availability is
 // therefore a separate axis with its own closed vocabulary.
 export const FEATURE_AVAILABILITY = Object.freeze(['AVAILABLE', 'DEGRADED', 'UNAVAILABLE', 'UNKNOWN']);
 // P1256 (E5 O06 / 06 O06): 도메인 receipt의 발행 상태는 수집 성공의 어휘이다 —
@@ -37,6 +37,7 @@ export function createOperationsStatus(input = {}) {
       ? Object.freeze({
         planes: Object.freeze(Array.isArray(input.overallBasis.planes) ? input.overallBasis.planes.map(String) : []),
         excludes: Object.freeze(Array.isArray(input.overallBasis.excludes) ? input.overallBasis.excludes.map(String) : []),
+        ...(input.overallBasis.includesBlockers === true ? { includesBlockers: true } : {}),
         note: input.overallBasis.note ? String(input.overallBasis.note) : null
       })
       : Object.freeze({ planes: Object.freeze([]), excludes: Object.freeze([]), note: null }),

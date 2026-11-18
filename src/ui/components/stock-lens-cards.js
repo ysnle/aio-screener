@@ -8,15 +8,15 @@ import { setResearchHandoff } from '../../app/research-handoff.js';
 import { el } from './dom.js';
 import { focusResearchMemo } from './research-snapshots.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
-import { parseFiscalHistory } from './fiscal-read.js';
+import { parseFiscalHistory, debtBasisFor, debtCurrentFor, issuerSic } from './fiscal-read.js';
 import { marketInterpretation, readMarketRegime } from '../../data/selectors/interpretation.js';
 import { reconcileFiscalHistory, financialKind } from '../../domain/fundamental/fiscal-read.js';
 import { parseQuarterHistory, buildQuarterRead } from '../../domain/fundamental/quarter-read.js';
 import { buildTrailingYearRead, buildEarningsSchedule, buildMarginCashRead, buildThemePeers, buildRdRead, buildSurpriseRead, reverseDcfInputs, impliedGrowth, REVERSE_DCF_DEFAULTS } from '../../domain/fundamental/analysis-read.js';
-import { lensIdFor, buildLensRead, buildPeerStrengths, buildSituationRead, buildThesisFrame, buildWatchList, buildMarketLink, dailyBeta } from '../../domain/fundamental/stock-lens.js';
+import { lensIdFor, buildLensRead, buildPeerStrengths, peerBasisText, buildSituationRead, buildThesisFrame, buildWatchList, buildMarketLink, dailyBeta } from '../../domain/fundamental/stock-lens.js';
 import { themeStagesFor, themeMarketOf } from '../../domain/scenarios/theme-stage.js';
 import { themeProfile } from '../../domain/scenarios/exposures.js';
-import { koreanThemeGroups } from '../../domain/market/korea/korea-participation.js';
+import { themeCatalogFor, stockThemes } from '../../domain/entity/primary-theme.js';
 import { buildCloseSeries } from '../../domain/market/session/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../../domain/market/session/market-windows.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -37,17 +37,18 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   try { rows = root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; }
   const row = rows.find((item) => item?.sym === sym) || null;
   const market = themeMarketOf(sym);
-  const themes = market === 'KR' ? koreanThemeGroups(root?.KR_THEME_MAP || {}, rows) : (Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : []);
+  const themes = themeCatalogFor(sym, { themeMap: root?.THEME_MAP, krThemeMap: root?.KR_THEME_MAP, rows });
   const fiscal = root?._aioSecFiscalHistory || null;
   const own = fundamentals && String(fundamentals.symbol || sym).toUpperCase() === sym ? fundamentals : null;
   const seriesFor = (s) => (fiscal?.[s] ? reconcileFiscalHistory(parseFiscalHistory(fiscal[s]), s === sym ? own : null, s) : null);
   const history = seriesFor(sym) || [];
   const quarters = root?._aioSecQuarterHistory?.[sym] ? parseQuarterHistory(root._aioSecQuarterHistory[sym]) : [];
   const consensus = consensusOf(root, sym);
-  const peers = buildThemePeers({ symbol: sym, themes, rows, seriesFor, consensusFor: (s) => consensusOf(root, s) });
-  const memberIds = themes.filter((theme) => (theme.leaders || []).includes(sym) || (theme.subThemes || []).some((sub) => (sub.tickers || []).includes(sym))).map((theme) => theme.id);
-  const themeIds = [...new Set([peers?.themeId, ...memberIds].filter(Boolean))];
-  const themeList = themeIds.map((id) => ({ id, label: themes.find((theme) => theme.id === id)?.nameKr || id }));
+  const quartersFor = (s) => (root?._aioSecQuarterHistory?.[s] ? parseQuarterHistory(root._aioSecQuarterHistory[s]) : null);
+  const peers = buildThemePeers({ symbol: sym, themes, rows, seriesFor, consensusFor: (s) => consensusOf(root, s), quartersFor });
+  // The stock's themes, primary first, from the one owner the 가격 line and the theme link also read.
+  const themeList = stockThemes(themes, sym).map(({ id, label }) => ({ id, label }));
+  const themeIds = themeList.map((theme) => theme.id);
   const stages = themeStagesFor(root, { symbol: sym, themeIds });
   const stage = stages.find((item) => item.id === themeIds[0]) || stages[0] || null;
   // MERGED #2 (run-6): the page's one crossroads model (a tie stays a tie in the readings built from it).
@@ -66,11 +67,12 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const krIndex = /\.KQ$/i.test(sym) ? ['kosdaq', '코스닥 지수'] : ['kospi', '코스피 지수'];
   const benchmark = market !== 'US' ? { pct: closeChange(root?._aioHistory || [], krIndex[0], MARKET_WINDOWS.quarter)?.pct ?? null, label: krIndex[1] }
     : spyRow ? { pct: readRowNumber(spyRow, 'ret3m', 'display'), label: 'S&P 500(SPY, 배당 포함)' } : { pct: closeChange(root?._aioHistory || [], 'spx', MARKET_WINDOWS.quarter)?.pct ?? null, label: 'S&P 500 지수' };
-  const sicCode = String(root?._aioSecIssuerSic?.[sym] || '').split('|')[0] || null;
+  const sicCode = issuerSic(root, sym);
   const lens = lensIdFor({ sic: sicCode, themeIds, sector: row?.sector || null });
   const trailing = buildTrailingYearRead(quarters);
   const quarterRead = quarters.length >= 2 ? buildQuarterRead(quarters) : null;
-  const marginCash = history.length ? buildMarginCashRead(history) : null;
+  const debtBasis = debtBasisFor(root, sym);
+  const marginCash = history.length ? buildMarginCashRead(history, { debtBasis, debtCurrent: debtCurrentFor(root, sym) }) : null;
   const schedule = market === 'US' ? buildEarningsSchedule({ symbol: sym, calendar: root?.[CALENDAR_KEY], consensus, calendarState: sharedArtifactState(root, CALENDAR_KEY) }) : null;
   const levels = typeof root?._aioPriceLevelsFor === 'function' ? root._aioPriceLevelsFor(sym) : null;
   const financial = financialKind(sym, row?.sector, sicCode);
@@ -83,7 +85,7 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const tags = themeIds.flatMap((id) => themeProfile(market, id)?.tags || []);
   return {
     sym, market, row, history, peers, strengths, stage, themeList, situation, schedule, levels, consensus, trailing,
-    lensRead: history.length ? buildLensRead({ lens, history, trailing, quarterRead, marginCash, rd: buildRdRead(history), consensus, surprise: buildSurpriseRead(consensus) }) : null,
+    lensRead: history.length ? buildLensRead({ lens, history, trailing, quarterRead, marginCash, debtBasis, rd: buildRdRead(history), consensus, surprise: buildSurpriseRead(consensus, { quarters }) }) : null,
     thesis: history.length ? buildThesisFrame({ implied, trailing, marginCash, consensus, schedule, levels, peerPe: pe ? { value: pe.value, median: pe.median } : null, situation }) : null,
     watch: buildWatchList({ schedule, consensus, trailing, row, stage, levels, benchmarkRet3m: benchmark.pct, benchmarkLabel: benchmark.label, currency: market === 'US' ? 'USD' : 'KRW' }),
     link: buildMarketLink({ regime, crossroads, stage, themeLabel: themeList[0]?.label || null, tags })
@@ -102,7 +104,7 @@ export function installStockLensGlobal(root) {
       symbol: sym, marketLink: ctx.link?.text || null,
       lens: ctx.lensRead ? { name: ctx.lensRead.label, basis: ctx.lensRead.basis, metrics: ctx.lensRead.rows.map((row) => ({ metric: row.label, value: row.value || '미확인', trend: row.trend, why: row.why })) } : null,
       strengths: ctx.strengths?.strengths.map((fact) => fact.text) || [], weaknesses: ctx.strengths?.weaknesses.map((fact) => fact.text) || [],
-      peers: ctx.peers ? { theme: ctx.peers.themeName, symbols: ctx.peers.rows.slice(1).map((row) => row.sym) } : null,
+      peers: ctx.peers ? { theme: ctx.peers.themeName, symbols: ctx.peers.rows.slice(1).map((row) => row.sym), basis: peerBasisText(ctx.peers.basis) } : null,
       situation: ctx.situation ? { favour: ctx.situation.favour, burden: ctx.situation.burden, now: ctx.situation.now, beta: ctx.situation.beta?.value ?? null } : null,
       thesis: ctx.thesis ? { priced: ctx.thesis.priced, conditions: ctx.thesis.conditions, checks: ctx.thesis.checks, breaks: ctx.thesis.breaks, paths: ctx.thesis.paths } : null,
       watch: ctx.watch.map((item) => `${item.label}: ${item.now}`),
@@ -244,6 +246,7 @@ export function renderStockStrengths(doc, host, ctx) {
       ...(ctx.watch || []).map((item) => [item.label, `${item.now} — ${item.why}`]),
       ['동종', `${ctx.peers.themeName}의 같은 하위 테마 기업부터 테마 대표 기업까지 SEC 연간 공시가 있는 ${s.peers}곳: ${ctx.peers.rows.slice(1).map((row) => row.sym).join(', ')}.`],
       ['기준', '각 지표에서 동종 안 순위와 중앙값을 사실로 적었습니다. 강점·약점은 중앙값보다 앞·뒤인 지표 중 차이가 큰 순서이며, 등급이나 매수 판단이 아닙니다. Forward PER은 낮을수록 이익 대비 가격 부담이 가벼운 쪽입니다.'],
+      ['기간', peerBasisText(ctx.peers.basis)],
       ['한계', '회계연도 마감 시점이 회사마다 다르고, 테마는 AIO의 투자 분류라 사업 구성이 같지 않습니다. 재무 공시 화면의 동종 표에 숫자가 있습니다.']];
     card.append(fold(doc, `자세히 — 나머지 지표${ctx.watch?.length ? `, 계속 볼 것 ${ctx.watch.length}가지` : ''}, 비교 기준`, rest));
     nodes.push(card);

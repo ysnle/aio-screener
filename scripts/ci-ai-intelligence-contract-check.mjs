@@ -2120,6 +2120,100 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     fresh[SCENARIO_STATE.key]?.schemaVersion === served['scenario-state.json'].schemaVersion && !!fresh[SCENARIO_OUTCOMES.key] && requested.includes('scenario-state.json'));
 }
 
+// v60.28 (live 2026-11-18, 종목 KO, "코카콜라의 배당수익률과 최근 배당 이력을 알려줘. 그리고 지금 PER이 화면 숫자와 어떻게
+// 계산됐는지도 설명해줘."): the bubble lost the yield, ended "…64년 연속 연간 배(sec.gov)", kept the head of a cut sentence
+// ("…2026년 수치는 연환산액"), said the screen's PER formula might differ, and attached the quarterly revenue chart.
+// AI_PUBLICATION_MODULE / AI_VISUAL_MODULE / AI_CHOOSING_MODULE=<path> run each part on another copy (negative control).
+{
+  const { pathToFileURL } = await import('node:url');
+  const load = (name, file) => (process.env[name] ? import(pathToFileURL(process.env[name]).href) : import(`../${file}`));
+  const pub = await load('AI_PUBLICATION_MODULE', 'src/ai/response/publication.js');
+  const visual = await load('AI_VISUAL_MODULE', 'src/ai/response/answer-visual-choice.js');
+  const choosing = await load('AI_CHOOSING_MODULE', 'src/ai/context/choosing-blocks.js');
+  const nowMs = Date.parse('2026-11-18T03:00:00Z');
+  const sec = 'https://www.sec.gov/Archives/edgar/data/21344/000002134426000008/ko-20251231.htm';
+  const ir = 'https://investors.coca-colacompany.com/news-events/press-releases/detail/1234/q4-2025?utm_source=openai';
+  const cSec = `([sec.gov](${sec}))`, cIr = `([investors.coca-colacompany.com](${ir}))`;
+  const searchCitations = [{ url: sec }, { url: ir }];
+  const opts = { nowMs, searchCitations, referenceText: 'KO 종가 $99.48 (2026-11-14 종가)', entities: ['KO'], nameEntries: { KO: { en: 'Coca-Cola', kr: '코카콜라' } } };
+  const plan = (summary, sections = []) => ({ schemaVersion: 'answer-plan.v1', summary, sections, claims: { claims: [] }, citations: [] });
+  const publish = (summary, sections, extra = {}) => pub.buildPublishableAnswerPlan(plan(summary, sections), [], true, { ...opts, ...extra });
+  const text = (out) => [out.plan.summary, ...out.plan.sections.map((s) => (typeof s === 'string' ? s : `${s.title}\n${s.body}`))].join('\n\n');
+  // (b) the live shapes: a span gone between a word and a whole citation, and a link tail without its opening bracket.
+  const history = '최근 연간 주당 배당 이력은 2023년 $1.84 → 2024년 $1.94 → 2025년 $2.04입니다.';
+  const glued = `${history} 회사는 2026년 인상을 64년 연속 연간 배${cSec}`;
+  const tail = `최근 연간 배당은 꾸준히 증가했지만 2026년 수치는 연환산액ov](${sec}))`;
+  const live = publish(['코카콜라의 현재 배당수익률은 연환산 배당 $2.12를 화면 종가 $99.48로 나누면 약 2.1%입니다. 화면의 실제 산식은 표시된 EPS 기준에 따라 다를 수 있습니다.', tail].join('\n\n'), [{ title: '배당 이력', body: glued }]);
+  const liveText = text(live);
+  check('v60.28 a sentence cut between a word and its citation is withheld whole, never published as "…연간 배(sec.gov)"',
+    !/연간 배\(|연간 배\[|64년 연속/.test(liveText) && liveText.includes(history) && liveText.includes(cSec) && live.filterCounts?.brokenSentences === 2);
+  check('v60.28 the head of a sentence whose link lost its opening bracket is not published ("…2026년 수치는 연환산액")',
+    !liveText.includes('수치는 연환산액') && !/[^[(]ov\]\(/.test(liveText.replace(/\[sec\.gov\]/g, '')));
+  const whole = `회사는 2026년 인상이 64년 연속 연간 배당 인상이라고 밝혔습니다 ${cSec}.`;
+  const inside = `회사는 [64년 연속 연간 배당 인상](${sec})을 발표했습니다.`;
+  const listed = `- 2025년 연간 배당: 주당 $2.04${cSec}`;
+  check('v60.28 whole sentences with a citation at the end, inside the sentence, or in a list item are kept as written',
+    [whole, inside, listed].every((value) => text(publish(value)).includes(value)));
+  // (c) a lead or heading whose body the filters removed goes with it.
+  const lead = publish('', [{ title: '배당 흐름', body: '최근 배당 흐름은 다음과 같습니다:\n- 2026년 연환산 배당은 주당 $2.12입니다.' }]);
+  const headed = publish('### 배당\n2026년 연환산 배당은 주당 $2.12입니다.\n### PER 정의\nPER은 주가를 주당순이익으로 나눈 값입니다.');
+  check('v60.28 a lead line or heading left with no body is removed with its body',
+    lead.plan.sections.length === 0 && !/### 배당/.test(headed.plan.summary) && headed.plan.summary.includes('### PER 정의'));
+  // (2) a derived figure whose operands are supported (a cited dividend, the app's close) is published as a 계산값.
+  const dividend = `2026년 연환산 배당은 주당 $2.12입니다 ${cIr}.`;
+  const yieldLine = '이를 KO 종가 $99.48로 나누면 배당수익률은 약 2.1%입니다.';
+  const derived = publish(`${dividend} ${yieldLine}`);
+  check('v60.28 a yield computed from a cited dividend and the app close is kept and counted as a 계산값',
+    derived.plan.summary.includes(yieldLine) && derived.filterCounts?.derivedSentences === 1 && derived.filterCounts.removedNumericSentences === 0);
+  const wrong = publish(`${dividend} 이를 KO 종가 $99.48로 나누면 배당수익률은 약 3.4%입니다.`);
+  const unsourced = publish(`2026년 연환산 배당은 주당 $2.12입니다. ${yieldLine}`);
+  check('v60.28 a derivation that does not reconcile, or whose operand has no source, is still withheld',
+    !wrong.plan.summary.includes('3.4%') && !unsourced.plan.summary.includes('2.1%') && !publish(`두 집계처의 차이는 3억 달러입니다 ${cIr}.`).plan.summary.includes('3억'));
+  // (3) the notice names what was withheld, through the same builder.
+  const reasons = ['current-numeric-claim-unverified', 'research-freshness-unverified'];
+  const line = (search) => pub.summarizeAnswerLimitations(reasons, { publishedClaimCount: 0, search });
+  check('v60.28 the notice line names the withheld kind ("배당수익률 문장 1개는 근거 수치가 없어 뺐습니다") and keeps the old line without topics',
+    line({ searchedSentences: 1, removedNumericSentences: 1, withheldTopics: live.filterCounts?.withheldTopics }) === '※ 웹검색 수치는 AIO가 확인한 값 아님 · 배당수익률 문장 1개는 근거 수치가 없어 뺐습니다'
+      && line({ searchedSentences: 1, removedNumericSentences: 1 }) === '※ 웹검색 출처가 붙은 수치만 표시 — AIO가 확인한 값 아님'
+      && /계산값 1개/.test(line({ searchedSentences: 1, removedNumericSentences: 0, derivedSentences: 1 })));
+  // The browser path hands the counts to the line (request-pipeline searchSummary).
+  {
+    const orchestrator = createAIAnswerOrchestrator({ now: () => new Date(nowMs) });
+    const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
+    const coreSource = read('js/aio-core.js');
+    const ctx = vm.createContext({ URL, console, window: { AIO: {}, AIO_ARCH: { getAIOrchestrator: () => orchestrator, parseAIAnswerPlan: (value, options = {}) => orchestrator.parseAnswerPlanText(value, options), renderAIAnswerPlan: (value, options = {}) => orchestrator.renderAnswerPlan(value, options) } }, _AIO_PUBLIC_AI_POLICY: { label: 'AI 도우미', status: 'research-assistant' } });
+    vm.runInContext(coreSource.slice(coreSource.indexOf('var _AIO_CLAIM_SCHEMA_VERSION'), coreSource.indexOf('function _aioClaimEvidenceList')), ctx);
+    vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioAIClaimEvidenceId('), chatSource.indexOf('function _aioPublicAIActionPolicyPrompt(')), ctx);
+    vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioPublicAIFormatAsOf('), chatSource.indexOf('function _aioAppendAIPublicDisclosure(')), ctx);
+    const raw = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: '코카콜라의 현재 배당수익률은 연환산 배당 $2.12를 화면 종가 $99.48로 나누면 약 2.1%입니다.', claims: [], sections: [{ title: '배당 이력', body: glued }], citations: [], followUps: [] }) + '[/AI_ANSWER_PLAN]';
+    const request = { requestId: 'fixture-ko-dividend', entrypoint: 'unified-chat', pipelineVersion: 'fixture', validatorVersion: 'fixture', blockPolicyVersion: 'fixture' };
+    const piped = ctx._aioRunAIResponsePipeline(raw, { request, questionPlan: { currentSensitive: true }, currentSensitive: true, evidence: [], record: false, streamPhase: 'complete', stripChips: false, searchCitations, referenceText: opts.referenceText, entities: ['KO'] });
+    check('v60.28 the panel answer opens with the line naming the withheld yield sentence and the cut one, and publishes no cut sentence',
+      /^※ 웹검색 수치는 AIO가 확인한 값 아님 · 배당수익률 문장 1개는 근거 수치가 없어 뺐습니다 · 잘린 문장 1개 뺌/.test(piped.text) && piped.text.includes(history) && !/연간 배\(/.test(piped.text));
+  }
+  // (4) the 종목 screen context says how its PER is formed and carries the row's dividend fields when present.
+  const today = new Date();
+  const day = (offset) => new Date(today.getTime() - offset * 86400000).toISOString().slice(0, 10);
+  const row = { sym: 'KO', pe: 29.25, _valuationPrice: 99.48, _valuationPeEarningsBasis: 'ttm', _valuationPeEarningsThrough: '2026-10-02', factorSessionDate: day(2) };
+  const estimate = { asOf: today.toISOString(), fwd: { from: '2026-12', to: '2027-09', eps: 3.48, minEstimates: 6 }, trailing: { from: '2025-12', to: '2026-09', eps: 3.32 } };
+  const screen = { _currentTickerId: 'KO', _aioGetCanonicalScreenerRows: () => [row] };
+  const { CONSENSUS_KEY } = await import('../src/data/consensus-estimates.js');
+  screen[CONSENSUS_KEY] = { rows: { KO: estimate } };
+  const question = '코카콜라의 배당수익률과 최근 배당 이력을 알려줘. 그리고 지금 PER이 화면 숫자와 어떻게 계산됐는지도 설명해줘.';
+  const block = choosing.questionBlocks({ ctxId: 'ticker', text: question, root: screen, subjects: ['KO'] }).join('\n');
+  const withDividend = choosing.questionBlocks({ ctxId: 'ticker', text: question, root: { ...screen, _aioGetCanonicalScreenerRows: () => [{ ...row, dividendTtm: 2.04, dividendYieldPct: 2.05, dividendLastExDate: '2026-11-28', dividendCount12m: 4 }] }, subjects: [] }).join('\n');
+  check('v60.28 the 종목 screen context carries the PER composition: close and date, trailing PER and its EPS basis, Forward PER and the estimate date',
+    block.includes(`종가 $99.48 (${day(2)} 종가)`) && block.includes('직전 4개 분기 PER 30.0배') && block.includes('조정 EPS 합 $3.32') && block.includes('Forward PER 28.6배') && block.includes('예상치 ') && /배당: 앱 자료에 없음/.test(block) && block.length < 900);
+  check('v60.28 the dividend fields of the row reach the context and support the yield sentence as app evidence',
+    /배당수익률 2\.05%/.test(withDividend) && /주당 \$2\.04/.test(withDividend)
+      && pub.figuresSupported('KO의 배당수익률은 2.05%입니다.', pub.supportedNumbersFromText(withDividend, { entities: ['KO'] }), { entities: ['KO'] })
+      && pub.figuresSupported('KO 직전 4개 분기 PER은 30.0배입니다.', pub.supportedNumbersFromText(block, { entities: ['KO'] }), { entities: ['KO'] }));
+  // (5) a dividend and valuation question gets no unrelated figure; a revenue question keeps its own.
+  const kinds = (query, mode = 'analysis') => visual.chooseAnswerVisuals({ query, mode, tickers: ['KO'] }).map((pick) => pick.kind).join(',');
+  check('v60.28 a dividend or PER question attaches no quarterly revenue chart (no figure beats an unrelated one)',
+    kinds(question) === '' && kinds('KO 배당 이력 알려줘') === '' && kinds('KO 실적과 매출 흐름') === 'fundamentals' && kinds('KO 어때?') === 'price');
+}
+
 if (failures.length) {
   console.error(`AI intelligence contract failed (${failures.length})`);
   failures.forEach((failure) => console.error(`- ${failure}`));

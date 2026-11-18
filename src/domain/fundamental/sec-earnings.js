@@ -35,12 +35,40 @@ export const SEC_IFRS_CAPITAL_CONCEPTS = Object.freeze({ grossProfit: ['GrossPro
   shareBasedCompensation: ['AdjustmentsForSharebasedPayments'], buybacks: ['PaymentsToAcquireOrRedeemEntitysShares'], dividends: ['DividendsPaidClassifiedAsFinancingActivities'] });
 // Noncurrent long-term debt plus the current portion of the same filing, for a filer that tags no LongTermDebt total.
 export const SEC_TOTAL_DEBT_DERIVED_CONCEPT = 'derived:LongTermDebtTotal';
+// The same pairing on the lease-inclusive lines (LongTermDebtAndCapitalLeaseObligations + its current portion).
+export const SEC_DEBT_AND_LEASE_DERIVED_CONCEPT = 'derived:LongTermDebtAndLeaseTotal';
+// 2026-11-18 (debt coverage): 304 of 795 issuers had no latest-year debt because they tag only the lease-inclusive debt lines
+// (AVGO FY2022+, CVX, KO...). Those lines are read after the debt-only ones and carry their basis: a series anchored on one
+// says 'lease-inclusive' (finance-lease obligations inside the figure). Instrument-level concepts (DebtInstrumentCarryingAmount,
+// SeniorNotes, LongTermNotesPayable, UnsecuredDebt) are not read: companyfacts drops the instrument dimension, so one
+// tranche cannot be told from the total. DebtLongtermAndShorttermCombinedAmount is not read either (short-term borrowings in).
+export const SEC_DEBT_LEASE_CONCEPTS = Object.freeze(['LongTermDebtAndCapitalLeaseObligationsIncludingCurrentMaturities', SEC_DEBT_AND_LEASE_DERIVED_CONCEPT, 'LongTermDebtAndCapitalLeaseObligations']);
+export const secDebtBasis = (concept) => (concept == null ? null : SEC_DEBT_LEASE_CONCEPTS.includes(concept) ? 'lease-inclusive' : 'long-term');
+// Whether the debt figure includes the part due within a year. us-gaap sums each total from a noncurrent line and its
+// current portion (LongTermDebt = LongTermDebtNoncurrent + LongTermDebtCurrent; the lease-inclusive total likewise, and the
+// derived totals are those sums, sec-normalize DEBT_DERIVED_PAIRS); only the two noncurrent lines leave the current part out.
+export const SEC_DEBT_NONCURRENT_CONCEPTS = Object.freeze(['LongTermDebtNoncurrent', 'LongTermDebtAndCapitalLeaseObligations']);
+export const secDebtCurrentCoverage = (concept) => (concept == null ? null : SEC_DEBT_NONCURRENT_CONCEPTS.includes(concept) ? 'excluded' : 'included');
+/** The reader's name for the debt figure on each basis (sec-fiscal-history.json debtBasis). */
+export const DEBT_BASIS_LABEL = Object.freeze({ 'long-term': '장기부채', 'lease-inclusive': '장기부채(리스 포함)' });
+export const debtLabel = (basis) => DEBT_BASIS_LABEL[basis] || DEBT_BASIS_LABEL['long-term'];
+// A total tagged below one of its own parts on the same date is a partial and never anchors (TSCO LongTermDebt 150M
+// against 1,765M noncurrent).
+const SEC_CONCEPT_PARTS = Object.freeze({
+  LongTermDebt: ['LongTermDebtNoncurrent'],
+  LongTermDebtAndCapitalLeaseObligationsIncludingCurrentMaturities: ['LongTermDebtAndCapitalLeaseObligations', 'LongTermDebtNoncurrent'],
+  LongTermDebtAndCapitalLeaseObligations: ['LongTermDebtNoncurrent']
+});
+// A period the anchor concept never reported is filled only from a concept of the same basis, so a debt series never
+// steps between lease-inclusive and debt-only figures year to year (fields without a basis keep the plain D6 fill).
+const conceptFamily = (concept) => (SEC_DEBT_LEASE_CONCEPTS.includes(concept) ? 'lease-inclusive' : '');
 export const SEC_FIELD_CONCEPT_PREFERENCE = Object.freeze({
   netIncome: ['NetIncomeLoss', 'ProfitLossAttributableToOwnersOfParent', 'ProfitLoss'],
   operatingCashFlow: ['NetCashProvidedByUsedInOperatingActivities', 'NetCashProvidedByUsedInOperatingActivitiesContinuingOperations', 'CashFlowsFromUsedInOperatingActivities'],
   capex: ['PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireProductiveAssets', 'PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities'],
-  // Total debt first: LongTermDebt carries the current portion (MSFT FY2026 40,294M against 31,067M noncurrent).
-  longTermDebt: ['LongTermDebt', SEC_TOTAL_DEBT_DERIVED_CONCEPT, 'LongTermDebtNoncurrent'],
+  // Total debt first: LongTermDebt carries the current portion (MSFT FY2026 40,294M against 31,067M noncurrent); then the
+  // lease-inclusive lines in the same total → derived total → noncurrent order.
+  longTermDebt: ['LongTermDebt', SEC_TOTAL_DEBT_DERIVED_CONCEPT, 'LongTermDebtNoncurrent', ...SEC_DEBT_LEASE_CONCEPTS],
   researchAndDevelopment: SEC_RD_CONCEPTS,
   ...Object.fromEntries(Object.entries(SEC_CAPITAL_CONCEPTS).map(([field, list]) => [field, [...list, ...(SEC_IFRS_CAPITAL_CONCEPTS[field] || [])]]))
 });
@@ -62,9 +90,7 @@ export function anchorConcept(rows, preference = []) {
   const latestEnd = list.reduce((max, row) => (rowEnd(row) > max ? rowEnd(row) : max), '');
   const latest = list.filter((row) => rowEnd(row) === latestEnd)
     .sort((a, b) => rank(a.concept) - rank(b.concept) || rowFiled(b).localeCompare(rowFiled(a)));
-  // A debt total tagged below its own noncurrent part on the same date is a partial (TSCO LongTermDebt 150M against
-  // 1,765M noncurrent); it does not anchor the series.
-  const partial = (row) => row.concept === 'LongTermDebt' && latest.some((other) => other.concept === 'LongTermDebtNoncurrent' && rowValue(other) > rowValue(row));
+  const partial = (row) => (SEC_CONCEPT_PARTS[row.concept] || []).some((part) => latest.some((other) => other.concept === part && rowValue(other) > rowValue(row)));
   return (latest.find((row) => !partial(row)) || latest[0]).concept ?? null;
 }
 export function anchorConceptRows(rows, preference = []) {
@@ -73,7 +99,8 @@ export function anchorConceptRows(rows, preference = []) {
   const anchor = anchorConcept(list, preference);
   const key = (row) => `${rowStart(row) || ''}|${rowEnd(row)}`;
   const covered = new Set(list.filter((row) => row.concept === anchor).map(key));
-  return list.filter((row) => row.concept === anchor || !covered.has(key(row)));
+  const family = conceptFamily(anchor);
+  return list.filter((row) => row.concept === anchor || (!covered.has(key(row)) && conceptFamily(row.concept) === family));
 }
 
 // Discrete quarters (latest filing per period end), plus a fourth quarter derived from a fiscal year (330+ days) that

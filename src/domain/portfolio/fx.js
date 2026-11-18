@@ -39,6 +39,26 @@ const LISTING_MARKETS = Object.freeze([
 // listing, so a pence or euro quote converted at rate 1. An unknown suffix is now unknown (null): its value is held until
 // a currency is declared. A one-letter A–E suffix stays a US share class (BRK.B, BF.B).
 const FOREIGN_SUFFIX = /\.(?:[A-Z]{2,}|[F-Z])$/i;
+/**
+ * The key a holding's data is published under. The runtime reader resolves the stored code once
+ * (resolveHoldingInput: 005930 -> 005930.KS) and carries it as `listingSymbol` on the holding and on every surface row;
+ * every consumer that looks a holding up in screener rows, quotes, themes or calendars reads it here, never the bare
+ * stored code and never a second resolution. An unresolved listing falls back to the stored symbol.
+ */
+export function holdingListingKey(holding) {
+  return String(holding?.listingSymbol || holding?.symbol || holding?.ticker || holding?.sym || '').trim().toUpperCase();
+}
+
+/** Stored positions ({ ticker }) with each ticker replaced by the listing its surface row resolved (005930 -> 005930.KS). */
+export function withListingTickers(positions, surfaceRows) {
+  const listing = new Map((Array.isArray(surfaceRows) ? surfaceRows : []).map((row) => [String(row?.symbol || '').toUpperCase(), holdingListingKey(row)]));
+  return (Array.isArray(positions) ? positions : []).map((position) => {
+    const code = String(position?.ticker || '').trim().toUpperCase();
+    const key = listing.get(code);
+    return key && key !== code ? { ...position, ticker: key } : position;
+  });
+}
+
 export function listingCurrency(ticker) {
   if (/^\d+$/.test(String(ticker || ''))) return null; // v59.53: an unresolved numeric code is not a US listing
   const listed = LISTING_MARKETS.find(([pattern]) => pattern.test(String(ticker || '')));

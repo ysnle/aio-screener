@@ -61,21 +61,24 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ climaxSigns }) => Array.isArray(climaxSigns) && climaxSigns.length === 0 },
   { id: 'pe-max', group: '밸류에이션', label: 'PER {n}배 이하 (최근 4개 분기 공시 이익, 없으면 회계연도, 적자 제외, 미국)', value: 20, unit: '배', fields: ['pe'],
     test: ({ pe }, n) => pe > 0 && pe <= n },
-  { id: 'fwdpe-max', group: '밸류에이션', label: 'Forward PER {n}배 이하 (컨센서스, 미국)', value: 25, unit: '배', fields: ['fwdPe'],
+  { id: 'fwdpe-max', group: '밸류에이션', label: 'Forward PER {n}배 이하 (컨센서스, 미국)', value: 25, unit: '배', fields: ['fwdPe'], source: 'consensus-estimates',
     test: ({ fwdPe }, n) => fwdPe > 0 && fwdPe <= n },
   { id: 'pb-max', group: '밸류에이션', label: 'PBR {n}배 이하 (미국)', value: 3, unit: '배', fields: ['pb'],
     test: ({ pb }, n) => pb > 0 && pb <= n },
-  { id: 'roe-min', group: '수익성·성장', label: 'ROE {n}% 이상 (미국)', value: 15, unit: '%', fields: ['roe'],
+  // 2026-11-18 (owner: 배당수익률): cash dividends with ex-dates in the last 12 months ÷ the latest completed close.
+  { id: 'dividend-yield-min', group: '밸류에이션', label: '배당수익률 {n}% 이상 (최근 12개월 배당 합 ÷ 종가)', value: 2, unit: '%', fields: ['dividendYieldPct'],
+    test: ({ dividendYieldPct }, n) => dividendYieldPct >= n },
+  { id: 'roe-min', group: '수익성·성장', label: 'ROE {n}% 이상 (최근 회계연도, 미국)', value: 15, unit: '%', fields: ['roe'],
     test: ({ roe }, n) => roe >= n },
-  { id: 'margin-min', group: '수익성·성장', label: '순이익률 {n}% 이상 (미국)', value: 10, unit: '%', fields: ['margin'],
+  { id: 'margin-min', group: '수익성·성장', label: '순이익률 {n}% 이상 (최근 4개 분기, 없으면 회계연도, 미국)', value: 10, unit: '%', fields: ['margin'],
     test: ({ margin }, n) => margin >= n },
-  { id: 'growth-min', group: '수익성·성장', label: '매출 성장률 {n}% 이상 (최근 회계연도, 미국)', value: 10, unit: '%', fields: ['revGrowth'],
+  { id: 'growth-min', group: '수익성·성장', label: '매출 성장률 {n}% 이상 (최근 4개 분기, 없으면 회계연도, 미국)', value: 10, unit: '%', fields: ['revGrowth'],
     test: ({ revGrowth }, n) => revGrowth >= n },
   // v59.44 (X bookmarks 10/30, "the market is pricing cash"): the latest filed fiscal year's cash after capex, and capex
   // against revenue (src/domain/fundamental/cash-metrics.js; financials are left out).
-  { id: 'fcf-margin-min', group: '수익성·성장', label: '잉여현금흐름 마진 {n}% 이상 (영업현금흐름 − 설비투자, 최근 회계연도, 미국)', value: 10, unit: '%', fields: ['fcfMargin'],
+  { id: 'fcf-margin-min', group: '수익성·성장', label: '잉여현금흐름 마진 {n}% 이상 (영업현금흐름 − 설비투자, 최근 회계연도, 미국)', value: 10, unit: '%', fields: ['fcfMargin'], source: 'sec-fiscal-history',
     test: ({ fcfMargin }, n) => fcfMargin >= n },
-  { id: 'capex-intensity-max', group: '수익성·성장', label: '설비투자 매출의 {n}% 이하 (최근 회계연도, 미국)', value: 15, unit: '%', fields: ['capexIntensity'],
+  { id: 'capex-intensity-max', group: '수익성·성장', label: '설비투자 매출의 {n}% 이하 (최근 회계연도, 미국)', value: 15, unit: '%', fields: ['capexIntensity'], source: 'sec-fiscal-history',
     test: ({ capexIntensity }, n) => capexIntensity <= n },
   { id: 'liquidity-min', group: '거래', label: '하루 거래대금 ${n}백만 이상 (30일 평균)', value: 20, unit: '$M', fields: ['dollarVolume30d'],
     test: ({ dollarVolume30d: a }, n) => a >= n * 1e6 },
@@ -104,6 +107,15 @@ export const CUSTOM_CONDITIONS = Object.freeze([
 ].map((item) => Object.freeze(item)));
 
 const BY_ID = new Map(CUSTOM_CONDITIONS.map((item) => [item.id, item]));
+
+// A condition with `source` reads a file loaded only when the condition is chosen (the screener artifact carries the
+// rest). Until that file has arrived every row reads null, so a count is not a result yet.
+/** The declared data source of a condition id, or null when it reads the screener artifact. */
+export function conditionSource(id) {
+  return BY_ID.get(id)?.source || null;
+}
+/** Condition ids that declare `source`. */
+export const SOURCED_CONDITION_IDS = Object.freeze(CUSTOM_CONDITIONS.filter((item) => item.source).map((item) => item.id));
 
 // v58.63 (architecture audit SCR04): "PER 20 미만" became "PER 20 이하" and "ROE 15 초과" became "15 이상", so a row exactly
 // at the threshold passed a strict request. Each one-field threshold names the field it bounds and its direction; a

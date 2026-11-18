@@ -529,7 +529,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       page.dataset.aioReviewedAt = REVIEWED_AT;
 
       const route = (routeId) => { if (typeof root?.showPage === 'function') root.showPage(routeId); };
-      const syncSharedState = ({ push = false } = {}) => (push ? pushKnowledgeRouteState : replaceKnowledgeRouteState)({ root, state: {
+      const syncSharedState = ({ push = false } = {}) => (push ? pushKnowledgeRouteState : replaceKnowledgeRouteState)({ root, page: 'masters', state: {
         mode: state.view,
         manager: state.selectedId,
         period: state.holdings?.managers?.find((manager) => manager.id === state.selectedId)?.verification?.reportPeriod || null

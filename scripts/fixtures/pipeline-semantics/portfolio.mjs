@@ -334,5 +334,192 @@ export const cases = [
     assert.match(text, /종목\/섹터 수 4\/1/);
     assert.match(text, /ETF 2개 포함/);
     assert.match(text, /랭크 확인 75%/);
+  } },
+  // ---- v60.28 portfolio review (holding resolver, merge, MA band, backtest words, RF fill, copy) --------------------------
+  { id: 'v60.28', name: 'a Korean holding stored as its code reads its listing row in the thesis check and on 오늘 내 종목', run: async ({ load }) => {
+    const { thesisRows } = await load('src/ui/components/portfolio-checklist.js');
+    const { buildMyNames } = await load('src/domain/briefing/daily-diff.js');
+    const { derivePortfolioChecks } = await load('src/domain/portfolio/checks.js');
+    const krRow = { sym: '005930.KS', name: '삼성전자', pctSma50: -17.85, sector: 'Technology' };
+    const bySymbol = new Map([['005930.KS', krRow], ['NVDA', { sym: 'NVDA', pctSma50: 3 }]]);
+    const surface = { rows: [{ symbol: '005930', listingSymbol: '005930.KS', value: 7_000_000 }, { symbol: 'NVDA', listingSymbol: 'NVDA', value: 2_000_000 }] };
+    const [kr] = thesisRows({ surface, root: {}, bySymbol });
+    assert.equal(kr.symbol, '005930', 'the row is still named by the stored code');
+    assert.ok(!kr.unknown.includes('50일선'), `the 50-day line is read from 005930.KS, got unknown ${kr.unknown.join(',')}`);
+    assert.ok(kr.signals.some((signal) => signal.startsWith('50일선 아래(-17.9%')), kr.signals.join(','));
+    // With the earnings calendar loaded (the sample preview and any real book once it arrives) the earnings date is read by the same listing key.
+    const soon = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
+    const [, withCalendar] = thesisRows({ surface, root: { _aioEarningsCalendarArtifact: { upcoming: { NVDA: soon }, earnings: [] } }, bySymbol });
+    assert.ok(withCalendar.signals.some((signal) => signal.startsWith('실적 발표')), `v60.28 the thesis check reads the earnings calendar by listing key: ${withCalendar.signals.join(',')}`);
+    const names = buildMyNames({ holdings: [{ symbol: '005930', listingSymbol: '005930.KS' }], symbols: ['005930.KS'], rows: [krRow] });
+    assert.equal(names.names.length, 1, 'the held code and the watched listing are one name');
+    assert.equal(names.names[0].name, '삼성전자');
+    assert.equal(names.names[0].held, true);
+    assert.ok(names.names[0].notes.some((note) => note.startsWith('50일선 아래')), names.names[0].notes.join(','));
+    const checks = derivePortfolioChecks({ surface: { rows: [{ symbol: '005930', listingSymbol: '005930.KS', value: 100, currency: 'KRW' }] },
+      assetTypeOf: (symbol) => (symbol === '005930.KS' ? '개별 주식' : null), sectorOf: (symbol) => (symbol === '005930.KS' ? 'Technology' : null) });
+    assert.equal(checks.breakdowns.types[0].name, '개별 주식', 'the type is looked up by the listing');
+    assert.equal(checks.breakdowns.sectors[0].name, '기술');
+    assert.equal(checks.breakdowns.holdings[0].name, '005930', 'the holding keeps its stored name');
+  } },
+  { id: 'v60.28', name: 'a second buy merges into one row by weighted price; a currency mix is refused; imports merge duplicates', run: async ({ load }) => {
+    const { mergeHoldingPair, mergeDuplicatePositions } = await load('src/domain/portfolio/holding-merge.js');
+    const { parsePortfolioBackup } = await load('src/data/portfolio-backup.js');
+    const held = { ticker: 'NVDA', qty: 10, cost: 150, costCurrency: null, sector: 'Technology', targetWeight: 40, memo: 'AI', addedAt: 1 };
+    const merged = mergeHoldingPair(held, { ticker: 'NVDA', qty: 10, cost: 200, costCurrency: null, target: null, memo: '' }, { now: 5 });
+    assert.equal(merged.ok, true);
+    assert.equal(merged.position.qty, 20);
+    assert.equal(merged.position.cost, 175);
+    assert.equal(merged.position.sector, 'Technology', 'fields the form does not own are kept');
+    assert.equal(merged.position.memo, 'AI', 'a blank memo does not erase the stored one');
+    const refused = mergeHoldingPair({ ticker: 'AAPL', qty: 5, cost: 200, costCurrency: 'USD' }, { ticker: 'AAPL', qty: 1, cost: 280000, costCurrency: 'KRW' });
+    assert.equal(refused.ok, false);
+    assert.equal(refused.reason, 'cost-currency-differs');
+    const book = mergeDuplicatePositions([{ ticker: 'A', qty: 1, cost: 10, targetWeight: 40 }, { ticker: 'B', qty: 1, cost: 5 }, { ticker: 'A', qty: 3, cost: 20, targetWeight: 60 }]);
+    assert.deepEqual(book.positions.map((p) => p.ticker), ['A', 'B']);
+    assert.equal(book.positions[0].qty, 4);
+    assert.equal(book.positions[0].cost, 17.5);
+    assert.equal(book.positions[0].targetWeight, 100, 'target weights add, so the backtest and the risk estimate read one row');
+    const zero = mergeDuplicatePositions([{ ticker: 'A', qty: 1, cost: 1, targetWeight: 0 }, { ticker: 'A', qty: 1, cost: 1 }]);
+    assert.equal(zero.positions[0].targetWeight, 0, 'an explicit 0% stays a weight; a blank stays blank');
+    const mixed = mergeDuplicatePositions([{ ticker: 'A', qty: 1, cost: 1, costCurrency: 'USD' }, { ticker: 'A', qty: 2, cost: 1500, costCurrency: 'KRW' }]);
+    assert.equal(mixed.positions[0].qty, 3);
+    assert.ok(!('cost' in mixed.positions[0]), 'no average across currencies');
+    assert.equal(mixed.notes[0].priced, false);
+    const { duplicateHoldingDialog, mergedImportText } = await load('src/ui/panels/portfolio-duplicate-holding.js');
+    const dialog = duplicateHoldingDialog(held, { ticker: 'NVDA', qty: 10, cost: 200, costCurrency: null });
+    assert.equal(dialog.merged.cost, 175);
+    assert.match(dialog.message, /합치면 수량 20주, 매수 단가 175\(/);
+    const refusedDialog = duplicateHoldingDialog({ ticker: 'AAPL', qty: 5, cost: 200, costCurrency: 'USD' }, { ticker: 'AAPL', qty: 1, cost: 280000, costCurrency: 'KRW' });
+    assert.equal(refusedDialog.merged, null);
+    assert.match(refusedDialog.message, /통화가 달라\(보유 달러, 입력 원\)/);
+    assert.match(mergedImportText(book.notes), /^같은 종목이 여러 줄이라 한 줄로 합침: A 2줄/);
+    const file = JSON.stringify([{ ticker: 'NVDA', qty: 10, cost: 150 }, { ticker: 'NVDA', qty: 10, cost: 200 }]);
+    const parsed = parsePortfolioBackup(file, { mergePositions: mergeDuplicatePositions });
+    assert.equal(parsed.contents.positions.length, 1);
+    assert.equal(parsed.adjustments.positionsMerged[0].ticker, 'NVDA');
+  } },
+  { id: 'v60.30', name: 'holdings valued on a close say the count once and show that close\'s change with its date in 오늘', run: async ({ load }) => {
+    const html = readFileSync(new URL('../../../index.html', import.meta.url), 'utf8');
+    const { createFakeDocument, shellIds } = await load('scripts/lib/fake-dom.mjs');
+    const { createStore } = await load('src/state/store.js');
+    const { createPortfolioPage } = await load('src/ui/pages/portfolio.js');
+    const doc = createFakeDocument({ ids: shellIds(html) });
+    doc.getElementById('page-portfolio').appendChild(doc.getElementById('pf-positions-tbody'));
+    const holdings = [{ symbol: 'NVDA', shares: 10, avgCost: 150 }, { symbol: 'AAPL', shares: 5, avgCost: 200 }];
+    const store = createStore({ initialState: { portfolio: { status: 'ready', readState: 'ready', holdings, holdingsKnown: true } } });
+    const root = { _liveData: {}, fetch: () => Promise.reject(new Error('offline')),
+      SCREENER_DB: [{ sym: 'NVDA', sector: 'Technology', valuationPrice: 180, factorSessionDate: '2026-11-16', ret1d: -1.2 }, { sym: 'AAPL', sector: 'Technology', valuationPrice: 230, factorSessionDate: '2026-11-16', ret1d: 0.5 }] };
+    createPortfolioPage({ root, documentRef: doc, store }).mount();
+    const status = String(doc.getElementById('pf-analysis-status').textContent || '');
+    assert.match(status, /^2종목 평가 완료.*, 모두 11\/16 종가 기준$/, `v60.30 every holding on the close says so once: ${status}`);
+    assert.doesNotMatch(status, /2종목은/, `v60.30 the count is not repeated: ${status}`);
+    const rows = [...doc.getElementById('pf-positions-tbody').children].filter((tr) => tr.children?.length > 3);
+    const day = rows.map((tr) => String(tr.children.find((td) => td.dataset?.label === '오늘' || /pf-th-day/.test(td.getAttribute?.('headers') || ''))?.textContent ?? tr.children[6]?.textContent));
+    assert.deepEqual(day, ['-1.20% (11/16)', '+0.50% (11/16)'], `v60.30 오늘 shows the close's own change, dated: ${JSON.stringify(day)}`);
+  } },
+  { id: 'v60.30', name: 'the duplicate-holding dialog reads as plain Korean and names a currency only when it is not the listing\'s', run: async ({ load }) => {
+    const { duplicateHoldingDialog } = await load('src/ui/panels/portfolio-duplicate-holding.js');
+    const plain = duplicateHoldingDialog({ ticker: 'NVDA', qty: 10, cost: 150, costCurrency: null }, { ticker: 'NVDA', qty: 5, cost: 160, costCurrency: 'USD' });
+    assert.ok(plain.merged, 'v60.30 a price with no currency entered is the listing currency, so it averages with an explicit USD price on a US listing');
+    assert.match(plain.message, /보유 수량 10주, 매수 단가 150\)/, `v60.30 a lot reads 수량·매수 단가: ${plain.message}`);
+    assert.doesNotMatch(plain.message, /@|통화 미입력|달러|USD/, `v60.30 no '@', no '통화 미입력', no listing currency: ${plain.message}`);
+    const foreign = duplicateHoldingDialog({ ticker: 'NVDA', qty: 1, cost: 200000, costCurrency: 'KRW' }, { ticker: 'NVDA', qty: 1, cost: 210000, costCurrency: 'KRW' });
+    assert.match(foreign.message, /매수 단가 200,000원/, `v60.30 a won price on a US listing names the currency: ${foreign.message}`);
+  } },
+  { id: 'v60.28', name: 'a close inside the near-line band is not a moving-average break on 기술 리스크; past it, it is', run: async ({ load }) => {
+    const { sellPressure } = await load('src/domain/portfolio/technical-risk.js');
+    const snap = (price) => ({ ok: true, price, adr20Pct: 1.5, sma50: 100, ema10: 100.2, ema21: 100.1, dist50Pct: (price / 100 - 1) * 100, above10EMA: price >= 100.2, above21EMA: price >= 100.1, above50SMA: price >= 100, rsi14: 50, dayGainPct: 0, dist21Atr: 0 });
+    const near = sellPressure(snap(99.74));
+    assert.ok(!near.flags.some((flag) => flag.startsWith('CLOSE_BELOW')), `-0.26% under the 50-day line with a 1.5% daily range is 선 근처: ${near.flags.join(',')}`);
+    assert.equal(near.score, 0);
+    const broken = sellPressure(snap(97));
+    assert.deepEqual(broken.flags.filter((flag) => flag.startsWith('CLOSE_BELOW')).length, 3, '-3% is past one daily range under every line');
+    const noRange = sellPressure({ ...snap(99.74), adr20Pct: null });
+    assert.ok(noRange.flags.includes('CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED'), 'without a daily range the line alone decides');
+  } },
+  { id: 'v60.28', name: 'the backtest result is in Korean, fills the benchmark column and states the start weights', run: async ({ load }) => {
+    const { renderPortfolioBacktestLab } = await load('src/ui/components/portfolio-backtest-lab.js');
+    const out = {};
+    renderPortfolioBacktestLab({ ok: true, weights: { XOM: 0.52, JPM: 0.3, MSFT: 0.18 }, settings: { startMonth: '2016-12', endMonth: '2026-10', rebalanceType: 'annual', benchmarkSymbol: 'SPY', targetWeightBasis: 'start-date-adjusted-close-market-value', rfAnnual: null },
+      performance: { startBalance: 10000, endBalance: 20000, benchmarkEndBalance: 25000, cagr: 0.07, benchmarkCagr: 0.1, stdev: 0.15, benchmarkStdev: 0.14, bestYear: 0.3, worstYear: -0.1, benchmarkBestYear: 0.28, benchmarkWorstYear: -0.18, maxDrawdown: 0.25, benchmarkMaxDrawdown: 0.24, trackingError: 0.05, activeReturn: -0.03 },
+      drawdowns: [{ start: '2020-01', end: '2020-03', recoveryBy: 'Unrecovered', recoveryMonths: null, underwaterMonths: 5, drawdown: 0.25 }], components: [{ ticker: 'XOM', weight: 0.52, standaloneReturn: 0.5, returnContribution: 100, riskContribution: 0.6 }],
+      warnings: ['첫 문장입니다.', '둘째 문장입니다.'] }, { root: {}, documentRef: { getElementById: () => out } });
+    const text = String(out.innerHTML).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+    for (const word of ['REFERENCE-ONLY', 'Performance Summary', 'Metric', 'Start Balance', 'Stdev', 'Best Year', 'underwater', 'Annual Returns', 'Worst Drawdowns', 'Standalone', 'annual', 'start-date-adjusted', 'Unrecovered']) assert.ok(!text.includes(word), `English/internal word left: ${word}`);
+    assert.match(text, /최고 연도 \+30\.00% \+28\.00%/);
+    assert.match(text, /최저 연도 -10\.00% -18\.00%/);
+    assert.match(text, /최대 낙폭 -25\.00% -24\.00%/);
+    assert.match(text, /연 표준편차 15\.00% 14\.00%/, 'a standard deviation has no plus sign');
+    assert.match(text, /시작 비중: XOM 52%, JPM 30%, MSFT 18% — 지금 보유 수량을 2016-12 가격으로 평가/);
+    assert.match(text, /리밸런싱 매년/);
+    assert.ok(!/\.,/.test(text) && !/\.\./.test(text), 'sentences are joined without ".," or ".."');
+  } },
+  { id: 'v60.28', name: 'the held backtest names the holdings without a price record in one sentence', run: async ({ load }) => {
+    const { buildPortfolioBacktestLab } = await load('src/domain/portfolio/backtest.js');
+    const model = buildPortfolioBacktestLab({}, [{ ticker: 'NVDA', qty: 10, cost: 150 }, { ticker: '005930.KS', qty: 100, cost: 70000, costCurrency: 'KRW' }], { benchmarkSymbol: 'SPY' });
+    assert.equal(model.ok, false);
+    assert.equal(model.warnings.length, 1);
+    assert.match(model.warnings[0], /^가격 기록을 받지 못한 종목\(NVDA, 005930\.KS\)이 있어 실행하지 않았습니다 — .*실행됩니다\.$/);
+    assert.equal(model.allocationBlocked.code, 'member-price-series-missing', 'the coverage rule stays in the model');
+  } },
+  { id: 'v60.28', name: 'copy: one share figure when the denominators match; SOFR one-click fill label', run: async ({ load }) => {
+    const { buildPortfolioRead } = await load('src/domain/portfolio/portfolio-read.js');
+    const { riskFreeFill } = await load('src/ui/panels/portfolio-rf-fill.js');
+    const read = buildPortfolioRead({ surface: { rows: [{ symbol: 'NVDA', value: 13 }, { symbol: 'AAPL', value: 87 }] },
+      rows: [{ sym: 'NVDA', pctSma50: -8, pctSma200: -5, adrPct: 2 }, { sym: 'AAPL', pctSma50: 6, pctSma200: 9, adrPct: 2 }] });
+    const trend = (read.points || []).find((point) => point.id === 'trend');
+    assert.ok(trend, 'trend point present');
+    assert.match(trend.text, /NVDA\(13%\)/);
+    assert.doesNotMatch(trend.text, /NVDA\(13%, 평가액의 13%\)/);
+    assert.deepEqual(riskFreeFill({ value: 3.9, date: '2026-11-17' }), { value: '3.90', date: '2026-11-17', label: 'SOFR 3.90%(11/17) 넣기' });
+    assert.equal(riskFreeFill(null), null, 'no published rate, no button');
+  } },
+  { id: 'v60.30', name: 'backtest and risk hold messages say what is missing and what makes them available, with no internal jargon', run: async ({ load }) => {
+    const { buildPortfolioBacktestLab } = await load('src/domain/portfolio/backtest.js');
+    const { assessAccountPerformance } = await load('src/domain/portfolio/risk.js');
+    const { renderPortfolioRiskMetrics } = await load('src/ui/components/portfolio-risk-metrics.js');
+    const lab = await load('src/ui/components/portfolio-backtest-lab.js');
+    const jargon = /보류|인증|leg\b|targetWeight|adjusted close|raw close|승격|dayCount|valuation marks|잔여비중|전액투자|[a-z]+-[a-z]+-[a-z]+/;
+    const months = Array.from({ length: 15 }, (_, i) => `${2024 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`);
+    const series = (fn) => ({ timestamps: months.map((key) => `${key}-28T00:00:00Z`), adjustedCloses: months.map((_, i) => fn(i)), backtestEligible: true, backtestPriceBasis: 'adjusted-close' });
+    const prices = (drop = []) => { const map = { AAA: series((i) => 100 + i * 10), BBB: series((i) => 100 - i), SPY: series(() => 100) }; drop.forEach((t) => delete map[t]); return map; };
+    const positions = (a, b) => [{ ticker: 'AAA', qty: 1, cost: 100, ...(a !== undefined ? { targetWeight: a } : {}) }, { ticker: 'BBB', qty: 1, cost: 100, ...(b !== undefined ? { targetWeight: b } : {}) }];
+    const holds = {
+      partial: buildPortfolioBacktestLab(prices(), positions(0, null), {}),
+      zero: buildPortfolioBacktestLab(prices(), positions(0, 0), {}),
+      over: buildPortfolioBacktestLab(prices(), positions(60, 60), {}),
+      under: buildPortfolioBacktestLab(prices(), positions(30, 30), {}),
+      benchmark: buildPortfolioBacktestLab(prices(['SPY']), positions(), {}),
+      rebalance: buildPortfolioBacktestLab(prices(), positions(), { rebalanceType: 'weekly' })
+    };
+    for (const [name, model] of Object.entries(holds)) {
+      assert.equal(model.ok, false, `${name} is held`);
+      const text = model.warnings.join(' ');
+      assert.doesNotMatch(text, jargon, `${name}: the hold names no internal term (${text})`);
+      assert.match(text, /실행하지 않았습니다 — .*실행됩니다\.$/, `${name}: one sentence, what is missing — what makes it run (${text})`);
+      assert.doesNotMatch(text, /하세요|고르세요/, `${name}: the condition is stated, not ordered (${text})`);
+    }
+    assert.match(holds.partial.warnings[0], /BBB/, 'the empty target weight is named by its ticker');
+    // The account performance holds and the risk panel's account-view hold.
+    const ledger = { currency: 'USD', dayCount: 'actual-365', flowTiming: 'end-of-period', transactions: [{ date: '2026-06-30', kind: 'deposit', amount: 50 }], valuations: [{ date: '2026-01-01', amount: 100 }] };
+    for (const input of [{ ledger: null }, { ledger: { ...ledger, coverage: {} } }, { ledger: { ...ledger, coverage: coverageAll(LEDGER_IDS), currency: null } }, { ledger: { ...ledger, coverage: coverageAll(LEDGER_IDS) } }]) {
+      const perf = assessAccountPerformance(input);
+      assert.equal(perf.status, 'blocked');
+      assert.doesNotMatch(perf.message, jargon, `account hold ${perf.code} uses plain words (${perf.message})`);
+      assert.match(perf.message, /계산하지 않았습니다 — .*계산합니다\.$/, `account hold ${perf.code} says what makes it available`);
+    }
+    const out = { innerHTML: '', insertAdjacentHTML() {} };
+    const est = { publishedScope: 'invested_sleeve', exposureHistoryMode: 'current_composition_retrospective', rf: { status: 'missing' }, sample: { n: 30 }, compositionSnapshotId: 'pfcomp-x', valuationCut: '2026-11-17', wholeAccountHold: 'cash-return-unresolved', pathLineage: 'retrospective' };
+    renderPortfolioRiskMetrics({ estimate: est, snapshot: null, returnsMap: {}, rfAnnual: null }, { documentRef: { getElementById: () => out }, root: {} });
+    const html = String(out.innerHTML);
+    const fold = (html.match(/<details>[\s\S]*?<\/details>/) || [''])[0];
+    const face = html.replace(fold, '');
+    assert.match(face, /현금 연수익률을 넣으면 계좌 전체로 계산합니다/, 'the account-view hold says which input makes it available');
+    assert.match(face, /무위험 수익률 미입력\(넣으면 샤프 지수 계산\)/, 'the scope line says which input gives the Sharpe ratio');
+    assert.match(face, /250거래일\(약 1년\)이 쌓이면 표시합니다/, 'a short sample says when the Sharpe ratio appears');
+    assert.doesNotMatch(face.replace(/<[^>]+>/g, ' '), /보류|cash-return-unresolved|RF 미입력/, 'no hold jargon on the face');
+    assert.match(fold, /account-hold cash-return-unresolved/, 'the hold code stays in the existing 계산 식별자 fold');
+    assert.doesNotMatch(lab.varCertLabel({ certification: 'held', certificationReasons: ['sample-below-declared-minimum'] }), jargon, 'the VaR reference label is plain');
   } }
 ];

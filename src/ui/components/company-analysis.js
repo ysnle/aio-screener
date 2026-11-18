@@ -4,7 +4,7 @@
 // and the observations list as a closed expert fold.
 import { buildCompanyAnalysis } from '../../domain/entity/company-analysis.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
-import { parseFiscalHistory, requestFiscalHistory, dartLink, issuerSic } from './fiscal-read.js';
+import { parseFiscalHistory, requestFiscalHistory, dartLink, issuerSic, debtBasisFor } from './fiscal-read.js';
 import { koreanThemeGroups } from '../../domain/market/korea/korea-participation.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { krFundamentalPoints } from '../../domain/entity/kr-fundamentals.js';
@@ -12,6 +12,7 @@ import { ARTIFACT_FRESHNESS } from '../../data/contracts/artifact-freshness.js';
 import { consensusView, peMultipleText } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
+import { dividendYieldText } from '../../domain/screener/dividend-text.js';
 import { KR_FUNDAMENTALS, SCENARIO_STATE } from '../../data/artifact-registry.js';
 const mdOf = (date) => { const m = String(date || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${Number(m[1])}/${Number(m[2])}` : ''; };
 // v57.55 review (8m, semi-expert panel): the numbers a reader looks for first, on one line, each with its own date. US
@@ -28,6 +29,8 @@ export function keyMetricsLine(row, consensus, earnings = [], today = new Date()
   if (view?.trailingPe != null) parts.push(`직전 4개 분기 PER ${peMultipleText(view.trailingPe)}(조정 EPS)`);
   else if (pe != null && pe > 0) parts.push(row._valuationPeEarningsBasis === 'ttm' && row._valuationPeEarningsThrough ? `최근 4개 분기 PER ${peMultipleText(pe)}(공시 순이익, ${String(row._valuationPeEarningsThrough).slice(0, 7)} 분기까지)` : `최근 회계연도 PER ${peMultipleText(pe)}`);
   if (view?.fwdPe != null) parts.push(`Forward PER ${peMultipleText(view.fwdPe)}(예상치 ${mdOf(view.asOf)})`);
+  const dividend = dividendYieldText(row); // 2026-11-18 (owner: 배당수익률)
+  if (dividend) parts.push(dividend);
   const symbol = String(row.sym || row.symbol || '').toUpperCase();
   const next = (Array.isArray(earnings) ? earnings : []).filter((item) => String(item?.symbol || '').toUpperCase() === symbol && String(item?.date || '') >= today).sort((a, b) => String(a.date).localeCompare(String(b.date)))[0];
   // v58.75 (persona review): the schedule read (next date with session count, or the last report and "미확정") when loaded.
@@ -65,7 +68,7 @@ export function renderCompanyAnalysis({ documentRef:doc, root=globalThis, state,
   const profile=businessProfileFor(id,row || {},summary || {});
   const fundamentals=state?.id===id && state?.fundamentals?.symbol?.toUpperCase()===id ? state.fundamentals : onDemand?.sec?.symbol===id ? onDemand.sec : null;
   const history=root?._aioSecFiscalHistory?.[id];
-  const model=buildCompanyAnalysis({symbol:id,row,rows,summary,profile,fundamentals,fiscalHistory:typeof history==='string' ? parseFiscalHistory(history) : Array.isArray(history) ? history : [],themes:[...(root?.THEME_MAP || []),...koreanThemeGroups(root?.KR_THEME_MAP||{},rows)],onDemand:onDemand?.status==='ready' ? onDemand : null,sic:issuerSic(root,id)});
+  const model=buildCompanyAnalysis({symbol:id,row,rows,summary,profile,fundamentals,fiscalHistory:typeof history==='string' ? parseFiscalHistory(history) : Array.isArray(history) ? history : [],themes:[...(root?.THEME_MAP || []),...koreanThemeGroups(root?.KR_THEME_MAP||{},rows)],onDemand:onDemand?.status==='ready' ? onDemand : null,sic:issuerSic(root,id),debtBasis:debtBasisFor(root,id)});
   root.__aioCompanyAnalysis = model;
   // P1630: the page re-renders on every quote tick. An unchanged model keeps its DOM so open
   // details and keyboard focus survive; a changed model restores both after rebuilding.

@@ -7,6 +7,7 @@ import { factorScopesByMarket } from '../../src/domain/market/session/session-ti
 import { round } from '../lib/producer-math.mjs';
 import { EXTENDED_SHARD_SCHEMA, RANKING_CONTRACTS, encodeShardRows, expandShardRows, isValidShard } from '../../src/data/screener-extended.js';
 import { REPO_ROOT } from './paths.mjs';
+import { LATEST_SESSION_VOLUME_BASIS } from '../../src/domain/screener/price-factors.js';
 import { SCREENER_OUT, screenerAssetType, getScreenerUniverse, enrichSecFundamentals, _enrichPriceFactors, mergeSecIntoFactorRows } from './screener.mjs';
 
 // ── v57.81: extended universe shard (Russell 2000 + Nasdaq-listed common stocks outside the core) ──
@@ -51,6 +52,8 @@ export function buildExtendedShardPayload({ data, syms, identityRows, membership
     factorSessionDateByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.sessionDate])),
     factorBarStartByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.barStart])),
     factorComputedAt: computedAt,
+    // v60.26: the newest session's volume is the provider's provisional figure at factorComputedAt (US).
+    volumeBasis: LATEST_SESSION_VOLUME_BASIS,
     source: 'github-actions:yahoo-1y',
     universe: syms.length,
     ok,

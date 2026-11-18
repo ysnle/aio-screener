@@ -378,6 +378,9 @@ function dollarChapter(history, macroHistory = null) {
 const CHAPTER_ASSETS = Object.freeze({ inflation: ['breakeven10'], labor: [], rates: ['tnx', 'dgs2', 'realYield10'], oil: ['wti', 'brent'],
   metals: ['gold', 'silver'], dollar: ['dxy', 'usdjpy', 'usdkrw'], credit: ['hyOas', 'igOas', 'cccOas'], volatility: ['vix'], growth: ['kospi', 'kosdaq'] });
 const CHAPTER_TOPICS = Object.freeze({ inflation: ['inflation'], labor: ['jobs'], rates: ['rates'], oil: ['energy'], metals: ['metals'], dollar: ['fx'], credit: ['credit'], volatility: ['volatility'], growth: ['korea'] });
+// Word topics of the market-day ledger (src/domain/market/day/facts.js WORD_TOPICS) that name a subject outside the macro fields.
+const OFF_FIELD_TOPICS = new Set(['crypto', 'ai-semis', 'deal', 'earnings']);
+const koreanTitle = (fact) => [fact?.titleKo, fact?.title].find((title) => /[가-힣]{2}/.test(String(title || ''))) || null;
 export function chapterToday(day, chapterId) {
   const facts = Array.isArray(day?.facts) ? day.facts : [];
   if (!facts.length) return null;
@@ -390,15 +393,19 @@ export function chapterToday(day, chapterId) {
     // The app's own themes (Korean names) before the sector of the same members.
     .sort((a, b) => Number(b.group.startsWith('theme:')) - Number(a.group.startsWith('theme:'))).filter((fact, index, list) => fact.group.startsWith('theme:') || !list.some((other) => other.group.startsWith('theme:')));
   const topics = CHAPTER_TOPICS[chapterId] || [];
-  // The report must be about the chapter by its own words (wordTopics), not only by the feed it came from.
-  const report = facts.filter((fact) => fact.kind === 'headline' && fact.rank !== 'context' && (fact.wordTopics || fact.topics)?.some((topic) => topics.includes(topic)))
+  // The report must be about the chapter by its own words (wordTopics), not only by the feed it came from, and about the
+  // field itself: a headline whose words also name a company, a coin, chips or a deal is about that subject reacting to
+  // the field ("Crypto market loses $330B as inflation fears mount" is a crypto story). It is shown in Korean or not at all.
+  const report = facts.filter((fact) => fact.kind === 'headline' && fact.rank !== 'context' && koreanTitle(fact)
+    && !(fact.subjects || []).length && (fact.wordTopics || []).some((topic) => topics.includes(topic))
+    && !(fact.wordTopics || []).some((topic) => OFF_FIELD_TOPICS.has(topic)))
     .sort((a, b) => b.materiality - a.materiality)[0] || null;
   if (!lead && !report) return null;
   const size = (fact) => ((fact.changeUnit || fact.unit) === 'bp' ? bp(fact.change) : signed(fact.change, 1));
   const parts = [];
   if (lead) parts.push(`${lead.label} ${size(lead)}, 평소 하루 변동의 ${Math.abs(lead.z).toFixed(1)}배${lead.rank === 'lead' ? '로 오늘 가장 큰 변화 중 하나입니다' : '입니다'}`);
   if (moved.length) parts.push(`같이 움직인 업종은 ${moved.slice(0, 2).map((group) => `${group.label}(${signed(group.change, 1)})`).join(', ')}입니다`);
-  return { text: `${parts.join('. ')}${parts.length ? '.' : ''}`, report: report ? { title: report.title, date: report.date } : null, rank: lead?.rank || report?.rank || 'minor' };
+  return { text: `${parts.join('. ')}${parts.length ? '.' : ''}`, report: report ? { title: koreanTitle(report), date: report.date } : null, rank: lead?.rank || report?.rank || 'minor' };
 }
 
 // v59.70 (X bookmarks #4): each spread tier's level inside its own recorded range — the 10/50/90th percentiles of every

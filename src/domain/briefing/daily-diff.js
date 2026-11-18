@@ -10,6 +10,7 @@ import { countOpenSessionsBetween, openSessionDatesBetween } from '../market/ses
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
+import { holdingListingKey } from '../portfolio/fx.js';
 
 const shortDay = (date) => { const [, month, day] = String(date || '').split('-').map(Number); return month && day ? `${month}/${day}` : ''; };
 
@@ -130,7 +131,9 @@ export function buildDailyChanges(history = [], { now = Date.now() } = {}) {
 
 // "내 종목": watchlist and holdings, with what moved and what crossed a level worth knowing.
 export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = [], breadthState = null } = {}) {
-  const held = new Set((holdings || []).map((row) => String(row?.symbol || row?.sym || '').toUpperCase()).filter(Boolean));
+  // A held Korean code (005930) is named by the listing the portfolio reader resolved (005930.KS) — the key its
+  // screener row and quote are published under, and the one a watchlist entry of the same stock uses.
+  const held = new Set((holdings || []).map(holdingListingKey).filter(Boolean));
   const wanted = [...new Set([...held, ...(symbols || []).map((symbol) => String(symbol || '').toUpperCase())].filter(Boolean))];
   const bySymbol = new Map((rows || []).map((row) => [String(row?.sym || row?.symbol || '').toUpperCase(), row]));
   const names = wanted.map((symbol) => {

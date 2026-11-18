@@ -190,6 +190,10 @@ try {
           return /반영 대기/.test(document.getElementById('scr-population-note')?.textContent || '');
         },market,{timeout:8000}).then(()=>true,()=>false);
         check(settled,`${label}: ${market} screener rendered neither ${market} rows nor a stated deferral in #scr-population-note within 8s (P1625)`);
+        // A price cell says "불러오는 중" while the page's own quote request is in flight; the currency rule below is
+        // about the settled cell (a price with its currency, or '—'), so read once no cell is still loading.
+        const quotesSettled = await page.waitForFunction(()=>!document.querySelector('#screener-results-body [data-column-key="price"][data-quote-state="loading"], #screener-results-body [data-column-key="price"] [data-quote-state="loading"]'),null,{timeout:8000}).then(()=>true,()=>false);
+        check(quotesSettled,`${label}: ${market} price cells were still loading after 8s (v60.30)`);
         const listing = await page.locator('#screener-results-body').evaluate(body=>[...body.querySelectorAll('tr[data-aio-screener-ticker]')].map(row=>({
           symbol:row.dataset.aioScreenerTicker,price:row.querySelector('[data-column-key="price"]')?.textContent || '',
           ret3m:parseFloat(row.querySelector('[data-column-key="ret3m"]')?.textContent) })));

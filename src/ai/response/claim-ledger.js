@@ -1,5 +1,6 @@
 import { splitAnswerSentences, isConditionalNumericSentence } from './publication.js';
 import { rememberField } from '../session/reader-notes.js';
+import { numericFieldsMissing } from '../../domain/shared/figure-agreement.js';
 
 export const AI_CLAIM_LEDGER_VERSION = 'claim-ledger.v1';
 
@@ -46,9 +47,7 @@ export function validateClaimLedger(ledger, { currentSensitive = false, requireC
     const prefix = `claim_${index + 1}`;
     if (!claim?.claimId || !claim?.text) errors.push(`${prefix}:identity_missing`);
     if (NUMERIC_TYPES.has(claim?.type)) {
-      if (typeof claim.value !== 'number' || !Number.isFinite(claim.value)) errors.push(`${prefix}:numeric_value_missing`);
-      if (!claim.unit) errors.push(`${prefix}:unit_missing`);
-      if (!claim.asOf) errors.push(`${prefix}:as_of_missing`);
+      for (const missing of numericFieldsMissing(claim)) errors.push(`${prefix}:${missing}`);
       if (!claim.source) errors.push(`${prefix}:source_missing`);
       if (!Array.isArray(claim.evidenceIds) || claim.evidenceIds.length === 0) errors.push(`${prefix}:evidence_missing`);
     }

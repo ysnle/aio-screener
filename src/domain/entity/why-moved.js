@@ -13,8 +13,12 @@ const newYorkDay = (iso) => { const ms = Date.parse(iso || ''); return Number.is
 const previousDay = (day) => new Date(Date.parse(`${day}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
 const shortDate = (date) => (hasLeadingIsoDay(date) ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '');
 
-/** Pure: market-day.v1 + symbol → { date, change, text, kind } or null. */
-export function whyMovedLine(day, symbol, account = null) {
+/**
+ * Pure: market-day.v1 + symbol → { date, change, text, kind, theme } or null. `theme` = the stock's primary theme
+ * (primary-theme.js), the same one the market line and the theme link on the page name. Without its own story the line names the primary theme's move that day when it went the same way; a story about
+ * another group (the one that claimed the stock in the day account) is named with the primary theme beside it.
+ */
+export function whyMovedLine(day, symbol, account = null, { theme = null } = {}) {
   const sym = String(symbol || '').toUpperCase();
   const facts = Array.isArray(day?.facts) ? day.facts : [];
   const move = facts.filter((fact) => fact.kind === 'stock-move' && fact.subjects?.[0] === sym).sort((a, b) => String(b.date).localeCompare(String(a.date)))[0];
@@ -41,8 +45,13 @@ export function whyMovedLine(day, symbol, account = null) {
     const text = own.kind === 'earnings' ? `${shortDate(move.date)} — ${own.title}, ${own.line}` : `${lead} — ${own.line}`;
     return { date: move.date, change: move.change, kind: own.kind, text: `${text}${why ? ` ${why.word}: ${why.title}` : ''}` };
   }
+  const primary = theme?.id ? facts.find((fact) => fact.kind === 'group-move' && fact.group === `theme:${theme.id}` && fact.date === move.date && (fact.members || []).includes(sym)
+    && Number.isFinite(fact.change) && Math.sign(fact.change) === Math.sign(move.change)) : null;
+  if (primary) return { date: move.date, change: move.change, kind: 'group', theme: theme.id, text: `${lead} — ${theme.label} ${primary.change >= 0 ? '상승' : '하락'}과 함께 움직였습니다(업종 중간값 ${pct(primary.change)}).` };
   // The group's own move (its median), without the list of other names.
   const median = String(group?.line || '').split(',')[0].replace(/\.$/, '');
-  if (group) return { date: move.date, change: move.change, kind: 'group', text: `${lead} — ${group.title}과 함께 움직였습니다${median ? `(${median})` : ''}.` };
+  const groupTheme = /^story:group:theme:([^:]+):/.exec(group?.id || '')?.[1] || null;
+  const beside = theme?.label && groupTheme && groupTheme !== theme.id ? ` 이 종목의 테마는 '${theme.label}'이고, ${group.title.replace(/\s*(상승|하락)$/, '')}에도 속합니다.` : '';
+  if (group) return { date: move.date, change: move.change, kind: 'group', theme: groupTheme, text: `${lead} — ${group.title}과 함께 움직였습니다${median ? `(${median})` : ''}.${beside}` };
   return { date: move.date, change: move.change, kind: 'unexplained', text: `${lead} — 같은 날 이름이 나온 보도가 없습니다.` };
 }

@@ -3,7 +3,7 @@
 // the growth and the PER beside it use the last four reported quarters on that same basis, never the SEC net income.
 // The price is the screener artifact's close (valuationPrice). Nothing here enters a score.
 
-import { signedText, readNumber as finite } from '../shared/number.js';
+import { signedText, readNumber as finite, usdPerShareText } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
 export const CONSENSUS_MAX_AGE_DAYS = 21;
@@ -31,7 +31,7 @@ const oneOffQuarter = (hist, { from, to } = {}) => String(hist || '').split(';')
 const DAY_MS = 86400000;
 
 const signed = (value) => signedText(value, 0, '%');
-const usd = (value) => `${value < 0 ? '-' : ''}$${Math.abs(value).toFixed(2)}`;
+const usd = (value) => usdPerShareText(value);
 
 // Screen audit 2026-10-20: CRWD showed "직전 4개 분기 PER 2073.6배 · Forward PER 2851.3배" (EPS $0.08) and the screener
 // TSLA 454.4배 with nothing saying the multiple no longer measures price against profit. Above this a multiple is shown

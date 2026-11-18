@@ -121,7 +121,8 @@ check('destructive command hook fixture returns documented deny output', dangero
 {
   const { mkdtempSync, writeFileSync, rmSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
-  const dir = mkdtempSync(join(tmpdir(), 'aio-hook-'));
+  // Exercise hosts whose temporary-directory name includes ".codex".
+  const dir = mkdtempSync(join(tmpdir(), 'aio.codex-hook-'));
   try {
     const dirty = join(dir, 'dirty.js');
     const clean = join(dir, 'clean.js');
@@ -152,7 +153,7 @@ const { planBrowserLinks } = await import('./cloud-session-setup.mjs');
 const plannedLinks = planBrowserLinks([{ name: 'chromium-headless-shell', revision: '1248' }, { name: 'chromium', revision: '1243' }, { name: 'ffmpeg', revision: '1013' }],
   ['chromium-1243', 'chromium_headless_shell-1200', 'chromium_headless_shell-1243', 'ffmpeg']);
 check('v59.56 cloud setup links only missing revisions to the newest installed one', JSON.stringify(plannedLinks) === JSON.stringify([{ link: 'chromium_headless_shell-1248', target: 'chromium_headless_shell-1243' }]), JSON.stringify(plannedLinks));
-const unrelatedPostEdit = runHook('post-edit', { cwd: root, hook_event_name: 'PostToolUse', tool_input: { command: '*** Update File: notes.txt' } });
+const unrelatedPostEdit = runHook('post-edit', { cwd: root, hook_event_name: 'PostToolUse', tool_input: { command: '*** Update File: notes.txt\n@@\n+Document the version.json format.' } });
 check('unrelated PostToolUse hook fixture passes silently', unrelatedPostEdit.status === 0 && unrelatedPostEdit.stdout === '', unrelatedPostEdit.stderr);
 const advisoryPostEdit = runHook(
   'post-edit',
@@ -178,7 +179,7 @@ try { claudeBackupOutput = JSON.parse(claudeBackupGuard.stdout || '{}'); } catch
 check('Claude file_path write fixture denies backup mutation', claudeBackupOutput.hookSpecificOutput?.permissionDecision === 'deny');
 const claudeSafeGuard = runHook('guard-edit', { cwd: root, hook_event_name: 'PreToolUse', tool_name: 'Edit', tool_input: { file_path: 'src/app/bootstrap.js', old_string: 'a', new_string: 'b' } });
 check('Claude file_path edit fixture allows normal source edits', claudeSafeGuard.status === 0 && claudeSafeGuard.stdout === '', claudeSafeGuard.stderr);
-const claudeAdvisory = runHook('post-edit', { cwd: root, hook_event_name: 'PostToolUse', tool_name: 'Edit', tool_input: { file_path: '_context/RULES.md', old_string: 'a', new_string: 'b' } });
+const claudeAdvisory = runHook('post-edit', { cwd: join(root, 'scripts'), hook_event_name: 'PostToolUse', tool_name: 'Edit', tool_input: { file_path: '../_context/RULES.md', old_string: 'a', new_string: 'b' } });
 let claudeAdvisoryOutput = {};
 try { claudeAdvisoryOutput = JSON.parse(claudeAdvisory.stdout || '{}'); } catch { claudeAdvisoryOutput = {}; }
 check('Claude file_path post-edit fixture flags workspace surfaces', claudeAdvisory.status === 0 && /^AIO closeout reminder:/.test(String(claudeAdvisoryOutput.systemMessage || '')), claudeAdvisory.stderr || claudeAdvisory.stdout);

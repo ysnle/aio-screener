@@ -4,13 +4,14 @@ import { setStockSubject } from '../../navigation/route-hubs.js';
 import { overlapSentence } from '../../../domain/screener/factor-overlap.js';
 import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { SCREENER_FIELD_REGISTRY, readRowNumber } from '../../../data/contracts/screener.js';
-import { FACTOR_LABELS } from '../../../domain/screener/row-presentation.js';
+import { FACTOR_LABELS, dividendYieldText, filingBasisMismatch, filingBasisSummary } from '../../../domain/screener/row-presentation.js';
+import { overallRankedCount } from '../../../domain/screener/overall-rank.js';
 import { screenerMarket, marketRankingMetadata, formatScreenerPrice } from '../../../domain/screener/market-scope.js';
 import { modelContraryEvidence } from '../../../domain/technical/bands.js';
 import { signedText, directionOf, finiteNumber as finite } from '../../../domain/shared/number.js';
 import { stampDay } from '../../../domain/shared/session-date.js';
 import { shortDate } from '../../../domain/content/date-labels.js';
-import { SCREENER_COLUMN_REGISTRY, cell, conditionMarginText, conditionMargins, currentOverlap, liveRow, range52Position, returnText, scopedRows, text } from './model.js';
+import { SCREENER_COLUMN_REGISTRY, cell, conditionMarginText, conditionMargins, currentOverlap, liveRow, range52Position, returnText, text } from './model.js';
 import { createColumnContent } from './table.js';
 import { openLayer } from '../../behaviors/layers.js';
 // 개편 v2 (3c): author·year evidence for the factors the score weights. Only the listed studies; a factor without one
@@ -132,10 +133,12 @@ export function createInspectorController(ctx) {
          setText('scr-why-subtitle', row.name || '연구용 상대 순위 설명');
          const inspectState = selectScreenerState(store.getState()) || {};
          const rowMarket = screenerMarket(row);
-         const rankedInMarket = scopedRows(inspectState.rows || [], rowMarket).filter((item) => finite(item?.screenRank) != null).length;
-         // Review fix: the same guard as the table's 전체 순위 column (held ranking or a row that did not pass shows no order).
+         // The overall rank and its denominator (rows of the market carrying one), the same pair as the table's
+         // 전체 순위 column and the page header — not the active screen's order, which the 순서 column shows.
+         const rankedInMarket = overallRankedCount(inspectState.rows || [], rowMarket);
+         // Review fix: the same guard as the table's 전체 순위 column (a held ranking shows no order).
          const rankHoldNow = marketRankingMetadata(inspectState.metadata, rowMarket)?.available === false || !!root?._aioRankingHold;
-         const ordinalForLine = rankHoldNow || row.screenStatus !== 'passed' ? null : finite(row.screenRank);
+         const ordinalForLine = rankHoldNow ? null : finite(row.overallRank);
          setText('scr-why-rankline', ordinalForLine == null ? '순위 계산 보류' : rankedInMarket ? `순위 매긴 ${rankedInMarket}종목 중 ${ordinalForLine}위` : `전체 ${ordinalForLine}위`);
          const inspectLive = liveRow(row, liveReader);
          const inspectPrice = finite(inspectLive.price);
@@ -199,7 +202,13 @@ export function createInspectorController(ctx) {
           };
           setText('scr-why-missing', `순위 필수값 — ${missing.length ? missing.map(describeMissing).join(', ') : '모두 있습니다'}. ${structureNote}.`);
          // v59.46 R3-05: a carried row names that this refresh did not read it.
-         setText('scr-why-provenance', row.factorSessionDate ? `가격 기준 ${String(row.factorSessionDate).slice(0, 10)} 종가${row.retainedFrom ? ' — 이번 갱신에서 받지 못해 직전 자료를 이어 표시' : ''}` : '가격 기준일 확인 필요');
+         // 2026-11-18: the dividend yield, and one line when the P/E's earnings and the margin disagree in sign on different
+         // periods; the filing figures' periods are on hover.
+         const provenanceNode = setText('scr-why-provenance', [
+           row.factorSessionDate ? `가격 기준 ${String(row.factorSessionDate).slice(0, 10)} 종가${row.retainedFrom ? ' — 이번 갱신에서 받지 못해 직전 자료를 이어 표시' : ''}` : '가격 기준일 확인 필요',
+           dividendYieldText(row), filingBasisMismatch(row)
+         ].filter(Boolean).join(' · '));
+         if (provenanceNode) provenanceNode.title = filingBasisSummary(row);
          // 개편 v2 (3c): one plain reading from the row's own closes — trend position, then the 3-month gap to the S&P 500
          // (SPY on the same close), then the completeness line that used to stand alone.
          const above50 = readRowNumber(row, 'pctSma50', 'display');
@@ -227,13 +236,19 @@ export function createInspectorController(ctx) {
            // 개편 v2 (3c): heaviest weight first; the author·year line appears only for a factor the score actually weights.
            const weightOf = (key) => finite(appliedWeights[key]) ?? 0;
            const evidenceLines = [];
+           const definitionLines = [];
            [...factors].sort((a, b) => weightOf(b[0]) - weightOf(a[0])).slice(0, 8).forEach(([key, value]) => {
              const item = documentRef.createElement('div');
              item.className = 'sx-factor scr-why-factor';
              const head = documentRef.createElement('div');
              head.className = 'sx-factor__head';
              const label = documentRef.createElement('span');
-             label.textContent = FACTOR_LABELS[key]?.label || key; if (FACTOR_LABELS[key]?.description) { const desc = documentRef.createElement('span'); desc.className = 'sx-factor__desc'; desc.textContent = FACTOR_LABELS[key].description; label.append(desc); }
+             // The value factor's PBR names the balance sheet its equity came from (a quarter can be newer than the fiscal year).
+             const equityDate = key === 'value' && row._valuationPbEquityThrough ? String(row._valuationPbEquityThrough).slice(0, 10) : null;
+             const description = FACTOR_LABELS[key]?.description ? `${FACTOR_LABELS[key].description}${equityDate ? ` (이 종목의 PBR 자본: ${equityDate} 재무상태표${row._valuationPbEquityBasis === 'common' ? ', 우선주 제외' : ''})` : ''}` : null;
+             // The face is the factor's name and score; what the factor measures is a line in the fold below.
+             label.textContent = FACTOR_LABELS[key]?.label || key;
+             if (description) definitionLines.push(`${FACTOR_LABELS[key]?.label || key} — ${description}`);
              const valueNode = documentRef.createElement('b');
              valueNode.textContent = Number(value).toFixed(0);
              head.append(label, valueNode);
@@ -250,7 +265,7 @@ export function createInspectorController(ctx) {
              // v59.55 (visual audit): the bar line keeps weight and contribution; the study behind the factor moves to the fold below.
              if (share > 0 && FACTOR_EVIDENCE[key]) evidenceLines.push(`${FACTOR_LABELS[key]?.label || key}: ${FACTOR_EVIDENCE[key]}`);
              note.textContent = share == null ? '비중 미수신 — 순위 합산에 쓰이지 않았습니다' : `비중 ${Math.round(share * 100)}%${contribution == null ? '' : `, 기여 ${contribution.toFixed(1)}`}`;
-             item.title = `${FACTOR_LABELS[key]?.description || key}, 정규화 점수 ${Number(value).toFixed(1)}, 적용 가중치 ${weight == null ? '미수신' : Number(weight).toFixed(3)}, 가중 기여 ${contribution == null ? '계산 불가' : contribution.toFixed(2)}`;
+             item.title = `${description || key}, 정규화 점수 ${Number(value).toFixed(1)}, 적용 가중치 ${weight == null ? '미수신' : Number(weight).toFixed(3)}, 가중 기여 ${contribution == null ? '계산 불가' : contribution.toFixed(2)}`;
              item.append(head, track, note);
              factorList.appendChild(item);
            });
@@ -271,9 +286,9 @@ export function createInspectorController(ctx) {
            const calc = documentRef.createElement('details');
            calc.className = 'scr-why-calc';
            const calcSummary = documentRef.createElement('summary');
-           calcSummary.textContent = evidenceLines.length ? '점수 계산 순서, 요인 겹침, 연구 근거' : '점수 계산 순서, 요인 겹침';
+           calcSummary.textContent = `점수 계산 순서, 팩터 정의, 요인 겹침${evidenceLines.length ? ', 연구 근거' : ''}`;
            calc.append(calcSummary, rankLine);
-           for (const line of evidenceLines) { const node = documentRef.createElement('p'); node.className = 'scr-why-factor-note'; node.textContent = line; calc.appendChild(node); }
+           for (const line of [...definitionLines, ...evidenceLines]) { const node = documentRef.createElement('p'); node.className = 'scr-why-factor-note'; node.textContent = line; calc.appendChild(node); }
            factorList.appendChild(calc);
            const overlap = documentRef.createElement('div');
            overlap.className = 'scr-why-factor-note';

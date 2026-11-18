@@ -516,15 +516,21 @@ async function _pfAddOnce() {
   const existing = positions.findIndex(p => p.ticker === ticker);
   if (existing >= 0) {
     const editing = document.getElementById('pf-add-ticker')?.dataset.editing === ticker; // P1592 (F15): an edit is not a duplicate
-    showConfirmModal(editing ? '보유 내역 변경' : '이미 보유 중인 종목', editing ? ticker + ' 보유 내역을 이 값으로 변경할까요?' : '보유 목록에 이미 ' + ticker + ' 종목이 있습니다. 입력한 값으로 바꿀까요?', async function() {
-      // E3/P1187: 통째 교체는 import로 들어온 sector·targetWeight·note·시세 통화를 지웠다 —
-      // 폼이 소유한 필드만 덮어쓰고 나머지는 보존한다.
-      positions[existing] = { ...positions[existing], ticker, qty, cost, target, memo, costCurrency, updatedAt: Date.now() };
+    // E3/P1187: 통째 교체는 import로 들어온 sector·targetWeight·note·시세 통화를 지웠다 —
+    // 폼이 소유한 필드만 덮어쓰고 나머지는 보존한다.
+    const commit = async function(next, doneText) {
+      positions[existing] = next;
       const saved = await savePortfolioData(positions);
       if (saved.reason !== 'other-tab' && _pfFormSnapshot() === pfFormAtSubmit) { clearPortfolioForm(); window._aioTogglePortfolioEntry(false); }
       renderPortfolio();
-      showToast(saved.ok ? ticker + ' 업데이트 완료' : _pfSaveFailText(saved, '영구 저장 실패 — ' + ticker + ' 변경은 이 화면에만 반영됐습니다. 새로고침 전 다시 시도하세요.'));
-    }, '');
+      showToast(saved.ok ? doneText : _pfSaveFailText(saved, '영구 저장 실패 — ' + ticker + ' 변경은 이 화면에만 반영됐습니다. 새로고침 전 다시 시도하세요.'));
+    };
+    const replace = function() { return commit({ ...positions[existing], ticker, qty, cost, target, memo, costCurrency, updatedAt: Date.now() }, ticker + ' 업데이트 완료'); };
+    if (editing) { showConfirmModal('보유 내역 변경', ticker + ' 보유 내역을 이 값으로 변경할까요?', replace, ''); return; }
+    // A second buy: 합치기 or 바꾸기 (src/ui/panels/portfolio-duplicate-holding.js).
+    var dup = await (window._aioHoldingMerge ? window._aioHoldingMerge() : Promise.reject()).then(function(m) { return m.duplicateHoldingDialog(positions[existing], { ticker, qty, cost, target, memo, costCurrency }); }).catch(function() { return { merged: null, message: '보유 목록에 이미 ' + ticker + ' 종목이 있습니다. 입력한 값으로 바꿀까요?' }; });
+    if (dup.merged) showConfirmModal('이미 보유 중인 종목', dup.message, function() { return commit(dup.merged, ticker + ' 합치기 완료 — ' + dup.merged.qty + '주'); }, '', null, { okLabel: '합치기', alt: { label: '바꾸기', onSelect: replace } });
+    else showConfirmModal('이미 보유 중인 종목', dup.message, replace, '', null, { okLabel: '바꾸기' });
     return;
   } else {
     positions.push({ ticker, qty, cost, target, memo, costCurrency, addedAt: Date.now(), updatedAt: Date.now() });
@@ -621,7 +627,8 @@ var _confirmCallback = null;
 var _confirmCancelCallback = null;
 var _confirmSettled = true;
 var _confirmPreviousFocus = null;
-function showConfirmModal(title, msg, onConfirm, icon, onCancel) {
+// options: { okLabel, alt: { label, onSelect } } — a second action in the same dialog, settled once like 확인.
+function showConfirmModal(title, msg, onConfirm, icon, onCancel, options) {
   // P1070/R592: replacing or dismissing a confirmation must settle the
   // previous caller exactly once; quota prompts rely on this for Promise
   // liveness when ESC, backdrop, or the delegated cancel action is used.
@@ -648,6 +655,20 @@ function showConfirmModal(title, msg, onConfirm, icon, onCancel) {
     if (callback) callback();
   };
   okBtn.addEventListener('click', okBtn._aioConfirmHandler);
+  okBtn.textContent = (options && options.okLabel) || '확인';
+  var alt = options && options.alt && typeof options.alt.onSelect === 'function' ? options.alt : null;
+  var altBtn = document.getElementById('aio-confirm-alt');
+  if (altBtn) {
+    if (altBtn._aioConfirmHandler) altBtn.removeEventListener('click', altBtn._aioConfirmHandler);
+    altBtn.hidden = !alt;
+    altBtn._aioConfirmHandler = alt ? function() {
+      if (_confirmSettled) return;
+      _confirmSettled = true;
+      closeConfirmModal('confirm');
+      alt.onSelect();
+    } : null;
+    if (alt) { altBtn.textContent = alt.label; altBtn.addEventListener('click', altBtn._aioConfirmHandler); }
+  }
   var modal = document.getElementById('aio-confirm-modal');
   _confirmPreviousFocus = window._aioFocusOrigin ? window._aioFocusOrigin() : null;
   if (modal._aioTrapCleanup) modal._aioTrapCleanup();
@@ -864,7 +885,7 @@ function refreshPortfolioLedgerPerformance() {
       + ((accountPerf.warnings || []).length ? ', ' + _escHtmlSafe(accountPerf.warnings.join(' ')) : '')
       + ' (시세 이력 검증과 무관하게 원장 규약 선언만으로 계산됩니다)';
   } else {
-    html = '<b>실제 계좌 성과(TWR/MWR) 보류</b> — ' + _escHtmlSafe(accountPerf.message || '원장 규약이 선언되지 않았습니다') + '. 원장 항목·규약을 선언하면 시세 이력과 무관하게 계산됩니다.';
+    html = '<b>실제 계좌 성과 미계산</b> — ' + _escHtmlSafe(String(accountPerf.message || '원장이 없어 계산하지 않았습니다 — 계좌 원장에 입출금과 기간 평가액을 넣으면 계산합니다').replace(/[.\s]+$/, '')) + '. 시세 이력과 무관하게 원장만으로 계산합니다.';
   }
   host.innerHTML = html;
   host.hidden = false;
@@ -882,6 +903,8 @@ async function refreshPortfolioRisk() {
   // remembered and repeated on install.
   if (typeof window._aioRenderPortfolioRiskStatus !== 'function') { window._aioPortfolioRiskPending = true; return; }
   var status = function(text, warn) { return window._aioRenderPortfolioRiskStatus(text, warn); };
+  // Each hold's wording and its folded code: src/ui/components/portfolio-risk-metrics.js riskHoldText.
+  var hold = function(code, detail) { window._aioRenderPortfolioRiskHold(Object.assign({ code: code }, detail)); };
   const positions = getPortfolioData();
   if (positions.length < 1) {
     status('포지션을 먼저 추가하세요.');
@@ -923,7 +946,7 @@ async function refreshPortfolioRisk() {
   const validTickers = positions.map(function(p) { return p.ticker; }).filter(function(t) { return historyMap[t]; });
   const missingHistory = tickers.filter(function(t) { return !historyMap[t]; });
   if (missingHistory.length) {
-    status('조정주가·날짜 이력이 없는 종목이 있어 리스크 계산을 보류합니다: ' + missingHistory.join(', ') + '.', true);
+    hold('history-missing', { tickers: missingHistory });
     return;
   }
 
@@ -937,7 +960,7 @@ async function refreshPortfolioRisk() {
   }, null) || [];
   commonDates.sort();
   if (commonDates.length < 6) {
-    status('종목 간 공통 거래일이 6일 미만이라 리스크 계산을 보류합니다.', true);
+    hold('common-dates-insufficient');
     return;
   }
 
@@ -965,22 +988,14 @@ async function refreshPortfolioRisk() {
     fxHistory: (window._aioHistory || []).map(function(r) { var m = r && r.fieldMeta && r.fieldMeta.usdkrw; return { date: String((m && m.observedAt) || (r && r.date) || '').slice(0, 10), value: r && r.usdkrw }; })
   }) : null;
   if (!assembled || !assembled.ok) {
-    var holdCode = (assembled && assembled.code) || 'risk-input-unavailable';
-    status((
-      holdCode === 'missing-current'
-        ? '현재 시세도 최근 종가도 없는 종목은 원가로 평가액을 대체하지 않습니다. 갱신 후 다시 시도하세요: ' + ((assembled && assembled.tickers) || []).join(', ') + '.'
-        : holdCode === 'no-current-value' ? '현재 평가액을 산출할 수 없어 리스크 계산을 보류합니다.'
-          : holdCode === 'common-dates-insufficient' ? '종목 간 공통 거래일이 6일 미만이라 리스크 계산을 보류합니다.' : holdCode === 'currency-mixed-no-base' ? '통화가 다른 종목이 섞여 있어 기준 통화를 선언해야 비중·위험을 계산할 수 있습니다.' : holdCode === 'currency-unconverted' ? '환율 근거가 없거나 오래돼(' + ((assembled && assembled.pairs) || []).join(', ') + ') 비중·위험 계산을 보류합니다. 포트폴리오 설정에서 환율을 선언하세요.'
-            : '위험 추정 입력을 확정하지 못해 보류합니다: ' + holdCode + '.'
-    ), true);
+    hold((assembled && assembled.code) || 'risk-input-unavailable', { tickers: assembled && assembled.tickers, pairs: assembled && assembled.pairs });
     return;
   }
   var returnsMap = assembled.returnsMap;
   var snapshot = assembled.snapshot;
   var estimate = assembled.estimate;
   if (!estimate || estimate.status !== 'ready') {
-    status('위험 추정 입력을 확정하지 못해 보류합니다: ' +
-      ((estimate && estimate.code) || (snapshot && snapshot.blocked && snapshot.blocked.code) || 'composition-snapshot-unavailable') + '.', true);
+    hold((estimate && estimate.code) || (snapshot && snapshot.blocked && snapshot.blocked.code) || 'composition-snapshot-unavailable');
     return;
   }
   // 22:PFR03 (E4): RF는 선언 입력에서만 온다. 미선언·무효면 Sharpe를 보류한다 —
@@ -1067,6 +1082,8 @@ async function runPortfolioBacktestLab() {
   var form = typeof window._aioReadBacktestInputs === 'function' ? await window._aioReadBacktestInputs().catch(function() { return null; }) : null; if (!form) form = { ok: false, reason: '입력 확인 도구를 아직 불러오지 못했습니다. 잠시 뒤 다시 실행하세요.' }; // run 4 breaker #6
   if (!form.ok) { status(form.reason, true); return; }
   var initial = form.initial, startYear = form.startYear, rebalance = form.rebalance, benchmark = form.benchmark;
+  // Price history is fetched under each holding's resolved listing (005930 -> 005930.KS), not the stored code.
+  if (window._pfPortfolioFx && window._pfPortfolioFx.withListingTickers) positions = window._pfPortfolioFx.withListingTickers(positions, (window._aioPortfolioSurface || {}).rows);
   var tickers = positions.map(function(p) { return String(p.ticker || '').trim().toUpperCase(); }).filter(Boolean);
   if (benchmark && tickers.indexOf(benchmark) < 0) tickers.push(benchmark);
   status('월말 가격 이력을 수집하는 중입니다... (' + tickers.join(', ') + ')', false);
@@ -1075,7 +1092,6 @@ async function runPortfolioBacktestLab() {
     var d = (typeof _fetchYahooChartData === 'function') ? await _fetchYahooChartData(t, '10y', '1d') : null;
      if (d && d.timestamps && d.closes && (Array.isArray(d.adjustedCloses) || Array.isArray(d.adjCloses)) && d.backtestEligible !== false) priceMap[t] = d;
   }));
-  var failed = tickers.filter(function(t) { return !priceMap[t]; });
   // P1259 (QA-FX-SERIES): 기준 통화 수익률은 월말 관측 FX 시계열을 요구한다 — 랩과 같은 chart 경로로
   // KRW=X를 관측해 넘기고, 못 얻으면 엔진이 현지 통화 결과만 게시한다(추정하지 않음).
   var fxSeries = null;
@@ -1090,9 +1106,8 @@ async function runPortfolioBacktestLab() {
         endYear: new Date().getFullYear(),
         rebalanceType: rebalance,
         benchmarkSymbol: benchmark || 'SPY',
-        // No time-varying RF series is loaded here.  Keep RF-dependent
-        // statistics unavailable instead of silently applying a fixed 4.3%.
-        rfAnnual: null,
+        // Only the rate the reader entered; the result names it as one rate over the whole period.
+        rfAnnual: (readPortfolioAssumptionDeclarations() || {}).riskFreeRate,
         // P1247 (E3/E4): 랩의 시작 구성도 환산 주장이다. 평가 화면(surface)과 **같은** 선언(기준 통화 +
         // 관측 FX leg)을 넘긴다 — 넘기지 않으면 혼합 통화 구성은 1:1 합산 대신 보류된다.
         baseCurrency: (readPortfolioAssumptionDeclarations() || {}).baseCurrency || null,
@@ -1100,9 +1115,6 @@ async function runPortfolioBacktestLab() {
         fxSeries: fxSeries
       })
     : { ok: false, warnings: ['백테스트 엔진을 찾을 수 없습니다.'] };
-  if (model && failed.length) {
-    model.warnings = (model.warnings || []).concat(['가격 이력 수신 실패: ' + failed.join(', ')]);
-  }
   if (model && model.baseCurrencyReturns && model.baseCurrencyReturns.disclosure) {
     model.warnings = (model.warnings || []).concat([model.baseCurrencyReturns.disclosure]);
   }
@@ -1225,11 +1237,13 @@ var _PF_SECTION_LABEL = { positions: '포지션', assumptions: '가정', cash: '
 function importPortfolio(event) {
   const file = event.target.files[0], reader = new FileReader();
   if (!file) return;
-  reader.addEventListener('load', function(e) { // 구형 포지션 배열(포지션만 대체)과 aio-backup v1 묶음(모든 섹션 대체)을 모두 받는다.
+  reader.addEventListener('load', async function(e) { // 구형 포지션 배열(포지션만 대체)과 aio-backup v1 묶음(모든 섹션 대체)을 모두 받는다.
+    // Duplicate rows merge once the merge rule is loaded.
+    var mergeModule = null; try { mergeModule = window._aioHoldingMerge ? await window._aioHoldingMerge() : null; } catch (_) {}
     var api = window._pfPortfolioBackup, parsed = api ? api.parse(e.target.result) : { ok: false }, c = parsed.contents, bundle = parsed.kind === 'bundle';
     if (!parsed.ok) { showToast('파일 형식이 올바르지 않습니다.'); return; }
     // v59.45 (PASS27 P27-IMPORT-01): what the import changed on the way in is named before the reader confirms.
-    var adj = parsed.adjustments || {}, adjText = [adj.positionsDropped > 0 ? '읽을 수 없는 포지션 ' + adj.positionsDropped + '개 제외' : '', adj.positionsCostUnknown > 0 ? '매수 단가 없는 포지션 ' + adj.positionsCostUnknown + '개는 단가 미확인' : '', adj.ledgerDropped > 0 ? '읽을 수 없는 원장 항목 ' + adj.ledgerDropped + '개 제외(포함 범위 선언 해제)' : ''].filter(Boolean).join(', ');
+    var adj = parsed.adjustments || {}, adjText = [adj.positionsDropped > 0 ? '읽을 수 없는 포지션 ' + adj.positionsDropped + '개 제외' : '', adj.positionsCostUnknown > 0 ? '매수 단가 없는 포지션 ' + adj.positionsCostUnknown + '개는 단가 미확인' : '', adj.ledgerDropped > 0 ? '읽을 수 없는 원장 항목 ' + adj.ledgerDropped + '개 제외(포함 범위 선언 해제)' : '', mergeModule ? mergeModule.mergedImportText(adj.positionsMerged) : ''].filter(Boolean).join(', ');
     showConfirmModal('데이터 가져오기', (bundle ? '전체 백업(' + api.describe(parsed.counts) + ')을' : c.positions.length + '개 포지션을') + ' 가져오시겠습니까? 기존 데이터가 대체됩니다.' + (adjText ? ' 파일에서 바뀐 점: ' + adjText + '.' : ''), async function() {
       // E3/P1187: 가져오기도 durable ack 뒤에만 '완료'를 말한다 — P1316: 묶음은 모든 섹션 ack를 합산한다.
       var acks = [Object.assign({ section: 'positions' }, await savePortfolioData(c.positions, { replace: true }))].concat(bundle ? await _pfRestoreBackupSections(c) : []);

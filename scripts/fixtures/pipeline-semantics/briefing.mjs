@@ -277,7 +277,10 @@ export const cases = [
       assert.equal(koreanReleaseText('매출 $16.5 billion'), '매출 165억 달러');
       assert.equal(koreanReleaseText('전년 동기 $683 million.'), '전년 동기 6.8억 달러.');
       assert.equal(koreanReleaseText('up 10.3 ppts'), '10.3%p 상승');
-      assert.equal(koreanReleaseText('$ (3.16)'), '$(3.16)');
+      // v60.26 (cross-screen): accountant parentheses and "$-" read in the site's one sign style, "-$".
+      assert.equal(koreanReleaseText('$ (3.16)'), '-$3.16');
+      assert.equal(koreanReleaseText('EPS $(0.12)'), 'EPS -$0.12');
+      assert.equal(koreanReleaseText('$-0.07'), '-$0.07');
       assert.equal(koreanReleaseText('165억 달러'), '165억 달러', 'already Korean text is unchanged');
       assert.equal(koreanReleaseText('성명은 10 - 2 표결로 승인됐다.'), '성명은 10대 2 표결로 승인됐다.', 'an FOMC vote reads 10대 2');
       assert.equal(koreanReleaseText('2025-2026 기간'), '2025-2026 기간', 'a year range is not a vote');

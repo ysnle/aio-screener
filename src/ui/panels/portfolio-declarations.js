@@ -65,7 +65,9 @@ export function ledgerListMarkup(ledger) {
 
 export function fxLegListMarkup(legsState, { maxAgeMs = null } = {}) {
   const legs = legsState && Array.isArray(legsState.legs) ? legsState.legs : [];
-  if (!legs.length) return '입력한 환율 없음 — 달러·원화가 섞인 합계는 환율을 입력해야 계산됩니다.'; // v57.55 review (B4-F10): plain words
+  // v57.55 review (B4-F10): plain words. What happens without one — the surface converts USD/KRW with the app's
+  // published USD/KRW close once a base currency is chosen (surface.js appLeg); other pairs need an entered rate.
+  if (!legs.length) return '입력한 환율 없음 — 달러·원화는 앱의 원/달러 종가로 환산하고, 다른 통화는 환율을 입력해야 합계에 들어갑니다.';
   const budgetHours = maxAgeMs == null ? null : Math.round(maxAgeMs / 3600000);
   return legs.map((leg, index) => {
     const ageHours = Math.round(leg.ageMs / 3600000 * 10) / 10;

@@ -26,6 +26,11 @@ export const THEME_CRITERIA_RULES = Object.freeze({
   macroSessions: 20
 });
 const R = THEME_CRITERIA_RULES;
+// The markets whose listings a criterion's source covers. The consensus (consensus-estimates.json) and the earnings
+// calendar (earnings-calendar.json) carry US listings only, so a Korean theme is counted out of the four criteria that
+// apply to it ("3/4"), not left with two that can never be checked ("3/6, 미확인 2").
+export const CRITERIA_MARKETS = Object.freeze({ revisions: Object.freeze(['US']), catalyst: Object.freeze(['US']) });
+const appliesTo = (id, market) => !CRITERIA_MARKETS[id] || CRITERIA_MARKETS[id].includes(market || 'US');
 
 const pct = (value, digits = 1) => (finite(value) == null ? '—' : `${signedText(value, digits)}%`);
 const md = (iso) => (hasLeadingIsoDay(String(iso || '')) ? `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}` : '');
@@ -38,8 +43,10 @@ export function themeMemberStats(members = []) {
   return {
     count: rows.length,
     ret1m: median(rows.map((row) => value(row, 'ret1m'))), ret3m: median(rows.map((row) => value(row, 'ret3m'))), ret5d: median(rows.map((row) => row.ret5d)),
+    ret6m: median(rows.map((row) => value(row, 'ret6m'))),
     // v59.45 (P8-THEME-01): how many members each median actually stands on (a row without the return is not a sample).
     ret1mCount: rows.filter((row) => value(row, 'ret1m') != null).length, ret3mCount: rows.filter((row) => value(row, 'ret3m') != null).length,
+    ret6mCount: rows.filter((row) => value(row, 'ret6m') != null).length,
     ret5dCount: rows.filter((row) => finite(row.ret5d) != null).length,
     extension: median(ext), extensionCount: ext.filter((value) => value != null).length
   };
@@ -72,8 +79,10 @@ export function themeCriteria({ row = null, members = [], benchmark = null, cons
   const stats = themeMemberStats(members);
   const symbols = members.map((member) => member.sym);
   const items = [];
-  // 1. 다기간 상대강도
-  const gaps = ['ret1m', 'ret3m', 'ret6m'].map((key) => (finite(row[key]) != null && finite(benchmark?.[key]) != null ? row[key] - benchmark[key] : null));
+  // 1. 다기간 상대강도. A Korean theme row carries no 6-month median (its stage reads 3개월·1개월), so the 6-month leg is the
+  // members' own median when enough of them carry the return.
+  const own = (key) => finite(row[key]) ?? (key === 'ret6m' && stats.ret6mCount >= R.minMembers ? stats.ret6m : null);
+  const gaps = ['ret1m', 'ret3m', 'ret6m'].map((key) => (own(key) != null && finite(benchmark?.[key]) != null ? own(key) - benchmark[key] : null));
   const known = gaps.filter((gap) => gap != null);
   items.push({ id: 'relative', label: '다기간 상대강도 같은 방향', principle: '1·3·6개월이 모두 시장보다 앞서야 강세가 한 기간의 반짝 반등이 아니라 이어지는 흐름입니다.',
     met: known.length < 3 ? null : known.every((gap) => gap > 0),
@@ -102,11 +111,29 @@ export function themeCriteria({ row = null, members = [], benchmark = null, cons
   items.push({ id: 'fit', label: '시황·선두 시나리오 적합', principle: '선두 거시 시나리오가 이 테마의 성격에 부담이면 강세가 거시 바람을 거슬러 가는 것이라 더 쉽게 꺾입니다.',
     met: wind ? wind === 'tail' || wind === 'none' : null,
     value: wind ? `선두 시나리오${lead?.title ? ` '${shortTitle(lead.title)}'` : ''}에서 ${WIND_LABELS[wind] || wind}${state ? `, ${state}` : ''}` : '미확인' });
-  const metCount = items.filter((item) => item.met === true).length;
-  const knownCount = items.filter((item) => item.met != null).length;
-  const unmet = items.filter((item) => item.met === false).map((item) => item.label);
-  const countText = `6개 중 ${metCount}개 충족(가능성 아님)${knownCount < items.length ? `, 확인 가능 ${knownCount}개` : ''}`;
-  return { headline: `${countText}${unmet.length ? ` — 미충족: ${unmet.join(', ')}` : ''}`, items, met: metCount, known: knownCount, total: items.length, unmet, countText };
+  const applied = items.filter((item) => appliesTo(item.id, row.market));
+  const metCount = applied.filter((item) => item.met === true).length;
+  const knownCount = applied.filter((item) => item.met != null).length;
+  const unmet = applied.filter((item) => item.met === false).map((item) => item.label);
+  const countText = `${applied.length}개 중 ${metCount}개 충족(가능성 아님)${knownCount < applied.length ? `, 확인 가능 ${knownCount}개` : ''}`;
+  return { headline: `${countText}${unmet.length ? ` — 미충족: ${unmet.join(', ')}` : ''}`, items: applied, met: metCount, known: knownCount, total: applied.length, unmet, countText };
+}
+
+// 2026-11-18 (테마 시나리오 table read 미국 헬스케어 "4/6" while its detail read "6개 중 5개"): a criterion whose data is
+// missing is not an unmet one, so the short count names the unchecked ones and a sort never ranks a half-checked count
+// against a fully checked one.
+/** The table cell's count: "5/6", or "4/6, 미확인 2" while some criteria cannot be checked; '—' without criteria. */
+export function criteriaCellText(criteria) {
+  if (!criteria) return '—';
+  const unknown = criteria.total - criteria.known;
+  return `${criteria.met}/${criteria.total}${unknown > 0 ? `, 미확인 ${unknown}` : ''}`;
+}
+
+/** Sort comparator by criteria met (dir 'desc' | 'asc'): fully checked rows first, then the rest, each by count. */
+export function compareCriteria(a, b, dir = 'desc') {
+  const full = (c) => !!c && c.known === c.total;
+  if (full(a) !== full(b)) return full(a) ? -1 : 1;
+  return ((b?.met ?? -1) - (a?.met ?? -1)) * (dir === 'asc' ? -1 : 1);
 }
 
 export const MEMBER_ROLES = Object.freeze({

@@ -6,6 +6,7 @@
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { withSubjectParticle } from '../content/korean-particle.js';
+import { quarterLabel } from './period.js';
 
 export function parseQuarterHistory(text) {
   return String(text || '').split(';').map((part) => part.split(':')).filter((cells) => isIsoDay(cells[0] || ''))
@@ -52,8 +53,8 @@ export function buildQuarterRead(quarters = []) {
     : null;
   const signed = (value) => signedText(value, 1, '%');
   const headline = latest.revenueYoy != null
-    ? `최근 분기(${latest.periodEnd.slice(0, 7)} 마감) 매출은 전년 같은 분기보다 ${signed(latest.revenueYoy)}${trend ? `입니다. ${trend}` : '입니다'}.`
-    : `최근 분기(${latest.periodEnd.slice(0, 7)} 마감) 매출은 비교할 전년 같은 분기 기록이 아직 없습니다.`;
+    ? `최근 분기(${quarterLabel(latest.periodEnd)} 마감) 매출은 전년 같은 분기보다 ${signed(latest.revenueYoy)}${trend ? `입니다. ${trend}` : '입니다'}.`
+    : `최근 분기(${quarterLabel(latest.periodEnd)} 마감) 매출은 비교할 전년 같은 분기 기록이 아직 없습니다.`;
   return { available: true, rows: withYoy, latest, headline, hasDerived: withYoy.some((q) => q.derived) };
 }
 
@@ -81,8 +82,8 @@ export function buildWorkingCapitalRead(quarters = []) {
   const partsOf = (set) => [part('재고', set.inventory), part('매출채권', set.receivables)].filter(Boolean).join(', ');
   const tied = faster.length ? ` — ${withSubjectParticle(faster.join('·'))} 매출보다 빠르게 늘어 현금이 묶였습니다` : '';
   const headline = seasonal
-    ? `${latest.periodEnd.slice(0, 7)} 분기 말, 1년 전 같은 분기 대비 ${partsOf(yoy)}(분기 매출 ${signedText(yoy.revenue.pct, 1, '%')})${tied}. 직전 분기 대비로는 ${partsOf({ inventory, receivables })}입니다.`
-    : `${latest.periodEnd.slice(0, 7)} 분기 말, 직전 분기 대비 ${partsOf({ inventory, receivables })}${revenue ? `(분기 매출 ${signedText(revenue.pct, 1, '%')})` : ''}${tied}.`;
+    ? `${quarterLabel(latest.periodEnd)} 분기 말, 1년 전 같은 분기 대비 ${partsOf(yoy)}(분기 매출 ${signedText(yoy.revenue.pct, 1, '%')})${tied}. 직전 분기 대비로는 ${partsOf({ inventory, receivables })}입니다.`
+    : `${quarterLabel(latest.periodEnd)} 분기 말, 직전 분기 대비 ${partsOf({ inventory, receivables })}${revenue ? `(분기 매출 ${signedText(revenue.pct, 1, '%')})` : ''}${tied}.`;
   // The last quarters' balances for the bars, oldest first, with each step's change.
   const bars = rows.slice(-5).map((q, i, list) => ({ periodEnd: q.periodEnd, inventory: q.inventory ?? null, receivables: q.receivables ?? null,
     inventoryPct: i && Number.isFinite(q.inventory) && list[i - 1].inventory > 0 ? (q.inventory / list[i - 1].inventory - 1) * 100 : null,

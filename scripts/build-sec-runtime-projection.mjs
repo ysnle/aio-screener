@@ -3,7 +3,7 @@ import { readFile, rename, writeFile } from 'node:fs/promises';
 import { reconcileSecRecord } from '../src/domain/fundamental/sec-report.js';
 // The pure fiscal-year and quarterly series (P1436/P1446/P1627) live in a module a gate can import; this script reads
 // the producer-only ledger and writes public-data at top level.
-import { fiscalHistory, quarterlyHistory, FISCAL_HISTORY_FORMAT, QUARTER_FORMAT } from './lib/sec-fiscal-history.mjs';
+import { fiscalHistory, quarterlyHistory, fiscalDebtBasis, fiscalDebtCurrent, FISCAL_HISTORY_FORMAT, QUARTER_FORMAT, DEBT_BASIS_FORMAT, DEBT_CURRENT_FORMAT } from './lib/sec-fiscal-history.mjs';
 export { compactFiscalMillions, quarterlyHistory, QUARTER_FORMAT, FISCAL_HISTORY_FORMAT, CAPITAL_YEARS } from './lib/sec-fiscal-history.mjs';
 import { compactSecRecords, SEC_RECORD_DEFAULTS_POLICY } from '../src/data/contracts/sec-projection.js';
 
@@ -115,6 +115,12 @@ const fiscal = {
   data: Object.fromEntries(Object.entries(source.data || {}).filter(([, record]) => usdReport(record)).map(([symbol, record]) => [symbol, fiscalHistory(record?.pit?.observations)]).filter(([, value]) => value)),
   quarterFormat: QUARTER_FORMAT,
   quarters: Object.fromEntries(Object.entries(source.data || {}).filter(([, record]) => usdReport(record)).map(([symbol, record]) => [symbol, quarterlyHistory(record?.pit?.observations)]).filter(([, value]) => value)),
+  // v60.28 (debt coverage): issuers whose longTermDebt column includes finance-lease obligations (sparse; absent = debt-only).
+  debtBasisFormat: DEBT_BASIS_FORMAT,
+  debtBasis: Object.fromEntries(Object.entries(source.data || {}).filter(([, record]) => usdReport(record)).map(([symbol, record]) => [symbol, fiscalDebtBasis(record?.pit?.observations)]).filter(([, value]) => value)),
+  // Issuers whose longTermDebt column leaves out the portion due within a year (the 순현금 note names it only for them).
+  debtCurrentFormat: DEBT_CURRENT_FORMAT,
+  debtCurrent: Object.fromEntries(Object.entries(source.data || {}).filter(([, record]) => usdReport(record)).map(([symbol, record]) => [symbol, fiscalDebtCurrent(record?.pit?.observations)]).filter(([, value]) => value)),
   // v58.75 (persona review): the issuer's SEC industry classification for the company card's '사업·분류 근거' (~40 KB).
   issuerSicFormat: ISSUER_SIC_FORMAT,
   issuerSic: issuerSicMap(source.issuerSic, source.data)

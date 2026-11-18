@@ -3,7 +3,7 @@
 // set beside buildMacroRead, which the home interpretation needs. It reads the same inputs as buildMacroRead and the same
 // shared pieces (the 시장 상태 axes, ratesEvidence, policyPricing, creditObservation), so the chain and the factor rows above
 // it never disagree.
-import { creditCause, creditReleaseText, creditState, hyWidening20Record } from '../briefing/market-read.js';
+import { creditCause, creditDispersion, creditNeutralCause, creditReleaseText, creditState, hyWidening20Record } from '../briefing/market-read.js';
 import { RULES } from '../rules/thresholds.js';
 import { brentWtiCheck } from './liquidity-growth.js';
 import { oilDivergence } from './macro-signals.js';
@@ -62,9 +62,18 @@ export function buildMacroChain({ macro = null, macroHistory = null, regime = nu
       ? `수준(${Math.round(hyBpNow)}bp)은 부담 구간이 아니지만 20거래일 ${signed(record20.value, 0, 'bp')} 확대가 ${record20.highest ? '지난 1년 중 가장 큰 폭' : `지난 1년 변화의 상위 ${Math.max(1, 100 - record20.pct)}%`}이라 부담입니다 — 수준보다 확대 속도가 먼저 경고합니다`
       : `수준(${Math.round(hyBpNow)}bp)은 부담 구간이 아니지만 ${record20.since ? `${monthDay(record20.since)}에 시작된 ` : ''}확대 부담 판정이 이어지는 중입니다(20거래일 ${signed(record20.value, 0, 'bp')}) — ${creditReleaseText({ hyBp: hyBpNow, hy5, hy20: record20.value, latched: true })}으로 바뀝니다`)
       : '신용 지표가 부담입니다 — 수준과 5·20거래일 변화를 함께 확인합니다';
+  // A 중립 names the 양호 conditions it misses, with their values; a narrowing 5-session move is stated as its figure.
+  const neutralText = () => {
+    const spread = mh ? creditDispersion(mh, hyObs?.asOf || null) : null;
+    const misses = creditNeutralCause({ hyBp: hyBpNow, hy5, hy20: hyObs?.change20 ?? null, lowerRated: spread?.lowerRated === true,
+      cccGapBp: spread?.cccBp != null ? spread.cccBp - spread.hyBp : null });
+    const lead = hy5 != null && hy5 <= RULES.credit.calm5dBp ? `5거래일 ${signed(hy5, 0, 'bp')}에도 ` : '';
+    return misses.length ? `${lead}신용 지표는 중립입니다 — 양호 조건 중 ${misses.join(', ')}에 걸립니다`
+      : `신용 지표는 중립입니다 — 수준 ${hyBpNow == null ? '—' : `${Math.round(hyBpNow)}bp`}, 5거래일 ${hy5 == null ? '—' : signed(hy5, 0, 'bp')}`;
+  };
   const creditCalm = creditVerdict === 'favorable' ? '신용 시장은 안정적입니다'
     : creditVerdict === 'burden' ? burdenText
-      : creditVerdict === 'neutral' ? '5거래일 변화는 작지만 신용 지표는 중립입니다 — 수준이나 20거래일 변화 때문에 안정으로 보지 않습니다'
+      : creditVerdict === 'neutral' ? neutralText()
         : '신용 지표 판정 보류 — 스프레드 기록을 기다립니다';
   const dir = (value, up, down) => value == null ? 'unknown' : value >= up ? 'up' : value <= down ? 'down' : 'flat';
   const nodes = [

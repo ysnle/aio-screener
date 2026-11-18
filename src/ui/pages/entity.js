@@ -18,6 +18,7 @@ import { buildEarningsSchedule } from '../../domain/fundamental/analysis-read.js
 import { requestConsensusEstimates } from '../../data/consensus-estimates.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { whyMovedLine } from '../../domain/entity/why-moved.js';
+import { primaryTheme, themeCatalogFor } from '../../domain/entity/primary-theme.js';
 import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { renderCompanyAnalysis } from '../components/company-analysis.js';
@@ -301,7 +302,11 @@ export function renderWhyMoved(documentRef, root, state) {
     root.__aioWhyMovedRequested = true;
     refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed && String(root?._currentTickerId || '').toUpperCase() === id) renderWhyMoved(documentRef, root, state); }).catch(() => {});
   }
-  const line = id && day ? whyMovedLine(day, id) : null;
+  // The line names the same primary theme as the market line and the theme link on this page.
+  let rows = [];
+  if (id && day && isKrSymbol(id)) { try { rows = root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; } }
+  const theme = id && day ? primaryTheme(themeCatalogFor(id, { themeMap: root?.THEME_MAP, krThemeMap: root?.KR_THEME_MAP, rows }), id) : null;
+  const line = id && day ? whyMovedLine(day, id, null, { theme }) : null;
   node.textContent = line?.text || '';
   node.hidden = !line;
 }

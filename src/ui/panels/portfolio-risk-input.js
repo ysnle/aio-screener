@@ -6,7 +6,7 @@
 import { createCompositionSnapshot, deriveRiskEstimate } from '../../domain/portfolio/risk.js';
 import { convertWithDeclaredRates, listingCurrency } from '../../domain/portfolio/fx.js';
 import { convertCashBalances, viaAppClose } from '../../domain/portfolio/cash.js';
-import { finiteNumber as finite } from '../../domain/shared/number.js';
+import { finiteNumber as finite, readNumber } from '../../domain/shared/number.js';
 
 // P1407 (Codex review 2026-10-03): quantity × price is in the holding's price currency. The listing
 // market fixes it when the position does not declare one (a .KS quote is in won); it is not a guess
@@ -178,8 +178,8 @@ export function assembleRiskEstimateInput({
     let weightComplete = positions.length > 0;
     strategyTargetWeights = {};
     positions.forEach((p) => {
-      const declaredWeight = Number(p.targetWeight);
-      if (!isFinite(declaredWeight) || declaredWeight < 0) { weightComplete = false; return; }
+      const declaredWeight = readNumber(p.targetWeight);
+      if (declaredWeight == null || declaredWeight < 0) { weightComplete = false; return; }
       strategyTargetWeights[p.ticker] = declaredWeight / 100;
       declaredWeightSum += declaredWeight;
     });

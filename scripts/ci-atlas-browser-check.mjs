@@ -63,7 +63,7 @@ try {
   await page.waitForFunction(() => document.querySelector('#page-atlas .rl-main .af-article')?.dataset.atlasNode === 'power-transformer' && document.querySelector('#page-atlas .rl-main .af-article .af-twist'));
   const nodeDoc = await article(page);
   const nodeAside = await page.evaluate(() => [...document.querySelectorAll('#page-atlas .rl-aside .rl-aside-title, #page-atlas .rl-aside h3, #page-atlas .rl-aside strong')].map((node) => node.textContent).join(' | '));
-  const nodeUrl = new URL(page.url()).searchParams;
+  const nodeUrl = new URLSearchParams(new URL(page.url()).hash.split('?')[1] || '');
   if (nodeDoc.lead.length < 80 || nodeDoc.paragraphs < 2 || !nodeDoc.text.includes('가치가 흘러가는 길') || nodeUrl.get('node') !== 'power-transformer' || nodeUrl.get('domain') !== 'domain-power-grid' || !/연결/.test(nodeAside)) throw new Error(`industry node document incomplete: ${JSON.stringify({ nodeDoc: { ...nodeDoc, text: undefined }, nodeAside, url: page.url() })}`);
   if (INTERNAL_COPY.test(nodeDoc.text)) throw new Error('industry node shows internal/source copy');
 
@@ -109,7 +109,7 @@ try {
     const doc = await article(deep);
     if (!check(doc)) throw new Error(`deep link ${query} opened ${JSON.stringify({ node: doc.node, domain: doc.domain, module: doc.module, guide: doc.guide })}`);
   }
-  if (new URL(deep.url()).searchParams.get('guide') !== 'cpo-supply-map') throw new Error('relationship deep link was not kept in the URL');
+  if (new URLSearchParams(new URL(deep.url()).hash.split('?')[1] || '').get('guide') !== 'cpo-supply-map') throw new Error('relationship deep link was not kept in the URL');
 
   // A failed industry-map load ends in a stated failure with a working retry.
   await deep.route('**/public-data/atlas/source-packets.json', (route) => route.abort());

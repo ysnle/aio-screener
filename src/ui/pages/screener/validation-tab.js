@@ -1,7 +1,9 @@
 // Screener 사후 검증 view: factor weights, back-test, conditional evidence and the validation banner.
 import { SCENARIO_STATE, loadArtifact } from '../../../data/artifact-registry.js';
 import { renderScreenerValidation, readValidationState, renderValidationHero } from '../../components/screener-validation.js';
-import { buildPopulationRankingIdentity, liveScreenerModelFingerprint } from '../../../domain/screener/model-fingerprint.js';
+import { BACKTEST_EXCLUDED_FACTOR_REASONS, backtestFactorCoverage, buildPopulationRankingIdentity, liveScreenerModelFingerprint } from '../../../domain/screener/model-fingerprint.js';
+import { MODEL_DEFAULT_WEIGHTS } from '../../../domain/screener/factor-weights.js';
+import { withTopicParticle } from '../../../domain/content/korean-particle.js';
 import { measuredCandidateEntries, summarizeCandidateArchive } from '../../../domain/screener/candidate-record.js';
 import { overlapSentence } from '../../../domain/screener/factor-overlap.js';
 import { longrunIcDecay, longrunStudyAge, marketIcRows } from '../../../domain/screener/validation-records.js';
@@ -17,6 +19,36 @@ import { signedText, directionOf, finiteNumber as finite } from '../../../domain
 import { evidenceStrength } from '../../../domain/shared/evidence-strength.js';
 import { el } from './filters.js';
 import { REGIME_DESCRIPTIONS, cell, currentOverlap, scopedRows, selectedValue, text, withThemeStages } from './model.js';
+// The backtest's reason codes for the factors it leaves out, in words; an unknown code reads as the generic reason.
+const EXCLUSION_REASON_WORDS = Object.freeze({
+  'no-historical-shares-outstanding': '과거 발행주식 수 자료 없음',
+  'no-point-in-time-fundamentals': '과거 시점의 재무 자료 없음'
+});
+const EXCLUSION_REASON_GENERIC = '과거 시점 자료 없음';
+const WEIGHT_REGIME_WORDS = Object.freeze({ NEUTRAL: '기본(중립) 가중' });
+
+// Factor keys the record leaves out: its own code list, else the factor names found in its English sentences, else the
+// exclusion list the backtest is built with.
+function excludedFactorCodes(backtest) {
+  if (Array.isArray(backtest?.excludedFactors) && backtest.excludedFactors.length) return backtest.excludedFactors.map(String);
+  const sentences = Array.isArray(backtest?.modelParity?.notValidated) ? backtest.modelParity.notValidated.map(String) : [];
+  const named = Object.keys(FACTOR_LABELS).filter((factor) => sentences.some((sentence) => new RegExp(`\\b${factor}\\b`, 'i').test(sentence)));
+  if (named.length) return named;
+  return sentences.length ? [] : Object.keys(BACKTEST_EXCLUDED_FACTOR_REASONS);
+}
+
+export function excludedFactorsText(backtest) {
+  const codes = excludedFactorCodes(backtest);
+  if (!codes.length) return `일부 요인(${EXCLUSION_REASON_GENERIC})`;
+  const groups = new Map();
+  for (const factor of codes) {
+    const reason = backtest?.excludedFactorReasons?.[factor] ?? BACKTEST_EXCLUDED_FACTOR_REASONS[factor];
+    const words = EXCLUSION_REASON_WORDS[reason] || EXCLUSION_REASON_GENERIC;
+    groups.set(words, [...(groups.get(words) || []), FACTOR_LABELS[factor]?.label || factor]);
+  }
+  return [...groups].map(([words, labels]) => `${labels.join('·')}(${words})`).join(', ');
+}
+
 // 개편 v2 (3c/5h): the validation state before the table (amber banner) and the 사후 검증 summary. One reading of the
 // same back-test the 과거 검증 panel details: the gate file's status, the net top-minus-bottom spread, the net count of
 // rebalances the top fifth led, and whether the sample can decide (12 rebalances and |t| ≥ 2).
@@ -220,7 +252,11 @@ export function renderBacktest(documentRef, metadata, root = globalThis, rows = 
   const wins = winRate != null && rebalances ? Math.round(winRate / 100 * rebalances) : null;
   // 2026-10-13 review S05: the fingerprint proves the factor definition and weights; the IC/spread sample itself
   // pools the US and KR rows (n=986), so the sentence names the pooled sample instead of claiming one population.
-  const parity = fingerprintMatches ? `현재 화면 순위와 같은 모델(같은 팩터 정의, 같은 가중 지문)로 과거 시점을 다시 매긴 결과입니다 — 순위는 시장별로 매기지만 IC·분위 수익률은 미국·한국 합산 표본(${backtest.n ?? '—'}종목)입니다`
+  // The backtest re-ranks the price factors only; the sentence names them and the live weight it leaves out.
+  const coverage = backtestFactorCoverage(metadata?.ranking?.appliedFactorWeights || MODEL_DEFAULT_WEIGHTS);
+  const factorNames = (list) => list.map((factor) => FACTOR_LABELS[factor]?.label || factor).join('·');
+  const left = coverage.excluded.length ? ` — ${withTopicParticle(factorNames(coverage.excluded))} 넣지 않았습니다${coverage.excludedShare == null ? '' : `(지금 가중의 ${Math.round(coverage.excludedShare * 100)}%)`}` : '';
+  const parity = fingerprintMatches ? `가격 요인(${factorNames(coverage.covered)})만 지금 순위와 같은 정의·같은 상대 가중으로 과거 시점을 다시 매긴 결과입니다${left}. 순위는 시장별로 매기지만 IC·분위 수익률은 미국·한국 합산 표본(${backtest.n ?? '—'}종목)입니다`
     : backtest.modelFingerprint == null ? '이 검증 기록은 계산 방식 기록이 생기기 전에 만들어져 지금 화면 순위와 같은 모델인지 확인할 수 없습니다 — 지금 순위의 검증으로 읽지 않습니다'
       : '저장된 검증 기록의 계산 방식이 지금 화면 순위와 다릅니다(다른 가중치 프로필이거나 이전 모델) — 이 기록은 지금 순위의 검증으로 읽지 않습니다';
   const verdict = validationVerdict({ composite, net, rebalances });
@@ -232,8 +268,8 @@ export function renderBacktest(documentRef, metadata, root = globalThis, rows = 
   add('상위−하위 20% (21거래일)', `비용 전 ${gross == null ? '—' : `${gross.toFixed(2)}%`}, 비용 후 ${net == null ? '—' : `${net.toFixed(2)}%`} (같은 ±1 노출 기준)`);
   add('상위가 하위를 앞선 횟수', wins == null ? '—' : `${winBasis} 기준 ${rebalances}번 중 ${wins}번 — 종목별 방향 적중률이 아니라 분위 수익률 차이가 양수였던 리밸런스의 비율입니다`);
   add('표본', `미국·한국 합산 ${backtest.n ?? '—'}종목, 리밸런스 ${rebalances ?? '—'}회, 현재 종목 구성(생존 편향), 거래비용은 가정값`);
-  add('검증하지 않은 요인', (backtest.modelParity?.notValidated || backtest.excludedFactors || ['size', 'value, quality']).join(', '));
-  add('가중치', `${backtest.weightRegime || 'NEUTRAL'} 고정 — 국면 틸트 후보는 검증·적용되지 않음`);
+  add('검증하지 않은 요인', excludedFactorsText(backtest));
+  add('가중치', `${WEIGHT_REGIME_WORDS[backtest.weightRegime] || WEIGHT_REGIME_WORDS.NEUTRAL} 고정 — 국면 틸트 후보는 검증·적용되지 않음`);
   add('겹치는 근거', `${overlapSentence(currentOverlap(rows, metadata?.ranking))} 가중치는 바꾸지 않았습니다 — 겹침을 줄인 모델은 다른 모델이라 실제 순위 기록으로 따로 검증해야 합니다.`);
   panel.append(facts);
   const longrun = root?._aioFactorLongrun;
@@ -243,7 +279,7 @@ export function renderBacktest(documentRef, metadata, root = globalThis, rows = 
   if (longrun) {
     const age = longrunStudyAge(longrun);
     const studied = age.ageDays == null ? '' : `${String(longrun.generatedAt).slice(0, 10)} 계산${age.stale ? `, ${age.ageDays}일 지나 지금 모델·종목 구성과 다를 수 있음` : ''}, `;
-    panel.append(el('p', `10년 연구(${studied}시가총액 상위 현재 생존 ${longrun.universe?.fullUniverseSize ?? 120}종목, 이전 모델): 21거래일 종합 IC ${fwd21 == null ? '—' : Number(fwd21).toFixed(3)}, 기준 기간 ${ref == null ? '—' : Number(ref).toFixed(3)}, 검증 기간(holdout) ${hold == null ? '—' : Number(hold).toFixed(3)}. 기간이 길어도 현재 살아남은 대형주만 담은 실험이라 검증된 전략이라고 부를 수 없습니다.`, 'theme-strength-basis'));
+    panel.append(el('p', `10년 연구(${studied}시가총액 상위 현재 생존 ${longrun.universe?.fullUniverseSize ?? 120}종목, 이전 모델): 21거래일 종합 IC ${fwd21 == null ? '—' : Number(fwd21).toFixed(3)}, 기준 기간 ${ref == null ? '—' : Number(ref).toFixed(3)}, 따로 떼어 둔 검증 기간 ${hold == null ? '—' : Number(hold).toFixed(3)}. 기간이 길어도 현재 살아남은 대형주만 담은 실험이라 검증된 전략이라고 부를 수 없습니다.`, 'theme-strength-basis'));
     const decay = longrunIcDecay(longrun);
     if (decay.length) panel.append(el('p', `보유 기간별 종합 IC — ${decay.map((row) => `${row.horizonDays}거래일 ${signedText(row.meanIc, 3)}${row.hacTStat == null ? '' : `(t ${row.hacTStat.toFixed(1)})`}`).join(', ')}`, 'theme-strength-basis'));
   }
@@ -419,7 +455,7 @@ export function createValidationController(ctx) {
       ctx.renderRead = () => {
         const sourceRows = selectScreenerState(store?.getState?.() || {})?.rows || [];
         const rows = scopedRows(sourceRows, selectedValue(documentRef, 'scr-listing-market') || 'US');
-        const signature = `${selectedValue(documentRef, 'scr-listing-market')}|${root?._aioScenarioState?.status || ''}:${root?._aioScenarioState?.generatedAt || ''}|${rows.length}|${rows.slice(0, 5).map((row) => `${row?.sym}:${row?.screenRank}`).join(',')}|${(root?._aioScreenerBacktestHistory || []).length}|${(root?._aioHistory || []).length}|${Object.keys(root?._serverDataMeta?.rotationHistory?.items || {}).length}`;
+        const signature = `${selectedValue(documentRef, 'scr-listing-market')}|${root?._aioScenarioState?.status || ''}:${root?._aioScenarioState?.generatedAt || ''}|${rows.length}|${rows.slice(0, 5).map((row) => `${row?.sym}:${row?.overallRank}`).join(',')}|${(root?._aioScreenerBacktestHistory || []).length}|${(root?._aioHistory || []).length}|${Object.keys(root?._serverDataMeta?.rotationHistory?.items || {}).length}`;
         if (signature === ctx.readSignature && sourceRows === readRowsRef) return;
         ctx.readSignature = signature;
         readRowsRef = sourceRows;
@@ -438,7 +474,7 @@ export function createValidationController(ctx) {
           if (rankRead) { rankRead.hidden = true; rankRead.textContent = ''; }
           // v57.50 I22: the KR ranking also continues somewhere — the Korean themes it sits in and its first name
           // (the table-lead sync below re-points the ticker link to the filtered table's first row).
-          const ranked = rows.filter((row) => finite(row?.screenRank) != null).sort((a, b) => a.screenRank - b.screenRank);
+          const ranked = rows.filter((row) => finite(row?.overallRank) != null).sort((a, b) => a.overallRank - b.overallRank); // the overall order
           const lead = ranked[0] || null;
           renderNextSteps(documentRef, documentRef.getElementById('screener-next'), [
             { route: 'themes', label: '한국 테마', why: '상위권 한국 종목이 몰린 테마가 확정 종가 기준으로 어떻게 움직였는지', ctx: { anchor: 'kr-integrated-themes' } },

@@ -8,9 +8,9 @@
 import { fillOnOpen } from './lazy-fold.js';
 import { releaseZones } from '../../domain/macro/release-zones.js';
 import { releaseZoneBar } from './release-zone-bar.js';
-import { reactionRead, earningsCells } from '../../domain/briefing/reaction-read.js';
+import { reactionRead, earningsCells, earningsCellLines, ZERO_AMOUNT } from '../../domain/briefing/reaction-read.js';
 import { el } from './dom.js';
-import { directionOf, signedText, usdScaleWords } from '../../domain/shared/number.js';
+import { directionOf } from '../../domain/shared/number.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, figureSurprise, koreanReleaseText, watchItem, provisionalWaiting } from '../../domain/briefing/event-briefs.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
@@ -30,9 +30,8 @@ function whenText(brief) {
 const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
 // v59.70: the comparison is the domain's figureSurprise — the same reader the reaction read uses.
 const comparison = (figure, figures, provisional) => figureSurprise(figure, figures, { provisional });
-// A stored "$0.00 billion" is a rounding of a sub-billion amount, not a zero; the label stands alone and the
-// estimate comparison carries the line (OKLO 11/6 read "매출 0만 달러").
-const ZERO_AMOUNT = /^-?\$\s*0(?:\.0+)?\s*(?:(?<![A-Za-z])(?:billion|million|bn|mn)\b)?$/i;
+// A stored "$0.00 billion" (ZERO_AMOUNT) is a rounding of a sub-billion amount, not a zero; the label stands alone and
+// the estimate comparison carries the line.
 function figureText(figure, figures = [], provisional = false) {
   const value = ZERO_AMOUNT.test(String(figure.value || '').trim()) ? '' : figure.value;
   const parts = [koreanReleaseText(`${figure.label} ${value || ''}`.trim())];
@@ -62,7 +61,6 @@ function basisWord(points) {
 // opens this body in its own fold, so it no longer repeats them and nests a second fold.
 // v59.70 (refactor step 4, 종목): 예상 | 발표 | 다음 전망 | 주가 반응 — four short cells read from earningsCells. The reaction
 // cell replaces the reaction line; an empty cell says what is missing instead of leaving a gap.
-const signedOne = (value) => signedText(value, 1, '%');
 // v59.70 (lens plan step 1): when the compared estimate was last seen before the report; a row first seen after it says so.
 const seenText = (iso) => {
   const ms = Date.parse(iso || '');
@@ -70,27 +68,21 @@ const seenText = (iso) => {
   const kst = new Date(ms + 9 * 3600000);
   return `, ${kst.getUTCMonth() + 1}/${kst.getUTCDate()} ${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')} KST 발표 전 마지막 확인`;
 };
-const estimateText = (row) => (row.metric === 'revenue' ? `매출 ${koreanReleaseText(usdScaleWords(row.estimate, 1))}` : `EPS $${row.estimate.toFixed(2)}`);
-// The EPS basis travels with the number: after the provider's adjusted actual is stamped, "$2.10 (+1.1%)" alone misreads.
-const actualText = (row) => `${row.metric === 'revenue' ? '매출' : 'EPS'}${ZERO_AMOUNT.test(String(row.value || '').trim()) ? '' : ` ${koreanReleaseText(row.value)}`} (${signedOne(row.pct)}${row.note ? `, ${row.note.replace(/[()]/g, '')}` : ''})`;
+// the cell text (estimate and actual formats, the latest-trade reaction, the empty-cell words) is the domain's
+// earningsCellLines; this draws it.
 function cellsNode(doc, cells) {
   const grid = el(doc, 'dl', null, 'event-brief__cells');
-  const cell = (term, lines, direction = null) => {
+  for (const { term, lines, empty, direction, title } of cells) {
     const box = el(doc, 'div', null, 'event-brief__cell');
     box.append(el(doc, 'dt', term));
     const dd = el(doc, 'dd', null);
-    (lines.length ? lines : ['없음']).forEach((line, i) => { if (i) dd.append(el(doc, 'br')); dd.append(doc.createTextNode(line)); });
-    if (!lines.length) dd.classList.add('is-empty');
+    lines.forEach((line, i) => { if (i) dd.append(el(doc, 'br')); dd.append(doc.createTextNode(line)); });
+    if (empty) dd.classList.add('is-empty');
     if (direction) dd.dataset.direction = direction;
+    if (title) dd.title = title;
     box.append(dd);
     grid.append(box);
-  };
-  cell('예상', cells.compared.map(estimateText));
-  cell('발표', cells.compared.map(actualText));
-  cell('다음 전망', cells.outlook ? [cells.outlook] : []);
-  const r = cells.reaction;
-  cell('주가 반응', r ? [`첫 거래일 ${signedOne(r.firstPct)}`, ...(r.sessions > 1 && Number.isFinite(r.latestPct) ? [`${r.sessions}거래일 ${signedOne(r.latestPct)}`] : [])] : [],
-    r ? directionOf(r.sessions > 1 && Number.isFinite(r.latestPct) ? r.latestPct : r.firstPct, 1) || 'flat' : null);
+  }
   return grid;
 }
 
@@ -104,7 +96,7 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
   box.append(head);
   if (brief.headline) box.append(el(doc, 'p', koreanReleaseText(brief.headline), 'event-brief__headline'));
   const fourCells = cells && !bodyOnly ? earningsCells(brief) : null;
-  if (fourCells) box.append(cellsNode(doc, fourCells));
+  if (fourCells) box.append(cellsNode(doc, earningsCellLines(fourCells)));
   const reaction = reactionText(brief.reaction);
   if (reaction && !fourCells?.reaction) {
     const line = el(doc, 'p', reaction, 'event-brief__reaction');

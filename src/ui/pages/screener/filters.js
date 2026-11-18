@@ -30,7 +30,7 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
   const watchlistOnly = !!documentRef.getElementById('scr-watchlist-only')?.checked;
   // Codex browser audit H44: after a run the table mixed rejected rows into "the result". 실행 통과만 keeps
   // the table on the run's passed set; it is switched on when a run completes and can be turned off.
-  const passedOnly = !!documentRef.getElementById('scr-passed-only')?.checked;
+  const passedOnly = passedOnlyApplied(documentRef);
   const watchlist = watchlistOnly ? new Set(readWatchlist?.() || []) : null;
   const aliases = readAliases?.() || {};
   const words = query ? query.split(/[\s,;·+&]+/).filter(Boolean) : [];
@@ -112,8 +112,21 @@ const SETUP_OPTION_EVIDENCE = Object.freeze({
   SUPPORT200: (setup) => setup?.support200 && setup.support200 !== 'unavailable',
   CLIMAX: (setup) => setup?.climaxRisk && setup.climaxRisk !== 'unavailable'
 });
+// '조건 통과만' narrows the table to rows the ranked screen passed. With no rank in the selected market there is no
+// passed set to narrow to, so the control is set aside (its checked state is kept for when ranks return) and the whole
+// list shows unranked.
+export function passedOnlyApplied(documentRef) {
+  const control = documentRef?.getElementById?.('scr-passed-only');
+  return !!control?.checked && !control.disabled;
+}
 export function syncScreenerControlAvailability(documentRef, { rows = [], listingMarket = 'US', ranking = {}, profiles = null } = {}) {
   const marketList = scopedRows(rows, listingMarket);
+  const passedOnly = documentRef?.getElementById?.('scr-passed-only');
+  if (passedOnly) {
+    const unranked = marketList.length > 0 && !marketList.some((row) => finite(row?.overallRank) != null);
+    passedOnly.disabled = unranked;
+    passedOnly.title = unranked ? '이 시장은 순위가 없어 전체 종목을 순위 없이 보여 줍니다' : '';
+  }
   const cap = documentRef?.getElementById?.('scr-cap');
   if (cap) {
     const capAvailable = marketList.some((row) => capFilterValue(row) != null);
@@ -174,7 +187,7 @@ export function syncScreenerControlAvailability(documentRef, { rows = [], listin
 const CHIP_FILTER_IDS = Object.freeze(['scr-market', 'scr-cap', 'scr-setup', 'scr-min-rank', 'scr-rsi-min', 'scr-rsi-max', 'scr-min-mom', 'scr-watchlist-only', 'scr-passed-only']);
 function chipText(control) {
   const label = FILTER_LABELS[control.id];
-  if (control.type === 'checkbox') return control.checked ? label : '';
+  if (control.type === 'checkbox') return control.checked && !control.disabled ? label : '';
   const value = String(control.value || '').trim();
   if (!value || (control.id === 'scr-min-rank' && value === '0')) return '';
   if (control.id === 'scr-rsi-min') return `RSI ${value} 이상`;
@@ -465,7 +478,8 @@ export function installCustomConditions(documentRef) {
       let em = chip.querySelector('em');
       if (!count) { em?.remove(); return; }
       if (!em) { em = el(documentRef, 'em'); chip.insertBefore(em, remove); }
-      const label = count.withData ? `${count.pass}종목` : '자료 없음';
+      // A condition whose own source file is on the way or failed has no count yet.
+      const label = count.source?.state === 'loading' ? '불러오는 중' : count.source?.state === 'failed' ? '자료 못 받음' : count.withData ? `${count.pass}종목` : '자료 없음';
       if (em.textContent !== label) em.textContent = label;
     });
   };
@@ -545,22 +559,24 @@ export function installCustomConditions(documentRef) {
       }
       const fromInput = parseConditionValue(input.value);
       if (JSON.stringify(fromInput) !== JSON.stringify(current)) { current = fromInput; rememberConditions(current); }
-      const signature = JSON.stringify([current, counts.map((item) => [item.id, item.pass, item.withData])]);
+      const signature = JSON.stringify([current, counts.map((item) => [item.id, item.pass, item.withData, item.source?.state || null])]);
       if (signature !== lastSignature) {
         lastSignature = signature;
         lastCounts = new Map(counts.map((item) => [item.id, item]));
         renderChips();
       }
-      const missing = counts.filter((item) => !item.withData).length;
+      const missing = counts.filter((item) => !item.withData && !item.source).length;
+      const failed = [...new Set(counts.filter((item) => item.source?.state === 'failed').map((item) => item.source.reason))];
       // role=status: only touch the text when it changes so the count is not re-announced on every render.
       // 2026-10-18 bookmarks (volatility-base-rates): each added condition narrows the sample; the combination is not a tested rule.
       const noteText = [current.length && shown != null ? `조건을 모두 만족하고 다른 필터도 통과한 종목 ${shown}개` : '',
         // Screen audit 2026-10-20: 하방 과확장 matched 110 stocks yet the default table showed 0 — 실행 통과만 (on by default)
         // keeps the table on the last run's passed set, and nothing said so.
-        current.length && shown === 0 && documentRef.getElementById('scr-passed-only')?.checked && counts.some((item) => item.pass > 0)
+        current.length && shown === 0 && passedOnlyApplied(documentRef) && counts.some((item) => item.pass > 0)
           ? "'조건 통과만'이 켜져 있어 조건 화면을 통과한 종목 안에서만 찾았습니다 — 끄면 전체 종목에서 찾습니다" : '',
-        current.length >= 3 ? `조건 ${current.length}개를 겹쳤습니다 — 조건마다 남는 종목이 줄고, 이 조합은 과거 성과로 검증한 규칙이 아닙니다.` : '',
-        missing ? '자료 없음 조건은 이 시장 종목에 해당 자료가 없거나(재무는 미국만) 다음 데이터 갱신부터 채워집니다.' : '', parseNote].filter(Boolean).join(', ');
+        current.length >= 3 ? `조건 ${current.length}개를 겹쳤습니다 — 조건마다 남는 종목이 줄고, 이 조합은 과거 성과로 검증한 규칙이 아닙니다` : '',
+        missing ? '자료 없음 조건은 이 시장 종목에 해당 자료가 없거나(재무는 미국만) 다음 데이터 갱신부터 채워집니다' : '',
+        failed.length ? `${failed.join(', ')} — 이 조건은 판정하지 못했습니다` : '', String(parseNote || '').replace(/\.\s*$/, '')].filter(Boolean).join('. ');
       if (note.textContent !== noteText) note.textContent = noteText;
     },
     /** 조건 모두 지우기: the conditions and the search words they brought leave together. */

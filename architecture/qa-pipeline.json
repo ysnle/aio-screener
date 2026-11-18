@@ -360,6 +360,8 @@
             "scripts/fetch-data.mjs",
             "scripts/producer/market-narrative.mjs",
             "src/domain/briefing/day-account.js",
+            "src/ui/components/briefing-day.js",
+            "src/ui/components/home-day.js",
             "public-data/data.json",
             "public-data/market-day.json",
             "public-data/event-briefs.json",
@@ -972,6 +974,10 @@
           "script": "scripts/ci-screener-market-fixture.mjs"
         },
         {
+          "id": "screener-presentation",
+          "script": "scripts/ci-screener-presentation-check.mjs"
+        },
+        {
           "id": "chart-scenarios-fixture",
           "script": "scripts/ci-chart-scenarios-fixture.mjs"
         },
@@ -1049,6 +1055,16 @@
           "id": "ui-vocabulary",
           "script": "scripts/ci-ui-vocabulary-check.mjs",
           "remedy": "v57.54: use the preferred term from architecture/ui-vocabulary.json; after fixes run node scripts/ci-ui-vocabulary-check.mjs --prune-baseline"
+        },
+        {
+          "id": "glossary-vocabulary",
+          "script": "scripts/ci-glossary-vocabulary-check.mjs",
+          "remedy": "v60.28: a word a screen prints (or a screener column label) needs a glossary entry, a COLUMN_TERMS mapping or a PLAIN_COLUMN_LABELS declaration"
+        },
+        {
+          "id": "sentence-join",
+          "script": "scripts/ci-sentence-join-check.mjs",
+          "remedy": "v60.28: a sentence that ends in a period is not joined with ', ' or '. ' — strip the period at the join or join whole sentences with a space"
         }
       ]
     },
@@ -1066,6 +1082,11 @@
         "version.json"
       ],
       "gates": [
+        {
+          "id": "sentence-claim-replay",
+          "script": "scripts/ci-sentence-claim-replay-check.mjs",
+          "remedy": "v60.30: a converted sentence's claim disagreed with the stored facts on some historical session — fix the producer's word or figure choice (src/domain/shared/claim.js vocabulary), never the validator"
+        },
         {
           "id": "macro-calendar-review",
           "script": "scripts/ci-macro-calendar-review-contract-check.mjs",
@@ -1626,7 +1647,10 @@
         "content/research/**",
         "scripts/**",
         ".github/workflows/knowledge-build-candidate.yml",
-        "_context/**"
+        "_context/**",
+        "public-data/company-profiles/index.json",
+        "src/domain/screener/market-scope.js",
+        "src/domain/market/session/session-time.js"
       ],
       "gates": [
         {
@@ -1699,6 +1723,7 @@
           "id": "atlas-contract",
           "script": "scripts/ci-atlas-contract-check.mjs",
           "inputs": [
+            "public-data/company-profiles/index.json",
             "public-data/knowledge/**",
             "public-data/principles/**",
             "public-data/atlas/**",
@@ -3000,6 +3025,9 @@
         "src/ui/pages/atlas.js",
         "src/ui/pages/masters.js",
         "src/ui/pages/masters-views.js",
+        "public-data/company-profiles/index.json",
+        "src/domain/screener/market-scope.js",
+        "src/domain/market/session/session-time.js",
         "src/ui/knowledge/**",
         "src/ui/behaviors/listbox.js",
         "content/research/**"

@@ -65,7 +65,7 @@ export function renderHomeDay({ documentRef: doc, root, store = null }) {
   const key = [day.generatedAt, narrLine || '', ...headlines.map((row) => row.title)].join('|');
   if (section.dataset.renderKey === key) return;
   section.dataset.renderKey = key;
-  const head = frameHead(doc, { title: '오늘의 핵심', titleId: 'home-day-title', asOf: account.coverage.session ? `${account.md(account.coverage.session)} 마감` : '' });
+  const head = frameHead(doc, { title: '오늘의 핵심', titleId: 'home-day-title', asOf: account.asOf });
   const list = el(doc, 'ol', null, 'home-day__stories');
   const shown = account.stories.slice(0, 3);
   for (const story of shown) {

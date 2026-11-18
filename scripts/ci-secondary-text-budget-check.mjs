@@ -6,7 +6,8 @@
 // in src/ui/components/section-frame.js); a frame's reading slot is not counted. The class words are a proxy, so the
 // numbers are a ratchet, not a target: architecture/secondary-text-budget.json holds each route's ceiling and a route may
 // only shrink. It also checks the section-frame contract on every route: a frame head holds only its title, one as-of
-// chip and actions; the chip stays short; a frame has at most one reading of at most READING_MAX characters.
+// chip and actions; the chip stays within ASOF_MAX (v60.28: the chip component no longer cuts its text, so this is the
+// rendered caller's own length — a cut once turned "11/17 반영 전" into "11/17 반영"); a frame has at most one reading of at most READING_MAX characters.
 // _artifacts/secondary-text-budget/report.json lists each route's longest secondary lines and its frames by name, so the
 // next pass (human or agent) starts from the worst lines.
 //
@@ -97,7 +98,7 @@ function measure({ pattern, readingMax, asofMax, contracts }) {
     const readings = [...frame.querySelectorAll('.aio-frame-reading')].filter((node) => node.closest('[data-frame]') === frame).map((node) => node.textContent.trim().length);
     const problems = [];
     if (stray.length) problems.push(`head holds ${stray.join(', ')}`);
-    if (asof.length > asofMax) problems.push(`as-of chip ${asof.length} chars`);
+    if (asof.length > asofMax) problems.push(`as-of chip ${asof.length} chars: ${asof}`);
     if (readings.length > 1) problems.push(`${readings.length} readings`);
     if (readings.some((n) => n > readingMax)) problems.push(`reading ${Math.max(...readings)} chars`);
     // v59.70 (S24): a story frame holds exactly one drawn visual and one reading, and at most one fold.

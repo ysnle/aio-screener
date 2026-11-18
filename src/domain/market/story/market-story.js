@@ -372,7 +372,7 @@ function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], sto
   if (!reports.length) reports = pending.filter((row) => Number(row.indexWeight) >= REPORT_WEIGHT_FALLBACK).sort(byWeight).slice(0, 2);
   const storyOf = (row) => (storySymbols instanceof Map ? storySymbols.get(row.symbol) : null);
   const storyReports = pending.filter((row) => storyOf(row) && !reports.includes(row)).slice(0, 2);
-  // Reports in the same session are one line: "AAPL 7.7% · PLTR 0.7% 실적 (S&P 500 비중)" — each weight beside its name.
+  // Reports in the same session are one line: "AAPL · PLTR 실적 (S&P 500 비중 AAPL 7.7% · PLTR 0.7%)" — each weight inside its label.
   const sessionsOf = new Map();
   for (const row of reports) {
     const key = `${row.date}|${row.hour || ''}`;
@@ -381,6 +381,12 @@ function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], sto
   }
   const slotOf = (row) => ({ bmo: 0, dmh: 1, amc: 2 })[row.hour] ?? 1;
   const fallbackWeek = !reports.some((row) => Number(row.indexWeight) >= REPORT_WEIGHT_MIN || MOVER_BY_SYMBOL[row.symbol]);
+  // only the session with the largest
+  // summed weight is the largest; the next says it is the next-largest of the period. The sessions are ranked by that sum.
+  const sessionWeight = (rows) => rows.reduce((sum, row) => sum + (Number(row.indexWeight) || 0), 0);
+  const byLoad = [...sessionsOf.values()].sort((a, b) => sessionWeight(b) - sessionWeight(a));
+  const fallbackWhy = (rows) => (byLoad.indexOf(rows) === 0 ? '이 기간 S&P 500 실적 가운데 비중이 가장 커, 같은 업종의 가이던스 판단에 바로 쓰입니다.'
+    : `이 기간 S&P 500 실적 가운데 ${byLoad.indexOf(rows) + 1}번째로 비중이 큰(${sessionWeight(rows).toFixed(1)}%) 발표입니다. 같은 업종의 가이던스를 함께 확인합니다.`);
   for (const rows of [...sessionsOf.values()].sort((a, b) => a[0].date.localeCompare(b[0].date) || slotOf(a[0]) - slotOf(b[0]))) {
     const { date, hour } = rows[0];
     // v59.56 (text review): one naming rule per line — Korean names only when every company on it has one, otherwise
@@ -389,10 +395,11 @@ function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], sto
     const nameOf = (row) => (allKo ? MOVER_BY_SYMBOL[row.symbol].nameKo : row.symbol);
     out.push({ kind: 'earnings', date, slot: slotOf(rows[0]), when: `${dayLabel(date)}${SESSION_WORDS[hour] ? ` ${SESSION_WORDS[hour]}` : ''}`,
       names: rows.map(nameOf).join(' · '),
-      title: `${rows.map((row) => `${nameOf(row)} ${Number(row.indexWeight).toFixed(1)}%`).join(' · ')} 실적 (S&P 500 비중)`,
+      title: `${rows.map(nameOf).join(' · ')} 실적 (S&P 500 비중 ${rows.length === 1 ? `${Number(rows[0].indexWeight).toFixed(1)}%`
+        : rows.map((row) => `${nameOf(row)} ${Number(row.indexWeight).toFixed(1)}%`).join(' · ')})`,
       // v59.56 (screen review): two report days printed the same sentence; the later one says it continues the question.
       why: !(aiStory && rows.some((row) => MOVER_BY_SYMBOL[row.symbol]))
-        ? (fallbackWeek ? '이 기간 S&P 500 실적 가운데 비중이 가장 커, 같은 업종의 가이던스 판단에 바로 쓰입니다.'
+        ? (fallbackWeek ? fallbackWhy(rows)
           : rows.reduce((sum, row) => sum + Number(row.indexWeight), 0) >= REPORT_WEIGHT_MIN ? '지수 비중이 커서 결과가 지수 방향에 바로 들어옵니다.' : '주도주 목록에 든 회사라 같은 업종 판단에 바로 쓰입니다.')
         : out.some((item) => item.kind === 'earnings' && item.ai) ? '앞 실적에서 나온 AI 투자 대비 수익 판단이 이어지는지, 다른 회사 가이던스로 한 번 더 확인합니다.'
           : '대형 기술주 쏠림이 이어질지 가르는 실적입니다. 가이던스가 AI 투자 대비 수익에 대한 의문을 키우는지 줄이는지 봅니다.',

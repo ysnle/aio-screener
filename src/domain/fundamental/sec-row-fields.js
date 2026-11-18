@@ -4,6 +4,7 @@
 // producer calls this per symbol. Returns null when nothing usable remains (the producer then skips the symbol).
 import { secSharesTrust } from './sec-report.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, finiteFact } from './period.js';
+import { trailingRowFundamentals } from './trailing-year.js';
 
 /**
  * v59.70 (Sandisk 8:1, trading adjusted from 2026-11-20): the close is split-adjusted, but the share count is the last
@@ -22,7 +23,7 @@ export function splitAdjustedShares(row, splits = [], factorSessionDate = null) 
   return ratio === 1 ? null : { shares: Math.round(shares * ratio), ratio: Math.round(ratio * 1000) / 1000, since: after.at(-1).date };
 }
 
-export function secFundamentalRowFields(row, { price = null, dollarVolume30d = null, factorSessionDate = null, payloadModel = null, nowMs = Date.now(), splits = [] } = {}) {
+export function secFundamentalRowFields(row, { price = null, dollarVolume30d = null, factorSessionDate = null, payloadModel = null, nowMs = Date.now(), splits = [], quarters = [] } = {}) {
   if (!row) return null;
   const split = splitAdjustedShares(row, splits, factorSessionDate);
   if (split) row = { ...row, sharesOutstanding: split.shares };
@@ -32,9 +33,14 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
   // daily turnover is plausible, may price P/E, P/B or the reference market cap. PKG's stored 1000x cover count
   // (P/E 26,255) fails the turnover band; a stale-period or scale-mismatched count is never used.
   const trust = secSharesTrust(row, { price: px, dollarVolume30d });
-  ['roe','margin','revGrowth'].forEach(key => {
-    if (typeof row[key] === 'number' && Number.isFinite(row[key])) rec[key] = row[key];
-  });
+  // `row` is an SEC ledger record here, not a screener row: its annual figures are read once.
+  const { roe: fyRoe, margin: fyMargin, revGrowth: fyRevGrowth } = row;
+  if (typeof fyRoe === 'number' && Number.isFinite(fyRoe)) rec.roe = fyRoe;
+  // 2026-11-18: margin and revenue growth on the P/E's basis — the latest four quarters (vs the four before them) when the
+  // issuer's quarter series carries them, else the fiscal year — each with its basis and end date (trailing-year.js).
+  // ROE stays on the fiscal year (fundamentalPeriod/fundamentalPeriodEnd): equity is annual in the store.
+  Object.assign(rec, trailingRowFundamentals(row.reportingCurrency && row.reportingCurrency !== 'USD' ? [] : quarters, {
+    margin: fyMargin, revGrowth: fyRevGrowth, observedAt: row.observedAt, heldRevenue: !!(row.marginHeld || row.revGrowthHeld) }));
   // 2026-10-17 (logic audit): P/E and P/B are priced only on the close passed here. A ratio stored in the ledger was priced on the
   // close of its fetch day (up to 28 days earlier) and carried no pePrice, so it is never copied through.
   if (Number.isFinite(px) && px > 0 && trust.shares) {

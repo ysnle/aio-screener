@@ -21,6 +21,8 @@ export { SECTOR_ETF_LABELS } from '../interpretation/concepts.js';
 // The defensive set and the credit rule are the shared concepts (src/domain/market/interpretation/concepts.js).
 
 const join = (items) => items.filter(Boolean).join(', ');
+// One line of several sentences: each part without its own end mark, joined by ". ", one period at the end.
+const sentences = (parts) => { const text = parts.filter(Boolean).map((part) => String(part).trim().replace(/[.\s]+$/, '')).filter(Boolean).join('. '); return text ? `${text}.` : ''; };
 // v57.81: the next US session after the basis close — the transition reading names when it is checked next.
 function nextUsSession(asOf) {
   const start = Date.parse(`${asOf}T12:00:00Z`);
@@ -71,7 +73,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
   const leadingRows = sectors.filter((row) => quadrantOf(row) === 'Leading' && !leaderFading(row) && !rrgBorder(row));
   const fadingRows = sectors.filter(leaderFading);
   const leading = leadingRows.map((row) => row.label);
-  const fadingNote = fadingRows.length ? `. 선도였지만 최근 5거래일 상대강도가 꺾인 업종: ${rel5Text(fadingRows)}` : '';
+  const fadingNote = fadingRows.length ? `선도였지만 최근 5거래일 상대강도가 꺾인 업종: ${rel5Text(fadingRows)}` : '';
   const improvingRows = sectors.filter((row) => quadrantOf(row) === 'Improving' && !rrgBorder(row));
   const improving = improvingRows.map((row) => row.label);
   // v57.81: 약화(Weakening) is losing momentum — it is not called "버티는"; a fading 선도 is not either.
@@ -98,7 +100,7 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
     expansion: {
       posture: '이 흐름이라면 상승이 소수 대형주를 넘어 다수 종목으로 퍼지는 국면입니다. 그동안 뒤처졌던 업종과 중소형주의 참여가 함께 늘어나는지가 이 해석을 확인하는 근거입니다. 반증: 50일선·200일선 위 비율이 ' + RULES.breadth.broadAtLeast + '% 아래로 다시 내려오거나 하이일드 스프레드가 넓어지면 확산 해석을 다시 봅니다.',
       // v57.81: the RRG window is named (약 50일 기준) and a fading 선도 is listed apart with its five-session relative return.
-      opportunity: (improving.length || leading.length ? `${improving.length ? `섹터 회전(RRG·약 50일 기준)에서 개선 중: ${join(improving)}` : '개선 중인 섹터는 아직 없음'}, 선도: ${join(leading) || '없음'}` : `확산이 확인되면 후행 업종의 개선 여부를 섹터 회전에서 확인합니다${sectorNote}.`) + fadingNote,
+      opportunity: sentences([improving.length || leading.length ? `${improving.length ? `섹터 회전(RRG·약 50일 기준)에서 개선 중: ${join(improving)}` : '개선 중인 섹터는 아직 없음'}, 선도: ${join(leading) || '없음'}` : `확산이 확인되면 후행 업종의 개선 여부를 섹터 회전에서 확인합니다${sectorNote}`, fadingNote]),
       // v58.80 (first-users bundle 1): the link form dropped fadingNote, so 선도 read five sectors here beside six on 테마와
       // 섹터 (경기소비재 fading). The fading and border leaders are their own parts, and the parts add up to that count.
       opportunityLinks: [{ label: '섹터 회전(약 50일 기준)에서 개선 중', links: sectorLinks(improving) }, { label: '선도', links: sectorLinks(leading) },
@@ -114,8 +116,10 @@ export function buildScenarioOutlook({ scenarios, regime, sectors = [], themes =
       // C23: the sector names come from the relative-strength rotation (RRG quadrant), not from today's or this week's
       // returns — a sector can lead on relative strength while being the weakest tile on the 1-day map.
       // v57.81: RRG trails price by weeks; while the leadership break holds, the line says the leaders' recent drop beside it.
-      opportunity: (leading.length || topThemes.length ? join([join(leading) && `상대강도 선도(RRG·약 50일 기준): ${join(leading)}`, topThemes.length && `3개월 상위 테마: ${join(topThemes)}`]) : `주도 섹터·테마는 테마 화면에서 확인합니다${sectorNote}.`) + fadingNote
-        + (leadership.break && leadership.drop5 != null ? `, 상대강도는 몇 주 늦게 반영 — SOXX는 최근 5거래일 ${signedText(leadership.drop5, 1)}%` : ''),
+      // 2026-11-18: the parts are sentences joined once (sentences above); a period-ended lead joined with ". " or ", " printed
+      // "확인합니다.." and "확인합니다., 상대강도는".
+      opportunity: sentences([leading.length || topThemes.length ? join([join(leading) && `상대강도 선도(RRG·약 50일 기준): ${join(leading)}`, topThemes.length && `3개월 상위 테마: ${join(topThemes)}`]) : `주도 섹터·테마는 테마 화면에서 확인합니다${sectorNote}`, fadingNote,
+        leadership.break && leadership.drop5 != null ? `상대강도는 몇 주 늦게 반영 — SOXX는 최근 5거래일 ${signedText(leadership.drop5, 1)}%` : '']),
       opportunityLinks: [{ label: '상대강도 선도(RRG·약 50일 기준)', links: sectorLinks(leading) }, { label: '3개월 상위 테마', links: themeLinks }].filter((part) => part.links.length),
       check: ['주도 섹터의 상대강도가 유지되는지(선도 → 약화로 바뀌는지)', '지수 고점과 50일선 위 종목 비율의 괴리가 줄어드는지', '분배일(거래량 실린 하락일)이 늘어나는지'],
       caution: ['분배일이 누적되고 신저가 종목이 늘면, 집중 장세가 끝나 가는지 주도 섹터의 상대강도와 50일선 위 비율로 확인합니다.', '주도 종목 한두 개의 실적 실망이 지수 전체를 흔들 수 있습니다.'],

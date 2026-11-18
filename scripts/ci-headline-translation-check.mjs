@@ -61,6 +61,15 @@ const cited = (account.stories || []).flatMap((story) => story.evidence || []).m
 check('v59.70 2 the day account cites the Korean report', cited.includes('알파 주가, 약한 전망에 하락'), JSON.stringify(cited));
 check('v59.70 2 the day account passes over the untranslated report', !cited.some((title) => /^Alpha shares/.test(title)), JSON.stringify(cited));
 
+// v60.26 (cross-screen, 11/18): 브리핑's 지난 24시간 showed the 11/16 movers under the page's "11/17(화) 미국 종가 기준"
+// with no date, while 오늘's 오늘의 핵심 labelled the same cards "11/16 마감". One label, from the account, on both screens.
+{
+  const dated = buildDayAccount({ facts, links: [], sessions: { us: '2026-11-16' } });
+  const read = (file) => readFileSync(join(root, file), 'utf8');
+  const usesLabel = ['src/ui/components/home-day.js', 'src/ui/components/briefing-day.js'].filter((file) => /account\.asOf\b/.test(read(file)));
+  check('v60.26 the day account carries the one dated label both screens print', dated.asOf === '11/16 마감' && usesLabel.length === 2, JSON.stringify({ asOf: dated.asOf, usesLabel }));
+}
+
 // ── 3. The published artifacts.
 const data = json('public-data/data.json') || {};
 const bundle = [['뉴스', data.news], ['시간대별 시황 (진행 중)', data.newsIntraday], ['시간대별 시황 현재', data.marketTimeline?.current?.headlines],

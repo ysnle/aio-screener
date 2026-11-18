@@ -5,15 +5,17 @@ import { percentileRank01, spearman } from './rank-statistics.mjs';
 import { round } from './producer-math.mjs';
 import { computeFactorRanks, momentumRawOf } from '../../src/domain/screener/factor-ranks.js';
 import { MODEL_DEFAULT_WEIGHTS } from '../../src/domain/screener/factor-weights.js';
-import { buildScreenerModelFingerprint } from '../../src/domain/screener/model-fingerprint.js';
+import { BACKTEST_EXCLUDED_FACTOR_REASONS, BACKTEST_FWD_DAYS, BACKTEST_REBALANCE_OFFSETS, buildScreenerModelFingerprint } from '../../src/domain/screener/model-fingerprint.js';
 // v57.81: the per-symbol price-factor math lives in src/domain/screener/price-factors.js (shared with the browser's
 // out-of-universe symbol read); re-exported here so fetch-data.mjs and the gates keep their imports.
-import { _mean, closesToFactors } from '../../src/domain/screener/price-factors.js';
+import { _mean, closesToFactors, withFullFactorLookback, PRICE_FACTOR_MIN_CLOSES } from '../../src/domain/screener/price-factors.js';
 export { _mean, closesToFactors, _calcVCPServer, dailyNotionalAverage, fxRateOnOrBefore, _calcSetupScreenFields } from '../../src/domain/screener/price-factors.js';
 
 const BACKTEST_DEFAULT_TRANSACTION_COST_BPS = 20;
 const BACKTEST_DEFAULT_LIQUIDITY_WINDOW_DAYS = 20;
 const BACKTEST_MIN_LIQUIDITY_OBSERVATIONS = 10;
+// The fewest closes that let at least one ranked factor be scored at a rebalance.
+const MIN_FACTOR_CLOSES = Math.min(...Object.values(PRICE_FACTOR_MIN_CLOSES));
 
 
 // Historical liquidity is an observation, not a tradability guarantee. Keep the
@@ -55,18 +57,18 @@ function _hasCompleteAdjustedSeries(stock, dateCount) {
   return adjusted.every((value) => typeof value === 'number' && Number.isFinite(value) && value > 0);
 }
 
-// v50.53 2B: 서버 팩터 백테스트 — 수집한 1년 일별 종가로 횡단면(cross-sectional) 검증.
-//   끝(today)에서 N일 전 리밸 시점마다 전 종목을 팩터로 랭크 → forward 21일 수익률과의 Spearman IC,
+// 서버 팩터 백테스트 — 수집한 2년 일별 종가로 횡단면(cross-sectional) 검증.
+//   끝(today)에서 N일 전 리밸 시점(model-fingerprint.js BACKTEST_REBALANCE_OFFSETS)마다 전 종목을 팩터로 랭크 → forward 21일 수익률과의 Spearman IC,
 //   종합 랭크 상-하위 분위 스프레드, 방향 적중률. 누적 대기 불요(enrich 시점 1패스 계산).
 function _spearman(xs, ys) {
   return spearman(xs, ys);
 }
-// v52.50/WO-3: opts.offsets/opts.fwdDays는 선택적 override — 생략 시 기존 6개월 프로덕션
-// 리밸런스 세트+21일 forward 그대로(호출부 무변화, 하위호환). scripts/backtest-factors-longrun.mjs가
-// 수년치 데이터로 훨씬 많은 리밸런스 시점을 넘겨 이 동일 포뮬러를 재사용한다(로직 복제 방지).
+// opts.offsets/opts.fwdDays는 선택적 override — 생략 시 model-fingerprint.js의 프로덕션 리밸런스 세트와
+// forward 일수(정의는 그곳 한 곳). scripts/backtest-factors-longrun.mjs가 수년치 데이터로 훨씬 많은
+// 리밸런스 시점을 넘겨 이 동일 포뮬러를 재사용한다(로직 복제 방지).
 export function backtestFactors(stockData, opts) {
   opts = opts || {};
-  var OFFSETS = opts.offsets || [147, 126, 105, 84, 63, 42], FWD = opts.fwdDays || 21;     // 끝에서 N일 전 리밸 시점들
+  var OFFSETS = opts.offsets || BACKTEST_REBALANCE_OFFSETS, FWD = opts.fwdDays || BACKTEST_FWD_DAYS;     // 끝에서 N일 전 리밸 시점들
   var isNum = function(v){ return typeof v === 'number' && isFinite(v); };
   var transactionCostBps = isNum(Number(opts.transactionCostBps))
     ? Math.max(0, Number(opts.transactionCostBps))
@@ -154,7 +156,7 @@ export function backtestFactors(stockData, opts) {
   // second weight vector lives here. It is not the full live model: size, value and quality carry no inputs.
   //   size needs historical shares outstanding, which this pipeline does not fetch. value/quality are read from the
   //   SEC filings as of today (the screener artifact holds one current P/E, P/B, ROE and margin per issuer, no
-  //   point-in-time series), so scoring a rebalance 147 days ago with them would be look-ahead bias. Do not add
+  //   point-in-time series), so scoring a rebalance months ago with them would be look-ahead bias. Do not add
   //   them without solving those two problems first. Regime tilts are proposal-only and are not validated here.
   var sectorOf = opts && typeof opts.sectorOf === 'function' ? opts.sectorOf : function() { return null; };
   var liveActiveFactorsSeen = [];
@@ -165,7 +167,7 @@ export function backtestFactors(stockData, opts) {
     fwdDays: FWD,
     transactionCostBps: transactionCostBps
   });
-  var EXCLUDED_FACTORS = ['size', 'value', 'quality'];
+  var EXCLUDED_FACTORS = Object.keys(BACKTEST_EXCLUDED_FACTOR_REASONS);
   var EXCLUDED_FACTORS_REASON = 'size needs historical shares-outstanding data this pipeline does not fetch; value/quality are today-only readings of SEC filings with no point-in-time series, so backtesting them would use look-ahead information';
   var IC_FACTORS = ['momentum','trend','lowvol','kalman','composite'];
   var icS = {}, icN = {};
@@ -225,9 +227,11 @@ export function backtestFactors(stockData, opts) {
       var forwardDate = Number.isInteger(rebalanceCalendarIndex) ? calendarDates[rebalanceCalendarIndex + FWD] || null : null;
       var forwardIndex = forwardDate ? record.dateIndex.get(forwardDate) : null;
       if (!Number.isInteger(p)) { missingRebalanceRows++; return; }
-      if (p < 63) { missingRebalanceRows++; return; }
+      // A symbol is scored only on the factors whose own window its history covers at this date (price-factors.js
+      // PRICE_FACTOR_MIN_CLOSES); one too short for every factor is a missing row.
+      if (p + 1 < MIN_FACTOR_CLOSES) { missingRebalanceRows++; return; }
       if (!Number.isInteger(forwardIndex) || forwardIndex <= p || forwardIndex > c.length - 1) { missingForwardRows++; return; }
-      var f = closesToFactors(c.slice(0, p + 1)); if (!f) return;
+      var f = withFullFactorLookback(closesToFactors(c.slice(0, p + 1)), p + 1); if (!f) return;
       var fwd = (c[p] > 0) ? (c[forwardIndex] / c[p] - 1) : null; if (!isNum(fwd) || !forwardDate) return;
       // The live model's momentum definition (factor-ranks.js momentumRawOf) — one formula for the ranker and this IC.
       var mom = momentumRawOf(f);
@@ -519,6 +523,7 @@ export function backtestFactors(stockData, opts) {
     weightPolicy: 'fixed-neutral-until-explicit-promotion',
     weightRegime: 'NEUTRAL',
     excludedFactors: EXCLUDED_FACTORS,
+    excludedFactorReasons: BACKTEST_EXCLUDED_FACTOR_REASONS,
     excludedFactorsReason: EXCLUDED_FACTORS_REASON,
     kalmanScale: 'log_pct_day',
   };

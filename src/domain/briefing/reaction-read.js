@@ -3,9 +3,9 @@
 // into the report, did the market or its group move the same way, and what the reports name (spending, execution,
 // management). Each rung is measured from the brief, the closes or the reported reasons; the conclusion is the first
 // rung that explains the move, and a move nothing explains says so instead of guessing.
-import { readNumber, signedText } from '../shared/number.js';
+import { readNumber, signedText, directionOf, usdScaleWords, usdPerShareText } from '../shared/number.js';
 import { closeMoveBetween } from '../market/session/close-series.js';
-import { figureSurprise } from './event-briefs.js';
+import { figureSurprise, koreanReleaseText, latestTradeWord } from './event-briefs.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
 const MOVE_MIN = 3; // % — a smaller one-day reaction is not read as a verdict on the quarter
@@ -86,12 +86,53 @@ export function earningsCells(brief) {
   const eps = pick('eps_diluted');
   const compared = [revenue && { metric: 'revenue', estimate: Number(revenue.figure.estimate.value), value: revenue.figure.value, pct: revenue.read.pct, note: revenue.read.note },
     eps && { metric: 'eps', estimate: Number(eps.figure.estimate.value), value: eps.figure.value, pct: eps.read.pct, note: eps.read.note }].filter(Boolean);
-  const reaction = brief.reaction && Number.isFinite(readNumber(brief.reaction.firstPct))
-    ? { firstPct: readNumber(brief.reaction.firstPct), firstDate: brief.reaction.firstDate || null, sessions: brief.reaction.sessions || 1, latestPct: readNumber(brief.reaction.latestPct) }
-    : null;
+  // before the first regular session after the report closes, the brief's reaction is
+  // the latest trade against the last close (earningsReaction basis 'latest-trade'); the cell carries it with its session
+  // word instead of reading '없음' beside the line that printed the same move.
+  const r = brief.reaction;
+  const market = /\.K[SQ]$/i.test(String(brief.symbol || '')) ? 'KR' : 'US';
+  const reaction = r && Number.isFinite(readNumber(r.firstPct))
+    ? { basis: 'close', firstPct: readNumber(r.firstPct), firstDate: r.firstDate || null, sessions: r.sessions || 1, latestPct: readNumber(r.latestPct) }
+    : r?.basis === 'latest-trade' && Number.isFinite(readNumber(r.extendedPct))
+      ? { basis: 'latest-trade', extendedPct: readNumber(r.extendedPct), extendedAt: r.extendedAt || null, word: latestTradeWord(r, { market }) }
+      : null;
   if (!compared.length && !reaction) return null;
   const outlook = guidanceLabel(brief) || ((brief.guidance || []).length ? '전망 제시' : null);
-  return { compared, outlook, reaction };
+  // with no estimate to compare, the reported cell carries the release's own headline
+  // figure (the structured figure the headline names, else the first one) rather than '없음'.
+  const headline = String(brief.headline || '');
+  const listed = figures.filter((figure) => figure?.label && figure.value && !ZERO_AMOUNT.test(String(figure.value).trim()));
+  const lead = compared.length ? null : listed.find((figure) => headline.includes(String(figure.value))) || listed[0] || null;
+  return { compared, reported: lead ? { label: lead.label, value: lead.value } : null, outlook, reaction };
+}
+
+// A stored "$0.00 billion" is a rounding of a sub-billion amount, not a zero (OKLO 11/6 read "매출 0만 달러").
+export const ZERO_AMOUNT = /^-?\$\s*0(?:\.0+)?\s*(?:(?<![A-Za-z])(?:billion|million|bn|mn)\b)?$/i;
+
+/**
+ * the text of the four cells — 예상 | 발표 | 다음 전망 | 주가 반응 — decided here so a screen only
+ * draws them. An empty cell says what is missing: no estimate is '비교 자료 없음', not a bare '없음' that reads as nothing
+ * announced. Per-share amounts use one sign style ("-$0.07").
+ */
+export function earningsCellLines(cells) {
+  if (!cells) return null;
+  const signedOne = (value) => signedText(value, 1, '%');
+  const estimate = cells.compared.map((row) => (row.metric === 'revenue' ? `매출 ${koreanReleaseText(usdScaleWords(row.estimate, 1))}` : `EPS ${usdPerShareText(row.estimate)}`));
+  // The EPS basis travels with the number: after the provider's adjusted actual is stamped, "$2.10 (+1.1%)" alone misreads.
+  const reported = cells.compared.length
+    ? cells.compared.map((row) => `${row.metric === 'revenue' ? '매출' : 'EPS'}${ZERO_AMOUNT.test(String(row.value || '').trim()) ? '' : ` ${koreanReleaseText(row.value)}`} (${signedOne(row.pct)}${row.note ? `, ${row.note.replace(/[()]/g, '')}` : ''})`)
+    : cells.reported ? [koreanReleaseText(`${cells.reported.label} ${cells.reported.value}`)] : [];
+  const r = cells.reaction;
+  const moved = r?.basis === 'latest-trade' ? r.extendedPct : r && r.sessions > 1 && Number.isFinite(r.latestPct) ? r.latestPct : r?.firstPct;
+  const reaction = !r ? [] : r.basis === 'latest-trade' ? [`${r.word} ${signedOne(r.extendedPct)}`]
+    : [`첫 거래일 ${signedOne(r.firstPct)}`, ...(r.sessions > 1 && Number.isFinite(r.latestPct) ? [`${r.sessions}거래일 ${signedOne(r.latestPct)}`] : [])];
+  const cell = (term, lines, empty, extra = {}) => ({ term, lines: lines.length ? lines : [empty], empty: !lines.length, ...extra });
+  return [
+    cell('예상', estimate, '비교 자료 없음'),
+    cell('발표', reported, '수치 정리 전'),
+    cell('다음 전망', cells.outlook ? [cells.outlook] : [], '없음'),
+    cell('주가 반응', reaction, '없음', r ? { direction: directionOf(moved, 1) || 'flat', title: r.basis === 'latest-trade' ? '발표 직전 정규장 종가 대비 가장 최근 체결가' : '' } : {})
+  ];
 }
 
 // The group benchmark is the semiconductor ETF only for the chip layers; power, software, real estate and the rest read

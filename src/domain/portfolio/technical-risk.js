@@ -9,6 +9,7 @@
 import { technicalSnapshot } from '../technical/snapshot.js';
 import { concentrationPenaltyForWeight } from './concentration.js';
 import { readNumber } from '../shared/number.js';
+import { NEAR_LINE_ADR } from '../technical/bands.js';
 
 // readNumber is the strict read the legacy shell used (_aioStrictFinite): booleans, blanks and non-numbers are unknown.
 const finite = readNumber;
@@ -22,6 +23,18 @@ const exposureAdmitted = (p) => !!p && (p.currentQuoteAllowedUse === true || p.a
   || p.quoteSourceKind === 'live-quote' || p.priceSource === 'live-quote' || VALUE_SOURCES.includes(p.valueSource));
 // Positions under this share of the book's value leave the book-level read on hold.
 export const TECHNICAL_RISK_MIN_COVERAGE_PCT = 80;
+
+// A close under a moving average counts as a break only past the near-line band the trend read uses
+// (technical/bands.js NEAR_LINE_ADR = RULES.technical.nearLineAdr: within that many 20-day average daily ranges of the
+// line, above or below, the side is not readable yet). The legacy read counted any close under the line, so a holding
+// 0.3% under its 50-day line read as a broken swing thesis on 기술 리스크 while 내 포트폴리오와 시장 said '선 근처'.
+// Without a daily range the line alone decides, as the trend read does without one.
+function brokeBelow(snapshot, line, above) {
+  if (above !== false) return false;
+  const adr = snapshot.adr20Pct;
+  if (!(adr > 0) || !(line > 0) || !(snapshot.price > 0)) return true;
+  return (snapshot.price / line - 1) * 100 <= -NEAR_LINE_ADR * adr;
+}
 
 export function sellPressure(ohlcvOrSnapshot, context = {}) {
   context = context || {};
@@ -38,9 +51,9 @@ export function sellPressure(ohlcvOrSnapshot, context = {}) {
   if (snapshot.rsi14 !== null && snapshot.rsi14 >= 85) add(10, 'RSI_85_EXTREME_OVERHEAT');
   if (snapshot.dayGainPct >= 6 && snapshot.rvol20 !== null && snapshot.rvol20 >= 2.5 && snapshot.closePosition !== null && snapshot.closePosition < 0.5) add(25, 'CLIMAX_REVERSAL_RISK_DAY_GAIN_RVOL_WEAK_CLOSE');
   if (snapshot.bbReentry) add(15, 'UPPER_BOLLINGER_REENTRY_EXHAUSTION');
-  if (snapshot.above10EMA === false) add(14, 'CLOSE_BELOW_10EMA_TRIM_TRADING_LOT');
-  if (snapshot.above21EMA === false) add(18, 'CLOSE_BELOW_21EMA_REDUCE_SWING_LOT');
-  if (snapshot.above50SMA === false) add(28, 'CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED');
+  if (brokeBelow(snapshot, snapshot.ema10, snapshot.above10EMA)) add(14, 'CLOSE_BELOW_10EMA_TRIM_TRADING_LOT');
+  if (brokeBelow(snapshot, snapshot.ema21, snapshot.above21EMA)) add(18, 'CLOSE_BELOW_21EMA_REDUCE_SWING_LOT');
+  if (brokeBelow(snapshot, snapshot.sma50, snapshot.above50SMA)) add(28, 'CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED');
   if (context.semiHeat && context.semiHeat.state === 'SEMI_HEATED') add(6, 'SEMI_HEATED_CONTEXT');
   if (context.semiHeat && context.semiHeat.state === 'SEMI_MANIA') add(12, 'SEMI_MANIA_CONTEXT');
   if (context.lockoutAction && context.lockoutAction.score >= 35) add(Math.min(18, Math.round(context.lockoutAction.score / 4)), `LOCKOUT_ACTION_${context.lockoutAction.action}`);

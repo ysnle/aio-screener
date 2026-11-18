@@ -417,10 +417,10 @@ check(
     && /runPortfolioBacktestLab/.test(html + workspaceViews)
     && /pf-bt-rebalance/.test(html + workspaceViews)
     && /pf-backtest-output/.test(html + workspaceViews)
-    && /Performance Summary/.test(html + workspaceViews)
-    && /Annual Returns/.test(html + workspaceViews)
-    && /Worst Drawdowns/.test(html + workspaceViews)
-    && /Return \/ Risk Attribution/.test(html + workspaceViews)
+    && /성과 요약/.test(html + workspaceViews)
+    && /연도별 수익률/.test(html + workspaceViews)
+    && /큰 낙폭/.test(html + workspaceViews)
+    && /종목별 수익·위험 기여/.test(html + workspaceViews)
     && /과거 성과 시뮬레이션/.test(html + workspaceViews)
     && /buildPortfolioBacktestLab/.test(portfolioBacktest)
     && /AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2/.test(portfolioBacktest)
@@ -1111,7 +1111,7 @@ const backtestFactorsIdx = fetchScript.indexOf('function backtestFactors(stockDa
 // old 3,000-character heuristic window. Keep the full calculation body in
 // scope so the implemented WO-3 ledger is actually checked.
 const backtestFactorsBody = backtestFactorsIdx >= 0 ? fetchScript.slice(backtestFactorsIdx, backtestFactorsIdx + 12000) : '';
-check('WO-3: backtestFactors() accepts optional offsets/fwdDays that default to the original production constants (backward compatible with the existing 30-min-cron call site)', /var OFFSETS = opts\.offsets \|\| \[147, 126, 105, 84, 63, 42\], FWD = opts\.fwdDays \|\| 21/.test(backtestFactorsBody));
+check('v60.26 WO-3: backtestFactors() accepts optional offsets/fwdDays that default to the production constants of model-fingerprint.js (one definition)', /var OFFSETS = opts\.offsets \|\| BACKTEST_REBALANCE_OFFSETS, FWD = opts\.fwdDays \|\| BACKTEST_FWD_DAYS/.test(backtestFactorsBody));
 check('WO-3: backtestFactors() additionally returns a per-rebalance-date IC list (icByDate) needed to compute ICIR/t-stat, not just the averaged IC', /icByDate/.test(backtestFactorsBody));
 check('WO-3: fetch-data.mjs guards its direct execution and allows an isolated screener-only task without import side effects', /const __entryArg = process\.argv\[1\] \? process\.argv\[1\]\.replace/.test(fetchScript) && /if \(__entryArg && \(import\.meta\.url === `file:\/\/\$\{__entryArg\}`/.test(fetchScript) && /process\.env\.SCREENER_ONLY === '1' \? enrichScreener\(\) : main\(\)/.test(fetchScript) && /task\.catch\(e => \{ console\.error\('\[fetch-data\] 치명적 오류:', e\); process\.exit\(1\); \}\);\s*\}/.test(fetchScript));
 check('WO-3: closesToFactors/backtestFactors/_mean are exported from fetch-data.mjs for reuse by the longrun script (no formula duplication)', /export function closesToFactors/.test(fetchScript) && /export function backtestFactors/.test(fetchScript) && /export const _mean/.test(fetchScript));

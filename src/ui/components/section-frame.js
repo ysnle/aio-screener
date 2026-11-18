@@ -8,6 +8,9 @@
 import { el } from './dom.js';
 
 export const READING_MAX = 240;
+// 2026-11-18: the chip's length contract. The chip never cuts its text — a cut "11/17 반영 전" read "11/17 반영", the
+// opposite — so a caller passes a short form that fits (session-lag.js sessionChipText, closeChipText) and the budget
+// gate (scripts/ci-secondary-text-budget-check.mjs) fails a rendered chip longer than this.
 export const ASOF_MAX = 24;
 // Class words that mark a line as secondary text (a caption, basis, kicker, hint, meta or note line). The budget gate
 // counts the visible characters under these classes per route; a frame's reading (.aio-frame-reading) is not counted.
@@ -22,7 +25,7 @@ export function isSecondaryClass(className) {
 
 /** The as-of chip: a short date or session state; the longer method sentence goes in its hover. */
 export function asOfChip(doc, text, detail = '') {
-  const chip = el(doc, 'span', String(text || '').slice(0, ASOF_MAX), 'aio-asof');
+  const chip = el(doc, 'span', String(text || ''), 'aio-asof');
   if (detail) chip.title = detail;
   return chip;
 }
@@ -61,16 +64,21 @@ export function setAsOf(doc, head, text, detail = '') {
     const actions = head.querySelector(':scope > .aio-frame-actions');
     if (actions) actions.before(chip); else head.append(chip);
   }
-  chip.textContent = String(text).slice(0, ASOF_MAX);
+  chip.textContent = String(text);
   if (detail) chip.title = detail; else chip.removeAttribute('title');
   return chip;
 }
 
-/** A short close-date chip from an as-of sentence ("미국 10/23, 한국 10/23 확정 종가" → "10/23 종가"). */
+/**
+ * A short close-date chip from an as-of sentence ("미국 10/23, 한국 10/23 확정 종가" → "10/23 종가"). Two dates keep both;
+ * a sentence still too long falls back to its dates alone, never to a cut phrase.
+ */
 export function closeChipText(text) {
   const dates = [...new Set(String(text || '').match(/\d{1,2}\/\d{1,2}/g) || [])];
   if (dates.length === 1) return `${dates[0]} 종가`;
-  return String(text || '').replace(/\s*확정 종가$/, '').slice(0, ASOF_MAX);
+  const short = String(text || '').replace(/\s*확정 종가$/, '');
+  if (short.length <= ASOF_MAX) return short;
+  return dates.length ? `${dates.join(', ')} 종가` : '';
 }
 
 /**

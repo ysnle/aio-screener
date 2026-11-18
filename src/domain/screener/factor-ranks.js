@@ -22,12 +22,19 @@ import { isSessionCurrent, latestCompletedSession } from '../market/session/mark
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld } from '../fundamental/period.js';
 import { finiteNumber as finite } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
+import { RULES } from '../rules/thresholds.js';
 
 // v7 (2026-10-16): funds, SPACs and sub-$1M 확장 names leave the ranked population (rankingPopulationExclusion).
 // v8 (2026-10-17 audit, owner-approved): factor activation is judged on the core tier when 확장 rows are present, a
 // zero-weight factor is not active in the model-default run, and outliers no longer mark the run 'partial'.
 // v9: the default raw definitions are factor-weights.js MODEL_DEFAULT_DEFINITIONS (12-1 momentum, profitability quality).
-export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v9';
+// v10 (2026-11-17 ranking review): the value term scores every positive P/E and P/B (no upper bound that dropped the term),
+// and a deal-pinned stock leaves the ranked population as 'pinned' (rankingPopulationExclusion).
+export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v10';
+// 2026-11-18 (same v10 model, not yet published when the basis changed): the quality inputs as the rows carry them — margin and
+// revenue growth on the latest four quarters when the issuer's quarters cover them (the row's marginBasis/revGrowthBasis),
+// else the fiscal year; ROE on the fiscal year. The value term's P/E is on the same four quarters (peEarningsBasis).
+export const QUALITY_INPUT_BASIS = Object.freeze({ margin: 'ttm-else-fy', revGrowth: 'ttm-else-fy', roe: 'fy' });
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
 
 const DAY_MS = 86_400_000;
@@ -132,13 +139,16 @@ function sizeRaw(row) {
 
 function valueRaw(row) {
   const parts = [];
-  const addInverse = (input, upper, maxInverse) => {
+  // v10: any positive finite multiple scores its inverse (capped at maxInverse). The former upper bounds (P/E 200, P/B 50)
+  // dropped the term, so P/E 359.7 read cheaper than P/E 150 (ICHR value 89 on P/B alone; MA scored on P/E alone at P/B
+  // 88.8) and P/E 250 better than a loss, which scores 0.
+  const addInverse = (input, maxInverse) => {
     const numeric = finite(input);
-    if (numeric != null && numeric > 0 && numeric < upper) parts.push(Math.max(0, Math.min(maxInverse, 1 / numeric)) / maxInverse);
+    if (numeric != null && numeric > 0) parts.push(Math.min(maxInverse, 1 / numeric) / maxInverse);
   };
   // A P/E whose trailing earnings hold a one-off gain is not an earnings yield; the term is left out, not scored.
   const oneOff = row.peOneOff === true || row._valuationPeOneOff === true;
-  if (!oneOff) addInverse(value(row, 'pe'), 200, 0.20);
+  if (!oneOff) addInverse(value(row, 'pe'), 0.20);
   // v59.71 (quant review): a loss-maker has no P/E (dropped upstream at net income ≤ 0), so its value read was P/B
   // alone and a distressed low-P/B name ranked cheaper than a profitable peer. A loss scores the earnings term 0 — no
   // earnings yield — instead of leaving it out. The loss is the P/E numerator's own sign when the row carries it
@@ -146,14 +156,14 @@ function valueRaw(row) {
   const margin = value(row, 'margin');
   const loss = row.peLoss === true || row._valuationPeLoss === true || (margin != null && margin < 0);
   if (value(row, 'pe') == null && loss) parts.push(0);
-  addInverse(value(row, 'pb'), 50, 2.0);
+  addInverse(value(row, 'pb'), 2.0);
   // Negative or zero book equity is not cheap: the book term scores 0 like a loss, instead of dropping out and leaving
   // the earnings yield alone (buyback-funded deficits read cheaper than peers scored on both terms).
   if (value(row, 'pb') == null && (row.pbDeficit === true || row._valuationPbDeficit === true)) parts.push(0);
   // 2026-10-13 F11: EV/EBITDA is retired at the provider (no automated producer; 0 of 873 rows), so this term is
   // inert on live rows. The line stays only because the legacy-derived factor-ranks golden fixture
   // (architecture/fixtures/factor-ranks-golden.json) feeds evEbitda inputs; removing it needs a golden refresh.
-  addInverse(row?.evEbitda, 100, 0.20);
+  addInverse(row?.evEbitda, 0.20);
   return parts.length ? avg(parts) : null;
 }
 
@@ -853,6 +863,7 @@ function computeFactorRanksForPopulation({
     weightsPolicy: explicitWeights ? 'explicit' : 'model-default',
     coverageBasis,
     factorDefinitions,
+    qualityInputBasis: QUALITY_INPUT_BASIS,
     rankingState: 'ranked',
     rankingUnavailableReason: null,
     inactiveFactorReasons: Object.freeze(inactiveFactorReasons),
@@ -893,12 +904,17 @@ function computeFactorRanksForPopulation({
 // was never updated (Innventure, 6770 since its 2024 merger) leaves the ranking until SEC reclassifies it.
 export const EXTENDED_MIN_DOLLAR_VOLUME_30D = 1_000_000;
 export const SPAC_SIC = '6770';
+const PINNED = RULES.rankingPopulation.pinned;
 const SPAC_NAME = /acquisitions?\s*(?:\d+|I{1,3}|IV|VI{0,3})?\s*(?:corp(?:oration)?|company|co|inc|ltd|limited)\b|acquisitions?\s+(?:I{1,3}|IV|VI{0,3})\s*$|\bspac\b|\bblank check\b|\bmerger corp(?:oration)?\b/i;
 export function rankingPopulationExclusion(row) {
   if (row?.index === 'ETF' || row?.assetType === 'ETF' || row?.instrumentRef?.assetType === 'ETF') return 'fund';
   if (String(row?.sic ?? '').trim() === SPAC_SIC || SPAC_NAME.test(String(row?.name || ''))) return 'spac';
   const dollarVolume = value(row, 'dollarVolume30d');
   if (row?.universeTier === 'extended' && dollarVolume != null && dollarVolume < EXTENDED_MIN_DOLLAR_VOLUME_30D) return 'illiquid';
+  // v10: a stock pinned at a cash offer moves with the deal spread, not the business (RULES.rankingPopulation.pinned).
+  const volatility = value(row, 'vol');
+  const dailyRange = value(row, 'adrPct');
+  if (volatility != null && dailyRange != null && volatility <= PINNED.volAtMost && dailyRange <= PINNED.adrPctAtMost) return 'pinned';
   return null;
 }
 
@@ -908,7 +924,7 @@ export function computeFactorRanks(input = {}) {
   // the US cross-section — a different session calendar and currency are not one comparison population.
   const isIntl = (row) => listingMarket(row || {}) === 'INTL';
   const excludedRows = [];
-  const populationExclusions = { fund: 0, spac: 0, illiquid: 0, foreign: 0 };
+  const populationExclusions = { fund: 0, spac: 0, illiquid: 0, pinned: 0, foreign: 0 };
   const rows = (Array.isArray(input.rows) ? input.rows : []).filter((row) => {
     // 2026-10-17 audit: a Tokyo/Taiwan row left the ranking with no row and no reason, so the page counted it as
     // '점수 계산 불가'. It now carries its exclusion like a fund or a SPAC.
@@ -919,7 +935,7 @@ export function computeFactorRanks(input = {}) {
     if (sym) excludedRows.push(Object.freeze({ sym, rank: null, quantSignal: null, _compositeZ: null, factorScores: Object.freeze({}), missingFactors: Object.freeze([]), rankingEligibility: 'population-excluded', populationExclusion: reason, allowedUse: FACTOR_RANKS_ALLOWED_USE, decisionEligible: false }));
     return false;
   });
-  const exclusionSummary = Object.freeze({ ...populationExclusions, extendedMinDollarVolume30d: EXTENDED_MIN_DOLLAR_VOLUME_30D });
+  const exclusionSummary = Object.freeze({ ...populationExclusions, extendedMinDollarVolume30d: EXTENDED_MIN_DOLLAR_VOLUME_30D, pinnedVolAtMost: PINNED.volAtMost, pinnedAdrPctAtMost: PINNED.adrPctAtMost });
   const markets = [...new Set(rows.map(screenerMarket).filter(Boolean))];
   if (markets.length <= 1) {
     const result = computeFactorRanksForPopulation({ ...input, rows });

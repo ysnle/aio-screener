@@ -31,6 +31,10 @@ export function signedText(value, digits = 1, unit = '', { plus = true } = {}) {
   return `${Number(text) === 0 ? '' : number > 0 ? (plus ? '+' : '') : '-'}${text}${unit}`;
 }
 
+// one per-share dollar style, sign before the dollar — "-$0.07", never "$-0.07" or "$(0.07)".
+// Shared by the consensus read and the earnings cells.
+export const usdPerShareText = (value, digits = 2) => `${value < 0 ? '-' : ''}$${Math.abs(value).toFixed(digits)}`;
+
 // v58.80 (first-users R2-27): the colour follows the printed sign — a change that rounds to zero ("0.0%") is neither
 // rising red nor falling blue. Same rounding as signedText; null for a missing value.
 export function directionOf(value, digits = 1) {

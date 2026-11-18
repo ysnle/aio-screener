@@ -60,7 +60,9 @@ export function breadthFlow({ cards = [], regime = null } = {}) {
   let participation = '50일선·200일선 위 종목 비율 기록이 없어 참여도를 읽지 못했습니다.';
   if (b50 != null && b200 != null) {
     const both = b50 < B.weakBelow && b200 < B.weakBelow ? `둘 다 ${B.weakBelow}% 아래라 중기·장기 참여가 모두 위축된 상태입니다`
-      : b50 >= B.broadAtLeast && b200 >= B.broadAtLeast ? `둘 다 ${B.broadAtLeast}% 이상이라 상승이 넓게 퍼져 있습니다`
+      // The shares are a level of participation, not a rise; the index's own 20-session move says which way it went.
+      : b50 >= B.broadAtLeast && b200 >= B.broadAtLeast ? `둘 다 ${B.broadAtLeast}% 이상이라 중기·장기 참여가 넓습니다${spx20 == null || Math.abs(spx20) < 0.05 ? ''
+        : spx20 > 0 ? ` — S&P 500도 20일 ${signed(spx20, 1, '%')}로 함께 올랐습니다` : ` — 다만 S&P 500은 20일 ${signed(spx20, 1, '%')}로 내려, 지수 하락 속에서도 다수 종목이 평균선 위에 남아 있습니다`}`
         // Codex browser audit H08: the 20-day verdict hid a 5-day recovery; both windows are named.
         : b50 < B.weakBelow ? `장기 추세 위 종목(${round(b200)}%)은 남아 있지만 중기 참여가 ${B.weakBelow}% 아래로 줄었습니다${bounce === 'holding' ? ` — 다만 최근 5거래일은 ${signed(b50d5, 1, '%p')} 회복해 중기 약화 속 단기 반등이 진행 중입니다`
           : bounce ? ` — 최근 5거래일 ${signed(b50d5, 1, '%p')} 반등 뒤 마지막 거래일 ${signed(b50d1, 1, '%p')} 되밀려, 반등이 이어지는지 확인할 단계입니다` : ' — 조정이 종목 전반으로 번지는 단계입니다'}`

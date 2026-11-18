@@ -59,12 +59,12 @@ export const cases = [
   } },
   { id: 'P8-UI-02', name: '상위 집단 중 한 종목만 관측돼도 상위권 전체의 100%로 요약하지 않는다', run: async ({ load }) => {
     const { buildScreenerRead } = await load('src/domain/screener/screener-read.js');
-    const sparse = buildScreenerRead({ rows: Array.from({ length: 50 }, (_, i) => ({ sym: `F${i}`, sector: 'Technology', screenRank: i + 1,
+    const sparse = buildScreenerRead({ rows: Array.from({ length: 50 }, (_, i) => ({ sym: `F${i}`, sector: 'Technology', overallRank: i + 1,
       pctSma50: i === 0 ? 10 : null, adrPct: i === 0 ? 2 : null, ret5d: i === 0 ? -10 : null })) });
     const health = sparse.points.find((item) => item.id === 'health');
     assert.doesNotMatch(health.text, /100%/);
     assert.match(health.text, /1개뿐/);
-    const partial = buildScreenerRead({ rows: Array.from({ length: 50 }, (_, i) => ({ sym: `F${i}`, sector: 'Technology', screenRank: i + 1,
+    const partial = buildScreenerRead({ rows: Array.from({ length: 50 }, (_, i) => ({ sym: `F${i}`, sector: 'Technology', overallRank: i + 1,
       pctSma50: i < 8 ? 10 : null, adrPct: i < 8 ? 2 : null, ret5d: i < 8 ? 1 : null })) });
     assert.match(partial.points.find((item) => item.id === 'health').text, /자료 있는 8종목 기준/);
   } },

@@ -655,6 +655,15 @@ console.log('scenario guidance fixture (basis card): PASS');
     // The level is the observation the axis read (its `observation`), never a snapshot beside another observation's change.
     const levelAxis = { id: 'credit', state: 'burden', observation: { level: 480, change5: 2, change20: null, asOf: days.at(-1), source: 'snapshot' } };
     assert.match(buildMacroChain({ macroHistory: mh, regime: { axes: [levelAxis] } }).branches.find((b) => b.id === 'credit').effect, /스프레드 수준\(480bp\)이 부담 구간/, 'v57.83 a level burden still says the level');
+    // v60.30: a 중립 names the 양호 condition it misses with its value, and never calls a -19bp week small.
+    const quiet = Array.from({ length: 70 }, (_, i) => [`2026-${String(8 + Math.floor(i / 28)).padStart(2, '0')}-${String(1 + (i % 28)).padStart(2, '0')}`, 3.2]);
+    const cccWide = quiet.map(([day], i) => [day, 6 + i * 0.05]);
+    const neutralMh = { schemaVersion: 'macro-history.v1', series: { hyOas: { observations: quiet }, cccOas: { observations: cccWide } } };
+    const neutralAxis = { id: 'credit', state: 'neutral', observation: { level: 323, change5: -19, change20: 0, asOf: quiet.at(-1)[0], source: 'macro-history' } };
+    const neutralEffect = buildMacroChain({ macroHistory: neutralMh, regime: { axes: [neutralAxis] } }).branches.find((b) => b.id === 'credit').effect;
+    assert.ok(/5거래일 -19bp/.test(neutralEffect) && /CCC와 하이일드의 60관측 확대 차이 \d+bp\(양호는 150bp 미만\)/.test(neutralEffect) && !/작지만|수준이나/.test(neutralEffect), `v60.30 a credit 중립 names its own cause and figure (${neutralEffect})`);
+    const levelNeutral = buildMacroChain({ regime: { axes: [{ ...neutralAxis, observation: { level: 372, change5: 2, change20: 4, asOf: '2026-11-13', source: 'snapshot' } }] } }).branches.find((b) => b.id === 'credit').effect;
+    assert.match(levelNeutral, /수준 372bp\(양호는 350bp 미만\)/, 'v60.30 a level-held 중립 names the level');
   }
   const latch = latchedState([{ date: 'a', value: 40 }, { date: 'b', value: 30 }, { date: 'c', value: 26 }], (p) => p.value >= 35, (p) => p.value < 25);
   const released = latchedState([{ date: 'a', value: 40 }, { date: 'b', value: 30 }, { date: 'c', value: 20 }], (p) => p.value >= 35, (p) => p.value < 25);
@@ -1088,6 +1097,14 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.ok(criteria.items.every((item) => typeof item.label === 'string' && typeof item.value === 'string' && typeof item.principle === 'string' && [true, false, null].includes(item.met)), 'v58.75 criteria item shape');
     assert.deepEqual(criteria.items.map((item) => item.met), [true, true, true, null, true, false], 'v58.75 criteria results (calendar missing = null)');
     assert.match(criteria.headline, /^6개 중 4개 충족\(가능성 아님\), 확인 가능 5개 — 미충족: 시황·선두 시나리오 적합$/, 'v58.75 criteria headline is a met count, never a likelihood');
+    // v60.28: the table's short count names the unchecked criterion, and a sort ranks fully checked rows first.
+    const { criteriaCellText, compareCriteria } = await import('../src/domain/scenarios/theme-criteria.js');
+    assert.equal(typeof criteriaCellText, 'function', 'v60.28 criteriaCellText exported');
+    assert.equal(criteriaCellText(criteria), '4/6, 미확인 1', 'v60.28 a count with an unchecked criterion says so (was "4/6")');
+    const full5 = { met: 5, known: 6, total: 6 }, half5 = { met: 5, known: 4, total: 6 }, full3 = { met: 3, known: 6, total: 6 };
+    assert.equal(criteriaCellText(full5), '5/6', 'v60.28 a fully checked count reads x/6');
+    assert.deepEqual([half5, full3, full5].sort((a, b) => compareCriteria(a, b, 'desc')), [full5, full3, half5], 'v60.28 desc: fully checked by count, half-checked after');
+    assert.deepEqual([half5, full5, full3].sort((a, b) => compareCriteria(a, b, 'asc')), [full3, full5, half5], 'v60.28 asc: fully checked by count, half-checked after');
     const { roles } = memberRoles(members);
     assert.deepEqual(['A', 'B', 'C', 'D', 'E'].map((sym) => roles.get(sym).role), ['leader', 'leader', 'laggard', 'dropout', null], 'v58.75 member roles (E sits at the 3개월 median: middle)');
     assert.equal(roles.get('D').thin, true, 'v58.75 thin liquidity flag');

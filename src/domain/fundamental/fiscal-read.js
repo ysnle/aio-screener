@@ -10,6 +10,7 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 // v57.81: a change inside this many %p (margin) or % (revenue) reads as flat in the text, so its tone is neutral too.
 export const FISCAL_FLAT_BAND = 2;
 import { financialKind } from './financial-kind.js';
+import { debtLabel } from './sec-earnings.js';
 export { financialKind, isLendingFinancial } from './financial-kind.js';
 
 const finite = finiteFact;
@@ -41,21 +42,9 @@ export function reconcileFiscalHistory(history = [], fundamentals = null, symbol
   return rows;
 }
 
-// 2026-10-14 audit #2: the four latest consecutive fiscal quarters (period.js isQuarterGap, no gap), newest last, or null.
-// A derived fourth quarter (FY − Q1..Q3) counts; nothing is estimated beyond the published quarters.
-// `field` is the value every quarter of the span must carry: net income by default (a margin or an income sum), revenue
-// for a revenue-only comparison (an issuer's oldest stored quarter is often a derived Q4 with revenue but no net income).
-export function trailingQuarters(quarters = [], count = 4, { field = 'netIncome' } = {}) {
-  const rows = (Array.isArray(quarters) ? quarters : []).filter((q) => isIsoDay(String(q?.periodEnd || '')))
-    .slice().sort((a, b) => a.periodEnd.localeCompare(b.periodEnd));
-  if (rows.length < count) return null;
-  const span = rows.slice(-count);
-  for (let i = 1; i < span.length; i += 1) {
-    const gapDays = (Date.parse(span[i].periodEnd) - Date.parse(span[i - 1].periodEnd)) / 86400000;
-    if (!isQuarterGap(gapDays)) return null;
-  }
-  return span.every((q) => finite(q[field]) != null) ? span : null;
-}
+// 2026-11-18: trailingQuarters moved to trailing-year.js (a leaf the screener row fields read without this module).
+export { trailingQuarters } from './trailing-year.js';
+import { trailingQuarters } from './trailing-year.js';
 
 // 2026-10-14 audit #21: year-over-year share counts that jump by a near-integer ratio (a split the cover-page count
 // was not adjusted for). Returns the periodEnd of each year that starts a new split basis.
@@ -70,7 +59,8 @@ export function shareSplitBreaks(history = []) {
   return breaks;
 }
 
-export function buildFiscalRead({ symbol, fundamentals = null, row = null, quarters = [], now = null, sic = null } = {}) {
+// debtBasis: the issuer's sec-fiscal-history.json debtBasis ('lease-inclusive' names finance leases in the debt figure).
+export function buildFiscalRead({ symbol, fundamentals = null, row = null, quarters = [], now = null, sic = null, debtBasis = null } = {}) {
   // P1627: a previous issuer's transient receipt cannot become this issuer's one-year fallback.
   if (fundamentals?.symbol && String(fundamentals.symbol).toUpperCase() !== String(symbol).toUpperCase()) fundamentals = null;
   // Before the runtime summary carries fiscalHistory, the latest FY facts still give a one-year reading.
@@ -222,10 +212,12 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
   if (ocf == null && history.length) points.push({ id: 'cash', tone: 'neutral', title: '현금 전환', text: '이 회사의 공시 수집본에는 영업현금흐름·설비투자가 없어 잉여현금흐름과 ROIC(투하자본 대비 이익)는 이 화면에서 계산하지 않습니다. 10-K 현금흐름표에서 확인하며, 다른 출처의 FCF 값과 기간을 섞어 쓰지 않습니다.' });
   const debtNow = finite(latest?.longTermDebt);
   const debtPrev = finite(prevYear?.longTermDebt);
-  if (annualPair && debtNow != null && debtPrev != null && debtPrev > 0) {
+  // 2026-11-18: a bank's or insurer's long-term debt sits beside deposits and policy liabilities, so it is not read on the
+  // industrial debt-to-equity scale (the 금융사·보험사 point above names what is read instead).
+  if (annualPair && debtNow != null && debtPrev != null && debtPrev > 0 && !financial && !insurer) {
     const change = (debtNow / debtPrev - 1) * 100;
     points.push({ id: 'debt', tone: change > 25 ? 'burden' : 'neutral', title: '부채',
-      text: `장기부채 ${formatUsdShort(debtNow)}(전년 대비 ${signed(change)})${latest?.equity > 0 ? `, 자기자본 대비 ${(debtNow / latest.equity * 100).toFixed(0)}%` : ''}.` });
+      text: `${debtLabel(debtBasis)} ${formatUsdShort(debtNow)}(전년 대비 ${signed(change)})${latest?.equity > 0 ? `, 자기자본 대비 ${(debtNow / latest.equity * 100).toFixed(0)}%` : ''}.` });
   }
   // Share count across years, skipping year-over-year jumps that look like splits (near-integer ratios ≥ 1.9).
   const shareYears = history.filter((year) => finite(year.shares) > 0);

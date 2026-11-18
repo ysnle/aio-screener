@@ -3,13 +3,17 @@
 // collected says "수집 대기 · 다음 SEC 갱신 후 표시"; a filer that does not tag an item says so — never a zero.
 import { buildDupontRead, buildRdRead, impliedGrowth, dcfValue, reverseDcfInputs, REVERSE_DCF_DEFAULTS, buildTrailingYearRead, buildEarningsSchedule, buildSurpriseRead, buildMarginCashRead, buildThemePeers, RETURNED_LABEL } from '../../domain/fundamental/analysis-read.js';
 import { formatUsdShort, reconcileFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
-import { fiscalYearShortLabel } from '../../domain/fundamental/period.js';
+import { fiscalYearShortLabel, quarterLabel } from '../../domain/fundamental/period.js';
 import { el } from './dom.js';
-import { fiscalBarGeometry, parseFiscalHistory } from './fiscal-read.js';
+import { fiscalBarGeometry, parseFiscalHistory, debtBasisFor, debtCurrentFor } from './fiscal-read.js';
+import { debtLabel } from '../../domain/fundamental/sec-earnings.js';
 import { peMultipleText } from '../../domain/fundamental/consensus-read.js';
 import { stockLensContext, lensCard, thesisCard, situationCard } from './stock-lens-cards.js';
 import { signedText } from '../../domain/shared/number.js';
 import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
+import { shortDate } from '../../domain/content/date-labels.js';
+import { parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
+import { peerBasisText } from '../../domain/fundamental/stock-lens.js';
 
 export const COLLECTION_PENDING_LABEL = '수집 대기, 다음 SEC 갱신 후 표시';
 const pct = (value, digits = 1) => `${(value * 100).toFixed(digits)}%`;
@@ -270,7 +274,7 @@ const usd2 = (value) => `${value < 0 ? '-' : ''}$${Math.abs(value).toFixed(2)}`;
 export function trailingYearLine(read) {
   if (!read) return null;
   const yoy = [read.revenueYoy != null ? `매출 ${signedText(read.revenueYoy, 1, '%')}` : null, read.netIncomeYoy != null ? `순이익 ${signedText(read.netIncomeYoy, 1, '%')}` : null].filter(Boolean);
-  return `최근 4개 분기(${read.through.slice(0, 7)} 분기까지) 매출 ${formatUsdShort(read.revenue)}, 순이익 ${formatUsdShort(read.netIncome)}, 순이익률 ${read.margin == null ? '—' : `${read.margin.toFixed(1)}%`}`
+  return `최근 4개 분기(${quarterLabel(read.through)} 분기까지) 매출 ${formatUsdShort(read.revenue)}, 순이익 ${formatUsdShort(read.netIncome)}, 순이익률 ${read.margin == null ? '—' : `${read.margin.toFixed(1)}%`}`
     + `${yoy.length ? ` — 전년 같은 4개 분기 대비 ${yoy.join(', ')}${read.priorMargin != null && read.margin != null ? `, 순이익률 ${read.priorMargin.toFixed(1)}%에서 ${read.margin.toFixed(1)}%` : ''}` : ''}.${read.hasDerived ? ' (4분기 하나는 연간에서 1~3분기를 뺀 값)' : ''}`;
 }
 
@@ -323,6 +327,18 @@ export function surpriseCard(doc, read) {
   return card;
 }
 
+// What the net-cash figure leaves out, from the debt concept the series was read on (cash.debtBasis, cash.debtCurrent): the
+// part due within a year is named as missing only when the concept is a noncurrent line, and as included when it is a total.
+export function netCashScopeNote(cash) {
+  const lease = cash?.debtBasis === 'lease-inclusive';
+  const debt = lease ? '금융리스를 더한 장기부채(리스 포함)' : '장기부채';
+  const leases = lease ? '운용리스 부채' : '리스 부채';
+  const head = '순현금은 현금성 자산(단기투자 포함 시 표기)에서 ';
+  if (cash?.debtCurrent === 'excluded') return `${head}${debt} 중 1년 넘게 남은 몫만 뺀 값이며, 1년 안에 갚을 몫과 ${leases}는 빠져 있습니다.`;
+  if (cash?.debtCurrent === 'included') return `${head}${debt}(1년 안에 갚을 몫 포함)를 뺀 값이며, ${leases}는 빠져 있습니다.`;
+  return `${head}${debt}를 뺀 값이며, ${leases}는 빠져 있습니다.`;
+}
+
 // Margin ladder (gross → operating → net) for the latest fiscal year carrying those lines, with net cash and capital return.
 export function marginCashCard(doc, read, { financial = false } = {}) {
   if (!read || read.state === 'none') return null;
@@ -360,9 +376,10 @@ export function marginCashCard(doc, read, { financial = false } = {}) {
   const cash = read.cash;
   if (cash && !financial) {
     const what = cash.shortTermInvestments != null ? '현금·단기투자' : '현금성 자산';
-    lines.append(el(doc, 'li', cash.debt == null ? `${what} ${formatUsdShort(cash.liquid)}, 장기부채 자료 없음`
-      : cash.investmentsMissing ? `${what} ${formatUsdShort(cash.liquid)}, 장기부채 ${formatUsdShort(cash.debt)} — 단기투자가 이번 연도에 수집되지 않아(전년에는 있음) 순현금 계산 보류(${read.label} 말)`
-        : `${what} ${formatUsdShort(cash.liquid)} 대 장기부채 ${formatUsdShort(cash.debt)} — ${cash.net >= 0 ? `순현금 ${formatUsdShort(cash.net)}` : `순부채 ${formatUsdShort(-cash.net)}`}(${read.label} 말)`));
+    const debt = debtLabel(cash.debtBasis);
+    lines.append(el(doc, 'li', cash.debt == null ? `${what} ${formatUsdShort(cash.liquid)}, ${debt} 자료 없음`
+      : cash.investmentsMissing ? `${what} ${formatUsdShort(cash.liquid)}, ${debt} ${formatUsdShort(cash.debt)} — 단기투자가 이번 연도에 수집되지 않아(전년에는 있음) 순현금 계산 보류(${read.label} 말)`
+        : `${what} ${formatUsdShort(cash.liquid)} 대 ${debt} ${formatUsdShort(cash.debt)} — ${cash.net >= 0 ? `순현금 ${formatUsdShort(cash.net)}` : `순부채 ${formatUsdShort(-cash.net)}`}(${read.label} 말)`));
   }
   const cap = read.capital;
   const capital = [cap.sbcRatio != null ? `주식보상 매출의 ${cap.sbcRatio.toFixed(1)}%` : null, cap.buybacks != null ? `자사주 매입 ${formatUsdShort(cap.buybacks)}` : null, cap.dividends != null ? `배당 ${formatUsdShort(cap.dividends)}` : null].filter(Boolean);
@@ -371,7 +388,7 @@ export function marginCashCard(doc, read, { financial = false } = {}) {
   card.append(disclosure(doc, '원리, 이익률 단계와 현금', [
     ['원리', '매출총이익률은 가격 결정력과 원가, 영업이익률은 판매·연구 비용을 쓴 뒤의 본업 수익성, 순이익률은 이자·세금·일회성 항목까지 반영한 결과입니다. 세 단계의 간격이 어디서 벌어지는지가 비용 구조를 보여 줍니다.'],
     ['지금 읽기', `${operating.value != null && net.value != null ? (net.value > operating.value ? '순이익률이 영업이익률보다 높아 이자 수익·투자 이익 같은 영업 밖 이익이 있었던 해입니다.' : `영업이익률과 순이익률의 차이 ${(operating.value - net.value).toFixed(1)}%p는 이자·세금·영업 밖 손익입니다.`) : '세 단계 중 공시된 값만 표시했습니다.'}${cap.sbcRatio != null && cap.sbcRatio >= 10 ? ' 주식보상이 매출의 10% 이상이라, 현금흐름에 더해지는 비현금 비용이지만 주식 수를 늘리는 실제 비용으로 함께 봅니다.' : ''}`],
-    ['한계, 함께 볼 것', `순현금은 현금성 자산(단기투자 포함 시 표기)에서 장기부채만 뺀 값이며, 1년 안에 갚을 부채와 리스 부채는 빠져 있습니다.${financial ? ' 은행·대출 금융사는 현금과 부채가 영업 자산이라 순현금 줄을 표시하지 않습니다.' : ''} 매출총이익을 따로 표시하지 않는 업종(금융·서비스 일부)은 첫 단계가 비어 있습니다.`]
+    ['한계, 함께 볼 것', `${netCashScopeNote(read.cash)}${financial ? ' 은행·대출 금융사는 현금과 부채가 영업 자산이라 순현금 줄을 표시하지 않습니다.' : ''} 매출총이익을 따로 표시하지 않는 업종(금융·서비스 일부)은 첫 단계가 비어 있습니다.`]
   ]));
   card.append(el(doc, 'p', '데이터, 미국 증권거래위원회 연간 공시(10-K)(최근 2개 회계연도)', 'sx-evidence'));
   return card;
@@ -397,9 +414,11 @@ export function themePeerCard(doc, read, { onOpen = null } = {}) {
   region.setAttribute('role', 'region');
   region.setAttribute('aria-label', '같은 테마 기업 비교표, 가로 스크롤');
   const table = el(doc, 'table', null, 'fiscal-amount-table');
-  table.append(el(doc, 'caption', '각 회사의 최근 회계연도, 자료 없음은 0이 아닙니다'));
+  // The basis follows the table (analysis-read.js buildThemePeers): growth and margin on four quarters when the group has
+  // them, ROE on each fiscal year; the period column names each company's own basis.
+  table.append(el(doc, 'caption', `${peerBasisText(read.basis)} 자료 없음은 0이 아닙니다`));
   const head = el(doc, 'thead'); const headRow = el(doc, 'tr');
-  for (const label of ['기업', '회계연도', '매출 성장', '순이익률', 'ROE', 'PER']) { const th = el(doc, 'th', label); th.scope = 'col'; headRow.append(th); }
+  for (const label of ['기업', '기준', '매출 성장', '순이익률', 'ROE', 'PER']) { const th = el(doc, 'th', label); th.scope = 'col'; headRow.append(th); }
   head.append(headRow); table.append(head);
   const body = el(doc, 'tbody');
   const pctCell = (value) => (value == null ? '—' : `${value.toFixed(1)}%`);
@@ -413,7 +432,8 @@ export function themePeerCard(doc, read, { onOpen = null } = {}) {
       go.addEventListener('click', () => onOpen(row.sym));
       name.append(go);
     } else name.textContent = `${row.name === row.sym ? row.sym : `${row.name} (${row.sym})`}${row.self ? ', 이 종목' : ''}`;
-    tr.append(name, el(doc, 'td', fiscalYearShortLabel(row.periodEnd) || row.periodEnd || '—'),
+    const period = row.trailingThrough ? `${shortDate(row.trailingThrough)}까지 4개 분기` : fiscalYearShortLabel(row.periodEnd) || row.periodEnd || '—';
+    tr.append(name, el(doc, 'td', period),
       el(doc, 'td', pctCell(row.growth), row.growth < 0 ? 'is-loss' : null), el(doc, 'td', pctCell(row.margin), row.margin < 0 ? 'is-loss' : null),
       el(doc, 'td', pctCell(row.roe), row.roe < 0 ? 'is-loss' : null), el(doc, 'td', row.pe == null ? '—' : peMultipleText(row.pe)));
     body.append(tr);
@@ -431,10 +451,13 @@ export function fiscalExtras(doc, { root, symbol, quarters, history, consensus, 
   if (recent) hero.push(el(doc, 'p', recent, 'fiscal-period-basis v2-fiscal-recent'));
   const schedule = buildEarningsSchedule({ symbol, calendar, consensus, calendarState });
   if (schedule) { const line = el(doc, 'p', schedule.text, 'fiscal-period-basis sx-meta v2-fiscal-schedule'); if (schedule.title) line.title = schedule.title; hero.push(line); }
-  const cards = [series ? marginCashCard(doc, buildMarginCashRead(history), { financial }) : null, surpriseCard(doc, buildSurpriseRead(consensus))].filter(Boolean);
+  const cards = [series ? marginCashCard(doc, buildMarginCashRead(history, { debtBasis: debtBasisFor(root, symbol), debtCurrent: debtCurrentFor(root, symbol) }), { financial }) : null, surpriseCard(doc, buildSurpriseRead(consensus, { quarters }))].filter(Boolean);
   const fiscal = root?._aioSecFiscalHistory;
+  // Growth and margin on the screener row's four-quarter basis (quartersFor, as stock-lens-cards.js passes it).
+  const quarterText = root?._aioSecQuarterHistory || null;
   const themePeers = fiscal ? themePeerCard(doc, buildThemePeers({ symbol, themes: root?.THEME_MAP, rows,
-    seriesFor: (sym) => (fiscal[sym] ? reconcileFiscalHistory(parseFiscalHistory(fiscal[sym]), sym === symbol ? fundamentals : null, sym) : null) }),
+    seriesFor: (sym) => (fiscal[sym] ? reconcileFiscalHistory(parseFiscalHistory(fiscal[sym]), sym === symbol ? fundamentals : null, sym) : null),
+    quartersFor: (sym) => (quarterText?.[sym] ? parseQuarterHistory(quarterText[sym]) : null) }),
   { onOpen: typeof root?.showTicker === 'function' ? (sym) => root.showTicker(sym) : null }) : null;
   // v58.75 ('고르는 법' B1/B3/B4): the business lens leads the analysis cards; the thesis template and the favourable/unfavourable
   // situations follow the reading.

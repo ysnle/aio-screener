@@ -71,6 +71,12 @@ const artifact = expandScreenerArtifact(JSON.parse(readFileSync(new URL('../publ
   const scope = breadth.measure({ history: [{ date: '2026-11-13', breadth50: 50 }], screenerRows: rowsAll })?.scope || '';
   const usCount = Number((scope.match(/미국 (\d+)종목/) || [])[1]);
   assert.ok(usCount === marketPopulation(rowsAll, 'US').length && marketRows(rowsAll, 'US').length - usCount === rowsAll.filter((row) => listingMarket(row) === 'INTL').length, `v60.18 the lens and the screener count the same US universe: ${scope} vs ${marketPopulation(rowsAll, 'US').length}`);
+  // v60.26 (cross-screen, 11/18): a history row that counted S&P 500 members (fieldMeta.breadth50 universeScope) makes the
+  // lens say so, from the same fieldMeta the 시장 폭 page reads — not "스크리너 유니버스" and "미국 914종목 중 913종목".
+  const sp500Row = { date: '2026-11-16', breadth50: 50, breadth50Rising: 40, fieldMeta: { breadth50: { universe: 500, eligible: 499, universeScope: 'sp500-members-not-official-index-breadth' } } };
+  const sp = breadth.measure({ history: [sp500Row], screenerRows: rowsAll }) || {};
+  assert.ok(sp.scope === 'S&P 500 499개 종목' && /^S&P 500 구성 종목/.test(sp.data?.[0] || '') && ![...breadth.data, ...breadth.limits, sp.scope].join(' ').includes('유니버스'),
+    `v60.26 the breadth lens names the population its history row counted: ${JSON.stringify({ scope: sp.scope, data: sp.data, staticData: breadth.data })}`);
 }
 const pltr = artifact.data?.PLTR;
 assert.ok(pltr, 'P1625: PLTR remains in the published screener artifact');

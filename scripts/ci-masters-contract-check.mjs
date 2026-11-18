@@ -155,7 +155,25 @@ for (const marker of ['masters-coverage-classification', 'masters-latest-quarter
 if (!page.includes('repository 변수 설정 존재 여부와 같은 뜻이 아닙니다') || page.includes('SEC 공정접근 연락 정보가 설정된 온라인 수집 전까지')) fail('SEC discovery UI still conflates artifact execution with repository variable configuration');
 const scion = filings.managers.find((manager) => manager.id === 'scion-asset-management');
 if (scion?.cik !== '0001649339' || scion.status !== 'VERIFIED_ROWS') fail('Scion filing boundary drifted');
-if (!/^REFERENCE_ROWS_(?:CONNECTED|PARTIAL)$/.test(holdings.status) || holdings.managers.length < 7 || holdings.reconciledManagers < 7 || holdings.holdingRowsPublished !== holdings.holdings.length || holdings.fullRowsAvailable < 1290 || holdings.allHoldings?.length < 1290 || holdings.comparisonRowsPublished > holdings.holdingRowsPublished || holdings.fullComparisonRowsAvailable < 1387 || holdings.comparisons?.length < 1387 || holdings.reconciledComparisons < 7) fail('SEC holdings or prior-period comparison counts drifted');
+// The row totals move every quarter (a manager that closes thirty positions is not a defect), so the contract is that
+// each manager with full rows still has holdings and a prior-period comparison, not a fixed total. Run 44059301011
+// (11/17) failed here on the first chain with 2026-09-30 filings and the lane went into backoff; each condition now
+// names itself.
+{
+  const rowManagers = (rows) => new Set((rows || []).map((row) => row.managerId));
+  const holdingManagers = rowManagers(holdings.allHoldings);
+  const comparisonManagers = rowManagers(holdings.comparisons);
+  const drift = [
+    [!/^REFERENCE_ROWS_(?:CONNECTED|PARTIAL)$/.test(holdings.status), `status ${holdings.status}`],
+    [holdings.managers.length < 7 || holdings.reconciledManagers < 7 || holdings.reconciledComparisons < 7, `managers ${holdings.managers.length}, reconciled ${holdings.reconciledManagers}, comparisons reconciled ${holdings.reconciledComparisons}`],
+    [holdings.holdingRowsPublished !== holdings.holdings.length, `holdingRowsPublished ${holdings.holdingRowsPublished} vs holdings ${holdings.holdings.length}`],
+    [holdings.comparisonRowsPublished > holdings.holdingRowsPublished, `comparisonRowsPublished ${holdings.comparisonRowsPublished} above holdingRowsPublished ${holdings.holdingRowsPublished}`],
+    [!(holdings.fullRowsAvailable > 0) || !(holdings.fullComparisonRowsAvailable > 0), `fullRowsAvailable ${holdings.fullRowsAvailable}, fullComparisonRowsAvailable ${holdings.fullComparisonRowsAvailable}`],
+    [holdingManagers.size < 7, `managers with full rows ${holdingManagers.size}`],
+    [[...holdingManagers].some((id) => !comparisonManagers.has(id)), `managers without a prior-period comparison: ${[...holdingManagers].filter((id) => !comparisonManagers.has(id)).join(', ')}`]
+  ].filter(([bad]) => bad).map(([, text]) => text);
+  if (drift.length) fail(`SEC holdings or prior-period comparison counts drifted: ${drift.join('; ')}`);
+}
 if (runtimeHoldings.schema !== 'masters-13f-runtime-summary.v1' || runtimeHoldings.artifactRole !== 'PAGE_BOOTSTRAP' || runtimeHoldings.allHoldings || runtimeHoldings.fullRowsAvailable !== holdings.fullRowsAvailable || Object.keys(runtimeHoldings.managerShards || {}).length !== holdings.managers.length || runtimeHoldings.shardIntegrityStatus !== 'VERIFIED' || runtimeHoldings.shardsVerified !== holdings.managers.length || runtimeHoldings.comparisonRowsPublished !== runtimeHoldings.topRowsWithComparison || runtimeHoldings.comparisonRowsScope !== 'COMPACT_TOP_HOLDINGS_ONLY' || runtimeHoldings.fullComparisonRowsAvailable !== holdings.fullComparisonRowsAvailable || runtimeHoldings.managerProjectionPolicy?.artifactRole !== 'BOUNDED_WEB_PROJECTION' || runtimeHoldings.managerProjectionPolicy?.rowLimitPerCollection !== 200 || runtimeHoldings.managerProjectionPolicy?.maxBytes !== 512 * 1024 || runtimeHoldings.managerProjectionPolicy?.fullRowStore !== 'BULK_OBJECT_STORAGE_REQUIRED' || Buffer.byteLength(JSON.stringify(runtimeHoldings)) > 280 * 1024 || !page.includes("holdings-summary.json") || !page.includes('integrity: descriptor.sha256') || !page.includes('전체 보유 내역은 필요할 때만 불러옵니다') /* P1488: bounded projection loads on request; copy in reader language */) fail('Masters runtime summary does not enforce the verified-shard, bounded projection, integrity, and initial payload budget');
 if (page.includes("history-holdings.json") || page.includes("issuer-aggregates.json")) fail('Masters browser consumer must not request monolithic history or issuer artifacts');
 // v59.82 (hosting review option A): the row store lives on the masters-store branch; main carries its manifest. Every

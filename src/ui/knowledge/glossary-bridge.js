@@ -6,7 +6,7 @@
 //     search moved to the command search; loadKnowledgeSearch / openKnowledgeResult (below) are what it reads, with
 //     public-data/knowledge/search-index.json and the ranker (knowledge-search.js) loaded on its first query.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
-import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
+import { knowledgeRouteHref, navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { SCREEN_TERM_MARKED } from '../../domain/knowledge/screen-term-marked.js';
 import { CONCEPT_SURFACES, SCREEN_TERMS, SCREEN_ROUTE_LABELS, screenRoutesFor } from '../../domain/knowledge/concept-surfaces.js';
 
@@ -83,11 +83,10 @@ export function glossaryEntryParts(entry, figureSources = null) {
   return { ...parts, basis: figure ? [figure.kind, figure.src].filter(Boolean).join(', ') : null, screens: screensForEntry(entry), conceptId: entry?.conceptId || null };
 }
 
+// 2026-11-18: one address builder (knowledgeRouteHref, the route's hash query). On the page already open the hash change
+// fires popstate, and the page re-reads its selection from the address.
 function routeUrl(root, route) {
-  const params = new URLSearchParams();
-  Object.entries(route.params || {}).forEach(([key, value]) => { if (value != null && value !== '') params.set(key, value); });
-  const base = root?.location ? `${root.location.pathname}` : '';
-  return `${base}?${params.toString()}#${route.page}`;
+  return knowledgeRouteHref({ root, page: route.page, params: route.params || {} });
 }
 
 export function installGlossaryBridge({ root = globalThis, documentRef = root.document } = {}) {
@@ -169,7 +168,7 @@ export function loadKnowledgeSearch(root = globalThis) {
 /** Opens one knowledge index entry where it lives (the page re-reads its selection from the URL). */
 export function openKnowledgeResult(root, entry) {
   if (!entry?.route) return;
-  // A different page mounts on showPage; the page already on screen is reloaded at the new URL so it re-reads the selection.
+  // A different page mounts on showPage; the page already on screen gets the new address (a hash step, popstate) and re-reads the selection.
   const samePage = root.AIO?.state?.activePage === entry.route.page;
   if (samePage || typeof root.showPage !== 'function') { root.location.assign(routeUrl(root, entry.route)); return; }
   // v57.50: pushState + showPage lost the selection (showPage strips the knowledge keys); keep it as the pending URL.

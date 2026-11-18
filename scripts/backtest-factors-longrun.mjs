@@ -33,6 +33,7 @@ import { fileURLToPath } from 'node:url';
 import { backtestFactors } from './fetch-data.mjs';
 import { classifyRegime, spearmanWithCI } from './backtest-trading-score-longrun.mjs';
 import { LONGRUN_STALE_AFTER_DAYS, longrunStudyAge } from '../src/domain/screener/validation-records.js';
+import { BACKTEST_REBALANCE_OFFSETS, deriveRebalanceOffsets } from '../src/domain/screener/model-fingerprint.js';
 import { hacLagFor, neweyWestMeanStats, extractFirstZipEntry, parseFrenchDailyFactorCsv, compareWithExternalFactor, EXTERNAL_MOMENTUM_CRITERION } from './lib/research-validation.mjs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
@@ -167,15 +168,14 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
   const vixByDate = new Map(vixBars.dates.map((d, i) => [d, vixBars.closes[i]]));
   marketSeries.forEach((r) => { r.vix = vixByDate.get(r.date) ?? null; });
 
-  // 월간(~21거래일) 리밸런스 offset 생성 — 프로덕션의 6개(147~42일) 대비 훨씬 큰 표본.
-  // 가장 긴 종목 시리즈를 기준으로 offset 범위를 잡고, 각 종목/offset 조합은
-  // backtestFactors 자체의 길이 가드(c.length < off+1이면 skip)가 개별적으로 처리한다.
+  // 월간(~21거래일) 리밸런스 offset 생성 — 프로덕션 2년 표본(model-fingerprint.js BACKTEST_REBALANCE_OFFSETS)보다 훨씬 큰 표본.
+  // 프로덕션과 같은 규칙: 가장 최근 offset은 가장 긴 보유 기간을 남기고, 가장 오래된 offset은 팩터 전체 lookback
+  // (BACKTEST_FACTOR_LOOKBACK_SESSIONS)을 남긴다. 각 종목은 backtestFactors가 팩터별 lookback으로 따로 거른다.
+  const FWD_HORIZONS = [1, 5, 21, 63];
   const maxLen = Math.max(...stockData.map(s => s.closes.length));
-  const offsetsAsc = [];
-  for (let off = 63; off < maxLen - 1; off += REBALANCE_STEP_DAYS) offsetsAsc.push(off);
+  const offsetsAsc = [...deriveRebalanceOffsets({ historySessions: maxLen, newestOffset: Math.max(...FWD_HORIZONS), step: REBALANCE_STEP_DAYS })].sort((a, b) => a - b);
   const offsetsDesc = [...offsetsAsc].sort((a, b) => b - a); // 큰 off(더 과거) 먼저 = 시간순 오름차순
 
-  const FWD_HORIZONS = [1, 5, 21, 63];
   const overall = {};
   let momentumWindows = [];
   for (const fwd of FWD_HORIZONS) {
@@ -259,7 +259,7 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
       modelFingerprint: baselineRef.modelFingerprint, // P1449: same model identity contract as the daily backtest artifact (its rebalance offsets differ, so its canonical string may differ from the daily one)
     },
     universe: { requestedTop: topN, fetchedTickers: stockData.length, fullUniverseSize, dataRange: range, priceBasis: 'adjusted-close-only', adjustedCloseExcluded },
-    rebalanceDates: { count: offsetsAsc.length, comparedToProductionBacktest: 6 },
+    rebalanceDates: { count: offsetsAsc.length, comparedToProductionBacktest: BACKTEST_REBALANCE_OFFSETS.length },
     // The cost scenario behind every quantileSpreadNet below (one-way bps on turnover; spread, impact and borrow are not modelled).
     executionModel: baselineRef.executionModel,
     overallByHorizon: overall,

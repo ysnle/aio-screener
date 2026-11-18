@@ -18,6 +18,40 @@ export function renderPortfolioRiskStatus(text, warn, { documentRef = globalThis
   return true;
 }
 
+// Why the panel drew no figures, by the hold code of the history check, the input assembly
+// (src/ui/panels/portfolio-risk-input.js) or the estimate (src/domain/portfolio/risk.js). Each line says what is missing
+// and what makes the panel available; the code itself sits in the folded 계산 식별자.
+const NOT_COMPUTED = '위험 지표를 계산하지 않았습니다';
+const named = (list) => (list && list.length ? '(' + list.join(', ') + ')' : '');
+const RISK_HOLD_TEXT = Object.freeze({
+  'history-missing': (h) => '가격 기록을 받지 못한 종목' + named(h.tickers) + '이 있어 ' + NOT_COMPUTED + ' — 그 종목의 가격 기록이 들어오면 계산합니다.',
+  'common-dates-insufficient': () => '보유 종목이 함께 거래된 날이 6일이 안 돼 ' + NOT_COMPUTED + ' — 최근 상장한 종목의 거래일이 쌓이면 계산합니다.',
+  'missing-current': (h) => '현재 시세도 최근 종가도 없는 종목' + named(h.tickers) + '이 있어 ' + NOT_COMPUTED + ' — 평가액을 매수 단가로 대신하지 않으며, 시세나 종가가 들어오면 계산합니다.',
+  'no-current-value': () => '보유 종목의 현재 평가액을 구하지 못해 ' + NOT_COMPUTED + ' — 시세가 들어오면 계산합니다.',
+  'currency-mixed-no-base': () => '통화가 다른 종목이 섞여 있어 비중·위험을 계산하지 않았습니다 — 기준 통화와 현금 이자에서 계좌 기준 통화를 넣으면 계산합니다.',
+  'currency-unconverted': (h) => '기준 통화로 바꿀 환율이 없거나 오래된 통화쌍' + named(h.pairs) + '이 있어 비중·위험을 계산하지 않았습니다 — 환율 기록에 그 통화쌍을 최근 날짜로 넣으면 계산합니다.',
+  'exposure-history-mode-required': () => '계산 방식이 정해지지 않아 ' + NOT_COMPUTED + ' — 계산 방식을 고르면 계산합니다.',
+  'rebalance-policy-required': () => '목표 비중 유지 방식인데 리밸런싱 주기가 정해지지 않아 ' + NOT_COMPUTED + ' — 주기를 가정하지 않으며, 리밸런싱 주기를 고르면 계산합니다.',
+  'strategy-rebalance-policy-unrecognized': () => '저장된 리밸런싱 주기를 알아볼 수 없어 ' + NOT_COMPUTED + ' — 리밸런싱 주기를 다시 고르면 계산합니다.',
+  'strategy-target-weights-invalid': () => '목표 비중 유지 방식인데 목표 비중이 비었거나 합이 100%를 넘어 ' + NOT_COMPUTED + ' — 종목마다 목표 비중을 합 100% 이하로 넣으면 남는 몫을 현금으로 두고 계산합니다.'
+});
+const RISK_HOLD_FALLBACK = '보유 종목의 비중이나 가격 기록을 맞추지 못해 ' + NOT_COMPUTED + ' — 보유 종목의 가격 기록이 다시 들어오면 계산합니다.';
+
+export function riskHoldText(hold) {
+  const h = hold || {};
+  const text = RISK_HOLD_TEXT[h.code];
+  return text ? text(h) : RISK_HOLD_FALLBACK;
+}
+
+// hold: { code, tickers?, pairs? }. Returns false when the panel is absent.
+export function renderPortfolioRiskHold(hold, { documentRef = globalThis.document } = {}) {
+  const el = documentRef.getElementById('pf-risk-metrics');
+  if (!el) return false;
+  const code = String((hold && hold.code) || 'risk-input-unavailable');
+  el.innerHTML = `<div class="wsl-msg is-warn">${escapeHtml(riskHoldText(hold))}<details><summary>계산 식별자</summary>hold ${escapeHtml(code)}</details></div>`;
+  return true;
+}
+
 export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.document, root = globalThis } = {}) {
   const el = documentRef.getElementById('pf-risk-metrics');
   if (!el) return;
@@ -51,7 +85,7 @@ export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.docu
   let declCodes = null;
   if (est) {
     // #16: one Korean line on screen; the internal codes (path/scope/lineage/snapshot) go to the folded detail below.
-    let declParts = [est.exposureHistoryMode === 'current_composition_retrospective' ? '현재 구성을 표본 기간에 그대로 적용한 소급 계산' : est.exposureHistoryMode === 'fixed_target_weight_strategy' ? '목표 비중 유지 전략' : '실제 계좌 이력', '분모 ' + (scopeLabel || '—'), 'RF ' + (est.rf && est.rf.status === 'accepted' ? '입력' : '미입력 — Sharpe 보류'), '표본 ' + (est.sample && est.sample.n != null ? est.sample.n : days) + '일'];
+    let declParts = [est.exposureHistoryMode === 'current_composition_retrospective' ? '현재 구성을 표본 기간에 그대로 적용한 소급 계산' : est.exposureHistoryMode === 'fixed_target_weight_strategy' ? '목표 비중 유지 전략' : '실제 계좌 이력', '분모 ' + (scopeLabel || '—'), est.rf && est.rf.status === 'accepted' ? '무위험 수익률 입력' : '무위험 수익률 미입력(넣으면 샤프 지수 계산)', '표본 ' + (est.sample && est.sample.n != null ? est.sample.n : days) + '일'];
     if (weekly) declParts.push('한국·미국 종목이 함께 있어 ' + obs + '로 계산(두 시장의 마감 시각 차이 반영)');
     // The weights come from the valuation screen's close (or delayed quote) where no live quote was available.
     const ref = data.referenceValued;
@@ -66,11 +100,15 @@ export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.docu
     }
     declLines.push(_escHtmlSafe(declParts.join(', ')));
     if (est.wholeAccountHold) {
-      // E3/E4/P1188: 보류 사유를 구분해 말한다 — 통화 미선언/수익률 미입력/전략 경로 미선언.
-      let holdReason = est.wholeAccountHold === 'cash-declaration-unresolved' ? '현금을 기준 통화로 바꿀 환율 없음'
-        : est.wholeAccountHold === 'strategy-account-scope-not-declared' ? '전략 경로의 계좌 범위 미선언'
-        : '현금 수익률 미입력';
-      declLines.push('현금 보류: ' + holdReason + ' — 계좌 전체 위험은 게시하지 않습니다(주식 부분만 게시).');
+      // E3/E4/P1188: each reason the account view is held says what is missing and what would make it available; the code
+      // (est.wholeAccountHold) goes to the folded 계산 식별자 below.
+      const holdReason = est.wholeAccountHold === 'cash-declaration-unresolved'
+        ? '현금을 기준 통화로 바꿀 환율이 없어 계좌 전체가 아닌 주식 부분만 계산했습니다. 현금 통화와 기준 통화 사이 환율을 기록하면 계좌 전체로 계산합니다.'
+        : est.wholeAccountHold === 'strategy-account-scope-not-declared'
+          ? '목표 비중 유지 방식은 현금 몫을 정하지 않아 주식 부분만 계산했습니다. 계산 방식을 지금 구성 그대로로 바꾸고 현금 연수익률을 넣으면 계좌 전체로 계산합니다.'
+          : '현금 연수익률을 넣지 않아 계좌 전체가 아닌 주식 부분만 계산했습니다. 기준 통화와 현금 이자에서 현금 연수익률을 넣으면 계좌 전체로 계산합니다.';
+      declLines.push(holdReason);
+      declCodes.push('account-hold ' + est.wholeAccountHold);
     }
   }
   let declHtml = declLines.length
@@ -99,8 +137,8 @@ export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.docu
     '<div class="wsl-rk-val is-loss">' + fmtLoss(var99) + '</div>' +
     '<div class="wsl-rk-sub">' + (thin99 ? '표본 ' + obs + '라 99% 꼬리 관측이 ' + tail99 + '개뿐 — 99% 경계가 아니라 표본 ' + (weekly ? '최악 구간' : '최악일') + '입니다' : '과거 표본 99% 손실 경계(초과 가능), 표본 ' + obs + ', 꼬리 ' + tail99 + '개') + '</div></div>';
   let sharpeShown = sharpeThin ? null : sharpe;
-  let sharpeSub = sharpeThin ? '표본 부족, 보류 (' + days + '거래일 — 250일 미만이면 연율화 값이 표본 구간에 크게 좌우됩니다)'
-    : sharpe !== null && sharpe !== undefined ? 'RF 입력, 표본 ' + obs + '(연율화)' : (rfAnnual == null && est ? 'RF 미입력 — 보류 (' + days + '일)' : '데이터 부족');
+  let sharpeSub = sharpeThin ? '보유 종목이 함께 거래된 날이 ' + days + '일뿐이라 계산하지 않았습니다. 250거래일(약 1년)이 쌓이면 표시합니다.'
+    : sharpe !== null && sharpe !== undefined ? '무위험 수익률 입력, 표본 ' + obs + '(연율화)' : (rfAnnual == null && est ? '무위험 수익률을 넣으면 계산합니다(기준 통화와 현금 이자, 표본 ' + days + '일).' : '데이터 부족');
   cards += '<div class="wsl-rk-tile">' +
     '<div class="wsl-rk-label">Sharpe Ratio' + scopeSuffix + sampleTag + '</div>' +
     '<div class="wsl-rk-val ' + plainTone(sharpeShown) + '">' + fmtN(sharpeShown) + '</div>' +

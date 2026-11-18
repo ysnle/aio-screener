@@ -44,16 +44,12 @@ import { isListedUsSymbol, usListingSymbol } from '../data/us-listings.js';
 import { stripEvidenceIds } from '../domain/briefing/evidence-text.js';
 import { releaseAtMs, formatKstWhen } from '../domain/briefing/schedule.js';
 import { groupNewsStories, isNewsRevision, newsArticleKey, resolveNewsIssuers } from '../domain/news/stories.js';
-// The portfolio return statistics load on demand with the technical engine (technical-engine-globals.js).
-import { assessAccountPerformance } from '../domain/portfolio/risk.js';
+// The portfolio return statistics load on demand with the technical engine (technical-engine-globals.js). The 포트폴리오-only
+// panel contracts (risk input, account ledger and performance, declaration panels, base values, backup) install with the
+// route's renderers (src/app/portfolio-screen-bridges.js).
 import { PORTFOLIO_ASSUMPTION_KEYS, EXPOSURE_PATHS, REBALANCE_POLICIES, normalizeCurrencyCode, normalizeAnnualRate, normalizeExposurePath, normalizeRebalancePolicy, readPortfolioAssumptions } from '../data/portfolio-assumptions.js';
-import { LEDGER_COVERAGE_INPUTS, appendLedgerTransaction, appendLedgerValuation, ledgerCoverageState, normalizeLedger, removeLedgerEntry as removeLedgerEntryFromLedger, setLedgerCoverage as setLedgerCoverageOnLedger, setLedgerFlowTiming as setLedgerFlowTimingOnLedger } from '../data/portfolio-ledger.js';
-import { FX_LEG_MAX_AGE_MS, appendFxLeg, fxLegsState, normalizeFxLegs, removeFxLeg } from '../domain/portfolio/fx.js';
-import { applyFxPanel, applyLedgerPanel, clearDeclaredFields, readDeclaredFields, showDeclarationStatus } from '../ui/panels/portfolio-declarations.js';
-import { assembleRiskEstimateInput } from '../ui/panels/portfolio-risk-input.js';
-import { baseValueRows, baseValueNote } from '../ui/panels/portfolio-base-values.js';
+import { FX_LEG_MAX_AGE_MS, appendFxLeg, fxLegsState, normalizeFxLegs, removeFxLeg, withListingTickers } from '../domain/portfolio/fx.js';
 import { createDeclarationsStore } from '../data/portfolio-declarations-store.js';
-import { BACKUP_SECTIONS, backupReminder, buildPortfolioBackup, describeBackupCounts, parsePortfolioBackup } from '../data/portfolio-backup.js';
 import { readWatchlists, readWatchlistSymbols, toggleWatchlistSymbol, writeWatchlists, readActiveWatchlistId, writeActiveWatchlistId, ensureTargetList } from '../data/watchlist-store.js';
 import { CASH_INPUT_CURRENCIES, PORTFOLIO_CASH_KEY, LEGACY_CASH_KEY, readCashBalances, setCashBalance, writeCashBalances } from '../data/portfolio-cash.js';
 import { appUsdKrwClose } from '../domain/portfolio/cash.js';
@@ -189,58 +185,20 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   // The holding technical engine and the return statistics load the same way: 포트폴리오's risk runs
   // await this before their synchronous calls (src/app/technical-engine-globals.js).
   window._aioLoadTechnicalEngine = () => import('./technical-engine-globals.js').then((module) => module.installTechnicalEngine(window));
-  // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)의 단일 소유자 — 셸은 이 브리지를
-  // 호출해 결과를 그대로 렌더한다.
-  window._pfAssembleRiskEstimateInput = assembleRiskEstimateInput;
-  window._pfBaseValues = (positions) => baseValueRows(window._aioPortfolioSurface || null, positions); // P1445
   installGlossaryBridge({ root: window, documentRef: window.document }); // P1472/P1474: one concept source + cross-surface search
   installGlossaryLoader(window, window.document);
-  window._pfBaseNote = baseValueNote;
-  window._pfAssessAccountPerformance = assessAccountPerformance;
   // E3/P1188: the classic-shell form is the writer for the declared currency /
   // cash-return / RF inputs; it consumes the same keys and normalizers the
   // reader uses, so the two ends cannot drift (R632).
   window._pfPortfolioAssumptions = { keys: PORTFOLIO_ASSUMPTION_KEYS, exposurePaths: EXPOSURE_PATHS, rebalancePolicies: REBALANCE_POLICIES, normalizeCurrencyCode, normalizeAnnualRate, normalizeExposurePath, normalizeRebalancePolicy, read: readPortfolioAssumptions };
-  // E4/P1191: 원장의 유효성·병합은 ESM 모듈이 소유하고, 셸은 DOM과 Vault 쓰기만 맡는다.
-  window._pfPortfolioLedger = {
-    inputs: LEDGER_COVERAGE_INPUTS,
-    normalize: normalizeLedger,
-    appendTransaction: appendLedgerTransaction,
-    appendValuation: appendLedgerValuation,
-    remove: removeLedgerEntryFromLedger,
-    setCoverage: setLedgerCoverageOnLedger,
-    setFlowTiming: setLedgerFlowTimingOnLedger,
-    coverageState: ledgerCoverageState
-  };
   // E3/P1194 (11 §23): 선언된 FX leg의 유효성·환산 근거는 도메인 모듈이 소유하고, 셸은 DOM과 저장만 맡는다.
-  window._pfPortfolioFx = { maxAgeMs: FX_LEG_MAX_AGE_MS, normalize: normalizeFxLegs, appendLeg: appendFxLeg, removeLeg: removeFxLeg, legsState: fxLegsState };
+  window._pfPortfolioFx = { maxAgeMs: FX_LEG_MAX_AGE_MS, normalize: normalizeFxLegs, appendLeg: appendFxLeg, removeLeg: removeFxLeg, legsState: fxLegsState, withListingTickers };
   // P1195: 선언 패널의 마크업·ack 문구는 네이티브가 소유한다 — 셸은 저장 경로와 순서만 남긴다.
   // P1199: 선언 저장소의 *형태*(읽기 규칙·ack 분리)는 네이티브가 소유하고, 셸이 저장 정책(경로)을 주입한다.
   window._pfDeclarationsStore = { create: createDeclarationsStore };
-  window._pfDeclarationPanels = { applyLedgerPanel, applyFxPanel, showDeclarationStatus, readDeclaredFields, clearDeclaredFields };
-  // P1316/R661: 전체 개인 데이터 백업 묶음의 형태·검증은 네이티브가 소유하고, 셸은 스냅샷 수집과
-  // 저장(ack) 순서만 맡는다. 섹션 정규화는 각 섹션의 기존 소유자(원장·FX·가정)를 그대로 쓴다.
-  const backupDeps = {
-    normalizeLedger,
-    normalizeFxLegs,
-    assumptionKinds: { baseCurrency: 'currency', cashCurrency: 'currency', cashReturn: 'rate', riskFreeRate: 'rate', exposurePath: 'path', rebalancePolicy: 'policy' },
-    assumptionNormalizers: { currency: normalizeCurrencyCode, rate: normalizeAnnualRate, path: normalizeExposurePath, policy: normalizeRebalancePolicy }
-  };
-  window._pfPortfolioBackup = {
-    sections: BACKUP_SECTIONS,
-    build: buildPortfolioBackup,
-    describe: describeBackupCounts,
-    renderReminder(holdingCount) {
-      const el = document.getElementById('pf-backup-reminder');
-      if (!el) return;
-      let last = null;
-      try { last = localStorage.getItem('aio_last_backup_at'); } catch (_) {}
-      const reminder = backupReminder({ lastBackupAt: last, holdingCount });
-      el.hidden = !reminder;
-      el.textContent = reminder ? reminder.text : '';
-    },
-    parse: (text) => parsePortfolioBackup(text, backupDeps)
-  };
+  // The add form's 합치기 (a second buy of a held ticker) loads its dialog and merge rule on first use; the backup import
+  // merges with the same rule (portfolio-screen-bridges.js).
+  window._aioHoldingMerge = () => import('../ui/panels/portfolio-duplicate-holding.js');
   // P1317/R663: the ticker route, quote request and screener lookup share one canonical symbol —
   // a bare KRX code or registered Korean name resolves to `005930.KS`-style keys.
   // P1339: registered company names (엔비디아 / nvidia / 퀄컴) resolve by exact registry match when the KRX

@@ -434,7 +434,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     }
     if (limitationNotes.length && gate.blocked !== true) {
       var limitationSummary = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication?.summarizeAnswerLimitations;
-      var searchSummary = searchCitations.length ? { searchedSentences: filterCounts && filterCounts.searchedSentences, removedNumericSentences: filterCounts && filterCounts.removedNumericSentences, toolDates: filterCounts && filterCounts.toolDates } : null;
+      var searchSummary = searchCitations.length ? { searchedSentences: filterCounts && filterCounts.searchedSentences, removedNumericSentences: filterCounts && filterCounts.removedNumericSentences, toolDates: filterCounts && filterCounts.toolDates, derivedSentences: filterCounts && filterCounts.derivedSentences, brokenSentences: filterCounts && filterCounts.brokenSentences, withheldTopics: filterCounts && filterCounts.withheldTopics } : null;
       var limitationLine = limitationSummary ? limitationSummary((gate.limitations || []).concat(gate.unverifiedNumericNotice ? ['current-numeric-claim-unverified'] : []), { publishedClaimCount: publishedClaims.length, search: searchSummary }) : '';
       if (!limitationLine && !searchSummary) limitationLine = '※ 확인 안 된 부분이 있어 조건부로 설명합니다';
       gate = Object.assign({}, gate, { text: (limitationLine ? limitationLine + '\n\n' : '') + gate.text, limitationNotes: limitationNotes });

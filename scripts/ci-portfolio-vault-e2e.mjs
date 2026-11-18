@@ -15,6 +15,10 @@ const liveBaseUrl = String(process.env.CI_PORTFOLIO_BASE_URL || '').replace(/\/+
 const isLive = !!liveBaseUrl;
 const baseUrl = liveBaseUrl || `http://127.0.0.1:${port}`;
 const url = `${baseUrl}/index.html`;
+// The 포트폴리오 panel contracts (ledger, declaration panels, account performance, backup) install with the route's lazy
+// bridges (src/app/portfolio-screen-bridges.js); an automated browser loads them right after boot.
+const portfolioPanelsReady = () => typeof window._pfAssessAccountPerformance === 'function' && typeof window._pfPortfolioLedger === 'object'
+  && typeof window._pfDeclarationPanels === 'object' && typeof window._pfPortfolioBackup === 'object';
 const artifactDir = resolve(root, '_artifacts', isLive ? 'portfolio-vault-live' : 'portfolio-vault');
 const localRevision = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
 const localGitHead = (() => { try { return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(); } catch (_) { return null; } })();
@@ -132,6 +136,7 @@ async function openListingPage(browser, { listing }) {
   });
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.addPortfolioPosition === 'function' && typeof window._aioCheckUsListing === 'function' && typeof window.showPage === 'function', { timeout: 30000 });
+  await page.waitForFunction(portfolioPanelsReady, { timeout: 30000 });
   return page;
 }
 async function addListedHoldings(page, symbols) {
@@ -238,6 +243,7 @@ async function main() {
     await page.waitForFunction(() => typeof window.AIO === 'object' && typeof window.AIO.loadTests === 'function', { timeout: 30000 });
     // P1350: test the production bridge, never inject a substitute implementation.
     await page.waitForFunction(() => typeof window._aioFinancialSecurity?.authenticateVault === 'function', { timeout: 30000 });
+    await page.waitForFunction(portfolioPanelsReady, { timeout: 30000 });
     const capability = await page.evaluate(() => ({
       get: typeof window.getPortfolioData,
       lock: typeof window.isPortfolioLocked,
@@ -278,6 +284,7 @@ async function main() {
 
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => typeof window.getPortfolioData === 'function' && typeof window.isPortfolioLocked === 'function', { timeout: 30000 });
+    await page.waitForFunction(portfolioPanelsReady, { timeout: 30000 });
     const reloadLocked = await page.evaluate(() => { window.showPage('portfolio'); return window.isPortfolioLocked() && (document.getElementById('pf-lock-screen') || {}).style?.display !== 'none'; });
     check('PFE2-05 reload_requires_unlock', reloadLocked, String(reloadLocked));
 
@@ -702,9 +709,9 @@ async function main() {
       ['no-price-claim', /시세 이력.*무관하게/.test(rendered.ledgerHtml)],
       ['pointer-in-risk-panel', /원장 성과 요약/.test(rendered.riskHtml)],
       ['whole-account-scope', /계좌 전체/.test(rendered.riskHtml)],
-      ['rf-declared', /RF 입력/.test(rendered.riskHtml)],
+      ['rf-declared', /무위험 수익률 입력/.test(rendered.riskHtml)],
       ['snapshot-declared', /snapshot pfcomp-/.test(rendered.riskHtml)],
-      ['no-cash-hold', !/현금 보류/.test(rendered.riskHtml)]
+      ['no-cash-hold', !/주식 부분만 계산했습니다/.test(rendered.riskHtml) && !/account-hold /.test(rendered.riskHtml)]
     ];
     check('PFE2-17 declared_currency_and_performance_render (P1188/P1191/P1458)',
       cres.every(([, ok]) => ok),
@@ -740,7 +747,7 @@ async function main() {
       /목표 비중 유지 전략/.test(declaredStates.strategyHtml)
       && /목표 AAA 50\.0%\/BBB 50\.0%/.test(declaredStates.strategyHtml)
       && /분모 주식 부분/.test(declaredStates.strategyHtml) && /data-risk-scope="invested_sleeve"/.test(declaredStates.strategyHtml) // P1684: Korean line; codes in data-* and the folded identifiers
-      && /전략 경로의 계좌 범위 미선언/.test(declaredStates.strategyHtml)
+      && /현금 몫을 정하지 않아 주식 부분만 계산했습니다/.test(declaredStates.strategyHtml) && /account-hold strategy-account-scope-not-declared/.test(declaredStates.strategyHtml) // v60.30: plain-language account-view hold, code in the fold
       && declaredStates.declaredPath === 'current_composition_retrospective'
       && declaredStates.mixedNote.includes('통화 혼합')
       && declaredStates.mixedNote.includes('환산 없어 합계 보류')
@@ -958,8 +965,8 @@ async function main() {
       return { long, short };
     });
     check('PFE2-23 var_certification_render_states (P1203)',
-      varCertFlow.long.certification === 'certified' && varCertFlow.long.sampleN >= 36 && varCertFlow.long.label === '인증'
-      && varCertFlow.short.certification === 'held' && String(varCertFlow.short.label).startsWith('인증 보류'),
+      varCertFlow.long.certification === 'certified' && varCertFlow.long.sampleN >= 36 && varCertFlow.long.label === '확정'
+      && varCertFlow.short.certification === 'held' && String(varCertFlow.short.label).startsWith('참고값 — '),
       JSON.stringify({ long: varCertFlow.long, short: varCertFlow.short }));
     const races = await page.evaluate(runFinancialSecurityRaceFixtures);
     for (const [name, ok] of Object.entries(races)) check('P1350 cancelled Vault operation ' + name, ok, JSON.stringify(races));
@@ -1051,6 +1058,7 @@ async function main() {
     check('P1350 migration_failure_restores_original_sections',security.rollback,JSON.stringify(security));
     await page.reload({waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>typeof window._aioFinancialSecurity?.authenticateVault==='function' && typeof window.unlockPortfolio==='function',{timeout:30000});
+    await page.waitForFunction(portfolioPanelsReady, { timeout: 30000 });
     const financialReload=await page.evaluate(async()=>{ document.getElementById('pf-pin-input').value='2468'; await window.unlockPortfolio(); return window.getPortfolioData()[0]?.ticker==='AAPL' && window.getPortfolioLedger()?.transactions?.[0]?.amount===321 && window.getPortfolioFxLegs()[0]?.rate===1400; });
     check('P1350 financial_three_sections_restore_after_reload',financialReload,String(financialReload));
 

@@ -5,7 +5,8 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { refreshSharedArtifact, screenerRowsState } from '../../data/shared-artifacts.js';
 import { subscribeToSlices } from '../../state/memoize.js';
-import { chartsConclusion, coreStockRows, indexChartReadings } from '../../domain/technical/market-charts.js';
+import { chartsConclusion, chartsPageBasis, coreStockRows, indexChartReadings, stockTableSessionBehind } from '../../domain/technical/market-charts.js';
+import { sessionChipText } from '../components/session-lag.js';
 import { signedText } from '../../domain/shared/number.js';
 import { createTrendChart } from '../components/trend-chart.js';
 import { noteFold } from '../components/section-frame.js';
@@ -33,7 +34,8 @@ function screenerOf(root, store) {
   return { screener: { data: Object.fromEntries(rows.filter((row) => row?.sym).map((row) => [row.sym, row])) }, universe: rows, indexWeights: weightRows(state.screener?.metadata?.indexWeights) };
 }
 
-// v59.70 (lens plan step 4): a card whose last close is older than the page basis (코스피 before the US close) says its own date.
+// v59.70 (lens plan step 4): a card whose last close is not the page basis (the US close) says its own date — 코스피 is a
+// session behind before the Korean close and a session ahead during the US session.
 function indexCard(doc, root, reading, latest) {
   const box = el(doc, 'section', null, 'trend-card charts-card');
   box.dataset.index = reading.field;
@@ -70,8 +72,12 @@ function indexCard(doc, root, reading, latest) {
   return box;
 }
 
-function stockTable(doc, root, rows) {
+function stockTable(doc, root, rows, asOf) {
   const table = el(doc, 'table', null, 'charts-table');
+  // rows from an earlier session than the header's index close say their own session, with the
+  // same words as 테마와 섹터 ("11/16 종가 기준, 11/17 반영 전").
+  const behind = stockTableSessionBehind(rows, asOf);
+  if (behind) table.append(el(doc, 'caption', sessionChipText(behind, String(asOf).slice(0, 10)), 'charts-table__session'));
   const head = el(doc, 'tr');
   for (const name of ['종목', '추세', '1일', '50일선', '200일선', '고점 대비', 'RSI']) head.append(el(doc, 'th', name));
   table.append(el(doc, 'thead'), el(doc, 'tbody'));
@@ -109,7 +115,7 @@ function render(documentRef, root, store, page) {
   const history = root?._aioHistory || [];
   const readings = indexChartReadings(history);
   const set = (id, text) => { const node = documentRef.getElementById(id); if (node) node.textContent = text; };
-  const asOf = readings.map((reading) => reading.asOf).sort().at(-1);
+  const asOf = chartsPageBasis(readings);
   set('charts-basis', readings.length ? `${shortDate(asOf)} 종가 · 일봉` : historyWaitText(root));
   set('charts-conclusion', chartsConclusion(readings));
   const grid = documentRef.getElementById('charts-index-grid');
@@ -124,7 +130,7 @@ function render(documentRef, root, store, page) {
   const host = documentRef.getElementById('charts-stock-table');
   if (host) {
     const rows = coreStockRows({ ...screenerOf(root, store), day: root?.[MARKET_DAY.key] || null });
-    if (rows.length) host.replaceChildren(stockTable(documentRef, root, rows));
+    if (rows.length) host.replaceChildren(stockTable(documentRef, root, rows, asOf));
     else renderDataState(host, screenerRowsState(root) === 'failed' ? { state: 'error', text: '종목 지표를 받지 못했습니다' } : { state: 'loading', lines: 5 });
   }
   page.dataset.aioChartsRendered = String(readings.length);

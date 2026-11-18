@@ -35,12 +35,23 @@ const verdictView = (row) => `${row?.asOf} ${row?.overall} ${['favorable', 'neut
 /**
  * Pure: the published record against the live code's regime on the same inputs. 'stale-model' — written by other code
  * (named, converges on the next refresh); 'mismatch' — same model, different verdict (a defect); 'match'; 'missing'.
+ * 'input-newer' — same model, different verdict, and an input artifact (`newerInputs`) was published after the record:
+ * the record never saw that input, so it is not the same-inputs case. refresh-screener.yml runs this check with the new
+ * screener.json in place while today-verdict.json is written only by refresh-data.yml; read as a mismatch, the screener
+ * lane could not publish the breadth the verdict was waiting for (2026-11-17 21:33Z onward, five runs).
  */
-export function verdictRecordStatus(record, regime, liveModel) {
+export function verdictRecordStatus(record, regime, liveModel, { newerInputs = [] } = {}) {
   if (!record) return { status: 'missing', published: null, live: verdictView(regime) };
   const same = VERDICT_FIELDS.every((key) => JSON.stringify(record[key] ?? null) === JSON.stringify((key === 'heroLine' ? regime?.[key] || '' : regime?.[key]) ?? null));
-  const status = record.model !== liveModel ? 'stale-model' : same ? 'match' : 'mismatch';
-  return { status, same, model: record.model || null, liveModel, published: verdictView(record), live: verdictView(regime) };
+  const status = record.model !== liveModel ? 'stale-model' : same ? 'match' : newerInputs.length ? 'input-newer' : 'mismatch';
+  return { status, same, model: record.model || null, liveModel, newerInputs, published: verdictView(record), live: verdictView(regime) };
+}
+
+/** Input artifacts published after the record was written, by name ({ name: publishedAt }). */
+export function inputsNewerThanRecord(record, publishedAtByInput = {}) {
+  const written = Date.parse(record?.generatedAt || '');
+  if (!Number.isFinite(written)) return [];
+  return Object.entries(publishedAtByInput).filter(([, at]) => Date.parse(at || '') > written).map(([name]) => name);
 }
 
 /** `today-verdict:<16 hex>` over the closure's source text. */

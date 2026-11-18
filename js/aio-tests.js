@@ -898,7 +898,7 @@
     var reentrySP = window.calcSellPressure ? window.calcSellPressure(reentrySnap) : null;
     _assert('T105 sell_pressure: upper BB reentry flag', reentrySP && reentrySP.flags.indexOf('UPPER_BOLLINGER_REENTRY_EXHAUSTION') >= 0, reentrySP && reentrySP.flags.join(','));
 
-    var brokenSnap = Object.assign({}, snap, { above10EMA: false, above21EMA: false, above50SMA: false, dist50Atr: -1, dist21Atr: -1, rsi14: 45, bbReentry: false, dayGainPct: -2, rvol20: 1.2, closePosition: 0.2 });
+    var brokenSnap = Object.assign({}, snap, { above10EMA: false, above21EMA: false, above50SMA: false, ema10: snap.price * 1.2, ema21: snap.price * 1.2, sma50: snap.price * 1.2, dist50Atr: -1, dist21Atr: -1, rsi14: 45, bbReentry: false, dayGainPct: -2, rvol20: 1.2, closePosition: 0.2 });
     var brokenSP = window.calcSellPressure ? window.calcSellPressure(brokenSnap) : null;
     _assert('T106 sell_pressure: MA violations escalate', brokenSP && (brokenSP.action === 'TRIM_50' || brokenSP.action === 'EXIT_OR_HEDGE'), brokenSP && brokenSP.action);
     _assert('T106 sell_pressure: 50SMA thesis damaged flag', brokenSP && brokenSP.flags.indexOf('CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED') >= 0, brokenSP && brokenSP.flags.join(','));

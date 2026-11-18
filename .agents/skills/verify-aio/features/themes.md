@@ -26,7 +26,7 @@ Preconditions:
 
 - Doctor OK; theme snapshot present.
 
-- **Open.** Click sidebar `테마와 섹터`. `page-themes` active (single-tab hub, no tab bar).
+- **Open.** Click sidebar `테마와 섹터`. The `요약` view opens on `page-themes`. Use the page tabs for each section: `요약` for sector bars and rotation, `테마 순위` for the member comparison, `지도` for the S&P 500 map and `AI 공급망` for layer PER and capital flow.
 - **Cards.** `#rrg-quadrant-cards` has children; ≥1 detail chip.
 - **Scope.** Click `세부 업종` pill, then `11섹터`; each becomes `.active` and the chip set differs.
 - **Near high and layer PER.** Click `고점 근처` in `#sector-perf-tabs`; the bars carry `data-metric=near52` and the hero names `52주 고점`. `1주` returns to the period bars. Open `층별 PER` in `#themes-ai-chain`; each row's aria-label reads `지난 4분기 N배 → 다음 4분기 M배`.
@@ -36,7 +36,7 @@ Preconditions:
 - **To 종목.** Reopen that theme, then click its first visible `showTicker` chip. `page-ticker` active and `#ticker-hero-name` names that symbol.
 - **S&P 500 map.** `#sector-map` is an open section (`#sector-map-fold` holds only the day's splits and is hidden without them); wait for >50 `#sector-map .sector-map-tile`, click the first tile and expect `.sector-map-detail` to start with its symbol (a second click opens the stock page).
 - **Proof.** `drive themes` evidence folder.
-- **AI capital flow.** Open `#ai-capex-fold > summary`; `#ai-capex-flow` contains the explanation and its reference basis (at least 80 visible characters).
+- **AI capital flow.** Select `AI 공급망`; the expanded `#ai-capex-flow` contains the explanation and its reference basis (at least 80 visible characters).
 
 ## Gotchas
 

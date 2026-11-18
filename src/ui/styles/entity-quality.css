@@ -22,7 +22,7 @@
    older 관련 테마 widget in 테마·팩터 프로파일 is hidden until index.html drops it. */
 /* audit #5: one line per theme; its crossroads link reads as a link, at the 12px floor. */
 .stock-read-theme-line + .stock-read-theme-line { margin-top:4px; }
-button.stock-read-point-link { display:inline-block; min-height:24px; line-height:24px; background:none; border:0; padding:0; color:var(--color-accent); font:inherit; font-size:12px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+.stock-read-point-link { display:inline-block; min-height:var(--touch-min); line-height:24px; background:none; border:0; padding:0; color:var(--color-accent); font:inherit; font-size:12px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
 /* v57.81 (phone/iPad parity audit): the back link is the only way back on 차트/재무 공시 — 24px tall with a pointer, 44px on
    touch; under 700px the subject takes its own line above the tabs instead of being clipped at the nav's right edge. */
 .aio-hub-subject-from { display: inline-flex; align-items: center; min-height: 24px; padding: 0 4px; }

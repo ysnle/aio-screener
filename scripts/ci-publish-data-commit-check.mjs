@@ -6,7 +6,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { delimiter, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { publish } from './publish-data-commit.mjs';
 import { DATA_PUBLISH_SETS, publishSetPaths, publishSetsForWorkflow, workflowPublishes } from './lib/data-publish-sets.mjs';
@@ -31,6 +31,12 @@ writeFileSync(ghBin, `import { appendFileSync } from 'node:fs';\nappendFileSync(
 const outFile = join(tmp, 'github-output');
 const savedEnv = { ...process.env };
 const savedCwd = process.cwd();
+// Release hooks use Bash on Actions. A Windows checkout can have Git's commands
+// on PATH without the Bash executable that ships alongside Git's own shell.
+if (process.platform === 'win32') {
+  const gitShellDir = dirname(git(root, 'var', 'GIT_SHELL_PATH'));
+  process.env.PATH = [gitShellDir, process.env.PATH].join(delimiter);
+}
 Object.assign(process.env, { AIO_PUBLISH_GH: ghBin, AIO_PUBLISH_SLEEP_MS: '0', AIO_PUBLISH_NOW: '2026-11-08T15:00:00Z', GITHUB_OUTPUT: outFile,
   GIT_AUTHOR_NAME: 'fixture', GIT_AUTHOR_EMAIL: 'f@x', GIT_COMMITTER_NAME: 'fixture', GIT_COMMITTER_EMAIL: 'f@x',
   // The fixture repositories compare file bytes; a machine with core.autocrlf=true would rewrite LF as CRLF when the

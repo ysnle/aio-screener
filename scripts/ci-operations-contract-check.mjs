@@ -8,7 +8,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { workflowPublishes } from './lib/data-publish-sets.mjs';
 import { VERTICAL_SLICE_CONTRACTS } from '../src/app/vertical-slices.js';
-import { FEATURE_AVAILABILITY, validateOperationsStatus } from '../src/data/contracts/operations.js';
+import { FEATURE_AVAILABILITY, createOperationsStatus, validateOperationsStatus } from '../src/data/contracts/operations.js';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const read = (file) => readFileSync(join(root, file), 'utf8');
@@ -91,14 +91,17 @@ check('public readiness FRED success branch mirrors durable artifact', readiness
 check('durable plane exposes freshness evidence', operations.planes?.durable?.freshness && Number(operations.planes.durable.freshness.maxAgeHours) === Number(durableData.meta?.marketCycleFreshnessSlaHours || 12));
 
 // ── P1173 (17 작업 단위 5): 집계의 범위와 기능별 사용 가능 범위 ────────────────────────────────
-// `overall`은 durable 한 축에서 파생되므로 browser 평면이 UNKNOWN이어도 바뀌지 않는다. 집계가 무엇을
+// `overall`은 durable 평면 상태와 운영 차단 사유를 반영하며 browser 평면이 UNKNOWN이어도 바뀌지 않는다. 집계가 무엇을
 // 포함/제외하는지와 기능별 상태·관측시각·누락 이유가 함께 발행되지 않으면, 소비자는 "전역 정상"과
 // "브라우저 셸은 관측된 적 없음"을 구분할 수 없다.
 const basis = operations.overallBasis || {};
 const features = operations.featureAvailability || {};
 check('P1173 overall declares which planes it aggregates', Array.isArray(basis.planes) && basis.planes.length > 0
   && basis.planes.every((plane) => ['durable', 'fast', 'browser'].includes(plane)), JSON.stringify(basis.planes));
-check('P1173 overall declares the planes it leaves out', Array.isArray(basis.excludes) && basis.excludes.includes('browser') && basis.excludes.includes('fast'), JSON.stringify(basis.excludes));
+check('P1173 overall declares the plane statuses it does not directly aggregate', Array.isArray(basis.excludes) && basis.excludes.includes('browser') && basis.excludes.includes('fast'), JSON.stringify(basis.excludes));
+check('v60.25 overall preserves its separate blocker input and supports prior artifacts without that declaration',
+  createOperationsStatus({ overallBasis: { includesBlockers: true } }).overallBasis.includesBlockers === true
+  && !Object.hasOwn(createOperationsStatus({ overallBasis: {} }).overallBasis, 'includesBlockers'));
 check('P1173 a browser plane that was never observed cannot read as available',
   operations.planes?.browser?.observed !== 'NOT_OBSERVED' || (features['browser-shell']?.availability === 'UNKNOWN'
     && features['browser-shell']?.missingReason === 'browser-plane-not-observed'),

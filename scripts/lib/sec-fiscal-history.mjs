@@ -4,7 +4,7 @@
 // The pure series builders live here (moved verbatim, v59.48) so ci-fiscal-quality-fixture imports the code the builder
 // runs instead of slicing the builder's source text.
 import { bestRevenueRowsByPeriod } from '../../src/domain/fundamental/sec-report.js';
-import { anchorConcept, anchorConceptRows, discreteQuarterSeries, SEC_FIELD_CONCEPT_PREFERENCE } from '../../src/domain/fundamental/sec-earnings.js';
+import { anchorConcept, anchorConceptRows, discreteQuarterSeries, secDebtBasis, secDebtCurrentCoverage, SEC_FIELD_CONCEPT_PREFERENCE } from '../../src/domain/fundamental/sec-earnings.js';
 
 // P1627: whole-million rounding turned small profits/losses into zero and made the
 // fiscal timeline disagree with the exact annual receipt. Preserve USD thousands
@@ -67,22 +67,43 @@ const CAPITAL_FIELDS = FY_FIELDS.slice(8);
 export const CAPITAL_YEARS = 2;
 const DURATION_FIELDS = new Set(['revenue', 'netIncome', 'operatingCashFlow', 'capex', 'researchAndDevelopment', 'grossProfit', 'operatingIncome', 'shareBasedCompensation', 'buybacks', 'dividends']);
 export const FISCAL_HISTORY_FORMAT = 'periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions[:totalAssets:researchAndDevelopment[:grossProfit:operatingIncome:cash:shortTermInvestments:shareBasedCompensation:buybacks:dividends]] (USD millions; the first bracket is present once the issuer was read with total assets and R&D, the second on the latest two fiscal years once it was read with the capital items — absent = not yet collected, empty = not reported)';
+// The annual rows of one field the series is built from.
+function annualFieldRows(observations, field) {
+  // 2026-10-13 F05: one revenue row per period by the shared concept rule (a REIT's customer-contract subtotal
+  // no longer wins a same-filing tie against total revenues).
+  return (field === 'revenue' ? bestRevenueRowsByPeriod(observations.revenue) : Array.isArray(observations[field]) ? observations[field] : []).filter((row) => {
+    // P1627: the source also collects annual foreign-issuer 20-F/40-F facts.
+    // Dropping their form here left ARM/BABA/NBIS/MNDY on a one-year fallback.
+    if (!/^(10-K|20-F|40-F)(\/A)?$/.test(String(row?.form || '')) || !Number.isFinite(row?.value) || !row.periodEnd) return false;
+    if (!DURATION_FIELDS.has(field)) return true;
+    const days = (Date.parse(row.periodEnd) - Date.parse(row.periodStart || '')) / 86400000;
+    return row?.fiscalPeriod === 'FY' && days >= 330 && days <= 380;
+  });
+}
+
+// v60.28 (debt coverage): what the longTermDebt column of an issuer's series is — 'lease-inclusive' when the series is
+// anchored on a debt-and-lease line (finance-lease obligations inside the figure), null for the debt-only lines or no debt.
+// Written as a sparse per-issuer map beside the series (DEBT_BASIS_FORMAT), so the row format is unchanged.
+export const DEBT_BASIS_FORMAT = 'symbol → basis of the longTermDebt column when it is not debt-only: lease-inclusive = long-term debt including finance-lease obligations (absent = debt-only or no debt)';
+export function fiscalDebtBasis(observations = {}) {
+  const basis = secDebtBasis(anchorConcept(annualFieldRows(observations, 'longTermDebt'), SEC_FIELD_CONCEPT_PREFERENCE.longTermDebt));
+  return basis === 'lease-inclusive' ? basis : null;
+}
+// Whether that column includes the part due within a year (sec-earnings secDebtCurrentCoverage): 'excluded' when the series
+// is anchored on a noncurrent line, null otherwise. Sparse beside debtBasis; the map's presence says the coverage was read.
+export const DEBT_CURRENT_FORMAT = 'symbol → excluded when the longTermDebt column leaves out the portion due within a year (a noncurrent line); absent = that portion is included or there is no debt';
+export function fiscalDebtCurrent(observations = {}) {
+  return secDebtCurrentCoverage(anchorConcept(annualFieldRows(observations, 'longTermDebt'), SEC_FIELD_CONCEPT_PREFERENCE.longTermDebt)) === 'excluded' ? 'excluded' : null;
+}
+
 export function fiscalHistory(observations = {}) {
   const byEnd = new Map();
   for (const field of FY_FIELDS) {
-    // 2026-10-13 F05: one revenue row per period by the shared concept rule (a REIT's customer-contract subtotal
-    // no longer wins a same-filing tie against total revenues).
-    const fieldRows = (field === 'revenue' ? bestRevenueRowsByPeriod(observations.revenue) : Array.isArray(observations[field]) ? observations[field] : []).filter((row) => {
-      // P1627: the source also collects annual foreign-issuer 20-F/40-F facts.
-      // Dropping their form here left ARM/BABA/NBIS/MNDY on a one-year fallback.
-      if (!/^(10-K|20-F|40-F)(\/A)?$/.test(String(row?.form || '')) || !Number.isFinite(row?.value) || !row.periodEnd) return false;
-      if (!DURATION_FIELDS.has(field)) return true;
-      const days = (Date.parse(row.periodEnd) - Date.parse(row.periodStart || '')) / 86400000;
-      return row?.fiscalPeriod === 'FY' && days >= 330 && days <= 380;
-    });
+    const fieldRows = annualFieldRows(observations, field);
     // 2026-10-17 (logic audit D6): one concept per series — the concept of the latest year — so a year-over-year read
     // never compares LongTermDebt with LongTermDebtNoncurrent or NetIncomeLoss with ProfitLoss. Equity keeps its
-    // parent-first rank (P1449) and revenue its per-period rule (F05).
+    // parent-first rank (P1449) and revenue its per-period rule (F05). v60.28: a debt series also keeps one basis
+    // (lease-inclusive or debt-only), so a year the anchor never reported is not filled from the other basis.
     const anchored = SEC_FIELD_CONCEPT_PREFERENCE[field] ? anchorConceptRows(fieldRows, SEC_FIELD_CONCEPT_PREFERENCE[field]) : fieldRows;
     for (const row of anchored) {
       const entry = byEnd.get(row.periodEnd) || { periodEnd: row.periodEnd, filedAt: {}, conceptRank: {} };

@@ -303,6 +303,34 @@ if (!atlas.includes('article identity mismatch') || !atlas.includes('validateCur
   const domainIds = new Set((research.taxonomyDomains || []).map((domain) => domain.id));
   VALUE_CHAIN_LAYERS.flatMap((layer) => layer.domains).forEach((id) => { if (!domainIds.has(id)) errors.push(`v58.56 value-chain layer names unknown domain ${id}`); });
 }
+// v60.28: the layer card's companies come from the company stories' AI layer through one table. Every story layer is
+// mapped to an atlas layer or listed as outside it, and with today's stories every layer, the model layer too, names a
+// company (the hand registry alone left 모델 empty and 클라우드·데이터센터 with one or two names).
+{
+  const { PROFILE_LAYER_TO_ATLAS, PROFILE_LAYERS_OUTSIDE_ATLAS, VALUE_CHAIN_LAYERS, valueChainLayerPlayers } = await import('../src/ui/pages/atlas.js');
+  const { AI_LAYERS } = await import('../src/domain/entity/company-story.js');
+  if (!PROFILE_LAYER_TO_ATLAS || !PROFILE_LAYERS_OUTSIDE_ATLAS) errors.push('v60.28 atlas must export the story-layer table (PROFILE_LAYER_TO_ATLAS)');
+  else {
+    const layerNs = new Set(VALUE_CHAIN_LAYERS.map((layer) => layer.n));
+    for (const [id] of AI_LAYERS) {
+      const mapped = Object.hasOwn(PROFILE_LAYER_TO_ATLAS, id);
+      if (mapped === PROFILE_LAYERS_OUTSIDE_ATLAS.includes(id)) errors.push(`v60.28 story layer ${id} must be in exactly one of PROFILE_LAYER_TO_ATLAS / PROFILE_LAYERS_OUTSIDE_ATLAS`);
+      if (mapped && !layerNs.has(PROFILE_LAYER_TO_ATLAS[id])) errors.push(`v60.28 story layer ${id} maps to unknown atlas layer ${PROFILE_LAYER_TO_ATLAS[id]}`);
+    }
+    for (const id of [...Object.keys(PROFILE_LAYER_TO_ATLAS), ...PROFILE_LAYERS_OUTSIDE_ATLAS]) if (!AI_LAYERS.some(([known]) => known === id)) errors.push(`v60.28 atlas table names unknown story layer ${id}`);
+  }
+  const profiles = JSON.parse(read('public-data/company-profiles/index.json')).profiles || [];
+  const registry = JSON.parse(read('public-data/atlas/player-product-registry.json'));
+  for (const layer of VALUE_CHAIN_LAYERS) {
+    const rows = valueChainLayerPlayers(layer, research, registry, profiles);
+    if (!rows.length) errors.push(`v60.28 value-chain layer ${layer.n} ${layer.title} names no company`);
+    if (rows.some((row) => !row.label || !row.name)) errors.push(`v60.28 value-chain layer ${layer.n} has a company row without a label`);
+    const expected = profiles.filter((profile) => PROFILE_LAYER_TO_ATLAS?.[profile.layer] === layer.n).map((profile) => String(profile.symbol).toUpperCase());
+    const shown = new Set(rows.map((row) => row.symbol).filter(Boolean));
+    const missing = expected.filter((symbol) => !shown.has(symbol));
+    if (missing.length) errors.push(`v60.28 value-chain layer ${layer.n} leaves out story companies ${missing.slice(0, 5).join(', ')}`);
+  }
+}
 if (errors.length) {
   console.error(JSON.stringify({ ok: false, errors }));
   process.exit(1);

@@ -6,7 +6,7 @@ import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
 import { loadKnowledgeIndex, searchKnowledgeIndex } from './knowledge-search.js';
 import { createStorageGateway } from '../../platform/storage.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
-import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
+import { knowledgeRouteHref, knowledgeRouteParams, navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { SCENARIO_STATE } from '../../data/artifact-registry.js';
 import { bindCombobox } from '../behaviors/listbox.js';
@@ -206,9 +206,7 @@ function glossaryMatches(root, query, known, limit = 4) {
 const SURFACE_ORDER = ['frame', 'column', 'concept', 'glossary', 'principles-lesson', 'principles-node', 'atlas-node', 'atlas-foundation', 'manager'];
 
 export function routeHref(root, route) {
-  const params = new URLSearchParams();
-  Object.entries(route?.params || {}).forEach(([key, value]) => { if (value != null && value !== '') params.set(key, value); });
-  return `${root?.location?.pathname || ''}?${params.toString()}#${route.page}`;
+  return knowledgeRouteHref({ root, page: route?.page, params: route?.params || {} });
 }
 
 // Navigate to a research surface. The current page handles its own params without a reload.
@@ -222,7 +220,7 @@ export function openResearchRoute(root, route, { currentPage, onLocal } = {}) {
 
 // Whether the URL names a chosen document (browsing vs reading); the graph view is browsing.
 export function researchDocumentOpen(root) {
-  const locationQuery = String(root?.location?.search || '');
+  const locationQuery = `?${knowledgeRouteParams(root?.location)}`;
   return /[?&](?:node|chapter|lesson|domain|manager)=/.test(locationQuery) && !/[?&]mode=graph(?:&|$)/.test(locationQuery);
 }
 
@@ -345,7 +343,7 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   loadIndex(root).then((index) => {
     const entries = index?.entries || [];
     if (route === 'principles') renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, currentPage: route, onLocal });
-    const items = relatedEntries(entries, route, root?.location?.search);
+    const items = relatedEntries(entries, route, knowledgeRouteParams(root?.location).toString());
     if (!items.length) return;
     const row = el(doc, 'div', 'rl-picks-row');
     row.append(el(doc, 'span', 'rl-picks-label', '이 화면 관련 글'), ...items.map((entry) => {
@@ -535,7 +533,7 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
   const docs = entries.filter((entry) => entry?.route?.page && entry.title);
   if (!docs.length) { shelfTitle.textContent = '서가'; return; }
   const view = doc.defaultView || root;
-  const open = openEntry(docs, currentPage, root?.location?.search);
+  const open = openEntry(docs, currentPage, knowledgeRouteParams(root?.location).toString());
   let read = open ? markRead(prefs, open.id) : readIds(prefs);
   const legacy = legacyViewed(root);
   const isRead = (entry) => read.has(entry.id)

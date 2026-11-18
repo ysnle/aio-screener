@@ -19,8 +19,9 @@ const QUADRANT_KO = RRG_QUADRANT_WORDS; // R714: one set of quadrant words (them
 
 export { sectorLabel } from './sector-label.js';
 
+// The rows' overall rank (overall-rank.js) — the order and the count the table header and the inspector quote.
 export function buildScreenerRead({ rows = [], rotation = {}, regime = null, validation = null } = {}) {
-  const ranked = (Array.isArray(rows) ? rows : []).filter((row) => finite(row?.screenRank) != null).sort((a, b) => a.screenRank - b.screenRank);
+  const ranked = (Array.isArray(rows) ? rows : []).filter((row) => finite(row?.overallRank) != null).sort((a, b) => a.overallRank - b.overallRank);
   if (ranked.length < 20) return { available: false, reason: '순위가 계산된 종목이 20개 미만이라 구성을 읽지 않습니다.' };
   const topCount = Math.max(10, Math.round(ranked.length * 0.2));
   const top = ranked.slice(0, topCount);

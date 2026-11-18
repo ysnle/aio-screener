@@ -348,14 +348,20 @@ try {
   git('init');
   git('config', 'user.email', 'fixture@aio.test');
   git('config', 'user.name', 'fixture');
+  const attributes = '*.cmd text eol=crlf\n';
+  // P3-QA-02 (v59.45): exercise the real candidate CLI with a blob larger than spawnSync's default buffer.
+  const largeBlob = Buffer.alloc(1024 * 1024 + 1);
+  writeFileSync(join(candidateRepo, 'large.bin'), largeBlob);
+  writeFileSync(join(candidateRepo, '.gitattributes'), attributes);
+  writeFileSync(join(candidateRepo, 'windows.cmd'), 'before\r\n');
   writeFileSync(join(candidateRepo, 'task.txt'), 'v1\n');
   writeFileSync(join(candidateRepo, 'dependency.txt'), 'base\n');
-  git('add', 'task.txt', 'dependency.txt');
+  git('add', 'task.txt', 'dependency.txt', '.gitattributes', 'windows.cmd', 'large.bin');
   const initCommit = git('commit', '-m', 'init');
   if (initCommit.status !== 0) fail('candidate fixture could not create its isolated repo', initCommit);
   const digest = (content) => createHash('sha256').update(content).digest('hex');
   const writeVerifiedTree = (runLabel, files) => writeFileSync(join(cacheDir, 'verified-tree.json'), JSON.stringify({
-    ...JSON.parse(fullEvidence), runId: runLabel, files: { 'dependency.txt': digest('base\n'), ...files }, taskFiles: files
+    ...JSON.parse(fullEvidence), runId: runLabel, files: { 'dependency.txt': digest('base\n'), '.gitattributes': digest(attributes), 'windows.cmd': digest('before\r\n'), 'large.bin': digest(largeBlob), ...files }, taskFiles: files
   }, null, 2));
   writeVerifiedTree('fixture-verify-1', { 'task.txt': digest('v2\n') });
   writeFileSync(join(candidateRepo, 'task.txt'), 'v2\n');
@@ -380,6 +386,16 @@ try {
   writeVerifiedTree('fixture-clean', { 'task.txt': digest('v3\n') });
   const cleanCandidate = runCandidate('candidate', '--files', 'task.txt');
   if (cleanCandidate.status !== 0) fail('candidate rejected a staged tree identical to the QA-verified tree', cleanCandidate);
+  // P1518: both unchanged dependencies (above) and staged tasks may have a different checkout EOL.
+  writeFileSync(join(candidateRepo, 'windows.cmd'), 'after\r\n');
+  git('add', 'windows.cmd');
+  writeVerifiedTree('fixture-staged-crlf', { 'task.txt': digest('v3\n'), 'windows.cmd': digest('after\r\n') });
+  const stagedCrlf = runCandidate('candidate', '--files', 'windows.cmd');
+  if (stagedCrlf.status !== 0) fail('P1518 candidate rejected verified CRLF checkout with a normalized index', stagedCrlf);
+  writeFileSync(join(candidateRepo, 'windows.cmd'), 'after\n');
+  const changedEol = runCandidate('candidate', '--files', 'windows.cmd');
+  if (changedEol.status !== 1 || !/changed-after-qa-verification/.test(changedEol.stderr)) fail('P1518 candidate missed checkout byte drift after QA', changedEol);
+  git('restore', '--source=HEAD', '--staged', '--worktree', '--', 'windows.cmd');
 
   writeVerifiedTree('fixture-unstaged-dependency', { 'task.txt': digest('v3\n'), 'dependency.txt': digest('qa-only\n') });
   writeFileSync(join(candidateRepo, 'dependency.txt'), 'qa-only\n');

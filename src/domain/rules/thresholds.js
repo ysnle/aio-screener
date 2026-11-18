@@ -120,6 +120,14 @@ export const RULES = Object.freeze({
     // after a run of climaxMinRunPct from the 52-week low. Down-day resilience: index down closes in the last 60 sessions.
     followThrough: Object.freeze({ pocketWindow: 10, heavyDownPct: 1, heavyDownAvgSessions: 50, heavyDownWindow: 25, basePullbackPct: 8, baseMinSessions: 15,
       resetDrawdownPct: 35, climaxMinRunPct: 70, climaxUpDays: 8, climaxStretch200Pct: 70, resilienceWindow: 60, resilienceMinDays: 8 }) }),
+  // Ranking model review 2026-11-17: a stock under a cash acquisition trades pinned at the offer, so its realised
+  // volatility measures the deal spread, not the business, and it topped the low-volatility factor (AES #2 of 821). A row is
+  // 'pinned' — left out of the ranked population like a fund or a SPAC (factor-ranks.js rankingPopulationExclusion) — when
+  // its 60-session annualised volatility is at most volAtMost AND its 20-session average daily range at most adrPctAtMost,
+  // both present. 2026-11-16: MKTX 1.69 / 0.20, TECH 1.87 / 0.16, AES 2.54 / 0.32, TXNM 5.26 / 0.54, CZR 7.49 / 0.77, PEN
+  // 7.66 / 0.76; the lowest ordinary stocks GSAT 10.0 / 1.29 and L 13.3 / 1.68. A cut in the gap of one session's
+  // cross-section, not a validated deal detector.
+  rankingPopulation: Object.freeze({ pinned: Object.freeze({ volAtMost: 8, adrPctAtMost: 1 }) }),
   // v57.81: a 20-session widening reaches 부담 when it is in the top stress20dPct of the series' own 20-session changes (or
   // stress20dMultiple x widen20dBp when the record is shorter than recordMin); it stays 부담 until the 20-session change
   // is back under widen20dBp (hysteresis). HY +40bp in 20 sessions — the 96th percentile — could never reach 부담 before.

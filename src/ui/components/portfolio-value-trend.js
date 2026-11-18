@@ -3,6 +3,7 @@
 // replaces js/aio-ui.js updateBenchmarkChart, which asked Yahoo for every holding and drew only after 새로고침.
 import { BENCHMARK_WINDOWS, buildBenchmarkTrend } from '../../domain/portfolio/benchmark-trend.js';
 import { fxReturnInto } from '../../domain/portfolio/attribution.js';
+import { holdingListingKey } from '../../domain/portfolio/fx.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { buildCloseSeries, closeMoveBetween, sessionPointBack } from '../../domain/market/session/close-series.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -20,7 +21,7 @@ export function portfolioValueTrend({ surface, rowOf, history = [] } = {}) {
   const asOf = spy?.factorSessionDate || null;
   const spx = asOf ? buildCloseSeries(history, 'spx', { through: asOf }) : [];
   const dateOf = (sessions) => (spx.length ? sessionPointBack(spx, sessions, 'US')?.date || null : null);
-  const rows = (surface?.rows || []).map((row) => ({ symbol: String(row.listingSymbol || row.symbol || '').toUpperCase(), value: row.value, convertedFrom: row.convertedFrom || null }));
+  const rows = (surface?.rows || []).map((row) => ({ symbol: holdingListingKey(row), value: row.value, convertedFrom: row.convertedFrom || null }));
   // A holding converted into the base currency carries the USD/KRW close move over the same window as its return.
   const convertedFrom = new Map(rows.filter((row) => row.convertedFrom).map((row) => [row.symbol, row.convertedFrom]));
   const sessionsOf = new Map(BENCHMARK_WINDOWS.map((span) => [span.key, span.sessions]));

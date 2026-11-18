@@ -3,7 +3,7 @@
 // re-exports them). Pure: companyfacts/submissions JSON in, one annual record out; no I/O.
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, isQuarterSpan, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
 import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, FOREIGN_ORDINARY_SHARE_FORMS, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS, SEC_BANK_NET_REVENUE_CONCEPT, SEC_IFRS_PRIMARY_REVENUE_CONCEPTS, SEC_IFRS_FALLBACK_REVENUE_CONCEPTS } from './sec-report.js';
-import { reconcileSecEarningsBasis, SEC_COMMON_INCOME_CONCEPT, SEC_RD_CONCEPTS, SEC_CAPITAL_CONCEPTS, SEC_IFRS_CAPITAL_CONCEPTS, SEC_TOTAL_DEBT_DERIVED_CONCEPT } from './sec-earnings.js';
+import { reconcileSecEarningsBasis, SEC_COMMON_INCOME_CONCEPT, SEC_RD_CONCEPTS, SEC_CAPITAL_CONCEPTS, SEC_IFRS_CAPITAL_CONCEPTS, SEC_TOTAL_DEBT_DERIVED_CONCEPT, SEC_DEBT_AND_LEASE_DERIVED_CONCEPT } from './sec-earnings.js';
 import { reconcileSecValuationBasis } from './sec-valuation-basis.js';
 export { SEC_RD_CONCEPTS };
 
@@ -54,19 +54,25 @@ function bankNetRevenueRows(companyFacts, currency = 'USD') {
 }
 
 // Total long-term debt for a filer that tags only the noncurrent line: noncurrent + current portion, paired within one
-// filing and balance-sheet date like the bank net revenue above. A date without both operands is not derived.
-const DEBT_CURRENT_CONCEPTS = ['LongTermDebtCurrent'];
+// filing and balance-sheet date like the bank net revenue above. A date without both operands is not derived. 2026-11-18: the
+// lease-inclusive lines are paired the same way, each with its own current portion (never across the two bases).
+export const DEBT_DERIVED_PAIRS = Object.freeze([
+  ['LongTermDebtNoncurrent', 'LongTermDebtCurrent', SEC_TOTAL_DEBT_DERIVED_CONCEPT],
+  ['LongTermDebtAndCapitalLeaseObligations', 'LongTermDebtAndCapitalLeaseObligationsCurrent', SEC_DEBT_AND_LEASE_DERIVED_CONCEPT]
+]);
 function totalDebtDerivedRows(companyFacts, basis) {
   if (basis.taxonomy !== 'us-gaap') return [];
   const key = (row) => `${row.accn || ''}|${row.end || ''}|${row.form || ''}`;
-  const current = new Map(factRows(companyFacts, 'us-gaap', DEBT_CURRENT_CONCEPTS, basis.currency).filter((row) => !row.start).map((row) => [key(row), row]));
-  if (!current.size) return [];
   const rows = [];
-  for (const noncurrent of factRows(companyFacts, 'us-gaap', ['LongTermDebtNoncurrent'], basis.currency)) {
-    const a = finiteFact(noncurrent.val);
-    const b = finiteFact(current.get(key(noncurrent))?.val);
-    if (noncurrent.start || a == null || b == null) continue;
-    rows.push({ ...noncurrent, val: a + b, concept: SEC_TOTAL_DEBT_DERIVED_CONCEPT });
+  for (const [noncurrentConcept, currentConcept, derivedConcept] of DEBT_DERIVED_PAIRS) {
+    const current = new Map(factRows(companyFacts, 'us-gaap', [currentConcept], basis.currency).filter((row) => !row.start).map((row) => [key(row), row]));
+    if (!current.size) continue;
+    for (const noncurrent of factRows(companyFacts, 'us-gaap', [noncurrentConcept], basis.currency)) {
+      const a = finiteFact(noncurrent.val);
+      const b = finiteFact(current.get(key(noncurrent))?.val);
+      if (noncurrent.start || a == null || b == null) continue;
+      rows.push({ ...noncurrent, val: a + b, concept: derivedConcept });
+    }
   }
   return rows;
 }
@@ -83,7 +89,9 @@ const BASIS_CONCEPTS = Object.freeze({
     equity: ['StockholdersEquity', 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'],
     operatingCashFlow: ['NetCashProvidedByUsedInOperatingActivities', 'NetCashProvidedByUsedInOperatingActivitiesContinuingOperations'],
     capex: ['PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireProductiveAssets'],
-    longTermDebt: ['LongTermDebt', 'LongTermDebtNoncurrent'],
+    // 2026-11-18: the debt-only lines, then the lease-inclusive ones (sec-earnings SEC_DEBT_LEASE_CONCEPTS; derived totals are added
+    // by totalDebtDerivedRows). The series keeps one basis (sec-earnings anchorConceptRows).
+    longTermDebt: ['LongTermDebt', 'LongTermDebtNoncurrent', 'LongTermDebtAndCapitalLeaseObligationsIncludingCurrentMaturities', 'LongTermDebtAndCapitalLeaseObligations'],
     // v58.55: total assets (DuPont turnover/leverage, Sloan accrual denominator) and R&D expense (R&D ÷ revenue).
     totalAssets: ['Assets'],
     researchAndDevelopment: SEC_RD_CONCEPTS,
@@ -123,6 +131,42 @@ function revenueFactRows(companyFacts, basis = US_GAAP_BASIS) {
 }
 
 const isAnnualFy = (row) => { const days = durationDays(row); return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400 && finiteFact(row.val) != null; };
+
+// A 10-K can tag its full-year revenue on a quarter-length span (LHX customer-contract revenue
+// 2025-10-04→2026-01-02 = 21,865M, the year's total). A 10-K fp=FY revenue row whose period END is an annual fiscal year
+// end (an annual revenue or net income row ends there), whose span is quarter-length, and whose value is at least the sum
+// of that fiscal year's 10-Q quarters of the same concept (three or more, so it cannot be a real fourth quarter) is the
+// year's full-year value: it never enters the quarterly rows, and when no properly spanned annual revenue reports that end
+// it is the year's annual revenue, read over the fiscal year's own start (the reported start is kept beside it).
+const revenueRowKey = (row) => `${row.concept || ''}|${row.accn || ''}|${row.start || ''}|${row.end || ''}|${row.val}`;
+function fullYearRevenueOnQuarterSpan(companyFacts, basis) {
+  const revenueRows = revenueFactRows(companyFacts, basis);
+  const annualRevenue = revenueRows.filter(isAnnualFy);
+  const annualRevenueEnds = new Set(annualRevenue.map((row) => String(row.end)));
+  const yearStart = new Map();
+  for (const row of [...annualRevenue, ...factRows(companyFacts, basis.taxonomy, BASIS_CONCEPTS[basis.taxonomy].income, basis.currency).filter(isAnnualFy)]) {
+    if (!yearStart.has(String(row.end))) yearStart.set(String(row.end), String(row.start));
+  }
+  const tenQ = revenueRows.filter((row) => /^10-Q(\/A)?$/.test(row.form || '') && isQuarterSpan(durationDays(row)) && finiteFact(row.val) != null);
+  const fullYear = [];
+  const recovered = [];
+  for (const row of revenueRows) {
+    const end = String(row.end || '');
+    const start = yearStart.get(end);
+    const value = finiteFact(row.val);
+    if (!start || value == null || !/^10-K(\/A)?$/.test(row.form || '') || row.fp !== 'FY' || !isQuarterSpan(durationDays(row))) continue;
+    const quarters = new Map();
+    for (const q of tenQ) {
+      if (q.concept !== row.concept || String(q.start) < start || String(q.end) >= end) continue;
+      const key = `${q.start}|${q.end}`;
+      if (!quarters.has(key) || String(q.filed || '') > String(quarters.get(key).filed || '')) quarters.set(key, q);
+    }
+    if (quarters.size < 3 || value < [...quarters.values()].reduce((sum, q) => sum + finiteFact(q.val), 0)) continue;
+    fullYear.push(row);
+    if (!annualRevenueEnds.has(end)) recovered.push({ ...row, start, reportedStart: row.start });
+  }
+  return { fullYear, recovered };
+}
 
 // 2026-10-17 (logic audit): a US-GAAP filer reporting in another currency often adds a USD convenience translation of the
 // latest year in the same 20-F (BABA, JD, PDD, TCOM in CNY; HDB in INR). companyfacts then holds a USD annual row per year,
@@ -217,7 +261,9 @@ const REPORT_RECENCY_MAX_DAYS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;
 // v59.70 (2026-11-04, X bookmarks #8): quarter-end inventory and receivables from 10-Q/10-K balance sheets.
 // 2026-11-14: quarterly operating income (one-off earnings check) and noncurrent + current long-term debt; quarter rows
 // are one per concept and period (twelve quarters) and 12/16-week fiscal quarters are read.
-export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-11-14';
+// 2026-11-18: the fiscal year anchors on the newest annual period end across revenue and net income, and a full-year
+// revenue tagged on a quarter span is annual, never a quarter row.
+export const SEC_NORMALIZER_VERSION = 'sec-normalizer.2026-11-18';
 
 // The earliest instant a single operand could have been known: its accession acceptance time
 // when available, otherwise the filing date (which is a date, not an intraday time).
@@ -323,7 +369,8 @@ function compactPitRows(rows, field, acceptedMap, maxRows = 40) {
       fiscalYear: row.fy ?? null,
       fiscalPeriod: row.fp || null,
       frame: row.frame || null,
-      concept: row.concept || null
+      concept: row.concept || null,
+      ...(row.reportedStart ? { reportedPeriodStart: row.reportedStart } : {})
     }));
 }
 
@@ -355,12 +402,15 @@ function buildPointInTimeFacts(companyFacts, submissions, basis = US_GAAP_BASIS)
   // per concept and the newest QUARTER_PERIODS period ends are kept. A row cap alone let one re-tagged quarter push the
   // prior-year quarters out (ETN's 2025-03 quarter held 7 of 16 rows), and the TTM chain fell back to the fiscal year.
   const quarterRows = (rows) => latestFiledPerPeriod(rows.filter(quarterly), QUARTER_PERIODS);
-  const revenueQRows = quarterRows(revenueFactRows(companyFacts, basis));
+  // A full-year value tagged on a quarter span is annual, never a quarter (fullYearRevenueOnQuarterSpan).
+  const fullYearRevenue = fullYearRevenueOnQuarterSpan(companyFacts, basis);
+  const fullYearKeys = new Set(fullYearRevenue.fullYear.map(revenueRowKey));
+  const revenueQRows = quarterRows(revenueFactRows(companyFacts, basis).filter((row) => !fullYearKeys.has(revenueRowKey(row))));
   const incomeQRows = quarterRows(amountRows(concepts.income));
-  const revenueRows = revenueFactRows(companyFacts, basis).filter(row => {
+  const revenueRows = [...revenueFactRows(companyFacts, basis).filter(row => {
     const days = durationDays(row);
     return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400;
-  });
+  }), ...fullYearRevenue.recovered];
   const incomeRows = amountRows(concepts.income).filter(row => {
     const days = durationDays(row);
     return /^(10-K|20-F|40-F)(\/A)?$/.test(row.form || '') && row.fp === 'FY' && days != null && days >= 300 && days <= 400;
@@ -624,20 +674,27 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   // (largest primary concept, assessed-tax-inclusive only as a fallback). P1374 bank net revenue stays a
   // primary concept.
   // (annualDurationRows dedupes by period+form across concepts, so the per-concept rows are filtered here instead.)
-  let revenues = bestRevenueRowsByPeriod(revenueFactRows(companyFacts, basis).filter(isAnnualFy));
+  let revenues = bestRevenueRowsByPeriod([...revenueFactRows(companyFacts, basis).filter(isAnnualFy), ...fullYearRevenueOnQuarterSpan(companyFacts, basis).recovered]);
   // v7 (2026-10-19 data audit): an issuer that tags no revenue (pre-revenue biotech and nuclear: OKLO, NNE, 164 drug
   // makers; a bank whose income splits across filings) was dropped whole, so its net income, equity, ROE and P/B were
   // unavailable as well. The fiscal year is then anchored on annual net income; revenue, margin and growth stay empty.
+  // The fiscal year is the newest annual period end across revenue AND net income. When a 10-K reports net income
+  // for a year whose revenue no annual row carries (LHX FY2025 before the span recovery), the record was the prior year's
+  // comparative from the same filing, aged past 456 days and lost every ratio. That year is income-anchored the same way:
+  // net income, equity and the price ratios are current; revenue, margin and growth stay empty (never a new year's income
+  // over the old year's revenue). Without year-end equity for that year the revenue year is kept, as before.
+  const incomeAnchor = preferredRow(companyFacts, basis, concepts.income, (rows) => rows.filter(isAnnualFy)[0] || null, (list) => annualDurationRows(companyFacts, list, basis));
+  const incomeNewer = incomeAnchor && finiteFact(incomeAnchor.val) != null && revenues.length && String(incomeAnchor.end || '') > String(revenues[0].end || '')
+    && preferredRow(companyFacts, basis, concepts.equity, (rows) => closestEnd(rows, incomeAnchor.end), (list) => instantRows(companyFacts, basis.taxonomy, list, basis.currency));
   let revenueUnreported = false;
-  if (!revenues.length) {
-    const incomeAnchor = preferredRow(companyFacts, basis, concepts.income, (rows) => rows.filter(isAnnualFy)[0] || null, (list) => annualDurationRows(companyFacts, list, basis));
+  if (!revenues.length || incomeNewer) {
     if (!incomeAnchor || finiteFact(incomeAnchor.val) == null) return null;
     revenues = [{ ...incomeAnchor, val: null, concept: null }];
     revenueUnreported = true;
   }
 
   const currentRevenue = revenues[0];
-  const priorRevenue = revenues.find(row => isPriorAnnualPeriod(currentRevenue, row));
+  const priorRevenue = revenueUnreported ? null : revenues.find(row => isPriorAnnualPeriod(currentRevenue, row));
   const currentIncome = preferredRow(companyFacts, basis, concepts.income, (rows) => rows.find(row => sameFiscalPeriod(currentRevenue, row)) || null, (list) => annualDurationRows(companyFacts, list, basis));
   // P1402: parent equity first; see buildPointInTimeFacts
   const currentEquity = preferredRow(companyFacts, basis, concepts.equity, (rows) => closestEnd(rows, currentRevenue.end) || null, (list) => instantRows(companyFacts, basis.taxonomy, list, basis.currency));
@@ -758,6 +815,7 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     sharesObservedAt: Number.isFinite(sharesOutstanding) ? currentShares?.end || null : null,
     normalizerVersion: SEC_NORMALIZER_VERSION,
     revenueConcept: currentRevenue.concept || null,
+    ...(currentRevenue.reportedStart ? { revenueReportedPeriodStart: currentRevenue.reportedStart } : {}),
     // N20: recent 8-K/10-Q/10-K filings within 30 days before this read (`fetchedAt`): date, form, Item numbers,
     // accession only — no filing text.
     recentFilings: recentFilingsFrom(submissions),

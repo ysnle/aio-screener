@@ -3,6 +3,9 @@
 import { EXTENDED_ROW_ENCODING, EXTENDED_SHARD_SCHEMA, expandShardRows, shardIdentityRows } from '../../src/data/screener-extended.js';
 import { readNumber } from '../../src/domain/shared/number.js';
 import { CONDITIONAL_FACTOR_FIELDS } from '../../src/domain/screener/price-factors.js';
+import { rowFactContractErrors } from '../../src/domain/screener/row-facts-contract.js';
+import { TRAILING_ROW_FIELDS } from '../../src/domain/fundamental/trailing-year.js';
+const TRAILING_BASIS_FIELDS = TRAILING_ROW_FIELDS.flatMap((field) => [`${field}Basis`, `${field}Through`]);
 
 // Row keys every factor row carries (core and extended alike): lineage, session and price basis.
 export const EXTENDED_REQUIRED_ROW_KEYS = Object.freeze([
@@ -45,7 +48,8 @@ export function validateExtendedShard(shard, { coreData = null, now = Date.now()
   if (shard.factorTimeBasis !== 'bar-start') errors.push('factorTimeBasis must be bar-start');
   if (!shard.membership?.asOf || !shard.membership?.status) errors.push('membership asOf/status missing');
   // Schema parity with the core artifact: no field the core row schema does not have; every lineage key present.
-  const coreKeys = coreData ? new Set([...CONDITIONAL_FACTOR_FIELDS, ...Object.values(coreData).flatMap((row) => Object.keys(row || {}))]) : null;
+  // v60.28: the margin/revenue-growth basis fields may precede the first core run that writes them.
+  const coreKeys = coreData ? new Set([...CONDITIONAL_FACTOR_FIELDS, ...TRAILING_BASIS_FIELDS, ...Object.values(coreData).flatMap((row) => Object.keys(row || {}))]) : null;
   for (const sym of symbols) {
     const row = data[sym];
     if ('price' in row) { errors.push(`row ${sym} publishes raw price (P715)`); break; }
@@ -59,6 +63,8 @@ export function validateExtendedShard(shard, { coreData = null, now = Date.now()
     if (FUNDAMENTAL_FIELDS.some((key) => readNumber(row[key]) != null) && (!row.fundamentalSource || !row.fundamentalModel || !row.fundamentalObservedAt)) {
       errors.push(`row ${sym} fundamentals lack source/model/observedAt lineage`); break;
     }
+    const factProblems = rowFactContractErrors(row);
+    if (factProblems.length) { errors.push(`row ${sym}: ${factProblems.join('; ')}`); break; }
   }
   if (freshness) {
     const generated = Date.parse(shard.asOf || '');

@@ -196,22 +196,16 @@ if (profile === 'session-start') {
 // 통과하지 않는다. CI는 push 뒤 exact commit을 다시 검증한다(그 경계는 유지).
 if (profile === 'candidate') {
   const candidateRepo = process.env.AIO_QA_CANDIDATE_REPO ? resolve(process.env.AIO_QA_CANDIDATE_REPO) : root;
-  const candidateGit = (args) => {
-    const result = spawnSync('git', args, { cwd: candidateRepo, encoding: 'utf8' });
-    return result.status === 0 ? String(result.stdout || '').split(/\r?\n/).map((value) => value.trim()).filter(Boolean).map((value) => value.replaceAll('\\', '/')) : [];
+  const candidateGit = (args, input) => {
+    const result = spawnSync('git', args, { cwd: candidateRepo, encoding: 'utf8', input, maxBuffer: 32 * 1024 * 1024 });
+    if (result.status !== 0) {
+      console.error(`[qa] CANDIDATE FAIL — git ${args[0]}: ${result.error?.message || result.stderr}`);
+      process.exit(2);
+    }
+    return result.stdout;
   };
   const candidateDigest = (file) => {
     try { return createHash('sha256').update(readFileSync(join(candidateRepo, file))).digest('hex'); } catch { return null; }
-  };
-  // v59.45 (P3-QA-02): spawnSync's default maxBuffer is 1 MiB, so a larger staged blob (js/aio-core.js sits just
-  // under it) came back as ENOBUFS → null and read as "not verified". Size the buffer from the blob itself, as
-  // verify-refresh-candidate.mjs digestGitTree does, and report a read failure separately from a content mismatch.
-  const stagedDigest = (file) => {
-    const size = spawnSync('git', ['cat-file', '-s', `:${file}`], { cwd: candidateRepo, encoding: 'utf8', maxBuffer: 4096 });
-    const bytes = Number(String(size.stdout || '').trim());
-    if (size.status !== 0 || !Number.isSafeInteger(bytes) || bytes < 0) return null;
-    const result = spawnSync('git', ['show', `:${file}`], { cwd: candidateRepo, encoding: 'buffer', maxBuffer: bytes + 1 });
-    return result.status === 0 && Buffer.isBuffer(result.stdout) && result.stdout.length === bytes ? createHash('sha256').update(result.stdout).digest('hex') : null;
   };
   const verified = readJsonLogged(join(process.env.AIO_QA_CACHE_DIR ? resolve(process.env.AIO_QA_CACHE_DIR) : join(candidateRepo, '.cache', 'aio-qa'), 'verified-tree.json'), null, 'verified-tree', { strict: true });
   if (!verified || !verified.files) {
@@ -232,7 +226,29 @@ if (profile === 'candidate') {
   const taskFiles = explicitFilesOption != null
     ? validateSelectedFiles(explicitFilesOption.split(',').map(normalizeFile).filter(Boolean), '--files')
     : Object.keys(verified.taskFiles || {});
-  const staged = new Set(candidateGit(['diff', '--cached', '--name-only', 'HEAD']));
+  const staged = new Set(candidateGit(['diff', '--cached', '--no-renames', '--name-only', '-z', 'HEAD']).split('\0').filter(Boolean));
+  const indexObjects = new Map();
+  for (const entry of candidateGit(['ls-files', '--stage', '-z']).split('\0').filter(Boolean)) {
+    const tab = entry.indexOf('\t');
+    const [mode, object, stage] = entry.slice(0, tab).split(' ');
+    if (stage !== '0' || !['100644', '100755'].includes(mode)) {
+      console.error(`[qa] CANDIDATE FAIL — unverified index mode or conflict: ${entry}`);
+      process.exit(2);
+    }
+    indexObjects.set(entry.slice(tab + 1), object);
+  }
+  // A checkout can contain CRLF while the index contains LF. Ask Git to apply the same per-path
+  // clean filters as staging, then separately check the exact working bytes from the QA receipt.
+  const present = [...indexObjects.keys()].filter((file) => existsSync(join(candidateRepo, file)));
+  const objectIds = present.length ? candidateGit(['hash-object', '--stdin-paths'], present.map((file) => JSON.stringify(file)).join('\n') + '\n').trimEnd().split('\n') : [];
+  if (objectIds.length !== present.length) {
+    console.error('[qa] CANDIDATE FAIL — Git returned an incomplete worktree object inventory');
+    process.exit(2);
+  }
+  const workObjects = new Map(present.map((file, index) => [file, objectIds[index].trim()]));
+  const matchesIndex = (file) => indexObjects.has(file)
+    ? workObjects.get(file) === indexObjects.get(file)
+    : !existsSync(join(candidateRepo, file));
   const mismatches = [];
   for (const file of taskFiles) {
     const workDigest = candidateDigest(file);
@@ -240,12 +256,11 @@ if (profile === 'candidate') {
       mismatches.push({ file, reason: 'missing-from-staged', detail: '작업 파일이 staged에 없습니다 — 커밋에서 누락됩니다' });
       continue;
     }
-    const indexDigest = stagedDigest(file);
-    if (indexDigest !== workDigest) {
+    if (!matchesIndex(file)) {
       mismatches.push({ file, reason: 'staged-differs-from-worktree', detail: 'staged 내용이 working tree와 다릅니다(부분 staging)' });
       continue;
     }
-    if (!verified.files || verified.files[file] !== workDigest) {
+    if (verified.files[file] !== workDigest && !(workDigest === null && verified.taskFiles?.[file] === null)) {
       mismatches.push({ file, reason: 'changed-after-qa-verification', detail: `QA 검증(${verified.runId || 'unknown'}) 이후 파일이 바뀌었습니다` });
     }
   }
@@ -253,23 +268,19 @@ if (profile === 'candidate') {
     if (taskFiles.includes(file)) continue;
     const workDigest = candidateDigest(file);
     // P1518: every staged file must match, including files outside the task list.
-    if (stagedDigest(file) !== workDigest) {
+    if (!matchesIndex(file)) {
       mismatches.push({ file, reason: 'staged-differs-from-worktree', detail: '추가 staged 파일이 working tree와 다릅니다(부분 staging)' });
       continue;
     }
-    if (!verified.files || verified.files[file] !== workDigest) {
+    if (verified.files[file] !== workDigest && !(workDigest === null && verified.taskFiles?.[file] === null)) {
       mismatches.push({ file, reason: 'staged-file-not-verified', detail: 'QA가 검증하지 않은 파일이 staged에 있습니다' });
     }
   }
   // P1518: unchanged index entries are part of the commit too. A QA-only edit to
   // tracked dependency B must not certify a commit that stages only caller A.
-  const indexFiles = new Set(candidateGit(['ls-files', '--cached']));
-  for (const file of indexFiles) {
+  for (const file of indexObjects.keys()) {
     if (staged.has(file)) continue;
-    const indexDigest = stagedDigest(file);
-    if (indexDigest === null) {
-      mismatches.push({ file, reason: 'index-read-failed', detail: 'git에서 이 파일의 staged 내용을 읽지 못했습니다(내용 불일치가 아님)' });
-    } else if (verified.files[file] !== indexDigest) {
+    if (!matchesIndex(file) || verified.files[file] !== candidateDigest(file)) {
       mismatches.push({ file, reason: 'index-dependency-not-verified', detail: '커밋의 의존 파일이 전체 QA가 읽은 내용과 다릅니다' });
     }
   }
@@ -278,7 +289,7 @@ if (profile === 'candidate') {
     return (group?.gates || []).flatMap(gate => [gate.script, ...(gate.inputs || group.inputs || [])]);
   });
   for (const [file, digest] of Object.entries(verified.files)) {
-    if (digest != null && !indexFiles.has(file) && matches(file, certifiedInputs)) {
+    if (digest != null && !indexObjects.has(file) && matches(file, certifiedInputs)) {
       mismatches.push({ file, reason: 'qa-input-missing-from-index', detail: 'QA가 사용한 새 의존 파일이 커밋에서 누락됩니다' });
     }
   }

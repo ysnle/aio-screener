@@ -578,7 +578,8 @@ assert(unifiedChat.includes('window._aioBeginChatRequest') && unifiedChat.includ
 assert(unifiedChat.includes('_uniSignal') && unifiedChat.includes('if (!_isCurrentUnifiedRun()) return;'));
 assert(unifiedChat.includes('signal: _uniSignal') && chatShell.includes("_aioCancelChatRequest(_aiCurrentCtx, 'context-changed')"));
 assert(unifiedChat.includes('_uniRun.quotaPending = true') && source.includes("closeConfirmModal('chat-cancelled')"));
-assert(shellWorkspace.includes('function showConfirmModal(title, msg, onConfirm, icon, onCancel)'));
+// The trailing `options` (named actions, one optional second action) keeps the onCancel slot the quota prompt relies on.
+assert(shellWorkspace.includes('function showConfirmModal(title, msg, onConfirm, icon, onCancel, options)'));
 assert(shellWorkspace.includes('_confirmCancelCallback') && shellWorkspace.includes("closeConfirmModal('trap')"));
 // P1342: R592 is enforced by behaviour (the quota badge never flips the switch for a missing route), not by an unused snapshot helper.
 assert(ui.includes('function getLLMRouteReadiness(') && ui.includes('window._aioGetLLMRouteReadiness'));

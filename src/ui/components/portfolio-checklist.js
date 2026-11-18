@@ -13,6 +13,7 @@ import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { themeStagesFor } from '../../domain/scenarios/theme-stage.js';
 import { EARNINGS_CALENDAR, SCENARIO_STATE } from '../../data/artifact-registry.js';
+import { holdingListingKey } from '../../domain/portfolio/fx.js';
 import { holdingBand, sectorBand, HOLDING_LINE_PCT, SECTOR_LINE_PCT, EFFECTIVE_N_LINE, HOLDING_REFERENCE_PCT } from '../../domain/portfolio/concentration-bands.js';
 
 const EARNINGS_SOON_DAYS = 14;
@@ -118,14 +119,14 @@ export function renderPortfolioCriteria({ documentRef: doc, root, surface, check
 
 // Earnings date for a symbol from the shared calendar artifact: the six-week `upcoming` map when the producer has it, else
 // the collected week rows. Only dates from today on.
-function nextEarnings(root, symbol, todayIso) {
+function nextEarnings(root, key, todayIso) {
   const cal = root?.[EARNINGS_CALENDAR.key];
   if (!cal) return null;
-  const up = cal.upcoming?.[symbol];
+  const up = cal.upcoming?.[key];
   const fromUp = typeof up === 'string' ? up : up?.date || null;
   if (fromUp && fromUp >= todayIso) return fromUp;
   const rows = Array.isArray(cal.earnings) ? cal.earnings : [];
-  return rows.filter((row) => row?.symbol === symbol && row.date >= todayIso).map((row) => row.date).sort()[0] || null;
+  return rows.filter((row) => row?.symbol === key && row.date >= todayIso).map((row) => row.date).sort()[0] || null;
 }
 
 export function thesisRows({ surface, root, holdings = [], bySymbol = new Map(), nowMs = Date.now() }) {
@@ -141,23 +142,25 @@ export function thesisRows({ surface, root, holdings = [], bySymbol = new Map(),
   // scenario state; reading the raw rows kept a stale 'weak' stage on as a live signal.
   return (surface?.rows || []).filter((row) => Number(row?.value) > 0).slice(0, 15).map((row) => {
     const symbol = String(row.symbol || '').toUpperCase();
+    // Every data lookup uses the listing the reader resolved (005930 -> 005930.KS); the stored code is the label.
+    const key = holdingListingKey(row);
     const signals = [];
     const unknown = [];
-    const sma = bySymbol.get(symbol)?.pctSma50;
+    const sma = bySymbol.get(key)?.pctSma50;
     const s50 = sma == null || sma === '' ? NaN : Number(sma);
     if (!Number.isFinite(s50)) unknown.push('50일선');
     else if (s50 < 0) signals.push(`50일선 아래(${s50.toFixed(1)}%)`);
-    const themes = themeMap.filter((theme) => (theme.leaders || []).includes(symbol) || (theme.subThemes || []).some((sub) => (sub.tickers || []).includes(symbol)));
+    const themes = themeMap.filter((theme) => (theme.leaders || []).includes(key) || (theme.subThemes || []).some((sub) => (sub.tickers || []).includes(key)));
     // Not in any theme is a checked fact (no theme signal can apply); a theme without a published stage is unknown.
     const stages = themes.length ? themeStagesFor(root, { market: 'US', themeIds: themes.map((theme) => theme.id) }) : [];
     if (!themeMap.length || (themes.length && !stages.length)) unknown.push('테마 단계');
     const weak = stages.filter((state) => ['weak', 'fading'].includes(state.state));
     if (weak.length) signals.push(`테마 단계 약함(${weak.map((state) => state.label).join(', ')})`);
-    const fwd = consensusRowFor(root, symbol)?.fwd;
+    const fwd = consensusRowFor(root, key)?.fwd;
     if (!(fwd && Number.isFinite(fwd.up4w) && Number.isFinite(fwd.down4w))) unknown.push('이익 전망');
     else if (fwd.down4w > fwd.up4w) signals.push(`이익 전망 4주 하향 우위(상향 ${fwd.up4w}, 하향 ${fwd.down4w})`);
     if (!calendarKnown) unknown.push('실적일');
-    const earnings = nextEarnings(root, symbol, todayIso);
+    const earnings = nextEarnings(root, key, todayIso);
     if (earnings && earnings <= soonIso) signals.push(`실적 발표 ${shortDate(earnings)}`);
     return { symbol, memo: memoOf.get(symbol) || '', signals, checked: THESIS_CHECKS - unknown.length, unknown };
   });

@@ -22,7 +22,8 @@ function headline(model) {
 
 // v59.51 (content audit): the face is the plain headline and the revision-breadth gauge; the counts, multiples, risk
 // premium, reading, sector split and method sit in one closed fold.
-const breadthGauge = (breadth) => ({ label: '전망 상향 우위', value: breadth * 100, min: -50, max: 50, digits: 0, unit: '%',
+// The caption prints "label, value": the label names the measure and window so the bare % is never read as an earnings change.
+export const breadthGauge = (breadth) => ({ label: '4주 이익 전망 수정 건수 순상향', value: breadth * 100, min: -50, max: 50, digits: 0, unit: '%',
   clipped: Math.abs(breadth * 100) > 50,
   bands: [{ from: -50, to: -10, tone: 'burden' }, { from: -10, to: 10, tone: 'neutral' }, { from: 10, to: 50, tone: 'favorable' }],
   markers: [{ at: -10, label: '하향 우세' }, { at: 10, label: '상향 우세' }] });

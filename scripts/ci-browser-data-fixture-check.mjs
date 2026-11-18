@@ -94,6 +94,13 @@ check('v59.70 a map with other data keys is not drift', drift({ ...pinned, meta:
 check('v59.70 null against a number is not drift', drift({ ...pinned, rows: [{ sym: 'NVDA', price: null, tags: [] }] }).length === 0);
 check('v59.70 a scalar replaced by an object is drift', drift({ ...pinned, meta: { ...pinned.meta, asOf: { date: 'x' } } }).includes('meta.asOf'));
 const scratch = mkdtempSync(join(tmpdir(), 'aio-browser-data-'));
+// P2635: a later row can omit a key that an earlier row supplied as an empty array.
+const optionalRows = [{ missing: [], value: 1 }, { value: 2 }];
+const persistedShape = JSON.parse(JSON.stringify(schemaShape(optionalRows)));
+check('P2635 an optional empty field survives a pin and row reordering',
+  schemaDrift(persistedShape, schemaShape(optionalRows)).length === 0
+  && schemaDrift(persistedShape, schemaShape([...optionalRows].reverse())).length === 0
+  && schemaDrift(persistedShape, schemaShape([{ value: 3 }])).includes('-[].missing'));
 try {
   mkdirSync(join(scratch, 'public-data'), { recursive: true });
   writeFileSync(join(scratch, 'public-data', 'a.json'), JSON.stringify({ ...pinned, added: true }));

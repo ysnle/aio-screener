@@ -195,19 +195,30 @@ export function parsePortfolioBackup(text, deps = {}) {
 
 // v59.45 (PASS27 P27-IMPORT-01): what the import changed on the way in — rows dropped or a cost left unknown — so the
 // confirmation can name it instead of showing only the counts that survived.
-function positionAdjustments(raw) {
+function positionAdjustments(raw, merged) {
   const list = Array.isArray(raw) ? raw : [];
   const kept = sanitizePositions(list);
   const costUnknown = kept.filter((p) => !('cost' in p)).length;
-  return { positionsDropped: list.length - kept.length, positionsCostUnknown: costUnknown };
+  return { positionsDropped: list.length - kept.length, positionsCostUnknown: costUnknown, positionsMerged: merged.notes };
+}
+
+// One row per ticker. A file that lists a ticker twice is merged by deps.mergePositions
+// (src/domain/portfolio/holding-merge.js mergeDuplicatePositions: quantities add, the price is the weighted average,
+// target weights add) so the backtest and the risk estimate read the same book; the confirmation names each merged
+// ticker (adjustments.positionsMerged). The shell's import loads the merge first (window._aioHoldingMerge), so it stays
+// out of the boot set; a caller without it gets the rows as written and no merge notes.
+function importedPositions(raw, deps) {
+  const kept = sanitizePositions(raw);
+  return typeof deps.mergePositions === 'function' ? deps.mergePositions(kept) : { positions: kept, notes: [] };
 }
 
 // The shell (js/aio-workspace.js importPortfolio) names these in the confirmation.
 function parseBackupData(data, deps) {
   if (Array.isArray(data)) {
-    const positions = sanitizePositions(data);
+    const merged = importedPositions(data, deps);
+    const positions = merged.positions;
     if (!positions.length) return { ok: false, reason: 'no-valid-positions' };
-    return { ok: true, kind: 'positions', contents: { positions }, counts: countBackupContents({ positions }), adjustments: positionAdjustments(data) };
+    return { ok: true, kind: 'positions', contents: { positions }, counts: countBackupContents({ positions }), adjustments: positionAdjustments(data, merged) };
   }
   if (!data || typeof data !== 'object' || data.format !== BACKUP_FORMAT) return { ok: false, reason: 'unknown-format' };
   if (data.version !== BACKUP_VERSION) return { ok: false, reason: 'unsupported-version' };
@@ -216,8 +227,9 @@ function parseBackupData(data, deps) {
   const normalizeFxLegs = typeof deps.normalizeFxLegs === 'function' ? deps.normalizeFxLegs : () => [];
   const watchlists = sanitizeWatchlists(raw.watchlists);
   const activeId = typeof raw.activeWatchlistId === 'string' && watchlists.some((l) => l.id === raw.activeWatchlistId) ? raw.activeWatchlistId : null;
+  const merged = importedPositions(raw.positions, deps);
   const contents = {
-    positions: sanitizePositions(raw.positions),
+    positions: merged.positions,
     ledger: normalizeLedger(raw.ledger),
     fxLegs: normalizeFxLegs(raw.fxLegs),
     cash: sanitizeCash(raw.cash),
@@ -232,6 +244,6 @@ function parseBackupData(data, deps) {
   if (counts.total === 0) return { ok: false, reason: 'empty-bundle' };
   const rawLedgerRows = raw.ledger && typeof raw.ledger === 'object'
     ? (Array.isArray(raw.ledger.transactions) ? raw.ledger.transactions.length : 0) + (Array.isArray(raw.ledger.valuations) ? raw.ledger.valuations.length : 0) : 0;
-  const adjustments = { ...positionAdjustments(raw.positions), ledgerDropped: Math.max(0, rawLedgerRows - counts.ledgerEntries) };
+  const adjustments = { ...positionAdjustments(raw.positions, merged), ledgerDropped: Math.max(0, rawLedgerRows - counts.ledgerEntries) };
   return { ok: true, kind: 'bundle', contents, counts, adjustments, exportedAt: typeof data.exportedAt === 'string' ? data.exportedAt : null };
 }

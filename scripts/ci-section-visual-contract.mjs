@@ -105,6 +105,24 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
   const a = whyMovedLine(day, 'AAA'); const b = whyMovedLine(day, 'BBB');
   check('v59.70 S13 ① why-moved: a move with a same-day report names it', /^11\/3 \+4\.2% — /.test(a?.text || '') && /알파 급등, 신제품 발표/.test(a.text), a?.text);
   check('v59.70 S13 ① why-moved: a counted move without a report says so; an uncounted one has no line', /^11\/3 -6\.1% — 같은 날 이름이 나온 보도가 없습니다\.$/.test(b?.text || '') && whyMovedLine(day, 'CCC') === null, b?.text);
+  // v60.28 (AVGO 11/16): the line said "광통신/포토닉스 하락과 함께" while the market line and the theme link said 반도체.
+  // The primary theme (primary-theme.js, theme-map order) is the one the line names; a story about another theme the
+  // stock also belongs to names the primary theme beside it.
+  {
+    const { primaryTheme, stockThemes } = await import(pathToFileURL(join(root, 'src/domain/entity/primary-theme.js')).href);
+    const map = [{ id: 'semiconductor', nameKr: '반도체', leaders: ['AVGO', 'NVDA'], subThemes: [{ name: 'AI 칩/커스텀 ASIC', tickers: ['NVDA', 'AVGO'] }] },
+      { id: 'photonics', nameKr: '광통신/포토닉스', leaders: ['AVGO', 'LITE'], subThemes: [{ name: '광전자 플랫폼', tickers: ['AVGO'] }] }];
+    const theme = primaryTheme(map, 'AVGO');
+    const group = (id, label, change, rank, materiality, members) => ({ id: `group:theme:${id}:2026-11-16`, kind: 'group-move', group: `theme:${id}`, label, date: '2026-11-16', change, rank, materiality, members });
+    const move = (sym, change) => ({ id: `stock:${sym}:2026-11-16`, kind: 'stock-move', subjects: [sym], label: sym, date: '2026-11-16', change, rank: 'minor', materiality: 30, explainedBy: ['driver'] });
+    const facts = [group('photonics', '광통신/포토닉스', -7.1, 'lead', 90, ['AVGO', 'LITE']), group('semiconductor', '반도체', -5.48, 'major', 70, ['AVGO', 'NVDA']), move('AVGO', -3.92), move('LITE', -9), move('NVDA', -5)];
+    const both = whyMovedLine({ facts }, 'AVGO', null, { theme })?.text || '';
+    const old = whyMovedLine({ facts }, 'AVGO')?.text || '';
+    const onlyOther = whyMovedLine({ facts: facts.filter((fact) => fact.group !== 'theme:semiconductor') }, 'AVGO', null, { theme })?.text || '';
+    check('v60.28 primary theme: one owner orders the stock\'s themes (theme-map order, primary first)', theme?.id === 'semiconductor' && stockThemes(map, 'avgo').map((t) => t.id).join() === 'semiconductor,photonics', JSON.stringify(theme));
+    check('v60.28 why-moved: the day line names the primary theme the page names', both === '11/16 -3.9% — 반도체 하락과 함께 움직였습니다(업종 중간값 -5.5%).' && /광통신/.test(old), `${both} | ${old}`);
+    check('v60.28 why-moved: a story about another theme names the primary theme beside it', /광통신\/포토닉스 하락과 함께 움직였습니다\(업종 중간값 -7\.1%\)\. 이 종목의 테마는 '반도체'이고, 광통신\/포토닉스에도 속합니다\.$/.test(onlyOther), onlyOther);
+  }
   // v59.84 (live NVDA 11/6 +2.8% "같은 날 보도: …짐 크라머", a Saturday 11/7 column): a report after the session or an
   // opinion column is not the move's reason; the evening before the session is 전날 보도.
   const later = (title, at, extra = {}) => ({ facts: [

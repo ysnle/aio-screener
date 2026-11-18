@@ -4,9 +4,9 @@
 // input returns a state ('pending' = not yet collected, 'unreported' = the filer does not tag it) instead of a number.
 import { surprisePct } from '../shared/number.js';
 import { dataStateText } from '../content/data-state.js';
-import { finiteFact as finite, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fiscalYearLabel } from './period.js';
+import { finiteFact as finite, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fiscalYearLabel, secQuarterLabel } from './period.js';
 import { hasFinalConsonant, withTopicParticle } from '../content/korean-particle.js';
-import { trailingQuarters } from './fiscal-read.js';
+import { FUNDAMENTAL_BASIS, trailingRowFundamentals } from './trailing-year.js';
 import { fiscalMetrics as fiscalMetricsOf } from './peer-read.js';
 import { countOpenSessionsBetween, dateInTimezone } from '../market/session/market-calendar.js';
 import { consensusView, CONSENSUS_PRICE_MAX_AGE_DAYS } from './consensus-read.js';
@@ -223,30 +223,9 @@ export function reverseDcfInputs({ history, fundamentals, close, financial = fal
   return { state: 'ready', fcf, periodEnd: latest.periodEnd, label: fyLabel(latest.periodEnd), ocf, capex, shares, sharesObservedAt: (rowShares > 0 ? close?.sharesObservedAt : null) || fundamentals?.sharesObservedAt || null, sharesBasis: rowShares > 0 ? 'screener-row' : 'sec-cover', price, priceDate: close.date, marketValue: price * shares };
 }
 
-// ── v58.75 (persona review): 재무 공시 for fundamental investors and traders ─────────────────────────────────────────────
-// The latest four consecutive fiscal quarters summed (sec-fiscal-history `quarters`), beside the same four quarters a year
-// earlier. Null unless all four are consecutive and carry both revenue and net income; the prior span only when it is the
-// eight-quarter run directly before. A derived fourth quarter (FY − Q1..Q3) counts, as everywhere else on the page.
-export function buildTrailingYearRead(quarters = []) {
-  const span = trailingQuarters(quarters, 4);
-  if (!span || !span.every((q) => finite(q.revenue) != null)) return null;
-  const sum = (rows, field) => rows.reduce((total, q) => total + q[field], 0);
-  const revenue = sum(span, 'revenue');
-  const netIncome = sum(span, 'netIncome');
-  // The year-earlier span needs revenue only: its net income may be missing (a derived Q4 without the year's Q1..Q3 income)
-  // and that blanks the income comparison, not the revenue growth (TSLA, PLTR, AVGO fell back to a ten-month-old year).
-  const run = trailingQuarters(quarters, 8, { field: 'revenue' });
-  const prior = run && run.slice(4).every((q, index) => q === span[index]) ? run.slice(0, 4) : null;
-  const priorRevenue = prior ? sum(prior, 'revenue') : null;
-  const priorIncome = prior && prior.every((q) => finite(q.netIncome) != null) ? sum(prior, 'netIncome') : null;
-  return {
-    from: span[0].periodEnd, through: span[3].periodEnd, revenue, netIncome, margin: revenue > 0 ? netIncome / revenue * 100 : null,
-    revenueYoy: priorRevenue > 0 ? (revenue / priorRevenue - 1) * 100 : null,
-    netIncomeYoy: priorIncome > 0 ? (netIncome / priorIncome - 1) * 100 : null,
-    priorMargin: priorRevenue > 0 && priorIncome != null ? priorIncome / priorRevenue * 100 : null,
-    hasDerived: span.some((q) => q.derived)
-  };
-}
+// 2026-11-18: the trailing-year read moved to trailing-year.js (one implementation for 재무 공시, the peer comparison and the
+// screener producer); re-exported here for the page modules that import it from this file.
+export { buildTrailingYearRead } from './trailing-year.js';
 
 // The next report: the provider calendar's dated row (the week rows or the six-week `upcoming` map) when one is on or after
 // today (New York date), else the last reported date from the consensus row and "not yet scheduled". No date is projected
@@ -292,13 +271,17 @@ export function buildEarningsSchedule({ symbol, calendar = null, consensus = nul
 
 // Reported adjusted EPS against the consensus that stood before each report (consensus-estimates `hist`, newest first in the
 // artifact, oldest first here). Reference only: it never enters a score.
-export function buildSurpriseRead(consensus = null) {
-  const rows = String(consensus?.hist || '').split(';').map((part) => part.split(':'))
+// `quarters` = the issuer's SEC quarters (parseQuarterHistory). A consensus month that matches an SEC quarter end
+// takes that quarter's label (secQuarterLabel), so this card and the SEC cards name one quarter by one month;
+// `sourceQuarter` keeps the source's own label. Two months landing on one SEC quarter keep their source labels.
+export function buildSurpriseRead(consensus = null, { quarters = [] } = {}) {
+  const parsed = String(consensus?.hist || '').split(';').map((part) => part.split(':'))
     .filter((cells) => /^\d{4}-\d{2}$/.test(cells[0] || '') && finite(cells[1]) != null && finite(cells[2]) != null)
-    .map(([quarter, eps, est]) => {
-      const actual = finite(eps), estimate = finite(est);
-      return { quarter, actual, estimate, surprise: surprisePct(actual, estimate) };
-    }).reverse();
+    .map(([month, eps, est]) => ({ month, sec: secQuarterLabel(month, quarters), actual: finite(eps), estimate: finite(est) }));
+  const rows = parsed.map(({ month, sec, actual, estimate }) => {
+    const quarter = sec && parsed.filter((row) => row.sec === sec).length === 1 ? sec : month;
+    return { quarter, sourceQuarter: month, actual, estimate, surprise: surprisePct(actual, estimate) };
+  }).reverse();
   if (!rows.length) return null;
   const beats = rows.filter((row) => row.actual > row.estimate).length;
   const misses = rows.filter((row) => row.actual < row.estimate).length;
@@ -312,7 +295,9 @@ export const RETURNED_LABEL = Object.freeze({ both: '자사주 매입과 배당 
 
 // Gross → operating → net margin, net cash and the capital-return line from the latest year that carries the v58.75 columns.
 // 'pending' = the issuer's record predates them; a column the filer does not tag is null (never zero).
-export function buildMarginCashRead(history = []) {
+// debtBasis: the issuer's sec-fiscal-history.json debtBasis ('lease-inclusive' when finance leases are in the debt figure).
+// debtCurrent: 'included' / 'excluded' (the part due within a year, sec-fiscal-history.json debtCurrent), null when unknown.
+export function buildMarginCashRead(history = [], { debtBasis = null, debtCurrent = null } = {}) {
   const rows = sorted(history);
   if (!rows.length) return { state: 'none' };
   const latest = rows.filter((year) => year.capitalChain).at(-1);
@@ -344,14 +329,38 @@ export function buildMarginCashRead(history = []) {
     state: 'ready', periodEnd: latest.periodEnd, label: fyLabel(latest.periodEnd), priorLabel: prior ? fyLabel(prior.periodEnd) : null, ladder,
     // Feature audit 2026-11-02: NVDA FY2026 had no short-term investments collected after FY2025 reported $34.6B, so net
     // cash read $3.1B instead of ~10x that. When the prior year had them and this year's are missing, net cash is held.
-    cash: liquid == null ? null : { cash, shortTermInvestments: sti, liquid, debt, net: debt != null && !(sti == null && finite(prior?.shortTermInvestments) > 0) ? liquid - debt : null, investmentsMissing: sti == null && finite(prior?.shortTermInvestments) > 0, debtBasis: 'long-term' },
+    cash: liquid == null ? null : { cash, shortTermInvestments: sti, liquid, debt, net: debt != null && !(sti == null && finite(prior?.shortTermInvestments) > 0) ? liquid - debt : null, investmentsMissing: sti == null && finite(prior?.shortTermInvestments) > 0, debtBasis: debtBasis === 'lease-inclusive' ? debtBasis : 'long-term',
+      debtCurrent: debtCurrent === 'included' || debtCurrent === 'excluded' ? debtCurrent : null },
     capital: { sbc, sbcRatio: ratio(sbc), buybacks, dividends, returned, returnedBasis, fcf, returnedShareOfFcf: returned != null && fcf > 0 ? returned / fcf * 100 : null }
   };
 }
 
 // Same-theme companies by name (AIO themes: the smallest sub-themes holding this listing first, then the theme leaders),
 // with the numbers a reader compares across a peer group. Only issuers with a SEC fiscal series; at most `max`.
-export function buildThemePeers({ symbol, themes = [], rows = [], seriesFor = () => null, consensusFor = () => null, max = 8 } = {}) {
+// 2026-11-18: 매출 성장 and 순이익률 read the latest four quarters (trailing-year.js, the screener row's basis) when this company
+// and at least PEER_TTM_MIN_SHARE of the group have them; otherwise the whole metric stays on each company's fiscal year.
+// One ranking never mixes a four-quarter figure with a fiscal-year one: in a TTM metric a company without quarters is left out.
+// `quartersFor(ticker)` returns the parsed quarter series (quarter-read.js parseQuarterHistory) or null.
+export const PEER_TTM_MIN_SHARE = 0.7;
+const PEER_TTM_METRICS = Object.freeze([['growth', 'revGrowth'], ['margin', 'margin']]);
+function applyPeerBasis(rows) {
+  const basis = {};
+  for (const [id, field] of PEER_TTM_METRICS) {
+    const withTtm = rows.filter((row) => row._ttm?.[`${field}Basis`] === FUNDAMENTAL_BASIS.ttm);
+    const share = rows.length ? withTtm.length / rows.length : 0;
+    const self = rows.find((row) => row.self);
+    const ttm = self?._ttm?.[`${field}Basis`] === FUNDAMENTAL_BASIS.ttm && share >= PEER_TTM_MIN_SHARE;
+    if (ttm) for (const row of rows) row[id] = row._ttm?.[`${field}Basis`] === FUNDAMENTAL_BASIS.ttm ? row._ttm[field] : null;
+    const through = ttm ? withTtm.map((row) => row._ttm[`${field}Through`]).sort() : [];
+    basis[id] = { basis: ttm ? FUNDAMENTAL_BASIS.ttm : FUNDAMENTAL_BASIS.fy, withTtm: withTtm.length, n: rows.length,
+      ...(ttm ? { throughFrom: through[0], throughTo: through.at(-1), leftOut: rows.filter((row) => row[id] == null).map((row) => row.sym) } : {}) };
+    // Each row's own four-quarter end for a metric the table reads on that basis (the table's period column names it).
+    if (ttm) for (const row of rows) if (row[id] != null) row.trailingThrough ||= row._ttm[`${field}Through`];
+  }
+  for (const row of rows) { row.trailingThrough ||= null; delete row._ttm; }
+  return basis;
+}
+export function buildThemePeers({ symbol, themes = [], rows = [], seriesFor = () => null, consensusFor = () => null, quartersFor = () => null, max = 8 } = {}) {
   const sym = String(symbol || '').toUpperCase();
   const norm = (value) => String(value || '').toUpperCase();
   const subs = [];
@@ -372,13 +381,17 @@ export function buildThemePeers({ symbol, themes = [], rows = [], seriesFor = ()
     const pe = readRowNumber(row, 'pe', 'calculation');
     // v58.75 ('고르는 법' B2): FCF margin, the consensus forward PER and the 3-month return feed the strengths/weaknesses facts.
     const fwdPe = consensusView(row, consensusFor(ticker))?.fwdPe ?? null;
+    const quarters = quartersFor(ticker);
+    const ttm = Array.isArray(quarters) && quarters.length ? trailingRowFundamentals(quarters, { observedAt: metrics.periodEnd }) : null;
     return { sym: ticker, name: row?.name || ticker, self, periodEnd: metrics.periodEnd, growth: metrics.growth, margin: metrics.margin, roe: metrics.roe, pe: pe != null && pe > 0 ? pe : null,
-      fcfMargin: metrics.fcfMargin, fwdPe: fwdPe != null && fwdPe > 0 ? fwdPe : null, ret3m: readRowNumber(row, 'ret3m', 'calculation') };
+      fcfMargin: metrics.fcfMargin, fwdPe: fwdPe != null && fwdPe > 0 ? fwdPe : null, ret3m: readRowNumber(row, 'ret3m', 'calculation'), _ttm: ttm };
   };
   const own = line(sym, true);
   if (!own) return null;
   const peers = [];
   for (const ticker of ordered) { if (peers.length >= max) break; const item = line(ticker); if (item) peers.push(item); }
   if (peers.length < 3) return null;
-  return { themeId: theme.id, themeName: theme.nameKr || theme.name || theme.id, subNames: [...new Set(subs.map((sub) => sub.name))], rows: [own, ...peers] };
+  const all = [own, ...peers];
+  const basis = applyPeerBasis(all);
+  return { themeId: theme.id, themeName: theme.nameKr || theme.name || theme.id, subNames: [...new Set(subs.map((sub) => sub.name))], rows: all, basis };
 }

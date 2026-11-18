@@ -114,6 +114,13 @@ check('v59.70 no shell binding takes a browser key (reload, find, address bar, t
 // 4. The module's pure parts: screens from the menu table, glossary ranking, no symbol guessing.
 check('v59.70 시장 폭 finds the breadth screen first', search.matchScreens('시장 폭')[0]?.route === 'breadth', JSON.stringify(search.matchScreens('시장 폭')[0]));
 check('v59.70 the glossary ranks the term itself first', search.matchTerms('PER', [{ term: 'PEG', def: 'PER을 성장률로 나눈 값' }, { term: 'PER (주가수익비율)', def: '주가 ÷ 주당순이익' }])[0]?.term === 'PER (주가수익비율)');
+// v60.30 (2026-11-18): '삼성' listed the glossary entry KOSPI, whose definition names 삼성전자. A two-character query
+// matches term names and aliases only; a definition-only hit needs three characters.
+{
+  const kospi = [{ term: 'KOSPI', def: '한국 종합주가지수. 유가증권시장 대형주 중심. 삼성전자, SK하이닉스 등 포함.' }];
+  check('v60.30 a two-character query does not list a glossary term only because its definition contains it', search.matchTerms('삼성', kospi).length === 0, JSON.stringify(search.matchTerms('삼성', kospi)));
+  check('v60.30 a longer query still finds a definition-only term', search.matchTerms('삼성전자', kospi)[0]?.term === 'KOSPI');
+}
 // v60.19 (Codex audit): the command search handled only the arrows; Home and End did nothing. Its option keys are the
 // shared listbox's (behaviors/listbox.js nextOptionIndex), every one of them.
 {
@@ -130,6 +137,49 @@ check('v59.70 the glossary ranks the term itself first', search.matchTerms('PER'
     count >= 3 && walk.join() === [`aio-cmd-opt-${count - 1}`, 'aio-cmd-opt-0', 'aio-cmd-opt-1', 'aio-cmd-opt-0'].join(), JSON.stringify({ count, walk }));
 }
 check('v59.70 a typed symbol is offered only when no candidate is already it', search.typedSymbol('nvda', [{ symbol: 'NVDA' }]) === null && search.typedSymbol('ZZZZQ', []) === 'ZZZZQ' && search.typedSymbol('애플 주식', []) === null && search.typedSymbol('005930', [{ symbol: '005930.KS' }]) === null);
+
+// A listing response can arrive after the reader dismisses the dialog, edits within the debounce,
+// or selects again. Only their latest selection is allowed to navigate or replace the status.
+{
+  const { createFakeDocument } = await import('./lib/fake-dom.mjs');
+  const doc = createFakeDocument();
+  const pending = [];
+  const opened = [];
+  const root = { document: doc, setTimeout, clearTimeout, showTicker: (symbol) => opened.push(symbol),
+    _aioAcceptSymbol: () => new Promise((resolve) => pending.push(resolve)) };
+  const cmd = search.createCommandSearch({ root, documentRef: doc });
+  cmd.install();
+  const dialog = doc.getElementById('aio-command-search');
+  const field = doc.getElementById('aio-command-input');
+  const status = doc.getElementById('aio-command-status');
+  dialog.showModal = () => { dialog.open = true; };
+  dialog.close = () => { dialog.open = false; };
+  const enter = () => field.dispatchEvent({ type: 'keydown', key: 'Enter', preventDefault() {} });
+  const settle = async (value) => { pending.shift()(value); await Promise.resolve(); await Promise.resolve(); };
+  cmd.open({ scope: 'stock', query: 'X' });
+  enter();
+  cmd.close();
+  await settle({ ok: true, id: 'X' });
+  check('v60.25 dismissing a pending symbol check cancels navigation', !opened.length);
+  cmd.open({ scope: 'stock', query: 'X' });
+  enter();
+  field.value = 'Y';
+  field.dispatchEvent({ type: 'input' });
+  await settle({ ok: true, id: 'X' });
+  check('v60.25 a new input immediately cancels a pending symbol check', !opened.length && dialog.open);
+  enter();
+  cmd.close();
+  cmd.open({ scope: 'stock', query: 'Z' });
+  dialog.dispatchEvent({ type: 'close' }); // queued by the previous close
+  enter();
+  await settle({ ok: false });
+  check('v60.25 an old rejection cannot replace the reopened search status', status.textContent.includes('Z') && !status.textContent.includes('Y'));
+  enter();
+  await settle({ ok: true, id: 'Z' });
+  check('v60.25 a superseded selection cannot open a stock', !opened.length);
+  await settle({ ok: true, id: 'Z' });
+  check('v60.25 the latest symbol selection still opens its stock once', opened.join() === 'Z');
+}
 
 if (failures.length) {
   console.error(`Search surface contract FAILED (${failures.length}):\n- ${failures.join('\n- ')}`);

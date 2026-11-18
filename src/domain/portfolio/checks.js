@@ -8,7 +8,7 @@
 // and asset-class bands are target allocations from world market-cap weights, which would be advice.
 // All shares use the surface's base-currency values (P1407); a holding without a value is excluded
 // and counted, never treated as zero.
-import { listingCurrency, listingRegion } from './fx.js';
+import { holdingListingKey, listingCurrency, listingRegion } from './fx.js';
 import { concentrationPenaltyForWeight } from './concentration.js';
 import { holdingBand, holdingTierText, HOLDING_BAND_BASIS } from './concentration-bands.js';
 import { RULES } from '../rules/thresholds.js';
@@ -47,13 +47,15 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
     return Object.freeze({ model: PORTFOLIO_CHECKS_MODEL_VERSION, status: 'unavailable', reason: rows.length ? 'no-valued-holdings' : 'no-holdings', excluded, checks: Object.freeze([]), breakdowns: Object.freeze({}) });
   }
   const symbolOf = (row) => String(row.symbol || row.ticker || '').toUpperCase();
-  const currencyOf = (row) => String(row.convertedFrom || row.currency || '').toUpperCase() || listingCurrency(symbolOf(row)) || '통화 미확인';
+  // Type, sector, currency and region are looked up by the resolved listing (005930.KS); the holding is named by its code.
+  const keyOf = holdingListingKey;
+  const currencyOf = (row) => String(row.convertedFrom || row.currency || '').toUpperCase() || listingCurrency(keyOf(row)) || '통화 미확인';
   const byHolding = shares(valued.map((row) => [symbolOf(row), finite(row.value)]), invested);
   const byCurrency = shares(valued.map((row) => [currencyOf(row), finite(row.value)]), invested);
-  const byRegion = shares(valued.map((row) => [listingRegion(row.listingSymbol || symbolOf(row)), finite(row.value)]), invested);
-  const byType = shares(valued.map((row) => [assetTypeOf(symbolOf(row)) || '미분류', finite(row.value)]), invested);
+  const byRegion = shares(valued.map((row) => [listingRegion(keyOf(row)), finite(row.value)]), invested);
+  const byType = shares(valued.map((row) => [assetTypeOf(keyOf(row)) || '미분류', finite(row.value)]), invested);
   // v59.56 (screen review): the sector card printed 'Technology 38%' beside Korean labels everywhere else.
-  const bySector = shares(valued.map((row) => { const name = sectorOf(symbolOf(row)) || row.sector || ''; return [name ? sectorLabel(name) : '미분류', finite(row.value)]; }), invested);
+  const bySector = shares(valued.map((row) => { const name = sectorOf(keyOf(row)) || row.sector || ''; return [name ? sectorLabel(name) : '미분류', finite(row.value)]; }), invested);
   const top = byHolding[0];
   const topCurrency = byCurrency[0];
   const baseCurrency = String(surface?.baseCurrency || '').toUpperCase() || null;

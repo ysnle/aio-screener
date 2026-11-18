@@ -18,6 +18,7 @@ import { reconcileSecRecord, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_M
 import { tickerKey, SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, SEC_SUCCESSOR_ISSUERS, mergeSuccessorCompanyFacts, mergeSuccessorSubmissions, classifyIssuerCapability, parseClassShareFacts, classInstanceUrl, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { secClassification } from '../src/domain/fundamental/sic-sector.js';
 import { reconcileSecValuationBasis } from '../src/domain/fundamental/sec-valuation-basis.js';
+import { quarterlyHistory } from './lib/sec-fiscal-history.mjs';
 export { SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, reportingBasis, classifyIssuerCapability, parseClassShareFacts, CLASS_EPS_TOLERANCE, selectClassDimensionedShares, classInstanceUrl, RECENT_FILING_WINDOW_DAYS, RECENT_FILING_MAX, recentFilingsFrom, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
@@ -191,13 +192,18 @@ export const SEC_EXTENDED_DEFAULT_BATCH = 600;
 // with one older than 30 days (a de-SPAC can keep its ticker and change code). A failed read keeps the previous code.
 export const SEC_SIC_BACKFILL_DEFAULT = 800;
 export const SEC_SIC_REFRESH_AFTER_MS = 30 * 86400000;
+// The last eight quarters of revenue and net income stay as the compact quarter string the core projection writes
+// (sec-fiscal-history.mjs quarterlyHistory, ~220 bytes an issuer), so an extended row's margin and revenue growth take the
+// same four-quarter basis as a core row (producer/screener.mjs secQuartersOf). The observation arrays still go.
 export function compactSecRecord(record) {
   if (!record || typeof record !== 'object') return record;
   const { recentFilings, ...rest } = record;
+  const observations = record.pit && typeof record.pit === 'object' ? record.pit.observations : null;
   const pit = record.pit && typeof record.pit === 'object'
     ? { schemaVersion: record.pit.schemaVersion, status: record.pit.status, observationCount: record.pit.observationCount, acceptedTimeCount: record.pit.acceptedTimeCount, observationsDropped: 'extended-ledger-compact' }
     : record.pit;
-  return { ...rest, pit };
+  const quarterHistory = observations && typeof observations === 'object' ? quarterlyHistory(observations) : null;
+  return { ...rest, pit, ...(quarterHistory ? { quarterHistory } : {}) };
 }
 export function extendedSecOptions(env = process.env) {
   return {

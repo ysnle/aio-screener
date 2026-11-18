@@ -7,6 +7,7 @@ import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS, NATHAN_ANALYSIS_PROTOCOL, nathan
 import { CONDITIONAL_EVIDENCE_VERSION } from '../../domain/screener/conditional-evidence.js';
 import { EVIDENCE_LINEAGE_VERSION } from '../../domain/screener/evidence-lineage.js';
 import { RANKING_CONTRACTS } from '../screener-extended.js';
+import { withOverallRanks } from '../../domain/screener/overall-rank.js';
 
 const SCREENER_RESEARCH_MAPPING = Object.freeze(SUPPLIED_MATERIALS_META.routeMappings?.screener || {});
 const SCREENER_REFERENCE_FRAMEWORK_IDS = Object.freeze([
@@ -100,13 +101,16 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
     const universeScope = normalized.metadata?.universeScope === 'extended' ? 'extended' : 'core';
     await yieldImpl();
     if (!isLive()) return null;
-    const rankedRows = await mapInChunks(normalized.rows, (row) => {
+    const mergedRows = await mapInChunks(normalized.rows, (row) => {
       const result = bySymbol.get(row.sym || row.symbol);
       const merged = result ? { ...row, ...result, symbol: row.symbol, sym: row.sym } : { ...row, rank: null, score: null, factorScores: {}, quantSignal: null };
       // v57.81: under the extended contract every row says so (the ticker page labels its rank from this).
       return { ...merged, ...(universeScope === 'extended' ? { rankingUniverse: 'extended' } : {}), setupProfile: deriveScreenerSetupProfile(calculationRow(merged)) };
     }, isLive);
-    if (!rankedRows) return null;
+    if (!mergedRows) return null;
+    // The overall rank (ordinal by the unrounded composite inside each market) is set once here, beside the
+    // percentile it refines; the screen run below adds its own order (screenRank) and keeps this one.
+    const rankedRows = withOverallRanks(mergedRows);
     const screenDefinition = createScreenDefinition({
       screenId: 'native-screener-workbench',
       version: 1,

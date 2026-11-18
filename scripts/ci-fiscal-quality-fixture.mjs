@@ -84,6 +84,7 @@ class Element {
   set textContent(text) { this._text = String(text); this.children = []; }
   get textContent() { return this._text + this.children.map((child) => child.textContent).join(' '); }
   append(...nodes) { this.children.push(...nodes); }
+  get childElementCount() { return this.children.filter((child) => child.tagName !== '#text').length; }
   replaceChildren(...nodes) { this.children = nodes; this._text = ''; }
   setAttribute(key, value) { this.attributes[key] = value; }
   querySelector(tag) { return descendants(this).find((child) => child.tagName === tag) || null; }
@@ -335,6 +336,19 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   assert.equal(buildConsensusRow(forecast, { earningsSurpriseTable: { rows: surpriseRows } }, 'now').hist, '2026-07:2.22:2.09;2026-04:1.87:1.7;2026-01:1.57:1.45;2025-10:1.24:1.18', 'v58.75 the producer keeps each quarter\'s consensus beside the reported EPS');
   const surprise = read.buildSurpriseRead(consensus);
   assert.ok(surprise.rows[0].quarter === '2026-01' && surprise.beats === 2 && surprise.misses === 1, 'v58.75 oldest first; beats and misses counted');
+  // v60.28: AVGO's consensus names its quarter ended 2026-08-02 '2026-07'; the card takes the SEC cards' label for it.
+  {
+    const period = await import('../src/domain/fundamental/period.js');
+    const { parseQuarterHistory } = await import('../src/domain/fundamental/quarter-read.js');
+    const secQuarters = parseQuarterHistory('2025-11-02:18015:8518:d;2026-02-01:19311:7349:r;2026-05-03:22187:9310:r;2026-08-02:29591:13088:r');
+    const avgo = read.buildSurpriseRead({ hist: '2026-07:3.03:2.83;2026-04:2.17:2.02;2026-01:1.76:1.67;2025-10:1.61:1.49' }, { quarters: secQuarters });
+    assert.deepEqual(avgo.rows.map((row) => row.quarter), ['2025-11', '2026-02', '2026-05', '2026-08'], 'v60.28 the EPS surprise card labels each quarter by its SEC quarter end');
+    assert.equal(avgo.latest.quarter, period.quarterLabel(secQuarters.at(-1).periodEnd), 'v60.28 the latest surprise quarter and the latest SEC quarter share one label owner');
+    assert.equal(avgo.latest.sourceQuarter, '2026-07', 'v60.28 the source month is kept beside the aligned label');
+    const far = read.buildSurpriseRead({ hist: '2026-07:3.03:2.83;2025-01:1.0:1.0' }, { quarters: secQuarters });
+    assert.deepEqual(far.rows.map((row) => row.quarter), ['2025-01', '2026-08'], 'v60.28 a month with no SEC quarter end within 45 days keeps the source label');
+    assert.equal(period.secQuarterLabel('2026-07', []), null, 'v60.28 without SEC quarters there is no aligned label');
+  }
 
   // Same-theme peers by name.
   const series = (growth) => [{ periodEnd: '2024-12-31', revenue: 100, netIncome: 10, equity: 50 }, { periodEnd: '2025-12-31', revenue: 100 + growth, netIncome: 12, equity: 60 }];
@@ -357,6 +371,51 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   const v75 = descendants(v75Host);
   for (const id of ['margin-cash', 'surprise', 'theme-peers', 'lens', 'thesis']) assert.ok(v75.some((node) => node.dataset?.analysis === id), `v58.75 재무 공시 renders the ${id} card`);
   assert.ok(v75Host.textContent.includes('최근 4개 분기(2026-06 분기까지)') && v75Host.textContent.includes('장 시작 전'), 'v58.75 the hero carries the last four quarters and the next report date');
+  // 재무 공시's theme peer table reads growth and margin on the screener row's four-quarter basis when the group has the
+  // quarters (the page passes quartersFor like 종목 요약), and its period column names each company's basis.
+  {
+    const ttmHost = new Element('section');
+    const ttmDoc = { ...doc, getElementById: (id) => id === 'fund-flow' ? ttmHost : id === 'fund-next' ? next : null };
+    const ttmRoot = { ...v75Root, _aioSecQuarterHistory: { CAPX: quarterText, PA: quarterText, PB: quarterText, PC: quarterText } };
+    renderFiscalRead({ documentRef: ttmDoc, root: ttmRoot, state: { id: 'CAPX', fundamentals: null } });
+    for (let tick = 0; tick < 12; tick += 1) await new Promise((resolve) => setImmediate(resolve));
+    renderFiscalRead({ documentRef: ttmDoc, root: ttmRoot, state: { id: 'CAPX', fundamentals: null } });
+    const table = descendants(ttmHost).find((node) => node.dataset?.analysis === 'theme-peers');
+    const cells = descendants(table).filter((node) => node.tagName === 'td').map((node) => node.textContent);
+    const heads = descendants(table).filter((node) => node.tagName === 'th').map((node) => node.textContent);
+    assert.ok(heads.includes('기준') && cells.filter((text) => text === '6/30까지 4개 분기').length === 4, 'v60.30 the 재무 공시 theme peer table names each company\'s four-quarter end');
+    assert.ok(table.textContent.includes('매출 성장·순이익률은 최근 4개 분기') && table.textContent.includes('ROE·잉여현금 마진은 각 회사의 최근 회계연도'), 'v60.30 the peer table caption states the four-quarter basis once');
+    assert.ok(cells.includes(`${((132 / 92 - 1) * 100).toFixed(1)}%`), 'v60.30 the peer growth cell is the four-quarter growth, the screener row\'s basis');
+  }
+
+  // The artifact's debtBasis map reaches the screen through requestFiscalHistory: a lease-inclusive issuer's table header,
+  // cash line, lens and limits note name the leases; a symbol outside the map stays '장기부채'.
+  {
+    const basisHost = new Element('section');
+    const basisDoc = { ...doc, getElementById: (id) => id === 'fund-flow' ? basisHost : id === 'fund-next' ? next : null };
+    const artifact = { data: { TEST: sandbox.fiscal(obs), PLAIN: sandbox.fiscal(obs), TOTAL: sandbox.fiscal(obs) }, quarters: {}, debtBasis: { TEST: 'lease-inclusive' }, debtCurrent: { PLAIN: 'excluded' } };
+    const basisRoot = { _aioGetCanonicalScreenerRows: () => [{ sym: 'TEST', sector: 'Technology' }, { sym: 'PLAIN', sector: 'Technology' }, { sym: 'TOTAL', sector: 'Technology' }],
+      fetch: (url) => Promise.resolve(response(String(url).includes('manifest') ? { fiscalHistory: { path: 'public-data/sec-fiscal-history.json' } } : artifact)) };
+    const page = async (id) => {
+      renderFiscalRead({ documentRef: basisDoc, root: basisRoot, state: { id, fundamentals: null } });
+      for (let tick = 0; tick < 12; tick += 1) await new Promise((resolve) => setImmediate(resolve));
+      renderFiscalRead({ documentRef: basisDoc, root: basisRoot, state: { id, fundamentals: null } });
+      const all = descendants(basisHost);
+      const card = (name) => all.find((node) => node.dataset?.analysis === name)?.textContent || '';
+      return { text: basisHost.textContent, header: all.filter((node) => node.tagName === 'th').map((node) => node.textContent), cash: card('margin-cash'), lens: card('lens') };
+    };
+    const lease = await page('TEST');
+    assert.ok(lease.header.includes('장기부채(리스 포함)') && !lease.header.includes('장기부채'), 'v60.28 a lease-inclusive issuer\'s annual table names the debt column 장기부채(리스 포함)');
+    assert.ok(lease.cash.includes('대 장기부채(리스 포함)') && lease.cash.includes('금융리스를 더한') && !lease.cash.includes('1년 안에 갚을 몫과'), 'v60.28 the cash line and the limits note follow the lease-inclusive basis');
+    assert.ok(lease.lens.includes('장기부채(리스 포함)'), 'v60.28 the stock lens reads the same debt basis');
+    const plain = await page('PLAIN');
+    assert.ok(plain.header.includes('장기부채') && !plain.text.includes('리스 포함'), 'v60.28 a symbol outside the debtBasis map reads 장기부채');
+    // v60.30: the note names the part due within a year as missing only for a noncurrent concept (debtCurrent map); a total
+    // such as LongTermDebt carries it, so its note says it is included.
+    assert.ok(plain.cash.includes('대 장기부채 ') && plain.cash.includes('1년 안에 갚을 몫과 리스 부채는 빠져'), 'v60.30 a noncurrent debt concept names the part due within a year as missing');
+    const total = await page('TOTAL');
+    assert.ok(total.cash.includes('장기부채(1년 안에 갚을 몫 포함)') && !total.cash.includes('1년 안에 갚을 몫과'), 'v60.30 a total debt concept (LongTermDebt) never says the part due within a year is missing');
+  }
 }
 
 // ── v58.75 (persona review): the stock lens layer — lens registry, peer facts, situations, thesis template, watch list,
@@ -425,6 +484,21 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   const link = lens.buildMarketLink({ regime: { available: true, overall: '다소 부담' }, crossroads, themeLabel: '반도체', tags: ['aicapex', 'cyclical', 'growth'], stage: { stateLabel: '동행' } });
   assert.ok(link.text.includes("'다소 부담'") && link.text.includes('AI') && link.text.includes('부담 쪽'), 'v58.75 the market line joins the regime, lead branch and theme wind');
   assert.equal(lens.buildMarketLink({}), null, 'v58.75 no regime or scenario gives no market line');
+}
+
+// The SEC fiscal-history maps the artifact load writes on root (issuer SIC, debt basis) are read through fiscal-read.js
+// issuerSic / debtBasisFor only; a component that parses root._aioSecIssuerSic itself splits the one reading rule.
+{
+  const { readdirSync, statSync } = await import('node:fs');
+  const { join, relative } = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const srcRoot = fileURLToPath(new URL('../src/', import.meta.url));
+  const files = [];
+  const walk = (dir) => { for (const name of readdirSync(dir)) { const full = join(dir, name); if (statSync(full).isDirectory()) walk(full); else if (name.endsWith('.js')) files.push(full); } };
+  walk(srcRoot);
+  const readers = files.filter((file) => /_aioSecIssuerSic|_aioSecDebtBasis|_aioSecDebtCurrent/.test(readFileSync(file, 'utf8')))
+    .map((file) => relative(srcRoot, file).replace(/\\/g, '/'));
+  assert.deepEqual(readers, ['ui/components/fiscal-read.js'], 'v60.30 only fiscal-read.js reads the issuer SIC and debt-basis maps; components use issuerSic/debtBasisFor');
 }
 
 console.log('[fiscal-quality] PASS P1627: signed zero line, precise same-period annual receipt, strict ROE/gap, amount table, source links, missing quarters, compact peers, pending-issuer race; v58.55 assets/R&D columns, DuPont, R&D, Sloan, reverse DCF, backfill batch, pending state; v58.75 capital columns, margin ladder, net cash, last four quarters, next report date, EPS surprise, theme peers, stock lens/peer facts/situations/thesis frame/watch list/market line. Offline; producer not executed.');

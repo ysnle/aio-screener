@@ -7,7 +7,7 @@
 - `macro-next` — `#macro-board-basis` names the next major release from the shared scenario model.
 - `macro-regime` — quadrant `#macro-regime`, six impact cards `#macro-axes`, chain `#macro-chain` (oil→inflation→Fed→rates→valuation).
 - `macro-board` — official indicators with 24-month trends `#macro-board`; oil/gold `#macro-commodities`.
-- `rates-yields` — five tenors `#rates-yields .rates-yield` (2/5/10/20/30y) with `%` and `bp`, basis `#rates-basis`.
+- `rates-yields` — published Treasury tenors in `#rates-yields .rates-yield` with `%` and `bp`, basis `#rates-basis`.
 - `rates-curve` — `#rates-curve`, `#rates-spreads`, levels `#rates-levels`, axes `#rates-axes`.
 - `rates-fx` — `#rates-fx-grid` (USD index, USDKRW, USDJPY); the 10-year yield is in the Treasury curve above. `그 밖의 통화` shows `시세 대기` locally.
 
@@ -26,9 +26,9 @@ Preconditions:
 - **Open.** Click sidebar `매크로`. `page-macro` active; tabs exactly `개요,금리와 환율`.
 - **Next release.** `#macro-board-basis` leaves loading and matches `/다음 주요 발표는/`.
 - **Regime.** `#macro-regime` and `#macro-axes` have children; `#macro-board` has children.
-- **Rates.** Tab `금리와 환율` → `page-fxbond`; open `만기별 금리와 1일·1주 변화`. At least 5 `#rates-yields .rates-yield`, visible text has `%` and `bp`; `#rates-basis` matches `/종가|고시/`.
+- **Rates.** Tab `금리와 환율` → `page-fxbond`. The initial `금리` view already shows the tenor changes. At least 5 `#rates-yields .rates-yield`, visible text has `%` and `bp`; `#rates-basis` matches `/종가|고시/`.
 - **Curve.** `#rates-curve` and `#rates-spreads` real text.
-- **FX.** ≥3 `#rates-fx-grid` cards (the 10-year yield belongs to the Treasury curve above).
+- **FX.** Click the `환율` view. The visible `#rates-fx-grid` contains ≥3 cards.
 - **Proof.** `drive macro` evidence folder.
 
 ## Gotchas

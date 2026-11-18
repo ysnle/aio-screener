@@ -7,6 +7,7 @@ import { LIST_ITEM_BREAK, analysisLevelsAfterLabels, analysisProse, isNonMetricN
 import { sessionDateInMarket } from '../../src/domain/market/session/session-time.js';
 import { buildCloseSeries } from '../../src/domain/briefing/market-read.js';
 import { isConditionalNumericSentence } from '../../src/ai/response/publication.js';
+import { dayAgrees, sizeWordAgrees } from '../../src/domain/shared/figure-agreement.js';
 import { RULES } from '../../src/domain/rules/thresholds.js';
 import { readNumber } from '../../src/domain/shared/number.js';
 import { stripEvidenceIds } from '../../src/domain/briefing/evidence-text.js';
@@ -1115,13 +1116,13 @@ export function moveSizeWordIssues(body, { grades = [] } = {}) {
       const named = grades.filter((row) => row.name.test(clause));
       if (named.length !== 1) continue;
       const row = named[0];
-      if (dates.some((md) => md !== row.date.slice(5))) continue;
+      if (dates.some((md) => !dayAgrees(`--${md}`, row.date))) continue;
       const nameEnd = moveNameEnd(clause, row);
       if (nameEnd < 0) continue;
       const large = sizeWordBound(clause, nameEnd, LARGE_MOVE_WORD), small = sizeWordBound(clause, nameEnd, SMALL_MOVE_WORD);
       const grade = WEEK_LEG.test(clause) ? row.week : row.day;
       if (!grade || (!large && !small)) continue;
-      if ((large && grade !== 'large') || (small && grade === 'large')) issues.push(`move-size-word-contradicts-ledger:${row.field}`);
+      if ((large && !sizeWordAgrees('large', grade)) || (small && !sizeWordAgrees('small', grade))) issues.push(`move-size-word-contradicts-ledger:${row.field}`);
     }
   }
   return issues;

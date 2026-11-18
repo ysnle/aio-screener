@@ -5,6 +5,7 @@ import { buildSectorMap, layoutSectorMap, SECTOR_MAP_PERIODS, shadeOf } from '..
 import { latestCompletedUsSession } from '../../domain/market/session/market-calendar.js';
 import { el } from './dom.js';
 import { asOfChip, markFrame } from './section-frame.js';
+import { sessionChipText } from './session-lag.js';
 import { signedText } from '../../domain/shared/number.js';
 
 const signed = (value, digits = 2) => (value == null ? '수익률 없음' : signedText(value, digits, '%'));
@@ -79,7 +80,8 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
     : '종가 기준일 확인 필요';
   const sizeText = model.sizeBasis === 'index-weight' ? `넓이 = 지수 비중(${model.members}종목${model.weightsAsOf ? `, ${shortDate(model.weightsAsOf)} 보유 비중` : ''})` : `넓이 = 시가총액 근사(공시 주식 수 × 종가, ${model.drawn}/${model.members}종목)`;
   // v57.88 (screen audit): the same sector read +0.6% here and +1.46% on the XLC chip without a word on why.
-  const chip = !model.basis ? '기준일 확인 필요' : model.current ? `${shortDate(model.basis)} 종가` : `${shortDate(model.basis)} 종가, 반영 전`;
+  // The as-of chip is the 테마 순위 and 시나리오 tabs' own label (session-lag.js): "11/16 종가, 11/17 반영 전".
+  const chip = !model.basis ? '기준일 확인 필요' : sessionChipText(model.basis, model.current ? '' : model.expectedSession || '');
   tabs.before(asOfChip(doc, chip, `${sizeText}, 색 = ${model.periodLabel} 수익률, ${basisText}, 섹터 평균은 지도에 그린 종목의 비중 가중이라 섹터 ETF 수익률과 다를 수 있습니다`));
   host.append(el(doc, 'p', model.lead, 'sector-map-lead'));
 

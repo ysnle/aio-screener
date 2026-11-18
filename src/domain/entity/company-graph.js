@@ -11,6 +11,25 @@ import { readNumber } from '../shared/number.js';
 export const COMPANY_GRAPH_SCHEMA = 'company-graph.v1';
 // The subject of a list line: the part before ' - ', ' — ' or ': '.
 const head = (line) => String(line || '').split(/\s+[-—–]\s+|:\s/)[0];
+// A parenthetical either lists the members of a category head ('클라우드 (Google, Meta)') or qualifies a named
+// subject ('Marvell (AWS Trainium·Microsoft Maia 협력으로 보도)': AWS and Microsoft are Marvell's partners, not this
+// company's rivals). So when the text outside the brackets names a company, only those names are the counterparties;
+// otherwise the bracketed members are. A bracketed clause that names a guarantor or backer ('Google 보증',
+// 'AMD 신용 보증') is someone else's relationship and links nobody. An unclosed bracket runs to the end of the line.
+const BACKER = /보증/;
+export function counterpartiesNamedIn(text, self = null) {
+  const outside = [], inside = [];
+  let depth = 0, buffer = '';
+  const flush = () => { (depth ? inside : outside).push(buffer); buffer = ''; };
+  for (const ch of String(text || '')) {
+    if (ch === '(' || ch === '（') { flush(); depth += 1; } else if ((ch === ')' || ch === '）') && depth) { flush(); depth -= 1; } else buffer += ch;
+  }
+  flush();
+  const named = (parts) => companiesNamedIn(parts.join(' ')).filter((id) => id !== self);
+  const subjects = named(outside);
+  if (subjects.length) return subjects;
+  return named(inside.flatMap((clause) => clause.split(/[,;]/)).filter((clause) => !BACKER.test(clause)));
+}
 const clip = (text, max = 160) => { const s = String(text || '').replace(/\s+/g, ' ').trim(); return s.length > max ? `${s.slice(0, max - 1)}…` : s; };
 
 /** A short display name: the Korean name for a Korean listing, otherwise the English name without its legal suffix. */
@@ -65,7 +84,7 @@ export function buildCompanyGraph(stories) {
   };
   for (const story of list) {
     const self = story.symbol;
-    const others = (text) => companiesNamedIn(text).filter((id) => id !== self);
+    const others = (text) => counterpartiesNamedIn(text, self);
     // A partner line ('TSMC - 웨이퍼 생산', 'NVIDIA - 20억 달러 투자, 다년 구매약정') says who works with whom, and the money can
     // run either way (a supplier, a co-developer, an investor), so it is its own kind and the sentence is kept with it.
     // A customer line names its customer before the dash; a company named after it is a product ('… NVIDIA GPU로 운영').
@@ -75,7 +94,7 @@ export function buildCompanyGraph(stories) {
     for (const line of story.aiChain?.sellsTo || []) for (const id of others(head(line))) add('supply', id, self, self, 'sellsTo', line);
     for (const arena of story.competition?.arenas || []) for (const line of arena?.rivals || []) for (const id of others(line)) add('rival', self, id, self, 'rivals', `${arena.arena}: ${line}`);
     for (const hop of story.moneyFlow?.steps || []) {
-      const payers = companiesNamedIn(hop?.from), payees = companiesNamedIn(hop?.to);
+      const payers = counterpartiesNamedIn(hop?.from), payees = counterpartiesNamedIn(hop?.to);
       // A hop that names this company on one side and itself on neither still says who pays whom; very wide hops
       // ('하이퍼스케일러 (MSFT, GOOGL, AMZN, META)' → three suppliers) are kept up to twelve pairs.
       const pairs = payers.flatMap((p) => payees.map((q) => [p, q])).slice(0, 12);

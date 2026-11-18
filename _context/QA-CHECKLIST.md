@@ -1,8 +1,87 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-16
+last_verified: 2026-11-18
 confidence: medium
 ---
+
+## v60.30 문장 claim 계약 (2026-11-18)
+
+- [x] QA-CLAIM-REPLAY-01: 브리핑 지난 24시간(day-account)의 모든 수치·날짜·판정 단어와 시장 읽기 진술 11종(narrow-rally, broad-rally, broad-weakness, broad-derisking, index-defended, tech-leads, tech-lags, credit-widening, credit-stress, vix-inversion, vix-spike)은 claim(src/domain/shared/claim.js)에서만 문장이 되고, 저장된 모든 세션(history.json 약 420개, 크래시 재생 고정 종가 중 history에 없는 세션, 발행된 market-day.json)에서 검사기가 사실과 대조해 0건이다(v60.30). verify_by: node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-CLAIM-REPLAY-02: 검사기 자체 시험: 결함 유형 a(최상급·순위), b(참여 단어가 지수 방향을 거스름), c(크기 단어와 moveGrade), d(인쇄된 값과 기준선), e(라벨 없는 수치·claim 없이 인쇄된 수치), f(asOf와 자료 날짜)마다 거짓 claim 하나를 잡아야 통과한다(v60.30). verify_by: node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-CLAIM-REPLAY-03: 변환된 파일의 한글 템플릿 리터럴이 숫자 서식 함수를 직접 끼워 넣는 곳은 day-account.js 0, market-read.js 297(미변환 진술)에서 늘지 않는다(v60.30). verify_by: node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-CLAIM-LARGEST-01: 브리핑 가격 이야기의 '가장 큰 변화(X)'는 같은 가족 중 자기 변동성 대비 가장 큰 움직임을 가리킨다(v60.30). verify_by: node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-CLAIM-VIXSPIKE-01: 시장 읽기의 VIX 5일 문장은 VIX 자기 변동성으로 큰 움직임일 때만 '급등'이라 쓴다(v60.30). verify_by: node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-CLAIM-VIXINV-01: VIX 역전 진술은 인쇄된 VIX가 인쇄된 3개월 VIX보다 높을 때만 나온다(v60.30). verify_by: node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-CLAIM-THRESHOLD-01: 기준 아래·위라고 말하는 시장 읽기 수치는 기준과 같은 숫자로 찍히지 않는다(v60.30). verify_by: node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-PEER-TABLE-BASIS-01: 재무 공시의 같은 테마 기업 비교표는 매출 성장·순이익률을 종목 요약·스크리너와 같은 최근 4개 분기 기준으로 쓰고(그룹 70% 이상이 분기 자료를 가질 때), 행마다 'M/D까지 4개 분기' 또는 회계연도를 기준 열에 한 번 적는다(v60.30). verify_by: node scripts/ci-fiscal-quality-fixture.mjs
+- [x] QA-EXT-QUARTER-BASIS-01: 확장 SEC 원장(sec-fundamentals-extended.json)의 압축 기록은 관측 배열 대신 8개 분기 문자열(quarterHistory, quarterlyHistory 출력)을 남기고, 확장 행의 순이익률·매출 성장은 코어 행과 같은 최근 4개 분기 기준을 쓴다(v60.30). 다음 프로듀서 실행부터 다시 읽힌 발행사에 붙는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-SEC-MAP-ACCESSOR-01: SEC fiscal-history 지도(issuerSic, debtBasis, debtCurrent)는 src/ui/components/fiscal-read.js만 root에서 읽고, 다른 컴포넌트는 issuerSic / debtBasisFor / debtCurrentFor를 쓴다(v60.30). verify_by: node scripts/ci-fiscal-quality-fixture.mjs
+- [x] QA-NETCASH-CURRENT-PORTION-01: 순현금 주석은 부채 개념의 실제 범위를 따른다: 유동분 없는 비유동 개념만 '1년 안에 갚을 몫이 빠져 있다'고 하고, LongTermDebt 등 합계는 그 몫이 포함됐다고 하며, debtCurrent 지도가 없는 아티팩트에서는 그 몫을 말하지 않는다(v60.30). verify_by: node scripts/ci-data-pipeline-contract-check.mjs && node scripts/ci-fiscal-quality-fixture.mjs
+- [x] QA-PF-HOLD-PLAIN-01: 포트폴리오 백테스트·위험·원장 성과의 보류 문구는 무엇이 없어 계산하지 않았는지와 무엇을 하면 되는지를 한 문장으로 쓰고, 보류·인증·leg·영문 코드 같은 내부 용어는 앞면에 없다(위험 패널은 계산 식별자 접힌 칸에만)(v60.30). verify_by: node scripts/ci-pipeline-semantics-check.mjs
+- [x] QA-BOOT-PORTFOLIO-PANELS-01: 포트폴리오 전용 패널 계약(위험 입력 조립, 원장·계좌 성과, 선언 패널, 기준 통화 평가액, 백업 묶음)과 매매일지 도메인은 부팅 모듈 집합 밖(lazyOnlyInputs)에 있고 포트폴리오 화면 브리지(portfolio-screen-bridges.js)와 함께 설치된다(v60.30). verify_by: node scripts/ci-boot-bundle-budget-check.mjs
+- [x] QA-MACRO-CREDIT-NEUTRAL-01: 매크로 신용 가지의 중립 문장은 빠진 양호 조건을 값·기준과 함께 말하고, 5거래일 변화를 '작다'고 부르지 않는다(v60.30). verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-MACRO-EARN-BREADTH-01: 매크로 S&P 500 이익 전망 게이지 캡션은 측정(이익 전망 수정 건수)과 기간(4주)을 % 옆에 붙인다(v60.30). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-MACRO-NESTED-PAREN-01: 매크로 생성 문장(물가 챕터·물가 방향·물가 축)에 괄호 안의 괄호가 없고, 13개월 연율은 빠진 달과 기준월을 같은 괄호 안 절로 말한다(v60.30). verify_by: node scripts/ci-esm-core-unit-check.mjs && node scripts/ci-sentence-join-check.mjs
+- [x] QA-MACRO-CHAPTER-REPORT-01: 매크로 챕터 '관련 보도'는 그 장 주제 자체에 대한 한국어 제목 기사만 보이고, 다른 주제(암호화폐·반도체·인수·실적·종목) 기사나 번역 없는 기사는 붙지 않는다(v60.30). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-MARKET-TEXT-01: 브리핑 업종 이야기의 '가장 많이 내린/오른 종목'은 업종 사실의 leaders이고, leaders가 없으면 최상급 없이 '크게 움직인 주요 종목'으로 쓴다(v60.30). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-MARKET-TEXT-02: 주간 실적 일정 제목은 S&P 500 비중 숫자를 '(S&P 500 비중 …%)' 라벨 안에 둔다(v60.30). verify_by: node scripts/ci-domain-parity-check.mjs
+- [x] QA-MARKET-TEXT-03: 투자 심리의 VIX 기간 구조 문장은 '비율'로 부르고 적힌 값 기준으로 아래/닿음/넘음을 말한다(v60.30). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-MARKET-TEXT-04: 지수별 가격 온도는 수집 실패로 유지된 본문이 그 시장의 최신 완료 세션 종가면 '갱신 지연'을 붙이지 않는다(v60.30). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-MARKET-TEXT-05: 시장 폭 참여 문장은 비율 수준을 '참여가 넓다'로만 말하고, 지수 20일 방향이 있으면 그 조합을 사실대로 쓴다(v60.30). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-SCR-UNRANKED-01: 순위가 없는 시장을 고르면 '조건 통과만'이 켜져 있어도 전체 목록이 순위 없이 표시되고, 순위 칸은 비며, 사용자의 다른 필터는 유지된다(v60.30). verify_by: node scripts/ci-screener-presentation-check.mjs
+- [x] QA-SCR-HOLD-ONCE-01: 순위 보류 시장의 이유는 머리말에서 한 번(시장·날짜는 종가 표시가 맡음), 표 상태 줄에서 짧게 한 번 말한다(v60.30). verify_by: node scripts/ci-screener-presentation-check.mjs
+- [x] QA-SCR-FACTOR-FOLD-01: 스크리너 근거 보기의 팩터 행 겉면은 이름과 점수만, 팩터 정의는 아래 접힘에 '이름 — 정의'로 둔다(v60.30). verify_by: node scripts/ci-screener-presentation-check.mjs
+- [x] QA-TICKER-RANGE-ZONE-01: 종목 개요 위치 칸 칩은 범위 하단·중간·상단으로 잰 것을 말하고 우호·부담 같은 판정 단어를 쓰지 않는다(v60.30). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-PF-CLOSE-ONCE-01: 포트폴리오 요약 줄은 모든 보유 종목이 종가 평가일 때 종목 수를 다시 말하지 않고 '모두 M/D 종가 기준'으로 쓴다(v60.30). verify_by: node scripts/ci-pipeline-semantics-check.mjs --only portfolio
+- [x] QA-PF-CLOSE-DAY-01: 종가로 평가한 보유 종목의 오늘 칸은 그 종가의 전 거래일 대비 변화를 날짜와 함께 보인다(머리의 오늘 합계는 실시간 시세만)(v60.30). verify_by: node scripts/ci-pipeline-semantics-check.mjs --only portfolio
+- [x] QA-PF-DUP-PLAIN-01: 중복 종목 창은 '수량 N주, 매수 단가 X'로 쓰고 상장 통화와 다를 때만 통화를 말하며, 통화 빈칸은 상장 통화로 읽어 합치기를 판단한다(v60.30). verify_by: node scripts/ci-pipeline-semantics-check.mjs --only portfolio
+- [x] QA-SEARCH-DEF-FLOOR-01: 명령 검색은 두 글자 질의에 정의·본문만 맞는 용어·리서치를 내지 않는다(이름·별칭 일치는 그대로)(v60.30). verify_by: node scripts/ci-search-surface-contract.mjs
+- [ ] QA-TOUCH-LINK-01: 공용 이동 링크(.flow-next-link)와 종목 개요 근거 링크(.stock-read-point-link)는 375px에서도 --touch-min(24px) 이상이다(v60.30). verify_by: node scripts/ci-ui-render-hygiene-check.mjs
+
+## v60.29 AI 답변 게시 결함 (2026-11-18)
+
+- [x] QA-AI-6028-WHOLE: 웹검색 답변에 잘린 문장·여는 괄호 없는 링크 꼬리·본문 없는 머리 줄이 게시되지 않는다(v60.29). verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-AI-6028-DERIVED: 근거 있는 피연산자로 맞게 계산한 수치(배당수익률 등)는 계산값으로 게시되고, 뺀 수치 문장은 안내 줄이 종류와 개수로 알린다(v60.29). verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-AI-6028-PER-CTX: 종목 화면 PER·배당 질문의 AI 맥락에 화면과 같은 PER 산식(종가·기준일·EPS 기준·Forward PER 예상치 날짜)과 행의 배당 필드가 실린다(v60.29). verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-AI-6028-DIV-LIVE: 다음 스크리너 생산 뒤 KO 행에 dividendTtm·dividendYieldPct가 있고, 종목 화면 배당 질문 맥락에 '배당수익률 …%(최근 완료 종가 기준)'가 나온다(v60.29). verify_by: node -e "const d=require('./public-data/screener.json').data.KO;console.log(d.dividendTtm,d.dividendYieldPct,d.dividendLastExDate,d.dividendCount12m)"
+- [x] QA-AI-6028-VISUAL: 배당·PER처럼 밸류에이션만 묻는 AI 답변에는 분기 매출 그림이나 기본 주가 그림이 붙지 않는다(v60.29). verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-MASTERS-6028-QUARTER: 13F 계약 검사는 분기별 행 합계가 아니라 운용사별 보유·비교 행 존재와 내부 일치를 본다(v60.29). push 뒤 레인이 2026-09-30 분기를 게시하는지 확인한다. verify_by: node scripts/ci-masters-contract-check.mjs
+- [x] QA-INTEGRATION-6028-PARITY: 기술 리스크의 이동평균 이탈은 추세 판정과 같은 선 근처 폭을 쓰며, 레거시 골든과 달라지는 시나리오(zero_volume_70)는 일치 검사에 선언돼 있다(v60.29). verify_by: node scripts/ci-domain-parity-check.mjs
+- [x] QA-LIB-6028-ROUTE: 리서치 화면(산업 지도·개념·대가)의 열린 문서는 그 화면 hash 질의에만 있고, 다른 화면으로 가면 주소에 남지 않는다. 옛 ?mode=…#atlas 링크는 진입 때 한 번 읽힌다(v60.29). verify_by: node scripts/ci-knowledge-corpus-check.mjs
+- [x] QA-LIB-6028-LAYERS: 산업 지도 가치사슬 7층이 기업 이야기 층(단일 표)에서 기업을 읽고, 모델 층을 포함해 빈 층이 없다(v60.29). verify_by: node scripts/ci-atlas-contract-check.mjs
+- [x] QA-LIB-6028-GLOSSARY: 화면 어휘 목록과 스크리너 컬럼 라벨이 모두 조립된 용어 사전에 있거나 대응·평이 선언이 있다(v60.29). verify_by: node scripts/ci-glossary-vocabulary-check.mjs
+- [x] QA-TEXT-6028-JOIN: 제품 코드의 한국어 문장 잇기에서 '.,'·'..'가 생기는 정적 패턴이 없다(다른 스레드 pending 목록 제외, 목록은 줄기만 함)(v60.29). verify_by: node scripts/ci-sentence-join-check.mjs
+- [x] QA-PF-6028-KRKEY: 한국 보유 종목은 논지 점검·오늘 내 종목·점검·백테스트에서 상장 심볼(.KS/.KQ) 행으로 읽힌다(v60.29). verify_by: node scripts/ci-pipeline-semantics-check.mjs
+- [x] QA-PF-6028-MERGE: 같은 종목 재추가는 합치기/바꾸기, 통화가 다르면 합치기 거부, 가져오기 중복 행은 합쳐져 알림에 표시(v60.29). verify_by: node scripts/ci-pipeline-semantics-check.mjs
+- [x] QA-PF-6028-BAND: 기술 리스크의 이평 이탈은 추세 판정과 같은 선 근처 범위(ADR 1배) 밖에서만 센다(v60.29). verify_by: node scripts/ci-pipeline-semantics-check.mjs
+- [x] QA-PF-6028-BTKO: 백테스트 결과에 영어·내부어가 없고 비교 지수 최고/최저 연도·최대 낙폭과 시작 비중 줄이 있다(v60.29). verify_by: node scripts/ci-pipeline-semantics-check.mjs
+- [x] QA-PF-6028-RF: 무위험 수익률 칸에 SOFR 값·날짜 넣기 버튼이 있고 누를 때만 입력으로 저장된다(v60.29). verify_by: node scripts/ci-pipeline-semantics-check.mjs
+- [x] QA-PF-6028-COPY: 포트폴리오 환율·계좌 성과·추세 문구에 실제와 다른 설명, '..', '.,', 같은 숫자 반복이 없다(v60.29). verify_by: node scripts/ci-pipeline-semantics-check.mjs
+- [x] QA-SCR-6028-BASIS: 스크리너 행의 순이익률·매출 성장이 PER과 같은 최근 4개 분기 기준(없으면 FY)이고 기준·종료일을 발행하며, 표·검사창·동종 비교가 그 기준을 적는다(v60.29). verify_by: node scripts/ci-data-pipeline-contract-check.mjs && node scripts/ci-screener-presentation-check.mjs
+- [x] QA-SCR-6028-DIVIDEND: 스크리너 행의 dividendTtm·dividendYieldPct·dividendLastExDate·dividendCount12m·dividendBasis가 최근 365일 배당락 이벤트와 맞고(0~40%), 이벤트 요청이 없거나 기간이 1년이 안 되면 비어 있다(v60.29). verify_by: node scripts/ci-data-pipeline-contract-check.mjs && node scripts/validate-screener-artifact.mjs public-data/screener.json
+- [x] QA-SEC-6028-DEBT: SEC 장기부채는 리스 포함 계정만 쓰는 기업도 채우고, 한 시계열은 한 기준을 지키며, 부분 합계·채권별 개념은 기준이 되지 않는다(v60.29). verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-SEC-6028-DEBT-LIVE: 다음 SEC 재정규화 뒤 AVGO 최근 회계연도 장기부채가 비어 있지 않고, 최근 연도 장기부채가 있는 발행사가 491/795보다 늘며, debtBasis 맵에 리스 포함 기업이 나타난다(v60.29). verify_by: node -e "const d=require('./public-data/sec-fiscal-history.json');const n=Object.values(d.data).filter(s=>s.split(';').at(-1).split(':')[6]!=='').length;console.log(n,Object.keys(d.data).length,d.data.AVGO.split(';').at(-1),Object.keys(d.debtBasis||{}).length)"
+- [x] QA-SEC-6028-DEBT-UI: sec-fiscal-history.json의 debtBasis 맵이 재무 공시 화면까지 이어진다: 리스 포함 기업은 연간 금액표 열·순현금 줄·스톡 렌즈가 '장기부채(리스 포함)'로, 한계 문구가 금융리스 포함으로 바뀌고, 맵에 없는 종목은 '장기부채'와 리스 제외 문구를 유지한다(v60.29). verify_by: node scripts/ci-fiscal-quality-fixture.mjs
+- [x] QA-THEMES-6028-ASOF: 기준일 칩은 글자를 자르지 않고, 시장 접두어가 붙은 세션 칩 최장 형태가 ASOF_MAX 안에 들며 '반영 전'으로 끝난다(v60.29). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-THEMES-6028-CRITERIA: 테마 단계 표 '기준 충족'은 늦게 온 컨센서스·실적 달력으로 다시 그려지고, 미확인 기준을 셀에 적으며, 로드 중에는 그 열로 정렬하지 않는다(v60.29). verify_by: node scripts/ci-esm-core-unit-check.mjs && node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-THEMES-6028-TWREV: 대만 월매출 문장은 전부 늘면 '모두', 하나도 없으면 '없습니다'로 쓰고 'N개사 중 N개사'를 쓰지 않는다(v60.29). verify_by: node scripts/ci-tw-monthly-revenue-fixture.mjs
+- [x] QA-TICKER-6028-THEME: 종목 화면의 가격 줄·시장 연결 줄·테마 링크가 primary-theme.js 하나의 대표 테마를 말하고, 다른 테마 이야기는 대표 테마와 함께 말한다(v60.29). verify_by: node scripts/ci-section-visual-contract.mjs
+- [x] QA-COMPANY-6028-EDGE: 회사 관계 간선은 줄의 주체만 연결하고, 괄호 속 다른 회사의 협력·계약·보증은 간선이 되지 않으며, 범주 괄호의 구성원은 연결된다(v60.29). verify_by: node scripts/ci-company-profile-contract-check.mjs
+- [x] QA-FUND-6028-QLABEL: 재무 공시의 EPS 예상 대비 카드는 SEC 분기 말일이 45일 안에 있으면 SEC 카드와 같은 분기 이름을 쓰고, 없으면 원천 이름을 쓴다(v60.29). verify_by: node scripts/ci-fiscal-quality-fixture.mjs
+
+## v60.26 프로젝트 감사 (2026-11-18)
+
+- [x] QA-AUDIT-OPTIONAL-EMPTY: 저장한 구조와 원본·역순 행을 비교하고 모든 행에서 키가 사라지는 변경을 검출한다. verify_by: node scripts/ci-browser-data-fixture-check.mjs
+- [x] QA-AUDIT-PUBLISH-BASH: Git Bash가 PATH에 없는 Windows 환경에서 임시 원격 저장소 발행 사례가 통과해야 한다. verify_by: node scripts/ci-publish-data-commit-check.mjs
+
+## v60.25 프로젝트 감사 (2026-11-18)
+
+- [x] QA-AUDIT-6025-SEARCH: 검색 취소 뒤 종목 화면이 열림 회귀 검사. verify_by: node scripts/ci-search-surface-contract.mjs
+- [x] QA-AUDIT-6025-WEIGHT: 빠진 목표비중을 0%로 계산 회귀 검사. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-AUDIT-6025-SEC: SEC 랭킹의 기준 시각이 시세 갱신 때 변경됨 회귀 검사. verify_by: node scripts/ci-operations-status-check.mjs
+- [x] QA-AUDIT-6025-RETAIN: 이전 분석을 재사용하면 공급자 거부가 운영 상태에서 사라짐 회귀 검사. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-AUDIT-6025-HOOK: 일반 파일 편집에서 작업공간 알림 발생 회귀 검사. verify_by: node scripts/ci-workspace-contract-check.mjs
+- [x] QA-AUDIT-6025-CRLF: Windows 체크아웃이 출시 후보 검사에서 거부됨 회귀 검사. verify_by: node scripts/ci-qa-runner-behavior-check.mjs
 
 ## v60.21 history 주말 재스탬프 (2026-11-16)
 

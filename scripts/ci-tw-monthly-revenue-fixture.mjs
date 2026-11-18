@@ -45,6 +45,11 @@ assert.equal(view.reported, 5, 'v59.56 companies on an older month (6669 August)
 const server = view.groups.find((g) => g.id === 'server-odm');
 assert.equal(server.yoyPct, Math.round(((800000000 + 100) / (700000000 + 100) - 1) * 1000) / 10, 'v59.56 group YoY is the sum of amounts, not a median of rates');
 assert.match(view.reading, /^대만 AI 공급망 5개사의 9월 매출 합계는 1년 전보다 \+\d+\.\d%이고, 5개사 중 3개사가 늘었습니다\. 가장 크게 늘어난 묶음은 /, `v59.56 face sentence (${view.reading})`);
+// v60.28: all or none of the companies rising is said as such, not "16개사 중 16개사".
+const withYoy = (yoyPct) => buildTwRevenueView({ ...artifact, companies: artifact.companies.map((c) => ({ ...c, yoyPct })) }, { nowMs: Date.parse('2026-10-20T00:00:00Z') }).reading;
+assert.match(withYoy(5), /이고, 5개사 모두 늘었습니다\./, `v60.28 every company up reads 모두 (${withYoy(5)})`);
+assert.match(withYoy(-5), /이고, 늘어난 회사는 없습니다\./, `v60.28 no company up reads 없습니다 (${withYoy(-5)})`);
+assert.ok(!/(\d+)개사 중 \1개사/.test(withYoy(5)), 'v60.28 no "N개사 중 N개사"');
 assert.equal(view.late, false, 'v59.56 September is on time in October');
 assert.equal(buildTwRevenueView(artifact, { nowMs: Date.parse('2026-11-16T00:00:00Z') }).late, true, 'v59.56 September is late after November 15');
 assert.equal(buildTwRevenueView(pendingTwMonthlyRevenue()).state, 'pending', 'v59.56 not-collected marker reads pending');
@@ -70,6 +75,7 @@ assert.equal(carriedRun.latestMonth, '2026-09', 'v59.94 latestMonth comes from t
 const carriedView = buildTwRevenueView(carriedRun, { nowMs: Date.parse('2026-10-20T00:00:00Z') });
 assert.equal(carriedView.month, '2026-09', 'v59.94 the view reads the parsed month as latest');
 assert.equal(carriedView.reported, 1, 'v59.94 a carried company on an older month is not in the latest-month sum');
+assert.match(carriedView.reading, /합계는 1년 전보다 \+\d+\.\d%입니다\./, `v60.28 one company states only the total (${carriedView.reading})`);
 const recarried = buildTwMonthlyRevenue({ rows: [row('2330', '台積電', 330, 300, 250)], previous: carriedRun, generatedAt: '2026-11-02T00:00:00Z' });
 assert.ok(sameRevenueData(recarried, carriedRun), 'v59.94 re-carrying the same records compares unchanged');
 const backAgain = buildTwMonthlyRevenue({ rows: [row('2330', '台積電', 330, 300, 250), row('2454', '聯發科', 45, 40, 40)], previous: carriedRun, generatedAt: '2026-11-03T00:00:00Z' });

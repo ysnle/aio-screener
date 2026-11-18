@@ -6,11 +6,14 @@ import { screenerMarket, marketRows } from '../../../domain/screener/market-scop
 import { bufferedTrend, trendHeldWithMargin } from '../../../domain/technical/bands.js';
 import { RULES } from '../../../domain/rules/thresholds.js';
 import { consensusView } from '../../../domain/fundamental/consensus-read.js';
-import { consensusRowFor } from '../../../data/consensus-estimates.js';
+import { CONSENSUS_KEY, consensusRowFor, requestConsensusEstimates } from '../../../data/consensus-estimates.js';
+import { sharedArtifactState } from '../../../data/shared-artifacts.js';
+import { SOURCED_CONDITION_IDS, conditionSource } from '../../../domain/screener/custom-conditions.js';
 import { CHANNEL_SIGNAL_KEYS, channelSignalValue } from '../../../domain/screener/channel-signals.js';
 import { themeStagesFor, scenarioStateCurrent } from '../../../domain/scenarios/theme-stage.js';
 import { koreanThemeGroups } from '../../../domain/market/korea/korea-participation.js';
 import { signedText, directionOf, finiteNumber as finite } from '../../../domain/shared/number.js';
+import { dateInTimezone, nyParts, resolveMarketCalendarSession } from '../../../domain/market/session/market-calendar.js';
 // Row arrays from the store and the workbench are replaced, never edited in place, so one market's slice is cut once
 // per array. Handing renderBacktest the same slice also lets the factor-overlap cache below hit (a fresh filter result
 // every render re-measured the overlap on each keystroke).
@@ -56,7 +59,7 @@ export function withThemeStages(root, rows) {
   const membership = themeMembership(root, rows); // v58.75: shared with the 테마 단계 column
   return rows.map((row) => {
     const ids = membership.get(String(row?.sym || '').toUpperCase());
-    return ids && Number.isFinite(row?.screenRank) ? { ...row, themeStages: themeStagesFor(root, { symbol: row.sym, themeIds: [...ids] }) } : row;
+    return ids && Number.isFinite(row?.overallRank) ? { ...row, themeStages: themeStagesFor(root, { symbol: row.sym, themeIds: [...ids] }) } : row;
   });
 }
 
@@ -87,8 +90,10 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   // default order is market cap (v57.55), so it reads 1, 2, 3…; 전체 순위 moved beside 백분위. Its header sorts by 시총.
   // v58.80 (first-users F21): the header read '#' beside 전체 순위 and 백분위 and was taken for a rank; it is the row order.
   { key: 'capOrder', label: '순서', headerLabel: '순서', sortAs: 'mcap', hint: '지금 정렬 기준에서의 순서 — 기본 정렬(시총 큰 순)에서는 시가총액 순서(1 = 가장 큼)', sortable: true, align: 'left', width: 44, group: 'identity' },
-  // 개편 v2 (3c): the ordinal among ranked rows (the same number the inspector and the stock summary quote).
-  { key: 'screenRank', label: '전체 순위', hint: '같은 시장에서 순위가 매겨진 종목 사이의 순서 — 조건 화면과 표시 필터는 이 순서를 바꾸지 않습니다', sortable: true, align: 'left', width: 52, group: 'ranking' },
+  // 개편 v2 (3c): the ordinal among ranked rows (the same number the inspector quotes).
+  // It reads overallRank (domain/screener/overall-rank.js, the unrounded composite's order inside the market) —
+  // the active screen's own order is the 순서 column, so this header means one thing under every preset.
+  { key: 'overallRank', label: '전체 순위', hint: '같은 시장에서 순위가 매겨진 종목 사이의 순서(팩터 종합 점수 순) — 조건 화면과 표시 필터는 이 순서를 바꾸지 않습니다', sortable: true, align: 'left', width: 52, group: 'ranking' },
   // P1464: the value is a percentile among rows that pass the criteria — "점수 100" read as a perfect
   // score, so the header names what it is.
   { key: 'rank', label: '백분위', sortable: true, align: 'center', width: 52, group: 'ranking' },
@@ -103,10 +108,11 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'quality', label: '퀄리티', sortable: true, align: 'right', width: 78, group: 'factor' },
   // v58.75 (persona review): the raw filing figures behind 밸류·퀄리티 — a fundamental reader sorts by the number itself.
   { key: 'pe', label: 'PER', hint: '시가총액 ÷ 순이익(SEC 공시, 최근 4개 분기 합 또는 최근 회계연도) — 적자·비정상 값은 비움, 칸에 기간 표시', sortable: true, align: 'right', width: 70, group: 'fundamental' },
-  { key: 'pb', label: 'PBR', hint: '시가총액 ÷ 자기자본(SEC 공시, 최근 회계연도) — 자본잠식·비정상 값은 비움', sortable: true, align: 'right', width: 66, group: 'fundamental' },
+  // The equity is the latest filed balance sheet, a quarter included (about 500 of 696 rows), not the fiscal year.
+  { key: 'pb', label: 'PBR', hint: '시가총액 ÷ 자기자본(SEC 공시, 가장 최근에 공시된 재무상태표 — 분기 포함) — 자본잠식·비정상 값은 비움', sortable: true, align: 'right', width: 66, group: 'fundamental' },
   { key: 'roe', label: 'ROE', hint: '순이익 ÷ 자기자본(SEC 공시, 최근 회계연도)', sortable: true, align: 'right', width: 66, group: 'fundamental' },
-  { key: 'margin', label: '순이익률', hint: '순이익 ÷ 매출(SEC 공시, 최근 회계연도)', sortable: true, align: 'right', width: 78, group: 'fundamental' },
-  { key: 'revGrowth', label: '매출 성장', hint: '최근 회계연도 매출의 전년 대비 증가율(SEC 공시)', sortable: true, align: 'right', width: 80, group: 'fundamental' },
+  { key: 'margin', label: '순이익률', hint: '순이익 ÷ 매출(SEC 공시, 최근 4개 분기 합 또는 최근 회계연도) — 칸에 기간 표시', sortable: true, align: 'right', width: 78, group: 'fundamental' },
+  { key: 'revGrowth', label: '매출 성장', hint: '최근 4개 분기 매출의 직전 4개 분기 대비 증가율, 분기 자료가 없으면 최근 회계연도의 전년 대비(SEC 공시) — 칸에 기간 표시', sortable: true, align: 'right', width: 80, group: 'fundamental' },
   // v57.54: forward multiple on analyst consensus (reference only; the 밸류 factor stays on reported earnings).
   { key: 'fwdPe', label: 'Forward PER', hint: '종가 ÷ 아직 실적이 발표되지 않은 4개 분기 컨센서스 EPS 합(조정 EPS) — 점수에 쓰지 않는 참고값, 미국 종목만', sortable: true, align: 'right', width: 92, group: 'market' },
   { key: 'price', label: '가격', sortable: true, align: 'right', width: 60, group: 'market' },
@@ -153,7 +159,7 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
 export const COLUMN_PRESETS = Object.freeze({
   // 개편 v2 (3c): the first screen — order, name, close, 1·3-month returns, 52-week position, percentile; 관심·비교 last.
   // v58.56 (#3): 시총 순서 first (the default order), 전체 순위 beside 백분위.
-  overview: ['capOrder', 'sym', 'price', 'ret1m', 'ret3m', 'range52', 'screenRank', 'rank', 'watchlist'],
+  overview: ['capOrder', 'sym', 'price', 'ret1m', 'ret3m', 'range52', 'overallRank', 'rank', 'watchlist'],
   // v58.75 (persona review): the chart-trader views lead with pivot distance, the volume multiple, a one-week move and
   // market-wide RS (RSI, 1-month and the research-only 추세 속도 move to 전체/직접 고른 컬럼); the fundamental view shows the
   // filing figures themselves; 위험 adds the daily range and liquidity; 이벤트 adds the theme stage.
@@ -259,16 +265,22 @@ export function liveRow(row, readLiveData) {
   const currencyConflict = !!liveCurrency && !!rowCurrency && liveCurrency !== rowCurrency;
   const livePrice = rowCurrency && !currencyConflict ? finite(live.price) : null;
   const liveMcap = marketCapCurrency === 'USD' && finite(live.marketCap) != null ? Math.round(live.marketCap / 1e9) : null;
+  // A quote observed at or after its session's close is that session's completed close (off-hours the provider answers
+  // with it): it is shown dated like the valuation close, not as a live price.
+  const quoteClose = livePrice != null ? quoteCloseDay(live.observedAt, screenerMarket(row)) : null;
   // A live quote is quoted evidence in its own right, so it carries the basis the
   // price cell renders in its title. Without this the overlay would show a value
   // whose observation time and source read as unknown (P1074).
-  const liveBasis = livePrice != null
+  const liveBasis = livePrice != null && !quoteClose
     ? { priceObservedAt: live.observedAt || live.ts || null, priceSource: live.source || null, priceRevision: live.revision || null }
     : null;
   // v57.54 review: without a live quote the price column read "—" on every row and price sorting dropped those rows.
   // The completed close the valuation already uses (valuationPrice, already in the public artifact) fills it, dated.
-  const closePrice = livePrice == null ? finite(row._valuationPePrice ?? row._valuationPbPrice ?? row.valuationPrice) : null;
-  const closeBasis = closePrice != null && closePrice > 0 ? { price: closePrice, priceCloseDate: row.factorSessionDate || null } : null;
+  // A row with no valuation close (no verified share count) falls back to the completed session's close when the
+  // artifact carries one (sessionClose, optional), dated by the same factor session.
+  const closePrice = livePrice == null ? finite(row._valuationPePrice ?? row._valuationPbPrice ?? row.valuationPrice ?? readRowNumber(row, 'sessionClose', 'display')) : null;
+  const closeBasis = quoteClose ? { price: livePrice, priceCloseDate: quoteClose, priceCloseKind: 'quote' }
+    : closePrice != null && closePrice > 0 ? { price: closePrice, priceCloseDate: row.factorSessionDate || null } : null;
 
   if (row.fieldReadiness) {
     const display = { ...row };
@@ -279,18 +291,35 @@ export function liveRow(row, readLiveData) {
     // the live quote projection. Without this overlay the price column has no
     // owner at all between the narrowed legacy updater (mcap only) and native
     // state, so every row would read 미수신 forever (P1074).
-    if (display.price == null && livePrice != null) Object.assign(display, { price: livePrice }, liveBasis);
+    if (display.price == null && liveBasis) Object.assign(display, { price: livePrice }, liveBasis);
     else if (display.price == null && closeBasis) Object.assign(display, closeBasis);
     if (display.mcap == null && liveMcap != null) display.mcap = liveMcap;
     return display;
   }
+  const { price: _closeValue, ...closeFields } = closeBasis || {};
   return {
     ...row,
     price: livePrice ?? row.price ?? closeBasis?.price ?? null,
     mcap: liveMcap ?? row.mcap,
-    ...(livePrice != null && row.price == null ? liveBasis : {}),
-    ...(livePrice == null && row.price == null && closeBasis ? { priceCloseDate: closeBasis.priceCloseDate } : {})
+    ...(liveBasis && row.price == null ? liveBasis : {}),
+    ...(!liveBasis && row.price == null && closeBasis ? closeFields : {})
   };
+}
+
+const SESSION_TIMEZONE = Object.freeze({ US: 'America/New_York', KR: 'Asia/Seoul' });
+const clockMinute = (hhmm) => Number(String(hhmm).slice(0, 2)) * 60 + Number(String(hhmm).slice(3, 5));
+/** The session a quote closes: its own observation time is at or after that trading day's regular close on the exchange
+ *  calendar, so its price is the completed close whatever the reader's clock says. null for an in-session tick, a day the
+ *  exchange was closed, an unknown calendar year or a quote without an observation time. */
+export function quoteCloseDay(observedAt, market = 'US') {
+  const ms = typeof observedAt === 'string' ? Date.parse(observedAt) : NaN;
+  const timezone = SESSION_TIMEZONE[market];
+  if (!Number.isFinite(ms) || !timezone) return null;
+  const day = dateInTimezone(ms, timezone);
+  const session = resolveMarketCalendarSession({ market, date: day });
+  if (session.status !== 'open') return null;
+  const minute = market === 'US' ? nyParts(ms).minute : (Math.floor(ms / 60000) + 9 * 60) % 1440; // KST keeps no daylight saving
+  return minute >= clockMinute(session.close) ? day : null;
 }
 
 export function selectedValue(documentRef, id) { return documentRef.getElementById(id)?.value || ''; }
@@ -473,13 +502,57 @@ export function forwardPe(row) { return consensusView(row, consensusRowFor(scree
 export const FILING_KEYS = new Set(['pe', 'pb', 'roe', 'margin', 'revGrowth']);
 const FILING_STATUSES = new Set(['CURRENT', 'DELAYED', 'INFERRED', 'STALE', 'LAST_GOOD']);
 const FIELD_BY_ROW_KEY = new Map(SCREENER_FIELD_REGISTRY.fields.map((definition) => [definition.rowKey, definition.fieldId]));
-// v59.44 (X bookmarks 10/30): FCF margin and capex ÷ revenue (src/ui/components/screener-cash.js, a lazy chunk loaded when a
-// cash condition is chosen). Until the SEC fiscal history lands the condition counts no rows.
-export const CASH_CONDITION_IDS = ['fcf-margin-min', 'capex-intensity-max'];
-export function requestCashMetrics(root, onReady) {
+// FCF margin and capex ÷ revenue come from src/ui/components/screener-cash.js, a lazy chunk loaded when a cash condition
+// is chosen; it calls onReady when the metrics are built or the SEC fiscal history read ended without data.
+function requestCashMetrics(root, onReady) {
   if (root?._aioScreenerCash || root?._aioScreenerCashRequested) return;
   root._aioScreenerCashRequested = true;
-  import('../../components/screener-cash.js').then((mod) => mod.requestCashMetrics(root, onReady)).catch(() => {}).finally(() => { root._aioScreenerCashRequested = false; });
+  import('../../components/screener-cash.js').then((mod) => { root._aioScreenerCashChunkFailed = false; mod.requestCashMetrics(root, onReady); })
+    .catch(() => { root._aioScreenerCashChunkFailed = true; onReady?.(); })
+    .finally(() => { root._aioScreenerCashRequested = false; });
+}
+// One loader per data source a custom condition declares (custom-conditions.js `source`): which markets it covers, how
+// to start the read, and its state — 'ready' (arrived, or the read ended without data), 'loading', or 'failed' with the
+// reason the count shows instead of a number.
+const CONDITION_SOURCE_LOADERS = Object.freeze({
+  'consensus-estimates': Object.freeze({
+    markets: Object.freeze(['US']),
+    request: (root, onChange) => requestConsensusEstimates(root, onChange),
+    state: (root) => sharedArtifactState(root, CONSENSUS_KEY),
+    failure: '컨센서스 추정치 파일을 받지 못했습니다'
+  }),
+  'sec-fiscal-history': Object.freeze({
+    markets: Object.freeze(['US']),
+    request: (root, onChange) => requestCashMetrics(root, onChange),
+    state: (root) => (root?._aioScreenerCash || (root?._aioSecFiscalHistory === null && root?._aioSecFiscalHistoryAt && !root?._aioSecFiscalHistoryFailed) ? 'ready'
+      : root?._aioSecFiscalHistoryFailed || root?._aioScreenerCashChunkFailed ? 'failed' : 'loading'),
+    failure: '공시 재무 파일을 받지 못했습니다'
+  })
+});
+const chosenSources = (custom) => [...new Set((Array.isArray(custom) ? custom : []).map((item) => conditionSource(item?.id)).filter((source) => CONDITION_SOURCE_LOADERS[source]))];
+/** Condition ids offered in `market` before their source has loaded (the source covers that market). */
+export function sourcedConditionIdsFor(market) {
+  return SOURCED_CONDITION_IDS.filter((id) => CONDITION_SOURCE_LOADERS[conditionSource(id)]?.markets.includes(market));
+}
+/** Starts the read of every source the chosen conditions declare; onChange runs when one arrives or fails. */
+export function requestConditionSources(root, custom, onChange) {
+  for (const source of chosenSources(custom)) {
+    const loader = CONDITION_SOURCE_LOADERS[source];
+    const before = loader.state(root);
+    // A failure repaints once (the state moved to failed); a retry inside the cool-down resolves at once and stays quiet.
+    Promise.resolve(loader.request(root, onChange)).then(() => { if (before !== 'failed' && loader.state(root) === 'failed') onChange?.(); }).catch(() => {});
+  }
+}
+/** Per chosen condition with a declared source: { state, reason } — reason only when the read failed. */
+export function conditionSourceStates(root, custom) {
+  const states = new Map();
+  for (const item of Array.isArray(custom) ? custom : []) {
+    const loader = CONDITION_SOURCE_LOADERS[conditionSource(item?.id)];
+    if (!loader) continue;
+    const state = loader.state(root);
+    states.set(item.id, { state, reason: state === 'failed' ? loader.failure : null });
+  }
+  return states;
 }
 export function customRead(row, key) {
   if (key === 'fwdPe') return forwardPe(row);

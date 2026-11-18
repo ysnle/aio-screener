@@ -331,7 +331,6 @@ details > summary { cursor: pointer; }
 }
 .sx-factor { display: flex; flex-direction: column; gap: 4px; }
 .sx-factor__head { display: flex; justify-content: space-between; font-size: 12px; }
-.sx-factor__desc { margin-left: 8px; color: var(--color-text-secondary); } /* owner 2026-10-23: name and definition split by space, not a separator */
 .sx-factor__bar { height: 6px; border-radius: var(--radius-full); background: var(--sx-ink-a07); overflow: hidden; }
 .sx-factor__bar > span { display: block; height: 100%; border-radius: var(--radius-full); background: var(--color-text-primary); }
 .sx-sheet {

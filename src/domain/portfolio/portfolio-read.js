@@ -14,6 +14,7 @@ export function portfolioSectorLabel(name) {
   return PORTFOLIO_ONLY_SECTORS[name] || sectorLabel(name === 'Financial Services' ? 'Financials' : name);
 }
 import { buildAttribution } from './attribution.js';
+import { holdingListingKey } from './fx.js';
 import { rrgRecentReading } from '../themes/recent-check.js';
 import { koreaRecordText, KR_SHOCK_TAIL_PCT } from '../briefing/market-read.js';
 import { directionOf, signedText, readNumber as finite } from '../shared/number.js';
@@ -68,7 +69,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   const bySymbol = new Map((rows || []).map((row) => [String(row?.sym || '').toUpperCase(), row]));
   const holdings = (Array.isArray(surface?.rows) ? surface.rows : [])
     // v59.54: the listing symbol (005930.KS) is the key screener rows and the KR test use; the stored code is not.
-    .map((row) => ({ symbol: String(row?.listingSymbol || row?.symbol || row?.ticker || '').toUpperCase(), value: finite(row?.value), convertedFrom: row?.convertedFrom || null, sector: row?.sector || null }))
+    .map((row) => ({ symbol: holdingListingKey(row), value: finite(row?.value), convertedFrom: row?.convertedFrom || null, sector: row?.sector || null }))
     .filter((row) => row.symbol && row.value != null && row.value > 0)
     .map((row) => ({ ...row, data: bySymbol.get(row.symbol) || null }));
   const total = holdings.reduce((sum, row) => sum + row.value, 0);
@@ -87,6 +88,13 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   const trendContainedPct = total > 0 ? trendTotal / total * 100 : 0;
   const trendBasisNote = trendContainedPct >= 100 ? '' : `(추세 판정 가능 보유액 ${trendContainedPct.toFixed(0)}% 기준, 미판정 종목은 추세 분모에서 제외)`;
   const weakest = known.filter((row) => trendState(row.data) === 'down').sort((a, b) => b.value - a.value);
+  // The share of the trend-read part and the share of the whole book are one number when every holding had a
+  // trend read; it printed 'NVDA(13%, 평가액의 13%)'. The second figure is shown only when the two denominators differ.
+  const weakestShare = (row) => {
+    const ofTrend = (row.value / trendTotal * 100).toFixed(0);
+    const ofBook = (row.value / total * 100).toFixed(0);
+    return trendBasisNote && ofTrend !== ofBook ? `${row.symbol}(${ofTrend}%, 평가액의 ${ofBook}%)` : `${row.symbol}(${ofBook}%)`;
+  };
   const breadth = regime?.axes?.find((axis) => axis.id === 'breadth');
   if (trendMix.length) {
     const up = trendMix.find((row) => row.state === 'up').pct;
@@ -101,7 +109,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
       : usDown > 0 ? ` 미국 시장 폭이 좁은 지금은 미국 보유 중 하락 추세 종목(${usDown.toFixed(0)}%)이 지수보다 먼저 흔들리기 쉬운 환경입니다.`
         : ' 미국 시장 폭이 좁은 가운데 미국 보유 종목은 하락 추세에 있지 않습니다.';
     points.push({ id: 'trend', tone: up >= 60 ? 'favorable' : down >= 30 ? 'burden' : 'neutral', title: '보유 종목 추세',
-      text: `${trendBasisNote ? trendBasisNote + ': ' : ''}그중 ${up.toFixed(0)}%가 상승 추세(50·200일선 위), ${down.toFixed(0)}%가 하락 추세에 있습니다${near > 0 ? `. ${near.toFixed(0)}%는 50일선과의 차이가 하루 평균 변동폭 안이거나 상승 추세 속 단기 급락이라 방향 판정을 보류합니다` : ''}${weakest.length ? ` — 하락 추세 중 가장 큰 비중은 ${weakest.slice(0, 2).map((row) => `${row.symbol}(${(row.value / trendTotal * 100).toFixed(0)}%, 평가액의 ${(row.value / total * 100).toFixed(0)}%)`).join(', ')}` : ''}.${breadthClause}` });
+      text: `${trendBasisNote ? trendBasisNote + ': ' : ''}그중 ${up.toFixed(0)}%가 상승 추세(50·200일선 위), ${down.toFixed(0)}%가 하락 추세에 있습니다${near > 0 ? `. ${near.toFixed(0)}%는 50일선과의 차이가 하루 평균 변동폭 안이거나 상승 추세 속 단기 급락이라 방향 판정을 보류합니다` : ''}${weakest.length ? ` — 하락 추세 중 가장 큰 비중은 ${weakest.slice(0, 2).map((row) => weakestShare(row)).join(', ')}` : ''}.${breadthClause}` });
   }
 
   // v57.50 C24: one denominator and one classification with the 비중 · 섹터 배분 bars (surface.sectorBreakdown) — total

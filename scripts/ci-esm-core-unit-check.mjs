@@ -1706,6 +1706,17 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (oilToday?.rank !== 'lead' || !/에너지/.test(oilToday.text) || words !== 'up,pullback,breakdown,rebound,recovery,down' || stock?.trend !== 'breakdown' || stock.trendWord !== '추세 이탈') { // v59.70: a stock row reads the 종목 page's buffered trend; v59.85: NV −8.8%/−1.0% (50-day still over the 200-day) is 추세 이탈 on every screen
         fail(`v59.64: macro today line / chart trend words broke ${JSON.stringify({ oilToday, words, stock: stock?.trend })}`);
       }
+      // v60.30: a chapter report is about the field itself and shown in Korean — a crypto story that mentions inflation
+      // fears and an English-only title are not 물가 관련 보도.
+      {
+        const { chapterToday } = await load('src/domain/macro/macro-chapters.js');
+        const report = (facts) => chapterToday({ facts }, 'inflation')?.report?.title ?? null;
+        const crypto = { id: 'h:c', kind: 'headline', title: 'Crypto Market Loses About $330 Billion as Inflation Fears Mount', titleKo: '인플레이션 우려에 암호화폐 시장 3,300억 달러 증발', wordTopics: ['inflation', 'crypto'], subjects: [], rank: 'major', materiality: 60 };
+        const english = { id: 'h:e', kind: 'headline', title: 'Core inflation cools in October', titleKo: '', wordTopics: ['inflation'], subjects: [], rank: 'major', materiality: 55 };
+        const cpi = { id: 'h:k', kind: 'headline', title: 'US CPI rises 0.3% in October', titleKo: '미국 10월 CPI 0.3% 상승', wordTopics: ['inflation'], subjects: [], rank: 'major', materiality: 40, date: '2026-11-13' };
+        if (report([crypto]) !== null || report([english]) !== null || report([crypto, english, cpi]) !== '미국 10월 CPI 0.3% 상승')
+          fail(`v60.30 물가 관련 보도 takes only a Korean headline about inflation itself: ${JSON.stringify({ crypto: report([crypto]), english: report([english]), all: report([crypto, english, cpi]) })}`);
+      }
       // v59.70 (owner D6): the reports carry the producer's Korean titles; the account cites only those.
       // v59.65: 브리핑's 24-hour stories — same-family prices in one story, the theme speaks for its sector, a report that
       // points the other way is not evidence, a big move nothing explains is kept apart, the opening reads equal weight.
@@ -1744,6 +1755,16 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         late('h:filing', 'Late One director files stock sale', '레이트원 이사, 주식 처분 신고', `${D}T21:30:00Z`),
         late('h:night', 'Petition asks Late One board to act', '레이트원 이사회에 청원', '2026-11-03T04:00:00Z')] }).stories[0]?.evidence.map((report) => report.title) || [];
       if (lateTold.join('|') !== '레이트원 투자의견 하향|레이트원, 마진 부진에 하락') fail(`v60.16 after-close reports: only a recap naming the direction stays: ${JSON.stringify(lateTold)}`);
+      // v60.30: a group's named movers are its own leaders (the largest members' moves), not the few members big
+      // enough to carry a stock-move fact — "중간값 -7.1%, 가장 많이 움직인 종목은 AVGO -3.9%" cannot be told.
+      const groupLine = (leaders) => buildDayAccount({ generatedAt: 'g', sessions: { us: D }, facts: [
+        { id: 'g:optics', kind: 'group-move', group: 'theme:optics', label: '광통신', members: ['BIG', 'S1', 'S2', 'S3'], change: -7.1, ...(leaders ? { leaders } : {}), rank: 'lead', materiality: 70 },
+        { id: 's:big', kind: 'stock-move', subjects: ['BIG'], label: 'Big Co', change: -3.9, rank: 'minor', materiality: 30 }], links: [] }).stories[0]?.line || '';
+      const ledLine = groupLine([{ sym: 'S1', change: -9.48 }, { sym: 'S2', change: -8.79 }, { sym: 'S3', change: -8.48 }]);
+      const bareLine = groupLine(null);
+      if (!/가장 많이 내린 종목은 S1 -9\.5%, S2 -8\.8%, S3 -8\.5%/.test(ledLine) || /BIG/.test(ledLine) || /가장 많이/.test(bareLine) || !/BIG -3\.9%/.test(bareLine)) {
+        fail(`v60.30 group movers: the named movers must be the group's largest, or be worded as its main names ${JSON.stringify({ ledLine, bareLine })}`);
+      }
       // v59.93: the equal-weight sentence follows the sign of both figures — an up day never reads "지수 하락", and a
       // rising equal-weight index never reads "덜 내렸습니다".
       const { indexLine } = await load('src/domain/briefing/day-account.js');
@@ -1867,7 +1888,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         const ahead = homeAheadItems([
           { kind: 'macro', date: '2026-11-10', when: '11/10(화) 22:30 KST', title: 'CPI (소비자물가)', why: '근원 물가가 다시 오르면 금리 인하 기대가 줄어듭니다.' },
           { kind: 'daily', date: '', when: '매일', title: '하이일드 스프레드', why: 'x' },
-          { kind: 'earnings', date: '2026-11-12', when: '11/12(목) 장 마감 후', names: 'CSCO · AMAT', title: 'CSCO 0.6% · AMAT 0.4% 실적 (S&P 500 비중)', why: 'y' },
+          { kind: 'earnings', date: '2026-11-12', when: '11/12(목) 장 마감 후', names: 'CSCO · AMAT', title: 'CSCO · AMAT 실적 (S&P 500 비중 CSCO 0.6% · AMAT 0.4%)', why: 'y' },
           { kind: 'event', date: '2026-11-13', when: '11/13(금)', title: '옵션 만기' },
           { kind: 'event', date: '2026-11-14', when: '11/14(토)', title: '넷째' }
         ]);
@@ -2552,9 +2573,18 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (/기준선 가까이에 있는 상태/.test(ext) || !/3\.8배/.test(ext)) fail(`S09 stock summary must not call 3.8x near the line, got ${ext}`);
   if (!/RSI 69\.9/.test(rsiText) || /과열도 과매도도 아닌/.test(rsiText)) fail(`S02 RSI 69.9 must be shown with its digit and not read as neutral, got ${rsiText}`);
   if (!/^1거래일 전 종가 기준\(10\/8\)/.test(summary.headline)) fail(`S07 lagging factor session must lead the headline, got ${summary.headline}`);
+  // v60.30 (2026-11-18): the 위치 tile read '부담' for 52주 범위 21% — a place in the range is a measurement, not a risk
+  // verdict. The point names its zone (범위 하단·중간·상단) and carries no favourable/burden tone.
+  for (const [low, high, zone] of [[15, -32.6, '범위 하단'], [50, -25, '범위 중간'], [80, -5, '범위 상단']]) {
+    const range = buildStockRead({ symbol: 'X', row: { name: 'X', pctFrom52wLow: low, pctFrom52wHigh: high } }).points.find((point) => point.id === 'range');
+    if (range?.zone !== zone || range?.tone !== 'neutral') fail(`v60.30 52-week range point must name its zone ${zone} with a neutral tone, got ${JSON.stringify(range && { zone: range.zone, tone: range.tone, text: range.text })}`);
+  }
   // v57.54: a rank outside its own denominator (KR "890/239") is a mixed row set and is not shown; Korean sector name in the handoff.
-  const mixedRank = buildStockRead({ symbol: '005930.KS', row: { name: 'KR fixture', sector: 'Technology', screenRank: 890 }, universeSize: 239 });
-  const inRange = buildStockRead({ symbol: '005930.KS', row: { name: 'KR fixture', sector: 'Technology', screenRank: 188 }, universeSize: 239 });
+  const mixedRank = buildStockRead({ symbol: '005930.KS', row: { name: 'KR fixture', sector: 'Technology', overallRank: 890 }, universeSize: 239 });
+  const inRange = buildStockRead({ symbol: '005930.KS', row: { name: 'KR fixture', sector: 'Technology', overallRank: 188 }, universeSize: 239 });
+  // The stock summary's rank is the screener's overall rank; the active screen's own order (screenRank) is another list.
+  const screenOnly = buildStockRead({ symbol: '005930.KS', row: { name: 'KR fixture', sector: 'Technology', screenRank: 5, overallRank: 188 }, universeSize: 239 });
+  if (!/ 188\/239/.test(screenOnly.points.find((point) => point.id === 'rank')?.text || '')) fail('v60.26 the stock summary quotes overallRank, never the active screen order (screenRank)');
   if (mixedRank.ranking || mixedRank.points.some((point) => point.id === 'rank')) fail('v57.54 rank above its denominator must not be shown');
   if (!/스크리너 종합 순위\(여러 요인의 가중 합\) 188\/239/.test(inRange.points.find((point) => point.id === 'rank')?.text || '')) fail('v57.54 in-range market rank must be shown on its own denominator');
   if (!/같은 섹터\(기술\)/.test(inRange.next.find((step) => step.route === 'screener')?.why || '')) fail('v57.54 screener handoff must use the Korean sector name');
@@ -2628,7 +2658,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { summarizeValidation: summarizeForBasis } = await load('src/ui/components/screener-validation.js');
   const basisSummary = summarizeForBasis([{ date: '2026-10-15', n: 1138, dates: 6, quantileSpreadNet: -1.83, hitRate: 50, netHitRate: 33.3, ic: { composite: -0.005 } }]);
   const { buildScreenerRead } = await load('src/domain/screener/screener-read.js');
-  const basisRows = Array.from({ length: 25 }, (_, index) => ({ sym: `R${index}`, sector: 'Technology', screenRank: index + 1, pctSma50: 5, adrPct: 2, ret5d: index < 3 ? -6 : 1, factorScores: { trend: 70 } }));
+  const basisRows = Array.from({ length: 25 }, (_, index) => ({ sym: `R${index}`, sector: 'Technology', overallRank: index + 1, pctSma50: 5, adrPct: 2, ret5d: index < 3 ? -6 : 1, factorScores: { trend: 70 } }));
   const basisRead = buildScreenerRead({ rows: basisRows, validation: { ...basisSummary, modelMatch: true } });
   if (basisSummary.wins !== 2 || basisSummary.winsBasis !== 'net' || !/비용 후 2회/.test(basisRead.headline)) fail(`v57.81 one validation count basis (net) must be named, got ${basisRead.headline}`);
   const health = basisRead.points.find((point) => point.id === 'health');
@@ -2845,8 +2875,15 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!/1999년 이후 강한 냉각 구간이 시작된 첫날 중 서로 겹치지 않는 39번/.test(evidence) || !/두 범위가 겹쳐 평균 차이는 구별되지 않습니다/.test(evidence) || /예측은 아닙니다/.test(evidence)) fail(`v57.54/v57.84 the past-spell line (overlap verdict carries the caveat; the boilerplate 예측 sentence is gone) names n, the ± range and whether it clears the baseline, got ${evidence}`);
   // v59.87 (S3): the currentness rule moved to the domain model beside the producer's formula.
   const tempModel = await load('src/domain/market/sentiment/market-temperature.js');
-  const staleIds = tempModel.staleMarketIds({ retained: ['kosdaq'] }, [{ id: 'spx', asOf: '2026-10-13' }, { id: 'kosdaq', asOf: '2026-10-13' }, { id: 'nikkei', asOf: '2026-10-02' }, { id: 'kospi', asOf: '2026-10-09' }], Date.parse('2026-10-14T00:00:00Z'));
-  if ([...staleIds].sort().join(',') !== 'kosdaq,nikkei') fail(`v57.54 a retained market or one more than a week behind is stale and leaves the "now" lead, got ${[...staleIds]}`);
+  const staleIds = tempModel.staleMarketIds({ retained: ['kosdaq'] }, [{ id: 'spx', asOf: '2026-10-13' }, { id: 'kosdaq', asOf: '2026-10-12' }, { id: 'nikkei', asOf: '2026-10-02' }, { id: 'kospi', asOf: '2026-10-09' }], Date.parse('2026-10-14T00:00:00Z'));
+  if ([...staleIds].sort().join(',') !== 'kosdaq,nikkei') fail(`v57.54 a retained market behind its session or one more than a week behind is stale and leaves the "now" lead, got ${[...staleIds]}`);
+  // v60.30: a retained body that already holds its market's latest completed close is not stale — 11/17 01:52Z showed
+  // "닛케이 225 갱신 지연" beside "11/16 종가", the latest Nikkei close at that hour (Tokyo still trading).
+  const heldClose = tempModel.staleMarketIds({ retained: ['nikkei', 'kospi'], generatedAt: '2026-11-17T01:52:00Z' },
+    [{ id: 'spx', asOf: '2026-11-16' }, { id: 'kospi', asOf: '2026-11-16' }, { id: 'nikkei', asOf: '2026-11-16' }], Date.parse('2026-11-17T03:00:00Z'));
+  const behindClose = tempModel.staleMarketIds({ retained: ['nikkei', 'kospi'], generatedAt: '2026-11-17T09:00:00Z' },
+    [{ id: 'spx', asOf: '2026-11-16' }, { id: 'kospi', asOf: '2026-11-16' }, { id: 'nikkei', asOf: '2026-11-14' }], Date.parse('2026-11-17T10:00:00Z'));
+  if (heldClose.size !== 0 || [...behindClose].sort().join(',') !== 'kospi,nikkei') fail(`v60.30 a retained market is stale only behind its latest session: ${[...heldClose]} / ${[...behindClose]}`);
   // v58.77 pipeline audit DATA-03: every market failing leaves them equally old; the artifact age and the calendar catch it.
   const allOld = tempModel.staleMarketIds({ retained: [], generatedAt: '2025-01-02T00:00:00Z' }, [{ id: 'spx', asOf: '2025-01-01' }, { id: 'kospi', asOf: '2025-01-01' }], Date.parse('2026-10-14T00:00:00Z'));
   const weekend = tempModel.staleMarketIds({ retained: [], generatedAt: '2026-10-18T20:00:00Z' }, [{ id: 'spx', asOf: '2026-10-16' }, { id: 'kospi', asOf: '2026-10-16' }], Date.parse('2026-10-18T22:00:00Z'));
@@ -3893,7 +3930,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const e4WorkspaceSource = workspaceWithPanels();
   const e4RiskInputSource = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
   if (/0\.043/.test(e4WorkspaceSource)) fail('P1182/22:PFR03 the risk panel must not carry a hidden fixed RF assumption (0.043) any more');
-  if (!/RF 미입력 — 보류/.test(e4WorkspaceSource)) fail('P1182/22:PFR03 the panel must publish the withheld-RF state instead of a bare dash');
+  if (!/무위험 수익률을 넣으면 계산합니다/.test(e4WorkspaceSource)) fail('P1182/22:PFR03 the panel must publish the withheld-RF state instead of a bare dash');
   if (!/current_composition_retrospective/.test(e4RiskInputSource) || !/legacy-risk-path/.test(e4WorkspaceSource)) {
     fail('P1182/22:PFR09 the panel must declare its exposure path and legacy-risk-path lineage');
   }
@@ -4193,7 +4230,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || !/function _pfLedgerApi\(\)/.test(p1191Workspace)) {
     fail('P1191/E4 the classic shell must own the ledger writer through the Vault path, delegate the contract, and expose every handler');
   }
-  if (!/window\._pfPortfolioLedger = \{/.test(readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8'))) { // v57.62
+  if (!/root\._pfPortfolioLedger = \{/.test(readFileSync(path.join(root, 'src/app/portfolio-screen-bridges.js'), 'utf8'))) { // v60.30: installed with the 포트폴리오 route
     fail('P1191/E4 bootstrap must expose the ledger contract to the shell');
   }
   if (!/ledger: accountLedger/.test(p1191Workspace) || !/status === 'ready'/.test(p1191Workspace)) {
@@ -4204,9 +4241,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
   { // v59.03: the lab renderer lives in src/ui/components/portfolio-backtest-lab.js; probe what it renders.
     const lab = await import('../src/ui/components/portfolio-backtest-lab.js');
-    const out = {}; const cert = { sampleN: 13, tailN: 1, certification: 'held', stability: { certificationReasons: ['sample-below-declared-minimum'] } };
+    const out = {}; const cert = { sampleN: 13, tailN: 1, certification: 'held', stability: { certificationReasons: ['sample-below-declared-minimum'], thresholds: { minSampleN: 41 } } };
     lab.renderPortfolioBacktestLab({ ok: true, performance: { varCertification: cert }, settings: {}, warnings: [] }, { root: {}, documentRef: { getElementById: () => out } });
-    if (lab.varCertLabel({ certification: 'certified' }) !== '인증' || !String(out.innerHTML).includes('VaR 인증 보류 — 표본 부족')) fail('P1190/E4 the lab must render the actual VaR certification instead of a hard-coded hold label');
+    // v60.30: a held estimate reads as a reference value with the reason and the fix in plain words, never the check's jargon.
+    if (lab.varCertLabel({ certification: 'certified' }) !== '확정' || !String(out.innerHTML).includes('VaR 참고값: 기간이 짧음, 시작 달을 앞당겨 기간을 늘리면 (41개월 이상) 확정값이 됩니다')
+      || /인증|보류|sample-below/.test(String(out.innerHTML))) fail('P1190/E4 the lab must render the actual VaR check as a plain reason and fix instead of a hard-coded hold label');
   }
   const uiLedger = {
     currency: 'USD',
@@ -4404,10 +4443,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const failedPanels = panelChecks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedPanels.length) fail(`P1195 declared-panel checks failed: ${failedPanels.join(' | ')}`);
   const p1195Workspace = workspaceWithPanels();
-  const p1195Bootstrap = readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8'); // v57.62
+  const p1195Bootstrap = readFileSync(path.join(root, 'src/app/portfolio-screen-bridges.js'), 'utf8'); // v60.30: installed with the 포트폴리오 route
   if (/data-action="_aioRemoveLedgerEntry"/.test(p1195Workspace) || /data-action="_aioRemoveFxLeg"/.test(p1195Workspace)
     || /function _pfVaultListPersist\(options\)/.test(p1195Workspace) === false
-    || !/window\._pfDeclarationPanels = \{/.test(p1195Bootstrap)
+    || !/root\._pfDeclarationPanels = \{/.test(p1195Bootstrap)
     || !/showDeclarationStatus\(\{ documentRef: document, statusId: statusId/.test(p1195Workspace)) {
     fail('P1195 the shell must keep storage and ordering while the native panel owns the markup and the acknowledgement wording');
   }
@@ -4652,6 +4691,25 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     declarations: { ...p1258Declarations, exposurePath: 'fixed_target_weight_strategy' },
     positions: [{ ticker: 'AAA', qty: 10, targetWeight: 60 }, { ticker: 'BBB', qty: 5, targetWeight: 60 }]
   });
+  const { deriveRiskEstimate } = await load('src/domain/portfolio/risk.js');
+  for (const targetWeight of [null, '', '  ', false, undefined, 0, '0']) {
+    const strategy = assembleRiskEstimateInput({
+      ...p1258Input,
+      declarations: { exposurePath: 'fixed_target_weight_strategy', rebalancePolicy: 'daily', cashReturn: 0 },
+      positions: [{ ticker: 'AAA', qty: 10, targetWeight: 50 }, { ticker: 'BBB', qty: 5, targetWeight }]
+    });
+    const direct = deriveRiskEstimate({
+      snapshot: strategy.snapshot, returnsMap: strategy.returnsMap,
+      exposureHistoryMode: strategy.exposurePath, rebalancePolicy: strategy.rebalancePolicy,
+      targetWeights: { AAA: 0.5, BBB: targetWeight }
+    });
+    const explicitZero = targetWeight === 0 || targetWeight === '0';
+    for (const estimate of [strategy.estimate, direct]) {
+      if (explicitZero ? estimate.status !== 'ready' : estimate.code !== 'strategy-target-weights-invalid') {
+        fail(`v60.25 a missing strategy target holds the risk estimate while declared zero remains valid: ${JSON.stringify(targetWeight)} → ${estimate.status}`);
+      }
+    }
+  }
   const p1258Ok = p1258Happy.ok === true && p1258Happy.minLen === p1258Days.length - 1
     && Array.isArray(p1258Happy.returnsMap?.AAA) && p1258Happy.returnsMap.AAA.length === p1258Days.length - 1
     && p1258Happy.snapshot?.status === 'ready' && p1258Happy.estimate?.status === 'ready'
@@ -4973,6 +5031,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
   if (!/^(양호|다소|중립|부담|방어|경계|혼조|대체로)/.test(buildMarketRegime({ history: rows, credit: { hyBp: 308, hyAsOf: last } }).overall)) fail('P1399 a full history must still produce a verdict');
   if (buildSentimentModel({}).synthesis.includes('치우치지 않은')) fail('P1399 no sentiment input must not read as balanced');
+  {
+    // v60.30: the VIX term sentence names a ratio and follows its printed value — 1.00 is at the edge, not "near" it.
+    const { termRatioLine } = await load('src/ui/components/sentiment-board.js');
+    const terms = [0.97, 0.998, 1.03].map(termRatioLine);
+    if (terms.some((line) => /차이/.test(line) || !/비율/.test(line)) || !/\(0\.97\).*가까워졌습니다/.test(terms[0]) || !/\(1\.00\).*닿았습니다/.test(terms[1]) || !/\(1\.03\).*역전됐습니다/.test(terms[2])) {
+      fail(`v60.30 VIX term ratio sentence must follow below/at/above 1: ${JSON.stringify(terms)}`);
+    }
+  }
   // x-bookmarks 2026-10-18: the term card carries VIX ÷ √252 as the implied one-sigma daily move, on the ratio's own date.
   const vixRows = Array.from({ length: 10 }, (_, i) => ({ date: `2026-10-${String(i + 1).padStart(2, '0')}`, spx: 6600, vix: 22.2, vix3m: 20 }));
   if (!/VIX 22\.20 → S&P 500 하루 약 ±1\.4%/.test(buildSentimentModel({ history: vixRows }).cards.find((card) => card.id === 'term')?.change || '')
@@ -5712,8 +5778,8 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const failedP1316 = p1316Checks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedP1316.length) fail(`P1316 portfolio backup checks failed: ${failedP1316.join(' | ')}`);
   const p1316Workspace = workspaceWithPanels();
-  const p1316Bootstrap = readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8'); // v57.62
-  if (!/window\._pfPortfolioBackup = \{/.test(p1316Bootstrap)
+  const p1316Bootstrap = readFileSync(path.join(root, 'src/app/portfolio-screen-bridges.js'), 'utf8'); // v60.30: installed with the 포트폴리오 route
+  if (!/root\._pfPortfolioBackup = \{/.test(p1316Bootstrap)
     || !/api\.build\(_pfBackupSnapshot\(\)/.test(p1316Workspace)
     || !/getPortfolioLedger\(\), fxLegs: getPortfolioFxLegs\(\)/.test(p1316Workspace)
     || !/PIN 잠금을 해제한 뒤 내보내세요/.test(p1316Workspace)
@@ -6569,6 +6635,10 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const staleEstimates = buildIndexEarnings({ rows, weights, consensus, realYield10: 2, now: Date.parse('2026-11-20T00:00:00Z') });
   const staleCloses = buildIndexEarnings({ rows: rows.map((row) => ({ ...row, factorSessionDate: '2020-01-02' })), weights, consensus, realYield10: 2, now: indexNow });
   if (staleEstimates.available !== false || staleCloses.forwardPe != null || staleCloses.breadth == null) fail(`v58.63 F-DELTA-01 index earnings must drop expired estimates and closes: ${JSON.stringify({ staleEstimates, pe: staleCloses.forwardPe, breadth: staleCloses.breadth })}`);
+  // v60.30: the revision-breadth gauge caption ("label, +25%") names the measure and window beside the bare percent.
+  const { breadthGauge } = await load('src/ui/components/index-earnings.js');
+  const breadthLabel = breadthGauge(0.25).label;
+  if (!/4주/.test(breadthLabel) || !/수정 건수/.test(breadthLabel)) fail(`v60.30 the revision-breadth gauge must name its window and that it counts revisions: ${breadthLabel}`);
 
   const { analyzeChart, chartReading } = await load('src/domain/technical/chart-analysis.js');
   const bars = []; const bench = []; let price = 100; let index2 = 100;
@@ -7019,7 +7089,16 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const [title, chip] = head.children;
   if (!/aio-frame-head/.test(head.className) || title.tag !== 'h2' || title.textContent !== '다가오는 일정' || chip.className !== 'aio-asof' || chip.textContent !== '5일' || chip.title !== '앞으로 5일, 한국 시간' || head.children.length !== 2)
     fail(`v58.79 frame head: title, then one as-of chip with its method in the hover, nothing else: ${JSON.stringify(head.children.map((c) => [c.tag, c.className, c.textContent]))}`);
-  if (frame.asOfChip(doc, '가'.repeat(40)).textContent.length !== frame.ASOF_MAX) fail('v58.79 an as-of chip is cut to ASOF_MAX characters');
+  // v60.28 (테마 시나리오 chip "미국 11/16 종가 기준, 11/17 반영" — a cut "… 반영 전"): the chip never cuts its text; the
+  // callers' short forms fit ASOF_MAX (the browser budget gate fails a longer rendered chip).
+  if (frame.asOfChip(doc, '가'.repeat(40)).textContent.length !== 40) fail('v60.28 an as-of chip shows its whole text (the chip never cuts mid-phrase)');
+  const oldChip = frame.asOfChip(doc, '5일');
+  if (frame.setAsOf(doc, { querySelector: (sel) => (sel.includes('aio-asof') ? oldChip : null) }, '가'.repeat(30), 'd')?.textContent.length !== 30) fail('v60.28 setAsOf shows its whole text (the chip never cuts mid-phrase)');
+  const lagChip = (await load('src/ui/components/session-lag.js')).sessionChipText;
+  for (const chip of [`미국 ${lagChip('2026-12-30', '2026-12-31')}`, `한국 ${lagChip('2026-11-28', '2026-12-01')}`, lagChip('2026-12-31', '')])
+    if (chip.length > frame.ASOF_MAX || (/반영/.test(chip) && !/반영 전$/.test(chip))) fail(`v60.28 a market session chip fits ASOF_MAX whole: ${chip} (${chip.length})`);
+  const longClose = frame.closeChipText('미국 10/23 종가, 한국 10/24 종가, 일본 10/24 종가 확정 종가');
+  if (longClose.length > frame.ASOF_MAX || longClose !== '10/23, 10/24 종가') fail(`v60.28 close chip: a sentence past ASOF_MAX falls back to its dates, never a cut phrase: ${longClose}`);
   if (!/sr-only/.test(frame.frameHead(doc, { title: '지수 하루 흐름', hiddenTitle: true }).children[0].className)) fail('v58.79 a hidden frame title stays for screen readers');
   const section = frame.frameSection(doc, { frame: 'home.test', title: 'T', titleId: 't', reading: '읽기' });
   if (section.dataset.frame !== 'home.test' || section.attrs['aria-labelledby'] !== 't' || section.children[1]?.className !== 'aio-frame-reading') fail('v58.79 frameSection: data-frame name, labelled by its title, reading after the head');
@@ -7108,6 +7187,22 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const view = await load('src/ui/components/theme-playbook-view.js');
   const days = view.stageHistoryOf(merged, { market: 'US', id: 'a', basis: '2026-10-14', state: 'leading', ret1m: 2 }, view.RUN_DAYS);
   if (days.length !== 4 || view.stageRun(days).sessions !== 4 || !/10\/12 이전/.test(view.recomputedNote(days))) fail('v58.79 the stage run spans the whole record and names where the recomputed part ends');
+  // v60.28 (테마 시나리오 미국 헬스케어 "4/6", detail "6개 중 5개"): the table painted before the consensus and calendar
+  // arrived repainted only when its own request replaced a copy; a copy another screen loaded first left it stale. The
+  // load now settles (even with changed=false) and the paint key says the counts read other copies.
+  if (typeof view.loadTeachArtifacts !== 'function' || typeof view.teachPaintKey !== 'function' || typeof view.teachArtifactsPending !== 'function') fail('v60.28 THEME_CRITERIA_REPAINT: loadTeachArtifacts / teachPaintKey / teachArtifactsPending exported');
+  else {
+    const { CONSENSUS_KEY } = await load('src/data/consensus-estimates.js');
+    const { EARNINGS_CALENDAR } = await load('src/data/artifact-registry.js');
+    const teachRoot = { setTimeout: (fn) => fn(), fetch: async () => { throw new Error('offline'); } };
+    const painted = view.teachPaintKey(teachRoot);
+    if (!view.teachArtifactsPending(teachRoot)) fail('v60.28 THEME_CRITERIA_REPAINT: counts painted before the artifacts load are pending');
+    teachRoot[CONSENSUS_KEY] = { generatedAt: '2026-11-17T00:00:00Z', rows: {} }; // loaded by the theme detail meanwhile
+    teachRoot[EARNINGS_CALENDAR.key] = { generatedAt: '2026-11-17T00:00:00Z', earnings: [] };
+    let settled = 0;
+    await new Promise((resolve) => { view.loadTeachArtifacts(teachRoot, () => { settled += 1; resolve(); }, 0); setTimeout(resolve, 2000); });
+    if (settled !== 1 || view.teachPaintKey(teachRoot) === painted || view.teachArtifactsPending(teachRoot)) fail(`v60.28 THEME_CRITERIA_REPAINT: the load settles once and the table repaints on copies it did not read: ${JSON.stringify({ settled, painted, now: view.teachPaintKey(teachRoot) })}`);
+  }
 }
 
 {
@@ -8199,10 +8294,14 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     // core CPI still counts toward the direction; with the 13- and 11-month bases missing too there is no yoy.
     const exactYoy = coreInflationRead({ mh: { series: { corePceIndex: { observations: pceObs }, coreCpiIndex: { observations: pceObs } } } }).coreCpiYoy;
     // v60.19 (Codex numbers audit): the derived 13-month rate carries its own name and basis — never '전년 대비'/'1년치'.
-    if (!gapRead.coreCpiYoy || gapRead.coreCpiYoy.label !== '13개월 연율' || !/25년 9월 대비, 1년 전 같은 달 지수 없음/.test(gapRead.coreCpiYoy.note) || Math.abs(gapRead.coreCpiYoy.value - exactYoy.value) > 0.5 || exactYoy.note !== '' || exactYoy.label !== '전년 대비'
-      || gapRead.direction.single || gapRead.directionLabel !== '물가 방향 (PCE·CPI)' || !/13개월 연율 [\d.]+% \(25년 9월 대비, 1년 전 같은 달 지수 없음\)/.test(gapRow) || /1년치 [\d.]+% \(25년/.test(gapRow) || !/10월/.test(gapRow)
-      || !/13개월 연율 [\d.]+% \(25년 9월 대비/.test(gapRead.direction.cpi?.text || '') || /전년 대비 [\d.]+% \(25년/.test(gapRead.direction.cpi?.text || '')) {
-      fail(`v60.16 a core CPI month without its 12-month base reads the 13-month base and names it: ${JSON.stringify({ yoy: gapRead.coreCpiYoy, exact: exactYoy, label: gapRead.directionLabel, gapRow })}`);
+    // v60.30: the basis is a ", …" clause inside the reader's own parentheses — it names the missing month, and no
+    // macro text nests a second pair of parentheses ('3.7% (10월, 13개월 연율 2.6% (25년 9월 대비, …))').
+    const { maxParenDepth } = await load('scripts/ci-sentence-join-check.mjs');
+    if (!gapRead.coreCpiYoy || gapRead.coreCpiYoy.label !== '13개월 연율' || gapRead.coreCpiYoy.note !== ', 25년 10월 지수가 없어 25년 9월 대비' || Math.abs(gapRead.coreCpiYoy.value - exactYoy.value) > 0.5 || exactYoy.note !== '' || exactYoy.label !== '전년 대비'
+      || gapRead.direction.single || gapRead.directionLabel !== '물가 방향 (PCE·CPI)' || !/13개월 연율 [\d.]+%, 25년 10월 지수가 없어 25년 9월 대비\)/.test(gapRow) || /1년치 [\d.]+%/.test(gapRow) || !/10월/.test(gapRow)
+      || !/13개월 연율 [\d.]+%, 25년 10월 지수가 없어 25년 9월 대비/.test(gapRead.direction.cpi?.text || '') || /전년 대비 [\d.]+%, 25년/.test(gapRead.direction.cpi?.text || '')
+      || [gapRow, gapRead.direction.cpi?.text || '', ...(gapChapter?.detail || []).map(([, value]) => String(value))].some((text) => maxParenDepth(text) > 1)) {
+      fail(`v60.16 a core CPI month without its 12-month base reads the 13-month base and names it, without nested parentheses: ${JSON.stringify({ yoy: gapRead.coreCpiYoy, exact: exactYoy, label: gapRead.directionLabel, gapRow, cpi: gapRead.direction.cpi?.text })}`);
     }
     // v60.19 (Codex numbers audit): every CPI print outside the board card names the month it shows — the 물가 axis's
     // '지금 숫자' (a held September CPI beside October readings) and the calendar's '직전' (read as the latest release).
@@ -8356,7 +8455,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const labActive = (pct) => {
     const out = {};
     renderPortfolioBacktestLab({ ok: true, performance: { activeReturn: pct / 100, informationRatio: 0.5, trackingError: 0.02 }, settings: {}, warnings: [] }, { root: {}, documentRef: { getElementById: () => out } });
-    const [, cls = '', text = ''] = String(out.innerHTML).match(/Active \/ IR<\/div><div class="wsl-bt-kpi-v ([\w-]*)">([^<]*)</) || [];
+    const [, cls = '', text = ''] = String(out.innerHTML).match(/초과 수익 \/ 정보비율<\/div><div class="wsl-bt-kpi-v ([\w-]*)">([^<]*)</) || [];
     return { text, up: cls === 'is-up', down: cls === 'is-loss', cls };
   };
   const icBar = (value) => {
@@ -8497,4 +8596,10 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const flowIndex = breadthFlow({ cards: [{ id: 'spx', series: flowPts((i) => 6000 + i) }, { id: 'b50', series: flowPts(() => 50) }, { id: 'b200', series: flowPts(() => 50) }, { id: 'dd', series: ddSeries }] }).leads?.index || '';
   const ddPct = recordPercentile(ddSeries, 55).pct;
   if (ddPct <= 50 || ddPct >= 60 || !flowIndex.includes(`가운데 ${recordRankPhrase(ddPct)}입니다`) || /많은 편/.test(flowIndex)) fail(`v59.97 the page-flow 분배일 line reads a ${ddPct}th-percentile count as 중간쯤: ${flowIndex}`);
+  // v60.30: high shares above the averages are a participation level, not a rise — on a falling index the line says both.
+  const broadOn = (spx) => breadthFlow({ cards: [{ id: 'spx', series: flowPts(spx) }, { id: 'b50', series: flowPts(() => 66) }, { id: 'b200', series: flowPts(() => 70) }] }).leads?.participation || '';
+  const broadFalling = broadOn((i) => 7000 - i * 5), broadRising = broadOn((i) => 6000 + i * 5);
+  if (/상승이 넓게/.test(broadFalling + broadRising) || !/참여가 넓습니다 — 다만 S&P 500은 20일 -[\d.]+%로 내려/.test(broadFalling) || !/S&P 500도 20일 \+[\d.]+%로 함께 올랐습니다/.test(broadRising)) {
+    fail(`v60.30 broad participation must not claim a rise against the index: ${JSON.stringify({ broadFalling, broadRising })}`);
+  }
 }

@@ -117,7 +117,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         const whyFocus = ctx.whyDrawerNode?.contains(documentRef.activeElement) ? documentRef.activeElement : null;
         const preview = ctx.ensurePreview();
         ctx.syncColumnControls();
-        const renderArgs = { documentRef, root, store, readLiveData: ctx.liveReader, readWatchlist: ctx.watchlistReader, readAliases: ctx.aliasReader, sortState: ctx.sortState, visibleLimit: ctx.visibleLimit, onExplain: ctx.explainRow, onCompare: (row) => ctx.toggleCompare(row?.sym || row?.symbol), onVisibleSymbols: ctx.requestVisibleQuotes, selectedSymbols: ctx.selectedSymbols, compareSymbols: ctx.compareSymbols, columnPreset: ctx.columnState.preset, customColumns: ctx.columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); ctx.rerender(); ctx.syncWhyWatchlist(ctx.activeRow?.sym || ctx.activeRow?.symbol || ''); }, rowsOverride: ctx.activeRows || preview?.rows || null, workbenchResult: ctx.activeResult, previewResult: preview, onDataChange: () => ctx.renderNow(), onRetry: () => { Promise.resolve(onUniverseScopeChange?.(readUniverseScope(root))).catch(() => {}); } };
+        const renderArgs = { documentRef, root, store, readLiveData: ctx.liveReader, readWatchlist: ctx.watchlistReader, readAliases: ctx.aliasReader, sortState: ctx.sortState, visibleLimit: ctx.visibleLimit, onExplain: ctx.explainRow, onCompare: (row) => ctx.toggleCompare(row?.sym || row?.symbol), onVisibleSymbols: ctx.requestVisibleQuotes, quoteRequestState: ctx.quoteRequestState, selectedSymbols: ctx.selectedSymbols, compareSymbols: ctx.compareSymbols, columnPreset: ctx.columnState.preset, customColumns: ctx.columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); ctx.rerender(); ctx.syncWhyWatchlist(ctx.activeRow?.sym || ctx.activeRow?.symbol || ''); }, rowsOverride: ctx.activeRows || preview?.rows || null, workbenchResult: ctx.activeResult, previewResult: preview, onDataChange: () => ctx.renderNow(), onRetry: () => { Promise.resolve(onUniverseScopeChange?.(readUniverseScope(root))).catch(() => {}); } };
         render(renderArgs);
         const released = ctx.refreshInspector();
         // 개편 v2 (3c): the first wide render selects the first row for the inspector, then marks it in the table once.
@@ -138,7 +138,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           const { sortState } = ctx;
           const column = header.dataset.scrSort;
           if (sortState.column === column) sortState.ascending = !sortState.ascending;
-          else { sortState.column = column; sortState.ascending = column === 'sym' || column === 'sector' || column === 'fwdPe'; }
+          // An ordinal (전체 순위) starts at 1, like a name or a low multiple.
+          else { sortState.column = column; sortState.ascending = column === 'sym' || column === 'sector' || column === 'fwdPe' || column === 'overallRank'; }
           const orderSelect = documentRef.getElementById('scr-order');
           if (orderSelect) {
             let option = [...orderSelect.options].find(item => item.value === column);

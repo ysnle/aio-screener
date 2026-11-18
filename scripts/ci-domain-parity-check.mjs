@@ -411,11 +411,16 @@ const technicalGolden = JSON.parse(readFileSync(path.join(root, 'architecture/fi
     return null;
   };
   if (technicalGolden.fixtures.length !== TECHNICAL_SNAPSHOT_SCENARIOS.length || technicalGolden.positions.length !== POSITION_RISK_SCENARIOS.length) fail('technical-snapshot golden fixture does not match the scenario list — re-run scripts/dump-technical-snapshot-fixtures.mjs');
+  const NEAR_LINE_SELL_PRESSURE = { zero_volume_70: { score: 46, action: 'TRIM_25_33', flags: ['CLOSE_BELOW_21EMA_REDUCE_SWING_LOT', 'CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED'] } };
   TECHNICAL_SNAPSHOT_SCENARIOS.forEach(({ name, ohlcv }, i) => {
     const golden = technicalGolden.fixtures[i];
     const snapshot = technicalSnapshot(ohlcv);
+    // The golden fixture is the legacy read, where any close under a moving average was a break. A close inside the
+    // near-line band (RULES.technical.nearLineAdr × ADR, the band the trend read uses) is no longer one, so the one
+    // scenario that sits inside the band of its 10EMA declares its read here instead of the legacy one.
+    const declared = NEAR_LINE_SELL_PRESSURE[name];
     const d = diff(strip(snapshot), golden.snapshot, `${name}.snapshot`) || diff(strip(extensionHeat(snapshot), true), golden.extensionHeat, `${name}.extensionHeat`)
-      || diff(strip(sellPressure(snapshot, {}), true), golden.sellPressure, `${name}.sellPressure`);
+      || diff(strip(sellPressure(snapshot, {}), true), declared || golden.sellPressure, `${name}.sellPressure`);
     if (d) fail(`TECHNICAL_SNAPSHOT_PARITY_MISMATCH:${d}`);
   });
   POSITION_RISK_SCENARIOS.forEach(({ name, positions, context }, i) => {
@@ -453,6 +458,74 @@ const technicalGolden = JSON.parse(readFileSync(path.join(root, 'architecture/fi
     const stored = positionTechnicalRisk({ ticker: 'NVDA', qty: 10, price: 150, value: 1500, valueSource: 'portfolio-state' }, positions[1].ohlcv, { totalValue: 3000 });
     if (closeValued.state !== 'CURRENT' || closeValued.weightPct !== 50 || stored.state !== 'DATA_INSUFFICIENT') fail(`v60.16 POSITION_TECHNICAL_RISK_CLOSE_VALUED:${closeValued.state}/${closeValued.weightPct}/${stored.state}`);
   }
+}
+
+// v60.26 (cross-screen, live 2026-11-18): a screen states the session its own rows were computed on.
+{
+  // 기술적 분석 대표 종목: the header read "11/17 종가 · 일봉" over screener rows of 11/16 with no date on the table.
+  const { coreStockRows, stockTableSessionBehind } = await import('../src/domain/technical/market-charts.js');
+  const { sessionChipText } = await import('../src/ui/components/session-lag.js');
+  const screener = { data: { AAPL: { pctSma50: 1.2, pctSma200: 4.1, factorSessionDate: '2026-11-16' }, '005930.KS': { pctSma50: 2, pctSma200: 3, factorSessionDate: '2026-11-18' } } };
+  const rows = coreStockRows({ screener, indexWeights: [{ sym: 'AAPL', weight: 7 }, { sym: '005930.KS', weight: 1 }] });
+  const behind = stockTableSessionBehind(rows, '2026-11-17');
+  if (rows[0]?.session !== '2026-11-16' || behind !== '2026-11-16' || stockTableSessionBehind(rows, '2026-11-16') !== null
+    || sessionChipText(behind, '2026-11-17') !== '11/16 종가, 11/17 반영 전') {
+    fail(`v60.26 CHARTS_STOCK_TABLE_SESSION:${JSON.stringify({ session: rows[0]?.session, behind })}`);
+  }
+  // 다음 주 실적: two companies on two days both read '비중이 가장 커' (PANW 0.4% and WMT 0.9%); only the heaviest session may.
+  const { buildMarketStory } = await import('../src/domain/market/story/market-story.js');
+  const hist = []; let t = Date.parse('2026-09-01T00:00:00Z');
+  while (hist.length < 40) { const at = new Date(t); if (at.getUTCDay() >= 1 && at.getUTCDay() <= 5) { const i = hist.length; hist.push({ date: at.toISOString().slice(0, 10), spx: 6000 + i * 5, ndx: 20000 + i * 20, soxx: 300 + i, rsp: 180 + i * 0.1, iwm: 220 }); } t += 86400000; }
+  const calendar = { earnings: [{ symbol: 'PANW', date: '2026-11-18', hour: 'amc', indexWeight: 0.4 }, { symbol: 'WMT', date: '2026-11-19', hour: 'bmo', indexWeight: 0.9 }] };
+  const lines = (buildMarketStory({ history: hist, calendar, nowMs: Date.parse('2026-11-17T01:00:00Z') }).week || []).filter((row) => row.kind === 'earnings');
+  const largest = lines.filter((row) => /비중이 가장 커/.test(row.why || ''));
+  const panw = lines.find((row) => /PANW/.test(row.title));
+  if (lines.length !== 2 || largest.length !== 1 || !/WMT/.test(largest[0].title) || !/2번째로 비중이 큰\(0\.4%\)/.test(panw?.why || '')) {
+    fail(`v60.26 WEEK_AHEAD_LARGEST_REPORT_ONCE:${JSON.stringify(lines.map((row) => [row.title, row.why]))}`);
+  }
+  // The weight sits inside its label: 'PANW 0.4% 실적 (S&P 500 비중)' read as a 0.4% move.
+  const paired = (buildMarketStory({ history: hist, calendar: { earnings: [{ symbol: 'CSCO', date: '2026-11-18', hour: 'amc', indexWeight: 0.6 }, { symbol: 'AMAT', date: '2026-11-18', hour: 'amc', indexWeight: 0.4 }] }, nowMs: Date.parse('2026-11-17T01:00:00Z') }).week || []).find((row) => row.kind === 'earnings');
+  if (panw?.title !== 'PANW 실적 (S&P 500 비중 0.4%)' || paired?.title !== 'CSCO · AMAT 실적 (S&P 500 비중 CSCO 0.6% · AMAT 0.4%)') {
+    fail(`v60.30 WEEK_AHEAD_WEIGHT_IN_LABEL:${JSON.stringify([panw?.title, paired?.title])}`);
+  }
+}
+
+// v60.30 (테마와 섹터 · 기술적 분석, live 2026-11-18): one as-of form, the page's own bar date, DOM text and criteria counts.
+{
+  const { readFileSync: read } = await import('node:fs');
+  const source = (file) => read(new URL(`../${file}`, import.meta.url), 'utf8');
+  // 지도 tab read "11/16 종가, 반영 전" while 테마 순위 and 시나리오 read "11/16 종가, 11/17 반영 전": one formatter.
+  const mapSource = source('src/ui/components/sector-map.js');
+  if (!/import \{ sessionChipText \} from '\.\/session-lag\.js'/.test(mapSource) || /종가, 반영 전/.test(mapSource)) fail('v60.30 SECTOR_MAP_ASOF_CHIP: the S&P 500 map chip uses session-lag.js sessionChipText');
+  // The charts header read "11/18 종가 · 일봉" over US cards drawing 11/17: 코스피's newer close dated the page.
+  const { chartsPageBasis } = await import('../src/domain/technical/market-charts.js');
+  const cards = [{ field: 'ndx', asOf: '2026-11-17' }, { field: 'spx', asOf: '2026-11-17' }, { field: 'kospi', asOf: '2026-11-18' }, { field: 'kosdaq', asOf: '2026-11-18' }];
+  if (typeof chartsPageBasis !== 'function' || chartsPageBasis(cards) !== '2026-11-17' || chartsPageBasis(cards.slice(2)) !== '2026-11-18' || chartsPageBasis([]) !== null
+    || !/const asOf = chartsPageBasis\(readings\)/.test(source('src/ui/pages/charts.js'))) fail(`v60.30 CHARTS_HEADER_BAR_DATE:${typeof chartsPageBasis === 'function' ? chartsPageBasis(cards) : 'missing'}`);
+  // A minimal DOM whose text is the concatenation of its nodes, as copy and screen readers read it.
+  const node = (tag) => ({ tag, children: [], className: '', title: '', _text: '', attrs: {},
+    set textContent(value) { this._text = String(value); this.children = []; },
+    get textContent() { return this._text + this.children.map((child) => child.textContent).join(''); },
+    append(...parts) { for (const part of parts) if (part) this.children.push(part); },
+    setAttribute(key, value) { this.attrs[key] = String(value); } });
+  const doc = { createElement: node, createTextNode: (text) => ({ tag: '#text', textContent: String(text) }) };
+  const view = await import('../src/ui/components/theme-playbook-view.js');
+  const day = (date, state) => ({ date, state, ret1m: 1 });
+  const days = [day('2026-10-28', 'inline'), day('2026-10-29', 'leading'), day('2026-10-30', 'leading')];
+  const flowText = typeof view.stageFlowCell === 'function' ? view.stageFlowCell(doc, days, view.recentStageChange(days)).textContent : '';
+  if (!/'동행'에서 최근 바뀜$/.test(flowText)) fail(`v60.30 STAGE_FLOW_CHIP_SEPARATED:${flowText}`);
+  // Korean themes always read "미확인": no 6-month median on the row, no Korean consensus or calendar. The 6-month leg is
+  // the members' median; the two US-only sources do not count; an unknown dot is not an unmet dot.
+  const { themeCriteria, criteriaCellText } = await import('../src/domain/scenarios/theme-criteria.js');
+  const member = (sym, ret6m) => ({ sym, row: { sym, ret1m: 2, ret3m: 3, ret6m, ret5d: 1, pctSma50: 4, adrPct: 2 } });
+  const benchmark = { ret1m: -10, ret3m: -20, ret6m: -30, name: '코스피' };
+  const kr = themeCriteria({ row: { market: 'KR', ret1m: 0.7, ret3m: 2, ret6m: null, above50: 63, wind: { lead: 'head' } }, members: ['1', '2', '3'].map((code) => member(`00000${code}.KS`, 5)), benchmark });
+  const us = themeCriteria({ row: { market: 'US', ret1m: 1, ret3m: 2, ret6m: 3, above50: 60, wind: { lead: 'tail' } }, members: ['A', 'B', 'C'].map((sym) => member(sym, 3)), benchmark: { ret1m: 0, ret3m: 0, ret6m: 0 } });
+  if (kr?.total !== 4 || kr.known !== 4 || criteriaCellText(kr) !== '3/4' || kr.items.some((item) => ['revisions', 'catalyst'].includes(item.id)) || kr.items[0].met !== true
+    || us?.total !== 6 || us.known !== 4 || criteriaCellText(us) !== '4/6, 미확인 2' || !/^4개 중 3개 충족/.test(kr.headline)) fail(`v60.30 THEME_CRITERIA_MARKET_SCOPE:${JSON.stringify({ kr: kr && criteriaCellText(kr), us: us && criteriaCellText(us), head: us?.headline })}`);
+  const dots = typeof view.criteriaDots === 'function' ? view.criteriaDots(doc, { items: [{ met: null }, { met: false }, { met: true }] }).children.map((dot) => dot.className) : [];
+  const css = source('src/ui/styles/themes-page.css');
+  if (dots.join(',') !== 'is-met,is-unmet,is-unknown' || !/\.tp-criteria-dots i\.is-unknown \{[^}]*background: transparent/.test(css)) fail(`v60.30 THEME_CRITERIA_UNKNOWN_DOT:${dots.join(',')}`);
 }
 
 console.log(JSON.stringify({ ok: true, inputVersion, models: { signal: signal.modelVersion }, tradingScoreParity: { fixtures: golden.fixtures.length, modelVersion: computeTradingScoreModel({}).modelVersion }, rrgParity: { fixtures: rrgGolden.fixtures.length }, stageParity: { fixtures: stageGolden.fixtures.length }, newsHeadlineBoundary: { fixtures: newsGolden.fixtures.length, legacyParityIntentionallyRetired: true }, macroCurveParity: { fixtures: macroCurveGolden.fixtures.length }, portfolioConcentrationParity: { fixtures: portfolioGolden.fixtures.length }, factorRanksParity: { fixtures: factorRanksGolden.fixtures.length }, technicalSnapshotParity: { fixtures: technicalGolden.fixtures.length, positions: technicalGolden.positions.length } }));

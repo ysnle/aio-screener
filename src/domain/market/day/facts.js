@@ -372,9 +372,8 @@ function threadsOf(facts, links) {
 const MAJOR_RELEASES = new Set(['us-nfp', 'us-cpi', 'us-fed-rate', 'us-pce']);
 export const HEADLINE_NOISE = /\b(?:stock forecasts?|price, chart|tokenized (?:stock|bstock)s?|price \([A-Z]+\/USD\) today|outperforms competitors|underperforms (?:\w+ )?when compared to competitors|(?:sells|buys) \$[\d,]+ (?:in|of|worth)|executes (?:sale|purchase) of|position in|stake (?:raised|lowered|trimmed|boosted)|shares (?:sold|bought|acquired) by|stock quote|stock price today|should you buy)\b/i;
 const clamp = (value) => Math.max(0, Math.min(100, Math.round(value)));
-let NOW_MS = Date.now();
-const nearness = (fact) => { const days = (Date.parse(`${fact.date}T12:00:00Z`) - NOW_MS) / DAY; return days <= 2 ? 1 : Math.max(1 / 3, 1 - (days - 2) / 12); };
-function ownMateriality(fact) {
+const nearness = (fact, nowMs) => { const days = (Date.parse(`${fact.date}T12:00:00Z`) - nowMs) / DAY; return days <= 2 ? 1 : Math.max(1 / 3, 1 - (days - 2) / 12); };
+function ownMateriality(fact, nowMs) {
   switch (fact.kind) {
     case 'price': return priceMateriality(fact, fact.asset);
     case 'stock-move': {
@@ -385,7 +384,7 @@ function ownMateriality(fact) {
     case 'earnings': return clamp(15 + 6 * (fact.indexWeight || 0) + Math.min(15, Math.abs(fact.epsSurprise || 0) / 2));
     case 'deal': return clamp(fact.valueUsd >= 5e10 ? 75 : fact.valueUsd >= 1e10 ? 60 : 40);
     // An upcoming item counts fully inside two days and fades to a third by ten days out.
-    case 'upcoming': return clamp((fact.event === 'earnings' ? 15 + 6 * (fact.indexWeight || 0) + (fact.movingNow ? 25 : 0) : MAJOR_RELEASES.has(fact.event) ? 65 : fact.weight >= 3 ? 70 : 35) * nearness(fact));
+    case 'upcoming': return clamp((fact.event === 'earnings' ? 15 + 6 * (fact.indexWeight || 0) + (fact.movingNow ? 25 : 0) : MAJOR_RELEASES.has(fact.event) ? 65 : fact.weight >= 3 ? 70 : 35) * nearness(fact, nowMs));
     case 'event': return clamp(fact.weight >= 3 ? 70 : 35);
     case 'release': return 45;
     case 'positioning': return 30;
@@ -398,9 +397,9 @@ function ownMateriality(fact) {
 const SHARE_OF_MOVE = { subject: 0.8, member: 0.7, driver: 0.8, topic: 0.4 };
 // Credit flows from a move to what explains it: an event, or the price that drives it. Never from one move to a peer.
 const explainsLink = (cause, link) => !MOVE_KINDS.has(cause.kind) || (cause.kind === 'price' && link.basis === 'driver');
-function scoreMateriality(facts, links) {
+function scoreMateriality(facts, links, nowMs) {
   const byId = new Map(facts.map((fact) => [fact.id, fact]));
-  for (const fact of facts) { fact.materiality = ownMateriality(fact); delete fact.explains; }
+  for (const fact of facts) { fact.materiality = ownMateriality(fact, nowMs); delete fact.explains; }
   // Own points first for every fact, then the raise, read from the moves' own points (a raised price never raises again).
   const own = new Map(facts.map((fact) => [fact.id, fact.materiality]));
   for (const link of links) {
@@ -445,12 +444,11 @@ export function buildMarketDay({ history = [], screener = null, universe = [], n
   const reported = earningsFacts(calendar, nowMs, namesBySymbol);
   candidates.push(...reported.filter((fact) => fact.kind === 'upcoming'),
     ...reported.filter((fact) => fact.kind === 'earnings' && (fact.indexWeight >= 0.1 || moved.has(fact.subjects[0]))));
-  NOW_MS = nowMs;
   // A report due from a company that is already moving (its stock or a group it leads) is the next test of that move.
   for (const fact of candidates) if (fact.kind === 'upcoming' && fact.event === 'earnings' && moved.has(fact.subjects[0])) fact.movingNow = true;
   const noise = candidates.filter((fact) => fact.kind === 'headline' && HEADLINE_NOISE.test(fact.title));
   let facts = candidates.filter((fact) => !noise.includes(fact));
-  scoreMateriality(facts, linkFacts(facts));
+  scoreMateriality(facts, linkFacts(facts), nowMs);
   // The most material of the open-ended kinds are kept; every price, group, event and upcoming item stays.
   const CAPS = { 'stock-move': 30, headline: 50, earnings: 30, analyst: 15 };
   const kept = new Set();
@@ -466,7 +464,7 @@ export function buildMarketDay({ history = [], screener = null, universe = [], n
   }
   facts = facts.filter((fact) => !CAPS[fact.kind] || kept.has(fact.id));
   const links = linkFacts(facts);
-  scoreMateriality(facts, links);
+  scoreMateriality(facts, links, nowMs);
   // explainedBy: how a move is tied to a reason — its own news (subject/member) or the price it runs on (driver). A move
   // with neither is kept and says so; a peer or topic link alone explains nothing.
   for (const fact of facts) if (fact.kind === 'stock-move' || fact.kind === 'group-move') {

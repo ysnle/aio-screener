@@ -22,9 +22,9 @@ Preconditions:
 
 - **Open.** Click sidebar `기술적 분석`. `page-charts` active.
 - **Basis.** `#charts-basis` leaves loading and matches `/종가 · 일봉/`.
-- **Index cards.** At least 4 `#charts-index-grid [data-index]`, each with an `svg`; `#charts-conclusion` real text.
+- **Index cards.** From the initial `일봉` view, click `지수 추세`. At least 4 `#charts-index-grid [data-index]`, each with an `svg`; `#charts-conclusion` real text.
 - **Fold.** Open the first card's `차트 읽기` fold; its body has text.
-- **Stocks.** `#charts-stock-table` has a table row.
+- **Stocks.** Click the `대표 종목` view. The stock table has a visible row.
 - **Proof.** `drive charts` evidence folder. Loading, empty and error states are proved by `scripts/ci-sa-02-outage-browser-fixture.mjs` (core-file failure/empty) and the ui-states screenshot matrix.
 
 ## Gotchas

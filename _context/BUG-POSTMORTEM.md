@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-17
+last_verified: 2026-11-18
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -38,6 +38,776 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 <!-- ledger-class-report:end -->
 
 ---
+
+## P2684 - v60.30 - v60.30 Korean theme criteria count only the criteria that apply, and an unknown dot differs from an unmet one (2026-11-18)
+
+- symptom/reproduction: Every Korean theme in the 시나리오 table read "x/6, 미확인 3" (e.g. "3/6, 미확인 3"), and the dots drew an unknown criterion the same as an unmet one.
+- root_cause: src/domain/scenarios/theme-criteria.js themeCriteria read three inputs a Korean theme never has: the row's 6-month median (theme-playbook.js builds KR rows with ret6m null because the KR stage reads 3개월·1개월), the consensus artifact and the earnings calendar (both US listings only; theme-playbook-view.js passes no calendar for KR). theme-playbook-view.js drew dots as met for i < met and plain otherwise.
+- fix: The relative-strength 6-month leg falls back to the members' own 6-month median (screener rows carry ret6m for .KS/.KQ; the KOSPI 6-month return comes from history) when at least three members carry it. CRITERIA_MARKETS scopes 이익 전망 방향 and 촉매 to US, so a Korean theme is counted out of 4. criteriaDots draws met (filled), unmet (faint) and unknown (hollow ring, --color-text-secondary in both themes) in that order. The Korean stage itself is unchanged.
+- violated_rule: A criterion whose source does not cover a market is not counted for it; a missing value is shown as unknown, never as unmet.
+- prevention: ci-domain-parity-check v60.30 THEME_CRITERIA_MARKET_SCOPE (a KR theme reads "3/4" with all four known; a US theme without consensus or calendar still reads "4/6, 미확인 2") and THEME_CRITERIA_UNKNOWN_DOT (dot classes is-met, is-unmet, is-unknown and the hollow is-unknown rule).
+- verification/residual: node scripts/ci-domain-parity-check.mjs and ci-scenario-guidance-fixture exit 0; node --check on the edited files.
+- files: src/domain/scenarios/theme-criteria.js, src/ui/components/theme-playbook-view.js, src/ui/styles/themes-page.css, scripts/ci-domain-parity-check.mjs
+
+## P2683 - v60.30 - v60.30 the 최근 바뀜 badge is separated from the stage-flow text in the DOM (2026-11-18)
+
+- symptom/reproduction: In the 시나리오 tab table the stage-flow cell's text and badge ran together for copy and screen readers: "13거래일째, '동행'에서최근 바뀜".
+- root_cause: src/ui/components/theme-playbook-view.js stageFlowCell appended the badge span directly after the text span; the only gap was the badge's CSS margin, which is not text.
+- fix: stageFlowCell appends a text-node space before the badge (accessible text "…'동행'에서 최근 바뀜"); the badge margin in themes-page.css drops from 6px to 2px so the visual gap stays about the same. stageFlowCell is exported for the check.
+- violated_rule: Adjacent text and badges are separated in the DOM, not by CSS spacing alone.
+- prevention: ci-domain-parity-check v60.30 STAGE_FLOW_CHIP_SEPARATED renders the cell on a text-concatenating DOM and requires "'동행'에서 최근 바뀜".
+- verification/residual: node scripts/ci-domain-parity-check.mjs exits 0; ci-decision-frame-check and ci-esm-core-unit-check exit 0.
+- files: src/ui/components/theme-playbook-view.js, src/ui/styles/themes-page.css, scripts/ci-domain-parity-check.mjs
+
+## P2682 - v60.30 - v60.30 the 기술적 분석 header dates the page by the US cards' latest drawn bar (2026-11-18)
+
+- symptom/reproduction: During the 11/18 US session the charts page header read "11/18 종가 · 일봉" while the US index cards drew the 11/17 bar; the stock-table caption compared its rows against the same date and could name an unfinished US session as pending.
+- root_cause: src/ui/pages/charts.js took the page basis as the latest asOf across every index card. The Korean cards (코스피, 코스닥) close about 15 hours before the US cards, so during the US session their newer close dated a page whose US cards still drew the previous session.
+- fix: src/domain/technical/market-charts.js chartsPageBasis(readings) returns the latest completed bar the US cards draw (close-series.js closeSessionMarket), falling back to the latest drawn bar without a US card; charts.js uses it for the header and the stock-table comparison, and a card on another date keeps its own date chip.
+- violated_rule: A page's as-of date is the date of the bars it draws for its lead market, never the newest date of another market's series.
+- prevention: ci-domain-parity-check v60.30 CHARTS_HEADER_BAR_DATE: US cards on 11/17 with Korean cards on 11/18 must give 11/17, and charts.js must read chartsPageBasis.
+- verification/residual: node scripts/ci-domain-parity-check.mjs exits 0; ci-esm-core-unit-check and ci-metric-consistency-check exit 0; node --check on the edited files.
+- files: src/domain/technical/market-charts.js, src/ui/pages/charts.js, scripts/ci-domain-parity-check.mjs
+
+## P2681 - v60.30 - v60.30 the S&P 500 map as-of chip names the pending session like the other theme tabs (2026-11-18)
+
+- symptom/reproduction: On 테마와 섹터 (2026-11-18) the 테마 순위 and 시나리오 tabs read "11/16 종가, 11/17 반영 전" while the 지도 tab read "11/16 종가, 반영 전" with the pending date missing.
+- root_cause: src/ui/components/sector-map.js built its chip from its own template literal instead of the shared as-of formatter session-lag.js sessionChipText that theme-strength.js and theme-playbook-view.js use, and the literal had no pending date.
+- fix: sector-map.js passes the map basis and, when the map is behind, its expected session to sessionChipText; the hover text is unchanged.
+- violated_rule: One as-of label per meaning: a screen's tabs format the same basis through one formatter.
+- prevention: ci-domain-parity-check v60.30 SECTOR_MAP_ASOF_CHIP fails when sector-map.js does not import sessionChipText or still carries the bare '종가, 반영 전' literal.
+- verification/residual: node scripts/ci-domain-parity-check.mjs exits 0; node --check on the edited file.
+- files: src/ui/components/sector-map.js, scripts/ci-domain-parity-check.mjs
+
+## P2680 - v60.30 - 공용 이동 링크(flow-next-link)와 종목 개요 근거 링크가 375px에서 24px보다 낮음 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 375px 폭: 홈 링크 약 82x16, 시그널 163x24, 종목 100x19, 종목·매크로의 인라인 링크 여러 개가 24px 미만이었다.
+- root_cause: index.html .page .flow-next-link(모든 화면의 '다음' 링크·page-lens__link의 공용 모양)가 padding 0, 높이 지정 없이 글자 높이(12~14px 글꼴 → 16~19px)만 가졌다. src/ui/styles/entity-quality.css의 24px 규칙은 button.stock-read-point-link에만 걸려, 같은 클래스의 a(종목 개요 근거 원문 링크, stock-read.js)는 빠졌다.
+- fix: .page .flow-next-link에 display: inline-flex; align-items: center; min-height: var(--touch-min)(layout-primitives.css의 프로젝트 최소 24px)을 더했다. entity-quality.css 규칙을 .stock-read-point-link(버튼과 링크 모두)로 넓히고 높이를 var(--touch-min)로 맞췄다. 한 화면용 규칙은 더하지 않았다.
+- violated_rule: 손가락으로 누르는 대상은 --touch-min(24px) 이상(WCAG 2.5.8) — 공용 모양에서 정한다.
+- prevention: 기존 scripts/ci-ui-render-hygiene-check.mjs·ci-touch-ergonomics-browser-check.mjs(브라우저 게이트, 이번에는 실행하지 않음)가 24px 미만 대상을 잡는다. 이 둘은 문장 안 인라인 링크를 면제하므로, 새 정적 검사는 더하지 않았다.
+- verification/residual: CSS만 바뀜. 브라우저 측정은 하지 않음(브라우저 QA 금지 지시) — 배치 통합 때 hygiene·touch 게이트로 확인 필요.
+- files: index.html, src/ui/styles/entity-quality.css
+
+## P2679 - v60.30 - 명령 검색에서 '삼성'을 치면 용어 KOSPI가 결과에 나옴(정의 문장 일치) (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 명령 검색에 '삼성'을 입력하면 용어 묶음에 KOSPI가 나왔다. KOSPI 정의('… 삼성전자, SK하이닉스 등 포함')에 '삼성'이 있었기 때문이다.
+- root_cause: src/ui/navigation/command-search.js matchTerms: 이름·별칭이 맞지 않아도 정의 문장에 질의가 들어 있으면 두 글자 질의에서도 결과로 냈다. 같은 화면의 리서치 묶음(knowledge-search.js searchKnowledgeIndex 본문 일치, 점수 20~25)도 같은 약한 일치를 냈다.
+- fix: matchTerms: 정의만 맞는 결과는 질의가 DEFINITION_MIN_QUERY(3)자 이상일 때만 낸다. 이름·별칭 일치는 그대로 먼저 온다. 명령 검색의 리서치 묶음도 본문만 맞는 결과(점수 50 미만)에 같은 하한을 쓴다. 용어 사전·리서치 서가의 자체 검색은 바꾸지 않았다.
+- violated_rule: 검색 결과는 이름 일치가 먼저이고, 설명 문장 일치는 더 강한 질의에서만 보인다.
+- prevention: scripts/ci-search-surface-contract.mjs v60.30: matchTerms('삼성', [KOSPI])는 빈 결과, matchTerms('삼성전자', [KOSPI])는 KOSPI. 이전 코드는 '삼성'에서 KOSPI를 내 실패한다.
+- verification/residual: node --check; node scripts/ci-search-surface-contract.mjs OK. 브라우저 확인은 하지 않음.
+- files: src/ui/navigation/command-search.js, scripts/ci-search-surface-contract.mjs
+
+## P2678 - v60.30 - 포트폴리오 중복 종목 창이 '10주 @ 150 통화 미입력'으로 쓰고, 통화를 안 적은 단가와 USD 단가를 다른 통화로 보아 합치기를 막음 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 포트폴리오에서 보유 종목을 다시 추가하면 창이 '보유 10주 @ 150 통화 미입력' 같은 기호·코드 문장을 썼다. 통화를 비운 기존 단가와 USD로 적은 새 단가는 같은 달러 상장인데도 '매수 단가 통화가 달라(통화 미입력, 입력 USD)'로 합칠 수 없다고 했다.
+- root_cause: src/ui/panels/portfolio-duplicate-holding.js lot: '수량주 @ 단가 통화코드'를 그대로 찍고 비어 있는 통화를 '통화 미입력'으로 불렀다. src/domain/portfolio/holding-merge.js holdingMergeBlocker는 통화 빈칸을 상장 통화로 읽는 표(surface.js costCurrency 대체 규칙)와 달리 빈칸과 코드를 문자열로만 비교했다.
+- fix: lot이 '수량 10주, 매수 단가 150'으로 쓰고, 통화는 상장 통화와 다를 때만 '원'·'달러'(그 밖은 코드)로 붙인다. 통화가 다른 경우의 문장은 '보유 달러, 입력 원'처럼 이름으로, 빈칸은 '상장 통화(달러)'로 쓴다. holdingMergeBlocker는 빈칸을 그 종목의 상장 통화(fx.js listingCurrency)로 읽고 비교한다 — 상장 통화를 모르는 6자리 코드는 이전처럼 막는다.
+- violated_rule: 화면 문장은 기호·코드 대신 쉬운 한국어로, 같은 규칙(통화 빈칸 = 상장 통화)은 모든 소비자가 같이 읽는다.
+- prevention: scripts/fixtures/pipeline-semantics/portfolio.mjs v60.30: 통화 빈칸 150과 USD 160의 NVDA가 합쳐지고 문장에 '@'·'통화 미입력'·'달러'·'USD'가 없으며 '보유 수량 10주, 매수 단가 150)'을 담는다; 원화 단가의 미국 종목은 '매수 단가 200,000원'. v60.28 검사 문구도 새 문장으로 갱신. 이전 코드는 '@'로 실패한다.
+- verification/residual: node --check; node scripts/ci-pipeline-semantics-check.mjs --only portfolio 통과. 브라우저 확인은 하지 않음.
+- files: src/ui/panels/portfolio-duplicate-holding.js, src/domain/portfolio/holding-merge.js, scripts/fixtures/pipeline-semantics/portfolio.mjs
+
+## P2677 - v60.30 - 포트폴리오 오늘 칸이 종가 평가 종목에 숫자 대신 '종가 기준'이라는 문구를 표시함 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 포트폴리오 보유 종목 표: 실시간 시세 없이 종가로 평가한 종목의 오늘 칸이 모두 '종가 기준'. 같은 종가 자료에 그 거래일의 전일 대비 변화(ret1d)가 있는데 보이지 않았다.
+- root_cause: src/ui/pages/portfolio.js screenerCloseOf가 종가 가격과 날짜만 넘기고 그 종가의 하루 변화는 넘기지 않았다. src/domain/portfolio/surface.js holdingValue도 종가 평가 행에 변화 값을 두지 않아 표가 문구로 대신했다.
+- fix: screenerCloseOf가 { price, date, changePct: row.ret1d }를 넘기고 surface.js holdingValue가 종가 평가 행에 closeChangePct(그 종가의 전 거래일 대비, closeDate로 날짜)를 둔다. dailyPct·dailyPctEligible과 머리의 '오늘'은 실시간 시세 규칙 그대로다. 표의 오늘 칸은 실시간 변화가 없고 종가 변화가 있으면 '-1.20% (11/16)'처럼 날짜와 함께 쓰고, 마우스 설명은 '11/16 종가의 전 거래일 대비 변화'라고 말한다. 종가 변화가 없으면(요청형 종가 등) 기존 '종가 기준'.
+- violated_rule: 알려진 값은 문구로 대신하지 않는다 — 값과 그 기준일을 함께 보인다.
+- prevention: scripts/fixtures/pipeline-semantics/portfolio.mjs v60.30: 종가 평가 두 종목(ret1d -1.2, +0.5, 11/16)의 오늘 칸이 ['-1.20% (11/16)', '+0.50% (11/16)']. 이전 코드는 '종가 기준'으로 실패한다.
+- verification/residual: node --check; node scripts/ci-pipeline-semantics-check.mjs --only portfolio 통과. 부팅 묶음 밖 파일만 바뀜(측정). 브라우저 확인은 하지 않음.
+- files: src/ui/pages/portfolio.js, src/domain/portfolio/surface.js, scripts/fixtures/pipeline-semantics/portfolio.mjs
+
+## P2676 - v60.30 - 포트폴리오 요약 줄이 모든 종목이 종가 평가일 때 종목 수를 두 번 말함 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 포트폴리오: '6종목 평가 완료, 6종목은 실시간 시세 대신 11/16 종가 기준'.
+- root_cause: src/ui/pages/portfolio.js closeNote: 종가로 평가한 종목 수를 늘 'N종목은 …'으로 붙였고, 그것이 보유 종목 전체와 같은지 보지 않았다.
+- fix: closeNote: 종가 평가 수가 보유 종목 수와 같으면 ', 모두 11/16 종가 기준'으로 쓴다. 일부만 종가일 때는 기존 문장을 쓴다.
+- violated_rule: 같은 사실은 한 줄에서 한 번만 말한다.
+- prevention: scripts/fixtures/pipeline-semantics/portfolio.mjs v60.30: 두 종목이 모두 종가 평가인 포트폴리오를 가짜 DOM에 올리면 상태 줄이 '2종목 평가 완료 … , 모두 11/16 종가 기준'으로 끝나고 '2종목은'이 없다. 이전 코드는 '2종목은'으로 실패한다.
+- verification/residual: node --check; node scripts/ci-pipeline-semantics-check.mjs --only portfolio (34 cases) 통과. 브라우저 확인은 하지 않음.
+- files: src/ui/pages/portfolio.js, scripts/fixtures/pipeline-semantics/portfolio.mjs
+
+## P2675 - v60.30 - 종목 개요 위치 칸이 52주 범위 21%를 '부담'으로 표시함 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 종목 개요 위치 칸: '52주 범위 21%'(52주 고점 대비 -32.6%) 옆 칩이 '부담'. 범위 안의 자리는 측정값인데 위험 판정 단어가 붙었고, 무엇을 쟀는지(범위 하단)는 말하지 않았다.
+- root_cause: src/domain/entity/stock-read.js buildStockRead 'range' 점: 위치 0.4 미만을 tone 'burden', 0.6 이상을 'favorable'로 매겼고, src/ui/components/stock-read.js 위치 칸이 그 tone의 단어(부담·우호·중립)를 칩으로 찍었다. 위치 칸 자체의 규칙(0%는 1년 최저, 100%는 최고)에는 위험 판정이 없다 — 추세와 50일선 거리 판정은 추세·위험 칸이 맡는다.
+- fix: range 점의 tone을 neutral로 두고 zone('범위 하단' < 0.4 ≤ '범위 중간' < 0.6 ≤ '범위 상단', 기존 tone 경계와 같음)을 함께 돌려준다. 위치 칸 칩은 zone을 쓴다. 추세·위험 칸은 그대로 판정 단어(우호·부담·중립)를 쓴다.
+- violated_rule: 칩은 그 칸이 잰 것을 말하고, 위험 단어는 그 칸의 규칙이 위험을 판정할 때만 쓴다.
+- prevention: scripts/ci-esm-core-unit-check.mjs v60.30: 52주 범위 약 21%·50%·89% 행의 range 점이 각각 '범위 하단'·'범위 중간'·'범위 상단'이고 tone은 neutral. 이전 코드는 tone burden으로 실패한다.
+- verification/residual: node --check; ci-esm-core-unit-check ok, ci-codex-structure-regression-fixture OK, ci-chart-scenarios-fixture PASS. 브라우저 확인은 하지 않음.
+- files: src/domain/entity/stock-read.js, src/ui/components/stock-read.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2674 - v60.30 - 스크리너 근거 보기에서 팩터 이름과 긴 정의가 구분 없이 붙어 겉면에 나옴 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 스크리너 행 근거 보기: '밸류저PER·저PBR — …'처럼 팩터 이름(밸류)과 정의가 한 덩어리로 붙고, 설명 문장이 접힌 칸이 아니라 막대 위 겉면에 있었다.
+- root_cause: src/ui/pages/screener/inspector.js 팩터 목록: 이름 span 안에 정의 span(sx-factor__desc)을 붙였다. 둘의 구분은 CSS margin-left(soft-ui.css)뿐이라 좁은 폭·읽기 모드에서 붙어 보였고, 정의는 겉면에 남았다.
+- fix: 팩터 행 겉면은 이름과 점수만 둔다. 정의는 definitionLines로 모아 아래 기존 접힘('점수 계산 순서, 팩터 정의, 요인 겹침…')에 '밸류 — 정의' 한 줄씩 넣는다. 쓰이지 않게 된 .sx-factor__desc 규칙(soft-ui.css, ui-states.css 목록)을 지웠다.
+- violated_rule: 겉면은 짧은 이름과 값, 설명은 접힘에(owner 2026-10-31 face for beginners, folds for experts).
+- prevention: scripts/ci-screener-presentation-check.mjs v60.30: inspector.js에 sx-factor__desc가 없고 정의가 접힘 목록으로 들어간다(소스 검사 — 근거 보기 패널은 가짜 DOM 검사 경로가 없다). 이전 코드는 sx-factor__desc로 실패한다.
+- verification/residual: node --check; node scripts/ci-screener-presentation-check.mjs PASS. 브라우저 확인은 하지 않음.
+- files: src/ui/pages/screener/inspector.js, src/ui/styles/soft-ui.css, src/ui/styles/ui-states.css, scripts/ci-screener-presentation-check.mjs
+
+## P2673 - v60.30 - 스크리너 순위 보류 문장이 머리말과 표에서 시장·날짜까지 되풀이됨 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 스크리너 한국 머리말: '239종목 중 239종목 계산, 한국 11/16 종가 자료가 최신 거래일보다 오래돼 순위를 매기지 않았습니다, 한국 11/16 종가 기준, 11/17 계산', 그리고 표에 같은 문장이 다시 나왔다.
+- root_cause: src/domain/screener/row-presentation.js sessionHoldLine: 시장과 종가 날짜를 담은 한 문장을 머리말(kicker)과 빈 표 양쪽에 그대로 썼다. 머리말 옆 종가 표시(data-factor-asof)가 이미 시장·날짜를 말하고 있었고, 계산 수가 전체와 같아도 'N종목 중 N종목'으로 찍었다(src/ui/pages/screener/table.js kicker).
+- fix: sessionHoldLine이 { header: '순위 보류(최신 거래일 종가 대기)', table: '순위 보류 — 최신 거래일 종가가 들어오면 순위를 매깁니다' }를 돌려준다. 머리말은 header를 한 번, 표 상태 줄은 'N종목, '+table을 한 번 쓰고 빈 표는 table을 쓴다. 계산 수가 전체와 같으면 'N종목 계산'만 쓴다.
+- violated_rule: 같은 사실은 한 화면 영역에서 한 번만 말한다 — 시장·날짜는 종가 표시가 맡는다.
+- prevention: scripts/ci-screener-presentation-check.mjs v60.30: 머리말이 '한국'·'01/05'·'N종목 중 N종목'을 담지 않고, 표 상태 줄(데스크톱 형태)에 '순위 보류'가 정확히 한 번. 기존 v60.26 검사도 새 문구로 갱신. 이전 코드는 머리말의 '한국 01/05'로 실패한다.
+- verification/residual: node --check; node scripts/ci-screener-presentation-check.mjs PASS. 브라우저 확인은 하지 않음.
+- files: src/domain/screener/row-presentation.js, src/ui/pages/screener/table.js, scripts/ci-screener-presentation-check.mjs
+
+## P2672 - v60.30 - 스크리너에서 순위가 보류된 시장(한국)을 고르면 기본 '조건 통과만' 때문에 표가 0행이 됨 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 스크리너 한국: '자료가 최신 거래일보다 오래돼 순위를 매기지 않았습니다'와 함께 표가 비었다. 순위가 없으니 조건 화면을 통과한 종목도 없고, 기본으로 켜진 '조건 통과만'이 전체 목록을 가렸다. 종목을 보려면 사용자가 버튼을 찾아 꺼야 했다.
+- root_cause: src/ui/pages/screener/filters.js filterRows: '조건 통과만'(scr-passed-only)을 시장에 순위가 있는지와 상관없이 적용했다. 시장별 컨트롤 사용 가능 여부를 정하는 syncScreenerControlAvailability가 이 컨트롤만 다루지 않았다.
+- fix: filters.js syncScreenerControlAvailability: 선택 시장의 행 가운데 전체 순위(overallRank)가 하나도 없으면 scr-passed-only를 disabled로 둔다(체크 상태는 순위가 돌아올 때를 위해 그대로). passedOnlyApplied(documentRef)가 '켜져 있고 사용 가능'을 한 곳에서 판정하고, filterRows·조건 칩·맞춤 조건 안내·table.js(필터 캐시 키, 빈 표 버튼, 상태 줄, 깔때기)가 모두 그것을 읽는다. 순위가 없는 동안 상태 줄은 '통과 종목만 보기' 버튼을 내지 않는다. 사용자의 다른 필터(시장·섹터·백분위 등)는 그대로 적용한다.
+- violated_rule: 기본 보기가 자료 상태 때문에 0행이 되면 안 된다 — 판정할 수 없는 조건은 꺼진 것으로 다루고 그렇다고 말한다.
+- prevention: scripts/ci-screener-presentation-check.mjs v60.30: 한국 행이 모두 순위 없음·screenStatus unavailable이고 '조건 통과만'이 켜진 상태에서 표에 행이 나오고, 체크 상태는 유지되며, 전체 순위 칸은 비고, 상태 줄에 '통과 종목만 보기'가 없다. 이전 코드는 0행으로 실패한다.
+- verification/residual: node --check; node scripts/ci-screener-presentation-check.mjs PASS. 브라우저 확인은 하지 않음.
+- files: src/ui/pages/screener/filters.js, src/ui/pages/screener/table.js, scripts/ci-screener-presentation-check.mjs
+
+## P2671 - v60.30 - 시장 폭 참여 문장이 이동평균 위 비율 수준만으로 '상승이 넓게 퍼져 있다'고 씀 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 시장 폭: '둘 다 60% 이상이라 상승이 넓게 퍼져 있습니다'가 같은 기간 지수가 내리는 동안 나왔다.
+- root_cause: src/domain/market/story/page-flow.js breadthFlow participation: 50일선·200일선 위 비율이 둘 다 60% 이상인 수준 분기가 지수 방향을 보지 않고 '상승'을 단정했다.
+- fix: page-flow.js: '둘 다 60% 이상이라 중기·장기 참여가 넓습니다'로 수준만 말하고, S&P 500 20일 변화가 있으면 오를 때 '— S&P 500도 20일 +x%로 함께 올랐습니다', 내릴 때 '— 다만 S&P 500은 20일 -x%로 내려, 지수 하락 속에서도 다수 종목이 평균선 위에 남아 있습니다'를 붙인다.
+- violated_rule: 참여 비율은 수준이고 방향이 아니다 — 방향은 지수의 같은 기간 변화로 말한다.
+- prevention: scripts/ci-esm-core-unit-check.mjs v60.30 broad participation: 66%/70%에서 지수 하락이면 '다만 S&P 500은 20일 -…%로 내려', 상승이면 '함께 올랐습니다', 어느 쪽도 '상승이 넓게'를 쓰지 않음. 이전 코드는 '상승이 넓게'에서 실패한다.
+- verification/residual: node --check; ci-esm-core-unit-check, ci-scenario-guidance-fixture exit 0. 브라우저 확인은 하지 않음.
+- files: src/domain/market/story/page-flow.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2670 - v60.30 - 지수별 가격 온도가 최신 종가를 가진 닛케이 225를 '갱신 지연'으로 표시 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 투자 심리 지수별 가격 온도: 닛케이 225 타일에 '갱신 지연'과 '11/16 종가 -2.4%'가 함께 나왔다. 산출 시각(11/17 01:52Z, 도쿄 장중)에 닛케이의 마지막 완료 세션은 11/16이었다.
+- root_cause: src/domain/market/sentiment/market-temperature.js staleMarketIds: 수집이 실패해 앞 본문을 유지한 시장(payload.retained)을 날짜와 상관없이 모두 지연으로 셌다.
+- fix: staleMarketIds: 유지된 본문은 산출 시각에 그 시장이 마친 최신 세션보다 뒤일 때만 지연이다 — 미국·한국은 market-calendar.js latestCompletedSession, 등록된 달력이 없는 일본은 다른 시장의 가장 새 종가 날짜와 비교한다. 산출물 2일 경과·7일 뒤처짐·10일 경과 규칙은 그대로다.
+- violated_rule: 갱신 지연은 그 시장의 최신 세션보다 날짜가 뒤일 때만 붙인다.
+- prevention: scripts/ci-esm-core-unit-check.mjs v60.30: 11/17 01:52Z에 11/16 본문을 유지한 닛케이·코스피는 지연이 아니고, 18:00 KST에 11/16 코스피와 11/14 닛케이는 지연. 이전 코드는 첫 경우에서 실패한다. scripts/ci-data-boundary-fixture.mjs의 staleMarketIds 해시 고정값을 새 규칙 값으로 한 번 옮겼다.
+- verification/residual: node --check; ci-esm-core-unit-check, ci-data-boundary-fixture exit 0. 로컬 market-temperature.json(retained nikkei, asOf 11/16)으로 확인. 브라우저 확인은 하지 않음.
+- files: src/domain/market/sentiment/market-temperature.js, scripts/ci-esm-core-unit-check.mjs, scripts/ci-data-boundary-fixture.mjs
+
+## P2669 - v60.30 - 투자 심리 종합이 VIX ÷ 3개월 VIX 비율을 '차이'로 부르고, 1.00을 기준 '가까이'라고 씀 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 투자 심리: 'VIX와 3개월 VIX의 차이가 역전 기준(1) 가까이 좁혀졌습니다(1.00)'. 값은 비율이고, 화면의 1.00은 기준에 닿은 값이다.
+- root_cause: src/ui/components/sentiment-board.js buildSentimentModel 종합 문장: 비율을 '차이'로 불렀고, 비교는 반올림 전 값(0.996 등)으로 하면서 문장에는 소수 둘째 자리 값을 적어 '가까이'와 1.00이 함께 나왔다.
+- fix: sentiment-board.js termRatioLine: 'VIX ÷ 3개월 VIX 비율(x.xx)'로 부르고, 적힌 두 자리 값으로 기준과 비교해 넘으면 '역전됐습니다', 같으면 '닿았습니다', 아래면 '가까워졌습니다'.
+- violated_rule: 문장의 비교 단어는 화면에 적힌 값과 같은 쪽을 말한다.
+- prevention: scripts/ci-esm-core-unit-check.mjs v60.30 VIX term ratio: 0.97/0.998/1.03이 각각 가까워졌습니다/닿았습니다(1.00)/역전됐습니다이고 '차이'를 쓰지 않음. 이전 코드에는 termRatioLine이 없고 '차이'를 써서 실패한다.
+- verification/residual: node --check; ci-esm-core-unit-check, ci-domain-parity-check, ci-scenario-guidance-fixture, ci-runtime-contract-check exit 0. 브라우저 확인은 하지 않음.
+- files: src/ui/components/sentiment-board.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2668 - v60.30 - 다음 주 실적 일정의 S&P 500 비중 숫자가 라벨과 떨어져 주가 등락처럼 읽힘 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 시장 상태 '다음 주 판단을 바꿀 일정': 'PANW 0.4% 실적 (S&P 500 비중)'. 0.4%가 종목 옆에 붙어 등락률로 읽혔다.
+- root_cause: src/domain/market/story/market-story.js buildMarketStory 주간 실적 줄: 제목을 '<종목> <비중>% 실적 (S&P 500 비중)'으로 만들어 숫자와 그 라벨을 괄호 밖·안으로 갈랐다.
+- fix: market-story.js: 한 회사는 'PANW 실적 (S&P 500 비중 0.4%)', 같은 세션 여러 회사는 'CSCO · AMAT 실적 (S&P 500 비중 CSCO 0.6% · AMAT 0.4%)'로 숫자를 라벨 안에 둔다.
+- violated_rule: 숫자는 그 숫자가 무엇인지 말하는 라벨 바로 옆에 둔다.
+- prevention: scripts/ci-domain-parity-check.mjs v60.30 WEEK_AHEAD_WEIGHT_IN_LABEL: PANW 한 줄과 CSCO·AMAT 두 회사 줄의 제목을 정확히 비교한다. 이전 코드는 'PANW 0.4% 실적 (S&P 500 비중)'에서 실패한다. ci-esm-core-unit-check의 오늘 다음 일정 입력 예도 새 모양으로 바꿨다.
+- verification/residual: node --check; ci-domain-parity-check, ci-esm-core-unit-check, ci-metric-consistency-check exit 0. 브라우저 확인은 하지 않음.
+- files: src/domain/market/story/market-story.js, scripts/ci-domain-parity-check.mjs, scripts/ci-esm-core-unit-check.mjs
+
+## P2667 - v60.30 - 브리핑 업종 이야기가 업종 중간값보다 덜 움직인 대형주를 '가장 많이 움직인 종목'으로 씀 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 브리핑: '광통신/포토닉스 하락 — 업종 중간값 -7.1%, 가장 많이 움직인 종목은 AVGO -3.9%'. 같은 업종의 AAOI -9.5%, ALAB -8.8%, LITE -8.5%가 더 크게 내렸다.
+- root_cause: src/domain/briefing/day-account.js buildDayAccount group-move 분기: 이름을 붙인 종목을 stock-move 사실(지수 영향 5bp 이상이거나 $200M+ 거래의 4% 이상 이동 — 대형주 위주)에서만 골랐다. 업종 사실이 이미 실은 leaders(중간값 방향으로 가장 크게 움직인 구성 종목 3개, src/domain/market/day/facts.js)를 쓰지 않았다.
+- fix: day-account.js: 업종 사실의 leaders가 있으면 그 종목·등락을 '가장 많이 내린/오른 종목은'으로 쓰고(거래량 꼬리표는 같은 종목의 stock-move 사실에서), leaders가 없는 옛 자료에서는 stock-move 종목을 '크게 움직인 주요 종목은'으로 쓴다.
+- violated_rule: 최상급('가장')은 그 집합 전체에서 계산한 값에만 붙인다.
+- prevention: scripts/ci-esm-core-unit-check.mjs v60.30 group movers: leaders가 있는 업종 줄은 S1 -9.5%, S2 -8.8%, S3 -8.5%를 '가장 많이 내린 종목'으로 쓰고 BIG -3.9%를 이름 붙이지 않음, leaders가 없으면 '가장'을 쓰지 않음. 이전 코드는 'BIG -3.9%'에서 실패한다.
+- verification/residual: node --check; ci-esm-core-unit-check, ci-metric-consistency-check, ci-section-visual-contract, ci-headline-translation-check exit 0. 로컬 market-day.json(11/16)의 광통신 leaders AAOI/ALAB/LITE로 확인. 브라우저 확인은 하지 않음.
+- files: src/domain/briefing/day-account.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2666 - v60.30 - 매크로 챕터 '관련 보도'가 다른 주제 기사(암호화폐)를 영어 원문 제목으로 붙임 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 매크로 물가 챕터 '관련 보도': 'Crypto Market Loses About $330 Billion in a Week as Bitcoin Slides and Inflation Fears Mount'. 암호화폐 시장 기사이고, 생산자가 만든 한국어 제목(titleKo)이 있는데도 영어 제목이 나왔다.
+- root_cause: src/domain/macro/macro-chapters.js chapterToday: 제목 단어 주제(wordTopics)에 챕터 주제('inflation')가 하나라도 있으면 붙였다 — 'Inflation Fears'라는 부수 언급만으로 암호화폐 기사가 물가 보도가 됐다. wordTopics가 없을 때는 피드 주제(topics)로 대신 맞췄다. 보여 줄 제목은 report.title(원문)이었고 titleKo를 읽지 않았다.
+- fix: chapterToday: 기사는 챕터 주제 단어를 가지면서 종목(subjects)이 없고 장 밖 주제 단어(crypto, ai-semis, deal, earnings — 시장 원장 WORD_TOPICS 기준)가 없을 때만 붙는다; 피드 주제 대체는 뺐다. 제목은 한국어(titleKo, 없으면 한국어 원제)만 쓰고 한국어 제목이 없는 기사는 후보에서 뺀다 — 맞는 기사가 없으면 '관련 보도' 줄이 나오지 않는다. 뉴스 원천은 넓히지 않았다.
+- violated_rule: 보도는 그 장의 주제 자체에 대한 것만 근거로 붙이고, 화면 제목은 한국어로만 보인다(브리핑 day-account shownKorean과 같은 기준).
+- prevention: scripts/ci-esm-core-unit-check.mjs v60.30: 인플레이션을 언급한 암호화폐 기사와 한국어 제목 없는 기사는 물가 보도가 아니고, 함께 있을 때 한국어 CPI 기사가 선택된다. 이전 코드는 영어 암호화폐 제목을 돌려줘 실패한다.
+- verification/residual: node --check; ci-esm-core-unit-check exit 0. 로컬 market-day.json에서 물가 챕터 보도 없음, 금리·유가·금속·달러 챕터는 한국어 제목 확인. 브라우저 확인은 하지 않음.
+- files: src/domain/macro/macro-chapters.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2665 - v60.30 - 매크로 근원 CPI 13개월 연율이 괄호 안의 괄호로 찍히고, 왜 13개월인지(빠진 달)를 말하지 않음 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 매크로 물가 챕터: '3.7% (10월, 13개월 연율 2.6% (25년 9월 대비, 1년 전 같은 달 지수 없음))'. 겹괄호이고, 빠진 달(25년 10월)이 이름으로 나오지 않아 13개월 연율을 쓴 이유가 흐리다. 같은 근거가 물가 방향 문장(macro-signals)과 물가 축 행(macro-read)에도 겹괄호로 들어갔다.
+- root_cause: src/domain/macro/macro-read.js yoyAt: 파생 연율의 note를 ' (… 대비, …)'처럼 자체 괄호로 돌려줬고, 세 소비자(macro-chapters 근원 CPI 3개월 연율 행, macro-read 근원 CPI 3개월 속도 행, macro-signals measureDirection)는 모두 그 note를 자기 괄호 안에 넣는다. 겹괄호를 잡는 검사가 없었다.
+- fix: yoyAt note를 괄호 없는 ', 25년 10월 지수가 없어 25년 9월 대비' 절로 바꿨다(빠진 12개월 전 달을 이름으로). 결과: '3.7% (10월, 13개월 연율 2.6%, 25년 10월 지수가 없어 25년 9월 대비)'. scripts/ci-sentence-join-check.mjs에 maxParenDepth(export)와 'nested' 규칙을 추가: src/domain/macro/** 의 한국어 리터럴에서 `${}` 안 리터럴을 놓인 깊이에서 세어 겹괄호면 실패하고, 실행 때 자기 규칙이 합성 겹괄호를 잡는지 먼저 확인한다.
+- violated_rule: 화면 문장에 괄호 안의 괄호를 쓰지 않는다; 파생 값은 왜 파생인지를 같은 줄에서 말한다.
+- prevention: scripts/ci-esm-core-unit-check.mjs v60.30: 13개월 연율 note가 ', 25년 10월 지수가 없어 25년 9월 대비'이고 챕터 행·물가 방향 문장·챕터 상세 모든 행의 maxParenDepth <= 1(이전 코드는 깊이 2로 실패). scripts/ci-sentence-join-check.mjs v60.30 'nested' 규칙(매크로 도메인 정적 겹괄호).
+- verification/residual: node --check; ci-esm-core-unit-check, ci-sentence-join-check exit 0. 실데이터 물가 챕터 행 확인. 브라우저 확인은 하지 않음.
+- files: src/domain/macro/macro-read.js, scripts/ci-sentence-join-check.mjs, scripts/ci-esm-core-unit-check.mjs
+
+## P2664 - v60.30 - 매크로 S&P 500 이익 전망 게이지가 '전망 상향 우위, +25%'로 무엇의 몇 %인지 말하지 않음 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 매크로 화면 S&P 500 이익 전망 칸의 게이지 캡션 '전망 상향 우위, +25%'. +25%가 이익 증가율로 읽히지만 실제로는 최근 4주 이익 전망 수정 건수의 (상향 − 하향) ÷ 전체 비율이다. 정의는 접힌 칸 끝에만 있었다.
+- root_cause: src/ui/components/index-earnings.js breadthGauge: 게이지 캡션은 'label, value'로 찍히는데(gauge-bar.js) label이 측정 대상(수정 건수)과 기간(4주)을 담지 않았다.
+- fix: breadthGauge label을 '4주 이익 전망 수정 건수 순상향'으로 바꿔 캡션이 '4주 이익 전망 수정 건수 순상향, +25%'로 읽힌다. breadthGauge를 export해 검사가 읽는다.
+- violated_rule: 숫자 옆에는 그 숫자가 무엇인지(측정·기간)가 붙는다 — 정의를 접힌 칸에만 두지 않는다.
+- prevention: scripts/ci-esm-core-unit-check.mjs v60.30: breadthGauge(0.25).label이 '4주'와 '수정 건수'를 담는다. 이전 label('전망 상향 우위')은 실패한다.
+- verification/residual: node --check; ci-esm-core-unit-check exit 0. 브라우저 텍스트 예산(secondary-text-budget) 검사는 실행하지 않음 — 캡션이 9자 길어졌다.
+- files: src/ui/components/index-earnings.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2663 - v60.30 - 매크로 신용 가지가 중립 판정의 실제 원인 대신 '5거래일 변화는 작지만 … 수준이나 20거래일 변화 때문에'라는 고정 문장을 씀 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 매크로 화면: 하이일드 5거래일 -19bp 옆에 '5거래일 변화는 작지만 신용 지표는 중립입니다 — 수준이나 20거래일 변화 때문에 안정으로 보지 않습니다'. 실제로는 수준 323bp(350bp 미만)와 20거래일 0bp 모두 양호 조건을 충족했고, 중립은 CCC와 하이일드의 60관측 확대 차이 226bp(기준 150bp) 때문이었다.
+- root_cause: src/domain/macro/macro-chain.js creditCalm: 중립 분기가 creditState의 어느 양호 조건이 빠졌는지 묻지 않고 고정 문장을 썼다. 신용 축이 v59.70에 CCC 분산(lowerRated) 조건을 얻은 뒤에도 문장은 수준·20거래일만 원인으로 짐작했고, 문장 앞머리는 |5거래일| < 25bp(화살표 기준)를 '작다'로 불렀다.
+- fix: src/domain/briefing/market-read.js creditNeutralCause: creditState의 양호 조건(수준 < 350bp, 5거래일 <= +5bp, 20거래일 < +25bp, CCC 60관측 차이 < 150bp) 중 빠진 것을 값과 기준으로 돌려준다. macro-chain.js 중립 문장은 그 목록을 '양호 조건 중 …에 걸립니다'로 쓰고, 5거래일 값은 크기 단어 없이 숫자로만 쓴다('5거래일 -19bp에도 신용 지표는 중립입니다 — 양호 조건 중 CCC와 하이일드의 60관측 확대 차이 226bp(양호는 150bp 미만)에 걸립니다').
+- violated_rule: 판정 문장은 판정을 정한 입력과 그 값을 말한다(Codex audit F06의 부담 원인 원칙을 중립에도 적용).
+- prevention: scripts/ci-scenario-guidance-fixture.mjs v60.30: CCC 차이로만 중립인 경우 문장이 5거래일 -19bp와 CCC 60관측 차이·기준을 말하고 '작지만'·'수준이나'를 쓰지 않음, 수준 372bp 중립은 수준을 말함. 이전 코드는 '작지만'에서 실패한다.
+- verification/residual: node --check; ci-scenario-guidance-fixture, ci-metric-consistency-check, ci-regime-scenarios-fixture, ci-codex-structure-regression-fixture exit 0. 실데이터(11/13 HY 3.23%, -19bp)에서 새 문장 확인. 브라우저 확인은 하지 않음.
+- files: src/domain/briefing/market-read.js, src/domain/macro/macro-chain.js, scripts/ci-scenario-guidance-fixture.mjs
+
+## P2662 - v60.30 - 포트폴리오 백테스트·위험 패널의 보류 문구가 'VaR 인증 보류 — 부트스트랩 변동 큼', 'RF 미입력 — Sharpe 보류', '위험 추정 입력을 확정하지 못해 보류합니다: composition-snapshot-unavailable.' 같은 내부 용어·코드로 쓰여, 무엇이 없고 무엇을 하면 되는지 말하지 않음 (2026-11-18)
+
+- symptom/reproduction: 백테스트 랩 성과 요약의 VaR 행, 백테스트 보류 메시지('조정주가(adjusted close) 이력이 없어 … 승격할 수 없습니다', '부분 배분은 보류입니다 — 미지정 멤버', '관측 rate leg가 선언되지 않았습니다', 'fx-unavailable'), 위험 지표 패널의 선언 줄·샤프 타일·현금 보류 줄, refreshPortfolioRisk 상태 줄(내부 코드 노출), 원장 성과 요약('실제 계좌 성과(TWR/MWR) 보류 — … dayCount(actual-365) …')이 모두 검증 용어와 영문 코드를 앞면에 썼다.
+- root_cause: 보류 사유 문구를 만드는 곳(src/domain/portfolio/backtest.js 경고, src/ui/components/portfolio-backtest-lab.js varCertLabel·varRowLabel, src/ui/components/portfolio-risk-metrics.js, js/aio-workspace.js refreshPortfolioRisk·refreshPortfolioLedgerPerformance, src/domain/portfolio/risk.js assessAccountPerformance)이 엔진의 판정 이름과 코드를 그대로 독자 문장으로 썼다. v60.28이 가격 기록 누락 한 건만 '무엇이 없어 실행하지 않았습니다 — 무엇을 하세요' 한 문장으로 바꿨다.
+- fix: 모든 보류를 같은 한 문장 형태로: 무엇이 없어 실행/계산하지 않았는지 — 무엇을 넣거나 하면 되는지(백테스트 13가지 보류, 원장 성과 4가지, 위험 상태 줄 5가지, 계좌 전체 보기 3가지, 샤프 타일 2가지). VaR 행은 '확정' 또는 'VaR 참고값: 기간이 짧음, 시작 달을 앞당겨 기간을 늘리면 (41개월 이상) 확정값이 됩니다'. 내부 코드는 위험 패널의 기존 '계산 식별자' 접힌 칸(account-hold …)과 로그(_aioLog)에만 남고, 백테스트 패널은 접힌 칸이 없어 코드를 모델(varCertification, allocationBlocked)에만 둔다.
+- violated_rule: 앞면 문장은 짧고 쉬운 한국어로 무엇이 없고 무엇을 하면 되는지 말한다; 기술 용어·코드는 접힌 칸에만 둔다.
+- prevention: scripts/fixtures/pipeline-semantics/portfolio.mjs v60.30: 백테스트 보류 6종·원장 성과 보류 4종·위험 패널 앞면에 보류/인증/leg/targetWeight/adjusted close/raw close/승격/dayCount/영문 코드가 없고, 각 문장이 '…하지 않았습니다 — …하세요/계산합니다.'로 끝나며, 코드는 계산 식별자 접힌 칸에 남는다. scripts/ci-esm-core-unit-check.mjs v60.30 VaR 행 문구. 이전 코드는 '보류'·'leg'·코드에서 실패한다. scripts/ci-portfolio-vault-e2e.mjs의 라벨 기대값('확정', '참고값 — ')과 위험 패널 정규식도 새 문구로 바꿨다(브라우저 게이트, 실행하지 않음).
+- verification/residual: node --check(backtest.js, risk.js, portfolio-risk-metrics.js, portfolio-backtest-lab.js, js/aio-workspace.js, 검사 스크립트); node scripts/ci-pipeline-semantics-check.mjs 228 passed; ci-review-integrity-unit-check, ci-runtime-contract-check exit 0. ci-esm-core-unit-check는 다른 스레드가 고치는 src/domain/briefing/day-account.js(1725행 'list is not iterable')에서 멈춰 내 검사 줄까지 가지 못했다 — 바꾼 정규식·VaR 문구 검사는 따로 실행해 통과를 확인했다. 브라우저 확인은 하지 않음.
+- files: src/domain/portfolio/backtest.js, src/domain/portfolio/risk.js, src/ui/components/portfolio-backtest-lab.js, src/ui/components/portfolio-risk-metrics.js, js/aio-workspace.js, scripts/fixtures/pipeline-semantics/portfolio.mjs, scripts/ci-esm-core-unit-check.mjs, scripts/ci-portfolio-vault-e2e.mjs
+
+## P2661 - v60.30 - 순현금 주석이 장기부채 기준 회사 모두에 '1년 안에 갚을 부채는 빠져 있습니다'라고 썼지만, LongTermDebt 등 합계 개념은 그 몫을 포함함 (2026-11-18)
+
+- symptom/reproduction: 재무 공시 '이익률 단계와 현금' 카드의 '한계, 함께 볼 것': 리스 포함이 아닌 모든 발행사에 '장기부채만 뺀 값이며, 1년 안에 갚을 부채와 리스 부채는 빠져 있습니다'. 로컬 코어 원장(10/16 사본) 부채 보유 644곳 중 414곳은 LongTermDebt로 읽혀 1년 안에 갚을 몫이 이미 들어 있었다(MSFT FY2026 40,294M = 비유동 31,067M + 유동분).
+- root_cause: src/ui/components/fundamental-analysis-cards.js 주석이 debtBasis(리스 포함 여부)만 보고 문장을 골랐다. debtBasis는 리스 포함 여부만 담고, 시리즈가 어떤 개념(합계 vs 비유동)에 고정됐는지는 아티팩트에 없었다.
+- fix: sec-earnings.js SEC_DEBT_NONCURRENT_CONCEPTS / secDebtCurrentCoverage: us-gaap 계산 관계(sec-normalize.js DEBT_DERIVED_PAIRS의 [비유동, 유동, 합계] 쌍, SEC_CONCEPT_PARTS)대로 LongTermDebt·파생 합계·리스 포함 합계(IncludingCurrentMaturities)·파생 리스 합계는 포함, LongTermDebtNoncurrent·LongTermDebtAndCapitalLeaseObligations(비유동)만 제외. scripts/lib/sec-fiscal-history.mjs fiscalDebtCurrent → build-sec-runtime-projection.mjs가 sec-fiscal-history.json에 희소 지도 debtCurrent(제외인 발행사만 'excluded')와 형식 문자열을 쓴다. fiscal-read.js가 root._aioSecDebtCurrent로 읽고 debtCurrentFor(지도 없으면 null)를 내며, buildMarginCashRead가 cash.debtCurrent를 싣고 netCashScopeNote가 제외면 '1년 넘게 남은 몫만 뺀 값이며, 1년 안에 갚을 몫과 리스 부채는 빠져', 포함이면 '장기부채(1년 안에 갚을 몫 포함)를 뺀 값', 모르면 그 몫을 말하지 않는다.
+- violated_rule: 데이터 범위 주석은 그 값을 만든 개념의 실제 범위를 말한다; 범위를 모르면 주장하지 않는다.
+- prevention: scripts/ci-data-pipeline-contract-check.mjs v60.30 두 검사(fixtures/sec-debt-concept-cases.mjs currentCoverageCase: LongTermDebt·비유동+유동 파생·리스 파생은 포함, 유동분 없는 비유동 두 개념만 제외; longTermDebt 선호 개념마다 범위가 DEBT_DERIVED_PAIRS 비유동 피연산자 여부와 일치). scripts/ci-fiscal-quality-fixture.mjs v60.30: debtCurrent 지도의 제외 발행사는 '1년 안에 갚을 몫과 리스 부채는 빠져', 지도에 없는 발행사는 '(1년 안에 갚을 몫 포함)'이고 빠졌다고 말하지 않음 — 이전 코드는 합계 발행사에도 빠졌다고 써서 실패.
+- verification/residual: node --check(sec-earnings.js, sec-normalize.js, analysis-read.js, fiscal-read.js, fundamental-analysis-cards.js, stock-lens-cards.js, sec-fiscal-history.mjs, build-sec-runtime-projection.mjs); ci-fiscal-quality-fixture PASS; ci-data-pipeline-contract-check OK. 아티팩트(public-data/sec-fiscal-history.json)는 다시 만들지 않았다 — 다음 SEC 런타임 투영 실행 전까지 debtCurrent 지도가 없어 주석은 1년 안 몫을 말하지 않는다(거짓 주장만 사라짐). 브라우저 확인은 하지 않음.
+- files: src/domain/fundamental/sec-earnings.js, src/domain/fundamental/sec-normalize.js, src/domain/fundamental/analysis-read.js, src/ui/components/fiscal-read.js, src/ui/components/fundamental-analysis-cards.js, src/ui/components/stock-lens-cards.js, scripts/lib/sec-fiscal-history.mjs, scripts/build-sec-runtime-projection.mjs, scripts/fixtures/sec-debt-concept-cases.mjs, scripts/ci-data-pipeline-contract-check.mjs, scripts/ci-fiscal-quality-fixture.mjs
+
+## P2660 - v60.30 - 재무 공시의 같은 테마 기업 비교표가 매출 성장·순이익률을 회계연도 값으로 보여, 같은 페이지의 요약 타일·스크리너 행(최근 4개 분기)과 기준이 달랐음 (2026-11-18)
+
+- symptom/reproduction: 종목 페이지 재무 공시: 요약 타일과 스크리너 행은 최근 4개 분기 기준(trailingRowFundamentals)인데, '같은 테마 기업과 비교' 표는 각 회사의 회계연도 매출 성장·순이익률을 '회계연도' 열과 함께 보여 같은 회사의 같은 지표가 두 값으로 읽혔다. 종목 요약의 동종 순위 차트는 이미 4개 분기 기준이었다.
+- root_cause: src/ui/components/fundamental-analysis-cards.js fiscalExtras: buildThemePeers에 quartersFor를 넘기지 않아 analysis-read.js applyPeerBasis가 언제나 회계연도로 떨어졌다(stock-lens-cards.js stockLensContext만 넘김). 표의 기간 열과 캡션도 '최근 회계연도'로 고정이었다.
+- fix: fiscalExtras가 root._aioSecQuarterHistory를 parseQuarterHistory로 읽어 quartersFor로 넘긴다(종목 요약과 같은 입력). applyPeerBasis는 4개 분기 기준인 지표를 가진 행에 trailingThrough(그 행의 4개 분기 끝 날짜)를 남긴다. themePeerCard는 기간 열을 '기준'으로 바꿔 행마다 '6/30까지 4개 분기' 또는 회계연도(FY25)를 한 번 쓰고, 캡션은 stock-lens.js peerBasisText로 '매출 성장·순이익률은 최근 4개 분기(…), ROE·잉여현금 마진은 각 회사의 최근 회계연도'를 말한다.
+- violated_rule: 한 화면에서 같은 지표는 한 기준으로 읽는다; 기준이 다른 값은 그 기준을 같은 줄에 적는다.
+- prevention: scripts/ci-fiscal-quality-fixture.mjs v60.30: 분기 자료가 있는 그룹으로 재무 공시를 그리면 테마 비교표 머리가 '기준'이고 네 행 모두 '6/30까지 4개 분기', 캡션이 4개 분기 기준을 한 번 말하며, 성장 칸이 4개 분기 성장률(43.5%)이다. 이전 코드는 quartersFor 없이 회계연도로 그려 실패한다.
+- verification/residual: node --check(analysis-read.js, fundamental-analysis-cards.js); node scripts/ci-fiscal-quality-fixture.mjs PASS; node scripts/ci-data-pipeline-contract-check.mjs OK(v60.28 peer basis 검사 포함). 브라우저 확인은 하지 않음. 넓은 섹터 백분위(peer-read.js buildPeerRead, 접힌 '넓은 섹터 안 위치 보기')는 회계연도 기준 그대로다.
+- files: src/domain/fundamental/analysis-read.js, src/ui/components/fundamental-analysis-cards.js, scripts/ci-fiscal-quality-fixture.mjs
+
+## P2659 - v60.30 - 시장 읽기 참여 진술이 기준 아래 값을 기준과 같은 숫자로 반올림해 인쇄함('40%뿐' 옆 '40% 위로 회복되는지(현재 40%)') (2026-11-18)
+
+- symptom/reproduction: history.json 재생 11개 세션: narrow-rally 2026-09-11~13·10-13 '50일선 위 종목은 40%뿐입니다' + 확인 '40% 위로 회복되는지(현재 40%)'(실제 39.6%); broad-derisking 2026-07-17~19 '상승 종목 30%'(실제 29.5%, 기준 30% 미만); index-defended 2026-04-15·07-31~08-02 '상승 종목은 45%'(실제 44.5·44.7%, 기준 45% 미만).
+- root_cause: src/domain/briefing/market-read.js: 기준(RULES.breadth.weakBelow 40, deriskAdvanceBelow 30, defendedAdvanceBelow 45) 판정은 원값으로 하고 인쇄는 정수로 반올림해, 기준 바로 아래 값이 기준 숫자 그대로 찍혔다.
+- fix: src/domain/shared/claim.js digitsApart: 기준선보다 엄격히 위/아래라고 말하는 수치는 기준과 같은 숫자로 찍히지 않을 만큼 소수 자리를 늘린다(최대 2자리 추가). market-read.js 변환 진술의 closeClaim이 이를 쓴다('39.6%뿐', '상승 종목 29.5%'). 기준선 자체(40%)는 단위 기본 자리로 인쇄.
+- violated_rule: 기준선과의 관계를 말하는 단어는 인쇄된(반올림된) 값으로도 참이어야 한다(문장 claim 계약 d).
+- prevention: scripts/ci-sentence-claim-replay-check.mjs v60.30: relation below/above 단어를 인쇄 값과 기준선으로 비교. 이전 코드는 d-relation 11건으로 실패한다.
+- verification/residual: node --check; ci-sentence-claim-replay-check, ci-esm-core-unit-check, ci-text-pin-ratchet-check exit 0. 브라우저 확인은 하지 않음.
+- files: src/domain/shared/claim.js, src/domain/briefing/market-read.js, scripts/ci-sentence-claim-replay-check.mjs
+
+## P2658 - v60.30 - 시장 읽기 vix-inversion이 VIX와 3개월 VIX가 같게 인쇄된 날에도 '보다 높은 역전 상태'라고 씀 (2026-11-18)
+
+- symptom/reproduction: history.json 2026-02-06·07·08(같은 종가 반복): 'VIX(20.37)가 3개월 VIX(20.37)보다 높은 역전 상태입니다.'
+- root_cause: src/domain/briefing/market-read.js: 진술 조건이 비율 >= RULES.volatility.invertedRatioAt(1)이라 두 값이 같으면(비율 1.00) 통과했고, 문장은 '보다 높은'이라고 단정했다.
+- fix: market-read.js: 비율 조건에 더해 인쇄되는 두 수준(소수 둘째 자리)이 VIX > 3개월 VIX일 때만 역전 진술을 낸다. 같으면 진술 없음.
+- violated_rule: 기준선과의 관계를 말하는 단어는 인쇄된(반올림된) 값으로도 참이어야 한다(문장 claim 계약 d).
+- prevention: scripts/ci-sentence-claim-replay-check.mjs v60.30: 'inverted' 단어(relation above)를 3개월 VIX의 인쇄 값과 비교. 이전 코드는 d-relation 3건으로 실패한다.
+- verification/residual: node --check; ci-sentence-claim-replay-check, ci-esm-core-unit-check, ci-crash-replay-check exit 0. 브라우저 확인은 하지 않음.
+- files: src/domain/briefing/market-read.js, scripts/ci-sentence-claim-replay-check.mjs
+
+## P2657 - v60.30 - 시장 읽기 vix-spike가 VIX 5일 +25% 고정 기준만으로 '급등'이라 불러, VIX 자기 변동성으로는 보통 크기인 움직임도 급등이 됨 (2026-11-18)
+
+- symptom/reproduction: history.json 재생 12개 세션에서 거짓: 2025-11-18 'VIX 5일 +43% 급등(24.69).', 2025-11-17 +27%, 2026-01-20 +33%, 2026-02-05 +29%, 2026-03-05 +27%, 2026-06-09/11 +26%, 2026-11-06 +32% 등 — moveGrade(VIX 5거래일 sd 기준)는 모두 ordinary.
+- root_cause: src/domain/briefing/market-read.js vix-spike: 진술을 낼지 정하는 선(RULES.volatility.spike5dPct 25%)이 크기 단어까지 정했다. 다른 모든 크기 단어는 src/domain/market/session/move-size.js moveGrade(자기 변동성 대비)를 따른다.
+- fix: market-read.js: +25% 선은 진술을 내는 조건으로 남기고, '급등'은 closeMoveGrade(history, 'vix', 5일 변화, 5세션)가 large일 때만, 아니면 '상승'으로 쓴다('VIX 5일 +43% 상승(24.69).').
+- violated_rule: 크기 단어는 그 측정의 moveGrade와 맞아야 한다(문장 claim 계약 c, v60.19 하나의 크기 어휘).
+- prevention: scripts/ci-sentence-claim-replay-check.mjs v60.30: 'spike' 단어(size large)를 VIX 5거래일 sd로 등급을 매겨 비교. 이전 코드는 c-size 12건으로 실패한다.
+- verification/residual: node --check; ci-sentence-claim-replay-check, ci-move-size-word-check, ci-esm-core-unit-check, ci-scenario-guidance-fixture exit 0. 브라우저 확인은 하지 않음.
+- files: src/domain/briefing/market-read.js, src/domain/shared/claim.js, scripts/ci-sentence-claim-replay-check.mjs
+
+## P2656 - v60.30 - 브리핑 가격 이야기의 '가장 큰 변화(X)'가 실제로 가장 크게 움직인 자산이 아니라 이야기의 대표(가장 중요한) 자산을 가리킴 (2026-11-18)
+
+- symptom/reproduction: history.json으로 다시 만든 421개 세션 중 188개 세션, 272개 가격 이야기에서 거짓. 예: 2025-11-11 '11/11 종가 WTI 유가 +1.5%, 브렌트 유가 +1.7%. 가장 큰 변화(WTI 유가)는 평소 하루 변동의 0.9배입니다.' — 브렌트는 1.1배. 2025-10-15 '가장 큰 변화(하이일드 스프레드)는 … 2.6배' 옆 투자등급 스프레드 2.67배. 금리(10년물 82건), 유가(WTI 68), 신용(HY 47), 달러(41), 금(30)에서 반복.
+- root_cause: src/domain/briefing/day-account.js 가격 이야기: 문장의 최상급이 이야기의 seed(원장 materiality 순 1위)를 그대로 썼다. materiality는 핵심 지표(10년물, 달러지수, WTI, 금, HY)를 1.0, 나머지를 0.7로 가중하고 업종을 움직인 가격을 끌어올리므로, 1위가 자기 변동성 대비 가장 큰 움직임이라는 보장이 없다.
+- fix: day-account.js: '가장 큰 변화'는 같은 가족(유가·금리·신용·달러·금과 은) 중 원장이 크기를 잰 구간(하루 또는 5거래일, sizedBy)의 |z|가 가장 큰 자산을 가리키고, 그 자산의 배수를 쓴다. 대표 자산이 실제로 가장 클 때(동률 포함)는 문장이 그대로다. 제목의 방향(유가 상승 등)은 여전히 대표 자산의 부호.
+- violated_rule: 최상급·순위 단어는 그 집단의 모든 구성원과 비교해 참이어야 한다(문장 claim 계약 a).
+- prevention: scripts/ci-sentence-claim-replay-check.mjs v60.30: 'largest' claim(rank among family:<id>)을 원장 가족 구성원의 priceMoveSize와 비교한다. 이전 코드는 a-rank 362건으로 실패한다.
+- verification/residual: node --check; ci-sentence-claim-replay-check(0건), ci-esm-core-unit-check, ci-metric-consistency-check, ci-headline-translation-check, ci-section-visual-contract exit 0. 발행된 market-day.json(11/16) 문장은 변하지 않음. 브라우저 확인은 하지 않음.
+- files: src/domain/briefing/day-account.js, scripts/ci-sentence-claim-replay-check.mjs
+
+## P2655 - v60.29 - 재무 공시 '예상 대비 실제 EPS' 카드가 SEC 카드와 다른 분기 이름을 씀 (2026-11-18)
+
+- symptom/reproduction: #fundamental?sym=AVGO: '예상 대비 실제 EPS' 카드는 최근 분기를 '2026-07 분기'로, 같은 화면의 SEC 카드는 2026-08-02에 끝난 같은 분기를 '2026-08 분기'로 적었다.
+- root_cause: src/domain/fundamental/analysis-read.js buildSurpriseRead가 컨센서스 원천의 월 표기(hist '2026-07')를 분기 이름으로 그대로 썼고, SEC 카드는 분기 말일의 연·월(periodEnd.slice(0, 7))을 각자 잘라 썼다. 분기 이름의 주인이 둘이었다.
+- fix: src/domain/fundamental/period.js에 quarterLabel(SEC 분기 말일 → 'YYYY-MM')과 secQuarterLabel(원천 월 → 그 달 말일에서 45일 안의 가장 가까운 SEC 분기 말일의 이름, 없으면 null)을 두었다. buildSurpriseRead(consensus, { quarters })는 맞는 SEC 분기가 있으면 그 이름을, 없으면 원천 이름을 쓰고 원천 이름은 sourceQuarter로 남긴다. 두 원천 월이 한 SEC 분기에 겹치면 둘 다 원천 이름을 유지한다. 재무 공시 카드와 스톡 렌즈가 SEC 분기를 넘기고, quarter-read.js 문장과 최근 4개 분기 줄도 quarterLabel을 쓴다.
+- violated_rule: 한 화면에서 같은 회계 분기는 한 이름으로 부른다; 원천마다 다른 분기 표기는 한 주인이 맞춘다.
+- prevention: scripts/ci-fiscal-quality-fixture.mjs v60.28 다섯 항목: AVGO 실제 hist와 SEC 분기로 2025-11/2026-02/2026-05/2026-08, 최근 분기 이름 = quarterLabel(SEC 최신 분기), sourceQuarter 보존, 45일 밖은 원천 이름, SEC 분기 없음 → null. 변경 전 buildSurpriseRead는 두 번째 인자를 무시해 2025-10…2026-07을 내 실패한다.
+- verification/residual: node scripts/ci-fiscal-quality-fixture.mjs 통과. 실제 데이터: 컨센서스 3,208개 분기 행 중 187개가 SEC 분기 이름으로 바뀌고 3,021개는 원래 이름과 같다(AVGO 2025-10→2025-11, 2026-01→2026-02, 2026-04→2026-05, 2026-07→2026-08). ci-esm-core-unit-check, ci-entity-summary-fixture 통과.
+- files: src/domain/fundamental/period.js, src/domain/fundamental/analysis-read.js, src/domain/fundamental/quarter-read.js, src/ui/components/fundamental-analysis-cards.js, src/ui/components/stock-lens-cards.js, scripts/ci-fiscal-quality-fixture.mjs
+
+## P2654 - v60.29 - 회사 관계 그래프가 괄호 안 다른 회사의 협력사·고객을 경쟁·고객 관계로 연결함 (2026-11-18)
+
+- symptom/reproduction: #ticker?sym=AVGO 회사 탭 '돈과 기술의 흐름' → 겨루는 곳에 AMZN·MSFT가 근거 '맞춤형 AI 가속기 설계 파트너 (XPU/ASIC): Marvell (AWS Trainium·Microsoft Maia 협력으로 보도)'와 함께 나왔다. 경쟁자는 Marvell이고 AWS·Microsoft는 Marvell의 협력사다.
+- root_cause: src/domain/entity/company-graph.js buildCompanyGraph의 others()가 줄 전체에서 companiesNamedIn으로 모든 등록 회사명을 찾아 간선을 만들었다. 경쟁 줄은 대시 앞부분(head)도 쓰지 않았고, 괄호가 '범주 (구성원 목록)'인지 '이름 붙은 주체 (그 주체의 관계 설명)'인지 구분하지 않았다. 같은 규칙이 고객·판매처·생산·협력·의존·돈의 흐름 줄에도 쓰였다.
+- fix: counterpartiesNamedIn(text, self) 하나가 모든 간선 종류의 상대를 정한다: 괄호 밖에 등록 회사가 있으면 그 이름만 상대이고(괄호는 그 주체의 설명), 괄호 밖에 회사가 없으면 괄호 안 구성원이 상대다('클라우드 (Google, Meta)'). 괄호 안에서 보증·신용 보증을 말하는 구절('Google 보증', 'AMD 신용 보증')은 다른 관계라 아무도 연결하지 않는다. 닫히지 않은 괄호는 줄 끝까지 괄호 안으로 읽는다.
+- violated_rule: 관계 간선은 그 줄의 주체에만 붙는다; 괄호 속 다른 회사의 관계를 이 회사의 관계로 옮기지 않는다.
+- prevention: scripts/ci-company-profile-contract-check.mjs v60.28 여섯 항목(AVGO 원문 문장 그대로): 경쟁 줄은 Marvell만, 범주 줄은 괄호 구성원 연결, 보증 구절은 고객 아님, 이름 붙은 협력 줄은 괄호 회사 무시, AMD(OpenAI 계약) 줄, 닫히지 않은 괄호. 변경 전 company-graph.js(HEAD)는 경쟁자를 AMZN·MRVL·MSFT로 내 실패한다.
+- verification/residual: 전체 274개 기업 이야기에서 간선 959 → 953: supply 258 → 257, partner 116 → 116, rival 585 → 580, 새 간선 0. 제거: rival AVGO–AMZN, AVGO–MSFT(Marvell 괄호), NVDA–OpenAI(AMD의 계약), NVDA–Anthropic(Google TPU 구매자), XOM–MSFT(Chevron의 PPA), supply GOOGL→HUT(Google 보증). 간선은 남고 근거 문장만 빠진 것 3건(GOOGL→CIFR 고객 줄 'Fluidstack(Google 보증)', ARM–INTC·META–NVDA 근거 순서). public-data/company-profiles/graph.json은 node scripts/sync-company-profiles.mjs로 다시 써야 하고 그 전까지 ci-company-profile-contract-check는 'graph.json is out of date' 하나로 실패한다(단위 항목은 통과).
+- files: src/domain/entity/company-graph.js, scripts/ci-company-profile-contract-check.mjs, public-data/company-profiles/graph.json
+
+## P2653 - v60.29 - 종목 가격 줄과 시장 연결 줄이 한 종목의 테마를 서로 다르게 말함 (2026-11-18)
+
+- symptom/reproduction: #ticker?sym=AVGO 지금 탭: 가격 흐름 줄은 '11/16 -3.9% — 광통신/포토닉스 하락과 함께 움직였습니다(업종 중간값 -7.1%)', 같은 화면의 시장 연결 줄과 링크는 '이 종목의 테마 '반도체'', '테마, 반도체'. 한 종목에 관계없는 두 분류가 보였다.
+- root_cause: 테마를 고르는 곳이 넷이었다. src/domain/entity/why-moved.js는 하루 기록(buildDayAccount)에서 이 종목을 먼저 가져간 묶음 이야기(가장 큰 광통신/포토닉스 움직임)를 그대로 썼고, src/ui/components/stock-lens-cards.js는 buildThemePeers의 테마와 회원 테마 목록, src/domain/entity/stock-read.js는 회전 ETF가 있는 첫 테마(topTheme), src/ui/components/stock-read.js는 자체 필터를 썼다. AVGO는 THEME_MAP에서 반도체·광통신/포토닉스·AI 인프라 세 큰 테마에 모두 있고, 광통신/포토닉스는 반도체의 세부 테마가 아니다.
+- fix: src/domain/entity/primary-theme.js 하나가 종목의 테마 목록(테마 지도 순서, 첫째가 대표 테마)과 미국·한국 지도 선택을 맡는다. 시장 연결 줄·테마 단계(stock-lens-cards), 회전 점과 테마 링크(stock-read UI·도메인), 가격 줄(entity.js → whyMovedLine)이 모두 이 목록을 읽는다. 가격 줄은 자기 이야기가 없을 때 같은 날 같은 방향으로 움직인 대표 테마의 묶음 움직임을 말하고, 대표 테마 움직임이 없어 다른 테마 이야기를 말할 때는 '이 종목의 테마는 '반도체'이고, 광통신/포토닉스에도 속합니다'를 붙인다. 테마 링크는 회전 ETF 유무와 관계없이 대표 테마를 연다.
+- violated_rule: 한 화면에서 한 종목의 분류는 한 주인이 정하고, 다른 분류를 말할 때는 둘의 관계를 밝힌다.
+- prevention: scripts/ci-section-visual-contract.mjs v60.28 세 항목: 테마 지도 순서로 대표 테마를 고르는 주인, AVGO 11/16과 같은 하루 기록에서 가격 줄이 반도체를 말함(변경 전 코드는 광통신/포토닉스), 대표 테마 움직임이 없을 때 두 분류를 함께 말함.
+- verification/residual: node scripts/ci-section-visual-contract.mjs 통과. 변경 전 why-moved.js(HEAD)를 같은 사례에 돌리면 '광통신/포토닉스 하락과 함께'가 나와 실패한다. 실제 public-data/market-day.json에서 AVGO 줄이 '11/16 -3.9% — 반도체 하락과 함께 움직였습니다(업종 중간값 -5.5%).'로 바뀜. ci-esm-core-unit-check, ci-fiscal-quality-fixture, ci-entity-summary-fixture, ci-architecture-contract-check, ci-patch-comment-ratchet-check(건드린 파일) 통과.
+- files: src/domain/entity/primary-theme.js, src/domain/entity/why-moved.js, src/domain/entity/stock-read.js, src/ui/components/stock-read.js, src/ui/components/stock-lens-cards.js, src/ui/pages/entity.js, scripts/ci-section-visual-contract.mjs
+
+## P2652 - v60.29 - 테마 단계 표 '기준 충족'이 이익 전망·실적 일정을 받기 전 숫자로 고정됨 (2026-11-18)
+
+- symptom/reproduction: 테마 시나리오 탭을 처음 열면 미국 헬스케어가 표에서 '4/6'으로 보였는데 상세 화면은 '6개 중 5개 충족'이었다. 확인하지 못한 기준도 x/6에 빠져 모두 점검한 것처럼 읽혔고, 그 열 정렬도 반쯤 받은 숫자로 순서를 정했다.
+- root_cause: src/ui/components/theme-playbook-view.js loadTeachArtifacts는 자기 요청이 사본을 새로 바꿨을 때(changed)만 표를 다시 그렸다. 상세 화면·종목 화면이 컨센서스·실적 달력을 먼저 받아 두면 changed=false라 표는 그 자료 없이 계산한 숫자에 머물렀다. 셀은 criteria.met/6만 찍어 known(확인 가능 수)을 버렸고, 정렬은 met만 비교했다.
+- fix: 표가 그릴 때 읽은 사본과 로드 상태를 teachPaintKey로 남기고, 두 요청이 끝나면(성공·실패 무관) 지금 키와 다를 때 다시 그린다. 셀은 criteriaCellText로 '4/6, 미확인 2'를, 로드 중에는 '4/6, 확인 중'을 쓴다. 로드 중에는 '기준 충족' 정렬 버튼을 잠그고, 정렬은 compareCriteria로 모두 확인한 행을 먼저, 일부 미확인 행을 뒤에 둔다.
+- violated_rule: 늦게 도착하는 입력으로 계산한 값은 그 입력이 도착하면 다시 그려야 하고, 확인하지 못한 항목은 충족·미충족과 구분해 보여야 한다.
+- prevention: ci-esm-core-unit-check THEME_CRITERIA_REPAINT: 다른 화면이 먼저 받은 사본(changed=false)에서도 로드가 한 번 끝나고 그린 키와 달라져 다시 그린다. ci-scenario-guidance-fixture: criteriaCellText '4/6, 미확인 1', compareCriteria 내림·올림 모두 완전 확인 행 먼저.
+- verification/residual: 이전 theme-playbook-view.js·theme-criteria.js에서 두 검사 모두 실패(내보내기 없음, 이전 경로는 changed=false면 다시 그리지 않음), 지금 통과: node scripts/ci-esm-core-unit-check.mjs, node scripts/ci-scenario-guidance-fixture.mjs
+- files: src/ui/components/theme-playbook-view.js, src/domain/scenarios/theme-criteria.js, scripts/ci-esm-core-unit-check.mjs, scripts/ci-scenario-guidance-fixture.mjs
+
+## P2651 - v60.29 - 테마 시나리오 기준일 칩이 '11/17 반영 전'을 '11/17 반영'으로 잘라 뜻을 뒤집음 (2026-11-18)
+
+- symptom/reproduction: #themes?view=scenario 테마 시나리오 머리 칩이 '미국 11/16 종가 기준, 11/17 반영'으로 보였다. 원문은 '… 11/17 반영 전'(아직 반영 안 됨)이라 잘린 칩은 반대 뜻이 됐다.
+- root_cause: src/ui/components/section-frame.js asOfChip·setAsOf·closeChipText가 모든 칩을 .slice(0, ASOF_MAX=24)로 잘랐다. session-lag.js sessionChipText의 '11/16 종가 기준, 11/17 반영 전'(22자)에 theme-playbook-view.js가 '미국 '을 붙여 25자가 됐고 마지막 '전'이 잘렸다. 자르기 때문에 브라우저 예산 게이트(ci-secondary-text-budget-check)의 칩 길이 검사도 실패할 수 없었다.
+- fix: 칩 컴포넌트는 더 이상 자르지 않는다. sessionChipText는 짧은 형태 '11/16 종가, 11/17 반영 전'을 내고(시장 접두어를 붙여도 최대 23자), closeChipText는 ASOF_MAX를 넘는 문장을 자르지 않고 날짜만 남긴다. 길이 계약은 ASOF_MAX와 예산 게이트(이제 실제 렌더 길이를 본다)가 맡는다.
+- violated_rule: 표시 문구는 뜻이 바뀌는 지점에서 잘리면 안 된다; 길이 계약은 호출부의 짧은 형태와 게이트가 지키고 컴포넌트가 조용히 자르지 않는다.
+- prevention: ci-esm-core-unit-check: 칩·setAsOf가 글자를 자르지 않음, 시장 접두어가 붙은 sessionChipText 최장 형태가 ASOF_MAX 안에 들고 '반영 전'으로 끝남, closeChipText 긴 문장은 날짜로 대체. 예산 게이트 문제 메시지에 칩 원문을 함께 적는다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs (이전 section-frame.js에서 'an as-of chip shows its whole text', 이전 session-lag.js에서 '미국 12/30 종가 기준, 12/31 반영 전 (26)'으로 실패, 지금 통과); node scripts/ci-domain-parity-check.mjs 통과
+- files: src/ui/components/section-frame.js, src/ui/components/session-lag.js, src/ui/components/theme-playbook-view.js, scripts/ci-secondary-text-budget-check.mjs, scripts/ci-esm-core-unit-check.mjs, scripts/ci-domain-parity-check.mjs
+
+## P2650 - v60.29 - 리스 포함 부채 계정만 쓰는 기업의 장기부채가 비어 재무 공시에 '장기부채 자료 없음'으로 표시됨 (2026-11-18)
+
+- symptom/reproduction: public-data/sec-fiscal-history.json에서 795개 중 304개 발행사의 최근 회계연도 장기부채(7번째 칸)가 비었다. 72개는 예전 연도에만 값이 있었고(AVGO FY2020-21 40,994/39,665, FY2022-25 빈칸; CVX, KO, ORCL, DE 등), 232개는 처음부터 없었다(JPM, CMCSA, CVS 등). 순현금·부채 비중 읽기가 비었다.
+- root_cause: src/domain/fundamental/sec-normalize.js BASIS_CONCEPTS['us-gaap'].longTermDebt가 LongTermDebt·LongTermDebtNoncurrent만 읽었고, totalDebtDerivedRows는 LongTermDebtNoncurrent+LongTermDebtCurrent만 합쳤다. src/domain/fundamental/sec-earnings.js SEC_FIELD_CONCEPT_PREFERENCE.longTermDebt도 같은 세 개념뿐이었다. 리스 포함 부채 계정(LongTermDebtAndCapitalLeaseObligations 계열)만 쓰는 기업은 관측값 자체가 생기지 않았다. 저장된 관측값(public-data/sec-fundamentals.json)에서 AVGO·KO·CVX의 부채 행이 두 개념만 담고 최근 연도에서 끊기는 것을 확인했다; 원본 companyfacts는 저장소에 없어 기업별 실제 대체 개념은 확인하지 못했다.
+- fix: 부채 개념 선호 순서를 LongTermDebt → 파생 합계(비유동+유동) → LongTermDebtNoncurrent → LongTermDebtAndCapitalLeaseObligationsIncludingCurrentMaturities → 파생 리스 포함 합계(LongTermDebtAndCapitalLeaseObligations+Current) → LongTermDebtAndCapitalLeaseObligations로 넓혔다. 한 시계열은 한 기준(리스 포함 또는 부채만)을 지킨다: 기준 개념이 보고하지 않은 연도는 같은 기준 개념으로만 채운다. 합계가 같은 날짜의 자기 구성 부분보다 작으면 부분값으로 보고 기준으로 쓰지 않는다(TSCO 규칙 일반화). 채권별 개념(SeniorNotes, DebtInstrumentCarryingAmount 등)은 한 트랜치와 합계를 구분할 수 없어 읽지 않는다. sec-fiscal-history.json에 리스 포함 기업만 담는 debtBasis 맵을 더하고, 재무 읽기·스톡 렌즈가 '장기부채(리스 포함)'로 표기한다. 은행·보험사는 부채 대비 자기자본 읽기를 하지 않는다.
+- violated_rule: 공시 개념 하나가 빠졌다고 값이 조용히 비면 안 된다; 대체 개념은 기준(리스 포함 여부)을 함께 실어 같은 시계열 안에서 섞지 않는다.
+- prevention: scripts/fixtures/sec-debt-concept-cases.mjs + ci-data-pipeline-contract-check: 리스 포함 계정만 쓰는 기업, 중간에 개념을 바꾼 기업(이전 기준 연도는 비움), 구성 부분보다 작은 합계와 채권별 개념 거부, 리더의 리스 포함 표기와 금융사 제외. 이전 개념 목록에서는 세 사례 모두 실패한다.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs 통과(v60.28 네 항목). 같은 사례를 변경 전 사본에 돌리면 leaseOnly/conceptSwitch/partialAndInstrument 모두 false. 저장된 원장 754개 기업의 fiscalHistory·quarterlyHistory 출력이 변경 전후 동일. node scripts/ci-data-audit-contract-check.mjs, ci-fiscal-quality-fixture, ci-esm-core-unit-check 통과. 다음 SEC 재정규화 실행 뒤 AVGO 최근 연도 장기부채 채워짐과 최근 연도 부채 보유 발행사 수(현재 491/795)를 확인한다.
+- files: src/domain/fundamental/sec-earnings.js, src/domain/fundamental/sec-normalize.js, scripts/lib/sec-fiscal-history.mjs, scripts/build-sec-runtime-projection.mjs, src/domain/fundamental/fiscal-read.js, src/domain/fundamental/analysis-read.js, src/domain/fundamental/stock-lens.js, scripts/fixtures/sec-debt-concept-cases.mjs, scripts/ci-data-pipeline-contract-check.mjs
+
+## P2649 - v60.29 - 스크리너 한 행의 PER은 최근 4개 분기, 순이익률·매출 성장은 최대 1년 전 회계연도로 섞여 순위·동종 비교가 묵은 숫자를 씀 (2026-11-18)
+
+- symptom/reproduction: public-data/screener.json에서 pe는 645행 중 604행이 최근 4개 분기(peEarningsBasis 'ttm')인데 같은 행의 margin·revGrowth는 최근 회계연도(fundamentalPeriod 'FY')였다. AVGO 매출 성장 23.9%(FY2025) 옆에서 재무 공시 화면은 최근 4개 분기 +48.7%, 순이익률 42.9%를 보였고, 29행이 PER 양수 옆에 순이익률 음수(IONQ PER 38·순이익률 -392.6%, CRWD PER 5,079·-3.4%)였다. 퀄리티 팩터 입력과 종목 화면 동종 비교('매출 성장 23.9%, 6/9')도 회계연도 숫자로 순위를 매겼다.
+- root_cause: src/domain/fundamental/sec-row-fields.js secFundamentalRowFields가 원장의 회계연도 margin·revGrowth만 복사했다. P/E 분자는 2026-10-17(D1)에 sec-earnings.js secPeEarnings로 최근 4개 분기로 옮겼지만 같은 행의 이익률·성장률은 옮기지 않았고, 분기 시계열을 읽는 함수(buildTrailingYearRead)는 화면 쪽 analysis-read.js에만 있어 생산자가 쓸 수 없었다. 동종 비교(buildThemePeers)도 peer-read.js fiscalMetrics의 회계연도 값만 읽었다.
+- fix: 최근 4개 분기 읽기를 src/domain/fundamental/trailing-year.js 하나로 옮기고(trailingQuarters·buildTrailingYearRead, fiscal-read.js·analysis-read.js는 다시 내보냄) trailingRowFundamentals를 더했다. 생산자(scripts/producer/screener.mjs secQuartersOf)는 sec-fiscal-history `quarters`와 같은 quarterlyHistory로 발행자의 분기를 만들어 secFundamentalRowFields에 넘기고, 행은 margin·revGrowth와 함께 marginBasis/revGrowthBasis('ttm'|'fy')·marginThrough/revGrowthThrough를 발행한다. TTM은 네 분기가 회계연도 말 이후에 끝날 때만, 매출이 양수이고 이익률 100% 이하일 때만, 매출 부분합으로 보류된 기록이 아닐 때만 쓴다. 분기가 없는 압축 확장 원장은 FY 그대로(basis 'fy'). ROE는 FY. 화면: 표 칸 제목·검사창 hover가 기간을 적고, PER(4개 분기)과 순이익률(회계연도)의 부호가 다르면 검사창이 한 줄로 말한다. 동종 비교는 이 회사와 그룹의 70% 이상이 4개 분기를 가질 때만 그 지표 전체를 TTM으로 비교하고(없는 회사는 제외), 아니면 모두 FY로 비교하며 '자세히' 접힘의 '기간' 줄에 기준을 적는다. factor-ranks.v10(미발행)은 그대로 두고 QUALITY_INPUT_BASIS로 입력 기준을 밝혔다.
+- violated_rule: AGENTS 종가 기준·한 숫자 한 기준: 한 행·한 순위 안에서 서로 다른 기간의 숫자를 섞지 않는다.
+- prevention: scripts/ci-data-pipeline-contract-check.mjs v60.28 블록: 합성 원장 기록(8개 분기 PIT 관측)에서 생산자가 TTM 이익률·성장률과 기준을 발행하는지, 분기 없음·매출 부분합·회계연도보다 이른 분기는 FY로 남는지, SEC 병합이 기준을 함께 옮기는지, 동종 비교의 70% 규칙. scripts/ci-screener-presentation-check.mjs v60.28: 표 칸 제목·검사창 한 줄·기준 없는 이전 행은 FY. scripts/validate-screener-artifact.mjs(및 확장 검증기)가 src/domain/screener/row-facts-contract.js로 기준 필드를 검사한다.
+- verification/residual: v60.27 코드(HEAD sec-row-fields.js 사본)는 같은 AVGO 기록에서 margin 36.2·revGrowth 23.9·기준 없음을 내 새 단언이 실패한다. 로컬 원장(2026-10-16)에서 740행 중 margin 704·revGrowth 620행이 TTM, AVGO 42.9%/+48.7%(재무 공시와 같음). node scripts/ci-data-pipeline-contract-check.mjs, ci-screener-presentation-check, ci-fiscal-quality-fixture, ci-data-audit-contract-check, ci-pipeline-semantics-check, ci-screener-extended-contract-check, validate-screener-artifact(현행 아티팩트) 통과.
+- files: src/domain/fundamental/trailing-year.js, src/domain/fundamental/sec-row-fields.js, src/domain/fundamental/fiscal-read.js, src/domain/fundamental/analysis-read.js, src/domain/fundamental/stock-lens.js, src/ui/components/stock-lens-cards.js, scripts/producer/screener.mjs, src/data/providers/screener.js, src/data/normalize/screener.js, src/domain/screener/row-presentation.js, src/domain/screener/row-facts-contract.js, src/domain/screener/factor-ranks.js, src/domain/screener/model-fingerprint.js, src/domain/screener/custom-conditions.js, src/ui/pages/screener/table.js, src/ui/pages/screener/inspector.js, src/ui/pages/screener/model.js, scripts/validate-screener-artifact.mjs, scripts/lib/screener-extended-validate.mjs, scripts/ci-data-pipeline-contract-check.mjs, scripts/ci-screener-presentation-check.mjs
+
+## P2648 - v60.29 - 기술 리스크가 50일선 근처(하루 변동폭 안) 종가를 이평 이탈로 세어 '부담 최상위 구간'을 표시 (2026-11-18)
+
+- symptom/reproduction: MSFT -0.26%, JPM -0.53%, XOM -1.57% 아래 종가가 '내 포트폴리오와 시장'에서는 선 근처(판정 보류)인데 기술 리스크에서는 10EMA·21EMA·50SMA 이탈 3개(60점)+집중 가점으로 부담 최상위 구간.
+- root_cause: technical-risk.js sellPressure가 above10EMA/above21EMA/above50SMA === false만으로 이탈을 셌다. 추세 판정(technical/bands.js)은 RULES.technical.nearLineAdr(20일 ADR 1배) 안을 부근으로 본다.
+- fix: brokeBelow: 선 아래이면서 거리 ≤ -NEAR_LINE_ADR × adr20Pct일 때만 이탈. ADR이 없으면 종전처럼 선 하나로 판정. 과열·클라이맥스 조건은 그대로.
+- violated_rule: 한 개념(선 근처)은 한 임계값 원천(RULES.technical.nearLineAdr)에서 온다.
+- prevention: pipeline-semantics portfolio v60.28: -0.26%/ADR 1.5% → 이탈 0개, -3% → 3개, ADR 없음 → 50SMA 이탈.
+- verification/residual: HEAD 사본에서 실패, 작업 트리에서 통과. ci-domain-parity-check는 zero_volume_70 1건(60→46, 10EMA 플래그)에서 레거시 골든과 의도적으로 갈라짐 — 통합 때 선언 필요.
+- files: src/domain/portfolio/technical-risk.js, js/aio-ui.js
+
+## P2647 - v60.29 - 한국 보유 종목(005930)이 논지 점검·오늘 내 종목·점검 유형에서 자기 시세 행(005930.KS)을 찾지 못함 (2026-11-18)
+
+- symptom/reproduction: 보유 005930(삼성전자, 50일선 -17.85%)이 보유 종목 논지 점검에서 '자료 없음: 50일선', 오늘 화면 내 종목에서 '005930 / , 보유 / 지표 기록 없음'으로 표시됐다. 같은 화면의 추세 상태 패널은 하락 추세로 분류했다.
+- root_cause: 런타임 reader(resolveHoldingInput)가 보유마다 listingSymbol을 한 번 정하고 surface 행이 그것을 싣지만, portfolio-checklist.js thesisRows·daily-diff.js buildMyNames·checks.js(유형·섹터·통화)·백테스트 가격 요청이 저장 코드(row.symbol)로 조회했다. 익스포저 패널은 resolver를 한 번 더 불렀다.
+- fix: fx.js holdingListingKey(holding)를 보유 조회 키의 단일 읽기로 두고(listingSymbol → 저장 코드), surface·checks·portfolio-read·value-trend·checklist·exposure·daily-diff가 그것을 쓴다. 백테스트는 fx.js withListingTickers로 surface 행의 상장 심볼을 써서 가격을 받는다. 화면 이름은 저장 코드 그대로.
+- violated_rule: 보유 종목의 상장 심볼은 reader가 한 번 정하고 모든 소비자가 그 값을 읽는다(v59.54 surface 계약).
+- prevention: pipeline-semantics portfolio v60.28: 한국 보유 005930 + 005930.KS 행으로 논지 점검 50일선 신호, 내 종목 이름·보유·50일선 메모(관심 005930.KS와 한 줄), 점검 유형·섹터를 단언.
+- verification/residual: HEAD 사본에서 같은 사례가 실패(50일선 unknown), 작업 트리에서 통과. node scripts/ci-pipeline-semantics-check.mjs 225건 통과.
+- files: src/domain/portfolio/fx.js, src/domain/portfolio/surface.js, src/domain/portfolio/checks.js, src/domain/portfolio/portfolio-read.js, src/domain/briefing/daily-diff.js, src/ui/components/portfolio-checklist.js, src/ui/components/portfolio-exposure.js, src/ui/components/portfolio-value-trend.js, js/aio-workspace.js, src/app/compatibility-globals.js
+
+## P2646 - v60.29 - 시장 상태 전망 문장이 '확인합니다., 상대강도는'·'확인합니다.. 선도였지만'으로 이어짐 (2026-11-18)
+
+- symptom/reproduction: 시장 상태 화면 관련 섹터·테마 줄이 '주도 섹터·테마는 테마 화면에서 확인합니다., 상대강도는 몇 주 늦게 반영 — …'과 '…확인합니다.. 선도였지만 …'을 찍었다.
+- root_cause: src/domain/market/regime/scenario-outlook.js의 opportunity가 마침표로 끝난 문장에 '. '로 시작하는 fadingNote와 ', '로 시작하는 지연 문구를 + 로 이어 붙였다(확산·집중 두 갈래). 문장 경계를 한 곳에서 정하지 않았다.
+- fix: sentences() 하나가 조각마다 끝 마침표를 떼고 '. '로 이은 뒤 마침표 하나로 끝낸다. fadingNote는 앞 문장부호 없이 문장 조각만 갖고, 지연 문구는 자기 문장이 된다.
+- violated_rule: 문장 잇기는 한 곳에서: 마침표로 끝난 문장 뒤에 ', '나 '. '로 시작하는 조각을 붙이지 않는다.
+- prevention: 새 정적 게이트 scripts/ci-sentence-join-check.mjs: 제품 코드의 한국어 문자열에서 마침표 문장 + 쉼표/마침표 시작 조각(literal·삼항·같은 파일 const), `${…}` 앞 마침표, 마침표 문장 배열의 ', '·'. ' join(같은 파일 헬퍼·push 배열 포함), 한 문자열 안의 '.,'·'..'를 찾는다. HEAD에서 scenario-outlook 2건을 잡고 수정 뒤 통과. 다른 스레드 소유 파일의 적중은 KNOWN_PENDING(줄기만 하는 목록)에 둔다.
+- verification/residual: node scripts/ci-sentence-join-check.mjs PASS(3건 pending: screener filters.js); HEAD 트리 스캔은 scenario-outlook.js:101·117을 보고; node scripts/ci-scenario-guidance-fixture.mjs·ci-regime-scenarios-fixture.mjs PASS.
+- files: src/domain/market/regime/scenario-outlook.js, scripts/ci-sentence-join-check.mjs
+
+## P2645 - v60.29 - 화면이 찍는 측정 용어(칼만·포켓 피벗·CVaR·RVOL·ERP 등)가 용어 사전에 없음 (2026-11-18)
+
+- symptom/reproduction: 스크리너·차트·지수 이익·재무·포트폴리오 화면이 추세 속도(칼만), 후속 확인, 포켓 피벗, 주식위험프리미엄, 발생액 비율, CVaR, 거래량 배수, 종합 순위, 베이스, 앵커 VWAP를 찍는데 용어 사전 검색에 나오지 않았다.
+- root_cause: 용어 사전(js/aio-glossary.js + screen-term 목록 + concept-core)에 화면 어휘가 들어 있는지 보는 검사가 없어, 새 측정이 화면에 생겨도 사전 항목이 따라오지 않았다.
+- fix: js/aio-glossary.js에 10개 항목을 추가했다(첫 문장은 쉬운 뜻, 이어서 정의와 AIO 계산 방식: price-factors·factor-ranks·follow-through·overall-rank·index-earnings·analysis-read·return-stats·chart-drawings에서 확인한 것만). 수치가 든 CVaR·베이스는 GLOSSARY_FIGURE_SOURCES 행을 둔다. 일드갭은 concept-core에 이미 있다.
+- violated_rule: 화면이 찍는 측정 이름은 용어 사전에서 찾을 수 있어야 한다.
+- prevention: 새 게이트 scripts/ci-glossary-vocabulary-check.mjs: 조립된 사전에서 필수 화면 어휘 16개, 스크리너 컬럼 라벨 전부(사전 항목·대응 표·평이한 단어 선언 중 하나), TERM_MARKS 대상의 존재를 검사. HEAD 사전으로는 14개 어휘가 빠져 실패.
+- verification/residual: node scripts/ci-glossary-vocabulary-check.mjs PASS; node scripts/ci-runtime-contract-check.mjs PASS(수치 출처 행 대조); node scripts/ci-pipeline-semantics-check.mjs PASS.
+- files: js/aio-glossary.js, scripts/ci-glossary-vocabulary-check.mjs
+
+## P2644 - v60.29 - 산업 지도 가치사슬 층의 기업 예시가 빈약하고 모델 층은 비어 있음 (2026-11-18)
+
+- symptom/reproduction: AI 산업 아틀라스 카드가 '6 모델 — 등록된 모델 기업 없음', '5 클라우드 — Google Cloud, AMZN', '4 데이터센터, 전력 — VRT'만 보였다. company-profiles에는 AI 밸류체인 층이 적힌 기업 이야기 270여 개가 있었다.
+- root_cause: src/ui/pages/atlas.js valueChainLayerPlayers가 손으로 만든 player-product-registry(21곳)의 분류 태그만 읽었고 모델 층은 무조건 빈 목록을 돌려줬다. 종목 회사 탭이 읽는 기업 이야기 색인(public-data/company-profiles/index.json의 layer)은 지도에 연결돼 있지 않았다.
+- fix: 기업 이야기 색인의 layer를 단일 원천으로 삼았다. PROFILE_LAYER_TO_ATLAS 한 표가 이야기 층 14개를 지도 7층에 대응시키고(AI 사용·영향권·관련 적음 3개는 층 밖으로 명시), 이야기가 없는 레지스트리 기업(비상장·해외 상장)만 손 목록에서 남긴다. 레지스트리 기업이 먼저, 그다음 미국·한국 순. 층당 4곳과 '외 N곳', '기업은 역할 예시, 추천 아님'은 그대로. 색인은 공유 아티팩트(약 55 KB)로 한 번 읽는다.
+- violated_rule: 같은 사실(기업의 가치사슬 층)은 한 원천에서 읽는다.
+- prevention: scripts/ci-atlas-contract-check.mjs: 모든 이야기 층이 표 또는 층 밖 목록 중 정확히 하나에 있고, 오늘 색인으로 7층 모두 기업이 있으며, 층에 대응하는 이야기 기업이 빠지지 않음을 단언(옛 코드는 표가 없고 모델 층이 비어 실패).
+- verification/residual: node scripts/ci-atlas-contract-check.mjs PASS. 층별 수: 7층 40, 6층 1(META), 5층 10, 4층 46, 3층 20, 2층 25, 1층 30(옛 코드 7/0/2/1/3/10/5).
+- files: src/ui/pages/atlas.js, scripts/ci-atlas-contract-check.mjs
+
+## P2643 - v60.29 - 산업 지도를 연 뒤 다른 화면 주소에 지도 상태(?mode=taxonomy&node=…)가 남음 (2026-11-18)
+
+- symptom/reproduction: 산업 지도(#atlas)를 연 뒤 도움말(#guide)로 가면 주소가 /?mode=taxonomy&node=cloud-hyperscaler&domain=domain-cloud-platform&view=domain#guide가 되어, 이후 어느 화면에서 복사한 링크에도 지도 상태가 따라붙었다.
+- root_cause: src/app/knowledge-route-state.js serializeKnowledgeRouteState가 리서치 화면(산업 지도·개념·대가 보유 종목)의 열린 문서를 location.search에 썼다. #route 링크나 뒤로 가기(popstate)로 화면을 떠나면 classic showPage는 주소를 다시 쓰지 않고, src/app/router.js writeHash도 location.search를 그대로 이어 붙여 검색 부분이 모든 다음 주소에 남았다. 다른 화면은 상태를 hash 질의(#ticker?sym=, #themes?view=)에 둔다.
+- fix: 리서치 화면의 상태를 그 화면의 hash 질의(#atlas?mode=taxonomy&node=…)로 옮겼다. knowledgeRouteParams가 hash 질의를 읽고(route 키가 없을 때만 옛 ?mode=…#atlas 링크를 한 번 읽음), serialize는 hash 질의를 쓰며 검색 부분의 route 키를 지운다. page 인자로 쓰는 화면을 밝혀 이미 다른 화면 주소면 쓰지 않는다. knowledgeRouteHref·glossary-bridge·research-shell의 주소 생성도 같은 규칙 하나로 모았다.
+- violated_rule: 화면 상태는 그 화면 주소(hash 질의)에만 둔다 — 다른 화면 주소로 새지 않는다.
+- prevention: scripts/ci-knowledge-corpus-check.mjs learning-state 구간이 옛 ?mode=…#atlas 진입 읽기, hash 질의로 옮김, 다른 hash 키 유지, #guide 주소에 늦은 쓰기 거부, hash 우선을 단언한다(옛 코드는 검색 부분에 남겨 실패). 브라우저 게이트 3개(atlas·principles·three-page-learning-flow)는 주소 단언을 hash 질의로 바꿨다.
+- verification/residual: node scripts/ci-knowledge-corpus-check.mjs PASS; HEAD의 knowledge-route-state.js는 같은 입력에서 '/?mode=taxonomy…#atlas'를 반환(검색 부분 누수), 수정본은 '/#atlas?mode=taxonomy…'. 브라우저 게이트는 이 스레드에서 실행하지 않음.
+- files: src/app/knowledge-route-state.js, src/ui/pages/atlas.js, src/ui/pages/principles.js, src/ui/pages/masters.js, src/ui/knowledge/glossary-bridge.js, src/ui/knowledge/research-shell.js, scripts/ci-knowledge-corpus-check.mjs, scripts/ci-atlas-browser-check.mjs, scripts/ci-principles-browser-check.mjs, scripts/ci-three-page-learning-flow-check.mjs
+
+## P2642 - v60.29 - 13F 레인이 새 분기 첫 실행에서 고정 행 수 하한에 걸려 백오프에 들어감 (2026-11-18)
+
+- symptom/reproduction: 대가 보유 종목 화면이 Berkshire를 '2026-06-30 분기 말 기준, 다음 신고 지남'으로 계속 표시했다. 11/17 실행(44059301011)이 2026-09-30 신고 20건을 받아 전체 체인을 돌렸지만 ci-masters-contract-check가 'SEC holdings or prior-period comparison counts drifted'로 실패했고, 레인은 파일을 되돌린 뒤 failed-lane-backoff에 머물렀다.
+- root_cause: scripts/ci-masters-contract-check.mjs의 한 조건문이 전체 행 수와 비교 행 수에 고정 하한(1290·1387)을 뒀다. 분기마다 운용사가 종목을 줄이면 합계가 그 아래로 내려가는데 이는 결함이 아니다. 조건 열 개가 한 메시지로 묶여 어느 조건이 걸렸는지도 알 수 없었다.
+- fix: 고정 합계 대신 구조를 본다: 전체 행을 가진 운용사 7곳 이상, 그 운용사마다 직전 분기 비교 행 존재, 게시 행 수와 배열 길이 일치. 조건마다 자기 이름과 값을 실패 메시지에 적는다.
+- violated_rule: 분기마다 움직이는 수량에 고정 하한을 두지 않는다(시계 폭탄 클래스).
+- prevention: 계약 검사가 운용사별 존재와 내부 일치를 보고, 실패 시 어느 조건인지 값과 함께 출력한다.
+- verification/residual: node scripts/ci-masters-contract-check.mjs PASS(현재 산출물). push 뒤 13F 레인이 백오프에서 풀려 2026-09-30 행을 게시하는지 확인 필요.
+- files: scripts/ci-masters-contract-check.mjs
+
+## P2641 - v60.29 - 배당·PER 질문 답변에 관계없는 분기 매출 차트가 붙음 (2026-11-18)
+
+- symptom/reproduction: 라이브 2026-11-18 KO 배당·PER 질문 답변에 'KO 분기별 매출과 순이익률' 그림이 붙었다.
+- root_cause: src/ai/response/answer-visual-choice.js FUNDAMENTAL_WORDS가 'per'와 '밸류에이션'을 포함해 PER 질문이 매출·순이익률 그림을 골랐다. 밸류에이션·배당 질문에 맞는 그림은 없다.
+- fix: FUNDAMENTAL_WORDS에서 PER·밸류에이션을 빼고 VALUATION_WORDS(배당·PER·PBR·PSR·EV/EBITDA·EPS·밸류에이션)를 두었다. 실적·매출 말이 없는 밸류에이션·배당 질문은 그림을 붙이지 않는다(기본 주가 그림도 붙이지 않는다). 프롬프트의 그림 안내도 같은 선택을 쓴다.
+- violated_rule: 그림은 질문의 주제를 받쳐야 한다; 관계없는 그림보다 그림 없음이 낫다.
+- prevention: scripts/ci-ai-intelligence-contract-check.mjs v60.28: KO 배당·PER 질문과 배당 이력 질문은 그림 없음, 실적·매출 질문은 fundamentals, 일반 질문은 price. AI_VISUAL_MODULE=<이전 사본>에서 실패한다. 기존 P1741 단언 유지.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs 통과, 이전 사본에서 v60.28 그림 단언 실패.
+- files: src/ai/response/answer-visual-choice.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2640 - v60.29 - 종목 화면 PER 산식 질문에 AI가 '화면 산식은 다를 수 있다'고 답함 (2026-11-18)
+
+- symptom/reproduction: 라이브 2026-11-18 KO 화면은 '직전 4개 분기 PER 30.0배(조정 EPS), Forward PER 28.6배(예상치 11/17)'를 보여 주는데 답변은 '화면의 실제 산식은 표시된 EPS 기준에 따라 다를 수 있습니다'라고 했다.
+- root_cause: AI 맥락(src/ai/context)에 화면 PER이 어떻게 만들어지는지(종가와 기준일, 직전 4개 분기 조정 EPS 또는 공시 순이익 기준, Forward PER의 컨센서스 EPS와 예상치 날짜)가 없었다. 화면 계산은 src/ui/components/company-analysis.js keyMetricsLine에만 있었다.
+- fix: src/ai/context/choosing-blocks.js valuationContext: PER·밸류에이션·EPS·배당 질문에 화면과 같은 분기(consensusView 우선, 없으면 공시 TTM/회계연도 PER)로 종가·날짜·EPS 기준·Forward PER·예상치 날짜를 싣고, 스크리너 행의 dividendTtm·dividendYieldPct·dividendLastExDate·dividendCount12m가 있으면 함께 싣는다(없으면 '앱 자료에 없음'). 각 줄이 종목 기호를 적어 그 종목 문장의 앱 근거가 된다. 블록은 약 500자.
+- violated_rule: 화면에 있는 수치와 산식은 AI 맥락에도 같은 값으로 있어야 한다.
+- prevention: scripts/ci-ai-intelligence-contract-check.mjs v60.28: 종목 맥락에 종가·날짜·직전 4개 분기 PER·조정 EPS 합·Forward PER·예상치가 있고 900자 미만인지, 배당 필드가 있으면 수익률 문장과 PER 문장이 앱 근거로 뒷받침되는지. AI_CHOOSING_MODULE=<이전 사본>에서 실패한다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs 통과, 이전 choosing-blocks 사본에서 v60.28 맥락 단언 실패. 실제 public-data/consensus-estimates.json KO 행으로 30.0배·28.6배가 화면과 같게 나온다. 배당 필드는 오늘 산출물에 없어 다음 스크리너 생산 뒤 확인.
+- files: src/ai/context/choosing-blocks.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2639 - v60.29 - 계산된 배당수익률이 근거 수치가 있어도 빠지고, 안내 줄이 무엇을 뺐는지 말하지 않음 (2026-11-18)
+
+- symptom/reproduction: 라이브 2026-11-18 KO 질문에서 가장 먼저 물은 배당수익률 문장이 빠졌고, 안내 줄은 '웹검색 출처가 붙은 수치만 표시'만 말했다.
+- root_cause: src/ai/response/publication.js DERIVED_FIGURE(계산·환산·나누면 등)가 있는 문장은 피연산자(인용된 배당, 앱 종가)가 근거를 가져도 무조건 뺐다. '연환산'(보고된 연율 수치)도 계산으로 읽었다. '직전 4개 분기'의 '4개'를 현재 개수로 읽어 화면 PER 문장도 근거 없는 수치가 됐다. searchedFiguresPhrase는 뺀 문장의 종류를 받지 못했다.
+- fix: derivedSentenceKept: 같은 블록에서 이번 요청의 검색 출처를 인용한 문장의 수치, 앱 자료가 뒷받침하는 블록 수치, 주어 종목의 종가만 피연산자로 쓰고 비율·수익률(a÷b), 성장률(a÷b−1), 합·차가 적힌 반올림 안에서 맞으면 게시하고 계산값으로 센다(filterCounts.derivedSentences). 맞지 않거나 피연산자 근거가 없으면 예전처럼 뺀다. '연환산'은 계산 표지에서 뺐고 'N개 분기'는 기간으로 읽는다. 뺀 문장은 주제별로 세어(withheldTopic) 안내 줄이 '배당수익률 문장 1개는 근거 수치가 없어 뺐습니다', '계산값 N개는 출처·앱 수치로 계산'으로 말한다(같은 searchedFiguresPhrase, 주제가 없으면 이전 문구).
+- violated_rule: 소유자 2026-11-17: 해석은 막지 않는다; 근거 없는 현재 수치만 빼고, 뺀 것은 읽는 사람에게 알린다.
+- prevention: scripts/ci-ai-intelligence-contract-check.mjs v60.28: 인용된 배당과 앱 종가로 계산한 수익률이 남고 계산값 1개로 세이는지, 맞지 않는 수익률·출처 없는 피연산자·근거 없는 차이는 빠지는지, 안내 줄 문구와 패널 경로(request-pipeline searchSummary). 이전 사본으로 돌리면 실패한다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs 통과, AI_PUBLICATION_MODULE=<이전 사본>에서 v60.28 수익률·안내 줄 단언 실패. 기존 v60.21 단언('두 집계처의 차이는 3억 달러' 제외 등) 유지.
+- files: src/ai/response/publication.js, src/ai/response/request-pipeline.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2638 - v60.29 - 웹검색 답변이 잘린 문장('…64년 연속 연간 배(sec.gov)', '…2026년 수치는 연환산액')을 그대로 게시함 (2026-11-18)
+
+- symptom/reproduction: 라이브 2026-11-18 종목 KO 질문 '코카콜라의 배당수익률과 최근 배당 이력…'의 답변 말풍선이 '회사는 2026년 인상을 64년 연속 연간 배(sec.gov)'로 끝나고, 본문 없는 머리 문장 '최근 연간 배당은 꾸준히 증가했지만 2026년 수치는 연환산액'이 남았다.
+- root_cause: 모델 응답 자체에 단어와 인용 사이 구간이 빠진 채로 도착한다(v60.21에서 완료 응답 텍스트로 바꾼 뒤에도 재발; Worker는 바이트를 그대로 전달). src/ai/response/publication.js tidyInlineCitations가 여는 괄호 없는 링크 꼬리(LINK_TAIL)만 떼어 문장의 앞부분('…연환산액')을 게시했고, 통째 링크가 단어에 붙어 끝난 조각('…연간 배([sec.gov](…))')은 어떤 검사도 보지 않았다. 필터가 본문을 지운 뒤 남은 머리 줄·제목을 지우는 단계도 없었다.
+- fix: publication.js wholeUnits를 게시 단위의 단일 소유자로 두었다(tidyInlineCitations는 그 래퍼): 링크 꼬리가 있는 문장, 문장 끝이 아닌 음절에 인용이 붙어 줄이 끝난 산문 조각(주어 조사 있음, 라벨 줄·목록·제목 제외)은 문장째 뺀다. 통째 인용은 같은 줄 앞 문장에 붙여 출처를 유지한다. 필터 뒤 다시 돌려 본문 없는 제목·굵은 머리 줄·'…:' 줄을 지운다. 표 셀은 예전처럼 꼬리만 뗀다. 뺀 수는 filterCounts.brokenSentences로 안내 줄에 '잘린 문장 N개 뺌'으로 나온다.
+- violated_rule: 소유자 2026-11-17: 문장은 통째로만 뺀다; 잘린 문장이나 매달린 링크 꼬리는 게시하지 않는다.
+- prevention: scripts/ci-ai-intelligence-contract-check.mjs v60.28 블록: 라이브 모양(붙은 인용, 여는 괄호 없는 꼬리) 재현 입력에서 잘린 문장이 빠지고 앞 문장과 출처가 남는지, 끝 인용·문장 안 링크·목록 항목은 그대로인지, 본문 없는 머리 줄·제목이 지워지는지. AI_PUBLICATION_MODULE=<이전 사본>으로 돌리면 실패한다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs 통과; 이전 publication.js 사본으로 v60.28 단언이 실패(음성 대조). ci-ai-evidence-contract-check, ci-architecture-audit-regression-fixture, ci-scenario-guidance-fixture, ci-expect-output-check 통과.
+- files: src/ai/response/publication.js, src/ai/response/request-pipeline.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2637 - v60.27 - Screener rows without a price stayed blank or showed last night's close as a live price (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 (US closed): rows with no SEC share data (ETFs, BRK-B, ASML, ARM, BABA, SOUN ...) rendered '—' in the 가격 column; after a screen run, searching such a row never filled it, and a row the provider did answer showed the 11/17 close as an undated live price ('$3.06', title 관측 2026-11-17 21:00).
+- root_cause: src/ui/pages/screener/table.js render() asked for quotes only when no screen run was active (`if (!workbenchResult?.run) onVisibleSymbols(...)`), and createQuoteRequester went through AIO.runScheduledRefresh, which returns skipped while a scheduled quote run is in flight (src/app/refresh-scheduler.js _runScheduledTask), so the rows waited for the next 3-minute cycle unless more than half of them lacked a quote. src/ui/pages/screener/model.js liveRow treated every _liveData price as live, so an off-hours answer (the completed close) was shown as a current price.
+- fix: The table passes the rendered rows and the rendered rows with no price from any source; the requester registers the rendered rows (periodic fetch) and asks the unpriced ones, at most 20 per request (one provider spark batch), once per visit, directly from the quote owner (window.__aioQuoteDemand.request), which joins or queues them; while the owner has a retry pending it does not cut the backoff short. Per symbol the page keeps loading / received / failed; the price cell reads 불러오는 중 while loading and '—' titled 시세를 받지 못했습니다 after a failed request. liveRow dates a quote whose own observation is at or after its session's regular close on the exchange calendar (quoteCloseDay) as that session's close (priceCloseDate, 정규장 종가), never as a live price; the price stays a display overlay and enters no valuation, factor or rank.
+- violated_rule: One owner per concern: the page reached the quote owner through the scheduler, whose in-flight skip dropped the request, and the price cell decided 'live' without reading the quote's own observation time.
+- prevention: scripts/ci-screener-presentation-check.mjs mounts the real page with an injected quote owner: the request equals the rendered unpriced rows (bounded), cells read loading, an answer observed after the close renders dated (11/17), an in-session one renders live, a missing one ends in a titled dash, a re-render asks nothing again and load-more asks only the new rows. G-SCR-LIVE (scripts/ci-screener-workbench-contract.mjs) requires the owner seam and forbids the scheduler path in the screener page.
+- verification/residual: node scripts/ci-screener-presentation-check.mjs (3 v60.27 checks fail on the previous table.js/model.js, pass now); node scripts/ci-screener-workbench-contract.mjs; node scripts/ci-state-machine-regression-check.mjs. Browser: screener, run a preset, search a row with no SEC data off-hours: the cell reads 불러오는 중, then the price with the M/D 종가 note or header tag.
+- files: src/ui/pages/screener/table.js, src/ui/pages/screener/model.js, src/ui/pages/screener/page.js, scripts/ci-screener-presentation-check.mjs, scripts/ci-screener-workbench-contract.mjs
+
+## P2636 - v60.26 - Windows 기본 PATH에서 데이터 발행 모의 검사 실패 (2026-11-18)
+
+- symptom/reproduction: Git은 실행되지만 bash가 PATH에 없는 PowerShell에서 정상 발행·경합 등 6개 사례가 실패했다.
+- root_cause: 모의 저장소의 발행 훅도 Bash를 호출하지만 검사가 로컬 Git 설치의 셸 경로를 준비하지 않았다.
+- fix: Windows 픽스처가 Git에 설치된 셸 경로를 조회하여 테스트 프로세스의 PATH에 추가한다.
+- violated_rule: C3 검증은 실제 결과를 증명한다.
+- prevention: Git Bash가 PATH에 없는 Windows 환경에서 임시 원격 저장소 발행 사례가 통과해야 한다.
+- verification/residual: node scripts/ci-publish-data-commit-check.mjs
+- files: scripts/ci-publish-data-commit-check.mjs
+
+## P2635 - v60.26 - 같은 JSON을 비교해도 브라우저 자료 구조가 달라졌다고 보고 (2026-11-18)
+
+- symptom/reproduction: 시나리오 상태를 동일한 커밋에 다시 고정해도 eventOutcomes[].actual.missing 추가로 실패했다.
+- root_cause: 중첩된 빈 배열과 다음 행의 생략된 키를 합칠 때 undefined가 되어 JSON 직렬화 시 키가 사라졌다.
+- fix: 양쪽 중 하나에만 있는 빈 배열 표식을 유지한다.
+- violated_rule: C3 검증은 실제 결과를 증명한다.
+- prevention: 저장한 구조와 원본·역순 행을 비교하고 모든 행에서 키가 사라지는 변경을 검출한다.
+- verification/residual: node scripts/ci-browser-data-fixture-check.mjs
+- files: scripts/lib/schema-fingerprint.mjs, scripts/ci-browser-data-fixture-check.mjs
+
+## P2634 - v60.26 - SEC 연간 정규화가 회계연도를 매출로만 정해 최신 10-K의 순이익·자본을 버림 (2026-11-18)
+
+- symptom/reproduction: LHX는 2026-02-12 10-K(FY2025 순이익 1,606M, 2026-01-02 자본)가 있는데도 fiscalPeriodEnd 2025-01-03(전년 비교치)으로 기록됐다. filedAt·accession은 새 10-K인데 회계연도는 옛 해라 456일 예산을 넘겨 stale-fy가 되고 P/E·P/B·ROE·순이익률과 순위를 잃었다. 같은 10-K의 FY 매출 21,865M은 분기 길이 기간(2025-10-04→2026-01-02)으로 태깅돼 revenueQ에 21.9B '분기'로 들어갔다(NI·DINO도 같은 분기 행).
+- root_cause: normalizeSecCompanyFacts가 bestRevenueRowsByPeriod의 최신 연간 매출 행(isAnnualFy: 300~400일)만으로 회계연도를 정했다. 순이익이 더 새 연도를 보고해도 무시됐고, 순이익 대체 경로는 연간 매출이 전혀 없을 때만 돌았다. 분기 길이 기간에 연간 값을 실은 10-K fp=FY 행은 연간 필터에서 빠지고 isQuarterSpan에는 통과했다.
+- fix: 회계연도를 매출과 순이익의 최신 연간 기말 중 늦은 쪽으로 정한다. 순이익이 더 새로우면(그 해 기말 자본이 있을 때) 순이익 기준 경로로 순이익·자본·ROE·P/E·P/B를 현재 연도로 내고 매출·순이익률·성장률은 비운다. 10-K fp=FY 매출 행 중 기말이 연간 회계연도 기말이고 기간이 분기 길이이며 값이 그 해 같은 개념 10-Q 분기(3개 이상) 합 이상인 행은 그 해 전체 값으로 보고 revenueQ에서 빼며, 제대로 된 연간 매출이 그 기말에 없으면 회계연도 시작일로 읽은 연간 매출로 복원한다(보고된 시작일은 reportedPeriodStart로 보존).
+- violated_rule: 한 레코드의 회계연도는 그 레코드가 쓰는 모든 연간 피연산자 중 최신 기말이어야 하며, 새 해 순이익과 옛 해 매출을 섞지 않는다.
+- prevention: ci-data-pipeline-contract-check에 v60.26 단언 3건(scripts/fixtures/sec-fiscal-anchor-cases.mjs): 순이익이 더 새로우면 순이익 연도 기준·매출/순이익률/성장률 공란, LHX 형태 분기 기간 연간 매출은 연간으로 복원·분기 목록에서 제외, 실제 4분기가 있는 일반 공시자는 불변. (a)(b)는 이전 정규화기에서 실패.
+- verification/residual: HEAD의 sec-normalize.js를 저장소 밖에 두고 같은 사례를 돌림: 이전 코드 incomeNewer FAIL(end 2024-12-31), misSpanned FAIL(end 2025-01-03, 분기 21.9B·21.3B), ordinary PASS; 수정 코드 3건 PASS. 2026-10-16 로컬 sec-fundamentals.json의 LHX 관측값 재구성: 이전 2025-01-03·매출 21,325M·stale-fy → 수정 2026-01-02·매출 21,865M·순이익률 7.3%·성장 2.5%·recent-fy. 754개 USD 레코드 중 출력 변경 5건(LHX 복원, VMRK·EWBC·SWX·AEM 순이익 기준), revenueQ만 변경 2건(NI, DINO).
+- files: src/domain/fundamental/sec-normalize.js, scripts/ci-data-pipeline-contract-check.mjs, scripts/fixtures/sec-fiscal-anchor-cases.mjs
+
+## P2633 - v60.26 - 스크리너가 순위 0개·조건 결과 0종목을 이유 없이 보임(오래된 종가, 불러오는 중인 조건 자료) (2026-11-18)
+
+- symptom/reproduction: (a) 한국 종가 자료가 최신 거래일보다 오래되면 머리글이 '239종목 중 239종목 계산, 0종목 순위', 표가 '조건에 맞는 종목이 없습니다'만 보였다. (b) '현금이 남는 성장'(매출 성장 + FCF 마진)을 누르면 회계 이력(현금 지표의 지연 로드 원천)이 도착하기 전 1~2초 동안 '0종목'과 빈 표 문구가 보였다가 29종목이 됐다.
+- root_cause: (a) 팩터 세션이 시장의 최근 완료 세션보다 늦으면 그 시장 순위 전체가 보류되는데, 머리글과 빈 표 문구는 보류 배너만 이유를 말하고 숫자 0과 일반 문구를 그대로 썼다. (b) 현금 조건은 원천이 오기 전 모든 행이 null이라 필터 결과가 0이 되는데, 표는 '불러오는 중'과 '결과 0'을 구분하지 않았다.
+- fix: (a) row-presentation.js sessionHoldLine이 순위가 있는 행이 없고 그 시장 팩터 세션(factorSessionDateByMarket)이 최근 완료 세션보다 늦을 때 한 줄('한국 11/16 종가 자료가 최신 거래일보다 오래돼 순위를 매기지 않았습니다')을 만들고, 머리글과 빈 표가 숫자·일반 문구 대신 그 줄을 쓴다. (b) model.js cashConditionsPending이 현금 조건의 원천이 아직 오지 않은 상태를 판정하고, 그동안 결과 수·표 상태·요약 줄·조건 패널은 불러오는 중으로 표시하며 AI 조건 카드에 보내는 개수 이벤트는 개수 없이 pending만 보낸다.
+- violated_rule: 0이나 '없음'은 판정이 끝났을 때만 말한다 — 보류와 로딩은 이유와 함께 보류·로딩으로 말한다.
+- prevention: scripts/ci-screener-presentation-check.mjs v60.26 단언 2건: 팩터 세션이 오래된 한국 화면의 머리글과 빈 표가 종가 날짜와 이유를 말한다, 현금 조건을 고른 직후 결과 수가 0이 아니라 불러오는 중이고 표 상태가 loading이다.
+- verification/residual: 두 단언이 이전 코드에서 실패('30종목 중 0종목 계산, 0종목 순위', 결과 수 0), 수정 코드에서 통과. 로컬 자료(11/16 한국 종가, 11/18 기준)로 sessionHoldLine이 같은 문장을 만듦을 확인.
+- files: src/domain/screener/row-presentation.js, src/ui/pages/screener/model.js, src/ui/pages/screener/table.js, scripts/ci-screener-presentation-check.mjs
+
+## P2632 - v60.26 - 스크리너가 PBR 자본을 '최근 연간(FY)'이라고 설명했지만 대부분 분기 재무상태표 자본 (2026-11-18)
+
+- symptom/reproduction: 밸류 팩터 설명은 'PBR은 최근 연간(FY) 자본 기준', PBR 열 설명은 '자기자본(SEC 공시, 최근 회계연도)'이라고 했지만 696행 중 약 500행이 회계연도 뒤 분기의 자본을 쓴다(pbEquityThrough·pbEquityBasis, 예: NVDA 회계연도 종료 2026-01-25, 자본 기준 2026-07-26).
+- root_cause: 생산자가 PBR 분모를 가장 최근에 공시된 재무상태표로 바꾼 뒤 화면의 기준 문구를 고치지 않았다.
+- fix: 밸류 팩터 설명과 PBR 열 설명을 '가장 최근에 공시된 재무상태표(분기 포함)' 자본으로 고쳤다. PER 설명(최근 4개 분기 합 또는 최근 회계연도)과 사용자 조건 라벨(pb-max·pe-max)은 기간을 잘못 말하지 않아 그대로 둔다.
+- violated_rule: 화면의 산식 설명은 자료가 실제로 쓰는 기준을 말한다.
+- prevention: scripts/ci-screener-presentation-check.mjs v60.26 단언: 밸류 팩터 설명과 PBR 열 설명에 PBR 자본을 연간·최근 회계연도로 부르는 문구가 없고 '분기 포함'이 있다.
+- verification/residual: 새 단언이 이전 문구에서 실패, 고친 문구에서 통과.
+- files: src/domain/screener/row-presentation.js, src/ui/pages/screener/model.js, scripts/ci-screener-presentation-check.mjs
+
+## P2631 - v60.26 - 스크리너 전체 순위가 반올림 백분위 동점으로 매겨지고 조건 화면에서는 그 화면 순위로 바뀜 (2026-11-18)
+
+- symptom/reproduction: 2026-11-16 자료에서 표의 '전체 순위'와 종목 설명의 '순위 매긴 820종목 중 14위'가 반올림한 0–100 백분위로 매긴 동점 순위라 여덟 종목쯤이 한 순위를 나눠 가졌고 실제 위치보다 늘 앞이었다(AAPL 14 → 실제 17, MSFT 30 → 33, NVDA 268 → 273, MU·SNDK·AES·MPLX·THC 모두 1). 모멘텀 지속·추세 정렬 같은 조건 화면을 고르면 같은 열이 그 화면 안 순서를 보였다(EPAM 1, 백분위 89). 머리글은 820종목 순위인데 순위가 있는 행은 821개였다.
+- root_cause: 전체 순위 열과 설명 줄이 screenRank를 읽었다. screenRank는 지금 선택된 화면 정의의 순서이고, 파이프라인 기본 화면은 반올림 백분위(rank)로 정렬해 같은 값을 같은 순위로 묶었으며 시장도 나누지 않았다. 순위 개수는 screenRank가 있는 행을 셌는데, 팩터 모델이 순위를 매겼어도 기본 화면 필수 필드(200일선 거리)가 없는 행(FDXF)은 screenRank가 없어 빠졌다.
+- fix: src/domain/screener/overall-rank.js가 반올림 전 종합 점수(_compositeZ)로 시장 안 서수를 매긴다(같은 점수만 같은 순위, 다음 순위는 건너뜀). 순위 행을 조립하는 스크리너 오케스트레이터에서 한 번 붙이고(overallRank), 표의 전체 순위 열·종목 설명 줄·머리글 개수·순위 밖 접힘·지금 순위가 말하는 것·한국 순위 맨 앞이 모두 overallRank와 overallRankedCount 하나를 읽는다. 조건 화면 안 순서는 첫 열 '순서'에 그대로 둔다.
+- violated_rule: 같은 화면의 순위와 그 분모는 한 출처에서 나와야 하고, 반올림한 값으로 서수를 만들지 않는다.
+- prevention: scripts/ci-screener-presentation-check.mjs v60.26 단언 3건: 오케스트레이터 출력의 overallRank = 1 + 더 높은 종합 점수 수(시장별), 조건 화면 순서를 거꾸로 준 행에서도 전체 순위 칸 = overallRank, 머리글 순위 수 = overallRank가 있는 행 수(screenRank가 없는 순위 행 포함).
+- verification/residual: 로컬 2026-11-16 자료로 오케스트레이터를 돌려 AAPL 16·MSFT 35·NVDA 266·MU 1이 종합 점수 위치와 일치함을 확인(같은 시각 다른 에이전트의 팩터 변경으로 모집단 815). 새 게이트는 이전 코드(HEAD 파일)에서 세 단언 모두 실패, 수정 코드에서 통과.
+- files: src/domain/screener/overall-rank.js, src/data/orchestrators/screener.js, src/ui/pages/screener/model.js, src/ui/pages/screener/table.js, src/ui/pages/screener/inspector.js, src/ui/pages/screener/page.js, src/ui/pages/screener/validation-tab.js, src/domain/screener/screener-read.js, scripts/ci-screener-presentation-check.mjs, architecture/qa-pipeline.json
+
+## P2630 - v60.26 - 스크리너 갱신 레인이 오늘 판정 기록 검사에 막혀 게시를 멈춤 (2026-11-18)
+
+- symptom/reproduction: 2026-11-17 21:33Z부터 Refresh screener and SEC fundamentals가 5회 연속 실패했고, 실서비스 스크리너와 S&P 500 breadth가 미국 11/16 종가에 머물렀다(11/17 종가 미반영, 이슈 #6). 실패 단계는 Validate screener-owned reconciliation artifacts의 metric-consistency: 'published 2026-11-17 부담 우세 1/2/3 · live 2026-11-17 부담 우세 0/3/3'.
+- root_cause: today-verdict.json은 refresh-data 레인만 쓴다. 21:21Z 판정은 11/17 행의 breadth 필드가 비어 있는 history.json으로 계산됐다. 스크리너 레인은 같은 실행에서 그 breadth를 history.json에 채운 뒤 ci-metric-consistency-check를 돌리는데, 이 검사는 '같은 입력에서 같은 판정'을 요구하면서 레인이 방금 바꾼 입력으로 재계산했다. 판정은 스크리너가 게시돼야 바뀌고 스크리너는 판정이 맞아야 게시되는 교착이었다.
+- fix: verdictRecordStatus에 'input-newer' 상태를 추가했다. 기록의 generatedAt보다 늦게 게시된 screener.json이 있으면 판정 차이를 결함이 아닌 '기록이 아직 보지 못한 입력'으로 이름 붙여 출력하고 통과시킨다(다음 refresh-data 실행이 기록을 다시 쓴다). 더 새로운 입력이 없는데 판정이 다르면 전처럼 실패한다.
+- violated_rule: 교차 레인 일치 검사는 그 레인이 바꾸는 입력을 '같은 입력'으로 취급하면 안 된다.
+- prevention: ci-metric-consistency-check에 v60.26 단언 2건: 기록 뒤에 게시된 스크리너는 newer input으로 이름 붙고, 같은 판정 차이는 newer input이 있을 때 input-newer, 없을 때 mismatch.
+- verification/residual: origin/main 자료(2026-11-18 05:56Z)에 레인 상태를 재현(11/17 행 breadth 채움 + screener.asOf 22:40Z): 이전 코드는 실제 장애와 같은 메시지(1/2/3 vs 0/3/3)로 exit 1, 수정 코드는 INPUT-NEWER 출력 후 exit 0, screener.asOf를 기록 이전으로 되돌리면 수정 코드도 exit 1. 새 단언은 이전 verdict-model.mjs에서 실패.
+- files: scripts/lib/verdict-model.mjs, scripts/ci-metric-consistency-check.mjs
+
+## P2629 - v60.26 - 현금 인수 대기 종목이 저변동 팩터 상위를 차지해 종합 순위가 부풀려짐 (2026-11-18)
+
+- symptom/reproduction: 2026-11-16 자료에서 인수 가격에 묶인 종목(MKTX 변동성 1.69%·일평균 변동폭 0.20%, TECH 1.87/0.16, AES 2.54/0.32, TXNM 5.26/0.54, CZR 7.49/0.77, PEN 7.66/0.76)이 저변동 방어 프리셋 상단을 차지했고 AES는 미국 821종목 중 종합 2위였다. 그다음 낮은 일반 종목은 GSAT 10.0/1.29, L 13.3/1.68이었다.
+- root_cause: rankingPopulationExclusion은 펀드·SPAC·확장 저유동성만 모집단에서 뺐다. 인수 가격에 고정된 주가의 실현 변동성은 사업이 아니라 거래 스프레드를 재는데, 이 행들이 저변동 팩터와 업종 통계에 그대로 들어갔다(SPAC 신탁 현금과 같은 결함 클래스).
+- fix: rankingPopulationExclusion에 'pinned' 사유를 추가했다: 60거래일 연환산 변동성(vol) ≤ 8 그리고 20거래일 일평균 변동폭(adrPct) ≤ 1.0, 둘 다 있을 때. 기준은 src/domain/rules/thresholds.js RULES.rankingPopulation.pinned(R713)에 두었다. 행은 화면에 남고 populationExclusion 'pinned'·rank null을 가지며, 순위와 업종 통계에 들어가지 않는다. populationExclusions 집계에 pinned 카운터와 두 기준값을 실었다. FACTOR_RANKS_MODEL_VERSION factor-ranks.v10.
+- violated_rule: R713: 판정 이름은 그 이름을 정의하는 조건이 있을 때만 붙이고, 임계값은 공용 상수에서 읽는다 — 저변동이라는 이름은 사업의 변동성을 전제로 한다.
+- prevention: ci-screener-workbench-contract에 v60.26 단언: 경계값·AES는 pinned, GSAT·한쪽 기준만 충족·ADR 없음은 순위 유지, 고정 행은 rank null + pinned 사유로 남고 일반 행의 순위·저변동 점수는 그 행이 없을 때와 같다. 이전 factor-ranks.js에서 실패한다.
+- verification/residual: 이전 factor-ranks.js(HEAD)로 ci-screener-workbench-contract 실행 시 AES·Edge Co 사례와 'v60.26 a deal-pinned stock ...' 단언 실패, 수정 코드는 PASS. 공개 자료(2026-11-16) 재순위: pinned 정확히 6행(MKTX·TECH·AES·TXNM·CZR·PEN), 미국 순위 821→815, GSAT·L은 순위 유지.
+- files: src/domain/screener/factor-ranks.js, src/domain/rules/thresholds.js, scripts/ci-screener-workbench-contract.mjs
+
+## P2628 - v60.26 - 가치 팩터가 PER 200배·PBR 50배 이상을 빼고 채점해 비싼 종목이 더 싸게 읽힘 (2026-11-18)
+
+- symptom/reproduction: 2026-11-16 자료에서 ICHR(PER 359.7, PBR 1.42)의 업종 내 가치 점수가 89였고, MA(PBR 88.8)는 PER 한 항만으로 채점됐다. 적자는 이익 항을 0으로, PER 150은 0.033으로 채점하는데 PER 250은 항이 빠져 둘 다보다 유리했다. 순위가 매겨진 미국 821행 중 24행이 해당했다.
+- root_cause: factor-ranks.js valueRaw의 addInverse(pe, 200, 0.20)·addInverse(pb, 50, 2.0)가 상한 이상의 배수를 '작은 역수'가 아니라 '항 없음'으로 처리했다. 항이 빠지면 남은 항의 평균만 남아, 배수가 커질수록 가치 점수가 오히려 오르는 불연속이 생겼다.
+- fix: 상한을 없앴다. 양의 유한 배수는 모두 역수를 기여하고(maxInverse 상한은 그대로), 일회성 이익·적자·자본잠식 분기는 바뀌지 않았다. 비활성 evEbitda 줄도 같은 addInverse를 쓰므로 상한만 빠졌다(실데이터 0행, 골든 입력 최대 22라 결과 불변). 순위가 바뀌므로 FACTOR_RANKS_MODEL_VERSION을 factor-ranks.v10으로 올렸다.
+- violated_rule: 점수 입력은 값이 나빠질수록 점수도 같은 방향으로 움직여야 한다 — 극단값을 '자료 없음'으로 바꾸면 단조성이 깨진다.
+- prevention: ci-data-audit-contract-check에 v60.26 단언: 같은 골든 우주에서 PER 150→359.7, PBR 10→88.8로 올리면 두 행의 가치 z가 모두 내려가야 한다(가치는 배수에 단조). 이전 factor-ranks.js에서 실패한다.
+- verification/residual: 이전 factor-ranks.js(HEAD)로 ci-data-audit-contract-check 실행 시 'v60.26 a P/E at or above 200 or a P/B at or above 50 ...' 실패, 수정 코드는 통과. 공개 자료(2026-11-16) 재순위: ICHR 가치 89→61·순위 85→49, MA 가치 34→26. ci-domain-parity-check(골든) 통과 — 골든 입력에 PER≥200·PBR≥50 행이 없어 재생성 불필요.
+- files: src/domain/screener/factor-ranks.js, scripts/ci-data-audit-contract-check.mjs
+
+## P2627 - v60.26 - 배당락 당일 첫 마감 후 실행에서 수익률·RSI가 배당을 가격 하락으로 읽음 (2026-11-18)
+
+- symptom/reproduction: 2026-11-16 XOM 배당락($1.07). 22:40Z(미국 마감 약 100분 뒤) 스크리너 행의 ret1d가 -2.18%였고 실제 총수익률은 -1.56%였다. 1주~12개월 수익률·변동성·RSI 모두 배당만큼 어긋났고, 다음 실행(2026-11-17 08:37Z)은 맞았다.
+- root_cause: 수익률·RSI는 공급자 adjclose 계열로 계산한다. adjclose는 adj[i] = close[i] × Π(1 − div_k / close_{k−1})(i 뒤의 배당락일들)인데, 마감 직후 공급자는 당일 배당을 이전 봉에 아직 반영하지 않았다. 생산자는 events=split만 요청해 배당 이벤트를 받지 않았으므로 반영 누락을 알아챌 수 없었다.
+- fix: dailyRowsFromYahooChart가 events.dividends를 분할처럼 {date, amount}로 싣고, priceHistoryFromRows가 completeDividendAdjustment로 완료 세션 안의 배당락 봉 j마다 (adj[j−1]/close[j−1]) / (adj[j]/close[j])를 f = 1 − div/close[j−1]와 비교한다. 비율이 f보다 1에 가까우면(미반영) j 이전 조정 종가에 f를 곱하고, f에 가까우면(이미 반영) 그대로 둔다. 원시 종가 필드(이동평균 거리·52주 범위·ADR·VCP·EMA)는 건드리지 않는다. 생산자는 한국 종가 대조 전에 배당 목록을 읽어 넘긴다.
+- violated_rule: 조정 계열을 쓰는 팩터는 공급자 조정이 완료됐는지 확인할 근거(배당 이벤트)를 함께 받아야 한다.
+- prevention: ci-data-pipeline-contract-check에 v60.26 단언 4건: 22:40Z 형태(배당 이벤트 있음·미반영)와 08:37Z 형태(반영됨)가 같은 조정 계열·ret1d -1.56을 낸다, 이미 반영된 계열은 바뀌지 않는다(이중 조정 없음, 과거 배당 포함), 원시 종가 필드는 그대로다, 생산자가 배당 목록을 한국 대조 경로에서도 넘긴다.
+- verification/residual: 같은 픽스처를 HEAD의 price-factors.js로 돌리면 22:40Z 형태 ret1d -2.18·RSI 68.6, 수정 코드는 두 형태 모두 ret1d -1.56·RSI 75.3. Yahoo XOM 차트 실측: events=split만 요청하면 events가 null, events=split,div는 dividends {amount 1.07, date 1794839400}를 준다. scripts/producer/quotes.mjs fetchHistory 요청을 events=split,div로 바꿔야 운영에서 작동한다.
+- files: src/domain/screener/price-factors.js, scripts/producer/screener.mjs, scripts/ci-data-pipeline-contract-check.mjs
+
+## P2626 - v60.26 - 팩터 백테스트가 이력이 짧은 종목의 추세·추세 속도를 정의보다 짧은 창으로 채점 (2026-11-18)
+
+- symptom/reproduction: 백테스트는 리밸런스 시점의 봉 인덱스가 63 미만일 때만 종목을 건너뛰어, 64~199개 종가를 가진 종목은 추세 점수가 50일선 거리 하나로 매겨졌고 칼만 추세 속도는 정의한 90개보다 적은 종가로 계산됐다(모멘텀만 253개 미만에서 비어 있었음). 프로듀서의 백테스트 입력 필터 closes.length >= 148은 이미 없어진 147 offset에 묶여 있었고, 10년 연구는 lookback과 상관없이 offset 63부터 시작했다.
+- root_cause: 가격 팩터의 창(252·50·200·60·90)이 price-factors.js 안에 리터럴로만 있었고, 백테스트는 그 창을 읽지 않고 따로 적은 63을 기준으로 삼았다. 입력 필터와 10년 연구 offset도 각자 숫자를 적었다.
+- fix: price-factors.js가 PRICE_FACTOR_WINDOWS와 요인별 필요 종가 수 PRICE_FACTOR_MIN_CLOSES(모멘텀 253, 추세 200, 저변동 61, 추세 속도 90)를 내보내고 closesToFactors가 같은 상수를 쓴다. 백테스트는 withFullFactorLookback으로 그 시점 종가 수가 모자란 요인의 입력을 비워, 요인마다 자기 창이 있을 때만 채점한다(모든 요인에 모자라면 빠진 행). model-fingerprint.js의 BACKTEST_FACTOR_LOOKBACK_SESSIONS는 그 상수에서 파생(값 252 그대로, 모델 지문 불변)하고, 프로듀서 필터는 BACKTEST_MIN_SERIES_CLOSES(가장 오래된 offset + 1 = 232), 10년 연구 offset은 deriveRebalanceOffsets(가장 긴 보유 기간 63에서 시작, 가장 오래된 시점 앞에 lookback)를 쓴다.
+- violated_rule: 한 정의는 한 곳에 둔다 — 백테스트는 실제 팩터 코드의 창을 읽고, 짧은 이력이 모델 정의를 대신하지 않는다.
+- prevention: scripts/ci-data-pipeline-contract-check.mjs v60.26 단언: 120거래일 표본에서 80·99개 종가 시점의 추세 IC 0회·추세 속도 1회·저변동 2회, 상수 관계(253/200/61/90, lookback 252, 최소 종가 = 가장 오래된 offset + 1), 프로듀서 필터와 10년 연구가 숫자 리터럴 대신 공유 상수를 읽음.
+- verification/residual: 같은 표본에서 수정 코드 {momentum 0, trend 0, lowvol 2, kalman 1}, 63 규칙으로 되돌린 factors.mjs {momentum 0, trend 2, lowvol 2, kalman 2}(스크래치 비교 후 임시 파일 삭제). 2년 이력 종목은 가장 오래된 리밸런스에서도 269개 종가라 운영 백테스트의 기존 종목 점수는 바뀌지 않는다.
+- files: src/domain/screener/price-factors.js, src/domain/screener/model-fingerprint.js, scripts/lib/factors.mjs, scripts/producer/screener.mjs, scripts/backtest-factors-longrun.mjs, scripts/ci-data-pipeline-contract-check.mjs
+
+## P2625 - v60.26 - Forward PER 조건이 컨센서스 파일을 받는 동안 '0종목'을 표시하고, 자료 파일을 못 받으면 '불러오는 중'에 머묾 (2026-11-18)
+
+- symptom/reproduction: 맞춤 조건 'Forward PER {n}배 이하'를 고르면 컨센서스 추정치 파일이 도착하기 전 모든 행이 값 없음이라 조건 칩과 결과 수가 '0종목'이었다. 현금 조건(FCF 마진·설비투자)만 대기 상태를 가졌고, 그 대기도 공시 재무 파일이나 지연 청크를 못 받으면 끝나지 않았다.
+- root_cause: 대기 판정(cashConditionsPending)이 현금 조건 id 두 개를 손으로 적은 특수 경우였다. 조건이 어떤 지연 자료를 읽는지는 조건 정의에 없었고, 컨센서스 실패는 requestConsensusEstimates가 조용히 삼켜 다시 그리지 않았으며, screener-cash.js는 재무 파일이 없을 때 onReady를 부르지 않았다.
+- fix: custom-conditions.js의 조건 정의가 자료 출처(source: 'consensus-estimates' | 'sec-fiscal-history')를 밝히고, 스크리너 model.js의 출처별 로더 하나(시장·요청·상태·실패 사유)가 읽기를 시작하고 상태를 말한다. 표는 출처를 밝힌 모든 조건에 같은 규칙을 쓴다: 받는 중이면 칩 '불러오는 중'·결과 수 '조건 자료 불러오는 중', 실패면 칩 '자료 못 받음'과 '컨센서스 추정치 파일을 받지 못했습니다 — 이 조건은 판정하지 못했습니다'. 실패로 바뀐 순간 한 번 다시 그리고(재시도 대기 안의 즉시 응답은 조용함), 지연 청크 실패와 재무 파일 없음도 대기를 끝낸다.
+- violated_rule: 지연 자료를 읽는 조건은 자료가 오기 전의 0을 결과로 보이지 않고, 실패는 이유와 함께 끝낸다. 같은 규칙에 특수 경우를 두 번째로 더하지 않는다.
+- prevention: scripts/ci-screener-presentation-check.mjs v60.26 단언: Forward PER 조건의 결과 수가 받는 동안 '불러오는 중', 실패한 두 출처는 이유와 함께 failed, 출처 없는 조건(pe-max)은 상태 없음, 출처를 밝힌 조건은 그 출처의 시장에서 고를 수 있음.
+- verification/residual: 이전 model.js에는 출처 상태가 없어 단언이 실패한다(Forward PER 결과 수는 '0'). 화면 확인은 브라우저 미실행.
+- files: src/domain/screener/custom-conditions.js, src/ui/pages/screener/model.js, src/ui/pages/screener/table.js, src/ui/pages/screener/filters.js, src/ui/components/screener-cash.js, scripts/ci-screener-presentation-check.mjs
+
+## P2624 - v60.26 - 스크리너 공급자가 거래량 기준(volumeBasis)과 PBR 자본 기준일을 페이지로 넘기지 않음 (2026-11-18)
+
+- symptom/reproduction: 프로듀서가 screener.json에 volumeBasis(최근 거래일 미국 거래량이 잠정치라는 기준)를, 행마다 pbEquityThrough·pbEquityBasis(PBR 자본을 읽은 재무상태표 기말과 보통주 기준)를 쓰지만 페이지에는 도착하지 않았다. 잠정 거래량 문장은 산출물 기준 대신 코드 안의 기본값(['US'])을 읽었고, 그 문장은 latestSessionVolumeBasis라는 다른 이름도 받아들이게 짜여 있었다. PBR 칸 설명에는 자본 기준일이 없었다.
+- root_cause: src/data/providers/screener.js와 src/data/normalize/screener.js가 메타데이터와 행 필드를 이름별로 하나씩 복사해, 새 필드는 복사 목록에 더하지 않으면 버려진다.
+- fix: 공급자가 metadata.volumeBasis(시장·필드 배열 복사)를, 행에 _valuationPbEquityThrough·_valuationPbEquityBasis를 기존 _valuation* 평가 필드 계약대로 싣고, 정규화가 그대로 넘긴다. 잠정 거래량 문장은 metadata.volumeBasis.markets 하나만 읽고, 기준이 없는 이전 산출물은 price-factors.js LATEST_SESSION_VOLUME_BASIS로 읽는다. PBR 칸 설명과 검사기의 밸류 요인 설명에 '자본 YYYY-MM-DD 재무상태표'(보통주 기준이면 우선주 제외)를 더했다.
+- violated_rule: 산출물이 밝힌 기준은 그것을 설명하는 화면까지 같은 이름으로 도착해야 한다.
+- prevention: scripts/ci-screener-workbench-contract.mjs v60.26 단언: volumeBasis와 pbEquityThrough/pbEquityBasis가 있는 산출물에서 공급자 metadata.volumeBasis와 행 필드가 정규화 뒤에도 남고, 기준이 없는 산출물은 null.
+- verification/residual: 이전 공급자(HEAD)는 metadata.volumeBasis가 undefined라 단언이 실패한다. 화면 확인은 브라우저 미실행.
+- files: src/data/providers/screener.js, src/data/normalize/screener.js, src/ui/pages/screener/table.js, src/ui/pages/screener/inspector.js, scripts/ci-screener-workbench-contract.mjs
+
+## P2623 - v60.26 - 종목 요약의 스크리너 종합 순위가 조건 화면 순서(screenRank)로 매겨짐 (2026-11-18)
+
+- symptom/reproduction: 스크리너가 시장 안 종합 점수 순서(overallRank)를 내놓은 뒤에도 종목 화면의 '스크리너 종합 순위 N/M'은 지금 선택된 조건 화면의 순서(screenRank)로 줄을 세워 다시 매겼다. 조건 화면을 바꾸면 같은 종목의 '종합 순위'가 바뀌고, 분모도 조건 화면이 판정한 행 수라 스크리너 머리글의 순위 종목 수와 달랐다.
+- root_cause: src/ui/components/stock-read.js가 screenRank가 있는 행을 정렬해 서수를 다시 만들고 그 값을 screenRank 필드에 덮어 domain/entity/stock-read.js에 넘겼다. 종합 순위의 출처(overall-rank.js)를 읽지 않았다.
+- fix: 종목 요약은 행의 overallRank와 같은 시장의 overallRankedCount를 그대로 읽는다(스크리너 머리글·검사기와 같은 순위와 분모). screenRank는 조건 화면 안 순서를 말하는 스크리너 표·정렬에만 남는다. src 전체에서 screenRank를 '종합' 순위로 읽는 곳은 이 한 곳뿐이었다(AI 문맥·테마·포트폴리오는 퀀트 백분위 rank를 그 이름으로 읽음).
+- violated_rule: 같은 순위는 화면마다 한 출처와 한 분모로 읽는다.
+- prevention: scripts/ci-esm-core-unit-check.mjs v60.26 단언: screenRank 5, overallRank 188인 행의 종목 요약은 188/239를 쓴다. 기존 v57.54 범위 밖 순위 단언은 overallRank로 옮김.
+- verification/residual: 이전 domain/entity/stock-read.js는 screenRank를 읽어 새 단언에서 5/239를 써 실패한다. 화면 확인은 브라우저 미실행.
+- files: src/ui/components/stock-read.js, src/domain/entity/stock-read.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2622 - v60.26 - SEC 정규화 출력이 바뀌었는데 정규화 버전이 그대로라 저장된 기록이 다시 정규화되지 않음 (2026-11-18)
+
+- symptom/reproduction: sec-normalize.js의 회계연도 기준 변경(매출·순이익 중 더 늦은 연간 기말, 분기 기간에 붙은 연간 매출)이 LHX·VMRK·EWBC·SWX·AEM 기록과 NI·DINO 분기 목록을 바꾸지만 SEC_NORMALIZER_VERSION은 'sec-normalizer.2026-11-14'로 남아, 이미 저장된 기록은 정규화 버전이 같다고 보고 다시 읽히지 않는다.
+- root_cause: 저장 기록의 재수집 조건(normalizerOutdated)은 기록의 normalizerVersion과 현재 상수를 비교한다. 출력을 바꾼 변경이 상수를 올리지 않으면 새 규칙은 새로 수집하는 발행사에만 적용된다.
+- fix: SEC_NORMALIZER_VERSION을 'sec-normalizer.2026-11-18'로 올리고 변경 이유를 주석에 더했다. 비용: 다음 실행부터 모든 저장 기록이 normalizerOutdated가 되지만 재수집은 실행당 예산 안에서 나뉜다 — 핵심 레인은 정규 배치 24건(SEC_BATCH_LIMIT)에 백필 48건(SEC_BACKFILL_EXTRA_DEFAULT, 정규화 버전만 낡은 기록) 최대 72건, 확장 레인은 600건(SEC_EXTENDED_BATCH_LIMIT), 요청 사이 150ms(초당 10건 공정 사용 한도 아래). 로컬 기준 핵심 원장 754건은 약 11회, 확장 3,509건은 약 6회 실행에 걸쳐 다시 정규화된다.
+- violated_rule: 저장된 산출물의 의미를 바꾸는 정규화 변경은 그 산출물을 다시 만들게 하는 버전을 함께 올린다.
+- prevention: scripts/ci-data-audit-contract-check.mjs v59.70 #8 단언의 버전 고정값을 'sec-normalizer.2026-11-18'로 갱신.
+- verification/residual: fetch-sec-fundamentals.mjs selectSecBatch·isSecTargetDue와 refresh-screener.yml 배치 설정을 읽어 실행당 상한을 확인. 프로듀서는 실행하지 않음.
+- files: src/domain/fundamental/sec-normalize.js, scripts/ci-data-audit-contract-check.mjs
+
+## P2621 - v60.26 - 사후 검증 탭이 가격 요인 4개만 다시 매긴 백테스트를 '현재 순위와 같은 모델'이라 부르고 영어 사유·중복 날짜를 표시 (2026-11-18)
+
+- symptom/reproduction: 사후 검증 첫 문장이 '현재 화면 순위와 같은 모델(같은 팩터 정의, 같은 가중 지문)로 과거 시점을 다시 매긴 결과'라고 썼지만 백테스트는 미국 모델 6개 요인 중 모멘텀·추세·저변동·추세 속도만 다시 매기고 밸류·퀄리티(기본 가중의 40%)는 넣지 않는다. '검증하지 않은 요인' 줄은 'size (no historical shares outstanding), value / quality (no point-in-time fundamentals)', 가중치 줄은 'NEUTRAL 고정', 10년 연구 줄은 '검증 기간(holdout)'으로 영어가 섞였다. '날마다 다시 계산한 검증의 추이' 그림의 x축은 기록 두 개에 '11/15, 11/16, 11/16'을 찍었다.
+- root_cause: 일치 문장은 지문 일치만 보고 고정 문구를 썼고, 백테스트가 다루는 요인 집합(BACKTEST_ACTIVE_FACTORS)과 빠진 가중은 읽지 않았다. 제외 사유는 산출물의 영어 문장을 그대로 이었다. 추이 그림은 실행일(date)로 점을 찍었는데 주말 실행은 금요일 종가를 잰 것이라 날짜 기준이 측정 세션과 달랐고, 두 달 미만 범위의 x축 라벨이 점 위치 0.2·0.5·0.8을 반올림해 두 점에서 같은 날을 두 번 썼다.
+- fix: model-fingerprint.js backtestFactorCoverage가 지금 가중에서 백테스트가 다루는 요인·빠진 요인·빠진 가중 비중을 계산하고, 첫 문장은 그 이름과 비중을 상수에서 만든다('가격 요인(모멘텀·추세·저변동·추세 속도)만 지금 순위와 같은 정의·같은 상대 가중으로 … 밸류·퀄리티는 넣지 않았습니다(지금 가중의 40%)'). 제외 사유는 BACKTEST_EXCLUDED_FACTOR_REASONS(프로듀서 excludedFactors의 출처, 산출물에 excludedFactorReasons로도 기록)의 사유 코드를 한국어로 옮기고, 영어 문장뿐인 기록은 요인 이름을 찾아 같은 한국어로, 모르는 사유는 '과거 시점 자료 없음'으로 쓴다. 가중치는 '기본(중립) 가중 고정', holdout은 '따로 떼어 둔 검증 기간'. 백테스트 기록에 측정 세션(session)을 함께 저장하고, 같은 모델 기록이 모두 세션을 가지면 세션으로, 아니면 실행일로 점을 찍고 그림 설명에 어느 날짜인지 쓴다. x축 라벨은 서로 다른 관측일만 쓴다.
+- violated_rule: 검증 문장은 검증이 실제로 다룬 범위만 말하고, 한국어 화면에 원천의 영어 문장을 그대로 싣지 않는다.
+- prevention: scripts/ci-screener-presentation-check.mjs v60.26 단언: 기본 가중의 커버리지(가격 요인 4개, 밸류·퀄리티 40%), 사유 코드와 영어 문장이 같은 한국어로 바뀜, 모르는 사유도 영문자 없음, 세션 기준·실행일 기준 추이 점, 두 점 그림의 x축 라벨 중복 없음.
+- verification/residual: 이전 trend-chart.js(HEAD)는 같은 두 점에서 ['11/15','11/16','11/16'], 수정 코드는 ['11/15','11/16']. 이전 validation-tab.js에는 excludedFactorsText가 없어 단언이 실패한다. 화면 확인은 브라우저 미실행(통합 담당이 확인).
+- files: src/domain/screener/model-fingerprint.js, src/ui/pages/screener/validation-tab.js, src/ui/components/screener-validation.js, src/ui/components/trend-chart.js, scripts/lib/factors.mjs, scripts/producer/screener.mjs, scripts/ci-screener-presentation-check.mjs
+
+## P2620 - v60.26 - 다음 주 실적 두 줄이 모두 '비중이 가장 커'로 읽히고, 시장 폭 렌즈가 S&P 500 집계를 유니버스로 적음 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 실서비스: PANW(0.4%, 11/18)와 WMT(0.9%, 11/19)가 모두 '이 기간 S&P 500 실적 가운데 비중이 가장 커…'를 받았다. 같은 날 시장 폭 렌즈는 자료를 '스크리너 유니버스 미국 종목의 수정 종가'로, 범위를 '미국 914종목 중 913종목'으로 적었는데 시장 폭 화면은 'S&P 500 499개 종목'이었다.
+- root_cause: market-story weekAhead의 fallbackWeek 분기는 고정 문장 하나를 모든 세션 줄에 붙였다. 렌즈 레지스트리는 v58.78 S&P 500 전환 뒤에도 고정 문구와 스크리너 행 수를 읽었고, history 행의 fieldMeta.breadth50(universeScope·eligible)를 보지 않았다.
+- fix: 세션별 비중 합으로 순위를 매겨 1위만 '가장 커'를, 나머지는 'N번째로 비중이 큰(x%) 발표'를 받는다. 렌즈는 시장 폭 화면과 같은 breadthScopeOf(history)로 범위('S&P 500 499개 종목')와 자료 줄('S&P 500 구성 종목의 수정 종가')을 정하고, 범위 표시가 없는 이전 행만 스크리너 미국 행 수를 쓴다.
+- violated_rule: 최상급 표현은 한 대상에만 쓴다; 같은 지표의 집계 범위는 화면마다 같은 메타데이터에서 읽는다.
+- prevention: ci-domain-parity-check v60.26 WEEK_AHEAD_LARGEST_REPORT_ONCE(가장 커 1줄, WMT, PANW '2번째로 비중이 큰(0.4%)'); ci-screener-market-fixture v60.26 단언(S&P 500 fieldMeta 행이면 scope 'S&P 500 499개 종목', 자료 'S&P 500 구성 종목…', '유니버스' 문구 없음).
+- verification/residual: HEAD 모듈: PANW·WMT 두 줄 모두 '비중이 가장 커'; 렌즈 scope '미국 914종목 중 913종목' — 두 gate 실패. 수정 후 통과, 실제 history.json으로 렌즈 'S&P 500 499개 종목'.
+- files: src/domain/market/story/market-story.js, src/domain/narrative/lens-registry.js, scripts/ci-domain-parity-check.mjs, scripts/ci-screener-market-fixture.mjs
+
+## P2619 - v60.26 - 브리핑 '지난 24시간'이 11/16 움직임을 11/17 종가 머리글 아래 날짜 없이 보여 줌 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 실서비스: 브리핑 '지난 24시간'의 움직임 카드(엔비디아 -4.1% 등)는 11/16 세션인데 페이지 머리글 '11/17(화) 미국 종가 기준' 아래 날짜 없이 놓였고, 오늘 화면의 오늘의 핵심은 같은 카드를 '11/16 마감'으로 적었다.
+- root_cause: 날짜 라벨을 오늘 화면(home-day)만 만들어 썼고, 브리핑은 v59.68부터 '페이지 머리글이 종가를 한 번 적는다'며 구역 날짜를 빼 두었다. 머리글은 지수 기록 기준이라 market-day 세션보다 하루 늦을 수 있다.
+- fix: buildDayAccount가 asOf('11/16 마감')를 정하고, 오늘의 핵심과 브리핑 지난 24시간이 같은 값을 칩으로 적는다.
+- violated_rule: 같은 사실을 두 화면이 다른 날짜(또는 날짜 없이)로 보이면 안 된다; 라벨은 한 함수가 정한다.
+- prevention: ci-headline-translation-check(day-account 게이트) v60.26 단언: sessions.us 11/16이면 account.asOf = '11/16 마감', home-day.js와 briefing-day.js가 모두 account.asOf를 쓴다.
+- verification/residual: HEAD에서 account.asOf 없음, 두 화면 중 그 값을 쓰는 곳 0 — 새 gate 실패. 수정 후 통과.
+- files: src/domain/briefing/day-account.js, src/ui/components/home-day.js, src/ui/components/briefing-day.js, scripts/ci-headline-translation-check.mjs
+
+## P2618 - v60.26 - 기술적 분석 대표 종목 표가 머리글과 다른 거래일을 날짜 없이 보여 줌 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 실서비스: 기술적 분석 머리글은 지수 기록 기준 '11/17 종가 · 일봉'인데, 대표 종목 표의 행은 11/16 세션에 계산된 스크리너 값이었고 표에는 날짜가 없었다.
+- root_cause: coreStockRows가 스크리너 행의 factorSessionDate를 버려 표가 자기 세션을 알 수 없었고, 페이지는 머리글 날짜 하나만 적었다. 테마와 섹터는 같은 상황을 session-lag의 '11/16 종가 기준, 11/17 반영 전'으로 이미 적고 있었다.
+- fix: coreStockRows가 행마다 session을 싣고, stockTableSessionBehind(rows, asOf)가 미국 행의 최신 세션이 머리글 종가보다 늦을 때 그 날짜를 돌려준다. 표는 그때 테마와 섹터와 같은 sessionChipText로 캡션을 단다.
+- violated_rule: 한 화면이 서로 다른 세션의 값을 함께 보이면 각자의 기준일을 적는다.
+- prevention: ci-domain-parity-check v60.26 단언 CHARTS_STOCK_TABLE_SESSION: 11/16 행 + 11/17 머리글이면 '11/16 종가 기준, 11/17 반영 전', 같은 날이면 캡션 없음, charts.js가 두 함수를 씀.
+- verification/residual: HEAD 모듈에서 stockTableSessionBehind 없음·행에 session 없음 — 새 gate 실패(TypeError). 수정 후 통과.
+- files: src/domain/technical/market-charts.js, src/ui/pages/charts.js, scripts/ci-domain-parity-check.mjs
+
+## P2617 - v60.26 - 실적 카드의 음수 EPS가 'EPS $-0.07'과 'EPS $(0.12)' 두 형식으로 찍힘 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 실서비스: 같은 실적 카드의 예상 칸은 'EPS $-0.07', 발표 칸은 'EPS $(0.12)'로 음수를 서로 다르게 적었다. 컨센서스 화면은 '-$0.07'을 쓴다.
+- root_cause: 화면 칸의 estimateText가 `$${estimate.toFixed(2)}`로 부호를 달러 뒤에 붙였고, 발표 값은 보도자료의 회계식 괄호 표기를 그대로 옮겼다. consensus-read의 usd가 이미 '-$0.07'을 썼지만 공유되지 않았다. 예상 대비 주석 '(조정 $x 기준)'도 같은 방식이었다.
+- fix: usdPerShareText를 src/domain/shared/number.js로 옮겨 consensus-read·실적 칸·조정 기준 주석이 함께 쓴다(consensus-read 동작 변화 없음). 보도자료 문구를 읽는 koreanReleaseText가 '$(0.12)'와 '$-0.12'를 '-$0.12'로 바꾼다.
+- violated_rule: 같은 화면의 같은 종류 숫자는 한 형식을 쓴다.
+- prevention: ci-event-briefs-check v60.26 단언: 예상 칸 'EPS -$0.07', 발표 칸 'EPS -$0.12 (… 조정 -$0.11 기준)', koreanReleaseText('희석 EPS $(0.12)') = '희석 EPS -$0.12'. pipeline-semantics EB-KO-UNITS-01도 '$ (3.16)' → '-$3.16'으로 갱신.
+- verification/residual: HEAD 모듈에서 koreanReleaseText('희석 EPS $(0.12)') = '희석 EPS $(0.12)' — 새 gate 실패. 수정 후 통과.
+- files: src/domain/shared/number.js, src/domain/fundamental/consensus-read.js, src/domain/briefing/event-briefs.js, src/domain/briefing/reaction-read.js, scripts/ci-event-briefs-check.mjs, scripts/fixtures/pipeline-semantics/briefing.mjs
+
+## P2616 - v60.26 - 예상치 없는 실적 카드가 '예상: 없음 / 발표: 없음'으로 읽힘 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 실서비스: 삼성전자 10/29 잠정 실적 카드는 제목에 '영업이익 107.44조원'을 적으면서 4칸에는 '예상: 없음 / 발표: 없음'을 적었다. '발표 없음'은 발표된 것이 없다는 뜻으로 읽힌다.
+- root_cause: earningsCells는 예상치 비교가 있는 수치만 compared로 실었고, 발표 칸은 compared만 그렸다. 비교할 예상치가 없는 한국 공시는 구조화된 figures(영업이익 107.44조원)를 갖고 있어도 발표 칸이 비었고, 빈 칸 문구는 모든 칸에서 같은 '없음'이었다.
+- fix: earningsCells가 비교가 없을 때 제목이 가리키는 구조화 수치(figures 중 headline에 값이 들어 있는 것, 없으면 첫 수치)를 reported로 싣고, earningsCellLines가 발표 칸에 그것을, 예상 칸에 '비교 자료 없음'을 적는다. 수치가 전혀 없으면 발표 칸은 '수치 정리 전'.
+- violated_rule: 빈 칸의 문구가 사실과 다른 뜻(발표 없음)으로 읽히면 안 된다; 브리프가 가진 구조화 수치를 버리지 않는다.
+- prevention: ci-event-briefs-check v60.26 단언: 예상치 없는 삼성전자 브리프의 발표 칸 ['영업이익 107.44조원'], 예상 칸 ['비교 자료 없음'].
+- verification/residual: HEAD 모듈에서 earningsCells(삼성전자).compared = [], reported 없음 — 새 gate 실패. 실제 public-data/event-briefs.json 삼성전자 브리프로 수정 후 발표 칸 '영업이익 107.44조원' 확인.
+- files: src/domain/briefing/reaction-read.js, src/ui/components/event-briefs.js, scripts/ci-event-briefs-check.mjs
+
+## P2615 - v60.26 - 실적 카드 '주가 반응: 없음'이 아래 줄의 시간외 +4.8%와 어긋남 (2026-11-18)
+
+- symptom/reproduction: 2026-11-18 실서비스: 장 마감 뒤 발표한 NVDA 카드가 4칸에 '주가 반응: 없음'을 적고, 바로 아래 줄은 '발표 후 최근 체결가 +4.8%(직전 종가 대비)'를 적었다.
+- root_cause: earningsReaction은 첫 정규장이 닫히기 전 basis 'latest-trade'와 extendedPct를 돌려주지만, 4칸을 만드는 earningsCells(src/domain/briefing/reaction-read.js)는 firstPct만 읽어 반응을 null로 버렸고, 화면 칸은 그 null을 '없음'으로 그렸다. 반응 줄은 칸이 비어 있어 따로 그려져 같은 사실이 두 상태로 보였다.
+- fix: earningsCells가 latest-trade 반응을 basis·extendedPct·세션 단어(latestTradeWord: 정규장 안이면 '장중', 밖이면 '시간외')와 함께 싣는다. 칸 문구는 새 earningsCellLines가 정하고 화면은 그리기만 한다. 칸이 반응을 실으면 아래 반응 줄은 그리지 않는다.
+- violated_rule: 같은 카드 안의 두 표시가 같은 반응을 서로 다른 상태로 적으면 안 된다; 표시 문구는 도메인에서 한 번 정한다.
+- prevention: ci-event-briefs-check v60.26 단언: latest-trade 반응이면 주가 반응 칸이 ['시간외 +4.8%'], 방향 up, earningsCells.reaction이 있어 아래 줄이 생략되고, 정규장 중 체결은 '장중 -2.1%'.
+- verification/residual: HEAD 모듈을 스크래치에 풀어 돌리면 earningsCells(NVDA latest-trade).reaction = null, 새 gate 실패. 수정 후 ci-event-briefs-check 통과.
+- files: src/domain/briefing/reaction-read.js, src/domain/briefing/event-briefs.js, src/ui/components/event-briefs.js, scripts/ci-event-briefs-check.mjs
+
+## P2614 - v60.26 - 팩터 백테스트가 2년 이력을 받고도 1년 시절 리밸런스 6회만 계산 (2026-11-18)
+
+- symptom/reproduction: 스크리너 사후 검증 탭이 '리밸런스 6번뿐이라 순위와 이후 수익률의 방향을 말하지 않습니다'라고 표시했다. 게시된 백테스트 달력은 500거래일(dateAlignment.calendarDateCount 500)인데 rebalanceDates는 6개(끝에서 147~42거래일 전)였다.
+- root_cause: 리밸런스 offset이 두 곳에 같은 리터럴로 있었다(model-fingerprint.js BACKTEST_REBALANCE_OFFSETS와 scripts/lib/factors.mjs backtestFactors 기본값). 둘 다 프로듀서가 1년 일별 종가를 받던 때 손으로 적은 값이라, 수집 범위가 2년(FACTOR_HISTORY_RANGE '2y')으로 늘어난 뒤에도 표본이 넓어지지 않았다.
+- fix: model-fingerprint.js 한 곳에서 offset을 파생한다: forward 21거래일 간격(겹치지 않는 창)으로 21부터, 가장 오래된 시점 앞에 12-1 모멘텀이 읽는 252거래일(BACKTEST_FACTOR_LOOKBACK_SESSIONS)이 500거래일 이력(BACKTEST_HISTORY_SESSIONS) 안에 남는 데까지 — 231~21의 11개. factors.mjs는 offset과 forward 일수를 그 모듈에서 가져오고 리터럴을 지웠다. 모델 지문의 rebalanceOffsets가 바뀌므로 다음 프로듀서 실행 전까지 저장된 검증은 '계산 방식이 다르다'로 표시된다.
+- violated_rule: 한 정의는 한 곳에 둔다 — 표본 범위는 수집 이력과 팩터 lookback에서 파생하고 손으로 다시 적지 않는다.
+- prevention: ci-data-pipeline-contract-check에 v60.26 단언: offset 간격 = forward 일수, 가장 최근 offset = forward 일수(완전한 forward 창), 가장 오래된 offset 앞에 252거래일 lookback이 남고 한 칸 더는 남지 않음, factors.mjs에 두 번째 리터럴 없음, 500거래일 합성 이력에서 기본 offset 전부가 요청·사용·계산됨. ci-runtime-contract-check WO-3 단언은 리터럴 대신 공용 상수를 읽는지 본다.
+- verification/residual: 새 코드: 500거래일 합성 30종목 이력에서 requested 11, used 11, rebalancesCounted 11, missingForwardRows 0. HEAD의 model-fingerprint.js·factors.mjs로 되돌리면 같은 단언이 shape false(offset [147..42], 6회)로 실패. 로컬에는 종목별 종가 원자료가 없어 실제 유니버스 재계산은 다음 프로듀서 실행에서 확인한다.
+- files: src/domain/screener/model-fingerprint.js, scripts/lib/factors.mjs, scripts/ci-data-pipeline-contract-check.mjs, scripts/ci-runtime-contract-check.mjs, scripts/backtest-factors-longrun.mjs
+
+## P2613 - v60.25 - Windows 체크아웃이 출시 후보 검사에서 거부됨 (2026-11-18)
+
+- symptom/reproduction: 동일한 스크립트의 인덱스 LF와 작업 사본 CRLF를 다른 내용으로 보고했다.
+- root_cause: Git의 체크아웃 줄바꿈 변환을 비교에 반영하지 않았다.
+- fix: 검증된 작업 사본과 Git 인덱스 표현을 각각 대조한다.
+- violated_rule: 작업 계약의 데이터 정직성과 검증 증거 일치
+- prevention: 기존 동작 검사에서 재현 입력과 정상 입력을 함께 확인한다.
+- verification/residual: node scripts/ci-qa-runner-behavior-check.mjs
+- files: scripts/qa-runner.mjs, scripts/ci-qa-runner-behavior-check.mjs
+
+## P2612 - v60.25 - 일반 파일 편집에서 작업공간 알림 발생 (2026-11-18)
+
+- symptom/reproduction: 임시 경로에 .codex가 있으면 일반 편집에도 알림이 발생했다.
+- root_cause: 절대 경로와 패치 본문 전체를 분류에 사용했다.
+- fix: 실제 편집 대상을 저장소 상대경로로 판정한다.
+- violated_rule: 작업 계약의 데이터 정직성과 검증 증거 일치
+- prevention: 기존 동작 검사에서 재현 입력과 정상 입력을 함께 확인한다.
+- verification/residual: node scripts/ci-workspace-contract-check.mjs
+- files: scripts/agent-hook.mjs, scripts/ci-workspace-contract-check.mjs
+
+## P2611 - v60.25 - 이전 분석을 재사용하면 공급자 거부가 운영 상태에서 사라짐 (2026-11-18)
+
+- symptom/reproduction: 계정 429 응답 이후 이전 문장을 유지할 때 경고가 사라졌다.
+- root_cause: 판독 사용 가능 여부를 이번 공급자 요청의 성공으로 해석했다.
+- fix: 재사용 사유를 검사해 공급자 거부와 의미 검증 보류를 구분한다.
+- violated_rule: 작업 계약의 데이터 정직성과 검증 증거 일치
+- prevention: 기존 동작 검사에서 재현 입력과 정상 입력을 함께 확인한다.
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs
+- files: scripts/lib/operational-health.mjs, scripts/ci-data-pipeline-contract-check.mjs
+
+## P2610 - v60.25 - SEC 랭킹의 기준 시각이 시세 갱신 때 변경됨 (2026-11-18)
+
+- symptom/reproduction: 랭킹 갱신 없이 시세 갱신만으로 기준 시각이 앞당겨졌다.
+- root_cause: 운영 상태 생산자가 시세의 생성 시각을 랭킹에 복사했다.
+- fix: SEC 수집 영수증의 마지막 성공 관측 시각을 사용한다.
+- violated_rule: 작업 계약의 데이터 정직성과 검증 증거 일치
+- prevention: 기존 동작 검사에서 재현 입력과 정상 입력을 함께 확인한다.
+- verification/residual: node scripts/ci-operations-status-check.mjs
+- files: scripts/build-operations-status.mjs, scripts/ci-operations-status-check.mjs
+
+## P2609 - v60.25 - 빠진 목표비중을 0%로 계산 (2026-11-18)
+
+- symptom/reproduction: null과 공백을 입력한 포트폴리오가 위험 추정을 발행했다.
+- root_cause: 전략 입력과 계산에서 Number 변환이 결측을 0으로 바꿨다.
+- fix: 두 경로에서 공용 숫자 판독기를 쓰고 실제 0을 보존한다.
+- violated_rule: 작업 계약의 데이터 정직성과 검증 증거 일치
+- prevention: 기존 동작 검사에서 재현 입력과 정상 입력을 함께 확인한다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+- files: src/domain/portfolio/risk.js, src/ui/panels/portfolio-risk-input.js, scripts/ci-esm-core-unit-check.mjs
+
+## P2608 - v60.25 - 검색 취소 뒤 종목 화면이 열림 (2026-11-18)
+
+- symptom/reproduction: 늦게 도착한 상장 응답이 취소된 선택을 실행했다.
+- root_cause: 목록 그리기와 별도로 비동기 선택의 유효성을 추적하지 않았다.
+- fix: 입력·선택·닫기 때 기존 선택을 무효화한다.
+- violated_rule: 작업 계약의 데이터 정직성과 검증 증거 일치
+- prevention: 기존 동작 검사에서 재현 입력과 정상 입력을 함께 확인한다.
+- verification/residual: node scripts/ci-search-surface-contract.mjs
+- files: src/ui/navigation/command-search.js, scripts/ci-search-surface-contract.mjs
 
 ## P2607 - v60.24 - v60.24 searched figures beside an app trend date keep the 'AIO가 확인한 값 아님' notice (2026-11-17)
 
@@ -12882,7 +13652,7 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 - violated_rule: R630(동일 결과 ID는 실제 입력만 바꾸어야 함), LC-39 인수 조건.
 - prevention: `ci-runtime-contract-check.mjs`가 legacy 셸 전체에서 폐기된 `deep-ticker-*` id 부재·단일 bridge 함수·`runDeepAnalysis(sym)` 호출을 소스로 고정한다.
 - verification: `ci-runtime-contract-check`·`ci-syntax-check`·`ci-research-flow-contract-check` PASS. 실제 클릭(AAPL→기술→뒤로가기) 인수는 미실시다.
-- residual_risk: 뒤로가기·새 탭 딥링크에서 같은 종목이 유지되는지는 실브라우저 과업이며, 상세는 [25](_artifacts/structural-handoff-20260919/25-CURRENT-FINDING-STATUS-CROSSWALK.md) LC-39에 남긴다.
+- residual_risk: 뒤로가기·새 탭 딥링크에서 같은 종목이 유지되는지는 실브라우저 과업이며, 상세는 [25](../_artifacts/structural-handoff-20260919/25-CURRENT-FINDING-STATUS-CROSSWALK.md) LC-39에 남긴다.
 
 ## P1214 - v56.35 - 신호 점수 모드가 라벨만 바꾸고 실제 계산·판정·체크리스트에는 전달되지 않았다 (2026-09-25)
 

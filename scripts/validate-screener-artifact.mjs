@@ -1,6 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 import { readNumber } from '../src/domain/shared/number.js';
+import { LATEST_SESSION_VOLUME_BASIS } from '../src/domain/screener/price-factors.js';
+import { rowFactContractErrors } from '../src/domain/screener/row-facts-contract.js';
 
 const path = process.argv[2] || 'public-data/screener.json';
 const payload = expandScreenerArtifact(JSON.parse(await readFile(path, 'utf8')));
@@ -53,6 +55,12 @@ for (const key of ['all', 'us', 'kr']) {
   if (!segment.observedAt || !Number.isFinite(new Date(segment.observedAt).getTime())) errors.push(`${key} breadth observedAt missing`);
 }
 if (!contract || contract.allowedUse !== 'research-relative-ranking-only' || contract.tradingSignal !== false) errors.push('research-only ranking contract missing');
+// v60.26: the latest-session volume basis (producers write LATEST_SESSION_VOLUME_BASIS); artifacts before v60.26 carry none.
+if (payload.volumeBasis !== undefined) {
+  const basis = payload.volumeBasis;
+  if (!basis || basis.latestSession !== LATEST_SESSION_VOLUME_BASIS.latestSession || !Array.isArray(basis.markets) || !Array.isArray(basis.fields)
+    || !LATEST_SESSION_VOLUME_BASIS.fields.every((field) => basis.fields.includes(field))) errors.push('volumeBasis must name the provisional latest-session volume and the fields it affects');
+}
 if (payload.fundamentalCoveragePct != null && (readNumber(payload.fundamentalCoveragePct) == null || Number(payload.fundamentalCoveragePct) < 0 || Number(payload.fundamentalCoveragePct) > 100)) errors.push('fundamentalCoveragePct out of range');
 if (mixedRevision && (!contract || contract.allowedUse !== 'research-relative-ranking-only')) errors.push('mixed observedAt revisions require research-only ranking contract');
 if (fundamentalRows.some(row => !row.fundamentalSource || !row.fundamentalModel || !row.fundamentalObservedAt || !Number.isFinite(new Date(row.fundamentalObservedAt).getTime()))) errors.push('fundamental rows require source/model/observedAt lineage');
@@ -82,6 +90,11 @@ for (let i = 0; i < rows.length; i++) {
   if (row && 'price' in row) { errors.push(`row ${i} publishes raw price (forbidden since P715)`); break; }
   if (!row || (readNumber(row.ret1m) == null && readNumber(row.rsi) == null)) { errors.push(`row ${i} has no derived factors`); break; }
   if (!row.observedAt || !Number.isFinite(new Date(row.observedAt).getTime())) { errors.push(`row ${i} has invalid observedAt`); break; }
+}
+// v60.28: the margin/revenue-growth basis and the dividend facts (src/domain/screener/row-facts-contract.js).
+for (const [sym, row] of Object.entries(payload.data || {})) {
+  const problems = rowFactContractErrors(row || {});
+  if (problems.length) { errors.push(`row ${sym}: ${problems.join('; ')}`); break; }
 }
 
 if (errors.length) {

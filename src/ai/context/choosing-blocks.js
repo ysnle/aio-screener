@@ -4,6 +4,10 @@
 // The app never picks a price, weight or time; every block is facts, conditions and met counts.
 import { signedText } from '../../domain/shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
+import { consensusView, peMultipleText } from '../../domain/fundamental/consensus-read.js';
+import { consensusRowFor } from '../../data/consensus-estimates.js';
+import { screenRowFor } from './stock-trend-line.js';
+import { stampDay } from '../../domain/shared/session-date.js';
 
 export function questionBlocks({ ctxId = '', text = '', root = {}, subjects = [] } = {}) {
   const out = [];
@@ -33,7 +37,56 @@ export function questionBlocks({ ctxId = '', text = '', root = {}, subjects = []
     const block = stockLensBlock(lens);
     if (block) out.push(block);
   }
+  // 2026-11-18: a valuation or dividend question gets how the 종목 screen forms its PER and the row's dividend fields.
+  const valuationSymbol = subjects[0] || (ctxId === 'ticker' ? String(root._currentTickerId || '').toUpperCase() : '');
+  if (valuationSymbol && VALUATION_ASKED.test(text)) {
+    const block = valuationContext(root, valuationSymbol);
+    if (block) out.push(block);
+  }
   return out;
+}
+
+// 2026-11-18 (live 2026-11-18, KO "지금 PER이 화면 숫자와 어떻게 계산됐는지"): the answer said "화면의 실제 산식은 … 다를 수
+// 있습니다" while the screen shows "직전 4개 분기 PER 30.0배(조정 EPS), Forward PER 28.6배(예상치 11/17)": the model was
+// never told how the screen forms it. The lines below follow the screen's own branches (company-analysis keyMetricsLine:
+// the consensus trailing EPS when fresh, else the filed TTM or fiscal-year earnings) with the close and its date, and the
+// row's dividend fields when the producer wrote them (dividendTtm, dividendYieldPct, dividendLastExDate,
+// dividendCount12m). Each line names the symbol, so its figures support that company's sentences.
+const VALUATION_ASKED = /(?<![A-Za-z])PER(?![A-Za-z])|\bP\/E\b|밸류에이션|\bvaluation\b|멀티플|주가\s*수익\s*비율|\bEPS\b|배당|\bdividends?\b|\byield\b/i;
+const money = (value, currency) => (currency === 'KRW' ? `${Math.round(value).toLocaleString('en-US')}원` : `$${value.toFixed(2)}`);
+const dayText = (value) => stampDay(String(value || '')) || '';
+export function valuationContext(root, symbol) {
+  const sym = String(symbol || '').toUpperCase();
+  const row = screenRowFor(root, sym)?.row || null;
+  if (!row) return '';
+  const kr = /\.K[SQ]$/.test(sym);
+  const currency = kr ? 'KRW' : 'USD';
+  const lines = [`【밸류에이션·배당 산식 — ${sym}, 종목 화면 시총·PER 줄과 같은 값】`];
+  const estimate = kr ? null : consensusRowFor(root, sym);
+  const view = estimate ? consensusView(row, estimate) : null;
+  const pe = readRowNumber(row, 'pe', 'display');
+  const close = view?.price ?? (Number.isFinite(row._valuationPrice) ? row._valuationPrice : null);
+  const closeDay = dayText(view?.priceDate || row.factorSessionDate);
+  if (close != null) lines.push(`${sym} PER 계산에 쓴 종가 ${money(close, currency)}${closeDay ? ` (${closeDay} 종가)` : ''}`);
+  const range = (from, to) => (from && to ? `${from}~${to}` : '');
+  if (view?.trailingPe != null) {
+    const quarters = range(estimate.trailing?.from, estimate.trailing?.to);
+    lines.push(`${sym} 직전 4개 분기 PER ${peMultipleText(view.trailingPe)} = 종가 ÷ 직전 4개 분기 조정 EPS 합 ${money(view.trailingEps, currency)}(조정 EPS, 컨센서스 자료의 실적치${quarters ? `, ${quarters} 분기` : ''})`);
+  } else if (pe != null && pe > 0) {
+    lines.push(row._valuationPeEarningsBasis === 'ttm' && row._valuationPeEarningsThrough
+      ? `${sym} 최근 4개 분기 PER ${peMultipleText(pe)} = 종가 ÷ 공시 순이익 기준 주당순이익(GAAP, ${String(row._valuationPeEarningsThrough).slice(0, 7)} 분기까지)`
+      : `${sym} 최근 회계연도 PER ${peMultipleText(pe)} = 종가 ÷ 최근 회계연도 공시 순이익 기준 주당순이익(GAAP)`);
+  }
+  if (view?.fwdPe != null) lines.push(`${sym} Forward PER ${peMultipleText(view.fwdPe)} = 종가 ÷ 향후 4개 분기 컨센서스 EPS 합 ${money(view.fwdEps, currency)}(조정 EPS, ${range(view.fwdFrom, view.fwdTo) ? `${range(view.fwdFrom, view.fwdTo)} 분기, ` : ''}예상치 ${view.asOf})`);
+  const number = (key) => { const value = readRowNumber(row, key, 'display'); return Number.isFinite(value) ? value : null; };
+  const ttm = number('dividendTtm'), yieldPct = number('dividendYieldPct'), count = number('dividendCount12m');
+  const exDate = dayText(row.dividendLastExDate);
+  if (ttm != null || yieldPct != null) {
+    lines.push(`${sym} 배당(배당락일 기준 최근 12개월) 주당 ${ttm != null ? money(ttm, currency) : '미확인'}${count != null ? `, ${count}회` : ''}${yieldPct != null ? `, 배당수익률 ${yieldPct.toFixed(2)}%(최근 완료 종가 기준)` : ''}${exDate ? `, 최근 배당락일 ${exDate}` : ''}`);
+  } else lines.push(`${sym} 배당: 앱 자료에 없음 — 배당 수치는 웹검색 출처가 있을 때만 쓰고 출처를 붙인다.`);
+  if (lines.length < 3) return '';
+  lines.push('PER을 물으면 위 산식·EPS 기준·기준일로 화면 값이 어떻게 나왔는지 설명한다. 화면 산식을 모른다고 쓰지 않는다.');
+  return lines.join('\n');
 }
 
 const SETUP_WORDS = /셋업|돌파|패턴|베이스|피벗|수축|vcp|컵|차트\s*(?:상태|어때|읽|해석)|breakout|setup/i;

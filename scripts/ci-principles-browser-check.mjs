@@ -63,13 +63,13 @@ try {
   const column = await page.evaluate(() => ({ chapter: document.querySelector('#page-principles .principles-narrative')?.dataset.narrativeChapter, chapters: document.querySelectorAll('#page-principles .rl-nav [data-principles-action="story-chapter"]').length }));
   if (column.chapter !== 'money-is-choice' || column.chapters !== 12) throw new Error(`column view incomplete: ${JSON.stringify(column)}`);
   await page.locator('#page-principles .rl-nav [data-principles-action="story-chapter"][data-principles-value="inflation-purchasing-power"]').click();
-  await page.waitForFunction(() => document.querySelector('#page-principles .principles-narrative')?.dataset.narrativeChapter === 'inflation-purchasing-power' && new URL(location.href).searchParams.get('chapter') === 'inflation-purchasing-power');
+  await page.waitForFunction(() => document.querySelector('#page-principles .principles-narrative')?.dataset.narrativeChapter === 'inflation-purchasing-power' && new URLSearchParams(location.hash.split('?')[1] || '').get('chapter') === 'inflation-purchasing-power');
 
   // Dictionary: definition box plus lazily loaded reading text.
   await group(page, 'concept').click();
   await page.locator('#page-principles .rl-nav [data-principles-action="concept"][data-principles-value="cap-rate"]').click();
   await page.waitForFunction(() => document.querySelector('#page-principles [data-concept-doc="cap-rate"] .af-definition') && document.querySelector('#page-principles [data-concept-doc="cap-rate"] .af-twist'));
-  if (new URL(page.url()).searchParams.get('node') !== 'cap-rate') throw new Error('dictionary entry was not serialized');
+  if (new URLSearchParams(new URL(page.url()).hash.split('?')[1] || '').get('node') !== 'cap-rate') throw new Error('dictionary entry was not serialized');
 
   // Lessons: a failed library load ends in a stated failure with retry, then the reading text renders.
   const libraryPattern = '**/public-data/principles/lesson-library.json';
@@ -81,7 +81,7 @@ try {
   await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesLessonLibrary === 'connected' && document.querySelectorAll('#page-principles .rl-nav [data-principles-action="select-lesson"]').length === 112);
   await page.locator('#page-principles .rl-nav [data-principles-action="select-lesson"][data-principles-value="D6"]').click();
   await page.waitForFunction(() => document.querySelector('#page-principles [data-principles-lesson-id="D6"] .af-twist'));
-  const lesson = await page.evaluate(() => ({ paragraphs: document.querySelectorAll('#page-principles [data-principles-lesson-id="D6"] .af-prose p').length, lead: document.querySelector('#page-principles [data-principles-lesson-id="D6"] .af-lead')?.textContent || '', url: new URL(location.href).searchParams.get('lesson') }));
+  const lesson = await page.evaluate(() => ({ paragraphs: document.querySelectorAll('#page-principles [data-principles-lesson-id="D6"] .af-prose p').length, lead: document.querySelector('#page-principles [data-principles-lesson-id="D6"] .af-lead')?.textContent || '', url: new URLSearchParams(location.hash.split('?')[1] || '').get('lesson') }));
   if (lesson.paragraphs < 2 || lesson.lead.length < 60 || lesson.url !== 'D6') throw new Error(`lesson reading text incomplete: ${JSON.stringify(lesson)}`);
   if (INTERNAL_COPY.test(await docText(page))) throw new Error('lesson view shows internal/source copy');
 

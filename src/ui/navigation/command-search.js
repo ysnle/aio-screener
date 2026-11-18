@@ -82,7 +82,14 @@ export function matchViews(query, doc) {
     .map((entry) => ({ ...entry, label: `${routeLabel(entry.route) || entry.route} › ${entry.name}` }));
 }
 
-/** Glossary terms: the term itself, then terms starting with the query, containing it, an alias, then the definition. */
+/**
+ * Glossary terms: the term itself, then terms starting with the query, containing it, an alias, then the definition.
+ * A definition-only hit needs a query of DEFINITION_MIN_QUERY characters: a two-character name ('삼성') sits in many
+ * definitions (KOSPI's names its largest member) and is a stock or term name, not a topic to look up.
+ */
+const DEFINITION_MIN_QUERY = 3;
+// knowledge-search.js scores a key (title, alias) match at this value and a text-only match below it.
+const KEY_MATCH_SCORE = 50;
 export function matchTerms(query, glossary = [], limit = GROUP_LIMIT.term) {
   const q = normalize(query);
   if (q.length < 2) return [];
@@ -92,7 +99,7 @@ export function matchTerms(query, glossary = [], limit = GROUP_LIMIT.term) {
     if (term.startsWith(q)) return 4;
     if (term.includes(q)) return 3;
     if (alias && alias.includes(q)) return 2;
-    return normalize(entry.def).includes(q) ? 1 : 0;
+    return q.length >= DEFINITION_MIN_QUERY && normalize(entry.def).includes(q) ? 1 : 0;
   };
   return (Array.isArray(glossary) ? glossary : []).map((entry) => ({ entry, rank: rank(entry) })).filter((row) => row.rank)
     .sort((a, b) => b.rank - a.rank || String(a.entry.term).length - String(b.entry.term).length).slice(0, limit).map((row) => row.entry);
@@ -163,6 +170,7 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
   let options = [];
   let active = -1;
   let seq = 0;
+  let selection = 0;
   let timer = null;
   let opener = null;
   let painted = null; // the query the list shows
@@ -174,6 +182,7 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
 
   let releaseLayer = () => {};
   function close() {
+    selection += 1;
     releaseLayer(); releaseLayer = () => {};
     const node = dialog();
     if (node?.open) node.close();
@@ -190,11 +199,13 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
 
   async function chooseTyped(option) {
     const typed = option.symbol;
+    const requested = selection;
     const check = root._aioAcceptSymbol;
     if (typeof check !== 'function') { openStock(typed); return; }
     option.node?.setAttribute('aria-busy', 'true');
     say(`${typed} 상장 목록 확인 중`);
     const result = await Promise.resolve(check(typed)).catch(() => null);
+    if (requested !== selection || !dialog()?.open) return;
     option.node?.removeAttribute('aria-busy');
     if (result && (result.ok || result.reason === 'listing-unavailable')) { openStock(String(result.id || typed).toUpperCase()); return; }
     // No guessing: a symbol neither AIO nor the official listing knows is refused where it was typed.
@@ -205,6 +216,7 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
   function choose(index = active) {
     const option = options[index];
     if (!option || option.node?.getAttribute('aria-disabled') === 'true') return;
+    selection += 1;
     if (option.kind === 'typed') { chooseTyped(option); return; }
     opener = null; // the opened screen or entry takes focus; the dialog's close event fires after it and must not pull it back
     close();
@@ -289,6 +301,7 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
   }
 
   async function run(raw) {
+    selection += 1;
     const query = String(raw || '').trim();
     const mine = ++seq;
     const want = (group) => scope === 'all' || scope === group || (scope === 'term' && group === 'research');
@@ -329,7 +342,10 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
       research.pending = false;
       if (failed) { research.failed = '리서치 색인을 받지 못했습니다.'; return; }
       const terms = new Set(term.items.map((item) => normalize(item.term)));
-      research.items = search(index, query, GROUP_LIMIT.research + 2).filter((entry) => !(entry.glossaryTerm && terms.has(normalize(entry.glossaryTerm)))).slice(0, GROUP_LIMIT.research)
+      // The same floor as the glossary: a text-only hit (score 20–25 in knowledge-search.js, below a key match's 50)
+      // needs a longer query.
+      const textOnly = (entry) => entry.score < KEY_MATCH_SCORE && normalize(query).length < DEFINITION_MIN_QUERY;
+      research.items = search(index, query, GROUP_LIMIT.research + 2).filter((entry) => !textOnly(entry) && !(entry.glossaryTerm && terms.has(normalize(entry.glossaryTerm)))).slice(0, GROUP_LIMIT.research)
         .map((entry) => ({ kind: 'research', entry, label: entry.title, meta: [entry.surfaceLabel, entry.group].filter(Boolean).join(', ') }));
     }));
     if (guide.pending) tasks.push(import('../pages/guide.js').then((module) => {
@@ -378,7 +394,11 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
     const field = input();
     if (!node || !field || node._aioCommandBound) return Boolean(node);
     node._aioCommandBound = true;
-    field.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => run(field.value), 90); });
+    field.addEventListener('input', () => {
+      selection += 1;
+      clearTimeout(timer);
+      timer = setTimeout(() => run(field.value), 90);
+    });
     field.addEventListener('keydown', (event) => {
       // The keys and the order are the shared listbox's (behaviors/listbox.js): Home and End move the highlight once one
       // exists and are the caret's keys before that. Only the arrows were handled here, so Home/End did nothing.
@@ -400,6 +420,8 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
     // A press on the backdrop (the dialog element itself, outside the panel) closes it.
     node.addEventListener('click', (event) => { if (event.target === node) close(); });
     node.addEventListener('close', () => {
+      if (node.open) return; // the browser queued this event before the dialog reopened
+      selection += 1;
       releaseLayer(); releaseLayer = () => {};
       clearTimeout(timer); seq += 1; options = []; active = -1; painted = null;
       field.setAttribute('aria-expanded', 'false');

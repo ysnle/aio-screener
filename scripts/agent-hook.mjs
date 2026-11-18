@@ -154,14 +154,18 @@ if (mode === 'session-start') {
 }
 
 if (mode === 'post-edit') {
-  const touchesWorkspace = /(AGENTS\.md|CLAUDE\.md|_context|\.claude|\.codex|\.agents|\.github[\\/]workflows|scripts[\\/](?:ci-|generate-workspace|sync-agent|agent-hook))/.test(editText);
-  const touchesVersion = /(index\.html|version\.json|sw\.js|js[\\/]aio-core\.js|CHANGELOG\.md)/.test(editText);
+  const patchTargets = Array.from(command.matchAll(/^\*\*\* (?:Add File|Update File|Delete File|Move to): (.+)$/gm), (match) => match[1].trim());
+  const targets = [...new Set([...editTargets.split('\n').filter(Boolean), ...patchTargets])];
+  const editCwd = input.cwd || process.cwd();
+  const relativeTargets = targets.map((target) => relative(root, resolve(editCwd, target)).replace(/\\/g, '/'));
+  const touchesWorkspace = relativeTargets.some((file) => /^(?:AGENTS\.md$|CLAUDE\.md$|(?:_context|\.claude|\.codex|\.agents|\.github\/workflows)\/|scripts\/(?:ci-|generate-workspace|sync-agent|agent-hook))/.test(file));
+  const touchesVersion = relativeTargets.some((file) => /^(?:index\.html|version\.json|sw\.js|js\/aio-core\.js|CHANGELOG\.md)$/.test(file));
   // v59.70 (owner 2026-11-04): advisory only — a control character in the edited file is reported, never blocked. A
   // heredoc ate `\b` into U+0008 in reaction-read.js (v59.69) and CI preflight held every release until it was found.
   const controlWarnings = [];
   const { controlCharSites } = await import('./lib/control-chars.mjs');
   for (const target of editTargets.split('\n').filter(Boolean)) {
-    const file = resolve(root, target);
+    const file = resolve(editCwd, target);
     try {
       if (!existsSync(file) || statSync(file).size > 8 * 1024 * 1024) continue;
       const sites = controlCharSites(readFileSync(file, 'utf8'));
@@ -180,7 +184,7 @@ if (mode === 'post-edit') {
     const seenFile = join(seenDir, `${String(input.session_id || 'session').replace(/[^\w-]/g, '')}.json`);
     let seen = [];
     try { seen = JSON.parse(readFileSync(seenFile, 'utf8')); } catch { seen = []; }
-    const fresh = editTargets.split('\n').filter(Boolean).map((target) => relative(root, resolve(root, target)).replace(/\\/g, '/'))
+    const fresh = editTargets.split('\n').filter(Boolean).map((target) => relative(root, resolve(editCwd, target)).replace(/\\/g, '/'))
       .filter((file) => /^(?:src|js|scripts)\/.+\.m?js$/.test(file) && !/^scripts\/ci-/.test(file) && !seen.includes(file));
     if (fresh.length) {
       priorNote = priorFixesText(priorFixes(fresh, { root, limit: 5 }));

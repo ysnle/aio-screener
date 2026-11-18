@@ -82,6 +82,16 @@ export function deriveSecCoverage(secFundamentals, fallbackPct = 0) {
   return { stored: null, eligible: null, coveragePct: Number(fallbackPct) || 0 };
 }
 
+export function deriveFundamentalRankingAvailability(secCoverage, receipt, durableOk) {
+  const covered = secCoverage.coveragePct >= 80;
+  return {
+    availability: covered ? (durableOk ? 'AVAILABLE' : 'DEGRADED') : 'UNAVAILABLE',
+    asOf: receipt?.lastSuccessfulObservation || null,
+    missingReason: covered ? (durableOk ? null : 'durable-market-cycle-unavailable') : `sec-fundamentals-coverage-${secCoverage.coveragePct}pct-below-80`,
+    sources: ['durable']
+  };
+}
+
 async function fetchHealth(baseUrl, healthPath = '/health', headers = {}) {
   if (!baseUrl) throw new Error('endpoint-not-configured');
   const response = await fetch(`${String(baseUrl).replace(/\/$/, '')}${healthPath}`, {
@@ -546,13 +556,12 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     dataRevision: snapshot.revision || `public-data:${data?.meta?.generatedAt || 'unknown'}`,
     evidenceRevision: 'evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1',
     overall: deriveOverall({ durableOk, blockers }),
-    // P1173 (17 작업 단위 5): `overall`은 durable 한 축에서만 파생되므로 browser가 UNKNOWN이어도 바뀌지
-    // 않는다. 그 사실을 숨기지 않도록 집계의 범위를 명시하고, 기능별로 사용 가능 범위·관측시각·누락
-    // 이유를 따로 발행한다. 전역 정상 배지 대신 "무엇을 지금 쓸 수 있고 무엇이 왜 비었는지"를 남긴다.
+    // P1173: planes/excludes describe direct plane status inputs. The blockers list is a separate input.
     overallBasis: {
       planes: ['durable'],
       excludes: ['fast', 'browser'],
-      note: 'overall is derived from the durable data plane only; the fast quote plane and the browser shell plane are published separately and can be UNKNOWN while overall is unchanged'
+      includesBlockers: true,
+      note: 'A blocked durable data plane sets overall to BLOCKED. Otherwise any open blocker sets OPERATOR_REQUIRED, including fast quote and AI blockers. Browser observations are reported separately.'
     },
     featureAvailability: {
       'market-breadth': {
@@ -561,12 +570,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
         missingReason: durableOk ? null : (!durableFreshness.fresh ? 'durable-market-cycle-stale' : 'durable-tier0-publish-blocked'),
         sources: ['durable']
       },
-      'fundamental-ranking': {
-        availability: secCoverage.coveragePct >= 80 ? (durableOk ? 'AVAILABLE' : 'DEGRADED') : 'UNAVAILABLE',
-        asOf: data?.meta?.generatedAt || null,
-        missingReason: secCoverage.coveragePct >= 80 ? null : `sec-fundamentals-coverage-${secCoverage.coveragePct}pct-below-80`,
-        sources: ['durable']
-      },
+      'fundamental-ranking': deriveFundamentalRankingAvailability(secCoverage, sec?.domainReceipt, durableOk),
       quotes: {
         availability: quoteAvailability.availability,
         asOf: fastEvidence.fastHealthObserved || null,

@@ -79,12 +79,42 @@ function _kalmanTrend(closes, vol) {
 // Where the last close sits against its own moving averages and 52-week closing high, on one close series. The
 // published row reads these from raw closes (priceFactorRow): on dividend-adjusted closes an old high sits lower by the
 // dividends paid since, so a close under the high people see on a chart read as a new high.
+// The close windows the ranked price factors read: 12-1 momentum the close 252 sessions back, trend the 50- and 200-day
+// averages, low volatility 60 daily returns, the Kalman trend speed its last 90 closes. closesToFactors still returns what
+// a shorter history allows (a 50-day-only trend, a Kalman pass over fewer bars).
+export const PRICE_FACTOR_WINDOWS = Object.freeze({ ret12m: 252, sma50: 50, sma200: 200, vol: 60, kalman: 90 });
+// Closes each ranked factor needs for its full definition (a return or a return-based volatility needs window + 1). A
+// backtest rebalance scores a factor only with this many closes, so a short history never stands in for the model.
+export const PRICE_FACTOR_MIN_CLOSES = Object.freeze({
+  momentum: PRICE_FACTOR_WINDOWS.ret12m + 1,
+  trend: Math.max(PRICE_FACTOR_WINDOWS.sma50, PRICE_FACTOR_WINDOWS.sma200),
+  lowvol: PRICE_FACTOR_WINDOWS.vol + 1,
+  kalman: PRICE_FACTOR_WINDOWS.kalman
+});
+// The fields that carry each ranked price factor's window (factor-ranks.js momentumRawOf, trend, lowvol, kalmanRaw). The
+// shorter returns stay: the ranker reads them as row inputs, and 12-1 momentum is null without ret12m.
+const PRICE_FACTOR_FIELDS = Object.freeze({
+  momentum: ['ret12m'],
+  trend: ['pctSma50', 'pctSma200'],
+  lowvol: ['vol'],
+  kalman: ['kalmanVel', 'kalmanVelConf', 'kalmanPt', 'kalmanInnovZ']
+});
+/** A copy of closesToFactors output with every ranked factor's fields null when `closeCount` is shorter than that factor needs. */
+export function withFullFactorLookback(factors, closeCount) {
+  if (!factors) return factors;
+  const out = { ...factors };
+  for (const [factor, fields] of Object.entries(PRICE_FACTOR_FIELDS)) {
+    if (closeCount >= PRICE_FACTOR_MIN_CLOSES[factor]) continue;
+    for (const field of fields) out[field] = null;
+  }
+  return out;
+}
 export function priceLevelFactors(closes) {
   const price = closes[closes.length - 1];
   const distance = (n) => { const sma = closes.length >= n ? _mean(closes.slice(-n)) : null; return sma > 0 ? round((price / sma - 1) * 100, 2) : null; };
   return {
-    pctSma50: distance(50),
-    pctSma200: distance(200),
+    pctSma50: distance(PRICE_FACTOR_WINDOWS.sma50),
+    pctSma200: distance(PRICE_FACTOR_WINDOWS.sma200),
     pctSma5: distance(5), pctSma10: distance(10), pctSma20: distance(20),
     // A 52-week closing high reads the 252-session window and needs RULES fullYearSessions (240) closes.
     pctFromCloseHigh52w: closes.length >= RULES.technical.fullYearSessions ? (() => { const high = Math.max(...closes.slice(-RULES.technical.rangeSessions)); return high > 0 ? round((price / high - 1) * 100, 2) : null; })() : null,
@@ -93,8 +123,8 @@ export function priceLevelFactors(closes) {
 export function closesToFactors(closes) {
   if (!Array.isArray(closes) || closes.length < 30) return null;
   const price = closes[closes.length - 1];
-  const vol60 = _annVol(closes, 60);
-  const kalman = _kalmanTrend(closes.slice(-90), vol60);
+  const vol60 = _annVol(closes, PRICE_FACTOR_WINDOWS.vol);
+  const kalman = _kalmanTrend(closes.slice(-PRICE_FACTOR_WINDOWS.kalman), vol60);
   return {
     price: round(price, 2),
     // 2026-10-13 (owner: S&P 500 map): one- and five-session returns on the same completed close series, so the
@@ -103,7 +133,7 @@ export function closesToFactors(closes) {
     ret10d: _retPct(closes, 10), // v58.78 (owner 2026-10-25): the theme ranking reads 1주·2주·1개월
     ret1m: _retPct(closes, 21), ret3m: _retPct(closes, 63), ret6m: _retPct(closes, 126),
     // 2026-10-19 (expertise review D2): a full year (252 sessions back, so 253 closes) for 12-1 momentum; null below that.
-    ret12m: _retPct(closes, 252),
+    ret12m: _retPct(closes, PRICE_FACTOR_WINDOWS.ret12m),
     vol: vol60, rsi: _rsi14(closes),
     // 2026-10-14 (owner: custom screener conditions): the averages and the 1-year closing high as distances, so
     // "5/10/20 정배열" and "52주 신고가" are read without publishing a raw price (P715).
@@ -335,7 +365,7 @@ export function isSessionComplete(date, segment, nowMs = Date.now()) {
 // them: raw OHLC/volume, adjusted close kept separate, a missing value stays null, an empty close is a gap date.
 // v59.75: `closeDigits` keeps a quote convention finer than cents (EUR/USD 1.1544). Without it a price under 10 keeps four
 // decimals and the rest two.
-export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOString(), closeDigits = null } = {}) {
+export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOString(), closeDigits = null, dividendEvents = false } = {}) {
   const ts = res?.timestamp;
   const q0 = res?.indicators?.quote?.[0];
   const closes = q0?.close;
@@ -354,6 +384,15 @@ export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOStrin
     .map((event) => ({ date: Number.isFinite(event?.date) ? new Date(event.date * 1000).toISOString().slice(0, 10) : null, ratio: event?.numerator > 0 && event?.denominator > 0 ? event.numerator / event.denominator : null }))
     .filter((event) => event.date && Number.isFinite(event.ratio) && event.ratio > 0 && event.ratio !== 1)
     .sort((a, b) => a.date.localeCompare(b.date));
+  // The chart's cash dividends (events.dividends, present when the request names events=div), so priceHistoryFromRows can complete an adjusted
+  // series the provider has not yet adjusted for a dividend that went ex on the latest session (completeDividendAdjustment).
+  out.dividends = Object.values(res.events?.dividends || {})
+    .map((event) => ({ date: Number.isFinite(event?.date) ? new Date(event.date * 1000).toISOString().slice(0, 10) : null, amount: typeof event?.amount === 'number' && Number.isFinite(event.amount) ? event.amount : null }))
+    .filter((event) => event.date && event.amount > 0)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  // 2026-11-18: the response lists no `events` key when the range had no dividend, so "none" is evidence only when the caller
+  // asked for them (events=div); dividendFacts publishes a zero only then.
+  out.dividendEventsRequested = dividendEvents === true;
   for (let i = 0; i < ts.length; i++) {
     const c = closes[i];
     if (typeof c !== 'number' || !isFinite(c)) { if (Number.isFinite(ts[i])) out.nullCloseDates.push(new Date(ts[i] * 1000).toISOString().slice(0, 10)); continue; }
@@ -384,10 +423,38 @@ export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOStrin
   return out;
 }
 
+// The provider's adjusted close (seen on XOM, ex-dividend 2026-11-16, $1.07) is adj[i] = close[i] × Π(1 − div_k / close_{k−1}) over
+// the ex-dates after bar i, so across an ex-date bar j the ratio (adj[j−1]/close[j−1]) / (adj[j]/close[j]) equals
+// f = 1 − div / close[j−1]. A run shortly after the close met that ratio at 1 — the dividend listed, the earlier bars not
+// yet adjusted — and every return, RSI and volatility through the ex-date read the dividend as a price drop. When the
+// observed ratio sits nearer 1 than f, the bars before j are multiplied by f; when it sits nearer f the provider has
+// applied it and nothing changes. Returns a new array and the ex-dates it filled.
+export function completeDividendAdjustment(dates, closes, adjCloses, dividends) {
+  const adjusted = Array.isArray(adjCloses) ? [...adjCloses] : [];
+  const filled = [];
+  if (!Array.isArray(dates) || !Array.isArray(closes) || !Array.isArray(dividends) || !dividends.length) return { adjCloses: adjusted, filled };
+  const positive = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0;
+  for (const dividend of dividends) {
+    const j = dates.findIndex((date) => date >= dividend.date);
+    if (j < 1 || !(dividend.amount > 0)) continue;
+    const [prevClose, exClose, prevAdj, exAdj] = [closes[j - 1], closes[j], adjusted[j - 1], adjusted[j]];
+    if (![prevClose, exClose, prevAdj, exAdj].every(positive) || dividend.amount >= prevClose) continue;
+    const factor = 1 - dividend.amount / prevClose;
+    const observed = (prevAdj / prevClose) / (exAdj / exClose);
+    if (Math.abs(observed - 1) >= Math.abs(observed - factor)) continue;
+    for (let i = 0; i < j; i += 1) if (positive(adjusted[i])) adjusted[i] = Number((adjusted[i] * factor).toFixed(4));
+    filled.push(dividend.date);
+  }
+  return { adjCloses: adjusted, filled };
+}
+
 // Only completed sessions enter any factor (P1442); the parallel arrays the factor row reads.
-export function priceHistoryFromRows(sym, fetched, { providerMeta = null, nullCloseDates: providerNullCloseDates = [], closeReconciliation = null, market = sessionSegmentOfSymbol(sym), nowMs = Date.now() } = {}) {
+// `dividends` defaults to the chart's own list; the KR close reconciliation rebuilds the rows, so the producer passes it.
+export function priceHistoryFromRows(sym, fetched, { providerMeta = null, nullCloseDates: providerNullCloseDates = [], closeReconciliation = null, market = sessionSegmentOfSymbol(sym), nowMs = Date.now(), dividends = fetched?.dividends, dividendEventsRequested = fetched?.dividendEventsRequested === true } = {}) {
   const rows = (fetched || []).filter((row) => !row?.date || isSessionComplete(row.date, market, nowMs));
   const partialSessionDropped = (fetched || []).length - rows.length;
+  const dividendFill = completeDividendAdjustment(rows.map((r) => r.date), rows.map((r) => r.close),
+    rows.map((r) => (typeof r.adjClose === 'number' && Number.isFinite(r.adjClose) ? r.adjClose : null)), Array.isArray(dividends) ? dividends : []);
   const nullCloseDates = (providerNullCloseDates || []).filter((date) => isSessionComplete(date, market, nowMs));
   if (closeReconciliation) {
     closeReconciliation.providerMissingSessions = nullCloseDates;
@@ -407,7 +474,12 @@ export function priceHistoryFromRows(sym, fetched, { providerMeta = null, nullCl
     // Keep adjusted closes separate from raw OHLC. Return/factor/backtest
     // consumers must opt into this series explicitly; a missing adjusted value
     // remains null instead of silently becoming a raw close.
-    adjCloses: (rows || []).map(r => (typeof r.adjClose === 'number' && Number.isFinite(r.adjClose) ? r.adjClose : null)),
+    // With a dividend the provider listed but had not yet applied filled in (completeDividendAdjustment).
+    adjCloses: dividendFill.adjCloses,
+    ...(dividendFill.filled.length ? { dividendAdjustmentFilled: dividendFill.filled } : {}),
+    // 2026-11-18: the cash dividends through the last completed session, for the row's dividend facts (dividendFacts).
+    dividends: (Array.isArray(dividends) ? dividends : []).filter((event) => rows.length && event?.date <= rows[rows.length - 1].date),
+    dividendEventsRequested,
     highs:     (rows || []).map(r => (typeof r.high === 'number' && Number.isFinite(r.high) ? r.high : null)),
     lows:      (rows || []).map(r => (typeof r.low === 'number' && Number.isFinite(r.low) ? r.low : null)),
     // Preserve unknown volume as null; downstream factor helpers ignore
@@ -477,6 +549,7 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
     // the quote currency with the derived price/liquidity fields so consumers
     // never have to infer that a numeric amount is USD.
     f.currency = quoteCurrencyOf(r);
+    Object.assign(f, dividendFacts(r)); // 2026-11-18: per-share cash and a ratio in the listing currency, never the close itself
     f.listingMarket = listingMarketOfSymbol(r.sym);
     f.dollarVolumeCurrency = f.currency;
     const nativeNotional = dailyNotionalAverage(r.closes, r.volumes, { window: 30 });
@@ -531,5 +604,47 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
   return f;
 }
 
+// The latest session's volume is the provider's figure at factorComputedAt. A US run after the close met it
+// below the provider's later final figure (median −3.5%; AAPL 45.0M vs 50.3M) and still below it 11 hours later, while
+// KR volumes matched; earlier sessions are final. No better source exists, so the artifact states the basis instead of
+// correcting it: lastVolume, rvol20 and dollarVolume on the newest session may read low until the next session's run.
+export const LATEST_SESSION_VOLUME_BASIS = Object.freeze({
+  latestSession: 'provider-provisional-at-factorComputedAt',
+  priorSessions: 'provider-final',
+  finalAfter: 'next-session-refresh',
+  markets: Object.freeze(['US']),
+  fields: Object.freeze(['lastVolume', 'rvol20', 'dollarVolume']),
+});
+
+// 2026-11-18 (owner: 배당수익률): the trailing-year cash dividend from the chart's ex-date events. dividendTtm sums the cash
+// dividends per share with ex-dates in the 365 days to the last completed session (listing currency, as the provider
+// lists them); dividendYieldPct divides it by that session's close. Per-share cash and a ratio, not a price level (P715):
+// the close itself is not written. No dividend in the window publishes zeros only when the request asked for dividend
+// events and the history reaches back the whole year; otherwise the fields are absent.
+export const DIVIDEND_BASIS = 'yahoo-chart-events-ex-date';
+export const DIVIDEND_FACT_FIELDS = Object.freeze(['dividendTtm', 'dividendYieldPct', 'dividendLastExDate', 'dividendCount12m', 'dividendBasis']);
+const DIVIDEND_WINDOW_DAYS = 365;
+export function dividendFacts({ dates = [], closes = [], dividends = [], dividendEventsRequested = false } = {}) {
+  const last = Array.isArray(dates) && dates.length ? dates[dates.length - 1] : null;
+  const close = Array.isArray(closes) && closes.length ? closes[closes.length - 1] : null;
+  const lastMs = Date.parse(String(last || ''));
+  if (!Number.isFinite(lastMs) || !(typeof close === 'number' && Number.isFinite(close) && close > 0)) return {};
+  const fromMs = lastMs - DIVIDEND_WINDOW_DAYS * 86400000;
+  const inWindow = (Array.isArray(dividends) ? dividends : []).filter((event) => {
+    const ms = Date.parse(String(event?.date || ''));
+    return Number.isFinite(ms) && ms > fromMs && ms <= lastMs && typeof event.amount === 'number' && Number.isFinite(event.amount) && event.amount > 0;
+  });
+  const covered = dividendEventsRequested === true && Date.parse(String(dates[0] || '')) <= fromMs;
+  if (!inWindow.length && !covered) return {};
+  const total = inWindow.reduce((sum, event) => sum + event.amount, 0);
+  return {
+    dividendTtm: round(total, 4),
+    dividendYieldPct: round(total / close * 100, 2),
+    ...(inWindow.length ? { dividendLastExDate: inWindow.map((event) => event.date).sort().at(-1) } : {}),
+    dividendCount12m: inWindow.length,
+    dividendBasis: DIVIDEND_BASIS
+  };
+}
+
 /** Row fields written only when their condition holds; a validator may meet them on any row, core or extended. */
-export const CONDITIONAL_FACTOR_FIELDS = Object.freeze(['closeReconciliation', 'providerMissingSessions', 'partialSessionDropped']);
+export const CONDITIONAL_FACTOR_FIELDS = Object.freeze(['closeReconciliation', 'providerMissingSessions', 'partialSessionDropped', ...DIVIDEND_FACT_FIELDS]);

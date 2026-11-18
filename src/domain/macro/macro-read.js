@@ -82,9 +82,11 @@ export function yoyAt(series, date) {
   for (const months of [12, 13, 11]) {
     const base = row && monthsBack(series, date, months);
     // A 13- or 11-month base is a derived rate, not the year-over-year: it carries its own name (`label`) and basis
-    // (`note`), so no reader prints it as '전년 대비'.
+    // (`note`), so no reader prints it as '전년 대비'. Every reader prints the note inside its own parentheses, so the
+    // note is a ", …" clause that names the missing month and the base used, never a second pair of parentheses.
     if (base?.value) return { date, value: ((row.value / base.value) ** (12 / months) - 1) * 100, derived: months !== 12,
-      label: months === 12 ? '전년 대비' : `${months}개월 연율`, note: months === 12 ? '' : ` (${monthLabel(base.date)} 대비, 1년 전 같은 달 지수 없음)` };
+      label: months === 12 ? '전년 대비' : `${months}개월 연율`,
+      note: months === 12 ? '' : `, ${monthLabel(new Date(Date.UTC(Number(date.slice(0, 4)), Number(date.slice(5, 7)) - 13, 1)).toISOString())} 지수가 없어 ${monthLabel(base.date)} 대비` };
   }
   return null;
 }

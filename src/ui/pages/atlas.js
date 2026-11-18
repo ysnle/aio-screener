@@ -6,7 +6,9 @@ import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-st
 import { renderKnowledgeLesson } from '../knowledge/lesson.js';
 import { createCurrentObservationBlock, validateCurrentObservationsArtifact } from '../knowledge/current-observations.js';
 import { createKnowledgeLearningControls } from '../knowledge/learning-controls.js';
-import { artifactFamilyUrl, artifactFetcher, artifactUrl, loadArtifactUrl } from '../../data/artifact-registry.js';
+import { COMPANY_PROFILE_INDEX, artifactFamilyUrl, artifactFetcher, artifactUrl, loadArtifactUrl } from '../../data/artifact-registry.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { listingMarket } from '../../domain/screener/market-scope.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { applySafeExternalLink } from '../knowledge/safe-external-link.js';
 import { createIntegratedFrameworkSpine } from '../knowledge/integrated-framework-spine.js';
@@ -259,7 +261,8 @@ function element(documentRef, tag, className, text) {
 // v58.56 (re-audit #8, design 5j "AI 산업 아틀라스 · 가치사슬 · 아래에서 위로"): the 19 domains read as seven stacked
 // layers, each with the registry companies whose taxonomy nodes fall in it (public-data/atlas/player-product-registry.json).
 // The grouping of domains into layers is structural (which layer a domain supplies), not a ranking or a bottleneck claim,
-// so no layer is highlighted as "where the profit is". The model layer has no registry company yet and says so.
+// so no layer is highlighted as "where the profit is". 2026-11-18: the companies come from the company stories' AI layer
+// (valueChainLayerPlayers below); a layer with none says so.
 export const VALUE_CHAIN_LAYERS = Object.freeze([
   Object.freeze({ n: 7, title: '애플리케이션', desc: '산업·업무 AI, 피지컬 AI, 방산·우주', domains: ['domain-ai-applications', 'domain-on-device-physical-ai', 'domain-physical-ai-robotics', 'domain-drone-defense', 'domain-space-aerospace'] }),
   Object.freeze({ n: 6, title: '모델', desc: '파운데이션 모델, 추론 서비스', domains: [], node: 'cloud-ai-service' }),
@@ -297,19 +300,65 @@ export const ATLAS_PLAYER_LISTINGS = Object.freeze({
 });
 const PLAYER_NO_TICKER_REASON = Object.freeze({ PRIVATE: '비상장', 'google-cloud': '모회사 Alphabet, 보통주 두 종류', kioxia: '도쿄 상장', siemens: '독일 상장' });
 
-export function valueChainLayerPlayers(layer, research, registry) {
-  if (layer.node) return []; // no model company in the registry; the managed-AI-service node holds cloud companies
+// 2026-11-18: the one table from the company-story AI layer (src/domain/entity/company-story.js AI_LAYERS, the field the 종목
+// 회사 tab prints as "AI 밸류체인: …") to these seven layers. The last three story layers are users of AI, not suppliers,
+// and sit in no layer. scripts/ci-atlas-contract-check.mjs fails when a story layer is in neither list.
+export const PROFILE_LAYER_TO_ATLAS = Object.freeze({
+  'software-applications': 7, devices: 7, 'models-platforms': 6, 'cloud-infrastructure': 5,
+  'power-energy': 4, 'cooling-electrical': 4, 'data-center-real-estate': 4, networking: 3,
+  'chips-compute': 2, memory: 2, 'semicap-foundry': 1
+});
+export const PROFILE_LAYERS_OUTSIDE_ATLAS = Object.freeze(['ai-adopter', 'ai-exposed', 'limited']);
+// A registry player whose company story is filed under another symbol than its own listing.
+const PLAYER_PROFILE_SYMBOL = Object.freeze({ 'google-cloud': 'GOOGL' });
+// The one listing-market rule (domain/screener/market-scope.js): a Korean listing shows its Korean name, US first.
+const isKrListing = (symbol) => listingMarket({ sym: symbol }) === 'KR';
+
+// The companies of one layer: every researched company story (public-data/company-profiles/index.json) whose AI layer
+// maps here — the single source — and, for a registry player with no story (private, or listed only abroad), the
+// registry's taxonomy tags as before. Registry players come first in registry order (primary tag first), then the
+// other stories, US before Korea. Each row: { name, symbol (null when not listed here), label, note }.
+export function valueChainLayerPlayers(layer, research, registry, profiles = []) {
+  const profileRows = Array.isArray(profiles) ? profiles.filter((row) => row?.symbol && row.layer) : [];
+  const profileBySymbol = new Map(profileRows.map((row) => [String(row.symbol).toUpperCase(), row]));
   const nodeIds = new Set((research?.taxonomyDomains || []).filter((domain) => layer.domains.includes(domain.id)).flatMap((domain) => (domain.nodes || []).map((node) => node.id)));
+  const rowOf = (profile) => {
+    const symbol = String(profile.symbol).toUpperCase();
+    const shortName = String(profile.name || symbol).split(' (')[0].trim();
+    return { name: String(profile.name || symbol), symbol, label: isKrListing(symbol) ? shortName : symbol, note: '' };
+  };
+  const rows = [];
+  const seen = new Set();
   // Feature audit 2026-11-02: counting matching tags pushed NVIDIA (two compute tags, one network tag) behind four
   // memory makers in 반도체·메모리. A player whose first (primary) tag is in this layer comes first, then registry order.
-  return (registry?.players || [])
-    .map((player, order) => ({ player, order, primary: nodeIds.has((player.taxonomyNodeIds || [])[0]), hits: (player.taxonomyNodeIds || []).filter((id) => nodeIds.has(id)).length }))
-    .filter((item) => item.hits > 0)
+  (registry?.players || [])
+    .map((player, order) => {
+      const symbol = PLAYER_PROFILE_SYMBOL[player.playerId] || ATLAS_PLAYER_LISTINGS[player.playerId]?.ticker || null;
+      const profile = symbol ? profileBySymbol.get(symbol.toUpperCase()) : null;
+      const inLayer = profile ? PROFILE_LAYER_TO_ATLAS[profile.layer] === layer.n : (player.taxonomyNodeIds || []).some((id) => nodeIds.has(id));
+      return { player, profile, order, inLayer, primary: profile ? true : nodeIds.has((player.taxonomyNodeIds || [])[0]) };
+    })
+    .filter((item) => item.inLayer)
     .sort((a, b) => Number(b.primary) - Number(a.primary) || a.order - b.order)
-    .map((item) => item.player);
+    .forEach(({ player, profile }) => {
+      if (profile) { const row = rowOf(profile); if (!seen.has(row.symbol)) { seen.add(row.symbol); rows.push(row); } return; }
+      const listing = ATLAS_PLAYER_LISTINGS[player.playerId];
+      if (listing) {
+        if (seen.has(listing.ticker)) return;
+        seen.add(listing.ticker);
+        rows.push({ name: player.name, symbol: listing.ticker, label: listing.krName || listing.ticker, note: listing.parent ? `모회사 ${listing.parent}` : '' });
+      } else rows.push({ name: player.name, symbol: null, label: player.name, note: PLAYER_NO_TICKER_REASON[player.playerId] || PLAYER_NO_TICKER_REASON[player.publicPrivate] || '' });
+    });
+  profileRows
+    .filter((profile) => PROFILE_LAYER_TO_ATLAS[profile.layer] === layer.n)
+    .map(rowOf)
+    .filter((row) => !seen.has(row.symbol))
+    .sort((a, b) => Number(isKrListing(a.symbol)) - Number(isKrListing(b.symbol)) || a.symbol.localeCompare(b.symbol))
+    .forEach((row) => { seen.add(row.symbol); rows.push(row); });
+  return rows;
 }
 
-function createValueChainLayers(documentRef, research, registry, selectedDomainId) {
+function createValueChainLayers(documentRef, research, registry, selectedDomainId, profiles = []) {
   if (!research?.taxonomyDomains?.length) return null;
   const block = element(documentRef, 'section', 'rl-aside-block atlas-layers');
   block.dataset.atlasLayers = 'value-chain';
@@ -331,23 +380,21 @@ function createValueChainLayers(documentRef, research, registry, selectedDomainI
     text.append(element(documentRef, 'b', 'atlas-layer-name', layer.title), element(documentRef, 'span', 'atlas-layer-desc', layer.desc));
     open.append(element(documentRef, 'span', 'atlas-layer-n', String(layer.n)), text);
     item.appendChild(open);
-    const players = valueChainLayerPlayers(layer, research, registry);
+    const players = valueChainLayerPlayers(layer, research, registry, profiles);
     const chips = element(documentRef, 'div', 'atlas-layer-players');
     if (!players.length) chips.appendChild(element(documentRef, 'span', 'atlas-layer-empty', layer.node ? '등록된 모델 기업 없음, 관리형 AI 서비스에서 설명' : '등록된 기업 없음'));
     players.slice(0, 4).forEach((player) => {
-      const listing = ATLAS_PLAYER_LISTINGS[player.playerId];
-      if (listing) {
-        const chip = element(documentRef, 'button', 'sx-chip sx-chip--sm atlas-layer-ticker', listing.krName || listing.ticker);
+      if (player.symbol) {
+        const chip = element(documentRef, 'button', 'sx-chip sx-chip--sm atlas-layer-ticker', player.label);
         chip.type = 'button';
         chip.dataset.action = 'showTicker';
-        chip.dataset.arg = listing.ticker;
-        chip.title = `${player.name}${listing.parent ? ` (모회사 ${listing.parent})` : ''}, 종목 개요 열기`;
+        chip.dataset.arg = player.symbol;
+        chip.title = `${player.name}${player.note ? ` (${player.note})` : ''}, 종목 개요 열기`;
         chip.setAttribute('aria-label', chip.title);
         chips.appendChild(chip);
       } else {
-        const reason = PLAYER_NO_TICKER_REASON[player.playerId] || PLAYER_NO_TICKER_REASON[player.publicPrivate] || '';
-        const chip = element(documentRef, 'span', 'sx-chip sx-chip--sm atlas-layer-company', player.name);
-        if (reason) chip.title = `${player.name}, ${reason}`;
+        const chip = element(documentRef, 'span', 'sx-chip sx-chip--sm atlas-layer-company', player.label);
+        if (player.note) chip.title = `${player.name}, ${player.note}`;
         chips.appendChild(chip);
       }
     });
@@ -626,7 +673,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
         navigateKnowledgeTarget({ root, target: { ...target, returnContext: target.returnContext || { route: 'atlas' } } });
       };
       // v58.80 (first-users R2-17, atlas): opening a document adds a history entry, so Back returns to the previous one.
-      const syncSharedState = ({ push = false } = {}) => (push ? pushKnowledgeRouteState : replaceKnowledgeRouteState)({ root, state: {
+      const syncSharedState = ({ push = false } = {}) => (push ? pushKnowledgeRouteState : replaceKnowledgeRouteState)({ root, page: 'atlas', state: {
         mode: state.tab,
         node: state.tab === 'taxonomy' ? state.selectedDomainNodeId : state.tab === 'relationships' ? state.selectedRelationshipNodeId : null,
         chapter: state.tab === 'foundations' ? state.selectedLayerId : null,
@@ -670,7 +717,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
              story: (node) => state.nodeStories?.[node.id] || null,
              domainText: (domain) => state.domainStories?.[domain.id] || null,
              deep: (node) => stripReferenceChrome(createDeepTaxonomyView(documentRef, node, state.deepTaxonomy, state.selectedDeepTopicId)),
-             layers: (domain) => createValueChainLayers(documentRef, state.research, state.registry, domain?.id || null),
+             layers: (domain) => createValueChainLayers(documentRef, state.research, state.registry, domain?.id || null, root?.[COMPANY_PROFILE_INDEX.key]?.profiles || []),
              domainStory: (domain) => stripReferenceChrome(createDomainGuide(documentRef, domain, (state.domainGuides?.guides || []).find((guide) => guide.id === domain.id), (state.domainPackets?.packets || []).find((packet) => packet.domainId === domain.id), state.claimLedger)),
              relations: (nodeId) => { const entry = coverage.find((item) => item.nodeId === nodeId); return entry ? relationList(documentRef, entry.relationGroups) : null; },
              // X07 (2026-10-13): the reading view strips the old source chrome, so domain and node documents lost every
@@ -816,6 +863,8 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       root?.addEventListener?.('popstate', onPop);
       bag.add(() => root?.removeEventListener?.('popstate', onPop));
       loadArtifactUrl(root, ATLAS_COPY_URL, { signal: scope?.signal }).then((copy) => { state.copy = copy; if (isAlive()) render(); }).catch(() => {});
+      // The value-chain card's companies: the shared company-story index (~55 KB, already read by the 종목 회사 tab).
+      refreshSharedArtifact(root, COMPANY_PROFILE_INDEX).then(({ changed }) => { if (changed && isAlive()) render(); }).catch(() => {});
       loadArtifactUrl(root, INDUSTRY_STORIES_URL, { signal: scope?.signal }).then((stories) => { state.nodeStories = stories.nodes; state.domainStories = stories.domains; if (isAlive()) render(); }).catch(() => {});
            bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioKnowledgeLearningState; delete page.dataset.aioAtlasResearch; delete page.dataset.aioAtlasFoundations; delete page.dataset.aioAtlasFoundationLessons; delete page.dataset.aioAtlasKnowledgeArticles; delete page.dataset.aioAtlasKnowledgeStatus; delete page.dataset.aioAtlasRouteTargets; delete page.dataset.aioAtlasRegistry; delete page.dataset.aioAtlasDomainGuides; delete page.dataset.aioAtlasDomainPackets; delete page.dataset.aioAtlasClaims; delete page.dataset.aioAtlasTaxonomyCoverage; delete page.dataset.aioAtlasDeepTaxonomy; delete page.dataset.aioAtlasTelegram; delete page.dataset.aioAtlasCurrentness; delete page.dataset.aioAtlasCurrentEvidenceLedger; delete page.dataset.aioAtlasKnowledgeSources; delete page.dataset.aioAtlasKnowledgeClaims; delete page.dataset.aioAtlasKnowledgeCoverage; delete page.dataset.aioAtlasKnowledgeResearchDossiers; delete page.dataset.aioAtlasKnowledgeDomainDossiers; delete page.dataset.aioAtlasRelationshipGuides; delete page.dataset.aioAtlasCurrentObservations; content.replaceChildren(); });
       render();

@@ -44,7 +44,9 @@ export function buildTwRevenueView(artifact, { nowMs = Date.now(), loadState = '
   const listed = (artifact.groups || []).reduce((n, g) => n + (g.codes || []).length, 0);
   const late = monthsLate(month, nowMs);
   const strongest = [...groups].filter((g) => g.yoyPct != null).sort((a, b) => b.yoyPct - a.yoyPct)[0];
-  const reading = `대만 AI 공급망 ${current.length}개사의 ${monthLabel(month)} 매출 합계는 1년 전보다 ${signedPct(totalYoy)}이고, ${current.length}개사 중 ${up}개사가 늘었습니다.`
+  // 2026-11-18: "16개사 중 16개사가 늘었습니다" repeated the count; all or none is said as such.
+  const upText = current.length === 1 ? '' : up === current.length ? `${current.length}개사 모두 늘었습니다` : up === 0 ? '늘어난 회사는 없습니다' : `${current.length}개사 중 ${up}개사가 늘었습니다`;
+  const reading = `대만 AI 공급망 ${current.length}개사의 ${monthLabel(month)} 매출 합계는 1년 전보다 ${signedPct(totalYoy)}${upText ? `이고, ${upText}.` : '입니다.'}`
     + (strongest && strongest.yoyPct > 0 ? ` 가장 크게 늘어난 묶음은 ${strongest.name} ${signedPct(strongest.yoyPct)}입니다.` : '')
     + (late ? ` ${monthLabel(month)}이 최신이라 지연된 상태입니다.` : '');
   return { state: 'ok', month, publishedAt: artifact.publishedAt || null, generatedAt: artifact.generatedAt || null, reported: current.length, listed, up, totalYoy, late, groups, reading, source: artifact.source || null };

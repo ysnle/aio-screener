@@ -36,10 +36,10 @@ export function marketAnalysisDiagnostic(data) {
 
 // v60.18: the AI provider refused the shared account (HTTP 401/402/403/429: exhausted credit, revoked key, billing). The
 // analysis lane cannot heal that itself, so the watchdog raises it as an operator error with the real cause; a validator
-// block, a retained or a salvaged reading is not a refusal.
+// block or a salvaged reading is not a refusal. A retained reading records why the new call failed.
 export function aiProviderRefusal(data) {
-  if (data?.meta?.marketAnalysisOk) return null;
-  const reason = marketAnalysisDiagnostic(data);
+  const retained = data?.meta?.marketAnalysisRetained || data?.marketAnalysis?.retained;
+  const reason = retained?.reason || marketAnalysisDiagnostic(data);
   return /^provider-http-(401|402|403|429)\b/.test(reason) ? reason : null;
 }
 

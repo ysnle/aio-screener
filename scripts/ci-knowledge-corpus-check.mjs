@@ -433,7 +433,22 @@ assert.equal(parsed.mode, 'graph');
 assert.equal(parsed.node, 'compute');
 assert.equal(parsed.step, 2);
 const serialized = serializeKnowledgeRouteState(location, { mode: 'tree', node: 'ai-era', lesson: 'A1', step: 0 });
-assert.equal(serialized, '/?mode=tree&node=ai-era&step=0&lesson=A1#principles');
+// v60.28: a research page's selection lives in its own hash query; an old ?mode=…#route link is read once and moved.
+assert.equal(serialized, '/#principles?mode=tree&node=ai-era&step=0&lesson=A1', 'v60.28 knowledge route state lives in the hash query (1)');
+{
+  const { knowledgeRouteHref } = await import('../src/app/knowledge-route-state.js');
+  const atlasOld = { href: 'https://aio-screener.local/?mode=taxonomy&node=cloud-hyperscaler&domain=domain-cloud-platform&view=domain#atlas', pathname: '/', search: '?mode=taxonomy&node=cloud-hyperscaler&domain=domain-cloud-platform&view=domain', hash: '#atlas' };
+  assert.equal(parseKnowledgeRouteState(atlasOld).node, 'cloud-hyperscaler', 'an old ?mode=…#atlas link still opens its node', 'v60.28 knowledge route state lives in the hash query (2)');
+  assert.equal(serializeKnowledgeRouteState(atlasOld, { mode: 'taxonomy', node: 'cloud-hyperscaler', domain: 'domain-cloud-platform', view: 'domain' }, { page: 'atlas' }), '/#atlas?mode=taxonomy&node=cloud-hyperscaler&domain=domain-cloud-platform&view=domain', 'atlas state moves out of location.search', 'v60.28 knowledge route state lives in the hash query (3)');
+  const atlasNew = { href: 'https://aio-screener.local/#atlas?mode=taxonomy&node=hbm&knowledgeNode=compute-gpu', pathname: '/', search: '', hash: '#atlas?mode=taxonomy&node=hbm&knowledgeNode=compute-gpu' };
+  assert.equal(parseKnowledgeRouteState(atlasNew).node, 'hbm', 'v60.28 knowledge route state lives in the hash query (4)');
+  assert.equal(serializeKnowledgeRouteState(atlasNew, { mode: 'taxonomy', node: 'gpu' }, { page: 'atlas' }), '/#atlas?knowledgeNode=compute-gpu&mode=taxonomy&node=gpu', 'other hash keys (arrival context) stay', 'v60.28 knowledge route state lives in the hash query (5)');
+  // Leaving the page: a plain #guide address carries no atlas key, and a late atlas write does not reach it.
+  const guide = { href: 'https://aio-screener.local/#guide', pathname: '/', search: '', hash: '#guide' };
+  assert.equal(serializeKnowledgeRouteState(guide, { mode: 'taxonomy', node: 'gpu' }, { page: 'atlas' }), '/#guide', 'v60.28 knowledge route state lives in the hash query (6)');
+  assert.equal(parseKnowledgeRouteState({ href: 'https://aio-screener.local/#principles?mode=frames&node=bank', pathname: '/', search: '?mode=taxonomy&node=stale', hash: '#principles?mode=frames&node=bank' }).node, 'bank', 'the hash query wins over a stale search part', 'v60.28 knowledge route state lives in the hash query (7)');
+  assert.equal(knowledgeRouteHref({ root: { location: { pathname: '/aio-screener/', search: '?mode=taxonomy&node=x' } }, page: 'principles', params: { mode: 'concept', node: 'roic' } }), '/aio-screener/#principles?mode=concept&node=roic', 'v60.28 knowledge route state lives in the hash query (8)');
+}
 assert.equal(knowledgeTargetHash({ routeId: 'not-a-route', conceptId: 'x' }), '');
 assert.equal(parseKnowledgeTargetContext({ root: { _aioPendingRouteHash: '#not-a-route?knowledgeNode=x' }, locationLike: location }), null);
 const parsedTarget = parseKnowledgeTargetContext({ root: { _aioPendingRouteHash: '#ticker?knowledgeNode=valuation&return=%5B1%2C2%5D' }, locationLike: location });

@@ -32,6 +32,7 @@ import { evaluateQuoteContract } from '../src/data/providers/quote-contract.js';
 import { filterRows, liveRow, sortRows, extensionMultiple, forwardPe, capFilterValue, visibleRank } from '../src/ui/pages/screener.js';
 import { EXTENDED_MIN_DOLLAR_VOLUME_30D, computeFactorRanks, rankingPopulationExclusion } from '../src/domain/screener/factor-ranks.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
+import { RULES } from '../src/domain/rules/thresholds.js';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -322,7 +323,9 @@ async function run() {
   const screenerOrchestrator = fs.readFileSync(path.join(root, 'src/data/orchestrators/screener.js'), 'utf8');
   assert(provider.includes('buildFieldReadiness') && provider.includes('fieldObservations'), 'G-SCR-PIPELINE: provider emits field-level readiness and observations');
   assert(provider.includes('rightsByField') && provider.includes('resolveFieldRights') && provider.includes('sourceKindByField'), 'G-SCR-RIGHTS: provider resolves explicit rights/source kind per field before readiness');
-  assert(screenerUi.includes('screener-visible-quotes') && screenerUi.includes('registerLiveSymbol'), 'G-SCR-LIVE: rendered screener rows register bounded live-quote demand');
+  // v60.27: the unpriced rendered rows are asked from the quote owner itself (bounded per request); the scheduler path
+  // skipped them while a scheduled quote run was in flight. Behaviour: ci-screener-presentation-check.mjs.
+  assert(screenerUi.includes('__aioQuoteDemand') && screenerUi.includes('QUOTE_REQUEST_LIMIT') && screenerUi.includes('registerLiveSymbol') && !screenerUi.includes('runScheduledRefresh'), 'G-SCR-LIVE: rendered screener rows register bounded live-quote demand');
   assert(page.includes('screener-factor-confidence') && page.includes('screener-factor-diagnostics') && screenerUi.includes('미래 수익률 확률 아님') && screenerUi.includes('dataset.decisionEligible'), 'G-SCR-FACTOR-UX: confidence and research-only diagnostics are visible and cannot masquerade as return probability');
   assert(['factorCoverage', 'confidenceMeaning', 'sectorNeutrality', 'outlierDiagnostics', 'turnoverStability', 'researchBoundary'].every((field) => screenerOrchestrator.includes(field)), 'G-SCR-FACTOR-LINEAGE: factor diagnostics survive ranker-to-UI metadata projection');
   // P1210 (LC-40): the Why drawer compared `screenRankingState === 'available'` while the engine only
@@ -404,6 +407,18 @@ async function run() {
     && filterRows([oldRow], numericFilterDocument('scr-min-mom')).length === 0, 'G-SCR-DISPLAY: visible stale RSI/return cannot satisfy table calculation filters');
   assert(oldOutput.rows.length === 1 && oldOutput.status === 'partial' && oldOutput.metadata.warnings.includes('SCREENER_ARTIFACT_STALE'), 'G-SCR-DISPLAY: stale artifacts retain identifiable rows and an explicit warning');
   assert(fieldValueForPurpose(oldRow, 'price.ret3m') === 2 && calculationRow(oldRow).ret3m === null && calculationRow(oldRow).roe === 12, 'G-SCR-DISPLAY: stale price factors are reference-visible while fresh fundamentals remain independently calculable');
+  // The artifact's volume basis and a row's P/B equity date reach the page: the provider copied named fields one by one
+  // and dropped both, so the provisional-volume note read a fallback and the P/B hint had no balance-sheet date.
+  {
+    const { normalizeScreener } = await import('../src/data/normalize/screener.js');
+    const basis = { latestSession: 'provider-provisional-at-factorComputedAt', priorSessions: 'provider-final', finalAfter: 'next-session-refresh', markets: ['US'], fields: ['lastVolume', 'rvol20', 'dollarVolume'] };
+    const passed = await readFixture({ artifact: { ...providerArtifact, volumeBasis: basis, data: { AAA: { ...providerArtifact.data.AAA, pbEquityThrough: '2026-09-30', pbEquityBasis: 'common' } } } });
+    const normalizedRow = normalizeScreener({ rows: passed.rows, metadata: passed.metadata }).rows?.[0];
+    assert(JSON.stringify(passed.metadata.volumeBasis?.markets) === '["US"]' && passed.metadata.volumeBasis?.latestSession === basis.latestSession
+      && passed.rows[0]?._valuationPbEquityThrough === '2026-09-30' && normalizedRow?._valuationPbEquityThrough === '2026-09-30' && normalizedRow?._valuationPbEquityBasis === 'common'
+      && oldOutput.metadata.volumeBasis === null,
+    'v60.26 the provider passes metadata.volumeBasis and the row P/B equity date and basis through normalisation');
+  }
   const identityOnly = await readFixture({ ok: false });
   assert(identityOnly.rows[0]?.symbol === 'AAA' && identityOnly.rows[0]?.ret3m === null && identityOnly.metadata.artifactFreshnessStatus === 'missing', 'G-SCR-DISPLAY: factor request failure preserves the independently fetched universe');
   const newerRow = await readFixture({ artifact: { ...providerArtifact, data: { AAA: { ...providerArtifact.data.AAA, observedAt: '2026-09-09T20:00:00Z' } } } });
@@ -827,6 +842,17 @@ async function run() {
     [{ name: 'Core Co', dollarVolume30d: 1000 }, null]
   ];
   for (const [row, expected] of exclusionCases) assert(rankingPopulationExclusion(row) === expected, `P1872 population exclusion ${row.name} -> ${expected}`, String(rankingPopulationExclusion(row)));
+  // A stock under a cash offer (AES 2.54% vol / 0.32% ADR on 2026-11-16) leaves the ranking; both lines must hold and
+  // both inputs be present (GSAT 10.0 / 1.29 and a quiet utility with no ADR stay ranked).
+  const pinnedCases = [
+    [{ name: 'AES Corp', vol: 2.54, adrPct: 0.32 }, 'pinned'],
+    [{ name: 'Edge Co', vol: RULES.rankingPopulation.pinned.volAtMost, adrPct: RULES.rankingPopulation.pinned.adrPctAtMost }, 'pinned'],
+    [{ name: 'Globalstar', vol: 10.0, adrPct: 1.29 }, null],
+    [{ name: 'Low vol wide range', vol: 7, adrPct: 1.3 }, null],
+    [{ name: 'Tight range high vol', vol: 12, adrPct: 0.8 }, null],
+    [{ name: 'No range', vol: 2, adrPct: null }, null]
+  ];
+  for (const [row, expected] of pinnedCases) assert(rankingPopulationExclusion(row) === expected, `v60.26 deal-pinned exclusion ${row.name} -> ${expected}`);
   const exclusionRows = Array.from({ length: 8 }, (_, index) => ({ sym: `EQ${index}`, name: `Equity ${index}`, sector: 'Tech', ret1m: index, ret3m: index * 2, ret6m: index * 3, vol: 20 + index, pctSma50: index, pctSma200: index }));
   exclusionRows.push({ sym: 'BOND', name: 'Bond ETF', index: 'ETF', sector: 'ETF', ret1m: 0.1, ret3m: 0.2, ret6m: 0.3, vol: 2, pctSma50: 0, pctSma200: 0 });
   const excludedResult = computeFactorRanks({ rows: exclusionRows, weights: { momentum: 1, lowvol: 1 }, weightsPolicy: 'explicit', now: 0 });
@@ -838,6 +864,13 @@ async function run() {
   const tokyo = foreignResult.rows.find((row) => row.sym === '8035.T');
   assert(foreignResult.populationExclusions?.foreign === 1 && tokyo?.rank === null && tokyo?.populationExclusion === 'foreign' && foreignResult.inputAudit?.eligibleRows === 8,
     'audit 2026-10-17 a foreign listing stays as a row with a null rank and the foreign reason', JSON.stringify({ excl: foreignResult.populationExclusions, tokyo }));
+  // v60.26: a deal-pinned row stays visible with its reason and stays out of the sector statistics, so the ordinary
+  // rows rank exactly as they would without it (it topped the 저변동 preset and ranked AES #2 of 821).
+  const pinnedResult = computeFactorRanks({ rows: [...exclusionRows, { sym: 'AES', name: 'AES Corp', sector: 'Tech', ret1m: 3, ret3m: 6, ret6m: 9, vol: 2.54, adrPct: 0.32, pctSma50: 1, pctSma200: 1 }], weights: { momentum: 1, lowvol: 1 }, weightsPolicy: 'explicit', now: 0 });
+  const pinnedRow = pinnedResult.rows.find((row) => row.sym === 'AES');
+  const ordinaryRanks = (result) => JSON.stringify(result.rows.filter((row) => row.sym.startsWith('EQ')).map((row) => [row.sym, row.rank, row.factorScores?.lowvol]));
+  assert(pinnedResult.populationExclusions?.pinned === 1 && pinnedRow?.rank === null && pinnedRow?.populationExclusion === 'pinned' && pinnedResult.inputAudit?.eligibleRows === 8 && ordinaryRanks(pinnedResult) === ordinaryRanks(excludedResult),
+    'v60.26 a deal-pinned stock stays as a row with a null rank and the pinned reason and never enters the sector statistics');
 
   const report = { schemaVersion: 'screener-workbench-ci.v1', generatedAt: new Date().toISOString(), status: failures.length ? 'FAIL' : 'PASS', checks, failures, baseline: { universe: artifact.universe, ok: artifact.ok, fundamentalCoveragePct: artifact.fundamentalCoveragePct }, fieldRegistry: registryCheck.size, presetCount: presetsA.length };
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);

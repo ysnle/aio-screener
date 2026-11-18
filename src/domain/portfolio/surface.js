@@ -1,4 +1,4 @@
-import { FX_LEG_MAX_AGE_MS, convertWithDeclaredRates, listingCurrency } from './fx.js';
+import { FX_LEG_MAX_AGE_MS, convertWithDeclaredRates, holdingListingKey, listingCurrency } from './fx.js';
 import { convertCashBalances } from './cash.js';
 import { readNumber as finite } from '../shared/number.js';
 import { hasLeadingIsoDay } from '../shared/session-date.js';
@@ -168,6 +168,9 @@ function holdingValue(holding, live, options, close = null) {
     price,
     sourceKind: livePrice != null ? 'live-quote' : closePrice != null ? 'completed-close' : delayed ? 'delayed-reference-quote' : 'portfolio-state',
     closeDate: livePrice == null && closePrice != null ? close?.date || null : null,
+    // The valuing close's own session change (that close against the one before), dated by closeDate. It is not today's
+    // move, so dailyPct and the hero's 오늘 stay on live quotes.
+    closeChangePct: livePrice == null && closePrice != null ? finite(close?.changePct) : null,
     closeStale,
     observedAt: liveQuote?.observedAt || (closePrice != null ? close?.date || null : null) || delayed?.observedAt || holding?.quoteObservedAt || null,
     quoteAllowedUse: liveQuote?.allowedUse || 'reference-only',
@@ -211,7 +214,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     const symbol = String(holding?.symbol || holding?.ticker || '').toUpperCase();
     // v59.54: the stored code (005930) is the key the user saved; the listing symbol (005930.KS) is the key quotes, closes
     // and sectors are published under. The reader resolves it once and every lookup here uses it.
-    const listingSymbol = String(holding?.listingSymbol || symbol).toUpperCase();
+    const listingSymbol = holdingListingKey(holding);
     const quote = holdingValue(holding, live[listingSymbol] || live[symbol] || {}, { now }, typeof closeOf === 'function' ? closeOf(listingSymbol) : null);
     const sharesValue = finite(holding?.shares);
     const shares = sharesValue != null && sharesValue >= 0 ? sharesValue : null;
@@ -232,6 +235,7 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
       dailyPct,
       sourceKind: quote.sourceKind,
       closeDate: quote.closeDate || null,
+      closeChangePct: quote.closeChangePct ?? null,
       closeStale: quote.closeStale === true,
       observedAt: quote.observedAt,
       quoteAllowedUse: quote.quoteAllowedUse,

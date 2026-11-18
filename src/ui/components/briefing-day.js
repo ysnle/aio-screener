@@ -7,6 +7,7 @@ import { oneSessionDay } from '../../domain/market/day/one-session.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
 import { storyWeight } from './story-weight.js';
+import { asOfChip } from './section-frame.js';
 import { EVENT_BRIEFS, MARKET_DAY } from '../../data/artifact-registry.js';
 
 function fold(doc, summary, children, className = 'sx-disclosure briefing-day-fold') {
@@ -47,7 +48,14 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   const key = `${day.generatedAt}|${briefs?.generatedAt || ''}`;
   if (section.dataset.renderKey === key) return;
   section.dataset.renderKey = key;
-  // v59.68: the page subtitle names the close once; the section heads carry no date of their own.
+  // the section carries its own session — the same label 오늘's 오늘의 핵심 prints (buildDayAccount
+  // asOf) — since the page subtitle names the index close, which can be a session later than these movers.
+  const title = doc.getElementById('briefing-day-title');
+  let chip = section.querySelector(':scope > .aio-asof');
+  if (account.asOf && title) {
+    if (!chip) { chip = asOfChip(doc, account.asOf); title.after(chip); }
+    chip.textContent = account.asOf;
+  } else chip?.remove();
   const opening = doc.getElementById('briefing-day-opening');
   if (opening) opening.textContent = account.opening;
   doc.getElementById('briefing-day-stories')?.replaceChildren(...account.stories.map((story) => storyItem(doc, story)));

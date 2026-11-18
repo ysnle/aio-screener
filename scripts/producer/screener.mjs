@@ -7,13 +7,16 @@ import { atomicWriteFile } from '../lib/atomic-write.mjs';
 import { factorScopesByMarket, listingMarketOfSymbol } from '../../src/domain/market/session/session-time.js';
 import { reconcileSecRecord } from '../../src/domain/fundamental/sec-report.js';
 import { secFundamentalRowFields } from '../../src/domain/fundamental/sec-row-fields.js';
+import { parseQuarterHistory } from '../../src/domain/fundamental/quarter-read.js';
+import { quarterlyHistory } from '../lib/sec-fiscal-history.mjs';
 import { distributionDaySeries } from '../../src/domain/market/breadth/breadth-signals.js';
 import { rallyAttemptSeries } from '../../src/domain/market/regime/rally-attempt.js';
 import { updateCandidateArchive } from '../lib/candidate-archive.mjs';
 import { round } from '../lib/producer-math.mjs';
 import { encodeScreenerArtifact, expandScreenerArtifact } from '../../src/data/screener-extended.js';
 import { _mean, backtestFactors } from '../lib/factors.mjs';
-import { isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf, priceHistoryFromRows, priceFactorRow } from '../../src/domain/screener/price-factors.js';
+import { BACKTEST_MIN_SERIES_CLOSES } from '../../src/domain/screener/model-fingerprint.js';
+import { isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf, priceHistoryFromRows, priceFactorRow, LATEST_SESSION_VOLUME_BASIS } from '../../src/domain/screener/price-factors.js';
 import { indexReturnsByDate } from '../../src/domain/technical/follow-through.js';
 import { fetchJSON } from '../lib/producer-http.mjs';
 import { TICKER_NEWS_MAX_AGE_MS, deriveTickerNewsLineage, fetchTickerNewsItems, planTickerNewsTargets, selectTickerNewsMemo } from '../lib/news-selection.mjs';
@@ -87,8 +90,12 @@ async function updateBacktestHistory(backtest) {
     let hist = [];
     try { const raw = JSON.parse(await readFile(BACKTEST_HIST, 'utf8')); if (Array.isArray(raw)) hist = raw; } catch { /* 최초 실행 */ }
     const today = new Date().toISOString().slice(0, 10);
+    const calendar = Array.isArray(backtest.dateAlignment?.calendarDates) ? backtest.dateAlignment.calendarDates : [];
     const rec = {
       date: today,
+      // `date` is the run day; `session` is the last session the evaluation measured (its rebalance offsets count back
+      // from it), so a weekend run of Friday's close says Friday.
+      session: calendar.length ? calendar[calendar.length - 1] : null,
       asOf: backtest.asOf,
       modelFingerprint: backtest.modelFingerprint,
       n: backtest.n,
@@ -206,6 +213,15 @@ async function enrichFundamentals(syms) {
   return { data: out, hasKey: true, ok, total: us.length, planError: false };
 }
 
+// v60.28: one issuer's parsed quarter series from its ledger PIT observations, through the projection's own builder
+// (scripts/lib/sec-fiscal-history.mjs quarterlyHistory) and the page's parser. A compact extended-ledger record carries the
+// same builder's string as quarterHistory (fetch-sec-fundamentals.mjs compactSecRecord); [] without either.
+export function secQuartersOf(record) {
+  const observations = record?.pit?.observations;
+  const text = observations && typeof observations === 'object' ? quarterlyHistory(observations) : record?.quarterHistory;
+  return parseQuarterHistory(typeof text === 'string' ? text : '');
+}
+
 export async function enrichSecFundamentals(syms, priceData, priceResults = null, assetTypeOf = {}, { ledgerPath = SEC_FUNDAMENTALS_OUT } = {}) {
   try {
     // v57.81: the extended universe reads its own compact ledger (public-data/sec-fundamentals-extended.json).
@@ -235,7 +251,9 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
       if (!row || !row.fetchedAt || Date.now() - new Date(row.fetchedAt).getTime() > maxFetchAge) continue;
       // v57.81: the per-symbol SEC row fields are one shared pure function (src/domain/fundamental/sec-row-fields.js),
       // so the browser's out-of-universe read builds them the same way.
-      const rec = secFundamentalRowFields(row, { price: priceBySym.get(sym), dollarVolume30d: priceData?.[sym]?.dollarVolume30d, factorSessionDate: priceData?.[sym]?.factorSessionDate, payloadModel: payload.model, splits: splitsBySym.get(sym) || [] });
+      // v60.28: the issuer's quarter series, built by the same function as sec-fiscal-history `quarters` (the 재무 공시 read),
+      // so margin and revenue growth share the P/E's four-quarter basis. The compact extended ledger keeps no observations.
+      const rec = secFundamentalRowFields(row, { price: priceBySym.get(sym), dollarVolume30d: priceData?.[sym]?.dollarVolume30d, factorSessionDate: priceData?.[sym]?.factorSessionDate, payloadModel: payload.model, splits: splitsBySym.get(sym) || [], quarters: secQuartersOf(rows[sym]) });
       if (!rec) continue;
       out[sym] = rec;
       available++;
@@ -277,6 +295,9 @@ export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
     const providerMeta = fetched?.meta || null;
     const market = sessionSegmentOfSymbol(sym);
     let providerNullCloseDates = fetched?.nullCloseDates || [];
+    // v60.26: the chart's dividends, read before the KR reconciliation rebuilds the rows.
+    const dividends = Array.isArray(fetched?.dividends) ? fetched.dividends : [];
+    const dividendEventsRequested = fetched?.dividendEventsRequested === true; // v60.28: also lost in the KR rebuild
     let closeReconciliation = null;
     if (market === 'kr' && Array.isArray(fetched) && fetched.length) {
       const exchange = await fetchKrExchangeDaily(sym, fetched[0].date);
@@ -287,7 +308,7 @@ export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
       closeReconciliation = reconciled.report;
     }
     // v57.81: shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
-    return priceHistoryFromRows(sym, fetched, { providerMeta, nullCloseDates: providerNullCloseDates, closeReconciliation, market });
+    return priceHistoryFromRows(sym, fetched, { providerMeta, nullCloseDates: providerNullCloseDates, closeReconciliation, market, dividendEventsRequested, dividends });
   };
   const results = await mapLimit(syms, concurrency, fetchOne);
   // 2026-10-19 data audit: the extended run lost one alphabetical block every time (STLN..UNFI 260, STKE..UNTY 265,
@@ -531,7 +552,11 @@ export function mergeSecIntoFactorRows(data, secData = {}) {
     if (!data[sym]) continue;
     const sec = secData[sym];
     ['pe','pb','roe','margin','revGrowth'].forEach(key => {
-      if (typeof data[sym][key] !== 'number' && typeof sec[key] === 'number') data[sym][key] = sec[key];
+      if (typeof data[sym][key] !== 'number' && typeof sec[key] === 'number') {
+        data[sym][key] = sec[key];
+        // v60.28: a margin or revenue growth carries its basis ('ttm' | 'fy') and end date with it.
+        if (key === 'margin' || key === 'revGrowth') for (const suffix of ['Basis', 'Through']) if (sec[`${key}${suffix}`] != null) data[sym][`${key}${suffix}`] = sec[`${key}${suffix}`];
+      }
     });
     if (!data[sym].fundamentalSource) {
       ['fundamentalSource','fundamentalModel','fundamentalPeriod','fundamentalPeriodEnd','fundamentalObservedAt','fundamentalFiledAt','fundamentalFetchedAt','fundamentalAccession','fundamentalSourceKind','fundamentalAllowedUse','fundamentalQuality','fundamentalRightsId','fundamentalUseBlockedReason'].forEach(key => {
@@ -665,7 +690,7 @@ export async function enrichScreener() {
   // 5단계: 횡단면 팩터 백테스트(closes 재사용 — 1패스)
   let backtest = null;
   try {
-    backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= 148), {
+    backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= BACKTEST_MIN_SERIES_CLOSES), {
       universeMeta: universeLineage,
       sectorOf: (sym) => universeInfo.sectors?.[sym] ?? null // P1443: live-model parity (sector-relative z-scores)
     });
@@ -740,6 +765,8 @@ export async function enrichScreener() {
     factorSessionDateByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.sessionDate])),
     factorBarStartByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.barStart])),
     factorComputedAt: computedAt,
+    // v60.26: the newest session's volume is the provider's provisional figure at factorComputedAt (US).
+    volumeBasis: LATEST_SESSION_VOLUME_BASIS,
     source: 'github-actions:yahoo-2y',
     universe: syms.length,
     // v58.71: rows carried for a retained market count as published rows; marketRetained names them.

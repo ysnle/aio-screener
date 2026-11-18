@@ -9,6 +9,7 @@ import { scenarioLead } from '../market/regime/scenario-lead.js';
 import { signedText, usdKoreanText } from '../shared/number.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { RETURNED_LABEL } from './analysis-read.js';
+import { debtLabel } from './sec-earnings.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { formatScreenerPrice } from '../screener/market-scope.js';
 
@@ -103,7 +104,7 @@ const UNCOLLECTED = Object.freeze({ inventory: '재고 — 10-Q 재무상태표�
   backlog: '수주잔고 — 실적 발표 자료', ffo: 'FFO — 리츠 보충 자료' });
 
 // ctx: { history (annual, newest last), trailing (buildTrailingYearRead), quarterRead (buildQuarterRead), marginCash (buildMarginCashRead),
-//        rd (buildRdRead), consensus (consensus row), surprise (buildSurpriseRead) }
+//        rd (buildRdRead), consensus (consensus row), surprise (buildSurpriseRead), debtBasis (sec-fiscal-history.json debtBasis) }
 function metricValue(id, ctx) {
   const years = (ctx.history || []).filter((year) => finite(year?.revenue) > 0);
   const latest = years.at(-1) || null;
@@ -149,10 +150,12 @@ function metricValue(id, ctx) {
     case 'shareholderReturn': return ladder?.capital?.returnedShareOfFcf != null ? { text: `${RETURNED_LABEL[ladder.capital.returnedBasis] || RETURNED_LABEL.both}이 잉여현금의 ${ladder.capital.returnedShareOfFcf.toFixed(0)}%, ${ladder.label}`, trend: null } : null;
     case 'dividends': return ladder?.capital?.dividends != null ? { text: `배당 ${usdShort(ladder.capital.dividends)}${ladder.capital.fcf > 0 ? `(잉여현금의 ${(ladder.capital.dividends / ladder.capital.fcf * 100).toFixed(0)}%)` : ''}, ${ladder.label}`, trend: null } : null;
     // v59.45 (P19-CASH-01): the collected debt is long-term only, so the figure names that scope.
-    case 'netCash': return ladder?.cash?.net != null ? { text: `${ladder.cash.net >= 0 ? '순현금' : '순부채'} ${usdShort(Math.abs(ladder.cash.net))}(현금 − 장기부채), ${ladder.label} 말`, trend: null } : null;
+    // 2026-11-18: a debt figure that includes finance leases says so (ctx.debtBasis, sec-fiscal-history.json debtBasis).
+    case 'netCash': return ladder?.cash?.net != null ? { text: `${ladder.cash.net >= 0 ? '순현금' : '순부채'} ${usdShort(Math.abs(ladder.cash.net))}(현금 − ${debtLabel(ladder.cash.debtBasis)}), ${ladder.label} 말`, trend: null } : null;
     case 'leverage': {
       const value = latest && finite(latest.longTermDebt) != null && finite(latest.equity) > 0 ? latest.longTermDebt / latest.equity * 100 : null;
-      return value == null ? null : { text: `장기부채가 자기자본의 ${value.toFixed(0)}%, ${label}`, trend: null };
+      const lease = (ctx.debtBasis ?? ladder?.cash?.debtBasis) === 'lease-inclusive';
+      return value == null ? null : { text: `${lease ? '장기부채(리스 포함)가' : '장기부채가'} 자기자본의 ${value.toFixed(0)}%, ${label}`, trend: null };
     }
     case 'roe': {
       const value = latest && prior && finite(latest.netIncome) != null && latest.equity > 0 && prior.equity > 0 ? latest.netIncome / ((latest.equity + prior.equity) / 2) * 100 : null;
@@ -222,6 +225,25 @@ export function buildPeerStrengths(rows = [], { max = 3 } = {}) {
   const strengths = facts.filter((f) => f.side < 0.5 && f.vsMedian > 0 && f.rank <= Math.ceil(f.n / 2)).sort((a, b) => a.side - b.side).slice(0, max);
   const weaknesses = facts.filter((f) => f.side > 0.5 && f.vsMedian < 0 && !strengths.includes(f)).sort((a, b) => b.side - a.side).slice(0, max);
   return { strengths, weaknesses, facts, peers: rows.length - 1 };
+}
+
+// 2026-11-18: the time basis of the peer comparison (analysis-read.js buildThemePeers `basis`), for the '기준' fold line.
+// A peer group without a basis (built before 2026-11-18) reads as fiscal years throughout.
+export function peerBasisText(basis = null) {
+  const ttmIds = ['growth', 'margin'].filter((id) => basis?.[id]?.basis === 'ttm');
+  const label = { growth: '매출 성장', margin: '순이익률' };
+  const parts = [];
+  if (ttmIds.length) {
+    const ends = ttmIds.flatMap((id) => [basis[id].throughFrom, basis[id].throughTo]).filter(Boolean).map((date) => String(date).slice(0, 7)).sort();
+    const left = [...new Set(ttmIds.flatMap((id) => basis[id].leftOut || []))];
+    parts.push(`${ttmIds.map((id) => label[id]).join('·')}은 최근 4개 분기${ends.length ? `(${ends[0] === ends.at(-1) ? ends[0] : `${ends[0]}~${ends.at(-1)}`} 분기까지)` : ''}${left.length ? `, 분기 공시가 부족한 ${left.join(', ')} 제외` : ''}`);
+  }
+  for (const id of ['growth', 'margin'].filter((key) => !ttmIds.includes(key))) {
+    const item = basis?.[id];
+    parts.push(item && item.withTtm > 0 ? `${label[id]}은 최근 4개 분기 자료가 ${item.n}곳 중 ${item.withTtm}곳뿐이라 각 회사의 최근 회계연도` : `${label[id]}은 각 회사의 최근 회계연도`);
+  }
+  parts.push('ROE·잉여현금 마진은 각 회사의 최근 회계연도');
+  return `${parts.join('. ')}.`;
 }
 
 // ── 3. Situations that favour or burden the company (theme exposure tags × macro branches) ─────────────────────────────

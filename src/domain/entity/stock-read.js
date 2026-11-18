@@ -170,7 +170,10 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const high = finite(row.pctFrom52wHigh);
   if (position != null) {
     const where = position >= 0.85 ? '52주 범위 맨 위쪽 — 신고가를 시험하는 자리' : position >= 0.6 ? '52주 범위 위쪽' : position >= 0.4 ? '52주 범위 가운데' : position >= 0.15 ? '52주 범위 아래쪽' : '52주 범위 맨 아래 — 신저가 근처';
-    points.push({ id: 'range', tone: position >= 0.6 ? 'favorable' : position < 0.4 ? 'burden' : 'neutral', title: '52주 위치', text: `${where}(범위의 ${Math.round(position * 100)}%, 고점 대비 ${signed(high)}).` });
+    // The place in the year's range is a measurement, not a verdict: near the low is not a burden by itself (the trend and
+    // 50-day distance points carry those judgements), so the point stays neutral and names its zone for the 위치 tile.
+    const zone = position >= 0.6 ? '범위 상단' : position < 0.4 ? '범위 하단' : '범위 중간';
+    points.push({ id: 'range', tone: 'neutral', zone, title: '52주 위치', text: `${where}(범위의 ${Math.round(position * 100)}%, 고점 대비 ${signed(high)}).` });
   }
 
   const spans = [['ret1m', '1개월'], ['ret3m', '3개월'], ['ret6m', '6개월']].map(([key, label]) => {
@@ -312,7 +315,7 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
     points.push({ id: 'holding', tone: 'neutral', title: '내 보유', text: `내 보유 비중 ${holdingWeight < 0.1 ? '0.1% 미만' : `${holdingWeight.toFixed(1)}%`}(${holding?.basisLabel || '포트폴리오 총자산 대비'}) — 위 추세·위치 판단이 이 비중만큼 내 계좌에 걸려 있습니다.` });
   }
 
-  const rank = finite(row.screenRank);
+  const rank = finite(row.overallRank);
   // v57.54: a rank outside its own denominator is a mixed row set — say nothing rather than "890/239".
   const ranking = rank != null && rank >= 1 && finite(universeSize) && rank <= universeSize ? { rank, of: universeSize, topPct: Math.max(1, Math.round(rank / universeSize * 100)) } : null;
   // 2026-10-14 audit #13: the rank lives in the reading (not the heading), on the screener's denominator, with the
@@ -334,7 +337,10 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   const fund = /^ETF$/i.test(String(row.sector || ''));
   const next = [{ route: 'technical', label: '차트', why: trend ? `${trend.label}의 셋업 — 이동평균·피벗·거래량으로 지금 자리가 돌파 전인지 확인` : '일봉과 이동평균 위치' },
     ...(fund ? [] : [{ route: 'fundamental', label: '재무 공시', why: '이 추세를 매출·이익·현금흐름이 뒷받침하는지' }])];
-  if (topTheme?.id) next.push({ action: 'showThemeDetail', arg: topTheme.id, route: 'themes', label: `테마, ${topTheme.label}`, why: '같은 테마 안에서 누가 앞서는지' });
+  // The link opens the stock's primary theme (themes[0], primary-theme.js), the one the 가격 line and the market
+  // line name — not the first theme that happens to have a rotation ETF.
+  const primary = themed[0] || null;
+  if (primary?.id) next.push({ action: 'showThemeDetail', arg: primary.id, route: 'themes', label: `테마, ${primary.label}`, why: '같은 테마 안에서 누가 앞서는지' });
   // v57.50 I01: the Korean label (기술) is for the sentence; the screener filters on the artifact's own sector value
   // (Technology), so the handoff carries that value, not a search word that matches no row.
   // v57.54: one Korean sector name on the page ("섹터 기술" above, "같은 섹터(Technology)" here) — the label map is the
