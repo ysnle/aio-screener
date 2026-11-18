@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-17T23:51:56.402Z",
-  "attemptedAt": "2026-11-17T23:51:56.402Z",
-  "lastSuccessfulAt": "2026-11-17T23:51:56.402Z",
+  "generatedAt": "2026-11-18T00:21:52.839Z",
+  "attemptedAt": "2026-11-18T00:21:52.839Z",
+  "lastSuccessfulAt": "2026-11-18T00:21:52.839Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-03T23:51:50.175Z",
-  "until": "2026-11-17T23:51:50.175Z",
+  "since": "2026-11-04T00:21:47.909Z",
+  "until": "2026-11-18T00:21:47.909Z",
   "current24hWindow": {
     "start": "2026-11-16T23:00:00.000Z",
     "end": "2026-11-17T23:00:00.000Z",
@@ -85,22 +85,22 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1229,
+      "count": 1231,
       "freshCount": 40,
-      "eligibleTextCount": 1170,
+      "eligibleTextCount": 1172,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69578
+      "lastPostId": 69580
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 188,
+      "count": 183,
       "freshCount": 20,
-      "eligibleTextCount": 188,
+      "eligibleTextCount": 183,
       "selectedCount": 120,
       "error": null,
       "failingSince": null,
@@ -108,12 +108,12 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 728,
-      "freshCount": 39,
-      "eligibleTextCount": 728,
+      "count": 725,
+      "freshCount": 20,
+      "eligibleTextCount": 725,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
@@ -137,37 +137,37 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2145,
-  "retainedItemCount": 415,
+  "count": 2139,
+  "retainedItemCount": 404,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2145,
-    "eligibleTextCount": 2086,
+    "observedCount": 2139,
+    "eligibleTextCount": 2080,
     "mediaOnlyCount": 59,
-    "mediaAttachedCount": 900,
-    "photoPostCount": 770,
+    "mediaAttachedCount": 898,
+    "photoPostCount": 768,
     "documentPostCount": 6,
     "imageOnlyCount": 6,
     "highSignalCount": 351,
     "broadSignalCount": 862,
     "selectedRawCount": 372,
     "selectedEligibleCount": 372,
-    "selectedRawCoveragePct": 17.8,
-    "selectedOfObservedPct": 17.3,
+    "selectedRawCoveragePct": 17.9,
+    "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "macro": 302,
-    "market-note": 757,
+    "market-note": 755,
     "semi": 590,
-    "earnings": 288,
+    "power": 274,
+    "macro": 302,
+    "earnings": 284,
     "credit": 75,
-    "power": 273,
     "ai-policy": 126,
-    "geo": 308,
+    "geo": 307,
     "kr-market": 94,
     "flows": 48,
     "equity": 132,
@@ -178,7 +178,7 @@
     "insider": 2
   },
   "tickerCounts": {
-    "NVDA": 346,
+    "NVDA": 347,
     "009150.KS": 1,
     "AMD": 38,
     "TSM": 65,
@@ -253,19 +253,19 @@
     "INTC": 1
   },
   "themes": [
-    "Market Notes (757 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
+    "Market Notes (755 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
     "Semiconductors/Memory (590 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고 분석함. 2026년 이후 글로벌 주요 프런티어 AI 연구소가 배정할 컴퓨팅 계약에서 Nvidia GPU 점유율은...",
-    "Geopolitics (308 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Geopolitics (307 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Macro/Rates (302 posts in 14-day research window): 2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우 -1.81%, 나스닥 -1.24%, 러셀2000 -1.42% 기록. VIX는 12.77% 급등한 25.84로 상승하며...",
-    "Earnings/Corporate (288 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "AI Power/Grid (273 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
+    "Earnings/Corporate (284 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "AI Power/Grid (274 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (132 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
     "AI Policy/Export Controls (126 posts in 14-day research window): >>젠슨 황 퇴임, AI 신생 플레이어의 ‘최대 큰손’도 사라져 •Anthropic 100억 달러 규모 IPO 투자, Figure AI 추가 10억 달러 투자, Nscale 50억 달러 이상 신용보증 등 협상..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 346,
+      "count": 347,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
@@ -340,7 +340,7 @@
       "topics": [
         "geo"
       ],
-      "count": 308,
+      "count": 307,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -376,7 +376,7 @@
       "topics": [
         "power"
       ],
-      "count": 273,
+      "count": 274,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -421,7 +421,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 288,
+      "count": 284,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -466,7 +466,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 757,
+      "count": 755,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서..."
     }
   ],
@@ -1697,6 +1697,24 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69579",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69579",
+      "datetime": "2026-11-18T00:04:12.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "lead": 2,
+      "score": 59,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "디인포메이션에 따르면 JP모건과 씨티그룹이 엔비디아 칩 밀수 수사와 관련해 조사 대상에 오른 메가스피드와 거래했던 동남아시아 데이터센터 운영업체에 대출을 제공. 이번 대출을 두고 은행들이 차입자의 주요 고객과..."
+    },
+    {
       "id": "HANAchina/72316",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72316",
@@ -2631,11 +2649,11 @@
         "semi",
         "ai-policy"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미국의 첨단 반도체 원격 접근 제한 조치 발표에 대한 중국 상무부의 발언 •중국 상무부는 관련 상황을 주시하고 있다고 밝힘. 미국이 국가안보 개념을 확대 해석하고 수출통제를 남용해 중국 기업과 다른 국가..."
+      "summary": ">>미국의 첨단 반도체 원격 접근 제한 조치 발표에 대한 중국 상무부의 발언 •중국 상무부는 관련 상황을 주시하고 있다고 밝힘. 미국이 국가안보 개념을 확대 해석하고 수출통제를 남용해 중국 기업과 다른 국가...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72292",
@@ -2645,14 +2663,13 @@
       "localDateKst": "2026-11-17",
       "tags": [
         "earnings",
-        "semi",
-        "power"
+        "semi"
       ],
-      "lead": 2,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>CXMT 3Q 실적 설명회: 주요 고객사와 장기공급계약 협의, 엣지 AI 메모리가 확장의 핵심 동력 •CXMT는 AI가 주도하는 구조적 수요 증가에 대응해 여러 주요 고객사와 장기공급계약(LTA)을..."
+      "summary": ">>CXMT 3Q 실적 설명회: 주요 고객사와 장기공급계약 협의, 엣지 AI 메모리가 확장의 핵심 동력 •CXMT는 AI가 주도하는 구조적 수요 증가에 대응해 여러 주요 고객사와 장기공급계약(LTA)을...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/69530",
@@ -2735,18 +2752,15 @@
       "datetime": "2026-11-17T12:03:45.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "japan"
+        "market-note"
       ],
       "score": 85,
       "hasText": true,
+      "summary": ">>APEC 선전 정상회의, 미중 관계 일시적 휴전 속 아태 기업들의 재편 (대만경제일보) •미중 정상회담 : 11월 19일 선전에서 트럼프·시진핑·푸틴 3국 정상회담 및 미중 정상회담 개최 예정. 미중러...",
       "tickers": [
         "GOOG",
         "BA"
-      ],
-      "summary": ">>APEC 선전 정상회의, 미중 관계 일시적 휴전 속 아태 기업들의 재편 (대만경제일보) •미중 정상회담 : 11월 19일 선전에서 트럼프·시진핑·푸틴 3국 정상회담 및 미중 정상회담 개최 예정. 미중러..."
+      ]
     },
     {
       "id": "insidertracking/69523",
@@ -2803,13 +2817,13 @@
         "ai-policy",
         "equity"
       ],
-      "lead": 1,
       "score": 54,
       "hasText": true,
+      "summary": "•Anthropic: 나스닥 글로벌 셀렉트 마켓에 A종 보통주 상장이 승인됐으며, 주식 코드는 ‘ANT’ •Amazon은 발행된 N종 주식의 48.2%를 보유. Amazon은 발행 주식의 23.8%를 보유...",
+      "lead": 2,
       "tickers": [
         "AMZN"
-      ],
-      "summary": "•Anthropic: 나스닥 글로벌 셀렉트 마켓에 A종 보통주 상장이 승인됐으며, 주식 코드는 ‘ANT’ •Amazon은 발행된 N종 주식의 48.2%를 보유. Amazon은 발행 주식의 23.8%를 보유..."
+      ]
     },
     {
       "id": "HANAchina/72286",
@@ -2818,14 +2832,14 @@
       "datetime": "2026-11-17T11:22:02.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>CXMT: 올해 1-3분기 글로벌 DRAM 제품 공급 부족 지속 •CXMT는 실적 설명회에서 회사의 사업 발전은 한편으로 시장 수요 급증에 따른 것이며, 다른 한편으로는 회사의 규모 효과가 점차 발휘되고..."
+      "summary": ">>CXMT: 올해 1-3분기 글로벌 DRAM 제품 공급 부족 지속 •CXMT는 실적 설명회에서 회사의 사업 발전은 한편으로 시장 수요 급증에 따른 것이며, 다른 한편으로는 회사의 규모 효과가 점차 발휘되고...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "bornlupin/21170",
@@ -2972,13 +2986,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "**Nvidia, 중국 AI 칩 원격 접근 관련 고객사에 법적 리스크 경고 Nvidia warns chip buyers of legal risks tied to China AI access, CNBC...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "**Nvidia, 중국 AI 칩 원격 접근 관련 고객사에 법적 리스크 경고 Nvidia warns chip buyers of legal risks tied to China AI access, CNBC..."
+      ]
     },
     {
       "id": "insidertracking/69500",
@@ -3010,9 +3023,7 @@
       "datetime": "2026-11-17T08:12:12.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "geo",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 75,
       "hasText": true,
@@ -3022,11 +3033,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.17, 화) 🇨🇳 중국 본토 증시는 미국 상무부(BIS)의 첨단 AI 칩 원격 접속 통제 강화 발표 속 반도체 자립화 테마가 오전 상승을 견인했으나, 오후 들어 차익 매물이...",
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.11.17, 화) 🇨🇳 중국 본토 증시는 미국 상무부(BIS)의 첨단 AI 칩 원격 접속 통제 강화 발표 속 반도체 자립화 테마가 오전 상승을 견인했으나, 오후 들어 차익 매물이..."
+      ]
     },
     {
       "id": "HANAchina/72279",
@@ -3035,12 +3046,12 @@
       "datetime": "2026-11-17T08:04:52.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "equity"
+        "semi"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": ">>AI 급락 전, 월가 거물들 엇갈린 행보: 브리지워터·소로스, 3분기 Nvidia 대폭 매도…‘돈나무 언니’·Tepper는 역으로 매수 확대, Druckenmiller는 Sandisk·TSMC 전량 매도...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -3049,8 +3060,7 @@
         "SNDK",
         "STX",
         "INTC"
-      ],
-      "summary": ">>AI 급락 전, 월가 거물들 엇갈린 행보: 브리지워터·소로스, 3분기 Nvidia 대폭 매도…‘돈나무 언니’·Tepper는 역으로 매수 확대, Druckenmiller는 Sandisk·TSMC 전량 매도..."
+      ]
     },
     {
       "id": "HANAchina/72275",
@@ -3059,16 +3069,13 @@
       "datetime": "2026-11-17T07:47:45.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "power",
-        "credit",
-        "macro",
-        "ai-policy"
+        "power"
       ],
-      "lead": 1,
       "score": 87,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력..."
+      "summary": ">>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72274",
@@ -6746,22 +6753,6 @@
       ]
     },
     {
-      "id": "insidertracking/69194",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69194",
-      "datetime": "2026-11-13T03:58:07.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "market-note"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "보도에 따르면 싱가포르 정부는 앨리스 황과 싱가포르에 등록된 기업 메가스피드(Megaspeed)의 허위 신고 가능성을 조사하기 위해 2025년 6월부터 올해 2월까지 앨리스 황의 여권을 압류하고 출국을 제한....",
-      "tickers": [
-        "AMD"
-      ]
-    },
-    {
       "id": "HANAchina/72069",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72069",
@@ -9462,11 +9453,11 @@
         "semi",
         "ai-policy"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미국의 첨단 반도체 원격 접근 제한 조치 발표에 대한 중국 상무부의 발언 •중국 상무부는 관련 상황을 주시하고 있다고 밝힘. 미국이 국가안보 개념을 확대 해석하고 수출통제를 남용해 중국 기업과 다른 국가..."
+      "summary": ">>미국의 첨단 반도체 원격 접근 제한 조치 발표에 대한 중국 상무부의 발언 •중국 상무부는 관련 상황을 주시하고 있다고 밝힘. 미국이 국가안보 개념을 확대 해석하고 수출통제를 남용해 중국 기업과 다른 국가...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72292",
@@ -9476,14 +9467,13 @@
       "localDateKst": "2026-11-17",
       "tags": [
         "earnings",
-        "semi",
-        "power"
+        "semi"
       ],
-      "lead": 2,
       "score": 65,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>CXMT 3Q 실적 설명회: 주요 고객사와 장기공급계약 협의, 엣지 AI 메모리가 확장의 핵심 동력 •CXMT는 AI가 주도하는 구조적 수요 증가에 대응해 여러 주요 고객사와 장기공급계약(LTA)을..."
+      "summary": ">>CXMT 3Q 실적 설명회: 주요 고객사와 장기공급계약 협의, 엣지 AI 메모리가 확장의 핵심 동력 •CXMT는 AI가 주도하는 구조적 수요 증가에 대응해 여러 주요 고객사와 장기공급계약(LTA)을...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/69530",
@@ -9546,18 +9536,15 @@
       "datetime": "2026-11-17T12:03:45.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "japan"
+        "market-note"
       ],
       "score": 85,
       "hasText": true,
+      "summary": ">>APEC 선전 정상회의, 미중 관계 일시적 휴전 속 아태 기업들의 재편 (대만경제일보) •미중 정상회담 : 11월 19일 선전에서 트럼프·시진핑·푸틴 3국 정상회담 및 미중 정상회담 개최 예정. 미중러...",
       "tickers": [
         "GOOG",
         "BA"
-      ],
-      "summary": ">>APEC 선전 정상회의, 미중 관계 일시적 휴전 속 아태 기업들의 재편 (대만경제일보) •미중 정상회담 : 11월 19일 선전에서 트럼프·시진핑·푸틴 3국 정상회담 및 미중 정상회담 개최 예정. 미중러..."
+      ]
     },
     {
       "id": "insidertracking/69523",
@@ -9614,13 +9601,13 @@
         "ai-policy",
         "equity"
       ],
-      "lead": 1,
       "score": 54,
       "hasText": true,
+      "summary": "•Anthropic: 나스닥 글로벌 셀렉트 마켓에 A종 보통주 상장이 승인됐으며, 주식 코드는 ‘ANT’ •Amazon은 발행된 N종 주식의 48.2%를 보유. Amazon은 발행 주식의 23.8%를 보유...",
+      "lead": 2,
       "tickers": [
         "AMZN"
-      ],
-      "summary": "•Anthropic: 나스닥 글로벌 셀렉트 마켓에 A종 보통주 상장이 승인됐으며, 주식 코드는 ‘ANT’ •Amazon은 발행된 N종 주식의 48.2%를 보유. Amazon은 발행 주식의 23.8%를 보유..."
+      ]
     },
     {
       "id": "HANAchina/72286",
@@ -9629,14 +9616,14 @@
       "datetime": "2026-11-17T11:22:02.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "earnings"
+        "earnings",
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>CXMT: 올해 1-3분기 글로벌 DRAM 제품 공급 부족 지속 •CXMT는 실적 설명회에서 회사의 사업 발전은 한편으로 시장 수요 급증에 따른 것이며, 다른 한편으로는 회사의 규모 효과가 점차 발휘되고..."
+      "summary": ">>CXMT: 올해 1-3분기 글로벌 DRAM 제품 공급 부족 지속 •CXMT는 실적 설명회에서 회사의 사업 발전은 한편으로 시장 수요 급증에 따른 것이며, 다른 한편으로는 회사의 규모 효과가 점차 발휘되고...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "bornlupin/21170",
@@ -9783,13 +9770,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "**Nvidia, 중국 AI 칩 원격 접근 관련 고객사에 법적 리스크 경고 Nvidia warns chip buyers of legal risks tied to China AI access, CNBC...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "**Nvidia, 중국 AI 칩 원격 접근 관련 고객사에 법적 리스크 경고 Nvidia warns chip buyers of legal risks tied to China AI access, CNBC..."
+      ]
     },
     {
       "id": "insidertracking/69500",
@@ -9821,9 +9807,7 @@
       "datetime": "2026-11-17T08:12:12.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "geo",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 75,
       "hasText": true,
@@ -9833,11 +9817,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.17, 화) 🇨🇳 중국 본토 증시는 미국 상무부(BIS)의 첨단 AI 칩 원격 접속 통제 강화 발표 속 반도체 자립화 테마가 오전 상승을 견인했으나, 오후 들어 차익 매물이...",
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.11.17, 화) 🇨🇳 중국 본토 증시는 미국 상무부(BIS)의 첨단 AI 칩 원격 접속 통제 강화 발표 속 반도체 자립화 테마가 오전 상승을 견인했으나, 오후 들어 차익 매물이..."
+      ]
     },
     {
       "id": "HANAchina/72279",
@@ -9846,12 +9830,12 @@
       "datetime": "2026-11-17T08:04:52.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "semi",
-        "equity"
+        "semi"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": ">>AI 급락 전, 월가 거물들 엇갈린 행보: 브리지워터·소로스, 3분기 Nvidia 대폭 매도…‘돈나무 언니’·Tepper는 역으로 매수 확대, Druckenmiller는 Sandisk·TSMC 전량 매도...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -9860,8 +9844,7 @@
         "SNDK",
         "STX",
         "INTC"
-      ],
-      "summary": ">>AI 급락 전, 월가 거물들 엇갈린 행보: 브리지워터·소로스, 3분기 Nvidia 대폭 매도…‘돈나무 언니’·Tepper는 역으로 매수 확대, Druckenmiller는 Sandisk·TSMC 전량 매도..."
+      ]
     },
     {
       "id": "HANAchina/72275",
@@ -9870,16 +9853,13 @@
       "datetime": "2026-11-17T07:47:45.000Z",
       "localDateKst": "2026-11-17",
       "tags": [
-        "power",
-        "credit",
-        "macro",
-        "ai-policy"
+        "power"
       ],
-      "lead": 1,
       "score": 87,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력..."
+      "summary": ">>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72274",
