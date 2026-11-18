@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-18T07:52:04.448Z",
-  "attemptedAt": "2026-11-18T07:52:04.448Z",
-  "lastSuccessfulAt": "2026-11-18T07:52:04.448Z",
+  "generatedAt": "2026-11-18T08:21:41.402Z",
+  "attemptedAt": "2026-11-18T08:21:41.402Z",
+  "lastSuccessfulAt": "2026-11-18T08:21:41.402Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-04T07:51:58.836Z",
-  "until": "2026-11-18T07:51:58.836Z",
+  "since": "2026-11-04T08:21:35.677Z",
+  "until": "2026-11-18T08:21:35.677Z",
   "current24hWindow": {
     "start": "2026-11-16T23:00:00.000Z",
     "end": "2026-11-17T23:00:00.000Z",
@@ -85,13 +85,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1205,
+      "count": 1208,
       "freshCount": 39,
-      "eligibleTextCount": 1147,
-      "selectedCount": 125,
+      "eligibleTextCount": 1150,
+      "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69623
+      "lastPostId": 69626
     },
     {
       "channel": "bornlupin",
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 729,
-      "freshCount": 34,
-      "eligibleTextCount": 729,
-      "selectedCount": 127,
+      "count": 730,
+      "freshCount": 33,
+      "eligibleTextCount": 730,
+      "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72350
+      "lastPostId": 72354
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,57 +137,58 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2115,
+  "count": 2119,
   "retainedItemCount": 426,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2115,
-    "eligibleTextCount": 2057,
+    "observedCount": 2119,
+    "eligibleTextCount": 2061,
     "mediaOnlyCount": 58,
-    "mediaAttachedCount": 884,
-    "photoPostCount": 754,
+    "mediaAttachedCount": 888,
+    "photoPostCount": 758,
     "documentPostCount": 6,
     "imageOnlyCount": 5,
-    "highSignalCount": 352,
-    "broadSignalCount": 859,
+    "highSignalCount": 351,
+    "broadSignalCount": 862,
     "selectedRawCount": 372,
     "selectedEligibleCount": 372,
-    "selectedRawCoveragePct": 18.1,
+    "selectedRawCoveragePct": 18,
     "selectedOfObservedPct": 17.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 741,
-    "semi": 599,
-    "earnings": 280,
+    "semi": 603,
+    "kr-market": 91,
+    "earnings": 281,
+    "flows": 49,
+    "market-note": 742,
     "equity": 134,
     "healthcare": 50,
     "credit": 78,
     "ai-policy": 127,
-    "macro": 299,
-    "geo": 297,
-    "power": 268,
+    "macro": 297,
+    "geo": 295,
+    "power": 267,
     "media-only": 56,
-    "optical": 25,
-    "kr-market": 90,
-    "flows": 46,
+    "optical": 24,
     "japan": 57,
     "insider": 2
   },
   "tickerCounts": {
-    "NVDA": 357,
+    "NVDA": 361,
+    "TSM": 67,
+    "2454.TW": 7,
     "GOOG": 61,
     "GS": 3,
     "WFC": 1,
     "MS": 4,
     "BCS": 2,
-    "AMD": 39,
+    "AMD": 38,
     "GOOGL": 4,
     "WWD": 1,
-    "TSM": 67,
     "009150.KS": 2,
     "MRVL": 2,
     "CRWV": 17,
@@ -207,11 +208,10 @@
     "BE": 14,
     "META": 2,
     "CAT": 2,
-    "2454.TW": 6,
     "ARM": 2,
     "AVGO": 15,
     "CRWD": 1,
-    "SMCI": 3,
+    "SMCI": 2,
     "APLD": 1,
     "319660.KQ": 1,
     "066570.KS": 1,
@@ -255,19 +255,19 @@
     "INTC": 1
   },
   "themes": [
-    "Market Notes (741 posts in 14-day research window): 2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000...",
-    "Semiconductors/Memory (599 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%, 74.9%로 높은 수익성 유지하며 영업이익과 EPS도 사상 최고치 기록. • Vera Rubin 폭발적 초기...",
-    "Macro/Rates (299 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며 필리핀이 알래스카 LNG 프로젝트의 주요 협력국이 될 수 있다고 밝혀. 또한 필리핀과의 정상회담 이후 대규모...",
-    "Geopolitics (297 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Earnings/Corporate (280 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "AI Power/Grid (268 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
+    "Market Notes (742 posts in 14-day research window): 2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000...",
+    "Semiconductors/Memory (603 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%, 74.9%로 높은 수익성 유지하며 영업이익과 EPS도 사상 최고치 기록. • Vera Rubin 폭발적 초기...",
+    "Macro/Rates (297 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며 필리핀이 알래스카 LNG 프로젝트의 주요 협력국이 될 수 있다고 밝혀. 또한 필리핀과의 정상회담 이후 대규모...",
+    "Geopolitics (295 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Earnings/Corporate (281 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "AI Power/Grid (267 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU...",
     "Equity/Analyst (134 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
     "AI Policy/Export Controls (127 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 357,
+      "count": 361,
       "text": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     },
     {
@@ -297,7 +297,7 @@
     },
     {
       "key": "AMD",
-      "count": 39,
+      "count": 38,
       "text": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     },
     {
@@ -333,7 +333,7 @@
       "topics": [
         "macro"
       ],
-      "count": 299,
+      "count": 297,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며 필리핀이 알래스카 LNG 프로젝트의 주요 협력국이 될 수 있다고 밝혀. 또한 필리핀과의 정상회담 이후 대규모..."
     },
     {
@@ -342,7 +342,7 @@
       "topics": [
         "geo"
       ],
-      "count": 297,
+      "count": 295,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -360,7 +360,7 @@
       "topics": [
         "semi"
       ],
-      "count": 599,
+      "count": 603,
       "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%, 74.9%로 높은 수익성 유지하며 영업이익과 EPS도 사상 최고치 기록. • Vera Rubin 폭발적 초기..."
     },
     {
@@ -369,8 +369,8 @@
       "topics": [
         "optical"
       ],
-      "count": 25,
-      "focus": "No retained full-text sample; 25 observed posts in the 14-day research window."
+      "count": 24,
+      "focus": "No retained full-text sample; 24 observed posts in the 14-day research window."
     },
     {
       "id": "power",
@@ -378,7 +378,7 @@
       "topics": [
         "power"
       ],
-      "count": 268,
+      "count": 267,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 데이터센터 • 아이렌 (IREN) — 마이크로소프트의 설계 변경 요청에 따라 계약상 납품 일정을 연장. 지연 페널티는 부과되지 않으며, GPU..."
     },
     {
@@ -396,7 +396,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 90,
+      "count": 91,
       "focus": "•위안화 고시환율 가치 2022년 이후 최고"
     },
     {
@@ -423,7 +423,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 280,
+      "count": 281,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -450,7 +450,7 @@
       "topics": [
         "flows"
       ],
-      "count": 46,
+      "count": 49,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -468,7 +468,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 741,
+      "count": 742,
       "focus": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     }
   ],
@@ -1355,32 +1355,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/71539",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71539",
-      "datetime": "2026-11-04T08:20:07.000Z",
-      "localDateKst": "2026-11-04",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "중화권 마감 시황 (26.11.04, 수) 🇨🇳 중국 본토 증시는 미국 중간선거 결과에 따른 대중 관세 공포 완화와 반도체 섹터의 폭발적인 숏스퀴즈에 힘입어 기록적인 폭등장을 연출. 특히 창업판지수는...",
-      "lead": 2,
-      "tickers": [
-        "AMD",
-        "TSM",
-        "SMCI"
-      ]
-    },
-    {
       "id": "HANAchina/72002",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72002",
@@ -1684,9 +1658,136 @@
       "hasText": true,
       "tickers": [],
       "summary": "스탠리 드러켄밀러 TomorrowX Summit 대담 26년 11월 17일 * 시장 관점: 투자 경력상 손꼽힐 정도로 향후 12개월의 불확실성이 극심함 * 대응 전략: 공격적 수익 추구보다 자본 보존을..."
+    },
+    {
+      "id": "HANAchina/72275",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72275",
+      "datetime": "2026-11-17T07:47:45.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "power"
+      ],
+      "score": 87,
+      "hasText": true,
+      "summary": ">>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력...",
+      "lead": 1,
+      "tickers": []
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/72354",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72354",
+      "datetime": "2026-11-18T08:16:11.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "semi",
+        "kr-market",
+        "earnings",
+        "flows"
+      ],
+      "score": 77,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "TSM",
+        "2454.TW"
+      ],
+      "summary": "중화권 마감 시황 (26.11.17, 수) 🇨🇳 중국 본토 증시는 장 초반 약세를 딛고 오후 들어 AI 컴퓨팅 인프라와 반도체 공급망 중심으로 매수세가 유입되며 소폭 상승 마감. 양대 시장 거래대금은 전일..."
+    },
+    {
+      "id": "insidertracking/69625",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69625",
+      "datetime": "2026-11-18T08:11:25.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아 오버나잇. 오늘 아침에 5% 상승 → 1%대로 밀렸다가 다시 2.4% 상승중"
+    },
+    {
+      "id": "insidertracking/69624",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69624",
+      "datetime": "2026-11-18T08:10:34.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "미국 레딧 관심도 엔비디아 > 앤트로픽"
+    },
+    {
+      "id": "HANAchina/72353",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72353",
+      "datetime": "2026-11-18T07:54:58.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "semi",
+        "flows"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>TrendForce : HBM4 내년 100% 이상 가격 상승, NAND는 2분기부터 하락 전환 전망 •TrendForce는 AI 수요가 HBM과 DRAM 가격을 계속 끌어올릴 것으로 전망. HBM4의..."
+    },
+    {
+      "id": "HANAchina/72351",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72351",
+      "datetime": "2026-11-18T07:53:37.000Z",
+      "localDateKst": "2026-11-18",
+      "tags": [
+        "semi",
+        "kr-market",
+        "flows"
+      ],
+      "score": 64,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 2,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>5,450억 달러! 골드만삭스, AI 프로젝트 금융 전망 대폭 상향… 하지만 핵심 보증자인 Nvidia는 이탈 중 •AI 프로젝트 금융 중 칩 관련 금융은 3,200억 달러로 올해보다 7배 증가할 전망...."
+    },
     {
       "id": "HANAchina/72348",
       "channel": "HANAchina",
@@ -2174,13 +2275,12 @@
       "datetime": "2026-11-17T22:54:12.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "credit",
-        "macro"
+        "market-note"
       ],
       "score": 69,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>(상세) 드러켄밀러, 구리 가격 약세 전망·주식 포지션 중립…“현재 시장 가시성, 기억상 가장 낮아” •Stan Druckenmiller는 경제와 통화정책 전망의 불확실성이 매우 높은 상황에서 포지션을..."
+      "summary": ">>(상세) 드러켄밀러, 구리 가격 약세 전망·주식 포지션 중립…“현재 시장 가시성, 기억상 가장 낮아” •Stan Druckenmiller는 경제와 통화정책 전망의 불확실성이 매우 높은 상황에서 포지션을...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21184",
@@ -2225,13 +2325,13 @@
         "earnings",
         "semi"
       ],
-      "lead": 2,
       "score": 56,
       "hasText": true,
+      "summary": ">>FT 보도 : Nvidia ‘숨겨진’ 주요 시장 - 싱가포르 법인, 지난해 매출 1,000억 달러 돌파…전년비 72% 증가 •고객 청구지 주소 기준으로 Nvidia의 2025회계연도 싱가포르는 미국에 이어...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>FT 보도 : Nvidia ‘숨겨진’ 주요 시장 - 싱가포르 법인, 지난해 매출 1,000억 달러 돌파…전년비 72% 증가 •고객 청구지 주소 기준으로 Nvidia의 2025회계연도 싱가포르는 미국에 이어..."
+      ]
     },
     {
       "id": "HANAchina/72310",
@@ -2242,13 +2342,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "•Nvidia 이사회 의장: 회사 내부와 외부에서 CEO 후보를 찾을 것임. •이는 “신중한 과정”이 될 것임. •CEO 선임 절차를 “서두르지는 않을 것”",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "•Nvidia 이사회 의장: 회사 내부와 외부에서 CEO 후보를 찾을 것임. •이는 “신중한 과정”이 될 것임. •CEO 선임 절차를 “서두르지는 않을 것”"
+      ]
     },
     {
       "id": "bornlupin/21182",
@@ -6562,54 +6662,6 @@
       ]
     },
     {
-      "id": "insidertracking/69227",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69227",
-      "datetime": "2026-11-13T22:26:54.000Z",
-      "localDateKst": "2026-11-14",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한...",
-      "lead": 2,
-      "tickers": [
-        "NVDA",
-        "MSFT",
-        "AVGO",
-        "AMZN",
-        "APLD"
-      ]
-    },
-    {
-      "id": "insidertracking/69224",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69224",
-      "datetime": "2026-11-13T22:23:38.000Z",
-      "localDateKst": "2026-11-14",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 14일 미장 마감 S&P 500 - 7,561.67 -0.40% 다우 30 - 52,347.55 +0.10% 나스닥 - 25,136.27 -0.91% 러셀 2000 - 2,790.49...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/72097",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72097",
@@ -6848,60 +6900,6 @@
       "tickers": [
         "NVDA"
       ]
-    },
-    {
-      "id": "HANAchina/72074",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72074",
-      "datetime": "2026-11-13T05:44:19.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "semi"
-      ],
-      "score": 85,
-      "hasText": true,
-      "summary": ">>젠슨 황 사임에 ASIC 부각… 대만 반도체 업체 수혜 가능성 주목 (대만경제일보) •젠슨 황 사임으로 AI 칩 경쟁 구도가 재평가되면서 ASIC이 다시 주목받고 있음. 대만 증시에서는 MediaTek,...",
-      "lead": 1,
-      "tickers": [],
-      "listTickers": [
-        "AMD",
-        "MSFT",
-        "GOOG",
-        "AVGO",
-        "AMZN",
-        "2454.TW"
-      ]
-    },
-    {
-      "id": "HANAchina/72073",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72073",
-      "datetime": "2026-11-13T05:40:49.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "market-note"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": ">>젠슨 황 전격 사임, 배후에 의문 증폭… 백악관이 암묵적으로 개입했나? 향후 복귀 가능성은? (중국언론) •젠슨 황은 지난 일요일 이사회가 강력하게 지지한 지 불과 며칠 만인 수요일 밤 사임했음. 수요일...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "HANAchina/72071",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72071",
-      "datetime": "2026-11-13T05:24:38.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "geo"
-      ],
-      "score": 62,
-      "hasText": true,
-      "summary": ">>바클레이즈: 미·이란 ‘전쟁도 평화도 아닌’ 교착 상태가 트럼프 임기 종료까지 지속될 가능성에 대비해야 함 •바클레이즈는 미·이란 충돌이 1년 내 종료될 가능성이 50%를 밑돌며, ‘장기화’가 기본...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/21143",
@@ -8597,13 +8595,12 @@
       "datetime": "2026-11-17T22:54:12.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "credit",
-        "macro"
+        "market-note"
       ],
       "score": 69,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>(상세) 드러켄밀러, 구리 가격 약세 전망·주식 포지션 중립…“현재 시장 가시성, 기억상 가장 낮아” •Stan Druckenmiller는 경제와 통화정책 전망의 불확실성이 매우 높은 상황에서 포지션을..."
+      "summary": ">>(상세) 드러켄밀러, 구리 가격 약세 전망·주식 포지션 중립…“현재 시장 가시성, 기억상 가장 낮아” •Stan Druckenmiller는 경제와 통화정책 전망의 불확실성이 매우 높은 상황에서 포지션을...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21184",
@@ -8648,13 +8645,13 @@
         "earnings",
         "semi"
       ],
-      "lead": 2,
       "score": 56,
       "hasText": true,
+      "summary": ">>FT 보도 : Nvidia ‘숨겨진’ 주요 시장 - 싱가포르 법인, 지난해 매출 1,000억 달러 돌파…전년비 72% 증가 •고객 청구지 주소 기준으로 Nvidia의 2025회계연도 싱가포르는 미국에 이어...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>FT 보도 : Nvidia ‘숨겨진’ 주요 시장 - 싱가포르 법인, 지난해 매출 1,000억 달러 돌파…전년비 72% 증가 •고객 청구지 주소 기준으로 Nvidia의 2025회계연도 싱가포르는 미국에 이어..."
+      ]
     },
     {
       "id": "HANAchina/72310",
@@ -8665,13 +8662,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "•Nvidia 이사회 의장: 회사 내부와 외부에서 CEO 후보를 찾을 것임. •이는 “신중한 과정”이 될 것임. •CEO 선임 절차를 “서두르지는 않을 것”",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "•Nvidia 이사회 의장: 회사 내부와 외부에서 CEO 후보를 찾을 것임. •이는 “신중한 과정”이 될 것임. •CEO 선임 절차를 “서두르지는 않을 것”"
+      ]
     },
     {
       "id": "bornlupin/21182",
