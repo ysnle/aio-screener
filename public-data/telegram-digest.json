@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-19T03:52:00.272Z",
-  "attemptedAt": "2026-11-19T03:52:00.272Z",
-  "lastSuccessfulAt": "2026-11-19T03:52:00.272Z",
+  "generatedAt": "2026-11-19T04:21:59.852Z",
+  "attemptedAt": "2026-11-19T04:21:59.852Z",
+  "lastSuccessfulAt": "2026-11-19T04:21:59.852Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-05T03:51:53.266Z",
-  "until": "2026-11-19T03:51:53.266Z",
+  "since": "2026-11-05T04:21:54.980Z",
+  "until": "2026-11-19T04:21:54.980Z",
   "current24hWindow": {
     "start": "2026-11-17T23:00:00.000Z",
     "end": "2026-11-18T23:00:00.000Z",
@@ -85,34 +85,34 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1214,
+      "count": 1213,
       "freshCount": 40,
-      "eligibleTextCount": 1153,
+      "eligibleTextCount": 1152,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69725
+      "lastPostId": 69728
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 184,
-      "freshCount": 37,
-      "eligibleTextCount": 184,
+      "count": 185,
+      "freshCount": 38,
+      "eligibleTextCount": 185,
       "selectedCount": 120,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21199
+      "lastPostId": 21200
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 727,
-      "freshCount": 38,
+      "freshCount": 18,
       "eligibleTextCount": 727,
       "selectedCount": 126,
       "error": null,
@@ -138,7 +138,7 @@
     }
   ],
   "count": 2125,
-  "retainedItemCount": 432,
+  "retainedItemCount": 423,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -147,12 +147,12 @@
     "observedCount": 2125,
     "eligibleTextCount": 2064,
     "mediaOnlyCount": 61,
-    "mediaAttachedCount": 873,
-    "photoPostCount": 736,
+    "mediaAttachedCount": 872,
+    "photoPostCount": 735,
     "documentPostCount": 6,
     "imageOnlyCount": 6,
     "highSignalCount": 346,
-    "broadSignalCount": 867,
+    "broadSignalCount": 868,
     "selectedRawCount": 371,
     "selectedEligibleCount": 371,
     "selectedRawCoveragePct": 18,
@@ -160,12 +160,12 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "semi": 622,
+    "market-note": 727,
     "equity": 140,
-    "geo": 300,
-    "semi": 621,
+    "geo": 298,
     "power": 259,
     "healthcare": 54,
-    "market-note": 726,
     "earnings": 276,
     "kr-market": 90,
     "flows": 51,
@@ -178,6 +178,7 @@
     "insider": 2
   },
   "tickerCounts": {
+    "TSLA": 41,
     "BE": 15,
     "NVDA": 387,
     "MU": 32,
@@ -189,7 +190,6 @@
     "AMD": 37,
     "SMCI": 3,
     "QCOM": 1,
-    "TSLA": 40,
     "CRWV": 18,
     "MSFT": 57,
     "TSM": 67,
@@ -260,9 +260,9 @@
     "285A.T": 1
   },
   "themes": [
-    "Market Notes (726 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획...",
-    "Semiconductors/Memory (621 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
-    "Geopolitics (300 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Market Notes (727 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획...",
+    "Semiconductors/Memory (622 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
+    "Geopolitics (298 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Macro/Rates (292 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
     "Earnings/Corporate (276 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
     "AI Power/Grid (259 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
@@ -297,8 +297,8 @@
     },
     {
       "key": "TSLA",
-      "count": 40,
-      "text": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
+      "count": 41,
+      "text": "일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을 내쫓은 것에 비유하며, 기회가 된다면 당연히 그를 영입 하고 싶다고 밝혔다. 마이클 조던에 비유한 젠슨 황의..."
     },
     {
       "key": "AMD",
@@ -308,7 +308,7 @@
     {
       "key": "MU",
       "count": 32,
-      "text": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
+      "text": "11월 16일 미국 증시 프리마켓 브리핑 미국 지수선물은 기술주 중심 약세. 다우 선물 -0.19%, S&P500 선물 -0.55%, 나스닥100 선물 -1.16%, 러셀2000 선물 -0.52% 기록 중이며..."
     },
     {
       "key": "005930.KS",
@@ -347,7 +347,7 @@
       "topics": [
         "geo"
       ],
-      "count": 300,
+      "count": 298,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -365,7 +365,7 @@
       "topics": [
         "semi"
       ],
-      "count": 621,
+      "count": 622,
       "focus": ">>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고..."
     },
     {
@@ -473,7 +473,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 726,
+      "count": 727,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획..."
     }
   ],
@@ -1685,6 +1685,23 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/21200",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21200",
+      "datetime": "2026-11-19T04:16:34.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "TSLA"
+      ],
+      "summary": "머스크의 '테라팹', 반도체 장비 구매 위해 한국 기업들과 협상 중 일론 머스크의 테라팹은 한국 장비업체 GST와 스크러버(유해가스 정화장치) 및 칠러(온도조절장치) 공급을 협의 중이다 ...."
+    },
+    {
       "id": "bornlupin/21199",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21199",
@@ -2106,14 +2123,13 @@
       "localDateKst": "2026-11-19",
       "tags": [
         "macro",
-        "japan",
-        "flows"
+        "japan"
       ],
-      "lead": 2,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>9월 해외 미 국채 보유액 급감, 중국·일본·영국 3대 채권국 일제히 매도 •미 재무부 TIC 보고서에 따르면 9월 해외의 미 국채 보유액은 전월 대비 755억달러 감소했음. 미국 장기자본 순유입은..."
+      "summary": ">>9월 해외 미 국채 보유액 급감, 중국·일본·영국 3대 채권국 일제히 매도 •미 재무부 TIC 보고서에 따르면 9월 해외의 미 국채 보유액은 전월 대비 755억달러 감소했음. 미국 장기자본 순유입은...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/72374",
@@ -2123,16 +2139,14 @@
       "localDateKst": "2026-11-19",
       "tags": [
         "semi",
-        "power",
-        "ai-policy",
         "earnings"
       ],
       "score": 74,
       "hasText": true,
+      "summary": ">>논란 시장 일시 회피? 엔비디아 전략 대전환, H시리즈 칩 중국 출하 중단 •엔비디아 대행 CEO 코렛사는 17일 실적 발표에서 더 이상 중국에 Hopper(H) 시리즈 칩을 출하하지 않는다고 밝힘....",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>논란 시장 일시 회피? 엔비디아 전략 대전환, H시리즈 칩 중국 출하 중단 •엔비디아 대행 CEO 코렛사는 17일 실적 발표에서 더 이상 중국에 Hopper(H) 시리즈 칩을 출하하지 않는다고 밝힘...."
+      ]
     },
     {
       "id": "insidertracking/69684",
@@ -2144,13 +2158,13 @@
         "semi",
         "macro"
       ],
-      "lead": 1,
       "score": 68,
       "hasText": true,
+      "summary": "일론 머스크가 엔비디아의 젠슨 황 퇴임 결정은 실수였다고 비판하며, 젠슨 황과 비공개로 대화를 나눈 사실을 확인. 또한 자신이라면 젠슨 황을 직접 영입하겠다며 “누가 그를 고용하고 싶어 하지 않겠습니까?”라고...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "일론 머스크가 엔비디아의 젠슨 황 퇴임 결정은 실수였다고 비판하며, 젠슨 황과 비공개로 대화를 나눈 사실을 확인. 또한 자신이라면 젠슨 황을 직접 영입하겠다며 “누가 그를 고용하고 싶어 하지 않겠습니까?”라고..."
+      ]
     },
     {
       "id": "HANAchina/72373",
@@ -2159,14 +2173,14 @@
       "datetime": "2026-11-18T23:09:26.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>마이크로소프트와 인텔, Azure 및 칩 협력 확대…자체 개발 칩에 최초로 EMIB 패키징 도입 •11월 18일 마이크로소프트와 인텔은 전략적 협력을 확대한다고 발표하고, Azure 클라우드와 AI 인프라...",
       "tickers": [
         "MSFT"
-      ],
-      "summary": ">>마이크로소프트와 인텔, Azure 및 칩 협력 확대…자체 개발 칩에 최초로 EMIB 패키징 도입 •11월 18일 마이크로소프트와 인텔은 전략적 협력을 확대한다고 발표하고, Azure 클라우드와 AI 인프라..."
+      ]
     },
     {
       "id": "HANAchina/72371",
@@ -2176,16 +2190,15 @@
       "localDateKst": "2026-11-19",
       "tags": [
         "semi",
-        "credit",
-        "power"
+        "credit"
       ],
-      "lead": 2,
       "score": 71,
       "hasText": true,
+      "summary": ">>무디스: 엔비디아 신용등급 전망 하향 •무디스는 엔비디아의 신용등급 전망을 기존 ‘긍정적’에서 ‘안정적’으로 하향하고, Aa1 등급은 유지했음. 이번 등급은 엔비디아의 뛰어난 재무 역량과 인공지능...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>무디스: 엔비디아 신용등급 전망 하향 •무디스는 엔비디아의 신용등급 전망을 기존 ‘긍정적’에서 ‘안정적’으로 하향하고, Aa1 등급은 유지했음. 이번 등급은 엔비디아의 뛰어난 재무 역량과 인공지능..."
+      ]
     },
     {
       "id": "insidertracking/69683",
@@ -2194,14 +2207,12 @@
       "datetime": "2026-11-18T23:01:21.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "power",
-        "equity"
+        "power"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
-      "tickers": [],
-      "summary": "텍사스에서 데이터센터 승인 재개 • 스페이스x ========================= ~ The data-center moratorium in Texas has ended, and much..."
+      "summary": "텍사스에서 데이터센터 승인 재개 • 스페이스x ========================= ~ The data-center moratorium in Texas has ended, and much...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69682",
@@ -2534,14 +2545,14 @@
       "datetime": "2026-11-18T15:23:24.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "power"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
+      "summary": ">>대형 원통형 배터리 120mm로 확대, 대용량 전기차 모델 경쟁 •Envision AESC는 46120 원통형 배터리 누적 출하량이 1,000만 개를 돌파했다고 밝힘. 46mm 직경에 높이 120mm를...",
       "tickers": [
         "373220.KS"
-      ],
-      "summary": ">>대형 원통형 배터리 120mm로 확대, 대용량 전기차 모델 경쟁 •Envision AESC는 46120 원통형 배터리 누적 출하량이 1,000만 개를 돌파했다고 밝힘. 46mm 직경에 높이 120mm를..."
+      ]
     },
     {
       "id": "HANAchina/72365",
@@ -2552,11 +2563,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>고금리 지속 압박에 글로벌 신용시장 스트레스 테스트… 부도 확산 가능성 (중국언론) •블룸버그 런던 글로벌 신용 포럼에서 여러 자산운용사 고위 관계자들은 글로벌 신용시장에 대한 압력이 계속 커지고 있다고..."
+      "summary": ">>고금리 지속 압박에 글로벌 신용시장 스트레스 테스트… 부도 확산 가능성 (중국언론) •블룸버그 런던 글로벌 신용 포럼에서 여러 자산운용사 고위 관계자들은 글로벌 신용시장에 대한 압력이 계속 커지고 있다고...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72364",
@@ -2567,11 +2578,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>연준 이사 월러: 1월 금리 인상 신호를 내고 싶지 않다면 12월에 50bp 인상해야 함"
+      "summary": ">>연준 이사 월러: 1월 금리 인상 신호를 내고 싶지 않다면 12월에 50bp 인상해야 함",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72362",
@@ -2582,16 +2593,16 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 63,
       "hasText": true,
+      "summary": ">>NVIDIA, 반도체 공급망 협력 확대… SPIL 증설에 수십억 달러 지원 •NVIDIA가 TSMC, SPIL, Kinsus Interconnect Technology, 삼성전기, Amkor...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM",
         "009150.KS",
         "AMKR"
-      ],
-      "summary": ">>NVIDIA, 반도체 공급망 협력 확대… SPIL 증설에 수십억 달러 지원 •NVIDIA가 TSMC, SPIL, Kinsus Interconnect Technology, 삼성전기, Amkor..."
+      ]
     },
     {
       "id": "HANAchina/72361",
@@ -2600,7 +2611,7 @@
       "datetime": "2026-11-18T12:00:40.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 51,
       "hasText": true,
@@ -2610,10 +2621,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>“500억 달러를 가지고 다시 창업”? “머스크에게 합류”? 젠슨 황의 다음 행선지는 어디일까? (중국언론) •Prof G Markets 프로그램에서 Semafor 기자 Rohan Goswami는 젠슨...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>“500억 달러를 가지고 다시 창업”? “머스크에게 합류”? 젠슨 황의 다음 행선지는 어디일까? (중국언론) •Prof G Markets 프로그램에서 Semafor 기자 Rohan Goswami는 젠슨..."
+      ]
     },
     {
       "id": "HANAchina/72360",
@@ -2622,17 +2633,16 @@
       "datetime": "2026-11-18T11:53:46.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "semi"
       ],
       "score": 68,
       "hasText": true,
+      "summary": ">>하비 존스: 젠슨 황을 만든 사람, 결국 젠슨 황을 떠나게 한 사람 (중국언론) •하비 존스는 Nvidia 창립 초기인 1993년 이사회에 합류해 33년간 재직했으며, Nvidia 역사상 첫 이사회...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "SNPS"
-      ],
-      "summary": ">>하비 존스: 젠슨 황을 만든 사람, 결국 젠슨 황을 떠나게 한 사람 (중국언론) •하비 존스는 Nvidia 창립 초기인 1993년 이사회에 합류해 33년간 재직했으며, Nvidia 역사상 첫 이사회..."
+      ]
     },
     {
       "id": "insidertracking/69636",
@@ -2737,13 +2747,13 @@
         "semi",
         "earnings"
       ],
-      "lead": 1,
       "score": 63,
       "hasText": true,
+      "summary": ">>“AI 중앙은행”이 양적긴축에 돌입! Nvidia 신임 CEO, 투자 문턱 높이며 Neocloud 자금줄 위기 •Nvidia 임시 CEO Kress는 실적발표에서 투자와 보증을 엄격하게 평가하겠다고...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>“AI 중앙은행”이 양적긴축에 돌입! Nvidia 신임 CEO, 투자 문턱 높이며 Neocloud 자금줄 위기 •Nvidia 임시 CEO Kress는 실적발표에서 투자와 보증을 엄격하게 평가하겠다고..."
+      ]
     },
     {
       "id": "insidertracking/69631",
@@ -8495,21 +8505,6 @@
       "summary": "[SemiAnalysis] 미국 데이터센터 규제 전망 1. 민주당이 상하원을 장악해도 트럼프의 거부권과 상원 의석 구조 때문에 강력한 연방 규제 도입은 제한적. 2. 양당 모두 데이터센터 개발사가 전력망 확충...",
       "lead": 1,
       "tickers": []
-    },
-    {
-      "id": "bornlupin/21011",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21011",
-      "datetime": "2026-11-05T04:58:40.000Z",
-      "localDateKst": "2026-11-05",
-      "tags": [
-        "power"
-      ],
-      "score": 65,
-      "hasText": true,
-      "summary": "SemiAnalysis) 미국 데이터센터 규제 전망: 수요 훼손보다 비용 증가와 공급 지연의 문제 1. 민주당이 상하원을 장악해도 연방 차원의 급격한 규제 변화는 제한적 • 민주당이 의회를 장악하더라도 트럼프...",
-      "lead": 1,
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -8844,14 +8839,14 @@
       "datetime": "2026-11-18T15:23:24.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "power"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
+      "summary": ">>대형 원통형 배터리 120mm로 확대, 대용량 전기차 모델 경쟁 •Envision AESC는 46120 원통형 배터리 누적 출하량이 1,000만 개를 돌파했다고 밝힘. 46mm 직경에 높이 120mm를...",
       "tickers": [
         "373220.KS"
-      ],
-      "summary": ">>대형 원통형 배터리 120mm로 확대, 대용량 전기차 모델 경쟁 •Envision AESC는 46120 원통형 배터리 누적 출하량이 1,000만 개를 돌파했다고 밝힘. 46mm 직경에 높이 120mm를..."
+      ]
     },
     {
       "id": "HANAchina/72365",
@@ -8862,11 +8857,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>고금리 지속 압박에 글로벌 신용시장 스트레스 테스트… 부도 확산 가능성 (중국언론) •블룸버그 런던 글로벌 신용 포럼에서 여러 자산운용사 고위 관계자들은 글로벌 신용시장에 대한 압력이 계속 커지고 있다고..."
+      "summary": ">>고금리 지속 압박에 글로벌 신용시장 스트레스 테스트… 부도 확산 가능성 (중국언론) •블룸버그 런던 글로벌 신용 포럼에서 여러 자산운용사 고위 관계자들은 글로벌 신용시장에 대한 압력이 계속 커지고 있다고...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72364",
@@ -8877,11 +8872,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>연준 이사 월러: 1월 금리 인상 신호를 내고 싶지 않다면 12월에 50bp 인상해야 함"
+      "summary": ">>연준 이사 월러: 1월 금리 인상 신호를 내고 싶지 않다면 12월에 50bp 인상해야 함",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72362",
@@ -8892,16 +8887,16 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 63,
       "hasText": true,
+      "summary": ">>NVIDIA, 반도체 공급망 협력 확대… SPIL 증설에 수십억 달러 지원 •NVIDIA가 TSMC, SPIL, Kinsus Interconnect Technology, 삼성전기, Amkor...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM",
         "009150.KS",
         "AMKR"
-      ],
-      "summary": ">>NVIDIA, 반도체 공급망 협력 확대… SPIL 증설에 수십억 달러 지원 •NVIDIA가 TSMC, SPIL, Kinsus Interconnect Technology, 삼성전기, Amkor..."
+      ]
     },
     {
       "id": "HANAchina/72361",
@@ -8910,7 +8905,7 @@
       "datetime": "2026-11-18T12:00:40.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 51,
       "hasText": true,
@@ -8920,10 +8915,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>“500억 달러를 가지고 다시 창업”? “머스크에게 합류”? 젠슨 황의 다음 행선지는 어디일까? (중국언론) •Prof G Markets 프로그램에서 Semafor 기자 Rohan Goswami는 젠슨...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>“500억 달러를 가지고 다시 창업”? “머스크에게 합류”? 젠슨 황의 다음 행선지는 어디일까? (중국언론) •Prof G Markets 프로그램에서 Semafor 기자 Rohan Goswami는 젠슨..."
+      ]
     },
     {
       "id": "HANAchina/72360",
@@ -8932,17 +8927,16 @@
       "datetime": "2026-11-18T11:53:46.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "semi"
       ],
       "score": 68,
       "hasText": true,
+      "summary": ">>하비 존스: 젠슨 황을 만든 사람, 결국 젠슨 황을 떠나게 한 사람 (중국언론) •하비 존스는 Nvidia 창립 초기인 1993년 이사회에 합류해 33년간 재직했으며, Nvidia 역사상 첫 이사회...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "SNPS"
-      ],
-      "summary": ">>하비 존스: 젠슨 황을 만든 사람, 결국 젠슨 황을 떠나게 한 사람 (중국언론) •하비 존스는 Nvidia 창립 초기인 1993년 이사회에 합류해 33년간 재직했으며, Nvidia 역사상 첫 이사회..."
+      ]
     },
     {
       "id": "insidertracking/69636",
@@ -9047,13 +9041,13 @@
         "semi",
         "earnings"
       ],
-      "lead": 1,
       "score": 63,
       "hasText": true,
+      "summary": ">>“AI 중앙은행”이 양적긴축에 돌입! Nvidia 신임 CEO, 투자 문턱 높이며 Neocloud 자금줄 위기 •Nvidia 임시 CEO Kress는 실적발표에서 투자와 보증을 엄격하게 평가하겠다고...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>“AI 중앙은행”이 양적긴축에 돌입! Nvidia 신임 CEO, 투자 문턱 높이며 Neocloud 자금줄 위기 •Nvidia 임시 CEO Kress는 실적발표에서 투자와 보증을 엄격하게 평가하겠다고..."
+      ]
     },
     {
       "id": "insidertracking/69631",
