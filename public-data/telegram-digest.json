@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-19T00:51:30.600Z",
-  "attemptedAt": "2026-11-19T00:51:30.600Z",
-  "lastSuccessfulAt": "2026-11-19T00:51:30.600Z",
+  "generatedAt": "2026-11-19T01:21:42.032Z",
+  "attemptedAt": "2026-11-19T01:21:42.032Z",
+  "lastSuccessfulAt": "2026-11-19T01:21:42.032Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-05T00:51:25.836Z",
-  "until": "2026-11-19T00:51:25.836Z",
+  "since": "2026-11-05T01:21:37.722Z",
+  "until": "2026-11-19T01:21:37.722Z",
   "current24hWindow": {
     "start": "2026-11-17T23:00:00.000Z",
     "end": "2026-11-18T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1196,
-      "freshCount": 20,
-      "eligibleTextCount": 1135,
+      "count": 1197,
+      "freshCount": 40,
+      "eligibleTextCount": 1136,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69694
+      "lastPostId": 69695
     },
     {
       "channel": "bornlupin",
@@ -117,7 +117,7 @@
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72386
+      "lastPostId": 72387
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2109,
-  "retainedItemCount": 407,
+  "count": 2110,
+  "retainedItemCount": 418,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2109,
-    "eligibleTextCount": 2048,
+    "observedCount": 2110,
+    "eligibleTextCount": 2049,
     "mediaOnlyCount": 61,
-    "mediaAttachedCount": 866,
-    "photoPostCount": 737,
+    "mediaAttachedCount": 865,
+    "photoPostCount": 736,
     "documentPostCount": 6,
     "imageOnlyCount": 6,
     "highSignalCount": 348,
-    "broadSignalCount": 865,
+    "broadSignalCount": 866,
     "selectedRawCount": 370,
     "selectedEligibleCount": 370,
     "selectedRawCoveragePct": 18.1,
@@ -160,14 +160,14 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "macro": 295,
+    "semi": 614,
+    "geo": 298,
+    "earnings": 275,
+    "macro": 294,
     "kr-market": 89,
     "flows": 51,
     "equity": 138,
-    "semi": 613,
     "ai-policy": 140,
-    "geo": 297,
-    "earnings": 274,
     "power": 262,
     "market-note": 722,
     "media-only": 59,
@@ -178,6 +178,7 @@
     "insider": 2
   },
   "tickerCounts": {
+    "NVDA": 380,
     "AMD": 36,
     "AVGO": 16,
     "MU": 30,
@@ -185,7 +186,6 @@
     "QCOM": 1,
     "TSLA": 40,
     "CRWV": 18,
-    "NVDA": 379,
     "MSFT": 57,
     "TSM": 67,
     "PANW": 1,
@@ -260,11 +260,11 @@
     "285A.T": 1
   },
   "themes": [
-    "Market Notes (722 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획...",
-    "Semiconductors/Memory (613 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
-    "Geopolitics (297 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
-    "Macro/Rates (295 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
-    "Earnings/Corporate (274 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
+    "Market Notes (722 posts in 14-day research window): 애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와...",
+    "Semiconductors/Memory (614 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획 수립과 리스크 관리 개선을 지원하도록 기능을 확대. • 마이크로소프트 (MSFT) — 바이트댄스에 추가로...",
+    "Geopolitics (298 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Macro/Rates (294 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) • 나스닥: 24,452.46 (+0.51%) • 러셀 2000: 2,715.80 (+0.52%) • VIX:...",
+    "Earnings/Corporate (275 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
     "AI Power/Grid (262 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "AI Policy/Export Controls (140 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번...",
     "Equity/Analyst (138 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두..."
@@ -272,8 +272,8 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 379,
-      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) •..."
+      "count": 380,
+      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) • 나스닥: 24,452.46 (+0.51%) • 러셀 2000: 2,715.80 (+0.52%) • VIX:..."
     },
     {
       "key": "TSM",
@@ -338,8 +338,8 @@
       "topics": [
         "macro"
       ],
-      "count": 295,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
+      "count": 294,
+      "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) • 나스닥: 24,452.46 (+0.51%) • 러셀 2000: 2,715.80 (+0.52%) • VIX:..."
     },
     {
       "id": "geo",
@@ -347,7 +347,7 @@
       "topics": [
         "geo"
       ],
-      "count": 297,
+      "count": 298,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -365,8 +365,8 @@
       "topics": [
         "semi"
       ],
-      "count": 613,
-      "focus": ">>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고..."
+      "count": 614,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획 수립과 리스크 관리 개선을 지원하도록 기능을 확대. • 마이크로소프트 (MSFT) — 바이트댄스에 추가로..."
     },
     {
       "id": "optical",
@@ -428,7 +428,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 274,
+      "count": 275,
       "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
     },
     {
@@ -474,7 +474,7 @@
         "market-note"
       ],
       "count": 722,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획..."
+      "focus": "애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와..."
     }
   ],
   "pageMap": {
@@ -733,7 +733,10 @@
       "datetime": "2026-11-18T21:04:06.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "market-note"
+        "semi",
+        "power",
+        "ai-policy",
+        "equity"
       ],
       "score": 100,
       "hasText": true,
@@ -743,7 +746,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -755,7 +757,8 @@
         "ORCL",
         "SMCI",
         "V"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획..."
     },
     {
       "id": "insidertracking/69654",
@@ -764,7 +767,10 @@
       "datetime": "2026-11-18T21:02:47.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -774,10 +780,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) •...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) •..."
     },
     {
       "id": "insidertracking/69644",
@@ -1685,6 +1691,24 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69695",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69695",
+      "datetime": "2026-11-19T01:04:11.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "semi",
+        "geo"
+      ],
+      "lead": 1,
+      "score": 61,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "트럼프 대통령은 엔비디아 젠슨 황 CEO에 대해 “어떤 사람들은 대체할 수 없습니다”라고 언급하며, 젠슨 황과 일론 머스크 같은 인물들을 보호해야 한다고 강조. 전날 밤 시진핑 중국 국가주석과 반도체 및..."
+    },
+    {
       "id": "HANAchina/72386",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72386",
@@ -2031,10 +2055,9 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 72,
       "hasText": true,
-      "summary": "반도체주는 종목별로 엇갈린 흐름을 보이며 엔비디아 약 3%, 마이크론 테크놀로지 1%, 인텔 약 1% 하락. 반면 AMD는 5% 이상, 브로드컴은 3% 이상 상승. 대형 기술주는 대부분 상승세를 기록하며...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2044,7 +2067,8 @@
         "AVGO",
         "AMZN",
         "MU"
-      ]
+      ],
+      "summary": "반도체주는 종목별로 엇갈린 흐름을 보이며 엔비디아 약 3%, 마이크론 테크놀로지 1%, 인텔 약 1% 하락. 반면 AMD는 5% 이상, 브로드컴은 3% 이상 상승. 대형 기술주는 대부분 상승세를 기록하며..."
     },
     {
       "id": "insidertracking/69661",
@@ -2053,8 +2077,10 @@
       "datetime": "2026-11-18T21:10:19.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "earnings"
+        "earnings",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 79,
       "hasText": true,
       "media": {
@@ -2063,10 +2089,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "Palo Alto Networks 2027회계연도 1분기 실적 요약 실적 • 매출 $34.45억, YoY +39%, 예상 $33.1억 상회 • GAAP EPS $0.57, 전년 $0.47 • 비GAAP EPS...",
       "tickers": [
         "PANW"
-      ]
+      ],
+      "summary": "Palo Alto Networks 2027회계연도 1분기 실적 요약 실적 • 매출 $34.45억, YoY +39%, 예상 $33.1억 상회 • GAAP EPS $0.57, 전년 $0.47 • 비GAAP EPS..."
     },
     {
       "id": "insidertracking/69657",
@@ -2075,13 +2101,15 @@
       "datetime": "2026-11-18T21:05:56.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
+        "macro",
+        "power",
+        "kr-market",
         "earnings"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "로우스(LOW) Q3 2026 어닝콜 요약 긍정 요인: • 매출 및 EPS 예상 상회. 3분기 매출은 228억달러로 전년 대비 9.3% 증가, 동일점포매출은 1.8% 성장. 조정 희석 EPS는 3.10달러...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "로우스(LOW) Q3 2026 어닝콜 요약 긍정 요인: • 매출 및 EPS 예상 상회. 3분기 매출은 228억달러로 전년 대비 9.3% 증가, 동일점포매출은 1.8% 성장. 조정 희석 EPS는 3.10달러..."
     },
     {
       "id": "insidertracking/69656",
@@ -2090,13 +2118,14 @@
       "datetime": "2026-11-18T21:05:10.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
+        "macro",
+        "kr-market",
         "earnings"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "타겟(TGT) Q3 2026 어닝콜 요약 긍정 요인: • 매출 및 트래픽 개선. 3분기 동일점포매출은 5.6%, 순매출은 7.1% 증가. 오프라인 동일점포매출 +4.6%, 디지털 +10%로 전 채널에서 성장....",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "타겟(TGT) Q3 2026 어닝콜 요약 긍정 요인: • 매출 및 트래픽 개선. 3분기 동일점포매출은 5.6%, 순매출은 7.1% 증가. 오프라인 동일점포매출 +4.6%, 디지털 +10%로 전 채널에서 성장...."
     },
     {
       "id": "insidertracking/69655",
@@ -2105,7 +2134,10 @@
       "datetime": "2026-11-18T21:04:06.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "market-note"
+        "semi",
+        "power",
+        "ai-policy",
+        "equity"
       ],
       "score": 100,
       "hasText": true,
@@ -2115,7 +2147,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2127,7 +2158,8 @@
         "ORCL",
         "SMCI",
         "V"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획..."
     },
     {
       "id": "insidertracking/69654",
@@ -2136,7 +2168,10 @@
       "datetime": "2026-11-18T21:02:47.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -2146,10 +2181,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) •...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) •..."
     },
     {
       "id": "insidertracking/69653",
@@ -6437,22 +6472,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/69335",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69335",
-      "datetime": "2026-11-15T08:24:19.000Z",
-      "localDateKst": "2026-11-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "실리콘밸리에서 젠슨 황의 경영진 복귀 가능성이 화제로 떠오른 가운데, 여러 기업이 영입에 관심을 보이고 있다는 업계 관계자들의 발언이 나옴. 기술업계 내부 관계자 5명은 젠슨 황이 결국 실리콘밸리의 경영진...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "bornlupin/21157",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21157",
@@ -8573,10 +8592,9 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 72,
       "hasText": true,
-      "summary": "반도체주는 종목별로 엇갈린 흐름을 보이며 엔비디아 약 3%, 마이크론 테크놀로지 1%, 인텔 약 1% 하락. 반면 AMD는 5% 이상, 브로드컴은 3% 이상 상승. 대형 기술주는 대부분 상승세를 기록하며...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -8586,7 +8604,8 @@
         "AVGO",
         "AMZN",
         "MU"
-      ]
+      ],
+      "summary": "반도체주는 종목별로 엇갈린 흐름을 보이며 엔비디아 약 3%, 마이크론 테크놀로지 1%, 인텔 약 1% 하락. 반면 AMD는 5% 이상, 브로드컴은 3% 이상 상승. 대형 기술주는 대부분 상승세를 기록하며..."
     },
     {
       "id": "insidertracking/69661",
@@ -8595,8 +8614,10 @@
       "datetime": "2026-11-18T21:10:19.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "earnings"
+        "earnings",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 79,
       "hasText": true,
       "media": {
@@ -8605,10 +8626,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "Palo Alto Networks 2027회계연도 1분기 실적 요약 실적 • 매출 $34.45억, YoY +39%, 예상 $33.1억 상회 • GAAP EPS $0.57, 전년 $0.47 • 비GAAP EPS...",
       "tickers": [
         "PANW"
-      ]
+      ],
+      "summary": "Palo Alto Networks 2027회계연도 1분기 실적 요약 실적 • 매출 $34.45억, YoY +39%, 예상 $33.1억 상회 • GAAP EPS $0.57, 전년 $0.47 • 비GAAP EPS..."
     },
     {
       "id": "insidertracking/69657",
@@ -8617,13 +8638,15 @@
       "datetime": "2026-11-18T21:05:56.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
+        "macro",
+        "power",
+        "kr-market",
         "earnings"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "로우스(LOW) Q3 2026 어닝콜 요약 긍정 요인: • 매출 및 EPS 예상 상회. 3분기 매출은 228억달러로 전년 대비 9.3% 증가, 동일점포매출은 1.8% 성장. 조정 희석 EPS는 3.10달러...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "로우스(LOW) Q3 2026 어닝콜 요약 긍정 요인: • 매출 및 EPS 예상 상회. 3분기 매출은 228억달러로 전년 대비 9.3% 증가, 동일점포매출은 1.8% 성장. 조정 희석 EPS는 3.10달러..."
     },
     {
       "id": "insidertracking/69656",
@@ -8632,13 +8655,14 @@
       "datetime": "2026-11-18T21:05:10.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
+        "macro",
+        "kr-market",
         "earnings"
       ],
       "score": 73,
       "hasText": true,
-      "summary": "타겟(TGT) Q3 2026 어닝콜 요약 긍정 요인: • 매출 및 트래픽 개선. 3분기 동일점포매출은 5.6%, 순매출은 7.1% 증가. 오프라인 동일점포매출 +4.6%, 디지털 +10%로 전 채널에서 성장....",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "타겟(TGT) Q3 2026 어닝콜 요약 긍정 요인: • 매출 및 트래픽 개선. 3분기 동일점포매출은 5.6%, 순매출은 7.1% 증가. 오프라인 동일점포매출 +4.6%, 디지털 +10%로 전 채널에서 성장...."
     },
     {
       "id": "insidertracking/69655",
@@ -8647,7 +8671,10 @@
       "datetime": "2026-11-18T21:04:06.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "market-note"
+        "semi",
+        "power",
+        "ai-policy",
+        "equity"
       ],
       "score": 100,
       "hasText": true,
@@ -8657,7 +8684,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -8669,7 +8695,8 @@
         "ORCL",
         "SMCI",
         "V"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획..."
     },
     {
       "id": "insidertracking/69654",
@@ -8678,7 +8705,10 @@
       "datetime": "2026-11-18T21:02:47.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -8688,10 +8718,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) •...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) •..."
     },
     {
       "id": "insidertracking/69653",
