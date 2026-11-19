@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-19T14:51:37.481Z",
-  "attemptedAt": "2026-11-19T14:51:37.481Z",
-  "lastSuccessfulAt": "2026-11-19T14:51:37.481Z",
+  "generatedAt": "2026-11-19T16:22:11.168Z",
+  "attemptedAt": "2026-11-19T16:22:11.168Z",
+  "lastSuccessfulAt": "2026-11-19T16:22:11.168Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-05T14:51:33.149Z",
-  "until": "2026-11-19T14:51:33.149Z",
+  "since": "2026-11-05T16:22:06.914Z",
+  "until": "2026-11-19T16:22:06.914Z",
   "current24hWindow": {
     "start": "2026-11-17T23:00:00.000Z",
     "end": "2026-11-18T23:00:00.000Z",
@@ -108,11 +108,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 737,
-      "freshCount": 38,
+      "freshCount": 18,
       "eligibleTextCount": 737,
       "selectedCount": 125,
       "error": null,
@@ -138,7 +138,7 @@
     }
   ],
   "count": 2135,
-  "retainedItemCount": 415,
+  "retainedItemCount": 401,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -402,7 +402,7 @@
         "kr-market"
       ],
       "count": 90,
-      "focus": "•대만 증시 낙폭 확대, 4만선 다시 붕괴 •장중 대만가권 38,500pt (-4.1%) •로컬기관•외국인 동반 매도세 우위"
+      "focus": "No retained full-text sample; 90 observed posts in the 14-day research window."
     },
     {
       "id": "equity",
@@ -1435,10 +1435,7 @@
       "datetime": "2026-11-19T08:22:32.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "macro",
-        "semi",
-        "ai-policy",
-        "kr-market"
+        "semi"
       ],
       "score": 95,
       "hasText": true,
@@ -1448,11 +1445,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.19, 목) 🇨🇳 중국 본토 증시는 거래대금이 연중 최저 수준으로 급감한 가운데 장 막판 대형 지수 ETF로의 방어 자금 유입과 반도체 장비·소재주의 강세에 힘입어 낙폭 축소...",
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.11.19, 목) 🇨🇳 중국 본토 증시는 거래대금이 연중 최저 수준으로 급감한 가운데 장 막판 대형 지수 ETF로의 방어 자금 유입과 반도체 장비·소재주의 강세에 힘입어 낙폭 축소..."
+      ]
     },
     {
       "id": "HANAchina/71651",
@@ -1532,12 +1529,12 @@
       "tags": [
         "semi",
         "ai-policy",
-        "kr-market",
         "equity"
       ],
-      "lead": 1,
       "score": 90,
       "hasText": true,
+      "summary": "•미국 반도체 제조업체 프리마켓 강세. Anthropic의 IPO 임박했다는 소식이 영향 •Intel +3.1%, Marvell Techn +3.7%, ADR 기준 ARM Holdings +3.5%, SK...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "AMAT",
@@ -1546,8 +1543,7 @@
         "INTC",
         "ARM",
         "QCOM"
-      ],
-      "summary": "•미국 반도체 제조업체 프리마켓 강세. Anthropic의 IPO 임박했다는 소식이 영향 •Intel +3.1%, Marvell Techn +3.7%, ADR 기준 ARM Holdings +3.5%, SK..."
+      ]
     },
     {
       "id": "HANAchina/72210",
@@ -2013,12 +2009,12 @@
       "tags": [
         "semi",
         "ai-policy",
-        "kr-market",
         "equity"
       ],
-      "lead": 1,
       "score": 90,
       "hasText": true,
+      "summary": "•미국 반도체 제조업체 프리마켓 강세. Anthropic의 IPO 임박했다는 소식이 영향 •Intel +3.1%, Marvell Techn +3.7%, ADR 기준 ARM Holdings +3.5%, SK...",
+      "lead": 1,
       "tickers": [],
       "listTickers": [
         "AMAT",
@@ -2027,8 +2023,7 @@
         "INTC",
         "ARM",
         "QCOM"
-      ],
-      "summary": "•미국 반도체 제조업체 프리마켓 강세. Anthropic의 IPO 임박했다는 소식이 영향 •Intel +3.1%, Marvell Techn +3.7%, ADR 기준 ARM Holdings +3.5%, SK..."
+      ]
     },
     {
       "id": "insidertracking/69747",
@@ -2065,8 +2060,8 @@
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>2027년 ‘슈퍼달러’? •도이체방크가 2027년 달러 전망치를 상향 조정. AI 열풍이 미국 국채 실질금리를 끌어올리고 1조 달러가 넘는 외국인 주식자금 유입을 유도하면서 강한 ‘AI 달러’를..."
+      "summary": ">>2027년 ‘슈퍼달러’? •도이체방크가 2027년 달러 전망치를 상향 조정. AI 열풍이 미국 국채 실질금리를 끌어올리고 1조 달러가 넘는 외국인 주식자금 유입을 유도하면서 강한 ‘AI 달러’를...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72404",
@@ -2075,10 +2070,7 @@
       "datetime": "2026-11-19T08:22:32.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "macro",
-        "semi",
-        "ai-policy",
-        "kr-market"
+        "semi"
       ],
       "score": 95,
       "hasText": true,
@@ -2088,11 +2080,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.19, 목) 🇨🇳 중국 본토 증시는 거래대금이 연중 최저 수준으로 급감한 가운데 장 막판 대형 지수 ETF로의 방어 자금 유입과 반도체 장비·소재주의 강세에 힘입어 낙폭 축소...",
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.11.19, 목) 🇨🇳 중국 본토 증시는 거래대금이 연중 최저 수준으로 급감한 가운데 장 막판 대형 지수 ETF로의 방어 자금 유입과 반도체 장비·소재주의 강세에 힘입어 낙폭 축소..."
+      ]
     },
     {
       "id": "insidertracking/69743",
@@ -2132,11 +2124,8 @@
       "datetime": "2026-11-19T06:39:13.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "earnings",
-        "semi",
-        "power"
+        "earnings"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
       "media": {
@@ -2145,10 +2134,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "• 레노버 그룹 FY26/27 2분기 매출은 302.4억 달러(YoY +48%), 조정 순이익은 13.6억 달러(YoY +166%)로 컨센서스를 크게 상회하며 역대 최고치를 경신 했으나, 워런트 공정가치...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "• 레노버 그룹 FY26/27 2분기 매출은 302.4억 달러(YoY +48%), 조정 순이익은 13.6억 달러(YoY +166%)로 컨센서스를 크게 상회하며 역대 최고치를 경신 했으나, 워런트 공정가치..."
+      ]
     },
     {
       "id": "bornlupin/21206",
@@ -2254,13 +2244,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": ">>중국 AI 반도체 관련주 급락, 업계 “시장 소문 부정확” (중국언론) •11월 19일 A주 시장에서 Enflame, MetaX, Moore Threads 등 AI 반도체 관련주가 급락했음. 삼성전자가...",
+      "lead": 1,
       "tickers": [
         "005930.KS"
-      ],
-      "summary": ">>중국 AI 반도체 관련주 급락, 업계 “시장 소문 부정확” (중국언론) •11월 19일 A주 시장에서 Enflame, MetaX, Moore Threads 등 AI 반도체 관련주가 급락했음. 삼성전자가..."
+      ]
     },
     {
       "id": "bornlupin/21202",
@@ -2286,16 +2276,15 @@
       "datetime": "2026-11-19T04:39:48.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "semi",
-        "flows"
+        "market-note"
       ],
       "score": 55,
       "hasText": true,
+      "summary": ">>골드만삭스, 크리스마스 랠리 전망: 12월 15일까지 먼저 하락 후 상승, 개인 투자자가 마지막 매수세 •골드만삭스는 현재 미 증시의 매수세가 개인 투자자에 크게 의존하고 있다고 분석했음. 지난주 개인...",
       "tickers": [
         "NVDA",
         "AMD"
-      ],
-      "summary": ">>골드만삭스, 크리스마스 랠리 전망: 12월 15일까지 먼저 하락 후 상승, 개인 투자자가 마지막 매수세 •골드만삭스는 현재 미 증시의 매수세가 개인 투자자에 크게 의존하고 있다고 분석했음. 지난주 개인..."
+      ]
     },
     {
       "id": "insidertracking/69731",
@@ -9641,8 +9630,8 @@
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
     "pt": 13,
-    "earnings": 17,
-    "macro": 5
+    "earnings": 13,
+    "macro": 4
   },
   "signals": [
     {
@@ -9984,54 +9973,6 @@
       "post": "insidertracking/68556"
     },
     {
-      "kind": "earnings",
-      "key": "earnings|COHR|2026-11-05",
-      "ticker": "COHR",
-      "name": "Coherent 2027 회계연도",
-      "quarter": null,
-      "revenue": "beat",
-      "eps": "beat",
-      "guidance": null,
-      "date": "2026-11-05",
-      "post": "insidertracking/68362"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|QCOM|2026-11-05",
-      "ticker": "QCOM",
-      "name": "Qualcomm 2026 회계연도",
-      "quarter": null,
-      "revenue": "beat",
-      "eps": "beat",
-      "guidance": null,
-      "date": "2026-11-05",
-      "post": "insidertracking/68363"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|Arm Holdings 2027 회계연도|2026-11-05",
-      "ticker": null,
-      "name": "Arm Holdings 2027 회계연도",
-      "quarter": null,
-      "revenue": "beat",
-      "eps": null,
-      "guidance": null,
-      "date": "2026-11-05",
-      "post": "insidertracking/68364"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|ARM 2027 회계연도|2026-11-05",
-      "ticker": null,
-      "name": "ARM 2027 회계연도",
-      "quarter": null,
-      "revenue": "beat",
-      "eps": "beat",
-      "guidance": null,
-      "date": "2026-11-05",
-      "post": "bornlupin/21004"
-    },
-    {
       "kind": "macro",
       "key": "macro|Philadelphia Fed Manufacturing Index, 11월|2026-11-19",
       "name": "미국 필라델피아 연은 제조업활동지수",
@@ -10082,19 +10023,6 @@
       "surprise": -0.1,
       "date": "2026-11-06",
       "post": "insidertracking/68561"
-    },
-    {
-      "kind": "macro",
-      "key": "macro|Initial Jobless Claims|2026-11-05",
-      "name": "미국 신규 실업수당청구건수",
-      "nameEn": "Initial Jobless Claims",
-      "actual": 189000,
-      "forecast": 197000,
-      "previous": 195000,
-      "unit": "건",
-      "surprise": -8000,
-      "date": "2026-11-05",
-      "post": "insidertracking/68462"
     }
   ]
 }
