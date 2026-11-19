@@ -99,13 +99,16 @@
       "nativePrimarySurface": [
         "#page-signal #regime-overall",
         "#page-signal #regime-basis",
-        "#page-signal #regime-headline",
-        "#page-signal #regime-board"
+        "#page-signal #regime-board",
+        "#page-signal #regime-history"
       ],
       "nativeSecondarySurface": [
         "#page-signal #regime-counts",
+        "#page-signal #regime-counter",
         "#page-signal #regime-conflicts",
-        "#page-signal #regime-board-kr"
+        "#page-signal #regime-raw",
+        "#page-signal #regime-board-kr",
+        "#page-signal #signal-screen-reading"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
@@ -115,7 +118,7 @@
       "p786Boundary": "analysis.js owns the score display, five-tier decision text, and the post-composite adjustment rows from trading-score.v3/signal-presentation.v1. Score timestamp, canvas, factor bars, execution window, risk monitor, and narrative remain legacy secondary boundaries.",
       "notes": "The signal hero is native; legacy refreshSignalDashboard remains responsible for secondary signal widgets and is explicitly fenced from the three primary decision sinks. P1118 adds #score-adjustments-container to the native set so the factor bars and the total reconcile on screen. Home summary has separate ownership and is not remapped by this packet.",
       "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM.",
-      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the regime board lines (#regime-board) are SVG drawn by src/ui/components/market-regime.js."
+      "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the regime board lines (#regime-board) are SVG drawn by src/ui/components/market-regime.js. v60.31 (안 A): the rows are never folded and the dated axis charts are one card, #regime-history (axis picker); the per-axis observations are the raw-table fold #regime-raw."
     },
     "breadth": {
       "lifecycleOwner": "native",
@@ -132,7 +135,8 @@
       ],
       "nativeSecondarySurface": [
         "#page-breadth #breadth-basis",
-        "#page-breadth #breadth-chart-grid"
+        "#page-breadth #breadth-chart-grid",
+        "#page-breadth #breadth-screen-reading"
       ],
       "p773Boundary": "market.js owns the three current 5/20/50SMA breadth cards, their bar/freshness readouts, and canonical advance ratio; stage/diagnostic/McClellan/RSP-SPY narrative plus historical chart canvases remain legacy secondary boundaries.",
       "p803Boundary": "market.js owns the bounded breadth signal label from the normalized advance ratio with an explicit fail-closed state; the legacy RSP/SPY signal writer is fenced from this element.",
@@ -173,26 +177,29 @@
       "notes": "P770/P1209: native news.js owns briefing-live-news-list, count, completed 08:00 KST timestamp, reveal control, and normalized display text. Legacy AI digest and model/translation producers remain compatibility/narrative boundaries; no legacy primary-feed DOM writer remains.",
       "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the sector move bars are drawn by src/ui/components/sector-moves.js."
     },
-    "technical": {
+    "charts": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "native",
       "chartOwner": "native",
-      "narrativeOwner": "legacy",
-      "nativeModule": "src/ui/pages/analysis.js (createAnalysisPage route=technical)",
+      "narrativeOwner": "native",
+      "nativeModule": "src/ui/pages/charts.js (createChartsPage) + src/domain/technical/market-charts.js",
       "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
-        "#page-technical #tech-regime-overall",
-        "#page-technical #tech-regime-basis"
+        "#page-charts #charts-conclusion",
+        "#page-charts #charts-index-grid"
       ],
-      "nativeSecondarySurface": [],
+      "nativeSecondarySurface": [
+        "#page-charts #charts-basis",
+        "#page-charts #charts-weight-grid",
+        "#page-charts #charts-stock-table",
+        "#page-charts #charts-search-open",
+        "#page-charts #stock-chart-section"
+      ],
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "p785Boundary": "Legacy unification (2026-10-17): the 0-100 market-health model, its legacy adapter and the js/aio-macro-tech.js file are retired; the technical summary is the 시장 상태 regime board rendered by analysis.js.",
-      "p822Boundary": "Retired: P1420/P1670 removed the technical candle title, meta and canvases; stock-chart.js owns price history on the 종목 screen.",
-      "p833Boundary": "Retired: loadTechCandleChart no longer exists (ci-architecture-contract-check keeps it absent); price and volume charts are native in stock-chart.js.",
-      "notes": "The technical regime surface is native and has no legacy writers since v57.78 (loadTechCandleChart, _initTechnicalPage and the health renderer are gone). Shares analysis.js with home/signal.",
-      "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
+      "notes": "v59.64 (owner 2026-11-03): 기술적 분석 is a screen of its own, like 매크로 — index chart readings (trend against the 50/200-day lines, swing support/resistance, double top) and the core-stock table from the screener's own fields.",
+      "chartOwnerEvidence": "Owner 2026-11-19: one card part for both views (src/ui/components/market-candles.js createChartCards, lightweight-charts) — 시장 지수 US cards draw their fund's daily candles, Korean cards the published closes (trend-chart.js); 대표 종목 cards draw each stock's daily candles, loaded as a card comes into view (at most four requests in flight), and a stock without bars says so in one line. Each card's verdict is market-charts.js barsChartReading over the bars it draws; the screener's fields are the raw table under the stock cards. The analysis slot (src/ui/components/stock-chart.js, one singleton) lives on this page; openMarketChart, a card's 분석 열기 and the page search open a symbol there."
     },
     "macro": {
       "lifecycleOwner": "native",
@@ -208,7 +215,8 @@
       ],
       "nativeSecondarySurface": [
         "#page-macro #macro-board-basis",
-        "#page-macro #macro-axes"
+        "#page-macro #macro-axes",
+        "#page-macro #macro-screen-reading"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
@@ -239,7 +247,7 @@
       "nativeSecondarySurface": [
         "#page-fxbond #rates-basis",
         "#page-fxbond #rates-curve-fact",
-        "#page-fxbond #rates-curve-reading"
+        "#page-fxbond #rates-method"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
@@ -401,9 +409,9 @@
         "#page-ticker #ticker-hero-value",
         "#page-ticker #ticker-back-btn-main",
         "#page-ticker #ticker-breadcrumb-main",
-        "#page-ticker #ticker-chart-period-tabs",
-        "#page-ticker #ticker-chart-meta",
-        "#page-ticker #ticker-price-chart"
+        "#page-ticker #ticker-hero-valuation",
+        "#page-ticker #ticker-hero-line",
+        "#page-ticker #ticker-company"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
@@ -412,7 +420,7 @@
       ],
       "p777Boundary": "entity.js owns the ticker hero identity/name/price/change primary surface from the normalized entity state.",
       "p817Boundary": "entity.js owns the bounded candle/entry symbol labels from normalized entity id; P829 also owns the after-hours and portfolio P&L hero sinks with fail-closed output when quote or position evidence is missing.",
-      "p834Boundary": "LC-18/LC-27: entity.js owns ticker tab/panel visibility, keyboard tab navigation, 1M/3M/6M/1Y calendar windows, chart canvas lifecycle, and observed row/date metadata from normalized entity history; legacy switchTab/loadTickerChart/Stooq ticker helpers are retired.",
+      "p834Boundary": "LC-18/LC-27: legacy switchTab/loadTickerChart/Stooq ticker helpers are retired. 2026-11-19: the 종목 overview (entity.js renderOverview, src/ui/components/company-overview.js) draws the business, value-chain place and money figures; the price chart is 기술적 분석's.",
       "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
     },
     "market-news": {
@@ -520,26 +528,25 @@
       "notes": "ARX-10/ARX-16: screener.js is the sole visible DOM owner and the native provider/orchestrator owns the canonical screener state and single artifact fetch. Non-route readers use AIO_ARCH.getScreenerRows() through the compatibility boundary; legacy profile/watchlist storage and identity/memo overlays remain as explicit compatibility producers.",
       "chartOwnerEvidence": "v59.54 chart audit (browser probe 2026-11-01): the validation chart (#screener-validation) is SVG drawn by src/ui/components/screener-validation.js."
     },
-    "charts": {
+    "technical": {
       "lifecycleOwner": "native",
       "rendererOwner": "native",
       "dataOwner": "native",
       "chartOwner": "native",
-      "narrativeOwner": "native",
-      "nativeModule": "src/ui/pages/charts.js (createChartsPage) + src/domain/technical/market-charts.js",
-      "loadingStrategy": "route-dynamic-import",
+      "narrativeOwner": "legacy",
+      "nativeModule": "src/ui/pages/charts.js (charts route mount; derived technical view: AIO_ROUTE_REGISTRY canonical technical → charts, src/app/router.js CHART_ROUTE_ALIASES)",
+      "loadingStrategy": "derived-view-of-charts",
       "nativePrimarySurface": [
-        "#page-charts #charts-conclusion",
-        "#page-charts #charts-index-grid"
+        "#page-technical"
       ],
-      "nativeSecondarySurface": [
-        "#page-charts #charts-basis",
-        "#page-charts #charts-stock-table"
-      ],
+      "nativeSecondarySurface": [],
       "contestedIds": [],
       "legacyWriterEvidence": [],
-      "notes": "v59.64 (owner 2026-11-03): 기술적 분석 is a screen of its own, like 매크로 — index chart readings (trend against the 50/200-day lines, swing support/resistance, double top) and the core-stock table from the screener's own fields.",
-      "chartOwnerEvidence": "v59.64: the index charts are SVG drawn by src/ui/components/trend-chart.js; a stock opens in the 종목 차트 tab (openMarketChart)."
+      "p785Boundary": "Legacy unification (2026-10-17): the 0-100 market-health model, its legacy adapter and the js/aio-macro-tech.js file are retired; the technical summary is the 시장 상태 regime board rendered by analysis.js.",
+      "p822Boundary": "Retired: P1420/P1670 removed the technical candle title, meta and canvases; stock-chart.js owns price history on the 종목 screen.",
+      "p833Boundary": "Retired: loadTechCandleChart no longer exists (ci-architecture-contract-check keeps it absent); price and volume charts are native in stock-chart.js.",
+      "notes": "Owner 2026-11-19 (\"탭 없애고 연결\"): the 종목 › 차트 tab is retired. The route id stays as a derived view (AIO_ROUTE_REGISTRY DERIVED_VIEW); #technical, #technical?sym=X and #technical/X open 기술적 분석 with X in its analysis slot (#stock-chart-section, now under #page-charts). The 시장 상태 one-line summary (#tech-regime-summary) left with the tab; #page-technical is an empty shell for the route contracts.",
+      "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
     }
   },
   "counts": {
@@ -552,7 +559,7 @@
       "breadth",
       "sentiment",
       "briefing",
-      "technical",
+      "charts",
       "macro",
       "fxbond",
       "fundamental",
@@ -566,7 +573,7 @@
       "atlas",
       "guide",
       "screener",
-      "charts"
+      "technical"
     ],
     "rendererLegacyRoutes": [],
     "dataNative": 20,
@@ -576,7 +583,7 @@
       "breadth",
       "sentiment",
       "briefing",
-      "technical",
+      "charts",
       "macro",
       "fxbond",
       "fundamental",
@@ -590,7 +597,7 @@
       "atlas",
       "guide",
       "screener",
-      "charts"
+      "technical"
     ],
     "chartNative": 15,
     "chartNativeRoutes": [
@@ -599,7 +606,7 @@
       "breadth",
       "sentiment",
       "briefing",
-      "technical",
+      "charts",
       "macro",
       "fxbond",
       "fundamental",
@@ -608,15 +615,15 @@
       "portfolio",
       "ticker",
       "screener",
-      "charts"
+      "technical"
     ],
     "narrativeNative": 5,
     "narrativeNativeRoutes": [
       "sentiment",
+      "charts",
       "macro",
       "fxbond",
-      "theme-detail",
-      "charts"
+      "theme-detail"
     ],
     "lazyLoadedRoutes": [
       "home",
@@ -624,7 +631,7 @@
       "breadth",
       "sentiment",
       "briefing",
-      "technical",
+      "charts",
       "macro",
       "fxbond",
       "fundamental",
@@ -637,16 +644,15 @@
       "masters",
       "atlas",
       "guide",
-      "screener",
-      "charts"
+      "screener"
     ],
     "fullNativeOwner": [
       "sentiment",
+      "charts",
       "principles",
       "masters",
       "atlas",
-      "guide",
-      "charts"
+      "guide"
     ]
   },
   "legacySymbolsMustBeAbsent": {

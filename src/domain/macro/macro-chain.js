@@ -94,7 +94,11 @@ export function buildMacroChain({ macro = null, macroHistory = null, regime = nu
   if (!oilHeld && nodes[0].dir === 'up' && nodes[1].dir !== 'up') links.push(fx.wtiHigh ? '유가가 1년 범위 상단에 있어 물가 부담 요인입니다.' : nodes[1].dir === 'unknown' ? `유가가 20일 동안 ${signed(wti20, 1, '%')} 올랐습니다 — 기대인플레이션으로 번지는지는 같은 날 값이 없어 보류합니다.` : `유가가 20일 동안 ${signed(wti20, 1, '%')} 올랐습니다 — 아직 기대인플레이션으로 크게 번지지는 않았습니다.`);
   if (ratesRead.rise) links.push(`${ratesRead.rise}${real5 != null && bei5 != null && real5 > bei5 && real5 > 0 ? ' — 실질금리 우위는 5거래일 관측 기준이며(20일 전체 분해는 자료가 없음), 그 관측은 성장주 밸류에이션 부담 쪽과 같은 방향입니다' : ''}.`);
   // A fall with stocks falling is the axis's growth-scare 중립, not a lighter discount rate.
-  if (nodes[3].dir === 'down') links.push(axisById.rates && axisById.rates.state !== 'favorable' ? axisById.rates.read : `10년물이 20일 동안 ${signed(axisById.rates?.decidedBy?.d20 ?? fx.tnx20, 0, 'bp')} 내려 할인율 부담이 줄고 있습니다.`);
+  // the rates axis carries no sentence; a non-favorable fall states its figures and the axis state.
+  const growthScare = axisById.rates?.growthScare;
+  if (nodes[3].dir === 'down') links.push(axisById.rates && axisById.rates.state !== 'favorable'
+    ? `10년물 20거래일 ${signed(axisById.rates.decidedBy?.d20 ?? fx.tnx20, 0, 'bp')}${growthScare ? `, S&P 500 20거래일 ${signed(growthScare.spx20, 1, '%')}` : ''} — 금리 지표 ${axisById.rates.stateLabel}.`
+    : `10년물이 20일 동안 ${signed(axisById.rates?.decidedBy?.d20 ?? fx.tnx20, 0, 'bp')} 내려 할인율 부담이 줄고 있습니다.`);
   // Codex browser audit H15: when two neighbours on the textbook path moved in opposite directions, the arrow is
   // not working right now — say so as a question to check, instead of letting the drawn arrow imply it does.
   for (const [a, b] of [[0, 1], [1, 3]]) { // the policy node is a level against the target, not a move

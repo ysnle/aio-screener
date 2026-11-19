@@ -1,0 +1,114 @@
+/* 산업 지도 › AI 지도 (src/ui/knowledge/ai-map-view.js). 밸류체인 is a stack of layer cards, each with the higher layers it
+   supplies; 데이터센터·전력 draws on the shared node graph (src/ui/components/node-graph.js, prefix nmap), which keeps its
+   shape and gives way to the list of the same stages below 744px; 자본순환 is three columns around one company that stack
+   on a phone. */
+.nmap-article { min-width: 0; }
+.nmap-tabs { margin: 4px 0 16px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.nmap-tabs > button { white-space: nowrap; }
+.nmap { display: grid; gap: 12px; min-width: 0; }
+.nmap-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 12px; color: var(--color-text-secondary); }
+.nmap-key { display: inline-flex; align-items: center; gap: 6px; }
+
+/* data-center chain: the node graph */
+.nmap-canvas { position: relative; width: 100%; border: 0.5px solid var(--color-border); border-radius: var(--radius-container); background: var(--surface-1); overflow: hidden; }
+.nmap-canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.nmap-edge { stroke: var(--color-text-secondary); stroke-opacity: .55; stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.nmap-edge.is-active { stroke: var(--color-text-primary); stroke-opacity: 1; }
+.nmap-edge.is-conditional { stroke-dasharray: 2 4; }
+.nmap-arrow { fill: var(--color-text-secondary); fill-opacity: .7; }
+.nmap-arrow.is-active { fill: var(--color-text-primary); fill-opacity: 1; }
+.nmap-node { position: absolute; transform: translate(-50%, -50%); z-index: 1; }
+.nmap-edge-label { position: absolute; transform: translate(12px, -50%); z-index: 2; padding: 1px 6px; border-radius: var(--radius-inner); background: var(--surface-1); color: var(--color-text-secondary); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.nmap-edge-label.is-active { color: var(--color-text-primary); }
+.nmap-node--stage { width: 40%; }
+.nmap-stage-open { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; width: 100%; padding: 8px; border: 0.5px solid var(--color-border); border-radius: var(--radius-element); background: var(--color-background-card); color: var(--color-text-primary); font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+.nmap-stage-name, .nmap-stage-share { white-space: nowrap; }
+.nmap-stage-name { font-size: 14px; }
+.nmap-stage-share { color: var(--color-text-secondary); }
+.nmap-node.is-selected .nmap-stage-open { border-color: var(--color-text-primary); box-shadow: 0 0 0 1px var(--color-text-primary); }
+
+/* value chain: layer cards, 7 on top, each naming the higher layers it supplies */
+.nmap-stack { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.nmap-layer-item { display: grid; gap: 8px; min-width: 0; }
+.nmap-layer { display: grid; gap: 6px; padding: 10px 12px; border: 0.5px solid var(--color-border); border-radius: var(--radius-element); background: var(--color-background-card); }
+.nmap-layer-item.is-selected > .nmap-layer { border-color: var(--color-text-primary); box-shadow: 0 0 0 1px var(--color-text-primary); }
+.nmap-layer-open { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; width: 100%; padding: 0; border: 0; background: none; color: var(--color-text-primary); font: inherit; text-align: left; cursor: pointer; }
+.nmap-layer-n { font-size: 12px; font-weight: 700; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.nmap-layer-name { font-size: 14px; }
+.nmap-layer-desc { font-size: 12px; color: var(--color-text-secondary); }
+.nmap-layer-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.nmap-layer-more { font-size: 12px; color: var(--color-text-secondary); align-self: center; }
+.nmap-supplies { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 2px 0 0; padding-top: 6px; border-top: 0.5px solid var(--color-border); font-size: 12px; }
+.nmap-supplies-label { margin-right: 2px; font-weight: 700; color: var(--color-text-secondary); }
+.nmap-supplies-open { min-height: 28px; padding: 2px 10px; border: 0.5px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-background-card); color: var(--color-text-primary); font: inherit; font-weight: 700; font-variant-numeric: tabular-nums; cursor: pointer; }
+.nmap-supplies-open[aria-pressed="true"] { border-color: var(--color-text-primary); box-shadow: 0 0 0 1px var(--color-text-primary); }
+.nmap-layer-item > .nmap-detail { margin: 0 0 4px; padding: 10px 12px; border-left: 2px solid var(--color-text-primary); }
+.nmap-table { width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 12px; }
+.nmap-table th, .nmap-table td { padding: 4px 6px; border-bottom: 0.5px solid var(--color-border); text-align: left; }
+.nmap-table th { color: var(--color-text-secondary); font-weight: 700; }
+.nmap-table td:last-child, .nmap-table th:last-child { text-align: right; }
+.nmap-table-open { min-height: 28px; padding: 2px 8px; border: 0.5px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-background-card); color: var(--color-text-primary); font: inherit; font-variant-numeric: tabular-nums; cursor: pointer; }
+.nmap-table-open[aria-pressed="true"] { border-color: var(--color-text-primary); }
+
+/* capital flows: who pays in, the company, what it commits */
+.nmap-capital-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.nmap-asof { font-size: 12px; font-weight: 700; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.nmap-boundary { flex-basis: 100%; margin: 0; font-size: 12px; line-height: 1.55; color: var(--color-text-secondary); }
+.nmap-both-line { margin: 0; font-size: 14px; font-weight: 700; line-height: 1.5; }
+.nmap-flowgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 0.55fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+.nmap-col { display: grid; gap: 8px; min-width: 0; }
+.nmap-col-title { margin: 0; }
+.nmap-col--focus { position: sticky; top: 12px; justify-items: center; gap: 6px; padding: 14px 10px; border: 1px solid var(--color-text-primary); border-radius: var(--radius-container); background: var(--color-background-card); text-align: center; }
+.nmap-focus-name { margin: 0; font-size: 18px; }
+.nmap-flows { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.nmap-flow { display: grid; gap: 4px; padding: 8px 10px; border: 0.5px solid var(--color-border); border-radius: var(--radius-element); background: var(--color-background-card); min-width: 0; }
+.nmap-flow.is-report { border-style: dashed; }
+.nmap-flow.is-both { border-color: var(--color-text-primary); }
+.nmap-flow-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 0; }
+.nmap-flow-who { padding: 0; border: 0; background: none; color: var(--color-text-primary); font: inherit; font-size: 14px; font-weight: 700; text-align: left; text-decoration: underline; text-decoration-thickness: 0.5px; text-underline-offset: 3px; cursor: pointer; }
+.nmap-both { padding: 0 6px; border: 0.5px solid var(--color-text-primary); border-radius: var(--radius-full); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.nmap-flow-amount { margin-left: auto; font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.nmap-bar { display: block; height: 6px; border-radius: var(--radius-full); background: var(--surface-1); overflow: hidden; }
+.nmap-bar-fill { display: block; height: 100%; border-radius: inherit; background: var(--color-text-secondary); }
+.nmap-flow.is-report .nmap-bar-fill { opacity: .45; }
+.nmap-flow-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; margin: 0; font-size: 12px; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.nmap-flow-kind { font-weight: 700; }
+.nmap-flow-basis { margin: 0; font-size: 12px; line-height: 1.5; color: var(--color-text-secondary); }
+
+/* the lists and the open item */
+.nmap-detail { display: grid; gap: 8px; min-width: 0; }
+.nmap-detail-title { margin: 4px 0 0; }
+.nmap-detail-sub { margin: 4px 0 0; font-size: 12px; font-weight: 700; color: var(--color-text-secondary); }
+.nmap-rows { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.nmap-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.nmap-row-open { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; width: 100%; min-height: 36px; padding: 6px 10px; border: 0.5px solid var(--color-border); border-radius: var(--radius-element); background: var(--color-background-card); color: var(--color-text-primary); font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+.nmap-row.is-active .nmap-row-open, .nmap-row-open[aria-pressed="true"] { border-color: var(--color-text-primary); }
+.nmap-row-next, .nmap-row-n { color: var(--color-text-secondary); }
+.nmap-row-count { margin-left: auto; font-variant-numeric: tabular-nums; }
+.nmap-row-next { font-size: 12px; padding-left: 10px; }
+.nmap-pairs, .nmap-facts, .nmap-sources { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.nmap-pair { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 12px; }
+.nmap-pair-arrow { color: var(--color-text-secondary); }
+.nmap-company.is-private { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border: 0.5px dashed var(--color-border); border-radius: var(--radius-full); font-size: 12px; font-weight: 600; }
+.nmap-parts { display: flex; flex-wrap: wrap; gap: 6px; }
+.nmap-part { min-height: 32px; padding: 4px 12px; border: 0.5px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-background-card); color: var(--color-text-primary); font: inherit; font-size: 12px; cursor: pointer; }
+.nmap-part.is-active, .nmap-part[aria-pressed="true"] { border-color: var(--color-text-primary); font-weight: 700; }
+.nmap-facts > li { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 12px; line-height: 1.5; }
+.nmap-fact-note { color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.nmap-clear { justify-self: start; min-height: 32px; padding: 4px 12px; border: 0.5px solid var(--color-border); border-radius: var(--radius-full); background: none; color: var(--color-text-secondary); font: inherit; font-size: 12px; cursor: pointer; }
+.nmap-fold-copy { margin: 8px 0; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
+.nmap-sources > li { font-size: 12px; line-height: 1.5; color: var(--color-text-secondary); overflow-wrap: anywhere; }
+.nmap-source-note { color: var(--color-text-secondary); }
+.nmap-note { margin: 16px 0 0; font-size: 12px; color: var(--color-text-secondary); }
+.nmap :is(button, a):focus-visible { outline: var(--focus-outline-width) solid var(--color-text-primary); outline-offset: 2px; }
+
+/* The stage list that stands in for the drawing is for the narrow layout (and a screen reader) only. */
+.nmap-only-list { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@media (max-width: 743px) {
+  .nmap-canvas { display: none; }
+  .nmap--dc > .nmap-legend > .nmap-key:first-child { display: none; }
+  .nmap-only-list { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; white-space: normal; }
+  .nmap-rows--stages .nmap-row-next { flex-basis: 100%; }
+  .nmap-flowgrid { grid-template-columns: minmax(0, 1fr); }
+  .nmap-col--focus { position: static; }
+}

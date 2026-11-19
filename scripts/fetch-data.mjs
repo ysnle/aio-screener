@@ -23,6 +23,7 @@ import { deriveFedPolicyRate } from './lib/official-calendars.mjs';
 import { collectRotationHistory } from './lib/rotation-history.mjs';
 import { resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 import { createAiUsage, marketAnalysisOutcome } from './producer/ai-usage.mjs';
+import { genScreenReadings, screenReadingsOutcome } from './producer/screen-readings.mjs';
 import { sealMarketTimeline, summarizeMarketTimeline } from './lib/market-timeline.mjs';
 import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 import { compareUsdKrwCrossCheck } from './lib/macro-sources.mjs';
@@ -215,6 +216,18 @@ async function main() {
   const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers, { previous: previous?.marketAnalysis || null, request: aiUsage.shared('market-analysis') });
   applyMarketAnalysis(data, marketAnalysis, { previous: previous?.marketAnalysis || null });
   aiUsage.note('market-analysis', marketAnalysisOutcome(marketAnalysis, aiUsage.receipt().purposes['market-analysis']));
+  // v60.31 (owner 2026-11-18): one AI reading per screen, called only when that screen's fact packet changed; a screen
+  // whose reading is missing or blocked shows its facts alone.
+  try {
+    const screenRun = await genScreenReadings({ data, history: timelineHistory, previous: previous?.screenReadings || null, request: aiUsage.shared('screen-reading') });
+    data.screenReadings = screenRun.result;
+    aiUsage.note('screen-reading', screenReadingsOutcome(screenRun));
+    console.log(`[fetch-data] screen readings: ${Object.entries(screenRun.outcomes).map(([screen, outcome]) => `${screen} ${outcome}`).join(', ')} (${screenRun.requests} requests)`);
+  } catch (error) {
+    if (previous?.screenReadings) data.screenReadings = previous.screenReadings;
+    aiUsage.note('screen-reading', 'error');
+    console.warn(`[fetch-data] screen readings kept previous: ${error?.message || error}`);
+  }
   data.meta.marketTimelineSealed = timelineRun.sealed;
   data.meta.marketTimelineSummary = await summarizeMarketTimeline(data.marketTimeline || null, { request: aiUsage.shared('slot-summary') })
     .catch((error) => `summary-error:${String(error?.message || error).slice(0, 80)}`);

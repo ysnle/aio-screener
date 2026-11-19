@@ -632,7 +632,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   modules.home = createLazyPage({ route: 'home', loader: () => import('../ui/pages/analysis.js'), factory: ({ createAnalysisPage }) => createAnalysisPage({ root, documentRef, store, route: 'home' }) });
   // The 시장 상태 board (market-regime.js and its tree) is the signal route's own code; 오늘 and 차트 do not load it.
   modules.signal = createLazyPage({ route: 'signal', loader: () => import('../ui/pages/analysis.js').then((page) => page.loadRegimeBoard().then((board) => ({ ...page, renderRegimePage: board.renderRegimePage }))), factory: ({ createAnalysisPage, renderRegimePage }) => createAnalysisPage({ root, documentRef, store, route: 'signal', renderRegimePage }) });
-  modules.technical = createLazyPage({ route: 'technical', loader: () => import('../ui/pages/analysis.js'), factory: ({ createAnalysisPage }) => createAnalysisPage({ root, documentRef, store, route: 'technical' }) });
+  // Owner 2026-11-19: `technical` is a derived view of 기술적 분석 (AIO_ROUTE_REGISTRY canonical technical → charts); the
+  // chart it held is the charts route's analysis slot, so the route has no page module of its own.
   const router = createLifecycleRouter({ root: eventTarget, registry: createRouteRegistry({ modules }), context: { store, evidenceStore, legacy, clock, documentRef, runtimeRoot: root } });
 
   // P1755: every legacy refresh cycle (aio:refresh:done) used to re-download and re-validate screener.json
@@ -911,7 +912,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopRowsFirstShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set([...ROWS_FIRST_ROUTES].filter((route) => route !== 'screener')), () => (store.getState()?.screener?.rows?.length || criticalData.open ? null : syncScreenerData())));
     const stopAnalysisRefresh = compatibilityEvents.on('aio:refresh:done', syncAnalysis.sync);
     const stopAnalysisChanged = legacy.on('aio:entityChanged', syncAnalysis.sync);
-    const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'technical']), syncAnalysis.sync));
+    const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'charts']), syncAnalysis.sync));
     // P1505: one folded 데이터 출처 note per screen.
     // Owner 2026-10-25: the index strip on 오늘 loads with the route (lazy chunk; the boot module set stays unchanged).
     const renderIndexStrip = () => import('../ui/components/home-index-strip.js').then(({ renderHomeIndexStrip }) => renderHomeIndexStrip({ documentRef, root })).catch(() => {});
@@ -993,12 +994,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopScrollMemory = installRouteScrollMemory({ root, documentRef, activeRoute: () => router.active() }); // v57.81: back restores scroll
     const stopShellOverlays = installShellOverlays({ root, documentRef }); // v57.81: banner/disclaimer offsets, glossary backdrop
     installScreenShortcuts({ root, documentRef }); // v57.54: ? help rows and 1..8 keys from ROUTE_HUBS
-    // P1430: 오늘 index cards → that index's chart. v58.75: stock-chart.js loads with the 차트 route (analysis.js) instead of
-    // the boot module set; the click imports it (the same chunk the route needs anyway). If the import fails, the request
-    // is set the way openMarketChart sets it and the route renders it when it loads.
+    // P1430: 오늘 index cards → that index's chart in 기술적 분석's analysis slot. v58.75: stock-chart.js loads with the
+    // charts route instead of the boot module set; the click imports it (the same chunk the route needs anyway). If the
+    // import fails, the request is set the way openMarketChart sets it and the route renders it when it loads.
     root.aioOpenMarketChart = (symbol) => import('../ui/components/stock-chart.js')
       .then(({ openMarketChart }) => openMarketChart(root, symbol))
-      .catch(() => { root._aioChartRequest = String(symbol || 'SPY').toUpperCase(); root.showPage?.('technical'); });
+      .catch(() => { root._aioChartRequest = String(symbol || 'SPY').toUpperCase(); root.showPage?.('charts'); });
     const initialRoute = resolveInitialRoute({ root });
     router.start();
     if (!router.active()) {

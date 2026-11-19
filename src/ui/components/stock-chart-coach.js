@@ -10,6 +10,7 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { el } from './dom.js';
+import { foldSummary } from './indicator-face.js';
 import { myLineFacts } from './stock-chart-drawings.js';
 import { rewardRiskFacts, RR_GUIDE } from '../../domain/technical/chart-strategies.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -71,7 +72,8 @@ function checklistBlock(doc, root, sym, analysis, regime, tools) {
   }
   box.append(marks);
   const why = el(doc, 'details', null, 'chart-check-why');
-  why.append(el(doc, 'summary', '각 조건을 보는 이유와 돌파 실패 조건'));
+  why.dataset.foldKind = 'method';
+  why.append(foldSummary(doc, 'method', '각 조건을 보는 이유와 돌파 실패 조건'));
   for (const item of list.items) why.append(el(doc, 'p', `${item.label}: ${item.principle}`));
   why.append(el(doc, 'p', list.failedRule));
   const past = root.__aioSetupCoach?.symbol === sym ? root.__aioSetupCoach.pastBreakouts : tools.pastBreakoutsText(tools.pastBreakouts(analysis));
@@ -99,7 +101,8 @@ export function setupCoachSection(doc, root, sym, analysis, regime, tools, hasLe
     box.append(el(doc, 'p', life.headline, 'xr-reading'), lifecycleBand(doc, life));
     if (life.check) box.append(el(doc, 'p', `이 단계에서 전문가가 확인하는 것: ${life.check}`, 'theme-strength-basis'));
     const stages = el(doc, 'details', null, 'chart-life-stages');
-    stages.append(el(doc, 'summary', '단계마다 확인하는 것'));
+    stages.dataset.foldKind = 'method';
+    stages.append(foldSummary(doc, 'method', '단계마다 확인하는 것'));
     tools.SETUP_STAGES.forEach((item, index) => stages.append(el(doc, 'p', `${index + 1} ${item.label}: ${item.check}`)));
     box.append(stages);
     section.append(box);
@@ -207,7 +210,8 @@ function levelTable(doc, levels, price) {
 
 function expertMethods(doc, levels, price) {
   const details = el(doc, 'details', null, 'chart-level-methods');
-  details.append(el(doc, 'summary', '전문가는 이렇게 정한다 — 손절·목표를 정하는 방법과 이 종목의 기준 숫자'));
+  details.dataset.foldKind = 'method';
+  details.append(foldSummary(doc, 'method', '손절·목표를 정하는 방법과 이 종목의 기준 숫자'));
   const item = (title, basis, plus, minus) => {
     const box = el(doc, 'div', null, 'chart-level-method');
     box.append(el(doc, 'h4', title), el(doc, 'p', basis), el(doc, 'p', `장점: ${plus} 약점: ${minus}`, 'theme-strength-basis'));
@@ -300,7 +304,8 @@ function holdingCost(root, sym) {
 
 function rrGuide(doc) {
   const details = el(doc, 'details', null, 'chart-rr-guide');
-  details.append(el(doc, 'summary', '손익비(R:R) 쉽게 — 계산과 본전 승률'));
+  details.dataset.foldKind = 'method';
+  details.append(foldSummary(doc, 'method', '손익비(R:R) 계산과 본전 승률'));
   RR_GUIDE.forEach((line) => details.append(el(doc, 'p', line)));
   const scroll = el(doc, 'div', null, 'aio-table-scroll');
   scroll.style.overflowX = 'auto';
@@ -405,7 +410,8 @@ export function priceLevelSection(doc, root, sym, levels, currency, instance, ch
     section.append(toggle);
   }
   const how = el(doc, 'details', null, 'chart-level-definitions');
-  how.append(el(doc, 'summary', '레벨 기준'));
+  how.dataset.foldKind = 'method';
+  how.append(foldSummary(doc, 'method', '레벨 기준'));
   const R = levels.rules;
   [
     `스윙 고점·저점: 좌우 ${R.swingSpan}개 봉보다 높은 고가·낮은 저가, 최근 ${R.lookback}거래일. 50·200일선, 21일 EMA, 20일·${levels.rangeLabel} 고저, 피벗과 마지막 수축 저점도 함께 씁니다.`,

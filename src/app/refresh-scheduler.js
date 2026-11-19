@@ -351,7 +351,8 @@ export function installRefreshScheduler(window = globalThis) {
     breadth:     ['quotes', 'breadth', 'technicals'],
     sentiment:   ['quotes', 'sentiment', 'vixHistory', 'hySpread'],
     briefing:    ['quotes', 'news', 'sentiment', 'breadth', 'fred', 'technicals'],
-    technical:   ['quotes', 'technicals', 'breadth', 'sentiment', 'vixHistory', 'krDynamic'],
+    // 기술적 분석: the analysis slot moved here from the 차트 tab (owner 2026-11-19), so its refresh list followed it.
+    charts:      ['quotes', 'technicals', 'breadth', 'sentiment', 'vixHistory', 'krDynamic'],
     macro:       ['quotes', 'fred', 'news', 'sentiment', 'krDynamic'],
     fxbond:      ['quotes', 'fred', 'hySpread', 'news'],
     fundamental: ['quotes', 'news', 'technicals'],
@@ -359,7 +360,7 @@ export function installRefreshScheduler(window = globalThis) {
     screener:    ['quotes', 'technicals'],
     portfolio:   ['quotes', 'technicals'],
     'market-news': ['quotes', 'news'],
-    // v53.7 (P725): KR 라우트 퇴역 — themes/macro/technical가 KR 섹션 갱신을 겸함
+    // v53.7 (P725): KR 라우트 퇴역 — themes/macro/charts가 KR 섹션 갱신을 겸함
     // P1321: options route retired — its VIX/PCR/SKEW live on sentiment
   };
   window.AIO_PAGE_REFRESH_MAP = AIO_PAGE_REFRESH_MAP;
@@ -395,7 +396,7 @@ export function installRefreshScheduler(window = globalThis) {
 
   function _aioGetCritical10Symbols() {
     var out = [];
-    (window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes']).forEach(function(pageId) {
+    (window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes']).forEach(function(pageId) {
       var p = _aioGetRefreshProfile(pageId);
       (p.symbols || []).forEach(function(sym) { out.push(sym); });
     });
@@ -633,7 +634,7 @@ export function installRefreshScheduler(window = globalThis) {
   // v58.20: AIO.refreshAllComprehensivePages (v49.102) had no product caller — refreshes go through AIO.runScheduledRefresh.
 
   window.AIO.refreshAllCriticalPages = async function() {
-    var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+    var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'];
     var taskSet = {};
     pages.forEach(function(pageId) {
       var profile = _aioGetRefreshProfile(pageId);
@@ -662,7 +663,7 @@ export function installRefreshScheduler(window = globalThis) {
   window.AIO.getComprehensivePageDataFreshnessAudit = function() {
     _assignRefreshScheduleFunctions();
     _normalizeRefreshSchedule();
-    var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+    var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'];
     var now = Date.now();
     var critical10MarketSurface = null;
     var critical10MarketSituation = null;

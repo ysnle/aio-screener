@@ -16,7 +16,7 @@ import { readHistoryRows } from '../../src/domain/market/indices/history-rows.js
 export function marketAnalysisRegimeInput(data, history = [], macroHistory = null, { screener = null, nowMs = Date.now() } = {}) {
   // v59.70: accept the published history.v2 payload as well as v1 rows (a raw v2 object read as rows gave an empty regime).
   return regimeMarketInput({ macro: data?.macro || null, fearGreed: data?.fearGreed || null, history: readHistoryRows(history), macroHistory,
-    breadthSp500: screener?.breadth?.segments?.sp500 || null, nowMs }); // M05: the narrative uses the same latest-session admission as the screen
+    breadthSp500: screener?.breadth?.segments?.sp500 || null, aaii: data?.marketSurveys?.aaii || null, nowMs }); // M05: the narrative uses the same latest-session admission as the screen
 }
 
 /**

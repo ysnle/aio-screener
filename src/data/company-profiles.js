@@ -53,14 +53,15 @@ export function requestCompanyStory(root, symbol, onChange) {
   }).catch(() => {});
 }
 
-// v59.74: the company graph (who pays whom across the stories) and the 산업 지도 reading text, each fetched once when the
-// first story renders and kept for the tab's life. A failed read is retried after a minute; the story renders without it.
+// The company graph (who pays whom across the stories, v59.74) and the AI map's dated capital deals, each fetched once
+// when the first company overview renders and kept for the tab's life. A failed read is retried after a minute; the
+// overview renders without it.
 const SIDE_ARTIFACTS = Object.freeze({
   graph: { url: artifactUrl('company-profiles/graph.json'), maxBytes: 512 * 1024, valid: (p) => p?.schemaVersion === 'company-graph.v1' && p.nodes && Array.isArray(p.edges) },
-  industry: { url: artifactUrl('atlas/industry-stories.json'), maxBytes: 256 * 1024, valid: (p) => p?.schemaVersion === 'industry-stories.v1' && p.nodes && p.domains }
+  capital: { url: artifactUrl('atlas/capital-flows.json'), maxBytes: 256 * 1024, valid: (p) => p?.schemaVersion === 'ai-capital-flows.v1' && p.nodes && Array.isArray(p.edges) }
 });
 
-/** The loaded side artifact ('graph' | 'industry'), or null; onChange runs once when it arrives. */
+/** The loaded side artifact ('graph' | 'capital'), or null; onChange runs once when it arrives. */
 export function companySideArtifact(root, name, onChange) {
   const spec = SIDE_ARTIFACTS[name];
   if (!root || !spec) return null;

@@ -634,3 +634,49 @@ body.dark-theme .capex-flow-seg { color: var(--color-background-body); filter: n
 .mk-narr__choices .is-costly b { color: var(--color-text-secondary); }
 @media (max-width: 600px) { .mk-narr__facts { grid-template-columns: 1fr; } .mk-narr__facts dd { margin-bottom: 4px; } .mk-narr__bar-row { grid-template-columns: 38% 1fr auto; } }
 .mk-narr__change { margin: 4px 0 0; font-size: 12px; color: var(--color-text-primary); font-weight: 600; }
+
+/* ═══ v60.31 (owner 2026-11-19, 안 A 본문 풀이): the indicator face and its three permitted folds — src/ui/components/indicator-face.js.
+   A row is never folded: title + state chip | value · distance, then at most two lines (why it holds, what would change it).
+   The folds are only 원자료 표 (raw-table), 계산 방법 (method) and 데이터 출처 (sources), each carrying data-fold-kind. */
+.ind-row { display: grid; grid-template-columns: minmax(120px, 176px) minmax(0, 1fr); gap: 6px 24px; align-items: start; min-width: 0; }
+.page .regime-quality-board > .ind-row { padding: 14px 2px; border-radius: 0; border-top: 0.5px solid rgba(var(--ink-rgb), 0.08); background: transparent; box-shadow: none; }
+.page .regime-quality-board > .ind-row:first-child, .page .regime-quality-board > .regime-watch-head + .ind-row { border-top: 0; }
+.ind-row__head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; min-width: 0; }
+.page .ind-row__title { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.4; color: var(--color-text-primary); }
+.ind-row__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ind-row__value { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.55; color: var(--color-text-primary); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ind-row__dist { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); white-space: nowrap; }
+.ind-row__dist::before { content: ' · '; white-space: pre; }
+.ind-row__line { margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-text-secondary); overflow-wrap: anywhere; text-wrap: pretty; }
+.ind-row__line.is-reason { color: var(--color-text-primary); }
+@media (max-width: 743px) {
+  .ind-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .page .regime-quality-board > .ind-row { padding: 12px 0; }
+}
+.ind-fold { margin: 12px 0 0; border-top: 0.5px solid rgba(var(--ink-rgb), 0.08); }
+.ind-fold > summary { list-style: none; display: flex; align-items: center; flex-wrap: wrap; gap: 2px 10px; min-height: 44px; cursor: pointer; font-size: 14px; }
+.ind-fold > summary::-webkit-details-marker { display: none; }
+.ind-fold > summary::after { content: '⌄'; margin-left: auto; color: var(--color-text-secondary); }
+.ind-fold[open] > summary::after { content: '⌃'; }
+.ind-fold > summary:focus-visible { outline: var(--focus-outline-width) solid var(--color-text-primary); outline-offset: 2px; }
+.ind-fold[hidden] { display: none; }
+.ind-fold__kind { font-weight: 600; color: var(--color-text-primary); }
+.ind-fold__what { font-size: 12px; color: var(--color-text-secondary); }
+.ind-fold[open] > summary { margin-bottom: 8px; }
+.ind-raw-group + .ind-raw-group, .ind-raw-group > .leaders-line__part { margin-top: 16px; }
+.page .ind-raw-group__title, .page .ind-method__title { margin: 0 0 6px; font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
+.ind-raw { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; line-height: 1.6; }
+.ind-raw th { width: 36%; padding: 4px 12px 4px 0; text-align: left; vertical-align: top; font-weight: 500; color: var(--color-text-secondary); overflow-wrap: anywhere; }
+.ind-raw td { padding: 4px 0; color: var(--color-text-primary); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.ind-raw tr + tr > * { border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); }
+.ind-method + .ind-method, .ind-fold--method > h3 { margin-top: 16px; }
+.ind-method__lead, .ind-method__text { margin: 0 0 6px; font-size: var(--fs-reading); line-height: 1.7; color: var(--color-text-secondary); }
+.page > .ind-fold { margin: 0 0 16px; padding: 0 var(--sx-card-pad-x); border-radius: var(--radius-container); background: var(--color-background-card); border-top: 0; }
+.page > .ind-fold[open] { padding-bottom: 16px; }
+/* The hero's counter line and the leaders' state words (시장 상태). */
+.mk-hero__counter { margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-text-primary); overflow-wrap: anywhere; }
+.mk-hero__counter-label { margin-right: 8px; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
+.mk-hero__counter[hidden], .mk-hero__prev[hidden] { display: none; }
+#page-signal .leaders-line > .leaders-line__summary { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; min-height: 32px; }
+#page-signal .market-lean__head { margin: 0; cursor: default; }
+#page-signal .market-lean > .ind-fold { margin-top: 4px; }

@@ -34,8 +34,31 @@
 .stock-chart-layer-label { font-size: 12px; color: var(--color-text-secondary); margin-right: 2px; }
 .stock-chart-layer-group[data-tier="base"] button[aria-pressed="true"] { font-weight: 600; }
 .stock-chart-layer-read { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 6px; }
-.charts-candle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
-.charts-candle-card { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.charts-index-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.charts-index-card { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.charts-index-chart { min-width: 0; }
+.charts-index-card > .charts-candle-chips:empty { display: none; }
+/* Chart-scale 2026-11-19: SPY's chips wrapped to two lines and pushed its chart and button below QQQ's and IWM's. The
+   cards of one row share its seven tracks (head, facts, volume, chips, chart, raw table, button), so their charts start on
+   one line whichever card has a volume line or two lines of chips. */
+@supports (grid-template-rows: subgrid) {
+  .charts-index-card { display: grid; grid-row: span 7; grid-template-rows: subgrid; row-gap: 4px; align-content: start; }
+  .charts-index-card > .charts-candle-chips:empty { display: block; visibility: hidden; }
+  .charts-index-card > .charts-card-volume:empty { margin: 0; }
+  .charts-candle-chips { align-content: flex-start; align-items: flex-start; } /* one-line chips in a two-line track keep their height */
+}
+#page-charts .charts-search { margin: 0 0 14px; }
+#page-charts .charts-search > .aio-cmd-field { max-width: 560px; min-height: 44px; font-size: 14px; }
+/* The view tabs stay at the top while scrolling (page-views.css); a symbol opened into the slot lands below them. */
+#page-charts > #stock-chart-section { scroll-margin-top: 64px; }
+/* 대표 종목: the 시장 지수 cards, one grid per group; a stock without daily bars says so in one line instead of a chart. */
+#page-charts .charts-stock-group + .charts-stock-group, #page-charts #charts-stock-raw { margin-top: 20px; }
+#page-charts .charts-group-title { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--color-text-secondary); }
+.charts-card-missing { margin: 0; color: var(--color-text-secondary); }
+#page-charts .charts-stock-row { cursor: pointer; }
+#page-charts .charts-stock-row[aria-current="true"] { background: var(--sx-ink-a05); }
+#page-charts .charts-trend.is-tone-up { color: var(--color-data-up); }
+#page-charts .charts-trend.is-tone-down { color: var(--color-data-down); }
 .charts-candle-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .charts-candle-title { margin: 0; font-size: 15px; } .charts-candle-name { font-size: 12px; color: var(--color-text-secondary); }
 .charts-candle-close { margin-left: auto; font-size: 12px; font-variant-numeric: tabular-nums; } .charts-candle-close.is-up { color: var(--candle-up); } .charts-candle-close.is-down { color: var(--candle-down); }

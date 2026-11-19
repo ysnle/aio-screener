@@ -148,7 +148,7 @@ export function sentimentFlow({ model = null, regime = null } = {}) {
 
 // 시장 상태: each burden or neutral axis points to the screen that explains it.
 const AXIS_ROUTES = Object.freeze({
-  trend: { route: 'technical', action: 'aioOpenMarketChart', arg: 'SPY', label: 'S&P 500 차트', why: (axis) => `추세 ${axis.stateLabel} — 일봉과 50·200일선 위치` },
+  trend: { route: 'charts', action: 'aioOpenMarketChart', arg: 'SPY', label: 'S&P 500 차트', why: (axis) => `추세 ${axis.stateLabel} — 일봉과 50·200일선 위치` },
   breadth: { route: 'breadth', label: '시장 폭', why: (axis) => `시장 폭 ${axis.stateLabel} — 참여 종목의 6개월 추이와 빠지거나 들어온 종목` },
   volatility: { route: 'sentiment', label: '투자 심리', why: (axis) => `변동성 ${axis.stateLabel} — 옵션 헤지 수요·심리와 같은 쪽인지` },
   rates: { route: 'fxbond', label: '금리와 환율', why: (axis) => `금리 ${axis.stateLabel} — 실질금리와 수익률 곡선 중 어디에서 오는지` },

@@ -1546,7 +1546,6 @@ var _TG_PAGE_TAGS = {
   'breadth':     ['macro','credit','equity','kr-market','geo','semi','power','flows'],
   'sentiment':   ['macro','credit','kr-market','equity','geo','crypto','flows','insider'],
   'briefing':    ['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','power','optical','earnings','healthcare','japan','flows','insider'],
-  'technical':   ['semi','equity','power','optical','flows','earnings'],
   'charts':      ['semi','equity','power','optical','flows','earnings','macro'], // v59.64
   'macro':       ['macro','credit','geo','ai-policy','power','japan'],
   'fxbond':      ['macro','credit','geo','power','flows','japan'],
@@ -1571,7 +1570,6 @@ var _TG_PAGE_CFG = {
   'breadth':     ['시장 내부 동향',             4,  false, 'score', true ],
   'sentiment':   ['시장 심리 동향',             4,  false, 'score', false],
   'briefing':    ['채널 인사이트',              8,  true,  'date',  false],
-  'technical':   ['기술적 이슈',                3,  false, 'score', true ],
   'macro':       ['거시·금리 동향',             5,  true,  'score', false],
   'fxbond':      ['환율·채권·크레딧 동향',      5,  true,  'score', false],
   'fundamental': ['기업·AI 밸류체인 피드',      4,  false, 'score', false],
@@ -2206,7 +2204,7 @@ async function _aioFetchYahooChartData(symbol, range, interval, requestOptions) 
 var _aioFetchYahooChartDataDirect = _aioFetchYahooChartData;
 function _aioChartDataForScreen(symbol, range, interval, requestOptions) {
   var data = _aioFetchYahooChartDataDirect(symbol, range, interval, requestOptions);
-  var screen = typeof document !== 'undefined' ? document.getElementById('page-technical') : null;
+  var screen = typeof document !== 'undefined' ? document.getElementById('page-charts') : null; // the analysis slot's screen
   if (!screen || !screen.classList.contains('active') || typeof window.LightweightCharts !== 'undefined'
     || typeof window._aioEnsureChartLibrary !== 'function') return data;
   var library = Promise.race([
@@ -5713,7 +5711,7 @@ window.AIO.verifyPageLiveDataBinding = function(opts) {
 };
 
 window.AIO.verifyCritical10LiveBindings = function() {
-  var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'];
   var audits = pages.map(function(pageId) { return window.AIO.verifyPageLiveDataBinding({ pageId: pageId }); });
   var bindingMissing = audits.reduce(function(n, a) { return n + (a.bindingMissingCount || 0); }, 0);
   var sourceMissing = audits.reduce(function(n, a) { return n + (a.sourceMissingCount || 0); }, 0);

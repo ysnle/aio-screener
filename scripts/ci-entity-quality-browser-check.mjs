@@ -14,7 +14,7 @@ const base = `http://127.0.0.1:${port}`;
 const out = resolve(root, '_artifacts/entity-quality-20261012');
 const sourceVersion = JSON.parse(readFileSync(resolve(root,'version.json'),'utf8')).version;
 const sourceFiles = ['index.html','src/ui/pages/entity.js','src/ui/pages/screener.js','src/ui/pages/analysis.js',
-  'src/ui/components/stock-chart.js','src/ui/components/stock-read.js','src/ui/components/fiscal-read.js',
+  'src/ui/components/stock-chart.js','src/ui/components/company-overview.js','src/ui/components/fiscal-read.js',
   'src/domain/entity/summary-hydration.js','src/domain/screener/market-scope.js','src/domain/screener/factor-ranks.js',
   'src/data/providers/screener.js','src/domain/fundamental/fiscal-read.js','src/domain/technical/chart-scenarios.js'];
 const sourceHashes = Object.fromEntries(sourceFiles.map(file=>[file,createHash('sha256').update(readFileSync(resolve(root,file))).digest('hex')]));
@@ -116,56 +116,36 @@ try {
         await page.keyboard.press('Escape');
       }
       // Enter the actual summary action first. No technical route or chart fetch is invoked beforehand.
-      await page.evaluate(()=>{ window.showTicker('AEHR'); document.querySelectorAll('.page[data-view]').forEach((node) => { node.dataset.view = 'all'; }); }); // every view of the page
+      await page.evaluate(()=>{ window.showTicker('AEHR'); });
+      // 2026-11-19: 개요 is the company (사업 · 밸류체인 안의 자리 · 재무 한눈에); the price chart is 기술적 분석's.
       await page.waitForFunction(()=>document.getElementById('ticker-hero-price')?.textContent.includes('84.64')
-        && document.getElementById('ticker-price-chart')?.dataset.tickerChartEnd === '2026-10-09'
-        // v59.55 (C1): the price line is the shared SVG trend chart (no Chart.js hand-over to wait for).
-        && !!document.querySelector('#ticker-price-chart svg.trend-chart path.trend-chart-line'), null, {timeout:20000});
+        && document.querySelectorAll('#ticker-company:not([hidden]) [data-company-section]').length>=3, null, {timeout:20000});
       const summary = await page.evaluate(()=>({ price:document.getElementById('ticker-hero-price').textContent,
         basis:document.getElementById('ticker-summary-price-basis').textContent,
-        business:`${document.getElementById('ticker-business-profile').dataset.issuerName || ''} ${document.getElementById('ticker-business-profile').textContent}`, // 2026-10-14 audit #10: heading reads '무엇을 하는 회사'; issuer named on the section
-        source:document.querySelector('#ticker-business-profile a')?.href,
-        canvas:{ width:document.getElementById('ticker-price-chart').clientWidth,height:document.getElementById('ticker-price-chart').clientHeight },
-        lastDate:document.getElementById('ticker-price-chart').dataset.tickerChartEnd,
-        native:document.getElementById('ticker-price-chart').dataset.aioTickerChartRenderer,
-        chart:(()=>{const path=document.querySelector('#ticker-price-chart path.trend-chart-line'),box=path?.getBoundingClientRect();
-          return {points:(path?.getAttribute('d')?.match(/[ML]/g) || []).length,width:box?.width || 0,height:box?.height || 0,
-            stroke:path ? getComputedStyle(path).stroke : '',up:getComputedStyle(document.body).getPropertyValue('--dir-up').trim(),down:getComputedStyle(document.body).getPropertyValue('--dir-down').trim()};})(),
-        active:document.querySelector('.page.active').id,
-        signed:[...document.querySelectorAll('.stock-return-signed-bar')].map(el=>({ down:el.dataset.sign==='down',left:parseFloat(el.style.left),width:parseFloat(el.style.width),title:el.title })) }));
+        name:document.getElementById('ticker-hero-fullname').textContent,
+        business:document.querySelector('#ticker-company [data-company-section="business"]')?.textContent || '',
+        source:document.querySelector('#ticker-company details[data-fold-kind="sources"] a')?.href,
+        sections:[...document.querySelectorAll('#ticker-company [data-company-section]')].map(el=>el.dataset.companySection),
+        chart:!!document.querySelector('#page-ticker svg.trend-chart, #page-ticker canvas'),
+        active:document.querySelector('.page.active').id }));
       observations.push({label,summary,fixtureRequests:intercepted.length});
       check(summary.active==='page-ticker' && /^\$84\.64$/.test(summary.price),`${label}: first summary price/currency absent (P1624)`,summary);
-      check(/Aehr Test Systems/.test(summary.business) && /^https:\/\//.test(summary.source || '')
-        && !/Palantir/.test(summary.business),`${label}: selected issuer profile/source identity lost (P1624)`,summary);
-      check(summary.canvas.width>100 && summary.canvas.height>100 && summary.native==='native' && summary.lastDate==='2026-10-09',`${label}: first summary chart absent (P1624)`,summary);
-      check(summary.chart.points>=20 && summary.chart.width>100 && summary.chart.height>10,`${label}: summary price line has no drawn series (P1624, SVG since v59.55)`,summary.chart);
+      check(/Aehr Test Systems/.test(summary.name) && summary.business.length>0 && /^https:\/\//.test(summary.source || '')
+        && !/Palantir/.test(`${summary.name} ${summary.business}`),`${label}: selected issuer profile/source identity lost (P1624)`,summary);
+      check(/^business,place,(outlook,)?money$/.test(summary.sections.join(',')) && !summary.chart,`${label}: 개요 is not 사업 · 밸류체인 안의 자리 · 쟁점과 전망 · 재무 한눈에, or it draws a price chart (2026-11-19)`,summary);
       check(summary.basis.includes('2026-10-10 05:00 한국 시간') && !/UTC|실시간/.test(summary.basis),`${label}: observation basis lost/promoted or not in Korean time (P1624/S21)`,summary);
-      check(summary.signed.some(bar=>bar.down && bar.width>0) && summary.signed.every(bar=>bar.down ? Math.abs(bar.left+bar.width-50)<.05 : Math.abs(bar.left-50)<.05),`${label}: signed returns cross common zero incorrectly (P1624)`,summary.signed);
       await captureLayout(page,`${label}/summary`);
       await snap(page, `browser-${label}-summary.png`);
-      // v59.52 (P2187): the stock reading is rebuilt on the same real quote event as the company block.
-      const stockFoldRerender = await page.evaluate(() => {
-        const fold = document.querySelector('#ticker-read > details.stock-read-fold');
-        if (!fold) return { exists:false, open:false, focus:false };
-        fold.open = true; fold.querySelector('summary').focus();
-        document.dispatchEvent(new CustomEvent('aio:liveQuotes'));
-        const after = document.querySelector('#ticker-read > details.stock-read-fold');
-        return { exists:!!after, open:!!after?.open, focus:document.activeElement === after?.querySelector('summary') };
-      });
-      observations.push({ label, stockFoldRerender });
-      check(stockFoldRerender.exists && stockFoldRerender.open && stockFoldRerender.focus, `${label}: stock reading fold lost its open state or focus on a quote update (v59.52/P2187)`, stockFoldRerender);
-      // v59.51 (content audit) supersedes P1640: the second company summary left 요약; the valuation line sits under the
-      // price, and what stays in #ticker-company-analysis is the AI primer hand-off and closed expert folds.
-      check(await page.locator('#ticker-company-analysis').isVisible() && await page.locator('#ticker-hero-valuation').count()===1
-        && !await page.locator('.company-analysis-expanded, .company-analysis-routes').count(),`${label}: company block missing or the retired second summary returned (v59.51)`);
+      check(await page.locator('#ticker-hero-valuation').count()===1 && !await page.locator('.company-analysis-expanded, .company-analysis-routes').count(),`${label}: the valuation line is missing or the retired second summary returned (v59.51)`);
+      // P1630: a quote update keeps the fold the reader opened (and its focus).
       const rerender = await page.evaluate(()=>{
-        const fold=document.querySelector('#ticker-company-analysis details'); if (!fold) return { skipped:true, reason:'no-company-observations', open:null, focus:null };
+        const fold=document.querySelector('#ticker-company details'); if (!fold) return { skipped:true, reason:'no-company-fold', open:null, focus:null };
+        const name=fold.querySelector('summary').textContent;
         fold.open=true; fold.querySelector('summary').focus();
         document.dispatchEvent(new CustomEvent('aio:liveQuotes'));
-        const after=document.querySelector(`#ticker-company-analysis details.${fold.className.split(' ')[0]}`);
+        const after=[...document.querySelectorAll('#ticker-company details')].find(node=>node.querySelector('summary')?.textContent===name);
         return { open:!!after?.open, focus:document.activeElement===after?.querySelector('summary') };
       });
-      // v59.52: this data-dependent probe cannot prove state preservation when there is no fold to open.
       observations.push({ label, companyFoldRerender:rerender });
       if (!rerender.skipped) check(rerender.open && rerender.focus,`${label}: quote re-render collapsed the opened company fold or dropped focus (P1630)`,rerender);
       await page.getByRole('button',{name:'AI로 기업 분석',exact:true}).click();
@@ -216,7 +196,7 @@ try {
       observations.push({label,currencyFormat,priceBoundary:'Unreceived public quotes remain unavailable; no published price is promoted into a current quote.'});
       await captureLayout(page,`${label}/screener`);
 
-      await page.evaluate(()=>{ window.showTicker('AEHR'); document.querySelectorAll('.page[data-view]').forEach((node) => { node.dataset.view = 'all'; }); }); // every view of the page
+      await page.evaluate(()=>{ window.showTicker('AEHR'); });
       await page.waitForFunction(()=>document.querySelector('.page.active')?.id==='page-ticker');
       await page.locator('#aio-hub-tabs [data-arg="fundamental"]').click();
       await page.waitForSelector('.fiscal-amount-table tbody tr', {timeout:20000, state:'attached'}); // 2026-10-14 audit #21: amount tables fold closed under the chart
@@ -234,10 +214,12 @@ try {
       await captureLayout(page,`${label}/fiscal`);
       await snap(page, `browser-${label}-fiscal.png`, { fullPage:true });
 
-      await page.locator('#aio-hub-tabs [data-arg="technical"]').click();
-      await page.waitForFunction(()=>document.querySelector('.page.active')?.id==='page-technical');
-      // v59.51: the three paths live in the chart's closed expert fold; the content is checked attached, not on the face.
-      await page.waitForSelector('.chart-scenario', {state:'attached',timeout:20000});
+      // Owner 2026-11-19: the 종목 hub line's '기술적 분석에서 보기' opens this company in 기술적 분석's analysis slot (the
+      // 차트 tab is retired); the three paths are on the slot's face, the reading order in its method fold.
+      const subjectSym = await page.evaluate(()=>window._aioLastOpenedSymbol);
+      await page.locator('#aio-hub-tabs .aio-hub-subject-chart').click();
+      await page.waitForFunction((sym)=>document.querySelector('.page.active')?.id==='page-charts' && document.getElementById('stock-chart-section')?.dataset.aioStockChartEntity===sym, subjectSym, {timeout:20000});
+      await page.waitForSelector('#stock-chart-evidence .chart-scenario', {state:'visible',timeout:20000});
       const technical = await page.locator('#stock-chart-evidence').evaluate(host=>({
         scenarios:[...host.querySelectorAll('.chart-scenario')].map(el=>({id:el.dataset.scenario,text:el.textContent})),
         volume:host.querySelector('.chart-volume-profile')?.textContent,

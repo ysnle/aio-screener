@@ -124,11 +124,12 @@ try {
   const chartAfter=await page.evaluate(()=>({range:window.__aioStockChartInstance.chart.timeScale().getVisibleLogicalRange(),text:window.__aioStockChartInstance.chart.options().layout.textColor}));
   assert.notEqual(chartAfter.text,chartBefore.text,'P1604: existing stock chart recolors immediately');
   assert.deepEqual(chartAfter.range,chartBefore.range,'P1604: recoloring preserves chart view');
-  await capture('stock-chart-recolor','technical','stock','toggle existing chart from dark to light','axis colors updated; logical range retained');
+  // Owner 2026-11-19: the old 차트 route opens the analysis slot on 기술적 분석.
+  await capture('stock-chart-recolor','charts','charts','toggle existing chart from dark to light','axis colors updated; logical range retained');
   await page.evaluate(()=> { Storage.prototype.setItem=function(){throw new DOMException('fixture','SecurityError');}; });
   await page.locator('#sidebar-theme-btn').click();
   assert.equal(await page.locator('body').evaluate(b=>b.classList.contains('dark-theme')),true,'P1604: storage refusal keeps theme functional');
-  await capture('theme-storage-refusal','technical','stock','toggle with rejected persistence','visible dark mode and chart update continue');
+  await capture('theme-storage-refusal','charts','charts','toggle with rejected persistence','visible dark mode and chart update continue');
   // v59.70: the mount render is followed ~15 ms later by the narrative hydration render. A reader who opens the 목차
   // list in between keeps it open (it used to be rebuilt closed: the open was recorded only by the later 'toggle' task,
   // which made this journey time out on a hidden title about 1 run in 3). The list is opened from inside the mount.

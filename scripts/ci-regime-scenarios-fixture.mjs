@@ -1,7 +1,7 @@
 // P1628: offline regime condition/series/venue-date contracts. No provider calls or producer execution.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buildMarketRegime, bp } from '../src/domain/briefing/market-read.js';
+import { AXIS_KOREA_LABEL, AXIS_REASON_LABEL, buildMarketRegime, bp } from '../src/domain/briefing/market-read.js';
 import { buildMarketScenarios, buildRegimeAxisHistory, renderMarketScenarioContext, buildKoreaIndexSeries, buildKoreaRegimeObservations } from '../src/domain/market/regime/regime-scenarios.js';
 import { resolveMarketCalendarSession } from '../src/domain/market/session/market-calendar.js';
 import { renderRegimePage } from '../src/ui/components/market-regime.js';
@@ -80,18 +80,32 @@ class Element {
 function descendants(node) { return node.children.flatMap(child => [child, ...descendants(child)]); }
 const page = new Element('main'); page.className = 'page active';
 const ids = new Map([['page-signal', page]]);
-for (const id of ['regime-basis', 'regime-overall', 'regime-counts', 'regime-headline', 'regime-conflicts', 'regime-board', 'regime-board-kr', 'regime-next']) { const element = new Element('div'); ids.set(id, element); page.append(element); }
+for (const id of ['regime-basis', 'regime-overall', 'regime-counts', 'regime-counter', 'regime-conflicts', 'regime-board', 'regime-history', 'regime-history-host', 'regime-board-kr', 'regime-next']) { const element = new Element('div'); ids.set(id, element); page.append(element); }
 const doc = { createElement: tag => new Element(tag), createElementNS: (_, tag) => new Element(tag), createTextNode: text => { const node = new Element('#text'); node.textContent = text; return node; }, getElementById: id => ids.get(id) || null };
 const root = { _aioHistory: input.history, _aioMacroHistory: macroHistory, DATA_SNAPSHOT: { hySpread: 300, _hySpreadDelta5Bp: -10, pcr: .9, realYield10: 1.8,
   _fieldTs: { hySpread: asOf, pcr: asOf, macro_realYield10: asOf, macro_breakeven10: asOf } } };
 renderRegimePage({ documentRef: doc, root });
 assert.equal(ids.get('regime-board').children.length, 6, 'P1628 US regime board must preserve six distinct axis cards');
-assert.equal(descendants(ids.get('regime-board')).filter(node => node.tagName === 'svg').length, 6, 'P1628 each populated axis must actually render a labelled history chart');
-const breadthCard = ids.get('regime-board').children.find(card => card.dataset.axis === 'breadth');
-const selectors = descendants(breadthCard).filter(node => node.tagName === 'button' && node.dataset.action !== 'showPage'); // v58.75: the row's 원리 link to 시장 폭 is not a chart selector
+// v60.31 (안 A): the rows are never folded — no <details> in a row, at most two lines under each value — and every populated
+// axis's dated chart is one pick away in the 지표 추이 card (one plot at a time).
+assert.ok(ids.get('regime-board').children.every(card => card.tagName === 'article' && !descendants(card).some(node => node.tagName === 'details') && descendants(card).filter(node => String(node.className).includes('ind-row__line')).length <= 2), 'v60.31 an indicator row has no fold and at most two lines');
+const historyHost = ids.get('regime-history-host');
+const axisPicks = descendants(historyHost).filter(node => node.tagName === 'button' && node.dataset.axis);
+assert.deepEqual(['trend', 'breadth', 'volatility', 'credit', 'rates', 'commodities'].filter(id => !axisPicks.some(node => node.dataset.axis === id)), [], 'P1628 each populated axis must offer its dated chart');
+for (const pick of axisPicks) {
+  pick.listeners.click();
+  const plot = descendants(historyHost).find(node => node.className === 'regime-history-plot');
+  assert.ok(plot.dataset.axis === pick.dataset.axis && descendants(plot).some(node => node.tagName === 'svg') && pick.attributes['aria-pressed'] === 'true', `P1628 each populated axis must actually render a labelled history chart (${pick.dataset.axis})`);
+}
+axisPicks.find(node => node.dataset.axis === 'breadth').listeners.click();
+const breadthPlot = descendants(historyHost).find(node => node.className === 'regime-history-plot');
+const selectors = descendants(breadthPlot).filter(node => node.tagName === 'button');
 selectors[1].listeners.click();
-assert.equal(descendants(breadthCard).find(node => node.className === 'regime-axis-plot').dataset.historySeries, 'breadth200', 'P1628 switching SMA50/200 must render the chosen actual series');
+assert.equal(descendants(breadthPlot).find(node => node.className === 'regime-axis-plot').dataset.historySeries, 'breadth200', 'P1628 switching SMA50/200 must render the chosen actual series');
 assert.equal(selectors[1].attributes['aria-pressed'], 'true', 'P1628 chart selection must expose its active state');
+// v60.31: every axis's evidence rows and flip rule are in the one raw-table fold (data-fold-kind), one group per axis.
+const rawFold = descendants(page).find(node => node.id === 'regime-raw');
+assert.ok(rawFold?.tagName === 'details' && rawFold.dataset.foldKind === 'raw-table' && ['trend', 'breadth', 'volatility', 'credit', 'rates', 'commodities'].every(id => descendants(rawFold).some(node => node.dataset.rawAxis === id)), 'v60.31 the raw-table fold holds one group per axis');
 assert.equal(descendants(page).filter(node => node.dataset.scenario).length, 3, 'P1628 screen must show the three model-backed conditional paths');
 // v57.76: 시장 상태 reads current state then links once to 거시 for the branches by release (no compact branch block), and
 // the VIX-only past-outcome table is a fold inside the volatility card, not a separate unbridged section.
@@ -108,9 +122,8 @@ assert.equal(macroLinks.length, 1, 'v59.68 the flow section ends with exactly on
   delete root.showPage;
   delete root._aioShowPageView;
 }
-const vixCard = ids.get('regime-board').children.find(card => card.dataset.axis === 'volatility');
-const stressFold = descendants(vixCard).find(node => node.id === 'regime-stress-outcomes');
-assert.ok(stressFold?.tagName === 'details' && !descendants(page).some(node => node.id === 'regime-stress-outcomes' && !descendants(vixCard).includes(node)), 'v57.76 the VIX past-outcome table folds inside the volatility card only');
+const stressFolds = descendants(page).filter(node => node.id === 'regime-stress-outcomes');
+assert.ok(stressFolds.length === 1 && stressFolds[0].tagName === 'details' && stressFolds[0].dataset.foldKind === 'raw-table', 'v57.76 · v60.31 the VIX past-outcome table is one raw-table fold beside the indicators');
 const css = readFileSync(new URL('../src/ui/styles/regime-quality.css', import.meta.url), 'utf8');
 assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && css.includes('@media (max-width: 900px)'), 'P1628 six-axis layout must fill desktop in two columns and stack compact screens');
 // P1723-P1727 (2026-10-13 market responsiveness): a rare KOSPI day reaches the briefing lead and the axis reads without
@@ -152,12 +165,14 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   const regimeCalm = buildMarketRegime({ history: calm, now });
   assert.deepEqual(regime.axes.map((row) => row.state), regimeCalm.axes.map((row) => row.state), 'P1723 a Korean shock never changes a US axis state');
   // P1746 (audit 2026-10-14): the note was printed twice on adjacent axis cards; it now rides the volatility axis only.
-  assert.ok(regime.axes.find((row) => row.id === 'volatility').read.includes('단, 한국은 10/13 코스피 -6.0%') && !regime.axes.find((row) => row.id === 'trend').read.includes('단, 한국은'), 'P1723/P1746 the rare Korean move is named once, on the volatility reading');
-  assert.ok(!regimeCalm.axes.find((row) => row.id === 'trend').read.includes('단, 한국은'), 'P1723 an ordinary Korean day adds nothing to the US axis readings');
+  // v60.31: the note is an evidence row (AXIS_KOREA_LABEL), not a sentence appended to the reading.
+  const krRow = (reg, id) => reg.axes.find((row) => row.id === id).evidence.find(([label]) => label === AXIS_KOREA_LABEL)?.[1] || '';
+  assert.ok(krRow(regime, 'volatility').startsWith('10/13 코스피 -6.0%') && !krRow(regime, 'trend'), 'P1723/P1746 (v60.31 row) the rare Korean move is named once, on the volatility axis');
+  assert.ok(!krRow(regimeCalm, 'volatility') && !krRow(regimeCalm, 'trend'), 'P1723 (v60.31 row) an ordinary Korean day adds nothing to the US axes');
   const fxAxis = regime.axes.find((row) => row.id === 'korea');
   assert.ok(fxAxis.basisStatus === 'mixed' && fxAxis.basis === '10/12~10/13' && fxAxis.evidence.find(([label]) => label === '코스피')[1].endsWith(', 10/13'), `P1725 the won/KOSPI card shows each value's own date (${JSON.stringify(fxAxis)})`);
   const oil = regime.axes.find((row) => row.id === 'commodities');
-  assert.ok(/WTI","84\.00달러 \(20일 -8\.7%, 최근 5일 \+5\.0% 반등\)/.test(JSON.stringify(oil.evidence)) && /최근 5일 \+5\.0% 반등했습니다\(판정은 20일 기준\)/.test(oil.read), `P1726 a 5-session WTI rebound is named beside the 20-session fall (${JSON.stringify(oil)})`);
+  assert.ok(/WTI","84\.00달러 \(20일 -8\.7%, 최근 5일 \+5\.0% 반등\)/.test(JSON.stringify(oil.evidence)), `P1726 a 5-session WTI rebound is named beside the 20-session fall (${JSON.stringify(oil)})`);
   assert.equal(oil.state, regimeCalm.axes.find((row) => row.id === 'commodities').state, 'P1726 the oil wording never changes the axis state');
   const daily = buildDailyChanges(rows, { now });
   const kospiMove = daily.moves.find((move) => move.key === 'kospi');
@@ -182,6 +197,8 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   // overall label as a function of the net count.
   const { overallLabel, buildMarketRead } = await import('../src/domain/briefing/market-read.js');
   const axisOf = (rows, id) => buildMarketRegime({ ...input, history: rows }).axes.find((row) => row.id === id);
+  // v60.31: the leg that holds a state is the 판정 사유 row (fixed vocabulary), not a sentence.
+  const reasonOf = (axis) => axis?.evidence?.find(([label]) => label === AXIS_REASON_LABEL)?.[1] || '';
   // `path` is laid on the last sessions so that path[step] is the latest close; earlier sessions keep `before`.
   const laid = (field, path, step, before, extra = {}) => history.map((row, index) => {
     const at = step - (history.length - 1 - index);
@@ -194,10 +211,10 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   const ratePath = [...slide, ...jump, ...Array(6).fill(jump.at(-1))];
   const ratesAt = (step) => axisOf(laid('tnx', ratePath, step, (index) => index < 100 ? 4.5 : 4.1), 'rates');
   const shock = ratesAt(19), shockHeld = ratesAt(22), shockOver = ratesAt(25);
-  assert.ok(shock.state === 'burden' && shock.shock?.now === true && /5거래일 \+28bp 뛰었습니다/.test(shock.read) && /5거래일 상승이 \+10bp 아래로 줄면/.test(shock.flip) && /\+15bp 이상이면 부담/.test(JSON.stringify(shock.evidence)),
-    `v60.16 a five-session +28bp rise is 부담 on a small 20-session change and names its leg: ${shock.state} ${shock.read} | ${shock.flip}`);
+  assert.ok(shock.state === 'burden' && shock.shock?.now === true && /^5거래일 급등 \(/.test(reasonOf(shock)) && /5거래일 \+28bp/.test(JSON.stringify(shock.evidence)) && /5거래일 상승이 \+10bp 아래로 줄면/.test(shock.flip) && /\+15bp 이상이면 부담/.test(JSON.stringify(shock.evidence)),
+    `v60.16 (v60.31 reason row) a five-session +28bp rise is 부담 on a small 20-session change and names its leg: ${shock.state} ${reasonOf(shock)} | ${shock.flip}`);
   assert.ok(shock.flipDistance?.toward === 'neutral' && shock.flipDistance.value === -18, `v60.16 the speed leg's exit is the nearest flip (5 sessions ago +10bp): ${JSON.stringify(shock.flipDistance)}`);
-  assert.ok(shockHeld.state === 'burden' && shockHeld.shock?.now === false && /급등 부담 판정이 이어지고/.test(shockHeld.read), `v60.16 the speed leg holds until the rise is under +10bp: ${shockHeld.state} ${shockHeld.read}`);
+  assert.ok(shockHeld.state === 'burden' && shockHeld.shock?.now === false && /^5거래일 급등 부담 유지 \(\d+\/\d+부터\)$/.test(reasonOf(shockHeld)), `v60.16 (v60.31 reason row) the speed leg holds until the rise is under +10bp: ${shockHeld.state} ${reasonOf(shockHeld)}`);
   assert.ok(shockOver.state === 'neutral' && shockOver.shock === null && /5거래일 \+15bp 이상\(자체 기록 상위 5%\)/.test(shockOver.flip) && /1년 범위 90% 이상에서 5일 상승/.test(shockOver.flip), `v60.16 the speed leg releases and the 중립 flip names all three legs: ${shockOver.state} ${shockOver.flip}`);
   // v60.18 (weekly audit D1): the rates axis reports the leg that decided it, and the 매크로 headline, chain node, chain
   // sentence and legend render from that one object — a 5-session +29bp 부담 was headed '10년물 20거래일 +5bp'.
@@ -228,11 +245,11 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   const calmBase = { vix3m: 23 };
   const volAt = (path, step) => axisOf(laid('vix', path, step, 14, calmBase), 'volatility');
   const lowSpike = volAt([15, 16, 17, 19, 19.5], 4);
-  assert.ok(lowSpike.state === 'neutral' && /20 아래라 부담으로 보지 않습니다/.test(lowSpike.read), `v60.16 a five-session spike that ends under VIX 20 is not 부담: ${lowSpike.state} ${lowSpike.read}`);
+  assert.ok(lowSpike.state === 'neutral' && /^5거래일 급등, 수준은 급등 기준 아래/.test(reasonOf(lowSpike)), `v60.16 (v60.31 reason row) a five-session spike that ends under VIX 20 is not 부담: ${lowSpike.state} ${reasonOf(lowSpike)}`);
   const spikePath = [15, 16, 17, 19, 21, 19.5, 19.4];
   const [spikeOn, spikeHeld, spikeOff] = [4, 5, 6].map((step) => volAt(spikePath, step));
-  assert.ok(spikeOn.state === 'burden' && /한 주 사이 급등/.test(spikeOn.read), `v60.16 a five-session spike at or above VIX 20 is 부담: ${spikeOn.state} ${spikeOn.read}`);
-  assert.ok(spikeHeld.state === 'burden' && /부담 판정이 이어지고/.test(spikeHeld.read) && /VIX 20 미만/.test(spikeHeld.flip), `v60.16 부담 holds at 19.5 while the five-session rise is still +25%: ${spikeHeld.state} ${spikeHeld.read}`);
+  assert.ok(spikeOn.state === 'burden' && /^5거래일 급등, 급등 기준 수준 이상/.test(reasonOf(spikeOn)), `v60.16 (v60.31 reason row) a five-session spike at or above VIX 20 is 부담: ${spikeOn.state} ${reasonOf(spikeOn)}`);
+  assert.ok(spikeHeld.state === 'burden' && /^부담 유지\(해제 조건 미충족\) \(\d+\/\d+부터\)$/.test(reasonOf(spikeHeld)) && /VIX 20 미만/.test(spikeHeld.flip), `v60.16 (v60.31 reason row) 부담 holds at 19.5 while the five-session rise is still +25%: ${spikeHeld.state} ${reasonOf(spikeHeld)}`);
   assert.equal(spikeOff.state, 'neutral', 'v60.16 the volatility 부담 lets go once VIX is under 20 and the spike is unwound');
   const marketRead = readFileSync(new URL('../src/domain/briefing/market-read.js', import.meta.url), 'utf8');
   assert.ok(!/vix5 >= 25\b/.test(marketRead) && !/VIX 25 이상 — 경계/.test(marketRead), 'v60.16 the volatility read takes its lines from RULES.volatility, not literals');

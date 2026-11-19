@@ -383,11 +383,16 @@ const kept = [{ date: '2026-10-09', vix: 19.1, fieldMeta: { vix: { valueBasis: '
 mergeBackfillBars(kept, { '2026-10-09': { vix: 18.7, fieldMeta: { vix: { sessionDate: '2026-10-09' } } } }, ['vix']);
 assert.equal(kept[0].vix, 19.1, 'P1656: backfill does not overwrite completed-close evidence');
 
-// P1660: axis and macro-group folds teach (principle · reading · links) instead of listing sources.
-const { AXIS_DEEP_DIVES } = await import('../src/domain/content/axis-deep-dives.js');
-const { MACRO_GROUP_DEEP_DIVES } = await import('../src/domain/content/board-deep-dives.js');
-for (const id of ['trend', 'breadth', 'volatility', 'rates', 'credit', 'commodities']) assert.ok(AXIS_DEEP_DIVES[id]?.blocks.length === 3 && AXIS_DEEP_DIVES[id].related.length, `P1660: ${id} deep dive`);
-assert.ok(MACRO_GROUP_DEEP_DIVES.liquidity && MACRO_GROUP_DEEP_DIVES.growth && MACRO_GROUP_DEEP_DIVES['commodities-fx'], 'P1660: macro group deep dives');
+// Each market indicator's principle is one research-library note; every address the screens
+// link to resolves, and every indicator that used to teach on a screen has one.
+const { INDICATOR_NOTES } = await import('../src/domain/content/indicator-notes.js');
+const { lessonById: frameById } = await import('../src/domain/knowledge/learning-core.js');
+const libraryLessons = new Set(JSON.parse(fs.readFileSync(new URL('../public-data/principles/lesson-library.json', import.meta.url), 'utf8')).lessons.map((row) => row.id));
+for (const id of ['trend', 'breadth', 'volatility', 'rates', 'credit', 'commodities', 'growth', 'inflation', 'policy', 'korea', 'liquidity', 'fg', 'aaii', 'term', 'composite', 'curve', 'assets']) {
+  const target = INDICATOR_NOTES[id];
+  const resolves = !!target && !!(target.node ? frameById(target.node) : libraryLessons.has(target.lesson));
+  assert.equal(resolves, true, `v60.31 ${id} principle note resolves`);
+}
 assert.ok(!/추가 근거와 출처/.test(fs.readFileSync(new URL('../src/ui/components/market-regime.js', import.meta.url), 'utf8')), 'P1660: no evidence-dump fold title');
 // P1661: past outcomes by VIX band replace the failed composite score.
 const { buildStressOutcomes, stressBandOf } = await import('../src/domain/market/signal/stress-outcomes.js');
@@ -398,12 +403,12 @@ assert.equal(stress.bands.find((b) => b.id === 'stress').episodes, 1, 'P1661: a 
 assert.equal(stress.bands.find((b) => b.id === 'stress').horizons[21].hitRate, 100, 'P1661: rising series is all up');
 assert.equal(stress.bands.find((b) => b.id === 'calm').horizons[21].n, 39, 'P1661: no forward window past the last close');
 
-// P1663: sentiment cards and the breadth page share the deep-dive fold renderer.
-const { SENTIMENT_DEEP_DIVES } = await import('../src/domain/content/board-deep-dives.js');
-for (const id of ['fg', 'term', 'hy', 'aaii', 'composite']) assert.ok(SENTIMENT_DEEP_DIVES[id]?.blocks.length >= 2, `P1663: ${id} deep dive`); // v59.70: pcr retired with its card
-// v58.53: 시장 상태 opens each axis into the design's three cards (원리 / 지금 읽기 / 한계) built from the same
-// axis-deep-dives blocks, and keeps the shared link renderer (deepDiveLinks) — still one source, no per-board copy.
-for (const file of ['sentiment-board.js', 'breadth-board.js', 'market-regime.js', 'macro-board.js']) assert.ok(RegExp('deepDiveFold\\(|deepDiveLinks\\(').test(fs.readFileSync(new URL(`../src/ui/components/${file}`, import.meta.url), 'utf8')), `P1663: ${file} uses the shared fold`);
+// The market screens link to the library through the one link renderer and carry no teaching blocks.
+for (const file of ['sentiment-board.js', 'breadth-board.js', 'market-regime.js', 'macro-board.js', 'stress-outcomes.js']) {
+  const source = fs.readFileSync(new URL(`../src/ui/components/${file}`, import.meta.url), 'utf8');
+  const linksOnly = source.includes('principleLink(') && !source.includes('전문가 해석') && !source.includes('다른 축과의 연결');
+  assert.equal(linksOnly, true, `v60.31 ${file} links its principle note and teaches nothing itself`);
+}
 
 // P1664: a product-surface edit outside the knowledge routes does not pull the knowledge browser shard; viewport gates run pages together.
 const qaManifest = JSON.parse(fs.readFileSync(new URL('../architecture/qa-pipeline.json', import.meta.url), 'utf8'));
@@ -514,7 +519,9 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
   const macroRead = buildMacroRead({ macroHistory: { schemaVersion: 'macro-history.v1', series: { payrolls: { observations: payrolls }, unemployment: { observations: unemployment }, corePceIndex: { observations: corePceIndex } } } });
   assert.ok(macroRead.regime.near?.growth && macroRead.regime.inputs[1][3].endsWith('(근소)'), 'M12: a direction within half a rule step is 근소');
   assert.match(macroRead.regime.timing, /고용 26년 3월/, 'M12: the quadrant names the month it reads');
-  assert.match(macroRead.axes.find((a) => a.id === 'growth').read, /5\.1만 명씩 늘어 기준\(10만 명\)에 못 미칩니다/, 'M18 (v58.74 one people unit): the neutral growth read names its cause');
+  // the cause is the axis's 판정 사유 row (fixed vocabulary, figures in parentheses), not a sentence.
+  const growthReason = String(macroRead.axes.find((a) => a.id === 'growth').evidence.find((row) => row[0] === '판정 사유')?.[1] || '');
+  assert.match(growthReason, /일자리 3개월 평균 기준 미만 .\+5\.1만 명, 기준 10만 명/, 'M18 (v58.74 one people unit): the neutral growth reason names its cause');
 }
 
 console.log('codex-structure-regression-fixture: OK');

@@ -9,8 +9,10 @@ import { kstDate } from '../../ai/session/earlier-turns.js';
 import { el } from './dom.js';
 import { openLayer } from '../behaviors/layers.js';
 
-const SCREEN_NAME = { home: '오늘', briefing: '브리핑', macro: '매크로', fxbond: '금리·환율', themes: '테마', 'theme-detail': '테마', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', ticker: '종목', technical: '차트', fundamental: '재무', screener: '스크리너', portfolio: '포트폴리오', 'market-news': '뉴스', principles: '개념', atlas: '산업 지도', masters: '투자 대가', guide: '안내' };
-const TICKER_ROUTES = new Set(['ticker', 'technical', 'fundamental']);
+const SCREEN_NAME = { home: '오늘', briefing: '브리핑', macro: '매크로', fxbond: '금리·환율', themes: '테마', 'theme-detail': '테마', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', ticker: '종목', charts: '기술적 분석', technical: '기술적 분석', fundamental: '재무', screener: '스크리너', portfolio: '포트폴리오', 'market-news': '뉴스', principles: '개념', atlas: '산업 지도', masters: '투자 대가', guide: '안내' };
+const TICKER_ROUTES = new Set(['ticker', 'fundamental']);
+// 기술적 분석's AI context ('technical') asks about the symbol open in its analysis slot, not the 종목 subject.
+const subjectFor = (root, ctxId) => (ctxId === 'technical' ? root._aioChartSubject : TICKER_ROUTES.has(ctxId) ? root._currentTickerId : null);
 const LENS_NAME = Object.fromEntries(PROFILE_FIELDS.lenses.map(([id, label]) => [id, label]));
 
 const GROUPS = [
@@ -55,7 +57,8 @@ export function installAIProfile(root = globalThis, doc = root.document, { stora
   if (typeof previousSave === 'function') {
     root.saveChatEntry = function (ctxId, question, answer) {
       record({ kind: 'question', text: question });
-      if (TICKER_ROUTES.has(ctxId) && root._currentTickerId) record({ kind: 'ticker', id: String(root._currentTickerId).toUpperCase() });
+      const subject = subjectFor(root, ctxId);
+      if (subject) record({ kind: 'ticker', id: String(subject).toUpperCase() });
       return previousSave.apply(this, arguments);
     };
   }

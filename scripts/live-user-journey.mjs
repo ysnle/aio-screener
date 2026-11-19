@@ -13,7 +13,7 @@ const BASE = String(process.env.AIO_LIVE_BASE || 'https://ysnle.github.io/aio-sc
 const OUT = process.env.AIO_JOURNEY_OUT || '_artifacts/live-user-journey';
 const TICKERS = String(process.env.AIO_JOURNEY_TICKERS || 'NVDA,AAPL,MSFT,TSLA,PLTR,AMD,SOFI,IONQ,SPY,QQQ,SOXX,005930,000660')
   .split(',').map((value) => value.trim()).filter(Boolean);
-const PAGES = String(process.env.AIO_JOURNEY_PAGES || 'ticker,technical,fundamental').split(',').map((value) => value.trim()).filter(Boolean);
+const PAGES = String(process.env.AIO_JOURNEY_PAGES || 'ticker,charts,fundamental').split(',').map((value) => value.trim()).filter(Boolean);
 const QUESTIONS = (process.env.AIO_JOURNEY_QUESTIONS ? JSON.parse(process.env.AIO_JOURNEY_QUESTIONS) : [
   ['home', '지금 미국 증시 상태를 근거 숫자와 함께 한 문단으로 요약해줘'],
   ['ticker/NVDA', '엔비디아 다음 실적 발표 전에 무엇을 확인해야 해?'],
@@ -88,10 +88,10 @@ try {
     for (const ticker of TICKERS) {
       for (const route of PAGES) {
         const hash = `${route}/${ticker}`;
-        // the chart page draws after the quote and bars arrive; give it longer and wait for a canvas
-        await open(hash, route === 'technical' ? 6000 : 7000);
-        if (route === 'technical') await page.waitForSelector('#page-technical canvas', { timeout: 20000 }).catch(() => problems.push(`${hash}: no chart canvas`));
-        await page.waitForTimeout(route === 'technical' ? 3000 : 0);
+        // 기술적 분석 opens the symbol in its analysis slot after the quote and bars arrive; give it longer and wait for its canvas
+        await open(hash, route === 'charts' ? 6000 : 7000);
+        if (route === 'charts') await page.waitForSelector('#stock-chart-canvas canvas', { timeout: 20000 }).catch(() => problems.push(`${hash}: no chart canvas`));
+        await page.waitForTimeout(route === 'charts' ? 3000 : 0);
         const { id, text } = await visiblePageText(page);
         if (tooShort(text)) problems.push(`${hash}: page text ${text?.length || 0} chars`);
         writeFileSync(`${OUT}/${fileName(hash)}.txt`, text);

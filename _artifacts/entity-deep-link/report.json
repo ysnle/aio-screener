@@ -59,62 +59,6 @@
       "problems": []
     },
     {
-      "route": "technical",
-      "tab": "차트",
-      "sym": "AAPL",
-      "form": "path",
-      "hash": "#technical/AAPL",
-      "state": {
-        "active": "page-technical",
-        "tab": "차트",
-        "subject": "AAPL",
-        "hash": "#technical?sym=AAPL"
-      },
-      "problems": []
-    },
-    {
-      "route": "technical",
-      "tab": "차트",
-      "sym": "AAPL",
-      "form": "query",
-      "hash": "#technical?sym=AAPL",
-      "state": {
-        "active": "page-technical",
-        "tab": "차트",
-        "subject": "AAPL",
-        "hash": "#technical?sym=AAPL"
-      },
-      "problems": []
-    },
-    {
-      "route": "technical",
-      "tab": "차트",
-      "sym": "MSFT",
-      "form": "path",
-      "hash": "#technical/MSFT",
-      "state": {
-        "active": "page-technical",
-        "tab": "차트",
-        "subject": "MSFT",
-        "hash": "#technical?sym=MSFT"
-      },
-      "problems": []
-    },
-    {
-      "route": "technical",
-      "tab": "차트",
-      "sym": "MSFT",
-      "form": "query",
-      "hash": "#technical?sym=MSFT",
-      "state": {
-        "active": "page-technical",
-        "tab": "차트",
-        "subject": "MSFT",
-        "hash": "#technical?sym=MSFT"
-      },
-      "problems": []
-    },
-    {
       "route": "fundamental",
       "tab": "재무 공시",
       "sym": "AAPL",
@@ -175,21 +119,57 @@
       "tab": "개요",
       "sym": "NVDA",
       "form": "path",
-      "view": "memo",
+      "memo": true,
       "hash": "#ticker/NVDA?view=memo",
       "state": {
         "active": "page-ticker",
         "tab": "개요",
         "subject": "",
-        "hash": "#ticker?view=memo&sym=NVDA"
+        "hash": "#ticker?sym=NVDA"
+      },
+      "problems": []
+    },
+    {
+      "route": "charts",
+      "form": "chart address",
+      "sym": "AAPL",
+      "hash": "#technical/AAPL",
+      "state": {
+        "active": "page-charts",
+        "entity": "AAPL",
+        "hash": "#charts?sym=AAPL"
+      },
+      "problems": []
+    },
+    {
+      "route": "charts",
+      "form": "chart address",
+      "sym": "MSFT",
+      "hash": "#technical?sym=MSFT",
+      "state": {
+        "active": "page-charts",
+        "entity": "MSFT",
+        "hash": "#charts?sym=MSFT"
+      },
+      "problems": []
+    },
+    {
+      "route": "charts",
+      "form": "chart address",
+      "sym": "NVDA",
+      "hash": "#charts?sym=NVDA",
+      "state": {
+        "active": "page-charts",
+        "entity": "NVDA",
+        "hash": "#charts?sym=NVDA"
       },
       "problems": []
     },
     {
       "route": "ticker",
-      "form": "cold fiscal CTA",
-      "sym": "NVDA",
-      "hash": "#ticker?view=memo&demo=123&sym=AAPL",
+      "form": "cold fiscal to ticker address",
+      "sym": "AAPL",
+      "hash": "#fundamental?sym=AAPL",
       "problems": []
     }
   ],

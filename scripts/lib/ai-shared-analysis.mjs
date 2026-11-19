@@ -53,6 +53,10 @@ export const SHARED_AI_PURPOSES = Object.freeze({
   'market-analysis': { profile: 'analysis', owner: 'scripts/producer/market-narrative.mjs' },
   'headline-translation': { profile: 'analysis', owner: 'scripts/producer/market-narrative.mjs' },
   'slot-summary': { profile: 'analysis', owner: 'scripts/lib/market-timeline.mjs' },
+  // v60.31: one 130–230 character paragraph per screen. The ceiling keeps the analysis profile's low reasoning room
+  // (about 230 more output tokens than reasoning off, ai-effort-experiment) over a ~300-token answer, and lowers the
+  // Worker's per-request reservation (max_output_tokens x output price) to match.
+  'screen-reading': { profile: 'analysis', owner: 'scripts/producer/screen-readings.mjs', maxOutputTokens: 1500 },
   'event-brief-earnings': { profile: 'structured', owner: 'scripts/fetch-event-briefs.mjs' },
   'event-brief-fomc-statement': { profile: 'structured', owner: 'scripts/fetch-event-briefs.mjs' },
   'event-brief-fomc-transcript': { profile: 'structured', owner: 'scripts/fetch-event-briefs.mjs' },
@@ -167,7 +171,8 @@ export async function requestSharedJson(body, { timeoutMs = body?.tools ? SHARED
 
 export async function requestSharedAnalysis(prompt, { purpose = 'market-analysis', timeoutMs = SHARED_AI_TIMEOUT_MS.analysis, ...options } = {}) {
   let body;
-  try { body = buildSharedTextBody(prompt, { profile: 'analysis' }); } catch { return { text: null, reason: 'analysis-request-invalid' }; }
+  // v60.31: a purpose may lower its profile's output ceiling (SHARED_AI_PURPOSES maxOutputTokens).
+  try { body = buildSharedTextBody(prompt, { profile: 'analysis', maxOutputTokens: sharedAiPurpose(purpose)?.maxOutputTokens }); } catch { return { text: null, reason: 'analysis-request-invalid' }; }
   return requestSharedText(body, { purpose, timeoutMs, ...options });
 }
 

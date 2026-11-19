@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v60.30';
+const APP_VERSION = 'v60.31';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1870,19 +1870,13 @@ window._aioLogsClear = function() {
 // is the only target.
 // P1430: the 종목 screen's "← origin" link returns to the outer screen it was opened from (its own tabs keep that origin).
 function _aioRecordTickerOrigin() { var page = document.querySelector('.page.active'), route = page && page.id.replace(/^page-/, ''); if (window.AIO && window.AIO.state && route && !/^(ticker|technical|fundamental)$/.test(route)) window.AIO.state.tickerReturnRoute = route === 'theme-detail' ? 'themes' : route; }
+// Owner 2026-11-19: the chart is the analysis slot on 기술적 분석, not a 종목 tab — the bridge opens the symbol there and
+// leaves the 종목 screen's company alone (window.aioOpenMarketChart also covers an already open 기술적 분석).
 function _aioOpenTechnicalAnalysis(ticker) {
   var sym = String(ticker == null ? '' : ticker).toUpperCase().trim();
-  _aioRecordTickerOrigin(); // v57.81: 차트 opened from 포트폴리오 named the origin of an earlier, unrelated visit
-  try {
-    if (sym && typeof window.AIO_ARCH?.setStockSubject === 'function') {
-      var ok = window.AIO_ARCH.setStockSubject({ root: window, symbol: sym });
-      if (sym && ok && typeof document.dispatchEvent === 'function') {
-        document.dispatchEvent(new CustomEvent('aio:subjectChanged', { detail: { symbol: sym } }));
-      }
-    }
-  } catch (_) {}
+  if (sym && typeof window.aioOpenMarketChart === 'function') { window.aioOpenMarketChart(sym); return; }
   if (sym) window._aioChartRequest = sym;
-  if (typeof window.showPage === 'function') window.showPage('technical');
+  if (typeof window.showPage === 'function') window.showPage('charts');
 }
 window._aioChartAnalyze = function(ticker) {
   _aioOpenTechnicalAnalysis(ticker);
@@ -2337,16 +2331,6 @@ if (typeof document !== 'undefined') {
 // ═══ v50.30 구조 개편: 각 페이지 = 결론 먼저 → 근거 → 상세 (새 콘텐츠 없음). _aioReorderCoreSections가 묻혀 있던 기존 "결론" 섹션을 상단으로
 //     재배치 — sentiment "시장 심리 복합 판단"(결론바 직후) · breadth "시장 폭 종합 진단"(헤더 직후) · signal Lockout 컨트롤은 점수·티커 아래.
 (function(){
-  function _directChildOf(page, innerSel) {
-    try {
-      var inner = page.querySelector(innerSel);
-      if (!inner) return null;
-      var n = inner;
-      while (n && n.parentElement !== page) n = n.parentElement;
-      return n;
-    } catch(_) { return null; }
-  }
-
   window._aioReorderCoreSections = function() {
     try {
       // v52.88 P703: sentiment 복합 판단은 시안 3b의 마지막 결론이다.
@@ -2356,18 +2340,7 @@ if (typeof document !== 'undefined') {
       // #signal-lockout-control, #signal-exit-triggers, #entry-checklist-card or #sig-ticker-bar is rendered any more.
       // v57.76: the home conclusion-bar and market-summary-banner reorders were deleted with both anchors.
       // P1322: home order (KPI → cross assets → score → today's summary) is static in index.html; no runtime move.
-      // v50.36: technical verdict-first — 시장 건강도(페이지 결론)를 헤더 직후로(TV차트보다 먼저) +
-      //   Institutional Brief(per-ticker 심화 도구)를 라이브 지표 섹션 직후로 하향 → 상단 declutter.
-      //   신규 콘텐츠 0 (기존 섹션 이동). _directChildOf로 inner id를 감싸는 직속 자식 섹션을 잡음.
-      var pt = document.getElementById('page-technical');
-      if (pt) {
-        var hdrT = _directChildOf(pt, '.page-title');
-        var verdictT = _directChildOf(pt, '#market-health-dashboard');
-        if (hdrT && verdictT && verdictT.parentElement === pt && hdrT.nextElementSibling !== verdictT) {
-          hdrT.insertAdjacentElement('afterend', verdictT);
-        }
-        // v57.76: the SPY indicator card and the institutional brief were deleted, so there is nothing to reorder below the verdict.
-      }
+      // The 차트 tab's verdict move went with the tab (#page-technical is an empty derived view of 기술적 분석).
       // The themes verdict keeps its static place (header → view tabs → verdict); the runtime move put it above the tabs.
       return true;
     } catch(e) { return false; }
@@ -3038,14 +3011,14 @@ var AIO_PAGE_BRIEFS = {
     use: '점수는 예측이 아니라 현재 입력과 근거의 상태를 요약합니다.',
     steps: ['필수 입력·근거 수신 상태 확인', 'Trading Score와 Lockout/OPEX를 참고값으로 교차 확인', '포지션 크기와 무효화 기준을 사용자 판단으로 기록'],
     focus: 'RSI 과열만으로는 약화 신호로 보기 어렵습니다. ATR 이격·거래량·종가 위치를 함께 봅니다.',
-    links: [['technical','기술 분석'], ['portfolio','포트폴리오'], ['briefing','브리핑']]
+    links: [['charts','기술적 분석'], ['portfolio','포트폴리오'], ['briefing','브리핑']]
   },
   breadth: {
     title: '지수 상승이 소수 대형주인지, 시장 전체인지 확인',
     use: '브레드쓰는 추세의 내구성 체크용입니다.',
     steps: ['5/20/50일선 위 종목 비율 확인', '섹터·RRG로 확산 또는 이탈 확인', '지수와 폭이 갈라지는지 확인'],
     focus: '지수는 신고가인데 폭이 약하면 랠리 품질이 낮아진 상태입니다.',
-    links: [['signal','시그널'], ['themes','테마'], ['technical','기술 분석']]
+    links: [['signal','시그널'], ['themes','테마'], ['charts','기술적 분석']]
   },
   sentiment: {
     title: '사람들이 너무 탐욕적인지, 너무 겁먹었는지 확인',
@@ -3060,13 +3033,6 @@ var AIO_PAGE_BRIEFS = {
     steps: ['오늘의 리스크와 이벤트 확인', '관심 섹터·종목 트리거 확인', '확인이 필요한 항목만 남기기'],
     focus: '긴 설명보다 오늘 값이 바뀔 수 있는 변수(이벤트·지표 발표)만 보세요.',
     links: [['market-news','뉴스'], ['macro','매크로'], ['signal','시장 상태']]
-  },
-  technical: {
-    title: '추세선 위치와 과열·약화 신호 확인',
-    use: '심층 기술 브리프가 메인입니다.',
-    steps: ['티커 입력 후 월/주/일/줌 차트 확인', '매도 압력 관측과 추세선 기준 확인', '10EMA·21EMA·50SMA 이탈 여부 확인'],
-    focus: 'RSI 70+는 과열 관측일 뿐이며, ATR 이격·RVOL·종가 위치를 함께 봅니다.',
-    links: [['signal','시그널'], ['portfolio','포트폴리오'], ['ticker','티커']]
   },
   macro: {
     title: '금리, 인플레, 성장 중 무엇이 시장을 지배하는지 확인',
@@ -3087,28 +3053,28 @@ var AIO_PAGE_BRIEFS = {
     use: '이동평균선·지지·저항으로 지금 위치를 읽습니다.',
     steps: ['50일선·200일선 위아래로 추세 확인', '가까운 지지·저항과 쌍봉 확인', '비중 상위 종목과 오늘 움직인 종목 비교'],
     focus: '추세 이름은 위치를 말할 뿐이며, 지지를 지키는지가 다음 확인점입니다.',
-    links: [['macro','매크로'], ['signal','시장 상태'], ['technical','종목 차트']]
+    links: [['macro','매크로'], ['signal','시장 상태'], ['ticker','종목']]
   },
   fundamental: {
     title: '좋은 회사인지보다 지금 가격의 근거가 무엇인지 확인',
     use: '재무, 밸류, 실적, 뉴스 리스크를 한 번에 봅니다.',
     steps: ['티커 입력 후 핵심 재무와 밸류 확인', '실적·가이던스·뉴스 리스크 확인', '기술적 이탈 신호와 함께 비교'],
     focus: '펀더멘털이 좋아도 차트가 무너졌는지는 별개로 확인할 항목입니다.',
-    links: [['technical','기술 분석'], ['portfolio','포트폴리오'], ['market-news','뉴스']]
+    links: [['charts','기술적 분석'], ['portfolio','포트폴리오'], ['market-news','뉴스']]
   },
   themes: {
     title: '어떤 테마가 실제 돈을 끌어오는지 확인',
     use: '테마 이름보다 구성 종목과 상대강도가 중요합니다.',
     steps: ['테마별 성과와 주도주 확인', '밸류체인에서 병목 위치 확인', '개별 종목은 종목 화면의 재무 공시·차트로 검증'],
     focus: '같은 AI 테마라도 인프라, 반도체, 전력, 소프트웨어는 사이클과 리스크가 다릅니다.',
-    links: [['fundamental','종목, 재무 공시'], ['technical','종목, 차트'], ['market-news','오늘, 뉴스']]
+    links: [['fundamental','종목, 재무 공시'], ['charts','기술적 분석'], ['market-news','오늘, 뉴스']]
   },
   portfolio: {
     title: '내 계좌가 시장 충격에 얼마나 취약한지 확인',
     use: '보유 종목 관리와 리밸런싱 페이지입니다.',
     steps: ['종목·수량·평단을 입력', '집중도·섹터·VaR·MDD 확인', '기술적 이탈 신호가 겹치는 종목 확인'],
     focus: '수익률보다 먼저 단일 종목/섹터 집중과 손실 허용치를 확인하세요.',
-    links: [['technical','기술 분석'], ['signal','시그널'], ['fundamental','기업 분석']]
+    links: [['charts','기술적 분석'], ['signal','시그널'], ['fundamental','기업 분석']]
   },
   'market-news': {
     title: '뉴스를 가격에 영향을 주는 변수로 분류',
@@ -3122,14 +3088,14 @@ var AIO_PAGE_BRIEFS = {
     use: '다른 페이지에서 고른 종목의 최종 확인 화면입니다.',
     steps: ['가격 추세와 핵심 지표 확인', '뉴스와 실적 리스크 확인', '시장·섹터·기술적 위치와 함께 정리'],
     focus: '한 종목은 반드시 시장 국면, 섹터, 기술적 위치와 같이 봐야 합니다.',
-    links: [['technical','기술 분석'], ['fundamental','기업 분석'], ['portfolio','포트폴리오']]
+    links: [['charts','기술적 분석'], ['fundamental','기업 분석'], ['portfolio','포트폴리오']]
   },
   'theme-detail': {
     title: '테마가 실제 주도주와 수익으로 이어지는지 확인',
     use: '테마 이름이 아니라 대장주, 2차 수혜주, 촉매, 깨지는 신호를 한 화면에서 연결합니다.',
     steps: ['대장주와 2차 수혜주 성과 차이 확인', '뉴스·실적·수급 촉매가 실제인지 확인', '차트 과열·이탈 신호가 있는지 확인'],
     focus: '강한 테마일수록 “좋은 이야기”보다 대장주의 상대강도와 후발 확산 여부가 더 중요합니다.',
-    links: [['themes','테마'], ['technical','기술 분석'], ['market-news','뉴스']]
+    links: [['themes','테마'], ['charts','기술적 분석'], ['market-news','뉴스']]
   },
   // v53.7 (P725): KR 전용 5페이지 안내 항목 제거 — 콘텐츠는 themes/macro/technical 통합 섹션으로 이관
   guide: {
@@ -3144,7 +3110,7 @@ var AIO_PAGE_BRIEFS = {
     use: '먼저 시장(시장 상태 화면)을 보고, 여기서 어떤 종목을 살지 고릅니다.',
     steps: ['퀀트 백분위 상위부터 확인', '섹터/시총 필터로 좁히기', '헤더 클릭으로 모멘텀·추세·저변동 정렬'],
     focus: '랭크는 객관 멀티팩터, 시그널/메모는 애널리스트 의견 — 둘을 구분해 보세요.',
-    links: [['signal','시그널'], ['technical','기술 분석'], ['fundamental','기업 분석']]
+    links: [['signal','시그널'], ['charts','기술적 분석'], ['fundamental','기업 분석']]
   },
   principles: {
     title: '시장 원리를 연결해서 읽습니다',
@@ -3766,7 +3732,7 @@ window._aioBuildPageDecision = function(pageId) {
   var d = _aioDefaultDecision(pageId || 'home');
   if (!Array.isArray(d.reasons)) d.reasons = [];
   var tacticalTraderFramework = window.AIO_TACTICAL_TRADER_FRAMEWORK || null;
-  if (tacticalTraderFramework && ['home','signal','briefing','market-news','technical','screener','ticker','themes','theme-detail'].indexOf(d.pageId || pageId) >= 0) {
+  if (tacticalTraderFramework && ['home','signal','briefing','market-news','charts','screener','ticker','themes','theme-detail'].indexOf(d.pageId || pageId) >= 0) {
     var overlay = tacticalTraderFramework.pageOverlay || {};
     var pageOverlay = overlay[d.pageId || pageId] || overlay.default || null;
     if (pageOverlay) {
@@ -3852,7 +3818,7 @@ window.AIO_PAGE_ACTION_HUBS = {
     title:'시장 환경 참고',
     subtitle:'직전 미국장 종가의 환경 점수와 구성 지표·결측을 함께 확인합니다.',
     cards:[['핵심 지표','환경 점수, VIX, breadth, 추세'],['확인 항목','입력별 기준일과 근거 범위 비교'],['상세 도구','이벤트·위험 지표를 별도로 확인']],
-    links:[['스크리너','screener'],['차트 분석','technical'],['AI 분석','ai']]
+    links:[['스크리너','screener'],['기술적 분석','charts'],['AI 분석','ai']]
   },
   breadth: {
     title:'시장 폭 판단',
@@ -3894,7 +3860,7 @@ window.AIO_PAGE_ACTION_HUBS = {
     title:'종목 Cockpit',
     subtitle:'기술, 재무, 뉴스, 포트 보유 여부, AI 분석을 한 흐름으로 연결합니다.',
     cards:[['핵심 지표','시세, 추세, 재무, 뉴스, 보유 여부'],['운용 포인트','매수/관망/축소 판단 전 결측 데이터 확인'],['AI 분석','현재 종목 17관점 분석']],
-    links:[['기업 분석','fundamental'],['차트 분석','technical'],['AI 분석','ai']]
+    links:[['기업 분석','fundamental'],['기술적 분석','charts'],['AI 분석','ai']]
   },
   portfolio: {
     title:'포트폴리오 위험 관리',
@@ -4161,7 +4127,7 @@ var _AIO_AI_CONTEXT_MIN_TOKENS = 2000;
 var _AIO_AI_CONTEXT_MAX_TOKENS = 6000;
 var _AIO_AI_RESEARCH_PAGE_ALIASES = {
   home: 'home', briefing: 'home', macro: 'macro', fxbond: 'fxbond',
-  technical: 'technical', signal: 'technical', screener: 'screener',
+  technical: 'technical', signal: 'technical', screener: 'screener', charts: 'technical',
   ticker: 'ticker', fundamental: 'fundamental', themes: 'themes',
   'theme-detail': 'theme-detail', portfolio: 'portfolio',
   'kr-market': 'macro'
@@ -4981,7 +4947,7 @@ window._aioRefreshPageSurface = function(pageId) {
 window.AIO.getPageEvidenceCurrentnessAudit = function() {
   var ids = (window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length)
     ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
-    : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','guide'];
+    : ['home','signal','breadth','sentiment','briefing','market-news','charts','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','guide'];
   var sourceLabelMap = {
     LIVE: 'LIVE',
     DELAYED: 'DELAYED',
@@ -5180,7 +5146,7 @@ window._aioRefreshAllPageSurfaces = function() {
   // AIO_ALL_ROUTE_PAGE_IDS 우선 사용 — ROUTE_PAGE_IDS 단일 출처와 동기화
   var ids = (window.AIO_ALL_ROUTE_PAGE_IDS && window.AIO_ALL_ROUTE_PAGE_IDS.length)
     ? window.AIO_ALL_ROUTE_PAGE_IDS
-    : ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','guide'];
+    : ['home','signal','breadth','sentiment','briefing','market-news','charts','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','guide'];
   ids.forEach(function(id) {
     try { window._aioRefreshPageSurface(id); } catch(_) {}
   });
@@ -8824,7 +8790,8 @@ window.AIO.DATA_REQUIREMENT_PROFILES = {
   breadth:     { tasks: ['quotes','breadth','technicals'], symbols: ['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC'] },
   sentiment:   { tasks: ['quotes','sentiment','vixHistory','hySpread'], symbols: ['^VIX','^SKEW','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT'] },
   briefing:    { tasks: ['quotes','news','sentiment','breadth','fred','technicals'], symbols: ['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^TNX','HYG','LQD','^KS11'] },
-  technical:   { tasks: ['quotes','technicals','breadth','sentiment','vixHistory','krDynamic'], symbols: ['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX','^KS11','^KQ11','KRW=X'] },
+  charts:      { tasks: ['quotes','technicals','breadth','sentiment','vixHistory','krDynamic'], symbols: ['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX','^KS11','^KQ11','KRW=X'] },
+  technical:   { alias: 'charts' }, // owner 2026-11-19: the 차트 tab's address opens 기술적 분석
   macro:       { tasks: ['quotes','fred','news','sentiment','krDynamic'], symbols: ['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X','^KS11','^KQ11'] },
   fxbond:      { tasks: ['quotes','fred','hySpread','news'], symbols: ['KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X','DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','ZB=F','TLT','IEF','SHY','HYG','LQD','EMB','CL=F','GC=F','BTC-USD'] },
   fundamental: { tasks: ['quotes','news','technicals'], symbols: ['SPY','QQQ','AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','AVGO','AMD','PLTR','TSM','INTC'] },
@@ -8928,9 +8895,9 @@ function _aioCollectDynamicPageSymbols(pageId, scope) {
   var isKrThemePage = id === 'themes';
   var limit = (scope && scope.symbolLimit) || (isThemePage ? (isKrThemePage ? 900 : 650) : 260);
   // v58.88: the signal lockout symbol input left with its control; the signal route collects no input symbol.
-  if (id === 'technical') {
-    // v57.76: the brief/TradingView ticker inputs were deleted; the 차트 tab shows the 종목 subject.
-    _aioPushSymbol(out, window._aioLastOpenedSymbol);
+  if (id === 'charts' || id === 'technical') {
+    // 기술적 분석 reads the symbol open in its analysis slot (technical is its derived view and its AI context).
+    _aioPushSymbol(out, window._aioChartSubject);
   }
   if (id === 'themes' || id === 'theme-detail') {
     (window.RRG_SECTORS || []).forEach(function(sec) { _aioPushSymbol(out, sec && sec.sym); });
@@ -8978,7 +8945,7 @@ window.AIO.collectPageDataSymbols = function(pageId, scope) {
 
 window.AIO.CRITICAL_PAGE_GROUPS = {
   comprehensive: ['home','signal','breadth','sentiment','briefing'],
-  marketAnalysis: ['technical','macro','fxbond','fundamental','themes'],
+  marketAnalysis: ['charts','macro','fxbond','fundamental','themes'],
   // v53.7 (P725): KR 전용 페이지 퇴역 — 통합 섹션 요소 id로 감사 대상 전환
   krMarket: ['kr-integrated-themes'] // v59.70 (D5): the technical and macro folds are retired
 };
@@ -12608,7 +12575,7 @@ window.AIO.getMarketSituationReferenceSnapshot = function(opts) {
 
 window.AIO.collectCritical10MarketContentInventory = function(opts) {
   opts = opts || {};
-  var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'];
   var marketWordRe = /시장|시황|강세|약세|상승|하락|위험|리스크|변동성|금리|유가|달러|VIX|S&P|SPY|QQQ|Nasdaq|나스닥|국채|채권|크레딧|브레드스|breadth|risk|volatility|yield|oil|gold|bitcoin|BTC/i;
   var numericRe = /(?:[$₩])?\s*[-+]?\d[\d,.]*(?:\.\d+)?\s*(?:%|bp|bps|x|배|조|억|M|B|T|pt|pts)?/i;
   var pagesOut = pages.map(function(pageId) {
@@ -12711,12 +12678,13 @@ function _aioExternalReferenceMap(externalReferences) {
 (function() {
   window.AIO = window.AIO || {};
 
-  // v53.7 (P725): KR 전용 5라우트 퇴역 — KR 콘텐츠는 themes/macro/technical 통합 섹션
+  // v53.7 (P725): KR 전용 5라우트 퇴역 — KR 콘텐츠는 themes/macro 통합 섹션. Owner 2026-11-19: 기술적 분석 (charts) is
+  // the analysis screen of the second group; technical is its derived view (the retired 차트 tab's address) and comes last.
   var ROUTE_PAGE_IDS = [
     'home','signal','breadth','sentiment','briefing',
-    'technical','macro','fxbond','fundamental','themes',
+    'charts','macro','fxbond','fundamental','themes',
     'theme-detail','portfolio','ticker','market-news',
-    'principles','masters','atlas','guide','screener','charts'
+    'principles','masters','atlas','guide','screener','technical'
   ];
   var CRITICAL_5 = ROUTE_PAGE_IDS.slice(0, 5);   // P1137/R623: 세 5라우트 그룹은 canonical 목록의 연속 구간이다 — 같은 20개를 다시 적지 않는다.
   var ANALYSIS_5 = ROUTE_PAGE_IDS.slice(5, 10);
@@ -12733,7 +12701,7 @@ function _aioExternalReferenceMap(externalReferences) {
       breadth:{tasks:['quotes','breadth','technicals'],symbols:['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC']},
       sentiment:{tasks:['quotes','sentiment','vixHistory','hySpread'],symbols:['^VIX','^SKEW','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT']},
       briefing:{tasks:['quotes','news','sentiment','breadth','fred','technicals'],symbols:['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^TNX','HYG','LQD','^KS11']},
-      technical:{tasks:['quotes','technicals','breadth','sentiment','vixHistory','krDynamic'],symbols:['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX','^KS11','^KQ11','KRW=X']},
+      charts:{tasks:['quotes','technicals','breadth','sentiment','vixHistory','krDynamic'],symbols:['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX','^KS11','^KQ11','KRW=X']}, // the 차트 tab's profile, with its slot (owner 2026-11-19)
       macro:{tasks:['quotes','fred','news','sentiment','krDynamic','krMacro'],symbols:['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X','^KS11','^KQ11']},
       fxbond:{tasks:['quotes','fred','hySpread','news'],symbols:['KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X','DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','ZB=F','TLT','IEF','SHY','HYG','LQD','EMB','CL=F','GC=F','BTC-USD']},
       fundamental:{tasks:['quotes','news','technicals','companyFundamentals'],symbols:['SPY','QQQ','AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','AVGO','AMD','PLTR','TSM','INTC']},
@@ -13095,7 +13063,7 @@ function _aioExternalReferenceMap(externalReferences) {
       marketRegimeScore:{pages:['home','signal','briefing'],inputs:['SPY.pct','QQQ.pct','^VIX.price','^TNX.price'],output:'riskTone'},
       breadthConsensus:{pages:['breadth','signal'],inputs:['advanceDecline','ma50','ma200','newHighLow'],output:'breadthState'},
       sentimentComposite:{pages:['sentiment','signal'],inputs:['VIX','fearGreed','hySpread'],output:'sentimentScore'},
-      technicalComposite:{pages:['technical','ticker'],inputs:['rsi','macd','maTrend','volume'],output:'technicalGrade'},
+      technicalComposite:{pages:['charts','ticker'],inputs:['rsi','macd','maTrend','volume'],output:'technicalGrade'},
       macroStress:{pages:['macro','fxbond'],inputs:['rates','dollar','credit','oil','gold'],output:'macroRisk'},
       portfolioRisk:{pages:['portfolio'],inputs:['weights','beta','volatility','drawdown'],output:'portfolioRiskScore'},
       themeRanking:{pages:['themes','theme-detail','kr-themes'],inputs:['momentum','breadth','news','valuation'],output:'themeRank'}
@@ -14101,13 +14069,6 @@ function destroyPageCharts(pageId) {
         clearInterval(_signalInterval); _signalInterval = null;
       }
     }
-    // v38.3: technical 페이지 차트 정리
-    if (pageId === 'technical') {
-      document.querySelectorAll('#page-technical canvas').forEach(function(c) {
-        var ctx = c.getContext && c.getContext('2d');
-        if (ctx && ctx.chart) { try { ctx.chart.destroy(); } catch(e){} }
-      });
-    }
     // v41.5: fundamental 페이지 재진입 허용
     if (pageId === 'fundamental') {
       if (typeof _fundInitDone !== 'undefined') _fundInitDone = false;
@@ -14216,7 +14177,7 @@ window.PAGES = {
   'breadth':        { label: '시장 폭',          init: null, chatCtx: null },
   'sentiment':      { label: '투자 심리',        init: null, chatCtx: null },  // v53.15/ARX-01: ESM renderer가 native owner; data producer cutover는 ARX-02
   'briefing':       { label: '브리핑',    init: null, chatCtx: 'briefing' },
-  'technical':      { label: '차트',            init: null, chatCtx: 'technical' },
+  'technical':      { label: '기술적 분석',      init: null, chatCtx: 'technical' }, // derived view of charts (owner 2026-11-19)
   'macro':          { label: '매크로',        init: null, chatCtx: 'macro' },
   'fxbond':         { label: '금리와 환율',      init: null, chatCtx: 'fxbond' },
   'charts':         { label: '기술적 분석',      init: null, chatCtx: 'technical' }, // v59.64
@@ -14244,14 +14205,15 @@ window.AIO_ROUTE_REGISTRY = window.AIO_ROUTE_REGISTRY || {
   version: 'v52.59',
   classes: {
     NAV_ROUTE: [],
-    DERIVED_VIEW: ['ticker','theme-detail'],
+    // Owner 2026-11-19: `technical` (the retired 종목 › 차트 tab) is a derived view of 기술적 분석 — canonical below.
+    DERIVED_VIEW: ['ticker','theme-detail','technical'],
     REFERENCE: [],
     // v53.7 (P725): KR 전용 5라우트 퇴역 — themes/macro/technical 통합 섹션으로 이관, _hashAlias 리다이렉트
     // P1321: options 폐기 셸 완전 퇴역 — VIX·풋콜·SKEW는 투자 심리 화면, 구 해시는 sentiment로.
     REMOVED: ['kr-home','kr-supply','kr-themes','kr-macro','kr-technical','options'],
     OVERLAY: ['glossary']
   },
-  canonical: { chart: 'technical', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'home', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'macro', 'kr-theme': 'themes', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro', 'kr-technical': 'technical', options: 'sentiment' , 'theme-detail': 'themes' },
+  canonical: { technical: 'charts', chart: 'charts', dashboard: 'home', stock: 'fundamental', forex: 'fxbond', bond: 'fxbond', news: 'market-news', search: 'home', help: 'guide', manual: 'guide', trend: 'themes', theme: 'themes', moat: 'fundamental', korea: 'macro', 'kr-theme': 'themes', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro', 'kr-technical': 'charts', options: 'sentiment' , 'theme-detail': 'themes' },
   registrySources: ['AIO_PAGE_CONTRACTS.routePageIds','AIO_ALL_ROUTE_PAGE_IDS','PAGES','showPage','history.state.page','location.hash','guide TOC']
 };
 // P1137/R623: NAV_ROUTE is the canonical 20 minus the derived-view and reference classes — derived, not re-listed.
@@ -14322,7 +14284,7 @@ function showPage(id, navEl) {
     id = _hashAlias[id];
     try {
       var _aliasHash = String(location.hash || '');
-      if (!window._aioPendingRouteHash && _aliasHash.indexOf('#' + _aliasedId) === 0 && (_aliasHash.length === _aliasedId.length + 1 || _aliasHash.charAt(_aliasedId.length + 1) === '?')) {
+      if (!window._aioPendingRouteHash && _aliasHash.indexOf('#' + _aliasedId) === 0 && (_aliasHash.length === _aliasedId.length + 1 || _aliasHash.charAt(_aliasedId.length + 1) === '?' || _aliasHash.charAt(_aliasedId.length + 1) === '/')) { // a path form (#technical/NVDA) keeps its symbol; the router writes it as ?sym=
         history.replaceState(Object.assign({}, history.state || {}, { page: id }), '', '#' + id + _aliasHash.slice(_aliasedId.length + 1));
       }
     } catch (_) {}

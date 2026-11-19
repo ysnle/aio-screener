@@ -28,7 +28,6 @@ const { createResourceBag, createDeferredTaskQueue, coalesceMicrotask, createCha
 const { createEvidenceStore } = await load('src/data/evidence-store.js');
 const { createLegacyFacade, exposeArchitecture } = await load('src/legacy/compatibility-facade.js');
 const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/capability-loader.js');
-const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/pages/entity.js');
 
 // v59.88 (ADR-0003 S4): verdicts live in src/domain. The portfolio concentration bands are RULES.portfolio, read through
 // concentration.js by the 점검 card, the criteria list, the exposure panel and the sector card; the chart's reading cards
@@ -291,23 +290,6 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const watchlists = [{ id: 'both', name: '양시장', tickers: [{ sym: 'NVDA', note: '메모', addedAt: 100 }, { sym: '005930.KS', note: '한국', addedAt: 200 }] }];
   const round = parsePortfolioBackup(JSON.stringify(buildPortfolioBackup({ watchlists, activeWatchlistId: 'both' })));
   if (!round.ok || JSON.stringify(round.contents.watchlists) !== JSON.stringify(watchlists)) fail('P1350 actual watchlist object round trip loses metadata');
-}
-
-// P1205/LC-18/LC-27: ticker range controls are one native calendar-window contract.
-{
-  const end = Date.parse('2026-09-24T00:00:00Z');
-  const history = [400, 365, 180, 90, 30, 1].map((daysAgo) => ({
-    time: new Date(end - daysAgo * 24 * 60 * 60 * 1000).toISOString(),
-    close: 400 - daysAgo
-  }));
-  const expected = { '1m': 2, '3m': 3, '6m': 4, '1y': 5 };
-  for (const [range, count] of Object.entries(expected)) {
-    const view = selectTickerChartWindow(history, range);
-    if (view.range !== range || view.rowCount !== count || view.days !== TICKER_CHART_RANGES[range].days) {
-      fail(`ticker chart ${range}: expected ${count} rows/${TICKER_CHART_RANGES[range].days}d, got ${view.rowCount}/${view.days}d`);
-    }
-  }
-  if (selectTickerChartWindow([], '6m').rowCount !== 0) fail('ticker chart unavailable range fabricated rows');
 }
 
 // RM-07 -> v57.79: the cross-route sentiment summary projection painted four ids no page creates (R705 dead-id
@@ -1139,9 +1121,10 @@ const { TICKER_CHART_RANGES, selectTickerChartWindow } = await load('src/ui/page
   const aliasRoot = { AIO_ROUTE_REGISTRY: shipped.AIO_ROUTE_REGISTRY, showPage: () => true };
   const facade = createLegacyFacade(aliasRoot, new EventTarget());
   const navigation = facade.installNavigation({ transition: (route) => { committed.push(route); return true; } });
-  for (const alias of ['chart', 'news', 'help', 'options']) aliasRoot.showPage(alias);
+  // Owner 2026-11-19: 'chart' and the retired 차트 tab id 'technical' both land on 기술적 분석.
+  for (const alias of ['chart', 'technical', 'news', 'help', 'options']) aliasRoot.showPage(alias);
   navigation.restore();
-  if (committed.join(',') !== 'technical,market-news,guide,sentiment'
+  if (committed.join(',') !== 'charts,charts,market-news,guide,sentiment'
     || shipped.AIO_ROUTE_REGISTRY.canonical['theme-detail'] !== 'themes') fail('P1348: shipped aliases disagreed with native navigation');
 }
 
@@ -5019,7 +5002,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 
   // P1399: one basis, missing is not a reading, stale inputs are excluded, observation apart from interpretation.
   const { buildMarketRegime, alignInput } = await load('src/domain/briefing/market-read.js');
-  const { buildSentimentModel } = await load('src/ui/components/sentiment-board.js');
+  const { buildSentimentModel, termRatioDistance, sentimentCounter } = await load('src/domain/market/sentiment/sentiment-model.js');
   const sparse = buildMarketRegime({ history: [{ date: '2026-09-30', spx: 6600, wti: 70 }] });
   if (sparse.overall !== '판정 보류' || sparse.axes.find((row) => row.id === 'commodities').state === 'favorable') fail(`P1399 one S&P and one WTI value produced a verdict: ${sparse.overall}`);
   // v58.56 (re-audit #2): a held verdict has no hero sentence; a full one has one plain sentence without rule brackets.
@@ -5030,20 +5013,27 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     if (!hero || hero.length > 45 || /[()]|\d/.test(hero) || (hero.match(/[.?!]/g) || []).length !== 1) fail(`v58.56 the 오늘 hero must be one plain sentence: ${hero}`);
   }
   if (!/^(양호|다소|중립|부담|방어|경계|혼조|대체로)/.test(buildMarketRegime({ history: rows, credit: { hyBp: 308, hyAsOf: last } }).overall)) fail('P1399 a full history must still produce a verdict');
-  if (buildSentimentModel({}).synthesis.includes('치우치지 않은')) fail('P1399 no sentiment input must not read as balanced');
+  // P1399 (v60.31: the synthesis sentence became the tally of state words): no input is no state, never a balanced or calm one.
+  { const empty = buildSentimentModel({}); if (empty.tally.length || empty.cards.some((card) => card.state)) fail(`P1399 no sentiment input must not read as balanced: ${JSON.stringify(empty.tally)}`); }
   {
-    // v60.30: the VIX term sentence names a ratio and follows its printed value — 1.00 is at the edge, not "near" it.
-    const { termRatioLine } = await load('src/ui/components/sentiment-board.js');
-    const terms = [0.97, 0.998, 1.03].map(termRatioLine);
-    if (terms.some((line) => /차이/.test(line) || !/비율/.test(line)) || !/\(0\.97\).*가까워졌습니다/.test(terms[0]) || !/\(1\.00\).*닿았습니다/.test(terms[1]) || !/\(1\.03\).*역전됐습니다/.test(terms[2])) {
-      fail(`v60.30 VIX term ratio sentence must follow below/at/above 1: ${JSON.stringify(terms)}`);
+    // v60.30 → v60.31: the VIX term distance follows its printed value — 1.00 is at the edge, not "near" it; below is the
+    // distance to the edge, above the margin over it.
+    const terms = [0.97, 0.998, 1.03].map(termRatioDistance);
+    if (terms.some((line) => /차이/.test(line)) || !/역전 기준 1\.00까지 \+0\.03$/.test(terms[0]) || terms[1] !== '역전 기준 1.00' || !/역전 기준 1\.00 대비 \+0\.03$/.test(terms[2])) {
+      fail(`v60.30 VIX term ratio distance must follow below/at/above 1: ${JSON.stringify(terms)}`);
     }
   }
   // x-bookmarks 2026-10-18: the term card carries VIX ÷ √252 as the implied one-sigma daily move, on the ratio's own date.
   const vixRows = Array.from({ length: 10 }, (_, i) => ({ date: `2026-10-${String(i + 1).padStart(2, '0')}`, spx: 6600, vix: 22.2, vix3m: 20 }));
   if (!/VIX 22\.20 → S&P 500 하루 약 ±1\.4%/.test(buildSentimentModel({ history: vixRows }).cards.find((card) => card.id === 'term')?.change || '')
     || /하루 약/.test(buildSentimentModel({}).cards.find((card) => card.id === 'term')?.change || '')) fail('x-bookmarks 2026-10-18: the VIX term card must show the implied daily move only when VIX is measured');
-  if (/신용 스프레드.*(악화|경계)/.test(buildSentimentModel({ credit: { fg: 20, fgAsOf: '2026-09-30' }, history: [{ date: '2026-09-30', spx: 6600 }] }).synthesis)) fail('P1399 F&G alone must not claim credit stress');
+  {
+    // P1399: F&G alone claims nothing about credit — the tally names only measured cards, and the counter line (v60.31)
+    // reads the credit axis only when the regime measured it.
+    const alone = buildSentimentModel({ credit: { fg: 20, fgAsOf: '2026-09-30' }, history: [{ date: '2026-09-30', spx: 6600 }] });
+    const fearRegime = { watchAxes: [{ id: 'sentiment', state: 'burden', evidence: [['판정 사유', '공포 쪽 쏠림 (4/4)']] }], axes: [{ id: 'credit', title: '신용과 위험선호', state: 'unknown', stateLabel: '확인 불가', evidence: [] }] };
+    if (alone.tally.some((item) => /신용|스프레드/.test(item)) || sentimentCounter({ model: alone, regime: fearRegime }) !== null) fail(`P1399 F&G alone must not claim credit stress: ${JSON.stringify(alone.tally)}`);
+  }
   {
     // v57.77: 시장 폭 / 투자 심리 providers live in the page's 데이터 출처 fold (phones cannot hover), the card notes are one
     // line with the edges in the fold (rules), the always-null aaiiNote is gone, and each breadth group names a lead chart.
@@ -5065,7 +5055,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const intraday = [...rows, { date: day(260), breadth50: 80, fieldMeta: { breadth50: { observedAt: `${day(260)}T13:30:00.000Z` } } }];
   if (buildMarketRead({ history: intraday }).drivers[0].values.some(([label, value]) => label === '50일선 위 종목' && value === '80%')) fail('P1399 an observation after the S&P 500 close basis must be dropped');
   const staleHy = buildMarketRegime({ history: rows, credit: { hyBp: 300, hyAsOf: day(240), hyDelta5Bp: -3 } }).axes.find((row) => row.id === 'credit');
-  if (staleHy.state !== 'unknown' || !/판정에서 제외/.test(staleHy.read)) fail(`P1399 a stale HY reading must be excluded: ${staleHy.state}`);
+  // v60.31: the exclusion is the 판정 사유 row (fixed vocabulary, with the observation it set aside), not a sentence.
+  if (staleHy.state !== 'unknown' || !staleHy.evidence.some(([label, value]) => label === '판정 사유' && /^기준일과 다른 관측이라 판정 제외 \(최근 관측 /.test(value))) fail(`P1399 a stale HY reading must be excluded: ${staleHy.state} ${JSON.stringify(staleHy.evidence)}`);
   if (alignInput('2026-09-29', '2026-09-30').status !== 'lagged' || alignInput('2026-10-01T13:51:11Z', '2026-09-30').status !== 'ahead' || alignInput('2026-09-30T00:00:00.000Z', '2026-09-30').status !== 'aligned') fail('P1399 input alignment states wrong');
   const smallcap = buildMarketRead({ history: rows.map((row, i) => ({ ...row, rut: 2400 - i * 4 })), credit: { hyBp: 300, hyAsOf: last, hyDelta5Bp: -2 } }).statements.find((row) => row.id === 'smallcap-lags');
   if (!smallcap || /원인은/.test(smallcap.text) || !/그럴듯한 설명/.test(smallcap.reading || '')) fail('P1399 an interpretation must be worded as a hypothesis apart from the observation');
@@ -6129,7 +6120,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     const withLast = (prev, last) => history.map((row) => glide.includes(row.date) ? { ...row, usdkrw: 1400 - (1400 - prev) * (glide.indexOf(row.date) + 1) / glide.length } : row.date === sessions.at(-1) ? { ...row, usdkrw: last } : row);
     const axisFor = (prev, last) => buildMarketRegime({ history: withLast(prev, last), now: Date.parse(`${sessions.at(-1)}T23:00:00Z`) }).axes.find((axis) => axis.id === 'korea');
     const strong = axisFor(1345, 1340), turned = axisFor(1340, 1360);
-    if (strong?.state !== 'favorable' || turned?.state !== 'neutral' || !/약세로 돌아섰/.test(turned?.read || JSON.stringify(turned))) fail(`v57.75 a won that turned weak on the last session must not stay 양호 (got ${strong?.state}/${turned?.state})`);
+    if (strong?.state !== 'favorable' || turned?.state !== 'neutral' || !(turned?.evidence || []).some(([label, value]) => label === '판정 사유' && /^직전 거래일 원화 약세 전환 \(직전 거래일 원\/달러 \+/.test(value)) /* v60.31: the reason row */) fail(`v57.75 a won that turned weak on the last session must not stay 양호 (got ${strong?.state}/${turned?.state})`);
   }
   // T01: "20일" counts sessions; a gappy series (no Friday bars) still finds the point at least 20 sessions back.
   const gappy = history.filter((row) => !(row.usdkrw === 1400 && new Date(`${row.date}T12:00:00Z`).getUTCDay() === 5));
@@ -6149,7 +6140,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const creditAxis = (extra) => buildMarketRegime({ history, credit, now: Date.parse(`${sessions.at(-1)}T23:00:00Z`), ...extra }).axes.find((axis) => axis.id === 'credit');
   if (creditAxis({}).state !== 'favorable') fail('T05 fixture: without the 20-day change the old favorable rule still applies');
   const widened = creditAxis({ macroHistory });
-  if (widened.state !== 'neutral' || !/20거래일 동안 \+43bp/.test(widened.read) || !widened.evidence.some(([, value]) => /20거래일 \+43bp/.test(value))) fail(`T05 a 20-session widening keeps credit at 중립 with the change named: ${widened.state} ${widened.read}`);
+  if (widened.state !== 'neutral' || !widened.evidence.some(([label, value]) => label === '판정 사유' && value === '20거래일 확대') || !widened.evidence.some(([, value]) => /20거래일 \+43bp/.test(value))) fail(`T05 (v60.31 reason row) a 20-session widening keeps credit at 중립 with the change named: ${widened.state} ${JSON.stringify(widened.evidence)}`);
   // T04: a payroll loss is signed once and shown in 만 명.
   if (formatPayrollChange(-15) !== '-1.5만 명' || formatPayrollChange(29) !== '+2.9만 명' || formatPayrollChange(null) !== null) fail('T04 payroll change format');
   const nfp = buildBriefingSchedule({ releases: { 'us-nfp': { nextRelease: '2026-10-02' } }, snapshot: { nfp: -15, unemployment: 4.3 }, nowMs: Date.parse('2026-10-02T01:00:00Z') });
@@ -6459,14 +6450,17 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const policyAxis = wideRange.axes.find((row) => row.id === 'policy');
   if (policyNode.dir !== 'up' || Math.abs(policyAxis.detail.pricing - 0.25) > 1e-9) fail(`macro audit 2026-10-17 the chain's policy node reads the same range midpoint as the policy axis: ${JSON.stringify({ policyNode, pricing: policyAxis.detail.pricing })}`);
   const belowTarget = mr.buildMacroRead({ macro: { corePce: 1.8 } }).axes.find((row) => row.id === 'inflation');
-  if (/목표보다 높지만/.test(belowTarget.read)) fail(`macro audit 2026-10-17 core PCE under 2% is not read as above target: ${belowTarget.read}`);
+  // The macro axes carry no sentence; the same facts are held on the 판정 사유 evidence row (fixed vocabulary).
+  const macroReason = (axis) => String(axis?.evidence?.find((row) => row[0] === '판정 사유')?.[1] || '');
+  if (!/수준 기준 미만/.test(macroReason(belowTarget)) || /기준 이상|목표보다 높/.test(macroReason(belowTarget))) fail(`macro audit 2026-10-17 core PCE under 2% is not read as above target: ${macroReason(belowTarget)}`);
   // The sentence of a level-fired axis names the line the rule compares against, with the rule's own comparison (at or above).
   const { RULES: levelRules } = await load('src/domain/rules/thresholds.js');
   const realTight = mr.buildMacroRead({ macro: { fedTargetUpper: 5.25, fedTargetLower: 5.0, dgs2: 5.1, corePce: 3.0 } }).axes.find((row) => row.id === 'policy');
   const atLevel = mr.buildMacroRead({ macro: { corePce: 3.12 } }).axes.find((row) => row.id === 'inflation');
-  if (realTight.state !== 'burden' || !realTight.read.includes(`긴축 기준(${levelRules.policy.restrictiveRealPct}%) 이상`) || /훨씬/.test(realTight.read)
-    || atLevel.state !== 'burden' || !/3\.1%\) 이상/.test(atLevel.read) || /넘었/.test(atLevel.read))
-    fail(`v60.16 a level-fired policy or inflation axis states the rule's line and comparison: ${JSON.stringify({ policy: realTight.read, inflation: atLevel.read })}`);
+  const tightReason = macroReason(realTight), levelReason = macroReason(atLevel);
+  if (realTight.state !== 'burden' || !tightReason.includes('긴축 기준 이상') || !tightReason.includes(`기준 ${levelRules.policy.restrictiveRealPct}%`) || /훨씬/.test(tightReason)
+    || atLevel.state !== 'burden' || !/수준 기준 이상 \(3\.1%, 기준 3\.1%\)/.test(levelReason) || /넘었/.test(levelReason))
+    fail(`v60.16 a level-fired policy or inflation axis states the rule's line and comparison: ${JSON.stringify({ policy: tightReason, inflation: levelReason })}`);
   const an = await load('src/domain/scenarios/analogs.js');
   const analogRows = Array.from({ length: 200 }, (_, i) => ({ date: `r${String(i).padStart(3, '0')}`, spx: 100 + i, ...(i >= 100 ? { wti: 50 } : {}) }));
   const analogFreq = an.analogOutcome(analogRows, an.BRANCH_ANALOGS.oilshock);
@@ -6475,10 +6469,10 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const shrinking = { schemaVersion: 'macro-history.v1', series: { payrolls: { observations: Array.from({ length: 8 }, (_, i) => [`2026-0${i + 1}-01`, 159000 - i * 40]) } } };
   const cutBase = { fedTargetUpper: 4.5, fedTargetLower: 4.25, dgs2: 3.5, corePce: 2.4 };
   const recessionCut = mr.buildMacroRead({ macro: cutBase, macroHistory: shrinking });
-  if (recessionCut.axes.find((row) => row.id === 'growth').state !== 'burden' || recessionCut.axes.find((row) => row.id === 'policy').state !== 'neutral' || !/경기 악화 때문에 인하/.test(recessionCut.axes.find((row) => row.id === 'policy').read)) fail(`audit D3 cuts priced beside a growth burden read neutral: ${JSON.stringify(recessionCut.axes.find((row) => row.id === 'policy'))}`);
+  if (recessionCut.axes.find((row) => row.id === 'growth').state !== 'burden' || recessionCut.axes.find((row) => row.id === 'policy').state !== 'neutral' || !/성장 부담으로 양호 제한/.test(macroReason(recessionCut.axes.find((row) => row.id === 'policy')))) fail(`audit D3 cuts priced beside a growth burden read neutral: ${JSON.stringify(recessionCut.axes.find((row) => row.id === 'policy'))}`);
   if (mr.buildMacroRead({ macro: cutBase }).axes.find((row) => row.id === 'policy').state !== 'favorable') fail('audit D3 the same pricing without a growth burden stays favorable');
   const oneMonth = mr.buildMacroRead({ macro: { nfp: -30 } }).axes.find((row) => row.id === 'growth');
-  if (oneMonth.state !== 'neutral' || !/한 달 수치/.test(oneMonth.read)) fail(`audit D5 one negative payroll month is held at neutral: ${JSON.stringify({ state: oneMonth.state, read: oneMonth.read })}`);
+  if (oneMonth.state !== 'neutral' || !/최근 1개월 일자리 감소/.test(macroReason(oneMonth))) fail(`audit D5 one negative payroll month is held at neutral: ${JSON.stringify({ state: oneMonth.state, reason: macroReason(oneMonth) })}`);
   // Audit D6/D8 (owner 2026-10-17): the briefing's oil-and-rates line is the axes' line, and every large-move threshold lives in RULES.largeMove.
   const { RULES: rules } = await load('src/domain/rules/thresholds.js');
   if ('oilRates20dPct' in rules.briefing || !/wti20 >= RULES\.oil\.rise20dPct && tnx20 >= RULES\.rates\.move20dBp/.test(readFileSync(path.join(root, 'src/domain/briefing/market-read.js'), 'utf8'))) fail('audit D6 the oil-and-rates sentence uses oil.rise20dPct and rates.move20dBp');
@@ -6937,7 +6931,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     'src/domain/briefing/event-aftermath.js': 1, 'src/domain/briefing/event-briefs.js': 1, 'src/domain/briefing/macro-releases.js': 1, 'src/domain/briefing/market-read.js': 1,
     'src/domain/fundamental/quarterly-cashflow.js': 2, 'src/domain/macro/liquidity-growth.js': 1, 'src/domain/macro/macro-read.js': 1, 'src/domain/macro/release-zones.js': 1,
     'src/domain/market/regime/move-attribution.js': 2, 'src/domain/market/regime/scenario-outlook.js': 1, 'src/domain/masters/holdings-format.js': 1,
-    'src/domain/narrative/narrative-cards.js': 1, 'src/domain/scenarios/analogs.js': 1, 'src/ui/components/company-story.js': 1, 'src/ui/components/event-briefs.js': 2,
+    'src/domain/narrative/narrative-cards.js': 1, 'src/domain/scenarios/analogs.js': 1, 'src/ui/components/event-briefs.js': 2,
     'src/ui/panels/portfolio-trade-journal.js': 1,
   };
   const grown = [];
@@ -6966,6 +6960,13 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!sessionModel(payload, start + 900).open) fail('v58.78 index strip: a session inside its regular period reads as open (and re-reads every five minutes)');
   if (sessionModel({ timestamps: [] }) !== null || sessionModel(null) !== null) fail('v58.78 index strip: an empty payload draws nothing');
   if (sessionModel({ ...payload, meta: {} }, start + 30000).change !== null) fail('v58.78 index strip: without a previous close the change stays empty, never guessed');
+  // v60.31 chart-scale: Yahoo sent the closed 11/18 SPY session with bars 14–77 null; each candle keeps its own time slot
+  // (the 16:00 bar is slot 78 of 79) instead of its array position, and the gap is counted, never filled.
+  const day = Array.from({ length: 79 }, (_, i) => start + i * 300);
+  const gapped = (values) => values.map((value, i) => (i >= 14 && i <= 77 ? null : value));
+  const flat = day.map(() => 100);
+  const holes = sessionModel({ timestamps: day, opens: gapped(flat), highs: gapped(flat.map((v) => v + 1)), lows: gapped(flat.map((v) => v - 1)), closes: gapped(flat), meta: payload.meta }, start + 30000);
+  if (!holes || holes.bars.length !== 15 || holes.bars[13].slot !== 13 || holes.bars[14].slot !== 78 || holes.slots !== 79 || holes.missing !== 64) fail(`v60.31 index strip: candles must keep their 5-minute time slot across null bars: ${JSON.stringify(holes && { n: holes.bars.length, slots: holes.slots, missing: holes.missing, tail: holes.bars.slice(-2).map((bar) => bar.slot) })}`);
 }
 
 {
@@ -7118,7 +7119,9 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
       const booted = resolveInitialRoute({ root: {}, hash });
       if (routeId !== 'theme-detail' && booted !== routeId) bootMisses.push(`${hash} -> ${booted}`);
       const link = parseRouteDeepLink(hash);
-      if (['ticker', 'technical', 'fundamental'].includes(routeId) && hash !== `#${routeId}` && link?.entityId !== 'AAPL') bootMisses.push(`${hash} entity ${link?.entityId}`);
+      if (['ticker', 'fundamental'].includes(routeId) && hash !== `#${routeId}` && link?.entityId !== 'AAPL') bootMisses.push(`${hash} entity ${link?.entityId}`);
+      // Owner 2026-11-19: the retired 종목 › 차트 tab's address opens 기술적 분석 with the symbol in its analysis slot.
+      if (['technical', 'charts'].includes(routeId) && hash !== `#${routeId}` && (link?.routeId !== 'charts' || link?.chartSymbol !== 'AAPL' || link?.entityId !== null)) bootMisses.push(`${hash} chart ${link?.routeId}/${link?.chartSymbol}`);
     }
   }
   if (bootMisses.length) fail(`v59.70 every route boots on itself in bare, query and path form: ${bootMisses.join(', ')}`);
@@ -8223,7 +8226,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     };
     const hold = readersAt(330);
     if (hold.judgement?.state !== 'burden' || hold.judgement.cause?.wide20 !== true) fail(`v59.97 the credit judgement holds 부담 while the HY latch holds: ${JSON.stringify(hold.judgement)}`);
-    if (hold.axis?.state !== 'burden') fail(`v59.97 the 시장 상태 credit axis holds 부담 while the HY latch holds: ${hold.axis?.state} ${hold.axis?.read}`);
+    if (hold.axis?.state !== 'burden') fail(`v59.97 the 시장 상태 credit axis holds 부담 while the HY latch holds: ${hold.axis?.state} ${JSON.stringify(hold.axis?.evidence)}`);
     const base5 = hold.judgement.hyBp - hold.judgement.hy5;
     if (hold.axis.flipDistance?.toward !== 'neutral' || Math.abs(hold.axis.flipDistance.threshold - (base5 + 15)) > 1e-6) fail(`v59.97 the credit flip search names the latch's five-session release leg (5일 전 +15bp): ${JSON.stringify(hold.axis.flipDistance)}`);
     const released = readersAt(325);

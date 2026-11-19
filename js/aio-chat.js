@@ -1779,8 +1779,8 @@ window.AIO_CHAT_SOURCE_REGISTRY = AIO_CHAT_SOURCE_REGISTRY;
 // 실제 답변은 아래 _buildAioIntegratedAnswerContext()가 이 레지스트리를 읽어 정량+정성+현재 시장+페이지 연결 계약으로 주입한다.
 var AIO_CHAT_PIPELINE_REGISTRY = [
   { key:'marketState', label:'현재 시장 현황', tier:'current', kind:'quant', pages:['home','market-news','briefing'] },
-  { key:'quotes', label:'실시간/검증 시세', tier:'current', kind:'quant', pages:['home','technical','signal','fundamental','portfolio'] },
-  { key:'technicalOHLCV', label:'차트·기술 지표', tier:'analysis', kind:'quant', pages:['technical','signal'] },
+  { key:'quotes', label:'실시간/검증 시세', tier:'current', kind:'quant', pages:['home','charts','signal','fundamental','portfolio'] },
+  { key:'technicalOHLCV', label:'차트·기술 지표', tier:'analysis', kind:'quant', pages:['charts','signal'] },
   { key:'screener', label:'스크리너 후보군', tier:'analysis', kind:'quant', pages:['screener','themes'] },
   { key:'breadthSentiment', label:'시장 폭·심리', tier:'context', kind:'quant', pages:['breadth','sentiment'] },
   { key:'macroRatesFx', label:'거시·금리·환율', tier:'context', kind:'quant', pages:['macro','fxbond'] },
@@ -3270,9 +3270,9 @@ function _autoNavigatePage(userQuery, currentCtxId) {
   var q = userQuery.toLowerCase();
   var intent = null;
   // 키워드 패턴 → 페이지 매핑
-  // v59.70: '차트' about one stock (a ticker, 종목·주가, or asked from a stock tab) opens 종목 › 차트; about the market, 기술적 분석.
-  var stockChart = /^(ticker|technical|fundamental)$/.test(String(currentCtxId || '')) || /(종목|주가|\$[A-Za-z]{1,5}\b|\b[A-Z]{1,5}\b(?![a-z]))/.test(userQuery.replace(/\b(RSI|MACD|MA|ACTION|VIX|AAII|PCR|FX|GEX|EPS|PER|RRG)\b/g, ''));
-  if (/(차트|chart|기술|technical|RSI|MACD|이동평균|\bMA\b|Weinstein)/i.test(q)) intent = { page: stockChart && !/(지수|시장|index|S&P|나스닥|코스피|코스닥|다우|러셀|반도체 지수)/i.test(q) ? 'technical' : 'charts' };
+  // Owner 2026-11-19: every '차트' question — one stock's or the market's — opens 기술적 분석, which holds the analysis slot
+  // (the 종목 › 차트 tab is retired). The 기술적 분석 screen's own context is 'technical' (PAGES.charts.chatCtx).
+  if (/(차트|chart|기술|technical|RSI|MACD|이동평균|\bMA\b|Weinstein)/i.test(q)) intent = { page: 'charts' };
   else if (/(시그널|signal|매매|trade|점수|score|ACTION)/i.test(q)) intent = { page: 'signal' };
   else if (/(시장 폭|breadth|McClellan|AD line|NHNL)/i.test(q)) intent = { page: 'breadth' };
   else if (/(심리|sentiment|VIX|F&G|공포|탐욕|AAII)/i.test(q)) intent = { page: 'sentiment' };
@@ -3286,7 +3286,7 @@ function _autoNavigatePage(userQuery, currentCtxId) {
   else if (/(뉴스|news|헤드라인|headline)/i.test(q)) intent = { page: 'market-news' };
   else if (/(한국|KOSPI|KOSDAQ|KRX|코스피|코스닥|원화|BOK|한은|VKOSPI)/i.test(q)) intent = { page: 'macro' };
   // 현재 컨텍스트와 동일하면 이동 불필요
-  if (intent && intent.page === currentCtxId) return null;
+  if (intent && (intent.page === currentCtxId || (intent.page === 'charts' && currentCtxId === 'technical'))) return null;
   if (intent) { intent.label = _aioRouteName(intent.page); intent.emoji = ''; }
   return intent;
 }

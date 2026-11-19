@@ -10,6 +10,7 @@ import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
 import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { el } from './dom.js';
+import { kindFold } from './indicator-face.js';
 import { fiscalYearLabel, fiscalYearShortLabel } from '../../domain/fundamental/period.js';
 import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
 import { signedText, usdKoreanText } from '../../domain/shared/number.js';
@@ -183,11 +184,7 @@ function fiscalTable(doc, rows, { quarter = false, debtBasis = null } = {}) {
 }
 
 // 2026-10-14 audit #21: amount tables fold (closed) under the chart so the chart and the reading come first.
-function tableFold(doc, label, ...nodes) {
-  const fold = el(doc, 'details', null, 'fiscal-method-details fiscal-table-fold');
-  fold.append(el(doc, 'summary', label), ...nodes.filter(Boolean));
-  return fold;
-}
+const tableFold = (doc, what, ...nodes) => kindFold(doc, 'raw-table', what, nodes);
 
 // Codex review 2026-10-05: the last eight fiscal quarters — revenue bars with the change against the same
 // quarter a year earlier underneath; a derived fourth quarter is marked.
@@ -202,7 +199,7 @@ function quarterSection(doc, root, symbol) {
   box.append(el(doc, 'p', read.headline, 'briefing-read-headline'));
   box.append(fiscalChart(doc, read.rows, { quarter: true }),
     el(doc, 'p', `각 3개월의 실적이며 연간 금액과 구분합니다.${read.hasDerived ? ' * 분기는 연간 실적에서 1~3분기를 뺀 계산값입니다.' : ''}`, 'theme-strength-basis'),
-    tableFold(doc, `분기 금액표 보기, ${read.rows.length}개 분기`, fiscalTable(doc, read.rows, { quarter: true })));
+    tableFold(doc, `분기 금액표, ${read.rows.length}개 분기`, fiscalTable(doc, read.rows, { quarter: true })));
   return box;
 }
 
@@ -240,9 +237,7 @@ function peerSection(doc, root, symbol, row, rows, fundamentals) {
   const notes = ['막대 = 같은 섹터 기업 중 이 회사보다 낮은 비율(백분위)', '각 회사의 최근 회계연도 기준이며 회계연도 마감이 1년 이상 떨어진 기업은 제외', '섹터는 넓은 분류라 사업 구조가 다른 기업이 섞입니다'];
   if (/financ/i.test(row.sector)) notes.push('금융사는 매출·현금흐름의 의미가 일반 기업과 달라 마진·잉여현금 비교를 그대로 읽지 않습니다');
   if (read.rows.find((metric) => metric.id === 'fcfMargin')?.percentile == null) notes.push('잉여현금 마진은 영업현금흐름과 설비투자가 모두 수집된 기간에만 비교합니다');
-  const details = el(doc, 'details', null, 'fiscal-method-details');
-  details.append(el(doc, 'summary', '비교 범위와 계산 기준'), el(doc, 'p', `${notes.join(', ')}.`, 'theme-strength-basis'));
-  box.append(details);
+  box.append(kindFold(doc, 'method', '섹터 비교 범위와 계산 기준', [el(doc, 'p', `${notes.join(', ')}.`, 'theme-strength-basis')]));
   return box;
 }
 
@@ -316,17 +311,15 @@ function earningsQualityCard(doc, read, analysis) {
   if (ratio != null && ratio >= 0.8 && accrualLatest && accrualLatest.ratio >= 0.05 && latest.netIncome > latest.operatingCashFlow) {
     card.append(el(doc, 'p', `이익의 ${Math.round(ratio * 100)}%는 현금으로 들어왔지만, 현금이 아닌 이익(${formatUsdShort(latest.netIncome - latest.operatingCashFlow)})이 자산 대비 큽니다(발생액 비율 ${signedText(accrualLatest.ratio * 100, 1, '%')}). 매출이 빠르게 늘 때는 매출채권·재고가 함께 느는 경우가 많아, 다음 분기 현금 전환을 확인합니다.`, 'v2-fiscal-quality__reconcile'));
   }
-  // ③ 원리 / 지금 읽기 / 한계 behind one disclosure row; ④ the evidence line.
-  const fold = el(doc, 'details', null, 'sx-disclosure v2-fiscal-principle');
-  fold.append(el(doc, 'summary', '원리, 이익의 질'));
+  // ③ 원리 / 지금 읽기 / 한계 and the study it rests on, behind one 계산 방법 fold.
   const body = el(doc, 'div', null, 'sx-disclosure__body');
   const box = (label, text) => { const c = el(doc, 'div', null, 'sx-disclosure__card'); c.append(el(doc, 'span', label, 'sx-disclosure__label'), el(doc, 'p', text, 'sx-disclosure__text')); return c; };
   body.append(
     box('원리', '회계 이익은 발생주의라 현금보다 먼저 잡힐 수 있습니다. 영업현금흐름 ÷ 순이익이 1 근처면 이익이 현금으로 뒷받침되고, 발생액(순이익 − 영업현금흐름)이 큰 기업은 이후 수익률이 낮은 경향이 관측됐습니다.'),
     box('지금 읽기', `${ratio == null ? `${latest.periodEnd} 회계연도는 순이익이나 영업현금흐름이 마이너스라 비율로 읽지 않고 두 금액을 따로 봅니다.` : `${latest.periodEnd} 회계연도 영업현금흐름은 순이익의 ${(ratio * 100).toFixed(0)}%입니다${plotted.length >= 2 ? ` — 위 막대는 공시된 ${plotted.length}개 회계연도의 같은 비율입니다` : ''}.`}${accrualLatest ? ` 발생액 비율은 ${accrualLatest.label} ${signedText(accrualLatest.ratio * 100, 1, '%')}로, 마이너스일수록 현금이 이익보다 많이 들어왔다는 뜻입니다.` : ''}`),
     box('한계, 함께 볼 것', `${accrual.state === 'pending' ? '발생액을 평균 총자산으로 나눈 비율(원 연구의 정의)은 총자산 수집이 끝나면 표시됩니다. ' : '발생액 비율의 5% 구간은 이 화면의 읽기 기준이며 원 연구의 분위 경계가 아닙니다. '}운전자본이 크게 변한 해나 대규모 일회성 항목은 10-K 현금흐름표에서 확인합니다.`));
-  fold.append(body);
-  card.append(fold, el(doc, 'p', '근거, Sloan(1996) 발생액 이상 현상, 데이터, 미국 증권거래위원회 연간 공시(10-K)', 'sx-evidence'));
+  body.append(el(doc, 'p', '근거, Sloan(1996) 발생액 이상 현상, 데이터, 미국 증권거래위원회 연간 공시(10-K)', 'sx-evidence'));
+  card.append(kindFold(doc, 'method', '이익의 질의 원리와 한계', [body]));
   return card;
 }
 
@@ -380,8 +373,9 @@ function workingCapitalCard(doc, quarters) {
   return card;
 }
 
-// v59.70 (PLAN S15): the page is three sections — ① revenue and margin trend, ② cash flow and accruals, ③ the SEC annual
-// summary (a fold). Each visual section carries its chart; the expert cards fold inside the section they belong to.
+// v59.70 (PLAN S15): the page is ① revenue and margin trend (the business lens leads its cards), ② cash flow, accruals and
+// the thesis conditions, ③ what the filing says with the peer standing, ④ the market environments. Each visual section
+// carries its chart; only raw tables, methods and sources fold.
 function fiscalSection(doc, id, title) {
   const box = el(doc, 'section', null, 'fiscal-section');
   box.dataset.entitySection = id;
@@ -518,13 +512,11 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
     const annualPanel = el(doc, 'div', null, 'fiscal-view-annual');
     if (read.history.length >= 2) annualPanel.append(fiscalChart(doc, read.history));
     const splitNote = shareSplitBreaks(read.history).length ? ' 주식 수는 분할을 조정하지 않은 값이라, * 표시 해의 차이는 주식 분할입니다.' : '';
-    annualPanel.append(tableFold(doc, `연간 금액표 보기, ${read.history.length}개 회계연도`, fiscalTable(doc, read.history, { debtBasis }),
+    annualPanel.append(tableFold(doc, `연간 금액표, ${read.history.length}개 회계연도`, fiscalTable(doc, read.history, { debtBasis }),
       el(doc, 'p', `잉여현금흐름 = 영업현금흐름 − 설비투자. 주식 수는 회계연도 종료 뒤 공시 표지의 관측값으로, 평균 유통주식 수와 다릅니다.${splitNote}`, 'theme-strength-basis')));
     if (root._aioSecFiscalPrecision?.decimalPlaces !== 3 && series) {
-      const precision = el(doc, 'details', null, 'fiscal-method-details');
-      precision.append(el(doc, 'summary', '과거 기록의 표시 정밀도'),
-        el(doc, 'p', `${read.latest.preciseAnnual ? '최근 연간 값은 같은 회계연도의 정확한 공시 금액으로 맞췄습니다. ' : ''}기존 연간·분기 이력은 백만 달러 단위로 반올림되어 과거 비율과 평균 자기자본 ROE에 근사 오차가 있습니다. 정밀 이력이 갱신되기 전까지 소수 금액을 복원하지 않습니다.`, 'theme-strength-basis'));
-      annualPanel.append(precision);
+      annualPanel.append(kindFold(doc, 'method', '과거 기록의 표시 정밀도', [
+        el(doc, 'p', `${read.latest.preciseAnnual ? '최근 연간 값은 같은 회계연도의 정확한 공시 금액으로 맞췄습니다. ' : ''}기존 연간·분기 이력은 백만 달러 단위로 반올림되어 과거 비율과 평균 자기자본 ROE에 근사 오차가 있습니다. 정밀 이력이 갱신되기 전까지 소수 금액을 복원하지 않습니다.`, 'theme-strength-basis')]));
     }
     chartCard.append(annualPanel);
     // v59.51 (content audit): quarters are the second view of this card (연간 | 분기), remembered while the company stays.
@@ -552,15 +544,10 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
       show(view);
     }
     trend.append(chartCard);
-    // v59.70 (S15 ①): the margin ladder, EPS against consensus, the business lens and R&D ÷ revenue fold under the trend.
-    const lens = (extra?.cards || []).find((card) => card.dataset?.analysis === 'lens') || null;
+    // The margin ladder, EPS against consensus and R&D ÷ revenue sit under the trend, on the face (2026-11-19: only the
+    // raw tables, the methods and the sources fold).
     const rd = series && analysis ? analysis.rdCard(doc, read.history) : null;
-    const trendCards = [...(extra?.cards || []).filter((card) => card !== lens), lens, rd].filter(Boolean);
-    if (trendCards.length) {
-      const fold = el(doc, 'details', null, 'sx-disclosure fiscal-expert-fold');
-      fold.append(el(doc, 'summary', '이익률 단계, 예상 대비 실적, 업종 렌즈'), ...trendCards);
-      trend.append(fold);
-    }
+    trend.append(...[...(extra?.cards || []), rd].filter(Boolean));
     // Codex browser audit H35: "최신" annual data is not the latest company state. Without quarters the gap after
     // the fiscal year end is named, so an old 10-K is not read as the current quarter.
     if (!quarterBox && read.latest?.periodEnd) {
@@ -569,8 +556,8 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
       if (quarterSource) missing.append(doc.createTextNode(' '), quarterSource);
       trend.append(missing);
     }
-    // v59.70 (S15 ②): cash against earnings (accruals) and the working capital behind a cash swing; the reverse DCF and the
-    // DuPont split stay in this section's 투자 논지 틀 fold (the same deferred analysis chunk).
+    // v59.70 (S15 ②): cash against earnings (accruals) and the working capital behind a cash swing, then the reverse DCF and
+    // the DuPont split (the same deferred analysis chunk).
     const cash = fiscalSection(doc, 'cash', '현금흐름과 발생액');
     const quality = earningsQualityCard(doc, read, analysis);
     if (quality) quality.dataset.sectionVisual = 'accruals';
@@ -579,52 +566,38 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
     const cashCards = [quality, working].filter(Boolean);
     cashPair.append(...cashCards);
     if (cashCards.length) cash.append(cashPair);
-    // v59.51 (two layers): the sentence reading of the filings is the expert layer — one closed fold.
-    const readingCard = el(doc, 'div', null, 'v2-fiscal-reading');
-    const readingHead = el(doc, 'h4', '공시를 문장으로 읽기', 'fiscal-section__sub');
+    // The reverse DCF ('가격이 가정한 성장') and the DuPont split of ROE close the cash section.
+    const pairNode = analysisPair(doc, root, host, analysis, { symbol, fundamentals: state?.fundamentals || null, close, sector: row?.sector || null, series });
+    if (pairNode) cash.append(el(doc, 'h4', '가격이 가정한 성장과 수익성 구조', 'fiscal-section__sub'), pairNode);
+    // The thesis conditions quote that growth, so they follow it.
+    const thesis = extra?.thesis || null;
+    if (thesis) cash.append(thesis);
+    if (cashCards.length || pairNode || thesis) host.append(cash);
+    // ③ The filing read as one row per finding (the 판정 사유), the same-theme and sector peers, and the raw filing fields
+    // (#fund-native-sec-report, written by entity.js) as the section's 원자료 표.
+    const sec = fiscalSection(doc, 'sec', '공시가 말하는 것');
     const list = el(doc, 'ul', null, 'stock-read-points');
     for (const point of consensusPoint ? [...read.points, consensusPoint] : read.points) {
       const li = el(doc, 'li', null, `stock-read-point is-${point.tone}`);
-      const text = el(doc, 'div', null, 'stock-read-point-text');
-      const separator = point.text.indexOf(' — ');
-      if (point.text.length > 140 && separator > 0) {
-        text.append(el(doc, 'span', point.text.slice(0, separator)));
-        const details = el(doc, 'details', null, 'fiscal-method-details');
-        details.append(el(doc, 'summary', '해석과 확인할 조건'), el(doc, 'p', point.text.slice(separator + 3)));
-        text.append(details);
-      } else text.textContent = point.text;
-      li.append(el(doc, 'span', point.title, 'stock-read-point-title'), text);
+      li.append(el(doc, 'span', point.title, 'stock-read-point-title'), el(doc, 'div', point.text, 'stock-read-point-text'));
       list.append(li);
     }
-    readingCard.append(readingHead, list);
-    // v59.51 (content audit + two layers): 투자 논지 틀 is an expert fold that holds the calculation it quotes — the reverse
-    // DCF ('가격이 가정한 성장') and the DuPont split of ROE, moved here from 종목 요약.
-    const after = [...(extra?.after || [])];
-    const thesis = after.find((card) => card.dataset?.analysis === 'thesis') || null;
-    const pairNode = analysisPair(doc, root, host, analysis, { symbol, fundamentals: state?.fundamentals || null, close, sector: row?.sector || null, series });
-    if (thesis || pairNode) {
-      const fold = el(doc, 'details', null, 'sx-disclosure fiscal-thesis-fold');
-      fold.append(el(doc, 'summary', '투자 논지 틀 — 가격이 가정한 성장(역 DCF), 수익성 구조(듀폰), 맞으려면과 깨지는 신호'), ...[pairNode, thesis].filter(Boolean));
-      cash.append(fold);
-    }
-    if (cashCards.length || thesis || pairNode) host.append(cash);
-    // v59.70 (S15 ③): the SEC annual summary is one fold — the sentence reading, the environments, same-theme and sector
-    // peers — with the raw filing fields (#fund-native-sec-report, written by entity.js) under it.
-    const sec = fiscalSection(doc, 'sec', 'SEC 연간 요약');
-    const secFold = el(doc, 'details', null, 'sx-disclosure fiscal-sec-fold');
-    secFold.append(el(doc, 'summary', '공시 문장, 유리·불리 환경, 동종 비교'), readingCard, ...after.filter((card) => card !== thesis));
-    // v58.75 (persona review): same-theme companies by name first; the broad-sector percentile folds under it.
+    sec.append(list);
+    // The company's standing among named theme peers, then their table; the broad-sector percentile is its raw table.
+    if (extra?.peerStanding) sec.append(extra.peerStanding);
     const themePeers = extra?.themePeers || null;
-    if (themePeers) secFold.append(themePeers);
+    if (themePeers) sec.append(themePeers);
     const peerBox = peerSection(doc, root, symbol, row, rows, fundamentals);
-    if (peerBox && themePeers) {
-      const fold = el(doc, 'details', null, 'fiscal-method-details fiscal-peer-fold');
-      fold.append(el(doc, 'summary', `넓은 섹터 안 위치 보기, ${sectorLabel(row.sector)}`), ...[...peerBox.children]);
-      secFold.append(fold);
-    } else if (peerBox) { peerBox.classList.add('sx-card'); secFold.append(peerBox); }
-    sec.append(secFold);
+    if (peerBox && themePeers) sec.append(kindFold(doc, 'raw-table', `넓은 섹터 안 위치, ${sectorLabel(row.sector)}`, [...peerBox.children]));
+    else if (peerBox) { peerBox.classList.add('sx-card'); sec.append(peerBox); }
     if (rawReport) sec.append(rawReport);
     host.append(sec);
+    // ④ The macro environments that favour or burden the company's themes.
+    if (extra?.situation) {
+      const env = fiscalSection(doc, 'situation', '시장 환경');
+      env.append(extra.situation);
+      host.append(env);
+    }
   }
   // Without a reading (loading, KRX, no record) the raw report fold goes back under the host, where index.html put it.
   if (rawReport && rawReport.parentElement !== host && !host.contains?.(rawReport)) host.after(rawReport);
@@ -635,7 +608,7 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
     { route: 'market-news', label: '뉴스', why: `${row?.name || symbol} 실적 발표·가이던스 소식`, ctx: { ticker: symbol } },
     // 2026-10-14 audit #22: the company's numbers continue into the theme and macro crossroads.
     { route: 'themes', label: '테마 시나리오', why: '이 회사가 속한 테마가 지금 어느 단계이고 거시와 어떤 방향인지', ctx: { anchor: 'theme-playbook' } },
-    { route: 'signal', label: '시나리오', ctx: { anchor: 'regime-depth-fold' }, why: '금리·경기 시나리오에서 이 실적 흐름이 수혜인지 부담인지' }
+    { route: 'signal', label: '시나리오', ctx: { anchor: 'regime-depth-fold' }, why: '금리·경기 시나리오와 이 실적 흐름' }
   ]);
   return read;
 }

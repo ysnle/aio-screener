@@ -1,6 +1,5 @@
 // Screener inspector: why a row ranked where it did, its range and excess bars, compare tray.
 import { signedBar, signedScale } from '../../components/signed-bar.js';
-import { setStockSubject } from '../../navigation/route-hubs.js';
 import { overlapSentence } from '../../../domain/screener/factor-overlap.js';
 import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { SCREENER_FIELD_REGISTRY, readRowNumber } from '../../../data/contracts/screener.js';
@@ -571,12 +570,12 @@ export function createInspectorController(ctx) {
     } else if (action === 'open-ticker') {
            ctx.tickerHandler(argument || ctx.activeRow?.sym || ctx.activeRow?.symbol);
     } else if (action === 'open-chart-levels') {
-           // v58.75 (D6): name the 종목 screen's company, open its chart and land on the level map.
+           // v58.75 (D6): open the row's chart and land on the level map — the analysis slot on 기술적 분석 (owner 2026-11-19).
            const symbol = argument || ctx.activeRow?.sym || ctx.activeRow?.symbol;
            if (symbol) {
-             setStockSubject({ root, documentRef, symbol });
              root.__aioChartScrollTo = 'chart-levels';
-             root.showPage?.('technical');
+             if (typeof root.aioOpenMarketChart === 'function') root.aioOpenMarketChart(symbol);
+             else { root._aioChartRequest = String(symbol).toUpperCase(); root.showPage?.('charts'); }
            }
     } else if (action === 'why-compare') {
            const symbol = argument || ctx.activeRow?.sym || ctx.activeRow?.symbol;

@@ -9,6 +9,7 @@ import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-e
 import { el } from './dom.js';
 import { gaugeBar } from './gauge-bar.js';
 import { asOfChip } from './section-frame.js';
+import { kindFold } from './indicator-face.js';
 import { signedText } from '../../domain/shared/number.js';
 
 const pct = (value, digits = 0) => (value == null ? '—' : signedText(value * 100, digits, '%'));
@@ -51,18 +52,22 @@ export function renderIndexEarnings({ documentRef: doc, root, store }) {
   if (model.forwardPe != null) line(`선행 PER ${model.forwardPe.toFixed(1)}배 — 향후 4개 분기 컨센서스 이익을 각 종목 직전 종가로 나눠 지수 비중으로 합산(이익수익률 ${(model.earningsYield * 100).toFixed(1)}%).`);
   if (model.growth != null) line(`향후 4개 분기 이익이 직전 4개 분기보다 ${pct(model.growth)} (이익 규모 가중).`);
   if (model.erp != null) line(`주식위험프리미엄 ${model.erp.toFixed(1)}%p — 이익수익률 ${(model.earningsYield * 100).toFixed(1)}%에서 10년 실질금리 ${model.realYield10.toFixed(2)}%${model.realYieldAsOf ? `(${shortDate(model.realYieldAsOf)})` : ''}를 뺀 값.`);
-  const reading = el(doc, 'p', null, 'briefing-read-reading');
-  reading.append(el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(' 이익 전망 수정의 방향은 지수 이익 추세보다 먼저 움직이는 편이라, 가격보다 펀더멘털 쪽 흐름을 먼저 보여 줍니다. 위험프리미엄이 낮을수록 같은 이익 실망에 주가가 더 크게 반응할 여지가 있고, 실질금리가 오르면 프리미엄이 줄어 밸류에이션 부담이 커집니다. 이 화면에는 아직 과거 기록이 없어 지금 값이 역사적으로 높은지 낮은지는 말하지 않습니다.'));
-  const detail = el(doc, 'details', null, 'aio-comp-secondary');
-  detail.append(el(doc, 'summary', '숫자와 해석 — 선행 PER, 위험프리미엄, 섹터별'), facts, reading);
+  // 안 A: the numbers behind the headline are the section's raw table; the measure's definition and what the two figures
+  // tend to mean are in the 매크로 method fold (INDEX_EARNINGS_METHOD, macro-board.js).
+  const detail = kindFold(doc, 'raw-table', '선행 PER, 위험프리미엄, 섹터별 수정', [facts]);
   if (model.sectors.length) {
     detail.append(el(doc, 'h3', `섹터별 4주 상향 우위 (구성 기업 ${SECTOR_MIN_MEMBERS}개 이상)`, 'briefing-h3'));
     const list = el(doc, 'ul', null, 'briefing-read-reading');
     for (const row of model.sectors) list.append(el(doc, 'li', `${GICS_KO[row.sector] || row.sector} ${pct(row.revision)} — 상향 ${row.up}, 하향 ${row.down} (${row.members}개 기업)`));
     detail.append(list);
   }
-  const parts = [head, lead, model.breadth != null ? gaugeBar(doc, breadthGauge(model.breadth)) : null, detail].filter(Boolean);
-  detail.append(el(doc, 'p', `상향 우위 = (상향 건수 − 하향 건수) ÷ (상향 + 하향) — 이익이 몇 % 바뀌었는지가 아니라 수정 방향의 쏠림입니다. 보통주 두 종류(GOOG·GOOGL 등)는 한 기업으로 셉니다. 지수 비중 ${INDEX_EARNINGS_MIN_WEIGHT_PCT}% 이상이 모여야 지수 값을 냅니다. 컨센서스는 조정 EPS 기준 참고값입니다(자료 출처는 아래 데이터 출처 칸).`, 'briefing-empty'));
-  host.replaceChildren(...parts);
+  host.replaceChildren(...[head, lead, model.breadth != null ? gaugeBar(doc, breadthGauge(model.breadth)) : null, detail].filter(Boolean));
   return model;
 }
+
+/** The measures' definitions and what they tend to mean — paragraphs of the 매크로 method fold. */
+export const INDEX_EARNINGS_METHOD = Object.freeze([
+  `상향 우위 = (상향 건수 − 하향 건수) ÷ (상향 + 하향) — 이익이 몇 % 바뀌었는지가 아니라 수정 방향의 쏠림입니다. 보통주 두 종류(GOOG·GOOGL 등)는 한 기업으로 셉니다. 지수 비중 ${INDEX_EARNINGS_MIN_WEIGHT_PCT}% 이상이 모여야 지수 값을 냅니다. 컨센서스는 조정 EPS 기준 참고값입니다.`,
+  '선행 PER은 향후 4개 분기 컨센서스 이익을 각 종목 직전 종가로 나눠 지수 비중으로 합산한 값이고, 주식위험프리미엄은 그 이익수익률에서 10년 실질금리를 뺀 값입니다.',
+  '이익 전망 수정의 방향은 지수 이익 추세보다 먼저 움직이는 편입니다. 위험프리미엄이 낮을수록 같은 이익 실망에 주가가 더 크게 반응할 여지가 있고, 실질금리가 오르면 프리미엄이 줄어 밸류에이션 부담이 커집니다. 이 화면에는 아직 과거 기록이 없어 지금 값이 역사적으로 높은지 낮은지는 말하지 않습니다.'
+]);

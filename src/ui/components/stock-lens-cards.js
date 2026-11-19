@@ -1,12 +1,13 @@
-// v58.75 (owner 2026-10-24, '고르는 법' layer B): the stock page blocks that teach how an expert reads this company — the market
-// link and the memo/watch entry at the top of 종목 요약, strengths and weaknesses against named theme peers with the
-// '계속 볼 것' list, and on 재무 공시 the business lens, the thesis template and the favourable/unfavourable situations.
-// Loaded with the entity route and the lazy analysis cards (never the boot set). Readings come from
-// src/domain/fundamental/stock-lens.js; this file gathers the page's existing inputs and draws them.
+// v58.75 (owner 2026-10-24): an expert's reading of this company — the business lens (which numbers matter for this kind
+// of business), standing against named theme peers with what to keep watching, the thesis conditions and the
+// favourable/unfavourable situations. 재무 공시 draws them on the face (lensCard, peerStandingCard, thesisCard,
+// situationCard); 종목 개요 reads one peer line (peerLine); the AI panel reads the same data (window._aioStockLensFor).
+// Readings come from src/domain/fundamental/stock-lens.js. Loaded with the entity route (never the boot set).
 import { shortDate } from '../../domain/content/date-labels.js';
 import { setResearchHandoff } from '../../app/research-handoff.js';
 import { el } from './dom.js';
-import { focusResearchMemo } from './research-snapshots.js';
+import { kindFold } from './indicator-face.js';
+import { signedText } from '../../domain/shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { parseFiscalHistory, debtBasisFor, debtCurrentFor, issuerSic } from './fiscal-read.js';
 import { marketInterpretation, readMarketRegime } from '../../data/selectors/interpretation.js';
@@ -19,7 +20,6 @@ import { themeProfile } from '../../domain/scenarios/exposures.js';
 import { themeCatalogFor, stockThemes } from '../../domain/entity/primary-theme.js';
 import { buildCloseSeries } from '../../domain/market/session/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../../domain/market/session/market-windows.js';
-import { signedText } from '../../domain/shared/number.js';
 import { sharedArtifactState } from '../../data/shared-artifacts.js';
 import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 
@@ -113,94 +113,64 @@ export function installStockLensGlobal(root) {
   };
 }
 
+// ── Drawing (재무 공시 face; 종목 개요 reads peerLine only) ─────────────────────────────────────────────────────────────
 function cardHead(doc, title, meta) {
   const head = el(doc, 'div', null, 'sx-card__head');
   head.append(el(doc, 'h3', title, 'sx-card__title'));
   if (meta) head.append(el(doc, 'span', meta, 'sx-card__meta'));
   return head;
 }
-function fold(doc, summary, lines) {
-  const box = el(doc, 'details', null, 'sx-disclosure v2-analysis-principle');
-  box.append(el(doc, 'summary', summary));
-  const body = el(doc, 'div', null, 'sx-disclosure__body');
-  for (const [label, text] of lines.filter((line) => line && line[1])) {
-    const card = el(doc, 'div', null, 'sx-disclosure__card');
-    card.append(el(doc, 'span', label, 'sx-disclosure__label'), el(doc, 'p', text, 'sx-disclosure__text'));
-    body.append(card);
-  }
-  box.append(body);
-  return box;
-}
-const list = (doc, items, className = 'v2-lens-list') => { const ul = el(doc, 'ul', null, className); for (const text of items) ul.append(el(doc, 'li', text)); return ul; };
-// v58.75 (persona review): long lists show the first three and fold the rest (the burden side can name seven branches).
-const shortList = (doc, items, keep = 3) => {
-  const box = el(doc, 'div', null, 'v2-lens-short');
-  box.append(list(doc, items.slice(0, keep)));
-  if (items.length > keep) {
-    const more = el(doc, 'details', null, 'v2-lens-more');
-    more.append(el(doc, 'summary', `나머지 ${items.length - keep}개 보기`), list(doc, items.slice(keep)));
-    box.append(more);
-  }
+const list = (doc, items) => { const ul = el(doc, 'ul', null, 'v2-lens-list'); for (const text of items) ul.append(el(doc, 'li', text)); return ul; };
+const block = (doc, title, items, tone = '') => {
+  const box = el(doc, 'div', null, `v2-thesis-block${tone ? ` is-${tone}` : ''}`);
+  box.append(el(doc, 'p', title, 'v2-thesis-block__title'), list(doc, items));
   return box;
 };
+const methodText = (doc, text) => el(doc, 'p', text, 'ind-method__text');
 
-// The memo entry (existing '이 종목의 메모, 당시 근거 저장' panel): open it, scroll to it and, when the draft is empty, start it
-// with the thesis template so the reader writes their own conditions.
-function openThesisMemo(doc, root, symbol, template) {
-  const page = doc.getElementById('page-ticker');
-  if (page?.classList.contains('active')) {
-    root._aioShowPageView(page.id, 'memo', { byReader: true });
-    focusResearchMemo(page.querySelector('[data-research-snapshots="stock"]'), template);
-    return;
-  }
-  setResearchHandoff({ root, routeId: 'ticker', context: { symbol, memoTemplate: template } });
-  root._aioShowPageView(page.id, 'memo');
-  root.showTicker(symbol);
-}
+/** The memo template the thesis seeds (the reader writes their own conditions under it). */
 export function thesisTemplate(ctx) {
   const t = ctx?.thesis;
   if (!t) return '';
   return [`내 논지(${ctx.sym}):`, t.priced ? `가격이 가정하는 것 — ${t.priced}` : null, ...t.conditions.map((c) => `맞으려면 — ${c}`), ...t.breaks.slice(0, 3).map((b) => `깨짐 신호 — ${b}`)].filter(Boolean).join('\n');
 }
-
-// ── 종목 요약 top: the market link line, memo and watchlist entries ──────────────────────────────────────────────────────
-export function renderStockContext(doc, root, host, ctx) {
-  if (!ctx) { host.hidden = true; host.replaceChildren(); return; }
-  host.replaceChildren();
-  if (ctx.link) {
-    const line = el(doc, 'p', ctx.link.text, `v2-stock-context__line${ctx.link.wind === '부담' ? ' is-burden' : ctx.link.wind === '수혜' ? ' is-favorable' : ''}`);
-    host.append(line);
-  }
-  const actions = el(doc, 'div', null, 'v2-stock-context__actions');
-  const memo = el(doc, 'button', '내 논지·메모 열기', 'aio-btn-table');
-  memo.type = 'button';
-  memo.addEventListener('click', () => openThesisMemo(doc, root, ctx.sym, thesisTemplate(stockLensContext(root, ctx.sym, { fundamentals: root.__aioLensFundamentals?.[ctx.sym] || null }))));
-  actions.append(memo);
-  if (typeof root?._aioWLToggle === 'function') {
-    // v58.80 (first-users run-3 B15): the button never changed state; it now says whether the stock is in a 관심 종목
-    // list and toggles through the one watchlist store (the toast names the list it went to).
-    const watch = el(doc, 'button', '', 'aio-btn-table');
-    watch.type = 'button';
-    const paint = () => {
-      const held = (root._aioWatchlistGet?.() || []).includes(ctx.sym);
-      watch.textContent = held ? '관심 종목에서 빼기' : '관심 종목에 추가';
-      watch.setAttribute('aria-pressed', held ? 'true' : 'false');
-    };
-    paint();
-    watch.addEventListener('click', () => { root._aioWLToggle(ctx.sym); paint(); });
-    actions.append(watch);
-  }
-  host.append(actions);
-  host.hidden = false;
+// The memo is 종목 개요's 내 메모 section: hand the template over and open the company (entity.js consumes it once).
+function openThesisMemo(root, symbol, template) {
+  setResearchHandoff({ root, routeId: 'ticker', context: { symbol, memoTemplate: template } });
+  if (typeof root?.showTicker === 'function') root.showTicker(symbol);
 }
 
-// ── 종목 요약: strengths/weaknesses against named peers + what to keep watching ─────────────────────────────────────────
-// v59.70 (PLAN S13 ②): 동종 비교 is one rank chart — every metric that has peers, this company's place from 1위 (left) to
-// last (right) with the peer median tick — then one strength and one weakness line. The other facts, '계속 볼 것' and
-// the comparison basis fold under them.
+/** Which numbers matter for this kind of business, this company's value and direction for each. */
+export function lensCard(doc, read) {
+  if (!read) return null;
+  const card = el(doc, 'section', null, 'sx-card v2-analysis-card v2-stock-lens');
+  card.dataset.analysis = 'lens';
+  card.append(cardHead(doc, `사업 종류별 핵심 지표, ${read.label}`, `${read.rows.length}개 중 ${read.known}개 확인`));
+  card.append(el(doc, 'p', read.why, 'v2-analysis-lede'));
+  const region = el(doc, 'div', null, 'fiscal-table-scroll');
+  region.tabIndex = 0;
+  region.setAttribute('role', 'region');
+  region.setAttribute('aria-label', '핵심 지표표, 가로 스크롤');
+  const table = el(doc, 'table', null, 'fiscal-amount-table');
+  table.append(el(doc, 'caption', '지표, 이 기업의 값과 방향, 미확인은 공시 수집본에 없는 항목'));
+  const head = el(doc, 'thead'); const hr = el(doc, 'tr');
+  for (const label of ['지표', '이 기업', '방향', '보는 이유']) { const th = el(doc, 'th', label); th.scope = 'col'; hr.append(th); }
+  head.append(hr); table.append(head);
+  const body = el(doc, 'tbody');
+  for (const row of read.rows) {
+    const tr = el(doc, 'tr');
+    const th = el(doc, 'th', row.label); th.scope = 'row';
+    tr.append(th, el(doc, 'td', row.value || '미확인', row.value ? null : 'is-muted'), el(doc, 'td', row.trend || '—'), el(doc, 'td', row.value ? row.why : `${row.why} 확인처: ${row.check}`));
+    body.append(tr);
+  }
+  table.append(body); region.append(table); card.append(region);
+  card.append(kindFold(doc, 'method', '지표를 고른 기준', [methodText(doc, `분류 기준: ${read.basis}. 업종마다 정상 수준이 달라, 값은 같은 업종 안에서 비교합니다.`)]));
+  return card;
+}
+
+// The rank figure: every metric that has peers, this company's place from 1위 (left) to last (right).
 const SVG_NS = 'http://www.w3.org/2000/svg';
 function rankChart(doc, facts) {
-  // Percentage x and a fixed row height: the rows line up with the HTML labels beside it and the dots stay round.
   const rowH = 26;
   const svg = doc.createElementNS ? doc.createElementNS(SVG_NS, 'svg') : doc.createElement('svg');
   svg.setAttribute('width', '100%');
@@ -216,12 +186,19 @@ function rankChart(doc, facts) {
   });
   return svg;
 }
-export function renderStockStrengths(doc, host, ctx) {
+// The watch items that belong to this screen: the price-level and relative-strength items live on 기술적 분석.
+const FUNDAMENTAL_WATCH = new Set(['earnings', 'revisions', 'margin', 'theme']);
+const watchOf = (ctx) => (ctx?.watch || []).filter((item) => FUNDAMENTAL_WATCH.has(item.id));
+
+/** Where the company stands against named theme peers, the strength and weakness lines and what to keep watching. */
+export function peerStandingCard(doc, ctx) {
   const s = ctx?.strengths;
-  const nodes = [];
-  if (s && s.facts?.length) {
-    const card = el(doc, 'div', null, 'sx-card v2-stock-card v2-peer-strengths');
-    card.append(cardHead(doc, '동종 비교', `${ctx.peers.themeName}, 이 회사 포함 ${s.peers + 1}곳`));
+  const watch = watchOf(ctx);
+  if (!s?.facts?.length && !watch.length) return null;
+  const card = el(doc, 'section', null, 'sx-card v2-analysis-card v2-peer-strengths');
+  card.dataset.analysis = 'peer-standing';
+  card.append(cardHead(doc, '동종 기업 안의 위치', s?.facts?.length ? `${ctx.peers.themeName}, 이 회사 포함 ${s.peers + 1}곳` : '비교할 동종 공시 부족'));
+  if (s?.facts?.length) {
     const chart = el(doc, 'div', null, 'v2-peer-rank');
     chart.dataset.sectionVisual = 'peer-rank';
     chart.setAttribute('role', 'img');
@@ -230,7 +207,6 @@ export function renderStockStrengths(doc, host, ctx) {
     const values = el(doc, 'div', null, 'v2-peer-rank__values');
     for (const fact of s.facts) {
       labels.append(el(doc, 'span', fact.label, 'v2-peer-rank__label'));
-      // The value itself beside its place: '2/9' alone made the reader open the fold to learn what was being ranked.
       values.append(el(doc, 'span', `${fact.valueText}, ${fact.tied ? '공동 ' : ''}${fact.rank}/${fact.n}`, 'v2-peer-rank__value'));
     }
     const plot = el(doc, 'div', null, 'v2-peer-rank__plot');
@@ -240,61 +216,40 @@ export function renderStockStrengths(doc, host, ctx) {
     chart.append(labels, plot, values, axis);
     card.append(chart);
     const line = (label, fact, tone) => { const p = el(doc, 'p', null, `v2-peer-line is-${tone}`); p.append(el(doc, 'b', label), doc.createTextNode(` ${fact.text}`)); return p; };
-    if (s.strengths[0]) card.append(line('강한 점', s.strengths[0], 'favorable'));
-    if (s.weaknesses[0]) card.append(line('약한 점', s.weaknesses[0], 'burden'));
-    const rest = [...s.strengths.slice(1).map((fact) => ['강한 점', fact.text]), ...s.weaknesses.slice(1).map((fact) => ['약한 점', fact.text]),
-      ...(ctx.watch || []).map((item) => [item.label, `${item.now} — ${item.why}`]),
-      ['동종', `${ctx.peers.themeName}의 같은 하위 테마 기업부터 테마 대표 기업까지 SEC 연간 공시가 있는 ${s.peers}곳: ${ctx.peers.rows.slice(1).map((row) => row.sym).join(', ')}.`],
-      ['기준', '각 지표에서 동종 안 순위와 중앙값을 사실로 적었습니다. 강점·약점은 중앙값보다 앞·뒤인 지표 중 차이가 큰 순서이며, 등급이나 매수 판단이 아닙니다. Forward PER은 낮을수록 이익 대비 가격 부담이 가벼운 쪽입니다.'],
-      ['기간', peerBasisText(ctx.peers.basis)],
-      ['한계', '회계연도 마감 시점이 회사마다 다르고, 테마는 AIO의 투자 분류라 사업 구성이 같지 않습니다. 재무 공시 화면의 동종 표에 숫자가 있습니다.']];
-    card.append(fold(doc, `자세히 — 나머지 지표${ctx.watch?.length ? `, 계속 볼 것 ${ctx.watch.length}가지` : ''}, 비교 기준`, rest));
-    nodes.push(card);
-  } else if (ctx?.watch?.length) {
-    // No peer group with enough filings: the watch list is the section, folded the same way.
-    const card = el(doc, 'div', null, 'sx-card v2-stock-card v2-stock-watch');
-    card.append(cardHead(doc, '동종 비교', '비교할 동종 공시 부족'));
-    card.append(fold(doc, `이 종목에서 계속 볼 것 ${ctx.watch.length}가지`, ctx.watch.map((item) => [item.label, `${item.now} — ${item.why}`])));
-    nodes.push(card);
+    for (const fact of s.strengths) card.append(line('강한 점', fact, 'favorable'));
+    for (const fact of s.weaknesses) card.append(line('약한 점', fact, 'burden'));
   }
-  host.replaceChildren(...nodes);
-  host.hidden = !nodes.length;
-}
-
-// ── 재무 공시: the lens, the thesis template, favourable/unfavourable situations ─────────────────────────────────────────
-export function lensCard(doc, read) {
-  if (!read) return null;
-  const card = el(doc, 'section', null, 'sx-card v2-analysis-card v2-stock-lens');
-  card.dataset.analysis = 'lens';
-  card.append(cardHead(doc, `이 기업을 보는 렌즈, ${read.label}`, `${read.rows.length}개 중 ${read.known}개 확인`));
-  card.append(el(doc, 'p', read.why, 'v2-analysis-lede'));
-  const region = el(doc, 'div', null, 'fiscal-table-scroll');
-  region.tabIndex = 0;
-  region.setAttribute('role', 'region');
-  region.setAttribute('aria-label', '렌즈 지표표, 가로 스크롤');
-  const table = el(doc, 'table', null, 'fiscal-amount-table');
-  table.append(el(doc, 'caption', '추적할 지표, 이 기업의 값과 방향, 미확인은 이 화면 공시 수집본에 없는 항목'));
-  const head = el(doc, 'thead'); const hr = el(doc, 'tr');
-  for (const label of ['지표', '이 기업', '방향', '보는 이유']) { const th = el(doc, 'th', label); th.scope = 'col'; hr.append(th); }
-  head.append(hr); table.append(head);
-  const body = el(doc, 'tbody');
-  for (const row of read.rows) {
-    const tr = el(doc, 'tr');
-    const th = el(doc, 'th', row.label); th.scope = 'row';
-    tr.append(th, el(doc, 'td', row.value || '미확인', row.value ? null : 'is-muted'), el(doc, 'td', row.trend || '—'), el(doc, 'td', row.value ? row.why : `${row.why} 확인처: ${row.check}`));
-    body.append(tr);
+  if (watch.length) {
+    const box = el(doc, 'div', null, 'v2-thesis-block');
+    box.append(el(doc, 'p', `계속 볼 것 ${watch.length}가지`, 'v2-thesis-block__title'), list(doc, watch.map((item) => `${item.label}: ${item.now}`)));
+    card.append(box);
   }
-  table.append(body); region.append(table); card.append(region);
-  card.append(el(doc, 'p', `렌즈 선택 기준: ${read.basis}. 업종마다 정상 수준이 달라, 값은 같은 업종 안에서 비교합니다.`, 'theme-strength-basis'));
+  if (s?.facts?.length) {
+    card.append(kindFold(doc, 'method', '동종 구성과 비교 기준', [
+      methodText(doc, `${ctx.peers.themeName}의 같은 하위 테마 기업부터 테마 대표 기업까지 SEC 연간 공시가 있는 ${s.peers}곳: ${ctx.peers.rows.slice(1).map((row) => row.sym).join(', ')}.`),
+      methodText(doc, '각 지표에서 동종 안 순위와 동종 중앙값을 적었습니다. 강한 점·약한 점은 중앙값보다 앞·뒤인 지표 중 차이가 큰 순서이며, 등급이나 매수 판단이 아닙니다. Forward PER은 낮을수록 이익 대비 가격 부담이 가벼운 쪽입니다.'),
+      methodText(doc, peerBasisText(ctx.peers.basis)),
+      methodText(doc, '회계연도 마감 시점이 회사마다 다르고, 테마는 AIO의 투자 분류라 사업 구성이 같지 않습니다.'),
+      ...watch.map((item) => methodText(doc, `${item.label}: ${item.why}`))
+    ]));
+  }
   return card;
 }
 
+/** 종목 개요's one peer line: the strongest and the weakest standing, or null without a peer group. */
+export function peerLine(ctx) {
+  const s = ctx?.strengths;
+  if (!s?.facts?.length || (!s.strengths.length && !s.weaknesses.length)) return null;
+  return { theme: ctx.peers.themeName, count: s.peers + 1, strength: s.strengths[0]?.text || null, weakness: s.weaknesses[0]?.text || null };
+}
+
+/** The thesis conditions: what the price assumes, what must hold, when it is checked and what would break it. */
 export function thesisCard(doc, root, ctx) {
   const t = ctx?.thesis;
   if (!t) return null;
   const card = el(doc, 'section', null, 'sx-card v2-analysis-card v2-thesis');
   card.dataset.analysis = 'thesis';
-  card.append(cardHead(doc, '투자 논지 틀', '내 논지를 세우는 칸, 앱의 결론 아님'));
+  card.append(cardHead(doc, '투자 논지 조건', '앱의 결론 아님'));
   if (t.priced) card.append(el(doc, 'p', t.priced, 'v2-analysis-lede'));
   if (t.impliedPct != null && t.ttm != null) {
     const bars = el(doc, 'div', null, 'v2-thesis-bars');
@@ -313,19 +268,23 @@ export function thesisCard(doc, root, ctx) {
     card.append(bars);
   }
   const grid = el(doc, 'div', null, 'v2-thesis-grid');
-  const block = (title, items) => { if (!items.length) return; const box = el(doc, 'div', null, 'v2-thesis-block'); box.append(el(doc, 'p', title, 'stock-read-vis-title'), list(doc, items)); grid.append(box); };
-  block(`논지가 맞으려면 (${t.conditions.length}가지)`, t.conditions);
-  block('확인 일정', t.checks);
-  block('논지가 틀렸다는 신호', t.breaks);
+  if (t.conditions.length) grid.append(block(doc, `맞으려면 ${t.conditions.length}가지`, t.conditions));
+  if (t.checks.length) grid.append(block(doc, '확인 일정', t.checks));
+  if (t.breaks.length) grid.append(block(doc, '틀렸다는 신호', t.breaks, 'burden'));
   card.append(grid);
-  card.append(fold(doc, '수익까지 이어지는 두 경로, 성립과 깨짐', t.paths.flatMap((path) => [[`${path.label}, 성립`, path.holds], [`${path.label}, 깨짐`, path.fails]])));
-  const save = el(doc, 'button', '이 틀로 내 논지 메모 시작', 'aio-btn-table');
+  if (t.paths.length) {
+    const paths = el(doc, 'div', null, 'v2-thesis-grid is-pair');
+    for (const path of t.paths) paths.append(block(doc, path.label, [`성립 — ${path.holds}`, `깨짐 — ${path.fails}`]));
+    card.append(paths);
+  }
+  const save = el(doc, 'button', '이 조건으로 내 메모 시작', 'aio-btn-table');
   save.type = 'button';
-  save.addEventListener('click', () => openThesisMemo(doc, root, ctx.sym, thesisTemplate(ctx)));
+  save.addEventListener('click', () => openThesisMemo(root, ctx.sym, thesisTemplate(ctx)));
   card.append(save);
   return card;
 }
 
+/** The macro environments that favour or burden the company's themes, and where the market is now. */
 export function situationCard(doc, ctx) {
   const s = ctx?.situation;
   if (!s || (!s.favour.length && !s.burden.length)) return null;
@@ -333,18 +292,21 @@ export function situationCard(doc, ctx) {
   card.dataset.analysis = 'situation';
   card.append(cardHead(doc, '유리한 환경과 불리한 환경', s.themes.map((theme) => theme.label).join(', ')));
   if (s.now) {
-    // v59.70 (lens plan step 4): the scenario fit is a market reading with its own close date, not the stock's.
+    // The scenario fit is a market reading with its own close date, not the stock's.
     const lede = el(doc, 'p', s.now, 'v2-analysis-lede');
-    if (s.asOf) lede.append(el(doc, 'span', ` (${shortDate(s.asOf)} 관측 기준)`, 'theme-strength-basis'));
+    if (s.asOf) lede.append(el(doc, 'span', ` (${shortDate(s.asOf)} 관측 기준)`, 'sx-meta'));
     card.append(lede);
   }
   const pair = el(doc, 'div', null, 'v2-thesis-grid is-pair');
   const leadFirst = (items) => (s.lead?.title && items.includes(s.lead.title) ? [s.lead.title, ...items.filter((item) => item !== s.lead.title)] : items);
-  if (s.favour.length) { const box = el(doc, 'div', null, 'v2-thesis-block is-favorable'); box.append(el(doc, 'p', `이런 환경에서 유리 (${s.favour.length})`, 'stock-read-vis-title'), shortList(doc, leadFirst(s.favour))); pair.append(box); }
-  if (s.burden.length) { const box = el(doc, 'div', null, 'v2-thesis-block is-burden'); box.append(el(doc, 'p', `이런 환경에서 불리 (${s.burden.length})`, 'stock-read-vis-title'), shortList(doc, leadFirst(s.burden))); pair.append(box); }
+  if (s.favour.length) pair.append(block(doc, `유리 ${s.favour.length}`, leadFirst(s.favour), 'favorable'));
+  if (s.burden.length) pair.append(block(doc, `불리 ${s.burden.length}`, leadFirst(s.burden), 'burden'));
   card.append(pair);
-  if (s.beta) card.append(el(doc, 'p', `시장 대비 민감도(베타) ${s.beta.value.toFixed(2)} — 최근 ${s.beta.sessions}거래일 일간 수익률을 S&P 500과 비교한 값으로, 1보다 크면 시장이 움직일 때 더 크게 움직였다는 뜻입니다.`, 'theme-strength-basis'));
-  card.append(fold(doc, '근거, 테마의 노출과 논지', [['노출', `${s.tags.join(', ')} — 이 노출이 각 거시 시나리오에서 순풍인지 역풍인지로 나눴습니다(시나리오별 수혜·부담 규칙).`],
-    ...s.themes.map((theme) => [`${theme.label} 논지`, `${theme.thesis}. 깨지는 조건: ${theme.breaks.join(', ')}.`])]));
+  if (s.beta) card.append(el(doc, 'p', `시장 대비 민감도(베타) ${s.beta.value.toFixed(2)}, 최근 ${s.beta.sessions}거래일`, 'sx-meta'));
+  card.append(kindFold(doc, 'method', '노출과 테마 논지', [
+    methodText(doc, `노출: ${s.tags.join(', ')}. 이 노출이 각 시나리오에서 순풍인지 역풍인지로 나눴습니다.`),
+    ...s.themes.map((theme) => methodText(doc, `${theme.label} 논지: ${theme.thesis}. 깨지는 조건: ${theme.breaks.join(', ')}.`)),
+    s.beta ? methodText(doc, '베타는 일간 수익률을 S&P 500과 비교한 값으로, 1보다 크면 시장이 움직일 때 더 크게 움직였다는 뜻입니다.') : null
+  ]));
   return card;
 }

@@ -219,6 +219,7 @@ export function curveDynamics(macroHistory, rule = CURVE_DYNAMICS_RULE, latest =
     uninverted3m: !!ended3m,
     inversion3m: ended3m,
     uninversion3mText: ended3m ? `뉴욕 연준 모형이 쓰는 10년–3개월 금리차는 ${inversionSince(ended3m)} 역전돼 있다가 ${longDate(ended3m.end)}에 양(+)으로 돌아섰습니다.` : null,
+    uninversionText: ended ? `2년–10년 금리차는 ${inversionSince(ended)} 역전돼 있다가 ${longDate(ended.end)}에 양(+)으로 돌아섰습니다.` : null,
     uninversionReading: ended ? `2년–10년 금리차가 ${inversionSince(ended)} 역전돼 있다가 ${longDate(ended.end)}에 양(+)으로 돌아섰습니다. 과거 미국 경기침체는 역전 자체보다 역전이 풀리며 다시 가팔라지는 시점과 더 가까웠습니다. 시차가 일정하지 않아 시점 판단에는 쓰지 않습니다.` : null
   };
 }

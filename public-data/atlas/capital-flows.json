@@ -1,0 +1,488 @@
+{
+  "schemaVersion": "ai-capital-flows.v1",
+  "reviewedAt": "2026-11-19",
+  "boundary": "기업 간 투자·계약의 공개된 사실. 지금의 실적이나 투자 판단이 아니다.",
+  "fieldNotes": {
+    "dateBasis": "추가 필드. announced가 발표일인지, 체결일인지, 이번 검토에서 확인한 최초 공시일인지 적는다.",
+    "onBehalfOf": "추가 필드. 보증(guarantee) 엣지에서 의무를 지는 임차인·채무자. from은 보증인, to는 보증을 받는 임대인이다."
+  },
+  "nodes": [
+    { "id": "NVDA", "name": "엔비디아", "listed": true, "role": "chips" },
+    { "id": "AMD", "name": "AMD", "listed": true, "role": "chips" },
+    { "id": "AVGO", "name": "브로드컴", "listed": true, "role": "chips" },
+    { "id": "INTC", "name": "인텔", "listed": true, "role": "foundry" },
+    { "id": "CBRS", "name": "세레브라스", "listed": true, "role": "chips" },
+    { "id": "MSFT", "name": "마이크로소프트", "listed": true, "role": "cloud" },
+    { "id": "AMZN", "name": "아마존", "listed": true, "role": "cloud" },
+    { "id": "GOOGL", "name": "알파벳(구글)", "listed": true, "role": "cloud" },
+    { "id": "ORCL", "name": "오라클", "listed": true, "role": "cloud" },
+    { "id": "META", "name": "메타", "listed": true, "role": "models" },
+    { "id": "SPCX", "name": "스페이스X(xAI 포함)", "listed": true, "role": "models" },
+    { "id": "@OpenAI", "name": "오픈AI", "listed": false, "role": "models" },
+    { "id": "@Anthropic", "name": "앤트로픽", "listed": false, "role": "models" },
+    { "id": "CRWV", "name": "코어위브", "listed": true, "role": "neocloud" },
+    { "id": "NBIS", "name": "네비우스", "listed": true, "role": "neocloud" },
+    { "id": "IREN", "name": "아이렌", "listed": true, "role": "neocloud" },
+    { "id": "@Nscale", "name": "엔스케일", "listed": false, "role": "neocloud" },
+    { "id": "@Lambda", "name": "람다", "listed": false, "role": "neocloud" },
+    { "id": "@Fluidstack", "name": "플루이드스택", "listed": false, "role": "neocloud" },
+    { "id": "WULF", "name": "테라울프", "listed": true, "role": "datacenter" },
+    { "id": "CIFR", "name": "사이퍼 디지털", "listed": true, "role": "datacenter" },
+    { "id": "HUT", "name": "헛 8", "listed": true, "role": "datacenter" },
+    { "id": "@SBEnergy", "name": "SB에너지", "listed": false, "role": "power" },
+    { "id": "OWL", "name": "블루아울 캐피털", "listed": true, "role": "capital" },
+    { "id": "@SoftBank", "name": "소프트뱅크그룹", "listed": false, "role": "capital" }
+  ],
+  "edges": [
+    {
+      "id": "nvda-openai-equity-2026",
+      "from": "NVDA", "to": "@OpenAI", "kind": "equity",
+      "what": "오픈AI의 1,100억 달러 신규 투자 라운드(투자 전 기업가치 7,300억 달러)에 엔비디아가 300억 달러 참여. 오픈AI는 같은 발표에서 베라 루빈 기반 추론 3GW·학습 2GW 사용을 밝힘",
+      "amount": 30, "unit": "usd-bn", "amountBasis": "투자 약정액(집행 시점 미공시)",
+      "announced": "2026-02-27", "dateBasis": "발표일", "status": "발표", "sourceKind": "company",
+      "sources": [
+        { "publisher": "OpenAI (StorageNewsletter 재게재)", "title": "Scaling AI for everyone", "url": "https://www.storagenewsletter.com/2026/03/12/scaling-ai-for-everyone/", "date": "2026-03-12" },
+        { "publisher": "Built In", "title": "OpenAI Pulls in $110B From Nvidia, Amazon and SoftBank at $730B Valuation", "url": "https://builtin.com/articles/openai-raises-110b-730b-valuation-20260227", "date": "2026-02-27" }
+      ]
+    },
+    {
+      "id": "nvda-sbenergy-ohio-guarantee",
+      "from": "NVDA", "to": "@SBEnergy", "onBehalfOf": "@OpenAI", "kind": "guarantee",
+      "what": "오하이오 PORTS-Pike 캠퍼스(오픈AI에 20년 임대, 엔비디아 장비 전용) 약 4.25GW의 토지·전력·건물 조성에 엔비디아가 신용 보증 제공. 건물이 가동 준비될 때마다 보증이 발효되며 첫 발효는 2029 회계연도 예상. 약 3.75~3.8GW 추가 보증 선택권 보유",
+      "amount": 105, "unit": "usd-bn", "amountBasis": "보증 최대 한도(단계적 발효, 2026-10-25 기준 지급액 0)",
+      "announced": "2026-08-17", "dateBasis": "발표일", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "NVIDIA (SEC 10-Q)", "title": "Form 10-Q for the quarter ended July 26, 2026", "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm", "date": "2026-08-26" },
+        { "publisher": "NVIDIA (SEC 8-K Exhibit)", "title": "CFO Commentary on Third Quarter Fiscal 2027 Results", "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000088/q3fy27cfocommentary.htm", "date": "2026-11-17" },
+        { "publisher": "NVIDIA", "title": "NVIDIA Guarantees SB Energy's PORTS-Pike Technology Campus in Ohio to Exclusively Host NVIDIA AI Compute", "url": "https://nvidianews.nvidia.com/news/nvidia-guarantees-sb-energy-s-ports-pike-technology-campus-in-ohio-to-exclusively-host-nvidia-ai-compute", "date": "2026-08-17" }
+      ]
+    },
+    {
+      "id": "nvda-sbenergy-equity",
+      "from": "NVDA", "to": "@SBEnergy", "kind": "equity",
+      "what": "엔비디아가 SB에너지에 15억 달러 지분 투자. 기존 투자자는 소프트뱅크그룹과 오픈AI",
+      "amount": 1.5, "unit": "usd-bn", "amountBasis": "투자 약정액",
+      "announced": "2026-08-17", "dateBasis": "발표일", "status": "발표", "sourceKind": "company",
+      "sources": [
+        { "publisher": "NVIDIA", "title": "NVIDIA Guarantees SB Energy's PORTS-Pike Technology Campus in Ohio to Exclusively Host NVIDIA AI Compute", "url": "https://nvidianews.nvidia.com/news/nvidia-guarantees-sb-energy-s-ports-pike-technology-campus-in-ohio-to-exclusively-host-nvidia-ai-compute", "date": "2026-08-17" }
+      ]
+    },
+    {
+      "id": "amzn-openai-equity",
+      "from": "AMZN", "to": "@OpenAI", "kind": "equity",
+      "what": "아마존이 오픈AI 시리즈 C 우선주 500억 달러 매입. 1분기 150억 달러, 2분기 137억 달러, 3분기 남은 213억 달러 집행으로 약정 전액 완료",
+      "amount": 50, "unit": "usd-bn", "amountBasis": "집행액(2026-09-30 장부 기준)",
+      "announced": "2026-02-27", "dateBasis": "발표일", "status": "완료", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Amazon (SEC 10-Q)", "title": "Form 10-Q for the quarter ended September 30, 2026", "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000040/amzn-20260930.htm", "date": "2026-10-30" },
+        { "publisher": "Amazon", "title": "OpenAI and Amazon announce strategic partnership", "url": "https://aboutamazon.com/news/aws/amazon-open-ai-strategic-partnership-investment", "date": "2026-02-27" }
+      ]
+    },
+    {
+      "id": "openai-aws-38bn",
+      "from": "@OpenAI", "to": "AMZN", "kind": "cloud-commit",
+      "what": "오픈AI가 AWS 인프라 사용에 380억 달러 약정. 7년에 걸쳐 확대, 전체 용량은 2026년 말 이전 배치 목표",
+      "amount": 38, "unit": "usd-bn", "amountBasis": "약정 총액",
+      "announced": "2025-11-03", "dateBasis": "발표일", "status": "집행 중", "sourceKind": "company",
+      "sources": [
+        { "publisher": "Amazon", "title": "AWS and OpenAI announce multi-year strategic partnership", "url": "https://www.aboutamazon.com/news/aws/aws-open-ai-workloads-compute-infrastructure", "date": "2025-11-03" }
+      ]
+    },
+    {
+      "id": "openai-aws-100bn-expansion",
+      "from": "@OpenAI", "to": "AMZN", "kind": "cloud-commit",
+      "what": "기존 380억 달러 AWS 약정을 8년간 1,000억 달러 확대. 트레이니엄3·4 기반 약 2GW 용량 사용",
+      "amount": 100, "unit": "usd-bn", "amountBasis": "증액분 약정(기존 380억 달러 별도)",
+      "announced": "2026-02-27", "dateBasis": "발표일", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Amazon (SEC 10-Q)", "title": "Form 10-Q for the quarter ended September 30, 2026", "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000040/amzn-20260930.htm", "date": "2026-10-30" },
+        { "publisher": "Amazon", "title": "OpenAI and Amazon announce strategic partnership", "url": "https://aboutamazon.com/news/aws/amazon-open-ai-strategic-partnership-investment", "date": "2026-02-27" }
+      ]
+    },
+    {
+      "id": "softbank-openai-followon",
+      "from": "@SoftBank", "to": "@OpenAI", "kind": "equity",
+      "what": "소프트뱅크그룹이 비전펀드2를 통해 오픈AI에 300억 달러 추가 투자(100억 달러씩 3회, 2026-04-01·07-01·10-01 집행). 누적 투자 646억 달러, 지분 약 13%",
+      "amount": 30, "unit": "usd-bn", "amountBasis": "집행액(추가 투자분, 누적 646억 달러)",
+      "announced": "2026-02-27", "dateBasis": "발표일", "status": "완료", "sourceKind": "company",
+      "sources": [
+        { "publisher": "SoftBank Group", "title": "Follow-on Investments in OpenAI", "url": "https://group.softbank/en/news/press/20260227", "date": "2026-02-27" },
+        { "publisher": "SoftBank Group", "title": "Execution of Follow-on Investment (Third Tranche) in OpenAI", "url": "https://group.softbank/en/news/press/20261001", "date": "2026-10-01" }
+      ]
+    },
+    {
+      "id": "msft-openai-equity",
+      "from": "MSFT", "to": "@OpenAI", "kind": "equity",
+      "what": "마이크로소프트가 오픈AI 지분을 지분법으로 보유(전환 기준 약 24%). 총 투자 약정 130억 달러 중 120억 달러 집행. 2025-10 재편 발표 당시 지분은 약 27%",
+      "amount": 13, "unit": "usd-bn", "amountBasis": "총 투자 약정(2026-09-30 기준 집행 120억 달러)",
+      "announced": "2025-10-28", "dateBasis": "재편 발표일(수치는 2026-09-30 공시)", "status": "집행 중", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Microsoft (SEC 10-Q)", "title": "Form 10-Q for the quarter ended September 30, 2026", "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526436133/msft-20260930.htm", "date": "2026-10-28" },
+        { "publisher": "Microsoft", "title": "The next chapter of the Microsoft–OpenAI partnership", "url": "https://blogs.microsoft.com/blog/2025/10/28/the-next-chapter-of-the-microsoft-openai-partnership/", "date": "2025-10-28" }
+      ]
+    },
+    {
+      "id": "openai-azure-250bn",
+      "from": "@OpenAI", "to": "MSFT", "kind": "cloud-commit",
+      "what": "오픈AI가 애저 서비스 2,500억 달러 추가 구매 약정. 마이크로소프트는 컴퓨팅 우선협상권을 포기",
+      "amount": 250, "unit": "usd-bn", "amountBasis": "추가 구매 약정(기간 미공시)",
+      "announced": "2025-10-28", "dateBasis": "발표일", "status": "계약 체결", "sourceKind": "company",
+      "sources": [
+        { "publisher": "Microsoft", "title": "The next chapter of the Microsoft–OpenAI partnership", "url": "https://blogs.microsoft.com/blog/2025/10/28/the-next-chapter-of-the-microsoft-openai-partnership/", "date": "2025-10-28" }
+      ]
+    },
+    {
+      "id": "openai-oracle-cloud",
+      "from": "@OpenAI", "to": "ORCL", "kind": "cloud-commit",
+      "what": "오픈AI가 2027년부터 5년간 오라클 컴퓨팅 약 3,000억 달러어치를 구매하는 계약을 맺었다는 보도(4.5GW). 오라클 공시는 상대방을 밝히지 않음",
+      "amount": 300, "unit": "usd-bn", "amountBasis": "보도된 계약 총액(회사 미확인)",
+      "announced": "2025-09-11", "dateBasis": "보도일", "status": "보도", "sourceKind": "report",
+      "sources": [
+        { "publisher": "The Decoder (WSJ 보도 인용)", "title": "OpenAI signs $300 billion cloud contract with Oracle, according to WSJ", "url": "https://the-decoder.com/openai-signs-300-billion-cloud-contract-with-oracle-according-to-wsj/", "date": "2025-09-11" }
+      ]
+    },
+    {
+      "id": "openai-amd-6gw",
+      "from": "@OpenAI", "to": "AMD", "kind": "purchase",
+      "what": "오픈AI가 여러 세대에 걸쳐 AMD 인스팅트 GPU 6GW 배치에 합의. 첫 1GW(MI450)는 2026년 하반기 시작 예정",
+      "amount": 6, "unit": "gw", "amountBasis": "배치 목표 용량(금액 미공시)",
+      "announced": "2025-10-06", "dateBasis": "발표일", "status": "계약 체결", "sourceKind": "company",
+      "sources": [
+        { "publisher": "AMD", "title": "AMD and OpenAI Announce Strategic Partnership to Deploy 6 Gigawatts of AMD GPUs", "url": "https://newsroom.amd.com/news/amd-and-openai-announce-strategic-partnership-to-d/", "date": "2025-10-06" }
+      ]
+    },
+    {
+      "id": "amd-openai-warrant",
+      "from": "AMD", "to": "@OpenAI", "kind": "equity",
+      "what": "AMD가 오픈AI에 자사 보통주 최대 1억6천만 주 워런트 발행. 첫 1GW 배치 때 첫 회차가 확정되고, 6GW로 갈수록 나머지가 확정되며 AMD 주가 목표 달성도 조건",
+      "amount": null, "unit": null, "amountBasis": "주식 1억6천만 주 워런트(금액 아님, 마일스톤 연동)",
+      "announced": "2025-10-06", "dateBasis": "발표일", "status": "계약 체결", "sourceKind": "company",
+      "sources": [
+        { "publisher": "AMD", "title": "AMD and OpenAI Announce Strategic Partnership to Deploy 6 Gigawatts of AMD GPUs", "url": "https://newsroom.amd.com/news/amd-and-openai-announce-strategic-partnership-to-d/", "date": "2025-10-06" },
+        { "publisher": "AMD (SEC 10-Q)", "title": "Form 10-Q for the quarter ended September 26, 2026", "url": "https://www.sec.gov/Archives/edgar/data/2488/000000248826000191/amd-20260926.htm", "date": "2026-11-04" }
+      ]
+    },
+    {
+      "id": "openai-avgo-10gw",
+      "from": "@OpenAI", "to": "AVGO", "kind": "purchase",
+      "what": "오픈AI가 설계한 가속기와 브로드컴 네트워킹을 묶은 랙 10GW 배치 텀시트 체결. 2026년 하반기 시작, 2029년 말 완료 목표",
+      "amount": 10, "unit": "gw", "amountBasis": "배치 목표 용량(텀시트, 금액 미공시)",
+      "announced": "2025-10-13", "dateBasis": "발표일", "status": "발표", "sourceKind": "company",
+      "sources": [
+        { "publisher": "Broadcom (MarketScreener 재게재)", "title": "OpenAI and Broadcom announce strategic collaboration to deploy 10 gigawatts of OpenAI-designed AI accelerators", "url": "https://in.marketscreener.com/news/openai-and-broadcom-announce-strategic-collaboration-to-deploy-10-gigawatts-of-openai-designed-ai-ac-ce7d5ad8de89f225", "date": "2025-10-13" }
+      ]
+    },
+    {
+      "id": "openai-crwv-22bn",
+      "from": "@OpenAI", "to": "CRWV", "kind": "cloud-commit",
+      "what": "오픈AI와 코어위브의 누적 계약 최대 약 224억 달러(2025-03 최대 119억, 2025-05 최대 40억, 2025-09 최대 65억 달러)",
+      "amount": 22.4, "unit": "usd-bn", "amountBasis": "누적 계약 상한",
+      "announced": "2025-09-25", "dateBasis": "마지막 증액 발표일", "status": "집행 중", "sourceKind": "company",
+      "sources": [
+        { "publisher": "CoreWeave", "title": "CoreWeave Expands Agreement with OpenAI by up to $6.5B", "url": "https://www.coreweave.com/news/coreweave-expands-agreement-with-openai-by-up-to-6-5b", "date": "2025-09-25" }
+      ]
+    },
+    {
+      "id": "openai-cbrs-750mw",
+      "from": "@OpenAI", "to": "CBRS", "kind": "cloud-commit",
+      "what": "오픈AI가 세레브라스 추론 컴퓨팅 750MW를 3~4년(최대 5년) 구매하기로 계약(2025-12 기본계약). 1.25GW 추가 구매 선택권으로 2030년까지 최대 2GW",
+      "amount": 0.75, "unit": "gw", "amountBasis": "구매 확정 용량(세레브라스 잔여 이행의무 254억 달러의 상당 부분)",
+      "announced": "2026-01-14", "dateBasis": "발표일(기본계약 체결은 2025-12)", "status": "집행 중", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Cerebras (SEC 10-Q)", "title": "Form 10-Q for the quarter ended June 30, 2026", "url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026056357/cbrs-20260630.htm", "date": "2026-08-12" }
+      ]
+    },
+    {
+      "id": "openai-cbrs-loan",
+      "from": "@OpenAI", "to": "CBRS", "kind": "debt",
+      "what": "오픈AI가 세레브라스의 설비 구축 자금으로 약 10억 달러 담보부 대출(운전자본 대출) 실행. 세레브라스는 오픈AI에 클래스 N 보통주 워런트 발행",
+      "amount": 1.0, "unit": "usd-bn", "amountBasis": "집행액",
+      "announced": "2026-01-14", "dateBasis": "발표일(대출 집행 2026-01)", "status": "완료", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Cerebras (SEC 10-Q)", "title": "Form 10-Q for the quarter ended June 30, 2026", "url": "https://www.sec.gov/Archives/edgar/data/2021728/000162828026056357/cbrs-20260630.htm", "date": "2026-08-12" }
+      ]
+    },
+    {
+      "id": "nvda-crwv-capacity-backstop",
+      "from": "NVDA", "to": "CRWV", "kind": "cloud-commit",
+      "what": "엔비디아가 코어위브와 초기 63억 달러 주문을 맺고, 2032-04-13까지 팔리지 않은 잔여 용량을 사들일 의무를 짐",
+      "amount": 6.3, "unit": "usd-bn", "amountBasis": "초기 주문 가치",
+      "announced": "2025-09-09", "dateBasis": "체결일", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "CoreWeave (SEC 8-K)", "title": "Form 8-K, Item 1.01", "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962825000047/crwv-20250909.htm", "date": "2025-09-15" }
+      ]
+    },
+    {
+      "id": "nvda-crwv-equity",
+      "from": "NVDA", "to": "CRWV", "kind": "equity",
+      "what": "엔비디아가 코어위브 클래스 A 보통주 22,935,780주를 주당 87.20달러, 총 20억 달러에 사모 매입. 2030년까지 5GW 이상 AI 팩토리 구축 협력 틀도 체결",
+      "amount": 2.0, "unit": "usd-bn", "amountBasis": "집행액",
+      "announced": "2026-01-23", "dateBasis": "체결·발행일", "status": "완료", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "CoreWeave (SEC 8-K)", "title": "Form 8-K, Item 3.02", "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000044/crwv-20260123.htm", "date": "2026-01-26" }
+      ]
+    },
+    {
+      "id": "meta-crwv-14bn",
+      "from": "META", "to": "CRWV", "kind": "cloud-commit",
+      "what": "메타가 코어위브에 2031-12-14까지 최대 약 142억 달러 지급 약정(2032년까지 확대 선택권)",
+      "amount": 14.2, "unit": "usd-bn", "amountBasis": "약정 상한",
+      "announced": "2025-09-25", "dateBasis": "체결일", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "CoreWeave (SEC 8-K)", "title": "Form 8-K, Item 1.01", "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962825000050/crwv-20250925.htm", "date": "2025-09-30" }
+      ]
+    },
+    {
+      "id": "meta-crwv-21bn",
+      "from": "META", "to": "CRWV", "kind": "cloud-commit",
+      "what": "메타가 코어위브와 약 210억 달러 규모 확대 계약. 2032년 12월까지 AI 클라우드 용량 사용",
+      "amount": 21, "unit": "usd-bn", "amountBasis": "계약 가치(기존 142억 달러 별도)",
+      "announced": "2026-04-09", "dateBasis": "발표일", "status": "계약 체결", "sourceKind": "company",
+      "sources": [
+        { "publisher": "CoreWeave", "title": "CoreWeave and Meta Announce $21 Billion Expanded AI Infrastructure Agreement", "url": "https://www.coreweave.com/news/coreweave-and-meta-announce-21-billion-expanded-ai-infrastructure-agreement", "date": "2026-04-09" }
+      ]
+    },
+    {
+      "id": "msft-nbis-17bn",
+      "from": "MSFT", "to": "NBIS", "kind": "cloud-commit",
+      "what": "마이크로소프트가 네비우스 뉴저지 바인랜드 데이터센터의 전용 GPU 용량을 5년간 사용. 2031년까지 약 174억 달러, 추가 구매 시 약 194억 달러",
+      "amount": 17.4, "unit": "usd-bn", "amountBasis": "계약 총액(추가 구매 포함 시 194억 달러)",
+      "announced": "2025-09-08", "dateBasis": "체결일", "status": "집행 중", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Nebius Group (SEC 6-K)", "title": "Commercial Agreement with Microsoft", "url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465925088312/tm2525580d1_6k.htm", "date": "2025-09-08" }
+      ]
+    },
+    {
+      "id": "meta-nbis-3bn",
+      "from": "META", "to": "NBIS", "kind": "cloud-commit",
+      "what": "메타가 네비우스 전용 GPU 클러스터 2개를 5년간 사용하는 첫 주문. 2025-12·2026-02 두 차례 배치",
+      "amount": 2.9, "unit": "usd-bn", "amountBasis": "주문 계약 총액",
+      "announced": "2025-11-01", "dateBasis": "체결일", "status": "집행 중", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Nebius Group (SEC 6-K)", "title": "Commercial Agreement with Meta", "url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465925109803/tm2530882d2_6k.htm", "date": "2025-11-12" }
+      ]
+    },
+    {
+      "id": "meta-nbis-27bn",
+      "from": "META", "to": "NBIS", "kind": "cloud-commit",
+      "what": "메타와 네비우스의 인프라 서비스 계약 최대 약 270억 달러. 전용 클러스터 주문 120억 달러(2027년 초부터 배치) + 특정 클러스터의 미판매 용량을 메타가 사들이는 주문",
+      "amount": 27, "unit": "usd-bn", "amountBasis": "계약 상한(확정 전용 주문 120억 달러, 나머지는 미판매분 매입 의무)",
+      "announced": "2026-03-13", "dateBasis": "체결일", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Nebius Group (SEC 6-K)", "title": "Infrastructure Service Agreement with Meta", "url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926027886/tm268879d1_6k.htm", "date": "2026-03-16" }
+      ]
+    },
+    {
+      "id": "msft-iren-9bn",
+      "from": "MSFT", "to": "IREN", "kind": "cloud-commit",
+      "what": "마이크로소프트가 아이렌 'Horizon' 데이터센터 4개 시설의 GB300 GPU 용량을 2031년까지 사용(약 200MW). 계약가의 20%는 선지급",
+      "amount": 9.7, "unit": "usd-bn", "amountBasis": "계약 총액",
+      "announced": "2025-11-02", "dateBasis": "체결일", "status": "집행 중", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "IREN (SEC 8-K)", "title": "Commercial Agreement with Microsoft", "url": "https://www.sec.gov/Archives/edgar/data/1878848/000114036125040072/ef20058139_8k.htm", "date": "2025-11-03" }
+      ]
+    },
+    {
+      "id": "nvda-intc-equity",
+      "from": "NVDA", "to": "INTC", "kind": "equity",
+      "what": "엔비디아가 인텔 보통주 214,776,632주를 주당 23.28달러, 총 50억 달러에 사모 매입(2025-09-15 계약, 2025-12-26 발행 완료)",
+      "amount": 5.0, "unit": "usd-bn", "amountBasis": "집행액",
+      "announced": "2025-09-15", "dateBasis": "계약일", "status": "완료", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Intel (SEC 8-K)", "title": "Form 8-K, Item 3.02 (Securities Purchase Agreement)", "url": "https://www.sec.gov/Archives/edgar/data/50863/000005086325000155/intc-20250915.htm", "date": "2025-09-18" },
+        { "publisher": "Intel (SEC 8-K)", "title": "Form 8-K, Item 3.02 (closing)", "url": "https://www.sec.gov/Archives/edgar/data/50863/000005086325000204/intc-20251226.htm", "date": "2025-12-29" }
+      ]
+    },
+    {
+      "id": "googl-wulf-fluidstack-backstop",
+      "from": "GOOGL", "to": "WULF", "onBehalfOf": "@Fluidstack", "kind": "guarantee",
+      "what": "테라울프 레이크 마리너 캠퍼스의 플루이드스택 임대 의무를 구글이 보증. CB-5(160MW) 추가로 보증 총액 약 32억 달러, 대가로 받은 워런트 포함 구글 지분 약 14%",
+      "amount": 3.2, "unit": "usd-bn", "amountBasis": "보증 총액(프로젝트 부채 조달 지원)",
+      "announced": "2025-08-18", "dateBasis": "증액 발표일(최초 보증은 2025-08-14)", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "TeraWulf (SEC 8-K)", "title": "Form 8-K, Item 1.01 (Fluidstack Lease, Google Recognition Agreement)", "url": "https://www.sec.gov/Archives/edgar/data/1083301/000110465925079463/tm2523651d3_8k.htm", "date": "2025-08-18" },
+        { "publisher": "TeraWulf (SEC 8-K Exhibit 99.1)", "title": "TeraWulf Announces Fluidstack Expansion with 160 MW CB-5 Lease at Lake Mariner", "url": "https://www.sec.gov/Archives/edgar/data/1083301/000110465925079463/tm2523651d3_ex99-1.htm", "date": "2025-08-18" }
+      ]
+    },
+    {
+      "id": "googl-cifr-fluidstack-backstop",
+      "from": "GOOGL", "to": "CIFR", "onBehalfOf": "@Fluidstack", "kind": "guarantee",
+      "what": "사이퍼 바버 레이크(168MW, 10년 임대 약 30억 달러)의 플루이드스택 임대 의무 14억 달러를 구글이 보증하고 사이퍼 지분 약 5.4% 워런트 수령",
+      "amount": 1.4, "unit": "usd-bn", "amountBasis": "보증액",
+      "announced": "2025-09-25", "dateBasis": "발표일(보증 계약 2025-09-24)", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Cipher Mining (SEC 8-K)", "title": "Form 8-K, Item 1.01 (Fluidstack Lease, Recognition Agreement)", "url": "https://www.sec.gov/Archives/edgar/data/1819989/000095010325012168/dp234624_8k.htm", "date": "2025-09-25" },
+        { "publisher": "Cipher Mining (SEC 8-K Exhibit 99.1)", "title": "Cipher Mining Signs 168 MW, 10-Year AI Hosting Agreement with Fluidstack", "url": "https://www.sec.gov/Archives/edgar/data/1819989/000095010325012168/dp234624_ex9901.htm", "date": "2025-09-25" }
+      ]
+    },
+    {
+      "id": "googl-hut-fluidstack-backstop",
+      "from": "GOOGL", "to": "HUT", "onBehalfOf": "@Fluidstack", "kind": "guarantee",
+      "what": "헛 8 리버벤드 캠퍼스(루이지애나) 245MW 15년 임대의 플루이드스택 임대료 전액과 일부 부대 의무를 구글이 보증. 기본 임대 총액 70억 달러, 갱신 시 최대 177억 달러",
+      "amount": 7.0, "unit": "usd-bn", "amountBasis": "보증 대상 15년 기본 임대 총액(보증 한도 별도 미공시)",
+      "announced": "2025-12-17", "dateBasis": "발표일", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Hut 8 (SEC 8-K)", "title": "Form 8-K, Item 8.01", "url": "https://www.sec.gov/Archives/edgar/data/1964789/000110465925122052/hut-20251217x8k.htm", "date": "2025-12-17" },
+        { "publisher": "Hut 8 (SEC 8-K Exhibit 99.1)", "title": "Hut 8 Signs 15-Year, 245 MW AI Data Center Lease at River Bend Campus", "url": "https://www.sec.gov/Archives/edgar/data/1964789/000110465925122052/hut-20251217xex99d1.htm", "date": "2025-12-17" }
+      ]
+    },
+    {
+      "id": "googl-wulf-anthropic-backstop",
+      "from": "GOOGL", "to": "WULF", "onBehalfOf": "@Anthropic", "kind": "guarantee",
+      "what": "테라울프 켄터키 호스빌 캠퍼스(약 401MW, 앤트로픽 20년 임대)의 앤트로픽 임대 의무를 구글이 보증. 앤트로픽이 투자등급 신용을 일정 기간 유지하면 보증 종료",
+      "amount": 19, "unit": "usd-bn", "amountBasis": "보증 대상 임대 약정 총액(보증 한도 미공시)",
+      "announced": "2026-11-04", "dateBasis": "체결일", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "TeraWulf (SEC 8-K)", "title": "Form 8-K, Item 1.01 (Google Credit Support Agreements)", "url": "https://www.sec.gov/Archives/edgar/data/1083301/000162828026069810/wulf-20261104.htm", "date": "2026-11-04" },
+        { "publisher": "TeraWulf (SEC 8-K Exhibit 99.1)", "title": "TeraWulf Secures Google Credit Backstop for Project Financing in Support of $19 Billion Anthropic Lease", "url": "https://www.sec.gov/Archives/edgar/data/1083301/000162828026069810/wulfhawesvillecsaandepcmpr.htm", "date": "2026-11-04" }
+      ]
+    },
+    {
+      "id": "owl-meta-hyperion-jv",
+      "from": "OWL", "to": "META", "kind": "equity",
+      "what": "블루아울 운용 펀드가 메타 루이지애나 Hyperion 데이터센터 합작법인 지분 80%를 갖고 현금 약 70억 달러 출자. 메타는 20% 보유, 약 30억 달러 일회성 배분 수령, 완공 후 임차하며 운영 첫 16년 잔존가치보증 제공",
+      "amount": 27, "unit": "usd-bn", "amountBasis": "합작법인 총 개발비(지분율대로 분담 약정, 블루아울 현금 출자 약 70억 달러)",
+      "announced": "2025-10-21", "dateBasis": "체결일", "status": "집행 중", "sourceKind": "company",
+      "sources": [
+        { "publisher": "Meta", "title": "Meta Announces Joint Venture With Funds Managed by Blue Owl Capital to Develop Hyperion Data Center", "url": "https://about.fb.com/news/2025/10/meta-blue-owl-capital-develop-hyperion-data-center/", "date": "2025-10-21" },
+        { "publisher": "Meta (SEC 10-Q)", "title": "Form 10-Q for the quarter ended September 30, 2026", "url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026066773/meta-20260930.htm", "date": "2026-10-22" }
+      ]
+    },
+    {
+      "id": "anthropic-googl-cloud",
+      "from": "@Anthropic", "to": "GOOGL", "kind": "cloud-commit",
+      "what": "앤트로픽이 구글과 CSP 호스팅 계약(2026-03 체결, 2026-10까지 수정)으로 2026-04~2033-07 최소 약 1,213억 달러 지출 약정. 미달 시 차액 정산. 별도로 2028~2031년 TPU 추가 조달(추정 1,250억~1,500억 달러, 고정액 없음)",
+      "amount": 121.3, "unit": "usd-bn", "amountBasis": "최소 지출 약정(추가 TPU 조달 추정액 제외)",
+      "announced": "2026-11-17", "dateBasis": "이번 검토에서 확인한 공시일(S-1/A 3차)", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Anthropic (SEC S-1/A)", "title": "Amendment No. 3 to Form S-1", "url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026074338/anthropicpbc-sx1ax3.htm", "date": "2026-11-17" }
+      ]
+    },
+    {
+      "id": "anthropic-amzn-cloud",
+      "from": "@Anthropic", "to": "AMZN", "kind": "cloud-commit",
+      "what": "앤트로픽이 2026-05~2036-04 AWS에 최소 1,100억 달러 지출 약정(미달 시 차액 정산). 발표 당시 표현은 10년간 1,000억 달러 이상, 최대 5GW 신규 용량",
+      "amount": 110, "unit": "usd-bn", "amountBasis": "최소 지출 약정",
+      "announced": "2026-04-20", "dateBasis": "발표일", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Anthropic (SEC S-1/A)", "title": "Amendment No. 3 to Form S-1", "url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026074338/anthropicpbc-sx1ax3.htm", "date": "2026-11-17" },
+        { "publisher": "Anthropic", "title": "Anthropic and Amazon expand collaboration for up to 5 gigawatts of new compute", "url": "https://www.anthropic.com/news/anthropic-amazon-compute", "date": "2026-04-20" }
+      ]
+    },
+    {
+      "id": "anthropic-msft-cloud",
+      "from": "@Anthropic", "to": "MSFT", "kind": "cloud-commit",
+      "what": "앤트로픽이 마이크로소프트와 2025-11 계약(2026-02~11 수정)으로 2026-11~2033-06 최소 472억~최대 492억 달러 지출 약정. 2025-11 발표 당시 애저 300억 달러",
+      "amount": 47.2, "unit": "usd-bn", "amountBasis": "최소 지출 약정(상한 492억 달러)",
+      "announced": "2025-11-18", "dateBasis": "최초 발표일(금액은 2026-11 공시 기준)", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Anthropic (SEC S-1/A)", "title": "Amendment No. 3 to Form S-1", "url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026074338/anthropicpbc-sx1ax3.htm", "date": "2026-11-17" },
+        { "publisher": "Microsoft", "title": "Microsoft, NVIDIA and Anthropic announce strategic partnerships", "url": "https://blogs.microsoft.com/blog/2025/11/18/microsoft-nvidia-and-anthropic-announce-strategic-partnerships/", "date": "2025-11-18" }
+      ]
+    },
+    {
+      "id": "anthropic-spcx-compute",
+      "from": "@Anthropic", "to": "SPCX", "kind": "cloud-commit",
+      "what": "앤트로픽이 스페이스X 자회사 SpaceX.AI(옛 xAI)와 2026-05~10 계약으로 엔비디아 GPU 기반 컴퓨팅을 2029년까지 최대 1,205억 달러 사용. 전량 인도 후 월 약 31억 달러, 2027-01·03 초기 해지불가 기간 이후 90일 통지로 해지 가능",
+      "amount": 120.5, "unit": "usd-bn", "amountBasis": "지출 상한(초기 기간 이후 해지 가능)",
+      "announced": "2026-11-17", "dateBasis": "이번 검토에서 확인한 공시일(S-1/A 3차)", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Anthropic (SEC S-1/A)", "title": "Amendment No. 3 to Form S-1", "url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026074338/anthropicpbc-sx1ax3.htm", "date": "2026-11-17" }
+      ]
+    },
+    {
+      "id": "anthropic-avgo-tpu-lease",
+      "from": "@Anthropic", "to": "AVGO", "kind": "lease",
+      "what": "앤트로픽이 브로드컴과 5년 장비 임대(TPU 기반 컴퓨팅)를 맺고 이자 제외 임대료 총 약 1,612억 달러 지급. 일부 권리는 금융사로 양도. 브로드컴 8-K는 2027년부터 앤트로픽이 브로드컴을 통해 약 3.5GW 사용한다고 공시",
+      "amount": 161.2, "unit": "usd-bn", "amountBasis": "임대료 총액(이자 제외, 리스 기간 합계)",
+      "announced": "2026-04-06", "dateBasis": "브로드컴 8-K 기준일(임대 계약은 2026-03, 금액은 S-1/A 공시)", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Anthropic (SEC S-1/A)", "title": "Amendment No. 3 to Form S-1", "url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026074338/anthropicpbc-sx1ax3.htm", "date": "2026-11-17" },
+        { "publisher": "Broadcom (SEC 8-K)", "title": "Form 8-K (Anthropic TPU capacity, Google agreements)", "url": "https://www.sec.gov/Archives/edgar/data/1730168/000119312526144028/d87999d8k.htm", "date": "2026-04-06" }
+      ]
+    },
+    {
+      "id": "avgo-anthropic-notes",
+      "from": "AVGO", "to": "@Anthropic", "kind": "debt",
+      "what": "앤트로픽은 브로드컴 장비 임대료를 치르기 위해 브로드컴(또는 지정 금융사)에 최대 420억 달러 전환사채를 발행할 수 있는 계약(2026-03)을 보유. 2026-09-30 기준 발행액 없음",
+      "amount": 42, "unit": "usd-bn", "amountBasis": "발행 한도(미집행)",
+      "announced": "2026-11-17", "dateBasis": "이번 검토에서 확인한 공시일(계약 2026-03)", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Anthropic (SEC S-1/A)", "title": "Amendment No. 3 to Form S-1", "url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026074338/anthropicpbc-sx1ax3.htm", "date": "2026-11-17" }
+      ]
+    },
+    {
+      "id": "anthropic-amd-helios",
+      "from": "@Anthropic", "to": "AMD", "kind": "purchase",
+      "what": "앤트로픽이 AMD와 하드웨어 공급 계약(2026-07 발효)을 맺고 2027년 첫 물량을 AMD Helios 랙으로 확보하기로 약정. 고정 금액은 없고, 초기 물량 전량 조달 시 지출 200억 달러 초과 예상",
+      "amount": 20, "unit": "usd-bn", "amountBasis": "예상 지출 하한(고정 약정 아님)",
+      "announced": "2026-11-17", "dateBasis": "이번 검토에서 확인한 공시일(계약 2026-07)", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Anthropic (SEC S-1/A)", "title": "Amendment No. 3 to Form S-1", "url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026074338/anthropicpbc-sx1ax3.htm", "date": "2026-11-17" }
+      ]
+    },
+    {
+      "id": "anthropic-nscale-gpu",
+      "from": "@Anthropic", "to": "@Nscale", "kind": "cloud-commit",
+      "what": "앤트로픽이 엔스케일과 엔비디아 GPU 서비스 계약(2026-08)으로 2033년까지 최대 약 446억 달러 지출. 용량이 인도·수락될 때만 요금 발생, 엔스케일은 GPU·데이터센터 자금 조달 의무",
+      "amount": 44.6, "unit": "usd-bn", "amountBasis": "지출 상한(인도분만 과금)",
+      "announced": "2026-11-17", "dateBasis": "이번 검토에서 확인한 공시일(계약 2026-08)", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Anthropic (SEC S-1/A)", "title": "Amendment No. 3 to Form S-1", "url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026074338/anthropicpbc-sx1ax3.htm", "date": "2026-11-17" }
+      ]
+    },
+    {
+      "id": "anthropic-lambda-gpu",
+      "from": "@Anthropic", "to": "@Lambda", "kind": "cloud-commit",
+      "what": "앤트로픽이 람다와 2026-05·06·08 계약으로 2034년까지 약 413억 달러 지출. 이 중 2026-08 계약 약 349억 달러는 람다가 기한 내 시설 임대를 확보하지 못해 현재 양측 모두 해지 가능(해지 통지는 없음)",
+      "amount": 41.3, "unit": "usd-bn", "amountBasis": "지출 약정 합계(349억 달러는 해지 가능 상태)",
+      "announced": "2026-11-17", "dateBasis": "이번 검토에서 확인한 공시일(계약 2026-05~08)", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Anthropic (SEC S-1/A)", "title": "Amendment No. 3 to Form S-1", "url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026074338/anthropicpbc-sx1ax3.htm", "date": "2026-11-17" }
+      ]
+    },
+    {
+      "id": "amzn-anthropic-equity",
+      "from": "AMZN", "to": "@Anthropic", "kind": "equity",
+      "what": "아마존이 앤트로픽 전환사채 80억 달러(2023~2025)와 2026년 2분기 우선주 100억 달러(시리즈 G 50억·H 50억)를 매입. 상장 등 유동성 이벤트 후 30개월까지 쓰는 최대 200억 달러 한도 중 150억 달러 남음(컴퓨팅 인도 마일스톤 연동)",
+      "amount": 18, "unit": "usd-bn", "amountBasis": "집행액 합계(잔여 한도 150억 달러 별도)",
+      "announced": "2026-04-20", "dateBasis": "최근 증액 발표일", "status": "집행 중", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Amazon (SEC 10-Q)", "title": "Form 10-Q for the quarter ended September 30, 2026", "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000040/amzn-20260930.htm", "date": "2026-10-30" },
+        { "publisher": "Anthropic", "title": "Anthropic and Amazon expand collaboration for up to 5 gigawatts of new compute", "url": "https://www.anthropic.com/news/anthropic-amazon-compute", "date": "2026-04-20" }
+      ]
+    },
+    {
+      "id": "googl-anthropic-equity",
+      "from": "GOOGL", "to": "@Anthropic", "kind": "equity",
+      "what": "구글이 2026-03-31 계약으로 2030년 말까지 앤트로픽 전환사채·무의결권주 최대 300억 달러 매입 한도 설정. 2026-05 시리즈 H 100억 달러 집행, 상장 동시 사모 100억 달러도 이 한도에서 차감. 그 전 2023~2024년 전환사채 약 33억 달러는 주식으로 전환",
+      "amount": 30, "unit": "usd-bn", "amountBasis": "2026년 매입 한도(집행 100억 달러, 상장 시 추가 100억 달러)",
+      "announced": "2026-03-31", "dateBasis": "계약일", "status": "집행 중", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Anthropic (SEC S-1/A)", "title": "Amendment No. 3 to Form S-1", "url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026074338/anthropicpbc-sx1ax3.htm", "date": "2026-11-17" }
+      ]
+    },
+    {
+      "id": "nvda-anthropic-equity",
+      "from": "NVDA", "to": "@Anthropic", "kind": "equity",
+      "what": "엔비디아가 앤트로픽 상장과 동시에 클래스 N 보통주 약 100억 달러(공모가 74달러 가정 시 135,135,135주)를 사모 매입하기로 약정. 같은 사모에 구글 100억, AMD 25억, 브로드컴·마이크론·마이크로소프트 각 10억, TSMC 5억 달러 참여(총 260억 달러). 2025-11 발표한 '최대 100억 달러' 투자와의 관계는 공시상 구분되지 않음",
+      "amount": 10, "unit": "usd-bn", "amountBasis": "상장 조건부 매입 약정",
+      "announced": "2026-11-17", "dateBasis": "이번 검토에서 확인한 공시일(S-1/A 3차)", "status": "계약 체결", "sourceKind": "filing",
+      "sources": [
+        { "publisher": "Anthropic (SEC S-1/A)", "title": "Amendment No. 3 to Form S-1", "url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026074338/anthropicpbc-sx1ax3.htm", "date": "2026-11-17" },
+        { "publisher": "Microsoft", "title": "Microsoft, NVIDIA and Anthropic announce strategic partnerships", "url": "https://blogs.microsoft.com/blog/2025/11/18/microsoft-nvidia-and-anthropic-announce-strategic-partnerships/", "date": "2025-11-18" }
+      ]
+    },
+    {
+      "id": "msft-anthropic-equity",
+      "from": "MSFT", "to": "@Anthropic", "kind": "equity",
+      "what": "마이크로소프트가 앤트로픽에 최대 50억 달러 투자 약정(2025-11). 앤트로픽은 2026-02 시리즈 G에 이 투자의 일부가 포함됐다고 밝혔고, 별도로 상장 동시 사모 10억 달러 약정",
+      "amount": 5, "unit": "usd-bn", "amountBasis": "약정 상한(집행액 미공시)",
+      "announced": "2025-11-18", "dateBasis": "발표일", "status": "집행 중", "sourceKind": "company",
+      "sources": [
+        { "publisher": "Microsoft", "title": "Microsoft, NVIDIA and Anthropic announce strategic partnerships", "url": "https://blogs.microsoft.com/blog/2025/11/18/microsoft-nvidia-and-anthropic-announce-strategic-partnerships/", "date": "2025-11-18" },
+        { "publisher": "Anthropic", "title": "Anthropic raises $30 billion in Series G funding at $380 billion post-money valuation", "url": "https://www.anthropic.com/news/anthropic-raises-30-billion-series-g-funding-380-billion-post-money-valuation", "date": "2026-02-12" }
+      ]
+    }
+  ]
+}

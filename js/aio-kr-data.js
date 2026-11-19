@@ -113,7 +113,7 @@ function _aioEnsureKrDataLoaded() {
 document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-kr-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'themes') initKoreaThemes();
-  if (e.detail === 'macro' || e.detail === 'technical') _aioEnsureKrDataLoaded();
+  if (e.detail === 'macro') _aioEnsureKrDataLoaded();
 });
 _aioPageBus.register('html-kr-live', 'aio:liveQuotes', function() {
   var activePage = document.querySelector('.page.active');

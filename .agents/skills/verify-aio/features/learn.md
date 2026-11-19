@@ -26,8 +26,9 @@ Preconditions:
 - **Title + shelf.** `h1.rl-title` = the principles title (`개념·분석`); shelf summary matches `/컬렉션/`.
 - **Search.** Fill `ROIC`; ≥1 result.
 - **Open a document.** Esc, open the selected group's contents fold, then click the first non-active `frame` TOC item; `.rl-main` changes, that item is active and keyboard reading focus moves into the document.
-- **Shelf.** Open the shelf, click chip `칼럼`: spine count equals the chip's count. Click the first spine: the card `h3` matches the spine label. Click `읽기`: the URL gains `chapter=`.
+- **Shelf.** Open the shelf, click chip `칼럼`: spine count equals the chip's count. Click the first spine: the card `h3` matches the spine label. Click `읽기`: the hash query gains `chapter=`.
 - **Atlas.** Tab `산업 지도` → title `산업 지도`.
+- **AI 지도.** TOC group head `AI 지도` (`.rl-nav-group-head[data-atlas-value="aimap"]`) → `.nmap--chain` with map tabs `밸류체인`, `데이터센터·전력` (and `자본순환` only while `public-data/atlas/capital-flows.json` has drawable deals). Layer 2 by keyboard (`.nmap-layer-open`, or the `.nmap-rows--layers` list below 744px) → hash gains `layer=2`; tab `데이터센터·전력` → `.nmap--dc`. Deep links: `#atlas?mode=aimap`, `&layer=<1-7>`, `&map=datacenter|capital`, `&node=<symbol|@private|stage id>`.
 - **Masters.** Tab `대가 보유 종목` → title `대가 보유 종목`; ≥1 manager TOC item.
 - **Proof.** `drive learn` evidence folder.
 

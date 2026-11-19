@@ -1,83 +1,227 @@
-// v59.74 (owner 2026-11-07): the 기술적 분석 screen opens on the three market ETFs — QQQ, SPY, IWM — as candle charts
-// with the base tier the stock chart carries (5~200 moving averages and their alignment, volume, volume profile, trend
-// areas), so the market's state and direction read at a glance. Short chips, no prose; each card opens the full chart.
-import { drawChart, ensureChartLibrary, openMarketChart } from './stock-chart.js';
-import { attachChartLayers } from './stock-chart-layers.js';
+// 기술적 분석's chart cards (owner 2026-11-19: "시장 지수와 대표 종목/대장주들을 분석해서 하나하나 보여줘야"). One card part for
+// both views: 시장 지수 passes the six indexes, 대표 종목 the stocks of one group. A card with a symbol draws its daily candles
+// with the base layers the stock chart carries; an index card whose bars did not arrive (or a Korean index, which has no
+// fund) draws the published closes as a line; a stock card without bars says so in one line and draws nothing. Whatever the
+// card draws is what it reads: its verdict, facts and raw table come from market-charts.js barsChartReading over those same
+// bars, the function and classifier the analysis slot uses when the card is opened there.
+import { drawChart, ensureChartLibrary } from './stock-chart.js';
+import { attachChartLayers, recentLogicalRange } from './stock-chart-layers.js';
 import { buildChartLayers } from '../../domain/technical/chart-layers.js';
 import { barsFromYahoo, completedBars } from '../../data/chart-bars.js';
+import { CHART_INDEXES, barsChartReading, indexChartReading, latestBreadth } from '../../domain/technical/market-charts.js';
+import { createTrendChart } from './trend-chart.js';
+import { kindFold, rawTable, setFoldBody } from './indicator-face.js';
 import { chartPalette } from './color-theme.js';
 import { el } from './dom.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
+import { shortDate } from '../../domain/content/date-labels.js';
 
-export const MARKET_CANDLES = Object.freeze([['QQQ', '나스닥100'], ['SPY', 'S&P 500'], ['IWM', '러셀2000']]);
 const CARD_PRICE_PX = 260;
+const whole = (value) => Math.round(value).toLocaleString('en-US');
+const isKorean = (symbol) => /\.K[SQ]$/i.test(String(symbol || ''));
+const priceOf = (symbol) => (isKorean(symbol) ? (value) => `₩${whole(value)}` : (value) => `$${value.toFixed(2)}`);
 
-// The section is built here and placed ahead of the index cards (#charts-indexes), so the shell stays unchanged.
-function marketSection(doc, page) {
-  let host = doc.getElementById('charts-candle-grid');
-  if (host) return host;
-  const section = el(doc, 'section', null, 'briefing-block charts-section');
-  section.id = 'charts-market-candles';
-  section.setAttribute('aria-labelledby', 'charts-candles-title');
-  const title = el(doc, 'h2', '시장 지수 일봉', 'briefing-h2');
-  title.id = 'charts-candles-title';
-  host = el(doc, 'div', null, 'charts-candle-grid');
-  host.id = 'charts-candle-grid';
-  section.append(title, host);
-  const anchor = doc.getElementById('charts-indexes');
-  if (anchor) anchor.insertAdjacentElement('beforebegin', section); else page?.append(section);
-  return host;
+/** The 시장 지수 cards: [field, label, fund] → card specs; `closes` names the history field a card can fall back to. */
+export const INDEX_CARD_SPECS = Object.freeze(CHART_INDEXES.map(([field, label, symbol]) => Object.freeze({ key: field, label, symbol, closes: field })));
+
+// Daily bars for every card on the page go through one queue: at most four requests in flight, whichever view asked.
+const MAX_LOADS = 4;
+let inFlight = 0;
+const waiting = [];
+function queued(task) {
+  return new Promise((resolve, reject) => {
+    const run = () => {
+      inFlight += 1;
+      Promise.resolve().then(task).then(resolve, reject).finally(() => { inFlight -= 1; waiting.shift()?.(); });
+    };
+    if (inFlight < MAX_LOADS) run(); else waiting.push(run);
+  });
 }
 
-export function installMarketCandles({ documentRef: doc, root, page = null, host = null }) {
-  host = host || (page ? marketSection(doc, page) : null);
-  if (!host) return () => {};
+function shell(doc, spec) {
+  const card = el(doc, 'section', null, 'charts-card charts-index-card');
+  if (spec.closes) card.dataset.index = spec.key; else card.dataset.stock = spec.key;
+  if (spec.symbol) card.dataset.symbol = spec.symbol;
+  const head = el(doc, 'div', null, 'charts-candle-head');
+  const title = el(doc, 'h3', spec.label, 'charts-candle-title');
+  const source = el(doc, 'span', '', 'charts-candle-name');
+  const verdict = el(doc, 'span', '불러오는 중', 'charts-trend');
+  const close = el(doc, 'span', '', 'charts-candle-close');
+  head.append(title, source, verdict, close);
+  const facts = el(doc, 'p', '', 'charts-card-conclusion');
+  const volume = el(doc, 'p', '', 'charts-card-volume');
+  const chips = el(doc, 'div', null, 'stock-chart-layer-read charts-candle-chips');
+  const chart = el(doc, 'div', null, 'charts-index-chart');
+  chart.style.minHeight = `${CARD_PRICE_PX}px`;
+  const fold = kindFold(doc, 'raw-table', '이 카드의 수치', []);
+  // Every card keeps its seven children (the row's shared tracks, chart-quality.css subgrid); a Korean index card's open
+  // slot is an empty placeholder, since its index has no fund to open.
+  const open = spec.symbol ? el(doc, 'button', `${spec.symbol} 분석 열기`, 'charts-open') : el(doc, 'span', null, 'charts-open-none');
+  if (spec.symbol) open.type = 'button';
+  card.append(head, facts, volume, chips, chart, fold, open);
+  return { card, source, verdict, close, facts, volume, chips, chart, fold, open };
+}
+
+/**
+ * A grid of chart cards. `specs` is [{ key, label, symbol, closes? }]; `setSpecs` replaces the list (a card already drawn
+ * for a key is kept). `lazy` loads a card's bars only once it comes into view (a hidden view's cards never do).
+ * `update(history, asOf)` re-reads every card from the history the page holds; `onReadings(readings)` hears the settled
+ * readings in card order.
+ */
+export function createChartCards({ documentRef: doc, root, host, specs = INDEX_CARD_SPECS, lazy = false, onOpen = () => {}, onReadings = () => {} }) {
+  if (!host) return { update: () => {}, setSpecs: () => {}, dispose: () => {} };
   let alive = true;
-  const instances = [];
-  host.replaceChildren(...MARKET_CANDLES.map(([sym, name]) => {
-    const card = el(doc, 'section', null, 'sx-card charts-candle-card');
-    card.dataset.symbol = sym;
-    const head = el(doc, 'div', null, 'charts-candle-head');
-    head.append(el(doc, 'h3', sym, 'charts-candle-title'), el(doc, 'span', name, 'charts-candle-name'), el(doc, 'span', '', 'charts-candle-close'));
-    const chips = el(doc, 'div', null, 'stock-chart-layer-read charts-candle-chips');
+  let history = [];
+  let asOf = null;
+  let cards = [];
+  const Observer = lazy ? root?.IntersectionObserver : null;
+  const observer = Observer ? new Observer((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      observer.unobserve(entry.target);
+      const card = cards.find((item) => item.parts.card === entry.target);
+      if (card) start(card);
+    }
+  }, { rootMargin: '200px 0px' }) : null;
+
+  const readingOf = (card) => {
+    const { key, label, symbol, closes } = card.spec;
+    const breadth = closes === 'spx' ? latestBreadth(history) : null;
+    if (card.state === 'bars') return barsChartReading({ bars: card.bars, field: closes || key, label, symbol, positionOnly: false, history: closes ? history : [], breadth, money: priceOf(symbol) });
+    if (card.state === 'closes') return indexChartReading(history, closes, label, { breadth });
+    return null;
+  };
+
+  const paintCloses = (card, reading) => {
+    const { chart } = card.parts;
+    if (!reading) { chart.replaceChildren(el(doc, 'p', '종가 기록을 불러오는 중입니다.', 'briefing-empty')); return; }
+    const refs = [reading.support?.value ?? reading.doubleTop?.neck?.value].filter(Number.isFinite);
+    const levelName = Number.isFinite(reading.support?.value) ? '지지' : '목선';
+    const svg = createTrendChart(doc, { series: reading.series, refLines: refs, format: whole, refLabel: (value) => `${levelName} ${whole(value)}`, label: `${reading.label} 종가`, guide: { series: reading.ma50Series, label: '50일선' }, longGuide: { series: reading.ma200Series } });
+    chart.replaceChildren(svg);
+    if (reading.ma200Series?.length > 1) chart.append(el(doc, 'p', '긴 점선 50일선, 촘촘한 점선 200일선', 'charts-legend'));
+  };
+
+  const paint = (card) => {
+    const { parts, spec } = card;
+    const reading = readingOf(card);
+    card.reading = reading;
+    parts.card.classList.toggle('charts-candle-card', card.state === 'bars');
+    parts.card.dataset.source = card.state;
+    parts.source.textContent = card.state === 'bars' ? `${spec.symbol} 일봉` : card.state === 'closes' ? '종가' : spec.closes ? '' : spec.symbol;
+    parts.verdict.textContent = reading ? reading.trendWord : card.state === 'missing' ? '값 없음' : card.state === 'closes' ? '판단 보류' : '불러오는 중';
+    parts.verdict.className = `charts-trend${reading ? ` is-${reading.trend} is-tone-${reading.tone}` : ''}`;
+    parts.card.dataset.trend = reading?.trend || '';
+    parts.facts.textContent = reading ? `${reading.facts}${reading.asOf && asOf && reading.asOf !== asOf ? ` · ${shortDate(reading.asOf)} 종가` : ''}` : '';
+    parts.volume.textContent = reading?.volume?.text || '';
+    if (card.state === 'bars') {
+      const last = card.bars.at(-1), prev = card.bars.at(-2);
+      const change = (last.close / prev.close - 1) * 100;
+      parts.close.textContent = `${last.time.slice(5).replace('-', '/')} ${priceOf(spec.symbol)(last.close)} ${signedText(change, 2, '%')}`;
+      const direction = directionOf(change, 2);
+      parts.close.className = `charts-candle-close${direction ? ` is-${direction === 'up' ? 'up' : 'down'}` : ''}`;
+    } else {
+      parts.close.textContent = reading ? `${shortDate(reading.asOf)} ${whole(reading.close)}` : '';
+      parts.close.className = 'charts-candle-close';
+      if (card.state === 'closes') paintCloses(card, reading);
+      // A stock without daily bars draws no empty chart: one line names the page's close date and that there is no value.
+      if (card.state === 'missing') {
+        parts.chart.style.minHeight = '';
+        parts.chart.replaceChildren(el(doc, 'p', `${asOf ? `${shortDate(asOf)} 종가 기준 ` : ''}일봉 값 없음`, 'charts-card-missing'));
+      }
+    }
+    setFoldBody(parts.fold, reading ? rawTable(doc, reading.numbers, `${spec.label} 수치`) : []);
+    parts.fold.style.visibility = reading ? '' : 'hidden';
+  };
+
+  const report = () => onReadings(cards.filter((card) => !['loading', 'waiting'].includes(card.state)).map((card) => card.reading).filter(Boolean));
+
+  const drawBars = (card, LWC) => {
+    const { chart, chips } = card.parts;
     const canvas = el(doc, 'div', null, 'charts-candle-canvas');
     canvas.setAttribute('role', 'img');
-    canvas.setAttribute('aria-label', `${sym} 일봉 캔들과 거래량, 이동평균, 매물대, 추세 구간`);
+    canvas.setAttribute('aria-label', `${card.spec.symbol} 일봉 캔들과 거래량, 이동평균, 매물대, 추세 구간`);
     canvas.style.height = `${CARD_PRICE_PX}px`;
-    const open = el(doc, 'button', '전체 차트', 'charts-open');
-    open.type = 'button';
-    open.addEventListener('click', () => openMarketChart(root, sym));
-    card.append(head, chips, canvas, open);
-    return card;
-  }));
-  const load = async ([sym]) => {
-    const card = host.querySelector(`[data-symbol="${sym}"]`);
-    const canvas = card.querySelector('.charts-candle-canvas');
-    const [payload, LWC] = await Promise.all([Promise.resolve().then(() => root._aioFetchYahooChartData?.(sym, '2y', '1d')).catch(() => null), ensureChartLibrary(root)]);
-    if (!alive) return;
-    const { bars } = completedBars(barsFromYahoo(payload), payload);
-    if (!LWC || bars.length < 2) { canvas.replaceChildren(el(doc, 'p', payload == null ? '시세를 받지 못했습니다' : '일봉이 없습니다', 'briefing-empty')); return; }
-    const instance = drawChart(root, canvas, { bars }, null, false);
-    if (!instance) return;
-    instance.chart.applyOptions({ handleScroll: false, handleScale: false, timeScale: { barSpacing: 4, rightOffset: 2 } });
-    const range = () => instance.chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, bars.length - 180), to: bars.length + 2 });
+    chart.replaceChildren(canvas);
+    if (!LWC) return false;
+    const instance = drawChart(root, canvas, { bars: card.bars }, null, false);
+    if (!instance) return false;
+    // The library's logo sat over the card's bottom-left candles; the page's 데이터 출처 fold carries the attribution.
+    instance.chart.applyOptions({ handleScroll: false, handleScale: false, layout: { attributionLogo: false }, timeScale: { barSpacing: 4, minBarSpacing: 2, rightOffset: 2 } });
+    // About 90 sessions at 2 px or more on a ~240 px plot; a longer span was clamped by minBarSpacing from the left.
+    const range = () => instance.chart.timeScale().setVisibleLogicalRange(recentLogicalRange(card.bars.length, 90));
     range();
     (root.requestAnimationFrame || setTimeout)(range);
-    instances.push(instance);
-    attachChartLayers({ doc, root, instance, layers: buildChartLayers(bars), compact: true, readHost: card.querySelector('.charts-candle-chips'), pricePx: CARD_PRICE_PX, price: (value) => `$${value.toFixed(2)}` });
-    const last = bars.at(-1), prev = bars.at(-2);
-    const change = (last.close / prev.close - 1) * 100;
-    const close = card.querySelector('.charts-candle-close');
-    close.textContent = `${last.time.slice(5).replace('-', '/')} $${last.close.toFixed(2)} ${signedText(change, 2, '%')}`;
-    const direction = directionOf(change, 2);
-    if (direction) close.classList.add(direction === 'up' ? 'is-up' : 'is-down');
+    card.instance = instance;
+    canvas.__aioChart = instance; // the chart-scale gate reads the drawn geometry (layers.geometry) from the card
+    attachChartLayers({ doc, root, instance, layers: buildChartLayers(card.bars), compact: true, readHost: chips, pricePx: CARD_PRICE_PX, price: priceOf(card.spec.symbol) });
+    return true;
   };
-  MARKET_CANDLES.forEach((item) => { load(item).catch(() => {}); });
-  const recolor = () => { const next = chartPalette(root); instances.forEach((instance) => instance.applyTheme?.(next)); };
+
+  const fallback = (card) => (card.spec.closes ? 'closes' : 'missing');
+  const load = async (card) => {
+    const sym = card.spec.symbol;
+    const [payload, LWC] = await Promise.all([queued(() => root._aioFetchYahooChartData?.(sym, '2y', '1d')).catch(() => null), ensureChartLibrary(root)]);
+    if (!alive || card.gone) return;
+    const { bars } = completedBars(barsFromYahoo(payload), payload);
+    if (LWC && bars.length >= 60) {
+      card.bars = bars;
+      card.state = 'bars';
+      if (!drawBars(card, LWC)) card.state = fallback(card);
+    } else card.state = fallback(card);
+    paint(card);
+    report();
+  };
+  function start(card) {
+    if (card.state !== 'waiting') return;
+    card.state = 'loading';
+    paint(card);
+    load(card).catch(() => { card.state = fallback(card); paint(card); report(); });
+  }
+
+  const disposeCard = (card) => {
+    card.gone = true;
+    observer?.unobserve(card.parts.card);
+    try { card.instance?.layers?.dispose?.(); } catch (_) {}
+    try { card.instance?.chart.remove(); } catch (_) {}
+  };
+  const setSpecs = (list) => {
+    const next = (Array.isArray(list) ? list : []).filter((spec) => spec?.key);
+    const kept = new Map(cards.map((card) => [card.spec.key, card]));
+    cards = next.map((spec) => {
+      const old = kept.get(spec.key);
+      if (old) { kept.delete(spec.key); return old; }
+      return { spec, parts: shell(doc, spec), state: spec.symbol ? 'waiting' : fallback({ spec }), bars: null, instance: null };
+    });
+    kept.forEach(disposeCard);
+    host.replaceChildren(...cards.map((card) => card.parts.card));
+    for (const card of cards) {
+      if (card.bound) continue;
+      card.bound = true;
+      if (card.spec.symbol) card.parts.open.addEventListener('click', () => onOpen(card.spec.symbol));
+      paint(card);
+      if (card.state === 'waiting') { if (observer) observer.observe(card.parts.card); else start(card); }
+    }
+    report();
+  };
+
+  setSpecs(specs);
+  const recolor = () => { const next = chartPalette(root); cards.forEach((card) => card.instance?.applyTheme?.(next)); };
   doc.addEventListener?.('aio:colorThemeChanged', recolor);
-  return () => {
-    alive = false;
-    doc.removeEventListener?.('aio:colorThemeChanged', recolor);
-    instances.forEach((instance) => { try { instance.chart.remove(); } catch (_) {} });
+
+  return {
+    update(nextHistory, pageAsOf) {
+      history = Array.isArray(nextHistory) ? nextHistory : [];
+      asOf = pageAsOf || null;
+      cards.forEach(paint);
+      report();
+    },
+    setSpecs,
+    dispose() {
+      alive = false;
+      observer?.disconnect?.();
+      doc.removeEventListener?.('aio:colorThemeChanged', recolor);
+      cards.forEach(disposeCard);
+    }
   };
 }

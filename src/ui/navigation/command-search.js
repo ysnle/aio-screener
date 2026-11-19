@@ -192,9 +192,11 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
     const origin = activeRoute();
     opener = null;
     close();
+    // 기술적 분석 opens the pick in its analysis slot and stays (owner 2026-11-19); the 종목 company is not changed.
+    if (origin === 'charts' && typeof root.aioOpenMarketChart === 'function') { root.aioOpenMarketChart(symbol); return; }
     root.showTicker?.(symbol);
-    // 차트 and 재무 공시 keep their tab: the subject changes, the reader stays where they were.
-    if ((origin === 'technical' || origin === 'fundamental') && typeof root.showPage === 'function') root.showPage(origin);
+    // 재무 공시 keeps its tab: the subject changes, the reader stays where they were.
+    if (origin === 'fundamental' && typeof root.showPage === 'function') root.showPage(origin);
   }
 
   async function chooseTyped(option) {

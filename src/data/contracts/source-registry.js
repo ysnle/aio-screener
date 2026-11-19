@@ -17,7 +17,7 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
   'market-quotes': entry({
     cadence: '30m', refreshMode: 'scheduled', producer: 'scripts/fetch-data.mjs',
     artifacts: ['public-data/market-snapshot.json', 'public-data/history.json'],
-    consumers: ['home', 'signal', 'technical', 'ticker', 'portfolio', 'screener'],
+    consumers: ['home', 'signal', 'charts', 'ticker', 'portfolio', 'screener'],
     origins: [
       { id: 'yahoo-chart', authority: 'secondary', sourceKind: 'public-information-service', access: 'public-unofficial', url: 'https://query1.finance.yahoo.com/v8/finance/chart/', fields: ['price', 'previousClose', 'changePct', 'OHLCV', 'marketSession'] },
       { id: 'twelve-data', authority: 'secondary', sourceKind: 'licensed-api', access: 'optional-key', url: 'https://twelvedata.com/docs', fields: ['price-fallback'] }
@@ -76,7 +76,7 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
     structuralLimit: { kind: 'krx-rights', reason: 'Approved KRX/Koscom breadth redistribution is not configured.', remediation: 'Configure approved KRX/Koscom access and keep AIO-universe breadth separately labeled.' }
   }),
   'breadth-history': entry({
-    cadence: '6h', refreshMode: 'derived', producer: 'scripts/fetch-data.mjs:updateScreenerBreadthHistory', artifacts: ['public-data/history.json'], consumers: ['breadth', 'technical'],
+    cadence: '6h', refreshMode: 'derived', producer: 'scripts/fetch-data.mjs:updateScreenerBreadthHistory', artifacts: ['public-data/history.json'], consumers: ['breadth', 'charts'],
     origins: [{ id: 'aio-universe-adjusted-close-history', authority: 'derived', sourceKind: 'derived-research', access: 'public-unofficial', url: 'https://query1.finance.yahoo.com/v8/finance/chart/', fields: ['breadth20', 'breadth50', 'breadth200', 'advanceRatio', 'advanceDecline'] }],
     structuralLimit: { kind: 'official-advance-decline', reason: 'AIO history can measure its own universe but cannot be labeled McClellan/official exchange A-D.', remediation: 'Keep AIO participation history distinct; add official exchange A-D before calculating McClellan.' }
   }),
@@ -129,7 +129,7 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
     structuralLimit: { kind: 'basis-contract', reason: 'Futures settlement, delayed futures, index and FX spot bases are not interchangeable.', remediation: 'Retain instrument/valueBasis per field and add settlement-specific sources where required.' }
   }),
   'global-indices': entry({
-    cadence: '30m', refreshMode: 'scheduled', producer: 'scripts/fetch-data.mjs', artifacts: ['public-data/market-snapshot.json', 'public-data/history.json'], consumers: ['home', 'briefing', 'technical'],
+    cadence: '30m', refreshMode: 'scheduled', producer: 'scripts/fetch-data.mjs', artifacts: ['public-data/market-snapshot.json', 'public-data/history.json'], consumers: ['home', 'briefing', 'charts'],
     origins: [{ id: 'yahoo-global-indices', authority: 'secondary', sourceKind: 'public-information-service', access: 'public-unofficial', url: 'https://query1.finance.yahoo.com/v8/finance/chart/', fields: ['SPX', 'Nasdaq', 'Dow', 'Russell', 'FTSE', 'Nikkei', 'Hang Seng', 'KOSPI', 'KOSDAQ'] }],
     structuralLimit: { kind: 'provider-rights-and-session-coverage', reason: 'A single public-information provider covers markets with different sessions and redistribution terms.', remediation: 'Add venue-approved feeds and per-exchange calendars before institutional claims.' }
   }),

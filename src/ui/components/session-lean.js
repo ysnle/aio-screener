@@ -2,6 +2,7 @@
 // (domain/market/session/session-bridge.js) and the probabilistic lean (domain/market/regime/market-lean.js). Neither changes the
 // verdict; both say what they are built from.
 import { el } from './dom.js';
+import { kindFold, setFoldBody } from './indicator-face.js';
 import { buildSessionBridge, renderSessionBridgeContext } from '../../domain/market/session/session-bridge.js';
 import { buildMarketLean, renderMarketLeanContext } from '../../domain/market/regime/market-lean.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
@@ -129,8 +130,9 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
   // v59.51 (two layers; owner 2026-10-26 element, renamed): "매수·매도 우위" read as a timing call, so the face is one line —
   // the month-ahead tilt of the whole US market — and the base rate, the votes, what would change it and the Korea
   // reference open under it. market-lean.js maps no lean to a choice (R724), so there is no choice line to show.
-  if (!box) { box = el(doc, 'details', null, 'market-lean'); box.id = 'home-lean'; anchor.insertAdjacentElement('afterend', box); }
-  const head = el(doc, 'summary', null, 'market-lean__head');
+  // the state line is on the face; the votes, base rate, flip and the Korea reference are its raw-table fold.
+  if (!box) { box = el(doc, 'div', null, 'market-lean'); box.id = 'home-lean'; anchor.insertAdjacentElement('afterend', box); }
+  const head = el(doc, 'p', null, 'market-lean__head');
   const chip = el(doc, 'span', model.us.label, 'market-lean__state');
   chip.dataset.score = model.us.key;
   head.append(el(doc, 'span', model.us.spoken ? '앞으로 한 달, 미국 시장 기울기' : '미국 6개 지표 상태', 'market-lean__title'), chip);
@@ -149,7 +151,7 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
   }
   const disclaimer = model.us.spoken ? '시장 전체의 조건부 설명이며 개별 종목의 매수·매도 지시나 가격 예측이 아닙니다.' : '시장 전체의 지표 상태이며 개별 종목의 매매 지시나 가격 예측이 아닙니다.';
   chip.title = disclaimer;
-  const nodes = [head, el(doc, 'p', model.us.read, 'market-lean__read'), el(doc, 'h4', '근거', 'market-lean__sub'), items];
+  const nodes = [el(doc, 'p', model.us.read, 'market-lean__read'), el(doc, 'h4', '근거', 'market-lean__sub'), items];
   if (model.us.basis) nodes.push(el(doc, 'p', model.us.basis, 'market-lean__note'));
   if (model.us.countNote) nodes.push(el(doc, 'p', model.us.countNote, 'market-lean__note'));
   if (model.us.flip) nodes.push(el(doc, 'p', `바뀌는 조건: ${model.us.flip}`, 'market-lean__note'));
@@ -159,9 +161,10 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
     nodes.push(el(doc, 'h4', `한국 참고: ${model.kr.label}`, 'market-lean__sub'), el(doc, 'p', model.kr.read, 'market-lean__read'), list);
   }
   nodes.push(el(doc, 'p', disclaimer, 'market-lean__note'));
-  const open = box.open;
-  box.replaceChildren(...nodes);
-  box.open = open;
+  let fold = box.querySelector?.(':scope > details');
+  if (!fold) fold = kindFold(doc, 'raw-table', '기울기의 근거와 바뀌는 조건');
+  setFoldBody(fold, nodes);
+  box.replaceChildren(head, fold);
   box.hidden = false;
   return model;
 }

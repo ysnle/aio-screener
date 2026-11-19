@@ -1,5 +1,5 @@
 // Map: features/stock.md
-import { openFromNav, tabTo, expectText, expectTabs, visibleText } from '../lib/drive.mjs';
+import { openFromNav, tabTo, expectText, expectTabs, expectActive, visibleText } from '../lib/drive.mjs';
 
 const SUBJECT = '#aio-hub-tabs .aio-hub-subject strong';
 const PRICE = /^(—|[$₩]?[\d,]+(\.\d+)?)$/;
@@ -13,7 +13,7 @@ async function search(p, value) {
 }
 
 // v59.55 (alignment pass): on 개요 the hub line drops the symbol (the page title names it), so the selected company there is
-// the route's `sym` and the hero; on 차트 and 재무 공시 it is the hub subject.
+// the route's `sym` and the hero; on 재무 공시 it is the hub subject.
 const OVERVIEW_SUBJECT = () => new URLSearchParams(decodeURIComponent(location.hash).split('?')[1] || '').get('sym') || '';
 async function currentSubject(p) {
   return (await p.evaluate(() => document.querySelector('.page.active')?.id)) === 'page-ticker' ? p.evaluate(OVERVIEW_SUBJECT) : visibleText(p, SUBJECT);
@@ -29,29 +29,35 @@ async function heroState(p, symbol) {
 }
 
 export default {
-  title: '종목 (티커·한글명 검색 · 같은 종목 3탭 유지 · 잘못된 입력)',
+  title: '종목 (티커·한글명 검색 · 같은 종목 2탭 유지 · 기술적 분석 연결 · 잘못된 입력)',
   steps: [
     ['nav 종목', (p) => openFromNav(p, '종목', 'page-ticker')],
-    ['허브 탭 3개', (p) => expectTabs(p, ['개요', '차트', '재무 공시'])],
+    // Owner 2026-11-19 ("탭 없애고 연결"): the 차트 tab is retired; the subject line links to 기술적 분석.
+    ['허브 탭 2개', (p) => expectTabs(p, ['개요', '재무 공시'])],
     ['티커 NVDA + Enter → 개요', async (p) => { await search(p, 'NVDA'); return heroState(p, 'NVDA'); }],
-    ['탭 차트 (같은 종목)', async (p) => ({ ...(await tabTo(p, '차트', 'page-technical')), subject: await visibleText(p, SUBJECT) })],
-    // The visible chart (stock-chart component) must follow the company, not stay on SPY.
-    ['차트 제목이 같은 종목', async (p) => expectText(p, '#stock-chart-title', { pattern: /^NVDA\b/ })],
-    ['탭 재무 공시 (같은 종목)', async (p) => {
+    ['재무 공시 (같은 종목)', async (p) => {
       const r = await tabTo(p, '재무 공시', 'page-fundamental');
       const subject = await visibleText(p, SUBJECT);
       if (subject !== 'NVDA') throw new Error(`subject lost on 재무 공시: "${subject}"`);
       return { ...r, subject };
     }],
     ['탭 개요 복귀 (같은 종목)', async (p) => ({ ...(await tabTo(p, '개요', 'page-ticker')), ...(await heroState(p, 'NVDA')) })],
+    // The link carries the company into the 기술적 분석 analysis slot (the chart follows the company, not SPY).
+    ['기술적 분석에서 보기 → 같은 종목 차트', async (p) => {
+      await p.click('#aio-hub-tabs .aio-hub-subject-chart');
+      await expectActive(p, 'page-charts');
+      await p.waitForFunction(() => document.getElementById('stock-chart-section')?.dataset.aioStockChartEntity === 'NVDA', null, { timeout: 25000 });
+      return expectText(p, '#stock-chart-title', { pattern: /^NVDA\b/ });
+    }],
+    ['nav 종목 복귀', (p) => openFromNav(p, '종목', 'page-ticker')],
     ['한글명 삼성전자 → 005930.KS', async (p) => {
       await search(p, '삼성전자');
       const r = await heroState(p, '005930.KS');
       return { ...r, ...(await expectText(p, '#ticker-hero-name', { pattern: /삼성전자/ })) };
     }],
-    // v58.80 (P2088/R728): a candidate picked from the Korean-name list fills the 재무 tile with the company summary below it;
-    // a late repaint used to put the tile back on '불러오는 중' for ~12 s with the click-time arguments.
-    ['한글 후보 애플 → 재무 칸 즉시', async (p) => {
+    // v58.80 (P2088/R728): a candidate picked from the Korean-name list fills 재무 한눈에 with the company below it; a late
+    // repaint used to put it back on '불러오는 중' for ~12 s with the click-time arguments.
+    ['한글 후보 애플 → 재무 한눈에 즉시', async (p) => {
       await p.click('#ticker-search-open');
       await p.fill('#aio-command-input', '애플');
       const pick = p.locator('#aio-command-results [role="option"]', { hasText: 'AAPL' });
@@ -59,7 +65,7 @@ export default {
       const started = Date.now();
       await pick.click();
       await heroState(p, 'AAPL');
-      await p.waitForFunction(() => { const tile = [...document.querySelectorAll('#ticker-read *')].find((n) => n.children.length && /^재무/.test((n.textContent || '').trim()) && n.textContent.length < 200); return tile && !/불러오는 중/.test(tile.textContent); }, null, { timeout: 4000 });
+      await p.waitForFunction(() => { const part = document.querySelector('#ticker-company [data-company-section="money"]'); return part && /매출 성장|순이익률/.test(part.textContent) && !/불러오는 중/.test(part.textContent); }, null, { timeout: 4000 });
       return { subject: 'AAPL', tileReadyMs: Date.now() - started };
     }],
     ['잘못된 입력 → 안내, 화면 유지', async (p) => {

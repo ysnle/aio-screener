@@ -1,11 +1,13 @@
 // v57.54 (owner X packet 2026-10-14, image 3): per-market price temperature on the sentiment screen — the first gauge
-// here for KOSPI, KOSDAQ and Nikkei. One visual (five component rank bars + the index with its extreme spells shaded),
-// a short reading with the past-spell evidence, and a fold with the method. D02: no average score and no band.
+// here for KOSPI, KOSDAQ and Nikkei. One visual (five component rank bars + the index with its extreme spells shaded) on
+// the face, the state and past-spell outcomes in a raw-table fold; the method joins the screen's method fold
+// (temperatureMethodNodes). D02: no average score and no band.
 // Hidden until the producer (scripts/build-market-temperature.mjs) has published.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { TEMPERATURE_COMPONENTS, TEMPERATURE_MARKETS, TEMPERATURE_PATHS, TEMPERATURE_RULES, staleMarketIds } from '../../domain/market/sentiment/market-temperature.js';
 import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';
+import { kindFold, rawTable } from './indicator-face.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
 import { MARKET_TEMPERATURE } from '../../data/artifact-registry.js';
 import { evidenceStrength } from '../../domain/shared/evidence-strength.js';
@@ -95,6 +97,23 @@ function componentBars(doc, market, rules) {
   return list;
 }
 
+/** The temperature's method, for the screen's method fold: the five components and the spell rule, the relation to
+ * published thermometers and how the past outcomes are sampled (rules from the published artifact when it is loaded). */
+export function temperatureMethodNodes(doc, root) {
+  const payload = root?.[MARKET_TEMPERATURE.key];
+  if (payload?.status !== 'current') return [];
+  const rules = { ...TEMPERATURE_RULES, ...(payload.rules || {}) };
+  const box = el(doc, 'section', null, 'ind-method');
+  box.dataset.methodMetric = 'temperature';
+  box.append(el(doc, 'h3', '지수별 가격 온도', 'ind-method__title'),
+    el(doc, 'p', `다섯 요소와 과열·냉각 구간: ${withObjectParticle(TEMPERATURE_COMPONENTS.map((item) => `${item.label}(${item.basis})`).join(', '))} 각각 그 지수의 최근 3년(756거래일) 안에서 순위로 바꿨습니다. 높을수록 뜨거운 쪽입니다. ${rules.extremeMinPaths
+      ? `다섯 요소 중 넷은 같은 가격에서 나와 함께 움직이므로 ${TEMPERATURE_PATHS.map((item) => item.label).join(', ')} 세 묶음으로 셉니다. 묶음 안의 요소가 모두 하위 ${rules.coldAtOrBelow}%인 묶음이 ${rules.extremeMinPaths}개 이상이면 강한 냉각, 상위 ${100 - rules.hotAtOrAbove}%면 강한 과열입니다.`
+      : `다섯 개 중 ${rules.extremeMinComponents}개 이상이 동시에 하위 ${rules.coldAtOrBelow}%면 강한 냉각, 상위 ${100 - rules.hotAtOrAbove}%면 강한 과열입니다.`} 서로 다른 쪽을 가리키는 요소를 평균해 한 점수로 만들지 않습니다 — 평균은 차가운 요소와 뜨거운 요소가 상쇄된 50을 '중립'으로 보이게 하기 때문입니다.`, 'ind-method__text'),
+    el(doc, 'p', '외부 온도계와의 관계: 시장 심리 온도계를 공개하는 곳들은 계산식을 밝히지 않아 같은 값을 만들 수 없습니다. 이 표는 가격만으로 다시 만든 AIO의 계산이라 거래대금·신용잔고·수급은 들어 있지 않고, 같은 날 비교에서 방향은 대체로 비슷하지만 값은 다릅니다. 신용잔고 반대매매나 외국인 매도처럼 가격 밖의 압력은 이 표에 잡히지 않습니다.', 'ind-method__text'),
+    el(doc, 'p', `과거 결과 (가격 수익률, 배당 제외): 같은 구간 안에서 ${rules.clusterGapSessions}거래일 안에 다시 들어온 날은 하나의 구간으로 묶고, 구간이 시작된 첫날만 표본으로 셉니다. 그 첫날끼리도 석 달 안에 붙어 있으면 결과 기간이 겹치므로, 앞 표본에서 63거래일이 지난 첫날만 셉니다. ±는 표준오차의 2배입니다. 강한 냉각 뒤 평균이 높아 보여도 범위가 겹치면 '바닥 신호'로 읽을 근거는 없습니다.`, 'ind-method__text'));
+  return [box];
+}
+
 export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
   if (!doc || !anchor) return;
   let section = doc.getElementById('sentiment-temperature');
@@ -156,13 +175,13 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
         el(doc, 'span', `${md(item.asOf)} 종가 ${pct(item.change1d, 1)}`, 'temp-tile-meta'));
       button.setAttribute('aria-label', `${item.label}: ${temperatureStateText(item, rules)}`);
       // Repainting replaces the buttons, so keyboard focus moves to the new tile for the same market.
-      button.addEventListener('click', () => { selected = item.id; detailOpen = true; paint(payload); section.querySelector(`.temp-tile[data-market="${item.id}"]`)?.focus(); });
+      button.addEventListener('click', () => { selected = item.id; paint(payload); section.querySelector(`.temp-tile[data-market="${item.id}"]`)?.focus(); });
       groups[region].append(button);
     }
 
     const head = el(doc, 'div', null, 'temp-head');
-    head.append(el(doc, 'strong', `${market.label} ${Number(market.close).toLocaleString('en-US', { maximumFractionDigits: 2 })}`, 'temp-head-value'),
-      el(doc, 'span', `${md(market.asOf)} 종가, 전일 대비 ${pct(market.change1d, 2)}`, 'basis-chip'));
+    // The close date and the day's change are on the selected tile; the two-decimal change is in the raw table.
+    head.append(el(doc, 'strong', `${market.label} ${Number(market.close).toLocaleString('en-US', { maximumFractionDigits: 2 })}`, 'temp-head-value'));
     if (stale.has(market.id)) head.append(el(doc, 'span', `갱신 지연, ${md(market.asOf)} 값`, 'regime-state is-watch'));
     else if (market.state !== 'none') head.append(el(doc, 'span', `${STATE_LABEL[market.state]} ${market.streak}거래일째`, `regime-state is-${market.state === 'cold' ? 'risk' : 'watch'}`));
 
@@ -172,25 +191,19 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
     const gapLine = market.gaps?.length ? ` ${market.gaps.map(md).join(', ')} 종가가 원천에 비어 있어 그날은 빼고 계산했습니다.` : '';
     const reading = `${temperatureStateText(market, rules)}. ${past ? `하위·상위 10% 요소 수는 ${past}였습니다. ` : ''}${market.state !== 'none' ? temperatureEvidence(market) : ''}${gapLine}`.trim();
 
-    const deep = el(doc, 'details', null, 'regime-axis-details regime-axis-deep');
-    deep.append(el(doc, 'summary', '더 깊이 보기: 온도를 재는 방법과 과거 결과'));
-    deep.append(el(doc, 'h4', '다섯 요소와 과열·냉각 구간의 정의'), el(doc, 'p', `${withObjectParticle(TEMPERATURE_COMPONENTS.map((item) => `${item.label}(${item.basis})`).join(', '))} 각각 그 지수의 최근 3년(756거래일) 안에서 순위로 바꿨습니다. 높을수록 뜨거운 쪽입니다. ${rules.extremeMinPaths
-      ? `다섯 요소 중 넷은 같은 가격에서 나와 함께 움직이므로 ${TEMPERATURE_PATHS.map((item) => item.label).join(', ')} 세 묶음으로 셉니다. 묶음 안의 요소가 모두 하위 ${rules.coldAtOrBelow}%인 묶음이 ${rules.extremeMinPaths}개 이상이면 강한 냉각, 상위 ${100 - rules.hotAtOrAbove}%면 강한 과열입니다.`
-      : `다섯 개 중 ${rules.extremeMinComponents}개 이상이 동시에 하위 ${rules.coldAtOrBelow}%면 강한 냉각, 상위 ${100 - rules.hotAtOrAbove}%면 강한 과열입니다.`} 서로 다른 쪽을 가리키는 요소를 평균해 한 점수로 만들지 않습니다 — 평균은 차가운 요소와 뜨거운 요소가 상쇄된 50을 '중립'으로 보이게 하기 때문입니다.`));
-    deep.append(el(doc, 'h4', '외부 온도계와의 관계'), el(doc, 'p', '시장 심리 온도계를 공개하는 곳들은 계산식을 밝히지 않아 같은 값을 만들 수 없습니다. 이 표는 가격만으로 다시 만든 AIO의 계산이라 거래대금·신용잔고·수급은 들어 있지 않고, 같은 날 비교에서 방향은 대체로 비슷하지만 값은 다릅니다. 신용잔고 반대매매나 외국인 매도처럼 가격 밖의 압력은 이 표에 잡히지 않습니다.'));
-    const table = el(doc, 'dl', null, 'regime-evidence');
+    // The past outcomes of every market's spells, as rows of the raw table.
+    const outcomeRows = [];
     for (const item of markets) {
       for (const state of ['cold', 'hot']) {
         const h = item.outcomes?.[state]?.h63;
         if (!h?.n) continue;
-        const dt = el(doc, 'dt', `${item.label}, ${STATE_LABEL[state]} 첫날 뒤 석 달`);
-        if (h.n < 10) { table.append(dt, el(doc, 'dd', `겹치지 않는 사례 ${h.n}번 — 10번 미만이라 평균·비율을 쓰지 않습니다`)); continue; }
-        table.append(dt, el(doc, 'dd', `평균 ${pct(h.mean)} ±${(2 * (h.se || 0)).toFixed(1)}%p, 오른 비율 ${h.hitRate}%, 하위 10% 결과 ${pct(h.p10)}, 겹치지 않는 ${h.n}번${h.n < 30 ? '(작은 표본)' : ''}`));
+        const label = `${item.label}, ${STATE_LABEL[state]} 첫날 뒤 석 달`;
+        if (h.n < 10) { outcomeRows.push([label, `겹치지 않는 사례 ${h.n}번 — 10번 미만이라 평균·비율을 쓰지 않습니다`]); continue; }
+        outcomeRows.push([label, `평균 ${pct(h.mean)} ±${(2 * (h.se || 0)).toFixed(1)}%p, 오른 비율 ${h.hitRate}%, 하위 10% 결과 ${pct(h.p10)}, 겹치지 않는 ${h.n}번${h.n < 30 ? '(작은 표본)' : ''}`]);
       }
       const all = item.outcomes?.all?.h63;
-      if (all?.n) table.append(el(doc, 'dt', `${item.label}, 아무 날 뒤 석 달`), el(doc, 'dd', `평균 ${pct(all.mean)} ±${(2 * (all.se || 0)).toFixed(1)}%p, 오른 비율 ${all.hitRate}%`));
+      if (all?.n) outcomeRows.push([`${item.label}, 아무 날 뒤 석 달`, `평균 ${pct(all.mean)} ±${(2 * (all.se || 0)).toFixed(1)}%p, 오른 비율 ${all.hitRate}%`]);
     }
-    deep.append(el(doc, 'h4', '과거 결과 (가격 수익률, 배당 제외)'), el(doc, 'p', `같은 구간 안에서 ${rules.clusterGapSessions}거래일 안에 다시 들어온 날은 하나의 구간으로 묶고, 구간이 시작된 첫날만 표본으로 셉니다. 그 첫날끼리도 석 달 안에 붙어 있으면 결과 기간이 겹치므로, 앞 표본에서 63거래일이 지난 첫날만 셉니다. ±는 표준오차의 2배입니다. 강한 냉각 뒤 평균이 높아 보여도 범위가 겹치면 '바닥 신호'로 읽을 근거는 없습니다.`), table);
 
     const body = el(doc, 'div', null, 'temp-body');
     const plot = el(doc, 'div', null, 'temp-plot');
@@ -198,14 +211,14 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
     legend.append(el(doc, 'span', `${market.label} 2년 종가`), el(doc, 'span', '강한 냉각', 'temp-swatch is-cold'), el(doc, 'span', '강한 과열', 'temp-swatch is-hot'));
     plot.append(legend, chart);
     body.append(componentBars(doc, market, rules), plot);
-    // v59.51 (content audit): the selected index's five ranks, two-year chart, reading and method are one closed fold under
-    // the tiles; choosing a tile opens it, and a repaint keeps the reader's choice.
-    const detail = el(doc, 'details', null, 'regime-axis-details temp-detail');
-    detail.open = detailOpen;
-    detail.addEventListener('toggle', () => { detailOpen = detail.open; });
-    detail.append(el(doc, 'summary', `${market.label} — 다섯 요소 순위와 2년 종가`),
-      head, body, el(doc, 'p', reading, 'regime-read'), deep);
-    section.replaceChildren(el(doc, 'h2', '지수별 가격 온도 (참고)', 'briefing-h2'), el(doc, 'p', lead, 'regime-read'), tabs, detail);
+    // The selected index's five ranks and two-year chart are on the face under the tiles (a tile picks the index); its
+    // state, the earlier counts and the past outcomes are one raw-table fold; how the temperature is measured is in the
+    // screen's method fold (temperatureMethodNodes).
+    const raw = kindFold(doc, 'raw-table', `${market.label} 상태와 과거 결과`, rawTable(doc, [['종가', `${md(market.asOf)} 종가, 전일 대비 ${pct(market.change1d, 2)}`], ['상태', reading], ...outcomeRows], `${market.label} 가격 온도 관측값`));
+    raw.classList.add('temp-raw');
+    raw.open = detailOpen;
+    raw.addEventListener('toggle', () => { detailOpen = raw.open; });
+    section.replaceChildren(el(doc, 'h2', '지수별 가격 온도 (참고)', 'briefing-h2'), el(doc, 'p', lead, 'regime-read'), tabs, head, body, raw);
     section.title = `출처: ${payload.source || 'Yahoo Finance'}`; // T22: provider names in the hover
     section.hidden = false;
   };

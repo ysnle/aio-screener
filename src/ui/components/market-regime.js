@@ -1,12 +1,10 @@
 // P1392: 시장 상태 = six-axis regime board (owner decision 2026-10-02: the 0-100 score and the
 // swing/day toggle are retired from user surfaces). The home card shows the same board compactly.
 import { renderHomeGuide } from './market-guide.js';
-import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
 import { renderStressOutcomes } from './stress-outcomes.js';
-import { deepDiveLinks } from './deep-dive.js';
-import { alignInput, buildCloseSeries, hyObservation, isUsable, sessionPointBack } from '../../domain/briefing/market-read.js';
+import { principleLink } from './principle-link.js';
+import { AXIS_REASON_LABEL, alignInput, buildCloseSeries, hyObservation, isUsable, sessionPointBack } from '../../domain/briefing/market-read.js';
 import { koreaIndexParts, requestRegimeMacroHistory, summaryLine } from './home-regime.js';
-import { splitReading } from './reading-split.js';
 import { previousRegime } from '../../domain/briefing/daily-diff.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
@@ -23,34 +21,11 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { historyWaitText } from './data-state.js';
+import { foldSummary, indicatorRow, kindFold, markFold, rawTable, setFoldBody } from './indicator-face.js';
+import { counterAxes } from '../../domain/market/regime/counter-evidence.js';
 
-function readingNodes(doc, text, className, topic = '') {
-  const { lead, rest } = splitReading(text);
-  const nodes = [el(doc, 'p', lead, className)];
-  if (rest) {
-    const more = el(doc, 'details', null, 'regime-read-more');
-    // v57.61 WCAG 2.4.6: several cards fold under the same words — the summary names its card for screen readers.
-    const summary = el(doc, 'summary', '이어서 읽기');
-    if (topic) summary.append(el(doc, 'span', ` — ${topic}`, 'sr-only'));
-    more.append(summary, el(doc, 'p', rest, className));
-    nodes.push(more);
-  }
-  return nodes;
-}
-
-// P1505 (owner 2026-10-06: no source text on the face of the screen): each axis keeps its source as a hover title and
-// in the page-level 데이터 출처 fold, so a user checking a number can still find the series.
-const AXIS_SOURCES = Object.freeze({
-  trend: 'S&P 500·나스닥 100·나스닥 종합·러셀 2000 일봉 종가 (Yahoo Finance)', // v57.81: the cross-index evidence rows
-  breadth: '스크리너 유니버스 구성 종목의 수정 종가로 자체 계산',
-  volatility: 'VIX·VIX3M (Cboe 지수, Yahoo Finance 경유)',
-  rates: '미 국채 수익률 (미 재무부 공시 par curve, FRED DGS2/DGS10)',
-  credit: 'ICE BofA 하이일드 OAS (FRED BAMLH0A0HYM2), CNN Fear & Greed',
-  commodities: 'WTI 선물·금 선물·달러 지수 (Yahoo Finance)',
-  korea: '원/달러·엔/달러·코스피 (Yahoo Finance)',
-  sentiment: '자체 종합 심리 지표 구성 요소 (S&P 500·VIX·TLT·스크리너 등락 종목·FRED OAS)',
-  leadership: '반도체 ETF SOXX·동일가중 S&P 500 RSP 일봉 종가 (Yahoo Finance)'
-});
+// P1505 (owner 2026-10-06: no source text on the face of the screen) · the per-axis provider lines left the opened
+// rows; the page's 데이터 출처 fold (page-sources.js PAGE_SOURCES.signal) names every series.
 
 function chartPanel(doc, charts, range) {
   if (!charts.length || !range) return null;
@@ -119,22 +94,16 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
   // v57.76: this section is the current-state reading (which of three flows the market is closest to); the forward
   // branches by release live in full on 거시 only, so the heading no longer says 향후 시나리오 and the section ends
   // with one link there.
-  // v59.51 (two layers, owner 2026-10-31): the face is one line — which of the three flows the market is closest to; the
-  // reading, the three cards with their conditions and counter-evidence open under it (expert layer).
-  const fold = el(doc, 'details', null, 'mk-fold');
-  fold.open = openIds.has('__section');
-  const summary = el(doc, 'summary');
+  // the closest flow and the three flow cards are on the face of the 이야기와 전망 view; each card's
+  // conditions, basis and counter-signal are its method fold (data-fold-kind="method").
   const leadView = (outlook?.items || []).find((item) => item.id === outlook?.leadId);
-  // v59.55 (flow 5): "이 조합이 뜻하는 것" and "지금 시장 흐름" asked one question in two cards; the closest flow is now the
-  // first line of the one card "지금 어떤 흐름인가", the three flows open under it and the conflicting combinations follow.
-  summary.title = '지금 시장이 세 흐름 중 어디에 가까운지(맞는 조건 수, 확률 아님)를 봅니다. 다음 발표가 이 흐름을 어느 쪽으로 옮길지는 매크로에서 이어 봅니다.';
-  summary.append(el(doc, 'span', !model.available ? '세 흐름 판단 보류' : leadView ? `'${leadView.title}'에 가장 가까움 · ${leadView.fit}` : `${model.asOf ? `${shortDate(model.asOf)} 종가` : ''}`, 'mk-structure__lead'), el(doc, 'span', '세 흐름 보기', 'sx-card__meta'));
-  fold.append(summary);
-  section.append(fold);
+  const lead = el(doc, 'p', !model.available ? '세 흐름 판단 보류' : leadView ? `'${leadView.title}'에 가장 가까움 · ${leadView.fit}` : `${model.asOf ? `${shortDate(model.asOf)} 종가` : ''}`, 'mk-structure__lead');
+  lead.title = '맞는 조건 수이며 확률이 아닙니다';
+  section.append(lead);
   markFrame(section, 'signal.scenarios');
-  if (!model.available) { fold.append(el(doc, 'p', model.reason, 'regime-scenario-hold'), scenarioLink(doc, root)); return section; }
-  if (model.reason) fold.append(el(doc, 'p', model.reason, 'regime-scenario-hold'));
-  if (outlook?.available) fold.append(el(doc, 'p', outlook.headline, 'regime-scenario-lead'));
+  if (!model.available) { section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'), scenarioLink(doc, root)); return section; }
+  if (model.reason) section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'));
+  if (outlook?.available) section.append(el(doc, 'p', outlook.headline, 'regime-scenario-lead'));
   const byId = Object.fromEntries((outlook?.items || []).map((item) => [item.id, item]));
   const grid = el(doc, 'div', null, 'regime-scenario-grid');
   for (const scenario of model.scenarios) {
@@ -151,21 +120,19 @@ function scenarioSection(doc, root, model, outlook, openIds = new Set()) {
     if (view) {
       card.append(el(doc, 'p', view.posture, 'regime-scenario-reading'));
       card.append(opportunityNode(doc, root, view, 'regime-scenario-opportunity'));
+      card.append(listBlock(doc, '확인할 것', view.check), listBlock(doc, '조심할 것', view.caution), listBlock(doc, '넘겨도 되는 것', view.ignore));
     } else card.append(el(doc, 'p', scenario.interpretation, 'regime-scenario-reading'));
-    const more = el(doc, 'details', null, 'regime-scenario-more');
+    const more = kindFold(doc, 'method', '이 흐름의 조건과 근거', [
+      ...(view ? [el(doc, 'p', `조건 근거: ${view.basis}`, 'regime-scenario-basis')] : []),
+      el(doc, 'h4', '이 흐름의 뜻'), el(doc, 'p', scenario.interpretation),
+      listBlock(doc, '성립 조건', scenario.conditions),
+      el(doc, 'h4', '이 해석이 틀렸다는 신호'), el(doc, 'p', scenario.counterEvidence)]);
+    more.classList.add('regime-scenario-more');
     more.open = openIds.has(scenario.id);
-    more.append(el(doc, 'summary', '확인할 것, 조심할 것, 넘겨도 되는 것'));
-    if (view) {
-      more.append(el(doc, 'p', `조건 근거: ${view.basis}`, 'regime-scenario-basis'));
-      more.append(listBlock(doc, '확인할 것', view.check), listBlock(doc, '조심할 것', view.caution), listBlock(doc, '넘겨도 되는 것', view.ignore));
-    }
-    more.append(el(doc, 'h4', '이 흐름의 뜻'), el(doc, 'p', scenario.interpretation));
-    more.append(listBlock(doc, '성립 조건', scenario.conditions));
-    more.append(el(doc, 'h4', '이 해석이 틀렸다는 신호'), el(doc, 'p', scenario.counterEvidence));
     card.append(more);
     grid.append(card);
   }
-  fold.append(grid, scenarioLink(doc, root));
+  section.append(grid, scenarioLink(doc, root));
   return section;
 }
 
@@ -244,127 +211,87 @@ export function fiveDayChange(id, inputs, asOf) {
   return null;
 }
 
-// v58.55 (owner 2026-10-20): the design's 기준까지 column — the nearest threshold of the axis rule (regime axis.flipDistance,
-// measured in the indicator's own unit) in bold, the line it is measured to under it.
-function distanceCell(doc, row) {
-  const cell = el(doc, 'span', null, 'mk-axis__dist');
-  const d = row.flipDistance;
-  if (!d) { cell.textContent = '—'; cell.classList.add('is-empty'); return cell; }
-  cell.dataset.direction = d.direction;
-  cell.append(el(doc, 'b', d.label, 'mk-axis__dist-value'), el(doc, 'span', `${d.short}${d.also?.length ? ', 함께 필요' : ''}`, 'mk-axis__dist-basis'));
-  cell.title = `종가 기준, ${d.condition} ${row.title} → ${d.towardLabel}${(d.also || []).map((also) => `, 함께 필요: ${also.condition}${also.text ? ` (${also.text})` : ''}`).join('')}`;
-  return cell;
-}
-
-// The screens that render an axis's AXIS_DEEP_DIVES teaching blocks in full (breadth-board deepDiveFold, macro-board axisCard).
-const AXIS_PRINCIPLE_HOME = Object.freeze({
-  breadth: { route: 'breadth', label: '시장 폭' },
-  rates: { route: 'macro', label: '매크로' },
-  credit: { route: 'macro', label: '매크로' },
-  commodities: { route: 'macro', label: '매크로' }
-});
-
-function axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf, open }) {
-  const card = el(doc, 'details', null, 'regime-axis sx-disclosure mk-axis');
-  card.dataset.axis = row.id;
-  card.dataset.state = row.state;
-  card.open = !!open;
-  const summary = el(doc, 'summary', null, 'mk-axis__row');
-  const name = el(doc, 'span', null, 'mk-axis__name');
-  name.append(el(doc, 'b', row.title), el(doc, 'span', AXIS_WATCH[row.id] || '', 'mk-axis__en'));
+const alsoText = (d) => (d?.also || []).map((also) => `, 함께 필요: ${also.condition}`).join('');
+const prevOf = (row, previous) => {
   const prev = [...(previous?.axes || []), ...(previous?.watchAxes || [])].find((axis) => axis.id === row.id);
   // A previous state rebuilt from partial inputs (prev.partial) is not shown as a flip.
-  const prevShown = prev && !prev.partial ? prev : null;
-  const prevText = prevShown ? (prevShown.state === row.state ? `${prevShown.stateLabel}, 같음` : `${prevShown.stateLabel} → ${row.stateLabel}`) : '—';
-  summary.append(name, el(doc, 'span', row.stateLabel, `sx-chip sx-chip--sm sx-chip--${TONE[row.state] || 'neutral'} mk-axis__state`),
-    el(doc, 'span', faceValue(row) || '최신 관측 없음', 'mk-axis__value'), distanceCell(doc, row),
-    el(doc, 'span', prevText, `mk-axis__prev${prevShown && prevShown.state !== row.state ? ' is-changed' : ''}`),
-    el(doc, 'span', fiveDayChange(row.id, inputs, asOf) || row.change5 || '—', 'mk-axis__d5'));
-  card.append(summary);
-  // ③ three cards: 원리 / 지금 읽기 / 한계 · 함께 볼 것 (the teaching blocks of axis-deep-dives, today's reading between them).
-  const deep = AXIS_DEEP_DIVES[row.id];
-  const blocks = deep?.blocks || [];
-  const body = el(doc, 'div', null, 'sx-disclosure__body mk-axis__body');
-  const cardOf = (label, ...nodes) => { const box = el(doc, 'div', null, 'sx-disclosure__card'); box.append(el(doc, 'span', label, 'sx-disclosure__label'), ...nodes); return box; };
-  const readNow = cardOf('지금 읽기', ...readingNodes(doc, row.read, 'regime-read', row.title));
-  // P1399: one basis chip per axis — its own observation date against the close basis.
-  if (row.basis) readNow.append(el(doc, 'span', row.basis, `basis-chip${row.basisStatus === 'aligned' ? '' : ' is-off'}`));
-  // v58.75 (persona review): an axis whose principle text is already the teaching block of its own screen (시장 폭 page;
-  // the 거시 factor cards for rates, credit, oil·dollar) points there instead of repeating it word for word; the verdict,
-  // its evidence, the thresholds and dates below stay.
-  const home = AXIS_PRINCIPLE_HOME[row.id];
-  if (home) {
-    const go = el(doc, 'button', `${home.label}에서 원리 보기`, 'flow-next-link');
-    go.type = 'button';
-    go.dataset.action = 'showPage';
-    go.dataset.arg = home.route;
-    body.append(readNow, go); // v59.69: the link alone — the card that said where the principle lives is gone
-  } else {
-    body.append(cardOf('원리', el(doc, 'p', blocks[0]?.[1] || '', 'sx-disclosure__text')), readNow,
-      cardOf('함께 볼 것', ...blocks.slice(1).map(([, text]) => el(doc, 'p', text, 'sx-disclosure__text'))));
-  }
-  // The chart, every evidence row and the flip condition stay one level down in the opened row.
-  const detail = el(doc, 'div', null, 'mk-axis__detail');
-  const chart = chartPanel(doc, history.axes[row.id] || [], history.range);
-  if (chart) detail.append(chart);
-  const facts = el(doc, 'div', null, 'mk-axis__facts');
-  // v59.70 (X bookmarks #1): Nasdaq 7% corrections since 1986 and how many became bear markets — context, not an input.
-  if (row.id === 'trend') {
-    const slot = el(doc, 'div', null, 'mk-correction-slot');
-    facts.append(slot);
-    // v59.70 (boot budget): fetched when the trend row is open, not with every board paint.
-    const fill = () => {
-      if (slot.dataset.requested) return;
-      slot.dataset.requested = '1';
-      (correctionBaseRate ||= import('./correction-base-rate.js')).then(({ renderCorrectionBaseRate }) => renderCorrectionBaseRate({ documentRef: doc, root, host: slot, onLoad: () => renderRegimePage({ documentRef: doc, root }) })).catch(() => { correctionBaseRate = null; delete slot.dataset.requested; });
-    };
-    if (card.open) fill(); else card.addEventListener('toggle', () => { if (card.open) fill(); });
-  }
-  if (row.evidence.length) { const list = el(doc, 'dl', null, 'regime-evidence'); for (const [label, value] of row.evidence) list.append(el(doc, 'dt', label), el(doc, 'dd', value)); facts.append(list); }
-  if (row.flip) {
-    const changes = el(doc, 'div', null, 'regime-axis-observe');
-    // v58.55: the nearest threshold toward each other state (the rule's own numbers), then the full rule sentence.
-    if (row.flipDistances?.length) {
-      changes.append(el(doc, 'h4', '가장 가까운 기준'));
-      const near = el(doc, 'ul', null, 'mk-axis__near');
-      for (const item of row.flipDistances) {
-        const li = el(doc, 'li', null, 'mk-axis__near-item');
-        li.dataset.direction = item.direction;
-        li.append(el(doc, 'b', `${item.direction === 'improve' ? '↑' : '↓'} ${item.towardLabel}까지 ${item.text}`, 'mk-axis__near-value'),
-          el(doc, 'span', `${item.condition} ${row.title} → ${item.towardLabel}${(item.also || []).map((also) => `, 함께 필요: ${also.condition}${also.text ? ` (${also.text})` : ''}`).join('')}`, 'mk-axis__near-text'));
-        near.append(li);
-      }
-      changes.append(near);
-    }
-    changes.append(el(doc, 'h4', '상태가 바뀌는 조건'), el(doc, 'p', row.flip));
-    // The 5거래일 전 column folds away below desktop width; the opened row keeps it.
-    changes.append(el(doc, 'p', `5거래일 전 판정, ${prevText}`, 'mk-axis__prev-line'));
-    facts.append(changes);
-  }
-  const watch = scenarios.axes?.find((axis) => axis.id === row.id);
-  if (row.flip && watch?.observe) facts.append(el(doc, 'h4', '다음 확인'), el(doc, 'p', watch.observe, 'regime-read'));
-  const links = deepDiveLinks(doc, root, deep);
-  if (links.length) { const nav = el(doc, 'div', null, 'mk-axis__links'); nav.append(...links); facts.append(nav); }
-  detail.append(facts);
-  body.append(detail);
-  // Everything under the summary is one pane: beside the list on a wide screen (master-detail.js), under the row otherwise.
-  const pane = el(doc, 'div', null, 'md-pane mk-axis__pane');
-  pane.append(body);
-  card.append(pane);
-  // P1661 / v57.76: past outcomes after days with a similar VIX fold inside the volatility row.
-  if (row.id === 'volatility') renderStressOutcomes({ documentRef: doc, root, host: pane });
-  // ④ evidence line: academic basis (authors · year), data source, validation state.
-  const evidence = el(doc, 'p', null, 'sx-evidence mk-axis__evidence');
-  evidence.append(el(doc, 'span', `학술 근거, ${AXIS_REFS[row.id] || '—'}`), el(doc, 'span', `데이터, ${AXIS_SOURCES[row.id] || '—'}`), el(doc, 'span', '검증 전 기준선'));
-  pane.append(evidence);
-  // Single-open accordion (README: openAxis); the choice survives a repaint of the board.
-  card.addEventListener('toggle', () => {
-    if (card.open) {
-      root.__aioOpenAxis = row.id;
-      for (const other of card.parentElement?.children || []) if (other !== card && other.open) other.open = false;
-    } else if (root.__aioOpenAxis === row.id) root.__aioOpenAxis = '';
-  });
+  return prev && !prev.partial ? (prev.state === row.state ? `${prev.stateLabel}, 같음` : `${prev.stateLabel} → ${row.stateLabel}`) : '';
+};
+
+// an axis on the face is one row, never folded — title, state, headline value · 기준까지, then its two lines:
+// the 판정 사유 row (fixed vocabulary, market-read.js AXIS_REASONS) and the nearest threshold that would change the state
+// (flipDistance, the rule's own numbers; the rule sentence when the axis has no measured lever).
+function axisFace(doc, row) {
+  const d = row.flipDistance;
+  const reason = row.evidence.find(([label]) => label === AXIS_REASON_LABEL)?.[1] || '';
+  // Without a measured lever (심리, AI·반도체 집중) the line is the rule's first sentence — the condition that leaves today's
+  // state; the whole rule is in the raw table.
+  const flip = d ? `${d.condition}${alsoText(d)} ${row.title} → ${d.towardLabel}` : String(row.flip || '').match(/^.+?[.](?=\s|$)/)?.[0] || row.flip || '';
+  const card = indicatorRow(doc, { title: row.title, stateLabel: row.stateLabel, tone: TONE[row.state] || 'neutral', value: faceValue(row),
+    distance: d?.label || '', distanceTitle: d ? `종가 기준, ${d.short}` : '', lines: [['reason', reason], ['flip', flip]] });
+  card.dataset.axis = row.id;
+  card.dataset.state = row.state;
+  // P1399: an observation on another date than the close basis says so on the row; an aligned one keeps its date in the raw table.
+  if (row.basis && row.basisStatus !== 'aligned') card.children[0].append(el(doc, 'span', row.basis, 'basis-chip is-off'));
   return card;
+}
+
+// The raw table of one axis: every evidence row but the 판정 사유 on the face, the thresholds toward each other state, the
+// full rule, the observation date and the five-session comparison (the 5거래일 전 and 5일 변화 columns of the old table).
+function axisRaw(doc, row, { previous, inputs, asOf }) {
+  const group = el(doc, 'section', null, 'ind-raw-group');
+  group.dataset.rawAxis = row.id;
+  group.append(el(doc, 'h3', `${row.title} · ${row.stateLabel}`, 'ind-raw-group__title'));
+  const rows = row.evidence.filter(([label]) => label !== AXIS_REASON_LABEL);
+  for (const item of row.flipDistances || []) rows.push([`${item.towardLabel}까지 ${item.text}`, `${item.condition}${alsoText(item)}`]);
+  rows.push(['상태가 바뀌는 조건', row.flip], ['관측일', row.basis], ['5거래일 전 판정', prevOf(row, previous)], ['5일 변화', fiveDayChange(row.id, inputs, asOf) || row.change5 || '']);
+  group.append(rawTable(doc, rows, `${row.title} 관측값`));
+  return group;
+}
+
+// The method fold at the foot of the page (all views): each axis's academic line and the link to its principle in the
+// research library; built when first opened.
+function methodBody(doc, root, axes) {
+  const nodes = [el(doc, 'p', '판정 기준은 관례와 연구에서 고른 검증 전 기준선입니다. 숫자는 모두 직전 미국장 종가 기준입니다.', 'ind-method__lead')];
+  for (const row of axes) {
+    const box = el(doc, 'section', null, 'ind-method');
+    box.append(el(doc, 'h3', `${row.title}${AXIS_WATCH[row.id] ? ` — ${AXIS_WATCH[row.id]}` : ''}`, 'ind-method__title'));
+    if (AXIS_REFS[row.id]) box.append(el(doc, 'p', `학술 근거, ${AXIS_REFS[row.id]}`, 'ind-method__text'));
+    const link = principleLink(doc, root, row.id, row.title);
+    if (link) box.append(link);
+    nodes.push(box);
+  }
+  nodes.push(el(doc, 'h3', '주도 영역과 자금 흐름', 'ind-method__title'), el(doc, 'p', LEAD_METHOD, 'ind-method__text'), el(doc, 'p', FLOW_METHOD, 'ind-method__text'));
+  return nodes;
+}
+
+// the one chart card of the indicators — an axis picker, then the axis's dated charts (its own series picker).
+function paintHistory(doc, root, history, axes) {
+  const host = doc.getElementById('regime-history-host');
+  if (!host) return;
+  const items = axes.filter((row) => (history.axes[row.id] || []).length);
+  const card = doc.getElementById('regime-history');
+  if (card) card.hidden = !items.length || !history.range;
+  if (!items.length || !history.range) { host.replaceChildren(); return; }
+  const picker = el(doc, 'div', null, 'regime-chart-selectors regime-history-axes');
+  picker.setAttribute('role', 'group'); picker.setAttribute('aria-label', '차트로 볼 지표');
+  const plot = el(doc, 'div', null, 'regime-history-plot');
+  const buttons = [];
+  const show = (id) => {
+    plot.replaceChildren(chartPanel(doc, history.axes[id], history.range));
+    plot.dataset.axis = id;
+    for (const [button, row] of buttons) button.setAttribute('aria-pressed', row.id === id ? 'true' : 'false');
+  };
+  for (const row of items) {
+    const button = el(doc, 'button', row.title);
+    button.type = 'button';
+    button.dataset.axis = row.id;
+    button.addEventListener('click', () => { root.__aioOpenAxis = row.id; show(row.id); });
+    buttons.push([button, row]);
+    picker.append(button);
+  }
+  host.replaceChildren(picker, plot);
+  show((items.find((row) => row.id === root.__aioOpenAxis) || items[0]).id);
 }
 
 function heroSide(doc, regime, previous) {
@@ -395,48 +322,47 @@ function heroSide(doc, regime, previous) {
   }
 }
 
+// the counter line under the verdict — the axes on the other side of the count, or the neutral axis nearest
+// to it (domain/market/regime/counter-evidence.js), as title, state, headline value and threshold. No sentence is built.
+function paintCounterLine(doc, regime) {
+  const node = doc.getElementById('regime-counter');
+  if (!node) return;
+  const counter = counterAxes(regime);
+  if (!counter) { node.replaceChildren(); node.hidden = true; return; }
+  const items = counter.items.map(({ row, distance }) => `${row.title} ${row.stateLabel}, ${faceValue(row)}${distance ? ` · ${distance.label}` : ''}`);
+  node.replaceChildren(el(doc, 'span', counter.kind === 'opposite' ? '반대 근거' : '반대 쪽에 가장 가까운 지표', 'mk-hero__counter-label'), el(doc, 'span', items.join(' · '), 'mk-hero__counter-text'));
+  node.hidden = false;
+}
+
 function comboAndWatch(doc, root, regime, interpretation) {
   const conflicts = doc.getElementById('regime-conflicts');
   if (conflicts) {
-    // v59.51 (two layers): each combination is its name on one line ("주도 영역이 꺾이는 신호"); the numbers, counts and rule
-    // under it open in place.
-    const items = (regime.conflicts || []).map((text) => {
-      const [head, ...rest] = String(text).split(' — ');
-      const li = el(doc, 'li');
-      if (!rest.length) { li.textContent = text; return li; }
-      const fold = el(doc, 'details', null, 'mk-combo__fold');
-      fold.append(el(doc, 'summary', head), el(doc, 'p', rest.join(' — '), 'mk-combo__detail'));
-      li.append(fold);
-      return li;
-    });
-    conflicts.replaceChildren(...(items.length ? items : regime.available ? [el(doc, 'li', '지표끼리 엇갈리는 조합이 없습니다.')] : []));
+    // each combination's name is on the face ("주도 영역 이탈"); the numbers, counts and rule behind every one
+    // sit in one raw-table fold under the list.
+    const parts = (regime.conflicts || []).map((text) => String(text).split(' — '));
+    conflicts.replaceChildren(...(parts.length ? parts.map(([head]) => el(doc, 'li', head)) : regime.available ? [el(doc, 'li', '지표끼리 엇갈리는 조합이 없습니다.')] : []));
+    let raw = doc.getElementById('regime-conflicts-raw');
+    if (!raw) { raw = kindFold(doc, 'raw-table', '엇갈리는 조합의 근거 수치'); raw.id = 'regime-conflicts-raw'; conflicts.insertAdjacentElement('afterend', raw); }
+    const detailed = parts.filter((rest) => rest.length > 1);
+    setFoldBody(raw, rawTable(doc, detailed.map(([head, ...rest]) => [head, rest.join(' — ')]), '엇갈리는 조합의 근거'));
+    raw.hidden = !detailed.length;
   }
   const watch = doc.getElementById('regime-watch');
   if (!watch) return;
-  // Two price checks on the face (the other checks open under them). v59.55 (flow review): the next release is one link
-  // line to 브리핑 다음 확인 포인트, which owns the release, its branches and the 7 days (it repeated here word for word).
+  // Every price check on the face, numbered. v59.55 (flow review): the next release is one link line to 브리핑 다음 확인
+  // 포인트, which owns the release, its branches and the 7 days (it repeated here word for word).
   const items = [...(interpretation.marketRead?.checks || [])];
   const next = interpretation.crossroads?.nextEvent;
   const release = next?.name && next?.date ? `${next.when || shortDate(next.date)} ${next.name}` : '';
-  const rows = items.slice(0, 2).map((title, index) => {
+  const rows = items.map((title, index) => {
     const item = el(doc, 'li', null, 'mk-watch__item');
     const text = el(doc, 'span', null, 'mk-watch__text');
     text.append(el(doc, 'b', title));
     item.append(el(doc, 'span', String(index + 1), 'mk-watch__num'), text);
     return item;
   });
-  if (items.length > 2) {
-    const more = el(doc, 'details', null, 'mk-combo__fold');
-    const list = el(doc, 'ul', null, 'mk-watch__more');
-    for (const text of items.slice(2)) list.append(el(doc, 'li', text));
-    more.append(el(doc, 'summary', `함께 볼 것 ${items.length - 2}개`), list);
-    const li = el(doc, 'li', null, 'mk-watch__item is-more');
-    li.append(more);
-    rows.push(li);
-  }
-  // v59.55 (owner 11/1): the 무슨 일이 있었나 card above lists the week ahead with this release in it, so the line stays
-  // only while that card is not drawn.
-  if (release && doc.getElementById('regime-story')?.hidden !== false) {
+  // The week list with this release sits in the 이야기와 전망 view, so the 지금 view carries its own line.
+  if (release) {
     const li = el(doc, 'li', null, 'mk-watch__item is-release');
     const link = el(doc, 'button', `다음 발표 ${release} — 결과별 시나리오와 7일 일정 → 브리핑`, 'flow-next-link');
     link.type = 'button';
@@ -501,8 +427,8 @@ function paintCrossReadings(doc, root, inputs) {
         item.append(el(doc, 'p', row.text, 'mk-cross__text'));
         // Record ranks behind the row (depth-readouts `more`), folded: reference numbers, not part of any verdict.
         if (row.more?.length) {
-          const fold = el(doc, 'details', null, 'regime-read-more');
-          fold.append(el(doc, 'summary', `1년 기록에서의 위치 ${row.more.length}개`), ...row.more.map((entry) => el(doc, 'p', `${entry.label}: ${entry.text}`, 'mk-cross__text')));
+          const fold = markFold(el(doc, 'details', null, 'regime-read-more'), 'raw-table');
+          fold.append(foldSummary(doc, 'raw-table', `1년 기록에서의 위치 ${row.more.length}개`),...row.more.map((entry) => el(doc, 'p', `${entry.label}: ${entry.text}`, 'mk-cross__text')));
           item.append(fold);
         }
         return item;
@@ -533,16 +459,9 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const breadthRow = (regime.axes || []).find((row) => row.id === 'breadth');
   // v58.68: the leadership break is told by its own line (regime-leaders) below the headline.
   set('regime-shape', !regime.leadershipBreak && breadthRow?.narrow ? '좁은 장세, 소수 종목이 지수를 받침' : '');
-  const read = interpretation.marketRead;
-  // v59.44 (owner 2026-10-30): a '혼조' held there by weak AI·semiconductor leaders over a favourable count says so first.
-  const capLine = regime.leadershipCap && regime.heroLine ? `${regime.heroLine} ` : '';
-  // v59.51 (two layers): the face is the regime's one plain sentence (the same heroLine as 오늘); the numbered reading and
-  // the five-session comparison open under "판정 근거".
-  const fullRead = read?.headline ? `${capLine}${read.headline}${read.headlineReading ? ` ${read.headlineReading}` : ''}` : capLine.trim();
-  set('regime-headline', regime.available ? (regime.heroLine || fullRead) : fullRead);
-  set('regime-why-text', regime.available && regime.heroLine ? fullRead : '');
-  const whyFold = doc.getElementById('regime-why');
-  if (whyFold) whyFold.hidden = !regime.available;
+  // the hero's assembled sentence (heroLine / marketRead headline) and its 판정 근거 fold left the screen — the
+  // AI reading under the hero reads the verdict; the face keeps the counter line (facts only) and the 5-session comparison.
+  paintCounterLine(doc, regime);
   paintLeadershipLine(doc, 'regime-leaders', regime.available ? regime.leadershipVerdict : null, interpretation.flow, { flowOnFace: true });
   // v59.68: the month-ahead tilt (market-lean) moved here from 오늘, under the leaders line it qualifies.
   (sessionLean ||= import('./session-lean.js')).then((mod) => mod.paintMarketLean(doc, root, regime.available ? regime : null, doc.getElementById('regime-leaders'), () => renderRegimePage({ documentRef: doc, root, store }))).catch(() => { sessionLean = null; });
@@ -559,13 +478,9 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   if (board) {
     board.classList.add('regime-quality-board');
     const usAxes = regime.axes.filter((row) => row.id !== 'korea');
-    // v59.51 (content audit): every row starts closed (the burden row opened 1,500 characters by default); a reader's own
-    // choice, or a link that asked for an axis (openSignalAxis), is kept.
-    const openId = typeof root.__aioOpenAxis === 'string' ? root.__aioOpenAxis : '';
     // P1428: the US six axes and the Korea FX card are drawn apart (the tally counts only the six).
-    board.replaceChildren(...usAxes.map((row) => axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf: regime.asOf, open: row.id === openId })));
-    // v59.70 (owner 11/4): 심리 and AI·반도체 집중 (regime.watchAxes, not in the tally) are a second block in the same
-    // columns, under a rule after the six.
+    board.replaceChildren(...usAxes.map((row) => axisFace(doc, row)));
+    // v59.70 (owner 11/4): 심리 and AI·반도체 집중 (regime.watchAxes, not in the tally) are a second block under a rule after the six.
     let watchBoard = doc.getElementById('regime-board-watch');
     if (!watchBoard) {
       watchBoard = el(doc, 'div', null, 'regime-board regime-quality-board');
@@ -573,23 +488,43 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       board.insertAdjacentElement('afterend', watchBoard);
     }
     const watchAxes = (regime.watchAxes || []).filter((row) => row.observed !== false);
-    // QA 2026-11-07: the rule alone did not say these rows sit outside the tally — read as text, the table had 8 rows and
-    // 4 부담 under a head saying 6개 지표, 부담 2. One caption names them as reference rows.
+    // QA 2026-11-07: one caption names them as reference rows outside the 6-axis count.
     const watchHead = watchAxes.length ? el(doc, 'p', `참고 지표 ${watchAxes.length}개 — 위 6개 지표의 양호·중립·부담 합계에는 넣지 않습니다`, 'regime-watch-head') : null;
-    watchBoard.replaceChildren(...[watchHead].filter(Boolean), ...watchAxes.map((row) => axisRow(doc, root, row, { history, scenarios, previous, inputs, asOf: regime.asOf, open: row.id === openId })));
+    watchBoard.replaceChildren(...[watchHead].filter(Boolean), ...watchAxes.map((row) => axisFace(doc, row)));
     watchBoard.hidden = !watchAxes.length;
-    // v59.51 (content audit): the distribution-day strip (a lazy chunk, v58.75) is trend evidence, so it opens with the
-    // trend row instead of standing under the verdict.
-    if (regime.available) import('./distribution-strip.js').then(({ distributionStrip, rallyAttemptStrip }) => {
-      const detail = doc.querySelector?.('#regime-board .mk-axis[data-axis="trend"] .mk-axis__detail');
-      if (!detail) return;
-      detail.querySelectorAll(':scope > .leaders-line__dist').forEach((node) => node.remove());
-      const strip = distributionStrip(doc, inputs?.history || root._aioHistory, regime.asOf);
-      // v59.57: the follow-through-day reading sits right under the distribution count (the two halves of one method).
-      const rally = rallyAttemptStrip(doc, inputs?.history || root._aioHistory, regime.asOf);
-      if (rally) detail.prepend(rally);
-      if (strip) detail.prepend(strip);
-    }).catch(() => {});
+    // one raw-table fold under both blocks holds every axis's observations (it keeps its open state across repaints).
+    const shown = [...usAxes, ...watchAxes];
+    let raw = doc.getElementById('regime-raw');
+    if (!raw) { raw = kindFold(doc, 'raw-table', '지표별 관측값 전체'); raw.id = 'regime-raw'; watchBoard.insertAdjacentElement('afterend', raw); }
+    const groups = shown.map((row) => axisRaw(doc, row, { previous, inputs, asOf: regime.asOf }));
+    setFoldBody(raw, groups);
+    raw.hidden = !regime.available;
+    const trendRaw = groups.find((group) => group.dataset.rawAxis === 'trend');
+    // v59.70 (X bookmarks #1): Nasdaq 7% corrections since 1986 and how many became bear markets — context, not an input;
+    // fetched when the raw table opens (boot budget).
+    if (trendRaw) {
+      const slot = el(doc, 'div', null, 'mk-correction-slot');
+      trendRaw.append(slot);
+      const fill = () => (correctionBaseRate ||= import('./correction-base-rate.js')).then(({ renderCorrectionBaseRate }) => renderCorrectionBaseRate({ documentRef: doc, root, host: slot, onLoad: () => renderRegimePage({ documentRef: doc, root, store }) })).catch(() => { correctionBaseRate = null; });
+      if (raw.open) fill();
+      else if (!raw.__aioCorrectionWait) { raw.__aioCorrectionWait = true; raw.addEventListener('toggle', () => { if (raw.open) renderRegimePage({ documentRef: doc, root, store }); }); }
+      // The distribution-day strip and the follow-through reading (a lazy chunk, v58.75 / v59.57) are trend evidence.
+      if (regime.available) import('./distribution-strip.js').then(({ distributionStrip, rallyAttemptStrip }) => {
+        const rally = rallyAttemptStrip(doc, inputs?.history || root._aioHistory, regime.asOf);
+        const strip = distributionStrip(doc, inputs?.history || root._aioHistory, regime.asOf);
+        for (const part of [strip, rally].filter(Boolean)) slot.insertAdjacentElement('beforebegin', part);
+      }).catch(() => {});
+    }
+    // P1661 / v57.76: past outcomes after days with a similar VIX — a raw-table fold of its own after the indicators' table.
+    renderStressOutcomes({ documentRef: doc, root, host: raw.parentElement || board.parentElement });
+    paintHistory(doc, root, history, shown);
+    let method = doc.getElementById('regime-method');
+    if (!method) {
+      method = kindFold(doc, 'method', '지표별 학술 근거', () => methodBody(doc, root, shown));
+      method.id = 'regime-method';
+      const next = doc.getElementById('regime-next');
+      if (next) next.insertAdjacentElement('beforebegin', method); else page.append(method);
+    }
     // v59.66 (phase 4): the indicators read in pairs — breadth against the trend, sentiment against volatility and
     // positioning, rates against credit, Korea against the won (a lazy chunk; market-day.json loads on first use).
     if (regime.available) paintCrossReadings(doc, root, inputs);
@@ -608,14 +543,8 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
         // Korea's equity sessions from the US-aligned FX regime.
         if (item.id === 'usdkrw') {
           const reference = regime.axes.find(axis => axis.id === 'korea');
-          if (reference?.evidence?.length) {
-            const details = el(doc, 'details', null, 'regime-axis-details');
-            details.append(el(doc, 'summary', '원·엔 연결 근거와 관찰'), el(doc, 'p', `미국 종가 기준에 맞춘 환율 참고, ${reference.basis || '관측일 미확인'}`));
-            const evidence = el(doc, 'dl', null, 'regime-evidence'); for (const [label, value] of reference.evidence) evidence.append(el(doc, 'dt', label), el(doc, 'dd', value));
-            details.append(evidence, el(doc, 'p', reference.read));
-            if (reference.flip) details.append(el(doc, 'p', reference.flip));
-            section.append(details);
-          }
+          if (reference?.evidence?.length) section.append(kindFold(doc, 'raw-table', '원·엔 연결 관측값', rawTable(doc,
+            [['관측일', `미국 종가 기준에 맞춘 환율 참고, ${reference.basis || '관측일 미확인'}`], ...reference.evidence, ['상태가 바뀌는 조건', reference.flip]], '원·엔 연결 관측값')));
         }
         return section;
       });
@@ -648,7 +577,6 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   }
   const previousNode = page.querySelector('[data-aio-regime-scenarios]');
   const openIds = new Set([...(previousNode?.querySelectorAll?.('.regime-scenario-more[open]') || [])].map(node => node.closest('.regime-scenario-card')?.dataset.scenario));
-  if (previousNode?.querySelector?.(':scope > details')?.open) openIds.add('__section');
   previousNode?.remove();
   root.__aioScenarioOutlook = interpretation.outlook;
   const scenarioNode = board ? scenarioSection(doc, root, scenarios, root.__aioScenarioOutlook, openIds) : null;
@@ -656,7 +584,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   if (scenarioNode && structureHost) structureHost.append(scenarioNode);
   else if (scenarioNode) (doc.getElementById('regime-board-watch') || board).insertAdjacentElement('afterend', scenarioNode); // v57.76: the branches by release are on 거시; the section ends with a link there
   // v59.51 (content audit): the forward scenarios and today's guide moved here from 오늘's last fold — the same two
-  // renderers, into one closed fold (expert layer); 오늘 keeps one link to it.
+  // renderers; an open section of the 이야기와 전망 view (no fold), built when that view is shown.
   const depthAnchor = doc.getElementById('regime-depth-anchor');
   if (depthAnchor) {
     const paintDepth = () => {
@@ -665,9 +593,8 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       renderMacroCrossroads({ documentRef: doc, root, regime, host });
       renderHomeGuide({ documentRef: doc, root, store, anchor: host });
     };
-    // The view controller keeps this disclosure open even when its tab is hidden.
     const showsDepth = (view) => view === 'story' || view === 'all';
-    const depthFold = depthAnchor.closest('details');
+    const depthFold = depthAnchor.closest?.('#regime-depth-fold');
     if (depthFold) {
       if (!depthFold.__aioPaintDepth) doc.addEventListener('aio:pageViewChanged', (event) => {
         if (event.detail?.page === page.id && showsDepth(event.detail.view) && page.classList.contains('active')) depthFold.__aioPaintDepth();
@@ -685,7 +612,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const anchorId = handoff?.context?.anchor ? String(handoff.context.anchor) : '';
   if (/^[a-z0-9-]+$/i.test(anchorId)) {
     const section = doc.getElementById(anchorId);
-    // v58.56 (re-audit #16): the Korea card is folded; a link that asks for it opens the fold first.
+    // A link into a fold (a raw table) opens it first; the sections themselves are open.
     const fold = section?.closest?.('details') || section?.querySelector?.(':scope > details');
     if (section) root._aioShowViewOf?.(section);
     if (fold) fold.open = true;
@@ -709,63 +636,38 @@ function headChip(doc, label, state, burden = false) {
   head.append(el(doc, 'span', label, 'leaders-line__label'), chip);
   return head;
 }
+// the two judgement methods, shown in the page's method fold (and as each part's hover).
+const LEAD_METHOD = '주도 영역 판정 방법: 반도체 ETF(SOXX)의 추세와 하루 변화, 나스닥 100의 하루 변화, 미국 종목의 최근 종가 신저가 수로 냅니다. 미국 6개 지표의 양호·중립·부담 합계에는 넣지 않습니다.';
+const FLOW_METHOD = '자금 흐름 판정 방법: 미국 섹터 ETF의 하루 등락과 같은 날 10년물 금리 변화, 공포·탐욕 지수를 봅니다. 성장(기술·통신·반도체)과 방어(필수소비재·유틸리티·헬스케어) 업종의 평균 차이가 3%p 이상이면 한쪽으로의 이동으로 봅니다.';
+// the state words are the face ("주도주(AI·반도체) 이탈 · 돈의 방향 방어 업종 강세"); the numbers behind them
+// and the sector and theme splits are one raw-table fold. The leaders' and the money's reading sentences left the screen —
+// the AI reading interprets them.
 function paintLeadershipLine(doc, id, verdict, flow = null, { flowOnFace = false } = {}) {
   const node = doc.getElementById(id);
   if (!node) return;
   const lead = verdict?.available ? verdict : null;
   const money = flow?.available ? flow : null;
   if (!lead && !money) { node.hidden = true; node.replaceChildren(); return; }
-  const fold = el(doc, 'details', null, 'leaders-line__more');
-  fold.open = !!node.querySelector?.(':scope > details')?.open; // the frequent repaint (live quotes) keeps a reader's fold
-  const summary = el(doc, 'summary', null, 'leaders-line__summary');
-  if (lead) summary.append(headChip(doc, '주도주(AI·반도체)', lead.label, lead.state === 'break' || lead.state === 'weak' || lead.shock));
-  if (money && (flowOnFace || !lead)) summary.append(headChip(doc, '돈의 방향', money.label));
-  fold.append(summary);
-  const section = (title, read, evidence, method) => {
-    const box = el(doc, 'div', null, 'leaders-line__part');
-    box.append(el(doc, 'h4', title, 'leaders-line__label'));
-    if (read) box.append(el(doc, 'p', read, 'leaders-line__read'));
-    if (evidence) box.append(el(doc, 'p', evidence, 'leaders-line__evidence'));
-    if (method) box.title = method; // v59.69: the method is the section's hover
-    return box;
-  };
-  if (lead) fold.append(section(`주도 영역 (AI·반도체): ${lead.label}`, lead.read, lead.line,
-    '판정 방법: 반도체 ETF(SOXX)의 추세와 하루 변화, 나스닥 100의 하루 변화, 미국 종목의 최근 종가 신저가 수로 냅니다(위 숫자). 미국 6개 지표의 양호·중립·부담 합계에는 넣지 않습니다.'));
-  if (money) {
-    const box = section(`자금 흐름: ${money.label}`, money.read, money.line,
-      '판정 방법: 미국 섹터 ETF의 하루 등락과 같은 날 10년물 금리 변화, 공포·탐욕 지수를 봅니다. 성장(기술·통신·반도체)과 방어(필수소비재·유틸리티·헬스케어) 업종의 평균 차이가 3%p 이상이면 한쪽으로의 이동으로 봅니다.');
-    const themes = money.themes;
-    if (themes?.available) {
-      const list = el(doc, 'ul', null, 'leaders-line__list');
-      for (const text of [
-        themes.splitLines.length ? `같은 업종 안에서 갈린 곳: ${themes.splitLines.join(' / ')}` : '',
-        themes.memberSplitLines?.length ? `같은 테마 안에서 갈린 종목: ${themes.memberSplitLines.join(' / ')}` : '',
-        themes.strongLine, themes.weakLine
-      ].filter(Boolean)) list.append(el(doc, 'li', text));
-      box.append(el(doc, 'p', `테마 ${themes.groups}개의 하루 흐름`, 'leaders-line__evidence'), list);
-    }
-    fold.append(box);
+  const face = el(doc, 'p', null, 'leaders-line__summary');
+  if (lead) face.append(headChip(doc, '주도주(AI·반도체)', lead.label, lead.state === 'break' || lead.state === 'weak' || lead.shock));
+  if (money && (flowOnFace || !lead)) face.append(headChip(doc, '돈의 방향', money.label));
+  const rows = [];
+  if (lead?.line) rows.push([`주도 영역 (AI·반도체) ${lead.label}`, lead.line]);
+  if (money?.line) rows.push([`자금 흐름 ${money.label}`, money.line]);
+  const themes = money?.themes;
+  if (themes?.available) {
+    if (themes.splitLines.length) rows.push(['같은 업종 안에서 갈린 곳', themes.splitLines.join(' / ')]);
+    if (themes.memberSplitLines?.length) rows.push(['같은 테마 안에서 갈린 종목', themes.memberSplitLines.join(' / ')]);
+    rows.push([`테마 ${themes.groups}개의 하루 흐름`, [themes.strongLine, themes.weakLine].filter(Boolean).join(' / ')]);
   }
-  node.replaceChildren(fold);
+  const wasOpen = !!node.querySelector?.(':scope > details')?.open; // the frequent repaint (live quotes) keeps a reader's fold
+  const fold = rows.length ? kindFold(doc, 'raw-table', '주도 영역과 자금 흐름의 근거 수치', rawTable(doc, rows, '주도 영역과 자금 흐름')) : null;
+  if (fold) fold.open = wasOpen;
+  face.title = [lead ? LEAD_METHOD : '', money ? FLOW_METHOD : ''].filter(Boolean).join(' ');
+  node.replaceChildren(face, ...(fold ? [fold] : []));
   node.dataset.state = lead ? lead.state : 'unknown';
   node.hidden = false;
 }
 
 let correctionBaseRate = null; // v59.70: the correction base rate loads with the opened trend row, outside the boot set
 let sessionLean = null;
-// v59.51 (first-users run-6 #10): one way from 오늘 to an axis on 시장 상태. The axis is asked for before the route renders
-// (root.__aioOpenAxis, which renderRegimePage keeps open), then the view lands on what was asked — the axis chart for the
-// "지수 차트" link (it landed two screens above the chart), the axis row for a chip. It retries while 시장 상태 paints.
-export function openSignalAxis(doc, root, axisId, { chart = false } = {}) {
-  root.__aioOpenAxis = axisId;
-  root.showPage?.('signal');
-  let tries = 0;
-  const land = () => {
-    const axis = doc.querySelector?.(`:is(#regime-board, #regime-board-watch) .mk-axis[data-axis="${axisId}"]`);
-    if (!axis) { if ((tries += 1) < 30) setTimeout(land, 100); return; }
-    root._aioShowViewOf?.(axis);
-    axis.open = true;
-    (chart ? axis.querySelector('.regime-axis-history') || axis : axis).scrollIntoView?.({ block: 'start' });
-  };
-  setTimeout(land, 60);
-}

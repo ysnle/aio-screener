@@ -16,7 +16,8 @@ const BASE_URL = `http://127.0.0.1:${PORT}/index.html`;
 const OUT_PATH = process.env.CI_HUMAN_SURFACE_OUT
   ? resolve(root, process.env.CI_HUMAN_SURFACE_OUT)
   : resolve(root, '_artifacts', 'critical10-human-surface-audit.json');
-const ROUTES = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+// Owner 2026-11-19: the 차트 tab (technical) is a derived view of 기술적 분석, so its human surface is audited on charts.
+const ROUTES = ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'];
 
 async function main() {
   mkdirSync(dirname(OUT_PATH), { recursive: true });

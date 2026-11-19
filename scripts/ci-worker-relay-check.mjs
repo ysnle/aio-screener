@@ -386,6 +386,33 @@ async function main() {
       && healthBody.ai?.dailyCap === undefined
       && !healthText.includes('AI_DAILY_CAP'), healthBody.ai);
 
+  // v60.31: a Yahoo chart body whose OHLC values are mostly null is asked for once more past the edge copy; a body that
+  // stays hollow is served uncached.
+  {
+    const realFetch = globalThis.fetch;
+    const chart = (closes) => JSON.stringify({ chart: { result: [{ timestamp: closes.map((_, i) => 1700000000 + i * 300), indicators: { quote: [{ close: closes }] } }] } });
+    const hollowBody = chart(Array.from({ length: 79 }, (_, i) => (i < 14 || i === 78 ? 100 + i : null)));
+    const fullBody = chart(Array.from({ length: 79 }, (_, i) => 100 + i));
+    const target = 'https://query1.finance.yahoo.com/v8/finance/chart/SPY?interval=5m&range=1d';
+    const proxyRequest = () => new Request(`https://worker.example/?url=${encodeURIComponent(target)}`, { headers: { Origin: PROD_ORIGIN } });
+    const run = async (bodies) => {
+      const calls = [];
+      globalThis.fetch = async (url, init) => { calls.push({ url: String(url), cf: init?.cf }); return new Response(bodies[Math.min(calls.length - 1, bodies.length - 1)], { status: 200, headers: { 'content-type': 'application/json' } }); };
+      const response = await worker.fetch(proxyRequest(), env);
+      return { calls, body: await response.text(), cache: response.headers.get('cache-control') };
+    };
+    try {
+      const healed = await run([hollowBody, fullBody]);
+      check('v60.31 a hollow Yahoo chart body is asked for again under a one-off uncached key and the full answer is served',
+        healed.calls.length === 2 && healed.calls[1].url !== healed.calls[0].url && healed.calls[1].cf?.cacheTtlByStatus?.['100-599'] === -1
+          && healed.body === fullBody && /max-age=120/.test(healed.cache || ''), [healed.calls.length, healed.cache]);
+      const stuck = await run([hollowBody, hollowBody]);
+      check('v60.31 a Yahoo chart body that stays hollow is served no-store', stuck.calls.length === 2 && stuck.cache === 'no-store', [stuck.calls.length, stuck.cache]);
+      const fine = await run([fullBody]);
+      check('v60.31 a full Yahoo chart body is one upstream call', fine.calls.length === 1 && /max-age=120/.test(fine.cache || ''), [fine.calls.length, fine.cache]);
+    } finally { globalThis.fetch = realFetch; }
+  }
+
   if (errors.length) {
     console.error('Worker relay contract failed:');
     errors.forEach((error) => console.error(' - ' + error));

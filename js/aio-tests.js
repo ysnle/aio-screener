@@ -969,8 +969,8 @@
     var wrote = window._aioSetLiveData ? window._aioSetLiveData('TST-LD', { price: 45, pct: null }, { source: 'snapshot', ts: Date.now(), policyKey: 'static_snapshot', reason: 'test' }) : false;
     var ds = window._dataSource && window._dataSource['TST-LD'];
     _assert('T122 _aioSetLiveData: snapshot metadata retained', wrote && ds && ds.source === 'snapshot' && ds.policyKey === 'static_snapshot', ds && JSON.stringify(ds));
-    var audit = window.AIO && window.AIO.auditAllFreshness ? window.AIO.auditAllFreshness('technical') : null;
-    _assert('T123 auditAllFreshness: page audit shape', audit && audit.pageId === 'technical' && audit.coverage && audit.scheduler, audit && JSON.stringify({ pageId: audit.pageId, status: audit.status }));
+    var audit = window.AIO && window.AIO.auditAllFreshness ? window.AIO.auditAllFreshness('charts') : null;
+    _assert('T123 auditAllFreshness: page audit shape', audit && audit.pageId === 'charts' && audit.coverage && audit.scheduler, audit && JSON.stringify({ pageId: audit.pageId, status: audit.status }));
     var sched = window.REFRESH_SCHEDULE && window.REFRESH_SCHEDULE.quotes;
     _assert('T124 REFRESH_SCHEDULE: operational metadata', sched && sched.priority && sched.timeoutMs >= 8000 && sched.policyKey === 'quote', sched && JSON.stringify({ priority: sched.priority, timeoutMs: sched.timeoutMs, policyKey: sched.policyKey }));
   }
@@ -1005,7 +1005,7 @@
 
   function _testPageFocusBriefUX() {
     var briefs = window.AIO_PAGE_BRIEFS || {};
-    var required = ['home','signal','technical','macro','portfolio','market-news','ticker','theme-detail','guide']; // v53.7 P725: kr-home retired · P1321: options retired
+    var required = ['home','signal','charts','macro','portfolio','market-news','ticker','theme-detail','guide']; // v53.7 P725: kr-home retired · P1321: options retired
     var missing = required.filter(function(id) { return !briefs[id]; });
     _assert('T133 page_focus_brief: required page configs exist', missing.length === 0, missing.join(','));
 
@@ -1211,7 +1211,7 @@
     var fxbondProfile = window.AIO && typeof window.AIO.getDataRequirementProfile === 'function' ? window.AIO.getDataRequirementProfile({ pageId:'fxbond', symbolLimit:999 }) : null;
     _assert('T171 fxbond_profile: FX/bond page covers currencies, yields, credit, and duration', fxbondProfile && ['KRW=X','JPY=X','EURUSD=X','^TNX','^IRX','HYG','LQD','TLT'].every(function(s){ return fxbondProfile.symbols.indexOf(s) >= 0; }), fxbondProfile && fxbondProfile.symbols.join(','));
 
-    var tenPages = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+    var tenPages = ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'];
     var thin = tenPages.filter(function(id) {
       var p = window.AIO.getDataRequirementProfile({ pageId:id, symbolLimit:999 });
       return !p || !p.tasks.length || p.symbols.length < 5;
@@ -1392,7 +1392,7 @@
 
     // T336 (P306/R94 보강) → v57.76: the RSI card that carried data-threshold-key="RSI" was retired with the SPY indicator card.
     _assert('T336 technical_rsi_threshold_key: 퇴역한 SPY RSI 카드의 마커가 다시 생기지 않음 (v57.76)',
-      !document.querySelector('#page-technical [data-threshold-key="RSI"]'), 'retired');
+      !document.querySelector('#page-charts [data-threshold-key="RSI"]'), 'retired');
 
     // T337: signal/breadth findings 누적 유지 + sentiment/briefing/technical/macro findings 등록
     // (v57.77: sentiment 5+ → 4+; v57.78: briefing 3+ → array, technical 3+ → 1+, macro 6+ → 1+ — findings of pruned sections left with them)
@@ -3510,7 +3510,7 @@
       unifiedSrc705.indexOf('_buildChatAnswerCoverageContext') >= 0,
       'unified=' + (unifiedSrc705.indexOf('_buildChatAnswerCoverageContext') >= 0));
 
-    var criticalPages711 = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+    var criticalPages711 = ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'];
     var prMap711 = window.AIO_PAGE_REFRESH_MAP || {};
     _assert('T711 critical10_page_refresh_map_v49107: comprehensive 5 + market-analysis 5 all have refresh tasks',
       criticalPages711.every(function(p) { return Array.isArray(prMap711[p]) && prMap711[p].indexOf('quotes') >= 0; }) &&
@@ -4367,7 +4367,7 @@
       'shell=' + !!optPageT236 + ' recGone=' + optRecGone);
 
     // T237 → v57.76: the SPY TradingView fold and its OHLC fallback strip left the 차트 tab (the native stock chart replaces it).
-    var ohlc = document.querySelector('#page-technical [data-aio-fallback="tradingview-iframe"]');
+    var ohlc = document.querySelector('#page-charts [data-aio-fallback="tradingview-iframe"]'); // the chart moved to 기술적 분석
     _assert('T237 technical_fallback: 퇴역한 TradingView 대체 strip이 차트 탭에 다시 생기지 않음 (v57.76)',
       !ohlc, ohlc ? 'returned' : 'retired');
 
@@ -4415,7 +4415,7 @@
 
     // T227: v57.76 — the market-level SPY RSI card left the 차트 tab (시장 상태 요약 carries the market judgement).
     _assert('T227 technical_rsi_threshold: SPY RSI 카드 퇴역 유지 (v57.76)',
-      !document.querySelector('#page-technical #tech-rsi-val'), 'retired');
+      !document.querySelector('#tech-rsi-val'), 'retired');
 
     // T228: macro 시나리오 lastUpdated DOM
     var scenUpdated = document.getElementById('macro-scenario-updated');
@@ -4918,7 +4918,7 @@
         textContracts.policy.roles.indexOf('developer-note') >= 0,
       JSON.stringify(textContracts && { version:textContracts.version, routes:Object.keys(textContracts.routes || {}).length }));
 
-    var textAudit = window.AIO && window.AIO.getTextSurfaceAudit ? window.AIO.getTextSurfaceAudit({ pages:['home','signal','briefing','macro','technical'], includeItems:true }) /* v53.7 P725 */ : null;
+    var textAudit = window.AIO && window.AIO.getTextSurfaceAudit ? window.AIO.getTextSurfaceAudit({ pages:['home','signal','briefing','macro','charts'], includeItems:true }) /* v53.7 P725 */ : null;
     var leakedInternal = textAudit && textAudit.items ? textAudit.items.filter(function(i) {
       return i.text && /(\[PRIMARY\]|\[SECONDARY\]|PAGE_PURPOSE_REGISTRY|R69 ACTION_RULES|sectionOrder\[0\]|AIO_SCORE_SCALES)/.test(i.text);
     }) : [];
@@ -5628,9 +5628,9 @@
       // page 직속 자식 중 inner 셀렉터를 감싸는 것을 찾는 헬퍼 (코어 _directChildOf 미러)
       var dchild = function(page, sel){ var inner = page && page.querySelector(sel); if (!inner) return null; var n = inner; while (n && n.parentElement !== page) n = n.parentElement; return n; };
       var idxIn = function(page, el){ return (page && el) ? Array.prototype.indexOf.call(page.children, el) : -2; };
-      // technical: 헤더 직후 = 시장 건강도(결론)
-      var ptT = document.getElementById('page-technical');
-      var hdrT = dchild(ptT, '.page-title'), verT = dchild(ptT, '#stock-chart-section'); // 2026-10-18 owner decision: the stock chart leads the 차트 tab; the P1420 summary follows it
+      // 기술적 분석 (owner 2026-11-19, the 차트 tab retired): the header, then the search, then the view tabs.
+      var ptT = document.getElementById('page-charts');
+      var hdrT = dchild(ptT, '.page-title'), verT = ptT && ptT.querySelector(':scope > #charts-search');
       var techOk = !!(hdrT && verT) && idxIn(ptT, verT) === idxIn(ptT, hdrT) + 1;
       // themes: 헤더 직후 = 사이클 국면 판정(결론)
       var ptH = document.getElementById('page-themes');
@@ -5646,7 +5646,7 @@
       t806ok = techOk && themesOk && deadCount === 0;
       t806detail = 'techVerdictAfterHdr=' + techOk + ' themesVerdictAfterHdr=' + themesOk + ' deadExplainSrc=' + deadCount;
     } catch(e) { t806detail = 'ERR:' + e.message; }
-    _assert('T806 v5036_analysis_verdict_first: technical 건강도·themes 사이클이 헤더 직후 + 죽은 설명서 소스 0', t806ok, t806detail);
+    _assert('T806 v5036_analysis_verdict_first: 기술적 분석 검색·themes 사이클이 헤더 직후 + 죽은 설명서 소스 0', t806ok, t806detail);
 
     // ─── v50.37 AI 채팅 차별화: 자연어 스크리너 질의 + 소스 레지스트리 + 답변 유연성 ───
     // T807: 자연어 스크리너 질의 — _aioRunScreenerQuery 정의 + 조건 파싱 + SCREENER_DB 필터 결과 구조
@@ -6011,7 +6011,7 @@
       var topics822 = ['semi', 'geo', 'bond', 'fx'].every(function(topic) {
         return !!document.querySelector('[data-news-topic="' + topic + '"]');
       });
-      var tech822 = document.getElementById('page-technical');
+      var tech822 = document.getElementById('page-charts');
       var techText822 = tech822 ? tech822.textContent : '';
       var claims822 = techText822.indexOf('94% 승률') < 0 && techText822.indexOf('94.1%') < 0;
       var panel822 = document.getElementById('screener-backtest-panel');
@@ -6102,7 +6102,7 @@
       var krPct824 = document.querySelector('.kr-screen-card[data-live-symbol="000660.KS"] .kr-screen-chg[data-live-chg="000660.KS"]');
       var krRange824 = window.AIO_DATA_TRUTH_GATE && window.AIO_DATA_TRUTH_GATE.rangeFor('000660.KS');
       var text824 = window.AIO && window.AIO.getTextSurfaceAudit
-        ? window.AIO.getTextSurfaceAudit({ pages:['breadth','technical','screener'], includeItems:true, includeText:true }) : null;
+        ? window.AIO.getTextSurfaceAudit({ pages:['breadth','charts','screener'], includeItems:true, includeText:true }) : null;
       var ratioFalseBlocks824 = text824 && text824.items ? text824.items.filter(function(item) {
         return item.severity === 'block' && /(S&P500|M7\s+\d+\/\d+|섹터\s+\d+\/\d+|MA\(5\/20\/60\)|1\/3\/6M)/.test(item.text || '');
       }) : [];
@@ -6246,7 +6246,7 @@
         ctx828.indexOf('related_pages') >= 0 &&
         ctx828.indexOf('answer_contract') < 0 &&
         ctx828.indexOf('스크리너') >= 0 && // v59.70: route-registry screen name (was 퀀트 스크리너)
-        ctx828.indexOf('종목, 차트') >= 0 && // v58.73 separator; v57.55: current screen names (was 차트·기술 분석)
+        ctx828.indexOf('기술적 분석') >= 0 && // the chart pipeline points at 기술적 분석 (owner 2026-11-19: the 종목, 차트 tab is retired)
         ctx828.indexOf('오늘, 브리핑') >= 0 && // v59.70: route-registry name (was 브리핑·뉴스)
         csSrc828.indexOf('sysPrompt += _buildAioIntegratedAnswerContext(ctxId, q') >= 0);
       t828detail = JSON.stringify({
@@ -6314,7 +6314,7 @@
       var contracts830 = window.AIO_NEWS_SURFACE_CONTRACTS || {};
       var ds830 = window.DATA_SNAPSHOT || {};
       var ctx830 = (typeof window._buildAioIntegratedAnswerContext === 'function') ? window._buildAioIntegratedAnswerContext('themes', 'broad market themes', { news:true, screenerData:true, freshness:true }) : '';
-      var requiredPages830 = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','screener','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+      var requiredPages830 = ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','screener','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
       var pagesOk830 = requiredPages830.every(function(k) { return Array.isArray(map830[k]) && (k === 'guide' || map830[k].length >= 1); });
       var technicalTopics830 = contracts830.technical && contracts830.technical.topics || [];
       var themesTopics830 = contracts830.themes && contracts830.themes.topics || [];
@@ -6375,7 +6375,7 @@
         themes: ['CURRENT_DYNAMIC_THEME_2026-06-16: HBM allocation, AI server demand, optical capacity, and macro funding risk are regenerated from this artifact.'],
         catalysts: [{ key:'NVDA', count:66, text:'Current-window NVDA supply-chain catalyst.' }],
         categories: ['macro','geo','credit','semi','optical','power','ai-policy','kr-market','equity','crypto','earnings','healthcare','japan','flows','insider'].map(function(id) { return { id:id, label:id, topics:[id], count:1, focus:'current artifact focus for ' + id }; }),
-        pageMap: ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','principles','masters','atlas','screener','guide','charts','kr-home','kr-supply','kr-themes','kr-macro','kr-technical'].reduce(function(out, id) { out[id] = id === 'guide' ? [] : ['macro','semi']; return out; }, {}),
+        pageMap: ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','principles','masters','atlas','screener','guide','charts','kr-home','kr-supply','kr-themes','kr-macro','kr-technical'].reduce(function(out, id) { out[id] = id === 'guide' ? [] : ['macro','semi']; return out; }, {}),
         pipelineNote: 'CURRENT_DYNAMIC_PIPELINE_NOTE_2026-06-16',
         topItems: [
           { channel:'insidertracking', datetime:'2026-06-16T05:00:00.000Z', tickers:['NVDA','MU'], score:94, text:'NVDA and MU memory supply update: HBM allocation, AI server demand, and optical capacity pressure.' },
@@ -6530,7 +6530,7 @@
     // T837: v50.70 page decision/source contract + FOMC freshness gate.
     var t837ok = false, t837detail = '';
     try {
-      var pages837 = ['home','signal','breadth','sentiment','briefing','market-news','technical','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
+      var pages837 = ['home','signal','breadth','sentiment','briefing','market-news','charts','screener','ticker','portfolio','themes','theme-detail','macro','fxbond','fundamental','kr-home','kr-supply','kr-themes','kr-macro','kr-technical','guide'];
       var validKinds837 = { LIVE:1, DELAYED:1, SNAPSHOT:1, REFERENCE:1, UNAVAILABLE:1 };
       var models837 = typeof window._aioBuildPageDecision === 'function'
         ? pages837.map(function(p){ return window._aioBuildPageDecision(p); })
@@ -6758,7 +6758,7 @@
 
   // v52.89 P704/R330: 13개 시안 + 가이드/용어/한국 5면까지 20개 사용자 표면 계약을 유지한다.
   function _testV5287RedesignDefaultPath() {
-    var pages869 = ['home','signal','briefing','breadth','sentiment','technical','macro','fxbond','fundamental','themes','portfolio','market-news','screener'];
+    var pages869 = ['home','signal','briefing','breadth','sentiment','charts','macro','fxbond','fundamental','themes','portfolio','market-news','screener'];
     var failures869 = [];
     try { document.body.classList.remove('aio-dev-mode'); } catch(_) {}
     pages869.forEach(function(id) {
@@ -7411,7 +7411,7 @@
     _assert('T925 route_ia_history_and_theme_canonical (H2-08): theme-detail canonical redirect and history/hash contracts are present', !!route924 && route924.themeDetailCanonical === true && route924.historyPushState === true && route924.hashNavigation === true, JSON.stringify(route924));
     var declutter926 = window.AIO && typeof window.AIO.getPageDeclutterAudit === 'function' ? window.AIO.getPageDeclutterAudit() : null;
     _assert('T926 page_declutter_intent_registry (H2-09): every route has a first-screen intent and primary scenario', !!declutter926 && declutter926.status === 'pass' && declutter926.routeCount === 20 && declutter926.missingIntent.length === 0, JSON.stringify(declutter926));
-    _assert('T927 page_declutter_priority_routes (H2-09): high-risk routes are explicitly included in the visual review set', !!declutter926 && ['signal','macro','technical','fxbond','guide','themes','portfolio','screener'].every(function(id){ return declutter926.priorityRoutes.indexOf(id) >= 0; }), JSON.stringify(declutter926 && declutter926.priorityRoutes));
+    _assert('T927 page_declutter_priority_routes (H2-09): high-risk routes are explicitly included in the visual review set', !!declutter926 && ['signal','macro','charts','fxbond','guide','themes','portfolio','screener'].every(function(id){ return declutter926.priorityRoutes.indexOf(id) >= 0; }), JSON.stringify(declutter926 && declutter926.priorityRoutes));
     var provenance930 = window.AIO && typeof window.AIO.getTypedProvenanceAudit === 'function' ? window.AIO.getTypedProvenanceAudit() : null;
     _assert('T930 typed_provenance_action_strength (H2-12): runtime-derived bundle ID is shared by score/UI/AI and covers all critical inputs', !!provenance930 && provenance930.status === 'pass' && provenance930.checks.sameEvidenceIdAcrossUiScoreAi && provenance930.checks.realRuntimeBundle && provenance930.checks.criticalInputsCovered && provenance930.checks.missingAndNeutralDistinct && provenance930.checks.futureAsOfBlocked && provenance930.checks.staleManualActionWeak && provenance930.checks.lineageExportable, JSON.stringify(provenance930));
     var architecture931 = window.AIO && typeof window.AIO.getArchitectureGovernanceAudit === 'function' ? window.AIO.getArchitectureGovernanceAudit() : null;

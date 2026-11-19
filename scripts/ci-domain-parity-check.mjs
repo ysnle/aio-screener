@@ -325,7 +325,7 @@ for (const fixture of factorRanksGolden.fixtures) {
   const { RULES } = await import('../src/domain/rules/thresholds.js');
   const { fearGreedBand } = await import('../src/domain/market/sentiment/metrics.js');
   const { vixBand } = await import('../src/domain/market/sentiment/narrative.js');
-  const board = await import('../src/ui/components/sentiment-board.js');
+  const board = await import('../src/domain/market/sentiment/sentiment-model.js'); // v60.31: the 투자 심리 cards' band (moved from the UI board)
   const core = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
   const pick = (name) => [...core.matchAll(new RegExp(`(?:function ${name}\\(v\\)\\s*\\{[^\\n]*\\}|var ${name} = function\\(v\\)\\{[^\\n]*\\};)`, 'g'))].map((match) => match[0]);
   const build = (name, text) => new Function(`${text}\nreturn ${name};`)();
@@ -363,7 +363,7 @@ for (const fixture of factorRanksGolden.fixtures) {
   // A copy of the label ladder with a non-CNN edge must not come back anywhere in product code.
   const copies = [];
   // v59.84: the home VIX card and the market story kept their own ladders (32/25/18 and 30/20); they read vixBand now.
-  for (const file of ['js/aio-pages.js', 'js/aio-chat.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-core.js', 'src/ui/pages/analysis.js', 'src/ui/components/sentiment-board.js', 'src/ui/components/home-vix.js', 'src/domain/market/story/market-story.js']) {
+  for (const file of ['js/aio-pages.js', 'js/aio-chat.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-core.js', 'src/ui/pages/analysis.js', 'src/ui/components/sentiment-board.js', 'src/domain/market/sentiment/sentiment-model.js', 'src/ui/components/home-vix.js', 'src/domain/market/story/market-story.js']) {
     readFileSync(path.join(root, file), 'utf8').split('\n').forEach((line, index) => {
       if (/<=\s*25\s*\?\s*'극단/.test(line) || /<=\s*45\s*\?\s*'공포'/.test(line) || /<\s*55\s*\?\s*(?:2|'중립')/.test(line) || /<\s*75\s*\?\s*(?:3|'탐욕')/.test(line) || /\bvix\s*<\s*(?:15|20|30)\s*\?/.test(line) || /\bvix(?:\.to|\.value)?\s*>=\s*(?:15|20|30)\s*\?/.test(line) || /\bvp\s*>=\s*\d+\s*\?/.test(line)) copies.push(`${file}:${index + 1}`);
     });

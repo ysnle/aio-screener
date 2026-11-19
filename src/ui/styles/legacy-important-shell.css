@@ -72,7 +72,6 @@ body.aio-dev-mode .aio-public-readiness { display:grid !important; }
 #page-briefing .aio-page-advanced-toggle:not([data-user-fold]),
 #page-breadth .aio-page-advanced-toggle:not([data-user-fold]),
 #page-sentiment .aio-page-advanced-toggle:not([data-user-fold]),
-#page-technical .aio-page-advanced-toggle:not([data-user-fold]),
 #page-macro .aio-page-advanced-toggle:not([data-user-fold]),
 #page-fxbond .aio-page-advanced-toggle:not([data-user-fold]),
 #page-fundamental .aio-page-advanced-toggle:not([data-user-fold]),
@@ -85,7 +84,6 @@ body.aio-dev-mode #page-signal .aio-page-advanced-toggle,
 body.aio-dev-mode #page-briefing .aio-page-advanced-toggle,
 body.aio-dev-mode #page-breadth .aio-page-advanced-toggle,
 body.aio-dev-mode #page-sentiment .aio-page-advanced-toggle,
-body.aio-dev-mode #page-technical .aio-page-advanced-toggle,
 body.aio-dev-mode #page-macro .aio-page-advanced-toggle,
 body.aio-dev-mode #page-fxbond .aio-page-advanced-toggle,
 body.aio-dev-mode #page-fundamental .aio-page-advanced-toggle,
@@ -93,7 +91,7 @@ body.aio-dev-mode #page-themes .aio-page-advanced-toggle:not([data-view-open]),
 body.aio-dev-mode #page-portfolio .aio-page-advanced-toggle,
 body.aio-dev-mode #page-market-news .aio-page-advanced-toggle,
 body.aio-dev-mode #page-screener .aio-page-advanced-toggle, .page .aio-page-advanced-toggle[data-user-fold]:not([data-view-open]) { display:block !important; }
-body:not(.aio-dev-mode) #market-pulse-bar, body:not(.aio-dev-mode) #aio-public-readiness, body:not(.aio-dev-mode) #snapshot-stale-warning, body:not(.aio-dev-mode) #live-source-static-badge, body:not(.aio-dev-mode) #server-data-age, body:not(.aio-dev-mode) #llm-header-badge, body:not(.aio-dev-mode) #llm-quota, body:not(.aio-dev-mode) #topbar-refresh-btn, body:not(.aio-dev-mode) #fund-earnings-calendar, body:not(.aio-dev-mode) #page-signal > details:not(.page-sources), body:not(.aio-dev-mode) .aio-operator-control, body:not(.aio-dev-mode) .page [id^="tg-feed-"]:not(#tg-feed-market-news) { display:none !important; }
+body:not(.aio-dev-mode) #market-pulse-bar, body:not(.aio-dev-mode) #aio-public-readiness, body:not(.aio-dev-mode) #snapshot-stale-warning, body:not(.aio-dev-mode) #live-source-static-badge, body:not(.aio-dev-mode) #server-data-age, body:not(.aio-dev-mode) #llm-header-badge, body:not(.aio-dev-mode) #llm-quota, body:not(.aio-dev-mode) #topbar-refresh-btn, body:not(.aio-dev-mode) #fund-earnings-calendar, body:not(.aio-dev-mode) #page-signal > details:not(.page-sources, .ind-fold), body:not(.aio-dev-mode) .aio-operator-control, body:not(.aio-dev-mode) .page [id^="tg-feed-"]:not(#tg-feed-market-news) { display:none !important; }
 body:not(.aio-dev-mode) #page-home > details.aio-card { padding-top:0 !important; }
 #pf-freshness-strip { display:none !important; }
 #scr-load-more-wrap[hidden] { display:none !important; }

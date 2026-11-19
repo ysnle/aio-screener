@@ -22,6 +22,17 @@ const PANE_ORDER = ['rsi', 'macd', 'rs'];
 // [period, line width, line style]: the short set (5·10·20) and the mid/long set (20·50·200) heavier, 100 thin, 200 dashed.
 const MA_STYLE = Object.freeze([[5, 1.6, 0], [10, 1.6, 0], [20, 2, 0], [50, 1.8, 0], [100, 1, 0], [200, 1.8, 2]]);
 
+// The volume profile's share of the plot width, drawn from the right edge. The recent-bars view leaves at least this much
+// empty room right of the last bar, so the profile rows never sit on the latest candles (owner 2026-11-19).
+export const PROFILE_SHARE = 0.2;
+const PROFILE_MAX_PX = 150;
+/** The logical range that shows the last `count` bars with the profile's share of the width free right of the last bar. */
+export function recentLogicalRange(length, count) {
+  const shown = Math.max(1, Math.min(count, length));
+  const pad = Math.ceil((PROFILE_SHARE * (shown - 1) + 0.5) / (1 - PROFILE_SHARE)) + 1;
+  return { from: Math.max(0, length - shown), to: length - 1 + pad };
+}
+
 /** Scale margins (fractions of the price chart's height) for the price and the volume overlay. */
 export function chartLayout(pricePx = PRICE_PX_DEFAULT) {
   return { height: pricePx, price: { top: 0.06, bottom: 0.22 }, volume: { top: 0.82, bottom: 0 }, priceRegionBottom: 1 };
@@ -45,9 +56,14 @@ function canvasLayer(paint, zOrder = 'bottom') {
 
 // `compact` (the market strip): base layers only, no toggle row or legend, the read written into `readHost`.
 export function attachChartLayers({ doc, root, instance, layers, analysis = null, rs = null, price = (v) => String(v), compact = false, readHost = null, pricePx = PRICE_PX_DEFAULT }) {
-  if (!compact) { doc.getElementById('stock-chart-layers')?.remove(); doc.querySelector('.stock-chart-layer-read')?.remove(); }
+  // Only the slot's own read row: the 시장 지수 cards on the same page carry the class too.
+  if (!compact) { doc.getElementById('stock-chart-layers')?.remove(); doc.querySelector('#stock-chart-section .stock-chart-layer-read')?.remove(); }
   if (!instance?.chart || !instance.candles || !layers?.available) return null;
   const { chart, candles, volume, palette, host } = instance;
+  // Price labels are drawn inside the plot (the tag layer in render), not on the axis: the library paints a series' last
+  // value and a price line's label over the axis tick numbers without hiding the ticks they cover (656.95 over 650.00).
+  candles.applyOptions({ lastValueVisible: false });
+  const geometry = { plotWidth: null, lastBarRight: null, profileLeft: null, tags: [] };
   const bars = layers.bars;
   const n = bars.length - 1;
   const daily = !!analysis?.available;
@@ -75,7 +91,9 @@ export function attachChartLayers({ doc, root, instance, layers, analysis = null
     for (const pane of owned.panes) pane.dispose();
     owned = { series: [], primitives: [], priceLines: [], panes: [] };
   };
-  chart.applyOptions({ rightPriceScale: { minimumWidth: AXIS_PX } });
+  // The fixed axis width lines the price chart up with its study panes; a compact card has no panes, and the reserved
+  // 76 px read as an empty strip beside a 330 px plot (chart-scale 2026-11-19), so its axis is as wide as its labels.
+  if (!compact) chart.applyOptions({ rightPriceScale: { minimumWidth: AXIS_PX } });
 
   // One study pane: its own chart under the price chart, time axis hidden except on the last pane, synced both ways.
   const paneHost = (() => {
@@ -97,7 +115,7 @@ export function attachChartLayers({ doc, root, instance, layers, analysis = null
       autoSize: true,
       layout: { background: { color: 'transparent' }, textColor: palette.text, fontFamily: 'inherit', fontSize: 11, attributionLogo: false },
       grid: { vertLines: { color: palette.grid }, horzLines: { visible: false } },
-      rightPriceScale: { borderColor: palette.grid, minimumWidth: AXIS_PX, scaleMargins: { top: 0.14, bottom: 0.08 } },
+      rightPriceScale: { borderColor: palette.grid, minimumWidth: AXIS_PX, entireTextOnly: true, scaleMargins: { top: 0.14, bottom: 0.08 } },
       timeScale: { visible: false, borderColor: palette.grid },
       crosshair: { mode: 0 },
       handleScroll: !compact, handleScale: !compact
@@ -160,7 +178,8 @@ export function attachChartLayers({ doc, root, instance, layers, analysis = null
       const { bins, poc, valueArea: va } = layers.profile;
       const max = Math.max(...bins.map((bin) => bin.volume)) || 1;
       primitive(candles, canvasLayer((ctx, size) => {
-        const width = Math.min(150, size.width * 0.2);
+        const width = Math.min(PROFILE_MAX_PX, size.width * PROFILE_SHARE);
+        geometry.profileLeft = size.width - width;
         if (va) {
           const y1 = candles.priceToCoordinate(va.high), y2 = candles.priceToCoordinate(va.low);
           if (y1 != null && y2 != null) { ctx.fillStyle = withAlpha(palette.zone, 0.06); ctx.fillRect(0, y1, size.width, Math.max(1, y2 - y1)); }
@@ -216,11 +235,45 @@ export function attachChartLayers({ doc, root, instance, layers, analysis = null
       if (group) { group.titles.push(title); priceLine({ price: value, color, lineStyle: style, axisLabelVisible: false }); continue; }
       placed.push({ price: value, color, style, titles: [title] });
     }
-    for (const slot of placed) priceLine({ price: slot.price, color: slot.color, lineStyle: slot.style, title: slot.titles.join('·') });
+    // Every label is a tag in the plot (the axis keeps only its ticks): the last close first, then the lines.
+    const last = bars[n];
+    const tags = [{ price: last.close, color: last.close >= last.open ? palette.up : palette.down, text: price(last.close), solid: true, kind: 'close' }];
+    for (const slot of placed) {
+      priceLine({ price: slot.price, color: slot.color, lineStyle: slot.style, axisLabelVisible: false });
+      tags.push({ price: slot.price, color: slot.color, text: `${slot.titles.join('·')} ${price(slot.price)}`, kind: 'level' });
+    }
     if (active.levels) for (const level of levelList) priceLine({ price: level.price, color: palette.zone, lineStyle: 1, axisLabelVisible: false });
     if (active.fib && layers.fib.available) {
-      for (const level of layers.fib.levels) priceLine({ price: level.price, color: withAlpha(palette.fib, level.ratio === 0 || level.ratio === 1 ? 0.9 : 0.75), lineStyle: level.ratio === 0.5 || level.ratio === 0.618 ? 0 : 2, title: `${(level.ratio * 100).toFixed(1)}%` });
+      for (const level of layers.fib.levels) {
+        const color = withAlpha(palette.fib, level.ratio === 0 || level.ratio === 1 ? 0.9 : 0.75);
+        priceLine({ price: level.price, color, lineStyle: level.ratio === 0.5 || level.ratio === 0.618 ? 0 : 2, axisLabelVisible: false });
+        tags.push({ price: level.price, color, text: `${(level.ratio * 100).toFixed(1)}%`, kind: 'fib' });
+      }
     }
+    primitive(candles, canvasLayer((ctx, size) => {
+      geometry.plotWidth = size.width;
+      const lastX = xOf(n);
+      geometry.lastBarRight = lastX == null ? null : lastX + spacing() / 2;
+      ctx.font = `11px ${root.getComputedStyle?.(doc.body)?.fontFamily || 'sans-serif'}`;
+      const h = 16;
+      const boxes = tags.map((tag) => ({ tag, y: candles.priceToCoordinate(tag.price) })).filter((box) => box.y != null && box.y >= 0 && box.y <= size.height)
+        .sort((a, b) => a.y - b.y);
+      let bottom = -Infinity;
+      geometry.tags = [];
+      for (const box of boxes) {
+        const w = Math.ceil(ctx.measureText(box.tag.text).width) + 10;
+        const top = Math.max(box.y - h / 2, bottom + 1);
+        bottom = top + h;
+        const x = size.width - w - 1;
+        ctx.fillStyle = box.tag.solid ? box.tag.color : withAlpha(palette.grid, 0.92);
+        ctx.fillRect(x, top, w, h);
+        if (!box.tag.solid) { ctx.strokeStyle = box.tag.color; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, top + 0.5, w - 1, h - 1); }
+        ctx.fillStyle = box.tag.solid ? '#ffffff' : palette.text;
+        ctx.textBaseline = 'middle';
+        ctx.fillText(box.tag.text, x + 5, top + h / 2 + 0.5);
+        geometry.tags.push({ kind: box.tag.kind, text: box.tag.text, x, y: top, w, h });
+      }
+    }, 'top'));
 
     // Markers: VCP contractions and the breakout, event signals, divergences. The latest of each label keeps its text.
     const markers = [];
@@ -324,7 +377,9 @@ export function attachChartLayers({ doc, root, instance, layers, analysis = null
   if (anchor) { anchor.insertAdjacentElement('afterend', row); row.insertAdjacentElement('afterend', read); }
 
   function syncRead() {
-    const chips = layerFacts(layers, active, bars, price);
+    // A compact index card names its trend in its head (market-charts.js barsChartReading, the same bars and classifier),
+    // so its chips leave the trend out.
+    const chips = layerFacts(layers, active, bars, price).filter((chip) => !compact || chip.id !== 'trend');
     read.replaceChildren(...chips.map((chip) => { const span = el(doc, 'span', chip.text, `chart-chip is-${chip.tone}`); span.dataset.fact = chip.id; if (chip.title) span.title = chip.title; return span; }));
     read.hidden = !chips.length;
   }
@@ -364,7 +419,7 @@ export function attachChartLayers({ doc, root, instance, layers, analysis = null
     }
     render();
   };
-  instance.layers = { active: () => ({ ...active }), render, dispose: () => { clear(); paneHost?.remove(); try { chart.unsubscribeCrosshairMove?.(onCross); } catch (_) {} } };
+  instance.layers = { active: () => ({ ...active }), render, geometry: () => ({ ...geometry, tags: geometry.tags.map((tag) => ({ ...tag })) }), dispose: () => { clear(); paneHost?.remove(); try { chart.unsubscribeCrosshairMove?.(onCross); } catch (_) {} } };
   render();
   if (!compact) root.__aioChartLayers = { active: () => ({ ...active }) };
   return { active };

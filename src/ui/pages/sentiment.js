@@ -7,7 +7,7 @@ import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { renderMarketTemperature } from '../components/market-temperature.js';
 import { MACRO_HISTORY } from '../../data/artifact-registry.js';
 
-// P1396: the page is the five-card sentiment board (../components/sentiment-board.js).
+// The page is the sentiment board (../components/sentiment-board.js): the shared 심리 verdict, indicator rows and charts.
 // P1412 (Codex structural review): the board's inputs come from one adapter, collectMarketInputs
 // (components/briefing-read.js), aligned by alignMarketInputs — the store slice is a change signal
 // only, so the render takes no store values it would ignore. Triggers in one tick (store, document
@@ -48,8 +48,8 @@ export function createSentimentPage({ documentRef, evidenceStore, store } = {}) 
         bag.add(subscribeToSlice(store, (state) => state.sentiment, render));
       }
       renderSentiment(documentRef);
-      // v57.54: per-market price temperature (KOSPI·KOSDAQ·S&P·Nasdaq·Nikkei) under the US sentiment cards.
-      renderMarketTemperature({ documentRef, root: documentRef?.defaultView || globalThis, anchor: documentRef?.getElementById('sentiment-mini-grid') });
+      // v57.54: per-market price temperature (KOSPI·KOSDAQ·S&P·Nasdaq·Nikkei) under the US sentiment charts.
+      renderMarketTemperature({ documentRef, root: documentRef?.defaultView || globalThis, anchor: documentRef?.getElementById('sentiment-chart-grid')?.closest('section') || null });
       bag.add(() => documentRef?.getElementById('sentiment-temperature')?.remove());
       // v57.50 I05: research documents (N chapter, formerly the options route) land here with what to check.
       renderKnowledgeArrival({ documentRef, root: documentRef?.defaultView || globalThis, routeId: 'sentiment' });

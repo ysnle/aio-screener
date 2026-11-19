@@ -37,7 +37,7 @@ const verbose = process.argv.includes('--verbose');
 const CONVERTED_STATEMENTS = Object.freeze(['narrow-rally', 'broad-rally', 'broad-weakness', 'broad-derisking', 'index-defended', 'tech-leads', 'tech-lags',
   'credit-widening', 'credit-stress', 'vix-inversion', 'vix-spike']);
 // Korean template literals that interpolate a formatted number, per converted file. The count may only fall.
-const RATCHET = Object.freeze({ 'src/domain/briefing/day-account.js': 0, 'src/domain/briefing/market-read.js': 297 });
+const RATCHET = Object.freeze({ 'src/domain/briefing/day-account.js': 0, 'src/domain/briefing/market-read.js': 216 });
 
 // 1. Self-test: one false claim per defect class must be flagged by its check.
 {

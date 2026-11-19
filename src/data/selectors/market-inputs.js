@@ -40,5 +40,6 @@ export function collectMarketInputs(root, { now = Date.now() } = {}) {
   // v57.59: the narrow-tape read prefers the S&P 500 member segment (same lookup as breadth-board) over the AIO universe.
   // v57.77 perf: a dot-path read snapshots only this segment; the bare call deep-cloned and froze all screener rows.
   const breadthSp500 = root?.AIO_ARCH?.getScreenerState?.('metadata.breadth.segments.sp500') || null;
-  return regimeMarketInput({ macro: root._aioServerMacro || null, history: root._aioHistory || [], macroHistory: root._aioMacroHistory || null, breadthSp500, credit, rates, nowMs: now }); // M05: admit only a current basis
+  const aaii = { bullish: snapshot.aaiiBull, bearish: snapshot.aaiiBear, observedAt: fieldTs.aaii || null }; // server-macro.js copies data.json marketSurveys.aaii here
+  return regimeMarketInput({ macro: root._aioServerMacro || null, history: root._aioHistory || [], macroHistory: root._aioMacroHistory || null, breadthSp500, aaii, credit, rates, nowMs: now }); // M05: admit only a current basis
 }

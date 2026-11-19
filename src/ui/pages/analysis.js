@@ -4,7 +4,6 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { selectSentimentValues } from '../../state/selectors/sentiment.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { renderHomeRegime } from '../components/home-regime.js';
-import { readMarketRegime } from '../../data/selectors/interpretation.js';
 import { renderDailyLoop } from '../components/daily-loop.js';
 import { renderKoreaParticipation } from '../components/korea-participation.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../../domain/briefing/market-read.js';
@@ -12,7 +11,7 @@ import { fearGreedBand } from '../../domain/market/sentiment/metrics.js';
 import { renderKnowledgeArrival, clearKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { renderHomeVix } from '../components/home-vix.js';
 import { readNumber as finite } from '../../domain/shared/number.js';
-import { historyWaitText } from '../components/data-state.js';
+import { renderScreenReading } from '../components/screen-reading.js';
 
 // v59.75: the stock chart is a route-only chunk. Like createLazyPage (v57.55 S1-F14), a failed load (GitHub Pages 429, a
 // chunk missing after a deploy) is retried twice with a growing pause; after that the section says so instead of
@@ -24,22 +23,8 @@ export function loadRegimeBoard() {
   return (regimeBoardModule ||= import('../components/market-regime.js').catch((error) => { regimeBoardModule = null; throw error; }));
 }
 
-let stockChartModule = null;
-function loadStockChart(delays = [1500, 6000]) {
-  if (stockChartModule) return stockChartModule;
-  const attempt = (n = 0) => import('../components/stock-chart.js').catch((error) => {
-    if (n >= delays.length) throw error;
-    return new Promise((resolve) => setTimeout(resolve, delays[n])).then(() => attempt(n + 1));
-  });
-  stockChartModule = attempt().catch((error) => { stockChartModule = null; throw error; });
-  return stockChartModule;
-}
-function showStockChartLoadFailure(doc) {
-  const status = doc?.getElementById('stock-chart-status');
-  if (status) status.textContent = '차트를 불러오지 못했습니다. 화면을 다시 열면 다시 시도합니다.';
-  const state = doc?.getElementById('stock-chart-state');
-  if (state) state.hidden = true;
-}
+// Owner 2026-11-19: the stock chart and the 차트 tab's 시장 상태 one-line summary left this slice — the chart is the
+// analysis slot on 기술적 분석 (src/ui/pages/charts.js), and `technical` is a derived view of that route.
 
 
 // RM-01 (2026-07-19): home and technical secondary/chart surfaces remain compatibility
@@ -86,24 +71,6 @@ function renderHomeFearGreed({ documentRef, sentimentValues, fgClose = null, fgS
   else element.removeAttribute('data-observed-at');
 }
 
-// P1420 (owner decision 2026-10-02 extended): the technical page's 0-100 market-health score added
-// and subtracted points for the day's SPY/QQQ move — the same kind of composite the 시장 상태 screen
-// retired. The page now shows that screen's six-axis judgement (one source of truth) and leads with
-// the stock chart. The legacy health writer stays fenced by the native renderer marker.
-function renderTechnicalHealth({ documentRef, root }) {
-  const regime = readMarketRegime(root, () => renderTechnicalHealth({ documentRef, root }));
-  const overall = documentRef?.getElementById('tech-regime-overall');
-  if (overall) { overall.textContent = regime.available ? regime.overall : '판정 대기'; overall.dataset.overall = regime.overall || ''; }
-  const basis = documentRef?.getElementById('tech-regime-basis');
-  if (basis) {
-    const [, month, day] = String(regime.asOf || '').split('-').map(Number);
-    const counts = regime.counts || {};
-    basis.textContent = regime.available ? `${month}/${day} 미국 종가 기준, 양호 ${counts.favorable ?? 0}, 중립 ${counts.neutral ?? 0}, 부담 ${counts.burden ?? 0}${counts.unknown ? `, 확인 불가 ${counts.unknown}` : ''}` : historyWaitText(root);
-  }
-  // v59.51 (content audit): the six-axis chips left this page — the one-line verdict links to 시장 상태, which owns them.
-  documentRef?.getElementById('tech-regime-summary')?.setAttribute('data-aio-tech-regime-renderer', 'native');
-}
-
 function render({ root, documentRef, store, route, renderRegimePage }) {
   const technical = selectTechnical(store.getState());
   const signal = selectSignal(store.getState());
@@ -117,14 +84,6 @@ function render({ root, documentRef, store, route, renderRegimePage }) {
     page.dataset.aioArchitectureRoute = route;
     page.dataset.aioArchitectureSlice = 'analysis';
     page.dataset.aioArchitectureStatus = (route === 'home' ? home?.status : route === 'signal' ? signal?.status : technical?.status) || 'unavailable';
-    if (route === 'technical') {
-      page.dataset.aioArchitectureRenderer = 'native';
-      page.dataset.aioTechnicalRenderer = 'native';
-      renderTechnicalHealth({ documentRef, root });
-      // v59.75: the stock chart (~115 KB with its layers, drawings and analysis chunks) loads with the 차트 route only.
-      // A static import pulled it into every analysis-slice route, so 오늘 and 시장 신호 fetched it in their first 6.5 s.
-      loadStockChart().then(({ installStockChart }) => installStockChart({ documentRef, root }), () => showStockChartLoadFailure(documentRef)); // P1397: idempotent (installs once per #stock-chart-section, v57.76)
-    }
     if (route === 'home') {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioHomeRenderer = 'native';
@@ -143,6 +102,7 @@ function render({ root, documentRef, store, route, renderRegimePage }) {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioSignalRenderer = 'native';
       renderRegimePage?.({ documentRef, root, store });
+      renderScreenReading({ documentRef, root, screen: 'signal' }); // the AI reading under the hero
       renderKoreaParticipation({ documentRef, root, store });
     }
   }
@@ -189,10 +149,6 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
       bag.add(() => {
         if (homeFearGreed?.dataset.aioHomeFearGreedRenderer === 'native') delete homeFearGreed.dataset.aioHomeFearGreedRenderer;
         if (page?.dataset.aioArchitectureSlice === 'analysis') delete page.dataset.aioArchitectureSlice;
-        if (route === 'technical' && page?.dataset.aioTechnicalRenderer === 'native') {
-          delete page.dataset.aioTechnicalRenderer;
-          delete page.dataset.aioArchitectureRenderer;
-        }
         if (route === 'signal' && page?.dataset.aioSignalRenderer === 'native') {
           delete page.dataset.aioSignalRenderer;
           delete page.dataset.aioArchitectureRenderer;

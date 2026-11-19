@@ -10,6 +10,7 @@ import { releaseZones } from '../../domain/macro/release-zones.js';
 import { releaseZoneBar } from './release-zone-bar.js';
 import { reactionRead, earningsCells, earningsCellLines, ZERO_AMOUNT } from '../../domain/briefing/reaction-read.js';
 import { el } from './dom.js';
+import { kindFold } from './indicator-face.js';
 import { directionOf } from '../../domain/shared/number.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, figureSurprise, koreanReleaseText, watchItem, provisionalWaiting } from '../../domain/briefing/event-briefs.js';
@@ -86,7 +87,9 @@ function cellsNode(doc, cells) {
   return grid;
 }
 
-export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells = false } = {}) {
+// `open`: the whole brief on the face (재무 공시, where only 원자료 표 · 계산 방법 · 데이터 출처 fold); its source line is the
+// one fold, a 데이터 출처.
+export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells = false, open = false } = {}) {
   const box = el(doc, 'article', null, 'event-brief');
   box.dataset.kind = brief.kind;
   const head = el(doc, 'p', null, 'event-brief__head');
@@ -111,8 +114,8 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
   const read = brief.kind === 'earnings' ? readFor(doc, brief) : null;
   if (read) box.append(reactionNode(doc, read));
   else if (reasons.length) box.append(el(doc, 'p', `이유: ${reasons[0].text}`, 'event-brief__reason'));
-  const more = el(doc, bodyOnly ? 'div' : 'details', null, bodyOnly ? 'event-brief__more is-inline' : 'event-brief__more');
-  if (!bodyOnly) more.append(el(doc, 'summary', brief.kind === 'fomc' ? '수치·바뀐 문구·기자회견·다음 확인' : '수치·이유·부문·가이던스·콜 핵심'));
+  const more = el(doc, bodyOnly || open ? 'div' : 'details', null, bodyOnly || open ? 'event-brief__more is-inline' : 'event-brief__more');
+  if (!bodyOnly && !open) more.append(el(doc, 'summary', brief.kind === 'fomc' ? '수치·바뀐 문구·기자회견·다음 확인' : '수치·이유·부문·가이던스·콜 핵심'));
   if (bodyOnly && read) more.append(reactionNode(doc, read)); // the row's 왜 line, with the checks behind it
   // v59.44: three headline figures, then capex and cash flow when the release gave them (the market priced cash).
   const cashFigure = (figure) => ['capex', 'free_cash_flow', 'operating_cash_flow'].includes(figure?.metric);
@@ -170,6 +173,7 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
   if (brief.status === 'provisional') source.append(doc.createTextNode(`. 수치는 제공처 집계로 공시 원문과 대조하지 않았고, ${provisionalWaiting(brief) ?'원문이 나오면 원문 요약으로 바뀝니다' : '원문 공시는 찾지 못했습니다'}. ${reasons.length ? '주가가 움직인 이유는 공용 AI가 보도에서 찾았고' : '이 내용은'} 매매 판단이 아닙니다.`));
   // P21-NUMBER-01: the check is that the same figure (with its unit and direction) stands in the quoted source sentence.
   else source.append(doc.createTextNode(`. 숫자는 원문 문장에 같은 숫자가 있는 것만 싣습니다${dropped ? `(확인되지 않은 항목 ${dropped}건 제외)` : ''}. ${aiWritten ? '요약은 공용 AI가 썼고' : '표는 공시 원문에서 그대로 읽었고'} 매매 판단이 아닙니다.`));
+  if (open) { box.append(more, kindFold(doc, 'sources', '실적 발표 원문과 보도', [source])); return box; }
   more.append(source);
   if (bodyOnly) return more;
   box.append(more);
@@ -361,16 +365,16 @@ export function paintMacroReleaseCards(doc, page, releases = []) {
   return releases;
 }
 
-/** 종목: the latest brief of this symbol (about one quarter), under the company summary. */
+/** 재무 공시: the latest brief of this symbol (about one quarter), open on the face above the filings. */
 export function paintTickerBrief(doc, root, symbol, anchor, rerender) {
   if (!doc || !anchor) return null;
   const brief = latestBriefFor(ensureArtifact(root, rerender), symbol, { nowMs: Date.now() });
-  let host = doc.getElementById('ticker-event-brief');
+  let host = doc.getElementById('fund-event-brief');
   if (!brief) { if (host) host.hidden = true; return null; }
-  if (!host) { host = el(doc, 'section', null, 'event-briefs event-briefs--ticker'); host.id = 'ticker-event-brief'; anchor.insertAdjacentElement('afterend', host); }
+  if (!host) { host = el(doc, 'section', null, 'event-briefs event-briefs--ticker'); host.id = 'fund-event-brief'; anchor.insertAdjacentElement('beforebegin', host); }
   if (host.dataset.signature === `${brief.id}|${root?.[EVENT_BRIEFS.key]?.generatedAt || ''}` && host.childElementCount) { host.hidden = false; return brief; }
   host.dataset.signature = `${brief.id}|${root?.[EVENT_BRIEFS.key]?.generatedAt || ''}`;
-  host.replaceChildren(el(doc, 'h2', '최근 실적 발표 요약', 'briefing-h2'), briefNode(doc, brief, { showName: false, cells: true }));
+  host.replaceChildren(el(doc, 'h2', '최근 실적 발표 요약', 'briefing-h2'), briefNode(doc, brief, { showName: false, cells: true, open: true }));
   host.hidden = false;
   return brief;
 }

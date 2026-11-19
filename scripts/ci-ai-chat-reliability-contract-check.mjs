@@ -631,7 +631,8 @@ assert(!source.includes("'kr-market':") && !source.includes("'kr-tech'") && !sou
   const tabs = ROUTE_HUBS.flatMap((hub) => hub.routes.filter((route) => route.tab !== false).map((route) => route.id));
   const missing = tabs.filter((id) => !contexts.includes(id));
   assert(!missing.length, `v59.70 screen tabs without an AI panel context: ${missing.join(', ')}`);
-  assert(targets.includes('charts') && targets.includes('technical'), 'v59.70 차트 questions reach both 기술적 분석 and 종목 › 차트');
+  // Owner 2026-11-19: the 종목 › 차트 tab is retired — every 차트 question opens 기술적 분석, which holds the analysis slot.
+  assert(targets.includes('charts') && !targets.includes('technical'), 'v60.31 차트 questions reach 기술적 분석 (the retired 종목 › 차트 tab is no move target)');
   assert(!/label:\s*'/.test(nav) && !/pushPage\('(?!관련 페이지: )/.test(source), 'v59.70 move labels and page hints come from the route registry (_aioRouteName)');
   for (const stale of ['거시와 금리', '매매 시그널', '퀀트 스크리너', '거시 경제']) assert(!new RegExp(`'[^'\\n]*${stale}[^'\\n]*'`).test(source), `v59.70 AI panel keeps a retired screen name in a string: ${stale}`);
 }

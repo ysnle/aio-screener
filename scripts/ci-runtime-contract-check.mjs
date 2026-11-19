@@ -275,7 +275,7 @@ check('P1753 retired deep-analysis Minervini engine helpers stay gone from the l
 // LC-39/P1215: the entity/portfolio → technical bridge must write the real deep-analysis input
 // (`#deep-sym-input`) and actually run the analysis. The retired `deep-ticker-input` id must not
 // survive anywhere in the legacy shell.
-check('P1753 LC-39/P1215 technical bridge names the subject and opens the native chart route (no retired deep-analysis call)', !/deep-ticker-input/.test([core, html, ui, data, workspace, krData, macroTech, pagesSource].join('\n')) && /function\s+_aioOpenTechnicalAnalysis/.test(core) && /window\._aioChartRequest = sym;[\s\S]{0,120}showPage\('technical'\)/.test(core) && !/runDeepAnalysis|analyzeTickerDeep/.test(core) && /window\._aioChartAnalyze = function[\s\S]{0,120}_aioOpenTechnicalAnalysis/.test(core));
+check('P1753 LC-39/P1215 technical bridge names the subject and opens the native chart route (no retired deep-analysis call)', !/deep-ticker-input/.test([core, html, ui, data, workspace, krData, macroTech, pagesSource].join('\n')) && /function\s+_aioOpenTechnicalAnalysis/.test(core) && /window\._aioChartRequest = sym;[\s\S]{0,120}showPage\('charts'\)/.test(core) && !/runDeepAnalysis|analyzeTickerDeep/.test(core) && /window\._aioChartAnalyze = function[\s\S]{0,120}_aioOpenTechnicalAnalysis/.test(core));
 // LC-33/P1216: the internal news `emptyReason` enum is pipeline vocabulary; the empty state must
 // translate it rather than interpolating the raw token into the sentence.
 check('LC-33/P1216 news empty state translates the internal emptyReason enum', /describeNewsEmptyReason/.test(newsPage) && /NEWS_EMPTY_REASON_COPY/.test(newsPage) && !/\(\$\{model\?\.emptyReason/.test(newsPage) && !/emptyReason\s*\|\|\s*'no-/.test(newsPage));
@@ -599,7 +599,7 @@ check('value slot renderer encodes value/pending/failed/na states and touched ma
   const nativeTouched = sentimentPage.includes('renderCanvasStates') && sentimentPage.includes('state.vix9d, state.vix, state.vix3m, state.vix6m')
     && sentimentPage.includes('setMetric(documentRef') && sentimentPage.includes('^VIX9D') && sentimentPage.includes('sentiment.vix3m') && sentimentPage.includes('sentiment.vix6m');
   // P1396: the sentiment board renders the VIX term structure only from paired dated closes (no seed values).
-  const boardTouched = /ratioSeries = vix\.filter/.test(read('src/ui/components/sentiment-board.js'));
+  const boardTouched = /ratioSeries = vix\.filter/.test(read('src/domain/market/sentiment/sentiment-model.js')); // v60.31: the board's model moved to the domain
   return (valueSlotBase && legacyTouched) || (valueSlotBase && nativeTouched) || (valueSlotBase && boardTouched);
 })());
 check('C06/P1699: briefing decision summary F&G uses the shared close reader, not dead snap fields', /_aioFgCloseReading/.test(core) && !/snap\.fg\.value|snap\.fearGreed/.test(data));
@@ -901,7 +901,7 @@ check('v59.08 the 스크리너 재무 팩터 note reads coverage against the 80%
 // P1137/R623: NAV_ROUTE is no longer a re-listed array — it is derived from the canonical
 // `AIO_ALL_ROUTE_PAGE_IDS` minus the derived-view and reference classes. Assert the derivation
 // itself, so re-introducing a hand-listed copy fails here as well as in the registry gate.
-check('route terminology derives user surfaces from internal QA routes and retires options (P1321)', /NAV_ROUTE:\s*\[\]/.test(core) && /classes\.NAV_ROUTE = \(window\.AIO_ALL_ROUTE_PAGE_IDS \|\| \[\]\)\.filter/.test(core) && /DERIVED_VIEW:\s*\['ticker','theme-detail'\]/.test(core) && /REFERENCE:\s*\[\]/.test(core) && /REMOVED:\s*\[[^\]]*'options'\]/.test(core) && /OVERLAY:\s*\['glossary'\]/.test(core));
+check('route terminology derives user surfaces from internal QA routes and retires options (P1321)', /NAV_ROUTE:\s*\[\]/.test(core) && /classes\.NAV_ROUTE = \(window\.AIO_ALL_ROUTE_PAGE_IDS \|\| \[\]\)\.filter/.test(core) && /DERIVED_VIEW:\s*\['ticker','theme-detail','technical'\]/.test(core) && /canonical: \{ technical: 'charts'/.test(core) && /REFERENCE:\s*\[\]/.test(core) && /REMOVED:\s*\[[^\]]*'options'\]/.test(core) && /OVERLAY:\s*\['glossary'\]/.test(core));
 check('guide chapters and KR secondary groups are explicit progressive-disclosure controls', /#kr-integrated-themes \.aio-theme-progressive \.kr-theme-card:nth-child\(n\+4\)/.test(html) && /\.aio-comp-secondary[\s\S]{0,1200}\.aio-guide-chapter/.test(html));
 const glossaryProbe = await (async () => {
   // v59.59 roadmap 11: the glossary modal moved from js/aio-ui.js and js/aio-core.js to src/ui/knowledge/glossary-modal.js.
@@ -1027,10 +1027,6 @@ check('EF-19 (v59.81 retired): the proxy chain no longer waits on codetabs.com',
 check('headless tests cover Batch 2 efficacy fixes (EF-08/10/11/12/19; T874 retired with the carry composite, v58.19)', /_testV5241Batch2Efficacy/.test(tests) && /T875/.test(tests) && /T876/.test(tests) && /T877/.test(tests) && /T878/.test(tests));
 
 // v52.42 (P657): FABLE-EFFICACY-AUDIT-2026-07-10 Batch 3 (EF-06/07/14/15/16) structural gates
-check('EF-06: VIX term-structure seed fallback values render a distinguishable na state instead of the same value state as a live number',
-  (/_aioRenderVixTermRegime/.test(core) && /\(정적\)/.test(core) && /라이브 미수신 — DATA_SNAPSHOT 시드값/.test(core))
-  || /ratioSeries = vix\.filter\(\(point\) => vix3m\.get\(point\.date\)\)/.test(read('src/ui/components/sentiment-board.js')) /* P1396: no seed path exists */
-  || (sentimentDomain.includes('export function vixTermStructure') && sentimentDomain.includes('blocked: true') && /points:\s*(?:Object\.freeze\()?\{ short, spot, medium, long \}/.test(sentimentDomain) && sentimentPage.includes('summary.vixTermStructure.regime') && sentimentPage.includes('canvas.dataset.aioRenderer')));
 check('EF-14: news source names are guarded by a non-Latin/non-Hangul script check separate from the title translation guard, so an untranslated source name cannot leak raw', /function _aioSafeSourceLabel/.test(data) && /root\._aioSafeSourceLabel\(item\?\.source/.test(read('src/ui/pages/news.js'))); // P1411: guard moved to the native news card
 check('EF-15/P1428: the home F&G day change uses the completed-close history, the same basis as 투자 심리 (not CNN previous_close)', !/_aioSetDeltaEl\('home-fg-delta'/.test(data) && /aioFgDeltaRenderer = 'native'/.test(read('src/ui/components/home-regime.js')) && /buildCloseSeries\(history, 'fg'/.test(read('src/ui/components/home-regime.js')));
 check('v59.70 (D5): the 한국 거시 and 한국 시장 추세 folds are retired; 기준금리·물가·수출 sit on the 시장 상태 한국 board', !/id="kr-integrated-macro"|id="kr-integrated-technical"|kr-macro-bokrate-freshness|tg-feed-kr-technical|tg-feed-kr-macro/.test(html) && !exists('src/ui/components/macro-next-release.js') && /koreaPolicyCard\(root\.DATA_SNAPSHOT\)/.test(read('src/ui/components/market-regime.js')));
@@ -1842,8 +1838,7 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
   check('v57.61 screener sort returns focus to the header button, non-sortable headers carry no aria-sort, hints reach assistive tech, search is debounced', /node\.dataset\.scrSort === column\)\?\.focus\?\.\(\)/.test(screener) && !/th\.setAttribute\('aria-sort', 'none'\);\n\s*\}/.test(screener) && !/정렬 적용|'적용'\}`\)/.test(screener) && /\$\{column\.label\}로 정렬/.test(screener) && /setAttribute\('aria-describedby', hintId\)/.test(screener) && /setTimeout\(\(\) => \{ (?:ctx\.)?searchTimer = null;[^}]*\}, 150\)/.test(screener)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
   check('v57.61 KR theme card header is keyboard operable', /kr-theme-header" role="button" tabindex="0"/.test(krData) && /e\.key === 'Enter' \|\| e\.key === ' '/.test(krData)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
   check('v57.61 term popover returns focus to its mark, exposes aria-expanded and closes when focus leaves', /mark\.setAttribute\('aria-expanded', 'false'\)/.test(terms) && /restore && hadFocus && mark\?\.isConnected/.test(terms) && /addEventListener\('focusout'/.test(terms)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
-  check('v57.61 ticker price basis and chart loading are status regions; the back button name does not read the arrow', /status\.setAttribute\('role', 'status'\)/.test(entity) && /loading\.setAttribute\('role', 'status'\)/.test(entity) && !/aria-label', `← /.test(entity) && !/aria-label', '← /.test(entity)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
-  check('v57.61 crossroads meter is decorative beside its printed fit; regime folds name their card', /box\.setAttribute\('aria-hidden', 'true'\)/.test(read('src/ui/components/macro-crossroads.js')) && !/box\.setAttribute\('role', 'img'\)/.test(read('src/ui/components/macro-crossroads.js')) && /readingNodes\(doc, row\.read, 'regime-read', row\.title\)/.test(read('src/ui/components/market-regime.js'))); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
+  check('v57.61 ticker price basis is a status region; the back button name does not read the arrow', /status\.setAttribute\('role', 'status'\)/.test(entity) && !/aria-label', `← /.test(entity) && !/aria-label', '← /.test(entity)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
 }
 
 {

@@ -395,7 +395,10 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
     const hyAt = oasDelta20Bp(mh, 'hyOas', day);
     return buildMarketRegime({ history: weekRows.filter((row) => row.date <= day), macroHistory: mh, credit: hyAt ? { hyBp: hyAt.level * 100, hyDelta5Bp: hyAt.d5, hyAsOf: hyAt.date } : {}, now: Date.parse(nowIso) });
   };
-  const read = (reg, id) => [...(reg.axes || []), ...(reg.watchAxes || [])].find((row) => row.id === id)?.read || '';
+  // v60.31: an axis carries no sentence — its direction and its reason are evidence rows (AXIS_DIRECTION_LABEL, AXIS_REASON_LABEL).
+  const rowOf = (reg, id, label) => [...(reg.axes || []), ...(reg.watchAxes || [])].find((row) => row.id === id)?.evidence?.find(([name]) => name === label)?.[1] || '';
+  const dir = (reg, id) => rowOf(reg, id, '최근 흐름 (5거래일)');
+  const why = (reg, id) => rowOf(reg, id, '판정 사유');
   const days = { '2026-11-09': at('2026-11-09'), '2026-11-11': at('2026-11-11'), '2026-11-12': at('2026-11-12'), '2026-11-13': at('2026-11-13') };
   // D6: SOXX +7.49% (11/9) and +6.01% (11/11) under its 50-day line, with the S&P 500 also under its line and rebounding
   // (+2.35% on 11/9) — the hero composes both sides from level and direction and says a shared state once; never
@@ -403,31 +406,32 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
   for (const day of ['2026-11-09', '2026-11-11']) {
     const reg = days[day];
     check(`v60.18 D6 [${day}] the hero says the leaders' and the index's shared rebound under the line once`, reg.heroLine === '주도주와 지수 모두 추세선 아래에서 반등 중입니다.', reg.heroLine);
-    for (const id of ['trend', 'leadership']) check(`v60.18 D6 [${day}] the ${id} read has no rising number inside a 약해지다 sentence`,
-      !read(reg, id).split(/(?<=[.다])\s/).some((sentence) => /약해(?:졌|지)/.test(sentence) && /\+\d/.test(sentence)), read(reg, id));
+    // v60.31: the rebound days' direction rows say 반등 for both sides (the D6 sentence check has no sentence left to read).
+    for (const id of ['trend', 'leadership']) check(`v60.18 D6 (v60.31 row) [${day}] the ${id} direction row reads the rebound, not a fall`, /반등$/.test(dir(reg, id)), dir(reg, id));
   }
-  check('v60.18 D6 [11/9] the SOXX direction names the turn and the leg ending today', /SOXX는 11\/3 155\.00에서 -14\.9% 내려온 뒤 11\/5 131\.90부터 이틀 \+11\.3% 반등 중입니다/.test(read(days['2026-11-09'], 'leadership')), read(days['2026-11-09'], 'leadership'));
+  check('v60.18 D6 (v60.31 row) [11/9] the SOXX direction names the turn and the leg ending today', dir(days['2026-11-09'], 'leadership') === '11/3 155.00 → 11/5 131.90 -14.9%, 이후 이틀 +11.3% 반등', dir(days['2026-11-09'], 'leadership'));
   // A turn more than one day old: the leg from the window's latest extreme is the direction when it is at least a typical
-  // day (any number of sessions); a smaller one is a pause after the earlier leg, never "… 중".
-  const vol12 = read(days['2026-11-12'], 'volatility'), vol13 = read(days['2026-11-13'], 'volatility'), trend13 = read(days['2026-11-13'], 'trend');
-  check('v60.18 D6 [11/12] VIX 18.70 a day after the 17.49 low is a pause after the fall, not 하락 중', /VIX는 11\/5 28\.18에서 -38% 내려온 뒤 11\/11 17\.49부터 하루 \+7%로 방향이 뚜렷하지 않습니다/.test(vol12) && !/하락 중/.test(vol12), vol12);
-  check('v60.18 D6 [11/13] VIX 19.30 two up days off the 17.49 low reads 반등 중', /VIX는 11\/6 25\.64에서 -32% 내려온 뒤 11\/11 17\.49부터 이틀 \+10% 반등 중입니다/.test(vol13) && !/하락 중/.test(vol13), vol13);
-  check('v60.18 D6 [11/13] the S&P 500 two down closes off the 11/11 high reads 하락 중, not 반등 중', /S&P 500은 11\/6 7,376\.86에서 \+3\.3% 오른 뒤 11\/11 7,619\.38부터 이틀 -0\.8% 하락 중입니다/.test(trend13) && !/반등 중/.test(trend13), trend13);
-  check('v60.18 D6 [11/13] SOXX two down closes off the 11/11 high and the hero agree', /SOXX는 11\/6 136\.53에서 \+13\.8% 오른 뒤 11\/11 155\.40부터 이틀 -3\.9% 하락 중입니다/.test(read(days['2026-11-13'], 'leadership'))
-    && days['2026-11-13'].heroLine === '주도주와 지수 모두 추세선 아래에서 재하락 중입니다.', `${days['2026-11-13'].heroLine} | ${read(days['2026-11-13'], 'leadership')}`);
+  // day (any number of sessions); a smaller one is a pause after the earlier leg (횡보), never 하락.
+  const vol12 = dir(days['2026-11-12'], 'volatility'), vol13 = dir(days['2026-11-13'], 'volatility'), trend13 = dir(days['2026-11-13'], 'trend');
+  check('v60.18 D6 (v60.31 row) [11/12] VIX 18.70 a day after the 17.49 low is a pause after the fall, not 하락', /^11\/5 28\.18 → 11\/11 17\.49 -38%, 이후 하루 \+7% 횡보$/.test(vol12), vol12);
+  check('v60.18 D6 (v60.31 row) [11/13] VIX 19.30 two up days off the 17.49 low reads 반등', /^11\/6 25\.64 → 11\/11 17\.49 -32%, 이후 이틀 \+10% 반등$/.test(vol13), vol13);
+  check('v60.18 D6 (v60.31 row) [11/13] the S&P 500 two down closes off the 11/11 high reads 하락, not 반등', trend13 === '11/6 7,376.86 → 11/11 7,619.38 +3.3%, 이후 이틀 -0.8% 하락', trend13);
+  check('v60.18 D6 (v60.31 row) [11/13] SOXX two down closes off the 11/11 high and the hero agree', dir(days['2026-11-13'], 'leadership') === '11/6 136.53 → 11/11 155.40 +13.8%, 이후 이틀 -3.9% 하락'
+    && days['2026-11-13'].heroLine === '주도주와 지수 모두 추세선 아래에서 재하락 중입니다.', `${days['2026-11-13'].heroLine} | ${dir(days['2026-11-13'], 'leadership')}`);
   check('v60.18 D6 [11/12] both sides pausing after the rebound are said once', days['2026-11-12'].heroLine === '주도주와 지수 모두 추세선 아래에서 반등이 멈췄습니다.', days['2026-11-12'].heroLine);
   // D8: VIX 17.49 on 11/11 against 16.61 on 11/4, across the 11/5 spike to 28.18 — the base is named and the leg is down.
-  const vol11 = read(days['2026-11-11'], 'volatility');
-  check('v60.18 D8 [11/11] the VIX rule names the base it compared with and the leg ending today', /5거래일 전\(11\/4 16\.61\)보다 \+5% 높아/.test(vol11) && /VIX는 11\/4 16\.61에서 \+70% 오른 뒤 11\/5 28\.18부터 나흘 -38% 하락 중입니다/.test(vol11) && !/5일 \+\d+% 올라/.test(vol11), vol11);
+  const vol11 = `${why(days['2026-11-11'], 'volatility')} | ${dir(days['2026-11-11'], 'volatility')}`;
+  check('v60.18 D8 (v60.31 rows) [11/11] the VIX reason names the base it compared with and the direction row the leg ending today', /\(5거래일 전 11\/4 16\.61\)/.test(why(days['2026-11-11'], 'volatility'))
+    && dir(days['2026-11-11'], 'volatility') === '11/4 16.61 → 11/5 28.18 +70%, 이후 나흘 -38% 하락', vol11);
   // D1: the year's largest five-session rise in the 10-year is 부담 on its own record (the speed leg), not 방향 없음.
   for (const [day, jump] of [['2026-11-12', 26], ['2026-11-13', 29]]) {
     const rates = (days[day].axes || []).find((row) => row.id === 'rates');
-    check(`v60.18 D1 [${day}] the 10-year +${jump}bp in five sessions is 부담 on the speed leg`, rates?.state === 'burden' && rates.shock?.d5 === jump && !/뚜렷한 방향 없이/.test(rates.read), `${rates?.state} ${rates?.read}`);
+    check(`v60.18 D1 [${day}] the 10-year +${jump}bp in five sessions is 부담 on the speed leg`, rates?.state === 'burden' && rates.shock?.d5 === jump && /^5거래일 급등 \(/.test(why(days[day], 'rates')) /* v60.31 reason row */, `${rates?.state} ${why(days[day], 'rates')}`);
   }
   // D7 (credit): the intraday FRED print of 11/9 HY released the 20-session latch — 부담 to 중립 (the CCC leg), never 양호.
   const before = at('2026-11-10', '2026-11-10T18:00:00Z', '2026-11-06'), after = at('2026-11-10', '2026-11-10T18:30:00Z', '2026-11-09');
   const creditOf = (reg) => (reg.axes || []).find((row) => row.id === 'credit');
-  check('v60.18 D7 [11/10] the HY print moves credit one step (부담 → 중립 on the CCC leg)', creditOf(before)?.state === 'burden' && creditOf(after)?.state === 'neutral' && !/^스프레드가 낮고/.test(creditOf(after)?.read || ''), `${creditOf(before)?.state} → ${creditOf(after)?.state}: ${creditOf(after)?.read}`);
+  check('v60.18 D7 [11/10] the HY print moves credit one step (부담 → 중립 on the CCC leg)', creditOf(before)?.state === 'burden' && creditOf(after)?.state === 'neutral' && why(after, 'credit') === 'CCC 등급 확대로 양호 제한' /* v60.31 reason row */, `${creditOf(before)?.state} → ${creditOf(after)?.state}: ${why(after, 'credit')}`);
   // D4: a Saturday clock over the same files gives the Friday verdict (the 11/14 count change was the v60.13–14 rule release).
   const saturday = at('2026-11-13', '2026-11-14T10:25:00Z');
   check('v60.18 D4 a Saturday clock does not move the 11/13 verdict', JSON.stringify(saturday.counts) === JSON.stringify(days['2026-11-13'].counts) && saturday.heroLine === days['2026-11-13'].heroLine && saturday.asOf === '2026-11-13',

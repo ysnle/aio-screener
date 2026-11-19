@@ -335,8 +335,8 @@ export function buildStockRead({ symbol, row = null, benchmark = null, rotation 
   ].filter(Boolean).join(', ');
   // v57.55 review (8o): an ETF has no filings to read and no sector peers — its links say so.
   const fund = /^ETF$/i.test(String(row.sector || ''));
-  const next = [{ route: 'technical', label: '차트', why: trend ? `${trend.label}의 셋업 — 이동평균·피벗·거래량으로 지금 자리가 돌파 전인지 확인` : '일봉과 이동평균 위치' },
-    ...(fund ? [] : [{ route: 'fundamental', label: '재무 공시', why: '이 추세를 매출·이익·현금흐름이 뒷받침하는지' }])];
+  // The chart link is the hub line's '기술적 분석에서 보기' (route-hubs.js), not a step here.
+  const next = fund ? [] : [{ route: 'fundamental', label: '재무 공시', why: '이 추세를 매출·이익·현금흐름이 뒷받침하는지' }];
   // The link opens the stock's primary theme (themes[0], primary-theme.js), the one the 가격 line and the market
   // line name — not the first theme that happens to have a rotation ETF.
   const primary = themed[0] || null;

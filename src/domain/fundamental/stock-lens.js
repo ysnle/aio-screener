@@ -249,12 +249,14 @@ export function peerBasisText(basis = null) {
 // ── 3. Situations that favour or burden the company (theme exposure tags × macro branches) ─────────────────────────────
 // MERGED #2 (run-6): `crossroads` is the page's one interpretation (marketInterpretation(root).crossroads), the model
 // 시장 상태 and 거시 draw — not the producer's scenario-state copy, which carries no tie and can lag the screens.
-// Each branch in play (the lead, or every tied branch) with this company's wind under it.
+// Each branch in play (the lead, or every tied branch) with this company's wind under it. A tailwind reads '유리', the
+// word the 유리/불리 environment lists use, never '수혜'.
+const SITUATION_WIND = Object.freeze({ ...WIND_LABELS, tail: '유리' });
 function branchWinds(crossroads, tags) {
   const reading = scenarioLead(crossroads);
   const rows = reading.items.map((item) => {
     const branch = BRANCHES.find((row) => row.id === item.id);
-    return branch ? { title: branchTitle(branch), wind: tags.length ? WIND_LABELS[windFor(tags, branch)] || null : null, fit: item.fit || null } : null;
+    return branch ? { title: branchTitle(branch), wind: tags.length ? SITUATION_WIND[windFor(tags, branch)] || null : null, fit: item.fit || null } : null;
   }).filter(Boolean);
   return { state: rows.length ? reading.state : 'held', rows };
 }
@@ -319,7 +321,7 @@ export function buildThesisFrame({ implied = null, trailing = null, marginCash =
   const checks = [
     schedule?.text ? `실적: ${schedule.text}` : null,
     consensus?.fwd ? '컨센서스: 다음 4주 동안 상향·하향 건수의 방향' : null,
-    support || resistance ? `가격 레벨: ${[support ? `가장 가까운 아래 후보 ${price(support.price)}(${signedText(support.pct, 1, '%')})` : null, resistance ? `위 후보 ${price(resistance.price)}(${signedText(resistance.pct, 1, '%')})` : null].filter(Boolean).join(', ')} — 관찰할 가격대이며 보장이 아님` : '가격 레벨: 차트 화면의 레벨 지도에서 확인(차트를 열면 이 목록에도 표시)'
+    support || resistance ? `가격 레벨: ${[support ? `가장 가까운 아래 후보 ${price(support.price)}(${signedText(support.pct, 1, '%')})` : null, resistance ? `위 후보 ${price(resistance.price)}(${signedText(resistance.pct, 1, '%')})` : null].filter(Boolean).join(', ')} — 관찰할 가격대이며 보장이 아님` : '가격 레벨: 기술적 분석 화면의 레벨 지도에서 확인'
   ].filter(Boolean);
   const breaks = [
     impliedPct != null ? `성장이 연 ${impliedPct.toFixed(1)}% 아래로 둔화되는 흐름이 확인된다` : ttm != null ? '분기 매출 성장이 연속으로 느려진다' : null,

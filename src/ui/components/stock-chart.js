@@ -4,7 +4,6 @@ import { TEMPLATE_LABEL, analyzeChart, benchmarkFieldFor, chartReading } from '.
 import { buildCloseSeries, maOrder } from '../../domain/briefing/market-read.js';
 import { readMarketRegime } from '../../data/selectors/interpretation.js';
 import { emptyState } from './empty-state.js';
-import { renderNextSteps } from './page-flow.js';
 import { buildChartScenarios, buildVolumeByPrice } from '../../domain/technical/chart-scenarios.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { normalizeTickerInput } from '../../domain/instruments/ticker-symbol.js';
@@ -13,7 +12,8 @@ import { askRow } from './ask-row.js';
 import { CHART_NOTES } from '../../domain/knowledge/theme-research-links.js';
 import { attachChartDrawings } from './stock-chart-drawings.js';
 import { attachChartCompare } from './stock-chart-compare.js';
-import { attachChartLayers } from './stock-chart-layers.js';
+import { attachChartLayers, recentLogicalRange } from './stock-chart-layers.js';
+import { markFold } from './indicator-face.js';
 import { renderTrendStrip } from './stock-chart-mtf.js';
 import { buildChartLayers } from '../../domain/technical/chart-layers.js';
 import { strategySection } from './stock-chart-strategies.js';
@@ -103,6 +103,10 @@ export function rsLineSeries(analysis) {
   const highs = [...set].filter((i) => i >= from && (!set.has(i - 1) || i === last)).map((i) => analysis.bars[i].time);
   return { points, highs };
 }
+// One price axis for every candle chart. The axis ticks run the whole pane height (the volume overlay included), and the
+// library draws a tick at the pane's bottom edge half outside it ('120.00' cut on NVDA, '660.00' on the SPY card;
+// chart-scale 2026-11-19); entireTextOnly keeps only ticks whose whole label fits.
+export const PRICE_SCALE = (grid) => ({ borderColor: grid, entireTextOnly: true, scaleMargins: { top: 0.08, bottom: 0.24 } });
 export function drawChart(root, host, analysis, previous, kr = false) {
   const LWC = root.LightweightCharts;
   if (previous?.chart) { try { previous.layers?.dispose?.(); } catch (_) {} try { previous.chart.remove(); } catch (_) {} }
@@ -118,8 +122,8 @@ export function drawChart(root, host, analysis, previous, kr = false) {
     autoSize: true,
     layout: { background: { color: 'transparent' }, textColor: text, fontFamily: 'inherit', fontSize: 12 },
     grid: { vertLines: { color: grid }, horzLines: { color: grid } },
-    rightPriceScale: { borderColor: grid, scaleMargins: { top: 0.08, bottom: 0.24 } },
-    timeScale: { borderColor: grid, rightOffset: 4, barSpacing: 7, minBarSpacing: 3, tickMarkFormatter: dayTickFormatter },
+    rightPriceScale: PRICE_SCALE(grid),
+    timeScale: { borderColor: grid, rightOffset: 4, barSpacing: 7, minBarSpacing: 3, lockVisibleTimeRangeOnResize: true, tickMarkFormatter: dayTickFormatter },
     crosshair: { mode: 0 },
     localization: chartLocalization(kr)
   });
@@ -132,7 +136,7 @@ export function drawChart(root, host, analysis, previous, kr = false) {
   chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
   const upVol = withAlpha(up, 0.35), downVol = withAlpha(down, 0.35);
   volume.setData(analysis.bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? upVol : downVol })));
-  const showRecent = () => chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, analysis.bars.length - 130), to: analysis.bars.length + 3 });
+  const showRecent = () => chart.timeScale().setVisibleLogicalRange(recentLogicalRange(analysis.bars.length, 130));
   showRecent();
   (root.requestAnimationFrame || setTimeout)(showRecent); // autoSize lays out after the first frame
   const palette = layerPalette(root, { up, down, text, grid });
@@ -234,19 +238,15 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   doc.getElementById('stock-chart-draw')?.remove();
   doc.querySelector('.stock-chart-draw-read')?.remove();
   doc.getElementById('stock-chart-compare')?.remove();
-  // Codex review 2026-10-05: switching the chart to SPY left the 종목 header on NVDA with nothing saying the
-  // two differ. A market chart now says so and offers the way back to the company's chart.
-  const subject = String(root?._aioLastOpenedSymbol || '').trim().toUpperCase();
+  // The slot lives on 기술적 분석 (owner 2026-11-19); a company's own screen is one step away, an index fund has none.
   const title = doc.getElementById('stock-chart-title');
   doc.getElementById('stock-chart-context')?.remove();
-  if (title && subject && subject !== sym) {
-    const note = el(doc, 'span', `시장 비교 차트, 요약·재무 탭의 종목은 ${subject} 그대로입니다 `, 'stock-chart-context');
-    note.id = 'stock-chart-context';
-    const back = el(doc, 'button', `${subject} 차트로`, 'aio-btn-table');
-    back.type = 'button';
-    back.addEventListener('click', () => renderStockChart({ documentRef: doc, root, symbol: subject }));
-    note.append(back);
-    title.insertAdjacentElement('afterend', note);
+  if (title && !INDEX_FUNDS.has(sym) && !/^\^/.test(sym)) {
+    const toStock = el(doc, 'button', `${sym} 종목 개요`, 'aio-btn-table stock-chart-context');
+    toStock.id = 'stock-chart-context';
+    toStock.type = 'button';
+    toStock.addEventListener('click', () => root.showTicker?.(sym));
+    title.insertAdjacentElement('afterend', toStock);
   }
   if (spec.id !== '1d') return renderIntervalChart({ doc, root, sym, spec, ticket: (root.__aioStockChartTicket = (root.__aioStockChartTicket || 0) + 1) });
   set('stock-chart-status', '불러오는 중…');
@@ -295,9 +295,9 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     const heldText = held ? `앱에 있는 마지막 종가는 ${Number(held.date.slice(5, 7))}/${Number(held.date.slice(8, 10))} ${formatScreenerPrice(held.value, held.currency || (kr ? 'KRW' : 'USD'))}입니다(요약 탭과 같은 값). ` : '';
     // v59.70 (coverage audit S14): the failure states what is missing; the retry button is the next step, not a sentence.
     const state = payload == null
-      // QA 2026-11-07: with the quote server down this screen was empty while 지수 차트 (#charts) draws from the published
-      // closes; an index fund names that screen.
-      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버가 응답하지 않았습니다.', next: `${heldText}${INDEX_FUNDS.has(sym) ? '발행된 종가로 그린 지수 차트는 기술적 분석의 지수 차트에서 볼 수 있습니다.' : ''}`.trim(), action: retry })
+      // QA 2026-11-07: with the quote server down the slot was empty while the index cards draw the published closes; an
+      // index fund points at them.
+      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버가 응답하지 않았습니다.', next: `${heldText}${INDEX_FUNDS.has(sym) ? '발행된 종가로 그린 지수 카드는 위 시장 지수에 있습니다.' : ''}`.trim(), action: retry })
       : bars.length === 0
         ? emptyState(doc, { title: `${sym}의 일봉이 없습니다`, reason: '시세 제공처에 이 코드의 일봉 기록이 없습니다. 한국 종목은 6자리 코드(예: 005930)로 찾습니다.' })
         : emptyState(doc, { title: `${sym}의 일봉이 ${bars.length}개뿐입니다`, reason: '추세·셋업 분석에는 최소 60거래일이 필요합니다.', next: '상장 직후 종목은 기록이 쌓인 뒤 분석됩니다.' });
@@ -364,17 +364,13 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   const read = el(doc, 'div', null, 'chart-read');
   read.append(el(doc, 'p', reading.headline, 'chart-read-headline'));
 
-  // v59.51 (content audit + owner two layers): the face is this reading and the trend-template dots; the market line, the
-  // Weinstein stage, the reading cards, the evidence list and every section below fold into one expert disclosure.
-  const expert = el(doc, 'details', null, 'chart-expert-fold');
-  expert.open = root.__aioChartExpertOpenFor === sym || root.__aioChartScrollTo === 'chart-levels';
-  expert.addEventListener('toggle', () => { root.__aioChartExpertOpenFor = expert.open ? sym : null; });
-  expert.append(el(doc, 'summary', '자세히 — 지표 값, 단계, 셋업 점검, 가격 레벨, 시나리오, 거래 집중 가격대'));
-  // v59.74 (owner 2026-11-07, chart first, little text): the face keeps the one-line reading; its grounds and the turn
-  // condition open with the details.
-  if (reading.why) expert.append(el(doc, 'p', `근거: ${reading.why}.`, 'chart-read-why'));
-  if (reading.flip) expert.append(el(doc, 'p', `전환 조건: ${reading.flip}`, 'regime-flip'));
-  if (reading.market) expert.append(el(doc, 'p', `${reading.market}.`, 'chart-read-market'));
+  // Owner 2026-11-19 (기술적 분석 analysis slot, folds only for raw tables, method and sources): the stage, the setup check,
+  // the price levels and the three paths are on the face under the reading; the full evidence list is the raw-table fold
+  // and the reading order the method fold.
+  const sections = el(doc, 'div', null, 'chart-sections');
+  if (reading.why) read.append(el(doc, 'p', `근거: ${reading.why}.`, 'chart-read-why'));
+  if (reading.flip) read.append(el(doc, 'p', `전환 조건: ${reading.flip}`, 'regime-flip'));
+  if (reading.market) read.append(el(doc, 'p', `${reading.market}.`, 'chart-read-market'));
   const visuals = el(doc, 'div', null, 'chart-read-visuals');
   const stageVisual = el(doc, 'div', null, 'chart-read-visuals');
   if (analysis.weinstein) {
@@ -404,8 +400,8 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   // v59.74 (owner 2026-11-07): short 5 > 10 > 20, mid/long 20 > 50 > 200 — the same alignment the chart's layer line states.
   const structureRows = chartStructureRows(chartLayers.alignment);
   for (const [label, value] of [...structureRows, ...analysis.evidence, ['시장 상태', regime.available ? `${regime.overall} (양호 ${regime.counts.favorable}, 부담 ${regime.counts.burden})` : '—']]) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
-  const more = el(doc, 'details', null, 'chart-evidence-more');
-  more.append(el(doc, 'summary', `근거 전체 (${analysis.evidence.length + 3}개)`), list);
+  const more = markFold(el(doc, 'details', null, 'chart-evidence-more'), 'raw-table');
+  more.append(el(doc, 'summary', `원자료 표 · 근거 전체 (${analysis.evidence.length + 3}개)`), list);
   const readCards = chartReadCardsView(doc, analysis, kr ? 'KRW' : payload?.meta?.currency || null);
   const body = el(doc, 'div', null, 'v2-chart-body');
   // v58.79 (owner 2026-10-25): each mark the chart draws links to the research note that teaches it.
@@ -425,11 +421,10 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     ['지금 들어가도 되나', `${sym} 지금 가격에서 살 때와 기다릴 때의 근거를 차트와 시장 상태로 비교해줘`]
   ], 'chart-ask');
   if (ask) body.append(ask);
-  panel.replaceChildren(body, expert);
-  if (readCards) expert.append(readCards);
-  if (stageVisual.childElementCount) expert.append(stageVisual);
-  expert.append(more);
-  if (tools) expert.append(coach.setupCoachSection(doc, root, sym, analysis, regime, tools, levels.available));
+  panel.replaceChildren(body, sections);
+  if (readCards) sections.append(readCards);
+  if (stageVisual.childElementCount) sections.append(stageVisual);
+  if (tools) sections.append(coach.setupCoachSection(doc, root, sym, analysis, regime, tools, levels.available));
   const forward = buildChartScenarios(analysis, { currency: kr ? 'KRW' : payload?.meta?.currency || null });
   if (forward.available) {
     const section = el(doc, 'section', null, 'chart-scenarios');
@@ -440,14 +435,14 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
       const card = el(doc, 'div', null, 'chart-scenario'); card.dataset.scenario = scenario.id;
       card.append(el(doc, 'h4', scenario.title), el(doc, 'p', scenario.text)); section.append(card);
     }
-    expert.append(section);
+    sections.append(section);
   }
   const styles = strategySection(doc, analysis, levels, wilderRsi(analysis.bars.map((bar) => bar.close)));
-  if (styles) expert.append(styles);
+  if (styles) sections.append(styles);
   if (levels.available) {
     const currency = kr ? 'KRW' : payload?.meta?.currency || null;
     root.__aioStockChartInstance?.setLevels?.(coach.nearestLevels(levels));
-    expert.append(coach.priceLevelSection(doc, root, sym, levels, currency, root.__aioStockChartInstance, tools.checkPricePlan));
+    sections.append(coach.priceLevelSection(doc, root, sym, levels, currency, root.__aioStockChartInstance, tools.checkPricePlan));
     // v58.75 (D6): the screener's '차트·가격 레벨' link lands here once.
     if (root.__aioChartScrollTo === 'chart-levels') { root.__aioChartScrollTo = null; doc.getElementById('chart-levels')?.scrollIntoView?.({ block: 'start' }); }
   }
@@ -466,23 +461,15 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
       row.append(track, el(doc, 'span', `${zone.share.toFixed(1)}%`)); section.append(row);
     }
     section.append(el(doc, 'p', '일별 거래량을 그날 저가~고가 범위에 균등 배분한 참고 분포입니다. 실제 가격별 체결량·보유자의 매입단가·매수/매도 우위를 보여주지는 않습니다. 구간은 관찰할 가격대이며 지지·저항을 보장하지 않습니다.', 'theme-strength-basis'));
-    expert.append(section);
+    sections.append(section);
   }
-  const logic = el(doc, 'details', null, 'chart-analysis-logic');
-  logic.append(el(doc, 'summary', '차트를 읽는 순서와 계산 기준'));
+  sections.append(more);
+  const logic = markFold(el(doc, 'details', null, 'chart-analysis-logic'), 'method');
+  logic.append(el(doc, 'summary', '계산 방법 · 차트를 읽는 순서와 계산 기준'));
   logic.append(el(doc, 'p', '① 완료된 일봉과 30주선으로 큰 추세를 확인합니다. ② 8·21·50·200일선과 수축 고점/저점으로 현재 가격 구조를 읽습니다. ③ 상승·하락일 거래량과 평균 거래량 대비로 참여를 확인합니다. ④ 같은 시장 지수의 동일 기간 수익률과 비교합니다. ⑤ 가격이 관찰 구간 위·안·아래로 움직일 때 해석을 갱신합니다. 지표 하나만으로 미래 방향을 확정하지 않습니다.'));
   // v58.75 (persona review): how the RS line under the price is computed.
   if (rsLineSeries(analysis)) logic.append(el(doc, 'p', `상대강도선: 각 거래일 종가를 같은 날(없으면 3일 이내 직전) ${analysis.benchmarkLabel} 종가로 나눈 값을 첫 비교일 100으로 맞춰 가격 아래 칸에 그립니다. 선이 오르면 지수보다 강했다는 뜻이고, 점은 직전 1년(252거래일, 비교값 240개 이상) 중 가장 높은 값을 새로 쓴 날입니다. 가격이 고점 아래인데 선이 먼저 신고가를 쓰면 지수 대비 강세가 가격보다 앞선 것으로 읽습니다. 지수 기록이 1년에 못 미치면 점은 찍지 않습니다.`));
-  expert.append(logic);
-  // P1435: where the chart's question continues.
-  const isIndex = /^(SPY|QQQ|DIA|IWM)$/.test(sym);
-  renderNextSteps(doc, doc.getElementById('technical-next'), isIndex ? [
-    { route: 'signal', label: '시장 상태', why: `${sym}의 추세가 시장 폭·금리·신용과 같은 방향인지` },
-    { route: 'breadth', label: '시장 폭', why: '지수 움직임을 얼마나 많은 종목이 따라가는지' }
-  ] : [
-    // The 요약 · 재무 tabs sit above the page; the next link names the other screen.
-    { route: 'signal', label: '시장 상태', why: `셋업이 놓인 환경 — 지금은 ${regime.available ? regime.overall : '판정 대기'}` }
-  ]);
+  sections.append(logic);
   doc.getElementById('stock-chart-section')?.setAttribute('data-symbol', sym);
   return analysis;
 }
@@ -574,8 +561,8 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
     autoSize: true,
     layout: { background: { color: 'transparent' }, textColor: text, fontFamily: 'inherit', fontSize: 12 },
     grid: { vertLines: { color: grid }, horzLines: { color: grid } },
-    rightPriceScale: { borderColor: grid, scaleMargins: { top: 0.08, bottom: 0.24 } },
-    timeScale: { borderColor: grid, rightOffset: 4, barSpacing: 7, minBarSpacing: 3, timeVisible: !!spec.intraday, secondsVisible: false, ...(spec.intraday ? {} : { tickMarkFormatter: dayTickFormatter }) },
+    rightPriceScale: PRICE_SCALE(grid),
+    timeScale: { borderColor: grid, rightOffset: 4, barSpacing: 7, minBarSpacing: 3, lockVisibleTimeRangeOnResize: true, timeVisible: !!spec.intraday, secondsVisible: false, ...(spec.intraday ? {} : { tickMarkFormatter: dayTickFormatter }) },
     crosshair: { mode: 0 },
     localization: chartLocalization(kr)
   });
@@ -587,7 +574,7 @@ async function renderIntervalChart({ doc, root, sym, spec, ticket }) {
   chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
   const paintVolume = (upC, downC) => { const upV = withAlpha(upC, 0.35), downV = withAlpha(downC, 0.35); volume.setData(bars.map((bar) => ({ time: bar.time, value: bar.volume || 0, color: bar.close >= bar.open ? upV : downV }))); };
   paintVolume(up, down);
-  const showRecent = () => chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, bars.length - 130), to: bars.length + 3 });
+  const showRecent = () => chart.timeScale().setVisibleLogicalRange(recentLogicalRange(bars.length, 130));
   showRecent();
   (root.requestAnimationFrame || setTimeout)(showRecent);
   root.__aioStockChartDrawnSymbol = sym;
@@ -649,45 +636,52 @@ function renderIntervalButtons(doc, root, sym, active) {
   }
 }
 
-// P1405/P1430: the chart follows the 종목 screen's company (root._aioLastOpenedSymbol, display-only); an index card on
-// 오늘 (root._aioChartRequest) opens a market chart without changing the company.
-// v57.76: the tab's own ticker form (SPY/QQQ chips + input) was retired — the 종목 search drives the chart through
-// aio:subjectChanged, and the install state lives on #stock-chart-section.
+// Owner 2026-11-19: the one analysis slot (#stock-chart-section) lives on 기술적 분석 (#charts). It shows the symbol a
+// reader picked there (an index card, a 대표 종목 row, the page's search) or one handed over by another screen through
+// root._aioChartRequest (openMarketChart, the old #technical links); with neither, the last charted symbol, else SPY. It no
+// longer follows the 종목 screen's company: that screen links here with its company instead.
+const historyMark = (root) => { const rows = root?._aioHistory; return Array.isArray(rows) && rows.length ? String(rows[rows.length - 1]?.date || '') : ''; };
+// E06: the chart uses the same symbol normalization as the 종목 summary (005930 / 삼성전자 → 005930.KS).
+const normalizeChartSymbol = (root, value) => normalizeTickerInput(value, { krStockDb: root?.KR_STOCK_DB || {}, krToYahoo: root?.krTickerToYahoo }) || '';
+
+/** Opens `symbol` in the slot; `byReader` marks a selection the address should carry (#charts?sym=). */
+export function showChartSubject({ documentRef: doc, root, symbol, byReader = false, scroll = false }) {
+  const section = doc?.getElementById('stock-chart-section');
+  if (!section) return null;
+  const sym = normalizeChartSymbol(root, symbol) || 'SPY';
+  section.dataset.aioStockChartEntity = sym;
+  if (root) root._aioChartSubject = sym; // v58.75 (persona review): the AI panel reads the charted symbol without a DOM lookup
+  section.dataset.aioStockChartAt = String(Date.now());
+  section.dataset.aioStockChartMark = historyMark(root);
+  if (scroll) section.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+  try { doc.dispatchEvent?.(new CustomEvent('aio:chartSubjectChanged', { detail: { symbol: sym, byReader } })); } catch (_) {}
+  return renderStockChart({ documentRef: doc, root, symbol: sym });
+}
+
 export function installStockChart({ documentRef: doc, root }) {
   const section = doc.getElementById('stock-chart-section');
   if (!section) return;
-  // E06: the chart uses the same symbol normalization as the 종목 summary (005930 / 삼성전자 → 005930.KS).
-  const normalize = (value) => normalizeTickerInput(value, { krStockDb: root?.KR_STOCK_DB || {}, krToYahoo: root?.krTickerToYahoo }) || '';
-  const historyMark = () => { const rows = root?._aioHistory; return Array.isArray(rows) && rows.length ? String(rows[rows.length - 1]?.date || '') : ''; };
-  const show = (value) => {
-    const sym = normalize(value) || 'SPY';
-    section.dataset.aioStockChartEntity = sym;
-    if (root) root._aioChartSubject = sym; // v58.75 (persona review): the AI panel reads the charted symbol without a DOM lookup
-    section.dataset.aioStockChartAt = String(Date.now());
-    section.dataset.aioStockChartMark = historyMark();
-    renderStockChart({ documentRef: doc, root, symbol: sym });
-  };
   const request = String(root._aioChartRequest || '').trim().toUpperCase();
   root._aioChartRequest = null;
-  const entity = String(root._aioLastOpenedSymbol || '').trim().toUpperCase();
-  const target = normalize(request || entity || section.dataset.aioStockChartEntity || '') || 'SPY';
+  const target = normalizeChartSymbol(root, request || section.dataset.aioStockChartEntity || '') || 'SPY';
   if (section.dataset.aioStockChart === 'installed') {
     // E04: re-entering with the same symbol redraws when a new close arrived or the chart is older than 5 minutes.
     const age = Date.now() - Number(section.dataset.aioStockChartAt || 0);
-    if (target !== section.dataset.aioStockChartEntity || age > 5 * 60 * 1000 || historyMark() !== (section.dataset.aioStockChartMark || '')) show(target);
+    if (target !== section.dataset.aioStockChartEntity || age > 5 * 60 * 1000 || historyMark(root) !== (section.dataset.aioStockChartMark || '')) showChartSubject({ documentRef: doc, root, symbol: target, byReader: !!request, scroll: !!request });
     return;
   }
   section.dataset.aioStockChart = 'installed';
-  doc.addEventListener?.('aio:subjectChanged', () => {
-    if (!doc.getElementById?.('page-technical')?.classList?.contains('active')) return;
-    const subject = String(root._aioLastOpenedSymbol || '').trim().toUpperCase();
-    if (subject && subject !== section.dataset.aioStockChartEntity) show(subject);
-  });
-  show(target);
+  showChartSubject({ documentRef: doc, root, symbol: target, byReader: !!request, scroll: !!request });
 }
 
-// P1430: 오늘's S&P 500 / 나스닥 cards open the index chart they show, not the last company.
+// P1430: 오늘's index cards, the 종목 screen's link and the screener open a symbol in the slot on 기술적 분석.
 export function openMarketChart(root, symbol) {
-  root._aioChartRequest = String(symbol || 'SPY').toUpperCase();
-  if (typeof root.showPage === 'function') root.showPage('technical');
+  const sym = String(symbol || 'SPY').toUpperCase();
+  const doc = root.document;
+  if (doc?.getElementById('page-charts')?.classList?.contains('active') && doc.getElementById('stock-chart-section')?.dataset.aioStockChart === 'installed') {
+    showChartSubject({ documentRef: doc, root, symbol: sym, byReader: true, scroll: true });
+    return;
+  }
+  root._aioChartRequest = sym;
+  if (typeof root.showPage === 'function') root.showPage('charts');
 }

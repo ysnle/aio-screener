@@ -235,6 +235,19 @@ function targetExpectsJson(parsedUrl) {
   return /\/api\/|finance\/chart|query1\.finance\.yahoo\.com|query2\.finance\.yahoo\.com|m\.stock\.naver\.com|polling\.finance\.naver\.com|api\.stock\.naver\.com|production\.dataviz\.cnn\.io|api\.fear-and-greed\.com|api\.alternative\.me/.test(s);
 }
 
+// Yahoo's chart endpoint at times answers 200 with every timestamp and most of the OHLC values null (measured 4 of 6
+// reads of a closed session's 5-minute bars). Such a body must not be served from the edge for the whole TTL.
+function isYahooChart(parsedUrl) {
+  return /^query[12]\.finance\.yahoo\.com$/i.test(parsedUrl.hostname) && /\/finance\/chart\//.test(parsedUrl.pathname);
+}
+
+function yahooChartHollow(text) {
+  let closes;
+  try { closes = JSON.parse(text)?.chart?.result?.[0]?.indicators?.quote?.[0]?.close; } catch { return false; }
+  if (!Array.isArray(closes) || closes.length < 10) return false;
+  return closes.filter((value) => value == null).length * 2 > closes.length;
+}
+
 function looksLikeHtml(text) {
   const t = String(text || '').trimStart();
   return /^<!doctype\s+html/i.test(t) || /^<html[\s>]/i.test(t) || /<title>.*(captcha|access denied|forbidden|blocked|error).*<\/title>/i.test(t.slice(0, 800));
@@ -1697,6 +1710,7 @@ export default {
         && ALLOWED_DOMAINS.some(d => next.hostname.toLowerCase() === d || next.hostname.toLowerCase().endsWith('.' + d));
       let response;
       let data;
+      let hollow = false;
       try {
         response = await fetchUpstream(targetUrl, {
           method: 'GET',
@@ -1705,6 +1719,21 @@ export default {
           cf: { cacheTtlByStatus: edgeCacheTtlByStatus(_cacheTtl) },
         }, allowedHop);
         data = await readUpstreamText(response);
+        // A hollow chart body is asked for once more past the edge copy (a one-off query key, never cached); the answer
+        // that still comes back hollow is passed on uncached so the next visitor asks again.
+        if (response.ok && isYahooChart(parsedUrl) && yahooChartHollow(data)) {
+          const fresh = new URL(targetUrl);
+          fresh.searchParams.set('_', String(Date.now()));
+          const again = await fetchUpstream(fresh.toString(), {
+            method: 'GET',
+            headers: upstreamHeaders,
+            signal: controller.signal,
+            cf: { cacheTtlByStatus: { '100-599': -1 } },
+          }, allowedHop);
+          const againData = await readUpstreamText(again);
+          if (again.ok && !looksLikeHtml(againData) && !yahooChartHollow(againData)) { response = again; data = againData; }
+          else hollow = true;
+        }
       } finally {
         clearTimeout(timeoutId);
       }
@@ -1717,7 +1746,7 @@ export default {
         status: response.status,
         headers: {
           'Content-Type': contentType,
-          'Cache-Control': response.ok ? `public, max-age=${_cacheTtl}` : 'no-store',
+          'Cache-Control': response.ok && !hollow ? `public, max-age=${_cacheTtl}` : 'no-store',
           ...getCorsHeaders(requestOrigin, env),
           ...SECURITY_HEADERS,
           'X-AIO-Proxy': 'cloudflare-worker',

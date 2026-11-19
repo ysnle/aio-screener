@@ -186,7 +186,7 @@ export function buildDayAccount(day, { briefs = null } = {}) {
       const times = byWeek ? say('5거래일 {week}로 평소 5거래일 변동의 {week.1}입니다.', { week: weekClaim(largest) })
         : Number.isFinite(largest.z) ? say('평소 하루 변동의 {z}입니다.', { z: figureClaim(largest, 'z1d', Math.abs(largest.z), 'x', '평소 하루 변동') }) : NOTHING;
       // v59.70 (screen review 8): the close date leads, so this day move is not read against a live quote chip or a week figure.
-      const tail = !times.text ? NOTHING : kin.length > 1 ? say(' {largest.word}({name})는 {times}', { largest: largestClaim(largest, family), name: largest.label, times }) : say(' {times}', { times });
+      const tail = !times.text ? NOTHING : kin.length > 1 ? say(' {largest.word}: {name}, {times}', { largest: largestClaim(largest, family), name: largest.label, times }) : say(' {times}', { times });
       tell(story, 'line', say('{date}{kin}.{tail}', { date: seed.date ? say('{seed.date} 종가 ', { seed: changeClaim(seed) }) : NOTHING, kin: sayJoin(kin.map((fact) => named(fact)), ', '), tail }));
       if (groups.length) {
         const moved = groups.slice(0, 2).map((fact) => changeClaim(fact, { word: 'moved-with', unit: 'pct', compare: { against: subjectOf(seed) } }));

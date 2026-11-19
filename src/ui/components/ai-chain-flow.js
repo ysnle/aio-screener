@@ -11,6 +11,8 @@ import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { CONSENSUS_KEY, requestConsensusEstimates } from '../../data/consensus-estimates.js';
 import { layerValuation, LAYER_PER_MIN_COVERAGE, LAYER_PER_MIN_MEASURED } from '../../domain/themes/layer-valuation.js';
 import { TW_MONTHLY_REVENUE } from '../../data/artifact-registry.js';
+import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
+import { aiMapRouteParams } from '../../domain/knowledge/ai-map.js';
 
 // Rounded first, so a move under 0.05% reads 0.0% and is flat, never "+0.0%" or "-0.0%".
 const tenth = (value) => (value == null ? null : Math.round(value * 10) / 10 || 0);
@@ -28,7 +30,7 @@ function sessionLabel(root) {
 export function paintThemesAiChain(doc, root) {
   const page = doc?.getElementById('page-themes');
   if (!page) return null;
-  return paintAiChain(doc, root, { id: 'themes-ai-chain', frame: 'themes.ai-chain', className: 'aio-section ai-chain', more: false, valuation: true, place: (host) => {
+  return paintAiChain(doc, root, { id: 'themes-ai-chain', frame: 'themes.ai-chain', className: 'aio-section ai-chain', more: false, valuation: true, mapLink: true, place: (host) => {
     host.id = 'themes-ai-chain';
     const head = page.querySelector(':scope > .page-head');
     if (head) head.insertAdjacentElement('afterend', host); else page.prepend(host);
@@ -116,7 +118,7 @@ function layerPerFold(doc, root, repaint) {
   return fold;
 }
 
-function paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit = Infinity, valuation = false }) {
+function paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit = Infinity, valuation = false, mapLink = false }) {
   const rows = root?.AIO_ARCH?.getScreenerState?.('rows') || [];
   // v59.45 (P21-CHAIN-01): the medians use the same session the label prints.
   const session = root?.AIO_ARCH?.getScreenerState?.('metadata.factorSessionDateByMarket')?.US || null;
@@ -171,7 +173,7 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   // Taiwan's monthly revenue opens the member lists: a short block, read before the long US lists.
   // One repaint for every late arrival (Taiwan revenue, consensus): it carries every option of this paint. The Taiwan
   // callback dropped `valuation`, so revenue landing after the PER fold removed the fold and its rows.
-  const repaint = () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit, valuation });
+  const repaint = () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit, mapLink, valuation });
   const tw = twRevenue(doc, root, id, repaint);
   if (tw) fold.append(...tw.fold);
   const perFold = valuation ? layerPerFold(doc, root, repaint) : null;
@@ -185,7 +187,10 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   more.type = 'button';
   more.dataset.action = 'showPage';
   more.dataset.arg = 'themes';
-  host.replaceChildren(head, el(doc, 'p', faceReading, 'ai-chain__reading'), legend, chart, ...(tw ? [tw.face] : []), fold, ...(perFold ? [perFold] : []), ...(withLink ? [more] : []));
+  // 테마 › AI 공급망: the whole map of the build-out (layers, data-center chain, capital flows) is 산업 지도's AI 지도.
+  const atlasMap = mapLink ? el(doc, 'button', 'AI 지도 보기 → 산업 지도', 'flow-next-link daily-card-more ai-chain__map-link') : null;
+  if (atlasMap) { atlasMap.type = 'button'; atlasMap.addEventListener('click', () => navigateKnowledgeRoute({ root, page: 'atlas', params: aiMapRouteParams() })); }
+  host.replaceChildren(head, el(doc, 'p', faceReading, 'ai-chain__reading'), legend, chart, ...(tw ? [tw.face] : []), fold, ...(perFold ? [perFold] : []), ...(withLink ? [more] : []), ...(atlasMap ? [atlasMap] : []));
   host.hidden = false;
   return flow;
 }

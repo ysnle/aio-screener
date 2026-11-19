@@ -50,10 +50,26 @@ export default {
       const heading = (await p.textContent(`${card} h3`)).trim();
       if (!label.startsWith(heading)) throw new Error(`card "${heading}" does not match spine "${label}"`);
       await p.click(`${card} button:has-text("읽기")`);
-      await p.waitForFunction(() => /[?&]chapter=/.test(location.search), null, { timeout: 10000 });
-      return { columns: want, opened: heading, search: await p.evaluate(() => location.search) };
+      // A research page keeps its open document in the hash query (#principles?chapter=…, knowledge-route-state.js).
+      await p.waitForFunction(() => /[?&]chapter=/.test(location.hash), null, { timeout: 10000 });
+      return { columns: want, opened: heading, hash: await p.evaluate(() => location.hash) };
     }],
     ['탭 산업 지도', async (p) => ({ ...(await tabTo(p, T.atlas, 'page-atlas')), ...(await title('atlas')(p)) })],
+    // 산업 지도 › AI 지도: the contents group opens the value chain; a layer picked by keyboard lands in the address, and the
+    // data-center map opens from the map tabs. The capital map is offered only while its dated file has deals.
+    ['산업 지도 › AI 지도 → 층 선택 → 데이터센터 지도', async (p) => {
+      await p.locator('#page-atlas .rl-nav-group-head[data-atlas-value="aimap"]').click();
+      await p.waitForSelector('#page-atlas .nmap--chain', { timeout: 20000 });
+      const tabs = await p.$$eval('#page-atlas .nmap-tabs [role="tab"]', (n) => n.map((x) => x.textContent.trim()));
+      if (!tabs.includes('밸류체인') || !tabs.includes('데이터센터·전력')) throw new Error(`map tabs ${JSON.stringify(tabs)}`);
+      const layer = p.locator('#page-atlas .nmap-layer-open[data-atlas-value="2"]');
+      if (await layer.isVisible()) { await layer.focus(); await p.keyboard.press('Enter'); } else await p.locator('#page-atlas .nmap-rows--layers [data-atlas-value="2"]').click();
+      await p.waitForFunction(() => /[?&]layer=2(?:&|$)/.test(location.hash), null, { timeout: 10000 });
+      const detail = (await p.textContent('#page-atlas .nmap-detail-title')).trim();
+      await p.locator('#page-atlas .nmap-tabs [data-atlas-value="datacenter"]').click();
+      await p.waitForSelector('#page-atlas .nmap--dc .nmap-detail-title', { timeout: 10000 });
+      return { tabs, layerDetail: detail, hash: await p.evaluate(() => location.hash) };
+    }],
     ['탭 대가 보유 종목 + 운용사 목차', async (p) => ({
       ...(await tabTo(p, T.masters, 'page-masters')),
       ...(await title('masters')(p)),

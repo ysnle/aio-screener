@@ -106,8 +106,12 @@ export function createLazyPage({ route, loader, factory, errorMessage, retryDela
   });
 }
 
-// The three 종목 tabs (요약 · 차트 · 재무 공시) are about one company, and each keeps it in the address as ?sym= (run-6 #12).
-const ENTITY_ROUTES = new Set(['ticker', 'technical', 'fundamental']);
+// The 종목 tabs (개요 · 재무 공시) are about one company, and each keeps it in the address as ?sym= (run-6 #12).
+const ENTITY_ROUTES = new Set(['ticker', 'fundamental']);
+// Owner 2026-11-19: 기술적 분석 names the symbol in its analysis slot as ?sym= too, but it is the chart's subject, not the
+// 종목 screen's company; the retired 차트 tab's address (#technical/NVDA, #technical?sym=NVDA) opens that slot.
+const CHART_ROUTE = 'charts';
+const CHART_ROUTE_ALIASES = Object.freeze({ technical: CHART_ROUTE });
 
 function normalizeEntityId(candidate) {
   if (candidate == null) return null;
@@ -142,17 +146,18 @@ export function parseRouteDeepLink(hash, themeIds = null) {
   if (!match) return null;
   // v57.54: a path-style link (#ticker/NVDA) is the same as #ticker?sym=NVDA; it used to open a blank page.
   const [rawRoute = 'home', pathArg = ''] = (match[1] || 'home').split('/');
-  const routeId = rawRoute === 'theme-detail' ? 'themes' : rawRoute;
+  const routeId = rawRoute === 'theme-detail' ? 'themes' : CHART_ROUTE_ALIASES[rawRoute] || rawRoute;
   if (!isRouteId(routeId)) return null;
   const params = new URLSearchParams(match[2] || '');
   // v57.70: #fundamental/AAPL opened the fundamentals of whatever was selected before (or nothing) — both entity routes read it.
   const entityId = ENTITY_ROUTES.has(routeId) ? normalizeEntityId(params.get('sym') || pathArg) : null;
+  const chartSymbol = routeId === CHART_ROUTE ? normalizeEntityId(params.get('sym') || pathArg) : null;
   // v59.70 (fix-r1-theme): the old #theme-detail/<id> address names a theme too (legacyThemeDetailTarget, one parser
   // with the boot route); with the US theme ids an unknown or retired id names none, and the list stays.
   const legacy = rawRoute === 'theme-detail' ? legacyThemeDetailTarget(hash, themeIds) : null;
   const theme = rawRoute === 'themes' ? String(params.get('theme') || '').trim() : legacy?.themeId || '';
   const view = String(params.get('view') || '');
-  return Object.freeze({ routeId, entityId, themeId: THEME_ID_PATTERN.test(theme) ? theme : null, legacyTheme: !!legacy, view: VIEW_PATTERN.test(view) ? view : null });
+  return Object.freeze({ routeId, entityId, chartSymbol, legacyChart: Object.hasOwn(CHART_ROUTE_ALIASES, rawRoute), themeId: THEME_ID_PATTERN.test(theme) ? theme : null, legacyTheme: !!legacy, view: VIEW_PATTERN.test(view) ? view : null });
 }
 
 // The hash for `routeId` with `key` set to `value` (or removed when value is empty), keeping the other keys.
@@ -209,6 +214,8 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
     const resolved = link.entityId && typeof runtimeRoot._aioNormalizeTickerInput === 'function' ? normalizeEntityId(runtimeRoot._aioNormalizeTickerInput(link.entityId)) : null;
     if (resolved && resolved !== link.entityId) link = { ...link, entityId: resolved };
     if (link.entityId && (/^#[a-z]+\//.test(location.hash) || resolved)) writeHash(link.routeId, 'sym', link.entityId); // canonical address
+    // The 종목 screens are not cut into views (2026-11-19: the 메모 view became a section of 개요); an old ?view= is dropped.
+    if (link.view && ENTITY_ROUTES.has(link.routeId) && !viewsOf(link.routeId).length) writeHash(link.routeId, 'view', null);
     if (link.entityId && link.routeId === 'ticker') {
       const current = String(runtimeRoot.AIO?.state?._currentTickerSym || runtimeRoot._currentTickerSym || '').toUpperCase();
       if (current !== link.entityId && typeof runtimeRoot.showTicker === 'function') {
@@ -225,6 +232,17 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
         runtimeRoot._currentTickerId = link.entityId;
         const EventConstructor = runtimeRoot.CustomEvent || globalThis.CustomEvent;
         if (typeof EventConstructor === 'function') events?.dispatchEvent?.(new EventConstructor('aio:entityChanged', { detail: { symbol: link.entityId, source: 'address' } }));
+      }
+    }
+    if (link.chartSymbol || link.legacyChart) {
+      // The retired 차트 tab's address is written as #charts (with its symbol); the slot reads the request when it mounts,
+      // or hears it now when 기술적 분석 is already open.
+      const resolvedChart = link.chartSymbol && typeof runtimeRoot._aioNormalizeTickerInput === 'function' ? normalizeEntityId(runtimeRoot._aioNormalizeTickerInput(link.chartSymbol)) || link.chartSymbol : link.chartSymbol;
+      if (link.legacyChart || /^#charts\//.test(location.hash) || (resolvedChart && resolvedChart !== link.chartSymbol)) writeHash(CHART_ROUTE, 'sym', resolvedChart);
+      if (resolvedChart) {
+        runtimeRoot._aioChartRequest = resolvedChart;
+        const EventConstructor = runtimeRoot.CustomEvent || globalThis.CustomEvent;
+        if (typeof EventConstructor === 'function') events?.dispatchEvent?.(new EventConstructor('aio:chartRequested', { detail: { symbol: resolvedChart } }));
       }
     }
     if (link.themeId) {
@@ -257,6 +275,8 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
     if (currentRoute() === 'themes' && THEME_ID_PATTERN.test(themeId)) writeHash('themes', 'theme', themeId);
   };
   const onThemeClosed = () => { if (currentRoute() === 'themes') writeHash('themes', 'theme', null); };
+  // A symbol the reader opened in the analysis slot goes in the address (replace: the click is not a screen change).
+  const onChartSubject = (event) => { if (currentRoute() === CHART_ROUTE && event?.detail?.byReader) writeHash(CHART_ROUTE, 'sym', normalizeEntityId(event.detail.symbol)); };
   runtimeRoot.addEventListener('popstate', applyAddress);
   events.addEventListener?.('aio:subjectChanged', writeSubject);
   events.addEventListener?.('aio:tickerViewReset', writeSubject);
@@ -264,6 +284,7 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
   events.addEventListener?.('aio:themeDetailShown', onThemeShown);
   events.addEventListener?.('aio:themeDetailClosed', onThemeClosed);
   events.addEventListener?.('aio:pageViewChanged', onViewChanged);
+  events.addEventListener?.('aio:chartSubjectChanged', onChartSubject);
   let bootTimer = null;
   try { bootTimer = setTimeout(applyAddress, 0); } catch (_) { applyAddress(); }
   return () => {
@@ -275,6 +296,7 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
     events.removeEventListener?.('aio:themeDetailShown', onThemeShown);
     events.removeEventListener?.('aio:themeDetailClosed', onThemeClosed);
     events.removeEventListener?.('aio:pageViewChanged', onViewChanged);
+    events.removeEventListener?.('aio:chartSubjectChanged', onChartSubject);
   };
 }
 

@@ -1,6 +1,7 @@
 import { isRouteId } from './routes.js';
 
-const ROUTE_KEYS = Object.freeze(['mode', 'node', 'path', 'step', 'chapter', 'lesson', 'domain', 'topic', 'guide', 'criticality', 'manager', 'period', 'view']);
+// map and layer: 산업 지도 › AI 지도 (#atlas?mode=aimap&map=capital&node=NVDA, src/domain/knowledge/ai-map.js).
+const ROUTE_KEYS = Object.freeze(['mode', 'node', 'path', 'step', 'chapter', 'lesson', 'domain', 'topic', 'guide', 'criticality', 'manager', 'period', 'view', 'map', 'layer']);
 
 function locationUrl(locationLike) {
   if (locationLike?.href) return new URL(locationLike.href);
@@ -45,7 +46,9 @@ export function parseKnowledgeRouteState(locationLike) {
     criticality: values.criticality || null,
     manager: values.manager || null,
     period: values.period || null,
-    view: values.view || null
+    view: values.view || null,
+    map: values.map || null,
+    layer: values.layer || null
   });
 }
 

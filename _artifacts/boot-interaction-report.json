@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-18T13:26:27.253Z",
+  "observedAt": "2026-11-19T13:51:06.346Z",
   "appRevision": "v60.30",
-  "gitHead": "133a12eb629d5d7a4016bf5bfa4360a9a1c1cc6c",
+  "gitHead": "e5a155ea7b153960eea11ab1ce437100a3cdbac7",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,93 +16,94 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 294 > 200",
-    "decoded same-origin JS 2.58MB > 1.5MB"
+    "max long task 265 > 200",
+    "total long task 1024 > 1000",
+    "decoded same-origin JS 2.57MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 876,
-    "dclMs": 306,
-    "loadMs": 313,
-    "maxLongTaskMs": 294,
-    "totalLongTaskMs": 949,
-    "longTaskCount": 6,
+    "fcpMs": 2052,
+    "dclMs": 331,
+    "loadMs": 339,
+    "maxLongTaskMs": 265,
+    "totalLongTaskMs": 1024,
+    "longTaskCount": 7,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 4340,
-    "activeRouteDomNodes": 2232,
+    "domNodes": 4188,
+    "activeRouteDomNodes": 2079,
     "scenarioDepthDeferred": true,
     "scenarioStateLoaded": true,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 2708425,
-    "sameOriginScripts": 146,
+    "decodedJsBytes": 2690730,
+    "sameOriginScripts": 149,
     "crossOriginScripts": 1,
-    "resourceEntries": 219,
+    "resourceEntries": 222,
     "jsByKind": {
-      "esmBoot": 1354456,
-      "classicBoot": 1002470,
+      "esmBoot": 1346580,
+      "classicBoot": 1001222,
       "aiPanelBeforeUse": 0,
-      "postBootLazy": 351499
+      "postBootLazy": 342928
     },
     "aiPanelRequestsBeforeUse": [],
     "largestLazyFiles": [
       {
-        "path": "src/chunks/market-regime-YUQ75FC3.js",
-        "bytes": 47348,
-        "startMs": 1997
+        "path": "src/chunks/market-regime-PYATQOQ6.js",
+        "bytes": 45540,
+        "startMs": 2089
       },
       {
-        "path": "src/chunks/session-lean-ZYWVFO4B.js",
-        "bytes": 34033,
-        "startMs": 395
+        "path": "src/chunks/session-lean-3PLJYAUR.js",
+        "bytes": 34194,
+        "startMs": 427
       },
       {
-        "path": "src/chunks/legacy-screen-bridges-CPQ262IA.js",
+        "path": "src/chunks/legacy-screen-bridges-XQR2XB7M.js",
         "bytes": 27183,
-        "startMs": 215
+        "startMs": 235
       },
       {
-        "path": "src/chunks/analysis-JRE5BVAZ.js",
-        "bytes": 23503,
-        "startMs": 294
-      },
-      {
-        "path": "src/chunks/chunk-C2DYZFQX.js",
+        "path": "src/chunks/chunk-W44COFBP.js",
         "bytes": 22799,
-        "startMs": 618
+        "startMs": 658
       },
       {
-        "path": "src/chunks/chunk-7PTFQNCZ.js",
-        "bytes": 22455,
-        "startMs": 2005
+        "path": "src/chunks/analysis-UKRXEO5R.js",
+        "bytes": 22094,
+        "startMs": 319
       },
       {
-        "path": "src/chunks/cross-readings-GDGDXJIR.js",
+        "path": "src/chunks/cross-readings-TOOPIMQU.js",
         "bytes": 15509,
-        "startMs": 2076
+        "startMs": 2170
       },
       {
-        "path": "src/chunks/chunk-K6J7YUWR.js",
+        "path": "src/chunks/chunk-WOCRFH4C.js",
         "bytes": 15452,
-        "startMs": 2005
+        "startMs": 2097
+      },
+      {
+        "path": "src/chunks/chunk-FZODE5G2.js",
+        "bytes": 13828,
+        "startMs": 2096
       }
     ],
     "measuredBundle": "deploy",
     "aiPanelOnHover": [
       "js/aio-chat.js",
-      "src/chunks/ai-profile-TZTRUY2P.js",
-      "src/chunks/chat-globals-YD2WDTSO.js",
+      "src/chunks/ai-profile-JDZM4GOZ.js",
+      "src/chunks/chat-globals-W3UC3ROY.js",
       "src/chunks/question-cues-4LSRCT6W.js",
       "src/chunks/request-pipeline-MXW2TTNP.js",
       "src/chunks/supplied-materials-IDFFOHN4.js"
     ],
     "glossaryBeforeUse": false,
-    "termMarksBeforeGlossary": 25,
+    "termMarksBeforeGlossary": 17,
     "glossaryOnTermHover": true,
-    "routeMs": 20,
-    "wallMs": 9183,
+    "routeMs": 24,
+    "wallMs": 9277,
     "totalExternalRequests": 43,
     "quoteRequests": 24,
-    "initialExternalRequests": 7,
+    "initialExternalRequests": 6,
     "initialQuoteRequests": 3,
     "bootObservationWindowMs": 2000,
     "onDemandChartLibrary": {
@@ -123,6 +124,6 @@
       "unvisited": true,
       "macroOwnsMap": 0
     },
-    "decodedJsMb": 2.58
+    "decodedJsMb": 2.57
   }
 }

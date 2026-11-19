@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { atomicWriteJsonSync } from './lib/atomic-write.mjs';
 import { readPrinciplesCatalogSource } from './lib/research-content.mjs';
 const MARKET_PRINCIPLES_CATALOG = readPrinciplesCatalogSource();
-import { DOMAIN_LABELS, FOUNDATION_MODULE_LABELS, TAXONOMY_NODE_LABELS } from '../src/ui/pages/atlas.js';
+import { DOMAIN_LABELS, FOUNDATION_MODULE_LABELS, TAXONOMY_NODE_LABELS } from '../src/domain/knowledge/atlas-labels.js';
 import { LESSONS, PATHS } from '../src/domain/knowledge/learning-core.js';
 import { CONCEPT_CORE } from '../src/domain/knowledge/concept-core.js';
 import { CONCEPT_SURFACES } from '../src/domain/knowledge/concept-surfaces.js';

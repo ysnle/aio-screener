@@ -30,9 +30,11 @@ export const PAGE_SOURCES = Object.freeze({
     'AAII 개인 설문: 미국 개인투자자협회(AAII) 주간 설문, 장기 평균은 AAII 공표값(1987년 이후)',
     '공포·탐욕 구성 요소 순위: 위 공개 자료로 자체 계산'
   ],
-  signal: ['추세·시장 폭: S&P 500·나스닥 종가와 스크리너 유니버스 수정 종가로 자체 계산', '변동성: VIX·VIX3M (Cboe)', '금리: 미 재무부 국채 수익률 (FRED DGS2·DGS10)', '신용: ICE BofA 하이일드 OAS (FRED), CNN Fear & Greed', '달러·원자재·환율: Yahoo Finance'],
-  macro: [FRED, '정책금리·회의 일정: 연방준비제도 FOMC', '한국 기준금리·환율: 한국은행 경제통계시스템(ECOS)', '한국 물가·경기: 국가통계포털(KOSIS)'],
-  fxbond: ['국채 수익률 곡선: 미 재무부 일별 par curve', '1개월 전 곡선: FRED H.15 국채 고정만기 금리 (DGS2·DGS5·DGS10·DGS20·DGS30)', '금리차·실질금리·기대인플레이션·기간 프리미엄: FRED (T10Y3M, DFII10, T10YIE, THREEFYTP10)', '하이일드 스프레드: ICE BofA OAS (FRED)', '환율·달러 지수: Yahoo Finance', '미·일·미·한 금리차: OECD 장기금리 월평균 (FRED IRLTLT01US·JP·KR)'],
+  // the per-axis provider lines of the old opened rows (market-regime.js AXIS_SOURCES) are listed here only.
+  signal: ['추세: S&P 500·나스닥 100·나스닥 종합·러셀 2000 일봉 종가 (Yahoo Finance)', '시장 폭: 스크리너 유니버스 구성 종목의 수정 종가로 자체 계산', '변동성: VIX·VIX3M (Cboe, Yahoo Finance 경유)', '금리: 미 재무부 국채 수익률 (FRED DGS2·DGS10)', '신용: ICE BofA 하이일드 OAS (FRED), CNN Fear & Greed', '달러·원자재·환율: 달러 지수·WTI·금 선물, 원/달러·엔/달러·코스피 (Yahoo Finance)', '심리: 자체 종합 심리 지표 구성 요소 (S&P 500·VIX·TLT·스크리너 등락 종목·FRED OAS)', 'AI·반도체 집중: SOXX·동일가중 S&P 500 RSP 일봉 종가 (Yahoo Finance)'],
+  // the per-factor data lines of the old opened factor rows (macro-board.js) are listed here only.
+  macro: [FRED, '고용·소비: BLS 고용 보고서, Census 소매판매 (FRED)', '물가: BEA PCE, BLS CPI (FRED)', '정책금리·회의 일정: 연방준비제도 FOMC, 2년물·10년물 미 재무부 (FRED)', '하이일드 스프레드: ICE BofA OAS (FRED)', 'WTI·금·달러 지수: 선물·지수 종가 (Yahoo Finance)', CONSENSUS, '한국 기준금리·환율: 한국은행 경제통계시스템(ECOS)', '한국 물가·경기: 국가통계포털(KOSIS)'],
+  fxbond: ['국채 수익률 곡선: 미 재무부 일별 par curve', '1개월 전 곡선: FRED H.15 국채 고정만기 금리 (DGS2·DGS5·DGS10·DGS20·DGS30)', '금리차·실질금리·기대인플레이션·기간 프리미엄: FRED (T10Y3M, DFII10, T10YIE, THREEFYTP10)', '테일러 준칙 입력: FRED (PCEPILFE, UNRATE, NROU, FEDTARMDLR, DFEDTARL·DFEDTARU)', '하이일드 스프레드: ICE BofA OAS (FRED)', '환율·달러 지수: Yahoo Finance', '미·일·미·한 금리차: OECD 장기금리 월평균 (FRED IRLTLT01US·JP·KR)'],
   themes: [
     '섹터·테마 ETF와 종목 일봉: Yahoo Finance (상대강도는 자체 계산)',
     'S&P 500 지도 넓이: iShares IVV 일별 보유 비중(지수 비중 근사), 기간 수익률은 기간 시작 비중으로 역산',
@@ -40,8 +42,13 @@ export const PAGE_SOURCES = Object.freeze({
     'AI 설비투자 배분: BNP Paribas 추정(2026-08), a16z State of Markets II(2026-09-30) 인용, 부품 납기: TrendForce(2026-09-14)'
   ],
   // v58.74 (text audit): one fold serves 미국 and 한국 tickers, so each line names the market it applies to.
-  ticker: ['가격·차트: Yahoo Finance 일봉', '기업 재무: 미국 종목은 SEC EDGAR XBRL 공시(연간 10-K, 분기 10-Q), 한국 종목은 DART 사업보고서', CONSENSUS, '팩터 점수: 스크리너와 같은 자체 계산', '랭킹 대상 밖 미국 종목: Nasdaq Trader 상장 목록으로 확인, 요청 시 같은 공식으로 계산(공개 순위 미포함)'],
+  ticker: ['가격: Yahoo Finance 시세와 일봉 종가', '사업: 회사별 조사 노트(회사 공시·실적 발표·IR 자료를 날짜와 함께 인용, 각 근거는 회사의 데이터 출처 접힘)',
+    '밸류체인 안의 자리: AIO AI 밸류체인 지도와 회사 이야기에서 모은 고객·공급 연결, 자본순환은 계약·공시·보도 원문',
+    '기업 재무: 미국 종목은 SEC EDGAR XBRL 공시(연간 10-K, 분기 10-Q), 한국 종목은 DART 사업보고서', CONSENSUS,
+    '회사 이야기가 없는 종목: 종목 등록 정보의 분류·섹터·업종과 출처가 있는 회사 설명만 표시'],
   // v57.81: the 한국 시장 fold is shown to everyone, so the chart screen names its sources too.
+  // Chart-scale 2026-11-19: the 시장 지수 일봉 cards draw without the library's on-chart logo, so the attribution is here.
+  charts: ['시장 지수 일봉: Yahoo Finance 일봉', '차트 그리기: TradingView Lightweight Charts (Apache-2.0, https://www.tradingview.com/)'],
   technical: ['종목 차트: Yahoo Finance 일봉', '코스피·코스닥 종가: Yahoo Finance 일봉(마감된 한국 거래일), 50일선·200일선·1년 고저는 자체 계산'],
   fundamental: [SEC, CONSENSUS],
   screener: ['가격 팩터(수익률·추세·변동성): Yahoo Finance 수정 종가로 자체 계산', SEC, '종목별 원시 가격은 공개 데이터에 싣지 않습니다'],
@@ -108,6 +115,7 @@ export function renderPageSources(doc, routeId) {
   if (!fold) {
     fold = doc.createElement('details');
     fold.className = 'page-sources';
+    fold.dataset.foldKind = 'sources'; // one of the three permitted folds (scripts/ci-fold-kind-check.mjs)
     const summary = doc.createElement('summary');
     summary.textContent = '데이터 출처';
     fold.append(summary);

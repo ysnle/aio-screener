@@ -1893,7 +1893,7 @@ window.AIO_PAGE_PURPOSE_REGISTRY = {
   briefing: { purpose: '오늘 시장 브리핑 + Action Items',
               sectionOrder: ['top-5-watch', 'macro-calendar', 'earnings-calendar', 'interviews', 'ipo-pipeline', 'strategy'],
               cta: '5대 관전 포인트 우선' },
-  technical: { purpose: '차트·기술 분석 — 종목별', mainCards: ['tradingview-chart', 'rsi-macd', 'setups'], cta: '셋업 진단 + MTF' },
+  charts:   { purpose: '기술적 분석 — 시장 지수·대표 종목, 분석 자리', mainCards: ['chart-cards', 'stock-chart', 'setups'], cta: '카드 판정 + 분석 자리' },
   macro:    { purpose: '거시·금리 분석',  mainCards: ['cross-asset', 'fomc-calendar', 'cycle'], cta: '경기 단계 + 정책 모니터' },
   fxbond:   { purpose: '외환·채권·원자재', mainCards: ['dxy-table', 'yield-curve', 'commodities'], cta: '글로벌 흐름' },
   fundamental:{ purpose: '기업 펀더멘털 검색', mainCards: ['search', 'piotroski-card', 'earnings'], cta: '종목별 심층 분석' },
@@ -2558,7 +2558,7 @@ window.AIO.getCritical10PageFreshnessAudit = function(opts) {
     var issue = [];
     if (!el) issue.push('missing page DOM');
     if (!profile.tasks.length && id !== 'guide' && id !== 'principles') issue.push('no required tasks');
-    if (profile.symbols.length < 3 && ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'].indexOf(id) >= 0) issue.push('thin symbol coverage');
+    if (profile.symbols.length < 3 && ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'].indexOf(id) >= 0) issue.push('thin symbol coverage');
     if (staleTokenRe.test(text)) issue.push('stale live-like token in page text');
     return {
       pageId: id,
@@ -2588,7 +2588,7 @@ window.AIO.getCritical10PageFreshnessAudit = function(opts) {
 window.AIO.getComprehensiveSurfaceIntegrityAudit = function(opts) {
   opts = opts || {};
   var groups = window.AIO.CRITICAL_PAGE_GROUPS || {};
-  var pageIds = opts.pageIds || ((groups.comprehensive || ['home','signal','breadth','sentiment','briefing']).concat(groups.marketAnalysis || ['technical','macro','fxbond','fundamental','themes']));
+  var pageIds = opts.pageIds || ((groups.comprehensive || ['home','signal','breadth','sentiment','briefing']).concat(groups.marketAnalysis || ['charts','macro','fxbond','fundamental','themes']));
   var formulaRe = new RegExp('[=*xX]|score|formula|calc|calculate|weight|ratio|spread|RSI|MACD|SMA|EMA|VIX|Breadth|F&G|Fear|Greed|HY|PCR|AAII|NAAIM|\\uC810\\uC218|\\uACF5\\uC2DD|\\uC218\\uC2DD|\\uACC4\\uC0B0|\\uAC00\\uC911', 'i');
   var numericRe = new RegExp('(?:\\$|\\u20A9)?\\s*\\d[\\d,.]*(?:\\.\\d+)?\\s*(?:%|bp|bps|x|\\uBC30|\\uC870|\\uC5B5|M|B|T|pts?)?', 'i');
   var staleRe = new RegExp('2026-0[1-5]-|2026\\.0[1-5]\\.|4/(?:0?[1-9]|1[0-9]|2[0-9])|5/(?:0?[1-9]|1[0-9]|2[0-9])|loading|calculating|analyzing|\\uB85C\\uB529\\s*\\uC911|\\uACC4\\uC0B0\\s*\\uC911|\\uBD84\\uC11D\\s*\\uC911', 'i');
@@ -2685,7 +2685,7 @@ function _aioRunNamedAuditForPage(name, pageId) {
 window.AIO.runPageDeepAudit = function(pageId, opts) {
   opts = opts || {};
   var id = String(pageId || 'home').replace(/^page-/, '');
-  var aliases = { signals: 'signal', 'kr-technical': 'technical', korea: 'macro', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro' };
+  var aliases = { signals: 'signal', 'kr-technical': 'charts', korea: 'macro', 'kr-home': 'macro', 'kr-supply': 'macro', 'kr-themes': 'themes', 'kr-macro': 'macro' };
   id = aliases[id] || id;
   var profile = window.AIO.getDataRequirementProfile({ pageId: id, reason: 'page-deep-audit', symbolLimit: opts.symbolLimit || 999 });
   var symbols = profile.symbols || [];
@@ -2765,12 +2765,12 @@ window.AIO.getAutoDataContinuityAudit = function(opts) {
 // user scenario.  The audit reports observed section density for later visual
 // review; it does not pretend a section count alone proves usability.
 window.AIO_PAGE_DECLUTTER_POLICY = {
-  priorityRoutes: ['signal','macro','technical','fxbond','guide','principles','masters','atlas','themes','portfolio','screener'],
+  priorityRoutes: ['signal','macro','charts','fxbond','guide','principles','masters','atlas','themes','portfolio','screener'],
   intents: {
     home:'오늘 시장을 열어도 되는지 결정', signal:'진입·보유·축소 중 하나를 선택', breadth:'지수 상승의 참여 폭 확인', sentiment:'심리 과열·공포 확인', briefing:'오늘 행동을 바꿀 뉴스 압축 확인', 'market-news':'가격 영향 뉴스만 분류', technical:'추세 유지·축소·헤지 판단', screener:'후보를 팩터로 좁히기', ticker:'선택 종목 최종 검증', portfolio:'보유 위험과 리밸런싱 확인', themes:'주도 테마와 리더 확인', 'theme-detail':'선택 테마의 리더·리스크 확인', macro:'정책·성장·금리 압력 확인', fxbond:'달러·금리·크레딧 압력 확인', fundamental:'가격에 살 이유와 결측 확인', guide:'사용 루틴과 정책 참고', principles:'금리·산업·병목의 연결 구조 학습', masters:'공개 보유와 데이터 한계 확인', atlas:'AI 원리·산업·시장 연결 구조 학습', charts:'지수·대표 종목의 추세 위치 확인'
   },
   scenarios: {
-    home:'첫 진입자는 홈→시그널→포트폴리오', signal:'신규 진입 전 점수·lockout 확인', technical:'티커 입력 후 exit plan 확인', portfolio:'보유 종목 추가 후 집중도 확인', screener:'필터 후 티커 분석으로 이동', guide:'초보자 시작 홈으로 이동', principles:'Tree→Graph→Path로 한 개념씩 연결', masters:'신고주체→원본→분기 비교 순서로 확인', atlas:'기초 원리→산업·가치사슬→근거 자료 순서로 확인', charts:'지수 카드→차트 읽기→대표 종목 순서로 확인'
+    home:'첫 진입자는 홈→시그널→포트폴리오', signal:'신규 진입 전 점수·lockout 확인', portfolio:'보유 종목 추가 후 집중도 확인', screener:'필터 후 티커 분석으로 이동', guide:'초보자 시작 홈으로 이동', principles:'Tree→Graph→Path로 한 개념씩 연결', masters:'신고주체→원본→분기 비교 순서로 확인', atlas:'기초 원리→산업·가치사슬→근거 자료 순서로 확인', charts:'지수 카드→차트 읽기→대표 종목 순서로 확인'
   }
 };
 
@@ -3093,7 +3093,7 @@ window.AIO.getDataLineageAudit = function() {
     try {
       elementLevel = window.AIO.getElementLineageInventory
         ? window.AIO.getElementLineageInventory({
-            pages: window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'],
+            pages: window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'],
             includeItems: false
           })
         : null;
@@ -3535,7 +3535,7 @@ window.AIO.auditAllFreshness = function(pageId) {
     breadth: ['^GSPC','^IXIC','^RUT'],
     sentiment: ['^VIX','SPY','QQQ'],
     briefing: ['^GSPC','^IXIC','^VIX','CL=F','GC=F','KRW=X','^KS11'],
-    technical: ['SPY','QQQ','SMH','SOXX','^VIX'],
+    charts: ['SPY','QQQ','SMH','SOXX','^VIX'],
     macro: ['DX-Y.NYB','^TNX','^VIX'],
     fx: ['KRW=X','DX-Y.NYB','^TNX'],
     fundamental: ['SPY','QQQ'],
@@ -3823,7 +3823,7 @@ window.AIO.getOperationalDataContractAudit = function() {
 
 window.AIO.getCritical10MarketSurfaceAudit = function(opts) {
   opts = opts || {};
-  var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'];
   var now = Date.now();
   var dateWarnDays = opts.dateWarnDays || 14;
   function parseDate(text) {
@@ -3899,7 +3899,7 @@ window.AIO.getCritical10MarketSurfaceAudit = function(opts) {
 
 window.AIO.getCritical10MarketSituationAudit = function(opts) {
   opts = opts || {};
-  var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var pages = opts.pages || window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'];
   var inventory = window.AIO.collectCritical10MarketContentInventory({ pages: pages, sampleLimit: opts.sampleLimit || 140 });
   var liveSymbols = [];
   inventory.pages.forEach(function(p) { (p.liveSinks || []).forEach(function(s) { if (s.symbol) liveSymbols.push(s.symbol); }); });
@@ -4188,16 +4188,14 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
       findings: [],
       note: 'v49.42 1차+2차 통합 — 2 시정 + 1 verify-only. agent 보고 false alarm 4건 차단. v57.78: 퇴역 섹션 항목 정리'
     },
-    // v49.42 technical 1차+2차
-    'technical': {
-      lineRange: 'index.html #page-technical',
+    // v49.42 technical 1차+2차. Owner 2026-11-19: the 차트 tab is retired; its chart and evidence panel are 기술적 분석's
+    // analysis slot, and the 시장 상태 요약 block left with the tab.
+    'charts': {
+      lineRange: 'index.html #page-charts',
       subSections: [
-        // v57.78: v57.76 retired the indicator cards (4), the support/resistance + Weinstein block (6), 12 setups (7), multi-timeframe (8),
-        // pattern signals (9), the deep ticker brief (10) and the term guide (11); the quick ticker search (5) is gone too. Those
-        // entries and their findings (incl. the data-threshold-key="RSI" marker) are pruned.
-        { id: 'technical-explain-header',  order:  1, topic: '헤더 (심층 해설 퇴역, v57.78 갱신)', lines: 'index.html #page-technical' },
-        { id: 'technical-tv-chart',        order:  2, topic: '일봉 캔들 차트 + 근거 패널 (#stock-chart-section, P1397 · TradingView 퇴역 v57.76, v57.78 갱신)', lines: 'src/ui/components/stock-chart.js' },
-        { id: 'technical-health-dash',     order:  3, topic: '시장 상태 요약 (#tech-regime-summary, 0-100 건강도 점수 퇴역 P1420, v57.78 갱신)', lines: 'src/ui/pages/analysis.js' }
+        { id: 'charts-search',             order:  1, topic: '종목 검색 (#charts-search-open, 고른 종목은 아래 분석 자리)', lines: 'index.html #page-charts' },
+        { id: 'charts-cards',              order:  2, topic: '시장 지수 · 대표 종목 카드 (같은 카드 부품, 일봉과 판정)', lines: 'src/ui/components/market-candles.js' },
+        { id: 'technical-tv-chart',        order:  3, topic: '일봉 캔들 차트 + 근거 패널 (#stock-chart-section, P1397 · TradingView 퇴역 v57.76, v57.78 갱신)', lines: 'src/ui/components/stock-chart.js' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [
@@ -4320,8 +4318,7 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         // v57.78: P1430 removed the inner 재무 상세 (3) and 외부 정보 (4) tabs (the screen's top tabs own 재무 공시); those entries and
         // the external-tab finding are pruned.
         { id: 'tk-search-input',      order: 1, topic: '종목 검색 input (#ticker-direct-search)',  lines: 'index.html #ticker-direct-search' },
-        { id: 'tk-overview-tab',      order: 2, topic: '이 종목의 지금 (#ticker-read, 내부 개요 탭 퇴역 P1430, v57.78 갱신)', lines: 'src/ui/components/stock-read.js' },
-        { id: 'tk-chart-tradingview', order: 5, topic: '가격 흐름 (#ticker-price-panel, TradingView iframe 퇴역 P1430, v57.78 갱신)', lines: 'src/ui/pages/entity.js' }
+        { id: 'tk-overview-tab',      order: 2, topic: '회사 개요 (#ticker-company: 사업 · 밸류체인 안의 자리 · 재무 한눈에)', lines: 'src/ui/components/company-overview.js' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },
       findings: [],
@@ -5759,7 +5756,7 @@ window.AIO.getTelegramPageCoverageAudit = function() {
   var currentWindow = digest.current24hWindow || null;
   var required = Array.isArray(window.AIO_ALL_ROUTE_PAGE_IDS) && window.AIO_ALL_ROUTE_PAGE_IDS.length
     ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
-    : ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','screener','principles','masters','atlas','guide'];
+    : ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','screener','principles','masters','atlas','guide'];
   var routes = {};
   required.forEach(function(pageId) {
     var tags = Array.isArray(_TG_PAGE_TAGS[pageId]) ? _TG_PAGE_TAGS[pageId] : [];
@@ -5794,7 +5791,7 @@ window.AIO.getTelegramPageCoverageAudit = function() {
     'sourceKind', 'sourceFamily', 'sourceEndpointOrFile', 'transformFormula',
     'asOf', 'freshnessSla', 'failureAndFallback', 'decisionUse'
   ];
-  var DEFAULT_PAGES = ['home','signal','breadth','sentiment','briefing','technical','macro','fxbond','fundamental','themes'];
+  var DEFAULT_PAGES = ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'];
   var SINK_SELECTOR = '[data-live-price],[data-live-chg],[data-live-pct],[data-live-field],[data-live-kr],[data-snap],[data-snap-date]';
   var CHART_SELECTOR = 'canvas,[id*="chart"],[id*="widget"],[class*="chart"]';
   var MARKET_WORD_RE = /시장|시황|강세|약세|상승|하락|위험|리스크|변동성|금리|유가|달러|VIX|S&P|SPY|QQQ|Nasdaq|나스닥|국채|채권|크레딧|브레드스|breadth|risk|volatility|yield|oil|gold|bitcoin|BTC/i;

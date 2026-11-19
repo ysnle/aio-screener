@@ -2,10 +2,10 @@
 // scripts/ci-section-visual-contract.mjs — v59.70 (PLAN S13/S15, perf-legacy-plan-20261104)
 //
 // The 종목 개요 and 재무 공시 tabs are three sections each, and every section that carries a reading carries its visual:
-//   개요 — ① 가격 (the price chart and one why-moved line), ② 동종 비교 (one rank chart, one strength and one weakness
-//          line, the rest folded), ③ 회사 이야기 (a fold, no visual of its own);
-//   재무 — ① 매출과 이익률 추세 (revenue/income chart), ② 현금흐름과 발생액 (accruals chart, the reverse DCF and DuPont
-//          folded), ③ SEC 연간 요약 (a fold).
+//   개요 (2026-11-19) — ① 사업 (segment revenue bars), ② 밸류체인 안의 자리 (layer, customers, suppliers, capital flows),
+//          ③ 재무 한눈에 (figure rows with a state word); only 원자료 표 · 계산 방법 · 데이터 출처 fold;
+//   재무 — ① 매출과 이익률 추세 (revenue/income chart), ② 현금흐름과 발생액 (accruals chart, the reverse DCF and DuPont),
+//          ③ 공시가 말하는 것 (the findings as rows, with the raw SEC report as its 원자료 표).
 // The renderers are mounted on scripts/lib/fake-dom.mjs with a fixture company, so a section that loses its chart, gains a
 // fourth sibling, or puts the summary on the face fails here. On the old code the sections did not exist.
 import { readFileSync } from 'node:fs';
@@ -45,93 +45,61 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
   check('v59.70 S15 ① 매출과 이익률 추세 carries the revenue/income chart', !!trend && visualIn(trend));
   check('v59.70 S15 ② 현금흐름과 발생액 carries the accruals chart', !!cash && visualIn(cash));
   check('v59.70 #8 ② draws quarter-end inventory and receivables when they are collected', !!find(cash, (item) => item?.dataset?.sectionVisual === 'working-capital'));
-  const secFold = sec && find(sec, (item) => tag(item) === 'details');
-  check('v59.70 S15 ③ SEC 연간 요약 is a fold (nothing on its face but the title)', !!secFold && [...(sec?.children || [])].every((child) => ['h3', 'details'].includes(tag(child)) || child.id === 'fund-native-sec-report'));
+  // 2026-11-19: ③ is on the face — one row per finding of the filing — and folds only 원자료 표 · 계산 방법.
+  check('v60.31 ③ 공시가 말하는 것 shows the findings as rows on the face', !!sec && all(sec, (item) => String(item.className || '').includes('stock-read-point ')).length >= 2);
   check('v59.70 S15 the raw SEC report fold sits in ③', !!find(sec, (item) => item.id === 'fund-native-sec-report'));
+  const fiscalFolds = all(host, (item) => tag(item) === 'details');
+  check('v60.31 재무 공시 folds only 원자료 표 · 계산 방법 · 데이터 출처', fiscalFolds.every((fold) => ['raw-table', 'method', 'sources'].includes(fold.dataset?.foldKind)), fiscalFolds.map((fold) => fold.dataset?.foldKind || fold.className).join(','));
   check('v59.70 S15 no 재무 card outside the three sections', [...host.children].every((child) => tag(child) === 'h2' || child?.dataset?.entitySection));
+  // The stock lens readings sit on the face: the business lens leads ①, the thesis conditions follow the reverse DCF in ②.
+  const onFace = (node, id) => { const card = find(node, (item) => item?.dataset?.analysis === id); let up = card?.parentElement; while (up && up !== host) { if (tag(up) === 'details') return false; up = up.parentElement; } return !!card; };
+  check('v60.31 ① 매출과 이익률 추세 leads with the business lens on the face', onFace(trend, 'lens'));
+  check('v60.31 ② 현금흐름과 발생액 carries the thesis conditions on the face', onFace(cash, 'thesis') && /맞으려면/.test(find(cash, (item) => item?.dataset?.analysis === 'thesis')?.textContent || ''));
 }
 
-// ── 종목 개요: ② 동종 비교 (renderStockStrengths) and the static section markers ─────────────────────────────────────────
+// ── 종목 개요: 사업 · 밸류체인 안의 자리 · 재무 한눈에 (renderCompanyOverview on NVDA's own story and the map's records) ──
 {
-  const { renderStockStrengths } = await import(pathToFileURL(join(root, 'src/ui/components/stock-lens-cards.js')).href);
+  const { renderCompanyOverview } = await import(pathToFileURL(join(root, 'src/ui/components/company-overview.js')).href);
+  const { companyPlace, moneyGlance } = await import(pathToFileURL(join(root, 'src/domain/entity/company-overview.js')).href);
+  const json = (file) => JSON.parse(read(file));
+  const story = json('public-data/company-profiles/NVDA.json');
+  const place = companyPlace({ symbol: 'NVDA', story, graph: json('public-data/company-profiles/graph.json'), capital: json('public-data/atlas/capital-flows.json'), today: '2026-11-19' });
+  const money = moneyGlance({ symbol: 'NVDA', story });
   const doc = createFakeDocument();
-  const host = doc.getElementById('ticker-strength');
-  const fact = (id, label, rank, side, vsMedian) => ({ id, label, rank, n: 9, side, vsMedian, tied: false, text: `${label} 텍스트 ${rank}위` });
-  const facts = [fact('roe', 'ROE', 1, 0, 1), fact('growth', '매출 성장', 2, 0.125, 1), fact('margin', '순이익률', 8, 0.875, -1), fact('fwdPe', 'Forward PER', 7, 0.75, -1)];
-  const ctx = { sym: 'NVDA', peers: { themeName: '반도체', rows: [{ sym: 'NVDA' }, { sym: 'AMD' }, { sym: 'AVGO' }] },
-    strengths: { strengths: facts.slice(0, 2), weaknesses: facts.slice(2), facts, peers: 8 }, watch: [{ label: '다음 실적', now: '11/17', why: '가이던스' }] };
-  renderStockStrengths(doc, host, ctx);
-  check('v59.70 S13 ② 동종 비교 draws one rank chart (svg)', all(host, (item) => tag(item) === 'svg').length === 1);
-  const lines = all(host, (item) => String(item.className || '').includes('v2-peer-line'));
-  check('v59.70 S13 ② one strength line and one weakness line on the face', lines.length === 2 && /강한 점/.test(lines[0].textContent) && /약한 점/.test(lines[1].textContent), String(lines.length));
-  const fold = find(host, (item) => tag(item) === 'details');
-  check('v59.70 S13 ② the other facts, 계속 볼 것 and the basis fold', !!fold && /계속 볼 것 1가지/.test(fold.textContent) && /순이익률|Forward PER/.test(fold.textContent));
-  check('v59.70 S13 ② no 읽는 법 card', !/읽는 법|보는 법/.test(host.textContent));
-  // ① and ③ markers and the why-moved line, through the page's own exports.
-  const { markTickerSections, renderWhyMoved } = await import(pathToFileURL(join(root, 'src/ui/pages/entity.js')).href);
-  const page = createFakeDocument();
-  for (const id of ['ticker-price-panel', 'ticker-strength', 'ticker-business-profile']) page.getElementById(id);
-  markTickerSections(page);
-  check('v59.70 S13 the overview marks its three sections: price, peers, story', ['ticker-price-panel', 'ticker-strength', 'ticker-business-profile'].map((id) => page.getElementById(id).dataset.entitySection).join(',') === 'price,peers,story');
-  const day = { facts: [{ id: 'stock:AAA:2026-11-03', kind: 'stock-move', subjects: ['AAA'], label: 'Alpha', date: '2026-11-03', change: -6.1, rank: 'major', materiality: 50 }], links: [] };
-  const why = page.getElementById('ticker-why-moved');
-  renderWhyMoved(page, { _aioMarketDay: day, _currentTickerId: 'AAA' }, { id: 'AAA' });
-  check('v59.70 S13 ① the price section carries the why-moved line', why.hidden === false && /^11\/3 -6\.1% — /.test(why.textContent), why.textContent);
-  renderWhyMoved(page, { _aioMarketDay: day, _currentTickerId: 'ZZZ' }, { id: 'ZZZ' });
-  check('v59.70 S13 ① a move the ledger did not count has no line', why.hidden === true && why.textContent === '');
-  // ③ the story face is the one line; the money-flow visual opens inside the fold.
-  const { renderCompanyStory } = await import(pathToFileURL(join(root, 'src/ui/components/company-story.js')).href);
-  const profile = JSON.parse(readFileSync(join(root, 'public-data/company-profiles/005930.KS.json'), 'utf8'));
-  const storyDoc = createFakeDocument();
-  const story = storyDoc.getElementById('ticker-business-profile');
-  renderCompanyStory(storyDoc, story, { profile });
-  const face = [...story.children];
-  // v59.74 (owner 2026-11-07): between the one line and the fold sit the issue, the flow, the structures and the industry.
-  const part = (node) => /company-(debate|flow|hood|industry)/.test(String(node.className || ''));
-  const lead = face.findIndex((node) => tag(node) !== 'p');
-  check('v59.70 S13 ③ 회사 이야기 face is the one line and the fold', face.length >= 2 && lead > 0 && tag(face.at(-1)) === 'details' && face.slice(lead, -1).every(part), face.map(tag).join(','));
-  check('v59.74 the story face leads with the issue the stock turns on and the structures under the numbers', !profile.debate || (part(face[lead]) && /company-debate/.test(face[lead].className) && face.some((node) => /company-hood/.test(String(node.className || '')))), face.map((node) => node.className || tag(node)).join(','));
-  check('v59.70 S13 ③ the money flow opens inside the fold', !profile.moneyFlow?.steps?.length || !!find(face.at(-1), (item) => String(item.className || '').includes('company-story-flow')));
+  const host = doc.getElementById('ticker-company');
+  const peer = { theme: '반도체', count: 9, strength: '순이익률 55.6%로 이 회사 포함 9곳 중 1위', weakness: 'Forward PER 38.0배로 이 회사 포함 9곳 중 7위' };
+  renderCompanyOverview(doc, host, { symbol: 'NVDA', story, profile: { name: 'NVIDIA' }, place, money, peer, openTicker() {}, openMap() {}, openFundamental() {} });
+  const sections = all(host, (item) => item?.dataset?.companySection);
+  check('v60.31 종목 개요 is four sections: business, place, outlook, money', sections.map((item) => item.dataset.companySection).join(',') === 'business,place,outlook,money', sections.map((item) => item.dataset.companySection).join(','));
+  const [business, where, outlook, figures] = sections;
+  // The company analysis the story carries sits on the face of its section (folds hold only tables, methods, sources).
+  const unfolded = (item, node) => { let up = item.parentElement; while (up && up !== node) { if (tag(up) === 'details') return false; up = up.parentElement; } return true; };
+  const faceText = (node) => all(node, (item) => ['h3', 'h4'].includes(tag(item)) && unfolded(item, node)).map((item) => item.textContent).join('|');
+  check('v60.31 사업 carries 경쟁 and AI on the face', /경쟁/.test(faceText(business)) && /지금 이기는 이유/.test(faceText(business)) && /AI가 실적에 닿는 길/.test(faceText(business)), faceText(business));
+  check('v60.31 쟁점과 전망 leads with 핵심 쟁점 and carries the outlook, the signals and the dated events', ['핵심 쟁점', '판가름할 것', '잘 안 보이는 구조', '회사가 밝힌 전망과 계획', '시장 예상', '맞아가고 있다는 신호', '분기마다 볼 숫자'].every((title) => faceText(outlook).includes(title)) && faceText(outlook).indexOf('핵심 쟁점') < faceText(outlook).indexOf('회사가 밝힌 전망과 계획'), faceText(outlook));
+  check('v60.31 재무 한눈에 carries 현금을 쓴 곳 bars and 경영·지배구조', /현금을 쓴 곳/.test(faceText(figures)) && /경영·지배구조/.test(faceText(figures)) && !!find(figures, (item) => String(item.getAttribute?.('aria-label') || '').startsWith('현금을 쓴 곳')), faceText(figures));
+  check('v60.31 밸류체인 안의 자리 names the partners beside buyers, suppliers and rivals', /함께 일하는 곳/.test(faceText(where)), faceText(where));
+  check('v60.31 사업 carries the segment revenue bars (a figure, role img)', !!find(business, (item) => item.getAttribute?.('role') === 'img'));
+  check('v60.31 밸류체인 안의 자리 names the map layer and the companies on each side', /\d층 /.test(where?.textContent || '') && /사 주는 곳|공급하는 곳/.test(where?.textContent || ''), where?.textContent?.slice(0, 200));
+  check('v60.31 재무 한눈에 is figure rows with a state word', all(figures, (item) => tag(item) === 'article').length >= 2);
+  const standing = find(figures, (item) => item?.dataset?.companyPeer != null);
+  check('v60.31 재무 한눈에 names the standing among theme peers in a strength and a weakness line', !!standing && /강한 점/.test(standing.textContent) && /약한 점/.test(standing.textContent), standing?.textContent);
+  const folds = all(host, (item) => tag(item) === 'details');
+  check('v60.31 the overview folds only 원자료 표 · 계산 방법 · 데이터 출처', folds.length > 0 && folds.every((fold) => ['raw-table', 'method', 'sources'].includes(fold.dataset?.foldKind)), folds.map((fold) => fold.dataset?.foldKind).join(','));
+  check('v60.31 no 읽는 법 card', !/읽는 법|보는 법/.test(host.textContent));
 }
 
-// ── why-moved: the line comes from the shared day account ───────────────────────────────────────────────────────────
+// ── The stock's primary theme and the day account (shared by 오늘 and the AI reader) ──────────────────────────────────
 {
-  const { whyMovedLine } = await import(pathToFileURL(join(root, 'src/domain/entity/why-moved.js')).href);
-  const day = { facts: [
-    { id: 'stock:AAA:2026-11-03', kind: 'stock-move', subjects: ['AAA'], label: 'Alpha', date: '2026-11-03', change: 4.2, rank: 'major', materiality: 60, explainedBy: ['subject'] },
-    { id: 'headline:1', kind: 'headline', title: 'Alpha jumps', titleKo: '알파 급등, 신제품 발표', subjects: ['AAA'], rank: 'major', materiality: 40, date: '2026-11-03' },
-    { id: 'stock:BBB:2026-11-03', kind: 'stock-move', subjects: ['BBB'], label: 'Beta', date: '2026-11-03', change: -6.1, rank: 'minor', materiality: 30 }],
-  links: [{ from: 'headline:1', to: 'stock:AAA:2026-11-03', basis: 'subject' }] };
-  const a = whyMovedLine(day, 'AAA'); const b = whyMovedLine(day, 'BBB');
-  check('v59.70 S13 ① why-moved: a move with a same-day report names it', /^11\/3 \+4\.2% — /.test(a?.text || '') && /알파 급등, 신제품 발표/.test(a.text), a?.text);
-  check('v59.70 S13 ① why-moved: a counted move without a report says so; an uncounted one has no line', /^11\/3 -6\.1% — 같은 날 이름이 나온 보도가 없습니다\.$/.test(b?.text || '') && whyMovedLine(day, 'CCC') === null, b?.text);
-  // v60.28 (AVGO 11/16): the line said "광통신/포토닉스 하락과 함께" while the market line and the theme link said 반도체.
-  // The primary theme (primary-theme.js, theme-map order) is the one the line names; a story about another theme the
-  // stock also belongs to names the primary theme beside it.
+  // v60.28 (AVGO 11/16): the market line and the theme link named different themes. The primary theme (primary-theme.js,
+  // theme-map order) is one owner.
   {
     const { primaryTheme, stockThemes } = await import(pathToFileURL(join(root, 'src/domain/entity/primary-theme.js')).href);
     const map = [{ id: 'semiconductor', nameKr: '반도체', leaders: ['AVGO', 'NVDA'], subThemes: [{ name: 'AI 칩/커스텀 ASIC', tickers: ['NVDA', 'AVGO'] }] },
       { id: 'photonics', nameKr: '광통신/포토닉스', leaders: ['AVGO', 'LITE'], subThemes: [{ name: '광전자 플랫폼', tickers: ['AVGO'] }] }];
     const theme = primaryTheme(map, 'AVGO');
-    const group = (id, label, change, rank, materiality, members) => ({ id: `group:theme:${id}:2026-11-16`, kind: 'group-move', group: `theme:${id}`, label, date: '2026-11-16', change, rank, materiality, members });
-    const move = (sym, change) => ({ id: `stock:${sym}:2026-11-16`, kind: 'stock-move', subjects: [sym], label: sym, date: '2026-11-16', change, rank: 'minor', materiality: 30, explainedBy: ['driver'] });
-    const facts = [group('photonics', '광통신/포토닉스', -7.1, 'lead', 90, ['AVGO', 'LITE']), group('semiconductor', '반도체', -5.48, 'major', 70, ['AVGO', 'NVDA']), move('AVGO', -3.92), move('LITE', -9), move('NVDA', -5)];
-    const both = whyMovedLine({ facts }, 'AVGO', null, { theme })?.text || '';
-    const old = whyMovedLine({ facts }, 'AVGO')?.text || '';
-    const onlyOther = whyMovedLine({ facts: facts.filter((fact) => fact.group !== 'theme:semiconductor') }, 'AVGO', null, { theme })?.text || '';
     check('v60.28 primary theme: one owner orders the stock\'s themes (theme-map order, primary first)', theme?.id === 'semiconductor' && stockThemes(map, 'avgo').map((t) => t.id).join() === 'semiconductor,photonics', JSON.stringify(theme));
-    check('v60.28 why-moved: the day line names the primary theme the page names', both === '11/16 -3.9% — 반도체 하락과 함께 움직였습니다(업종 중간값 -5.5%).' && /광통신/.test(old), `${both} | ${old}`);
-    check('v60.28 why-moved: a story about another theme names the primary theme beside it', /광통신\/포토닉스 하락과 함께 움직였습니다\(업종 중간값 -7\.1%\)\. 이 종목의 테마는 '반도체'이고, 광통신\/포토닉스에도 속합니다\.$/.test(onlyOther), onlyOther);
   }
-  // v59.84 (live NVDA 11/6 +2.8% "같은 날 보도: …짐 크라머", a Saturday 11/7 column): a report after the session or an
-  // opinion column is not the move's reason; the evening before the session is 전날 보도.
-  const later = (title, at, extra = {}) => ({ facts: [
-    { id: 'stock:NVDA:2026-11-06', kind: 'stock-move', subjects: ['NVDA'], label: 'NVIDIA', date: '2026-11-06', change: 2.8, rank: 'major', materiality: 60, explainedBy: ['subject'] },
-    { id: 'headline:9', kind: 'headline', title: 'x', titleKo: title, subjects: ['NVDA'], rank: 'major', materiality: 46, at, date: at.slice(0, 10), ...extra }],
-  links: [{ from: 'headline:9', to: 'stock:NVDA:2026-11-06', basis: 'subject' }] });
-  const sat = whyMovedLine(later('엔비디아 공급 계약 확대', '2026-11-07T18:20:00.000Z'), 'NVDA')?.text || '';
-  const col = whyMovedLine(later('Nvidia 주주에게 강한 신호를 보내고 있는 짐 크라머', '2026-11-06T15:00:00.000Z'), 'NVDA')?.text || '';
-  const eve = whyMovedLine(later('엔비디아 공급 계약 확대', '2026-11-05T23:30:00.000Z'), 'NVDA')?.text || '';
   // v59.84 (screen review TODAY-04): a big move on the first session after the company's own report is that report's
   // reaction, not "이유가 확인되지 않은 큰 움직임"; a brief for another session or another name leaves it unexplained.
   {
@@ -147,8 +115,6 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
       told.unexplained.map((row) => row.sym).join() === 'AXON' && told.reported[0]?.sym === 'TEAM' && /아틀라시안/.test(told.reported[0]?.headline || '')
         && buildDayAccount(teamDay).unexplained.length === 2, JSON.stringify({ unexplained: told.unexplained, reported: told.reported }));
   }
-  check('v59.84 why-moved: a later report or an opinion column is never "같은 날 보도"; the evening before is 전날 보도',
-    !/보도:/.test(sat) && !/보도:/.test(col) && /전날 보도: 엔비디아 공급 계약 확대/.test(eve), JSON.stringify({ sat, col, eve }));
 }
 
 if (failures.length) {
@@ -156,4 +122,4 @@ if (failures.length) {
   for (const failure of failures) console.error(` - ${failure}`);
   process.exit(1);
 }
-console.log('Section visual contract OK: 개요 가격 · 동종 비교 · 회사 이야기, 재무 추세 · 현금흐름 · SEC 요약.');
+console.log('Section visual contract OK: 개요 사업 · 밸류체인 안의 자리 · 쟁점과 전망 · 재무 한눈에, 재무 추세 · 현금흐름 · 공시가 말하는 것 · 시장 환경.');

@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-18
+last_verified: 2026-11-19
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -38,6 +38,26 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 <!-- ledger-class-report:end -->
 
 ---
+
+## P2687 - v60.31 - 캔들 차트의 마지막 봉이 매물대 막대 밑에 깔리고, 현재가·52주 고점 라벨이 가격 축 눈금 숫자와 겹침 (2026-11-19)
+
+- symptom/reproduction: 소유자 2026-11-19: 종목 분석 차트와 기술적 분석 일봉 카드에서 최근 봉들이 오른쪽 매물대(volume profile) 막대 아래에 그려져 보이지 않고, 가격 축의 현재가 라벨(예: 656.95)이 650.00 눈금 위에 겹쳐 두 숫자가 함께 읽히지 않음. 52주 고점 등 기준선 라벨도 같음.
+- root_cause: (1) stock-chart-layers.js의 매물대는 플롯 오른쪽 20%(최대 150px)를 덮는 캔버스 층인데, 보이는 범위(showRecent, 카드 setVisibleLogicalRange)는 마지막 봉에서 끝나 최근 약 20% 봉이 그 밑에 놓였다. (2) 현재가는 라이브러리 lastValueVisible 축 라벨, 기준선은 createPriceLine의 axisLabelVisible 축 라벨로 그려졌다. 고정 바이트(_artifacts/entity-quality-20261012/browser-lightweight-charts.js, 4.2.0)에서 축 라벨은 눈금 라벨 위에 그대로 덧그려지고, 가격선 title은 axisLabelVisible이 꺼지면 그리지 않는다(조기 반환). 라벨 아래 눈금을 숨기는 옵션은 없다.
+- fix: recentLogicalRange(length, count)가 매물대 폭(PROFILE_SHARE)만큼 오른쪽 여백 논리 범위를 더해 마지막 봉의 오른쪽 끝이 매물대 왼쪽보다 왼쪽에 오게 한다(분석 자리 130봉, 카드 90봉; 카드는 minBarSpacing 2, 두 차트 모두 lockVisibleTimeRangeOnResize). 현재가 축 라벨(lastValueVisible)과 기준선 축 라벨(axisLabelVisible)을 끄고, 같은 값을 플롯 오른쪽 안쪽의 태그로 그린다(현재가는 상승·하락 색 채움, 기준선은 선 색). 태그는 서로 겹치지 않게 쌓고, 그린 위치를 layers.geometry()로 내보낸다.
+- violated_rule: 차트 위의 겹 층과 라벨은 데이터를 가리지 않는다: 마지막 봉은 덮는 층 밖에 그리고, 값 라벨은 다른 숫자와 겹쳐 그리지 않는다.
+- prevention: scripts/ci-chart-scale-browser-check.mjs labelChecks: 6개 뷰포트·테마에서 지수 카드 4장과 분석 자리 차트마다 마지막 봉 오른쪽 x ≤ 매물대 왼쪽 x, lastValueVisible false, 현재가 태그 존재, 모든 태그가 플롯 안, 태그끼리 겹치지 않음을 단언한다. 고친 전 코드에서 실패하는지는 이번 스레드에서 따로 돌려 보지 않았다.
+- verification/residual: node scripts/ci-chart-scale-browser-check.mjs (6 cases PASS), node scripts/ci-entity-quality-browser-check.mjs, node scripts/ci-theme-research-browser-check.mjs; 전후 스크린샷 _artifacts/verify-aio/charts-restructure-20261119/
+- files: src/ui/components/stock-chart-layers.js, src/ui/components/stock-chart.js, src/ui/components/market-candles.js, scripts/ci-chart-scale-browser-check.mjs
+
+## P2686 - v60.31 - 차트가 스케일이 안 맞거나 깨져서 나옴: 오늘 지수 줄 캔들이 왼쪽에 몰리고, 기술적 분석 일봉 카드는 오른쪽이 비고 높이가 어긋나며, 가격 눈금 끝 값이 잘림 (2026-11-19)
+
+- symptom/reproduction: 소유자 2026-11-19 스크린샷(다크, 1690~1920px). 라이브 1690x940 다크에서 재현: 오늘 지수 줄 SPY·QQQ·IWM 카드가 '11/18(수) 마감'인데 봉 15·18·15개가 차트 왼쪽 1/5에만 그려지고 16시 종가 봉이 10시 40분 옆에 붙음(SOXX만 79개). 기술적 분석 일봉 카드 3장은 캔버스 402px 중 가격 축이 76px라 플롯이 326px로 오른쪽이 비어 보이고, SPY만 칩이 두 줄이 되며 차트 시작선이 25px 아래(330/355/330), 좌하단 라이브러리 로고가 캔들을 가림, SPY 카드 맨 아래 눈금 660.00이 잘림. 종목 차트(NVDA 일봉)는 맨 아래 눈금 120.00이 잘림.
+- root_cause: (1) home-index-strip.js chartSvg가 캔들을 시각이 아니라 배열 순서(i * step)로 놓았다. Yahoo가 마감 세션 5분봉의 OHLC를 대부분 null로 보내는 응답(SPY 79개 중 64개, QQQ 61개; Worker가 120초 캐시)을 걸러내면 남은 봉이 앞쪽에 붙고 16시 봉이 10:40 자리에 그려졌다. (2) stock-chart-layers.js가 스터디 칸과 축을 맞추려는 minimumWidth 76px를 칸이 없는 compact 카드에도 걸었다. (3) market-candles.js 카드가 라이브러리 기본 attributionLogo를 그대로 켜 두었다. (4) chart-quality.css의 카드가 flex 열이라 칩 줄 수에 따라 차트 시작 위치가 카드마다 달랐다. (5) 캔들 차트의 가격 축이 entireTextOnly 없이 그려져 패널 끝에 걸친 눈금 라벨이 반쯤 잘렸다.
+- fix: sessionModel이 각 봉에 뉴욕 9:30 기준 5분 슬롯(0~78)을 붙이고 chartSvg·시간 눈금은 그 슬롯으로 그린다(빈 구간은 비워 두고 채우지 않으며, 빈 봉이 있으면 머리 칩 hover에 적음). compact 카드는 축 최소 폭을 걸지 않고(52px), 로고를 끄고 기술적 분석 데이터 출처에 Lightweight Charts 표기를 둔다. 카드는 subgrid 다섯 줄을 공유해 한 줄의 차트가 같은 선에서 시작한다. stock-chart.js PRICE_SCALE(entireTextOnly)을 일봉·분봉 차트가 함께 쓰고 스터디 칸도 같은 옵션을 쓴다. Worker(cloudflare-worker-proxy.js)는 Yahoo chart 응답의 종가가 절반 넘게 null이면 엣지 사본을 지나는 일회용 키로 한 번 다시 요청해(캐시하지 않음) 온전한 응답을 돌려주고, 그래도 비어 있으면 no-store로 내보낸다.
+- violated_rule: 차트는 데이터의 시간과 크기 그대로 그린다: 시간축 위치는 배열 순서가 아니라 시각에서, 카드 차트는 카드 폭을 채우고 쓰지 않는 축 폭을 예약하지 않으며, 눈금 라벨은 잘린 채 그리지 않는다.
+- prevention: scripts/ci-chart-scale-browser-check.mjs(qa-pipeline browser-chart-scale): 11/18 SPY와 같은 null 5분봉 픽스처와 고정 라이브러리 바이트로 6개 뷰포트·테마에서 16시 봉이 오른쪽 끝(>97%)·10:35 봉이 제자리(<20%), 카드 차트 폭 ≥ 카드 차트 상자 95%, 카드 가격 축 ≤ 60px, 같은 줄 카드의 차트 시작선·높이 차 ≤ 1px, 카드 로고 없음과 데이터 출처 표기, 종목 차트 entireTextOnly를 단언한다. 고치기 전 코드(HEAD 워크트리)에서 모든 단언이 실패하고 고친 뒤 통과함을 확인했다. ci-esm-core-unit-check에 null 구간을 건너는 슬롯·missing 단위 단언 추가.
+- verification/residual: node scripts/ci-chart-scale-browser-check.mjs (6 cases PASS; HEAD 워크트리에서 FAIL 확인), node scripts/ci-esm-core-unit-check.mjs, node scripts/ci-entity-quality-browser-check.mjs, node scripts/ci-screen-rereview-browser-check.mjs, node scripts/ci-desktop-continuity-check.mjs, node scripts/ci-runtime-contract-check.mjs, node scripts/ci-fold-kind-check.mjs, node scripts/ci-control-char-check.mjs, node scripts/ci-data-audit-contract-check.mjs, node scripts/ci-csp-meta-check.mjs
+- files: src/ui/components/home-index-strip.js, src/ui/components/stock-chart.js, src/ui/components/stock-chart-layers.js, src/ui/components/market-candles.js, src/ui/components/page-sources.js, src/ui/styles/chart-quality.css, scripts/ci-chart-scale-browser-check.mjs, scripts/ci-esm-core-unit-check.mjs, architecture/qa-pipeline.json, cloudflare-worker-proxy.js, scripts/ci-worker-relay-check.mjs
 
 ## P2685 - v60.30 - v60.30 오늘·브리핑 이야기 날짜 표기가 지수 세션을 종목 세션 날짜로 적음 (2026-11-18)
 

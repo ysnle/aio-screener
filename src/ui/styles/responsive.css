@@ -7,8 +7,7 @@
 @import url('./screener-quality.css');
 @import url('./fiscal-quality.css');
 @import url('./chart-quality.css');
-@import url('./company-analysis.css');
-@import url('./company-story.css'); /* v59.43: researched company story in 무엇을 하는 회사 */
+@import url('./company-overview.css'); /* 2026-11-19: 종목 개요 (사업 · 밸류체인 안의 자리 · 재무 한눈에) */
 @import url('./regime-quality.css');
 @import url('./chat-sessions.css');
 @import url('./ai-answer-visuals.css'); /* 2026-10-19 layout system: AI answer figures moved out of inline styles */
@@ -36,6 +35,7 @@
 @import url('./v2-stock.css'); /* v58.53 개편 v2: 종목 · 테마 · 섹터 */
 @import url('./v2-screener.css'); /* v58.53 개편 v2: 스크리너 · 포트폴리오 */
 @import url('./v2-research.css'); /* v58.53 개편 v2: 리서치 · 용어 사전 · 한국 */
+@import url('./ai-map.css'); /* 산업 지도 › AI 지도 and the shared node graph (node-graph.js) */
 @import url('./page-views.css'); /* v60.08: views of one route, list beside a detail pane */
 @import url('./ui-states.css'); /* v59.70: shared button, field, data-card and transition states — last so one rule covers every screen */
 /* UI review 2026-10-18: one page header for every screen. The screens had three hand-written variants
@@ -95,15 +95,6 @@
 .theme-member-table th, .theme-member-table td { white-space: nowrap; }
 /* v57.77: 시장 폭 groups show one lead chart (capped so a lone card does not stretch to a 500px-tall chart) and fold the rest. */
 #breadth-chart-grid > .breadth-lead { grid-column: 1 / -1; width: 100%; max-width: 760px; }
-/* Layout review 2026-10-18: on a wide screen each group's reading sits beside its lead chart instead of above a half-width card. */
-@media (min-width: 1280px) {
-  #breadth-chart-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: 32px; }
-  #breadth-chart-grid > .flow-lead:not(:empty) { grid-column: 1; margin-top: 8px; }
-  #breadth-chart-grid > .flow-lead:not(:empty) + .breadth-lead { grid-column: 2; max-width: none; }
-  #breadth-chart-grid > .flow-lead:empty + .breadth-lead { grid-column: 1 / -1; }
-  /* 투자 심리: the three chart cards share one row, the same three columns as the cards below them. */
-  #sentiment-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
 /* 시장 상태 한국 참고: label and value sit close together instead of at the two ends of the page. */
 .regime-kr-metrics { max-width: 640px; }
 #breadth-chart-grid > .breadth-more { grid-column: 1 / -1; min-width: 0; }
@@ -542,14 +533,11 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 /* v59.55 (alignment pass, audits 2 and 4): text on the card text column on every screen. */
 #page-market-news #news-event-briefs { background: var(--color-background-card); border-radius: var(--radius-container); padding: 20px var(--sx-card-pad-x) 12px; margin: 0 0 16px; }
 #page-breadth .bb-group--participation > :is(h2, h3, p, .sx-card__head, .bb-group__head) { padding-inline: var(--sx-card-pad-x); }
-/* v59.70: two cards share a row instead of leaving a third column empty (the value row lost the put/call card); on a phone
-   both rows stay one column, which the unscoped rule overrode for the chart row at 390px. */
-@media (min-width: 744px) { :is(#sentiment-card-grid, #sentiment-mini-grid):has(> :nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
 .page .temp-group { display: flex; flex-direction: column; }
 .page .temp-group-grid { flex: 1; align-items: stretch; }
 .masters-change-counts { display: flex; flex-wrap: wrap; gap: 4px 12px; }
 #page-ticker > .aio-section > .mb-4 { padding-left: var(--sx-card-pad-x); }
-#page-ticker > #ticker-price-panel { padding-inline: var(--sx-card-pad-x) !important; }
+#page-ticker > :is(#ticker-company, [data-research-snapshots]) { padding-inline: var(--sx-card-pad-x); }
 /* A fold row inside a card keeps its 16px row inset for the hover tint, but the row reaches 16px into the card padding
    so its text starts on the card's text column (it sat 16px deeper: 브리핑 자세히·일정, 거시 금리 조건, 환율). */
 :is(.sx-card, .briefing-block) .sx-disclosure:not(.mk-axis, .mk-maxis, .sx-disclosure .sx-disclosure) { margin-inline: -16px; }

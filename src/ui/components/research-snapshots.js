@@ -1,23 +1,28 @@
 import { researchSnapshotStore } from '../../data/research-snapshots.js';
 
+/** Brings the memo into view and focuses it; an empty draft starts from `template` (the 재무 공시 thesis conditions). */
 export function focusResearchMemo(panel, template = '') {
   const note = panel?.querySelector('textarea');
   if (!note) return;
-  panel.open = true;
+  if (panel.tagName === 'DETAILS') panel.open = true;
   if (!note.value && template) note.value = template.slice(0, note.maxLength);
   panel.scrollIntoView({ block: 'center' });
   note.focus({ preventScroll: true });
 }
+
 const basisLabel = (basis) => ({ 'regular-session-close': '미국 정규장 종가', 'regular-close-delta': '직전 미국 정규장 종가 대비',
   'previous-regular-close': '직전 미국 정규장 종가 대비', 'provider-previous-value': '공급자가 제공한 직전 값 대비', 'daily-close-reference': '일별 종가 참고값',
   unknown: '가격 기준 미제공', unavailable: '가격 기준 미제공' })[basis] || (basis && !/^[a-z0-9-]+$/.test(basis) ? basis : '가격 기준 확인 필요');
-export function ensureResearchSnapshots({ documentRef: doc, root, host, kind, collect }) {
+// `open`: the panel is a section on the face (종목 개요, 2026-11-19: folds there are only 원자료 표 · 계산 방법 · 데이터 출처),
+// not a fold, and each saved note is a plain entry.
+export function ensureResearchSnapshots({ documentRef: doc, root, host, kind, collect, open = false }) {
   if (!host) return;
   let panel = host.querySelector(`[data-research-snapshots="${kind}"]`);
   if (panel) { panel._update(collect); return panel; } // Preserve a draft only for its issuer/session.
-  panel = doc.createElement('details'); panel.dataset.researchSnapshots = kind; // styles: src/ui/styles/entity-quality.css
-  const title = doc.createElement('summary');
-  title.textContent = kind === 'briefing' ? '브리핑 저장본, 날짜별 확인' : '이 종목의 메모, 당시 근거 저장';
+  panel = doc.createElement(open ? 'section' : 'details'); panel.dataset.researchSnapshots = kind; // styles: src/ui/styles/entity-quality.css
+  const title = doc.createElement(open ? 'h2' : 'summary');
+  title.textContent = kind === 'briefing' ? '브리핑 저장본, 날짜별 확인' : open ? '내 메모' : '이 종목의 메모, 당시 근거 저장';
+  if (open) title.className = 'co-section__title';
   const note = doc.createElement('textarea'); note.rows = 2; note.maxLength = 2000;
   note.setAttribute('aria-label', kind === 'briefing' ? '브리핑 저장 메모' : '종목 근거 메모');
   note.placeholder = '다음에 확인할 내용 (선택)';
@@ -36,7 +41,7 @@ export function ensureResearchSnapshots({ documentRef: doc, root, host, kind, co
     list.replaceChildren();
     if (!rows.length) list.textContent = '직접 저장한 자료가 없습니다.';
     for (const row of rows) {
-      const content = row.content, detail = doc.createElement('details'), label = doc.createElement('summary');
+      const content = row.content, detail = doc.createElement(open ? 'article' : 'details'), label = doc.createElement(open ? 'h3' : 'summary');
       label.textContent = kind === 'briefing' ? `${content.sessionDate} 미국 종가, 저장 ${row.savedAt.slice(0, 10)} UTC` : `${content.symbol}, 저장 ${row.savedAt.replace('T', ' ').slice(0, 16)} UTC`;
       const body = doc.createElement('div'); body.style.whiteSpace = 'pre-wrap';
       body.textContent = kind === 'briefing'
@@ -70,7 +75,7 @@ export function ensureResearchSnapshots({ documentRef: doc, root, host, kind, co
     } catch (error) { status.textContent = error.message; }
     finally { save.disabled = false; }
   });
-  panel.addEventListener('toggle', () => { if (panel.open) draw(); });
+  if (!open) panel.addEventListener('toggle', () => { if (panel.open) draw(); });
   undo.addEventListener('click', () => {
     if (store.undoRemove()) { undo.hidden = true; status.textContent = store.status() === 'persistent' ? '삭제를 되돌렸습니다.' : '현재 앱 세션에서 삭제를 되돌렸습니다.'; draw(); }
     else status.textContent = '저장 공간이 가득 차 되돌릴 수 없습니다. 저장본을 먼저 정리해 주세요.';

@@ -12,7 +12,10 @@ await runSections('scenario-guidance-fixture', [
 const { default: assert } = await import('node:assert/strict');
 const { readFileSync } = await import('node:fs');
 const { default: vm } = await import('node:vm');
-const { buildMarketRegime, movingAverageStructure } = await import('../src/domain/briefing/market-read.js');
+const { buildMarketRegime, movingAverageStructure, AXIS_REASON_LABEL } = await import('../src/domain/briefing/market-read.js');
+// v60.31: an axis says why it holds its state in the 판정 사유 row (fixed vocabulary); it carries no sentence.
+const reasonOf = (axis) => axis?.evidence?.find(([label]) => label === AXIS_REASON_LABEL)?.[1] || '';
+const evidenceOf = (axis, label) => axis?.evidence?.find(([name]) => name === label)?.[1] || '';
 const { buildMarketScenarios } = await import('../src/domain/market/regime/regime-scenarios.js');
 const { buildScenarioOutlook, renderScenarioOutlookContext } = await import('../src/domain/market/regime/scenario-outlook.js');
 const { CHART_INTERVALS, intervalBars, intervalSpec, intervalStructure } = await import('../src/ui/components/stock-chart.js');
@@ -534,9 +537,9 @@ console.log('scenario guidance fixture (basis card): PASS');
 
   // 10/14 shape (HY 316bp, +13bp in five sessions, +40bp in twenty: credit 중립).
   const oct14 = run(make({ spxGap: 0.15, soxxDrop5: -7.8, rutBelow200: true, breadth50: 33.6, breadth200: 48.9, adv: 0.39, highs: 28, lows: 40, dist: 7 }), { hyBp: 316, hyAsOf: asOf, hyDelta5Bp: 13, hyDelta20Bp: 40 });
-  assert.equal(oct14.trend.state, 'neutral', `v57.81 a close 0.15% over the 50-day line is 중립, not 양호 (${oct14.trend.read})`);
-  assert.ok(oct14.trend.testing && /50일선보다 0\.\d% 위 — 50일선 근처에서 버티는 구간/.test(oct14.trend.read), 'v57.81 inside ±1% the trend read says the index is testing the 50-day line');
-  assert.ok(oct14.trend.capped && /SOXX가 5거래일 -7\.8%/.test(oct14.trend.read) && /러셀 2000은 200일선 아래/.test(oct14.trend.read), `v57.81 the cross-index cap is named in plain Korean (${oct14.trend.read})`);
+  assert.equal(oct14.trend.state, 'neutral', `v57.81 a close 0.15% over the 50-day line is 중립, not 양호 (${reasonOf(oct14.trend)})`);
+  assert.ok(oct14.trend.testing && /^50일선 근처\(시험 구간\)/.test(reasonOf(oct14.trend)) && /^\+0\.\d+% /.test(evidenceOf(oct14.trend, '50일선 대비')), `v57.81 (v60.31 reason row) inside ±1% the trend axis says the index is testing the 50-day line (${reasonOf(oct14.trend)})`);
+  assert.ok(oct14.trend.capped && /반도체·러셀 2000 동반 약세로 양호 제한/.test(reasonOf(oct14.trend)) && /5거래일 -7\.8%/.test(evidenceOf(oct14.trend, '반도체 (SOXX)')) && /200일선/.test(evidenceOf(oct14.trend, '러셀 2000')), `v57.81 (v60.31 reason row) the cross-index cap is named beside its SOXX and Russell 2000 rows (${JSON.stringify(oct14.trend.evidence)})`);
   const labels = oct14.trend.evidence.map(([label]) => label);
   assert.ok(labels.includes('나스닥 100') && labels.includes('반도체 (SOXX)') && labels.includes('러셀 2000') && labels.includes('50일선 대비'), `v57.81 trend evidence carries the Nasdaq-100, SOXX and Russell 2000 rows (${labels})`);
   assert.match(oct14.trend.evidence.find(([label]) => label === '러셀 2000')[1], /50일선 -\d+\.\d%, 200일선 -\d+\.\d%, 1년 고점 대비 -\d+\.\d%/, 'v57.81 the Russell 2000 row shows its 50/200-day and one-year-high distances');
@@ -553,8 +556,8 @@ console.log('scenario guidance fixture (basis card): PASS');
   // Audit 2026-10-17 (owner D2): after weeks above +1%, a close +0.5% over the rising 50-day line holds 양호; under the line it is 중립.
   const calmShape = { soxxDrop5: 1, rutBelow200: false, breadth50: 62, breadth200: 64, adv: 0.55, highs: 40, lows: 10, dist: 2 };
   const held = run(make({ ...calmShape, spxGap: 0.5 }));
-  assert.equal(held.trend.state, 'favorable', `D2 +0.5% after a +1% run holds 양호 (${held.trend.read})`);
-  assert.match(held.trend.read, /50일선 아래로 마감하기 전까지 유지/, 'D2 the held 양호 says what ends it');
+  assert.equal(held.trend.state, 'favorable', `v60.31 D2 +0.5% after a +1% run holds 양호 (${reasonOf(held.trend)})`);
+  assert.match(reasonOf(held.trend), /^양호 유지\(50일선 위 마감 동안\) \(\d+\/\d+부터\)$/, 'D2 (v60.31 reason row) the held 양호 says it is held, since when and what ends it');
   assert.equal(run(make({ ...calmShape, spxGap: -0.3 })).trend.state, 'neutral', 'D2 a close under the 50-day line ends the hold');
   // D1: one weak session in five no longer confirms — the 5-session mean of 0.55 x4 and 0.39 is 0.52.
   const oneWeak = make({ spxGap: 0.15, soxxDrop5: -7.8, rutBelow200: true, breadth50: 33.6, breadth200: 48.9, adv: 0.39, highs: 28, lows: 40, dist: 7 }).map((row, i, rows) => i >= rows.length - 5 && i < rows.length - 1 ? { ...row, advanceRatio: 0.55 } : row);
@@ -582,7 +585,7 @@ console.log('scenario guidance fixture (basis card): PASS');
 
   // Clean uptrend: S&P 500 3% over a rising 50-day line, broad participation, leaders rising.
   const clean = run(make({ spxGap: 3, soxxDrop5: 3, rutBelow200: false, breadth50: 66, breadth200: 70, adv: 0.62, highs: 80, lows: 5, dist: 2 }));
-  assert.equal(clean.trend.state, 'favorable', `v57.81 a clean uptrend stays 양호 (${clean.trend.read})`);
+  assert.equal(clean.trend.state, 'favorable', `v57.81 a clean uptrend stays 양호 (${reasonOf(clean.trend)})`);
   assert.ok(clean.regime.leadership.state === 'holding' && !clean.regime.leadershipBreak);
   assert.ok(clean.scenarios.scenarios.find((item) => item.id === 'expansion').confirmed && clean.outlook.leadId === 'expansion', 'v57.81 a clean uptrend stays 고른 상승');
 
@@ -620,7 +623,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const { latchedState, recoveryCheck, usdKrwWindow, hyWidening20Record, creditState, buildMarketRead } = await import('../src/domain/briefing/market-read.js');
   const { breadthFlow } = await import('../src/domain/market/story/page-flow.js');
   const { buildKoreaRegimeObservations } = await import('../src/domain/market/regime/regime-scenarios.js');
-  const { buildSentimentModel } = await import('../src/ui/components/sentiment-board.js');
+  const { buildSentimentModel } = await import('../src/domain/market/sentiment/sentiment-model.js');
   const { sectorRecentCheck, leaderFading, rrgBorder } = await import('../src/domain/market/regime/scenario-outlook.js');
   const { axisStateClaimIssues, crossMarketDateIssues } = await import('./lib/market-analysis-validate.mjs');
   const { resolveMarketCalendarSession } = await import('../src/domain/market/session/market-calendar.js');
@@ -640,7 +643,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const record = hyWidening20Record({ series: { hyOas: { observations: hyObs(rise) } } }, days.at(-1));
   assert.ok(record.stress && record.value >= 35 && record.pct >= 90, `v57.81 HY +40bp in 20 sessions at the top of its record enters 부담 (${JSON.stringify(record)})`);
   const credit = axisOf(build(), 'credit', { credit: { hyBp: 340, hyAsOf: days.at(-1), hyDelta5Bp: 8 }, macroHistory: { series: { hyOas: { observations: hyObs(rise) } } } });
-  assert.ok(credit.state === 'burden' && /20거래일 동안 \+\d+bp 넓어졌습니다\(지난 \d+번의 20거래일 변화 중 (가장 큰 폭|상위 \d+%)/.test(credit.read), `v57.81 (v57.91 rank words) the credit axis says the 20-session condition fired (${credit.read})`);
+  assert.ok(credit.state === 'burden' && /^20거래일 확대 기록 상위 \(지난 \d+번의 20거래일 변화 중 (가장 큰 폭|상위 \d+%)\)$/.test(reasonOf(credit)) && /20거래일 \+\d+bp/.test(evidenceOf(credit, '하이일드 스프레드')), `v57.81 (v57.91 rank words, v60.31 reason row) the credit axis says the 20-session condition fired (${reasonOf(credit)})`);
   assert.equal(creditState({ hyBp: 316, hy5: 13, hy20: 40 }), 'neutral', 'v57.81 without the record flag a +40bp month stays 중립 (the record decides)');
   assert.equal(creditState({ hyBp: 316, hy5: 13, hy20: 40, hy20Stress: true }), 'burden');
   {
@@ -673,13 +676,13 @@ console.log('scenario guidance fixture (basis card): PASS');
   const tail = [4.68, 4.64, 4.7, 4.72, 4.71, 4.65, 4.7, 4.74, 4.7, 4.64, 4.66, 4.67, 4.72, 4.76, 4.8, 4.8, 4.76, 4.78, 4.81, 4.84, 4.94, 4.97, 4.96, 5, 5.01, 4.95, 5, 4.96, 4.97, 5.11, 5.16, 5.18, 5.24, 5.26, 5.29, 5.24, 5.28, 5.31, 5.27, 5.28, 5.23, 5.24, 5.24, 5.22, 5.19];
   const tnxAt = (i, last = 5.19) => i < n - tail.length ? 4 + 0.6 * i / (n - tail.length) : i === n - 1 ? last : tail[i - (n - tail.length)];
   const rates = axisOf(build((i) => ({ tnx: tnxAt(i) })), 'rates');
-  assert.ok(rates.state === 'burden' && /되돌렸지만/.test(rates.read) && /부터(\)| 이어지고)/.test(rates.read) /* v57.91 wording: "부담 판정은 8/31부터 이어지고 있습니다" */, `v57.81 a 5-day dip at the top of the range does not flip 부담 to 중립 (${rates.state}: ${rates.read})`);
+  assert.ok(rates.state === 'burden' && /5거래일 -\d+bp/.test(evidenceOf(rates, '미 10년물')) && /^20거래일·1년 범위 부담 유지 \(\d+\/\d+부터\)$/.test(reasonOf(rates)) /* v60.31: the held leg and its start are the reason row */, `v57.81 a 5-day dip at the top of the range does not flip 부담 to 중립 (${rates.state}: ${reasonOf(rates)})`);
   assert.notEqual(axisOf(build((i) => ({ tnx: tnxAt(i, 4.95) })), 'rates').state, 'burden', 'v57.81 falling under 80% of the range releases the rates 부담');
 
   // Volatility: VIX 16.87 after +11.9% in five sessions is 중립 and the read names the rise; a quiet 15 is 양호.
   const vixLast = (prev5, last) => build((i) => ({ vix: i === n - 1 ? last : i === n - 6 ? prev5 : 15 }));
   const rising = axisOf(vixLast(15.07, 16.87), 'volatility');
-  assert.ok(rising.state === 'neutral' && /5일 \+12% 올라/.test(rising.read), `v57.81 VIX 16.87 after a +12% week is not 양호 (${rising.read})`);
+  assert.ok(rising.state === 'neutral' && /^양호 수준이지만 5거래일 상승 폭 큼/.test(reasonOf(rising)) && /5일 \+12%/.test(evidenceOf(rising, 'VIX')), `v57.81 (v60.31 reason row) VIX 16.87 after a +12% week is not 양호 (${reasonOf(rising)})`);
   assert.equal(axisOf(build(), 'volatility').state, 'favorable', 'v57.81 a quiet VIX 15 stays 양호');
   assert.equal(axisOf(vixLast(17.2, 17.5), 'volatility').state, 'neutral', 'v57.81 within 1pt of 18 and rising is 중립');
   assert.equal(axisOf(vixLast(17.8, 17.5), 'volatility').state, 'favorable', 'v57.81 within 1pt of 18 but falling stays 양호');
@@ -687,7 +690,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   // Dollar: +2.2% in 20 sessions mid-range is named but not 부담; +2.6%, or +2.2% at the top of its range, is 부담.
   const dxyRun = (last, earlyHigh) => build((i) => ({ dxy: i === n - 1 ? last : i < n - 120 && earlyHigh ? 104 : 100 }));
   const edge = axisOf(dxyRun(102.2, true), 'commodities');
-  assert.ok(edge.state === 'neutral' && /기준\(\+2%\)을 조금 넘었지만/.test(edge.read), `v57.81 DXY +2.2% mid-range is not 부담 (${edge.read})`);
+  assert.ok(edge.state === 'neutral' && reasonOf(edge) === '달러 상승, 부담 기준 미만', `v57.81 (v60.31 reason row) DXY +2.2% mid-range is not 부담 (${reasonOf(edge)})`);
   assert.equal(axisOf(dxyRun(102.6, true), 'commodities').state, 'burden', 'v57.81 DXY past the buffer is 부담');
   assert.equal(axisOf(dxyRun(102.2, false), 'commodities').state, 'burden', 'v57.81 DXY past the line at the top of its range is 부담');
 
@@ -701,7 +704,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(Math.abs(card.change - window.change) < 1e-9 && krwAxis.evidence.find(([label]) => label === '원/달러')[1].includes(`20거래일 ${window.change.toFixed(1)}%`), 'v57.81 the 원/달러 card and the 환율 axis quote the same 20-session change');
   const glide = build((i) => ({ usdkrw: i >= n - 20 ? 1400 - 60 * (i - (n - 21)) / 20 : 1400, kospi: i >= n - 21 ? 4000 * (1 - 0.2 * (i - (n - 21)) / 20) : 4000 }));
   const mixed = axisOf(glide, 'korea');
-  assert.ok(mixed.state === 'neutral' && /^혼조/.test(mixed.read), `v57.81 won strength beside a 20% KOSPI fall reads 혼조 (${mixed.state}: ${mixed.read})`);
+  assert.ok(mixed.state === 'neutral' && reasonOf(mixed) === '원화 강세, 코스피 20거래일 하락', `v57.81 (v60.31 reason row) won strength beside a 20% KOSPI fall is named as the split (${mixed.state}: ${reasonOf(mixed)})`);
   assert.equal(axisOf(build((i) => ({ usdkrw: i >= n - 20 ? 1400 - 60 * (i - (n - 21)) / 20 : 1400 })), 'korea').state, 'favorable', 'v57.81 a won that strengthened across the window with no KOSPI contradiction stays 양호');
 
   // Breadth: a 5-day bounce that gave half back on the last close is 되밀림, not 반등 진행 중; a +1.2pp month is flat.
@@ -716,7 +719,9 @@ console.log('scenario guidance fixture (basis card): PASS');
   // F&G: 44 -> 30 on the last session is named even when the 20-session change is small.
   const fgHist = build((i) => ({ fg: i === n - 1 ? 30 : i === n - 2 ? 44 : 27 }));
   const mood = buildSentimentModel({ history: fgHist });
-  assert.ok(/직전 기록보다 14 낮아져/.test(mood.synthesis), `v57.81 a -14 F&G day is named (${mood.synthesis})`);
+  // v60.31: the synthesis sentence left the screen; the move is the F&G row's change line, measured between shown whole numbers.
+  const fgCard = mood.cards.find((card) => card.id === 'fg');
+  assert.ok(/^전일 대비 -14\b/.test(fgCard?.change || ''), `v57.81 a -14 F&G day is named (${fgCard?.change})`);
 
   // RRG: a 선도 sector whose relative-strength line fell more than twice its own typical five-session move in the last
   // five sessions (the themes screen's rsRecentCheck) is not shown as leading now.
@@ -825,7 +830,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   }
   const oilRun = (wtiLast, brentLast) => build((i) => ({ dxy: i === n - 1 ? 99 : 100, wti: i === n - 1 ? wtiLast : 80, brent: i === n - 1 ? brentLast : 84 }));
   const wtiOnlyFall = axisOf(oilRun(74.2, 84.2), 'commodities');
-  assert.ok(wtiOnlyFall.state !== 'favorable' && /두 유가의 20일 방향이 달라/.test(wtiOnlyFall.read), `v57.81 a WTI-only fall is not 완화 (${wtiOnlyFall.state}: ${wtiOnlyFall.read})`);
+  assert.ok(wtiOnlyFall.state !== 'favorable' && /브렌트·WTI 방향 엇갈림, WTI 방향 판정 보류/.test(reasonOf(wtiOnlyFall)) && /20일 \+/.test(evidenceOf(wtiOnlyFall, '브렌트')), `v57.81 (v60.31 reason row) a WTI-only fall is not 완화 (${wtiOnlyFall.state}: ${JSON.stringify(wtiOnlyFall.evidence)})`);
   assert.equal(axisOf(oilRun(74.2, 78), 'commodities').state, 'favorable', 'v57.81 WTI and Brent falling together with a softer dollar stays 완화');
   assert.notEqual(axisOf(oilRun(89.6, 83), 'commodities').state, 'burden', 'v57.81 a WTI-only rise against a falling Brent fires no oil 부담');
   const oilRead = buildMarketRead({ history: oilRun(74.2, 84.2), now });
@@ -894,11 +899,12 @@ console.log('scenario guidance fixture (basis card): PASS');
   const inflModel = buildMacroCrossroads({ read: inflRead, macroHistory: inflMh });
   const condition = (id) => inflModel.items.find((item) => item.id === id).conditions[0][1];
   assert.ok(condition('reheat') === false && condition('softland') === false, 'v57.81 the reheat and softland branches read the same flag as the quadrant');
-  assert.ok(inflAxis.state === 'neutral' && /근원 CPI\(9월\)만 빨라지고/.test(inflAxis.read) && /두 지표가 함께 가리키는 재가속은 아닙니다/.test(inflAxis.read), `v57.84 one measure re-accelerating against the other is not 부담 on the 물가 axis; the read names it (${inflAxis.state}: ${inflAxis.read})`);
+  const reasonRow = (axis) => String(axis.evidence.find((row) => row[0] === '판정 사유')?.[1] || '');
+  assert.ok(inflAxis.state === 'neutral' && reasonRow(inflAxis).includes('두 지표 방향 엇갈림') && reasonRow(inflAxis).includes('근원 CPI 9월만 빠름'), `v57.84 one measure re-accelerating against the other is not 부담 on the 물가 axis; the reason names it (${inflAxis.state}: ${reasonRow(inflAxis)})`);
   // PCE 3.0076% vs the 3.0% line, no re-acceleration: not 부담 by the level alone; 3.2% is.
   const flatMh = mhOf({ corePceIndex: monthly(2024, 5, 28, 3.0, 3.0) });
   const edge = buildMacroRead({ macro: { corePce: 3.0076 }, macroHistory: flatMh }).axes.find((axis) => axis.id === 'inflation');
-  assert.ok(edge.state !== 'burden' && /수준만으로 부담으로 보지 않습니다/.test(edge.read), `v57.81 PCE 3.0076% vs missPct 3.0 is not 부담 by the level alone (${edge.state}: ${edge.read})`);
+  assert.ok(edge.state !== 'burden' && reasonRow(edge).includes('근원 PCE 수준 기준 미만'), `v57.81 PCE 3.0076% vs missPct 3.0 is not 부담 by the level alone (${edge.state}: ${reasonRow(edge)})`);
   assert.equal(buildMacroRead({ macro: { corePce: 3.2 }, macroHistory: flatMh }).axes.find((axis) => axis.id === 'inflation').detail.firedBy, 'level', 'v57.81 past the 0.1pp buffer the level fires');
 
   // One oil read when the Brent−WTI spread breaks ($3.4 → $11, Brent +0.2%, WTI -7.2%).

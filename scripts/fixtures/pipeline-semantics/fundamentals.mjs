@@ -76,22 +76,18 @@ export const cases = [
       assert.equal(storyMatchesEntry(story, { ...entry, period: '3Q26 정정' }, { ...entry }), false);
       assert.equal(storyMatchesEntry(story, { ...entry, contentHash: 'b' }, { ...entry, contentHash: 'a' }), false);
   } },
-  { id: 'P25-STORY-03', name: '100만 달러는 0억 달러가 아니고, 비중 미상(null)은 0%로 그리지 않으며, 지난 일정은 다가오는 일정이 아니다', run: async ({ load }) => {
+  { id: 'P25-STORY-03', name: '100만 달러는 0억 달러가 아니고, 비중 미상(null)은 0%로 그리지 않는다', run: async ({ load }) => {
       const { moneyText } = await load('src/domain/entity/company-story.js');
       assert.equal(moneyText(1, 'USD mn'), '100만 달러');
       assert.equal(moneyText(0.05, 'KRW bn'), '5,000만 원');
       assert.equal(moneyText(850, 'USD mn'), '8.5억 달러');
-      const { renderCompanyStory } = await load('src/ui/components/company-story.js');
+      // 2026-11-19: the segment bars moved from the company story fold to 종목 개요's 사업 (company-overview.js).
+      const { segmentBars } = await load('src/ui/components/company-overview.js');
       const doc = stubDocument();
-      const host = doc.createElement('section');
-      renderCompanyStory(doc, host, { profile: { symbol: 'AAA', oneLine: 'x', researchedAt: '2026-10-28', sources: [{ title: 's', date: '2026-10-28' }],
-        earnings: { revenue: { value: 100, unit: 'USD bn' }, segments: [{ name: '서버', revenue: 40, unit: 'USD bn', share: null }, { name: '기기', revenue: 30, unit: 'USD bn' }] },
-        trading: { calendar: [{ date: '2020-01-02', event: '지난 행사' }, { date: '2099-01-02', event: '먼 행사' }] } }, earnings: [] });
-      const text = textOf(host);
+      const bars = segmentBars(doc, { revenue: { value: 100, unit: 'USD bn' }, segments: [{ name: '서버', revenue: 40, unit: 'USD bn', share: null }, { name: '기기', revenue: 30, unit: 'USD bn' }] });
+      const text = textOf(bars);
       assert.doesNotMatch(text, /서버 \S+ \S+, 0%/, 'an unknown share prints no percentage');
       assert.match(text, /300억 달러, 30%/, 'an omitted share reads against company revenue, not the listed segments');
-      assert.doesNotMatch(text, /지난 행사/);
-      assert.match(text, /먼 행사/);
   } },
   { id: 'P25-READ-02', name: '가중치 0·모델 실패·사유 미상을 모두 유효값 80% 부족으로 설명하지 않는다', run: async ({ load }) => {
       const { buildOutOfUniverseRead } = await load('src/domain/entity/out-of-universe-read.js');

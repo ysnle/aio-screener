@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 변동하는 버전·라우트·파일 크기·지식 상태의 정본은 `_context/CURRENT-STATE.md`이며, 이 문서에는 복제하지 않는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v60.30**
+- 현재 버전: **v60.31**
 - **버전 이력 → CHANGELOG.md** (v52.62+ 상세, v52.61 이하는 압축 이력 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md`(현행 항목은 상단, §6은 압축 보관).
 - 버전별 작업 요약은 CHANGELOG.md에만 쓴다.
 - 코드 구조: `index.html` 정적 셸 + `js/` 호환 모듈 + `src/` native ESM. 현재 집계는 `_context/CURRENT-STATE.md`, 구간 탐색은 `_context/CODE-MAP.md`를 사용한다.
@@ -34,7 +34,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 ## 절대 규칙 (R1~R3·R27 — 나머지는 `_context/RULES.md` 상단 핵심 규칙 색인부터)
 
 **R1. 버전 동기화**: title · badge · APP_VERSION · version.json · sw.js SW_VERSION · 런타임·배포 revision 메타데이터(public-config·architecture·wrangler·operations-status) · CHANGELOG.md · JS cachebusters (날짜가 박힌 핸드오프 문서는 동결) — **반드시 `node scripts/bump-version.mjs <버전>`으로 일괄 패치**
-**R2. 버전 체계**: `v{major}.{patch}` 숫자 단조 증가 (예: v48.76 → v48.77). 최신 실제 체계는 두 자리 patch 허용.
+**R2. 버전 체계**: `v{major}.{patch}` 숫자 단조 증가 (두 자리 patch 허용)
 **R3. 버그 수정 시 사후 분석**: P/R/QA/CHANGELOG/상태는 `node scripts/record-fix.mjs <entry.json>`로 한 번에 기록 (수기 편집 금지, 형식은 `/version-up`). 결함이 아닌 기능·정리는 `p` 없는 change-only 항목으로 기록(P 번호 미할당)하고, 새 assertion은 도입 릴리스(`v57.54 …`)를 인용한다
 **R27. Commands↔Skills 동기화**: 새 스킬 시 command wrapper 동시 생성
 
@@ -48,12 +48,16 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - **커밋·배포는 사용자가 요청할 때와 아래 배치 마감 상시 승인 때만 한다**
 - **구조 우선 (소유자 2026-11-09, 원문)** — "Always build code cleanly, modularly, and with proper architecture and separation of concerns. Never simply bolt on a feature because I asked for it. If you can’t find an easy way to build it naturally, and you'd recommend a refactor to make the whole thing cleanly, stop your work ahead of time and say so." 아래 부분 패치·최소 코드 원칙보다 우선한다(정본 AGENTS.md)
 - **위임 (소유자 2026-11-11, 원문)** — "This codebase is yours: what it's for and how it's built are your call, and you'll keep building on it." 구현·구조·정리·게이트는 근거를 밝혀 정하고 보고한다. 제품 방향·push·배포·되돌릴 수 없는 삭제와 운영 변경만 묻는다(정본 AGENTS.md)
-- **가장 낮은 공통 원인을 부분 패치한다** — CODE-MAP/owner registry로 소유자를 찾고, 전면 재작성 대신 모듈 하나씩 옮긴다
+- **구조가 원인이면 구조를 고친다 (소유자 2026-11-19)** — 기존 화면·모듈 구조를 그대로 받아들이지 않는다. 먼저 지금 구조가 맞는지 묻고, 더 나은 구조가 있으면 다시 짓는다: 옮긴 것은 원래 자리에서 지우고, 줄 수·부팅 크기가 늘면 이유를 보고한다. 부분 패치는 구조와 무관한 단일 결함에만 쓴다
+- **제품 방향 한 장 (`_context/PRODUCT.md`)** — 모든 작업과 하위 에이전트 지시는 이 한 장부터 읽는다: 화면마다 답하는 질문 하나, 부딪힐 때의 원칙 우선순위
+- **배치 마감 세 질문 (소유자 2026-11-19)** — 마감 보고 맨 위에 답한다(없으면 '없음'): ① 소유자가 말한 것 중 적용하지 못한 것 ② 그대로 받아들인 기존 구조와 이유 ③ 코드·검사·문서가 늘었는지 줄었는지(줄 수)
+- **경중을 따진다 (소유자, 반복)** — 화면·문단·작업 목록·보고 모두 중요한 것을 먼저, 크게; 사소한 것은 보조로; 잡음은 뺀다
+- **화면 검증은 실서비스·사용자 관점으로 (소유자 2026-11-19)** — 게이트 통과와 하위 에이전트 보고는 근거가 아니다. 화면을 바꾸면 Fable이 실제 데이터 화면을 직접 보고, 처음 온 사용자가 무엇을 먼저 읽는지와 그 정보가 이 화면 것인지 판단한다
 - **제품 결정·협업 원칙·변경 흐름의 정본은 `AGENTS.md`**: 소유자 요청도 근거로 검토·반대 의견 제시, 9화면 정보구조, 원천 없는 위젯·근거 없는 등급 제거, 느린 데이터 정적화, AI는 gpt-6-luna 공용 Worker(웹검색 포함 월 $20 목표·항상 사용), 종가 기준 점수, 데스크톱·모바일·아이패드 반응형 지원(2026-10-11 재승인), 옵션 퇴역, 티커 추정 금지, 로컬 프로듀서 금지, **main 직접 작업**(단일 작업은 PR 없음, 병렬 스레드는 브랜치 → 통합 때 병합, push는 배치 끝 한 번), 생성물 충돌 해소 스크립트
 - **생성 파일은 손으로 고치지 않는다** — `.claude/agents/*`·`.codex/agents/*`는 `architecture/agent-profiles.json` → `node scripts/sync-agent-profiles.mjs`, `.agents/skills/`는 `.claude/skills/` → `node scripts/sync-agent-skills.mjs`, `CURRENT-STATE`·`CONTEXT-CATALOG`는 `generate-workspace-state --write`, `outcome-stamps.js`는 `build-outcome-stamps.mjs --write`, `*.expect.md`는 `node scripts/ci-expect-output-check.mjs --update`(바뀐 출력 diff를 읽고 확인)
 - **기록 순서**: `bump-version` → 항목별 `record-fix` → `generate-workspace-state --write` → 원장·버전·워크스페이스 게이트. 큰 배치는 구현을 모은 뒤 기록·검증을 한 번에
-- **게이트-문서 계약**: 원장(RULES/QA-CHECKLIST/BUG-POSTMORTEM/CHANGELOG) 산문은 자유롭게 압축·정리해도 된다. 게이트는 구조만 검사한다 — `## R<n>.` 헤딩(번호 보존), QA 행 형식·`verify_by`, CHANGELOG `## v<버전>` 헤딩. 정책↔원장 추적은 `architecture/governance-markers.json`이 담당한다
-- **배치 마감 시 통합·push (소유자 2026-11-01 상시 승인)** — 모든 스레드가 끝나면 안전하게 통합하고 커밋·push를 한 번 한다. 배치 중간 push는 하지 않는다. 로컬 미푸시가 길어지면 실서비스 생산자·라이브가 어긋난다
+- **게이트-문서 계약**: 원장 산문은 자유롭게 압축·정리해도 된다. 게이트는 구조만 검사한다 — `## R<n>.` 헤딩(번호 보존), QA 행 형식·`verify_by`, CHANGELOG `## v<버전>` 헤딩. 정책↔원장 추적은 `architecture/governance-markers.json`
+- **배치 마감 시 통합·push (소유자 2026-11-01 상시 승인)** — 모든 스레드가 끝나면 통합하고 커밋·push를 한 번 한다. 배치 중간 push는 하지 않는다
 
 ## 환경 주의 (클라우드 세션)
 
@@ -69,21 +73,9 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 ---
 
-## 복리 루프 (Karpathy Second Brain)
+## 기록
 
-```
-작업 수행 → 산출물 → 위키(_context/) 환류 → 다음 작업이 더 정확
-```
-
-| 작업 | 환류 대상 |
-|------|----------|
-| 버그 수정 | BUG-POSTMORTEM → 반복 결함 클래스는 RULES/QA + 실행 게이트로 승격 (AGENTS) |
-| /integrate | KNOWLEDGE-BASE + `src/ai/context/panel-contexts.js` + 스크리너 레지스트리 |
-| /qa | QA-CHECKLIST 항목 추가 |
-| 인사이트 | KNOWLEDGE-BASE (R26) |
-| 리팩토링 ±500줄 | CODE-MAP 재스캔 |
-
-에러 복리 방지: `/knowledge-lint`와 `ci-workspace-contract-check.mjs`를 push·주기 실행에 연결한다.
+- 기록은 다음 작업을 바꾸는 것만 남긴다: 반복된 결함의 교훈과 그것을 막는 검사, 구조가 바뀌면 CODE-MAP
 
 ---
 
@@ -92,6 +84,4 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - 요청 없는 구현·과잉 설계 금지 — 단, 반대 의견과 더 단순한 대안은 먼저 말한다 (AGENTS 협업 원칙)
 - index.html은 CODE-MAP 기반 부분 읽기 · 파일은 한 번만 읽기
 - 판단은 코드에서 확인한 것으로만 한다. 확인하지 못한 경로·함수명은 모른다고 말한다
-- 대형 RULES/QA/BUG/KNOWLEDGE 원장은 관련 용어만 검색한다. 기본 컨텍스트는 CURRENT-STATE로 제한하고 GOVERNANCE/INDEX와 스킬은 필요한 부분만 읽는다. 승인·완료·병렬 위임 원칙은 AGENTS.md를 따른다.
-- 자동 커밋 훅을 추가하지 않는다. 훅은 파괴 명령 차단과 advisory 검증만 수행한다.
-- 위임·검토 루틴: 서브에이전트 프롬프트는 `.claude/skills/_shared/agent-prompt-anatomy.md`(목표→반환 형식→경고→컨텍스트). 주간 회고 `/retro`, 큰 작업 전 `/restate`(6번 '더 깊게, 더 크게 말고' 4문항 포함), 가정 점검은 `/assumptions`(검증/추정 표시, 적용 전 정지), 큰 배치 뒤에는 새 컨텍스트 `/trim-pr`로 덜어낼 것부터 찾는다.
+- 서브에이전트 프롬프트는 `.claude/skills/_shared/agent-prompt-anatomy.md`(목표→반환 형식→경고→컨텍스트). 큰 작업 전 `/restate`, 큰 배치 뒤 `/trim-pr`. 원장은 관련 용어만 검색한다

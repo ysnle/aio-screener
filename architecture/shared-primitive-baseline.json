@@ -9,14 +9,14 @@
   "totals": {
     "localFinite": 2,
     "dateRegex": 41,
-    "rawRowRead": 87,
-    "nullAsZero": 71,
+    "rawRowRead": 81,
+    "nullAsZero": 68,
     "localEscape": 0,
     "localIndicator": 2,
     "publicDataPath": 0,
     "dataPathLiteral": 0,
     "sessionBranch": 0,
-    "verdictLiteral": 210
+    "verdictLiteral": 189
   },
   "counts": {
     "scripts/build-macro-calendar-review.mjs": {
@@ -910,7 +910,7 @@
     "src/domain/scenarios/theme-playbook.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 11,
+      "rawRowRead": 5,
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
@@ -1111,30 +1111,6 @@
       "sessionBranch": 0,
       "verdictLiteral": 1
     },
-    "src/ui/components/company-flow.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 1
-    },
-    "src/ui/components/company-story.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 1,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 0
-    },
     "src/ui/components/data-status-surface.js": {
       "localFinite": 0,
       "dateRegex": 0,
@@ -1229,7 +1205,7 @@
       "publicDataPath": 0,
       "dataPathLiteral": 0,
       "sessionBranch": 0,
-      "verdictLiteral": 12
+      "verdictLiteral": 9
     },
     "src/ui/components/macro-crossroads.js": {
       "localFinite": 0,
@@ -1253,7 +1229,7 @@
       "publicDataPath": 0,
       "dataPathLiteral": 0,
       "sessionBranch": 0,
-      "verdictLiteral": 5
+      "verdictLiteral": 4
     },
     "src/ui/components/market-temperature.js": {
       "localFinite": 0,
@@ -1265,7 +1241,7 @@
       "publicDataPath": 0,
       "dataPathLiteral": 0,
       "sessionBranch": 0,
-      "verdictLiteral": 4
+      "verdictLiteral": 2
     },
     "src/ui/components/news-progress.js": {
       "localFinite": 0,
@@ -1435,18 +1411,6 @@
       "sessionBranch": 0,
       "verdictLiteral": 1
     },
-    "src/ui/components/sentiment-board.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 7
-    },
     "src/ui/components/stock-chart-coach.js": {
       "localFinite": 0,
       "dateRegex": 0,
@@ -1495,18 +1459,6 @@
       "sessionBranch": 0,
       "verdictLiteral": 15
     },
-    "src/ui/components/stock-read.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 2,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 4
-    },
     "src/ui/components/stress-outcomes.js": {
       "localFinite": 0,
       "dateRegex": 0,
@@ -1529,7 +1481,7 @@
       "publicDataPath": 0,
       "dataPathLiteral": 0,
       "sessionBranch": 0,
-      "verdictLiteral": 3
+      "verdictLiteral": 2
     },
     "src/ui/components/theme-strength.js": {
       "localFinite": 0,
@@ -1590,18 +1542,6 @@
       "dataPathLiteral": 0,
       "sessionBranch": 0,
       "verdictLiteral": 2
-    },
-    "src/ui/pages/entity.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 1
     },
     "src/ui/pages/market.js": {
       "localFinite": 0,
@@ -1697,7 +1637,7 @@
       "publicDataPath": 0,
       "dataPathLiteral": 0,
       "sessionBranch": 0,
-      "verdictLiteral": 3
+      "verdictLiteral": 2
     },
     "src/ui/pages/screener/validation-tab.js": {
       "localFinite": 0,

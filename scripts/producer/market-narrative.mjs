@@ -98,20 +98,28 @@ function readJsonOnce(file, load = () => JSON.parse(readFileSync(file, 'utf8')))
   return value;
 }
 
+// Owner 2026-10-19: one shared interpretation (scripts/lib/market-interpretation-inputs.mjs), the same stages the screens
+// and scenario-state.json read. v59.70 (R8): the same screener (S&P 500 breadth, index weights, theme stages) and consensus
+// inputs as the screens. v60.31: shared by the market reading's regime context and the per-screen readings
+// (scripts/producer/screen-readings.mjs), so both read the one interpretation the screens draw.
+export function publishedMarketInterpretation(data, history = []) {
+  const input = marketAnalysisRegimeInput(data, history);
+  const readJson = (file) => { try { return JSON.parse(readFileSync(file, 'utf8')); } catch (_) { return null; } };
+  const state = readJson(SCENARIO_STATE_OUT);
+  const interpretation = interpretationFromArtifacts({ data, history, macroHistory: input.macroHistory, calendar: readJson(MACRO_CALENDAR_OUT), outcomes: readJson(SCENARIO_OUTCOMES_OUT), previous: state,
+    screener: readJsonOnce(SCREENER_OUT), themeMaps: readJsonOnce(`${REPO_ROOT}/js/aio-pages.js`, () => loadThemeMaps(REPO_ROOT)),
+    consensus: readJsonOnce(`${REPO_ROOT}/public-data/consensus-estimates.json`), nowMs: input.now });
+  return { input, state, interpretation };
+}
+
 export function buildMarketAnalysisRegimeContext(data, history = []) {
   try {
-    // Owner 2026-10-19: one shared interpretation (scripts/lib/market-interpretation-inputs.mjs), the same stages the
-    // screens and scenario-state.json read.
-    const input = marketAnalysisRegimeInput(data, history);
-    const readJson = (file) => { try { return JSON.parse(readFileSync(file, 'utf8')); } catch (_) { return null; } };
-    const state = readJson(SCENARIO_STATE_OUT);
-    // v59.70 (R8): the same screener (S&P 500 breadth, index weights, theme stages) and consensus inputs as the screens.
-    const interpretation = interpretationFromArtifacts({ data, history, macroHistory: input.macroHistory, calendar: readJson(MACRO_CALENDAR_OUT), outcomes: readJson(SCENARIO_OUTCOMES_OUT), previous: state,
-      screener: readJsonOnce(SCREENER_OUT), themeMaps: readJsonOnce(`${REPO_ROOT}/js/aio-pages.js`, () => loadThemeMaps(REPO_ROOT)),
-      consensus: readJsonOnce(`${REPO_ROOT}/public-data/consensus-estimates.json`), nowMs: input.now });
+    const { input, state, interpretation } = publishedMarketInterpretation(data, history);
     const { regime, scenarios, outlook } = interpretation;
     if (!regime?.available) return '';
-    const axes = (regime.axes || []).map((axis) => `${axis.label || axis.id}: ${axis.state}${axis.read ? ` — ${axis.read}` : ''}`).join('\n');
+    // v60.31: the axes carry no sentence — title, state label and their evidence rows (판정 사유 among them). The line keeps
+    // its `id: state` head: packetAxisStates (market-analysis-validate.mjs) reads the axis states from it.
+    const axes = (regime.axes || []).map((axis) => `${axis.id}: ${axis.state} (${axis.title} ${axis.stateLabel})${axis.evidence?.length ? ` — ${axis.evidence.map(([label, value]) => `${label} ${value}`).join('; ')}` : ''}`).join('\n');
     // v57.81 (owner 2026-10-15): the trend state with the SOXX (v59.70 proxy) / Russell 2000 evidence rows and the leadership-break
     // flag travel as their own lines, so the narrative cannot call the trend 양호 or say semis lead while the flag is on.
     const trend = (regime.axes || []).find((axis) => axis.id === 'trend');

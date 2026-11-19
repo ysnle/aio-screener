@@ -1,26 +1,24 @@
-// P1395 (owner review 2026-10-02): 시장 폭 shows each participation measure as a trend so the
-// change and its direction can be followed, with the same breadth judgement as the 시장 상태 board.
-// P1399: every card runs through the S&P 500 close basis and shares one date range, so the same
-// horizontal position is the same date; a measure whose record starts later says so.
-// P1416 (open-source comparison 2026-10-03): three groups — participation (moving-average ratios),
-// leadership (52-week highs vs lows, 4% movers, with the stocks behind each count) and index
-// confirmation (S&P 500 distribution days and the index itself). Definitions live in
-// src/domain/market/breadth/breadth-signals.js; this module only presents them.
-import { deepDiveFold } from './deep-dive.js';
-import { splitReading } from './reading-split.js';
-import { AXIS_DEEP_DIVES } from '../../domain/content/axis-deep-dives.js';
-import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
+// 시장 폭 shows each participation measure as a row and a trend, with the same breadth judgement as the 시장 상태 board.
+// Every card runs through the S&P 500 close basis and shares one date range, so the same horizontal position is the same
+// date; a measure whose record starts later says so. Three groups — participation (moving-average ratios), leadership
+// (52-week highs vs lows, 4% movers, with the stocks behind each count) and index confirmation (S&P 500 distribution
+// days). The face never folds: the verdict, its counter line, then each group's rows (value, the band of its reference
+// lines, the distance to the nearest line, the 5/20-day change) and its charts. The axis observations are the raw-table
+// fold #breadth-raw, the stocks behind a count a raw-table fold on its chart, the definitions and the principle the method
+// fold #breadth-method. Definitions live in src/domain/market/breadth/breadth-signals.js; this module only presents them.
+import { principleLink } from './principle-link.js';
+import { AXIS_REASON_LABEL, buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
-import { breadthFlow } from '../../domain/market/story/page-flow.js';
-import { renderNextSteps, sectionLead } from './page-flow.js';
+import { renderNextSteps } from './page-flow.js';
 import { el } from './dom.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 import { sectorLabel } from '../../domain/screener/sector-label.js';
 import { breadthScopeOf } from '../../domain/market/breadth/screener-breadth.js';
-import { noteFold } from './section-frame.js';
+import { breadthCounter, measureFace } from '../../domain/market/breadth/breadth-face.js';
+import { indicatorRow, kindFold, rawTable, setFoldBody } from './indicator-face.js';
 import { historyWaitText } from './data-state.js';
 
 const WINDOW = 126; // about six months of sessions
@@ -48,14 +46,12 @@ function difference(a, b) {
 const count = (value) => Math.round(value).toLocaleString('en-US');
 const signedCount = (value) => `${{ up: '+', down: '-' }[directionOf(value, 0)] || ''}${Math.abs(Math.round(value)).toLocaleString('en-US')}`;
 
-// v57.77: each group shows one lead chart beside its reading; the other measures sit in a "나머지 지표 보기" fold.
+// Each group: its rows, then its charts in this order (the lead first; participation keeps its three horizons side by side).
 export const BREADTH_GROUPS = Object.freeze([
-  // v58.53 개편 v2 (5c): the participation group shows its three horizons side by side (lead stays the 50-day ratio).
-  { id: 'participation', title: '참여도 — 이동평균 위 종목 비율', lead: 'b50', face: ['b20', 'b50', 'b200'] },
-  { id: 'leadership', title: '강한 종목 수 — 신고가·신저가, 급등락', lead: 'hl' },
-  // v59.51 (content audit): the group's S&P 500 chart left (the index line is the 시장 상태 trend axis chart); its 20-day
-  // move against participation stays as the group's lead sentence (breadthFlow reads the spx series below).
-  { id: 'index', title: '지수 확인 — 분배일', lead: 'dd', face: [], unfolded: true }
+  { id: 'participation', title: '참여도 — 이동평균 위 종목 비율', lead: 'b50', order: ['b20', 'b50', 'b200', 'b40', 'adv', 'ad'] },
+  { id: 'leadership', title: '강한 종목 수 — 신고가·신저가, 급등락', lead: 'hl', order: ['hl', 'mv'] },
+  // The S&P 500 itself is the 시장 상태 trend axis chart; its series only sets the shared date range here.
+  { id: 'index', title: '지수 확인 — 분배일', lead: 'dd', order: ['dd'] }
 ]);
 
 export function buildBreadthCards(history = []) {
@@ -129,9 +125,10 @@ function sectorMix(root, list) {
 }
 
 function renderDrill(doc, root, card, contributors, basis) {
-  const wrap = el(doc, 'details', null, 'breadth-drill');
   const sessions = Array.isArray(contributors?.sessions) ? contributors.sessions.filter((row) => !basis || row.date <= basis) : [];
-  wrap.append(el(doc, 'summary', sessions.length ? '종목 보기' : '종목 목록 수집 대기', 'breadth-drill-summary'));
+  // The stocks behind a count are the count's raw table (one of the three permitted folds).
+  const wrap = kindFold(doc, 'raw-table', sessions.length ? `${card.drill.map((key) => DRILL_LABELS[key]).join('·')} 종목` : '종목 목록 수집 대기');
+  wrap.classList.add('breadth-drill');
   if (!sessions.length) return wrap;
   const picker = el(doc, 'select', null, 'breadth-drill-date');
   picker.setAttribute('aria-label', `${card.title} 날짜 선택`);
@@ -173,6 +170,18 @@ function renderDrill(doc, root, card, contributors, basis) {
   return wrap;
 }
 
+function methodBody(doc, root, cards) {
+  const nodes = [el(doc, 'p', `숫자는 모두 직전 미국장 종가 기준입니다. 행의 구간은 각 차트에 그린 기준선이고, 50일선·200일선 위 비율의 ${RULES.breadth.weakBelow}%·${RULES.breadth.broadAtLeast}%는 시장 상태 '시장 폭' 판정의 기준과 같습니다.`, 'ind-method__lead')];
+  for (const card of cards.filter((row) => row.group && row.note)) {
+    const box = el(doc, 'section', null, 'ind-method');
+    box.dataset.methodMetric = card.id;
+    box.append(el(doc, 'h3', card.title, 'ind-method__title'), el(doc, 'p', card.note, 'ind-method__text'));
+    nodes.push(box);
+  }
+  nodes.push(principleLink(doc, root, 'breadth', '시장 폭'));
+  return nodes;
+}
+
 export function renderBreadthBoard({ documentRef: doc, root }) {
   const page = doc?.getElementById('page-breadth');
   if (!page) return null;
@@ -192,94 +201,101 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   // tilt is visible next to the headline ratios. Shown only when the segment is on the shown close date.
   const sp500 = root?.AIO_ARCH?.getScreenerState?.('metadata.breadth.segments.sp500') || null; // v57.77 perf: path read, no row clone
   const sp500Same = !scope.sp500 && sp500 && Number(sp500.eligible) >= 300 && Number.isFinite(sp500.above50) && String(sp500.observedAt || '').slice(0, 10) === String(regime.asOf || '').slice(0, 10);
-  const sp500Read = sp500Same ? ` S&P 500 구성 종목만(${sp500.eligible}개) 보면 50일선 위 ${sp500.above50.toFixed(0)}%${Number.isFinite(sp500.above200) ? `, 200일선 위 ${sp500.above200.toFixed(0)}%` : ''}입니다.` : '';
-  // v57.77: the subtitle is the date and the judged count; who is counted and how sits in the 데이터 출처 fold, and the
-  // S&P 500 member read joins the participation group's reading below.
+  const sp500Row = sp500Same ? [`S&P 500 구성 종목만 (${sp500.eligible}개)`, `50일선 위 ${sp500.above50.toFixed(0)}%${Number.isFinite(sp500.above200) ? `, 200일선 위 ${sp500.above200.toFixed(0)}%` : ''}`] : null;
+  // The subtitle is the date and the judged count; who is counted and how sits in the 데이터 출처 fold, and the S&P 500
+  // member figures are a row of the raw table.
   const basisNode = doc.getElementById('breadth-basis');
   if (basisNode) basisNode.title = `${scope.label}의 1년 조정 종가로 계산한 값이며 거래소·지수 공식 통계가 아닙니다`;
   set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? `, 시장 폭 ${axis.basis}` : ''}${denominator}` : historyWaitText(root));
   const state = doc.getElementById('breadth-state');
   const tone = { favorable: 'good', burden: 'warn' }[axis?.state] || 'neutral';
   if (state) { state.textContent = axis?.stateLabel || '판정 대기'; state.className = `regime-state is-${axis?.state || 'unknown'} sx-chip sx-chip--sm sx-chip--${tone}`; }
-  // v58.53 개편 v2 (5c): the hero keeps the reading's first sentences; the rest folds under '이어서 읽기'.
-  const { lead: readLead, rest: readRest } = splitReading(axis?.read || '');
-  set('breadth-read', readLead);
-  const restNode = doc.getElementById('breadth-read-more');
-  if (restNode) { restNode.hidden = !readRest; const body = restNode.querySelector('p'); if (body) body.textContent = readRest; }
-  set('breadth-flip', axis?.flip ? `전환 조건: ${axis.flip}` : '');
+  // v60.31: the hero line is the axis's 판정 사유 row (fixed vocabulary); the axis carries no assembled sentence.
+  set('breadth-read', axis?.evidence?.find(([label]) => label === AXIS_REASON_LABEL)?.[1] || '');
+  // The condition that changes the verdict: the nearest threshold of the rule (flipDistance, the rule's own numbers) and its
+  // distance; without a measured lever the rule's first sentence. The whole rule is in the raw table.
+  const d = axis?.flipDistance;
+  set('breadth-flip', d ? `판정이 바뀌는 조건: ${d.condition}${(d.also || []).map((also) => `, 함께 필요: ${also.condition}`).join('')} 시장 폭 → ${d.towardLabel} · ${d.label}`
+    : axis?.flip ? `판정이 바뀌는 조건: ${String(axis.flip).match(/^.+?[.](?=\s|$)/)?.[0] || axis.flip}` : '');
   const grid = doc.getElementById('breadth-chart-grid');
   if (grid) {
     const cards = buildBreadthCards(inputs.history);
     const range = breadthRange(cards);
     const basis = closeBasis(inputs.history);
-    const renderCard = (card) => {
-      const box = el(doc, 'section', null, 'trend-card');
-      box.dataset.metric = card.id;
+    // One row per measure: the latest value, the band of its reference lines, the distance to the nearest line, and two
+    // short lines — the 5/20-day change and, for the counts, the day's two sides.
+    const faceOf = (card) => {
       const points = card.series;
-      const last = points[points.length - 1];
-      const head = el(doc, 'div', null, 'trend-card-head');
-      head.append(el(doc, 'h3', card.title, 'trend-card-title'), el(doc, 'span', last ? card.format(last.value) : '—', 'trend-card-value'));
+      const last = points[points.length - 1] || null;
       const change = (n) => seriesChange(points, n, card.changeUnit ?? '%p', card.changeDigits ?? 1);
       const changes = [[5, '5일'], [20, '20일']].map(([n, label]) => { const value = change(n); return value ? `${label} ${value}` : null; }).filter(Boolean).join(', ');
       const lateStart = range && points.length && points[0].date > range[0] ? `, 기록 시작 ${shortDate(points[0].date)}` : '';
       const highLowBasis = card.id === 'hl' && eligible?.highLow ? `, 신고·신저 판정 대상 ${eligible.highLow}개` : '';
-      box.append(head);
-      if (card.latest) box.append(el(doc, 'div', `${card.latest}${highLowBasis}`, 'trend-card-latest'));
-      box.append(el(doc, 'div', `${changes || '변화 기록 수집 중'}${lateStart}`, 'trend-card-change'),
-        createTrendChart(doc, { series: points, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));
-      // v58.79 (layout over captions): how to read the chart is one fold down, not lines under every card.
-      const note = noteFold(doc, card.note, '기준');
-      if (note) box.append(note);
+      const change20 = points.length > 20 ? last.value - points[points.length - 21].value : null;
+      return { last, text: last ? card.format(last.value) : '', changes: `${changes || '변화 기록 수집 중'}${lateStart}`, latest: card.latest ? `${card.latest}${highLowBasis}` : '', face: measureFace(card.id, last?.value, { change20 }) };
+    };
+    const renderRow = (card) => {
+      const f = faceOf(card);
+      const row = indicatorRow(doc, { title: card.title, stateLabel: f.face.band || '기록 없음', tone: 'neutral', value: f.text, distance: f.face.distance, lines: [['change', f.changes], ['latest', f.latest]] });
+      row.dataset.metric = card.id;
+      return row;
+    };
+    const renderChart = (card) => {
+      const box = el(doc, 'section', null, 'trend-card');
+      box.dataset.metric = card.id;
+      box.append(el(doc, 'h3', card.title, 'trend-card-title'), createTrendChart(doc, { series: card.series, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));
       if (card.drill) box.append(renderDrill(doc, root, card, root._aioBreadthContributors, basis));
       return box;
     };
-    // A re-render (live quotes, history) keeps an opened drilldown and its chosen date, and an opened group fold.
-    // querySelectorAll reaches cards inside a closed <details>, so folded drilldowns are found too.
+    // A re-render (live quotes, history) keeps an opened drilldown and its chosen date.
     const opened = new Map([...grid.querySelectorAll('details.breadth-drill[open]')].map((node) => [node.closest('[data-metric]')?.dataset.metric, node.querySelector('select')?.value]));
-    const openedGroups = new Set([...grid.querySelectorAll('details.breadth-more[open]')].map((node) => node.dataset.group));
-    // P1431: each group opens with what it adds to the verdict above, from the same series.
-    const flow = breadthFlow({ cards, regime });
-    // v58.53 개편 v2 (5c): each group is a section — participation as three horizon cards in a row, the other two groups
-    // side by side — and the teaching fold closes the page as its own card.
+    // Each group is a section — its rows, then its charts (participation's three horizons in a row first); the
+    // leadership and index groups sit side by side.
     const sections = BREADTH_GROUPS.map((group) => {
-      const members = cards.filter((card) => card.group === group.id);
+      const members = group.order.map((id) => cards.find((card) => card.id === id && card.group === group.id)).filter(Boolean);
       if (!members.length) return null;
-      // v57.77: one lead chart per group; the rest wait in a fold so the page is three charts, not ten in a row.
-      const face = group.face ? members.filter((card) => group.face.includes(card.id)) : [members.find((card) => card.id === group.lead) || members[0]];
-      const rest = members.filter((card) => !face.includes(card));
-      const section = el(doc, 'section', null, `bb-group bb-group--${group.id}${face.length > 1 ? ' bb-group--trio' : ''}`);
+      const section = el(doc, 'section', null, `bb-group bb-group--${group.id}${members.length > 2 ? ' bb-group--trio' : ''}`);
       section.dataset.group = group.id;
+      const rows = el(doc, 'div', null, 'regime-board regime-quality-board bb-rows');
+      rows.append(...members.map(renderRow));
       const faceGrid = el(doc, 'div', null, 'bb-face');
-      faceGrid.append(...face.map((card) => { const box = renderCard(card); if (card.id === group.lead) box.classList.add('breadth-lead'); return box; }));
-      section.append(el(doc, 'h2', group.title, 'breadth-group-title'), sectionLead(doc, `${flow.leads[group.id] || ''}${group.id === 'participation' ? sp500Read : ''}`.trim()), ...(face.length ? [faceGrid] : []));
-      if (rest.length && group.unfolded) {
-        // A group with no lead chart shows its one chart instead of folding it under a text-only card.
-        const body = el(doc, 'div', null, 'trend-grid breadth-more-grid');
-        body.append(...rest.map(renderCard));
-        section.append(body);
-      } else if (rest.length) {
-        const more = el(doc, 'details', null, 'breadth-more');
-        more.dataset.group = group.id;
-        more.open = openedGroups.has(group.id);
-        const body = el(doc, 'div', null, 'trend-grid breadth-more-grid');
-        body.append(...rest.map(renderCard));
-        more.append(el(doc, 'summary', group.more || '나머지 지표 보기', 'breadth-more-summary'), body);
-        section.append(more);
-      }
+      faceGrid.append(...members.map((card) => { const box = renderChart(card); if (card.id === group.lead) box.classList.add('breadth-lead'); return box; }));
+      section.append(el(doc, 'h2', group.title, 'breadth-group-title'), rows, faceGrid);
       return section;
     }).filter(Boolean);
     const pair = el(doc, 'div', null, 'bb-pair');
     pair.append(...sections.filter((node) => node.dataset.group !== 'participation'));
     grid.replaceChildren(...sections.filter((node) => node.dataset.group === 'participation'), pair);
-    // P1660: the page-level teaching fold, with the link back to the 시장 상태 axis that uses these series.
-    const fold = deepDiveFold(doc, root, '시장 폭', { ...AXIS_DEEP_DIVES.breadth, related: [['signal', '시장 상태에서 추세 축과 함께 보기']] });
-    if (fold) { fold.classList.add('sx-card', 'bb-principle'); grid.append(fold); }
-    renderNextSteps(doc, doc.getElementById('breadth-next'), flow.next);
+    // The counter line: the measures on the other side of where the verdict stands (breadth-face.js), as title and value.
+    const counter = breadthCounter(axis, cards.filter((card) => card.group).map((card) => { const f = faceOf(card); return { id: card.id, title: card.title, value: f.last?.value, text: f.text }; }));
+    const counterNode = doc.getElementById('breadth-counter');
+    if (counterNode) {
+      counterNode.replaceChildren(...(counter ? [el(doc, 'span', counter.kind === 'opposite' ? '반대 근거' : `${counter.toward === 'favorable' ? '양호' : '부담'} 쪽과 반대인 지표`, 'mk-hero__counter-label'), el(doc, 'span', counter.items.join(' · '), 'mk-hero__counter-text')] : []));
+      counterNode.hidden = !counter;
+    }
+    // The raw table: every evidence row of the breadth axis but the 판정 사유 on the face, the thresholds toward each other
+    // state, the whole rule, the observation date and the S&P 500 member figures.
+    let raw = doc.getElementById('breadth-raw');
+    if (!raw) { raw = kindFold(doc, 'raw-table', '시장 폭 판정의 관측값 전체'); raw.id = 'breadth-raw'; grid.insertAdjacentElement('afterend', raw); }
+    const rawRows = (axis?.evidence || []).filter(([label]) => label !== AXIS_REASON_LABEL);
+    for (const item of axis?.flipDistances || []) rawRows.push([`${item.towardLabel}까지 ${item.text}`, `${item.condition}${(item.also || []).map((also) => `, 함께 필요: ${also.condition}`).join('')}`]);
+    rawRows.push(['판정 규칙', axis?.flip || ''], ['관측일', axis?.basis || '']);
+    if (sp500Row) rawRows.push(sp500Row);
+    setFoldBody(raw, rawTable(doc, rawRows, '시장 폭 관측값'));
+    raw.hidden = !axis;
+    // The method at the foot of the page: each measure's definition and reference lines, then the link to the breadth
+    // principle in the research library; built when first opened.
+    let method = doc.getElementById('breadth-method');
+    if (!method) {
+      method = kindFold(doc, 'method', '지표별 정의와 기준선', () => methodBody(doc, root, cards));
+      method.id = 'breadth-method';
+      const next = doc.getElementById('breadth-next');
+      if (next) next.insertAdjacentElement('beforebegin', method); else page.append(method);
+    }
+    renderNextSteps(doc, doc.getElementById('breadth-next'));
     for (const [metric, date] of opened) {
       const details = grid.querySelector(`[data-metric="${metric}"] details.breadth-drill`);
       if (!details) continue;
-      const folded = details.closest('details.breadth-more');
-      if (folded) folded.open = true; // v57.77: a drilldown on a folded card opens its group fold
       details.open = true;
       const picker = details.querySelector('select');
       if (picker && date && [...picker.options].some((option) => option.value === date)) { picker.value = date; picker.dispatchEvent(new Event('change')); }

@@ -8,10 +8,11 @@ export const ROUTE_HUBS = Object.freeze([
   // v59.64 (owner 2026-11-03): 기술적 분석 is a screen of its own, like 매크로.
   { id: 'charts', label: '기술적 분석', routes: [{ id: 'charts', label: '기술적 분석' }] },
   { id: 'themes', label: '테마와 섹터', routes: [{ id: 'themes', label: '테마와 섹터', also: ['theme-detail'] }, { id: 'theme-detail', label: '테마 상세', tab: false }] },
-  // P1430: one 종목 screen — 요약 · 차트 · 재무 공시 are three views of the same selected company.
+  // P1430: one 종목 screen — 개요 · 재무 공시 are views of the same selected company. Owner 2026-11-19 ("탭 없애고 연결"):
+  // the 차트 tab left for 기술적 분석; the hub line links there with the company (renderSubject).
   // v59.55 (flow review): 스크리너 before 종목 — find, then examine; the sidebar, phone tab bar and number keys share it.
   { id: 'screener', label: '스크리너', routes: [{ id: 'screener', label: '스크리너' }] },
-  { id: 'stock', label: '종목', routes: [{ id: 'ticker', label: '개요' }, { id: 'technical', label: '차트' }, { id: 'fundamental', label: '재무 공시' }] },
+  { id: 'stock', label: '종목', routes: [{ id: 'ticker', label: '개요' }, { id: 'fundamental', label: '재무 공시' }] },
   { id: 'portfolio', label: '포트폴리오', routes: [{ id: 'portfolio', label: '포트폴리오' }] },
   // 2026-10-05 owner decision: 리서치 라이브러리 — three research pages; the product guide is help (topbar), not research.
   { id: 'learn', label: '리서치 라이브러리', routes: [{ id: 'principles', label: '개념·분석' }, { id: 'atlas', label: '산업 지도' }, { id: 'masters', label: '대가 보유 종목' }, { id: 'guide', label: '도움말', tab: false }] }
@@ -43,7 +44,7 @@ export function readStockSubject(root) {
 
 // 2026-10-18 UI review: 차트 had no way to pick a company and 재무 공시's own box only looked separate; one
 // control on the hub line opens the 요약 search, which already sets the company for all three tabs. v59.70 (wave2-f S23):
-// it opens the command search's 종목 scope where the reader is; from 차트 or 재무 공시 the pick keeps that tab.
+// it opens the command search's 종목 scope where the reader is; from 재무 공시 the pick keeps that tab.
 function pickButton(documentRef, root, label) {
   const pick = documentRef.createElement('button');
   pick.type = 'button';
@@ -84,6 +85,14 @@ function renderSubject(documentRef, nav, subject, root, routeId) {
     back.textContent = `← ${SUBJECT_ORIGINS[subject.from]}`;
     box.appendChild(back);
   }
+  // The company's chart is read on 기술적 분석: the link carries the company there (stock-chart.js openMarketChart).
+  const chart = documentRef.createElement('button');
+  chart.type = 'button';
+  chart.className = 'aio-hub-subject-chart';
+  chart.dataset.action = 'aioOpenMarketChart';
+  chart.dataset.arg = subject.symbol;
+  chart.textContent = '기술적 분석에서 보기';
+  box.appendChild(chart);
   if (routeId !== 'ticker') box.appendChild(pickButton(documentRef, root, '다른 종목'));
   if (!box.childNodes.length) return;
   nav.appendChild(box);

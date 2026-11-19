@@ -9,7 +9,7 @@ import { usThenKorea } from '../market/session/session-time.js';
 import { readNumber, signedText } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { sessionCloses, indexLevel } from '../market/indices/index-levels.js';
-import { withTopicParticle } from '../content/korean-particle.js';
+import { trendOfBars } from './trend-state.js';
 import { TREND_PHASE_LABELS, bufferedTrend, classifyTrend, trendKey } from './bands.js';
 import { rallyAttemptRead } from '../market/regime/rally-attempt.js';
 import { RULES } from '../rules/thresholds.js';
@@ -17,7 +17,9 @@ import { rsiWilder } from './definitions.js';
 import { stampDay } from '../shared/session-date.js';
 import { closeSessionMarket } from '../market/session/close-series.js';
 
-export const CHART_INDEXES = Object.freeze([['ndx', '나스닥100'], ['spx', 'S&P 500'], ['soxx', '반도체(SOXX)'], ['rut', '러셀2000'], ['kospi', '코스피'], ['kosdaq', '코스닥']]);
+// [field, label, the fund whose daily bars the card draws]. The Korean indexes have no fund here; their cards draw the
+// published closes.
+export const CHART_INDEXES = Object.freeze([['ndx', '나스닥100', 'QQQ'], ['spx', 'S&P 500', 'SPY'], ['soxx', '반도체(SOXX)', 'SOXX'], ['rut', '러셀2000', 'IWM'], ['kospi', '코스피', null], ['kosdaq', '코스닥', null]]);
 // The index cards say the words the stock table under them, the 종목 page and the stock
 // chart say for the same position (bands.js classifyTrend). '단기 조정' and '하락 속 반등' were this screen's own words for
 // what every other screen calls 장기 추세 속 조정 and 장기 추세 아래 반등.
@@ -66,21 +68,8 @@ export function trendOf({ close, ma50, ma200 }) {
   return trendKey(classifyTrend({ s50: (close / ma50 - 1) * 100, s200: (close / ma200 - 1) * 100, positionOnly: true })) || 'unknown';
 }
 
-const TREND_READ = Object.freeze({
-  up: '종가가 50일선과 200일선 위에 있고 50일선이 200일선 위라, 추세가 위를 향합니다.',
-  pullback: '200일선 위에서 50일선 아래로 내려온, 장기 추세 속 조정입니다. 장기 추세는 아직 살아 있고, 200일선을 지키는지가 다음 확인점입니다.',
-  breakdown: '50일선과 200일선을 모두 내줘 추세가 꺾이는 중입니다. 50일선이 200일선 아래로 내려가면(데드크로스) 하락 추세로 굳습니다. 200일선을 다시 되찾는지가 확인점입니다.',
-  rebound: '200일선 아래의 하락 추세 안에서 50일선을 되찾은 반등입니다. 200일선까지 회복하는지가 추세 전환의 확인점입니다.',
-  recovery: '종가가 두 이동평균 위로 올라왔지만 50일선이 아직 200일선 아래라, 추세 전환은 50일선이 200일선 위로 올라설 때(골든크로스) 확인됩니다.',
-  down: '종가가 50일선과 200일선 아래에 있고 50일선도 200일선 아래라, 추세가 아래를 향합니다.',
-  unknown: '이동평균을 계산할 종가가 부족합니다.'
-});
-
-/**
- * One index's chart reading.
- * @returns {null | { field, label, asOf, close, trend, trendWord, rsi, ma50, ma200, high, support, resistance, doubleTop,
- *   series, ma50Series, conclusion, read, numbers, breadth }}
- */
+/** A card's tone from its trend: the classifier's own tone (favorable / neutral / burden). */
+const TONE = Object.freeze({ favorable: 'up', burden: 'down' });
 // v59.71 (owner 11/07 '가격 움직임과 거래량이 가장 근본'): what the volume said, from the history the producers already
 // keep — the S&P 500's distribution days (a close down 0.2% or more on more volume than the session before, last 25
 // sessions) and the Nasdaq Composite's rally attempt / follow-through day (a 1.25%+ gain on rising volume). Only the
@@ -102,50 +91,75 @@ export function indexVolumeRead(history, field) {
   return null;
 }
 
-export function indexChartReading(history, field, label, { breadth = null } = {}) {
-  const closes = sessionCloses(history, field);
-  if (closes.length < 60) return null;
-  const level = indexLevel(history, field);
+/**
+ * One index card's reading, from the bars the card draws (owner 2026-11-19: one verdict per index, from the function the
+ * stock chart uses). A US card draws its fund's daily OHLC bars, so the trend passes the same ADR buffers the 종목 page and
+ * the analysis slot read (trend-state.js trendOfBars); a Korean card, or a US card whose bars did not arrive, draws the
+ * published closes, read position-only. `history` adds what only the index itself has — the S&P 500's distribution days
+ * and breadth, the Nasdaq's rally attempt, and (on a card drawing the index's own closes) the double top and the six-month
+ * low — as numbers in the raw table, never as a sentence.
+ * @param {{ bars: Array<{time:string, close:number, open?:number, high?:number, low?:number, volume?:number}>, field: string,
+ *   label: string, symbol?: string|null, positionOnly?: boolean, history?: Array, breadth?: object|null,
+ *   money?: (value:number) => string }} input — `money` writes a bar price (a Korean stock in won); dollars by default
+ * @returns {null | { field, label, symbol, source, asOf, close, trend, trendWord, tone, rsi, ma50, ma200, s50, s200,
+ *   fromHigh, support, resistance, doubleTop, series, ma50Series, ma200Series, facts, volume, numbers }}
+ */
+export function barsChartReading({ bars, field, label, symbol = null, positionOnly = false, history = [], breadth = null, money: priceText = null } = {}) {
+  const list = (Array.isArray(bars) ? bars : []).filter((bar) => Number.isFinite(bar?.close) && bar.close > 0);
+  if (list.length < 60) return null;
+  const closes = list.map((bar) => ({ date: bar.time, value: bar.close }));
   const ma50Series = movingAverage(closes, 50);
   const ma50 = ma50Series.at(-1)?.value ?? null;
   const ma50Before = ma50Series.at(-21)?.value ?? null;
   const ma200Series = closes.length >= 200 ? movingAverage(closes, 200) : [];
   const ma200 = ma200Series.at(-1)?.value ?? null;
   const close = closes.at(-1).value;
-  const trend = trendOf({ close, ma50, ma200, ma50Before });
+  const current = trendOfBars(list, { positionOnly });
+  const trend = trendKey(current) || 'unknown';
+  const trendWord = current?.label || TREND_WORDS.unknown;
   const rsi = rsiOf(closes);
   const { highs, lows } = swingPointsOf(closes);
   const resistance = highs.filter((row) => row.value > close * 1.005).sort((a, b) => a.value - b.value)[0] || null;
   const support = lows.filter((row) => row.value < close * 0.995).sort((a, b) => b.value - a.value)[0] || null;
-  // The RSI band is a state; no published record backs a rebound or pause frequency after it,
-  // so the line carries no direction word ("반등이 자주", "숨 고르기가 나오기 쉽습니다" had no base rate or sample).
-  const { oversold, overbought } = RULES.technical.rsi;
-  const momentum = rsi === null ? '' : rsi <= oversold ? ` RSI ${rsi.toFixed(0)}로 과매도권(${oversold} 이하)입니다. 추세가 바뀌었다는 뜻은 아닙니다.`
-    : rsi >= overbought ? ` RSI ${rsi.toFixed(0)}로 과열권(${overbought} 이상)입니다. 추세가 끝났다는 뜻은 아닙니다.` : '';
-  const levels = [support ? `아래 지지 후보는 ${md(support.date)} 저점 ${num(support.value)}(${signed((support.value / close - 1) * 100)})` : null,
-    resistance ? `위 저항 후보는 ${md(resistance.date)} 고점 ${num(resistance.value)}(${signed((resistance.value / close - 1) * 100)})` : null].filter(Boolean);
-  const top = level?.doubleTop;
-  const pattern = !top ? '' : top.state === 'broken'
-    ? ` ${md(top.first.date)}·${md(top.second.date)} 두 고점 사이 저점(${num(top.neck.value)}) 아래로 내려와 쌍봉이 완성된 모양입니다.`
-    : ` ${md(top.first.date)}·${md(top.second.date)} 두 고점 사이 저점(${num(top.neck.value)}) 근처라, 이 저점을 지키는지가 쌍봉 완성 여부를 가릅니다.`;
-  // Breadth only where it changes the reading: an index above its 50-day line with most members below it is carried by a
-  // few names; an index under it with most members still above is a shallower, broad pullback.
-  let breadthRead = '';
-  if (breadth && Number.isFinite(breadth.above50) && Number.isFinite(ma50)) {
-    // The index-and-breadth pair is 시장 상태's reading (cross-readings.js): one pair of lines, RULES.breadthCross.
+  const year = closes.slice(-252);
+  const high = year.reduce((best, row) => (row.value > best.value ? row : best));
+  const fromHigh = (close / high.value - 1) * 100;
+  const s50 = Number.isFinite(ma50) && ma50 > 0 ? (close / ma50 - 1) * 100 : null;
+  const s200 = Number.isFinite(ma200) && ma200 > 0 ? (close / ma200 - 1) * 100 : null;
+  // The index's own closes carry its double top and six-month low (index-levels.js); a fund's bars are another price scale.
+  const level = positionOnly ? indexLevel(history, field) : null;
+  const top = level?.doubleTop || null;
+  const money = positionOnly ? num : priceText || ((value) => `$${value.toFixed(2)}`);
+  const at = (row) => (row ? `${money(row.value)} (${md(row.date)}, ${signed((row.value / close - 1) * 100)})` : '—');
+  // The index-and-breadth pair is 시장 상태's reading (cross-readings.js): one pair of lines, RULES.breadthCross. Here it is a
+  // number and the side of each line it sits on, not a sentence about who carries the index.
+  let breadthRow = null;
+  if (breadth && Number.isFinite(breadth.above50)) {
     const { broadAbovePct, narrowBelowPct } = RULES.breadthCross;
-    if (close > ma50 && breadth.above50 < narrowBelowPct) breadthRead = ` 다만 구성 종목 중 50일선 위는 ${breadth.above50.toFixed(0)}%뿐이라 소수 대형주가 지수를 받치고 있습니다.`;
-    else if (close < ma50 && breadth.above50 >= broadAbovePct) breadthRead = ` 구성 종목의 ${breadth.above50.toFixed(0)}%는 아직 50일선 위라, 지수보다 시장 전체는 덜 무너졌습니다.`;
-    else if (close < ma50 && breadth.above50 < narrowBelowPct) breadthRead = ` 구성 종목 중 50일선 위가 ${breadth.above50.toFixed(0)}%로 줄어 하락이 넓게 퍼졌습니다.`;
+    const band = breadth.above50 >= broadAbovePct ? `${broadAbovePct}% 이상` : breadth.above50 < narrowBelowPct ? `${narrowBelowPct}% 미만` : `${narrowBelowPct}~${broadAbovePct}%`;
+    breadthRow = ['구성 종목 중 50일선 위', `${breadth.above50.toFixed(0)}% (${band})`];
   }
-  const conclusion = `${withTopicParticle(label)} ${TREND_WORDS[trend]}${level ? `, 고점 대비 ${signed(level.fromHighPct)}` : ''}${Number.isFinite(ma50) ? `, 50일선 ${signed((close / ma50 - 1) * 100)}` : ''}${Number.isFinite(ma200) ? `, 200일선 ${signed((close / ma200 - 1) * 100)}` : ''}.`;
+  const facts = [`고점 대비 ${signed(fromHigh)}`, s50 == null ? null : `50일선 ${signed(s50)}`, s200 == null ? null : `200일선 ${signed(s200)}`].filter(Boolean).join(' · ');
+  const numbers = [['종가', money(close)], ['50일선', Number.isFinite(ma50) ? money(ma50) : '—'], ['200일선', Number.isFinite(ma200) ? money(ma200) : '—'],
+    ['1년 최고 종가', `${money(high.value)} (${md(high.date)})`], ['RSI(14)', rsi === null ? '—' : rsi.toFixed(0)],
+    ['50일선 20일 기울기', Number.isFinite(ma50Before) && ma50Before > 0 ? signed((ma50 / ma50Before - 1) * 100) : '—'],
+    ['아래 스윙 저점', at(support)], ['위 스윙 고점', at(resistance)]];
+  if (level?.support) numbers.push(['6개월 최저 종가', `${num(level.support.value)} (${md(level.support.date)})`]);
+  if (top) numbers.push(['쌍봉 목선', `${num(top.neck.value)} (${md(top.first.date)}·${md(top.second.date)} 고점 사이, ${top.state === 'broken' ? '아래로 내려옴' : '근처'})`]);
+  if (breadthRow) numbers.push(breadthRow);
   return {
-    field, label, asOf: closes.at(-1).date, close, trend, trendWord: TREND_WORDS[trend], rsi, ma50, ma200, high: level?.high || null, support, resistance, doubleTop: top || null,
-    series: closes.slice(-252), ma50Series: ma50Series.slice(-252), ma200Series: ma200Series.slice(-252), conclusion, volume: indexVolumeRead(history, field),
-    read: `${TREND_READ[trend]}${breadthRead}${momentum}${levels.length ? ` ${levels.join(', ')}입니다.` : ''}${pattern}`,
-    numbers: [['종가', num(close)], ['50일선', Number.isFinite(ma50) ? num(ma50) : '—'], ['200일선', Number.isFinite(ma200) ? num(ma200) : '—'],
-      ['1년 최고 종가', level ? `${num(level.high.value)} (${md(level.high.date)})` : '—'], ['RSI(14)', rsi === null ? '—' : rsi.toFixed(0)], ['50일선 20일 기울기', Number.isFinite(ma50Before) && ma50Before > 0 ? signed((ma50 / ma50Before - 1) * 100) : '—'], ['6개월 최저 종가', level?.support ? `${num(level.support.value)} (${md(level.support.date)})` : '—']]
+    field, label, symbol, source: positionOnly ? 'closes' : 'bars', asOf: closes.at(-1).date, close, trend, trendWord, tone: TONE[current?.tone] || 'neutral',
+    rsi, ma50, ma200, s50, s200, fromHigh, high, support, resistance, doubleTop: top,
+    series: closes.slice(-252), ma50Series: ma50Series.slice(-252), ma200Series: ma200Series.slice(-252),
+    facts, volume: indexVolumeRead(history, field), numbers
   };
+}
+
+/** One index's reading from its published closes (history.json), position-only. */
+export function indexChartReading(history, field, label, { breadth = null } = {}) {
+  const bars = sessionCloses(history, field).map((row) => ({ time: row.date, close: row.value }));
+  const symbol = CHART_INDEXES.find(([key]) => key === field)?.[2] || null;
+  return barsChartReading({ bars, field, label, symbol, positionOnly: true, history, breadth });
 }
 
 /** The latest S&P 500 breadth (share of members above their 50/200-day lines) from history.json. */
@@ -188,8 +202,8 @@ export function coreStockRows({ screener = null, indexWeights = [], day = null, 
     const vs50 = readRowNumber(row, 'pctSma50'); const vs200 = readRowNumber(row, 'pctSma200');
     if (vs50 === null) continue;
     // v59.70 (lens audit, one trend per stock): a stock reads the 종목 page's buffered trend (bands.js, ADR bands and the
-    // five-session drop), so the table and the stock page name the same state. The index cards above keep trendOf, which
-    // has the real averages and the 50-day slope. NV −8.8% / −1.0% read '추세 이탈' here and '하락 추세' on 종목.
+    // five-session drop), so the table and the stock page name the same state. The index cards above read the bars they draw
+    // (barsChartReading, trend-state.js). NV −8.8% / −1.0% read '추세 이탈' here and '하락 추세' on 종목.
     const buffered = vs200 === null ? null : bufferedTrend(row);
     // v59.71: '고점 대비' is the 종목·스크리너·테마 field (pctFrom52wHigh, the 52-week intraday high), not the close high.
     const trend = trendKey(buffered) || 'unknown';
@@ -210,11 +224,17 @@ export function stockTableSessionBehind(rows, asOf) {
   return latest && day && latest < day ? latest : null;
 }
 
+// The order the opening line counts the states in, strongest first; a word outside it (a buffered state such as 50일선 부근)
+// follows in the order the cards show it.
+const TREND_ORDER = Object.freeze(['up', 'up-shaken', 'recovery', 'near50', 'unconfirmed', 'pullback', 'rebound', 'breakdown', 'down']);
+
 /** The screen's opening line: how many of the indexes are in each trend, the weakest one named. */
 export function chartsConclusion(readings) {
-  if (!readings.length) return '';
-  const counts = Object.fromEntries(Object.keys(TREND_WORDS).map((key) => [key, readings.filter((r) => r.trend === key).length]));
-  const weakest = readings.slice().sort((a, b) => (a.close / a.ma50) - (b.close / b.ma50))[0];
-  const parts = ['up', 'recovery', 'pullback', 'rebound', 'breakdown', 'down'].filter((key) => counts[key]).map((key) => `${TREND_WORDS[key]} ${counts[key]}개`);
-  return `지수 ${readings.length}개 중 ${parts.join(', ')}. 가장 약한 곳은 ${weakest.label}, 50일선 대비 ${signed((weakest.close / weakest.ma50 - 1) * 100)}입니다.`; // v59.71: a label like 반도체(SOXX) took a second parenthesis
+  const list = (Array.isArray(readings) ? readings : []).filter(Boolean);
+  if (!list.length) return '';
+  const words = [];
+  for (const key of [...TREND_ORDER, ...list.map((r) => r.trend)]) for (const r of list) if (r.trend === key && !words.includes(r.trendWord)) words.push(r.trendWord);
+  const parts = words.map((word) => `${word} ${list.filter((r) => r.trendWord === word).length}개`);
+  const weakest = list.filter((r) => Number.isFinite(r.s50)).sort((a, b) => a.s50 - b.s50)[0];
+  return `지수 ${list.length}개 중 ${parts.join(', ')}.${weakest ? ` 가장 약한 곳은 ${weakest.label}, 50일선 대비 ${signed(weakest.s50)}입니다.` : ''}`; // v59.71: a label like 반도체(SOXX) took a second parenthesis
 }

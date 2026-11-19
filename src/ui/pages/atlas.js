@@ -6,7 +6,11 @@ import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-st
 import { renderKnowledgeLesson } from '../knowledge/lesson.js';
 import { createCurrentObservationBlock, validateCurrentObservationsArtifact } from '../knowledge/current-observations.js';
 import { createKnowledgeLearningControls } from '../knowledge/learning-controls.js';
-import { COMPANY_PROFILE_INDEX, artifactFamilyUrl, artifactFetcher, artifactUrl, loadArtifactUrl } from '../../data/artifact-registry.js';
+import { BIGTECH_CASHFLOW, COMPANY_PROFILE_INDEX, artifactFamilyUrl, artifactFetcher, artifactUrl, loadArtifact, loadArtifactUrl } from '../../data/artifact-registry.js';
+import { AI_MAP_IDS, DATACENTER_GUIDE_ID, aiMapLayer, capitalFlowsView, datacenterChain, layerSupplyLinks } from '../../domain/knowledge/ai-map.js';
+import { DOMAIN_LABELS, FOUNDATION_MODULE_LABELS, TAXONOMY_NODE_LABELS } from '../../domain/knowledge/atlas-labels.js';
+import { VALUE_CHAIN_LAYERS, PROFILE_LAYER_TO_ATLAS } from '../../domain/knowledge/value-chain-layers.js';
+import { AI_BOTTLENECK_LEAD_TIMES, AI_CAPEX_FLOW } from '../../domain/themes/ai-capex-flow.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { listingMarket } from '../../domain/screener/market-scope.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
@@ -38,6 +42,11 @@ const ROUTE_TARGETS_URL = artifactUrl('knowledge/route-targets.json');
 // S18 (D8): concept guides and layer titles come from content/research/atlas/page-copy.json via build-research-content.
 const ATLAS_COPY_URL = artifactUrl('atlas/page-copy.json');
 const INDUSTRY_STORIES_URL = artifactUrl('atlas/industry-stories.json');
+// AI 지도: the company graph (supply links between layers) and the dated capital-flow file, a file of its own beside the
+// atlas reference set (src/domain/knowledge/ai-map.js); a missing or empty capital file leaves that map out.
+const COMPANY_GRAPH_ID = 'company-profiles/graph.json';
+const CAPITAL_FLOWS_URL = artifactUrl('atlas/capital-flows.json');
+const ATLAS_SECTIONS = Object.freeze(['foundations', 'relationships', 'taxonomy', 'aimap']);
 const TELEGRAM_DISCOVERY_BOUNDARY = 'discovery only';
 
 // The three design specs deliberately stop before source-packet completion.
@@ -54,183 +63,6 @@ const FOUNDATION_PRIMER_MODULES = Object.freeze([
   Object.freeze({ id: 'finished-system', title: 'Finished system', layer: 'F0', sourceSection: 'F0', evidence: [] }),
   Object.freeze({ id: 'execution-hardware', title: 'Execution hardware', layer: 'F0', sourceSection: 'F0', evidence: [] })
 ]);
-
-export const FOUNDATION_MODULE_LABELS = Object.freeze({
-  'problem-and-ability': '문제와 능력',
-  'learning-method': '학습 방식',
-  'model-architecture': '모델 구조',
-  'learning-objective': '학습 목표',
-  'finished-system': '완성 시스템',
-  'execution-hardware': '실행 하드웨어',
-  'energy-and-power': '에너지와 전력',
-  'vectors-and-matrices': '벡터와 행렬',
-  'probability-and-statistics': '확률과 통계',
-  'parallel-processing': '병렬처리',
-  'silicon-and-doping': '실리콘과 도핑',
-  'bottlenecks-and-scarcity': '병목과 희소성',
-  'capex-and-depreciation': 'CAPEX와 감가상각',
-  'rules-vs-learning': '규칙 기반과 학습 시스템',
-  'model-parameters-training': '모델·파라미터·학습',
-  'data-quality': '데이터와 데이터 품질',
-  'learning-types': '지도·비지도·강화학습',
-  'neural-networks': '신경망',
-  'forward-backpropagation': '순전파와 역전파',
-  'generalization-and-memory': '일반화와 암기',
-  'hallucination-and-verification': '환각과 검증',
-  tokenization: '토큰화',
-  'embedding-and-position': '임베딩과 위치 정보',
-  'self-attention': 'Self-Attention',
-  'multi-head-attention': 'Multi-Head Attention',
-  'context-window': '컨텍스트 윈도우',
-  'kv-cache': 'KV Cache',
-  pretraining: '사전학습',
-  'post-training': '후속학습',
-  evaluation: '평가',
-  deployment: '배포와 운영',
-  'parameter-vs-external-memory': '파라미터 기억과 외부 기억',
-  'retrieval-augmented-generation': 'RAG·검색 증강 생성',
-  'tool-use': '도구 사용',
-  'agent-loop': 'Agent 행동 루프',
-  'state-action-dynamics': '상태·행동·동역학',
-  'planning-and-control': '계획과 제어',
-  'world-model-limitations': 'World Model의 한계',
-  'workload-shape': 'AI 작업 부하의 형태',
-  'cpu-gpu-asic-npu': 'CPU·GPU·ASIC·NPU',
-  'precision-and-tensor-core': '정밀도와 Tensor Core',
-  'memory-wall': 'Memory Wall',
-  hbm: 'HBM',
-  interconnect: 'Interconnect',
-  'advanced-packaging': '첨단 패키징',
-  'rack-density-and-cooling': '랙 밀도와 냉각',
-  'power-and-grid': '전력과 전력망',
-  'unit-economics': '단위경제성',
-  utilization: '가동률',
-  'capacity-and-yield': '생산능력과 수율',
-  'fcf-and-funding': 'FCF와 자금조달',
-  'roic-and-counter-scenario': 'ROIC와 반대 시나리오',
-  'claim-source-as-of': '주장·출처·기준일',
-  'human-review': '사람의 검토'
-});
-
-export const DOMAIN_LABELS = Object.freeze({
-  'domain-cloud-platform': '클라우드·AI 플랫폼',
-  'domain-neocloud-finance': '네오클라우드·GPU 금융',
-  'domain-compute-silicon': 'AI 연산·주문형 반도체',
-  'domain-memory-storage': '메모리·스토리지·데이터 이동',
-  'domain-foundry-equipment': '파운드리·장비·소재',
-  'domain-packaging-substrate': '첨단 패키징·기판',
-  'domain-network-photonics': '네트워크·광학·CPO',
-  'domain-aidc-cooling': 'AI 데이터센터·서버·냉각',
-  'domain-power-grid': '전력·에너지·전력망',
-  'domain-on-device-physical-ai': '온디바이스·Physical AI',
-  'domain-ai-economics': 'AI 설비투자·ROIC·기업 재무',
-  'domain-physical-ai-robotics': 'Physical AI·로보틱스·자율성',
-  'domain-drone-defense': '드론·방산·자율 시스템',
-  'domain-space-aerospace': '우주·항공·재사용 시스템',
-  'domain-ai-applications': 'AI 응용 산업',
-  'domain-resources-materials': '자원·소재·산업재',
-  'domain-geopolitics-policy-security': '지정학·산업정책·보안',
-  'domain-capital-markets-company-map': '자본시장·기업 지도',
-  'domain-adjacent-future-tech': '인접 미래 기술'
-});
-
-export const TAXONOMY_NODE_LABELS = Object.freeze({
-  'cloud-hyperscaler': '하이퍼스케일러 클라우드',
-  'cloud-ai-service': '관리형 AI 서비스',
-  'cloud-utilization': '가동률·작업 구성',
-  'cloud-commitments': '클라우드 장기 약정',
-  'cloud-depreciation': '감가상각 주기',
-  'neocloud-gpu-rental': 'GPU 임대',
-  'neocloud-capacity-reservation': '컴퓨트 용량 예약',
-  'neocloud-lease-burden': '리스·고정비 부담',
-  'neocloud-customer-concentration': '고객 집중도',
-  'neocloud-rental-yield': '임대 수익률과 조달비용',
-  'compute-gpu': 'GPU·범용 병렬 가속기',
-  'compute-asic': 'ASIC·주문형 가속기',
-  'compute-npu': 'NPU·엣지 가속기',
-  'compute-precision': 'FP·BF·INT 연산 정밀도',
-  'compute-interconnect': '가속기 연결(인터커넥트)',
-  'memory-sram': 'SRAM·캐시',
-  'memory-dram-hbm': 'DRAM·HBM',
-  'memory-nand': 'NAND Flash',
-  'memory-enterprise-ssd': '기업·데이터센터용 SSD',
-  'memory-cxl': 'CXL·메모리 공유(풀링)',
-  'foundry-design-ecosystem': 'EDA·IP·설계 생태계',
-  'foundry-process-node': '미세공정 노드',
-  'foundry-equipment': '반도체 공정 장비',
-  'foundry-materials': '반도체 소재·화학물질',
-  'foundry-capacity-yield': '생산능력·수율·가동률',
-  'package-2-5d': '2.5D 패키징',
-  'package-3d-stacking': '3D 적층',
-  'package-interposer': '인터포저·브리지',
-  'package-substrate': 'ABF·FC-BGA 기판',
-  'package-glass': '유리기판',
-  'network-switch': '스위치 반도체',
-  'network-optical-module': '광학 모듈',
-  'network-silicon-photonics': '실리콘 포토닉스',
-  'network-cpo': 'CPO·공동 패키징 광학',
-  'network-fabric': 'AI Cluster Fabric',
-  'aidc-rack-density': '랙 전력 밀도',
-  'aidc-liquid-cooling': '액체 냉각',
-  'aidc-thermal-design': '열 설계',
-  'aidc-server-platform': 'AI 서버 플랫폼',
-  'aidc-pue': 'PUE·시설 에너지 효율',
-  'power-it-load': '가속기 IT 부하',
-  'power-generation': '발전원 구성',
-  'power-transmission': '송전·변전소',
-  'power-interconnection': '전력망 접속 대기열',
-  'power-transformer': '변압기·개폐 장치',
-  'edge-soc-npu': '엣지 SoC·NPU',
-  'edge-memory-power': '기기 메모리·전력 한계',
-  'physical-ai-sensing': '센서·인지',
-  'physical-ai-control': '제어·구동',
-  'physical-ai-digital-twin': '시뮬레이션·디지털 트윈',
-  'economics-revenue-model': 'AI 수익모델',
-  'economics-capex': 'CAPEX·리스',
-  'economics-depreciation': '감가상각·내용연수',
-  'economics-fcf': 'FCF·자금조달',
-  'economics-roic': 'ROIC·반대 시나리오',
-  'physical-ai-perception': '인지·센서 융합',
-  'physical-ai-world-model': '월드 모델·시뮬레이션',
-  'physical-ai-planning': '계획·제어',
-  'physical-ai-actuation': '구동·안전',
-  'physical-ai-unit-economics': '로봇 단위경제성',
-  'defense-kill-chain': '탐지→결정 작전 사슬',
-  'defense-c2-isr-ew': 'C2·ISR·전자전',
-  'defense-autonomy': '자율성·사람의 통제',
-  'defense-drone-production': '드론 생산·소모',
-  'defense-procurement-economics': '방산 조달 경제성',
-  'space-rocket-physics': '로켓 물리·발사 에너지',
-  'space-reusability': '로켓 재사용·재발사 준비',
-  'space-satellite-economics': '위성 데이터 경제성',
-  'space-artemis-architecture': 'Artemis 프로그램 구조',
-  'space-aircraft-supply-chain': '항공·우주 공급망',
-  'application-healthcare': '의료 업무 흐름',
-  'application-manufacturing': '제조 공정 흐름',
-  'application-automotive': '자동차 자율주행',
-  'application-finance': '금융 의사결정 흐름',
-  'application-roi-payer': '구매자·ROI·도입률',
-  'resources-copper': '구리·도체',
-  'resources-lithium': '리튬·저장 소재',
-  'resources-rare-earths': '희토류·영구자석',
-  'resources-refining': '채굴·정제·재활용',
-  'resources-industrial-equipment': '산업 장비 병목',
-  'policy-export-controls': '수출통제',
-  'policy-supply-chain-resilience': '공급망 회복력',
-  'policy-semiconductor-incentives': '반도체 보조금·인센티브',
-  'policy-cybersecurity': '사이버보안·소버린 AI',
-  'policy-national-security-risk': '국가안보 위험',
-  'capital-company-role': '기업 역할·가치 포착',
-  'capital-revenue-quality': '매출 품질·가시성',
-  'capital-margin-structure': '마진·비용 구조',
-  'capital-balance-sheet': '대차대조표·자금조달',
-  'capital-market-expectation': '시장 기대·주가',
-  'future-quantum': '양자 컴퓨팅',
-  'future-photonic-compute': '광자 컴퓨팅',
-  'future-neuromorphic': '뉴로모픽 시스템',
-  'future-new-energy': '차세대 에너지 시스템',
-  'future-uncertainty-gate': '미래 기술 불확실성 게이트'
-});
 
 const TAXONOMY_LEVELS = Object.freeze([
   Object.freeze({ id: 'L0', label: '수요/문제', example: 'AI 작업 부하, 병목 문제' }),
@@ -258,20 +90,7 @@ function element(documentRef, tag, className, text) {
   return node;
 }
 
-// v58.56 (re-audit #8, design 5j "AI 산업 아틀라스 · 가치사슬 · 아래에서 위로"): the 19 domains read as seven stacked
-// layers, each with the registry companies whose taxonomy nodes fall in it (public-data/atlas/player-product-registry.json).
-// The grouping of domains into layers is structural (which layer a domain supplies), not a ranking or a bottleneck claim,
-// so no layer is highlighted as "where the profit is". 2026-11-18: the companies come from the company stories' AI layer
-// (valueChainLayerPlayers below); a layer with none says so.
-export const VALUE_CHAIN_LAYERS = Object.freeze([
-  Object.freeze({ n: 7, title: '애플리케이션', desc: '산업·업무 AI, 피지컬 AI, 방산·우주', domains: ['domain-ai-applications', 'domain-on-device-physical-ai', 'domain-physical-ai-robotics', 'domain-drone-defense', 'domain-space-aerospace'] }),
-  Object.freeze({ n: 6, title: '모델', desc: '파운데이션 모델, 추론 서비스', domains: [], node: 'cloud-ai-service' }),
-  Object.freeze({ n: 5, title: '클라우드', desc: '연산 임대, 플랫폼, 네오클라우드', domains: ['domain-cloud-platform', 'domain-neocloud-finance'] }),
-  Object.freeze({ n: 4, title: '데이터센터, 전력', desc: '서버, 냉각, 전력망', domains: ['domain-aidc-cooling', 'domain-power-grid'] }),
-  Object.freeze({ n: 3, title: '네트워크', desc: '스위치, 광통신', domains: ['domain-network-photonics'] }),
-  Object.freeze({ n: 2, title: '반도체, 메모리', desc: 'GPU, 맞춤형 칩, HBM, SSD', domains: ['domain-compute-silicon', 'domain-memory-storage'] }),
-  Object.freeze({ n: 1, title: '장비, 파운드리', desc: '공정, 노광, 패키징, 소재', domains: ['domain-foundry-equipment', 'domain-packaging-substrate', 'domain-resources-materials'] })
-]);
+// The seven layers and the story-layer table live in src/domain/knowledge/value-chain-layers.js (the 종목 개요 reads them too).
 const VALUE_CHAIN_CROSS_DOMAINS = Object.freeze(['domain-ai-economics', 'domain-geopolitics-policy-security', 'domain-capital-markets-company-map', 'domain-adjacent-future-tech']);
 
 // v58.56 (#8): tickers for registry companies only where the listing is one exact symbol. US symbols carry the SEC CIK
@@ -300,15 +119,6 @@ export const ATLAS_PLAYER_LISTINGS = Object.freeze({
 });
 const PLAYER_NO_TICKER_REASON = Object.freeze({ PRIVATE: '비상장', 'google-cloud': '모회사 Alphabet, 보통주 두 종류', kioxia: '도쿄 상장', siemens: '독일 상장' });
 
-// 2026-11-18: the one table from the company-story AI layer (src/domain/entity/company-story.js AI_LAYERS, the field the 종목
-// 회사 tab prints as "AI 밸류체인: …") to these seven layers. The last three story layers are users of AI, not suppliers,
-// and sit in no layer. scripts/ci-atlas-contract-check.mjs fails when a story layer is in neither list.
-export const PROFILE_LAYER_TO_ATLAS = Object.freeze({
-  'software-applications': 7, devices: 7, 'models-platforms': 6, 'cloud-infrastructure': 5,
-  'power-energy': 4, 'cooling-electrical': 4, 'data-center-real-estate': 4, networking: 3,
-  'chips-compute': 2, memory: 2, 'semicap-foundry': 1
-});
-export const PROFILE_LAYERS_OUTSIDE_ATLAS = Object.freeze(['ai-adopter', 'ai-exposed', 'limited']);
 // A registry player whose company story is filed under another symbol than its own listing.
 const PLAYER_PROFILE_SYMBOL = Object.freeze({ 'google-cloud': 'GOOGL' });
 // The one listing-market rule (domain/screener/market-scope.js): a Korean listing shows its Korean name, US first.
@@ -476,7 +286,7 @@ const ATLAS_STATUS_LABELS = Object.freeze({
 const ATLAS_RELATIONSHIP_KIND_LABELS = Object.freeze({ concept: '핵심 개념', metric: '관찰 지표', company_claim: '기업 주장', evidence: '검증 근거', market: '시장 연결', financial: '재무 결과', constraint: '제약 조건' });
 const ATLAS_CRITICALITY_LABELS = Object.freeze({ structural: '구조 관계', conditional: '조건부 관계', claim: '기업 주장' });
 // Actions that open a different document (a history entry each); selections inside one document replace the URL.
-const ATLAS_DOCUMENT_ACTIONS = new Set(['tab', 'section', 'layer', 'module', 'domain', 'domain-node', 'relationship-guide']);
+const ATLAS_DOCUMENT_ACTIONS = new Set(['tab', 'section', 'layer', 'module', 'domain', 'domain-node', 'relationship-guide', 'ai-map']);
 const ATLAS_ROUTE_LABELS = Object.freeze({ principles: '개념·분석', atlas: '산업 지도', masters: '대가 보유 종목', fundamental: '재무 공시', themes: '테마·산업', macro: '매크로', fxbond: '금리와 환율', technical: '종목, 차트' });
 
 
@@ -656,11 +466,14 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
        const sharedRoute = parseKnowledgeRouteState(root?.location);
        const arrivalContext = parseKnowledgeTargetContext({ root, locationLike: root?.location });
        const arrivalNode = arrivalContext?.routeId === 'atlas' ? String(arrivalContext.knowledgeNode || '').replace(/^atlas:/, '') : '';
-       const initialTab = arrivalNode ? 'taxonomy' : ['foundations', 'relationships', 'taxonomy'].includes(sharedRoute.mode) ? sharedRoute.mode : 'taxonomy';
+       const initialTab = arrivalNode ? 'taxonomy' : ATLAS_SECTIONS.includes(sharedRoute.mode) ? sharedRoute.mode : 'taxonomy';
+       // AI 지도 selection: which map, a layer of the value chain, and one node (a company, a chain stage); a link of the
+       // value chain is picked on the page and not kept in the address.
+       const aiMapFrom = (shared) => ({ map: AI_MAP_IDS.includes(shared.map) ? shared.map : 'value-chain', layer: aiMapLayer(shared.layer), node: shared.mode === 'aimap' ? shared.node || null : null, link: null });
        const learning = createAppKnowledgeLearningState(root);
        const initialLayerId = sharedRoute.chapter || 'F1';
        const initialModuleId = sharedRoute.lesson || (initialLayerId === 'F0' ? FOUNDATION_PRIMER_MODULES[0].id : 'energy-and-power');
-       const state = { tab: initialTab, query: '', arrivalContext: arrivalContext?.routeId === 'atlas' ? arrivalContext : null, selectedLayerId: initialLayerId, selectedModuleId: initialModuleId, selectedDomainId: sharedRoute.domain || 'domain-cloud-platform', selectedDomainNodeId: arrivalNode || sharedRoute.node || (sharedRoute.domain ? '' : 'cloud-hyperscaler'), atlasView: !arrivalNode && (sharedRoute.view === 'domain' || !sharedRoute.node) ? 'domain' : 'node', selectedDeepTopicId: sharedRoute.topic || '', selectedRelationshipGuideId: sharedRoute.guide || 'neutral-rate-policy-gap', selectedRelationshipNodeId: initialTab === 'relationships' ? sharedRoute.node || '' : '', relationshipCriticality: ['all', 'structural', 'conditional', 'claim'].includes(sharedRoute.criticality) ? sharedRoute.criticality : 'all', relationshipGuides: null, currentObservations: null, research: null, foundations: null, foundationLessons: null, knowledgeArticles: { articles: [] }, knowledgeStatus: null, routeTargets: null, registry: null, domainGuides: null, domainPackets: null, claimLedger: null, taxonomyCoverage: null, deepTaxonomy: null, telegram: null, currentness: null, currentEvidenceLedger: null, knowledgeSources: null, relationshipGuidesError: false, currentObservationsError: false, researchError: false, foundationsError: false, foundationLessonsError: false, knowledgeArticlesError: false, knowledgeStatusError: false, routeTargetsError: false, registryError: false, domainGuidesError: false, domainPacketsError: false, claimLedgerError: false, taxonomyCoverageError: false, deepTaxonomyError: false, telegramError: false, currentnessError: false, currentEvidenceLedgerError: false, knowledgeSourcesError: false, loadingArticleIds: new Set(), articleErrors: new Set() };
+       const state = { tab: initialTab, query: '', arrivalContext: arrivalContext?.routeId === 'atlas' ? arrivalContext : null, selectedLayerId: initialLayerId, selectedModuleId: initialModuleId, selectedDomainId: sharedRoute.domain || 'domain-cloud-platform', selectedDomainNodeId: arrivalNode || sharedRoute.node || (sharedRoute.domain ? '' : 'cloud-hyperscaler'), atlasView: !arrivalNode && (sharedRoute.view === 'domain' || !sharedRoute.node) ? 'domain' : 'node', selectedDeepTopicId: sharedRoute.topic || '', selectedRelationshipGuideId: sharedRoute.guide || 'neutral-rate-policy-gap', selectedRelationshipNodeId: initialTab === 'relationships' ? sharedRoute.node || '' : '', relationshipCriticality: ['all', 'structural', 'conditional', 'claim'].includes(sharedRoute.criticality) ? sharedRoute.criticality : 'all', aiMap: aiMapFrom(sharedRoute), aiMapView: null, companyGraph: null, companyGraphError: false, capitalFlows: null, capitalFlowsLoaded: false, relationshipGuides: null, currentObservations: null, research: null, foundations: null, foundationLessons: null, knowledgeArticles: { articles: [] }, knowledgeStatus: null, routeTargets: null, registry: null, domainGuides: null, domainPackets: null, claimLedger: null, taxonomyCoverage: null, deepTaxonomy: null, telegram: null, currentness: null, currentEvidenceLedger: null, knowledgeSources: null, relationshipGuidesError: false, currentObservationsError: false, researchError: false, foundationsError: false, foundationLessonsError: false, knowledgeArticlesError: false, knowledgeStatusError: false, routeTargetsError: false, registryError: false, domainGuidesError: false, domainPacketsError: false, claimLedgerError: false, taxonomyCoverageError: false, deepTaxonomyError: false, telegramError: false, currentnessError: false, currentEvidenceLedgerError: false, knowledgeSourcesError: false, loadingArticleIds: new Set(), articleErrors: new Set() };
       page.dataset.aioArchitectureRoute = 'atlas';
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioContentKind = 'REFERENCE';
@@ -675,7 +488,9 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       // v58.80 (first-users R2-17, atlas): opening a document adds a history entry, so Back returns to the previous one.
       const syncSharedState = ({ push = false } = {}) => (push ? pushKnowledgeRouteState : replaceKnowledgeRouteState)({ root, page: 'atlas', state: {
         mode: state.tab,
-        node: state.tab === 'taxonomy' ? state.selectedDomainNodeId : state.tab === 'relationships' ? state.selectedRelationshipNodeId : null,
+        node: state.tab === 'taxonomy' ? state.selectedDomainNodeId : state.tab === 'relationships' ? state.selectedRelationshipNodeId : state.tab === 'aimap' ? state.aiMap.node : null,
+        map: state.tab === 'aimap' && state.aiMap.map !== AI_MAP_IDS[0] ? state.aiMap.map : null,
+        layer: state.tab === 'aimap' && state.aiMap.map === 'value-chain' ? state.aiMap.layer : null,
         chapter: state.tab === 'foundations' ? state.selectedLayerId : null,
         lesson: state.tab === 'foundations' ? state.selectedModuleId : null,
         domain: state.tab === 'taxonomy' ? state.selectedDomainId : null,
@@ -692,7 +507,29 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
        let loadKnowledgeArticle = () => {};
        // 2026-10-05 리서치 라이브러리 redesign: 목차 · 본문 · 연결 shell (industry-view.js). The tab is now the
        // open contents section; the view is the open document (domain overview, part, AI-foundation module, guide).
-       const viewOf = () => state.tab === 'foundations' ? 'module' : state.tab === 'relationships' ? 'guide' : state.atlasView === 'domain' ? 'domain' : 'node';
+       const viewOf = () => state.tab === 'foundations' ? 'module' : state.tab === 'relationships' ? 'guide' : state.tab === 'aimap' ? 'aimap' : state.atlasView === 'domain' ? 'domain' : 'node';
+       const todayIso = () => new Date().toISOString().slice(0, 10);
+       const capitalView = () => capitalFlowsView(state.capitalFlows, { today: todayIso() });
+       // The AI 지도 document: its renderer loads on first use (ai-map-view.js), the data from the loaded artifacts.
+       const aiMapDocument = () => {
+         const view = state.aiMapView;
+         if (!view) return element(documentRef, 'p', 'rl-copy', '불러오는 중입니다.');
+         const profiles = root?.[COMPANY_PROFILE_INDEX.key]?.profiles || [];
+         const layerOf = (symbol) => PROFILE_LAYER_TO_ATLAS[state.companyGraph?.nodes?.[symbol]?.layer] ?? null;
+         const guide = (state.relationshipGuides?.guides || []).find((item) => item.id === DATACENTER_GUIDE_ID) || null;
+         return view.renderAiMap(documentRef, {
+           selection: state.aiMap,
+           data: {
+             layers: state.research?.taxonomyDomains?.length ? VALUE_CHAIN_LAYERS : [],
+             playersOf: (layer) => valueChainLayerPlayers(layer, state.research, state.registry, profiles),
+             supply: state.companyGraph ? layerSupplyLinks(state.companyGraph, layerOf) : null,
+             failed: state.companyGraphError,
+             chain: state.taxonomyCoverage && guide ? datacenterChain({ coverage: state.taxonomyCoverage, guide, capexFlow: AI_CAPEX_FLOW, leadTimes: AI_BOTTLENECK_LEAD_TIMES, bigtech: root?.[BIGTECH_CASHFLOW.key] || null }) : null,
+             nodeLabel: (id) => TAXONOMY_NODE_LABELS[id] || id,
+             capital: capitalView()
+           }
+         });
+       };
        const stripReferenceChrome = (node) => {
          node?.querySelectorAll?.('.atlas-deep-sources, .atlas-module-source-details, .atlas-reference-source-links, .atlas-node-guide-boundary, .atlas-player-product-boundary, .atlas-governance-note').forEach((item) => item.remove());
          return node;
@@ -703,7 +540,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
          const shell = renderIndustryPage(documentRef, {
            root,
            state: { section: state.tab, view: viewOf(), selectedDomainId: state.selectedDomainId, selectedDomainNodeId: state.selectedDomainNodeId, selectedModuleId: state.selectedModuleId, selectedRelationshipGuideId: state.selectedRelationshipGuideId, selectedRelationshipNodeId: state.selectedRelationshipNodeId },
-           data: { currentObservations: state.currentObservations, research: state.research, foundations: state.foundations, foundationLessons: state.foundationLessons, relationshipGuides: state.relationshipGuides, knowledgeSources: state.knowledgeSources, registry: state.registry, failed: { taxonomy: Boolean(state.researchError), foundations: Boolean(state.foundationsError || state.foundationLessonsError), relationships: Boolean(state.relationshipGuidesError) } },
+           data: { aiMaps: AI_MAP_IDS.filter((id) => id !== 'capital' || capitalView()), aiMapId: state.aiMap.map, currentObservations: state.currentObservations, research: state.research, foundations: state.foundations, foundationLessons: state.foundationLessons, relationshipGuides: state.relationshipGuides, knowledgeSources: state.knowledgeSources, registry: state.registry, failed: { taxonomy: Boolean(state.researchError), foundations: Boolean(state.foundationsError || state.foundationLessonsError), relationships: Boolean(state.relationshipGuidesError) } },
            labels: {
              domain: (domain) => DOMAIN_LABELS[domain.id] || domain.title,
              node: (node) => TAXONOMY_NODE_LABELS[node.id] || node.title,
@@ -717,6 +554,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
              story: (node) => state.nodeStories?.[node.id] || null,
              domainText: (domain) => state.domainStories?.[domain.id] || null,
              deep: (node) => stripReferenceChrome(createDeepTaxonomyView(documentRef, node, state.deepTaxonomy, state.selectedDeepTopicId)),
+             aiMap: () => aiMapDocument(),
              layers: (domain) => createValueChainLayers(documentRef, state.research, state.registry, domain?.id || null, root?.[COMPANY_PROFILE_INDEX.key]?.profiles || []),
              domainStory: (domain) => stripReferenceChrome(createDomainGuide(documentRef, domain, (state.domainGuides?.guides || []).find((guide) => guide.id === domain.id), (state.domainPackets?.packets || []).find((packet) => packet.domainId === domain.id), state.claimLedger)),
              relations: (nodeId) => { const entry = coverage.find((item) => item.nodeId === nodeId); return entry ? relationList(documentRef, entry.relationGroups) : null; },
@@ -791,7 +629,14 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           state.selectedDomainNodeId = domain?.nodes?.[0]?.id || '';
           state.selectedDeepTopicId = state.deepTaxonomy?.topics?.find((topic) => topic.anchorNodeIds?.includes(state.selectedDomainNodeId))?.id || '';
         }
+        if (action === 'ai-map') state.tab = 'aimap';
+        if (action === 'ai-map') state.aiMap = { map: AI_MAP_IDS.includes(value) ? value : AI_MAP_IDS[0], layer: null, node: null, link: null };
+        if (action === 'ai-map-layer') state.aiMap = { ...state.aiMap, layer: aiMapLayer(value), node: null, link: null };
+        if (action === 'ai-map-link') state.aiMap = { ...state.aiMap, link: state.aiMap.link === value ? null : value, node: null };
+        if (action === 'ai-map-node') state.aiMap = { ...state.aiMap, node: value, layer: null, link: null };
+        if (action === 'ai-map-clear') state.aiMap = { ...state.aiMap, layer: null, node: null, link: null };
         if (action === 'domain-node') {
+          state.tab = 'taxonomy'; // also from an AI 지도 stage, which lists the atlas parts it holds
           state.atlasView = 'node';
           // v58.56 (#8): a node opened from outside its domain's TOC (the value-chain card) selects that domain too.
           const owner = state.research?.taxonomyDomains?.find((item) => (item.nodes || []).some((node) => node.id === value));
@@ -817,6 +662,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           syncSharedState({ push: ATLAS_DOCUMENT_ACTIONS.has(action) });
           render();
           if (action === 'tab' || action === 'section') ensureTabCapabilities(value);
+          if (action === 'ai-map') ensureTabCapabilities('aimap');
           if (action === 'module') ensureFoundationDetailCapabilities();
           if (state.query) ensureSearchCapabilities();
           if (action === 'module') content.querySelector('[data-atlas-learning-detail-title]')?.focus({ preventScroll: true });
@@ -830,7 +676,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
             if (!docTitle.hasAttribute('tabindex')) docTitle.setAttribute('tabindex', '-1');
             docTitle.closest('.rl-main')?.scrollIntoView({ block: 'start', behavior: 'auto' });
             docTitle.focus({ preventScroll: true });
-          } else if (['tab', 'domain', 'domain-node', 'deep-topic', 'relationship-guide', 'relationship-node', 'relationship-criticality'].includes(action)) {
+          } else if (['tab', 'domain', 'domain-node', 'deep-topic', 'relationship-guide', 'relationship-node', 'relationship-criticality', 'ai-map', 'ai-map-layer', 'ai-map-link', 'ai-map-node'].includes(action)) {
             queueMicrotask(() => content.querySelector(`[data-atlas-action="${action}"][data-atlas-value="${CSS.escape(value)}"]`)?.focus({ preventScroll: true }));
           }
         }
@@ -841,8 +687,9 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
       const onPop = () => {
         if (!isAlive() || !/^#atlas(?:$|[?&])/.test(String(root?.location?.hash || ''))) return;
         const shared = parseKnowledgeRouteState(root.location);
-        if (['foundations', 'relationships', 'taxonomy'].includes(shared.mode)) state.tab = shared.mode;
-        if (state.tab === 'foundations') {
+        if (ATLAS_SECTIONS.includes(shared.mode)) state.tab = shared.mode;
+        if (state.tab === 'aimap') state.aiMap = aiMapFrom(shared);
+        else if (state.tab === 'foundations') {
           if (shared.chapter) state.selectedLayerId = shared.chapter;
           if (shared.lesson) state.selectedModuleId = shared.lesson;
         } else if (state.tab === 'taxonomy') {
@@ -924,7 +771,36 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           const taxonomyDefinitions = [{ key: 'research', url: RESEARCH_URL }, { key: 'domainGuides', url: DOMAIN_GUIDES_URL }, { key: 'domainPackets', url: DOMAIN_PACKETS_URL }, { key: 'claimLedger', url: DOMAIN_CLAIMS_URL }, { key: 'taxonomyCoverage', url: TAXONOMY_COVERAGE_URL }, { key: 'deepTaxonomy', url: DEEP_TAXONOMY_URL }, { key: 'registry', url: PLAYER_PRODUCT_URL }, { key: 'currentness', url: PLAYER_PRODUCT_CURRENTNESS_URL }, { key: 'knowledgeSources', url: KNOWLEDGE_SOURCES_URL }];
           const relationshipDefinitions = [{ key: 'relationshipGuides', url: KNOWLEDGE_RELATIONSHIP_GUIDES_URL }, { key: 'currentObservations', url: CURRENT_OBSERVATIONS_URL }, { key: 'registry', url: PLAYER_PRODUCT_URL }, { key: 'knowledgeSources', url: KNOWLEDGE_SOURCES_URL }];
           const overviewDefinitions = [{ key: 'research', url: RESEARCH_URL }, { key: 'telegram', url: TELEGRAM_REFERENCE_URL }, { key: 'currentEvidenceLedger', url: CURRENT_EVIDENCE_LEDGER_URL }, { key: 'knowledgeStatus', url: KNOWLEDGE_STATUS_URL }];
-          ensureTabCapabilities = (tab = state.tab) => loadGroup(tab === 'taxonomy' ? taxonomyDefinitions : tab === 'relationships' ? relationshipDefinitions : tab === 'overview' ? overviewDefinitions : foundationDefinitions);
+          // AI 지도: the layers and their companies (research, registry), the chain's atlas parts (coverage) and guide, then
+          // the company graph, the capital-flow file and the big-tech cash flows, each repainting when it lands. The
+          // renderer itself is a chunk of its own, fetched the first time the section opens.
+          const aiMapDefinitions = [{ key: 'research', url: RESEARCH_URL }, { key: 'registry', url: PLAYER_PRODUCT_URL }, { key: 'currentness', url: PLAYER_PRODUCT_CURRENTNESS_URL }, { key: 'taxonomyCoverage', url: TAXONOMY_COVERAGE_URL }, { key: 'relationshipGuides', url: KNOWLEDGE_RELATIONSHIP_GUIDES_URL }, { key: 'knowledgeSources', url: KNOWLEDGE_SOURCES_URL }];
+          const ensureAiMap = () => {
+            if (!state.aiMapView) import('../knowledge/ai-map-view.js').then((view) => { state.aiMapView = view; if (isAlive()) render(); }).catch(() => {});
+            if (!state.companyGraph && !state.companyGraphPending) {
+              state.companyGraphPending = true;
+              loadArtifact(root, COMPANY_GRAPH_ID, { signal: scope?.signal })
+                .then((graph) => { state.companyGraph = graph; state.companyGraphError = false; })
+                .catch((error) => { if (error?.name !== 'AbortError') state.companyGraphError = true; })
+                .finally(() => { state.companyGraphPending = false; if (isAlive()) render(); });
+            }
+            if (!state.capitalFlowsLoaded) {
+              state.capitalFlowsLoaded = true;
+              loadArtifactUrl(root, CAPITAL_FLOWS_URL, { signal: scope?.signal })
+                .then((flows) => { state.capitalFlows = flows; })
+                .catch(() => { state.capitalFlows = null; })
+                .finally(() => {
+                  // An address that names the capital map opens the value chain while that map has nothing to draw.
+                  if (state.aiMap.map === 'capital' && !capitalView()) { state.aiMap = { ...state.aiMap, map: AI_MAP_IDS[0], node: null }; if (state.tab === 'aimap') syncSharedState(); }
+                  if (isAlive()) render();
+                });
+            }
+            refreshSharedArtifact(root, BIGTECH_CASHFLOW).then(({ changed }) => { if (changed && isAlive()) render(); }).catch(() => {});
+          };
+          ensureTabCapabilities = (tab = state.tab) => {
+            if (tab === 'aimap') { ensureAiMap(); return loadGroup(aiMapDefinitions); }
+            return loadGroup(tab === 'taxonomy' ? taxonomyDefinitions : tab === 'relationships' ? relationshipDefinitions : tab === 'overview' ? overviewDefinitions : foundationDefinitions);
+          };
           ensureSearchCapabilities = () => {
             if (!state.query) return;
             const searchBase = state.tab === 'foundations' ? foundationDefinitions : state.tab === 'taxonomy' ? taxonomyDefinitions : state.tab === 'relationships' ? relationshipDefinitions : overviewDefinitions;
@@ -933,7 +809,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           ensureFoundationDetailCapabilities = () => loadGroup([{ key: 'routeTargets', url: ROUTE_TARGETS_URL }]);
           // A failed section load ends in a stated failure; retry clears the failed keys and reloads that section.
           retryCapabilities = (tab = state.tab) => {
-            const definitions = tab === 'taxonomy' ? taxonomyDefinitions : tab === 'relationships' ? relationshipDefinitions : foundationDefinitions;
+            const definitions = tab === 'taxonomy' ? taxonomyDefinitions : tab === 'relationships' ? relationshipDefinitions : tab === 'aimap' ? aiMapDefinitions : foundationDefinitions;
             definitions.forEach(({ key }) => { if (state[`${key}Error`]) { state[`${key}Error`] = false; state[key] = null; } });
             render();
             loadGroup(definitions);

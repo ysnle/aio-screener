@@ -315,6 +315,8 @@ export function installServerDataLoader(window = globalThis) {
         // v57.71 (owner 2026-10-15): the producer's one-sentence line is validated on its own (no number, ticker or
         // instruction) and shown on the home card even when this run's long reading was held.
         window._aioMarketSentence = d.marketAnalysis && d.marketAnalysis.sentence && d.marketAnalysis.sentence.text ? d.marketAnalysis.sentence : null;
+        // The per-screen AI readings, kept raw; each screen admits its own (src/data/server-screen-readings.js).
+        window._aioScreenReadings = d.screenReadings && typeof d.screenReadings === 'object' ? d.screenReadings : null;
         try { if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote(); } catch(_) {}
         // Typed-evidence + semantic + publish gate: src/data/server-market-analysis.js (bound by the compat bridge).
         var _serverMarketGate = window._aioVerifyServerMarketAnalysis(d.marketAnalysis, {

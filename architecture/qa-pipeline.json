@@ -330,8 +330,7 @@
             "index.html",
             "src/ui/pages/entity.js",
             "src/ui/components/fiscal-read.js",
-            "src/ui/components/stock-lens-cards.js",
-            "src/ui/components/company-story.js",
+            "src/ui/components/company-overview.js",
             "src/ui/components/fundamental-analysis-*.js",
             "src/domain/entity/**",
             "src/domain/instruments/**",
@@ -339,6 +338,45 @@
             "src/domain/briefing/day-account.js",
             "scripts/lib/fake-dom.mjs",
             "scripts/ci-section-visual-contract.mjs"
+          ]
+        },
+        {
+          "id": "fold-kind",
+          "script": "scripts/ci-fold-kind-check.mjs",
+          "inputs": [
+            "index.html",
+            "src/ui/components/market-regime.js",
+            "src/ui/components/indicator-face.js",
+            "src/ui/components/stress-outcomes.js",
+            "src/ui/components/distribution-strip.js",
+            "src/ui/components/correction-base-rate.js",
+            "src/ui/components/korea-participation.js",
+            "src/ui/components/regime-radar.js",
+            "src/ui/components/screen-reading.js",
+            "src/ui/components/page-sources.js",
+            "src/ui/knowledge/ai-map-view.js",
+            "src/ui/components/node-graph.js",
+            "src/ui/pages/entity.js",
+            "src/ui/components/company-overview.js",
+            "src/ui/components/company-analysis.js",
+            "src/ui/components/ticker-start.js",
+            "src/ui/components/fiscal-read.js",
+            "src/ui/components/fundamental-analysis-cards.js",
+            "src/ui/components/stock-lens-cards.js",
+            "scripts/ci-fold-kind-check.mjs"
+          ]
+        },
+        {
+          "id": "capital-flows-contract",
+          "script": "scripts/ci-capital-flows-contract-check.mjs",
+          "inputs": [
+            "public-data/atlas/capital-flows.json",
+            "public-data/us-listings.json",
+            "public-data/company-profiles/index.json",
+            "src/domain/knowledge/ai-map.js",
+            "src/ui/knowledge/ai-map-view.js",
+            "src/ui/pages/atlas.js",
+            "scripts/ci-capital-flows-contract-check.mjs"
           ]
         },
         {
@@ -512,6 +550,11 @@
           "id": "market-reading-week",
           "script": "scripts/ci-market-reading-week-fixture.mjs",
           "remedy": "v60.18 AI market reading on the stored 11/10-11/13 inputs: an outage keeps the last reading this run still verifies, moves come from MARKET_MOVE_METRICS by size against their own volatility, slot ids never reach the text, a signed number's direction word matches its sign, and the published (citation-stripped) text is well formed"
+        },
+        {
+          "id": "screen-reading",
+          "script": "scripts/ci-screen-reading-check.mjs",
+          "remedy": "v60.31 per-screen AI reading: packets come from the shared interpretation (title, state label, evidence, flip, basis; never the axis read or a (참고) row) and register in SCREEN_READING_SCREENS; the validator blocks only unsupported figures/dates, contradicted state labels, orders, % probabilities, label leaks, non-Korean and over-length text; a same-key verified or validator-blocked reading is never asked again"
         },
         {
           "id": "boot-budget",
@@ -2474,6 +2517,38 @@
           "script": "scripts/ci-entity-quality-browser-check.mjs",
           "timeoutMs": 300000,
           "weight": 2
+        },
+        {
+          "id": "browser-chart-scale",
+          "script": "scripts/ci-chart-scale-browser-check.mjs",
+          "inputs": [
+            "src/ui/components/home-index-strip.js",
+            "src/ui/components/market-candles.js",
+            "src/ui/components/stock-chart.js",
+            "src/ui/components/stock-chart-layers.js",
+            "src/ui/components/page-sources.js",
+            "src/ui/styles/chart-quality.css",
+            "scripts/lib/browser-gate.mjs",
+            "scripts/ci-chart-scale-browser-check.mjs"
+          ],
+          "timeoutMs": 300000,
+          "weight": 1,
+          "remedy": "v60.31 chart-scale: index-strip candles sit at their 5-minute time slot; a compact candle card has no fixed 76px axis and no library logo (attribution in the charts 데이터 출처 fold); candle charts use PRICE_SCALE (entireTextOnly) from stock-chart.js; candle cards share subgrid rows"
+        },
+        {
+          "id": "browser-screen-tasks",
+          "script": "scripts/ci-screen-tasks-browser-check.mjs",
+          "inputs": [
+            "index.html",
+            "src/ui/pages",
+            "src/ui/components",
+            "src/ui/styles",
+            "scripts/lib/browser-gate.mjs",
+            "scripts/ci-screen-tasks-browser-check.mjs"
+          ],
+          "timeoutMs": 300000,
+          "weight": 1,
+          "remedy": "v60.31 screen-tasks: a reader lost something on a screen (verdict on the first screen, reasons with folds closed, folds named 원자료 표/계산 방법/데이터 출처 and opened from the keyboard, views of their own, 390px fit, the screen's own job); fix the screen, never pin an id or position here"
         },
         {
           "id": "browser-touch-ergonomics",

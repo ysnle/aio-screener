@@ -289,7 +289,8 @@ if (!atlas.includes('article identity mismatch') || !atlas.includes('validateCur
 // (ticker, CIK) must appear as that exact pair in the SEC-CIK listing file, every KRX code (with its name) in the KR screener universe, every
 // mapped player in the registry, and every layer domain in the taxonomy.
 {
-  const { ATLAS_PLAYER_LISTINGS, VALUE_CHAIN_LAYERS } = await import('../src/ui/pages/atlas.js');
+  const { ATLAS_PLAYER_LISTINGS } = await import('../src/ui/pages/atlas.js');
+  const { VALUE_CHAIN_LAYERS } = await import('../src/domain/knowledge/value-chain-layers.js');
   const listings = JSON.parse(read('public-data/us-listings.json')).columns;
   const cikBySymbol = new Map(listings.sym.map((sym, index) => [sym, listings.cik[index]]));
   const registryPlayers = new Set((JSON.parse(read('public-data/atlas/player-product-registry.json')).players || []).map((player) => player.playerId));
@@ -307,7 +308,8 @@ if (!atlas.includes('article identity mismatch') || !atlas.includes('validateCur
 // mapped to an atlas layer or listed as outside it, and with today's stories every layer, the model layer too, names a
 // company (the hand registry alone left 모델 empty and 클라우드·데이터센터 with one or two names).
 {
-  const { PROFILE_LAYER_TO_ATLAS, PROFILE_LAYERS_OUTSIDE_ATLAS, VALUE_CHAIN_LAYERS, valueChainLayerPlayers } = await import('../src/ui/pages/atlas.js');
+  const { valueChainLayerPlayers } = await import('../src/ui/pages/atlas.js');
+  const { PROFILE_LAYER_TO_ATLAS, PROFILE_LAYERS_OUTSIDE_ATLAS, VALUE_CHAIN_LAYERS } = await import('../src/domain/knowledge/value-chain-layers.js');
   const { AI_LAYERS } = await import('../src/domain/entity/company-story.js');
   if (!PROFILE_LAYER_TO_ATLAS || !PROFILE_LAYERS_OUTSIDE_ATLAS) errors.push('v60.28 atlas must export the story-layer table (PROFILE_LAYER_TO_ATLAS)');
   else {

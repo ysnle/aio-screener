@@ -162,7 +162,6 @@ export function renderMarketStory({ documentRef: doc, root, interpretation }) {
   section.replaceChildren(frameHead(doc, { title: '무슨 일이 있었나', titleId: 'regime-story-title', asOf: `최근 ${story.sessions}거래일`, asOfDetail: `${story.start} 종가부터 ${story.asOf} 종가까지, 미국 정규장 기준` }),
     grid, weekList(doc, root, story) || '', questionRow(doc, story), fold);
   markFrame(section, 'signal.story');
-  doc.querySelector('#regime-watch .is-release')?.remove(); // the week list above carries the release now
   section.dataset.signature = key;
   return section;
 }

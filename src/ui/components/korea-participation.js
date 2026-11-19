@@ -47,8 +47,8 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
       // P1723: the equal-weight median can hide the largest names; one line when they moved apart from it.
       const heavy=heavyweightLine(group,nameOf);if(heavy){const note=el(doc,'p',heavy);note.className='regime-kr-heavy';item.append(note);}
       list.append(item);}host.append(list);}
-  const watch=el(doc,'details');watch.append(el(doc,'summary','다음에 관찰할 연결'),...model.watch.map(text=>el(doc,'p',text)));host.append(watch);
-  const basis=el(doc,'details');basis.append(el(doc,'summary','표본 기준과 빠진 자료'),el(doc,'p',`AIO 추적 종목(한국) 가운데 같은 기준일에 종가가 있는 표본입니다. ${model.excluded ? `늦거나 기준일이 없는 ${model.excluded}개는 제외합니다. ` : ''}신고가·수급 숫자를 역산하지 않습니다.`),el(doc,'p',`아직 연결되지 않은 자료: ${missingWithFlows(model.missing,root.__aioKrInvestorFlowView).join(', ')||'없음'}`));host.append(basis);
+  // the 다음에 관찰할 연결 sentences left the screen (model.watch stays for the AI context); the sample basis is a method fold.
+  const basis=el(doc,'details');basis.dataset.foldKind='method';basis.append(el(doc,'summary','표본 기준과 빠진 자료'),el(doc,'p',`AIO 추적 종목(한국) 가운데 같은 기준일에 종가가 있는 표본입니다. ${model.excluded ? `늦거나 기준일이 없는 ${model.excluded}개는 제외합니다. ` : ''}신고가·수급 숫자를 역산하지 않습니다.`),el(doc,'p',`아직 연결되지 않은 자료: ${missingWithFlows(model.missing,root.__aioKrInvestorFlowView).join(', ')||'없음'}`));host.append(basis);
   return model;
 }
 
@@ -160,6 +160,7 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
   const nodes = [head, grid];
   if (view.missing.length) nodes.push(el(doc, 'p', `${view.missing.join('·')}은 공개 출처 없음`, 'kr-flows-note'));
   const basis = el(doc, 'details', null, 'kr-flows-basis');
+  basis.dataset.foldKind = 'method'; // the definition, the reading caveat and the provider of the flows
   basis.append(el(doc, 'summary', '기준'),
     el(doc, 'p', '순매수는 그날 산 금액에서 판 금액을 뺀 값입니다. +는 순매수(빨강), −는 순매도(파랑)이며, 막대 길이는 같은 시장의 최근 20거래일 가운데 가장 큰 하루와 비교한 크기입니다.'),
     el(doc, 'p', '한국 증시는 외국인 보유 비중이 높아 원화가 약할 때 외국인 순매도가 지수 하락과 함께 나타나는 일이 잦습니다. 하루 수급은 다음 날 방향을 말해 주지 않습니다.'),

@@ -12,6 +12,7 @@ import { withObjectParticle } from '../../domain/content/korean-particle.js';
 import { createCurrentObservationBlock } from './current-observations.js';
 import { themesForDomain } from '../../domain/knowledge/theme-research-links.js';
 import { themeStageBlock } from './theme-stage-links.js';
+import { AI_MAPS } from '../../domain/knowledge/ai-map.js';
 
 const conceptById = new Map(CONCEPT_CORE.map((concept) => [concept.id, concept]));
 
@@ -80,6 +81,12 @@ function buildNav(doc, state, data, labels) {
   rel.appendChild(groupHeader(doc, '관계 가이드', guides.length || 5, state.section === 'relationships', 'relationships', '편'));
   if (state.section === 'relationships') guides.forEach((guide) => rel.appendChild(navButton(doc, guide.title, { active: state.view === 'guide' && state.selectedRelationshipGuideId === guide.id, action: 'relationship-guide', value: guide.id, sub: true })));
   frag.appendChild(rel);
+  // AI 지도 (owner 2026-11-19): the value chain, the data-center chain and, when its dated file has deals, the capital flows.
+  const maps = AI_MAPS.filter((map) => (data.aiMaps || []).includes(map.id));
+  const mapGroup = el(doc, 'div', 'rl-nav-group');
+  mapGroup.appendChild(groupHeader(doc, 'AI 지도', maps.length || 2, state.section === 'aimap', 'aimap', '장'));
+  if (state.section === 'aimap') maps.forEach((map) => mapGroup.appendChild(navButton(doc, map.label, { active: data.aiMapId === map.id, action: 'ai-map', value: map.id, sub: true })));
+  frag.appendChild(mapGroup);
   // Group headers sit together at the top; only the open group's items follow below them.
   const switcher = doc.createElement('div');
   switcher.className = 'rl-nav-switch';
@@ -403,6 +410,9 @@ export function renderIndustryPage(doc, { root, state, data, labels, parts, onLo
       related.forEach((id) => { const b = el(doc, 'button', 'af-route'); b.type = 'button'; b.append(el(doc, 'strong', null, labels.nodeId(id))); b.addEventListener('click', () => onLocal({ node: id })); box.appendChild(b); });
       aside.appendChild(box);
     }
+  } else if (state.view === 'aimap') {
+    // The maps need the width: the connections column stays empty and the grid folds it away (v2-research.css).
+    main.appendChild(parts.aiMap());
   } else if (state.view === 'guide') {
     const guide = (data.relationshipGuides?.guides || []).find((item) => item.id === state.selectedRelationshipGuideId) || data.relationshipGuides?.guides?.[0] || null;
     main.appendChild(renderRelationshipGuide(doc, guide, state.selectedRelationshipNodeId, Boolean(data.failed?.relationships), data.knowledgeSources, data.currentObservations));

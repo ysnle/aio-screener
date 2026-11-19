@@ -3,6 +3,7 @@
 // same shared reading follows — the four-step market chain, the scenario branches with what confirms or breaks each,
 // and where to lean and what to avoid. All of it comes from the shared interpretation (guide, crossroads, regime,
 // marketRead), so 시장 상태, 매크로, 테마 and 브리핑 cannot tell four different stories.
+import { AXIS_REASON_LABEL } from '../../briefing/market-read.js';
 
 const PAGE_LABELS = Object.freeze({
   signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리', macro: '매크로', fxbond: '금리와 환율', themes: '테마와 섹터', briefing: '브리핑', news: '뉴스'
@@ -15,10 +16,12 @@ export function firstSentence(text) {
   return (hit ? hit[0] : value).trim();
 }
 
+// title, state and the axis's 판정 사유 row (fixed vocabulary) — the axis carries no sentence to quote.
 function axisLine(regime, id) {
   const axis = (regime?.axes || []).find((row) => row.id === id);
   if (!axis) return '';
-  return `${axis.title} ${axis.stateLabel || ''} — ${firstSentence(axis.read)}`.replace(/\s+—\s+$/, '').trim();
+  const reason = (axis.evidence || []).find(([label]) => label === AXIS_REASON_LABEL)?.[1] || '';
+  return `${axis.title} ${axis.stateLabel || ''} — ${reason}`.replace(/\s+—\s+$/, '').trim();
 }
 
 // What this screen adds, in one line, from the same interpretation the screen itself reads.

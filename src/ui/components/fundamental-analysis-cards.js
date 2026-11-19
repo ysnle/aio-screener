@@ -8,12 +8,13 @@ import { el } from './dom.js';
 import { fiscalBarGeometry, parseFiscalHistory, debtBasisFor, debtCurrentFor } from './fiscal-read.js';
 import { debtLabel } from '../../domain/fundamental/sec-earnings.js';
 import { peMultipleText } from '../../domain/fundamental/consensus-read.js';
-import { stockLensContext, lensCard, thesisCard, situationCard } from './stock-lens-cards.js';
+import { kindFold } from './indicator-face.js';
 import { signedText } from '../../domain/shared/number.js';
 import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
 import { peerBasisText } from '../../domain/fundamental/stock-lens.js';
+import { stockLensContext, lensCard, thesisCard, peerStandingCard, situationCard } from './stock-lens-cards.js';
 
 export const COLLECTION_PENDING_LABEL = '수집 대기, 다음 SEC 갱신 후 표시';
 const pct = (value, digits = 1) => `${(value * 100).toFixed(digits)}%`;
@@ -31,17 +32,15 @@ function cardHead(doc, title, meta, chip = null) {
   return head;
 }
 
-function disclosure(doc, summary, boxes) {
-  const fold = el(doc, 'details', null, 'sx-disclosure v2-analysis-principle');
-  fold.append(el(doc, 'summary', summary));
+// Each card's principle, current reading and limits: a 계산 방법 fold (the only kind of fold a card carries).
+function disclosure(doc, what, boxes) {
   const body = el(doc, 'div', null, 'sx-disclosure__body');
   for (const [label, text] of boxes) {
     const box = el(doc, 'div', null, 'sx-disclosure__card');
     box.append(el(doc, 'span', label, 'sx-disclosure__label'), el(doc, 'p', text, 'sx-disclosure__text'));
     body.append(box);
   }
-  fold.append(body);
-  return fold;
+  return kindFold(doc, 'method', what, [body]);
 }
 
 // The honest waiting state: the item is designed and its producer is wired, the issuer's record predates it.
@@ -101,7 +100,7 @@ export function dupontCard(doc, history, { financial = false, fundamentals = nul
     card.append(table);
   }
   card.append(el(doc, 'p', read.sentence, 'v2-analysis-lede'));
-  card.append(disclosure(doc, '원리, 듀폰 분해', [
+  card.append(disclosure(doc, '듀폰 분해의 원리와 한계', [
     ['원리', 'ROE = 순이익 ÷ 자기자본을 순이익률(순이익 ÷ 매출) × 자산회전율(매출 ÷ 총자산) × 재무 레버리지(총자산 ÷ 자기자본)로 나눕니다. 같은 ROE라도 마진에서 오는지, 자산을 빨리 돌려서인지, 빚으로 자본을 줄여서인지에 따라 지속성과 위험이 다릅니다.'],
     ['지금 읽기', `${read.basis === 'average' ? '기초·기말 평균 총자산과 평균 자기자본을 썼습니다(재무 공시의 ROE와 같은 기준).' : read.basis === 'year-end' ? '평균을 만들 직전 해 자료가 없어 기말 값을 썼습니다.' : '직전 해 자료가 있는 해는 평균, 없는 해는 기말 값을 썼습니다(재무 공시의 ROE와 같은 규칙).'} 가장 크게 움직인 요인은 표에서 강조했습니다.`],
     ['한계, 함께 볼 것', `${financial ? '은행은 예금을 부채로 쓰는 구조라 재무 레버리지가 10배 안팎이 보통이고 자산회전율은 매우 낮습니다 — 일반 기업과 같은 눈높이로 비교하지 않습니다. ' : ''}높은 수익성은 시간이 지나며 평균 쪽으로 돌아가는 경향이 관측됐습니다(Fama·French 2000). 일회성 이익·자사주 매입은 10-K 원문에서 확인합니다.`]
@@ -210,7 +209,7 @@ export function reverseDcfCard(doc, root, { history, fundamentals, close, financ
   update();
   card.append(facts, result, controls);
   const zeroGrowth = dcfValue(inputs.fcf, 0, REVERSE_DCF_DEFAULTS.discountRate, REVERSE_DCF_DEFAULTS.terminalGrowth);
-  card.append(disclosure(doc, '계산식과 가정', [
+  card.append(disclosure(doc, '역 DCF 계산식과 가정', [
     ['계산식', `시가총액 = Σ(t=1..10) FCF × (1+g)ᵗ ÷ (1+r)ᵗ + FCF × (1+g)¹⁰ × (1+영구 성장률) ÷ (r − 영구 성장률) ÷ (1+r)¹⁰. FCF는 ${inputs.label} 영업현금흐름 − 설비투자, r은 할인율입니다. 이 식을 만족하는 g를 찾아 보여 줍니다.`],
     ['가정', `할인율과 영구 성장률은 사용자가 정하는 가정이며 기본값(9%, 2.5%)은 출발점일 뿐입니다. 부채·현금은 따로 더하거나 빼지 않고 시가총액(주주 몫)과 이자 지급 뒤 현금흐름을 비교하는 근사입니다. 참고로 기본 가정에서 성장 0%면 계산 가치는 ${formatUsdShort(zeroGrowth)}입니다.`],
     ['한계', '한 해의 잉여현금흐름이 출발점이라 그해 설비투자·운전자본이 특이하면 결과가 크게 달라집니다. 이 숫자는 가격이 어떤 기대를 담고 있는지 보는 계산이며, 그 기대가 맞는지는 이 화면이 판단하지 않습니다.']
@@ -257,7 +256,7 @@ export function rdCard(doc, history) {
   }
   const lede = `${read.latest.label} 연구개발비 ${formatUsdShort(read.latest.rd)} — 매출의 ${pct(read.latest.ratio)}${read.deltaPp != null ? ` (${read.first.label} ${pct(read.first.ratio)}에서 ${Math.abs(read.deltaPp) < 0.5 ? '비슷한 수준' : `${read.deltaPp > 0 ? '+' : '-'}${Math.abs(read.deltaPp).toFixed(1)}%p`})` : ''}.${read.latestIsNewest ? '' : ' 최근 회계연도에는 R&D가 따로 표시되지 않았습니다.'}`;
   card.append(el(doc, 'p', lede, 'v2-analysis-lede'), trend);
-  card.append(disclosure(doc, '원리, R&D 비율', [
+  card.append(disclosure(doc, 'R&D 비율의 원리와 한계', [
     ['원리', '연구개발비는 회계상 비용으로 바로 처리되지만 성격은 미래 매출을 위한 투자에 가깝습니다. 매출 대비 비율이 높고 꾸준한 기업은 장부 이익이 실제 경제적 이익보다 낮게 잡히는 경향이 있습니다.'],
     // v58.74 (text audit 종목 C3): the reading says which side moved the ratio — R&D itself, or revenue.
     ['지금 읽기', rdNowText(read)],
@@ -319,7 +318,7 @@ export function surpriseCard(doc, read) {
   const chart = el(doc, 'div', null, 'fiscal-chart fiscal-quality-chart');
   chart.append(scroll, legend);
   card.append(chart);
-  card.append(disclosure(doc, '원리, 실적 서프라이즈', [
+  card.append(disclosure(doc, '실적 서프라이즈의 원리와 한계', [
     ['원리', '애널리스트 예상(컨센서스)보다 높은 실적이 발표되면 주가가 그 뒤로도 같은 방향으로 움직이는 경향(실적 발표 후 표류)이 오래 관측됐습니다. 예상을 자주 넘는 회사는 회사가 보수적으로 안내하는 경우도 많아, 넘은 폭이 줄어드는지도 함께 봅니다.'],
     ['지금 읽기', `${read.beats === n ? `${n}개 분기 모두 예상보다 높았습니다.` : read.misses === n ? `${n}개 분기 모두 예상보다 낮았습니다.` : `넘은 분기와 못 미친 분기가 섞여 있습니다.`} 숫자는 일회성 항목을 뺀 조정 EPS이며 SEC 공시 순이익과 기준이 다릅니다.`],
     ['한계, 함께 볼 것', `점수에 쓰지 않는 참고값입니다. 매출 서프라이즈와 다음 분기 가이던스는 이 자료에 없어 실적 발표 자료에서 확인합니다.${read.asOf ? ` 자료 기준 ${read.asOf}.` : ''}`]
@@ -385,7 +384,7 @@ export function marginCashCard(doc, read, { financial = false } = {}) {
   const capital = [cap.sbcRatio != null ? `주식보상 매출의 ${cap.sbcRatio.toFixed(1)}%` : null, cap.buybacks != null ? `자사주 매입 ${formatUsdShort(cap.buybacks)}` : null, cap.dividends != null ? `배당 ${formatUsdShort(cap.dividends)}` : null].filter(Boolean);
   if (capital.length) lines.append(el(doc, 'li', `${capital.join(', ')}${cap.returnedShareOfFcf != null ? ` — ${RETURNED_LABEL[cap.returnedBasis] || RETURNED_LABEL.both}이 잉여현금흐름의 ${cap.returnedShareOfFcf.toFixed(0)}%` : ''}.`));
   if (lines.childElementCount) card.append(lines);
-  card.append(disclosure(doc, '원리, 이익률 단계와 현금', [
+  card.append(disclosure(doc, '이익률 단계와 현금의 원리와 한계', [
     ['원리', '매출총이익률은 가격 결정력과 원가, 영업이익률은 판매·연구 비용을 쓴 뒤의 본업 수익성, 순이익률은 이자·세금·일회성 항목까지 반영한 결과입니다. 세 단계의 간격이 어디서 벌어지는지가 비용 구조를 보여 줍니다.'],
     ['지금 읽기', `${operating.value != null && net.value != null ? (net.value > operating.value ? '순이익률이 영업이익률보다 높아 이자 수익·투자 이익 같은 영업 밖 이익이 있었던 해입니다.' : `영업이익률과 순이익률의 차이 ${(operating.value - net.value).toFixed(1)}%p는 이자·세금·영업 밖 손익입니다.`) : '세 단계 중 공시된 값만 표시했습니다.'}${cap.sbcRatio != null && cap.sbcRatio >= 10 ? ' 주식보상이 매출의 10% 이상이라, 현금흐름에 더해지는 비현금 비용이지만 주식 수를 늘리는 실제 비용으로 함께 봅니다.' : ''}`],
     ['한계, 함께 볼 것', `${netCashScopeNote(read.cash)}${financial ? ' 은행·대출 금융사는 현금과 부채가 영업 자산이라 순현금 줄을 표시하지 않습니다.' : ''} 매출총이익을 따로 표시하지 않는 업종(금융·서비스 일부)은 첫 단계가 비어 있습니다.`]
@@ -443,8 +442,9 @@ export function themePeerCard(doc, read, { onOpen = null } = {}) {
   return card;
 }
 
-// v58.75: everything 재무 공시 adds for this pass, built here so the boot-loaded fiscal-read.js stays small. hero = lines
-// under the annual headline; cards = margin/cash (only with a fiscal series) and the EPS surprise; themePeers = the table.
+// v58.75: everything 재무 공시 adds for this pass, built here so fiscal-read.js stays small. hero = lines under the annual
+// headline; cards = the business lens, margin/cash (only with a fiscal series) and the EPS surprise; themePeers = the
+// table; thesis, peerStanding and situation = the stock lens cards.
 export function fiscalExtras(doc, { root, symbol, quarters, history, consensus, calendar, calendarState = null, rows, fundamentals, series = false, financial = false }) {
   const hero = [];
   const recent = trailingYearLine(buildTrailingYearRead(quarters));
@@ -459,11 +459,10 @@ export function fiscalExtras(doc, { root, symbol, quarters, history, consensus, 
     seriesFor: (sym) => (fiscal[sym] ? reconcileFiscalHistory(parseFiscalHistory(fiscal[sym]), sym === symbol ? fundamentals : null, sym) : null),
     quartersFor: (sym) => (quarterText?.[sym] ? parseQuarterHistory(quarterText[sym]) : null) }),
   { onOpen: typeof root?.showTicker === 'function' ? (sym) => root.showTicker(sym) : null }) : null;
-  // v58.75 ('고르는 법' B1/B3/B4): the business lens leads the analysis cards; the thesis template and the favourable/unfavourable
-  // situations follow the reading.
+  // The stock lens readings (owner 2026-10-24): the business lens leads the analysis cards; the thesis conditions, the
+  // peer standing and the favourable/unfavourable situations go where fiscal-read.js places them.
   const lensCtx = series ? stockLensContext(root, symbol, { fundamentals, bars: root?._aioEntitySummaries?.[symbol]?.history || null }) : null;
   const lens = lensCtx ? lensCard(doc, lensCtx.lensRead) : null;
   if (lens) cards.unshift(lens);
-  const after = lensCtx ? [thesisCard(doc, root, lensCtx), situationCard(doc, lensCtx)].filter(Boolean) : [];
-  return { hero, cards, themePeers, after };
+  return { hero, cards, themePeers, thesis: lensCtx ? thesisCard(doc, root, lensCtx) : null, peerStanding: lensCtx ? peerStandingCard(doc, lensCtx) : null, situation: lensCtx ? situationCard(doc, lensCtx) : null };
 }

@@ -333,7 +333,9 @@ if (/['"](?:ticker-candle-symbol|ticker-entry-symbol|realtime-pattern-indicator|
 {
   // Retirement-absence pins: a removed block or writer coming back is exactly what this guards; the 차트 tab's live surfaces
   // (시장 상태 요약 via route-owners surface-exists, the stock chart install via the architecture browser check) are tested elsewhere.
-  const technicalPage = read('index.html').slice(read('index.html').indexOf('id="page-technical"'), read('index.html').indexOf('id="page-macro"'));
+  // Owner 2026-11-19: the 차트 tab's chart moved to 기술적 분석 (#page-charts); both sections are pinned.
+  const html = read('index.html');
+  const technicalPage = html.slice(html.indexOf('id="page-technical"'), html.indexOf('id="page-macro"')) + html.slice(html.indexOf('id="page-charts"'), html.indexOf('<!-- fix: page-charts outer close -->'));
   const retiredTechnicalIds = ['vis-technical', 'tech-indicators-live', 'tech-rsi-val', 'ws-analysis', 'ind-pressure-fill', 'tv-chart-technical', 'tv-tech-ohlc', 'tv-widget-technical', 'institutional-technical-brief', 'tech-brief-symbol', 'mtf-analysis', 'pattern-signals', 'kr-health-val', 'kr-health-label', 'kr-health-foreign-streak', 'stock-chart-form', 'stock-chart-input'];
   const returnedIds = retiredTechnicalIds.filter((id) => technicalPage.includes(`id="${id}"`)); // text-pin-ok: retirement absence pin (v57.76)
   if (returnedIds.length || /12가지 매매 셋업|기술 분석 핵심 용어/.test(technicalPage)) fail(`v57.76 retired 차트 tab block returned: ${returnedIds.join(', ') || 'how-to/score text'}`); // text-pin-ok: retirement absence pin (v57.76)
@@ -532,14 +534,9 @@ for (const marker of ['renderTickerActivity', 'ticker-hero-ext', 'ticker-hero-pn
   if (!entityPageSource.includes(marker)) fail(`native ticker activity marker missing: ${marker}`);
 }
 if (coreSource.includes('aioTickerPnlRenderer') || dataSource.includes('aioTickerExtensionRenderer')) fail('v59.02 the fenced legacy ticker P&L/after-hours writers stay deleted');
-// P834/LC-18/LC-27: entity.js owns ticker tab, range, and chart lifecycle from the
-// normalized entity history. The legacy Stooq/Chart.js and generic tab dispatchers
-// are removed rather than fenced.
+// P834/LC-18/LC-27: the legacy Stooq/Chart.js ticker chart and generic tab dispatchers stay removed. 2026-11-19: the
+// 종목 overview draws no price chart (기술적 분석 owns it); its segment bars and figures are native.
 if (routeOwners.routes?.ticker?.chartOwner !== 'native'
-  || !entityPageSource.includes('TICKER_CHART_RANGES')
-  || !entityPageSource.includes('selectTickerChartWindow')
-  || !entityPageSource.includes('renderTickerControls')
-  || !entityPageSource.includes('aioTickerChartRenderer')
   || uiSource.includes('function loadTickerChart')
   || dataSource.includes('function switchTab')) fail('native ticker tab/range/chart ownership boundary missing');
 // P832: entity.js owns a bounded SEC annual-fact report from one pure model. The broader
@@ -591,11 +588,13 @@ if (portfolioPageSource.includes('renderPortfolioChart') || /id="pf-position-don
 if (fs.existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired market-health model returned (src/domain/market/health.js)');
 if (/computeMarketHealth/.test(legacyRuntimeSource + bootstrapSource + read('src/legacy/compatibility-facade.js') + read('src/data/runtime-readers.js'))) fail('retired computeMarketHealth returned to a runtime source');
 if (!/_aioMarketRegimeSummary\(\)[\s\S]{0,600}_tickerGateRegime\.sufficient !== true/.test(read('js/aio-core.js')) || !/sufficient: regime\.sufficient === true/.test(bootstrapSource)) fail('ticker decision gate must read the 시장 상태 regime sufficiency');
-// P1420: the technical page shows the 시장 상태 six-axis summary instead of the 0-100 health score;
-// the score surface must not return to the page. v57.55 review: the reader takes a rerender callback for late credit history.
-for (const marker of ['renderTechnicalHealth', "page.dataset.aioTechnicalRenderer = 'native'", 'readMarketRegime(root, ']) {
-  if (!analysisPageSource.includes(marker)) fail(`native technical regime summary marker missing: ${marker}`);
+// P1420: the 0-100 health score must not return. Owner 2026-11-19: the 차트 tab — and with it its one-line 시장 상태
+// summary — is retired (`technical` is a derived view of 기술적 분석); the summary's writer must not come back to the
+// analysis slice, and the shell must stay empty.
+for (const retired of ['renderTechnicalHealth', "page.dataset.aioTechnicalRenderer = 'native'", "getElementById('tech-regime-"]) { // text-pin-ok: retirement absence (2026-11-19)
+  if (analysisPageSource.includes(retired)) fail(`retired 차트 tab summary writer returned to analysis.js: ${retired}`);
 }
+if (!/<div class="page" id="page-technical"><\/div>/.test(read('index.html'))) fail('2026-11-19: #page-technical is an empty derived-view shell');
 if (read('index.html').includes('id="health-score-display"') || analysisPageSource.includes('health.score')) fail('P1420 retired technical health score returned to the page');
 const htmlSource = read('index.html');
 // v57.77: the legacy health renderer, its native fence and the technical page-bus hooks that re-ran it were deleted
@@ -631,7 +630,8 @@ for (const retired of ['_aioRenderLegacyMarketHealth', '_aioLegacyHealthElement'
   }
   // v57.78: both renderers take the native store (the scenario outlook reads its rows in place) and home hands its
   // regime to the daily loop, so the market inputs are gathered once per home render.
-  for (const marker of ["import { renderHomeRegime } from '../components/home-regime.js'", "import { readMarketRegime } from '../../data/selectors/interpretation.js'", "page.dataset.aioSignalRenderer = 'native'", 'renderRegimePage?.({ documentRef, root, store })', "page.dataset.aioHomeRenderer = 'native'", 'const homeRegime = renderHomeRegime({ documentRef, root, store })', 'renderDailyLoop({ documentRef, root, store, regime: homeRegime })']) {
+  // (readMarketRegime left analysis.js with the retired 차트 tab summary, its only reader there — 2026-11-19.)
+  for (const marker of ["import { renderHomeRegime } from '../components/home-regime.js'", "page.dataset.aioSignalRenderer = 'native'", 'renderRegimePage?.({ documentRef, root, store })', "page.dataset.aioHomeRenderer = 'native'", 'const homeRegime = renderHomeRegime({ documentRef, root, store })', 'renderDailyLoop({ documentRef, root, store, regime: homeRegime })']) {
     if (!analysisPageSource.includes(marker)) fail(`analysis.js regime routing marker missing: ${marker}`);
   }
   for (const marker of ["page.dataset.aioRegimeRenderer = 'native'", "hero.dataset.aioRegimeRenderer = 'native'", 'regime.holdReason', 'row.basis']) {

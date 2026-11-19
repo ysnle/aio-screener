@@ -3,6 +3,7 @@
 import { buildCloseSeries } from '../../domain/briefing/market-read.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { el } from './dom.js';
+import { markFold } from './indicator-face.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { rallyAttemptRead } from '../../domain/market/regime/rally-attempt.js';
 
@@ -83,7 +84,7 @@ export function distributionStrip(doc, history, through) {
   const y = String(H - Math.round(at / top * H));
   for (const [key, value] of [['x1', '0'], ['x2', String(W)], ['y1', y], ['y2', y], ['stroke', 'currentColor'], ['stroke-dasharray', '2 2'], ['stroke-width', '1'], ['vector-effect', 'non-scaling-stroke'], ['class', 'sh-muted-note']]) line.setAttribute(key, value);
   bars.append(line);
-  const fold = el(doc, 'details', null, 'leaders-line__dist-fold');
+  const fold = markFold(el(doc, 'details', null, 'leaders-line__dist-fold'), 'method'); // the 25-session bars and the definition
   fold.append(el(doc, 'summary', '지난 25거래일 추이와 계산 방법'), bars,
     el(doc, 'div', `분배일은 S&P 500이 전날보다 거래량이 늘면서 0.2% 이상 내린 날입니다. 막대 하나가 하루이고, 높이는 그날까지 25거래일 동안의 분배일 수입니다. 붉은 막대는 ${at}일 이상인 날, 점선이 ${at}일 기준입니다.`, 'leaders-line__evidence'));
   part.append(head, gauge, scaleRow, fold);

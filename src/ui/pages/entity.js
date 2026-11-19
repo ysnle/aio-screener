@@ -1,45 +1,40 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { ensureResearchSnapshots, focusResearchMemo } from '../components/research-snapshots.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
-import { parseKnowledgeTargetContext } from '../../app/knowledge-route-state.js';
+import { parseKnowledgeTargetContext, navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { selectEntityState } from '../../state/selectors/entity.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { listingCurrency } from '../../domain/portfolio/fx.js';
-import { deriveSecReport, fundamentalValueFlags } from '../../domain/fundamental/sec-report.js';
+import { deriveSecReport } from '../../domain/fundamental/sec-report.js';
 import { canonicalEpochMs } from '../../domain/technical/chart-contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { setStockSubject } from '../navigation/route-hubs.js';
-import { renderStockRead } from '../components/stock-read.js';
 import { renderTickerStart } from '../components/ticker-start.js';
-import { createTrendChart } from '../components/trend-chart.js';
-import { renderFiscalRead, requestFiscalHistory } from '../components/fiscal-read.js';
-import { buildEarningsSchedule } from '../../domain/fundamental/analysis-read.js';
-import { requestConsensusEstimates } from '../../data/consensus-estimates.js';
+import { renderFiscalRead, requestFiscalHistory, parseFiscalHistory, debtBasisFor, debtCurrentFor, issuerSic } from '../components/fiscal-read.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { whyMovedLine } from '../../domain/entity/why-moved.js';
-import { primaryTheme, themeCatalogFor } from '../../domain/entity/primary-theme.js';
 import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
-import { renderCompanyAnalysis } from '../components/company-analysis.js';
-// v59.43: the story renderer loads with the first story page, not at boot (architecture/boot-budget.json).
-let storyRenderer = null;
-let storyRendererLoad = null;
-function storyRendererOr(onReady) {
-  if (storyRenderer) return storyRenderer;
-  storyRendererLoad ||= import('../components/company-story.js').then((mod) => { storyRenderer = mod; });
-  storyRendererLoad.then(onReady, () => {});
-  return null;
-}
+import { renderCompanyAnalysis, companyAskButton } from '../components/company-analysis.js';
+import { renderCompanyOverview } from '../components/company-overview.js';
+import { paintTickerBrief } from '../components/event-briefs.js';
+import { companyPlace, moneyGlance } from '../../domain/entity/company-overview.js';
+import { industryFor } from '../../domain/entity/industry-links.js';
+import { aiMapRouteParams } from '../../domain/knowledge/ai-map.js';
+import { krFundamentalPoints } from '../../domain/entity/kr-fundamentals.js';
+import { parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
+import { reconcileFiscalHistory, financialKind } from '../../domain/fundamental/fiscal-read.js';
+import { buildMarginCashRead } from '../../domain/fundamental/analysis-read.js';
+import { sectorLabel } from '../../domain/screener/sector-label.js';
 import { requestCompanyStory, companyStoryFor, companySideArtifact } from '../../data/company-profiles.js';
-import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
-import { entityFundamentalsState } from '../../domain/content/data-state.js';
+import { entityFundamentalsState, dataStateText } from '../../domain/content/data-state.js';
 import { renderDataState } from '../components/data-state.js';
+import { emptyState } from '../components/empty-state.js';
 import { finiteNumber as finite, signedText, directionOf, usdKoreanText } from '../../domain/shared/number.js';
 import { latestCompletedKrSession } from '../../domain/market/session/market-calendar.js';
-import { stockLensContext, renderStockContext, renderStockStrengths, installStockLensGlobal } from '../components/stock-lens-cards.js';
+import { installStockLensGlobal, stockLensContext, peerLine } from '../components/stock-lens-cards.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
-import { COMPANY_PROFILE_INDEX, EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY, SCENARIO_STATE } from '../../data/artifact-registry.js';
+import { EARNINGS_CALENDAR, EVENT_BRIEFS } from '../../data/artifact-registry.js';
 
 // 2026-10-13 review S21: observation times read in Korean time, not "… 20:00:00 UTC".
 
@@ -66,34 +61,14 @@ export function formatKstStamp(value) {
 }
 const isKrSymbol = (symbol) => /\.K[SQ]$/i.test(String(symbol || ''));
 
-export const TICKER_CHART_RANGES = Object.freeze({
-  '1m': Object.freeze({ key: '1m', label: '1개월', days: 30 }),
-  '3m': Object.freeze({ key: '3m', label: '3개월', days: 90 }),
-  '6m': Object.freeze({ key: '6m', label: '6개월', days: 180 }),
-  '1y': Object.freeze({ key: '1y', label: '1년', days: 365 })
-});
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-export function selectTickerChartWindow(history = [], requestedRange = '1m') {
-  const range = TICKER_CHART_RANGES[requestedRange] || TICKER_CHART_RANGES['1m'];
-  const ordered = (Array.isArray(history) ? history : [])
+// The latest daily bar with a close (the dated close the hero falls back to; the price chart itself is 기술적 분석's).
+function latestBar(history = []) {
+  return (Array.isArray(history) ? history : [])
     .map((row) => ({ ...row, epochMs: canonicalEpochMs(row?.epochMs ?? row?.time ?? row?.date ?? row?.timestamp) }))
     .filter((row) => row.epochMs != null && finite(row.close) != null)
-    .sort((left, right) => left.epochMs - right.epochMs);
-  const endEpochMs = ordered.at(-1)?.epochMs ?? null;
-  const startEpochMs = endEpochMs == null ? null : endEpochMs - range.days * DAY_MS;
-  const rows = endEpochMs == null ? [] : ordered.filter((row) => row.epochMs >= startEpochMs);
-  return Object.freeze({
-    range: range.key,
-    label: range.label,
-    days: range.days,
-    rows: Object.freeze(rows),
-    rowCount: rows.length,
-    startEpochMs: rows[0]?.epochMs ?? null,
-    endEpochMs: rows.at(-1)?.epochMs ?? null
-  });
+    .sort((left, right) => left.epochMs - right.epochMs).at(-1) || null;
 }
+const utcDayOf = (epochMs) => (epochMs == null ? '—' : new Date(epochMs).toISOString().slice(0, 10));
 
 function setText(documentRef, id, value) {
   const element = documentRef?.getElementById(id);
@@ -121,8 +96,8 @@ function formatMoney(value, currency, { maximumFractionDigits = 2 } = {}) {
 export function lastPublishedClose(id, state, root) {
   const candidates = [];
   const bars = state?.id === id && Array.isArray(state?.history) && state.history.length ? state.history : (root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || []);
-  const lastBar = selectTickerChartWindow(bars, '1m').rows.at(-1);
-  if (lastBar && finite(lastBar.close) > 0) candidates.push({ value: finite(lastBar.close), date: formatTickerChartDate(lastBar.epochMs), currency: null });
+  const lastBar = latestBar(bars);
+  if (lastBar && finite(lastBar.close) > 0) candidates.push({ value: finite(lastBar.close), date: utcDayOf(lastBar.epochMs), currency: null });
   let rows = [];
   try { rows = root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; }
   const row = rows.find(item => item?.sym === id);
@@ -154,7 +129,7 @@ export function renderTickerHero(documentRef, state, root) {
   if (quote.changeCheck === 'unverified' && price != null && /\.(KS|KQ)$/.test(String(id || ''))) {
     const lastKrx = root?._aioKrIndexCloseRead?.('kospi', root?._aioHistory)?.date || null;
     const bars = state?.id === id && Array.isArray(state?.history) && state.history.length ? state.history : (root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || []);
-    const bar = lastKrx ? bars.find((row) => row && formatTickerChartDate(row.epochMs) === lastKrx && finite(row.close) > 0) : null;
+    const bar = lastKrx ? bars.find((row) => row && utcDayOf(row.epochMs) === lastKrx && finite(row.close) > 0) : null;
     const ms = Date.parse(quote.observedAt || '');
     const session = Number.isFinite(ms) ? new Date(ms + 9 * 3600000).toISOString().slice(0, 10) : null;
     // v57.88 (review): the "no skipped session" promise is checked against the KRX calendar — the bar must be the last
@@ -222,135 +197,101 @@ export function renderTickerHero(documentRef, state, root) {
   }
 }
 
-function renderSummaryIdentity(documentRef, root, state) {
-  const page = documentRef?.getElementById('page-ticker');
-  const readHost = documentRef?.getElementById('ticker-read');
-  if (!page || !readHost) return;
-  const id = String(state?.id || root?._currentTickerId || '').toUpperCase();
-  let profileNode = documentRef.getElementById('ticker-business-profile');
-  if (!profileNode) { profileNode = documentRef.createElement('section'); profileNode.id = 'ticker-business-profile'; profileNode.className = 'entity-business-profile'; readHost.after(profileNode); } // v58.53 개편 v2 (3d): the reading leads; identity details follow it
-  // 2026-10-14 audit #1: the company summary host is created once, directly at its final place (after the profile),
-  // so the section order never changes between the first render and later ones.
-  if (!documentRef.getElementById('ticker-company-analysis')) { const company = documentRef.createElement('section'); company.id = 'ticker-company-analysis'; profileNode.after(company); }
-  profileNode.hidden = !id;
-  if (!id) return;
-  const rows = root?._aioGetCanonicalScreenerRows?.() || [];
-  const row = rows.find(item => item?.sym === id) || {};
-  const metadata = root?._aioEntitySummaries?.[id] || {};
-  const profile = businessProfileFor(id, row, metadata);
-  // 2026-10-14 audit #10: the hero already carries the name; the section heading says what it answers.
-  const title = documentRef.createElement('h2'); title.textContent = /ETF|지수/.test(profile.kind) ? '무엇을 추종하는 상품' : '무엇을 하는 회사';
-  // v59.43: a researched company story (public-data/company-profiles/) fills this section for the listings it covers.
-  requestCompanyStory(root, id, () => { if (String(root?._currentTickerId || '').toUpperCase() === id) renderSummaryIdentity(documentRef, root, state); });
-  const story = companyStoryFor(root, id);
-  const renderer = story ? storyRendererOr(() => { if (String(root?._currentTickerId || '').toUpperCase() === id) renderSummaryIdentity(documentRef, root, state); }) : null;
-  if (story && renderer) {
-    const earnings = root?.[EARNINGS_CALENDAR.key]?.earnings || [];
-    // The coming-week calendar alone misses reports one to three weeks old; the earnings briefs (loaded by the
-    // company summary) and the SEC quarters (loaded by the lens) also say a newer report is out.
-    const briefs = (root?._aioEventBriefs?.briefs || []).filter((brief) => brief?.kind === 'earnings' && String(brief?.symbol || '').toUpperCase() === id);
-    const quarters = String(root?._aioSecQuarterHistory?.[id] || '');
-    // The stale note depends on this symbol's report rows (date and actuals), not on how many rows the calendar has.
-    // v59.74: the company graph and the 산업 지도 text arrive once per tab; the story repaints when each lands.
-    const again = () => { if (String(root?._currentTickerId || '').toUpperCase() === id) renderSummaryIdentity(documentRef, root, state); };
-    // The two records the freshness note reads repaint the story when they land after it (one request each, shared).
-    // SEC quarters exist only for US filers; the earnings briefs cover Korean listings too.
-    if (!/\.K[SQ]$/.test(id)) requestFiscalHistory(root, again, 'story');
-    refreshSharedArtifact(root, EVENT_BRIEFS).then(({ changed }) => { if (changed) again(); }).catch(() => {});
-    const schedule = buildEarningsSchedule({ symbol: id, calendar: root?.[EARNINGS_CALENDAR.key] || null });
-    const graph = companySideArtifact(root, 'graph', again);
-    const industry = companySideArtifact(root, 'industry', again);
-    const signature = `${id}|${story.researchedAt}|${graph ? 'g' : ''}${industry ? 'i' : ''}|${earnings.filter((row) => String(row?.symbol || '').toUpperCase() === id).map((row) => `${row.date}:${row.epsActual ?? row.revenueActual ?? ''}`).join(',')}|${briefs.map((brief) => brief.eventDate).join(',')}|${quarters.split(';').at(-1)}|${schedule?.date || ''}${schedule?.hour || ''}`;
-    if (profileNode.dataset.storySignature !== signature) {
-      // A repaint keeps the folds the reader opened (matched by their summary text).
-      const opened = new Set([...profileNode.querySelectorAll('details[open] > summary')].map((node) => node.textContent));
-      profileNode.replaceChildren(title);
-      renderer.renderCompanyStory(documentRef, profileNode, { profile: story, earnings, briefs, quarters, schedule, peers: root?.[COMPANY_PROFILE_INDEX.key]?.profiles || [], openTicker: (symbol) => root?.showTicker?.(symbol), graph, industry,
-        openLibrary: (domain) => navigateKnowledgeRoute({ root, page: 'atlas', params: { mode: 'taxonomy', domain, view: 'domain' } }) });
-      for (const summary of profileNode.querySelectorAll('details > summary')) if (opened.has(summary.textContent)) summary.parentElement.open = true;
-      profileNode.dataset.storySignature = signature;
-    }
-    profileNode.hidden = false;
-  } else {
-    delete profileNode.dataset.storySignature;
-    const description = documentRef.createElement('p');
-    // P1630: no producer publishes businessProfile yet. v57.79: a sector word plus "종목 등록 정보" read as an empty box,
-    // so the section stays hidden until a sourced description exists (the classification lives in the company card below).
-    description.textContent = profile.description || '';
-    profileNode.hidden = !profile.description;
-    const source = documentRef.createElement(profile.sourceUrl ? 'a' : 'span'); source.textContent = profile.source;
-    if (profile.sourceUrl) { source.href = profile.sourceUrl; source.target = '_blank'; source.rel = 'noopener noreferrer'; }
-    profileNode.replaceChildren(title, description, source);
-  }
-  // The heading no longer repeats the name; the section still names its issuer for assistive tech and checks.
-  profileNode.dataset.issuerName = profile.name;
-  profileNode.setAttribute('aria-label', `${profile.name} — ${title.textContent}`);
-  const company = documentRef.getElementById('ticker-company-analysis');
-  if (company && profileNode.nextElementSibling !== company) profileNode.after(company);
-}
-
-// v58.75 ('고르는 법' B5/B2/B6): the market link with the memo/watchlist entry right under '이 종목의 지금', and strengths/weaknesses
-// against named theme peers with '계속 볼 것' under the setup. Rebuilt only when their text changes (quote ticks repaint often).
-// v59.70 (PLAN S13 ①): the 가격 section's one line — why the stock moved on the latest session, from the same market-day
-// account as 브리핑 and 오늘. A move the ledger did not count gets no line (the chart says it).
-export function renderWhyMoved(documentRef, root, state) {
-  const node = documentRef?.getElementById('ticker-why-moved');
-  if (!node) return;
+// 종목 개요 (owner 2026-11-19): under the name and price, one line of what the company is, then 사업 · 밸류체인 안의 자리 ·
+// 재무 한눈에 (src/ui/components/company-overview.js). Rebuilt only when its inputs change (quote ticks repaint often).
+function renderOverview(documentRef, root, state) {
+  const host = documentRef?.getElementById('ticker-company');
+  const line = documentRef?.getElementById('ticker-hero-line');
+  if (!host) return;
   const id = String(state?.id || root?._currentTickerId || '').trim().toUpperCase();
-  const day = root?.[MARKET_DAY.key] || null;
-  if (id && !day && !root.__aioWhyMovedRequested) {
-    root.__aioWhyMovedRequested = true;
-    refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed && String(root?._currentTickerId || '').toUpperCase() === id) renderWhyMoved(documentRef, root, state); }).catch(() => {});
+  // v57.54: the screen's h1 (screen-reader heading; the hero shows the name visually).
+  const title = documentRef.getElementById('ticker-page-title');
+  if (!id) {
+    host.hidden = true; host.replaceChildren(); delete host.dataset.signature;
+    if (line) { line.hidden = true; line.textContent = ''; }
+    if (title) title.textContent = '종목';
+    return;
   }
-  // The line names the same primary theme as the market line and the theme link on this page.
+  const again = () => { if (String(root?._currentTickerId || '').toUpperCase() === id && documentRef.getElementById('page-ticker')?.classList.contains('active')) renderOverview(documentRef, root, state); };
   let rows = [];
-  if (id && day && isKrSymbol(id)) { try { rows = root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; } }
-  const theme = id && day ? primaryTheme(themeCatalogFor(id, { themeMap: root?.THEME_MAP, krThemeMap: root?.KR_THEME_MAP, rows }), id) : null;
-  const line = id && day ? whyMovedLine(day, id, null, { theme }) : null;
-  node.textContent = line?.text || '';
-  node.hidden = !line;
-}
-
-// v59.70 (PLAN S13): the overview's three sections — ① 가격 (the price panel), ② 동종 비교, ③ 회사 이야기 (the story fold).
-export function markTickerSections(documentRef) {
-  for (const [id, section] of [['ticker-price-panel', 'price'], ['ticker-strength', 'peers'], ['ticker-business-profile', 'story']]) {
-    const node = documentRef?.getElementById(id);
-    if (node) node.dataset.entitySection = section;
+  try { rows = root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; }
+  const kr = isKrSymbol(id);
+  const row = rows.find((item) => item?.sym === id) || null;
+  // v57.81: a US listing outside the screener universe is read on demand; its SEC record arrives with it.
+  const onDemand = !kr && typeof root?._aioOnDemandSymbol === 'function' ? root._aioOnDemandSymbol(id) : null;
+  if (!row && !kr && !onDemand && rows.length && typeof root?._aioRequestOnDemandSymbol === 'function') {
+    Promise.resolve(root._aioRequestOnDemandSymbol(id)).then((settled) => { if (settled) again(); }).catch(() => {});
   }
-}
-
-function renderStockLens(documentRef, root, state) {
-  const readHost = documentRef?.getElementById('ticker-read');
-  if (!readHost) return;
-  installStockLensGlobal(root);
-  // The nodes are kept on the reading host: '이 종목의 지금' rebuilds its children on every quote tick.
-  const make = (id, className, label) => { let node = readHost._aioLensNodes?.[id] || documentRef.getElementById(id); if (!node) { node = documentRef.createElement('section'); node.id = id; node.className = className; node.setAttribute('aria-label', label); } (readHost._aioLensNodes ||= {})[id] = node; return node; };
-  const context = make('ticker-context', 'v2-stock-context', '시장과 이 종목의 연결');
-  const strength = make('ticker-strength', 'v2-stock-strength', '동종 비교');
-  // First-users run 4: a symbol the listing check refused gets no market link or watch actions.
-  const notListed = root?._aioOnDemandSymbol?.(String(state?.id || root?._currentTickerId || '').toUpperCase())?.status === 'not-listed';
-  if (notListed) { context.hidden = true; strength.hidden = true; delete context.dataset.signature; return; }
-  // v59.51 (content audit): the market line and the memo/watch actions close the '이 종목의 지금' card (one block, not a
-  // second one under it); strengths/watch follow the reading.
-  const contextParent = readHost.querySelector('.v2-stock-hero') || readHost;
-  if (contextParent.lastElementChild !== context) contextParent.append(context);
-  if (readHost.nextElementSibling !== strength) readHost.after(strength);
-  const id = String(state?.id || root?._currentTickerId || '').trim().toUpperCase();
-  const again = () => { if (String(root?._currentTickerId || '').toUpperCase() === id && documentRef.getElementById('page-ticker')?.classList.contains('active')) renderStockLens(documentRef, root, state); };
-  if (id) {
-    requestFiscalHistory(root, again, 'lens');
-    if (!isKrSymbol(id)) requestConsensusEstimates(root, again);
-    refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed) again(); }).catch(() => {});
-    // v58.75 review: '계속 볼 것' and the lens read the earnings calendar; when it arrives after this render, redraw.
-    if (!isKrSymbol(id)) refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed }) => { if (changed) again(); }).catch(() => {});
+  const listingRow = row || (onDemand?.status === 'ready' ? onDemand.row : null) || {};
+  const profile = businessProfileFor(id, listingRow, root?._aioEntitySummaries?.[id] || {});
+  if (title) title.textContent = profile.name && profile.name !== id ? `종목, ${profile.name} (${id})` : `종목, ${id}`;
+  // First-users run-6 #11: a retired or unknown symbol (FB, AAP) is one "no match" state, not a half-empty company page.
+  if (onDemand?.status === 'not-listed') {
+    if (line) line.hidden = true;
+    if (host.dataset.signature !== `${id}|not-listed`) {
+      host.dataset.signature = `${id}|not-listed`;
+      host.replaceChildren(emptyState(documentRef, { title: `${id}와 맞는 종목이 없습니다`, reason: '미국 상장 목록과 AIO 등록 종목 어디에도 없는 기호입니다. 상장 폐지됐거나 기호가 바뀐 종목일 수 있습니다.', next: '회사 이름으로 다시 검색해 보세요.', compact: true }));
+    }
+    host.hidden = false;
+    return;
   }
-  const ctx = id ? stockLensContext(root, id, { fundamentals: state?.id === id ? state?.fundamentals : null, bars: state?.id === id ? state?.history : null }) : null;
-  const signature = JSON.stringify([id, ctx?.link?.text, ctx?.strengths?.strengths.map((f) => f.text), ctx?.strengths?.weaknesses.map((f) => f.text), ctx?.watch?.map((w) => w.now)]);
-  if (context.dataset.signature === signature) return;
-  context.dataset.signature = signature;
-  if (!ctx) { context.hidden = true; strength.hidden = true; context.replaceChildren(); strength.replaceChildren(); return; }
-  renderStockContext(documentRef, root, context, ctx);
-  renderStockStrengths(documentRef, strength, ctx);
+  // The story, the company graph and the capital flows arrive once per tab; each repaints the overview when it lands.
+  requestCompanyStory(root, id, again);
+  const story = companyStoryFor(root, id);
+  requestFiscalHistory(root, again, 'overview');
+  refreshSharedArtifact(root, EVENT_BRIEFS).then(({ changed }) => { if (changed) again(); }).catch(() => {});
+  const graph = companySideArtifact(root, 'graph', again);
+  const capital = companySideArtifact(root, 'capital', again);
+  const etf = listingRow.sector === 'ETF' || listingRow.index === 'ETF' || /ETF/.test(profile.kind);
+  // 재무 한눈에: the SEC record (route state or the on-demand read) with its quarters and fiscal years; DART for KRX.
+  const fundamentals = state?.id === id && state?.fundamentals ? state.fundamentals : onDemand?.sec?.symbol === id ? onDemand.sec : null;
+  const quarterText = root?._aioSecQuarterHistory?.[id];
+  const series = root?._aioSecFiscalHistory?.[id];
+  const history = series ? reconcileFiscalHistory(parseFiscalHistory(series), fundamentals, id) : [];
+  const money = etf ? { rows: [] } : moneyGlance({ symbol: id, fundamentals, quarters: quarterText ? parseQuarterHistory(quarterText) : [],
+    marginCash: history.length ? buildMarginCashRead(history, { debtBasis: debtBasisFor(root, id), debtCurrent: debtCurrentFor(root, id) }) : null,
+    kr: kr ? krFundamentalPoints(root?._aioKrFundamentals?.companies?.[id]) : null, story, financial: !!financialKind(id, listingRow.sector, issuerSic(root, id)) });
+  // A SEC record still on its way, a failed load and a confirmed absence read differently (data-state.js).
+  const secState = fundamentals ? 'ready' : onDemand?.status === 'ready' ? 'absent' : onDemand?.status === 'unavailable' ? 'failed'
+    : entityFundamentalsState(state, { requestedId: id });
+  const moneyEmpty = etf ? 'ETF는 기업 재무 공시가 없습니다' : kr ? '한국 공시(DART) 재무 자료 없음'
+    : secState === 'ready' ? '재무 자료 없음' : dataStateText(secState, '재무 기록');
+  // One line of standing among named theme peers (the rank figure and the rest live on 재무 공시).
+  const peer = etf || kr ? null : peerLine(stockLensContext(root, id, { fundamentals }));
+  const place = companyPlace({ symbol: id, story, graph, capital });
+  // One line of what the company is: the story's own line, else the listing's sourced description, else its classification.
+  const what = story?.oneLine || profile.description || [profile.kind, profile.sector ? sectorLabel(profile.sector) : null, profile.industry].filter(Boolean).join(', ');
+  if (line) { if (line.textContent !== what) line.textContent = what || ''; line.hidden = !what; }
+  const earnings = root?.[EARNINGS_CALENDAR.key]?.earnings || [];
+  const briefs = (root?._aioEventBriefs?.briefs || []).filter((brief) => brief?.kind === 'earnings' && String(brief?.symbol || '').toUpperCase() === id);
+  const watched = (root?._aioWatchlistGet?.() || []).includes(id);
+  const signature = JSON.stringify([id, story?.researchedAt || null, profile.name, profile.description, profile.sourceUrl, profile.sector, profile.industry, profile.kind, !!graph, !!capital, place.inMap, place.capital.length, money.rows.map((item) => item.value), moneyEmpty, peer?.strength || null, peer?.weakness || null,
+    earnings.filter((item) => String(item?.symbol || '').toUpperCase() === id).map((item) => `${item.date}:${item.epsActual ?? item.revenueActual ?? ''}`), briefs.map((brief) => brief.eventDate), String(quarterText || '').split(';').at(-1), watched]);
+  if (host.dataset.signature !== signature) {
+    // A repaint keeps the folds the reader opened (matched by their summary text).
+    const opened = new Set([...host.querySelectorAll('details[open] > summary')].map((node) => node.textContent));
+    const actions = [];
+    if (typeof root?._aioWLToggle === 'function') {
+      // v58.80 (first-users run-3 B15): the button says whether the stock is in a 관심 종목 list and toggles the one store.
+      const watch = documentRef.createElement('button');
+      watch.type = 'button';
+      watch.className = 'aio-btn-table';
+      watch.textContent = watched ? '관심 종목에서 빼기' : '관심 종목에 추가';
+      watch.setAttribute('aria-pressed', watched ? 'true' : 'false');
+      watch.addEventListener('click', () => { root._aioWLToggle(id); again(); });
+      actions.push(watch);
+    }
+    actions.push(companyAskButton(documentRef, root, id, { fund: etf }));
+    renderCompanyOverview(documentRef, host, { symbol: id, story, profile, place, money, moneyEmpty, peer, earnings, briefs, quarters: String(quarterText || ''), actions,
+      openTicker: (symbol) => root?.showTicker?.(symbol),
+      industry: story ? industryFor(story) : null,
+      openIndustry: (domain) => navigateKnowledgeRoute({ root, page: 'atlas', params: { mode: 'taxonomy', domain, view: 'domain' } }),
+      openMap: (where) => navigateKnowledgeRoute({ root, page: 'atlas', params: aiMapRouteParams({ map: where.layer ? 'value-chain' : 'capital', layer: where.layer?.n ?? null, node: id }) }),
+      openFundamental: () => root?.showPage?.('fundamental') });
+    for (const summary of host.querySelectorAll('details > summary')) if (opened.has(summary.textContent)) summary.parentElement.open = true;
+    host.dataset.signature = signature;
+  }
+  host.hidden = false;
 }
 
 function summaryState(root, state) {
@@ -488,114 +429,6 @@ function renderTickerNavigation(documentRef, state, root) {
   }
 }
 
-function formatTickerChartDate(epochMs) {
-  return epochMs == null ? '—' : new Date(epochMs).toISOString().slice(0, 10);
-}
-
-function renderTickerControls(documentRef, page, activeTab = 'overview', requestedRange = '1m', state = null) {
-  if (!page) return;
-  const tab = activeTab === 'chart' ? 'chart' : 'overview';
-  const range = TICKER_CHART_RANGES[requestedRange] ? requestedRange : '1m';
-  page.dataset.activeTickerTab = tab;
-  page.dataset.activeTickerRange = range;
-  // P1449 (검토판·가격 기간): a range tab is clickable only when the available history can actually
-  // span it. Being available decides the truth — the 1M/3M/6M/1Y tabs all showing the same few
-  // observations read as "선택 기간 ≠ 확보 기간", which is exactly what the review caught.
-  const ordered = (Array.isArray(state?.history) ? state.history : [])
-    .map((row) => finite(canonicalEpochMs(row?.epochMs ?? row?.time ?? row?.date ?? row?.timestamp)))
-    .filter((value) => value != null)
-    .sort((left, right) => left - right);
-  const availableDays = ordered.length >= 2 ? Math.round((ordered.at(-1) - ordered[0]) / DAY_MS) : 0;
-  page.querySelectorAll?.('[data-ticker-range]').forEach((button) => {
-    const key = button.getAttribute('data-ticker-range');
-    const selected = key === range;
-    button.classList?.toggle('active', selected);
-    button.setAttribute('aria-pressed', selected ? 'true' : 'false');
-    const tooShort = TICKER_CHART_RANGES[key] && availableDays > 0 && TICKER_CHART_RANGES[key].days > availableDays;
-    if (tooShort) {
-      button.setAttribute('disabled', 'disabled');
-      button.setAttribute('aria-disabled', 'true');
-      button.title = `확보된 가격 이력이 ${availableDays}일분입니다 — ${TICKER_CHART_RANGES[key].label} 관측 요구(${TICKER_CHART_RANGES[key].days}일)를 채우지 못해 비활성화했습니다(선택 기간과 확보 기간을 구분합니다).`;
-    } else {
-      button.removeAttribute('disabled');
-      button.removeAttribute('aria-disabled');
-      button.title = '';
-    }
-  });
-}
-
-function renderTickerChart({ root, page, state, requestedRange = '1m' }) {
-  // v59.55 (C1): the price line is the shared SVG line chart (same axes, hover and ink as every other trend); Chart.js left.
-  const host = page?.querySelector?.('#ticker-price-chart');
-  if (!host) return;
-  const range = TICKER_CHART_RANGES[requestedRange] ? requestedRange : '1m';
-  // Codex browser audit H28: the summary said "이력 미수신 · 차트 보류" while the chart tab drew the same stock's
-  // daily bars. When the entity history is too short, the summary uses those completed daily bars.
-  const symbol = String(state?.id || '').toUpperCase();
-  const ownHistory = Array.isArray(state?.history) ? state.history : [];
-  const dailyBars = root?._technicalOHLCV?.[symbol] || root?._tickerHistory?.[symbol] || [];
-  const historySource = ownHistory.length >= 2 ? ownHistory : (Array.isArray(dailyBars) ? dailyBars : []);
-  const view = selectTickerChartWindow(historySource, range);
-  const rows = view.rows;
-  const unavailable = rows.length < 2;
-  const signature = `${range}|${rows.map((row) => `${row.epochMs}:${row.close}`).join('|')}`;
-  const periodLabel = TICKER_CHART_RANGES[range].label;
-  const periodMeta = unavailable
-    ? (root?._aioEntitySummaryStatus?.[state?.id] === 'unavailable' ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오지 못했습니다. 종목을 다시 선택해 확인할 수 있습니다.` : root?._aioEntitySummaryStatus?.[state?.id] === 'loading' ? `${state?.id || '종목'} ${periodLabel} 가격 이력을 불러오는 중입니다.` : `${state?.id || '종목'} ${periodLabel} 가격 이력이 아직 없습니다. 종목을 다시 선택해 확인할 수 있습니다.`)
-    // P1255 (07:M04 계열 잔여 D4): 차트는 close 계열(배당 미조정)이다 — "수익률"과 섞이지 않도록
-    // 가격 기준을 메타에 함께 말한다. S21: 내부 용어 대신 한 줄 독자 문장.
-    : `${periodLabel}, ${view.rowCount}개 관측, ${formatTickerChartDate(view.startEpochMs)} ~ ${formatTickerChartDate(view.endEpochMs)}, 배당 제외 가격, 요약 수익률은 배당 포함`;
-  host.dataset.aioTickerChartRenderer = 'native';
-  host.dataset.sourceKind = unavailable ? 'unavailable' : 'native-runtime';
-  host.dataset.sourceLabel = unavailable ? 'entity-history-unavailable' : 'native:entity-history';
-  host.dataset.operationalUse = 'reference-only';
-  host.dataset.tickerChartRange = range;
-  host.dataset.tickerChartRowCount = String(view.rowCount);
-  host.dataset.tickerChartStart = formatTickerChartDate(view.startEpochMs);
-  host.dataset.tickerChartEnd = formatTickerChartDate(view.endEpochMs);
-  host.setAttribute('title', periodMeta);
-  const meta = page.querySelector?.('#ticker-chart-meta');
-  // v59.51: the face names the window; the observation count and the price basis stay in the hover.
-  // v59.55: a window that crosses a year (1년) names the years, or it read "10/30~10/30".
-  const years = formatTickerChartDate(view.startEpochMs).slice(0, 4) !== formatTickerChartDate(view.endEpochMs).slice(0, 4);
-  const md = (ms) => { const day = formatTickerChartDate(ms); if (!isIsoDay(day)) return day; const m = Number(day.slice(5, 7)), d = Number(day.slice(8, 10)); return years ? `${day.slice(2, 4)}.${m}.${d}` : `${m}/${d}`; };
-  if (meta) { meta.textContent = unavailable ? periodMeta : `${md(view.startEpochMs)}~${md(view.endEpochMs)} 종가`; meta.title = periodMeta; }
-  const loading = page.querySelector('#ticker-chart-loading');
-  // v57.61 WCAG 4.1.3: the chart loading line becomes a failure line in place; announce it as a status.
-  if (loading && loading.getAttribute('role') !== 'status') loading.setAttribute('role', 'status');
-  // P1591 (S02): without a price history the 380px frame and period buttons stay empty and repeat the same
-  // sentence; the box collapses to one line and the buttons hide until rows arrive.
-  const box = host.parentElement;
-  const tabs = page.querySelector?.('#ticker-chart-period-tabs');
-  // v59.51 (content audit): the price flow is the header's small chart; with no symbol chosen it is not shown.
-  const panel = page.querySelector?.('#ticker-price-panel');
-  if (panel) panel.hidden = !symbol || root?._aioOnDemandSymbol?.(symbol)?.status === 'not-listed'; // run-6 #11: no chart for no match
-  if (box) box.style.height = unavailable ? '44px' : '';
-  if (tabs) tabs.hidden = unavailable;
-  // v57.79 review: one state at a time — the empty chart hides behind the status line.
-  host.hidden = unavailable;
-  if (unavailable) {
-    host.replaceChildren();
-    host._aioChartSignature = '';
-    if (meta) meta.textContent = '';
-    if (loading) {
-      loading.style.display = 'flex';
-      if (loading.textContent !== periodMeta) loading.textContent = periodMeta;
-    }
-    return;
-  }
-  if (loading) loading.style.display = 'none';
-  if (host._aioChartSignature === signature) return;
-  host._aioChartSignature = signature;
-  const currency = state?.quote?.currency;
-  const series = rows.map((row) => ({ date: formatTickerChartDate(row.epochMs), value: finite(row.close) }));
-  // v59.55 (visual review): the app's direction colours (rising red, falling blue — the candles, sector bars and signed
-  // returns) through the wrap's class; v57.55 review (E3-F9): straight segments, never a smoothed curve.
-  const chart = createTrendChart(host.ownerDocument, { series, width: host.clientWidth || undefined, label: `${state?.id || '종목'} ${periodLabel} 종가`,
-    format: (value) => (currency ? formatMoney(value, currency, { maximumFractionDigits: Math.abs(value) >= 100 ? 0 : 2 }) : value.toLocaleString('en-US', { maximumFractionDigits: 2 })) });
-  chart.classList.add(series.at(-1).value >= series[0].value ? 'is-up' : 'is-down');
-  host.replaceChildren(chart);
-}
 
 // v57.81: why an out-of-universe listing has no SEC filing on screen (never an estimate in its place).
 const ON_DEMAND_SEC_STATUS = Object.freeze({
@@ -791,7 +624,7 @@ function renderFundamentalReport(documentRef, page, state) {
 // SEC annual-data availability/source badge on fundamental. P815 transfers only the bounded
 // SEC-derived summary line; options-chain, report sections, charts, and AI narrative remain
 // legacy-owned.
-function render({ root, documentRef, store, route, activeTickerTab = 'overview', tickerChartRange = '1m' }) {
+function render({ root, documentRef, store, route }) {
   const selected = selectEntityState(store.getState());
   const state = route === 'ticker' ? summaryState(root, selected) : selected;
   const portfolioState = selectPortfolioState(store.getState());
@@ -804,29 +637,21 @@ function render({ root, documentRef, store, route, activeTickerTab = 'overview',
   }
   if (route === 'ticker') {
     renderTickerHero(documentRef, state, root);
-    renderSummaryIdentity(documentRef, root, state);
     renderTickerSecondarySymbols(documentRef, state, root);
     renderTickerActivity(documentRef, root, state, portfolioState);
     renderTickerNavigation(documentRef, state, root);
     renderTickerStart({ documentRef, root, portfolioState, show: !state?.id && !String(root?._currentTickerId || '').trim() });
-    const memo = ensureResearchSnapshots({ documentRef, root, host: routeNode, kind: 'stock', collect: () => ({ kind: 'stock',
+    installStockLensGlobal(root); // the AI panel's stock readings (window._aioStockLensFor)
+    renderCompanyAnalysis({ documentRef, root, state }); // the 시총·PER line and the AI company model
+    renderOverview(documentRef, root, state);
+    // The reader's own notes close the overview (a section on the face, not a fold or a view).
+    const memo = ensureResearchSnapshots({ documentRef, root, host: routeNode, kind: 'stock', open: true, collect: () => ({ kind: 'stock',
       symbol: state?.id, name: state?.name, quote: { ...state?.quote, basis: state?.quote?.changeBasis || 'unknown' } }) });
-    if (memo && memo.dataset.viewOpen == null) { memo.dataset.viewOpen = ''; memo.open = true; } // the 메모 view's content (page-views.css)
-    const requestedId = String(root?._currentTickerId || '').trim().toUpperCase();
-    if (state?.id && state.id === requestedId && routeNode.matches('.active[data-view="memo"]')) {
+    // 재무 공시's '이 조건으로 내 메모 시작' hands the thesis template over; it lands once the requested company is drawn.
+    if (state?.id && state.id === String(root?._currentTickerId || '').trim().toUpperCase()) {
       const handoff = consumeResearchHandoff({ root, routeId: 'ticker', symbol: state.id });
       if (handoff) focusResearchMemo(memo, handoff.context.memoTemplate);
     }
-    renderTickerControls(documentRef, routeNode, activeTickerTab, tickerChartRange, state);
-    renderTickerChart({ root, page: routeNode, state, requestedRange: tickerChartRange });
-    renderWhyMoved(documentRef, root, state);
-    // Review (v58.53): the 재무 tile tells a pending or failed SEC projection apart from a confirmed absence. The provider
-    // dispatches only after the projection settles, so a synced symbol without fundamentalsMeta means the load failed.
-    const fundamentalsState = entityFundamentalsState(state, { requestedId, onDemandStatus: state?.id ? root?._aioOnDemandSymbol?.(state.id)?.status : null });
-    renderStockRead({ documentRef, root, symbol: state?.id || root?._currentTickerId || '', fundamentals: state?.fundamentals, fundamentalsState }); // P1434; v57.51 N20 recent filings
-    renderStockLens(documentRef, root, state); // v58.75 ('고르는 법' layer B)
-    renderCompanyAnalysis({ documentRef, root, state, fundamentalsState });
-    markTickerSections(documentRef); // after the lens and story hosts exist
   }
   if (route === 'fundamental') {
     // P1430: 재무 공시 is the same company as 요약 · 차트.
@@ -867,6 +692,10 @@ function render({ root, documentRef, store, route, activeTickerTab = 'overview',
     const valuationDate = String(analysisRow?.factorSessionDate || '').slice(0, 10);
     const close = valuationClose > 0 && isIsoDay(valuationDate) ? { value: valuationClose, date: valuationDate, shares: finite(analysisRow?._valuationSharesOutstanding), sharesObservedAt: analysisRow?._valuationSharesObservedAt || null } : analysisId ? lastPublishedClose(analysisId, state, root) : null;
     renderFiscalRead({ documentRef, root, state, close }); // P1436
+    // The latest earnings release of this company, above the filings (moved from the 종목 summary, 2026-11-19).
+    const flow = documentRef?.getElementById('fund-flow');
+    if (analysisId) paintTickerBrief(documentRef, root, analysisId, flow, () => render({ root, documentRef, store, route }));
+    else { const brief = documentRef?.getElementById('fund-event-brief'); if (brief) brief.hidden = true; }
   }
 }
 
@@ -877,8 +706,6 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
     route,
     mount() {
       const bag = createResourceBag();
-      let activeTickerTab = 'overview';
-      let tickerChartRange = '1m';
       const hydrator = route === 'ticker' ? createSummaryHydrator({ root,
         onReady: () => {
           const EventConstructor = root.CustomEvent || globalThis.CustomEvent;
@@ -911,7 +738,7 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
       if (hydrator) bag.add(() => hydrator.dispose());
       const renderNow = () => {
         if (hydrator) hydrator.ensure(root?._currentTickerId || selectEntityState(store.getState())?.id || '');
-        render({ root, documentRef, store, route, activeTickerTab, tickerChartRange });
+        render({ root, documentRef, store, route });
       };
       renderNow();
       bag.add(subscribeToSlices(store, ['entity', 'portfolio'], renderNow));
@@ -1001,27 +828,6 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
         });
       }
       if (route === 'ticker') {
-        const page = documentRef?.getElementById('page-ticker');
-        const onTickerControlClick = (event) => {
-          const rangeButton = event?.target?.closest?.('[data-ticker-range]');
-          if (!rangeButton) return;
-          const requested = rangeButton.getAttribute('data-ticker-range');
-          if (TICKER_CHART_RANGES[requested]) tickerChartRange = requested;
-          activeTickerTab = 'chart';
-          event.preventDefault?.();
-          event.stopImmediatePropagation?.();
-          refresh();
-        };
-        const resetTickerView = () => {
-          activeTickerTab = 'overview';
-          tickerChartRange = '1m';
-          refresh();
-        };
-        eventTarget?.addEventListener?.('click', onTickerControlClick, true);
-        eventTarget?.addEventListener?.('aio:tickerViewReset', resetTickerView);
-        bag.add(() => eventTarget?.removeEventListener?.('click', onTickerControlClick, true));
-        bag.add(() => eventTarget?.removeEventListener?.('aio:tickerViewReset', resetTickerView));
-        if (page) page.dataset.aioTickerChartRenderer = 'native';
         ['ticker-hero-ext', 'ticker-hero-pnl', 'ticker-hero-value'].forEach((id) => { // v57.76: candle/entry symbol labels retired
           const element = documentRef?.getElementById(id);
           if (!element) return;
@@ -1033,18 +839,6 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
             if (element?.dataset.aioTickerExtensionRenderer === 'native') delete element.dataset.aioTickerExtensionRenderer;
             if (element?.dataset.aioTickerPnlRenderer === 'native') delete element.dataset.aioTickerPnlRenderer;
           });
-        });
-        bag.add(() => {
-          if (page?.dataset.aioTickerChartRenderer === 'native') delete page.dataset.aioTickerChartRenderer;
-          if (page?.dataset.activeTickerTab) delete page.dataset.activeTickerTab;
-          if (page?.dataset.activeTickerRange) delete page.dataset.activeTickerRange;
-          const host = documentRef?.getElementById('ticker-price-chart');
-          if (host?.dataset.aioTickerChartRenderer === 'native') {
-            delete host.dataset.aioTickerChartRenderer;
-            delete host.dataset.sourceKind;
-            delete host.dataset.sourceLabel;
-            delete host.dataset.operationalUse;
-          }
         });
       }
       const routeNode = documentRef?.getElementById(`page-${route}`);

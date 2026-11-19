@@ -28,22 +28,28 @@ const W = 300;
 const H = 120;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+let nyFormat = null;
 const nyParts = (seconds) => {
-  const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hourCycle: 'h23', weekday: 'short' })
-    .formatToParts(new Date(seconds * 1000));
+  nyFormat = nyFormat || new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hourCycle: 'h23', weekday: 'short' });
+  const parts = nyFormat.formatToParts(new Date(seconds * 1000));
   const get = (type) => parts.find((part) => part.type === type)?.value || '';
   return { month: Number(get('month')), day: Number(get('day')), hour: Number(get('hour')), minute: Number(get('minute')), weekday: get('weekday') };
 };
 const WEEKDAY_KO = { Mon: '월', Tue: '화', Wed: '수', Thu: '목', Fri: '금', Sat: '토', Sun: '일' };
 const price = (value) => (Number.isFinite(value) ? value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—');
 
+// The 5-minute slot of a bar in the 9:30–16:00 New York session (0 = 9:30, 78 = the 16:00 closing bar).
+const slotOf = (seconds) => { const p = nyParts(seconds); return Math.round((p.hour * 60 + p.minute - 570) / 5); };
+
 /** One session of 5-minute bars → candles, the previous close, the change and whether the session is still open. */
 export function sessionModel(payload, nowSeconds = Date.now() / 1000) {
   if (!payload || !Array.isArray(payload.timestamps) || !payload.timestamps.length) return null;
   const bars = [];
+  // Chart-scale 2026-11-19: Yahoo can send a closed session with most bars' OHLC null (SPY 11/18: 64 of 79). Each candle
+  // keeps its own time slot, so the missing stretch stays empty instead of the 16:00 bar being drawn beside 10:40.
   payload.timestamps.forEach((t, i) => {
     const o = payload.opens?.[i]; const h = payload.highs?.[i]; const l = payload.lows?.[i]; const c = payload.closes?.[i];
-    if ([o, h, l, c].every(Number.isFinite)) bars.push({ t, o, h, l, c });
+    if ([o, h, l, c].every(Number.isFinite)) bars.push({ t, o, h, l, c, slot: Math.max(0, slotOf(t)) });
   });
   if (!bars.length) return null;
   const meta = payload.meta || {};
@@ -54,8 +60,11 @@ export function sessionModel(payload, nowSeconds = Date.now() / 1000) {
     && bars[bars.length - 1].t >= regular.start);
   const lows = bars.map((bar) => bar.l); const highs = bars.map((bar) => bar.h);
   const min = Math.min(...lows, previousClose ?? Infinity); const max = Math.max(...highs, previousClose ?? -Infinity);
+  const slots = Math.max(78, bars[bars.length - 1].slot + 1);
   return {
-    bars, previousClose, last, open, min, max,
+    bars, previousClose, last, open, min, max, slots,
+    // Slots up to the last bar that came without prices (the hover says so; nothing is filled in).
+    missing: bars[bars.length - 1].slot + 1 - bars.length,
     change: previousClose ? last - previousClose : null,
     changePct: previousClose ? (last / previousClose - 1) * 100 : null,
     session: nyParts(bars[0].t)
@@ -74,14 +83,13 @@ const yOf = (model, value) => 4 + (1 - (value - model.min) / (model.max - model.
 // 78 five-minute slots make a full 9:30–16:00 session; an open session leaves the rest of the axis empty.
 function chartSvg(doc, model) {
   const svg = svgNode(doc, 'svg', { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'none', class: 'home-index-chart', 'aria-hidden': 'true', focusable: 'false' });
-  const slots = Math.max(78, model.bars.length);
-  const step = W / slots;
+  const step = W / model.slots;
   const y = (value) => yOf(model, value);
   if (model.previousClose != null) {
     svg.append(svgNode(doc, 'line', { x1: 0, x2: W, y1: y(model.previousClose), y2: y(model.previousClose), class: 'home-index-prev', 'vector-effect': 'non-scaling-stroke' }));
   }
-  model.bars.forEach((bar, i) => {
-    const x = i * step + step / 2;
+  model.bars.forEach((bar) => {
+    const x = bar.slot * step + step / 2;
     const up = bar.c >= bar.o;
     const cls = up ? 'is-up' : 'is-down';
     svg.append(svgNode(doc, 'line', { x1: x, x2: x, y1: y(bar.h), y2: y(bar.l), class: `home-index-wick ${cls}`, 'vector-effect': 'non-scaling-stroke' }));
@@ -170,10 +178,10 @@ function card(doc, root, spec, model, failed) {
   plot.append(canvas, axis);
   // Hour marks at their place in the 9:30–16:00 session (390 minutes), on the same slot scale as the candles.
   const times = el(doc, 'div', null, 'home-index-times');
-  const slots = Math.max(78, model.bars.length);
   for (const [label, minutes] of [['10시', 30], ['12시', 150], ['14시', 270], ['16시', 390]]) {
     const mark = el(doc, 'span', label);
-    mark.style.left = `${Math.min(100, (minutes / 5 / slots) * 100).toFixed(2)}%`;
+    // The mark sits at the centre of its slot, where that slot's candle is drawn.
+    mark.style.left = `${Math.min(100, ((minutes / 5 + 0.5) / model.slots) * 100).toFixed(2)}%`;
     times.append(mark);
   }
   node.append(head, plot, times);
@@ -235,7 +243,8 @@ export async function renderHomeIndexStrip({ documentRef: doc, root }) {
       const when = basis ? `${basis.session.month}/${basis.session.day}(${WEEKDAY_KO[basis.session.weekday] || ''})` : '';
       const fallback = basis ? null : closeFallback(root?._aioHistory, INDEX_STRIP[0]);
       const chip = basis ? (basis.open ? `${when} 진행 중` : `${when} 마감`) : fallback ? `${fallback.date} 종가` : '장중 그래프 없음';
-      const detail = basis ? `뉴욕 정규장 5분봉, 점선은 전일 종가, 시세는 지연될 수 있음${basis.open ? ', 장중에는 5분마다 다시 읽음' : ''}` : '장중 5분봉을 받지 못해 발행된 일간 종가와 전일 대비 변화만 표시';
+      const gaps = models.filter((model) => model?.missing > 0).length;
+      const detail = basis ? `뉴욕 정규장 5분봉, 점선은 전일 종가, 시세는 지연될 수 있음${gaps ? ', 시세 제공처가 값 없이 보낸 5분봉 구간은 비워 둠' : ''}${basis.open ? ', 장중에는 5분마다 다시 읽음' : ''}` : '장중 5분봉을 받지 못해 발행된 일간 종가와 전일 대비 변화만 표시';
       const grid = el(doc, 'div', null, 'home-index-grid');
       grid.append(...INDEX_STRIP.map((spec, i) => card(doc, root, spec, models[i], !models[i])));
       host.replaceChildren(head(chip, detail), grid);

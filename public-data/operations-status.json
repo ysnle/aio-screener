@@ -23,8 +23,8 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-11-19T14:51:32.298Z",
-  "appRevision": "v60.30",
+  "generatedAt": "2026-11-19T15:39:44.165Z",
+  "appRevision": "v60.31",
   "dataRevision": "market-snapshot:2026-11-19T14:51:05.246Z:798d1d81",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "CURRENT",
@@ -50,7 +50,7 @@
     },
     "fundamental-ranking": {
       "availability": "AVAILABLE",
-      "asOf": "2026-11-19T08:34:37.846Z",
+      "asOf": "2026-10-16T05:37:55.208Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -189,9 +189,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-11-19T14:51:05.246Z",
-        "ageHours": 0.01,
+        "ageHours": 0.81,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-11-19T14:51:32.298Z",
+        "evaluatedAt": "2026-11-19T15:39:44.165Z",
         "reason": null
       },
       "readiness": {
@@ -214,11 +214,11 @@
         "revision": "fast-quotes:9d02d6d9",
         "sourceSha": "21775b1e8cf2c100d24860de96dafe1db0d5b17a",
         "observedAt": "2026-11-19T14:51:32.298Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-19T14:51:32.298Z"
+        "evidenceEvaluatedAt": "2026-11-19T15:39:44.165Z"
       },
       "soak": {
         "requiredDays": 0,
@@ -237,7 +237,7 @@
       "status": "UNKNOWN",
       "statusCode": "NOT_OBSERVED",
       "source": "static-pages+service-worker",
-      "revision": "v60.30",
+      "revision": "v60.31",
       "configured": true,
       "observed": "NOT_OBSERVED",
       "lastAttemptAt": null,
@@ -282,11 +282,11 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-19T14:51:32.298Z"
+        "evidenceEvaluatedAt": "2026-11-19T15:39:44.165Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -313,9 +313,9 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "filing-evidence",
-      "coveragePct": 98.8,
-      "stored": 846,
-      "eligible": 856
+      "coveragePct": 89.5,
+      "stored": 754,
+      "eligible": 842
     }
   },
   "reconciliation": {
@@ -476,11 +476,11 @@
     "supported": 20,
     "nativeOwner": [
       "sentiment",
+      "charts",
       "principles",
       "masters",
       "atlas",
-      "guide",
-      "charts"
+      "guide"
     ],
     "legacyOwner": 0,
     "nativeLifecycleOwner": [
@@ -489,7 +489,7 @@
       "breadth",
       "sentiment",
       "briefing",
-      "technical",
+      "charts",
       "macro",
       "fxbond",
       "fundamental",
@@ -503,7 +503,7 @@
       "atlas",
       "guide",
       "screener",
-      "charts"
+      "technical"
     ],
     "nativeRendererOwner": [
       "home",
@@ -511,7 +511,7 @@
       "breadth",
       "sentiment",
       "briefing",
-      "technical",
+      "charts",
       "macro",
       "fxbond",
       "fundamental",
@@ -525,7 +525,7 @@
       "atlas",
       "guide",
       "screener",
-      "charts"
+      "technical"
     ],
     "nativeDataOwner": [
       "home",
@@ -533,7 +533,7 @@
       "breadth",
       "sentiment",
       "briefing",
-      "technical",
+      "charts",
       "macro",
       "fxbond",
       "fundamental",
@@ -547,7 +547,7 @@
       "atlas",
       "guide",
       "screener",
-      "charts"
+      "technical"
     ],
     "nativeChartOwner": [
       "home",
@@ -555,7 +555,7 @@
       "breadth",
       "sentiment",
       "briefing",
-      "technical",
+      "charts",
       "macro",
       "fxbond",
       "fundamental",
@@ -564,14 +564,14 @@
       "portfolio",
       "ticker",
       "screener",
-      "charts"
+      "technical"
     ],
     "nativeNarrativeOwner": [
       "sentiment",
+      "charts",
       "macro",
       "fxbond",
-      "theme-detail",
-      "charts"
+      "theme-detail"
     ],
     "nativeLazyOwner": [
       "home",
@@ -579,7 +579,7 @@
       "breadth",
       "sentiment",
       "briefing",
-      "technical",
+      "charts",
       "macro",
       "fxbond",
       "fundamental",
@@ -592,8 +592,7 @@
       "masters",
       "atlas",
       "guide",
-      "screener",
-      "charts"
+      "screener"
     ],
     "observerOwner": 0,
     "cutoverStatus": "MIGRATION_IN_PROGRESS",

@@ -4,9 +4,9 @@
 // Verify:     node scripts/generate-route-registry.mjs --check
 export const ROUTE_IDS = Object.freeze([
   'home', 'signal', 'breadth', 'sentiment', 'briefing',
-  'technical', 'macro', 'fxbond', 'fundamental', 'themes',
+  'charts', 'macro', 'fxbond', 'fundamental', 'themes',
   'theme-detail', 'portfolio', 'ticker', 'market-news', 'principles',
-  'masters', 'atlas', 'guide', 'screener', 'charts'
+  'masters', 'atlas', 'guide', 'screener', 'technical'
 ]);
 
 export function isRouteId(value) {

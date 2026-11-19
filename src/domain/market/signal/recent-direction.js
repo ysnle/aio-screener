@@ -93,3 +93,18 @@ export function directionPredicate(reading, { below = false, digits = 1, valueDi
   if (reading.dir === 'flat') return `${earlier} ${leg}로 방향이 뚜렷하지 않습니다`;
   return `${earlier} ${leg} ${reading.dir === 'up' ? (prior.dir === 'down' || below ? '반등' : '상승') : '하락'} 중입니다`;
 }
+
+/**
+ * The same reading as an evidence value — the points compared and one fixed direction word, no sentence:
+ * '5거래일 +3.5% 반등', '11/3 155.00 → 11/5 131.90 -14.9%, 이후 이틀 +11.3% 반등', '… 이후 하루 -0.3% 횡보'.
+ */
+export function directionFacts(reading, { below = false, digits = 1, valueDigits = 2 } = {}) {
+  if (!reading) return null;
+  const u = UNIT_TEXT[reading.unit] || '%';
+  const signed = (value) => signedText(value, digits, u);
+  const at = (row) => `${shortDate(row.date)} ${row.value.toLocaleString('en-US', { minimumFractionDigits: valueDigits, maximumFractionDigits: valueDigits })}`;
+  const { prior } = reading;
+  const word = reading.dir === 'flat' ? '횡보' : reading.dir === 'down' ? '하락' : (prior?.dir === 'down' || below ? '반등' : '상승');
+  if (!reading.turned) return `${reading.sessions}거래일 ${signed(reading.change)} ${word}`;
+  return `${at(prior.from)} → ${at(reading.from)} ${signed(prior.change)}, 이후 ${daysText(reading.legSessions)} ${signed(reading.change)} ${word}`;
+}

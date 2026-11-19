@@ -66,7 +66,7 @@ check(requestedUrl.includes('interval=1wk') && weekly.interval === '1wk', 'inlin
 // #ticker-analysis-result sink in v56.96 and returned early ever since; it was retired. The technical bridge
 // now only names the subject and opens the native 차트 route, so the late-response races above it are gone.
 check(!/async function (?:analyzeTickerDeep|initDeepAnalysisSection)\(/.test(ui) && !ui.includes('window.runDeepAnalysis ='), 'P1753 retired legacy deep-analysis runner stays gone');
-check(/function _aioOpenTechnicalAnalysis\(ticker\)[\s\S]{0,700}window\._aioChartRequest = sym;[\s\S]{0,120}showPage\('technical'\)/.test(core), 'P1753 technical bridge opens the native chart route for the selected subject');
+check(/function _aioOpenTechnicalAnalysis\(ticker\)[\s\S]{0,700}window\._aioChartRequest = sym;[\s\S]{0,120}showPage\('charts'\)/.test(core), 'P1753 technical bridge opens the analysis slot on 기술적 분석 for the selected symbol (owner 2026-11-19: the 종목 › 차트 tab is retired)');
 
 const invalid = context({ _currentTickerId: 'NVDA', _currentTickerName: 'NVIDIA', _fundAnalysisData: { ticker: 'NVDA' }, AIO: { state: {} } });
 // v59.12: the 재무 공시 search moved from js/aio-chat.js to src/ui/components/fundamental-search.js.

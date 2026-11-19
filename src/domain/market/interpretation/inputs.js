@@ -12,24 +12,28 @@ import { readNumber } from '../../shared/number.js';
  * The regime input (`market`) from the published macro block and the sentiment records.
  * Browser-only overrides (a fresher HY read, the canonical F&G metric) are passed as `credit` fields and win when set.
  */
-export function regimeMarketInput({ macro = null, fearGreed = null, history = [], macroHistory = null, breadthSp500 = null, credit = {}, rates = {}, nowMs = Date.now() } = {}) {
+export function regimeMarketInput({ macro = null, fearGreed = null, history = [], macroHistory = null, breadthSp500 = null, aaii = null, credit = {}, rates = {}, nowMs = Date.now() } = {}) {
   const m = macro || {};
   const hy = readNumber(m.hyOAS);
   const hyDelta5 = readNumber(m.hyOASDelta5);
   const fg = readNumber(fearGreed?.score);
   const pick = (override, fallback) => (override !== undefined && override !== null ? override : fallback);
+  // The weekly AAII survey (data.json marketSurveys.aaii; the browser's DATA_SNAPSHOT copy): a reference input of the
+  // 투자 심리 screen only, never a regime axis.
+  const aaiiBear = readNumber(aaii?.bearish);
   return {
     history: Array.isArray(history) ? history : [],
     macroHistory: macroHistory || null,
     now: nowMs,
     breadthSp500: breadthSp500 || null,
+    aaii: aaiiBear == null ? null : { bullish: readNumber(aaii.bullish), bearish: aaiiBear, observedAt: aaii.observedAt || null },
     credit: {
       hyBp: pick(credit.hyBp, hy == null ? null : Math.round(hy * 100)),
       hyAsOf: pick(credit.hyAsOf, m._asOf_hyOAS || null),
       hyDelta5Bp: pick(credit.hyDelta5Bp, hyDelta5 == null ? null : Math.round(hyDelta5 * 100)),
       fg: pick(credit.fg, fg),
       fgAsOf: pick(credit.fgAsOf, fg != null ? fearGreed?.asOf || null : null),
-      aaiiAsOf: pick(credit.aaiiAsOf, null)
+      aaiiAsOf: pick(credit.aaiiAsOf, aaiiBear == null ? null : aaii.observedAt || null)
     },
     rates: {
       realYield10: pick(rates.realYield10, readNumber(m.realYield10)),
