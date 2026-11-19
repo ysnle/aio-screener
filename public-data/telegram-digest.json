@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-18T23:51:48.737Z",
-  "attemptedAt": "2026-11-18T23:51:48.737Z",
-  "lastSuccessfulAt": "2026-11-18T23:51:48.737Z",
+  "generatedAt": "2026-11-19T00:21:46.618Z",
+  "attemptedAt": "2026-11-19T00:21:46.618Z",
+  "lastSuccessfulAt": "2026-11-19T00:21:46.618Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-04T23:51:42.257Z",
-  "until": "2026-11-18T23:51:42.257Z",
+  "since": "2026-11-05T00:21:41.517Z",
+  "until": "2026-11-19T00:21:41.517Z",
   "current24hWindow": {
     "start": "2026-11-17T23:00:00.000Z",
     "end": "2026-11-18T23:00:00.000Z",
@@ -87,11 +87,11 @@
       "reachedKnown": true,
       "count": 1200,
       "freshCount": 40,
-      "eligibleTextCount": 1140,
+      "eligibleTextCount": 1139,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69692
+      "lastPostId": 69694
     },
     {
       "channel": "bornlupin",
@@ -101,23 +101,23 @@
       "count": 183,
       "freshCount": 37,
       "eligibleTextCount": 183,
-      "selectedCount": 121,
+      "selectedCount": 120,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21193
+      "lastPostId": 21195
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 724,
+      "count": 725,
       "freshCount": 36,
-      "eligibleTextCount": 724,
+      "eligibleTextCount": 725,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72376
+      "lastPostId": 72380
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,53 +137,54 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2107,
-  "retainedItemCount": 429,
+  "count": 2108,
+  "retainedItemCount": 426,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2107,
+    "observedCount": 2108,
     "eligibleTextCount": 2047,
-    "mediaOnlyCount": 60,
-    "mediaAttachedCount": 867,
-    "photoPostCount": 736,
+    "mediaOnlyCount": 61,
+    "mediaAttachedCount": 865,
+    "photoPostCount": 734,
     "documentPostCount": 6,
-    "imageOnlyCount": 5,
-    "highSignalCount": 348,
-    "broadSignalCount": 861,
-    "selectedRawCount": 371,
-    "selectedEligibleCount": 371,
+    "imageOnlyCount": 6,
+    "highSignalCount": 346,
+    "broadSignalCount": 862,
+    "selectedRawCount": 370,
+    "selectedEligibleCount": 370,
     "selectedRawCoveragePct": 18.1,
     "selectedOfObservedPct": 17.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 726,
-    "power": 263,
-    "geo": 296,
-    "semi": 614,
-    "ai-policy": 136,
+    "equity": 135,
+    "ai-policy": 137,
+    "earnings": 274,
     "macro": 292,
+    "semi": 611,
+    "power": 262,
+    "market-note": 726,
+    "media-only": 59,
+    "geo": 296,
     "japan": 57,
     "flows": 50,
-    "earnings": 274,
-    "credit": 78,
-    "equity": 135,
-    "media-only": 58,
+    "credit": 77,
     "kr-market": 88,
     "healthcare": 53,
     "optical": 22,
     "insider": 2
   },
   "tickerCounts": {
-    "NVDA": 380,
-    "TSLA": 40,
+    "CRWV": 18,
+    "NVDA": 379,
+    "TSLA": 39,
     "MSFT": 57,
-    "AMD": 37,
-    "MU": 31,
-    "TSM": 68,
+    "AMD": 35,
+    "MU": 29,
+    "TSM": 67,
     "PANW": 1,
     "DIS": 1,
     "TFX": 1,
@@ -196,9 +197,9 @@
     "CRM": 1,
     "NKE": 1,
     "WDAY": 1,
-    "GOOG": 58,
-    "005930.KS": 27,
-    "000660.KS": 16,
+    "GOOG": 57,
+    "005930.KS": 26,
+    "000660.KS": 15,
     "2454.TW": 7,
     "GS": 3,
     "WFC": 1,
@@ -207,7 +208,6 @@
     "GOOGL": 3,
     "WWD": 1,
     "MRVL": 1,
-    "CRWV": 17,
     "AMZN": 54,
     "ORCL": 7,
     "BA": 1,
@@ -260,34 +260,34 @@
   },
   "themes": [
     "Market Notes (726 posts in 14-day research window): 애널리스트 커버리지 정리 AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — 미즈호가 Outperform 의견과 목표주가 625달러를 유지. Salesforce-Copilot 통합 확대와...",
-    "Semiconductors/Memory (614 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획 수립과 리스크 관리 개선을 지원하도록 기능을 확대. • 마이크로소프트 (MSFT) — 바이트댄스에 추가로...",
+    "Semiconductors/Memory (611 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획 수립과 리스크 관리 개선을 지원하도록 기능을 확대. • 마이크로소프트 (MSFT) — 바이트댄스에 추가로...",
     "Geopolitics (296 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Macro/Rates (292 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) • 나스닥: 24,452.46 (+0.51%) • 러셀 2000: 2,715.80 (+0.52%) • VIX:...",
     "Earnings/Corporate (274 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "AI Power/Grid (263 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
-    "AI Policy/Export Controls (136 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번...",
+    "AI Power/Grid (262 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "AI Policy/Export Controls (137 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번...",
     "Equity/Analyst (135 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 380,
+      "count": 379,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) • 나스닥: 24,452.46 (+0.51%) • 러셀 2000: 2,715.80 (+0.52%) • VIX:..."
     },
     {
       "key": "TSM",
-      "count": 68,
+      "count": 67,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며..."
-    },
-    {
-      "key": "GOOG",
-      "count": 58,
-      "text": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     },
     {
       "key": "MSFT",
       "count": 57,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
+    },
+    {
+      "key": "GOOG",
+      "count": 57,
+      "text": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     },
     {
       "key": "AMZN",
@@ -296,32 +296,32 @@
     },
     {
       "key": "TSLA",
-      "count": 40,
+      "count": 39,
       "text": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
     },
     {
       "key": "AMD",
-      "count": 37,
+      "count": 35,
       "text": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     },
     {
       "key": "MU",
-      "count": 31,
+      "count": 29,
       "text": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
     },
     {
       "key": "005930.KS",
-      "count": 27,
+      "count": 26,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
       "key": "CRWV",
-      "count": 17,
+      "count": 18,
       "text": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러..."
     },
     {
       "key": "000660.KS",
-      "count": 16,
+      "count": 15,
       "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
@@ -355,7 +355,7 @@
       "topics": [
         "credit"
       ],
-      "count": 78,
+      "count": 77,
       "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 614,
+      "count": 611,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획 수립과 리스크 관리 개선을 지원하도록 기능을 확대. • 마이크로소프트 (MSFT) — 바이트댄스에 추가로..."
     },
     {
@@ -382,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 263,
+      "count": 262,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -391,7 +391,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 136,
+      "count": 137,
       "focus": "아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번..."
     },
     {
@@ -1430,27 +1430,6 @@
       ]
     },
     {
-      "id": "bornlupin/21005",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21005",
-      "datetime": "2026-11-04T23:54:25.000Z",
-      "localDateKst": "2026-11-05",
-      "tags": [
-        "power",
-        "earnings"
-      ],
-      "score": 97,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "시사점: AI 관련주 , 손절인가 버티기인가 : 아시아 데이터센터와 CapEx 피크론 대한 관점 최근 AI 관련주 비중을 줄이고 다른 수혜 섹터로 갈아타야 할지, 아니면 엉덩이 무게로 버텨야 할지 - 실적이...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/71608",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71608",
@@ -1691,9 +1670,88 @@
       "summary": ">>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력...",
       "lead": 1,
       "tickers": []
+    },
+    {
+      "id": "bornlupin/21101",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21101",
+      "datetime": "2026-11-10T23:18:49.000Z",
+      "localDateKst": "2026-11-11",
+      "tags": [
+        "market-note"
+      ],
+      "score": 87,
+      "hasText": true,
+      "summary": "코어위브( $CRWV ) 2026년 3분기 어닝콜 Q&A 세션 1. 골드만삭스 — AI 인프라 공급과잉 가능성 Q. 향후 1~2년간 대규모 신규 공급으로 AI 인프라가 공급과잉에 진입하면 어떻게 대응할...",
+      "tickers": [
+        "NVDA"
+      ]
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/21195",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21195",
+      "datetime": "2026-11-19T00:08:05.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "equity",
+        "ai-policy"
+      ],
+      "lead": 1,
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": "앤트로픽 IPO, 813억 달러 조달…스페이스X의 기록적인 증시 데뷔 규모 추월 최종 공모가격은 주당 83달러로 확정 앤트로픽(Anthropic PBC)과 공동창업자 7명이 기업공개(IPO) 규모를 확대하면서..."
+    },
+    {
+      "id": "insidertracking/69694",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69694",
+      "datetime": "2026-11-19T00:07:05.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "earnings"
+      ],
+      "score": 53,
+      "hasText": true,
+      "tickers": [],
+      "summary": "팔로알토 네트웍스(PANW) Q1 2027 어닝콜 요약 긍정 요인: • 매출 및 ARR 고성장. 1분기 매출은 34억4,000만달러로 전년 대비 39% 증가. NGS ARR은 97억3,000만달러로 66%..."
+    },
+    {
+      "id": "bornlupin/21194",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21194",
+      "datetime": "2026-11-19T00:03:10.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "macro",
+        "semi",
+        "power"
+      ],
+      "score": 81,
+      "hasText": true,
+      "tickers": [
+        "CRWV"
+      ],
+      "summary": "코어위브의 맥비, 부채 상환보다 데이터센터 지출 선호 코어위브(CoreWeave Inc.)의 공동 창업자 브래닌 맥비(Brannin McBee)는 최근 몇 주간 시장의 집중적인 관심을 받아온 고금리 부채..."
+    },
+    {
+      "id": "HANAchina/72380",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72380",
+      "datetime": "2026-11-18T23:58:53.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "macro"
+      ],
+      "lead": 1,
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>분석가: 5년물 미 국채 금리 5% 이상 재상승하면 매수 (블룸버그) •Loomis Sayles & Co.의 포트폴리오 매니저 Eric Williams는 5년물 미 국채 금리가 “5% 이상”으로 다시..."
+    },
     {
       "id": "bornlupin/21192",
       "channel": "bornlupin",
@@ -2709,18 +2767,17 @@
       "datetime": "2026-11-18T04:22:57.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "semi",
-        "ai-policy"
+        "semi"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": ">>엔비디아 임시 CEO, AI 공급망 투자 더욱 신중하게 검토 •엔비디아 임시 CEO Colette Kress는 향후 AI 공급망 투자에 대해 더욱 “신중하고 엄격하게” 심사할 것이라고 밝힘. 엔비디아는...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "MRVL",
         "CRWV"
-      ],
-      "summary": ">>엔비디아 임시 CEO, AI 공급망 투자 더욱 신중하게 검토 •엔비디아 임시 CEO Colette Kress는 향후 AI 공급망 투자에 대해 더욱 “신중하고 엄격하게” 심사할 것이라고 밝힘. 엔비디아는..."
+      ]
     },
     {
       "id": "insidertracking/69602",
@@ -6369,29 +6426,6 @@
       "summary": "DRAM 내년 상반기 공급 부족 심화, 모듈 업체 출하 조절로 대응 ​메모리 업체들의 3분기 실적이 잇따라 발표된 가운데 제조사들은 사상 최대 이익을 경신한 반면, 모듈 업체들의 실적은 엇갈리는 양상을..."
     },
     {
-      "id": "insidertracking/69327",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69327",
-      "datetime": "2026-11-15T07:04:47.000Z",
-      "localDateKst": "2026-11-15",
-      "tags": [
-        "market-note"
-      ],
-      "score": 54,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 7,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "요즘 화제인 AI 스마트글래스를 구경하러 명동에 다녀왔습니다. 현존하는 모델 중에서는 뉴스에 초록색 디스플레이로 나오는 중국 로키드(Rokid) 제품이 확실히 최강이었습니다. 제가 방문했을 때도 기자분들이...",
-      "tickers": [],
-      "relatedTickers": [
-        "GOOG"
-      ]
-    },
-    {
       "id": "HANAchina/72154",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72154",
@@ -6879,25 +6913,6 @@
       "summary": "앤트로픽, 로드쇼 첫날인 화요일 마감 기준 공급 물량의 약 2배에 달하는 주문이 몰렸으며, 목요일 마감 기준으로는 6배 초과 청약(oversubscribed)을 기록 이는 로드쇼 이틀째에 2배 초과 청약을...",
       "tickers": [
         "CRWD"
-      ]
-    },
-    {
-      "id": "HANAchina/72100",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72100",
-      "datetime": "2026-11-13T23:53:07.000Z",
-      "localDateKst": "2026-11-14",
-      "tags": [
-        "semi"
-      ],
-      "score": 64,
-      "hasText": true,
-      "summary": ">>(인터뷰) 엔비디아 공급망 해자가 무너질까? •젠슨 황이 엔비디아를 떠나면서 그가 공들여 구축한 공급망 해자가 약화될 수 있다는 전망이 나옴. SemiAnalysis 창립자 Dylan Patel은...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "GOOG",
-        "AMZN"
       ]
     },
     {
@@ -8493,48 +8508,6 @@
       "tickers": [
         "NVDA"
       ]
-    },
-    {
-      "id": "bornlupin/21007",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21007",
-      "datetime": "2026-11-05T02:13:16.000Z",
-      "localDateKst": "2026-11-05",
-      "tags": [
-        "market-note"
-      ],
-      "score": 73,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "JPM sales에서 올린글.. 민주당 승리가 AI 산업에 규제 리스크로 작용하지 않을까? 아닐것으로 봄 첫째, 이번 민주당 승리는 AI에 대한 반발이 아니라 경제에 대한 불만이 만들어낸 결과 갤럽이 10월...",
-      "tickers": []
-    },
-    {
-      "id": "bornlupin/21006",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21006",
-      "datetime": "2026-11-05T00:04:36.000Z",
-      "localDateKst": "2026-11-05",
-      "tags": [
-        "semi",
-        "equity"
-      ],
-      "score": 85,
-      "hasText": true,
-      "summary": "ARM Q2 2027 어닝콜 중 메모리 관련 1. AGI CPU 공급망에서 메모리 확보의 중요성 Rene Haas CEO: • Arm AGI CPU 수요는 최초 발표 당시 예상보다 훨씬 강하며, Meta뿐...",
-      "lead": 1,
-      "tickers": [
-        "AMD",
-        "MU",
-        "TSM",
-        "005930.KS",
-        "000660.KS"
-      ]
     }
   ],
   "current24hItems": [
@@ -9428,18 +9401,17 @@
       "datetime": "2026-11-18T04:22:57.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "semi",
-        "ai-policy"
+        "semi"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
+      "summary": ">>엔비디아 임시 CEO, AI 공급망 투자 더욱 신중하게 검토 •엔비디아 임시 CEO Colette Kress는 향후 AI 공급망 투자에 대해 더욱 “신중하고 엄격하게” 심사할 것이라고 밝힘. 엔비디아는...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "MRVL",
         "CRWV"
-      ],
-      "summary": ">>엔비디아 임시 CEO, AI 공급망 투자 더욱 신중하게 검토 •엔비디아 임시 CEO Colette Kress는 향후 AI 공급망 투자에 대해 더욱 “신중하고 엄격하게” 심사할 것이라고 밝힘. 엔비디아는..."
+      ]
     },
     {
       "id": "insidertracking/69602",
