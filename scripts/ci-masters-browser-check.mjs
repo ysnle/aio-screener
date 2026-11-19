@@ -1,5 +1,6 @@
 import { chromium } from 'playwright';
 import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -58,7 +59,7 @@ try {
   const coverageHolds = coverageData === 'partial' && coverageState === 'partial' && Number(currentFull) >= 1 && Number(currentFull) + Number(staleFull) === 37
     && staleFull === latestMissing && [previewOnly, metadataOnly, methodOnly, officialPrinciples, verifiedRecords].join(',') === '0,0,1,2,0';
   if (!overview.active || !overview.shell || overview.managers !== 38 || overview.styleGroups < 6 || overview.topRows !== 10 || overview.fullRows !== '0'
-    || !coverageHolds || !overview.changeSummary.includes('2026-03-31') || !/13F로 알 수 없는 것/.test(overview.styleAside)
+    || !coverageHolds || !/\d{4}-\d{2}-\d{2} 보고 주식 수 변화, 이전 보고분기 \d{4}-\d{2}-\d{2}/.test(overview.changeSummary) || !/13F로 알 수 없는 것/.test(overview.styleAside)
     || overview.nanCells || overview.devCopy || overview.overflow) throw new Error(`overview contract failed: ${JSON.stringify(overview)}`);
 
   await page.locator('#page-masters [data-masters-action="style-overview"]').click();
@@ -74,7 +75,10 @@ try {
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="changes"]').click();
   await page.locator('#page-masters [data-masters-action="change-filter"][data-masters-value="EXITED"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersActionFilter === 'EXITED');
-  if (!await page.locator('#page-masters .masters-change-ledger tbody tr').count()) throw new Error('exited comparison rows are not visible');
+  // The pinned quarter decides how many positions were exited (none in some quarters), so the rows follow the summary's count.
+  const exitedSaid = Number((await page.locator('#page-masters .masters-change-summary').first().textContent()).match(/전량 제외\s*(\d+)/)?.[1]);
+  const exitedRows = await page.locator('#page-masters .masters-change-ledger tbody tr').count();
+  if (!Number.isFinite(exitedSaid) || (exitedSaid > 0) !== (exitedRows > 0)) throw new Error(`v60.31 exited comparison rows do not follow the summary: said ${exitedSaid}, rows ${exitedRows}`);
   if (await page.locator('#page-masters .masters-change-ledger td', { hasText: 'NaN' }).count()) throw new Error('change ledger contains NaN');
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="sectors"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersSecurityMaster === 'connected' && document.getElementById('page-masters')?.dataset.aioMastersReferenceMaster === 'connected');
@@ -89,13 +93,15 @@ try {
   if (await page.locator('#page-masters .masters-filing-view a[href*="sec.gov"]').count() < 2) throw new Error('filing links missing');
 
   // Fail closed: an unreconciled cover total withholds every totals-based reading.
-  await page.locator('#page-masters .rl-nav [data-masters-action="select-manager"][data-masters-value="duquesne-family-office"]').click();
-  await page.waitForFunction(() => document.querySelector('#page-masters .masters-detail-title')?.textContent.includes('Druckenmiller'));
-  const mismatch = await page.evaluate(() => ({
-    note: document.querySelector('#page-masters .masters-detail-card .masters-note')?.textContent || '',
-    total: [...document.querySelectorAll('#page-masters .masters-metric')].find((metric) => metric.textContent.includes('신고 가치 합계'))?.textContent || ''
-  }));
-  if (!mismatch.note.includes('총액 기반 해석을 보류') || !mismatch.total.includes('보류')) throw new Error(`13F value reconciliation mismatch was not withheld: ${JSON.stringify(mismatch)}`);
+  // Which manager's cover total fails to reconcile depends on the pinned quarter; a quarter where every filing reconciles has none.
+  const unreconciled = JSON.parse(readFileSync(resolve(root, 'public-data/masters/holdings-summary.json'), 'utf8')).managers
+    .find((manager) => manager.verification?.valueReconciliationStatus === 'MISMATCH')?.id;
+  if (unreconciled) {
+    await page.locator(`#page-masters .rl-nav [data-masters-action="select-manager"][data-masters-value="${unreconciled}"]`).click();
+    await page.waitForFunction(() => /총액 기반 해석을 보류/.test(document.querySelector('#page-masters .masters-detail-card .masters-note')?.textContent || ''));
+    const total = await page.evaluate(() => [...document.querySelectorAll('#page-masters .masters-metric')].find((metric) => metric.textContent.includes('신고 가치 합계'))?.textContent || '');
+    if (!total.includes('보류')) throw new Error(`v60.31 13F value reconciliation mismatch was not withheld for ${unreconciled}: ${total}`);
+  }
   for (const [id, rows] of [['fisher-asset-management', 10], ['appaloosa-management', 10], ['scion-asset-management', 8]]) {
     await page.locator(`#page-masters .rl-nav [data-masters-action="select-manager"][data-masters-value="${id}"]`).click();
     await page.locator('#page-masters [data-masters-action="view"][data-masters-value="changes"]').click();

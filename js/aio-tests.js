@@ -1368,10 +1368,6 @@
       pages && pages.briefing && Array.isArray(pages.briefing.subSections) && pages.briefing.subSections.length === 3,
       'count=' + (pages && pages.briefing && pages.briefing.subSections ? pages.briefing.subSections.length : '?'));
 
-    // T332: technical subSections 11 → v57.78 3 (v57.76 retired indicator cards, setups, MTF, patterns, deep brief, guide)
-    _assert('T332 v57.78 technical_subsections_3: header / stock chart / market-state summary, retired sections pruned',
-      pages && pages.technical && Array.isArray(pages.technical.subSections) && pages.technical.subSections.length === 3,
-      'count=' + (pages && pages.technical && pages.technical.subSections ? pages.technical.subSections.length : '?'));
 
     // T333: macro subSections 12 → v57.78 3 (P1425 retired storyline, maps, timeline, thermometer, scenario tree, duplicate cards)
     _assert('T333 v57.78 macro_subsections_3: header / indicator board / oil-gold, retired sections pruned',
@@ -1394,19 +1390,16 @@
     _assert('T336 technical_rsi_threshold_key: 퇴역한 SPY RSI 카드의 마커가 다시 생기지 않음 (v57.76)',
       !document.querySelector('#page-charts [data-threshold-key="RSI"]'), 'retired');
 
-    // T337: signal/breadth findings 누적 유지 + sentiment/briefing/technical/macro findings 등록
-    // (v57.77: sentiment 5+ → 4+; v57.78: briefing 3+ → array, technical 3+ → 1+, macro 6+ → 1+ — findings of pruned sections left with them)
+    // T337: signal/breadth findings 누적 유지 + sentiment/briefing/macro findings 등록
+    // (v57.77: sentiment 5+ → 4+; v57.78: briefing 3+ → array, macro 6+ → 1+; v60.31: the technical clause left with the 차트 tab)
     var sentF = pages.sentiment && pages.sentiment.findings;
     var brfF  = pages.briefing && pages.briefing.findings;
-    var techF = pages.technical && pages.technical.findings;
     var macF  = pages.macro && pages.macro.findings;
-    _assert('T337 v57.78 findings_state: sentiment 4+ / briefing array / technical 1+ / macro 1+',
+    _assert('T337 v60.31 findings_state: sentiment 4+ / briefing array / macro 1+',
       Array.isArray(sentF) && sentF.length >= 4 &&
       Array.isArray(brfF) &&
-      Array.isArray(techF) && techF.length >= 1 &&
       Array.isArray(macF) && macF.length >= 1,
-      'sent=' + (sentF ? sentF.length : '?') + ' brf=' + (brfF ? brfF.length : '?') +
-      ' tech=' + (techF ? techF.length : '?') + ' mac=' + (macF ? macF.length : '?'));
+      'sent=' + (sentF ? sentF.length : '?') + ' brf=' + (brfF ? brfF.length : '?') + ' mac=' + (macF ? macF.length : '?'));
   }
 
   // ── Group50: v49.47 R97 시드 + Jensen 마킹 + fxbond/fundamental/themes ──
@@ -1485,10 +1478,6 @@
     _assert('T351 v57.78 portfolio_subsections_5: enumerate, retired sections pruned',
       pgs && pgs.portfolio && Array.isArray(pgs.portfolio.subSections) && pgs.portfolio.subSections.length === 5,
       'count=' + (pgs && pgs.portfolio && pgs.portfolio.subSections ? pgs.portfolio.subSections.length : '?'));
-
-    _assert('T352 v57.78 ticker_subsections_3: enumerate, retired inner tabs pruned',
-      pgs && pgs.ticker && Array.isArray(pgs.ticker.subSections) && pgs.ticker.subSections.length === 3,
-      'count=' + (pgs && pgs.ticker && pgs.ticker.subSections ? pgs.ticker.subSections.length : '?'));
 
     // P1321 retired the options route; P1753 removed its sequential-audit entry.
     _assert('T353 P1753 options_sequential_entry_retired',
@@ -2162,9 +2151,9 @@
       gate && Object.prototype.hasOwnProperty.call(gate, 'essenceAlignment'),
       gate ? 'status=' + gate.status : 'missing gate');
 
-    _assert('T490 beginner_briefs_all_pages_v4965: page brief registry가 모든 page를 커버',
-      essence && essence.goals.intuitiveBeginnerUse.pagesWithBriefRegistry >= document.querySelectorAll('.page[id]').length,
-      essence ? 'briefs=' + essence.goals.intuitiveBeginnerUse.pagesWithBriefRegistry + ' pages=' + document.querySelectorAll('.page[id]').length : 'missing essence');
+    var briefless490 = window.AIO && typeof window.AIO.getPageDeclutterAudit === 'function' ? window.AIO.getPageDeclutterAudit().rows.filter(function(r) { return !r.hasBrief; }).map(function(r) { return r.pageId; }) : null;
+    _assert('T490 v60.31 beginner_briefs_all_routes: every route has a page brief (a derived view reads its host screen\'s)',
+      !!briefless490 && briefless490.length === 0, briefless490 ? 'missing=' + briefless490.join(',') : 'missing declutter audit');
 
     _assert('T491 beginner_visible_loading_zero_v4965: 보이는 초기 로딩/계산 문구 0건',
       essence && essence.goals.intuitiveBeginnerUse.loadingTextCount === 0,
@@ -6803,8 +6792,6 @@
       });
       var pfHero = document.getElementById('pf-hero-stats');
       var pfHeroEmpty = !!document.querySelector('#pf-hero.is-empty'); if (!pfHero || (pfHeroEmpty ? (document.getElementById('pf-hero-empty') || {}).hidden !== false : getComputedStyle(pfHero).gridTemplateColumns.split(' ').length !== 3)) failures869.push('portfolio-hero-columns'); // v57.79: an empty portfolio collapses the hero to one empty line; three columns once it shows
-      var ia = window.AIO_ROUTE_REGISTRY && window.AIO_ROUTE_REGISTRY.classes;
-      if (!ia || ia.NAV_ROUTE.length !== 18 || ia.DERIVED_VIEW.length !== 2 || ia.REFERENCE.length !== 0 || ia.OVERLAY.length !== 1 || (ia.REMOVED || []).length !== 6) failures869.push('surface-count-contract');
       var guideChapters = document.querySelectorAll('#page-guide > .aio-guide-chapter');
       if (guideChapters.length !== 3 || document.getElementById('guide-screen-cards') || !document.getElementById('guide-rules-table')) failures869.push('guide-chapters=' + guideChapters.length); // v59.51 (content audit): three folded chapters (rules, reading, data); the screen cards are retired (the menu names the screens)
       if (Array.prototype.filter.call(guideChapters, function(el){ return el.open; }).length) failures869.push('guide-chapter-default-open');
@@ -6831,7 +6818,7 @@
       if (advanced && getComputedStyle(advanced).display === 'none') failures869.push('developer-mode-hidden');
       document.body.classList.remove('aio-dev-mode');
     } catch(e869) { failures869.push('ERR:' + (e869 && e869.message)); }
-    _assert('T869 redesign_default_path_v5289: 20 user surfaces keep the comp hierarchy; internal QA routes remain explicitly classified as 18 primary + 2 derived + 0 reference + 1 glossary overlay (P1321)', failures869.length === 0, failures869.join(','));
+    _assert('T869 v60.31 redesign_default_path: user surfaces keep the comp hierarchy (the route class counts are T924\'s)', failures869.length === 0, failures869.join(','));
   }
 
   // v52.90 P705/R331: 최종 렌더의 loaded/empty/degraded/closed 상태까지 사용자 여정 계약으로 고정한다.
@@ -7407,7 +7394,7 @@
     _assert('T922 content_truth_retired_feedback_and_policy_path (H2-07): guide has one public inquiry path and no retired board instruction', !!truth922 && truth922.fakeFeedbackInstructionCount === 0 && truth922.oldPrivateContactCount === 0 && truth922.publicContactPath === true && truth922.guideBeginnerRoute === true, JSON.stringify(truth922));
     _assert('T923 content_truth_kr_snapshot_context (H2-07): KR snapshot dates carry stale/reference context and reference action sinks are surfaced', !!truth922 && truth922.unlabeledKrSnapshotDateCount === 0 && typeof truth922.referenceActionCount === 'number', JSON.stringify(truth922));
     var route924 = window.AIO && typeof window.AIO.getRouteIAAudit === 'function' ? window.AIO.getRouteIAAudit() : null;
-    _assert('T924 route_ia_single_registry (H2-08): current DOM routes classify exactly once and map to contracts/PAGES', !!route924 && route924.status === 'pass' && route924.routeCount === 26 && route924.classCounts.NAV_ROUTE === 18 && route924.classCounts.REMOVED === 6 && route924.classCounts.DERIVED_VIEW === 2 && route924.classCounts.REFERENCE === 0 && route924.classCounts.OVERLAY === 1, JSON.stringify(route924));
+    _assert('T924 route_ia_single_registry (H2-08): current DOM routes classify exactly once and map to contracts/PAGES', !!route924 && route924.status === 'pass' && route924.routeCount === 26 && route924.classCounts.NAV_ROUTE === 17 && route924.classCounts.REMOVED === 6 && route924.classCounts.DERIVED_VIEW === 3 && route924.classCounts.REFERENCE === 0 && route924.classCounts.OVERLAY === 1, JSON.stringify(route924));
     _assert('T925 route_ia_history_and_theme_canonical (H2-08): theme-detail canonical redirect and history/hash contracts are present', !!route924 && route924.themeDetailCanonical === true && route924.historyPushState === true && route924.hashNavigation === true, JSON.stringify(route924));
     var declutter926 = window.AIO && typeof window.AIO.getPageDeclutterAudit === 'function' ? window.AIO.getPageDeclutterAudit() : null;
     _assert('T926 page_declutter_intent_registry (H2-09): every route has a first-screen intent and primary scenario', !!declutter926 && declutter926.status === 'pass' && declutter926.routeCount === 20 && declutter926.missingIntent.length === 0, JSON.stringify(declutter926));
@@ -8205,14 +8192,14 @@
       typeof window.updateTechIndicators !== 'function' && typeof window.applyTechIndicators !== 'function' && !document.getElementById('tech-indicators-live') && !document.getElementById('tech-rsi-val'),
       'updateTechIndicators=' + typeof window.updateTechIndicators + ' applyTechIndicators=' + typeof window.applyTechIndicators);
 
+    // 종목 has no price chart (it is 기술적 분석's analysis slot, whose bar periods ci-chart-scale-browser-check drives).
     var tickerTabCount = document.querySelectorAll('#page-ticker [data-ticker-tab]').length;
-    var tickerRangeCount = document.querySelectorAll('#page-ticker [data-ticker-range]').length;
-    _assert('T1029 ticker_chart_native_tabs_and_ranges (P1205)',
-      tickerTabCount === 0 && tickerRangeCount === 4 // P1430: inner tabs retired; ranges stay on the 요약 price chart
+    _assert('T1029 v60.31 ticker_no_inner_tabs_or_legacy_chart (P1205)',
+      tickerTabCount === 0 // P1430: inner tabs retired
         && !document.querySelector('#page-ticker [data-action="switchTab"]')
         && !document.querySelector('#page-ticker [data-action="loadTickerChart"]')
         && typeof loadTickerChart !== 'function',
-      `tabs=${tickerTabCount}, ranges=${tickerRangeCount}, legacy=${typeof loadTickerChart}`);
+      `tabs=${tickerTabCount}, legacy=${typeof loadTickerChart}`);
 
     var rrgOldLd = window._liveData;
     try {

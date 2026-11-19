@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-19T13:51:06.346Z",
-  "appRevision": "v60.30",
-  "gitHead": "e5a155ea7b153960eea11ab1ce437100a3cdbac7",
+  "observedAt": "2026-11-19T16:37:45.472Z",
+  "appRevision": "v60.31",
+  "gitHead": "d064602cd6ba60fffafab3a82ccf94ba5eb66786",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,82 +16,81 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 265 > 200",
-    "total long task 1024 > 1000",
-    "decoded same-origin JS 2.57MB > 1.5MB"
+    "max long task 260 > 200",
+    "decoded same-origin JS 2.56MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 2052,
-    "dclMs": 331,
-    "loadMs": 339,
-    "maxLongTaskMs": 265,
-    "totalLongTaskMs": 1024,
-    "longTaskCount": 7,
+    "fcpMs": 864,
+    "dclMs": 296,
+    "loadMs": 303,
+    "maxLongTaskMs": 260,
+    "totalLongTaskMs": 931,
+    "longTaskCount": 6,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 4188,
-    "activeRouteDomNodes": 2079,
+    "domNodes": 4177,
+    "activeRouteDomNodes": 2076,
     "scenarioDepthDeferred": true,
     "scenarioStateLoaded": true,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 2690730,
-    "sameOriginScripts": 149,
+    "decodedJsBytes": 2683905,
+    "sameOriginScripts": 145,
     "crossOriginScripts": 1,
-    "resourceEntries": 222,
+    "resourceEntries": 218,
     "jsByKind": {
-      "esmBoot": 1346580,
+      "esmBoot": 1346812,
       "classicBoot": 1001222,
       "aiPanelBeforeUse": 0,
-      "postBootLazy": 342928
+      "postBootLazy": 335871
     },
     "aiPanelRequestsBeforeUse": [],
     "largestLazyFiles": [
       {
-        "path": "src/chunks/market-regime-PYATQOQ6.js",
-        "bytes": 45540,
-        "startMs": 2089
+        "path": "src/chunks/market-regime-DIE4EXPE.js",
+        "bytes": 44819,
+        "startMs": 1990
       },
       {
-        "path": "src/chunks/session-lean-3PLJYAUR.js",
+        "path": "src/chunks/session-lean-OZOE6GFX.js",
         "bytes": 34194,
-        "startMs": 427
+        "startMs": 390
       },
       {
         "path": "src/chunks/legacy-screen-bridges-XQR2XB7M.js",
         "bytes": 27183,
-        "startMs": 235
+        "startMs": 205
       },
       {
-        "path": "src/chunks/chunk-W44COFBP.js",
+        "path": "src/chunks/chunk-DIUVKW5C.js",
         "bytes": 22799,
-        "startMs": 658
+        "startMs": 608
       },
       {
-        "path": "src/chunks/analysis-UKRXEO5R.js",
+        "path": "src/chunks/analysis-PF3FK5AJ.js",
         "bytes": 22094,
-        "startMs": 319
+        "startMs": 285
       },
       {
         "path": "src/chunks/cross-readings-TOOPIMQU.js",
         "bytes": 15509,
-        "startMs": 2170
+        "startMs": 2063
       },
       {
-        "path": "src/chunks/chunk-WOCRFH4C.js",
+        "path": "src/chunks/chunk-LJW4472U.js",
         "bytes": 15452,
-        "startMs": 2097
+        "startMs": 1997
       },
       {
-        "path": "src/chunks/chunk-FZODE5G2.js",
+        "path": "src/chunks/chunk-BTUOL5GS.js",
         "bytes": 13828,
-        "startMs": 2096
+        "startMs": 1997
       }
     ],
     "measuredBundle": "deploy",
     "aiPanelOnHover": [
       "js/aio-chat.js",
       "src/chunks/ai-profile-JDZM4GOZ.js",
-      "src/chunks/chat-globals-W3UC3ROY.js",
+      "src/chunks/chat-globals-PAXHQUWV.js",
       "src/chunks/question-cues-4LSRCT6W.js",
       "src/chunks/request-pipeline-MXW2TTNP.js",
       "src/chunks/supplied-materials-IDFFOHN4.js"
@@ -99,11 +98,11 @@
     "glossaryBeforeUse": false,
     "termMarksBeforeGlossary": 17,
     "glossaryOnTermHover": true,
-    "routeMs": 24,
-    "wallMs": 9277,
+    "routeMs": 18,
+    "wallMs": 9165,
     "totalExternalRequests": 43,
     "quoteRequests": 24,
-    "initialExternalRequests": 6,
+    "initialExternalRequests": 7,
     "initialQuoteRequests": 3,
     "bootObservationWindowMs": 2000,
     "onDemandChartLibrary": {
@@ -124,6 +123,6 @@
       "unvisited": true,
       "macroOwnsMap": 0
     },
-    "decodedJsMb": 2.57
+    "decodedJsMb": 2.56
   }
 }

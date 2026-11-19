@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-18T13:34:56.678Z",
-  "appRevision": "v60.30",
-  "gitHead": "133a12eb629d5d7a4016bf5bfa4360a9a1c1cc6c",
+  "observedAt": "2026-11-19T16:46:28.822Z",
+  "appRevision": "v60.31",
+  "gitHead": "d064602cd6ba60fffafab3a82ccf94ba5eb66786",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -109,7 +109,7 @@
       "modalContracts": []
     },
     {
-      "routeId": "technical",
+      "routeId": "charts",
       "active": true,
       "nameless": [],
       "selectCount": 0,
@@ -157,8 +157,23 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 2,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "10년 기간 프리미엄 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        },
+        {
+          "id": "",
+          "text": "채권 변동성 (MOVE) 근거 보기",
+          "width": 1,
+          "height": 1,
+          "exception": "keyboard-focus-only"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     },
@@ -391,7 +406,7 @@
       "modalContracts": []
     },
     {
-      "routeId": "charts",
+      "routeId": "technical",
       "active": true,
       "nameless": [],
       "selectCount": 0,

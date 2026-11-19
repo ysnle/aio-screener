@@ -17,7 +17,8 @@ const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const ROUTES = ROUTE_IDS;
 const version = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
 const git = (args) => { try { return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); } catch { return null; } };
-const canonical = (route) => route === 'theme-detail' ? 'themes' : route;
+let hosts = {}; // v60.31: a derived view (theme-detail, technical) settles on its host screen — read from AIO_ROUTE_REGISTRY.canonical
+const canonical = (route) => hosts[route] || route;
 const isExpectedOfflineConsole = (message) => /net::ERR_FAILED/.test(message)
   || /^\[AIO:api\]\s+[\w-]+:\s+warn\s+.*error/.test(message);
 
@@ -44,6 +45,7 @@ try {
   await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.AIO_ARCH === 'object' && typeof window.AIO_ARCH.navigate === 'function', { timeout: 30000 });
+  hosts = await page.evaluate(() => ({ ...(window.AIO_ROUTE_REGISTRY?.canonical || {}) }));
 
   for (let lap = 1; lap <= 3; lap += 1) {
     const lapRows = [];

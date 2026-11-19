@@ -53,7 +53,7 @@ try {
     };
   });
   const landingDoc = await article(page);
-  if (!landing.shell || landing.title !== '산업 지도' || landing.domains !== 19 || landing.sections.join(',') !== 'taxonomy,foundations,relationships' || landing.overflow || landingDoc.domain !== 'domain-cloud-platform' || landingDoc.lead.length < 80 || landingDoc.paragraphs < 2) throw new Error(`atlas landing incomplete: ${JSON.stringify({ landing, landingDoc })}`);
+  if (!landing.shell || landing.title !== '산업 지도' || landing.domains !== 19 || landing.sections.join(',') !== 'taxonomy,foundations,relationships,aimap' || landing.overflow || landingDoc.domain !== 'domain-cloud-platform' || landingDoc.lead.length < 80 || landingDoc.paragraphs < 2) throw new Error(`atlas landing incomplete: ${JSON.stringify({ landing, landingDoc })}`);
   if (INTERNAL_COPY.test(landingDoc.text)) throw new Error('domain overview shows internal/source copy');
 
   // Node: open a domain, then a node; reading text loads lazily and the URL follows the selection.

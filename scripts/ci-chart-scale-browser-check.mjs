@@ -47,7 +47,14 @@ function dailyFixture(sym, base, wave) {
     currentTradingPeriod: { regular: { start: SESSION_START, end: SESSION_END } } },
     timestamp: timestamps, indicators: { quote: [{ open: closes.map((c) => c * 0.996), high: closes.map((c) => c * 1.01), low: closes.map((c) => c * 0.99), close: closes, volume }], adjclose: [{ adjclose: closes }] } }] } };
 }
+// v60.31: the analysis slot's 주 bar period (the 종목 price chart and its 1m–1y ranges left with the 차트 tab).
+function weeklyFixture(sym, base, wave) {
+  const daily = dailyFixture(sym, base, wave), result = daily.chart.result[0], quote = result.indicators.quote[0];
+  const every5 = (values) => values.filter((_, i) => i % 5 === 0);
+  return { chart: { error: null, result: [{ ...result, timestamp: every5(result.timestamp), indicators: { quote: [Object.fromEntries(Object.entries(quote).map(([key, values]) => [key, every5(values)]))] } }] } };
+}
 const FIXTURES = {
+  'NVDA 1wk': weeklyFixture('NVDA', 120, 17),
   'SPY 5m': intradayFixture('SPY', 730, 14, 77), // the live 11/18 shape: 9:30–10:35 and the 16:00 bar only
   'QQQ 5m': intradayFixture('QQQ', 659), 'SOXX 5m': intradayFixture('SOXX', 141), 'IWM 5m': intradayFixture('IWM', 270),
   'QQQ 1d': dailyFixture('QQQ', 520, 23), 'SPY 1d': dailyFixture('SPY', 600, 9), 'SOXX 1d': dailyFixture('SOXX', 140, 13), 'IWM 1d': dailyFixture('IWM', 230, 31), 'NVDA 1d': dailyFixture('NVDA', 120, 17),
@@ -223,6 +230,18 @@ try {
       labelChecks(label, 'NVDA', stock.geometry, stock.lastValueVisible);
       check(stock.entireTextOnly === true, `${label}: the candle chart's price axis draws ticks cut at the pane edge (entireTextOnly, chart-scale v60.31)`, stock);
       if (shots) await page.locator('#stock-chart-canvas').screenshot({ path: resolve(shots, `stock-${label}.png`) });
+      // v60.31: a symbol open in the slot switches bar periods — 주 redraws NVDA on weekly bars and reads them; 일 returns.
+      const periods = page.getByRole('group', { name: '봉 주기' });
+      await periods.getByRole('button', { name: '주', exact: true }).click();
+      const weekly = await page.waitForFunction(() => document.getElementById('stock-chart-state')?.textContent === '주봉' && /주봉 기준/.test(document.getElementById('stock-chart-evidence')?.textContent || '')
+        && !!document.querySelector('#stock-chart-canvas .tv-lightweight-charts'), null, { timeout: 15000 }).then(() => true, () => false);
+      const pressed = await periods.getByRole('button', { name: '주', exact: true }).getAttribute('aria-pressed');
+      check(weekly && pressed === 'true', `${label}: the 주 bar period does not redraw NVDA on weekly bars in the analysis slot (v60.31)`,
+        await page.evaluate(() => ({ state: document.getElementById('stock-chart-state')?.textContent, status: document.getElementById('stock-chart-status')?.textContent, evidence: (document.getElementById('stock-chart-evidence')?.textContent || '').slice(0, 160) })));
+      await periods.getByRole('button', { name: '일', exact: true }).click();
+      const daily = await page.waitForFunction(() => document.getElementById('stock-chart-state')?.textContent !== '주봉'
+        && [...document.querySelectorAll('#stock-chart-intervals button')].find((button) => button.textContent === '일')?.getAttribute('aria-pressed') === 'true', null, { timeout: 15000 }).then(() => true, () => false);
+      check(daily, `${label}: 일 does not return the slot to daily bars (v60.31)`);
       check(errors.length === 0, `${label}: page errors`, errors);
       console.log(`chart-scale ${label}: strip SPY last ${spy ? (spy.lastX / spy.width).toFixed(3) : '?'} · cards axis ${cards.map((c) => c.axis).join('/')} plot ${cards.map((c) => c.plot).join('/')} top ${cards.map((c) => c.top).join('/')} · stock entireTextOnly ${stock.entireTextOnly} · 대표 종목 ${stockCards.length} cards (${stockCards.filter((card) => card.source === 'bars').length} drawn), ${stockLoads.total} requests, at most ${stockLoads.max} at once`);
     } catch (error) {

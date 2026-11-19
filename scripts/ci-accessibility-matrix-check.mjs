@@ -50,7 +50,7 @@ async function main() {
       await page.evaluate((id) => window.showPage(id, null), routeKey);
       await page.waitForTimeout(150);
       const audit = await page.evaluate((id) => {
-        const target = id === 'theme-detail' ? 'themes' : id;
+        const target = window.AIO_ROUTE_REGISTRY?.canonical?.[id] || id; // v60.31: a derived view (theme-detail, technical) is audited on its host screen
         const root = document.getElementById('page-' + target);
         const visible = (el) => { const cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && el.getClientRects().length > 0; };
         // v58.63 (architecture audit C1): the old oracle read textContent/value for every control, so an unlabeled select
@@ -96,7 +96,7 @@ async function main() {
         const smallTargetViolations = smallTargetViolationsAll.slice(0, 80);
         const smallTargetExceptions = smallTargetExceptionsAll.slice(0, 80);
         const modalContracts = Array.from(document.querySelectorAll('[role="dialog"],.modal,[id*="modal"]')).filter(visible).map((el) => ({ id:el.id || '', labelled:!!(el.getAttribute('aria-label') || el.getAttribute('aria-labelledby')) }));
-        return { routeId:id, active:!!root && (id === 'theme-detail' ? !!document.getElementById('page-themes')?.classList.contains('active') : root.classList.contains('active')), nameless, selectCount:controls.filter((el) => el.tagName === 'SELECT').length, selectsWithoutName, positiveTabindex, canvasCount:canvases.length, unnamedCanvas, fontUnder10Count:fontUnder10.length, fontUnder10, smallTargetViolationCount:smallTargetViolationsAll.length, smallTargetViolations, smallTargetExceptionCount:smallTargetExceptionsAll.length, smallTargetExceptions, skipLink:!!document.querySelector('.skip-link[href="#main-content"]'), modalContracts };
+        return { routeId:id, active:!!root && root.classList.contains('active'), nameless, selectCount:controls.filter((el) => el.tagName === 'SELECT').length, selectsWithoutName, positiveTabindex, canvasCount:canvases.length, unnamedCanvas, fontUnder10Count:fontUnder10.length, fontUnder10, smallTargetViolationCount:smallTargetViolationsAll.length, smallTargetViolations, smallTargetExceptionCount:smallTargetExceptionsAll.length, smallTargetExceptions, skipLink:!!document.querySelector('.skip-link[href="#main-content"]'), modalContracts };
       }, routeKey);
       result.routes.push(audit);
     }

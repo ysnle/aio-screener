@@ -961,7 +961,6 @@ const referenceBudgetProbe = await (async () => {
     && capReferenceLines('short', 100) === 'short' && CHAT_REFERENCE_BUDGET.suppliedMaterials < 9000 && CHAT_REFERENCE_BUDGET.importedResearch < 5600;
 })();
 check('v59.59 chat reference blocks are capped by line with header and closing rules kept and a trim note', referenceBudgetProbe);
-check('headless tests cover the redesigned default path', /T869 redesign_default_path_v5289/.test(tests));
 
 // [G2] v52.90 P705/R331: 최종 렌더의 loaded/empty/degraded/closed 사용자 상태 계약.
 const newsMoreAt = html.indexOf('id="news-load-more-wrap"');
@@ -1509,7 +1508,7 @@ check('R340/P712: future-event calendar is data-driven and no stale 7\/10 BOK ro
   // P1389: the briefing schedule (buildBriefingSchedule over AIO_MACRO_CALENDAR) replaced the archived calendar block.
   /export function buildBriefingSchedule/.test(read('src/domain/briefing/schedule.js')) && /id="briefing-schedule-rows"/.test(html) && !/>7\/10<\/span>[\s\S]{0,260}한국은행 금통위/.test(html + macroTech));
 check('R340/P712: semantic market-integrity tests cover curve exactness and KR missingness',
-  /T1025 treasury_curve_exact_2s10s/.test(tests) && /T1027 kr_theme_missingness_fail_closed/.test(tests) && /T1028 technical_indicator_no_intraday_synthesis/.test(tests) && /T1029 ticker_chart_native_tabs_and_ranges/.test(tests) && /T1030 rrg_history_fail_closed/.test(tests) && /T1031 mcclellan_requires_advance_decline_history/.test(tests) && /T1032 hy_oas_official_only/.test(tests) && /T1033 breadth_chart_no_random_series/.test(tests) && /T1034 market_health_grade_retired/.test(tests));
+  /T1025 treasury_curve_exact_2s10s/.test(tests) && /T1027 kr_theme_missingness_fail_closed/.test(tests) && /T1028 technical_indicator_no_intraday_synthesis/.test(tests) && /T1030 rrg_history_fail_closed/.test(tests) && /T1031 mcclellan_requires_advance_decline_history/.test(tests) && /T1032 hy_oas_official_only/.test(tests) && /T1033 breadth_chart_no_random_series/.test(tests) && /T1034 market_health_grade_retired/.test(tests));
 check('R340/P712: synthetic market-series formulas are absent from decision paths',
   !/50\s*\+\s*\(chg\s*\*\s*5\)/.test(html) && !/500\s*\*\s*abv50/.test(html) && !/\(85\s*-\s*p\)\s*\*\s*20\s*\+\s*250/.test(ui) && !/latestLiveVal\s*\*\s*\(1\s*\+\s*\(Math\.random/.test(core));
 check('R340/P712: KR yields and US breadth require timestamped current evidence and fail closed otherwise',

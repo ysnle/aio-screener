@@ -21,10 +21,12 @@ try {
   await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.AIO_ARCH === 'object' && typeof window.AIO_ARCH.navigate === 'function', { timeout: 30000 });
+  // v60.31: a derived view (theme-detail, technical) settles on its host screen — read from AIO_ROUTE_REGISTRY.canonical.
+  const hosts = await page.evaluate(() => ({ ...(window.AIO_ROUTE_REGISTRY?.canonical || {}) }));
   for (const slice of VERTICAL_SLICE_CONTRACTS) {
     const routeResults = [];
     for (const route of slice.routes) {
-      const canonicalRoute = route === 'theme-detail' ? 'themes' : route;
+      const canonicalRoute = hosts[route] || route;
       if (route === 'theme-detail') await addressThemeDetail(page); // a detail needs a theme id (fix-r1-theme)
       await page.evaluate((id) => window.AIO_ARCH.navigate(id), route);
       await page.waitForFunction((id) => document.getElementById(`page-${id}`)?.dataset.aioArchitectureRoute === id, canonicalRoute);

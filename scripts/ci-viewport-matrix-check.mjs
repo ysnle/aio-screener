@@ -31,7 +31,7 @@ if (!VIEWPORTS.length) throw new Error('AIO_VIEWPORT_NAMES did not match a known
 async function activateRoute(page, routeId) {
   if (routeId === 'theme-detail') await addressThemeDetail(page); // a detail needs a theme id (fix-r1-theme)
   return page.evaluate((id) => {
-    const targetPageId = id === 'theme-detail' ? 'themes' : id;
+    const targetPageId = window.AIO_ROUTE_REGISTRY?.canonical?.[id] || id; // v60.31: a derived view lives on its host screen
     const targetPage = document.getElementById('page-' + targetPageId);
     if (!targetPage) return { routeId: id, fatal: 'page element missing' };
     if (window.__AIO_VIEWPORT_FULL_INIT__ && typeof window.showPage === 'function') {
@@ -46,7 +46,7 @@ async function activateRoute(page, routeId) {
 
 async function auditRoute(page, routeId) {
   return page.evaluate((id) => {
-    const targetPageId = id === 'theme-detail' ? 'themes' : id;
+    const targetPageId = window.AIO_ROUTE_REGISTRY?.canonical?.[id] || id; // v60.31: a derived view lives on its host screen
     const targetPage = document.getElementById('page-' + targetPageId);
     if (!targetPage) return { routeId: id, fatal: 'page element missing' };
     const pageEl = targetPage;
@@ -187,7 +187,7 @@ async function auditRoute(page, routeId) {
 // to a selected theme, otherwise the matrix would only prove that the themes root exists.
 async function settleRoute(page, routeId) {
   await page.waitForFunction((id) => {
-    const targetId = id === 'theme-detail' ? 'themes' : id;
+    const targetId = window.AIO_ROUTE_REGISTRY?.canonical?.[id] || id;
     const pageEl = document.getElementById('page-' + targetId);
     if (!pageEl || !pageEl.classList.contains('active')) return false;
     if (id === 'theme-detail') {
@@ -275,7 +275,7 @@ async function main() {
             // the 5s polling deadline even though the route is active once the main
             // thread yields. Re-check the same predicate before calling it a failure.
             const activeAfterTimeout = await page.evaluate((id) => {
-              const targetId = id === 'theme-detail' ? 'themes' : id;
+              const targetId = window.AIO_ROUTE_REGISTRY?.canonical?.[id] || id;
               const pageEl = document.getElementById('page-' + targetId);
               if (!pageEl || !pageEl.classList.contains('active')) return false;
               if (id !== 'theme-detail') return true;
@@ -295,7 +295,7 @@ async function main() {
         if (settleFailure) r.fatal = r.fatal || settleFailure;
         if (settleTimedOutButActive) r.settleTimedOutButActive = true;
         if (FULL_INIT) r.routeSemanticReady = await page.evaluate((id) => {
-          const targetId = id === 'theme-detail' ? 'themes' : id;
+          const targetId = window.AIO_ROUTE_REGISTRY?.canonical?.[id] || id;
           const pageEl = document.getElementById('page-' + targetId);
           if (!pageEl || !pageEl.classList.contains('active')) return false;
           if (id !== 'theme-detail') return true;

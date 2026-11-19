@@ -1,6 +1,6 @@
 // v57.81 (owner 2026-10-15: "단순 내부 데이터베이스에 등록만 한다고 끝이 아니야"): a US listing outside the published
-// screener universe works across the app — the ticker summary places it against the universe with the screener's own
-// formula, the 재무 공시 tab reads its SEC filing on demand (or says why not), the compare tray, watchlist, price alerts,
+// screener universe works across the app — it is placed against the universe with the screener's own formula, 종목's
+// 개요 and 재무 공시 read its SEC filing on demand (or say why not), its chart opens on 기술적 분석 (v60.31), the watchlist,
 // portfolio and AI context accept it, and an unlisted symbol is refused. Real route lifecycle; Yahoo chart, SEC
 // companyfacts/submissions and the listing directory are intercepted fixtures; every other external call (AI included)
 // is aborted. Not a live provider certification.
@@ -72,11 +72,9 @@ async function layout(page, label) {
   observations.push({ label, layout: result });
   check(result.overflow <= 2 && !result.clipped.length, `${label}: content escapes the viewport (v57.81)`, result);
 }
-const blockState = (page) => page.evaluate(() => {
-  const block = document.getElementById('ticker-out-of-universe');
-  return block ? { state: block.dataset.onDemandState, text: block.textContent, inputs: [...block.querySelectorAll('li[data-factor]')].map((li) => ({ factor: li.dataset.factor, status: li.dataset.status })),
-    marker: !!block.querySelector('.stock-read-marker'), button: !!block.querySelector('button') } : null;
-});
+// v60.31: 종목 is company analysis (개요, 재무 공시) with no placement block, price chart or rank; the on-demand record is
+// read where the screens read it, and the chart is 기술적 분석's analysis slot.
+const recordReady = (page, sym, timeout = 30000) => page.waitForFunction((s) => window._aioOnDemandSymbol?.(s)?.status === 'ready', sym, { timeout });
 
 let server, browser;
 try {
@@ -107,22 +105,30 @@ try {
       const acknowledge = page.getByRole('button', { name: '확인했습니다', exact: true });
       if (await acknowledge.isVisible()) await acknowledge.click();
 
-      // 1. Ticker summary: live quote + chart + on-demand placement with SEC-backed quality.
+      // 1. 종목: live quote + company overview from the on-demand SEC record; the on-demand placement reaches the AI context.
       await page.evaluate(() => window.showTicker('UFPT'));
-      await page.waitForFunction(() => document.getElementById('ticker-out-of-universe')?.dataset.onDemandState === 'ready', null, { timeout: 30000 });
-      const ufpt = await blockState(page);
-      const hero = await page.evaluate(async () => ({ price: document.getElementById('ticker-hero-price')?.textContent || '', chartEnd: document.getElementById('ticker-price-chart')?.dataset.tickerChartEnd || null,
+      await recordReady(page, 'UFPT');
+      await page.locator('#ticker-company').getByText('재무 한눈에').waitFor({ timeout: 20000 });
+      const hero = await page.evaluate(async () => ({ price: document.getElementById('ticker-hero-price')?.textContent || '', company: document.getElementById('ticker-company')?.innerText || '',
         record: (({ status, secStatus, sessionDate, placement }) => ({ status, secStatus, sessionDate, rank: placement?.rank, ranked: placement?.ranked }))(window._aioOnDemandSymbol('UFPT') || {}),
         context: window.__aioCompanyAnalysis ? (await import('./src/domain/entity/company-analysis.js')).companyAnalysisContext(window.__aioCompanyAnalysis) : null, registered: window.__aioCompanyAnalysis?.identity?.registered }));
-      observations.push({ label, ufpt, hero });
-      check(/랭킹 대상 밖 종목 — 현재 유니버스 기준 위치/.test(ufpt?.text || '') && /요청 시 계산/.test(ufpt.text) && /상위 약/.test(ufpt.text) && ufpt.marker && ufpt.button,
-        `${label}: UFPT placement block lacks title / on-demand label / percentile (v57.81)`, ufpt);
-      check(ufpt?.inputs.some((input) => input.factor === 'quality' && input.status === 'used'), `${label}: UFPT SEC facts did not reach the quality input (v57.81)`, ufpt?.inputs);
+      observations.push({ label, hero: { ...hero, company: hero.company.slice(0, 400) } });
       check(hero.record.status === 'ready' && hero.record.secStatus === 'ready' && Number.isFinite(hero.record.rank) && hero.record.ranked > 100, `${label}: UFPT on-demand record incomplete (v57.81)`, hero.record);
       check(/\$\d/.test(hero.price), `${label}: UFPT hero has no quote (v57.81)`, hero.price);
-      check(hero.chartEnd === hero.record.sessionDate || hero.chartEnd > hero.record.sessionDate, `${label}: UFPT chart did not render the fixture series (v57.81)`, hero);
+      // The fixture filing: revenue 400M → 504M (+26.0%), net income 59M on 504M (11.7%).
+      check(/매출 성장[\s\S]*\+26\.0%/.test(hero.company) && /순이익률[\s\S]*11\.7%/.test(hero.company), `${label}: UFPT 개요 재무 한눈에 does not read the on-demand SEC filing (v60.31)`, hero.company.slice(0, 600));
       check(/랭킹 대상 밖 종목/.test(hero.context || ''), `${label}: the AI company context lacks the on-demand placement (v57.81)`, hero.context);
       check(hero.registered === false, `${label}: the company analysis must not call an on-demand row a registered universe row (v57.81)`, hero.registered);
+      // 1b. The chart: the 종목 subject line's link opens UFPT in 기술적 분석's analysis slot with the fixture series.
+      await page.getByRole('button', { name: '기술적 분석에서 보기' }).click();
+      await page.waitForFunction(() => document.querySelector('.page.active')?.id === 'page-charts' && document.getElementById('stock-chart-section')?.dataset.symbol === 'UFPT'
+        && !!document.querySelector('#stock-chart-canvas .tv-lightweight-charts'), null, { timeout: 30000 }).catch(() => {});
+      const chart = await page.evaluate(() => ({ active: document.querySelector('.page.active')?.id || null, hash: location.hash, symbol: document.getElementById('stock-chart-section')?.dataset.symbol || null,
+        drawn: !!document.querySelector('#stock-chart-canvas .tv-lightweight-charts'), status: document.getElementById('stock-chart-status')?.textContent || '' }));
+      observations.push({ label, chart });
+      check(chart.active === 'page-charts' && chart.symbol === 'UFPT' && chart.drawn && chart.status.startsWith(hero.record.sessionDate || '?') && /\$\d/.test(chart.status),
+        `${label}: UFPT chart did not open on 기술적 분석 with the fixture series (v60.31)`, { chart, sessionDate: hero.record.sessionDate });
+      await layout(page, `${label}/charts-ufpt`);
       // v59.54 (run-6 #11): a listed symbol no registry names shows the official listing name, not only its letters.
       await page.evaluate(() => window.showTicker('BUFX'));
       const bufx = await page.waitForFunction(() => /Fixture Dynamic Buffer ETF/.test(document.getElementById('ticker-hero-fullname')?.textContent || ''), null, { timeout: 15000 }).then(() => true).catch(() => false);
@@ -134,12 +140,9 @@ try {
       const bufxKept = await page.evaluate(() => document.getElementById('ticker-hero-fullname')?.textContent || '');
       check(/Fixture Dynamic Buffer ETF/.test(bufxKept), `${label}: the listing name must survive the re-render after the symbol's quote request (v59.74)`, bufxKept);
       await page.evaluate(() => window.showTicker('UFPT'));
-      await page.waitForFunction(() => document.getElementById('ticker-out-of-universe')?.dataset.onDemandState === 'ready', null, { timeout: 30000 });
+      await page.locator('#ticker-company').getByText('재무 한눈에').waitFor({ timeout: 20000 });
       await layout(page, `${label}/ticker-ufpt`);
       await atomicWriteFile(resolve(out, `browser-${label}-ufpt.png`), await page.screenshot({ fullPage: true }));
-      // The section re-renders with each quote event, so the viewport is captured after scrolling to it.
-      await page.evaluate(() => document.getElementById('ticker-out-of-universe')?.scrollIntoView({ block: 'start' }));
-      await atomicWriteFile(resolve(out, `browser-${label}-ufpt-placement.png`), await page.screenshot());
 
       // 2. 재무 공시 tab reads the same on-demand SEC record.
       await page.locator('#aio-hub-tabs [data-arg="fundamental"]').click();
@@ -149,27 +152,17 @@ try {
       check(/SEC 연간 공시/.test(fund), `${label}: UFPT 재무 공시 status did not read the on-demand filing (v57.81)`, fund);
       await layout(page, `${label}/fundamental-ufpt`);
 
-      // 3. No CIK: placement without fundamentals, missing quality named, 재무 status says why.
+      // 3. No CIK: the record is placed without fundamentals (quality missing) and 재무 status says why.
       await page.evaluate(() => window.showTicker('HALO'));
-      await page.waitForFunction(() => document.getElementById('ticker-out-of-universe')?.dataset.onDemandState === 'ready', null, { timeout: 30000 }).catch(() => {});
-      const halo = await blockState(page);
+      await recordReady(page, 'HALO').catch(() => {});
+      const halo = await page.evaluate(() => (({ status, secStatus, placement }) => ({ status, secStatus, placed: !!placement,
+        qualityMissing: (placement?.inputs || []).some((input) => input.key === 'quality' && input.active && !input.usable) }))(window._aioOnDemandSymbol?.('HALO') || {}));
       observations.push({ label, halo });
-      check(halo?.state === 'ready' && halo.inputs.some((input) => input.factor === 'quality' && input.status === 'missing') && /CIK/.test(halo.text), `${label}: HALO without CIK must show placement with quality missing and say why (v57.81)`, halo);
+      check(halo.status === 'ready' && halo.secStatus === 'no-cik' && halo.placed && halo.qualityMissing, `${label}: HALO without CIK must still be placed with quality missing and its filing marked no-cik (v60.31)`, halo);
       await page.locator('#aio-hub-tabs [data-arg="fundamental"]').click();
       await page.waitForFunction(() => /CIK/.test(document.getElementById('fund-data-status')?.textContent || ''), null, { timeout: 15000 }).catch(() => {});
       const haloFund = await page.evaluate(() => document.getElementById('fund-data-status')?.textContent || '');
       check(/CIK/.test(haloFund) && !/SEC 데이터 미수신/.test(haloFund), `${label}: HALO 재무 status must name the missing CIK (v57.81)`, haloFund);
-
-      // 4. Compare tray: the placement button queues HALO; the tray shows it with the on-demand note and no rank.
-      await page.evaluate(() => window.showTicker('HALO'));
-      await page.waitForFunction(() => document.getElementById('ticker-out-of-universe')?.dataset.onDemandState === 'ready', null, { timeout: 15000 });
-      await page.locator('#ticker-out-of-universe button').click();
-      await page.evaluate(() => window.showPage('screener'));
-      await page.waitForFunction(() => /HALO/.test(document.getElementById('scr-compare-list')?.textContent || ''), null, { timeout: 15000 }).catch(() => {});
-      const tray = await page.evaluate(() => ({ list: document.getElementById('scr-compare-list')?.textContent || '', note: document.querySelector('.scr-compare-on-demand')?.textContent || '' }));
-      observations.push({ label, tray });
-      check(/HALO/.test(tray.list) && /랭킹 대상 밖 종목/.test(tray.note), `${label}: compare tray lacks the on-demand HALO row/note (v57.81)`, tray);
-      await layout(page, `${label}/screener-compare`);
 
       // 5. Watchlist accepts listed symbols (v58.76: price alerts are retired), refuse unlisted ones, and add accepted ones to the quote set.
       const accept = await page.evaluate(async () => {
@@ -223,8 +216,8 @@ try {
 
       // 7. Search + AI: a typed symbol opens the same placement; the chat block and public-facts reader include it.
       await page.evaluate(() => window.showTicker('mli'));
-      await page.waitForFunction(() => window._currentTickerId === 'MLI' && document.getElementById('ticker-out-of-universe')?.dataset.onDemandState === 'ready', null, { timeout: 30000 }).catch(() => {});
-      const ai = await page.evaluate(async () => ({ block: document.getElementById('ticker-out-of-universe')?.dataset.onDemandState || null,
+      await page.waitForFunction(() => window._currentTickerId === 'MLI' && window._aioOnDemandSymbol?.('MLI')?.status === 'ready', null, { timeout: 30000 }).catch(() => {});
+      const ai = await page.evaluate(async () => ({ block: window._aioOnDemandSymbol?.('MLI')?.status || null,
         chat: await window._aioOnDemandChatContext('MLI'), facts: Object.keys(await window.AIO.readPublicFundamentals(['MLI', 'HALO'])) }));
       observations.push({ label, ai });
       check(ai.block === 'ready' && /랭킹 대상 밖 종목/.test(ai.chat) && /순위 n위/.test(ai.chat), `${label}: search/AI context lacks the MLI on-demand placement (v57.81)`, ai);
@@ -246,4 +239,4 @@ finally {
     paidCalls: 0, observations, failures }, null, 2)}\n`);
 }
 if (failures.length) { console.error(`Out-of-universe ticker browser FAIL (${failures.length})`); failures.forEach((row) => console.error(JSON.stringify(row).slice(0, 1500))); process.exit(1); }
-console.log('Out-of-universe ticker browser PASS: placement, quote/chart, on-demand SEC, missing-CIK, compare, watchlist, alerts, portfolio, search and AI context at 375px and desktop (fixtures; no paid calls).');
+console.log('Out-of-universe ticker browser PASS: quote, company overview from on-demand SEC, chart on 기술적 분석, missing-CIK, watchlist, portfolio, search and AI context at 375px and desktop (fixtures; no paid calls).');

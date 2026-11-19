@@ -481,75 +481,28 @@ try {
     extensionRenderer: document.getElementById('ticker-hero-ext')?.dataset.aioTickerExtensionRenderer || null,
     extensionDisplay: document.getElementById('ticker-hero-ext')?.style.display || '',
     extensionText: document.getElementById('ticker-hero-ext')?.textContent || '',
-    chartRenderer: document.getElementById('ticker-price-chart')?.dataset.aioTickerChartRenderer || null,
-    chartSourceKind: document.getElementById('ticker-price-chart')?.dataset.sourceKind || null,
     // v57.76: the 요약 tab's 최근 3봉 형태 section (ticker-candle-symbol) was retired; the subject hand-off is what remains.
     retiredCandleSection: !!document.getElementById('ticker-candle-symbol') || !!document.getElementById('realtime-pattern-indicator'),
     subject: String(window._aioLastOpenedSymbol || '').toUpperCase(),
-    searchBeforeRead: (() => { const search = document.getElementById('ticker-search-open'); const read = document.getElementById('ticker-read'); return !!(search && read && (search.compareDocumentPosition(read) & Node.DOCUMENT_POSITION_FOLLOWING)); })(),
+    searchBeforeRead: (() => { const search = document.getElementById('ticker-search-open'); const read = document.getElementById('ticker-company'); /* v60.31: the company overview is the reading */ return !!(search && read && (search.compareDocumentPosition(read) & Node.DOCUMENT_POSITION_FOLLOWING)); })(),
   }));
-  if (tickerRoute.chartRenderer !== 'native' || !['unavailable', 'native-runtime'].includes(tickerRoute.chartSourceKind)) throw new Error(`ticker native chart surface failed: ${JSON.stringify(tickerRoute)}`);
-  // P1430: the ticker page's inner tabs (재무 공시 · 가격 이력) were retired — the 종목 hub tabs own that
-  // split, and the price chart is part of 요약 next to the price/theme/factor rail.
+  // v60.31: 종목 is company analysis (개요, 재무 공시); its price chart is 기술적 분석's analysis slot (ci-chart-scale drives it).
+  await page.waitForFunction(() => /재무 한눈에/.test(document.getElementById('ticker-company')?.textContent || ''), null, { timeout: 15000 }).catch(() => {});
+  tickerRoute.companyOverview = await page.evaluate(() => !document.getElementById('ticker-company')?.hidden && /재무 한눈에/.test(document.getElementById('ticker-company')?.textContent || ''));
+  if (!tickerRoute.companyOverview) throw new Error(`v60.31 ticker company overview failed: ${JSON.stringify(tickerRoute)}`);
+  // P1430: the ticker page's inner tabs (재무 공시 · 가격 이력) were retired — the 종목 hub tabs own that split.
   const tickerLayout = await page.evaluate(() => ({
     innerTabs: document.querySelectorAll('#page-ticker [data-ticker-tab]').length,
-    // v57.79: the price panel is visible and shows exactly one state — the chart canvas or the loading/error line, never both.
-    chartVisible: !!document.getElementById('ticker-price-panel')?.getClientRects().length
-      && (!!document.getElementById('ticker-price-chart')?.getClientRects().length !== (getComputedStyle(document.getElementById('ticker-chart-loading')).display !== 'none')),
-    externalChart: !!document.getElementById('tv-widget-ticker'),
     hubTabs: [...document.querySelectorAll('#aio-hub-tabs .aio-hub-tab')].map((tab) => tab.dataset.arg),
     // Owner 2026-11-19: the 차트 tab is retired; the subject line links to 기술적 분석 instead.
     chartLink: document.querySelector('#aio-hub-tabs .aio-hub-subject-chart')?.dataset.action || ''
   }));
-  if (tickerLayout.innerTabs !== 0 || !tickerLayout.chartVisible || tickerLayout.externalChart || tickerLayout.hubTabs.join(',') !== 'ticker,fundamental' || tickerLayout.chartLink !== 'aioOpenMarketChart') throw new Error(`P1430 ticker summary layout failed: ${JSON.stringify(tickerLayout)}`);
-  const tickerRangeEvidence = [];
-  for (const [range, expectedRows] of [['1m', 31], ['3m', 91], ['6m', 181], ['1y', 366]]) {
-    await page.evaluate(() => {
-      const end = Date.parse('2026-09-24T00:00:00Z');
-      const history = Array.from({ length: 400 }, (_, index) => {
-        const daysAgo = 399 - index;
-        return { time: new Date(end - daysAgo * 86400000).toISOString(), close: 100 + index, epochMs: end - daysAgo * 86400000, open: 100 + index, high: 101 + index, low: 99 + index, volume: 1 };
-      });
-      window._technicalOHLCV = { ...(window._technicalOHLCV || {}), NVDA: history };
-      window._tickerHistory = { ...(window._tickerHistory || {}), NVDA: history };
-      document.dispatchEvent(new CustomEvent('aio:entityChanged', { detail: { id: 'NVDA', source: 'ticker-browser-fixture' } }));
-    });
-    await page.locator(`#page-ticker [data-ticker-range="${range}"]`).click();
-    await page.waitForFunction((expected) => {
-      const canvas = document.getElementById('ticker-price-chart');
-      return canvas?.dataset.tickerChartRange === expected.range
-        && Number(canvas?.dataset.tickerChartRowCount || 0) === expected.rows
-        && document.querySelector(`#page-ticker [data-ticker-range="${expected.range}"]`)?.getAttribute('aria-pressed') === 'true';
-    }, { range, rows: expectedRows });
-    // v59.55 (C1): the price line is the shared SVG trend chart; one path segment per observation.
-    await page.waitForFunction((expected) => {
-      const path = document.querySelector('#ticker-price-chart svg.trend-chart path.trend-chart-line');
-      return (path?.getAttribute('d')?.match(/[ML]/g) || []).length === expected.rows
-        && document.getElementById('ticker-chart-loading')?.style.display === 'none';
-    }, { rows: expectedRows });
-    tickerRangeEvidence.push(await page.evaluate(() => {
-      const canvas = document.getElementById('ticker-price-chart');
-      return {
-        range: canvas?.dataset.tickerChartRange,
-        rows: Number(canvas?.dataset.tickerChartRowCount || 0),
-        start: canvas?.dataset.tickerChartStart,
-        end: canvas?.dataset.tickerChartEnd,
-        sourceKind: canvas?.dataset.sourceKind || null,
-        rendered: !!canvas?.querySelector('svg.trend-chart path.trend-chart-line'),
-        meta: document.getElementById('ticker-chart-meta')?.textContent || ''
-      };
-    }));
-  }
-  if (tickerRangeEvidence.map((item) => item.rows).join(',') !== '31,91,181,366'
-    || new Set(tickerRangeEvidence.map((item) => item.range)).size !== 4
-    || tickerRangeEvidence.some((item) => item.sourceKind !== 'native-runtime' || !item.rendered)) throw new Error(`ticker native range windows failed: ${JSON.stringify(tickerRangeEvidence)}`);
-  tickerRoute.tabRangeEvidence = tickerRangeEvidence;
-  // v59.68: the related-theme action is the reading's own theme line (the 이어서 볼 곳 list that also carried one is gone).
-  const relatedTheme = page.locator('#page-ticker .stock-read-point-link[data-theme-id]:visible').first();
-  await relatedTheme.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
-  if (await relatedTheme.count() < 1 || !(await relatedTheme.isVisible())) throw new Error('ticker related-theme action is unavailable for NVDA');
-  const relatedThemeId = await relatedTheme.getAttribute('data-theme-id');
-  await relatedTheme.click();
+  if (tickerLayout.innerTabs !== 0 || tickerLayout.hubTabs.join(',') !== 'ticker,fundamental' || tickerLayout.chartLink !== 'aioOpenMarketChart') throw new Error(`P1430 ticker summary layout failed: ${JSON.stringify(tickerLayout)}`);
+  // v60.31: the 종목 reading and its theme line are retired; a theme opened from another screen (showThemeDetail, the
+  // knowledge views' theme links) still hands the detail over to 테마 lazily. NVDA's own leader theme is the fixture.
+  const relatedThemeId = await page.evaluate(() => (window.THEME_MAP || []).find((theme) => (theme.leaders || []).includes('NVDA'))?.id || null);
+  if (!relatedThemeId) throw new Error('no THEME_MAP theme lists NVDA as a leader');
+  await page.evaluate((themeId) => window.showThemeDetail(themeId), relatedThemeId);
   await page.waitForFunction((themeId) => {
     const pageNode = document.getElementById('page-themes');
     const panel = document.getElementById('theme-detail-panel');

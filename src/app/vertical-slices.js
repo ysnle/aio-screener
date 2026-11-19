@@ -7,7 +7,7 @@ const ACCEPTANCE = Object.freeze(['lifecycle', 'data', 'fieldTimeline', 'rendere
 
 export const VERTICAL_SLICE_CONTRACTS = Object.freeze([
   Object.freeze({ id: 'vs01-home-signal', order: 1, routes: Object.freeze(['home', 'signal']), requiredData: Object.freeze(['quotes', 'sentiment', 'breadth', 'technicals', 'vixHistory', 'hySpread']), acceptance: ACCEPTANCE }),
-  Object.freeze({ id: 'vs02-technical-ticker', order: 2, routes: Object.freeze(['technical', 'ticker']), requiredData: Object.freeze(['quotes', 'technicals', 'news']), acceptance: ACCEPTANCE }),
+  Object.freeze({ id: 'vs02-ticker', order: 2, routes: Object.freeze(['ticker']), requiredData: Object.freeze(['quotes', 'technicals', 'news']), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs03-macro-fxbond', order: 3, routes: Object.freeze(['macro', 'fxbond']), requiredData: Object.freeze(['quotes', 'fred', 'hySpread']), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs04-themes-detail', order: 4, routes: Object.freeze(['themes', 'theme-detail']), requiredData: Object.freeze(['quotes', 'technicals']), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs05-fundamental-screener', order: 5, routes: Object.freeze(['fundamental', 'screener']), requiredData: Object.freeze(['quotes', 'screenerArtifact']), acceptance: ACCEPTANCE }),
@@ -18,7 +18,7 @@ export const VERTICAL_SLICE_CONTRACTS = Object.freeze([
   Object.freeze({ id: 'vs11-principles', order: 11, routes: Object.freeze(['principles']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs12-masters', order: 12, routes: Object.freeze(['masters']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs13-atlas', order: 13, routes: Object.freeze(['atlas']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
-  Object.freeze({ id: 'vs14-charts', order: 14, routes: Object.freeze(['charts']), requiredData: Object.freeze(['quotes', 'technicals']), acceptance: ACCEPTANCE }) // v59.64 기술적 분석
+  Object.freeze({ id: 'vs14-charts', order: 14, routes: Object.freeze(['charts', 'technical']), requiredData: Object.freeze(['quotes', 'technicals']), acceptance: ACCEPTANCE }) // v59.64 기술적 분석; v60.31: technical is its derived view (the retired 종목 차트 tab), as theme-detail is 테마's
 ]);
 
 const ROUTE_TO_SLICE = new Map(VERTICAL_SLICE_CONTRACTS.flatMap((slice) => slice.routes.map((route) => [route, slice])));

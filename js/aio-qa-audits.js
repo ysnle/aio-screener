@@ -2767,23 +2767,25 @@ window.AIO.getAutoDataContinuityAudit = function(opts) {
 window.AIO_PAGE_DECLUTTER_POLICY = {
   priorityRoutes: ['signal','macro','charts','fxbond','guide','principles','masters','atlas','themes','portfolio','screener'],
   intents: {
-    home:'오늘 시장을 열어도 되는지 결정', signal:'진입·보유·축소 중 하나를 선택', breadth:'지수 상승의 참여 폭 확인', sentiment:'심리 과열·공포 확인', briefing:'오늘 행동을 바꿀 뉴스 압축 확인', 'market-news':'가격 영향 뉴스만 분류', technical:'추세 유지·축소·헤지 판단', screener:'후보를 팩터로 좁히기', ticker:'선택 종목 최종 검증', portfolio:'보유 위험과 리밸런싱 확인', themes:'주도 테마와 리더 확인', 'theme-detail':'선택 테마의 리더·리스크 확인', macro:'정책·성장·금리 압력 확인', fxbond:'달러·금리·크레딧 압력 확인', fundamental:'가격에 살 이유와 결측 확인', guide:'사용 루틴과 정책 참고', principles:'금리·산업·병목의 연결 구조 학습', masters:'공개 보유와 데이터 한계 확인', atlas:'AI 원리·산업·시장 연결 구조 학습', charts:'지수·대표 종목의 추세 위치 확인'
+    home:'오늘 시장을 열어도 되는지 결정', signal:'진입·보유·축소 중 하나를 선택', breadth:'지수 상승의 참여 폭 확인', sentiment:'심리 과열·공포 확인', briefing:'오늘 행동을 바꿀 뉴스 압축 확인', 'market-news':'가격 영향 뉴스만 분류', screener:'후보를 팩터로 좁히기', ticker:'선택 종목 최종 검증', portfolio:'보유 위험과 리밸런싱 확인', themes:'주도 테마와 리더 확인', 'theme-detail':'선택 테마의 리더·리스크 확인', macro:'정책·성장·금리 압력 확인', fxbond:'달러·금리·크레딧 압력 확인', fundamental:'가격에 살 이유와 결측 확인', guide:'사용 루틴과 정책 참고', principles:'금리·산업·병목의 연결 구조 학습', masters:'공개 보유와 데이터 한계 확인', atlas:'AI 원리·산업·시장 연결 구조 학습', charts:'지수·대표 종목의 추세 위치 확인'
   },
   scenarios: {
     home:'첫 진입자는 홈→시그널→포트폴리오', signal:'신규 진입 전 점수·lockout 확인', portfolio:'보유 종목 추가 후 집중도 확인', screener:'필터 후 티커 분석으로 이동', guide:'초보자 시작 홈으로 이동', principles:'Tree→Graph→Path로 한 개념씩 연결', masters:'신고주체→원본→분기 비교 순서로 확인', atlas:'기초 원리→산업·가치사슬→근거 자료 순서로 확인', charts:'지수 카드→차트 읽기→대표 종목 순서로 확인'
   }
 };
 
+// A derived view with no entry of its own (technical → charts) reads its host screen's; theme-detail keeps its own.
+function _aioRouteEntry(map, id) { var host = window.AIO_ROUTE_REGISTRY && window.AIO_ROUTE_REGISTRY.canonical[id]; return map ? (map[id] || (host ? map[host] : undefined)) : undefined; }
 window.AIO.getPageDeclutterAudit = function(opts) {
   opts = opts || {};
   var ids = opts.pageId ? [String(opts.pageId).replace(/^page-/, '')] : ((window.AIO_ALL_ROUTE_PAGE_IDS || []).slice());
   var policy = window.AIO_PAGE_DECLUTTER_POLICY;
   var rows = ids.map(function(id) {
     var page = document.getElementById('page-' + id);
-    var brief = window.AIO_PAGE_BRIEFS && window.AIO_PAGE_BRIEFS[id];
+    var brief = _aioRouteEntry(window.AIO_PAGE_BRIEFS, id);
     var major = page ? page.querySelectorAll(':scope > .aio-section, :scope > .aio-widget, :scope > .card, :scope > .panel').length : 0;
     var firstScreen = page ? Array.prototype.slice.call(page.querySelectorAll('*')).filter(function(el) { var r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.top < window.innerHeight && r.bottom > 0; }).length : 0;
-    return { pageId:id, intent:policy.intents[id] || '', scenario:policy.scenarios[id] || (brief && brief.steps ? brief.steps[0] : ''), hasBrief:!!brief, majorSectionCount:major, firstViewportElementCount:firstScreen, priority:(policy.priorityRoutes || []).indexOf(id) >= 0 };
+    return { pageId:id, intent:_aioRouteEntry(policy.intents, id) || '', scenario:_aioRouteEntry(policy.scenarios, id) || (brief && brief.steps ? brief.steps[0] : ''), hasBrief:!!brief, majorSectionCount:major, firstViewportElementCount:firstScreen, priority:(policy.priorityRoutes || []).indexOf(id) >= 0 };
   });
   var missingIntent = rows.filter(function(r) { return !r.intent || !r.scenario; }).map(function(r) { return r.pageId; });
   return { status: missingIntent.length ? 'fail' : 'pass', issueCount:missingIntent.length, issues:missingIntent.map(function(id){ return 'missing intent/scenario: ' + id; }), routeCount:rows.length, priorityRoutes:policy.priorityRoutes.slice(), missingIntent:missingIntent, rows:rows, note:'section density and first viewport observations require human visual review', generatedAt:new Date().toISOString() };
@@ -5754,25 +5756,22 @@ window.AIO.getTelegramPageCoverageAudit = function() {
   var items = Array.isArray(digest.rawCurrent24hItems) ? digest.rawCurrent24hItems : [];
   var digestAgeHours = digest.asOf ? (Date.now() - new Date(digest.asOf).getTime()) / 3600000 : Infinity;
   var currentWindow = digest.current24hWindow || null;
-  var required = Array.isArray(window.AIO_ALL_ROUTE_PAGE_IDS) && window.AIO_ALL_ROUTE_PAGE_IDS.length
-    ? window.AIO_ALL_ROUTE_PAGE_IDS.slice()
-    : ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes','theme-detail','portfolio','ticker','market-news','screener','principles','masters','atlas','guide'];
+  var required = (window.AIO_ALL_ROUTE_PAGE_IDS || []).slice(); // the route list is the one registry, no second copy
   var routes = {};
   required.forEach(function(pageId) {
-    var tags = Array.isArray(_TG_PAGE_TAGS[pageId]) ? _TG_PAGE_TAGS[pageId] : [];
-    var mapped = Array.isArray(pageMap[pageId]) ? pageMap[pageId] : [];
+    var tags = _aioRouteEntry(_TG_PAGE_TAGS, pageId) || [];
     var matched = tags.length ? items.filter(function(it) {
       return it && Array.isArray(it.tags) && it.tags.some(function(t) { return tags.indexOf(t) >= 0; });
     }).length : 0;
     routes[pageId] = {
-      mapped: Array.isArray(pageMap[pageId]),
+      mapped: Array.isArray(_aioRouteEntry(pageMap, pageId)),
       tagCount: tags.length,
       selectedItemCount: matched,
       consumer: pageId === 'guide' ? 'not-applicable-guide'
         : (['portfolio','ticker','screener'].indexOf(pageId) >= 0 ? 'ticker-memo-and-chat' : 'page-feed-and-chat')
     };
   });
-  var missing = required.filter(function(pageId) { return !Array.isArray(pageMap[pageId]); });
+  var missing = required.filter(function(pageId) { return !Array.isArray(_aioRouteEntry(pageMap, pageId)); });
   var narrativeCurrent = !!(digest.dynamicDigestLoaded && Array.isArray(digest.themes) && digest.themes.length && Object.keys(pageMap).length >= required.length);
   var sourceCycleFresh = isFinite(digestAgeHours) && digestAgeHours <= 12;
   var currentLaneReady = !!(currentWindow && currentWindow.start && currentWindow.end && sourceCycleFresh);
