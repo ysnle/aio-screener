@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-19T03:22:11.741Z",
-  "attemptedAt": "2026-11-19T03:22:11.741Z",
-  "lastSuccessfulAt": "2026-11-19T03:22:11.741Z",
+  "generatedAt": "2026-11-19T03:52:00.272Z",
+  "attemptedAt": "2026-11-19T03:52:00.272Z",
+  "lastSuccessfulAt": "2026-11-19T03:52:00.272Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-05T03:22:07.392Z",
-  "until": "2026-11-19T03:22:07.392Z",
+  "since": "2026-11-05T03:51:53.266Z",
+  "until": "2026-11-19T03:51:53.266Z",
   "current24hWindow": {
     "start": "2026-11-17T23:00:00.000Z",
     "end": "2026-11-18T23:00:00.000Z",
@@ -85,39 +85,39 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1205,
+      "count": 1214,
       "freshCount": 40,
-      "eligibleTextCount": 1144,
+      "eligibleTextCount": 1153,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69714
+      "lastPostId": 69725
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 182,
+      "count": 184,
       "freshCount": 37,
-      "eligibleTextCount": 182,
-      "selectedCount": 119,
+      "eligibleTextCount": 184,
+      "selectedCount": 120,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21197
+      "lastPostId": 21199
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 726,
+      "count": 727,
       "freshCount": 38,
-      "eligibleTextCount": 726,
+      "eligibleTextCount": 727,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72394
+      "lastPostId": 72395
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,49 +137,52 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2113,
-  "retainedItemCount": 431,
+  "count": 2125,
+  "retainedItemCount": 432,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2113,
-    "eligibleTextCount": 2052,
+    "observedCount": 2125,
+    "eligibleTextCount": 2064,
     "mediaOnlyCount": 61,
-    "mediaAttachedCount": 866,
-    "photoPostCount": 735,
+    "mediaAttachedCount": 873,
+    "photoPostCount": 736,
     "documentPostCount": 6,
     "imageOnlyCount": 6,
-    "highSignalCount": 343,
-    "broadSignalCount": 864,
-    "selectedRawCount": 370,
-    "selectedEligibleCount": 370,
+    "highSignalCount": 346,
+    "broadSignalCount": 867,
+    "selectedRawCount": 371,
+    "selectedEligibleCount": 371,
     "selectedRawCoveragePct": 18,
     "selectedOfObservedPct": 17.5,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 616,
-    "market-note": 722,
+    "equity": 140,
+    "geo": 300,
+    "semi": 621,
+    "power": 259,
+    "healthcare": 54,
+    "market-note": 726,
+    "earnings": 276,
+    "kr-market": 90,
+    "flows": 51,
     "media-only": 59,
     "ai-policy": 141,
     "macro": 292,
-    "geo": 297,
-    "kr-market": 89,
     "japan": 55,
-    "earnings": 274,
-    "equity": 138,
-    "power": 257,
-    "flows": 50,
     "credit": 76,
-    "healthcare": 52,
     "optical": 21,
     "insider": 2
   },
   "tickerCounts": {
-    "MU": 31,
-    "NVDA": 385,
+    "BE": 15,
+    "NVDA": 387,
+    "MU": 32,
+    "005930.KS": 26,
+    "000660.KS": 15,
     "GOOG": 58,
     "MS": 5,
     "AVGO": 17,
@@ -202,8 +205,6 @@
     "CRM": 1,
     "NKE": 1,
     "WDAY": 1,
-    "005930.KS": 25,
-    "000660.KS": 14,
     "2454.TW": 7,
     "GS": 3,
     "WFC": 1,
@@ -218,7 +219,6 @@
     "JD": 2,
     "SPGI": 1,
     "SNDK": 2,
-    "BE": 13,
     "META": 2,
     "CAT": 2,
     "ARM": 1,
@@ -260,19 +260,19 @@
     "285A.T": 1
   },
   "themes": [
-    "Market Notes (722 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획...",
-    "Semiconductors/Memory (616 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
-    "Geopolitics (297 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
+    "Market Notes (726 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획...",
+    "Semiconductors/Memory (621 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
+    "Geopolitics (300 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서...",
     "Macro/Rates (292 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
-    "Earnings/Corporate (274 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "AI Power/Grid (257 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "Earnings/Corporate (276 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
+    "AI Power/Grid (259 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "AI Policy/Export Controls (141 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자 계약의 세부 내용을 화요일 공개했다. 아마존의 지분 및 전환사채 현황 * IPO 직후 지분율: 아마존은 이번...",
-    "Equity/Analyst (138 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두..."
+    "Equity/Analyst (140 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 385,
+      "count": 387,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 마감 현황 • 다우 30: 50,242.14 (-1.02%) • S&P 500: 7,303.98 (-0.50%) •..."
     },
     {
@@ -307,12 +307,12 @@
     },
     {
       "key": "MU",
-      "count": 31,
+      "count": 32,
       "text": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치..."
     },
     {
       "key": "005930.KS",
-      "count": 25,
+      "count": 26,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
@@ -326,9 +326,9 @@
       "text": "2026년 11월 14일 미국 증시 브리핑 미국 증시는 AI·반도체 중심의 매도 압력과 금리 상승 부담이 이어지며 혼조 마감. S&P 500 -0.40%, 나스닥 -0.91%, 러셀2000 -0.31% 하락한..."
     },
     {
-      "key": "000660.KS",
-      "count": 14,
-      "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
+      "key": "BE",
+      "count": 15,
+      "text": "레오폴드 아셴브레너 Situational Awareness 3분기(9월 30일 기준 13F 공시) 현물 주식을 대거 처분하며 포트폴리오 규모를 202억 달러에서 15.8억 달러로 92% 축소 핵심 포지션 변화 * 전량 매도 (현물 주식): 2분기 포트폴리오 비중의 55%를 차지하던 샌디스크(SNDK)와..."
     }
   ],
   "categories": [
@@ -347,7 +347,7 @@
       "topics": [
         "geo"
       ],
-      "count": 297,
+      "count": 300,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 14일 트럼프·이란 · 네타냐후, 트럼프에게 이란에 대한 군사 공격 재개를 압박하고 있다는 Axios 보도 · 모사드 국장 로만 고프먼, 워싱턴에서..."
     },
     {
@@ -365,7 +365,7 @@
       "topics": [
         "semi"
       ],
-      "count": 616,
+      "count": 621,
       "focus": ">>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고..."
     },
     {
@@ -383,7 +383,7 @@
       "topics": [
         "power"
       ],
-      "count": 257,
+      "count": 259,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -401,8 +401,8 @@
       "topics": [
         "kr-market"
       ],
-      "count": 89,
-      "focus": ">>도이체방크, 위안화 강세 전망 유지…2028년 말 달러당 6위안 전망 (대만공상시보) •도이체방크는 중국의 위안화 국제화 정책과 연말 수출기업의 환전 수요 증가를 근거로 위안화 강세 전망을 유지했음. 달러·위안 환율은 2027년 중반 6.5위안, 2027년 말 6.3위안, 2028년 말 6위안까지 하락할 것으로..."
+      "count": 90,
+      "focus": "•대만 증시 낙폭 확대, 4만선 다시 붕괴 •장중 대만가권 38,500pt (-4.1%) •로컬기관•외국인 동반 매도세 우위"
     },
     {
       "id": "equity",
@@ -410,7 +410,7 @@
       "topics": [
         "equity"
       ],
-      "count": 138,
+      "count": 140,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두..."
     },
     {
@@ -428,7 +428,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 274,
+      "count": 276,
       "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 52,
+      "count": 54,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체..."
     },
     {
@@ -455,7 +455,7 @@
       "topics": [
         "flows"
       ],
-      "count": 50,
+      "count": 51,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -473,7 +473,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 722,
+      "count": 726,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획..."
     }
   ],
@@ -1685,6 +1685,84 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/21199",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21199",
+      "datetime": "2026-11-19T03:44:18.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "geo",
+        "semi",
+        "power",
+        "healthcare"
+      ],
+      "score": 79,
+      "hasText": true,
+      "tickers": [
+        "BE"
+      ],
+      "summary": "블룸에너지( $BE ) CEO KR 스리다르 인터뷰 - Semafor 1. 전력 수요와 AI 인프라 전망 • 전기는 현대사회의 필수재. 디지털화, 전기차, 산업 발전으로 전력 소비는 구조적으로 증가하고 있음...."
+    },
+    {
+      "id": "bornlupin/21198",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21198",
+      "datetime": "2026-11-19T03:35:49.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "geo",
+        "semi",
+        "power",
+        "healthcare"
+      ],
+      "score": 79,
+      "hasText": true,
+      "tickers": [
+        "BE"
+      ],
+      "summary": "블룸에너지 $BE 창업자 겸 CEO KR 스리다르, 세마포 인터뷰 (26.11.16) ① AI 둔화 우려와 전력 수요 Q. AI 역풍(금융·정치·인프라 차질) 얘기가 많다. 둔화인가? - 전력 수요는 AI와..."
+    },
+    {
+      "id": "insidertracking/69717",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69717",
+      "datetime": "2026-11-19T03:29:34.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "semi",
+        "equity",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 68,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MU",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "투자 전문가로 알려진 세레니티(Serenity)가 엔비디아의 대규모 메모리 구매 약정이 과거에는 마이크론과 SK하이닉스 등 메모리 반도체 기업들의 주가 상승 요인으로 작용했지만, 현재는 관련 종목의 추가..."
+    },
+    {
+      "id": "insidertracking/69716",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69716",
+      "datetime": "2026-11-19T03:29:20.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 61,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "연합뉴스를 인용한 보도에 따르면, 엔비디아 직원들의 56%가 젠슨 황의 CEO 복귀를 희망하는 것으로 나타났으며, 후임 후보 중에서는 이언 벅 부사장이 가장 높은 지지를 확보. 직장인 커뮤니티 블라인드는..."
+    },
+    {
       "id": "insidertracking/69714",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69714",
@@ -2142,10 +2220,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "AMD CEO 리사 수가 보유 주식 7만 주를 총 3,550만 달러에 매각하기 위한 신고서를 제출.",
       "tickers": [
         "AMD"
-      ],
-      "summary": "AMD CEO 리사 수가 보유 주식 7만 주를 총 3,550만 달러에 매각하기 위한 신고서를 제출."
+      ]
     },
     {
       "id": "insidertracking/69681",
@@ -2156,11 +2234,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "국제 신용평가사 무디스는 미국이 독립적인 연방준비제도(Fed)를 중심으로 오랜 기간 유지해 온 효과적인 통화정책 체계를 지속할 것으로 전망. 무디스는 2026년 미국의 실질 국내총생산(GDP) 성장률을..."
+      "summary": "국제 신용평가사 무디스는 미국이 독립적인 연방준비제도(Fed)를 중심으로 오랜 기간 유지해 온 효과적인 통화정책 체계를 지속할 것으로 전망. 무디스는 2026년 미국의 실질 국내총생산(GDP) 성장률을...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69678",
@@ -2173,10 +2251,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "무디스(Moody's)가 엔비디아(NVIDIA)의 전망을 '긍정적'에서 '안정적'으로 하향 조정",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "무디스(Moody's)가 엔비디아(NVIDIA)의 전망을 '긍정적'에서 '안정적'으로 하향 조정"
+      ]
     },
     {
       "id": "bornlupin/21191",
@@ -6276,14 +6354,12 @@
       "datetime": "2026-11-15T22:33:10.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "macro",
-        "geo"
+        "macro"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": "베센트 미 재무장관 “12월 인플레이션 큰 폭 하락 예상…근원 인플레이션은 연준 목표에 근접” (폭스뉴스 인터뷰) 스콧 베센트 미국 재무장관이 12월 인플레이션의 큰 폭 하락을 전망하며,..."
+      "summary": "베센트 미 재무장관 “12월 인플레이션 큰 폭 하락 예상…근원 인플레이션은 연준 목표에 근접” (폭스뉴스 인터뷰) 스콧 베센트 미국 재무장관이 12월 인플레이션의 큰 폭 하락을 전망하며,...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72174",
@@ -6358,74 +6434,22 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/69361",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69361",
-      "datetime": "2026-11-15T21:59:15.000Z",
-      "localDateKst": "2026-11-16",
-      "tags": [
-        "geo"
-      ],
-      "score": 50,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "이란의 지원을 받는 후티 반군이 예멘 남부에서 대규모 영토를 확보하며 국제사회가 인정하는 예멘 정부의 수도 아덴에서 약 60km 떨어진 지점까지 진격. 사우디아라비아의 지원을 받는 대통령지도위원회(PLC)...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/69353",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69353",
-      "datetime": "2026-11-15T21:53:48.000Z",
-      "localDateKst": "2026-11-16",
-      "tags": [
-        "macro",
-        "earnings",
-        "semi",
-        "equity"
-      ],
-      "score": 92,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 2,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 16일 미국 증시 주간 브리핑 이번 주 미국 증시는 앤트로픽 기업공개(IPO), 엔비디아 실적, 연방공개시장위원회(FOMC) 의사록, 미국 소매판매가 핵심 변수. AI 산업의 기업가치...",
-      "lead": 4,
-      "tickers": [
-        "NVDA",
-        "TSLA",
-        "MSFT",
-        "AMZN",
-        "MU"
-      ]
-    },
-    {
       "id": "bornlupin/21158",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21158",
       "datetime": "2026-11-15T20:47:31.000Z",
       "localDateKst": "2026-11-16",
       "tags": [
-        "semi",
-        "geo"
+        "semi"
       ],
-      "lead": 1,
       "score": 70,
       "hasText": true,
+      "summary": "젠슨 황, 측근들과 엔비디아 CEO 복귀 논의 FT는 복수의 관계자를 인용해 젠슨 황이 측근들과 엔비디아 CEO 복귀 가능성을 논의했다고 보도했습니다. 황의 사임 이후 실리콘밸리에서는 이사회가 그를 다시...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "ARM"
-      ],
-      "summary": "젠슨 황, 측근들과 엔비디아 CEO 복귀 논의 FT는 복수의 관계자를 인용해 젠슨 황이 측근들과 엔비디아 CEO 복귀 가능성을 논의했다고 보도했습니다. 황의 사임 이후 실리콘밸리에서는 이사회가 그를 다시..."
+      ]
     },
     {
       "id": "HANAchina/72171",
@@ -8486,21 +8510,6 @@
       "summary": "SemiAnalysis) 미국 데이터센터 규제 전망: 수요 훼손보다 비용 증가와 공급 지연의 문제 1. 민주당이 상하원을 장악해도 연방 차원의 급격한 규제 변화는 제한적 • 민주당이 의회를 장악하더라도 트럼프...",
       "lead": 1,
       "tickers": []
-    },
-    {
-      "id": "bornlupin/21010",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21010",
-      "datetime": "2026-11-05T04:34:41.000Z",
-      "localDateKst": "2026-11-05",
-      "tags": [
-        "semi"
-      ],
-      "score": 78,
-      "hasText": true,
-      "summary": "BofA \"AI 지출 속도 조절이 오히려 호황(Boom)을 연장하고 반도체 주식을 회복시킬 것\" 월스트리트의 기존 통념(설비투자가 무조건 많을수록 반도체 주식에 좋다)에 반기를 들었습니다. 중간선거 이후...",
-      "lead": 1,
-      "tickers": []
     }
   ],
   "current24hItems": [
@@ -8521,10 +8530,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "AMD CEO 리사 수가 보유 주식 7만 주를 총 3,550만 달러에 매각하기 위한 신고서를 제출.",
       "tickers": [
         "AMD"
-      ],
-      "summary": "AMD CEO 리사 수가 보유 주식 7만 주를 총 3,550만 달러에 매각하기 위한 신고서를 제출."
+      ]
     },
     {
       "id": "insidertracking/69681",
@@ -8535,11 +8544,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "국제 신용평가사 무디스는 미국이 독립적인 연방준비제도(Fed)를 중심으로 오랜 기간 유지해 온 효과적인 통화정책 체계를 지속할 것으로 전망. 무디스는 2026년 미국의 실질 국내총생산(GDP) 성장률을..."
+      "summary": "국제 신용평가사 무디스는 미국이 독립적인 연방준비제도(Fed)를 중심으로 오랜 기간 유지해 온 효과적인 통화정책 체계를 지속할 것으로 전망. 무디스는 2026년 미국의 실질 국내총생산(GDP) 성장률을...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69678",
@@ -8552,10 +8561,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "무디스(Moody's)가 엔비디아(NVIDIA)의 전망을 '긍정적'에서 '안정적'으로 하향 조정",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "무디스(Moody's)가 엔비디아(NVIDIA)의 전망을 '긍정적'에서 '안정적'으로 하향 조정"
+      ]
     },
     {
       "id": "bornlupin/21191",
