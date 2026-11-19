@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-19T11:21:47.211Z",
-  "attemptedAt": "2026-11-19T11:21:47.211Z",
-  "lastSuccessfulAt": "2026-11-19T11:21:47.211Z",
+  "generatedAt": "2026-11-19T11:51:41.174Z",
+  "attemptedAt": "2026-11-19T11:51:41.174Z",
+  "lastSuccessfulAt": "2026-11-19T11:51:41.174Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-05T11:21:41.546Z",
-  "until": "2026-11-19T11:21:41.546Z",
+  "since": "2026-11-05T11:51:35.792Z",
+  "until": "2026-11-19T11:51:35.792Z",
   "current24hWindow": {
     "start": "2026-11-17T23:00:00.000Z",
     "end": "2026-11-18T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1215,
-      "freshCount": 20,
-      "eligibleTextCount": 1154,
+      "count": 1216,
+      "freshCount": 39,
+      "eligibleTextCount": 1155,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69759
+      "lastPostId": 69764
     },
     {
       "channel": "bornlupin",
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 729,
+      "count": 728,
       "freshCount": 38,
-      "eligibleTextCount": 729,
+      "eligibleTextCount": 728,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72414
+      "lastPostId": 72415
     },
     {
       "channel": "aetherjapanresearch",
@@ -138,7 +138,7 @@
     }
   ],
   "count": 2127,
-  "retainedItemCount": 416,
+  "retainedItemCount": 432,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -147,12 +147,12 @@
     "observedCount": 2127,
     "eligibleTextCount": 2066,
     "mediaOnlyCount": 61,
-    "mediaAttachedCount": 869,
+    "mediaAttachedCount": 870,
     "photoPostCount": 728,
     "documentPostCount": 6,
     "imageOnlyCount": 6,
-    "highSignalCount": 344,
-    "broadSignalCount": 873,
+    "highSignalCount": 343,
+    "broadSignalCount": 872,
     "selectedRawCount": 370,
     "selectedEligibleCount": 370,
     "selectedRawCoveragePct": 17.9,
@@ -160,16 +160,16 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "geo": 297,
-    "market-note": 738,
-    "earnings": 270,
-    "kr-market": 91,
+    "market-note": 740,
     "semi": 626,
+    "earnings": 271,
+    "geo": 297,
+    "kr-market": 89,
     "power": 252,
     "ai-policy": 144,
     "equity": 142,
-    "macro": 290,
-    "flows": 52,
+    "macro": 289,
+    "flows": 51,
     "credit": 75,
     "optical": 22,
     "japan": 54,
@@ -178,24 +178,24 @@
     "insider": 2
   },
   "tickerCounts": {
+    "MSFT": 57,
     "BABA": 4,
     "NVDA": 395,
     "TSM": 69,
-    "005930.KS": 27,
+    "005930.KS": 26,
     "NTES": 1,
     "PLTR": 6,
     "AMD": 38,
     "TSLA": 40,
     "BE": 15,
-    "MU": 31,
-    "000660.KS": 15,
+    "MU": 30,
+    "000660.KS": 14,
     "GOOG": 58,
     "MS": 5,
     "AVGO": 17,
     "SMCI": 3,
     "QCOM": 1,
     "CRWV": 18,
-    "MSFT": 56,
     "PANW": 1,
     "DIS": 1,
     "TFX": 1,
@@ -260,11 +260,11 @@
     "IONQ": 1
   },
   "themes": [
-    "Market Notes (738 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해...",
+    "Market Notes (740 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획...",
     "Semiconductors/Memory (626 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
     "Geopolitics (297 posts in 14-day research window): 일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을 내쫓은 것에 비유하며, 기회가 된다면 당연히 그를 영입 하고 싶다고 밝혔다. 마이클 조던에 비유한 젠슨 황의...",
-    "Macro/Rates (290 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
-    "Earnings/Corporate (270 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
+    "Macro/Rates (289 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
+    "Earnings/Corporate (271 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
     "AI Power/Grid (252 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "AI Policy/Export Controls (144 posts in 14-day research window): 아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자...",
     "Equity/Analyst (142 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두..."
@@ -273,7 +273,7 @@
     {
       "key": "NVDA",
       "count": 395,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해 지속적으로 노력할 것이라고 강조. 최근 3개월간 인플레이션이 예상보다 크게 둔화됐다고 밝혀. • 트럼프..."
     },
     {
       "key": "TSM",
@@ -287,7 +287,7 @@
     },
     {
       "key": "MSFT",
-      "count": 56,
+      "count": 57,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
     },
     {
@@ -307,12 +307,12 @@
     },
     {
       "key": "MU",
-      "count": 31,
+      "count": 30,
       "text": "11월 16일 미국 증시 프리마켓 브리핑 미국 지수선물은 기술주 중심 약세. 다우 선물 -0.19%, S&P500 선물 -0.55%, 나스닥100 선물 -1.16%, 러셀2000 선물 -0.52% 기록 중이며..."
     },
     {
       "key": "005930.KS",
-      "count": 27,
+      "count": 26,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
@@ -338,7 +338,7 @@
       "topics": [
         "macro"
       ],
-      "count": 290,
+      "count": 289,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
     },
     {
@@ -357,7 +357,7 @@
         "credit"
       ],
       "count": 75,
-      "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해 지속적으로 노력할 것이라고 강조. 최근 3개월간 인플레이션이 예상보다 크게 둔화됐다고 밝혀. • 트럼프..."
     },
     {
       "id": "semi",
@@ -401,7 +401,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 91,
+      "count": 89,
       "focus": "•대만 증시 낙폭 확대, 4만선 다시 붕괴 •장중 대만가권 38,500pt (-4.1%) •로컬기관•외국인 동반 매도세 우위"
     },
     {
@@ -428,7 +428,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 270,
+      "count": 271,
       "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
     },
     {
@@ -455,7 +455,7 @@
       "topics": [
         "flows"
       ],
-      "count": 52,
+      "count": 51,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/13 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -473,8 +473,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 738,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해..."
+      "count": 740,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획..."
     }
   ],
   "pageMap": {
@@ -733,15 +733,18 @@
       "datetime": "2026-11-19T05:39:06.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해...",
       "tickers": [
         "NVDA",
         "PLTR"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해..."
     },
     {
       "id": "insidertracking/69655",
@@ -1984,7 +1987,10 @@
       "datetime": "2026-11-19T05:39:13.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "equity"
       ],
       "score": 83,
       "hasText": true,
@@ -1994,10 +2000,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 프리마켓 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 선물 현황 • 다우: 50,408.10 (+0.42%) • S&P500: 7,366.90 (+0.59%) •...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 프리마켓 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 선물 현황 • 다우: 50,408.10 (+0.42%) • S&P500: 7,366.90 (+0.59%) •..."
     },
     {
       "id": "insidertracking/69733",
@@ -2006,15 +2012,18 @@
       "datetime": "2026-11-19T05:39:06.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해...",
       "tickers": [
         "NVDA",
         "PLTR"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해..."
     },
     {
       "id": "HANAchina/72398",
@@ -2075,12 +2084,15 @@
       "datetime": "2026-11-19T04:26:50.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 91,
       "hasText": true,
-      "summary": "도이체방크 거시경제 전략가 헨리 앨런은 11월 16일 발표한 '약세 위험 요인들이 서로 상쇄될 수 있는 이유' 보고서에서 현재 금융시장이 직면한 세 가지 주요 위험이 동시에 현실화되기 어렵고, 오히려 서로의...",
-      "tickers": []
+      "tickers": [],
+      "summary": "도이체방크 거시경제 전략가 헨리 앨런은 11월 16일 발표한 '약세 위험 요인들이 서로 상쇄될 수 있는 이유' 보고서에서 현재 금융시장이 직면한 세 가지 주요 위험이 동시에 현실화되기 어렵고, 오히려 서로의..."
     },
     {
       "id": "bornlupin/21200",
@@ -2513,14 +2525,13 @@
       "localDateKst": "2026-11-19",
       "tags": [
         "macro",
-        "japan",
-        "flows"
+        "japan"
       ],
-      "lead": 2,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>9월 해외 미 국채 보유액 급감, 중국·일본·영국 3대 채권국 일제히 매도 •미 재무부 TIC 보고서에 따르면 9월 해외의 미 국채 보유액은 전월 대비 755억달러 감소했음. 미국 장기자본 순유입은..."
+      "summary": ">>9월 해외 미 국채 보유액 급감, 중국·일본·영국 3대 채권국 일제히 매도 •미 재무부 TIC 보고서에 따르면 9월 해외의 미 국채 보유액은 전월 대비 755억달러 감소했음. 미국 장기자본 순유입은...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/72374",
