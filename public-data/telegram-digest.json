@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-19T21:51:54.701Z",
-  "attemptedAt": "2026-11-19T21:51:54.701Z",
-  "lastSuccessfulAt": "2026-11-19T21:51:54.701Z",
+  "generatedAt": "2026-11-19T22:22:23.708Z",
+  "attemptedAt": "2026-11-19T22:22:23.708Z",
+  "lastSuccessfulAt": "2026-11-19T22:22:23.708Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-05T21:51:49.690Z",
-  "until": "2026-11-19T21:51:49.690Z",
+  "since": "2026-11-05T22:22:18.450Z",
+  "until": "2026-11-19T22:22:18.450Z",
   "current24hWindow": {
     "start": "2026-11-17T23:00:00.000Z",
     "end": "2026-11-18T23:00:00.000Z",
@@ -82,12 +82,12 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1225,
-      "freshCount": 39,
-      "eligibleTextCount": 1165,
+      "count": 1217,
+      "freshCount": 19,
+      "eligibleTextCount": 1157,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
@@ -111,10 +111,10 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 734,
+      "count": 729,
       "freshCount": 18,
-      "eligibleTextCount": 734,
-      "selectedCount": 125,
+      "eligibleTextCount": 729,
+      "selectedCount": 124,
       "error": null,
       "failingSince": null,
       "lastPostId": 72433
@@ -137,39 +137,39 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2142,
-  "retainedItemCount": 412,
+  "count": 2129,
+  "retainedItemCount": 400,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2142,
-    "eligibleTextCount": 2082,
+    "observedCount": 2129,
+    "eligibleTextCount": 2069,
     "mediaOnlyCount": 60,
-    "mediaAttachedCount": 878,
-    "photoPostCount": 734,
+    "mediaAttachedCount": 870,
+    "photoPostCount": 728,
     "documentPostCount": 6,
     "imageOnlyCount": 6,
-    "highSignalCount": 345,
-    "broadSignalCount": 873,
-    "selectedRawCount": 371,
-    "selectedEligibleCount": 371,
-    "selectedRawCoveragePct": 17.8,
-    "selectedOfObservedPct": 17.3,
+    "highSignalCount": 344,
+    "broadSignalCount": 869,
+    "selectedRawCount": 370,
+    "selectedEligibleCount": 370,
+    "selectedRawCoveragePct": 17.9,
+    "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 752,
-    "geo": 298,
-    "credit": 74,
+    "market-note": 746,
+    "geo": 294,
+    "credit": 73,
     "earnings": 276,
     "kr-market": 91,
     "healthcare": 53,
     "ai-policy": 145,
-    "macro": 284,
-    "semi": 629,
-    "power": 249,
+    "macro": 282,
+    "semi": 628,
+    "power": 247,
     "flows": 52,
     "optical": 21,
     "equity": 144,
@@ -186,10 +186,10 @@
     "AMD": 42,
     "META": 3,
     "COHR": 2,
-    "GOOG": 57,
+    "GOOG": 56,
     "AVGO": 18,
     "AMZN": 53,
-    "TSM": 70,
+    "TSM": 69,
     "005930.KS": 27,
     "AAPL": 8,
     "MSFT": 56,
@@ -262,12 +262,12 @@
     "IONQ": 1
   },
   "themes": [
-    "Market Notes (752 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해...",
-    "Semiconductors/Memory (629 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
-    "Geopolitics (298 posts in 14-day research window): 일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을 내쫓은 것에 비유하며, 기회가 된다면 당연히 그를 영입 하고 싶다고 밝혔다. 마이클 조던에 비유한 젠슨 황의...",
-    "Macro/Rates (284 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 ‘Project Suncatcher’를 위해 블루 오리진과 발사 계약을 체결. 2029년 1분기 New Glenn 로켓을 이용해 TPU를 탑재한 태양광 기반 AI 컴퓨팅 위성을 태양동기궤도에 배치할...",
+    "Market Notes (746 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 ‘Project Suncatcher’를 위해 블루 오리진과 발사 계약을 체결. 2029년 1분기...",
+    "Semiconductors/Memory (628 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
+    "Geopolitics (294 posts in 14-day research window): 일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을 내쫓은 것에 비유하며, 기회가 된다면 당연히 그를 영입 하고 싶다고 밝혔다. 마이클 조던에 비유한 젠슨 황의...",
+    "Macro/Rates (282 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
     "Earnings/Corporate (276 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "AI Power/Grid (249 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "AI Power/Grid (247 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "AI Policy/Export Controls (145 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한...",
     "Equity/Analyst (144 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 튀르키예와 태국에서 별도의 다이렉트 메시징 앱 테스트를 시작. • 아마존 (AMZN) — 앤트로픽..."
   ],
@@ -279,12 +279,12 @@
     },
     {
       "key": "TSM",
-      "count": 70,
+      "count": 69,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며..."
     },
     {
       "key": "GOOG",
-      "count": 57,
+      "count": 56,
       "text": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000..."
     },
     {
@@ -340,8 +340,8 @@
       "topics": [
         "macro"
       ],
-      "count": 284,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 ‘Project Suncatcher’를 위해 블루 오리진과 발사 계약을 체결. 2029년 1분기 New Glenn 로켓을 이용해 TPU를 탑재한 태양광 기반 AI 컴퓨팅 위성을 태양동기궤도에 배치할..."
+      "count": 282,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
     },
     {
       "id": "geo",
@@ -349,7 +349,7 @@
       "topics": [
         "geo"
       ],
-      "count": 298,
+      "count": 294,
       "focus": "일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을 내쫓은 것에 비유하며, 기회가 된다면 당연히 그를 영입 하고 싶다고 밝혔다. 마이클 조던에 비유한 젠슨 황의..."
     },
     {
@@ -358,7 +358,7 @@
       "topics": [
         "credit"
       ],
-      "count": 74,
+      "count": 73,
       "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 49,097.77 (-2.19%) S&P 500: 7,175.89 (-2.02%) 나스닥: 23,879.20 (-2.25%) 러셀 2000: 2,664.14 (-1.85%) VIX: 28.24..."
     },
     {
@@ -367,7 +367,7 @@
       "topics": [
         "semi"
       ],
-      "count": 629,
+      "count": 628,
       "focus": ">>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고..."
     },
     {
@@ -385,7 +385,7 @@
       "topics": [
         "power"
       ],
-      "count": 249,
+      "count": 247,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -404,7 +404,7 @@
         "kr-market"
       ],
       "count": 91,
-      "focus": "월마트(WMT) Q3 2027 어닝콜 요약 긍정 요인: • 견조한 매출 및 이익 성장. 전체 순매출은 4.4% 증가했으며 환율 영향 제외 조정 영업이익은 5.5%, 조정 EPS는 약 5% 성장. • 연간 가이던스 상향. 매출 성장률 전망을 4.9~5.2%, 영업이익 성장률을 8.0~8.6%로 상향. EPS..."
+      "focus": "Walmart 2027 회계연도 3분기 실적 요약 실적 • 매출 $1,888.4억, YoY +5.2%, 환율 제외 +4.5% • 순매출 $1,867.6억, YoY +5.1%, 환율 제외 +4.4% •..."
     },
     {
       "id": "equity",
@@ -475,8 +475,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 752,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해..."
+      "count": 746,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 ‘Project Suncatcher’를 위해 블루 오리진과 발사 계약을 체결. 2029년 1분기..."
     }
   ],
   "pageMap": {
@@ -761,10 +761,7 @@
       "datetime": "2026-11-19T20:55:46.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
@@ -774,6 +771,7 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 ‘Project Suncatcher’를 위해 블루 오리진과 발사 계약을 체결. 2029년 1분기...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -786,8 +784,7 @@
         "MU",
         "TSM",
         "VZ"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 ‘Project Suncatcher’를 위해 블루 오리진과 발사 계약을 체결. 2029년 1분기..."
+      ]
     },
     {
       "id": "bornlupin/21207",
@@ -1500,20 +1497,6 @@
       ]
     },
     {
-      "id": "HANAchina/71618",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/71618",
-      "datetime": "2026-11-05T22:18:51.000Z",
-      "localDateKst": "2026-11-06",
-      "tags": [
-        "market-note"
-      ],
-      "score": 92,
-      "hasText": true,
-      "summary": ">>미국 중간선거 ‘블루 웨이브’ 이후 월가의 6가지 투자 방향 전환 (대만경제일보) •미국 중간선거에서 민주당이 의회 양원을 장악하면서 월가는 향후 정책 변화에 대응해 투자 방향을 조정하고 있음. 트럼프...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/71912",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/71912",
@@ -1704,6 +1687,26 @@
       "tickers": [
         "NVDA"
       ]
+    },
+    {
+      "id": "HANAchina/72242",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72242",
+      "datetime": "2026-11-16T23:44:36.000Z",
+      "localDateKst": "2026-11-17",
+      "tags": [
+        "semi"
+      ],
+      "score": 86,
+      "hasText": true,
+      "summary": "• 트럼프 행정부는 이르면 1주일 내에 엔비디아, 아마존, 마이크로소프트, 오픈AI, 앤트로픽 등 20여 개 기업으로 구성된 명단을 발표할 예정. 선정된 기업은 해외 사업 지원, 수출 허가 신속 심사, 연방...",
+      "lead": 1,
+      "tickers": [
+        "NVDA",
+        "MSFT",
+        "AMZN",
+        "TSM"
+      ]
     }
   ],
   "broadItems": [
@@ -1860,10 +1863,7 @@
       "datetime": "2026-11-19T20:55:46.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "macro",
-        "semi",
-        "power",
-        "ai-policy"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
@@ -1873,6 +1873,7 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 ‘Project Suncatcher’를 위해 블루 오리진과 발사 계약을 체결. 2029년 1분기...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -1885,8 +1886,7 @@
         "MU",
         "TSM",
         "VZ"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 알파벳 (GOOGL) — 구글이 ‘Project Suncatcher’를 위해 블루 오리진과 발사 계약을 체결. 2029년 1분기..."
+      ]
     },
     {
       "id": "insidertracking/69778",
@@ -1895,8 +1895,7 @@
       "datetime": "2026-11-19T20:52:08.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "geo",
-        "semi"
+        "market-note"
       ],
       "score": 70,
       "hasText": true,
@@ -1906,11 +1905,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 20일 트럼프·중국·시진핑 · 트럼프, 중국 방문과 시진핑·푸틴 회담이 “매우 훌륭했으며, 환상적인 관계를 구축했다”고 발언 · 트럼프, 시진핑과...",
       "tickers": [
         "NVDA",
         "AMD"
-      ],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 20일 트럼프·중국·시진핑 · 트럼프, 중국 방문과 시진핑·푸틴 회담이 “매우 훌륭했으며, 환상적인 관계를 구축했다”고 발언 · 트럼프, 시진핑과..."
+      ]
     },
     {
       "id": "insidertracking/69777",
@@ -1919,18 +1918,15 @@
       "datetime": "2026-11-19T20:51:04.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 20일 🇺🇸 아메리카 • 트럼프 대통령은 시진핑 중국 국가주석 및 푸틴 러시아 대통령과의 회담을 긍정적으로 평가하며 3국 간 관계 개선에 대한 기대를 표명. 푸틴...",
       "tickers": [
         "NVDA",
         "AMD"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 20일 🇺🇸 아메리카 • 트럼프 대통령은 시진핑 중국 국가주석 및 푸틴 러시아 대통령과의 회담을 긍정적으로 평가하며 3국 간 관계 개선에 대한 기대를 표명. 푸틴..."
+      ]
     },
     {
       "id": "HANAchina/72432",
@@ -1986,8 +1982,8 @@
         "videoCount": 1,
         "documents": []
       },
-      "tickers": [],
-      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다...."
+      "summary": "공지사항 안내 Speed matters, Facts matter more > 속도도 중요하지만, 정확한 사실이 우선이다 미국 주식, 국제 정세, 속보 및 전쟁 이슈까지 가장 빠르고 정확하게 전달드리겠습니다....",
+      "tickers": []
     },
     {
       "id": "insidertracking/69774",
@@ -2006,8 +2002,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "경제 지표 발표 미국 필라델피아 연은 제조업활동지수 (Philadelphia Fed Manufacturing Index, 11월) ㆍ실제치(Actual): 6.3 ㆍ예상치(Forecast): 20.6..."
+      "summary": "경제 지표 발표 미국 필라델피아 연은 제조업활동지수 (Philadelphia Fed Manufacturing Index, 11월) ㆍ실제치(Actual): 6.3 ㆍ예상치(Forecast): 20.6...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69773",
@@ -2016,18 +2012,15 @@
       "datetime": "2026-11-19T13:00:16.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "semi",
-        "optical",
-        "power",
-        "equity"
+        "market-note"
       ],
       "score": 73,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 트윌리오 (TWLO) — 첼시 FC가 트윌리오 플랫폼을 활용해 마케팅 캠페인 출시 시간을 기존 48시간에서 15분 미만으로 단축....",
       "tickers": [
         "META",
         "COHR"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 트윌리오 (TWLO) — 첼시 FC가 트윌리오 플랫폼을 활용해 마케팅 캠페인 출시 시간을 기존 48시간에서 15분 미만으로 단축...."
+      ]
     },
     {
       "id": "insidertracking/69772",
@@ -2036,20 +2029,18 @@
       "datetime": "2026-11-19T12:57:46.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "semi",
-        "equity",
-        "earnings"
+        "equity"
       ],
       "score": 77,
       "hasText": true,
+      "summary": "앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO...",
       "tickers": [
         "NVDA",
         "AMD",
         "GOOG",
         "AVGO",
         "AMZN"
-      ],
-      "summary": "앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
+      ]
     },
     {
       "id": "HANAchina/72422",
@@ -2079,20 +2070,17 @@
       "datetime": "2026-11-19T12:54:52.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "japan"
+        "market-note"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 대통령과 시진핑 중국 국가주석은 APEC 정상회의에서 양자회담을 개최. 양국은 전략적으로 안정적인...",
       "tickers": [
         "NVDA",
         "AMZN",
         "TSM",
         "005930.KS"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 대통령과 시진핑 중국 국가주석은 APEC 정상회의에서 양자회담을 개최. 양국은 전략적으로 안정적인..."
+      ]
     },
     {
       "id": "HANAchina/72417",
@@ -2119,12 +2107,9 @@
       "datetime": "2026-11-19T12:05:41.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "earnings",
-        "macro",
         "kr-market",
-        "healthcare"
+        "earnings"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
       "media": {
@@ -2133,10 +2118,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "Walmart 2027 회계연도 3분기 실적 요약 실적 • 매출 $1,888.4억, YoY +5.2%, 환율 제외 +4.5% • 순매출 $1,867.6억, YoY +5.1%, 환율 제외 +4.4% •...",
       "tickers": [
         "WMT"
-      ],
-      "summary": "Walmart 2027 회계연도 3분기 실적 요약 실적 • 매출 $1,888.4억, YoY +5.2%, 환율 제외 +4.5% • 순매출 $1,867.6억, YoY +5.1%, 환율 제외 +4.4% •..."
+      ]
     },
     {
       "id": "bornlupin/21207",
