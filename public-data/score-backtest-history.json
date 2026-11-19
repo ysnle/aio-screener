@@ -1,16 +1,16 @@
 {
- "generatedAt": "2026-11-18T22:21:53.790Z",
+ "generatedAt": "2026-11-19T18:41:30.298Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/market/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.",
  "summary": {
-  "n5d": 285,
-  "corr5d": -0.233,
-  "n21d": 269,
-  "corr21d": -0.383,
-  "nEff5d": 57,
+  "n5d": 284,
+  "corr5d": -0.237,
+  "n21d": 268,
+  "corr21d": -0.386,
+  "nEff5d": 56,
   "nEff21d": 12,
   "sampleBasis": "non-overlapping windows: rows / horizon sessions",
-  "corr5dLag1": -0.213,
-  "corr21dLag1": -0.363,
+  "corr5dLag1": -0.215,
+  "corr21dLag1": -0.367,
   "sampleSizeSufficient": false,
   "significanceStatus": "UNKNOWN",
   "statisticallyMeaningful": false
@@ -2426,11 +2426,11 @@
   },
   {
    "date": "2026-07-14",
-   "reconstructedScore": 68,
+   "reconstructedScore": 69,
    "subScores": {
     "vol": 78,
     "mom": null,
-    "trend": 68,
+    "trend": null,
     "breadth": null,
     "macro": 45
    },
@@ -2445,10 +2445,10 @@
     "wti": true,
     "vvix": true,
     "hyOas": false,
-    "trend200maAvailable": true,
+    "trend200maAvailable": false,
     "breadthPcrFellBackToUnavailable": true,
     "newsSentimentOmitted": true,
-    "componentCoveragePct": 55
+    "componentCoveragePct": 35
    }
   },
   {
