@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-19T07:22:10.093Z",
-  "attemptedAt": "2026-11-19T07:22:10.093Z",
-  "lastSuccessfulAt": "2026-11-19T07:22:10.093Z",
+  "generatedAt": "2026-11-19T07:51:45.339Z",
+  "attemptedAt": "2026-11-19T07:51:45.339Z",
+  "lastSuccessfulAt": "2026-11-19T07:51:45.339Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-05T07:22:05.631Z",
-  "until": "2026-11-19T07:22:05.631Z",
+  "since": "2026-11-05T07:51:40.023Z",
+  "until": "2026-11-19T07:51:40.023Z",
   "current24hWindow": {
     "start": "2026-11-17T23:00:00.000Z",
     "end": "2026-11-18T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1211,
-      "freshCount": 19,
+      "freshCount": 39,
       "eligibleTextCount": 1150,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69739
+      "lastPostId": 69740
     },
     {
       "channel": "bornlupin",
@@ -138,7 +138,7 @@
     }
   ],
   "count": 2125,
-  "retainedItemCount": 407,
+  "retainedItemCount": 418,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
@@ -160,14 +160,14 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 731,
     "earnings": 272,
     "semi": 624,
     "power": 254,
     "ai-policy": 143,
     "equity": 142,
     "flows": 51,
-    "market-note": 730,
-    "geo": 298,
+    "geo": 297,
     "macro": 293,
     "credit": 77,
     "optical": 22,
@@ -259,9 +259,9 @@
     "IONQ": 1
   },
   "themes": [
-    "Market Notes (730 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획...",
+    "Market Notes (731 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획...",
     "Semiconductors/Memory (624 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
-    "Geopolitics (298 posts in 14-day research window): 일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을 내쫓은 것에 비유하며, 기회가 된다면 당연히 그를 영입 하고 싶다고 밝혔다. 마이클 조던에 비유한 젠슨 황의...",
+    "Geopolitics (297 posts in 14-day research window): 일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을 내쫓은 것에 비유하며, 기회가 된다면 당연히 그를 영입 하고 싶다고 밝혔다. 마이클 조던에 비유한 젠슨 황의...",
     "Macro/Rates (293 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
     "Earnings/Corporate (272 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
     "AI Power/Grid (254 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
@@ -346,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 298,
+      "count": 297,
       "focus": "일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을 내쫓은 것에 비유하며, 기회가 된다면 당연히 그를 영입 하고 싶다고 밝혔다. 마이클 조던에 비유한 젠슨 황의..."
     },
     {
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 730,
+      "count": 731,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 오라클 (ORCL) — 건설 프로젝트 관리 플랫폼 ‘Oracle Primavera Cloud’에 AI 기능을 추가. 프로젝트 계획..."
     }
   ],
@@ -1940,17 +1940,20 @@
       "datetime": "2026-11-19T03:29:34.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "semi"
+        "semi",
+        "equity",
+        "earnings"
       ],
+      "lead": 1,
       "score": 68,
       "hasText": true,
-      "summary": "투자 전문가로 알려진 세레니티(Serenity)가 엔비디아의 대규모 메모리 구매 약정이 과거에는 마이크론과 SK하이닉스 등 메모리 반도체 기업들의 주가 상승 요인으로 작용했지만, 현재는 관련 종목의 추가...",
       "tickers": [
         "NVDA",
         "MU",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "투자 전문가로 알려진 세레니티(Serenity)가 엔비디아의 대규모 메모리 구매 약정이 과거에는 마이크론과 SK하이닉스 등 메모리 반도체 기업들의 주가 상승 요인으로 작용했지만, 현재는 관련 종목의 추가..."
     },
     {
       "id": "insidertracking/69716",
@@ -1959,15 +1962,16 @@
       "datetime": "2026-11-19T03:29:20.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 1,
       "score": 61,
       "hasText": true,
-      "summary": "연합뉴스를 인용한 보도에 따르면, 엔비디아 직원들의 56%가 젠슨 황의 CEO 복귀를 희망하는 것으로 나타났으며, 후임 후보 중에서는 이언 벅 부사장이 가장 높은 지지를 확보. 직장인 커뮤니티 블라인드는...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "연합뉴스를 인용한 보도에 따르면, 엔비디아 직원들의 56%가 젠슨 황의 CEO 복귀를 희망하는 것으로 나타났으며, 후임 후보 중에서는 이언 벅 부사장이 가장 높은 지지를 확보. 직장인 커뮤니티 블라인드는..."
     },
     {
       "id": "insidertracking/69714",
@@ -1986,7 +1990,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "전 세계 기업 시가총액 상위 10개 기업 현황 (금일 기준) 1위. 애플: 5조 1,210억 달러 2위. 마이크로소프트: 3조 7,740억 달러 3위. 엔비디아: 3조 6,450억 달러 4위. 알파벳(구글):...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -1995,7 +1998,8 @@
         "AVGO",
         "AMZN",
         "TSM"
-      ]
+      ],
+      "summary": "전 세계 기업 시가총액 상위 10개 기업 현황 (금일 기준) 1위. 애플: 5조 1,210억 달러 2위. 마이크로소프트: 3조 7,740억 달러 3위. 엔비디아: 3조 6,450억 달러 4위. 알파벳(구글):..."
     },
     {
       "id": "insidertracking/69713",
@@ -2014,10 +2018,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "마이크론 오버나잇",
       "tickers": [
         "MU"
-      ]
+      ],
+      "summary": "마이크론 오버나잇"
     },
     {
       "id": "insidertracking/69709",
@@ -2030,10 +2034,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "디인포메이션에 따르면 미국 상무부 산업안보국(BIS)을 총괄하는 제프리 케슬러가 엔비디아 H200 반도체의 수출 승인 절차를 신속하게 처리하도록 직원들에게 지시했으며, 일부 사례에서는 다른 정부 기관들의 반대...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "디인포메이션에 따르면 미국 상무부 산업안보국(BIS)을 총괄하는 제프리 케슬러가 엔비디아 H200 반도체의 수출 승인 절차를 신속하게 처리하도록 직원들에게 지시했으며, 일부 사례에서는 다른 정부 기관들의 반대..."
     },
     {
       "id": "insidertracking/69706",
@@ -2044,12 +2048,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": "월스트리트저널(WSJ)을 인용한 보도에 따르면, 엔비디아 CEO 젠슨 황이 최근 불륜 논란으로 사임한 가운데 그의 가족들이 오랫동안 회사 경영에 깊이 관여해 왔으며, 일부 직원들은 황씨 일가를 사내 '왕실...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "월스트리트저널(WSJ)을 인용한 보도에 따르면, 엔비디아 CEO 젠슨 황이 최근 불륜 논란으로 사임한 가운데 그의 가족들이 오랫동안 회사 경영에 깊이 관여해 왔으며, 일부 직원들은 황씨 일가를 사내 '왕실..."
     },
     {
       "id": "insidertracking/69700",
@@ -2058,15 +2063,18 @@
       "datetime": "2026-11-19T02:11:23.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "semi"
+        "semi",
+        "power",
+        "earnings"
       ],
+      "lead": 1,
       "score": 73,
       "hasText": true,
-      "summary": "월스트리트저널(WSJ)에 따르면 엔비디아가 추진한 5,000억 달러 규모의 반도체 구매 금융 지원 프로그램에서 현재까지 실제 집행된 자금이 전혀 없으며, 첫 거래도 2027년 이전에는 성사되기 어려울 전망....",
       "tickers": [
         "NVDA",
         "AVGO"
-      ]
+      ],
+      "summary": "월스트리트저널(WSJ)에 따르면 엔비디아가 추진한 5,000억 달러 규모의 반도체 구매 금융 지원 프로그램에서 현재까지 실제 집행된 자금이 전혀 없으며, 첫 거래도 2027년 이전에는 성사되기 어려울 전망...."
     },
     {
       "id": "insidertracking/69699",
@@ -2077,13 +2085,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 56,
       "hasText": true,
-      "summary": "애크먼은 X를 통해 엔비디아 이사회가 젠슨 황의 퇴진을 처리하는 과정에서 주주들의 최선의 이익을 고려하지 않았으며, 이사로서의 수탁 의무도 제대로 이행하지 않았다고 지적. 애크먼은 이사회가 젠슨 황의 사내...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "애크먼은 X를 통해 엔비디아 이사회가 젠슨 황의 퇴진을 처리하는 과정에서 주주들의 최선의 이익을 고려하지 않았으며, 이사로서의 수탁 의무도 제대로 이행하지 않았다고 지적. 애크먼은 이사회가 젠슨 황의 사내..."
     },
     {
       "id": "insidertracking/69698",
@@ -2094,6 +2102,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
       "media": {
@@ -2102,12 +2111,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "로이터에 따르면 중국군이 무기 체계와 지휘 시스템, 표적 선정 작전 및 군수·물류 분야에 인공지능(AI)을 통합하기 위해 엔비디아의 첨단 반도체 확보를 추진하고 있다고 미국 의회 산하 위원회가 지적. 위원회...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD"
-      ]
+      ],
+      "summary": "로이터에 따르면 중국군이 무기 체계와 지휘 시스템, 표적 선정 작전 및 군수·물류 분야에 인공지능(AI)을 통합하기 위해 엔비디아의 첨단 반도체 확보를 추진하고 있다고 미국 의회 산하 위원회가 지적. 위원회..."
     },
     {
       "id": "bornlupin/21196",
