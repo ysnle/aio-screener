@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-19T20:22:07.623Z",
-  "attemptedAt": "2026-11-19T20:22:07.623Z",
-  "lastSuccessfulAt": "2026-11-19T20:22:07.623Z",
+  "generatedAt": "2026-11-19T20:52:01.024Z",
+  "attemptedAt": "2026-11-19T20:52:01.024Z",
+  "lastSuccessfulAt": "2026-11-19T20:52:01.024Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-05T20:22:03.617Z",
-  "until": "2026-11-19T20:22:03.617Z",
+  "since": "2026-11-05T20:51:56.344Z",
+  "until": "2026-11-19T20:51:56.344Z",
   "current24hWindow": {
     "start": "2026-11-17T23:00:00.000Z",
     "end": "2026-11-18T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1215,
-      "freshCount": 20,
-      "eligibleTextCount": 1155,
+      "count": 1216,
+      "freshCount": 40,
+      "eligibleTextCount": 1156,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69776
+      "lastPostId": 69777
     },
     {
       "channel": "bornlupin",
@@ -111,9 +111,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 737,
+      "count": 735,
       "freshCount": 18,
-      "eligibleTextCount": 737,
+      "eligibleTextCount": 735,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
@@ -137,21 +137,21 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2135,
-  "retainedItemCount": 401,
+  "count": 2134,
+  "retainedItemCount": 415,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2135,
-    "eligibleTextCount": 2075,
+    "observedCount": 2134,
+    "eligibleTextCount": 2074,
     "mediaOnlyCount": 60,
     "mediaAttachedCount": 870,
     "photoPostCount": 727,
     "documentPostCount": 6,
     "imageOnlyCount": 6,
-    "highSignalCount": 343,
+    "highSignalCount": 344,
     "broadSignalCount": 871,
     "selectedRawCount": 370,
     "selectedEligibleCount": 370,
@@ -160,14 +160,14 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 749,
+    "macro": 286,
+    "geo": 295,
     "semi": 629,
+    "power": 249,
+    "market-note": 748,
     "flows": 52,
-    "macro": 285,
-    "geo": 294,
     "earnings": 274,
     "optical": 22,
-    "power": 248,
     "equity": 145,
     "japan": 55,
     "kr-market": 90,
@@ -178,10 +178,10 @@
     "insider": 2
   },
   "tickerCounts": {
+    "NVDA": 395,
+    "AMD": 41,
     "META": 3,
     "COHR": 2,
-    "NVDA": 395,
-    "AMD": 40,
     "GOOG": 58,
     "AVGO": 18,
     "AMZN": 53,
@@ -260,12 +260,12 @@
     "IONQ": 1
   },
   "themes": [
-    "Market Notes (749 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해...",
+    "Market Notes (748 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해...",
     "Semiconductors/Memory (629 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
-    "Geopolitics (294 posts in 14-day research window): 일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을 내쫓은 것에 비유하며, 기회가 된다면 당연히 그를 영입 하고 싶다고 밝혔다. 마이클 조던에 비유한 젠슨 황의...",
-    "Macro/Rates (285 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
+    "Geopolitics (295 posts in 14-day research window): 일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을 내쫓은 것에 비유하며, 기회가 된다면 당연히 그를 영입 하고 싶다고 밝혔다. 마이클 조던에 비유한 젠슨 황의...",
+    "Macro/Rates (286 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
     "Earnings/Corporate (274 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "AI Power/Grid (248 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "AI Power/Grid (249 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "Equity/Analyst (145 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 소프트웨어 • 메타 플랫폼스 (META) — 소규모 기업과 크리에이터를 대상으로 AI 영상 제작 앱 ‘Dream Render’를 공개. • 바이두...",
     "AI Policy/Export Controls (143 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한..."
   ],
@@ -297,7 +297,7 @@
     },
     {
       "key": "AMD",
-      "count": 40,
+      "count": 41,
       "text": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한..."
     },
     {
@@ -338,7 +338,7 @@
       "topics": [
         "macro"
       ],
-      "count": 285,
+      "count": 286,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
     },
     {
@@ -347,7 +347,7 @@
       "topics": [
         "geo"
       ],
-      "count": 294,
+      "count": 295,
       "focus": "일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을 내쫓은 것에 비유하며, 기회가 된다면 당연히 그를 영입 하고 싶다고 밝혔다. 마이클 조던에 비유한 젠슨 황의..."
     },
     {
@@ -383,7 +383,7 @@
       "topics": [
         "power"
       ],
-      "count": 248,
+      "count": 249,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -402,7 +402,7 @@
         "kr-market"
       ],
       "count": 90,
-      "focus": "No retained full-text sample; 90 observed posts in the 14-day research window."
+      "focus": "코스피 야간선물"
     },
     {
       "id": "equity",
@@ -473,7 +473,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 749,
+      "count": 748,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오전 6시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 대통령은 APEC 정상회의에서 미국이 태평양 지역의 경제성장과 안보, 주권, 평화 증진을 위해..."
     }
   ],
@@ -1699,6 +1699,26 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69777",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69777",
+      "datetime": "2026-11-19T20:51:04.000Z",
+      "localDateKst": "2026-11-20",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 95,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "AMD"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 20일 🇺🇸 아메리카 • 트럼프 대통령은 시진핑 중국 국가주석 및 푸틴 러시아 대통령과의 회담을 긍정적으로 평가하며 3국 간 관계 개선에 대한 기대를 표명. 푸틴..."
+    },
+    {
       "id": "HANAchina/72432",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72432",
@@ -1973,16 +1993,18 @@
       "datetime": "2026-11-19T10:33:55.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "semi"
+        "semi",
+        "power"
       ],
+      "lead": 1,
       "score": 67,
       "hasText": true,
-      "summary": "파이낸셜타임스(FT)에 따르면 미국 정부가 중국에 대한 최첨단 프로세서 수출을 제한하고 있음에도, 일부 중국 고객들은 독립적인 반도체 패키징 및 테스트 업체를 통해 고성능 칩을 주문할 수 있었던 것으로 확인....",
       "tickers": [
         "NVDA",
         "TSM",
         "005930.KS"
-      ]
+      ],
+      "summary": "파이낸셜타임스(FT)에 따르면 미국 정부가 중국에 대한 최첨단 프로세서 수출을 제한하고 있음에도, 일부 중국 고객들은 독립적인 반도체 패키징 및 테스트 업체를 통해 고성능 칩을 주문할 수 있었던 것으로 확인...."
     },
     {
       "id": "insidertracking/69751",
@@ -1995,10 +2017,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "TSMC와 삼성, 일부 중국 고객에게 반도체 제품 출하 중단 – FT",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "TSMC와 삼성, 일부 중국 고객에게 반도체 제품 출하 중단 – FT"
     },
     {
       "id": "HANAchina/72410",
@@ -2042,10 +2064,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도는 앤트로픽과 엔비디아 집중",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도는 앤트로픽과 엔비디아 집중"
     },
     {
       "id": "HANAchina/72405",
@@ -2093,13 +2115,14 @@
       "datetime": "2026-11-19T07:58:21.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "geo"
+        "geo",
+        "power"
       ],
+      "lead": 1,
       "score": 58,
       "hasText": true,
-      "summary": "우크라이나, 데이터로 드론 전쟁 고도화…러시아군 손실 극대화 우크라이나군이 드론 전쟁에 데이터 분석을 적극 도입하며 러시아군에 대한 공격 효율을 높이고 있음. 단순히 드론을 대량 투입하는 방식에서 벗어나...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "우크라이나, 데이터로 드론 전쟁 고도화…러시아군 손실 극대화 우크라이나군이 드론 전쟁에 데이터 분석을 적극 도입하며 러시아군에 대한 공격 효율을 높이고 있음. 단순히 드론을 대량 투입하는 방식에서 벗어나..."
     },
     {
       "id": "insidertracking/69742",
@@ -2108,14 +2131,18 @@
       "datetime": "2026-11-19T07:57:32.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "semi"
+        "semi",
+        "power",
+        "ai-policy",
+        "earnings"
       ],
+      "lead": 1,
       "score": 74,
       "hasText": true,
-      "summary": "중국 AI 견제 강화하는 미국…엔비디아·MS도 대중 규제 압박 트럼프 행정부가 중국 인공지능(AI) 산업에 대한 견제를 강화하면서 엔비디아를 비롯한 미국 빅테크 기업들의 대중 사업에도 새로운 부담이 커지고...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "중국 AI 견제 강화하는 미국…엔비디아·MS도 대중 규제 압박 트럼프 행정부가 중국 인공지능(AI) 산업에 대한 견제를 강화하면서 엔비디아를 비롯한 미국 빅테크 기업들의 대중 사업에도 새로운 부담이 커지고..."
     },
     {
       "id": "HANAchina/72401",
@@ -2203,7 +2230,10 @@
       "datetime": "2026-11-19T05:39:13.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "equity"
       ],
       "score": 83,
       "hasText": true,
@@ -2213,10 +2243,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 프리마켓 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 선물 현황 • 다우: 50,408.10 (+0.42%) • S&P500: 7,366.90 (+0.59%) •...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 프리마켓 브리핑 > 2026년 11월 19일 (목요일) 1. 미국 증시 선물 현황 • 다우: 50,408.10 (+0.42%) • S&P500: 7,366.90 (+0.59%) •..."
     },
     {
       "id": "insidertracking/69733",
@@ -6414,29 +6444,6 @@
         "NVDA",
         "TSM",
         "2454.TW"
-      ]
-    },
-    {
-      "id": "insidertracking/69405",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69405",
-      "datetime": "2026-11-16T06:47:09.000Z",
-      "localDateKst": "2026-11-16",
-      "tags": [
-        "semi"
-      ],
-      "score": 61,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "엔비디아 이사 마크 스티븐스가 젠슨 황 CEO 사임 약 2개월 전 주식 매도로 9억 4,700만 달러 현금화. 미국 증권거래위원회(SEC) 공시에서 엔비디아 이사이자 회사의 두 번째로 큰 개인 주주인 마크...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
       ]
     },
     {
