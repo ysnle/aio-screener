@@ -59,8 +59,6 @@ export const CHOICES = Object.freeze({
 // v57.81 (audit X7): one count word list for 매크로 and 홈 ("두 시나리오" was hard-coded beside "시나리오가 셋").
 export const COUNT_WORDS = Object.freeze(['', '하나', '둘', '셋', '넷', '다섯', '여섯', '일곱', '여덟']);
 
-export const SHAPES = Object.freeze({ expansion: '고른 상승', concentration: '소수 종목 주도', weakness: '동반 약세' });
-
 // v58.74 (audit): FRED dates a target-range change by its effective day, the session after the FOMC decision
 // ('연준 9/17 인상' for the 9/16 decision); the reading names the decision day.
 export function fomcDecisionDate(effectiveDate) {

@@ -53,9 +53,6 @@ function etWallClockToMs(date, [hour, minute]) {
   return out;
 }
 
-/** A New York wall-clock time on a US date as an instant (DST aware) — the one clock every earnings filter reads. */
-export const usWallClockMs = (date, hourMinute) => etWallClockToMs(date, hourMinute);
-
 // v59.45 (pipeline review P26-EVENT-01): the placeholder clocks of an earnings row, one table for the schedule, the
 // previews and the week. The calendar names only a session; 08:00 / 16:05 ET are filter clocks, not announced times.
 export const EARNINGS_FILTER_CLOCK = Object.freeze({ bmo: [8, 0], amc: [16, 5], unknown: [16, 5] });
@@ -197,13 +194,6 @@ export function formatUsdRevenue(value) {
 /**
  * @returns {Array<{ id, kind, atMs, when, label, why, last, today, passed, status }>} the next `days` days
  */
-// T16: the briefing and the home schedule filter earnings to the same S&P 500 names.
-export function sp500NameMap(rows = []) {
-  const names = {};
-  for (const row of Array.isArray(rows) ? rows : []) if (row?.sym && row?.name && row.index === 'SP500') names[row.sym] = row.name;
-  return names;
-}
-
 export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRange = null, earnings = [], earningsMeta = {}, names = {}, nowMs = Date.now(), days = 7, maxEarnings = 8, perDay = 0, fomcDecisions = null } = {}) {
   const rows = [];
   const today = kstParts(nowMs).date;

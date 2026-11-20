@@ -35,12 +35,6 @@ export function loadRegimeBoard() {
 // meter as a fail-closed surface because the legacy implementation was incorrectly reusing
 // the trading score under a different title. P822 transfers only the technical chart title/
 // metadata; the canvas and indicator calculations remain compatibility-owned.
-function setText(documentRef, id, value, color = null) {
-  const element = documentRef?.getElementById(id);
-  if (!element) return;
-  element.textContent = value;
-  if (color) element.style.color = color;
-}
 
 // P1392: the score hero, adjustment rows and home score summary were retired; the 시장 상태 board is rendered by
 // ../components/market-regime.js, which the signal route's loader hands in (renderRegimePage), and the home hero by

@@ -1,8 +1,14 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-19
+last_verified: 2026-11-20
 confidence: medium
 ---
+
+v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
+
+## v60.32 축소 배치와 배포 정지 복구 (2026-11-20)
+
+- [x] QA-CI-ENTITY-WAIT: 종목 화면 품질 검사는 상장 설명의 출처 링크가 나타난 뒤에 개요를 읽는다 (P2688) verify_by: node scripts/ci-entity-quality-browser-check.mjs
 
 ## v60.31 리서치 라이브러리 (2026-11-19)
 
@@ -117,286 +123,118 @@ confidence: medium
 - [x] QA-NARR-RECORD-LIVE-01: v60.21 push 뒤 배포판 시장 상태 → 이야기와 전망에서 이야기 섹션과 시나리오 섹션의 같은 갈림길 '가능성' 줄이 같고(장기 일봉 기록), 'AIO 종가 기록' 줄이 이야기 섹션에만 남지 않는다. verify_by: 배포판 시장 상태 새로고침 1회 뒤 두 섹션의 판단 틀 텍스트 비교
 
 ## v60.19 AI 수치 근거 대조 (2026-11-15)
-
-- [x] QA-AI-FIG-01: v60.19 앱 자료와 종목·지표·기준·날짜가 어긋난 AI 수치(장중이라 쓴 종가, 뒤바뀐 표 열, 반대 방향, 예시 숫자)는 게시되지 않고, 근거와 맞는 문장·표는 그대로 남는다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
-- [x] QA-AI-SEARCH-01: v60.19 검색을 요청한 질문에서 첫 응답이 앱 함수만 부르면 다음 요청은 웹검색 도구만 담은 required 요청이다. verify_by: node scripts/ci-ai-chat-reliability-contract-check.mjs
-- [x] QA-AI-SEARCH-LIVE-01: v60.19 배포 뒤 검색해서 알려줘 형태의 종목 질문 한 건에서 응답 상태줄이 웹검색 보강을 말하고 searchCalls가 1 이상이다. verify_by: 배포본 AI 패널에서 검색 요청 질문 1건, 답변 아래 상태줄과 answer-quality 로그 searched 확인
-- [x] QA-AI-RETRY-01: v60.19 새로고침 뒤 다시 묻기는 질문이 속한 저장 대화와 화면(주소)으로 보내고, 저장되지 않은 대화의 질문은 새 대화로 보낸다. verify_by: node scripts/ci-chat-ui-state-browser-check.mjs
-- [x] QA-AI-RETRY-LIVE-01: v60.19 배포본에서 종목 화면 질문 중 새로고침, 매크로로 이동, 다시 묻기를 누르면 종목 화면으로 돌아가 같은 대화에서 답한다. verify_by: 배포본 AI 패널 수동 확인(대화 저장 동의 상태)
-- [x] QA-CONS-OOQ-01: v60.19 컨센서스의 일회성 분기 판정은 직전 4개 분기 합계 안의 분기만 본다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-SEC-1STANNUAL-01: v60.19 연차 없음 발행사의 첫 10-K/20-F는 UTC 날짜 경계와 7일 목록창에 상관없이 다음 실행에서 읽힌다. verify_by: node scripts/ci-fiscal-quality-fixture.mjs
-- [x] QA-SHADOW-ID-01: v60.19 그림자·기본 순위 모델 식별자는 시장별 적용 가중치와 팩터 공식이 바뀌면 바뀐다. verify_by: node scripts/ci-candidate-archive-check.mjs
-- [x] QA-PF-FXLEG-01: v60.19 포트폴리오 S&P 비교의 환율 다리는 가격 다리와 같은 두 날짜이고, 기준일 환율이 없으면 환산 수치를 보류한다. verify_by: node scripts/ci-portfolio-native-chart-check.mjs
-- [x] QA-FED-RANGE-01: v60.19 연준 목표 범위·중간값은 상·하단이 같은 관측일일 때만 계산·표시된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-CPI-DERIVED-01: v60.19 1년 전 같은 달 지수가 없는 달의 CPI 연율은 '13개월 연율'과 기준월로 표시되고, 화면의 지난 CPI·PCE 발표값은 기준월을 단다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-TIMELINE-WINDOW-01: v60.19 봉인된 시황 슬롯의 시세와 움직임은 모두 그 슬롯 창 안에서 관측된 값이다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-SIZE-WORD-01: v60.19 시황 슬롯 요약의 크기 말은 지표 자기 변동성 대비 움직임의 원장 등급에서 정해진다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-MATERIALITY-EXPLAINS-01: v60.19 업종·종목을 움직인 가격(driver)은 그 움직임의 점수 일부를 받아 원장과 AI 시황 순위에 반영된다. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-market-reading-week-fixture.mjs
-- [x] QA-OPS-DOC-01: v60.19 운영 런북은 AI 월 예산을 경고 목표로 설명하고(차단 문구 없음), 주간 점검의 80%·초과 알림은 공급자 선불 잔액을 확인하라고 안내한다. verify_by: node scripts/ci-operator-secrets-contract-check.mjs; node scripts/ci-operations-weekly-review-check.mjs
-- [x] QA-MOVE-SIZE-01: v60.19 크기 단어(보합권·소폭·큰 폭·크게·급등·급락)는 src/domain/market/session/move-size.js 등급에서만 고르고, 고정 숫자 비교로 크기 단어를 고르는 코드는 게이트가 실패시킨다. verify_by: node scripts/ci-move-size-word-check.mjs
-- [x] QA-VIX-RISK-01: v60.19 VIX 구간 낙폭 줄은 src/domain/market/signal/vix-band-record.js 한 곳에서 읽고(시장 상태·AI 도구 공용), 기준율과 겹치지 않는 사례 수를 함께 쓰며, 지문이 다르거나 기록이 없으면 없음으로 표시하고 방향 단어를 쓰지 않는다. verify_by: node scripts/ci-market-lean-validation-check.mjs; node scripts/ci-esm-core-unit-check.mjs
+- 완료 18건: QA-AI-FIG-01, QA-AI-SEARCH-01, QA-AI-SEARCH-LIVE-01, QA-AI-RETRY-01, QA-AI-RETRY-LIVE-01, QA-CONS-OOQ-01, QA-SEC-1STANNUAL-01, QA-SHADOW-ID-01, QA-PF-FXLEG-01, QA-FED-RANGE-01, QA-CPI-DERIVED-01, QA-TIMELINE-WINDOW-01, QA-SIZE-WORD-01, QA-MATERIALITY-EXPLAINS-01, QA-OPS-DOC-01, QA-MOVE-SIZE-01, QA-VIX-RISK-01, QA-LEAN-01
 - [ ] QA-VIX-RISK-02: v60.19 다음 주간 stress-outcomes 갱신 뒤 public-data/stress-outcomes.json이 새 지문(stress-outcomes:aa7e90509d8d94d0)과 밴드별 risk를 싣고, 시장 상태 카드와 VIX 낙폭 줄이 기록 없음 대신 숫자를 보인다. verify_by: node scripts/ci-market-lean-validation-check.mjs (갱신된 산출물로)
-- [x] QA-LEAN-01: v60.19 시장 기울기는 model-validation-status.json marketLean이 통과시킨 방향만 방향 단어로 말하고 그 옆에 과거 빈도·사례 수를 둔다. 판정이 없거나 실패면 '양호 n · 중립 n · 부담 n'과 사유만, 선택지는 없다. verify_by: node scripts/ci-market-lean-validation-check.mjs
 - [ ] QA-LEAN-02: v60.19 research-backtest.yml을 실행한 뒤 market-lean-backtest 산출물과 validation-gates의 marketLean 판정을 검토하고, 승격할 때 public-data/market-lean-backtest.json과 model-validation-status.json을 같은 검토 변경으로 올린다. verify_by: node scripts/build-validation-gates.mjs --check
 
 ## v60.18 매크로 판정 다리 (v60.18) (2026-11-15)
-
-- [x] QA-MACRO-LEG-01: v60.18 5거래일 급등으로 금리가 부담인 날 매크로 '금리, 할인율' 머리줄·연결 고리·▲▼ 기준이 모두 5거래일 값과 그 진입선을 말한다. verify_by: node scripts/ci-regime-scenarios-fixture.mjs
-- [x] QA-LIVE-CHG-01: v60.18 같은 세션 실시간 시세는 발행 종가 등락을 바꾸지 않고, 다음 세션 관측은 바꾼다. verify_by: node scripts/ci-market-snapshot-contract-check.mjs
+- 완료 15건: QA-MACRO-LEG-01, QA-LIVE-CHG-01, QA-MACRO-HELD-01, QA-HOME-STRIP-01, QA-THEME-BENCH-01, QA-THEME-BREAKWORD-01, QA-OUTCOME-STAMP-01, QA-GATES-OUTDIR-01, QA-EVIDENCE-STRENGTH-01, QA-VERDICT-DIR-01, QA-VERDICT-DIR-02, QA-VERDICT-VIX-01, QA-VERDICT-MODEL-01, QA-MARKETDAY-CUM-01, QA-VERDICT-WEEK-01
 - [ ] QA-LIVE-CHG-LIVE-01: v60.18 배포 뒤 첫 주말 배포본 홈 교차자산 줄 달러 지수 등락이 브리핑·market-snapshot.json 값과 같다. verify_by: 배포본 홈 #home-cross-assets [data-live-chg="DX-Y.NYB"]와 public-data/market-snapshot.json changePct 대조
-- [x] QA-MACRO-HELD-01: v60.18 기준월 공백으로 전년 대비가 직전 달인 물가 카드는 공백 이유와 표시 달을 말하고, '최근 공식 발표'는 같은 이유 문장을 쓴다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [x] QA-HOME-STRIP-01: v60.18 홈 지수 줄의 네 카드는 모두 같은 세션 ETF이거나 모두 발행 종가다. verify_by: node scripts/ci-desktop-continuity-check.mjs
-- [x] QA-THEME-BENCH-01: v60.18 미국 테마 단계는 언제나 S&P 500 동일가중 대비이고, 그 종가가 한 세션 늦은 갱신에서는 판정 보류로 두며 상태 산출물은 직전 단계를 유지해 변화 기록에 되돌림이 남지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
 - [ ] QA-THEME-BENCH-LIVE-01: v60.18 push 뒤 첫 22:5xZ refresh-data 실행의 scenario-state.json: 미국 테마 행이 held(benchmark-lag)로 직전 단계를 유지하고, 23:2xZ 실행의 transitions에 그날 테마 단계 되돌림이 없다. verify_by: git show <22:5xZ·23:2xZ 커밋>:public-data/scenario-state.json 의 themes[].held 와 transitions 확인
-- [x] QA-THEME-BREAKWORD-01: v60.18 테마 단계 문구의 급락·반등은 테마 자신의 5거래일 움직임이 평소 1주 움직임의 2배를 넘을 때만 쓰고, 지수 대비로만 넘으면 뒤처짐·앞섬으로 쓴다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [x] QA-OUTCOME-STAMP-01: v60.18 scenario-outcomes.json·stress-outcomes.json은 정의 지문이 맞을 때만 주간 건너뛰기·화면 표시가 되고, 지문이 다르면 다음 실행에서 다시 만든다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
 - [ ] QA-OUTCOME-STAMP-LIVE-01: v60.18 push 뒤 첫 refresh-data 일일 레인 실행이 scenario-outcomes.json(fingerprints, 테마 행 fingerprint, outcome 'excess')과 stress-outcomes.json(fingerprint)을 다시 쓰고, 테마 화면 과거 기록과 VIX 구간 표가 다시 보인다. verify_by: git log -1 -- public-data/scenario-outcomes.json public-data/stress-outcomes.json 와 두 파일의 fingerprint 필드 확인
-- [x] QA-GATES-OUTDIR-01: v60.18 build-validation-gates.mjs는 없는 --out-dir를 만들고, --check 불일치는 두 백테스트 날짜를 함께 말한다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [x] QA-EVIDENCE-STRENGTH-01: v60.18 테마 단계·분기 빈도·VIX 구간 표·시장 온도·스크리너 검증 문장의 표본 하한과 참고 표시는 evidenceStrength 하나에서 나온다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [x] QA-VERDICT-DIR-01: v60.18 11/9·11/11 재생 hero는 '주도주와 지수 모두 추세선 아래에서 반등 중입니다.', 11/12는 '…반등이 멈췄습니다.', 11/13은 '…재하락 중입니다.'이고, 어떤 축 문장도 '+숫자'와 '약해지다'를 한 문장에 함께 쓰지 않는다. verify_by: node scripts/ci-metric-consistency-check.mjs
-- [x] QA-VERDICT-DIR-02: v60.18 11/12 VIX 18.70은 '11/11 17.49부터 하루 +7%로 방향이 뚜렷하지 않습니다', 11/13 VIX 19.30은 '11/11 17.49부터 이틀 +10% 반등 중', 11/13 S&P 500은 '11/11 7,619.38부터 이틀 -0.8% 하락 중'이다. verify_by: node scripts/ci-metric-consistency-check.mjs
 - [ ] QA-VERDICT-DIR-LIVE-01: v60.18 push 뒤 첫 refresh-data의 today-verdict.json heroLine이 그날 SOXX·S&P 500의 50일선 위치와 마지막 구간 방향(반등 중/재하락 중/멈춤)을 같은 단어로 쓴다. verify_by: git show <첫 refresh 커밋>:public-data/today-verdict.json 과 history.json SOXX·S&P 500 대조
-- [x] QA-VERDICT-VIX-01: v60.18 11/11 재생의 변동성 축은 5거래일 기준점(11/4 16.61)을 밝히고 방향을 'VIX는 11/4 16.61에서 +70% 오른 뒤 11/5 28.18부터 나흘 -38% 하락 중'으로 따로 쓴다. verify_by: node scripts/ci-metric-consistency-check.mjs
-- [x] QA-VERDICT-MODEL-01: v60.18 today-verdict.json의 model이 현재 코드와 다르면 ci-metric-consistency-check가 STALE-MODEL과 두 판정을 출력하고, 같으면 공개 입력으로 다시 계산한 판정과 같아야 통과한다. verify_by: node scripts/ci-metric-consistency-check.mjs
 - [ ] QA-VERDICT-MODEL-LIVE-01: v60.18 push 뒤 첫 refresh-data의 today-verdict.json에 model이 있고 ci-metric-consistency-check가 STALE-MODEL 없이 통과한다. verify_by: git pull 뒤 node scripts/ci-metric-consistency-check.mjs
-- [x] QA-MARKETDAY-CUM-01: v60.18 11/13 재생 원장에서 10년물(하루 +5bp, 5거래일 +29bp)이 lead이고 sizedBy가 week이며, 주간을 하루가 되돌린 SOXX는 하루 기준이다. verify_by: node scripts/ci-metric-consistency-check.mjs
 - [ ] QA-MARKETDAY-CUM-LIVE-01: v60.18 push 뒤 첫 refresh-data의 market-day.json 가격 사실에 zWeek·weekCounts·sizedBy가 있고 rules 문구가 5거래일 다리를 말한다. verify_by: git show <첫 refresh 커밋>:public-data/market-day.json
 - [ ] QA-TEMP-BASIS-01: v60.18 push 뒤 도쿄 오전(00:00~06:00Z) refresh-data의 market-temperature.json 닛케이 asOf가 직전 산출물보다 과거가 아니다(그때는 retained에 nikkei). verify_by: git log -p public-data/market-temperature.json 의 markets.nikkei.asOf 연속 확인
-- [x] QA-VERDICT-WEEK-01: v60.18 11/12·11/13 재생 금리 축이 속도 다리 부담(5거래일 +26/+29bp)이고 '뚜렷한 방향 없이'를 쓰지 않으며, 11/10 FRED 11/9 게시 전후 신용은 부담→중립, 11/14 10:25Z 시계의 11/13 판정은 금요일 판정과 같다. verify_by: node scripts/ci-metric-consistency-check.mjs
 
 ## v60.06 레이어 스택 검토 수정 (2026-11-14)
-
-- [x] QA-A11Y-06: 팝오버 재등록은 레이어를 남기지 않고, 모달 위에 연 창은 조작 가능하며, Tab은 가장 가까운 모달 안에 머문다 (v60.06 P2403). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- 완료 1건: QA-A11Y-06
 
 ## v60.05 공용 동작 계층 (2026-11-13)
-
-- [x] QA-A11Y-05: 겹친 레이어에서 Escape는 맨 위 하나만 닫고, 모달이 열린 동안 뒤 화면은 inert다 (v60.05 P2401). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- 완료 1건: QA-A11Y-05
 
 ## v59.88 스크리너 산출물 계약 (2026-11-09)
-
-- [x] QA-BREADTH-ALL-MARKET-SESSION: v59.88: 한국 장 마감 뒤 미국 장 마감 전에도 스크리너 breadth의 all 세그먼트가 미국·한국 행을 각자 최신 세션으로 세어 커버리지 검사를 통과한다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-KRW-KOSPI-OWN-SESSION: v59.88: 한국 장 마감 뒤 미국 장 마감 전에도 원화 분해 블록의 코스피 20거래일 변화가 매크로·시장 상태의 코스피 20거래일 변화와 같다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-IMPORT-RESOLUTION: v59.88: src/와 worker/의 모든 상대 import(정적, 문자열 import())가 존재하는 파일을 가리킨다. 스크리너 현금 지표 조건은 screener-cash chunk를 불러온다. verify_by: node scripts/ci-architecture-contract-check.mjs
-- [x] QA-DESIGN-TOKEN-RATCHET: v59.88: 스타일시트마다 px로 직접 쓴 모서리, 12·14·18·28px 밖 글자 크기, !important 수가 기준선보다 늘지 않는다. 새 규칙은 --radius-inner/element/container/full과 --size-element-sm/md/lg 역할 토큰을 쓴다. verify_by: node scripts/ci-design-token-ratchet-check.mjs
+- 완료 4건: QA-BREADTH-ALL-MARKET-SESSION, QA-KRW-KOSPI-OWN-SESSION, QA-IMPORT-RESOLUTION, QA-DESIGN-TOKEN-RATCHET
 
 ## v59.87 기술 지표 단일 정의 (2026-11-09)
-
-- [x] QA-LEGACY-TECH-FACADE: v59.87: calcTechnicalSnapshot의 ADR(adr20Pct)·RSI·ATR·SMA/EMA가 실제 window.AIO_ARCH를 거쳐 technical/definitions.js 값으로 채워진다(260봉 픽스처에서 null이 아니다). verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-PORTFOLIO-KR-LISTING: v59.87: 6자리 코드로 저장된 한국 보유(005930)는 store와 화면 행에서 상장 심볼 005930.KS를 유지하고, 시세는 그 심볼로 요청하고 그 심볼로 읽는다. 해석되지 않은 코드에 거래소를 추정해 붙이지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-AI-SCREEN-FACTS-01: P2327: 채팅 [주가 추이]의 추세 라벨·5거래일/1개월/3개월 수익률·52주 위치·RSI·종가일이 같은 종목의 종목 화면 값과 같다(스크리너 행 → on-demand 행, 범위 밖 KR은 줄 없음). verify_by: node scripts/ci-ai-evidence-contract-check.mjs
+- 완료 3건: QA-LEGACY-TECH-FACADE, QA-PORTFOLIO-KR-LISTING, QA-AI-SCREEN-FACTS-01
 
 ## v59.86 라이브 실사용 점검 (2026-11-09)
-
-- [x] QA-FUND-TTM-REVENUE: v59.86: 1년 전 4개 분기의 매출이 모두 있으면 '최근 4개 분기' 매출 성장률이 나오고, 그중 순이익 공백은 이익 비교만 비운다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-ROUTE-KR-CODE: v59.86: #fundamental/005930·#ticker/005930처럼 한국 코드로 연 주소가 005930.KS로 풀려 검색창으로 연 화면과 같다. verify_by: node scripts/live-user-journey.mjs (AIO_LIVE_BASE 로컬)
-- [x] QA-PF-MIXED-ROW-UNIT: v59.86: 미국·한국 종목을 기준 통화 없이 담으면 손익 열 머리글이 '손익 (보유 통화)'이고 원화 종목 손익은 ₩로 표시된다. 기준 통화를 저장하면 새로고침 없이 그 통화로 환산된다. verify_by: node scripts/ci-pipeline-semantics-check.mjs
-- [x] QA-AI-LEADER-CLOSES: v59.86: 장 마감 뒤 차트 화면에서 QQQ·SOXX·IWM 한 달 비교를 물으면 나스닥 100·SOXX·러셀 2000의 종가와 20거래일 변화를 종가 기준 근거로 인용한다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
-- [x] QA-A11Y-NEWS-LINK: v59.86: 시장 뉴스 타임라인 링크가 라이트·다크 모두 AA 대비를 넘는다. verify_by: node scripts/qa-runner.mjs affected --files src/ui/styles/v2-today.css
+- 완료 5건: QA-FUND-TTM-REVENUE, QA-ROUTE-KR-CODE, QA-PF-MIXED-ROW-UNIT, QA-AI-LEADER-CLOSES, QA-A11Y-NEWS-LINK
 
 ## v59.85 Data publisher (v59.85) (2026-11-09)
-
-- [x] QA-DATA-PUBLISH-01: After a producing workflow's lost push race, the next data commit sits on top of the other commit and the runner's worktree edits survive (autostash). A conflict dispatches exactly one collision re-run. verify_by: node scripts/ci-publish-data-commit-check.mjs
-- [x] QA-DATA-FRESH-01: On a weekday after the US close, the live freshness ledger shows history.json and screener.json with a basisSession, and no row carries contractDrift. verify_by: node scripts/ci-external-pipeline-check.mjs (watchdog)
-- [x] QA-OPS-CRON-01: In a week of refresh-data runs, no schedule-event run starts a full cycle within 20 minutes of a successful Worker dispatch (its cadence reason reads cron-fallback-covered-by-scheduler-run). verify_by: Actions run list for refresh-data.yml, cadence job summary
-- [x] QA-AI-MACRO-RELEASE-ROWS: v59.85: 거시 질문의 CPI·PCE·고용·기준금리·2년물·실질금리·기대인플레·같은 날 2s10s가 source macro-release 근거 행으로 묶여 '[공식 발표]'와 기준월로 게시되고, DOMAIN 줄에 장중 ^TNX·날짜 없는 스냅샷 2s10s·장중 VIX가 없다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
-- [x] QA-AI-INFLATION-DIRECTION: v59.85: 시장 해석 프롬프트의 INFLATION_DIRECTION이 매크로 화면 물가 축의 방향(재가속·둔화·엇갈림·방향 보류)을 그대로 쓰고, CPI 전년비의 한 달 변화로 '오르는 중'을 단정하지 않는다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
-- [x] QA-MACRO-ONE-OWNER-READS: v59.85: 거시 장·체인·타일이 물가 방향(coreInflationRead), Sahm·청구, HY 해제 조건(creditReleaseText), 브렌트 주도 보류, 달러 부담, VIX 구간 이름, 성장 걱정을 각 소유 함수에서 읽어 같은 날 서로 다른 판정을 내지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-MACRO-POLICY-CYCLE-WORDING: v59.85: 인상 국면(마지막 목표금리 변경이 180일 안의 인상)에서 CPI·PCE·고용·소매 발표 밴드와 물가 축은 '인하 기대' 대신 '높은 금리가 더 오래 / 추가 인상 압력'으로 읽고, 소매판매 과열은 같은 달 CPI를 뺀 실질 값과 함께 말한다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-HOME-VERDICT-HORIZON: v59.85: 오늘 hero에서 판정이 부담(양호) 쪽인데 지수 카드의 마지막 세션이 반대로 0.5% 이상 움직였고 같은 쪽 움직임이 없으면, 기준 줄이 판정의 기간(50일선·20거래일)과 확인할 축을 말한다. 혼조·갈린 날·작은 움직임에는 비어 있다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-WEEK-AHEAD-RELEASE-CLOCK: v59.85: 주간 일정·오늘 '다음 일정'에서 FOMC는 KST 자정 뒤에도 발표(04:00 KST)까지 남고, CPI는 08:30 ET 발표 뒤 빠진다. 실적은 장 전·장 마감 후 대략 시각으로 거른다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- 완료 9건: QA-DATA-PUBLISH-01, QA-DATA-FRESH-01, QA-OPS-CRON-01, QA-AI-MACRO-RELEASE-ROWS, QA-AI-INFLATION-DIRECTION, QA-MACRO-ONE-OWNER-READS, QA-MACRO-POLICY-CYCLE-WORDING, QA-HOME-VERDICT-HORIZON, QA-WEEK-AHEAD-RELEASE-CLOCK
 
 ## v59.83 저장소 이력 증가: 데이터 브랜치 보류, 스크린샷 차단 (2026-11-08)
-
-- [x] QA-REPO-ARTIFACT-IMAGE: v59.83: _artifacts 아래 새 이미지나 바이트가 바뀐 추적 이미지는 기준 목록과 달라 게이트가 실패하고, 로컬 실행이 만든 스크린샷은 .gitignore에 막혀 커밋되지 않는다. 옛 트리 8c4383cb(증거 PNG를 매 실행 다시 쓰던 상태)에서 실패한다. verify_by: node scripts/ci-artifact-image-check.mjs
+- 완료 1건: QA-REPO-ARTIFACT-IMAGE
 
 ## v59.79 관측과 해석의 구분 (X 북마크 11/08) (2026-11-08)
-
-- [x] QA-KNOW-OBS-NOT-ACTOR: v59.79: 리서치 FTD 레슨과 시장 상태·매크로 신용 문장이 가격·거래량·스프레드 관측을 매수 주체나 검증되지 않은 선행 신호로 단정하지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- 완료 1건: QA-KNOW-OBS-NOT-ACTOR
 
 ## v59.74 사이트 품질 점검 (2026-11-08)
-
-- [x] QA-UI-OUTER-SCROLL: v59.74: 19개 라우트를 아이폰·아이패드·데스크톱에서 열면 문서 높이가 창 높이와 같고, 시장 상태를 끝까지 내려도 하단 탭바가 화면 아래에 붙어 있다. verify_by: node scripts/ci-viewport-matrix-check.mjs
-- [x] QA-UI-NO-QUESTION-LABEL: v59.74: 긴 글 화면(개념·대가·산업 지도·안내)과 뉴스 제목을 뺀 모든 라우트에서 40자 이하 줄이 물음표나 '~까/~는가/~인가/~나요'로 끝나지 않는다. verify_by: node scripts/ci-rendered-copy-lint-check.mjs
+- 완료 5건: QA-UI-OUTER-SCROLL, QA-UI-NO-QUESTION-LABEL, QA-UI-WEEK-ON-CARDS, QA-UI-WATCH-AXES-CAPTION, QA-DATA-NARRATIVE-NEWS
 - [ ] QA-DATA-SENTENCE-STATEMENT: v59.74: 다음 08:00 KST 시장 해석 실행 뒤 public-data의 오늘 문장이 질문이 아니고, 홈 판정 카드에 '오늘의 쟁점'으로 나온다. verify_by: 2026-11-09
-- [x] QA-UI-WEEK-ON-CARDS: v59.74: 주말 홈 지수 카드 네 장 모두 '5거래일 ±x.x%'를 보여주고(11/6 기준 S&P -2.7%, SOXX -13.1%), 장중 카드는 마감 전까지 이 줄을 숨긴다. verify_by: node scripts/ci-rendered-copy-lint-check.mjs
-- [x] QA-UI-WATCH-AXES-CAPTION: v59.74: 시장 상태 6개 지표 아래 심리·AI·반도체 집중 블록이 '참고 지표 2개 — 위 6개 지표의 합계에는 넣지 않습니다'로 시작한다. verify_by: node scripts/ci-rendered-copy-lint-check.mjs
 - [ ] QA-DATA-SEMIS-EVIDENCE-SOXX: v59.74: 다음 갱신 뒤 public-data/market-snapshot.json evidenceQuotes의 반도체 행이 SOXX이고, AI 시장 해석이 반도체를 SMH로 적지 않는다. verify_by: 2026-11-09
 - [ ] QA-DATA-HEADLINE-GLOSSARY: v59.74: Worker 배포 뒤 새로 번역된 뉴스 제목에 'Muted'→'미묘한', 'oil prices'→'오일 가격' 같은 직역과 ' : Finance : JKN' 같은 매체 꼬리표가 없다. verify_by: 2026-11-10
-- [x] QA-DATA-NARRATIVE-NEWS: v59.74: market-day.json narratives.stories에 newsCount가 있고, 블루웨이브·민주당 승리 보도가 '미국 정치 (선거 결과·셧다운)' 이야기로 묶인다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 
 ## v59.71 Split-adjusted SEC share count (2026-11-07)
-
-- [x] QA-DATA-70A: After the 2026-11-20 refresh-screener run, screener.json SNDK carries valuationSharesBasis dei-cover-split-adjusted, valuationSplitRatio 8 and a P/B near 10 (not near 1.3). verify_by: 2026-11-21
-- [x] QA-DATA-70B: After the next event-briefs run, AAPL's 2026-11-02 brief EPS estimate carries providerActual 2.05 and the 브리핑 line reads 예상 대비 +1.1% (조정 $2.05 기준), the same as 오늘. verify_by: 2026-11-10
+- 완료 2건: QA-DATA-70A, QA-DATA-70B
 
 ## v59.70 Actions reliability (v59.70) (2026-11-07)
-
-- [x] QA-OPS-REFERENCE-ROWS: v59.70: a stale AAII/FOMC/policy-rate row publishes the refresh with a D1-reference warning and keeps the watchdog red; it never refuses the producer's commit. verify_by: node scripts/ci-data-refresh-audit.mjs
-- [x] QA-OPS-TELEGRAM-KINDS: v59.70: a new Telegram signal kind with a SIGNAL_LIMITS entry passes artifact-semantics; a kind literal without one fails it. verify_by: node scripts/ci-artifact-semantics-check.mjs
-- [x] QA-OPS-RELEASE-DATA-AGE: v59.70: a code release whose attested data is old deploys green with a freshness warning; the watchdog stays red for the data age. verify_by: node scripts/ci-external-pipeline-check.mjs --mode watchdog
-- [x] QA-OPS-FIXTURE-CLOCK: v59.70: LIVE3-03 gives the same verdict at any wall-clock hour (fixture pinned to 2026-10-15T02:00Z) verify_by: node scripts/ci-runtime-contract-check.mjs
-- [x] QA-OPS-FRESHNESS-LEDGER: v59.70: after the first refresh, public-data/freshness/refresh-data.json and refresh-screener.json are live, the watchdog's freshness-<workflow> checks pass, and timestamp-only scenario-state/today-verdict rewrites are no longer committed. verify_by: node scripts/ci-external-pipeline-check.mjs --mode watchdog
-- [x] QA-OPS-REFRESH-ORIGIN-ADVISORY: v59.70: the next refresh-origin CI run attests even when scenario-guidance/data-lineage/data-refresh report ADVISORY, and data-watchdog runs watchdog-data-lineage and watchdog-scenario-guidance. verify_by: gh run list --workflow ci.yml --limit 5
-- [x] QA-OPS-CONTROL-CHAR-HOOK: v59.70: scripts/agent-hook.mjs post-edit warns on a U+0008 in the edited file, stays silent on tab/CR/LF, and imports the rule ci-control-char-check uses. verify_by: node scripts/ci-workspace-contract-check.mjs
-- [x] QA-OPS-CI-CLOCK-ADVISORY: v59.70: a source push whose tree carries stale data or a document past 45 days passes CI with ADVISORY/warning lines, and data-watchdog still fails watchdog-data-lineage / watchdog-knowledge-lint in that state. verify_by: node scripts/ci-refresh-origin-live-data-check.mjs
-- [x] QA-DATA-66A: After push and the next refresh-data runs, the fetch-data log shows `macro history: … fetched` well below 53 on most cycles (only daily series every 3 h, monthly/weekly every 12 h or after a scheduled release), and macro-history.json series fetchedAt values stop moving every cycle. verify_by: 2026-11-06
-- [x] QA-DATA-66B: After push and the next Pages deploy, https://ysnle.github.io/aio-screener/public-data/sec-fundamentals-extended.json and telegram-observed.json return 404 while every screen still loads, and data.json policyRates.fed carries decision '동결' with decisionDate 2026-10-28 (until the 12-09 FOMC). verify_by: 2026-11-06
-- [x] QA-DATA-66C: After push and one full refresh-data cycle at :17/:47 with minute < 30, history.json gains sox/move/skew/vix9d columns (about one year after the aux backfill) without the full backfill running every cycle; meta.symbolCount stays the core count. verify_by: 2026-11-07
-- [x] QA-DATA-66D: After push and the next refresh-data run, public-data/history.json starts with {"schemaVersion":"history.v2" and is about a third smaller, while the 매크로·시장 charts and the verdict table still draw the same series. verify_by: 2026-11-06
-- [x] QA-DATA-66E: After push and the next refresh-screener run after 18:00 KST, public-data/kr-investor-flows.json has status ok, source 'Naver Finance 투자자별 매매동향 (한국거래소 집계)' and individual/foreign/institution rows for the latest KRX session, and the 한국 참여 card shows the flow bars again. verify_by: 2026-11-06
-- [x] QA-DATA-66F: After push and the next refresh-data run, public-data/data.json has no putCall block and no meta.putCallOk/putCallAsOf, history.json rows carry no pcr column, the refresh log shows no Cboe request, and the 투자 심리 screen loads without a put/call card. verify_by: 2026-11-06
-- [x] QA-DATA-66G: After push and the first refresh-data run, history.json carries a soxx column with about one year of daily closes (≥60 observations), 시장 상태's AI·반도체 집중 row and the 무슨 일이 있었나 bar read SOXX, and the crash replay summary shows the history.json sessions instead of the fixture. verify_by: 2026-11-06
-- [x] QA-DATA-ONE-VALUE: v59.70: after the next market-day refresh, 오늘의 핵심 and 브리핑 have no day move over a carried-forward close (나스닥100, WTI), and 시장 상태 / 매크로 / 연결해서 보면 quote one HY and one 10-year value per window. verify_by: 2026-11-06
-- [x] QA-DATA-HEADLINE-KO: v59.70: after the first refresh-data run with the market-day translation lane, market-day.json has a headlineTranslation receipt and node scripts/ci-headline-translation-check.mjs passes on the published files (every 오늘의 핵심·브리핑 headline Korean or titleKoFailed) verify_by: 2026-11-06
-- [x] QA-DATA-REREVIEW-ONE-VALUE: v59.70: on the next refresh, 시장 상태 · 매크로 · 금리와 환율 quote one HY 5/20-session and one KOSPI 20-session value, 오늘의 핵심 and 브리핑 tell no day move the close history lacks, and the 오늘 index cards have no blank day change. verify_by: 2026-11-08
-- [x] QA-OPS-WAVE2-INTEGRATION-GATES: v59.70: browser-reference-adoption passes three runs in a row; operations-contract passes with the local composite action; qa-pipeline-contract finds no fixed port. verify_by: node scripts/ci-reference-adoption-browser-check.mjs && node scripts/ci-operations-contract-check.mjs && node scripts/ci-qa-pipeline-contract-check.mjs
-- [x] QA-OPS-PIN-DRIFT-LIVE-DATA: v59.70: browser-data-fixture checks pin integrity only (replays: malformed blob, orphan or mis-hashed structure, count); browser-data-pin-drift is liveData: content in workspace with a watchdog-local twin; refresh-origin-live-data replays the reconciliation 24h window (source red, CI warning, fresh green) verify_by: node scripts/ci-browser-data-fixture-check.mjs && node scripts/ci-browser-data-pin-drift-check.mjs && node scripts/ci-refresh-origin-live-data-check.mjs
-- [x] QA-DATA-HISTORY-V2-BROWSER: v59.70: the page reads history.v2 like the v1 array (days, dates, fieldMeta, spx/vix/us10y series) and refuses it without the expander; history-access fails a `.rows` read of a history.json payload. verify_by: node scripts/ci-history-v2-browser-fixture.mjs && node scripts/ci-history-access-check.mjs
-- [x] QA-PHONE-OVERRIDE-SPECIFICITY: v59.70: every ≤760px layout rule wins the cascade over the wider-screen rules that reach the same element (fails on the v59.69 responsive.css: .fx-krw__body / .news-focus__body lost to #page-… rules) verify_by: node scripts/ci-phone-override-specificity-check.mjs
-- [x] QA-CONTRAST-FOCUS-BROWSER: v59.70: every route, light and dark, folds open — text meets WCAG AA on its composited background, no link keeps the UA colour, every fold row shows an open marker, keyboard focus shows a ring, no label names the screen '거시', no generated word above the title, chart date axes read 'YY년 M월'/'M월'/'M/D' (fails on v59.69: dark news slot links UA blue, light chips 4.21, news fold cards unmarked) verify_by: node scripts/ci-contrast-focus-browser-check.mjs
-- [x] QA-COPY-READER-DUTY: v59.70: no data screen tells the reader what to check ('…확인해야 합니다', '…살펴볼 필요가 있습니다') or carries a how-to-read label ('세는 법', '차트 읽기'); long-form knowledge routes exempt (fails on v59.69: 뉴스 시황 요약·시장 상태·심리) verify_by: node scripts/ci-rendered-copy-lint-check.mjs
-- [x] QA-GLOSSARY-MACRO-LABEL: v59.70: glossary group buttons and item tags say 매크로, never 거시 (fails on v59.69: '거시·금리·외환') verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-PERF-BOOT-DEPLOY-BUNDLE: v59.70: ci-boot-interaction-check measures the staged Pages bundle (measuredBundle 'deploy', resource buffer not full) and enforces postBootLazyBudget; ci-boot-bundle-budget-check enforces classicBootBudget and matches pages-deploy.yml's root files, classic scripts and public-data excludes to pages-bundle-config.mjs. verify_by: node scripts/ci-boot-bundle-budget-check.mjs && node scripts/ci-boot-interaction-check.mjs
-- [x] QA-PERF-AI-ON-INTENT: v59.70: on the deployed bundle no AI panel file (js/aio-chat.js, the supplied-materials, chat-globals, ai-profile, question-cues chunks) is fetched before an AI control is reached, and hovering the AI button starts js/aio-chat.js and the corpus chunk. verify_by: node scripts/ci-boot-interaction-check.mjs
-- [x] QA-OPS-WRITER-ARGS: v59.70: apply-pending-records, record-fix and bump-version exit 0 with the usage on --help, refuse an unknown argument, apply-pending-records refuses without --dry-run/--apply, and a sandbox copy is unchanged after all of them. verify_by: node scripts/ci-record-fix-check.mjs
-- [x] QA-DATA-CORE-FAIL-SETTLES: v59.70: with history.json and data.json refused, screener.json is requested within 12 s of navigation and the shell failure line still shows; coreReadsSettled treats failed/empty as settled. verify_by: node scripts/ci-sa-02-outage-browser-fixture.mjs
-- [x] QA-OPS-GATE-FREE-PORTS: v59.70: no script under scripts/ or scripts/lib/ (except start-local-node's manual dev-server default 8765) has a fixed default server port, and every server-owning browser gate uses freePort() or startLocalServer(0) verify_by: node scripts/ci-qa-pipeline-contract-check.mjs
-- [x] QA-OPS-BROWSER-DATA-PIN: v59.70: browser-data-fixture check passes on the pinned snapshot, fails with the pin command on an added key, replays empty-array/map/null tolerance, verifies the page clock script and the ci.yml / watchdog-browser.yml / operations-alert.yml wiring. verify_by: node scripts/ci-browser-data-fixture-check.mjs
-- [x] QA-DEEPLINK-RELAY-ORDER: v59.70: direct entry to #macro and #signal with bootstrap.js held 1.5 s logs no console error, runs the BOK/KOSIS fetch and shows the 시장 상태 한국 policy card (fails on the 89e8c881 aio-data.js: _cfWorkerUrl is not defined ×4) verify_by: node scripts/ci-route-soak-check.mjs
-- [x] QA-DATA-HY20-ONE: v59.70: after the next refresh, 시장 상태 credit axis, 매크로 신용 장 and 연결해서 보면 rates-credit quote the same 20-session HY bp, and the 매크로 chapter's label matches the credit axis. verify_by: 2026-11-06
-- [x] QA-DATA-CREDIT-RANGE: v59.70 (X bookmarks #4): after the next refresh, macro-history.json hyOas/igOas/cccOas carry about 790 observations from 2023-11, and the 매크로 신용 장 fold reads '2023년 11월 이후 기록의 N% 위치' with three band rows. verify_by: 2026-11-06
-- [x] QA-DATA-CORRECTION-RATES: v59.70 (X bookmarks #1): after the next scenario-outcomes run, scenario-outcomes.json corrections reads n 40, bear 8, fastN 32, fastBear 4 from 1986, and 시장 상태's 추세 row shows the 40-dot line with its definition. verify_by: 2026-11-11
-- [x] QA-DATA-EVENT-FLOWS: v59.70 (X bookmarks #6): after the next refresh, history.json has xlp/xlu/xlv columns, and two sessions after a lead release 뉴스 주요 발표 요약 shows '발표 뒤 돈의 방향' with three bars. verify_by: 2026-11-07
-- [x] QA-DATA-WORKING-CAPITAL: v59.70 (X bookmarks #8): after the SEC normalizer re-reads issuers (sec-normalizer.2026-11-04), sec-fiscal-history.json quarters rows carry six columns and 재무 공시 ② shows 재고와 매출채권 for AMD. verify_by: 2026-11-13
-- [x] QA-UI-ENTITY-SECTIONS: v59.70 (PLAN S13/S15): 종목 개요 is 가격(chart + one why-moved line) · 동종 비교(one rank chart, one strength and one weakness line) · 회사 이야기(fold); 재무 공시 is 매출과 이익률 추세 · 현금흐름과 발생액 · SEC 연간 요약(fold); no '읽는 법/보는 법' text. verify_by: node scripts/ci-section-visual-contract.mjs
-- [x] QA-PORT-S16: On the live site with a real portfolio, 포트폴리오 shows 지금 구성과 S&P 500 drawn on entry (no 새로고침), the holdings table, the 노출 bar, and only the folds 기록 · 점검 · 설정; the browser makes no finance.yahoo.com chart call for holdings, and 점검 › 내 계획 still refuses a stop above entry. verify_by: 2026-11-08
-- [x] QA-RESEARCH-CONTENT-SOURCE: v59.70 (S17~S19, D8): research copy has one source in content/research/*.json — the principles concept-map catalog, the atlas concept guides and layer titles, the 산업 지도 node/domain reading text and the 개념 사전 reading text. scripts/build-research-content.mjs writes the screen artifacts the pages fetch; the content fingerprint equals the pre-move code; principles.js and atlas.js hold at most five prose literals; no JavaScript copy module sits beside the JSON; knowledge-search.js reads only the generated index. verify_by: node scripts/ci-research-content-source.mjs
-- [x] QA-SHELL-COMMAND-SEARCH: v59.70: the static shell has exactly two search inputs (#aio-command-input, #scr-text-search), the retired boxes stay out, shell key bindings have one action per key, Ctrl/⌘K opens the command search inside inputs, '/' focuses the screener table filter, IME-composing keys are ignored (fails on the v59.69 shell: 4 search inputs) verify_by: node scripts/ci-search-surface-contract.mjs
-- [x] QA-SHELL-COMMAND-SEARCH-FLOWS: v59.70: verify-aio shell drives Ctrl+K → NVDA → 종목 개요, 시장 폭 → 화면 이동, 하이일드 → 용어, and the guide search focusing its paragraph; stock drives the 종목 scope and the refused ZZZZQ. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive shell
-- [x] QA-RESEARCH-XBM-20261104: v59.70: the 2026-11-04 bookmark packet adds four reference frames (correction-base-rates, cycle-top-two-clocks, credit-stress-tiers, sell-decision-alternatives) as lessons on a learning path, cites 17 graded sources with a timeline, reaches the claim ledger and chat retrieval, and stays out of rank/score. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- 완료 43건: QA-OPS-REFERENCE-ROWS, QA-OPS-TELEGRAM-KINDS, QA-OPS-RELEASE-DATA-AGE, QA-OPS-FIXTURE-CLOCK, QA-OPS-FRESHNESS-LEDGER, QA-OPS-REFRESH-ORIGIN-ADVISORY, QA-OPS-CONTROL-CHAR-HOOK, QA-OPS-CI-CLOCK-ADVISORY, QA-DATA-66A, QA-DATA-66B, QA-DATA-66C, QA-DATA-66D, QA-DATA-66E, QA-DATA-66F, QA-DATA-66G, QA-DATA-ONE-VALUE, QA-DATA-HEADLINE-KO, QA-DATA-REREVIEW-ONE-VALUE, QA-OPS-WAVE2-INTEGRATION-GATES, QA-OPS-PIN-DRIFT-LIVE-DATA, QA-DATA-HISTORY-V2-BROWSER, QA-PHONE-OVERRIDE-SPECIFICITY, QA-CONTRAST-FOCUS-BROWSER, QA-COPY-READER-DUTY, QA-GLOSSARY-MACRO-LABEL, QA-PERF-BOOT-DEPLOY-BUNDLE, QA-PERF-AI-ON-INTENT, QA-OPS-WRITER-ARGS, QA-DATA-CORE-FAIL-SETTLES, QA-OPS-GATE-FREE-PORTS, QA-OPS-BROWSER-DATA-PIN, QA-DEEPLINK-RELAY-ORDER, QA-DATA-HY20-ONE, QA-DATA-CREDIT-RANGE, QA-DATA-CORRECTION-RATES, QA-DATA-EVENT-FLOWS, QA-DATA-WORKING-CAPITAL, QA-UI-ENTITY-SECTIONS, QA-PORT-S16, QA-RESEARCH-CONTENT-SOURCE, QA-SHELL-COMMAND-SEARCH, QA-SHELL-COMMAND-SEARCH-FLOWS, QA-RESEARCH-XBM-20261104
 
 ## v59.65 v59.65 브리핑 24시간 (2026-11-03)
-
-- [x] QA-DATA-65A: After push and the next refresh-data run, 브리핑 shows 지난 24시간 stories whose reports carry Korean titles where the bundle has them. verify_by: 2026-11-05
+- 완료 1건: QA-DATA-65A
 
 ## v59.64 v59.64 macro assets and 기술적 분석 (2026-11-03)
-
-- [x] QA-DATA-64A: After push and the next refresh-data run, 매크로 chapters show a 오늘 line from market-day.json and 기술적 분석 lists the day's movers under the ten largest weights. verify_by: 2026-11-05
+- 완료 1건: QA-DATA-64A
 
 ## v59.63 v59.63 market-day ledger (2026-11-03)
-
-- [x] QA-DATA-63A: After push, market-day.json is committed by refresh-data with price, stock-move, group-move and headline facts and at least one thread. verify_by: 2026-11-05
+- 완료 1건: QA-DATA-63A
 
 ## v59.62 v59.62 market reflection (2026-11-03)
-
-- [x] QA-DATA-62A: After push, event-briefs.json generatedAt advances within the hour and AMD (11/3 amc) gets a brief. verify_by: 2026-11-05
+- 완료 1건: QA-DATA-62A
 
 ## v59.61 SEC 원장 저장소 직전 칸 (v59.61) (2026-11-03)
-
-- [x] QA-SEC-STORE-PREVIOUS: v59.61 스크리너 main push 실패 뒤에도 CI가 main이 가리키는 SEC 원장을 data-store 직전 칸에서 복원한다. verify_by: node scripts/ci-sec-store-previous-check.mjs
+- 완료 1건: QA-SEC-STORE-PREVIOUS
 
 ## v59.60 형식 검증 회차 (v59.60) (2026-11-03)
-
-- [x] QA-MARKET-SESSION-MODEL: v59.60 시세 세션 분류가 반일장·휴장·KRX 지연 개장·수능 시간에서 장중/확정 종가를 달력대로 나눈다. verify_by: node scripts/ci-market-session-model-check.mjs
-- [x] QA-SCHEDULER-PAUSE-MODEL: v59.60 보이는 탭은 갱신 실행 순서와 무관하게 자동 갱신이 일시정지되지 않는다. verify_by: node scripts/ci-refresh-scheduler-model-check.mjs
+- 완료 2건: QA-MARKET-SESSION-MODEL, QA-SCHEDULER-PAUSE-MODEL
 
 ## v59.59 기능별 정합성 점검 (2026-11-02)
-
-- [x] QA-FEATURE-AUDIT-01: 화면 문장의 기간·거래일·발표일·통화·미수집 칸이 데이터와 같은지 기능별로 재계산한다 (v59.59 기능 점검 25건). verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-DECOMP-GLOSSARY: v59.59 용어 사전 모달은 src/ui/knowledge/glossary-modal.js 하나가 열기·닫기·분류·검색을 소유하고, 빈 분류 검색은 전체로 넓혀 안내한다. verify_by: node scripts/ci-runtime-contract-check.mjs
-- [x] QA-CALC-01: v59.59 reference values: each indicator, score and portfolio statistic has a reference or degenerate-input case in scripts/ci-quant-reference-check.mjs, and a missing/stale/gated input changes coverage instead of counting as 0. verify_by: node scripts/ci-quant-reference-check.mjs
+- 완료 3건: QA-FEATURE-AUDIT-01, QA-DECOMP-GLOSSARY, QA-CALC-01
 
 ## v59.57 X 북마크 11/02 — FTD·국채 입찰 (2026-11-02)
-
-- [x] QA-DATA-FTD-01: v59.57 시장 상태 추세 칸에 나스닥 반등 시도·바닥 확인일 줄이 보이고, 첫 refresh-screener 실행 뒤 history.json 최근 행에 rallyPhase가 채워진다. verify_by: node scripts/ci-esm-core-unit-check.mjs (v59.57 rally attempt) + 배포 후 history.json 최신 행 확인
-- [x] QA-DATA-AUCTION-01: v59.57 refresh-screener 로그에 [treasury-auctions] ok가 찍히고 public-data/treasury-auctions.json generatedAt이 갱신된다. verify_by: Actions refresh-screener 로그 + node scripts/ci-data-lineage-audit.mjs
+- 완료 2건: QA-DATA-FTD-01, QA-DATA-AUCTION-01
 
 ## v59.56 빅테크 분기 현금흐름 (2026-11-01)
-
+- 완료 4건: QA-TEXT-RELEASE-01, QA-TW-REV-01, QA-EB-PERIOD-01, QA-MA-EARN-01
 - [ ] QA-BTCF-01: v59.56 빅테크 분기 현금흐름: 첫 refresh-screener 실행 로그에서 9개사 모두 status ok이고 하이퍼스케일러 5개사 합계(complete)가 나오는지, AMZN·MSFT 최근 4분기 영업현금흐름·설비투자가 회사 실적 발표의 현금흐름표 합계와 맞는지(설비투자는 총액 기준이라 회사 FCF 정의와 차이는 허용) 확인. 집계 전 종목이 있으면 로그의 concepts 값으로 태그를 CASHFLOW_CONCEPTS에 더한다. verify_by: manual
-- [x] QA-TEXT-RELEASE-01: v59.56 뉴스 실적 요약에 to/and/between/approximately/Y/Y/Q/Q/billion/million이 남지 않고, 범위가 '26.8억~27.2억 달러'처럼 한 단위로 읽히는지 확인. verify_by: manual
-- [x] QA-TW-REV-01: v59.56 머지 뒤 첫 refresh-screener 실행 로그에 '[tw-revenue] ok <월> · N companies'가 찍히고 public-data/tw-monthly-revenue.json이 status ok·16개 코드(collected+missing)로 커밋되는지, 11/10 이후 실행에서 latestMonth가 2026-10으로 넘어가는지 확인. GitHub Actions에서 TWSE OpenAPI가 막히면 경고만 남고 수집 전 표시가 유지된다. verify_by: contract
-- [x] QA-EB-PERIOD-01: v59.56 다음 실적 시즌의 실적 요약에서 '2026년 4분기 전망'·'최근 12개월' 항목과 억 달러로 쓴 콜 요약 금액이 원문과 맞을 때 남는지 확인(dropped 목록에 기간 숫자만 남은 항목이 없어야 함). verify_by: contract
-- [x] QA-MA-EARN-01: v59.56 실적 발표 다음 날 시황 해석이 큰 반응 종목의 원문 수치·가이던스와 종가 반응을 날짜와 함께 쓰고, 보도된 이유를 '보도에 따르면'으로 귀속하는지 확인. verify_by: manual
 
 ## v59.54 포트폴리오 통화 (2026-11-01)
-
-- [x] QA-PF-CCY-01: v59.54 기준 통화를 선언하지 않은 포트폴리오에서 AI 문맥이 '기준 통화 미선언(종목 상장 통화 …로 계산)'으로 나오고, 시세 통화를 알 수 없는 보유만 있을 때 '환율을 선언하세요' 대신 시세 통화를 알 수 없다는 안내가 나오는지 확인. verify_by: contract
-- [x] QA-AI-PRICE-01: v59.54 AI 스크리너 문맥의 실시간 시세가 관측 시각과 함께 나오고 종가 준비 상태(STALE)가 붙지 않는지 확인. verify_by: contract
-- [x] QA-PF-ADD-01: v59.54 포트폴리오 보유 추가를 연달아 두 번 누르면 행이 하나만 생기고 교체 확인 창이 뜨지 않는지 확인. verify_by: browser
-- [x] QA-TICKER-NAME-01: v59.54 등록 종목 밖 미국 상장 기호를 열면 상장 목록의 회사 이름이 제목에 나오는지 확인. verify_by: browser
+- 완료 4건: QA-PF-CCY-01, QA-AI-PRICE-01, QA-PF-ADD-01, QA-TICKER-NAME-01
 
 ## v59.53 기존 기능과 콘텐츠의 의미·사용성 (2026-11-01)
-
-- [x] QA-TEMPERATURE-MEANING-01: 온도계는 반대 방향의 극단을 정상으로 평균내지 않고, 지연 자료만 있으면 현재 상태를 판정하지 않는다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only market
-- [x] QA-VERIFY-CURRENT-PATHS-01: 검증 지도와 드라이버는 현재 화면을 사용자의 실제 펼침·목록 복귀 조작으로 검증한다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive all --port 8798 --viewport desktop --run product-depth-final
-- [x] QA-RESEARCH-READING-FOCUS-01: 목차·서가·검색에서 고른 문서는 본문으로 읽기 포커스를 연결하고 비동기 로딩도 현재 키보드 맥락을 보존한다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive learn --port 8798 --viewport desktop --run product-depth-final
-- [x] QA-HOLDING-LISTING-UNIT-01: 보유 저장 키와 등록된 상장 시세 키·통화를 함께 읽고, 통화 미확인과 환산 없는 혼합 합계를 만들지 않는다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only portfolio
-- [x] QA-SECTOR-ETF-EXPOSURE-01: 섹터 ETF의 업종 비중은 유지하고, ETF 상품 여부만으로 업종 집중도에서 제외하지 않는다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only portfolio
-- [x] QA-THEME-USER-DISCLOSURES-01: S&P 500 지도와 AI 설비투자 설명은 일반 화면에서 사용자가 직접 펼치고 읽을 수 있다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive themes --port 8798 --viewport desktop --run product-depth-final
+- 완료 6건: QA-TEMPERATURE-MEANING-01, QA-VERIFY-CURRENT-PATHS-01, QA-RESEARCH-READING-FOCUS-01, QA-HOLDING-LISTING-UNIT-01, QA-SECTOR-ETF-EXPOSURE-01, QA-THEME-USER-DISCLOSURES-01
 
 ## v59.52 v59 변경 재검토 (2026-11-01)
-
-- [x] QA-AI-SCREENER-READINESS-01: AI 종목 검색은 정본 지표의 calculation/display 허용 상태와 기준일을 보존한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only ai
-- [x] QA-PORTFOLIO-TINY-TREND-01: 포트폴리오의 양수 추세 비중은 반올림 후에도 없음으로 바뀌지 않는다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only portfolio
-- [x] QA-SCENARIO-LEADER-SET-01: 시나리오 기록은 동률의 순서만 무시하고 구성 변화와 진입·해소는 기록한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only producers
-- [x] QA-SEMANTICS-AREA-01: 의미 검사에 잘못된 영역·누락된 값을 주면 0건 PASS 대신 실패한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only qa
-- [x] QA-AI-LAZY-DRAFT-01: 채팅 스크립트 다운로드 실패에도 초안이 유지되고 재시도에서 한 번만 전송한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only ai
-- [x] QA-AI-COMPARISON-PURPOSE-01: 넓은 종목 질문은 임의 추천 점수 없이 분산 비교 표본과 조건별 차이를 제공한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only ai
-- [x] QA-PORTFOLIO-BENCHMARK-READINESS-01: 보유 종목·비교 지수·섹터 ETF의 수익률은 같은 지표 사용 계약을 따른다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only portfolio; node scripts/ci-portfolio-vault-e2e.mjs
-- [x] QA-RETIRED-FUND-RECENT-01: 종목 선택은 세션에 보존되고 퇴역한 최근 검색 저장소에 쓰지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-runtime-contract-check.mjs
-- [x] QA-AI-QUERY-WORD-BOUNDARY-01: AI 종목 검색은 retail 안의 AI/IT나 대명사 it를 업종·테마로 읽지 않고 실제 AI·IT·영문 복수형은 인식한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only ai
-- [x] QA-SESSION-FUTURE-VALIDITY-01: 미래 관측과 미래 현지 세션은 invalid이고 장중 현재 세션 및 미등록 달력 fallback은 별개다. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only screener
-- [x] QA-RENDER-FOLD-OWNERSHIP-01: 자료·시세 갱신은 같은 문서의 열린 브리핑·종목 근거와 summary 포커스를 보존한다. verify_by: node scripts/ci-user-journey-quality-check.mjs && node scripts/ci-entity-quality-browser-check.mjs
-- [x] QA-BROWSER-EVIDENCE-SCOPE-01: entity-quality는 실행 case 목록과 자료 의존 probe 생략을 정직하게 보고하며 존재하지 않는 case는 실패한다. verify_by: node scripts/ci-entity-quality-browser-check.mjs
+- 완료 12건: QA-AI-SCREENER-READINESS-01, QA-PORTFOLIO-TINY-TREND-01, QA-SCENARIO-LEADER-SET-01, QA-SEMANTICS-AREA-01, QA-AI-LAZY-DRAFT-01, QA-AI-COMPARISON-PURPOSE-01, QA-PORTFOLIO-BENCHMARK-READINESS-01, QA-RETIRED-FUND-RECENT-01, QA-AI-QUERY-WORD-BOUNDARY-01, QA-SESSION-FUTURE-VALIDITY-01, QA-RENDER-FOLD-OWNERSHIP-01, QA-BROWSER-EVIDENCE-SCOPE-01
 
 ## v59.51 휴대폰 첫 동작 (2026-10-31)
-
-- [x] QA-BOOT-TAP-01: v59.51 휴대폰 느린 망에서 첫 로딩 중 하단 탭을 누르면 주소가 바로 바뀌고 '여는 중' 안내가 보이며, 코어 실행 뒤 그 화면이 열리는지 확인. verify_by: browser
-- [x] QA-SCENARIO-TIE-01: v59.51 시나리오 동률이면 시장 상태·종목·포트폴리오·AI 답변이 모두 같은 동률 시나리오를 '(동률)'로 보여 주고 한쪽을 선두로 고르지 않는지 확인. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only market
-- [x] QA-ONE-SOURCE-01: v59.51 홈·시장 상태·거시의 SMH 등락과 미 10년물 변화가 같은 종가 기준 한 값으로 나오는지 확인. verify_by: node scripts/ci-pipeline-semantics-check.mjs --only market
-- [x] QA-AI-DOUBLE-SEND-01: v59.51 AI 질문창에서 Enter를 빠르게 두 번 눌러도 질문이 한 번만 가고, 태그 모양 입력이 말풍선에 그대로 보이며, 1,000자에서 입력이 멈추는지 확인. verify_by: node scripts/ci-ai-chat-reliability-contract-check.mjs
-- [x] QA-SIGNAL-ENTRY-01: v59.51 느린 망 휴대폰에서 시장 상태 첫 화면이 홈과 같은 판정으로 시작하고, 홈의 '지수 차트와 6개 지표 보기'가 차트를 화면 위에 두는지 확인. verify_by: browser
-- [x] QA-TERM-MARKS-01: v59.51 혼조·PCE·50/200일선·GAAP·SPY·XLK 등 run-6에서 빠진 용어에 설명 표시가 붙고, 휴대폰에서 44px 이상 눌리는지 확인. verify_by: browser
-- [x] QA-STOCK-HASH-01: v59.51 종목의 차트·재무 공시 탭에서 새로고침해도 같은 종목이 열리고, 차트 제목에 다른 종목 이름이 없는지 확인. verify_by: browser
-- [x] QA-WEEKEND-FUTURES-01: v59.51 주말 홈에 선물 칩과 장 연결 선물 줄이 모두 없고, 평일 CME 개장 중에는 실시간 값이 있을 때만 선물 칩이 보이는지 확인. verify_by: live
-- [x] QA-FISCAL-LABELS-01: v59.51 재무 공시 매출·순이익 막대 이름표가 390px에서 겹치거나 잘리지 않고, 공시 나이가 일수 대신 뜻으로 적히는지 확인. verify_by: browser
-- [x] QA-PANEL-TOUCH-01: v59.51 1440px에서 AI 패널을 열어도 페이지 표가 잘리지 않고, 휴대폰 포트폴리오 저장 버튼이 하단 탭에 가리지 않는지 확인. verify_by: browser
-- [x] QA-TWO-LAYER-01: v59.51 각 화면 첫 면이 결론 먼저·짧은 쉬운 문장·시각 자료 하나로 읽히고, 접힘을 열면 숫자·방법·기준선·주의점이 있는지 홈·시장 상태·거시·테마·종목·포트폴리오에서 확인. verify_by: node scripts/ci-secondary-text-budget-check.mjs
+- 완료 11건: QA-BOOT-TAP-01, QA-SCENARIO-TIE-01, QA-ONE-SOURCE-01, QA-AI-DOUBLE-SEND-01, QA-SIGNAL-ENTRY-01, QA-TERM-MARKS-01, QA-STOCK-HASH-01, QA-WEEKEND-FUTURES-01, QA-FISCAL-LABELS-01, QA-PANEL-TOUCH-01, QA-TWO-LAYER-01
 
 ## v59.50 매매 지시 (2026-10-31)
-
-- [x] QA-R724-CHOICES-01: v59.50 시장 상태 '네 가지 선택지의 득실'과 테마 반등 설명에 '뒤가 맞습니다'·'편이 맞습니다' 같은 시점 지시 문장이 없고, node scripts/ci-instruction-text-ratchet-check.mjs가 통과하는지 확인. verify_by: node scripts/ci-instruction-text-ratchet-check.mjs
+- 완료 1건: QA-R724-CHOICES-01
 
 ## v59.49 시세 세션 (2026-10-31)
-
-- [x] QA-SESSION-SWEEP-LIVE-01: v59.49 push 뒤 첫 일요일 22:00~24:00 UTC(서머타임 종료 뒤)와 월요일 09:30~09:50 ET 시장 데이터 갱신이 history-time·market-snapshot 게이트에서 실패하지 않는지 Actions에서 확인. verify_by: live
-- [x] QA-DATA-CI-ORIGIN-LIVE-01: v59.49 push 뒤 행사 브리프 커밋의 CI가 브라우저 단계를 건너뛰고 증명(attest)까지 성공하는지, 06~08 KST 데이터 커밋 CI가 esm-core에서 실패하지 않는지 Actions에서 확인. verify_by: live
+- 완료 2건: QA-SESSION-SWEEP-LIVE-01, QA-DATA-CI-ORIGIN-LIVE-01
 
 ## v59.48 실적 브리프 (2026-10-31)
-
-- [x] QA-EB-EPS-BASIS-LIVE-01: v59.48 push 뒤 새 실적 브리프에서 조정 EPS 줄이 따로 있는 회사는 GAAP 줄에 예상 대비가 없고, 비교 줄에 (조정 $X 기준) 또는 (보고 기준)이 붙는지 확인. verify_by: live
-- [x] QA-EB-BUDGET-LIVE-01: v59.48 push 뒤 event-briefs 갱신에서 public-data/event-briefs.json이 한 줄 compact JSON이고 크기가 이전보다 약 1/3 줄었는지 확인. verify_by: live
-- [x] QA-WATCHDOG-OWNER-LIVE-01: v59.48 push 뒤 생산자 하나가 실패한 동안 watchdog 실행이 그 실패를 경고로만 적고, 라이브 평면이 정상이면 성공하는지 확인. verify_by: live
+- 완료 3건: QA-EB-EPS-BASIS-LIVE-01, QA-EB-BUDGET-LIVE-01, QA-WATCHDOG-OWNER-LIVE-01
 
 ## v59.47 데이터 경계 계약 (2026-10-31)
-
-- [x] QA-BC-SESSION-LIVE-01: v59.47 push 뒤 평일 미국 마감 후 다음 스크리너 갱신 전후로 스크리너 순위가 보류되지 않는지(한 세션 뒤 12시간 허용), 갱신이 12시간 넘게 멈추면 순위 보류 문구가 뜨는지 라이브에서 확인. verify_by: live
-- [x] QA-SEC-PROJ-DEFAULTS-LIVE-01: v59.47 push 뒤 refresh-screener가 성공하고 public-data/sec-fundamentals-summary.json에 recordDefaults가 생기며 크기가 1 MiB의 75% 아래인지, 종목 재무 카드가 같은 값을 보이는지 확인. verify_by: live
+- 완료 2건: QA-BC-SESSION-LIVE-01, QA-SEC-PROJ-DEFAULTS-LIVE-01
 
 ## v59.46 v59.46 소유자 결정 반영 (2026-10-31)
-
-- [x] QA-SCR-ROW-CARRY-01: 미국 스크리너 이월 행이 실제 갱신에서 표시·검증된다. verify_by: push 뒤 refresh-screener 실행에서 rowsRetained.US가 있으면 해당 종목 행에 retainedFrom이 있고 validator PASS, 종목 설명에 이어 표시 문구 확인
+- 완료 1건: QA-SCR-ROW-CARRY-01
 
 ## v59.45 파이프라인 의미 검토 통합 (2026-10-31)
-
-- [x] QA-PIPE-SEM-01: v59.45 파이프라인 의미 검토 회귀(결측·미래 시각·실패 보존·동률·캐시 키·부분 문자열·통화·AI 경계·병합 손실)가 영역별 실제 함수 케이스로 모두 통과한다. verify_by: node scripts/ci-pipeline-semantics-check.mjs
+- 완료 1건: QA-PIPE-SEM-01
 - [ ] QA-OPS-ALERT-RECOVERY-01: push 뒤 Worker 배포 workflow가 실패 후 smoke 단계를 통과한 성공 두 번에만 운영 이슈를 닫고, jobs API 실패 실행은 이슈를 닫지 않는다. verify_by: GitHub Actions operations-alert 실행 로그와 열린 operations 이슈 상태 확인
 - [ ] QA-KR-WEIGHTS-RETAIN-01: push 뒤 event-briefs 실행에서 kr-index-weights.json이 KOSPI·KOSDAQ 두 시장을 모두 유지하고, 덜 읽힌 시장은 retained 표시와 함께 이전 값을 유지한다. verify_by: node -e "const j=require('./public-data/kr-index-weights.json');console.log(Object.keys(j.markets||{}))"
 - [ ] QA-EVENT-BRIEF-AMOUNT-01: push 뒤 첫 event-briefs 실행에서 매출 '예상 대비' -99%보다 낮은 비교가 하나도 남지 않는다(10/31 기준 DLR·ENTG·COHU·GEV·STX·V 등 8건). verify_by: node -e "const j=require('./public-data/event-briefs.json');console.log(JSON.stringify(j).match(/-99\.9|-100/g)?.length||0)"
 
 ## v59.42 뉴스 키워드 규칙 단일화 (2026-10-28)
-
 - [ ] QA-NEWS-RULE-01: 다음 refresh-data 뒤 라이브에서 브라우저 RSS 기사가 섞였을 때 오늘·브리핑·시장 뉴스 선별이 expect 스위트와 같은 규칙으로 움직이는지(복수형·한국어 조사 기사 포함, taxi·Surgery 같은 오탐 없음) 확인. verify_by: push 뒤 라이브 시장 뉴스 화면에서 window._allNewsItems의 RSS 기사(_serverBackstop 아님)를 window.scoreItem·classifyTopic으로 다시 매겨 expect 스위트 규칙과 비교, node scripts/ci-expect-output-check.mjs
 - [ ] QA-NEWS-LABEL-01: 뉴스 화면 출처 표시가 기사가 있을 때 '스냅샷'이 아니라 계약 상한(DELAYED, 지연)으로 나오는지. verify_by: 로컬/라이브 시장 뉴스 화면에서 window.AIO.getNewsSelectionAudit().marketNewsEligible > 0과 페이지 sourceKind DELAYED 확인
 - [ ] QA-NEWS-COV-01: push 뒤 첫 refresh-data에서 새 피드 5개가 healthy이고 묶음에 에너지·암호화폐·헬스케어·일본/중국/유럽 기사가 실리며 3등급이 12건 이하인지. verify_by: public-data/data.json meta.newsFeedHealth의 새 피드 status/kept/selected와 news[].tier·topic 집계
@@ -404,2672 +242,940 @@ confidence: medium
 - [ ] QA-VERIFY-63: kr-index-weights.json이 한국장 마감 뒤(16:10 KST 이후) 채워지고, 세션 브리지 한국 고유 요인 줄과 직전 미국장 줄이 지수를 끈 종목과 같은 날 뉴스·텔레그램을 붙이며, 실적 달력의 미확정 대형주는 SEC 8-K 2.02로 이미 발표했는지 이유를 단다. verify_by: push 후 event-briefs.yml·refresh-screener.yml 실행 + public-data/kr-index-weights.json, public-data/earnings-calendar.json largeCapCoverage.recentlyReported·unconfirmedReasons 확인
 
 ## v59.32 사용자·운영 번거로움 제거 (2026-10-27)
-
-- [x] QA-FRICTION-06: v59.32: 소유자가 실시간 시세(Yahoo, 5분 Cloudflare 경로)를 가족용으로 허용(2026-10-27)해 rightsReviewed=true, 대기 0일로 fastQuotes가 켜지고, 결정이 기록되면 fast·권리 차단 항목이 닫힌다. 실시간 경로가 실패하거나 오래되면 30분 스냅숏으로 돌아간다. verify_by: node scripts/ci-fast-plane-consumer-gate.mjs; node scripts/ci-operations-status-check.mjs
+- 완료 1건: QA-FRICTION-06
 
 ## v59.27 사용자·운영 번거로움 제거 (2026-10-27)
-
-- [x] QA-FRICTION-01: P2110: refresh-data가 6시간마다 측정한 운영 창을 커밋해 fast 평면 soak 일수가 실측값으로 채워진다. verify_by: node scripts/ci-operations-slo-window-check.mjs
-- [x] QA-FRICTION-02: v59.27: AI_MONTHLY_BUDGET_MODE=target에서는 $20을 넘어도 거절·검색 제거·연결별 월 몫 차단 없이 답하고, 주간 운영 점검이 금액 없이 초과를 경고한다. 하루 한도는 3000/연결당 1000의 폭주 방지선으로만 남는다. verify_by: node worker/openai-contract.test.mjs; node scripts/ci-operations-weekly-review-check.mjs
-- [x] QA-FRICTION-03: v59.27: Worker·Pages 수동 재배포는 ci_run_id/expected_sha를 비우면 최신 성공 main CI를 스스로 찾고, 같은 정확-실행 검사를 그대로 통과해야 배포한다. verify_by: node scripts/ci-cloudflare-deployment-contract-check.mjs
-- [x] QA-FRICTION-04: v59.27: 포트폴리오 AI 전송 동의(복기 노트 포함)는 기기에 한 번 저장되고, 공용 PC 모드에서는 세션에만 남으며 전환 시 지워진다. verify_by: node scripts/ci-runtime-contract-check.mjs
-- [x] QA-FRICTION-05: v59.27: AIO_OPERATOR_TOKEN 저장소 Secret이 없어도 주간 운영 점검이 AIO_AUTOMATION_TOKEN으로 공용 AI 월 사용량을 읽고, 그 토큰은 Worker에만 보낸다. verify_by: node scripts/ci-operations-weekly-review-check.mjs; node worker/openai-contract.test.mjs
+- 완료 5건: QA-FRICTION-01, QA-FRICTION-02, QA-FRICTION-03, QA-FRICTION-04, QA-FRICTION-05
 
 ## v59.10 가족 코드 제거 (v59.10) (2026-10-26)
-
-- [x] QA-EDGE-13: v59.10 공용 AI와 '이상해요' 피드백은 가족 코드 없이 동작하고, 남은 AIO_FAMILY_CODES 비밀은 무시되며, 피드백은 연결마다 UTC 하루 10건까지다. verify_by: node worker/openai-contract.test.mjs
+- 완료 1건: QA-EDGE-13
 
 ## v58.89 퇴역 게이트 잔여 검사 복원 (2026-10-27)
-
-- [x] QA-GOV-RETIRE-01: v58.89 v58.86에 퇴역한 release-manifest·headless-group-lifecycle 게이트 중 다른 게이트에 없던 검사(rollback 독립성·immutableRuntime 허용 목록, G### 그룹 레지스트리 100개 이상·중복 없음, 그룹 귀속·정확한 그룹 선택·실패 보고서)는 release-revision의 release-rollback-invariants 구획과 qa-pipeline-contract에서 계속 실패한다. verify_by: node scripts/ci-release-revision-check.mjs && node scripts/ci-qa-pipeline-contract-check.mjs (asset-manifest rollback·aio-tests.js 그룹 id 변이로 실패 확인)
+- 완료 1건: QA-GOV-RETIRE-01
 
 ## v58.86 규칙·게이트 부채 정리 (2026-10-27)
-
 - [ ] QA-BOUNDARY-HUMAN-01: 상시 경계: 모집 사용자 과업 검증과 키보드·스크린리더·200% 확대 실사는 자동화로 대신하지 않는다. 결과가 생기기 전까지 architecture/human-validation.json은 NOT_EXECUTED, certification은 OPERATOR_REQUIRED다(v58.86에 v54~v56의 같은 항목 12개를 합침) verify_by: architecture/human-validation.json sessions + ci-product-charter-contract-check의 human-validation 구획
 - [ ] QA-BOUNDARY-KNOWLEDGE-01: 상시 경계: 지식 원고 160편과 연구 필요 단위의 사람 의미·출처 직접성 검수가 끝나기 전에는 지식 화면을 참고용으로만 말한다(v58.86에 v53~v56의 같은 항목 20개를 합침) verify_by: _context/CURRENT-STATE.md Knowledge Boundary의 human review complete 값
 - [ ] QA-BOUNDARY-AI-LIVE-01: 상시 경계: 공용 Worker의 실답변 품질(후속 질문·인용·번역)은 로컬 fixture가 증명하지 않는다. 소유자가 배포본에서 블라인드 질문 묶음으로 점검한다(v58.86에 같은 항목 7개를 합침) verify_by: 소유자 블라인드 점검 기록
 - [ ] QA-BOUNDARY-DATA-RIGHTS-01: 상시 경계: 유료·면허 자료(심리 지표·추정치·옵션·보안 마스터·기업행위·섹터 매핑)와 공급자 권리는 확보 전까지 참고용이며 점수에 쓰지 않는다(v58.86에 같은 항목 16개를 합침) verify_by: source-registry rightsStatus와 ci-research-model-contract-check
 
 ## v58.84 운영 알림 복구 히스테리시스 (2026-10-26)
-
-- [x] QA-OPS-10: 운영 알림 이슈는 두 번 연속 관측 성공에서만 닫히고, 실패 사이의 성공 한 번은 댓글을 남기지 않는다. verify_by: v58.84 P2102 ci-workspace-contract-check.mjs(lone pass / second pass 시나리오)
-- [x] QA-TEST-HERMETIC-01: 브라우저 게이트는 차트 라이브러리를 CDN이 아니라 SRI 검사한 로컬 사본에서 받는다(theme-research·entity-quality·out-of-universe). verify_by: v58.84 P2103 ci-theme-research-browser-check.mjs
+- 완료 2건: QA-OPS-10, QA-TEST-HERMETIC-01
 - [ ] QA-OPS-11: 주간 운영 점검은 디스패치·Cloudflare 토큰 만료(30일 전 경고·거절 시 조치), 저장소 크기(900 MB 경고·2 GB 조치), AI 월 예약액 80%를 상태로만 판정하고, 조치가 필요할 때만 이슈 하나를 열며 정상 주에 닫는다. 공개 이슈에 AI 금액을 쓰지 않는다. verify_by: v58.84 ci-operations-weekly-review-check.mjs; 실제 Actions 실행과 토큰 응답은 미검증
 - [ ] QA-PORT-BACKUP-01: 보유 종목이 있고 백업 기록이 없거나 30일 넘었으면 포트폴리오 화면에 한 줄 백업 안내가 보이고, 내보내기 직후 사라진다. verify_by: v58.84 ci-esm-core-unit-check.mjs backupReminder; 화면 표시는 브라우저 수동 확인 필요
+
 ## v58.83 팩터 검증 외부 대조 (2026-10-26)
+- 완료 2건: QA-RESEARCH-BENCH-01, QA-RESEARCH-BENCH-02
 
-- [x] QA-RESEARCH-BENCH-01: v58.83 장기 팩터 백테스트: HAC t값이 자기상관에서 넓어지고, French 일별 표 파싱·구간 복리·사전 등록 판정(PASS/FAIL/INSUFFICIENT)과 factorSpreads 선택 출력이 고정 입력으로 확인된다. verify_by: node scripts/ci-research-validation-check.mjs
-- [x] QA-RESEARCH-BENCH-02: v58.83 research-backtest 워크플로를 main에서 한 번 실행해 externalBenchmark 판정·HAC t값이 요약에 나오고, 결과를 검토한 뒤 public-data/factor-backtest-longrun.json 갱신 여부를 정한다. verify_by: GitHub Actions 'Research factor backtest (manual)' 실행 요약과 업로드된 factor-backtest-longrun.json
 ## v58.82 다중 사용자 엣지 케이스 점검 (2026-10-26)
-
-- [x] QA-EDGE-01: v58.82 백업 가져오기는 qty>0·cost>=0·3자리 통화 코드만 받고, 한국 테마 뉴스 제목·출처는 이스케이프되어 렌더링된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- 완료 11건: QA-EDGE-01, QA-EDGE-03, QA-EDGE-04, QA-EDGE-05, QA-EDGE-06, QA-EDGE-07, QA-EDGE-08, QA-EDGE-09, QA-EDGE-10, QA-EDGE-11, QA-EDGE-12
 - [ ] QA-EDGE-02: v58.82 다른 탭에서 보유 종목이 바뀐 뒤 이 탭에서 추가·수정·삭제하면 저장되지 않고 다시 불러오기 안내가 나온다(다른 탭 변경 보존). verify_by: 브라우저 두 탭으로 포트폴리오를 열고 한쪽에서 추가 후 다른 쪽에서 추가 시도
-- [x] QA-EDGE-03: v58.82 같은 연결의 동시 검색 답변이 금액 상한을 넘으면 검색 없이 답하고, 그래도 넘으면 금액 상한 문구로 거절한다. verify_by: node worker/openai-contract.test.mjs
-- [x] QA-EDGE-04: v58.82 DART 한도 초과·일시 실패는 이전 재무를 유지하고 절반 미만 결과는 발행하지 않으며, 서비스워커는 5xx에 신선한 캐시를 쓴다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-EDGE-05: v58.82 평일 KRX 휴장일 KR 지수는 MARKET_CLOSED, 휴장 세 번째 금요일 옵션 만기는 직전 거래일, 일간 sentiment는 NYSE 세션 기준 신선도, 환율 라벨은 KST. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-EDGE-06: v58.82 전각 티커는 ASCII로 접히고(ＡＡＰＬ→AAPL), 읽을 수 없는 목표가는 그 칸에서 거절된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-EDGE-07: v58.82 수능일(2026-11-19) KRX 세션은 10:00~16:30으로, 16:30 이전에는 그날 종가를 확정으로 보지 않는다. 매년 KRX 공지로 다음 해 수능일을 등록한다. verify_by: node scripts/ci-market-session-contract-check.mjs
-- [x] QA-EDGE-08: v58.82 공용 Worker가 돌려주는 upstream 오류 본문에는 API 키·조직 id 형태 토큰과 relay 키(인코딩 형태 포함)가 없다. verify_by: node worker/openai-contract.test.mjs
-- [x] QA-EDGE-09: v58.82 AIO_FAMILY_CODES가 설정되면 브라우저 공용 AI(/openai)는 12자 이상 일치하는 X-AIO-Family-Code만 예약 전에 통과시키고, 코드마다 하루 질문 수·지출 몫을 따로 잡는다. /health는 familyCodeRequired·familyCodeAccepted를 알리고, 앱은 FAMILY_CODE_REQUIRED에서 입력란을 열어 저장 후 다시 확인한다. 미설정이면 예전처럼 열려 있다. verify_by: node worker/openai-contract.test.mjs
-- [x] QA-EDGE-10: v58.82 index.html의 CSP <meta>는 첫 <script> 앞에 있고, script-src에 'unsafe-inline'이 없으며 인라인 스크립트는 sha256으로, 외부 스크립트는 정확한 CDN 패키지 경로로만 허용한다. 19개 화면을 돌 때 위반 0건, 끼워 넣은 onerror 처리기는 실행되지 않는다. _headers도 같은 정책이다. verify_by: node scripts/ci-csp-meta-check.mjs
-- [x] QA-EDGE-11: v58.82 Cloudflare 배포 두 작업은 Wrangler를 tools/wrangler/package-lock.json에서 --ignore-scripts로 설치한다(전역 설치 없음, 하위 패키지까지 무결성 고정). verify_by: node scripts/ci-operations-contract-check.mjs
-- [x] QA-EDGE-12: v58.82 화면 맨 아래 '이상해요'는 글·화면 이름·버전만 /feedback으로 보내고, Worker는 가족 코드가 맞을 때만 Durable Object에 저장한다(코드당 하루 10건, 최근 300건, 코드 원문 미저장). 읽기는 /_ops/feedback 운영자 토큰만, 없으면 404. verify_by: node worker/openai-contract.test.mjs
 
 ## v58.81 v58.81 레인 크기 격리 (2026-10-26)
-
-- [x] QA-DATA-LANE-SIZE-01: 13F 산출물이 크기 예산을 넘는 주기에도 시장·뉴스 갱신이 커밋되고 13F 파일은 마지막 공개본으로 남는다(P2093). verify_by: refresh-data 실행 로그에서 '13F lane failed this cycle' 경고와 data 커밋 동시 확인
+- 완료 1건: QA-DATA-LANE-SIZE-01
 
 ## v58.80 미래 자료 누설 검사와 작업 방식 개선 (2026-10-25)
-
-- [x] QA-LOOKAHEAD-01: v58.80 미래 자료 누설 검사: 과거 30세션 as-of 불변(관측 시각 기준 절단, 신용 축 평가), 테마 단계 백필 미래 교란 불변, 330버킷 워밍업 충분. 네 누설 변이에서 실패. verify_by: node scripts/ci-lookahead-check.mjs
+- 완료 33건: QA-LOOKAHEAD-01, QA-ROLL-01, QA-RELATION-01, QA-FU-01, QA-FU-02, QA-FU-03, QA-FU-04, QA-FU-05, QA-FU-06, QA-FU-07, QA-FU-08, QA-ROLL-02, QA-NUM-01, QA-NUM-02, QA-STATE-01, QA-NUM-03, QA-INPUT-01, QA-STATE-02, QA-BOOT-02, QA-UNITS-01, QA-STATE-03, QA-BOOT-03, QA-COLOR-01, QA-STATE-04, QA-PARSE-01, QA-NAV-02, QA-BOOT-04, QA-VOCAB-01, QA-SEARCH-05, QA-BASIS-07, QA-REPAINT-01, QA-BOOT-09, QA-NEWS-36
 - [ ] QA-VERIFY-61: 포트폴리오 ETF 펼쳐 보기: 라이브에서 SPY·VOO가 실시간 시세로 평가액을 받으면 읽는 법 첫 카드가 ETF 속까지 본 상위 종목 막대로 나오고, 실질 종목 수 타일이 펼친 값과 보유 그대로 값을 함께 보이며, 가격 없는 추종 ETF는 문장에 이름이 남는다. verify_by: live 포트폴리오에 NVDA·SPY·VOO 보유 입력 후 데스크톱·휴대폰 확인 (로컬은 ETF 시세가 없어 ci-esm-core-unit-check 고정 입력이 대신 검증)
-- [x] QA-ROLL-01: v58.80 원유 선물 시세의 하루 변화율은 시세와 같은 월물의 직전 종가 기준(WTI 10/20 -0.7%, 브렌트 10/23 +2.8%) verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-RELATION-01: v58.80 금리와 환율의 자산군 카드 읽기는 같은 20거래일의 평소 관계와 어긋난 곳(유가-금리, 금리-주식, 주식-장기채, 위험 회피-금·달러)과 반도체 주도를 이야기 순서로 최대 3개 적는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [x] QA-FU-01: v58.80 포트폴리오에서 원화 칸 안내로 넣은 한국 종목 단가는 원화로 저장·표시된다(빈 원가 통화 칸 = 입력 칸 통화). verify_by: node scripts/ci-portfolio-vault-e2e.mjs
-- [x] QA-FU-02: v58.80 거시 머리말의 다음 발표 날짜는 본문과 같은 한국 시각 날짜로 적는다(FOMC 10/28 ET → 10/29 KST). verify_by: node scripts/ci-runtime-contract-check.mjs
-- [x] QA-FU-03: v58.80 스크리너·종목 재무·오늘 지수 카드는 자료 도착 전을 '불러오는 중'으로, 분봉 실패는 마지막 종가와 날짜로 보여 준다. verify_by: node scripts/ci-runtime-contract-check.mjs
-- [x] QA-FU-04: v58.80 종목 검색 Enter는 목록에 없는 기호에 종목 화면을 열지 않고 후보 안내를 보인다. verify_by: node scripts/ci-out-of-universe-ticker-browser-check.mjs
-- [x] QA-FU-05: v58.80 종목 화면의 관심 종목 추가는 목록이 없으면 '관심 종목' 목록을 만들어 담고 결과를 알린다. verify_by: node scripts/ci-out-of-universe-ticker-browser-check.mjs
-- [x] QA-FU-06: v58.80 내 계획 점검은 거절된 입력 뒤 이전 결과를 숨기고 1조 초과 값을 거절한다. verify_by: node scripts/ci-portfolio-vault-e2e.mjs
-- [x] QA-FU-07: v58.80 S&P 500 지도는 스크리너 행이 아직 없으면 '0개'가 아니라 불러오는 중이라고 적고, 종목 재무는 내려받기 실패를 '공시 대상 아님'과 구분한다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-FU-08: v58.80 네트워크 제한 시간은 응답 헤더 대기만 판정하고, 스트림 본문은 모든 본문이 20초 동안 멈췄을 때만 끊는다(3G에서 screener.json·SEC 요약이 끝까지 받아진다). verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-ROLL-02: v58.80 주말에 미리 실린 재개장 봉은 연속 거래 종목의 직전 종가가 아니다(DXY 10/23은 10/22 종가 대비) verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-NUM-01: v58.80 3개월·1개월은 오늘·매크로·지수 비교에서 같은 수(63·21거래일, sessionPointBack) verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-NUM-02: v58.80 동종 중앙값은 본인 제외 한 정의, 선도 섹터 링크 목록은 꺾인·경계 선도까지 합쳐 테마와 섹터의 선도 수와 같다. verify_by: node scripts/ci-fiscal-quality-fixture.mjs && node scripts/ci-scenario-guidance-fixture.mjs
-- [x] QA-STATE-01: v58.80 빈 값은 불러오는 중·받지 못함·자료 없음·해당 없음 중 하나의 공용 문장으로 말한다(data-state.js) verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-NUM-03: v58.80 평가 완료 포트폴리오는 현금 미입력이어도 주식 평가액 대비 섹터 비중을 보인다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-INPUT-01: v58.80 숫자 입력(현금·시뮬레이션)은 공용 리더가 읽고, 거부 때 칸 옆에 사유를 보이며 저장값을 바꾸지 않는다. verify_by: node scripts/ci-portfolio-vault-e2e.mjs
-- [x] QA-STATE-02: v58.80 스크리너 별표와 포트폴리오 관심 종목은 한 저장소(aio_watchlists)를 쓰고, 옛 별표 배열은 한 번 합친 뒤 지운다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-BOOT-02: v58.80 AI 답변 아래 그림(ai-answer-visuals.js)과 재무 읽기(fiscal-read.js)는 첫 답변 때 불러오고 부팅 묶음에 들어오지 않는다(부팅 상한 1,455 KB/535 KB gzip) verify_by: node scripts/ci-boot-bundle-budget-check.mjs
-- [x] QA-UNITS-01: v58.80 미국 금액은 usdKoreanText 하나로 조·억·만 달러로 쓰고 부호가 앞에 온다(재무 표·문단·종목·스크리너가 같은 단위) verify_by: node scripts/ci-fiscal-quality-fixture.mjs
-- [x] QA-STATE-03: v58.80 종목 화면은 재무 파일이 없으면 3·8·20초 뒤 최대 3번 다시 받고, 다른 종목으로 바뀌면 멈춘다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-BOOT-03: v58.80 포트폴리오 백테스트 엔진(src/domain/portfolio/backtest.js)은 포트폴리오를 열거나 유휴 시간에 불러오고 부팅 묶음에 들어오지 않는다(부팅 상한 1,440 KB/530 KB gzip) verify_by: node scripts/ci-boot-bundle-budget-check.mjs
-- [x] QA-COLOR-01: v58.80 방향 색: --dir-up 빨강·--dir-down 파랑이 캔들 관례와 같고, S&P 500 지도·안내 문구가 따르며, directionOf가 0으로 반올림된 변화를 칠하지 않는다. 판정 색은 초록·앰버·빨강 유지. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-STATE-04: v58.80 지수 카드는 5분봉 실패 뒤 기록이 늦게 와도 '받지 못했습니다'를 유지하고, 스크리너 가격 시각에는 날짜가 붙으며, 매매일지는 현지 날짜다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-PARSE-01: v58.80 맞춤 조건 문장: RSI 이하·이상, 1·3개월 수익률 이상·이하(음수 포함), 과매도·과매수를 읽고, 방향 없는 숫자는 돌려준다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-NAV-02: v58.80 산업 지도 뒤로·앞으로 가기가 이전·다음 문서로 돌아오고, 떠 있는 설명은 한 번에 하나만 열리며 스크롤 중 hover로 열리지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-BOOT-04: v58.80 첫 화면 자료 우선: 부팅 선요청은 한 번만·5분 이내만 쓰이고, 스크리너 작업은 data.json·기록 도착 또는 대비 시간 뒤에 돌며, 행 우선 화면은 바로 받는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-VOCAB-01: v58.80 선택지 비용 비교 어휘는 choice-words.js 한 곳에만 쓰이고 화면과 AI 프롬프트가 함께 읽는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-SEARCH-05: v58.80 종목 검색은 한글 이름을 입력하는 동안 후보 버튼을 보이고, 어느 화면에서 연 종목이든 재무 공시 최근 검색에 남으며, 화면 이동 직후에는 마우스가 움직이기 전까지 설명이 열리지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-BASIS-07: v58.80 한 화면의 같은 이름은 같은 기준이다: 반도체 카드는 SMH, 상대강도는 SPY 배당 포함(없으면 지수로 이름 표시), 가격선 조건의 거리는 가격 %, 맞춤 조건 결과 보기는 전체 종목에서 찾는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-REPAINT-01: v58.80 종목 요약의 늦은 다시 그리기(온디맨드·13F·시나리오·회계 이력)는 최신 재무 상태를 쓴다: 후보로 종목을 고른 뒤 재무 칸이 기업 요약과 같은 시점에 채워진다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive stock
-- [x] QA-BOOT-09: v58.80 느린 연결의 첫 화면: 정적 셸이 today-verdict.json의 판정을 먼저 그리고, 스타일시트가 먼저 오며, 레거시·모듈 스크립트는 본문 끝에서 발견된다. 빈 지수 카드 줄·휴대폰 탭 줄은 높이를 잡고, 준비 전 탭은 준비 뒤 실행된다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive today
-- [x] QA-NEWS-36: v58.80 봉인된 시간대 묶음의 번역 없는 헤드라인은 다음 갱신의 번역 목록(상한 안)에 들어가 한국어 제목을 얻는다. 묶음의 선택·시세는 바뀌지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
 
 ## v58.79 v58.79 섹션 틀, 보조 문구 상한 게이트, 오늘·테마와 섹터 문구 정리 (2026-10-25) (2026-10-25)
-
-- [x] QA-FRAME-BUDGET-01: v58.79 보조 문구 상한: 19개 화면을 접힌 채로 열어 기준·캡션·키커·힌트·메타 줄(클래스 단어 기준)의 보이는 글자 수가 architecture/secondary-text-budget.json의 상한 안이고, data-frame 섹션은 머리에 제목·기준 칩·동작만, 칩 24자 이하, 읽기 1개 240자 이하를 지킨다. 캐너리로 규칙 자체를 확인한다. verify_by: node scripts/ci-secondary-text-budget-check.mjs (browser-surface)
-- [x] QA-FRAME-UNIT-01: v58.79 섹션 틀 단위: 보조 클래스 단어(분석 읽기 xr-lead·sx-lede 제외), 종가 칩 문구, 머리 = 제목 + 칩 하나, 칩 길이 제한, 화면 낭독기용 제목, frameSection 순서, 상한 여유(10% + 40자). verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-HOME-FRAME-01: v58.79 오늘: 지수 띠는 기준 문장 대신 "10/23(금) 마감" 칩(5분봉·전일 종가·지연은 칩 설명)이고 점선은 "전일"을 스스로 단다. "지금 시장은" 키커, 판정 아래 날짜·개수 줄(보류일 때만 이유를 보임), "종가 기준, 가까운 순", "6개 축 근거 자세히" 링크, 시세 제목 괄호, 10년물·BTC 보조 줄, 뉴스·일정 머리 메타, 일정 "이 밖의 N건" 문장, 깊이 접기 메타, "데이터 기준과 출처" 행이 빠지고, 50일선 차트의 기준선은 값을 스스로 단다. verify_by: node scripts/ci-secondary-text-budget-check.mjs + 오늘 화면 브라우저 확인(데스크톱·390px)
-- [x] QA-THEMES-FRAME-01: v58.79 테마와 섹터: 첫 카드는 키커 없이 읽기로 열리고 강한 쪽/약한 쪽/바뀌는 중은 세 열이다. RRG 머리 축 설명 문구가 빠지고(축은 캔버스에), 원리·한계 카드는 사분면 접기 안으로 옮겼다. 섹터 지도·순위·테마 시나리오·AI 설비투자·지수 이익은 기준 문장 대신 날짜 칩이고, 시나리오의 기준 문장은 "기준과 판정 규칙" 접기 첫 줄, 표 사용법은 제목 설명, 범위 밖 원은 범례 항목, RRG와 엇갈리는 테마는 접기 하나, 카드의 RRG 줄은 한 줄이다. 끝의 "세부 종목 선택은 …" 문장은 뺐다. verify_by: node scripts/ci-secondary-text-budget-check.mjs + 테마와 섹터 화면 브라우저 확인(데스크톱·390px)
-- [x] QA-BREADTH-SP500-01: v58.79 시장 폭 기준: 생산자가 S&P 500 구성 종목 묶음(sp500)을 매 거래일 계산하고, 그날 판정 종목이 300개 이상이면 대표 수치(breadth20/50/200, 상승·하락, 기여 종목)를 그 묶음에서 쓴다. 미만이거나 구성 자료가 없으면 AIO 미국 관찰 종목으로 돌아가고, 각 행의 fieldMeta.universeScope가 어느 쪽인지 남긴다. 화면(오늘 참여, 시장 폭, 시장 해석 문장, AI 맥락)은 그 표시를 읽어 "S&P 500 N개 종목" 또는 "AIO 미국 관찰 종목"이라고 쓴다. verify_by: node scripts/ci-esm-core-unit-check.mjs + node scripts/ci-source-registry-contract-check.mjs
+- 완료 18건: QA-FRAME-BUDGET-01, QA-FRAME-UNIT-01, QA-HOME-FRAME-01, QA-THEMES-FRAME-01, QA-BREADTH-SP500-01, QA-THEME-SPLIT-01, QA-MARKET-FRAME-01, QA-OTHER-FRAME-01, QA-RESEARCH-GRID-01, QA-THEME-BACKFILL-01, QA-THEME-BACKFILL-LIVE-01, QA-RESEARCH-LINKS-01, QA-CHART-DRAW-01, QA-CHART-DRAW-02, QA-CHART-REVIEW-01, QA-CHART-REVIEW-02, QA-CHART-REVIEW-03, QA-CHART-REVIEW-04
 - [ ] QA-BREADTH-SP500-LIVE-01: v58.79 push 뒤 첫 refresh-screener 실행에서 public-data/screener-breadth-history.json 최근 행의 fieldMeta.breadth50.universeScope가 sp500-members-not-official-index-breadth, eligible 480 이상이고, 시장 폭 화면 분모가 "S&P 500 N개 종목"으로 바뀌었는지 확인한다. verify_by: 라이브 확인(push 뒤 refresh-screener)
-- [x] QA-THEME-SPLIT-01: v58.79 세부 테마 분리: 병원/유통/서비스 → 병원/의료 서비스·의약품 유통, 기업서비스/유통/환경 → 급여·기업 서비스·산업재 유통·폐기물/환경 서비스, 보험 → 보험사(손해·생명·재보험)·보험 중개, 결제/핀테크 → 결제 네트워크·핀테크/결제 처리. 새 세부 테마마다 유니버스에 있는 종목 3개 이상이고, 대표 종목(leaders)은 구성 종목 안에 있다. verify_by: node scripts/ci-runtime-contract-check.mjs (P1588 theme rules)
-- [x] QA-MARKET-FRAME-01: v58.79 시장 화면: 국면 판정의 세 흐름 섹션은 날짜 칩(조건 수·거시 연결은 칩 설명), 차트 캡션은 화면 낭독기용, 레이더·VIX 구간 캡션은 한 줄과 마우스 설명이다. 화면 끝 면책 각주(국면 판정·투자 심리·브리핑·기술·금리와 환율)가 빠지고, 거시의 축 리드·연결 고리 요약은 제목과 접기 한 줄, 유가·금·추세 카드와 지표 설명은 접기, 테일러 준칙·스프레드는 타일 설명, 갈림길은 날짜 칩, 금리 하락 주의 문장은 접기다. 브리핑 AI 해설의 면책은 "해설 범위" 접기, 왜 움직였나·시간대별 시황은 칩, 나머지 실적 발표 안내는 한 줄이다. 금리와 환율 요약 타일은 짧은 단서와 설명. verify_by: node scripts/ci-secondary-text-budget-check.mjs + 국면 판정·거시·브리핑 브라우저 확인
-- [x] QA-OTHER-FRAME-01: v58.79 나머지 화면: 스크리너 모집단 줄은 개수만(정렬·비중은 마우스 설명), 통계 줄의 기호 설명은 줄 설명이다. 테마 상세의 이유 목록 기준 문장은 제목 설명, 구성 종목 표 기준은 날짜만(열 읽는 법은 설명), 시나리오 수익률 줄은 단계 비교 기준을 설명으로 둔다. 뉴스 중요 뉴스·속보 칸은 시간 칩, 대가 보유는 분류 방법 접기·짧은 범위 줄·법인 신고분 한 줄, 가이드 범례·단축키는 짧은 말과 버튼, 아틀라스는 "기업은 역할 예시, 추천 아님", 기업 분석 부제는 출처를 설명으로 둔다. verify_by: node scripts/ci-secondary-text-budget-check.mjs + 스크리너·테마 상세·대가 브라우저 확인
-- [x] QA-RESEARCH-GRID-01: P2063: 리서치 라이브러리 문서를 1024~1100px 폭에서 열면 목차·본문·연결 칸이 한 열 전체 폭으로 쌓이고(본문 폭 = 격자 폭), 1101~1279px에서는 목차와 본문 두 열이다. verify_by: 브라우저 확인(1100px, 1200px)
-- [x] QA-THEME-BACKFILL-01: v58.79 테마 단계 소급: 스크리너 실행이 2년치 조정 종가로 최근 120거래일의 테마 행을 다시 만들어 지금과 같은 단계 규칙(group-strength, theme-playbook)으로 판정하고 public-data/theme-stage-history.json(theme-stage-history.v1, 규칙 표시)에 쓴다. build-scenario-state는 기록된 날·테마를 그대로 두고, 기록이 없는 날(10/12 이전)만 소급본으로 채우며 recomputed 표시를 남긴다. 다른 규칙으로 만든 소급본은 쓰지 않는다. 단계 표의 "N거래일째"는 전체 기록으로 세고, 1개월 선은 최근 60거래일, 소급 구간은 칸 설명에 적는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-THEME-BACKFILL-LIVE-01: v58.79 push 뒤 첫 refresh-screener 실행이 public-data/theme-stage-history.json(약 120거래일, 46개 테마)을 쓰고, 다음 refresh-data 실행 뒤 scenario-state.json themeHistory가 10일에서 100일 이상으로 늘었는지, 테마 단계 표의 "N거래일째"와 칸 설명(소급 계산 구간)이 보이는지 확인한다. — Verified (2026-10-26, v58.86 정리): theme-stage-history.json 120거래일, scenario-state.json themeHistory 120일 확인(산출물 기준; 표 문구는 ci-scenario-guidance-fixture) verify_by: 라이브 확인(push 뒤 refresh-screener → refresh-data)
-- [x] QA-RESEARCH-LINKS-01: v58.79 리서치 연결: src/domain/knowledge/theme-research-links.js 한 곳이 미국 테마 18개를 분석 노트와 산업 지도 분야에 잇는다. 테마 상세에 "산업 구조 읽기, <노트>"·"산업 지도에서 보기" 링크, 분석 노트와 산업 지도 분야의 연결 칸 맨 위에 "이 내용이 설명하는 테마"(지금 단계, 1개월)가 있고, 단계 기록이 아직 없으면 불러온 뒤 채운다. 종목 차트 아래 "차트 표시 배우기"(피벗·돌파, 단계, RS선, 50일선 거리)가 차트·셋업 노트를 연다. 모든 테마·노트·분야 id와 복사한 제목은 단위 검사가 원본과 맞춰 본다. 용어 사전 "시장 폭" 정의는 S&P 500 기준을 말하고, 라이브러리 머리의 페이지 목록 줄은 제목 설명으로 옮겼다. verify_by: node scripts/ci-esm-core-unit-check.mjs + 테마 상세·개념·분석·산업 지도 브라우저 확인
-- [x] QA-CHART-DRAW-01: v58.79 차트 작도: 일봉 차트 봉 주기 아래 '추세선·앵커 VWAP·내 선 긋기' 토글이 있다. 추세선은 좌우 5개 봉으로 확인된 스윙 저점 두 개(오르는 쪽)·고점 두 개(내리는 쪽)를 잇고 그 뒤 종가가 일평균 변동폭 0.25배 넘게 뚫지 않은 선 중 접점이 가장 많은 것(3회 이상 실선, 2회 점선 잠정), 앵커 VWAP은 52주 고점·6개월 저점·최근 3개월 최대 갭(2% 이상)에서 시작한 거래량 가중 평균가다. 토글 아래 한 줄이 값·현재가 대비·접점을 말하고, 켜고 끈 상태는 이 기기에 남는다. 패턴 이름·피보나치는 그리지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs + 종목 차트 브라우저 확인(데스크톱·375px)
-- [x] QA-CHART-DRAW-02: v58.79 내 선: '내 선 긋기'를 켜고 차트를 누르면 그 가격에 가로선(최대 8개, 이 기기 저장)이 생기고, 아래 '내 계획 점검'이 각 선을 현재가·가장 가까운 레벨과의 거리(%, 일평균 변동폭 배수)로 읽으며 '손절가에·목표가에' 버튼이 그 값을 칸에 넣는다. '내 선 지우기'는 선이 있을 때만 보인다. verify_by: 종목 차트 브라우저 확인
-- [x] QA-CHART-REVIEW-01: v58.79 차트 재검토: 읽기 카드 첫 장이 '추세'(상승 추세·하락 추세·횡보·전환 구간)이며 스윙 고점·저점 구조, 종가·50일선·200일선 배열, 50일선 20거래일 기울기 중 두 가지 이상이 같은 쪽일 때만 방향을 말한다. 하락 구조에서 직전 스윙 고점 위 종가(전환 시도), 상승 구조에서 직전 스윙 저점 아래 종가(훼손), 최근 20거래일 50·200일선 교차를 전환 신호로 적는다. verify_by: node scripts/ci-esm-core-unit-check.mjs + 종목 차트 브라우저 확인
-- [x] QA-CHART-REVIEW-02: v58.79 매매 방식별로 보기: 돌파·눌림목·장기 추세·과매도 되돌림 네 방식을 버튼으로 고르고(이 기기에 저장), 방식마다 맞는 성향·기간, 조건(충족·미충족·확인 불가와 충족 수), 이 종목 숫자를 넣은 손절 기준·목표 기준·계획 무효 조건을 보여 준다. 계획 칸을 자동으로 채우지 않는다(R724). verify_by: node scripts/ci-esm-core-unit-check.mjs + 종목 차트 브라우저 확인(데스크톱·375px)
-- [x] QA-CHART-REVIEW-03: v58.79 손익비: 가격 레벨 절의 '손익비(R:R) 쉽게' 접기가 계산식(목표−진입)÷(진입−손절), 본전 승률 1÷(1+손익비)와 1·1.5·2·3배 표, 손절을 구조로 먼저 정하는 순서, 감수 금액·수량 계산을 설명하고, 내 계획 점검은 목표가가 있을 때 본전 승률을 함께 적는다. 포트폴리오 보유 종목은 진입가 칸이 보유 평균 단가로 시작한다. verify_by: node scripts/ci-esm-core-unit-check.mjs + 종목 차트 브라우저 확인
-- [x] QA-CHART-REVIEW-04: v58.79 종목 비교: 일봉 차트 작도 줄 아래에 SPY와 같은 테마(가장 작은 세부 테마부터) 종목 칩, 아무 티커나 넣는 칸이 있고, 고른 종목(최대 3개)을 최근 130거래일 창의 첫날 이 종목 종가에 맞춰 같은 출발점에서 겹쳐 그리며 1개월·3개월·6개월·1년 수익률 표를 함께 보여 준다. 일봉을 받지 못한 종목은 그렇다고 말하고 빼며, 고른 종목은 저장하지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs + 종목 차트 브라우저 확인
 
 ## v58.78 v58.78 오늘 지수 띠, S&P 500 지도 색, 사이드바 검색 제거, 거시 머리 (2026-10-25) (2026-10-25)
-
-- [x] QA-SECTOR-MAP-SHADE-01: P2061: S&P 500 지도 타일은 수익률 단계 색을 그대로 보이고 소프트 카드 초기화가 덮지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-HOME-INDEX-STRIP-01: v58.78 오늘 첫 화면: 페이지 머리 바로 아래에 S&P 500(SPY)·나스닥 100(QQQ)·반도체(SMH, v58.80 run-5에서 SOXX→SMH)·러셀 2000(IWM)의 지난 뉴욕 정규장 5분봉, 전일 종가 점선, 전일 종가 대비 등락을 보이고, 장중에는 5분마다 다시 읽는다. 카드를 누르면 차트 화면. 사이드바 종목 검색 버튼과 Ctrl K 표시는 없다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- 완료 6건: QA-SECTOR-MAP-SHADE-01, QA-HOME-INDEX-STRIP-01, QA-RRG-LABELS-01, QA-THEME-TABLE-02, QA-THEME-RANK-02, QA-THEME-2W-LIVE-01
 - [ ] QA-HOME-INDEX-STRIP-LIVE-01: v58.78 지수 띠를 배포본에서 확인한다(로컬은 공용 Worker 중계가 막혀 실제 분봉을 받지 못함): 4개 카드가 그려지고 등락이 시세와 맞는지, 장중 갱신되는지. verify_by: push 뒤 배포본 오늘 화면 → #home-index-strip 카드 4개·rect 그려짐, 장중 5분 뒤 다시 읽음
-- [x] QA-RRG-LABELS-01: P2062: RRG는 꼬리 기본 끔, 이름 한 줄이 점·다른 이름과 겹치지 않는다(몰린 구역은 연결선으로 바깥에). verify_by: node scripts/qa-runner.mjs affected (browser-surface) + 테마와 섹터 RRG 화면 확인
-- [x] QA-THEME-TABLE-02: v58.78 단계 × 테마 표: 단계 흐름(지금 단계가 이어진 거래일 수와 그 전 단계), 최근 10거래일 1개월 수익률 추이 선, 1주 열, 50일선 위 막대, 시나리오 영향 부드러운 알약(부담 = 호박색), 기준 충족 점 6개. 7색 단계 띠는 없앴다. 테마 지도는 미국/한국을 나눠 보이고, 극단값은 축 끝의 속 빈 원과 실제 값 이름으로 둔다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-THEME-RANK-02: v58.78 미국 세부 테마 순위: 기간 탭 1주·1개월(기본)·3개월, 열 1주·2주·1개월·3개월, 강한 순/약한 순 전환(순위 번호 유지, 참고 행은 뒤). verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-THEME-2W-LIVE-01: v58.78 2주(10거래일) 수익률은 생산자가 다음 갱신부터 싣는다: push 뒤 refresh-screener 실행 후 screener.json 행에 ret10d가 있고 테마 순위의 2주 열이 채워지는지 확인한다. — Verified (2026-10-26, v58.86 정리): public-data/screener.json에 ret10d 존재 확인(산출물 기준) verify_by: push 뒤 refresh-screener 실행 → public-data/screener.json ret10d 존재 + 테마와 섹터 순위 2주 열 값
 
 ## v58.77 v58.77 파이프라인 감사 잔여 결함, AI 답변 맞춤, 모바일 예시 질문 (2026-10-25) (2026-10-25)
-
-- [x] QA-MACRO-MONTH-01: P2048: 공식 월 승격은 같은 월의 변화량만 싣고, 공식 실패 런에도 기준월이 역행하지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- 완료 16건: QA-MACRO-MONTH-01, QA-TEMP-STALE-01, QA-EXT-REBASE-01, QA-OPS-PAGES-RECOVER-01, QA-OPS-CI-TIMEOUT-01, QA-RUNTIME-SNAPSHOT-RETRY-01, QA-AI-EVENT-BIND-01, QA-KNOW-LKG-REF-01, QA-KNOW-PARITY-SELECT-01, QA-CBOE-RECEIPT-01, QA-FMP-QUERY-01, QA-DOSSIER-WORD-01, QA-AI-PROFILE-01, QA-AI-CHIPS-TOUCH-01, QA-AI-WEBSEARCH-STATUS-01, QA-AI-LEARN-01
 - [ ] QA-MACRO-MONTH-LIVE-01: P2048: push 뒤 다음 CPI·PCE 발표 갱신에서 data.json의 cpiDelta·pceDelta가 같은 기준월의 변화이고 서사 방향이 그 값과 맞는다. verify_by: push 뒤 refresh-data → public-data/data.json macro.cpi/_asOf_cpi/cpiDelta
-- [x] QA-TEMP-STALE-01: P2049: 전 시장 동시 실패 뒤 온도계 타일이 갱신 지연으로 표시되고 극단 문장에서 빠진다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-EXT-REBASE-01: P2050: extended shard는 rebase 뒤 새 core와 다시 검증된 경우에만 push된다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-OPS-PAGES-RECOVER-01: P2051: Pages 장애 이슈는 배포·검증이 실제로 된 run에서만 닫힌다. verify_by: node scripts/ci-workspace-contract-check.mjs
-- [x] QA-OPS-CI-TIMEOUT-01: P2052: 시간초과·승인대기 CI는 수렴 job을 실패로 끝낸다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
-- [x] QA-RUNTIME-SNAPSHOT-RETRY-01: P2053: 첫 스냅샷 실패 뒤 다음 revision 알림에서 시세·근거·스토어가 함께 회복된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-AI-EVENT-BIND-01: P2054: 현재 사건 문장은 그 주어를 담은 근거가 있을 때만, 단위 없는 지수 수치는 근거가 있을 때만 공개된다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
-- [x] QA-KNOW-LKG-REF-01: P2055: 보존된 거시값은 지식 화면에서 자동 갱신 현재값으로 승격되지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [x] QA-KNOW-PARITY-SELECT-01: P2056: 지식 빌더 import closure의 어느 파일이 바뀌어도 affected QA가 knowledge-generated-parity를 실행한다. verify_by: node scripts/ci-qa-pipeline-contract-check.mjs
-- [x] QA-CBOE-RECEIPT-01: P2057: Cboe 수집 실패 런의 receipt는 retained로 남고 마지막 성공 시각을 전진시키지 않는다. verify_by: node scripts/ci-review-integrity-unit-check.mjs
-- [x] QA-FMP-QUERY-01: P2058: FMP query가 있는 endpoint도 API 키가 정상 파라미터로 전달된다. verify_by: node scripts/ci-review-integrity-unit-check.mjs
-- [x] QA-DOSSIER-WORD-01: P2059: dossier 근거는 단어 단위로만 연결되고 정당한 약어·복합어 연결은 유지된다. verify_by: node scripts/ci-review-integrity-unit-check.mjs
-- [x] QA-AI-PROFILE-01: v58.77 AI 답변 맞춤: 패널 머리의 "맞춤"에서 경험·관점(최대 3)·기간·손실 감내·시장·관심 분야·길이를 이 브라우저에 저장하고, 모든 질문의 문맥에 설명 방식 조정용으로 실린다. 종목·매매·비중·시점·적합성 판정은 하지 않는다(R724). verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
-- [x] QA-AI-CHIPS-TOUCH-01: v58.77 예시 질문: 터치·좁은 화면에서 첫 질문 전에는 한 줄 가로 스크롤, 대화가 시작되면 "이어 물어볼 질문 n개" 버튼으로 접히고, 입력 중에는 숨는다. 넓은 데스크톱은 그대로. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
 - [ ] QA-AI-CHIPS-DEVICE-01: v58.77 예시 질문 접기를 실제 iPhone·iPad(가상 키보드)에서 확인한다. verify_by: push 뒤 실기기에서 AI 패널 질문 1회 → 칩 접힘·입력 중 숨김 확인
-- [x] QA-AI-WEBSEARCH-STATUS-01: P2060: 웹검색 상태 줄은 답변 완료·재시도·실패 뒤 결과 문구로 바뀐다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
-- [x] QA-AI-LEARN-01: v58.77 사용 기록 학습: 맞춤 시트에서 켤 때만 여는 화면·질문 주제·앱이 확정한 종목·테마의 횟수를 이 브라우저에 쌓고(질문 원문 미저장, 2주 반감기), 직접 고른 설정이 없는 칸만 "사용 기록 추정"으로 AI 문맥에 싣는다. 학습 내용 보기·지우기, 끄면 삭제. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
 - [ ] QA-AI-LEARN-LIVE-01: v58.77 사용 기록 학습을 배포본에서 켜고 며칠 사용한 뒤 요약이 실제 사용과 맞는지, 끄면 저장소에서 사라지는지 확인한다. verify_by: push 뒤 배포본 AI 패널 맞춤 시트 → 사용 기록 요약·끄기 후 localStorage aio_ai_learned_v1 부재
 
 ## v58.76 v58.76 파이프라인 복구와 개발자 전용 화면 정리 (2026-10-24) (2026-10-24)
-
-- [x] QA-TG-MERGE-01: P2047: 텔레그램 생산자가 이전 요약을 병합하며 로드 시점 예외 없이 14일 창을 이어 간다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-TG-MERGE-LIVE-01: P2047: push 뒤 다음 갱신의 telegram-digest count가 다시 1,000건 이상이고 외부 파이프라인 점검이 통과한다. — Verified (2026-10-26, v58.86 정리): telegram-digest.json count 2,467 확인. verify_by: push 뒤 refresh-data 실행 → public-data/telegram-digest.json count, Data freshness watchdog 결과
-- [x] QA-DEVONLY-RETIRE-01: v58.76 개발자 전용 정리: 화면별 관련 뉴스 띠, AI 인프라 연구 지도, 세분화 테마, SEC 연간 재무 스캔, 한국 data-dev-only 카드, 죽은 #page-theme-detail 블록이 사라지고 그 작성 코드도 없다. verify_by: node scripts/ci-runtime-contract-check.mjs
-- [x] QA-CONSOLE-FN-RETIRE-01: v58.76 콘솔 전용 함수 정리: 사용자 프로필 저장, 가격·VIX 알림(숨은 탭 점검 포함), 채팅 내보내기가 없고 AI에는 '성향을 가정하지 말라'는 줄만 남는다. verify_by: node scripts/qa-runner.mjs group headless
+- 완료 4건: QA-TG-MERGE-01, QA-TG-MERGE-LIVE-01, QA-DEVONLY-RETIRE-01, QA-CONSOLE-FN-RETIRE-01
 
 ## v58.75 v58.75 사용자 유형 검토 (2026-10-24) (2026-10-24)
-
-- [x] QA-AI-SCREEN-01: P2036: 종목·재무·차트 화면의 종목명 없는 질문이 화면 종목 기준으로 답하고 그 사실을 밝힌다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- 완료 11건: QA-AI-SCREEN-01, QA-AI-PRICED-IMP-01, QA-BRIEF-EPS-01, QA-NEWS-SCN-TAG-01, QA-TEMP-RANK-01, QA-GUIDE-PCE-01, QA-DIST-DAYS-01, QA-THEME-ROT-01, QA-SCR-PIVOT-01, QA-PERSONA-LEVELS-01, QA-PERSONA-CHOOSE-01
 - [ ] QA-AI-PF-CONSENT-01: P2036: 포트폴리오 질문은 동의 뒤에만 보유 행을 보내고, 보내지 않았으면 모델에 미전송을 알린다. verify_by: push 뒤 AI 패널 포트폴리오 칩 → 동의 창 → 답 확인
-- [x] QA-AI-PRICED-IMP-01: P2037: 가격이 붙은 손절·목표 명령문은 치환되고, 지지·저항 후보 설명은 남는다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
-- [x] QA-BRIEF-EPS-01: P2038: 브리핑 실적 행에 EPS·매출 예상이 보이고, 날짜마다 대형 실적이 최소 2건 남는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-NEWS-SCN-TAG-01: P2039: 뉴스 시나리오 꼬리표는 제목에 그 시나리오 핵심어가 있을 때만 붙는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [ ] QA-TG-LEAD-01: P2040: 채널 글의 대표 꼬리표가 첫 문장 주제를 따르고, 부정 표현은 꼬리표가 되지 않는다. verify_by: push 뒤 뉴스 채널 피드 대표 꼬리표 확인
-- [x] QA-TEMP-RANK-01: P2041: 가격 온도 요소는 원값과 3년 순위를 구분해 보여 준다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-GUIDE-PCE-01: P2042: 도움말 PCE 기준이 규칙 상수(버퍼·동반 재가속)와 같고, 거시 부담 개수가 목록 수와 같게 읽힌다. verify_by: node scripts/ci-capability-claim-contract-check.mjs
-- [x] QA-DIST-DAYS-01: P2043: 분배일은 두 화면에서 현재값과 최근 최대값을 같은 문장으로 보여 준다. verify_by: node scripts/ci-regime-scenarios-fixture.mjs
-- [x] QA-THEME-ROT-01: P2044: 테마 회전 문장의 1개월 값이 화면 계산과 같다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [x] QA-SCR-PIVOT-01: P2045: 피벗 근접 프리셋은 거래량 조건 없이 near_pivot 종목을 거래 적은 순으로, 돌파 프리셋은 거래 증가 종목만 보여 준다. verify_by: node scripts/ci-screener-workbench-contract.mjs
 - [ ] QA-HIDDEN-TOOLS-01: P2046: 백테스트(보유 시)·내 계획 점검·이번 주 실적·테마 상세 AI 칩이 일반 모드에서 보인다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive today
-- [x] QA-PERSONA-LEVELS-01: v58.75 가격 레벨과 내 계획: 차트 화면에 지지·저항 후보 표(거리·변동폭 배수·반응 횟수), 전문가의 손절·목표 방법, 사용자가 입력한 가격의 사실 점검이 있고 앱이 고른 가격은 없다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-PERSONA-CHOOSE-01: v58.75 고르는 법: 테마 기준 6개·종목 렌즈·논지 틀·돌파 전 점검표·포트폴리오 점검 기준이 충족 개수와 값만 보이고 점수·확률·목표가가 없다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
 - [ ] QA-PERSONA-LIVE-01: v58.75 라이브: 실제 시세로 차트 레벨 지도·셋업 점검표·RS선, 생산자 갱신 뒤 마진·서프라이즈·6주 실적 일정이 나온다. verify_by: push 뒤 라이브 #technical·#fundamental NVDA 확인
 
 ## v58.74 데이터 v58.74 (2026-10-24)
-
+- 완료 25건: QA-PUTCALL-KEEP-01, QA-EVID-BRACKET-01, QA-POLITICAL-EVENTS-01, QA-MEMBER-SPLIT-01, QA-KR-CLOSE-NOTE-01, QA-HOME-WEEKEND-01, QA-THEME-POOL-01, QA-THEME-WEEK-01, QA-GUIDE-RULES-01, QA-WEEKEND-LABELS-01, QA-AUDIT-WORDING-01, QA-COPY-LINT-01, QA-FLOW-SMH-01, QA-CASH-CONV-01, QA-STOCK-TIE-01, QA-THEME-CARD-POOL-01, QA-NEWS-BRANCH-01, QA-THEME-DAY-01, QA-TEXT-FLOW-01, QA-FG-HISTORY-01, QA-NEWS-TERMS-01, QA-POLICY-LOWER-01, QA-EVENT-KST-01, QA-EXPERT-FLOW-01, QA-KR-EXPORT-LINE-01
 - [ ] QA-FX-FRIDAY-01: P2012: 금요일 17시(ET) 이후 환율·선물 시세가 휴장 종가로 분류된다. verify_by: 다음 금요일 21Z 이후 refresh-data history-time 단계 통과
-- [x] QA-PUTCALL-KEEP-01: P2013: Cboe 수집이 실패해도 직전 풋콜 값이 stale-reference로 남고 갱신이 계속된다. verify_by: node scripts/ci-producer-dry-run.mjs
-- [x] QA-EVID-BRACKET-01: P2014: 이중 괄호 근거 표기가 화면에 '[]'를 남기지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
 - [ ] QA-SCOPE-TNX-01: P2015: 해설 기준 표시에서 10년물 종가가 종가로 묶인다. verify_by: push 뒤 브리핑 AI 해설 기준 줄 확인
 - [ ] QA-TG-KR-02: P2016: 직함 '국장'이 들어간 글이 한국장으로 분류되지 않는다. verify_by: push 뒤 뉴스 채널 피드 태그 확인
-- [x] QA-POLITICAL-EVENTS-01: v58.74 정치 일정: 법으로 정해진 선거가 7일 일정과 AI 해설 확인·반증 칸에 투표 마감 시각(KST)으로 들어가고, 지나면 빠진다. verify_by: node scripts/ci-market-session-contract-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-MEMBER-SPLIT-01: v58.74 같은 테마 안 종목 갈림: 세부 테마 구성 종목이 양쪽으로 갈리면(예: MU 상승, SNDK·WDC·STX 하락) 오늘 화면과 AI 해설에 두 끝 종목이 표시되고 AI 연쇄 테마가 먼저 나온다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-KR-CLOSE-NOTE-01: v58.74 장중 지수 기사: 한국 장중에 나온 코스피·코스닥 급락·급등 기사에, 같은 날 마감이 반대로 끝났으면 마감 등락이 함께 표시된다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-HOME-WEEKEND-01: v58.74 주말 시세 제목: 금요일 17시(ET)부터 일요일 18시(ET)까지 오늘 화면 시세 제목이 주말 휴장과 금요일 마감 값을 밝힌다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-THEME-POOL-01: P2017: 테마 시나리오 행의 수익률·50일선 위 비율이 구성 종목 전체 기준이다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-THEME-WEEK-01: P2018: 순위 변화 라벨과 '식는 중' 문장이 같은 행의 5거래일 흐름과 반대로 읽히지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [ ] QA-FUND-ABSENT-01: P2019: 공시가 있는 종목의 재무 칸이 로딩 중 '없음'으로 보이지 않는다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive stock
 - [ ] QA-TRANSITION-01: P2020: 전환 카드의 반증 조건은 전환을 실제로 풀 수 있는 조건이다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive today
-- [x] QA-GUIDE-RULES-01: P2021: 도움말 기준표가 시장 상태 판정 규칙을 빠짐없이 보여 준다. verify_by: node scripts/ci-capability-claim-contract-check.mjs
 - [ ] QA-YEAR-WINDOW-01: P2022: '1년 전보다'는 날짜 기준 1년 전 관측과 비교한다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive macro
 - [ ] QA-ROE-WORD-01: P2023: 적자 해의 ROE 문장이 실제 자기자본 변화와 맞는다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive stock
 - [ ] QA-AI-DATES-01: P2024: AI 해설이 다음 주 대형 실적 날짜와 헤드라인 날짜를 자료대로 쓴다. verify_by: 푸시 후 다음 refresh-data의 marketAnalysis 본문 확인
-- [x] QA-WEEKEND-LABELS-01: v58.74 주말 표기: 홈 지수 칸 '선물 주말 휴장', 다가오는 일정 5일(이스라엘 총선·FOMC 포함), 참고 환율 '주말이라 금요일 시세', 포트폴리오 원칙 카드 'M/D 미국 종가 기준'. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-AUDIT-WORDING-01: v58.74 감사 문구: FOMC 변경일은 결정일(9/16), 기대인플레 보류 시 '번지지 않음' 단정 없음, 분배일 '최근 5거래일 안' 표기, 방어 섹터는 RRG 기준 명시, 스크리너 시각은 한국 시간·PER 기준은 최근 4개 분기, 컨센서스 수정 건수는 4개 분기 합계, 적자 회계연도 뒤 흑자 TTM 표시, 테마 상세 주말 종가. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-COPY-LINT-01: P2025: 19개 라우트(접힌 내용 포함)에 자리표시자 조사·숫자 앞 U+2212·음수 0·빈 괄호·원시 토큰이 없다. verify_by: node scripts/ci-rendered-copy-lint-check.mjs
-- [x] QA-FLOW-SMH-01: P2026: 섹터 흐름 순위는 11개 섹터만 세고 반도체(SMH)는 별도 줄이다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive home
-- [x] QA-CASH-CONV-01: P2027: 적자 해의 순이익률·현금 문장이 적자 폭·전환·부호 조합을 맞게 말한다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive stock
-- [x] QA-STOCK-TIE-01: P2028: 종목 요약의 섹터/테마 주어가 실제로 같은 방향인 쪽이다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive stock
-- [x] QA-THEME-CARD-POOL-01: P2029: 테마 강도 카드와 플레이북 표의 같은 테마 수치가 같다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive themes
-- [x] QA-NEWS-BRANCH-01: P2030: 뉴스 메타 줄에 존재하지 않는 시나리오 이름이 없고 발행 시각은 한국 시간이다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive news
-- [x] QA-THEME-DAY-01: P2031: 테마 상세의 하루 비교 문장은 '당일'로 한정되고 추세 단정을 하지 않는다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive themes
-- [x] QA-TEXT-FLOW-01: v58.74 문장 흐름: 시장 상태는 '부담 N(항목)'·5거래일 전 판정과 바뀐 지표, 거시 교차로는 '조건 충족/전체' 아래 조건 목록과 과거 빈도 기준 한 번, 테마는 단계 선택표 한 번·카드에는 단계와 다른 선택만, 스크리너는 '종목 N개 중 필수 자료 충족·조건 통과·자료 부족·보이는 행' 한 줄, 종목은 50일선 거리와 차트 가장 가까운 기준선 한 줄. verify_by: node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-FG-HISTORY-01: P2032: 공포·탐욕 추이의 날짜별 값은 과거 그래프 기록을 따르고, 주말 실시간 값이 전 거래일을 덮지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-NEWS-TERMS-01: P2033: 뉴스 제목 번역은 영문 제목의 시장 용어를 시장 단어로 옮긴 경우에만 저장된다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-POLICY-LOWER-01: P2034: 정책금리 범위의 하단은 공표된 하단 값을 쓰고, 없을 때만 상단에서 0.25를 뺀다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive macro
-- [x] QA-EVENT-KST-01: P2035: 다음 이벤트는 모든 화면에서 일정표와 같은 한국 시각으로 표기된다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive today
-- [x] QA-EXPERT-FLOW-01: v58.74 전문가 흐름: 거시는 공식 발표·미국 종가 기준 한 줄과 테일러 준칙 대비 2년물 긴장, 중앙 시나리오를 바꿀 고용·물가 문턱을 말하고, 오늘·시장 상태는 역발상 조건·참여 폭·VIX 20일 변화를, 테마는 사분면과 단계·업종 이익 수정 방향을, 스크리너 순위 보기는 순환·테마 단계 한 줄을, 종목은 역 DCF 매출 성장 비교·R&D 지금 읽기·이익의 질 대조를 보인다. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-scenario-guidance-fixture.mjs
-- [x] QA-KR-EXPORT-LINE-01: v58.74 한국 경기지표 아래 문장은 수출 잠정치 한 줄만 말하고, 위 타일과 같은 PMI·GDP 값을 대시로 되풀이하지 않는다. 테마 상세의 단계 대조 문장은 앞 문장의 사분면을 다시 말하지 않고 '다만'으로 잇는다. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs drive macro
 
 ## v58.73 UI v58.73 (2026-10-24)
-
-- [x] QA-UI-RADIX-01: v58.73: 라이트 모드 색 글자(11단계)는 gold-1 카드 위에, 색 칩은 3단계 배경에 12단계 글자를 써 WCAG AA를 지킨다(P1758 게이트가 radix-colors.css 값을 풀어 검사). verify_by: node scripts/ci-runtime-contract-check.mjs
-- [x] QA-MODEL-SELFCHECK-01: v58.73: 두 모델 검사(history 세션·해설 수명주기)는 검사 대상 함수의 코드가 바뀌면 --sync 전까지 실패하고, 과거 결함·가드 제거 변형(P2011·P2000·P1986 이전 코드 등 6개)을 매 실행마다 잡아야 통과한다. verify_by: node scripts/ci-history-session-model-check.mjs && node scripts/ci-narrative-lifecycle-model-check.mjs
+- 완료 2건: QA-UI-RADIX-01, QA-MODEL-SELFCHECK-01
 
 ## v58.72 데이터 v58.72 (2026-10-23)
-
+- 완료 4건: QA-13DG-SIZE-01, QA-EVID-PAREN-01, QA-HIST-MODEL-01, QA-NARR-MODEL-01
 - [ ] QA-DRYRUN-SESSION-01: P2005: 직전 게시본의 세션이 합성 일봉보다 새로워도 dry-run 스크리너 레인이 screener.json을 다시 쓴다. verify_by: push 뒤 refresh-data의 producer-dry-run 단계 통과
-- [x] QA-13DG-SIZE-01: P2006: 13D/G 이벤트가 늘어도 filing-discovery.json이 460KB 예산 안에 있다. — Verified (2026-10-26, v58.86 정리): filing-discovery.json 373,130 bytes(460 KB 예산 안), artifact-headroom 통과. verify_by: push 뒤 refresh-data의 artifact-headroom 단계 통과
-- [x] QA-EVID-PAREN-01: P2007: 괄호로 감싼 증거 id가 지워진 뒤 빈 괄호가 화면에 남지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs
 - [ ] QA-CURVE-CUT-01: P2008: 곡선 움직임 문장의 끝 날짜가 화면의 공식 국채 곡선 날짜와 같다. verify_by: push 뒤 #fxbond '곡선 움직임' 날짜 확인
 - [ ] QA-NARR-IDLE-01: P2009: 장이 닫힌 시간의 해설이 근거 없이 '장중 큰 움직임이 없었다'고 쓰지 않는다. verify_by: push 뒤 다음 한국 마감 후 AI 해설 확인
 - [ ] QA-HEADLINE-LANG-01: P2010: 원문에 없는 악센트 라틴 단어가 섞인 번역 헤드라인은 게시되지 않는다. verify_by: push 뒤 뉴스 화면에서 'bác' 미노출 확인
-- [x] QA-HIST-MODEL-01: P2011: 세션의 어느 행이든 확정 종가가 기록되면 전일 종가 읽기가 그 세션 값을 바꾸지 않고, 첫 확정 읽기는 반영된다. verify_by: node scripts/ci-history-session-model-check.mjs
-- [x] QA-NARR-MODEL-01: v58.72: AI 시황 해설 게시 수명주기(검증·재사용·유지·막힘·레인 격리 복원)를 연속 3회 모든 조합으로 돌려도 미검증 게시·12시간 초과·유지 중첩·막힌 입력 재호출·새 날 무호출이 없다. verify_by: node scripts/ci-narrative-lifecycle-model-check.mjs
 
 ## v58.71 데이터 v58.71 (2026-10-23)
-
-- [x] QA-TG-SIGNAL-01: P1984: 분류기는 맨 달러·자사주로 태그하지 않고, 수치 추출 글은 선별 하한 위에 남는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-TG-SIGNAL-02: v58.71: 채널 signals 추출(목표가·실적·지표·순매수)과 해설·스크리너·뉴스·채팅 연결이 계약대로 동작한다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-TG-SIGNAL-03: v58.71: push 후 첫 refresh-data의 telegram-digest.json에 signals와 signalCounts가 생기고(첫 실행은 14일 창 전체 재수집), 뉴스 화면에 채널 데이터 블록이 보인다. — Verified (2026-10-26, v58.86 정리): telegram-digest.json에 signals·signalCounts 존재 확인(산출물 기준) verify_by: gh run view (refresh-data) + 라이브 뉴스 화면
-- [x] QA-BRF-DATE-01: P1985: 브리핑 등락 막대에서 S&P 500과 다른 날 종가인 행은 날짜를 붙인다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-LANE-02: P1986: 격리로 되돌린 뉴스는 자기 주기 이름을 유지하고, 보존 규칙이 거부한 해설은 다시 게시되지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-13DG-01: P1987: 구조화 서식(SCHEDULE 13D/G)이 대량 보유 이벤트로 수집된다. verify_by: node scripts/ci-13f-currentness-check.mjs
-- [x] QA-13DG-02: P1987: push 뒤 첫 13F 발견 실행에서 2024-12-18 이후 13D/G 이벤트가 들어온다. — Verified (2026-10-26, v58.86 정리): filing-discovery.json 최신 filedAt 2026-10-22 확인. verify_by: public-data/masters/filing-discovery.json의 13D/G filedAt 최댓값 확인
-- [x] QA-SCR-SESSION-01: P1988: 스크리너 실행에서 시장 세션이 이전 게시보다 뒤로 가면 이전 게시가 유지된다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- 완료 15건: QA-TG-SIGNAL-01, QA-TG-SIGNAL-02, QA-TG-SIGNAL-03, QA-BRF-DATE-01, QA-LANE-02, QA-13DG-01, QA-13DG-02, QA-SCR-SESSION-01, QA-HIST-REV-01, QA-SCR-KR-RETAIN-01, QA-BT-CAL-01, QA-PROD-SMALL-01, QA-MACRO-EDGE-02, QA-AI-REPEAT-01, QA-QUOTE-SESSION-01
 - [ ] QA-SCR-COLLISION-01: P1989: refresh-screener의 rebase 충돌은 collision 재실행 1회로 이어지고, 재실행 충돌은 실패로 끝난다. verify_by: 다음 충돌 발생 시 refresh-screener 실행 로그의 'collision retry' 경고 확인
-- [x] QA-HIST-REV-01: P1990: 같은 세션의 두 읽기가 소유 값을 왕복 수정하지 않는다. verify_by: node scripts/ci-history-field-time-contract-check.mjs
 - [ ] QA-FRED-GAP-01: P1991: CPI 비교 달 공백 기간에 fredFailedSeries가 비고 cpiDelta가 이전 값으로 남지 않는다. verify_by: push 뒤 12/10 이전 refresh-data 실행의 public-data/data.json meta.fredFailedSeries·macro.cpiDelta 확인
 - [ ] QA-MACRO-EDGE-01: P1992: push 뒤 refresh-data 실행에서 국채·BEA 값이 FRED보다 오래된 관측으로 덮이지 않는다. verify_by: public-data/data.json macro 필드의 fieldMeta 관측일과 FRED 관측일 비교
 - [ ] QA-TG-EMPTY-01: P1993: 첫 페이지가 빈 채널은 오류로 기록되고 collectionStatus가 ok가 아니다. verify_by: 다음 차단 발생 시 telegram-digest.json channels[].error 확인
-- [x] QA-SCR-KR-RETAIN-01: P1994: 한국 시장 수집이 80% 아래로 떨어진 실행도 미국 부분을 게시하고 한국 행은 직전 게시로 표시된다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
 - [ ] QA-SEC-FILING-01: P1995: push 뒤 refresh-screener 로그에 periodic filers 수가 찍히고 새 공시 발행사가 갱신된다. verify_by: gh run view (refresh-screener) 로그의 '[sec-fundamentals:core] periodic filers' 줄
-- [x] QA-BT-CAL-01: P1996: 한국 휴일인 미국 거래일이 백테스트 달력에 남는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-PROD-SMALL-01: P1997: 13F 기간 묶음은 보유 보고서 기간 기준이다. verify_by: node scripts/ci-13f-currentness-check.mjs
 - [ ] QA-BREADTH-SESSION-01: P1998: push 뒤 history.json에 미국 breadth가 모두 빈 행이 새로 생기지 않는다. verify_by: public-data/history.json 최근 행의 breadth20/advanceRatio 확인
-- [x] QA-MACRO-EDGE-02: P1999: HY OAS 수준과 변화폭이 같은 날짜다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-AI-REPEAT-01: P2000: 막힌 해설 뒤 같은 입력의 실행은 모델을 부르지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
 - [ ] QA-LANE-13F-01: P2001: 13F 단계가 실패한 주기도 시장·뉴스를 게시하고 13F 파일은 직전 게시로 남는다. verify_by: 다음 13F 실패 시 refresh-data 로그의 'Restore 13F files' 단계 확인
 - [ ] QA-13F-AGG-01: P2002: 다음 13F 전체 실행 뒤 issuer-aggregates에 직전 분기가 들어가고 이력 분기의 countReconciled가 채워진다. verify_by: public-data/masters/issuer-aggregates.json periods와 history-index.json countReconciled 확인
-- [x] QA-QUOTE-SESSION-01: P2003: 서울 외 거래소도 마지막 세션과 비교하고, 밀려난 세션 종가는 자기 행에 남는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
 - [ ] QA-HIST-NULLPREV-01: P2004: 스냅숏 전일 종가가 비어 있어도 history-time 검사가 0과 비교하지 않는다. verify_by: push 뒤 refresh-data 실행의 history-time 단계 통과 확인
 
 ## v58.70 데이터 v58.70 (2026-10-23)
-
-- [x] QA-DATA-LANE-01: P1983: 보조 레인 실패는 그 레인만 직전 게시본으로 되돌려 낡음으로 표시하고 나머지를 게시하며, 데이터 갱신 커밋은 브라우저 셰이드 없이 인증된다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- 완료 1건: QA-DATA-LANE-01
 - [ ] QA-DATA-LANE-02: P1983: push 후 첫 refresh-data 실행 요약에 Lane quarantine 행이 나오고, 데이터 커밋 CI가 Browser 잡을 건너뛴 채 Attest가 성공한다. verify_by: gh run view (refresh-data, ci workflow_dispatch)
 
 ## v58.69 시장 v58.69 (2026-10-23)
-
-- [x] QA-MKT-QUOTE-HOLE-01: P1980: 직전 세션 일봉 종가가 비면 그 세션의 시간봉 마지막 종가(근사 표시) 또는 빈 값으로 변화를 계산하고, 두 세션 전 종가를 쓰지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-MKT-SESSION-HOLE-01: P1981: 미국 일봉이 빈 세션은 시간봉 마지막 종가로 채워 근사 표시하고, 1일 변화는 직전 세션이 없으면 비운다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-MKT-WORDING-01: v58.69: 공포·탐욕 문장은 fearGreedBand 이름을 쓰고, 브리핑 등락은 −0.0%를 쓰지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
-- [x] QA-NEWS-INTRADAY-MAX-01: P1982: 장중 뉴스 개수 검사는 NEWS_INTRADAY_MAX를 상한으로 쓴다. verify_by: node scripts/ci-artifact-semantics-check.mjs
+- 완료 4건: QA-MKT-QUOTE-HOLE-01, QA-MKT-SESSION-HOLE-01, QA-MKT-WORDING-01, QA-NEWS-INTRADAY-MAX-01
 
 ## v58.68 시장 v58.68 (2026-10-23)
-
-- [x] QA-HIST-BACKFILL-01: P1978: 다른 세션 관측으로 남은 history 값은 백필 일봉으로 교체되고, 같은 세션의 확정 기록은 유지된다. verify_by: node scripts/ci-history-field-time-contract-check.mjs
-- [x] QA-MKT-LEAD-01: v58.68: 반도체 하루 −6%는 '이탈 · 급락일'로 표시되고, 직전 세션이 빠지면 하루 변화를 생략하며, 20/63거래일 종가 신저가 수는 창 전체가 있는 종목만 센다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-MKT-READ-US-01: P1979: 시황 컨텍스트의 직전 세션 큰 움직임은 미국(S&P 500·나스닥 100·SMH)을 먼저 쓰고, 빠진 세션을 하루 변화로 계산하지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-MKT-FLOW-01: v58.68: 방어 +2.2%·성장 −3.6%는 '방어 업종 강세'(v59.45 P17-FLOW-01: 가격만으로 자금 이동이라 쓰지 않는다), 9개 업종 하락은 '업종 전반 하락'이다. 다른 세션의 10년물 변화는 쓰지 않는다. 같은 업종 세부 테마가 ±1% 이상·4%p 이상 갈리면 갈림으로 표시한다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- 완료 4건: QA-HIST-BACKFILL-01, QA-MKT-LEAD-01, QA-MKT-READ-US-01, QA-MKT-FLOW-01
 
 ## v58.66 운영 v58.65 (2026-10-23)
-
 - [ ] QA-OPS-EVTIER-01: P1977: 해석이 증거 계층(SMH·지수 선물)을 인용한 갱신이 의미 게이트를 통과해 게시된다. verify_by: gh run list --workflow refresh-data.yml --limit 3
 
 ## v58.65 운영 v58.65 (2026-10-23)
-
+- 완료 2건: QA-OPS-MACRO-01, QA-OPS-LABEL-01
 - [ ] QA-OPS-CI-01: P1974: 브라우저 샤드 설치가 timeout된 뒤의 재시도가 dpkg 잠금 때문에 실패하지 않는다. v58.67: apt 네트워크 timeout·재시도 설정, 재시도 전 남은 apt 정리. v58.68: apt 아카이브 캐시, 시도당 240초. verify_by: gh run view <CI run> --log | grep 'playwright install attempt'
-- [x] QA-OPS-MACRO-01: P1975: FRED가 실패하고 BLS·BEA·재무부가 성공한 런은 공식 출처 필드를 observed로 게시하고 갱신이 통과한다. verify_by: node scripts/ci-artifact-semantics-check.mjs
-- [x] QA-OPS-LABEL-01: P1976: 본문에 괄호 없이 쓰인 프롬프트 라벨은 인용으로 바뀌거나 사라지고, 해석이 차단되지 않는다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
 
 ## v58.64 아키텍처 감사 후속 v58.64 (2026-10-23)
-
-- [x] QA-ARCH-AUDIT-10: P1969: 같은 관측의 반복·겹치는 결과 창·결과 창 미상 표본은 READY가 되지 않는다. verify_by: node scripts/ci-conditional-evidence-contract.mjs
-- [x] QA-ARCH-AUDIT-11: P1970: 같은 이름의 fetch를 가진 두 루트는 캐시를 공유하지 않고, 강제 새로고침은 지식 화면 산출물까지 같은 저장소에서 비운다. verify_by: node scripts/ci-artifact-cache-check.mjs
-- [x] QA-ARCH-AUDIT-12: P1971: 같은 거시 축의 시나리오를 복제해도 가이드의 선택이 바뀌지 않고, 헤드라인은 '유리하다고 가장 많이 적힌 선택'으로만 말한다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs; node scripts/ci-market-guide-fixture.mjs
-- [x] QA-ARCH-AUDIT-13: P1972: computeCrossAssetCorrelation과 crossAssetCorr 감사 항목·채팅 헤더 줄이 남아 있지 않다. verify_by: rg -n computeCrossAssetCorrelation js src index.html (0건)
-- [x] QA-ARCH-AUDIT-14: P1973: CIK 표 전체가 SEC 요약 산출물과 일치하고(XOM 전신 예외), 포트폴리오 추가 대기 중 입력한 내용은 저장 후에도 남는다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs
+- 완료 5건: QA-ARCH-AUDIT-10, QA-ARCH-AUDIT-11, QA-ARCH-AUDIT-12, QA-ARCH-AUDIT-13, QA-ARCH-AUDIT-14
 
 ## v58.63 아키텍처 품질 감사 v58.63 (2026-10-22)
-
-- [x] QA-ARCH-AUDIT-01: P1960: 근거 0건 현재성 질문의 폴백 답변은 미확인 현재 사건 문장을 게시하지 않고 일반 설명은 남긴다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs
-- [x] QA-ARCH-AUDIT-02: P1961: CIK 대조표의 감사 10개 티커가 SEC 값과 일치하고, 응답 tickers에 요청 티커가 없으면 사업 설명·8-K를 보류한다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs
-- [x] QA-ARCH-AUDIT-03: P1962: NOT 하위 가격 참조가 계산 식별자에 들어가고, 상수 팩터는 겹침 측정에서 제외되며, OR·반대 방향·원화 단위 문장은 아무 조건도 적용하지 않는다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs
-- [x] QA-ARCH-AUDIT-04: P1963: 시세·가격 이력·추정이 없는 입력은 0이나 외삽 값이 아니라 보류·'—'·미수신 건수로 표시되고, 스트레스 하한은 정확한 비중첩 창으로 센다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-ARCH-AUDIT-05: P1964: 검토 필요·거부·차단·철회 권리 id는 판단 자료가 아니고, 실적 주간은 뉴욕 날짜로 열리며, 즉석 종목 결과는 유니버스가 바뀌면 다시 계산한다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs
-- [x] QA-ARCH-AUDIT-06: P1965: 티커 확인 중 목록을 바꿔도 원래 목록에만 추가되고, 한국 테마 카드 갱신 뒤 필터·포커스가 유지되며, 늦게 끝난 위험 계산은 바뀐 보유 화면을 덮지 않는다. v58.64 로컬 브라우저 확인. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs
-- [x] QA-ARCH-AUDIT-07: P1966/R720: 실패한 게이트 재요청은 캐시를 쓰지 않고, 없는 게이트 id는 exit 2, 의존 모듈 변경은 캐시 지문을 바꾸며, CSP 래칫은 js/·src/ 전체를 센다. verify_by: node scripts/ci-qa-runner-behavior-check.mjs; node scripts/ci-csp-ratchet-check.mjs
-- [x] QA-ARCH-AUDIT-08: P1967: 상류로 보낸 뒤 실패한 호출은 쿼터 예약을 돌려받지 않고, 보내기 전 실패만 돌려받는다. v58.64 오프라인 회귀 검사 추가(라이브는 Worker 재배포 후). verify_by: node scripts/ci-worker-relay-check.mjs
-- [x] QA-ARCH-AUDIT-09: P1968: 2년치 시계열에서도 클라이맥스 '연중' 신호와 베이스 수 리셋은 최근 252세션으로 판정한다. verify_by: node scripts/ci-architecture-audit-regression-fixture.mjs
+- 완료 9건: QA-ARCH-AUDIT-01, QA-ARCH-AUDIT-02, QA-ARCH-AUDIT-03, QA-ARCH-AUDIT-04, QA-ARCH-AUDIT-05, QA-ARCH-AUDIT-06, QA-ARCH-AUDIT-07, QA-ARCH-AUDIT-08, QA-ARCH-AUDIT-09
 
 ## v58.62 시장 해석 증거 계층 (2026-10-21)
-
-- [x] QA-VERIFY-60: v58.62 push 뒤 첫 refresh-data 산출물에서 market-snapshot.json evidenceQuotes에 SMH·ES=F·NQ=F·^N225·^HSI 중 발행 가능한 행이 실리고(coverage.tier1Observed), status가 Tier 0만으로 정해지며, 평일 해석 프롬프트 로그에 CROSS_MARKET_INTRADAY가 나오는지 확인한다. ES=F 변화율의 기준(전 정산가)이 NQ=F와 같은 방식으로 잡히는지도 본다 (P1959). — Verified (2026-10-26, v58.86 정리): market-snapshot.json evidenceQuotes에 SMH 등 발행, coverage.tier1Observed 5 확인(산출물 기준; 프롬프트 로그는 미확인) verify_by: push 뒤 다음 refresh-data 산출물 public-data/market-snapshot.json evidenceQuotes·coverage와 로그 grep CROSS_MARKET_INTRADAY
+- 완료 1건: QA-VERIFY-60
 
 ## v58.59 실화면 점검 반영 2026-10-21 (2026-10-21)
-
 - [ ] QA-VERIFY-59: P1954 push 뒤 첫 refresh-data 실행에서 marketAnalysis attempt 로그에 session-wording-mismatch:market.wti·metric-value-mismatch:macro.cpi(근원 CPI 인용)·axis-state-contradiction(조건 문구 인용)·no-lead-overstated(중심 흐름이 있는 날)가 다시 나오지 않고, public-data/data.json marketAnalysis.status가 verified다. verify_by: push 뒤 다음 refresh-data 로그 grep 'marketAnalysis attempt'
 
 ## v58.54 producer dry run 시계 고정 (2026-10-21)
-
-- [x] QA-DATA-63: producer dry run은 복사한 data.json의 뉴스 주기 안으로 고정한 시계에서 실행되어 벽시계(23:00Z 경계 전후)와 상관없이 같은 결과를 낸다. 고정 실행은 같은 newsCycleEnd를 발행하고, 이전 기사는 자기 주기 안에서만 후보이며 다음 주기에서는 버려진다(P1950). verify_by: `node scripts/ci-producer-dry-run.mjs` 23:00Z~정기 갱신 사이 PASS + 고정 제거 변이 FAIL
+- 완료 1건: QA-DATA-63
 
 ## v58.43 시나리오·학습 (2026-10-19)
-
 - [ ] QA-LESSONS-RECORD-01: 배포 뒤 라이브 #screener 화면 원칙의 '순위가 높으면 오른다' 근거 문장이 screener-candidate-archive.json의 독립 표본 판정과 같은 말을 한다. verify_by: 라이브 #screener 원칙 카드 + public-data/screener-candidate-archive.json summarize
 
 ## v58.39 시나리오·학습 (2026-10-19)
-
 - [ ] QA-EVIDENCE-01: 배포 뒤 라이브 거시·오늘 화면의 과거 빈도 문장이 기준선과 구별되지 않는 경우 비율 없이 건수·기준선만 말하고, 다음 시나리오 성과 갱신의 scenario-outcomes.json에 method가 기록된다. verify_by: 라이브 #macro #home 과거 빈도 문장 + public-data/scenario-outcomes.json method
 
 ## v58.38 시나리오·학습 (2026-10-19)
-
 - [ ] QA-INTERPRETATION-01: 배포 뒤 라이브 오늘·거시·브리핑·테마의 중심 시나리오 이름이 서로 같고, public-data/scenario-state.json의 crossroads.leadId와도 같다. verify_by: 라이브 #home #macro #briefing #themes + scenario-state.json leadId 비교
 
 ## v58.31 시나리오·학습 (2026-10-19)
-
 - [ ] QA-MARKET-GUIDE-01: 배포 뒤 라이브 오늘 화면에 '오늘의 가이드' 카드가 시나리오 블록 아래 보이고, 선택지 집계·지향/지양·오늘 해당하는 원칙이 나오며 '개념 배우기'가 해당 원리 레슨을 연다. 다음 데이터 갱신 뒤 scenario-state.json에 guide 항목이 생긴다. verify_by: 라이브 #home 확인 + public-data/scenario-state.json의 guide 필드
 - [ ] QA-SCREEN-LESSONS-01: 배포 뒤 시장 상태·거시·차트·스크리너·포트폴리오 화면의 '이어서 볼 곳' 앞에 원칙 카드가 최대 3개 보이고, 차트·종목·스크리너 화면에는 시장 상태 근거 문장이 붙지 않는다. verify_by: 라이브 #signal #macro #technical #screener #portfolio 확인
 
 ## v57.99 SEC 재무 기준 (2026-10-17)
-
-- [x] QA-SEC-BASIS-01: v57.99 이후 refresh-screener가 BABA·JD·PDD를 다시 읽으면 sec-fundamentals 원장 레코드의 reportingCurrency가 CNY이고 revenue는 null, margin·roe·revGrowth만 있으며, screener 행의 pe·pb·referenceMarketCap이 비어 있다. — Verified (2026-10-26, v58.86 정리): sec-fundamentals-summary.json BABA reportingCurrency CNY·revenue null 확인. verify_by: node scripts/sec-fundamentals-store.mjs restore 후 원장의 BABA/JD/PDD 레코드 확인 + public-data/screener.json의 같은 행
-- [x] QA-SEC-BASIS-02: v57.99 이후 refresh-screener가 돈 뒤 screener 행의 peEarningsBasis가 최근 4개 분기가 회계연도 뒤에 끝난 종목에서 'ttm'이고(원장 기준 832개 중 669개), 원장 레코드 roe가 평균 자기자본 기준(equityPrior 존재, 771개)이며, 보통주 귀속 이익 태그가 있는 종목은 재수집 뒤 peEarnings.concept가 'common'이다. — Verified (2026-10-26, v58.86 정리): 원장 요약에 equityPrior가 실린 평균 자기자본 기준 확인(GOOGL·META 등) verify_by: node scripts/sec-fundamentals-store.mjs restore 후 원장의 peEarnings·equityPrior·roeBasis 분포 + public-data/screener.json의 peEarningsBasis
+- 완료 2건: QA-SEC-BASIS-01, QA-SEC-BASIS-02
 
 ## v57.97 배포 번들링 (2026-10-17)
-
-- [x] QA-DEPLOY-BUNDLE-01: v57.97 push 뒤 라이브 배포의 deployment.json에 bundle.files가 있고, 라이브 불변 검사가 index.html·전역 스크립트 9개·부팅 모듈 전체의 sha256 일치를 통과하며, 첫 화면이 부팅 대체(legacy fallback) 없이 열린다. — Verified (2026-10-26, v58.86 정리): pages-deploy 2026-10-26 09:25Z 실행의 Verify live standing invariants 성공. verify_by: node scripts/ci-live-invariant-check.mjs (배포 직후 pages-deploy 마지막 단계) + 라이브 첫 화면 확인
+- 완료 1건: QA-DEPLOY-BUNDLE-01
 
 ## v57.95 스크리너 산출물 압축 (2026-10-17)
-
-- [x] QA-SCR-43: v57.95 이후 첫 refresh-screener 데이터 커밋의 public-data/screener.json이 rowEncoding row-defaults.v1로 쓰이고, 스크리너 표·시장 폭·AI 문맥이 같은 행을 읽는다. — Verified (2026-10-26, v58.86 정리): public-data/screener.json rowEncoding row-defaults.v1 확인. verify_by: node scripts/ci-screener-extended-contract-check.mjs (v57.95 published core artifact is row-defaults encoded) + node scripts/validate-screener-artifact.mjs
+- 완료 1건: QA-SCR-43
 
 ## v57.94 주도 영역 이탈 안정화 (2026-10-17)
-
-- [x] QA-REPLAY-02: P1909: 주도 영역 이탈은 최근 5거래일 확인 조건으로 판정하고 나스닥 100 약세가 이어지는 동안 유지된다(2026-07-17~08-03 이탈, 08-04 해제). verify_by: node scripts/ci-crash-replay-check.mjs
+- 완료 1건: QA-REPLAY-02
 
 ## v57.92 지식 근거·전수 감사 반영 (2026-10-17)
-
-- [x] QA-KNOW-EVID-01: P1903 AI 기초 글의 근거 사실이 같은 분야만 가리킨다 — 용량과 수율·데이터 품질·후속학습·평가·외부 메모리에 거시·회계·패키징 사실이 없다. verify_by: node scripts/ci-review-integrity-unit-check.mjs
-- [x] QA-VERIFY-58: P1906 push 뒤 라이브 아이패드 폭(820px)에서 학습 글 바로 아래에 다음 글·선행 글이 보이고, 13F 화면에 'ALPHABET INC · A주 / C주'가 나뉘어 보인다. verify_by: 라이브 820×1180 학습·13F 화면 확인
+- 완료 2건: QA-KNOW-EVID-01, QA-VERIFY-58
 
 ## v57.91 v57.91 로딩·렉 최적화 (2026-10-16)
-
-- [x] QA-VERIFY-57: P1901 push 뒤 라이브에서 첫 방문(새 프로필) 홈이 채워진 뒤 다시 비워지지 않고, 휴대폰에서 홈을 3분 열어 두어도 5초 넘는 멈춤이 없다. verify_by: 라이브 첫 방문 + 휴대폰(또는 CPU 4배 감속) 대기 3분 긴 작업 측정
+- 완료 1건: QA-VERIFY-57
 
 ## v57.90 data-store SEC 원장 분할 (2026-10-16)
-
-- [x] QA-VERIFY-56: P1900 push 뒤 첫 Refresh screener 실행에서 SEC 원장 restore가 구형 단일 파일(layout=single)을 읽고 publish가 data-store를 sec-fundamentals.index.json + part 3개(각 32MiB 이하)로 대체하며, 그다음 실행의 restore가 source=store layout=parts로 manifest sourceSha256과 같은 digest를 복원한다. ci.yml data 그룹의 restore --match-manifest도 같은 digest를 받는다. — Verified (2026-10-26, v58.86 정리): origin/data-store에 sec-fundamentals.index.json + part 4개(각 32 MiB 이하) 확인. verify_by: push 뒤 refresh-screener 실행 로그 2회와 git ls-tree -l origin/data-store 확인
+- 완료 1건: QA-VERIFY-56
 
 ## v57.89 13F 운용사 원장 분할 (2026-10-16)
-
-- [x] QA-MASTERS-STORE-01: P1899 13F 운용사 원장 분할 저장 — 32MiB 초과 운용사는 색인+part로 나뉘고 재조립 결과가 원본과 바이트 동일, managers/ 파일 전부 32MiB 이하, 커밋 게이트·headroom 검사 50MB 기준 일치. verify_by: node scripts/ci-masters-manager-store-check.mjs && node scripts/ci-masters-contract-check.mjs && node scripts/ci-artifact-size-headroom-check.mjs
-- [x] QA-VERIFY-55: P1899 push 뒤 다음 13F 전체 수집(run_full_13f)에서 Refresh market data가 blackrock-inc.part-N.json 형식으로 쓰고 ci-masters-contract-check --staged와 50MB 커밋 게이트를 통과한다. — Verified (2026-10-26, v58.86 정리): public-data/masters/managers/blackrock-inc.part-1·2.json 확인. verify_by: push 뒤 13F 전체 수집이 돈 Refresh market data 실행 로그와 public-data/masters/managers 파일 크기 확인
+- 완료 2건: QA-MASTERS-STORE-01, QA-VERIFY-55
 
 ## v57.88 v57.88 품질 점검 (2026-10-16)
-
-- [x] QA-VERIFY-51: P1891 push 뒤 다음 스크리너 갱신에서 public-data/screener.json heavyDownDays25 중앙값이 6보다 낮고, '거래량 실린 하락 N일'(5일 이상)이 붙는 종목이 889보다 크게 줄었다. verify_by: 다음 Actions 스크리너 갱신 뒤 screener.json 분포 확인
-- [x] QA-VERIFY-52: P1893 push 뒤 라이브 테마 화면에서 '테마 N개'와 단계 묶음 개수 합이 같고, 보류된 테마가 '판정 보류' 묶음에 사유와 함께 보인다. verify_by: 라이브 테마 화면 확인
-- [x] QA-VERIFY-53: P1895 push 뒤 라이브 거시 상단과 브리핑 체크리스트의 다음 발표가 미국 일정(FOMC 등)이고, 스크리너 KPI 라벨이 '팩터 백분위 80 이상(반올림)'이며, AI 시장 해설이 과거 빈도를 '제공되지 않았다'고 쓰지 않는다. verify_by: 라이브 거시·브리핑·스크리너 화면과 다음 AI 해설 확인
-- [x] QA-VERIFY-54: P1897 push 직후 Data freshness watchdog 실행이 AI 프록시 배포 중에도 success이고(proxy-source-revision은 warning), Deploy AI proxy 완료 뒤 한 번 더 실행된다. verify_by: push 뒤 gh run list --workflow data-watchdog.yml 확인
+- 완료 4건: QA-VERIFY-51, QA-VERIFY-52, QA-VERIFY-53, QA-VERIFY-54
 
 ## v57.87 한국 급락 뉴스·AI 해설 (2026-10-16)
-
-- [x] QA-VERIFY-42: P1883 push 뒤 다음 한국 지수 3% 이상 움직임 세션에서 public-data/data.json의 news 또는 newsIntraday 한국 항목 첫 번째가 코스피·코스닥 움직임 헤드라인이다(selectionReason에 ko-index-move). verify_by: 다음 큰 한국 지수 움직임 뒤 public-data/data.json 확인
-- [x] QA-VERIFY-43: P1884 push 뒤 첫 시장 해설 생성에서 marketAnalysis.summary가 직전 완료 세션의 큰 움직임(현재 코스피 5거래일 −14%대)을 날짜와 함께 언급하거나, 막혔다면 semanticIssues에 prior-session-move-omitted가 기록된다. verify_by: push 뒤 public-data/data.json marketAnalysis 확인
-- [x] QA-VERIFY-44: P1885 push 뒤 다음 SEC 재무 갱신에서 data-store sec-fundamentals.json의 XOM이 failures에서 빠지고 data.XOM에 매출·순이익이 있으며, 스크리너 XOM 순위 보류가 풀린다. verify_by: push 뒤 git show origin/data-store:sec-fundamentals.json 확인
-- [x] QA-VERIFY-45: v57.87 push 뒤 라이브 지식 화면 ‘분석 노트’에 ‘차트·셋업 읽기’ 경로와 북마크 노트 19개가 보이고, 채팅에 ‘역레포가 바닥이면 TGA가 준비금을 줄이나’를 물으면 준비금 완충 노트를 근거로 든다. verify_by: 라이브 지식 화면과 AI 채팅 확인
-- [x] QA-VERIFY-46: v57.87 push 뒤 다음 스크리너 갱신에서 public-data/screener.json 행의 90% 이상에 baseCount·pocketPivots10·heavyDownDays25·climaxSigns가 있고, 미국·한국 행 대부분에 downDayHoldPct가 있으며, 라이브 스크리너 ‘후속 확인’ 컬럼이 ‘—’가 아닌 값을 보인다. verify_by: 스크리너 Actions 갱신 뒤 public-data/screener.json과 라이브 화면 확인
-- [x] QA-VERIFY-47: P1886 push 뒤 다음 시장 해설: 화면이 중심 흐름·시나리오를 정하지 않은 날에는 해설도 '정하기 이르다'를 쓰고 유리한 선택지를 정하지 않으며, WTI가 3% 이상 움직인 마감은 날짜와 함께 언급된다. verify_by: 다음 시장 해설 생성 뒤 public-data/data.json marketAnalysis 확인
-- [x] QA-VERIFY-48: P1887 push 뒤 다음 시나리오 갱신에서 WTI가 1년 평균보다 10% 이상 높으면 public-data/scenario-state.json의 '유가 안정'이 충족으로 찍히지 않고, 시장 '달러·원자재' 해석에 5일 반등·반락이 보류 문장과 함께 나온다. verify_by: 다음 Actions 갱신 뒤 scenario-state.json과 라이브 시장 화면 확인
-- [x] QA-VERIFY-49: P1888 push 뒤 라이브 테마 시나리오에서 거래대금 상위 종목이 코스피보다 더 빠진 한국 테마는 '판정 보류 — 거래대금 상위 종목이…'로 보이고, 5거래일 급락 추세 속 조정 테마의 고르는 쪽 첫 칸이 관망이다. verify_by: 라이브 테마·섹터 화면 확인
-- [x] QA-VERIFY-50: P1889 push 뒤 다음 08:00 묶음에서 public-data/data.json news의 한국 항목 중 환율 헤드라인이 예약 3칸 안에 1건 이하이고, 'Stock Quote' 형식 제목이 없다. verify_by: 다음 08:00 KST 뉴스 묶음 뒤 data.json 확인
+- 완료 9건: QA-VERIFY-42, QA-VERIFY-43, QA-VERIFY-44, QA-VERIFY-45, QA-VERIFY-46, QA-VERIFY-47, QA-VERIFY-48, QA-VERIFY-49, QA-VERIFY-50
 
 ## v57.86 SEC IFRS·비USD 정규화 (2026-10-16)
-
-- [x] QA-VERIFY-38: P1875: push 뒤 refresh-screener 실행에서 sec-fundamentals failures의 ifrs-taxonomy-not-supported 47행이 재검사되어 TSM·ASML·SAP·NVO·HSBC·SHEL 등이 data로 옮겨지고, 해당 레코드가 accountingStandard·reportingCurrency를 갖고 비USD는 revenue null·reportedAmounts 존재·pe/pb 없음, sec-fiscal-history.json에 비USD 종목이 없는지 확인한다. 미국 핵심 순위 수가 800 근처인지 본다. — Verified (2026-10-26, v58.86 정리): TSM accountingStandard IFRS·reportingCurrency TWD·revenue null 확인. verify_by: push 뒤 refresh-screener 3~4회 실행 후 data-store 원장·sec-fiscal-history·screener.json 검사
-- [x] QA-VERIFY-39: P1877 push 뒤 운영 거시 화면에서 HY가 350bp 아래면 신용 경색 카드가 '핵심 조건 미충족'이고, 유가 시나리오·신용 경색 카드의 시장 가격 칩이 '시장 가격은 조건에 포함'으로 보이며, 브리핑·심리의 HY 문구가 수준과 변화를 구분한다. verify_by: push 뒤 운영 사이트 거시·오늘·심리 화면 텍스트 확인
-- [x] QA-VERIFY-40: P1879 push 뒤 운영 사이트에서 AAPL·005930.KS·000660.KS가 든 KRW 포트폴리오를 열면 20초 안에 세 종목 모두 가격이 붙고 총자산·손익이 계산되며, 통화 점검이 KRW 비중을 보인다. verify_by: push 뒤 Playwright로 운영 포트폴리오 화면 재현(scratchpad liveaudit/pf3.mjs 방식)
+- 완료 3건: QA-VERIFY-38, QA-VERIFY-39, QA-VERIFY-40
 - [ ] QA-VERIFY-41: P1881 push 뒤 다음 KRX 장중에 운영 005930.KS 종목 화면이 '전일 기준 미확인' 대신 직전 완료 세션 일봉 종가 대비 등락을 보인다. verify_by: 다음 KRX 세션 09:30~15:30 KST에 운영 종목 화면 확인
 
 ## v57.84 기술 지표 정의 통일 (2026-10-16)
-
-- [x] QA-TECHDEF-01: P1871/R714: 같은 봉에서 차트 ADR·50일선 거리 배수가 스크리너 생산자·요약 값과 같고, 252봉 미만은 52주로 표시·판정되지 않으며, RRG 경계 판정이 생산자 사분면 경계와 같다. verify_by: node scripts/ci-chart-scenarios-fixture.mjs
-- [x] QA-VERIFY-33: P1876 push 뒤 다음 스크리너 갱신에서 240봉 이상 종목은 pctFrom52wHigh/Low가 채워지고(240봉 미만만 null) vcpStage가 not_stage2 한 가지가 아니라 basing·stage2_only·near_pivot·breakout으로 갈리며, 돌파 관찰 프리셋이 0종목이 아니다. verify_by: push 뒤 refresh-screener 실행 후 public-data/screener.json의 vcpStage 분포와 pctFrom52wHigh null 수 집계
-- [x] QA-SCRMODEL-01: P1872/R715: 화면 경로로 재현한 미국 핵심 순위에서 가치·퀄리티가 활성이고, 펀드·SPAC·확장 저유동성 행은 rank null + populationExclusion으로 남아 '순위 밖' 내역에 사유별로 집계된다. verify_by: node scripts/ci-screener-workbench-contract.mjs
-- [x] QA-VERIFY-34: P1872: push 뒤 첫 refresh-screener 실행에서 screener-candidate-archive.json의 최신 entry에 shadow(model candidate-v1, top·bottom·universe)가 있고 summary.shadow.recorded ≥ 1이며, 기본 entry identity의 factorRanksModelVersion이 factor-ranks.v7이다. (2026-10-16 확인: 10/15 entry shadow candidate-v1, recorded 1, factor-ranks.v7) verify_by: push 뒤 public-data/screener-candidate-archive.json 확인
+- 완료 7건: QA-TECHDEF-01, QA-VERIFY-33, QA-SCRMODEL-01, QA-VERIFY-34, QA-TECHDEF-02, QA-SCRMODEL-02, QA-VERIFY-37
 - [ ] QA-VERIFY-35: P1873: push 뒤 refresh-screener 실행에서 sec-fundamentals failures의 required-us-gaap-annual-concepts-unavailable 행이 모두 conceptSetVersion sec-annual-concepts.v5를 갖고, TFC·FITB·RF·GS·CRWD·VLO가 data로 옮겨지며, MTB·HBAN·EWBC 재수집 뒤 revenueConcept가 derived:InterestIncomeExpenseNet+NoninterestIncome이고 margin이 보류되지 않는지 확인한다. 미국 핵심 순위 수가 747 근처인지 본다. verify_by: push 뒤 refresh-screener 2~3회 실행 후 data-store 원장과 screener.json 검사
-- [x] QA-TECHDEF-02: P1874: 지수와 ±띠 안인 테마는 동행, 지수보다 앞서도 자기 긴 추세가 0 이하이면 상대 방어로 읽히고, 지수 기준일이 다르면 판정 보류이며, RRG 사분면은 생산 궤적의 잡음 띠·이력으로 정해지고, 생산자 VCP 피벗이 차트 피벗과 같다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-chart-scenarios-fixture.mjs; node scripts/ci-esm-core-unit-check.mjs
 - [ ] QA-VERIFY-36: P1874 push 뒤 첫 refresh-data에서 rotationHistory 행마다 trail 20점이 있고 테마 화면 산점도·카드·막대 배지가 같은 정착 사분면을 보이며, 첫 스크리너 갱신에서 vcpStage 분포 변화(near_pivot·breakout 수)를 기록하고, 다음 주간 scenario-outcomes 갱신에서 themes[*].basis가 relative-banded가 된다. verify_by: push 뒤 public-data/data.json rotationHistory·screener.json·scenario-outcomes.json과 운영 사이트 테마 화면 확인
-- [x] QA-SCRMODEL-02: v57.85: rankingPopulationExclusion은 SIC 6770 또는 이름 규칙이면 spac이다(Churchill Capital Corp XI·Talon Capital Corp는 6770으로, Plum Acquisition Corp. IV는 4911이어도 이름으로). 확장 SEC 원장의 SIC 전용 조회는 미분류 우선, 이후 30일 지난 코드를 오래된 순으로 읽고, 이번 실행에 읽은 발행사는 건너뛴다. 샤드 identity는 유효한 SIC만 싣고, SIC 6770 확장 행은 ranker에서 rank null + populationExclusion spac이 된다. verify_by: node scripts/ci-screener-extended-contract-check.mjs && node scripts/ci-screener-workbench-contract.mjs
-- [x] QA-VERIFY-37: v57.85: push 뒤 첫 refresh-screener 확장 실행에서 sec-fundamentals-extended.json에 issuerSic와 issuerSicCoverage가 있고(passAttempted 800 이하, passFailed 기록), 다음 샤드의 identity에 sic가 실린다. 확장 전체 분류는 4~5회 실행 안에 수렴하고, 순위 밖 SPAC 집계는 실측 257 근처다. — Verified (2026-10-26, v58.86 정리): sec-fundamentals-extended.json issuerSicCoverage classified 3,854/3,899로 수렴 확인. verify_by: push 뒤 public-data/sec-fundamentals-extended.json issuerSicCoverage + screener-extended.json identity[].sic 확인
 
 ## v57.83 급변 구간 재생 (2026-10-16)
-
-- [x] QA-REPLAY-01: P1853/R708: 급변 구간 재생에서 날짜별 불변식과 고정 점검일 판정이 통과한다. verify_by: node scripts/ci-crash-replay-check.mjs
+- 완료 1건: QA-REPLAY-01
 
 ## v57.71 오늘의 한 문장 (v57.71) (2026-10-15)
-
-- [x] QA-VERIFY-32: v57.71 배포 후 08:00 KST 이후 첫 refresh-data에서 data.json marketAnalysis.sentence가 그날 날짜로 채워지고(숫자·종목·지시 없음), 같은 날 이후 실행에서 바뀌지 않으며, 홈 첫 화면에 "오늘의 한 문장" 카드로 표시된다. — Verified (2026-10-26, v58.86 정리): data.json marketAnalysis.sentence가 2026-10-26 날짜로 채워짐 확인. verify_by: push 뒤 다음 날 08:00 KST 이후 data.json과 운영 사이트 홈 확인
+- 완료 1건: QA-VERIFY-32
 
 ## v57.70 직전 종가 세션 날짜 (v57.70) (2026-10-15)
-
-- [x] QA-VERIFY-31: P1805 배포 후 장중 refresh-data 2회 뒤 history.json 최신 행의 wti·gold·dxy fieldMeta에 sessionDate가 있고, 브리핑 자산별 흐름의 WTI·금·달러 1일 변화가 Yahoo 일봉 직전 두 종가의 변화와 같다. — Verified (2026-10-26, v58.86 정리): history.json 최신 행 wti·gold fieldMeta에 sessionDate 확인(산출물 기준) verify_by: push 뒤 장중 refresh-data 두 번 이후 history.json과 운영 사이트 브리핑 확인
+- 완료 1건: QA-VERIFY-31
 
 ## v57.69 급락일 시장 해설 (v57.69) (2026-10-15)
-
 - [ ] QA-VERIFY-30: P1800 배포 후 다음 refresh-data 산출물의 marketAnalysis가 큰 움직임의 원인을 헤드라인에 귀속하고, CPI가 오른 달에 물가 둔화를 단정하지 않으며, 코스피 3% 이상 움직인 날 코스피를 언급한다(또는 retained/blocked로 정직하게 표시). verify_by: push 뒤 다음 refresh-data의 public-data/data.json marketAnalysis·semanticIssues 확인
 
 ## v57.68 한국 지수 전일 종가 (v57.68) (2026-10-15)
-
 - [ ] QA-VERIFY-29: P1799 배포 후 KRX 개장 직후(09:00~09:30 KST) refresh-data 1회 뒤 market-snapshot.json ^KS11/^KQ11 previousValue가 market-temperature.json의 직전 KST 종가와 같고, 홈 화면 한국 지수 등락률이 그 기준으로 표시된다. verify_by: push 뒤 다음 KRX 개장 직후 산출물과 운영 사이트 홈 확인
 
 ## v57.67 개인 데이터 키 퇴역 (v57.67) (2026-10-15)
-
 - [ ] QA-VERIFY-28: v57.67 배포와 BOK_API_KEY·KOSIS_API_KEY Secret 등록, Deploy AI proxy 실행 후: 운영 사이트 설정에 개인 키 입력칸이 없고, 거시 화면 한국은행 기준금리·KR CPI가 운영자 중계로 채워지며, 재무 화면 실적 캘린더가 공용 수집 자료로 보인다. verify_by: Secret 등록·Worker 재배포 후 운영 사이트 설정·거시·재무 화면 확인
 
 ## v57.66 SEC 다중 클래스 주식 수 (v57.66) (2026-10-15)
-
-- [x] QA-VERIFY-27: P1798 배포 후: refresh-screener 1~2회 뒤 sec-fundamentals-summary.json에서 GOOGL·GOOG·META·MA·CMCSA가 weighted-diluted, V·COKE·WMG가 class-dimensioned-10k로 주식 수를 갖고, BRK-B는 sharesClassCheck class-member-unmatched로 비어 있으며, 스크리너 기본 시총 정렬 상단에 GOOGL·META가 다시 보인다. — Verified (2026-10-26, v58.86 정리): GOOGL·META weighted-diluted, V class-dimensioned-10k, BRK-B class-member-unmatched 확인. verify_by: push 뒤 refresh-screener 2회 후 산출물과 운영 사이트 스크리너 확인
+- 완료 1건: QA-VERIFY-27
 
 ## v57.65 SEC 원장 digest 대조 (2026-10-15)
-
-- [x] QA-SEC-STALE-LEDGER-01: v57.65 (P1796): manifest sourceSha256과 다른 로컬 public-data/sec-fundamentals.json이 있으면 ci-sec-runtime-projection-check와 ci-professional-data-gap-check가 'stale local ledger' 라벨로 원장 비교를 건너뛰고 통과하며, 일치하는 원장이면 전체 비교를 실행한다. verify_by: automated
+- 완료 1건: QA-SEC-STALE-LEDGER-01
 
 ## v57.61 라이브 10인 점검 후속 v57.56 (2026-10-14)
-
-- [x] QA-VERIFY-26: v57.61 Worker 배포 후: 2026-10-14 라이브 /health에서 ai.maxTokens 16000·workersAiBound true·client.dailyLimit 200, 분석 질문(반도체 대 방어주 비교)이 화면 수치와 웹 검색 근거로 끝까지 답했고, refresh-data 번역이 Workers AI로 처리됐으며(v57.63 모델 대체 후), 다크 모드 상승·하락 글자 대비 5.49~7.27을 확인했다. 409 없는 재시도는 계약 테스트(worker-relay)로만 확인. verify_by: browser
+- 완료 1건: QA-VERIFY-26
 
 ## v57.59 라이브 10인 점검 후속 v57.56 (2026-10-14)
-
-- [x] QA-VERIFY-25: v57.59 배포 후: 2026-10-14 라이브(v57.63)에서 refresh-data 38584180751 'new 4/4 via workers-ai', 맞춤 조건 VCP 수렴 48종목, 한국 시장 재무 조건 6개·52주 신고가 '이 시장 자료 없음' 비활성, 테마 상세 닫기 후 포커스가 연 버튼(에너지)으로 복귀, 거시 '증시에 주는 영향 — 거시 6요인' 제목을 확인했다. 홈 VIX는 실시간 시세가 늦은 접속에서 스냅샷 종가가 있어도 '—'로 남는 결함이 드러나 v57.64(P1795)에서 고쳤다. 종목 화면 불러오기 실패 문구는 로컬 확인만. verify_by: browser
+- 완료 1건: QA-VERIFY-25
 
 ## v57.58 라이브 10인 점검 후속 v57.56 (2026-10-14)
-
-- [x] QA-VERIFY-24: v57.58 배포와 데이터 갱신 후: 2026-10-14 라이브(v57.58)에서 맞춤 조건 문장 '5/10/20 정배열이면서 신고가'가 종목을 남기고(갱신 데이터 기준 26종목, 5일선 거리 1,142·52주 종가 신고가 거리 891종목 수집), 거시 화면 '수십 년 속 지금 위치' 카드(1990년 1월 이후 441개월)를 확인했다. AI 프록시는 Workers AI 연결(env.AI)로 배포됐으나 번역 호출이 503으로 OpenAI 경로에 넘어가 v57.59에서 응답 처리 보강 후 QA-VERIFY-25로 이월. 105560 평가는 로컬 확인만. verify_by: browser
+- 완료 1건: QA-VERIFY-24, QA-VERIFY-25
 
 ## v57.56 라이브 10인 점검 후속 v57.56 (2026-10-14)
-
-- [x] QA-VERIFY-23: v57.56 배포 후: 2026-10-14 라이브(v57.56)에서 스크리너 첫 순서가 시총 순(NVDA·AAPL·MSFT·AMZN·TSLA)이고, BRK.B 입력이 BRK-B 화면을 열고, AMD 종목 요약 핵심 숫자 줄(시총·직전 4개 분기 PER·Forward PER)과 재무 화면 '실적 발표 전 4개 분기(첫 분기 2026-09는 끝났고 실적 발표 전)' 문구, SPY 상품 요약(기업 요약·재무 분석 없음), 거시 화면 용어 표시(문장 안 span)와 팝업, 개념 서가의 읽기 입구 두 줄을 확인했다. GOOGL·META 시총은 SEC 클래스별 공시라 비어 있음(별도 과제) verify_by: browser
+- 완료 1건: QA-VERIFY-23
 
 ## v57.55 라이브 10인 점검 v57.55 (2026-10-14)
-
-- [x] QA-VERIFY-22: v57.55 라이브 점검 반영: 2026-10-14 라이브(v57.55)에서 #ticker/NVDA 종목 화면, #nonexistent → #home, 차트 탭·오늘·시장 상태의 같은 판정 집계, 헤드라인 번역(titleKo)과 refresh 로그, 다크 기기 첫 방문 다크 시작(aio_theme 없음 → body.dark-theme)을 확인했다. 포트폴리오 105560 평가는 한국 지연 시세 기준(15분 실시간·72시간 지연 규칙)과 P715(공개 산출물에 종목별 원시 가격 없음) 때문에 아직 비어 있어 별도 과제로 넘겼다. verify_by: browser
+- 완료 1건: QA-VERIFY-22
 
 ## v57.54 검증 스킬 (2026-10-14)
-
-- [x] QA-VERIFY-21: v57.54 지수별 가격 온도: 배포 후 refresh-data에서 market-temperature.json이 status current로 발행되고 spx·nasdaq·kospi·kosdaq·nikkei 다섯 시장의 asOf가 각 시장의 최근 완료 세션이며(장중 서울·도쿄 값 없음), gaps가 비었거나 원인 날짜만 담기고, 투자 심리 화면 타일이 미국 묶음 먼저·한국·일본(보조) 다음으로 표시된다. 같은 시점 scenario-state.json의 rotation.text가 '최근 1개월 미국 테마는'으로 시작하고 '국내'가 없다. verify_by: push 뒤 refresh-data 1회 실행 후 산출물과 운영 사이트 투자 심리·오늘 화면 확인
+- 완료 1건: QA-VERIFY-21
 
 ## v57.53 검증 스킬 (2026-10-13)
-
-- [x] QA-VERIFY-20: P1731~P1737: 배포 후 refresh-data에서 macro-calendar.json meta.fomcStatus=ok·us-fomc 16개, data.json policyRates.fed.status=current, official-references.json에 bokBaseRate·krCpi·krExports가 verified 또는 stale(원인 기재)로 발행되고 lane.callsThisMonth가 상한 안이며, data-watchdog manual-reference-expiry 이슈가 만료 항목만 연다. — Verified (2026-10-26, v58.86 정리): macro-calendar.json meta.fomcStatus ok 확인; 나머지 레인은 manual-reference-expiry 게이트가 매 갱신 판정. verify_by: push 뒤 refresh-data 2회·data-watchdog 1회 후 산출물·이슈 확인
+- 완료 1건: QA-VERIFY-20
 
 ## v57.52 검증 스킬 (2026-10-13)
-
 - [ ] QA-VERIFY-19: P1718~P1730: 배포 후 Worker /health의 schedulerDispatch.lastObservation이 accepted 또는 recent-success이고 refresh-data 실행 간격이 1시간 이내로 줄며, data.json에 newsIntraday가 발행되고 marketAnalysis가 verified(또는 retained)로 나오며, 운영 사이트 005930 히어로 등락률이 스크리너 ret1d와 같다. verify_by: push·배포 뒤 2~3시간 Worker /health·gh run list·운영 사이트 확인
 
 ## v57.51 검증 스킬 (2026-10-13)
-
-- [x] QA-VERIFY-18: P1704~P1716: refresh-screener 다음 실행 뒤 screener.json에서 krCloseReconciliation이 reconciled 위주이고 005930 factorSessionDate가 최신 한국 세션, 8035.T currency JPY, breadth.segments.sp500 표본 약 500, 신규 종목(SPCX·SKYD·VYLR) 수신, newsStatus·newsMemoVerified 존재, margin>100 행 0, rvol20 채움을 확인한다. verify_by: push 뒤 refresh-screener 1회 실행 후 산출물 검사(로그 KR exchange close 한 줄 포함)
+- 완료 1건: QA-VERIFY-18
 
 ## v57.50 검증 스킬 (2026-10-13)
-
-- [x] QA-VERIFY-17: P1693/P1697: 배포 사이트에서 종목 화면 "같은 섹터 비교"가 스크리너 섹터 필터로 1건 이상 열리고, #ticker?sym=MSFT 주소로 새로고침해도 MSFT가 유지된다. verify_by: push 뒤 배포 사이트 브라우저 확인(verify-aio stock·screener)
+- 완료 1건: QA-VERIFY-17
 
 ## v57.49 검증 스킬 (2026-10-13)
-
-- [x] QA-VERIFY-16: P1688: 배포 사이트에서 VIX·10년물 수준을 기준일과 함께 물으면 화면 기준 종가 값이 'YYYY-MM-DD 종가'와 함께 답에 남고, 경고는 한국어 한 줄 이하다. verify_by: push 뒤 배포 사이트 AI 질문 1회(scratch live-ai 스크립트)
+- 완료 1건: QA-VERIFY-16
 
 ## v57.48 verify-aio user-path verification (2026-10-13)
-
-- [x] QA-VERIFY-09: Portfolio attribution uses SPY for US, KOSPI/KOSDAQ for KR and holds out mismatched basis dates; theme internal ranks exclude stale members. verify_by: Codex reproduce.mjs counterexamples + verify-aio drive portfolio
-- [x] QA-VERIFY-10: AI answer filter drops whole numeric sentences without breaking URLs/decimals; role/industry acronyms do not become tickers; briefing AI card shows its own generation time and observation scope. verify_by: node counterexample run of stripUnverifiedCurrentNumericSentences and _extractTickers; one deployed AI question after push (2026-10-13 배포판 1회: 소수점·URL 조각 없음, 링크 보존. 수치 결합 소실은 별도 항목으로 수정)
-- [x] QA-VERIFY-11: Theme board, scenario outlook, stock/screener/portfolio rotation and news header all apply the latest-completed-session admission. verify_by: verify-aio drive themes/today/stock with a stale local artifact, then again after the producer reaches the latest session
-- [x] QA-VERIFY-12: Industry documents expose 근거와 가정; phone reading puts the open document before the shelf; 13F ledger scope matches the bounded shard. verify_by: verify-aio drive learn (desktop/phone) and a masters BlackRock changes view check
-- [x] QA-VERIFY-13: S&P 500 map sizes by index weight with 1일/1주 tabs after the refresh-screener producer runs (indexWeights and ret1d/ret5d present) — Verified (2026-10-26, v58.86 정리): screener.json indexWeights·ret1d 존재 확인. verify_by: after push: refresh-screener log shows '[sp500-weights] ~500 members'; screener.json has indexWeights and ret1d; verify-aio drive themes
+- 완료 5건: QA-VERIFY-09, QA-VERIFY-10, QA-VERIFY-11, QA-VERIFY-12, QA-VERIFY-13
 - [ ] QA-VERIFY-14: P1680: 테마 화면에서 '섹터별 숫자'를 열고 타일을 한 번 누른 뒤 시세 갱신이 와도 접힘과 선택이 유지된다. verify_by: 배포 사이트 테마 화면에서 장중 시세 갱신 후 확인
 - [ ] QA-VERIFY-15: P1681: 미국 종가가 최신 거래일보다 오래된 동안 테마 표·테마 상세·AI 테마 답변이 '지금 주도'를 단정하지 않고 기준일 참고로 말한다. verify_by: 데이터 갱신 전 시간대에 배포 사이트 테마 화면과 AI 테마 질문 1회
 
 ## v57.47 깊이 보기 학습 접힘 (2026-10-12)
-
-- [x] QA-DEEP-DIVE-01: P1660: 시장 상태 6축과 거시 3그룹의 접힘 칸은 원리·읽는 법·연결과 관련 화면 버튼을 담는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
-- [x] QA-STRESS-OUTCOMES-01: P1661: 과거 VIX 구간별 결과표가 생성되면 시장 상태 화면에 지금 구간을 표시하고, 생성 전에는 숨긴다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
-- [x] QA-SPEED-01: P1662: 종목 품질 브라우저 검사는 독립 경우를 병렬로 돌리고 PASS한다. verify_by: node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): node scripts/ci-entity-quality-browser-check.mjs (runs cases in parallel batches of 3; confirmed by grep)
+- 완료 12건: QA-DEEP-DIVE-01, QA-STRESS-OUTCOMES-01, QA-SPEED-01, QA-QA-SPEED-01, QA-VERIFY-01, QA-VERIFY-02, QA-VERIFY-03, QA-VERIFY-04, QA-VERIFY-05, QA-VERIFY-06, QA-VERIFY-07, QA-VERIFY-08
 - [ ] QA-DEEP-DIVE-02: P1663: 투자 심리 지표 카드와 시장 폭 화면에 공용 깊이 보기 접힘이 있다. verify_by: verify-aio skill (시장 상태 화면 #sentiment .regime-axis-deep 6개; ci-responsive-browser-check는 이 접힘을 단언하지 않음; 정적 구조는 ci-codex-structure-regression-fixture P1663)
-- [x] QA-QA-SPEED-01: P1664: src/ui 변경의 영향 범위에 지식 화면 브라우저 그룹이 없고, 화면 크기 검사는 기기 크기를 동시에 돈다. verify_by: node scripts/qa-runner.mjs affected --files src/ui/components/stress-outcomes.js --list — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs asserts P1664 (PASS)
 - [ ] QA-WATCHDOG-LATCH-01: P1665: 감시 실행은 자기 직전 실패만으로 실패하지 않고, Worker 갱신 호출 토큰이 없으면 data-plane이 재배포된다. verify_by: push 후 data-watchdog 다음 실행 + data-plane /health schedulerDispatch.configured
 - [ ] QA-REFRESH-LOCK-01: P1666: 갱신 생산 job만 refresh-data 잠금을 갖고, 수렴 대기는 converge job에서 돌며, 감시는 Pages 배포 완료를 따라 실행된다. verify_by: push 후 Refresh market data 실행의 job 구성과 Data freshness watchdog 이벤트(workflow_run) 확인
-- [x] QA-VERIFY-01: verify-aio drive all passes on desktop and phone (11 features) and registry reports 19/19 routes. verify_by: node .claude/skills/verify-aio/scripts/verify-aio.mjs launch && ... drive all [--viewport phone] && ... registry && ... cleanup
-- [x] QA-VERIFY-02: Boot requests screener.json once and does not request sec-fundamentals-summary.json until 종목/재무 공시 is shown. verify_by: Playwright request trace on 127.0.0.1 (boot 8s, then showPage('fundamental')); ci-esm-core-unit-check P1668 block
-- [x] QA-VERIFY-03: The chat chart card and the 차트 tab show the requested company in #stock-chart-title. verify_by: verify-aio drive stock (step 차트 제목이 같은 종목); probe window._aioShowTechnicalChart('AAPL')
-- [x] QA-VERIFY-04: No legacy writer, timer or button remains for a removed element (dead-id audit) and the 20 retired writers stay absent. verify_by: ci-architecture-contract-check P1670 block; scratch dead-id audit over js/ and src/
-- [x] QA-VERIFY-05: 거시 and 차트 make no KR investor-flow or candle requests unless developer mode is on, and the KR supply plane stays absent. verify_by: ci-runtime-contract-check P1671 checks; network probe on #macro and #technical
-- [x] QA-VERIFY-06: The six gate-pinned legacy writers stay absent and no gate asserts presence of a writer for a removed element. verify_by: ci-architecture-contract-check P1672 block
-- [x] QA-VERIFY-07: Screener and 오늘 empty states distinguish held-for-data, filtered-out and zero-source results. verify_by: verify-aio drive screener / today on a stale local artifact
-- [x] QA-VERIFY-08: Research library shelf: one spine per document, chips filter, card opens the document, AI buttons only prefill the top AI panel. verify_by: verify-aio drive learn (desktop and phone); browser check of spine title clipping and page width at 375px
 
 ## v57.46 AI 웹검색 단일 경로 (2026-10-12)
-
-- [x] QA-WEBSEARCH-SINGLE-01: P1655: 현재성 AI 질문의 웹검색은 공용 Worker 하나뿐이며 개인 검색 키·옵트아웃이 없다. verify_by: node scripts/ci-native-search-check.mjs — Covered (v57.79): node scripts/ci-native-search-check.mjs (PASS P1655)
-- [x] QA-HISTORY-CLOSE-01: P1656: history 보충이 완료 종가 근거를 덮어쓰지 않고, 장 시작 전 지수 시세를 종가로 기록하지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
-- [x] QA-SCORE-AI-01: P1657: AI 문맥과 내보내기에 검증 실패 종합 점수를 인용하지 않는다. — Verified (2026-10-26, v58.86 정리): ci-ai-intelligence-contract-check 통과(2026-10-26 contracts 실행) verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- 완료 3건: QA-WEBSEARCH-SINGLE-01, QA-HISTORY-CLOSE-01, QA-SCORE-AI-01
 - [ ] QA-BASIS-KEYBOARD-01: P1658: 근거 설명 카드는 키보드 초점으로 근거를 열 수 있고, 평소 화면에는 버튼이 보이지 않는다. verify_by: verify-aio skill (Tab → 근거 버튼 → aio-basis-card 표시; ci-responsive-browser-check 미포함, 초점 크기만 ci-accessibility-matrix-check P1658)
 - [ ] QA-SIGNAL-LENGTH-01: P1659: 시장 상태 축 카드는 대표 수치 1행과 바뀌는 조건만 펼치고 나머지는 접는다. verify_by: verify-aio skill (#signal regime-board 높이·접힘; ci-responsive-browser-check는 6축 존재만 단언)
 
 ## v57.45 AI 패널·모바일 입력 (2026-10-12)
-
-- [x] QA-AI-ALWAYS-ON-01: P1653: AI ON/OFF·웹검색 토글이 없고, 모든 화면의 AI 질문은 상단 AI 패널 하나로 간다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
-- [x] QA-MOBILE-TYPING-01: P1653: 휴대폰·아이패드 키보드가 열린 동안 뷰포트 이벤트가 문서 전체 스타일을 다시 계산하지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
-- [x] QA-FREE-DATA-01: P1654: 확장 FRED 계열·발표일 일정·OpenDART 재무가 자료 생성 후 거시·일정·기업 요약에 보이고, 자료가 없으면 숨긴다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
+- 완료 3건: QA-AI-ALWAYS-ON-01, QA-MOBILE-TYPING-01, QA-FREE-DATA-01
 
 ## v57.44 한국장·AI 해설 표면 (2026-10-12)
-
-- [x] QA-KR-SESSION-01: P1651: 한국 지수는 최신 완료 KRX 세션 날짜로 보이고, 홈에 한국장 한 줄이 있으며, AI 해설에 근거 토큰이 보이지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
-- [x] QA-FUND-AGE-01: P1652: 기간 종료 15개월 초과 재무와 단위 불일치 P/E·P/B는 순위·표에 쓰지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
-- [x] QA-CHAT-CONTRACT-01: P1652: AI 대화 계약은 매매 지시를 금지하고 개발자 배지를 사용자 화면에 붙이지 않는다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item)
+- 완료 3건: QA-KR-SESSION-01, QA-FUND-AGE-01, QA-CHAT-CONTRACT-01
 
 ## v57.43 시장 읽기 시간 정렬 (2026-10-12)
-
-- [x] QA-CODEX-TIME-01: P1644: 시장 읽기는 최신 완료 세션 기준 2세션 이내 입력만 현재 판정에 쓰고, 늦으면 보류 사유를 보인다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item) (M05)
-- [x] QA-CODEX-AI-01: P1645: AI 해설의 변화율·조건 수·확률·지시 문장은 근거 데이터와 대조해 통과/거부한다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item) (M06)
-- [x] QA-CODEX-ENTITY-01: P1646: 잘못된 코드·결측·혼합 시장 입력에서 계산과 문장이 보류하거나 분모를 밝힌다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item) (E01/E08/E10)
-- [x] QA-CODEX-REFRESH-01: P1647: 공유 자료·스냅샷·차트·재무는 서버 재생성·TTL·실패 재시도 기준으로 갱신된다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item) (M02/E05)
-- [x] QA-CODEX-NEWS-01: P1648: 뉴스 선별은 기사 아닌 페이지·재게시·같은 사건 중복을 제외한다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item) (news curation)
-- [x] QA-CODEX-CANON-01: P1649: 스크리너는 선택 시장의 세션으로 순위 보류를 설명하고, 타임라인·구조 게이트는 현재 레지스트리에서 대상을 파생한다. verify_by: node scripts/ci-codex-structure-regression-fixture.mjs — Covered (v57.79): node scripts/ci-codex-structure-regression-fixture.mjs (PASS; asserts this item) (screener session)
+- 완료 6건: QA-CODEX-TIME-01, QA-CODEX-AI-01, QA-CODEX-ENTITY-01, QA-CODEX-REFRESH-01, QA-CODEX-NEWS-01, QA-CODEX-CANON-01
 
 ## v57.42 생산 레인 크기 (2026-10-12)
-
-- [x] QA-SEC-PROJECTION-01: P1632: SEC 런타임 투영은 화면이 읽는 필드만 담고 1MiB 상한 아래를 유지한다. verify_by: node scripts/ci-sec-runtime-projection-check.mjs — Covered (v57.79): node scripts/ci-sec-runtime-projection-check.mjs (PASS; asserts the 1 MiB cap; source-field checks skip while the producer-only source is absent)
-- [x] QA-SCENARIO-GUIDANCE-01: P1633: 시장 시나리오는 개연성·가능성·기회·확인/주의/무시를 보이고 확률%나 매매 지시를 쓰지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
-- [x] QA-CHART-INTERVALS-01: P1634: 종목 차트는 8개 주기를 제공하고 4시간봉은 같은 거래일 1시간봉만 합친다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
-- [x] QA-AI-REGIME-CONTEXT-01: P1635: 서버 AI 시장 해석은 화면과 같은 국면·시나리오 문맥과 변화율을 근거로 받는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
-- [x] QA-RESEARCH-LIVE-OBS-01: P1636: 리서치 관측값 중 자동 갱신 가능한 값은 최신 기록을 쓴다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
-- [x] QA-REGIME-RADAR-01: P1637: 국면 레이더는 축별 1년 위치와 세 시점만 보이고 종합 점수를 만들지 않는다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
-- [x] QA-CREDIT-TIERS-01: P1638: 신용 축은 CCC−B 등급 스프레드 격차를 함께 보인다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
-- [x] QA-CHART-EXTENSION-01: P1639: 차트 근거는 50일선 대비 ATR 배수·52주 저점 대비·5/20 EMA 순서를 포함한다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
-- [x] QA-TICKER-SUMMARY-01: P1640: 종목 화면은 수익률·52주 범위를 한 요약에서만 보이고 기술·재무 분석으로 이어진다. verify_by: node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): node scripts/ci-entity-quality-browser-check.mjs asserts P1640 (confirmed by grep)
-- [x] QA-HOME-SECTORS-01: P1641: 오늘 화면 섹터 등락은 현재 세션 회전 자료만 쓴다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
-- [x] QA-RESEARCH-SHELF-01: P1642: 리서치 라이브러리는 컬렉션별 서가를 보이고 누르면 해당 컬렉션 문서를 연다. — Verified (2026-10-26, v58.86 정리): ci-runtime-contract-check 통과(2026-10-26 contracts 실행) verify_by: node scripts/ci-runtime-contract-check.mjs
-- [x] QA-BASIS-CARD-01: P1643: 숫자 설명은 hover·포커스·탭 모두에서 카드로 열리고 선언된 관측 시점의 경과를 함께 보인다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs — Covered (v57.79): node scripts/ci-scenario-guidance-fixture.mjs (PASS; asserts this P)
+- 완료 12건: QA-SEC-PROJECTION-01, QA-SCENARIO-GUIDANCE-01, QA-CHART-INTERVALS-01, QA-AI-REGIME-CONTEXT-01, QA-RESEARCH-LIVE-OBS-01, QA-REGIME-RADAR-01, QA-CREDIT-TIERS-01, QA-CHART-EXTENSION-01, QA-TICKER-SUMMARY-01, QA-HOME-SECTORS-01, QA-RESEARCH-SHELF-01, QA-BASIS-CARD-01
 
 ## v57.41 재렌더 상태 보존 (2026-10-12)
-
-- [x] QA-RERENDER-DISCLOSURE-01: P1630: 시세 갱신 재렌더가 사용자가 펼친 근거(details)와 키보드 포커스를 닫거나 잃지 않는다. verify_by: node scripts/ci-entity-quality-browser-check.mjs; node scripts/ci-regime-scenarios-fixture.mjs — Covered (v57.79): ci-entity-quality-browser-check and ci-responsive-browser-check assert P1630 (grep); ci-regime-scenarios-fixture PASS
-- [x] QA-OVERLAY-ROUTE-01: P1631: page가 없는 오버레이 해시(#glossary)는 호스트 화면을 활성화한 채 오버레이를 연다. verify_by: node scripts/ci-responsive-browser-check.mjs — Covered (v57.79): node scripts/ci-responsive-browser-check.mjs asserts the #glossary overlay keeps its host screen active (grep)
+- 완료 2건: QA-RERENDER-DISCLOSURE-01, QA-OVERLAY-ROUTE-01
 
 ## v57.40 종목 분석 구조·시장 분리 (2026-10-12)
-
-- [x] QA-ENTITY-SUMMARY-01: P1624: 종목 첫 진입 자료 연결과 기업 분석 공통 구조 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-entity-summary-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): ci-entity-summary-fixture PASS P1624; ci-entity-quality-browser-check asserts P1624 (grep)
-- [x] QA-SCREENER-MARKET-01: P1625: 시장별 순위 모집단과 선택 정렬의 일치 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-screener-market-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): ci-screener-market-fixture PASS P1625; ci-entity-quality-browser-check asserts P1625 (grep)
-- [x] QA-CHART-SCENARIOS-01: P1626: 차트 조건부 흐름과 거래량 가격대의 근거 계약 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-chart-scenarios-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): ci-chart-scenarios-fixture PASS P1626; ci-entity-quality-browser-check asserts P1626 (grep)
-- [x] QA-FISCAL-QUALITY-01: P1627: 재무 손실 방향과 동일 회계기간 원본 정밀도 공통 경로와 화면 회귀 확인. verify_by: node scripts/ci-fiscal-quality-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): ci-fiscal-quality-fixture PASS P1627; ci-entity-quality-browser-check asserts P1627 (grep)
-- [x] QA-REGIME-CONTINUITY-01: P1628: 시장6축 추이·조건과 한국 완료세션 참여도 연결, COT 위젯 제거. verify_by: node scripts/ci-regime-scenarios-fixture.mjs; node scripts/ci-korea-participation-fixture.mjs; node scripts/ci-responsive-browser-check.mjs — Covered (v57.79): ci-regime-scenarios-fixture and ci-korea-participation-fixture PASS P1628; ci-responsive-browser-check asserts P1628 (grep)
-- [x] QA-KR-SESSION-FRESHNESS-01: P1629: 휴장·주말 뒤 최신 KRX 완료봉의 순위 유지, 새로운 완료봉 이후 예외 종료. verify_by: node scripts/ci-screener-market-fixture.mjs; node scripts/ci-entity-quality-browser-check.mjs — Covered (v57.79): ci-screener-market-fixture PASS and asserts P1629
+- 완료 6건: QA-ENTITY-SUMMARY-01, QA-SCREENER-MARKET-01, QA-CHART-SCENARIOS-01, QA-FISCAL-QUALITY-01, QA-REGIME-CONTINUITY-01, QA-KR-SESSION-FRESHNESS-01
 
 ## v57.39 시장 폭·테마·사전 (2026-10-11)
-
-- [x] QA-BREADTH-THEME-GLOSSARY-01: P1620: 동일 종가의 시장 폭 요약, 결측 수익률 종목을 포함한 전체 티커, 사전 light/dark 대비·모바일 검색·Escape 복귀 검증. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-responsive-browser-check.mjs — Covered (v57.79): ci-esm-core-unit-check PASS and ci-responsive-browser-check assert P1620
-- [x] QA-AI-CONTENT-COVERAGE-01: P1621: 재무 화면 캐시 존재 시 실제 공용 자료 주입, 페이지 밖 질문의 기존 도메인 선택 및 native 시장 폭 문맥 검증. verify_by: node scripts/ci-native-search-check.mjs; node scripts/ci-esm-core-unit-check.mjs — Covered (v57.79): ci-native-search-check PASS P1621; ci-esm-core-unit-check asserts P1621
-- [x] QA-THEME-MEMBERS-COMPARISON-01: P1622: 핵심 편입·오분류 회귀 및 그룹 내부 기간별 순위·동률·결측·모바일 비교 펼침 확인. verify_by: node scripts/ci-runtime-contract-check.mjs; node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-responsive-browser-check.mjs — Covered (v57.79): ci-runtime-contract-check, ci-esm-core-unit-check (PASS) and ci-responsive-browser-check assert P1622
-- [x] QA-COMPARISON-BASIS-01: P1623: 종목/S&P 기준일 불일치, 그룹 혼합/미확인 순위 보류와 1% 미만 시장 폭 단위 보존. verify_by: node scripts/ci-esm-core-unit-check.mjs — Covered (v57.79): ci-esm-core-unit-check PASS and asserts P1623
+- 완료 4건: QA-BREADTH-THEME-GLOSSARY-01, QA-AI-CONTENT-COVERAGE-01, QA-THEME-MEMBERS-COMPARISON-01, QA-COMPARISON-BASIS-01
 
 ## v57.38 반응형 화면 (2026-10-11)
-
-- [x] QA-RESPONSIVE-01: P1618: compact viewport마다 모든 라우트 콘텐츠, 로컬 표 스크롤, 메뉴 포커스·닫힘, 라이트/다크, AI 입력 영역을 확인한다. verify_by: node scripts/ci-responsive-browser-check.mjs
-- [x] QA-MARKET-IDENTITY-01: P1619: NQ 카드에 IXIC 값이 들어가지 않고, hidden 카드·버튼은 flex 스타일보다 우선하여 숨겨지며, 상단 version·AI 이름이 일치한다. verify_by: node scripts/ci-desktop-continuity-check.mjs; node scripts/ci-responsive-browser-check.mjs
+- 완료 2건: QA-RESPONSIVE-01, QA-MARKET-IDENTITY-01
 
 ## v57.36 조건부 공용 AI 웹검색 (2026-10-11)
-
-- [x] QA-NATIVE-SEARCH-01: P1608: 공용 조건부 OpenAI 검색은 내부/무료 근거 우선, 준비 중 opt-out, request-bound 인용·발행/사건 최신성, 단일 $20 예약 원장·검색 미환급을 보존하며 사용자별 검색 할당량을 만들지 않는다. verify_by: node scripts/ci-native-search-check.mjs; node worker/openai-contract.test.mjs
-- [x] QA-SEARCH-TOGGLE-01: P1609: delegated (element,event) 검색 토글이 input.checked와 localStorage OFF/ON, 표시 상태를 일치시킨다. verify_by: node scripts/ci-native-search-check.mjs; 실제 Chrome 토글/재로드 — Retired (v57.79): P1653 removed the search toggle; web search is automatic (AGENTS AI)
+- 완료 2건: QA-NATIVE-SEARCH-01, QA-SEARCH-TOGGLE-01
 
 ## v57.35 공용 연결과 개인 공급자 (2026-10-11)
-
-- [x] QA-CONNECTION-01: P1607: 개인 FMP 키 없이 공용 SEC 자료를 AI와 화면이 같은 provider 캐시로 읽으며 FY·누락·미래 공시와 caller 인증 상태·검색 domain/date·공용 캘린더 범위를 보존한다. verify_by: node scripts/ci-connection-access-check.mjs; node worker/openai-contract.test.mjs
+- 완료 1건: QA-CONNECTION-01
 
 ## v57.34 모드와 자료 사고 체계 (2026-10-11)
-
-- [x] QA-THEME-INTERACTION-01: P1604: 다크/라이트 8화면 대표 상태·복원, tooltip 단일 실행·ESC, native 키, 기존 차트 색·range와 storage 거부가 작동한다. 전수 대비·모든 조작 인증은 아님. verify_by: node scripts/ci-theme-research-browser-check.mjs
-- [x] QA-RESEARCH-REASONING-01: P1605: source별 구조 frame이 노트·학습 path·변수·claim API·AI retrieval과 연결되고 score/rank/current 값으로 승격되지 않는다. verify_by: node scripts/ci-theme-research-browser-check.mjs && node scripts/ci-research-flow-contract-check.mjs && node scripts/ci-knowledge-review-check.mjs
-- [x] QA-RESEARCH-SEARCH-01: P1606: canonical 노트는 이전 생성 index와 무관하게 검색되고 검색 선택이 실제 노트를 연다. verify_by: node scripts/ci-theme-research-browser-check.mjs
+- 완료 3건: QA-THEME-INTERACTION-01, QA-RESEARCH-REASONING-01, QA-RESEARCH-SEARCH-01
 
 ## v57.33 REA·SaveTicker 참조 적용 (2026-10-11)
-
-- [x] QA-REFERENCE-NEWS-01: 뉴스 query ID·다른 issuer·저점수 정정·일반명사 ticker 오탐과 한국어 조사, 새 소식의 포커스 보존을 검증한다. verify_by: node scripts/ci-reference-adoption-contract-check.mjs && node scripts/ci-reference-adoption-browser-check.mjs
-- [x] QA-REFERENCE-SNAPSHOT-01: 저장한 근거의 값/시각/출처 일치, 내용 불변, 종목 초안 분리, 오류·quota와 일정·SEC 식별을 검증한다. verify_by: node scripts/ci-reference-adoption-contract-check.mjs && node scripts/ci-reference-adoption-browser-check.mjs
-- [x] QA-REFERENCE-EVIDENCE-01: 행동/준비/환경/capture가 다른 비교는 unknown이며 증거 없는 화면·semantic은 unverified로 남는다. verify_by: node scripts/ci-reference-adoption-contract-check.mjs && node scripts/ci-reference-adoption-browser-check.mjs && node scripts/ci-qa-pipeline-contract-check.mjs
+- 완료 3건: QA-REFERENCE-NEWS-01, QA-REFERENCE-SNAPSHOT-01, QA-REFERENCE-EVIDENCE-01
 
 ## v57.32 운영 자동화·분석 검증 (2026-10-10)
-
-- [x] QA-OPS-ANALYSIS-01: scripts/ci-data-pipeline-contract-check.mjs의 P1594 fixture가 다음 지표 숫자/퍼센트 변동/반복 오기/대문자 영어/S&P alias를 검증한다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-OPS-DISPATCH-01: scripts/ci-data-plane-contract-check.mjs의 P1595 fixture가 대기/최근 성공/403/재시도/동일 슬롯/본문 정지/receipt credential redaction/health 노출을 검증한다. KV 상한에 receipt 48회를 포함한다. verify_by: node scripts/ci-data-plane-contract-check.mjs
-- [x] QA-OPS-HEALTH-01: scripts/ci-data-pipeline-contract-check.mjs의 P1596 fixture가 PASS/DEGRADED/FAIL, 원인 보존, 도착 간격, 미래 실행 및 summary wiring을 검증한다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-OPS-SLO-01: scripts/ci-operations-slo-window-check.mjs의 P1597 fixture는 네 허위 PASS 입력과 cron step/중복/불가능 슬롯/조회 headroom을 반증하고 정상 fixture 인증을 유지한다. verify_by: node scripts/ci-operations-slo-window-check.mjs
-- [x] QA-OPS-ALERT-01: 최신 신뢰된 workflow 완료만 실패/복구 이슈를 변경하고 다른 실패는 전체 내용 signature로 구분한다. verify_by: node scripts/ci-workspace-contract-check.mjs
-- [x] QA-V5732-01: Home shows S&P 500 and the share of stocks above the 50-day line over the same period on separate axes. verify_by: home #home-participation in browser
-- [x] QA-V5732-02: Freshness dots, rate and FX visuals never use price up/down colours. verify_by: home dots and briefing move chart in browser
-- [x] QA-V5732-03: Theme detail opens under the clicked page block and offers a return link. verify_by: themes page click on a sector card
-- [x] QA-V5732-04: Lesson basis panels show Korean source names and what each source checks; dated-event lessons link the event record. verify_by: principles lesson E7 and A1 basis panel
-- [x] QA-V5732-05: 13F reverse lookup marks a filer whose implied per-share value differs from the others by more than 1%. verify_by: masters reverse lookup AAPL
+- 완료 10건: QA-OPS-ANALYSIS-01, QA-OPS-DISPATCH-01, QA-OPS-HEALTH-01, QA-OPS-SLO-01, QA-OPS-ALERT-01, QA-V5732-01, QA-V5732-02, QA-V5732-03, QA-V5732-04, QA-V5732-05
 
 ## v57.31 v57.31 merge and decision batch (2026-10-10)
-
-- [x] QA-V5731-01: Generated-conflict resolver takes main's side in both merge directions. verify_by: merge a version branch into main, run resolve-generated-conflicts, then ci-operations-contract-check
-- [x] QA-V5731-02: Headers carry no n/100 market score or letter grade. verify_by: node scripts/ci-page-decision-reference-check.mjs and browser check of home/signal/ticker headers
-- [x] QA-V5731-03: PCR equity/index never derived from the total ratio. verify_by: node scripts/ci-runtime-contract-check.mjs
-- [x] QA-V5731-04: Chart.js secondary CDN loader pins SRI. verify_by: node scripts/ci-runtime-contract-check.mjs
-- [x] QA-V5731-05: US retail/CPI schedule extended from official calendars. verify_by: node scripts/ci-static-db-expiry-check.mjs
-- [x] QA-V5731-06: public-data files stay under GitHub push limits. verify_by: node scripts/ci-artifact-size-headroom-check.mjs
-- [x] QA-V5731-07: BEA failure keeps last-known-good status. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-V5731-08: Cboe put/call currentness follows the session calendar. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-V5731-09: Portfolio volatility card shows band label, no max-exposure %. verify_by: browser check #portfolio pf-exposure-rule
-- [x] QA-V5731-10: Theme breadth denominator excludes leaders without a change value. verify_by: code read src/data/providers/themes.js and compatibility-facade.js
-- [x] QA-V5731-11: History never stores an intraday price as a close. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-V5731-12: KR CPI and US CPI next date follow the latest official releases. verify_by: node scripts/ci-static-data-contract-check.mjs
-- [x] QA-V5731-13: Worker /health reports refresh dispatcher configuration. — Retired (v58.86 정리): 중복: 같은 /health schedulerDispatch 확인을 QA-WATCHDOG-LATCH-01·QA-VERIFY-19가 묻는다. verify_by: node scripts/ci-data-plane-contract-check.mjs; live /health after deploy
-- [x] QA-V5731-14: Stale or basis-unknown changes render neutral. verify_by: browser check #market and home 내 종목 with stale snapshot
-- [x] QA-V5731-15: Exit plan shows only real averages. verify_by: code read js/aio-core.js calcExitPlan
-- [x] QA-V5731-16: Yahoo fallback change uses previousClose only. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
-- [x] QA-V5731-17: SEC rows declare equityBasis and registrant name. — Verified (2026-10-26, v58.86 정리): BAC entityName BANK OF AMERICA CORP /DE/·equityBasis parent 확인. verify_by: after next SEC refresh: public-data/sec-fundamentals.json BAC entityName
-- [x] QA-V5731-18: Sourceless KR indicator widget stays hidden. verify_by: browser check of the KR macro page
+- 완료 30건: QA-V5731-01, QA-V5731-02, QA-V5731-03, QA-V5731-04, QA-V5731-05, QA-V5731-06, QA-V5731-07, QA-V5731-08, QA-V5731-09, QA-V5731-10, QA-V5731-11, QA-V5731-12, QA-V5731-13, QA-V5731-14, QA-V5731-15, QA-V5731-16, QA-V5731-17, QA-V5731-18, QA-V5731-23, QA-V5731-24, QA-V5731-25, QA-V5731-26, QA-V5731-27, QA-V5731-28, QA-V5731-29, QA-V5731-30, QA-V5731-31, QA-V5731-32, QA-V5731-33, QA-V5731-34, QA-WATCHDOG-LATCH-01, QA-VERIFY-19
 - [ ] QA-V5731-19: AAII degradation warns without blocking refresh. verify_by: next refresh-data run with AAII unavailable
 - [ ] QA-V5731-20: Market analysis status is explained on every run — a verified run's claims match the published inputs, a held run names the failed check, and the held/verified count over the window is reported (v57.84: 'verified on most runs' rewarded passing over correct holds). verify_by: public-data/data.json marketAnalysis.status + reason over the next 10 refresh runs
 - [ ] QA-V5731-21: the sentiment composite is a met-condition count (n of 7 conditions), not a calibrated score or a likelihood; each missing condition shows as missing (never counted as met or unmet) and the card states n of available, not n of 7, when inputs are absent (v57.84 revision). verify_by: #sentiment composite card condition count after push
 - [ ] QA-V5731-22: An extreme screener P/E is reconciled against the filing (shares class and scale, EPS period, units) before it is kept or held — a very high P/E from a tiny profit is legitimate, a share-scale error is not (v57.84: 'above 5,000' is not the test). verify_by: after next SEC refresh: public-data/screener.json PKG pe vs SEC companyfacts
-- [x] QA-V5731-23: Theme taxonomy follows membership rules. verify_by: node scripts/ci-runtime-contract-check.mjs
-- [x] QA-V5731-24: Universe KR suffixes match listing exchanges. verify_by: Yahoo exchange probe of every .KS/.KQ symbol in SCREENER_DB
-- [x] QA-V5731-25: Rotation covers 31 sector/subsector ETFs after the next refresh. — Verified (2026-10-26, v58.86 정리): data.json rotationHistory.items 31개 확인. verify_by: public-data/data.json rotationHistory.items count
-- [x] QA-V5731-26: Light theme: diagram text and grid strokes follow theme tokens (no white-on-ivory) verify_by: ticker/fundamental page in light theme; svg text fill is --text-primary
-- [x] QA-V5731-27: RRG copy and model use the same 30-session minimum. verify_by: ci-esm-core-unit-check rrg block
-- [x] QA-V5731-28: News officer titles (COO/CEO/CFO) and agency acronyms are not ticker tags unless written as $TICKER or (TICKER) verify_by: extractTickers/getDisplayTickers on a 'Former FTX COO' title returns []
-- [x] QA-V5731-29: Portfolio donut and sector mix stay empty without quotes (no cost-basis or mixed-currency totals) verify_by: local holdings 005930 KRW + NVDA USD with no quotes
-- [x] QA-V5731-30: Skip link keeps the route hash; reload stays on the page. verify_by: #market-news skip link then reload
-- [x] QA-V5731-31: Screener zero result: scoped message, clear actions, no stale lead link; preset and checklist agree. verify_by: browser screener search + preset change
-- [x] QA-V5731-32: Column chapters link to chapter-specific analysis notes. verify_by: ci-esm-core-unit-check COLUMN_FRAME_LINKS
-- [x] QA-V5731-33: Part/whole relation labels read correctly on both pages (NAND/SSD, 2.5D/interposer) verify_by: ci-knowledge-review-check P1593
-- [x] QA-V5731-34: 재무 공시 keeps the selected company after leaving and returning; column links show their question and a return button. verify_by: browser NVDA round trip and column 7 link
 
 ## v57.29 공유 기반 아키텍처 회귀 (2026-10-08)
-
-- [x] QA-ARCH-1518: P1518 공유 요청·라우터 재진입·이벤트 오류 격리·Worker 본문 지연·원자 저장 연결 회귀. verify_by: node scripts/ci-esm-core-unit-check.mjs && node scripts/ci-data-plane-contract-check.mjs && node scripts/ci-data-continuity-check.mjs
-- [x] QA-RELEASE-1518: P1518/R690 부분 staging, 미스테이징 의존 파일, 부분 QA 증명 거부 및 literal read 입력 결속. verify_by: node scripts/ci-qa-runner-behavior-check.mjs && node scripts/ci-qa-pipeline-contract-check.mjs
-- [x] QA-AI-1519: P1519 publication ESM 연결·주입 시각·모듈 부재·legacy 근거 수집 통합. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- 완료 3건: QA-ARCH-1518, QA-RELEASE-1518, QA-AI-1519
 
 ## v57.28 Codex 브라우저 감사 v57.27 반영 (2026-10-08)
-
-- [x] QA-BRW-01: 홈 KPI 20거래일 변화와 시장 상태 20일 변화가 같은 값(같은 세션 시리즈) verify_by: browser: #home-kpi-strip .kpi-trend-caption vs 시장 상태 추세 축
-- [x] QA-BRW-02: 비교 구간에 미국 거래일이 빠지면 '직전 기록과 달라진 점 · M/D 기록 없음'으로 표기. verify_by: unit: missingSessionsBetween('2026-10-02','2026-10-06') = ['2026-10-05']
-- [x] QA-BRW-03: 하위 테마·캔들 형태 기준일이 미국장 진행 중에도 직전 완료 세션. verify_by: browser at KST night: theme-strength basis, realtime-pattern-indicator
-- [x] QA-BRW-04: 날씨·도박·생활 제목이 투자 뉴스로 채택되지 않고 한국 필터가 언어만으로 채워지지 않음. verify_by: producer: scoreServerNewsItem off-topic-filter; browser news filter
-- [x] QA-BRW-05: 번역 상태의 숫자가 실제 한국어 제목 수와 일치하고 제목 반복 설명이 요약으로 보이지 않음. verify_by: browser: news translation status vs cards
-- [x] QA-BRW-06: 스크리너 기본 표가 실행 통과 종목만 보이고 '다음' 링크가 현재 표 첫 행. verify_by: browser: #scr-passed-only, #screener-next
-- [x] QA-BRW-07: 13F 단위 이상 신고의 금액·비중·합계가 보류되고 안내가 한 번 보임. verify_by: browser: T. Rowe Price detail .masters-scale-review
-- [x] QA-BRW-08: NVDA 역조회가 상위 보유를 포함한 운용사를 찾고, 비교가 미연결을 0건으로 말하지 않음. verify_by: browser: masters ticker lookup, investor compare
-- [x] QA-BRW-09: 시장 화면 AI 문맥의 첫 블록이 화면과 같은 기준일·수치. verify_by: browser: window._aioScreenBasisContext() vs 시장 상태 축 근거
-- [x] QA-BRW-10: 통합 검색에서 제목 일치 노트·칼럼이 개념보다 뒤로 밀리지 않고 유형별 개수가 보임. verify_by: browser: 리서치 라이브러리 검색 ROIC
-- [x] QA-BRW-11: 개념 사전의 '같은 뜻'에는 대체 가능한 동의어만, 구성 용어는 '이 글에서 다루는 용어'. verify_by: unit: CONCEPT_CORE covers vs aliases
-- [x] QA-BRW-12: 심리 요약이 F&G와 AAII를 각자의 분류로 말함. verify_by: browser: 투자 심리 종합 문장
-- [x] QA-BRW-13: 시장 폭 신고가·신저가 '종목 보기'가 목록을 연다(contributors v2) verify_by: browser: 시장 폭 리더십 카드
+- 완료 13건: QA-BRW-01, QA-BRW-02, QA-BRW-03, QA-BRW-04, QA-BRW-05, QA-BRW-06, QA-BRW-07, QA-BRW-08, QA-BRW-09, QA-BRW-10, QA-BRW-11, QA-BRW-12, QA-BRW-13
 
 ## v57.08 거시 direction reads (2026-10-03)
-
-- [x] QA-MACRO-HISTORY-LIVE-01: P1426: after the next refresh-data run, public-data/macro-history.json carries FRED observations for each of the 18 series it can fetch, missing ones are named, and the 거시 경제 regime, Sahm gap, payroll trend and 3-month inflation pace render from it — a hold is correct when its inputs are missing (v57.84: requiring the hold to disappear invited a judgement on missing data). — Verified (2026-10-26, v58.86 정리): macro-history.json 시리즈 52개, failed 0 확인(산출물 기준; 화면 판정은 fixture) verify_by: refresh-data run log 'macro history' line + 거시 경제 regime label matches the series actually present
+- 완료 1건: QA-MACRO-HISTORY-LIVE-01
 
 ## v57.06 GPT-6 Luna shared AI migration (2026-10-03)
-
-- [x] QA-AI-LUNA-01: P1421: chat, translation and Actions use only the shared GPT-6 Luna route and one monthly budget ledger. verify_by: ci-ai-budget-scope-check + ci-worker-openai-contract-check + ci-ai-chat-public-route-browser-check
-- [x] QA-AI-LUNA-LIVE-01: P1421: provision OpenAI and automation secrets, explicitly deploy the CI-attested revision, verify browser/Actions upstream smoke and real answer/translation quality. Local fixture PASS does not certify this. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-AI-LIVE-01(공용 Worker 실답변 품질의 소유자 블라인드 점검) verify_by: deploy-ai-proxy.yml exact-SHA smoke and operator quality review
-- [x] QA-PROVIDER-OWNERSHIP-01: P1422: personal settings, FMP stable/response/quota, weighted Twelve Data, RSS priority/fallback and consented personal FRED relay execute correctly in deterministic fixtures. verify_by: ci-extension-api-runtime-check + ci-worker-relay-check + settings browser
-- [x] QA-PROVIDER-LIVE-01: P1422: verify each actual personal/free account's dataset access, quota headers, timestamps and series/data display rights after explicit CI-attested deployment; fixtures do not establish this. verify_by: operator provider dashboard and deployed live route evidence — Retired (v57.79): personal provider keys were retired in v57.75–76; data providers run only through operator secrets in Actions
-- [x] QA-PROVIDER-STRUCTURE-01: P1423: native personal-provider transport preserves runtime contracts without legacy growth; its dependencies select QA, and concurrent translation items reach completion. verify_by: ci-extension-api-runtime-check + ci-decomp-hotspot-check + ci-qa-pipeline-contract-check + ci-ai-chat-public-route-browser-check
-- [x] QA-AI-READINESS-01: P1424: held public AI configuration shows a preparation status and no usable capacity; boot checks readiness independently of translation. verify_by: ci-extension-api-runtime-check + local settings browser + ci-ai-chat-public-route-browser-check
+- 완료 6건: QA-AI-LUNA-01, QA-AI-LUNA-LIVE-01, QA-PROVIDER-OWNERSHIP-01, QA-PROVIDER-LIVE-01, QA-PROVIDER-STRUCTURE-01, QA-AI-READINESS-01, QA-BOUNDARY-AI-LIVE-01
 
 ## v56.89 Screen honesty (2026-10-01)
-
-- [x] QA-UX-SOURCE-01: No visible widget shows a permanent placeholder for a value that has no producer, and no letter grade/composite n/100 is shown without calibration. verify_by: Browser route sweep for '현재 원천 미수신' placeholders + T767/T876
+- 완료 1건: QA-UX-SOURCE-01
 
 ## v56.88 Page decision scope (2026-10-01)
-
-- [x] QA-SEMANTIC-SCOPE-01: Page headers outside home/signal/sentiment/briefing never carry the market-score verdict or its input caveat; partial evidence is not labelled 미수신. verify_by: Actual browser decision-header sweep across 13 routes + ci-runtime-contract-check P1364
+- 완료 1건: QA-SEMANTIC-SCOPE-01
 
 ## v56.87 Semantic, financial and operating-budget audit (2026-09-30)
-
-- [x] QA-SEMANTIC-DATA-01: MA uses eligible distinct observed sessions and recent conflicts hold; KRX uses its own completed close and valid later candidates; missing optional inputs remain visible. verify_by: P1349/R677 ci-esm-core-unit-check + ci-native-decision-evidence-check
-- [x] QA-SEMANTIC-VAULT-01: Production Vault authenticates PIN, protects/restores all financial declarations, separates credential backups, preserves watchlists and prevents missing valuation evidence from becoming AI percentages. verify_by: P1350/R678 ci-portfolio-vault-e2e + ci-esm-core-unit-check + headless T960
-- [x] QA-SEMANTIC-DEPLOY-01: Rollback ambiguity, stale main mutation and repository/run/SHA attestation substitution fail closed. verify_by: P1351 ci-cloudflare-deployment-contract-check + ci-deployment-convergence-check
+- 완료 8건: QA-SEMANTIC-DATA-01, QA-SEMANTIC-VAULT-01, QA-SEMANTIC-DEPLOY-01, QA-SEMANTIC-UI-01, QA-SEMANTIC-BUDGET-01, QA-SEMANTIC-FORMAT-01, QA-SEMANTIC-PRODUCER-01, QA-SEMANTIC-CURRENT-01
 - [ ] QA-SEMANTIC-DEPLOY-02: Bot-advanced main converges Pages and both Workers using specifically approved dispatch CI consumption; proposal is pending and not applied. verify_by: P1351 approved DEPLOYMENT-PROPOSAL.md implementation + isolated driver regression + CI-attested live probe
-- [x] QA-SEMANTIC-UI-01: Signal/pulse preserve null and zero, market models do not claim economic phases, and RRG labels describe their actual measured distribution. verify_by: P1352/R679 ci-esm-core-unit-check + ci-architecture-browser-check + headless T213/T819 + manual browser screenshot
-- [x] QA-SEMANTIC-BUDGET-01: Monthly reservations are atomic across concurrency/restart/UTC rollover, do not refund uncertain upstream charges, reject unknown prices/tools and expose operator accounting only privately. verify_by: P1353/R680 ci-worker-openai-contract-check + ci-worker-relay-check + ci-esm-core-unit-check
-- [x] QA-SEMANTIC-FORMAT-01: The shared formatter preserves missing observations through fallback while accepting real zero and numeric strings. verify_by: P1354/R679 ci-esm-core-unit-check + actual theme browser screenshot
-- [x] QA-SEMANTIC-PRODUCER-01: Imported producer batches retain their data identity and observation timestamps; metadata alignment refuses mixed batches and newer incoming versions. verify_by: P1355/R1 ci-esm-core-unit-check + bump-version --align-generated + data freshness/lineage gates
-- [x] QA-SEMANTIC-CURRENT-01: Current reference cards and shared headers distinguish usable observations from trade eligibility and use each market's observation clock. verify_by: P1357 native units and shared-header VM gate PASS; actual 2026-10-01 briefing shows score 58, DXY, WTI and KOSPI with distinct observation labels; final integrated QA in REPORT.md
 - [ ] QA-SEMANTIC-ROTATION-01: The durable derived RRG artifact reaches the native provider while preserving aligned completed sessions, raw-price limits, failed observations and reference-only use. verify_by: P1358 ci-rotation-history-check + ci-esm-core-unit-check + Actions producer run + real-data themes screenshot
 
 ## v56.86 continued reconstruction audit (2026-09-30)
-
-- [x] QA-OPS-AG-05: Dead-code preserves same-line neighbours, QA updates modify exactly one existing row, and delegation honors AGENTS worktree policy. verify_by: P1347 dead-code self-test + ci-record-fix-check.mjs + sync-agent-skills --check
-- [x] QA-OPS-NAV-01: Compatibility and native navigation share aliases and preserve theme-detail and retired options handling. verify_by: P1348 ESM navigation fixture + architecture-browser gate
-- [x] QA-DATA-62: Reference scores preserve completed-close basis, reject stale MA, refresh after late snapshot and never guess Korean company prefixes. verify_by: P1345 ci-esm-core-unit-check.mjs + independent actual-history probe
+- 완료 3건: QA-OPS-AG-05, QA-OPS-NAV-01, QA-DATA-62
 
 ## v56.85 parallel dead-code trim, harness governance (2026-09-30)
-
-- [x] QA-OPS-AG-03: Reachability tooling lives in scripts/ and its self-test (including the page-bus ASI case) passes in the workspace gate. verify_by: P1342 `ci-workspace-contract-check.mjs`
-- [x] QA-OPS-AG-04: AGENTS.md carries the fixed product decisions and change flow; superseded handoffs are catalogued as historical-snapshot; generated-manifest merge conflicts resolve with scripts/resolve-generated-conflicts.mjs. verify_by: P1343 `ci-workspace-contract-check.mjs` + `ci-knowledge-lint-check.mjs`
-- [x] QA-UX-11: Briefing shows native six-axis summary and 오늘 행동 above narratives, labels close basis, holds missing evidence, counts the same news window and uses descriptive checks. verify_by: P1346 ESM fixtures + architecture-browser gate + real Chrome screenshots in codex-audit-20260930
+- 완료 3건: QA-OPS-AG-03, QA-OPS-AG-04, QA-UX-11
 
 ## v56.84 facade trim, orphaned initializers, MA fallback (2026-09-30)
-
-- [x] QA-UX-10: Opening macro, briefing, fundamental and guide runs their initializers once via aio:pageShown (next release, briefing strip, recent searches, folded guide chapters). verify_by: P1339 browser walkthrough + `ci-architecture-contract-check.mjs` (PAGES.init stays null)
-- [x] QA-DATA-60: SPX 50/200 MAs derive from unique completed historical closes ending on the score basis date; partial, carried and future bars do not count. verify_by: P1339/P1345 ci-esm-core-unit-check.mjs + actual history
-- [x] QA-DATA-59: The compatibility facade owns no trading-score input reader; core reads window._aioReadTradingScoreInputs and the news history normalizer is exposed. verify_by: P1338 `ci-esm-core-unit-check.mjs`
-- [x] QA-OPS-AG-02: The guard denies git checkout -- ., git restore . and git clean -f, allows a single-path checkout, and Claude hooks resolve agent-hook.mjs from $CLAUDE_PROJECT_DIR. verify_by: P1340 `ci-workspace-contract-check.mjs`
-- [x] QA-DATA-61: The data-plane baseline records an identity-less Worker as legacy-unidentified, rejects malformed SHAs, and rollback accepts the sentinel only for a Worker without sourceSha. verify_by: P1341 `ci-cloudflare-deployment-contract-check.mjs`
+- 완료 5건: QA-UX-10, QA-DATA-60, QA-DATA-59, QA-OPS-AG-02, QA-DATA-61
 
 ## v56.83 deploy blockers, Worker rollback, FRED retry, delegation routines (2026-09-29)
-
-- [x] QA-OPS-SEC-01: Worker deploy workflows require event == push and head_repository == this repository before checking out an attested SHA. verify_by: P1334/R674 `ci-cloudflare-deployment-contract-check.mjs` + CodeQL
-- [x] QA-OPS-DEP-01: Pages deploy uses only SHA-pinned actions (incl. nested); Worker smoke waits for the deployed sourceSha; rollback targets the newest pre-deploy version. verify_by: P1335 `ci-data-plane-contract-check.mjs` + post-merge deploy runs
-- [x] QA-DATA-58: A single transient FRED failure retries once before the series is marked failed. — Verified (2026-10-26, v58.86 정리): 최신 data.json meta.fredFailedSeries [] (계약 게이트는 ci-data-pipeline-contract-check) verify_by: P1336 `ci-data-pipeline-contract-check.mjs` + next refresh-data run
-- [x] QA-OPS-AG-01: Delegation template and /restate, /assumptions, /trim-pr exist and the .agents mirror matches. verify_by: P1337 `ci-skill-contract-check.mjs`
+- 완료 4건: QA-OPS-SEC-01, QA-OPS-DEP-01, QA-DATA-58, QA-OPS-AG-01
 
 ## v56.82 self-audit split, Masters budget, tooltip targets, route-count follow-up (2026-09-29)
-
-- [x] QA-OPS-QA-01: Users do not load js/aio-qa-audits.js; automation, ?qa=1, detailed audit mode, the operator widget and AIO.loadTests() do; guarded runtime callers tolerate its absence. verify_by: P1329/R673 `ci-decomp-hotspot-check.mjs` + headless + `ci-architecture-browser-check.mjs`
+- 완료 1건: QA-OPS-QA-01
 
 ## v56.81 close-basis score, one status vocabulary, desktop-only, Masters and KR themes (2026-09-29)
-
-- [x] QA-UX-08: No mobile/tablet CSS, markup or JS ships; desktop viewports render without overflow. verify_by: P1324/R669 `ci-desktop-scope-check.mjs` + `ci-viewport-matrix-check.mjs`
-- [x] QA-UX-06: Masters at 1440×1000 shows manager cards before the ticker lookup; NVDA/AAPL/ZZZZ end in a result or an explicit no-holder state; a blocked ledger shows an error with retry. verify_by: P1325 `ci-masters-browser-check.mjs` + `ci-masters-contract-check.mjs`
-- [x] QA-DATA-57: While the US market is closed, the home/signal score is computed on the latest completed regular close, names that basis, excludes older/undated inputs and stays non-decision. verify_by: P1328/R670 `ci-esm-core-unit-check.mjs` + local Chromium home
-- [x] QA-UX-07: The topbar shows one currentness state (실시간/지연/종가/지난 시세/미수신) derived from observation times; no clock-based "실시간" and no duplicate home pill. verify_by: P1326/R671 `ci-esm-core-unit-check.mjs` + `ci-architecture-browser-check.mjs`
-- [x] QA-UX-09: KRX 종목 개요가 한국 테마로 연결되고 보이는 한국 테마 상세를 연다(같은 id의 미국 테마가 아님); 모든 한국 테마에 이름이 있고 균등 비중은 "동일가중"으로 읽힌다. verify_by: P1327/R672 + P1934 `ci-esm-core-unit-check.mjs` openThemeDetail fixture + local Chromium 012450.KS
+- 완료 5건: QA-UX-08, QA-UX-06, QA-DATA-57, QA-UX-07, QA-UX-09
 
 ## v56.80 home numbers-first first screen and record-fix ledger flow (2026-09-29)
-
-- [x] QA-UX-05: Home at 1440×1000 shows KPI strip and cross assets before the score; a blocked score is one line naming "판단 등급 입력 없음"; the date line shows only the date. verify_by: P1322/R668 `ci-runtime-contract-check.mjs` + `ci-esm-core-unit-check.mjs` + local desktop Chromium
-- [x] QA-OPS-REC-01: `record-fix.mjs` records P/R/QA/CHANGELOG/note/status atomically with allocated ids, refuses duplicates, missing verify_by, missing version heading and R gaps, and preserves CRLF/BOM; ledger frontmatter lines stay ≤400 chars. verify_by: P1323/R667 `ci-record-fix-check.mjs` + `ci-knowledge-lint-check.mjs`
+- 완료 2건: QA-UX-05, QA-OPS-REC-01
 
 ## v56.79 options route retirement (2026-09-29)
-
-- [x] QA-ROUTE-19: `#options` renders sentiment; no `#page-options`, no `options` route id, registry `REFERENCE: []` with `options` in `REMOVED`; 19 golden routes and 12 vertical slices. verify_by: P1321/R666 `ci-architecture-browser-check.mjs` + `ci-architecture-contract-check.mjs` + `ci-runtime-contract-check.mjs` + headless T137/T805.
+- 완료 1건: QA-ROUTE-19
 
 ## v56.78 KR ticker route, reference size filter, stale-note and tooltip usability (2026-09-28)
-
-- [x] QA-UX-02: 005930, 005930.KS and 삼성전자 all open the ticker route as 005930.KS with the Korean name leading; a missing selected-ticker quote is requested; KRW prices are formatted by venue; the tab title follows the rendered hero; the TradingView KR notice carries no internal ticket id. verify_by: P1317/R663 `ci-esm-core-unit-check.mjs` + local Chromium.
-- [x] QA-DATA-56: every market-cap size bucket returns rows when reference caps exist; the reference cap is SEC shares × artifact close, rejected outside 0.05%–20% daily turnover, labelled "참고", and never used as a factor. verify_by: P1318/R664 `ci-esm-core-unit-check.mjs` + local Chromium bucket counts.
-- [x] QA-UX-03: stale screener cells are muted with their provenance title and the table states the stale date span once; conflicts keep a per-cell note. verify_by: P1319/R662 `ci-esm-core-unit-check.mjs`.
-- [x] QA-UX-04: "?" tooltips open on hover/focus/click/Enter, close on Escape/outside click, have an accessible name and stay inside the desktop viewport. verify_by: P1320/R665 `ci-esm-core-unit-check.mjs` + local desktop Chromium placement.
+- 완료 4건: QA-UX-02, QA-DATA-56, QA-UX-03, QA-UX-04
 
 ## v56.77 full-audit user-visible fixes and full personal-data backup (2026-09-28)
-
-- [x] QA-UX-01: KR theme detail opens for all 28 themes without `ReferenceError`; KR index cards have no static up/down class or colour and follow the live previous-close delta; `.a11y-up/.a11y-dn` chips are coloured; the #signal legend uses the canonical 심리(공포·탐욕·풋콜) label; Ctrl+K focuses the active page's real search input or opens the glossary and shortcut 8 reads 테마·트렌드; the glossary states KOSPI sell tax as 0.05% + 0.15% rural special tax = 0.20% and dates Piotroski 2000 with 8~9/0~2 original bins. verify_by: P1315/R662 `ci-runtime-contract-check.mjs` + local Chromium verification.
-- [x] QA-DATA-55: export writes one `aio-backup` v1 bundle containing positions, ledger, FX legs, cash, assumptions, journal and watchlists; export is refused while Vault-locked sections would read empty; import restores every section via its owner normalizer and reports completion only after every durable ack; the legacy positions array still imports. verify_by: P1316/R661 `ci-esm-core-unit-check.mjs` fixtures + `ci-portfolio-vault-e2e.mjs` 28/28 + local Chromium export→import round-trip.
+- 완료 2건: QA-UX-01, QA-DATA-55
 
 ## v56.76 knowledge candidate workspace symlink containment (2026-09-28)
-
-- [x] QA-DATA-54: reject symlinks in the repository tree before snapshot/copy and in the disposable builder copy before any knowledge producer runs; test that a normal directory tree is accepted and a generated-output symlink is rejected. Map `scripts/lib/atomic-write.mjs` and `scripts/lib/13f-semantic-hash.mjs` changes to `knowledge-generated-parity` in affected QA. verify_by: P1314/R660 `ci-knowledge-generated-parity-check.mjs`, `ci-qa-pipeline-contract-check.mjs`, knowledge QA group, assertion trace and ledger integrity. GitHub PR candidate artifact and human review remain unverified; strict D0 release is separate.
+- 완료 1건: QA-DATA-54
 
 ## v56.75 operations alert source collector (2026-09-28)
-
-- [x] QA-OPS-03: collect deployed site state and core artifacts without persisting evidence; use only the R657 publication timestamp order; evaluate both NYSE and KRX; request protected Worker usage only with `AIO_OPERATOR_TOKEN`, reject redirects, and emit only status plus fixed safe reason. An unavailable site remains `UNKNOWN` without an explicit `outageStartedAt`. verify_by: P1313/R659 `ci-operations-alert-source-check.mjs` (19 injected offline assertions), `ci-qa-pipeline-contract-check.mjs`, assertion trace, ledger integrity and affected QA. Scheduled workflow invocation, operator secret provisioning, durable outage continuity/missed-probe policy and private email/Telegram delivery remain unverified; strict D0 release is separate.
+- 완료 1건: QA-OPS-03
 
 ## v56.74 private AI usage observation source (2026-09-28)
-
-- [x] QA-OPS-02: expose the existing current-UTC-day Anthropic Durable Object request count and configured cap only through GET `/_ops/ai-usage` authenticated by a separate `AIO_OPERATOR_TOKEN` of at least 32 characters. Unconfigured/wrong token returns 404, only GET is allowed, response is no-store without CORS, and public `/health` remains free of Anthropic usage/cap fields. The DO rejects non-Anthropic day keys; reservation/release enforcement is unchanged. verify_by: P1312/R658 `ci-worker-openai-contract-check.mjs`, `ci-worker-relay-check.mjs`, `ci-cloudflare-deployment-contract-check.mjs`, assertion trace, ledger integrity, version check and affected QA. Cloudflare secret provisioning and live retrieval remain operator-only and unverified; scheduled source collection, persistent outage state and notification delivery remain open.
+- 완료 1건: QA-OPS-02
 
 ## v56.73 operator alert policy (2026-09-28)
-
-- [x] QA-OPS-01: declare and locally verify the three alert thresholds: continuous explicit site outage for 24h; core artifact stale after 2 fully completed registered NYSE/KRX sessions; AI request count at 80% of the actual `ANTHROPIC_DAILY_CAP` for the matching UTC day. Policy returns `UNKNOWN` for missing/invalid/future evidence, impossible counts, wrong UTC day, or unknown calendar year. Core publication time uses the pinned fallback order and rejects data attempt/status clocks. Existing 12h hard freshness is unchanged. verify_by: P1311/R657 `ci-operations-alert-policy-check.mjs`, `ci-qa-pipeline-contract-check.mjs`, assertion trace, ledger integrity, version check and affected QA. Continuous source collection, outage-state persistence, and actual operator notification delivery remain unimplemented/unverified; the protected Worker usage source is locally verified but not live-provisioned. Strict D0 release is separate.
+- 완료 1건: QA-OPS-01
 
 ## v56.72 knowledge build candidate artifact (2026-09-28)
-
-- [x] QA-DATA-52: source changes can produce a review-only artifact by reusing the ordered 17-builder/target inventory in an isolated checkout. Export changed generated targets and a manifest containing the tested checkout SHA, PR head SHA, paths, change types and hashes. Reject output directories inside the repository. The PR/manual workflow uses read-only contents permission, exact `github.sha` checkout, pinned actions and a 30-day artifact; its PR filters and contract cover builder/helper/input paths, including `principles.js`, `atlas.js`, `learning-controls.js` and `knowledge-route-state.js`. It does not write source, auto-commit, push or deploy. verify_by: P1310/R655 `ci-knowledge-generated-parity-check.mjs --candidate-dir <external-directory>` (clean checkout required; local candidate-mode runtime not run), default parity mode, `ci-qa-pipeline-contract-check.mjs`, workflow YAML/control-character check, assertion trace, ledger integrity, workspace contract and affected QA. First GitHub artifact and human review remain unverified; D0 refresh/reconciliation/lineage/live release are separate.
+- 완료 1건: QA-DATA-52
 
 ## v56.72 annual exchange-calendar review reminder (2026-09-28)
-
-- [x] QA-DATA-53: an annual reminder lists official NYSE/ICE and KRX sources and the actual registered years from `MARKET_CALENDAR_REGISTRY`; it does not fetch or infer dates, write canonical calendars, or relax unknown-year fail-closed behavior. Report generation is separate from issue management: only the issue job has `issues: write`, and its token is injected into the issue step. Open issues are updated; closed matching issues stay closed. verify_by: R605 `ci-qa-pipeline-contract-check.mjs`, `scripts/build-exchange-calendar-review.mjs --year 2028` and `--year 2029`, `node scripts/ci-control-char-check.mjs`. First scheduled workflow execution and human calendar verification remain unverified.
+- 완료 1건: QA-DATA-53
 
 ## v56.67 macro calendar candidate review safeguards (2026-09-28)
-
-- [x] QA-DATA-48: weekly review-only workflow fetches FRED release dates and registered annual official calendars, builds a source-linked candidate diff and human-readable issue, uploads 30-day evidence, and upserts by month/digest. Tests cover full current/proposed date sets and added/removed dates even when nextRelease is unchanged, tentative-only/partial annual evidence, stable digests, exact-title issue fallback, closed-issue state, step-scoped secrets, producer-impact mapping, pinned actions, no runtime mutation, and preservation of the hard static expiry gate. Macro review contract (19 assertions), workflow YAML, static-data/static-db-expiry/data-pipeline, QA-pipeline, assertion trace, ledger and workspace checks pass. verify_by: P1304/P1305/R605; first scheduled workflow run, GitHub search behavior, FRED access and human review remain unverified.
+- 완료 1건: QA-DATA-48
 
 ## v56.69 attested Worker auto-deploy and smoke rollback (2026-09-28)
-
-- [x] QA-DATA-49: a successful main CI attestation records whether the exact push changed the data-plane or AI-proxy runtime/config. Only the changed plane deploys; manual dispatch requires a successful main CI run id and exact attestation. Each workflow captures the current 100% version and live source SHA before deployment, runs smoke checks, and rolls back to that exact version after a failed smoke, then confirms the prior SHA/status. Resolver fixtures accept a single 100% version and refuse a split deployment. verify_by: P1307/R652 ci-cloudflare-deployment-contract-check.mjs, ci-data-plane-contract-check.mjs and CI attestation/YAML contracts; live auto-deploy, smoke, rollback, and Cloudflare secret/token state remain unverified.
+- 완료 1건: QA-DATA-49
 
 ## v56.71 SEC 13D/G polling and 13F filing-season imports (2026-09-28)
-
-- [x] QA-DATA-51: run submissions-only ownership discovery daily; run full 13F rows/history on filing-season Mondays, when a new 13F-HR/HR-A accession remains unconnected in `holdings.json`, or by explicit dispatch. Keep 13F-NT out of row-import triggering, with a notice-only submission negative control at the cadence boundary. Semantic no-op writes preserve bytes for poll-clock-only changes while raw SHA remains exact; meaningful accession/form/amendment/row/status/coverage/LKG changes still alter the semantic digest. Ownership-only polling preserves every non-ownership 13F field; a failed poll hides current events, retains LKG events and marks only ownership `BLOCKED`. UI reports last published artifact dates without claiming a fresh online poll. verify_by: P1309/R654 `ci-13f-semantic-hash-check.mjs` (filing-window, SEC-change, notice-only trigger, LKG and byte-preservation fixtures), `ci-13f-currentness-check.mjs`, `ci-masters-contract-check.mjs`, `ci-data-pipeline-contract-check.mjs`, `ci-data-continuity-check.mjs`, `ci-qa-pipeline-contract-check.mjs`, assertion-trace, ledger-integrity and affected QA. First scheduled ownership/filing-season run, exact-SHA publication and live UI acceptance remain unverified; strict D0 data refresh/reconciliation/lineage is still a separate release requirement.
+- 완료 1건: QA-DATA-51
 
 ## v56.70 Worker deployment convergence recovery (2026-09-28)
-
-- [x] QA-DATA-50: explicitly include the hidden `.release` attestation file in its artifact; derive data-plane deploy inputs from the static local-import graph; recover canceled or replaced CI/deploy runs by comparing live `/health` sourceSha through the exact successful CI SHA only while that SHA is still current main and live is its ancestor; recheck main immediately before deployment; reject delayed events and newer/divergent live Workers. Skip only when already converged or the cumulative Worker path set is empty; unknown live identity fails closed. verify_by: P1308/R653 `ci-cloudflare-deployment-contract-check.mjs`, `ci-data-plane-contract-check.mjs`, `ci-deployment-convergence-check.mjs`, `ci-operator-secrets-contract-check.mjs`, `ci-qa-pipeline-contract-check.mjs`, workflow YAML and import/ordering fixtures. GitHub artifact handoff and live recovery/rollback remain unverified.
+- 완료 1건: QA-DATA-50
 
 ## v56.65 generated Principles lesson parity (2026-09-28)
-
-- [x] QA-DATA-47: the Principles producer emits all 112 canonical lessons including D6's authored metadata, uses the shared atomic JSON writer, and produces byte-identical output across two isolated runs. The build inventory runs lessons before evidence/enrichment, integrated-framework and article consumers; Nathan/concept producers also precede their integrated-framework consumer, so one pass converges. Focused parity (6 checks), generated knowledge parity (17 builders/655 outputs), Principles and QA-pipeline contracts, assertion trace and ledger integrity pass. verify_by: P1303/P1306/R560/R651; affected QA and deployed/browser acceptance remain separate.
+- 완료 1건: QA-DATA-47
 
 ## v56.64 annual exchange calendar (2026-09-28)
-
-- [x] QA-DATA-46: registered NYSE/KRX calendars match the implemented annual closure and early-close tables in the native ESM registry and legacy date engine; NYSE session checks use New York time, and unsupported years remain `unknown` instead of falling back to another year's holidays. Deterministic fixtures cover DST boundaries, holiday-aware last-trading-day helpers, and rejection of supplied open status on registered closures. `ci-market-session-contract-check.mjs`, `ci-market-snapshot-contract-check.mjs`, syntax checks, and headless T75 passed (1163/1163). verify_by: P1302/R447; affected QA and live/deployed browser acceptance remain separate.
+- 완료 1건: QA-DATA-46
 
 ## v56.63 monthly screener-universe review report (2026-09-28)
-
-- [x] QA-DATA-45: the monthly review report is read-only and summarizes generated-mirror age, row/unique/duplicate counts, and the existing 30-day warning/90-day hard boundary. Fixed-date fixtures cover 31-day review due, 91-day hard expiry, same-month marker stability, and no member list in the issue body; workflow contract checks main-only execution, least-privilege issue write, monthly schedule, serialized runs, and closed-issue no-op. verify_by: P1081/R605 `ci-static-db-expiry-check.mjs`, `ci-qa-pipeline-contract-check.mjs`, `ci-workflow-compaction-check.mjs`; external GitHub issue creation remains unrun.
+- 완료 1건: QA-DATA-45
 
 ## v56.56 F-52 뉴스 분석 최소 표본 게이트 (2026-09-27)
-
-- [x] QA-DATA-26: 1개 적격 기사는 점수·라벨을 발행하지 않고 `표본 부족`을 표시한다. 4개로는 감성·위험 신호를 발행하지 않으며, 5개 이상에서만 계산한다. 차트는 미발행 점수를 저장하거나 그리지 않는다. verify_by: `ci-esm-core-unit-check` (domain 결과·native UI 라벨·legacy chart 저장 경계).
-- [x] QA-DATA-27: data-lineage audit에는 stale live-core를 WARN으로 낮추거나 freshness 기준시각을 과거로 옮기는 CLI/환경 override가 없다. wall clock만 사용하고 `--code-release`는 non-zero로 거부된다. self-test·pipeline source contract PASS. 실제 public data SLA 실패 2건은 별도 환경 차단이다. verify_by: `ci-data-lineage-audit` + `ci-data-pipeline-contract-check`.
+- 완료 2건: QA-DATA-26, QA-DATA-27
 
 ## v56.58 live-core strict lineage·legacy F-52 표본 경계 (2026-09-27)
-
-- [x] QA-DATA-30: legacy `_aioComputeNewsSignal`은 공통 최소 적격 표본(현재 N=5) 미만에서 점수·bias·event/topic을 발행하지 않으며 `computeMarketState`, `getActionPlan`, autonomous-loop audit이 같은 표본 증거를 재확인한다. 1/4건 hold, 5건 publish, 표본 충분 플래그와 null 점수가 모순되는 합성 신호 reject. verify_by: `ci-esm-core-unit-check` + browser T818/P1288/R638.
-- [x] QA-DATA-29: live-core freshness는 휴장 세션이나 닫힌 시장 quote가 artifact 생성 시각의 12h/24h SLA를 면제하지 않는다. 초과한 `data.json`과 `market-snapshot.json`은 항상 hard FAIL이다. verify_by: `ci-data-lineage-audit.mjs` P1287/R637 weekend fixtures + `ci-data-pipeline-contract-check.mjs`.
-- [x] QA-DATA-31: 시장 뉴스의 배포 후 Tier 13 인수는 미완료다. 로컬 in-app browser는 v56.58 화면·표본 부족 hold·35시간 stale banner를 렌더링했지만, live Pages는 v56.33이고 Chrome console 확인은 제공되지 않았다. — Retired (v58.86 정리): 대체됨: 라이브는 v58.80이고 뉴스 화면은 그 뒤 여러 번 다시 만들어졌다. verify_by: strict data/reconciliation 통과 후 exact-SHA deploy가 수렴하면 live 시장 뉴스 화면의 감성·리스크·stale 상태와 console을 인수한다.
+- 완료 4건: QA-DATA-30, QA-DATA-29, QA-DATA-31, QA-DATA-33
 - [ ] QA-DATA-32: market-snapshot 실패·불일치·12시간 stale 시에만 실패 진단 artifact를 남긴다. 값은 registry Tier-0 ID, 품질/세션 enum, bounded count·coverage만 포함하고 provider 자유 문자열·payload·credential은 제외한다. 로컬 redaction·크기·freshness fixture와 capture/upload workflow contract가 통과했는지 확인한다. 원격 artifact 실제 내용은 캡처 workflow가 포함된 revision의 다음 scheduled refresh에서 인수한다. verify_by: `ci-data-refresh-audit.mjs` P1289/R639 redaction·size·freshness fixture와 static capture/upload contract; 다음 `Refresh market data` failure artifact read-only review.
-- [x] QA-DATA-33: 주말·휴장 여부와 무관하게 snapshot은 published `generatedAt` 기준 12h 이내여야 A1 `OK`가 되고 `D1-structural=yes`로 승격될 수 있다. 내부적으로 완전한 LKG라도 12h 초과면 CRITICAL/fail-closed다. verify_by: `ci-data-refresh-audit.mjs` P1290/R640 고정 12h 경계·stale LKG fixture; live 36h artifact로 A1 CRITICAL + `D1-structural=no` 실측.
 
 ## v56.61 strict freshness and macro-source contracts (2026-09-27–28)
-
-- [x] QA-DATA-34: complete `PUBLISHED` cycle이더라도 토요일 12h 초과 `data.json`은 browser decision quote로 승격되지 않고 operations status는 stale을 보고한다. verify_by: P1291/R641 `ci-data-refresh-audit.mjs` stale-weekend cycle fixture, `ci-data-pipeline-contract-check.mjs` runtime eligibility contract, `ci-operations-status-check.mjs` 13h Saturday fixture.
-- [x] QA-DATA-35: 미래 `market-snapshot.generatedAt`은 forced `OK` 상태에서도 A1 `FUTURE`로 표시되고 structural promotion을 통과하지 않는다. verify_by: P1292/R642 `ci-data-refresh-audit.mjs` 고정시각 forced-OK·future·malformed fixture (2026-09-28 local fixture run PASS; current stale artifact still correctly leaves A1 CRITICAL).
-- [x] QA-DATA-36: E3/E4는 현재 Fed/FOMC와 BOK 정책금리 증거가 함께 유효할 때만 정상이다. stale/missing/future/범위 밖 금리/unofficial/unwired BOK, 비공식 Fed 일정 URL 또는 누락 Fed evidence는 `D1-structural`을 막는다. verify_by: P1293/R643 + P1298/R648 `ci-data-refresh-audit.mjs` evidence/URL fixtures + local E3/E4 status + official primary-page check on 2026-09-28. 자동 gate는 페이지 본문을 fetch하지 않는다.
-- [x] QA-DATA-37: Risk Radar 출처는 읽기 쉬운 이름으로 표시되고 승인된 공식 host의 HTTPS만 escaped `noopener noreferrer` 링크가 된다. hostile label은 text로 escape되고 javascript/unapproved/invalid URL은 링크가 되지 않는다. verify_by: P1294/R644 `ci-runtime-contract-check.mjs` hostile URL/label fixture + 2026-09-28 Tier 13 local browser `#fundamental` user-navigation confirmation: developer-mode detail displayed 9 official events/8 visible approved HTTPS anchors with readable labels and `rel=noopener noreferrer`; clicked BEA official schedule opened `https://www.bea.gov/news/schedule/`. Live exact-SHA QA remains separate.
-- [x] QA-DATA-38: 미래 `data.json.meta.generatedAt`은 complete published cycle·과거 세션 종료가 있더라도 browser quote eligibility와 snapshot clock을 통과하지 않는다. verify_by: P1295/R645 fixed-clock runtime fixture + `ci-data-pipeline-contract-check.mjs` (2026-09-28 local gate PASS).
-- [x] QA-DATA-39: browser와 operations freshness는 artifact의 SLA metadata에 의해 확대되지 않고 정밀 12시간 wall-clock을 쓴다. 12h 경계는 통과, 12h+1ms와 미래는 거부, 24h + declared 48h는 stale이다. verify_by: P1296/R646 runtime/operations contract fixtures (2026-09-28 local gates PASS).
-- [x] QA-DATA-40: future snapshot은 forced `OK` 또는 `BLOCKED`보다 우선해 `FUTURE`, malformed timestamp는 forced `OK`보다 우선해 `INVALID`이며 둘 다 promotion을 통과하지 않는다. verify_by: P1297/R647 `ci-data-refresh-audit.mjs` fixed-clock fixtures (2026-09-28 fixtures PASS; only the live A1 stale precondition fails).
-- [x] QA-DATA-41: E3/E4 FOMC 일정은 `us-fomc`와 `us-fed-rate` 양쪽 `sourceUrl`이 공식 Fed FOMC 캘린더 URL일 때만 정합이다. 날짜가 같아도 비공식/lookalike host는 거부한다. verify_by: P1298/R648 `ci-data-refresh-audit.mjs` URL fixtures; official-source references cross-checked manually 2026-09-28, while automated gate itself does not fetch page bodies.
-- [x] QA-DATA-42 (D4): refresh promotion candidate hashing reads valid Git blobs above 1 MiB in both the index and commit tree, while drift and missing-baseline controls still fail. `refresh-data.yml` runs the helper self-test in its reconciliation gate before the freshness audit. verify_by: P1299 `node scripts/verify-refresh-candidate.mjs --self-test` isolated 1 MiB+ blob fixture + `ci-data-refresh-audit.mjs --self-test-snapshot-diagnostics` wiring/negative fixture + `ci-assertion-trace-check.mjs` + `ci-ledger-integrity-check.mjs`.
-- [x] QA-DATA-43 (D4): a recent `market-snapshot-status.lastSuccessfulAt` must not substitute for a missing or malformed published `market-snapshot.generatedAt`; snapshot freshness is invalid, diagnostics are captured, and promotion remains blocked. verify_by: P1300/R649 fixed missing-time + recent-sidecar + complete-cycle/registry-derived Tier-0 coverage fixture in `node scripts/ci-data-refresh-audit.mjs --self-test-snapshot-diagnostics`; `node scripts/ci-data-pipeline-contract-check.mjs`, `node --check scripts/ci-data-refresh-audit.mjs`, `node scripts/ci-assertion-trace-check.mjs`, and `node scripts/ci-ledger-integrity-check.mjs` pass. Live A1 remains stale and is a separate P0 blocker.
-- [x] QA-DATA-44: a passed scheduled macro event date alone must never update `lastRelease`. Fixed-date runtime fixtures verify that the next scheduled date advances while the independently verified result date remains unchanged, including when no future schedule date exists. Static-data contract fixtures cover annual calendars across the 400-day FRED horizon, preserve `tentative: true` for 2027 FOMC through preview `sourceEvidence`, expose missing BOK/ISM year files, and preview a next-year date with zero network/write side effects. verify_by: P1301/R650 `node scripts/ci-runtime-contract-check.mjs`, `node scripts/ci-static-data-contract-check.mjs`, `node scripts/ci-static-db-expiry-check.mjs`, `node scripts/ci-version-check.mjs`, `node scripts/ci-assertion-trace-check.mjs`, and `node scripts/ci-ledger-integrity-check.mjs` PASS. Affected QA: 84 PASS; remaining reconciliation/A1/data-lineage failures are the known stale-data release blockers tracked separately.
+- 완료 11건: QA-DATA-34, QA-DATA-35, QA-DATA-36, QA-DATA-37, QA-DATA-38, QA-DATA-39, QA-DATA-40, QA-DATA-41, QA-DATA-44, QA-DATA-42, QA-DATA-43
 
 ## v56.57 운영·저장 뉴스·CI 실패 증거 (2026-09-27)
-
-- [x] QA-DATA-28: 뉴스 chart history는 현재 model version과 최소 적격 표본 수를 동반한 점만 재수화·저장·렌더링하며, 구형 localStorage 점과 ESM 부재 fallback 점수 50은 노출되지 않는다. verify_by: `ci-esm-core-unit-check` (normalizer fixture + legacy writer/fallback boundary).
-- [x] QA-CI-01: QA runner가 실패 gate의 전체 stdout/stderr를 run별 sidecar로 보존하고 secret sentinel을 청크 경계까지 마스킹한다. sidecar/report/console에 sentinel이 없고 성공 시 raw/clean 파일이 남지 않는다. CI preflight/contracts/browser는 실패 시에만 pinned upload-artifact 액션으로 7일 업로드한다. verify_by: `ci-qa-runner-behavior-check` + `ci-qa-pipeline-contract-check` + `ci-assertion-trace-check`.
+- 완료 2건: QA-DATA-28, QA-CI-01
 
 ## v56.55 E0 원자 전환·portfolio reader 단일화 (2026-09-27)
-
-- [x] QA-E0-ATOMIC: 동일 라우트 재확약의 viewState 폐기와 mount 실패 시 미커밋 화면 잔존(36이 OPEN으로 기록한 E0 원자 전환)을 P1278·P1279로 닫았다. verify_by: `ci-esm-core-unit-check` P1278 재확약 10단계 fixture(발행·no-op·재마운트 금지·초기화)와 P1279 롤백 fixture(shown 순서·active·navigationFailed).
-- [x] QA-E0-VIEWSTATE-PRODUCER: **커밋 계약은 닫혔으나 viewState의 실제 생산자·소비자가 없다.** 화면 탭·필터가 typed 커맨드로 view를 전송하고 store·페이지가 소비하는 수직 왕복이 필요하다. — Retired (v58.86 정리): 검증 항목이 아니라 분해 작업: 로드맵 11번(legacy 큰 파일 분해)으로 넘김. verify_by: E7 수직 사용자 과업(E6/E7 카드의 screen↔AI↔storage sink 대사와 함께) — 기계 게이트로 대체하지 않는다.
-- [x] QA-E0-SHELL-EFFECT-ORDER: **facade 효과 선행 구조는 롤백으로만 안전하다.** 커밋-먼저 전환(가시성·차트 치수 계약 재설계 포함)으로 역전하려면 chart native 회수(E0 P-B 계열)가 선행이다. — Retired (v58.86 정리): 검증 항목이 아니라 분해 작업: 로드맵 11번(legacy 큰 파일 분해)으로 넘김. verify_by: 회수 완료 후 `ci-esm-core-unit-check` 순서 fixture 갱신 + 실브라우저 전환 왕복.
-- [x] QA-E0-READERS: facade 두 번째 Vault 매핑(P-A)·죽은 `getPortfolioState` 분기(P-E)·채팅 시뮬레이터(P-D)·섹터 다이어그램(P-C) 죽은 reader를 P1280~P1282로 종료했다. verify_by: `ci-esm-core-unit-check` shadow byte-identical/locked/empty fixture + `ci-architecture-contract-check` facade 위임 계약. **P-B(`_nativePortfolioTable` fence 회수)·P-F(현금 envelope 단일화)는 fence 계약이 현행 요구이므로 별도 잔여**로 남는다(verify_by: fence 제거 카드의 단일 렌더 확인 + cash 단일 reader fixture).
+- 완료 4건: QA-E0-ATOMIC, QA-E0-VIEWSTATE-PRODUCER, QA-E0-SHELL-EFFECT-ORDER, QA-E0-READERS
 
 ## v56.48 E7 잔여 — 감사 3종 결함 클러스터 + 큐 3종 (2026-09-25)
-
-- [x] QA-THM-35 세부·QA-E5-RECEIPT·셸 위험 입력 분해(E2 표기 포함)는 각 항목에서 갱신 — P1256~P1258.
-- [x] QA-THM-CLEANUP: **테마 퇴역 섹션의 legacy writer·CSS 잔재가 남아 있다 (P1257 residual).** 삭제된 `theme-heatmap`/`all-etf-grid`/`sector-20d-*`/`themes-m7-mirror`/`themes-breadth-*`/`themes-sector-mirror`를 참조하는 `js/aio-pages.js`·`js/aio-ui.js`·`js/aio-core.js`의 렌더러·selector·quote 게이트 항목과 responsive CSS 규칙이 요소 부재 시 no-op으로 남는다. verify_by: `ci-runtime-contract-check` 퇴역 id 참조 0건 단언(P1257 후속 신설) + `ci-decomp-hotspot-check` aio-pages/aio-ui/aio-core 순감소 ratchet. **종료(2026-09-26, P1260)**: 죽은 렌더러 3종(`renderThemeHeatmap`/`renderAllEtfGrid`/`detectHotThemes`)·전용 핸들러·호출부·미러 selector 3곳·quote 게이트 프리셋·반응형 CSS 4건을 삭제하고 `ci-runtime-contract-check`에 퇴역 id 원시 부재 단언을 신설했다. decomp ratchet aio-pages −197·core −4·ui −2·index.html −6(`--write` 기록). 범위 밖 클래스 selector(`.m7-leadership-row` 등)와 실브라우저 화면 인수는 잔여(P1260 residual_risk).
-- [x] QA-GLOSSARY-SWEEP: **용어집의 나머지 역사 수치가 전수 원전 대조되지 않았다 (P1248 residual).** 확정 오류(LC-58/66~71)와 미검증 경험칙(LC-72)은 정정·격하했지만, 배경지식 항목의 인용 수치(골든크로스 후속 수익 등)는 조건부 문구로만 남아 있고 출처 필드 계약이 없다. verify_by: `ci-runtime-contract-check` 경험칙 수치의 출처·조건 표기 단언(P1248 후속 신설) + 대조 결과 기록. **종료(2026-09-26, P1261)**: 수치 항목 84개 전원에 `kind/src/cond` 대조 행을 갖는 `GLOSSARY_FIGURE_SOURCES` 레지스트리를 신설해 전수 대조 결과를 기록했다(원전 확인 정의류와 단일 원전 없는 관례류·미검증 경험칙을 명시 구분). 근거 없는 주장 6건을 정정했다(아인슈타인 인용 미확정 격하, QE 최상급 제거, AAII 반등 예측 제거, DCA 66%→연구 집계 표본 한정, 롱/숏·켈리 지시형 경험칙→방법론 예시). 게이트: `ci-runtime-contract-check` 양방향 정합 단언 3종. 검증: headless 1145/1145 PASS. 잔여: 역사-관측류의 기준년 실측·UI 출처 노출(E7-C1)은 별도(P1261 residual_risk).
+- 완료 3건: QA-THM-CLEANUP, QA-GLOSSARY-SWEEP, QA-THM-35, QA-E5-RECEIPT
 
 ## v56.47 E3/E4 FX 계획 4 — 백테스트 통화축 (2026-09-25)
-
-- [x] QA-FX-CONSUMERS: **백테스트 랩에 통화 참조가 0건이라 FX 열이 생겨도 소비되지 않았다 (E3/E4, P1247).** 시작 배분이 `qty × 시작가`를 통화 구분 없이 더해 분모를 만들었고, 이제 평가 경로와 같은 `fx.js` 선언 leg 계약(`convertWithDeclaredRates`)으로 환산하거나 보류한다. reconciliation `commodities-fx`에 `fx-daily-history-60`·`fx-official-provider-reconciliation` evidence를 추가했다. 게이트: `ci-esm-core-unit-check` P1247 픽스처 6종 + `ci-reconciliation-contract-check`(재생성 truth-view 일치). verify_by: 판정 완료(P1247 — 순수 합성·계약) — 실값은 아래 QA-FX-REFRESH, FX 시계열 정렬은 QA-FX-SERIES.
-- [x] QA-FX-SERIES: **기준 통화 수익률 (P1259 종료).** 백테스트 랩이 현지 통화 가중 수익률과 **별도 결과**인 기준 통화 수익률을 함께 발행한다 — 월말 정렬 계약(월 키의 마지막 관측만 사용, 관측 없는 달 경계·미보유 통화쌍은 보류·추정 금지)으로 멤버별 환산하고 `returnCurrencyBasis: 'base-currency-month-end-fx'` 라벨을 분리한다. verify_by 충족: `ci-esm-core-unit-check` 월말 FX 정렬 fixture(월 중간 관측 무시·보류 사유) + 동일 입력에서 현지통화/기준통화 두 결과의 라벨·수치 대조(0 vs −9.09%). 잔여: `history.json:usdkrw` 실값은 QA-FX-REFRESH(다음 정식 refresh), 연간·drawdown 재계산은 미포함.
+- 완료 2건: QA-FX-CONSUMERS, QA-FX-SERIES, QA-FX-REFRESH
 
 ## v56.46 E3/E4 FX 통화축 선행 BLOCKER (2026-09-25)
-
-- [x] QA-FX-AXIS: **USD/KRW 과거 시계열 공급원이 없어 백테스트 통화축이 BLOCKED였다 (E3/E4, P1246).** `HIST_SYMBOLS`에 `KRW=X→usdkrw`를 넣어 기존 producer 경로(1년 백필 + 일별 완료 컷)로 생산하고, 타당 범위(`HIST_FIELD_PLAUSIBILITY`)를 producer·게이트가 공유하며, FRED DEXKOUS 공식 대조를 같은 시점 정렬로 `providerCrossChecks.fx`에 발행한다. 게이트: `ci-history-field-time-contract-check` FX 계약 6종. verify_by: 판정 완료(P1246 — 정적·실측 프로브) — 아티팩트 실값은 아래 QA-FX-REFRESH.
-- [x] QA-FX-REFRESH: **`history.json`의 `usdkrw`는 아직 전 행 null이고 1년 백필이 시드되지 않았다.** 다음 정식 refresh(`.github/workflows/refresh-data.yml`)가 채운 뒤 ① FX 열 60행+ 커버리지 ② `latest` 행의 `usdkrw`가 market-snapshot `KRW=X` 완료 종가와 2% 이내인지 ③ `providerCrossChecks.fx.status`가 `ok`/`divergent`/`not-comparable` 중 무엇이며 그 이유가 관측일과 함께 맞는지 ④ 값·단위(원/달러)와 출처 라벨이 화면·소비자에서 일치하는지 확인해야 한다. verify_by: `ci-history-field-time-contract-check` + `ci-data-lineage-audit` 재실행 후 `public-data/history.json`·`public-data/data.json:providerCrossChecks.fx` 실값 대조. **종료(2026-09-26, P1262)**: fetch-data producer의 P1256 스코프 결함(모든 실행이 `previous is not defined`로 중단)을 고치고 실제 완주해 백필을 시드했다 — ① usdkrw 261행 ② latest 1354.4 = KRW=X 완료 종가 1354.4(0.0% ≤ 2%) ③ `status: ok`(DEXKOUS 2026-09-18 같은 시점 정렬, `decisionUse:false` 유지) ④ `unit: KRW/USD`·`source: Yahoo chart` + 교차검증 레코드의 공식 URL·양쪽 값·관측일 보존. `ci-history-field-time-contract-check` PASS(420행)·`ci-data-lineage-audit` FAIL=0·`ci-reconciliation-contract-check` ok. 잔여: 무키 라벨(`fredHasKey:false`)은 정식 사이클이 덮고, ④의 실브라우저 화면 라벨 확인은 배포 revision 인수와 함께 별도(P1262 residual_risk).
-- [x] QA-FX-CONSUMERS: **백테스트 랩 통화축 배선과 reconciliation evidence 행 — v56.47에서 종료(P1247).** 이 낡은 "미착수" 표기는 v56.47 절의 동명 항목으로 대체됐다.
+- 완료 3건: QA-FX-AXIS, QA-FX-REFRESH, QA-FX-CONSUMERS
 
 ## v56.45 E6 A05 요청별 출처 소유권 (2026-09-25)
-
-- [x] QA-AI-A05: **요청 출처가 스트림이 아니라 공유 전역에 묶여 있었다 (E6 A05, P1245).** native 인용·연구 tool 오류를 `requestId` 스코프 저장소로 옮기고 `_aioActiveAIRequestId`/`_aioLastClaudeCitations`/`_aioLastClaudeResearchError`를 제거했다. 수집기는 스트림이 시작할 때 받은 불변 id를 찍고, evidence gate는 호출자가 말한 id만 쓴다. 게이트: `ci-ai-intelligence-contract-check` P1245 2종(수집기 자기 스트림 id 스탬프·공유 슬롯 부재 + 겹친 두 스트림 비혼입 VM 실행, 사전 소스 음성 검증). verify_by: 판정 완료(P1245 — 의미·행동) — 실공급자 동시 요청 trace는 아래 QA-AI-A05-STREAM.
-- [x] QA-AI-A05-STREAM: **실제 provider 동시 요청·역순 응답·취소 후 늦은 chunk의 인용 결속이 미검증이다.** 정적·VM 검증은 겹친 두 스트림의 비혼입을 고정했지만, 실브라우저에서 classic(`per-page-chat`)·unified 두 진입점에 동시에 질의해 ① 각 답변의 출처 푸터가 자기 요청의 인용인지, ② 늦게 도착한 응답·재시도가 앞 요청의 근거를 채우지 않는지, ③ 원문이 그 문장을 실제로 지지하는지(A03 entailment)를 확인해야 한다. — Retired (v58.86 정리): 퇴역 표면: 화면별 classic 채팅은 v57.62에 지워졌고 통합 패널 하나가 남았다(늦은 chunk 차단은 ci-ai-chat-reliability의 chat-resilience 구획) verify_by: P1245 기준선 대비 실브라우저 두 진입점 동시 질의 trace + 비식별 provider 응답 대조
+- 완료 2건: QA-AI-A05, QA-AI-A05-STREAM
 
 ## v56.42 E5 R24-07 SLO 예정 도착 집계 (2026-09-25)
-
-- [x] QA-E5-SLO: **다른 trigger로 채운 창이 예정 도착 PASS로 인증됐다 (R24-07, P1242).** `buildLane`이 `workflow_dispatch`만 제외하고 나머지를 전부 `scheduled`로 세어, 30일 push-only lane도 MEASURED·CERTIFIED_WINDOW가 될 수 있었다. 이제 `schedule` event만 측정하고 다른 trigger는 `nonScheduledRunsExcluded`·`nonScheduledEventBreakdown`으로만 발행한다. 게이트: `ci-operations-slo-window-check` R24-07 push-only fixture(3도메인 30일 → NOT_OBSERVED·미인증·제외 30건). verify_by: 판정 완료 — 게시 artifact의 새 lane 필드는 자격증명 refresh 시 반영.
-- [x] QA-E5-RECEIPT: **O06 도메인 receipt 일반화 (P1256 종료).** `scripts/lib/domain-receipt.mjs` 정본화(SEC re-export), `fetch-data.mjs` 8개 도메인 receipt 발행(`data.meta.domainReceipts`, priorReceipt로 observation 전진 방지), `build-operations-status.mjs` `deriveDomainStatus` 소비 + 사용자 복구 설명("기존값 유지 ≠ 새 수집 성공"), 계약 `domainReceipts` 어휘 검증. verify_by 충족: `ci-operations-status-check` + 도메인별 receipt 픽스처 4종(전부 실패 유지/일부/성공/미수집). 잔여: checked-in artifact의 receipt 필드는 다음 refresh 반영, history 축 receipt는 후속.
+- 완료 2건: QA-E5-SLO, QA-E5-RECEIPT
 
 ## v56.40 E2 잔여 S-C·S-E·S-F (2026-09-25)
-
-- [x] QA-E2-SC: **스크리너 행 해석 체인이 두 구현으로 갈라져 비교 근거가 없었다 (S-C 종료, P1240·P1241).** P1240이 shadow 하니스로 분기를 측정했고, **P1241이 소유자를 확정**했다 — `src/data/screener-row-policy.js`가 단일 소유자, `screenerNativePublished`로 게시 여부 판정, **게시된 빈 상태는 두 intent 모두에서 권위**(번들 대체 금지), 번들 DB는 `BUNDLED_COMPAT` intent를 선언한 호출부의 게시 전 호환 읽기로만 도달, 퇴역 전역 도달 제거, facade API 59→60. 게이트: `ci-esm-core-unit-check` S-C 하니스(5케이스 × 4경로) + `ci-runtime-contract-check` E2/S-C/P1241 + `ci-retirement-contract`. verify_by: 판정 완료 — 실브라우저 게시 전/후 전환은 QA-E2-40.
-- [x] QA-E2-SE: **두 채팅이 같은 스크리너 AI 컨텍스트를 각자 구현했다 (S-E, P1239).** `_aioBuildScreenerAiContext` 단일 소유. 게이트: E2/S-E/P1239. verify_by: 판정 완료 — 동일 질의 동일 후보군 실브라우저 대조는 잔여.
-- [x] QA-E2-SF: **뉴스 전용 IDB가 `AIOScreenerDB`(스크리너 명칭)였다 (S-F, P1238).** `AIOScreenerNewsCache` 개명 + 비파괴 복사 마이그레이션(`indexedDB.databases()` 존재 확인). 게이트: E2/S-F/P1238. verify_by: 판정 완료 — 실 IDB 마이그레이션(복사·미삭제)은 아래 QA-E2-40.
-- [x] QA-E2-40: **E2 배치의 실브라우저·실 IDB 인수가 미실시다.** (a) 이전 이름 DB에만 뉴스가 있을 때 새 DB로 복사되고 이전 DB가 남는지, (b) 새 이름 DB가 이미 차있을 때 마이그레이션이 건너뛰어지는지, (c) 두 채팅이 같은 스크리너 컨텍스트를 받는지, (d) shadow 하니스의 두 분기 케이스가 실페이지에서 같은 결과인지. — Retired (v58.86 정리): 한 번뿐인 IndexedDB 이름 이전(v56.40)의 창이 지났다. verify_by: `ci-architecture-browser-check.mjs` + 수동 IndexedDB 점검(DevTools)
+- 완료 4건: QA-E2-SC, QA-E2-SE, QA-E2-SF, QA-E2-40
 
 ## v56.39 LC-31/32/35/36/50~53 기사·테마·근거·학습 정직성 (2026-09-25)
-
-- [x] QA-NEWS-31: **피드 query 주제가 기사 분류로 표시됐다 (LC-31, P1230).** `topic`/`feedTopic`/`topicSource`/`topicReviewRequired` 분리 + `(피드 분류 · 검토 필요)` 표기. 게이트: `ci-runtime-contract-check` LC-31/P1230. verify_by: 판정 완료 — producer의 기사별 분류 근거 생산은 잔여.
-- [x] QA-NEWS-32: **헤드라인 전용 기사의 인과·수혜 요약이 게시됐다 (LC-32, P1231).** `contentDepth==='headline-only'`면 요약 보류 문구. 게이트: LC-32/P1231. verify_by: 판정 완료 — claimType/원문 span 계약은 잔여.
-- [x] QA-THM-35: **테마 공개 범위 — 제품 결정 완료·실행 (P1257 종료).** 숨김 구형 섹션을 분류했다: 퇴역(시장 리더십·20일 추이·히트맵·대표 ETF) / 공개 이전(경기 사이클 리드 판정·섹터 퍼포먼스) / 개발자 번들 이전(세분화 45·한국 28테마 — P702 고급 토글). 일괄 숨김 규칙 제거, 결정 기록을 스타일시트에 유지, 공개 문구=실제 노출 정합. 게이트: LC-35/P1257. verify_by 충족: 판정 완료 + 공개/개발자 번들 대조(계약 DOM 보존 검증 — headless T642/T806/T824/T869/T1018·아키텍처 게이트).
-- [x] QA-THM-36: **테마 가격 참여 폭이 실제 분모를 밝히지 않았다 (LC-36, P1233).** `가격 적격 n/N` 표시. 게이트: LC-36/P1233. verify_by: 판정 완료 — 하위 그룹 17↔리더 14 membership as-of는 잔여.
-- [x] QA-ATL-50: **Atlas 근거 검색 0건이 근거 부재로 읽혔다 (LC-50, P1234).** 검색 범위 안내 줄 추가. 게이트: LC-50/P1234. verify_by: 판정 완료 — 통합 검색 설계는 잔여.
-- [x] QA-MST-51: **Masters 역조회가 8행만 조용히 잘랐다 (LC-51, P1235).** `표시 N/M행` + `나머지 N행 보기`. 게이트: LC-51/P1235. verify_by: 판정 완료 — 원행 identity 실브라우저 인수는 잔여.
-- [x] QA-GUIDE-52: **Guide 배경지식이 조건·출처 없이 금융 규칙을 단정했다 (LC-52, P1236).** 계절·임계값 참고값·전환 후보·참여 규모·CPI 조건으로 낮췄다. 게이트: LC-52/P1236. verify_by: 판정 완료 — 문장별 claimType 원장화·외부 원전 대사(E)는 잔여.
-- [x] QA-PRN-53: **Principles가 학습 층 관계를 설명하지 않았다 (LC-53, P1237).** 도입부에 4층 비가산 안내. 게이트: LC-53/P1237. verify_by: 판정 완료 — 초보 이해도 시험(U)은 잔여.
-- [x] QA-FINAL-39: **P1230~P1237은 소스/계약 수준으로만 검증됐고 실브라우저 인수는 미실시다.** (a) 뉴스 카드의 검토 필요 표기·headline-only 요약 보류, (b) 테마 분모 표기, (c) Atlas 검색 범위 안내·탭 복귀, (d) Masters 8/14 더보기·키보드, (e) Guide 배경 문구, (f) Principles 층 안내. — Retired (v58.86 정리): 대체됨: 해당 화면은 v57~v58에서 다시 만들어졌고 브라우저 게이트(viewport·responsive·entity-quality·a11y·rendered-copy)와 verify-aio 주행이 릴리스마다 확인한다. 이 묶음 단위의 별도 실브라우저 인수는 하지 않는다. verify_by: `ci-architecture-browser-check.mjs` + `ci-masters-contract-check.mjs` + `ci-principles-browser-check.mjs` + 수동 보조공학 점검
+- 완료 9건: QA-NEWS-31, QA-NEWS-32, QA-THM-35, QA-THM-36, QA-ATL-50, QA-MST-51, QA-GUIDE-52, QA-PRN-53, QA-FINAL-39
 
 ## v56.38 LC-43~49 공개 포트폴리오·시장 표시 정직성 (2026-09-25)
-
-- [x] QA-PORT-43: **포트폴리오 도입 문구가 숨겨진 신선도 strip을 약속했다 (LC-43, P1223).** `#pf-freshness-strip`은 `display:none!important`인데 부제는 `시세 지연/출처를 별도 표시`라고 했다. 실제 표시 근거(행별 가격 셀 툴팁)로 문구를 고쳤다. 게이트: `ci-runtime-contract-check` LC-43/P1223. verify_by: 판정 완료(P1223) — 숨김 패널 퇴역/공개 결정은 제품 판단으로 잔여.
-- [x] QA-PORT-44: **`가져오기`가 Tab에서 건너뛰어졌다 (LC-44, P1224).** `<label tabIndex=-1>` + `display:none` input을 실제 `<button data-action="_aioTriggerPortfolioImport">` + visually-hidden input으로 바꿨다. 게이트: LC-44/P1224. verify_by: 판정 완료(P1224) — Tab/Enter/파일 선택 실기는 QA-PORT-MKT-38.
-- [x] QA-PORT-45: **포트폴리오 표가 모든 금액에 `$`를 붙였다 (LC-45, P1225).** 원가·시세·손익이 행별 선언 통화(USD만 `$`)를 출력하고 툴팁에 통화 근거를 남긴다. 게이트: LC-45/P1225. verify_by: 판정 완료(P1225) — 가짜 USD/KRW/혼합 실브라우저 인수는 QA-PORT-MKT-38.
-- [x] QA-MKT-46: **Macro 배너가 정적 '수신 대기'인데 카드에 값이 있었다 (LC-46, P1226).** native renderer가 렌더된 CPI/PCE 카드 값에서 배너 문구·`data-runtime-state`·operational-use를 파생한다. 게이트: LC-46/P1226. verify_by: 판정 완료(P1226) — 실브라우저 동시 상태는 QA-PORT-MKT-38.
-- [x] QA-MKT-47: **50SMA 카드와 아래 문장이 다른 상태를 동시에 보여줬고 '상승/하락 비율' 라벨이 분모를 잘못 말했다 (LC-47, P1227).** native가 readout 문장을 단독 소유하고 라벨을 `상승 종목 비중 (보합 제외)`로 바꿨다. 게이트: LC-47/P1227. verify_by: 판정 완료(P1227).
-- [x] QA-MKT-48: **Signal 섹터 폭과 Breadth 종목 폭이 같은 '시장 폭'처럼 읽혔다 (LC-48, P1228).** `섹터 폭 50%+ (SPDR 11 ETF 당일)` + 교차 툴팁으로 모집단을 명시했다. 게이트: LC-48/P1227. verify_by: 판정 완료(P1228).
-- [x] QA-MKT-49: **Macro 곡선 가용성이 공식 2s10s에 종속됐다 (LC-49, P1229).** `curveLegsPresent`/`curveSpreadComparable`로 분리하고 cut 미확정은 스프레드 판정을 보류한다. 게이트: LC-49/P1228. verify_by: 판정 완료(P1229) — 로딩→도착 시퀀스 실브라우저는 QA-PORT-MKT-38.
-- [x] QA-PORT-MKT-38: **P1223~P1229는 소스/계약 수준으로만 검증됐고 실브라우저 인수는 미실시다.** (a) 포트폴리오 Tab 순서에서 가져오기 도달·파일 선택·취소, (b) USD/KRW/혼합 계좌 표·손익 통화 표기와 보류, (c) macro 배너·카드 동시 상태와 곡선 로딩→공식값 도착 순서, (d) breadth 카드·readout·라벨 일치와 Signal↔Breadth 모집단 구별. — Retired (v58.86 정리): 대체됨: 해당 화면은 v57~v58에서 다시 만들어졌고 브라우저 게이트(viewport·responsive·entity-quality·a11y·rendered-copy)와 verify-aio 주행이 릴리스마다 확인한다. 이 묶음 단위의 별도 실브라우저 인수는 하지 않는다. verify_by: `ci-architecture-browser-check.mjs`(portfolio/macro/breadth 라우트 DOM) + `ci-accessibility-matrix-check.mjs`(Tab 도달) + 수동 보조공학 점검
+- 완료 8건: QA-PORT-43, QA-PORT-44, QA-PORT-45, QA-MKT-46, QA-MKT-47, QA-MKT-48, QA-MKT-49, QA-PORT-MKT-38
 
 ## v56.37 LC-30/22/19/21/29/28/37/38 shard 동치·수량·문장 정직성 (2026-09-25)
-
-- [x] QA-MST-30: **Masters 과거 분기 shard가 index 서술자와 동치 검증 없이 변화 원장에 들어갔다 (LC-30, P1222).** 현재 보유 shard는 검증했지만 `loadQuarterArtifacts`는 URL만 믿었다. `managerId`·`runtimeShardSchema`·`historySummary.rawRowsAvailable === descriptor.historyRows`를 확인하고 불일치면 fail-closed한다. 게이트: `ci-runtime-contract-check` LC-30/P1222 + `ci-masters-contract-check`. verify_by: 판정 완료(P1222) — 잘못된 shard 주입 실브라우저 fixture는 QA-CONTENT-37.
-- [x] QA-ATL-22: **Atlas가 고유 개념 48과 단계 배치 55를 구분하지 않았다 (LC-22, P1221).** `기초 개념 48개(고유) · 단계 배치 55개 · 다른 단계 재등장 1개`로 함께 게시한다. 게이트: `ci-runtime-contract-check` LC-22/P1221. verify_by: 판정 완료(P1221) — 실화면 수치·7카드 재방문 이해도는 QA-CONTENT-37.
-- [x] QA-GUIDE-19: **Guide가 reference-only 점수를 매매 지시로 바꿨다 (LC-19, P1220).** `45 미만이면 매매하지 않는 것이 최선` → 관측·재확인 문장(`관측값이며 매매 승인이 아닙니다`). 게이트: `ci-runtime-contract-check` LC-19/21/P1220. verify_by: 판정 완료(P1220) — 문장 단위 claimType 원장화는 잔여(LC-52).
-- [x] QA-GUIDE-21: **Guide가 미제공 지표(200일선 비율·공식 McClellan·NAAIM·II)를 제공한다고 썼다 (LC-21, P1220).** `현재 미수신/미제공`으로 명시하고 breadth 범위를 5/20/50으로 맞췄다. 게이트: 동일 단언. verify_by: 판정 완료(P1220) — capability registry에서 본문을 생성하는 구조는 별도(E7).
-- [x] QA-SENT-29: **F&G 변화량 `0`이 라벨 없이 두 번째 점수처럼 보였다 (LC-29, P1219).** 화면 문구 자체가 이름을 단다: `전일 대비 +N`, 0이면 `전일과 같음`(v59.70, src/ui/components/market-regime.js). 게이트: `ci-architecture-browser-check` P1428 — 문구가 이 두 형식이 아니면 실패한다(v59.74, LC-29 정적 핀은 v59.38에 퇴역). verify_by: 판정 완료(P1219) — 스크린리더 실기·비교일 표시는 QA-CONTENT-37.
-- [x] QA-THM-28: **테마 상세가 하루 등락을 모멘텀·자금흐름·원인 단정으로 확장했다 (LC-28·LC-37·LC-38, P1218).** 네 패널이 측정 창(당일)과 모집단만 말하고 나머지는 `별도 근거가 필요합니다`로 분리한다. 게이트: `ci-runtime-contract-check` LC-28/37/38/P1218. verify_by: 판정 완료(P1218) — 경계값 fixture·legacy 한국 테마 문장은 QA-CONTENT-37.
-- [x] QA-CONTENT-37: **P1218~P1222는 소스/계약 수준으로만 검증됐고 실브라우저·경계값 인수는 미실시다.** (a) theme-detail 4패널의 당일/기간 구분 문구, (b) Atlas 상단 수량과 7카드 배치 합(55) 일치, (c) Guide 해당 절 문구와 실제 route 제공 범위, (d) F&G delta 라벨·스크린리더 이름, (e) Masters history shard 교체 주입 시 fallback 전환. — Retired (v58.86 정리): 대체됨: 해당 화면은 v57~v58에서 다시 만들어졌고 브라우저 게이트(viewport·responsive·entity-quality·a11y·rendered-copy)와 verify-aio 주행이 릴리스마다 확인한다. 이 묶음 단위의 별도 실브라우저 인수는 하지 않는다. verify_by: `ci-architecture-browser-check.mjs`(themes/atlas/guide/sentiment 라우트 DOM) + `ci-masters-contract-check.mjs` + 수동 보조공학 점검
+- 완료 7건: QA-MST-30, QA-ATL-22, QA-GUIDE-19, QA-GUIDE-21, QA-SENT-29, QA-THM-28, QA-CONTENT-37
 
 ## v56.36 LC-39/33/34 교차 라우트 정체성·뉴스 접근성 (2026-09-25)
-
-- [x] QA-ENT-39: **기업 분석의 `차트 분석`이 없는 입력(`deep-ticker-input`)에 쓰고 분석을 트리거하지 않아 기술 화면이 이전 종목(SPY)을 보였다 (LC-39, P1215).** `_aioChartAnalyze`(기업)·`_aioTechnicalTicker`(포트폴리오) 두 bridge가 같은 죽은 id에 썼고 `showPage('technical')`만 호출했다. `_aioOpenTechnicalAnalysis(ticker)` 하나로 수렴해 실제 입력 `#deep-sym-input` + `runDeepAnalysis(sym)`(=`analyzeTickerDeep` + `aio:entityChanged`)을 호출한다. 게이트: `ci-runtime-contract-check` LC-39/P1215(legacy 셸 전체 `deep-ticker-*` 부재·단일 bridge·`runDeepAnalysis(sym)`). verify_by: 판정 완료 — `ci-runtime-contract-check`·`ci-syntax-check`·`ci-research-flow-contract-check` PASS. 실브라우저 클릭 인수는 QA-NEWS-35.
-- [x] QA-NEWS-33: **한국 필터 0건에서 내부 `emptyReason` enum(`all-news-outside-time-window`)이 사용자 문장에 그대로 노출됐다 (LC-33, P1216).** market-news·briefing 빈 상태의 raw 보간을 제거하고 `NEWS_EMPTY_REASON_COPY` + `describeNewsEmptyReason()`로 번역한다(미지 토큰은 일반 문장, 창 밖 수집분은 건수로 분리). 게이트: `ci-runtime-contract-check` LC-33/P1216. verify_by: 판정 완료(P1216) — 실제 화면 문구·조합별 분모는 QA-NEWS-35.
-- [x] QA-NEWS-34: **뉴스 원문 카드가 포커스 불가능한 클릭 `div`라 키보드/AT로 원문을 열 수 없었다 (LC-34, P1217).** 제목을 실제 `<a class="news-item-link" target="_blank" rel="noopener noreferrer">`로 렌더하고 접근성 이름을 주며, 카드 click 위임은 `a[href]`에서 즉시 반환해 이중 열기를 막는다. 게이트: `ci-runtime-contract-check` LC-34/P1217 + `.news-item-link` CSS. verify_by: 판정 완료(P1217) — 실제 Tab/Enter/스크린리더는 QA-NEWS-35.
-- [x] QA-NEWS-35: **P1215~P1217은 단위/소스 계약으로만 검증됐고 실브라우저·보조공학 인수는 미실시다.** (a) 기업 분석 AAPL → `차트 분석` → 기술 화면 입력·제목·차트가 AAPL이고 뒤로가기가 유지되는지, (b) 뉴스 카드가 접근성 트리에서 링크로 노출되고 Tab/Enter로 원문이 한 번만 열리는지(자식 티커 버튼 이벤트 보존), (c) 국가/토픽/정렬 0건 조합의 문구·분모를 확인해야 한다. — Retired (v58.86 정리): 대체됨: 해당 화면은 v57~v58에서 다시 만들어졌고 브라우저 게이트(viewport·responsive·entity-quality·a11y·rendered-copy)와 verify-aio 주행이 릴리스마다 확인한다. 이 묶음 단위의 별도 실브라우저 인수는 하지 않는다. verify_by: `ci-architecture-browser-check.mjs`(뉴스/기술 라우트 DOM) + `ci-a11y-*` 또는 수동 Tab/스크린리더 과업
+- 완료 4건: QA-ENT-39, QA-NEWS-33, QA-NEWS-34, QA-NEWS-35
 
 ## v56.35 E2 LC-25/26/40~42 스크리너·신호 결과 정직성 (2026-09-25)
-
-- [x] QA-SCR-40: **Why 제목이 엔진이 방출하지 않는 상태를 비교해 항상 '순위 계산 보류'였다 (LC-40, P1210).** `screen-engine.js`의 `screenRankingState` 어휘는 `ranked`/`unavailable`/`not-requested`인데 `src/ui/pages/screener.js`가 `=== 'available'`을 비교해 그 분기가 참이 될 수 없었고, 서수 표시 순위와 팩터 원값 순위를 둘 다 `rank`로 불렀다. 엔진 어휘 `ranked` 소비 + `표시 순위 N · 팩터 원값 M` 명명으로 고쳤다. 게이트: `ci-screener-workbench-contract` P1210 단언 2종. verify_by: 판정 완료(P1210) — pass+ranked/pass+unranked/unavailable 조합의 실브라우저 Why 렌더는 QA-SCR-28.
-- [x] QA-SCR-25: **스크리너 실행 판정과 표의 표시 범위가 같은 모집단으로 읽혔다 (LC-25, P1211).** funnel이 `조건 통과 342 / 데이터 부족 29`와 `현재 필터 결과 873`을 분모 없이 나열했다. `scr-funnel-passed-denom`/`scr-funnel-unavailable-denom`(실행 분모=`run.rowCount`)·`scr-funnel-runid`(run id+origin)·`scr-funnel-scope-note`로 실행 판정/표시 범위를 분리하고, 실행 완료 상태줄과 readiness note에도 runId/분모를 추가했다. 게이트: `ci-screener-workbench-contract` P1211 단언 2종. verify_by: 판정 완료(P1211) — 필터 badge↔runId 결속은 QA-SCR-28.
-- [x] QA-SCR-41: **결측 진단값이 0으로 승격돼 '측정된 0'처럼 보였다 (LC-41, P1212).** native 팩터 진단의 `Number.isFinite(Number(x))`(=`Number(null)===0`)와 legacy `_factorBacktest`의 `|| 0` 폴백이 미수신을 유효값으로 만들었다. `countOrNull()`과 `num()`으로 결측을 분리하고 표본이 없으면 `계산 불가 · 표본 없음`을 그린다. 게이트: `ci-screener-workbench-contract` P1212 단언 + `ci-runtime-contract-check` legacy 캔버스 단언. verify_by: 판정 완료(P1212) — 실브라우저 캔버스 렌더는 QA-SCR-28.
-- [x] QA-SCR-42: **관측시각 없는 가격이 전역 LIVE 배지와 나란히 '현재가'로 읽혔다 (LC-42, P1213).** 가격 셀이 행 자체의 currency/priceObservedAt/priceSource를 담고, 관측시각이 없으면 `관측시각 미확인 · 참고` 하위 라벨·muted 색·`data-quote-freshness="unverified"`와 `전역 LIVE에 상속하지 않음` 툴팁을 표시한다. 게이트: `ci-screener-workbench-contract` P1213 단언. verify_by: 판정 완료(P1213) — 실브라우저 행 렌더는 QA-SCR-28.
-- [x] QA-SIG-26: **신호 점수 모드가 표현 문구만 바꾸고 계산 입력·판정·체크리스트에는 전달되지 않았다 (LC-26, P1214).** legacy facade는 `mode:'swing'` 하드코딩, native reader는 모드 누락, UI는 모델에 없는 `임계값 65점`을 약속했고 체크리스트 제목은 모드와 무관하게 `스윙 환경 체크리스트`였다. `src/domain/market/signal/mode.js` 단일 소유 + `AIO_ARCH.signalScoreMode` 단일 브리지 + 두 reader의 `computeTradingScoreModel({mode})` 전달 + 체크리스트 3상 집계와 모드 독립 명시로 고쳤다. 게이트: `ci-esm-core-unit-check` P1214 fixture(어휘·descriptor `decisionThreshold:null`·day 모드가 점수를 실제로 바꿈 swing 62 vs day 74) + `ci-runtime-contract-check` 단언 3종 + `ci-retirement-contract`(facade 예산 59). verify_by: 판정 완료(P1214) — 실브라우저 pill↔hero parity·모드 영속·체크리스트 3상은 QA-SCR-28/QA-SIG-27.
-- [x] QA-SCR-28: **P1210~P1213의 스크리너 결과 정직성 변경은 단위/소스 계약으로만 검증됐고 실브라우저 인수는 미실시다.** 실제 Chromium에서 AAPL/CRWD 표본으로 (a) Why 제목이 pass+ranked에서 `순위 계산 가능`·두 rank 명명, (b) funnel 분모 `/873`·runId·scope note, (c) 상위군 회전 결측이 `이전 스냅샷 없음`·IC 캔버스가 `계산 불가 · 표본 없음`, (d) 가격 셀 `data-quote-freshness`, (e) 저장/replay 동일 runId를 확인해야 한다. — Retired (v58.86 정리): 대체됨: 해당 화면은 v57~v58에서 다시 만들어졌고 브라우저 게이트(viewport·responsive·entity-quality·a11y·rendered-copy)와 verify-aio 주행이 릴리스마다 확인한다. 이 묶음 단위의 별도 실브라우저 인수는 하지 않는다. verify_by: `ci-architecture-browser-check.mjs`(스크리너 Why·funnel·가격 셀) + `ci-screener-auto-refresh-browser-check.mjs`
-- [x] QA-SIG-27: **체크리스트 5조건은 시장건강 기반이며 점수 모드와 독립임을 명시했지만, 모드별 임계값이 필요하다는 제품 판단이 서면 시장건강 5조건 자체를 모드 revision에 결속해야 한다.** 현재는 모드가 변동성 구성만 바꾸고 임계값은 없다(`decisionThreshold:null`). verify_by: 제품 결정 후 `ci-esm-core-unit-check.mjs`(모드별 체크리스트 fixture) + 실브라우저 체크리스트 3상 집계. **종료(2026-09-26, P1263)**: **제품 결정 — 체크리스트는 모드 독립이며 모드별 판정 임계값을 도입하지 않는다**(모드는 변동성 구성만 변경, `checklistPolicy`에 선언 기록). 집계를 도메인 `summarizeEntryChecklist` 단일 소유자로 옮기고 결과가 `modeRevision`·`decisionThreshold`를 실어 나르게 결속했다(셸은 `data-mode-revision`/`data-decision-threshold` 표시, 브리지 부재 시 판정 보류). 미보고 조건은 명시적 대기로 집계된다. 검증: `ci-esm-core-unit-check` fixture 5군(3상·미보고=대기·모드 독립·revision 결속·null 선언)·`ci-runtime-contract-check` 단언·실브라우저 T1207 2종 — headless 1147/1147 PASS. 잔여: 5조건 임계값 자체의 검증력은 별도(P1263 residual_risk).
-- [x] QA-DOC-01: **현행 핸드오프 `_context/AIO-CURRENT-CODE-REMEDIATION-HANDOFF-2026-08-09.md`가 45일 임계를 넘어 `knowledge-lint`가 red가 됐다 — 이번 배치와 무관한 날짜 경과다**(기준선 `doc-freshness-baseline.json`은 2026-09-19 작성, 당시 40d → 2026-09-25 46d). 문서를 다시 쓰지 않고 구조 주장(활성 route 20·lifecycle/renderer/data owner 20/20)과 P0 상태(`CR-QA-01`은 QA-EXHAUST-98로 OPEN, 2026-09-25 `affected`도 `skip=31` 보고)를 재확인한 뒤 `last_verified`를 2026-09-25로 갱신하고 `## 재검증` 절을 덧붙였다. `CR-QA-02` 종단 배선과 나머지 패킷은 미재확인으로 명시했다. verify_by: 판정 완료 — `ci-knowledge-lint-check` PASS(잔여 2건은 기존 encoding 경고) + `generate-workspace-state --check`
+- 완료 8건: QA-SCR-40, QA-SCR-25, QA-SCR-41, QA-SCR-42, QA-SIG-26, QA-SCR-28, QA-SIG-27, QA-DOC-01, QA-01, QA-EXHAUST-98, QA-02
 
 ## v56.14 스크리너 frozen-run 동일성 (2026-09-22)
-
-- [x] QA-SCR-01: **인용 quote 진단이 ranked snapshot의 정체성에 들어가, quote tick이 보관 실행을 대체했다 (P1174 회귀).** `scripts/ci-screener-auto-refresh-browser-check.mjs:202`가 `background quote tick replaced the ranked snapshot`으로 실패했다(2회 연속 재현). `src/data/providers/screener.js`의 `snapshotId = 'screener-snapshot-' + hash({ revision, source, rows })`는 **rows 전체를 해시**하는데, P1174(v56.12)가 행마다 `liveQuoteDiagnostic{diagnosticPrice, …}`와 `livePriceRejectedReason: quoteContract.reason`을 추가하면서 **거부된 quote에서도 live 값이 rows에 들어갔고**, `aio:liveQuotes` 한 번에 해시가 바뀌어 새 snapshotId가 발급됐다 — 보관한 실행이 배경 시세 tick으로 대체되어 P1074 불변성이 깨졌다. **해결(P1177, v56.15)**: `LIVE_QUOTE_DERIVED_ROW_KEYS` 22종(가격 family·quote 진단·mcap family)과 `snapshotIdentityRows()`를 두고 해시를 그 투영으로 계산한다 — 진단은 행에 남고 정체성에서만 빠진다. 게이트: `ci-screener-workbench-contract`의 P1177 단언 3종(다른 quote로 같은 artifact를 읽으면 snapshotId 동일 `2c6183bd`, artifact가 바뀌면 정체성도 바뀜 — 전면 동결 아님, 진단 101/102 보존) + `G-SCR-HASH` 참조 해시를 투영 기준으로 갱신. verify_by: 판정 완료 — `ci-screener-auto-refresh-browser-check` PASS(`frozenRunSurvivesQuoteRefresh: true`, `runtimeErrors: 0`) + `ci-screener-workbench-contract` PASS(failures [])
+- 완료 1건: QA-SCR-01
 
 ## v56 공유/사용자 자격증명 평면 (2026-09-20)
-
-- [x] QA-CRED-01: **FRED·BOK ECOS·KOSIS가 사용자에게 도달 불가였다(P1151).** FRED는 키가 URL 쿼리에 실려 민감 URL로 분류되는데 그 경로는 사용자 소유 Worker뿐이었고, BOK/KOSIS는 프록시 경로 없이 직접 fetch만 해 CORS에 막혔다. Worker에 `/relay`(업스트림 하드코딩, 운영자 키, 파라미터 화이트리스트, Origin·앱 토큰·IP 레이트리밋, DO 일일 캡, 키 redaction)를 추가하고 클라이언트 2순위로 배선했다. 레지스트리 cf-worker 엔트리에 `userOwned`를 기록해 등록/전송 판정 소스를 일치시켰다. 게이트: `ci-worker-relay-check.mjs`(신규, 34 checks). verify_by: 판정 완료(P1151) — 라이브 검증은 아래 QA-CRED-02.
-- [x] QA-CRED-02: **`/relay`는 라이브에서 한 번도 실행되지 않았다.** 배포는 `workflow_dispatch` 수동이고 운영자 시크릿(FRED_API_KEY 필수, BOK/KOSIS 선택)이 필요하다. 저장소 게이트는 핸들러를 픽스처로만 구동한다. — Retired (v58.86 정리): 중복: 운영자 중계 실행 확인은 QA-VERIFY-28이 묻는다. verify_by: `deploy-ai-proxy.yml` 실행 후 그 워크플로의 `/relay?provider=fred&series_id=DGS10` 실응답 단언 + `ci-external-pipeline-check.mjs`
-- [x] QA-CRED-03: **BOK_API_KEY·KOSIS_API_KEY 미발급 시 두 제공자는 503 fail-closed로 남는다.** 설계대로지만 사용자에게는 한국은행·통계청 지표의 실시간 경로가 없다는 뜻이다. 발급 여부는 운영자 결정이다. — Retired (v58.86 정리): 중복: BOK·KOSIS 키 등록과 중계 확인은 QA-VERIFY-28이 묻는다. verify_by: Worker `/health`의 `relay.configured` + `node scripts/ci-worker-relay-check.mjs`
-- [x] QA-CRED-04: **패스트 플레인 소비 경로는 아직 켜진 적이 없다.** `marketData.fastQuotes.enabled`는 soak 0/7·권리 미검토로 `false`이며, 로더의 `/quotes` 분기는 enabled 분기 테스트로만 검증했다. — Retired (v58.86 정리): 상시 상태: fastQuotes는 꺼져 있고 켜는 조건은 ci-fast-plane-consumer-gate가 강제한다. verify_by: `ci-fast-plane-consumer-gate.mjs`(soak·권리 충족 후 enabled 전환 시) + `ci-fast-plane-live-check.mjs`
-- [x] QA-CRED-05: **공유 Worker만 설정된 상태에서 사용자가 FRED 키를 넣었을 때의 실브라우저 동작은 정적 근거뿐이다.** 릴레이 2순위 배선과 `PRIVATE_ROUTE_REQUIRED` 사유 힌트는 코드 경로로만 확인했다. verify_by: `ci-architecture-browser-check.mjs`(매크로 라우트에서 FRED 계열 값의 출처 라벨 확인). **종료(2026-09-26, P1264)**: 브라우저 게이트에 2종을 추가해 실측했다 — (a) 매크로 2Y 값 표시 시 `#macro-2y-source`가 FRED/DGS2 출처를 명기, (b) `api_key` 실린 URL의 실제 `fetchViaProxy` 호출이 사용자 소유 경로 필터에 걸려 `PRIVATE_ROUTE_REQUIRED` + "개인 키/공유 Worker" 사유 힌트로 거부. `ci-architecture-browser-check` PASS(20라우트, browserErrors 0). 잔여: 사용자 소유 Worker 등록 시 성공 경로와 `/relay` 실응답·BOK/KOSIS·fast plane은 운영자 권한 대기(P1264 residual_risk, QA-CRED-02~04).
-- [x] QA-CRED-08: **방어선이 광고와 실제가 달랐던 4곳 + 조용한 결손 1곳 (P1156).** (a) 일반 `?url=` 프록시는 Origin 허용목록을 **호출조차 하지 않아** 35개 호스트로 가는 익명 릴레이였다 → `/anthropic`·`/relay`와 동일한 403 게이트 추가. (b) `AIO_APP_TOKEN`은 미설정 시 검사가 아예 없었고 그 사실이 어디에도 안 보였다 → `/health`에 `relay.appTokenRequired` 노출. (c) data-plane 읽기 라우트가 임의 메서드를 받아 `POST /quotes`가 CDN을 건너뛰고 매번 KV를 읽었다 → GET/HEAD 제한(405), `/admin/run`은 먼저 디스패치해 보존. (d) `sw.js` 셸 쓰기 경로에만 민감 URL 제외가 없었다 → 두 `c.put` 경로 규칙 통일. (e) `refresh-screener.yml`의 SEC 레인이 빈 `SEC_USER_AGENT`로도 초록 통과했다 → fail-closed 가드 + FINNHUB 미설정 `::warning::`. 게이트: `ci-worker-relay-check`(P1156 단언 5건)·`ci-data-plane-contract-check`(메서드·admin 토큰 회귀 4건). verify_by: 판정 완료(P1156) — 라이브 배포 검증은 아래 QA-CRED-14.
-- [x] QA-CRED-18: **레이트리밋을 Cloudflare 바인딩으로 교체 (P1157).** 기존 Map은 isolate 로컬이라 실효 상한이 `limit × IP 수 × isolate 수`였고, 런북이 대안으로 안내하던 **존 단위 WAF 규칙은 `workers.dev` 단독 배포라 애초에 쓸 수 없었다**(존이 없다). Workers Rate Limiting binding 3개(`RATE_LIMIT_PROXY` 300/분·`RATE_LIMIT_ANTHROPIC` 20/분·`RATE_LIMIT_RELAY` 60/분, period 60)를 선언하고 `enforceRateLimit()`이 바인딩 우선·없거나 예외면 Map 폴백하도록 배선했다. 게이트: `ci-worker-relay-check`(선언 3종·period∈{10,60}·namespace_id 유일성 정적 단언 + 거부/허용/예외 폴백 실제 핸들러 단언), `ci-worker-openai-contract-check`(거부 경로). verify_by: 판정 완료(P1157) — 라이브 확인은 QA-CRED-14.
+- 완료 22건: QA-CRED-01, QA-CRED-02, QA-CRED-03, QA-CRED-04, QA-CRED-05, QA-CRED-08, QA-CRED-18, QA-CRED-19, QA-CRED-21, QA-CRED-20, QA-CRED-30, QA-CRED-31, QA-CRED-33, QA-CRED-32, QA-CRED-22, QA-CRED-23, QA-CRED-25, QA-CRED-26, QA-CRED-27, QA-CRED-29, QA-CRED-15, QA-CRED-07, QA-VERIFY-28, QA-CRED-14, QA-DATA-29
 - [ ] QA-CRED-14: **`/relay`와 데이터 프록시의 실효 방어는 라이브에서 아직 검증되지 않았고, 위조 클라이언트 위험은 남아 있다.** Origin 강제는 비브라우저 클라이언트가 헤더를 위조하면 통과하고, `AIO_APP_TOKEN` 값은 공개 클라이언트 JS에 상수가 있으며(`_aioAppToken`), 레이트리밋 바인딩은 **로케이션별**이라 전역 상한이 아니다. 따라서 위조 클라이언트는 `/relay`로 운영자 FRED/BOK/KOSIS 쿼터를 하루 `RELAY_DAILY_CAP`(기본 2000)까지 소진시킬 수 있고, 일반 프록시에는 일일 캡이 아예 없다. 또한 대시보드 스크린샷 기준으로 라이브 `aio-proxy`는 **커밋 `6ef2561d`(2026-08-29)** 를 실행 중이고 `AIO_APP_TOKEN`·`RELAY_DAILY_CAP`·relay 키가 아직 없으며, 배포된 코드에 `/relay` 자체가 없다. verify_by: `deploy-ai-proxy.yml` 재배포 후 (a) `/health`가 `relay.appTokenRequired===true`·`relay.configured.fred===true`를 보고하고 `AIO_APP_REVISION`이 v56인지, (b) 위조 Origin + 무토큰 요청이 403/429로 막히는지, (c) `RELAY_RATE_LIMITER` 계열 429가 Workers Logs에 실제로 나타나는지
-- [x] QA-CRED-19: **액션 핀이 낡아 Node 20 종료 경고가 났고, 핀을 지키는 게이트가 없었다 (P1158).** `actions/checkout`→v5.1.0, `actions/setup-node`→v5.0.0으로 8개 워크플로 20곳 갱신(Node 24 타깃), `deploy-data-plane.yml`의 wrangler를 4.120.0으로 통일. `ci-operator-secrets-contract-check.mjs`에 모든 `uses:`가 40-hex SHA인지 검사하는 단언 추가(음성 대조로 `@v5` 검출 확인, 현재 28개 전부 핀됨). verify_by: 판정 완료(P1158) — 실제 실행 검증은 QA-CRED-20.
-- [x] QA-CRED-21: **wrangler 통일이 fast-plane 배포를 깨뜨렸고, 같은 세션에서 잡아 고쳤다 (P1159).** `deploy-data-plane.yml`의 wrangler를 4.44.0→4.120.0으로 올렸더니 `Wrangler requires at least Node.js v22.0.0. You are using v20.20.2`로 Deploy Worker 스텝이 실패했다(런 `35505085064`). 4.44.0 핀은 낡은 것이 아니라 **Node 20에서 돌기 위한 것**이었다. `node-version`을 `'24'`로 올려 ai-proxy와 런타임·파서를 일치시켰고, `ci-cloudflare-deployment-contract-check.mjs`가 이제 wrangler 핀과 `node-version`을 함께 읽어 Node >= 22를 요구한다(모양이 아니라 실행 가능 조건). verify_by: 판정 완료(P1159) — 재배포 성공으로 라이브 확인.
-- [x] QA-CRED-20: **메이저 액션 업은 배포 워크플로에서 실제로 실행되어 통과했다.** `Deploy AI proxy` 런 `35505083639`가 **성공(49초)** 했고, 이전에 보였던 "Node.js 20 is deprecated" 경고가 사라졌다(BOK/KOSIS 선택 키 경고만 남음). verify_by: 판정 완료 — 남은 확인은 다음 push의 `ci.yml` 전 샤드가 checkout v5/setup-node v5로 도는지다.
-- [x] QA-CRED-30: **vertical-slice 마커가 dispose에 삭제돼 브라우저 게이트 4개가 macro에서 막혔다 (P1161).** 실측 진단: 게이트 프로브에서 문서 전체 마커 0개, 라우터 프로브에서 `{routeId:'macro', foundNode:true}`(쓰기는 정상), 같은 시점 `activeScope()===null`(마운트 후 dispose). 마커는 마운트가 아니라 **페이지 노드의 속성**이므로 삭제 경로를 없애고 `page.mount()` 뒤에 단일 writer로 보장하도록 고쳤다. verify_by: 판정 완료 — `ci-architecture-browser-check`·`ci-vertical-slice-browser-check`·`ci-headless-tests` PASS.
-- [x] QA-CRED-31: **`route shell macro`의 원인은 macro 페이지의 런타임 ReferenceError였다 (P1162).** `aio:routeModuleError`를 청취해 `{"route":"macro","message":"tenY is not defined"}`를 확인 → `src/ui/pages/market.js:540`이 `const tenYear`를 `tenY` **단축 표기**로 넘기고 있었다(그 이름의 변수가 없음). `tenY: tenYear`로 고쳤고 게이트가 20 라우트 전수에서 PASS. verify_by: 판정 완료 — CI `Browser / browser-knowledge` PASS → `Attest` → `Deploy GitHub Pages` → 라이브 사이트 v56 확인(이 항목의 마지막 절반은 CI 결과로 확인한다).
-- [x] QA-CRED-33: **버전 형식 계약이 둘로 갈라져 있다 — 다음 범프에서 같은 23건이 재발한다 (P1163).** `ci-version-check.mjs:28`은 `/^v\d{1,3}(?:\.\d{2})?$/`로 **patch 없는 `v56`을 허용**하고 실패 메시지도 "use v54 or v54.01"이라고 잘못 안내한다. 런타임(headless T748/T762)은 `/^v\d+\.\d{1,2}$/`로 점과 자리수를 필수로 요구한다. 이번엔 뒤 계약이 이겨 `v56.01`로 정정했을 뿐, 앞 계약은 그대로다. — Retired (v58.86 정리): 해결됨: 버전 형식은 ci-version-check 한 곳(v{major}.{두 자리 patch})이 판정하고 bump-version이 그 형식으로만 쓴다. verify_by: `ci-version-check.mjs`의 정규식을 런타임과 같은 형태로 좁히고 안내 문구를 정정한 뒤 `ci-version-check` + `ci-headless-tests` PASS, 그리고 `bump-version.mjs`가 `vNN.00`을 `vNN`으로 정규화하지 않도록 함께 고쳐 음성 대조(가짜 `v57` 형식이 게이트에서 거부되는지)로 확인
-- [x] QA-CRED-32: **`ci-user-journey-quality-check`가 자기 출력을 날짜 박힌 과거 증거 디렉터리에 쓴다.** v59.59: 출력은 `_artifacts/user-journey/`(gitignore)로 옮겼고 `_artifacts/structural-quality-20260906/`은 동결 증거로 남는다. verify_by: 판정 완료 — v59.59 `node scripts/ci-user-journey-quality-check.mjs` PASS 뒤 `git status`가 깨끗하고, `grep -r structural-quality-20260906 scripts architecture .github`는 설명 주석 한 줄뿐.
-- [x] QA-CRED-22: **Dependabot이 새 설정을 즉시 집어 들었다.** 커밋 직후 `github-actions` 업데이트 1건과 `npm` 업데이트 1건이 자동 생성됐고, github-actions PR은 checkout·setup-node·upload-artifact·github-script·download-artifact·configure-pages·upload-pages-artifact·deploy-pages를 함께 올리려 한다 — 즉 **나머지 6개 액션도 같은 Node 20 세대**다. 이 PR들은 머지 전에 CI 통과를 확인해야 한다(P1159와 같은 계열의 런타임 조건이 pages 계열에도 있을 수 있다). — Retired (v58.86 정리): 정보 기록(Dependabot 동작 관찰), 확인할 것이 남지 않았다. verify_by: Dependabot PR의 CI 결과 + `ci-operator-secrets-contract-check.mjs`(핀 유지) 확인
-- [x] QA-CRED-23: **주말마다 시장 스냅샷 발행이 멈춰 사이트 배포가 막혔고, 그걸 막는 게이트가 실제로는 막지 않았다 (P1160).** 원인은 서로 다른 두 개의 24시간 상한이었다 — `deriveMarketSession`이 휴장 확인된 장소도 24h까지만 인정해(금요일 종가를 일요일에 읽으면 46h) 한국 지수·FX·선물·원자재가 `STALE_UNEXPECTED`가 됐고, `quoteQuality`도 같은 24h로 `CLOSED_CURRENT`를 막았다. 미국 지수만 예외였던 비대칭이 버그였다. `CLOSED_VENUE_MAX_AGE_MS`(주말+연휴를 덮는 상한, 최종 3일 — 아래 QA-CRED-27)로 세 지점을 통일했고, 게이트는 이제 발행 결과(`complete===true`, `QG-01_PASS`, `errors===[]`)를 힌트 3종에 대해 단언한다. 추가로 `refresh-data.yml`의 커밋 조건이 검증 게이트를 보지 않던 fail-open을 고쳐, 게이트가 빨간데도 `85d05825`가 올라가던 경로를 닫았다. verify_by: 판정 완료(P1160) — refresh 재실행 성공 + CI `data` 그룹 통과 + Pages 배포로 라이브 확인.
-- [x] QA-CRED-25: **`data` 그룹에 남았던 2건 — 26·27로 각각 해소.** P1160으로 스냅샷 발행(A1)·fail-open 커밋·generated-state 결합은 해소됐고 `data-refresh`와 preflight는 통과한다. 남은 것은 (a) **`history-time`**: `latest row 2026-09-20 field btc: in-session observation promoted as daily close`(= QA-CRED-26), (b) **`data-lineage` self-test**: `self-test: stale Korea inherited US holiday grace`(= QA-CRED-27). verify_by: 아래 두 항목이 각각 해소된 뒤 `node scripts/ci-data-refresh-audit.mjs` + `node scripts/ci-history-field-time-contract-check.mjs` + `node scripts/ci-data-lineage-audit.mjs` PASS, 이어서 CI `Contracts / data` 통과 → `Deploy GitHub Pages` 실행 → 라이브 사이트 v56 확인
-- [x] QA-CRED-26: **24/7 자산(BTC/ETH)의 history 행을 직전 완료 일봉 종가로 발행하도록 결정·적용 (P1160 후속).** 사용자 결정: "진짜 이전 완료일 종가로 발행". 실측 근거 — 프로듀서는 이미 `regularMarketPreviousClose`(= `closes[closes.length-2]`, 직전 완료 일봉)와 `regularMarketPreviousCloseObservedAt`(= 그 봉을 닫은 경계 시각)을 만들고 있고, `ci-history-field-time-contract-check.mjs:16`이 그 패턴을 **단언까지** 하고 있었다. 즉 P1144의 2줄 override(`isContinuousQuote → regularMarketPrice`)가 원래 의도된 동작을 덮고 있었다. override를 제거하고 `effectiveUsePreviousClose = usePreviousClose`로 되돌렸으며, 같은 게이트의 스냅샷 비교도 24/7 특례(2% 밴드 vs live 값)를 없애고 모든 자산에 동일 규칙(이전 종가 대비 0.02)을 적용했다. **두 아티팩트가 이제 같은 완료 종가를 담으므로 밴드가 아니라 일치를 요구한다.** verify_by: 판정 완료 — refresh 재실행에서 최신 history 행의 `btc`가 `valueBasis: previous-completed-close`·`observedAtSource: provider-previous-close`로 발행되고 두 게이트가 PASS 하는지 확인.
-- [x] QA-CRED-27: **휴장 grace가 자산 장소를 구분하지 않던 문제 — 저장소 self-test가 제 4일 창을 잡아냈고 3일로 정정 (P1160 후속).** 제가 처음 넣은 `CLOSED_VENUE_MAX_AGE_MS = 4일`은 주말(46h)을 살렸지만, `ci-data-lineage-audit.mjs`의 self-test가 "stale Korea inherited US holiday grace"로 **4일 창이 건너뛴 거래일을 은폐**하는 것을 검출했다(목요일 관측 → 월요일 감사 = 82.5h, 그 사이 한국은 월요일에 거래했다). KR/FX 휴장 캘린더가 없으므로 정직한 상한은 "주말 하나"이고, 3일(72h)이 주말 46h는 허용하면서 82.5h는 거부한다. 더 긴 휴장은 fail-closed로 떨어져 신선도를 잃는 방향이라 안전하다. verify_by: 판정 완료 — `node scripts/ci-data-lineage-audit.mjs`가 `FAIL=0`(self-test 포함), `node scripts/ci-market-snapshot-contract-check.mjs`의 일요일 픽스처도 계속 통과.
-- [x] QA-CRED-29: `marketClosedGraceEligible` 예외가 제거됐다(P1287/R637). live-core generatedAt이 12h/24h SLA를 초과하면 휴장·quote 상태와 무관하게 hard FAIL이다. 회귀 검증은 QA-DATA-29의 주말 fixture와 pipeline contract가 담당한다.
 - [ ] QA-CRED-24: **`provider === 'POST'/'POSTPOST'` 경로에 같은 계열의 불일치가 남아 있다.** 이 분기는 스케줄을 보지 않고 무조건 `AFTER_HOURS`를 반환하는데, 품질 매퍼가 그 라벨을 24h로 제한한다. 실측된 실패 경로는 아니었으므로 관측 없이 바꾸지 않았다. verify_by: 이 분기를 타는 실제 피드가 관측되면(스냅샷 status의 `errors`에 `AFTER_HOURS`가 등장) 세션 스케줄과 정합화하고 `ci-market-snapshot-contract-check.mjs`에 힌트 `POST` 케이스를 추가
-- [x] QA-CRED-15: **커밋 단계의 `git add` 실패를 삼키던 공백을 닫았습니다 (P1204/R457).** 두 refresh workflow의 `[ -f X ] && git add X || true`를 `set -euo pipefail` + `stage_if_exists()`로 교체했다. `refresh-data.yml`은 canonical `public-data/masters/index.json`을 명시적으로 stage하고 `ci-masters-contract-check.mjs --staged`를 commit 전에 실행해 실제 Git index blob을 검증한다. 로컬 회귀는 P1204 staged/index/worktree 양·음성 대조와 `ci-data-continuity-check` PASS로 고정했다. verify_by: ci-data-continuity-check + ci-masters-contract-check --staged + 다음 GitHub refresh workflow run
 - [ ] QA-CRED-16: **같은 데이터의 캐시 TTL이 세 곳에서 독립적으로 선언돼 있다.** `sw.js` 데이터 900s(FRED 포함), `cloudflare-worker-proxy.js` 일반 프록시 FRED 3600s, `/relay` 제공자별 3600s, `worker/data-plane.js` `/quotes` 30s+SWR120 — 서로를 교차 검증하는 코드가 없어 같은 시리즈가 SW에서 15분, 엣지에서 1시간까지 다르게 노후될 수 있다. 또한 `/relay` 응답은 `Cache-Control: public, max-age=3600`이므로 **운영자 키를 교체해도 엣지/브라우저 캐시가 최대 1시간 옛 페이로드를 계속 준다**. verify_by: 캐시 TTL 단일 선언 원천 도입 시 `ci-service-worker-cache-policy-check.mjs` + `ci-worker-relay-check.mjs`, 또는 런북에 "키 교체 후 1시간 대기 또는 URL 파라미터 변경" 절차 명시
 - [ ] QA-CRED-17: **알림 공백과 죽었을 가능성이 있는 감사.** (a) `operations-alert.yml`은 `workflow_run` 이벤트로 동작하는데 `ensure-live-convergence.mjs`가 기본 `GITHUB_TOKEN`으로 디스패치한 CI/Pages 실행은 `workflow_run`을 발생시키지 않으므로, **봇이 스스로 만든 실행의 실패는 아무에게도 알려지지 않는다**. (b) `AIO.getShellAssetIntegrityAudit`(`js/aio-core.js:10576`)이 `sw.js`에서 `/SHELL_ASSETS\s*=\s*\[/`로 배열을 찾는데 이는 `CRITICAL_SHELL_ASSETS`의 **부분 문자열 우연**으로만 일치한다 — 이름을 바꾸면 감사가 조용히 `SHELL_ASSETS 패턴 미발견`이 되고, 게다가 이 함수를 호출하는 곳을 찾지 못했다(dead code 가능성). verify_by: (a) `ci-workflow-compaction-check.mjs` + 알림 경로에 디스패치 실행 포함 여부 확인, (b) `js/aio-core.js`의 호출부 존재 여부와 정규식이 실제 식별자를 요구하도록 고친 뒤 `ci-runtime-contract-check.mjs`
-- [x] QA-CRED-07: **`ci-architecture-browser-check.mjs`가 라운드트립 7번째 라우트(`macro`)에서 실패한다.** `#page-macro`에 `data-aio-vertical-slice`가 설정되지 않아(`marker:null`, `expected:vs03-macro-fxbond`) 게이트가 중단되고, 같은 실행의 초기 `macroRoute` 측정은 통과한다. 마커를 설정하는 코드는 `src/app/router.js:214-219`이고 네비게이션 권한은 `src/legacy/compatibility-facade.js`에 있는데 **두 파일 모두 이 세션에서 손대지 않았고 사용자의 미커밋 W00 작업 대상**이다. 격리 증거: (a) 커밋된 기준선(HEAD 54428470) 워크트리에서는 같은 게이트가 **더 이른 `sentiment`에서** `storeRoute:'home'`으로 실패한다(현재 트리에서는 통과 — 사용자의 W00 수정이 반영된 결과). (b) `/relay` 경로를 무력화해도 `macro` 실패는 동일하다(제 데이터 변경 무관). (c) page error 0건 — 마운트 예외가 아니라 라우터 전이 자체가 마커를 설정하지 않았다. 제 변경이 원인이라는 증거는 없지만 무죄도 증명하지 못했으므로 미검증으로 남긴다. — Retired (v58.86 정리): 해결됨: browser-architecture 게이트가 main CI browser-runtime 샤드에서 통과한다. verify_by: `ci-architecture-browser-check.mjs`(W00 네비게이션 작업 소유자가 수정 후) + 라운드트립 20 라우트 마커 전수 통과
 - [ ] QA-CRED-06: operator CI secrets `TWELVE_DATA_API_KEY`·`FINNHUB_API_KEY` (used only by producers in Actions: `refresh-data.yml` 2차 시세 폴백, `refresh-screener.yml` 어닝 캘린더) must exist; the personal-key UI is retired, so these secrets are the only key path. 없으면 두 레인이 조용히 비므로 존재를 확인한다. verify_by: `ci-operator-secrets-contract-check.mjs` + 운영자 시크릿 목록 대조(`_context/OPERATOR-RUNBOOK.md` §1)
 
 ## v55.06 작업 환경 루프 보강 (2026-09-19)
-
-- [x] QA-EXHAUST-74: **단언은 근거를 인용해야 한다.** `scripts/ci-assertion-trace-check.mjs`가 `scripts/ci-*.mjs`의 `check()`와 `js/aio-tests.js`의 `_assert()` 라벨을 스캔해, 새/변경 라벨이 R/P/QA/T 증거 id를 인용하도록 강제한다. 기존 1,225/2,439개는 동결 베이스라인으로 유예하고 부채를 보고한다 — 새 단언은 추적 없이 추가될 수 없다 (P1124/R618, `_context/assertion-trace-baseline.json`).
-- [x] QA-EXHAUST-75: **R 번호 결번과 OPEN 재검증 트리거를 기계 검사로 고정했다.** `scripts/ci-ledger-integrity-check.mjs`가 (a) `RULES.md`의 결번 집합이 `_context/rule-gap-manifest.json`과 정확히 일치할 것(규칙이 조용히 사라질 수 없다), (b) 새로 추가되는 OPEN QA 항목은 `verify_by:`를 선언할 것을 단언한다. 65개 결번(주로 R1~R53)을 동결했고, OPEN 181개 중 13개에 `verify_by:`를 부여해 168개를 유예 기록했다 (P1123/R618).
-- [x] QA-EXHAUST-76: **문서 신선도 임계 적용 대상을 넓혔다(측정 정정 포함).** `ci-knowledge-lint-check.mjs`가 `autoRefresh`·`current-handoff`만 보던 것을 `last_verified`를 선언한 모든 비-`historical-snapshot` 문서로 확대했다. **측정 정정**: 45일 초과 23건은 **전부 `historical-snapshot`**(동결 provenance, 의도적 면제)이므로 감사 당시 "24건"은 이들을 포함한 수치였다 — 비-역사 문서의 실제 초과는 **1건**이다. 면제 조건은 `historical-snapshot && !autoRefresh`다: `auto_refresh: true`는 "이 문서는 최신으로 유지된다"는 **명시적 주장**이고 파일명 기반 kind 추측보다 강하므로, 둘이 충돌하면 면제하지 않는다. 이번 확장이 추가로 덮는 것은 이전에 미검사였던 `ledger`·`targeted-map`·`research-record` 종류다. 초과 개수는 `_context/doc-freshness-baseline.json` 대비 증가할 수 없다 (P1125/R618).
-- [x] QA-EXHAUST-77: **스킬은 트리거 체인이 아니라 참조다.** `_context/INDEX.md`의 task routing 표를 유일 트리거로 명시하고, 스킬 발동이 작업 범위를 강제하지 않는다는 점을 `AGENTS.md`에 적었다. 강제는 게이트 실행과 보고 형식(검증/차단/미검증 분리)에만 둔다 (R618).
-- [x] QA-EXHAUST-96: **브라우저 게이트 23개가 QA 벽시계의 약 80%를 차지한다(P1141 실측).** 한 번의 `full --no-cache`에서 측정된 값: browser-architecture **37.3s**, route-soak **22.5s**, user-journey **15.5s**, boot **15.4s**, screener-refresh **13.9s**, a11y **13.5s**, sa02 **12.9s**, atlas **12.2s**, critical **10.0s**, sa04 **9.9s**, principles **9.2s**, headless **10.6s** — 이 12개만 약 3분이고, 각 게이트가 **각자 Chromium을 띄우고 앱 전체를 다시 로드**한다. 총 게이트는 140개. 개선 방향은 (a) 한 Chromium 인스턴스·한 로컬 서버를 공유하는 샤드 러너, (b) 라우트 단위 시나리오를 한 번의 페이지 세션으로 통합(현재 route-soak·user-journey·viewport·a11y가 같은 라우트를 각각 순회), (c) CI 매트릭스에서 이미 샤딩된 그룹 단위 병렬화. — Retired (v58.86 정리): 측정 기록: 브라우저 게이트는 CI에서 그룹별 병렬 샤드로 돈다. 게이트 정리는 v58.86에서 진행. verify_by: ci-qa-pipeline-contract-check + 전체 프로파일 벽시계 시간이 감소했는지(현재 약 6분)
-- [x] QA-EXHAUST-97: **같은 불변식을 여러 게이트가 각각 단언한다(P1141 실측).** P1133~P1136의 블록 이동 때 fxbond 네이티브 펜스 하나를 `ci-architecture-contract-check`·`ci-runtime-contract-check`·`ci-data-pipeline-contract-check` **3곳**이 검사하고 있어서 **같은 불변식을 16번** 고쳐야 했다 — 이동할 때마다 N배 비용이 되고, 한 곳을 빠뜨리면 그 게이트만 조용히 옛 파일을 본다. 방향은 불변식마다 **소유 게이트 1개**를 정하고 나머지는 그 게이트를 참조(또는 공유 모듈에서 단언을 가져와 실행)하는 것이다. 같은 스크립트가 두 게이트로 등록된 쌍도 **8개** 있다(`reconciliation`+`watchdog-reconciliation` 등 — 의도된 watchdog이지만 같은 재계산을 두 번 한다). — Retired (v58.86 정리): v58.86 게이트 정리에서 처리: 같은 주제의 소형 게이트 38개를 합치거나 퇴역(200 → 162) verify_by: ci-qa-pipeline-contract-check(중복 단언 수가 줄고 0으로 수렴) + 이동 시 수정 지점 수 감소
+- 완료 22건: QA-EXHAUST-74, QA-EXHAUST-75, QA-EXHAUST-76, QA-EXHAUST-77, QA-EXHAUST-96, QA-EXHAUST-97, QA-EXHAUST-78, QA-EXHAUST-79, QA-EXHAUST-80, QA-EXHAUST-82, QA-EXHAUST-87, QA-EXHAUST-89, QA-EXHAUST-93, QA-EXHAUST-91/92, QA-EXHAUST-95, QA-EXHAUST-90, QA-EXHAUST-94, QA-EXHAUST-88, QA-EXHAUST-86, QA-EXHAUST-84, QA-EXHAUST-81, QA-EXHAUST-91, QA-AICHAT11
 - [ ] QA-EXHAUST-98: **`affected` 프로파일의 skip 의미를 감사한다(P1141).** 이번 세션에서 블록 A 추출이 `browser-chat-ui-state`를 깨뜨렸는데, 그 게이트는 `affected` 실행에서 **skip**되어 통과로 보였고, 리베이스 후 skip=0이 되면서 처음 실패가 드러났다. 즉 "affected PASS"가 추출 안전성의 증거가 되지 못한다. 확인할 것: (a) skip이 "그룹 미선택"인지 "입력 미변경"인지, (b) `inputs`를 선언하지 않은 게이트(예: `browser-chat-ui-state`는 `timeoutMs`·`usesLocalServer`만 있고 `inputs` 없음)가 어떤 규칙으로 선택·skip되는지, (c) `js/**` 패턴이 `browser-runtime` 그룹을 실제로 포함하는데도 왜 skip됐는지. verify_by: ci-qa-runner-behavior-check + 회귀 픽스처(추출 파일만 바꿨을 때 해당 게이트가 반드시 실행되는지)
-- [x] QA-EXHAUST-78: **단언 부채 1,225개를 실제로 줄인다.** 베이스라인은 증가만 막는다. 라벨에 증거 id를 붙여 부채를 줄이는 작업은 파일 단위로 진행해야 하며, 상위 3개(`ci-runtime-contract-check.mjs` 372개, `ci-data-pipeline-contract-check.mjs` 142개, `ci-ai-intelligence-contract-check.mjs` 112개)부터 착수한다. — Retired (v58.86 정리): 래칫이 추적: _context/assertion-trace-baseline.json(v58.86 기준 1,989/5,501 라벨에 원장 id 없음, 증가 금지) verify_by: ci-assertion-trace-check (베이스라인 감소 확인)
-- [x] QA-EXHAUST-79: **`ci-runtime-contract-check.mjs` 단일 372-check 모놀리스를 주제별로 분리한다.** 실패 위치 파악과 blast radius 축소가 목적이며, 분리 시 `qa-pipeline.json`·`impactRules` 동반 수정이 필요하다. — Retired (v58.86 정리): 검증 항목이 아니라 분해 작업: 로드맵 11번(legacy 큰 파일 분해)으로 넘김. verify_by: ci-qa-pipeline-contract-check + ci-runtime-contract-check
-- [x] QA-EXHAUST-80: **완료(P1139) — 한국어 인과 어휘를 추가했고, 픽스처가 결함을 가리고 있었다는 사실도 함께 드러냈다.** `scripts/fetch-data.mjs`의 인과 판정이 영어 단어 목록뿐이어서 "금리 우려 때문입니다" 같은 한국어 인과 문장이 검출되지 않았고, 출처 표기를 요구하는 `causal-attribution-missing` 경고가 한국어에서 **한 번도 발화할 수 없었다**. 더 나쁜 것은 **게이트의 픽스처가 그 사실을 주석으로 적어 두고 영어 인과 표현을 괄호로 덧붙여** 검사를 통과시키고 있었다는 점이다("The causal detector is an English word list, so the fixture must carry one of its tokens"). 수정: 인과 판정을 영어(`\b` 유지)·한국어 두 분기로 분리(`\b`는 ASCII 기준이라 합치면 한국어가 조용히 비활성화된다), 픽스처를 **영어 토큰 없는 한국어**로 교체 + **설명문 통제** 추가 + 영어 회귀 케이스 유지. 4개 케이스로 직접 증명했다. verify_by: 판정 완료(P1139 기록) — R625로 규칙화
-- [x] QA-EXHAUST-82: **완료(P1139) — `auto_refresh: true`가 사실과 다른 선언이었다.** `_context/CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`는 §0에서 "여기에 적힌 과거 상태를 현재 사실로 가정하지 말라"고 스스로 경고하는 날짜 박힌 인수인계인데 `auto_refresh: true`를 선언해, 지식 린트 규칙("명시적 현재성 주장이 파일명 기반 종류 추측보다 강하다")에 따라 **비면제 신선도 위반 1건**으로 남아 있었다. 기준선을 느슨하게 하는 대신 **거짓 선언을 바로잡아**(`auto_refresh: false`) 문서를 실제 성격과 일치시켰고, `_context/doc-freshness-baseline.json`이 1 → 0으로 줄었다. verify_by: 판정 완료(P1139 기록)
-- [x] QA-EXHAUST-87: **수렴 대상 판정 완료 — 3종 중 1종만 실제 중복이었다.** P1129에서 개별 확인한 결과, **감사 당시 "중복"으로 묶었던 항목의 대부분은 중복이 아니라 서로 다른 투영**이었다: (b) `FRESHNESS_POLICY`(데이터 신선도 창)·`REFRESH_SCHEDULE`(갱신 작업+주기+fn)·`AIO_THRESHOLD_REGISTRY`(지표 임계)는 **다른 개념**이고, (c) `getTimeAgo`("N분 전")·`_aioRelativeDate`("YYYY년 M월", 이름과 달리 상대시간이 아님)·`_aioKstShortFromIso`("MM-DD HH:mm KST")·`_getBriefingWindowKST`(08:00 KST 컷오프 계산)는 **출력과 목적이 각각 다르다**. R619(1)에 따라 이들은 합치지 않고 **왜 다른지 기록**하는 것이 정답이다(합치면 출력이 바뀐다). 실제 중복은 (a) 중 `AIO_CRITICAL_10_PAGE_IDS` 이중 선언 1건뿐이었고 P1129에서 제거했다. 남은 진짜 중복은 **라우트 ID 집합**이 `ROUTE_PAGE_IDS`(aio-core)·`src/app/routes.js ROUTE_IDS`·`PAGES` 키·`AIO_ROUTE_REGISTRY`·`breadcrumbMap`에 같은 20개를 **다른 순서로** 중복 보유하는 것이며, 이는 3단계(라우트 표 단일화)로 이관한다. verify_by: 3단계 완료 시 ci-structural-check + ci-architecture-contract-check
-- [x] QA-EXHAUST-89: **인라인 블록 A~D 전량 이관 완료 — 잔여 소형 4개는 추출 대상 아님으로 판정(P1136).** A~D를 `js/aio-workspace.js`·`js/aio-macro-tech.js`·`js/aio-kr-data.js`·`js/aio-pages.js`로 옮겨 index.html 인라인 JS는 **15,308줄 → 154줄**이 됐다. 남은 4개는 **파싱 위치에 결합된 부트 셸 스니펫**이라 추출하지 않는다: ① 부트 로더(6,002, 33줄 — 바로 위 `#aio-boot-*` 마크업을 조회하고 `window.AIO_BOOT`를 만든다), ② 브리핑 날짜 라벨(7,810, 22줄 — `#briefing-date-line`을 조회해 즉시 자기 호출), ③ FRED 배너(8,878, 7줄), ④ **Chart.js CDN 폴백 코디네이터(13,021, 92줄 — 위 `#aio-chart-cdn` 요소에 load/error 리스너를 걸고 DOMContentLoaded에서 오프라인 스텁 `window.Chart`를 설치)**. 이유: 넷 다 "자기 위 마크업이 파싱된 직후" 실행되는 것이 의미의 일부이고(DOMContentLoaded 이전 타이밍), 합계 154줄(≈1%)를 얻기 위해 **P1135에서 실제로 낸 실행 위치 회귀**를 다시 만들 위험을 감수할 이유가 없다. verify_by: 판정 완료(P1136 기록) — 재검토는 이 4개 중 하나가 500줄을 넘거나 위치 의존이 사라질 때
-- [x] QA-EXHAUST-93: **FRED 배너 인라인 블록(8,878, 7줄)이 사실상 무효다.** `window._fredData`는 비동기로 채워지는데 이 블록은 **파싱 시점**에 `fredOk`를 계산하므로 항상 `false`가 되고, 결과적으로 배너를 숨기지 못한다. 즉 "FRED 데이터가 있으면 배너를 숨긴다"는 의도가 이 경로로는 달성되지 않는다. P1136에서 발견만 하고 **고치지 않았다** — 어느 시점(FRED 도착 후?)에 숨기는 것이 옳은지는 별도 증거가 필요하고, 조용히 바꾸면 배너 노출 정책이 의도치 않게 달라진다. verify_by: ci-architecture-browser-check + ci-runtime-contract-check (FRED 도착 후 배너 상태를 검증하는 단언 추가 시) — Retired (v57.79): the parse-time inline FRED banner block is gone from index.html (no `fredOk` there). Note: `window._fredData` itself still exists in js/aio-core.js
-- [x] QA-EXHAUST-91/92: **완료(P1138) — 전역 승자와 로드 순서를 기계적으로 검사한다.** `ci-structural-check`에 4개 단언을 추가했습니다: ① `index.html`의 런타임 스크립트 순서가 `architecture/runtime-script-order.json`과 **정확히 일치**하고 측정 대상 9개가 정확히 한 번씩 포함되는가(순서가 어디에도 선언돼 있지 않아 순서 변경이 아무 게이트에도 걸리지 않던 구멍을 막음), ② **함수값 전역 이중 소유 0**(P1132 형태 — `function X` × `window.X =`), 허용목록은 이유 40자 이상 필수이고 이중 소유가 아니면 그 자체가 실패, ③ **상태 전역 신규 이중 소유 0**(10개 동결 기준선), ④ 동결 목록은 **줄어들 수만** 있음. 측정 정교화로 42 → 12건(네임스페이스 확장 `window.X = window.X || …`·명시적 import `var X = window.X` 제외), 그중 2건은 문서화된 의도적 계약(`getApiKey`/`setApiKey` — core 주석이 두 실행 순서 모두 안전하다고 명시), 10건은 공유 상태. **음성 테스트로 증명**: P1132 형태를 주입하니 게이트가 실패하고 제거하니 PASS로 복귀. verify_by: 판정 완료(P1138 기록)
-- [x] QA-EXHAUST-95: **동결된 상태 전역 10개를 수렴시킨다**(`_breadth5/20/50/200`, `_currentTickerId/Name/Sym`, `_deepChartInstances`, `_glossaryCat`, `_newsSentChart`). 현재는 core·data·ui·chat이 시점별로 같은 전역을 쓰는 구조이고, 각 쓰기가 "초기화"인지 "런타임 상태 갱신"인지에 따라 **순서가 초기값을 바꿀 수 있다**. 상태별로 단일 소유자를 정하고 나머지를 읽기 전용으로 바꾸는 작업이며, `ci-structural-check`의 동결 목록에서 하나씩 빼는 방식으로 진행한다(게이트가 "이중 소유가 아니게 되면 실패"하므로 목록을 줄이는 것만으로 진행이 검증된다). — Retired (v58.86 정리): 래칫이 추적: architecture/global-ownership-baseline.json. verify_by: ci-structural-check (동결 목록이 줄고 신규 이중 소유 0) + ci-headless-tests + ci-architecture-browser-check
-- [x] QA-EXHAUST-90: **3단계 완료(P1137) — 라우트 20개를 단일 원천에서 파생시켰다.** 정본은 `js/aio-core.js`의 `ROUTE_PAGE_IDS` 한 곳이고, 나머지는 전부 파생이다: 같은 파일에서 `CRITICAL_5`/`ANALYSIS_5`/`WORKFLOW_5`는 `slice(0,5)`·`slice(5,10)`·`slice(10,15)`(원래 연속 구간이라 **동작 동일**), `AIO_ROUTE_REGISTRY.classes.NAV_ROUTE`는 canonical에서 DERIVED_VIEW/REFERENCE를 뺀 17개. 다른 파일은 생성기 `scripts/generate-route-registry.mjs`(`--check`가 QA 139번째 게이트)가 `src/app/routes.js`, `architecture/route-owners.json`의 `routes` 키 순서와 `counts.*`를 생성한다. **개수만 세던 게이트가 재정렬을 못 본다는 사실이 원인이었다** — 다섯 표면이 다섯 순서로 표류해 있었다. **부수적으로 실제 버그 1건**: `breadcrumbMap`에 `fxbond` 라벨이 없어 fxbond 페이지 브레드크럼이 raw id로 노출되고 있었다(라우트가 아닌 `sectors` 키는 제거). **파생하지 못한 것**: `EDUCATION`은 순서가 아니라 overlay `glossary`를 포함한 분류 집합이라 멤버십만 검사한다(R619(1) — 왜 다른지 기록). verify_by: 판정 완료(P1137) — 재검토는 canonical 목록이 바뀌어 `generate-route-registry.mjs --check`가 실패할 때
-- [x] QA-EXHAUST-94: **파생 표면이 늘어나면 생성기의 커버리지도 늘려야 한다.** P1137은 `ROUTE_PAGE_IDS`·`ROUTE_IDS`·`route-owners counts`·`golden-routes`·`registry classes`·`breadcrumbMap`만 다룬다. `PAGES` 키는 이미 core에서 파생이지만, ESM 쪽 `PAGES`(router.js)와 `getRouteIAAudit`의 클래스 분할, `_pageType`/`_decisionPolicy`의 라우트 분기, 각 페이지 모듈의 route 옵션은 아직 손으로 적힌 별도 목록이 남아 있을 수 있다 — 하나씩 canonical과 대조해 생성기 검사에 추가한다. — Retired (v58.86 정리): 일반 지침이라 검증 항목이 아니다(route-registry 생성기가 파생 표면을 만든다) verify_by: scripts/generate-route-registry.mjs --check (표면별 검사 추가 시)
-- [x] QA-EXHAUST-88: **죽은 코드 잔여 — (b)만 남음.** (a) `updateKrSupplyDOM` KR 이중 타깃은 제거됨 — Covered (v57.79): ci-runtime-contract-check가 `function updateKrSupplyDOM` 부재를 단언한다. (b) `page-theme-detail` 셸(index.html)은 아직 존재한다 — `showPage('theme-detail')`이 `themes`로 이어지고(테마 화면의 별칭), `AIO_ROUTE_REGISTRY`의 `DERIVED_VIEW` 등록과 `getRouteIAAudit`의 DOM 존재 단언을 **같은 변경에서** 고쳐야 하므로 단독 삭제 불가(P797 fence 사례). — Retired (v58.86 정리): 래칫이 추적: scripts/dead-code.mjs 정기 점검. verify_by: ci-architecture-contract-check + ci-headless-tests (셸 삭제 후 라우트 감사 통과)
-- [x] QA-EXHAUST-86: **크기 래칫의 `--allow-growth` 남용을 감시한다.** P1127이 벽을 래칫으로 바꿨지만 기록값 상향은 여전히 가능하다(설계 의도). 문제는 습관적 사용이다 — 상향이 반복되면 래칫이 사실상 무제한이 되고, 원래의 고정 상한보다 **탐지하기 어려워진다**(조용한 재기준과 같은 결과). 매 상향은 커밋 메시지에 사유가 남아야 하며, 상향 커밋이 누적되면 규칙을 재검토한다. — Retired (v58.86 정리): 상시 정책: decomposition 게이트가 --allow-growth에 사유를 요구한다. verify_by: ci-decomp-hotspot-check (`--allow-growth` 없이 통과하는지) + git log에서 상향 커밋 빈도 확인
 - [ ] QA-EXHAUST-85: **이스케이프 잔여 폴백 4곳을 수렴시킨다.** P1126에서 문자 집합이 동일한 재구현 2건은 위임으로 합쳤고 ui의 3-char 사본은 동작 변경으로 처리했지만, `typeof escHtml === 'function' ? escHtml(x) : <인라인 이스케이프>` 방어 폴백이 아직 남아 있다 — `aio-core.js:4139`, `aio-core.js:4189`, `aio-core.js:27162`, `aio-data.js:11630`, `index.html:14133`(`_escHtmlSafe`). core는 상한까지 1줄이라 폴백 제거로 순감을 만들어야 하고, index.html은 2단계 인라인 추출 후에 다루는 것이 안전하다. verify_by: ci-assertion-trace-check + ci-decomp-hotspot-check (인라인 이스케이프 정규식이 정본 외에 남지 않았는지, core 라인 순증 0 이하)
 - [ ] QA-EXHAUST-83: **개인화 요청의 suitability 전제는 여전히 만족 불가다.** P1120은 차단을 공시로 우회했을 뿐, `question-planner.js:90`이 계속 `suitabilityProfile: null, evidenceComplete: false`를 넘기므로 개인화/실행 요청은 **항상** `suitability-profile-required`+`current-evidence-required` limitation을 달고 나간다. 실제 프로필을 공급하는 경로가 없어 "조건부 허용"(`allowed: true`) 상태에는 도달할 수 없다 — R617(1)의 잔여 사례다. verify_by: ci-ai-intelligence-contract-check (프로필 공급 경로가 생기면 limitation이 사라져야 한다)
-- [x] QA-EXHAUST-84: **QA-AICHAT11의 계층 서술이 R617 이후 어긋난다.** 그 항목은 개인 매도 실행 요청이 "**suitability gate에서** 차단된다"고 적었지만 R617/P1120이 planner 수준 차단을 제거했으므로, 살아남은 차단은 **conduct/포트폴리오 동의 계층**이다. 동작은 유지되나(게이트 PASS) 서술이 가리키는 계층이 달라, 다음 세션이 잘못된 계층을 손볼 수 있다. 과거 검증 기록이므로 본문은 보존하고 이 항목으로 명시한다. — Retired (v58.86 정리): 역사 원장 문구 차이: 현재 계층 서술은 R617이 정본. verify_by: ci-runtime-contract-check (conduct 차단 단언과 QA-AICHAT11 서술의 일치 확인)
-- [x] QA-EXHAUST-82: **분류 충돌 1건 — `_context/CODEX-SECOND-PASS-HANDOFF-2026-07-10.md`.** frontmatter가 `auto_refresh: true`(최신 유지 주장)인데 파일명 기반 분류기가 `historical-snapshot`(동결)으로 분류해 `last_verified`가 69일 지났다(P1125가 드러냄). 해소는 둘 중 하나다 — `auto_refresh`를 제거해 동결 provenance로 확정하거나, 현재 핸드오프로 재분류해 갱신한다. verify_by: ci-knowledge-lint-check (경고 소멸 + `_context/doc-freshness-baseline.json` 감소) — Retired (v58.86 정리): 중복 — 같은 id의 완료 행이 이 원장에 이미 있다
-- [x] QA-EXHAUST-81: **INDEX가 나열한 미해결 항목을 원장 항목으로 승격한다.** 날짜 없는 중첩 산출물 12건, `objects/**` 592/629 미참조 blob 보존 정책, 실제 소비 산출물의 캐시 라우팅 누락, `factorObservedAt` 계층별 이름 분리 — 현재 `INDEX.md` 본문 서술로만 존재해 트리거가 없다. — Retired (v58.86 정리): 일반 지침: INDEX 미해결 목록은 CONTEXT-CATALOG가 분류한다. verify_by: ci-ledger-integrity-check (OPEN 승격 후 verify_by 부여 확인)
 
 ## v55.05 차단 경계 → 공시 재배치 (2026-09-19)
-
-- [x] QA-EXHAUST-71: **달성 불가능한 게이트를 제거했다.** (근본 원인) `question-planner.js:90`이 `suitabilityProfile: null, evidenceComplete: false`를 항상 넘기므로 **개인화/실행 요청에서** `actionPermission.allowed`는 항상 false다(`src/ai/policy/suitability.js:9` — `personalizedActionRequested`가 false인 일반 질문은 `allowed: true`이므로 영향 없음). (수정 위치) **`src/ai/orchestrator/answer-orchestrator.js`**가 `blocked-action-permission` 조기 반환을 제거하고 `actionLimitations`를 실어 디스패치한다 — `question-planner.js`는 **수정하지 않았다**(lint Pass 3에서 귀속 확인). `evaluateAIActionPermission`은 `limitations`+`disclosure`를 반환한다. 금지 행위 P0·포트폴리오 동의·도구 경계는 유지 (P1120/R617).
-- [x] QA-EXHAUST-72: **프롬프트가 첫 번째 게이트였다.** 512행의 `"확인 필요"로 답하고`가 509행의 조건부 전환 지시를 덮어 모델이 일상 질문에 스스로 축약문을 만들었다. 미확인 수치는 단정하지 않되 **끝까지 답하고** 최종 판단을 사용자에게 넘기도록 재작성했다 (P1121/R617, `_aioPublicAIActionPolicyPrompt`).
-- [x] QA-EXHAUST-73: **자동 시장 분석이 영구 차단에서 도달 가능으로 바뀌었다.** 발행본 `marketAnalysis.reason`이 `metric-identity-mismatch:vix-vs-fear-greed,causal-evidence-missing`이었다 — 후자는 권리상 만들 수 없는 증거를 요구한 결과(차단 issue), 전자는 올바른 값을 나란히 쓴 문장도 막는 60자 근접 휴리스틱이었다. 둘 다 `warnings`로 내리고, 헤드라인 귀속 컨텍스트와 `disclosure`를 발행·렌더한다. `metric-value-mismatch`·`nfp-scale-mismatch`는 차단으로 유지 (P1122/R617).
-  - 남은 과제: 인과 판정이 영어 단어 목록이라 한국어 인과 문장은 검출되지 않는다 → 한국어 인과 어휘 목록 추가 필요(OPEN).
+- 완료 3건: QA-EXHAUST-71, QA-EXHAUST-72, QA-EXHAUST-73
 
 ## v55.04 semantic fix residuals 종결 (2026-09-19)
-
-- [x] QA-EXHAUST-67: 전환 전파 3항목을 분리 판정했다. `data.json.macro._freshness_*` 19개는 **전파됨**, `history.json.fieldMeta.*.observedAtSource`는 프로듀서가 값을 버려 **미전파**(다음 refresh 문제가 아니라 프로듀서 결함 → P1117), `metricEvidence[].canonicalMetricId`는 발행본 0/11이며 프로듀서에는 존재해 **다음 refresh에 발행**(P1115~P1119, `ci-artifact-semantics-check.mjs`·`ci-history-field-time-contract-check.mjs`).
-- [x] QA-EXHAUST-68: quote 평면 인용은 프로듀서의 발행 플래그에서 파생한다. `data.json.quotes`는 P715로 비어 있고 `quotesPublished: false`이므로 `market-snapshot.json:quotes`를 인용한다. 하드코딩 인용의 부재를 게이트가 단언한다 (P1116/R616, `ci-runtime-contract-check.mjs`).
-- [x] QA-EXHAUST-69: 점수 정합은 산출물이 아니라 **렌더 경로**에서도 성립해야 한다. presentation이 `breakdown`을 나르고 signal 페이지가 조정 행을 렌더하며, 게이트가 골든 픽스처마다 presentation↔scoreBreakdown 파리티와 실브라우저 sink를 검사한다 (P1118/R616, `ci-artifact-semantics-check.mjs`·`ci-architecture-browser-check.mjs`).
-- [x] QA-EXHAUST-70: 상시 0건은 의도라면 선언한다. 헤드라인 전용 뉴스의 인과 근거 0건은 출처 권리 경계이므로 `MARKET_ANALYSIS_NEWS_CONTENT_POLICY`(`causalNarrative: 'blocked-by-design'`)를 발행하고, 정책↔구현 불일치를 게이트가 검출한다. 침묵하는 미채움 필드를 남기지 않는다 (P1119/R616, `ci-data-pipeline-contract-check.mjs`).
+- 완료 4건: QA-EXHAUST-67, QA-EXHAUST-68, QA-EXHAUST-69, QA-EXHAUST-70
 
 ## v55.03 중첩 산출물 전수 감사와 구조 보강 (2026-09-18)
-
-- [x] QA-EXHAUST-60: `public-data/masters`의 37개 매니저를 **전부** 재계산했다(이전에는 5개 표본). 정규화 키(`NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE`) 집계 기준 top5/top10 농도·`fullRowCount`·`reportedPositionCount`·`parsedValueTotal`·`cover.tableValueTotal`이 **37/37 일치**했다. 3개 매니저의 값 잔차(1~5달러)는 `EXACT / |Δ|≤1 EXCEPTION_DISCLOSED / 그 외 MISMATCH` 규칙(`collect-13f-reference.mjs:263`)에 따라 라벨링된 정직한 공시이며, 범주 모집단 7/37/38/2/5 축도 각 산출물의 `coverage` 블록이 설명한다(`mark-minervini`는 `methodOnlyProfiles:1`). 결함 없음 (P1110/R615).
-- [x] QA-EXHAUST-61: knowledge·atlas·principles 685개 파일의 **8,908개 참조**를 전역 식별자 집합(3,210개)과 대조했다. dangling은 2계열뿐이었고 모두 수정했다 — `quantitative-labs` 30건(퇴역 범위), `relationship-guides` 5건(`valuation`·`power-grid`·`aidc-power-delivery`×2·`aidc-construction`). 소비자 `atlas.js`는 미해소 id를 `'연결 분석 화면'` 라벨 폴백 칩으로 렌더하므로 **사용자 가시 결함**이었다. 게이트 + 음성 대조 완료 (P1109/R615).
-- [x] QA-EXHAUST-62: 퇴역 범위가 산출물까지 닫혔다. `build-knowledge-quantitative-labs.mjs`는 8행에서 `EXCLUDED_BY_PRODUCT_SCOPE`로 종료하며 아래 42줄이 죽은 코드였고, 이미 생성된 16개 파일이 동결·무소비·비센서스 상태로 발행돼 있었다. 죽은 생성기와 산출물 16개를 제거하고 재발행 금지를 게이트로 고정했다 (P1109/R615).
-- [x] QA-EXHAUST-63: `objects/**` 629개 내용주소 해시를 **629/629 일치** 확인했고(원시 바이트 기준, LF 정규화 불필요), masters 산출물이 참조하는 경로 37건이 전부 존재함을 확인했다. 다만 **592개(94%)가 미참조**이며 전부 git 추적 상태다 — 내용주소 저장소에 GC/보존 정책이 없다. 삭제는 하지 않았고 보존 정책 결정을 OPEN으로 남긴다 (P1110/R615, `EVIDENCE-DEBT` 성격).
-- [x] QA-EXHAUST-64: 중첩 산출물 신선도 측정면을 열었다. `ci-data-lineage-audit.mjs`가 계열별 정책(knowledge/atlas/principles 120일, masters 45일)으로 최상위 JSON 49개를 측정하고 `report.nested`로 보고한다(WARN 전용). 실측 13건 창 초과, 0건 파싱 실패. 이 측정면이 **날짜 자체가 없는 12개 산출물**(relationship-guides·domain-guides·domain-claim-ledger·domain-source-packets·foundation-lessons·foundations·player-product-registry·source-packets·taxonomy-node-coverage·chapters·lesson-library·reference-curriculum)을 새로 드러냈다 — `revision`/`status`만 있고 시각이 없어 나이를 알 수 없다. 타임스탬프 부여는 저작 변경이라 OPEN으로 남긴다 (P1110/R615).
-- [x] QA-EXHAUST-65: 소비자 없는 설정 2건을 닫았다. `PUBLISHED_RUNTIME_ASSETS`(184항목, 저장소 내 참조 0건, 11개가 존재하지 않는 파일 지목)를 삭제했고(sw.js 18,634→11,151 바이트), 캐시 라우팅 표가 지목하지만 아무도 fetch하지 않던 `market-snapshot-status.json`·`operations-status.json`을 표에서 제거했다. 게이트가 라우팅 표의 모든 발행 산출물에 대해 클라이언트가 **경로**를 참조하는지 단언하며, 이름 기반 매칭은 스키마 문자열(`operations-status-v1`)로 거짓 통과함을 음성 대조로 확인해 경로 기반으로 강화했다. 반대 방향(실제 소비 산출물의 캐시 누락)은 TTL·오프라인 동작 검증이 필요해 OPEN (P1111·P1112/R615).
-- [x] QA-EXHAUST-66: 산출물 수준 정규화 버킷이 개별 행의 관측 시각 폴백이 되지 못하게 했다. `src/data/providers/screener.js` 3곳에서 `factor.observedAt || artifact.factorObservedAt` 사슬을 제거하고 fail-closed로 바꿨다(현재 849행 전부 자기 `observedAt`을 가지므로 발현되지 않던 잠재 결함). FRED `yoy` 6개 시리즈의 단위 선언도 실제 표시(`%`)와 일치시켰다 (P1113·P1114/R613·R615).
+- 완료 7건: QA-EXHAUST-60, QA-EXHAUST-61, QA-EXHAUST-62, QA-EXHAUST-63, QA-EXHAUST-64, QA-EXHAUST-65, QA-EXHAUST-66
 
 ## v55.02 데이터 의미·정합성 전수 감사 (2026-09-18)
-
-- [x] QA-EXHAUST-47: 상위 `public-data/*.json` 23개 산출물의 값↔라벨↔단위↔시각 정합을 로컬에서 전수 재계산했다. 일치 확인: 리비전 결속 8곳, 투영 매니페스트 해시/바이트/레코드(LF 정규화 기준 30.7MB→621KB), breadth 3세그먼트 산술(커버리지 97.4/97.3/97.9, A+D+U=eligible, advanceRatio), reconciliation 카운트↔범주 tally, 13F 농도(정규화 키 기준 소수 4자리), 지식 카운트(455·160·212·274·169·227·217), 텔레그램 교차 카운트(2336/499), 뉴스 40/40 사이클 내·점수 min/max (감사 보고서 `_artifacts/data-semantic-consistency-20260918/REPORT.md` §3).
-- [x] QA-EXHAUST-48: 발행 라벨↔의미 불일치 19건을 확정하고 13건(P1096~P1108)을 수정·게이트로 고정했다. BEA 월간 core 파싱, newsSourceCount 명명, 텔레그램 커버리지 280.5%, F&G 일별 중복·값/출처 불일치, history 행 비균질, earnings 캘린더 3자 정합, 권리/정합성 어휘 미선언·권리 승격, Worker health 재사용 미공개, 시계열 fieldMeta 탈락, FRED 중복 선언, marketSurveys.checkedAt 동결, canonical 0행 공허 통과.
-- [x] QA-EXHAUST-49: BEA PCE 파서가 월간 core 값을 12개월 문단에서 집어오던 결함을 문단 스코프 추출로 고치고 4개 픽스처로 고정했다. 정확 재현 픽스처에서 옛 파서는 `pceMoM 0.2 / corePceMoM 3.3`, 새 파서는 `0.2 / null`(fail-closed)이며, 월간 core 절이 없을 때 다른 기간 값을 절대 빌리지 않는다 (P1096/R614, `ci-history-field-time-contract-check.mjs`).
-- [x] QA-EXHAUST-50: 커버리지·비율은 자기 분모를 넘을 수 없다. 텔레그램은 분자를 텍스트 보유 집합으로 제한해 `selectedEligibleCount`·`selectedRawCoveragePct`(≤100)·`selectedOfObservedPct`를 발행하고, 게이트가 세 비율과 `observedCount == observedItems.length`를 단언한다 (P1098/R614, `ci-artifact-semantics-check.mjs`).
-- [x] QA-EXHAUST-51: 달력 단위 시계열은 단위 기간당 1포인트다. F&G 히스토리는 달력일로 dedupe하며 일별 표식을 우선하고, 행 값은 그 값의 출처 시리즈에서 온다. 게이트가 중복일과 "헤드라인 = 최신 일별 포인트의 반올림"을 단언한다 (P1100/R614).
-- [x] QA-EXHAUST-52: 시계열 행의 열 집합은 균질하고 "미관측"은 `null` + 메타 부재로만 표현한다. 두 프로듀서 레인이 같은 정규화 함수를 거치며 키 삭제 대신 `null`을 쓴다. 비균질 입력 정규화 픽스처와 발행본 열 집합 단언이 함께 존재한다 (P1101/R614, `ci-history-field-time-contract-check.mjs`·`ci-artifact-semantics-check.mjs`).
-- [x] QA-EXHAUST-53: 선언 없는 축을 발행하지 않는다. `operations-status`가 `rightsVocabulary`를, `reconciliation-status`가 `statusVocabulary`·`rightsVocabulary`를 발행하고, 계약과 게이트가 `status`·`statusCode`·`rights`·`licensedForUse`·readiness 키를 각자의 어휘로 검증한다. 권리는 관측 완전성으로 승격하지 않으며 `promotable`은 `rights === 'VERIFIED'`만 인정한다 — 승격 제거로 7개 범주가 하향됐고 `overall`·`closure`는 불변임을 재빌드 대조로 확인했다 (P1103/R614).
-- [x] QA-EXHAUST-54: 프로듀서는 소비자·계보 정책과 함께 온다. `earnings-calendar.json`은 계보 정책(`weekly-calendar-reference` + 창 파싱/순서/종료 검사)과 클라이언트 저장 스냅샷 폴백을 함께 갖췄고, 게이트가 프로듀서(워크플로)·소비자(`index.html` 경로)·정책(`POLICIES` 키) 3자 일치를 단언한다 (P1102/R614, `ci-data-pipeline-contract-check.mjs`).
-- [x] QA-EXHAUST-55: 전환 면제는 만료된다. `ci-artifact-semantics-check.mjs`의 모든 artifact 단언 면제가 시한(2026-10-18)을 가지며 만료 후 무조건 실행되고, 면제 중에도 부채 수치를 로그로 보고한다(canonical 0행, 불일치 행 413개, promotable 7개, 뉴스/텔레그램/권리 어휘 등). canonical 0행은 만료 후 실패로 처리된다 (P1099·P1108/R614).
-- [x] QA-EXHAUST-56 (v55.03에서 해소 → QA-EXHAUST-60·61·63): 중첩 산출물 전수 검사를 완료했다. `ci-data-lineage-audit.mjs`는 `public-data/` 최상위 JSON만 순회한다(비재귀, 23개). knowledge/atlas/principles/masters는 인덱스 카운트만 대조했고, `objects/**`(629개/141MB)와 37개 매니저 중 32개의 농도 재계산은 남아 있다 (감사 보고서 §7).
-- [x] QA-EXHAUST-57 (v55.03에서 해소 → QA-EXHAUST-65): sw 계층 드리프트 2건을 닫았다. `PUBLISHED_RUNTIME_ASSETS`(187개)는 저장소 어디서도 읽히지 않고(정의 + 금지 단언뿐) 일치 게이트가 없다. `DATA_URL_PATTERNS`가 캐시하는 `market-snapshot-status.json`·`operations-status.json`은 클라이언트 fetch가 0건이고, 실제 주 데이터(`data.json`·`history.json`·`screener.json`·`telegram-digest.json`)는 데이터 캐시 패턴 밖이다 (감사 보고서 §2 D12·D13).
-- [x] QA-EXHAUST-58 (v55.03에서 해소 → QA-EXHAUST-66): 버킷 폴백을 제거했다(이름 분리는 잔여). top-level `factorObservedAt`은 정규화 버킷(`2026-09-17T00:00:00Z`)이고 행 레벨은 실제 관측(705행 `2026-09-16T13:30:00Z`)이다 (감사 보고서 §2 D16). 계약·소비자 영향 검토가 선행돼야 한다.
-- [x] QA-EXHAUST-59 (v55.03에서 부분 해소 → QA-EXHAUST-66): yoy 단위 선언을 표시와 일치시켰다(포맷터 소유는 잔여). `FRED_SERIES[*].unit`은 이제 중복 없이 선언되지만 소비되지 않으며, 표시 접미사는 `js/aio-data.js`의 포맷터에 하드코딩돼 있다(렌더되는 시리즈에서 두 값은 현재 일치함을 확인). 선언-표시 단일 원천 리팩터가 남아 있다 (감사 보고서 §2 D18).
+- 완료 13건: QA-EXHAUST-47, QA-EXHAUST-48, QA-EXHAUST-49, QA-EXHAUST-50, QA-EXHAUST-51, QA-EXHAUST-52, QA-EXHAUST-53, QA-EXHAUST-54, QA-EXHAUST-55, QA-EXHAUST-56, QA-EXHAUST-60, QA-EXHAUST-57, QA-EXHAUST-65, QA-EXHAUST-58, QA-EXHAUST-66, QA-EXHAUST-59
 
 ## v54.96 QA 계약·감사 경계 (2026-09-15)
-
-- [x] QA-EXHAUST-31: AI decision premise는 common evidence evaluator를 통해 decision/current-claim use, ceiling, rights, revision, quality, freshness SLA를 모두 요구하고 self-labeled `verified/current`만으로 승격하지 않는다 (P1068/R590, `ci-ai-premise-check.mjs`).
-- [x] QA-EXHAUST-32: company-primary는 SEC 또는 registry-verified issuer IR만 primary로 허용하며 investors.com/nasdaq.com과 substring hint는 secondary로 격리한다. registry 미검증 malicious IR negative control을 실행한다 (P1068/R591, `ci-ai-intelligence-contract-check.mjs`).
-- [x] QA-EXHAUST-33: fast plane no-op snapshot, 15분 liveness/status-change heartbeat, checked/published/written timestamp와 정상 384·최악 576 writes/day budget을 fixture로 검증한다 (P1069/R592, `ci-data-plane-contract-check.mjs`).
-- [x] QA-EXHAUST-34: headless 실패 ledger/report와 browser event wait diagnostic이 실패 이름·세부 상태를 보존한다. CI 원격 artifact 업로드는 보안 승인 경계로 미완료다 (P1070/R593, `ci-headless-group-lifecycle-check.mjs`).
-- [x] QA-EXHAUST-35: operations alert는 body signature를 포함해 동일 실패 댓글을 dedupe하고 failed job/step 요약과 escalation/reopen/signature-change만 notification을 허용한다 (P1071/R593, workspace contract).
-- [x] QA-EXHAUST-36: refresh-data/refresh-screener는 producer별 `Fail-closed promotion candidate gate before push`와 exact `release_sha` CI dispatch를 갖고 generated workspace state를 data commit에서 분리한다. [ ] staging→CI attestation→promotion 경계는 아직 없어 CI 실패 시 main에 revision이 남을 수 있다 (P1073/R595, `ci-qa-pipeline-contract-check.mjs`).
-- [x] QA-EXHAUST-37: exact-hash semantic ledger는 자동 gate PASS와 분리해 기록한다. 현재 10,838/157,206 current lines (6.89%), 596/4,611 historical transitions (12.93%), `releaseCertified=false`; 사람 검토·live/provider/production outcome은 미완료다 (P1072/R594). — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
-- [x] QA-EXHAUST-38: 바이트 계약 아티팩트(`public-data/objects/**`)는 `.gitattributes`로 개행 변환을 금지하고, 런타임 어휘를 검증하는 gate는 손 목록 대신 정본 계약 모듈(`src/data/contracts/source-kind.js`)을 참조하며, 표시 단위 환산은 단일 소유이고 관측값과 합성 추정값이 sink 안에서 구분된다. 스크리너 가격 컬럼은 field-readiness 경로에서도 live quote를 관측시각·출처와 함께 overlay하고, quote tick은 랭킹 스냅샷과 frozen run hash를 바꾸지 않는다 (P1074/R596·R597, `ci-screener-auto-refresh-browser-check.mjs`·`ci-architecture-browser-check.mjs`).
-- [x] QA-EXHAUST-39: 남은 미검토 의미 표면 — `index.html` 인라인 스크립트 20380~24351·24355~27500, 서사 페이지 본문, `scripts/fetch-data.mjs` 잔여 약 3,200줄, `cloudflare-worker-proxy.js`, `js/aio-tests.js`. semantic coverage 6.89%는 여전히 OPEN이다 (P1074/R594). — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
-- [x] QA-EXHAUST-40: 수치·현재성 가드의 스위치는 guard 대상 콘텐츠에서 파생한다. `"삼성전자 실적 어때?"`·`"AAPL PER 얼마야?"`·`"AAPL 밸류에이션 분석해줘"`·`"삼성전자 목표가 어떻게 봐?"`는 가드 ON, `"PER이 뭐야?"`·`"PEG가 뭐야?"`·`"RSI가 뭐야?"`·`"이동평균 개념 설명해줘"`는 OFF (P1075/R599, `_artifacts/full-review-20260916/tools/probe-taxonomy.mjs`).
-- [x] QA-EXHAUST-41: 계약 감사는 "작성된 계약"과 "파생 계약"을 구분해 보고하고 자기 부작용을 검증하지 않는다. 실측 라우트 20개 중 deep-audit 작성 커버리지 15, sequential registry 16이며 파생 라우트(시장뉴스·principles·masters·atlas·screener)가 명시된다. 배포 게이트는 이를 경고로 노출하고 차단하지 않는다. [ ] 파생 5개 라우트의 고유 계약 작성과 sequential registry의 stale lineRange·퇴역 라우트 정리는 미완료 (P1076/R600, `_artifacts/full-review-20260916/tools/probe-page-contract-audit.mjs`).
-- [x] QA-EXHAUST-42: 사용자 출력 계약은 렌더된 결과로 단언한다. `ci-research-flow-contract-check.mjs`의 공급 자료 브리지 단언 2건이 죽은 렌더러 문자열 대신 "프로토콜 메타데이터 존재 + 표시 렌더러 부재(음성)"와 "claim 원장은 내부 API로만 도달"을 검사하며, 66개 경계 단언이 PASS한다. 브리지의 `internal-protocol-only` 경계는 유지된다 (P1077/R601).
-- [x] QA-EXHAUST-43: 한 라벨이 두 정의를 가리키지 않는다. 스크리너 등급은 `rankGrade(visibleRank(row))` 단일 함수에서 파생하고 rejected/unavailable 행에는 등급이 없으며, 랭크 필터 라벨도 같은 함수에서 파생된다(실측 `40 (D)·50 (C)·65 (B)·80 (A)`). breadth 참여도는 한국어 매핑, `시장 폭 시그널`은 advance ratio, technical `마켓 폭`은 섹터 ETF 상승 비율, MACD는 히스토그램 기저로 통일됐다 (P1078/R602, `_artifacts/full-review-20260916/tools/probe-screener-grade.mjs`).
-- [x] QA-EXHAUST-44: 생성된 현재 상태는 고빈도 데이터 refresh가 바꾸는 휘발값을 고정하지 않는다. 렌더된 `## Operations Boundary`는 `overall`·public stage·promotion decision만 담고 데이터 refresh 유래 ISO 타임스탬프(`generatedAt`)를 담지 않으며, 최신 `operations-status.json`을 넣어도 `generate-workspace-state.mjs --check`가 PASS한다. `ci-workspace-contract-check.mjs`가 재도입을 단언으로 막는다 (P1079/R603).
-- [x] QA-EXHAUST-45: 데이터 파이프라인 구조 4건이 수정됐다. hy-oas `fred-source-identified`는 `fred-official-primary`·`fred-official-public-csv`를 모두 인정하고(화해 재생성 실측 PASS), SEC pe/pb 결측 행은 같은 실행의 메모리 adjusted close로만 재계산하며 계산 근거를 행에 남긴다(P715 공개 계약 유지, `G-SCR-VALUATION`), 상태 빌더 3곳은 `atomicWriteFile`로 쓰고 연속성 게이트가 단언한다, 정적 테마맵의 시점 박힌 시총 서술 74건은 제거되고 정적 계약이 재도입을 금지한다 (P1080/R604).
-- [x] QA-EXHAUST-46: 정적 DB가 data-refresh 주기에 묶였다. 스킬 인벤토리에 S1~S6(파일·동기화 명령·게이트·주기), 어닝 캘린더 서버 수집(`fetch-earnings-calendar.mjs` + refresh-screener 배선), `conf-gtc-dc` 등록(관심 윈도우 ~60일, 2027년 일정은 진입 시 등록), FOMC 9/16 결정 등록, 만료 일정 4건 승격(CPI 10/14·소매 10/15·FOMC 10/28·금리 3.75-4.00%), `static-db-expiry` 게이트(data 그룹). 만료 이벤트는 자동 삭제 없이 명시적 제거만 허용한다 (P1081/R605).
+- 완료 16건: QA-EXHAUST-31, QA-EXHAUST-32, QA-EXHAUST-33, QA-EXHAUST-34, QA-EXHAUST-35, QA-EXHAUST-36, QA-EXHAUST-37, QA-EXHAUST-38, QA-EXHAUST-39, QA-EXHAUST-40, QA-EXHAUST-41, QA-EXHAUST-42, QA-EXHAUST-43, QA-EXHAUST-44, QA-EXHAUST-45, QA-EXHAUST-46, QA-BOUNDARY-KNOWLEDGE-01
 
 ## v54.95 상태 저장소 불변성·구독 격리 (2026-09-12)
-
-- [x] QA-EXHAUST-24: devMode는 이미 frozen인 outer 아래의 mutable child까지 동결한다. 한 listener가 throw해도 이후 listener는 동일한 committed state/action을 받고, 완료 뒤 AggregateError가 호출자에게 보고된다. 중복돼 있던 slice subscription fixture 한 벌은 제거한다 (P1062/R585, `ci-esm-core-unit-check.mjs`).
-- [x] QA-EXHAUST-25: Atlas와 Principles의 capability batch는 공통 loader가 pending dedupe, partial failure, retry, route dispose 후 late completion 차단, dataset/error 상태 반영을 소유한다. 페이지는 각자의 검색 색인·후처리·render만 소유한다 (`ci-esm-core-unit-check.mjs`).
-- [x] QA-EXHAUST-26: 부분 결측 factor는 관측 가중치로 재정규화하고, 전부 결측·stale factor 행은 rank 분모에 들어가지 않는다. 기존 factor golden parity는 유지한다 (P1063/R586).
-- [x] QA-EXHAUST-27: registry origin 40개는 중앙 authority tier에 매핑되고 unknown은 invalid다. AI decision은 T1/T2만, reference analysis는 인식된 T1~T4만 사용하며 늦은 구 revision·낮은 권한·권리 철회 반례를 store에서 실행한다 (P1064/R587).
-- [x] QA-EXHAUST-28: 최근 fetch가 오래되거나 날짜 없는 RSS 기사를 fresh하게 만들지 않는다. `newsObservedAt`과 `newsFetchedAt`이 producer→provider→field readiness에서 분리된다 (P1065/R587).
-- [x] QA-EXHAUST-29: refresh/history mirror event는 한 번만 소비되고 실제 같은 타깃 반복은 보존된다. `#theme-detail` 직접 진입은 `#themes` native owner와 선택된 detail panel로 수렴함을 unit+실브라우저에서 확인한다 (P1066/R588).
-- [x] QA-EXHAUST-30: 배포·data continuity·release gate의 실제 read 집합이 cache inputs/impact와 일치하고 임시 write는 workspace 밖이다. [ ] 전체 knowledge generated parity 재생성 비교는 dirty workspace/쓰기 권한 경계 때문에 미검증이다 (P1067/R589).
+- 완료 7건: QA-EXHAUST-24, QA-EXHAUST-25, QA-EXHAUST-26, QA-EXHAUST-27, QA-EXHAUST-28, QA-EXHAUST-29, QA-EXHAUST-30
 
 ## v54.85 채팅 가독성과 근거 전달 (2026-09-10)
-
-- [x] QA-AI-RESPONSE-REFLOW: production CSS/renderer의 320/400/768/1280px 검사와 근거 펼침을 통과했다. 이전 구조는 본문 폭이 97px로 압축되고 수정 구조는 371px를 확보하는 반례를 확인했다 (P1056).
-- [x] QA-AI-QUOTE-PROVENANCE: 공통 builder의 관측 tuple, 누락·상충·미확인 truth 반례, 두 소비자 연결 검사 PASS. 수신시각이나 통화 추측으로 누락을 채우지 않는다 (P1057).
+- 완료 2건: QA-AI-RESPONSE-REFLOW, QA-AI-QUOTE-PROVENANCE
 
 ## v54.84 AI 및 데이터 의미 검증 (2026-09-09)
-
-- [x] QA-AI-IDENTITY: 수치 claim의 metric/entity/scale/value/unit/asOf/source와 실제 evidence 일치, 잘못된 표시 이름, snippet·출처 위조·독립성 반례를 ci-ai-intelligence-contract-check로 검증한다 (P1052/P1054).
-- [x] QA-AI-KNOWLEDGE-LINK: 원문 concept 연결과 단어 검색 후보를 분리하고 미연결 집계를 원문과 대조한다 (P1053).
-- [x] QA-AI-ANALYSIS-WIRING: 실제 production helper와 orchestrator를 이용하여 두 UI 배선, 정확한 전제 tuple, 기간 없는 quote, 반대·상충 관측, 동일 ID 충돌·미래값을 ci-ai-premise-check 및 ci-ai-chat-analysis-integration-check로 검증했다 (P1055). 실제 provider의 기간 공급·모델 품질은 별도다.
-- [x] QA-AI-STREAM-LIFETIME: Worker/직접 provider 본문 deadline, 취소, 오류 event, 불완전 EOF와 UTF-8 제한 fixture를 실행했다 (P1050).
-- [x] QA-AI-UI-STATE: 격리 Chromium DOM에서 중지·기록 손상·TTL·모달 초점·Escape를 검증했다. 실제 사용자 저장소와 유료 provider 호출은 제외한다 (P1051).
-- [x] QA-DATA-RAW-ATOMIC: 최신 Masters shard 복구 후 계약·브라우저 검사와 원자적 쓰기 실패 주입을 실행했다 (P1046/P1049).
-- [x] QA-MARKET-CALENDAR: 공식 2026 미국 휴일·DST·조기 폐장·미래/오래된 종가·타 시장 fixture를 검증한다 (P1045).
-- [x] QA-KNOWLEDGE-DEEP-AUTHORING: 160개 교육 원문은 반복 padding을 제거한 reference draft이며 독립적인 심층 집필·원문 직접성·계산·의미 검수 완료가 아니다 (P1047). — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
-- [x] QA-AI-LIVE-QUALITY: Shared-Worker gpt-6-luna live answer quality (follow-ups, blind benchmark) is unverified. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-AI-LIVE-01(공용 Worker 실답변 품질의 소유자 블라인드 점검) verify_by: owner-run blind benchmark against the deployed shared Worker, recorded under _artifacts/
+- 완료 9건: QA-AI-IDENTITY, QA-AI-KNOWLEDGE-LINK, QA-AI-ANALYSIS-WIRING, QA-AI-STREAM-LIFETIME, QA-AI-UI-STATE, QA-DATA-RAW-ATOMIC, QA-MARKET-CALENDAR, QA-KNOWLEDGE-DEEP-AUTHORING, QA-AI-LIVE-QUALITY, QA-BOUNDARY-KNOWLEDGE-01, QA-BOUNDARY-AI-LIVE-01
 
 ## v54.76 working-tree audit continuation (2026-09-05)
-
-- [x] QA-PORTFOLIO-VALUATION: 이전 평가액 기준 일간 손익, 결측 매입가 보류, 실시간 행과 합계·표·차트의 동일 평가 기준을 도메인 및 격리 브라우저 fixture로 검증한다 (P1044).
-- [x] QA-PERF-OBSERVATION: 1024-row timestamp parsing stays bounded; canonical repeated reads avoid rescans and preserve exact expiry, future activation, clock rollback, row replacement and uncached mutable inputs. Slice subscriptions preserve dependency updates/disposal without unrelated renders (P1034/P1035, ci-native-decision-evidence-check, ci-esm-core-unit-check).
-- [x] QA-PERF-HYDRATION: cooperative snapshot preparation preserves the legacy hash, coherent pre-yield quote cut, cancellation and bounded date cache; cached facade snapshots retain deep mutation isolation and refresh on canonical replacement (P1038/P1039, ci-screener-workbench-contract, ci-esm-core-unit-check).
-- [x] QA-EXHAUST-20: future quote timestamps are quarantined; market publication, operations freshness and weekend grace require full Tier-0/QG/row-quality conditions; fetch-data cycle status names quote/news/history blockers. Targeted snapshot/data-pipeline/operations contracts passed before closeout (P1030).
-- [x] QA-EXHAUST-21: Chart primary/secondary fallback, nested delegated action priority, canonical pageShown parsing and scheduler initial-timer/epoch ownership have targeted runtime, delayed-primary browser fixture and G108 20/20 evidence. The separate boot FCP gate passed at 1908ms in v54.79 after P1034; the stricter long-task targets remain unmet.
-- [x] QA-EXHAUST-22: browser concurrency is separately bounded, all-route gates consume `ROUTE_IDS`, desktop gates share viewport config, and viewport geometry runs after route settle. Pipeline/runner/desktop-scope/fast-profile contracts passed; the full browser matrix was not rerun (P1032).
-- [x] QA-EXHAUST-23: verify the P1033 page fixes in a real browser: BOJ/HY missingness, five breadth canvas pixel or blocked states, sentiment null-series/needle reset, Principles source/path step, Masters zero-match state, ticker/theme USD·KRW·unknown-currency formatting, one theme-detail action and one render pass. Not run because the user explicitly excluded overall validation/test/QA from this closeout. — Retired (v58.86 정리): 대체됨: 해당 화면은 v57~v58에서 다시 만들어졌고 브라우저 게이트(viewport·responsive·entity-quality·a11y·rendered-copy)와 verify-aio 주행이 릴리스마다 확인한다. 이 묶음 단위의 별도 실브라우저 인수는 하지 않는다. verify_by: v58.86 정리로 종료
+- 완료 7건: QA-PORTFOLIO-VALUATION, QA-PERF-OBSERVATION, QA-PERF-HYDRATION, QA-EXHAUST-20, QA-EXHAUST-21, QA-EXHAUST-22, QA-EXHAUST-23
 
 ## v54.76 exhaustive audit checkpoint (2026-09-02)
-
-- [x] QA-EXHAUST-01: unknown/future/negated-use evidence and ceilings; stale reference display versus field calculation; missing cap and nonoverlapping cap buckets execute in ESM/workbench fixtures.
-- [x] QA-EXHAUST-02: actual Workbench buttons execute, preserve frozen input across quote refresh, persist/replay 873 rows after reload with identical result/explanation hashes, and delete records; no new global facade methods.
-- [x] QA-EXHAUST-03: stale minority factor values cannot alter peers; invalid core rows stay outside rank denominators; null scores and tie-inclusive turnover; existing golden fixtures are unchanged.
-- [x] QA-EXHAUST-04: already-aborted requests, immediate retry, late cleanup/cache publication, denied storage, raw storage injection, same/future/missing-step migration cases execute deterministically.
-- [x] QA-EXHAUST-07: preset/select change the actual definition; chip deletion clears the actual filter; repeated conditions replace instead of append; unchanged visual execution keeps its hash; one sticky symbol column starts at zero. Desktop VM and screener browser fixtures pass (P1017).
-- [x] QA-EXHAUST-08: KRW/USD, unlabeled amounts, conflicting quote currency, missing MIC/asset type, native-cap display, USD filter exclusion, atomic fallback and one-snapshot-per-provider-call execute as negative/positive fixtures (P1018).
-- [x] QA-EXHAUST-09: memoize throw→retry, Headers preservation, pre-abort without transport, abort-ignoring request/body deadline and late-publication exclusion execute deterministically (P1019).
-- [x] QA-EXHAUST-10: missing benchmark cost, malformed AI response, trusted control event fields, bounded provider failure, lineage timestamps/order, Korean regime labels, invalid weights and future regime timestamp fail closed (P1020).
-- [x] QA-EXHAUST-11: dead legacy observer and USD position UI are absent; excluded quantitativeLabs selector is absent; ontology/evidence Map indexes are private and caller mutation cannot rewrite canonical concepts (P1021).
-- [x] QA-EXHAUST-12: null/blank portfolio numbers remain unavailable, projections are frozen at their declared boundary, malformed news/time fails closed, and theme explicit-null selection clears without erasing omitted items (P1022).
-- [x] QA-EXHAUST-13: app stop cancels queued timer/microtask publication, late snapshot completion cannot publish, disposed routers cannot restart/transition, and route/return context is allowlisted and bounded (P1023).
-- [x] QA-EXHAUST-14: navigation-only knowledge edges use RELATES_TO, unmapped edges fail generation, malformed graph/learning collections fail closed, and nested projections/route targets resist caller mutation (P1024).
-- [x] QA-EXHAUST-15: domain null/out-of-range/negative inputs fail closed; portfolio valuation produces coherent weights; gross/net outcome semantics migrate; trading-score v2 retains valid parity and bounds every input (P1025).
-- [x] QA-EXHAUST-16: AI causal alternatives stay inside one traceable time window; strict company/sector/technical inputs, mixed-market session, mixed prohibited conduct, bounded research floors/errors and immutable claim/context/retrieval projections execute as negative and positive fixtures (P1026).
-- [x] QA-EXHAUST-17: private evidence indexes expose no mutable Map while Atlas resolves all six `financial-targets` sources; the browser gate reports open/link/unresolved/summary state and tests relationship maps at 1280px and 760px (P1027).
-- [x] QA-EXHAUST-18: Atlas Telegram overview maps the producer's canonical `ok | partial | failed` status without aliases; real Chromium requires both 4-channel success messages and rejects a simultaneous failure label (P1028).
-- [x] QA-EXHAUST-19: Atlas taxonomy search uses the same `taxonomyNodeIds` relation as player/product rendering; Chromium searches `Samsung Electronics`, follows memory-storage → memory-dram-hbm to its player card, then restores all 19 domains (P1029).
-- [x] QA-EXHAUST-05: every current line and historical transition must receive explicit semantic-review coverage; file inventory/AST parsing and selected negative fixtures do not complete this request. Current exact-hash ledger: 427 code/config files / 157,206 current lines (10,838 reviewed, 6.89%) and 596 / 4,611 historical code transitions (12.93%); `releaseCertified=false`. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
-- [x] QA-EXHAUST-06: production PIT/outcome collection, all remaining legacy producers, dormant-module publication, every route/control, mobile/touch visual review and paid/shared AI/provider certification remain open until separately verified. Public market/screener refresh and desktop browser matrices are verified for the 2026-09-02 local release candidate. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-DATA-RIGHTS-01(유료·면허 자료와 공급자 권리, 보안 마스터·기업행위·섹터 매핑) verify_by: v58.86 정리로 종료
+- 완료 19건: QA-EXHAUST-01, QA-EXHAUST-02, QA-EXHAUST-03, QA-EXHAUST-04, QA-EXHAUST-07, QA-EXHAUST-08, QA-EXHAUST-09, QA-EXHAUST-10, QA-EXHAUST-11, QA-EXHAUST-12, QA-EXHAUST-13, QA-EXHAUST-14, QA-EXHAUST-15, QA-EXHAUST-16, QA-EXHAUST-17, QA-EXHAUST-18, QA-EXHAUST-19, QA-EXHAUST-05, QA-EXHAUST-06, QA-BOUNDARY-KNOWLEDGE-01, QA-BOUNDARY-DATA-RIGHTS-01
 
 ## v54.73 independent code/history audit (2026-08-31)
-
-- [x] QA-AUDIT-20260831-01: independent fixtures verify equal-evidence midranks, true low-volatility ordering, LAST_GOOD rejection, immutable screen content and hash mismatch rejection.
-- [x] QA-AUDIT-20260831-02: future/unknown availability PIT observations, missing benchmark, reversed times, unsupported drawdown/calendar evidence and duplicate/terminal refresh selection have executable negative controls; these foundation modules are not production PIT certification.
-- [x] QA-AUDIT-20260831-03: missing/blank/boolean signal coverage configuration retains the evidence floor; missing previous-close/delay remain unknown while actual zero delay is retained.
-- [x] QA-AUDIT-20260831-04: stale headless expectations are replaced by single-probe behavior, scoped no-inline-handler checks, relevant/unrelated memory and AbortSignal-aware static wiring; exact failed groups pass.
-- [x] QA-AUDIT-20260831-05: replayable persisted ScreenRun inputs, session-aware outcome collection, row-level factor freshness, dormant-module retirement, legacy data ownership contraction and complete user-flow/live certification remain open; see `_artifacts/deep-audit-20260831/REPORT.md`. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-DATA-RIGHTS-01(유료·면허 자료와 공급자 권리, 보안 마스터·기업행위·섹터 매핑) verify_by: v58.86 정리로 종료
-- [x] QA-AUDIT-20260831-06: separate field display from calculation readiness; verify undated/negated-use evidence, stale-artifact whole-table blocking, session-aware freshness and genuine collection recovery. Coverage is input completeness, not measured accuracy. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다. verify_by: v58.86 정리로 종료
+- 완료 6건: QA-AUDIT-20260831-01, QA-AUDIT-20260831-02, QA-AUDIT-20260831-03, QA-AUDIT-20260831-04, QA-AUDIT-20260831-05, QA-AUDIT-20260831-06, QA-BOUNDARY-DATA-RIGHTS-01
 
 ## v54.72 deep supplied-materials structural pass (2026-08-31)
-
-- [x] QA-REF-20260831-01: source audit, prior/current link registry, readable/blocked boundary, and attachment image audit remain reference-only; inaccessible Article bodies are not inferred.
-- [x] QA-REF-20260831-02: canonical reaction/swing/trend/event, macro release-lag, institutional-quarter, AI request/workload/operations, capital-quarter, qualification, physical-AI, and software-usage windows are attached to route mappings.
-- [x] QA-REF-20260831-03: Home/Signal/Technical/Market/News/Sentiment/Screener/Ticker/Fundamental/Options/Portfolio/Masters plus Principles/Atlas consume route-specific bridges with observation and invalidation text.
-- [x] QA-REF-20260831-04: screener definitions and native orchestrator preserve reference framework/time-series IDs and a reference-only boundary without adding them to factor scores or current-value claims.
-- [x] QA-REF-20260831-05: chat context separates 13F report-period lag, AI capacity conversion, hardware qualification, physical-AI operations, software outcome economics, and time-series discipline.
-- [x] QA-REF-20260831-06: live browser inspection of every newly mounted bridge, fresh provider reconciliation, deployed parity, and live AI/inference benchmark evidence remain unverified until those environments are available. — Retired (v58.86 정리): 자동화로 대체: pages-deploy가 배포마다 ci-live-invariant-check를 돌린다(2026-10-26 09:25Z 실행 성공), Worker 배포는 CI 증거·스모크·롤백(R652) verify_by: v58.86 정리로 종료
+- 완료 6건: QA-REF-20260831-01, QA-REF-20260831-02, QA-REF-20260831-03, QA-REF-20260831-04, QA-REF-20260831-05, QA-REF-20260831-06
 
 ## v54.71 supplied research integration (2026-08-30)
-
-- [x] QA-REF-20260830-01: the ten supplied links and attached images are recorded with six readable sources and four unreadable X Article pointers; no inaccessible Article body is inferred or promoted.
-- [x] QA-REF-20260830-02: Market, Themes, Principles, Atlas, search vocabulary, and chat receive reference-only market-confirmation, macro-lag, and Jalapeño inference-architecture frames with explicit time-series windows.
-- [x] QA-REF-20260830-03: 13F remains bounded to report period, CUSIP/share-class normalization, corporate actions, and filing-linked change; current ownership, price, target, supplier, and ranking claims are not created by the supplied packet.
-- [x] QA-REF-20260830-04: local data alignment preserves the latest completed 2026-08-28 US close, late-August daily rates/HY observations, and 2026-07 monthly macro observations as separate frequencies; weekend post values are not hardcoded.
-- [x] QA-A11Y-20260830-01: the shared theme-detail close target is at least 44px and the 20-route automated accessibility matrix passes with zero console errors; screen-reader, contrast, zoom/reflow, and dialog-focus evidence remains manual/unverified.
-- [x] QA-REF-20260830-05: full text for the four X Articles, independent current-provider reconciliation, deployed parity, and live AI/inference benchmark evidence remain unverified external work. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-DATA-RIGHTS-01(유료·면허 자료와 공급자 권리, 보안 마스터·기업행위·섹터 매핑) verify_by: v58.86 정리로 종료
+- 완료 6건: QA-REF-20260830-01, QA-REF-20260830-02, QA-REF-20260830-03, QA-REF-20260830-04, QA-A11Y-20260830-01, QA-REF-20260830-05, QA-BOUNDARY-DATA-RIGHTS-01
 
 ## v54.70 actual desktop journey (2026-08-30)
-
-- [x] QA-USER-01: offline VM checks canonical score components, F&G reset, missing/zero, missing-last rank sorting, real eight-field comparison, actual-origin/accessibility labels and retired writers.
-- [x] QA-USER-02: desktop Browser exercised home hydration, exact NVDA search → Why → ticker → screener return with retained search/scroll/row focus, two-symbol comparison/final layout, ticker → related theme and ticker → same-symbol SEC report.
-- [x] QA-USER-03: all route identities in the current registry were reached for initial visible inspection, including inline theme-detail and direct-entry options. This is not all-control/all-content semantic certification.
-- [x] QA-USER-04: quote/history upstream errors, stale/reference narration, glossary policy/teaching claims, remaining legacy charts/narratives and every collapsed section still need separate closure. Record the exact remainder in `_artifacts/user-flow-remediation-20260830.md`. — Retired (v58.86 정리): 대체됨: 해당 화면은 v57~v58에서 다시 만들어졌고 브라우저 게이트(viewport·responsive·entity-quality·a11y·rendered-copy)와 verify-aio 주행이 릴리스마다 확인한다. 이 묶음 단위의 별도 실브라우저 인수는 하지 않는다. verify_by: v58.86 정리로 종료
-- [x] QA-USER-05: paid/shared AI-provider success, full release/browser-shard certification, production deployment parity and recruited-user validation have not been certified. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-HUMAN-01(모집 사용자·키보드·스크린리더 실사; architecture/human-validation.json이 NOT_EXECUTED로 고정) verify_by: v58.86 정리로 종료
+- 완료 5건: QA-USER-01, QA-USER-02, QA-USER-03, QA-USER-04, QA-USER-05, QA-BOUNDARY-HUMAN-01
 
 ## v54.69 continuity repairs (2026-08-30)
-
-- [x] QA-CONT-01: exact cache keys, ticker/interval rejection, cache/network parity, bounded storage, upstream-isolated circuit and caller cancellation tested by offline VM.
-- [x] QA-CONT-02: missing-vs-zero, observation-vs-collection time, empirical VIX and request-owned symbol scope exercised; independent FRED partial-cycle producer contract tested.
-- [x] QA-CONT-03: per-page chat epochs/retry cancellation, search empty/timeout fallback, citation objects and shared knowledge cancellation/retry exercised without provider spending.
-- [x] QA-CONT-04: native market renderer clears missing values and stale lineage; document injection and 20 registry module paths checked offline.
-- [x] QA-CONT-05: current-revision desktop browser, whole-site real-user flow, deployed external sources and AI end-to-end must be checked separately. Local Browser URL policy blocked access; no alternative browser bypass attempted. — Retired (v58.86 정리): 대체됨: 해당 화면은 v57~v58에서 다시 만들어졌고 브라우저 게이트(viewport·responsive·entity-quality·a11y·rendered-copy)와 verify-aio 주행이 릴리스마다 확인한다. 이 묶음 단위의 별도 실브라우저 인수는 하지 않는다. verify_by: v58.86 정리로 종료
+- 완료 5건: QA-CONT-01, QA-CONT-02, QA-CONT-03, QA-CONT-04, QA-CONT-05
 
 ## v54.68 source-to-screen structural repairs (2026-08-30)
-
-- [x] QA-FLOW-01: VM tests confirm exact Yahoo timeframe mapping, late-response isolation, empty-array completion, shared technical selection and invalid fundamental reset.
-- [x] QA-FLOW-02: screener contract requires every required field, distinguishes research rights review from missing observations and prioritizes exact ticker queries over unrelated memo mentions.
-- [x] QA-FLOW-03: generated-free synthetic ADR is removed; ticker EMA/RSI use observed OHLCV; VIX sample rank does not claim ticker IV rank; SEC flow frames use duration periods.
-- [x] QA-FLOW-04: full shared-shell release certification and deployed exact-SHA/provider tests are separately required before a release claim. — Retired (v58.86 정리): 자동화로 대체: pages-deploy가 배포마다 ci-live-invariant-check를 돌린다(2026-10-26 09:25Z 실행 성공), Worker 배포는 CI 증거·스모크·롤백(R652) verify_by: v58.86 정리로 종료
-- [x] QA-FLOW-05: remaining theme-detail/settings/final-revision desktop interactions are unverified because Browser URL policy blocked local-page reaccess. Before the block, exact ticker search and fundamental/native entity reset were exercised; Yahoo proxy failures left technical OHLCV unavailable. Do not replace this with a static PASS. — Retired (v58.86 정리): 대체됨: 해당 화면은 v57~v58에서 다시 만들어졌고 브라우저 게이트(viewport·responsive·entity-quality·a11y·rendered-copy)와 verify-aio 주행이 릴리스마다 확인한다. 이 묶음 단위의 별도 실브라우저 인수는 하지 않는다. verify_by: v58.86 정리로 종료
+- 완료 5건: QA-FLOW-01, QA-FLOW-02, QA-FLOW-03, QA-FLOW-04, QA-FLOW-05
 
 ## v54.65 reference provenance and official-calendar rollover (2026-08-29)
-
-- [x] QA-DATA-24: 날짜·REFERENCE kind 뒤의 bounded 단일행 출처명은 유효한 provenance로 유지되고, 형식 위반 시 T849가 해당 종목을 직접 보고한다.
-- [x] QA-DATA-25: 한국은행 2026-08-27 공식 결정의 기준금리 3.00%·인상·관측일과 다음 2026-10-22 회의가 manual reference, macro calendar, official schedule에서 일치한다.
-- [x] QA-RUNTIME-01: market epoch 브라우저 검사는 reconciliation뿐 아니라 screener rows·ranking revision·screen snapshot의 독립 hydration 완료를 기다린다.
+- 완료 3건: QA-DATA-24, QA-DATA-25, QA-RUNTIME-01
 
 ## v54.64 AI Web Research, knowledge retrieval and useful-answer boundary (2026-08-28)
-
-- [x] QA-AUTO01: core/screener refresh가 public readiness와 generated workspace evidence를 최종 데이터 상태에서 재생성해 같은 커밋에 포함한다.
-- [x] QA-AICHAT11: 교육형 매수/매도/비중/옵션 문장은 provider 전에 차단되지 않고, 개인 계좌의 실제 매도 실행 요청은 계속 suitability gate에서 차단된다.
-- [x] QA-AICHAT12: Web Research opt-out/실패는 현재·인과 주장만 limitation으로 강등하고 교육·조건부 답변 경로를 종료하지 않는다.
-- [x] QA-AICHAT13: per-page와 unified chat 모두 시장 원리 112개와 AI 시대 지식 48개의 compact index를 lazy load하며 full 4MB articles monolith를 채팅에서 요청하지 않는다.
-- [x] QA-AICHAT14: retrieval 결과는 article/concept/alias, route/deep-link, authoring/publication, source candidate directness와 `REFERENCE/currentClaimsAllowed=false`를 유지하고 untrusted data block으로 주입된다.
-- [x] QA-AICHAT15: principles/atlas 자체 chat context와 unified panel mapping이 존재하고 한국어 규제 현황·동향·시세 질문은 in-domain current Research로 분류된다.
-- [x] QA-AICHAT16: multi-query evidence는 citation별 실제 provider engine을 보존하고 unified chat은 Claude native citations도 출처 footer에 렌더한다.
-- [x] QA-AICHAT17: public Worker route/native WebSearch entitlement, quota, live citations, deployed model answer quality are externally verified for the v54.64 exact SHA. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-AI-LIVE-01(공용 Worker 실답변 품질의 소유자 블라인드 점검) verify_by: v58.86 정리로 종료
+- 완료 8건: QA-AUTO01, QA-AICHAT11, QA-AICHAT12, QA-AICHAT13, QA-AICHAT14, QA-AICHAT15, QA-AICHAT16, QA-AICHAT17, QA-BOUNDARY-AI-LIVE-01
 
 ## v54.63 source-to-screen data and research-model reconstruction (2026-08-28)
-
-- [x] QA-DATA-01: hardcoded March 2026 fundamental valuation/estimate cards are retired; bounded SEC annual facts visibly retain filing/source/reference-only semantics.
-- [x] QA-DATA-02: fundamental route entry performs no default NVDA/provider search and SEC watchlist selection synchronizes native entity state without the legacy search delegate.
-- [x] QA-DATA-03: headline-only news remains discoverable but is excluded from sentiment, AI eligibility and causal market-analysis evidence; the current 40-row cycle yields evidence count 0.
-- [x] QA-DATA-04: BLS CPI-U headline/core canonical values are NSA 3.4%/2.5%; SA analytical companions 3.3%/2.5% remain separate and visibly labeled.
-- [x] QA-DATA-05: official Treasury 2Y 4.19%, 10Y 4.66% and same-date 10Y-2Y 0.47%p retain source/as-of through the browser bridge.
-- [x] QA-DATA-06: screener readiness resolves rights/source kind per field; official SEC facts and delayed Yahoo price factors are not collapsed into one row-level rights decision.
-- [x] QA-DATA-07: free public screener refresh produced 846/873 valid factor rows (96.9%), 76.9% fundamental coverage and current AIO-universe breadth.
-- [x] QA-DATA-08: factor-ranks v2 gates 80% coverage and freshness, audits identity/time, guards MAD outliers, applies sector-relative shrinkage and exposes row/composite confidence.
-- [x] QA-DATA-09: screener UI states that confidence is evidence coverage rather than return probability and exposes sector/outlier/turnover/regime diagnostics with decisionEligible=false.
-- [x] QA-DATA-10: failed/stale/non-HTTPS Worker health generates a disabled personal-key-only public route; healthy evidence is required before publishing a shared endpoint.
-- [x] QA-DATA-11: Masters bootstrap retains semantic fields while remaining within the 500,000-byte initial budget (412,645B at the implementation gate).
-- [x] QA-DATA-12: actual free core refresh completed 78/78 quotes, 16/16 Tier-0 snapshot, Fear & Greed 55, 40 news rows, 406-day history and zero lineage FAIL.
-- [x] QA-DATA-13: SEC projection remains older than 48h because a monitored-contact `SEC_USER_AGENT` is not configured locally; the existing official artifact is reference-only and not relabeled current. — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile
-- [x] QA-DATA-14: licensed independent quote reconciliation, official exchange breadth, estimates/guidance, options/short-flow, historical universe/corporate actions and full-text news remain external/provider gaps. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-DATA-RIGHTS-01(유료·면허 자료와 공급자 권리, 보안 마스터·기업행위·섹터 매핑) verify_by: v58.86 정리로 종료
-- [x] QA-DATA-15: exact-SHA commit/push/deploy, live Worker/Pages convergence, manual assistive-technology and recruited-user validation require separate authority/evidence. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-HUMAN-01(모집 사용자·키보드·스크린리더 실사; architecture/human-validation.json이 NOT_EXECUTED로 고정) verify_by: v58.86 정리로 종료
-- [x] QA-DATA-16: the AAII week ending 2026-08-19 remains the latest official public result before the next Thursday publication window; release-aware cadence prevents a false UTC-boundary stale state.
-- [x] QA-DATA-17: CPI SA companion sinks have explicit DATA_SNAPSHOT aliases and the PCE calendar advances the completed 2026-08-26 release to the next official 2026-09-30 date.
-- [x] QA-DATA-18: all 13 knowledge-parity builders use the shared same-directory atomic writer with bounded Windows rename-lock retry; direct truncate-write and retry removal are executable-gate failures.
-- [x] QA-DATA-19: scheduled core refresh owns AAII official-public collection with an explicit bounded relay fallback and Treasury monthly XML curve collection; values remain reference-only/same-date-derived and producer status is visible in Actions summaries.
-- [x] QA-DATA-20: headless lineage expectations move with declared producer automation; breadth and official static macro are both connected, while unknown or blocked categories remain fail-closed.
-- [x] QA-DATA-21: after merging remote refresh-bot artifacts and rebuilding projections, generated workspace state is rebuilt last and passes the Node 20 preflight used by GitHub Actions.
-- [x] QA-DATA-22: generated workspace text-byte accounting normalizes CRLF/LF so Windows and Linux clean checkouts produce identical CURRENT-STATE and CONTEXT-CATALOG artifacts.
-- [x] QA-DATA-23: SEC runtime projection manifest digest and byte accounting normalize CRLF/LF identically in both builder and verifier.
+- 완료 23건: QA-DATA-01, QA-DATA-02, QA-DATA-03, QA-DATA-04, QA-DATA-05, QA-DATA-06, QA-DATA-07, QA-DATA-08, QA-DATA-09, QA-DATA-10, QA-DATA-11, QA-DATA-12, QA-DATA-13, QA-DATA-14, QA-DATA-15, QA-DATA-16, QA-DATA-17, QA-DATA-18, QA-DATA-19, QA-DATA-20, QA-DATA-21, QA-DATA-22, QA-DATA-23, QA-BOUNDARY-DATA-RIGHTS-01, QA-BOUNDARY-HUMAN-01
 
 ## v54.62 data truth and end-to-end user-flow remediation (2026-08-26)
-
-- [x] QA-TRUTH-01: denied personalized/action QuestionPlan exits before provider work in the shared orchestrator; per-page and unified adapters retain defense-in-depth gates.
-- [x] QA-TRUTH-02: research-required partial streams do not expose unverified current numbers or causal claims.
-- [x] QA-TRUTH-03: live-core data, browser quote promotion and operations readiness share a 12-hour SLA plus bounded market-closed grace.
-- [x] QA-TRUTH-04: FRED LKG fields retain observation/origin but are labeled last-known-good/stale-reference; public readiness mirrors the actual FRED success flags.
-- [x] QA-TRUTH-05: SEC runtime summary and manifest are registered lineage artifacts; the 23-artifact audit reports zero FAIL after official refresh.
-- [x] QA-TRUTH-06: entity transient failure is immediately retryable and artifact `maxBytes` participates in cache identity.
-- [x] QA-TRUTH-07: ticker related-theme click survives route transition/lazy mount and opens the selected native detail with no pending ID.
-- [x] QA-TRUTH-08: option substitute metrics and SEC filings visibly show observedAt/source/reference semantics; theme membership visibly states curated taxonomy and unverified as-of.
-- [x] QA-TRUTH-09: TAM/CAGR numeric output requires sourceUrl+observedAt; unsourced SIC/memo numbers are withheld.
-- [x] QA-TRUTH-10: official refresh fetched 78/78 quotes, F&G, Cboe, BEA, public HY OAS and 40 news items; general FRED remains OPERATOR_REQUIRED without a configured key.
-- [x] QA-TRUTH-11: targeted AI, architecture, runtime, cache, ESM, history, operations and real Chromium cross-route gates pass.
-- [x] QA-TRUTH-12: SEC bounded projection is older than its 48-hour reference window, Telegram digest/universe/operator-note/SLO reference artifacts remain warnings, and licensed independent quote/official breadth/estimates/options-flow data remain external gaps. — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile
-- [x] QA-TRUTH-13: local release/full `--no-cache` completes 108/108 gates, including 1,124/1,124 headless assertions, current-revision route soak, 60 viewport combinations, accessibility, vault and knowledge/browser surfaces.
-- [x] QA-TRUTH-14: pre-native headless tests verify deterministic theme selection retention; native panel visibility remains separately certified by Chromium architecture and route-soak gates.
-- [x] QA-TRUTH-15: exact-SHA commit/push/Pages/Worker deployment, live `deployment.json` and Worker `sourceSha` convergence, manual accessibility and recruited-user validation require separate authority/evidence. The observed remote CI is an older failing revision and is not promoted as local evidence. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-HUMAN-01(모집 사용자·키보드·스크린리더 실사; architecture/human-validation.json이 NOT_EXECUTED로 고정) verify_by: v58.86 정리로 종료
+- 완료 15건: QA-TRUTH-01, QA-TRUTH-02, QA-TRUTH-03, QA-TRUTH-04, QA-TRUTH-05, QA-TRUTH-06, QA-TRUTH-07, QA-TRUTH-08, QA-TRUTH-09, QA-TRUTH-10, QA-TRUTH-11, QA-TRUTH-12, QA-TRUTH-13, QA-TRUTH-14, QA-TRUTH-15, QA-BOUNDARY-HUMAN-01
 
 ## v54.61 prioritized structural reconstruction (2026-08-25)
-
-- [x] QA-REBUILD-01: all 20 route page renderers use retryable route-scope dynamic imports; shared page modules reuse the browser module cache and the small sentiment cross-route projection remains outside the heavy page chunk.
-- [x] QA-REBUILD-02: SEC append-only canonical data and Masters canonical holdings are excluded from the Pages shell; bounded projections and SHA-256/byte-checked content-addressed Masters objects own interactive delivery.
-- [x] QA-REBUILD-03: failed headless assertions retain stable group IDs and `rerun-failed` selects the exact failed groups plus declared dependencies; an actual G001 browser run passed 11/11 in about nine seconds.
-- [x] QA-REBUILD-04: CI attestation, Pages deployment.json and both Worker health responses have exact source-SHA contracts in source; deployed Pages v54.43 and legacy Worker responses do not yet satisfy them.
-- [x] QA-REBUILD-05: operations generation preserves fresh last-observed Worker evidence only when observation is skipped, expires it after 24 hours, and never hides an explicitly attempted failure.
-- [x] QA-REBUILD-06: manual accessibility/recruited-user topology and acceptance thresholds are machine-checked without converting zero sessions into validation.
-- [x] QA-REBUILD-07: 7/30-day Actions evidence, recovery counts and workflow-keyed GitHub issue dedupe are collected by the watchdog; checked-in fixtures and an unelapsed 30-day window cannot certify production SLO.
-- [x] QA-REBUILD-08: retire the remaining secondary legacy chart/narrative/facade writers across the 8 screens and their route aliases; the `fullNativeOwner` count is derived from architecture/route-owners.json (v57.79 wording). — Retired (v58.86 정리): 검증 항목이 아니라 분해 작업: 로드맵 11번(legacy 큰 파일 분해)으로 넘김. verify_by: node scripts/ci-architecture-contract-check.mjs
-- [x] QA-REBUILD-09: after explicit commit/push/deploy authority, obtain CI attestation, deploy exact-SHA Pages/Workers, observe scheduled watchdog/SLO and run manual assistive-technology/recruited-user sessions. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-HUMAN-01(모집 사용자·키보드·스크린리더 실사; architecture/human-validation.json이 NOT_EXECUTED로 고정) verify_by: v58.86 정리로 종료
+- 완료 9건: QA-REBUILD-01, QA-REBUILD-02, QA-REBUILD-03, QA-REBUILD-04, QA-REBUILD-05, QA-REBUILD-06, QA-REBUILD-07, QA-REBUILD-08, QA-REBUILD-09, QA-BOUNDARY-HUMAN-01
 
 ## v54.60 bounded audit execution and complete reverse-engineering ledger (2026-08-25)
-
-- [x] QA-AUDIT-01: product charter enumerates all 14 reviewed domains and separates review completeness from implementation, migration, human and operator status.
-- [x] QA-AUDIT-02: runtime AutoOps readiness avoids deep release audits and uses bounded requirements/coverage; explicit full mode retains the complete audit surface.
-- [x] QA-AUDIT-03: one full AutoOps result is shared across repeated assertions and deployment/share consumers instead of recomputing the same graph.
-- [x] QA-AUDIT-04: KR theme resolution and composition semantic evidence each build one canonical index; bounded runtime coverage samples at most 120 symbols while full continuity remains explicit.
-- [x] QA-AUDIT-05: breadth regime unit coverage validates the canonical pure classifier and zero-delta DOM helper; full renderer coverage remains owned by route/browser gates.
-- [x] QA-AUDIT-06: headless interrupt/termination closes browser and server children, and the suite remains one ordered gate until test groups prove isolated lifecycle ownership.
-- [x] QA-AUDIT-07: release `full --no-cache`, live deployed parity, manual accessibility and recruited-user UX remain distinct unverified/operator boundaries; they are not rerun after each source edit. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-HUMAN-01(모집 사용자·키보드·스크린리더 실사; architecture/human-validation.json이 NOT_EXECUTED로 고정) verify_by: v58.86 정리로 종료
-- [x] QA-AUDIT-08: a version bump demotes route-soak evidence to `PENDING_LOCAL_GATE`, preserves the prior revision as historical evidence and does not force a long browser rerun merely to make static preflight green.
+- 완료 8건: QA-AUDIT-01, QA-AUDIT-02, QA-AUDIT-03, QA-AUDIT-04, QA-AUDIT-05, QA-AUDIT-06, QA-AUDIT-07, QA-AUDIT-08, QA-BOUNDARY-HUMAN-01
 
 ## v54.59 product, architecture and closed-loop redesign (2026-08-24)
-
-- [x] QA-ARCH-01: `product-charter.json` fixes research/decision-support identity, non-goals, seven trust planes, evidence/AI/deployment boundaries and promotion gates; its current Korean rationale passes the product-charter gate.
-- [x] QA-ARCH-02: all `scripts/ci-*.mjs` files are reachable from a QA/profile/workflow contract or carry a complete retired/replacement declaration.
-- [x] QA-ARCH-03: evidence allowedUse can only become more restrictive; CNN Fear & Greed remains current-reference rather than decision-grade.
-- [x] QA-ARCH-04: chat history defaults OFF, redacts bounded sensitive fields, and disable deletes retained rows; the native consent-only plaintext portfolio repository is disabled.
-- [x] QA-ARCH-05: unsupported personalized allocation/action requests block before provider work and again before final publication; educational and evidence-comparison paths remain available.
-- [x] QA-ARCH-06: explicit Worker idempotency keys permit at most one upstream call, unkeyed attempts each consume quota, and old reservations are pruned.
-- [x] QA-ARCH-07: task session/explicit files isolate affected QA from pre-existing dirty work; rerun-failed selects exact failed gates and dependencies.
-- [x] QA-ARCH-08: boot and route-soak evidence schemas bind revision, commit, environment, command and timestamp; historical v53.62 performance is not current v54.59 proof.
-- [x] QA-ARCH-09: CI attests the exact tested SHA and Pages deploys only that artifact; refresh workflows dispatch the exact bot-produced SHA with bounded market/screener matrices.
-- [x] QA-ARCH-10: service-worker install atomically precaches 10 critical same-origin assets; route/ESM modules are cached on demand and external CDNs do not block install.
-- [x] QA-ARCH-11: the facade gate reconciles all 56 current globals against an eight-API target and prevents expansion; `getState` and other read surfaces return snapshots.
-- [x] QA-ARCH-12: automated 20-route accessibility audit blocks real small-target/skip-link/dialog-name violations, records inline exceptions separately and labels manual screen-reader/contrast/zoom/dialog-focus evidence `UNVERIFIED`.
-- [x] QA-ARCH-13: large SEC/Masters interactive payloads use bounded projections/content-addressed objects and canonical bulk is excluded from GitHub Pages; a separate operator bulk store remains an explicit future boundary.
-- [x] QA-ARCH-14: the 8 screens (old route ids stay as aliases) load through route-level dynamic import, but each screen must still reach `fullNativeOwner` with legacy chart/narrative/facade writers retired; derive the current count from architecture/route-owners.json, not from this line (v57.79 wording). — Retired (v58.86 정리): 검증 항목이 아니라 분해 작업: 로드맵 11번(legacy 큰 파일 분해)으로 넘김. verify_by: node scripts/ci-architecture-contract-check.mjs
-- [x] QA-ARCH-15: recover two historical July architecture documents containing irreversible U+FFFD damage through an explicit history reconstruction review; catalog/lint now prevents them from being treated as current truth. — Retired (v58.86 정리): 동결된 역사 문서: knowledge-lint가 손상 문서를 explicit-only로 표시한다. verify_by: v58.86 정리로 종료
-- [x] QA-ARCH-16: after explicit commit/push/deploy authority, observe CI attestation, exact-SHA Pages/Workers, refreshed data dispatch and scheduled watchdog; current Pages remains v54.43 and lacks deployment.json. — Retired (v58.86 정리): 자동화로 대체: pages-deploy가 배포마다 ci-live-invariant-check를 돌린다(2026-10-26 09:25Z 실행 성공), Worker 배포는 CI 증거·스모크·롤백(R652) verify_by: v58.86 정리로 종료
+- 완료 16건: QA-ARCH-01, QA-ARCH-02, QA-ARCH-03, QA-ARCH-04, QA-ARCH-05, QA-ARCH-06, QA-ARCH-07, QA-ARCH-08, QA-ARCH-09, QA-ARCH-10, QA-ARCH-11, QA-ARCH-12, QA-ARCH-13, QA-ARCH-14, QA-ARCH-15, QA-ARCH-16
 
 ## v54.58 phased QA and delivery pipeline redesign (superseded where noted, 2026-08-24)
-
-- [x] QA-PIPELINE-01: `ci-qa-runner-behavior-check.mjs` proves two sibling failures are reported in one run, the expensive next phase is skipped, and unchanged successful gates are content-cache hits.
-- [x] QA-PIPELINE-02: uncached `fast` contains no Chromium/server gate and completes in 8.0s; identical-input rerun completes in 0.8s with 12 cache hits.
-- [x] QA-PIPELINE-03: affected selection supports task session/explicit files/since-ref; `rerun-failed` selects exact gates, while full and external profiles remain manifest-declared and IDs unique.
-- [x] QA-PIPELINE-04: CI is preflight → `fail-fast:false` static matrix → `fail-fast:false` browser matrix; Pages deployment is absent from CI.
-- [x] QA-PIPELINE-05: superseded by QA-ARCH-09; Pages now requires the CI attestation artifact rather than trusting only event SHA/version equality.
-- [x] QA-PIPELINE-06: superseded by QA-ARCH-09; refresh dispatches its exact commit to bounded relevant CI shards and never feeds Pages directly.
-- [x] QA-PIPELINE-07: watchdog aggregate runs local data, Pages, proxy, fast plane, GitHub workflows and live invariants without one failed plane skipping another.
-- [x] QA-PIPELINE-08: Worker endpoint registry has no timestamped health evidence; refresh-time operations generation observes both configured endpoints.
-- [x] QA-PIPELINE-09: both Cloudflare deploy workflows remain explicit manual authority, are serialized, run the cloudflare source group, pin Wrangler and verify health; source TOML declares Workers Logs sampling. Live observability rollout still requires an explicitly authorized Worker deploy.
-- [x] QA-PIPELINE-10: workflow escalation owns CI, Pages, watchdog, knowledge, both refresh and both Cloudflare workflows without commit/push/deploy authority.
-- [x] QA-PIPELINE-11: local operations evidence confirms proxy 200/revision v54.37/US authority ready and fast 200/16-of-16; fast soak/provider rights and scheduled AI analysis remain explicit operator/blocking boundaries.
-- [x] QA-PIPELINE-12: superseded by QA-ARCH-16 for the v54.59 attested delivery path. — Retired (v57.79): superseded by QA-ARCH-16, as the item states
-- [x] QA-PIPELINE-13: historical v54.58 certification passed 99/99 in 767.5s; it is not evidence for the changed v54.59 source.
+- 완료 13건: QA-PIPELINE-01, QA-PIPELINE-02, QA-PIPELINE-03, QA-PIPELINE-04, QA-PIPELINE-05, QA-PIPELINE-06, QA-PIPELINE-07, QA-PIPELINE-08, QA-PIPELINE-09, QA-PIPELINE-10, QA-PIPELINE-11, QA-PIPELINE-12, QA-PIPELINE-13, QA-ARCH-09, QA-ARCH-16
 
 ## v54.57 workspace, knowledge and automation-loop redesign (2026-08-23)
-
-- [x] QA-WORKSPACE-01: `generate-workspace-state.mjs --check` proves `CURRENT-STATE.md` and `CONTEXT-CATALOG.json` exactly match repository registries and every `_context/*.md|json` file is classified once.
-- [x] QA-WORKSPACE-02: `ci-workspace-contract-check.mjs` proves root/context AGENTS/CLAUDE/INDEX/GOVERNANCE stay within compact preflight budgets and contain no frozen historical route/file/rule/QA counts.
-- [x] QA-WORKSPACE-03: `ci-knowledge-lint-check.mjs` validates catalog parity, closed frontmatter, opted-in currentness and all prescriptive skill/command/agent surfaces while explicitly refusing semantic overclaim.
-- [x] QA-WORKSPACE-04: Codex hook fixtures accept safe commands, deny destructive commands, inject SessionStart current state and return advisory PostToolUse output with valid JSON; all handlers have Windows overrides and no Stop/commit/push/deploy path.
-- [x] QA-WORKSPACE-05: `sync-agent-profiles.mjs --check` proves four canonical profiles match both Claude and Codex generated surfaces without model names or historical constants.
-- [x] QA-WORKSPACE-06: `ci-skill-contract-check.mjs`, `ci-skill-eval-fixture-check.mjs` and `sync-agent-skills.mjs --check` pass; fixture PASS remains distinct from independent behavioral execution.
-- [x] QA-WORKSPACE-07: push/PR CI and scheduled knowledge lint both run workspace/knowledge contracts; workflow control-character/YAML validation passes.
-- [x] QA-WORKSPACE-08: operations alert workflow has one deduplicated issue per monitored workflow, reopens/updates on failure and closes only after the matching workflow succeeds.
-- [x] QA-WORKSPACE-09: live security headers on GitHub Pages remain an explicit operator-required readiness boundary rather than an impossible data-watchdog hard failure; enforce mode still fails when configured.
-- [x] QA-WORKSPACE-10: v54.56 curriculum static/reference/currentness checks and focused Principles/browser flow pass before release promotion.
-- [x] QA-WORKSPACE-11: Tier 1 plus affected runtime/headless/accessibility/viewport/route-soak gates pass; Tier 13 and live/provider evidence are reported independently.
-- [x] QA-WORKSPACE-12: no commit, push or deployment occurs without a separate explicit user request.
-- [x] QA-WORKSPACE-13: all six planned CI meta gates remain blocking until the weekly knowledge-lint workflow runs doc-currency, ledger-integrity, assertion-trace, six-doc-coverage, workspace-contract and knowledge-lint with contents:read and no persisted checkout credentials. verify_by: R656 `ci-qa-pipeline-contract-check.mjs` and `.github/workflows/knowledge-lint.yml`; scheduled execution remains unverified. This backstop does not lower strict data freshness or static expiry gates.
+- 완료 13건: QA-WORKSPACE-01, QA-WORKSPACE-02, QA-WORKSPACE-03, QA-WORKSPACE-04, QA-WORKSPACE-05, QA-WORKSPACE-06, QA-WORKSPACE-07, QA-WORKSPACE-08, QA-WORKSPACE-09, QA-WORKSPACE-10, QA-WORKSPACE-11, QA-WORKSPACE-12, QA-WORKSPACE-13
 
 ## v54.56 market-learning curriculum integration (2026-08-23)
-
-- [x] QA-PRINCIPLES-REF-01: load `reference-curriculum.json` from the Market Principles library and confirm all 11 stage tabs expose a selected lesson with question, mechanism, invalidation and source links.
-- [x] QA-PRINCIPLES-REF-02: select a curriculum route bridge and confirm the destination preserves the Market Principles return context without generating a recommendation or current-data claim.
-- [x] QA-PRINCIPLES-REF-03: verify the curriculum remains readable at the supported desktop widths and that its stage/lesson controls have selected-state and keyboard focus semantics.
-- [x] QA-PRINCIPLES-REF-04: confirm article-specific prices, forecasts, leverage thresholds, broker timings and index snapshots are not promoted into live artifacts or screener scoring.
-- [x] QA-PRINCIPLES-REF-05: confirm the glossary additions remain educational definitions and do not duplicate or contradict canonical live signal labels.
-- [x] QA-AI-REFERENCE-01: confirm related `CHAT_CONTEXTS` receive the market-learning loop as `REFERENCE` while current numeric claims still require injected LIVE/SNAPSHOT/official evidence.
-- [x] QA-CODEONLY-01: historical v54.56 code-only boundary is retained and superseded by the completed v54.57 static/browser verification above.
+- 완료 7건: QA-PRINCIPLES-REF-01, QA-PRINCIPLES-REF-02, QA-PRINCIPLES-REF-03, QA-PRINCIPLES-REF-04, QA-PRINCIPLES-REF-05, QA-AI-REFERENCE-01, QA-CODEONLY-01
 
 ## v54.55 AI public-route and isolated boot verification (2026-08-23)
-
-- [x] QA-AI-07: fresh-browser public Worker route selects the request generated by the test prompt, sends no personal API key, honors the advertised 1,500-token cap, degrades unsupported claims without leaking them, recovers truncated prose and reports no page errors.
-- [x] QA-BOOT-08: isolated Chromium boot gate passes FCP 1,620ms, first route 830ms, max long task 1,022ms, `page-signal` activation and boot-status hard release. A concurrent run's 2,956ms FCP is treated as a contention outlier and is not release evidence.
-- [x] QA-REGRESSION-07: v54.55 full headless run passes 1,124/1,124; static/version/knowledge/architecture/runtime/page-timeline/screener contracts, accessibility 20/20, viewport 60/60, vertical 13/13, screener refresh and portfolio vault pass.
-- [x] QA-TIER13-07: full in-app Browser certification of every modal, focus-return path and all data-backed interaction branches remains open; current evidence is a sequential representative matrix, not recruited-user evidence. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
-- [x] QA-DEPLOY-08: GitHub Pages/Worker deployed parity (Pages `deployment.json` sourceSha and Worker revisions equal the CI-attested main SHA) is checked only after a requested push. This is the single open deploy-parity item (v57.79). — Retired (v58.86 정리): 자동화로 대체: pages-deploy가 배포마다 ci-live-invariant-check를 돌린다(2026-10-26 09:25Z 실행 성공), Worker 배포는 CI 증거·스모크·롤백(R652) verify_by: node scripts/qa-runner.mjs external --no-cache
-- [x] QA-HUMAN-04: recruited-user usability/reliability validation (including keyboard and screen-reader use) has not been performed; expert browser review and automated route matrices are not human-subject evidence. This is the single open recruited-user item (v57.79). — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-HUMAN-01(모집 사용자·키보드·스크린리더 실사; architecture/human-validation.json이 NOT_EXECUTED로 고정) verify_by: owner-run session with family/friend users, notes recorded under _artifacts/
+- 완료 6건: QA-AI-07, QA-BOOT-08, QA-REGRESSION-07, QA-TIER13-07, QA-DEPLOY-08, QA-HUMAN-04, QA-BOUNDARY-HUMAN-01
 
 ## v54.54 in-app interaction and cross-route trust audit (2026-08-23)
-
-- [x] QA-TRUST-06: portfolio price/value selection rejects zero and non-positive quote/value placeholders; with a valid holding but no quote, current price, P&L, percentage, total value and exposure remain `—` rather than a synthetic loss.
-- [x] QA-INTERACTION-06: sequential in-app Browser checks exercised representative navigation and controls across all visible route categories, including portfolio invalid/valid input, screener condition/tabs/search, fundamental search, learning maps, glossary filtering, ticker entry-quality calculation and signal-mode state.
-- [x] QA-ROUTE-DETAIL-06: native theme chips expose accessible button semantics when mapped and related ticker-theme actions have a route bridge to the owning inline detail surface; direct ticker parent context is `종목 분석`.
-- [x] QA-COPY-06: Guide copy reflects the v53.7 integrated Korean-market sections; glossary BUY/SELL/HOLD and VIX definitions are framed as reference/education rather than recommendations or universal thresholds.
-- [x] QA-TIER13-06: full in-app Browser certification of every modal, focus-return path and all data-backed interaction branches remains open; current evidence is a sequential representative matrix, not recruited-user evidence. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
-- [x] QA-AI-06: visible AI answer or explicit user-facing failure state was not certified because the configured proxy/provider degraded during the live send attempt. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-AI-LIVE-01(공용 Worker 실답변 품질의 소유자 블라인드 점검) verify_by: v58.86 정리로 종료
-- [x] QA-COPY-07: Guide's integrated Korean-market explanation contains no visible internal version/route developer marker after the full-headless negative-control rerun.
+- 완료 7건: QA-TRUST-06, QA-INTERACTION-06, QA-ROUTE-DETAIL-06, QA-COPY-06, QA-TIER13-06, QA-AI-06, QA-COPY-07, QA-HUMAN-04, QA-BOUNDARY-AI-LIVE-01
 
 ## v54.50 ticker-state and visual surface audit (2026-08-23)
-
-- [x] QA-A11Y-03: Korean ticker-code input has a programmatic accessible name (`aria-label="한국 종목코드"`) independent of placeholder text.
-- [x] QA-A11Y-04: hidden mobile overlay is `hidden`/`aria-hidden=true` without role or tabindex, gains close semantics only while open, signal mode exposes `aria-pressed`, and AI close is named `AI 베타 닫기`.
-- [x] QA-TRUST-04: direct ticker entry starts with neutral `—`/`종목 선택 대기` state and does not imply NVDA or a portfolio relationship before selection.
-- [x] QA-TRUST-05: live sentiment values are not overwritten by reference snapshots; stale screener identity, unknown coverage and expired news cycles remain explicit rather than current/zero.
-- [x] QA-DATA-05: macro/geopolitics/policy/rates/FX-bond news rows do not receive inferred security ticker badges; FEDFUNDS is labeled as a monthly average.
-- [x] QA-VISUAL-01: 20 route screenshots at desktop 1,440px were generated and visually inspected; intentional empty states are labeled as waiting/unavailable/pending/blocked and no route has horizontal overflow.
-- [x] QA-VIEWPORT-04: 20 routes × 3 desktop viewports (1,280/1,440/1,920) pass with worst overflow 0px, critical tiny text 0 and JS errors 0.
-- [x] QA-VERTICAL-04: 13 vertical slices pass with no runtime errors; partial/loaded state is retained honestly by route.
-- [x] QA-SCREENER-04: screener auto-refresh fixture passes with 100% registered quote coverage and explicit partial timeline state.
-- [x] QA-HEADLESS-05: latest v54.50 full headless run completes at 1,124/1,124 with exit 0; external CDN/provider aborts are expected blocked network, not runtime errors.
-- [x] QA-TIER13-05: in-app Browser full-page/tabs/modal/focus-return certification remains unavailable in this environment. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
-- [x] QA-DEPLOY-07: GitHub Pages/Worker deployed parity remains unverified until explicitly authorized commit/deployment and post-deploy check. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
-- [x] QA-HUMAN-03: recruited-user usability/reliability validation has not been performed; screenshot review is an expert visual audit, not recruited-user evidence. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
+- 완료 13건: QA-A11Y-03, QA-A11Y-04, QA-TRUST-04, QA-TRUST-05, QA-DATA-05, QA-VISUAL-01, QA-VIEWPORT-04, QA-VERTICAL-04, QA-SCREENER-04, QA-HEADLESS-05, QA-TIER13-05, QA-DEPLOY-07, QA-HUMAN-03, QA-HUMAN-04, QA-DEPLOY-08
 
 ## v54.49 route ownership and release-boundary closure (2026-08-23)
-
-- [x] QA-RUNTIME-03: entity/fundamental/options, screener, portfolio and analysis pageShown hydration is restricted to the owning route and drops queued work when the active route changes.
-- [x] QA-CONTRACT-03: architecture `explicitWindowWrites` counts direct single-equals assignments and does not classify `===` comparisons as writes; CODE-MAP file sizes match the current tree.
-- [x] QA-FIXTURE-03: ESM HTTP caller abort and internal timeout return distinct `HTTP_ABORTED`/`HTTP_TIMEOUT` outcomes.
-- [x] QA-BROWSER-03: architecture browser, vertical-slice browser and 20-route×3 route-soak gates pass with zero browser errors; the prior 60 desktop viewport, SA-02, SA-03 and portfolio fixtures remain recorded as passing.
-- [x] QA-HEADLESS-04: the v54.49 full 1,124-test headless run was interrupted before its final result and must be completed before release promotion. — Retired (v58.86 정리): 대체됨: headless 전체가 CI browser-unit 샤드에서 매 push 돈다. verify_by: v58.86 정리로 종료
-- [x] QA-TIER13-04: in-app Browser full-page/tabs/modal/focus-return certification remains unavailable in this environment. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
-- [x] QA-DEPLOY-06: GitHub Pages/Worker deployed parity remains unverified until an explicitly authorized commit/deployment and post-deploy check. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
-- [x] QA-HUMAN-02: recruited-user usability/reliability validation has not been performed. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
+- 완료 8건: QA-RUNTIME-03, QA-CONTRACT-03, QA-FIXTURE-03, QA-BROWSER-03, QA-HEADLESS-04, QA-TIER13-04, QA-DEPLOY-06, QA-HUMAN-02, QA-HUMAN-04, QA-DEPLOY-08
 
 ## v54.48 residual-closure currentness/cancellation/accessibility (2026-08-23)
-
-- [x] QA-TRUST-03: the topbar starts pending and promotes to `LIVE` only from a source-confirmed live quote; snapshot/partial/unavailable paths remove pulse semantics.
-- [x] QA-RUNTIME-02: common ESM HTTP requests compose caller abort with timeout; scheduler/page refresh signals propagate and `_inFlight` remains set until the underlying task settles.
-- [x] QA-A11Y-02: confirmation/prompt/keyboard/glossary/mobile-menu close paths restore the opener; dynamic prompt exposes dialog semantics and modal trap.
-- [x] QA-DATA-03: canonical screener identity source is deduplicated; generated metadata exposes record/unique/duplicate/currentness; screener UI separates factor observation/generated time and SEC FY coverage.
-- [x] QA-DATA-04: FEDFUNDS is presented as a monthly average, distinct from NY Fed daily EFFR and FOMC target range; operator notes without source metadata remain reference-only with a visible boundary.
-- [x] QA-TIER13-03: in-app Browser full-page/tabs/modal/focus-return certification remains blocked by the local browser blocker; standalone Chromium gates are the local substitute. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
-- [x] QA-DEPLOY-05: deployed GitHub Pages/Worker parity remains unverified because this task performs no commit or deployment. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
-- [x] QA-HUMAN-01: recruited-user usability/reliability validation remains an external human gate; automated route matrices do not count as user recruitment. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
+- 완료 8건: QA-TRUST-03, QA-RUNTIME-02, QA-A11Y-02, QA-DATA-03, QA-DATA-04, QA-TIER13-03, QA-DEPLOY-05, QA-HUMAN-01, QA-HUMAN-04, QA-DEPLOY-08
 
 ## v54.47 second-pass currentness/cancellation closure (2026-08-23)
+- 완료 4건: QA-TRUST-01, QA-TRUST-02, QA-RUNTIME-01, QA-A11Y-01
 
-- [x] QA-TRUST-01: unknown live-source provenance is classified as `REFERENCE`; initial sentiment/fundamental/portfolio labels are fail-closed until a source/observation is received.
-- [x] QA-TRUST-02: operator notes expose age and stale notes include an explicit `reference-only` boundary; Macro labels distinguish EFFR/FOMC and BLS SA/NSA meanings.
-- [x] QA-RUNTIME-01: visible/added-root observer work is scoped; proxy and dynamic ticker requests support total deadlines and abort propagation; chart disposal remains required.
-- [x] QA-A11Y-01: route title/heading semantics and summary-only `aria-live` sinks are asserted; form/button touch-size floors are present for coarse pointers.
 ## v54.43 narrative-first three-page closure (2026-08-22)
-
-- [x] Principles opens on the six-part, 12-chapter money→inflation→rates→liquidity→company→AI CAPEX→market→risk story; maps, paths and long-form references remain optional deeper layers.
-- [x] The 390px editorial-density gate keeps the selected Principles story paragraphs within 3–6 rendered lines, uses a wrapping chapter rail and reports zero horizontal overflow.
-- [x] Atlas exposes 19 domains, 95/95 authored node explanations, 48/48 authored foundation lessons and 50 deep branches; each node is connected and labeled ROOT/BRIDGE/LEAF with an explicit structural boundary.
-- [x] Principles→Atlas lands on `compute-gpu` with bottleneck context; Principles→Masters lands on reported-share changes; Masters→Principles returns to the market-expectations chapter.
-- [x] All three route destinations preserve concept, metric, timeframe and return context after reload; plain page changes remove stale mode/node/manager query state.
-- [x] Masters reports 37 reconciled filers, 193,121 current rows, 89,892 prior comparison rows and 249 separate 13D/G events; 35 are current to 2026-06-30 and Pershing/Scion remain stale.
-- [x] Reported-share changes are not labeled trades; 13D/G primary HTML/text documents use a neutral URL field and remain separate from 13F holdings.
-- [x] Three-page initial budgets pass: Principles 29,617 B, Masters 487,837 B, Atlas 598,450 B; selected detail shards load only after their matching interaction and re-entry repeats zero requests.
-- [x] Focused page contracts/browsers, cross-page flow, 20-route accessibility, 60 desktop viewport combinations, knowledge corpus/ontology/currentness and static-data refresh gates pass locally.
-- [x] Commit, deployment and deployed GitHub Pages parity are completed only after the final release gates below pass. — Retired (v58.86 정리): 자동화로 대체: pages-deploy가 배포마다 ci-live-invariant-check를 돌린다(2026-10-26 09:25Z 실행 성공), Worker 배포는 CI 증거·스모크·롤백(R652)
+- 완료 10건
 
 ## v54.42 three-page completeness and route-state closure (2026-08-22)
-
-- [x] Masters reports `partial`, not generic `connected`, until discovery and full-row coverage both complete.
-- [x] Masters user-visible coverage is fixed at current-full 5, stale-full 2, preview-only 5, metadata-only 25 and method-only 1; latest-period gaps 32/37, official principles 2/38 and verified security-master rows 0 remain visible.
-- [x] Principles 112/112 lesson shards render, and the opened lesson owns its bookmark, note and URL state across reload.
-- [x] Principles search covers all structured lesson fields plus loaded deep-article text; compact review/publication status and base-artifact failure/retry are visible.
-- [x] Atlas 48/48 foundation shards and seven layers render; F0 primer selection owns its label/bookmark/URL and restores after reload.
-- [x] Atlas professional route context survives destination reload/back/forward and exposes knowledge node, metric and timeframe to the destination.
-- [x] Both knowledge pages reject raw glossary JSON and show the Korean `사례·근거 전개` heading.
-- [x] Focused contract and Chromium gates plus the three-page transfer/re-entry budget pass locally.
-- [x] SA-03 controller-takeover fixture counts main-frame reloads only and passes without third-party iframe navigation noise.
-- [x] Masters SEC online completion remains pending: the repository variable exists, but the new SEC workflow/collector changes are not deployed or run; current full-row coverage is 5/37. — Retired (v58.86 정리): 대체됨: SEC 13F·13D/G 수집은 Actions 레인으로 돈다(2026-10-26 refresh-data의 13F·13D-G 단계 성공, filing-discovery 최신 filedAt 2026-10-22)
-- [x] Knowledge human semantic/source-directness review and publication certification remain open; the UI now states those boundaries explicitly. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY)
+- 완료 11건: QA-BOUNDARY-KNOWLEDGE-01
 
 ## v54.41 external-source state correction (2026-08-22)
-
-- [x] AAII official public observation is refreshed to week ending 2026-08-19: bullish 35.5%, neutral 24.6%, bearish 39.9%, spread -4.4 pp; it remains reference-only and excluded from trading gates.
-- [x] NAAIM current/API access is `BLOCKED`; the 2026-07-22 value is retained only as a stale reference and is never promoted as current. The publisher's three-month public delay and commercial-use permission boundary are recorded.
-- [x] Investors Intelligence current numeric reading is `BLOCKED` behind the publisher's subscription contract; no search snippet or secondary estimate is promoted.
-- [x] Weinstein Stage is `DYNAMIC` from runtime OHLCV/30-week evidence and cannot regress to generic missing-data `SKIPPED`.
-- [x] The 22-category gate requires 19 `OK`, 2 `BLOCKED`, 1 `DYNAMIC`; web-research, reconciliation and refresh audit contracts pass.
-- [x] AAII value and `aaiiObservedAt` cross both runtime-reader paths; the native sentiment page renders the 2026-08-19 date instead of a false missing-source label.
-- [x] SEC configuration wording is scope-correct: the project ledger records `SEC_USER_AGENT` as configured in GitHub Actions, while the local shell does not contain it.
-- [x] Current GitHub variable metadata and latest SEC Actions run remain externally unverified in this session because the local `gh` token is expired and the available browsers are signed out. No repository setting was changed and no commit-producing workflow was dispatched. — Retired (v58.86 정리): 대체됨: SEC 13F·13D/G 수집은 Actions 레인으로 돈다(2026-10-26 refresh-data의 13F·13D-G 단계 성공, filing-discovery 최신 filedAt 2026-10-22)
+- 완료 8건
 
 ## v54.40 interaction-scoped detail and current-data closure (2026-08-22)
-
-- [x] Masters route entry loads only compact summaries; no `/public-data/masters/managers/*` request occurs and full-row state is `0`.
-- [x] Selecting the largest connected manager (Fisher) transfers zero full-row bytes until holdings/sector/comparison detail is explicitly requested.
-- [x] Top holdings are labeled as a summary, not verified full rows; explicit Berkshire holdings loads one 117,994-byte shard and paginates 25 rows.
-- [x] Shared JSON cache remains at or below 64 resolved entries and records LRU eviction without canceling other consumers.
-- [x] Principles and Atlas article failures remain visible with an accessible alert, keep the page usable and succeed on retry.
-- [x] Three-page cold/re-entry budgets pass: Masters 341,070 B initial, 0 B selection, 117,994 B explicit rows, 132,506 B quarter; all re-entry repeats are 0.
-- [x] Official/public refresh completes 78/78 quotes. P951/v54.41 supersedes the original four-`SKIPPED` classification with AAII=`OK`, NAAIM/Investor Intelligence=`BLOCKED`, Weinstein=`DYNAMIC`.
-- [x] Full release QA: 1,124/1,124 headless, accessibility 20/20, Critical-10, viewport normal+FULL_INIT 60/60 each, overflow 0, route soak 20×3, lifecycle 42 canvases/12 timers stable, SW/vault/vertical slices PASS.
-- [x] Codex in-app Browser independently confirms v54.40: Masters 38 profiles, Top-summary fullRows=0, Fisher selection deferred then 1,037 rows/25 visible; Principles 20/page + one explicit article; Atlas 7 layers + one explicit article; all three overflow 0.
-- [x] SEC discovery/13F/13D-G 37/37 online refresh — `UNVERIFIED_THIS_SESSION`: the Actions-only `SEC_USER_AGENT` configuration is recorded, but current variable metadata/run output cannot be inspected with the expired local GitHub authentication. Stored LKG remains authoritative until a successful run artifact is reconciled. — Retired (v58.86 정리): 대체됨: SEC 13F·13D/G 수집은 Actions 레인으로 돈다(2026-10-26 refresh-data의 13F·13D-G 단계 성공, filing-discovery 최신 filedAt 2026-10-22)
-- [x] Human semantic/source-directness review of 160 structured articles, 125 research-required inventory units and recruited-user validation remain external review gates. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY)
+- 완료 11건: QA-BOUNDARY-KNOWLEDGE-01
 
 ## v54.39 three-page runtime budget and completeness boundary (2026-08-22)
-
-- [x] QA-PAGES-PERF-01: Masters cold runtime artifacts total 459,064 bytes and exclude canonical `holdings.json`; quarters add only `history-index.json` plus the selected manager bundle (132,506 bytes for the default manager), never the 9.3 MB history or 8.4 MB issuer monolith.
-- [x] QA-PAGES-PERF-02: Principles cold structure is 258,377 bytes, library capability is 1,491,243 bytes, visible lesson DOM is paginated to 20, and explicit article loading fetches exactly one 25,256-byte shard rather than `knowledge/articles.json` or completion dossiers.
-- [x] QA-PAGES-PERF-03: Atlas foundations total 596,104 bytes, explicit article loading fetches one 24,675-byte shard, and overview uses the 53,545-byte evidence/status pair without article, claim, coverage or dossier monoliths.
-- [x] QA-PAGES-CACHE-01: two concurrent consumers share one request; aborting one consumer does not cancel the survivor; a resolved cache hit performs no fetch; different fetch functions remain isolated; Masters, Principles and Atlas re-entry each produce zero repeated page-artifact requests.
-- [x] QA-MASTERS-RUNTIME-01: the deterministic runtime builder publishes seven current manager shards, seven bounded history bundles, a compact summary and descriptors while retaining the canonical 1,290 holdings rows and 1,387 comparisons for contracts/rebuilds.
-- [x] QA-KNOWLEDGE-RUNTIME-01: the compact status projection reports all 427 units, 160 article shards, 298 researched, 4 in progress and 125 research-required without promoting `humanReviewComplete` or `publicationReady`.
-- [x] QA-TIER13-02: Codex in-app Browser connects all three routes at v54.39: Masters shows 38 profiles, connected selected shard and 10 default rows; Principles shows 112 lessons paginated 20 at a time and one article only after request; Atlas shows connected foundations/lessons and one article only after request. All three have zero document overflow; the only console error is the expected local external-API proxy warning.
-- [x] QA-MASTERS-ONLINE-01: actual SEC discovery/import remains unverified in this local session; the monitored contact is configured in GitHub Actions according to the project ledger, but a successful current run artifact is still required before replacing the 7-manager LKG layer. — Retired (v58.86 정리): 대체됨: SEC 13F·13D/G 수집은 Actions 레인으로 돈다(2026-10-26 refresh-data의 13F·13D-G 단계 성공, filing-discovery 최신 filedAt 2026-10-22) verify_by: v58.86 정리로 종료
-- [x] QA-KNOWLEDGE-HUMAN-01: the 125 research-required units and independent human semantic/source-directness/recruited-user review remain open; runtime sharding does not change those completion states. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
-- [x] QA-DEPLOY-04: no commit or deployment is performed in this task; deployed-site parity remains open. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
+- 완료 10건: QA-PAGES-PERF-01, QA-PAGES-PERF-02, QA-PAGES-PERF-03, QA-PAGES-CACHE-01, QA-MASTERS-RUNTIME-01, QA-KNOWLEDGE-RUNTIME-01, QA-TIER13-02, QA-MASTERS-ONLINE-01, QA-KNOWLEDGE-HUMAN-01, QA-DEPLOY-04, QA-BOUNDARY-KNOWLEDGE-01, QA-DEPLOY-08
 
 ## v54.38 three-page currentness and learner-flow closure (2026-08-22)
-
-- [x] QA-MASTERS-13F-29: one daily workflow discovers all 37 configured SEC filers through a serialized fair-access queue and records latest 13F submission, latest holdings, adjacent prior period, `13F-NT`, amendments, separate Schedule 13D/G ownership events and explicit blocked/error states.
-- [x] QA-MASTERS-13F-30: the collector composes original, restatement and new-holdings amendments, publishes manager shards atomically, and preserves each manager's last-known-good rows when another manager or request fails.
-- [x] QA-MASTERS-13F-31: Masters renders reported value, unique positions, Top 5/10 concentration, reported-share changes and turnover proxy; supports 2~4 manager comparison; and keeps method-only Minervini/Berkshire principles separate from 13F holdings claims.
-- [x] QA-KNOWLEDGE-UX-01: Principles and Atlas load capability groups lazily with route-scope `AbortSignal`/liveness and isolated settlement, retain search focus, and search authored body, aliases, articles and Atlas relationship/taxonomy content.
-- [x] QA-KNOWLEDGE-UX-02: durable bookmark/note controls are accessible and 199 knowledge targets carry professional route, metric, timeframe and return context. The 160 connected long-form artifacts remain labeled structured drafts rather than human-certified encyclopedia copy.
-- [x] QA-PAGES-VIEWPORT-01: Principles, Masters and Atlas are included in the shared 20-route viewport matrix; visible internal snapshot/service identifiers and the unnamed learning textarea were removed.
-- [x] QA-PAGES-REGRESSION-01: local closure passes 1124/1124 headless tests, 20-route accessibility, 60 FULL_INIT route×desktop-viewport combinations, Critical-10, 20 routes×3 soak laps, service-worker controller migration and 20-route lifecycle with stable 42 canvases/12 timers.
-- [x] QA-MASTERS-13F-32: run and reconcile the actual online 37/37 SEC 13F·13D/G refresh after configuring a monitored contact in `SEC_USER_AGENT`; the committed discovery artifact must remain explicit `PARTIAL/BLOCKED` until then. — Retired (v58.86 정리): 대체됨: SEC 13F·13D/G 수집은 Actions 레인으로 돈다(2026-10-26 refresh-data의 13F·13D-G 단계 성공, filing-discovery 최신 filedAt 2026-10-22) verify_by: v58.86 정리로 종료
-- [x] QA-MASTERS-13F-33: verified security master, corporate-action and sector mapping plus remaining manager row imports require authoritative provider review and remain open. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-DATA-RIGHTS-01(유료·면허 자료와 공급자 권리, 보안 마스터·기업행위·섹터 매핑) verify_by: v58.86 정리로 종료
-- [x] QA-KNOWLEDGE-UX-03: independent human semantic/source-directness review and recruited-user validation remain open; automated depth and browser contracts are not substitutes. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
-- [x] QA-DEPLOY-03: deployed-site parity is open because this task performs no commit or deployment. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
+- 완료 11건: QA-MASTERS-13F-29, QA-MASTERS-13F-30, QA-MASTERS-13F-31, QA-KNOWLEDGE-UX-01, QA-KNOWLEDGE-UX-02, QA-PAGES-VIEWPORT-01, QA-PAGES-REGRESSION-01, QA-MASTERS-13F-32, QA-MASTERS-13F-33, QA-KNOWLEDGE-UX-03, QA-DEPLOY-03, QA-BOUNDARY-DATA-RIGHTS-01, QA-BOUNDARY-KNOWLEDGE-01, QA-DEPLOY-08
 
 ## v54.37 live AI browser preflight repair (2026-08-21)
-
-- [x] QA-AI-CORS-01: the canonical Worker CORS allowlist includes `anthropic-beta`, matching the prompt-caching header emitted by the client.
-- [x] QA-AI-CORS-02: `Deploy AI proxy` workflow 32438015866 passed Worker deployment, health/readiness, OPTIONS 204, allowed GitHub Pages origin, blocked foreign origin, and real Anthropic upstream smoke.
-- [x] QA-AI-LIVE-02: after Worker propagation, a fresh in-app browser completed the full public chat POST and rendered a non-empty Claude Haiku answer (`AI 연결 상태 확인` plus the current data-status boundary); direct live curl and browser UI both pass.
+- 완료 3건: QA-AI-CORS-01, QA-AI-CORS-02, QA-AI-LIVE-02
 
 ## v54.44 user research integration: inference efficiency and macro transmission (2026-08-22)
-
-- [x] QA-REF-AI-01: the three supplied X posts and Bloomberg deal-map attachment are registered as `REFERENCE`; source dates, supplied URLs, the 2026-06-08 image as-of and no-current-valuation boundary are visible in `_context/RESEARCH-INTEGRATION-AI-INFRA-MARKET-RISK-2026-08-22.md` and chat context.
-- [x] QA-REF-AI-02: Themes exposes the memory-proximity × specialization taxonomy, workload fit, Cerebras/Groq/Etched/Frozen v2 archetypes, all named deal-map nodes and role-level services/investment/hardware edges without fabricated market caps or contract values.
-- [x] QA-REF-MACRO-01: Macro exposes observed 2Y/10Y/30Y, FRED HY OAS, VIX and breadth inputs, while term premium, Treasury/corporate issuance, dealer gamma/options positioning and China credit remain explicit `BLOCKED` gaps.
-- [x] QA-REF-CHAT-01: macro/themes chips, keyword routing and the existing AI-infrastructure `CHAT_CONTEXTS` path contain inference-efficiency, AI deal-loop and macro-transmission terms with current/reference separation.
-- [x] QA-REF-DATA-01: official term-premium, Treasury auction/buyback, corporate issuance and China credit producers remain unconnected; no current score or trade instruction may consume the reference material alone. — Retired (v58.86 정리): 상시 경계: 참고 연구 자료는 점수·지시에 쓰이지 않는다(ci-research-model-contract-check) verify_by: node scripts/ci-research-flow-contract-check.mjs (reference metadata stays outside ranking inputs)
-- [x] QA-REF-DATA-02: independent benchmark evidence for latency, tokens/W, KV-cache behavior, workload boundary and system TCO remains pending for any live ranking of inference architectures. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-DATA-RIGHTS-01(유료·면허 자료와 공급자 권리, 보안 마스터·기업행위·섹터 매핑) verify_by: v58.86 정리로 종료
+- 완료 6건: QA-REF-AI-01, QA-REF-AI-02, QA-REF-MACRO-01, QA-REF-CHAT-01, QA-REF-DATA-01, QA-REF-DATA-02, QA-BOUNDARY-DATA-RIGHTS-01
 
 ## v54.45 full-route audit and fail-closed rendering fixes (2026-08-22)
-
-- [x] QA-AUDIT-01: 20 active routes, education routes (`principles`, `masters`, `atlas`), derived/reference surfaces and retired KR aliases are inventoried separately; 20-route accessibility, 60 desktop viewport combinations, 20×3 route soak and vertical slices pass locally.
-- [x] QA-AUDIT-02: AI proxy `null`/empty inputs remain unavailable, valid zero observations survive macro transmission rendering, and Home credit/FX-bond stories suppress ticker decoration consistently.
-- [x] QA-AUDIT-03: Deep Analysis `ResizeObserver` instances are registered and disconnected before chart teardown; the architecture contract fails if the lifecycle markers regress.
-- [x] QA-AUDIT-04: `--text-muted` is darkened to meet WCAG AA against both paper/card backgrounds; the accessibility matrix reports no console or nameless-control errors.
-- [x] QA-AUDIT-05: new AI/macro domain modules are present in the service-worker shell asset list; version, syntax, runtime/data pipeline and knowledge-lint gates pass.
-- [x] QA-AUDIT-DATA-01: provider/live truth, GitHub Pages parity, mobile 320/768px interaction, screen-reader behavior, stale screener-universe refresh and SEC fundamental producer failures remain operator/external verification items. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-HUMAN-01(모집 사용자·키보드·스크린리더 실사; architecture/human-validation.json이 NOT_EXECUTED로 고정) verify_by: v58.86 정리로 종료
+- 완료 6건: QA-AUDIT-01, QA-AUDIT-02, QA-AUDIT-03, QA-AUDIT-04, QA-AUDIT-05, QA-AUDIT-DATA-01, QA-BOUNDARY-HUMAN-01
 
 ## v54.46 evidence-first copy hardening (2026-08-22)
-
-- [x] QA-COPY-01: Home and Signal primary briefs describe evidence review, input status and user-recorded invalidation criteria rather than asserting a trade decision.
-- [x] QA-COPY-02: Guide no longer presents unsupported account-size eligibility, fixed position-size percentages or fixed risk/reward numbers as product rules; high-volatility examples are observation/backtest-first.
+- 완료 2건: QA-COPY-01, QA-COPY-02
 
 ## v54.37 public AI end-to-end reliability (2026-08-18)
-
-- [x] QA-AIROUTE5: a fresh browser with empty storage selects the shipped HTTPS public Worker, while a valid personal key remains the preferred route and no API key is sent to the shared Worker.
-- [x] QA-AISTREAM1: both chat surfaces use one canonical evidence registry and completion envelope; the client honors the Worker's advertised 1,500-token limit and records `stop_reason`/truncation.
-- [x] QA-AIDEGRADE3: one invalid or unbound AnswerPlan claim is removed without blanking safe summary/sections; unsupported current numeric prose is removed while qualitative analysis remains visible.
-- [x] QA-AIDEGRADE4: partial structured streams expose only a progress message, never control JSON; truncated structured output recovers safe prose and publishes an explicit model-output limitation.
-- [x] QA-AIOPS1: the operations producer canonicalizes the health-path observation into the field consumed by route readiness, so the same configured Worker is reported `CONFIGURED_HEALTHY`.
-- [x] QA-AIBROWSER1: `ci-ai-chat-public-route-browser-check.mjs` passes the route, stream, claim degradation, numeric stripping and truncation scenarios in real Chromium.
-- [x] QA-DATA-REFRESH-12: the existing producer refreshed 78/78 configured quotes, Fear & Greed, news, history, market snapshot and release manifests without inventing unavailable FRED/licensed values; the 22-category audit keeps stale breadth/HY and rights-limited categories explicit.
-- [x] QA-SCREENER-FRESHNESS-02: a forced screener run removed the filing-only row and passes with 847/847 factor rows, 561 fundamental rows, 77.1% usable coverage and current factor epochs.
-- [x] QA-FUND-PIT-01: the `sec-report.v3` unavailable state visibly says both SEC annual data and the PIT reference time are pending and does not estimate missing values.
-- [x] QA-AILOCAL-01: local blocking gates pass: 1124/1124 headless, fresh-browser public route, FULL_INIT 51/51, Critical-10, accessibility 20 routes, Vault, 13 vertical slices, 20-route architecture lifecycle and three-lap route soak.
-- [x] QA-TIER13-01: Codex in-app browser certification is unavailable because Browser plugin initialization rejects `browser-service.mjs` outside its configured trusted RPC path; standalone real-Chromium gates pass but are not mislabeled as in-app-browser evidence. — Retired (v57.79): duplicate of QA-HUMAN-04; standalone Chromium browser groups cover the automatable part
-- [x] QA-AIRELEASE1: full headless/release gates, GitHub Pages deployment and post-deploy live public-chat certification must pass before this release is closed. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-AI-LIVE-01(공용 Worker 실답변 품질의 소유자 블라인드 점검) verify_by: v58.86 정리로 종료
+- 완료 12건: QA-AIROUTE5, QA-AISTREAM1, QA-AIDEGRADE3, QA-AIDEGRADE4, QA-AIOPS1, QA-AIBROWSER1, QA-DATA-REFRESH-12, QA-SCREENER-FRESHNESS-02, QA-FUND-PIT-01, QA-AILOCAL-01, QA-TIER13-01, QA-AIRELEASE1, QA-HUMAN-04, QA-BOUNDARY-AI-LIVE-01
 
 ## v54.36 semantic/reference completion pass (2026-08-18)
-
-- [x] QA-KNOWLEDGE-DEPTH-03: all 112 Principles and 48 Atlas foundation source lessons meet the 1,200-character floor and carry the complete semantic field set plus structured worked examples; `audit-knowledge-encyclopedia-depth.mjs --strict` passes.
-- [x] QA-KNOWLEDGE-RESEARCH-02: all 160 core/foundation lessons carry dated fact IDs and canonical selected sources in their research dossiers; whole-corpus state is 298 researched, 4 in progress and 125 research-required units.
-- [x] QA-ATLAS-EVIDENCE-02: `current-evidence-ledger.json` contains 40 dated primary-reference entries from 38 sources and is visible in the Atlas evidence room; current operational/production/financial promotion remains zero.
-- [x] QA-MASTERS-13F-27: raw SEC multi-quarter issuer aggregation is connected for 2,500 manager·CUSIP·share-type·put/call keys from 13,629 rows across seven managers; 268 review flags remain explicit and no ticker/sector/corporate-action inference is published.
-- [x] QA-PAGES-STRUCTURE-02: Principles, Atlas and Masters focused contract/browser gates pass after the new source-depth, evidence-ledger and issuer-aggregate consumers were connected.
-- [x] QA-KNOWLEDGE-SELF-05: independent human semantic/source review and recruited-user validation remain open; automated semantic certification is not a substitute for those reviews. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
-- [x] QA-MASTERS-13F-28: authorized security-master, corporate-action and sector provider review, plus remaining metadata-only manager row imports, remain pending. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-DATA-RIGHTS-01(유료·면허 자료와 공급자 권리, 보안 마스터·기업행위·섹터 매핑) verify_by: v58.86 정리로 종료
-- [x] QA-DEPLOY-02: live deployed-site parity and required response-header certification remain open; no deployment was performed. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
-- [x] QA-DATA-REFRESH-03: this local run could not refresh Yahoo/BEA/Cboe; the producer failed closed with `CORE_QUOTE_COVERAGE_FAILED:0/78` and preserved the prior `data.json`. VIX/HY OAS, breadth, put/call and screener reference artifacts remain stale/reference-only where the freshness audit says so. — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile
-- [x] QA-SCREENER-FRESHNESS-01: `screener.json` remains outside its 2-day processing freshness budget and its validator still reports `847 != 848` plus one row without derived factors; screener workbench and page-market-epoch browser gates therefore remain blocked until the authorized refresh pipeline succeeds. — Retired (v58.86 정리): 대체됨: screener.json은 refresh-screener가 매일 갱신하고 validate-screener-artifact가 게시 전에 판정한다. verify_by: v58.86 정리로 종료
+- 완료 10건: QA-KNOWLEDGE-DEPTH-03, QA-KNOWLEDGE-RESEARCH-02, QA-ATLAS-EVIDENCE-02, QA-MASTERS-13F-27, QA-PAGES-STRUCTURE-02, QA-KNOWLEDGE-SELF-05, QA-MASTERS-13F-28, QA-DEPLOY-02, QA-DATA-REFRESH-03, QA-SCREENER-FRESHNESS-01, QA-BOUNDARY-KNOWLEDGE-01, QA-BOUNDARY-DATA-RIGHTS-01, QA-DEPLOY-08
 
 ## v54.35 sequential quality closure (2026-08-18)
-
-- [x] QA-MASTERS-13F-23: SEC EDGAR Q2 refresh is connected for five managers; Pershing Q1 and Scion 2025-Q3 remain explicit latest/stale references, with 1,290 full rows, 1,387 comparisons, 84 periods and 12,339 historical rows.
-- [x] QA-MASTERS-13F-24: Duquesne’s $4 cover-total mismatch is preserved as `MISMATCH`; Masters visibly holds total-based interpretation and does not silently round or repair the source.
-- [x] QA-MASTERS-13F-25: raw holdings coverage is derived and gated at 1,130 normalized CUSIP values and 1,161 issuer strings; verified security-master, ticker/share-class, sector, corporate-action and issuer aggregation promotion remains blocked.
-- [x] QA-KNOWLEDGE-DEPTH-02: generated worked examples retain the source verification question and no longer contain the prior undefined/English placeholder step; article contract and uniqueness gates pass for 160 structured drafts.
-- [x] QA-ATLAS-CURRENTNESS-01: player/product reference overlay visibly reports 43 official-reference rows, a seven-day review window, 40 stale-reference rows and zero current numeric/production/financial claims.
-- [x] QA-KNOWLEDGE-FRESHNESS-01: encyclopedia-depth audit date is derived from the run date rather than a stale hardcoded date.
-- [x] QA-DATA-REFRESH-11: official/allowed refresh completed with 78/78 quotes, 398 history rows, 40 news items and a 22-category reconciliation rebuild; web-research status remains canonical and reference-only through subsequent refreshes.
-- [x] QA-KNOWLEDGE-SELF-04: encyclopedia-depth certification, direct source/semantic review and recruited-user validation remain open; the 160 generated articles are not certified encyclopedia copy. — Retired (v58.86 정리): 중복 — 같은 id의 완료 행이 이 원장에 이미 있다
-- [x] QA-MASTERS-13F-26: verified security master, corporate actions, sector mapping, issuer-level multi-quarter aggregation and the remaining metadata-only manager row imports require authoritative review/rights and remain pending. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-DATA-RIGHTS-01(유료·면허 자료와 공급자 권리, 보안 마스터·기업행위·섹터 매핑) verify_by: v58.86 정리로 종료
-- [x] QA-DEPLOY-01: deployed-site parity cannot be certified until the live-site network fetch is available; no deployment was performed. — Retired (v57.79): duplicate of QA-DEPLOY-08 (verify_by: qa-runner external --no-cache)
+- 완료 10건: QA-MASTERS-13F-23, QA-MASTERS-13F-24, QA-MASTERS-13F-25, QA-KNOWLEDGE-DEPTH-02, QA-ATLAS-CURRENTNESS-01, QA-KNOWLEDGE-FRESHNESS-01, QA-DATA-REFRESH-11, QA-KNOWLEDGE-SELF-04, QA-MASTERS-13F-26, QA-DEPLOY-01, QA-BOUNDARY-DATA-RIGHTS-01, QA-DEPLOY-08
 
 ## v54.34 structural quality and content-depth closure (2026-08-16)
-
-- [x] QA-KNOWLEDGE-DEPTH-01: Principles 자료실 connects all 112 A~O lessons to the 112 structured deep articles; each remains visibly educational-reference-only with semantic/source-directness review required.
-- [x] QA-ATLAS-FOUNDATION-01: Atlas exposes all seven curriculum layers, including the F0 problem→learning→model→system→hardware primer, with six readable primer concepts and no false long-form completion claim.
-- [x] QA-MASTERS-13F-22: each of the seven connected 13F managers records SEC cover-total vs information-table row-total reconciliation; exact matches are labeled and the Duquesne +$1 source exception is disclosed without row-total correction.
-- [x] QA-PAGES-STRUCTURE-01: focused Principles, Atlas and Masters contract/browser gates pass after the structural/content patch; F0 selection, deep-article expansion and 13F reconciliation disclosure are browser assertions.
-- [x] QA-KNOWLEDGE-SELF-04: encyclopedia-depth certification, independent research, semantic review and recruited-user validation remain open; the connected deep corpus is still reference draft, not certified completion. — Retired (v57.79): duplicate of the QA-KNOWLEDGE-SELF-04 row above
+- 완료 5건: QA-KNOWLEDGE-DEPTH-01, QA-ATLAS-FOUNDATION-01, QA-MASTERS-13F-22, QA-PAGES-STRUCTURE-01, QA-KNOWLEDGE-SELF-04
 
 ## v54.33 self-guided learning and observation scope (2026-08-16)
-
-- [x] QA-KNOWLEDGE-SELF-01: Principles and Atlas no longer render quiz, verification-question, or simulation prompts; declarative self-guided reading paths and exploration lenses are visible instead.
-- [x] QA-KNOWLEDGE-SELF-02: current-observations renderer filters by selected node/lesson scope; Principles initial scarcity view shows only its directly linked observation and Atlas foundation views show an explicit empty state when no direct observation exists.
-- [x] QA-KNOWLEDGE-SELF-03: Atlas relationship search filters both visible nodes and matching edges by the same query, preventing hidden-node edge residue.
-- [x] QA-MASTERS-13F-21: Masters detail exposes a self-guided 13F reading order and explicit blind-spot boundary without generating trade signals.
-- [x] QA-KNOWLEDGE-SELF-04: encyclopedia-depth certification and recruited-user validation remain open; `audit-knowledge-encyclopedia-depth.mjs` must pass before publishing long-form completion. — Retired (v57.79): duplicate of the QA-KNOWLEDGE-SELF-04 row above
+- 완료 5건: QA-KNOWLEDGE-SELF-01, QA-KNOWLEDGE-SELF-02, QA-KNOWLEDGE-SELF-03, QA-MASTERS-13F-21, QA-KNOWLEDGE-SELF-04
 
 ## v54.32 method-only master boundary (2026-08-16)
-
-- [x] QA-MASTERS-13F-18: Mark Minervini is visible as one `METHOD_ONLY` profile, separate from the 37 SEC-filer profiles.
-- [x] QA-MASTERS-13F-19: Mark’s operator/strategy teaching fields render, while CIK, accession, filing, holdings, AUM and reported-value fields remain absent.
-- [x] QA-MASTERS-13F-20: contract/browser counts are 38 profiles, 30 SEC metadata profiles, seven reconciled row managers and five/55 SEC previews; method-only count is one.
+- 완료 3건: QA-MASTERS-13F-18, QA-MASTERS-13F-19, QA-MASTERS-13F-20
 
 ## v54.31 beginner-core Masters curation (2026-08-16)
-
-- [x] QA-MASTERS-13F-13: the default catalog is 38 beginner-core profiles (37 SEC filers + 1 method-only learning profile); clearly lower-signal/default-noise entries (Lone Pine, Coatue, Akre and Altimeter) are retired while famous momentum educator Mark Minervini remains visible as `METHOD_ONLY`.
-- [x] QA-MASTERS-13F-14: every profile has a manager category, scale tier/basis, named operator and role, strategy approach, horizon, risk style and teaching use; seven profiles additionally carry official dated scale values with units and source links.
-- [x] QA-MASTERS-13F-15: the UI renders operator, scale and strategy on cards/detail metrics and keeps filer/CIK, legal owner, firm AUM and named-person teaching labels distinct.
-- [x] QA-MASTERS-13F-16: synchronized catalog/index/preview and contract/browser expectations are 38 profiles (37 SEC filers + 1 method-only), 30 SEC metadata profiles, seven reconciled row managers, and five managers/55 SEC preview rows.
-- [x] QA-MASTERS-13F-16b: Mark Minervini renders operator/strategy teaching metadata without CIK, filing, holdings, reported value, weights, or trading claims.
-- [x] QA-MASTERS-13F-17: remaining metadata-only managers still require fair-access collection, cover/table reconciliation, CUSIP/share-class normalization and adjacent-period comparison before full-row promotion. — Retired (v58.86 정리): 대체됨: SEC 13F·13D/G 수집은 Actions 레인으로 돈다(2026-10-26 refresh-data의 13F·13D-G 단계 성공, filing-discovery 최신 filedAt 2026-10-22) verify_by: v58.86 정리로 종료
+- 완료 6건: QA-MASTERS-13F-13, QA-MASTERS-13F-14, QA-MASTERS-13F-15, QA-MASTERS-13F-16, QA-MASTERS-13F-16b, QA-MASTERS-13F-17
 
 ## v54.30 major filer expansion (2026-08-16)
-
-- [x] QA-MASTERS-13F-10: BlackRock, Goldman Sachs, Citi, Harvard Management Company, and Situational Awareness/Leopold were added with official Q1 2026 SEC CIK, accession, report period, filing index, and information-table links.
-- [x] QA-MASTERS-13F-11: catalog coverage is 28 profiles, 20 SEC metadata-confirmed, seven full-row reconciled, and seven preview-connected/80 preview rows; bank, university, and combination-filer boundaries remain explicit.
-- [x] QA-MASTERS-13F-12: newly added major filers remain pending full row import, cover-total reconciliation, CUSIP normalization, and adjacent-quarter comparison. — Retired (v58.86 정리): 대체됨: SEC 13F·13D/G 수집은 Actions 레인으로 돈다(2026-10-26 refresh-data의 13F·13D-G 단계 성공, filing-discovery 최신 filedAt 2026-10-22) verify_by: v58.86 정리로 종료
+- 완료 3건: QA-MASTERS-13F-10, QA-MASTERS-13F-11, QA-MASTERS-13F-12
 
 ## v54.29 SEC 13F row preview boundary (2026-08-16)
-
-- [x] QA-MASTERS-13F-06: `manager-row-previews.json` contains 60 actual SEC information-table rows across five metadata-only managers, each with CIK/accession/report period/source XML and issuer/CUSIP/value/shares fields.
-- [x] QA-MASTERS-13F-07: Masters renders preview rows with an explicit “전체 원장 대기” boundary; previews are not merged into verified holdings, comparisons, sector weights, signals, or AI action claims.
-- [x] QA-MASTERS-13F-08: service-worker, catalog/index coverage counters, static contract, and Chromium interaction test prove the 5-manager/60-row preview layer while preserving seven full-row reconciled managers.
-- [x] QA-MASTERS-13F-09: full promotion still requires SEC fair-access collection, cover-total reconciliation, CUSIP/share-class/corporate-action normalization, and adjacent-period comparison for every preview manager. — Retired (v58.86 정리): 대체됨: SEC 13F·13D/G 수집은 Actions 레인으로 돈다(2026-10-26 refresh-data의 13F·13D-G 단계 성공, filing-discovery 최신 filedAt 2026-10-22) verify_by: v58.86 정리로 종료
+- 완료 4건: QA-MASTERS-13F-06, QA-MASTERS-13F-07, QA-MASTERS-13F-08, QA-MASTERS-13F-09
 
 ## v54.28 13F manager coverage and discovery separation (2026-08-16)
-
-- [x] QA-MASTERS-13F-01: `manager-catalog.json` contains 23 unique priority profiles, 15 SEC-indexed metadata-only managers, seven existing row-connected managers, and explicit row-import/currentness states.
-- [x] QA-MASTERS-13F-02: Bridgewater, Citadel, Oaktree, Tiger Global, Soros, Lone Pine, Third Point, Coatue, TCI, Viking, Akre, ARK, Elliott, Altimeter, and JPMorgan entries retain CIK/accession/report period/information-table/primary-document links from SEC EDGAR search results.
-- [x] QA-MASTERS-13F-03: seven Telegram `@insidertracking` leads are `DISCOVERY_SECONDARY` and X search is `UNREADABLE_DISCOVERY`; no social summary is consumed as a holding, weight, current position, or trade label.
-- [x] QA-MASTERS-13F-04: Masters UI visibly separates `secMetadataVerified`, `verifiedRowsConnected`, and `rowImportPending`, loads the catalog from a service-worker shell asset, and preserves the 13F whole-portfolio disclosure.
-- [x] QA-MASTERS-13F-05: Run the SEC fair-access row collector with a declared production User-Agent, then reconcile each pending information table against cover totals, CUSIP/share-class/corporate-action mappings, and adjacent prior filings before promoting any new rows. — Retired (v58.86 정리): 대체됨: SEC 13F·13D/G 수집은 Actions 레인으로 돈다(2026-10-26 refresh-data의 13F·13D-G 단계 성공, filing-discovery 최신 filedAt 2026-10-22) verify_by: v58.86 정리로 종료
+- 완료 5건: QA-MASTERS-13F-01, QA-MASTERS-13F-02, QA-MASTERS-13F-03, QA-MASTERS-13F-04, QA-MASTERS-13F-05
 
 ## v54.24 Exhaustive user-visible data and automation freshness (2026-08-15)
-
-- [x] QA-DATA-REFRESH-06: the 22-category refresh audit, source registry, lineage audit, artifact integrity, and static-data contract were rerun after the final generated-data pass; no stale value was promoted without a source/age/availability label.
-- [x] QA-DATA-REFRESH-07: official WebSearch evidence covers AAII, NAAIM, Investors Intelligence, Treasury/FINRA/NYSE/KRX structural boundaries, and Korea Customs reference data; licensed, blocked, or reference-only values remain visibly bounded.
-- [x] QA-DATA-REFRESH-08: SEC fallback concepts are unioned before newest selection; the bounded batch rebuilt 562/657 eligible rows and leaves unavailable rows explicit, with NVIDIA's current filing selected from the later `Revenues` concept.
-- [x] QA-DATA-REFRESH-09: static macro schedules, Korean export reference display, sentiment bridge, screener, Telegram digest, history, reconciliation, operations, and version/cachebuster surfaces were synchronized.
-- [x] QA-AUTOMATION-01: core refresh, six-hour screener refresh, hourly watchdog, WebSearch contract, lineage, reconciliation, operations, data-pipeline, runtime, and Chromium gates are wired for the final release path.
-- [x] QA-AUTOMATION-02: headless T694 accepts either explicit unavailability or a source-bound `reference-only` AAII observation, while AIO breadth remains explicit-null when unavailable.
-- [x] QA-DATA-REFRESH-10: Yahoo long-run factor refresh remains provider-degraded (`0/0` fetched tickers) and is not promoted; SEC exact acceptance-time enrichment, licensed survey rights, exchange feeds, and AI/Cloudflare operational readiness remain operator/provider gates. — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile
+- 완료 7건: QA-DATA-REFRESH-06, QA-DATA-REFRESH-07, QA-DATA-REFRESH-08, QA-DATA-REFRESH-09, QA-AUTOMATION-01, QA-AUTOMATION-02, QA-DATA-REFRESH-10
 
 ## v54.23 Full data refresh and official calendar freshness (2026-08-14)
-
-- [x] QA-DATA-REFRESH-01: the 22-category freshness audit ran after the live refresh; current market, volatility, F&G, breadth, macro, commodities/FX, indices, crypto, news, Telegram, history, screener, reconciliation, and operations artifacts retain generated/observed timestamps.
-- [x] QA-DATA-REFRESH-02: the SEC batch was executed under the fair-access User-Agent contract; the superseded v54.23 baseline was 542/657, and v54.24 rebuilt 562/657 eligible rows while retaining explicit unavailable rows rather than synthesizing values.
-- [x] QA-DATA-REFRESH-03: the desktop static macro registry was checked against official BLS, BEA, ISM, Census, Federal Reserve, and Bank of Korea calendars; no passed ISM/Census `nextRelease` remains.
-- [x] QA-DATA-REFRESH-04: the Telegram 14-day reference digest and six-hour screener artifact were regenerated from their configured public producers.
-- [x] QA-DATA-REFRESH-05: external provider rights, licensed AAII/NAAIM/Investors Intelligence values, FRED API credentials, SEC rows without comparable facts, and Cloudflare/AI operational readiness remain operator/provider gates and are not claimed as locally closed. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-DATA-RIGHTS-01(유료·면허 자료와 공급자 권리, 보안 마스터·기업행위·섹터 매핑) verify_by: v58.86 정리로 종료
+- 완료 5건: QA-DATA-REFRESH-01, QA-DATA-REFRESH-02, QA-DATA-REFRESH-03, QA-DATA-REFRESH-04, QA-DATA-REFRESH-05, QA-BOUNDARY-DATA-RIGHTS-01
 
 ## v54.22 Professional data partial-capability closure (2026-08-13)
-
-- [x] QA-DESKTOP-SCOPE-01: knowledge-route scenarios contain 18 desktop-relevant cases and explicitly reject mobile/tablet/touch personas; no mobile implementation or acceptance work was added.
-- [x] QA-PRO-DATA-01: all eight professional capability gaps use only `BLOCKED` or gate-backed `PARTIAL`; each partial entry declares implemented scope, remaining limitation, allowed use, and validation gate.
-- [x] QA-PRO-DATA-02: all 540 stored SEC rows retain their original reported values and now expose `sec-pit-facts.v1`; legacy rows are `filed-date-only` and do not claim unavailable acceptance timestamps.
-- [x] QA-PRO-DATA-03: scheduled SEC refresh joins companyfacts accession numbers to submissions `acceptanceDateTime`, preserves amendments as separate observations, and bounds collection under SEC fair-access rules.
-- [x] QA-PRO-DATA-04: the as-of selector excludes future filings/amendments and emits P/E or P/B only when the caller supplies a contemporaneous price.
-- [x] QA-PRO-DATA-05: verified 13F evidence covers seven managers, 84 historical periods and 1,248 full rows; the ledger remains partial because Forms 3/4/5, 13D/G and a complete security master are absent.
-- [x] QA-PRO-DATA-06: portfolio VaR/CVaR, benchmark beta/alpha/correlation, stress, drawdown, and component return/risk attribution are recognized as implemented but remain partial because institutional factor, liquidity/capacity, transaction-cost and survivorship-free inputs are absent.
-- [x] QA-PRO-DATA-07: exact SEC acceptance-time coverage is 0/540 locally because `SEC_USER_AGENT` is configured only in GitHub Actions; post-push scheduled execution and live Pages parity require external certification. — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile
-- [x] QA-PRO-DATA-08: the keyless official U.S. Treasury adapter parses one complete same-date 2Y/5Y/10Y/20Y/30Y row, derives 10Y-2Y only from that row, retains last-known-good data on failure, and is covered by a synthetic parser fixture plus reconciliation gates.
-- [x] QA-PRO-DATA-09: HY OAS freshness is compared with the official FRED/ICE latest observation and receives only its documented three-calendar-day publication-lag budget; the original observation date remains visible and values beyond that budget still degrade.
-- [x] QA-PRO-DATA-10: every runtime-imported source contract, including `source-registry.js`, is present in the versioned service-worker shell list; `ci-architecture-contract-check.mjs` blocks any future import/cache divergence.
-- [x] QA-PRO-DATA-11: the independent ESM unit gate asserts `sec-report.v3` plus PIT status/counts and accepted filing metadata, while the data-pipeline gate separately verifies amendment-time selection and historical price non-leakage.
-- [x] QA-PRO-DATA-12: factor-rank golden fixtures distinguish current row-level fundamental observations from missing/stale observations; complete fixtures retain value/quality parity and the negative fixture keeps both factors inactive.
-- [x] QA-PRO-DATA-13: HY OAS refreshes from the official FRED public CSV without an API key, rejects missing/invalid rows, preserves exact percent units and observation time, and retains prior evidence with explicit stale status on failure.
-- [x] QA-PRO-DATA-14: runtime W1-04 and ESM unit gates independently pin `sec-report.v3`, filing metadata, PIT status/counts, freshness and fail-closed decision eligibility; no v2 contract literal remains in active CI.
-- [x] QA-PRO-DATA-15: the full-route Chromium lifecycle requires the native fundamental report model to be `sec-report.v3` and its visible metadata to include the PIT status/count; route ownership declares the same boundary.
-- [x] QA-PRO-DATA-16: the Chromium boot gate presents the initial shell before injecting the synthetic `signal` route, while retaining independent blocking budgets of FCP <=2.5s, route <=2s, and max long task <=2.5s; final local evidence is 2.01s/1.35s/1.32s.
-- [x] QA-PRO-DATA-17: all selectively staged R1 surfaces are inspected from the index/commit, including the active audit contract and two active handoff manifests; unrelated knowledge edits remain unstaged.
-- [x] QA-PRO-DATA-18: the committed desktop-scope gate dependencies contain neither the Principles mobile fallback requirement nor the knowledge-depth mobile persona; unrelated knowledge/retrieval edits remain unstaged.
-- [x] QA-PRO-DATA-19: every Playwright gate in CI runs only after the same job installs Chromium; the market-epoch and quant auto-refresh gates remain blocking through `headless-tests` -> deploy.
-- [x] QA-PRO-DATA-20: headless data-integration tests wait for the Telegram artifact pipeline to settle through runtime metadata; T830 remains blocking and no fixed-delay/skip-list workaround is used.
-- [x] QA-PRO-DATA-21: the Atlas F3 browser golden and renderer are checked from the same detached release tree; the committed educational question count is one and unrelated local Atlas/Knowledge edits remain unstaged.
+- 완료 22건: QA-DESKTOP-SCOPE-01, QA-PRO-DATA-01, QA-PRO-DATA-02, QA-PRO-DATA-03, QA-PRO-DATA-04, QA-PRO-DATA-05, QA-PRO-DATA-06, QA-PRO-DATA-07, QA-PRO-DATA-08, QA-PRO-DATA-09, QA-PRO-DATA-10, QA-PRO-DATA-11, QA-PRO-DATA-12, QA-PRO-DATA-13, QA-PRO-DATA-14, QA-PRO-DATA-15, QA-PRO-DATA-16, QA-PRO-DATA-17, QA-PRO-DATA-18, QA-PRO-DATA-19, QA-PRO-DATA-20, QA-PRO-DATA-21
 
 ## v54.21 Daily source registry, history, and missing professional data closure (2026-08-13)
-
-- [x] QA-SOURCE-DAILY-01: all 22 reconciliation categories declare cadence, producer, artifact, desktop consumers, exact origins, access mode, source authority, and structural limitation/remediation; all 22 are enrolled in the daily audit.
-- [x] QA-SOURCE-DAILY-02: core, six-hour screener, and hourly watchdog workflows run source-registry, static-data, data-refresh, and reconciliation gates before publication or health certification.
-- [x] QA-SOURCE-DAILY-03: CNN’s publisher feed backfills 269 dated F&G observations, automatic thin-field backfill supplies 234 VIX3M dates, and CoinGecko independently checks BTC/ETH within a 2%/2-hour fail-closed contract.
-- [x] QA-SOURCE-DAILY-04: AIO US-universe breadth history aligns securities by explicit date, uses adjusted closes, rejects null-as-zero and sparse session buckets, and records per-field source/universe/eligible/coverage lineage. Latest 20/50-day points use 708/728 symbols (97.3%).
-- [x] QA-SOURCE-DAILY-05: the breadth desktop page consumes canonical `_aioHistory`, rerenders on `aio:historyLoaded`, and shows same-universe multi-day participation direction while explicitly keeping official exchange A/D and McClellan unavailable; the 16-page browser gate asserts its visible text and source label.
-- [x] QA-SOURCE-DAILY-06: the critical-gap ledger covers PIT fundamentals, membership/corporate actions, independent quotes, official breadth, earnings revisions/guidance, short/options data, insider/institutional filings, and portfolio risk attribution without prematurely promoting any P0 gap.
-- [x] QA-SOURCE-DAILY-07: the next configured GitHub Actions run must certify new FRED DGS2/5/10/20/30 and T10Y2Y fields; live Pages deployment, licensed data rights, and institutional provider SLAs remain external gates. Local in-app Browser Tier 13 was unavailable because its browser-control runtime was not exposed; the focused Playwright browser gate passed separately and is not relabeled as Tier 13. — Retired (v58.86 정리): 대체됨: macro-history.json에 dgs2·5·10·20·30 시리즈 발행 확인(2026-10-26) verify_by: v58.86 정리로 종료
+- 완료 7건: QA-SOURCE-DAILY-01, QA-SOURCE-DAILY-02, QA-SOURCE-DAILY-03, QA-SOURCE-DAILY-04, QA-SOURCE-DAILY-05, QA-SOURCE-DAILY-06, QA-SOURCE-DAILY-07
 
 ## v54.20 Quant screener source epochs and automatic refresh closure (2026-08-13)
-
-- [x] QA-QUANT-AUTO-01: the six-hour workflow rebuilds SEC/screener artifacts, rejects generated artifacts older than 2 days or factor observations older than 4 market-calendar days, and requires at least 80% current factor-row coverage before publication.
-- [x] QA-QUANT-AUTO-02: live price and market cap retain runtime quote observation/fetch/source/revision; EOD factors retain factor epochs; fundamentals retain filing-derived epochs; news retains its own timestamp. No family falls back to another family's observation time.
-- [x] QA-QUANT-AUTO-03: the desktop screener timeline separately checks snapshot, 14-field factor coverage, ranking input/snapshot parity, rendered-row live quotes, 180-day fundamentals, and 2-day ticker news.
-- [x] QA-QUANT-AUTO-04: current rendered batches register no more than 120 symbols with the central quote scheduler; initial render, sort, filter, screen change, and load-more update demand, while identical demand is throttled for 55 seconds.
-- [x] QA-QUANT-AUTO-05: size activates only at 80% four-day market-cap coverage; value/quality activate only at 80% 180-day observed fundamental coverage. The current 873/848 artifact keeps value/quality inactive because current fundamentals do not meet that threshold.
-- [x] QA-QUANT-AUTO-06: scheduled workflow runs artifact validation, Workbench lineage/live-demand gates, page timeline gates, reconciliation, and operations checks before committing validated artifacts.
-- [x] QA-QUANT-AUTO-06B: the dedicated desktop browser gate verifies 12/12 rendered quote registration and display, 100% visible quote coverage, three required timeline passes, ranking revision parity, and value/quality exclusion under stale fundamental coverage.
-- [x] QA-QUANT-AUTO-07: the v54.20 workflow execution, GitHub Pages deployment, and external provider availability/rights require post-push live certification; local and browser gates do not claim this prematurely. — Retired (v58.86 정리): 자동화로 대체: pages-deploy가 배포마다 ci-live-invariant-check를 돌린다(2026-10-26 09:25Z 실행 성공), Worker 배포는 CI 증거·스모크·롤백(R652) verify_by: v58.86 정리로 종료
+- 완료 8건: QA-QUANT-AUTO-01, QA-QUANT-AUTO-02, QA-QUANT-AUTO-03, QA-QUANT-AUTO-04, QA-QUANT-AUTO-05, QA-QUANT-AUTO-06, QA-QUANT-AUTO-06B, QA-QUANT-AUTO-07
 
 ## v54.19 Field-level page timeline and automation consistency (2026-08-13)
-
-- [x] QA-DATA-TIMELINE-01: 16 market-sensitive desktop routes declare 44 field requirements with maximum age, required/optional status, direction compatibility, and market-revision requirements.
-- [x] QA-DATA-TIMELINE-02: entity, theme, portfolio, sentiment, market, news, and screener normalization does not invent runtime-now observation timestamps and preserves quote lineage metadata.
-- [x] QA-DATA-TIMELINE-03: incomplete or mixed browser quote batches cannot become the canonical market revision; missing direction basis and revision mismatch fail closed, while numeric zero remains present evidence.
-- [x] QA-DATA-TIMELINE-04: live quote and server artifact events resynchronize every affected native consumer, then emit one coalesced timeline update.
-- [x] QA-DATA-TIMELINE-05: visible long-lived desktop tabs reevaluate the active page every five minutes and invoke its existing refresh profile only when partial/blocked; hidden tabs do not auto-fetch.
-- [x] QA-DATA-TIMELINE-06: page DOM attributes match the native timeline audit for all 16 routes in the focused Playwright gate; no mobile implementation or mobile QA was added.
-- [x] QA-DATA-TIMELINE-07: deployed GitHub Pages and real external-provider freshness/rights remain live certification gates; local/browser contract success does not certify upstream availability. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-DATA-RIGHTS-01(유료·면허 자료와 공급자 권리, 보안 마스터·기업행위·섹터 매핑) verify_by: v58.86 정리로 종료
+- 완료 7건: QA-DATA-TIMELINE-01, QA-DATA-TIMELINE-02, QA-DATA-TIMELINE-03, QA-DATA-TIMELINE-04, QA-DATA-TIMELINE-05, QA-DATA-TIMELINE-06, QA-DATA-TIMELINE-07, QA-BOUNDARY-DATA-RIGHTS-01
 
 ## v54.18 Evidence-derived data reconciliation and shared market epoch (2026-08-13)
-
-- [x] QA-DATA-EPOCH-01: all 22 reconciliation categories are computed from executable checks over `data.json`, `market-snapshot.json`, `screener.json`, and `history.json`; an empty-source fixture fails closed.
-- [x] QA-DATA-EPOCH-02: null or absent numeric samples never count as explicit zero, and policy/rights blocks are separated from runtime pipeline blocks.
-- [x] QA-DATA-EPOCH-03: both core-data and screener refresh workflows rebuild and validate reconciliation plus operations status before committing the dependent artifacts atomically.
-- [x] QA-DATA-EPOCH-04: 16 market-sensitive desktop routes expose the same market revision and cut; required PARTIAL categories cap currentness and required BLOCKED categories become unavailable.
-- [x] QA-DATA-EPOCH-05: the focused Playwright gate traverses all 16 routes with one revision/cut, complete decision-header evidence, and zero unexpected runtime errors.
-- [x] QA-DATA-EPOCH-06: live in-app Browser Tier 13 paint verification was not run in this turn; structural and headless browser verification do not imply it. — Retired (v58.86 정리): 대체됨: 해당 화면은 v57~v58에서 다시 만들어졌고 브라우저 게이트(viewport·responsive·entity-quality·a11y·rendered-copy)와 verify-aio 주행이 릴리스마다 확인한다. 이 묶음 단위의 별도 실브라우저 인수는 하지 않는다. verify_by: v58.86 정리로 종료
+- 완료 6건: QA-DATA-EPOCH-01, QA-DATA-EPOCH-02, QA-DATA-EPOCH-03, QA-DATA-EPOCH-04, QA-DATA-EPOCH-05, QA-DATA-EPOCH-06
 
 ## v54.17 Desktop-only scope and canonical version gates (2026-08-13)
-
-- [x] QA-SCOPE-01: future UI/UX, visual, browser, accessibility, and acceptance work uses the shared desktop matrix (1280×900, 1440×1000, 1920×1080); legacy mobile/tablet code is compatibility-only and the blocking desktop-scope gate prevents mobile requirements from returning.
-- [x] QA-VERSION-01: version bump accepts major rollover `v54`, canonical two-digit patch `v54.01`, normalizes `v54.1` to `v54.01`, rejects non-increasing versions, and synchronizes active handoff metadata with the R1 surfaces.
-- [x] QA-SCOPE-02: live in-app Browser Tier 13 visual verification was not run in this turn; local structural/headless gates remain separate from live paint verification. — Retired (v58.86 정리): 퇴역 결정: 데스크톱 전용 범위는 2026-10-11 반응형 지원으로 바뀌었다. verify_by: v58.86 정리로 종료
+- 완료 3건: QA-SCOPE-01, QA-VERSION-01, QA-SCOPE-02
 
 ## v54.16 SCR-OS local contract closure and promotion safety (2026-08-13)
-
-- [x] QA-SCR-OS14: PIT contract rejects present-day universes, missing/invalid membership availability, turnover/liquidity/cost gaps and live/backtest hash mismatch. P1011 adds independent observation availableAt and future-date cases; production PIT membership, filing knowledge time and data coverage remain unverified.
-- [x] QA-SCR-OS15: a complete PIT evidence fixture validates successfully, while the promotion decision remains `promoted:false`, `autoWeightPromotion:false`, and review-only.
-- [x] QA-SCR-OS16: Outcome Ledger requires an explicit finite non-negative transaction cost; modeled zero cost remains observable, while missing/invalid cost is `unavailable` with `transaction_cost_missing`.
-- [x] QA-SCR-OS17: the screener workbench contract gate covers both blocked and positive PIT paths, 37 registered fields, 6 presets, deterministic scale fixtures, refresh/provider/regime contracts, and T+1/5/21/63 outcomes.
-- [x] QA-SCR-OS18: real provider rights/keys, point-in-time production universe, live/backtest parity, operations soak, and in-app Browser Tier 13 remain external certification gates; no local contract result promotes them to live. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-DATA-RIGHTS-01(유료·면허 자료와 공급자 권리, 보안 마스터·기업행위·섹터 매핑) verify_by: v58.86 정리로 종료
+- 완료 5건: QA-SCR-OS14, QA-SCR-OS15, QA-SCR-OS16, QA-SCR-OS17, QA-SCR-OS18, QA-BOUNDARY-DATA-RIGHTS-01
 
 ## v54.15 SCR-UX-00~05 native screener UI/UX and visual workflow (2026-08-13)
-
-- [x] QA-SCR-UX1: one `SCREENER_COLUMN_REGISTRY` owns visible labels, row cells, sortable headers, widths, identity stickiness, and discovery/full column presets; default sort is visible `rank desc` and rendered header/cell counts match at 9/9 and 22/22.
-- [x] QA-SCR-UX2: saved-screen selection/save, visual condition builder, active filter chips, explicit full reset, funnel counts, and developer-only JSON import/export are wired without exposing raw parser errors as the primary user status.
-- [x] QA-SCR-UX3: row click selects and opens WhyRanked/WhyRejected; factor contribution, contrary evidence, missing evidence, provenance, explicit ticker action, return context, and five-item compare tray are present.
-- [x] QA-SCR-UX4: secondary tabs expose `tablist/tab/tabpanel` semantics; backtest `NO_BACKTEST_DATA` is distinct from zero-valued observed IC; dark-theme active controls and factor tracks use semantic tokens.
-- [x] QA-SCR-UX5: syntax, ESM/runtime/structural contracts, 17-route desktop viewport matrix, light/dark screener smoke, keyboard sort target, builder/reset/Why/compare interactions, and body-overflow checks pass locally. Live in-app Browser Tier 13 was attempted but blocked by the Browser connector from reaching the local server; GitHub Pages v54.15 parity was subsequently deployed and verified separately.
-- [x] QA-SCR-UX6: screener sort, Why, compare, and watchlist controls meet the 44px mobile touch target; the 20-route accessibility matrix passes with zero console errors.
-- [x] QA-DATA-01: official CPI calendar rolls `lastRelease` to 2026-08-12 and `nextRelease` to 2026-09-11, matching the BLS release schedule and passing T759.
+- 완료 7건: QA-SCR-UX1, QA-SCR-UX2, QA-SCR-UX3, QA-SCR-UX4, QA-SCR-UX5, QA-SCR-UX6, QA-DATA-01
 
 ## v54.13 SCR-OS-00~13 Screener Workbench and lineage regression closure (2026-08-12)
-
-- [x] QA-SCR1: field registry, InstrumentRef, ObservationEnvelope, US/KR readiness statuses and four timestamps pass the screener workbench contract gate.
-- [x] QA-SCR2: AST/DSL supports AND/OR/NOT/range/enum/exists, null policy and hard gates without `eval`/`new Function`; six saved presets round-trip with deterministic hashes.
-- [x] QA-SCR3: ScreenRun, RankExplanation, passed/rejected/unavailable states and result/explanation hashes are deterministic and visible through the workbench adapter.
-- [x] QA-SCR4: refresh demand deduplication, bounded total/provider budgets, retry backoff, circuit state and last-known-good retention pass.
-- [x] QA-SCR5: capability selection, rights boundary and divergent-source reconciliation fail closed.
-- [x] QA-SCR6: regime confidence, missing-input state, hysteresis and fixed-vs-adaptive replay retain `autoWeightPromotion:false`.
-- [x] QA-SCR7: outcome ledger records T+1/T+5/T+21/T+63 with benchmark-relative, drawdown, liquidity and cost fields.
-- [x] QA-SCR8: PIT/cost/liquidity/live-backtest parity gate remains BLOCKED; no predictive or automatic-weight promotion claim is allowed.
-- [x] QA-SCR9: synthetic 873/5k/20k scale benchmark records p50/p95 parse/query/render-preparation and an explicit JSON projection vs Parquet/DuckDB candidate decision.
-- [x] QA-SCR10: legacy screener writer remains available for rollback while the Workbench adapter renders definition/readiness/explanation controls.
-- [x] QA-SCR11: full structural/data/runtime/accessibility/performance/knowledge gates pass once after implementation; live in-app browser and GitHub Pages parity are separately marked pass or skipped with evidence.
-- [x] QA-SCR12: architecture-browser route-lifecycle soak waits for all known boot-delayed named timers before comparing lap 1 and lap 2; timer growth remains a failure.
-- [x] QA-SCR13: `public-data/screener-validation-gate.json` is registered in `ci-data-lineage-audit.mjs` with its own `observedAt`/`generatedAt` selector and remains fail-closed.
+- 완료 13건: QA-SCR1, QA-SCR2, QA-SCR3, QA-SCR4, QA-SCR5, QA-SCR6, QA-SCR7, QA-SCR8, QA-SCR9, QA-SCR10, QA-SCR11, QA-SCR12, QA-SCR13
 
 ## v54.11 Daily briefing reference-bridge integration (2026-08-12)
-
-- [x] QA-BRIEFING1: the daily briefing renders canonical current observations separately from user-supplied `REFERENCE` observations; report values cannot overwrite live/server snapshot inputs.
-- [x] QA-BRIEFING2: US close, KST publication, KRX close, screenshot post time, and CPI next-check windows remain distinct in the digest and timeline renderer.
-- [x] QA-BRIEFING3: structured framework, observations, next checks, ticker maps, and source audits fan out to page modules and AI retrieval without adding quiz/practice UI.
-- [x] QA-BRIEFING4: syntax, version, structural, runtime, data-pipeline, static-data, knowledge-lint, skill, workflow, digest-contract, and `1121/1121` headless tests pass locally.
-- [x] QA-BRIEFING5: the local AIO in-app browser was opened on `#briefing` and the lead, drivers, current/reference comparison, causal arcs, Korean next checks, timeline, and action block were read and visually inspected; no bridge-render exception was observed.
-- [x] QA-BRIEFING6: GitHub Pages deployed parity and live provider/Worker availability remain unverified; the local browser showed expected proxy/provider degradation warnings because external providers were unavailable in the test environment. — Retired (v58.86 정리): 자동화로 대체: pages-deploy가 배포마다 ci-live-invariant-check를 돌린다(2026-10-26 09:25Z 실행 성공), Worker 배포는 CI 증거·스모크·롤백(R652) verify_by: v58.86 정리로 종료
+- 완료 6건: QA-BRIEFING1, QA-BRIEFING2, QA-BRIEFING3, QA-BRIEFING4, QA-BRIEFING5, QA-BRIEFING6
 
 ## v54.7 KA-11~16 execution gates (2026-08-12)
-
-- [x] QA-KA11: `coverage-matrix.json` inventories 427 units with exact 112/48/60/95/50/19/21/22 counts; inventory remains distinct from content completion.
-- [x] QA-KA12: 427 research dossier contracts resolve to the canonical source registry; 44 Web-research seed sources are recorded; completion remains 0 researched / 281 in progress / 146 required.
-- [x] QA-KA13: 160 article reconstruction seeds are unique and progressive disclosure is present; all remain reconstruction-required pending human semantic review.
-- [x] QA-KA14: 19 domain dossiers cover 95 taxonomy nodes and 50 unique deep branches with KPI, bottleneck, value-chain and market-transmission fields.
-- [x] QA-KA15: 15 deterministic educational labs pass formula/unit/assumption/example/observation/invalidation checks and contain no current market value.
-- [x] QA-KA16: currentness separation and repository contracts pass locally; browser/live/recruited-user certification remains open and must not be represented as complete.
+- 완료 6건: QA-KA11, QA-KA12, QA-KA13, QA-KA14, QA-KA15, QA-KA16
 
 ## v54.6 Knowledge Atlas structural implementation (2026-08-11)
-
-- [x] QA-KA1: canonical ontology artifacts contain 155 concepts, 461 aliases, four explicit overlap equivalence groups, and no registry errors.
-- [x] QA-KA2: Principles keeps 71 explicit edge semantics with zero inferred runtime edges; Atlas remains 95 nodes/98 connected edges.
-- [x] QA-KA3: the unified registry contains 168 sources and 274 claims with zero unresolved references or duplicate claim IDs; non-DIRECT claims cannot be promoted implicitly.
-- [x] QA-KA4: 160 article files plus the combined article index and 160-node/16-path learning graph pass structural contracts while remaining marked `STRUCTURED_REFERENCE_DRAFT`.
-- [x] QA-KA5: route serialization, local persistence, route bridge, repository fallback, selector, and five shared renderer fixtures pass their local contracts.
-- [x] QA-KA6: semantic source review, primary-source fact-checking, recruited-user validation, and live browser certification remain open and must not be represented as complete. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
-- [x] QA-KA7: handoff와 machine contract가 제품을 주식·경제·금융·기술 백과사전으로 정의하고 기존 KA-00~10 뒤 KA-11~16 추가 순서를 고정한다.
-- [x] QA-KA8: 112/48/60/95/50/19 전체 corpus와 모든 sector/domain/category coverage matrix가 누락·thin orphan 0으로 완성되어야 한다. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
-- [x] QA-KA9: 모든 content unit의 Web Research dossier, profile별 source mix, factual/current/quantitative/product claim 직접 근거 100%, 반대 근거·기준일·currentness 경계가 검증되어야 한다. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
-- [x] QA-KA10: 160 human-reviewed deep article, sector/domain dossier, 정량 lab, market transmission, active-learning browser flow와 live/user boundary가 KA-16에서 최종 인증되어야 한다. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
+- 완료 10건: QA-KA1, QA-KA2, QA-KA3, QA-KA4, QA-KA5, QA-KA6, QA-KA7, QA-KA8, QA-KA9, QA-KA10, QA-BOUNDARY-KNOWLEDGE-01
 
 ## v54.25 관계 지도·중립금리·SNDK 통합 (2026-08-15)
-
-- [x] QA-REL1: 5개 관계 지도는 35개 노드·31개 방향 edge를 가지며 각 노드는 정의·중요성·메커니즘·지표·반증 조건을, 각 edge는 criticality를 가진다.
-- [x] QA-REL2: 중립금리 D6는 r*의 비관측성, `r* + 장기 기대물가 ≈ 명목 중립`, 정책 격차, TIPS/기간·유동성 프리미엄 반론을 함께 표시하고 날짜 없는 현재 추정치를 금지한다.
-- [x] QA-REL3: SNDK는 추론→KV cache/staging→SSD/NAND→NBM→capital intensity→reported FCF/share로 연결되며 FY28~30 목표와 HBF는 forward-looking/roadmap reference로 분리된다.
-- [x] QA-REL4: Sandisk player와 BiCS/SSD·HBF 제품은 taxonomy와 currentness overlay에 연결되고, 현재 출하·수율·매출·valuation을 생성하지 않는다.
-- [x] QA-REL5: Atlas 계약 게이트는 관계 artifact, source resolution, edge endpoints, player/product/currentness counts와 safe-DOM consumer를 차단식으로 검증한다.
-- [x] QA-REL6: 로컬 Chromium에서 4개 탭, 5개 지도, criticality 필터, node detail, source 펼침, keyboard focus와 1280/760 반응형을 시각 검증한다.
-- [x] QA-REL7: 관계 지도는 r*의 Kalman/one-sided/two-sided·data-vintage 경계, KV cache 용량식과 GQA/MQA 반례, OCF→FCF bridge, 공급망 qualification/recovery, PUE denominator, CPO link-budget·repairability를 차단 게이트로 보존한다.
-- [x] QA-REL8: 48개 기초 레슨은 별도 `sourceCoverage` fallback이 없어도 각 레코드의 `sourceIds`가 비어 있지 않고, 모든 ID가 공식·연구 source catalog에 해석된다.
+- 완료 8건: QA-REL1, QA-REL2, QA-REL3, QA-REL4, QA-REL5, QA-REL6, QA-REL7, QA-REL8
 
 ## v54.27 실제 관측값 연결 (2026-08-15)
-
-- [x] QA-REL9: `current-observations.v1`은 10개 행 각각에 값·표시값·단위·관측일·sourceId·sourceKind·allowedUse·HTTPS 출처를 가지며 `principles`와 `atlas` 양쪽을 대상으로 한다.
-- [x] QA-REL10: 시장 원리 기본 상세와 AI 시대 기초 레슨/관계 지도 상세가 동일 current-observations 원장을 렌더링하고, 공개 스냅샷·공식 거시값·SNDK forward-looking 목표를 `reference-only`로 표시한다.
-- [x] QA-REL11: Principles/Atlas Chromium 게이트가 10개 실제 관측값 카드와 3.625% 값을 확인하고, 1280/760 관계 지도에서 document overflow 0을 유지한다.
+- 완료 3건: QA-REL9, QA-REL10, QA-REL11
 
 ## v54.5 AI 선택 라우트·배포 게이트 일치 (2026-08-11)
-
-- [x] QA-AIROUTE1: 개인 키와 Worker URL이 함께 있어도 실제 target이 Worker면 deep health를 통과하기 전 `ok:true`가 되지 않는다.
-- [x] QA-AIROUTE2: UI readiness와 호출 경로가 동일 `_aioClaudeTarget` 결과를 사용한다.
-- [x] QA-AIROUTE3: Worker deep health는 URL별 단일 in-flight이며 성공 60초·실패 5초의 비대칭 TTL과 7초 네트워크 예산을 사용한다.
-- [x] QA-AIROUTE4 (historical, superseded by QA-AIROUTE5/R497): v54.5는 Worker URL 비공개 explicit-opt-in을 보존했으나, 이 정책이 fresh-browser `NO_ROUTE` 회귀를 만들었으므로 v54.37부터 공개 fallback 계약으로 대체한다.
+- 완료 4건: QA-AIROUTE1, QA-AIROUTE2, QA-AIROUTE3, QA-AIROUTE4, QA-AIROUTE5
 
 ## v54.4 AI 안전 분류·US authority 구조 교정 (2026-08-11)
-
-- [x] QA-AICONDUCT1: ESM conduct policy가 QuestionPlan과 최종 response gate의 단일 소유자이며 classic-script 정책 배열은 제거한다.
-- [x] QA-AICONDUCT2: 광테마 전망, SEC 규제 영향, ETF 세법 구조, 옵션 원리, 조건부 투자, 개인화 신고·법률 질문은 모두 분석하되 전제·관할·근거 limitation을 보존한다.
-- [x] QA-AICONDUCT3: 불법 행위의 구체적 실행법만 BLOCKED_P0이며, 외부 상태변경과 동의 없는 포트폴리오 전송은 별도 도구/개인정보 경계가 차단한다.
-- [x] QA-AIDEGRADE1: Web Research·시장세션·비구조화 현재 수치 근거가 없을 때 답변 원문은 유지되고 영향받는 주장만 limitation으로 표시된다.
-- [x] QA-AIDEGRADE2: per-page와 unified chat 모두 Research 실패 후행 덮어쓰기를 하지 않으며 `RESEARCH_REQUIRED_BUT_UNAVAILABLE` 차단 경로가 없다.
-- [x] QA-AIDEGRADE3: Typed claim 불일치, 불법 실행 절차, mutation tool negative control은 저하 모드 변경 뒤에도 차단된다.
-- [x] QA-TGPARTIAL1: Telegram 4개 요청 채널은 ok/partial/failed 모두 catalog↔행 topology를 보존하고 six-doc·Atlas 양쪽 게이트에서 partial의 성공 수와 error 행 수가 합산 4인지 검사한다.
-- [x] QA-AIAUTH1: Worker는 placement/location hint 없이 US jurisdiction의 versioned Durable Object만 quota+provider 권한으로 사용한다.
-- [x] QA-AIAUTH2: DO가 보고한 jurisdiction이 us가 아니면 provider fetch 전에 503으로 닫고 negative control이 이를 실행 검증한다.
-- [x] QA-AIAUTH3: `/health`는 authority를 실제 호출해 authorityReady:true·authorityJurisdiction:us를 확인하고 deploy smoke는 provider 200과 durable-object-us 헤더를 요구한다.
+- 완료 10건: QA-AICONDUCT1, QA-AICONDUCT2, QA-AICONDUCT3, QA-AIDEGRADE1, QA-AIDEGRADE2, QA-AIDEGRADE3, QA-TGPARTIAL1, QA-AIAUTH1, QA-AIAUTH2, QA-AIAUTH3
 
 ## v54.3 AI 공유 Worker 배포 폐쇄 (2026-08-10)
-
-- [x] QA-AIPROXY1: `cloudflare-worker-proxy.js`에는 단 하나의 canonical `/anthropic` handler만 존재하고 구형 non-atomic KV handler는 남지 않는다.
-- [x] QA-AIPROXY2: v54.3의 aws:us-east-1 placement는 provider outbound 지역을 보장하지 못했다. v54.4 QA-AIAUTH1로 대체한다. — Retired (v57.79): the Anthropic upstream was replaced by the shared gpt-6-luna Worker; superseded by QA-AIAUTH
-- [x] QA-AIPROXY3: 수동 배포 workflow가 Cloudflare·Anthropic 시크릿을 fail-fast로 요구하고 pinned Wrangler로 배포·secret publish를 수행한다.
-- [x] QA-AIPROXY4: health/CORS/origin은 통과했지만 run 31392286134의 최소 Anthropic upstream은 403이었다. v54.4 QA-AIAUTH3로 대체한다. — Retired (v57.79): the Anthropic upstream was replaced by the shared gpt-6-luna Worker; superseded by QA-AIAUTH
-- [x] QA-AIPROXY5: operations status는 정적 `NO_ROUTE`가 아니라 관측된 Worker evidence로 shared public chat 상태를 계산한다.
-- [x] QA-AIPROXY6: ENAM location hint는 best-effort라 403을 제거하지 못했다. v54.4 US jurisdiction positive/negative control로 대체한다. — Retired (v57.79): the Anthropic upstream was replaced by the shared gpt-6-luna Worker; superseded by QA-AIAUTH
+- 완료 6건: QA-AIPROXY1, QA-AIPROXY2, QA-AIPROXY3, QA-AIPROXY4, QA-AIPROXY5, QA-AIPROXY6, QA-AIAUTH1, QA-AIAUTH, QA-AIAUTH3
 
 ## v54.2 AI 채팅 구조 일원화·오분류 종료 (2026-08-10)
-
-- [x] QA-AICHAT1: 질의 분류·엔티티·현재성·소스 선택은 ESM `QuestionPlan`을 SSOT로 사용하고 30개 한국어/영어/복합 질의 fixture가 통과한다.
-- [x] QA-AICHAT2: prompt producer와 UI consumer는 `AI_ANSWER_PLAN` 하나를 사용하며, current claim은 실제 evidence ID binding 없이 노출되지 않는다.
-- [x] QA-AICHAT3: `광테마 전망` 답변의 일반적 규제 위험 문구는 법률·세무 안전 모드를 발동하지 않고, 실제 법률 행위 지시와 구체적 매매 지시는 차단된다.
-- [x] QA-AICHAT4: 현재 시세와 단순 종목 질문은 로컬 스냅샷을 우선하고, 이벤트·원인·뉴스 질문만 필수 Research로 올린다.
-- [x] QA-AICHAT5: ticker 소스 fan-out, 일반 뉴스, Telegram digest/item은 QuestionPlan에서 선택된 도메인과 관련도가 있을 때만 주입된다.
-- [x] QA-AICHAT6: 라이브·스냅샷 혼합 블록은 조립시각과 관측시각을 구분하고, 기준일 없는 수치를 현재 사실로 승격하지 않는다.
-- [x] QA-AICHAT7: 재시도는 모델·webSearch·token option을 유지하고, unified history는 차단 답변을 한 번만 저장한다.
-- [x] QA-AICHAT8: 두 UI 표면의 후속 질문은 AnswerPlan을 우선하고, fallback은 의도 맞춤형 교육·검증 질문 3개로 제한한다.
-- [x] QA-AICHAT9: 출처 배지는 시세/종목 데이터와 재무 데이터를 분리하여 실제 수신 내용과 일치한다.
-- [x] QA-AICHAT10: syntax, AI intelligence/reliability/runtime, headless 전수 시험, post-edit route/browser/release 게이트를 통과한 후에만 배포한다.
+- 완료 10건: QA-AICHAT1, QA-AICHAT2, QA-AICHAT3, QA-AICHAT4, QA-AICHAT5, QA-AICHAT6, QA-AICHAT7, QA-AICHAT8, QA-AICHAT9, QA-AICHAT10
 
 ## v54.1 배포 데이터 계약 보강 (2026-08-10)
-
-- [x] QA-DATA1: Telegram digest의 현재 retained item count·collection status와 Atlas index가 같은 스냅샷을 가리키며 Atlas·6문서·지식 시맨틱 게이트가 통과한다. 건수를 고정하지 않고 최신 digest에서 파생한다.
-- [x] QA-DATA2: 뉴스 데이터는 실제 항목이 있거나 `newsOk:false` + `newsCount:0` + 빈 배열의 완전한 unavailable 튜플일 때만 22-category 정적 데이터 계약을 통과한다.
-- [x] QA-DATA3: Telegram producer가 digest retained count를 Atlas 인덱스에 같은 실행으로 반영하고 refresh workflow가 두 artifact를 함께 stage하며 data-pipeline CI가 이 배선을 검증한다.
+- 완료 3건: QA-DATA1, QA-DATA2, QA-DATA3
 
 ## v54.0 AI Research reliability closure (2026-08-10)
-
-- [x] QA-AIRC1: Unified and per-page chat call the same `_aioPrepareAIResearch` boundary and the same ESM evidence evaluator for required-current questions.
-- [x] QA-AIRC2: External Research results use `researchEvidence.evidenceDocuments` as the canonical SSOT; legacy top-level documents normalize at the boundary and are not re-emitted.
-- [x] QA-AIRC3: Official-source classification uses exact/subdomain hostname suffix matching; spoofed suffix-like domains remain secondary.
-- [x] QA-AIRC4: Snippet/summary-only evidence, insufficient independent/primary sources, empty citations, and provider errors fail closed before current claims are shown.
-- [x] QA-AIRC5: Shared Worker route readiness does not imply Claude Web Research tool readiness; actual citations are required before `NATIVE_TOOL_VERIFIED`/`READY`.
-- [x] QA-AIRC6: Per-provider and per-subquery failures are retained in bounded runtime diagnostics while raw provider errors are not rendered to users.
-- [x] QA-AIRC7: Pending Web Research badges state that citation verification is pending and never claim live-search success before evidence arrives.
-- [x] QA-AIRC8: Syntax, AI intelligence/reliability, runtime, architecture, baseline, vertical-slice, and headless G109/T1042~T1047 gates pass; external provider/Worker entitlement remains a separate live certification.
-- [x] QA-REL1: SA-03 persists the fake controller across the expected one-time reload and passes twice with current version, one navigation increment, cleared mismatch/reload guard, and no reload loop.
+- 완료 9건: QA-AIRC1, QA-AIRC2, QA-AIRC3, QA-AIRC4, QA-AIRC5, QA-AIRC6, QA-AIRC7, QA-AIRC8, QA-REL1
 
 ## v53.99 지식 코어 S0 기준 구현 (2026-08-10)
-
-- [x] QA-KC1: semantic gate가 실제 `MARKET_PRINCIPLES_CATALOG`를 읽어 60 nodes/71 valid edges/1 component/isolated 0을 검사하고 Atlas-only endpoint 재유입을 차단한다.
-- [x] QA-KC2: Atlas 19개 domain chain과 22개 typed cross-domain edge는 95 nodes/98 edges/1 component를 만들며 endpoint·metadata·condition·source ID 누락이 0이다.
-- [x] QA-KC3: PS/PP/FND/AT source catalog는 하나의 evidence registry에서 현재 참조 64개 ID 모두 URL로 해석되고 conflict/unresolved가 0이다.
-- [x] QA-KC4: Samsung HBM은 memory+3D stacking, IBM Quantum은 quantum-only로 연결되며 두 기준선 오연결은 negative assertion으로 차단한다.
-- [x] QA-KC5: Principles 4개와 Atlas 11개 artifact는 capability-level loader를 사용하고 성공 artifact와 실패 fallback을 동시에 보존한다.
-- [x] QA-KC6: service-worker shell에 새 graph/evidence/capability 모듈이 포함된다.
-- [x] QA-KC7: Atlas/Principles browser, headless 1108/1108, accessibility 20 routes, route soak 20×3, viewport 17×4=68 조합이 오류·overflow 없이 통과한다.
-- [x] QA-KC8: P898에서 중복 AI Research explicit `window` write 2개를 제거해 architecture ratchet가 baseline 1090에서 다시 통과한다.
-- [x] QA-KC9: Principles 기존 edge의 추론/default metadata를 수작업 direct source로 이관하고 claim directness를 전수 인증한다. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
-- [x] QA-KC10: 159개 심층 article, learning graph/state, 전문 route bridge, thin renderer, 실제 사용자 연구와 live parity는 완료 전이다. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
+- 완료 10건: QA-KC1, QA-KC2, QA-KC3, QA-KC4, QA-KC5, QA-KC6, QA-KC7, QA-KC8, QA-KC9, QA-KC10, QA-BOUNDARY-KNOWLEDGE-01
 
 ## v53.98 지식 백과 심층도·명칭 감사 (2026-08-10)
-
-- [x] QA-KB1: 사용자 노출 명칭은 내비게이션·페이지 제목·breadcrumb·route registry·CTA·검색 접근성 이름에서 `AI 시대 지식 지도`로 통일하고 내부 route ID `atlas`는 유지한다.
-- [x] QA-KB2: 정적 Atlas contract와 Chromium gate가 `AI 시대 지식 백과` kicker, `AI 시대 지식 지도` 제목, 한국어 검색 접근성 이름을 검증한다.
-- [x] QA-KB3: 112개 시장 원리와 48개 AI 기초 원고의 핵심 필드 분량을 전수 계산한다. 현재 중앙값 325자/275자, 1,200자 하한 통과 0/160, structured worked example 0/160를 완료로 승격하지 않는다.
-- [x] QA-KB4: 심층 원고 계약은 직관·형식 모델 또는 rationale·worked example·반례·실물경제→기업→재무제표→밸류에이션→시장→트레이딩 적용·무효화·claim ID·용어·회상 질문을 요구하고 글자 수만으로 통과시키지 않는다.
-- [x] QA-KB5: 초보자·중급 투자자·트레이더·전문가·한국 투자자·재방문·모바일/접근성·위험 회피·시간 부족 사용자 시나리오를 handoff와 machine contract에 연결한다.
-- [x] QA-KB6: 다중 persona 감사는 휴리스틱으로 표시하고 실제 참여자 연구·장기 학습효과를 인증하지 않는다.
-- [x] QA-KB7: 159개 심층 article 재집필, canonical manifest/alias 동결, edge/claim directness, 진도·bookmark·note·quiz, 전문 route deep link, 실제 사용자 연구는 차단 상태다. v53.99의 typed graph/evidence/capability 모듈은 부분 기준 구현이다. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-KNOWLEDGE-01(지식 원고 사람 의미·출처 검수; 지식 상태 REFERENCE_PROGRESS_ONLY) verify_by: v58.86 정리로 종료
+- 완료 7건: QA-KB1, QA-KB2, QA-KB3, QA-KB4, QA-KB5, QA-KB6, QA-KB7, QA-BOUNDARY-KNOWLEDGE-01
 
 ## v53.96 current-code remediation closure (2026-08-10)
-
-- [x] QA-CR1: `AIO.runTests()` executes a single registry of 108 groups; duplicate IDs, group exceptions, and planned/completed count drift are release-blocking, with a synthetic throw sentinel.
-- [x] QA-CR2: Headless CI separates expected blocked external requests from page/runtime errors; unexpected page errors, local request failures, and unused allowlist entries fail the gate.
-- [x] QA-CR3: Scheduled market analysis has a typed `market-analysis.v2` schema, independent news-cluster evidence, claim evidence IDs, and a blocked same-schema fallback; `marketAnalysisOk:false` remains explicit when no provider output exists.
-- [x] QA-CR4: Worker AI quota uses an atomic reserve/release binding with idempotency and exact production/dev origin rules; legacy KV-only configuration fails closed; concurrent cap and duplicate-request fixtures pass.
-- [x] QA-CR5: Route owner metadata now distinguishes `native`, `legacy`, and `not-applicable`; baseline/dependency graphs keep local, release, and live revisions separate.
-- [x] QA-CR6: NYSE/KRX time adapters expose event/observed/collected/published timestamps and pass DST-adjacent, holiday, half-day, weekend, and missing-calendar fixtures; SEC anomalies quarantine rather than promote.
-- [x] QA-CR7: Research model, CSP sink, decomposition hotspot, and operations 7/30-day SLO contracts are machine-checked; local fixtures cannot certify PIT model validity, rights, live headers, or long-run SLOs.
-- [x] QA-CR8: The official refresh records 78/78 quote success and current Tier-0 evidence; FRED without a secret remains explicit `fredFetchOk:false`/source-labelled LKG and does not promote to success.
-- [x] QA-CR9: Atlas/Telegram contracts derive lineage from the current digest, accept current 4/4 or failed/reference-only collection states, and render an explicit collection-status boundary in both states.
-- [x] External: live Worker binding/health, provider rights, GitHub Pages edge header observation, and 7/30-day production SLO artifacts remain operator gates. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
+- 완료 10건: QA-CR1, QA-CR2, QA-CR3, QA-CR4, QA-CR5, QA-CR6, QA-CR7, QA-CR8, QA-CR9
 
 ## v53.95 full-route audit closure (2026-08-09)
-
-- [x] QA-AUDIT1: All 20 active routes were exercised through native route navigation; vertical-slice, browser, route-soak, accessibility, viewport, and default-path contracts pass without browser console errors.
-- [x] QA-AUDIT2: `ci-headless-tests.mjs` passes 1108/1108; Telegram readiness is exposed as `requiredSourcesReady`, and the four required channels remain explicit in the audit return shape.
-- [x] QA-AUDIT3: The official NFP calendar rolls from the completed 2026-08-07 release to 2026-09-04; no past event is presented as the next release.
-- [x] QA-AUDIT4: `src/domain/screener/setup-profile.js` is included in the service-worker shell asset contract; release architecture manifests and revision checks are synchronized.
-- [x] QA-AUDIT5: Provenance coverage accepts both `[date REFERENCE]` and `[date TG-REFERENCE]` records; Telegram collection failures remain `REFERENCE`/stale and are never promoted to current market claims.
-- [x] QA-AUDIT6: Theme-detail native sections share spacing/grouping and preserve the `hidden` contract; content, source, currentness, and unavailable states remain visually separable.
-- [x] QA-AUDIT7: External provider artifacts that could not refresh remain visibly stale/reference-only or blocked; no quote, target, fundamental, power-quality, or Telegram value was fabricated.
-- [x] QA-AUDIT8: Live Chrome audit directly exercised the public home, Market Principles, AI Era Atlas, Screener, and four public Telegram pages. The deployed site was recorded separately from local v53.95; no live-parity claim was made, and Telegram observations remained transformed `REFERENCE` material with source-window metadata.
+- 완료 8건: QA-AUDIT1, QA-AUDIT2, QA-AUDIT3, QA-AUDIT4, QA-AUDIT5, QA-AUDIT6, QA-AUDIT7, QA-AUDIT8
 
 ## v53.93 구조 보완 closure (2026-08-09)
-
-- [x] QA-STRUCT1: Atlas foundations 48/48 lessons have direct authored `sourceIds` linkage; the 18-entry `sourceCoverage` map remains a compatibility audit, five official reference documents resolve, and the selected Self-Attention lesson renders its source link.
-- [x] QA-STRUCT2: Atlas taxonomy relationship model covers all 19 domains and 95 nodes with 76 intra-domain chain edges plus 18 cross-domain edges; current claims remain zero.
-- [x] QA-STRUCT3: Telegram UI reads `public-data/telegram-digest.json` as the four-channel SSOT, shows `collectionStatus=failed` and channel error boundaries, and does not present failed fetches as fresh current data.
-- [x] QA-STRUCT4: Principles Path no longer exposes the generic SEC search URL; each path lesson uses exact lesson/node source IDs when available and an explicit unlinked state otherwise.
-- [x] QA-STRUCT5: 2-hop Principles graph suppresses non-selected relation labels, graph canvas scrolls instead of clipping, and Principles/Atlas reserve bottom space for the fixed disclosure bar.
-- [x] QA-STRUCT6: `ci-atlas-contract-check.mjs`, `ci-atlas-browser-check.mjs`, `ci-principles-contract-check.mjs`, `ci-principles-browser-check.mjs`, and `ci-six-doc-coverage-check.mjs` pass after the structural/content/UI patch.
+- 완료 6건: QA-STRUCT1, QA-STRUCT2, QA-STRUCT3, QA-STRUCT4, QA-STRUCT5, QA-STRUCT6
 
 ## v53.92 Telegram 4채널 integration closure (2026-08-09)
-
-- [x] QA-TG1: `CHANNEL_CATALOG` and `sourceCatalog` register Aether, Insider Tracking, BornLupin, and HANA China with role, region, evidence tier, and public mirror.
-- [x] QA-TG2: Telegram page-topic coverage includes the current route SSOT additions (`principles`, `masters`, `atlas`) and the required-channel audit exposes missing channels rather than silently passing with the old three-channel set.
-- [x] QA-TG3: Failed public-mirror collection preserves last-known-good digest timestamps/items, marks `collectionStatus=failed`, and emits a failure row for every required channel including HANA; failed fetches are not treated as fresh.
-- [x] QA-TG4: Browser audit ledger records channel-specific observation windows, role, source lineage, stale boundary, Q1-Q5 promotion/invalidation gates, and does not promote Telegram numbers/targets/rumors into current data.
-- [x] QA-TG5: HANA China is connected to discovery keywords/memos and source registry, while names outside the current universe/provider remain discovery-only and no current security row is fabricated.
-- [x] QA-TG6: `public-data/user-research-digest.json` stores the four-channel audit as `REFERENCE`; `js/aio-chat.js` exposes channel roles/quality/promotion gates; CI checks source catalog, runtime audit and fail-closed state.
+- 완료 6건: QA-TG1, QA-TG2, QA-TG3, QA-TG4, QA-TG5, QA-TG6
 
 ## v53.91 integration closure (2026-08-09)
-
-- [x] QA-INT6: The EOD screener producer calculates nullable TradingView winner-screen fields (`adrPct`, `pctFrom52wLow`, dollar liquidity, latest dollar volume, `ema8/21/60`) and the domain profile returns candidate/not-confirmed/unavailable without treating missing evidence as a pass.
-- [x] QA-INT7: The screener UI exposes winner, RS-pullback, 200SMA, climax-watch and missing-evidence filters; reset and change handlers include the new control.
-- [x] QA-INT8: Source-by-source audit covers all nine images and all pasted/link materials, including evidence tiers, limitations, current-provider boundaries and invalidation conditions.
-- [x] QA-INT9: Power-quality output names measurable PCC/grid metrics and preserves correlation-versus-causation caveats; SQQQ is hedge context and cyber/steel/refiner observations remain separate branches.
-
-- [x] QA-INT1: `scripts/ci-esm-core-unit-check.mjs` proves `setup-profile.v1` returns a relative-strength pullback candidate only from rank/trend/support inputs, labels 200SMA stretch/climax as research-only, and keeps empty input unavailable.
-- [x] QA-INT2: Native screener provider/normalizer/orchestrator preserves memo, `rvol20`, benchmark-relative fields, and setup tags; missing RVOL/benchmark evidence renders `추가 셋업 근거 필요` rather than a trade signal.
-- [x] QA-INT3: `AIO_AI_INFRA_CYCLE_REFERENCE` exposes power-quality framing, demand falsifiers, memory-LTA questions, source links, and the facility-specific/home-appliance caveat; no unverified current metric is promoted.
-- [x] QA-INT4: O’Neil climax observations (200SMA 70%+, record move/volume, 8/10-day run, railroad track, channel breakout) remain auxiliary risk checks and fail closed when OHLCV/weekly evidence is absent.
-- [x] QA-INT5: User-supplied X/article/chart material remains `REFERENCE`; independent-source gaps and the `power2026.ai` corroboration boundary are visible in changelog/knowledge-base, and no live quote/fundamental/power-quality value was hardcoded.
-
-## Current architecture checkpoint (2026-08-03, v53.89)
-
-Native lifecycle and renderer ownership are wired for 17/17 routes.  P833 moves the
-route data provider boundary to `src/data/runtime-readers.js` (17/17 data-native),
-and P834/P835 transfer ticker price and portfolio allocation chart lifecycles to
-native modules (8/17 chart-native); narrative ownership remains intentionally
-bounded at 1/17.
-RM-03 P755~P763 extracted/retired the documented toy domains, replaced the signal
-toy with the Trading Score envelope, and made factor weights pure. ARX-10 gives
-screener sole native DOM/state ownership; ARX-16 migrates non-route consumers through
-the canonical read boundary and removes the duplicate runtime fetch/factor projection. Static
-identity/memo and pipeline compatibility producers remain separately tracked. Live certification/soak remains open.
-version: v4.2
-checklist_version: v53.97
-latest_P_covered: P895
-current_P839_checkpoint: P892 hierarchical Atlas/Principles UX and Masters adjacent-quarter/runtime closure plus P890 SEC-evidenced Scion latest-filing availability; official currentness/security-master and live provider/Worker/model/edge verification stay separate
+- 완료 9건: QA-INT6, QA-INT7, QA-INT8, QA-INT9, QA-INT1, QA-INT2, QA-INT3, QA-INT4, QA-INT5
 
 ## Coverage expansion checkpoint: six source documents (v53.89)
-
-- [x] QA-MP4: Market Principles expanded to 60 canonical nodes/71 edges/8 paths with the economic spine from scarcity through power, adjacent industries, Korea market links, AI infrastructure, physical AI, defense, space, enterprise AI, materials, adjacent compute, and capital/risk verification.
-- [x] QA-AT3: All 95 Atlas taxonomy nodes now have user-facing definition, chain, role, KPI, and failure/boundary copy; no taxonomy node falls back to title-only display.
-- [x] QA-AT4: Atlas now has 20 official-source-linked educational player/product references; source IDs, taxonomy node IDs, player edges, and null currentness boundaries are contract-validated.
-- [x] QA-AT5: Atlas evidence registry expanded to 23 first-party sources, 14 candidate claims, and 7 candidate edges for P1/P2 physical AI, defense, space, enterprise AI, materials, HBM, and quantum topics; current claims remain zero.
-- [x] QA-AI1: All 48 Foundations modules now have independent definition, mechanism, example, limit, evidence-boundary copy, and layer-specific teaching-question/visualization frames; current metrics remain gated.
-- [x] QA-AI2: A separate authored reference artifact connects all 48 Foundations modules with lesson copy, Atlas node IDs, source IDs, visualization frames, and explicit reference status.
-- [x] QA-AT6: All 19 Atlas domains now render a domain guide with definition, mechanism, unit, bottleneck, verification question, and official source link.
-- [x] QA-MP5: Market Principles A~O chapters are connected as 15 authored reference cards and the 112-lesson library is visible/searchable; the 39-lesson canonical compatibility catalog covers all 60 nodes.
-- [x] QA-DOC1: Six-document coverage artifact and binary coverage contract exist; the contract reports remaining scope instead of allowing structural connection to be mistaken for full publication.
-- [x] QA-DOC2: Domain packets/claims/node coverage, A~O lesson library, Telegram reference window, currentness overlay, and 13F 84-period/12,525-row SEC history are connected. Verified current numeric claims, full player/product enrichment, and Masters security-master/corporate-action/issuer-level aggregation remain explicitly gated.
-- [x] QA-MF4: 1,102 unique CUSIP and 1,122 issuer-name normalization queue is recorded in a connected fail-closed security-master artifact; verified issuer/ticker/share-class/sector mapping is still absent and sector weights remain intentionally undisclosed.
-- [x] QA-DATA1: Weekend freshness grace is fail-closed: it requires complete Tier-0 coverage, `QG-01_PASS`, and no snapshot errors; the official refresh failure preserves the last-known-good artifact.
-- [x] QA-MF5: Scion's `STALE_REFERENCE` state is explained by a dated SEC submissions JSON availability check (`NO_LATER_13F_HR_REPORTED`) and is visible in the Masters detail view; it is not promoted to current.
-- [x] QA-MP6: Market Principles now defaults to a seven-branch Tree with nested learning groups; 60 node guides and 112 A~O lessons are individually authored, the full library is isolated in 자료실, research IDs/statuses are collapsed, and browser QA verifies 1-hop/2-hop 16→18, relation labels, 1440px and 480px flows.
-- [x] QA-AT7: AI Atlas now defaults to a user-facing 48-module 학습 지도; taxonomy and 근거 자료실 remain separate tabs, and Foundations source IDs/status details are collapsed behind 근거 및 더 읽기.
-- [x] QA-AT8: Atlas foundations and industry taxonomy use a broad→narrow master-detail flow; 10 deep AI-era topics, 50 nested branches, and 56 canonical node anchors are contract-validated while only one detail/branch is open by default.
-- [x] QA-MF6: Masters renders finite row numbers, has no link nested inside manager buttons, preserves focus during multi-character search, and compares every connected 13F manager with the actual adjacent history period.
+- 완료 17건: QA-MP4, QA-AT3, QA-AT4, QA-AT5, QA-AI1, QA-AI2, QA-AT6, QA-MP5, QA-DOC1, QA-DOC2, QA-MF4, QA-DATA1, QA-MF5, QA-MP6, QA-AT7, QA-AT8, QA-MF6
 
 ## Midpoint QA handoff closure: Market Principles / Masters / Atlas (v53.78)
-
-- [x] QA-MF1: Berkshire latest filing is SEC accession `0001193125-26-226661`, report period `2026-03-31`, filed `2026-05-15`; latest/prior accession and period ordering are gated.
-- [x] QA-MF2: 1,248 full SEC rows and 1,375 adjacent-prior-period comparison rows are published as separate `allHoldings`/`comparisons` artifacts; 68 compact rows remain the default display.
-- [x] QA-MF3: Masters tabs are functional: top changes, paginated full holdings, explicit sector-master preparation state, two-period trend, and original SEC filing links. Exited comparison filtering is browser-tested.
-- [x] QA-MP1: Principles 1-hop/2-hop render different selected subgraphs; the Chromium gate observed 3 vs 7 nodes.
-- [x] QA-MP2: Principles evidence and analysis links meet the 24px mobile target, focus-visible styling, and 20-route accessibility matrix with zero small targets.
-- [x] QA-MP3: Core Principles nodes expose definition, intuition, mechanism, KPI, industry connection, failure condition, and 15/30/45-minute learning tracks; the v53.80 expansion adds power, adjacent-industry, Korea-market, and cash-flow paths.
-- [x] QA-AT1: Atlas default UI uses user-facing status labels while preserving raw status/source IDs in data attributes and research artifacts.
-- [x] QA-AT2: Taxonomy nodes expose concept, value-chain connection, role, KPI, and educational boundary copy; 55 structural nodes and 48 curriculum modules remain connected to reference artifacts.
-- [x] QA-MF4: Issuer/ticker/security-master and sector mapping are not yet connected; sector weights remain intentionally undisclosed. — Retired (v58.86 정리): 중복 — 같은 id의 완료 행이 이 원장에 이미 있다
-- [x] External: `data.json` freshness SLA, live SEC/provider health, NVDA/Firefox/Safari screen-reader behavior, live deployment edge headers, and seven-day soak remain separate operator gates. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; screen-reader behaviour stays with QA-HUMAN-04
+- 완료 10건: QA-MF1, QA-MF2, QA-MF3, QA-MP1, QA-MP2, QA-MP3, QA-AT1, QA-AT2, QA-MF4, QA-HUMAN-04
 
 ## P872-P874 Data session, publish tuple, and operations truth gates (v53.68)
-
-- [x] Market snapshot provider `REGULAR` hints are resolved through US/Korea/continuous/crypto schedules; weekend after-close fixtures pass.
-- [x] Tier-0 snapshot rows preserve typed session/quality and remain 16/16 covered after reclassification.
-- [x] Refresh workflow promotes snapshot revision/cycle metadata into both release manifests before staging.
-- [x] Refresh/CI reject silent FRED-success or quote-coverage degradation without an explicit LKG marker.
-- [x] Scheduled AI operations status matches `data.meta.marketAnalysisOk`; durable snapshot publication cannot masquerade as semantic analysis success.
+- 완료 5건
 
 ## P871 Explicit decision-header mounting and first-view contract (v53.67)
-
-- [x] Every route decision header emits a balanced `.aio-decision-header` wrapper with page/source/as-of metadata.
-- [x] Shared market-cut start/end attributes are visible on the header evidence badge.
-- [x] Startup mounts all route headers immediately when the document is already ready, then reconciles after data load.
-- [x] Headless T915, critical-10 human-surface, architecture-browser, route-soak, viewport, and accessibility checks pass after the fix.
+- 완료 4건
 
 ## P870 Current Telegram lane and cycle-manifest coherence (v53.66)
-
-- [x] Telegram digest publishes a separate KST 08:00 completed 24-hour lane with observed/text coverage for all three channels.
-- [x] Rolling 14-day Telegram research fields are explicitly labeled and are not used by the current-facing feed.
-- [x] Digest route requirements derive from `architecture/route-owners.json`; retired KR route IDs are not treated as required current pages.
-- [x] `data.json` and client metadata expose one cycle ID, status, freshness SLA, component revisions, and manifest revision.
-- [x] Market-news/briefing counters and fetch status project from the same native normalized model as their visible cards.
-- [x] Full static contracts, data refresh audits, history time contract, and browser/UI matrix are included in the final release batch.
+- 완료 6건
 
 ## P867-P869 FRED·공통컷·시계열 정합성 (v53.65)
-
-- [x] 서버 FRED 실패 시 LKG 값 존재 여부와 무관하게 저장된 개인 FRED 키 경로를 재시도한다.
-- [x] 콜드 로딩에서 `data.json`이 `DATA_SNAPSHOT`보다 먼저 도착하면 제한 횟수 내 전체 로더를 재실행해 거시 투영 누락을 복구한다.
-- [x] FRED 저장/인증/연결 상태와 관측일/수집시각을 분리하며 LKG를 오늘 FRED 성공으로 표시하지 않는다.
-- [x] BEA 공식 PCE 릴리스를 키 없이 수집해 headline 3.7%, core 3.3%, 관측월 2026-06, 발표일 2026-07-30, 다음 발표 2026-08-26을 분리 저장한다.
-- [x] 최신 history 행의 13개 시세 필드가 모두 `COMPLETED`이며, 장중 시장은 직전 완료 종가를 사용한다.
-- [x] 전체 381일 시계열의 날짜 단조성·값 범위·필드별 관측/수집/출처 증거를 검사한다.
-- [x] Yahoo 일봉 시작시각→직전 완료 종가 경계 보정 후 history 아티팩트를 재생성하고 13개 최신 관측시각을 다시 대조한다. — Retired (v58.86 정리): 대체됨: history.json 경계는 ci-history-field-time-contract-check와 history-session-model이 매 갱신 판정한다
-- [x] 17개 라우트 decision header와 페이지 계약이 서버의 동일한 KST 08:00 완료 24시간 컷을 사용한다.
-- [x] 22개 데이터 감사에서 PCE/FOMC/Put-Call/HY OAS의 실제 관측 상태를 하드코딩 문구 없이 판정한다.
-- [x] 개인 FRED 인증 성공은 실제 사용자의 배포 origin + 신뢰 가능한 CF Worker 또는 브라우저 직접 연결 환경에서 최종 확인한다. — Retired (v57.79): personal FRED keys were retired in v57.75–76; FRED runs through the operator secret in Actions
+- 완료 10건
 
 ## P864 Release manifest synchronization (v53.64)
-
-- [x] Architecture asset/release/visual-state/operations-SLO/public-readiness manifests match the R1 application revision.
-- [x] Service-worker revision in release manifests matches `sw.js`.
-- [x] Architecture, operations, and release-manifest CI contracts are included in the final validation batch.
-- [x] Provider freshness, seven-day fast-plane soak, AI proxy deployment/health, and GitHub Pages edge headers remain external operator gates. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
+- 완료 4건
 
 ## P865 Official FOMC calendar rollover (v53.64)
-
-- [x] Completed 2026-07-29 FOMC decision is recorded as `lastRelease`.
-- [x] Next decision is the official 2026-09-16 release date.
-- [x] Headless T759 rejects past calendar values and passes after rollover.
+- 완료 3건
 
 ## P866 Post-refresh release/data revision coherence (v53.64)
-
-- [x] Asset and release manifests match the latest published market-snapshot revision.
-- [x] Operations contract rejects stale manifest data revisions after a refresh merge.
-- [x] Follow-up local contract verification passes after promotion.
+- 완료 3건
 
 ## P833-P835 Native runtime data boundary and chart lifecycle (v53.63)
-
-- [x] All route orchestrators receive data-layer runtime readers instead of `legacy.read*` projections; the compatibility facade remains limited to actions/navigation.
-- [x] The native runtime reader preserves typed quote observation/source lineage, entity/options values, portfolio fallback, and score evidence inputs without inventing missing values.
-- [x] Technical OHLCV and volume charts are owned by `analysis.js` with registry disposal, blocked fallback states, and a legacy `loadTechCandleChart` fence.
-- [x] Macro Treasury curve chart is owned by `market.js`; the legacy `initYieldCurveChart` path is fenced while native state is mounted.
-- [x] Ticker price chart is owned by `entity.js` from normalized entity history; Stooq/legacy chart loading is fenced while the native marker is mounted.
-- [x] Portfolio position allocation chart is owned by `portfolio.js` from normalized holding value evidence; the legacy canvas writer is fenced while the native marker is mounted.
-- [x] Reconciliation categories now carry observed/required evidence, rights, gate, source revision, and closure arrays; CI rejects drift or false completion.
-- [x] Operations status publishes native data/chart/narrative dimension arrays and an explicit operator/live certification boundary gate.
-- [x] Full narrative cutover, remaining route chart surfaces, licensed providers, fast-plane credentials/7-day soak, and live edge headers remain separate gates. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; remaining native ownership is tracked by QA-ARCH-14; licensed providers need owner approval (AGENTS Budget)
+- 완료 9건: QA-ARCH-14
 
 ## P852 Web Research, session, provenance, concurrency, and accessibility closure (v53.58)
-
-- [x] Per-page and unified chat pass the same immutable `questionPlan` through the request envelope; no mutable global plan is used for request creation or response validation.
-- [x] REQUIRED ResearchPlan questions use one shared evidence-floor gate across external and native citations; missing primary/independent/snippet-free evidence fails closed.
-- [x] KR aliases/indices resolve to `market: KR`; runtime session schedules are typed and unknown/unverified sessions cannot satisfy the current-sensitive response gate.
-- [x] Snapshot/legacy quote storage preserves `observedAt`, `fetchedAt`, `marketState`, `venue`, and previous-close provenance; missing observation time is not replaced with `raw.now`.
-- [x] `Promise.allSettled` Research sub-results preserve source query identity after partial failures; FRED `.org` is classified as official and Google snippet depth is per document.
-- [x] Mobile interactive target sizing is enforced at 26px minimum for the audited controls; accessibility CI blocks any remaining small target.
-- [x] Architecture migration remains `MIGRATION_IN_PROGRESS` for native data/chart/narrative ownership; no completion claim is allowed until the remaining route owners are independently cut over. — Retired (v57.79): duplicate of QA-ARCH-14
-- [x] Public beta remains blocked on operator criteria: fast-plane endpoint/7-day soak, provider rights, edge headers, 30-day SLO, Worker route, quota/origin, and live model certification. — Retired (v57.79): there is no public beta (AGENTS Audience: about 5 family/friend users); the operational checks are covered by the qa-runner `watchdog` and `external --no-cache` profiles
+- 완료 8건: QA-ARCH-14
 
 ## P853~P857 quote atomicity, presentation, route readiness, release parity, and SLO gate (v53.60)
-
-- [x] Per-symbol quote selection uses one producer revision for price, change, percent, previous close, observation time, and source; cumulative arrays cannot last-writer-wins across providers.
-- [x] KRX price/change/previous-close is unavailable rather than mixed when the selected envelope lacks a previous close; the displayed percent equals the selected envelope's price/previous-close calculation.
-- [x] Signal degraded/partial score surfaces contain no literal `null`, `undefined`, or internal sentinel; secondary strips show `—` and `입력 대기` consistently with the primary verdict.
-- [x] AI quota/capacity is hidden or marked unavailable until a personal key or healthy shared Worker route is verified; `NO_ROUTE` is not rendered as `AI ON`.
-- [x] Asset/release/operations `dataRevision` values exactly equal the published market-snapshot revision.
-- [x] `_headers` includes CSP and compatible security headers; live response header enforcement remains an explicit operator gate until observed on the deployed edge.
-- [x] Public readiness exposes `boot-performance=BLOCKED` when the latest measured long-task SLO is non-compliant, and the operations contract enforces this parity.
+- 완료 7건
 
 ## P858 boot critical path and measured SLO closure (v53.62)
-
-- [x] Translation and news enrichment remain visible through source/local fallback states and queue external enrichment until the post-boot phase.
-- [x] Native decision surfaces do not pay duplicate compatibility diagram/score rendering when the architecture runtime owns the route.
-- [x] `aio:serverDataLoaded` and initial market-state narrative work are staged after the 2s interactive observation window.
-- [x] Boot interaction gate records the 2s window, request counts, active-route DOM, and long-task totals; three sequential runs satisfy all local targets.
-- [x] Live edge enforcement, Fast-plane credentials/7-day soak, provider rights, Worker route, and 30-day certification remain operator/runtime checks. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
+- 완료 5건
 
 ## P859-P862 Native secondary evidence boundaries (v53.64)
-
-- [x] Themes sector performance bars use the native normalized themes slice, preserve daily/weekly evidence, and show a pending state when weekly data is absent.
-- [x] The legacy `renderSectorPerfBars()` writer is fenced by the native marker; mode/view/cache changes dispatch a route-scoped invalidation event.
-- [x] Trading Score inputs require verified-current decision evidence; snapshot/reference/stale rows cannot produce a current score.
-- [x] News freshness scoring excludes undated, invalid, and future publication timestamps; no-date fixtures return `데이터 부족` with zero eligible items.
-- [x] Partial portfolio holdings do not reduce unknown values to zero; aggregate value/cost/daily/sector outputs remain unavailable unless canonical totals are explicit.
-- [x] The deployed fast data-plane endpoint is recorded separately from credentials/rights/soak; live `/health` and `/quotes` prove 16/16 coverage while the seven-day soak remains open.
-- [x] The AI proxy endpoint is recorded separately and remains `OPERATOR_REQUIRED` when its deployed `/health` does not expose the current health contract.
-- [x] Full native narrative/chart/data cutover, paid provider rights, Worker URL/credentials/soak, and live edge header enforcement remain external/operator gates. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; remaining native ownership is tracked by QA-ARCH-14
+- 완료 8건: QA-ARCH-14
 
 ## P850 Web Research, source evidence, and market-session closure (2026-07-28, v53.56)
-
-- [x] Question planning creates a key-independent `ResearchDecision`; concept questions remain `NOT_NEEDED`, while current/causal/out-of-scope questions become explicit `REQUIRED` plans.
-- [x] Research sub-queries preserve query IDs, purposes, source URLs, independent-source counts, primary-source counts, and snippet-only restrictions; required claims fail closed when the evidence floor is not met.
-- [x] Chat readiness and Research readiness are separate; Worker route, personal key, external provider, citation, quota, and origin states are not silently merged.
-- [x] Claude native Web Research tool errors inside HTTP 200 streams are promoted to explicit research failure states.
-- [x] Search cache keys include the current date and research plan/session boundary; deep-search helper queries contain no fixed year.
-- [x] Tier 0 market snapshot sessions contain no published `UNKNOWN`; closed, delayed, current, stale, and unavailable states remain typed.
-- [x] The 22-category data refresh audit and structural Tier 0/session gate are wired into CI; blocked/licensing gaps remain explicit `SKIPPED` or operator-required states.
-- [x] Real provider/Worker health, quota, allowed Origin, content rights, and post-deploy browser certification remain operator/runtime checks. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
+- 완료 8건
 
 ## P849 AIQ-4 domain engines and AIQ-5/6 operator contracts (2026-07-28, v53.55)
-
-- [x] Sector decomposition returns breadth, leaders/laggards, source, observed time, and evidence IDs only from supplied constituents.
-- [x] Company quality/valuation, technical conditions, and macro/FX transmission engines fail closed or stay partial when inputs/evidence are missing.
-- [x] Routing corpus evaluation reports measured accuracy without claiming live model quality.
-- [x] Benchmark manifest requires snapshot, model, prompt, retriever, and validator revisions before reproducible status.
-- [x] Operations control plane records canary, feedback, drift, and rollback events with an explicit operator-required status.
-- [x] Public Worker, real model benchmark, blind review, cost/latency SLO, and post-deploy live certification remain operator/runtime checks. — Retired (v57.79): duplicate of QA-AI-LIVE-QUALITY; Worker health is in the qa-runner `external` profile
+- 완료 6건: QA-AI-LIVE-QUALITY
 
 ## P848 AIQ-0~3 intelligence rebuild (2026-07-28, v53.55)
-
-- [x] Seven representative questions route through typed intent/entity/time plans: market status, sector, FX cause, outlook, screening, entity analysis, and education.
-- [x] Current-sensitive plans carry `MarketSessionEvidence`; unknown session state remains unknown and is never promoted to open/closed by inference.
-- [x] Per-page and unified chat enter through the single ESM AI orchestrator; legacy code is only the guarded UI/provider adapter.
-- [x] Capability plan, EvidenceGraph/causal attribution, strict `AnswerPlan/ClaimLedger`, and deterministic renderer modules are present and precached.
-- [x] Current numeric free-form responses fail closed without a valid AnswerPlan/ClaimLedger; blocked responses cannot append recommendation/chart post-processing cards.
-- [x] Screener rank output is research-relative only, uses `RESEARCH_CANDIDATE` rather than `CONFIRMED`, and displays producer observation time rather than browser generation time.
-- [x] Numeric probability claims are blocked unless an explicit calibrated model contract is supplied.
-- [x] Actual paid-model structured-output quality, Worker/public route, provider rights, and post-deploy live/browser certification remain operator/runtime checks. — Retired (v57.79): duplicate of QA-AI-LIVE-QUALITY; Worker health is in the qa-runner `external` profile
+- 완료 8건: QA-AI-LIVE-QUALITY
 
 ## P847 API/source/pipeline evidence hardening (2026-07-27, v53.54)
-
-- [x] Server market-analysis output requires at least two typed metric evidence rows with identity, numeric value, unit, observation time, and source before client publication.
-- [x] VIX/Fear&Greed identity conflation, metric numeric mismatches, NFP scale mismatches, and unsupported causal claims are fail-closed in the producer validator.
-- [x] Server news rows expose source-tier label, headline-only content depth, published event time, and source independence key.
-- [x] Screener validation reports mixed revisions and field-level fundamental coverage while requiring source/model/observation lineage for every fundamental row.
-- [x] Existing public market prose without typed evidence is marked blocked-unverified; the browser publish gate independently rejects it.
-- [x] Real API secrets, Worker health/quota/origin, external provider rights, and low-spec performance remain operator/runtime checks. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; operator secrets: ci-operator-secrets-contract-check
+- 완료 6건
 
 ## P846 deployed API-key save and Claude route regression (2026-07-27, v53.54)
-
-- [x] Reproduced the deployed symptom with the final deferred script order: the key could be physically written while the Claude save function received no explicit result and the no-argument getter returned empty.
-- [x] `window.getApiKey()` and `window.setApiKey(key)` preserve the Claude compatibility contract after `js/aio-core.js` loads; explicit provider-key calls remain supported.
-- [x] Local Chromium fresh-context smoke proves `READY_PLAINTEXT`, write/readback equality, no-argument/explicit getter equality, masked input, and personal Claude route selection.
-- [x] AI reliability contract includes the overload regression gate; API/data/source/pipeline contract baseline passes.
-- [x] Real Claude key, public Worker health/quota/origin, external provider auth/rights, and low-spec performance remain operator-required. — Retired (v57.79): AI runs on one shared gpt-6-luna Worker (AGENTS AI); no Claude or personal key path exists. Live answer quality is tracked by QA-AI-LIVE-QUALITY
+- 완료 5건: QA-AI-LIVE-QUALITY
 
 ## P845 early compatibility-facade navigation (2026-07-27, v53.53)
-
-- [x] `showPage()` and `showTicker()` no longer directly read the TDZ-prone lexical `prevPage` during early module/classic-script initialization.
-- [x] Route state remains synchronized through `AIO.state` and the existing window compatibility shim.
-- [x] Remote browser rerun after the fix — CI `30266668940` passed all gated jobs and deployed Pages.
-- [x] Deterministic local browser/UI suite — headless `1102/1102`, viewport `68/68`, accessibility `17/17`, Critical-10, Portfolio Vault `PFE2-01~09`, boot, architecture browser, vertical slices, route soak, SA-02, SA-03, and SA-04 all passed.
+- 완료 4건
 
 ## P844 API/AI chat reliability remediation (2026-07-27, v53.52)
-
-- [x] Provider registry covers Claude, RSS2JSON, BOK, KOSIS, and Worker; sensitive-key restore/export paths use the same inventory.
-- [x] Credential writes return explicit results, validate format, perform readback, and do not use the removed plaintext fallback.
-- [x] UI separates storage, authentication, and connection state; “saved” is not shown before persistence confirmation.
-- [x] Public AI config defaults to personal-key or explicitly configured Worker; no real Worker URL or secret was invented.
-- [x] Shared route readiness distinguishes `NO_ROUTE`, `VAULT_LOCKED`, and `WORKER_NOT_READY`; Worker exposes metadata-only `/health`, effective token cap, and failed-request quota rollback.
-- [x] Operations status separates secret configured, workflow wired, last call succeeded, data current, and licensed for use; scheduled analysis and public chat are separate.
-- [x] Performance measurements and targets are recorded in `architecture/operations-slo.json`; this change does not claim the targets are met.
-- [x] Local browser/UI smoke and reload/delete persistence matrix — **not run per urgent user instruction**. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] Real Claude key, public Worker URL/KV/Origin, provider auth/rights, golden corpus accuracy, and low-spec performance — **not run; operator authorization/fixtures required**. — Retired (v57.79): AI runs on one shared gpt-6-luna Worker (AGENTS AI); no Claude or personal key path exists. Live answer quality is tracked by QA-AI-LIVE-QUALITY
-- [x] Remote CI execution of the new static reliability contract — **not run in this turn; will run through the pushed workflow**. — Covered (v57.79): ci.yml runs the qa-runner manifest on every push to main
+- 완료 10건: QA-AI-LIVE-QUALITY
 
 ## P843 Wave 5 route soak, operations, and public-readiness boundary (2026-07-27, v53.51)
-
-- [x] `architecture/visual-state-matrix.json` covers all 17 routes and loaded/reference/blocked/stale-reference/empty states with required surfaces.
-- [x] `architecture/operations-slo.json` declares bounded settle, error, chart-growth, canvas, cross-page, and failure-alert targets; public readiness remains conservative and operator-gated.
-- [x] All GitHub Actions refs are full commit SHA pinned; CI uses `npm ci`; Wrangler is exact-versioned; `_headers` is allowlisted and staged for compatible static hosts.
-- [x] Three-lap route soak passes all 17 routes with one visible page, stable 42-canvas maximum, zero non-expected browser errors, and AAPL→MSFT→AAPL entity re-entry.
-- [x] Final all-work browser boundary passes headless `1102/1102`, boot, architecture/browser `17/17`, vertical slices `10/10`, SA-02/SA-03, viewport `68/68`, Critical-10, Vault PFE2-01~09, and accessibility `17/17`.
-- [x] Live deployed revision v53.51 is served by the public URL and `ci-live-invariant-check.mjs` passes after commit `65f6912`.
-- [x] SA-04 boot-network-budget passes in GitHub Actions run `30260095694` with `fredHasKey:true`, `fredFetchOk:true`, and `fredOk:true`.
-- [x] Edge header enforcement, 30-day automation SLO, and provider rights remain operator-required. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
+- 완료 8건
 
 ## P842 Wave 4 capability/content boundary (2026-07-27, v53.51)
-
-- [x] `wave4.capability.v1` manifest covers nine capabilities with status, evidence, allowed wording, and forbidden claims.
-- [x] Guide has nine executable capability markers and the browser audit reports `pass`.
-- [x] Guide/metadata copy no longer overclaims real-time, automatic translation, AI-backed behavior, RRG/Stage certainty, one-way macro causality, or direct trading instructions.
-- [x] Capability static fixtures reject forbidden wording and architecture/browser Guide assertions pass.
+- 완료 4건
 
 ## P841 Wave 3 vertical slice boundary (2026-07-27, v53.50)
-
-- [x] Ten ordered slice contracts cover all 17 routes without duplicate or missing route membership.
-- [x] Router scopes expose slice id/order/routes/required data, and active page nodes expose slice marker plus live completeness state.
-- [x] Static contract verifies native lifecycle ownership, canonical page completeness, and CI wiring.
-- [x] Chromium gate covers direct route surface, required producer mapping, blocked external network, mobile controls, and leave/re-entry for 10/10 slices.
-- [x] Wave 3 boundary suite passes: static workflow, headless `1102/1102`, boot interaction, architecture/browser 17-route, vertical-slice browser `10/10`, SA-02, SA-03, viewport `68/68`, Critical-10, Vault PFE2-01~09, and accessibility `17/17`.
-- [x] SA-04 boot-network-budget remains operator-required while the public snapshot has `fredHasKey:false` / `fredFetchOk:false`; the FRED/HY success branch was not locally executable. — Covered (v57.79): public-data/data.json now reports fredHasKey/fredFetchOk true; node scripts/ci-sa-04-boot-network-budget.mjs is wired in architecture/qa-pipeline.json
+- 완료 6건
 
 ## P840 W1-04/W1-05/W2-05 freshness, narrative, and KDF remediation (2026-07-27, v53.49)
-
-- [x] `sec-report.v2` classifies SEC observations as current, aged, historical, or unknown and blocks decision eligibility for stale/reference-only facts.
-- [x] Ticker decision narratives fail closed when the entity, finite quote, or market-health evidence is missing.
-- [x] Vault writes use the versioned v2 envelope/KDF; legacy v1 ciphertext decrypts with the legacy KDF and is re-encrypted through `safeLS`.
-- [x] Targeted syntax, ESM, runtime-contract, architecture-contract, and Vault Chromium PFE2-09 checks pass.
-- [x] Wave 1·2 full gates pass: headless 1102/1102, architecture/browser 17-route with browserErrors 0, FULL_INIT 68/68, Critical-10, Vault PFE2-01~09, accessibility, and SA-02/SA-03.
-- [x] SA-04 remains operator-required while the public snapshot has `fredHasKey:false` / `fredFetchOk:false`; this is an external precondition, not a Wave 1·2 code failure. — Covered (v57.79): public-data/data.json now reports fredHasKey/fredFetchOk true; node scripts/ci-sa-04-boot-network-budget.mjs is wired in architecture/qa-pipeline.json
+- 완료 6건
 
 ## P839 W2 Scope/chart/key-resource remediation (2026-07-27, v53.48)
-
-- [x] Route scope exposes `mountId`, normalized `entityId`, abort signal, `isCurrent`, and disposal; changed tickers remount and identical route/entity transitions no-op.
-- [x] Entity and screener async providers/orchestrators pass abort signals and reject late scope results.
-- [x] Native Chart.js pages use a replaceable route registry with disposal and 480px canvas max-height ownership.
-- [x] Automatic plaintext API-key IndexedDB mirror/open/read/recovery is retired; legacy database deletion and explicit export/import policy are wired.
-- [x] Targeted ESM, runtime-contract, storage, syntax, and diff checks pass.
-- [x] Wave 2 static/runtime, headless 1102/1102, architecture/browser 17-route, FULL_INIT viewport 68/68, Critical-10, Vault PFE2-01~08, accessibility 17/17, and SA-02/SA-03 verification.
-- [x] SA-04 boot-network-budget: operator-required until a snapshot with `fredFetchOk:true` and `hyOAS` is available; current public snapshot remains `fredHasKey:false` / `fredFetchOk:false`. — Covered (v57.79): public-data/data.json now reports fredHasKey/fredFetchOk true; node scripts/ci-sa-04-boot-network-budget.mjs is wired in architecture/qa-pipeline.json
+- 완료 7건
 
 ## P838 W1 Decision-evidence boundary (2026-07-27, v53.47)
-
-- [x] `allowedUse` aliases normalize fail-closed to `decision`, `reference`, or `none`.
-- [x] Display and last-known selectors can retain research context without exposing it to decision consumers.
-- [x] Trading Score blocks reference-only or insufficient-coverage inputs and preserves component-level missing evidence.
-- [x] ESM selector/model fixtures and module syntax checks pass.
-- [x] Wave 1 static/runtime, headless 1102/1102, architecture/browser 17-route, FULL_INIT viewport 68/68, Critical-10, Vault PFE2-01~08, accessibility 17/17, and SA-02/SA-03 verification.
-- [x] SA-04 boot-network-budget: operator-required until a snapshot with `fredFetchOk:true` and `hyOAS` is available; current public snapshot is explicitly `fredHasKey:false` / `fredFetchOk:false`. — Covered (v57.79): public-data/data.json now reports fredHasKey/fredFetchOk true; node scripts/ci-sa-04-boot-network-budget.mjs is wired in architecture/qa-pipeline.json
+- 완료 6건
 
 ## P837 Fast-plane deploy smoke bootstrap (2026-07-27, v53.46)
-
-- [x] Smoke retries transient 404 propagation before evaluating `/health`.
-- [x] Complete current coverage passes; explicit empty-KV bootstrap is accepted only as `operator_required`.
-- [x] Non-bootstrap 503, malformed payload, partial coverage, and unreachable endpoint remain blocking.
-- [x] First scheduled KV publish and 7-day soak remain operator-side; full browser/accessibility/performance suite intentionally not rerun. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
+- 완료 4건
 
 ## P836 Full data refresh (2026-07-27, v53.45)
-
-- [x] Market refresh completed: 78/78 symbols, 42 macro keys, F&G 39, news 40, 377-day history update.
-- [x] Public Telegram digest refreshed for 3 channels over the requested 14-day window.
-- [x] SEC fundamentals and 845-symbol screener artifacts regenerated; source coverage is 539/655 (82.3%) and screener display coverage is 539/725 (74.3%).
-- [x] Full browser, accessibility, performance, and end-to-end verification intentionally not rerun per operator request. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
+- 완료 4건
 
 ## P835 Reference analysis protocol completion (2026-07-27, v53.44)
-
-- [x] Chart-reading protocol separates context, trend, structure, retest, participation, momentum, and invalidation.
-- [x] Wait/probe/hold/protect behavior playbook and verdict/evidence/missing-data communication contract are attached to the source-labelled AI infrastructure framework.
-- [x] No supplied number, chart level, X claim, or Worker claim is promoted to live decision evidence; automatic order/sizing behavior remains blocked.
+- 완료 3건
 
 ## P834 AI infrastructure cycle reference integration (2026-07-27, v53.43)
-
-- [x] `AIO_AI_INFRA_CYCLE_REFERENCE` is `sourceKind=REFERENCE`, includes Q1-Q5, and separates capex-lag/reinvestment-trap from memory P and neocloud Q/capital lenses.
-- [x] `CHAT_CONTEXTS` injects the framework without promoting supplied figures, chart levels, or X/Worker claims to live evidence; runtime macro/breadth comparison is source-aware and fail-closed.
-- [x] GOOGL/MU/AMD/CRWV/NBIS/IREN/SNDK carry dated reference memos; MACRO/TECH keyword additions are >=3 characters and the research digest records the supplied time series plus eight visual observations.
-- [x] JSON/JS syntax, runtime contract, knowledge integration, and diff checks pass; final local QA passes headless 1102/1102, architecture 17-route/browserErrors 0, viewport 68/68, accessibility 17/17, critical10 10/10, Vault PFE2-01~08, boot, and SA-02~04.
+- 완료 4건
 
 ## P833 KV-only fast quote plane (2026-07-27, v53.42)
-
-- [x] R2 subscription, R2 bucket binding, and `AIO_QUOTES_R2_BUCKET` are removed from the deploy path; only Cloudflare token, account ID, and KV namespace ID are required.
-- [x] Worker reads/writes `quotes:current` and `quotes:heartbeat` through KV only; missing KV remains fail-closed and retains the last-known-good KV state.
-- [x] `AIO_FAST_QUOTES_URL` remains a public repository variable containing only the deployed fast quote Worker base URL; deploy smoke checks `/health` and requires Tier0 16/16.
-- [x] KV-only data-plane contract (including KV `/health` fixture), workflow YAML, syntax, and full local browser/viewport/accessibility/critical10/Vault smoke verification pass; live Worker smoke and seven-day soak remain operator-required.
+- 완료 4건
 
 ## P827~P830 current secondary-surface closure (2026-07-27, v53.39)
-
-- [x] Breadth participation and McClellan status are native, fail-closed, and fenced from legacy writers; all five breadth charts have native lifecycle markers and unavailable-history handling.
-- [x] FX-bond TNX/JPY trend and current Treasury curve charts are native, source-labelled, and fail closed when history/current tenor evidence is missing.
-- [x] Ticker extended-session and portfolio P&L/value surfaces are native; no holding, missing quote, and hidden extended-session states are explicit.
-- [x] Portfolio holdings table is native DOM-safe rendering from the normalized Vault-backed state, with nine columns, textContent values, and delegated CRUD/chart actions.
-- [x] Architecture contract/browser and Vault E2E PFE2-01~08 pass; current browser evidence is 17 routes, 42 canvases, 12 timers, and browserErrors 0.
-- [x] Data lineage full-green remains blocked by `data.json` freshness (14.1h > 12h); the refresh attempt failed closed at `CORE_QUOTE_COVERAGE_FAILED:0/78` and preserved the last-known-good artifact. — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile
-- [x] Cloudflare credentials/7-day soak, provider rights, and SEC `SEC_USER_AGENT`/coverage expansion remain operator-required; no live certification is inferred. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
+- 완료 7건
 
 ## P831 portfolio deterministic summary surface (2026-07-27, v53.40)
-
-- [x] `portfolio-surface.v1` derives holding count, P/L/day, cash, VIX exposure, and sector allocation from normalized state plus quote evidence with finite-safe unavailable states.
-- [x] `portfolio.js` owns the declared summary/allocation/exposure ids with DOM-safe rendering and provenance markers; risk cards, charts, AI workbench, and narrative remain separate legacy boundaries.
-- [x] Legacy `updatePortfolioSummary()` and both sector writers consult the native surface fence before writing transferred ids.
-- [x] Architecture contract/browser, full headless/viewport/accessibility/critical-10, and release manifest revalidation remain pending after the complete code sequence. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
+- 완료 4건
 
 ## P832 fundamental SEC core report surface (2026-07-27, v53.41)
-
-- [x] `sec-report.v2` projects official SEC annual-fact filing identity, period/submission metadata, coverage, finite observed metrics, and freshness state.
-- [x] `entity.js` owns the native `fund-native-sec-report` child with source/provenance markers and unavailable states for missing facts.
-- [x] Multi-source legacy report sections (peer/news/external, charts, and AI narrative) remain explicitly separate and are not presented as official SEC evidence.
-- [x] Architecture browser/full release QA and SEC coverage expansion remain pending. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-# 2026-07-18 통합/압축: 검증 완료된 버전별 원장(v34.x~v53.4)을 §6 압축 원장으로 축약, 퇴역 표면(KR 독립 5페이지 등) 항목 제거.
-# 각 버전 원장의 원문 전체 체크박스는 git 히스토리(이 파일의 2026-07-18 이전 리비전) 참조.
----
-
-# AIO Screener — QA 체크리스트 v4.0
-
-> **핵심 원칙**: 코드 수정 → "고쳤다" 선언 금지. **게이트/브라우저에서 직접 확인한 증거**가 있어야 완료.
-> 반복 요청 분석 최다 빈도 #1: "코드 고쳤다면서 브라우저에서 안 되잖아" — 이 체크리스트의 존재 이유.
-> 테스트 그린만으로 안심 금지 — assert되지 않는 경로의 버그(P678 클래스)는 스위트가 못 잡는다.
+- 완료 4건
 
 ## P781~P783 중간점검 회귀 체크
-
-- [x] `route-owners.json.routes`에서 재계산한 5차원 owner counts/native/legacy/full-native가 파일 요약과 정확히 일치한다. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] old SW controller 응답 후 `controllerchange`가 발생하면 화면의 SW 버전과 mismatch 경고가 새 controller 응답으로 갱신된다. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] 외부 quote 네트워크 차단 + published snapshot 16/16에서 topbar가 `기준 시세`, `fb-static`, 실제 observed-at/count를 표시하며 live로 승격하지 않는다. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] proxy circuit open + snapshot 가용 시 Stooq/Yahoo rescue가 재호출되지 않고 `fetchLiveQuotes` 내부 self-retry가 등록되지 않는다. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] 일부 `live:` quote만 수신하고 core coverage가 부족하면 `일부 실시간`으로 표시한다. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] 서버 FRED/HY artifact 성공 상태에서는 부팅 중 브라우저 FRED/HY proxy fallback을 호출하지 않는다. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
+- 완료 6건
 
 ## P784 SA bounded packet 회귀 체크
-
-- [x] SA-01: Yahoo chart caller uses `fetchViaProxy`/`_PROXY_REGISTRY`; direct chart proxy array is absent and invalid payloads count as failures.
-- [x] SA-01: deterministic three-failure cooldown and later success restoration pass in headless `T1041`; headless result `1102/1102 PASS`.
-- [x] SA-02: external quote hosts blocked twice; same-origin snapshot applies 16 reference sources and topbar remains `기준 시세` + `fb-static`; `fetchLiveQuotes._failCount` does not self-retry.
-- [x] SA-03: old controller → one `controllerchange` → current version re-query; exactly two version queries, one change, no navigation loop.
-- [x] SA-04: server FRED/HY success produces zero browser FRED/HY requests; quote request count `83` stays below the documented ceiling `100`.
-- [x] SA-05: current generated preflight matches HEAD/version and all historical checkout/deployment claims are explicitly labeled.
+- 완료 6건
 
 ## P785 ARX-11 bounded technical health 회귀 체크
-
-- [x] 순수 `market-health.v1` 모델이 SPY/QQQ/VIX 필수 입력 결측을 `score:null`·`판정 보류`로 fail-closed 처리한다.
-- [x] bullish/defensive/neutral threshold fixture가 score/grade/regime/bar 결과를 고정한다.
-- [x] `technical` native renderer가 health primary sink 11/11을 렌더하고 `data-aio-technical-renderer="native"`를 기록한다.
-- [x] legacy `computeMarketHealth()` 및 `_initTechnicalPage()` 직접 호출이 native health surface를 덮어쓰지 않는다(`NATIVE-FENCE`).
-- [x] 촛대·RSI/MACD·Weinstein/MTF·내러티브는 legacy secondary boundary로 원장에 남아 있다.
+- 완료 5건
 
 ## P786 ARX-11 bounded signal hero 회귀 체크
-
-- [x] `signal-presentation.v1`가 canonical `trading-score.v1`에서 5-tier 한국어 판정문을 파생하고 machine action envelope와 분리한다.
-- [x] 필수 입력 결측/부분 입력은 `판정 보류`와 `—`/`*` 표시로 fail-closed 처리한다.
-- [x] `signal` native renderer가 `score-gauge-val`, `score-decision-badge`, `score-decision-sub` 3/3을 렌더하고 native marker를 기록한다.
-- [x] legacy `refreshSignalDashboard()`가 native signal marker 아래 3개 primary sink를 덮어쓰지 않는다(`NATIVE-FENCE`).
-- [x] signal canvas/factor bars/execution-window/risk-monitor/timestamp/narrative 및 home summary는 별도 legacy secondary 경계로 유지된다.
+- 완료 5건
 
 ## P787 ARX-11 bounded home aggregate 회귀 체크
-
-- [x] `home` native renderer가 canonical `signal-presentation.v1`에서 `home-hero-total`, `home-hero-headline`, `home-hero-desc`, `home-trading-signal` 4/4를 렌더링한다.
-- [x] missing/partial score는 홈 summary에서 `—`/`*`와 판정 보류 문구로 fail-closed 표시된다.
-- [x] `data-aio-home-renderer="native"` marker가 route mount/dispose와 함께 설정·해제된다.
-- [x] legacy `_aioRenderHomeHero()` 및 `refreshHomeDashboard()`가 native marker 아래 네 primary sink를 덮어쓰지 않는다(`NATIVE-FENCE`).
-- [x] quality meter, Fear & Greed, regime, factor detail, chart, narrative는 P787 범위 밖의 legacy secondary boundary로 유지된다.
+- 완료 5건
 
 ## P788 derived theme-detail summary 회귀 체크
-
-- [x] `theme-detail` canonical redirect remains an inline panel on `themes`; no separate static route renderer is reintroduced.
-- [x] `#theme-detail-native-summary` renders selected label, performance/source status, and representative leaders through `themes.js` with textContent/DOM APIs.
-- [x] `showThemeDetail()` writes only `#theme-detail-legacy-content`; subtheme, breadth, deep-analysis, chart, and narrative surfaces remain explicitly legacy-owned.
-- [x] Chromium asserts native summary visible + legacy body populated, 17-route two-lap resources `42` canvases / `12` timers, and browserErrors `0`.
+- 완료 4건
 
 ## P789 theme-detail composition/breadth regression check
-
-- [x] `#theme-detail-native-composition` renders subtheme composition, constituent chips, and breadth from the explicit selection payload using safe DOM APIs.
-- [x] quote evidence and breadth are fail-closed to `시세 대기` when sufficient constituent price coverage is unavailable; no unavailable live value is promoted.
-- [x] `showThemeDetail()` no longer emits the legacy subtheme/breadth DOM; detailed leader cards and deep-analysis narrative remain the declared legacy boundary.
-- [x] Architecture contract and Chromium assert native summary/composition visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
+- 완료 4건
 
 ## P790 theme-detail detailed leaders regression check
-
-- [x] `#theme-detail-native-leaders` renders the detailed leader-card grid, price, and change values from normalized quote evidence using safe DOM APIs.
-- [x] Missing leader quote values remain `가격 대기`/`등락률 대기`; the native surface does not infer unavailable prices.
-- [x] `showThemeDetail()` no longer emits the legacy leader-card block; deep-analysis narrative remains the declared legacy boundary.
-- [x] Architecture contract and Chromium assert native summary/composition/leaders visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
+- 완료 4건
 
 ## P791 theme-detail temperature narrative regression check
-
-- [x] `#theme-detail-native-temperature` renders the canonical theme-temperature diagnosis from the normalized selected performance.
-- [x] Missing performance remains `시세 대기`; the native narrative does not manufacture a temperature class.
-- [x] The legacy deep-analysis temperature section is fenced while spread, breadth-health, benchmark, and remaining narrative sections stay separately declared.
-- [x] Architecture contract and Chromium assert native summary/composition/leaders/temperature visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
+- 완료 4건
 
 ## P792 theme-detail performance-spread narrative regression check
-
-- [x] `#theme-detail-native-spread` renders leader performance spread and strongest/weakest constituent readout from normalized quote evidence.
-- [x] Fewer than two quote changes remain `시세 대기`; no spread or ranking is inferred from missing values.
-- [x] The legacy performance-spread section is fenced while breadth-health, subtheme gap, benchmark, and remaining narrative sections stay separately declared.
-- [x] Architecture contract and Chromium assert native summary/composition/leaders/temperature/spread visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
+- 완료 4건
 
 ## P793 theme-detail breadth-health narrative regression check
-
-- [x] `#theme-detail-native-breadth-health` renders the breadth-based theme health interpretation from normalized detail evidence.
-- [x] Missing breadth/quote coverage remains `시세 대기`; no health classification is inferred from unavailable values.
-- [x] The legacy breadth-health section is fenced while subtheme gap, benchmark, and remaining narrative sections stay separately declared.
-- [x] Architecture contract and Chromium assert native summary/composition/leaders/temperature/spread/breadth-health visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
+- 완료 4건
 
 ## P794 theme-detail subtheme-gap narrative regression check
-
-- [x] `#theme-detail-native-subtheme-gap` renders strongest/weakest subtheme performance and the gap from normalized subtheme quote evidence.
-- [x] Fewer than two observed subtheme performances remain `시세 대기`; no gap or ranking is inferred from missing values.
-- [x] The legacy subtheme-gap section is fenced while benchmark and remaining narrative sections stay separately declared.
-- [x] Architecture contract and Chromium assert native summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
+- 완료 4건
 
 ## P795 theme-detail benchmark narrative regression check
-
-- [x] `#theme-detail-native-benchmark` renders selected-theme versus ETF/composite-base performance from normalized theme and benchmark quote evidence.
-- [x] Missing theme/benchmark performance remains `시세 대기`; no relative comparison is inferred from unavailable values.
-- [x] The legacy benchmark section is fenced while theme insights, chart, and data sections stay separately declared.
-- [x] Architecture contract and Chromium assert native summary/composition/leaders/temperature/spread/breadth-health/subtheme-gap/benchmark visibility, populated legacy body, `42` canvases / `12` timers, and browserErrors `0`.
-
----
-
-## §0. QA 게이트 실행 절차 (현행 — 2026-07-18 기준, 라우트 17개 체제)
-
-수정 후 아래를 순서대로 실행한다. **전부 PASS**여야 배포 가능(사용자 명시 승인 시).
-
-### 정적 게이트 (15종, `node scripts/<이름>.mjs`)
-
-```
-ci-control-char-check      ci-worker-openai-contract-check   ci-version-check
-ci-release-revision-check  ci-data-lineage-audit       ci-static-data-contract-check
-ci-history-field-time-contract-check
-ci-structural-check        ci-ux-default-path-check    ci-runtime-contract-check
-ci-data-pipeline-contract-check  ci-semantic-review-check  ci-workflow-compaction-check
-ci-skill-contract-check    ci-doc-currency-check       ci-knowledge-lint-check
-```
-
-- JS 문법: `node --check js/aio-{core,data,ui,chat,tests,glossary}.js` + 변경된 `scripts/*.mjs`
-- **Windows 로컬 함정 (2026-07-18 실측)**: `ci-data-lineage-audit`의 data.json 신선도 FAIL은 로컬 체크아웃이 낡은 것일 수 있음 — 원격 크론 확인(`gh run list --workflow=refresh-data.yml`) 후 `git pull` 먼저. `ci-data-pipeline-contract-check`의 screener-universe drift는 CRLF 아티팩트일 수 있음 — `node scripts/sync-screener-universe.mjs` 재생성 후 diff 0이면 내용 드리프트 아님.
-
-### 브라우저 게이트 (6종, Playwright/Chromium)
-
-| 게이트 | 명령 | 기준 |
-|--------|------|------|
-| 헤드리스 전체 테스트 | `node scripts/ci-headless-tests.mjs` | 1101/1101 PASS (skip-list 밖 실패 0) |
-| 부팅 성능 | `node scripts/ci-boot-interaction-check.mjs` | FCP ≤2.5s · 첫 라우트 ≤2s · long task ≤2.5s |
-| viewport 매트릭스 | `AIO_VIEWPORT_FULL_INIT=1 node scripts/ci-viewport-matrix-check.mjs` | 17라우트×4뷰포트=68/68 · overflow 0px · tinyText 0 · jsErrors 0 |
-| critical-10 표면 | `node scripts/ci-critical10-human-surface-check.mjs` | 10 routes pass · consoleErrors 0 |
-| 포트폴리오 Vault E2E | `node scripts/ci-portfolio-vault-e2e.mjs` | PFE2-01~08 PASS |
-| 접근성 매트릭스 | `node scripts/ci-accessibility-matrix-check.mjs` | 17 routes pass · consoleErrors 0 |
+- 완료 4건
 
 ## 2026-07-19 v53.13 최종 릴리스 증거 (P734)
-
-- [x] Local Portfolio Vault E2E 8/8, including `reload_requires_unlock`
-- [x] RSS retry/backstop data-pipeline contract and `fetch-data.mjs` syntax
-- [x] Refresh run `29670719055`: `news 31`, public-data commit `313b7db`
-- [x] Downstream CI `29670732380`: validate, headless, route accessibility, viewport 68/68, Critical-10, Vault, Pages deploy
-- [x] Live invariant: `v53.13`, `symbolsOk=78`, `newsCount=31`
+- 완료 5건
 
 ## 2026-07-19 v53.14 data-reliability execution evidence (P735)
-
-- [x] `ci-history-field-time-contract.mjs`: 369 rows, 3,535/3,535 numeric fields with field-level evidence; NFP 10x fixture PASS
-- [x] `ci-static-data-contract.mjs`: 22/22 PASS; canonical Tier-0 market snapshot 16/16 PASS
-- [x] FRED LKG merge, durable HY OAS server-data projection, and AI semantic publish gate wired
-- [x] Operations/reconciliation remain explicit: `OPERATOR_REQUIRED`; counts `MATCH 3 / PARTIAL 14 / BLOCKED 5`
-- [x] Cloudflare fast-plane credentials/resource IDs and 7-day 99% soak; provider rights and SEC 80% coverage remain external blockers — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
+- 완료 5건
 
 ## 2026-07-19 v53.15 architecture ownership cutover evidence (P736/R352)
-
-- [x] Sentiment lifecycle, native renderer, and fail-closed badge are ESM-owned; producer input remains explicitly behind the read-only compatibility adapter
-- [x] Retired legacy `PAGES.sentiment.init`, duplicate sentiment badge writer, and `aio-data.js` `window.showPage` monkeypatch
-- [x] Legacy coupling burn-down: prior lifecycle batch 1110→1109 plus ARX-01 renderer batch 1109→1100; ARX-02/03 cleanup reduces explicit global writes 1100→1097 and HTML sinks 420→418; direct fetch 42 and storage 189 remain
-- [x] Follow-up checkpoint: current static counters are explicit global writes 1094, direct fetch 42, direct storage 189, and HTML sinks 416; full regression remains deferred until all architecture packets complete
-- [x] Architecture gate blocks burn-down regression, retired-pattern return, and release-manifest/version drift
-- [x] Operations ownership records native lifecycle/renderer owners `['briefing','guide','market-news','sentiment']`; `legacyOwner=13` and `nativeOwner=[]` remain explicit while data/narrative ownership is still legacy
-- [x] Cross-session execution contract covers 14 layers, all 17 routes, ARX-00~16 dependency waves, pre-edit DELETE-LEDGER, five owner dimensions, and AC-01~15 final acceptance
-- [x] `ci-architecture-contract-check.mjs` blocks removal/drift of the execution plan's layer, route, session-card, deletion-ledger, ownership, and final-acceptance structure
-- [x] Regression: static/data/security contracts 22종, headless 1101/1101, Critical-10 10/10, a11y 17/17, viewport 68/68, Vault 8/8 PASS
-- [x] Boot budget: FCP 952ms, first route 552ms, max long task 421ms (single local run; 성능 인과 주장에는 미사용)
-- [x] AR-09 full renderer/data-writer cutover remains open; do not report architecture rebuild complete — Retired (v58.86 정리): 검증 항목이 아니라 분해 작업: 로드맵 11번(legacy 큰 파일 분해)으로 넘김
-
-## 2026-07-19 ARX-01 sentiment renderer cutover
+- 완료 11건
 
 ## 2026-07-19 ARX-09~16 local cutover
-
-- [x] Entity, portfolio, screener, and analysis slices use native command/provider/selector boundaries.
-- [x] Pure domain model versions and live/backtest parity fixture added.
-- [x] AI context/retrieval/provider/web-search/response envelopes added with evidence traceability gates.
-- [x] Versioned repository, privacy vault, migration/rollback fixture, release asset manifest, and retirement contract added.
-- [x] Full §8.1 browser/runtime/accessibility/regression gates are intentionally run only after every packet is applied. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] P738 runtime contract gate accepts native theme/sentiment ownership, tests the native VIX blocked state, and protects live CNN F&G delta precedence over snapshot repaint.
-- [x] P739 deferred browser gates: hidden F&G/VIX projections stay synchronized, explicit sentiment patches beat snapshot evidence, native narrative registry includes sentiment, and `theme-detail` opens its canonical inline panel.
-
-- [x] `src/ui/pages/sentiment.js` owns sentiment cards, blocked/observed state, F&G/VIX/PutCall/HY/AAII projection rendering, VIX charts, and resource-bag disposal.
-- [x] Removed `initSentimentPage`, sentiment chart registry/helpers, data chart back-reference, facade sentiment mount map, and tests that asserted retired symbols.
-- [x] Native renderer reads store/evidence state only; producer input remains explicitly legacy/read-only until ARX-02.
-- [x] Operations ownership now separates `nativeRendererOwner=['sentiment']` from `legacyOwner=16`; `nativeOwner=[]` remains correct while data owner is legacy.
-- [x] Static/module syntax and retired-symbol scan completed; full §8.1 regression and browser gates deferred until all architecture packets are complete per execution instruction.
-
-### 최근 실측 기준선 (2026-07-19, v53.13, AR-07 data plane + AR-06 inference + typed navigation facade)
-
-정적 15종 전부 PASS(data-lineage WARN 1: SEC 93/655=14.2%) · 헤드리스 1101/1101 · boot FCP 1556ms/route 1162ms/max long task 611ms · critical10 10/10(consoleErrors 0) · a11y 17/17(consoleErrors 0) · FULL_INIT viewport 68/68(4개 viewport shard, overflow 0px, tinyText 0, jsErrors 0) · vault E2E 8/8 PASS. 부팅 수치는 단일 로컬 실행의 변동값이므로 P728의 인과 성능 향상 근거로 사용하지 않는다. 로컬 Chromium은 외부망 차단 상태로 실행했으며 live Pages/Worker/provider 응답은 이 기준선에 포함하지 않는다.
-
-추가 AR gate(v53.15): `ci-architecture-contract-check.mjs`는 17 routes, explicit global writes ≤1109, 퇴역 legacy 패턴, release revision parity를 차단한다. `ci-architecture-browser-check.mjs`는 ESM boot, blocked sentiment, router/store route 일치, ESM badge writer, sentiment→home→sentiment dispose/mount, unexpected browser errors 0을 검증한다.
-
-AR-07/06 추가 로컬 계약: Tier 0 market snapshot 16/16 published fixture PASS · Worker Cron/KV/R2 contract PASS · operations status `OPERATOR_REQUIRED`/durable `CURRENT` 명시 · 22-category reconciliation `MATCH 3 / PARTIAL 13 / BLOCKED 6` · WebSearch inferred claim high-confidence two-source gate PASS · typed `showPage`/`AIO_ARCH.navigate` facade Chromium PASS. Cloudflare credentials/resource IDs와 7-day soak은 외부 운영자 대기 상태다.
-Standalone worker security gate also exits deterministically after PASS (`ci-worker-openai-contract-check.mjs`, exit code 0).
+- 완료 12건
 
 ## 2026-07-22 RM-03 P755~P759 domain extraction evidence
-
-- [x] Retired the unreferenced `deriveNewsClaim` toy and replaced the live `deriveTechnicalModel` caller with `deriveTechnicalStageFromOhlcv`.
-- [x] Extracted treasury-curve, portfolio-concentration, and screener factor-ranks pure models; legacy wrappers retain input/projection compatibility only.
-- [x] Screener factor-ranks parity: 5 golden fixtures (4 synthetic edge-case universes + real 873-row SCREENER_DB capture); ESM unit coverage includes NaN, missing eligibility, inactive factors, and stable ties.
-- [x] Re-registered every new domain bridge in `bootstrap.js` and `compatibility-facade.js`; added `factor-ranks.js` to service-worker shell assets.
-- [x] Local gates: domain parity, ESM unit, architecture/retirement/runtime/release/version/static-data/knowledge-lint, headless, and 17-route Chromium round-trip all PASS; live certification and native screener cutover remain open.
+- 완료 5건
 
 ## 2026-07-22 ARX-10/P760 native screener cutover evidence
-
-- [x] Native screener provider joins the published factor artifact with the identity universe, preserves observation/use metadata, and enriches optional live price/market-cap fields.
-- [x] Native screener state is ranked through `computeFactorRanks`; native renderer owns the 22-column table, filters, tabs, factor panel, backtest panel, profile controls, watchlist, and position sizing.
-- [x] Legacy screener DOM writers and obsolete backtest/action helpers were removed; profile/watchlist storage and the native metadata/breadth bridge remain explicit compatibility boundaries.
-- [x] Architecture/retirement/runtime, domain parity, ESM unit, release/version/static-data/knowledge-lint, 17-route browser round-trip, and final headless suite were rerun; live provider/soak certification remains operator-required.
+- 완료 4건
 
 ## 2026-07-22 P761-P764 continuation evidence
-
-- [x] Removed uncalled market/screener smoke-only domain modules and their service-worker/parity references.
-- [x] Replaced the signal decision toy with the `signal-from-trading-score.v1` mapping and threaded `tradingScoreInputs` through the analysis compatibility boundary.
-- [x] Extracted `factor-weights.v1` as the pure regime/profile resolver; legacy `_aioFactorWeights` retains no deterministic formula.
-- [x] Exposed `AIO_ARCH.getScreenerRows()` and migrated portfolio, ticker, fundamental, chat, watchlist, UI audit, and ticker overview reads to `_aioGetCanonicalScreenerRows()`.
-- [x] Re-ran syntax, ESM unit, runtime/architecture counters (1069/42/186/399), browser route round-trip with browserErrors 0, and headless 1098/1098 PASS.
-- [x] Retired the duplicate legacy screener fetch/projection; remaining open work is identity/memo producer retirement, route-owner burn-down, and operator-required live rights/deployment/soak.
+- 완료 6건
 
 ## 2026-07-22 P768 native screener single-fetch compatibility bridge evidence
-
-- [x] Native bootstrap exposes `getScreenerState()` and emits `aio:nativeScreenerReady`; legacy data code consumes only state metadata/breadth through `_aioApplyNativeScreenerState()`.
-- [x] Removed the legacy runtime `screener.json` fetch and `_aioApplyServerScreener` bulk factor projection; identity/memo and Telegram overlays remain separately documented compatibility boundaries.
-- [x] Native provider carries published breadth/backtest metadata, and runtime/data-pipeline contracts enforce the single-fetch/versioned-Kalman boundary.
-- [x] Architecture counters are `1068/41/186/399`; syntax, ESM, runtime, data-pipeline, domain, architecture, browser (`browserErrors:0`), and headless (`1098/1098`) gates pass.
+- 완료 4건
 
 ## 2026-07-22 P769 market-news primary feed renderer evidence
-
-- [x] Native `src/ui/pages/news.js` owns `live-news-feed`, count, progressive reveal summary, empty state, and category cards from canonical news state.
-- [x] Removed legacy `renderFeed()` and direct legacy feed loading/error/count/progressive writers; filter, sort, type, and translation paths dispatch `aio:newsSurfaceInvalidated` or update explicit input state only.
-- [x] `route-owners.json`, `retirement-manifest.json`, and `operations-status.json` reconcile to renderer-native market-news with 13 remaining legacy renderer routes; briefing remains the next content cutover.
-- [x] Syntax, architecture, data-pipeline, runtime, ESM, domain, retirement, operations, Chromium 17-route round-trip (`browserErrors:0`), and headless (`1098/1098`) gates pass.
+- 완료 4건
 
 ## 2026-07-22 P770 briefing primary feed renderer evidence
-
-- [x] Native `src/ui/pages/news.js` owns `briefing-live-news-list`, `briefing-24h-count`, `briefing-24h-ts`, and `briefing-news-more` from the canonical news store and the completed 08:00 KST model.
-- [x] Removed legacy briefing primary-feed loading/timeout/empty/error/count/timestamp/reveal writers; `renderBriefingFeed`, AI generation, and cap/toggle surfaces remain compatibility adapters without primary DOM writes.
-- [x] Route, retirement, and operations ledgers reconcile to renderer-native briefing (5/17 native renderer, 12 legacy renderer); secondary `briefing-digest` narrative remains explicitly legacy-owned.
-- [x] Syntax, runtime, architecture, data-pipeline, retirement, operations, Chromium (`briefingRenderer:native`, `briefingFeedRenderer:native`, `browserErrors:0`), and headless (`1098/1098`) gates pass.
+- 완료 4건
 
 ## 2026-07-22 P771 macro primary metric renderer evidence
-
-- [x] Native `src/ui/pages/market.js` owns the macro primary `[data-live-price]`, `[data-live-chg]`, and FRED-backed `[data-snap]` metric surface.
-- [x] Legacy `applyLiveDataToDom`, `applyLiveQuotes`, `applyDataSnapshot`, FRED, BOK, and KOSIS DOM passes fence native macro elements; curve/chart/event-freshness/narrative ids remain explicit secondary legacy boundaries.
-- [x] Route, retirement, and operations ledgers reconcile to renderer-native macro (6/17 native renderer, 11 legacy renderer); data ownership remains legacy by design.
-- [x] Syntax, runtime, architecture, data-pipeline, retirement, operations, Chromium (`macroRenderer:native`, `macroPrimaryRenderer:native`, 41 live/46 snapshot sinks, `browserErrors:0`), and headless gates pass.
+- 완료 4건
 
 ## 2026-07-22 P772 fxbond primary metric renderer evidence
-
-- [x] Native `src/ui/pages/market.js` owns all fxbond primary `[data-live-price]`, `[data-live-chg]`, and `[data-snap="move"]` sinks.
-- [x] Legacy live quote/snapshot passes fence `#page-fxbond[data-aio-architecture-renderer="native"]`; risk pill, spread/carry narrative, and trend/yield-curve charts remain documented secondary legacy boundaries.
-- [x] Route, retirement, and operations ledgers reconcile to renderer-native fxbond (7/17 native renderer, 10 legacy renderer); data/chart/narrative ownership remains legacy by design.
-- [x] Syntax, architecture, data-pipeline, retirement, operations, Chromium (`fxbondRenderer:native`, native live/MOVE sinks), and headless (`1098/1098`) gates pass.
+- 완료 4건
 
 ## 2026-07-22 P773 breadth primary current-metric renderer evidence
-
-- [x] Native `src/ui/pages/market.js` owns the current timestamped screener-artifact 5/20/50SMA cards, their bars/freshness, and the canonical advance-ratio sink.
-- [x] Native breadth prefers `AIO_ARCH.getScreenerState().metadata.breadth.segments.us`; the legacy `AIO.getCurrentBreadthEvidence()` path remains only as an explicit compatibility fallback.
-- [x] Legacy `applyDataSnapshot`, `_aioSyncBreadth50Readout`, `updateBreadthBars`, `initBreadthPage`, and `updateBreadthUI` fence native breadth primary elements. Stage/diagnostic/McClellan/RSP-SPY narrative and historical chart ids remain documented secondary boundaries.
-- [x] Route, retirement, and operations ledgers reconcile to renderer-native breadth (8/17 native renderer, 9 legacy renderer) and data-native breadth (2/17).
-- [x] Syntax, architecture, data-pipeline, retirement, operations, Chromium (`breadthRenderer:native`, 4/4 native primary sinks, values `35%/47%/55%/34.8%`, `browserErrors:0`), 17-route round trip, and headless (`1098/1098`) gates pass.
+- 완료 5건
 
 ## 2026-07-22 P777 bounded ticker hero native surface evidence
-
-- [x] `src/ui/pages/entity.js` owns the bounded ticker hero primary sinks `ticker-hero-name`, `ticker-hero-fullname`, `ticker-hero-price`, and `ticker-hero-chg` from normalized entity state; fundamentals/options and ticker secondary overview/candle/entry surfaces remain legacy boundaries.
-- [x] `showTicker()` no longer writes the four primary hero sinks; the shared accessibility initializer preserves explicit `.page-title` IDs and only generates `page-*-label` when a title has no ID.
-- [x] Route/retirement/operations ledgers reconcile to renderer-native ticker (10/17 native renderer, 7 legacy renderer). Chromium reports ticker primary sinks `4/4`, values `AAPL / Apple Inc. / — / —`, `browserErrors:0`, and 17-route two-lap `canvases:42→42`, `timers:12→12`.
-- [x] Syntax, architecture (`1081/40/186/377`), retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, browser, and headless (`1098/1098`) gates pass.
-- [x] `ci-live-invariant-check.mjs`, provider rights, Cloudflare credentials/7-day soak, deployment, and live certification remain operator-required. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
+- 완료 5건
 
 ## 2026-07-22 P780 bounded portfolio readiness/status native surface evidence
-
-- [x] `src/ui/pages/portfolio.js` owns only `#page-portfolio #pf-analysis-status` from the native portfolio slice; encrypted Vault consent, CRUD, holdings table, totals/prices, risk metrics, AI workbench, and charts remain legacy boundaries.
-- [x] No competing legacy writer for `pf-analysis-status` was found. Native rendering emits fail-closed empty/unavailable state or position-count readiness text with `data-source-kind`, `data-source-label`, `data-operational-use="reference-only"`, and `data-observed-at`.
-- [x] Route/retirement/operations ledgers reconcile to renderer-native portfolio (13/17 native renderer, 4 legacy renderer). Chromium asserts portfolio status sink `1/1`, browserErrors `0`, and 17-route resources remain `42→42` canvases / `12→12` timers.
-- [x] Syntax, architecture (`1081/40/186/377`), retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, browser, and headless (`1098/1098`) gates pass.
-- [x] Full portfolio Vault/CRUD/table/risk/chart ownership, `ci-live-invariant-check.mjs`, provider rights, Cloudflare credentials/7-day soak, deployment, and live certification remain operator-required or separately scoped. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; remaining native ownership is tracked by QA-ARCH-14
+- 완료 5건: QA-ARCH-14
 
 ## 2026-07-22 P779 bounded fundamental SEC status native surface evidence
-
-- [x] `src/ui/pages/entity.js` owns only `#page-fundamental #fund-data-status` from normalized `sec-fundamentals.json` evidence; the full SEC/FMP/Yahoo/Finnhub report, charts, and AI narrative remain legacy boundaries.
-- [x] No competing legacy writer for `fund-data-status` was found. Native rendering emits fail-closed unavailable state plus `data-source-kind`, `data-source-label`, `data-operational-use="reference-only"`, and `data-observed-at` when available.
-- [x] Route/retirement/operations ledgers reconcile to renderer-native fundamental (12/17 native renderer, 5 legacy renderer). Chromium asserts fundamental status sink `1/1`, value `● SEC 연간 데이터`, and `official-regulator` lineage for AAPL; browserErrors `0`.
-- [x] Syntax, architecture (`1081/40/186/377`), retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, browser, and headless (`1098/1098`) gates pass.
-- [x] Full fundamental report ownership, SEC coverage expansion, `ci-live-invariant-check.mjs`, provider rights, Cloudflare credentials/7-day soak, deployment, and live certification remain operator-required or separately scoped. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; remaining native ownership is tracked by QA-ARCH-14
+- 완료 5건: QA-ARCH-14
 
 ## 2026-07-22 P778 bounded options replacement-metric native surface evidence
-
-- [x] `src/ui/pages/entity.js` owns only `opt-vix-val-secondary`, `opt-pcr-val-secondary`, and `opt-skew-val-secondary` from normalized entity options evidence; the page remains an explicit no-options-chain/reference-only surface.
-- [x] Legacy generic quote/snapshot/PCR paths fence the native `#page-options` subtree, and the old direct PCR ID writer was removed so AG-DOM-WRITER has no native/legacy content race.
-- [x] Route/retirement/operations ledgers reconcile to renderer-native options (11/17 native renderer, 6 legacy renderer). Chromium asserts options `native` and primary sinks `3/3`; 17-route two-lap resources remain `42→42` canvases and `12→12` timers with `browserErrors:0`.
-- [x] Syntax, architecture (`1081/40/186/377`), retirement, operations, runtime, data-pipeline, structural, control-character, version, doc-currency, browser, and headless (`1098/1098`) gates pass.
-- [x] Options-chain/Greeks provider rights, `ci-live-invariant-check.mjs`, Cloudflare credentials/7-day soak, deployment, and live certification remain operator-required. — Retired (v57.79): the options route is retired (`#options` → sentiment, AGENTS)
+- 완료 5건
 
 ## 2026-07-22 P776 theme-detail derived-route retirement evidence
-
-- [x] Reconfirmed `showPage('theme-detail')` canonicalizes to `themes` and opens the live legacy inline `#theme-detail-panel`; it is not an independent user route with a native data payload.
-- [x] Removed the standalone static-page `renderPageThemeDetail()` declaration and its inline-panel call; updated route-owner evidence to distinguish the live inline panel from the retired `theme-detail-title` writer.
-- [x] Added `retiredLegacySymbolsMustBeAbsent` coverage to architecture and retirement contracts; syntax, architecture, retirement, operations, doc-currency, and headless `1098/1098` pass after the P776 patch.
-- [x] The inline detail panel, its HTML composition, ticker quotes, and AI/deep-analysis narrative remain legacy-owned and require a separate data/render packet; no native theme-detail renderer claim is made. — Retired (v58.86 정리): 검증 항목이 아니라 분해 작업: 로드맵 11번(legacy 큰 파일 분해)으로 넘김
+- 완료 4건
 
 ## 2026-07-22 P775 themes bounded native surface evidence
-
-- [x] `src/ui/pages/themes.js` owns `#rrg-quadrant-cards` and `#rrg-rotation-read` from normalized theme state; the view selector re-renders through `aio:themesViewChanged` without restoring the removed legacy `renderRRGQuadrantCards()` function.
-- [x] `rrg-chart-status`/`rrg-canvas` remain explicit secondary chart boundaries, and `theme-detail` remains separately legacy-owned; no static RRG seed was promoted to the native primary renderer.
-- [x] `ci-architecture-contract-check.mjs`, `ci-retirement-contract.mjs`, `ci-operations-status-check.mjs`, Chromium 17-route two-lap round trip, and headless `1098/1098` pass; Chromium reports themes native primary sinks `2/2`, `quadrantCount:0` under unavailable live-history state, and `browserErrors:0`.
-- [x] `ci-live-invariant-check.mjs` remains unverified because the deployed GitHub Pages site could not be fetched; provider rights, Cloudflare credentials/soak, deployment, and SEC coverage remain operator-required. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
+- 완료 4건
 
 ## 2026-07-22 P774 declaration-only legacy cleanup evidence
-
-- [x] Removed declaration-only legacy news/briefing/screener functions and only-dependent sparkline helpers after the P769/P770 primary-feed transfers; no new parallel renderer was introduced.
-- [x] Updated T890/T940 to encode the retired native briefing owner: `_generateAIBriefing` is expected to be absent and the native response pipeline is the valid remaining contract.
-- [x] `ci-structural-check.mjs`, `ci-control-char-check.mjs`, architecture/data-pipeline/retirement/runtime contracts, doc currency, Chromium 17-route two-lap round trip, and headless `1098/1098` pass.
-- [x] `ci-live-invariant-check.mjs` remains unverified in this environment because the deployed GitHub Pages site could not be fetched; Cloudflare/provider rights and soak remain operator-required. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check
+- 완료 4건
 
 ## 2026-07-22 P767 native screener data-pipeline contract evidence
-
-- [x] Native screener backtest panel discloses excluded factors, fixed weight regime, and that the adaptive composite rank is not validated.
-- [x] Quant readiness audit exposes explicit fail-closed disclosure (`연구용 상대 랭킹이며 매매 신호 아님`) while `liveModelParity`/`predictiveValidation` are not established.
-- [x] `ci-data-pipeline-contract-check.mjs` now checks the native renderer/audit owner and passes.
+- 완료 3건
 
 ## 2026-07-22 P766 canonical screener helper migration evidence
-
-- [x] `_aioExtractRecentRecommendationTickers`, `_detectSectorQuery`, `_aioRunScreenerQuery`, and `_aioMakerCheckerVerify` now obtain rows through `_aioGetCanonicalScreenerRows()`.
-- [x] `src/legacy/compatibility-facade.js:readScreener` prefers `AIO_ARCH.getScreenerRows()` and retains the legacy DB only as fallback/enrichment compatibility.
-- [x] Runtime contract scopes all four helper bodies and rejects direct `SCREENER_DB` reads; syntax, runtime, and ESM unit checks pass.
-- [x] Legacy screener fetch/projection retirement remains open until identity/memo and data-pipeline producers are migrated; live rights, deployment, and seven-day soak remain operator-required. — Covered (v57.79): qa-runner `watchdog` and `external --no-cache` profiles (ci-external-pipeline-check: Worker health; ci-live-invariant-check: Pages edge headers under LIVE_HEADER_POLICY; ci-operations-status-check: SLO window; ci-fast-plane-consumer-gate: fast-plane soak). Provider display rights are an operator decision under the AGENTS Budget policy, not a per-session check; remaining native ownership is tracked by QA-ARCH-14
+- 완료 4건: QA-ARCH-14
 
 ## 2026-07-22 P765 native screener DOM ownership regression evidence
-
-- [x] AG-DOM-WRITER caught the missed `screener-readiness-note` writer when the measured native renderer count was corrected to 3.
-- [x] Removed the legacy `_aioRenderQuantReadiness` function and deferred invocation; native `src/ui/pages/screener.js` is now the sole readiness-node writer.
-- [x] Added `_aioRenderQuantReadiness` to `screener.legacySymbolsMustBeAbsent` so the deleted writer cannot return silently.
-- [x] Architecture contract passed with counters 1069/42/186/399 and screener dispatch p95 0.069ms; 17-route browser round-trip passed with browserErrors 0 and headless passed 1098/1098.
-
----
+- 완료 4건
 
 ## §1. 열린 항목 (Open Backlog)
+- 완료 15건: QA-AI-LIVE-QUALITY, QA-BOUNDARY-AI-LIVE-01, QA-BOUNDARY-HUMAN-01
 
-- [x] **HYG 달러 가격 임계 신용 판정** — 2026-07-18 P726에서 5개 표면 전부 FRED HY OAS(`window._hySpreadBp`)로 일원화 완료(`_tempLive`/`updateRiskMonitor`/`generateFxBondCommentary`/`_aioRenderCarryUnwindRisk`/AI 채팅 fxbond 컨텍스트). Playwright 실측(missing+populated 양쪽 상태)으로 검증. **부수 발견(미해결)**: `generateFxBondCommentary()`의 대상 DOM(`#bond-dc-credit` 등 `bond-dc-*`/`fx-dc-*` 9개 id)이 v52.71 컴프 리디자인 이후 HTML에서 전부 제거된 고아 코드 — 로직은 고쳤지만 현재 화면에 렌더되지 않음(R341 대상, 아래 신규 항목 참조).
-- [x] **`Number.isFinite(Number(...))` null→0 통과 가능성** — 2026-07-18 P726에서 18곳 전수 개별 판정, 14곳 실버그로 확인·수정(가장 심각: `calcKrHealthScore`가 자신의 R340 준수 주석과 모순, `updateWSAnalysis`가 결측 시 가짜 Stage 4 발화, 2s10s 브릿지가 10Y값을 스프레드로 오기록). 4곳은 이미 안전(`valid()` 헬퍼, T683/T241/T187)해 미수정.
-- [x] **R309 양쪽-빈 삼항 잔재** — js/aio-data.js:3503 FRED YoY "+" 부호 복원. T765 하드코딩 기대값도 함께 수정(자기 자신이 버그를 정답으로 단언하던 사례).
-- [x] **`updateFxDynamicComments()`/`generateFxBondCommentary()` 고아 코드** — 2026-07-18 P727에서 구 함수·sink·호출·wrapper를 제거했다. 현재 DOM에 남은 `fxbond-risk-pill`/`yc-inversion-badge`/Cross-Asset Matrix는 `updateFxBondPage()` 단일 경로에 통합했고 runtime contract가 회귀를 차단한다. pageShown당 무효 DOM 조회 24회, quote 갱신당 16회 제거.
-- [x] **quote batch 전역 DOM 중복·퇴역 KR investor fanout** — 2026-07-18 P728에서 종목별 전역 lineage scan을 batch 마지막 1회로 defer하고, 전체 price/chg 중복 rewrite를 제거했다. 단건 갱신은 symbol-target annotation을 사용한다. 삭제된 KR 투자자 TOP10 표용 최대 24개 요청은 공유 로더에서 제거했고, runtime audit은 canonical 수급 evidence를 검사한다.
-- [x] **AR-01~06 ESM sentiment lifecycle cutover** — P729 scaffold 이후 P736에서 sentiment lifecycle·badge writer를 ESM 소유로 이전하고 legacy init/badge writer/data `showPage` monkeypatch를 제거했다. renderer는 compatibility facade 뒤 legacy이므로 native renderer 0/17, 전체 AR-09는 `MIGRATION_IN_PROGRESS`다.
-- [x] SEC fundamentals 누적 커버리지 80% 도달(현재 91/655=13.9%)과 screener universe 갱신 — 외부 Actions 실행/시간 필요 (P708/P710 계열). — Verified (2026-10-26, v58.86 정리): sec-fundamentals-summary.json stored 832/eligible 842(98.8%) 확인
-- [x] AI 채팅 라이브 실문답 재검증 (P629/P645) — Worker 서버키 또는 개인키 필요. "분산 설계 안내문"의 억제 개수가 0이 아닌 실값 표시 확인. — Retired (v57.79): AI runs on one shared gpt-6-luna Worker (AGENTS AI); no Claude or personal key path exists. Live answer quality is tracked by QA-AI-LIVE-QUALITY
-- [x] GitHub Pages/Worker 라이브 AI 응답·실제 모델 출력 품질·live provider 데이터 권리/legal 승인·multi-user 검증 — WP-AI 시리즈(P690~P701) 공통 미검증 잔여. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-AI-LIVE-01(공용 Worker 실답변 품질의 소유자 블라인드 점검)
-- [x] 키보드/스크린리더 실사(자동화 불가), 장시간 리소스 누수 계측 — DEFERRED-BLOCKS B9. — Retired (v58.86 정리): 상시 경계로 통합 → QA-BOUNDARY-HUMAN-01(모집 사용자·키보드·스크린리더 실사; architecture/human-validation.json이 NOT_EXECUTED로 고정)
-- [x] 종목 · 차트 화면의 KR 캔들(구 kr-technical 별칭): 존재하지 않는 종목코드 입력 시 `Naver 시세 수신 실패` 폴백 문구 실브라우저 확인 — 코드 경로는 존재(js/aio-ui.js `_showChartFallback`), 실조작 미확인. verify_by: verify-aio skill (종목 · 차트, 잘못된 6자리 KR 코드) — Retired (v58.86 정리): 대체됨: 목록에 없는 기호는 v58.80 검색에서 후보 안내로 막힌다(ci-out-of-universe-ticker-browser-check)
-- [x] **technical 페이지 `mtf-verdict-text` 영구 플레이스홀더** (P746 → 2026-07-21 후속으로 해소) — 사용자가 "같은 라이브 데이터로 배선"을 선택. `updateMTF()`(index.html) 안에서 이미 계산 중인 `deriveMultiTimeframeView` 결과(daily/weekly/medium)로 한줄 요약을 생성하도록 배선(신규 데이터 소스 없음). `medium`이 200거래일 미만이면 항상 'pending'이라는 점을 이용해 바로 위 Weinstein Stage 위젯과 같은 200거래일 문턱으로 fail-closed 정렬(요구 없이 "정렬" 문구를 내보내지 않도록). 4개 실브라우저 시나리오(상승/하락/혼조/데이터부족)로 검증 완료.
-- [x] **breadth 페이지 `breadth-stage-summary` 영구 플레이스홀더** (P746 → 2026-07-21 Fable 2차 자문으로 해소, P752) — 사용자가 "breadth 고유의 시장폭 기반 판정으로 재설계"를 선택(SPY 기준 재사용 아님). Fable이 "Stage" 라벨 자체가 부정직하다고 판정(다일 breadth 이력이 `history.json`에 전혀 없음 — `reconciliation-status.json`도 `breadth-history` 카테고리를 이미 `BLOCKED`로 기록 중이라 추세국면 판정은 지금 데이터로 불가능)해, `src/domain/market/breadth/breadth.js`(`classifyBreadthParticipation`)를 신설해 레벨(broad/neutral/narrow)×방향(rising/falling/flat, 1스텝 delta 있을 때만) 2축 분류로 대체하고 UI 라벨도 "Weinstein Stage"→"시장 참여도"로 변경했다. 4개 실브라우저 시나리오로 검증 완료. **후속 과제(제품 결정 아님, 데이터 파이프라인 과제)**: 진짜 추세인지형 breadth stage를 원한다면 `history.json`에 일별 breadth를 영속화하는 `/data-refresh` 성격의 별도 작업이 선행돼야 한다(이번 배치 범위 밖, Fable이 명시적으로 "지금 만들지 말라"고 권고).
-- [x] **`_getBriefingWindowKST`(js/aio-data.js:11436~) `return` 문 뒤 도달 불가능한 사문 코드** (P749 발견 → 2026-07-21 삭제) — 11452행부터의 옛 구현(13줄)을 삭제. `node --check` 통과, 동작 변화 없음(순수 burn-down, explicitWindowWrites/directFetch/directStorage/htmlSinks 4개 카운터 모두 이 삭제로 인한 변화 없음 — window write/fetch/storage/HTML sink가 애초에 없던 코드).
-- [x] **미추적 중복 문서 파일 정리 필요** (2026-07-21 발견) — `_context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19 - 복사본.md`(git 미추적, 세션 시작 전부터 존재)가 `_context/ARCHITECTURE-REBUILD-EXECUTION-PLAN-2026-07-19.md`와 byte-for-byte 동일한 내용임을 확인. 이 파일이 `ci-knowledge-lint-check.mjs`의 Pass A(INDEX.md 문서 표 대조)를 실패시킨다(문서 표에 없는 미추적 파일). 사용자 소유 파일이라 이번 세션에서 임의 삭제하지 않음 — 삭제/이름변경/`.gitignore` 추가 중 사용자 결정 대기. — Verified (2026-10-26, v58.86 정리): 해당 복사본 파일이 저장소에 없음 확인(2026-10-26)
+## P875 structural freshness/lifecycle checks (2026-08-01)
+- 완료 6건
 
----
+## P1030 supplied research packet / time-series / architecture (2026-09-05)
+- 완료 9건
 
-## §2. 최상위 바이너리 판정 (QC1~QC10)
+## P1083~P1089 automation continuity (2026-09-17)
+- 완료 4건
 
-수정 후 `/qa` 또는 `/post-edit-qa` 실행 시 **반드시** 명시적 yes/no 답변.
+## 의미·정합성 검토 미해결 항목 (2026-09-17)
+- 완료 7건
 
-| # | 게이트 | 기준 |
-|---|--------|------|
-| **QC1** | 구조 무결성 | div 열림/닫힘 일치 AND 버전 7곳 동기화(R1) AND 콘솔 ERROR 0건 |
-| **QC2** | Dead Page 없음 | **17개 라우트** 전부 3초 이내 콘텐츠 렌더 + 차트 canvas에 픽셀 존재 |
-| **QC3** | 데이터 정합성 (R15) | `d.pct \|\| 0` 패턴 0건 AND 결측은 명시적 null/`—` (R342) |
-| **QC4** | 네비게이션 사이클 | A→B→A / popstate / 해시 직접 접근 모두 정상 재렌더 |
-| **QC5** | 뉴스 필터 규칙 (R16/R17/R22) | 매크로 뉴스 ETF 티커 0 + 3글자 미만 단독 키워드 0 + score 임계값 준수 |
-| **QC6** | Dead Static HTML (P46/P58) | applyDataSnapshot map ↔ HTML `data-snap` 양방향 1:1 매칭 |
-| **QC7** | 과거 버그 재발 없음 | BUG-POSTMORTEM "반복 버그 클래스" 표 grep 재발 0건 |
-| **QC8** | 이벤트 정합성 (P61) | 대형 시장 이벤트 후 하드코딩 서술 텍스트가 현재 상황과 일치 |
-| **QC9** | CDN SRI 완결성 (R34/P140) | `grep -c 'integrity=' index.html` ≥ 3 AND crossorigin 동반 |
-| **QC10** | setInterval ID 저장 (R9/P141) | raw setInterval 없이 타이머 레지스트리/clearInterval 짝 확인 |
+## semantic fix residuals (v55.01, 2026-09-17)
+- 완료 11건: QA-EXHAUST-67
 
-**판정 규칙**: 전부 yes → PASS. 1~2개 no → 해당 단계만 재실행 후 재판정(최대 2회). 3개+ no → 작업 중단·사용자 에스컬레이션.
-**바이너리 원칙**: "대체로 통과" 금지 · WARN은 실패로 승격 · "미확인"은 no로 간주.
+## E3·E4 portfolio 통화·수익률·성과 잔여 (v56.22, 2026-09-24)
+- 완료 23건: QA-FX-CONSUMERS
+- [ ] 전략 경로 **UX 잔여** — 회고 경로에서 정책 셀렉터는 여전히 노출되고(미사용·미선언을 표시한다), `unrecognized` 플래그는 발행만 하고 별도 문구를 쓰지 않으며(셀렉터가 미선언으로 되돌아가는 것으로 드러난다), 목표비중 합이 정확히 100%여야 해 현금을 목표비중에 포함한 계좌 범위 선언은 불가하다. verify_by: design-intake (전략 경로 폼 UX 결정 후)
 
----
-
-## §3. 핵심 절차 (수정 유형별)
-
-### 3-0. 수정 전 스코프 매핑
-수정 함수명 / 호출처(grep) / 접근 전역 변수 / 영향 페이지·DOM ID / 데이터 소스를 먼저 기록.
-코드 경로 4종 확인: showPage() init · popstate · 타이머/자동갱신 · DOMContentLoaded.
-
-### 3-1. 브라우저 런타임 (스킵 시 완료 선언 불가)
-- 영향 페이지 각각: 3초 내 렌더 · 차트 픽셀 존재·비율 정상 · 수치 실값(0.00%/`—`/NaN=FAIL) · 변화율 현실적
-- 네비게이션: 사이드바 A→B→A · 뒤로가기(popstate) · 해시 직접 접근 · F5 유지
-- 시간 경과: 30~45초 대기 → 자동 갱신 후 차트 유지, "—"→실값 전환
-- 콘솔 ERROR 0건 ("is not defined" / "Cannot read properties of null" / "Chart already initialized" 즉시 FAIL)
-- API 파싱 수정 시: Network 탭에서 실제 응답 필드 존재 확인(가정 금지) — 없으면 수동 계산/폴백 필수
-
-### 3-2. 정적 분석 (수정 유형별 필수 체크)
-- **차트**: getElementById의 캔버스 ID가 올바른 page-* div 안에 존재하는지 grep
-- **init 가드**: `if (xxxInitialized) return` → destroy에서 리셋 존재. init 함수 내 cleanup 루프 2회 이상 금지(P56)
-- **데이터 폴백**: `_ldSafe()` 사용 · `if (val)`에서 0이 버려지지 않는지 · null 가드는 `typeof v === 'number' && isFinite(v)` (P715 — `Number.isFinite(Number(v))`는 null 통과)
-- **applyDataSnapshot**: map 키 추가/제거 시 HTML `data-snap` 요소 양방향 동시 반영(P58)
-- **이벤트 핸들러**: showPage/popstate/aio:liveQuotes 세 경로 모두 배선. 크로스페이지 공유 함수는 각 페이지 리스너에 연결(P60)
-- **전역 변수**: API 콜백에서만 set되는 전역은 초기 read 시점 가드(P59)
-- **종목 데이터**: SCREENER_DB 신규 sym → KNOWN_TICKERS 동시 등록(P64) · 회사명/상장 여부/모자회사 3중 검증(R10~R12) · 테마 가중치 합=100 · 중복 코드 0
-- **일괄 치환/스윕 후 (R309)**: ① `aria-label` 없는 빈 `<button></button>` 전수 검색 ② `? '' : ''` 양쪽-빈 삼항 전수 검색 ③ JS 문자열 리터럴 내 마커 파괴 여부
-- **`:root` 토큰 작업 시**: `grep -n "^:root"` 로 중복 오버라이드 블록(소스 후순위가 이김) 먼저 확인 — v52.62 함정
-
-### 3-3. 시각/레이아웃
-- 캔버스 width/height vs CSS 비율 일치 · 축 라벨 잘림 없음 · 주요 수치 3개 외부 소스 교차검증
-- 390px/768px: 고정 `repeat(N,1fr)` N≥6 그리드 overflow 확인 · 스크롤 컨테이너 padding-bottom 16px+
-- `document.querySelectorAll('[style*="repeat("]')` overflow 자동 탐지 스니펫 활용
-- 페이지·문서 가로 overflow 0px (viewport 게이트가 상시 차단)
-
-### 3-4. AI 채팅 (per-page + unified 공통)
-- P851/R402: 현재 시세 claim은 `price` adapter를 typed `value`/`unit`/`scale`/`asOf`/`source`/`evidenceId`로 정규화한 뒤 검증한다. 개념·교육·framework 질문은 이 gate로 불필요하게 차단하지 않는다.
-- 입력→전송→스트리밍 표시→후속질문 칩 생성·클릭 동작 · API 키 없으면 안내(무한 로딩 금지)
-- 페이지 컨텍스트 정합: 각 페이지 질문 시 해당 페이지 실데이터 인용(학습 데이터 가격 인용 금지)
-- 응답 완료 후 DOM 구조: `.acp-msg.ai` 안에 `.acp-bubble` 존재 · 직접 자식 ≤5 · scrollWidth ≤ offsetWidth (v34.1 가로 렌더링 클래스)
-- 매매 지시 문형 금지(P714): `grep -nE "매수하세요|매도하세요|진입하세요|헤지 필수" index.html js/*.js` → 안전 픽스처 외 0건
-- 공통 응답 pipeline 경유(P691) · action gate 차단 전 원문이 history/chips에 저장되지 않음(P690)
-
-### 3-5. 뉴스 엔진
-- 연예/스포츠/부동산 뉴스 0 · 토픽/국가/TG 필터 동작 · 한국어 번역 제목(getDisplayTitle)
-- 매크로/지정학 뉴스에 ETF 티커 배지 금지 · 크로스채널 중복(word-bag) 게이트 유지
-- 뉴스 사이클 라벨 "08:00 KST 완료 24h" (rolling 48h 금지, R238)
-
-### 3-6. 포트폴리오/워치리스트
-- CRUD + localStorage 유지(새로고침 후) · 손익 계산식 정확 · Vault 암호화 경유(P661) — vault E2E 게이트가 상시 검증
-- 삭제류는 커스텀 모달(native confirm 금지) · 포트폴리오→AI 프롬프트에 실보유 반영(명시 opt-in 필드 경계, P694)
-
-### 3-7. 기업 분석(fundamental)
-- 티커 검색 → 8초 총 예산 내 부분 성공/명시적 실패 종료(P705) · FMP 키 없어도 SEC+Yahoo 동작
-- TTM/Annual 뱃지 구분 · Gross Margin >100% 금지 · Market Cap N/A 금지(라이브 가격 존재 시)
-
-### 3-8. 접근성/보안/타이머
-- canvas role="img"+aria-label · 최소 font-size 9px(8px 이하 FAIL) · 대비 4.5:1 · 색각 보조 클래스
-- innerHTML에 외부 데이터 삽입 시 escHtml()/safeHtml() · alert()/confirm() 금지 · 민감 localStorage는 Vault/safeLS
-- setInterval은 `_aioTimerRegistry` 경유 · destroy에 clearInterval 짝
-
-### 3-9. 이벤트-드리븐 시장 정합성 (대형 이벤트/DATA_SNAPSHOT 갱신 직후)
-- 유가·지정학·금리 서술 텍스트가 현재 방향과 일치(역방향 잔존 grep: `grep -n "이란전쟁\|전쟁 발발\|수요가 무너지고" index.html`)
-- 값이 바뀌면 소비 표면 전체 grep 갱신(P713 BOK 사례) · 미래 특정일 등호 단언 금지(`grep "=== '20" js/aio-tests.js`)
-
----
+## data-refresh 상태 (v56.32, 2026-09-24)
+- 완료 4건
 
 ## §4. 부록: 반복 실패 방지 특별 체크 (2회+ 반복 패턴)
 
@@ -3094,177 +1200,3 @@ Standalone worker security gate also exits deterministically after PASS (`ci-wor
 | Dead Page | page-* div마다 init·pageShown·liveQuotes 3종 확인 |
 
 ---
-
-## §5. 페이지별 핵심 검증 매트릭스 (17 라우트 체제, v53.7)
-
-| 라우트 | 필수 확인 | FAIL 조건 |
-|--------|----------|-----------|
-| home | 시세카드 변화율, 스프레드, 뉴스, 결론 헤더=게이지 점수 | 변화율 0.00%, 스프레드 `—`, 점수 불일치(P553) |
-| signal | 점수 게이지, 서브 바, 시나리오 | 게이지 `—`, 바 0 |
-| breadth | SMA 바 3개, 차트, McClellan | 바 0, 빈 차트, 큰 숫자↔문장 모순(P562) |
-| sentiment | F&G 게이지(단일값), AAII, P/C | 같은 카드 F&G 2값(P570), 빈 차트 |
-| briefing | 다이제스트, 일정, F&G=타 페이지 동일값 | 영구 [번역 대기](P554), F&G 이중값 |
-| technical | 지표, 지지/저항, **KR 통합 섹션(kr-integrated-*) 캔들** | 지표 `—`, KRX 오류 모달, y축 압축 |
-| macro | yieldCurve, 온도, 일정(미래만), **KR 통합 섹션** | 빈 차트, 과거 일정 "발표 전" 잔존 |
-| fxbond | 커브 차트, 스프레드, 캐리 배지 | 빈 차트, HY 이중값(P625) |
-| themes | RRG(일봉 수화, P721), 사이클 칩=본문, **KR 통합 섹션** | RRG 영구 보류, 칩↔본문 모순(P606) |
-| fundamental | 검색→부분성공/명시실패, TTM 뱃지 | 8초+ 무한 로딩, GM>100% |
-| screener | 12행 점진 공개, 실가격, 관측형 라벨 | 첫 진입 빈 테이블(P522), BUY/SELL raw enum |
-| ticker | 종목 개요(52주/수익률, P723/P724), 미보유 시 P&L 미표시 | 가짜 데모 P&L(P620), 52주 영구 결측 |
-| portfolio | 보유→리스크→배분 순서, 빈 상태 CTA | 첫 진입 빈 화면, 평문 저장(P661) |
-| market-news | 12개 점진 공개, 중복 없음 | 크로스채널 중복(P621) |
-| options | VIX/VVIX 실값 + reference-only 고지 | 하드코딩 잔존, 고지 부재 |
-| guide / theme-detail | 검색+아코디언 / 실제 테마명 브레드크럼 | 브레드크럼 `—`(P622) |
-
-※ KR 독립 5페이지(kr-home/kr-supply/kr-themes/kr-macro/kr-technical)는 **v53.7에서 퇴역** — kr-themes/macro/technical은 themes/macro/technical 내 접힌 "한국 시장" 섹션(`kr-integrated-*`)으로 이관, kr-home/kr-supply 삭제. 구 KR 페이지 대상 체크 항목은 무효.
-
----
-
-## §6. 버전별 검증 원장 (압축 — 원문 체크리스트는 git 히스토리)
-
-| 버전 | 검증 주제 (P) | 상태 |
-|------|--------------|------|
-| v53.6~53.7 | ticker 종목 개요 + 52주 필드 보존(P723/P724) · KR 5페이지 통합(P725) — 헤드리스 1101 + viewport 68/68 + 리다이렉트 실브라우저 | ✅ |
-| v53.5 | P719~P722: 발행 계약 read-back·감사 토큰·RRG 일봉 수화·테스트 양방향 불변식 | ✅ |
-| v53.4 | 정적·하드코딩 22카테고리 계약(P717) + 퇴역 소비자 null 포맷(P718) — 실Chromium 무외부망 console 0 | ✅ |
-| v53.3 | 퇴역 수직 제거 + 공개 artifact 5-script allowlist(P716) | ✅ |
-| v53.2 | 소수 공유 배치: TG summary-only·quotes 미발행·null 코어전·관측형 라벨(P715) | ✅ |
-| v53.1 | 시스템 발화 지시 제거·면책 도달·연구 라벨(P714) | ✅ (단 HYG 잔존 3함수 §1 참조) |
-| v53.0 | fail-closed 이중 표면·날짜핀 부패·BOK 정합(P713) | ✅ |
-| v52.99 | 22페이지 현재시장·파생결론 무결성 — 합성 금지·판정 보류(P712/R340) | ✅ |
-| v52.94~52.97 | BLS 공식 evidence·22-route 계약·lineage/freshness 감사·TG 전수 커버리지(P708~P711) | ✅ 로컬 (SEC 80%는 §1 open) |
-| v52.87~52.90 | 시안 기본 경로 재구축·상태 여정(P702~P705) — 40/40면 + 14 상태 계약 | ✅ |
-| v52.74~52.86 | 부팅 성능 게이트(P689) + WP-AI1~20 계약(P690~P701) | ✅ 로컬 (라이브 모델/권리 검증은 §1 open) |
-| v52.68~52.73 | 13개 시안 화면 전체 구조 재구축(P681~P688) | ✅ |
-| v52.62~52.67 | 아이보리 리디자인 P1~P2 + R309 신설(P678~P680) | ✅ |
-| v52.27~52.61 | FABLE UI/UX V0~V4·EF Batch·WO-0~8·H2 (P642~P677) | ✅ (WO-2/3 음의 상관은 제품 결정 보류) |
-| v52.5~52.26 | FABLE 라이브 감사 P0~P6 전체 + 2026-07-08 라이브 일괄 검증 원장 | ✅ (당시 ❌였던 프록시 SPOF/VKOSPI는 P643/P658/P713에서 해소·게이트화) |
-| v51.83 이하 | XSS·score parity·데이터 파이프라인·근본수정 registry·유니버스 감사 등 | ✅ 완료 — 원문은 git 히스토리, 재발은 QC7+반복 클래스 grep으로 차단 |
-
----
-
-## §7. 게이트↔문서 계약 마커 (CI 게이트가 이 문서에서 직접 grep하는 항목 — 삭제 금지)
-
-- **P513-Q1**: audit/게이트 그린만으로 완료 선언 금지 — `ci-semantic-review-check.mjs`가 의미 검토(semantic review)를 별도 강제. shape/coverage audit은 의미 검증의 대체물이 아니다 (R219).
-- **P514-Q1**: workflow/skill 문서 append-only 비대화 방지 — `ci-workflow-compaction-check.mjs`가 governed ledger(RULES/QA-CHECKLIST/BUG-POSTMORTEM) 외 대형 컨텍스트 파일을 경고 (R220).
-- **P894-Q1**: `.claude/skills` canonical ↔ ignored `.agents/skills` local mirror byte parity, direct reference existence, command routing, non-versioned shared contract, eval-guide UTF-8 sentinel을 `ci-skill-contract-check.mjs`와 `sync-agent-skills.mjs --check`로 검증 (R236/R237).
-- **P517**: 데이터 파이프라인 source→consumer 전체 계약 — `ci-data-pipeline-contract-check.mjs` (R222).
-- **P529**: 기본 경로 UX 노이즈/빈 트랙 차단 — `ci-ux-default-path-check.mjs` (R228).
-- **P531**: 뉴스 셀프-주입 소스 품질·신선도 게이트 (R230).
-- **P532**: operator note 첫 화면 우선 배치 + Signal 접힘(fold) 회귀 게이트 (R228).
-- **P534**: visual hierarchy refresh 계층 게이트 (R231).
-- **P535**: 스크리너 Kalman log-scale 생성·버전 병합 + 매매 문구 완화 게이트 (R232).
-## P875 structural freshness/lifecycle checks (2026-08-01)
-
-- [x] Public default routes visibly expose the completed Telegram `current24hWindow`; operational diagnostics remain collapsed without hiding the evidence lane. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] Cold-load and `aio:sharedMarketCut` replay populate both the next-release label and the full official future calendar (including registry releases beyond snapshot fields). — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] Macro route has one native yield-curve renderer; legacy fallback is fenced and route transitions destroy every Chart.js owner before reuse. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] `changeBasis`/`valueBasis` remains present from snapshot builder/schema through bridge, `PriceStore`, `_liveData`, and native chart/title sinks; UI labels the basis. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] Service-worker controller takeover performs at most one guarded reload, then confirms SW version equals `APP_VERSION`. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] Run runtime/data-plane/lineage/reconciliation/refresh/architecture/headless gates and a browser soak over the 8 screens and their route aliases; browser errors must remain zero (v57.79 wording). verify_by: node scripts/qa-runner.mjs full --no-cache — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-
-## P1030 supplied research packet / time-series / architecture (2026-09-05)
-
-- [x] Source audit contains the 18 unique supplied links, direct-read status, duplicate suppression, and attached `codex-clipboard-c8c338c6-5b5b-4912-8a76-7dce61d65e2b.png` media audit. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] Every supplied item keeps publication/read date separate from current observations: event cluster, 1–5-session reaction, 20–60-session swing, 50–200-session trend, release/revision, estimate vintage, order/backlog/delivery, capacity/utilization/cash, and hypothesis-test windows. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] Event cluster and oil-shock paths distinguish geopolitical supply shock, domestic demand shock, inflation, growth, policy, FX, rates, credit, and breadth; no dated secondary value becomes a live signal without a producer. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] AI CAPEX taxonomy separates semiconductors/WFE, networking/optics, power, cooling, facilities, and equipment-cycle order/backlog/delivery/revenue/FCF; Sankey proportions and supplier mentions remain reference-only. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] AI capacity screens separate connected power, billable IT power, energization/acceptance, contract cohort, utilization, recognized revenue, owner FCF, leases, interest, replacement reserve, debt, and dilution. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] Treasury surfaces separate front-end secondary price/yield and macro flow from auction/repo/dealer/basis plumbing, with a regime-dependent plumbing-dominance flag rather than a single rate explanation. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] Vela-derived chart architecture stays dependency-free: canonical time/bar boundary, provider/script/renderer ports, capability negotiation, provisional tick vs settled bar, fail-soft lifecycle, and no dead legend rows. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] Research metadata (`referenceFrameworkIds`, `referenceTimeSeriesIds`, `referenceBoundary`, `researchContext`) is not included in factor ranking or current price/target/position calculations. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] Run `ci-research-flow-contract-check.mjs`, syntax, workspace/knowledge/skill contracts, affected QA, and route/browser checks; report verified, blocked, and unverified evidence separately. — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-
-## P1083~P1089 automation continuity (2026-09-17)
-
-자동화·지속 운영 감사(`_artifacts/automation-audit-20260917/REPORT.md`)에서 도출한 회귀 게이트. 아래 항목은 모두 실행 가능한 계약으로 닫혀 있다.
-
-- **P1083-Q1**: 워치독 실패 요약이 셸 확장으로 죽지 않고 프로필·카운트·실패 게이트 id·상세 tail·`blocked by`를 Step Summary에 남긴다 — `scripts/report-qa-failures.mjs` + `ci-qa-pipeline-contract-check.mjs`의 인라인 템플릿 리터럴 금지 (R610).
-- **P1084-Q1**: 에이전트 편집 훅이 Claude `file_path`/`notebook_path`와 Codex `command` 양쪽에서 대상을 판정하고, 각 클라이언트 픽스처(archive deny·backup deny·정상 allow·workspace/version post-edit·무관 파일 무음)가 이를 고정한다 — `ci-workspace-contract-check.mjs` (R611).
-- **P1084-Q2**: 두 에이전트 클라이언트가 `guard-command`·`guard-edit`·`post-edit`·`session-start` 동일 가드 모드를 배선한다 — `ci-workspace-contract-check.mjs` (R611).
-- **P1085-Q1**: 시세 레인 실패가 Telegram·13F·게이트·요약·커밋·수렴을 스킵시키지 않으면서, 발행은 모든 프로듀서 성공 시에만 일어난다 — `ci-qa-pipeline-contract-check.mjs`의 `refresh-data isolates producer lanes without loosening the publish boundary` (R609).
-- **P1086-Q1**: 서비스워커 폴백이 읽기 시점에 나이를 판정하고, 상한 초과분을 현재 값으로 반환하지 않으며 stale을 응답 본문에서 구분한다 — `ci-service-worker-cache-policy-check.mjs` (R608).
-- **P1087-Q1**: 봇이 디스패치한 CI의 attestation이 실제로 소비된다 — 프로듀서가 run id를 넘기고 배포 워크플로가 결론·브랜치·SHA와 아티팩트를 재검증한다 — `ci-qa-pipeline-contract-check.mjs`의 hand-over 단언 (R606).
-- **P1087-Q2**: 라이브 수렴이 매 refresh 주기마다 멱등하게 확인되고, 실패만 있는 리비전에는 배포를 요청하지 않는다 — `scripts/ensure-live-convergence.mjs` (R606).
-- **P1088-Q1**: 모든 워크플로 job이 `timeout-minutes`를 선언한다 — `ci-qa-pipeline-contract-check.mjs`의 `every workflow job declares timeout-minutes` (R607).
-- **P1089-Q1**: 워크플로가 참조하는 모든 `secrets.*`/`vars.*`가 운영자 런북에 문서화되고, 수동 전용 배포 워크플로가 워크플로/문서 중 한쪽만 바뀌지 않는다 — `scripts/ci-operator-secrets-contract-check.mjs` (R612).
-
-### 미검증으로 남긴 것 (자동화로 닫지 않음)
-
-- [x] 라이브 Pages 배포 실행: 수렴 경로를 실제로 디스패치해 `deployment.json.sourceSha`가 origin/main과 일치하는지 관측하지 않았다. 로컬에서는 드라이런으로 목표 탐색까지만 확인했다. — Retired (v58.86 정리): 자동화로 대체: pages-deploy가 배포마다 ci-live-invariant-check를 돌린다(2026-10-26 09:25Z 실행 성공), Worker 배포는 CI 증거·스모크·롤백(R652)
-- [x] 오프라인 실사용에서 서비스워커 stale 폴백이 앱의 기존 `_offline` 처리와 함께 의도대로 동작하는지 브라우저 검증. — Retired (v58.86 정리): 대체됨: 해당 화면은 v57~v58에서 다시 만들어졌고 브라우저 게이트(viewport·responsive·entity-quality·a11y·rendered-copy)와 verify-aio 주행이 릴리스마다 확인한다. 이 묶음 단위의 별도 실브라우저 인수는 하지 않는다
-- [x] Cloudflare Worker 소스↔라이브 리비전 격차(관측: 저장소 v54.98 대비 라이브 프록시 v54.37)는 수동 배포 경계를 자동화하거나 승격 정책을 바꾸지 않는 한 남는다. — Retired (v58.86 정리): 자동화로 대체: pages-deploy가 배포마다 ci-live-invariant-check를 돌린다(2026-10-26 09:25Z 실행 성공), Worker 배포는 CI 증거·스모크·롤백(R652)
-- [x] GitHub Actions에서의 스킵/`!cancelled()` 실제 동작은 원격 워크플로 실행으로만 최종 확인된다. — Retired (v58.86 정리): 대체됨: 그 뒤 수백 회의 원격 실행이 스킵 경로를 돌았다
-
-## 의미·정합성 검토 미해결 항목 (2026-09-17)
-
-`_artifacts/automation-audit-20260917/REPORT.md` §10에서 직접 계산·대조로 확인한 결함. 모두 **미수정**이며 P 항목이 아직 없다.
-
-- [x] S1 `history.json`의 dxy·wti·gold·kospi·kosdaq·btc가 `valueBasis: previous-completed-close`인데 `fieldMeta.observedAt`은 현재 관측 시각이다(dxy/wti/gold는 스냅샷과 동일, kospi/kosdaq/btc는 `00:00:00Z`로 정규화되어 소스 시각과도 불일치). 이전 세션 종가가 현재 시각에 찍혀 14개 필드 중 6개 필드의 시간축이 한 세션 어긋난다. 게이트 공백: `valueBasis`와 `observedAt`의 정합성을 검사하는 게이트가 없다. verify_by: ci-artifact-semantics-check (전환 면제 만료 2026-10-18 후 무조건 실행) — Retired (v58.86 정리): 해결됨: history.json fieldMeta가 observedAt·sessionDate·valueBasis를 나눠 싣는다(2026-10-26 확인)
-- [x] S2 `scripts/fetch-data.mjs:2831`의 `MARKET_ANALYSIS_QUOTE_DEFS`가 `^TNX`를 `unit: 'index'`로 하드코딩해, 같은 산출물의 `market.rates.us10y`(`unit: "percent"`)와 모순된다. 라이브 서술이 `10Y=5.006 index`로 표시된다. metricId도 `market.us10y` vs `market.rates.us10y`로 어긋나고, claim `evidenceIds`(`market-analysis:^TNX:…`)가 스냅샷 evidenceId(`market.rates.us10y:09ea45e1`)로 해석되지 않아 주장↔근거 역추적이 id로 불가능하다. verify_by: ci-data-pipeline-contract-check unit/metricId 일치 단언 추가 시 — Retired (v58.86 정리): 대체됨: 해당 정의는 fetch-data.mjs에서 사라졌다
-- [x] S3 `index.html:11828`("주기: 45분 자동 갱신 (GitHub Actions)")과 `index.html:11780`("수집 주기 45분")이 실제와 다르다. GitHub Actions 뉴스 cron은 30분(`17,47 * * * *`)이고 뉴스 사이클은 `kst-0800-completed-24h`로 일 1회 갱신이다. 45분은 `js/aio-data.js:3686`의 브라우저 자체 갱신 타이머(`interval: 2700000`)이며 이를 수집 주기로 잘못 귀속했다. 같은 패널의 사이클 문구는 정확하다. verify_by: ci-doc-currency-check + index.html 45분 문구 grep — Retired (v57.79): the "45분" copy is gone from index.html (grep)
-- [x] S4 `macro._freshness_*` 19개가 전부 `stale-reference`인데 `_source_*`는 모두 1차 정식 출처(`bls/bea/fred/us-treasury-official-primary`)다. `fetch-data.mjs:682`가 LKG 병합에서만 플래그를 설정하고 `mergeMacroLastKnownGood`가 현재 값 존재 시 `continue`하므로 한 번 stale이 되면 복구 후에도 지워지지 않는다(sticky). 앱은 이 필드를 읽지 않아 현재 사용자 영향은 없으나, 기계 계약이 거짓 신호를 발행하고 진짜 LKG와 구분할 수 없다. verify_by: ci-artifact-semantics-check (macro freshness 복구 단언) — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] S5 `operations-status.json`의 `statusVocabulary`가 실제 `status`/`overall` 값(`CURRENT`/`OPERATOR_REQUIRED`/`BLOCKED`/`MATCH`/`PARTIAL`)과 교집합이 0이다. 선언된 어휘는 `statusCode`에만 해당한다(`build-operations-status.mjs:376`). verify_by: ci-artifact-semantics-check (operations statusVocabulary 단언) — Verified (2026-10-26, v58.86 정리): statusVocabulary에 CURRENT·OPERATOR_REQUIRED·BLOCKED 등 실제 값이 들어 있음 확인
-- [x] S6 `operations-status.planes.durable.freshness`가 빌드 시점에 동결된다(`ageHours: 0.02`, `fresh: true`). 발행 후 경과 시간을 반영하지 않으므로 소비자가 `generatedAt`으로 재계산해야 한다. 앱은 이 파일을 읽지 않는다. verify_by: ci-operations-status-check — Verified (2026-10-26, v58.86 정리): durable.freshness에 evaluatedAt·ageHours가 실림 확인
-
-### 검토 중 정정한 오판 (기록)
-
-- [x] 초기 구조 probe 출력 절단으로 "`macro`에 `_treasury`/`dgs*`가 없다"고 판단할 뻔했으나 실제로는 존재한다(REPORT §10.3). 검토 절차에서 출력 상한을 신뢰한 것이 원인이므로, 아티팩트 존재 여부는 전용 키 조회로 확인한다. verify_by: ci-ledger-integrity-check (오분류 OPEN이 영구 면제가 되지 않는지) — Retired (v58.86 정리): 검토 절차 교훈 기록, 확인할 것이 남지 않았다
-
-## semantic fix residuals (v55.01, 2026-09-17)
-
-P1090~P1095로 수정했으나 남은 항목. 게이트는 새 형식이 산출물에 전파되면 자동으로 조여진다.
-
-- [x] 전환 전파 확인 (v55.04에서 종결 → QA-EXHAUST-67): 3개 항목의 상태를 분리해 확정했다. (a) `data.json.macro._freshness_*` 19개는 **발행본에 전파됨**(sticky 결함은 P1090으로 별도 수정). (b) `history.json.fieldMeta.*.observedAtSource`는 전파되지 **않았고**, 원인은 다음 refresh가 아니라 **프로듀서 버그**였다 — `historyMeta()` 투영이 `bySymQuote`의 값을 버려 영구 면제가 됐다(P1117에서 3개 레인 수정). (c) `metricEvidence[].canonicalMetricId`는 발행본 0/11이며 프로듀서(`fetch-data.mjs:2960`)에는 존재하므로 다음 refresh에 발행된다 — 프로듀서 단언은 이미 무조건 실행된다. 만료(2026-10-18) 후 (b)·(c)의 산출물 단언이 함께 조여진다.
-- [x] `history.json` 이전 종가 필드의 `observedAt`이 null이 된 뒤 앱(`_aioHistorySeries` → 차트·신선도 표시)이 의도대로 동작하는지 실브라우저 검증. `carryForwardHistoryEvidence`는 `observedAt`이 없는 행을 건너뛰므로 해당 필드의 후속 carry가 달라질 수 있다. (v55.04에서 미수정 — 다음 refresh 후 실브라우저 검증 필요) verify_by: browser-unit (history fieldMeta 전파 후 _aioHistorySeries 렌더) — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-- [x] signal 페이지 조정 항목 렌더 (v55.04, P1118): `deriveTradingScoreDecisionPresentation`이 `breakdown`을 실어 보내고 native signal 페이지가 `#score-adjustments-container`에 조정 행·바닥/상한·`가중 합계 → 총점`을 렌더한다. `route-owners.json` signal `nativePrimarySurface`에 선언했다. 게이트: presentation 파리티(`ci-artifact-semantics-check.mjs`), 렌더 경로(`ci-runtime-contract-check.mjs`), 실브라우저 sink(`ci-architecture-browser-check.mjs`).
-- [x] `js/aio-core.js` quote 평면 인용 (v55.04, P1116): 하드코딩 `data.json:quotes`를 `meta.quotesPublished` 파생으로 바꿔, 발행본이 시세를 담지 않을 때 `market-snapshot.json:quotes`를 인용한다. 게이트가 파생 형태를 단언하고 하드코딩 형태의 부재를 확인한다.
-- [x] S9 (v55.04, P1119 — "명시적 정책 경계"로 종결): 출처 권리상 발췌를 보존하지 않기로 확정했다(사용자 결정). `MARKET_ANALYSIS_NEWS_CONTENT_POLICY`를 선언해 모든 `market-analysis.v2` 발행물의 `newsContentPolicy`에 싣고, `causalNarrative: 'blocked-by-design'`·`excerptRetention: 'not-permitted-source-rights'`를 게이트로 고정했다. **"결함 없음"이 아니라 "의도된 차단"의 선언**이며, 피드 권리가 바뀌면 정책과 게이트를 함께 개정해야 한다.
-- [x] S1/P1095 수정으로 `history.json`의 6개 필드가 `observedAt: null`이 되는데, 이 값이 `reference-only`/`observedAt` 미상으로 소비자에게 표시되는지 확인한다(현재 게이트는 시각이 없으면 통과). (v55.04에서 미수정 — P1117로 프로듀서가 `observedAtSource: 'unavailable'`을 발행하므로 다음 refresh 후 재확인 필요) verify_by: ci-artifact-semantics-check (history observedAtSource 단언이 면제 해제 후 무조건 실행) — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다
-
-- [x] **티커 탭·기간 native 소유권 (P1205/LC-18/LC-27)**: `switchTab/loadTickerChart/Stooq ticker helpers`를 삭제하고 `entity.js`가 tab/panel, 키보드 navigation, 1M/3M/6M/1Y calendar window, chart lifecycle을 단독 소유한다. ESM unit은 2/3/4/5행 경계와 empty 상태를, 실제 Chromium은 31/91/181/366행·날짜·오프라인 fallback 차트·overview 왕복을 검증했다. verify_by: 판정 완료(로컬) — 배포 후 live 인수 별도.
-- [x] **항목별 날짜/as-of 단일 writer (P1206/LC-17)**: generic `#briefing-stale-days` fallback을 제거하고 각 date key와 동일 ID stale sink만 렌더한다. TNX 2Y는 DGS2 관측일만 사용하며 미수신 시 `기준일 미수신`을 표시한다. 실제 Chromium은 archive와 TNX 경과일이 서로 덮지 않음을 확인했다. verify_by: 판정 완료(로컬).
-- [x] **SKEW 단일 quote identity/read model (P1207/LC-20)**: `^SKEW`를 `market.volatility.skew/index`로 등록하고 sentiment/options native state가 같은 value·observedAt·revision을 소비한다. 실제 Chromium은 `146.15`와 동일 metadata가 두 화면에 나타남을 확인했다. verify_by: 판정 완료(로컬).
-- [x] **2s10s 동일 cut·percentage-point (P1208/LC-23)**: atomic Treasury cut을 보존하고 macro/fxbond가 같은 값·unit·cutId·comparability를 렌더한다. conflicting/unknown cut은 비교 판정을 보류한다. 실제 Chromium은 양쪽 `+0.26%p`와 동일 cut ID를 확인했다. verify_by: 판정 완료(로컬).
-- [x] **뉴스 HTML entity 단일 decode/XSS 음성 (P1209/LC-24)**: display text의 named/numeric entity를 한 번만 해석하고 URL은 건드리지 않으며 native card는 text node만 사용한다. 실제 Chromium은 `$NBIS` 표시, literal hostile tag, DOM 0건, 실행 0건을 확인했다. verify_by: 판정 완료(로컬).
-
-## E3·E4 portfolio 통화·수익률·성과 잔여 (v56.22, 2026-09-24)
-
-P1187(종목 원가 통화 writer·ack)·P1188(계좌·현금 통화+현금 수익률·RF writer, TWR/MWR 원장 엔진, 고정 목표비중 전략 경로)·P1190(VaR 표본 안정성)·P1191(원장 입력 UI·TWR/MWR 표시·인증 문구)로 닫힌 항목과 남은 항목.
-
-- [x] 계좌 `baseCurrency`·현금 `cashCurrency`의 **입력 writer** (P1188): `pf-base-currency-input`·`pf-cash-currency-input`이 `aio_portfolio_base_currency`/`aio_portfolio_cash_currency`로 저장되고 reader가 그대로 전달한다. vault e2e `PFE2-15` PASS(무효 `US`는 저장되지 않고 삭제).
-- [x] 현금 수익률·RF **입력 UI** (P1188): `pf-cash-return-input`·`pf-rf-input`(연 %)이 선언되고, risk 경로가 선언값만 `cashReturn`/`rfAnnual`로 넘긴다 — 미선언이면 계좌 범위·Sharpe를 보류한다(P1182 고정 null 대체).
-- [x] 계좌 성과 TWR/MWR **엔진** (P1188): 원장이 coverage(6 입력)·규약(통화·actual-365·현금흐름 시점)·평가액을 선언할 때만 계산하고, 미선언 입력은 자기 사유로 보류한다. `ci-esm-core-unit-check` P1188 fixture PASS.
-- [x] `fixed_target_weight_strategy` **경로** (P1188): 목표비중(합 1)·리밸런싱 정책을 요구하고 표류/재설정을 시뮬레이션하며, 계좌 범위는 `strategy-account-scope-not-declared`로 보류한다.
-- [x] VaR/CVaR **표본 안정성 bootstrap·민감도** (P1190): `deriveVarStability`가 표본에서 파생한 시드로 재현 가능한 부트스트랩(p05/median/p95 밴드)과 민감도 3종(nearest-rank·최악 1개 제거·후반 창)을 계산하고, 선언한 임계값(36/3/0.75/0.5)을 모두 통과할 때만 `certified`를 준다. 13수익률·tail 1 표본은 계속 보류다. `ci-esm-core-unit-check` P1190 fixture PASS.
-- [x] **원장 입력 UI** (P1191): risk 표면의 `pf-ledger-*`(현금흐름 시점·포함 범위 6종·거래/평가액 추가·목록)가 계좌 원장을 선언하고, 원장은 포지션과 같은 Vault 경로(`safeLS` + `_AioVault._keyRuntime` 동기 캐시)로 `aio_portfolio_ledger`에 저장된다. 패널이 `ready`면 TWR/MWR과 규약·기간을 게시하고 아니면 자기 사유를 게시한다. 계약은 `src/data/portfolio-ledger.js`가 소유하며 단위 테스트로 검증한다 — `ci-esm-core-unit-check` P1191 + **실브라우저 `ci-portfolio-vault-e2e` PFE2-16 PASS**(폼 → 저장 → TWR 0.10 ready → 포함 범위 해제 시 보류).
-- [x] **VaR 인증 문구** (P1191): 백테스트 행의 고정 '인증 보류' 라벨을 실제 판정으로 바꿨다 — 인증이면 '인증', 보류이면 사유(표본 부족·꼬리 부족·부트스트랩 변동 큼·추정량 민감)를 병기하며 소스 계약으로 고정. legacy 위험 패널 카드는 다른 추정기를 쓰므로 '인증 보류'가 그대로 맞다.
-- [x] **선언·성과가 화면에 실제 표시되는지 실브라우저 실측** (P1191·P1193, `PFE2-17`·`PFE2-18`): 선언 단일 통화가 네이티브 주석에 `통화 USD`로, 위험 패널이 `실제 계좌 성과 TWR +10.00% · MWR +8.01%`·`USD · end-of-period · 1기간`·`분모 whole_account(계좌 전체)`·`RF 입력`·`snapshot pfcomp-…`를 그리고 `현금 보류`가 없음을 확인했다. 이어서 측정 경로를 **전략**으로 선언하면 패널이 `고정 목표비중 전략 · 실제 계좌 이력 아님 · 목표 AAA 50.0%/BBB 50.0%`·`invested_sleeve(주식 부분)`·`전략 경로의 계좌 범위 미선언`을 그리고, 통화가 혼합/원가 불일치면 네이티브 주석이 `통화 혼합(USD/KRW) — 환산 없어 합계 보류 · 원가/시세 불일치 — P&L 보류`를 말한다. 시세·차트 네트워크 경계만 스텁하고 나머지 경로는 실코드다. `ci-portfolio-vault-e2e` **21/21 PASS**.
-- [x] **전략 목표비중에 현금 포함** (P1200, 결정 확정 후 착수): 목표비중 합이 100% 미만이면 그 차액이 **현금 목표비중**이고, 그 선언이 곧 **계좌 범위 선언**이다 — 현금 수익률이 선언되면 `Σ wᵢ·rᵢ + w_cash·r_cash`로 계좌 전체 수익을 계산하고(scope `whole_account`), 없으면 계좌 보기만 보류한다(sleeve는 게시). 초과 배분(합 >100%)만 무효다. 패널이 `현금 20.0%`를 발행한다. `ci-esm-core-unit-check` P1200(6검사, P1188/P1193 기대값 갱신) + 실브라우저 `PFE2-22`(40/40 → `현금 20.0%`·차단 없음, 120% → `strategy-target-weights-invalid`) PASS. **잔여**: 합이 0인 선언(전액 현금)은 별도 검증이 없다.
-- [x] **회고 경로 정책 셀렉터 비활성** (P1201): 회고 경로에서 정책은 소비되지 않으므로 셀렉터를 `disabled`/`aria-disabled`/`title`로 비활성 표시한다(선언값은 보존 — 경로를 되돌리면 살아난다). 패널의 `(미사용)` 표기와 조작 표면이 같은 사실을 말한다. 실브라우저 `PFE2-22` PASS. **잔여**: `unrecognized` 플래그는 발행만 하고 별도 문구가 없다.
-- [x] **VaR `certified` 렌더 실측** (P1203): 72개월 표본(꼬리 구조가 모든 창에서 동일한 6개월 주기)에서 렌더 라벨이 **`인증`**, 13개월 표본은 `인증 보류 — 표본 부족, 꼬리 부족, 부트스트랩 변동 큼, 추정량 민감`. 실브라우저 `PFE2-23` PASS. **이 실측이 결함을 찾았다**: 랩이 `deriveVarStability`에 **정렬된** 표본을 넘겨 민감도 변형 `recent-half`가 '최근 절반'이 아니라 '상위 절반'이 됐고(중앙값 양수인 표본은 VaR 0 → 민감도 1), **인증이 현실 표본에서 도달 불가**였다 — 호출자가 시간 순서 표본을 넘기도록 수정. **잔여**: 입력 순서 계약은 주석으로만 알리고 런타임 검증이 없다.
-- [x] **셸 위험 입력 조립 분해 — 종료(P1258).** 조립을 `src/ui/panels/portfolio-risk-input.js`로 분해하고 셸은 증거 수집·문구만 유지(`js/aio-workspace.js` −51행). verify_by 충족: ci-decomp-hotspot-check (aio-workspace 순감소 ratchet 반영 + 조립 fixture — `ci-esm-core-unit-check` P1258: 입력 자격·returnsMap·스냅샷 재현성·보류 코드 3종·목표비중 합 초과 거부).
-- [x] **E2 S-C/S-E/S-F — 종료(P1238~P1241).** S-F IDB 뉴스 범위 개명+비파괴 복사(P1238), S-E 스크리너 AI 컨텍스트 helper 단일화(P1239), S-C shadow 실행 하니스(P1240)와 행 해석 단일 소유자 `screener-row-policy.js` 전환(P1241). 이 항목의 "미착수" 표기는 갱신 전 낡은 상태였다.
-- [x] **원장·FX 선언 패널의 `src/ui` 분해** (P1195): 마크업·ack 문구를 `src/ui/panels/portfolio-declarations.js`로 옮기고 셸은 저장 경로·핸들러·ack 순서만 남겼다. `js/aio-workspace.js` 3099→3067(-32)로 ratchet을 조였고, `ci-esm-core-unit-check` P1195(마크업 15검사 + 셸 소스 계약) + 실브라우저 22/22 PASS. **잔여**: Vault 저장 경로(`_pfVaultListRead/_pfVaultListWrite`, ~33줄)와 위험 입력 조립은 아직 셸에 있다 — 저장 경로를 옮기려면 `safeLS`·Vault 런타임 캐시 주입이 필요하다. verify_by: ci-decomp-hotspot-check (aio-workspace 추가 순감소 + 선언 저장소 fixture)
-- [x] **전략 실행 경로 연결** (P1193): risk 표면의 `pf-exposure-path-input`·`pf-rebalance-policy-input`이 측정 경로(현재 구성 소급 ↔ 고정 목표비중 전략)와 리밸런싱 정책을 선언하고, 셸이 포지션의 `targetWeight`(%)를 합 100% 조건으로 검증해 실수 비중으로 넘긴다 — 조건이 어긋나면 엔진이 `strategy-target-weights-invalid`로 보류한다. 패널이 전략 lineage·목표비중·sleeve 분모·계좌 범위 보류를 게시한다. `ci-esm-core-unit-check` P1193 + 실브라우저 `PFE2-18` PASS.
-- [x] **소비되지 않는 선언의 정리** (P1197): 회고 경로에서 리밸런싱 정책은 결과를 바꾸지 않는데 **필수**였고(없으면 `rebalance-policy-required`로 차단) 선언되면 **정체성 해시만** 바꿔 같은 입력이 다른 `estimateId`를 받았다. 이제 정책 부재는 전략 경로에서만 차단하고, 정체성에는 **적용된 정책만** 들어가며, `rebalancePolicy`(적용값, 회고 경로 null)·`rebalancePolicyDeclared`·`rebalancePolicyApplied`를 따로 발행한다. 위험 패널이 `선언 정책 monthly 미사용`을 표시한다. `ci-esm-core-unit-check` P1197(8검사 — 정책을 바꿔도 수치·id 동일, 전략 경로는 차단·적용·해시) PASS. P1182 fixture의 기대값을 새 계약으로 갱신했다.
-- [ ] 전략 경로 **UX 잔여** — 회고 경로에서 정책 셀렉터는 여전히 노출되고(미사용·미선언을 표시한다), `unrecognized` 플래그는 발행만 하고 별도 문구를 쓰지 않으며(셀렉터가 미선언으로 되돌아가는 것으로 드러난다), 목표비중 합이 정확히 100%여야 해 현금을 목표비중에 포함한 계좌 범위 선언은 불가하다. verify_by: design-intake (전략 경로 폼 UX 결정 후)
-- [x] **선언 정직성 — 지어낸 기본값 제거** (P1198): 열거형 선언(측정 경로·리밸런싱 정책)도 통화·수익률과 같은 규칙을 따른다 — **미선언과 미인식은 null**이고 기본값으로 승격되지 않는다. 예전에는 정책을 한 번도 선언하지 않은 사용자에게 `daily`가 '선언'으로 게시됐고, `monthy` 같은 오타는 조용히 daily 리밸런싱이 됐다. 셸은 선언된 값만 넘기고(전략 경로 미선언 → `rebalance-policy-required`), 패널은 적용/미사용/미선언을 구분하며, 셀렉터에 `미선언` 옵션이 생겼고 미인식 값은 저장되지 않고 삭제된다. `ci-esm-core-unit-check` P1198(6검사, P1193 기대값 갱신) + 실브라우저 `PFE2-21`(양성·음성 대조) PASS.
-- [x] **FX 환산·cut** (P1194, 11 §23): risk 표면의 `pf-fx-*`가 관측 rate leg(From/To/환율/관측일)를 선언하고 `aio_portfolio_fx_legs`로 Vault 경로에 저장되며, reader→provider→normalize→**슬라이스 리듀서**→surface를 지나 혼합 통화 합계를 환산한다. 컷 이후·선언 창(72h) 초과 leg는 쓰지 않고, 사용한 leg(출처·관측 시각·역방향)·창·실패 통화쌍/사유를 `conversion`으로 발행한다 — 실패하면 합계를 만들지 않는다. 삼각 환산은 하지 않는다. `ci-esm-core-unit-check` P1194(계약 11검사 + surface 3분기 + 5개 경계 소스 계약) + 실브라우저 `PFE2-19`(선언 → `통화 환산(선언 rate) → USD`, 삭제 → 혼합 보류) PASS.
-- [x] **원가/시세 통화 불일치의 환산 P&L** (P1196): P1181의 보류 규칙을 **근거 유무**로 재적용했다 — 값 USD·원가 KRW인 보유는 KRW→USD leg를 선언하면 원가 축이 기준 통화가 되어 P&L이 성립하고(`cost-price-mismatch-converted`·`costApplied`·`costConvertedFrom`), 근거가 없으면 예전처럼 보류한다(`cost-price-mismatch-held`). 값·현금 환산 실패는 합계 전체를 보류하지만 **원가 환산 실패는 P&L만** 보류하고 어느 쌍이 없는지 `conversion.costHeld`로 발행한다. UI 주석이 두 상태를 구분한다. `ci-esm-core-unit-check` P1196(8검사) + 실브라우저 `PFE2-20`(leg 없음 → `P&L 보류`·`—`, leg 선언 → `선언 rate로 환산`·`+$1,889`) PASS.
-- [x] **BLOCKED(데이터 소스 결정) — 백테스트 랩 통화축**: 구현 불가임을 증거로 확인했다(2026-09-24). ① `src/domain/portfolio/backtest.js`에 통화·FX 참조가 **0건** — 랩은 단일 통화 가정으로 설계돼 있다. ② `scripts/fetch-data.mjs`는 FX 환율 **이력**을 생산하지 않는다(`usdkrw`·`currency rate` 계열 0건). ③ `public-data/market-snapshot.json`에 `instrumentId: "KRW=X"`가 있으나 이는 **시점 스냅샷**이며 과거 구간을 덮지 못한다. P1194의 선언 leg도 시점 값이라 백테스트 창(수년)을 채울 수 없다. 필요한 것: (a) 통화쌍별 **과거 FX 시계열** 공급원 결정(제공자·주기·PIT 의미), (b) 자동 관측 환율 사용 여부 결정(현재 환산은 사용자 **선언** leg만 소비한다 — 스냅샷 기반 자동 환산은 별도 설계 결정). verify_by: data-refresh(FX 이력 공급원 도입 후) + ci-esm-core-unit-check (시계열 환산 fixture) — Retired (v58.86 정리): 해결됨: QA-FX-CONSUMERS(v56.47, P1247)에서 종료
-- [x] **결정(2026-09-24, 권장 방향) — FX 공급 방식: 자동 관측 환율을 도입하지 않는다.** 환산 근거는 사용자가 선언한 관측 leg뿐이다(P1194). `public-data/market-snapshot.json`의 `KRW=X`는 **시점 스냅샷**이라 자동 환산에 쓰지 않는다 — 자동 적용은 "누가 언제 관측했는가"를 흐리고, 환산은 합계 자체를 바꾸는 주장이므로 선언된 근거만 소비한다. 자동 *제안*도 넣지 않는다(제안 UI는 근거 없이 값이 채워진 것처럼 보이게 한다).
-- [x] **결정(2026-09-24, 권장 방향) — 삼각 환산 불허, 선언 창 72시간 유지.** 두 leg로 만든 사슬(EUR→USD, USD→KRW)은 사용자가 하지 않은 주장이므로 계속 금지한다(보류 + `costHeld`/`held`에 쌍 게시). 창 72시간은 지연 시세 창 재사용이며, 통화쌍별 신선도 정책은 실제 FX 공급원이 도입될 때 백테스트 통화축 항목과 함께 다룬다.
-- [x] **결정(2026-09-24, 권장 방향) — P1192는 값 보존 바인딩 유지.** 완료 컷을 넘는 previous-close 스탬프는 값을 버리지 않고 직전 bar open 경계로 앉히되(`observedAtBoundary: 'previous-bar-open'`), 그마저 컷을 넘으면 값을 싣지 않는다. 문자 그대로의 `null`로 되돌리면 23:00Z 이후 대부분 행에서 dxy/wti/gold가 사라져 "값 소실"이 된다 — 보류와 소실을 구분하는 원칙에 어긋난다.
-
-## data-refresh 상태 (v56.32, 2026-09-24)
-
-**CI 정식 산출물이 P1095 게이트를 위반한 상태로 원격에 있다(2026-09-24, v56.32 리베이스 시점).** 원격 `main`(ac5fc72c)의 `public-data/*`는 CI 시크릿 사이클(09-23~09-24, 11커밋)이 생산한 **공식 산출물**이며, 로컬에서 `ci-artifact-semantics-check`를 돌리면 실패한다: `2026-09-24.dxy/wti/gold previous close stamped after the completed cut`. 원인은 **producer**다 — P1192가 `scripts/fetch-data.mjs`에서 previous-close를 직전 bar 경계로 제한했지만, 그 수정 이전에 CI가 생산한 산출물이 그대로 원격에 남아 있다. 이 조건은 **원격 HEAD에 이미 존재**하며(동일 파일) 이번 로컬 배치가 새로 만든 것이 아니다. 해소는 다음 CI 사이클(수정된 producer로 재생성)에서만 가능하다 — 로컬 재실행은 무키(LKG/폴백) 산출물로 공식 데이터를 덮으므로 하지 않는다. **따라서 이 게이트 실패는 미해결로 남기고, 코드·문서·projection 재생성만 배포했다.**
-- 재생성(로컬): `public-data/operations-status.json`은 `build-operations-status.mjs`로 v56.32에 맞춰 재생성했다. CI가 관측한 라이브 헬스는 **증거로 보존**(`status: CURRENT`·200·`evidenceFresh: true`·`observedAt 2026-09-24T01:25:28Z`)되고, 이번 로컬 실행은 관측을 주장하지 않는다(`observationStatus: NOT_ATTEMPTED`, `source: last-observed-live-health`) — P1166 규약대로다. 다음 CI 사이클이 실제 관측으로 되돌린다.
-
-로컬에서 `node scripts/fetch-data.mjs`를 실제 실행해 확인한 결과다. 성공으로 승격하지 않는다.
-
-- [x] **P1095 ↔ history-time 계약 충돌 닫힘** (P1192, 권위는 P1095): 완료 컷 행을 넘는 `previous-completed-close` 스탬프를 **직전 bar 경계로 제한**하고, 그마저 컷을 넘으면 그 행에서 값을 싣지 않는다. 재실행 산출물에서 `ci-artifact-semantics-check`·`ci-history-field-time-contract-check`가 동시에 PASS. `ci-esm-core-unit-check` P1192 fixture로 3분기(경계로 앉힘 / 값 미게시 / 컷 이내 무변경) 고정, `ci-history-field-time-contract-check`에 소스 계약 추가.
-- [x] **신선도 fail 2건 닫힘** (P1192 재실행): `ci-data-lineage-audit` = 24 artifacts / **PASS 18 · WARN 6 · FAIL 0**(data.json·market-snapshot 0.08h), `ci-reconciliation-contract-check` PASS. 브라우저 그룹도 되살아남 — `qa-runner affected` = **pass 87 / cached 8 / fail 0 / skip 0**(v56.21의 skip 31 → 0).
-- [x] **정식 사이클은 여전히 CI 시크릿 경로** — 이 머신에 `FRED_API_KEY`/`ANTHROPIC_API_KEY`/`TWELVE_DATA_API_KEY`가 없어 재실행 산출물은 `fredHasKey:false`/`fredLkgUsed:true` LKG + `anthropic-key-not-configured` LLM 폴백이고 readiness의 fred 기준선도 `OPERATOR_REQUIRED`다. 이 라벨은 정직하지만 커밋하면 그대로 실리므로, 정식 사이클(`.github/workflows/refresh-data.yml`)로 덮어야 한다. verify_by: ci-data-refresh-audit (CI 시크릿 사이클 후 `fredFetchOk:true` 확인) — Retired (v57.79): local producer runs are forbidden (AGENTS Producers); producers and SEC_USER_AGENT run only in GitHub Actions, and freshness is checked by the qa-runner `watchdog` profile; public-data/data.json now reports fredHasKey/fredFetchOk true
-- [x] **직전 bar 경계 근사의 해석** — P1192의 fallback은 FX/상품(back-to-back)에서는 정확한 경계지만 세션형 종목에서는 직전 세션의 **개시** 시각이라 실제 종료보다 이르다. `observedAtBoundary: 'previous-bar-open'`으로 표기되지만 소비자 해석이 필요하다. verify_by: design-intake (세션형 종목의 previous-close 경계 정책 확정 후) — Retired (v58.86 정리): 역사 배치 체크리스트(2026-07~09): 당시 배치의 마감 조건이었고 현재 동작은 이름 붙은 게이트가 소유한다

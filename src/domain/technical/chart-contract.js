@@ -33,23 +33,3 @@ export function normalizeChartBar(row = {}) {
   });
 }
 
-export function classifyChartUpdate({ cause = 'history', settled = false } = {}) {
-  const updateCause = CHART_UPDATE_CAUSES.includes(cause) ? cause : 'history';
-  const recordable = updateCause === 'bar' && settled === true;
-  return Object.freeze({
-    updateCause,
-    provisional: updateCause === 'tick' || !recordable,
-    recordable,
-    exportable: recordable
-  });
-}
-
-export function negotiateChartRenderer({ renderer = null, required = [] } = {}) {
-  const capabilities = renderer?.capabilities && typeof renderer.capabilities === 'object' ? renderer.capabilities : {};
-  const missing = (Array.isArray(required) ? required : []).filter((capability) => capabilities[capability] !== true);
-  return Object.freeze({
-    available: typeof renderer?.render === 'function' && missing.length === 0,
-    missing: Object.freeze([...missing]),
-    failSoft: true
-  });
-}

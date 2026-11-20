@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v60.31';
+const APP_VERSION = 'v60.32';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -1633,7 +1633,6 @@ window._aioLRU = function(name, cap) {
       });
     } catch(_) {}
   }
-  window._aioNormalizeDataActionA11y = normalizeDataActionA11y;
   function dispatch(e) {
     // data-open-url: 단축 패턴 — 외부 링크 새탭 오픈 (onclick="window.open(url,'_blank')" 대체)
     // A nested data-action is the more specific intent (for example a ticker badge inside
@@ -1878,9 +1877,6 @@ function _aioOpenTechnicalAnalysis(ticker) {
   if (sym) window._aioChartRequest = sym;
   if (typeof window.showPage === 'function') window.showPage('charts');
 }
-window._aioChartAnalyze = function(ticker) {
-  _aioOpenTechnicalAnalysis(ticker);
-};
 // v49.79 P426/R163: 멀티탭 localStorage storage 이벤트 리스너 — 다른 탭 변경 자동 감지
 // 사용자 정직 요구 — 멀티탭 race condition 시정 (API 키 / 프로필 / 알람 / 채팅 기록)
 (function() {
@@ -9167,15 +9163,6 @@ window._aioTriggerPortfolioImport = function() {
 // window._aioSaveCashBalance (src/app/compatibility-globals.js).
 window._aioSavePortfolioAssumption = function(el) {
   if (typeof window.savePortfolioAssumption === 'function') window.savePortfolioAssumption(el ? el.id : '', el ? el.value : '');
-};
-window._aioUppercaseInput = function(el) {
-  if (!el || typeof el.value !== 'string') return;
-  var start = typeof el.selectionStart === 'number' ? el.selectionStart : null;
-  var end = typeof el.selectionEnd === 'number' ? el.selectionEnd : null;
-  el.value = el.value.toUpperCase();
-  if (start !== null && end !== null && typeof el.setSelectionRange === 'function') {
-    try { el.setSelectionRange(start, end); } catch(_) {}
-  }
 };
 // 확장: change/input 이벤트도 동일 디스패처로 위임
 (function() {

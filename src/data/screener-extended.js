@@ -10,7 +10,6 @@ export const EXTENDED_UNIVERSE_SCHEMA = 'screener-extended-universe.v1';
 export const EXTENDED_ROW_ENCODING = 'row-defaults.v1';
 export const EXTENDED_SHARD_URL = artifactUrl('screener-extended.json');
 export const UNIVERSE_SCOPE_KEY = 'aio_screener_universe_scope';
-export const UNIVERSE_SCOPES = Object.freeze(['core', 'extended']);
 // Membership tags use the index keys the screener already labels (INDEX_LABELS in src/ui/pages/screener.js).
 export const MEMBERSHIP_TAGS = Object.freeze({ R2000: 'RUSSELL2000', NASDAQ: 'NASDAQ' });
 // Fields shared by most rows are written once per shard. Rows that carry a `when` key also take that group's

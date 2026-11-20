@@ -5,10 +5,6 @@
 // the AI reading (narrative-context.mjs, the chat context) only. Shared by 뉴스's 시장 신호 card, the move headlines on
 // 브리핑 and 테마, and the session sentence.
 
-const day = (iso) => {
-  const [, mm, dd] = String(iso || '').split('-').map(Number);
-  return mm && dd ? `${mm}/${dd}` : '';
-};
 export const fmtNumber = (value) => (Number.isFinite(value) ? value.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '—');
 export function fmtPrice(value, currency) {
   if (!Number.isFinite(value)) return '—';
@@ -43,9 +39,6 @@ export function signalLine(signal) {
   }
   return '';
 }
-
-/** The same line with its date in front ("10/30 BofA, NVDA 목표주가 …"). */
-export const datedSignalLine = (signal) => `${day(signal?.date)} ${signalLine(signal)}`.trim();
 
 /**
  * The processed line a channel post may show for `symbol`: the post's own extracted fact about that ticker, else null.

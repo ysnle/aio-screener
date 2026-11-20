@@ -342,16 +342,6 @@ function hyRecordText(rec, span = 20) {
   return `지난 ${rec.n}번의 ${span}거래일 변화 중 ${rec.highest ? '가장 큰 폭' : `상위 ${Math.max(1, 100 - rec.pct)}%`}`;
 }
 
-// v57.81: "회복 중" only when the last session kept the window's gain — a last drop of reversalShare of the gain to the
-// previous session is 'reversed', a last drop of lastSessionNoticePp or more is 'pullback', anything else 'holding'.
-export function recoveryCheck(now, previous, start) {
-  if (![now, previous, start].every(Number.isFinite)) return 'holding';
-  const gain = previous - start, lastMove = now - previous;
-  if (lastMove < 0 && gain > 0 && -lastMove >= gain * RULES.breadth.reversalShare) return 'reversed';
-  if (lastMove <= -RULES.breadth.lastSessionNoticePp) return 'pullback';
-  return 'holding';
-}
-
 // v57.81: one 20-session USD/KRW window for the 환율 axis and the 원/달러 card. The change counts as a direction only when
 // the shift of the 20-session mean agrees (same sign, at least meanShareOfBar of the bar) — an endpoint on a one-day spike
 // is not a trend.

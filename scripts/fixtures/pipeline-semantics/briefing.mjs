@@ -170,23 +170,14 @@ export const cases = [
       assert.deepEqual(flipped.names.map((row) => row.symbol), ['A', 'B']);
   } },
   { id: 'P26-EVENT-01', name: '실적 반응·미리보기는 일정과 같은 DST·휴장 달력을 쓴다', run: async ({ load }) => {
-      const { earningsReactionCases, eventPreviews } = await load('src/domain/briefing/event-guide.js');
+      const { eventPreviews } = await load('src/domain/briefing/event-guide.js');
       const { buildBriefingSchedule } = await load('src/domain/briefing/schedule.js');
-      const signals = [{ kind: 'earnings', ticker: 'TEST', post: '1', revenue: 'beat', eps: 'beat' }];
-      const winter = earningsReactionCases({ signals, posts: [{ id: '1', datetime: '2026-12-01T14:00:00Z' }], rows: [{ sym: 'TEST', factorSessionDate: '2026-12-01', ret1d: -3 }], session: '2026-12-01' });
-      assert.equal(winter.length, 1, '09:00 ET in winter is before the 09:30 open');
-      // 11/27 follows the Thanksgiving holiday: the previous open is 11/25, so a post on 11/26 is in the window.
-      const holiday = earningsReactionCases({ signals, posts: [{ id: '1', datetime: '2026-11-26T15:00:00Z' }], rows: [{ sym: 'TEST', factorSessionDate: '2026-11-27', ret1d: -3 }], session: '2026-11-27' });
-      assert.equal(holiday.length, 1);
       const row = { symbol: 'TEST', date: '2026-12-01', hour: 'bmo', indexWeight: 1, epsEstimate: 1 };
       const nowMs = Date.parse('2026-12-01T18:30:00Z');
       assert.equal(eventPreviews({ earnings: [row], names: { TEST: 'Test' }, nowMs }).length, buildBriefingSchedule({ earnings: [row], names: { TEST: 'Test' }, nowMs }).length);
   } },
   { id: 'P26-NULL-01', name: '없는 실적·반응·매출은 0이나 수신으로 바뀌지 않는다', run: async ({ load }) => {
-      const { earningsReactionCases } = await load('src/domain/briefing/event-guide.js');
       const { buildBriefingSchedule, formatUsdRevenue } = await load('src/domain/briefing/schedule.js');
-      const signals = [{ kind: 'earnings', ticker: 'TEST', post: '1', revenue: 'beat', eps: 'beat' }];
-      assert.equal(earningsReactionCases({ signals, posts: [{ id: '1', datetime: '2026-10-29T12:00:00Z' }], rows: [{ sym: 'TEST', factorSessionDate: '2026-10-29', ret1d: null }], session: '2026-10-29' }).length, 0);
       const empty = buildBriefingSchedule({ earnings: [{ symbol: 'TEST', date: '2026-10-30', hour: 'bmo', epsActual: '' }], names: { TEST: 'Test' }, nowMs: Date.parse('2026-10-30T10:00:00Z') });
       assert.notEqual(empty[0].status, 'received');
       assert.doesNotMatch(String(empty[0].last || ''), /EPS 0\.00/);
@@ -201,11 +192,6 @@ export const cases = [
       assert.equal(week.days[0].sessions[0].rows[0].reported, true, 'the row with the revenue actual wins');
       assert.equal(week.days[0].sessions[0].key, 'bmo', 'and keeps the known session');
   } },
-  { id: 'P26-CHECKS-01', name: '결과가 이미 들어온 일정은 오늘 확인할 일정이 아니다', run: async ({ load }) => {
-      const { todayChecks } = await load('src/domain/briefing/event-guide.js');
-      const rows = todayChecks({ schedule: [{ kind: 'earnings', atMs: NOW + 3600000, passed: false, status: 'received', when: '10/30', label: 'A 실적' }], nowMs: NOW });
-      assert.equal(rows.filter((row) => row.kind === 'event').length, 0);
-  } },
   { id: 'P26-PULSE-01', name: '축 개수가 없으면 부담 0·양호 0으로 쓰지 않는다', run: async ({ load }) => {
       const { regimePulse } = await load('src/domain/briefing/regime-pulse.js');
       assert.doesNotMatch(regimePulse({ available: true, overall: '부담 우세', asOf: '2026-10-29' }).label, /부담 0/);
@@ -216,12 +202,6 @@ export const cases = [
       const problems = scheduledEventProblems({ nowMs: NOW, registry: [event, { ...event, reviewedAt: '2026-10-01' }] });
       assert(problems.some((p) => /future/.test(p.reason)));
       assert(problems.some((p) => /duplicate/.test(p.reason)));
-  } },
-  { id: 'P26-DIFF-01', name: '두 거래일 모두 읽힌 축이 없으면 "판정이 그대로"라고 쓰지 않는다', run: async ({ load }) => {
-      const { buildDailyChanges } = await load('src/domain/briefing/daily-diff.js');
-      const out = buildDailyChanges([{ date: '2026-10-28', spx: 6000 }, { date: '2026-10-29', spx: 6010 }], { now: NOW });
-      assert.equal(out.comparableAxes, 0);
-      assert.doesNotMatch(out.headline, /판정이 그대로|판정은 그대로/);
   } },
 
   // ---- R1/R3: reviewer follow-ups ------------------------------------------------------------------------------------------

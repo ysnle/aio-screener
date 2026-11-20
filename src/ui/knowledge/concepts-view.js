@@ -6,7 +6,7 @@
 import { ROUTE_HUBS } from '../navigation/route-hubs.js';
 import { COLUMN_FRAME_LINKS, LESSONS, PATHS, lessonById } from '../../domain/knowledge/learning-core.js';
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
-import { createResearchShell, navGroup, asideBlock, el, researchDocumentOpen } from './research-shell.js';
+import { createResearchShell, asideBlock, el, researchDocumentOpen } from './research-shell.js';
 import { splitDefinition } from './glossary-bridge.js';
 import { screenRoutesFor, CONCEPT_SURFACES } from '../../domain/knowledge/concept-surfaces.js';
 import { renderFrameArticle, renderFrameConnections, ensureFrameStyle, renderBasis, renderWorkedCalc } from './analysis-frames.js';

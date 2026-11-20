@@ -44,7 +44,9 @@ console.log(Object.entries(leads).map(([kind, set]) => `- ${kind}: ${[...set].fi
 console.log(`\n## Ledger lines (${citedCount ? 'ids cited in the lines' : 'no id in the lines — commit-message leads'})`);
 for (const id of ids.P) printLedger('_context/BUG-POSTMORTEM.md', new RegExp(`^## ${id} `), 2);
 for (const id of ids.R) printLedger('_context/RULES.md', new RegExp(`^## ${id}\\.`), 1);
-for (const id of ids.QA) printLedger('_context/QA-CHECKLIST.md', new RegExp(`${id.replace(/[-]/g, '\\-')}:`), 0);
+// A done row from v60.19 and earlier survives only as an id in its section's "- 완료 <n>건: …" line, so the id may
+// be followed by a comma or the line end instead of the row's colon.
+for (const id of ids.QA) printLedger('_context/QA-CHECKLIST.md', new RegExp(`${id.replace(/[-]/g, '\\-')}(?:[:,]|$)`), 0);
 for (const version of ids.version) printLedger('CHANGELOG.md', new RegExp(`^## ${version.replace('.', '\\.')} `), 0, target.symbol || target.file.split('/').pop().replace(/\.[^.]+$/, ''));
 console.log('\nNext: read the cited entries in full by id, then the handoff that names the symbol. A guard with no id above is a finding to report, not a reason to delete it.');
 

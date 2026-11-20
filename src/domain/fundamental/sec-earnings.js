@@ -12,7 +12,6 @@
 //       or non-positive prior year falls back to year-end equity and says so (roeBasis 'year-end-equity').
 import { finiteFact as finite, isPriorAnnualPeriod, isQuarterSpan, isQuarterGap } from './period.js';
 
-export const SEC_EARNINGS_BASIS_VERSION = 'sec-earnings-basis.2026-10-17';
 export const SEC_COMMON_INCOME_CONCEPT = 'NetIncomeLossAvailableToCommonStockholdersBasic';
 // The first concept of each list is the anchor when several report the latest period.
 // v58.55: R&D expense as filed, in preference order. The acquired in-process R&D variants are the same line without

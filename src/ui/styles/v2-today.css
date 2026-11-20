@@ -33,15 +33,12 @@
 #page-home #home-score-hero #home-operator-note { margin: 0; }
 /* The Korea line and the month tilt: one line each, their readings open in place (expert layer). */
 #page-home .home-kr-line[hidden] { display: none; }
-#page-home .home-kr-line > summary, :is(#page-home, #page-signal) .market-lean > summary, #page-home .leaders-line__more > summary { cursor: pointer; min-height: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+#page-home .home-kr-line > summary, :is(#page-home, #page-signal) .market-lean > summary { cursor: pointer; min-height: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
 #page-home .home-kr-line > summary::-webkit-details-marker, :is(#page-home, #page-signal) .market-lean > summary::-webkit-details-marker { display: none; }
 #page-home .home-kr-line > summary, :is(#page-home, #page-signal) .market-lean > summary { list-style: none; }
 #page-home .home-kr-line > summary::after, :is(#page-home, #page-signal) .market-lean > summary::after { content: '⌄'; color: var(--color-text-secondary); font-size: 14px; } /* the sx-disclosure marker */
 #page-home .home-kr-line[open] > summary::after, :is(#page-home, #page-signal) .market-lean[open] > summary::after { content: '⌃'; }
 #page-home .home-kr-detail { margin: 4px 0 6px; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
-#page-home .regime-chip-delta { font-size: 12px; font-weight: 600; }
-#page-home .regime-chip-delta.is-down { color: var(--amber-12); }
-#page-home .regime-chip-delta.is-up { color: var(--green-12); }
 
 /* ═══ 3. One quote row (v59.51: the KPI tiles, the "지금 시세" heading, gold and BTC left) ═══════════ */
 #page-home #home-cross-assets.home-cross-assets { display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; margin: 0 0 16px; padding: 4px 0; border-block: 0.5px solid rgba(var(--ink-rgb), 0.12); }

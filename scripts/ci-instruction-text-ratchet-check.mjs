@@ -49,7 +49,7 @@ for (const file of walk('src').sort()) {
 // v59.70 (PLAN S13/S15): no visible '읽는 법 / 보는 법 / 먼저 … 확인하세요' text. The remaining cases belong to other screens
 // (two knowledge-page sentences, one guide AI chip) and may only go away; quoted source titles (src/domain/research) are
 // data, not screen text.
-const HOW_TO_READ_ALLOWED = Object.freeze({ 'src/ui/knowledge/current-observations.js': 1, 'src/ui/knowledge/lesson.js': 1, 'src/ai/context/panel-contexts.js': 1 });
+const HOW_TO_READ_ALLOWED = Object.freeze({ 'src/ui/knowledge/current-observations.js': 1,'src/ai/context/panel-contexts.js': 1 });
 if (howToReadIssues("const t = '이 기업을 보는 법';").length !== 1 || howToReadIssues("const t = '이 기업을 보는 렌즈';").length !== 0) {
   console.error('FAIL how-to-read scanner self-test'); process.exit(1);
 }

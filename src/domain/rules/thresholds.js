@@ -43,15 +43,12 @@ export const RULES = Object.freeze({
   // the episode. Evidence only — no scenario or trend condition reads it.
   rallyAttempt: Object.freeze({ correctionPct: 6, lookbackSessions: 63, minDay: 4, gainPct: 1.25, leaderWindowSessions: 15 }),
   leadership: Object.freeze({ advanceRatioWeakBelow: 0.45, distributionDaysAt: 6, minConfirmations: 2, confirmWindowSessions: 5, proxyDrop5dPct: 6, proxyBufferPct: 2, semisLagRsp5dPp: 7, aiLagSemis20dPp: 10, shockSemis1dPct: 4.5, shockNdx1dPct: 2.5, rotationGapPp: 3, broadSectorCount: 9, splitSidePct: 1, themeSplitPp: 4 }),
-  // v57.81: "회복 중" only when the last session did not give back reversalShare of the window's gain (a 5-day +8pp bounce
-  // that lost 4pp on the last close is 되밀림, not recovery); a last-session drop of lastSessionNoticePp or more is named.
-  // indexConfirmDeadZonePp: a 20-session participation change inside ±3pp is "거의 변하지 않음", not 넓어짐/줄어듦.
   // Owner 2026-10-18: holdExitAt — once a ratio fell under weakBelow, 부담 holds until the lower of the 50/200-day ratios is
   // back at 45% (latchSessions window), the hysteresis the trend, rates and credit axes already use.
   // Owner 2026-10-18: 바닥 확인 조건 (market-read bottomWatchOf) — F&G 25 is the CNN extreme-fear edge; new lows at half their
   // recent peak, a +20pp short-term participation rebound and a 2:1 4%-up thrust are conventions, not validated predictors.
   bottomWatch: Object.freeze({ fearAtMost: 25, newLowsWindow: 10, newLowsShrinkShare: 0.5, b20Window: 20, b20ReboundPp: 20, thrustRatio: 2 }),
-  breadth: Object.freeze({ weakBelow: 40, broadAtLeast: 60, reversalShare: 0.5, lastSessionNoticePp: 3, indexConfirmDeadZonePp: 3, holdExitAt: 45, latchSessions: 60 }),
+  breadth: Object.freeze({ weakBelow: 40, broadAtLeast: 60, holdExitAt: 45, latchSessions: 60 }),
   // 시장 상태 '추세와 시장 폭' pair: the share of S&P 500 members above their 50-day line reads broad at or above
   // broadAbovePct and narrow under narrowBelowPct; between them it is the middle reading.
   breadthCross: Object.freeze({ broadAbovePct: 55, narrowBelowPct: 45 }),

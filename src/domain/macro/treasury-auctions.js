@@ -78,7 +78,6 @@ export function compareAuctions(rows = []) {
 
 const READ_WORDS = Object.freeze({ weak: '평소보다 약한 수요', strong: '평소보다 강한 수요', mixed: '지표가 엇갈림', usual: '평소 수준', thin: '비교할 과거 입찰이 적음' });
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
-const signed = (value, digits) => `${value > 0 ? '+' : value < 0 ? '−' : '±'}${Math.abs(value).toFixed(digits)}`;
 
 /** One result in one Korean line: "10/29 7년물 4.894%: 응찰률 2.46배(직전 6회 평균 2.48), 간접 낙찰 57.6%(평균 63.1) — 평소 수준". */
 export function auctionLine(row) {

@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-19T16:37:45.472Z",
-  "appRevision": "v60.31",
-  "gitHead": "d064602cd6ba60fffafab3a82ccf94ba5eb66786",
+  "observedAt": "2026-11-20T02:05:59.058Z",
+  "appRevision": "v60.32",
+  "gitHead": "249a4440feb7ac518dffc15f9b9838505b179d7c",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,81 +16,81 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 260 > 200",
+    "max long task 279 > 200",
     "decoded same-origin JS 2.56MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 864,
-    "dclMs": 296,
-    "loadMs": 303,
-    "maxLongTaskMs": 260,
-    "totalLongTaskMs": 931,
+    "fcpMs": 856,
+    "dclMs": 302,
+    "loadMs": 348,
+    "maxLongTaskMs": 279,
+    "totalLongTaskMs": 946,
     "longTaskCount": 6,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 4177,
-    "activeRouteDomNodes": 2076,
+    "domNodes": 4197,
+    "activeRouteDomNodes": 2116,
     "scenarioDepthDeferred": true,
     "scenarioStateLoaded": true,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 2683905,
-    "sameOriginScripts": 145,
+    "decodedJsBytes": 2682145,
+    "sameOriginScripts": 144,
     "crossOriginScripts": 1,
-    "resourceEntries": 218,
+    "resourceEntries": 217,
     "jsByKind": {
-      "esmBoot": 1346812,
-      "classicBoot": 1001222,
+      "esmBoot": 1346424,
+      "classicBoot": 1000798,
       "aiPanelBeforeUse": 0,
-      "postBootLazy": 335871
+      "postBootLazy": 334923
     },
     "aiPanelRequestsBeforeUse": [],
     "largestLazyFiles": [
       {
-        "path": "src/chunks/market-regime-DIE4EXPE.js",
-        "bytes": 44819,
-        "startMs": 1990
+        "path": "src/chunks/market-regime-ME6B62U4.js",
+        "bytes": 44791,
+        "startMs": 2007
       },
       {
-        "path": "src/chunks/session-lean-OZOE6GFX.js",
-        "bytes": 34194,
-        "startMs": 390
+        "path": "src/chunks/session-lean-AG7LXMMU.js",
+        "bytes": 34166,
+        "startMs": 399
       },
       {
-        "path": "src/chunks/legacy-screen-bridges-XQR2XB7M.js",
-        "bytes": 27183,
-        "startMs": 205
+        "path": "src/chunks/legacy-screen-bridges-ZLQRV6OL.js",
+        "bytes": 27155,
+        "startMs": 212
       },
       {
-        "path": "src/chunks/chunk-DIUVKW5C.js",
+        "path": "src/chunks/chunk-526UGZAR.js",
         "bytes": 22799,
-        "startMs": 608
+        "startMs": 617
       },
       {
-        "path": "src/chunks/analysis-PF3FK5AJ.js",
-        "bytes": 22094,
-        "startMs": 285
+        "path": "src/chunks/analysis-XQJE7SUH.js",
+        "bytes": 22022,
+        "startMs": 291
       },
       {
-        "path": "src/chunks/cross-readings-TOOPIMQU.js",
-        "bytes": 15509,
-        "startMs": 2063
+        "path": "src/chunks/cross-readings-ICAXJGRK.js",
+        "bytes": 15476,
+        "startMs": 2083
       },
       {
-        "path": "src/chunks/chunk-LJW4472U.js",
-        "bytes": 15452,
-        "startMs": 1997
+        "path": "src/chunks/chunk-KJA2TZBV.js",
+        "bytes": 15448,
+        "startMs": 2014
       },
       {
-        "path": "src/chunks/chunk-BTUOL5GS.js",
-        "bytes": 13828,
-        "startMs": 1997
+        "path": "src/chunks/chunk-3ABLKUGA.js",
+        "bytes": 13818,
+        "startMs": 2014
       }
     ],
     "measuredBundle": "deploy",
     "aiPanelOnHover": [
       "js/aio-chat.js",
       "src/chunks/ai-profile-JDZM4GOZ.js",
-      "src/chunks/chat-globals-PAXHQUWV.js",
+      "src/chunks/chat-globals-ZE477LGL.js",
       "src/chunks/question-cues-4LSRCT6W.js",
       "src/chunks/request-pipeline-MXW2TTNP.js",
       "src/chunks/supplied-materials-IDFFOHN4.js"
@@ -98,8 +98,8 @@
     "glossaryBeforeUse": false,
     "termMarksBeforeGlossary": 17,
     "glossaryOnTermHover": true,
-    "routeMs": 18,
-    "wallMs": 9165,
+    "routeMs": 20,
+    "wallMs": 9163,
     "totalExternalRequests": 43,
     "quoteRequests": 24,
     "initialExternalRequests": 7,

@@ -17,13 +17,6 @@ export const STRESS_MIN_WEEKS = 30; // below this the slope's error band is too 
 const STEP = 5;
 const MAX_FACTOR_LAG_DAYS = 4; // a factor value on or before the holding date, at most this many calendar days earlier
 
-export const STRESS_FACTORS = Object.freeze({
-  equity: Object.freeze({ label: '보유 시장 지수', unit: '%' }),
-  rate: Object.freeze({ label: '미 10년물 금리', unit: 'bp' }),
-  oil: Object.freeze({ label: 'WTI 유가', unit: '%' }),
-  krw: Object.freeze({ label: '원/달러 환율', unit: '%' })
-});
-
 const isKr = (sym) => /\.(KS|KQ)$/i.test(String(sym || ''));
 
 function asOfLookup(series) {

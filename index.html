@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v60.31 — 올인원 투자 터미널</title>
+  <title>AIO Screener v60.32 — 올인원 투자 터미널</title>
   <meta name="description" content="미국 시장과 주요 뉴스를 살피고, 조건에 맞는 종목을 찾고, 투자 근거와 거래 기록을 돌아보세요.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -898,11 +898,8 @@ body {
 .briefing-footnote { font-size: 12px; color: var(--color-text-secondary); margin: 14px 0 0; }
 .briefing-footnote a { color: var(--color-text-secondary); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; } /* layout review 2026-10-18: was the browser's default blue link */
 .briefing-empty { font-size: 12px; color: var(--color-text-secondary); padding: 6px 0; }
-/* P1392: six-axis regime board */
-.regime-summary-head { display: flex; align-items: baseline; gap: 12px; }
 .regime-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; margin: 4px 0 18px; }
 .regime-axis { border: 0.5px solid var(--color-border); border-radius: var(--radius-element); padding: 14px 16px; background: var(--color-background-card); }
-.regime-axis-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .basis-chip { display: inline-block; font-size: 12px; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; margin-bottom: 6px; }
 .basis-chip.is-off { color: var(--color-text-warning, var(--color-text-secondary)); font-weight: 600; }
 .trend-card-tags { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -932,11 +929,7 @@ body {
 .page-sources { margin: 40px 0 8px; padding-top: 12px; border-top: 0.5px solid var(--color-border); font-size: 12px; color: var(--color-text-secondary); }
 .page-sources > summary { cursor: pointer; width: max-content; margin-left: var(--sx-card-pad-x, 22px); } /* v59.55: text on the page's text column; the rule above it stays full width */
 .page-sources ul { margin: 8px 0 0; padding-left: calc(var(--sx-card-pad-x, 22px) + 18px); line-height: 1.7; }
-.regime-chips { display: grid; grid-template-columns: repeat(2, minmax(110px, 1fr)); gap: 6px 14px; flex-shrink: 0; min-width: 240px; }
-.regime-chip { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
 .regime-chip-label { color: var(--color-text-secondary); }
-.regime-chip.is-reference { grid-column: 1 / -1; padding-top: 4px; border-top: 0.5px dashed var(--color-border); }
-.regime-chip .regime-state { font-size: 12px; padding: 1px 8px; }
 /* P1395/P1396: trend cards (시장 폭 · 투자 심리) */
 .trend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 14px; margin: 4px 0 16px; }
 .trend-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -948,9 +941,7 @@ body {
 .trend-card-note { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; margin: 0; }
 /* P1416: 시장 폭 groups, latest counts and the stocks behind each count */
 .breadth-group-title { grid-column: 1 / -1; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); margin: 10px 0 -4px; letter-spacing:0; }
-.trend-card-latest { font-size: 12px; font-weight: 600; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
 .breadth-drill { border-top: 0.5px solid var(--color-border-muted); padding-top: 8px; }
-.breadth-drill-summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--color-accent, var(--color-text-primary)); }
 .breadth-drill-date { margin: 8px 0; font-size: 12px; padding: 2px 6px; border: 0.5px solid var(--color-border-muted); border-radius: var(--radius-inner); background: var(--surface-1, transparent); color: var(--color-text-primary); }
 .breadth-drill-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .breadth-drill-title { font-size: 12px; font-weight: 600; margin: 0 0 4px; color: var(--color-text-secondary); }
@@ -1006,11 +997,6 @@ body {
 .pf-check-value { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--color-text-primary); }
 .pf-check-detail { font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); margin: 0; }
 .pf-check-basis { font-size: 12px; color: var(--color-text-secondary); }
-/* P1420: 차트 · 기술 — 시장 상태 요약 */
-.tech-regime { margin-bottom: 18px; }
-.tech-regime-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.tech-regime-overall { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--color-text-primary); }
-.tech-regime-head .theme-strength-basis { margin: 0; }
 /* P1425: 거시 — 경제 지표판 · 금리 · 환율 */
 .macro-group { margin: 0 0 22px; }
 .macro-group-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); margin: 0 0 4px; }
@@ -1061,10 +1047,8 @@ body {
 .macro-chain-label { font-size: 12px; color: var(--color-text-secondary); }
 .macro-chain-value { font-size: 14px; font-weight: 600; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
 .macro-chain-arrow { position: absolute; top: 8px; right: 10px; font-size: 12px; color: var(--color-text-secondary); }
-.macro-chain-links { margin: 0 0 12px; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; line-height: 1.7; color: var(--color-text-primary); }
 .macro-chain-branches { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
 .macro-chain-branch { display: grid; grid-template-columns: minmax(130px, 160px) 1fr; gap: 12px; align-items: center; }
-.macro-chain-effect { font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); margin: 0; }
 .macro-stat-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .macro-dir { font-size: 12px; color: var(--color-text-secondary); white-space: nowrap; }
 .macro-dir.is-up, .macro-dir.is-down { color: var(--color-text-secondary); font-weight: 600; }
@@ -1109,7 +1093,6 @@ body {
 .macro-axis-more { border-top: 0.5px solid var(--color-border-muted); padding-top: 6px; margin-top: 4px; }
 .macro-axis-more summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); min-height: 24px; display: list-item; }
 .macro-axis-more[open] summary { margin-bottom: 6px; }
-.macro-chain-legend { margin-top: 10px; }
 .macro-gauge-note { font-size: 12px; color: var(--color-text-secondary); margin: -2px 0 6px; }
 /* P1429: home futures fallback — the last completed index close when futures quotes are missing */
 /* P1505: without a futures quote the cell is the cash close — the spot line repeated the same number */
@@ -1140,7 +1123,6 @@ body {
 .screener-validation { margin: 0 0 14px; }
 /* WCAG 2.5.8: every new control is at least 24×24 CSS px */
 .theme-strength-tab, .theme-strength-more, .capex-flow-theme, .breadth-drill-symbol, .breadth-drill-date { min-height: 24px; min-width: 24px; display: inline-flex; align-items: center; box-sizing: border-box; }
-.breadth-drill-summary { min-height: 24px; min-width: 24px; display: list-item; box-sizing: border-box; }
 body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 .trend-card .regime-state { align-self: flex-start; }
 .trend-chart-wrap { position: relative; }
@@ -1213,8 +1195,6 @@ body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
 .page .stock-read-visuals { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px 32px; margin: 12px 0 14px; }
 .page .stock-read-vis-title { display: block; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px; }
 .page .stock-read-track { position: relative; margin-top: 18px; }
-.page .stock-read-marker { position: absolute; top: -5px; width: 4px; height: 20px; margin-left: -2px; border-radius: var(--radius-inner); background: var(--color-text-primary); }
-.page .stock-read-scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-secondary); margin-top: 6px; font-variant-numeric: tabular-nums; }
 .page .stock-read-bars { display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 8px; align-items: center; margin-bottom: 6px; }
 .page .stock-read-bar-label { font-size: 12px; color: var(--color-text-secondary); }
 .page .stock-read-bar-pair { display: grid; gap: 3px; }
@@ -2661,12 +2641,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 .principles-detail-title { margin:8px 0; font-size:28px; line-height:1.25; color:var(--color-text-primary); }
 .principles-detail-title:focus { outline:none; }
 .principles-chapter-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
-.principles-chapter-card { padding:11px; border:0.5px solid var(--color-border); border-radius:var(--radius-inner); background:var(--surface-2); }
-.principles-chapter-copy { margin:6px 0 0; color:var(--color-text-secondary); font-size:14px; line-height:1.75; }
-.principles-chapter-counter { color:var(--color-text-secondary); }
 .principles-learning-card-title { margin:0 0 5px; color:var(--color-text-primary); font-size:12px; }
-.principles-learning-steps { display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }
-.principles-learning-step { padding:3px 5px; border:0.5px solid var(--color-border); border-radius:var(--radius-inner); color:var(--color-text-secondary); font-size:12px; }
 .principles-reference-curriculum { margin:0 0 16px; padding:20px; border:0.5px solid var(--color-border); border-radius:var(--radius-element); background:linear-gradient(135deg,var(--surface-1),var(--surface-2)); }
 .principles-reference-header { max-width:900px; }
 .principles-reference-title { margin:4px 0 8px; color:var(--color-text-primary); font-size:28px; letter-spacing:-.025em; }
@@ -2698,14 +2673,8 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 .principles-reference-provenance { margin-top:14px; padding-top:12px; border-top:0.5px solid var(--color-border); color:var(--color-text-secondary); }
 .principles-reference-provenance summary { cursor:pointer; color:var(--color-text-secondary); font-size:12px; font-weight:600; }
 .principles-reference-provenance-body p { margin:9px 0 0; color:var(--color-text-secondary); font-size:12px; }
-.principles-integrated-framework-spine { margin:0 0 16px; padding:20px; border:1px solid var(--color-border); border-radius:var(--radius-element); background:linear-gradient(135deg,var(--surface-1),var(--surface-2)); }
-.atlas-integrated-framework-spine { margin-bottom:14px; padding:14px; border:1px solid var(--color-border); border-left:3px solid var(--color-text-primary); border-radius:var(--radius-element); background:var(--surface-1); }
-.integrated-framework-flow { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:6px; margin:18px 0 0; padding:0; list-style:none; }
-.integrated-framework-flow-item { display:grid; gap:3px; min-width:0; padding:9px; border-top:0.5px solid var(--color-text-primary); background:var(--surface-2); color:var(--color-text-secondary); font-size:12px; line-height:1.45; }
 .integrated-framework-flow-index { color:var(--color-text-primary); font:800 12px/1.2 var(--font-mono,monospace); }
 .integrated-framework-flow-title { color:var(--color-text-primary); font-size:12px; }
-.integrated-framework-flow-copy { color:var(--color-text-secondary); }
-.integrated-framework-route { margin-top:16px; padding:8px 11px; border:0.5px solid var(--color-text-primary); border-radius:var(--radius-full); background:var(--surface-2); color:var(--color-text-primary); font-size:12px; cursor:pointer; }
 .masters-source-link:focus-visible, .masters-detail-tab:focus-visible, .masters-action-filter:focus-visible, .masters-page-button:focus-visible { outline:2px solid var(--color-accent); outline-offset:2px; }
 .knowledge-current-observations { margin-top:18px; padding:14px; border:0.5px solid var(--color-border);  border-radius:var(--radius-element); background:var(--surface-1); }
 .knowledge-current-observations-eyebrow { color:var(--color-text-primary); font-size:12px; font-weight:600; letter-spacing:0; }
@@ -2718,15 +2687,9 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 .knowledge-current-observation-provenance { margin:6px 0 0; color:var(--color-text-secondary); font-size:12px; line-height:1.45; }
 .knowledge-current-observation-source { display:block; margin-top:6px; overflow-wrap:anywhere; color:var(--color-text-primary); font-size:12px; text-decoration:underline; }
 .knowledge-current-observations-empty { grid-column:1/-1; margin:0; color:var(--color-text-secondary); font-size:12px; }
-.knowledge-lesson { margin-top:10px; padding:12px; border:0.5px solid var(--color-border); border-radius:var(--radius-element); background:var(--surface-1); }
 .knowledge-lesson-title { margin:0 0 4px; color:var(--color-text-primary); font-size:14px; line-height:1.4; }
-.knowledge-lesson-boundary { margin:0; color:var(--color-text-warning); font-size:12px; line-height:1.5; }
-.knowledge-lesson-section { margin-top:10px; padding-top:8px; border-top:0.5px solid var(--color-border); }
 .knowledge-lesson-section-title { margin:0 0 4px; color:var(--color-text-primary); font-size:12px; }
-.knowledge-lesson-copy { margin:0; color:var(--color-text-secondary); font-size:14px; line-height:1.7; }
-.knowledge-example-block + .knowledge-example-block { margin-top:7px; }
 .knowledge-example-label { display:block; color:var(--color-text-primary); font-size:12px; }
-.knowledge-example-list, .knowledge-glossary-list { margin:4px 0 0; padding-left:18px; color:var(--color-text-secondary); font-size:12px; line-height:1.65; }
 .knowledge-learning-controls { display:grid; grid-template-columns:minmax(220px,1fr) minmax(280px,2fr) auto; gap:10px; align-items:end; margin:10px 0 14px; padding:11px 12px; border:0.5px solid var(--color-border); border-radius:var(--radius-element); background:var(--surface-1); }
 .knowledge-learning-controls-header { display:flex; flex-wrap:wrap; gap:5px 8px; align-items:center; }
 .knowledge-learning-controls-title { color:var(--color-text-primary); font-size:12px; }
@@ -2736,10 +2699,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 .knowledge-learning-note-label { display:grid; gap:4px; color:var(--color-text-secondary); font-size:12px; }
 .knowledge-learning-note { min-height:42px; max-height:110px; resize:vertical; padding:7px 9px; border:0.5px solid var(--color-border); border-radius:var(--radius-inner); background:var(--surface-2); color:var(--color-text-primary); font:12px/1.5 var(--font-sans, sans-serif); }
 .knowledge-learning-note:focus, .knowledge-learning-bookmark:focus-visible, .knowledge-learning-note-save:focus-visible { outline:2px solid var(--color-accent); outline-offset:2px; }
-.knowledge-professional-bridge { margin-top:12px; padding:12px; border:0.5px solid var(--color-border);  border-radius:var(--radius-element); background:var(--surface-2); }
 .knowledge-professional-bridge-title { display:block; margin-bottom:4px; color:var(--color-text-primary); font-size:14px; }
-.knowledge-professional-bridge-button { min-height:36px; margin-top:8px; padding:7px 11px; border:0.5px solid var(--color-text-primary); border-radius:var(--radius-inner); background:transparent; color:var(--color-text-primary); font-size:12px; font-weight:600; cursor:pointer; }
-.knowledge-professional-bridge-button:focus-visible { outline:2px solid var(--color-accent); outline-offset:2px; }
 .principles-exploration-copy { margin:0 0 10px; color:var(--color-text-secondary); font-size:12px; line-height:1.6; }
 .principles-edge-label { fill:var(--color-text-primary); font-size:12px; font-weight:600; paint-order:stroke; stroke:var(--surface-1); stroke-width:.8px; stroke-linejoin:round; pointer-events:none; }
 .principles-route-button { display:inline-flex; align-items:center; justify-content:center; min-height:32px; padding:6px 10px; color:var(--color-text-primary); font-weight:600; }
@@ -2753,7 +2713,6 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 .principles-graph-node { position:absolute; transform:translate(-50%,-50%); width:116px; z-index:1; } .principles-edge-label-html { position:absolute; transform:translate(-50%,-50%); z-index:2; padding:1px 6px; border-radius:var(--radius-inner); background:var(--surface-1); color:var(--color-text-secondary); font-size:12px; font-weight:600; white-space:nowrap; pointer-events:none; }
 .principles-graph-node-button { width:100%; min-height:34px; padding:6px 7px; border:0.5px solid var(--color-border); border-radius:var(--radius-inner); background:var(--surface-2); color:var(--color-text-primary); font-size:12px; line-height:1.25; cursor:pointer; }
 .principles-graph-node.is-selected .principles-graph-node-button { border-color:var(--color-accent); background:var(--color-accent-muted, rgba(var(--ink-rgb),.10)); font-weight:600; }
-.principles-empty { padding:18px; border:0.5px dashed var(--color-border); border-radius:var(--radius-inner); color:var(--color-text-secondary); }
 .principles-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
 /* MF-05: masters / SEC 13F reference shell */
@@ -2826,7 +2785,6 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 .atlas-route-button { border:0.5px solid var(--color-border); border-radius:var(--radius-inner); background:var(--surface-2); color:var(--color-text-secondary); cursor:pointer; }
 .atlas-card-id { display:block; color:var(--color-text-secondary); font-size:12px; letter-spacing:0; text-transform:none; }
 .atlas-node-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
-.atlas-node-card { padding:13px; border:0.5px solid var(--color-border); border-radius:var(--radius-element); background:var(--surface-1); }
 .atlas-domain-brief { margin:0; padding:18px; border:0.5px solid var(--color-border); border-radius:var(--radius-element); background:var(--surface-1); }
 .atlas-domain-brief .atlas-card-copy { margin:5px 0 0; font-size:14px; line-height:1.7; }
 .atlas-domain-detail-lede, .atlas-domain-brief-observation { margin:7px 0 16px; color:var(--color-text-secondary); font-size:14px; line-height:1.85; word-break:keep-all; }
@@ -2841,7 +2799,6 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 .atlas-module-source-details { margin-top:8px; padding-top:7px; border-top:0.5px solid var(--color-border); }
 .atlas-module-source-summary { color:var(--color-text-secondary); font-size:12px; font-weight:600; cursor:pointer; }
 
-.atlas-card-meta { display:flex; justify-content:space-between; gap:8px; align-items:center; }
 .atlas-card-title { margin:8px 0 5px; color:var(--color-text-primary); font-size:14px; line-height:1.35; }
 .atlas-card-copy { margin:0; color:var(--color-text-secondary); font-size:14px; line-height:1.7; }
 .atlas-chip { padding:3px 6px; border:0.5px solid var(--color-border); border-radius:var(--radius-full); color:var(--color-text-secondary); font-size:12px; }
@@ -2849,11 +2806,9 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 .atlas-governance-note p { margin:5px 0 0; }
 .atlas-arrival-context { max-width:920px; margin:0 0 16px; padding:16px 18px; border:0.5px solid var(--color-border);  border-radius:var(--radius-element); background:var(--surface-1); }
 .atlas-arrival-context .atlas-card-copy { max-width:760px; margin-top:7px; line-height:1.8; word-break:keep-all; }
-.atlas-route-links { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
 .atlas-route-button { display:inline-flex; align-items:center; justify-content:center; min-height:32px; padding:6px 10px; color:var(--color-text-primary); font-weight:600; }
 .atlas-route-button.is-secondary { color:var(--color-text-secondary); font-weight:500; }
 .atlas-section-title { margin:0 0 8px; color:var(--color-text-primary); font-size:18px; }
-.atlas-empty { grid-column:1/-1; padding:18px; border:0.5px dashed var(--color-border); border-radius:var(--radius-inner); color:var(--color-text-secondary); }
 #page-principles, #page-atlas { padding-bottom:88px; }
 
 /* Atlas learner-first workspaces: broad concept → selected branch → one readable detail. */
@@ -5193,12 +5148,12 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=60.31" defer></script>
-  <script src="./js/aio-kr-data.js?v=60.31" defer></script>
-  <script src="./js/aio-pages.js?v=60.31" defer></script>
-  <script src="./js/aio-core.js?v=60.31" defer></script>
-  <script src="./js/aio-data.js?v=60.31" defer></script>
-  <script src="./js/aio-ui.js?v=60.31" defer></script>
+  <script src="./js/aio-workspace.js?v=60.32" defer></script>
+  <script src="./js/aio-kr-data.js?v=60.32" defer></script>
+  <script src="./js/aio-pages.js?v=60.32" defer></script>
+  <script src="./js/aio-core.js?v=60.32" defer></script>
+  <script src="./js/aio-data.js?v=60.32" defer></script>
+  <script src="./js/aio-ui.js?v=60.32" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -5256,7 +5211,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--color-data-up)">빨강</span>·내리면 <span style="color:var(--color-data-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v60.31</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--color-data-up)">빨강</span>·내리면 <span style="color:var(--color-data-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v60.32</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

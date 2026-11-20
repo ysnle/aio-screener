@@ -620,8 +620,7 @@ console.log('scenario guidance fixture (basis card): PASS');
 // "회복 중" on a reversal day, a +1.2pp "함께 넓어짐", two different won windows, an unnamed F&G -14, lagging RRG shown as
 // current leadership, a 0.23pp dollar call, and narrative state words that contradict the packet.
 {
-  const { latchedState, recoveryCheck, usdKrwWindow, hyWidening20Record, creditState, buildMarketRead } = await import('../src/domain/briefing/market-read.js');
-  const { breadthFlow } = await import('../src/domain/market/story/page-flow.js');
+  const { latchedState, usdKrwWindow, hyWidening20Record, creditState, buildMarketRead } = await import('../src/domain/briefing/market-read.js');
   const { buildKoreaRegimeObservations } = await import('../src/domain/market/regime/regime-scenarios.js');
   const { buildSentimentModel } = await import('../src/domain/market/sentiment/sentiment-model.js');
   const { sectorRecentCheck, leaderFading, rrgBorder } = await import('../src/domain/market/regime/scenario-outlook.js');
@@ -706,15 +705,6 @@ console.log('scenario guidance fixture (basis card): PASS');
   const mixed = axisOf(glide, 'korea');
   assert.ok(mixed.state === 'neutral' && reasonOf(mixed) === '원화 강세, 코스피 20거래일 하락', `v57.81 (v60.31 reason row) won strength beside a 20% KOSPI fall is named as the split (${mixed.state}: ${reasonOf(mixed)})`);
   assert.equal(axisOf(build((i) => ({ usdkrw: i >= n - 20 ? 1400 - 60 * (i - (n - 21)) / 20 : 1400 })), 'korea').state, 'favorable', 'v57.81 a won that strengthened across the window with no KOSPI contradiction stays 양호');
-
-  // Breadth: a 5-day bounce that gave half back on the last close is 되밀림, not 반등 진행 중; a +1.2pp month is flat.
-  assert.equal(recoveryCheck(33.6, 37.6, 29.6), 'reversed');
-  assert.equal(recoveryCheck(36.6, 37.6, 29.6), 'holding');
-  const b50 = days.map((date, i) => ({ date, value: i === n - 1 ? 33.6 : i === n - 2 ? 37.6 : i === n - 6 ? 29.6 : i === n - 21 ? 32.4 : 35 }));
-  const spxSeries = days.map((date, i) => ({ date, value: i === n - 1 ? 102 : 100 }));
-  const flow = breadthFlow({ cards: [{ id: 'b50', series: b50 }, { id: 'b200', series: b50.map((p) => ({ ...p, value: 48.9 })) }, { id: 'b20', series: b50.map((p) => ({ ...p, value: 34 })) }, { id: 'spx', series: spxSeries }] });
-  assert.ok(/되밀려/.test(flow.leads.participation) && !/반등이 진행 중/.test(flow.leads.participation), `v57.81 the reversal day is named (${flow.leads.participation})`);
-  assert.ok(/±3%p 안/.test(flow.leads.index) && !/함께 넓어/.test(flow.leads.index), `v57.81 a +1.2pp month is inside the dead zone (${flow.leads.index})`);
 
   // F&G: 44 -> 30 on the last session is named even when the 20-session change is small.
   const fgHist = build((i) => ({ fg: i === n - 1 ? 30 : i === n - 2 ? 44 : 27 }));

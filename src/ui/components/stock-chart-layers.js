@@ -18,7 +18,6 @@ const writePref = (value) => { try { storage.set(PREF_KEY, JSON.stringify(value)
 export const PRICE_PX_DEFAULT = 440;
 export const PANE_PX = 120;
 export const AXIS_PX = 76;
-const PANE_ORDER = ['rsi', 'macd', 'rs'];
 // [period, line width, line style]: the short set (5·10·20) and the mid/long set (20·50·200) heavier, 100 thin, 200 dashed.
 const MA_STYLE = Object.freeze([[5, 1.6, 0], [10, 1.6, 0], [20, 2, 0], [50, 1.8, 0], [100, 1, 0], [200, 1.8, 2]]);
 

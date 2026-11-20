@@ -43,7 +43,6 @@ export function sectorRecentCheck(row) {
   const check = rsRecentCheck(line);
   return check ? { rel5: check.change, fell: check.fell, threshold: check.threshold } : null;
 }
-export const sectorRelative5d = (row) => sectorRecentCheck(row)?.rel5 ?? null;
 // v57.84 (owner decision 3-3): the settled quadrant (the row's own-noise band + hysteresis), as on 테마 · 섹터; the raw
 // quadrant only when the row has no coordinates.
 const quadrantOf = (row) => { const settled = rrgSettledQuadrant(row); return settled && settled !== 'Border' ? settled : settled ? null : row?.quadrant; };

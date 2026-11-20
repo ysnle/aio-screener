@@ -52,7 +52,6 @@ export function buildTrailingYearRead(quarters = []) {
 // four before them); 'fy' = the latest fiscal year. A row without a basis field (artifacts before 2026-11-18) is FY.
 export const FUNDAMENTAL_BASIS = Object.freeze({ ttm: 'ttm', fy: 'fy' });
 export const TRAILING_ROW_FIELDS = Object.freeze(['margin', 'revGrowth']);
-export const fundamentalBasisOf = (basis) => (basis === FUNDAMENTAL_BASIS.ttm ? FUNDAMENTAL_BASIS.ttm : FUNDAMENTAL_BASIS.fy);
 const round1 = (value) => Math.round(value * 10) / 10;
 
 /**

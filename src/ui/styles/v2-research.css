@@ -293,10 +293,6 @@
 #page-masters .masters-trend-bars { border-bottom-color: rgba(var(--ink-rgb), 0.08); }
 #page-masters .masters-trend-bar { border-radius: var(--radius-inner) var(--radius-inner) 0 0; }
 
-/* ═══ 7. Atlas ═══════════════════════════════════════════════════════════ */
-#page-atlas .atlas-integrated-framework-spine, #page-principles .principles-integrated-framework-spine {
-  border: 0; border-radius: var(--radius-container); padding: 20px 22px; background: var(--color-background-card); box-shadow:none;
-}
 
 /* v58.56 (#8, 5j): value-chain layer card in the atlas domain view's right column — seven layers, bottom-up,
    registry companies as chips (ticker chips open 종목 요약). No layer is tinted: the grouping is not a bottleneck claim. */

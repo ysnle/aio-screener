@@ -3,8 +3,7 @@ import { createEvidenceRegistry } from '../../domain/knowledge/evidence.js';
 import { createKnowledgeCapabilityBatchLoader } from '../knowledge/capability-loader.js';
 import { navigateKnowledgeRoute, navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, pushKnowledgeRouteState, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-state.js';
-import { renderKnowledgeLesson } from '../knowledge/lesson.js';
-import { createCurrentObservationBlock, validateCurrentObservationsArtifact } from '../knowledge/current-observations.js';
+import { validateCurrentObservationsArtifact } from '../knowledge/current-observations.js';
 import { createKnowledgeLearningControls } from '../knowledge/learning-controls.js';
 import { BIGTECH_CASHFLOW, COMPANY_PROFILE_INDEX, artifactFamilyUrl, artifactFetcher, artifactUrl, loadArtifact, loadArtifactUrl } from '../../data/artifact-registry.js';
 import { AI_MAP_IDS, DATACENTER_GUIDE_ID, aiMapLayer, capitalFlowsView, datacenterChain, layerSupplyLinks } from '../../domain/knowledge/ai-map.js';
@@ -15,9 +14,7 @@ import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { listingMarket } from '../../domain/screener/market-scope.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { applySafeExternalLink } from '../knowledge/safe-external-link.js';
-import { createIntegratedFrameworkSpine } from '../knowledge/integrated-framework-spine.js';
 import { nodeCategory, relationGroups, typedRelations } from '../../domain/knowledge/atlas-relations.js';
-import { registryCadenceSummary } from '../../domain/knowledge/knowledge-cadence.js';
 import { renderIndustryPage } from '../knowledge/industry-view.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 
@@ -47,7 +44,6 @@ const INDUSTRY_STORIES_URL = artifactUrl('atlas/industry-stories.json');
 const COMPANY_GRAPH_ID = 'company-profiles/graph.json';
 const CAPITAL_FLOWS_URL = artifactUrl('atlas/capital-flows.json');
 const ATLAS_SECTIONS = Object.freeze(['foundations', 'relationships', 'taxonomy', 'aimap']);
-const TELEGRAM_DISCOVERY_BOUNDARY = 'discovery only';
 
 // The three design specs deliberately stop before source-packet completion.
 // Keep this registry structural: no company metric, shipment, yield, price, or
@@ -272,22 +268,8 @@ function actionButton(documentRef, className, text, action, value) {
   return node;
 }
 
-const ATLAS_STATUS_LABELS = Object.freeze({
-  DESIGN_ONLY: '구조 설계 단계',
-  REVIEWED_CANDIDATE: '1차 출처 확인 후보',
-  PARTIAL: '일부 확인',
-  PRIMARY: '공식 1차 출처',
-  RECONCILED: '출처 대조 완료',
-  DRAFT: '설명 초안',
-  AUTHORED_REFERENCE: '학습 원고 작성 완료',
-  AUTHORED_REFERENCE_CONNECTED: '학습 원고·출처 연결'
-});
-
-const ATLAS_RELATIONSHIP_KIND_LABELS = Object.freeze({ concept: '핵심 개념', metric: '관찰 지표', company_claim: '기업 주장', evidence: '검증 근거', market: '시장 연결', financial: '재무 결과', constraint: '제약 조건' });
-const ATLAS_CRITICALITY_LABELS = Object.freeze({ structural: '구조 관계', conditional: '조건부 관계', claim: '기업 주장' });
 // Actions that open a different document (a history entry each); selections inside one document replace the URL.
 const ATLAS_DOCUMENT_ACTIONS = new Set(['tab', 'section', 'layer', 'module', 'domain', 'domain-node', 'relationship-guide', 'ai-map']);
-const ATLAS_ROUTE_LABELS = Object.freeze({ principles: '개념·분석', atlas: '산업 지도', masters: '대가 보유 종목', fundamental: '재무 공시', themes: '테마·산업', macro: '매크로', fxbond: '금리와 환율', technical: '종목, 차트' });
 
 
 

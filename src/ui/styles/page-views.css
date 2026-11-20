@@ -45,7 +45,7 @@
 /* A fold that is the whole content of its view: open, and its summary is a heading, not a control. */
 details[data-view-open] > summary { pointer-events: none; cursor: default; list-style: none; }
 details[data-view-open] > summary::-webkit-details-marker { display: none; }
-.page details[data-view-open]:is(.mk-fold, .sx-disclosure, .rates-guide, .aio-comp-secondary, .ai-chain__members, .aio-page-advanced-toggle, .news-card) > summary::after { content: none; }
+.page details[data-view-open]:is(.sx-disclosure, .rates-guide, .aio-comp-secondary, .ai-chain__members, .aio-page-advanced-toggle, .news-card) > summary::after { content: none; }
 
 /* A list of fold rows beside one detail pane (src/ui/behaviors/master-detail.js). */
 @media (min-width: 1100px) {

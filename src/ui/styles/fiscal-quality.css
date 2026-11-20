@@ -27,9 +27,6 @@
 .page .fiscal-amount-table th, .page .fiscal-amount-table td { padding: 9px 12px; border-top: 0.5px solid var(--color-border); text-align: right; white-space: nowrap; }
 .page .fiscal-amount-table thead th { background: var(--surface-2); color: var(--color-text-primary); font-size: 12px; font-weight: 600; }
 .page .fiscal-amount-table th:first-child { text-align: left; color: var(--color-text-primary); }
-.page .fiscal-method-details { color: var(--color-text-secondary); font-size: 12px; line-height: 1.65; margin: 6px 0 12px; }
-.page .fiscal-method-details summary { cursor: pointer; color: var(--color-text-secondary); padding: 4px 0; }
-.page .fiscal-method-details p { margin: 6px 0; overflow-wrap: anywhere; }
 .page .fiscal-quality .stock-read-point { grid-template-columns: 96px minmax(0, 1fr); }
 .page .fiscal-quality .stock-read-point-text { min-width: 0; overflow-wrap: anywhere; }
 .page .fiscal-quality .fiscal-peers .stock-read-track { min-width: 0; }

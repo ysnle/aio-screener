@@ -23,9 +23,6 @@ import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 import { BIGTECH_CASHFLOW, SCENARIO_OUTCOMES, SCENARIO_STATE, TREASURY_AUCTIONS } from '../../data/artifact-registry.js';
 
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
-// Korean particles follow the last Hangul syllable of a quoted path name (quotes are skipped).
-const batchim = (text) => { const syllables = String(text || '').match(/[가-힣]/g); return syllables ? (syllables.at(-1).charCodeAt(0) - 0xac00) % 28 !== 0 : false; };
-const josa = (text, withFinal, withoutFinal) => (batchim(text) ? withFinal : withoutFinal);
 const TONE = { same: '시장 가격 같은 방향', against: '시장 가격 반대 방향', neutral: '시장 가격 중립', unknown: '시장 가격 확인 불가' };
 
 export { themeLinkRow };

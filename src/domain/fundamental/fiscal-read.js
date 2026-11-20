@@ -3,7 +3,7 @@
 // one year's raw numbers. Inputs: the SEC FY series in the runtime summary (fiscalHistory) and the
 // screener row for price context (returns, P/E). A missing year or field drops its sentence.
 import { withObjectParticle } from '../content/korean-particle.js';
-import { finiteFact, isPriorAnnualPeriod, annualFilingStatus, fiscalYearLabel, isQuarterGap } from './period.js';
+import { finiteFact, isPriorAnnualPeriod, annualFilingStatus, fiscalYearLabel } from './period.js';
 import { signedText, usdKoreanText } from '../shared/number.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';

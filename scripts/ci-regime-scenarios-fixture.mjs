@@ -130,7 +130,6 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
 // changing any US axis state; KRX-session daily change; mixed-date FX chip; WTI 5-session rebound; one credit rule.
 {
   const { buildMarketRead, koreaMoveRecord } = await import('../src/domain/briefing/market-read.js');
-  const { buildDailyChanges } = await import('../src/domain/briefing/daily-diff.js');
   const { briefingFlow } = await import('../src/domain/market/story/page-flow.js');
   const { brentWtiCheck } = await import('../src/domain/macro/liquidity-growth.js');
   const { buildScenarioOutlook } = await import('../src/domain/market/regime/scenario-outlook.js');
@@ -174,9 +173,6 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   const oil = regime.axes.find((row) => row.id === 'commodities');
   assert.ok(/WTI","84\.00달러 \(20일 -8\.7%, 최근 5일 \+5\.0% 반등\)/.test(JSON.stringify(oil.evidence)), `P1726 a 5-session WTI rebound is named beside the 20-session fall (${JSON.stringify(oil)})`);
   assert.equal(oil.state, regimeCalm.axes.find((row) => row.id === 'commodities').state, 'P1726 the oil wording never changes the axis state');
-  const daily = buildDailyChanges(rows, { now });
-  const kospiMove = daily.moves.find((move) => move.key === 'kospi');
-  assert.ok(kospiMove?.market === 'KR' && kospiMove.from === '2026-10-12' && kospiMove.to === '2026-10-13' && Math.abs(kospiMove.value + 6) < 1e-9 && daily.big.includes('kospi'), `P1724 KOSPI compares its own previous KRX session (${JSON.stringify(daily)})`);
   const flow = briefingFlow({ read }).next;
   assert.ok(flow[0].route === 'signal' && flow[0].ctx?.anchor === 'regime-board-kr' && flow.some((item) => item.route === 'market-news' && item.ctx?.country === 'kr'), `P1727 the Korean lead continues to the 한국 시장 board first, then Korean news (${JSON.stringify(flow)})`);
   const withBrent = rows.map((row) => (row.wti != null ? { ...row, brent: row.wti + 30 } : row));

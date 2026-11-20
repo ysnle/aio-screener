@@ -148,12 +148,8 @@ const legacyRuntimeSource = ['js/aio-workspace.js', 'js/aio-kr-data.js', 'js/aio
 if (fs.existsSync(path.join(root, 'js/aio-macro-tech.js'))) fail('legacy unification: retired js/aio-macro-tech.js returned');
 // P1136/R620: the user-state/workspace layer extracted from inline block A lives in js/aio-workspace.js.
 const workspaceSource = read('js/aio-workspace.js');
-const inferenceEfficiencySource = read('src/domain/ai/inference-efficiency.js');
 const marketPageContractSource = read('src/ui/pages/market.js');
 const indexSource = read('index.html');
-if (!inferenceEfficiencySource.includes('const rawPct = quote?.pct ?? quote?.regularMarketChangePercent') || !inferenceEfficiencySource.includes("rawPct == null || rawPct === '' ? null : Number(rawPct)")) {
-  fail('AI inference proxy must preserve missing pct as null rather than Number(null)=0');
-}
 // P1426: the transmission lens left with the 거시 rebuild; the macro read must still keep a real zero.
 // v59.46: checked by behaviour, not by the text of a local copy — macro-read uses the shared reader, which keeps 0 and
 // reads ''/null/false as missing.

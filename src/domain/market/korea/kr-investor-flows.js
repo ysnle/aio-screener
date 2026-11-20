@@ -10,7 +10,6 @@ const STALE_AFTER_DAYS = 5; // a weekend plus a holiday; later than that the car
 
 const MARKETS = Object.freeze([['kospi', '코스피'], ['kosdaq', '코스닥']]);
 const INVESTOR_ORDER = Object.freeze([['individual', '개인'], ['foreign', '외국인'], ['institution', '기관']]);
-export const KR_INVESTOR_LABEL = Object.freeze(Object.fromEntries(INVESTOR_ORDER));
 
 const sum = (points) => points.reduce((s, p) => s + p.value, 0);
 const kstToday = (nowMs) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(nowMs));

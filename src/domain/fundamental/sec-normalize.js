@@ -2,7 +2,7 @@
 // the browser can read an out-of-universe issuer's filing with the same functions (the producer imports and
 // re-exports them). Pure: companyfacts/submissions JSON in, one annual record out; no I/O.
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, isQuarterSpan, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from './period.js';
-import { reconcileSecEquity, reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, FOREIGN_ORDINARY_SHARE_FORMS, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS, SEC_BANK_NET_REVENUE_CONCEPT, SEC_IFRS_PRIMARY_REVENUE_CONCEPTS, SEC_IFRS_FALLBACK_REVENUE_CONCEPTS } from './sec-report.js';
+import { reconcileSecRevenueShares, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, FOREIGN_ORDINARY_SHARE_FORMS, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS, SEC_BANK_NET_REVENUE_CONCEPT, SEC_IFRS_PRIMARY_REVENUE_CONCEPTS, SEC_IFRS_FALLBACK_REVENUE_CONCEPTS } from './sec-report.js';
 import { reconcileSecEarningsBasis, SEC_COMMON_INCOME_CONCEPT, SEC_RD_CONCEPTS, SEC_CAPITAL_CONCEPTS, SEC_IFRS_CAPITAL_CONCEPTS, SEC_TOTAL_DEBT_DERIVED_CONCEPT, SEC_DEBT_AND_LEASE_DERIVED_CONCEPT } from './sec-earnings.js';
 import { reconcileSecValuationBasis } from './sec-valuation-basis.js';
 export { SEC_RD_CONCEPTS };

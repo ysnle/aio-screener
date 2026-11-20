@@ -100,7 +100,7 @@
 .v2-fiscal-hero .fiscal-period-basis { margin: 0; font-size: 12px; color: var(--color-text-secondary); }
 .v2-fiscal-pair { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; align-items: start; }
 .v2-fiscal-pair > :only-child { grid-column: 1 / -1; }
-.v2-fiscal-chart, .v2-fiscal-quality, .v2-fiscal-reading { min-width: 0; }
+.v2-fiscal-chart, .v2-fiscal-quality { min-width: 0; }
 .page .v2-fiscal-chart .fiscal-quality-chart .fiscal-bars { grid-auto-columns: minmax(78px, 1fr); gap: 8px; }
 .page .v2-fiscal-chart .fiscal-year { white-space: normal; text-align: center; }
 #page-fundamental .fiscal-quarters.sx-card, #page-fundamental .fiscal-peers.sx-card { margin: 0; min-width: 0; }
@@ -125,17 +125,12 @@
 .v2-fiscal-trend__bar.is-na { background: rgba(var(--ink-rgb), 0.08) !important; }
 .v2-fiscal-trend__value, .v2-fiscal-trend__year { font-size: 12px; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
 .v2-fiscal-trend__value { color: var(--color-text-secondary); font-weight: 600; }
-.v2-fiscal-principle { margin: 8px -6px 0; }
-.v2-fiscal-principle > summary { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
-.v2-fiscal-principle .sx-disclosure__body { grid-template-columns: minmax(0, 1fr); }
 .v2-fiscal-quality > .sx-evidence { padding: 10px 0 0; }
 /* v59.70 (S15): three sections — 매출과 이익률 추세 · 현금흐름과 발생액 · SEC 연간 요약 (fiscal-read.js fiscalSection). */
 #page-fundamental .fiscal-section { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 #page-fundamental .fiscal-section + .fiscal-section { margin-top: 14px; }
 #page-fundamental .fiscal-section__title { margin: 0 2px; font-size: 17px; font-weight: 600; color: var(--color-text-primary); }
 #page-fundamental .fiscal-section__sub { margin: 4px 0 0; font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
-#page-fundamental :is(.fiscal-sec-fold, .fiscal-expert-fold, .fiscal-thesis-fold) > summary { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
-#page-fundamental .fiscal-sec-fold[open] { display: flex; flex-direction: column; gap: 12px; }
 #page-fundamental [data-entity-section="sec"] #fund-native-sec-report { margin-top: 0; }
 .v2-fiscal-wc { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .v2-fiscal-wc__bars { display: flex; align-items: flex-end; gap: 10px; height: 96px; padding: 4px 2px 0; }
@@ -163,9 +158,6 @@
 .v2-analysis-pending { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 16px; border-radius: var(--radius-container); background: var(--sx-ink-a03); }
 .v2-analysis-pending .sx-chip { height: auto; min-height: 22px; white-space: normal; padding: 3px 10px; }
 .v2-analysis-pending__text { margin: 0; font-size: 12px; line-height: 1.7; color: var(--color-text-secondary); }
-.v2-analysis-principle { margin: 0 -6px; }
-.v2-analysis-principle > summary { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
-.v2-analysis-principle .sx-disclosure__body { grid-template-columns: minmax(0, 1fr); }
 .v2-analysis-card > .sx-evidence { padding: 0; }
 .v2-dupont-eq { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
 .v2-dupont-eq__tile { display: flex; flex-direction: column; gap: 2px; min-width: 86px; padding: 12px 14px; border-radius: var(--radius-container); background: var(--sx-ink-a05); }

@@ -4,7 +4,7 @@
 // support the reading names), and a double top — two closing highs within 6% of each other at least 20 sessions apart
 // with the close now at (within 3%) or below the lowest close between them (the neck). No level is written by hand and no ETF price is inferred from
 // an index.
-import { readNumber, signedText } from '../../shared/number.js';
+import { signedText } from '../../shared/number.js';
 import { withTopicParticle } from '../../content/korean-particle.js';
 import { buildCloseSeries } from '../session/close-series.js';
 

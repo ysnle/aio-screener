@@ -3,9 +3,9 @@
   "generatedBy": "scripts\\ci-design-token-ratchet-check.mjs",
   "note": "Per-stylesheet literal radius, off-scale font-size and !important counts. Shrink only; never raise a count or add a file.",
   "totals": {
-    "radiusLiteral": 35,
-    "offScale": 36,
-    "important": 440
+    "radiusLiteral": 28,
+    "offScale": 33,
+    "important": 427
   },
   "counts": {
     "index.html": {
@@ -22,11 +22,6 @@
       "radiusLiteral": 0,
       "offScale": 1,
       "important": 1
-    },
-    "src/ui/styles/company-story.css": {
-      "radiusLiteral": 7,
-      "offScale": 3,
-      "important": 3
     },
     "src/ui/styles/legacy-core.css": {
       "radiusLiteral": 0,
@@ -81,7 +76,7 @@
     "src/ui/styles/responsive.css": {
       "radiusLiteral": 9,
       "offScale": 16,
-      "important": 35
+      "important": 33
     },
     "src/ui/styles/screener-quality.css": {
       "radiusLiteral": 0,
@@ -116,7 +111,7 @@
     "src/ui/styles/v2-market.css": {
       "radiusLiteral": 0,
       "offScale": 3,
-      "important": 29
+      "important": 21
     },
     "src/ui/styles/v2-research.css": {
       "radiusLiteral": 1,

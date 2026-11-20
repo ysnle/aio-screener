@@ -48,7 +48,6 @@ export function indexContributors({ rows = [], weights = [], sessionDate, indexC
   return { sessionDate, items, explainedPp: round(items.reduce((sum, part) => sum + part.contributionPp, 0), 1), indexChange, weightBasis };
 }
 
-const kstDay = (ms) => new Date(ms + 9 * HOUR).toISOString().slice(0, 10);
 const mdOf = (ms) => { const d = new Date(ms + 9 * HOUR); return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`; };
 const clip = (text, max = 60) => { const t = String(text || '').replace(/\s+/g, ' ').trim(); return t.length > max ? `${t.slice(0, max - 1)}…` : t; };
 
@@ -106,5 +105,3 @@ export function contributorsSentence(model, { indexName, sessionCloseMs, briefs,
     ? ` 이 ${pieces.length}종목이 ${indexName} ${model.indexChange > 0 ? '+' : ''}${round(model.indexChange, 1).toFixed(1)}% 가운데 ${Math.abs(model.explainedPp).toFixed(1)}%p를 차지합니다.` : '';
   return { pieces, text: `${withObjectParticle(indexName)} 가장 많이 움직인 종목은 ${pieces.map((piece) => piece.text).join(', ')}입니다.${share}` };
 }
-
-export const sessionDateKst = kstDay;

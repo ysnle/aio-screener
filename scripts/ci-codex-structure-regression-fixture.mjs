@@ -4,7 +4,6 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { load as loadYaml } from 'js-yaml';
 import { buildMarketRegime, movingAverageStructure } from '../src/domain/briefing/market-read.js';
-import { buildDailyChanges } from '../src/domain/briefing/daily-diff.js';
 import { resolveEntities } from '../src/ai/entity/resolver.js';
 import { buildPortfolioRead } from '../src/domain/portfolio/portfolio-read.js';
 import { intervalStructure } from '../src/ui/components/stock-chart.js';
@@ -135,10 +134,6 @@ const oldHistory = Array.from({ length: 400 }, (_, i) => ({ date: day(i), spx: 5
 const held = buildMarketRegime({ history: oldHistory, now: Date.parse('2026-10-12T12:00:00Z') });
 assert.ok(held.staleBasis && held.staleBasis.lag > 2, 'M05: stale basis is detected');
 assert.equal(held.overall, '판정 보류', 'M05: stale regime is held');
-
-// M11/M12: compare only against the exact previous session.
-const diff = buildDailyChanges([{ date: '2026-10-07', spx: 100, vix: 10, breadth50: 0.5 }, { date: '2026-10-08', spx: 101, breadth50: 0.5 }, { date: '2026-10-09', spx: 102, vix: 15, breadth50: 0.8 }]);
-assert.ok(Array.isArray(diff.notCompared) && diff.notCompared.length > 0, `M11: the VIX gap is listed as not compared (${JSON.stringify(diff)})`);
 
 // M06: AI market text admission rejects impossible counts, implausible moves, instructions and probability claims.
 const bad = validateAnalysisAdmission('현재 고른 상승 조건은 99/4개 충족입니다. 오늘 변화율은 +999%입니다. 지금 즉시 매수하세요. 상승 확률은 99%입니다.', { changes: new Map(), context: '' });

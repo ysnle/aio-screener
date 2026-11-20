@@ -16,7 +16,6 @@ import { formatScreenerPrice } from '../screener/market-scope.js';
 const pct = (value, digits = 1) => (value == null ? null : `${value.toFixed(digits)}%`);
 const usdShort = (value) => usdKoreanText(value); // first-users F33: one money format
 const branchTitle = (branch) => String(branch?.title || '').split(' — ')[0];
-export const UNCONFIRMED = '미확인';
 
 // ── 1. Lens registry ────────────────────────────────────────────────────────────────────────────────────────────────
 // Each metric id is computed by METRICS below from the collected filings; an id whose data this site does not collect

@@ -275,7 +275,6 @@
 .sh-portfolio-risk-metrics-pad10 { padding: 10px 12px; }
 .sh-portfolio-risk-metrics-note { color: var(--color-text-secondary); padding: 6px 0; }
 .page .sh-portfolio-risk-metrics-note { font-size: var(--fs-sm); }
-.sh-portfolio-risk-metrics-tone { color: var(--color-text-secondary); }
 .sh-portfolio-ledger-performance-note { padding: 10px 12px; border-top: 0.5px solid var(--color-border); line-height: 1.7; color: var(--color-text-secondary); }
 .page .sh-portfolio-ledger-performance-note { font-size: var(--fs-sm); }
 .sh-portfolio-exposure-box { padding: 10px 12px; border-top: 0.5px solid var(--color-border); }
@@ -314,14 +313,6 @@
 .sh-ticker-row-baseline { display: flex; align-items: baseline; gap: 12px; }
 .sh-ticker-detail-name-stack { display: flex; flex-direction: column; }
 .sh-ticker-box { margin-left: auto; text-align: right; }
-.sh-ticker-quote-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.sh-ticker-plot-period-row { display: flex; gap: 4px; }
-.sh-ticker-plot-meta-fine { color: var(--color-text-secondary); margin-bottom: 6px; }
-.page .sh-ticker-plot-meta-fine { font-size: var(--fs-xs); }
-.sh-ticker-quote-box { position: relative; height: 380px; }
-.sh-ticker-plot-loading-row { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); font-size: 12px; }
-.page .sh-ticker-plot-loading-row { font-size: var(--fs-base); }
-.sh-ticker-plot-loading-box { margin-right: 8px; }
 
 /* #page-market-news */
 .sh-news-refresh-btn { font-size: 12px; font-weight: 600; color: var(--color-background-body); background: var(--color-text-primary); border: none; border-radius: var(--radius-element); padding: 9px 20px; cursor: pointer; }
@@ -386,8 +377,6 @@
 .sh-guide-public-policy-note { line-height: 1.8; color: var(--color-text-secondary); padding-top: 8px; }
 .page .sh-guide-public-policy-note { font-size: var(--fs-sm); }
 .page .sh-guide-capability-manifest-box {  margin: 10px 0 14px; padding: 12px 14px; }
-.sh-guide-capability-manifest-fine { color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 8px; }
-.page .sh-guide-capability-manifest-fine { font-size: var(--fs-xs); }
 .sh-guide-capability-manifest-cols { display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 6px; }
 .sh-guide-label { font-weight: 600; color: var(--color-text-primary); margin-bottom: 6px; }
 .page .sh-guide-label { font-size: var(--fs-sm); }

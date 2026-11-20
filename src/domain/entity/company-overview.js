@@ -13,7 +13,6 @@ import { buildTrailingYearRead } from '../fundamental/trailing-year.js';
 import { FISCAL_FLAT_BAND } from '../fundamental/fiscal-read.js';
 import { fiscalYearLabel } from '../fundamental/period.js';
 
-const md = (iso) => (hasLeadingIsoDay(iso) ? `${Number(String(iso).slice(5, 7))}/${Number(String(iso).slice(8, 10))}` : '');
 const ymd = (iso) => (hasLeadingIsoDay(iso) ? `${String(iso).slice(0, 4)}.${Number(String(iso).slice(5, 7))}.${Number(String(iso).slice(8, 10))}` : '');
 
 // ── 밸류체인 안의 자리 ─────────────────────────────────────────────────────────────────────────────────────────────────
@@ -136,9 +135,4 @@ export function moneyGlance({ symbol, fundamentals = null, quarters = [], margin
     if (rows.length) return { rows, source: 'story', basis: period };
   }
   return { rows: [], source: null, basis: '' };
-}
-
-/** The story's research date and its earnings period, for the 데이터 출처 fold. */
-export function storyBasis(story) {
-  return [story?.researchedAt ? `${md(story.researchedAt)} 조사` : null, story?.earnings?.period ? `${story.earnings.period} 실적 기준` : null].filter(Boolean).join(', ');
 }

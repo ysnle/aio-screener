@@ -6,11 +6,8 @@ import { createAppKnowledgeLearningState } from '../../app/knowledge-learning-st
 import { createCurrentObservationBlock, validateCurrentObservationsArtifact } from '../knowledge/current-observations.js';
 import { createKnowledgeLearningControls } from '../knowledge/learning-controls.js';
 import { createReferenceCurriculum } from '../knowledge/reference-curriculum.js';
-import { renderKnowledgeLesson } from '../knowledge/lesson.js';
-import { applySafeExternalLink } from '../knowledge/safe-external-link.js';
 import { artifactFamilyUrl, artifactFetcher, artifactUrl, loadArtifactUrl } from '../../data/artifact-registry.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
-import { createIntegratedFrameworkSpine } from '../knowledge/integrated-framework-spine.js';
 import { createNodeGraph, layoutConceptGraph } from '../components/node-graph.js';
 
 const REVIEWED_AT = '2026-08-18';

@@ -3,8 +3,7 @@
 // theme map and the channel/screener rows already loaded. Nothing here predicts: each line is a stated condition, a
 // collected expectation or a recorded reaction, and an item without data is left out.
 import { EXPOSURE_TAGS, US_THEME_PROFILES, windFor, WIND_LABELS } from '../scenarios/exposures.js';
-import { formatUsdRevenue, earningsFilterMs, usWallClockMs, reportedNumber, dedupeEarningsRows } from './schedule.js';
-import { resolveMarketCalendarSession } from '../market/session/market-calendar.js';
+import { formatUsdRevenue, earningsFilterMs, reportedNumber, dedupeEarningsRows } from './schedule.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { scenarioLead } from '../market/regime/scenario-lead.js';
 
@@ -53,29 +52,6 @@ export function newsImpactChain(words, xr, { axes = null } = {}) {
     return { branchId: item.id, role, branch: short(item), axis: AXIS_WORDS[item.id] || null, weaker, firmer, check, head, text: parts.filter(Boolean).join(' → ') };
   }
   return null;
-}
-
-/**
- * 오늘 확인할 3가지: the nearest flip condition (prepared by the screen), the release or report due within 36 hours
- * (else the next one), and what would confirm the lead branch (its next dated trigger, else its first unmet condition).
- */
-export function todayChecks({ flip = null, schedule = [], xr = null, nowMs = Date.now() } = {}) {
-  const rows = [];
-  if (flip?.text) rows.push({ kind: 'flip', label: '판단이 바뀌는 조건', text: flip.text, sub: flip.sub || null });
-  // v59.45 (pipeline review P26 기타): a report whose result is already in is not a check for today.
-  const upcoming = (Array.isArray(schedule) ? schedule : []).filter((row) => !row.passed && row.status !== 'received' && Number.isFinite(row.atMs) && row.atMs >= nowMs - 6 * 3600000);
-  const soon = upcoming.filter((row) => row.atMs - nowMs <= 36 * 3600000);
-  const pick = soon.find((row) => row.kind === 'macro') || soon.find((row) => row.kind === 'structure') || soon[0];
-  if (pick) rows.push({ kind: 'event', label: '오늘·내일 일정', text: `${pick.when} ${pick.label}`, sub: [pick.why && !String(pick.when).includes(pick.why) ? pick.why : null, pick.last].filter(Boolean).join(', ') || null });
-  else if (upcoming[0]) rows.push({ kind: 'event', label: '다음 일정', text: `${upcoming[0].when} ${upcoming[0].label}`, sub: '오늘·내일은 예정된 주요 발표가 없습니다' });
-  const lead = liveBranches(xr).find((row) => row.role === '선두')?.item;
-  if (lead) {
-    const trigger = (lead.triggers || [])[0];
-    const unmet = (lead.conditions || []).find(([, ok]) => ok === false);
-    const text = trigger ? `${trigger.when}, ${trigger.text}이면 이 시나리오 쪽` : unmet ? `아직 미충족: ${unmet[0]}` : (lead.checks || [])[0] || null;
-    if (text) rows.push({ kind: 'scenario', label: `선두 시나리오 '${short(lead)}' (${lead.fit})`, text, sub: null });
-  }
-  return rows.slice(0, 3);
 }
 
 // "2년물−기준금리 +0.82%p (금리 상단 쪽, <branch note>)" → "2년물−기준금리 +0.82%p (금리 상단 쪽)".
@@ -133,56 +109,6 @@ export function eventPreviews({ xr = null, schedule = [], earnings = [], names =
       title: `${names[row.symbol]} (${row.symbol}) 실적`, expect: [eps, revenue].filter(Boolean), branches: link ? [link] : [], note: null });
   }
   return out;
-}
-
-const VERDICT = Object.freeze({ beat: '상회', miss: '하회', inline: '부합' });
-/**
- * Recorded reactions for the result guide: channel-relayed quarters (revenue/EPS against estimates, guidance) posted
- * between the previous session's open and the measured session's open, joined to that session's one-day return. A quarter
- * that beat but fell (or missed but rose) comes first — the cases where the headline and the price disagreed.
- */
-// v59.45 (pipeline review P26-EVENT-01): the measured session's open and the previous open session's open, from the
-// exchange calendar (DST, holidays and special opening hours); an unregistered year gives no session range.
-function sessionOpenMs(date) {
-  const session = resolveMarketCalendarSession({ market: 'US', date });
-  if (session.status !== 'open') return null;
-  const [h, m] = String(session.open).split(':').map(Number);
-  return usWallClockMs(date, [h, m]);
-}
-function previousOpenMs(date) {
-  let cursor = date;
-  for (let i = 0; i < 10; i += 1) {
-    cursor = new Date(Date.parse(`${cursor}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
-    const session = resolveMarketCalendarSession({ market: 'US', date: cursor });
-    if (session.status === 'unknown') return null;
-    if (session.status === 'open') return sessionOpenMs(cursor);
-  }
-  return null;
-}
-
-export function earningsReactionCases({ signals = [], posts = [], rows = [], session = null, max = 3 } = {}) {
-  const openMs = sessionOpenMs(session);
-  const fromMs = openMs == null ? null : previousOpenMs(session);
-  if (!Number.isFinite(openMs) || !Number.isFinite(fromMs)) return [];
-  const postAt = new Map((Array.isArray(posts) ? posts : []).filter((post) => post?.id).map((post) => [String(post.id), Date.parse(post.datetime || '')]));
-  // P26-NULL-01: a missing one-day return is not a 0% move (Number(null) is 0).
-  const bySym = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.sym && row.factorSessionDate === session && reportedNumber(row.ret1d) != null).map((row) => [String(row.sym).toUpperCase(), row]));
-  const seen = new Set();
-  const cases = [];
-  for (const signal of Array.isArray(signals) ? signals : []) {
-    if (signal?.kind !== 'earnings' || !signal.ticker || seen.has(signal.ticker)) continue;
-    const at = postAt.get(String(signal.post || ''));
-    const row = bySym.get(String(signal.ticker).toUpperCase());
-    if (!Number.isFinite(at) || at <= fromMs || at > openMs || !row) continue;
-    seen.add(signal.ticker);
-    const good = [signal.revenue, signal.eps].includes('beat') && !['miss'].includes(signal.revenue) && !['miss'].includes(signal.eps) && signal.guidance !== 'cut';
-    const bad = [signal.revenue, signal.eps].includes('miss') || signal.guidance === 'cut';
-    const move = Number(row.ret1d);
-    const kind = good && move < 0 ? 'beat-fell' : bad && move > 0 ? 'miss-rose' : 'aligned';
-    cases.push({ ticker: signal.ticker, name: signal.name || row.name || signal.ticker, move, kind,
-      verdict: [`매출 ${VERDICT[signal.revenue] || '—'}`, `EPS ${VERDICT[signal.eps] || '—'}`, signal.guidance ? `가이던스 ${signal.guidance === 'raise' ? '상향' : '하향'}` : null].filter(Boolean).join(', ') });
-  }
-  return cases.sort((a, b) => Number(a.kind === 'aligned') - Number(b.kind === 'aligned') || Math.abs(b.move) - Math.abs(a.move)).slice(0, max);
 }
 
 const SESSION_ORDER = Object.freeze({ bmo: 0, dmh: 1, amc: 2 });

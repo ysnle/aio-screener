@@ -97,9 +97,6 @@
 #breadth-chart-grid > .breadth-lead { grid-column: 1 / -1; width: 100%; max-width: 760px; }
 /* 시장 상태 한국 참고: label and value sit close together instead of at the two ends of the page. */
 .regime-kr-metrics { max-width: 640px; }
-#breadth-chart-grid > .breadth-more { grid-column: 1 / -1; min-width: 0; }
-.breadth-more > summary { cursor: pointer; width: max-content; max-width: 100%; padding: 12px 0; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
-.breadth-more > .breadth-more-grid { margin-top: 4px; }
 /* 2026-10-19 layout system: the ETF / corporate-action note in the breadth drill list (src/ui/components/breadth-board.js); old inline 10px reads --fs-xs. */
 .page .breadth-drill-ca { font-size: var(--fs-xs); color: var(--color-text-warning); line-height: 1.5; }
 /* v58.54 (design 4a, owner 2026-10-20 user-first): iPad landscape (1024–1279) keeps a fixed 200px sidebar; the
@@ -131,7 +128,7 @@
   .page, .page > *, .page :is(section, article, .aio-section, .aio-card, .card) { min-width: 0; max-width: 100%; box-sizing: border-box; }
   .page :is(canvas, img, svg) { max-width: 100%; }
   .page :is(input, textarea, select) { max-width: 100%; box-sizing: border-box; }
-  .page :is(.section-header, .regime-summary-head) { flex-wrap: wrap; }
+  .page .section-header { flex-wrap: wrap; }
   :is(.principles-graph-workspace, .masters-layout, .stock-chart-layout,
       .macro-overview, .rates-curve-row, .scr-workflow-grid,
       .page .screener-read-layout, .page .stock-read-visuals, .page .daily-loop,
@@ -208,10 +205,9 @@
       .principles-reference-body, .masters-principles-list, .aio-vis-panel,
       .principles-chapter-grid, .atlas-node-grid) { grid-template-columns: minmax(0, 1fr); }
   #page-fxbond.page .mk-curve-card .rates-yields { grid-template-columns: repeat(2, minmax(0, 1fr)); } /* v59.70 (screen review #1): the curve card's auto-fit rule out-ranked the phone grid */
-  .page :is(.rates-yields, .rates-other, .kr-index-grid, .scr-funnel, .principles-reference-loop, .integrated-framework-flow, .page .daily-moves, .chart-stage-steps) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page :is(.rates-yields, .rates-other, .kr-index-grid, .scr-funnel, .principles-reference-loop, .chart-stage-steps) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .page .aio-responsive-card-grid { grid-template-columns: minmax(0, 1fr); }
-  .page :is(.briefing-event, .daily-event, .macro-chain-branch, .theme-detail-flow .stock-read-bar-row) { grid-template-columns: minmax(0, 1fr); }
-  .page .regime-chips { min-width: 0; width: 100%; }
+  .page :is(.briefing-event, .macro-chain-branch, .theme-detail-flow .stock-read-bar-row) { grid-template-columns: minmax(0, 1fr); }
   #home-score-hero { gap: 16px !important; padding: 16px 0; }
   .page .fiscal-peers .stock-read-bar-value { min-width: 0; white-space: normal; }
   /* v57.81: theme-detail sub-theme values wrap under the bar instead of an ellipsis, so 1개월 and 5거래일 stay visible. */
@@ -485,11 +481,11 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 /* v59.55 (owner 11/1, alignment pass): one drawn fold chevron. The '⌄'/'⌃' glyphs sat below the row's centre line
    (their ink is at the bottom of the em box) and differed per font; a 7px rotated corner centres on any row. Same
    selectors as the glyph rules, later in the cascade, so word cues (펼치기·접기) with higher specificity keep their text. */
-.sx-disclosure > summary::after, .leaders-line__more > summary::after, .mk-fold > summary::after, #page-sentiment details.trend-card > summary .trend-card-tags::after, #glossary-body .lu-gl-head::after, #page-guide .aio-guide-chapter > summary::after, #regime-kr-participation > details > summary::after, .kr-flows-basis > summary::after, #page-home .home-kr-line > summary::after, :is(#page-home, #page-signal) .market-lean > summary::after, :is(#page-briefing, #page-market-news) summary.market-slot-head::after, details.news-card > summary::after, .leaders-line__dist-fold > summary::after, .page .mg-lesson-more > summary::after, .news-evidence > summary::after, .rl-nav-list > summary::after, #scr-developer-drawer > summary::after {
+.sx-disclosure > summary::after, #page-sentiment details.trend-card > summary .trend-card-tags::after, #glossary-body .lu-gl-head::after, #page-guide .aio-guide-chapter > summary::after, #regime-kr-participation > details > summary::after, .kr-flows-basis > summary::after, #page-home .home-kr-line > summary::after, :is(#page-home, #page-signal) .market-lean > summary::after, :is(#page-briefing, #page-market-news) summary.market-slot-head::after, details.news-card > summary::after, .leaders-line__dist-fold > summary::after, .page .mg-lesson-more > summary::after, .news-evidence > summary::after, .rl-nav-list > summary::after, #scr-developer-drawer > summary::after {
   content: ''; display: inline-block; flex: none; align-self: center; width: 7px; height: 7px; margin-right: 3px;
   border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); font-size: 0;
 }
-.sx-disclosure[open] > summary::after, .leaders-line__more[open] > summary::after, .mk-fold[open] > summary::after, #page-sentiment details.trend-card[open] > summary .trend-card-tags::after, #glossary-body .aio-glossary-item[open] > .lu-gl-head::after, #page-guide .aio-guide-chapter[open] > summary::after, #regime-kr-participation > details[open] > summary::after, .kr-flows-basis[open] > summary::after, #page-home .home-kr-line[open] > summary::after, :is(#page-home, #page-signal) .market-lean[open] > summary::after, :is(#page-briefing, #page-market-news) details[open] > summary.market-slot-head::after, details.news-card[open] > summary::after, .leaders-line__dist-fold[open] > summary::after, .page .mg-lesson-more[open] > summary::after, .news-evidence[open] > summary::after, .rl-nav-list[open] > summary::after, #scr-developer-drawer[open] > summary::after {
+.sx-disclosure[open] > summary::after, #page-sentiment details.trend-card[open] > summary .trend-card-tags::after, #glossary-body .aio-glossary-item[open] > .lu-gl-head::after, #page-guide .aio-guide-chapter[open] > summary::after, #regime-kr-participation > details[open] > summary::after, .kr-flows-basis[open] > summary::after, #page-home .home-kr-line[open] > summary::after, :is(#page-home, #page-signal) .market-lean[open] > summary::after, :is(#page-briefing, #page-market-news) details[open] > summary.market-slot-head::after, details.news-card[open] > summary::after, .leaders-line__dist-fold[open] > summary::after, .page .mg-lesson-more[open] > summary::after, .news-evidence[open] > summary::after, .rl-nav-list[open] > summary::after, #scr-developer-drawer[open] > summary::after {
   content: ''; transform: translateY(2px) rotate(-135deg);
 }
 /* v59.70 (screen review #4): 뉴스's three fold cards (시간대별 시황·전체 뉴스·시장 신호) had no marker, the section
@@ -499,9 +495,6 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-market-news details.news-card:not([open]) > summary:is(.aio-section-hd, .briefing-h2) { margin-bottom: 0; }
 .leaders-line__dist-fold > summary::after, .page .mg-lesson-more > summary::after, .news-evidence > summary::after, .rl-nav-list > summary::after,
 #scr-developer-drawer > summary::after { margin-left: 6px; }
-/* A full-width fold card puts its chevron at the right edge, like every other fold row (the meta, when present, takes it). */
-.mk-fold > summary::after { margin-left: auto; }
-.mk-fold > summary:has(.sx-card__meta)::after { margin-left: 0; }
 
 /* v59.55 (alignment pass, audit 3): every page-level fold is one card row — card surface, 14px/700 title on the text
    column, drawn chevron at the right. These were bare captions (테마 지도·AI 설비투자), a '펼치기' word box (한국 시장,
@@ -559,14 +552,14 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-ticker > .aio-section > .aio-section-hd, #page-ticker .ticker-start-title { padding-left: var(--sx-card-pad-x); }
 .page > details.sx-disclosure.sh-fold-mt16 > :not(summary) { padding: 0 var(--sx-card-pad-x) 16px; }
 /* Bare page-level folds: the native ▶ put their words 13px in; they take the text column and the drawn chevron. */
-#news-filter-fold > summary, .breadth-more > summary, #scr-data-status > summary {
+#news-filter-fold > summary, #scr-data-status > summary {
   list-style: none; display: flex; align-items: center; gap: 8px; padding-left: var(--sx-card-pad-x); cursor: pointer;
 }
-#news-filter-fold > summary::-webkit-details-marker, .breadth-more > summary::-webkit-details-marker, #scr-data-status > summary::-webkit-details-marker { display: none; }
-#news-filter-fold > summary::after, .breadth-more > summary::after, #scr-data-status > summary::after {
+#news-filter-fold > summary::-webkit-details-marker, #scr-data-status > summary::-webkit-details-marker { display: none; }
+#news-filter-fold > summary::after, #scr-data-status > summary::after {
   content: ''; width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg);
 }
-#news-filter-fold[open] > summary::after, .breadth-more[open] > summary::after, #scr-data-status[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
+#news-filter-fold[open] > summary::after, #scr-data-status[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
 /* The screener's data-status notes were the last 4px-radius outlined boxes; they take the soft tile like other notes. */
 .page :is(.sh-screener-data-status-panel, .sh-screener-readiness-note-panel) { border: 0; border-radius: var(--radius-container); background: var(--sx-ink-a03); padding: 10px var(--sx-card-pad-x); }
 #pf-holdings-table-section .sh-portfolio-holdings-table-row { padding-left: 0; padding-right: 0; }
@@ -638,7 +631,6 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-macro .mx-ch__cap { font-size: 11px; color: var(--color-text-secondary); }
 #page-macro .mx-ch__text { display: flex; flex-direction: column; gap: 6px; }
 #page-macro .mx-ch__now { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
-#page-macro .mx-ch__mean { margin: 0; font-size: var(--fs-reading); line-height: 1.7; color: var(--color-text-primary); }
 #page-macro .mx-ch__today { margin: 0; padding: 6px 10px; border-left: 3px solid rgba(var(--ink-rgb), 0.18); font-size: 12px; line-height: 1.6; color: var(--color-text-primary); }
 #page-macro .mx-ch__today.is-lead { border-left-color: var(--color-accent); }
 #page-macro .mx-ch__today strong { font-weight: 600; color: var(--color-text-secondary); }
@@ -671,7 +663,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 :is(#page-fxbond .fx-krw__val, #page-market-news .news-focus__val) { text-align: right; font-variant-numeric: tabular-nums; color: var(--color-text-primary); }
 :is(#page-fxbond .fx-krw__cap, #page-market-news .news-focus__cap) { font-size: 11px; color: var(--color-text-secondary); }
 :is(#page-fxbond .fx-krw__now, #page-market-news .news-focus__now) { margin: 0 0 6px; font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
-:is(#page-fxbond .fx-krw__mean, #page-market-news .news-focus__mean) { margin: 0; font-size: var(--fs-reading); line-height: 1.7; color: var(--color-text-primary); }
+#page-market-news .news-focus__mean { margin: 0; font-size: var(--fs-reading); line-height: 1.7; color: var(--color-text-primary); }
 #page-fxbond .fx-krw__more p { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
 #page-market-news .news-focus__row { display: grid; grid-template-columns: 72px minmax(0, 1fr) 28px; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-secondary); }
 #page-market-news .news-focus__track { position: relative; display: block; height: 8px; border-radius: var(--radius-full); background: rgba(var(--ink-rgb), 0.05); }

@@ -4,7 +4,6 @@ import { createResourceBag } from '../../../app/lifecycle.js';
 import { consumeResearchHandoff } from '../../../app/research-handoff.js';
 import { createSuppliedMaterialBridge } from '../../knowledge/supplied-material-bridge.js';
 import { renderKnowledgeArrival } from '../../components/knowledge-arrival.js';
-import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { subscribeToSlices } from '../../../state/memoize.js';
 import { refreshSharedArtifact } from '../../../data/shared-artifacts.js';
 import { readUniverseScope } from '../../../data/screener-extended.js';

@@ -571,8 +571,6 @@
       _assert('T76 waterfall_redraw_no_leak: _aioChartRegistry 미존재 (missing)', false);
     }
 
-    // T77 (v59.51 content audit): the 기업 분석 tab switcher (_aioFundTabSwitch) is retired with its [data-fund-tab] sections.
-    _assert('T77 v59.51 (content audit) fund_tab_switch_retired: _aioFundTabSwitch 퇴역', typeof window._aioFundTabSwitch === 'undefined');
 
     // T79: modal_esc_close — _aioModalTrap ESC 닫힘 + cleanup 이벤트 제거
     if (typeof window._aioModalTrap === 'function') {
@@ -797,8 +795,6 @@
       _assert('T99 timer_registry: _aioTimerRegistry 미존재 (missing)', false);
     }
 
-    // T100 (v59.42): the uncalled legacy VIX percentile helper is deleted.
-    _assert('T100 v59.42 legacy _aioVixPercentile is deleted (no caller)', typeof window._aioVixPercentile === 'undefined', typeof window._aioVixPercentile);
 
     _assert('T102 fmtnum_nan: _aioFiniteNum(NaN)→null', window._aioFiniteNum && window._aioFiniteNum(NaN) === null, 'got=' + (window._aioFiniteNum ? window._aioFiniteNum(NaN) : 'n/a'));
     _assert('T102 fmtnum_inf: _aioFiniteNum(Infinity)→null', window._aioFiniteNum && window._aioFiniteNum(Infinity) === null, 'got=' + (window._aioFiniteNum ? window._aioFiniteNum(Infinity) : 'n/a'));
@@ -903,8 +899,6 @@
     _assert('T106 sell_pressure: MA violations escalate', brokenSP && (brokenSP.action === 'TRIM_50' || brokenSP.action === 'EXIT_OR_HEDGE'), brokenSP && brokenSP.action);
     _assert('T106 sell_pressure: 50SMA thesis damaged flag', brokenSP && brokenSP.flags.indexOf('CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED') >= 0, brokenSP && brokenSP.flags.join(','));
 
-    // v57.77: calcSemiHeatMap had no production caller and was removed.
-    _assert('T107 v57.77 semi_heat: test-only calcSemiHeatMap stays retired', typeof window.calcSemiHeatMap === 'undefined', typeof window.calcSemiHeatMap);
   }
 
   // Group19: Architecture Reinforcement (T108~T115)
@@ -916,8 +910,6 @@
     _assert('T109 tech_snapshot: ATR aliases', snap && snap.dist50ATR === snap.dist50Atr && snap.stageEstimate, snap && snap.stageEstimate);
 
     var aiHot = Object.assign({}, snap, { dayGainPct: 3.2, dist50Atr: 4.5, rsi14: 83, rvol20: 2.4 });
-    // v57.77: calcAIInfraHeat had no production caller and was removed.
-    _assert('T110 v57.77 ai_infra_heat: test-only calcAIInfraHeat stays retired', typeof window.calcAIInfraHeat === 'undefined', typeof window.calcAIInfraHeat);
 
     var pos = window.calcPositionTechnicalRisk ? window.calcPositionTechnicalRisk({ ticker: 'NVDA', qty: 10, cost: 100, price: 150 }, aiHot, { totalValue: 1500 }) : null;
     _assert('T111 position_technical_risk: action + score', pos && pos.ticker === 'NVDA' && pos.score >= (pos.sellPressure && pos.sellPressure.score || 0), pos && JSON.stringify({ score: pos.score, action: pos.action }));
@@ -1069,9 +1061,6 @@
   }
 
   function _testEventLiquidityPipeline() {
-    // v57.77: calcBlowoffTopChecklist had no production caller and was removed.
-    _assert('T144 v57.77 blowoff_top: test-only calcBlowoffTopChecklist stays retired', typeof window.calcBlowoffTopChecklist === 'undefined', typeof window.calcBlowoffTopChecklist);
-
     var audit = window.AIO && typeof window.AIO.getTelegramPipelineAudit === 'function' ? window.AIO.getTelegramPipelineAudit() : null;
     var secondaryOk = audit && audit.verificationPolicy && Array.isArray(audit.sources) && audit.sources.every(function(s) { return /^https:\/\/t\.me\/s\//.test(s.publicMirror); });
     _assert('T145 telegram_pipeline: channels audited as secondary pipeline with public mirrors', !!secondaryOk, audit && JSON.stringify(audit.sources));
@@ -1296,8 +1285,6 @@
 
   // ── Group48: v49.41 signal/breadth 2차 깊이 점검 + R97 ───────────────
   function _testV4941SignalBreadthDeepAudit() {
-    // T322 (v57.79): the empty scenario registry left with the retired scenario probabilities; nothing ships one.
-    _assert('T322 scenario_probabilities_require_runtime_provider (v57.79 registry retired)', typeof window.AIO_SCENARIO_REGISTRY === 'undefined', 'typeof=' + typeof window.AIO_SCENARIO_REGISTRY);
 
     // T323: signal L5185 "Breadth Thrust" 영문 병기 (브레드쓰 스러스트)
     var sigPage = document.getElementById('page-signal');
@@ -4385,8 +4372,6 @@
 
   // ── Group36: v49.28 인프라 → 페이지 실제 적용 (P239 메타 근본) ─────────────
   function _testInfraPageApplicationV4928() {
-    // T223 (v57.79): the 20/100 score-scale registry left with the retired score; it must not return.
-    _assert('T223 score_scale_registry_retired (v57.79)', typeof window.AIO_SCORE_SCALES === 'undefined', 'typeof=' + typeof window.AIO_SCORE_SCALES);
 
     // T225: home 카드 CARD_HIERARCHY 적용
     var primaryCard = document.querySelector('#page-home [data-card-level="primary"][data-weight-key="TRADING_SCORE"]');
@@ -4459,9 +4444,6 @@
       ratio && Array.isArray(ratio.reports),
       ratio ? ('issueCount=' + ratio.issueCount + ' reports=' + ratio.reports.length) : 'api unavailable');
 
-    // T219/T220 (v57.79): no embedded scenario probabilities — the empty registry and its freshness audit were removed.
-    _assert('T219 scenario_sum: no embedded scenario registry (v57.79)', typeof window.AIO_SCENARIO_REGISTRY === 'undefined', 'typeof=' + typeof window.AIO_SCENARIO_REGISTRY);
-    _assert('T220 scenario_audit_retired (v57.79)', !(window.AIO && window.AIO.getScenarioFreshnessAudit), 'present=' + !!(window.AIO && window.AIO.getScenarioFreshnessAudit));
 
     // T221 (P714 재작성): ACTION_RULES F&G 18 → 극단 공포 '구간 라벨'(관측형) — 기존 '역발상 매수'
     // 지시형 라벨은 컴플라이언스 재작성으로 제거됨. 밴드 경계(fg<25) 회귀 의도는 유지.
@@ -4519,8 +4501,6 @@
 
   // ── Group33: v49.25 로직성 정비 + 재발 방지 인프라 ──────────────────────
   function _testLogicInfraV4925() {
-    // T199/T200 (v57.79): the score-scale registry and its 20->100 conversion left with the retired score.
-    _assert('T199 score_scales_retired (v57.79)', typeof window.AIO_SCORE_SCALES === 'undefined', 'typeof=' + typeof window.AIO_SCORE_SCALES);
 
     // T201: THRESHOLD_REGISTRY BREADTH/RSI 추가됨 + RSI 75 → 과매수
     var reg = window.AIO_THRESHOLD_REGISTRY;
@@ -5290,8 +5270,6 @@
     } catch(e) { t783detail = 'ERR:' + e.message; }
     _assert('T783 v5017_event_timeline_audit: getEventTimelineStalenessAudit + AIO_EVENT_RISK_CONTEXT 커버 (Event Runway 26일 stale 재발 방지)', t783ok, t783detail);
 
-    // T784 (v57.79): the scenario freshness audit left with the empty scenario registry.
-    _assert('T784 scenario_audit_retired (v57.79)', !window.AIO.getScenarioFreshnessAudit && typeof window.AIO_SCENARIO_REGISTRY === 'undefined', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
 
     // T785/P1267: 기간·모집단이 다른 20SMA/섹터 양봉을 50SMA로 대체하지 않는다.
     var t785ok = false, t785detail = '';
@@ -5475,8 +5453,6 @@
     } catch(e) { t798detail = 'ERR:' + e.message; }
     _assert('T798 v5028_news_backstop: _aioApplyNewsBackstop additive(자체 뉴스 시 미개입)+force 적용 (프록시 전멸 폴백)', t798ok, t798detail);
 
-    // T799 (WO-7): VIX 퍼센타일 브리지 — 60일 미만이면 null(고정 CDF 폴백), 함수 정의
-    _assert('T799 v59.42 the VIX percentile bridge left with the deleted helper', typeof window._aioVixPercentile === 'undefined', typeof window._aioVixPercentile);
 
     // T800 (v50.30 대체): 핵심 결론 섹션 재배치 — sentiment 복합판단/breadth 종합진단이 상단, signal lockout 후순위
     // P626-followup: found and fixed a real bug in _aioReorderCoreSections (js/aio-core.js) — the

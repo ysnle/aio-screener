@@ -199,11 +199,6 @@ export function gauge({ label, value, min, max, unit = '', digits = 1, bands = [
   return { label, value, min, max, unit, digits, bands, markers, clipped: value < min || value > max };
 }
 
-function changeOver(series, sessions) {
-  if (series.length <= sessions) return null;
-  return series[series.length - 1].value - series[series.length - 1 - sessions].value;
-}
-
 function axis(id, title, state, { evidence = [], read, flip, link, asOf, detail = null, gauge = null, headline = null }) {
   return { id, title, state, stateLabel: STATE_LABELS[state], evidence: evidence.filter(([, value]) => value != null && value !== '—'), read, flip, link, asOf, detail, gauge, headline };
 }

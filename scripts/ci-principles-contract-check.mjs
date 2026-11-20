@@ -63,7 +63,6 @@ for (const [label, source, marker] of [
   ['dictionary reading text', page, 'loadArtifactUrl(root, CONCEPT_STORIES_URL'],
     ['reviewed content', catalogSource, '"reviewedAt": "2026-08-18"'],
     ['catalog fetched before mount', page, 'loadPrinciplesCatalog(root, { signal: scope?.signal })'],
-    ['deep article renderer', page, 'renderKnowledgeLesson'],
   ['per-lesson article shard', page, "artifactFamilyUrl('knowledge-article', 'principles', lessonId)"]
   ,['supplied material bridge', page, 'createSuppliedMaterialBridge']
   ,['market/13F/AI reference sections', suppliedMaterials, 'market-principles']
@@ -81,7 +80,7 @@ if (!/data-principles-content/.test(index)) fail('page markup lacks renderer mou
 // Sources and review status are verified in the build gates; the reading surface carries neither (owner, 2026-10-05).
 if (/출처|검토 질문|체크포인트|근거는 항목별 표시|텔레그램은 발견용/.test(conceptsView + frameView + researchShell)) fail('library reading surface must not show source notes, review questions or boundary chips');
 if (!/RESEARCH_URL/.test(page) || !/CHAPTERS_URL/.test(page) || !/LESSON_LIBRARY_URL/.test(page) || !/NODE_GUIDES_URL/.test(page) || !/aioPrinciplesResearch/.test(page) || !/aioPrinciplesChapters/.test(page) || !/aioPrinciplesLessonLibrary/.test(page) || !/aioPrinciplesNodeGuides/.test(page) || !/aioPrinciplesKnowledgeArticles/.test(page)) fail('principles page is not connected to the authored A~O curriculum, node knowledge base, deep article corpus, and reconciled evidence registry');
-if (!page.includes('article identity mismatch') || !page.includes('validateCurrentObservationsArtifact') || !page.includes('applySafeExternalLink')) fail('principles runtime artifact identity/schema/URL safety gates are missing');
+if (!page.includes('article identity mismatch') || !page.includes('validateCurrentObservationsArtifact')) fail('principles runtime artifact identity/schema/URL safety gates are missing');
 if (!/normalizeKnowledgeEdges/.test(contentLib) || !/createKnowledgeCapabilityBatchLoader/.test(page) || !/loadKnowledgeCapabilities/.test(capabilityLoader) || /Promise\.all\(\[loadJson/.test(page)) fail('principles must use typed edge normalization and shared capability-level artifact loading');
 if (!/renderFrameArticle/.test(conceptsView) || !/renderFrameConnections/.test(conceptsView) || !/observations/.test(page)) fail('principles page must render analysis notes with their connections and keep the observation boundary');
 if (!/"id": "market"/.test(catalogSource) || !/"id": "systems"/.test(catalogSource) || !/scarcity-choice/.test(catalogSource) || !/power-electricity-system/.test(catalogSource) || !/market-foundations/.test(catalogSource) || !/industry-and-korea/.test(catalogSource)) fail('market principles economic and systems spine is missing');

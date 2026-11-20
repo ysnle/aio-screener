@@ -301,6 +301,8 @@ export function computeRecord(root, entry) {
   if (qaRows.length) {
     const qa = need('qa');
     const existing = new Set([...qa.text.matchAll(/^- \[[ xX]\]\s+(QA-[^:\s]+)\s*:/gm)].map((m) => m[1]));
+    // Done rows of compressed sections are kept only as ids on a "- 완료 <n>건: QA-…, QA-…" line; those ids stay taken.
+    for (const line of qa.text.matchAll(/^- 완료 \d+건: (.*)$/gm)) for (const m of line[1].matchAll(/QA-[A-Za-z0-9-]+/g)) existing.add(m[0]);
     const dup = qaRows.filter((row) => existing.has(row.id) && row.update !== true).map((row) => row.id);
     if (dup.length) throw new RecordFixError(`QA id(s) already exist in ${PATHS.qa}: ${dup.join(', ')}; refusing duplicate`);
     const formatRow = (row) => {

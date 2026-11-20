@@ -118,9 +118,6 @@ check('temporal evidence separates event/observed/collected/published', temporal
     check('P1533 an ordinary Friday to Monday is one session', count?.('2026-10-02', '2026-10-05') === 1);
     check('P1533 an unregistered year counts weekdays so stale data never reads as aligned', count?.('2028-01-03', '2028-01-07') === 4);
     check('P1533 a reversed or invalid range counts nothing', count?.('2026-10-05', '2026-10-02') === 0 && count?.('x', '2026-10-02') === 0);
-    const missing = (await import('../src/domain/briefing/daily-diff.js')).missingSessionsBetween;
-    check('P1533 missing sessions skip a US holiday and list the real gap', JSON.stringify(missing('2026-09-04', '2026-09-09')) === JSON.stringify(['2026-09-08']), missing('2026-09-04', '2026-09-09'));
-    check('P1533 missing sessions fail closed in an unregistered year', missing('2028-01-03', '2028-01-06').length === 0);
     const { alignInput } = await import('../src/domain/briefing/market-read.js');
     const holidayLag = alignInput('2026-07-01', '2026-07-06');
     check('P1533 an input one real session behind a holiday weekend is lagged, not stale', holidayLag.status === 'lagged' && holidayLag.lag === 2, holidayLag);

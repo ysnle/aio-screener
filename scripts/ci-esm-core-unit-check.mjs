@@ -2468,16 +2468,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // ── domain/portfolio/surface.js + domain/fundamental/sec-report.js ─────────────────────────────
 // P831/P832: deterministic native secondary projections must preserve null/unavailable inputs,
 // finite quote derivation, and official-SEC provenance rather than converting missing facts to 0.
-// W01/P1143: sentiment ViewModel — one revision renders the P/C card and the narratives
-// together. Missing P/C withholds, missing SPY never becomes 0% flat, and a missing
-// trading score withholds while a valid 0 stays 0.
 {
-  const narrativeModule = await load('src/domain/market/sentiment/narrative.js');
-  const { deriveSentimentViewModel, spyMoveState, tradingScoreLink } = narrativeModule;
-  // v59.70 (owner 11/4): the Cboe put/call band, metric and narrative are gone with the source.
-  const observed = deriveSentimentViewModel({ values: { fearGreed: 42, vix9d: 18, vix: 17, vix3m: 20, vix6m: 22, putCall: 0.79, spyChg: 0.4, tradingScoreTotal: 55 }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
-  if ('putCallBand' in narrativeModule || 'putCallNeedlePosition' in narrativeModule || observed.metrics.some((row) => row.metricId === 'putCall') || observed.narratives.some((row) => row.claimId === 'sentiment.put-call')) fail('v59.70 the sentiment view model carries no put/call metric, band or narrative');
-  {
     // v59.43: a 5-session 10-year drop with HY OAS widening by the watch amount is a flight to safety, not a supportive rate move.
     const { defensiveYieldDrop } = await load('src/domain/market/regime/regime-radar.js');
     const ty = [{ date: '2026-10-20', value: 5.10 }, { date: '2026-10-27', value: 4.99 }];
@@ -2485,11 +2476,6 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const calm = defensiveYieldDrop(ty, [{ date: '2026-10-20', value: 300 }, { date: '2026-10-27', value: 305 }], '2026-10-27', '2026-10-20');
     const rising = defensiveYieldDrop([{ date: '2026-10-20', value: 4.9 }, { date: '2026-10-27', value: 5.0 }], [{ date: '2026-10-20', value: 300 }, { date: '2026-10-27', value: 330 }], '2026-10-27', '2026-10-20');
     if (wide?.yieldBp !== -11 || wide?.oasBp !== 20 || calm !== null || rising !== null) fail(`v59.43 defensive yield drop: got ${JSON.stringify({ wide, calm, rising })}`);
-  }
-  const missingSpy = deriveSentimentViewModel({ values: { fearGreed: 42, vix: 17, spyChg: null }, evidenceByMetric: {}, revision: null, now: '2026-09-19T00:00:00Z' });
-  if (spyMoveState(null)?.state !== 'missing' || spyMoveState(0)?.state !== 'observed' || missingSpy.narratives.find((row) => row.claimId === 'sentiment.spy-vix-divergence')?.status !== 'withheld') fail('W01/P1143 sentiment ViewModel: missing SPY move must stay missing, never 0% flat');
-  if (tradingScoreLink(null)?.state !== 'withheld' || tradingScoreLink(0)?.state !== 'observed' || tradingScoreLink(0)?.value !== 0) fail('W01/P1143 sentiment ViewModel: trading-score null must withhold while a valid 0 stays 0');
-  if (!Object.isFrozen(observed) || !Object.isFrozen(observed.metrics) || !Object.isFrozen(observed.narratives)) fail('W01/P1143 sentiment ViewModel: projection must be immutable');
 }
 {
 // ── domain/screener/setup-profile.js: reference-only setup labels fail closed ────────────────
@@ -4834,11 +4820,6 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const old = deriveSecReport({ symbol: 'NVDA', coverage: ['revenue'], revenue: 10, observedAt: '2022-01-01', allowedUse: 'decision' });
   if (old.freshness.state !== 'historical' || old.freshness.ageDays == null || old.decisionEligible !== false) fail(`sec-report: historical filing must fail closed, got ${JSON.stringify(old)}`);
 }
-{
-  const { selectAiInferenceProxies } = await load('src/domain/ai/inference-efficiency.js');
-  const proxies = selectAiInferenceProxies({ NVDA: { pct: 2.5, provider: 'unstamped-provider', observedAt: '2026-08-31' } });
-  if (!Object.isFrozen(proxies) || !Object.isFrozen(proxies[0]) || proxies[0].sourceKind !== 'REFERENCE' || proxies[0].observedAt !== '2026-08-31') fail(`ai-inference: an unstamped provider was promoted to LIVE or projection stayed mutable, got ${JSON.stringify(proxies[0])}`);
-}
 
 // P1345: a late canonical close must re-derive analysis with or without a bridge.
 {
@@ -5151,7 +5132,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // the 36-hour schedule and the lead's next trigger; the earnings week ranks by market value and keeps watched names; a
 // beat-and-fell quarter leads the reaction cases; the free translator's known misreadings follow the glossary.
 {
-  const { newsImpactChain, todayChecks, eventPreviews, buildEarningsWeek, earningsReactionCases } = await load('src/domain/briefing/event-guide.js');
+  const { newsImpactChain, eventPreviews, buildEarningsWeek } = await load('src/domain/briefing/event-guide.js');
   const { fixKoreanTerms } = await load('src/domain/briefing/headline-terms.js');
   const lead = { id: 'aibust', axes: ['growth', 'credit'], title: 'AI 투자 꺾임 — x', fit: '조건 충족 3/4', weaker: ['aicapex', 'growth', 'liquidity'], firmer: ['defensive'],
     conditions: [['a', true], ['일자리 둔화', false]], triggers: [{ id: 'us-nfp', when: '11/6 고용보고서', text: '일자리 5만~7.5만 명' }], checks: [] };
@@ -5159,21 +5140,16 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const xr = { available: true, tiedIds: [], leadId: 'aibust', altId: null, items: [lead], events: [{ id: 'us-nfp', when: '11/6 고용보고서', name: '고용보고서', atMs: Date.parse('2026-11-06T13:30:00Z') }], rateHub: {} };
   const chain = newsImpactChain('Meta falls as AI spending fears rattle markets', xr);
   const none = newsImpactChain('OpenAI trains models offline after cyber incidents', xr);
-  const checks = todayChecks({ flip: { text: 'WTI 조건', sub: '지금 -1.9%p' }, schedule: [{ kind: 'macro', when: '10/25 21:30 KST', label: 'CPI', atMs: Date.parse('2026-10-25T12:30:00Z'), passed: false }], xr, nowMs: Date.parse('2026-10-24T12:00:00Z') });
   const previews = eventPreviews({ xr, nowMs: Date.parse('2026-10-30T00:00:00Z'), earnings: [{ symbol: 'MSFT', date: '2026-10-31', hour: 'amc', indexWeight: 5, epsEstimate: 4.82, revenueEstimate: 92500000000 }], names: { MSFT: 'Microsoft' },
     themeMap: [{ id: 'software', nameKr: '소프트웨어', subThemes: [{ tickers: ['MSFT'] }] }] });
   const week = buildEarningsWeek({ earnings: [{ symbol: 'AAA', date: '2026-10-27', hour: 'bmo' }, { symbol: 'BIG', date: '2026-10-27', hour: 'bmo' }, { symbol: 'KO', date: '2026-10-27', hour: 'bmo' }],
     rows: [{ sym: 'BIG', mcap: 9e11 }, { sym: 'AAA', mcap: 1e9 }, { sym: 'KO', mcap: 1e8 }], watched: new Set(['KO']), perSession: 1, weekStart: '2026-10-26', weekEnd: '2026-11-02' });
-  const cases = earningsReactionCases({ session: '2026-10-23', signals: [{ kind: 'earnings', ticker: 'BE', revenue: 'beat', eps: 'beat', guidance: 'raise', post: 'c/1' }, { kind: 'earnings', ticker: 'OLD', revenue: 'beat', eps: 'beat', post: 'c/2' }],
-    posts: [{ id: 'c/1', datetime: '2026-10-22T22:00:00Z' }, { id: 'c/2', datetime: '2026-10-20T22:00:00Z' }], rows: [{ sym: 'BE', ret1d: -11.2, factorSessionDate: '2026-10-23' }, { sym: 'OLD', ret1d: 2, factorSessionDate: '2026-10-23' }] });
   const msft = previews.find((row) => row.kind === 'earnings');
   if (!chain || chain.text !== "AI 투자 → 'AI 투자 꺾임'(선두, 조건 충족 3/4) → 부담: AI 설비투자 사이클, 장기 성장 등 → 수혜: 경기 방어 → 확인: 11/6 고용보고서, 일자리 5만~7.5만 명" || none
-    || checks.map((row) => row.kind).join('|') !== 'flip|event|scenario' || !/일자리 5만~7.5만 명이면/.test(checks[2].text)
     || !previews.some((row) => row.id === 'us-nfp' && row.branches.length === 1) || !msft || msft.expect.join(', ') !== 'EPS 예상 4.82, 매출 예상 925억 달러' || !/부담 쪽/.test(msft.branches[0] || '')
     || week.days[0].sessions[0].rows.map((row) => row.symbol).join('|') !== 'BIG|KO' || week.mine.length !== 1
-    || cases.length !== 1 || cases[0].kind !== 'beat-fell'
     || fixKoreanTerms('Apple earnings may push it over the top', '다가오는 수익으로, 수익률은') !== '다가오는 실적으로, 수익률은' || fixKoreanTerms('Stocks rally', '주식 집회') !== '주식 랠리' || fixKoreanTerms('Stocks rise', '수익 증가') !== '수익 증가')
-    fail(`v58.75 event guide wrong: ${JSON.stringify({ chain: chain?.text, checks, previews, week: week.days[0]?.sessions[0]?.rows.map((row) => row.symbol), cases })}`);
+    fail(`v58.75 event guide wrong: ${JSON.stringify({ chain: chain?.text, previews, week: week.days[0]?.sessions[0]?.rows.map((row) => row.symbol) })}`);
 }
 
 // ── v59.57: Nasdaq rally attempt / follow-through day and Treasury auction comparison ────
@@ -6237,7 +6213,6 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
 // 10/15 row's real 10/14 close 95.09, and the 10/12 DXY close sat on both 10/12 and 10/13.
 {
   const { buildCloseSeries } = await load('src/domain/briefing/market-read.js');
-  const { buildDailyChanges } = await load('src/domain/briefing/daily-diff.js');
   const { historyFieldSessionDate, inferPreviousCloseSession } = await load('src/domain/market/session/history-session.js');
   const prev = (observedAt, fetchedAt, extra = {}) => ({ observedAt, fetchedAt, valueBasis: 'previous-completed-close', observationRelation: 'previous-completed-close', observedAtSource: 'provider-previous-close', ...extra });
   const spxMeta = (date) => ({ observedAt: `${date}T20:30:00Z`, valueBasis: 'latest-completed-close', observationRelation: 'latest-completed-close' });
@@ -6258,9 +6233,6 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   // A held value is not a change, and the 1-day change compares the previous distinct session.
   const spx = buildCloseSeries(rows, 'spx');
   if (spx.length !== 3 || spx.at(-1).date !== '2026-10-14') fail(`v57.81 a held (carried-forward) S&P 500 copy is not a session: ${JSON.stringify(spx)}`);
-  const diff = buildDailyChanges(rows, { now: Date.parse('2026-10-15T08:00:00Z') });
-  const move = (key) => diff.moves.find((item) => item.key === key)?.value;
-  if (diff.date !== '2026-10-14' || diff.prevDate !== '2026-10-13' || Math.abs(move('wti') - (95.09 / 94.14 - 1) * 100) > 1e-9 || Math.abs(move('dxy') - (102.55 / 102.18 - 1) * 100) > 1e-9) fail(`v57.81 the 1-day change uses the previous distinct session (WTI 94.14 -> 95.09, DXY 102.18 -> 102.55): ${JSON.stringify(diff.moves)}`);
 }
 
 // v57.81 (owner 2026-10-15): cash is one balance per currency (원화·달러). A legacy single value migrates by a pure read,
@@ -8592,17 +8564,4 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   // One rank phrase for a record percentile, shared by the 시장 상태 분배일 card and the page-flow line.
   const { recordRankPhrase } = await load('src/domain/briefing/market-read.js');
   if (recordRankPhrase(55) !== '중간쯤' || recordRankPhrase(65) !== '상위 35%에 드는 많은 편' || recordRankPhrase(35) !== '하위 35%에 드는 적은 편' || recordRankPhrase(null) !== '') fail(`v59.97 the record rank phrase uses the 60/40 bands: ${[55, 65, 35].map(recordRankPhrase).join(' | ')}`);
-  const { breadthFlow } = await load('src/domain/market/story/page-flow.js');
-  const { recordPercentile } = await load('src/domain/market/session/close-series.js');
-  const flowPts = (fn) => Array.from({ length: 100 }, (_, i) => ({ date: `2026-01-${String(i).padStart(3, '0')}`, value: fn(i) }));
-  const ddSeries = flowPts((i) => (i === 99 ? 55 : i));
-  const flowIndex = breadthFlow({ cards: [{ id: 'spx', series: flowPts((i) => 6000 + i) }, { id: 'b50', series: flowPts(() => 50) }, { id: 'b200', series: flowPts(() => 50) }, { id: 'dd', series: ddSeries }] }).leads?.index || '';
-  const ddPct = recordPercentile(ddSeries, 55).pct;
-  if (ddPct <= 50 || ddPct >= 60 || !flowIndex.includes(`가운데 ${recordRankPhrase(ddPct)}입니다`) || /많은 편/.test(flowIndex)) fail(`v59.97 the page-flow 분배일 line reads a ${ddPct}th-percentile count as 중간쯤: ${flowIndex}`);
-  // v60.30: high shares above the averages are a participation level, not a rise — on a falling index the line says both.
-  const broadOn = (spx) => breadthFlow({ cards: [{ id: 'spx', series: flowPts(spx) }, { id: 'b50', series: flowPts(() => 66) }, { id: 'b200', series: flowPts(() => 70) }] }).leads?.participation || '';
-  const broadFalling = broadOn((i) => 7000 - i * 5), broadRising = broadOn((i) => 6000 + i * 5);
-  if (/상승이 넓게/.test(broadFalling + broadRising) || !/참여가 넓습니다 — 다만 S&P 500은 20일 -[\d.]+%로 내려/.test(broadFalling) || !/S&P 500도 20일 \+[\d.]+%로 함께 올랐습니다/.test(broadRising)) {
-    fail(`v60.30 broad participation must not claim a rise against the index: ${JSON.stringify({ broadFalling, broadRising })}`);
-  }
 }
