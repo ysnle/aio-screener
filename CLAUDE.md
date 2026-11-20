@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 변동하는 버전·라우트·파일 크기·지식 상태의 정본은 `_context/CURRENT-STATE.md`이며, 이 문서에는 복제하지 않는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v60.34**
+- 현재 버전: **v60.35**
 - **버전 이력 → CHANGELOG.md** (v60.19 이하는 한 줄 요약 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md`(v60.19 이하는 절마다 한 줄).
 - 버전별 작업 요약은 CHANGELOG.md에만 쓴다.
 - 코드 구조: `index.html` 정적 셸 + `js/` 호환 모듈 + `src/` native ESM. 현재 집계는 `_context/CURRENT-STATE.md`, 구간 탐색은 `_context/CODE-MAP.md`를 사용한다.
@@ -53,7 +53,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - **배치 마감 세 질문 (소유자 2026-11-19)** — 마감 보고 맨 위에 답한다(없으면 '없음'): ① 소유자가 말한 것 중 적용하지 못한 것 ② 그대로 받아들인 기존 구조와 이유 ③ 코드·검사·문서가 늘었는지 줄었는지(줄 수)
 - **경중을 따진다 (소유자, 반복)** — 화면·문단·작업 목록·보고 모두 중요한 것을 먼저, 크게; 사소한 것은 보조로; 잡음은 뺀다
 - **화면 검증은 실서비스·사용자 관점으로 (소유자 2026-11-19)** — 게이트 통과와 하위 에이전트 보고는 근거가 아니다. 화면을 바꾸면 Fable이 실제 데이터 화면을 직접 보고, 처음 온 사용자가 무엇을 먼저 읽는지와 그 정보가 이 화면 것인지 판단한다
-- **제품 결정·협업 원칙·변경 흐름의 정본은 `AGENTS.md`**: 소유자 요청도 근거로 검토·반대 의견 제시, 9화면 정보구조, 원천 없는 위젯·근거 없는 등급 제거, 느린 데이터 정적화, AI는 gpt-6-luna 공용 Worker(웹검색 포함 월 $20 목표·항상 사용), 종가 기준 점수, 데스크톱·모바일·아이패드 반응형 지원(2026-10-11 재승인), 옵션 퇴역, 티커 추정 금지, 로컬 프로듀서 금지, **main 직접 작업**(단일 작업은 PR 없음, 병렬 스레드는 브랜치 → 통합 때 병합, push는 배치 끝 한 번), 생성물 충돌 해소 스크립트
+- **제품 결정·협업 원칙·변경 흐름의 정본은 `AGENTS.md`**: 소유자 요청도 근거로 검토·반대 의견 제시, 8화면 정보구조, 원천 없는 위젯·근거 없는 등급 제거, 느린 데이터 정적화, AI는 gpt-6-luna 공용 Worker(웹검색 포함 월 $20 목표·항상 사용), 종가 기준 점수, 데스크톱·모바일·아이패드 반응형 지원(2026-10-11 재승인), 옵션 퇴역, 티커 추정 금지, 로컬 프로듀서 금지, **main 직접 작업**(단일 작업은 PR 없음, 병렬 스레드는 브랜치 → 통합 때 병합, push는 배치 끝 한 번), 생성물 충돌 해소 스크립트
 - **생성 파일은 손으로 고치지 않는다** — `.claude/agents/*`·`.codex/agents/*`는 `architecture/agent-profiles.json` → `node scripts/sync-agent-profiles.mjs`, `.agents/skills/`는 `.claude/skills/` → `node scripts/sync-agent-skills.mjs`, `CURRENT-STATE`·`CONTEXT-CATALOG`는 `generate-workspace-state --write`, `outcome-stamps.js`는 `build-outcome-stamps.mjs --write`, `*.expect.md`는 `node scripts/ci-expect-output-check.mjs --update`(바뀐 출력 diff를 읽고 확인)
 - **기록 순서**: `bump-version` → 항목별 `record-fix` → `generate-workspace-state --write` → 원장·버전·워크스페이스 게이트. 큰 배치는 구현을 모은 뒤 기록·검증을 한 번에
 - **게이트-문서 계약**: 원장 산문은 자유롭게 압축·정리해도 된다. 게이트는 구조만 검사한다 — `## R<n>.` 헤딩(번호 보존), QA 행 형식·`verify_by`, CHANGELOG `## v<버전>` 헤딩. 정책↔원장 추적은 `architecture/governance-markers.json`

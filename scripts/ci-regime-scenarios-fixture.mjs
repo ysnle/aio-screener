@@ -5,6 +5,7 @@ import { AXIS_KOREA_LABEL, AXIS_REASON_LABEL, buildMarketRegime, bp } from '../s
 import { buildMarketScenarios, buildRegimeAxisHistory, renderMarketScenarioContext, buildKoreaIndexSeries, buildKoreaRegimeObservations } from '../src/domain/market/regime/regime-scenarios.js';
 import { resolveMarketCalendarSession } from '../src/domain/market/session/market-calendar.js';
 import { renderRegimePage } from '../src/ui/components/market-regime.js';
+import { showCrossroadsSection } from '../src/ui/components/macro-crossroads.js';
 
 const dates = [];
 for (let instant = Date.parse('2025-10-01T12:00:00Z'); instant <= Date.parse('2026-10-08T12:00:00Z'); instant += 86400000) {
@@ -80,7 +81,7 @@ class Element {
 function descendants(node) { return node.children.flatMap(child => [child, ...descendants(child)]); }
 const page = new Element('main'); page.className = 'page active';
 const ids = new Map([['page-signal', page]]);
-for (const id of ['regime-basis', 'regime-overall', 'regime-counts', 'regime-counter', 'regime-conflicts', 'regime-board', 'regime-history', 'regime-history-host', 'regime-board-kr', 'regime-next']) { const element = new Element('div'); ids.set(id, element); page.append(element); }
+for (const id of ['regime-basis', 'regime-overall', 'regime-counts', 'regime-counter', 'regime-conflicts', 'regime-board', 'regime-history', 'regime-history-host', 'regime-board-kr', 'regime-next', 'regime-structure-host']) { const element = new Element('div'); ids.set(id, element); page.append(element); }
 const doc = { createElement: tag => new Element(tag), createElementNS: (_, tag) => new Element(tag), createTextNode: text => { const node = new Element('#text'); node.textContent = text; return node; }, getElementById: id => ids.get(id) || null };
 const root = { _aioHistory: input.history, _aioMacroHistory: macroHistory, DATA_SNAPSHOT: { hySpread: 300, _hySpreadDelta5Bp: -10, pcr: .9, realYield10: 1.8,
   _fieldTs: { hySpread: asOf, pcr: asOf, macro_realYield10: asOf, macro_breakeven10: asOf } } };
@@ -110,14 +111,14 @@ assert.equal(descendants(page).filter(node => node.dataset.scenario).length, 3, 
 // v57.76: 시장 상태 reads current state then links once to 거시 for the branches by release (no compact branch block), and
 // the VIX-only past-outcome table is a fold inside the volatility card, not a separate unbridged section.
 assert.ok(!descendants(page).some(node => node.id === 'signal-crossroads' || String(node.className).includes('xr-compact')), 'v57.76 시장 상태 no longer repeats the 거시 branch block');
-// v59.68 (owner IA 2026-11-03): the scenario map by release lives on 시장 상태 itself; the flow section's one link opens it here.
-const macroLinks = descendants(page).filter(node => node.tagName === 'button' && node.textContent === '다음 발표별 시나리오 전체');
-assert.equal(macroLinks.length, 1, 'v59.68 the flow section ends with exactly one link line to the scenario map');
+// v60.35 (owner 2026-11-20): the three flows open the 시나리오 section (#regime-structure-host), beside the macro branches —
+// no separate link line to them. The other screens' link (테마's '시나리오의 근거') still opens the owning view in place.
+assert.ok(descendants(ids.get('regime-structure-host')).filter(node => node.dataset.scenario).length === 3 && !descendants(page).some(node => node.tagName === 'button' && node.textContent === '다음 발표별 시나리오 전체'), 'v60.35 the flows sit in the 시나리오 section, with no separate link line');
 {
   const shown = [];
   root.showPage = (route) => shown.push(route);
   root._aioShowPageView = (pageId, view) => shown.push([pageId, view]);
-  macroLinks[0].listeners.click();
+  showCrossroadsSection({ getElementById: (id) => (id === 'page-signal' ? { classList: { contains: () => true } } : null) }, root);
   assert.deepEqual(shown, [['page-signal', 'story']], 'v60.23 the scenario link activates the owning story view without navigating away');
   delete root.showPage;
   delete root._aioShowPageView;

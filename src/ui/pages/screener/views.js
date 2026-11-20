@@ -91,7 +91,7 @@ export function createViewsController(ctx) {
         documentRef.getElementById(`scr-tab-${argument}`)?.scrollIntoView?.({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
       } else if (!fromSeg) ctx.scrollToTop();
     } else if (action === 'view') {
-      // The retired 맞춤 조건 view opens the + 조건 panel on the 순위 view instead.
+      // The retired 맞춤 조건 view opens the condition editor on the 순위 view instead.
       if (argument === 'custom') { ctx.setView('rank'); ctx.setPanel('scr-condition-panel', true); return true; }
       ctx.setView(argument, { focusTab: !!actionNode.closest('.scr-view-seg') });
       if (!actionNode.closest('.scr-view-seg')) ctx.scrollToTop();

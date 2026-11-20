@@ -108,11 +108,20 @@ async function verifyScenarioView(page) {
     const summary = branchLink.locator('xpath=ancestor::details[1]/summary');
     await summary.click();
   }
+  const branchName = (await branchLink.textContent()).trim();
   await branchLink.click();
   await page.waitForURL((url) => url.hash === '#signal?view=story');
-  await page.waitForFunction(() => document.activeElement?.closest('#regime-depth-fold .xr-branch[open]'));
+  // v60.35: scenarios are one pick list (.xr-pick) with the chosen card in .xr-pick-detail. The 매크로 link must
+  // land on that scenario: its pick pressed and focused, and the detail card showing the same branch.
+  await page.waitForFunction(() => document.activeElement?.matches?.('#regime-depth-fold .xr-pick[aria-pressed="true"]'));
+  const opened = await page.evaluate(() => {
+    const pick = document.activeElement;
+    const card = document.querySelector('#regime-depth-fold .xr-pick-detail .xr-branch');
+    return { pick: pick?.dataset.branch || null, card: card?.dataset.branch || null, name: pick?.querySelector('.xr-map-title')?.textContent?.trim() || '' };
+  });
+  const branchOpened = Boolean(opened.pick) && opened.pick === opened.card && opened.name === branchName;
   const crossRoute = await view();
-  return { passed: back === 'now' && direct === 'story' && crossRoute === 'story' && unvisited && !macroOwnsMap, back, direct, crossRoute, unvisited, macroOwnsMap };
+  return { passed: back === 'now' && direct === 'story' && crossRoute === 'story' && unvisited && !macroOwnsMap && branchOpened, back, direct, crossRoute, unvisited, macroOwnsMap, branchName, opened };
 }
 
 // v57.62: shared lifecycle — resolves only on the server ready line; the server is closed even if launch throws.

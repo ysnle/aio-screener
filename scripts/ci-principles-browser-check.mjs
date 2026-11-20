@@ -52,7 +52,7 @@ try {
       overflow: document.documentElement.scrollWidth > window.innerWidth + 2
     };
   });
-  if (!frames.shell || frames.view !== 'frames' || frames.groups.join(',') !== 'frames,story,concept,lesson,map' || frames.noteLinks < 20 || frames.paragraphs < 2 || frames.connections < 1 || frames.overflow) throw new Error(`analysis note default view incomplete: ${JSON.stringify(frames)}`);
+  if (!frames.shell || frames.view !== 'frames' || frames.groups.join(',') !== 'frames,story,concept,lesson,rules,map' || frames.noteLinks < 20 || frames.paragraphs < 2 || frames.connections < 1 || frames.overflow) throw new Error(`analysis note default view incomplete: ${JSON.stringify(frames)}`);
   if (INTERNAL_COPY.test(await page.locator('#page-principles .rl-shell').textContent())) throw new Error('analysis note view shows internal/source copy');
 
   // Column: lazy narrative, chapter pager, URL state.
@@ -85,6 +85,12 @@ try {
   if (lesson.paragraphs < 2 || lesson.lead.length < 60 || lesson.url !== 'D6') throw new Error(`lesson reading text incomplete: ${JSON.stringify(lesson)}`);
   if (INTERNAL_COPY.test(await docText(page))) throw new Error('lesson view shows internal/source copy');
 
+  // Participation principles (moved from 시장 상태, owner 2026-11-20): the full set renders as definitions by kind.
+  await group(page, 'rules').click();
+  await page.waitForFunction(() => document.querySelector('#page-principles .rl-main [data-principles-rules] dt'));
+  const rules = await page.evaluate(() => ({ entries: document.querySelectorAll('#page-principles [data-principles-rules] dt[id^="rule-"]').length, defs: document.querySelectorAll('#page-principles [data-principles-rules] dd.rl-entry-def').length, kinds: document.querySelectorAll('#page-principles [data-principles-rules] h3').length }));
+  if (rules.entries < 20 || rules.defs !== rules.entries || rules.kinds < 2) throw new Error(`participation principles incomplete: ${JSON.stringify(rules)}`);
+
   // Concept map: real selected subgraph, depth widens it, relation labels and a keyboard-readable node list.
   await group(page, 'map').click();
   await page.locator('#page-principles .rl-nav [data-principles-action="mode"][data-principles-value="graph"]').click();
@@ -107,7 +113,7 @@ try {
   const deep = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
   watch(deep);
   await deep.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
-  for (const [query, selector] of [['?mode=concept&node=roic#principles', '[data-concept-doc="roic"]'], ['?lesson=N9#principles', '[data-principles-lesson-id="N9"]'], ['?mode=frames&node=bank#principles', '.af-article']]) {
+  for (const [query, selector] of [['?mode=concept&node=roic#principles', '[data-concept-doc="roic"]'], ['?lesson=N9#principles', '[data-principles-lesson-id="N9"]'], ['?mode=rules#principles', '[data-principles-rules] dt'],['?mode=frames&node=bank#principles', '.af-article']]) {
     await openApp(deep, query);
     await deep.waitForFunction((sel) => document.querySelector(`#page-principles .rl-main ${sel}`), selector, { timeout: 15000 });
   }

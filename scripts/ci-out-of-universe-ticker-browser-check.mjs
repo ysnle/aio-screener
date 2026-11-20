@@ -120,7 +120,7 @@ try {
       check(/랭킹 대상 밖 종목/.test(hero.context || ''), `${label}: the AI company context lacks the on-demand placement (v57.81)`, hero.context);
       check(hero.registered === false, `${label}: the company analysis must not call an on-demand row a registered universe row (v57.81)`, hero.registered);
       // 1b. The chart: the 종목 subject line's link opens UFPT in 기술적 분석's analysis slot with the fixture series.
-      await page.getByRole('button', { name: '기술적 분석에서 보기' }).click();
+      await page.getByRole('button', { name: '기술적 분석에서 보기', exact: true }).click();
       await page.waitForFunction(() => document.querySelector('.page.active')?.id === 'page-charts' && document.getElementById('stock-chart-section')?.dataset.symbol === 'UFPT'
         && !!document.querySelector('#stock-chart-canvas .tv-lightweight-charts'), null, { timeout: 30000 }).catch(() => {});
       const chart = await page.evaluate(() => ({ active: document.querySelector('.page.active')?.id || null, hash: location.hash, symbol: document.getElementById('stock-chart-section')?.dataset.symbol || null,

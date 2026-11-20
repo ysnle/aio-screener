@@ -589,6 +589,8 @@ try {
   // order on the 차트 tab). The 0-100 health score (P1420) and the retired 차트 tab blocks must stay gone.
   await page.evaluate(() => window.AIO_ARCH.navigate('technical'));
   await page.waitForFunction(() => document.getElementById('page-charts')?.dataset.aioArchitectureRoute === 'charts' && document.getElementById('page-charts')?.classList.contains('active'));
+  // v60.35: the slot is the 종목 분석 view and draws when that view is first shown.
+  await page.evaluate(() => window._aioShowPageView?.('page-charts', 'analysis'));
   await page.waitForFunction(() => document.getElementById('stock-chart-section')?.dataset.aioStockChart === 'installed', null, { timeout: 15000 }).catch(() => {});
   const technicalRoute = await page.evaluate(() => {
     window.computeMarketHealth?.();
@@ -821,26 +823,29 @@ try {
     await storyPage.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
     await storyPage.route('**/public-data/scenario-outcomes.json*', async (route) => { await heldHistory; await route.fallback(); });
     await storyPage.goto(`${baseUrl}#signal?view=story`, { waitUntil: 'domcontentloaded' });
-    const summary = storyPage.locator('#regime-narratives .mk-narr__more > summary').first();
-    await summary.focus();
-    await summary.press('Enter');
-    const before = await summary.evaluate((node) => ({
-      id: node.parentElement.id,
-      open: node.parentElement.open,
+    // v60.35: the top stories are unfolded (no .mk-narr__more fold). What the reader can be inside is a story's link
+    // to its scenario; the late record repaints the section and must keep that keyboard focus on the same control.
+    const link = storyPage.locator('#regime-narratives .mk-narr__story .mk-narr__scenario [data-focus-key]').first();
+    await link.focus();
+    const before = await link.evaluate((node) => ({
+      key: node.dataset.focusKey,
+      signature: document.getElementById('regime-narratives')?.dataset.signature || '',
       focused: document.activeElement === node,
       pending: !window._aioScenarioOutcomes
     }));
-    if (!before.id || !before.open || !before.focused || !before.pending) throw new Error(`v60.22 story late-record fixture did not reach an open pending disclosure: ${JSON.stringify(before)}`);
+    if (!before.key || !before.focused || !before.pending) throw new Error(`v60.22 story late-record fixture did not reach a focused story link while the record was pending: ${JSON.stringify(before)}`);
     releaseHistory();
     await storyPage.waitForFunction(() => {
       const outcomes = window._aioScenarioOutcomes;
       return outcomes?.generatedAt && document.getElementById('regime-narratives')?.dataset.signature?.includes(outcomes.generatedAt);
     });
-    const preserved = await storyPage.evaluate((id) => {
-      const fold = document.getElementById(id);
-      return fold?.open && document.activeElement === fold.querySelector(':scope > summary');
-    }, before.id);
-    if (!preserved) throw new Error('v60.22 the updated outcome record closed the story or removed keyboard focus');
+    const preserved = await storyPage.evaluate(({ key, signature }) => {
+      const section = document.getElementById('regime-narratives');
+      const active = document.activeElement;
+      return { repainted: section?.dataset.signature !== signature, kept: Boolean(active && section?.contains(active) && active.dataset.focusKey === key) };
+    }, before);
+    if (!preserved.repainted) throw new Error('v60.22 fixture: the late outcome record did not repaint the stories');
+    if (!preserved.kept) throw new Error('v60.22 the updated outcome record removed keyboard focus from the reader\'s story link');
   } finally {
     releaseHistory();
     await storyPage.close();

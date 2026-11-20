@@ -85,7 +85,7 @@
 #glossary-body .aio-glossary-item > div:first-child > span:not(.aio-glossary-term) { font-size: 12px !important; }
 /* v57.81 (WCAG 2.5.8): the 오늘 sector rows (20px), the 시장 상태 regime values (22px) and the 재무 공시 source link (14px)
    open or lead somewhere on tap; each is at least 24px tall on every device. */
-.home-sector-bars li[tabindex], .regime-radar-table dd[tabindex] { min-height: 24px; box-sizing: border-box; }
+.regime-radar-table dd[tabindex] { min-height: 24px; box-sizing: border-box; }
 .regime-radar-table dd[tabindex] { display: flex; align-items: center; }
 .page .fiscal-source-link { display: inline-block; min-height: 24px; line-height: 24px; }
 .aio-table-scroll { max-width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; }
@@ -201,7 +201,7 @@
   #page-portfolio .aio-table-scroll:has(> table.sh-portfolio-holdings-table) { overflow-x: visible; -webkit-mask-image: none; mask-image: none; }
   #page-portfolio #pf-positions-tbody td { position: static; width: auto; text-align: left; padding: 0; }
   #page-portfolio .pf-hero-divider { display: none; }
-  .page :is(.briefing-move-chart, .breadth-drill-body, .scr-why-grid,
+  .page :is(.breadth-drill-body, .scr-why-grid,
       .principles-reference-body, .masters-principles-list, .aio-vis-panel,
       .principles-chapter-grid, .atlas-node-grid) { grid-template-columns: minmax(0, 1fr); }
   #page-fxbond.page .mk-curve-card .rates-yields { grid-template-columns: repeat(2, minmax(0, 1fr)); } /* v59.70 (screen review #1): the curve card's auto-fit rule out-ranked the phone grid */
@@ -273,7 +273,7 @@ body { word-break: keep-all; overflow-wrap: break-word; }
   #glossary-modal [data-action="_aioCloseGlossary"] { min-width: 44px; min-height: 44px; }
   #glossary-cats button { min-height: 44px; }
   #aio-confirm-modal button, .page .aio-btn-table.primary { min-height: 44px; } /* 첫 종목 추가 sits in a table cell with an inline 36px */
-  .home-sector-bars li[tabindex], .regime-radar-table dd[tabindex] { min-height: 44px; }
+  .regime-radar-table dd[tabindex] { min-height: 44px; }
   /* v58.80 run-5 (phone #13): fiscal-quality.css's `.page a.fiscal-source-link:not(.aio-btn-table)` (0,3,1) outranked this
      rule and kept the link at 24px; the selector matches it, and the empty portfolio's 36px buttons reach 44px too. */
   .page a.fiscal-source-link:not(.aio-btn-table), .page .fiscal-source-link { display: inline-flex; align-items: center; min-height: 44px; }
@@ -335,7 +335,6 @@ body { word-break: keep-all; overflow-wrap: break-word; }
 /* v57.55 review (E3-F6/F7): dark-mode contrast. The active screener chip kept the light-theme "dark text on solid
    accent" override over a 5% white surface (1.0:1); amber badges and chips hard-code #57513f, which is ~2.3:1 on the
    dark base; and the red token sat near 4.0:1 on cards at 12-14px. */
-body.dark-theme #page-screener .scr-screen-chip.active { color: var(--color-accent) !important; }
 body.dark-theme .aio-badge.is-amber, body.dark-theme .scr-star.active { color: var(--color-text-secondary); }
 /* v57.55 review (5e): on a phone the screener's 관심·비교 + 백분위 columns took half the visible width before the symbol,
    and the sub-theme name column wrapped one word per line (rows 100–160px tall). Both tables already scroll sideways. */
@@ -566,43 +565,24 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 /* The tools fold is now an inset card, so a select with a long option no longer fits a phone row at its intrinsic width. */
 .sh-portfolio-calc-settings-row > div { min-width: 0; max-width: 100%; }
 .sh-portfolio-calc-settings-row select { max-width: 100%; }
-/* v59.55 (owner 11/1): 연결해서 보면 (market-synthesis.js), the closing card of every market screen. The chain is four
-   steps with drawn arrows, the branches a three-up grid with a met/total meter, the stance two columns. */
-.page .mk-synth { margin-top: 16px; background: var(--color-background-card); border-radius: var(--radius-container); padding: 20px var(--sx-card-pad-x); }
-.page .mk-synth__sub { margin: 18px 0 10px; font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
-.page .mk-synth__chain { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 28px; }
-.page .mk-synth__step { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: var(--radius-container); background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); }
-.page .mk-synth__step:not(:last-child)::after { content: ''; position: absolute; right: -19px; top: 50%; width: 8px; height: 8px; border-top: 1.5px solid var(--color-text-secondary); border-right: 1.5px solid var(--color-text-secondary); transform: translateY(-50%) rotate(45deg); }
-.page .mk-synth__step-label { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
-.page .mk-synth__step-text { font-size: var(--fs-reading); line-height: 1.6; color: var(--color-text-primary); }
-.page .mk-synth__branches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.page .mk-synth__branch { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: var(--radius-container); border: 0.5px solid rgba(var(--ink-rgb), 0.12); }
-.page .mk-synth__branch[data-role="중심"] { border-color: var(--color-text-primary); }
-.page .mk-synth__branch-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.page .mk-synth__role { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-full); background: var(--sx-ink-a06, rgba(0, 0, 0, 0.06)); color: var(--color-text-secondary); }
-.page .mk-synth__branch[data-role="중심"] .mk-synth__role { background: var(--color-text-primary); color: var(--color-background-card); }
-.page .mk-synth__branch-name { font-size: 14px; line-height: 1.5; }
-.page .mk-synth__meter { display: flex; gap: 3px; }
-.page .mk-synth__meter span { flex: 1 1 0; height: 6px; border-radius: 3px; background: rgba(var(--ink-rgb), 0.1); }
-.page .mk-synth__meter span.is-met { background: var(--color-text-primary); }
-.page .mk-synth__fit { font-size: 12px; color: var(--color-text-secondary); }
-.page .mk-synth__branch-lines { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; margin: 0; font-size: 12px; line-height: 1.55; }
-.page .mk-synth__branch-lines dt { font-weight: 600; color: var(--color-text-secondary); white-space: nowrap; }
-.page .mk-synth__branch-lines dd { margin: 0; color: var(--color-text-primary); }
-.page .mk-synth__stance { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; }
-.page .mk-synth__stance-title { margin: 0 0 6px; font-size: 12px; font-weight: 600; }
-.page .mk-synth__stance-col.is-pursue .mk-synth__stance-title { color: var(--color-text-success, var(--color-text-primary)); }
-.page .mk-synth__stance-col.is-avoid .mk-synth__stance-title { color: var(--color-text-warning, var(--color-text-primary)); }
-.page .mk-synth__stance ul, .page .mk-synth__checks { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; line-height: 1.6; color: var(--color-text-primary); }
-@media (max-width: 1023px) {
-  .page .mk-synth__chain { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .page .mk-synth__step:nth-child(2)::after { display: none; }
-  .page .mk-synth__branches { grid-template-columns: minmax(0, 1fr); }
-}
+/* 오늘의 가이드 기울일 쪽 / 피할 쪽 (moved from 연결해서 보면), two columns; the 시나리오 section's compact list of
+   the scenarios past the top three, whose chosen row shows its card below the list. */
+.page .mg-stance { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; margin-top: 12px; }
+.page .mg-stance__title { margin: 0 0 6px; font-size: 12px; font-weight: 600; }
+.page .mg-stance__col.is-pursue .mg-stance__title { color: var(--color-text-success, var(--color-text-primary)); }
+.page .mg-stance__col.is-avoid .mg-stance__title { color: var(--color-text-warning, var(--color-text-primary)); }
+.page .mg-stance ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; line-height: 1.6; color: var(--color-text-primary); }
+@media (min-width: 1100px) { .page .xr-map { display: grid; grid-template-columns: minmax(260px, 34%) minmax(0, 1fr); gap: 16px; align-items: start; } .page .xr-map .xr-pick-detail { margin-top: 0; } }
+.page .xr-picks { display: flex; flex-direction: column; gap: 4px; }
+.page .xr-pick { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 4px 12px; padding: 8px 12px; text-align: left; font-size: 14px; color: var(--color-text-primary); background: none; border: 0.5px solid rgba(var(--ink-rgb), 0.12); border-radius: var(--radius-container); cursor: pointer; }
+.page .xr-pick[aria-pressed="true"] { border-color: var(--color-text-primary); }
+.page .xr-pick-line { grid-column: 1 / -1; font-size: 12px; color: var(--color-text-secondary); }
+.page .xr-pick-detail { margin-top: 12px; }
+.page .mk-narr__rest { margin: 12px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.page .mk-narr__scenarios { list-style: none; margin: 8px 0 0; padding: 0; }
+.page .mk-narr__rest-row { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
 @media (max-width: 743px) {
-  .page .mk-synth__chain { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-  .page .mk-synth__step:not(:last-child)::after { display: block; right: auto; left: 22px; top: auto; bottom: -13px; transform: rotate(135deg); }
-  .page .mk-synth__stance { grid-template-columns: minmax(0, 1fr); }
+  .page .mg-stance { grid-template-columns: minmax(0, 1fr); }
 }
 /* v59.55 (owner 11/1): 매크로 주제별로 보기 (macro-chapters.js) — six cards, two up; each a mini two-sided bar picture
    beside its reading, then the next release and the flip condition, then one fold. */
@@ -654,29 +634,19 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 @media (max-width: 1023px) { #page-macro .mx-chapters__grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 743px) { #page-macro .mx-ch__body { grid-template-columns: minmax(0, 1fr); } }
 /* v59.56: the shared 'AI에게 묻기' row (components/ask-row.js) on screens without their own row style. */
-/* v59.56: 금리와 환율 '원화는 왜 움직였나' and 뉴스 '뉴스가 모이는 곳' — one picture, a short read, one fold. */
+/* v59.56: 금리와 환율 '원화는 왜 움직였나' — one picture, a short read, one fold. */
 #page-fxbond .fx-krw { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 16px; padding: 16px var(--sx-card-pad-x, 22px); border-radius: 14px; background: var(--sx-ink-a03, rgba(0, 0, 0, 0.03)); }
 #page-fxbond .fx-krw__title { margin: 0; font-size: 15px; font-weight: 600; color: var(--color-text-primary); }
-:is(#page-fxbond .fx-krw, #page-market-news .news-focus) :is(.fx-krw__body, .news-focus__body) { display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr); gap: 18px; align-items: start; }
-#page-fxbond .fx-krw__viz, #page-market-news .news-focus__viz { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+#page-fxbond .fx-krw .fx-krw__body { display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr); gap: 18px; align-items: start; }
+#page-fxbond .fx-krw__viz { margin: 0; display: flex; flex-direction: column; gap: 6px; }
 #page-fxbond .fx-krw__row { display: grid; grid-template-columns: 84px minmax(0, 1fr) 48px; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-secondary); }
-:is(#page-fxbond .fx-krw__val, #page-market-news .news-focus__val) { text-align: right; font-variant-numeric: tabular-nums; color: var(--color-text-primary); }
-:is(#page-fxbond .fx-krw__cap, #page-market-news .news-focus__cap) { font-size: 11px; color: var(--color-text-secondary); }
-:is(#page-fxbond .fx-krw__now, #page-market-news .news-focus__now) { margin: 0 0 6px; font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
-#page-market-news .news-focus__mean { margin: 0; font-size: var(--fs-reading); line-height: 1.7; color: var(--color-text-primary); }
+#page-fxbond .fx-krw__val { text-align: right; font-variant-numeric: tabular-nums; color: var(--color-text-primary); }
+#page-fxbond .fx-krw__cap { font-size: 11px; color: var(--color-text-secondary); }
+#page-fxbond .fx-krw__now { margin: 0 0 6px; font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
 #page-fxbond .fx-krw__more p { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
-#page-market-news .news-focus__row { display: grid; grid-template-columns: 72px minmax(0, 1fr) 28px; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-secondary); }
-#page-market-news .news-focus__track { position: relative; display: block; height: 8px; border-radius: var(--radius-full); background: rgba(var(--ink-rgb), 0.05); }
-#page-market-news .news-focus__bar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--radius-full); background: rgba(var(--ink-rgb), 0.22); }
-#page-market-news .news-focus__bar.is-tied { background: var(--color-text-primary); }
-#page-market-news .news-focus__more { margin-top: 10px; }
-#page-market-news .news-focus__group-title { margin: 10px 0 4px; font-size: 12px; font-weight: 600; }
-#page-market-news .news-focus__titles { margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.6; }
-#page-market-news .news-focus__check { margin: 4px 0 0; font-size: var(--fs-reading); line-height: 1.55; color: var(--color-text-secondary); }
 /* v59.70 (screen review #1): the phone rule repeats the two-column rule's selector, so it has the same weight and, coming later,
-   wins (at (1,1,0) it lost to (1,2,0) and the read column was 4px wide on a phone). scripts/ci-phone-override-specificity-check.mjs */
-@media (max-width: 743px) { :is(#page-fxbond .fx-krw, #page-market-news .news-focus) :is(.fx-krw__body, .news-focus__body) { grid-template-columns: minmax(0, 1fr); } }
-#page-market-news .news-focus { background: var(--color-background-card); border-radius: var(--radius-container); padding: 20px var(--sx-card-pad-x); margin: 0 0 16px; }
+   wins. scripts/ci-phone-override-specificity-check.mjs */
+@media (max-width: 743px) { #page-fxbond .fx-krw .fx-krw__body { grid-template-columns: minmax(0, 1fr); } }
 #page-screener #scr-tab-evidence.is-empty { display: none; }
 
 /* v59.56 (screen review): on a phone the 투자 참고용 notice took ~130px above the page (three text lines, then the button on

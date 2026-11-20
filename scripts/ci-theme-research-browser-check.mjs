@@ -59,7 +59,7 @@ try {
   await page.waitForFunction(() => window.LightweightCharts?.createChart);
   const disclaimer = page.locator('#aio-first-visit-disclaimer button').filter({ hasText: '확인했습니다' });
   if (await disclaimer.isVisible()) await disclaimer.click();
-  const screens = [['home','today'],['signal','market'],['macro','macro'],['ticker','stock'],['themes','themes'],['screener','screener'],['portfolio','portfolio'],['principles','learn']];
+  const screens = [['home','today'],['signal','market'],['macro','market'],['ticker','stock'],['themes','themes'],['screener','screener'],['portfolio','portfolio'],['principles','learn']];
   const capture = async (id, route, screenId, action, actual, locator = `#page-${route}`) => {
     const host = page.locator(locator); await host.waitFor({ state: 'visible' });
     await page.waitForFunction((id) => document.getElementById(`page-${id}`)?.dataset.aioArchitectureRoute === id, route);
@@ -74,7 +74,7 @@ try {
     for (const [route, screenId] of screens) {
       await page.evaluate((id) => window.showPage(id), route);
       await page.locator(`#page-${route}.active`).waitFor({ state: 'visible' });
-      await capture(`${mode}-${screenId}`, route, screenId, `navigate to ${route} in ${mode}`, `${mode} mode representative screen mounted`);
+      await capture(`${mode}-${route}`, route, screenId, `navigate to ${route} in ${mode}`, `${mode} mode representative screen mounted`);
     }
     const colors = await page.evaluate(() => { const css = getComputedStyle(document.body); return { dim: css.getPropertyValue('--text-dim').trim(), muted: css.getPropertyValue('--text-muted').trim() }; });
     assert.equal(colors.dim, colors.muted, 'P1604: subdued text uses the readable shared muted token');
@@ -118,6 +118,8 @@ try {
     window._aioFetchYahooChartData=async()=>({timestamps,opens:timestamps.map((_,i)=>100+i/5),highs:timestamps.map((_,i)=>102+i/5),lows:timestamps.map((_,i)=>99+i/5),closes:timestamps.map((_,i)=>101+i/5),volumes:timestamps.map(()=>100000),meta:{exchangeTimezoneName:'America/New_York'}});
     window.showPage('technical');
   });
+  // v60.35: the analysis slot draws only once its 종목 분석 view is shown; the reader opens it from the view tabs.
+  await page.locator('#page-charts .page-views [data-view="analysis"]').click();
   await page.waitForFunction(()=>window.__aioStockChartInstance?.chart);
   const chartBefore=await page.evaluate(()=>({range:window.__aioStockChartInstance.chart.timeScale().getVisibleLogicalRange(),text:window.__aioStockChartInstance.chart.options().layout.textColor}));
   await page.locator('#sidebar-theme-btn').click();

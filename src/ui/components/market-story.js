@@ -1,6 +1,6 @@
 // v59.55 (owner 11/1): 시장 상태's first card — 무슨 일이 있었나. One picture (one week of moves on the shared two-sided bar, STORY_SESSIONS),
-// one reading (domain/market/story/market-story.js), the week-ahead list on the face, and one fold with the asset-by-asset
-// confirmation and the earnings reactions. The week-ahead list owns the next release on this page; the 다음에 확인할 것
+// one reading (domain/market/story/market-story.js), the week-ahead list on the face, and one raw-table fold with the
+// asset-by-asset confirmation and the earnings reactions. The week-ahead list owns the next release on this page; the 다음에 확인할 것
 // card below keeps the two price checks.
 import { buildMarketStory } from '../../domain/market/story/market-story.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
@@ -10,6 +10,7 @@ import { openRouteSection } from './page-flow.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { el } from './dom.js';
 import { askRow } from './ask-row.js';
+import { foldSummary, markFold } from './indicator-face.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 import { EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY } from '../../data/artifact-registry.js';
 
@@ -66,11 +67,11 @@ function questionRow(doc, story) {
 }
 
 function detailFold(doc, story) {
-  const fold = el(doc, 'details', null, 'sx-disclosure aio-frame-more mk-story__more');
-  fold.append(el(doc, 'summary', `자세히 — ${story.levels ? '차트 위치, ' : ''}금리·신용·유가·금·한국 확인과 실적 반응`));
+  // (owner 2026-11-20) the rows behind the reading — the levels' reading itself is on the face (renderMarketStory).
+  const fold = markFold(el(doc, 'details', null, 'mk-story__more'), 'raw-table');
+  fold.append(foldSummary(doc, 'raw-table', `${story.levels ? '차트 위치, ' : ''}금리·신용·유가·금·한국 확인과 실적 반응`));
   if (story.levels) {
     fold.append(el(doc, 'h3', '차트 위 지수의 위치', 'mk-story__sub'));
-    fold.append(el(doc, 'p', story.levels.read, 'mk-story__read'));
     const list = el(doc, 'dl', null, 'mk-story__checks');
     for (const row of story.levels.rows) {
       const item = el(doc, 'div', null, 'mk-story__check');
@@ -156,6 +157,7 @@ export function renderMarketStory({ documentRef: doc, root, interpretation }) {
   const grid = el(doc, 'div', null, 'mk-story__grid');
   const reading = el(doc, 'div', null, 'mk-story__reading');
   reading.append(frameReading(doc, story.lead));
+  if (story.levels?.read) reading.append(el(doc, 'p', story.levels.read, 'mk-story__read'));
   grid.append(bars(doc, story), reading);
   const fold = detailFold(doc, story);
   if (wasOpen) fold.open = true;

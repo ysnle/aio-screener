@@ -297,7 +297,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     const state = payload == null
       // QA 2026-11-07: with the quote server down the slot was empty while the index cards draw the published closes; an
       // index fund points at them.
-      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버가 응답하지 않았습니다.', next: `${heldText}${INDEX_FUNDS.has(sym) ? '발행된 종가로 그린 지수 카드는 위 시장 지수에 있습니다.' : ''}`.trim(), action: retry })
+      ? emptyState(doc, { title: `${sym} 시세를 받아오지 못했습니다`, reason: '시세 제공처나 AIO 시세 서버가 응답하지 않았습니다.', next: `${heldText}${INDEX_FUNDS.has(sym) ? '발행된 종가로 그린 지수 카드는 시장 지수 보기에 있습니다.' : ''}`.trim(), action: retry })
       : bars.length === 0
         ? emptyState(doc, { title: `${sym}의 일봉이 없습니다`, reason: '시세 제공처에 이 코드의 일봉 기록이 없습니다. 한국 종목은 6자리 코드(예: 005930)로 찾습니다.' })
         : emptyState(doc, { title: `${sym}의 일봉이 ${bars.length}개뿐입니다`, reason: '추세·셋업 분석에는 최소 60거래일이 필요합니다.', next: '상장 직후 종목은 기록이 쌓인 뒤 분석됩니다.' });
@@ -636,10 +636,11 @@ function renderIntervalButtons(doc, root, sym, active) {
   }
 }
 
-// Owner 2026-11-19: the one analysis slot (#stock-chart-section) lives on 기술적 분석 (#charts). It shows the symbol a
-// reader picked there (an index card, a 대표 종목 row, the page's search) or one handed over by another screen through
-// root._aioChartRequest (openMarketChart, the old #technical links); with neither, the last charted symbol, else SPY. It no
-// longer follows the 종목 screen's company: that screen links here with its company instead.
+// Owner 2026-11-19: the one analysis slot (#stock-chart-section) lives on 기술적 분석 (#charts), as its own view (종목 분석,
+// page-views.css). It shows the symbol a reader picked there (an index card, a 대표 종목 row, the page's search) or one
+// handed over by another screen through root._aioChartRequest (openMarketChart, the old #technical links), and a pick
+// opens that view; with neither, the last charted symbol, else SPY. It no longer follows the 종목 screen's company: that
+// screen links here with its company instead.
 const historyMark = (root) => { const rows = root?._aioHistory; return Array.isArray(rows) && rows.length ? String(rows[rows.length - 1]?.date || '') : ''; };
 // E06: the chart uses the same symbol normalization as the 종목 summary (005930 / 삼성전자 → 005930.KS).
 const normalizeChartSymbol = (root, value) => normalizeTickerInput(value, { krStockDb: root?.KR_STOCK_DB || {}, krToYahoo: root?.krTickerToYahoo }) || '';
@@ -649,10 +650,13 @@ export function showChartSubject({ documentRef: doc, root, symbol, byReader = fa
   const section = doc?.getElementById('stock-chart-section');
   if (!section) return null;
   const sym = normalizeChartSymbol(root, symbol) || 'SPY';
+  section.dataset.aioStockChart = 'installed';
   section.dataset.aioStockChartEntity = sym;
   if (root) root._aioChartSubject = sym; // v58.75 (persona review): the AI panel reads the charted symbol without a DOM lookup
   section.dataset.aioStockChartAt = String(Date.now());
   section.dataset.aioStockChartMark = historyMark(root);
+  // A reader's pick opens the slot's view (a history step, like its tab) before the address takes the symbol.
+  if (byReader) root?._aioShowViewOf?.(section, { byReader: true });
   if (scroll) section.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
   try { doc.dispatchEvent?.(new CustomEvent('aio:chartSubjectChanged', { detail: { symbol: sym, byReader } })); } catch (_) {}
   return renderStockChart({ documentRef: doc, root, symbol: sym });
@@ -670,18 +674,18 @@ export function installStockChart({ documentRef: doc, root }) {
     if (target !== section.dataset.aioStockChartEntity || age > 5 * 60 * 1000 || historyMark(root) !== (section.dataset.aioStockChartMark || '')) showChartSubject({ documentRef: doc, root, symbol: target, byReader: !!request, scroll: !!request });
     return;
   }
-  section.dataset.aioStockChart = 'installed';
   showChartSubject({ documentRef: doc, root, symbol: target, byReader: !!request, scroll: !!request });
 }
 
-// P1430: 오늘's index cards, the 종목 screen's link and the screener open a symbol in the slot on 기술적 분석.
+// P1430: 오늘's index cards, the 종목 screen's link and the screener open a symbol in the slot on 기술적 분석. An open
+// 기술적 분석 hears the request (charts.js); another screen goes there and reads it when shown.
 export function openMarketChart(root, symbol) {
   const sym = String(symbol || 'SPY').toUpperCase();
   const doc = root.document;
-  if (doc?.getElementById('page-charts')?.classList?.contains('active') && doc.getElementById('stock-chart-section')?.dataset.aioStockChart === 'installed') {
-    showChartSubject({ documentRef: doc, root, symbol: sym, byReader: true, scroll: true });
+  root._aioChartRequest = sym;
+  if (doc?.getElementById('page-charts')?.classList?.contains('active')) {
+    doc.dispatchEvent(new root.CustomEvent('aio:chartRequested', { detail: { symbol: sym } }));
     return;
   }
-  root._aioChartRequest = sym;
   if (typeof root.showPage === 'function') root.showPage('charts');
 }

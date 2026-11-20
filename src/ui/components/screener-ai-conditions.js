@@ -74,7 +74,7 @@ export async function attachScreenerConditions({ documentRef: doc = globalThis.d
     const { parseConditionText } = await import('../../domain/screener/condition-text-parser.js');
     parsed = describeParsed(parseConditionText(source.text));
   } catch (_) {
-    card.append(el(doc, 'p', 'aio-answer-screen-note is-error', '조건 해석을 불러오지 못했습니다. 스크리너의 + 조건에서 골라 주세요.'));
+    card.append(el(doc, 'p', 'aio-answer-screen-note is-error', '조건 해석을 불러오지 못했습니다. 스크리너의 조건 추가에서 골라 주세요.'));
     card.dataset.state = 'error';
     return card;
   }
@@ -89,7 +89,7 @@ export async function attachScreenerConditions({ documentRef: doc = globalThis.d
   if (!parsed.labels.length || parsed.unsupported.length) {
     // An unsupported phrase applies nothing (as the + 조건 panel does), so the screen never silently differs from the words.
     card.dataset.state = 'unparsed';
-    if (!parsed.unsupported.length) card.append(el(doc, 'p', 'aio-answer-screen-note', '스크리너의 + 조건에서 직접 고를 수 있습니다.'));
+    if (!parsed.unsupported.length) card.append(el(doc, 'p', 'aio-answer-screen-note', '스크리너의 조건 추가에서 직접 고를 수 있습니다.'));
     return card;
   }
   const status = el(doc, 'p', 'aio-answer-screen-note');

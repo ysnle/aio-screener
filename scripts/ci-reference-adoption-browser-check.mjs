@@ -64,9 +64,14 @@ try {
   const article = page.locator('#news-important-list .news-item-card').filter({ hasText: 'NVIDIA' }).first();
   assert.equal(await article.locator('[data-issuer-role=subject]').textContent(), '$NVDA', 'P1601: registered exact issuer');
   let popups = 0; context.on('page', () => popups++);
-  await article.locator('.news-evidence summary').click();
-  assert.equal(popups, 0, 'P1601: evidence disclosure must not open article');
-  assert.ok(await article.locator('.news-evidence').evaluate((node) => node.open), 'P1601: source disclosure opens');
+  // v60.35 (owner 2026-11-20): the headline is the link to the original (new tab, no opener); the publisher and the
+  // publication time are its hover; a story with one version carries no fold.
+  const headlineLink = article.locator('a.news-item-link');
+  assert.equal(await headlineLink.getAttribute('href'), fixture.news.link, 'P1601: headline links to the original article');
+  assert.equal(await headlineLink.getAttribute('target'), '_blank', 'P1601: original opens in a new tab');
+  assert.match(await headlineLink.getAttribute('rel') || '', /noopener/, 'P1601: original opens without opener');
+  assert.match(await headlineLink.getAttribute('title') || '', /Reuters.*발행/, 'P1601: publisher and publication time on the headline hover');
+  assert.equal(await article.locator('.news-evidence').count(), 0, 'v60.35: a single-version story has no sources fold');
   const focusedLink = article.locator('a[href]').first();
   await focusedLink.focus();
   // v57.60: confirm focus actually landed before the update events fire, so the retention check below
@@ -84,7 +89,10 @@ try {
   await page.locator('[data-news-updates]').click();
   await page.waitForFunction(() => document.querySelector('#news-important-list .news-item-card')?.textContent.includes('Correction:'));
   const revised = page.locator('#news-important-list .news-item-card').first();
+  assert.match(await revised.locator('.news-evidence summary').textContent(), /변경 이력 2건/, 'P1601: a revised story names its versions');
   await revised.locator('.news-evidence summary').click();
+  assert.equal(popups, 0, 'P1601: evidence disclosure must not open article');
+  assert.ok(await revised.locator('.news-evidence').evaluate((node) => node.open), 'P1601: source disclosure opens');
   assert.equal(await revised.locator('.news-evidence ol a').count(), 2, 'P1601: both original articles retained');
   assert.match(await page.locator('#market-news-count').textContent(), /중요 사건 1건/, 'P1601: important event cannot be reported as zero events');
   await capture({ stepId: 'news-correction-history', route: 'market-news', stateId: 'correction', action: { type: 'click', target: '[data-news-updates]' }, locator: '#news-important-list', expected: 'low-score correction with two original links', actual: 'low-score correction with two original links', claimType: 'layout' });

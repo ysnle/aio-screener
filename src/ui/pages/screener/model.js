@@ -86,16 +86,12 @@ export const REGIME_DESCRIPTIONS = {
 export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   // v58.56 (#12): the row keeps the ☆ only — 비교 is one button in the inspector/sheet, where the stock is being read.
   { key: 'watchlist', label: '관심', sortable: false, align: 'center', width: 72, group: 'utility' },
-  // v58.56 (#3): the first column of the default view numbers the rows by market cap (1 = largest of the rows shown). The
-  // default order is market cap (v57.55), so it reads 1, 2, 3…; 전체 순위 moved beside 백분위. Its header sorts by 시총.
-  // v58.80 (first-users F21): the header read '#' beside 전체 순위 and 백분위 and was taken for a rank; it is the row order.
+  // v58.56 (#3): the first column of the default view numbers the rows in the table's order (under the default 시총 sort,
+  // 1 = largest of the rows shown). Its header sorts by 시총.
   { key: 'capOrder', label: '순서', headerLabel: '순서', sortAs: 'mcap', hint: '지금 정렬 기준에서의 순서 — 기본 정렬(시총 큰 순)에서는 시가총액 순서(1 = 가장 큼)', sortable: true, align: 'left', width: 44, group: 'identity' },
-  // 개편 v2 (3c): the ordinal among ranked rows (the same number the inspector quotes).
-  // It reads overallRank (domain/screener/overall-rank.js, the unrounded composite's order inside the market) —
-  // the active screen's own order is the 순서 column, so this header means one thing under every preset.
-  { key: 'overallRank', label: '전체 순위', hint: '같은 시장에서 순위가 매겨진 종목 사이의 순서(팩터 종합 점수 순) — 조건 화면과 표시 필터는 이 순서를 바꾸지 않습니다', sortable: true, align: 'left', width: 52, group: 'ranking' },
   // P1464: the value is a percentile among rows that pass the criteria — "점수 100" read as a perfect
-  // score, so the header names what it is.
+  // score, so the header names what it is. Owner 2026-11-20: the 전체 순위 column is gone — it was the same composite's
+  // order; the 백분위 sort breaks the rounded ties by it (sortRows) and the inspector still quotes it ('전체 N위 / M').
   { key: 'rank', label: '백분위', sortable: true, align: 'center', width: 52, group: 'ranking' },
   // P1419: the column shows the percentile position the rank already is (상위 N%), not a letter grade.
   { key: 'grade', label: '상위', sortable: false, align: 'center', width: 56, group: 'ranking' },
@@ -158,8 +154,8 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
 // stays in the registry for the 전체/직접 고른 컬럼.
 export const COLUMN_PRESETS = Object.freeze({
   // 개편 v2 (3c): the first screen — order, name, close, 1·3-month returns, 52-week position, percentile; 관심·비교 last.
-  // v58.56 (#3): 시총 순서 first (the default order), 전체 순위 beside 백분위.
-  overview: ['capOrder', 'sym', 'price', 'ret1m', 'ret3m', 'range52', 'overallRank', 'rank', 'watchlist'],
+  // v58.56 (#3): 시총 순서 first (the default order), 백분위 last before 관심.
+  overview: ['capOrder', 'sym', 'price', 'ret1m', 'ret3m', 'range52', 'rank', 'watchlist'],
   // v58.75 (persona review): the chart-trader views lead with pivot distance, the volume multiple, a one-week move and
   // market-wide RS (RSI, 1-month and the research-only 추세 속도 move to 전체/직접 고른 컬럼); the fundamental view shows the
   // filing figures themselves; 위험 adds the daily range and liquidity; 이벤트 adds the theme stage.
@@ -171,7 +167,6 @@ export const COLUMN_PRESETS = Object.freeze({
   all: SCREENER_COLUMN_REGISTRY.map((column) => column.key)
 });
 
-export const PRESET_SHORT_LABELS = Object.freeze({ 'preset-balanced': '균형', 'preset-momentum': '모멘텀', 'preset-trend': '추세', 'preset-lowvol': '저변동', 'preset-quality': '퀄리티', 'preset-pivot-quiet': '피벗', 'preset-breakout-volume': '돌파' });
 
 export const FILTER_LABELS = Object.freeze({
   'scr-market': '지수',
@@ -598,7 +593,8 @@ export function sortRows(rows, sortColumn, ascending, readLiveData) {
     return { row, absent, key: !absent && typeof key === 'string' ? key.toUpperCase() : key };
   }).sort((a, b) => {
     if (a.absent || b.absent) return a.absent === b.absent ? 0 : a.absent ? 1 : -1;
-    const comparison = a.key > b.key ? 1 : a.key < b.key ? -1 : 0;
+    // The 0–100 percentile is rounded (about eight rows share each value); equal ones follow the overall rank.
+    const comparison = a.key > b.key ? 1 : a.key < b.key ? -1 : sortColumn === 'rank' ? ((finite(b.row.overallRank) ?? Infinity) - (finite(a.row.overallRank) ?? Infinity)) || 0 : 0;
     return ascending ? comparison : -comparison;
   }).map((entry) => entry.row);
 }

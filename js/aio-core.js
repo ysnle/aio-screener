@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v60.34';
+const APP_VERSION = 'v60.35';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2676,11 +2676,8 @@ if (typeof document !== 'undefined') {
         var retainedMs = serverLLM && serverLLM.retained ? Date.parse(serverLLM.retained.from || '') : NaN;
         var retainedKst = isFinite(retainedMs) ? new Date(retainedMs + 9 * 3600000).toISOString() : '', todayKst = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
         var retainedLabel = retainedKst ? (retainedKst.slice(0, 10) === todayKst ? '' : (+retainedKst.slice(5, 7)) + '/' + (+retainedKst.slice(8, 10)) + ' ') + retainedKst.slice(11, 16) + ' 기준 직전 검증본' : '';
-        // v57.54 audit (3): full mode keeps ~230자 (reading standard 3–5 lines) open under the basis chip; the rest folds.
-        var aiLines = String(txt).split('\n').map(function(line){ return line.trim(); }).filter(Boolean), openCount = 0, openChars = 0;
-        while (mode === 'full' && openCount < aiLines.length && (openCount === 0 || openChars + aiLines[openCount].length <= 230)) { openChars += aiLines[openCount].length; openCount++; }
-        var bodyHtml = mode !== 'full' ? esc(txt).replace(/\n/g, '<br>') : aiLines.slice(0, openCount).map(esc).join('<br>')
-          + (aiLines.length > openCount ? '<details class="ai-analysis-more"><summary>해설 이어 읽기, ' + (aiLines.length - openCount) + '줄</summary>' + aiLines.slice(openCount).map(esc).join('<br>') + '</details>' : '');
+        // Owner 2026-11-20: the reading is the face and is not folded.
+        var bodyHtml = mode !== 'full' ? esc(txt).replace(/\n/g, '<br>') : String(txt).split('\n').map(function(line){ return line.trim(); }).filter(Boolean).map(esc).join('<br>');
         var scopeHtml = scope ? '<div class="ai-analysis-scope basis-chip">' + esc(scope) + '</div>' : '';
         el.innerHTML = (mode === 'full' ? scopeHtml : '') + (retainedLabel ? '<span class="ai-analysis-retained">' + esc(retainedLabel) + (mode === 'full' ? '</span><br>' : ', </span>') : '') + bodyHtml + (mode === 'full' ? '' : scopeHtml) + (note ? '<details class="aio-note-fold ai-analysis-note-fold"><summary>해설 범위</summary><p class="aio-note-fold__text">' + esc(note) + '</p></details>' : ''); // v58.79: disclaimer one fold down
         el.setAttribute('data-analysis-source', serverLLM ? 'server-llm' : 'template');
@@ -13978,10 +13975,10 @@ if (typeof document !== 'undefined') {
 // initialized, so the early route path must not observe a lexical TDZ.
 var breadcrumbMap = {
   home: ['오늘','요약'], themes: ['테마와 섹터'], // v57.79: <sidebar hub>/<tab-bar label>; a one-tab hub shows its label alone (pinned in ci-esm-core-unit-check)
-  portfolio: ['포트폴리오'], macro: ['매크로','개요'],
+  portfolio: ['포트폴리오'], macro: ['시장과 매크로','매크로'],
   technical: ['종목','차트'], fundamental: ['종목','재무 공시'],
-  briefing: ['오늘','브리핑'], fxbond: ['매크로','금리와 환율'],
-  'market-news': ['오늘','뉴스'], signal: ['시장 상태','개요'], breadth: ['시장 상태','시장 폭'], sentiment: ['시장 상태','투자 심리'],
+  briefing: ['오늘','브리핑'], fxbond: ['시장과 매크로','금리와 환율'],
+  'market-news': ['오늘','뉴스'], signal: ['시장과 매크로','시장 상태'], breadth: ['시장과 매크로','시장 폭'], sentiment: ['시장과 매크로','투자 심리'],
   guide: ['도움말','화면 안내'], principles: ['리서치 라이브러리','개념·분석'], masters: ['리서치 라이브러리','대가 보유 종목'], atlas: ['리서치 라이브러리','산업 지도'],
   screener: ['스크리너'], charts: ['기술적 분석'], // v59.64
   'theme-detail': ['테마와 섹터','테마 상세'],

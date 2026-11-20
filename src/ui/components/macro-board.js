@@ -951,6 +951,20 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
 
   // 1. Treasury curve
   set('rates-curve-basis', t.basisLabel || ''); // v57.50 C10: source and date of the curve's levels and changes
+  // (owner 2026-11-20) the 금리 view opened on 33 numbers with no state — one lead line of values already computed
+  // here (the 10-year and its week, the 2s10s spread, the curve's move over 20 sessions), dated.
+  const curveRow = doc.querySelector?.('#page-fxbond .rates-curve-row');
+  let ratesLead = doc.getElementById('rates-lead');
+  if (!ratesLead && curveRow) { ratesLead = el(doc, 'p', null, 'rates-curve-fact rates-lead'); ratesLead.id = 'rates-lead'; curveRow.before(ratesLead); }
+  if (ratesLead) {
+    const ten = t.yields.find((row) => row.id === 'dgs10');
+    const s2s10 = t.curve.find((row) => row.id === '2s10s');
+    ratesLead.textContent = [
+      ten?.value != null ? `${t.asOf ? `${shortDate(t.asOf)} ` : ''}10년물 ${ten.value.toFixed(2)}%${ten.week != null ? `, 1주 ${signed(ten.week * 100, 0, 'bp')}` : ''}` : null,
+      s2s10?.value != null ? `${s2s10.label} ${signed(s2s10.value, 2, '%p')}` : null,
+      t.dynamics?.label ? `곡선 움직임 ${t.dynamics.label}` : null
+    ].filter(Boolean).join(' · ');
+  }
   const yieldRow = doc.getElementById('rates-yields');
   if (yieldRow) {
     yieldRow.replaceChildren(...t.yields.map((row) => {

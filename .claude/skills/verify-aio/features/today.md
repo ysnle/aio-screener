@@ -6,7 +6,7 @@ The 오늘 screen is the daily entry: a dashboard headline with the US-close ver
 
 - `today-dashboard` — `#home-date-label` reads `<M/D> 미국 종가 기준`, `#home-hero-total` the verdict word; `#home-hero-headline` is filled only while the verdict is held (판정 보류 reason).
 - `today-briefing` — 오늘의 브리핑 with `#briefing-date-line` (guarded so it never shows a future time).
-- `today-news` — `#news-window-label` (KST collection window, or `직전 수집본 …` when no fresh cycle), `#news-24h-count`, `#news-24h-sources` (`N개 출처`), `#market-news-count`; important list, full list with country/topic chips and type tabs, `#news-stale-banner`, `#news-refresh-btn`, Telegram scope `#news-tg-scope`.
+- `today-news` — `#news-window-label` (KST collection window, or `직전 수집본 …` when no fresh cycle), `#market-news-count`; views 주요 (중요 뉴스, then the 08:00 이후 속보) / 발표 (release summaries, then 시장 신호 with `#news-tg-scope`; `?view=signals` lands here) / 시황 / 전체 뉴스; `#news-stale-banner`, `#news-refresh-btn`; the collection counts `#news-24h-count`, `#news-24h-sources` and `#last-fetch-time` sit in the 데이터 출처 fold.
 
 ## How to get to it (user POV)
 
@@ -24,7 +24,7 @@ Preconditions:
 - **First-screen order (P2089).** `window._aioTodayVerdict` is a pending request for `public-data/today-verdict.json`; the served `index.html` `<head>` preloads `responsive.css` and holds no legacy `js/aio-*` script or script preload. The live `document.head` is the wrong place to look, because `aio-chat.js` (idle, or at once under webdriver) and `aio-qa-audits.js` are appended there after boot.
 - **Verdict.** `#home-date-label` matches `/미국 종가 기준/`, `#home-hero-total` is not `판정 대기` (the axis chips left the hero; the six-axis tally is on 시장 상태).
 - **Briefing.** Tab `브리핑` → `page-briefing`; `#briefing-date-line` non-empty.
-- **News.** Tab `뉴스` → `page-market-news`; `#news-window-label` matches `/KST|직전 수집본/`, `#news-24h-count` has a digit, `#news-24h-sources` matches `/개 출처/`, `#market-news-count` non-empty.
+- **News.** Tab `뉴스` → `page-market-news`; `#news-window-label` matches `/KST|직전 수집본/`, `#news-important-list` and `#market-news-count` non-empty.
 - **Proof.** `drive today` → `_artifacts/verify-aio/<run>/today-<viewport>/`.
 
 ## Gotchas

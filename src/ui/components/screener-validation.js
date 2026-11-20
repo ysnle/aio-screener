@@ -7,6 +7,7 @@
 import { createTrendChart } from './trend-chart.js';
 import { liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { marketIcRows } from '../../domain/screener/validation-records.js';
+import { kindFold } from './indicator-face.js';
 import { el } from './dom.js';
 import { signedBar, signedScale } from './signed-bar.js';
 import { signedText, mean, stdev } from '../../domain/shared/number.js';
@@ -275,16 +276,18 @@ export function renderValidationHero({ documentRef: doc, read }) {
     }
     parts.push(card);
   }
-  const principle = el(doc, 'div', null, 'sx-card scr-vh-principle');
-  principle.append(el(doc, 'h3', '원리, 왜 검증을 먼저 보여주나', 'sx-card__title'));
+  // (owner 2026-11-20) the gate state is the face; why the check comes first (IC, the t 3 proposal, this screen's
+  // rule) and its references are the method fold.
+  if (read.gateChip) parts.push(el(doc, 'p', read.gate ? `검증 게이트 ${read.gateChip}${read.blockers.length ? ` — 아직 확인되지 않은 항목: ${read.blockers.join(', ')}` : ''}${read.gateEvidenceAt ? ` (근거 연구 ${read.gateEvidenceAt}, 현재 살아남은 대형주 표본${read.gateObservedAt ? `; 판정 ${read.gateObservedAt}` : ''})` : read.gateObservedAt ? ` (${read.gateObservedAt} 기준)` : ''}.` : '검증 게이트 파일을 받지 못했습니다 — 없음.', 'scr-vh-gate'));
   const rule = `이 화면은 ${VALIDATION_MIN_REBALANCES}회 이상·|t| ${VALIDATION_MIN_ABS_T} 이상에서 앞섬·뒤처짐을 판단합니다(학술 제안인 t 3보다 느슨한 기준).`;
   const undecided = read.samples != null && !read.distinguishable
     ? ` 표본 ${read.samples}회${read.tStat == null ? '(t 미계산)' : `(t ${read.tStat.toFixed(2)})`}로는 이 기준에 못 미쳐, 순위는 계속 후보 목록으로 표시합니다.` : '';
-  principle.append(el(doc, 'p', `요인 점수의 예측력은 정보 계수(IC) — 점수 순위와 이후 수익률 순위의 상관 — 로 잽니다. 학술 연구에서도 '발견된' 요인 상당수가 데이터 마이닝의 산물일 수 있어, 새 요인에는 t 값 3 이상을 요구해야 한다는 제안이 있습니다. ${rule}${undecided}`, 'sx-disclosure__text'));
-  if (read.gateChip) principle.append(el(doc, 'p', read.gate ? `검증 게이트 ${read.gateChip}${read.blockers.length ? ` — 아직 확인되지 않은 항목: ${read.blockers.join(', ')}` : ''}${read.gateEvidenceAt ? ` (근거 연구 ${read.gateEvidenceAt}, 현재 살아남은 대형주 표본${read.gateObservedAt ? `; 판정 ${read.gateObservedAt}` : ''})` : read.gateObservedAt ? ` (${read.gateObservedAt} 기준)` : ''}.` : '검증 게이트 파일을 받지 못했습니다 — 없음.', 'scr-vh-gate'));
   const evidence = el(doc, 'div', null, 'sx-evidence scr-vh-evidence');
   evidence.append(el(doc, 'span', '근거, Grinold(1989) 기본 법칙, Harvey·Liu·Zhu(2016) …and the Cross-Section of Expected Returns'), el(doc, 'span', `데이터, 스크리너 결과 사후 검증${read.asOf ? ` ${read.asOf}` : ''}`), el(doc, 'span', `상태, ${read.chips.join(', ') || '기록 있음'}`));
-  principle.append(evidence);
+  const principle = kindFold(doc, 'method', '왜 검증을 먼저 보여주나', [
+    el(doc, 'p', `요인 점수의 예측력은 정보 계수(IC) — 점수 순위와 이후 수익률 순위의 상관 — 로 잽니다. 학술 연구에서도 '발견된' 요인 상당수가 데이터 마이닝의 산물일 수 있어, 새 요인에는 t 값 3 이상을 요구해야 한다는 제안이 있습니다. ${rule}${undecided}`, 'sx-disclosure__text'),
+    evidence]);
+  principle.classList.add('scr-vh-principle');
   parts.push(principle);
   host.replaceChildren(...parts);
   host.dataset.validationState = read.state;

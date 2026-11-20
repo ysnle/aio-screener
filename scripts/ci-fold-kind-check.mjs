@@ -10,9 +10,9 @@
 //     next two lines do not mark it (markFold(…, kind), dataset.foldKind = kind, data-fold-kind), a kindFold/markFold call
 //     with a kind outside the three, or a call to another fold maker (noteFold) that marks nothing.
 // A screen joins by one entry in SCREENS (its page id and the modules whose every fold shows on it). Modules shared with a
-// screen that has not moved (session-lean.js paints 오늘's session fold too; market-story/-narratives, macro-crossroads and
-// market-guide also render on 오늘, 매크로 and 뉴스) stay out until that screen moves; their folds are counted in the browser
-// by .claude/skills/verify-aio/scripts/features/market.mjs (fold census).
+// screen that has not moved (session-lean.js paints 오늘's session fold too) stay out until that screen moves; their folds
+// are counted in the browser by .claude/skills/verify-aio/scripts/features/market.mjs (fold census). v60.35: the
+// 시나리오와 전망 renderers joined — they draw folds only on 시장 상태 (decision-frame.js also on 테마, marked the same way).
 // On the old code (v60.30) this fails: the 시장 상태 axis rows, the hero 판정 근거 and every combination were <details>.
 // 시장 폭 and 투자 심리 failed before they moved: per-card 기준 notes (noteFold), the 나머지 지표 보기 and 종목 보기 folds, the
 // 원리 folds (deepDiveFold), the synthesis's 이어서 읽기 and the price temperature's detail and method folds were unmarked.
@@ -32,7 +32,11 @@ export const SCREENS = Object.freeze({
     modules: [
       'src/ui/components/market-regime.js', 'src/ui/components/indicator-face.js', 'src/ui/components/stress-outcomes.js',
       'src/ui/components/distribution-strip.js', 'src/ui/components/correction-base-rate.js', 'src/ui/components/korea-participation.js',
-      'src/ui/components/regime-radar.js', 'src/ui/components/screen-reading.js', 'src/ui/components/page-sources.js'
+      'src/ui/components/regime-radar.js', 'src/ui/components/screen-reading.js', 'src/ui/components/page-sources.js',
+      // v60.35 (owner 2026-11-20): the 시나리오와 전망 view — what happened, the stories, the flows and macro scenarios with
+      // their decision frames, and today's guide.
+      'src/ui/components/market-story.js', 'src/ui/components/market-narratives.js', 'src/ui/components/macro-crossroads.js',
+      'src/ui/components/decision-frame.js', 'src/ui/components/market-guide.js'
     ]
   },
   breadth: {

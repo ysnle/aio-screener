@@ -127,14 +127,12 @@ const crossroads = buildMacroCrossroads({ signals, outcomes });
   root[MARKET_DAY.key] = { narratives: { at: '2026-11-15T00:00:00Z', windowHours: 72, stories: [story('ai-funding-credit', 9), story('ai-profitability', 7)] } };
   const section = renderMarketNarratives({ documentRef: doc, root, interpretation: { crossroads } });
   const text = section?.textContent || '';
-  const favouredMentions = (text.match(/비용이 작은 쪽|비용이 작음|상대적으로 유리/g) || []).length;
-  check('v60.19copy: the story cards render their scenarios', /이 시나리오에서 대응별 득실/.test(text), text.slice(0, 200));
-  const scenarioBoxes = [...(section?.querySelectorAll('.mk-narr__scenario') || [])].filter((box) => /이 시나리오에서 대응별 득실/.test(box.textContent));
-  const sideTexts = [...(section?.querySelectorAll('.df-side, .mk-narr__why') || [])].map((node) => node.textContent);
-  check('v60.24copy: every story scenario with a favoured side keeps its ground in the frame fold (근거 종류), the side lines carry no ground tag, and none reads 상대적으로 유리',
-    favouredMentions > 0 && !/상대적으로 유리/.test(text) && scenarioBoxes.length > 0 && scenarioBoxes.every((box) => /근거 종류(비용 가설|과거 기록) — /.test(box.querySelector('details')?.textContent || ''))
-      && sideTexts.length >= scenarioBoxes.length && sideTexts.every((line) => !/비용 가설|과거 기록/.test(line)), { favouredMentions, scenarios: scenarioBoxes.length, sideTexts });
-  check('v60.19copy: the story cards show the past line with its base beside it', /가능성: 20거래일 뒤 오른 경우 \d+%\(73번 중 41번\), 평소 64%/.test(text));
+  const rows = [...(section?.querySelectorAll('.mk-narr__scenario') || [])];
+  // v60.35 (owner 2026-11-20, one owner per piece): a story names its scenarios with their status and links to the 시나리오
+  // section, which owns the frame, the choices and the favoured side; the story draws no frame or choice table of its own.
+  check('v60.35copy: the story cards name their scenarios with status and a link, and draw no decision frame or choice table',
+    rows.length > 0 && rows.every((row) => /시나리오에서 보기/.test(row.textContent)) && !section.querySelector('.df-frame, .mk-narr__choices, details') && !/가능성:|대응별 득실/.test(text), text.slice(0, 200));
+  check('v60.24copy: no story line reads 상대적으로 유리', !/상대적으로 유리/.test(text));
 }
 
 // ── v60.24 guide and theme lines (owner 2026-11-17): the ground kind is not glued onto face lines outside the frame ──
@@ -187,8 +185,9 @@ const crossroads = buildMacroCrossroads({ signals, outcomes });
   const before = marketInterpretation(root);
   const section = renderMarketNarratives({ documentRef: doc, root, interpretation: before });
   const ids = [...new Set(buildNarrativeCards({ narratives: root[MARKET_DAY.key].narratives, crossroads: before.crossroads }).cards.slice(0, 3).flatMap((card) => card.scenarios.map((row) => row.id)))];
-  const shortFace = (id) => decisionFrameText(branchDecisionFrame(before.crossroads.items.find((item) => item.id === id), { cash: before.crossroads.cash })).face[0];
-  check('v60.21load: before the long record the story frame is the own-close one', ids.length > 0 && ids.every((id) => section.textContent.includes(shortFace(id))), { ids, text: section.textContent.slice(0, 200) });
+  const statusOf = (model, id) => model.items.find((item) => item.id === id)?.status;
+  const rowText = (node, id) => node.querySelector(`.mk-narr__scenario[data-branch="${id}"]`)?.textContent || '';
+  check('v60.21load: before the long record the story rows carry the own-record status', ids.length > 0 && ids.every((id) => rowText(section, id).includes(statusOf(before.crossroads, id))), { ids, text: section.textContent.slice(0, 200) });
   // The scenario section asks for the same record (refreshScenarioArtifacts); the story section must not depend on it.
   const { refreshSharedArtifact } = await load('src/data/shared-artifacts.js');
   const { SCENARIO_OUTCOMES } = await load('src/data/artifact-registry.js');
@@ -198,12 +197,10 @@ const crossroads = buildMacroCrossroads({ signals, outcomes });
   for (let turn = 0; turn < 20; turn += 1) await new Promise((resolve) => setTimeout(resolve, 0));
   const after = marketInterpretation(root).crossroads;
   check('v60.21load: the crossroads model names which record its items carry', before.crossroads.pastRecord === 'local' && after.pastRecord === `long@${published.generatedAt}`, { before: before.crossroads.pastRecord, after: after.pastRecord });
-  // The scenario section draws branchDecisionFrame over the same interpretation; the regime page may also repaint the story.
   renderMarketNarratives({ documentRef: doc, root, interpretation: marketInterpretation(root) });
-  const shown = doc.getElementById('regime-narratives')?.textContent || section.textContent;
-  const scenarioFace = (id) => decisionFrameText(branchDecisionFrame(after.items.find((item) => item.id === id), { cash: after.cash })).face[0];
-  check('v60.21load: once the record arrives the story frame equals the scenario frame for the same branch', ids.every((id) => shown.includes(scenarioFace(id)) && /73번 중 41번/.test(scenarioFace(id))) && !ids.some((id) => shown.includes(shortFace(id))),
-    { faces: ids.map(scenarioFace), text: shown.slice(0, 300) });
+  const shown = doc.getElementById('regime-narratives') || section;
+  check('v60.21load: once the record arrives the story rows carry the scenario section status for the same branch', ids.every((id) => rowText(shown, id).includes(statusOf(after, id))),
+    { statuses: ids.map((id) => statusOf(after, id)), text: shown.textContent.slice(0, 300) });
   // The AI context reads the same interpretation: a question waits for the record beside the answer blocks.
   const { buildQuestionDomainContext } = await load('src/ai/context/market-content.js');
   let deliverAi = () => {};

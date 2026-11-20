@@ -316,11 +316,8 @@
 
 /* #page-market-news */
 .sh-news-refresh-btn { font-size: 12px; font-weight: 600; color: var(--color-background-body); background: var(--color-text-primary); border: none; border-radius: var(--radius-element); padding: 9px 20px; cursor: pointer; }
-.sh-news-row { display: flex; align-items: baseline; gap: 8px; }
-.sh-news-24h-count-figure { font-size: 14px; font-weight: 600; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
 .sh-news-count-text { margin-left: auto; font-size: 12px; color: var(--color-text-secondary); font-family: var(--font-mono); }
 
-.sh-news-last-fetch-text { font-size: 12px; color: var(--color-text-secondary); font-family: var(--font-mono); }
 
 .sh-news-note { color: var(--color-text-secondary); margin-right: 2px; }
 .page .sh-news-note { font-size: var(--fs-sm); }

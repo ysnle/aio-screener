@@ -1,7 +1,7 @@
-// Owner 2026-10-19 ("시나리오·대응 가이드와 학습"): the 오늘 guide card — the shared market-guide model (situation, the
-// choices counted across the live scenarios with the opportunity cost if the reading is wrong, what to lean toward and
-// avoid) and the concept layer: the principles today's data touches, each opening its lesson in the principles library,
-// with the full set of principles folded below. Reads the guide stage of the shared interpretation.
+// Owner 2026-10-19 ("시나리오·대응 가이드와 학습"): 시장 상태's guide card — the shared market-guide model (the choices
+// counted across the live scenarios with the opportunity cost if the reading is wrong, what to lean toward and avoid) and
+// the principles today's data touches, each with today's reason and its lesson in the principles library. The full set of
+// participation principles lives in the library (one link). Reads the guide stage of the shared interpretation.
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { ALL_LESSONS, LESSON_KINDS } from '../../domain/guide/lessons.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
@@ -18,19 +18,33 @@ function conceptButton(doc, root, lesson) {
   return button;
 }
 
-export function lessonItem(doc, root, lesson, { withReason = true } = {}) {
+// A principle today's data touches: its kind, title, the principle, today's reason, and its concept in the library.
+// (owner 2026-11-20) only principles with today's reason are shown here, each with that reason on the face; the
+// full set of participation principles is reference — 리서치 라이브러리 › 개념·분석 › 참여 원칙.
+function lessonItem(doc, root, lesson) {
   const item = el(doc, 'li', null, 'mg-lesson');
   item.dataset.kind = lesson.kind;
   item.dataset.lessonId = lesson.id;
   const head = el(doc, 'div', null, 'mg-lesson-head');
   head.append(el(doc, 'span', LESSON_KINDS[lesson.kind], 'mg-kind'), el(doc, 'strong', lesson.title, 'mg-lesson-title'));
-  item.append(head, el(doc, 'p', lesson.principle, 'mg-lesson-principle'));
-  // Today's reason when the data touches the lesson; otherwise the mechanism behind it.
-  // v58.79 (layout over captions): today's reason stays on the card; the general mechanism ("왜") is one fold down.
-  if (withReason && lesson.reason) item.append(el(doc, 'p', `근거: ${lesson.reason}`, 'mg-lesson-reason'));
-  else if (lesson.why) { const why = el(doc, 'details', null, 'mg-lesson-more'); why.append(el(doc, 'summary', '왜 그런지 보기'), el(doc, 'p', lesson.why, 'mg-lesson-why')); item.append(why); } // v58.80: a lone "왜" read as stray text
-  item.append(conceptButton(doc, root, lesson));
+  item.append(head, el(doc, 'p', lesson.principle, 'mg-lesson-principle'), el(doc, 'p', `근거: ${lesson.reason}`, 'mg-lesson-reason'), conceptButton(doc, root, lesson));
   return item;
+}
+
+function stance(doc, stanceModel, note) {
+  if (!stanceModel?.pursue?.length && !stanceModel?.avoid?.length) return null;
+  const box = el(doc, 'div', null, 'mg-stance');
+  for (const [title, rows, cls] of [['기울일 쪽', stanceModel.pursue || [], 'is-pursue'], ['피할 쪽', stanceModel.avoid || [], 'is-avoid']]) {
+    if (!rows.length) continue;
+    const col = el(doc, 'div', null, `mg-stance__col ${cls}`);
+    const h = el(doc, 'h4', title, 'mg-stance__title');
+    if (note) h.title = note;
+    const list = el(doc, 'ul');
+    for (const text of rows) list.append(el(doc, 'li', text));
+    col.append(h, list);
+    box.append(col);
+  }
+  return box;
 }
 
 function choiceTable(doc, direction) {
@@ -64,28 +78,23 @@ export function renderHomeGuide({ documentRef: doc, root, store = null, anchor =
   if (!box.dataset.aioScenarioLoad) { box.dataset.aioScenarioLoad = 'on'; refreshScenarioArtifacts(root, () => renderHomeGuide({ documentRef: doc, root, store, anchor, nowMs: Date.now() })); }
   if (!guide.available) return guide;
   const title = el(doc, 'h2', '오늘의 가이드', 'xr-h3'); title.id = 'home-guide-title';
-  const situation = el(doc, 'dl', null, 'mg-situation');
-  for (const row of guide.situation) situation.append(el(doc, 'dt', row.label), el(doc, 'dd', row.text));
   const d = guide.direction;
   const costs = d.costIfWrong.length ? el(doc, 'ul', null, 'mg-costs') : null;
   for (const cost of d.costIfWrong) costs.append(el(doc, 'li', `'${cost.short}'(${cost.fit}) 쪽으로 가면 — ${cost.text}${cost.trigger ? ` 확인: ${cost.trigger}` : ''}`));
-  // The lean/avoid lists are on the face above the fold (연결해서 보면, market-synthesis); this card keeps the reasoning behind them.
-  const lessons = el(doc, 'ul', null, 'mg-lessons');
-  guide.lessons.forEach((lesson) => lessons.append(lessonItem(doc, root, lesson)));
-  const library = el(doc, 'details', null, 'mg-library');
-  library.append(el(doc, 'summary', `참여 원칙 ${ALL_LESSONS.length}개 — 태도·전략·속지 말 것·믿을 것`, 'mg-library-summary')); // v58.80: text budget
-  for (const kind of Object.keys(LESSON_KINDS)) {
-    const group = el(doc, 'ul', null, 'mg-lessons is-library');
-    ALL_LESSONS.filter((lesson) => lesson.kind === kind).forEach((lesson) => group.append(lessonItem(doc, root, lesson, { withReason: false })));
-    library.append(el(doc, 'h4', LESSON_KINDS[kind], 'xr-h4'), group);
-  }
+  const lean = stance(doc, guide.stance, guide.note);
+  const today = guide.lessons.filter((lesson) => lesson.reason).slice(0, 3); // the rest are in the library list linked below
+  const lessons = today.length ? el(doc, 'ul', null, 'mg-lessons') : null;
+  today.forEach((lesson) => lessons.append(lessonItem(doc, root, lesson)));
+  const library = el(doc, 'button', `참여 원칙 전체 ${ALL_LESSONS.length}개 → 리서치 라이브러리`, 'flow-next-link mg-library-link');
+  library.type = 'button';
+  library.addEventListener('click', () => navigateKnowledgeRoute({ root, page: 'principles', params: { mode: 'rules' } }));
   box.replaceChildren(
     title, el(doc, 'p', guide.headline, 'xr-lead'),
     ...(guide.pastConflicts || []).map((text) => el(doc, 'p', `과거 표본과 어긋남: ${text}`, 'xr-reading mg-past-conflict')),
-    situation,
     el(doc, 'h3', '여러 시나리오를 함께 놓고 보면', 'xr-h4'), choiceTable(doc, d), el(doc, 'p', d.text, 'xr-reading'),
     ...(costs ? [el(doc, 'p', '이 판단이 빗나갈 때의 기회비용', 'mg-costs-label'), costs] : []),
-    el(doc, 'h3', '오늘 해당하는 원칙', 'xr-h4'), lessons, library,
+    ...(lean ? [lean] : []),
+    ...(lessons ? [el(doc, 'h3', '오늘 해당하는 원칙', 'xr-h4'), lessons] : []), library,
     el(doc, 'p', `${guide.note} 세부 종목 선택은 차트·기업·테마·스크리너에서 직접 합니다.`, 'xr-scope-note')
   );
   box.dataset.aioMarketGuide = guide.version;

@@ -44,21 +44,21 @@ try {
     const flow = { available: true, session: '2026-10-30', themes: { available: true, memberSplits: [{ up: { sym: 'AAA', d1: 2 }, down: { sym: 'BBB', d1: -1 } }] } };
     renderSectorMoves({ documentRef: doc, root, host: sector, nowMs });
     renderMoveNews(doc, root, null, flow);
-    const fold = sector.querySelector('#briefing-move-news');
-    const summary = fold?.querySelector(':scope > summary');
-    fold.open = true; summary?.focus();
+    // v60.35: the sector bars are one line with a link to 테마와 섹터, and 움직인 이유 is on the face (no <details>).
+    const block = sector.querySelector('#briefing-move-news');
+    const sectorLine = /10\/30 종가, 미국 섹터 ETF 6개 중 6개 상승/.test(sector.textContent) && !!sector.querySelector('[data-action="showPage"][data-arg="themes"]');
+    const onFace = !!block && block.tagName !== 'DETAILS' && !sector.querySelector('details');
     renderSectorMoves({ documentRef: doc, root, host: sector, nowMs });
     renderMoveNews(doc, root, null, flow);
-    const retainedNode = sector.querySelector('#briefing-move-news') === fold && fold.open;
-    const retainedFocus = document.activeElement === summary;
+    const retainedNode = sector.querySelector('#briefing-move-news') === block;
     renderMoveNews(doc, root, null, { available: false });
-    const hiddenWhileMissing = fold.hidden;
+    const hiddenWhileMissing = block.hidden;
     renderMoveNews(doc, root, null, flow);
-    const retainedOpenAfterMissing = sector.querySelector('#briefing-move-news') === fold && fold.open && !fold.hidden;
+    const shownAfterMissing = sector.querySelector('#briefing-move-news') === block && !block.hidden;
     sector.remove();
-    return { retainedNode, retainedFocus, hiddenWhileMissing, retainedOpenAfterMissing };
+    return { sectorLine, onFace, retainedNode, hiddenWhileMissing, shownAfterMissing };
   });
-  for (const [name, ok] of Object.entries(foldFixture)) check(`v59.52 (P2187) briefing why-moved fold ${name}`, ok);
+  for (const [name, ok] of Object.entries(foldFixture)) check(`v60.35 briefing sector line and why-moved block ${name}`, ok);
   const temperatureFixture = await page.evaluate(async () => {
     const { renderMarketTemperature } = await import('/src/ui/components/market-temperature.js');
     const { TEMPERATURE_COMPONENTS } = await import('/src/domain/market/sentiment/market-temperature.js');

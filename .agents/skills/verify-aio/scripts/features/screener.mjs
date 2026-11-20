@@ -4,11 +4,11 @@ import { openFromNav, expectText, expectCount, visibleText } from '../lib/drive.
 const ROW = '#screener-results-body tr[data-aio-screener-ticker]';
 const RSI_CHIP = '#scr-active-filter-chips [data-aio-screener-action="clear-filter"][data-aio-screener-arg="scr-rsi-min"]';
 const tickers = (p) => p.$$eval(ROW, (r) => r.map((x) => x.dataset.aioScreenerTicker));
-const passed = (p) => p.evaluate(() => Number((document.getElementById('scr-table-status')?.textContent || '').match(/통과\s*([\d,]+)/)?.[1]?.replace(/,/g, '') ?? NaN));
+const passed = (p) => p.evaluate(() => Number((document.querySelector('#scr-conditions .scr-result-count')?.textContent || '').match(/([\d,]+)종목 통과/)?.[1]?.replace(/,/g, '') ?? NaN));
 const headers = (p) => p.$$eval('#screener-results-table thead th', (cells) => cells.map((cell) => cell.textContent.trim()).join('|'));
 
 export default {
-  title: '스크리너 (시장 선택 · + 조건 칩 · 보기 · 검색 · 더 보기 · 설명 서랍 → 종목)',
+  title: '스크리너 (시장 선택 · 조건 추가 칩 · 보기 · 검색 · 더 보기 · 설명 서랍 → 종목)',
   steps: [
     ['nav 스크리너', (p) => openFromNav(p, '스크리너', 'page-screener')],
     ['상장 시장 US + 순위 행', async (p) => {
@@ -20,7 +20,7 @@ export default {
         throw error;
       });
     }],
-    ['+ 조건 → RSI 하한 칩 → Escape 복귀 → 칩 × 로 원래 행', async (p) => {
+    ['조건 추가 → RSI 하한 칩 → Escape 복귀 → 칩 × 로 원래 행', async (p) => {
       const before = await tickers(p);
       const passedBefore = await passed(p);
       await p.click('#scr-add-condition');

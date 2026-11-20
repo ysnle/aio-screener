@@ -31,10 +31,8 @@ export default {
     ['브리핑 날짜줄', (p) => expectText(p, '#briefing-date-line')],
     ['탭 뉴스', (p) => tabTo(p, '뉴스', 'page-market-news')],
     ['수집 창 (KST)', (p) => expectText(p, '#news-window-label', { pattern: /KST|직전 수집본/ })],
-    ['24시간 건수 · 소스 수', async (p) => ({
-      ...(await expectText(p, '#news-24h-count', { pattern: /\d/ })),
-      ...(await expectText(p, '#news-24h-sources', { pattern: /개 출처/ }))
-    })],
+    // v60.35: the collection counts sit in the closed 데이터 출처 fold; the face leads with 중요 뉴스.
+    ['중요 뉴스', (p) => expectText(p, '#news-important-list')],
     ['표시 건수', (p) => expectText(p, '#market-news-count')]
   ]
 };

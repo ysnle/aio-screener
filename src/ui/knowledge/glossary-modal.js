@@ -30,6 +30,14 @@ export function glossaryGroupOf(cat) {
 }
 
 // The searched term itself first, then terms that start with the query, then terms that contain it, then the rest.
+const HANGUL_START = /^[가-힣ㄱ-ㆎ]/;
+/** Korean names first in 가나다 order, then the rest (Latin abbreviations) alphabetically. */
+export function byName(a, b) {
+  const ka = HANGUL_START.test(a.term) ? 0 : 1;
+  const kb = HANGUL_START.test(b.term) ? 0 : 1;
+  return ka - kb || String(a.term).localeCompare(String(b.term), 'ko');
+}
+
 function searchRank(entry, query) {
   const term = entry.term.toLowerCase();
   if (term === query) return 0;
@@ -97,6 +105,7 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
     const all = entries();
     let filtered = all.filter((g) => (category === 'all' || glossaryGroupOf(g.cat) === category) && matches(g));
     if (q) filtered.sort((a, b) => searchRank(a, q) - searchRank(b, q)); // v57.55 (2b)
+    else filtered.sort(byName); // the default list is 가나다 order, Korean names first, then Latin ones (RRG, OAS, …)
     // P1248: say that the search runs inside the chosen category, and widen to every category when it finds nothing there.
     let scopeNote = '';
     if (q && category !== 'all') {

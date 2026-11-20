@@ -55,30 +55,25 @@ try {
   const mastersSelection = await summarize(requests, (path) => path.startsWith('/public-data/objects/masters/'));
   if (mastersSelection.paths.length) throw new Error(`Masters profile selection loaded a full manager shard: ${JSON.stringify(mastersSelection.paths)}`);
   requests = [];
-  await page.locator('#page-masters [data-masters-action="view"][data-masters-value="ownership"]').click();
-  await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersDiscovery === 'connected');
-  // P1508: 13D/G issuer names (P1498) fill on the next full 13F run; the file sat at 99.6% of the old 400 KB budget.
-  const mastersOwnership = await summarize(requests, (path) => path.startsWith('/public-data/masters/'));
-  if (mastersOwnership.paths.length !== 1 || mastersOwnership.paths[0] !== '/public-data/masters/filing-discovery.json' || mastersOwnership.bytes > 460_000) throw new Error(`Masters ownership lazy artifact contract failed: ${JSON.stringify(mastersOwnership)}`);
-  requests = [];
+  // v60.35 (owner 2026-11-20): three tabs — 원본 공시 holds the filings and the 13D/G large-holding reports, so it loads both.
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="filings"]').click();
-  await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersFilings === 'connected');
-  // P1498: 13D/G events now carry issuer name, issuer CIK and percent of class (about +25 KB pretty-printed).
+  await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersFilings === 'connected' && document.getElementById('page-masters')?.dataset.aioMastersDiscovery === 'connected');
+  // P1498/P1508: 13D/G events carry issuer name, issuer CIK and percent of class; each file keeps its own 460 KB budget.
   const mastersFilings = await summarize(requests, (path) => path.startsWith('/public-data/masters/'));
-  if (mastersFilings.paths.length !== 1 || mastersFilings.paths[0] !== '/public-data/masters/filings.json' || mastersFilings.bytes > 460_000) throw new Error(`Masters filings lazy artifact contract failed: ${JSON.stringify(mastersFilings)}`);
-  requests = [];
-  await page.locator('#page-masters [data-masters-action="view"][data-masters-value="principles"]').click();
-  await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersPrinciples === 'connected');
-  const mastersPrinciples = await summarize(requests, (path) => path.startsWith('/public-data/masters/'));
-  if (mastersPrinciples.paths.length !== 1 || mastersPrinciples.paths[0] !== '/public-data/masters/manager-principles.json' || mastersPrinciples.bytes > 10_000) throw new Error(`Masters principles lazy artifact contract failed: ${JSON.stringify(mastersPrinciples)}`);
+  if (mastersFilings.paths.length !== 2 || !mastersFilings.paths.includes('/public-data/masters/filings.json') || !mastersFilings.paths.includes('/public-data/masters/filing-discovery.json') || mastersFilings.bytes > 920_000) throw new Error(`Masters filings lazy artifact contract failed: ${JSON.stringify(mastersFilings)}`);
   await page.locator('#page-masters .rl-nav [data-masters-action="select-manager"][data-masters-value="berkshire-hathaway"]').click();
   requests = [];
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="holdings"]').click();
-  await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersSelectedShard === 'connected');
+  await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersSelectedShard === 'connected' && document.getElementById('page-masters')?.dataset.aioMastersPrinciples === 'connected');
+  // 보유 also carries the manager's stated principles (was its own tab): one small file.
+  const mastersPrinciples = await summarize(requests, (path) => path === '/public-data/masters/manager-principles.json');
+  if (mastersPrinciples.paths.length !== 1 || mastersPrinciples.bytes > 10_000) throw new Error(`Masters principles lazy artifact contract failed: ${JSON.stringify(mastersPrinciples)}`);
   const mastersFullRows = await summarize(requests, (path) => path.startsWith('/public-data/objects/masters/'));
   if (mastersFullRows.paths.length !== 1 || !/\/public-data\/objects\/masters\/[a-f0-9]{64}\.json$/.test(mastersFullRows.paths[0]) || mastersFullRows.bytes > 512 * 1024) throw new Error(`Masters bounded content-addressed projection contract failed: ${JSON.stringify(mastersFullRows)}`);
   requests = [];
-  await page.locator('#page-masters [data-masters-action="view"][data-masters-value="quarters"]').click();
+  // 변화 holds the quarter trend, loaded on its own button.
+  await page.locator('#page-masters [data-masters-action="view"][data-masters-value="changes"]').click();
+  await page.locator('#page-masters [data-masters-action="load-quarters"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersHistoryRows === 'connected');
   const mastersQuarter = await summarize(requests, (path) => path.startsWith('/public-data/masters/'));
   // P1498: the first full 13F run with amendment composition (P1462) records ORIGINAL/RESTATEMENT/NEW HOLDINGS
@@ -96,7 +91,12 @@ try {
   requests = [];
   await page.evaluate(() => window.AIO_ARCH.navigate('principles'));
   await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesNarrative === 'connected');
-  const principlesInitial = await summarize(requests, (path) => /\/public-data\/(?:principles|knowledge|atlas\/source-packets)/.test(path));
+  // v60.35: the library-wide search index (research-shell.js, the shelf and the search) is the shell's, loaded once per
+  // session; 대가 보유 종목 no longer loads it (owner 2026-11-20: no library search on its head), so in this sequence it
+  // now lands here. It keeps its own budget; the narrative-first budget counts the route's own artifacts.
+  const shellIndex = await summarize(requests, (path) => path === '/public-data/knowledge/search-index.json');
+  assertBudget(shellIndex, 320_000, 'Research library search index');
+  const principlesInitial = await summarize(requests, (path) => path !== '/public-data/knowledge/search-index.json' && /\/public-data\/(?:principles|knowledge|atlas\/source-packets)/.test(path));
   assertBudget(principlesInitial, 120_000, 'Principles narrative-first artifacts');
   if (!principlesInitial.paths.includes('/public-data/principles/narrative-journey.json') || principlesInitial.paths.some((path) => /(?:lesson-library|node-guides|source-packets|current-observations)\.json$/.test(path))) throw new Error(`Principles initial route crossed the narrative boundary: ${JSON.stringify(principlesInitial.paths)}`);
   requests = [];
@@ -139,7 +139,7 @@ try {
   if (atlasReentry.paths.length) throw new Error(`Atlas re-entry repeated cached artifacts: ${JSON.stringify(atlasReentry.paths)}`);
 
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ ok: true, mastersInitial, mastersTickerLookup, mastersSelection, mastersOwnership, mastersFilings, mastersPrinciples, mastersFullRows, mastersQuarter, mastersReentry, principlesInitial, principlesLibrary, principlesArticle, principlesReentry, atlasInitial, atlasArticle, atlasOverview, atlasReentry }));
+  console.log(JSON.stringify({ ok: true, mastersInitial, mastersTickerLookup, mastersSelection, mastersFilings, mastersPrinciples, mastersFullRows, mastersQuarter, mastersReentry, shellIndex, principlesInitial, principlesLibrary, principlesArticle, principlesReentry, atlasInitial, atlasArticle, atlasOverview, atlasReentry }));
 } catch (error) {
   console.error(JSON.stringify({ ok: false, errors: [...errors, String(error?.stack || error)] }));
   process.exitCode = 1;

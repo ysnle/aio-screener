@@ -83,14 +83,11 @@ try {
     if ((result.ranking.activeFactors || []).includes(factor) && !(coverage?.coveragePct >= coverage?.minCoveragePct)) throw new Error(`P1872 ${factor} active below its coverage floor: ${JSON.stringify(coverage)}`);
   }
 
-  // v57.54: the condition list is shown once — the preset buttons; the select stays as hidden internal state.
-  const screenChoices = await page.locator('#scr-workbench-presets [data-aio-screener-action="screen-preset"]').evaluateAll(nodes => nodes.map(node => node.dataset.aioScreenerArg));
+  // v60.35 (owner 2026-11-20): the 조건 화면 list is one visible picker at the top of the conditions block.
+  const screenChoices = await page.locator('#scr-conditions #scr-screen-select option:not([hidden])').evaluateAll(nodes => nodes.map(node => node.value));
   if (screenChoices.length < 2) throw new Error('screen selector fixture requires distinct definitions');
-  const selectState = await page.evaluate(() => ({ hidden: !document.getElementById('scr-screen-select')?.offsetParent, options: [...(document.getElementById('scr-screen-select')?.options || [])].map(o => o.value) }));
-  if (!selectState.hidden || selectState.options.join('|') !== screenChoices.join('|')) throw new Error(`v57.54 the same screen list must appear once (visible buttons, hidden select in sync): ${JSON.stringify({ selectState, screenChoices })}`);
-  // v59.70 (S12): the 조건 화면 buttons sit in the + 조건 panel; a reader opens it from the bar.
-  const openConditions = async () => { if (await page.locator('#scr-condition-panel').isHidden()) await page.locator('#scr-add-condition').click(); };
-  const choosePreset = async (id) => { await openConditions(); await page.locator(`#scr-workbench-presets [data-aio-screener-arg="${id}"]`).click(); };
+  if (!(await page.locator('#scr-screen-select').isVisible())) throw new Error('v60.35 the 조건 화면 picker is visible in the conditions block');
+  const choosePreset = async (id) => { await page.selectOption('#scr-screen-select', id); };
   await choosePreset(screenChoices[1]);
   const selectedDefinition = JSON.parse(await page.locator('#scr-definition-editor').inputValue()).definition;
   if (selectedDefinition.screenId !== screenChoices[1]) throw new Error('preset button did not change the actual definition');
@@ -165,8 +162,15 @@ try {
   const historyAfterReentry = await page.evaluate(runHistoryLens);
   if (historyAfterReentry.length > historyBeforeReentry.length) throw new Error(`P1168 screener re-entry accumulated identical pipeline runs: ${historyBeforeReentry.length} -> ${historyAfterReentry.length}`);
   if (historyAfterReentry.some((entry) => entry.startsWith('untagged|'))) throw new Error(`P1168 machine runs must be tagged in the run history: ${JSON.stringify(historyAfterReentry)}`);
-  // v59.70 (S12): a run condition is set in the + 조건 panel and shows as one chip; the chip's × clears the same control.
+  // v59.70 (S12): a run condition is set in the editor and shows as one chip; the chip's × clears the same control.
+  // v60.35: 조건 추가 inside #scr-conditions opens that editor in place (the + 조건 bar button is gone).
   const rsiChip = '#scr-active-filter-chips [data-aio-screener-action="clear-filter"][data-aio-screener-arg="scr-rsi-min"]';
+  const openConditions = async () => {
+    if (await page.locator('#scr-rsi-min').isVisible()) return;
+    await page.locator('#scr-conditions #scr-add-condition').click();
+    await page.locator('#scr-rsi-min').waitFor({ state: 'visible', timeout: 5000 });
+    if (await page.locator('#scr-add-condition').getAttribute('aria-expanded') !== 'true') throw new Error('v60.35 조건 추가 must report the open editor (aria-expanded)');
+  };
   await openConditions();
   await page.locator('#scr-rsi-min').fill('55');
   await page.locator('#scr-rsi-min').dispatchEvent('change');

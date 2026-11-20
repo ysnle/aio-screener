@@ -1,7 +1,7 @@
 // Screener filters: the table filter, control availability, condition chips and the 맞춤 조건 panel.
 import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { SCREENER_FIELD_REGISTRY, readRowNumber } from '../../../data/contracts/screener.js';
-import { FACTOR_LABELS, capFilterValue, rankGrade, profileComputability } from '../../../domain/screener/row-presentation.js';
+import { FACTOR_LABELS, capFilterValue, rankGrade, profileComputability, vcpStageLabel } from '../../../domain/screener/row-presentation.js';
 import { withTopicParticle } from '../../../domain/content/korean-particle.js';
 import { MARKET_LABELS, screenerMarket } from '../../../domain/screener/market-scope.js';
 import { sectorsForEtf } from '../../../domain/entity/stock-read.js';
@@ -11,12 +11,14 @@ import { readUniverseScope, rememberExtendedCount, writeUniverseScope } from '..
 import { finiteNumber as finite } from '../../../domain/shared/number.js';
 import { openLayer } from '../../behaviors/layers.js';
 import { FILTER_LABELS, INDEX_CODE_LABELS, INDEX_LABELS, customRead, scopedRows, screenerRuntime, selectedValue } from './model.js';
-export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {}) {
+// conditionsOnly: the conditions block's pass count — the applied conditions inside the listing market, before the table's
+// own scope (섹터, 표에서 찾기, 조건 통과만).
+export function filterRows(rows, documentRef, { readWatchlist, readAliases, conditionsOnly = false } = {}) {
   const listingMarket = selectedValue(documentRef, 'scr-listing-market') || 'US';
   const market = selectedValue(documentRef, 'scr-market');
-  const sector = selectedValue(documentRef, 'scr-sector');
+  const sector = conditionsOnly ? '' : selectedValue(documentRef, 'scr-sector');
   const cap = selectedValue(documentRef, 'scr-cap');
-  const query = selectedValue(documentRef, 'scr-text-search').trim().toLowerCase();
+  const query = conditionsOnly ? '' : selectedValue(documentRef, 'scr-text-search').trim().toLowerCase();
   // Screen audit 2026-10-20: 'MS' matched Morgan Stanley's symbol exactly and showed only that row — hidden by the other
   // filters, so the table said nothing was found while MSFT sat in it; 'NV' matched MSFT·MU·AMD through letters inside
   // their names. A short Latin query is a ticker prefix (or the start of a word in the name), not a substring.
@@ -30,7 +32,7 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases } = {
   const watchlistOnly = !!documentRef.getElementById('scr-watchlist-only')?.checked;
   // Codex browser audit H44: after a run the table mixed rejected rows into "the result". 실행 통과만 keeps
   // the table on the run's passed set; it is switched on when a run completes and can be turned off.
-  const passedOnly = passedOnlyApplied(documentRef);
+  const passedOnly = !conditionsOnly && passedOnlyApplied(documentRef);
   const watchlist = watchlistOnly ? new Set(readWatchlist?.() || []) : null;
   const aliases = readAliases?.() || {};
   const words = query ? query.split(/[\s,;·+&]+/).filter(Boolean) : [];
@@ -181,9 +183,9 @@ export function syncScreenerControlAvailability(documentRef, { rows = [], listin
     }
   }
 }
-// v59.70 (S12): every applied condition is one chip under the bar — the chosen 조건 화면 first (it opens + 조건), then the
-// conditions set in the + 조건 panel, then the 맞춤 조건 chips (the panel moves its own chip list into the same row).
-// 섹터 and 표에서 찾기 show their value in the bar itself, so they get no second chip.
+// The conditions block shows every applied condition as one chip with its threshold and 빼기: the chosen 조건 화면's own
+// conditions first, then those set in the editor, then the 맞춤 조건 chips (the editor keeps its chip list in the same row).
+// 섹터 and 표에서 찾기 narrow the table and show their value in the bar below, so they get no chip.
 const CHIP_FILTER_IDS = Object.freeze(['scr-market', 'scr-cap', 'scr-setup', 'scr-min-rank', 'scr-rsi-min', 'scr-rsi-max', 'scr-min-mom', 'scr-watchlist-only', 'scr-passed-only']);
 function chipText(control) {
   const label = FILTER_LABELS[control.id];
@@ -197,84 +199,77 @@ function chipText(control) {
   const option = control.selectedOptions?.[0];
   return `${label} ${option?.textContent?.trim() || value}`;
 }
-export function renderFilterChips(documentRef, { screen = null } = {}) {
+function chipButton(documentRef, textValue, action, argument) {
+  const chip = documentRef.createElement('button');
+  chip.type = 'button';
+  chip.className = 'scr-filter-chip';
+  chip.dataset.aioScreenerAction = action;
+  chip.dataset.aioScreenerArg = argument;
+  chip.setAttribute('aria-label', `${textValue} 조건 빼기`);
+  const words = documentRef.createElement('span');
+  words.textContent = textValue;
+  const mark = documentRef.createElement('span');
+  mark.className = 'scr-filter-chip-x';
+  mark.setAttribute('aria-hidden', 'true');
+  mark.textContent = '×';
+  chip.append(words, mark);
+  return chip;
+}
+/** definition: the screen the table shows (its own conditions lead the row, each removable by its position). */
+export function renderFilterChips(documentRef, { definition = null } = {}) {
   const container = documentRef.getElementById('scr-active-filter-chips');
   if (!container) return;
-  const chips = [];
-  // The table render redraws the chips without the screen; the last screen the workbench named is kept on the row.
-  if (screen) container.dataset.screenLabel = screen.label || '';
-  screen = { label: container.dataset.screenLabel || '' };
-  if (screen.label) {
-    const chip = documentRef.createElement('button');
-    chip.type = 'button';
-    chip.className = 'scr-filter-chip is-screen';
-    chip.dataset.aioScreenerAction = 'toggle-panel';
-    chip.dataset.aioScreenerArg = 'scr-condition-panel';
-    chip.setAttribute('aria-label', `조건 화면 ${screen.label} — 바꾸려면 조건 패널 열기`);
-    chip.textContent = `조건 화면: ${screen.label}`;
-    chips.push(chip);
-  }
+  const chips = screenConditions(definition).filter((item) => item.own)
+    .map((item, index) => chipButton(documentRef, item.text, 'remove-screen-condition', String(index)));
   for (const id of CHIP_FILTER_IDS) {
     const control = documentRef.getElementById(id);
     const textValue = control ? chipText(control) : '';
-    if (!textValue) continue;
-    const chip = documentRef.createElement('button');
-    chip.type = 'button';
-    chip.className = 'scr-filter-chip';
-    chip.dataset.aioScreenerAction = 'clear-filter';
-    chip.dataset.aioScreenerArg = id;
-    chip.setAttribute('aria-label', `${textValue} 조건 빼기`);
-    const words = documentRef.createElement('span');
-    words.textContent = textValue;
-    const mark = documentRef.createElement('span');
-    mark.className = 'scr-filter-chip-x';
-    mark.setAttribute('aria-hidden', 'true');
-    mark.textContent = '×';
-    chip.append(words, mark);
-    chips.push(chip);
+    if (textValue) chips.push(chipButton(documentRef, textValue, 'clear-filter', id));
   }
   // Rebuilt only when the set changes, so a focused chip keeps focus across renders.
-  const signature = chips.map((chip) => chip.textContent).join('|');
+  const signature = chips.map((chip) => `${chip.dataset.aioScreenerArg}:${chip.textContent}`).join('|');
   if (container.dataset.chipSignature !== signature) {
     const active = documentRef.activeElement;
     const focusArg = active && container.contains(active) ? active.dataset.aioScreenerArg : null;
-    // The 맞춤 조건 chip list lives in the same row (installCustomConditions moved it here); a rebuild keeps it last.
+    // The 맞춤 조건 chip list lives in the same row (installCustomConditions puts it here); a rebuild keeps it last.
     container.replaceChildren(...chips, ...container.querySelectorAll(':scope > .scr-custom-list'));
     container.dataset.chipSignature = signature;
     if (focusArg) [...container.children].find((chip) => chip.dataset.aioScreenerArg === focusArg)?.focus?.({ preventScroll: true });
   }
-  const row = container.closest('.scr-chip-row');
-  if (row) row.hidden = !chips.length && !row.querySelector('.scr-custom-chip');
 }
 
-// P1165 (12 W12-A / 19 작업 카드): 선택된 정의의 내장 조건과 사용자가 추가한 조건을 같은 계약으로
-// 읽는다. 프리셋은 filtersAST에 조건을 내장하므로 DOM 컨트롤만 세면 '활성조건 없음'으로 오표시된다.
+// P1165: a screen's own conditions live in its filtersAST, so they are read from the definition, not the DOM controls.
+// The top level of an AND is the list of conditions; any other root is one condition. `own` marks the screen's own
+// conditions — the editor's (visual-builder) and the listing market's (market-scope) are shown elsewhere.
 export const FILTER_FIELD_LABELS = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.fieldId, field.label || field.fieldId]));
-export function describeFilterAst(definition) {
+export function screenFieldLabel(field) {
+  return field === 'rank' ? '백분위' : FILTER_FIELD_LABELS.get(field) || field || '조건';
+}
+export function screenFieldUnit(field) {
+  return ({ percent: '%', ratio: '배', multiple: '배' })[SCREENER_FIELD_REGISTRY.get(field)?.unit] || '';
+}
+export function screenFieldWord(field, value) {
+  return field === 'technical.vcpStage' ? vcpStageLabel(value) : value;
+}
+/** The threshold of one leaf: '60 이상', '0% 이상, 25% 이하', or the accepted values. */
+export function screenBoundsText(node) {
+  if (node?.type === 'enum') return (node.values || []).map((value) => screenFieldWord(node.field, value)).join('·');
+  const unit = screenFieldUnit(node?.field);
+  return [node?.min != null ? `${node.min}${unit} 이상` : null, node?.max != null ? `${node.max}${unit} 이하` : null].filter(Boolean).join(', ') || '범위';
+}
+function screenConditionText(node) {
+  // v58.64 (SCR01 class): a NOT node carries `child`, not `children`.
+  if (node.type === 'not') return `${screenFieldLabel(node.child?.field || node.child?.type)} 제외`;
+  if (node.type === 'and' || node.type === 'or') return `조건 ${(node.children || []).length}개 묶음`;
+  if (node.type === 'exists') return `${screenFieldLabel(node.field)} 있음`;
+  return `${screenFieldLabel(node.field)} ${screenBoundsText(node)}`;
+}
+export function screenConditions(definition) {
   const ast = definition?.filtersAST;
-  if (!ast) return { builtin: [], user: [] };
-  const nodes = ast.type === 'and' || ast.type === 'or' ? (ast.children || []) : [ast];
-  const described = nodes.map((node) => {
-    if (!node || typeof node !== 'object') return null;
-    const label = FILTER_FIELD_LABELS.get(node.field) || node.field || node.type;
-    let text;
-    if (node.type === 'range') {
-      const parts = [];
-      if (node.min != null) parts.push(`≥ ${node.min}`);
-      if (node.max != null) parts.push(`≤ ${node.max}`);
-      text = `${label} ${parts.join(', ') || '범위 미지정'}`;
-    } else if (node.type === 'enum') text = `${label} ∈ ${(node.values || []).join('·')}`;
-    else if (node.type === 'exists') text = `${label} 존재`;
-    // v58.64 (SCR01 class): a NOT node carries `child`, not `children`, so it read "NOT 하위 조건 0개".
-    else if (node.type === 'not') text = node.child && typeof node.child === 'object' ? `제외: ${FILTER_FIELD_LABELS.get(node.child.field) || node.child.field || node.child.type} 조건` : '제외 조건(내용 없음)';
-    else if (node.type === 'and' || node.type === 'or') text = `${String(node.type).toUpperCase()} 하위 조건 ${(node.children ? node.children.length : 0)}개`;
-    else text = `${label} (${node.type})`;
-    return { label, text, origin: node.origin || null };
-  }).filter(Boolean);
-  return {
-    builtin: described.filter(item => item.origin !== 'visual-builder'),
-    user: described.filter(item => item.origin === 'visual-builder')
-  };
+  if (!ast || typeof ast !== 'object') return [];
+  return (ast.type === 'and' ? ast.children || [] : [ast])
+    .filter((node) => node && typeof node === 'object')
+    .map((node) => ({ node, text: screenConditionText(node), origin: node.origin || null, own: node.origin !== 'visual-builder' && node.origin !== 'market-scope' }));
 }
 
 // LC-25: the funnel used to stack two different populations side by side with no denominator:
@@ -376,8 +371,8 @@ export function installCustomConditions(documentRef) {
   const input = documentRef?.getElementById('scr-custom-conditions');
   if (!host || !input) return { update() {}, dispose() {} };
   host.querySelectorAll(':scope > :not(#scr-custom-conditions)').forEach((node) => node.remove());
-  // v59.70 (S12): the chosen 맞춤 조건 are chips in the condition row under the bar; the picker stays in the + 조건 panel.
-  const chipRow = documentRef.getElementById('scr-active-filter-chips')?.closest('.scr-chip-row') || null;
+  // The chosen 맞춤 조건 are chips in the conditions block's chip row; the picker stays in the editor.
+  const chipRow = documentRef.getElementById('scr-active-filter-chips');
   chipRow?.querySelectorAll(':scope > .scr-custom-list').forEach((node) => node.remove());
 
   const textRow = el(documentRef, 'div', 'scr-custom-row');
@@ -588,7 +583,7 @@ export function installCustomConditions(documentRef) {
   };
 }
 
-/** The condition bar: 표에서 찾기 (/), 시장, 섹터, the + 조건 and 보기 panels, the chips and the table filters. */
+/** The conditions block (chips, the in-place editor) and the bar under it: 표에서 찾기 (/), 시장, 섹터, 보기. */
 export function createFiltersController(ctx) {
   const { documentRef, root, store, page, bag, sortState, visibleLimit, selectedSymbols, compareSymbols, onUniverseScopeChange } = ctx;
   // The population lines and the method fold sit under the table (#scr-population-holder): the counts behind the
@@ -610,8 +605,8 @@ export function createFiltersController(ctx) {
   // stock from a separate shard that is downloaded only after this choice. The choice is remembered per reader.
   documentRef.getElementById('scr-universe-scope').value = readUniverseScope(root);
 
-  // v59.70 (S12): + 조건 and 보기 open one panel each under the bar (one open at a time). Escape or a click outside closes
-  // the panel and returns focus to its button.
+  // 조건 추가 opens the editor in place inside the conditions block; 보기 opens its panel under the bar (one open at a time).
+  // Escape closes either and returns focus to its button; a click outside closes only the 보기 panel.
   const panelButton = (id) => page.querySelector(`[data-aio-screener-action="toggle-panel"][data-aio-screener-arg="${id}"]`);
   let releasePanel = () => {};
   ctx.setPanel = (id, open, { returnFocus = true } = {}) => {
@@ -627,7 +622,7 @@ export function createFiltersController(ctx) {
     const panel = open ? documentRef.getElementById(id) : null;
     if (!panel) return;
     panel.querySelector('button, select, input')?.focus?.({ preventScroll: true });
-    releasePanel = openLayer({ root: panel, modal: false, outside: true, trigger: panelButton(id), onDismiss: () => { ctx.setPanel(id, false, { returnFocus: false }); panelButton(id)?.focus?.({ preventScroll: true }); } });
+    releasePanel = openLayer({ root: panel, modal: false, outside: !panel.classList.contains('scr-condition-editor'), trigger: panelButton(id), onDismiss: () => { ctx.setPanel(id, false, { returnFocus: false }); panelButton(id)?.focus?.({ preventScroll: true }); } });
   };
   // '/' focuses 표에서 찾기 (the command search keeps Ctrl+K); typing in a field keeps its slash.
   const onSlash = (event) => {
@@ -692,8 +687,8 @@ export function createFiltersController(ctx) {
       if (target) { if (target.type === 'checkbox') target.checked = false; else target.value = argument === 'scr-min-rank' ? '0' : ''; }
       visibleLimit.value = 12;
       ctx.renderNow();
-      // The chip that was pressed is gone: focus moves to the next chip, else to + 조건.
-      (documentRef.querySelector('#scr-active-filter-chips [data-aio-screener-action="clear-filter"]') || documentRef.getElementById('scr-add-condition'))?.focus?.({ preventScroll: true });
+      // The chip that was pressed is gone: focus moves to the next chip, else to 조건 추가.
+      (documentRef.querySelector('#scr-active-filter-chips .scr-filter-chip') || documentRef.getElementById('scr-add-condition'))?.focus?.({ preventScroll: true });
     } else if (action === 'reset-all-filters') {
       ['scr-market', 'scr-sector', 'scr-cap', 'scr-text-search', 'scr-setup', 'scr-rsi-min', 'scr-rsi-max', 'scr-min-mom'].forEach((id) => { const field = documentRef.getElementById(id); if (field) field.value = ''; });
       const rank = documentRef.getElementById('scr-min-rank'); if (rank) rank.value = '0';

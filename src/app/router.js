@@ -112,6 +112,7 @@ const ENTITY_ROUTES = new Set(['ticker', 'fundamental']);
 // 종목 screen's company; the retired 차트 tab's address (#technical/NVDA, #technical?sym=NVDA) opens that slot.
 const CHART_ROUTE = 'charts';
 const CHART_ROUTE_ALIASES = Object.freeze({ technical: CHART_ROUTE });
+const CHART_SUBJECT_VIEW = 'analysis'; // the view that shows the chart symbol (page-views.css)
 
 function normalizeEntityId(candidate) {
   if (candidate == null) return null;
@@ -185,9 +186,13 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
   const viewPage = (routeId) => documentRef?.getElementById?.(`page-${routeId}`);
   const viewsOf = (routeId) => [...(viewPage(routeId)?.querySelectorAll?.(':scope > .page-views > [data-view]') || [])].map((tab) => tab.dataset.view);
   const writeView = (routeId, view, push) => writeHash(routeId, 'view', view && view !== viewsOf(routeId)[0] ? view : null, { push });
+  // A retired view names the view that took its content (data-view-alias on that tab), so an old address still lands there.
+  const aliasOf = (routeId, view) => viewPage(routeId)?.querySelector?.(`:scope > .page-views > [data-view-alias~="${view}"]`)?.dataset.view || null;
   const applyView = (link) => {
     const views = viewsOf(link.routeId);
     if (!views.length) return;
+    const alias = link.view && !views.includes(link.view) ? aliasOf(link.routeId, link.view) : null;
+    if (alias) { link = { ...link, view: alias }; writeView(link.routeId, alias, false); }
     if (link.view && !views.includes(link.view)) { writeHash(link.routeId, 'view', null); return; }
     const view = link.view || views[0];
     // Before the view module is installed (first load) the page element takes the view; the module reads it there.
@@ -196,7 +201,10 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
   };
   const onViewChanged = (event) => {
     const routeId = String(event?.detail?.page || '').replace(/^page-/, '');
-    if (routeId && routeId === currentRoute()) writeView(routeId, event.detail.view, event.detail.byReader === true);
+    if (!routeId || routeId !== currentRoute()) return;
+    writeView(routeId, event.detail.view, event.detail.byReader === true);
+    // 기술적 분석's sym names the symbol of its 종목 분석 view (a link with one opens that view), so the other views drop it.
+    if (routeId === CHART_ROUTE && event.detail.view !== CHART_SUBJECT_VIEW) writeHash(CHART_ROUTE, 'sym', null);
   };
   // Address → selection: the first load and every back/forward step.
   const themeIds = () => (Array.isArray(runtimeRoot.THEME_MAP) ? runtimeRoot.THEME_MAP.map((theme) => String(theme?.id || '')) : null);

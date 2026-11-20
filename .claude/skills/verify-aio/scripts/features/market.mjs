@@ -45,8 +45,8 @@ export default {
     ['시장 폭 판정 · 지표 행 · 추세 카드', async (p) => {
       await p.waitForFunction(() => { const el = document.querySelector('#breadth-state'); return el && !el.classList.contains('is-unknown') && el.innerText.trim() && el.innerText.trim() !== '판정 대기'; }, null, { timeout: 25000 });
       const out = { ...(await expectText(p, '#breadth-state')), ...(await expectText(p, '#breadth-read', { min: 4 })), ...(await expectText(p, '#breadth-flip', { pattern: /판정이 바뀌는 조건/ })),
-        ...(await expectCount(p, '#breadth-chart-grid .bb-rows > .ind-row', 9)), ...(await expectCount(p, '#breadth-chart-grid .trend-card', 9)) };
-      const rowFolds = await p.$$eval('#breadth-chart-grid .bb-rows details', (n) => n.length);
+        ...(await expectCount(p, '#breadth-chart-grid .trend-card > .ind-row', 9)), ...(await expectCount(p, '#breadth-chart-grid .trend-card', 9)) };
+      const rowFolds = await p.$$eval('#breadth-chart-grid .trend-card > .ind-row details', (n) => n.length);
       if (rowFolds) throw new Error(`${rowFolds} <details> inside the breadth rows (v60.31: rows are never folded)`);
       return { ...out, counter: await p.evaluate(() => { const n = document.getElementById('breadth-counter'); return n && !n.hidden ? n.innerText.trim() : '(none)'; }) };
     }],

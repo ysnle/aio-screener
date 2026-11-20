@@ -108,14 +108,18 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
     box.append(line);
   }
   // v59.51 (owner 2026-10-31, two layers): the face is what happened and how the price took it — the headline, the reaction
-  // and the first reported reason in one line. The figures with their estimate comparison, all the reasons and the
-  // segments, guidance, call points and next checks open in the one fold below.
+  // and the reason. The face is never folded (owner 2026-11-20): on 뉴스 (`folded`) the reported reasons — two at
+  // most — are on the face; the figures with their estimate comparison, the segments, guidance, call points and next
+  // checks are the raw-table fold, and the source line is the sources fold.
+  const folded = !bodyOnly && !open;
   const reasons = brief.reasons?.points || [];
   const read = brief.kind === 'earnings' ? readFor(doc, brief) : null;
   if (read) box.append(reactionNode(doc, read));
-  else if (reasons.length) box.append(el(doc, 'p', `이유: ${reasons[0].text}`, 'event-brief__reason'));
-  const more = el(doc, bodyOnly || open ? 'div' : 'details', null, bodyOnly || open ? 'event-brief__more is-inline' : 'event-brief__more');
-  if (!bodyOnly && !open) more.append(el(doc, 'summary', brief.kind === 'fomc' ? '수치·바뀐 문구·기자회견·다음 확인' : '수치·이유·부문·가이던스·콜 핵심'));
+  if (folded) reasons.slice(0, 2).forEach((point) => box.append(el(doc, 'p', `이유: ${point.text}`, 'event-brief__reason')));
+  else if (!read && reasons.length) box.append(el(doc, 'p', `이유: ${reasons[0].text}`, 'event-brief__reason'));
+  const more = el(doc, folded ? 'details' : 'div', null, folded ? 'event-brief__more' : 'event-brief__more is-inline');
+  if (folded) more.dataset.foldKind = 'raw-table';
+  if (folded) more.append(el(doc, 'summary', brief.kind === 'fomc' ? '발표 수치·바뀐 문구·기자회견 원문 정리' : '발표 수치·부문·가이던스·콜 원문 정리'));
   if (bodyOnly && read) more.append(reactionNode(doc, read)); // the row's 왜 line, with the checks behind it
   // v59.44: three headline figures, then capex and cash flow when the release gave them (the market priced cash).
   const cashFigure = (figure) => ['capex', 'free_cash_flow', 'operating_cash_flow'].includes(figure?.metric);
@@ -126,7 +130,7 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
     figures.forEach((figure, i) => { if (figure.estimate) ul.children[i].title = `예상치: ${figure.estimate.source || '제공처'} 컨센서스(참고)${seenText(figure.estimate.seenBeforeReportAt)}`; else if (figure.derived) ul.children[i].title = `공시 원문 ${figure.derived}`; });
     more.append(el(doc, 'p', '발표 수치', 'event-brief__sub'), ul);
   }
-  if (reasons.length) more.append(el(doc, 'p', '움직인 이유(보도 기준)', 'event-brief__sub'), list(doc, reasons.slice(0, 3).map((point) => point.text), 'event-brief__reasons'));
+  if (reasons.length && !folded) more.append(el(doc, 'p', '움직인 이유(보도 기준)', 'event-brief__sub'), list(doc, reasons.slice(0, 3).map((point) => point.text), 'event-brief__reasons'));
   const section = (title, items) => { if (items.length) more.append(el(doc, 'p', title, 'event-brief__sub'), list(doc, items)); };
   section(brief.detailTitle || '세부', (brief.details || []).map(releaseLine));
   section('반대 의견', (brief.dissents || []).map((item) => item.text || item.label));
@@ -174,9 +178,9 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
   // P21-NUMBER-01: the check is that the same figure (with its unit and direction) stands in the quoted source sentence.
   else source.append(doc.createTextNode(`. 숫자는 원문 문장에 같은 숫자가 있는 것만 싣습니다${dropped ? `(확인되지 않은 항목 ${dropped}건 제외)` : ''}. ${aiWritten ? '요약은 공용 AI가 썼고' : '표는 공시 원문에서 그대로 읽었고'} 매매 판단이 아닙니다.`));
   if (open) { box.append(more, kindFold(doc, 'sources', '실적 발표 원문과 보도', [source])); return box; }
-  more.append(source);
-  if (bodyOnly) return more;
-  box.append(more);
+  if (bodyOnly) { more.append(source); return more; }
+  if (more.childElementCount > 1) box.append(more);
+  box.append(kindFold(doc, 'sources', brief.kind === 'fomc' ? '성명과 보도' : '실적 발표 원문과 보도', [source]));
   return box;
 }
 
@@ -252,6 +256,7 @@ function briefRow(doc, root, brief) {
   // The line is quieter, not thinner: the full summary (figures, guidance, reasons, source) opens in place.
   if (brief.kind === 'earnings') {
     const fold = el(doc, 'details', null, 'event-brief-row__fold');
+    fold.dataset.foldKind = 'raw-table';
     fold.append(el(doc, 'summary', '수치·이유·가이던스 펼치기'), briefNode(doc, brief, { showName: false, bodyOnly: true }));
     li.append(fold);
   }
@@ -331,12 +336,14 @@ function paintBriefs(doc, root, { rerender, macro, id, frame, className, limits 
   // v59.51 (content audit): the second tier is one closed line; its rows (move, headline, reason, full summary) open in place.
   if (tiers.notable.length) {
     const fold = el(doc, 'details', null, 'event-briefs__all');
+    fold.dataset.foldKind = 'raw-table'; // the smaller reports as one line each, under the market-moving cards
     fold.append(el(doc, 'summary', `그 밖의 실적 ${tiers.notable.length}건`));
     fillOnOpen(fold, () => [rowList(doc, root, tiers.notable)]); // v59.70 DOM1: rows built when it first opens
     parts.push(fold);
   }
   if (tiers.restTotal) {
     const fold = el(doc, 'details', null, 'event-briefs__all');
+    fold.dataset.foldKind = 'raw-table';
     fold.append(el(doc, 'summary', `지난 30일 발표 요약 ${tiers.restTotal}건 더 보기`));
     fillOnOpen(fold, () => [rowList(doc, root, tiers.rest), ...(tiers.restTotal > tiers.rest.length ? [el(doc, 'p', `최근 ${tiers.rest.length}건만 적었습니다. 다른 종목은 종목 화면에서 최근 실적 요약을 볼 수 있습니다.`, 'event-brief__note')] : [])]);
     parts.push(fold);

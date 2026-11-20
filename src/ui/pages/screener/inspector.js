@@ -132,10 +132,10 @@ export function createInspectorController(ctx) {
          setText('scr-why-subtitle', row.name || '연구용 상대 순위 설명');
          const inspectState = selectScreenerState(store.getState()) || {};
          const rowMarket = screenerMarket(row);
-         // The overall rank and its denominator (rows of the market carrying one), the same pair as the table's
-         // 전체 순위 column and the page header — not the active screen's order, which the 순서 column shows.
+         // The overall rank and its denominator (rows of the market carrying one), the same pair as the 백분위 sort and
+         // the page header — not the active screen's order, which the 순서 column shows. The table has no column of it.
          const rankedInMarket = overallRankedCount(inspectState.rows || [], rowMarket);
-         // Review fix: the same guard as the table's 전체 순위 column (a held ranking shows no order).
+         // Review fix: a held ranking shows no order, as the table's 백분위 cell shows none.
          const rankHoldNow = marketRankingMetadata(inspectState.metadata, rowMarket)?.available === false || !!root?._aioRankingHold;
          const ordinalForLine = rankHoldNow ? null : finite(row.overallRank);
          setText('scr-why-rankline', ordinalForLine == null ? '순위 계산 보류' : rankedInMarket ? `순위 매긴 ${rankedInMarket}종목 중 ${ordinalForLine}위` : `전체 ${ordinalForLine}위`);

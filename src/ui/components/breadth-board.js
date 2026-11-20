@@ -240,27 +240,27 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
       row.dataset.metric = card.id;
       return row;
     };
+    // (owner 2026-11-20) one card per indicator — its row (title, state, value, lines) heads its own trend chart;
+    // the chart's own title repeated the row's heading.
     const renderChart = (card) => {
       const box = el(doc, 'section', null, 'trend-card');
       box.dataset.metric = card.id;
-      box.append(el(doc, 'h3', card.title, 'trend-card-title'), createTrendChart(doc, { series: card.series, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));
+      box.append(renderRow(card), createTrendChart(doc, { series: card.series, refLines: card.refLines, format: card.format, label: card.title, domain: card.domain || null, range }));
       if (card.drill) box.append(renderDrill(doc, root, card, root._aioBreadthContributors, basis));
       return box;
     };
     // A re-render (live quotes, history) keeps an opened drilldown and its chosen date.
     const opened = new Map([...grid.querySelectorAll('details.breadth-drill[open]')].map((node) => [node.closest('[data-metric]')?.dataset.metric, node.querySelector('select')?.value]));
-    // Each group is a section — its rows, then its charts (participation's three horizons in a row first); the
+    // Each group is a section of indicator cards (participation's three horizons in a row first); the
     // leadership and index groups sit side by side.
     const sections = BREADTH_GROUPS.map((group) => {
       const members = group.order.map((id) => cards.find((card) => card.id === id && card.group === group.id)).filter(Boolean);
       if (!members.length) return null;
       const section = el(doc, 'section', null, `bb-group bb-group--${group.id}${members.length > 2 ? ' bb-group--trio' : ''}`);
       section.dataset.group = group.id;
-      const rows = el(doc, 'div', null, 'regime-board regime-quality-board bb-rows');
-      rows.append(...members.map(renderRow));
       const faceGrid = el(doc, 'div', null, 'bb-face');
       faceGrid.append(...members.map((card) => { const box = renderChart(card); if (card.id === group.lead) box.classList.add('breadth-lead'); return box; }));
-      section.append(el(doc, 'h2', group.title, 'breadth-group-title'), rows, faceGrid);
+      section.append(el(doc, 'h2', group.title, 'breadth-group-title'), faceGrid);
       return section;
     }).filter(Boolean);
     const pair = el(doc, 'div', null, 'bb-pair');

@@ -177,7 +177,7 @@ try {
       if (shots) await page.locator('#charts-indexes').screenshot({ path: resolve(shots, `charts-${label}.png`) });
 
       // 대표 종목 (owner 2026-11-19): the same card part, one card per stock. Nothing is requested while the view is closed;
-      // opening it loads the cards that come into view, at most four at a time; a stock with bars draws its candles under
+      // opening it loads all its cards (v60.35, not only those scrolled into view), at most four at a time; a stock with bars draws its candles under
       // the same label rules, one without says the date and that there is no value, and the cards of a row stay aligned.
       check(stockLoads.total === 0, `${label}: 대표 종목 cards requested bars while their view was closed`, stockLoads);
       await page.locator('#page-charts .page-views [data-view="stocks"]').click();

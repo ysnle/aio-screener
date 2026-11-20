@@ -64,7 +64,9 @@ function shell(doc, spec) {
 
 /**
  * A grid of chart cards. `specs` is [{ key, label, symbol, closes? }]; `setSpecs` replaces the list (a card already drawn
- * for a key is kept). `lazy` loads a card's bars only once it comes into view (a hidden view's cards never do).
+ * for a key is kept). `lazy` loads nothing while the grid is not drawn (a hidden view, an inactive screen); once it is,
+ * every card's bars load through the queue. Loading each card as it scrolled into view left the cards a
+ * reader had not reached, or jumped past, at "불러오는 중" without a request.
  * `update(history, asOf)` re-reads every card from the history the page holds; `onReadings(readings)` hears the settled
  * readings in card order.
  */
@@ -74,15 +76,10 @@ export function createChartCards({ documentRef: doc, root, host, specs = INDEX_C
   let history = [];
   let asOf = null;
   let cards = [];
-  const Observer = lazy ? root?.IntersectionObserver : null;
-  const observer = Observer ? new Observer((entries) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      observer.unobserve(entry.target);
-      const card = cards.find((item) => item.parts.card === entry.target);
-      if (card) start(card);
-    }
-  }, { rootMargin: '200px 0px' }) : null;
+  // A grid gets a box when its view is shown; the observer hears that change (and the first measure).
+  const drawn = () => host.getClientRects().length > 0;
+  const Watcher = lazy ? root?.ResizeObserver : null;
+  const watcher = Watcher ? new Watcher(() => { if (drawn()) cards.forEach(start); }) : null;
 
   const readingOf = (card) => {
     const { key, label, symbol, closes } = card.spec;
@@ -181,7 +178,6 @@ export function createChartCards({ documentRef: doc, root, host, specs = INDEX_C
 
   const disposeCard = (card) => {
     card.gone = true;
-    observer?.unobserve(card.parts.card);
     try { card.instance?.layers?.dispose?.(); } catch (_) {}
     try { card.instance?.chart.remove(); } catch (_) {}
   };
@@ -200,12 +196,13 @@ export function createChartCards({ documentRef: doc, root, host, specs = INDEX_C
       card.bound = true;
       if (card.spec.symbol) card.parts.open.addEventListener('click', () => onOpen(card.spec.symbol));
       paint(card);
-      if (card.state === 'waiting') { if (observer) observer.observe(card.parts.card); else start(card); }
+      if (card.state === 'waiting' && (!watcher || drawn())) start(card);
     }
     report();
   };
 
   setSpecs(specs);
+  watcher?.observe(host);
   const recolor = () => { const next = chartPalette(root); cards.forEach((card) => card.instance?.applyTheme?.(next)); };
   doc.addEventListener?.('aio:colorThemeChanged', recolor);
 
@@ -219,7 +216,7 @@ export function createChartCards({ documentRef: doc, root, host, specs = INDEX_C
     setSpecs,
     dispose() {
       alive = false;
-      observer?.disconnect?.();
+      watcher?.disconnect?.();
       doc.removeEventListener?.('aio:colorThemeChanged', recolor);
       cards.forEach(disposeCard);
     }

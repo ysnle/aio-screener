@@ -5,12 +5,12 @@ import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../../domain/screener/saved-screens.js';
 import { createScreenDefinition } from '../../../data/contracts/screener.js';
 import { finiteNumber as finite } from '../../../domain/shared/number.js';
-import { renderFilterChips } from './filters.js';
-import { BUILDER_FIELDS, FILTER_LABELS, PRESET_SHORT_LABELS, RUN_CONDITION_FIELDS, SCREENER_COLUMN_REGISTRY, scopedRows, selectedValue } from './model.js';
-// v58.75 (teach-and-check D5): one folded block under the screen buttons — why this screen's condition is used, where it
-// tends to work and not, its common failure, the columns that show it (their header hints carry the formulas), and one
-// line on today's shared market state. The open/closed state survives re-renders.
-function renderPresetLesson(documentRef, root, presetsHost, screenId, screenName) {
+import { screenConditions } from './filters.js';
+import { BUILDER_FIELDS, FILTER_LABELS, RUN_CONDITION_FIELDS, SCREENER_COLUMN_REGISTRY, scopedRows, selectedValue } from './model.js';
+// v58.75 (teach-and-check D5): one folded block at the top of the condition editor — why this screen's condition is used,
+// where it tends to work and not, its common failure, the columns that show it (their header hints carry the formulas),
+// and one line on today's shared market state. The open/closed state survives re-renders.
+function renderPresetLesson(documentRef, root, editor, screenId, screenName) {
   const lesson = PRESET_LESSONS[screenId];
   let block = documentRef.getElementById('scr-preset-lesson');
   if (!lesson) { if (block) block.hidden = true; return; }
@@ -18,7 +18,7 @@ function renderPresetLesson(documentRef, root, presetsHost, screenId, screenName
     block = documentRef.createElement('details');
     block.id = 'scr-preset-lesson';
     block.className = 'sx-disclosure scr-preset-lesson';
-    presetsHost.insertAdjacentElement('afterend', block);
+    editor.prepend(block);
   }
   block.hidden = false;
   const open = block.open;
@@ -60,7 +60,7 @@ export function createWorkbenchController(ctx) {
   ctx.readBuilderConditions = () => builderConditions(documentRef);
       ctx.workbenchStatus = documentRef.getElementById('scr-workbench-status');
       const definitionEditor = documentRef.getElementById('scr-definition-editor');
-      const workbenchPresets = documentRef.getElementById('scr-workbench-presets');
+      const conditionEditor = documentRef.getElementById('scr-condition-panel');
       const readinessPreview = documentRef.getElementById('scr-readiness-preview');
       const runHistory = documentRef.getElementById('scr-run-history');
       // P2107: the list is static markup, so a read cut short by leaving the screen must not leave it marked as loading;
@@ -173,57 +173,31 @@ export function createWorkbenchController(ctx) {
            ctx.workbenchStatus.dataset.persistence = ctx.activeResult?.persistence?.status || '';
          }
          const screens = ctx.defaultScreens();
-         if (workbenchPresets) {
-           workbenchPresets.replaceChildren();
-           screens.forEach((screen) => {
-             const button = documentRef.createElement('button');
-             button.type = 'button';
-             button.className = 'aio-btn-table';
-             button.className += ` scr-screen-chip${screen.definition.screenId === ctx.activeScreenId ? ' active' : ''}`;
-             button.setAttribute('aria-pressed', screen.definition.screenId === ctx.activeScreenId ? 'true' : 'false');
-             button.dataset.aioScreenerAction = 'screen-preset';
-             button.dataset.aioScreenerArg = screen.definition.screenId;
-             // v58.56 (4b): a phone shows the one-word name (균형 · 모멘텀 · 추세 · 저변동) so the row of screens fits; the full
-             // name stays the button's accessible name and the wider layouts' label.
-             const full = documentRef.createElement('span');
-             full.className = 'scr-preset-full';
-             full.textContent = screen.label;
-             button.append(full);
-             const short = PRESET_SHORT_LABELS[screen.definition.screenId];
-             if (short) {
-               const compact = documentRef.createElement('span');
-               compact.className = 'scr-preset-short';
-               compact.setAttribute('aria-hidden', 'true');
-               compact.textContent = short;
-               button.append(compact);
-               button.classList.add('has-short');
-             }
-             workbenchPresets.appendChild(button);
-           });
-           { const lessonId = ctx.activeScreenId || ctx.activeDefinition?.screenId || screens[0]?.definition?.screenId || null; renderPresetLesson(documentRef, root, workbenchPresets, lessonId, screens.find((screen) => screen.definition.screenId === lessonId)?.label); }
-         }
-         const screenSelect = documentRef.getElementById('scr-screen-select');
-         if (screenSelect) {
-           const currentValue = ctx.activeScreenId || ctx.activeDefinition?.screenId || screens[0]?.definition?.screenId || '';
-           if (screenSelect.dataset.aioScreenSignature !== screens.map((screen) => screen.definition.screenId).join('|')) {
-             screenSelect.replaceChildren();
-             screens.forEach((screen) => {
-               const option = documentRef.createElement('option');
-               option.value = screen.definition.screenId;
-               option.textContent = screen.label;
-               screenSelect.appendChild(option);
-             });
-             screenSelect.dataset.aioScreenSignature = screens.map((screen) => screen.definition.screenId).join('|');
-           }
-           screenSelect.value = currentValue;
-         }
          if (!ctx.activeDefinition && screens[0]?.definition) {
            ctx.activeDefinition = screens[0].definition;
            ctx.activeScreenId = ctx.activeDefinition.screenId;
          }
+         // The 조건 화면 picker leads the conditions block. A screen whose own condition the reader removed shows as edited
+         // (a hidden option), so choosing the same screen again restores it.
+         const screenSelect = documentRef.getElementById('scr-screen-select');
+         if (screenSelect) {
+           const currentValue = ctx.activeScreenId || ctx.activeDefinition?.screenId || screens[0]?.definition?.screenId || '';
+           if (screenSelect.dataset.aioScreenSignature !== screens.map((screen) => screen.definition.screenId).join('|')) {
+             const edited = documentRef.createElement('option');
+             edited.value = '';
+             edited.hidden = true;
+             edited.dataset.edited = 'true';
+             screenSelect.replaceChildren(edited, ...screens.map((screen) => Object.assign(documentRef.createElement('option'), { value: screen.definition.screenId, textContent: screen.label })));
+             screenSelect.dataset.aioScreenSignature = screens.map((screen) => screen.definition.screenId).join('|');
+           }
+           const chosen = screens.find((screen) => screen.definition.screenId === currentValue);
+           const isEdited = !!chosen && ctx.activeScreenId === currentValue && ctx.activeDefinition?.definitionHash !== chosen.definition.definitionHash && !ctx.activeResult;
+           const editedOption = screenSelect.querySelector('option[data-edited]');
+           if (editedOption) editedOption.textContent = isEdited ? `${chosen.label}, 조건 고침` : '';
+           screenSelect.value = isEdited ? '' : currentValue;
+         }
+         if (conditionEditor) { const lessonId = ctx.activeScreenId || ctx.activeDefinition?.screenId || screens[0]?.definition?.screenId || null; renderPresetLesson(documentRef, root, conditionEditor, lessonId, screens.find((screen) => screen.definition.screenId === lessonId)?.label); }
          ctx.syncDefinitionEditor();
-         // v59.70 (S12): the chosen 조건 화면 leads the chip row under the bar.
-         { const screenId = ctx.activeScreenId || ctx.activeDefinition?.screenId; renderFilterChips(documentRef, { screen: { label: screens.find((screen) => screen.definition.screenId === screenId)?.label || '' } }); }
          ctx.syncColumnControls();
          const readiness = ctx.activeResult?.readiness || state.readiness;
          const collectedCount = Number.isFinite(state?.metadata?.artifactRows) ? state.metadata.artifactRows : null;
@@ -312,8 +286,20 @@ export function createWorkbenchController(ctx) {
          }
   };
   ctx.actions.push((action, argument, actionNode) => {
-    if (action === 'screen-preset' || action === 'screen-select') {
+    if (action === 'screen-select') {
            ctx.selectDefinition(argument);
+    } else if (action === 'remove-screen-condition') {
+           // A screen's own condition chip: the definition keeps every other node (the editor's and the market's included).
+           const definition = ctx.activeDefinition;
+           const own = screenConditions(definition).filter((item) => item.own)[Number(argument)]?.node;
+           if (!definition || !own) return true;
+           const nodes = definition.filtersAST?.type === 'and' ? definition.filtersAST.children || [] : [definition.filtersAST];
+           ++ctx.runGeneration;
+           ctx.activeDefinition = createScreenDefinition({ ...definition, filtersAST: { type: 'and', children: nodes.filter((node) => node !== own) } });
+           ctx.activeResult = null; ctx.activeRows = null;
+           visibleLimit.value = 12;
+           ctx.renderWorkbench(); ctx.renderNow();
+           (documentRef.querySelector('#scr-active-filter-chips .scr-filter-chip') || documentRef.getElementById('scr-add-condition'))?.focus?.({ preventScroll: true });
     } else if (action === 'screen-new') {
            ++ctx.runGeneration;
            ctx.activeDefinition = ctx.defaultScreens()[0]?.definition || null;
@@ -374,7 +360,7 @@ export function createWorkbenchController(ctx) {
   });
   ctx.inputs.push((event) => {
     if (event.target.matches?.('#scr-screen-select')) {
-           ctx.selectDefinition(event.target.value);
+           if (event.type === 'change') ctx.selectDefinition(event.target.value);
     } else return false;
     return true;
   });

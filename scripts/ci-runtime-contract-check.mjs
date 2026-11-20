@@ -1349,8 +1349,8 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
 
 {
   // v57.61 WCAG 2.2 AA pass: focus survives re-renders, statuses are announced, names are distinct.
-  // v59.70 (S12): the 맞춤 조건 panel is the section of screener/filters.js between its banner and the condition-bar controller.
-  const custom = (read('src/ui/pages/screener/filters.js').split('// ── 맞춤 조건 panel')[1] || '').split('/** The condition bar')[0];
+  // v59.70 (S12): the 맞춤 조건 panel is the section of screener/filters.js between its banner and the conditions-block controller.
+  const custom = (read('src/ui/pages/screener/filters.js').split('// ── 맞춤 조건 panel')[1] || '').split('/** The conditions block')[0];
   const screener = readScreenerPageSource();
   const terms = read('src/ui/components/term-marks.js');
   const entity = read('src/ui/pages/entity.js');

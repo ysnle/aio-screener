@@ -137,8 +137,8 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
           const { sortState } = ctx;
           const column = header.dataset.scrSort;
           if (sortState.column === column) sortState.ascending = !sortState.ascending;
-          // An ordinal (전체 순위) starts at 1, like a name or a low multiple.
-          else { sortState.column = column; sortState.ascending = column === 'sym' || column === 'sector' || column === 'fwdPe' || column === 'overallRank'; }
+          // A name or a low multiple starts at the top of the alphabet or the scale.
+          else { sortState.column = column; sortState.ascending = column === 'sym' || column === 'sector' || column === 'fwdPe'; }
           const orderSelect = documentRef.getElementById('scr-order');
           if (orderSelect) {
             let option = [...orderSelect.options].find(item => item.value === column);

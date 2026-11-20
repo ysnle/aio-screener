@@ -29,7 +29,7 @@ export function readingPicks(entries, crossroads) {
 }
 
 export const RESEARCH_PAGES = Object.freeze([
-  { route: 'principles', title: '개념·분석', summary: '쟁점별 분석 노트, 개념 정의, 원리 레슨, 칼럼' },
+  { route: 'principles', title: '개념·분석', summary: '쟁점별 분석 노트, 개념 정의, 원리 레슨, 참여 원칙, 칼럼' },
   { route: 'atlas', title: '산업 지도', summary: '산업 분야별 구조와 관계, 기업 역할, AI 기초' },
   { route: 'masters', title: '대가 보유 종목', summary: '운용 방식별 비교와 분기 보유 변화' }
 ]);
@@ -224,7 +224,9 @@ export function researchDocumentOpen(root) {
   return /[?&](?:node|chapter|lesson|domain|manager)=/.test(locationQuery) && !/[?&]mode=graph(?:&|$)/.test(locationQuery);
 }
 
-export function createResearchShell(doc, { root = globalThis, route, lead = null, onLocal = null } = {}) {
+// `libraryTools` (default on): the whole-library search and the "이 화면 관련 글" chips in the head. 대가 보유 종목 turns
+// them off (owner 2026-11-20): its head is the manager list's, and the library-wide tools belong on 개념·분석.
+export function createResearchShell(doc, { root = globalThis, route, lead = null, onLocal = null, libraryTools = true } = {}) {
   ensureResearchStyle(doc);
   const page = RESEARCH_PAGES.find((item) => item.route === route) || RESEARCH_PAGES[0];
   const shell = el(doc, 'section', 'rl-shell');
@@ -308,7 +310,7 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
     setTimeout(() => { if (!search.contains(doc.activeElement)) closeResults(); }, 180);
   });
   search.append(input, results);
-  head.append(titleBox, search);
+  head.append(titleBox, ...(libraryTools ? [search] : []));
   const grid = el(doc, 'div', 'rl-grid');
   const nav = el(doc, 'nav', 'rl-nav');
   nav.setAttribute('aria-label', `${page.title} 목차`);
@@ -340,10 +342,10 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   shelf.append(shelfTitle, shelfBody);
   const related = el(doc, 'div', 'rl-picks rl-related');
   related.hidden = true;
-  loadIndex(root).then((index) => {
+  if (route === 'principles' || libraryTools) loadIndex(root).then((index) => {
     const entries = index?.entries || [];
     if (route === 'principles') renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, currentPage: route, onLocal });
-    const items = relatedEntries(entries, route, knowledgeRouteParams(root?.location).toString());
+    const items = libraryTools ? relatedEntries(entries, route, knowledgeRouteParams(root?.location).toString()) : [];
     if (!items.length) return;
     const row = el(doc, 'div', 'rl-picks-row');
     row.append(el(doc, 'span', 'rl-picks-label', '이 화면 관련 글'), ...items.map((entry) => {

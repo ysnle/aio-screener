@@ -3,8 +3,8 @@
 import { readSavedStockSubject, saveStockSubject } from '../../data/stock-subject-store.js';
 export const ROUTE_HUBS = Object.freeze([
   { id: 'today', label: '오늘', routes: [{ id: 'home', label: '요약' }, { id: 'briefing', label: '브리핑' }, { id: 'market-news', label: '뉴스' }] },
-  { id: 'market', label: '시장 상태', routes: [{ id: 'signal', label: '개요' }, { id: 'breadth', label: '시장 폭' }, { id: 'sentiment', label: '투자 심리' }] },
-  { id: 'macro', label: '매크로', routes: [{ id: 'macro', label: '개요' }, { id: 'fxbond', label: '금리와 환율' }] },
+  // Owner 2026-11-20: 시장 상태 and 매크로 are one screen — the verdict, then the evidence behind it, each tab named for itself.
+  { id: 'market', label: '시장과 매크로', plainTabs: true, routes: [{ id: 'signal', label: '시장 상태' }, { id: 'breadth', label: '시장 폭' }, { id: 'sentiment', label: '투자 심리' }, { id: 'macro', label: '매크로' }, { id: 'fxbond', label: '금리와 환율' }] },
   // v59.64 (owner 2026-11-03): 기술적 분석 is a screen of its own, like 매크로.
   { id: 'charts', label: '기술적 분석', routes: [{ id: 'charts', label: '기술적 분석' }] },
   { id: 'themes', label: '테마와 섹터', routes: [{ id: 'themes', label: '테마와 섹터', also: ['theme-detail'] }, { id: 'theme-detail', label: '테마 상세', tab: false }] },
@@ -28,6 +28,7 @@ export function routeLabel(routeId) {
   const hub = hubForRoute(routeId);
   if (!hub) return '';
   const route = hub.routes.find((entry) => entry.id === routeId);
+  if (route && hub.plainTabs) return route.label; // each tab is a name of its own ('매크로', '시장 폭')
   return !route || route.label === hub.label || route.label === '개요' || hub.routes.length === 1 ? hub.label : `${hub.label}, ${route.label}`;
 }
 

@@ -1,5 +1,10 @@
 /* 종목 개요 (2026-11-19): 사업 · 밸류체인 안의 자리 · 재무 한눈에 (src/ui/components/company-overview.js). */
 .ticker-hero-line { margin:6px 0 0; font-size:14px; line-height:1.6; color:var(--color-text-primary); overflow-wrap:anywhere; }
+/* 1년 종가 선 (ticker-year-line.js): a strip under the price that opens 기술적 분석. */
+.ticker-year-line { display:block; max-width:640px; margin:8px 0 0; cursor:pointer; border-radius:var(--radius-element); }
+.ticker-year-line .trend-chart-wrap, .ticker-year-line .trend-chart { width:100%; height:auto; }
+.ticker-year-line:focus-visible { outline:var(--focus-outline-width, 2px) solid var(--color-text-primary); outline-offset:2px; }
+.ticker-year-state { margin:2px 0 0; font-size:14px; color:var(--color-text-secondary); font-variant-numeric:tabular-nums; }
 .company-overview { display:flex; flex-direction:column; gap:28px; margin:8px 0 24px; min-width:0; }
 .co-section { display:flex; flex-direction:column; gap:12px; min-width:0; }
 .co-section__title { margin:0; font-size:18px; font-weight:700; line-height:1.4; }

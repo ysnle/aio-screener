@@ -1,15 +1,14 @@
-// P1742 (owner 2026-10-13): "향후 시나리오" — the forward branches on 거시 (full) and 오늘 (compact); v57.76: 시장 상태
-// links to 거시 instead of repeating them.
-// One visual (the upcoming releases and the branch map with each branch's met-condition dots), a short reading
-// (why rates matter and what would have to happen for them to fall), then per-branch detail folded inside each map
-// row (one list, not the map plus a second accordion of the same branches): the
-// cause→effect chain, the dated triggers, the three likelihood lines and the reader's choices with their
-// opportunity cost. Reads only published artifacts already loaded for the 거시 and 시장 상태 screens.
+// P1742 (owner 2026-10-13): "향후 시나리오" — the forward branches, owned by 시장 상태 › 시나리오와 전망 (매크로, 테마 and
+// 오늘 link here). (owner 2026-11-20, face never folded) the three scenarios whose conditions are most met are on
+// the face in full — conditions met, what the market prices, the cause→effect chain, the dated triggers, the decision
+// frame (가능성, 이익·손실 폭, 기회비용, 틀렸을 때) and the choices; the rest are one compact list whose chosen row shows
+// its card in place. Then the shared driver (금리가 중심인 이유) and the record of past judgements (raw table).
+// Reads only published artifacts already loaded for 시장 상태.
 import { CHOICES, EVENT_NAMES, fomcDecisionDate, macroTransitions } from '../../domain/market/regime/macro-crossroads.js';
 import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
-import { noteFold } from './section-frame.js';
+import { foldSummary, kindFold, markFold } from './indicator-face.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { auctionLine, latestByTenor, AUCTION_METHOD } from '../../domain/macro/treasury-auctions.js';
 import { groupCashflowSentence } from '../../domain/fundamental/quarterly-cashflow.js';
@@ -107,58 +106,58 @@ function themeLinkRow(doc, root, item, { max = 4 } = {}) {
   return row;
 }
 
-function timeline(doc, model) {
-  const strip = el(doc, 'ol', null, 'xr-timeline');
-  strip.setAttribute('aria-label', '다가오는 공식 발표');
-  for (const event of model.events.slice(0, 6)) {
-    const item = el(doc, 'li', null, 'xr-event');
-    if (model.nextEvent && event.id === model.nextEvent.id) item.dataset.next = 'true';
-    item.append(el(doc, 'span', (event.when || md(event.date)).replace(/ \d{2}:\d{2} KST$/, ' KST'), 'xr-event-date'), el(doc, 'span', event.name, 'xr-event-name'));
-    strip.append(item);
-  }
-  return strip;
-}
-
-// The map is the only list of branches: each row is a <details class="xr-branch"> whose summary is the map row (keyboard
-// operable, expanded state announced) and whose body is that branch's detail, opened in place.
-// Expert review 2026-10-14: the branches the current state points to (lead, tied, alternative) come first; the rest sit
-// in one fold so the page reads the current branch before the others. v59.51 (content audit): every branch row starts
-// closed — the row itself (name, met-condition dots, price direction, smaller cost) is the face; only a row the reader
-// opened stays open across repaints.
-function branchMap(doc, root, model, openIds, { restOpen = false } = {}) {
-  const map = el(doc, 'div', null, 'xr-map');
-  map.append(el(doc, 'div', '지금', 'xr-map-now'));
-  const list = el(doc, 'ul', null, 'xr-map-branches');
-  // v59.51 (area H): the marked rows are scenarioLead's ids — one lead, or every tied branch (each marked, none 중심).
+// (owner 2026-11-20) every scenario is one row of a list ordered by how far its conditions are met — the current branches
+// (lead, tied, alternative) first — with name, met/total and one line; the chosen row's card shows in full beside the list
+// (below it on a narrow screen), the most-met one to start. No fold: the list is the comparison and the card is the reading;
+// each card's sample is its frame's raw-table fold. Three full cards stacked ran to 6,700px on a phone.
+export function orderedScenarios(model) {
   const lead = scenarioLead(model);
   const leadIds = new Set(lead.ids);
   const current = new Set([...lead.ids, model.altId].filter(Boolean));
   const rank = (item) => (leadIds.has(item.id) ? 0 : item.id === model.altId ? 2 : 3);
-  const row = (item) => {
-    const li = el(doc, 'li', null, 'xr-map-branch');
-    li.dataset.branch = item.id;
-    // Every marked row carries the same mark; a tie also says so (data-tied), so no single row reads as the one 중심.
-    if (leadIds.has(item.id)) { li.dataset.lead = 'true'; if (lead.state === 'tie') li.dataset.tied = 'true'; }
-    li.append(branchCard(doc, root, item, leadIds.has(item.id), openIds.has(item.id), branchDecisionFrame(item, { cash: model.cash })));
-    return li;
-  };
-  // v57.79: within the same rank the branches run by share of conditions met, so the heading's "조건 충족 순" holds.
   // v57.81 (audit X2): a branch whose core condition is met comes before one that only matches side conditions.
   const fit = (item) => (item.known >= 2 && item.total ? item.met / item.total + (item.gate?.met === true ? 1 : 0) : -1);
-  const ordered = [...model.items].sort((a, b) => (current.size ? rank(a) - rank(b) : 0) || fit(b) - fit(a));
-  const rest = current.size ? ordered.filter((item) => !current.has(item.id)) : [];
-  for (const item of ordered.filter((item) => !rest.includes(item))) list.append(row(item));
-  if (rest.length) {
-    const holder = el(doc, 'li', null, 'xr-map-branch xr-map-rest-row');
-    const fold = el(doc, 'details', null, 'xr-map-rest');
-    fold.open = restOpen || rest.some((item) => openIds.has(item.id));
-    const inner = el(doc, 'ul', null, 'xr-map-branches');
-    inner.append(...rest.map(row));
-    fold.append(el(doc, 'summary', `나머지 시나리오 ${rest.length}개 보기`, 'xr-map-rest-summary'), inner);
-    holder.append(fold);
-    list.append(holder);
+  return { lead, items: [...model.items].sort((a, b) => (current.size ? rank(a) - rank(b) : 0) || fit(b) - fit(a)) };
+}
+
+function scenarioMap(doc, root, model, picked = null) {
+  const { lead, items } = orderedScenarios(model);
+  const leadIds = new Set(lead.ids);
+  const card = (item) => {
+    const node = scenarioCard(doc, root, item, branchDecisionFrame(item, { cash: model.cash }));
+    // Every marked card carries the same mark; a tie also says so (data-tied), so no single card reads as the one 중심.
+    if (leadIds.has(item.id)) { node.dataset.lead = 'true'; if (lead.state === 'tie') node.dataset.tied = 'true'; }
+    return node;
+  };
+  const map = el(doc, 'div', null, 'xr-map');
+  if (!items.length) return map;
+  const pickId = items.some((item) => item.id === picked) ? picked : items[0].id;
+  const list = el(doc, 'div', null, 'xr-picks');
+  list.setAttribute('role', 'group');
+  list.setAttribute('aria-label', `시나리오 ${items.length}개`);
+  list.dataset.roving = '';
+  const slot = el(doc, 'div', null, 'xr-pick-detail');
+  slot.setAttribute('aria-live', 'polite');
+  const show = (id) => {
+    for (const button of list.children) button.setAttribute('aria-pressed', String(button.dataset.branch === id));
+    slot.replaceChildren(card(items.find((item) => item.id === id)));
+  };
+  // Only a reader's choice is kept across re-renders: the default follows the order, which changes as data arrives.
+  if (pickId === picked) map.dataset.picked = picked;
+  for (const item of items) {
+    const button = el(doc, 'button', null, 'xr-pick');
+    button.type = 'button';
+    button.dataset.branch = item.id;
+    if (leadIds.has(item.id)) button.dataset.lead = 'true';
+    const [name, what] = item.title.split(' — ');
+    // The second line says what the scenario is; the count is already beside the name, so only a missing core condition is added.
+    const line = [what, item.gate && item.gate.met !== true ? '핵심 조건 미충족' : ''].filter(Boolean).join(' · ');
+    button.append(el(doc, 'span', name, 'xr-map-title'), meter(doc, item), el(doc, 'span', `조건 ${item.met}/${item.total}`, 'xr-map-fit'), el(doc, 'span', line || item.status || item.fit, 'xr-pick-line'));
+    button.addEventListener('click', () => { show(item.id); map.dataset.picked = item.id; });
+    list.append(button);
   }
-  map.append(list);
+  map.append(list, slot);
+  show(pickId);
   return map;
 }
 
@@ -178,13 +177,12 @@ export function showCrossroadsSection(doc, root) {
 /** Open one branch's detail on 시장 상태 (from the 매크로 factor cards or another screen) and bring it into view. */
 export function openCrossroadsBranch(doc, root, branchId) {
   const reveal = () => {
+    const pick = doc?.querySelector?.(`#regime-depth-fold .xr-pick[data-branch="${branchId}"]`);
+    if (pick) pick.click();
     const card = doc?.querySelector?.(`#regime-depth-fold .xr-branch[data-branch="${branchId}"]`);
     if (!card) return false;
-    const fold = card.closest?.('.xr-map-rest');
-    if (fold) fold.open = true;
-    card.open = true;
     card.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
-    card.querySelector('summary')?.focus?.({ preventScroll: true });
+    (pick || card).focus?.({ preventScroll: true });
     return true;
   };
   showScenarioView(doc, root);
@@ -203,8 +201,8 @@ function auctionBlock(doc, root) {
   if (!payload?.summary || !(age >= 0 && age <= AUCTIONS_MAX_AGE_MS)) return null;
   const box = el(doc, 'div', null, 'xr-auctions');
   box.append(el(doc, 'p', `국채 입찰: ${payload.summary}`, 'xr-hub-now'));
-  const fold = el(doc, 'details', null, 'xr-auctions-fold sx-disclosure');
-  fold.append(el(doc, 'summary', '만기별 최근 입찰 결과'));
+  const fold = markFold(el(doc, 'details', null, 'xr-auctions-fold'), 'raw-table');
+  fold.append(foldSummary(doc, 'raw-table', '만기별 최근 입찰 결과'));
   const list = el(doc, 'ul', null, 'xr-evidence');
   for (const row of latestByTenor(payload.rows || [])) list.append(el(doc, 'li', auctionLine(row)));
   fold.append(list, el(doc, 'p', AUCTION_METHOD, 'xr-path-evidence'));
@@ -212,33 +210,29 @@ function auctionBlock(doc, root) {
   return box;
 }
 
-function rateHub(doc, model, pathsOpen = false, root = null) {
+// The one driver the scenarios share. (owner 2026-11-20, face never folded) the conditions for lower rates are
+// the reading — one compact list on the face (label, state, next release); how rates reach stocks, the proxy caveat and
+// whether lower rates are always good are the method fold; the auction rows are the raw-table fold.
+function rateHub(doc, model, root = null) {
   const hub = el(doc, 'div', null, 'xr-hub');
   hub.append(el(doc, 'h3', '금리가 중심인 이유', 'xr-h3'));
   if (model.rateHub.policy) hub.append(el(doc, 'p', model.rateHub.policy, 'xr-hub-now')); // v57.55 review (E2-03): policy path first
   if (model.rateHub.now) hub.append(el(doc, 'p', model.rateHub.now, 'xr-hub-now'));
+  if (model.rateHub.tension) hub.append(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
+  const moving = model.rateHub.pathsDown.filter((path) => path.ok === true).length;
+  hub.append(el(doc, 'h4', `금리가 내려가려면 — ${moving ? `조건 ${model.rateHub.pathsDown.length}가지 중 ${moving}가지 진행 중` : `조건 ${model.rateHub.pathsDown.length}가지, 아직 진행 중인 것 없음`}`, 'xr-h4'));
+  const paths = el(doc, 'ul', null, 'xr-paths');
+  for (const path of model.rateHub.pathsDown) {
+    const row = el(doc, 'li', null, `xr-path is-${path.stateText ? 'mixed' : path.ok == null ? 'unknown' : path.ok ? 'met' : 'unmet'}`);
+    row.append(el(doc, 'b', path.label, 'xr-path-label'), el(doc, 'span', ` ${path.stateText || (path.ok == null ? '확인 불가' : path.ok ? '진행 중' : '아직 아님')}`, 'xr-path-state'),
+      el(doc, 'p', `${path.evidence}${path.next ? ` 확인: ${path.next}` : ''}`, 'xr-path-evidence'));
+    paths.append(row);
+  }
+  hub.append(paths);
   const auctions = auctionBlock(doc, root);
   if (auctions) hub.append(auctions);
-  // v59.51 (two layers): the face keeps today's numbers and the tension line; how higher rates reach stocks (the textbook
-  // channels) and the proxy caveat are the expert layer, one fold down.
-  const why = [model.rateHub.whyHigherHurts, model.rateHub.pricingNote].filter(Boolean).join(' ');
-  if (why) hub.append(noteFold(doc, why, '금리가 주가에 닿는 경로와 이 수치의 한계'));
-  if (model.rateHub.tension) hub.append(el(doc, 'p', model.rateHub.tension, 'xr-tension'));
-  // v59.51 (content audit): the three conditions for lower rates are the expert layer — one closed line on the face, the
-  // state, evidence and next release of each inside.
-  const paths = el(doc, 'details', null, 'xr-paths-fold sx-disclosure');
-  paths.open = pathsOpen;
-  const moving = model.rateHub.pathsDown.filter((path) => path.ok === true).length;
-  paths.append(el(doc, 'summary', `금리가 내려가려면 — ${moving ? `조건 ${model.rateHub.pathsDown.length}가지 중 ${moving}가지 진행 중` : `조건 ${model.rateHub.pathsDown.length}가지, 아직 진행 중인 것 없음`}`, 'xr-h4'));
-  const grid = el(doc, 'div', null, 'xr-paths');
-  for (const path of model.rateHub.pathsDown) {
-    const card = el(doc, 'div', null, `xr-path is-${path.stateText ? 'mixed' : path.ok == null ? 'unknown' : path.ok ? 'met' : 'unmet'}`);
-    card.append(el(doc, 'span', path.label, 'xr-path-label'), el(doc, 'span', path.stateText || (path.ok == null ? '확인 불가' : path.ok ? '진행 중' : '아직 아님'), 'xr-path-state'),
-      el(doc, 'p', path.evidence, 'xr-path-evidence'), el(doc, 'p', path.next ? `확인: ${path.next}` : '', 'xr-path-next'));
-    grid.append(card);
-  }
-  paths.append(grid);
-  hub.append(paths, noteFold(doc, model.rateHub.caveat, '금리 하락이 늘 좋은가')); // v58.79
+  const method = [model.rateHub.whyHigherHurts, model.rateHub.pricingNote, model.rateHub.caveat].filter(Boolean);
+  if (method.length) hub.append(kindFold(doc, 'method', '금리가 주가에 닿는 경로와 이 수치의 한계', method.map((text) => el(doc, 'p', text, 'xr-path-evidence'))));
   return hub;
 }
 
@@ -250,22 +244,20 @@ function bigtechCashflowText(root) {
   return sentence ? `투자 자금 여력(SEC 분기 공시 기준, 조건에 넣지 않는 참고값): ${sentence}` : '';
 }
 
-function branchCard(doc, root, item, lead, open = false, frame = null) {
-  const card = el(doc, 'details', null, 'xr-branch');
+// One scenario on the face: name, met-condition dots, status, the price direction and favoured choice, then its body.
+function scenarioCard(doc, root, item, frame = null) {
+  const card = el(doc, 'article', null, 'xr-branch');
   card.dataset.branch = item.id;
-  if (lead) card.dataset.lead = 'true';
-  card.open = open;
-  const summary = el(doc, 'summary', null, 'xr-branch-summary');
+  card.tabIndex = -1;
   const [name, sub] = item.title.split(' — ');
-  const head = el(doc, 'span', null, 'xr-map-head');
+  const head = el(doc, 'h4', null, 'xr-map-head');
   head.append(el(doc, 'span', name, 'xr-map-title'), meter(doc, item), el(doc, 'span', item.status || item.fit, 'xr-map-fit'));
-  const tags = el(doc, 'span', null, 'xr-map-tags');
+  const tags = el(doc, 'p', null, 'xr-map-tags');
   tags.append(el(doc, 'span', TONE[item.pricing.tone] || TONE.unknown, `xr-tag is-${item.pricing.tone}`),
     el(doc, 'span', `${CHOICE_WORDS.favored}: ${item.favored.map((key) => CHOICES[key]).join(', ')}`, 'xr-tag is-choice'));
   // v57.84 (owner 2026-10-16): favored stays; a conflict with the past frequency is named beside it.
   if (item.pastConflict) tags.append(pastConflictTag(doc, item));
-  summary.append(head, ...(sub ? [el(doc, 'span', sub, 'xr-map-sub')] : []), tags, el(doc, 'span', '근거와 선택지', 'xr-map-more'));
-  card.append(summary);
+  card.append(head, ...(sub ? [el(doc, 'p', sub, 'xr-map-sub')] : []), tags);
   const body = el(doc, 'div', null, 'xr-branch-body');
   body.append(chainRow(doc, item.chain));
   const impact = el(doc, 'dl', null, 'xr-impact');
@@ -326,9 +318,9 @@ function changeLog(doc, state, open = false, checkedAt = null) {
   const transitions = macroTransitions(state).slice(-6).reverse(); // v59.51 (area H): macro events only
   const scored = (state?.eventOutcomes || []).slice(-6).reverse();
   if (!transitions.length && !scored.length) return null;
-  const box = el(doc, 'details', null, 'xr-changes sx-disclosure');
+  const box = markFold(el(doc, 'details', null, 'xr-changes'), 'raw-table');
   box.open = open;
-  box.append(el(doc, 'summary', `지난 판정과 바뀐 점 (발표 판정 ${scored.length}건, 변화 ${transitions.length}건)`, 'xr-h3'));
+  box.append(foldSummary(doc, 'raw-table', `지난 판정과 바뀐 점 (발표 판정 ${scored.length}건, 변화 ${transitions.length}건)`));
   if (scored.length) {
     box.append(el(doc, 'h4', '지난 발표 판정', 'xr-h4'));
     const list = el(doc, 'ul', null, 'xr-scored');
@@ -356,20 +348,17 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   const model = crossroadsForRoot(root, { regime });
   root.__aioMacroCrossroads = model;
   if (!target.dataset.aioScenarioLoad) { target.dataset.aioScenarioLoad = 'on'; refreshScenarioArtifacts(root, () => renderMacroCrossroads({ documentRef: doc, root, regime, host: target })); }
-  const openIds = new Set([...target.querySelectorAll('.xr-branch[open]')].map((node) => node.dataset.branch));
-  const restOpen = !!target.querySelector('.xr-map-rest[open]');
-  const focused = target.contains?.(doc.activeElement) ? doc.activeElement?.closest?.('.xr-branch')?.dataset.branch : null;
-  const pathsOpen = !!target.querySelector('details.xr-paths-fold')?.open;
+  const picked = target.querySelector('.xr-map')?.dataset.picked || null;
+  const focused = target.contains?.(doc.activeElement) ? doc.activeElement?.closest?.('[data-branch]')?.dataset.branch : null;
   const changesOpen = !!target.querySelector('details.xr-changes')?.open;
   if (!model.available) { target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead')); return model; }
-  // The rate hub (why rates lead, the proxy caveat once) comes first; the map below opens each branch in place.
+  // The rate hub (the shared driver) comes first; the releases ahead are 무슨 일이 있었나's week list above.
   // v57.79 (UI review): the heading says what the list is (ordered by conditions met), not how to use it.
   const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — 조건 충족 순`, 'xr-h3');
   const basis = el(doc, 'p', '과거 빈도는 비슷한 시장 움직임으로 고른 비교입니다.', 'xr-reading');
-  // v58.79: the closing "세부 종목 선택은 …" caption left; the screen names no price, size or timing by construction (R724).
-  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), timeline(doc, model), rateHub(doc, model, pathsOpen, root), mapHead, basis, branchMap(doc, root, model, openIds, { restOpen }), ...[changeLog(doc, root?.[SCENARIO_STATE.key], changesOpen, root?._aioArtifactFreshness?.('scenario-state.json')?.checkedAt)].filter(Boolean));
+  target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), mapHead, basis, scenarioMap(doc, root, model, picked), rateHub(doc, model, root), ...[changeLog(doc, root?.[SCENARIO_STATE.key], changesOpen, root?._aioArtifactFreshness?.('scenario-state.json')?.checkedAt)].filter(Boolean));
   target.dataset.aioCrossroads = 'native';
-  if (focused) target.querySelector(`.xr-branch[data-branch="${focused}"] > summary`)?.focus?.({ preventScroll: true }); // a repaint keeps keyboard focus
+  if (focused) target.querySelector(`.xr-pick[data-branch="${focused}"]`)?.focus?.({ preventScroll: true }); // a repaint keeps keyboard focus
   return model;
 }
 

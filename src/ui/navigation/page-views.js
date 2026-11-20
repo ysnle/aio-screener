@@ -34,7 +34,7 @@ export function installPageViews({ root = globalThis, documentRef = root?.docume
     return true;
   };
   // The view that shows a node: the style sheet is the only list of members, so each view is tried against it.
-  const showViewOf = (node) => {
+  const showViewOf = (node, options) => {
     const page = node?.closest?.('.page[data-view]');
     if (!page) return false;
     let section = node;
@@ -45,7 +45,7 @@ export function installPageViews({ root = globalThis, documentRef = root?.docume
     const found = viewNames(page).find((view) => { page.dataset.view = view; return root.getComputedStyle(section).display !== 'none'; });
     page.dataset.view = before;
     section.hidden = wasHidden;
-    return found ? show(page, found) : false;
+    return found ? show(page, found, options) : false;
   };
   const onClick = (event) => {
     const tab = event.target?.closest?.('.page-views > [data-view]');

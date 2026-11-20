@@ -28,9 +28,8 @@
 .page .regime-axis-deep .flow-next-link { margin-top: 10px; }
 .page [class*="grid"] > .regime-axis-deep { grid-column: 1 / -1; }
 .page .regime-scenarios { margin: 24px 0 30px; padding-top: 20px; border-top: 0.5px solid var(--color-border); }
-.page .regime-scenario-next { margin: 14px 0 0; } /* v57.76: one link line to 거시의 다음 발표별 시나리오 */
 .page .regime-scenario-hold { color: var(--color-text-primary);  padding: 10px 14px; font-size: 14px; line-height: 1.65; }
-.page .regime-scenario-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.page .regime-scenario-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; list-style: none; margin: 0; padding: 0; }
 .page .regime-scenario-card { min-width: 0; padding: 20px; border: 0.5px solid var(--color-border); border-radius: var(--radius-element); background: var(--color-background-card); }
 .page .regime-scenario-card[data-confirmed="true"] { border-color: var(--color-text-primary); }
 .page .regime-scenario-head { display: flex; flex-wrap: wrap; gap: 8px 12px; justify-content: space-between; align-items: baseline; }
@@ -94,15 +93,6 @@
 @media (max-width: 743px) { .regime-radar-body { grid-template-columns: minmax(0, 1fr); } }
 /* P1641: 오늘 sector bar. v58.80 (owner-delegated): a direction bar uses the direction tokens — rising red, falling
    blue, the same convention as the candles (P1634); v57.50 C25 had kept it green/red. */
-.home-sector-moves { margin: 18px 0; }
-.home-sector-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.home-sector-lead { font-size: var(--fs-reading); line-height: 1.6; color: var(--color-text-secondary); margin: 4px 0 8px; }
-.home-sector-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
-.home-sector-bars li { display: grid; grid-template-columns: 92px minmax(0, 1fr) 62px 68px; gap: 8px; align-items: center; font-size: 12px; }
-.home-sector-name { color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.home-sector-bars .signed-track { --signed-h: 10px; }
-.home-sector-value { text-align: right; font-variant-numeric: tabular-nums; }
-.home-sector-quadrant { color: var(--color-text-secondary); font-size: 12px; white-space: nowrap; } /* UI review 2026-10-18: "기준선 부근" broke onto two lines in a 36px column */
 
 /* P1643: one basis card for every explained number (hover, focus, or tap). */
 .aio-basis-card { position: fixed; z-index: 1000; max-width: min(340px, calc(100vw - 16px)); padding: 9px 12px; background: var(--color-background-emphasized); border: 0.5px solid var(--color-border-emphasized); border-radius: var(--radius); box-shadow: var(--shadow-md); color: var(--color-text-secondary); font-size: var(--fs-xs, 12px); line-height: 1.55; pointer-events: none; }
@@ -202,30 +192,11 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .xr-scope-note { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
 .page .xr-h3 { font-size: 14px; margin: 18px 0 6px; color: var(--color-text-primary); }
 .page .xr-h4 { font-size: 14px; margin: 16px 0 6px; color: var(--color-text-primary); }
-.page .xr-timeline { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; padding: 0; }
-.page .xr-event { display: inline-flex; gap: 6px; align-items: baseline; padding: 6px 10px; border: 0.5px solid var(--color-border); border-radius: var(--radius-inner); background: var(--color-background-card); font-size: 14px; }
-.page .xr-event[data-next="true"] { border-color: var(--color-text-primary); font-weight: 600; }
-.page .xr-event-date { font-family: var(--font-mono); color: var(--color-text-primary); }
-.page .xr-event-name { color: var(--color-text-secondary); }
-.page .xr-map { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 0 12px; align-items: stretch; margin: 8px 0 18px; }
-.page .xr-map-now { display: flex; align-items: center; justify-content: center; border: 0.5px solid var(--color-text-primary); border-radius: var(--radius-element); font-weight: 600; font-size: 14px; color: var(--color-text-primary); background: var(--color-background-card); }
-.page .xr-map-branches { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.page .xr-map-branch { position: relative; padding: 0; border: 0.5px solid var(--color-border); border-radius: var(--radius-element); background: var(--color-background-card); min-height: 44px; }
-.page .xr-map-branch::before { content: ''; position: absolute; left: -16px; top: 22px; width: 14px; border-top: 0.5px solid var(--color-border-emphasized); }
-/* The map row is the branch's <details>: summary = the row, body = that branch's detail opened in place. */
-.page .xr-map-branch > .xr-branch { margin: 0; padding: 0; border: 0; border-radius: var(--radius-element); background: none; }
-.page .xr-map-branch > .xr-branch > .xr-branch-summary { display: block; padding: 10px 12px; min-height: 44px; list-style: none; }
-.page .xr-map-branch > .xr-branch > .xr-branch-summary::-webkit-details-marker { display: none; }
-.page .xr-map-branch > .xr-branch > .xr-branch-summary:focus-visible { outline: 2px solid var(--color-text-primary); outline-offset: 2px; }
+.page .xr-map { margin: 8px 0 18px; }
 .page .xr-map-sub { display: block; margin-top: 2px; font-size: 12px; color: var(--color-text-secondary); }
-.page .xr-map-more { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--color-text-secondary); }
-.page .xr-map-more::before { content: '▸ '; }
-.page .xr-branch[open] .xr-map-more::before { content: '▾ '; }
 .page .xr-branch-body { padding: 4px 12px 12px; border-top: 0.5px solid var(--color-border-muted); }
 .page .xr-path.is-mixed { border-style: dashed; border-color: var(--color-text-primary); }
-/* Lead line of the compact block on 오늘·시장 상태 ("지금 구조: …", rendered by market-regime.js). */
-.page .xr-map-branch[data-lead="true"] { border-color: var(--color-text-primary); box-shadow:none; }
-.page .xr-map-head, .page .xr-branch-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.page .xr-map-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .page .xr-map-title { font-weight: 600; font-size: 14px; color: var(--color-text-primary); }
 .page .xr-map-fit { font-size: 12px; color: var(--color-text-secondary); }
 .page .xr-map-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
@@ -249,7 +220,7 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .xr-dot.is-unknown { border-style: dashed; opacity: .6; }
 .page .xr-hub { margin: 18px 0; padding-top: 6px; border-top: 0.5px solid var(--color-border); }
 .page .xr-hub-now { font-family: var(--font-mono); font-size: 14px; color: var(--color-text-primary); margin: 4px 0; }
-.page .xr-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.page .xr-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; list-style: none; margin: 0; padding: 0; }
 .page .xr-path { padding: 10px 12px; border: 0.5px solid var(--color-border); border-radius: var(--radius-element); background: var(--color-background-card); display: flex; flex-direction: column; gap: 4px; }
 .page .xr-path.is-met { border-color: var(--color-text-success); }
 .page .xr-path-label { font-weight: 600; color: var(--color-text-primary); }
@@ -258,7 +229,6 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .xr-path-evidence, .page .xr-path-next { margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-text-secondary); }
 .page .xr-branch { margin: 10px 0; padding: 12px 14px; border: 0.5px solid var(--color-border); border-radius: var(--radius-element); background: var(--color-background-card); }
 .page .xr-branch[data-lead="true"] { border-color: var(--color-text-primary); }
-.page .xr-branch-summary { cursor: pointer; min-height: 32px; }
 .page .xr-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0; }
 .page .xr-chain-step { padding: 4px 9px; border-radius: var(--radius-inner); background: var(--color-background-emphasized); font-size: 14px; color: var(--color-text-primary); }
 .page .xr-chain-sep { color: var(--color-text-secondary); }
@@ -277,8 +247,6 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 /* v57.91 (desktop audit): the full-width home card ran ~80 Korean characters a line; prose lines stop at a readable length. */
 @media (max-width: 743px) {
   .page .xr-paths { grid-template-columns: minmax(0, 1fr); }
-  .page .xr-map { grid-template-columns: minmax(0, 1fr); }
-  .page .xr-map-now { padding: 6px; margin-bottom: 8px; }
   .page .xr-choice { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }
 /* 거시: quadrant axis/subtitle labels and the sparkline range at the 12px floor; the held-regime fold; axis → branch links. */
@@ -401,9 +369,6 @@ body.dark-theme .capex-flow-seg { color: var(--color-background-body); filter: n
 .page .regime-read-more p { margin-top: 4px; }
 /* Owner 2026-10-19: 오늘의 가이드 (src/ui/components/market-guide.js) — situation, choices across scenarios, lean/avoid, principles. */
 .page .mg-guide { margin-top: 24px; padding-top: 6px; border-top: 0.5px solid var(--color-border); }
-.page .mg-situation { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; margin: 8px 0 14px; max-width: 920px; }
-.page .mg-situation dt { font-weight: 600; font-size: 14px; color: var(--color-text-primary); }
-.page .mg-situation dd { margin: 0; font-size: 14px; line-height: 1.65; color: var(--color-text-secondary); }
 .page .mg-choices { border-collapse: collapse; width: 100%; max-width: 920px; font-size: 14px; margin: 6px 0 8px; }
 .page .mg-choices caption { text-align: left; font-size: 12px; color: var(--color-text-secondary); padding-bottom: 4px; }
 .page .mg-choices th, .page .mg-choices td { text-align: left; padding: 6px 10px; border-bottom: 0.5px solid var(--color-border-muted); vertical-align: top; }
@@ -421,15 +386,9 @@ body.dark-theme .capex-flow-seg { color: var(--color-background-body); filter: n
 .page .mg-lesson-principle { margin: 0; font-size: 14px; line-height: 1.65; color: var(--color-text-secondary); }
 .page .mg-lesson-reason { margin: 0; font-size: 12px; line-height: 1.6; color: var(--color-text-primary); }
 .page .mg-lesson-why { margin: 0; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
-.page .mg-lesson-more > summary { font-size: 12px; color: var(--color-text-secondary); cursor: pointer; min-height: 24px; min-width: 24px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; } /* v58.79: the mechanism is one fold down */
-.page .mg-lesson-more[open] > summary { margin-bottom: 2px; }
 .page .mg-concept-link { align-self: flex-start; margin-top: auto; min-height: 32px; padding: 4px 0; background: none; border: 0; color: var(--color-text-primary); font-size: 12px; cursor: pointer; }
 .page .mg-concept-link:focus-visible { outline: 2px solid var(--color-text-primary); outline-offset: 2px; }
-.page .mg-library { margin: 4px 0 10px; }
-.page .mg-library-summary { cursor: pointer; font-size: 14px; color: var(--color-text-primary); min-height: 32px; padding: 4px 0; }
 @media (max-width: 600px) {
-  .page .mg-situation { grid-template-columns: minmax(0, 1fr); gap: 2px; }
-  .page .mg-situation dd { margin-bottom: 6px; }
   .page .mg-lessons { grid-template-columns: minmax(0, 1fr); }
 }
 /* v58.37: portfolio stress panel (src/ui/panels/portfolio-stress.js) — classes, never below the 12px floor. */
@@ -448,14 +407,7 @@ body.dark-theme .capex-flow-seg { color: var(--color-background-body); filter: n
 /* v58.78 (owner 2026-10-25, 매크로 마감): the scenario map reads as a timeline — a thin rail with a dot per branch under a
    small "지금" kicker, instead of a page-tall bordered "지금" box beside the list. The lead branch carries an accent edge,
    not a full white outline, and favoured choices are a soft green fill rather than bright green frames. */
-.page .xr-map { grid-template-columns: minmax(0, 1fr); position: relative; padding-left: 22px; }
-.page .xr-map::before { content: ''; position: absolute; left: 6px; top: 10px; bottom: 22px; border-left: 1px solid var(--color-border-emphasized); }
-.page .xr-map-now { position: relative; display: block; justify-content: flex-start; padding: 0 0 8px; border: 0; border-radius: 0; background: none; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
-.page .xr-map-now::before { content: ''; position: absolute; left: -21px; top: 3px; width: 11px; height: 11px; border-radius: 50%; background: var(--color-text-primary); }
-.page .xr-map-branch::before { left: -20px; top: 17px; width: 9px; height: 9px; border: 1px solid var(--color-border-emphasized); border-radius: 50%; background: var(--color-background-body); box-sizing: border-box; }
-.page .xr-map-branch[data-lead="true"]::before { background: var(--color-text-primary); border-color: var(--color-text-primary); }
-.page .xr-map-rest .xr-map-branch::before { display: none; }
-.page .xr-map-branch[data-lead="true"], .page .xr-branch[data-lead="true"] { border-color: var(--color-border); box-shadow: inset 3px 0 0 var(--color-text-primary); }
+.page .xr-branch[data-lead="true"] { border-color: var(--color-border); box-shadow: inset 3px 0 0 var(--color-text-primary); }
 .page .xr-branch-body { padding: 8px 14px 14px; }
 .page .xr-tag { border-color: transparent; background: var(--sx-ink-a07, transparent); }
 .page .xr-tag.is-same { color: var(--color-text-primary); border-color: transparent; }
@@ -464,7 +416,6 @@ body.dark-theme .capex-flow-seg { color: var(--color-background-body); filter: n
 .page .xr-choice { border-color: transparent; background: var(--sx-ink-a03, transparent); border-radius: var(--radius-element); }
 .page .xr-choice[data-favored="true"] { border-color: transparent; background: var(--sx-good-bg, transparent); }
 .page .xr-chain-step { border-radius: 6px; background: var(--sx-ink-a07, var(--color-background-emphasized)); }
-@media (max-width: 743px) { .page .xr-map { padding-left: 18px; } .page .xr-map::before { left: 4px; } .page .xr-map-now { margin-bottom: 0; } .page .xr-map-now::before { left: -19px; } .page .xr-map-branch::before { left: -18px; } }
 .page .theme-strength-table td.is-quiet:not(.is-sorted) { opacity: .72; } /* v58.78: 3개월 is context beside 1주·2주·1개월 */
 /* v58.81: market clock + Korea↔US link check, and the probabilistic lean (src/ui/components/session-lean.js) */
 .session-bridge { margin: 0 0 10px; padding: 8px 10px; border-left: 2px solid var(--color-border-muted); font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); overflow-wrap: anywhere; }
@@ -597,17 +548,10 @@ body.dark-theme .capex-flow-seg { color: var(--color-background-body); filter: n
 .mk-narr__chip { font-size: 12px; padding: 1px 8px; border-radius: var(--radius-full); border: 0.5px solid var(--color-border); color: var(--color-text-secondary); }
 .mk-narr__chip.is-backed { color: var(--color-text-primary); font-weight: 600; }
 .mk-narr__line { margin: 2px 0 4px; line-height: 1.6; }
-.mk-narr__more > summary { cursor: pointer; font-size: 12px; color: var(--color-text-secondary); }
-.mk-narr__question, .mk-narr__attention, .mk-narr__frame, .mk-narr__why { margin: 6px 0 0; line-height: 1.6; font-size: var(--fs-reading); }
-.mk-narr__frame.is-counter, .mk-narr__why { color: var(--color-text-secondary); }
+.mk-narr__question, .mk-narr__attention { margin: 6px 0 0; line-height: 1.6; font-size: var(--fs-reading); }
 .mk-narr__scenario { margin-top: 10px; padding: 10px 12px; border: 0.5px solid var(--color-border); border-radius: var(--radius-element); background: var(--color-background-card); }
 .mk-narr__scenario-head { margin: 0 0 6px; font-size: 12px; }
-.mk-narr__facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; margin: 0; font-size: 12px; line-height: 1.55; }
-.mk-narr__facts dt { color: var(--color-text-secondary); }
-.mk-narr__facts dd { margin: 0; }
-.mk-narr__choices { margin: 4px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.6; }
-.mk-narr__choices .is-costly b { color: var(--color-text-secondary); }
-@media (max-width: 600px) { .mk-narr__facts { grid-template-columns: 1fr; } .mk-narr__facts dd { margin-bottom: 4px; } .mk-narr__bar-row { grid-template-columns: 38% 1fr auto; } }
+@media (max-width: 600px) { .mk-narr__bar-row { grid-template-columns: 38% 1fr auto; } }
 .mk-narr__change { margin: 4px 0 0; font-size: 12px; color: var(--color-text-primary); font-weight: 600; }
 
 /* ═══ v60.31 (owner 2026-11-19, 안 A 본문 풀이): the indicator face and its three permitted folds — src/ui/components/indicator-face.js.

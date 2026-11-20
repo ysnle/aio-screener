@@ -1,9 +1,10 @@
 // v59.64 (owner 2026-11-03): 기술적 분석 — a screen of its own, like 매크로. Owner 2026-11-19: "기술적 분석에서는 시장 지수와
 // 대표 종목/대장주들을 분석해서 하나하나 보여줘야" — the screen holds the one chart analysis slot (#stock-chart-section,
-// stock-chart.js) that the 종목 screen's 차트 tab used to hold. Two views of the same card part (market-candles.js, each card
-// read from the bars it draws): 시장 지수 (one card per index) and 대표 종목 (the largest S&P 500 weights and the day's
-// material movers, with the screener's fields as the raw table under them); the page's search or a card opens its symbol
-// in the slot.
+// stock-chart.js) that the 종목 screen's 차트 tab used to hold. Three views: 시장 지수 (one card per index) and 대표 종목
+// (the largest S&P 500 weights and the day's material movers, with the screener's fields as the raw table under them),
+// both the same card part (market-candles.js, each card read from the bars it draws), and 종목 분석, the slot alone
+// (2026-11-20: under both card views it made each over 10,000px tall on a phone). The page's search, a card or a row
+// opens its symbol there.
 import { createResourceBag } from '../../app/lifecycle.js';
 import { refreshSharedArtifact, screenerRowsState } from '../../data/shared-artifacts.js';
 import { subscribeToSlices } from '../../state/memoize.js';
@@ -77,6 +78,8 @@ function stockTable(doc, rows, asOf, open, current) {
 }
 
 const STOCK_GROUPS = Object.freeze(['weight', 'mover']);
+// The view that holds the analysis slot (page-views.css); stock-chart.js opens it by the slot itself (showViewOf).
+const SLOT_VIEW = 'analysis';
 
 function render(documentRef, root, store, page, cards, stockCards) {
   const history = root?._aioHistory || [];
@@ -126,23 +129,25 @@ export function createChartsPage({ root = globalThis, documentRef, store, route 
       const conclusion = (list) => { const node = documentRef.getElementById('charts-conclusion'); if (node) node.textContent = chartsConclusion(list); };
       const cards = createChartCards({ documentRef, root, host: documentRef.getElementById('charts-index-grid'), onOpen: open, onReadings: conclusion });
       bag.add(() => cards.dispose());
-      // 대표 종목: the same card part, one grid per group; a card's bars load once it comes into view (a hidden view's never do).
+      // 대표 종목: the same card part, one grid per group; its bars load once its view is shown (a hidden view's never do).
       const stockCards = Object.fromEntries(STOCK_GROUPS.map((group) => [group, createChartCards({ documentRef, root, host: documentRef.getElementById(`charts-${group}-grid`), specs: [], lazy: true, onOpen: open })]));
       bag.add(() => Object.values(stockCards).forEach((grid) => grid.dispose()));
       const renderNow = () => { if (alive) render(documentRef, root, store, page, cards, stockCards); };
       renderNow();
-      // The analysis slot: the request another screen handed over (openMarketChart, an old #technical link), else the
-      // symbol it showed last, else SPY.
-      installStockChart({ documentRef, root });
+      // The analysis slot (종목 분석 view): a request another screen handed over (openMarketChart, an old #technical link)
+      // opens it at once and shows that view; otherwise it draws when its view is first shown — the symbol it showed last,
+      // else SPY — so the other views load no analysis chart.
+      const installSlot = () => installStockChart({ documentRef, root });
       const onRequest = () => { const sym = String(root._aioChartRequest || '').trim(); if (sym) { root._aioChartRequest = null; open(sym); } };
       // A request set while this screen is already open (an old caller's `_aioChartRequest = X; showPage('technical')`
       // lands here without a remount) is read when the screen is shown again.
       const onShown = (event) => { if (event?.detail === route) onRequest(); };
-      for (const eventName of ['aio:chartRequested', 'aio:pageShown']) {
-        const handler = eventName === 'aio:pageShown' ? onShown : onRequest;
+      const onView = (event) => { if (event?.detail?.page === page.id && event.detail.view === SLOT_VIEW) installSlot(); };
+      for (const [eventName, handler] of [['aio:chartRequested', onRequest], ['aio:pageShown', onShown], ['aio:pageViewChanged', onView]]) {
         documentRef.addEventListener?.(eventName, handler);
         bag.add(() => documentRef.removeEventListener?.(eventName, handler));
       }
+      if (root._aioChartRequest || page.dataset.view === SLOT_VIEW) installSlot();
       const markRow = (event) => {
         const sym = event?.detail?.symbol || '';
         documentRef.querySelectorAll?.('#charts-stock-table tr[data-symbol]').forEach((row) => { if (row.dataset.symbol === sym) row.setAttribute('aria-current', 'true'); else row.removeAttribute('aria-current'); });

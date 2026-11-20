@@ -10,7 +10,7 @@ import { signedText } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 const SVG = 'http://www.w3.org/2000/svg';
 const DEFAULT_W = 520;
-const H = 210;
+const DEFAULT_H = 210;
 const PAD = { top: 14, right: 16, bottom: 30, left: 48 };
 // P1529: the widest month label ("26년 1월" at 13px) is about 44 units; neighbours closer than this overlap.
 const MIN_MONTH_LABEL_SPACING = 42;
@@ -47,8 +47,11 @@ function datedShort(date) {
  */
 // v58.80 run-5 (skeptic #5): `guide` is a second, dashed series the reading is measured against (the 50-day line under
 // the S&P 500 close); it sets the scale with the line, names itself at its right end and joins the hover readout.
+// `marks` name points on the line ([{ date, value, label, side: 'above' | 'below' }], the 종목 screen's year high and low);
+// `height` makes a shorter chart for a strip (the 종목 머리's year line).
 export function createTrendChart(doc, options = {}) {
-  const { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [], guide = null, longGuide = null, width = DEFAULT_W, refLabel = null } = options;
+  const { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [], guide = null, longGuide = null, width = DEFAULT_W, refLabel = null, marks = [] } = options;
+  const H = Math.max(120, Math.round(options.height) || DEFAULT_H);
   // v59.70 (screen review #14): a level line that is not a round tick says what it is ("지지 27,192"), or it read as a
   // stray tick between the round ones.
   const refText = (ref) => (typeof refLabel === 'function' ? refLabel(ref) : format(ref).replace(/(\d)\.0+(?!\d)/, '$1'));
@@ -57,7 +60,7 @@ export function createTrendChart(doc, options = {}) {
   const wrap = doc.createElement('div');
   wrap.className = 'trend-chart-wrap';
   const svg = svgEl(doc, 'svg', { viewBox: `0 0 ${W} ${H}`, class: 'trend-chart', role: 'img' });
-  if (W !== DEFAULT_W) { svg.style.aspectRatio = `${W} / ${H}`; svg.setAttribute('class', 'trend-chart is-actual-size'); }
+  if (W !== DEFAULT_W || H !== DEFAULT_H) { svg.style.aspectRatio = `${W} / ${H}`; svg.setAttribute('class', 'trend-chart is-actual-size'); }
   wrap.append(svg);
   const dayMs = (date) => Date.parse(`${date}T12:00:00Z`);
   const start = range?.[0] || series[0]?.date;
@@ -216,6 +219,18 @@ export function createTrendChart(doc, options = {}) {
   }
   const line = points.map((point, index) => `${index ? 'L' : 'M'}${x(index).toFixed(1)},${y(point.value).toFixed(1)}`).join(' ');
   svg.append(svgEl(doc, 'path', { d: line, class: 'trend-chart-line' }));
+  // A named point: a dot on the line and its label beside it, toward the plot's middle, above a high and below a low.
+  for (const mark of marks) {
+    if (!Number.isFinite(mark?.value) || !(mark.date >= start && mark.date <= end) || !(mark.value >= lo && mark.value <= hi)) continue;
+    const mx = xd(mark.date);
+    const my = y(mark.value);
+    svg.append(svgEl(doc, 'circle', { cx: mx.toFixed(1), cy: my.toFixed(1), r: 3, class: 'trend-chart-dot' }));
+    const left = mx > padLeft + plotW / 2;
+    const ty = Math.min(Math.max(mark.side === 'below' ? my + 14 : my - 4, PAD.top + 10), PAD.top + plotH - 2);
+    const tag = svgEl(doc, 'text', { x: (left ? mx - 6 : mx + 6).toFixed(1), y: ty.toFixed(1), 'text-anchor': left ? 'end' : 'start', class: 'trend-chart-ref-label' });
+    tag.textContent = mark.label || format(mark.value);
+    svg.append(tag);
+  }
   const last = points[points.length - 1];
   svg.append(svgEl(doc, 'circle', { cx: x(points.length - 1), cy: y(last.value), r: 3.5, class: 'trend-chart-dot' }));
 

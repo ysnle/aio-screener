@@ -127,13 +127,13 @@ try {
         business:document.querySelector('#ticker-company [data-company-section="business"]')?.textContent || '',
         source:document.querySelector('#ticker-company details[data-fold-kind="sources"] a')?.href,
         sections:[...document.querySelectorAll('#ticker-company [data-company-section]')].map(el=>el.dataset.companySection),
-        chart:!!document.querySelector('#page-ticker svg.trend-chart, #page-ticker canvas'),
+        chart:[...document.querySelectorAll('#page-ticker svg.trend-chart, #page-ticker canvas')].some((node)=>!node.closest('#ticker-hero-spark')), // the 1-year close line under the price is a link to 기술적 분석, not a chart analysis
         active:document.querySelector('.page.active').id }));
       observations.push({label,summary,fixtureRequests:intercepted.length});
       check(summary.active==='page-ticker' && /^\$84\.64$/.test(summary.price),`${label}: first summary price/currency absent (P1624)`,summary);
       check(/Aehr Test Systems/.test(summary.name) && summary.business.length>0 && /^https:\/\//.test(summary.source || '')
         && !/Palantir/.test(`${summary.name} ${summary.business}`),`${label}: selected issuer profile/source identity lost (P1624)`,summary);
-      check(/^business,place,(outlook,)?money$/.test(summary.sections.join(',')) && !summary.chart,`${label}: 개요 is not 사업 · 밸류체인 안의 자리 · 쟁점과 전망 · 재무 한눈에, or it draws a price chart (2026-11-19)`,summary);
+      check(/^business,place,(outlook,)?money$/.test(summary.sections.join(',')) && !summary.chart,`${label}: 개요 is not 사업 · 밸류체인 안의 자리 · 쟁점과 전망 · 재무 한눈에, or it draws a chart other than the 1-year close line (2026-11-19, v60.35)`,summary);
       check(summary.basis.includes('2026-10-10 05:00 한국 시간') && !/UTC|실시간/.test(summary.basis),`${label}: observation basis lost/promoted or not in Korean time (P1624/S21)`,summary);
       await captureLayout(page,`${label}/summary`);
       await snap(page, `browser-${label}-summary.png`);

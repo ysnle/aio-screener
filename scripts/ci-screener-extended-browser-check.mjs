@@ -182,9 +182,11 @@ try {
     // v58.56 review (preset switch): switching screens keeps '실행 통과만' — the first preset tap used to clear it.
     if (passedOnly) {
       const kept = await page.evaluate(() => {
-        const preset = [...document.querySelectorAll('[data-aio-screener-action="screen-preset"]')].find((node) => node.getAttribute('aria-pressed') !== 'true') || document.querySelector('[data-aio-screener-action="screen-preset"]');
-        if (!preset) return null;
-        preset.click();
+        const select = document.getElementById('scr-screen-select');
+        const other = [...(select?.options || [])].find((option) => !option.hidden && option.value !== select.value);
+        if (!other) return null;
+        select.value = other.value;
+        select.dispatchEvent(new Event('change', { bubbles: true }));
         return document.getElementById('scr-passed-only')?.checked === true;
       });
       if (kept === false) fail(viewport.id, "a preset switch cleared '실행 통과만'");

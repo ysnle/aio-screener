@@ -16,7 +16,7 @@ function navButton(doc, label, { active = false, action, value = null, sub = fal
 
 export function renderManagersPage(doc, { root, catalog, registry, selectedId, overview, detail, styleTable, tickerLookup, onLocal }) {
   ensureFrameStyle(doc);
-  const { shell, nav, main, aside } = createResearchShell(doc, { root, route: 'masters', onLocal });
+  const { shell, nav, main, aside } = createResearchShell(doc, { root, route: 'masters', onLocal, libraryTools: false });
   shell.dataset.mastersView = overview ? 'styles' : 'manager';
   const top = el(doc, 'div', 'rl-nav-group');
   top.appendChild(navButton(doc, '운용 방식 비교', { active: overview, action: 'style-overview' }));

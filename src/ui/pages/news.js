@@ -138,13 +138,6 @@ function displayValue(root, functionName, item, fallback = '') {
 // `root.getAbsoluteTime` lookup has no implementation anywhere in the repo, so the card silently
 // dropped the absolute time and showed only a relative label. The publication time is rendered
 // with its timezone and is never treated as the underlying event time.
-function shortKst(value) {
-  const ms = value instanceof Date ? value.getTime() : Date.parse(value || '');
-  if (!Number.isFinite(ms)) return '';
-  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms)).map((part) => [part.type, part.value]));
-  return `${parts.month}/${parts.day} ${parts.hour}:${parts.minute}`;
-}
-
 export function formatAbsoluteTime(value, timeZone = 'Asia/Seoul') {
   const ms = value instanceof Date ? value.getTime() : Date.parse(value || '');
   if (!Number.isFinite(ms)) return '';
@@ -312,10 +305,14 @@ function createNewsCard(documentRef, root, item, index) {
     });
     headline.appendChild(row);
   }
-  // LC-34: the original article was reachable only through the card's `data-open-url` click
-  // delegation, so keyboard/AT users had no focusable link. The headline is now a real anchor
-  // (new tab, noopener); the card keeps its larger pointer target, and the delegation ignores the
-  // anchor so the URL cannot open twice.
+  // EF-14/P1411: a Cyrillic/CJK feed name is shown as '외신' instead of leaking untranslated.
+  const rawSource = typeof root?._aioSafeSourceLabel === 'function' ? root._aioSafeSourceLabel(item?.source || '') : item?.source || '';
+  const source = item?._tgChannel ? `TG, ${rawSource}` : rawSource;
+  // LC-34: the headline is the link to the original (new tab, noopener); the card keeps its larger pointer target, and the
+  // delegation ignores the anchor so the URL cannot open twice. The publisher, the original title and the full
+  // publication time are the headline's hover (sources stay off the screen text, owner 2026-10-06); the per-card
+  // '원문과 출처' fold that held them left.
+  const hover = [source, item?.title && item.title !== title ? `원문 제목 ${item.title}` : '', absTime ? `발행 ${absTime}` : ''].filter(Boolean).join(', ');
   if (link) {
     const anchor = documentRef.createElement('a');
     anchor.className = 'news-item-link';
@@ -323,10 +320,13 @@ function createNewsCard(documentRef, root, item, index) {
     anchor.target = '_blank';
     anchor.rel = 'noopener noreferrer';
     anchor.textContent = title || '제목 없음';
+    if (hover) anchor.title = hover;
     anchor.setAttribute('aria-label', `${title || '제목 없음'} — 원문 새 창에서 열기`);
     headline.appendChild(anchor);
   } else {
-    headline.appendChild(text(documentRef, title, '제목 없음'));
+    const plain = text(documentRef, title, '제목 없음');
+    if (hover) plain.title = hover;
+    headline.appendChild(plain);
   }
   const untranslated = untranslatedMark(documentRef, item);
   if (untranslated) headline.appendChild(untranslated);
@@ -357,52 +357,43 @@ function createNewsCard(documentRef, root, item, index) {
   }
   const meta = documentRef.createElement('div');
   meta.className = 'news-item-meta';
-  // EF-14/P1411: the source-name script guard moved here with the retired digest — a Cyrillic/CJK
-  // feed name is shown as '외신' instead of leaking untranslated.
-  const rawSource = typeof root?._aioSafeSourceLabel === 'function' ? root._aioSafeSourceLabel(item?.source || '') : item?.source || '';
-  const source = item?._tgChannel ? `TG, ${rawSource}` : rawSource;
   // P1391: developer markers (selection score, headline-only boundary, feed-review flag) are not
-  // user content; the card keeps source, topic and time. LC-31 still holds — a feed-query topic is
-  // shown only as a plain label, never as a verified sector assignment elsewhere.
+  // user content. LC-31 still holds — a feed-query topic is shown only as a plain label, never as a verified sector
+  // assignment elsewhere.
   const shownTopic = newsTopicOf(item);
   const topicLabel = TOPIC_LABELS[shownTopic] || '';
-  // v57.76: the NewsData free-plan delay marker left with the personal NewsData fetcher (no producer sets it).
   // Owner 2026-10-18: a rumour or anonymous-source headline is labelled where the reader sees it, not only scored down.
   const verificationLabel = item?.verification === 'unconfirmed' ? '미확인 보도(루머·익명 소식통)' : '';
-  // v58.53 개편 v2 (5b): the topic is the capsule on the right of the row, so the meta line no longer repeats it.
-  // v58.74 (text audit): the topic → scenario label is not shown; it named branches that do not exist among the live scenarios.
-  meta.textContent = [source, verificationLabel, timeAgo]
+  // The evidence kind (공시, 기업 발표…) and a correction or retraction are facts about the article, so they sit
+  // on the meta line beside the time; '기사' is every row's kind and says nothing.
+  const facts = newsEvidence(item);
+  meta.textContent = [facts.kind === '기사' ? '' : facts.kind, facts.revision, verificationLabel, timeAgo]
     .filter(Boolean)
     .join(', ');
-  // v59.51 (content audit, two layers): the scenario chain is a tag on the face (which live scenario the headline feeds);
-  // the whole chain — axis → branch and its fit → burdened/helped exposures → what to check — opens in the card's fold.
-  const chain = liveScenarioFor(root, item, title);
   body.appendChild(meta);
-  const evidence = documentRef.createElement('details');
-  evidence.className = 'news-evidence';
-  evidence.addEventListener('click', (event) => event.stopPropagation());
-  const facts = newsEvidence(item);
-  const evidenceTitle = documentRef.createElement('summary');
-  // v59.55 (alignment pass): one action-like label — '기사' was every row's kind and said nothing.
-  evidenceTitle.textContent = [facts.kind === '기사' ? null : facts.kind, facts.revision, item?.storyArticles?.length > 1 ? `변경 이력 ${item.storyArticles.length}건` : '원문과 출처', chain ? '시나리오 연결' : null].filter(Boolean).join(', ');
-  // v57.54 audit (11): seventeen identical "기사 · 출처·시각" folds were indistinguishable to a screen reader; each names its headline.
-  evidenceTitle.setAttribute('aria-label', `${evidenceTitle.textContent} — ${String(title || '').slice(0, 80)}`);
-  evidence.appendChild(evidenceTitle);
-  const detail = documentRef.createElement('div');
-  // v58.74 (text audit): missing times are left out instead of "관찰 미제공", and the times read M/D HH:mm once in 한국 시간.
-  const times = [['발행', facts.publishedAt], ['관찰', facts.observedAt], ['수집', item?.fetchedAt]].map(([label, value]) => (shortKst(value) ? `${label} ${shortKst(value)}` : null)).filter(Boolean);
-  detail.textContent = [times.length ? `${times.join(', ')} (한국 시간)` : '',
-    // LC-31 (v57.77): the 카테고리별 view that named this boundary left; a feed-query topic says so in the card's fold.
-    isNewsTopicReviewRequired(item) && topicLabel ? `주제 표시(${topicLabel})는 ${shownTopic !== (item?.topic || item?.feedTopic) ? '제목 기준 분류' : '출처 기준 분류'}, 기사 본문으로 확인 전` : ''].filter(Boolean).join(', ');
-  evidence.appendChild(detail);
+  // The face is never folded (owner 2026-11-20): the scenario chain — axis → branch → burdened/helped exposures →
+  // what to check — is one line on the face; how the link is made is its hover.
+  const chain = liveScenarioFor(root, item, title);
+  const chainNote = '헤드라인의 주제가 지금 선두·대안 시나리오가 보는 축과 맞을 때만 잇고, 영향은 시나리오의 노출 분류이며 예측이 아닙니다.';
   if (chain) {
     const chainNode = documentRef.createElement('div');
     chainNode.className = 'news-item-chain';
-    chainNode.textContent = `시나리오 연결, ${chain.text}. 헤드라인의 주제가 지금 선두·대안 시나리오가 보는 축과 맞을 때만 잇고, 영향은 시나리오의 노출 분류이며 예측이 아닙니다.`;
-    evidence.appendChild(chainNode);
+    chainNode.textContent = `시나리오 연결, ${chain.text}.`;
+    chainNode.title = chainNote;
+    body.appendChild(chainNode);
   }
+  // A story with earlier versions keeps them as its one fold, a sources list (the originals in publication order).
   if (item?.storyArticles?.length > 1) {
-    evidence.appendChild(text(documentRef, item.storySelection));
+    const evidence = documentRef.createElement('details');
+    evidence.className = 'news-evidence';
+    evidence.dataset.foldKind = 'sources';
+    evidence.addEventListener('click', (event) => event.stopPropagation());
+    const evidenceTitle = documentRef.createElement('summary');
+    evidenceTitle.textContent = `변경 이력 ${item.storyArticles.length}건`;
+    evidenceTitle.title = item.storySelection || '';
+    // v57.54 audit (11): each fold names its headline to a screen reader.
+    evidenceTitle.setAttribute('aria-label', `${evidenceTitle.textContent} — ${String(title || '').slice(0, 80)}`);
+    evidence.appendChild(evidenceTitle);
     const timeline = documentRef.createElement('ol');
     for (const article of item.storyArticles) {
       const row = documentRef.createElement('li');
@@ -419,12 +410,8 @@ function createNewsCard(documentRef, root, item, index) {
       timeline.appendChild(row);
     }
     evidence.appendChild(timeline);
-  } else if (item?.title && title !== item.title) {
-    const original = documentRef.createElement('div');
-    original.textContent = `원문 제목, ${item.title}`;
-    evidence.appendChild(original);
+    body.appendChild(evidence);
   }
-  body.appendChild(evidence);
 
   const stance = documentRef.createElement('span');
   stance.textContent = headlineOnly ? '' : tone.label;
@@ -436,14 +423,9 @@ function createNewsCard(documentRef, root, item, index) {
     const chip = documentRef.createElement('span');
     chip.className = 'sx-chip sx-chip--sm news-topic-chip';
     chip.textContent = topicLabel;
+    // LC-31 (v57.77): a feed-query topic says how it was classified, on the chip's hover.
+    if (isNewsTopicReviewRequired(item)) chip.title = `${shownTopic !== (item?.topic || item?.feedTopic) ? '제목 기준 분류' : '출처 기준 분류'}, 기사 본문으로 확인 전`;
     side.append(chip);
-  }
-  if (chain) {
-    const tag = documentRef.createElement('span');
-    tag.className = 'sx-chip sx-chip--sm news-scenario-chip';
-    tag.textContent = chain.branch;
-    tag.title = `시나리오 '${chain.branch}'(${chain.role})와 연결된 헤드라인 — 연결 내용은 카드의 출처·시각 접힘에`;
-    side.append(tag);
   }
   side.append(stance);
   card.append(timeColumn, body, side);
@@ -576,8 +558,9 @@ function renderTickerFocusNote(documentRef, root, container, ticker, count) {
 
 // P1391 (owner review 2026-10-02): the news screen leads with important stories — the highest-scored
 // item per topic inside the completed 24h window — and the full feed below excludes them.
-// P1730: '08:00 이후 장중 속보 · 잠정' — a short slot above the important list for headlines published after the 08:00
-// bundle closed (producer P1720 newsIntraday). Title and time only; the publisher sits in the hover. No data, no slot.
+// P1730: '08:00 이후 장중 속보 · 잠정' — a short slot for headlines published after the 08:00 bundle closed (producer
+// P1720 newsIntraday). Title and time only; the publisher sits in the hover. No data, no slot. Important first (owner
+// 2026-11-20): it follows 중요 뉴스 — the curated stories lead, the provisional headlines support them.
 function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now()) {
   const anchor = documentRef?.getElementById('news-important');
   let section = documentRef?.getElementById('news-intraday');
@@ -592,7 +575,7 @@ function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now(
     section.id = 'news-intraday';
     section.className = 'aio-section briefing-block sx-card news-card news-intraday-card';
     section.setAttribute('aria-labelledby', 'news-intraday-title');
-    anchor.before(section);
+    anchor.after(section);
   }
   const kst = (ms) => compactKstTime(new Date(ms).toISOString());
   const end = kst(cycleEndMs);
@@ -766,11 +749,6 @@ function render({ documentRef, root, store, route }) {
       ? important.map((item, index) => createNewsCard(documentRef, root, item, index))
       : [Object.assign(documentRef.createElement('div'), { className: 'briefing-empty', textContent: '표시 기간과 선택한 조건에 맞는 중요 뉴스가 없습니다.' })]));
   }
-  // v59.56 (handoff item 3): what the window's coverage leans on — stories per topic and the live scenario each headline
-  // feeds (the cards' own rule) — above 중요 뉴스, as a lazy chunk. Channel posts never enter it.
-  const focusStories = groupNewsStories(importantModel?.eligibleItems || importantModel?.items || []).filter((item) => !item?._tgChannel)
-    .map((item) => { const shown = realTitle(root, item); return { topic: TOPIC_LABELS[newsTopicOf(item, shown)] || '기타', chain: liveScenarioFor(root, item, shown), title: fixKoreanTerms(item?.title, shown) }; });
-  import('../components/news-focus.js').then(({ renderNewsFocus }) => renderNewsFocus({ documentRef, stories: focusStories })).catch(() => {});
   if (!root._aioEarningsSnapshot && typeof root._fetchEarningsCalendarSnapshot === 'function' && !root._aioNewsEarningsRequested) {
     root._aioNewsEarningsRequested = true;
     Promise.resolve(root._fetchEarningsCalendarSnapshot()).then((snap) => {

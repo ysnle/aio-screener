@@ -1,4 +1,4 @@
-// P1389: one native owner for the briefing page — 일정 → 오늘의 해석 → 자산별 흐름 → 다음 확인.
+// P1389: one native owner for the briefing page — 일정 → 오늘의 해석 → 섹터와 움직인 이유 → 자산별 흐름 → 다음 확인.
 // Replaces the six-axis summary, the market strip, the checklist, the legacy analysis block, the
 // August research bridge and the news list (news now lives on the news screen).
 import { releaseZoneBar } from './release-zone-bar.js';
@@ -11,7 +11,6 @@ import { briefingFlow } from '../../domain/market/story/page-flow.js';
 import { renderNextSteps } from './page-flow.js';
 import { crossroadsForRoot, themeLinkRow } from './macro-crossroads.js';
 import { el } from './dom.js';
-import { signedFill, signedScale, signedTrack } from './signed-bar.js';
 import { asOfChip } from './section-frame.js';
 import { moveNewsList, moveNewsRows, symbolNames } from './market-timeline.js';
 import { renderSectorMoves } from './sector-moves.js';
@@ -48,35 +47,28 @@ function statementNode(doc, tag, { text, reading }, className) {
   return node;
 }
 
-// v58.75 (persona review): "왜 움직였나" — after the sector bars, the session's named movers (the stocks and themes 오늘
-// shows) with the headline that named each the same day, or '같은 날 관련 보도 없음'. No movers, no section.
-// v59.51 (content audit): the movers' headlines are a fold under the sector bars (one visual, one section) instead of a
-// section of their own — the bars say what moved, the fold says which names moved and what was reported the same day.
+// v58.75 (persona review): "왜 움직였나" — after the sector line, the session's named movers (the stocks and themes 오늘
+// shows) with the headline that named each the same day. No movers, no block.
+// The face is never folded (owner 2026-11-20): the block is on the face — the movers with a same-day headline
+// (at most five), then the rest in one line.
 export function renderMoveNews(doc, root, store, flow) {
   const sector = doc.getElementById('briefing-sector-moves');
   if (!sector) return;
   const rows = moveNewsRows(root, store, flow);
-  let fold = doc.getElementById('briefing-move-news');
-  if (!rows.length) { if (fold) fold.hidden = true; return; }
-  const matched = rows.filter((row) => row.headline).length;
-  if (!fold) {
-    fold = el(doc, 'details', null, 'sx-disclosure briefing-move-news');
-    fold.id = 'briefing-move-news';
-    sector.append(fold);
+  let block = doc.getElementById('briefing-move-news');
+  if (!rows.length) { if (block) block.hidden = true; return; }
+  if (!block) {
+    block = el(doc, 'div', null, 'briefing-move-news');
+    block.id = 'briefing-move-news';
+    sector.append(block);
   }
-  let summary = fold.querySelector(':scope > summary');
-  if (!summary) { summary = el(doc, 'summary'); fold.append(summary); }
-  let body = fold.querySelector(':scope > .briefing-move-news-body');
-  if (!body) { body = el(doc, 'div', null, 'briefing-move-news-body'); fold.append(body); }
-  summary.replaceChildren(doc.createTextNode(`움직인 이유, 종목·테마 ${rows.length}곳 `));
+  const head = el(doc, 'h3', `움직인 이유, 종목·테마 ${rows.length}곳 `, 'briefing-move-news-title');
   // v58.79: date chip; what the list compares is its hover.
-  summary.append(asOfChip(doc, `${shortDate(flow.session)} 종가`, '미국 종가, 같은 업종·테마 안에서 갈린 종목과 테마'));
-  const lead = el(doc, 'p', matched
-    ? `${rows.length}곳 중 ${matched}곳은 같은 날 이름이 나온 보도나 채널 글이 있습니다. 보도는 같은 날 나왔다는 사실이며 원인을 확정하지는 않습니다.`
-    : `${rows.length}곳 모두 같은 날 이름이 나온 보도를 찾지 못했습니다.`, 'briefing-read-reading');
-  // The matched rows first, then the movers without a same-day headline.
-  body.replaceChildren(lead, ...[moveNewsList(doc, root, rows), moveNewsList(doc, root, rows.filter((row) => !row.headline), { showMissing: true, missingText: matched ? '같은 날 관련 보도 없음' : '' })].filter(Boolean));
-  fold.hidden = false;
+  head.append(asOfChip(doc, `${shortDate(flow.session)} 종가`, '미국 종가, 같은 업종·테마 안에서 갈린 종목과 테마. 보도는 같은 날 나왔다는 사실이며 원인을 확정하지는 않습니다.'));
+  const missing = rows.filter((row) => !row.headline);
+  const rest = missing.length ? el(doc, 'p', `같은 날 관련 보도 없음: ${missing.map((row) => `${row.label} ${signedText(row.move, 1, '%')}`).join(', ')}`, 'briefing-read-reading') : null;
+  block.replaceChildren(head, ...[moveNewsList(doc, root, rows, { max: 5 }), rest].filter(Boolean));
+  block.hidden = false;
 }
 
 // v59.55 (visual review): 다음 확인 포인트's picture — the next 7 Korean days as columns, each naming its official releases
@@ -154,6 +146,7 @@ function renderEarningsWeek(doc, root, store, snapshot) {
   const range = week.weekStart && week.weekEnd ? `${kstMd(week.weekStart)}~${kstMd(week.weekEnd)} ` : '';
   const lead = el(doc, 'p', `${range ? range : '이번 주 '}실적 발표 ${week.total.toLocaleString('en-US')}건, 그중 S&P 500 ${week.sp500}건${watched.size || held.size ? `, 관심·보유 ${week.mine.length}건` : ''}`, 'briefing-earnings-lead');
   const fold = el(doc, 'details', null, 'sx-disclosure briefing-earnings-fold');
+  fold.dataset.foldKind = 'raw-table';
   fold.open = wasOpen;
   fold.append(el(doc, 'summary', '날짜별 실적 발표, 큰 기업 순'));
   for (const day of week.days) {
@@ -183,25 +176,24 @@ function renderEarningsWeek(doc, root, store, snapshot) {
 }
 
 // v58.75 ('고르는 법' E2·E3): the next market events — what is priced (where collected), what each live scenario needs from
-// the result — and, folded, how to read a result against the price, with the latest recorded reactions.
-// v59.51 (content audit): merged into 다음 확인 포인트 — the next release was named there, here and in the schedule. The
-// face keeps the one check line (xr.nextEvent and what each scenario needs from it); the previews, the result guide and
-// the recent cases were this closed fold; v59.69 keeps only the previews.
+// the result, under 다음 확인 포인트. The face is never folded (owner 2026-11-20): the previews are on the face under the
+// fork, the nearest three.
+const EVENT_PREVIEWS_SHOWN = 3;
 function renderEventPreview(doc, root, store, { xr, schedule, flow, nowMs }) {
   const anchor = doc.getElementById('briefing-checks');
   if (!anchor) return;
   let section = doc.getElementById('briefing-events');
-  const previews = eventPreviews({ xr, schedule, earnings: root._aioEarningsSnapshot?.earnings || [], names: universeNames(root), themeMap: root.THEME_MAP, nowMs });
+  const previews = eventPreviews({ xr, schedule, earnings: root._aioEarningsSnapshot?.earnings || [], names: universeNames(root), themeMap: root.THEME_MAP, nowMs }).slice(0, EVENT_PREVIEWS_SHOWN);
   if (!previews.length) { if (section) section.hidden = true; return; }
   if (!section) {
-    section = el(doc, 'details', null, 'sx-disclosure briefing-events');
+    section = el(doc, 'div', null, 'briefing-events');
     section.id = 'briefing-events';
     anchor.append(section);
   }
-  const heading = el(doc, 'summary', `다음 이벤트 ${previews.length}건, 예상과 결과 갈래`);
+  const heading = el(doc, 'h3', '다음 이벤트, 예상과 결과 갈래', 'briefing-events-title');
   heading.id = 'briefing-events-title';
   heading.title = '시장이 예상하는 것, 결과 갈래, 지금 시나리오와의 연결';
-  // v59.69: the nearest release is the fork on the face (forkNode); the fold no longer repeats it as a sentence.
+  // v59.69: the nearest release is the fork above (forkNode); the previews do not repeat it as a sentence.
   const list = el(doc, 'div', null, 'briefing-events-list');
   for (const preview of previews) {
     const card = el(doc, 'div', null, 'briefing-event-preview');
@@ -330,13 +322,14 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
   const points = doc.getElementById('briefing-read-points');
   if (points) points.replaceChildren(...(read.points || []).map((row) => statementNode(doc, 'li', row)));
 
-  // 2b. 2026-10-19 cadence: six-hour market slots beside the 24h read; v58.53 (5a) the day's sector bars sit beside them.
+  // 2b. The day's sectors as one line with a link to 테마와 섹터, then the named movers and their same-day headlines.
   renderSectorMoves({ documentRef: doc, root, host: doc.getElementById('briefing-sector-moves'), nowMs });
   renderMoveNews(doc, root, store, interpretation?.flow);
 
-  // 3. Drivers
+  // 3. Drivers — one line and a link to 매크로 (bars here repeated the price rows of 오늘 and 매크로); the
+  // per-asset numbers are the raw table. The axis readings left with the bars: 시장 상태 and 매크로 own them.
+  renderMovesLine(doc, doc.getElementById('briefing-drivers-line'), read.moves || []);
   const drivers = doc.getElementById('briefing-driver-rows');
-  renderMoveChart(doc, drivers, read.moves || []);
   const observedOn = Object.fromEntries((read.facts || []).map((fact) => {
     const alignment = fact.observedAt ? alignInput(fact.observedAt, read.asOf) : null;
     return [fact.label, alignment && alignment.status !== 'aligned' ? shortDate(alignment.date) : null];
@@ -355,7 +348,6 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
       }
       box.append(values);
       if (row.context) box.append(el(doc, 'div', row.context, 'briefing-driver-context'));
-      for (const statement of row.reads || []) box.append(statementNode(doc, 'p', statement, 'briefing-driver-read'));
       return box;
     }));
   }
@@ -386,7 +378,7 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
     checks.replaceChildren(...(lines.length ? lines : [el(doc, 'li', '특별히 확인할 변화가 없습니다.')]));
     renderEventPreview(doc, root, store, { xr: interpretation?.crossroads, schedule, flow: interpretation?.flow, nowMs });
     // v57.54 audit (13): the two paths the next release splits link to the themes each one favours.
-    // v59.51 (two layers): the theme links sit at the end of the event fold, not on the face.
+    // The theme links close the event previews.
     doc.getElementById('briefing-xr-themes')?.remove();
     const rows = split && xr ? (xr.items || []).filter((item) => item.id === xr.leadId || item.id === xr.altId).map((item) => themeLinkRow(doc, root, item)).filter(Boolean) : [];
     if (rows.length) {
@@ -405,44 +397,30 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
   }
 }
 
-// P1599 (F101): 1-day and 5-day moves as bars from a zero line, so which asset moved most is visible before
-// reading the numbers. Percent rows share one scale; basis-point rows get their own block and scale.
-function renderMoveChart(doc, anchor, moves) {
-  // v58.53 (5a): the driver rows sit in a fold; the bars go before the fold, on the face of the section.
-  const before = anchor?.closest?.('details') || anchor;
-  const host = before?.parentElement;
-  if (!host) return;
-  host.querySelector('.briefing-move-chart')?.remove();
-  if (!moves.length) return;
-  const wrap = el(doc, 'div', null, 'briefing-move-chart');
-  wrap.setAttribute('role', 'img');
-  wrap.setAttribute('aria-label', `자산별 1일·5일 등락: ${moves.map((row) => `${row.label} 1일 ${fmtMove(row.d1, row.unit)}, 5일 ${fmtMove(row.d5, row.unit)}`).join('; ')}`);
-  for (const unit of ['%', 'bp']) {
-    const rows = moves.filter((row) => row.unit === unit);
-    if (!rows.length) continue;
-    const max = signedScale(rows.flatMap((row) => [row.d1, row.d5]), unit === '%' ? 0.5 : 2);
-    const block = el(doc, 'div', null, 'briefing-move-block');
-    // v59.55 (owner 11/1): the legend is the head itself; why 달러·환율 are grey moves to its hover.
-    const moveHead = el(doc, 'div', unit === '%' ? '등락(%), 진한 막대 1일 · 옅은 막대 5일' : '금리 변화(bp)', 'briefing-move-head');
-    if (unit === '%') moveHead.title = '달러·환율 막대는 회색입니다. 오르고 내림에 좋고 나쁨이 없어서입니다.';
-    block.append(moveHead);
-    // v58.71: a row closed on another date than the S&P 500 (the first row) names its date.
-    const baseDate = moves[0]?.asOf || null;
-    for (const row of rows) {
-      const line = el(doc, 'div', null, 'briefing-move-row');
-      const [, mm, dd] = String(row.asOf || '').split('-').map(Number);
-      line.append(el(doc, 'span', row.asOf && baseDate && row.asOf !== baseDate && mm && dd ? `${row.label}, ${mm}/${dd}` : row.label, 'briefing-move-label'));
-      // v59.45 (R1-05): the colour follows the printed one-decimal sign; a move printed 0.0% is grey, not falling.
-      // v59.55 (C3): the shared two-sided bar (signed-bar.js); bp rows and the dollar are 'flat' (no good or bad side).
-      const fills = [['d5', 'is-5d'], ['d1', 'is-1d']].filter(([key]) => Number.isFinite(row[key]))
-        .map(([key, cls]) => signedFill(doc, row[key], max, { tone: row.unit === 'bp' || row.neutral ? 'flat' : 'dir', className: cls }));
-      const track = signedTrack(doc, fills, 'briefing-move-track');
-      line.append(track, el(doc, 'span', `${fmtMove(row.d1, row.unit)}, ${fmtMove(row.d5, row.unit)}`, 'briefing-move-value'));
-      block.append(line);
-    }
-    wrap.append(block);
-  }
-  host.insertBefore(wrap, before);
+// One owner per fact (owner 2026-11-20): 1·5-day bars here repeated the price rows of 오늘 and 매크로. The section
+// says the session's strongest and weakest priced asset (the dollar and the won have no good or bad side and stay out)
+// and the 10-year yield's move, each dated, then links to 매크로.
+export function movesLine(moves = []) {
+  const base = moves[0]?.asOf || null;
+  const name = (row) => `${row.label}${row.asOf && base && row.asOf !== base ? `(${shortDate(row.asOf)})` : ''}`; // v58.71: a row closed on another date names it
+  const priced = moves.filter((row) => row.unit === '%' && !row.neutral && Number.isFinite(row.d1)).sort((a, b) => b.d1 - a.d1);
+  const rate = moves.find((row) => row.unit === 'bp' && Number.isFinite(row.d1));
+  const parts = priced.length > 1 ? [`가장 강한 ${name(priced[0])} ${fmtMove(priced[0].d1, '%')}`, `가장 약한 ${name(priced.at(-1))} ${fmtMove(priced.at(-1).d1, '%')}`]
+    : priced.map((row) => `${name(row)} ${fmtMove(row.d1, '%')}`);
+  if (rate) parts.push(`${name(rate)} ${fmtMove(rate.d1, 'bp')}`);
+  return parts.length ? `${base ? `${shortDate(base)} 종가` : '최근 종가'} 1일, ${parts.join(', ')}.` : '';
+}
+
+function renderMovesLine(doc, node, moves) {
+  if (!node) return;
+  const text = movesLine(moves);
+  node.hidden = !text;
+  if (!text) { node.replaceChildren(); return; }
+  const link = el(doc, 'button', '매크로에서 보기', 'flow-next-link');
+  link.type = 'button';
+  link.dataset.action = 'showPage';
+  link.dataset.arg = 'macro';
+  node.replaceChildren(doc.createTextNode(`${text} `), link);
 }
 
 function fmtMove(value, unit) {

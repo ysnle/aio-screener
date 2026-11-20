@@ -9,7 +9,7 @@ import { createScreenerPage, liveRow, SCREENER_COLUMN_REGISTRY } from '../src/ui
 import { FACTOR_LABELS } from '../src/domain/screener/row-presentation.js';
 import { computeFactorRanks } from '../src/domain/screener/factor-ranks.js';
 import { createScreenerOrchestrator } from '../src/data/orchestrators/screener.js';
-import { conditionSourceStates, sourcedConditionIdsFor } from '../src/ui/pages/screener/model.js';
+import { conditionSourceStates, sourcedConditionIdsFor, sortRows } from '../src/ui/pages/screener/model.js';
 import { SOURCED_CONDITION_IDS, conditionSource } from '../src/domain/screener/custom-conditions.js';
 import { backtestFactorCoverage } from '../src/domain/screener/model-fingerprint.js';
 import { MODEL_DEFAULT_WEIGHTS } from '../src/domain/screener/factor-weights.js';
@@ -73,17 +73,14 @@ const doc = createFakeDocument({ ids: shellIds(html) });
 const root = { fetch: () => Promise.reject(new Error('offline gate')), _liveData: {} };
 createScreenerPage({ documentRef: doc, store, root, readLiveData: () => ({}), workbench: { run: async () => null, getDefaultScreens: () => [] } }).mount();
 const kicker = () => String(doc.getElementById('scr-kicker-counts').textContent || '');
-// The cells of the column labelled 전체 순위 (td data-label, the phone card label), whatever key the registry gives it.
-const rankCells = () => [...doc.getElementById('screener-results-body').children]
-  .map((tr) => [tr.dataset?.aioScreenerTicker, (tr.children || []).find((td) => td.dataset?.label === '전체 순위')])
-  .filter(([sym, td]) => sym && td);
-
-check('v60.26 the 전체 순위 column shows the overall rank, not the active screen order', () => {
-  const cells = rankCells();
-  assert.ok(cells.length > 0, 'v60.26 the default view renders a 전체 순위 column');
-  const bySym = new Map(presetRows.map((row) => [row.sym, row]));
-  const mismatch = cells.map(([sym, td]) => [sym, String(td.textContent || ''), String(bySym.get(sym).overallRank ?? '—')]).filter(([, shown, want]) => shown !== want);
-  assert.deepEqual(mismatch, [], 'v60.26 every 전체 순위 cell equals the row overallRank (a preset screenRank never leaks into it)');
+// v60.35 (owner 2026-11-20): the 전체 순위 column left the table; the 백분위 sort is the overall order, its rounded ties
+// broken by the unrounded composite (overallRank), never by the active screen's order (screenRank).
+check('v60.26 the 백분위 sort follows the overall rank, not the active screen order', () => {
+  const ranked = presetRows.filter((row) => !row.sym.endsWith('.KS') && Number.isFinite(row.overallRank));
+  const sorted = sortRows(ranked, 'rank', false, () => ({}));
+  const outOfOrder = sorted.filter((row, index) => index > 0 && row.overallRank < sorted[index - 1].overallRank).map((row) => row.sym);
+  assert.deepEqual(outOfOrder, [], 'v60.26 the descending 백분위 sort lists rows in overallRank order');
+  assert.ok(!SCREENER_COLUMN_REGISTRY.some((column) => column.label === '전체 순위'), 'v60.35 no 전체 순위 column beside 백분위');
 });
 
 check('v60.26 header ranked count = rows carrying an overall rank', () => {
@@ -125,14 +122,13 @@ check('v60.30 an unranked market shows its whole list unranked under the default
   const shown = [...krDoc.getElementById('screener-results-body').children].filter((tr) => tr.dataset?.aioScreenerTicker);
   assert.ok(shown.length > 0, `v60.30 the unranked market's rows are listed (${shown.length})`);
   assert.equal(krDoc.getElementById('scr-passed-only').checked, true, 'v60.30 the user\'s 조건 통과만 choice is kept for when ranks return');
-  const rankText = shown.map((tr) => String((tr.children || []).find((td) => td.dataset?.label === '전체 순위')?.textContent || '')).filter((value) => /\d/.test(value));
+  const rankText = shown.map((tr) => String((tr.children || []).find((td) => td.dataset?.label === '백분위')?.textContent || '')).filter((value) => /\d/.test(value));
   assert.deepEqual(rankText, [], 'v60.30 rank cells stay empty');
   const kicker = String(krDoc.getElementById('scr-kicker-counts').textContent || '');
   assert.doesNotMatch(kicker, /한국|01\/05|(?<!\d)(\d+)종목 중 \1종목/, `v60.30 the kicker does not repeat the close stamp or an equal count: '${kicker}'`);
   const host = krDoc.getElementById('scr-table-status');
   const status = String(host.textContent || '');
-  // The line has a desktop and a phone form (one shown per width); each says it once.
-  const full = String(host.querySelector('.scr-status-full')?.textContent || '');
+  const full = String(host.querySelector('.scr-table-status-text')?.textContent || '');
   assert.equal((full.match(/순위 보류/g) || []).length, 1, `v60.30 the table notice says it once: '${full}'`);
   assert.doesNotMatch(status, /통과 종목만 보기/, 'v60.30 no way back to a passed set that does not exist');
 });

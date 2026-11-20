@@ -1,8 +1,9 @@
 // The one renderer of src/domain/scenarios/decision-frame.js for every scenario-like card — the
 // 매크로 branch cards and the story cards on 시장 상태, the theme cards on 테마. Face: 가능성 and 이익·손실 폭 (two lines),
-// then the favoured side and its reason; one fold: 기회비용, 틀렸을 때, the sample note and the ground kind — the reading is
-// the face, its grounds are the fold. Loads with the screens that draw these cards, never at boot. The wording lives in the domain (decisionFrameText), shared with the AI.
+// then the favoured side and its reason, 기회비용 and 틀렸을 때; one raw-table fold: the sample note, the ground kind and the
+// method. Loads with the screens that draw these cards, never at boot. The wording lives in the domain (decisionFrameText), shared with the AI.
 import { el } from './dom.js';
+import { kindFold, rawTable } from './indicator-face.js';
 import { decisionFrameText } from '../../domain/scenarios/decision-frame.js';
 
 /** The favoured side and its reason (ground kind on hover), for cards that print it after their own choice table. */
@@ -31,15 +32,11 @@ export function decisionFrameBlock(doc, frame, { method = '', side = true } = {}
   const sideLine = side ? favouredLine(doc, frame) : null;
   if (sideLine) box.append(sideLine);
   if (text.conflict) box.append(el(doc, 'p', text.conflict, 'df-line is-conflict'));
-  const fold = el(doc, 'details', null, 'sx-disclosure df-more');
-  fold.append(el(doc, 'summary', '기회비용 · 틀렸을 때 · 표본'));
-  const list = el(doc, 'dl', null, 'df-legs');
-  list.append(el(doc, 'dt', '기회비용'), el(doc, 'dd', text.opportunity.join(' · ')), el(doc, 'dt', '틀렸을 때'), el(doc, 'dd', text.wrong.join(' · ')));
-  if (text.tradeoff) list.append(el(doc, 'dt', '맞바꾸는 것'), el(doc, 'dd', text.tradeoff));
-  if (text.sample) list.append(el(doc, 'dt', '표본'), el(doc, 'dd', text.sample));
-  list.append(el(doc, 'dt', '근거 종류'), el(doc, 'dd', text.ground || '선택지 비교 없음'));
-  if (method) list.append(el(doc, 'dt', '표본과 방법'), el(doc, 'dd', method));
-  fold.append(list);
-  box.append(fold);
+  // (owner 2026-11-20, face never folded) 기회비용, 틀렸을 때 and 맞바꾸는 것 are the reading — on the face; the
+  // sample, the ground kind and the method are the record behind it — one raw-table fold.
+  const legs = el(doc, 'dl', null, 'df-legs');
+  legs.append(el(doc, 'dt', '기회비용'), el(doc, 'dd', text.opportunity.join(' · ')), el(doc, 'dt', '틀렸을 때'), el(doc, 'dd', text.wrong.join(' · ')));
+  if (text.tradeoff) legs.append(el(doc, 'dt', '맞바꾸는 것'), el(doc, 'dd', text.tradeoff));
+  box.append(legs, kindFold(doc, 'raw-table', '표본과 근거 종류', rawTable(doc, [['표본', text.sample], ['근거 종류', text.ground || '선택지 비교 없음'], ['표본과 방법', method]])));
   return box;
 }

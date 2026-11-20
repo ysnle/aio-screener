@@ -60,6 +60,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2689 - v60.35 - 기술적 분석 대표 종목 카드가 화면 밖이면 영영 '불러오는 중' (2026-11-20)
+
+- symptom/reproduction: 실서비스 데스크톱에서 대표 종목 카드 10개 중 8개가 '불러오는 중'으로 남았고, 빠르게 스크롤해 지나친 카드(META, GOOG, LLY)는 끝까지 그려지지 않았다.
+- root_cause: 카드마다 화면에 들어올 때만 일봉을 요청했는데, 대기 중인 카드도 '불러오는 중'으로 표시했고 건너뛴 카드는 다시 관측되지 않았다.
+- fix: 대표 종목 보기가 보이면 모든 카드가 동시 4건 한도의 대기열로 일봉을 받는다. 카드별 스크롤 관측은 지웠다.
+- violated_rule: 화면 검증은 실서비스·사용자 관점으로 (CLAUDE.md 작업 규칙)
+- prevention: ci-architecture-browser-check가 대표 종목 보기를 연 뒤 모든 카드가 그려지는지 본다.
+- verification/residual: node scripts/ci-architecture-browser-check.mjs
+- files: src/ui/components/market-candles.js, src/ui/pages/charts.js
+
 ## P2688 - v60.32 - v60.31 push 뒤 배포가 8시간 반 멈춤: 종목 화면 검사가 회사 설명이 오기 전에 읽어 CI에서 실패했고, 이후 데이터 갱신 42회가 옛 코드와 새 데이터 조합으로 실패 (2026-11-20)
 
 - symptom/reproduction: v60.31 소스 push(d6b2081e2)의 CI에서 browser-entity-quality가 두 번 실패(사업 설명 자료 없음, 출처 링크 없음). 그 뒤 데이터 갱신 실행마다 operations-status 검사가 nativeLazyOwner 불일치로 실패했고 실서비스는 v60.30, 데이터는 517분 묵음.

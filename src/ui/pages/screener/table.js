@@ -18,8 +18,8 @@ import { usdKoreanText, finiteNumber as finite } from '../../../domain/shared/nu
 import { isoDay, stampDay } from '../../../domain/shared/session-date.js';
 import { shortDate } from '../../../domain/content/date-labels.js';
 import { renderDataState } from '../../components/data-state.js';
-import { FILTER_FIELD_LABELS, describeFilterAst, filterRows, passedOnlyApplied, renderFilterChips, renderFunnel, syncScreenerControlAvailability, syncUniverseScopeControl } from './filters.js';
-import { COLUMN_PRESETS, conditionSourceStates, requestConditionSources, sourcedConditionIdsFor, FIELD_BY_COLUMN, FILING_KEYS, PRESET_SHORT_LABELS, SCREENER_COLUMN_REGISTRY, SECTOR_RELATIVE_PRICE_FACTORS, cell, customRead, entryTiming, extensionMultiple, factorScoreColor, liveRow, marketReturnPercentiles, pivotDistancePct, range52Position, returnColor, returnText, rowThemeStages, scopedRows, screenerRuntime, selectedValue, sortRows, text } from './model.js';
+import { filterRows, passedOnlyApplied, renderFilterChips, renderFunnel, screenBoundsText, screenConditions, screenFieldLabel, screenFieldUnit, screenFieldWord, syncScreenerControlAvailability, syncUniverseScopeControl } from './filters.js';
+import { COLUMN_PRESETS, conditionSourceStates, requestConditionSources, sourcedConditionIdsFor, FIELD_BY_COLUMN, FILING_KEYS, SCREENER_COLUMN_REGISTRY, SECTOR_RELATIVE_PRICE_FACTORS, cell, customRead, entryTiming, extensionMultiple, factorScoreColor, liveRow, marketReturnPercentiles, pivotDistancePct, range52Position, returnColor, returnText, rowThemeStages, scopedRows, screenerRuntime, selectedValue, sortRows, text } from './model.js';
 import { renderBacktest, renderConditionalEvidence, renderFactorTab, renderStaleNote, renderValidationState } from './validation-tab.js';
 function createRankNode(documentRef, row, hold = null) {
   const wrap = documentRef.createElement('div');
@@ -92,14 +92,6 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     return node;
   }
   if (key === 'rank') return createRankNode(documentRef, row, rankHold);
-  if (key === 'overallRank') {
-    // The overall order (unrounded composite inside the market), whatever screen is active; only a held
-    // ranking hides it. The active screen's own order is the 순서 column.
-    const ordinal = rankHold ? null : finite(row.overallRank);
-    const node = text(documentRef, ordinal == null ? '—' : String(ordinal));
-    node.className = 'scr-ordinal';
-    return node;
-  }
   if (key === 'range52') {
     const position = range52Position(row);
     if (position == null) return '—';
@@ -626,9 +618,6 @@ function screenFieldValue(row, field) {
   if (rowKey && row?.[rowKey] != null) return row[rowKey];
   return row?.fieldReadiness?.fields?.[field]?.value ?? null;
 }
-function screenFieldLabel(field) {
-  return field === 'rank' ? '백분위' : FILTER_FIELD_LABELS.get(field) || field;
-}
 function failedConditionText(row, definition, compiled) {
   if (row.screenStatus === 'unavailable') {
     const missing = [...new Set((row.rankExplanation?.missingEvidence || []).map(screenFieldLabel))];
@@ -638,21 +627,15 @@ function failedConditionText(row, definition, compiled) {
   const failed = compiled ? leaves.filter((node) => compiled.evaluateGate(row, node).state === 'fail') : [];
   if (!failed.length) return '조건 미충족';
   return failed.map((node) => {
-    const label = screenFieldLabel(node.field);
     const value = screenFieldValue(row, node.field);
-    const unit = ({ percent: '%', ratio: '배', multiple: '배' })[SCREENER_FIELD_REGISTRY.get(node.field)?.unit] || '';
-    const word = (item) => (node.field === 'technical.vcpStage' ? vcpStageLabel(item) : item);
-    const shown = finite(value) != null ? `${numberText(value, Number.isInteger(value) ? 0 : 1)}${unit}` : value != null ? word(value) : '—';
-    if (node.type === 'enum') return `${label} ${shown} — 기준 ${(node.values || []).map(word).join('·')}`;
-    const bounds = [node.min != null ? `${node.min}${unit} 이상` : null, node.max != null ? `${node.max}${unit} 이하` : null].filter(Boolean).join(', ');
-    return `${label} ${shown} — 기준 ${bounds || '범위'}`;
+    const shown = finite(value) != null ? `${numberText(value, Number.isInteger(value) ? 0 : 1)}${screenFieldUnit(node.field)}` : value != null ? screenFieldWord(node.field, value) : '—';
+    return `${screenFieldLabel(node.field)} ${shown} — 기준 ${screenBoundsText(node)}`;
   }).join(' / ');
 }
 function sortOrderText(sortState) {
   const { column, ascending } = sortState || {};
   if (column === 'mcap') return ascending ? '시총 작은 순' : '시총 큰 순';
   if (column === 'screenRank') return '조건 순위 순';
-  if (column === 'overallRank') return '전체 순위 순';
   if (column === 'sym' || column === 'sector') return `${column === 'sym' ? '종목' : '섹터'} 이름 순`;
   const label = SCREENER_COLUMN_REGISTRY.find((item) => item.key === column)?.label || column;
   return `${label} ${ascending ? '낮은 순' : '높은 순'}`;
@@ -665,32 +648,35 @@ function provisionalVolumeNote(metadata, market) {
   const markets = Array.isArray(metadata?.volumeBasis?.markets) ? metadata.volumeBasis.markets : LATEST_SESSION_VOLUME_BASIS.markets;
   return markets.includes(market) ? '가장 최근 거래일의 거래량은 자료 제공처의 잠정치라, 다음 거래일 갱신 전까지 거래량 배수가 몇 % 낮게 나올 수 있습니다. ' : '';
 }
-function renderTableStatus(documentRef, { status, scopeRows, filtered, definition, sortState, passedOnly, rankHeld = null, readLiveData, onExplain }) {
+// The conditions block ends on its answer: how many stocks pass the screen and the applied conditions in this market, and
+// how many the screen could not judge. The table's own scope (섹터, 찾기, 조건 통과만) is the status line's job.
+function renderResultCount(documentRef, { status, conditionPassed, unavailable, sourcesPending, rankHeld, filtered }) {
+  const count = documentRef.getElementById('screener-result-count');
+  const unit = documentRef.getElementById('scr-result-unit');
+  if (!count || !unit) return;
+  const [value, words] = sourcesPending ? ['조건 자료 불러오는 중', '']
+    : status === 'unavailable' ? ['—', '종목']
+      // With no rank in this market nothing can pass a ranked screen; the list shows unranked and the status line says why.
+      : rankHeld ? [String(filtered), '종목']
+        : [String(conditionPassed), `종목 통과${unavailable ? `, 자료 부족 ${unavailable}` : ''}`];
+  if (count.textContent !== value) count.textContent = value;
+  if (unit.textContent !== words) unit.textContent = words;
+  count.parentElement?.setAttribute('aria-busy', sourcesPending ? 'true' : 'false');
+}
+function renderTableStatus(documentRef, { status, scopeRows, filtered, conditionPassed, definition, sortState, passedOnly, rankHeld = null, readLiveData, onExplain }) {
   const host = documentRef.getElementById('scr-table-status');
   if (!host) return;
   if (status === 'unavailable' || !scopeRows.length) { host.hidden = true; return; }
   host.hidden = false;
-  const passed = scopeRows.filter((row) => row.screenStatus === 'passed').length;
-  // v59.70 (S12): the one summary line above the table — 조건 통과 N · 자료 부족 N (rows the screen could not judge).
-  const unavailable = scopeRows.filter((row) => row.screenStatus === 'unavailable').length;
-  const shortNote = unavailable ? ` · 자료 부족 ${unavailable}` : '';
-  // The phone line uses the screen's one-word name (균형) so the line and its 빠진 대형주 link fit one row.
-  // With no rank in this market the list shows unranked: the one notice replaces the screen counts.
-  const leadFor = (name, conditionWord) => (rankHeld ? `${filtered.length}종목, ${rankHeld}` : passedOnly
-    ?`${name}${conditionWord} 통과 ${passed}종목${shortNote}${filtered.length !== passed ? `, ${filtered.length}종목 표시` : ''}`
-    : `${name} 기준 ${scopeRows.length}종목 전체, 통과 ${passed}${shortNote}${filtered.length !== scopeRows.length ? `, ${filtered.length}종목 표시` : ''}`);
-  const fullName = definition?.name || '선택 조건';
-  const shortName = PRESET_SHORT_LABELS[definition?.screenId] || fullName;
+  // The count of passing stocks sits in the conditions block; this line says what the table shows of them and its order.
+  const shown = filtered.length;
+  const lead = rankHeld ? rankHeld
+    : !passedOnly ? `통과 못 한 종목 포함 ${shown}종목 표시`
+      : shown !== conditionPassed ? `${shown}종목 표시` : '';
   let textNode = host.querySelector('.scr-table-status-text');
   if (!textNode) {
     textNode = documentRef.createElement('span');
     textNode.className = 'scr-table-status-text';
-    const full = documentRef.createElement('span');
-    full.className = 'scr-status-full';
-    const short = documentRef.createElement('span');
-    short.className = 'scr-status-short';
-    short.setAttribute('aria-hidden', 'true');
-    textNode.append(full, short);
     host.prepend(textNode);
   }
   // A market-cap order over rows without caps (the Korean listing has none in the artifact) says so instead of '시총 큰 순'.
@@ -703,15 +689,13 @@ function renderTableStatus(documentRef, { status, scopeRows, filtered, definitio
     // v58.80 (first-users F21, owner-delegated 2026-10-26): the default stays market cap — leading with an order the
     // back-test cannot yet tell from chance would read as a recommendation — and the line now says so.
     const validation = documentRef.getElementById('scr-validation-banner')?.dataset?.validationState;
-    if (withCap && !sortState.ascending && validation !== 'favorable') order = `${order} — 순위가 우연과 구별되지 않아 기본은 시총 순, 전체 순위 머리글을 누르면 순위 순`;
+    if (withCap && !sortState.ascending && validation !== 'favorable') order = `${order} — 순위가 우연과 구별되지 않아 기본은 시총 순, 백분위 머리글을 누르면 순위 순`;
   }
   // v58.56 review: quote refreshes re-render the table, so the text is written only when it changes.
-  // v59.68: the face keeps the count and the order; why the default is market cap (and the cap coverage) is the hover.
-  const fullText = `${leadFor(fullName, ' 조건')}, ${shortOrder}`;
+  // v59.68: the face keeps the order; why the default is market cap (and the cap coverage) is the hover.
+  const lineText = lead ? `${lead}, ${shortOrder}` : shortOrder;
   if (textNode.title !== order) textNode.title = order;
-  const shortText = `${leadFor(shortName, '')}, ${shortOrder}`;
-  if (textNode.firstChild.textContent !== fullText) textNode.firstChild.textContent = fullText;
-  if (textNode.lastChild.textContent !== shortText) textNode.lastChild.textContent = shortText;
+  if (textNode.textContent !== lineText) textNode.textContent = lineText;
   // The largest caps of this market (funds and SPACs aside) that the screen left out — only while the table hides them.
   let dropped = [];
   if (passedOnly && definition) {
@@ -948,15 +932,10 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
       (action || row)?.focus({ preventScroll: true });
     }
   }
-  const count = documentRef.getElementById('screener-result-count');
-  if (count) {
-    // The count is followed by the '종목' text node in the shell; while a condition's source loads both read as loading.
-    count.textContent = sourcesPending ? '조건 자료 불러오는 중' : String(filtered.length);
-    const unit = count.nextSibling;
-    if (unit?.nodeType === 3) unit.textContent = sourcesPending ? '' : '종목';
-    count.parentElement?.setAttribute('aria-busy', sourcesPending ? 'true' : 'false');
-  }
-  renderTableStatus(documentRef, { status: state?.status, scopeRows, filtered, definition: chosenDefinition, sortState, passedOnly: passedOnlyApplied(documentRef), rankHeld: sessionLine?.table || null, readLiveData, onExplain });
+  const conditionPassed = filterRows(rows, documentRef, { readWatchlist, readAliases, conditionsOnly: true }).filter((row) => row.screenStatus === 'passed').length;
+  const rankHeld = sessionLine?.table || null;
+  renderResultCount(documentRef, { status: state?.status, conditionPassed, unavailable: scopeRows.filter((row) => row.screenStatus === 'unavailable').length, sourcesPending, rankHeld, filtered: filtered.length });
+  renderTableStatus(documentRef, { status: state?.status, scopeRows, filtered, conditionPassed, definition: chosenDefinition, sortState, passedOnly: passedOnlyApplied(documentRef), rankHeld, readLiveData, onExplain });
   // The rows and the count are on screen: readers that changed a filter (the AI condition card) take the count from here.
   documentRef.dispatchEvent?.(new (documentRef.defaultView?.CustomEvent || CustomEvent)('aio:screener-filtered', { detail: sourcesPending ? { pending: true } : { count: filtered.length } }));
   const summary = documentRef.getElementById('scr-visible-summary');
@@ -1076,7 +1055,10 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   const readyCount = Array.isArray(readinessResult?.records) ? readinessResult.records.filter(row => screenerMarket(row) === listingMarket && row.eligible).length : readinessResult?.eligibleCount ?? 0;
   const passedCount = allRows.filter(row => row.screenStatus === 'passed').length;
   const unavailableCount = allRows.filter(row => row.screenStatus === 'unavailable').length;
-  const previewConditions = preview?.definition ? describeFilterAst(preview.definition) : null;
+  const previewConditions = preview?.definition ? (() => {
+    const items = screenConditions(preview.definition);
+    return { builtin: items.filter((item) => item.own), user: items.filter((item) => item.origin === 'visual-builder') };
+  })() : null;
   // 개편 v2 (3c): the kicker states the collected and computable counts once, before the close basis.
   const kickerCounts = documentRef.getElementById('scr-kicker-counts');
   // v59.70 (screen review 16): the kicker, the status line and the drawer's '전체 N위 / M' used four totals with no link
@@ -1121,7 +1103,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     origin: runOrigin,
     passedOnly: passedOnlyApplied(documentRef)
   });
-  renderFilterChips(documentRef);
+  renderFilterChips(documentRef, { definition: chosenDefinition });
   syncUniverseScopeControl(documentRef, root, rawState, listingMarket);
   const coverage = documentRef.getElementById('screener-factor-coverage');
   const holdEl = documentRef.getElementById('screener-rank-hold');

@@ -12,6 +12,7 @@ import { screenRoutesFor, CONCEPT_SURFACES } from '../../domain/knowledge/concep
 import { renderFrameArticle, renderFrameConnections, ensureFrameStyle, renderBasis, renderWorkedCalc } from './analysis-frames.js';
 import { themesForNote } from '../../domain/knowledge/theme-research-links.js';
 import { themeStageBlock } from './theme-stage-links.js';
+import { ALL_LESSONS, LESSON_KINDS } from '../../domain/guide/lessons.js';
 
 const conceptById = new Map(CONCEPT_CORE.map((concept) => [concept.id, concept]));
 const CONCEPT_CATS = [...new Set(CONCEPT_CORE.map((concept) => concept.cat))];
@@ -22,6 +23,7 @@ export const CONCEPT_GROUPS = Object.freeze([
   { id: 'story', title: '칼럼: 돈에서 주식시장까지' },
   { id: 'concept', title: '개념 사전' },
   { id: 'lesson', title: '원리 레슨' },
+  { id: 'rules', title: '참여 원칙' },
   { id: 'map', title: '개념 지도' }
 ]);
 
@@ -61,7 +63,7 @@ function buildNav(doc, state, data) {
   for (const group of CONCEPT_GROUPS) {
     const open = state.openGroup === group.id;
     const box = el(doc, 'div', 'rl-nav-group');
-    const count = group.id === 'frames' ? LESSONS.length : group.id === 'story' ? chapters.length || 12 : group.id === 'concept' ? CONCEPT_CORE.length : group.id === 'lesson' ? (data.lessons?.length || 112) : null;
+    const count = group.id === 'frames' ? LESSONS.length : group.id === 'story' ? chapters.length || 12 : group.id === 'concept' ? CONCEPT_CORE.length : group.id === 'lesson' ? (data.lessons?.length || 112) : group.id === 'rules' ? ALL_LESSONS.length : null;
     box.appendChild(groupHeader(doc, group, open, count));
     if (open && group.id === 'frames') {
       for (const path of PATHS) {
@@ -116,6 +118,26 @@ function buildNav(doc, state, data) {
   nav.querySelectorAll('.rl-nav-group-head').forEach((head) => switcher.appendChild(head));
   nav.insertBefore(switcher, nav.firstChild);
   return nav;
+}
+
+// (owner 2026-11-20) the participation principles (태도 · 전략 · 속지 말 것 · 믿을 것) are reference, so the full set
+// lives here; 시장 상태's 오늘의 가이드 shows only the ones today's data touches, with today's reason, and links here.
+function renderRules(doc) {
+  const article = el(doc, 'article', 'af-article rl-entry');
+  article.dataset.principlesRules = 'native';
+  article.append(el(doc, 'p', 'af-kicker', `참여 원칙, ${ALL_LESSONS.length}개`), el(doc, 'h2', 'af-issue', '시장에 참여하는 원칙'));
+  for (const [kind, label] of Object.entries(LESSON_KINDS)) {
+    const rows = ALL_LESSONS.filter((lesson) => lesson.kind === kind);
+    if (!rows.length) continue;
+    const list = el(doc, 'dl', 'rl-entry-body');
+    for (const lesson of rows) {
+      const term = el(doc, 'dt', 'af-kicker', lesson.title);
+      term.id = `rule-${lesson.id}`;
+      list.append(term, el(doc, 'dd', 'rl-entry-def', lesson.principle), ...(lesson.why ? [el(doc, 'dd', 'rl-entry-limits', `왜: ${lesson.why}`)] : []));
+    }
+    article.append(el(doc, 'h3', 'af-section', label), list);
+  }
+  return article;
 }
 
 function renderStory(doc, data, state) {
@@ -413,6 +435,8 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
         aside.appendChild(box);
       }
     }
+  } else if (state.view === 'rules') {
+    main.appendChild(renderRules(doc));
   } else if (state.view === 'map') {
     main.appendChild(renderMap());
     (mapAside?.(block) || []).forEach((node) => aside.appendChild(node));

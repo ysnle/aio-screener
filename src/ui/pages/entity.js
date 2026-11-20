@@ -18,6 +18,7 @@ import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { renderCompanyAnalysis, companyAskButton } from '../components/company-analysis.js';
 import { renderCompanyOverview, renderCompanyReport } from '../components/company-overview.js';
 import { renderTickerContext } from '../components/ticker-context.js';
+import { renderTickerYearLine } from '../components/ticker-year-line.js';
 import { paintTickerBrief } from '../components/event-briefs.js';
 import { companyPlace, moneyGlance } from '../../domain/entity/company-overview.js';
 import { industryFor } from '../../domain/entity/industry-links.js';
@@ -207,7 +208,10 @@ function renderOverview(documentRef, root, state, store = null) {
   const id = String(state?.id || root?._currentTickerId || '').trim().toUpperCase();
   // v57.54: the screen's h1 (screen-reader heading; the hero shows the name visually).
   const title = documentRef.getElementById('ticker-page-title');
+  // The year line under the price (ticker-year-line.js): drawn once per symbol, nothing without a listed symbol.
+  const yearLine = (symbol) => renderTickerYearLine(documentRef, documentRef.getElementById('ticker-hero-spark'), { root, symbol, money: formatMoney });
   if (!id) {
+    yearLine('');
     host.hidden = true; host.replaceChildren(); delete host.dataset.signature;
     if (line) { line.hidden = true; line.textContent = ''; }
     if (title) title.textContent = '종목';
@@ -229,6 +233,7 @@ function renderOverview(documentRef, root, state, store = null) {
   // First-users run-6 #11: a retired or unknown symbol (FB, AAP) is one "no match" state, not a half-empty company page.
   if (onDemand?.status === 'not-listed') {
     if (line) line.hidden = true;
+    yearLine('');
     if (host.dataset.signature !== `${id}|not-listed`) {
       host.dataset.signature = `${id}|not-listed`;
       host.replaceChildren(emptyState(documentRef, { title: `${id}와 맞는 종목이 없습니다`, reason: '미국 상장 목록과 AIO 등록 종목 어디에도 없는 기호입니다. 상장 폐지됐거나 기호가 바뀐 종목일 수 있습니다.', next: '회사 이름으로 다시 검색해 보세요.', compact: true }));
@@ -263,6 +268,7 @@ function renderOverview(documentRef, root, state, store = null) {
   // One line of what the company is: the story's own line, else the listing's sourced description, else its classification.
   const what = story?.oneLine || profile.description || [profile.kind, profile.sector ? sectorLabel(profile.sector) : null, profile.industry].filter(Boolean).join(', ');
   if (line) { if (line.textContent !== what) line.textContent = what || ''; line.hidden = !what; }
+  yearLine(id);
   renderTickerContext(documentRef, documentRef.getElementById('ticker-hero-context'), { root, store, symbol: id, name: profile.name, row: listingRow, rows });
   const earnings = root?.[EARNINGS_CALENDAR.key]?.earnings || [];
   const briefs = (root?._aioEventBriefs?.briefs || []).filter((brief) => brief?.kind === 'earnings' && String(brief?.symbol || '').toUpperCase() === id);

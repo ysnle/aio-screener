@@ -97,6 +97,7 @@ export function renderChannelData(doc, card, signals) {
     container.append(chart);
   }
   const fold = el(doc, 'details', null, 'tg-data-fold');
+  fold.dataset.foldKind = 'raw-table'; // the rows behind the sentence (scripts/ci-fold-kind-check.mjs kinds)
   fold.append(el(doc, 'summary', '지표, 인수·합병, 목표주가, 실적 자세히'));
   for (const [title, rows] of [['경제지표 (실제 대 예상)', model.releases], ['인수·합병 발표', model.deals], ['목표주가, 투자의견', model.actions], ['실적 (예상 대비)', model.reports]]) {
     if (!rows.length) continue;

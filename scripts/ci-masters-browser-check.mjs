@@ -72,6 +72,13 @@ try {
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersView === 'holdings');
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersSelectedShard === 'connected');
   if (await page.locator('#page-masters .masters-full-holdings-table tbody tr').count() !== 25) throw new Error('full holdings pagination failed');
+  // v60.35 (owner 2026-11-20): three tabs — 변화 · 보유 · 원본 공시. 보유 also carries the sector mix and the stated principles.
+  const tabs = await page.locator('#page-masters .masters-detail-tabs [data-masters-action="view"]').evaluateAll((nodes) => nodes.map((node) => node.dataset.mastersValue).join(','));
+  if (tabs !== 'changes,holdings,filings') throw new Error(`manager tabs are not 변화/보유/원본 공시: ${tabs}`);
+  await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersSecurityMaster === 'connected' && document.getElementById('page-masters')?.dataset.aioMastersReferenceMaster === 'connected');
+  // P1488: one sector state per card — the reference classification when it exists, else the unavailable state.
+  if (await page.locator('#page-masters .masters-reference-sector-view').count() + await page.locator('#page-masters [data-masters-sector-state="unavailable"]').count() !== 1) throw new Error('sector preparation state missing');
+  if (!await page.locator('#page-masters .masters-holdings-section:not(.masters-change-ledger) tbody tr').count()) throw new Error('보유 tab lost the top-holdings table');
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="changes"]').click();
   await page.locator('#page-masters [data-masters-action="change-filter"][data-masters-value="EXITED"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersActionFilter === 'EXITED');
@@ -80,11 +87,8 @@ try {
   const exitedRows = await page.locator('#page-masters .masters-change-ledger tbody tr').count();
   if (!Number.isFinite(exitedSaid) || (exitedSaid > 0) !== (exitedRows > 0)) throw new Error(`v60.31 exited comparison rows do not follow the summary: said ${exitedSaid}, rows ${exitedRows}`);
   if (await page.locator('#page-masters .masters-change-ledger td', { hasText: 'NaN' }).count()) throw new Error('change ledger contains NaN');
-  await page.locator('#page-masters [data-masters-action="view"][data-masters-value="sectors"]').click();
-  await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersSecurityMaster === 'connected' && document.getElementById('page-masters')?.dataset.aioMastersReferenceMaster === 'connected');
-  // P1488: one sector state per card — the reference classification when it exists, else the unavailable state.
-  if (await page.locator('#page-masters .masters-reference-sector-view').count() + await page.locator('#page-masters [data-masters-sector-state="unavailable"]').count() !== 1) throw new Error('sector preparation state missing');
-  await page.locator('#page-masters [data-masters-action="view"][data-masters-value="quarters"]').click();
+  // 변화's quarter trend loads on its own button.
+  await page.locator('#page-masters [data-masters-action="load-quarters"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersHistoryRows === 'connected');
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersIssuerAggregates === 'connected');
   if (await page.locator('#page-masters .masters-quarter-table tbody tr').count() !== 12) throw new Error('quarter history rows missing');
@@ -109,7 +113,8 @@ try {
     await page.waitForFunction((want) => (document.querySelectorAll('#page-masters .masters-holdings-section:not(.masters-change-ledger) tbody tr').length || document.querySelectorAll('#page-masters .masters-change-ledger tbody tr').length) === want, rows);
   }
   await page.waitForFunction(() => document.querySelector('#page-masters .masters-change-summary')?.textContent.includes('2025-06-30'));
-  await page.locator('#page-masters [data-masters-action="view"][data-masters-value="ownership"]').click();
+  // The 5% large-holding reports sit under 원본 공시.
+  await page.locator('#page-masters [data-masters-action="view"][data-masters-value="filings"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersDiscovery === 'connected');
   if (!(await page.locator('#page-masters .masters-ownership-events').textContent()).includes('13D')) throw new Error('Schedule 13D/G ownership view missing');
   await page.locator('#page-masters .rl-nav [data-masters-action="select-manager"][data-masters-value="mark-minervini"]').click();
@@ -123,7 +128,8 @@ try {
     await page.locator(`#page-masters .rl-nav [data-masters-action="select-manager"][data-masters-value="${id}"]`).click();
     await page.locator('#page-masters [data-masters-action="toggle-compare"]').click();
   }
-  await page.locator('#page-masters [data-masters-action="view"][data-masters-value="compare"]').click();
+  // v60.35: with two managers picked, the comparison shows under the manager header (no tab of its own).
+  await page.waitForFunction(() => document.querySelectorAll('#page-masters .masters-compare-view .masters-metric').length >= 2, null, { timeout: 10000 }).catch(() => {});
   if (await page.locator('#page-masters .masters-compare-view .masters-metric').count() < 2) throw new Error('manager comparison surface missing');
 
   // P1325: manager list renders before the lookup; the lookup never ends in an endless loading state.
@@ -143,6 +149,17 @@ try {
       return want === 'holder' ? !!box.querySelector('.masters-ticker-lookup-card') : /찾지 못했습니다/.test(box.textContent) /* P1488 reader copy */;
     }, expect, { timeout: 5000 });
     lookupStates[symbol] = expect;
+  }
+  // v60.35: an older address keeps working — ?mode=sectors opens 보유, ?mode=quarters opens 변화 with the trend loaded.
+  const legacy = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  try {
+    await legacy.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
+    for (const [mode, view, ready] of [['sectors', 'holdings', '.masters-full-holdings-table'], ['quarters', 'changes', '.masters-quarter-table']]) {
+      await legacy.goto(`${baseUrl}?mode=${mode}#masters`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await legacy.waitForFunction(([want, sel]) => document.getElementById('page-masters')?.dataset.aioMastersView === want && document.querySelector(`#page-masters ${sel}`), [view, ready], { timeout: 20000 });
+    }
+  } finally {
+    await legacy.close();
   }
   const failPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   try {

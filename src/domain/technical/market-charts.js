@@ -92,6 +92,27 @@ export function indexVolumeRead(history, field) {
 }
 
 /**
+ * A year of completed daily closes: the last 252, their highest and lowest close, the 200-day line, and the last close
+ * against the high and that line. The one close basis of 기술적 분석's cards (barsChartReading) and the 종목 screen's year
+ * line (ticker-year-line.js); null below 60 bars.
+ * @returns {null | { series, ma200Series, high, low, close, asOf, fromHigh, ma200, s200 }}
+ */
+export function yearCloseRead(bars) {
+  const closes = (Array.isArray(bars) ? bars : []).filter((bar) => Number.isFinite(bar?.close) && bar.close > 0).map((bar) => ({ date: bar.time, value: bar.close }));
+  if (closes.length < 60) return null;
+  const ma200Series = closes.length >= 200 ? movingAverage(closes, 200) : [];
+  const ma200 = ma200Series.at(-1)?.value ?? null;
+  const series = closes.slice(-252);
+  const high = series.reduce((best, row) => (row.value > best.value ? row : best));
+  const low = series.reduce((best, row) => (row.value < best.value ? row : best));
+  const close = series.at(-1).value;
+  return {
+    series, ma200Series: ma200Series.slice(-252), high, low, close, asOf: series.at(-1).date,
+    fromHigh: (close / high.value - 1) * 100, ma200, s200: Number.isFinite(ma200) && ma200 > 0 ? (close / ma200 - 1) * 100 : null
+  };
+}
+
+/**
  * One index card's reading, from the bars the card draws (owner 2026-11-19: one verdict per index, from the function the
  * stock chart uses). A US card draws its fund's daily OHLC bars, so the trend passes the same ADR buffers the 종목 page and
  * the analysis slot read (trend-state.js trendOfBars); a Korean card, or a US card whose bars did not arrive, draws the
@@ -106,14 +127,13 @@ export function indexVolumeRead(history, field) {
  */
 export function barsChartReading({ bars, field, label, symbol = null, positionOnly = false, history = [], breadth = null, money: priceText = null } = {}) {
   const list = (Array.isArray(bars) ? bars : []).filter((bar) => Number.isFinite(bar?.close) && bar.close > 0);
-  if (list.length < 60) return null;
+  const year = yearCloseRead(list);
+  if (!year) return null;
   const closes = list.map((bar) => ({ date: bar.time, value: bar.close }));
   const ma50Series = movingAverage(closes, 50);
   const ma50 = ma50Series.at(-1)?.value ?? null;
   const ma50Before = ma50Series.at(-21)?.value ?? null;
-  const ma200Series = closes.length >= 200 ? movingAverage(closes, 200) : [];
-  const ma200 = ma200Series.at(-1)?.value ?? null;
-  const close = closes.at(-1).value;
+  const { ma200, close, high, fromHigh, s200 } = year;
   const current = trendOfBars(list, { positionOnly });
   const trend = trendKey(current) || 'unknown';
   const trendWord = current?.label || TREND_WORDS.unknown;
@@ -121,11 +141,7 @@ export function barsChartReading({ bars, field, label, symbol = null, positionOn
   const { highs, lows } = swingPointsOf(closes);
   const resistance = highs.filter((row) => row.value > close * 1.005).sort((a, b) => a.value - b.value)[0] || null;
   const support = lows.filter((row) => row.value < close * 0.995).sort((a, b) => b.value - a.value)[0] || null;
-  const year = closes.slice(-252);
-  const high = year.reduce((best, row) => (row.value > best.value ? row : best));
-  const fromHigh = (close / high.value - 1) * 100;
   const s50 = Number.isFinite(ma50) && ma50 > 0 ? (close / ma50 - 1) * 100 : null;
-  const s200 = Number.isFinite(ma200) && ma200 > 0 ? (close / ma200 - 1) * 100 : null;
   // The index's own closes carry its double top and six-month low (index-levels.js); a fund's bars are another price scale.
   const level = positionOnly ? indexLevel(history, field) : null;
   const top = level?.doubleTop || null;
@@ -150,7 +166,7 @@ export function barsChartReading({ bars, field, label, symbol = null, positionOn
   return {
     field, label, symbol, source: positionOnly ? 'closes' : 'bars', asOf: closes.at(-1).date, close, trend, trendWord, tone: TONE[current?.tone] || 'neutral',
     rsi, ma50, ma200, s50, s200, fromHigh, high, support, resistance, doubleTop: top,
-    series: closes.slice(-252), ma50Series: ma50Series.slice(-252), ma200Series: ma200Series.slice(-252),
+    series: year.series, ma50Series: ma50Series.slice(-252), ma200Series: year.ma200Series,
     facts, volume: indexVolumeRead(history, field), numbers
   };
 }

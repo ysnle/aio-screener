@@ -10,7 +10,7 @@ import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bri
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { MASTER_REGISTRY, buildManagerRegistry, deriveCoverageSummary, formatReportedValue, formatCompactUsd, formatScale, formatPercent, summarizeLatestChange, formatQuarterLabel } from '../../domain/masters/holdings-format.js';
 export { displayActionOf, isPartialAmendmentPeriod } from '../../domain/masters/holdings-format.js'; // v57.60: same page exports as before
-import { VIEW_LABELS, element, button, createMetric, ensureMastersExtraStyle, createSecurityLookup, PLAIN_LOOKUP, tickerChip, createChangeSummary, createOwnershipEvents, fullManagersLabel, createTopHoldingTable, createChangeLedger, createFullHoldingsView, createRowPreviewView, createSectorView, createReferenceSectorView, createQuarterView, createIssuerAggregateView, createFilingArtifact, createPrinciplesView, createInvestorCompareView, createTopWeightBars } from './masters-views.js';
+import { VIEW_LABELS, viewOf, element, button, createMetric, ensureMastersExtraStyle, createSecurityLookup, PLAIN_LOOKUP, tickerChip, createChangeSummary, createOwnershipEvents, fullManagersLabel, createTopHoldingTable, createChangeLedger, createFullHoldingsView, createRowPreviewView, createSectorView, createReferenceSectorView, createQuarterView, createIssuerAggregateView, createFilingArtifact, createPrinciplesView, createInvestorCompareView, createTopWeightBars } from './masters-views.js';
 export { createSecurityLookup, shareClassTag } from './masters-views.js'; // v59.70: moved with the view builders
 
 const REVIEWED_AT = '2026-08-16';
@@ -365,6 +365,9 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   compareToggle.disabled = !state.compareIds.includes(manager.id) && state.compareIds.length >= 4;
   detail.appendChild(compareToggle);
 
+  // The 2~4 manager comparison shows under the header once two are picked (it was a tab of its own).
+  if (state.compareIds.length >= 2) detail.appendChild(createInvestorCompareView(documentRef, state.compareIds, registry, holdingManagers, rowsByManager, state.securityLookup || PLAIN_LOOKUP));
+
   const tabs = element(documentRef, 'div', 'masters-detail-tabs');
   tabs.setAttribute('role', 'group');
   tabs.setAttribute('aria-label', `${manager.name} 공시 읽기 방식`);
@@ -394,16 +397,9 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     return block;
   };
 
-  if (state.view === 'principles' || manager.type === 'METHOD_ONLY') {
-    detail.appendChild(createPrinciplesView(documentRef, manager, principlesArtifact));
-  } else if (state.view === 'ownership') {
-    detail.appendChild(createOwnershipEvents(documentRef, manager, ownershipDiscovery) || element(documentRef, 'div', 'masters-empty-state', '5% 이상 대량 보유(13D/G) 기록은 아직 제공하지 않습니다. SEC 수시 공시 정규화가 끝나면 이 탭에 표시합니다.'));
-  } else if (state.view === 'compare') {
-    detail.appendChild(createInvestorCompareView(documentRef, state.compareIds, registry, holdingManagers, rowsByManager, state.securityLookup || PLAIN_LOOKUP));
-  } else if (state.view === 'changes') {
+  if (state.view === 'changes') {
     const summary = createChangeSummary(documentRef, holdingMeta?.verification, comparisonRows);
     if (summary) detail.appendChild(summary);
-    if (compactRows.length && !comparisonRows.length) detail.appendChild(createTopHoldingTable(documentRef, manager, holdingMeta, compactRows, state.securityLookup || PLAIN_LOOKUP));
     if (comparisonRows.length) {
       const expected = Number(holdingMeta?.verification?.comparisonRowCount) || null;
       // P1444 (review 2026-10-04): the ledger first shows the embedded preview (the full manager shard is
@@ -433,26 +429,26 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
       }
       detail.appendChild(createChangeLedger(documentRef, comparisonRows, state));
     }
-    if (!compactRows.length && previewRows.length) detail.appendChild(createRowPreviewView(documentRef, manager, previewMeta, previewRows));
+    // The quarter trend loads on request (its history shards are outside the page's initial artifact budget).
+    if (state.quarterBundles.has(manager.id) || state.loadingQuarterManagers.has(manager.id)) {
+      // P1522: earlier quarters and issuer aggregates of a manager under scale review are withheld too (same filer, same unit).
+      const managerScaleReviewed = managersUnderScaleReview(state?.valueScale).has(manager.id);
+      detail.appendChild(createQuarterView(documentRef, holdingMeta, historyManager, historyRowsArtifact, managerScaleReviewed));
+      detail.appendChild(createIssuerAggregateView(documentRef, issuerAggregates, manager.id, managerScaleReviewed));
+    } else detail.appendChild(button(documentRef, 'masters-route-button is-secondary', '지난 분기 추이 보기', 'load-quarters', manager.id));
   } else if (state.view === 'holdings') {
-    detail.appendChild(fullRows.length ? createFullHoldingsView(documentRef, fullRows, state, managerShard) : managerShard?.url ? createDeferredRowsState() : previewRows.length ? createRowPreviewView(documentRef, manager, previewMeta, previewRows) : element(documentRef, 'div', 'masters-empty-state', '이 운용사의 보유 내역은 아직 연결되지 않았습니다.'));
-  } else if (state.view === 'sectors') {
+    if (compactRows.length) detail.appendChild(createTopHoldingTable(documentRef, manager, holdingMeta, compactRows, state.securityLookup || PLAIN_LOOKUP));
     if (fullRows.length) {
-      const referenceSectorView = createReferenceSectorView(documentRef, fullRows, referenceMaster);
-      // One status per card: the reference classification when it exists, the unavailable state otherwise —
-      // not a sector table followed by "섹터 구성은 아직 공개하지 않습니다".
-      detail.appendChild(referenceSectorView || createSectorView(documentRef, fullRows, securityMaster));
-    } else if (managerShard?.url) detail.appendChild(createDeferredRowsState());
-    else detail.appendChild(createSectorView(documentRef, fullRows, securityMaster));
-  } else if (state.view === 'quarters') {
-    // P1522: earlier quarters and issuer aggregates of a manager under scale review are withheld too (same filer, same unit).
-    const managerScaleReviewed = managersUnderScaleReview(state?.valueScale).has(manager.id);
-    detail.appendChild(createQuarterView(documentRef, holdingMeta, historyManager, historyRowsArtifact, managerScaleReviewed));
-    detail.appendChild(createIssuerAggregateView(documentRef, issuerAggregates, manager.id, managerScaleReviewed));
+      // One status per card: the reference classification when it exists, the unavailable state otherwise.
+      detail.appendChild(createReferenceSectorView(documentRef, fullRows, referenceMaster) || createSectorView(documentRef, fullRows, securityMaster));
+      detail.appendChild(createFullHoldingsView(documentRef, fullRows, state, managerShard));
+    } else detail.appendChild(managerShard?.url ? createDeferredRowsState() : previewRows.length ? createRowPreviewView(documentRef, manager, previewMeta, previewRows) : element(documentRef, 'div', 'masters-empty-state', '이 운용사의 보유 내역은 아직 연결되지 않았습니다.'));
+    detail.appendChild(createPrinciplesView(documentRef, manager, principlesArtifact));
   } else if (state.view === 'filings') {
     const filingView = element(documentRef, 'section', 'masters-filing-view');
     filingView.append(element(documentRef, 'h3', 'masters-holdings-title', '원본 공시와 검증 경계'), element(documentRef, 'p', 'masters-holdings-meta', '아래 링크는 SEC EDGAR 원문입니다. 공시의 보고 기준일과 제출일을 확인한 뒤 행 비교를 해석하세요.'), createFilingArtifact(documentRef, filingMeta, holdingMeta));
     detail.appendChild(filingView);
+    detail.appendChild(createOwnershipEvents(documentRef, manager, ownershipDiscovery) || element(documentRef, 'div', 'masters-empty-state', '5% 이상 대량 보유(13D/G) 기록은 아직 제공하지 않습니다. SEC 수시 공시 정규화가 끝나면 여기에 표시합니다.'));
   }
 
   const principles = button(documentRef, 'masters-route-button is-secondary', '개념·분석에서 이어 읽기', 'route', 'principles');
@@ -517,7 +513,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       }
        const sharedRoute = parseKnowledgeRouteState(root?.location);
        const arrivalContext = parseKnowledgeTargetContext({ root, locationLike: root?.location });
-       const initialView = Object.hasOwn(VIEW_LABELS, sharedRoute.mode) ? sharedRoute.mode : 'changes';
+       const initialView = viewOf(sharedRoute.mode);
        const state = { query: '', tickerQuery: '', filter: 'ALL', arrivalContext: arrivalContext?.routeId === 'masters' ? arrivalContext : null, selectedId: sharedRoute.manager || MASTER_REGISTRY[0].id, view: initialView, actionFilter: 'ALL', holdingsQuery: '', page: 1, pageSize: 25, compareIds: [], managerRows: new Map(), managerRowErrors: new Set(), loadingManagers: new Set(), loadingCapabilities: new Set(), quarterBundles: new Map(), loadingQuarterManagers: new Set(), filings: null, holdings: null, catalog: null, previews: null, discovery: null, principles: null, securityMaster: null, referenceMaster: null, history: null, tickerIndex: null, filingsError: false, holdingsError: false, catalogError: false, previewsError: false, discoveryError: false, principlesError: false, securityMasterError: false, referenceMasterError: false, historyError: false, historyRowsError: false, issuerAggregatesError: false, tickerIndexError: false };
        const isAlive = () => !scope?.disposed && (typeof scope?.isCurrent !== 'function' || scope.isCurrent());
        // v57.50 I12: 종목 요약's '대가 보유 종목' link arrives with its ticker — the reverse lookup opens on it.
@@ -811,16 +807,10 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
           syncSharedState({ push: action === 'select-manager' || action === 'view' }); // run-2 R2-17: Back returns to the previous manager or view
           render();
           if (action === 'load-manager' || action === 'toggle-compare') loadManagerRows(value);
-          if (action === 'view' && (value === 'holdings' || value === 'sectors')) loadManagerRows(state.selectedId);
-          if (action === 'view' && value === 'quarters') loadQuarterArtifacts(state.selectedId);
-          if (action === 'view' && value === 'filings') loadOptionalArtifact('filings', FILINGS_URL);
-          if (action === 'view' && value === 'ownership') loadOptionalArtifact('discovery', FILING_DISCOVERY_URL);
+          if (action === 'load-quarters') loadQuarterArtifacts(value);
+          if (action === 'view' || action === 'select-manager') loadView(state.view, state.selectedId);
           // P1488: a method-only profile opens straight on its principles, so selecting it loads them.
-          if ((action === 'view' && value === 'principles') || (action === 'select-manager' && state.catalog?.managers?.find?.((m) => m.id === value)?.type === 'METHOD_ONLY')) loadOptionalArtifact('principles', MANAGER_PRINCIPLES_URL);
-          if (action === 'view' && value === 'sectors') {
-            loadOptionalArtifact('securityMaster', SECURITY_MASTER_URL);
-            loadOptionalArtifact('referenceMaster', SECURITY_MASTER_REFERENCE_URL);
-          }
+          if (action === 'select-manager' && state.catalog?.managers?.find?.((m) => m.id === value)?.type === 'METHOD_ONLY') loadOptionalArtifact('principles', MANAGER_PRINCIPLES_URL);
           if (action === 'goto-ticker-lookup') queueMicrotask(() => { const field = page.querySelector('.masters-ticker-lookup-input'); field?.scrollIntoView({ block: 'center', behavior: 'auto' }); field?.focus({ preventScroll: true }); });
           if (action === 'select-manager' || action === 'view' || (action === 'change-filter' && previousSelection !== state.selectedId)) queueMicrotask(focusDetail);
         }
@@ -850,16 +840,26 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       bag.add(() => page.removeEventListener('focusin', onFocusIn));
       bag.add(() => page.removeEventListener('click', onClick));
       bag.add(() => page.removeEventListener('input', onInput));
+      // What each tab needs beyond the embedded summary: 보유 the manager's rows, the sector masters and the principles;
+      // 원본 공시 the filings and the 13D/G discovery. 변화's quarter history loads on its own button (or an old ?mode=quarters).
+      const loadView = (view, managerId) => {
+        if (view === 'holdings') {
+          loadManagerRows(managerId);
+          loadOptionalArtifact('securityMaster', SECURITY_MASTER_URL);
+          loadOptionalArtifact('referenceMaster', SECURITY_MASTER_REFERENCE_URL);
+          loadOptionalArtifact('principles', MANAGER_PRINCIPLES_URL);
+        }
+        if (view === 'filings') { loadOptionalArtifact('filings', FILINGS_URL); loadOptionalArtifact('discovery', FILING_DISCOVERY_URL); }
+      };
       const onPop = () => {
         if (!isAlive() || !/^#masters(?:$|[?&])/.test(String(root?.location?.hash || ''))) return;
         const next = parseKnowledgeRouteState(root.location);
-        const view = Object.hasOwn(VIEW_LABELS, next.mode) ? next.mode : 'changes';
+        const view = viewOf(next.mode);
         const manager = next.manager || MASTER_REGISTRY[0].id;
         if (manager === state.selectedId && view === state.view) return;
         Object.assign(state, { styleOverview: false, selectedId: manager, view, page: 1 });
         render();
-        if (view === 'holdings' || view === 'sectors') loadManagerRows(manager);
-        if (view === 'quarters') loadQuarterArtifacts(manager);
+        loadView(view, manager);
       };
       root?.addEventListener?.('popstate', onPop);
       bag.add(() => root?.removeEventListener?.('popstate', onPop));
@@ -905,6 +905,8 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
            page.dataset.aioReviewedAt = reviewedAt || REVIEWED_AT;
            render();
             page.dataset.aioMastersSelectedShard = 'deferred';
+           loadView(state.view, state.selectedId); // the opening tab (or a deep link's) loads what it shows
+           if (sharedRoute.mode === 'quarters') loadQuarterArtifacts(state.selectedId);
          });
        }
       return () => bag.dispose();

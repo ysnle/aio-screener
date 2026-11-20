@@ -149,15 +149,15 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .mk-fg-gauge .macro-gauge-band.is-neutral.is-active { fill: rgba(var(--ink-rgb), 0.32); }
 .mk-fg-gauge .macro-gauge-label.is-active { fill: var(--color-text-primary); font-weight: 600; }
 /* 안 A: the indicator rows are one column of .ind-row (regime-quality.css), the charts a grid in their own card. */
-#page-sentiment #sentiment-card-grid.regime-quality-board, #page-breadth .bb-rows.regime-quality-board { display: flex; flex-direction: column; gap: 0; grid-template-columns: none; margin: 0 0 12px; }
+#page-sentiment #sentiment-card-grid.regime-quality-board { display: flex; flex-direction: column; gap: 0; grid-template-columns: none; margin: 0 0 12px; }
 #sentiment-chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 14px; margin: 0; }
 #page-sentiment .mk-senti-rows, #page-sentiment .mk-senti-charts { margin: 0 0 16px; }
 #page-sentiment .mk-senti-rows > #sentiment-raw { margin-top: 4px; }
 .mk-sub-hero__tally { margin: 6px 0 0; font-size: 14px; line-height: 1.6; color: var(--color-text-primary); overflow-wrap: anywhere; }
 .mk-sub-hero__counter { margin: 8px 0 0; }
 .mk-sub-hero__tally:empty { display: none; }
-#page-breadth .bb-group > .bb-rows { margin: 4px 0 14px; }
-#page-breadth .bb-group--participation > .bb-rows { padding-inline: var(--sx-card-pad-x); }
+#page-breadth .trend-card > .ind-row { margin: 0 0 8px; } /* each indicator's row heads its own chart card */
+#page-breadth .trend-card .ind-row__dist { white-space: normal; } /* a chart card is narrower than a full-width row */
 #page-breadth .trend-card .ind-fold { margin-top: 10px; }
 #page-breadth .ind-row__line.is-latest { color: var(--color-text-primary); }
 #page-sentiment .trend-card { background: var(--color-background-card) !important; box-shadow:none; border-radius: var(--radius-container); padding: 20px 22px; }

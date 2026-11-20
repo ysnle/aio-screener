@@ -28,16 +28,19 @@ export function actionLabelOf(row, action) {
   return `${instrument} ${action === 'NEW' ? '신규' : label}`;
 }
 
+// (owner 2026-11-20) three tabs by content — 변화 (this quarter's changes and the quarter trend), 보유 (top
+// holdings, sector mix, search, and the manager's stated principles) and 원본 공시 (the filings and the 5% large-holding
+// reports). The comparison of 2~4 managers sits under the manager's header once two are picked.
 export const VIEW_LABELS = Object.freeze({
-  changes: '핵심 변화',
-  holdings: '보유 검색',
-  sectors: '섹터 구성',
-  quarters: '분기 추이',
-  compare: '투자자 비교',
-  principles: '투자 원칙',
-  ownership: '대량 보유',
+  changes: '변화',
+  holdings: '보유',
   filings: '원본 공시'
 });
+// An older address (?mode=sectors…) lands on the tab that now holds that content.
+const LEGACY_VIEWS = Object.freeze({ sectors: 'holdings', quarters: 'changes', compare: 'holdings', principles: 'holdings', ownership: 'filings' });
+export function viewOf(mode) {
+  return Object.hasOwn(VIEW_LABELS, mode) ? mode : LEGACY_VIEWS[mode] || 'changes';
+}
 
 export function element(documentRef, tag, className, text) {
   const node = documentRef.createElement(tag);

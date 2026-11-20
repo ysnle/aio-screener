@@ -37,7 +37,9 @@ function cardRow(doc, card) {
 // and the bottom-watch tally (the conditions the 시장 상태 contrarian check counts) as conditions with their values.
 function rawGroups(doc, model, axis, bottomWatch) {
   const groups = [];
+  // A group whose rows are all empty (an indicator with no observation yet) is not drawn: it was a titled empty box.
   const group = (title, rows, key) => {
+    if (!rows.some(([, value]) => value != null && value !== '')) return null;
     const box = el(doc, 'section', null, 'ind-raw-group');
     box.dataset.rawMetric = key;
     box.append(el(doc, 'h3', title, 'ind-raw-group__title'), rawTable(doc, rows, title));
@@ -58,7 +60,7 @@ function rawGroups(doc, model, axis, bottomWatch) {
     groups.push(group('바닥 확인 조건 (시장 상태와 같은 집계)', rows, 'bottom-watch'));
   }
   if (model.mixed.length) groups.push(group('기준일과 다른 관측', [['지표', model.mixed.join(', ')]], 'mixed'));
-  return groups;
+  return groups.filter(Boolean);
 }
 
 // The method: what each indicator measures and its rule, the link to its principle in the research library, the two

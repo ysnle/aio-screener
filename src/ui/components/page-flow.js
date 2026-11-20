@@ -1,10 +1,6 @@
 // P1431: the two connective pieces every analysis page uses — a section lead (what this section
 // adds to the page's conclusion) and "이어서 볼 곳" (where the same reading continues, and why).
 
-// v59.55 (owner 11/1): 연결해서 보면 (market-synthesis.js), by its 이어서 볼 곳 nav id. v59.68 (owner 11/3, "simple
-// architecture"): only 시장 상태, the screen that owns the scenarios; the other screens repeated its card under their own.
-const SYNTHESIS_PAGES = Object.freeze({ 'regime-next': 'signal' });
-
 export function sectionLead(doc, text) {
   const node = doc.createElement('p');
   node.className = 'flow-lead';
@@ -29,10 +25,10 @@ export function openRouteSection(doc, root, routeId, sectionId) {
 
 // v59.68 (owner 2026-11-03, "simple design"): the "이어서 볼 곳" link list under each screen is gone — the sidebar and the
 // hub tabs are the navigation, and a link that carries context sits beside the line it continues. The host stays empty
-// and hidden; 시장 상태's host still anchors 연결해서 보면 (market-synthesis.js).
+// and hidden. 연결해서 보면 (market-synthesis.js) is gone from 시장 상태 — its branches repeated the 시나리오
+// section, its chain the 지금 view, and its lean/avoid lists moved to 오늘의 가이드.
 export function renderNextSteps(doc, host) {
   if (!host) return null;
-  if (SYNTHESIS_PAGES[host.id]) import('./market-synthesis.js').then(({ renderMarketSynthesis }) => renderMarketSynthesis({ documentRef: doc, host, page: SYNTHESIS_PAGES[host.id] })).catch(() => {});
   host.replaceChildren();
   host.hidden = true;
   return host;
