@@ -23,11 +23,11 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-11-20T01:52:00.810Z",
-  "appRevision": "v60.32",
+  "generatedAt": "2026-11-20T13:08:15.751Z",
+  "appRevision": "v60.33",
   "dataRevision": "market-snapshot:2026-11-20T00:51:02.080Z:723f7b98",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
-  "overall": "CURRENT",
+  "overall": "BLOCKED",
   "overallBasis": {
     "planes": [
       "durable"
@@ -41,17 +41,17 @@
   },
   "featureAvailability": {
     "market-breadth": {
-      "availability": "AVAILABLE",
+      "availability": "UNAVAILABLE",
       "asOf": "2026-11-20T00:51:02.080Z",
-      "missingReason": null,
+      "missingReason": "durable-market-cycle-stale",
       "sources": [
         "durable"
       ]
     },
     "fundamental-ranking": {
-      "availability": "AVAILABLE",
+      "availability": "DEGRADED",
       "asOf": "2026-10-16T05:37:55.208Z",
-      "missingReason": null,
+      "missingReason": "durable-market-cycle-unavailable",
       "sources": [
         "durable"
       ]
@@ -73,9 +73,9 @@
       ]
     },
     "screener-extended": {
-      "availability": "AVAILABLE",
+      "availability": "DEGRADED",
       "asOf": "2026-11-18T03:28:27.794Z",
-      "missingReason": null,
+      "missingReason": "extended-shard-58h-old",
       "sources": [
         "durable"
       ]
@@ -170,8 +170,8 @@
   },
   "planes": {
     "durable": {
-      "status": "CURRENT",
-      "statusCode": "CONFIGURED_HEALTHY",
+      "status": "BLOCKED",
+      "statusCode": "CONFIGURED_BROKEN",
       "source": "github-actions",
       "lastSuccessfulAt": "2026-11-20T00:51:02.080Z",
       "coverage": {
@@ -183,22 +183,22 @@
         "tier1Observed": 5
       },
       "freshness": {
-        "fresh": true,
-        "withinSla": true,
+        "fresh": false,
+        "withinSla": false,
         "coverageComplete": true,
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-11-20T00:51:02.080Z",
-        "ageHours": 1.02,
+        "ageHours": 12.29,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-11-20T01:52:00.810Z",
-        "reason": null
+        "evaluatedAt": "2026-11-20T13:08:15.751Z",
+        "reason": "market-cycle-freshness-sla-exceeded"
       },
       "readiness": {
         "secretConfigured": "OPERATOR_REQUIRED",
         "workflowWired": "CURRENT",
-        "lastCallSucceeded": "CURRENT",
-        "dataCurrent": "CURRENT",
+        "lastCallSucceeded": "BLOCKED",
+        "dataCurrent": "BLOCKED",
         "licensedForUse": "REVIEW_REQUIRED"
       }
     },
@@ -218,7 +218,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-20T01:52:00.810Z"
+        "evidenceEvaluatedAt": "2026-11-20T13:08:15.751Z"
       },
       "soak": {
         "requiredDays": 0,
@@ -237,7 +237,7 @@
       "status": "UNKNOWN",
       "statusCode": "NOT_OBSERVED",
       "source": "static-pages+service-worker",
-      "revision": "v60.32",
+      "revision": "v60.33",
       "configured": true,
       "observed": "NOT_OBSERVED",
       "lastAttemptAt": null,
@@ -286,7 +286,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-20T01:52:00.810Z"
+        "evidenceEvaluatedAt": "2026-11-20T13:08:15.751Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -320,10 +320,10 @@
   },
   "reconciliation": {
     "tier0": {
-      "status": "MATCH",
+      "status": "BLOCKED",
       "artifact": "market-snapshot:2026-11-20T00:51:02.080Z:723f7b98",
-      "uiEvidence": "same-revision-contract",
-      "observedAtComplete": true
+      "uiEvidence": null,
+      "observedAtComplete": false
     },
     "artifact": "public-data/reconciliation-status.json",
     "categoryCount": 22,
@@ -598,5 +598,8 @@
     "cutoverStatus": "MIGRATION_IN_PROGRESS",
     "routeOwnersManifest": "architecture/route-owners.json"
   },
-  "blockers": []
+  "blockers": [
+    "durable_tier0_publish_blocked",
+    "durable_market_cycle_stale"
+  ]
 }

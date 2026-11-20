@@ -63,7 +63,7 @@ Owner decisions applied without re-asking; changed only by the user.
 - Workspace generators (`generate-workspace-state`, `sync-agent-*`, `bump-version`, `record-fix`) are not producers and run locally (v57.84).
 - **Markets:** US first; Korean themes and Korean-market content are real user features, labelled '한국' and secondary.
 - **Batches:** implement several items, one code-reviewer on the batch diff per `REVIEW.md`, then verify and record once.
-- **Information architecture (2026-10-01; 9 screens 2026-11-03):** 오늘(home, briefing, market-news), 시장 상태, 매크로(macro+fxbond), 기술적 분석, 테마 · 섹터, 스크리너, 종목(ticker+fundamental+technical), 포트폴리오, 리서치 라이브러리; 용어 사전 is a modal.
+- **Information architecture (2026-10-01; 9 screens 2026-11-03):** 오늘(home, briefing, market-news), 시장 상태, 매크로(macro+fxbond), 기술적 분석, 테마와 섹터, 스크리너, 종목(ticker+fundamental), 포트폴리오, 리서치 라이브러리; 용어 사전 is a modal.
 - 오늘: home = indexes, key prices and stocks, top news; briefing = the last 24h linked and explained.
 - 시장 상태 = objective diagnosis, scenarios, what to check; breadth and sentiment are evidence woven into each section, never a block of their own.
 - 매크로 reads each asset and ties it to the market; 기술적 분석 = index and core-stock charts.

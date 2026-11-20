@@ -71,22 +71,8 @@ export function renderScreenerRead({ documentRef: doc, root, rows = [] }) {
     validation: summarizeValidation(root?._aioScreenerBacktestHistory || [], root?._aioModelValidationStatus || null, root?._aioRankingWeights || null)
   });
   host.replaceChildren(el(doc, 'h2', '지금 순위가 말하는 것', 'briefing-h2'));
-  if (!read.available) { const rankRead = doc.getElementById('screener-rank-read'); if (rankRead) rankRead.hidden = true; host.append(el(doc, 'p', read.reason, 'daily-empty')); renderNextSteps(doc, doc.getElementById('screener-next'), []); return read; }
+  if (!read.available) { host.append(el(doc, 'p', read.reason, 'daily-empty')); renderNextSteps(doc, doc.getElementById('screener-next'), []); return read; }
   host.append(el(doc, 'p', read.headline, 'briefing-read-headline'));
-  // v59.51 (content audit): the 순위 view's head is one line — where the top fifth leans — over the three largest sector
-  // bars. The validation verdict is the banner chip below; rotation, theme stage and the reasoning live in 사후 검증.
-  const rankRead = doc.getElementById('screener-rank-read');
-  if (rankRead) {
-    const mixLine = String(read.points.find((point) => point.id === 'mix')?.text || read.headline).split(' — ')[0];
-    // v59.56: questions that start from the ranking, at the end of the 순위 view's read (the default view).
-    const ask = askRow(doc, [
-      ['상위 종목의 공통점', '지금 스크리너 상위 종목들의 공통점과 섹터·테마 쏠림을 설명해줘'],
-      ['지금 국면에 맞는 종목', '스크리너 상위 종목 중 지금 시장 국면에 맞는 종목을 고르는 기준을 알려줘'],
-      ['이 순위를 믿어도 되나', '이 스크리너 점수가 잘 맞았던 때와 틀렸던 때, 사후 검증 결과를 어떻게 읽어야 하는지 알려줘']
-    ], 'screener-read-ask');
-    rankRead.replaceChildren(el(doc, 'p', mixLine, 'scr-rank-read-line'), mixVisual(doc, read, 3), ...(ask ? [ask] : []));
-    rankRead.hidden = false;
-  }
   // P1599 (F106/C01): the reasoning comes first, but the table is one click away instead of two screens down.
   const jump = el(doc, 'button', '순위 표로 가기', 'flow-next-link');
   jump.type = 'button';
@@ -107,6 +93,13 @@ export function renderScreenerRead({ documentRef: doc, root, rows = [] }) {
   }
   layout.append(mixVisual(doc, read), list);
   host.append(layout);
+  // Questions that start from the ranking close the reading they are about.
+  const ask = askRow(doc, [
+    ['상위 종목의 공통점', '지금 스크리너 상위 종목들의 공통점과 섹터·테마 쏠림을 설명해줘'],
+    ['지금 국면에 맞는 종목', '스크리너 상위 종목 중 지금 시장 국면에 맞는 종목을 고르는 기준을 알려줘'],
+    ['이 순위를 믿어도 되나', '이 스크리너 점수가 잘 맞았던 때와 틀렸던 때, 사후 검증 결과를 어떻게 읽어야 하는지 알려줘']
+  ], 'screener-read-ask');
+  if (ask) host.append(ask);
   renderNextSteps(doc, doc.getElementById('screener-next'), read.next);
   if (tableRendered) syncScreenerNextLead(doc, tableLead, { scoped: tableLead?.scoped });
   return read;

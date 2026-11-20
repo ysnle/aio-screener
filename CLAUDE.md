@@ -3,11 +3,11 @@
 AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 변동하는 버전·라우트·파일 크기·지식 상태의 정본은 `_context/CURRENT-STATE.md`이며, 이 문서에는 복제하지 않는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v60.32**
-- **버전 이력 → CHANGELOG.md** (v52.62+ 상세, v52.61 이하는 압축 이력 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md`(현행 항목은 상단, §6은 압축 보관).
+- 현재 버전: **v60.33**
+- **버전 이력 → CHANGELOG.md** (v60.19 이하는 한 줄 요약 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md`(v60.19 이하는 절마다 한 줄).
 - 버전별 작업 요약은 CHANGELOG.md에만 쓴다.
 - 코드 구조: `index.html` 정적 셸 + `js/` 호환 모듈 + `src/` native ESM. 현재 집계는 `_context/CURRENT-STATE.md`, 구간 탐색은 `_context/CODE-MAP.md`를 사용한다.
-- 스택: HTML5 + 인라인 CSS/JS · 공용 SVG 차트 + lightweight-charts(CDN, 종목 차트) · AES-256 · GitHub Pages · 한국어 UI · 아이보리 테마(다크 지원) · WCAG AA
+- 스택: HTML5 + 인라인 CSS/JS · 공용 SVG 차트 + lightweight-charts(CDN, 기술적 분석 차트) · AES-256 · GitHub Pages · 한국어 UI · 아이보리 테마(다크 지원) · WCAG AA
 
 ---
 
@@ -69,7 +69,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 - 셸 heredoc·`sed`로 JS를 고치면 `\n` 같은 백슬래시가 사라지거나 실제 줄바꿈이 된다 — Edit 도구로 고치고 `node --check`
 - Node에서 git을 부를 때 `execSync('git rev-parse X^')`는 cmd.exe가 `^`를 먹는다 — `spawnSync('git', [...])`
-- `bump-version` 뒤 `qa-runner affected`는 `version.json` 때문에 브라우저까지 전 그룹(약 9분)을 돈다 — 배치 끝에 한 번, 백그라운드로
+- `bump-version` 뒤 `qa-runner affected`는 `version.json` 때문에 브라우저까지 전 그룹(약 20분)을 돈다 — 배치 끝에 한 번, 백그라운드로
 
 ---
 

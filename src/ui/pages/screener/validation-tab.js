@@ -469,9 +469,6 @@ export function createValidationController(ctx) {
             const note = documentRef.createElement('p'); note.textContent = `한국 상장 ${rows.length}종목을 독립 비교합니다. 팩터 비중·데이터 범위는 아래에 표시하며 미국 업종 회전과 과거 검증을 이 순위의 근거로 섞지 않습니다.`;
             host.replaceChildren(heading, note);
           }
-          // v58.80 (first-users bundle 8): the 순위 view kept the US reading ("순위 계산 810종목 … 기술·산업재 쏠림") over the KR table.
-          const rankRead = documentRef.getElementById('screener-rank-read');
-          if (rankRead) { rankRead.hidden = true; rankRead.textContent = ''; }
           // v57.50 I22: the KR ranking also continues somewhere — the Korean themes it sits in and its first name
           // (the table-lead sync below re-points the ticker link to the filtered table's first row).
           const ranked = rows.filter((row) => finite(row?.overallRank) != null).sort((a, b) => a.overallRank - b.overallRank); // the overall order

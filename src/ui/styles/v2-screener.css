@@ -5,8 +5,6 @@
 /* ═══ 1. Views: one route, three views on #page-screener[data-scr-view] ═══ */
 #page-screener:not([data-scr-view="validation"]) .scr-view-validation,
 #page-screener:not([data-scr-view="rank"]) .scr-view-rank { display: none; }
-#page-screener .scr-rank-read { margin: 0 0 12px; color: var(--color-text-secondary, inherit); line-height: 1.6; }
-#page-screener .scr-rank-read[hidden] { display: none; }
 #page-screener .scr-view-panel[hidden], #page-screener #scr-tab-ranking[hidden] { display: none; }
 #page-screener[data-scr-view="validation"] .scr-view-panel { margin: 0 0 16px; }
 
@@ -198,8 +196,6 @@ body:not(.aio-dev-mode) #page-screener .scr-dev-only { display: none; }
 #page-screener .scr-excess-value { text-align: right; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
 #page-screener .scr-excess-value.is-up { color: var(--color-data-up); }
 #page-screener .scr-excess-value.is-down { color: var(--color-data-down); }
-/* v59.55 (visual review): the 순위 head's sector mix — a share comparison in ink and gold at a reading width, not full-bleed rising red. */
-#page-screener .scr-rank-read .screener-mix { max-width: 640px; }
 #page-screener .screener-mix .stock-read-bar.is-stock { background: var(--color-text-primary); }
 #page-screener .screener-mix .stock-read-bar { height: 6px; border-radius: var(--radius-full); }
 #page-screener .screener-mix .stock-read-legend .is-stock::before { background: var(--color-text-primary); }

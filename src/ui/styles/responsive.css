@@ -548,7 +548,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 }
 .aio-note-fold[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
 /* Page-level text outside cards still starts on the text column (edge scan, every route at 1440px). */
-#page-screener #screener-rank-read, .rl-shell .rl-picks,
+.rl-shell .rl-picks,
 #page-ticker > .aio-section > .aio-section-hd, #page-ticker .ticker-start-title { padding-left: var(--sx-card-pad-x); }
 .page > details.sx-disclosure.sh-fold-mt16 > :not(summary) { padding: 0 var(--sx-card-pad-x) 16px; }
 /* Bare page-level folds: the native ▶ put their words 13px in; they take the text column and the drawn chevron. */
