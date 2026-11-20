@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-20T16:20:11.139Z",
-  "attemptedAt": "2026-11-20T16:20:11.139Z",
-  "lastSuccessfulAt": "2026-11-20T16:20:11.139Z",
+  "generatedAt": "2026-11-20T16:51:42.609Z",
+  "attemptedAt": "2026-11-20T16:51:42.609Z",
+  "lastSuccessfulAt": "2026-11-20T16:51:42.609Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-06T16:20:08.727Z",
-  "until": "2026-11-20T16:20:08.727Z",
+  "since": "2026-11-06T16:51:39.305Z",
+  "until": "2026-11-20T16:51:39.305Z",
   "current24hWindow": {
     "start": "2026-11-18T23:00:00.000Z",
     "end": "2026-11-19T23:00:00.000Z",
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 730,
-      "freshCount": 18,
-      "eligibleTextCount": 730,
+      "count": 731,
+      "freshCount": 38,
+      "eligibleTextCount": 731,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72491
+      "lastPostId": 72492
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2086,
-  "retainedItemCount": 387,
+  "count": 2087,
+  "retainedItemCount": 401,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2086,
-    "eligibleTextCount": 2026,
+    "observedCount": 2087,
+    "eligibleTextCount": 2027,
     "mediaOnlyCount": 60,
     "mediaAttachedCount": 833,
     "photoPostCount": 697,
     "documentPostCount": 5,
     "imageOnlyCount": 5,
-    "highSignalCount": 338,
-    "broadSignalCount": 866,
+    "highSignalCount": 339,
+    "broadSignalCount": 867,
     "selectedRawCount": 361,
     "selectedEligibleCount": 361,
     "selectedRawCoveragePct": 17.8,
@@ -160,17 +160,17 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "semi": 637,
+    "power": 235,
     "earnings": 269,
     "macro": 277,
     "geo": 279,
     "kr-market": 87,
     "market-note": 732,
-    "power": 234,
     "equity": 150,
     "credit": 72,
     "ai-policy": 145,
     "media-only": 59,
-    "semi": 636,
     "healthcare": 46,
     "flows": 51,
     "japan": 50,
@@ -178,13 +178,14 @@
     "insider": 2
   },
   "tickerCounts": {
-    "GOOG": 57,
+    "GOOG": 58,
+    "AVGO": 19,
+    "2454.TW": 7,
     "000660.KS": 18,
     "NVDA": 404,
     "TSLA": 33,
     "MU": 27,
     "AMD": 50,
-    "AVGO": 18,
     "AMZN": 53,
     "GOOGL": 4,
     "TSM": 68,
@@ -220,7 +221,6 @@
     "CRM": 1,
     "NKE": 1,
     "WDAY": 1,
-    "2454.TW": 6,
     "GS": 2,
     "WFC": 1,
     "BCS": 1,
@@ -264,11 +264,11 @@
   },
   "themes": [
     "Market Notes (732 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 49,097.77 (-2.19%) S&P 500: 7,175.89 (-2.02%) 나스닥:...",
-    "Semiconductors/Memory (636 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
+    "Semiconductors/Memory (637 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
     "Geopolitics (279 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 러시아 대통령이 우크라이나 전쟁의 평화를 원하고 있다고 주장. 미국은 최근 외교...",
     "Macro/Rates (277 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
     "Earnings/Corporate (269 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "AI Power/Grid (234 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "AI Power/Grid (235 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "Equity/Analyst (150 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 튀르키예와 태국에서 별도의 다이렉트 메시징 앱 테스트를 시작. • 아마존 (AMZN) — 앤트로픽...",
     "AI Policy/Export Controls (145 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한..."
   ],
@@ -285,7 +285,7 @@
     },
     {
       "key": "GOOG",
-      "count": 57,
+      "count": 58,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한 추가 군사행동을 서두르지 않겠으며, 공격이 이뤄질 경우 이스라엘과 협력할 것이라고 밝혀. • 미국과 중국..."
     },
     {
@@ -319,14 +319,14 @@
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 • 마이크론 (MU) — 경영진은 2027년 메모리 공급량의 75%가 이미 판매됐다고 밝힘. 메모리 가격 반전 우려와 달리 공급 여건이 추가로 타이트해질 것으로 예상하며, 2027년이 기록적인 2026년보다 더 강한 해가 될 것으로 전망. •..."
     },
     {
+      "key": "AVGO",
+      "count": 19,
+      "text": ">>인터넷 버블 ‘주역’의 경험자 - 전 Cisco 임원이 비교한 인터넷 대규모 인프라 투자 vs AI 대규모 인프라 투자 (중국언론) •전 Cisco 고위 임원 Mike Volpi는 현재 AI 인프라 투자..."
+    },
+    {
       "key": "000660.KS",
       "count": 18,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한 추가 군사행동을 서두르지 않겠으며, 공격이 이뤄질 경우 이스라엘과 협력할 것이라고 밝혀. • 미국과 중국..."
-    },
-    {
-      "key": "AVGO",
-      "count": 18,
-      "text": ">>인터넷 버블 ‘주역’의 경험자 - 전 Cisco 임원이 비교한 인터넷 대규모 인프라 투자 vs AI 대규모 인프라 투자 (중국언론) •전 Cisco 고위 임원 Mike Volpi는 현재 AI 인프라 투자..."
     },
     {
       "key": "CRWV",
@@ -368,7 +368,7 @@
       "topics": [
         "semi"
       ],
-      "count": 636,
+      "count": 637,
       "focus": ">>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고..."
     },
     {
@@ -386,7 +386,7 @@
       "topics": [
         "power"
       ],
-      "count": 234,
+      "count": 235,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -1699,6 +1699,26 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72492",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72492",
+      "datetime": "2026-11-20T16:32:42.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "lead": 1,
+      "score": 77,
+      "hasText": true,
+      "tickers": [
+        "GOOG",
+        "AVGO",
+        "2454.TW"
+      ],
+      "summary": ">>궈밍치: Google, Broadcom 설계 TPU 8i 시리즈 2027년 출하량 약 100만 개 하향 •궈밍치는 최신 업계 조사 결과, Google이 Broadcom이 설계한 TPU 8i 시리즈의..."
+    },
+    {
       "id": "HANAchina/72488",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72488",
@@ -2097,12 +2117,15 @@
       "datetime": "2026-11-20T04:50:47.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "earnings",
+        "flows"
       ],
       "score": 69,
       "hasText": true,
-      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 2027년 빈집 공략 : 중국 소비주 반전 7부 능선 자료: • 중국 소비주 4분기 시장...",
-      "tickers": []
+      "tickers": [],
+      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 2027년 빈집 공략 : 중국 소비주 반전 7부 능선 자료: • 중국 소비주 4분기 시장..."
     },
     {
       "id": "HANAchina/72467",
@@ -2111,6 +2134,7 @@
       "datetime": "2026-11-20T04:24:09.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
+        "macro",
         "ai-policy"
       ],
       "score": 62,
@@ -2121,8 +2145,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>달러, 4주 연속 상승 •달러가 4주 연속 상승할 것으로 예상되며, 연초 이후 3% 넘게 상승. Anthropic의 나스닥 상장 첫날 주가가 17% 상승, 해외 청약 규모가 약 100억-150억달러에...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>달러, 4주 연속 상승 •달러가 4주 연속 상승할 것으로 예상되며, 연초 이후 3% 넘게 상승. Anthropic의 나스닥 상장 첫날 주가가 17% 상승, 해외 청약 규모가 약 100억-150억달러에..."
     },
     {
       "id": "bornlupin/21215",
@@ -2185,13 +2209,13 @@
       "tags": [
         "earnings"
       ],
+      "lead": 1,
       "score": 54,
       "hasText": true,
-      "summary": ">>Citi, Alibaba 목표주가 하향…클라우드 매출 성장률 둔화 전망 •Alibaba가 20일 실적 발표에서 클라우드 서비스 매출 성장률이 현재 53%에서 내년 30~45%로 둔화될 것으로 전망,...",
-      "lead": 1,
       "tickers": [
         "BABA"
-      ]
+      ],
+      "summary": ">>Citi, Alibaba 목표주가 하향…클라우드 매출 성장률 둔화 전망 •Alibaba가 20일 실적 발표에서 클라우드 서비스 매출 성장률이 현재 53%에서 내년 30~45%로 둔화될 것으로 전망,..."
     },
     {
       "id": "HANAchina/72457",
@@ -2202,10 +2226,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "[11월 LPR(대출우대금리)고시 : 동결] >1년물 금리 3.0% (10월 3.0%) >5년물 금리 3.5% (10월 3.5%) **시장 예상 부합, 18개월 연속 동결",
-      "tickers": []
+      "tickers": [],
+      "summary": "[11월 LPR(대출우대금리)고시 : 동결] >1년물 금리 3.0% (10월 3.0%) >5년물 금리 3.5% (10월 3.5%) **시장 예상 부합, 18개월 연속 동결"
     },
     {
       "id": "insidertracking/69815",
@@ -2258,13 +2283,13 @@
         "semi",
         "ai-policy"
       ],
+      "lead": 1,
       "score": 61,
       "hasText": true,
-      "summary": ">>(영상) Micron CEO “2028년, 2026년보다 메모리 공급 더 타이트할 것” •Micron CEO는 AI 모델 확장과 애플리케이션 활용 심화로 메모리·스토리지 수요가 지속적으로 급증하면서 향후...",
-      "lead": 1,
       "tickers": [
         "MU"
-      ]
+      ],
+      "summary": ">>(영상) Micron CEO “2028년, 2026년보다 메모리 공급 더 타이트할 것” •Micron CEO는 AI 모델 확장과 애플리케이션 활용 심화로 메모리·스토리지 수요가 지속적으로 급증하면서 향후..."
     },
     {
       "id": "HANAchina/72455",
@@ -2275,11 +2300,11 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>(요약) TrendForce, 2027년 NAND 플래시 가격 하락 전망…중국 클라우드업체 주문 감소가 북미 수요 증가를 상회 •TrendForce는 공급 측 생산능력 확대, 중국 클라우드 서비스 업체의...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>(요약) TrendForce, 2027년 NAND 플래시 가격 하락 전망…중국 클라우드업체 주문 감소가 북미 수요 증가를 상회 •TrendForce는 공급 측 생산능력 확대, 중국 클라우드 서비스 업체의..."
     },
     {
       "id": "HANAchina/72450",
@@ -6968,26 +6993,6 @@
       "score": 62,
       "hasText": true,
       "summary": ">>모건스탠리, 글로벌 주식에 ‘최대폭 비중확대’ 권고…AI 자본지출 사이클 여전히 견조 •모건스탠리는 AI 자본지출 사이클이 여전히 견조하다고 판단하며 글로벌 주식에 ‘최대폭 비중확대’를 권고. AI...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/72192",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72192",
-      "datetime": "2026-11-16T02:06:11.000Z",
-      "localDateKst": "2026-11-16",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "[중 국 10월 경제지표: 모든 지표 예상 하회] •10월 산업생산 YoY+4.8% (예상 YoY +5.3% / 9월 +5.5%) •10월 소매판매 YoY+0.4% (예상 YoY+0.8%/ 9월 +1.1%)...",
       "tickers": []
     },
     {
