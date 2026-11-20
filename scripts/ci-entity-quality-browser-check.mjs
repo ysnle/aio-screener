@@ -119,7 +119,8 @@ try {
       await page.evaluate(()=>{ window.showTicker('AEHR'); });
       // 2026-11-19: 개요 is the company (사업 · 밸류체인 안의 자리 · 재무 한눈에); the price chart is 기술적 분석's.
       await page.waitForFunction(()=>document.getElementById('ticker-hero-price')?.textContent.includes('84.64')
-        && document.querySelectorAll('#ticker-company:not([hidden]) [data-company-section]').length>=3, null, {timeout:20000});
+        && document.querySelectorAll('#ticker-company:not([hidden]) [data-company-section]').length>=3
+        && document.querySelector('#ticker-company details[data-fold-kind="sources"] a'), null, {timeout:20000}); // the listing description (and its source link) arrives after the sections
       const summary = await page.evaluate(()=>({ price:document.getElementById('ticker-hero-price').textContent,
         basis:document.getElementById('ticker-summary-price-basis').textContent,
         name:document.getElementById('ticker-hero-fullname').textContent,
