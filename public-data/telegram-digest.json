@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-20T09:26:14.051Z",
-  "attemptedAt": "2026-11-20T09:26:14.051Z",
-  "lastSuccessfulAt": "2026-11-20T09:26:14.051Z",
+  "generatedAt": "2026-11-20T09:51:45.268Z",
+  "attemptedAt": "2026-11-20T09:51:45.268Z",
+  "lastSuccessfulAt": "2026-11-20T09:51:45.268Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-06T09:26:09.114Z",
-  "until": "2026-11-20T09:26:09.114Z",
+  "since": "2026-11-06T09:51:41.098Z",
+  "until": "2026-11-20T09:51:41.098Z",
   "current24hWindow": {
     "start": "2026-11-18T23:00:00.000Z",
     "end": "2026-11-19T23:00:00.000Z",
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 733,
+      "count": 734,
       "freshCount": 38,
-      "eligibleTextCount": 733,
+      "eligibleTextCount": 734,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72479
+      "lastPostId": 72480
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,15 +137,15 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2123,
+  "count": 2124,
   "retainedItemCount": 409,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2123,
-    "eligibleTextCount": 2065,
+    "observedCount": 2124,
+    "eligibleTextCount": 2066,
     "mediaOnlyCount": 58,
     "mediaAttachedCount": 855,
     "photoPostCount": 716,
@@ -160,6 +160,7 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "flows": 53,
     "power": 239,
     "equity": 151,
     "market-note": 750,
@@ -167,7 +168,6 @@
     "semi": 638,
     "earnings": 275,
     "kr-market": 89,
-    "flows": 52,
     "ai-policy": 146,
     "japan": 52,
     "geo": 285,
@@ -459,8 +459,8 @@
       "topics": [
         "flows"
       ],
-      "count": 52,
-      "focus": "No retained full-text sample; 52 observed posts in the 14-day research window."
+      "count": 53,
+      "focus": "하나 중국/신흥국 전략 김경환 pinned « 하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 2027년 빈집 공략 : 중국 소비주 반전 7부 능선 자료: • 중국 소비주 4분기 시장 아웃퍼폼, 밸류에이션과 수급 플레이 시작 : 우리는 2027년..."
     },
     {
       "id": "insider",
@@ -2358,17 +2358,16 @@
       "datetime": "2026-11-19T23:07:02.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "semi",
-        "credit"
+        "semi"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": ">>Hunterbrook 공매도 보고서에 AMD 급락…“순환거래 존재, 엔비디아보다 훨씬 큰 규모 약속” 주장, AMD 반박 •Hunterbrook Capital은 AMD가 자사 칩을 구매하는 기업에...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD"
-      ],
-      "summary": ">>Hunterbrook 공매도 보고서에 AMD 급락…“순환거래 존재, 엔비디아보다 훨씬 큰 규모 약속” 주장, AMD 반박 •Hunterbrook Capital은 AMD가 자사 칩을 구매하는 기업에..."
+      ]
     },
     {
       "id": "HANAchina/72437",
