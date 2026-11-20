@@ -6,14 +6,14 @@
     "P1626",
     "P1627"
   ],
-  "version": "v60.33",
+  "version": "v60.34",
   "sourceHashes": {
-    "index.html": "f0d14f5a21b5d93e1913bd77ae07e19486ee470adf1714ba00692acbb9d4846e",
-    "src/ui/pages/entity.js": "55aea2d3beb977da382e6f0a145ddb3ac1463dae6fab29b4028a76a994e1a961",
+    "index.html": "97b027569f269adba69c7b449ba90ba230958137df8e1393bd719050b35daf2a",
+    "src/ui/pages/entity.js": "4e9acfd569b70be1f6ec29a08baf83988df7da27d13f6995cb98e6010867d830",
     "src/ui/pages/screener.js": "ebe10360d1dc204f0d0770afe86d63b5ff9003c507df7ed73e806747f96d29d9",
     "src/ui/pages/analysis.js": "9aceace7dd0a36b29804c606b5fb6d03c036ae7a723d67065bfeb9dabf3fd8e6",
     "src/ui/components/stock-chart.js": "23cd837e403affc9b4bccbb5a12c42b1b10991707b7792b8e43ca62988f38729",
-    "src/ui/components/company-overview.js": "835983e3a5ab75c01696ab95a2a68c040bdd4b59c767ce143e5737575c849dcd",
+    "src/ui/components/company-overview.js": "ab95c15e42964f8e2f4ff011ca318b809725cc903bec711cf0f82d7d6497cdeb",
     "src/ui/components/fiscal-read.js": "5a451e2e8e2f28de86aa53e62540db8ef0590acb21df95910e47a181a1f84716",
     "src/domain/entity/summary-hydration.js": "38f39fac084103fb3e8d273debb308475286b87990ce5025c473bc898dcf123f",
     "src/domain/screener/market-scope.js": "29bea711668f3d6df55e8e5994b3108e8f384cc5214b548aa69003c9e203c384",
@@ -63,7 +63,7 @@
   ],
   "observations": [
     {
-      "label": "phone-light",
+      "label": "tablet-light",
       "summary": {
         "price": "$84.64",
         "basis": "정규장 관측가, 2026-10-10 05:00 한국 시간",
@@ -81,15 +81,7 @@
       "fixtureRequests": 2
     },
     {
-      "label": "phone-light/summary",
-      "layout": {
-        "route": "page-ticker",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "tablet-light",
+      "label": "phone-light",
       "summary": {
         "price": "$84.64",
         "basis": "정규장 관측가, 2026-10-10 05:00 한국 시간",
@@ -115,14 +107,22 @@
       }
     },
     {
-      "label": "phone-light",
+      "label": "phone-light/summary",
+      "layout": {
+        "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "tablet-light",
       "companyFoldRerender": {
         "open": true,
         "focus": true
       }
     },
     {
-      "label": "tablet-light",
+      "label": "phone-light",
       "companyFoldRerender": {
         "open": true,
         "focus": true
@@ -144,7 +144,7 @@
         "chart": false,
         "active": "page-ticker"
       },
-      "fixtureRequests": 1
+      "fixtureRequests": 2
     },
     {
       "label": "phone-dark/summary",
@@ -160,73 +160,6 @@
         "open": true,
         "focus": true
       }
-    },
-    {
-      "label": "phone-light",
-      "market": "US",
-      "listing": [
-        {
-          "symbol": "OKTA",
-          "price": "$206.8511/19 종가",
-          "ret3m": 53.1
-        },
-        {
-          "symbol": "GME",
-          "price": "$26.9311/19 종가",
-          "ret3m": 47.9
-        },
-        {
-          "symbol": "EPAM",
-          "price": "$150.4411/19 종가",
-          "ret3m": 36.3
-        },
-        {
-          "symbol": "PTC",
-          "price": "$195.6311/19 종가",
-          "ret3m": 26.5
-        },
-        {
-          "symbol": "HAS",
-          "price": "$114.7111/19 종가",
-          "ret3m": 23.4
-        },
-        {
-          "symbol": "CDW",
-          "price": "$167.6111/19 종가",
-          "ret3m": 22.7
-        },
-        {
-          "symbol": "MTD",
-          "price": "$1,705.6611/19 종가",
-          "ret3m": 22.3
-        },
-        {
-          "symbol": "EXEL",
-          "price": "$65.8311/19 종가",
-          "ret3m": 21.7
-        },
-        {
-          "symbol": "WMG",
-          "price": "$32.7611/19 종가",
-          "ret3m": 20.8
-        },
-        {
-          "symbol": "ULTA",
-          "price": "$629.3411/19 종가",
-          "ret3m": 20.7
-        },
-        {
-          "symbol": "SN",
-          "price": "$216.8011/19 종가",
-          "ret3m": 19.9
-        },
-        {
-          "symbol": "ACN",
-          "price": "$218.5811/19 종가",
-          "ret3m": 18.9
-        }
-      ],
-      "note": "미국 순위 계산 817종목(기본 종목 범위), 표시 331개"
     },
     {
       "label": "tablet-light",
@@ -297,87 +230,137 @@
     },
     {
       "label": "phone-light",
-      "market": "KR",
+      "market": "US",
       "listing": [
         {
-          "symbol": "180640.KS",
-          "price": "—",
-          "ret3m": 81.7
+          "symbol": "OKTA",
+          "price": "$206.8511/19 종가",
+          "ret3m": 53.1
         },
         {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 77.1
+          "symbol": "GME",
+          "price": "$26.9311/19 종가",
+          "ret3m": 47.9
         },
         {
-          "symbol": "036540.KQ",
-          "price": "—",
-          "ret3m": 49.8
+          "symbol": "EPAM",
+          "price": "$150.4411/19 종가",
+          "ret3m": 36.3
         },
         {
-          "symbol": "000500.KS",
-          "price": "—",
-          "ret3m": 34.5
+          "symbol": "PTC",
+          "price": "$195.6311/19 종가",
+          "ret3m": 26.5
         },
         {
-          "symbol": "041510.KQ",
-          "price": "—",
-          "ret3m": 33.9
+          "symbol": "HAS",
+          "price": "$114.7111/19 종가",
+          "ret3m": 23.4
         },
         {
-          "symbol": "028050.KS",
-          "price": "—",
-          "ret3m": 32.4
+          "symbol": "CDW",
+          "price": "$167.6111/19 종가",
+          "ret3m": 22.7
         },
         {
-          "symbol": "003490.KS",
-          "price": "—",
-          "ret3m": 28.5
+          "symbol": "MTD",
+          "price": "$1,705.6611/19 종가",
+          "ret3m": 22.3
         },
         {
-          "symbol": "020560.KS",
-          "price": "—",
-          "ret3m": 27.5
-        },
-        {
-          "symbol": "032500.KQ",
-          "price": "—",
-          "ret3m": 27.3
-        },
-        {
-          "symbol": "122870.KQ",
-          "price": "—",
-          "ret3m": 22.4
-        },
-        {
-          "symbol": "043260.KQ",
-          "price": "—",
+          "symbol": "EXEL",
+          "price": "$65.8311/19 종가",
           "ret3m": 21.7
         },
         {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 21.6
+          "symbol": "WMG",
+          "price": "$32.7611/19 종가",
+          "ret3m": 20.8
+        },
+        {
+          "symbol": "ULTA",
+          "price": "$629.3411/19 종가",
+          "ret3m": 20.7
+        },
+        {
+          "symbol": "SN",
+          "price": "$216.8011/19 종가",
+          "ret3m": 19.9
+        },
+        {
+          "symbol": "ACN",
+          "price": "$218.5811/19 종가",
+          "ret3m": 18.9
         }
       ],
-      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
+      "note": "미국 순위 계산 817종목(기본 종목 범위), 표시 331개"
     },
     {
-      "label": "phone-light",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "phone-light/screener",
-      "layout": {
-        "route": "page-screener",
-        "overflow": 0,
-        "clipped": []
-      }
+      "label": "phone-dark",
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "OKTA",
+          "price": "$206.8511/19 종가",
+          "ret3m": 53.1
+        },
+        {
+          "symbol": "GME",
+          "price": "$26.9311/19 종가",
+          "ret3m": 47.9
+        },
+        {
+          "symbol": "EPAM",
+          "price": "$150.4411/19 종가",
+          "ret3m": 36.3
+        },
+        {
+          "symbol": "PTC",
+          "price": "$195.6311/19 종가",
+          "ret3m": 26.5
+        },
+        {
+          "symbol": "HAS",
+          "price": "$114.7111/19 종가",
+          "ret3m": 23.4
+        },
+        {
+          "symbol": "CDW",
+          "price": "$167.6111/19 종가",
+          "ret3m": 22.7
+        },
+        {
+          "symbol": "MTD",
+          "price": "$1,705.6611/19 종가",
+          "ret3m": 22.3
+        },
+        {
+          "symbol": "EXEL",
+          "price": "$65.8311/19 종가",
+          "ret3m": 21.7
+        },
+        {
+          "symbol": "WMG",
+          "price": "$32.7611/19 종가",
+          "ret3m": 20.8
+        },
+        {
+          "symbol": "ULTA",
+          "price": "$629.3411/19 종가",
+          "ret3m": 20.7
+        },
+        {
+          "symbol": "SN",
+          "price": "$216.8011/19 종가",
+          "ret3m": 19.9
+        },
+        {
+          "symbol": "ACN",
+          "price": "$218.5811/19 종가",
+          "ret3m": 18.9
+        }
+      ],
+      "note": "미국 순위 계산 817종목(기본 종목 범위), 표시 331개"
     },
     {
       "label": "tablet-light",
@@ -464,164 +447,175 @@
       }
     },
     {
-      "label": "phone-dark",
-      "market": "US",
+      "label": "phone-light",
+      "market": "KR",
       "listing": [
         {
-          "symbol": "OKTA",
-          "price": "$206.8511/19 종가",
-          "ret3m": 53.1
+          "symbol": "180640.KS",
+          "price": "—",
+          "ret3m": 81.7
         },
         {
-          "symbol": "GME",
-          "price": "$26.9311/19 종가",
-          "ret3m": 47.9
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 77.1
         },
         {
-          "symbol": "EPAM",
-          "price": "$150.4411/19 종가",
-          "ret3m": 36.3
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 49.8
         },
         {
-          "symbol": "PTC",
-          "price": "$195.6311/19 종가",
-          "ret3m": 26.5
+          "symbol": "000500.KS",
+          "price": "—",
+          "ret3m": 34.5
         },
         {
-          "symbol": "HAS",
-          "price": "$114.7111/19 종가",
-          "ret3m": 23.4
+          "symbol": "041510.KQ",
+          "price": "—",
+          "ret3m": 33.9
         },
         {
-          "symbol": "CDW",
-          "price": "$167.6111/19 종가",
-          "ret3m": 22.7
+          "symbol": "028050.KS",
+          "price": "—",
+          "ret3m": 32.4
         },
         {
-          "symbol": "MTD",
-          "price": "$1,705.6611/19 종가",
-          "ret3m": 22.3
+          "symbol": "003490.KS",
+          "price": "—",
+          "ret3m": 28.5
         },
         {
-          "symbol": "EXEL",
-          "price": "$65.8311/19 종가",
+          "symbol": "020560.KS",
+          "price": "—",
+          "ret3m": 27.5
+        },
+        {
+          "symbol": "032500.KQ",
+          "price": "—",
+          "ret3m": 27.3
+        },
+        {
+          "symbol": "122870.KQ",
+          "price": "—",
+          "ret3m": 22.4
+        },
+        {
+          "symbol": "043260.KQ",
+          "price": "—",
           "ret3m": 21.7
         },
         {
-          "symbol": "WMG",
-          "price": "$32.7611/19 종가",
-          "ret3m": 20.8
-        },
-        {
-          "symbol": "ULTA",
-          "price": "$629.3411/19 종가",
-          "ret3m": 20.7
-        },
-        {
-          "symbol": "SN",
-          "price": "$216.8011/19 종가",
-          "ret3m": 19.9
-        },
-        {
-          "symbol": "ACN",
-          "price": "$218.5811/19 종가",
-          "ret3m": 18.9
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 21.6
         }
       ],
-      "note": "미국 순위 계산 817종목(기본 종목 범위), 표시 331개"
-    },
-    {
-      "label": "tablet-light",
-      "fiscal": {
-        "rows": 19,
-        "captions": [
-          "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
-          "분기 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
-          "지표, 이 기업의 값과 방향, 미확인은 공시 수집본에 없는 항목"
-        ],
-        "loss": [
-          {
-            "top": 90.284,
-            "height": 2.764,
-            "zero": 90.284
-          },
-          {
-            "top": 90.284,
-            "height": 5.331,
-            "zero": 90.284
-          },
-          {
-            "top": 90.284,
-            "height": 9.716,
-            "zero": 90.284
-          },
-          {
-            "top": 91.086,
-            "height": 2.837,
-            "zero": 91.086
-          },
-          {
-            "top": 91.086,
-            "height": 1.774,
-            "zero": 91.086
-          },
-          {
-            "top": 91.086,
-            "height": 5.751,
-            "zero": 91.086
-          },
-          {
-            "top": 91.086,
-            "height": 8.914,
-            "zero": 91.086
-          },
-          {
-            "top": 91.086,
-            "height": 8.839,
-            "zero": 91.086
-          },
-          {
-            "top": 26.316,
-            "height": 15.789,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 26.316,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 63.158,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 57.895,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 73.684,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 47.368,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 31.579,
-            "zero": 26.316
-          }
-        ],
-        "tableText": "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-311,660만 달러-203만 달러-270만 달러23만 달러-293만 달러1,145만 달러168만 달러24.2M주2022-05-315,083만 달러945만 달러151만 달러42만 달러109만 달러5,099만 달러자료 없음27.3M주2023-05-316,496만 달러1,456만 달러1,001만 달러136만 달러865만 달러7,560만 달러자료 없음28.8M주2024-05-316,622만 달러3,316만 달러176만 달러75만 달러101만 달러1.1억 달러자료 없음29.0M주2025-05-305,897만 달러-391만 달러-740만 달러499만 달러-1,239만 달러1.2억 달러자료 없음29.9M주2026-05-295,000만 달러-713만 달러-331만 달러207만 달러-538만 달러2.2억 달러자료 없음32.6M주",
-        "basis": "최근 4개 분기(2026-09 분기까지) 매출 7,204만 달러, 순이익 214만 달러, 순이익률 3.0% — 전년 같은 4개 분기 대비 매출 +26.8%. (4분기 하나는 연간에서 1~3분기를 뺀 값)"
-      }
+      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
     },
     {
       "label": "phone-light",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "phone-light/screener",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "phone-dark",
+      "market": "KR",
+      "listing": [
+        {
+          "symbol": "180640.KS",
+          "price": "—",
+          "ret3m": 81.7
+        },
+        {
+          "symbol": "030530.KQ",
+          "price": "—",
+          "ret3m": 77.1
+        },
+        {
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 49.8
+        },
+        {
+          "symbol": "000500.KS",
+          "price": "—",
+          "ret3m": 34.5
+        },
+        {
+          "symbol": "041510.KQ",
+          "price": "—",
+          "ret3m": 33.9
+        },
+        {
+          "symbol": "028050.KS",
+          "price": "—",
+          "ret3m": 32.4
+        },
+        {
+          "symbol": "003490.KS",
+          "price": "—",
+          "ret3m": 28.5
+        },
+        {
+          "symbol": "020560.KS",
+          "price": "—",
+          "ret3m": 27.5
+        },
+        {
+          "symbol": "032500.KQ",
+          "price": "—",
+          "ret3m": 27.3
+        },
+        {
+          "symbol": "122870.KQ",
+          "price": "—",
+          "ret3m": 22.4
+        },
+        {
+          "symbol": "043260.KQ",
+          "price": "—",
+          "ret3m": 21.7
+        },
+        {
+          "symbol": "192820.KS",
+          "price": "—",
+          "ret3m": 21.6
+        }
+      ],
+      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
+    },
+    {
+      "label": "phone-dark",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "phone-dark/screener",
+      "layout": {
+        "route": "page-screener",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "tablet-light",
       "fiscal": {
         "rows": 19,
         "captions": [
@@ -719,93 +713,99 @@
       }
     },
     {
-      "label": "phone-light/fiscal",
-      "layout": {
-        "route": "page-fundamental",
-        "overflow": 0,
-        "clipped": []
+      "label": "phone-light",
+      "fiscal": {
+        "rows": 19,
+        "captions": [
+          "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
+          "분기 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
+          "지표, 이 기업의 값과 방향, 미확인은 공시 수집본에 없는 항목"
+        ],
+        "loss": [
+          {
+            "top": 90.284,
+            "height": 2.764,
+            "zero": 90.284
+          },
+          {
+            "top": 90.284,
+            "height": 5.331,
+            "zero": 90.284
+          },
+          {
+            "top": 90.284,
+            "height": 9.716,
+            "zero": 90.284
+          },
+          {
+            "top": 91.086,
+            "height": 2.837,
+            "zero": 91.086
+          },
+          {
+            "top": 91.086,
+            "height": 1.774,
+            "zero": 91.086
+          },
+          {
+            "top": 91.086,
+            "height": 5.751,
+            "zero": 91.086
+          },
+          {
+            "top": 91.086,
+            "height": 8.914,
+            "zero": 91.086
+          },
+          {
+            "top": 91.086,
+            "height": 8.839,
+            "zero": 91.086
+          },
+          {
+            "top": 26.316,
+            "height": 15.789,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 26.316,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 63.158,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 57.895,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 73.684,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 47.368,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 31.579,
+            "zero": 26.316
+          }
+        ],
+        "tableText": "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-311,660만 달러-203만 달러-270만 달러23만 달러-293만 달러1,145만 달러168만 달러24.2M주2022-05-315,083만 달러945만 달러151만 달러42만 달러109만 달러5,099만 달러자료 없음27.3M주2023-05-316,496만 달러1,456만 달러1,001만 달러136만 달러865만 달러7,560만 달러자료 없음28.8M주2024-05-316,622만 달러3,316만 달러176만 달러75만 달러101만 달러1.1억 달러자료 없음29.0M주2025-05-305,897만 달러-391만 달러-740만 달러499만 달러-1,239만 달러1.2억 달러자료 없음29.9M주2026-05-295,000만 달러-713만 달러-331만 달러207만 달러-538만 달러2.2억 달러자료 없음32.6M주",
+        "basis": "최근 4개 분기(2026-09 분기까지) 매출 7,204만 달러, 순이익 214만 달러, 순이익률 3.0% — 전년 같은 4개 분기 대비 매출 +26.8%. (4분기 하나는 연간에서 1~3분기를 뺀 값)"
       }
     },
     {
-      "label": "phone-dark",
-      "market": "KR",
-      "listing": [
-        {
-          "symbol": "180640.KS",
-          "price": "—",
-          "ret3m": 81.7
-        },
-        {
-          "symbol": "030530.KQ",
-          "price": "—",
-          "ret3m": 77.1
-        },
-        {
-          "symbol": "036540.KQ",
-          "price": "—",
-          "ret3m": 49.8
-        },
-        {
-          "symbol": "000500.KS",
-          "price": "—",
-          "ret3m": 34.5
-        },
-        {
-          "symbol": "041510.KQ",
-          "price": "—",
-          "ret3m": 33.9
-        },
-        {
-          "symbol": "028050.KS",
-          "price": "—",
-          "ret3m": 32.4
-        },
-        {
-          "symbol": "003490.KS",
-          "price": "—",
-          "ret3m": 28.5
-        },
-        {
-          "symbol": "020560.KS",
-          "price": "—",
-          "ret3m": 27.5
-        },
-        {
-          "symbol": "032500.KQ",
-          "price": "—",
-          "ret3m": 27.3
-        },
-        {
-          "symbol": "122870.KQ",
-          "price": "—",
-          "ret3m": 22.4
-        },
-        {
-          "symbol": "043260.KQ",
-          "price": "—",
-          "ret3m": 21.7
-        },
-        {
-          "symbol": "192820.KS",
-          "price": "—",
-          "ret3m": 21.6
-        }
-      ],
-      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
-    },
-    {
-      "label": "phone-dark",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "phone-dark/screener",
+      "label": "phone-light/fiscal",
       "layout": {
-        "route": "page-screener",
+        "route": "page-fundamental",
         "overflow": 0,
         "clipped": []
       }
@@ -1066,7 +1066,14 @@
         "chart": false,
         "active": "page-ticker"
       },
-      "fixtureRequests": 1
+      "fixtureRequests": 2
+    },
+    {
+      "label": "desktop-light",
+      "companyFoldRerender": {
+        "open": true,
+        "focus": true
+      }
     },
     {
       "label": "tablet-dark/summary",
@@ -1077,13 +1084,6 @@
       }
     },
     {
-      "label": "desktop-light",
-      "companyFoldRerender": {
-        "open": true,
-        "focus": true
-      }
-    },
-    {
       "label": "desktop-dark",
       "companyFoldRerender": {
         "open": true,
@@ -1166,73 +1166,6 @@
     },
     {
       "label": "desktop-dark",
-      "market": "US",
-      "listing": [
-        {
-          "symbol": "OKTA",
-          "price": "$206.8511/19 종가",
-          "ret3m": 53.1
-        },
-        {
-          "symbol": "GME",
-          "price": "$26.9311/19 종가",
-          "ret3m": 47.9
-        },
-        {
-          "symbol": "EPAM",
-          "price": "$150.4411/19 종가",
-          "ret3m": 36.3
-        },
-        {
-          "symbol": "PTC",
-          "price": "$195.6311/19 종가",
-          "ret3m": 26.5
-        },
-        {
-          "symbol": "HAS",
-          "price": "$114.7111/19 종가",
-          "ret3m": 23.4
-        },
-        {
-          "symbol": "CDW",
-          "price": "$167.6111/19 종가",
-          "ret3m": 22.7
-        },
-        {
-          "symbol": "MTD",
-          "price": "$1,705.6611/19 종가",
-          "ret3m": 22.3
-        },
-        {
-          "symbol": "EXEL",
-          "price": "$65.8311/19 종가",
-          "ret3m": 21.7
-        },
-        {
-          "symbol": "WMG",
-          "price": "$32.7611/19 종가",
-          "ret3m": 20.8
-        },
-        {
-          "symbol": "ULTA",
-          "price": "$629.3411/19 종가",
-          "ret3m": 20.7
-        },
-        {
-          "symbol": "SN",
-          "price": "$216.8011/19 종가",
-          "ret3m": 19.9
-        },
-        {
-          "symbol": "ACN",
-          "price": "$218.5811/19 종가",
-          "ret3m": 18.9
-        }
-      ],
-      "note": "미국 순위 계산 817종목(기본 종목 범위), 표시 331개"
-    },
-    {
-      "label": "tablet-dark",
       "market": "US",
       "listing": [
         {
@@ -1381,6 +1314,73 @@
         "overflow": 0,
         "clipped": []
       }
+    },
+    {
+      "label": "tablet-dark",
+      "market": "US",
+      "listing": [
+        {
+          "symbol": "OKTA",
+          "price": "$206.8511/19 종가",
+          "ret3m": 53.1
+        },
+        {
+          "symbol": "GME",
+          "price": "$26.9311/19 종가",
+          "ret3m": 47.9
+        },
+        {
+          "symbol": "EPAM",
+          "price": "$150.4411/19 종가",
+          "ret3m": 36.3
+        },
+        {
+          "symbol": "PTC",
+          "price": "$195.6311/19 종가",
+          "ret3m": 26.5
+        },
+        {
+          "symbol": "HAS",
+          "price": "$114.7111/19 종가",
+          "ret3m": 23.4
+        },
+        {
+          "symbol": "CDW",
+          "price": "$167.6111/19 종가",
+          "ret3m": 22.7
+        },
+        {
+          "symbol": "MTD",
+          "price": "$1,705.6611/19 종가",
+          "ret3m": 22.3
+        },
+        {
+          "symbol": "EXEL",
+          "price": "$65.8311/19 종가",
+          "ret3m": 21.7
+        },
+        {
+          "symbol": "WMG",
+          "price": "$32.7611/19 종가",
+          "ret3m": 20.8
+        },
+        {
+          "symbol": "ULTA",
+          "price": "$629.3411/19 종가",
+          "ret3m": 20.7
+        },
+        {
+          "symbol": "SN",
+          "price": "$216.8011/19 종가",
+          "ret3m": 19.9
+        },
+        {
+          "symbol": "ACN",
+          "price": "$218.5811/19 종가",
+          "ret3m": 18.9
+        }
+      ],
+      "note": "미국 순위 계산 817종목(기본 종목 범위), 표시 331개"
     },
     {
       "label": "desktop-dark",
@@ -1551,96 +1551,6 @@
       }
     },
     {
-      "label": "tablet-dark",
-      "fiscal": {
-        "rows": 19,
-        "captions": [
-          "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
-          "분기 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
-          "지표, 이 기업의 값과 방향, 미확인은 공시 수집본에 없는 항목"
-        ],
-        "loss": [
-          {
-            "top": 90.284,
-            "height": 2.764,
-            "zero": 90.284
-          },
-          {
-            "top": 90.284,
-            "height": 5.331,
-            "zero": 90.284
-          },
-          {
-            "top": 90.284,
-            "height": 9.716,
-            "zero": 90.284
-          },
-          {
-            "top": 91.086,
-            "height": 2.837,
-            "zero": 91.086
-          },
-          {
-            "top": 91.086,
-            "height": 1.774,
-            "zero": 91.086
-          },
-          {
-            "top": 91.086,
-            "height": 5.751,
-            "zero": 91.086
-          },
-          {
-            "top": 91.086,
-            "height": 8.914,
-            "zero": 91.086
-          },
-          {
-            "top": 91.086,
-            "height": 8.839,
-            "zero": 91.086
-          },
-          {
-            "top": 26.316,
-            "height": 15.789,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 26.316,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 63.158,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 57.895,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 73.684,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 47.368,
-            "zero": 26.316
-          },
-          {
-            "top": 26.316,
-            "height": 31.579,
-            "zero": 26.316
-          }
-        ],
-        "tableText": "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-311,660만 달러-203만 달러-270만 달러23만 달러-293만 달러1,145만 달러168만 달러24.2M주2022-05-315,083만 달러945만 달러151만 달러42만 달러109만 달러5,099만 달러자료 없음27.3M주2023-05-316,496만 달러1,456만 달러1,001만 달러136만 달러865만 달러7,560만 달러자료 없음28.8M주2024-05-316,622만 달러3,316만 달러176만 달러75만 달러101만 달러1.1억 달러자료 없음29.0M주2025-05-305,897만 달러-391만 달러-740만 달러499만 달러-1,239만 달러1.2억 달러자료 없음29.9M주2026-05-295,000만 달러-713만 달러-331만 달러207만 달러-538만 달러2.2억 달러자료 없음32.6M주",
-        "basis": "최근 4개 분기(2026-09 분기까지) 매출 7,204만 달러, 순이익 214만 달러, 순이익률 3.0% — 전년 같은 4개 분기 대비 매출 +26.8%. (4분기 하나는 연간에서 1~3분기를 뺀 값)"
-      }
-    },
-    {
       "label": "desktop-light",
       "fiscal": {
         "rows": 19,
@@ -1731,7 +1641,7 @@
       }
     },
     {
-      "label": "tablet-dark/fiscal",
+      "label": "desktop-light/fiscal",
       "layout": {
         "route": "page-fundamental",
         "overflow": 0,
@@ -1739,7 +1649,97 @@
       }
     },
     {
-      "label": "desktop-light/fiscal",
+      "label": "tablet-dark",
+      "fiscal": {
+        "rows": 19,
+        "captions": [
+          "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
+          "분기 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다",
+          "지표, 이 기업의 값과 방향, 미확인은 공시 수집본에 없는 항목"
+        ],
+        "loss": [
+          {
+            "top": 90.284,
+            "height": 2.764,
+            "zero": 90.284
+          },
+          {
+            "top": 90.284,
+            "height": 5.331,
+            "zero": 90.284
+          },
+          {
+            "top": 90.284,
+            "height": 9.716,
+            "zero": 90.284
+          },
+          {
+            "top": 91.086,
+            "height": 2.837,
+            "zero": 91.086
+          },
+          {
+            "top": 91.086,
+            "height": 1.774,
+            "zero": 91.086
+          },
+          {
+            "top": 91.086,
+            "height": 5.751,
+            "zero": 91.086
+          },
+          {
+            "top": 91.086,
+            "height": 8.914,
+            "zero": 91.086
+          },
+          {
+            "top": 91.086,
+            "height": 8.839,
+            "zero": 91.086
+          },
+          {
+            "top": 26.316,
+            "height": 15.789,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 26.316,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 63.158,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 57.895,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 73.684,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 47.368,
+            "zero": 26.316
+          },
+          {
+            "top": 26.316,
+            "height": 31.579,
+            "zero": 26.316
+          }
+        ],
+        "tableText": "연간 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다회계연도 말매출순이익영업현금흐름설비투자잉여현금흐름자기자본(기말)장기부채주식 수2021-05-311,660만 달러-203만 달러-270만 달러23만 달러-293만 달러1,145만 달러168만 달러24.2M주2022-05-315,083만 달러945만 달러151만 달러42만 달러109만 달러5,099만 달러자료 없음27.3M주2023-05-316,496만 달러1,456만 달러1,001만 달러136만 달러865만 달러7,560만 달러자료 없음28.8M주2024-05-316,622만 달러3,316만 달러176만 달러75만 달러101만 달러1.1억 달러자료 없음29.0M주2025-05-305,897만 달러-391만 달러-740만 달러499만 달러-1,239만 달러1.2억 달러자료 없음29.9M주2026-05-295,000만 달러-713만 달러-331만 달러207만 달러-538만 달러2.2억 달러자료 없음32.6M주",
+        "basis": "최근 4개 분기(2026-09 분기까지) 매출 7,204만 달러, 순이익 214만 달러, 순이익률 3.0% — 전년 같은 4개 분기 대비 매출 +26.8%. (4분기 하나는 연간에서 1~3분기를 뺀 값)"
+      }
+    },
+    {
+      "label": "tablet-dark/fiscal",
       "layout": {
         "route": "page-fundamental",
         "overflow": 0,

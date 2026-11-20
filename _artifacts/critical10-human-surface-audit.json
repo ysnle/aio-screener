@@ -1,5 +1,5 @@
 {
-  "version": "v60.33",
+  "version": "v60.34",
   "viewport": {
     "width": 1440,
     "height": 1000
@@ -31,7 +31,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:31.197Z"
+          "generatedAt": "2026-11-20T14:09:09.993Z"
         },
         "accessibility": {
           "status": "ok",
@@ -54,9 +54,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:31.212Z"
+          "generatedAt": "2026-11-20T14:09:10.010Z"
         },
-        "generatedAt": "2026-11-20T13:25:31.212Z"
+        "generatedAt": "2026-11-20T14:09:10.010Z"
       },
       "tabSequence": [
         {
@@ -231,7 +231,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:32.599Z"
+          "generatedAt": "2026-11-20T14:09:11.398Z"
         },
         "accessibility": {
           "status": "ok",
@@ -254,9 +254,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:32.611Z"
+          "generatedAt": "2026-11-20T14:09:11.409Z"
         },
-        "generatedAt": "2026-11-20T13:25:32.611Z"
+        "generatedAt": "2026-11-20T14:09:11.409Z"
       },
       "tabSequence": [
         {
@@ -431,7 +431,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:33.050Z"
+          "generatedAt": "2026-11-20T14:09:11.820Z"
         },
         "accessibility": {
           "status": "ok",
@@ -454,9 +454,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:33.058Z"
+          "generatedAt": "2026-11-20T14:09:11.826Z"
         },
-        "generatedAt": "2026-11-20T13:25:33.058Z"
+        "generatedAt": "2026-11-20T14:09:11.826Z"
       },
       "tabSequence": [
         {
@@ -631,7 +631,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:33.406Z"
+          "generatedAt": "2026-11-20T14:09:12.173Z"
         },
         "accessibility": {
           "status": "warn",
@@ -683,9 +683,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:33.407Z"
+          "generatedAt": "2026-11-20T14:09:12.174Z"
         },
-        "generatedAt": "2026-11-20T13:25:33.407Z"
+        "generatedAt": "2026-11-20T14:09:12.174Z"
       },
       "tabSequence": [
         {
@@ -837,7 +837,7 @@
     {
       "routeId": "briefing",
       "status": "ok",
-      "focusableCount": 3,
+      "focusableCount": 15,
       "pageTitle": "브리핑",
       "audit": {
         "status": "ok",
@@ -860,7 +860,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:34.091Z"
+          "generatedAt": "2026-11-20T14:09:13.110Z"
         },
         "accessibility": {
           "status": "ok",
@@ -883,11 +883,41 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:34.092Z"
+          "generatedAt": "2026-11-20T14:09:13.116Z"
         },
-        "generatedAt": "2026-11-20T13:25:34.092Z"
+        "generatedAt": "2026-11-20T14:09:13.116Z"
       },
       "tabSequence": [
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "관련 보도 1건",
+          "tabindex": ""
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "bp",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "name": "VIX",
+          "tabindex": "0"
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "그 밖에 움직인 것 12건",
+          "tabindex": ""
+        },
+        {
+          "tag": "SUMMARY",
+          "id": "",
+          "name": "이유가 확인되지 않은 큰 움직임 2건",
+          "tabindex": ""
+        },
         {
           "tag": "SPAN",
           "id": "",
@@ -1001,36 +1031,6 @@
           "id": "",
           "name": "KST",
           "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "PCE",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "briefing-schedule-title",
-          "name": "날짜별 일정, 한국 시간",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "날짜별 실적 발표, 큰 기업 순",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "briefing-events-title",
-          "name": "다음 이벤트 4건, 예상과 결과 갈래",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "브리핑 저장본, 날짜별 확인",
-          "tabindex": ""
         }
       ]
     },
@@ -1060,7 +1060,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:35.167Z"
+          "generatedAt": "2026-11-20T14:09:14.117Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1083,9 +1083,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:35.172Z"
+          "generatedAt": "2026-11-20T14:09:14.121Z"
         },
-        "generatedAt": "2026-11-20T13:25:35.172Z"
+        "generatedAt": "2026-11-20T14:09:14.121Z"
       },
       "tabSequence": [
         {
@@ -1260,7 +1260,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:35.637Z"
+          "generatedAt": "2026-11-20T14:09:14.578Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1283,9 +1283,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:35.642Z"
+          "generatedAt": "2026-11-20T14:09:14.582Z"
         },
-        "generatedAt": "2026-11-20T13:25:35.642Z"
+        "generatedAt": "2026-11-20T14:09:14.582Z"
       },
       "tabSequence": [
         {
@@ -1436,11 +1436,11 @@
     },
     {
       "routeId": "fxbond",
-      "status": "ok",
-      "focusableCount": 8,
+      "status": "warn",
+      "focusableCount": 15,
       "pageTitle": "금리와 환율",
       "audit": {
-        "status": "ok",
+        "status": "warn",
         "hierarchy": {
           "status": "ok",
           "pagesChecked": 1,
@@ -1460,32 +1460,49 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:36.449Z"
+          "generatedAt": "2026-11-20T14:09:15.404Z"
         },
         "accessibility": {
-          "status": "ok",
+          "status": "warn",
           "pagesChecked": 1,
           "issueCount": 0,
-          "warningCount": 0,
+          "warningCount": 1,
           "blockers": [],
-          "warnings": [],
+          "warnings": [
+            "small-targets:2"
+          ],
           "pages": [
             {
               "pageId": "fxbond",
               "pageExists": true,
               "active": true,
               "blockers": [],
-              "warnings": [],
+              "warnings": [
+                "small-targets:2"
+              ],
               "nameless": [],
               "unfocusable": [],
               "positiveTabindex": [],
-              "smallTargets": [],
+              "smallTargets": [
+                {
+                  "id": "",
+                  "selector": "#page-fxbond div.rates-curve-row > div.rates-curve-side > p.rates-curve-fact > span.aio-term",
+                  "width": 20,
+                  "height": 28
+                },
+                {
+                  "id": "",
+                  "selector": "#page-fxbond div.rates-curve-side > p.rates-curve-fact > strong > span.aio-term",
+                  "width": 17,
+                  "height": 28
+                }
+              ],
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:36.453Z"
+          "generatedAt": "2026-11-20T14:09:15.405Z"
         },
-        "generatedAt": "2026-11-20T13:25:36.453Z"
+        "generatedAt": "2026-11-20T14:09:15.405Z"
       },
       "tabSequence": [
         {
@@ -1660,7 +1677,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:36.838Z"
+          "generatedAt": "2026-11-20T14:09:15.782Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1683,9 +1700,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:36.844Z"
+          "generatedAt": "2026-11-20T14:09:15.788Z"
         },
-        "generatedAt": "2026-11-20T13:25:36.844Z"
+        "generatedAt": "2026-11-20T14:09:15.788Z"
       },
       "tabSequence": [
         {
@@ -1860,7 +1877,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:37.393Z"
+          "generatedAt": "2026-11-20T14:09:16.315Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1883,9 +1900,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-20T13:25:37.414Z"
+          "generatedAt": "2026-11-20T14:09:16.336Z"
         },
-        "generatedAt": "2026-11-20T13:25:37.414Z"
+        "generatedAt": "2026-11-20T14:09:16.336Z"
       },
       "tabSequence": [
         {
@@ -2036,6 +2053,6 @@
     }
   ],
   "consoleErrors": [],
-  "generatedAt": "2026-11-20T13:25:29.899Z",
+  "generatedAt": "2026-11-20T14:09:08.839Z",
   "status": "pass"
 }

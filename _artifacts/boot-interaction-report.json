@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-20T13:19:20.437Z",
-  "appRevision": "v60.33",
-  "gitHead": "950535e623b5fce02540f0d630bec6a87dfc9bbc",
+  "observedAt": "2026-11-20T14:05:40.836Z",
+  "appRevision": "v60.34",
+  "gitHead": "2cb160921f2e147655e0d0a5d95f9683d0ea6176",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,29 +16,29 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 222 > 200",
+    "max long task 230 > 200",
     "decoded same-origin JS 2.56MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 248,
-    "dclMs": 289,
+    "fcpMs": 252,
+    "dclMs": 288,
     "loadMs": 300,
-    "maxLongTaskMs": 222,
-    "totalLongTaskMs": 950,
-    "longTaskCount": 8,
+    "maxLongTaskMs": 230,
+    "totalLongTaskMs": 911,
+    "longTaskCount": 7,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 4182,
+    "domNodes": 4185,
     "activeRouteDomNodes": 2111,
     "scenarioDepthDeferred": true,
     "scenarioStateLoaded": true,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 2682145,
-    "sameOriginScripts": 144,
+    "decodedJsBytes": 2682195,
+    "sameOriginScripts": 145,
     "crossOriginScripts": 1,
-    "resourceEntries": 217,
+    "resourceEntries": 218,
     "jsByKind": {
-      "esmBoot": 1346424,
+      "esmBoot": 1346474,
       "classicBoot": 1000798,
       "aiPanelBeforeUse": 0,
       "postBootLazy": 334923
@@ -48,42 +48,42 @@
       {
         "path": "src/chunks/market-regime-ME6B62U4.js",
         "bytes": 44791,
-        "startMs": 1131
+        "startMs": 888
       },
       {
         "path": "src/chunks/session-lean-AG7LXMMU.js",
         "bytes": 34166,
-        "startMs": 360
+        "startMs": 404
       },
       {
         "path": "src/chunks/legacy-screen-bridges-ZLQRV6OL.js",
         "bytes": 27155,
-        "startMs": 257
+        "startMs": 255
       },
       {
         "path": "src/chunks/chunk-526UGZAR.js",
         "bytes": 22799,
-        "startMs": 409
+        "startMs": 636
       },
       {
         "path": "src/chunks/analysis-XQJE7SUH.js",
         "bytes": 22022,
-        "startMs": 278
+        "startMs": 276
       },
       {
         "path": "src/chunks/cross-readings-ICAXJGRK.js",
         "bytes": 15476,
-        "startMs": 1971
+        "startMs": 2005
       },
       {
         "path": "src/chunks/chunk-KJA2TZBV.js",
         "bytes": 15448,
-        "startMs": 1903
+        "startMs": 1914
       },
       {
         "path": "src/chunks/chunk-3ABLKUGA.js",
         "bytes": 13818,
-        "startMs": 1902
+        "startMs": 1914
       }
     ],
     "measuredBundle": "deploy",
@@ -98,8 +98,8 @@
     "glossaryBeforeUse": false,
     "termMarksBeforeGlossary": 17,
     "glossaryOnTermHover": true,
-    "routeMs": 45,
-    "wallMs": 7857,
+    "routeMs": 38,
+    "wallMs": 7838,
     "totalExternalRequests": 43,
     "quoteRequests": 24,
     "initialExternalRequests": 7,

@@ -554,14 +554,13 @@ export function createInspectorController(ctx) {
          const count = documentRef.getElementById('scr-compare-count');
          if (count) count.textContent = String(compareSymbols.size);
        };
-       // v57.81: the 종목 screen hands an out-of-universe listing to this tray (queued while the screener is not mounted).
+       // Adds one symbol to the compare tray (the continuity gate drives the tray through this).
        ctx.addCompare = (symbol) => {
          const id = String(symbol || '').trim().toUpperCase();
          if (!id || compareSymbols.has(id) || compareSymbols.size >= 5) return compareSymbols.has(id);
          compareSymbols.add(id); ctx.renderCompareTray(); ctx.renderNow(); return true;
        };
        root._aioAddScreenerCompare = ctx.addCompare;
-       (Array.isArray(root._aioPendingCompare) ? root._aioPendingCompare.splice(0) : []).forEach(ctx.addCompare);
        bag.add(() => { if (root._aioAddScreenerCompare === ctx.addCompare) delete root._aioAddScreenerCompare; });
   ctx.actions.push((action, argument, actionNode) => {
     if (action === 'why-watchlist') {

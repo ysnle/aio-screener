@@ -17,17 +17,17 @@ AIO Screener는 GitHub Pages의 하이브리드 정적 셸 + native ESM 투자 �
 - 사용자 지시가 스킬보다 우선하고, 스킬 때문에 멈추면 파일·문구·이유를 밝힌다.
 - 완료 = 구현 + 실행 + 결과 확인 + 발견된 관련 실패 수정. 중간 질문 뒤에도 원래 목표를 유지한다.
 - 넓은 범위는 항목별 미검증을 남기고, 자동 PASS를 의미 검수로 바꾸지 않는다. 로컬 수정·격리 테스트는 중복 확인하지 않는다.
-- 큰 작업의 독립 조사·리뷰는 범위가 명확한 서브에이전트(Opus 5.5, medium 또는 low effort, owner 2026-11-15)에 위임하고 파일 소유권을 나누며, 결과는 주 담당자가 통합 검증한다.
+- 큰 작업의 독립 조사·리뷰는 범위가 명확한 서브에이전트(Opus 5.5 medium/low, owner 2026-11-15)에 위임하고 파일 소유권을 나누며, 결과는 주 담당자가 통합 검증한다. 배치 리뷰·구조 점검은 Fable.
 - 한국어로 결과와 근거를 간결하게 설명한다(에이전트 간 메시지도 정상 문장).
 - 통과한 검사는 새 변경·실패·위험이 있을 때만 다시 돌린다.
-- **Architecture first (owner 2026-11-09, verbatim):** "Always build code cleanly, modularly, and with proper architecture and separation of concerns. Never simply bolt on a feature because I asked for it. If you can’t find an easy way to build it naturally, and you'd recommend a refactor to make the whole thing cleanly, stop your work ahead of time and say so." — 아래 '최소 코드'·'부분 패치'보다 우선: 기능은 담당 계층(데이터·판정·렌더·AI)에 놓는다.
+- **Architecture first (owner 2026-11-09, verbatim):** "Always build code cleanly, modularly, and with proper architecture and separation of concerns. Never simply bolt on a feature because I asked for it. If you can’t find an easy way to build it naturally, and you'd recommend a refactor to make the whole thing cleanly, stop your work ahead of time and say so." — 부분 패치보다 우선: 기능은 담당 계층(데이터·판정·렌더·AI)에 놓는다.
 - **코딩 규율 (owner 2026-10-12):**
   - ① 가정·해석 후보를 먼저 밝히고 더 단순한 방법이 있으면 말한다. 큰 작업·이미지 참조 작업은 기존 화면부터 찾고 3줄 계획을 밝힌다.
-  - ② 요청을 푸는 최소 코드만 쓴다: 추측성 기능·한 번 쓰는 추상화·요청 없는 옵션·일어날 수 없는 오류 처리 금지. 드문 경합·보안 사례는 실패 양상·가능성·비용을 밝히고 동의받은 뒤.
-  - ③ 필요한 줄만 고치고 주변 스타일을 따른다. 자기 변경이 만든 미사용 코드만 지우고 무관한 죽은 코드는 보고만 한다.
+  - ② 추측성 기능·한 번 쓰는 추상화·요청 없는 옵션·일어날 수 없는 오류 처리 금지. 드문 경합·보안 사례는 실패 양상·가능성·비용을 밝히고 동의받은 뒤.
+  - ③ 구조가 원인이면 구조를 고친다(owner 2026-11-19): 옮긴 것은 원래 자리에서 지우고, 부분 패치는 구조와 무관한 단일 결함에만 쓴다.
   - ④ 검증 가능한 목표로 바꾼다: 버그는 재현 게이트 먼저, 여러 단계면 단계별 확인 방법.
 - **협업 원칙 (owner 2026-10-01):** 요청·기존 설계·이전 작업을 무조건 옳다고 보지 않는다. 데이터 무결성·비용·권리·사용자 가치와 충돌하면 근거(실측·공식 문서)와 함께 반대 의견과 대안을 먼저 내고, 틀린 전제는 바로잡는다.
-- **위임 (owner 2026-11-11):** "This codebase is yours: what it's for and how it's built are your call, and you'll keep building on it." — 구현·구조·정리·게이트는 근거를 밝혀 정하고 보고한다. 제품 방향·push·배포·되돌릴 수 없는 삭제와 운영 변경만 묻는다.
+- **위임 (owner 2026-11-11):** "This codebase is yours: what it's for and how it's built are your call, and you'll keep building on it." — 구현·구조·정리·게이트는 근거를 밝혀 정하고 보고한다. 제품 방향·push·배포·되돌릴 수 없는 삭제와 운영 변경만 묻는다(2026-11-20 재확인).
 - **사용자 가치 우선 (owner 2026-10-20):** ① 여러 사용자에게 무엇이 좋고 편리한가 → ② 최대한 구현 → ③ 규칙·게이트가 막으면 지금도 맞는지 따져 틀렸으면 근거와 함께 고친다(record-fix) → ④ 실제 한계(데이터 권리·비용·기술·데이터 정직성)일 때만 버리고 이유를 밝힌다.
 - "기존 데이터가 없다"는 버릴 이유가 아니다: 무료 공식 출처로 수집·자동화할 수 있는지 먼저 검토한다(2026-10-20).
 - 비밀정보·AI 예산 원장과 경고·지어낸 숫자 금지·티커 추정 금지·매매 지시 금지는 사용자 보호 장치라 위 순서로 완화하지 않는다(2026-10-20).
@@ -47,7 +47,7 @@ Owner decisions applied without re-asking; changed only by the user.
 - **Responsive (2026-10-11, R669):** desktop, phone and iPad share routes and data; layout adapts, desktop density kept; test nav, tables, charts, theme, AI input.
 - The options route is retired (`#options` → `sentiment`).
 - **Screen design (2026-10-02~03):** conclusion first (one line) → chart → evidence; short text, 3-second narrated visuals; trends are charts with labelled axes.
-- Two layers (2026-10-31): a beginner's conclusion up front, the expert reading folded.
+- Face unfolded (2026-11-20): folds hold only raw tables, method, sources.
 - No developer copy on user surfaces.
 - Questions only in long prose; labels, chips, cards are statements; no quizzes (2026-11-07, `ci-rendered-copy-lint-check.mjs`).
 - **No grades:** no composite/letter scores without predictive evidence (0–100 market score retired).
@@ -65,8 +65,8 @@ Owner decisions applied without re-asking; changed only by the user.
 - **Batches:** implement several items, one code-reviewer on the batch diff per `REVIEW.md`, then verify and record once.
 - **Information architecture (2026-10-01; 9 screens 2026-11-03):** 오늘(home, briefing, market-news), 시장 상태, 매크로(macro+fxbond), 기술적 분석, 테마와 섹터, 스크리너, 종목(ticker+fundamental), 포트폴리오, 리서치 라이브러리; 용어 사전 is a modal.
 - 오늘: home = indexes, key prices and stocks, top news; briefing = the last 24h linked and explained.
-- 시장 상태 = objective diagnosis, scenarios, what to check; breadth and sentiment are evidence woven into each section, never a block of their own.
-- 매크로 reads each asset and ties it to the market; 기술적 분석 = index and core-stock charts.
+- 시장 상태 = objective diagnosis, scenarios, what to check; 시장 폭 and 투자 심리 are its tabs (2026-11-20).
+- 매크로 reads each asset and ties it to the market; 기술적 분석 = index and core-stock charts; 종목 = company analysis, 실적과 현금 on 재무 공시.
 - Merges move legacy `js/` to `src/`, deleting replaced code; old ids stay aliases.
 - **Materiality (2026-11-03):** facts come from one ledger (`market-day.json`) ranked by market weight — move against its own volatility, index weight, what it explains, source tier.
 - The important lead where they belong, minor ones support, noise is dropped; never show a trivial item as important or bury a key one.

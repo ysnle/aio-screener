@@ -59,7 +59,7 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
 
 // ── 종목 개요: 사업 · 밸류체인 안의 자리 · 재무 한눈에 (renderCompanyOverview on NVDA's own story and the map's records) ──
 {
-  const { renderCompanyOverview } = await import(pathToFileURL(join(root, 'src/ui/components/company-overview.js')).href);
+  const { renderCompanyOverview, renderCompanyReport } = await import(pathToFileURL(join(root, 'src/ui/components/company-overview.js')).href);
   const { companyPlace, moneyGlance } = await import(pathToFileURL(join(root, 'src/domain/entity/company-overview.js')).href);
   const json = (file) => JSON.parse(read(file));
   const story = json('public-data/company-profiles/NVDA.json');
@@ -76,8 +76,11 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
   const unfolded = (item, node) => { let up = item.parentElement; while (up && up !== node) { if (tag(up) === 'details') return false; up = up.parentElement; } return true; };
   const faceText = (node) => all(node, (item) => ['h3', 'h4'].includes(tag(item)) && unfolded(item, node)).map((item) => item.textContent).join('|');
   check('v60.31 사업 carries 경쟁 and AI on the face', /경쟁/.test(faceText(business)) && /지금 이기는 이유/.test(faceText(business)) && /AI가 실적에 닿는 길/.test(faceText(business)), faceText(business));
-  check('v60.31 쟁점과 전망 leads with 핵심 쟁점 and carries the outlook, the signals and the dated events', ['핵심 쟁점', '판가름할 것', '잘 안 보이는 구조', '회사가 밝힌 전망과 계획', '시장 예상', '맞아가고 있다는 신호', '분기마다 볼 숫자'].every((title) => faceText(outlook).includes(title)) && faceText(outlook).indexOf('핵심 쟁점') < faceText(outlook).indexOf('회사가 밝힌 전망과 계획'), faceText(outlook));
-  check('v60.31 재무 한눈에 carries 현금을 쓴 곳 bars and 경영·지배구조', /현금을 쓴 곳/.test(faceText(figures)) && /경영·지배구조/.test(faceText(figures)) && !!find(figures, (item) => String(item.getAttribute?.('aria-label') || '').startsWith('현금을 쓴 곳')), faceText(figures));
+  check('v60.34 쟁점과 전망 leads with 핵심 쟁점 and carries the outlook and the signals', ['핵심 쟁점', '판가름할 것', '잘 안 보이는 구조', '회사가 밝힌 전망과 계획', '맞아가고 있다는 신호'].every((title) => faceText(outlook).includes(title)) && faceText(outlook).indexOf('핵심 쟁점') < faceText(outlook).indexOf('회사가 밝힌 전망과 계획'), faceText(outlook));
+  // 실적과 현금 belongs to 재무 공시: the same story, drawn there with its cash bars, and absent from the overview.
+  const reportHost = doc.createElement('div');
+  renderCompanyReport(doc, reportHost, { story, today: '2026-11-19' });
+  check('v60.34 재무 공시 carries 실적과 현금 (현금을 쓴 곳 bars, 시장 예상, 분기마다 볼 숫자, 경영·지배구조) and the overview does not', ['현금을 쓴 곳', '시장 예상', '분기마다 볼 숫자', '경영·지배구조'].every((title) => faceText(reportHost).includes(title)) && !!find(reportHost, (item) => String(item.getAttribute?.('aria-label') || '').startsWith('현금을 쓴 곳')) && !/현금을 쓴 곳|시장 예상/.test(faceText(figures) + faceText(outlook)), faceText(reportHost));
   check('v60.31 밸류체인 안의 자리 names the partners beside buyers, suppliers and rivals', /함께 일하는 곳/.test(faceText(where)), faceText(where));
   check('v60.31 사업 carries the segment revenue bars (a figure, role img)', !!find(business, (item) => item.getAttribute?.('role') === 'img'));
   check('v60.31 밸류체인 안의 자리 names the map layer and the companies on each side', /\d층 /.test(where?.textContent || '') && /사 주는 곳|공급하는 곳/.test(where?.textContent || ''), where?.textContent?.slice(0, 200));

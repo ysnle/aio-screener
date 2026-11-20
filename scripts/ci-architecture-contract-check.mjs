@@ -376,7 +376,6 @@ for (const marker of ['renderTickerHero', "route === 'ticker'", "routeNode.datas
 for (const marker of ['renderOptions', "route === 'options'", 'opt-vix-val-secondary']) {
   if (entityPageSource.includes(marker) || indexHtmlSource.includes(marker)) fail(`retired options surface returned: ${marker}`);
 }
-if (!entityPageSource.includes("root.showThemeDetail(themeId)") || !entityPageSource.includes('stopImmediatePropagation')) fail('native ticker related-theme action does not own the cross-route click');
 for (const marker of ['renderFundamentalStatus', "route === 'fundamental'", 'fund-data-status', 'data-source-kind']) {
   if (!entityPageSource.includes(marker)) fail(`native fundamental status renderer marker missing: ${marker}`);
 }

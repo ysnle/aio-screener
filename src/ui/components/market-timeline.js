@@ -2,7 +2,7 @@
 // the six-hour KST slots (06·12·18·24시) — the one in progress first, then each sealed slot, newest open and the rest
 // folded — so a slot the reader missed is still there after the next one lands. No data, no section.
 import { buildMarketTimelineView } from '../../domain/market/story/market-timeline.js';
-import { moveHeadlineRows } from '../../domain/briefing/news-picks.js';
+import { headlineForCompany, moveHeadlineRows } from '../../domain/briefing/news-picks.js';
 import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
 import { selectNewsItems } from '../../state/selectors/news.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -23,14 +23,26 @@ export function symbolNames(root) {
   return names;
 }
 
+// Every report a session's move can be matched against: the news store, the intraday feed and the six-hour slots.
+function sessionReports(root, store) {
+  const timeline = root?._serverMarketTimeline || {};
+  return {
+    news: [...selectNewsItems(store?.getState?.() || {}), ...(Array.isArray(root?._serverNewsIntraday) ? root._serverNewsIntraday : []),
+      ...(timeline.current?.headlines || []), ...(Array.isArray(timeline.slots) ? timeline.slots : []).flatMap((slot) => slot?.headlines || [])],
+    telegram: Array.isArray(root?.AIO_TELEGRAM_CURRENT_ITEMS) ? root.AIO_TELEGRAM_CURRENT_ITEMS : [], signals: root?.AIO_TELEGRAM_SIGNALS || []
+  };
+}
+const aliasesOf = (root) => (sym) => [root?.AIO_TICKER_NAME_REGISTRY?.entries?.[sym]?.kr];
+
 export function moveNewsRows(root, store, flow) {
   if (!flow?.available || !flow.themes?.available) return [];
-  const timeline = root?._serverMarketTimeline || {};
-  const news = [...selectNewsItems(store?.getState?.() || {}), ...(Array.isArray(root?._serverNewsIntraday) ? root._serverNewsIntraday : []),
-    ...(timeline.current?.headlines || []), ...(Array.isArray(timeline.slots) ? timeline.slots : []).flatMap((slot) => slot?.headlines || [])];
-  const names = symbolNames(root);
-  return moveHeadlineRows(flow.themes, { session: flow.session, news, telegram: Array.isArray(root?.AIO_TELEGRAM_CURRENT_ITEMS) ? root.AIO_TELEGRAM_CURRENT_ITEMS : [], signals: root?.AIO_TELEGRAM_SIGNALS || [], names,
-    aliasesOf: (sym) => [root?.AIO_TICKER_NAME_REGISTRY?.entries?.[sym]?.kr] });
+  return moveHeadlineRows(flow.themes, { session: flow.session, ...sessionReports(root, store), names: symbolNames(root), aliasesOf: aliasesOf(root) });
+}
+
+/** One company's move on `session` as a mover row (moveNewsList draws it), with the report that named it or null. */
+export function companyMoveRow(root, store, { symbol, name = '', move, session }) {
+  const headline = headlineForCompany({ symbol, name: name || symbolNames(root)[symbol] || '', move, aliases: aliasesOf(root)(symbol) }, { session, ...sessionReports(root, store) });
+  return { kind: 'stock', label: `${Number(String(session).slice(5, 7))}/${Number(String(session).slice(8, 10))}`, move, symbol, headline };
 }
 
 const kstStamp = (ms) => {

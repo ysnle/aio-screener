@@ -228,9 +228,9 @@ function placeSection(doc, { place, story, industry = null, openTicker, openMap,
 
 // ── 쟁점과 전망 ──────────────────────────────────────────────────────────────────────────────────────────────────────
 // The issue the stock turns on and its two readings, the structures under the numbers, what the company and the market
-// expect, the signals that the story holds or breaks, the numbers each report is read on and the dated events ahead.
+// plans and the signals that the story holds or breaks. The numbers each report is read on live on 재무 공시.
 // Null for a company without a researched story (no empty heading).
-function outlookSection(doc, { story, today }) {
+function outlookSection(doc, { story }) {
   if (!story) return null;
   const box = section(doc, 'outlook', '쟁점과 전망');
   const d = story.debate || {};
@@ -257,18 +257,11 @@ function outlookSection(doc, { story, today }) {
       roadmap.length ? el(doc, 'h4', '앞으로의 계획', 'co-cell__title') : null, roadmap.length ? datedList(doc, roadmap) : null,
       has(st.vision) ? el(doc, 'p', st.vision, 'co-text') : null));
   }
-  if (has(story.estimates?.text)) box.append(block(doc, '시장 예상', el(doc, 'p', story.estimates.text, 'co-text')));
-  const w = story.watch || {}, t = story.trading || {};
+  const w = story.watch || {};
   const signals = pairOf(doc, [['맞아가고 있다는 신호', w.confirms], ['어긋나고 있다는 신호', w.breaks]]);
   if (signals) box.append(block(doc, '이야기가 맞는지 보는 신호', signals));
-  const keyNumbers = (w.keyNumbers || []).filter((m) => has(m?.name)).map((m) => `${m.name}${m.why ? `: ${m.why}` : ''}`);
-  const report = pairOf(doc, [['분기마다 볼 숫자', keyNumbers], ['실적 발표 때 주가가 반응하는 것', t.reaction], ['실적 때 함께 확인하는 것', t.conditions]]);
-  if (report) box.append(block(doc, '실적 발표에서 볼 것', report));
-  // A dated event already past is not "다가오는"; an undated one ("2027 상반기", "수시") stays.
-  const upcoming = (t.calendar || []).filter((x) => has(x?.event) && (!hasLeadingIsoDay(x?.date || '') || String(x.date).slice(0, 10) >= today));
-  if (upcoming.length) box.append(block(doc, '다가오는 일정', datedList(doc, upcoming)));
   if (box.childElementCount === 1) return null;
-  box.append(kindFold(doc, 'method', '두 읽기와 신호의 근거', [el(doc, 'p', `${story.researchedAt ? `${mdOf(story.researchedAt)} 조사한 ` : ''}회사 공시·발표 자료와 보도에 근거한 읽기입니다. 어느 쪽이 맞다는 판단이나 매매 의견이 아니며, 날짜가 지난 일정은 빼고 날짜가 정해지지 않은 일정은 그대로 둡니다.`, 'ind-method__text')]));
+  box.append(kindFold(doc, 'method', '두 읽기와 신호의 근거', [el(doc, 'p', `${story.researchedAt ? `${mdOf(story.researchedAt)} 조사한 ` : ''}회사 공시·발표 자료와 보도에 근거한 읽기입니다. 어느 쪽이 맞다는 판단이나 매매 의견이 아닙니다.`, 'ind-method__text')]));
   return box;
 }
 
@@ -297,7 +290,7 @@ function cashBars(doc, useOfCash) {
   return box;
 }
 
-function moneySection(doc, { money, emptyText, peer, story = null, openFundamental }) {
+function moneySection(doc, { money, emptyText, peer, openFundamental }) {
   const box = section(doc, 'money', '재무 한눈에');
   if (!money?.rows?.length) box.append(el(doc, 'p', emptyText || '재무 자료 없음', 'co-empty'));
   else {
@@ -320,16 +313,8 @@ function moneySection(doc, { money, emptyText, peer, story = null, openFundament
     standing.append(lines);
     box.append(standing);
   }
-  // From the researched story: the company's own account of the period, its industry's figures, where its cash went and
-  // who runs it.
-  const e = story?.earnings || {};
-  if (has(e.text)) box.append(block(doc, `회사가 발표한 실적${e.period ? `, ${String(e.period).replace(/\s*\(.*$/, '')}` : ''}`, el(doc, 'p', e.text, 'co-text')));
-  if (has(e.industryMetric)) box.append(block(doc, '이 업종이 평가받는 숫자', list(doc, e.industryMetric.map((m) => `${m.name}: ${m.value}`))));
-  const cash = cashBars(doc, story?.useOfCash);
-  if (cash || has(story?.useOfCash?.text)) box.append(block(doc, `현금을 쓴 곳${story.useOfCash.period ? `, ${String(story.useOfCash.period).replace(/\s*\(.*$/, '')}` : ''}`, cash, has(story.useOfCash.text) ? el(doc, 'p', story.useOfCash.text, 'co-text') : null));
-  if (has(story?.governance?.line)) box.append(block(doc, '경영·지배구조', el(doc, 'p', story.governance.line, 'co-text')));
   if (typeof openFundamental === 'function') {
-    const go = el(doc, 'button', '재무 공시에서 전체 보기', 'aio-btn-table co-link');
+    const go = el(doc, 'button', '실적과 현금, 재무 공시에서 보기', 'aio-btn-table co-link');
     go.type = 'button';
     go.addEventListener('click', openFundamental);
     box.append(go);
@@ -375,8 +360,8 @@ export function renderCompanyOverview(doc, host, ctx) {
   const nodes = [
     businessSection(doc, { story, profile: ctx.profile, freshness, inMap: !!ctx.place?.inMap }),
     placeSection(doc, { place: ctx.place, story, industry: ctx.industry, openTicker: ctx.openTicker, openMap: ctx.openMap, openIndustry: ctx.openIndustry }),
-    outlookSection(doc, { story, today: ctx.today || new Date().toISOString().slice(0, 10) }),
-    moneySection(doc, { money: ctx.money, emptyText: ctx.moneyEmpty, peer: ctx.peer, story, openFundamental: ctx.openFundamental })
+    outlookSection(doc, { story }),
+    moneySection(doc, { money: ctx.money, emptyText: ctx.moneyEmpty, peer: ctx.peer, openFundamental: ctx.openFundamental })
   ].filter(Boolean);
   if (ctx.actions?.length) { const row = el(doc, 'div', null, 'co-actions'); row.append(...ctx.actions); nodes.push(row); }
   const sources = sourcesFold(doc, { story, profile: ctx.profile, place: ctx.place });
@@ -384,4 +369,32 @@ export function renderCompanyOverview(doc, host, ctx) {
   host.replaceChildren(...nodes);
   host.hidden = false;
   return { freshness };
+}
+
+/**
+ * 재무 공시's company report (its children are replaced): the company's own account of the period, its industry's
+ * figures, where its cash went, what the market expects, what each report is read on and the dated events ahead.
+ * Hidden for a company without a researched story.
+ */
+export function renderCompanyReport(doc, host, { story = null, today = new Date().toISOString().slice(0, 10) } = {}) {
+  if (!doc || !host) return;
+  const box = section(doc, 'report', '실적과 현금');
+  const e = story?.earnings || {}, w = story?.watch || {}, t = story?.trading || {};
+  if (has(e.text)) box.append(block(doc, `회사가 발표한 실적${e.period ? `, ${String(e.period).replace(/\s*\(.*$/, '')}` : ''}`, el(doc, 'p', e.text, 'co-text')));
+  if (has(e.industryMetric)) box.append(block(doc, '이 업종이 평가받는 숫자', list(doc, e.industryMetric.map((m) => `${m.name}: ${m.value}`))));
+  const cash = cashBars(doc, story?.useOfCash);
+  if (cash || has(story?.useOfCash?.text)) box.append(block(doc, `현금을 쓴 곳${story.useOfCash.period ? `, ${String(story.useOfCash.period).replace(/\s*\(.*$/, '')}` : ''}`, cash, has(story.useOfCash.text) ? el(doc, 'p', story.useOfCash.text, 'co-text') : null));
+  if (has(story?.estimates?.text)) box.append(block(doc, '시장 예상', el(doc, 'p', story.estimates.text, 'co-text')));
+  const keyNumbers = (w.keyNumbers || []).filter((m) => has(m?.name)).map((m) => `${m.name}${m.why ? `: ${m.why}` : ''}`);
+  const report = pairOf(doc, [['분기마다 볼 숫자', keyNumbers], ['실적 발표 때 주가가 반응하는 것', t.reaction], ['실적 때 함께 확인하는 것', t.conditions]]);
+  if (report) box.append(block(doc, '실적 발표에서 볼 것', report));
+  // A dated event already past is not "다가오는"; an undated one ("2027 상반기", "수시") stays.
+  const upcoming = (t.calendar || []).filter((x) => has(x?.event) && (!hasLeadingIsoDay(x?.date || '') || String(x.date).slice(0, 10) >= today));
+  if (upcoming.length) box.append(block(doc, '다가오는 일정', datedList(doc, upcoming)));
+  if (has(story?.governance?.line)) box.append(block(doc, '경영·지배구조', el(doc, 'p', story.governance.line, 'co-text')));
+  if (box.childElementCount === 1) { host.hidden = true; host.replaceChildren(); return; }
+  box.querySelector('h2').id = 'fund-company-report-title';
+  box.setAttribute('aria-labelledby', 'fund-company-report-title');
+  host.replaceChildren(box);
+  host.hidden = false;
 }

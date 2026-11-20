@@ -16,7 +16,8 @@ import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { createSummaryHydrator } from '../../domain/entity/summary-hydration.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { renderCompanyAnalysis, companyAskButton } from '../components/company-analysis.js';
-import { renderCompanyOverview } from '../components/company-overview.js';
+import { renderCompanyOverview, renderCompanyReport } from '../components/company-overview.js';
+import { renderTickerContext } from '../components/ticker-context.js';
 import { paintTickerBrief } from '../components/event-briefs.js';
 import { companyPlace, moneyGlance } from '../../domain/entity/company-overview.js';
 import { industryFor } from '../../domain/entity/industry-links.js';
@@ -199,7 +200,7 @@ export function renderTickerHero(documentRef, state, root) {
 
 // 종목 개요 (owner 2026-11-19): under the name and price, one line of what the company is, then 사업 · 밸류체인 안의 자리 ·
 // 재무 한눈에 (src/ui/components/company-overview.js). Rebuilt only when its inputs change (quote ticks repaint often).
-function renderOverview(documentRef, root, state) {
+function renderOverview(documentRef, root, state, store = null) {
   const host = documentRef?.getElementById('ticker-company');
   const line = documentRef?.getElementById('ticker-hero-line');
   if (!host) return;
@@ -212,7 +213,7 @@ function renderOverview(documentRef, root, state) {
     if (title) title.textContent = '종목';
     return;
   }
-  const again = () => { if (String(root?._currentTickerId || '').toUpperCase() === id && documentRef.getElementById('page-ticker')?.classList.contains('active')) renderOverview(documentRef, root, state); };
+  const again = () => { if (String(root?._currentTickerId || '').toUpperCase() === id && documentRef.getElementById('page-ticker')?.classList.contains('active')) renderOverview(documentRef, root, state, store); };
   let rows = [];
   try { rows = root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; }
   const kr = isKrSymbol(id);
@@ -262,6 +263,7 @@ function renderOverview(documentRef, root, state) {
   // One line of what the company is: the story's own line, else the listing's sourced description, else its classification.
   const what = story?.oneLine || profile.description || [profile.kind, profile.sector ? sectorLabel(profile.sector) : null, profile.industry].filter(Boolean).join(', ');
   if (line) { if (line.textContent !== what) line.textContent = what || ''; line.hidden = !what; }
+  renderTickerContext(documentRef, documentRef.getElementById('ticker-hero-context'), { root, store, symbol: id, name: profile.name, row: listingRow, rows });
   const earnings = root?.[EARNINGS_CALENDAR.key]?.earnings || [];
   const briefs = (root?._aioEventBriefs?.briefs || []).filter((brief) => brief?.kind === 'earnings' && String(brief?.symbol || '').toUpperCase() === id);
   const watched = (root?._aioWatchlistGet?.() || []).includes(id);
@@ -643,7 +645,7 @@ function render({ root, documentRef, store, route }) {
     renderTickerStart({ documentRef, root, portfolioState, show: !state?.id && !String(root?._currentTickerId || '').trim() });
     installStockLensGlobal(root); // the AI panel's stock readings (window._aioStockLensFor)
     renderCompanyAnalysis({ documentRef, root, state }); // the 시총·PER line and the AI company model
-    renderOverview(documentRef, root, state);
+    renderOverview(documentRef, root, state, store);
     // The reader's own notes close the overview (a section on the face, not a fold or a view).
     const memo = ensureResearchSnapshots({ documentRef, root, host: routeNode, kind: 'stock', open: true, collect: () => ({ kind: 'stock',
       symbol: state?.id, name: state?.name, quote: { ...state?.quote, basis: state?.quote?.changeBasis || 'unknown' } }) });
@@ -692,8 +694,12 @@ function render({ root, documentRef, store, route }) {
     const valuationDate = String(analysisRow?.factorSessionDate || '').slice(0, 10);
     const close = valuationClose > 0 && isIsoDay(valuationDate) ? { value: valuationClose, date: valuationDate, shares: finite(analysisRow?._valuationSharesOutstanding), sharesObservedAt: analysisRow?._valuationSharesObservedAt || null } : analysisId ? lastPublishedClose(analysisId, state, root) : null;
     renderFiscalRead({ documentRef, root, state, close }); // P1436
-    // The latest earnings release of this company, above the filings (moved from the 종목 summary, 2026-11-19).
-    const flow = documentRef?.getElementById('fund-flow');
+    // The company's own account of the period, read from its researched story (asked for here when 재무 공시 opens first).
+    const paintReport = () => renderCompanyReport(documentRef, documentRef?.getElementById('fund-company-report'), { story: analysisId ? companyStoryFor(root, analysisId) : null });
+    if (analysisId && !companyStoryFor(root, analysisId)) requestCompanyStory(root, analysisId, paintReport);
+    paintReport();
+    // The latest earnings release of this company leads, then the company's own account, then the filings.
+    const flow = documentRef?.getElementById('fund-company-report') || documentRef?.getElementById('fund-flow');
     if (analysisId) paintTickerBrief(documentRef, root, analysisId, flow, () => render({ root, documentRef, store, route }));
     else { const brief = documentRef?.getElementById('fund-event-brief'); if (brief) brief.hidden = true; }
   }
@@ -783,35 +789,6 @@ export function createEntityPage({ root = globalThis, documentRef, store, route 
         });
         page.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge?.remove?.());
-      }
-      if (route === 'ticker') {
-        const onRelatedThemeClick = (event) => {
-          const trigger = event?.target?.closest?.('[data-action="showThemeDetail"][data-arg]');
-          if (!trigger) return;
-          const themeId = String(trigger.getAttribute('data-arg') || '').trim();
-          if (!themeId) return;
-          event.preventDefault?.();
-          event.stopImmediatePropagation?.();
-          if (typeof root?.showThemeDetail === 'function') {
-            root.showThemeDetail(themeId);
-            return;
-          }
-          root._currentThemeId = themeId;
-          root._aioOpenThemeDetailOnThemes = themeId;
-          const navigate = typeof root?.showPage === 'function'
-            ? root.showPage.bind(root)
-            : typeof root?.AIO_ARCH?.router?.transition === 'function'
-              ? root.AIO_ARCH.router.transition.bind(root.AIO_ARCH.router)
-              : typeof root?.__AIO_ARCH_RUNTIME__?.router?.transition === 'function'
-                ? root.__AIO_ARCH_RUNTIME__.router.transition.bind(root.__AIO_ARCH_RUNTIME__.router)
-                : null;
-          if (navigate) {
-            navigate(typeof root?.showPage === 'function' ? 'theme-detail' : 'themes', { source: 'ticker-related-theme', themeId });
-          }
-          eventTarget?.dispatchEvent?.(new CustomEvent('aio:themeDetailShown', { detail: { themeId } }));
-        };
-        eventTarget?.addEventListener?.('click', onRelatedThemeClick, true);
-        bag.add(() => eventTarget?.removeEventListener?.('click', onRelatedThemeClick, true));
       }
       if (route === 'fundamental') {
         const report = documentRef?.getElementById('page-fundamental');
