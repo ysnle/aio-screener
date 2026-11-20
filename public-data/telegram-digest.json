@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-20T20:57:10.106Z",
-  "attemptedAt": "2026-11-20T20:57:10.106Z",
-  "lastSuccessfulAt": "2026-11-20T20:57:10.106Z",
+  "generatedAt": "2026-11-20T21:22:04.454Z",
+  "attemptedAt": "2026-11-20T21:22:04.454Z",
+  "lastSuccessfulAt": "2026-11-20T21:22:04.454Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-06T20:57:07.476Z",
-  "until": "2026-11-20T20:57:07.476Z",
+  "since": "2026-11-06T21:22:00.347Z",
+  "until": "2026-11-20T21:22:00.347Z",
   "current24hWindow": {
     "start": "2026-11-18T23:00:00.000Z",
     "end": "2026-11-19T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1185,
-      "freshCount": 19,
-      "eligibleTextCount": 1125,
-      "selectedCount": 126,
+      "count": 1195,
+      "freshCount": 39,
+      "eligibleTextCount": 1135,
+      "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69849
+      "lastPostId": 69859
     },
     {
       "channel": "bornlupin",
@@ -137,62 +137,63 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2087,
-  "retainedItemCount": 387,
+  "count": 2097,
+  "retainedItemCount": 405,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2087,
-    "eligibleTextCount": 2027,
+    "observedCount": 2097,
+    "eligibleTextCount": 2037,
     "mediaOnlyCount": 60,
-    "mediaAttachedCount": 833,
-    "photoPostCount": 697,
+    "mediaAttachedCount": 841,
+    "photoPostCount": 705,
     "documentPostCount": 5,
     "imageOnlyCount": 5,
-    "highSignalCount": 339,
-    "broadSignalCount": 867,
-    "selectedRawCount": 361,
-    "selectedEligibleCount": 361,
-    "selectedRawCoveragePct": 17.8,
-    "selectedOfObservedPct": 17.3,
+    "highSignalCount": 343,
+    "broadSignalCount": 874,
+    "selectedRawCount": 359,
+    "selectedEligibleCount": 359,
+    "selectedRawCoveragePct": 17.6,
+    "selectedOfObservedPct": 17.1,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 637,
-    "power": 235,
+    "semi": 643,
+    "ai-policy": 146,
+    "equity": 151,
+    "healthcare": 48,
+    "macro": 281,
+    "geo": 282,
+    "power": 237,
+    "market-note": 733,
+    "kr-market": 88,
+    "credit": 73,
     "earnings": 269,
-    "macro": 277,
-    "geo": 279,
-    "kr-market": 87,
-    "market-note": 732,
-    "equity": 150,
-    "credit": 72,
-    "ai-policy": 145,
     "media-only": 59,
-    "healthcare": 46,
     "flows": 51,
     "japan": 50,
     "optical": 20,
     "insider": 2
   },
   "tickerCounts": {
+    "NVDA": 408,
+    "TSM": 69,
+    "IBN": 3,
+    "AMD": 52,
+    "MSFT": 57,
     "GOOG": 58,
     "AVGO": 19,
     "2454.TW": 7,
     "000660.KS": 18,
-    "NVDA": 404,
     "TSLA": 33,
     "MU": 27,
-    "AMD": 50,
     "AMZN": 53,
     "GOOGL": 4,
-    "TSM": 68,
     "005930.KS": 28,
     "PLTR": 7,
     "329180.KS": 1,
-    "MSFT": 56,
     "META": 4,
     "BABA": 6,
     "INTU": 2,
@@ -202,7 +203,6 @@
     "ASX": 1,
     "WMT": 3,
     "GSAT": 1,
-    "IBN": 2,
     "COHR": 2,
     "AAPL": 7,
     "NTES": 1,
@@ -263,25 +263,25 @@
     "MTD": 1
   },
   "themes": [
-    "Market Notes (732 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 49,097.77 (-2.19%) S&P 500: 7,175.89 (-2.02%) 나스닥:...",
-    "Semiconductors/Memory (637 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
-    "Geopolitics (279 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 러시아 대통령이 우크라이나 전쟁의 평화를 원하고 있다고 주장. 미국은 최근 외교...",
-    "Macro/Rates (277 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
+    "Market Notes (733 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 49,097.77 (-2.19%) S&P 500: 7,175.89 (-2.02%) 나스닥:...",
+    "Semiconductors/Memory (643 posts in 14-day research window): >>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고...",
+    "Geopolitics (282 posts in 14-day research window): 블룸에너지( $BE ) CEO KR 스리다르 인터뷰 - Semafor 1. 전력 수요와 AI 인프라 전망 • 전기는 현대사회의 필수재. 디지털화, 전기차, 산업 발전으로 전력 소비는 구조적으로 증가하고 있음. • 향후 20년 동안 전 세계 전력 사용량이 2배로 증가할 수 있으며, 그렇게 늘어나더라도 충분하지 않을...",
+    "Macro/Rates (281 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥: 22,617.73 (-5.28%) 러셀 2000: 2,584.11 (-2.67%) VIX: 38.37...",
     "Earnings/Corporate (269 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "AI Power/Grid (235 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
-    "Equity/Analyst (150 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 튀르키예와 태국에서 별도의 다이렉트 메시징 앱 테스트를 시작. • 아마존 (AMZN) — 앤트로픽...",
-    "AI Policy/Export Controls (145 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한..."
+    "AI Power/Grid (237 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "Equity/Analyst (151 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 튀르키예와 태국에서 별도의 다이렉트 메시징 앱 테스트를 시작. • 아마존 (AMZN) — 앤트로픽...",
+    "AI Policy/Export Controls (146 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 404,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 러시아 대통령이 우크라이나 전쟁의 평화를 원하고 있다고 주장. 미국은 최근 외교..."
+      "count": 408,
+      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥: 22,617.73 (-5.28%) 러셀 2000: 2,584.11 (-2.67%) VIX: 38.37..."
     },
     {
       "key": "TSM",
-      "count": 68,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며..."
+      "count": 69,
+      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥: 22,617.73 (-5.28%) 러셀 2000: 2,584.11 (-2.67%) VIX: 38.37..."
     },
     {
       "key": "GOOG",
@@ -290,8 +290,8 @@
     },
     {
       "key": "MSFT",
-      "count": 56,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
+      "count": 57,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 21일 🇺🇸 아메리카 • 트럼프 대통령은 중국과 무역·반도체·AI를 포괄하는 광범위한 합의를 논의 중이라고 밝혀. 중국에는 구세대 반도체만 공급하도록 제한하겠다는 입장을 강조. 베선트 재무장관은 미국이 중국과의 디커플링보다 위험 축소를 추구하고 있으며, 첨단 반도체 수출..."
     },
     {
       "key": "AMZN",
@@ -300,8 +300,8 @@
     },
     {
       "key": "AMD",
-      "count": 50,
-      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 49,097.77 (-2.19%) S&P 500: 7,175.89 (-2.02%) 나스닥:..."
+      "count": 52,
+      "text": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 · 트럼프 “중국에는 구형 반도체만 제공하기를 원한다” · 트럼프, 시진핑과 공동 AI 감독 조치에 합의했다고..."
     },
     {
       "key": "TSLA",
@@ -341,8 +341,8 @@
       "topics": [
         "macro"
       ],
-      "count": 277,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
+      "count": 281,
+      "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥: 22,617.73 (-5.28%) 러셀 2000: 2,584.11 (-2.67%) VIX: 38.37..."
     },
     {
       "id": "geo",
@@ -350,8 +350,8 @@
       "topics": [
         "geo"
       ],
-      "count": 279,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 러시아 대통령이 우크라이나 전쟁의 평화를 원하고 있다고 주장. 미국은 최근 외교..."
+      "count": 282,
+      "focus": "블룸에너지( $BE ) CEO KR 스리다르 인터뷰 - Semafor 1. 전력 수요와 AI 인프라 전망 • 전기는 현대사회의 필수재. 디지털화, 전기차, 산업 발전으로 전력 소비는 구조적으로 증가하고 있음. • 향후 20년 동안 전 세계 전력 사용량이 2배로 증가할 수 있으며, 그렇게 늘어나더라도 충분하지 않을..."
     },
     {
       "id": "credit",
@@ -359,8 +359,8 @@
       "topics": [
         "credit"
       ],
-      "count": 72,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한 추가 군사행동을 서두르지 않겠으며, 공격이 이뤄질 경우 이스라엘과 협력할 것이라고 밝혀. • 미국과 중국..."
+      "count": 73,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 21일 🇺🇸 아메리카 • 트럼프 대통령은 중국과 무역·반도체·AI를 포괄하는 광범위한 합의를 논의 중이라고 밝혀. 중국에는 구세대 반도체만 공급하도록 제한하겠다는 입장을 강조. 베선트 재무장관은 미국이 중국과의 디커플링보다 위험 축소를 추구하고 있으며, 첨단 반도체 수출..."
     },
     {
       "id": "semi",
@@ -368,7 +368,7 @@
       "topics": [
         "semi"
       ],
-      "count": 637,
+      "count": 643,
       "focus": ">>Nvidia AI 칩 패권 지위 흔들려…대만 공급망도 영향, 2026년 들어 GPU 점유율 28%에 불과 (대만공상시보) •JPMorgan은 Nvidia의 AI 칩 시장 지배력이 도전을 받고 있다고..."
     },
     {
@@ -386,7 +386,7 @@
       "topics": [
         "power"
       ],
-      "count": 235,
+      "count": 237,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -395,7 +395,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 145,
+      "count": 146,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한..."
     },
     {
@@ -404,7 +404,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 87,
+      "count": 88,
       "focus": "Walmart 2027 회계연도 3분기 실적 요약 실적 • 매출 $1,888.4억, YoY +5.2%, 환율 제외 +4.5% • 순매출 $1,867.6억, YoY +5.1%, 환율 제외 +4.4% •..."
     },
     {
@@ -413,7 +413,7 @@
       "topics": [
         "equity"
       ],
-      "count": 150,
+      "count": 151,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 튀르키예와 태국에서 별도의 다이렉트 메시징 앱 테스트를 시작. • 아마존 (AMZN) — 앤트로픽..."
     },
     {
@@ -440,7 +440,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 46,
+      "count": 48,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체..."
     },
     {
@@ -476,7 +476,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 732,
+      "count": 733,
       "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 49,097.77 (-2.19%) S&P 500: 7,175.89 (-2.02%) 나스닥:..."
     }
   ],
@@ -730,6 +730,79 @@
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
     {
+      "id": "insidertracking/69858",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69858",
+      "datetime": "2026-11-20T21:17:32.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "TSM"
+      ],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
+    },
+    {
+      "id": "insidertracking/69851",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69851",
+      "datetime": "2026-11-20T21:07:50.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "AMD"
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·..."
+    },
+    {
+      "id": "insidertracking/69850",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69850",
+      "datetime": "2026-11-20T21:06:56.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "MSFT"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 21일 🇺🇸 아메리카 • 트럼프 대통령은 중국과 무역·반도체·AI를 포괄하는 광범위한 합의를 논의 중이라고 밝혀. 중국에는 구세대 반도체만 공급하도록 제한하겠다는..."
+    },
+    {
       "id": "insidertracking/69839",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/69839",
@@ -756,17 +829,20 @@
       "datetime": "2026-11-20T04:59:44.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 러시아 대통령이 우크라이나 전쟁의 평화를 원하고 있다고 주장. 미국은 최근 외교...",
       "tickers": [
         "NVDA",
         "GOOG",
         "000660.KS",
         "329180.KS"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 러시아 대통령이 우크라이나 전쟁의 평화를 원하고 있다고 주장. 미국은 최근 외교..."
     },
     {
       "id": "insidertracking/69786",
@@ -1173,72 +1249,6 @@
         "BX",
         "ELV",
         "GIS"
-      ]
-    },
-    {
-      "id": "insidertracking/69427",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69427",
-      "datetime": "2026-11-16T21:09:27.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 17일 트럼프·중국 APEC 정상외교 · 트럼프, 중국 방문 중 시진핑·푸틴과 회담 예정 · 크렘린, 11월 19일 시진핑 관저에서...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69426",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69426",
-      "datetime": "2026-11-16T21:08:38.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "semi",
-        "ai-policy"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 17일 🇺🇸 아메리카 • 미국 상무부는 첨단 AI 반도체와 서버에 대한 원격 접근을 제한하는 새로운 수출통제 규정을 발표. 중국 등 수출통제 대상국이 제3국...",
-      "lead": 2,
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "TSLA",
-        "GOOG",
-        "005930.KS",
-        "000660.KS",
-        "T"
-      ]
-    },
-    {
-      "id": "insidertracking/69397",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69397",
-      "datetime": "2026-11-16T05:36:27.000Z",
-      "localDateKst": "2026-11-16",
-      "tags": [
-        "semi",
-        "ai-policy"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 16일 > 오전 7시~오후 2시 30분 기준 🇺🇸 아메리카 • 트럼프 행정부가 엔비디아·아마존·마이크로소프트·OpenAI·앤트로픽을 미국의 AI '국가 챔피언'으로...",
-      "tickers": [
-        "NVDA",
-        "MSFT",
-        "AMZN",
-        "005930.KS"
       ]
     },
     {
@@ -1699,6 +1709,172 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69859",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69859",
+      "datetime": "2026-11-20T21:19:30.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi",
+        "ai-policy",
+        "equity",
+        "healthcare"
+      ],
+      "score": 87,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "MSFT",
+        "GOOG",
+        "AVGO",
+        "TSM",
+        "ORCL"
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — OpenAI 기술 접근이 제한될 가능성에 대비해 자체 AI 모델 개발을 확대하고 AI 스타트업과의..."
+    },
+    {
+      "id": "insidertracking/69858",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69858",
+      "datetime": "2026-11-20T21:17:32.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "TSM"
+      ],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
+    },
+    {
+      "id": "insidertracking/69856",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69856",
+      "datetime": "2026-11-20T21:12:36.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi"
+      ],
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "필라델피아 반도체 지수 11% 하락"
+    },
+    {
+      "id": "insidertracking/69855",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69855",
+      "datetime": "2026-11-20T21:11:41.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아 시총 3위에서 4위로 진입"
+    },
+    {
+      "id": "insidertracking/69852",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69852",
+      "datetime": "2026-11-20T21:09:07.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "macro"
+      ],
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "2026년 11월 21일 미장 마감 S&P 500 - 6,910.39 -3.70% 다우 30 - 48,147.33 -1.93% 나스닥 - 22,617.73 -5.28% 러셀 2000 - 2,584.11..."
+    },
+    {
+      "id": "insidertracking/69851",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69851",
+      "datetime": "2026-11-20T21:07:50.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "macro",
+        "geo",
+        "semi",
+        "power"
+      ],
+      "score": 100,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "AMD"
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·..."
+    },
+    {
+      "id": "insidertracking/69850",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69850",
+      "datetime": "2026-11-20T21:06:56.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "MSFT"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 21일 🇺🇸 아메리카 • 트럼프 대통령은 중국과 무역·반도체·AI를 포괄하는 광범위한 합의를 논의 중이라고 밝혀. 중국에는 구세대 반도체만 공급하도록 제한하겠다는..."
+    },
+    {
       "id": "HANAchina/72492",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72492",
@@ -2098,17 +2274,20 @@
       "datetime": "2026-11-20T04:59:44.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 러시아 대통령이 우크라이나 전쟁의 평화를 원하고 있다고 주장. 미국은 최근 외교...",
       "tickers": [
         "NVDA",
         "GOOG",
         "000660.KS",
         "329180.KS"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 러시아 대통령이 우크라이나 전쟁의 평화를 원하고 있다고 주장. 미국은 최근 외교..."
     },
     {
       "id": "HANAchina/72469",
@@ -2168,11 +2347,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "현물 금 가격이 14개월 만에 최저치를 기록한 가운데, 기관들은 미국 인플레이션과 국제유가를 금값 하락세 진정의 핵심 신호로 지목. 중국 경영보에 따르면 11월 20일 런던 현물 금과...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "현물 금 가격이 14개월 만에 최저치를 기록한 가운데, 기관들은 미국 인플레이션과 국제유가를 금값 하락세 진정의 핵심 신호로 지목. 중국 경영보에 따르면 11월 20일 런던 현물 금과..."
     },
     {
       "id": "bornlupin/21213",
@@ -5923,36 +6102,6 @@
       ]
     },
     {
-      "id": "insidertracking/69527",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69527",
-      "datetime": "2026-11-17T12:06:14.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "equity"
-      ],
-      "score": 95,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 튀르키예와 태국에서 별도의 다이렉트 메시징 앱 테스트를 시작. • 아마존 (AMZN) — 앤트로픽...",
-      "lead": 1,
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "GOOG",
-        "META",
-        "AMZN",
-        "LITE",
-        "COHR",
-        "ORCL"
-      ]
-    },
-    {
       "id": "HANAchina/72290",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72290",
@@ -5967,25 +6116,6 @@
       "tickers": [
         "GOOG",
         "BA"
-      ]
-    },
-    {
-      "id": "insidertracking/69523",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69523",
-      "datetime": "2026-11-17T12:00:11.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "japan"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동...",
-      "tickers": [
-        "NVDA",
-        "GOOG",
-        "AMZN",
-        "005930.KS"
       ]
     },
     {
@@ -6066,36 +6196,6 @@
       ]
     },
     {
-      "id": "insidertracking/69515",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69515",
-      "datetime": "2026-11-17T11:10:08.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "semi",
-        "power"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": "블룸버그에 따르면 미국이 싱가포르, 말레이시아, 인도네시아, 태국에서 첨단 반도체 구매를 제한하면서 은행과 사모신용펀드들이 중국 고객과 연계된 데이터센터 대출에 대한 재평가에 착수. 일부 대출기관은 미국의...",
-      "lead": 2,
-      "tickers": []
-    },
-    {
-      "id": "insidertracking/69514",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69514",
-      "datetime": "2026-11-17T11:08:43.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "market-note"
-      ],
-      "score": 70,
-      "hasText": true,
-      "summary": "뱅크오브아메리카(BofA)의 11월 17일 펀드매니저 설문조사에 따르면, 투자자들의 기술주 비중 축소 폭이 2006년 6월 이후 월간 기준 최대치를 기록. 응답자의 36%는 2027년 가장 우수한 성과를 낼...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21168",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21168",
@@ -6107,72 +6207,6 @@
       "score": 56,
       "hasText": true,
       "summary": "엔비디아 이사회, 국가안보 및 수출 통제 감독 위원회 신설 ​이 위원회는 수잔 노라 존슨(Suzanne Nora Johnson) 이사가 위원장을 맡고, 스티븐 닐(Stephen Neal)과 존 다비리(John...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69510",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69510",
-      "datetime": "2026-11-17T10:13:34.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "semi",
-        "ai-policy"
-      ],
-      "score": 61,
-      "hasText": true,
-      "summary": "엔비디아 이사회가 국가안보 및 수출통제 감독을 위한 신규 위원회 설립. 위원회는 수잔 노라 존슨 이사가 위원장을 맡고, 스티븐 닐과 존 다비리가 위원으로 참여. 엔비디아의 국가안보 및 글로벌 무역 규정 준수...",
-      "lead": 2,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69505",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69505",
-      "datetime": "2026-11-17T09:33:14.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "market-note"
-      ],
-      "score": 72,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "브리지워터 3분기 포트폴리오 공개 (레이 달리오) • 브리지워터, SPY 약 14억 6,200만 달러·IVV 약 11억 4,400만 달러 매도·VOO도 약 2억 6,800만 달러 축소·S&P500 ETF...",
-      "tickers": [
-        "NVDA",
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "MU"
-      ]
-    },
-    {
-      "id": "insidertracking/69504",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69504",
-      "datetime": "2026-11-17T09:27:49.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "semi"
-      ],
-      "score": 61,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "미국 상무부와 법무부가 싱가포르 기업 메가스피드에 대한 수사 진행 상황을 공동 발표. 미 상무부는 민감한 반도체의 우회 반출 가능성을 선제적으로 모니터링하는 과정에서 의심스러운 활동을 포착한 뒤, 2024년...",
       "tickers": [
         "NVDA"
       ]
