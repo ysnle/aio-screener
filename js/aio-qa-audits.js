@@ -2805,7 +2805,7 @@ window.AIO.getContentTruthAudit = function(opts) {
   var publicContact = !!document.querySelector('#guide-public-policy') && !!(guide && guide.querySelector('a[href*="github.com/ysnle/aio-screener/issues"]'));
   if (!publicContact) issues.push('single public inquiry path missing');
   var publicMarkup = document.documentElement.innerHTML.replace(/<script[\s\S]*?<\/script>/gi, '');
-  var oldPrivateContact = /dydyd007@naver\.com|mailto:/i.test(publicMarkup);
+  var oldPrivateContact = /[\w.+-]+@[\w-]+\.[a-z]{2,}|mailto:/i.test(publicMarkup);
   if (oldPrivateContact) issues.push('private mailto contact remains in public source');
   var referenceAction = [];
   document.querySelectorAll('[data-operational-use="reference-only"], [data-source-kind="reference"], [data-source-kind="snapshot"]').forEach(function(el) {
