@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-20T14:51:34.501Z",
-  "attemptedAt": "2026-11-20T14:51:34.501Z",
-  "lastSuccessfulAt": "2026-11-20T14:51:34.501Z",
+  "generatedAt": "2026-11-20T15:22:05.292Z",
+  "attemptedAt": "2026-11-20T15:22:05.292Z",
+  "lastSuccessfulAt": "2026-11-20T15:22:05.292Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-06T14:51:31.526Z",
-  "until": "2026-11-20T14:51:31.526Z",
+  "since": "2026-11-06T15:22:02.341Z",
+  "until": "2026-11-20T15:22:02.341Z",
   "current24hWindow": {
     "start": "2026-11-18T23:00:00.000Z",
     "end": "2026-11-19T23:00:00.000Z",
@@ -9642,9 +9642,9 @@
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
-    "pt": 16,
-    "earnings": 14,
-    "macro": 4
+    "pt": 15,
+    "earnings": 12,
+    "macro": 3
   },
   "signals": [
     {
@@ -9858,20 +9858,6 @@
       "post": "bornlupin/21071"
     },
     {
-      "kind": "pt",
-      "key": "pt|TMDX|-|2026-11-06|95>120",
-      "ticker": "TMDX",
-      "broker": null,
-      "ptFrom": 95,
-      "ptTo": 120,
-      "currency": "USD",
-      "direction": "raise",
-      "rating": "buy",
-      "ratingAction": null,
-      "date": "2026-11-06",
-      "post": "bornlupin/21034"
-    },
-    {
       "kind": "earnings",
       "key": "earnings|INTU|2026-11-20",
       "ticker": "INTU",
@@ -10016,30 +10002,6 @@
       "post": "insidertracking/68818"
     },
     {
-      "kind": "earnings",
-      "key": "earnings|MRNA|2026-11-06",
-      "ticker": "MRNA",
-      "name": "모더나",
-      "quarter": "2026Q3",
-      "revenue": "beat",
-      "eps": "beat",
-      "guidance": null,
-      "date": "2026-11-06",
-      "post": "bornlupin/21031"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|Oklo|2026-11-06",
-      "ticker": null,
-      "name": "Oklo",
-      "quarter": "2026Q3",
-      "revenue": "beat",
-      "eps": "beat",
-      "guidance": null,
-      "date": "2026-11-06",
-      "post": "insidertracking/68556"
-    },
-    {
       "kind": "macro",
       "key": "macro|Philadelphia Fed Manufacturing Index, 11월|2026-11-19",
       "name": "미국 필라델피아 연은 제조업활동지수",
@@ -10077,19 +10039,6 @@
       "surprise": 6000,
       "date": "2026-11-12",
       "post": "insidertracking/69139"
-    },
-    {
-      "kind": "macro",
-      "key": "macro|Unemployment Rate, 10월|2026-11-06",
-      "name": "미국 실업률",
-      "nameEn": "Unemployment Rate, 10월",
-      "actual": 4.1,
-      "forecast": 4.2,
-      "previous": 4.2,
-      "unit": "%",
-      "surprise": -0.1,
-      "date": "2026-11-06",
-      "post": "insidertracking/68561"
     }
   ]
 }
