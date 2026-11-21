@@ -38,21 +38,8 @@
       { "path": "/workers-ai/translate", "methods": ["POST"], "access": "X-AIO-Automation-Token (AIO_AUTOMATION_TOKEN); anonymous callers get 404 for every method; no CORS; no-store", "binding": "AI", "maxTitles": 20, "maxTitleLength": 300, "maxBodyBytes": 32768, "errors": "short codes only (titles-invalid 400, body-too-large 413, workers-ai-unbound / workers-ai-unparsed:* / workers-ai-failed 503); never model output", "budget": "Workers AI account allowance, not the shared OpenAI ledger" },
       { "path": "/openai", "methods": ["POST", "OPTIONS"], "access": "allowed Origin (+ AIO_APP_TOKEN when set) or origin-less X-AIO-Automation-Token" },
       { "path": "/anthropic", "methods": ["*"], "access": "public", "status": 410, "notes": "retired tombstone (also any path with ?anthropic=1); never calls a provider" },
-      { "path": "/relay", "methods": ["GET", "OPTIONS"], "access": "allowed Origin (+ AIO_APP_TOKEN when set)" },
       { "path": "*", "query": "url", "methods": ["GET", "OPTIONS"], "access": "allowed Origin (+ bot UA refusal)", "notes": "generic CORS proxy for ALLOWED_DOMAINS only; private hosts and redirects off the allowlist refused; 5 MB / 10 s bounds" }
     ]
-  },
-  "relay": {
-    "name": "aio-proxy",
-    "path": "/relay",
-    "baseUrl": "https://aio-proxy.zmfhd007.workers.dev",
-    "role": "fixed-provider-key-relay",
-    "providers": {
-      "bok": { "keyEnv": "BOK_API_KEY" },
-      "kosis": { "keyEnv": "KOSIS_API_KEY" }
-    },
-    "boundary": "upstream-host-is-hardcoded; client never supplies a destination or a key; BOK/KOSIS use operator secrets; the personal-key FRED relay was retired in v57.79 (provider=fred is unknown, 400)",
-    "missingKeyBehavior": "BOK/KOSIS-missing-operator-secret-503"
   },
   "security": {
     "secretsStayOutOfRepo": true,
@@ -70,13 +57,6 @@
     "proxyOptionalNotes": "AI is the Workers AI binding ([ai] in wrangler.proxy.toml; deploy drops it only on a Workers AI permission error); AI_KILL_SWITCH='1' disables /openai; AI_CLIENT_KEY_SALT separates the per-client HMAC from OPENAI_API_KEY; WORKERS_AI_TRANSLATE_MODEL overrides the translation model",
     "operatorObservationRequires": ["AIO_OPERATOR_TOKEN"],
     "automationAiRequires": ["AIO_AUTOMATION_TOKEN"],
-    "relayRequires": [
-      "RELAY_DAILY_CAP"
-    ],
-    "relayKeySecrets": [
-      "BOK_API_KEY",
-      "KOSIS_API_KEY"
-    ],
     "proxyQuotaContract": {
       "binding": "AIO_QUOTA_DO",
       "authority": "single durable object",

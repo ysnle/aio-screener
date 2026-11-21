@@ -48,9 +48,9 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 | `TWELVE_DATA_API_KEY` | `refresh-data.yml` | Yahoo 실패 시 2차 시세 폴백이 사라져 `CORE_QUOTE_COVERAGE_FAILED` 위험이 커진다. |
 | `FINNHUB_API_KEY` | `refresh-screener.yml` | 실적/IPO 캘린더가 이전 파일을 유지한 채 갱신되지 않는다. |
 | `DART_API_KEY` | `refresh-screener.yml` | 금융감독원 OpenDART 무료 인증키(opendart.fss.or.kr 회원가입 후 발급). 없으면 한국 종목 재무(kr-fundamentals.json)가 수집되지 않고 기업 요약은 '자료 없음'으로 남는다. 소유자 결정(2026-10-14): 등록하지 않는다 — 워크플로는 경고 대신 안내만 남긴다. |
-| `BOK_API_KEY` | `deploy-ai-proxy.yml` | **사용처 없음(2026-11-21 소유자 결정: 키를 설정하지 않고 퇴역).** 브라우저는 더 이상 `/relay?provider=bok`를 부르지 않는다. 한국 기준금리는 생산자의 한국은행 공식 페이지 참조(`scripts/lib/web-reference-verify.mjs` `bokBaseRate`)에서만 온다. Worker의 `bok` 릴레이 제거 여부는 소유자 결정 대기. |
+| `BOK_API_KEY` | (없음 — 폐기) | **retired(v60.39).** 브라우저 호출은 v60.38, Worker `/relay`는 v60.39에 제거됐고 어떤 워크플로도 게시하지 않는다. 한국 기준금리는 생산자의 한국은행 공식 페이지 참조(`scripts/lib/web-reference-verify.mjs` `bokBaseRate`)에서만 온다. 저장소 Secret과 `aio-proxy` Worker secret에 남아 있다면 삭제해도 무해하다. |
 | `OPENFIGI_API_KEY` | `refresh-data.yml` (13F 단계) | **선택(v58.56).** OpenFIGI 무료 키(openfigi.com 가입). 없으면 키 없는 한도로 회차당 더 적은 CUSIP만 조회해 대가 보유 종목의 티커 매핑이 천천히 늘어난다. 모호하거나 미국 보통주가 아닌 응답은 버린다. |
-| `KOSIS_API_KEY` | `deploy-ai-proxy.yml` | **사용처 없음.** 위와 동일 — 브라우저는 `kosis` 릴레이를 부르지 않고, 한국 CPI는 통계청 보도자료 공식 참조(`krCpi`)에서만 온다. |
+| `KOSIS_API_KEY` | (없음 — 폐기) | **retired(v60.39).** 위와 동일 — 한국 CPI는 통계청 보도자료 공식 참조(`krCpi`)에서만 온다. 남아 있다면 삭제해도 무해하다. |
 | `AIO_OPERATOR_TOKEN` | `operations-weekly-review.yml` | **선택(v58.84).** §4의 `aio-proxy` Worker secret과 같은 값. 있으면 주간 점검이 `/_ops/ai-usage`로 이번 달 예약액이 예산의 80% 이상인지 상태만 이슈에 적는다(금액은 공개 이슈에 쓰지 않는다, R658). 없으면 그 항목은 '미설정'이다. |
 | `AIO_REFRESH_DISPATCH_TOKEN` | `deploy-data-plane.yml` | **권장(P1578).** 이 저장소만 대상으로 Actions 읽기·쓰기 권한을 준 fine-grained PAT. 데이터 평면 Worker에 `GITHUB_DISPATCH_TOKEN`으로 복사되어 5분 cron이 :20/:50에 `refresh-data`를 디스패치한다. 없으면 GitHub 예약 실행에만 의존한다(실측 슬롯의 약 10%). `/health`의 `schedulerDispatch.configured`와 워치독 경고로 확인한다. |
 | `CLOUDFLARE_API_TOKEN` | `deploy-ai-proxy.yml`, `deploy-data-plane.yml` | 두 Worker 배포가 `operator_required`로 즉시 실패한다. |
@@ -76,7 +76,7 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 
 - OpenAI 서버 키: `OPENAI_API_KEY` → `aio-proxy`의 `POST /openai` → OpenAI Responses API, 요청 모델은 `gpt-6-luna`만 허용한다. 채팅·번역·Actions 시장 서술은 모두 이 Worker를 경유하며 같은 월 예산 원장을 사용한다. 개인 AI 키나 다른 공급자 직접 호출 폴백은 사용하지 않는다.
 - 자동화 인증: Actions는 `X-AIO-Automation-Token`으로 인증한다. 운영자 제공 HTTPS `AI_PROXY_URL`만 호출하고 리다이렉트를 거부한다. 실패·429·미완료 응답에는 제공자 직접 호출 재시도가 없다.
-- 시장 데이터 릴레이: Worker `/relay`(BOK/KOSIS 운영자 Secret)는 앱에서 호출하지 않는다(2026-11-21 퇴역). FRED 공식 [API 키 지침](https://fred.stlouisfed.org/docs/api/api_key.html)은 애플리케이션 사용자별 키를 요구한다. 정기 수집 결과를 읽는 것과 개인 실시간 API 조회는 구분한다. 개인 FRED 조회는 본인 키로만 수행하며 공용 Worker 중계는 사용자 opt-in이 있어야 한다. 업스트림 host는 고정이고 키는 응답·로그·캐시에 남기지 않는다.
+- 시장 데이터: Worker에는 BOK/KOSIS `/relay`가 없다(브라우저 호출 v60.38, Worker 라우트 v60.39 제거). FRED 공식 [API 키 지침](https://fred.stlouisfed.org/docs/api/api_key.html)은 애플리케이션 사용자별 키를 요구한다. 정기 수집 결과를 읽는 것과 개인 실시간 API 조회는 구분한다. 개인 FRED 조회는 본인 키로만 수행하며 공용 Worker 중계는 사용자 opt-in이 있어야 한다. 업스트림 host는 고정이고 키는 응답·로그·캐시에 남기지 않는다.
 
 **사용자별 선택 설정** — Alpha Vantage, Finnhub, FMP, Twelve Data, NewsData, RSS2JSON, FRED, Google CSE(key+cx), CF Worker URL(선택적 자체 프록시)은 개인 설정이다. 필수 가입·입력은 아니며 키가 없으면 해당 기능의 무료·서버 수집·캐시 자료를 사용하거나 기능을 보류한다. 개인 키는 브라우저 localStorage(선택 시 Vault 암호화)에 저장된다. FRED의 명시적 opt-in 중계 외에는 제공자/본인 Worker로만 전송한다. FMP는 신규 무료 계정에 맞춰 `stable`을 사용하지만, 무료 키가 모든 데이터셋 접근권을 뜻하지 않는다. Twelve Data 묶음은 지표별 credit를 소비하고 브라우저 카운터는 계정 전체 소비를 보증하지 않는다. NewsData 무료 뉴스는 12시간 지연된다. Perplexity AI 경로는 비활성화하며 기존 저장키는 자동 삭제하지 않는다.
 
@@ -86,24 +86,22 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 
 다음 항목은 코드로 표현되지 않으며 운영자가 대시보드에서 직접 만들어야 한다.
 
-- **레이트리밋 (v56부터 코드에 포함, 대시보드 작업 불필요)** — `worker/wrangler.proxy.toml`이 Workers **Rate Limiting binding** 3개를 선언한다: `RATE_LIMIT_PROXY`(300/분), `RATE_LIMIT_OPENAI`(20/분), `RATE_LIMIT_RELAY`(60/분). 모두 `period = 60`이다.
+- **레이트리밋 (v56부터 코드에 포함, 대시보드 작업 불필요)** — `worker/wrangler.proxy.toml`이 Workers **Rate Limiting binding** 4개를 선언한다: `RATE_LIMIT_PROXY`(300/분), `RATE_LIMIT_OPENAI`(20/분), `RATE_LIMIT_FEEDBACK`(5/분), `RATE_LIMIT_WORKERS_AI`(30/분). 모두 `period = 60`이다. v60.39에 `RATE_LIMIT_RELAY`(namespace 1003)는 빠졌다.
   - **존 단위 WAF 규칙은 이 배포에 쓸 수 없다.** 워커가 `aio-proxy.zmfhd007.workers.dev`(Cloudflare 공유 존)에만 있고 커스텀 도메인이 없어 규칙을 붙일 존이 없다. v56 이전의 "WAF 규칙이 실효 상한" 안내는 그 전제가 성립하지 않는 잘못된 안내였다(P1157).
-  - **남는 한계는 정직하게 둘**: 바인딩은 Cloudflare **로케이션별**이라 전역 상한이 아니고, 설계상 eventually consistent다. 전역 권위는 여전히 DO 일일 캡이다(`AI_DAILY_CAP`, `RELAY_DAILY_CAP`). 일반 `?url=` 프록시에는 일일 캡이 없다.
+  - **남는 한계는 정직하게 둘**: 바인딩은 Cloudflare **로케이션별**이라 전역 상한이 아니고, 설계상 eventually consistent다. 전역 권위는 여전히 DO 일일 캡(`AI_DAILY_CAP`)이다. 일반 `?url=` 프록시에는 일일 캡이 없다.
   - **바인딩은 대시보드에 보이지 않는다.** 429는 Workers Logs / Observability에서 확인한다(계정 화면의 Observability 지표).
-  - 세 브라우저 경로는 **호출자를 인증하지 않는다** — Origin 허용목록은 비브라우저 클라이언트가 헤더를 위조하면 통과하고, `AIO_APP_TOKEN`은 공개 클라이언트 JS에 상수가 있으며 미설정이면 검사 자체가 없다(`/health`의 `relay.appTokenRequired`로 확인). Origin 없는 Actions AI 요청은 별도로 비밀 `AIO_AUTOMATION_TOKEN`을 요구한다. `/relay`는 **FRED 개인 키 또는 BOK/KOSIS 운영자 키의 쿼터를 소모**하므로, 위조 클라이언트는 일일 캡까지 소진시킬 수 있는 것으로 취급한다.
-  - 커스텀 도메인을 워커에 붙이면 그때는 존 WAF rate limiting rule을 **추가** 방어층으로 쓸 수 있다(예: `http.request.uri.path eq "/relay"` → 60/분 → Block). 필수는 아니다.
-  - 배포가 `[[ratelimits]]` 바인딩에서 실패하면(계정 미지원) 그 3블록을 제거하면 된다 — 코드는 바인딩이 없으면 isolate 로컬 Map으로 폴백한다.
-- **`/relay` 키와 캐시** — FRED 개인 키 조회는 `private, no-store`이며 키·응답을 공유 캐시하지 않는다. BOK/KOSIS 공용 응답은 `public, max-age=3600`이므로 키 교체 뒤 최대 1시간 이전 응답이 남을 수 있다.
+  - 브라우저 경로(`?url=` 프록시, `/openai`, `/feedback`)는 **호출자를 인증하지 않는다** — Origin 허용목록은 비브라우저 클라이언트가 헤더를 위조하면 통과하고, `AIO_APP_TOKEN`은 공개 클라이언트 JS에 상수가 있으며 미설정이면 검사 자체가 없다(`/health`의 `ai.appTokenRequired`로 확인). Origin 없는 Actions AI 요청은 별도로 비밀 `AIO_AUTOMATION_TOKEN`을 요구한다.
+  - 커스텀 도메인을 워커에 붙이면 그때는 존 WAF rate limiting rule을 **추가** 방어층으로 쓸 수 있다(예: `http.request.uri.path eq "/openai"` → 20/분 → Block). 필수는 아니다.
+  - 배포가 `[[ratelimits]]` 바인딩에서 실패하면(계정 미지원) 그 블록들을 제거하면 된다 — 코드는 바인딩이 없으면 isolate 로컬 Map으로 폴백한다.
 - **KV 네임스페이스** `aio-quotes-prod` — 바인딩 id를 `AIO_QUOTES_KV_ID`로 저장소에 전달한다.
-- **Durable Object** `AIOQuotaDurableObject` (`AIO_QUOTA_DO` 바인딩) — 없으면 `/openai`가 503 fail-closed로 거부한다. `/relay`의 일일 캡도 같은 바인딩을 쓰므로, 없으면 릴레이도 503이다.
+- **Durable Object** `AIOQuotaDurableObject` (`AIO_QUOTA_DO` 바인딩) — 없으면 `/openai`가 503 fail-closed로 거부한다. `/feedback`도 같은 바인딩에 글을 남기므로, 없으면 503이다.
 - **가족 코드는 없다 (v59.10, 소유자 결정 2026-10-26: "다 믿을만한 사용자")** — v58.82에서 넣었던 `AIO_FAMILY_CODES` 관문은 사용자 불편 때문에 뺐다. 브라우저 공용 AI는 허용 Origin + 앱 토큰 + 연결별 하루 몫 + 월 $20 원장으로만 보호된다. Worker에 `AIO_FAMILY_CODES` 비밀이 남아 있어도 읽지 않으므로 무해하며, 정리하려면 `wrangler secret delete AIO_FAMILY_CODES --config worker/wrangler.proxy.toml`.
 - **가족 피드백 (v58.82, 로드맵 12)** — 각 화면 맨 아래 `이상해요` 버튼으로 가족이 짧은 글을 보낸다. 글에는 화면 이름과 앱 버전만 붙고, 공개 저장소·Actions 로그가 아니라 Worker(Durable Object)에 최근 300건까지 비공개로 남는다. 코드 없이 보내며, 연결(IP)마다 UTC 하루 10건·분당 5건까지다. 소유자는 앱의 연결 상태 카드 → `가족 피드백 보기`에 `AIO_OPERATOR_TOKEN`을 넣어 읽는다(토큰은 저장하지 않음). 같은 내용은 `curl -H "X-AIO-Operator-Token: …" https://<worker>/_ops/feedback`으로도 읽힌다. `보낸 사람`은 그날 연결의 HMAC 8자리 표시이며 IP 자체는 저장하지 않는다.
-- **선택 Worker 설정** `AIO_CRON_SECRET`(수동 `/admin/run`만), `AIO_APP_TOKEN`(공개 클라이언트 억제용), `AIO_DEV_ORIGINS`(개발 origin 추가). 자동 cron과 일반 사용자에게는 입력이 필요 없다. `deploy-ai-proxy.yml`의 명시적 수동 dispatch가 `OPENAI_API_KEY`·`AIO_AUTOMATION_TOKEN`·`BOK_API_KEY`·`KOSIS_API_KEY`를 게시한다. FRED 운영자 키는 Actions 수집/운영자 자신의 smoke용이며 사용자 대신 Worker에 게시하지 않는다.
+- **선택 Worker 설정** `AIO_CRON_SECRET`(수동 `/admin/run`만), `AIO_APP_TOKEN`(공개 클라이언트 억제용), `AIO_DEV_ORIGINS`(개발 origin 추가). 자동 cron과 일반 사용자에게는 입력이 필요 없다. `deploy-ai-proxy.yml`의 명시적 수동 dispatch가 `OPENAI_API_KEY`·`AIO_AUTOMATION_TOKEN`을 게시한다. FRED 운영자 키는 Actions 수집/운영자 자신의 smoke용이며 사용자 대신 Worker에 게시하지 않는다.
 - **비공개 AI 사용량 관측(선택)** — `AIO_OPERATOR_TOKEN`을 `aio-proxy` Cloudflare Worker secret으로 설정하면 `GET /_ops/ai-usage`에서 현재 UTC 날짜의 공유 AI Durable Object 요청 수와 `AI_DAILY_CAP`을 확인할 수 있다. 최소 32자 무작위 값으로 발급하고 Cloudflare에 직접 `wrangler secret put AIO_OPERATOR_TOKEN --config worker/wrangler.proxy.toml`로 설정한다. 이 명령은 저장소의 정본 config를 사용하며, `.deploy.toml`은 CI runner 안에서만 생성된다. 저장소·워크플로 로그·공개 이슈에 값이나 응답을 복사하지 않는다. 미설정 또는 인증 실패는 404이며 `/health`에는 사용량·AI cap이 추가되지 않는다. 코드 배포 후 A5에서 secret 설정과 인증된 200 응답을 운영자가 확인해야 한다.
 - **월 AI 예산** — `AI_MONTHLY_BUDGET_USD=20`이며 코드에서 $20보다 큰 설정은 허용하지 않는다(소유자 승인 2026-10-11). 채팅·번역·Actions·배포 smoke가 같은 원장에 호출 최대 비용을 먼저 원자적으로 예약한다. 소유자 결정(2026-10-27)으로 $20은 목표다: `AI_MONTHLY_BUDGET_MODE=target`(worker/wrangler.proxy.toml)에서는 넘어도 요청을 거절하지 않고, 주간 운영 점검이 80%와 초과 때 경고한다. 설정을 지우거나 `hard`로 두면 예전처럼 상한에서 거절한다. `AI_WEB_SEARCH_ENABLED=true`로 내부/무료 근거가 부족할 때 OpenAI 검색을 보강한다. 사용자별 검색 할당량은 없다. 요청당 도구 호출 최대 2회, 검색 호출당 $0.10의 정책 예약을 유지한다. 검색의 누적 청구 토큰 상한은 공개되지 않아 이 예약은 청구액 보장이나 실측 사용액이 아니다. 다른 앱에서 같은 프로젝트 키를 사용하면 Worker 원장 밖에서 청구되므로 AIO 전용 프로젝트와 키를 사용한다.
 - **OpenAI 쪽 설정** — 앱의 원장은 경고만 하므로, 청구가 실제로 멈추는 곳은 공급자다. 선불 잔액이 바닥나면 모든 AI 요청이 HTTP 429로 거절된다(2026-11-10, 11시간). 자동 충전을 켜고 월 충전 상한을 정해 두는 것이 소유자 조치다. 프로젝트 월 한도(`Enforce a hard limit`)를 걸면 그 한도에서 AI가 멈춘다는 뜻이므로, 걸려면 $20보다 넉넉하게 둔다. 공식 안내: [OpenAI spend limits](https://developers.openai.com/api/docs/guides/spend-limits). 세금·환전과 다른 프로젝트 사용은 Worker의 USD API 원장 범위 밖이다.
 - **최초 전환 순서** — 운영자는 전용 프로젝트 키와 자동화 토큰을 Secret으로 등록한 후 성공한 main CI run id를 지정해 `deploy-ai-proxy.yml`을 명시적으로 실행한다. 공유 Worker `/health`의 provider/model/automationConfigured와 실제 upstream smoke 통과 후 Actions를 확인한다. 자동 코드 배포는 기존 Cloudflare Secret을 유지한다. 이 문서는 설정 절차이며 현재 Secret 등록·배포 완료를 뜻하지 않는다.
-- **릴레이 일일 캡** — `worker/wrangler.proxy.toml`의 `RELAY_DAILY_CAP`(기본 2000, 제공자별). 배포 전에 이 값을 조정하려면 toml을 수정한다.
 - **패스트 플레인 승격 플래그** — `architecture/worker-endpoints.json`의 `fastQuotes.rightsReviewed`(권리 검토 완료 시 `true`)와 `soakRequiredDays`. 7일 soak와 권리 검토가 끝나기 전에는 `public-config.json`의 `marketData.fastQuotes.enabled`가 `false`로 유지되며 브라우저는 패스트 플레인을 읽지 않는다. 이 승격은 손으로 켜지지 않는다 — `scripts/ci-fast-plane-consumer-gate.mjs`가 게시된 증거로 재파생해 검사한다.
 
 ## 5. 의도적으로 수동인 배포 (자동 재배포 없음)

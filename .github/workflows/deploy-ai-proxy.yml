@@ -239,7 +239,7 @@ jobs:
             wrangler deploy --config worker/wrangler.proxy.deploy.toml --message "AIO AI proxy $SOURCE_SHA (no Workers AI)"
           fi
 
-      - name: Publish OpenAI, automation, and server-side relay secrets
+      - name: Publish OpenAI and automation secrets
         id: publish-secrets
         if: steps.convergence.outputs.should_deploy == 'true' && steps.latest-main.outputs.safe == 'true' && github.event_name == 'workflow_dispatch'
         env:
@@ -247,22 +247,10 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           AIO_AUTOMATION_TOKEN: ${{ secrets.AIO_AUTOMATION_TOKEN }}
-          BOK_API_KEY: ${{ secrets.BOK_API_KEY }}
-          KOSIS_API_KEY: ${{ secrets.KOSIS_API_KEY }}
         run: |
           set -euo pipefail
           printf '%s' "$OPENAI_API_KEY" | wrangler secret put OPENAI_API_KEY --config worker/wrangler.proxy.deploy.toml
           printf '%s' "$AIO_AUTOMATION_TOKEN" | wrangler secret put AIO_AUTOMATION_TOKEN --config worker/wrangler.proxy.deploy.toml
-          publish_optional() {
-            local name="$1" value="$2"
-            if [ -z "$value" ]; then
-              echo "::warning::relay_optional_missing: $name is not configured — that /relay provider stays fail-closed"
-              return 0
-            fi
-            printf '%s' "$value" | wrangler secret put "$name" --config worker/wrangler.proxy.deploy.toml
-          }
-          publish_optional BOK_API_KEY "$BOK_API_KEY"
-          publish_optional KOSIS_API_KEY "$KOSIS_API_KEY"
 
       - name: Verify health, readiness, CORS, and fail-closed origin
         id: smoke
@@ -277,7 +265,7 @@ jobs:
           consecutive=0
           for attempt in $(seq 1 24); do
             status="$(curl --silent --show-error --output "$RUNNER_TEMP/aio-ai-health.json" --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/health" || true)"
-            if [ "$status" = '200' ] && node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync(process.argv[1]));if(h.schemaVersion!=='aio-worker-health.v1'||h.sourceSha!==process.env.EXPECTED_SHA||h.ai?.provider!=='openai'||h.ai?.model!=='gpt-6-luna'||h.ai?.automationConfigured!==true||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.authorityReady!==true||h.ai?.authorityJurisdiction!=='us'||h.ai?.ready!==true||!Array.isArray(h.relay?.providers)||h.relay.providers.includes('fred')||h.relay?.quotaConfigured!==true)process.exit(1)" "$RUNNER_TEMP/aio-ai-health.json"; then
+            if [ "$status" = '200' ] && node -e "const fs=require('fs');const h=JSON.parse(fs.readFileSync(process.argv[1]));if(h.schemaVersion!=='aio-worker-health.v1'||h.sourceSha!==process.env.EXPECTED_SHA||h.ai?.provider!=='openai'||h.ai?.model!=='gpt-6-luna'||h.ai?.automationConfigured!==true||h.ai?.configured!==true||h.ai?.quotaConfigured!==true||h.ai?.authorityReady!==true||h.ai?.authorityJurisdiction!=='us'||h.ai?.ready!==true)process.exit(1)" "$RUNNER_TEMP/aio-ai-health.json"; then
               consecutive=$((consecutive + 1))
               # P1433: three consecutive answers from the new revision before probing the gates.
               if [ "$consecutive" -ge 3 ]; then ready="1"; break; fi
@@ -316,13 +304,6 @@ jobs:
           if [ "$automation_status" != '200' ]; then echo "::error::ai_proxy_automation_upstream_failed: HTTP $automation_status"; exit 1; fi
           node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.argv[1]));if(r.status!=='completed'||!r.output?.some(x=>x?.type==='message'&&x.content?.some(p=>p?.type==='output_text'&&typeof p.text==='string')))process.exit(1)" "$RUNNER_TEMP/aio-ai-automation.json"
           fi
-          # v57.79: the personal-key FRED relay was retired; the Worker must answer it as an unknown provider.
-          relay_retired="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/relay?provider=fred&series_id=DGS10&limit=1")"
-          if [ "$relay_retired" != '400' ]; then echo "::error::ai_proxy_retired_fred_relay_still_served: HTTP $relay_retired"; exit 1; fi
-          relay_blocked="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://example.com' "$AI_PROXY_URL/relay?provider=bok&statCode=722Y001&cycle=M&start=202601&end=202602")"
-          if [ "$relay_blocked" != '403' ]; then echo "::error::ai_proxy_relay_origin_gate_failed: HTTP $relay_blocked"; exit 1; fi
-          relay_unknown="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' -H 'Origin: https://ysnle.github.io' "$AI_PROXY_URL/relay?provider=evil&series_id=DGS10")"
-          if [ "$relay_unknown" != '400' ]; then echo "::error::ai_proxy_relay_provider_gate_failed: HTTP $relay_unknown"; exit 1; fi
 
       - name: Roll back failed AI-proxy deployment
         id: rollback

@@ -3,7 +3,8 @@
 This directory holds both Worker deployments. Only the fast quote plane is described
 below; the `aio-proxy` Worker (source: `../cloudflare-worker-proxy.js`, config:
 `wrangler.proxy.toml`) serves the CORS data proxy, the shared `/openai`
-server-key route, and the `/relay` server-side key relay. AI generation uses
+server-key route, `/feedback` and `/workers-ai/translate`. The BOK/KOSIS `/relay` route was
+removed in v60.39 (no client after v60.38; the producers call ECOS/KOSIS from Actions). AI generation uses
 `gpt-6-luna` and the operator's `OPENAI_API_KEY` Worker secret. Browser chat,
 translation and Actions analysis share one atomic UTC-month reservation ledger
 against a $20 month target (owner approval 2026-10-11). With `AI_MONTHLY_BUDGET_MODE = "target"`
@@ -22,32 +23,9 @@ isolate map) cuts a runaway caller (codex audit F18). Whether the account is on 
 (hard stop) or paid (overage) is an operator fact to confirm in the Cloudflare dashboard; this code
 does not count neurons. Any failure returns 503 and the caller falls back to the shared OpenAI path.
 
-## `/relay` — fixed-provider relay (P1151)
-
-`GET /relay?provider=<bok|kosis>&<params>` fetches a browser-blocked source with an
-operator secret. The personal-key FRED provider (P1422) had no client after v57.76 and
-was removed in v57.79; `provider=fred` is now an unknown provider (400). FRED data comes
-from the scheduled operator artifact, which needs no personal key.
-
-Design boundaries (all enforced by `node scripts/ci-worker-relay-check.mjs`):
-
-- Upstream host and path are **hardcoded per provider**. The client cannot name a
-  destination, so the route cannot be used as an SSRF relay.
-- BOK/KOSIS keys come only from `env.BOK_API_KEY` / `env.KOSIS_API_KEY`.
-  The browser never sends a provider key; keys are redacted from upstream bodies.
-- Parameters pass a per-provider regex whitelist; anything else is a 400.
-- Origin allowlist, optional `AIO_APP_TOKEN`, and a 60/min per-IP limit apply before
-  the upstream call. A per-provider daily cap (`RELAY_DAILY_CAP`, default 2000) is
-  reserved atomically through `AIO_QUOTA_DO`.
-- Missing BOK/KOSIS secrets or quota bindings fail closed (503).
-
-Deployment: `deploy-ai-proxy.yml` publishes the relay secrets with
-`wrangler secret put` (BOK/KOSIS optional) and checks that the retired FRED provider is
-refused. No workflow was run locally.
-
 ### What these gates are, and are not (v56, P1156)
 
-Browser requests on this Worker — the `?url=` data proxy, `/openai`, `/relay` — refuse an
+Browser requests on this Worker — the `?url=` data proxy, `/openai`, `/feedback` — refuse an
 Origin outside the allowlist. Only `/openai` also accepts origin-less Actions requests
 authenticated with a private automation token. The browser Origin check is a *minimum* barrier, not
 authentication: `Origin` is a request header that any non-browser client can set freely, and
@@ -58,14 +36,14 @@ isolate-local `Map`s, so its real ceiling is `limit × distinct IPs × live isol
 The bounds that are *not* per-isolate:
 
 - the **Workers Rate Limiting bindings** declared in `wrangler.proxy.toml`
-  (`RATE_LIMIT_PROXY` 300/min, `RATE_LIMIT_OPENAI` 20/min, `RATE_LIMIT_RELAY` 60/min,
+  (`RATE_LIMIT_PROXY` 300/min, `RATE_LIMIT_OPENAI` 20/min,
   `RATE_LIMIT_FEEDBACK` 5/min per IP, `RATE_LIMIT_WORKERS_AI` 30/min, `period = 60`). These share counters across every isolate **within one Cloudflare location**,
   which is why they replaced the old advice to create a WAF rate limiting rule: `workers.dev`
   has no zone, so that rule was never available to this deployment. They are not global and are
   eventually consistent by design, and they are invisible in the dashboard — observe them as 429s
   in Workers Logs. A missing or throwing binding falls back to the in-isolate `Map`.
-- the atomic Durable Object daily cap (`AI_DAILY_CAP`, `RELAY_DAILY_CAP`) — **volume,
-  not identity**, and only on `/openai` and `/relay`; the generic `?url=` proxy has none.
+- the atomic Durable Object daily cap (`AI_DAILY_CAP`) — **volume,
+  not identity**, and only on `/openai`; the generic `?url=` proxy has none.
 - P1759: a per-connection AI day cap (`AI_PER_CLIENT_DAILY_CAP`: code default 150, bounded 1-1000 and clamped to `AI_DAILY_CAP`; deployed `wrangler.proxy.toml` value 1000, a third of the deployed `AI_DAILY_CAP` 3000 — a runaway backstop, not a household limit) checked in the same
   DO admission transaction. The key is an HMAC of the UTC day and the caller IP (IPv6 by /64;
   key material `AI_CLIENT_KEY_SALT` or, if unset, `OPENAI_API_KEY`); raw IPs are never stored.
@@ -78,9 +56,6 @@ The bounds that are *not* per-isolate:
   off: the month is a target that is reported and alerted on, never a refusal.
   Authenticated Actions requests are exempt from the per-connection cap (the global day cap and the month ledger still apply). `/health` has its
   own isolate-local bucket (120/min; optional `RATE_LIMIT_HEALTH` binding).
-
-Because `/relay` spends the BOK/KOSIS operator's quota, treat a forged-Origin client as
-a quota-exhaustion risk up to the daily cap rather than as a blocked attacker.
 
 The read surface of the fast plane is `GET`/`HEAD` only — a `POST /quotes` used to bypass the
 CDN cache and perform a KV read per request. `/admin/run` keeps its own `POST` +

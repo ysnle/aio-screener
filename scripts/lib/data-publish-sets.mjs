@@ -16,6 +16,8 @@
 //   optional      paths staged only when present (a lane that did not run leaves its file alone)
 //   timestampOnly { '<path>': [keys] } — a file whose parsed JSON equals HEAD after dropping these top-level keys is
 //                 put back to HEAD (index and worktree), so a re-check that moved only the clock makes no commit
+//   holdVolatile  { '<path>': { minutes, clock, strip(json) } } — a file equal to HEAD after strip() goes back to HEAD
+//                 while HEAD's `clock` stamp is under `minutes` old (live-moving parts publish once per window)
 //   afterStage    commands run once the set is staged (a failure stops the run before any commit)
 //   beforeCommit  commands run when something is staged, just before the commit (stores published ahead of main)
 //   verifyCommit  commands that must pass on the commit and again after every rebase
@@ -61,7 +63,6 @@ export const DATA_PUBLISH_SETS = Object.freeze({
       'public-data/reconciliation-status.json',
       'public-data/screener.json',
       'public-data/telegram-digest.json',
-      'public-data/telegram-observed.json', // P1683
       'public-data/atlas/index.json',
       'public-data/backtest-history.json',
       'public-data/score-backtest-history.json',
@@ -164,6 +165,16 @@ export const DATA_PUBLISH_SETS = Object.freeze({
     // v59.62: a run that only re-checked sources changes generatedAt alone. v59.85: kr-index-weights too — 12 of the 15
     // event-brief commits on Sunday 11/08 rewrote only its generatedAt, each one a CI run and a Pages deploy.
     timestampOnly: { 'public-data/event-briefs.json': ['generatedAt'], 'public-data/kr-index-weights.json': ['generatedAt'] },
+    // v60.39 (owner 2026-11-21, batch the bot commits): 37 of 55 sampled commits changed only a brief's price reaction
+    // (the latest after-hours trade), each one a commit and a CI run. A new document, summary or report date still
+    // publishes on its own run; a reaction-only change waits until the published file is 55 minutes old.
+    holdVolatile: {
+      'public-data/event-briefs.json': {
+        minutes: 55,
+        clock: 'generatedAt',
+        strip: (json) => ({ ...json, generatedAt: null, briefs: (Array.isArray(json?.briefs) ? json.briefs : []).map(({ reaction, ...brief }) => brief) }),
+      },
+    },
     afterStage: [],
     beforeCommit: [],
     // Only this workflow writes these files, so a rebase cannot change them; the publisher's own parse check suffices.

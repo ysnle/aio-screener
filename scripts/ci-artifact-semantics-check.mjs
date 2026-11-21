@@ -435,8 +435,10 @@ if (telegram?.coverage) {
   check('the selected set is a subset of the observed window', selected <= observed, `${selected} > ${observed}`);
   // P1683: the lineage rows moved to telegram-observed.json; a digest still carrying them (pre-split) is read as before.
   const lineageRows = Array.isArray(telegram.observedItems) ? telegram.observedItems : readIf('public-data/telegram-observed.json')?.observedItems;
-  check('telegram observed lineage count matches the published payload',
-    observed === (Array.isArray(lineageRows) ? lineageRows.length : -1),
+  // v60.39: the lineage file is producer state (Actions cache, not on main); the count is compared where the rows exist.
+  const lineageHere = Array.isArray(telegram.observedItems) || existsSync('public-data/telegram-observed.json');
+  check('v60.39 telegram observed lineage count matches the published payload where the lineage rows exist',
+    !lineageHere || observed === (Array.isArray(lineageRows) ? lineageRows.length : -1),
     `coverage=${observed} items=${lineageRows?.length ?? 'missing'}`);
 }
 // v58.71: digest `signals` are numbers read from the posts, never the post text (P715); each has a known kind and key.

@@ -236,7 +236,7 @@ async function main() {
     const allowedHealth = await worker.fetch(req(undefined, { path: '/health', method: 'GET', headers: { 'X-AIO-App-Token': 'fixture-public-app-token' } }), appAuth.env);
     const allowedHealthJson = await allowedHealth.json();
     check('P1607 health separates server readiness from caller token acceptance without exposing credentials', deniedHealthJson.ai.ready && deniedHealthJson.ai.appTokenRequired && !deniedHealthJson.ai.appTokenAccepted && allowedHealthJson.ai.appTokenAccepted && !JSON.stringify(allowedHealthJson).includes('fixture-public-app-token'));
-    check('v57.79 P1607 P1608 health lists operator-secret relays only (personal FRED relay retired) and enabled paid search truthfully', healthJson.relay.credentialModes.bok === 'operator-secret' && healthJson.relay.credentialModes.kosis === 'operator-secret' && !('fred' in healthJson.relay.credentialModes) && healthJson.relay.personalKeyRequired === undefined && !healthJson.relay.providers.includes('fred') && healthJson.ai.paidWebSearchEnabled === true); // text-pin-ok: retirement absence
+    check('v60.39 P1607 P1608 health carries no relay block (BOK/KOSIS relay removed) and reports enabled paid search truthfully', healthJson.relay === undefined && healthJson.ai.paidWebSearchEnabled === true);
     check('P1421 malformed budget cannot report ready', (await malformedHealth.json()).ai.ready === false);
     check('P1157/P1421 rate limiter fails before cost', (await worker.fetch(req(), { ...fixture.env, RATE_LIMIT_OPENAI: { limit: async () => ({ success: false }) } })).status === 429);
     check('P1421 Unicode byte limit before dispatch', (await worker.fetch(req({ ...body, input: '한'.repeat(75000) }), fixture.env)).status === 413);

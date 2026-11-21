@@ -2101,7 +2101,7 @@
         "scripts/build-operations-status.mjs",
         "public-config.json",
         ".github/workflows/refresh-data.yml",
-        "scripts/ci-worker-relay-check.mjs",
+        "scripts/ci-worker-proxy-check.mjs",
         "scripts/operations-alert/collect-observations.mjs",
         "scripts/ci-operations-alert-source-check.mjs",
         "scripts/ci-data-plane-contract-check.mjs",
@@ -2155,8 +2155,8 @@
           ]
         },
         {
-          "id": "worker-relay",
-          "script": "scripts/ci-worker-relay-check.mjs"
+          "id": "worker-proxy",
+          "script": "scripts/ci-worker-proxy-check.mjs"
         },
         {
           "id": "operations-alert-source",
@@ -2193,7 +2193,7 @@
             "scripts/build-operations-status.mjs",
             "public-config.json",
             ".github/workflows/refresh-data.yml",
-            "scripts/ci-worker-relay-check.mjs",
+            "scripts/ci-worker-proxy-check.mjs",
             "scripts/operations-alert/collect-observations.mjs",
             "scripts/ci-operations-alert-source-check.mjs",
             "scripts/ci-data-plane-contract-check.mjs",

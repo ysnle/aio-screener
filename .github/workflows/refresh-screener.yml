@@ -103,8 +103,8 @@ jobs:
       - name: Refresh Korean investor-type net buying (Naver, daily)
         run: |
           set -euo pipefail
-          # v59.70 (data-refactor): 코스피·코스닥 투자자별 순매수 from Naver, keyless. The BOK_API_KEY secret stays for the
-          # Worker's BOK/KOSIS relay (policy rate); this step no longer reads it. On a fetch failure the script exits 0
+          # v59.70 (data-refactor): 코스피·코스닥 투자자별 순매수 from Naver, keyless; no BOK key is read here (the BOK/KOSIS
+          # Worker relay was removed in v60.39). On a fetch failure the script exits 0
           # and keeps the artifact; the card on 시장 상태 then says 수집 전.
           node scripts/fetch-kr-investor-flows.mjs
 

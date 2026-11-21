@@ -60,6 +60,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2694 - v60.39 - history.json이 매 주기 값은 0~3개만 바뀌는데 과거 250여 행의 확인 시각을 다시 찍어 통째로 새로 커밋됨 (2026-11-21)
+
+- symptom/reproduction: 연속 커밋 다섯 건에서 값 셀은 0~3개, 확인 시각은 283~659개가 바뀌었다. 사흘간 147개 판이 묶음 기준 19.5MB로 저장소 증가의 가장 큰 몫이었다.
+- root_cause: mergeBackfillBars가 같은 일봉을 다시 읽으면 값과 관측이 같아도 그 셀의 메타를 새 수집 시각으로 덮어썼다.
+- fix: 값이 같고 확인 시각 말고는 메타가 같은 일봉은 같은 관측으로 보고 기존 기록을 그대로 둔다.
+- violated_rule: R1
+- prevention: 세션 모델 검사(B1)에 같은 관측 건너뛰기를 적고 지문을 갱신했다. 실제 history.json에 같은 일봉 9,313개를 다시 읽혀 파일이 바뀌지 않음을 확인했다.
+- verification/residual: node scripts/ci-history-session-model-check.mjs
+- files: scripts/producer/history.mjs, scripts/ci-history-session-model-check.mjs, architecture/model-check-coverage.json
+
 ## P2693 - v60.38 - 대가 보유의 Vanguard 카드가 그룹 전체 이름으로 영국 자회사 한 곳의 13F를 보여 줌 (2026-11-21)
 
 - symptom/reproduction: 카드 이름은 Vanguard Group인데 보유 합계는 영국 법인(CIK 0001680208) 한 곳의 신고분이라 그룹 규모와 맞지 않는다.

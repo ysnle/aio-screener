@@ -140,20 +140,39 @@ jobs:
           echo "code_sha=$code_sha" >> "$GITHUB_OUTPUT"
           if [ -n "$code_sha" ]; then echo "::warning::data overlay release: data $sha on code $code_sha (the newest code under it is not attested)"; fi
 
+      # v60.39: main moves about every 13 minutes, and a release that is already behind it is refused at the recheck
+      # below (P1351). Read main once here so that release skips the checkout, install, bundle and upload as well.
+      - name: Stop early when main has already moved
+        id: early
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          set -euo pipefail
+          current_main_sha="$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')"
+          if [ "$current_main_sha" = "$EXPECTED_SHA" ]; then
+            echo 'stale=false' >> "$GITHUB_OUTPUT"
+          else
+            echo "Main is already at $current_main_sha; not building the stale release $EXPECTED_SHA."
+            echo 'stale=true' >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout exact attested SHA
+        if: steps.early.outputs.stale != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ steps.release.outputs.sha }}
 
       # The same builder CI ran its contracts on, copied out first because the code commit may predate it.
       - name: Build the attested data overlay tree
-        if: steps.release.outputs.code_sha != ''
+        if: steps.release.outputs.code_sha != '' && steps.early.outputs.stale != 'true'
         run: |
           set -euo pipefail
           cp scripts/build-data-overlay.mjs "$RUNNER_TEMP/build-data-overlay.mjs"
           node "$RUNNER_TEMP/build-data-overlay.mjs" --code-sha "${{ steps.release.outputs.code_sha }}" --data-sha "${{ steps.release.outputs.sha }}"
 
       - name: Setup Node
+        if: steps.early.outputs.stale != 'true'
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
@@ -163,9 +182,11 @@ jobs:
       # --ignore-scripts: no package lifecycle script runs in this privileged job; esbuild resolves its
       # lockfile-pinned platform binary package without its optional postinstall.
       - name: Install pinned build tooling
+        if: steps.early.outputs.stale != 'true'
         run: npm ci --no-audit --no-fund --ignore-scripts
 
       - name: Stage explicit public artifact allowlist
+        if: steps.early.outputs.stale != 'true'
         env:
           AIO_SOURCE_SHA: ${{ steps.release.outputs.sha }}
           AIO_ATTESTATION_RUN_ID: ${{ steps.source.outputs.run_id }}
@@ -219,9 +240,11 @@ jobs:
           node --input-type=module -e "import fs from 'node:fs'; const version=JSON.parse(fs.readFileSync('version.json','utf8')).version; const artifact={schemaVersion:'aio-deployment.v1',sourceSha:process.env.AIO_SOURCE_SHA,appRevision:version,attestationRunId:Number(process.env.AIO_ATTESTATION_RUN_ID),deploymentRunId:Number(process.env.AIO_DEPLOYMENT_RUN_ID),deployedAt:new Date().toISOString(),releaseMode:process.env.AIO_CODE_SHA?'data-overlay':'direct',...(process.env.AIO_CODE_SHA?{codeSha:process.env.AIO_CODE_SHA}:{}),bundle:JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+'/aio-bundle-manifest.json','utf8'))}; if(!/^[0-9a-f]{40}$/.test(artifact.sourceSha)) process.exit(1); fs.writeFileSync(process.env.RUNNER_TEMP+'/pages-dist/deployment.json',JSON.stringify(artifact,null,2)+'\n');"
 
       - name: Setup Pages
+        if: steps.early.outputs.stale != 'true'
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
       - name: Upload artifact
+        if: steps.early.outputs.stale != 'true'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v4.0.0 — pins upload-artifact by SHA (repo requires full-SHA pins, P1335)
         with:
           path: ${{ runner.temp }}/pages-dist

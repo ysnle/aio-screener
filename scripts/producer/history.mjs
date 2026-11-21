@@ -242,6 +242,29 @@ async function backfillHistory(hist, syms = Object.keys(HIST_SYMBOLS)) {
 // the 10/21 row still held the 10/20 close the morning cut had recorded (valueBasis previous-completed-close), so the
 // backfill kept it, the 10/21 US close never entered history, and every 1-day change on 10/22 was read against 10/20.
 // A value whose own session differs from the bar's session is not that session's close and is replaced.
+/** Two field metas that differ only in when they were checked (fetchedAt, lastSuccessfulAt) describe one observation. */
+function sameObservation(a, b) {
+  if (!a || !b) return false;
+  const core = ({ fetchedAt, lastSuccessfulAt, ...rest }) => JSON.stringify(Object.keys(rest).sort().map((key) => [key, rest[key]]));
+  return core(a) === core(b);
+}
+
+/**
+ * v60.39: a lane that recomputes every row (the screener breadth lane) keeps the check time of each cell whose value and
+ * observation did not change, so a re-run rewrites only the cells that moved. `before` is the history as it was read.
+ */
+export function keepCheckTimes(before, rows) {
+  const prior = new Map((Array.isArray(before) ? before : []).map((row) => [row?.date, row]));
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const was = prior.get(row?.date);
+    if (!was?.fieldMeta || !row?.fieldMeta) continue;
+    for (const field of Object.keys(row.fieldMeta)) {
+      if (was[field] === row[field] && sameObservation(was.fieldMeta[field], row.fieldMeta[field])) row.fieldMeta[field] = was.fieldMeta[field];
+    }
+  }
+  return rows;
+}
+
 export function mergeBackfillBars(hist, byDate, fields = HIST_FIELDS) {
   let added = 0;
   for (const date of Object.keys(byDate)) {
@@ -260,6 +283,9 @@ export function mergeBackfillBars(hist, byDate, fields = HIST_FIELDS) {
         const offSession = meta && !carried && !ownSession && historyHeldSessionDate(meta, f) != null;
         const barSession = byDate[date].fieldMeta?.[f]?.sessionDate || date;
         if (!carried && !offSession && readNumber(existing[f]) != null && meta?.valueBasis && (!ownSession || ownSession === barSession)) continue;
+        // v60.39: the same bar read again (same value, same observation) keeps the stamp it was first checked at. Every
+        // cycle used to restamp ~250 old rows' check time while 0-3 values changed, so each commit rewrote the whole file.
+        if (existing[f] === byDate[date][f] && sameObservation(meta, byDate[date].fieldMeta?.[f])) continue;
         existing[f] = byDate[date][f];
         if (byDate[date].fieldMeta?.[f]) existing.fieldMeta[f] = byDate[date].fieldMeta[f];
       }

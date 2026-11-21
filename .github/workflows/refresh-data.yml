@@ -168,6 +168,19 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      # v60.39: telegram-observed.json (the lineage rows behind the digest's count) is producer state the app never reads.
+      # It was committed on every cycle (about 47 times a day); it now travels between runs in the Actions cache, like the
+      # daily-lane marker. A cache miss is the same as a first run: the producer rebuilds the rows from this fetch.
+      - name: Restore Telegram lineage state
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: public-data/telegram-observed.json
+          key: telegram-observed-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            telegram-observed-
+
       - name: Fetch Telegram digest
         id: fetch-telegram
         # P1085: an unavailable quote plane used to abort the whole job, so this
@@ -178,6 +191,14 @@ jobs:
         env:
           TG_PAGE_LIMIT: 50
         run: node scripts/fetch-telegram-digest.mjs --days=14 --out=public-data/telegram-digest.json
+
+      - name: Save Telegram lineage state
+        if: ${{ !cancelled() && steps.fetch-telegram.outcome == 'success' }}
+        continue-on-error: true
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: public-data/telegram-observed.json
+          key: telegram-observed-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Restore daily-lane poll marker
         # The daily cron is best-effort and its pending run can be cancelled by a newer one in the same

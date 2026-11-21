@@ -2055,7 +2055,7 @@ Portfolio backup/export must include every personal section the app stores in th
 Scheduled alert collectors must fetch only deployed public site/core artifacts and the protected AI usage endpoint when the separate operator token is present. 게이트: `ci-operations-alert-source-check`, `ci-qa-pipeline-contract-check`.
 
 ## R658. Operator AI usage evidence stays authenticated and private (v56.74, P1312)
-The current UTC-day shared-Worker AI request count may be read only from the US quota Durable Object through `GET /_ops/ai-usage` with a separate `AIO_OPERATOR_TOKEN` of… 게이트: `ci-worker-openai-contract-check`, `ci-worker-relay-check`, `ci-cloudflare-deployment-contract-check`.
+The current UTC-day shared-Worker AI request count may be read only from the US quota Durable Object through `GET /_ops/ai-usage` with a separate `AIO_OPERATOR_TOKEN` of… 게이트: `ci-worker-openai-contract-check`, `ci-worker-proxy-check`, `ci-cloudflare-deployment-contract-check`.
 
 ## R657. Operator alerts preserve explicit evidence and fail closed (v56.73, P1311)
 Evaluate a site outage only from explicit availability evidence and its continuous outage-start time; never infer one from deployment age. 게이트: `ci-operations-alert-policy-check`, `ci-qa-pipeline-contract-check`.
@@ -2067,7 +2067,7 @@ Main CI attestation explicitly uploads its hidden `.release` file. Each Worker c
 A Worker source/config change may auto-deploy only from its exact successful main CI attestation. 게이트: `ci-cloudflare-deployment-contract-check`, `ci-data-plane-contract-check`.
 
 ## R627. 선언된 자격증명·기능은 도달 가능한 경로가 증명되기 전까지 제공된 것으로 취급하지 않는다 (v56, P1151~P1155)
-목록에 있다는 사실은 동작의 증거가 아니다. (1) 사용자에게 보이는 자격증명 입력란·설정 토글은 그 값을 실제로 읽어 쓰는 런타임 경로와 짝을 이뤄야 하고, 경로가 브라우저에서 도달 불가(CORS·허용목록·필터 미통과)하면 입력란을 두지 않거나 경로를 만든다. 게이트: `ci-worker-relay-check`, `ci-fast-plane-consumer-gate`, `ci-operator-secrets-contract-check`.
+목록에 있다는 사실은 동작의 증거가 아니다. (1) 사용자에게 보이는 자격증명 입력란·설정 토글은 그 값을 실제로 읽어 쓰는 런타임 경로와 짝을 이뤄야 하고, 경로가 브라우저에서 도달 불가(CORS·허용목록·필터 미통과)하면 입력란을 두지 않거나 경로를 만든다. 게이트: `ci-fast-plane-consumer-gate`, `ci-operator-secrets-contract-check`.
 
 ## R621. 프리캐시는 부트 필수분만, 나머지는 요청 기반 런타임 캐시다 (v55.15, P1134)
 서비스 워커가 `cache.addAll`로 원자적으로 설치하는 목록은 모든 라우트가 부팅에 실제로 필요로 하는 파일로 한정한다. 게이트: `ci-service-worker-cache-policy-check`, `ci-release-revision-check`.

@@ -47,6 +47,9 @@ const SETS = {
   data: { workflow: 'fixture.yml', message: 'data: fixture', candidateFile: null, required: ['out/a.json'], optional: ['out/b.json', 'out/missing.json'],
     timestampOnly: { 'out/b.json': ['generatedAt'] }, afterStage: [], beforeCommit: [], verifyCommit: ['test ! -e out/poison'],
     onRebaseFail: 'collision', collision: { workflow: 'fixture.yml', inputs: { trigger: 'scheduler' } }, ciOrigin: 'fixture' },
+  held: { workflow: 'fixture.yml', message: 'data: held', candidateFile: null, required: [], optional: ['out/b.json'], timestampOnly: {},
+    holdVolatile: { 'out/b.json': { minutes: 55, clock: 'generatedAt', strip: ({ generatedAt, live, ...rest }) => rest } },
+    afterStage: [], beforeCommit: [], verifyCommit: [], onRebaseFail: 'fail', collision: null, ciOrigin: null },
   strict: { workflow: 'fixture.yml', message: 'data: strict', candidateFile: null, required: [], optional: ['out/a.json'], timestampOnly: {},
     afterStage: [], beforeCommit: [], verifyCommit: [], onRebaseFail: 'fail', collision: null, ciOrigin: null },
 };
@@ -97,6 +100,21 @@ try {
     const code = inRepo(runner, { set: 'data' });
     check('v59.85 a timestamp-only rewrite is put back (no commit, clean worktree)', code === 0 && outputs().changed === 'false' && clean(runner)
       && readFileSync(join(runner, 'out/b.json'), 'utf8').includes('00:00:00Z'));
+  }
+  { // a held (live-moving) part publishes once per window; any other change publishes at once
+    const { runner } = fresh();
+    const write = (stamp, v, live) => writeFileSync(join(runner, 'out/b.json'), `${JSON.stringify({ generatedAt: stamp, v, live })}\n`);
+    write('2026-11-08T14:30:00Z', 1, 1);
+    const first = inRepo(runner, { set: 'held' });
+    check('v60.39 a held-only change publishes when the published file is older than the window', first === 0 && outputs().changed === 'true');
+    writeFileSync(outFile, '');
+    write('2026-11-08T14:59:00Z', 1, 2);
+    const second = inRepo(runner, { set: 'held' });
+    check('v60.39 a held-only change inside the window is put back (no commit, clean worktree)', second === 0 && outputs().changed === 'false' && clean(runner)
+      && readFileSync(join(runner, 'out/b.json'), 'utf8').includes('"live":1'));
+    write('2026-11-08T14:59:00Z', 2, 2);
+    const third = inRepo(runner, { set: 'held' });
+    check('v60.39 a change outside the held part publishes inside the window', third === 0 && outputs().changed === 'true' && remoteLog().split('\n').length === 3);
   }
   { // a real change pushes and dispatches exact-SHA CI; a timestamp-only neighbour is not carried along
     const { runner } = fresh();

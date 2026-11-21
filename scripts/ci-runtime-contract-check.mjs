@@ -153,7 +153,9 @@ if (exists('public-data/telegram-digest.json')) {
     check('produced Telegram digest topics are consumed by at least one page', missing.length === 0, missing.join(', '));
     // P1683: the lineage rows live in telegram-observed.json once the producer has split them out.
     const lineage = Array.isArray(digest.observedItems) ? digest.observedItems : (exists('public-data/telegram-observed.json') ? JSON.parse(read('public-data/telegram-observed.json')).observedItems : null);
-    if (!Array.isArray(digest.observedItems)) check('P1683 a digest without lineage rows names its lineage artifact', digest.observedLineageArtifact === 'public-data/telegram-observed.json' && Array.isArray(lineage));
+    // v60.39: the lineage file is producer state carried in the Actions cache, not on main; it is checked where it exists
+    // (the producer's own pre-push gates), and a checkout without it checks the name only.
+    if (!Array.isArray(digest.observedItems)) check('v60.39 P1683 a digest without lineage rows names its lineage artifact', digest.observedLineageArtifact === 'public-data/telegram-observed.json' && (lineage === null || Array.isArray(lineage)));
     if (Array.isArray(lineage)) {
       check('public Telegram digest count matches observed whole-window lineage', digest.count === lineage.length, `count=${digest.count}, observed=${lineage.length}`);
       check('public Telegram digest reports capped-payload coverage funnel', digest.coverage && digest.coverage.observedCount === digest.count && Number.isFinite(digest.coverage.selectedRawCoveragePct));

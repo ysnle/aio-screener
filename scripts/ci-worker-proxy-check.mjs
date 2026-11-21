@@ -1,14 +1,8 @@
-// P1151 / R627 — /relay server-side key relay contract.
-//
-// The relay exists so browser-blocked sources (BOK ECOS, KOSIS) can reach the
-// user without the user holding a key. Before it existed, all three were declared,
-// configurable, and unreachable — every assertion here guards one property whose loss
-// would silently restore that state:
-//   1. the browser never supplies a key and never chooses the destination (no SSRF),
-//   2. a missing operator key fails that provider closed instead of degrading open,
-//   3. the operator key never reaches the response body, headers, or logs.
-// v57.79: the personal-key FRED relay (P1422) had no client after v57.76 and was removed; the
-// fixtures below use the BOK operator relay, and FRED is asserted to be an unknown provider.
+// Non-AI surface of the aio-proxy Worker: the generic ?url= data proxy, its transport boundary, the
+// Cloudflare rate-limit bindings, /workers-ai/translate and the public /health payload.
+// v60.39: this gate was scripts/ci-worker-relay-check.mjs. The BOK/KOSIS /relay route left the Worker
+// (its browser client left in v60.38), so its assertions were removed and the shared ones (transport,
+// rate limiting, dev-origin errors) now run on the generic proxy. /openai lives in worker/openai-contract.test.mjs.
 import worker from '../cloudflare-worker-proxy.js';
 import { readFileSync } from 'node:fs';
 // All upstreams in this contract use deterministic fixtures, including early auth checks.
@@ -19,15 +13,6 @@ const check = (label, condition, detail) => {
   if (!condition) errors.push(label + (detail === undefined ? '' : ': ' + JSON.stringify(detail)));
 };
 const PROD_ORIGIN = 'https://ysnle.github.io';
-const SECRET = 'relay-fixture-secret-value';
-const BOK_QUERY = 'provider=bok&statCode=722Y001&cycle=M&start=202601&end=202602&item=0101000';
-
-function relayRequest(query, { origin = PROD_ORIGIN, method = 'GET', headers = {} } = {}) {
-  return new Request('https://worker.example/relay?' + query, {
-    method,
-    headers: new Headers({ Origin: origin, ...headers }),
-  });
-}
 
 function atomicQuota(initial = 0) {
   let count = initial;
@@ -51,151 +36,56 @@ function atomicQuota(initial = 0) {
 
 async function main() {
   const source = readFileSync(new URL('../cloudflare-worker-proxy.js', import.meta.url), 'utf8');
-
-  // ── Static boundary ────────────────────────────────────────────────────────
-  check('P1151 single canonical relay handler', (source.match(/async function handleRelay\(/g) || []).length === 1);
-  const relayBlock = source.slice(source.indexOf('const RELAY_PROVIDERS'), source.indexOf('/**\n * Canonical /relay handler'));
-  check('P1151 relay is a separate route from the generic url proxy', /_u\.pathname === '\/relay'/.test(source));
-  for (const host of ['ecos.bok.or.kr', 'kosis.kr']) {
-    check(`P1151 relay hardcodes upstream host ${host}`, relayBlock.includes(host));
-  }
-  check('v57.79 BOK/KOSIS retain operator-secret isolation and no personal provider header remains', ['BOK_API_KEY', 'KOSIS_API_KEY'].every((name) => relayBlock.includes(`'${name}'`)) && !source.includes('X-AIO-Provider-Key') && !relayBlock.includes('api.stlouisfed.org')); // text-pin-ok: retirement absence
-  check('P1151 relay exposes no client-supplied destination parameter', !/params\.(url|host|endpoint|target)\b/.test(relayBlock) && !/url:\s*\{\s*required/.test(relayBlock));
-
-  const env = {
-    BOK_API_KEY: SECRET,
-    KOSIS_API_KEY: SECRET,
-    AIO_QUOTA_DO: atomicQuota(),
-    RELAY_DAILY_CAP: '5',
-  };
-
-  // ── Guards ─────────────────────────────────────────────────────────────────
-  const method = await worker.fetch(relayRequest(BOK_QUERY, { method: 'POST' }), env);
-  check('P1151 non-GET relay is rejected', method.status === 405, method.status);
-
-  const badOrigin = await worker.fetch(relayRequest(BOK_QUERY, { origin: 'https://example.com' }), env);
-  check('P1151 non-allowlisted origin is refused before any upstream call', badOrigin.status === 403, badOrigin.status);
-
-  const tokenEnv = { ...env, AIO_APP_TOKEN: 'app-token-fixture' };
-  const badToken = await worker.fetch(relayRequest(BOK_QUERY), tokenEnv);
-  check('P1151 missing app token is refused', badToken.status === 403, badToken.status);
-  const goodToken = await worker.fetch(relayRequest(BOK_QUERY, { headers: { 'X-AIO-App-Token': 'app-token-fixture' } }), {
-    ...tokenEnv,
-    AIO_QUOTA_DO: atomicQuota(),
+  const yahoo = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/SPY');
+  const proxyRequest = ({ origin = PROD_ORIGIN, method = 'GET', headers = {} } = {}) => new Request('https://worker.example/?url=' + yahoo, {
+    method, headers: new Headers({ ...(origin ? { Origin: origin } : {}), ...headers }),
   });
-  check('P1151 configured app token is accepted', goodToken.status !== 403, goodToken.status);
 
-  const unknown = await worker.fetch(relayRequest('provider=evil&series_id=DGS10'), env);
-  check('P1151 unknown provider is rejected', unknown.status === 400, unknown.status);
-  const retiredFred = await worker.fetch(relayRequest('provider=fred&series_id=DGS10', { headers: { 'X-AIO-Provider-Key': SECRET } }), { ...env, FRED_API_KEY: SECRET });
-  check('v57.79 the retired personal FRED relay is an unknown provider', retiredFred.status === 400 && /unknown relay provider/i.test(await retiredFred.text()), retiredFred.status);
-
-  const missingParam = await worker.fetch(relayRequest('provider=bok'), env);
-  check('P1151 missing required parameter is rejected', missingParam.status === 400, missingParam.status);
-
-  const invalidParam = await worker.fetch(relayRequest(BOK_QUERY.replace('722Y001', encodeURIComponent('../etc/passwd'))), env);
-  check('P1151 parameter outside the whitelist regex is rejected', invalidParam.status === 400, invalidParam.status);
-
-  const noQuota = await worker.fetch(relayRequest(BOK_QUERY), { BOK_API_KEY: SECRET });
-  check('P1151 missing atomic quota binding fails closed', noQuota.status === 503, noQuota.status);
-
-  // A provider whose operator key is absent must fail alone, not degrade open.
-  const partialEnv = { BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota() };
-  const keylessKosis = await worker.fetch(relayRequest('provider=kosis&orgId=101&tblId=DT_1J17001&itmId=T10'), partialEnv);
-  check('P1151 a provider without its operator key fails closed alone', keylessKosis.status === 503, keylessKosis.status);
-  check('P1151 keyless failure names the provider', /kosis/i.test(await keylessKosis.text()));
-
-  // ── Daily cap ──────────────────────────────────────────────────────────────
-  const capEnv = { BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota(), RELAY_DAILY_CAP: '1' };
-  const realFetch = globalThis.fetch;
-  let upstreamCalls = 0;
-  globalThis.fetch = async (url) => {
-    upstreamCalls += 1;
-    return new Response(JSON.stringify({ observations: [{ date: '2026-01-01', value: '1' }], echoed: String(url) }), {
-      status: 200,
-      headers: { 'content-type': 'application/json' },
-    });
-  };
-  try {
-    const first = await worker.fetch(relayRequest(BOK_QUERY), capEnv);
-    check('P1151 relay serves a configured provider', first.status === 200, first.status);
-    const firstBody = await first.json();
-    check('P1151 relay returns the upstream payload unchanged', Array.isArray(firstBody.observations) && firstBody.observations.length === 1, firstBody);
-    check('P1151 relay marks its own provider in the response', first.headers.get('X-AIO-Relay-Provider') === 'bok', first.headers.get('X-AIO-Relay-Provider'));
-    check('P1151 an operator relay response carries its provider cache TTL', first.headers.get('Cache-Control') === 'public, max-age=3600', first.headers.get('Cache-Control'));
-
-    const second = await worker.fetch(relayRequest(BOK_QUERY), capEnv);
-    check('P1151 daily cap exhaustion returns 429', second.status === 429, second.status);
-    check('P1151 a capped request never reaches upstream', upstreamCalls === 1, upstreamCalls);
-
-    // ── Key redaction ────────────────────────────────────────────────────────
-    const leakEnv = { BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota() };
-    globalThis.fetch = async (url) => new Response(
-      JSON.stringify({ observations: [], error_message: 'bad request to ' + String(url) }),
-      { status: 400, headers: { 'content-type': 'application/json' } },
-    );
-    const leak = await worker.fetch(relayRequest(BOK_QUERY), leakEnv);
-    const leakBody = await leak.text();
-    check('P1151 an upstream body echoing the operator key is redacted', !leakBody.includes(SECRET), leakBody.slice(0, 160));
-    check('P1151 redaction keeps the response readable', leakBody.includes('***'));
-
-    // ── Server-side key injection ────────────────────────────────────────────
-    let bokUrl = '';
-    globalThis.fetch = async (url) => {
-      bokUrl = String(url);
-      return new Response(JSON.stringify({ StatisticSearch: { row: [] } }), { status: 200, headers: { 'content-type': 'application/json' } });
-    };
-    await worker.fetch(relayRequest('provider=bok&statCode=722Y001&cycle=M&start=202601&end=202602&item=0101000'), { BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota() });
-    check('P1151 the BOK path-embedded key is assembled server-side', bokUrl.startsWith('https://ecos.bok.or.kr/api/StatisticSearch/' + SECRET + '/json/kr/1/100/722Y001/M/202601/202602/0101000'), bokUrl);
-    const hostAttempt = await worker.fetch(relayRequest(BOK_QUERY + '&url=' + encodeURIComponent('https://evil.example/') + '&host=evil.example'), { BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota() });
-    check('P1151 the client cannot influence the destination host', hostAttempt.status === 200 && bokUrl.startsWith('https://ecos.bok.or.kr/'), bokUrl);
-
-    // ── Blocked upstream ─────────────────────────────────────────────────────
-    globalThis.fetch = async () => new Response('<!doctype html><title>Access denied</title>', { status: 200, headers: { 'content-type': 'text/html' } });
-    const blocked = await worker.fetch(relayRequest('provider=kosis&orgId=101&tblId=DT_1J17001&itmId=T10'), { KOSIS_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota() });
-    check('P1151 an HTML block page is surfaced as 502', blocked.status === 502, blocked.status);
-
-    // ── Transport boundary (P1413) ───────────────────────────────────────────
-    const relayEnv = () => ({ BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota() });
-    const followed = [];
-    globalThis.fetch = async (url) => { followed.push(String(url)); return new Response('', { status: 302, headers: { location: 'https://evil.example/steal' } }); };
-    const redirected = await worker.fetch(relayRequest(BOK_QUERY), relayEnv());
-    check('P1413 a relay redirect off the provider host is refused', redirected.status === 502 && followed.length === 1, `${redirected.status} ${followed.join(',')}`);
-    globalThis.fetch = async () => new Response(new ReadableStream({ start(controller) { for (let i = 0; i < 6; i += 1) controller.enqueue(new Uint8Array(1024 * 1024)); controller.close(); } }), { status: 200 });
-    const oversized = await worker.fetch(relayRequest(BOK_QUERY), relayEnv());
-    check('P1413 a streamed body over 5MB without Content-Length is refused', oversized.status === 502 && /too large/i.test(await oversized.text()), oversized.status);
-    // P1967: once the request is sent the provider may have counted the key call, so a body cut after dispatch keeps
-    // the reservation; the HEAD handler released it and let a provider that broke every body be called without bound.
-    const cutQuota = atomicQuota();
-    globalThis.fetch = async () => new Response(new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array(16)); controller.error(new Error('cut')); } }), { status: 200 });
-    const cut = await worker.fetch(relayRequest(BOK_QUERY), { BOK_API_KEY: SECRET, AIO_QUOTA_DO: cutQuota });
-    check('P1967 a relay body cut after dispatch keeps the reservation counted', cut.status === 502 && cutQuota.count === 1, `${cut.status} ${cutQuota.count}`);
-    let hop = 0;
-    globalThis.fetch = async (url) => { hop += 1; return hop === 1 ? new Response('', { status: 301, headers: { location: String(url) + '/' } }) : new Response(JSON.stringify({ StatisticSearch: { row: [] } }), { status: 200 }); };
-    const sameHost = await worker.fetch(relayRequest(BOK_QUERY), relayEnv());
-    check('P1413 a same-host https redirect is still followed for an operator relay', sameHost.status === 200 && hop === 2, `${sameHost.status} ${hop}`);
-  } finally {
-    globalThis.fetch = realFetch;
+  // ── Retired /relay (v60.39) ────────────────────────────────────────────────
+  // The path now reaches the generic proxy, which needs ?url=, so a BOK query gets the generic 400.
+  {
+    const retired = await worker.fetch(new Request('https://worker.example/relay?provider=bok&statCode=722Y001&cycle=M&start=202601&end=202602', { headers: { Origin: PROD_ORIGIN } }), { BOK_API_KEY: 'relay-fixture-secret-value', AIO_QUOTA_DO: atomicQuota() });
+    const retiredText = await retired.text();
+    check('v60.39 P1151 /relay is no longer a Worker route', retired.status === 400 && /url parameter required/.test(retiredText) && retired.headers.get('X-AIO-Relay-Provider') === null, [retired.status, retiredText.slice(0, 80)]);
   }
 
   // ── Shared proxy surface (P1156) ───────────────────────────────────────────
   // The generic ?url= route never refused a request: the Origin allowlist only chose which
   // ACAO value to echo, so any client could ride this Worker to every ALLOWED_DOMAINS host.
   const proxyEnv = { AIO_QUOTA_DO: atomicQuota() };
-  const yahoo = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/SPY');
-  const proxyBadOrigin = await worker.fetch(new Request('https://worker.example/?url=' + yahoo, { headers: { Origin: 'https://example.com' } }), proxyEnv);
+  const proxyBadOrigin = await worker.fetch(proxyRequest({ origin: 'https://example.com' }), proxyEnv);
   check('P1156 the generic proxy refuses a non-allowlisted Origin', proxyBadOrigin.status === 403, proxyBadOrigin.status);
-  const proxyNoOrigin = await worker.fetch(new Request('https://worker.example/?url=' + yahoo), proxyEnv);
+  const proxyNoOrigin = await worker.fetch(proxyRequest({ origin: '' }), proxyEnv);
   check('P1156 the generic proxy refuses a missing Origin', proxyNoOrigin.status === 403, proxyNoOrigin.status);
-  const proxyBadMethod = await worker.fetch(new Request('https://worker.example/?url=' + yahoo, { method: 'POST', headers: { Origin: PROD_ORIGIN } }), proxyEnv);
+  const proxyBadMethod = await worker.fetch(proxyRequest({ method: 'POST' }), proxyEnv);
   check('P1156 the generic proxy stays GET-only', proxyBadMethod.status === 405, proxyBadMethod.status);
+
+  // ── Transport boundary (P1413) ─────────────────────────────────────────────
+  {
+    const realFetch = globalThis.fetch;
+    try {
+      const followed = [];
+      globalThis.fetch = async (url) => { followed.push(String(url)); return new Response('', { status: 302, headers: { location: 'https://evil.example/steal' } }); };
+      const redirected = await worker.fetch(proxyRequest(), proxyEnv);
+      check('v60.39 P1413 a proxy redirect off the allowlist is refused', redirected.status === 502 && followed.length === 1 && /redirect refused/i.test(await redirected.text()), `${redirected.status} ${followed.join(',')}`);
+      globalThis.fetch = async () => new Response(new ReadableStream({ start(controller) { for (let i = 0; i < 6; i += 1) controller.enqueue(new Uint8Array(1024 * 1024)); controller.close(); } }), { status: 200 });
+      const oversized = await worker.fetch(proxyRequest(), proxyEnv);
+      check('v60.39 P1413 a streamed proxy body over 5MB without Content-Length is refused', oversized.status === 502 && /too large/i.test(await oversized.text()), oversized.status);
+      let hop = 0;
+      globalThis.fetch = async (url) => { hop += 1; return hop === 1 ? new Response('', { status: 301, headers: { location: String(url) + '&hop=2' } }) : Response.json({ chart: { result: [] } }); };
+      const sameHost = await worker.fetch(proxyRequest(), proxyEnv);
+      check('v60.39 P1413 a redirect that stays on the allowlist is still followed', sameHost.status === 200 && hop === 2, `${sameHost.status} ${hop}`);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  }
 
   // ── Cloudflare-native rate limiting (P1157) ────────────────────────────────
   // `workers.dev` has no zone, so a WAF rate limiting rule is not available to this deployment.
   // These bindings are the strongest bound it can carry, and a missing/throwing binding must
   // degrade to the in-isolate Map rather than admitting or rejecting blindly.
   const proxyToml = readFileSync(new URL('../worker/wrangler.proxy.toml', import.meta.url), 'utf8');
-  for (const name of ['RATE_LIMIT_PROXY', 'RATE_LIMIT_OPENAI', 'RATE_LIMIT_RELAY', 'RATE_LIMIT_FEEDBACK', 'RATE_LIMIT_WORKERS_AI']) {
+  for (const name of ['RATE_LIMIT_PROXY', 'RATE_LIMIT_OPENAI', 'RATE_LIMIT_FEEDBACK', 'RATE_LIMIT_WORKERS_AI']) {
     check(`P1157 the proxy config declares the ${name} binding`, new RegExp(`name\\s*=\\s*"${name}"`).test(proxyToml));
   }
   check('P1157 every declared rate limit period is 10 or 60', [...proxyToml.matchAll(/period\s*=\s*(\d+)/g)].every((match) => ['10', '60'].includes(match[1])));
@@ -232,23 +122,14 @@ async function main() {
 
   {
     const stubbed = globalThis.fetch;
-    globalThis.fetch = async () => new Response(JSON.stringify({ observations: [] }), { status: 200, headers: { 'content-type': 'application/json' } });
+    globalThis.fetch = async () => Response.json({ chart: { result: [] } });
     try {
-      const refusing = { BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota(), RATE_LIMIT_RELAY: { limit: async () => ({ success: false }) } };
-      const refusedRelay = await worker.fetch(relayRequest(BOK_QUERY), refusing);
-      check('P1157 a refusing binding returns 429 on /relay', refusedRelay.status === 429, refusedRelay.status);
-
-      const refusingProxy = { AIO_QUOTA_DO: atomicQuota(), RATE_LIMIT_PROXY: { limit: async () => ({ success: false }) } };
-      const refusedProxy = await worker.fetch(new Request('https://worker.example/?url=' + yahoo, { headers: { Origin: PROD_ORIGIN } }), refusingProxy);
+      const refusedProxy = await worker.fetch(proxyRequest(), { AIO_QUOTA_DO: atomicQuota(), RATE_LIMIT_PROXY: { limit: async () => ({ success: false }) } });
       check('P1157 a refusing binding returns 429 on the generic proxy', refusedProxy.status === 429, refusedProxy.status);
-
-      const allowing = { BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota(), RATE_LIMIT_RELAY: { limit: async () => ({ success: true }) } };
-      const allowedRelay = await worker.fetch(relayRequest(BOK_QUERY), allowing);
-      check('P1157 an allowing binding lets the request through', allowedRelay.status === 200, allowedRelay.status);
-
-      const throwing = { BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota(), RATE_LIMIT_RELAY: { limit: async () => { throw new Error('binding unavailable'); } } };
-      const fellBack = await worker.fetch(relayRequest(BOK_QUERY), throwing);
-      check('P1157 a throwing binding falls back to the in-isolate limiter instead of erroring', fellBack.status === 200, fellBack.status);
+      const allowedProxy = await worker.fetch(proxyRequest(), { AIO_QUOTA_DO: atomicQuota(), RATE_LIMIT_PROXY: { limit: async () => ({ success: true }) } });
+      check('v60.39 P1157 an allowing binding lets a proxy request through', allowedProxy.status === 200, allowedProxy.status);
+      const fellBack = await worker.fetch(proxyRequest(), { AIO_QUOTA_DO: atomicQuota(), RATE_LIMIT_PROXY: { limit: async () => { throw new Error('binding unavailable'); } } });
+      check('v60.39 P1157 a throwing binding falls back to the in-isolate limiter instead of erroring', fellBack.status === 200, fellBack.status);
     } finally {
       globalThis.fetch = stubbed;
     }
@@ -258,35 +139,22 @@ async function main() {
   {
     const stubbed = globalThis.fetch;
     try {
-      // A failing upstream that answered still used an operator-key call: the reservation stays counted.
-      for (const [label, reply] of [['>=400', () => new Response('{"error":"quota"}', { status: 500, headers: { 'content-type': 'application/json' } })],
-        ['HTML', () => new Response('<!doctype html><title>blocked</title>', { status: 200, headers: { 'content-type': 'text/html' } })]]) {
-        let calls = 0;
-        globalThis.fetch = async () => { calls += 1; return reply(); };
-        const quota = atomicQuota();
-        const capped = { BOK_API_KEY: SECRET, AIO_QUOTA_DO: quota, RELAY_DAILY_CAP: '1' };
-        const query = BOK_QUERY;
-        const first = await worker.fetch(relayRequest(query), capped);
-        const second = await worker.fetch(relayRequest(query), capped);
-        check(`v57.61 a ${label} upstream reply counts toward RELAY_DAILY_CAP`, first.status >= 500 && second.status === 429 && calls === 1 && quota.count === 1, `${first.status} ${second.status} ${calls} ${quota.count}`);
-      }
       // Error responses carry the configured dev origin's CORS header (errorResponse receives env).
       const DEV = 'http://localhost:8891';
       const devEnv = { AIO_DEV_ORIGINS: DEV, AIO_QUOTA_DO: atomicQuota() };
       const devProxy = await worker.fetch(new Request('https://worker.example/', { headers: { Origin: DEV } }), devEnv);
-      const devRelay = await worker.fetch(relayRequest('provider=evil', { origin: DEV }), devEnv);
       const devTombstone = await worker.fetch(new Request('https://worker.example/anthropic', { headers: { Origin: DEV } }), devEnv);
-      check('v57.61 proxy, relay and tombstone errors echo a configured dev origin', [devProxy, devRelay, devTombstone].every((r) => r.headers.get('Access-Control-Allow-Origin') === DEV)
-        && devProxy.status === 400 && devRelay.status === 400 && devTombstone.status === 410, [devProxy, devRelay, devTombstone].map((r) => `${r.status}:${r.headers.get('Access-Control-Allow-Origin')}`));
+      check('v60.39 P1156 proxy and tombstone errors echo a configured dev origin', [devProxy, devTombstone].every((r) => r.headers.get('Access-Control-Allow-Origin') === DEV)
+        && devProxy.status === 400 && devTombstone.status === 410, [devProxy, devTombstone].map((r) => `${r.status}:${r.headers.get('Access-Control-Allow-Origin')}`));
       check('v57.61 every errorResponse call site passes env', !/errorResponse\([^\n]*,\s*\d{3},\s*(?:origin|requestOrigin)\)/.test(source));
       // Rate-limit buckets: IPv6 grouped per /64 and the isolate map is bounded.
-      globalThis.fetch = async () => new Response(JSON.stringify({ observations: [] }), { status: 200, headers: { 'content-type': 'application/json' } });
+      globalThis.fetch = async () => Response.json({ chart: { result: [] } });
       const keys = [];
-      const keyed = { BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota(), RATE_LIMIT_RELAY: { limit: async ({ key }) => { keys.push(key); return { success: true }; } } };
+      const keyed = { AIO_QUOTA_DO: atomicQuota(), RATE_LIMIT_PROXY: { limit: async ({ key }) => { keys.push(key); return { success: true }; } } };
       for (const ip of ['2001:db8:1:2:aaaa::1', '2001:db8:1:2:bbbb:cccc:dddd:eeee']) {
-        await worker.fetch(new Request('https://worker.example/relay?' + BOK_QUERY, { headers: { Origin: PROD_ORIGIN, 'cf-connecting-ip': ip } }), keyed);
+        await worker.fetch(proxyRequest({ headers: { 'cf-connecting-ip': ip } }), keyed);
       }
-      check('v57.61 rate-limit buckets group IPv6 by /64', keys.length === 2 && keys[0] === keys[1] && keys[0] === '2001:db8:1:2::/64', keys);
+      check('v60.39 P1157 rate-limit buckets group IPv6 by /64', keys.length === 2 && keys[0] === keys[1] && keys[0] === '2001:db8:1:2::/64', keys);
       const { checkRateLimit, RATE_LIMIT_MAP_MAX_KEYS } = await import('../cloudflare-worker-proxy.js');
       const bounded = new Map();
       for (let i = 0; i < RATE_LIMIT_MAP_MAX_KEYS; i += 1) bounded.set('10.0.' + i, { count: 1, resetTime: Date.now() + 60000 });
@@ -364,22 +232,21 @@ async function main() {
   }
 
   // ── Health surface ─────────────────────────────────────────────────────────
-  const healthEnv ={ BOK_API_KEY: SECRET, AIO_QUOTA_DO: atomicQuota(), AI_DAILY_CAP: '321', AIO_OPERATOR_TOKEN: 'operator-private-fixture-' + 'x'.repeat(32) };
+  const OPERATOR = 'operator-private-fixture-' + 'x'.repeat(32);
+  const healthEnv = { AIO_QUOTA_DO: atomicQuota(), AI_DAILY_CAP: '321', AIO_OPERATOR_TOKEN: OPERATOR };
   const health = await worker.fetch(new Request('https://worker.example/health', { headers: { Origin: PROD_ORIGIN } }), healthEnv);
   const healthText = await health.text();
   const healthBody = JSON.parse(healthText);
-  check('P1151 health lists the relay providers', Array.isArray(healthBody.relay?.providers) && healthBody.relay.providers.includes('bok') && healthBody.relay.providers.includes('kosis'), healthBody.relay);
-  check('v57.79 health reports operator key presence and no personal FRED relay', healthBody.relay?.configured?.bok === true && healthBody.relay?.configured?.kosis === false && !healthBody.relay.providers.includes('fred') && healthBody.relay?.personalKeyRequired === undefined, healthBody.relay); // text-pin-ok: retirement absence
-  check('P1151 health never exposes a relay key', !healthText.includes(SECRET));
+  check('v60.39 P1151 health has no relay block and never exposes the operator token', healthBody.relay === undefined && !healthText.includes(OPERATOR), Object.keys(healthBody));
   {
     const bound = await (await worker.fetch(new Request('https://worker.example/health', { headers: { Origin: PROD_ORIGIN } }), { ...healthEnv, AI: { run: async () => ({}) } })).json();
     check('v57.61 health reports the Workers AI binding as a presence boolean', healthBody.workersAiBound === false && bound.workersAiBound === true, [healthBody.workersAiBound, bound.workersAiBound]);
   }
   // The token check is `if (env.AIO_APP_TOKEN && …)`, so an unset token means no check at all.
   // /health has to say which state the operator is in instead of implying the gate is closed.
-  check('P1156 health reports whether the app token is required', healthBody.relay?.appTokenRequired === false, healthBody.relay);
+  check('v60.39 P1156 health reports whether the app token is required', healthBody.ai?.appTokenRequired === false, healthBody.ai);
   const tokenHealth = await worker.fetch(new Request('https://worker.example/health', { headers: { Origin: PROD_ORIGIN } }), { ...healthEnv, AIO_APP_TOKEN: 'token-fixture' });
-  check('P1156 health reflects a configured app token', (await tokenHealth.json()).relay?.appTokenRequired === true);
+  check('v60.39 P1156 health reflects a configured app token', (await tokenHealth.json()).ai?.appTokenRequired === true);
   check('P1312/R658/QA-OPS-02 public health never exposes Anthropic daily count or cap',
     healthBody.ai?.requestCount === undefined
       && healthBody.ai?.anthropicDailyCap === undefined
@@ -394,11 +261,11 @@ async function main() {
     const hollowBody = chart(Array.from({ length: 79 }, (_, i) => (i < 14 || i === 78 ? 100 + i : null)));
     const fullBody = chart(Array.from({ length: 79 }, (_, i) => 100 + i));
     const target = 'https://query1.finance.yahoo.com/v8/finance/chart/SPY?interval=5m&range=1d';
-    const proxyRequest = () => new Request(`https://worker.example/?url=${encodeURIComponent(target)}`, { headers: { Origin: PROD_ORIGIN } });
+    const chartRequest = () => new Request(`https://worker.example/?url=${encodeURIComponent(target)}`, { headers: { Origin: PROD_ORIGIN } });
     const run = async (bodies) => {
       const calls = [];
       globalThis.fetch = async (url, init) => { calls.push({ url: String(url), cf: init?.cf }); return new Response(bodies[Math.min(calls.length - 1, bodies.length - 1)], { status: 200, headers: { 'content-type': 'application/json' } }); };
-      const response = await worker.fetch(proxyRequest(), env);
+      const response = await worker.fetch(chartRequest(), proxyEnv);
       return { calls, body: await response.text(), cache: response.headers.get('cache-control') };
     };
     try {
@@ -414,11 +281,11 @@ async function main() {
   }
 
   if (errors.length) {
-    console.error('Worker relay contract failed:');
+    console.error('Worker proxy contract failed:');
     errors.forEach((error) => console.error(' - ' + error));
     process.exit(1);
   }
-  console.log('Worker relay contract OK: operator BOK/KOSIS keys, retired FRED relay, hardcoded destinations, atomic daily cap, and key redaction.');
+  console.log('Worker proxy contract OK: generic proxy origin/method/transport bounds, rate-limit bindings, translation, public health, and no /relay route.');
   process.exit(0);
 }
 

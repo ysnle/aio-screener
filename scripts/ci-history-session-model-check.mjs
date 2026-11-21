@@ -14,6 +14,8 @@
 //   H4 no loss     — every observed (session, value) survives as the owner value, a revision, or a held row.
 //   B1 backfill    — a bar never overwrites a completed record of its own session and always replaces another session's.
 //                    A carried-forward placeholder is another session's value (v59.74), so a bar always replaces it.
+//                    v60.39: a bar equal to the record in value and in everything but its check time is the same
+//                    observation and leaves the record (and its first check time) as it is; B1's outcomes are unchanged.
 //
 // Provider stamps on days without a session (live 2026-11-15: Yahoo restamped the closed won at Sunday 03:30Z, a New
 // York Saturday; that "11/14 session" was moved into the 11/14 row by the keeper and the time contract refused all 14 runs

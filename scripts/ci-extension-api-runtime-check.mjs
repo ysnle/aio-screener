@@ -42,11 +42,11 @@ assert(dispatched[0].options.signal && dispatched[0].options.signal.aborted === 
 assert(!/_fmpFetch|_getApiKey\('aio_(?:fmp|finnhub)_key'\)|financialmodelingprep\.com\/api|finnhub\.io\/api|fetchFinnhub[A-Za-z]*\(|fetchFMP(?:Segments|EarningsCallTranscript)\(/.test(chat), 'v57.76 no personal FMP/Finnhub fetch remains in aio-chat'); // text-pin-ok: asserts removed code is absent
 
 // v57.76: the personal-key FRED query (fetchFredSeries + opt-in relay consent + X-AIO-Provider-Key header), the Twelve Data
-// indicator/OHLCV fetchers and the Finnhub WebSocket were removed from aio-data with the retired personal keys. The relay
-// helper keeps only the shared app token, and BOK/KOSIS keep their operator-key relay path.
+// indicator/OHLCV fetchers and the Finnhub WebSocket were removed from aio-data with the retired personal keys. The BOK/KOSIS
+// operator-key relay left the client in v60.38 and the Worker in v60.39.
 assert(!/function fetchFredSeries\(|function _aioFredRelayConsent\(|aio_fred_relay_consent|X-AIO-Provider-Key/.test(data), 'v57.76 no personal-key FRED query or provider-key relay header remains in aio-data'); // text-pin-ok: asserts removed code is absent
 assert(!/function fetchTechnicalIndicators\(|function fetchOHLCV\(|function _aioReserveTwelveCredits\(|https:\/\/api\.twelvedata\.com|initFinnhubWebSocket|wss:\/\/ws\.finnhub\.io/.test(data), 'v57.76 no personal Twelve Data or Finnhub WebSocket path remains in aio-data'); // text-pin-ok: asserts removed code is absent
-assert(!/_getApiKey\('aio_(?:bok|kosis|rss2json|newsdata|av|td|fred|finnhub|fmp)_key'\)/.test(data), 'v57.76 aio-data reads no retired personal data key (BOK/KOSIS keep the operator-key relay)'); // text-pin-ok: asserts removed code is absent
+assert(!/_getApiKey\('aio_(?:bok|kosis|rss2json|newsdata|av|td|fred|finnhub|fmp)_key'\)/.test(data), 'v60.39 aio-data reads no retired personal data key'); // text-pin-ok: asserts removed code is absent
 
 context._rssIsSkipped = () => false; context._rssMarkOk = () => {}; context._rssMarkFail = () => {};
 context._rss2jsonFailed = 0; context._cfWorkerUrl = () => 'https://worker.fixture';

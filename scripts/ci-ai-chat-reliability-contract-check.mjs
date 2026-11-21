@@ -102,10 +102,9 @@ check('Worker token cap and stop reason are consumed by the client', chat.includ
 }
 check('Worker exposes health readiness', worker.includes("_u.pathname === '/health'") && worker.includes("schemaVersion: 'aio-worker-health.v1'") && worker.includes('ai: { configured'));
 check('Worker CORS allows every browser chat header', /'Access-Control-Allow-Headers': \[[^\]]*AI_HEADERS\.appToken[^\]]*AI_HEADERS\.idempotencyKey/.test(worker)); // v59.87: names from the shared contract; worker/openai-contract.test.mjs checks the live preflight
-// v56: the rollback helper is shared with /relay, so it is no longer Anthropic-specific
-// by name. The property under test is unchanged: only the request that owns a failed
-// reservation may release it.
-check('Worker rolls back owned failed quota reservations', /async function releaseQuota\(/.test(worker) && worker.includes('ownedReservation'));
+// v60.39: the shared releaseQuota helper left with /relay. The AI path releases its own reservation
+// when the request is cancelled or fails to start, before any upstream dispatch.
+check('v60.39 Worker releases an AI reservation that never reached dispatch', /if \(signal\?\.aborted\) \{\s*await rpc\('release', payload\);/.test(worker) && /catch \(error\) \{ await rpc\('release', payload\); throw error; \}/.test(worker));
 check('Worker exposes effective token cap', /\[AI_HEADERS\.maxTokens\]: String\(maxTokens\)/.test(worker)); // v59.87: header name from the shared contract
 check('operations status separates scheduled analysis and public chat', operations.ai?.scheduledAnalysis && operations.ai?.publicChat?.scheduledAnalysisDoesNotImplyChat === true);
 check('operations status separates five readiness fields', ['secretConfigured', 'workflowWired', 'lastCallSucceeded', 'dataCurrent', 'licensedForUse'].every(field => read('public-data/operations-status.json').includes(`"${field}"`)));

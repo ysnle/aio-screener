@@ -99,3 +99,7 @@ _artifacts/ui-states-*/**/*.png
 # `masters-store` branch as one force-pushed commit (scripts/masters-managers-store.mjs); main carries its manifest
 # public-data/masters/managers-store.json.
 public-data/masters/managers/
+
+# v60.39: producer state for the Telegram digest (lineage rows behind its count). It travels between refresh-data runs in
+# the Actions cache (refresh-data.yml "Restore/Save Telegram lineage state"); main no longer carries it.
+public-data/telegram-observed.json

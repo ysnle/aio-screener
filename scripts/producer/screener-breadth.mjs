@@ -8,7 +8,7 @@ import { evaluateSymbolSignals, BREADTH_SIGNAL_MODEL_VERSION } from '../../src/d
 import { round } from '../lib/producer-math.mjs';
 import { isSessionComplete, sessionSegmentOfSymbol } from '../../src/domain/screener/price-factors.js';
 import { REPO_ROOT, HIST } from './paths.mjs';
-import { normalizeHistoryRows } from './history.mjs';
+import { normalizeHistoryRows, keepCheckTimes } from './history.mjs';
 import { readHistoryRows, compactHistoryRows } from '../../src/domain/market/indices/history-rows.js';
 
 // Reconstruct daily breadth from the same dated adjusted-close rows used by
@@ -204,6 +204,7 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
   if (!Array.isArray(rows) || rows.length < 60) return { updated: false, rows: rows?.length || 0 };
   let history = [];
   try { history = readHistoryRows(JSON.parse(await readFile(HIST, 'utf8'))); } catch { /* first producer run */ } // v59.70 R2
+  const asRead = structuredClone(history); // v60.39: cells that do not change keep their check time (keepCheckTimes)
   const fetchedAt = new Date().toISOString();
   const fields = ['breadth20', 'breadth50', 'breadth200', 'advanceRatio', 'advanceDecline', 'breadth40', 'breadthUp4', 'breadthDown4', 'breadthNewHighs', 'breadthNewLows', 'breadthLow20', 'breadthLow63', 'breadth50Rising'];
   // P1416: each count is judged against its own eligible population.
@@ -321,6 +322,6 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
   }
   history.sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
   if (history.length > 420) history = history.slice(-420);
-  await atomicWriteFile(HIST, JSON.stringify(compactHistoryRows(normalizeHistoryRows(history)))); // v59.70 R2: history.v2
+  await atomicWriteFile(HIST, JSON.stringify(compactHistoryRows(normalizeHistoryRows(keepCheckTimes(asRead, history))))); // v59.70 R2: history.v2
   return { updated: true, rows: rows.length, totalHistoryRows: history.length, distributionRows, rallyRows };
 }

@@ -102,6 +102,22 @@ export function publish({ set: id, candidate = null, retry = '', branch = 'main'
     }
   }
 
+  // 2b. v60.39: a rewrite whose only change is a held (live-moving) part waits until the published file is `minutes`
+  // old, so those moves reach main once per window instead of on every run. Any other change publishes at once.
+  const nowMs = Date.parse(process.env.AIO_PUBLISH_NOW || '') || Date.now();
+  for (const [path, hold] of Object.entries(set.holdVolatile || {})) {
+    if (!stagedNames().includes(path)) continue;
+    const before = headJson(path);
+    let after;
+    try { after = JSON.parse(readFileSync(path, 'utf8')); } catch { continue; }
+    const ageMin = (nowMs - Date.parse(before?.[hold.clock] || '')) / 60000;
+    if (before !== undefined && ageMin >= 0 && ageMin < hold.minutes && JSON.stringify(hold.strip(before)) === JSON.stringify(hold.strip(after))) {
+      gitOut(['reset', '-q', '--', path]);
+      gitOut(['checkout', 'HEAD', '--', path]);
+      console.log(`${path}: only its held part changed and the published file is ${Math.round(ageMin)} min old (< ${hold.minutes}); kept the published bytes`);
+    }
+  }
+
   // 3. Nothing unparsable reaches main.
   for (const path of stagedNames()) {
     if (!path.endsWith('.json')) continue;
