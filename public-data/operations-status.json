@@ -23,7 +23,7 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-11-21T16:21:32.217Z",
+  "generatedAt": "2026-11-21T17:23:05.559Z",
   "appRevision": "v60.42",
   "dataRevision": "market-snapshot:2026-11-21T16:21:07.526Z:0bceb29c",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -75,7 +75,7 @@
     "screener-extended": {
       "availability": "DEGRADED",
       "asOf": "2026-11-18T03:28:27.794Z",
-      "missingReason": "extended-shard-85h-old",
+      "missingReason": "extended-shard-86h-old",
       "sources": [
         "durable"
       ]
@@ -189,9 +189,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-11-21T16:21:07.526Z",
-        "ageHours": 0.01,
+        "ageHours": 1.03,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-11-21T16:21:32.217Z",
+        "evaluatedAt": "2026-11-21T17:23:05.559Z",
         "reason": null
       },
       "readiness": {
@@ -214,11 +214,11 @@
         "revision": "fast-quotes:1d44e868",
         "sourceSha": "21775b1e8cf2c100d24860de96dafe1db0d5b17a",
         "observedAt": "2026-11-21T16:21:32.217Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-21T16:21:32.217Z"
+        "evidenceEvaluatedAt": "2026-11-21T17:23:05.559Z"
       },
       "soak": {
         "requiredDays": 0,
@@ -286,7 +286,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-21T16:21:32.217Z"
+        "evidenceEvaluatedAt": "2026-11-21T17:23:05.559Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
